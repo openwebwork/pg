@@ -99,7 +99,24 @@ BEGIN {
 
 my $debugON = 0;
 
-sub _dangerousMacros_init {
+# grab read only variables from the current safe compartment
+
+my ($macroDirectory,
+	$courseScriptsDirectory,
+	$templateDirectory,
+	$scriptDirectory,
+	$externalTTHPath,
+	);
+
+sub _dangerousMacros_init {   #FIXME  use local envir instead of local variables?
+	$macroDirectory           = eval('$main::macroDirectory') ;
+    $courseScriptsDirectory   = eval('$main::courseScriptsDirectory');
+    $templateDirectory        = eval('$main::templateDirectory');
+    $scriptDirectory          = eval('$main::scriptDirectory');
+    $externalTTHPath          = eval('$envir{externalTTHPath}');
+    warn "dangerousmacros initialized" if $debugON;
+    warn eval(q! "dangerousmacros.pl externalTTHPath is ".$main::externalTTHPath;!) if $debugON;
+    warn eval(q! "dangerousmacros.pl:  The envir variable $main::{envir} is".join(" ",%main::envir)!) if $debugON; 
 }
 
 sub _dangerousMacros_export {
@@ -167,11 +184,6 @@ they will not interfere with the normal behavior of B<WeBWorK> in other courses.
 # A kludge using require works around this problem
 
 
-my ($macroDirectory,
-	$courseScriptsDirectory,
-	$templateDirectory,
-	$scriptDirectory,
-	);
 
 sub loadMacros {
     my @files = @_;
@@ -182,15 +194,26 @@ sub loadMacros {
 	# the directories for this file
 	###############################################################################
 
-    $macroDirectory = eval('$main::macroDirectory') unless defined($macroDirectory);
-    $courseScriptsDirectory = eval('$main::courseScriptsDirectory') unless defined($courseScriptsDirectory);
-    $templateDirectory = eval('$main::courseScriptsDirectory') unless defined($templateDirectory);
-    $scriptDirectory = eval('$main::scriptDirectory') unless defined($scriptDirectory);
-    
-    unless (defined( eval('$main::externalTTHPath') and eval('$main::externalTTHPath') )){
+	# special case inits
+	foreach my $file ('PG.pl','dangerousMacros.pl','IO.pl') {
+	    my $macro_file_name = $file;
+		$macro_file_name =~s/\.pl//;  # trim off the extension
+		$macro_file_name =~s/\.pg//;  # sometimes the extension is .pg (e.g. CAPA files)
+		my $init_subroutine_name = "_${macro_file_name}_init";
+    	my $init_subroutine  = eval { \&{$init_subroutine_name} };
+		use strict;
+        my $macro_file_loaded = defined($init_subroutine);
+        warn "dangerousMacros: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|" if $debugON;
+ 		if ( defined( &{$init_subroutine} ) ) {
+
+		    warn "dangerousMacros:  initializing $macro_file_name" if $debugON;
+		    &$init_subroutine();
+		}
+	}
+    unless (defined( $externalTTHPath)){
     	warn "WARNING::Please make sure that the DOCUMENT() statement comes before<BR>\n" .
     	     " the loadMacros() statement in the problem template.<p>" .
-    	     " The externalTTHPath variable |$main::externalTTHPath| was\n".
+    	     " The externalTTHPath variable |$externalTTHPath| was\n".
     	     " not defined which usually indicates the problem above.<br>\n";
 
     }
@@ -251,7 +274,7 @@ sub loadMacros {
 		if ( defined( &{$init_subroutine} ) ) {
 
 		    warn "dangerousMacros:  initializing $macro_file_name" if $debugON;
-		    &$init_subroutine($main::displayMode);
+		    &$init_subroutine();
 		}
 		#warn "main:: contains <br>\n $macro_file_name ".join("<br>\n $macro_file_name ", %main::);
 
@@ -388,10 +411,10 @@ sub tth {
 
 	# read the contents of the tthPreamble.tex file, unless it has already been read
 	unless ( defined( $tthPreambleContents) ) {
-		$tthPreambleFile = "${main::templateDirectory}tthPreamble.tex" if ( -r "${main::templateDirectory}tthPreamble.tex" );
+		$tthPreambleFile = "${templateDirectory}tthPreamble.tex" if ( -r "${templateDirectory}tthPreamble.tex" );
 		if ( defined($tthPreambleFile) )   {
 			local(*TTHIN);
-			open (TTHIN, "${main::templateDirectory}tthPreamble.tex") || die "Can't open file ${main::templateDirectory}tthPreamble.tex";
+			open (TTHIN, "${templateDirectory}tthPreamble.tex") || die "Can't open file ${templateDirectory}tthPreamble.tex";
 			#my @tthPreambleArray = <TTHIN>;
 			local($/);
 			$/ = undef;
@@ -748,15 +771,16 @@ but will of course not be active.
 
 sub sourceAlias {
 	my $path_to_file = shift;
-	my $user = $main::inputs_ref->{user};
-	$user = " " unless defined($user);
-    my $out = "source.pl?probSetKey=$main::psvn".
-  			"&amp;probNum=$main::probNum" .
-   			"&amp;Mode=$main::displayMode" .
-   			"&amp;course=". $main::courseName .
-    		"&amp;user=" . $user .
-			"&amp;displayPath=$path_to_file" .
-	   		"&amp;key=". $main::sessionKey;
+	my $envir        =  PG_restricted_eval(q!$main::envir!);
+	my $user         = $envir->{inputs_ref}->{user};
+	$user            = " " unless defined($user);
+    my $out = 'source.pl?probSetKey='  . $envir->{psvn}.
+  			  '&amp;probNum='          . $envir->{probNum} .
+   			  '&amp;Mode='             . $envir->{displayMode} .
+   			  '&amp;course='           . $envir->{courseName} .
+    		  '&amp;user='             . $user .
+			  '&amp;displayPath='      . $path_to_file .
+	   		  '&amp;key='              . $envir->{sessionKey};
 
  	 $out;
 }
@@ -764,42 +788,42 @@ sub sourceAlias {
 
 sub alias {
 	# input is a path to the original auxiliary file
-  	#my $fileName = $main::fileName;
-	#my $htmlDirectory = $main::htmlDirectory;
-	#my $htmlURL = $main::htmlURL;
-	#my $tempDirectory = $main::tempDirectory;
-	#my $tempURL =  $main::tempURL;
-	#my $studentLogin =  $main::studentLogin;
-	#my $psvnNumber =  $main::psvnNumber;
-	#my $setNumber =  $main::setNumber;
-	#my $probNum =  $main::probNum;
-	#my $displayMode =  $main::displayMode;
-
+	my $envir               = eval(q!\%main::envir!);  # get the current root environment
+  	my $fileName            = $envir->{fileName};
+	my $htmlDirectory       = $envir->{htmlDirectory};
+	my $htmlURL             = $envir->{htmlURL};
+	my $tempDirectory       = $envir->{tempDirectory};
+	my $tempURL             = $envir->{tempURL};
+	my $studentLogin        = $envir->{studentLogin};
+	my $psvnNumber          = $envir->{psvnNumber};
+	my $setNumber           = $envir->{setNumber};
+	my $probNum             = $envir->{probNum};
+	my $displayMode         = $envir->{displayMode};
+    my $externalGif2EpsPath = $envir->{externalGif2EpsPath};
+    my $externalPng2EpsPath = $envir->{externalPng2EpsPath};
 
 	my $aux_file_path = shift @_;
 	warn "Empty string used as input into the function alias" unless $aux_file_path;
 
 	# problem specific data
-	warn "The path to the current problem file template is not defined." unless $main::fileName;
-	warn "The current studentLogin is not defined " unless $main::studentLogin;
-	warn "The current problem set number is not defined" if $main::setNumber eq ""; # allow for sets equal to 0
-	warn "The current problem number is not defined"  if $main::probNum eq "";
-	warn "The current problem set version number (psvn) is not defined" unless $main::psvnNumber;
-	warn "The displayMode is not defined" unless $main::displayMode;
+	warn "The path to the current problem file template is not defined."     unless $fileName;
+	warn "The current studentLogin is not defined "                          unless $studentLogin;
+	warn "The current problem set number is not defined"                     if $setNumber eq ""; # allow for sets equal to 0
+	warn "The current problem number is not defined"                         if $probNum eq "";
+	warn "The current problem set version number (psvn) is not defined"      unless $psvnNumber;
+	warn "The displayMode is not defined"                                    unless $displayMode;
 
 	# required macros
 	warn "The macro &surePathToTmpFile can't be found" unless defined(&surePathToTmpFile);
 	warn "The macro &convertPath can't be found" unless defined(&convertPath);
 	warn "The macro &directoryFromPath can't be found" unless defined(&directoryFromPath);
-	warn "Can't execute the gif2eps script at ${main::externalGif2EpsPath}" unless ( -x "${main::externalGif2EpsPath}" );
-	warn "Can't execute the png2eps script at ${main::externalPng2EpsPath}" unless ( -x "${main::externalPng2EpsPath}" );
+	warn "Can't execute the gif2eps script at ${externalGif2EpsPath}" unless ( -x "${externalGif2EpsPath}" );
+	warn "Can't execute the png2eps script at ${externalPng2EpsPath}" unless ( -x "${externalPng2EpsPath}" );
 
 	# required directory addresses (and URL address)
-	warn "htmlDirectory is not defined in $main::htmlDirectory" unless $main::htmlDirectory;
-	warn "htmlURL is not defined in \$main::htmlURL" unless $main::htmlURL;
-	warn "tempURL is not defined in \$main::tempURL" unless $main::tempURL;
-	#warn "The scripts directory is not defined in \$main::scriptDirectory" unless $main::scriptDirectory;
-		# with the creation of externalGif2EpsPath and externalPng2EpsPath, the scripts directory is no longer used
+	warn "htmlDirectory is not defined in $htmlDirectory" unless $htmlDirectory;
+	warn "htmlURL is not defined in \$htmlURL" unless $htmlURL;
+	warn "tempURL is not defined in \$tempURL" unless $tempURL;
 
 	# determine extension, if there is one
 	# if extension exists, strip and use the value for $ext
@@ -833,13 +857,13 @@ sub alias {
 
 		# No changes are made for auxiliary files in the
 		# ${Global::htmlDirectory} subtree.
-		if ( $aux_file_path =~ m|^$main::tempDirectory| ) {
+		if ( $aux_file_path =~ m|^$tempDirectory| ) {
 			$adr_output = $aux_file_path;
-			$adr_output =~ s|$main::tempDirectory|$main::tempURL/|;
+			$adr_output =~ s|$tempDirectory|$tempURL/|;
 			$adr_output .= ".$ext";
-		} elsif ($aux_file_path =~ m|^$main::htmlDirectory| ) {
+		} elsif ($aux_file_path =~ m|^$htmlDirectory| ) {
 			$adr_output = $aux_file_path;
-			$adr_output =~ s|$main::htmlDirectory|$main::htmlURL|;
+			$adr_output =~ s|$htmlDirectory|$htmlURL|;
 			$adr_output .= ".$ext";
 		} else {
 			# HTML files not in the htmlDirectory are assumed under live under the
@@ -851,11 +875,11 @@ sub alias {
 
 			# $fileName is obtained from environment for PGeval
 			# it gives the  full path to the current problem
-			my $filePath = directoryFromPath($main::fileName);
-			my $htmlFileSource = convertPath("$main::templateDirectory${filePath}$aux_file_path.html");
-			my $link = "html/$main::studentLogin-$main::psvnNumber-set$main::setNumber-prob$main::probNum-$aux_file_path.$ext";
+			my $filePath = directoryFromPath($fileName);
+			my $htmlFileSource = convertPath("$templateDirectory${filePath}$aux_file_path.html");
+			my $link = "html/$studentLogin-$psvnNumber-set$setNumber-prob$probNum-$aux_file_path.$ext";
 			my $linkPath = surePathToTmpFile($link);
-			$adr_output = "${main::tempURL}$link";
+			$adr_output = "${tempURL}$link";
 			if (-e $htmlFileSource) {
 				if (-e $linkPath) {
 					unlink($linkPath) || warn "Unable to unlink alias file at |$linkPath|";
@@ -868,27 +892,27 @@ sub alias {
 			}
 		}
 	} elsif ($ext eq 'gif') {
-		if ( $main::displayMode eq 'HTML' ||
-		     $main::displayMode eq 'HTML_tth'||
-		     $main::displayMode eq 'HTML_dpng'||
-		     $main::displayMode eq 'HTML_img'||
-		     $main::displayMode eq 'Latex2HTML')  {
+		if ( $displayMode eq 'HTML' ||
+		     $displayMode eq 'HTML_tth'||
+		     $displayMode eq 'HTML_dpng'||
+		     $displayMode eq 'HTML_img'||
+		     $displayMode eq 'Latex2HTML')  {
 			################################################################################
 			# .gif FILES in HTML, HTML_tth, HTML_dpng, HTML_img, and Latex2HTML modes
 			################################################################################
 
-			#warn "tempDirectory is $main::tempDirectory";
+			#warn "tempDirectory is $tempDirectory";
 			#warn "file Path for auxiliary file is $aux_file_path";
 
 			# No changes are made for auxiliary files in the htmlDirectory or in the tempDirectory subtree.
-			if ( $aux_file_path =~ m|^$main::tempDirectory| ) {
+			if ( $aux_file_path =~ m|^$tempDirectory| ) {
 				$adr_output = $aux_file_path;
-				$adr_output =~ s|$main::tempDirectory|$main::tempURL|;
+				$adr_output =~ s|$tempDirectory|$tempURL|;
 				$adr_output .= ".$ext";
 				#warn "adress out is $adr_output";
-			} elsif ($aux_file_path =~ m|^$main::htmlDirectory| ) {
+			} elsif ($aux_file_path =~ m|^$htmlDirectory| ) {
 				$adr_output = $aux_file_path;
-				$adr_output =~ s|$main::htmlDirectory|$main::htmlURL|;
+				$adr_output =~ s|$htmlDirectory|$htmlURL|;
 				$adr_output .= ".$ext";
 			} else {
 				# files not in the htmlDirectory sub tree are assumed to live under the templateDirectory
@@ -897,16 +921,16 @@ sub alias {
 				# For a gif file the alias macro creates an alias under the html/images directory
 				# which points to the gif file in the problem directory.
 				# All of the subdirectories of html/tmp/gif which are needed are also created.
-				my $filePath = directoryFromPath($main::fileName);
+				my $filePath = directoryFromPath($fileName);
 
 				# $fileName is obtained from environment for PGeval
 				# it gives the full path to the current problem
-				my $gifSourceFile = convertPath("$main::templateDirectory${filePath}$aux_file_path.gif");
-				#my $link = "gif/$main::studentLogin-$main::psvnNumber-set$main::setNumber-prob$main::probNum-$aux_file_path.$ext";
-				my $link = "gif/$main::setNumber-prob$main::probNum-$aux_file_path.$ext";
+				my $gifSourceFile = convertPath("$templateDirectory${filePath}$aux_file_path.gif");
+				#my $link = "gif/$studentLogin-$psvnNumber-set$setNumber-prob$probNum-$aux_file_path.$ext";
+				my $link = "gif/$setNumber-prob$probNum-$aux_file_path.$ext";
 
 				my $linkPath = surePathToTmpFile($link);
-				$adr_output = "${main::tempURL}$link";
+				$adr_output = "${tempURL}$link";
 				#warn "linkPath is $linkPath";
 				#warn "adr_output is $adr_output";
 				if (-e $gifSourceFile) {
@@ -919,7 +943,7 @@ sub alias {
 					warn("The macro alias cannot find a GIF file at: |$gifSourceFile|");
 				}
 			}
-		} elsif ($main::displayMode eq 'TeX') {
+		} elsif ($displayMode eq 'TeX') {
 			################################################################################
 			# .gif FILES in TeX mode
 			################################################################################
@@ -930,18 +954,18 @@ sub alias {
 
 				my $gifFilePath;
 
-				if ($aux_file_path =~ m/^$main::htmlDirectory/ or $aux_file_path =~ m/^$main::tempDirectory/) {
+				if ($aux_file_path =~ m/^$htmlDirectory/ or $aux_file_path =~ m/^$tempDirectory/) {
 					# we've got a full pathname to a file
 					$gifFilePath = "$aux_file_path.gif";
 				} else {
 					# we assume the file is in the same directory as the problem source file
-					$gifFilePath = $main::templateDirectory . directoryFromPath($main::fileName) . "$aux_file_path.gif";
+					$gifFilePath = $templateDirectory . directoryFromPath($fileName) . "$aux_file_path.gif";
 				}
 
 				my $gifFileName = fileFromPath($gifFilePath);
 
 				$gifFileName =~ /^(.*)\.gif$/;
-				my $pngFilePath = surePathToTmpFile("$main::tempDirectory/png/$1.png");
+				my $pngFilePath = surePathToTmpFile("$tempDirectory/png/$1.png");
 				my $returnCode = system "$envir{externalGif2PngPath} $gifFilePath $pngFilePath";
 
 				if ($returnCode or not -e $pngFilePath) {
@@ -959,66 +983,66 @@ sub alias {
 				# "cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmtops -noturn > $adr_output"
 				# "cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn > $adr_output"
 				################################################################################
-				if ($aux_file_path =~  m|^$main::htmlDirectory|  or $aux_file_path =~  m|^$main::tempDirectory|)  {
+				if ($aux_file_path =~  m|^$htmlDirectory|  or $aux_file_path =~  m|^$tempDirectory|)  {
 					# To serve an eps file copy an eps version of the gif file to the subdirectory of eps/
-					my $linkPath = directoryFromPath($main::fileName);
+					my $linkPath = directoryFromPath($fileName);
 
 					my $gifSourceFile = "$aux_file_path.gif";
 					my $gifFileName = fileFromPath($gifSourceFile);
-					$adr_output = surePathToTmpFile("$main::tempDirectory/eps/$main::studentLogin-$main::psvnNumber-$gifFileName.eps") ;
+					$adr_output = surePathToTmpFile("$tempDirectory/eps/$studentLogin-$psvnNumber-$gifFileName.eps") ;
 
 					if (-e $gifSourceFile) {
 						#system("cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output")
-						system("${main::externalGif2EpsPath} $gifSourceFile $adr_output" )
-							&& die "Unable to create eps file:\n |$adr_output| from file\n |$gifSourceFile|\n in problem $main::probNum " .
-							       "using the system dependent script\n |${main::externalGif2EpsPath}| \n";
+						system("${externalGif2EpsPath} $gifSourceFile $adr_output" )
+							&& die "Unable to create eps file:\n |$adr_output| from file\n |$gifSourceFile|\n in problem $probNum " .
+							       "using the system dependent script\n |${externalGif2EpsPath}| \n";
 					} else {
-						die "|$gifSourceFile| cannot be found.  Problem number: |$main::probNum|";
+						die "|$gifSourceFile| cannot be found.  Problem number: |$probNum|";
 					}
 				} else {
 					# To serve an eps file copy an eps version of the gif file to  a subdirectory of eps/
-					my $filePath = directoryFromPath($main::fileName);
-					my $gifSourceFile = "${main::templateDirectory}${filePath}$aux_file_path.gif";
+					my $filePath = directoryFromPath($fileName);
+					my $gifSourceFile = "${templateDirectory}${filePath}$aux_file_path.gif";
 					#print "content-type: text/plain \n\nfileName = $fileName and aux_file_path =$aux_file_path<BR>";
-					$adr_output = surePathToTmpFile("eps/$main::studentLogin-$main::psvnNumber-set$main::setNumber-prob$main::probNum-$aux_file_path.eps");
+					$adr_output = surePathToTmpFile("eps/$studentLogin-$psvnNumber-set$setNumber-prob$probNum-$aux_file_path.eps");
 
 					if (-e $gifSourceFile) {
 						#system("cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output") &&
-						#warn "Unable to create eps file: |$adr_output|\n from file\n |$gifSourceFile|\n in problem $main::probNum";
-						#warn "Help ${main::externalGif2EpsPath}" unless -x "${main::externalGif2EpsPath}";
-						system("${main::externalGif2EpsPath} $gifSourceFile $adr_output" )
-							&& die "Unable to create eps file:\n |$adr_output| from file\n |$gifSourceFile|\n in problem $main::probNum " .
-							       "using the system dependent script\n |${main::externalGif2EpsPath}| \n ";
+						#warn "Unable to create eps file: |$adr_output|\n from file\n |$gifSourceFile|\n in problem $probNum";
+						#warn "Help ${:externalGif2EpsPath}" unless -x "${main::externalGif2EpsPath}";
+						system("${externalGif2EpsPath} $gifSourceFile $adr_output" )
+							&& die "Unable to create eps file:\n |$adr_output| from file\n |$gifSourceFile|\n in problem $probNum " .
+							       "using the system dependent script\n |${externalGif2EpsPath}| \n ";
 					}  else {
-						die "|$gifSourceFile| cannot be found.  Problem number: |$main::probNum|";
+						die "|$gifSourceFile| cannot be found.  Problem number: |$probNum|";
 					}
 				}
 			}
 		} else {
-			wwerror("Error in alias: dangerousMacros.pl","unrecognizable displayMode = $main::displayMode","");
+			wwerror("Error in alias: dangerousMacros.pl","unrecognizable displayMode = $displayMode","");
 		}
 	} elsif ($ext eq 'png') {
-		if ( $main::displayMode eq 'HTML' ||
-		     $main::displayMode eq 'HTML_tth'||
-		     $main::displayMode eq 'HTML_dpng'||
-		     $main::displayMode eq 'HTML_img'||
-		     $main::displayMode eq 'Latex2HTML')  {
+		if ( $displayMode eq 'HTML' ||
+		     $displayMode eq 'HTML_tth'||
+		     $displayMode eq 'HTML_dpng'||
+		     $displayMode eq 'HTML_img'||
+		     $displayMode eq 'Latex2HTML')  {
 			################################################################################
 			# .png FILES in HTML, HTML_tth, HTML_dpng, HTML_img, and Latex2HTML modes
 			################################################################################
 
-			#warn "tempDirectory is $main::tempDirectory";
+			#warn "tempDirectory is $tempDirectory";
 			#warn "file Path for auxiliary file is $aux_file_path";
 
 			# No changes are made for auxiliary files in the htmlDirectory or in the tempDirectory subtree.
-			if ( $aux_file_path =~ m|^$main::tempDirectory| ) {
+			if ( $aux_file_path =~ m|^$tempDirectory| ) {
 			$adr_output = $aux_file_path;
-				$adr_output =~ s|$main::tempDirectory|$main::tempURL|;
+				$adr_output =~ s|$tempDirectory|$tempURL|;
 				$adr_output .= ".$ext";
 				#warn "adress out is $adr_output";
-			} elsif ($aux_file_path =~ m|^$main::htmlDirectory| ) {
+			} elsif ($aux_file_path =~ m|^$htmlDirectory| ) {
 				$adr_output = $aux_file_path;
-				$adr_output =~ s|$main::htmlDirectory|$main::htmlURL|;
+				$adr_output =~ s|$htmlDirectory|$htmlURL|;
 				$adr_output .= ".$ext";
 			} else {
 				# files not in the htmlDirectory sub tree are assumed to live under the templateDirectory
@@ -1027,14 +1051,14 @@ sub alias {
 				# For a png file the alias macro creates an alias under the html/images directory
 				# which points to the png file in the problem directory.
 				# All of the subdirectories of html/tmp/gif which are needed are also created.
-				my $filePath = directoryFromPath($main::fileName);
+				my $filePath = directoryFromPath($fileName);
 
 				# $fileName is obtained from environment for PGeval
 				# it gives the full path to the current problem
-				my $pngSourceFile = convertPath("$main::templateDirectory${filePath}$aux_file_path.png");
-				my $link = "gif/$main::studentLogin-$main::psvnNumber-set$main::setNumber-prob$main::probNum-$aux_file_path.$ext";
+				my $pngSourceFile = convertPath("$templateDirectory${filePath}$aux_file_path.png");
+				my $link = "gif/$studentLogin-$psvnNumber-set$setNumber-prob$probNum-$aux_file_path.$ext";
 				my $linkPath = surePathToTmpFile($link);
-				$adr_output = "${main::tempURL}$link";
+				$adr_output = "${tempURL}$link";
 				#warn "linkPath is $linkPath";
 				#warn "adr_output is $adr_output";
 				if (-e $pngSourceFile) {
@@ -1047,7 +1071,7 @@ sub alias {
 					warn("The macro alias cannot find a PNG file at: |$pngSourceFile|");
 				}
 			}
-		} elsif ($main::displayMode eq 'TeX') {
+		} elsif ($displayMode eq 'TeX') {
 			################################################################################
 			# .png FILES in TeX mode
 			################################################################################
@@ -1058,12 +1082,12 @@ sub alias {
 
 				my $pngFilePath;
 
-				if ($aux_file_path =~ m/^$main::htmlDirectory/ or $aux_file_path =~ m/^$main::tempDirectory/) {
+				if ($aux_file_path =~ m/^$htmlDirectory/ or $aux_file_path =~ m/^$tempDirectory/) {
 					# we've got a full pathname to a file
 					$pngFilePath = "$aux_file_path.png";
 				} else {
 					# we assume the file is in the same directory as the problem source file
-					$pngFilePath = $main::templateDirectory . directoryFromPath($main::fileName) . "$aux_file_path.png";
+					$pngFilePath = $templateDirectory . directoryFromPath($fileName) . "$aux_file_path.png";
 				}
 
 				$adr_output = $pngFilePath;
@@ -1078,49 +1102,49 @@ sub alias {
 				# "cat $pngSourceFile  | /usr/math/bin/pngtopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn > $adr_output"
 				################################################################################
 
-				if ($aux_file_path =~  m|^$main::htmlDirectory|  or $aux_file_path =~  m|^$main::tempDirectory|)  {
+				if ($aux_file_path =~  m|^$htmlDirectory|  or $aux_file_path =~  m|^$tempDirectory|)  {
 					# To serve an eps file copy an eps version of the png file to the subdirectory of eps/
-					my $linkPath = directoryFromPath($main::fileName);
+					my $linkPath = directoryFromPath($fileName);
 
 					my $pngSourceFile = "$aux_file_path.png";
 					my $pngFileName = fileFromPath($pngSourceFile);
-					$adr_output = surePathToTmpFile("$main::tempDirectory/eps/$main::studentLogin-$main::psvnNumber-$pngFileName.eps") ;
+					$adr_output = surePathToTmpFile("$tempDirectory/eps/$studentLogin-$psvnNumber-$pngFileName.eps") ;
 
 					if (-e $pngSourceFile) {
 						#system("cat $pngSourceFile  | /usr/math/bin/pngtopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output")
-						system("${main::externalPng2EpsPath} $pngSourceFile $adr_output" )
-							&& die "Unable to create eps file:\n |$adr_output| from file\n |$pngSourceFile|\n in problem $main::probNum " .
-							       "using the system dependent script\n |${main::externalPng2EpsPath}| \n";
+						system("${externalPng2EpsPath} $pngSourceFile $adr_output" )
+							&& die "Unable to create eps file:\n |$adr_output| from file\n |$pngSourceFile|\n in problem $probNum " .
+							       "using the system dependent script\n |${externalPng2EpsPath}| \n";
 					} else {
-						die "|$pngSourceFile| cannot be found.  Problem number: |$main::probNum|";
+						die "|$pngSourceFile| cannot be found.  Problem number: |$probNum|";
 					}
 				} else {
 					# To serve an eps file copy an eps version of the png file to  a subdirectory of eps/
-					my $filePath = directoryFromPath($main::fileName);
-					my $pngSourceFile = "${main::templateDirectory}${filePath}$aux_file_path.png";
+					my $filePath = directoryFromPath($fileName);
+					my $pngSourceFile = "${templateDirectory}${filePath}$aux_file_path.png";
 					#print "content-type: text/plain \n\nfileName = $fileName and aux_file_path =$aux_file_path<BR>";
-					$adr_output = surePathToTmpFile("eps/$main::studentLogin-$main::psvnNumber-set$main::setNumber-prob$main::probNum-$aux_file_path.eps") ;
+					$adr_output = surePathToTmpFile("eps/$studentLogin-$psvnNumber-set$setNumber-prob$probNum-$aux_file_path.eps") ;
 					if (-e $pngSourceFile) {
 						#system("cat $pngSourceFile  | /usr/math/bin/pngtopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output") &&
-						#warn "Unable to create eps file: |$adr_output|\n from file\n |$pngSourceFile|\n in problem $main::probNum";
-						#warn "Help ${main::externalPng2EpsPath}" unless -x "${main::externalPng2EpsPath}";
-						system("${main::externalPng2EpsPath} $pngSourceFile $adr_output" )
-							&& die "Unable to create eps file:\n |$adr_output| from file\n |$pngSourceFile|\n in problem $main::probNum " .
-							       "using the system dependent script\n |${main::externalPng2EpsPath}| \n ";
+						#warn "Unable to create eps file: |$adr_output|\n from file\n |$pngSourceFile|\n in problem $probNum";
+						#warn "Help ${externalPng2EpsPath}" unless -x "${externalPng2EpsPath}";
+						system("${externalPng2EpsPath} $pngSourceFile $adr_output" )
+							&& die "Unable to create eps file:\n |$adr_output| from file\n |$pngSourceFile|\n in problem $probNum " .
+							       "using the system dependent script\n |${externalPng2EpsPath}| \n ";
 					} else {
-						die "|$pngSourceFile| cannot be found.  Problem number: |$main::probNum|";
+						die "|$pngSourceFile| cannot be found.  Problem number: |$probNum|";
 					}
 				}
 			}
 		} else {
-			wwerror("Error in alias: dangerousMacros.pl","unrecognizable displayMode = $main::displayMode","");
+			warn  "Error in alias: dangerousMacros.pl","unrecognizable displayMode = $displayMode","";
 		}
 	} else { # $ext is not recognized
 		################################################################################
 		# FILES  with unrecognized file extensions in any display modes
 		################################################################################
 
-		warn "Error in the macro alias. Alias does not understand how to process files with extension $ext.  (Path ot problem file is  $main::fileName) ";
+		warn "Error in the macro alias. Alias does not understand how to process files with extension $ext.  (Path ot problem file is  $fileName) ";
 	}
 
 	warn "The macro alias was unable to form a URL for some auxiliary file used in this problem." unless $adr_output;

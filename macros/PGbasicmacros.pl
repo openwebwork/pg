@@ -21,7 +21,7 @@
 
 # this is equivalent to use strict, but can be used within the Safe compartment.
 BEGIN{
-	main::be_strict;
+	be_strict;
 }
 
 
@@ -65,6 +65,7 @@ my ($PAR,
 	@ALPHABET,
 	$envir,
 	$PG_random_generator,
+	$inputs_ref,
 	);
 
 sub _PGbasicmacros_init {
@@ -82,14 +83,14 @@ sub _PGbasicmacros_init {
 # This is initializes the remaining variables in the runtime main:: compartment.
   
 main::PG_restricted_eval( <<'EndOfFile');
-    $displayMode            = $main::displayMode;
+    $displayMode            = $displayMode;
 
-	$main::PAR				= PAR();
-	$main::BR				= BR();
+	$PAR				= PAR();
+	$BR				= BR();
 	$main::LQ				= LQ();
 	$main::RQ				= RQ();
-	$main::BM				= BM();
-	$main::EM				= EM();
+	$BM				= BM();
+	$EM				= EM();
 	$main::BDM				= BDM();
 	$main::EDM				= EDM();
 	$main::LTS				= LTS();
@@ -103,8 +104,8 @@ main::PG_restricted_eval( <<'EndOfFile');
 	$main::HINT				= HINT_HEADING();
 	$main::US				= US();
 	$main::SPACE			= SPACE();
-	$main::BBOLD			= BBOLD();
-	$main::EBOLD			= EBOLD();
+	$BBOLD			= BBOLD();
+	$EBOLD			= EBOLD();
 	$main::BITALIC			= BITALIC();
 	$main::EITALIC          = EITALIC();
 	$main::BCENTER          = BCENTER();
@@ -129,12 +130,12 @@ EndOfFile
 # This can't be done inside the eval above because my variables seem to be invisible inside the eval
 
 
-   	$PAR				= $main::PAR;
-	$BR				    = $main::BR;
+   	$PAR				= $PAR;
+	$BR				    = $BR;
 	$LQ				    = $main::LQ;
 	$RQ				    = $main::RQ;
-	$BM				    = $main::BM;
-	$EM				    = $main::EM;
+	$BM				    = $BM;
+	$EM				    = $EM;
 	$BDM				= $main::BDM;
 	$EDM				= $main::EDM;
 	$LTS				= $main::LTS;
@@ -148,8 +149,8 @@ EndOfFile
 	$HINT				= $main::HINT_HEADING;
 	$US				    = $main::US;
 	$SPACE			    = $main::SPACE;
-	$BBOLD			    = $main::BBOLD;
-	$EBOLD			    = $main::EBOLD;
+	$BBOLD			    = $BBOLD;
+	$EBOLD			    = $EBOLD;
 	$HR				    = $main::HR;
 	$LBRACE			    = $main::LBRACE;
 	$RBRACE			    = $main::RBRACE;
@@ -167,6 +168,7 @@ EndOfFile
 
    $envir               = PG_restricted_eval(q!\%main::envir!);
    $PG_random_generator = PG_restricted_eval(q!$main::PG_random_generator!);
+   $inputs_ref          = $envir{inputs_ref};
   
 }
 
@@ -251,6 +253,8 @@ These are legacy macros:
 
 =cut
 
+
+
 sub labeled_ans_rule {   # syntactic sugar for NAMED_ANS_RULE
 	my($name,$col) = @_;
 	$col = 20 unless defined($col);
@@ -261,16 +265,20 @@ sub NAMED_ANS_RULE {
 	my($name,$col) = @_;
 	my $len = 0.07*$col;
 	my $answer_value = '';
-	$answer_value = ${$main::inputs_ref}{$name} if    defined(${$main::inputs_ref}{$name});
+	$answer_value = ${$inputs_ref}{$name} if    defined(${$inputs_ref}{$name});
     if ($answer_value =~ /\0/ ) {
     	my @answers = split("\0", $answer_value);
     	$answer_value = shift(@answers);  # use up the first answer
-    	$main::rh_sticky_answers{$name}=\@answers;  # store the rest
+    	PG_restricted_eval(q!$main::rh_sticky_answers{$name}=\@answers;!);  
+    	# store the rest -- beacuse this stores to a main:; variable 
+    	# it must be evaluated at run time  
     	$answer_value= '' unless defined($answer_value);
 	} elsif (ref($answer_value) eq 'ARRAY') {
 		my @answers = @{ $answer_value};
     	$answer_value = shift(@answers);  # use up the first answer
-    	$main::rh_sticky_answers{$name}=\@answers;  # store the rest
+    	PG_restricted_eval(q!$main::rh_sticky_answers{$name}=\@answers;!);  
+    	# store the rest -- beacuse this stores to a main:; variable 
+    	# it must be evaluated at run time 
     	$answer_value= '' unless defined($answer_value);
 	}
 
@@ -291,9 +299,9 @@ sub NAMED_ANS_RULE_EXTENSION {
 	my($name,$col) = @_;
 	my $len = 0.07*$col;
 	my $answer_value = '';
-	$answer_value = ${$main::inputs_ref}{$name} if defined(${$main::inputs_ref}{$name});
-	if ( defined($main::rh_sticky_answers{$name}) ) {
-		$answer_value = shift( @{$main::rh_sticky_answers{$name}});
+	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
+	if ( defined(PG_restricted_eval(q!$main::rh_sticky_answers{$name}!)) ) {
+		$answer_value = shift( @{PG_restricted_eval(q!$main::rh_sticky_answers{$name}!)});
 		$answer_value = '' unless defined($answer_value);
 	}
 	$answer_value =~ tr/$@//d;   ## make sure student answers can not be interpolated by e.g. EV3
@@ -319,7 +327,7 @@ sub  NAMED_ANS_BOX {
 	my $len = 0.07*$col;
 	my $height = .07*$row;
 	my $answer_value = '';
-	$answer_value = $main::inputs_ref->{$name} if defined( $main::inputs_ref->{$name} );
+	$answer_value = $inputs_ref->{$name} if defined( $inputs_ref->{$name} );
 	$answer_value =~ tr/$@//d;   ## make sure student answers can not be interpolated by e.g. EV3
 	my $out = M3(
 	     qq!\\vskip $height in \\hrulefill\\quad !,
@@ -347,8 +355,8 @@ sub NAMED_ANS_RADIO {
     	$value =~ s/^\%//;
     	$checked = 'CHECKED'
     }
-	if (defined($main::inputs_ref->{$name}) ) {
-		if ($main::inputs_ref->{$name} eq $value) {
+	if (defined($inputs_ref->{$name}) ) {
+		if ($inputs_ref->{$name} eq $value) {
 			$checked = 'CHECKED'
 		} else {
 			$checked = '';
@@ -379,8 +387,8 @@ sub NAMED_ANS_RADIO_EXTENSION {
     	$value =~ s/^\%//;
     	$checked = 'CHECKED'
     }
-	if (defined($main::inputs_ref->{$name}) ) {
-		if ($main::inputs_ref->{$name} eq $value) {
+	if (defined($inputs_ref->{$name}) ) {
+		if ($inputs_ref->{$name} eq $value) {
 			$checked = 'CHECKED'
 		} else {
 			$checked = '';
@@ -456,8 +464,8 @@ sub NAMED_ANS_CHECKBOX {
     	$checked = 'CHECKED'
     }
 
-	if (defined($main::inputs_ref->{$name}) ) {
-		if ($main::inputs_ref->{$name} eq $value) {
+	if (defined($inputs_ref->{$name}) ) {
+		if ($inputs_ref->{$name} eq $value) {
 			$checked = 'CHECKED'
 		}
 		else {
@@ -485,8 +493,8 @@ sub NAMED_ANS_CHECKBOX_OPTION {
     	$checked = 'CHECKED'
     }
 
-	if (defined($main::inputs_ref->{$name}) ) {
-		if ($main::inputs_ref->{$name} eq $value) {
+	if (defined($inputs_ref->{$name}) ) {
+		if ($inputs_ref->{$name} eq $value) {
 			$checked = 'CHECKED'
 		}
 		else {
@@ -558,17 +566,17 @@ sub ANS_CHECKBOX_BUTTONS {
 sub ans_rule {
 	my $len = shift;     # gives the optional length of the answer blank
 	$len    = 20 unless $len ;
-	my $name = NEW_ANS_NAME(++$main::ans_rule_count);
+	my $name = NEW_ANS_NAME(inc_ans_rule_count());
 	NAMED_ANS_RULE($name ,$len);
 }
 sub ans_rule_extension {
 	my $len = shift;
     $len    = 20 unless $len ;
-	my $name = NEW_ANS_NAME($main::ans_rule_count);  # don't update the answer name
+	my $name = NEW_ANS_NAME(PG_restricted_eval(q!$main::ans_rule_count!));  # don't update the answer name
 	NAMED_ANS_RULE($name ,$len);
 }
 sub ans_radio_buttons {
-	my $name  = NEW_ANS_NAME(++$main::ans_rule_count);
+	my $name  = NEW_ANS_NAME(inc_ans_rule_count());
 	my @radio_buttons = NAMED_ANS_RADIO_BUTTONS($name, @_);
 
 	if ($displayMode eq 'TeX') {
@@ -581,7 +589,7 @@ sub ans_radio_buttons {
 
 #added 6/14/2000 by David Etlinger
 sub ans_checkbox {
-	my $name = NEW_ANS_NAME( ++$main::ans_rule_count );
+	my $name = NEW_ANS_NAME( inc_ans_rule_count() );
 	my @checkboxes = NAMED_ANS_CHECKBOX_BUTTONS( $name, @_ );
 
 	if ($displayMode eq 'TeX') {
@@ -600,7 +608,7 @@ sub ans_checkbox {
 sub tex_ans_rule {
 	my $len = shift;
 	$len    = 20 unless $len ;
-    my $name = NEW_ANS_NAME(++$main::ans_rule_count);
+    my $name = NEW_ANS_NAME(inc_ans_rule_count());
     my $answer_rule = NAMED_ANS_RULE($name ,$len);  # we don't want to create three answer rules in different modes.
     my $out = MODES(
                      'TeX' => $answer_rule,
@@ -615,7 +623,7 @@ sub tex_ans_rule {
 sub tex_ans_rule_extension {
 	my $len = shift;
 	$len    = 20 unless $len ;
-    my $name = NEW_ANS_NAME($main::ans_rule_count);
+    my $name = NEW_ANS_NAME(PG_restricted_eval(q!$main::ans_rule_count!));
     my $answer_rule = NAMED_ANS_RULE($name ,$len);  # we don't want to create three answer rules in different modes.
     my $out = MODES(
                      'TeX' => $answer_rule,
@@ -663,7 +671,7 @@ sub ans_box {
 	my $col =shift;
 	$row = 5 unless $row;
 	$col = 80 unless $col;
-	my $name = NEW_ANS_NAME(++$main::ans_rule_count);
+	my $name = NEW_ANS_NAME(inc_ans_rule_count());
 	NAMED_ANS_BOX($name ,$row,$col);
 }
 
@@ -679,7 +687,7 @@ sub NAMED_POP_UP_LIST {
 	my @list = @_;
 	$name = RECORD_ANS_NAME($name);   # record answer name
 		my $answer_value = '';
-	$answer_value = ${$main::inputs_ref}{$name} if defined(${$main::inputs_ref}{$name});
+	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
 	my $out = "";
 	if ($displayMode eq 'HTML' or $displayMode eq 'HTML_tth' or
             $displayMode eq 'HTML_dpng' or $displayMode eq 'HTML_img') {
@@ -706,7 +714,7 @@ sub NAMED_POP_UP_LIST {
 
 sub pop_up_list {
 	my @list = @_;
-	my $name = NEW_ANS_NAME(++$main::ans_rule_count);  # get new answer name
+	my $name = NEW_ANS_NAME(inc_ans_rule_count());  # get new answer name
 	NAMED_POP_UP_LIST($name, @list);
 }
 
@@ -761,7 +769,7 @@ sub NAMED_ANS_ARRAY_EXTENSION{
 	$col = 20 unless $col;
 	my $answer_value = '';
 	
-	$answer_value = ${$main::inputs_ref}{$name} if    defined(${$main::inputs_ref}{$name});
+	$answer_value = ${$inputs_ref}{$name} if    defined(${$inputs_ref}{$name});
 	if ($answer_value =~ /\0/ ) {
 		my @answers = split("\0", $answer_value);
 		$answer_value = shift(@answers); 
@@ -785,7 +793,7 @@ sub ans_array{
 	my $n = shift;
 	my $col = shift;
 	$col = 20 unless $col;
-	my $num = ++$main::ans_rule_count ;
+	my $num = inc_ans_rule_count() ;
 	my $name = NEW_ANS_ARRAY_NAME($num,0,0);
 	my @options = @_;
 	my @array=();
@@ -821,7 +829,7 @@ sub ans_array_extension{
 	my $n = shift;
 	my $col = shift;
 	$col = 20 unless $col;
-	my $num = $main::ans_rule_count;
+	my $num = PG_restricted_eval(q!$main::ans_rule_count!);
 	my @options = @_;
 	my $name;
 	my @array=();
@@ -881,8 +889,8 @@ $main::envir{'displayHintsQ'} is set to 1 when a hint is to be displayed.
 sub solution {
 	my @in = @_;
 	my $out = '';
-	$main::solutionExists =1;
-	if ($main::envir{'displaySolutionsQ'}) {$out = join(' ',@in);}
+	PG_restricted_eval(q!$main::solutionExists =1!);
+	if (PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!)) {$out = join(' ',@in);}
     $out;
 }
 
@@ -897,12 +905,14 @@ sub hint {
    	my @in = @_;
 	my $out = '';
 
-	$main::hintExists =1;
-    $main::numOfAttempts = 0 unless defined($main::numOfAttempts);
+	PG_restricted_eval(q!$main::hintExists =1;
+                         $main::numOfAttempts = 0 unless defined($main::numOfAttempts);
+    !);
 
-	if ($main::displayMode eq 'TeX')   {
+	if ($displayMode eq 'TeX')   {
 		$out = '';  # do nothing since hints are not available for download
-	} elsif (($main::envir{'displayHintsQ'}) and ($main::numOfAttempts >= $main::showHint))
+	} elsif (($envir->{'displayHintsQ'}) and 
+	        PG_restricted_eval(q!($main::numOfAttempts >= $main::showHint)!))
 
 	 ## the second test above prevents a hint being shown if a doctored form is submitted
 
@@ -913,7 +923,7 @@ sub hint {
 
 
 sub HINT {
-    TEXT("$main::BR" . hint(@_) . "$main::BR") if hint(@_);
+    TEXT("$BR" . hint(@_) . "$BR") if hint(@_);
 }
 
 
@@ -947,7 +957,7 @@ This is probably what is desired.
 
 sub random  {
 	my ($begin, $end, $incr) = @_;
-	$main::PG_random_generator->random($begin,$end,$incr);
+	$PG_random_generator->random($begin,$end,$incr);
 }
 
 
@@ -1297,7 +1307,7 @@ sub ev_substring {
 				$eval_out = "$start_delim $eval_out $end_delim" if $PG_full_error_report;
 				$out = $out . $eval_out;
 		   #print "$start_delim $end_delim new substring_out=$out<BR><p><BR>";
-				$out .="$main::PAR ERROR $0 in ev_substring, PGbasicmacros.pl:$main::PAR <PRE>  $@ </PRE>$main::PAR" if $@;
+				$out .="$PAR ERROR $0 in ev_substring, PGbasicmacros.pl:$PAR <PRE>  $@ </PRE>$PAR" if $@;
 				}
 			else {
 				$out .= $string;  # flush the last part of the string
@@ -1319,16 +1329,16 @@ sub  old_safe_ev {
   	# the addition of the ; seems to provide better error reporting
   	if ($PG_eval_errors) {
   	 	my @errorLines = split("\n",$PG_eval_errors);
- 		#$out = "<PRE>$main::PAR % ERROR in $0:old_safe_ev, PGbasicmacros.pl: $main::PAR % There is an error occuring inside evaluation brackets \\{ ...code... \\} $main::BR % somewhere in an EV2 or EV3 or BEGIN_TEXT block. $main::BR % Code evaluated:$main::BR $in $main::BR % $main::BR % $errorLines[0]\n % $errorLines[1]$main::BR % $main::BR % $main::BR </PRE> ";
+ 		#$out = "<PRE>$PAR % ERROR in $0:old_safe_ev, PGbasicmacros.pl: $PAR % There is an error occuring inside evaluation brackets \\{ ...code... \\} $BR % somewhere in an EV2 or EV3 or BEGIN_TEXT block. $BR % Code evaluated:$BR $in $BR % $BR % $errorLines[0]\n % $errorLines[1]$BR % $BR % $BR </PRE> ";
 		warn " ERROR in old_safe_ev, PGbasicmacros.pl: <PRE>
      ## There is an error occuring inside evaluation brackets \\{ ...code... \\}
      ## somewhere in an EV2 or EV3 or BEGIN_TEXT block.
      ## Code evaluated:
      ## $in
      ##" .join("\n     ", @errorLines). "
-     ##</PRE>$main::BR
+     ##</PRE>$BR
      ";
-     $out ="$main::PAR $main::BBOLD  $in $main::EBOLD $main::PAR";
+     $out ="$PAR $BBOLD  $in $EBOLD $PAR";
 
 
 	}
@@ -1356,7 +1366,7 @@ sub FEQ   {    # Format EQuations
 #	my ($out,$PG_eval_errors,$PG_full_error_report);
 #	$in = FEQ($in);
 #	$in =~ s/%/\\%/g;   #  % causes trouble in TeX and HTML_tth it usually (always?) indicates an error, not comment
-#	return("$main::BM $in $main::EM") unless ($displayMode eq 'HTML_tth');
+#	return("$BM $in $EM") unless ($displayMode eq 'HTML_tth');
 #	$in = "\\(" . $in . "\\)";
 #	$out = tth($in);
 #	($out,$PG_eval_errors,$PG_full_error_report);
@@ -1421,10 +1431,10 @@ sub EV2 {
 	$string = ev_substring($string,"\\(","\\)",\&math_ev3);
 	$string = ev_substring($string,"\\[","\\]",\&display_math_ev3);
 	# macros for displaying math
-	$string =~ s/\\\(/$main::BM/g;
-	$string =~ s/\\\)/$main::EM/g;
-	$string =~ s/\\\[/$main::BDM/g;
-	$string =~ s/\\\]/$main::EDM/g;
+	$string =~ s/\\\(/$BM/g;
+	$string =~ s/\\\)/$EM/g;
+	$string =~ s/\\\[/$BDM/g;
+	$string =~ s/\\\]/$EDM/g;
 	$string;
 }
 
@@ -1437,7 +1447,7 @@ sub EV3{
 	if ($PG_eval_errors) {
   	 	my @errorLines = split("\n",$PG_eval_errors);
   	 	$string =~ s/</&lt;/g; $string =~ s/>/&gt;/g;
- 		$evaluated_string = "<PRE>$main::PAR % ERROR in $0:EV3, PGbasicmacros.pl: $main::PAR % There is an error occuring in the following code:$main::BR $string $main::BR % $main::BR % $errorLines[0]\n % $errorLines[1]$main::BR % $main::BR % $main::BR </PRE> ";
+ 		$evaluated_string = "<PRE>$PAR % ERROR in $0:EV3, PGbasicmacros.pl: $PAR % There is an error occuring in the following code:$BR $string $BR % $BR % $errorLines[0]\n % $errorLines[1]$BR % $BR % $BR </PRE> ";
 		$@="";
 	}
 	$string = $evaluated_string;
@@ -1476,22 +1486,26 @@ sub EV3{
 
 sub beginproblem {
 	my $out = "";
-    my $TeXFileName = protect_underbar($main::fileName);
-    my $l2hFileName = protect_underbar($main::fileName);
+	my $problemValue = $envir->{problemValue};
+	my $fileName     = $envir->{problemValue};
+	my $probNum      = $envir->{probNum};
+    my $TeXFileName = protect_underbar($envir->{fileName});
+    my $l2hFileName = protect_underbar($envir->{fileName});
 	my %inlist;
 	my $points ='pts';
-	$points = 'pt' if $main::problemValue == 1;
+	
+	$points = 'pt' if $problemValue == 1;
 	##    Prepare header for the problem
 	grep($inlist{$_}++,@{ $envir->{'PRINT_FILE_NAMES_FOR'} });
-	if ( defined($inlist{$main::studentLogin}) and ($inlist{$main::studentLogin} > 0) ) {
-		$out = &M3("\n\n\\medskip\\hrule\\smallskip\\par{\\bf ${main::probNum}.{\\footnotesize ($main::problemValue $points) $TeXFileName}}\\newline ",
-		" \\begin{rawhtml} ($main::problemValue $points) <B>$l2hFileName</B><BR>\\end{rawhtml}",
-		 "($main::problemValue $points) <B>$main::fileName</B><BR>"
+	if ( defined($inlist{$envir->{studentLogin}}) and ($inlist{$envir->{studentLogin}} > 0) ) {
+		$out = &M3("\n\n\\medskip\\hrule\\smallskip\\par{\\bf ${probNum}.{\\footnotesize ($problemValue $points) $TeXFileName}}\\newline ",
+		" \\begin{rawhtml} ($problemValue $points) <B>$l2hFileName</B><BR>\\end{rawhtml}",
+		 "($problemValue $points) <B>$fileName</B><BR>"
 	 	   );
 	}	else {
-		$out = &M3("\n\n\\smallskip\\hrule\\smallskip\\par{\\bf ${main::probNum}.}($main::problemValue $points) ",
-		"($main::problemValue $points) ",
-		 "($main::problemValue $points) "
+		$out = &M3("\n\n\\smallskip\\hrule\\smallskip\\par{\\bf ${probNum}.}($problemValue $points) ",
+		"($problemValue $points) ",
+		 "($problemValue $points) "
 	 	   );
 	}
 	$out;
@@ -1523,7 +1537,7 @@ sub OL {
 	my $elem;
 	foreach $elem (@array) {
                 $out .= MODES(
-                        TeX=>   "\\item[$main::ALPHABET[$i].] $elem\n",
+                        TeX=>   "\\item[$ALPHABET[$i].] $elem\n",
                         Latex2HTML=>    " \\begin{rawhtml} <LI> \\end{rawhtml} $elem  ",
                         HTML=>  "<LI> $elem\n",
                         HTML_dpng=>     "<LI> $elem <br /> <br /> \n"
@@ -1542,12 +1556,13 @@ sub htmlLink {
 	my $text = shift;
 	my $options = shift;
 	$options = "" unless defined($options);
-	return "${main::BBOLD}[ broken link:  $text ] ${main::EBOLD}" unless defined($url);
+	return "$BBOLD\[ broken link:  $text \] $EBOLD" unless defined($url);
 	M3( "{\\bf \\underline{$text}  }",
 	    "\\begin{rawhtml} <A HREF=\"$url\" $options> $text </A>\\end{rawhtml}",
 	    "<A HREF=\"$url\" $options> $text </A>"
 	    );
 }
+
 sub appletLink {
 	my $url = shift;
 	my $options = shift;
@@ -1685,7 +1700,7 @@ sub row {
 			}
 		$out .= " \n\\begin{rawhtml}\n</TR> \n\\end{rawhtml}\n";
 	}
-	elsif ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng'||$displayMode eq 'HTML_img') {
+	elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng'||$displayMode eq 'HTML_img') {
 		$out .= "<TR>\n";
 		while (@elements) {
 			$out .= "<TD>" . shift(@elements) . "</TD>";
@@ -1693,7 +1708,7 @@ sub row {
 		$out .= "\n</TR>\n";
 	}
 	else {
-		$out = "Error: PGchoicemacros: row: Unknown displayMode: $main::displayMode.\n";
+		$out = "Error: PGchoicemacros: row: Unknown displayMode: $displayMode.\n";
 		}
 	$out;
 }
@@ -1750,7 +1765,7 @@ sub image {
  		my $imageURL = alias(shift @image_list);
  		my $out="";
 
-		if ($main::displayMode eq 'TeX') {
+		if ($displayMode eq 'TeX') {
 			my $imagePath = $imageURL; # in TeX mode, alias gives us a path, not a URL
 			if ($envir->{texDisposition} eq "pdf") {
 				# We're going to create PDF files with our TeX (using pdflatex), so
@@ -1771,14 +1786,14 @@ sub image {
 
 				$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
 			}
-		} elsif ($main::displayMode eq 'Latex2HTML') {
+		} elsif ($displayMode eq 'Latex2HTML') {
 			$out = qq!\\begin{rawhtml}\n<A HREF= "$imageURL" TARGET="ZOOM"><IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height"></A>\n
 			\\end{rawhtml}\n !
- 		} elsif ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng' || $displayMode eq 'HTML_img') {
+ 		} elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng' || $displayMode eq 'HTML_img') {
  			$out = qq!<A HREF= "$imageURL" TARGET="ZOOM"><IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height"></A>
  			!
  		} else {
- 			$out = "Error: PGchoicemacros: image: Unknown displayMode: $main::displayMode.\n";
+ 			$out = "Error: PGchoicemacros: image: Unknown displayMode: $displayMode.\n";
  		}
  		push(@output_list, $out);
  	}
@@ -1798,12 +1813,12 @@ sub images {
 
 sub caption {
 	my ($out) = @_;
-	$out = " $out \n" if $main::displayMode eq 'TeX';
-	$out = " $out  " if $main::displayMode eq 'HTML';
-	$out = " $out  " if $main::displayMode eq 'HTML_tth';
-	$out = " $out  " if $main::displayMode eq 'HTML_dpng';
-	$out = " $out  " if $main::displayMode eq 'HTML_img';
-	$out = " $out  " if $main::displayMode eq 'Latex2HTML';
+	$out = " $out \n" if $displayMode eq 'TeX';
+	$out = " $out  " if $displayMode eq 'HTML';
+	$out = " $out  " if $displayMode eq 'HTML_tth';
+	$out = " $out  " if $displayMode eq 'HTML_dpng';
+	$out = " $out  " if $displayMode eq 'HTML_img';
+	$out = " $out  " if $displayMode eq 'Latex2HTML';
 		$out;
 }
 
@@ -1831,7 +1846,7 @@ sub imageRow {
 	                @_            # overwrite any default options
 	              );
 
-	if ($main::displayMode eq 'TeX') {
+	if ($displayMode eq 'TeX') {
 		$out .= "\n\\par\\smallskip\\begin{center}\\begin{tabular}{"  .  "|c" x $number .  "|} \\hline\n";
 		while (@images) {
 			$out .= &image( shift(@images),%options ) . '&';
@@ -1843,7 +1858,7 @@ sub imageRow {
 		}
 		chop($out);
 		$out .= "\\\\ \\hline \n\\end {tabular}\\end{center}\\par\\smallskip\n";
-	} elsif ($main::displayMode eq 'Latex2HTML'){
+	} elsif ($displayMode eq 'Latex2HTML'){
 
 		$out .= "\n\\begin{rawhtml} <TABLE  BORDER=1><TR>\n\\end{rawhtml}\n";
 		while (@images) {
@@ -1858,7 +1873,7 @@ sub imageRow {
 		}
 
 		$out .= "\n\\begin{rawhtml} </TR> </TABLE >\n\\end{rawhtml}";
-	} elsif ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth' || $main::displayMode eq 'HTML_dpng'|| $main::displayMode eq 'HTML_img'){
+	} elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng'|| $displayMode eq 'HTML_img'){
 		$out .= "<P>\n <TABLE BORDER=2 CELLPADDING=3 CELLSPACING=2 ><TR ALIGN=CENTER		VALIGN=MIDDLE>\n";
 		while (@images) {
 			$out .= " \n<TD>". &image( shift(@images),%options ) ."</TD>";
@@ -1870,7 +1885,7 @@ sub imageRow {
 		$out .= "\n</TR></TABLE></P>\n"
 	}
 	else {
-		$out = "Error: PGchoicemacros: imageRow: Unknown languageMode: $main::displayMode.\n";
+		$out = "Error: PGchoicemacros: imageRow: Unknown languageMode: $displayMode.\n";
 		warn $out;
 	}
 	$out;
