@@ -16,9 +16,18 @@ FIXME: add this
 
 =cut
 
+# Note, this now has the ability to communicate with mysql for storing depths of
+# images for alignments.  If you want to provide another way of storing the depths,
+# make up another "magic" alignment name, look for explicit mentions of mysql here
+# and add statements for the new special alignment name.  Most of the action is
+# in the function update_depth_cache near the end of this file.  Also look for the
+# place where PG creates a new ImageGenerator object, and possibly adjust there as
+# well.
+
 use strict;
 use warnings;
 use WeBWorK::EquationCache;
+use DBI;
 
 #use WeBWorK::Utils qw(readDirectory makeTempDirectory removeTempDirectory);
 # can't use WeBWorK::Utils from here :(
@@ -53,12 +62,22 @@ sub makeTempDirectory($$) {
 }
 
 use File::Path qw(rmtree);
-#FIXME: what is this for?
+# for deleting the temp directory
 sub removeTempDirectory($) {
 	my ($dir) = @_;
 	rmtree($dir, 0, 0);
 }
 
+sub readFile($) {
+	my $filename = shift;
+	my $contents = '';
+	local(*FILEH);
+	open FILEH,  "<$filename" or die "Unable to read $filename";
+	local($/) = undef;
+	$contents = <FILEH>;
+	close(FILEH);
+	return($contents);
+}
 ################################################################################
 
 =head1 CONFIGURATION VARIABLES
@@ -129,6 +148,12 @@ If C<useCache> is true, C<%options> must also contain the following entries:
  cacheURL => url to cacheDir
  cacheDB  => path to cache database file
 
+Options may also contain:
+
+ dvipng_align    => vertical alignment option (a string to use like baseline, or 'mysql')
+ dvipng_depth_db => database connection information for a "depths database"
+ useMarkers      => if you want to have the dvipng images vertically aligned, this involves adding markers
+
 =cut
 
 sub new {
@@ -137,8 +162,14 @@ sub new {
 	my $self = {
 		names   => [],
 		strings => [],
+		depths => {},
 		%options,
 	};
+
+	# set some values
+	$self->{dvipng_align} = 'absmiddle' unless defined($self->{dvipng_align});
+	$self->{store_depths} = 1 if ($self->{dvipng_align} eq 'mysql');
+	$self->{useMarkers} = $self->{useMarkers} || 0;
 	
 	if ($self->{useCache}) {
 		$self->{dir} = $self->{cacheDir};
@@ -167,6 +198,7 @@ sub add {
 	my $url      = $self->{url};
 	my $basename = $self->{basename};
 	my $useCache = $self->{useCache};
+	my $depths  = $self->{depths};
 	
 	# if the string came in with delimiters, chop them off and set the mode
 	# based on whether they were \[ .. \] or \( ... \). this means that if
@@ -187,10 +219,18 @@ sub add {
 		? '\(\displaystyle{' . $string . '}\)'
 		: '\(' . $string . '\)';
 	
+	# alignment tag could be a fixed default
+	my ($imageNum, $aligntag) = (0, qq|align="$self->{dvipng_align}"|);
+	# if the default is for variable heights, the default should be meaningful
+	# in an answer preview, $self->{dvipng_align} might be 'mysql', but we still
+        # use a static alignment
+	$aligntag = 'align="baseline"' if ($self->{dvipng_align} eq 'mysql');
+
 	# determine what the image's "number" is
-	my $imageNum;
 	if($useCache) {
 		$imageNum = $self->{equationCache}->lookup($realString);
+		$aligntag = 'MaRkEr'.$imageNum if $self->{useMarkers};
+		$depths->{"$imageNum"} = 'none' if ($self->{dvipng_align} eq 'mysql');
 		# insert a slash after 2 characters
 		# this effectively divides the images into 16^2 = 256 subdirectories
 		substr($imageNum,2,0) = '/';
@@ -215,15 +255,20 @@ sub add {
 	my $imageURL = "$url/$imageName";
 	
 	my $imageTag  = ($mode eq "display")
-		? "<div align=\"center\"><img src=\"$imageURL\" align=\"baseline\" alt=\"$string\"></div>"
-		: "<img src=\"$imageURL\" align=\"baseline\" alt=\"$string\">";
+		? "<div align=\"center\"><img src=\"$imageURL\" $aligntag alt=\"$string\"></div>"
+		: "<img src=\"$imageURL\" $aligntag alt=\"$string\">";
 
 	return $imageTag;
 }
 
 =item render(%options)
 
-Uses LaTeX and dvipng to render the equations stored in the object. The 
+Uses LaTeX and dvipng to render the equations stored in the object. 
+
+The option C<body_text> is a reference to the text of the problem's text.  After
+rendering the images and figuring out their depths, we go through and fix the tags
+of the images to get the vertical alignment right.  If it is left out, then we skip
+that step.
 
 =for comment
 
@@ -247,6 +292,8 @@ sub render {
 	my $dvipng   = $self->{dvipng};
 	my $names    = $self->{names};
 	my $strings  = $self->{strings};
+	my $depths   = $self->{depths};
+	$self->{body_text} = $options{body_text};
 	
 	# determine which images need to be generated
 	my (@newStrings, @newNames);
@@ -262,7 +309,9 @@ sub render {
 		}
 	}
 	
-	return unless @newStrings; # Don't run latex if there are no images to generate
+    # Outdented so that we don't change every line of this section
+    # while making lots of changes along the way
+    if(@newStrings) { # Don't run latex if there are no images to generate
 	
 	# create temporary directory in which to do TeX processing
 	my $wd = makeTempDirectory($tempDir, "ImageGenerator");
@@ -290,11 +339,7 @@ sub render {
 		warn `ls -l $wd`;
 		my $errorMessage = '';
 		if (-r "$wd/equation.log") {
-			local(*LOGFILE);
-			open LOGFILE,  "<$wd/equation.log" or die "Unable to read $wd/equation.log";
-			local($/) = undef;
-			$errorMessage = <LOGFILE>;
-			close(LOGFILE);
+			$errorMessage = readFile("$wd/equation.log");
 			warn "<pre> Logfile contents:\n$errorMessage\n</pre>";
 		} else {
 		   warn "Unable to read logfile $wd/equation.log ";
@@ -309,7 +354,13 @@ sub render {
 	my $dvipngStatus = system $dvipngCommand;
 	warn "$dvipngCommand returned non-zero status $dvipngStatus: $!"
 		if $dvipngStatus;
-	
+	# get depths
+	my $dvipngout = '';
+	$dvipngout = readFile("$wd/dvipng.out") if(-r "$wd/dvipng.out");
+	my @dvipngdepths = ($dvipngout =~ /depth=(\d+)/g);
+	# kill them all if something goes wrnog
+	@dvipngdepths = () if(scalar(@dvipngdepths) != scalar(@newNames));
+
 	# move/rename images
 	foreach my $image (readDirectory($wd)) {
 		# only work on equation#.png files
@@ -317,6 +368,11 @@ sub render {
 		
 		# get image number from above match
 		my $imageNum = $1;
+		# record the dvipng offset
+		my $hashkey = $newNames[$imageNum-1];
+		$hashkey =~ s|/||;
+		$hashkey =~ s|\.png$||;
+		$depths->{"$hashkey"} = $dvipngdepths[$imageNum-1] if(defined($dvipngdepths[$imageNum-1]));
 		
 		#warn "ImageGenerator: found generated image $imageNum with name $newNames[$imageNum-1]\n";
 		
@@ -344,7 +400,49 @@ sub render {
 	} else {
 		removeTempDirectory($wd);
 	}
+    }
+    $self->update_depth_cache() if $self->{store_depths};
+    $self->fix_markers() if ($self->{useMarkers} and defined $self->{body_text});
 }
+
+# internal utility function for updating both our internal record of dvipng depths,
+# but also the database.  This is the main function to change (provide an alternate
+# method for) if you want to use another method for storing dvipng depths
+
+sub update_depth_cache {
+	my $self = shift;
+	return() unless ($self->{dvipng_align} eq 'mysql');
+	my $dbh = DBI->connect_cached($self->{dvipng_depth_db}->{dbsource},
+	   $self->{dvipng_depth_db}->{user}, $self->{dvipng_depth_db}->{passwd});
+	my $sth = $dbh->prepare("INSERT IGNORE INTO depths(md5, depth) VALUES (?,?)");
+	my $depthhash = $self->{depths};
+	for my $md5 (keys %{$depthhash}) {
+		if($depthhash->{$md5} eq 'none') {
+			my $got_values = $dbh->selectall_arrayref('select depth from depths where md5 = ?', undef, "$md5");
+			$depthhash->{"$md5"} = $got_values->[0]->[0] if(scalar(@{$got_values}));
+			#warn "Get depth from mysql for $md5" . $depthhash->{"$md5"};
+		} else {
+			#warn "Put depth $depthhash->{$md5} for $md5 into mysql";
+			$sth->execute($md5, $depthhash->{$md5});
+		}
+	}
+	return();
+}
+
+sub fix_markers {
+	my $self = shift;
+	my %depths = %{$self->{depths}};
+	for my $depthkey (keys %depths) {
+		if($depths{$depthkey} eq 'none') { # we never found its depth :(
+			${ $self->{body_text} } =~ s/MaRkEr$depthkey/align="ABSMIDDLE"/g;
+		} else {
+			my $ndepth = 0 - $depths{$depthkey};
+			${ $self->{body_text} } =~ s/MaRkEr$depthkey/style="vertical-align:${ndepth}px"/g;
+		}
+	}
+	return();
+}
+
 
 =back
 
