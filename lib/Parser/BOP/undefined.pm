@@ -12,7 +12,8 @@ use strict; use vars qw(@ISA);
 
 sub _check {
   my $self = shift;
-  $self->Error("Can't use '$self->{bop}' in this context");
+  my $bop = $self->{def}{string} || $self->{bop};
+  $self->Error("Can't use '$bop' in this context");
 }
 
 #########################################################################
