@@ -986,7 +986,7 @@ sub alias {
 				my $gifFileName = fileFromPath($gifFilePath);
 
 				$gifFileName =~ /^(.*)\.gif$/;
-				my $pngFilePath = surePathToTmpFile("${tempDirectory}png/$1.png");
+				my $pngFilePath = surePathToTmpFile("${tempDirectory}png/$probNum-$1.png");
 				my $returnCode = system "$envir{externalGif2PngPath} $gifFilePath $pngFilePath";
 
 				if ($returnCode or not -e $pngFilePath) {
