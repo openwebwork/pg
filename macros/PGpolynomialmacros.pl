@@ -203,42 +203,54 @@ sub LowBound {
 ##
 
 sub PolyString{
-    my $temp = $_[0];
-    my @poly = @{$temp};
-    $string = "";
-    foreach $i (0..$#poly) {
-        $j = $#poly-$i;
-        if ($j == $#poly) {if ($poly[$i]!=1){
-            $string = $string."$poly[$i] x^{$j}";}
-            else {$string=$string."x^{$j}";}
-        }
-        elsif ($j > 0 && $j!=1) {
-            if ($poly[$i] >0) {
-              if ($poly[$i]!=1){
-                $string = $string."+$poly[$i] x^{$j}";}
-              else {$string = $string."+x^{$j}";}}
-            elsif ($poly[$i] == 0) {}
-            elsif ($poly[$i] == -1) {$string=$string."-x^{$j}";}
-            else {$string = $string."$poly[$i] x^{$j}";}
-        }
-        elsif ($j == 1) {
-            if ($poly[$i] > 0){
-              if ($poly[$i]!=1){
-                $string = $string."+$poly[$i] x";}
-              else {$string = $string."+x";}}
-            elsif ($poly[$i] == 0) {}
-            elsif ($poly[$i] == -1){$string=$string."-x";}
-            else {$string=$string."$poly[$i] x";}
-        }
-        else {
-            if ($poly[$i] > 0){
-              $string = $string."+$poly[$i] ";}
-            elsif ($poly[$i] == 0) {}
-            else {$string=$string."$poly[$i] ";}
-        }
-    }
-    return $string;
+	my $temp = $_[0];
+	my @poly = @{$temp};
+	my $string = '';
+	foreach my $i (0..$#poly) {
+		my $j = $#poly-$i;
+		if ($j == $#poly) {
+			if ($poly[$i] >0) {
+				if ($poly[$i]!=1){
+					$string = $string."$poly[$i] x^{$j}";
+				}
+				else {$string=$string."x^{$j}";}
+			}
+			elsif ($poly[$i] == 0) {}
+			elsif ($poly[$i] == -1) {$string=$string."-x^{$j}";}
+			else {$string = $string."$poly[$i] x^{$j}";}	
+		}
+		elsif ($j > 0 && $j!=1) {
+			if ($poly[$i] >0) {
+				if ($poly[$i]!=1){
+					$string = $string."+$poly[$i] x^{$j}";
+				}
+				else {$string = $string."+x^{$j}";}}
+			elsif ($poly[$i] == 0) {}
+			elsif ($poly[$i] == -1) {$string=$string."-x^{$j}";}
+			else {$string = $string."$poly[$i] x^{$j}";}
+		}
+		elsif ($j == 1) {
+			if ($poly[$i] > 0){
+		  		if ($poly[$i]!=1){
+					$string = $string."+$poly[$i] x";
+				}
+		  		else {$string = $string."+x";}
+		  	}
+			elsif ($poly[$i] == 0) {}
+			elsif ($poly[$i] == -1){$string=$string."-x";}
+			else {$string=$string."$poly[$i] x";}
+		}
+		else {
+			if ($poly[$i] > 0){
+		  		$string = $string."+$poly[$i] ";
+		  	}
+			elsif ($poly[$i] == 0) {}
+			else {$string=$string."$poly[$i] ";}
+		}
+	}
+	return $string;
 }
+
 
 sub PolyFunc {
     my $temp = $_[0];
