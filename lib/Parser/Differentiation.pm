@@ -103,11 +103,11 @@ sub Parser::BOP::power::D {
       $self =
         $parser->{Function}->new($equation,'exp',
           [$parser->{BOP}->new($equation,'*',$self->{rop}->copy($equation),
-            $parser->{Function}->new($equation,'log',[$self->{lop}->copy($equation)],0))]);
+            $parser->{Function}->new($equation,'ln',[$self->{lop}->copy($equation)],0))]);
        return $self->D($x);
     }
     $self = $parser->{BOP}->new($equation,'*',
-      $parser->{Function}->new($equation,'log',[$self->{lop}->copy($equation)],0),
+      $parser->{Function}->new($equation,'ln',[$self->{lop}->copy($equation)],0),
       $parser->{BOP}->new($equation,'*',
         $self->copy($equation),$self->{rop}->D($x))
     );
@@ -534,11 +534,17 @@ sub Parser::Function::hyperbolic::D_acsch {
 
 sub Parser::Function::numeric::D {Parser::Function::D_chain(@_)}
 
-sub Parser::Function::numeric::D_log {
+sub Parser::Function::numeric::D_ln {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
   my $parser = $equation->{context}{parser};
   return $parser->{BOP}->new($equation,'/',$parser->{Number}->new($equation,1),$x);
+}
+
+sub Parser::Function::numeric::D_log {
+  my $self = $_[0];
+  my $base10 = $self->{equation}{context}{flags}{useBaseTenLog};
+  if ($base10) {return D_log10(@_)} else {return D_ln(@_)}
 }
 
 sub Parser::Function::numeric::D_log10 {
