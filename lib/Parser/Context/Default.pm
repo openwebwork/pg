@@ -202,7 +202,8 @@ $flags = {
 #
 
 use vars qw(%context);
-use vars qw($fullContext $numericContext $complexContext $vectorContext $intervalContext);
+use vars qw($fullContext $numericContext $complexContext
+	    $vectorContext $matrixContext $intervalContext);
 
 #
 #  The default Context
@@ -269,6 +270,12 @@ $vectorContext->constants->replace(i=>Value::Vector->new(1,0,0));
 $vectorContext->constants->set(i=>{TeX=>'\boldsymbol{i}', perl => ' i'});
 
 #
+#  Matrix context (square brackets make matrices in preference to points or intervals)
+#
+$matrixContext = $vectorContext->copy;
+$matrixContext->parens->set('[' => {type => 'Matrix', removable => 0});
+
+#
 #  Interval context (make intervals rather than lists)
 #
 $intervalContext = $numericContext->copy;
@@ -288,6 +295,7 @@ $intervalContext->parens->set(
   Numeric  => $numericContext,
   Complex  => $complexContext,
   Vector   => $vectorContext,
+  Matrix   => $matrixContext,
   Interval => $intervalContext,
 );
 

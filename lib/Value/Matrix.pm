@@ -197,7 +197,7 @@ sub mult {
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   my @dl = $l->dimensions; my @dr = $r->dimensions;
   if (scalar(@dl) == 1) {@dl = (1,@dl); $l = $pkg->make($l)}
-  if (scalar(@dr) == 1) {@dr = (1,@dr); $r = $pkg->make($r)}
+  if (scalar(@dr) == 1) {@dr = (@dr,1); $r = $pkg->make($r)->transpose}
   Value::Error("Can only multiply 2-dimensional matrices") if scalar(@dl) > 2 || scalar(@dr) > 2;
   Value::Error("Matices of dimensions $dl[0]x$dl[1] and $dr[0]x$dr[1] can't be multiplied")
     unless ($dl[1] == $dr[0]);

@@ -157,14 +157,15 @@ sub checkNumbers {
 sub checkMatrixSize {
   my $self = shift;
   my ($lm,$rm) = @_;
-  if ($lm->{entryType}{entryType}{name} eq 'Number' &&
-      $rm->{entryType}{entryType}{name} eq 'Number') {
-    my ($lr,$lc) = ($lm->{length},$lm->{entryType}{length});
-    my ($rr,$rc) = ($rm->{length},$rm->{entryType}{length});
+  my ($ltype,$rtype) = ($lm->{entryType},$rm->{entryType});
+  if ($ltype->{entryType}{name} eq 'Number' &&
+      $rtype->{entryType}{name} eq 'Number') {
+    my ($lr,$lc) = ($lm->{length},$ltype->{length});
+    my ($rr,$rc) = ($rm->{length},$rtype->{length});
     if ($lc == $rr) {
       my $rowType = Value::Type('Matrix',$rc,$Value::Type{number},formMatrix=>1);
       $self->{type} = Value::Type('Matrix',$lr,$rowType,formMatrix=>1);
-    } else {$self->Error("Matrix dimensions are incompatible for multiplication")}
+    } else {$self->Error("Matrix of dimensions ${lr}x${lc} and ${rr}x${rc} can't be multiplied")}
   } else {$self->Error("Matrices are too deep to be multiplied")}
 }
 
@@ -175,12 +176,14 @@ sub promotePoints {
   my $self = shift; my $class = shift;
   my $ltype = $self->{lop}->typeRef;
   my $rtype = $self->{rop}->typeRef;
-  if ($ltype->{name} eq 'Point') {
+  if ($ltype->{name} eq 'Point' || 
+      ($ltype->{name} eq 'Matrix' && !$ltype->{entryType}{entryType})) {
     $ltype = {%{$ltype}, name => 'Vector'};
     $ltype = Value::Type($class,1,Value::Type($class,1,$ltype->{entryType}))
       if ($ltype->{length} == 1 && $class);
   }
-  if ($rtype->{name} eq 'Point') {
+  if ($rtype->{name} eq 'Point' ||
+      ($rtype->{name} eq 'Matrix' && !$rtype->{entryType}{entryType})) {
     $rtype = {%{$rtype}, name => 'Vector'};
     $rtype = Value::Type($class,1,Value::Type($class,1,$rtype->{entryType}))
       if ($rtype->{length} == 1 && $class);

@@ -269,7 +269,7 @@ sub cmp_postprocess {
   return unless $ans->{score} == 0 && !$ans->{isPreview};
   if ($ans->{showDimensionHints} &&
       $self->length != $ans->{student_value}->length) {
-    $self->cmp_Error($ans,"The dimension is incorrect"); return;
+    $self->cmp_Error($ans,"The dimension of your result is incorrect"); return;
   }
   if ($ans->{showCoordinateHints}) {
     my @errors;
@@ -311,7 +311,7 @@ sub cmp_postprocess {
   return unless $ans->{score} == 0;
   if (!$ans->{isPreview} && $ans->{showDimensionHints} &&
       $self->length != $ans->{student_value}->length) {
-    $self->cmp_Error($ans,"The dimension is incorrect"); return;
+    $self->cmp_Error($ans,"The dimension of your result is incorrect"); return;
   }
  if ($ans->{parallel} &&
      $self->isParallel($ans->{student_value},$ans->{sameDirection})) {
@@ -717,7 +717,7 @@ sub cmp_postprocess {
   return unless $other->type =~ m/^(Point|Vector|Matrix)$/;
   return unless $self->type  =~ m/^(Point|Vector|Matrix)$/;
   return if Parser::Item::typeMatch($self->typeRef,$other->typeRef);
-  $self->cmp_Error($ans,"The dimension is incorrect");
+  $self->cmp_Error($ans,"The dimension of your result is incorrect");
 }
 
 #############################################################

@@ -300,6 +300,7 @@ sub Value::Formula::number::make {shift; shift}
 ##
 #sub main::Format {
 #  my $v = scalar(@_) > 1? [@_]: shift;
+#  $v = [%{$v}] if ref($v) eq 'HASH';
 #  return $v unless ref($v) eq 'ARRAY';
 #  my @V; foreach my $x (@{$v}) {push @V, main::Format($x)}
 #  return '['.join(",",@V).']';
