@@ -289,7 +289,7 @@ sub cmp_postprocess {
 package Value::Vector;
 
 sub cmp_defaults {(
-  shift->SUPPER::cmp_defaults,
+  shift->SUPER::cmp_defaults,
   showDimensionHints => 1,
   showCoordinateHints => 1,
   promotePoints => 0,
