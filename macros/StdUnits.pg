@@ -1,0 +1,79 @@
+
+## Define some macros for the units:
+## Note: P means per in this notation, except for Pa =Pascal)
+## u is the unit indication
+## 
+$m_u = CAPA_tex( "/*m/*" , "m" )  ;  # angle degree
+$km_u = CAPA_tex( "/*km/*" , "km" )  ;  
+$cm_u = CAPA_tex( "/*cm/*" , "cm" )  ;  
+$mm_u = CAPA_tex( "/*mm/*" , "mm" )  ;  
+$um_u = CAPA_tex( "/*\micro m/*" , "um" )  ;  
+$nm_u = CAPA_tex( "/*nm/*" , "nm" )  ;  
+$fm_u = CAPA_tex( "/*fm/*" , "fm" )  ;  
+$m2_u = CAPA_tex( "/*m^2/*" , "m^2" )  ;  
+$m3_u = CAPA_tex( "/*m^3/*" , "m^3" )  ;  
+$cm2_u = CAPA_tex( "/*cm^2/*" , "cm^2" )  ;  
+$cm3_u = CAPA_tex( "/*cm^3/*" , "cm^3" )  ;  
+$mi_u = CAPA_tex( "/*mi/*" , "mi" )  ;  
+$ft_u = CAPA_tex( "/*ft/*" , "ft" )  ;  
+$in_u = CAPA_tex( "/*in./*" , "in." )  ;  
+$kg_u = CAPA_tex( "/*kg/*" , "kg" )  ;  
+$amu_u = CAPA_tex( "/*u/*" , "u" )  ;  
+$lb_u = CAPA_tex( "/*lb/*" , "lb" )  ;  
+$s_u = CAPA_tex( "/*s/*" , "s" )  ;  
+$min_u = CAPA_tex( "/*min/*" , "min" )  ;  
+$K_u = CAPA_tex( "/*K/*" , "K" )  ;  
+$degC_u = CAPA_tex( "/*^{\circ}\hspace*{-.015in}C/*" , "degC" )  ;  
+$degF_unit = CAPA_tex( "/*^{\circ}\hspace*{-.025in}F/*" , "degF" )  ;  
+$kmol_u = CAPA_tex( "/*kmol/*" , "kmol" )  ;  
+$Hz_u = CAPA_tex( "/*Hz/*" , "Hz" )  ;  
+$mPs_u = CAPA_tex( "/*m/s/*" , "m/s" )  ;  
+$cmPs_u = CAPA_tex( "/*cm/s/*" , "cm/s" )  ;  
+$kmPh_u = CAPA_tex( "/*km/h/*" , "km/h" )  ;  
+$miPh_u = CAPA_tex( "/*mi/h/*" , "mi/h" )  ;  
+$radPs_u = CAPA_tex( "/*rad/s/*" , "rad/s" )  ;  
+$Ps_u = CAPA_tex( "/*s^{-1}/*" , "s^-1" )  ;  
+$mPs2_u = CAPA_tex( "/*m/s^2/*" , "m/s2" )  ;  
+$cmPs2_u = CAPA_tex( "/*cm/s^2/*" , "cm/s2" )  ;  
+$radPs2_u = CAPA_tex( "/*rad/s^2/*" , "rad/s2" )  ;  
+$N_unit = CAPA_tex( "/*N/*" , "N" )  ;  
+$Pa_u = CAPA_tex( "/*Pa/*" , "Pa" )  ;  
+$atm_u = CAPA_tex( "/*atm/*" , "atm" )  ;  
+$NPm2_u = CAPA_tex( "/*N/m^2/*" , "N/m2" )  ;  
+$J_u = CAPA_tex( "/*J/*" , "J" )  ;  
+$hp_u = CAPA_tex( "/*hp/*" , "hp" )  ;  
+$eV_u = CAPA_tex( "/*eV/*" , "eV" )  ;  
+$cal_u = CAPA_tex( "/*cal/*" , "cal" )  ;  
+$kcal_u = CAPA_tex( "/*kcal/*" , "kcal" )  ;  
+$W_u = CAPA_tex( "/*W/*" , "W" )  ;  
+$kW_u = CAPA_tex( "/*kW/*" , "kW" )  ;  
+$Js_u = CAPA_tex( "/*J s/*" , "J s" )  ;  
+$C_u = CAPA_tex( "/*C/*" , "C" )  ;  
+$V_u = CAPA_tex( "/*V/*" , "V" )  ;  
+$ohm_u = CAPA_tex( "/*\Omega/*" , "ohm" )  ;  
+$F_u = CAPA_tex( "/*F/*" , "F" )  ;  
+$Wb_u = CAPA_tex( "/*Wb/*" , "Wb" )  ;  
+$H_u = CAPA_tex( "/*H/*" , "H" )  ;  
+$T_u = CAPA_tex( "/*T/*" , "T" )  ;  
+$N_u = CAPA_tex( "/*N/*" , "N" )  ;  
+$JPK_u = CAPA_tex( "/*J\over K/*" , "J/K" )  ;  
+$Nm2Pkg2_u = CAPA_tex( "/*Nm2\over kg^2/*" , "Nm^2/kg^2" )  ;  
+$kgPm3_u = CAPA_tex( "/*kg / m^3/*" , "kg/m3" )  ;  
+$gPm3_u = CAPA_tex( "/*g / m^3/*" , "g/m3" )  ;  
+$gPcm3_u = CAPA_tex( "/*g / cm^3/*" , "g/cm3" )  ;  
+$NPm_u = CAPA_tex( "/*N/m/*" , "N/m" )  ;  
+$kgm2_u = CAPA_tex( "/*kg\cdot m^2/*" , "kgm^2" )  ;  
+$deg_u = CAPA_tex( "/*^{\circ}/*" , "deg" )  ;  
+$rev_u = CAPA_tex( "/*rev/*" , "rev" )  ;  
+$rad_u = CAPA_tex( "/*rad/*" , "rad" )  ;  
+$G_u = CAPA_tex( "/*G/*" , "G" )  ;  
+$g_u = CAPA_tex( "/*g/*" , "g" )  ;  
+$h_u = CAPA_tex( "/*h/*" , "h" )  ;  
+$ton_u = CAPA_tex( "/*ton/*" , "ton" )  ;  
+$knots_u = CAPA_tex( "/*knots/*" , "knots" )  ;  
+$kgPs_u = CAPA_tex( "/*kg/s/*" , "kg/s" )  ;  
+
+1;
+#################################################
+## Processing time =  5 secs ( 4.60 usr  0.37 sys =  4.97 cpu)
+#################################################

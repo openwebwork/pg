@@ -1,0 +1,36 @@
+
+## 
+## macros for Fundamental Constants, in SI units!
+## 
+## Gravitational constant CapG: Units-> m3/kgs2 or Nm2/kg2
+$CapG = 6.67e-11  ;  
+## 
+## Speed of light in m/s:
+$smallc = 2.99792458e+8  ;  
+## 
+## Electron charge in C:
+$smalle = 1.602177e-19  ;  
+## 
+## Planck constant, smallh: Units ->Js 
+$smallh = 6.626075e-34  ;  
+## 
+## Boltzmann constant, smallk: Units ->J/K 
+$smallk = 1.38066e-23  ;  
+## 
+## standardgrav. accel sea level, smallg: Units ->m/s2
+$smallg = 9.8  ;
+
+## 
+## Pi:
+$pi = 3.1415926536  ;  
+## 
+## From degrees to radians:
+$degrad = $pi / 180.0  ;  
+## 
+## From radians to degrees:
+$raddeg = 180.0 / $pi  ;  
+
+1;
+#################################################
+## Processing time =  2 secs ( 1.96 usr  0.41 sys =  2.38 cpu)
+#################################################
