@@ -122,7 +122,8 @@ sub showClass {
   my $value = makeValue(shift);
   return "'".$value."'" unless ref($value);
   my $class = class($value);
-  $class = 'Infinity' if $class eq 'String' && $value->{isInfinite};
+  $class = 'Infinity' if $class eq 'Formula' &&
+    $value->{tree} && $value->{tree}{isInfinite};
   $class .= ' Number' if $class =~ m/^(Real|Complex)$/;
   $class .= ' of Intervals' if $class eq 'Union';
   return showType($value->{tree}) if $class eq 'Formula';

@@ -97,10 +97,10 @@ sub compare {
 
 sub stringify {
   my $self = shift;
-  my $open  = $self->{open}; my $close = $self->{close};
+  my $open = $self->{open}; my $close = $self->{close};
   $open  = $$Value::context->lists->get('List')->{open} unless defined($open);
   $close = $$Value::context->lists->get('List')->{close} unless defined($close);
-  $open.join(',',@{$self->data}).$close;
+  $open.join(', ',@{$self->data}).$close;
 }
 
 sub string {
@@ -113,7 +113,7 @@ sub string {
     if (Value::isValue($x)) 
       {push(@coords,$x->string($equation,$open,$close))} else {push(@coords,$x)}
   }
-  return $open.join(',',@coords).$close;
+  return $open.join(', ',@coords).$close;
 }
 sub TeX {
   my $self = shift; my $equation = shift;

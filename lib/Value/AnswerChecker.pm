@@ -347,6 +347,7 @@ sub cmp_postprocess {
   my $self = shift; my $ans = shift;
   return unless $ans->{score} == 0 && !$ans->{isPreview};
   my $other = $ans->{student_value};
+  return unless $other->class eq 'Interval';
   my @errors;
   if ($ans->{showEndpointHints}) {
     push(@errors,"Your left endpoint is incorrect")
@@ -390,9 +391,23 @@ our $cmp_defaults = {
   list_type => undef,
   typeMatch => undef,
   allowParens => 0,
+  showParens => 0,
 };
 
 sub typeMatch {1}
+
+#
+#  Handle removal of outermost parens in correct answer.
+#
+sub cmp {
+  my $self = shift;
+  my $cmp = $self->SUPER::cmp(@_);
+  if (!$cmp->{rh_ans}{showParens}) {
+    $self->{open} = $self->{close} = '';
+    $cmp->ans_hash(correct_ans => $self->stringify);
+  }
+  return $cmp;
+}
 
 sub cmp_equal {
   my $self = shift; my $ans = shift;
