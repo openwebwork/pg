@@ -1,4 +1,4 @@
-
+#!/usr/local/bin/webwork-perl
 
 ###########
 #use Carp;
@@ -120,9 +120,7 @@ sub vec_cmp{    #check to see that the submitted vector is a non-zero multiple o
 	  of the various modes.  The input can either be of type Matrix, or a
 	  reference to an array.
 
-	  Entries can be numbers, Fraction objects, bits of math mode, or answer
-    boxes.  An entire row can be replaced by the string 'hline' to produce
-    a horizontal line in the matrix.
+	  Entries can be numbers, bits of math mode, or answer boxes.
 
 	  display_matrix_mm functions similarly, except that it should be inside
 	  math mode.  display_matrix_mm cannot contain answer boxes in its entries.
@@ -145,17 +143,6 @@ sub vec_cmp{    #check to see that the submitted vector is a non-zero multiple o
 	  an individual problem with optional arguments such as left=>"|", or
 	  right=>"]".
 
-    You can specify an optional argument of 'top_labels'=> ['a', 'b', 'c'].
-    These are placed above the columns of the matrix (as is typical for
-    linear programming tableaux, for example.  The entries will be typeset
-    in math mode.
-
-    Top labels require a bit of care.  For image modes, they look better
-    with display_matrix_mm where it is all one big image, but they work with
-    display_matrix.  With tth, you pretty much have to use display_matrix
-    since tth can't handle the TeX tricks used to get the column headers
-    up there if it gets the whole matrix at once.
-
 
 =cut
 
@@ -172,17 +159,16 @@ sub display_matrix_math_mode {
 sub display_matrix {
 	my $ra_matrix = shift;
 	my %opts = @_;
+	# Now a global variable?
 	my $styleParams = defined($main::defaultDisplayMatrixStyle) ?
 		$main::defaultDisplayMatrixStyle : "(s)";
 	
 	set_default_options(\%opts,
-											'_filter_name' => 'display_matrix',
+											'_filter_name' => 'displaymat',
 											'force_tex' => 0,
 											'left' => substr($styleParams,0,1),
 											'right' => substr($styleParams,2,1),
 											'midrule' => substr($styleParams,1,1),
-											'top_labels' => 0,
-											'box'=>0, # pair location of boxed element
 											'allow_unknown_options'=> 1);
 	
 	my ($numRows, $numCols, @myRows);
@@ -197,7 +183,7 @@ sub display_matrix {
 				push @{ $myRows[$i] },  $entry;
 			}
 		}
-	} else { # matrix is input as [ [1,2,3],[4,5,6]]
+	} else { # matrix is input at [ [1,2,3],[4,5,6]]
 		$numCols = 0;
 		@myRows = @{$ra_matrix};
 		$numRows = scalar(@myRows); # counts horizontal rules too
@@ -210,18 +196,11 @@ sub display_matrix {
 			}
 		}
 	}
-	my ($boxrow,$boxcol) = (-1,-1); #default to impossible values so nothing is boxed
-	if($opts{'box'}) {
-		$boxrow = $opts{'box'}->[0];
-		$boxcol = $opts{'box'}->[1];
-	}
-	
-	
 	my $out;
 	my $j;
 	my $alignString=''; # alignment as a string for dvi/pdf
 	my $alignList;      # alignment as a list
-
+	
 	if(defined($opts{'align'})) {
 		$alignString= $opts{'align'};
 		$alignString =~ s/v/$opts{'midrule'}/g;
@@ -234,24 +213,16 @@ sub display_matrix {
 			$alignString .= "c";
 		}
 	}
-	# Before we start, we cannot let top_labels proceed if we
-	# are in tth mode and force_tex is true since tth can't handle
-	# the resulting code
-	if($opts{'force_tex'} and $main::displayMode eq 'HTML_tth') {
-		$opts{'top_labels'} = 0;
-	}
 
 	$out .= dm_begin_matrix($alignString, %opts);
-	# column labels for linear programming
-	$out .= dm_special_tops(%opts) if ($opts{'top_labels'});
 	$out .= dm_mat_left($numRows, %opts);
 	# vertical lines put in with first row
 	$j = shift @myRows;
 	$out .= dm_mat_row($j, $alignList, %opts, 'isfirst'=>$numRows);
-	$out .= dm_mat_right($numRows, %opts);
 	for $j (@myRows) {
 		$out .= dm_mat_row($j, $alignList, %opts, 'isfirst'=>0);
 	}
+	$out .= dm_mat_right($numRows, %opts);
 	$out .= dm_end_matrix(%opts);
 	$out;
 }
@@ -261,6 +232,7 @@ sub dm_begin_matrix {
 	my %opts = @_;
 	my $out =	"";
 	if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
+#		$out .= "\n";
 		# This should be doable by regexp, but it wasn't working for me
 		my ($j, @tmp);
 		@tmp = split //, $aligns;
@@ -271,16 +243,13 @@ sub dm_begin_matrix {
 			$aligns .= ($j eq "d") ? '|' : $j;
 		}
 		$out .= $opts{'force_tex'} ? '' : '\(';
-		if($opts{'top_labels'}) {
-			$out .= '\begingroup\setbox3=\hbox{\ensuremath{';
-		}
 		$out .= '\displaystyle\left'.$opts{'left'}."\\begin{array}{$aligns} \n";
-	}	elsif ($main::displayMode eq 'Latex2HTML') {
+		}
+	elsif ($main::displayMode eq 'Latex2HTML') {
 		$out .= "\n\\begin{rawhtml} <TABLE  BORDER=0>\n\\end{rawhtml}";
-	}	elsif ($main::displayMode eq 'HTML' or $main::displayMode eq 'HTML_tth'
-					 or $main::displayMode eq 'HTML_dpng'
-					 or $main::displayMode eq 'HTML_img') {
-		$out .= qq!<TABLE BORDER="0" Cellspacing="8">\n!;
+		}
+	elsif ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth' || $main::displayMode eq 'HTML_dpng' || $main::displayMode eq 'HTML_img') {
+		$out .= "<TABLE BORDER=0>\n"
 	}
 	else { 
 		$out = "Error: dm_begin_matrix: Unknown displayMode: $main::displayMode.\n";
@@ -288,44 +257,12 @@ sub dm_begin_matrix {
 	$out;
 }
 
-sub dm_special_tops {
-	my %opts = @_;
-	my @top_labels = @{$opts{'top_labels'}};
-	my $ncols = scalar(@top_labels);
-	my $out = '';
-	my $j;
-	my ($brh, $erh) = ("",""); # Start and end raw html
-	if($main::displayMode eq 'Latex2HTML') {
-		$brh = "\\begin{rawhtml}";
-		$erh = "\\end{rawhtml}";
-	}
-	
-	if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
-		for $j (@top_labels) {
-			$out .= '\smash{\raisebox{2.9ex}{\ensuremath{'.
-				$j . '}}} &';
-		}
-		chop($out); # remove last &
-		$out .= '\cr\noalign{\vskip -2.5ex}'."\n"; # want skip jump up 2.5ex
-	} elsif ($main::displayMode eq 'HTML' or $main::displayMode eq 'HTML_tth'
-					 or $main::displayMode eq 'HTML_dpng'
-					 or $main::displayMode eq 'HTML_img'
-					 or $main::displayMode eq 'Latex2HTML') {
-		$out .= "$brh<tr><td>$erh"; # Skip a column for the left brace
-		for $j (@top_labels) {
-			$out .= "$brh<td>$erh". ' \('.$j.'\)'."$brh</td>$erh";
-		}
-	} else {
-		$out = "Error: dm_begin_matrix: Unknown displayMode: $main::displayMode.\n";
-	}
-	return $out;
-}
 
 sub dm_mat_left {
 	my $numrows = shift;
 	my %opts = @_;
 	if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
-		return ""; # left delim is built into begin matrix
+		return "";
 	}
 	my $out='';
 	my $j;
@@ -335,19 +272,16 @@ sub dm_mat_left {
 		$erh = "\\end{rawhtml}";
 	}
 
-	if($main::displayMode eq 'HTML_dpng'
-		 or $main::displayMode eq 'HTML_img'
-		 or $main::displayMode eq 'Latex2HTML') {
- 		$out .= "$brh<tr valign=\"center\"><td nowrap=\"nowrap\" align=\"left\" rowspan=\"$numrows\">$erh";
+	if(($main::displayMode eq 'HTML_dpng') || $main::displayMode eq 'HTML_img' || ($main::displayMode eq 'Latex2HTML')) {
+ 		$out .= "$brh<tr valign=\"center\"><td nowrap=\"nowrap\" align=\"left\">$erh";
 		$out .= dm_image_delimeter($numrows, $opts{'left'});
-# 		$out .= "$brh<td><table border=0  cellspacing=5>\n$erh";
+ 		$out .= "$brh<td><table border=0  cellspacing=5>\n$erh";
 		return $out;
 	}
 	# Mode is now tth
 
-	$out .= "<tr valign=\"center\"><td nowrap=\"nowrap\" align=\"left\" rowspan=\"$numrows\">";
 	$out .= dm_tth_delimeter($numrows, $opts{'left'});
-#	$out .= "<td><table border=0  cellspacing=5>\n";
+	$out .= "<td><table border=0  cellspacing=5>\n";
 	return $out;
 }
 
@@ -356,30 +290,25 @@ sub dm_mat_right {
 	my %opts = @_;
 	my $out='';
 	my $j;
-	my ($brh, $erh) = ("",""); # Start and end raw html
-	if($main::displayMode eq 'Latex2HTML') {
-		$brh = "\\begin{rawhtml}";
-		$erh = "\\end{rawhtml}";
-	}
-
 	
 	if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
 		return "";
 	}
 
-	if($main::displayMode eq 'HTML_dpng'
-		 or $main::displayMode eq 'Latex2HTML'
-		 or $main::displayMode eq 'HTML_dpng') {
-		$out .= "$brh<td nowrap=\"nowrap\" align=\"right\" rowspan=\"$numrows\">$erh";
+	if(($main::displayMode eq 'HTML_dpng') ||$main::displayMode eq 'HTML_img'|| ($main::displayMode eq 'Latex2HTML')) {
+		if($main::displayMode eq 'Latex2HTML') { $out .= '\begin{rawhtml}'; }
+		$out .= "</table><td nowrap=\"nowrap\" align=\"right\">";
+		if($main::displayMode eq 'Latex2HTML') { $out .= '\end{rawhtml}'; }
 		
+#		$out .= "<img alt=\"(\" src = \"".
+#			"/webwork_system_html/images"."/right$numrows.png\" >";
 		$out.= dm_image_delimeter($numrows, $opts{'right'});
 		return $out;
 	}
 
-#	$out .= "</table>";
-  $out .= '<td nowrap="nowrap" align="left" rowspan="'.$numrows.'2">';
+	$out .= "</table>";
+
 	$out .= dm_tth_delimeter($numrows, $opts{'right'});
-  $out .= '</td>';
 	return $out;
 }
 
@@ -388,19 +317,13 @@ sub dm_end_matrix {
 	
 	my $out = "";
 	if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
-		$out .= "\\end{array}\\right$opts{right}";
+		$out .= "\n\\end{array}\\right$opts{right}";
 		$out .= $opts{'force_tex'} ? '' : "\\) ";
-		if($opts{'top_labels'}) {
-			$out .= '}} \dimen3=\ht3 \advance\dimen3 by 3ex \ht3=\dimen3'."\n".
-			'\box3\endgroup';
 		}
-	}
 	elsif ($main::displayMode eq 'Latex2HTML') {
 		$out .= "\n\\begin{rawhtml} </TABLE >\n\\end{rawhtml}";
 		}
-	elsif ($main::displayMode eq 'HTML' or $main::displayMode eq 'HTML_tth'
-				 or $main::displayMode eq 'HTML_img'
-				 or $main::displayMode eq 'HTML_dpng') {
+	elsif ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth' || $main::displayMode eq 'HTML_dpng'||$main::displayMode eq 'HTML_img') {
 		$out .= "</TABLE>\n";
 		}
 	else {
@@ -456,9 +379,7 @@ sub dm_tth_delimeter {
 	elsif($char eq "}") { ($top, $mid, $bot, $extra) = ('ü','ï','þ','ý');}
 	else { warn "Unknown delimiter in dm_tth_delimeter";}
 
-	# old version
-#	$out = '<td nowrap="nowrap" align="left"><font face="symbol">';
-	$out = '<font face="symbol">';
+	$out = '<td nowrap="nowrap" align="left"><font face="symbol">';
 	$out .= "$top<br />";
 	for($j=1;$j<$numRows; $j++) {
 		$out .= "$mid<br />";
@@ -467,7 +388,7 @@ sub dm_tth_delimeter {
 	for($j=1;$j<$numRows; $j++) {
 		$out .= "$mid<br />";
 	}
-	$out .= "$bot</font></td>";
+	$out .= "$bot</font></td>\n";
 	return $out;
 }
 
@@ -477,40 +398,25 @@ sub dm_mat_row {
 	my $tmp = shift;
 	my @align =  @{$tmp} ;
 	my %opts = @_;
-
-	if($elements eq 'hline') {
-		if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
-			return '\hline ';
-		} else {
-			# Making a hline in a table
-			return '<tr><td colspan="'.scalar(@align).'"><hr></td></tr>';
-		}
-	}
-	
 	my @elements = @{$elements};
 	my $out = "";
 	my ($brh, $erh) = ("",""); # Start and end raw html
-	my $element;
 	if($main::displayMode eq 'Latex2HTML') {
 		$brh = "\\begin{rawhtml}";
 		$erh = "\\end{rawhtml}";
 	}
 	if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
 		while (@elements) {
-			$element= shift(@elements);
-			if(ref($element) eq 'Fraction') {
-				$element=  $element->print_inline();
+			$out .= shift(@elements) . " &";
 			}
-			$out .= "$element &";
-		}
-		chop($out); # remove last &
-		$out .= "\\cr  \n";
+		 chop($out); # remove last &
+		 $out .= "\\cr  \n";
 		 # carriage returns must be added manually for tex
-		} 	elsif ($main::displayMode eq 'HTML' or $main::displayMode eq 'HTML_tth'
-				 or $main::displayMode eq 'HTML_dpng'
-				 or $main::displayMode eq 'HTML_img'
-				 or $main::displayMode eq 'Latex2HTML') {
-			if(not $opts{'isfirst'}) {		$out .=  "$brh\n<TR>\n$erh";}
+		} 	elsif ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth'
+				 || $main::displayMode eq 'HTML_dpng'
+				 || $main::displayMode eq 'HTML_img'
+				 || $main::displayMode eq 'Latex2HTML') {
+		$out .=  "$brh\n<TR>\n$erh";
 		while (@elements) {
 			my $myalign;
 			$myalign = shift @align;
@@ -531,15 +437,10 @@ sub dm_mat_row {
 				if($myalign eq "c") { $myalign = "center";}
 				if($myalign eq "l") { $myalign = "left";}
 				if($myalign eq "r") { $myalign = "right";}
-				$element= shift(@elements);
-				if (ref($element) eq 'Fraction') {
-					$element=  $element->print_inline();
-				}
-				$out .= "$brh<TD nowrap=\"nowrap\" align=\"$myalign\">$erh" .
-																				 $element . "$brh</TD>$erh";
+				$out .= "$brh<TD nowrap=\"nowrap\" align=\"$myalign\">$erh" . shift(@elements) . "$brh</TD>$erh";
 			}
 		}
-			if(not $opts{'isfirst'}) {$out .="$brh</TR>$erh\n";}
+		$out .= "$brh\n</TR>\n$erh";
 	}
 	else {
 		$out = "Error: dm_mat_row: Unknown displayMode: $main::displayMode.\n";
@@ -675,45 +576,6 @@ sub make_matrix{
 	$ra_out;
 }
 
-
-=head5  answer_matrix
-
-		Usage   \[ \{   answer_matrix(rows,columns,width_of_ans_rule, @options) \} \]
-		
-		Creates an array of answer blanks and passes it to display_matrix which returns
-		text which represents the matrix in TeX format used in math display mode. Answers
-		are then passed back to whatever answer evaluators you write at the end of the problem.
-		(note, if you have an m x n matrix, you will need mn answer evaluators, and they will be
-		returned to the evaluaters starting in the top left hand corner and proceed to the left 
-		and then at the end moving down one row, just as you would read them.)
-		
-		The options are passed on to display_matrix.
-
-
-=cut
-
-
-sub answer_matrix{
-	my $m = shift;
-	my $n = shift;
-	my $width = shift;
-	my @options = @_;
-	my @array=();
-	for( my $i = 0; $i < $m; $i+=1)
-	{
-		my @row_array = ();
-	
-		for( my $i = 0; $i < $n; $i+=1)
-		{
-			push @row_array,  ans_rule($width);
-		}	
-		my $r_row_array = \@row_array;
-		push @array,  $r_row_array;
-	}
-	display_matrix( \@array, @options );
-	
-}
-     
 # sub format_answer{
 # 	my $ra_eigenvalues = shift;
 # 	my $ra_eigenvectors = shift;
