@@ -1,4 +1,3 @@
-#!/usr/local/bin/perl
 # This file     is PGcomplexmacros.pl
 # This includes the subroutines for the ANS macros, that
 # is, macros allowing a more flexible answer checking

@@ -1,5 +1,3 @@
-#!/usr/local/bin/perl
-
 #	This file provided the fundamental macros for the pg language
 #	These macros define the interface between the problems written by
 #	the professor and the processing which occurs in the script
