@@ -28,6 +28,68 @@ sub _eval {
 }
 
 #
+#  Remove redundent minuses
+#
+sub _reduce {
+  my $self = shift;
+  my $equation = $self->{equation};
+  my $reduce = $equation->{context}{reduction};
+  if ($self->{lop}->isNeg && $self->{rop}->isNeg && $reduce->{'-x=-y'}) {
+    $self = $equation->{context}{parser}{BOP}->new($equation,'=',$self->{lop}{op},$self->{rop}{op});
+    $self = $self->reduce;
+  }
+  if ($self->{lop}->isNeg && $self->{rop}{isConstant} && 
+      $self->{rop}->isNumber && $reduce->{'-x=n'}) {
+    $self = $equation->{context}{parser}{BOP}->new
+      ($equation,"=",$self->{lop}{op},Parser::UOP::Neg($self->{rop}));
+    $self = $self->reduce;
+  }
+  return $self;
+}
+
+$Parser::reduce->{'-x=-y'} = 1;
+$Parser::reduce->{'-x=n'} = 1;
+
+#
+#  Don't add parens to the left and right parts
+#
+sub string {
+  my ($self,$precedence,$showparens,$position,$outerRight) = @_;
+  my $string; my $bop = $self->{def};
+  my $extraParens = $self->{equation}{context}->flag('showExtraParens');
+  my $addparens = 
+      defined($precedence) &&
+      ($precedence > $bop->{precedence} || ($precedence == $bop->{precedence} &&
+        ($bop->{associativity} eq 'right' || $showparens eq 'same')));
+  my $outerRight = !$addparens && ($outerRight || $position eq 'right');
+
+  $string = $self->{lop}->string($bop->{precedence}).
+            $bop->{string}.
+            $self->{rop}->string($bop->{precedence});
+
+  $string = $self->addParens($string) if ($addparens);
+  return $string;
+}
+
+sub TeX {
+  my ($self,$precedence,$showparens,$position,$outerRight) = @_;
+  my $TeX; my $bop = $self->{def};
+  my $extraParens = $self->{equation}{context}->flag('showExtraParens');
+  my $addparens =
+      defined($precedence) &&
+      ($precedence > $bop->{precedence} || ($precedence == $bop->{precedence} &&
+        ($bop->{associativity} eq 'right' || $showparens eq 'same')));
+  my $outerRight = !$addparens && ($outerRight || $position eq 'right');
+
+  $TeX = $self->{lop}->TeX($bop->{precedence}).
+         (defined($bop->{TeX}) ? $bop->{TeX} : $bop->{string}) .
+         $self->{rop}->TeX($bop->{precedence});
+
+  $TeX = '\left('.$TeX.'\right)' if ($addparens);
+  return $TeX;
+}
+
+#
 #  Add/Remove the equality operator to/from a context
 #
 sub Allow {
