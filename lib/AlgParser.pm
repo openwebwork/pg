@@ -536,6 +536,7 @@ sub tolatex {
     return ($args[0] . $p1 . $args[1]->tolatex() . $p2);
   };
   /binop2/ && do {
+    my ($p1, $p2, $p3, $p4)=('','','','');
     my ($lop,$rop) = ($args[1]->tolatex,$args[2]->tolatex);
     if ($args[0] eq '/'){
       return('\frac{'.$lop.'}{'.$rop.'}');
