@@ -289,15 +289,16 @@ sub typeMatch {
 sub cmp_postprocess {
   my $self = shift; my $ans = shift;
   return unless $ans->{score} == 0 && !$ans->{isPreview};
-  if ($ans->{showDimensionHints} &&
-      $self->length != $ans->{student_value}->length) {
+  my $student = $ans->{student_value};
+  return if $ans->{ignoreStrings} && (!Value::isValue($student) || $student->type eq 'String');
+  if ($ans->{showDimensionHints} && $self->length != $student->length) {
     $self->cmp_Error($ans,"The dimension of your result is incorrect"); return;
   }
   if ($ans->{showCoordinateHints}) {
     my @errors;
     foreach my $i (1..$self->length) {
       push(@errors,"The ".$self->NameForNumber($i)." coordinate is incorrect")
-	if ($self->{data}[$i-1] != $ans->{student_value}{data}[$i-1]);
+	if ($self->{data}[$i-1] != $student->{data}[$i-1]);
     }
     $self->cmp_Error($ans,@errors); return;
   }
@@ -331,19 +332,21 @@ sub typeMatch {
 sub cmp_postprocess {
   my $self = shift; my $ans = shift;
   return unless $ans->{score} == 0;
+  my $student = $ans->{student_value};
+  return if $ans->{ignoreStrings} && (!Value::isValue($student) || $student->type eq 'String');
   if (!$ans->{isPreview} && $ans->{showDimensionHints} &&
-      $self->length != $ans->{student_value}->length) {
+      $self->length != $student->length) {
     $self->cmp_Error($ans,"The dimension of your result is incorrect"); return;
   }
   if ($ans->{parallel} &&
-      $self->isParallel($ans->{student_value},$ans->{sameDirection})) {
+      $self->isParallel($student,$ans->{sameDirection})) {
     $ans->score(1); return;
   }
   if (!$ans->{isPreview} && $ans->{showCoordinateHints} && !$ans->{parallel}) {
     my @errors;
     foreach my $i (1..$self->length) {
       push(@errors,"The ".$self->NameForNumber($i)." coordinate is incorrect")
-	if ($self->{data}[$i-1] != $ans->{student_value}{data}[$i-1]);
+	if ($self->{data}[$i-1] != $student->{data}[$i-1]);
     }
     $self->cmp_Error($ans,@errors); return;
   }
@@ -373,7 +376,9 @@ sub cmp_postprocess {
   my $self = shift; my $ans = shift;
   return unless $ans->{score} == 0 &&
     !$ans->{isPreview} && $ans->{showDimensionHints};
-  my @d1 = $self->dimensions; my @d2 = $ans->{student_value}->dimensions;
+  my $student = $ans->{student_value};
+  return if $ans->{ignoreStrings} && (!Value::isValue($student) || $student->type eq 'String');
+  my @d1 = $self->dimensions; my @d2 = $student->dimensions;
   if (scalar(@d1) != scalar(@d2)) {
     $self->cmp_Error($ans,"Matrix dimension is not correct");
     return;
@@ -414,6 +419,7 @@ sub cmp_postprocess {
   my $self = shift; my $ans = shift;
   return unless $ans->{score} == 0 && !$ans->{isPreview};
   my $other = $ans->{student_value};
+  return if $ans->{ignoreStrings} && (!Value::isValue($other) || $other->type eq 'String');
   return unless $other->class eq 'Interval';
   my @errors;
   if ($ans->{showEndpointHints}) {
@@ -509,7 +515,7 @@ sub cmp_equal {
   my $showLengthHints  = getOption($ans,'showLengthHints');
   my $showParenHints   = getOption($ans,'showLengthHints');
   my $partialCredit    = getOption($ans,'partialCredit');
-  my $ordered = $ans->{ordered};
+  my $ordered   = $ans->{ordered};
   my $requireParenMatch = $ans->{requireParenMatch};
   my $typeMatch = $ans->{typeMatch};
   my $value     = $ans->{entry_type};
@@ -751,6 +757,7 @@ sub cmp_postprocess {
   return unless $ans->{score} == 0 && !$ans->{isPreview};
   return if $ans->{ans_message} || !$ans->{showDimensionHints};
   my $other = $ans->{student_value};
+  return if $ans->{ignoreStrings} && (!Value::isValue($other) || $other->type eq 'String');
   return unless $other->type =~ m/^(Point|Vector|Matrix)$/;
   return unless $self->type  =~ m/^(Point|Vector|Matrix)$/;
   return if Parser::Item::typeMatch($self->typeRef,$other->typeRef);
