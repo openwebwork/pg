@@ -1109,7 +1109,7 @@ sub process_answers{
 		if (ref($rf_fun) eq 'CODE' ) {
 			$rh_ans_evaluation_result = $self->{safe} ->reval( '&{ $rf_fun }($temp_ans)' ) ;
 			warn "Error in Translator.pm::process_answers: Answer $ans_name:<BR>\n $@\n" if $@;
-		} elsif (ref($rf_fun) eq 'AnswerEvaluator')   {
+		} elsif (ref($rf_fun) =~ /AnswerEvaluator/)   {
 			$rh_ans_evaluation_result = $self->{safe} ->reval('$rf_fun->evaluate($temp_ans, ans_label => \''.$ans_name.'\')');
 			$@ = $errorTable{$@} if $@ && defined($errorTable{$@});
 			warn "Error in Translator.pm::process_answers: Answer $ans_name:<BR>\n $@\n" if $@;
