@@ -15,6 +15,11 @@ sub _check {
   $self->Error("Function '$self->{name}' is not allowed in this context");
 }
 
+sub _call {
+  my $self = shift; my $name = shift;
+  Value::Error("Function '$name' is not allowed in this context");
+}
+
 #########################################################################
 
 1;
