@@ -913,6 +913,8 @@ sub alias {
 		if ( $displayMode eq 'HTML' ||
 		     $displayMode eq 'HTML_tth'||
 		     $displayMode eq 'HTML_dpng'||
+		     $displayMode eq 'HTML_asciimath'||
+		     $displayMode eq 'HTML_jsMath'||
 		     $displayMode eq 'HTML_img'||
 		     $displayMode eq 'Latex2HTML')  {
 			################################################################################
@@ -1037,12 +1039,14 @@ sub alias {
 				}
 			}
 		} else {
-			wwerror("Error in alias: dangerousMacros.pl","unrecognizable displayMode = $displayMode","");
+			wwerror("Error in alias: dangerousMacros.pl"," unrecognizable displayMode = $displayMode","");
 		}
 	} elsif ($ext eq 'png') {
 		if ( $displayMode eq 'HTML' ||
 		     $displayMode eq 'HTML_tth'||
 		     $displayMode eq 'HTML_dpng'||
+		     $displayMode eq 'HTML_asciimath'||
+		     $displayMode eq 'HTML_jsMath'||
 		     $displayMode eq 'HTML_img'||
 		     $displayMode eq 'HTML_jsMath'||
 		     $displayMode eq 'Latex2HTML')  {
