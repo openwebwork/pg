@@ -202,7 +202,7 @@ sub pushOperand {
 #          Convert the space operator to explicit multiplication
 #          Save the opertor on the stack
 #      Otherwise, (top is not an operand)
-#        If the operator is an explicit on or the top is a function
+#        If the operator is an explicit one or the top is a function
 #          Call Op again to report the error, or to apply
 #            the operator to the function (this happens when
 #            there is a function to a power, for example)
