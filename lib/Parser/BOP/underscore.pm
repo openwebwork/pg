@@ -70,11 +70,21 @@ sub _reduce {
 #  Brace the index for TeX.  (Not really good for multiple indices.)
 #
 sub TeX {
-  my ($self,$precedence,$showparens,$position) = @_;
-  my $bop = $self->{def};
+  my ($self,$precedence,$showparens,$position,$outerRight) = @_;
+  my $TeX; my $bop = $self->{def};
+  my $addparens =
+      defined($precedence) &&
+      ($showparens eq 'all' || $precedence > $bop->{precedence} ||
+      ($precedence == $bop->{precedence} &&
+        ($bop->{associativity} eq 'right' || $showparens eq 'same')));
+  my $outerRight = !$addparens && ($outerRight || $position eq 'right');
+
   my $symbol = (defined($bop->{TeX}) ? $bop->{TeX} : $bop->{string});
-  $self->{lop}->TeX($bop->{precedence},$bop->{leftparens},'left').
+  $TeX = $self->{lop}->TeX($bop->{precedence},$bop->{leftparens},'left',$outerRight).
     $symbol.'{'.$self->{rop}->TeX.'}';
+
+  $TeX = '\left('.$TeX.'\right)' if $addparens;
+  return $TeX;
 }
 
 #

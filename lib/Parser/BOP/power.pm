@@ -50,11 +50,28 @@ sub _reduce {
 #  Put exponent in braces for TeX
 #
 sub TeX {
-  my ($self,$precedence,$showparens,$position) = @_;
+  my ($self,$precedence,$showparens,$position,$outerRight) = @_;
   my $TeX; my $bop = $self->{def};
+  my $addparens =
+      defined($precedence) &&
+      ($showparens eq 'all' || $precedence > $bop->{precedence} ||
+      ($precedence == $bop->{precedence} &&
+        ($bop->{associativity} eq 'right' || $showparens eq 'same')));
+  my $outerRight = !$addparens && ($outerRight || $position eq 'right');
+
   my $symbol = (defined($bop->{TeX}) ? $bop->{TeX} : $bop->{string});
-  $self->{lop}->TeX($bop->{precedence},$bop->{leftparens},'left').
-    $symbol.'{'.$self->{rop}->TeX.'}';
+  if ($self->{lop}->class eq 'Function' && $self->{rop}->class eq 'Number' &&
+      $self->{rop}{value} > 0 && int($self->{rop}{value}) == $self->{rop}{value}) {
+    $TeX = $self->{lop}->TeX($precedence,$showparens,$position,$outerRight,
+			     $symbol.'{'.$self->{rop}->TeX.'}');
+    $addparens = 0;
+  } else {
+    $TeX = $self->{lop}->TeX($bop->{precedence},$bop->{leftparens},'left',$outerRight).
+      $symbol.'{'.$self->{rop}->TeX.'}';
+  }
+
+  $TeX = '\left('.$TeX.'\right)' if $addparens;
+  return $TeX;
 }
 
 #########################################################################

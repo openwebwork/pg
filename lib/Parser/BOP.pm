@@ -270,16 +270,16 @@ sub getVariables {
 #       or we are supposed to show parens for the same precedence
 #
 sub string {
-  my $self = shift;
-  my $precedence = shift; my $showparens = shift;
+  my ($self,$precedence,$showparens,$position,$outerRight) = @_;
   my $string; my $bop = $self->{def};
   my $addparens = 
       defined($precedence) &&
       ($showparens eq 'all' || $bop->{fullparens} || $precedence > $bop->{precedence} ||
       ($precedence == $bop->{precedence} &&
         ($bop->{associativity} eq 'right' || $showparens eq 'same')));
+  my $outerRight = !$addparens && ($outerRight || $position eq 'right');
 
-  $string = $self->{lop}->string($bop->{precedence},$bop->{leftparens},'left').
+  $string = $self->{lop}->string($bop->{precedence},$bop->{leftparens},'left',$outerRight).
             $bop->{string}.
             $self->{rop}->string($bop->{precedence},$bop->{rightparens},'right');
 
@@ -294,15 +294,16 @@ sub string {
 #  Produce the TeX version of the BOP.
 #
 sub TeX {
-  my ($self,$precedence,$showparens,$position) = @_;
+  my ($self,$precedence,$showparens,$position,$outerRight) = @_;
   my $TeX; my $bop = $self->{def};
   my $addparens =
       defined($precedence) &&
       ($showparens eq 'all' || $precedence > $bop->{precedence} ||
       ($precedence == $bop->{precedence} &&
         ($bop->{associativity} eq 'right' || $showparens eq 'same')));
+  my $outerRight = !$addparens && ($outerRight || $position eq 'right');
 
-  $TeX = $self->{lop}->TeX($bop->{precedence},$bop->{leftparens},'left').
+  $TeX = $self->{lop}->TeX($bop->{precedence},$bop->{leftparens},'left',$outerRight).
          (defined($bop->{TeX}) ? $bop->{TeX} : $bop->{string}) .
          $self->{rop}->TeX($bop->{precedence},$bop->{rightparens},'right');
 

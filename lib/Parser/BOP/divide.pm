@@ -48,7 +48,7 @@ sub _reduce {
 #  Use \frac for TeX version.
 #
 sub TeX {
-  my ($self,$precedence,$showparens,$position) = @_;
+  my ($self,$precedence,$showparens,$position,$outerRight) = @_;
   my $TeX; my $bop = $self->{def};
   my $addparens =
       defined($precedence) &&

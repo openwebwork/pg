@@ -70,7 +70,7 @@ $operators = {
            class => 'Parser::UOP::factorial', perl => 'Factorial'},
 
    '_' => {precedence => 9, associativity => 'left', type => 'bin', string => '_',
-           class => 'Parser::BOP::underscore'},
+           class => 'Parser::BOP::underscore', leftparens => 'all'},
 };
 
 $parens = {

@@ -176,10 +176,10 @@ sub getVariables {
 #    associativity of the operator.
 #
 sub string {
-  my $self = shift;
-  my $precedence = shift; my $showparens = shift;
+  my ($self,$precedence,$showparens,$position,$outerRight) = @_;
   my $string; my $uop = $self->{def};
-  my $addparens = defined($precedence) && $precedence >= $uop->{precedence};
+  my $addparens = defined($precedence) &&
+    ($precedence >= $uop->{precedence} || $position eq 'right' || $outerRight);
   if ($uop->{associativity} eq "right") {
     $string = $self->{op}->string($uop->{precedence}).$uop->{string};
   } else {
@@ -193,9 +193,10 @@ sub string {
 #  Produce the TeX form
 #
 sub TeX {
-  my $self = shift; my $precedence = shift; my $showparens = shift;
+  my ($self,$precedence,$showparens,$position,$outerRight) = @_;
   my $TeX; my $uop = $self->{def};
-  my $addparens = defined($precedence) && $precedence >= $uop->{precedence};
+  my $addparens = defined($precedence) &&
+    ($precedence >= $uop->{precedence} || $position eq 'right' || $outerRight);
   $TeX = (defined($uop->{TeX}) ? $uop->{TeX} : $uop->{string});
   if ($uop->{associativity} eq "right") {
     $TeX = $self->{op}->TeX($uop->{precedence}) . $TeX;

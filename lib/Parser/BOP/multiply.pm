@@ -65,12 +65,26 @@ sub _reduce {
 }
 
 sub TeX {
-  my ($self,$precedence,$showparens,$position) = @_;
-  my $TeX; my $bop = $self->{def};
+  my ($self,$precedence,$showparens,$position,$outerRight) = @_;
+  my $TeX; my $bop = $self->{def}; my $cdot;
   my $mult = (defined($bop->{TeX}) ? $bop->{TeX} : $bop->{string});
-  $mult = '\cdot ' if ($self->{lop}->class eq 'Number' && $self->{rop}->class eq 'Number');
-  $self->{lop}->TeX($bop->{precedence},$bop->{leftparens},'left'). $mult .
-  $self->{rop}->TeX($bop->{precedence},$bop->{rightparens},'right');
+  ($mult,$cdot) = @{$mult} if ref($mult) eq 'ARRAY';
+  $cdot = '\cdot ' unless $cdot;
+
+  my $addparens =
+      defined($precedence) &&
+      ($showparens eq 'all' || $precedence > $bop->{precedence} ||
+      ($precedence == $bop->{precedence} &&
+        ($bop->{associativity} eq 'right' || $showparens eq 'same')));
+  my $outerRight = !$addparens && ($outerRight || $position eq 'right');
+
+  my $left  = $self->{lop}->TeX($bop->{precedence},$bop->{leftparens},'left',$outerRight);
+  my $right = $self->{rop}->TeX($bop->{precedence},$bop->{rightparens},'right');
+  $mult = $cdot if $left =~ m/\d$/ && $right =~ m/^\d/;
+  $TeX = $left.$mult.$right;
+
+  $TeX = '\left('.$TeX.'\right)' if $addparens;
+  return $TeX;
 }
 
 #########################################################################

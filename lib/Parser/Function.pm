@@ -237,13 +237,13 @@ sub getVariables {
 #    (e.g., powers, etc.)
 #
 sub string {
-  my ($self,$precedence,$showparens,$position) = @_;
+  my ($self,$precedence,$showparens,$position,$outerRight,$power) = @_;
   my $string; my $fn = $self->{equation}{context}{operators}{'fn'};
   my @pstr = (); my $fn_precedence = $fn->{precedence};
   $fn_precedence = $fn->{parenPrecedence}
     if ($position && $position eq 'right' && $fn->{parenPrecedence});
   foreach my $x (@{$self->{params}}) {push(@pstr,$x->string)}
-  $string = ($self->{def}{string} || $self->{name}).'('.join(',',@pstr).')';
+  $string = ($self->{def}{string} || $self->{name})."$power".'('.join(',',@pstr).')';
   $string = '('.$string.')'
     if (defined($precedence) and $precedence > $fn_precedence);
   return $string;
@@ -253,7 +253,7 @@ sub string {
 #  Produce the TeX form.
 #
 sub TeX {
-  my ($self,$precedence,$showparens,$position) = @_;
+  my ($self,$precedence,$showparens,$position,$outerRight,$power) = @_;
   my $TeX; my $fn = $self->{equation}{context}{operators}{'fn'};
   my @pstr = (); my $fn_precedence = $fn->{precedence};
   $fn_precedence = $fn->{parenPrecedence}
@@ -263,7 +263,7 @@ sub TeX {
   $name = $fn->{TeX} if defined($fn->{TeX});
   foreach my $x (@{$self->{params}}) {push(@pstr,$x->TeX)}
   if ($fn->{braceTeX}) {$TeX = $name.'{'.join(',',@pstr).'}'}
-    else {$TeX = $name.'\left('.join(',',@pstr).'\right)'}
+    else {$TeX = $name."$power".'\left('.join(',',@pstr).'\right)'}
   $TeX = '\left('.$TeX.'\right)'
     if (defined($precedence) and $precedence > $fn_precedence);
   return $TeX;
