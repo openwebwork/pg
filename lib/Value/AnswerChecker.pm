@@ -450,7 +450,6 @@ sub cmp_defaults {
     showLengthHints => undef,
     showParenHints => undef,
     partialCredit => undef,
-#    partialCredit => 0,  #  only allow this once WW can deal with partial credit
     ordered => 0,
     entry_type => undef,
     list_type => undef,
