@@ -44,6 +44,7 @@ $context{ParametricLine} = Context("Vector")->copy();
 $context{ParametricLine}->variables->are(t=>'Real');
 $context{ParametricLine}->{precedence}{ParametricLine} = 
   $context{ParametricLine}->{precedence}{special};
+$context{ParametricLine}->reduction->set('(-x)-y'=>0);
 #
 #  Make it active
 #
@@ -76,8 +77,9 @@ sub new {
     Value::Error("Your formula doesn't look like a parametric line")
       unless $line->type eq 'Vector';
     $t = shift || (keys %{$line->{variables}})[0];
+    Value::Error("A line can't be just a constant vector") unless $t;
     $p = Value::Point->new($line->eval($t=>0));
-    $v = $line->eval($t=>1) - $p;
+    $v = Value::Vector->new($line->eval($t=>1) - $p);
     Value::Error("Your formula isn't linear in the variable $t")
       unless $line == $p + Value::Formula->new($t) * $v;
   }
@@ -118,8 +120,9 @@ sub cmp_defaults {(
 #
 sub cmp_postprocess {
   my $self = shift; my $ans = shift;
+  my $error = $$Value::context->{error}{message};
   $self->cmp_error($ans) 
-    if $$Value::context->{error}{message} =~ m/^Your formula isn't linear/;
+    if $error =~ m/^(Your formula (isn't linear|doesn't look)|A line can't|The direction vector)/;
 }
 
 1;
