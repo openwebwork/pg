@@ -12,7 +12,7 @@ use strict; use vars qw(@ISA);
 
 sub _check {
   my $self = shift;
-  $self->Error("Function '$self->{name}' is not defined in this context");
+  $self->Error("Function '$self->{name}' is not allowed in this context");
 }
 
 #########################################################################
