@@ -200,6 +200,7 @@ sub C {
 	my $k = shift;
 	my $ans = 1;
 
+	return(0) if ($k>$n);
 	if($k>($n-$k)) { $k = $n-$k; }
 	for (1..$k) { $ans = ($ans*($n-$_+1))/$_; }
 	return $ans;
