@@ -53,6 +53,8 @@ sub cmp_parse {
   Parser::Context->current(undef,$context); # change to correct answser's context
   $context->flags->set(StringifyAsTeX => 0);  # reset this, just in case.
   $context->flags->set(no_parameters => 1);   # don't let students enter parameters
+  my $showParens = $context->flag('showExtraParens'); # save for later
+  $context->flags->set(showExtraParens=>1);   # make student answer painfully unambiguous
   $ans->{isPreview} = $self->getPG('$inputs_ref->{previewAnswers}');
   $ans->{cmp_class} = $self->cmp_class($ans) unless $ans->{cmp_class};
 
@@ -80,6 +82,7 @@ sub cmp_parse {
     $self->cmp_error($ans);
   }
   $context->flags->set(no_parameters => 0);  # let professors enter parameters
+  $context->flags->set(showExtraParens=>$showParens); # put back old value
   Parser::Context->current(undef,$current);  # put back the old context
   return $ans;
 }
