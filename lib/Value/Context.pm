@@ -81,6 +81,12 @@ sub copy {
 }
 
 #
+#  Make stringify produce TeX or regular strings
+#
+sub texStrings {shift->flags->set(StringifyAsTeX=>1)}
+sub normalStrings {shift->flags->set(StringifyAsTeX=>0)}
+
+#
 #  Clear error flags
 #
 sub clearError {

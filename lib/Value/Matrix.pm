@@ -337,11 +337,8 @@ sub column {
 
 sub stringify {
   my $self = shift;
-  my $open  = $$Value::context->lists->get('Matrix')->{open};
-  my $close = $$Value::context->lists->get('Matrix')->{close};
-  return $open.join(',',@{$self->data}).$close
-    if (Value::class($self->data->[0]) ne 'Matrix');
-  return $open.join(",\n ",@{$self->data}).$close;
+  return $self->TeX(undef,$self->{open},$self->{close}) if $$Value::context->flag('StringifyAsTeX');
+  return $self->string(undef,$self->{open},$self->{close})
 }
 
 sub string {

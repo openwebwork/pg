@@ -97,6 +97,7 @@ sub compare {
 
 sub stringify {
   my $self = shift;
+  return $self->TeX(@_) if $$Value::context->flag('StringifyAsTeX');
   my $open = $self->{open}; my $close = $self->{close};
   $open  = $$Value::context->lists->get('List')->{open} unless defined($open);
   $close = $$Value::context->lists->get('List')->{close} unless defined($close);

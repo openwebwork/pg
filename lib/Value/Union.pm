@@ -14,7 +14,7 @@ use overload
        '<=>' => \&compare,
        'cmp' => \&compare,
   'nomethod' => \&Value::nomethod,
-        '""' => \&stringify;
+        '""' => \&Value::stringify;
 
 #
 #  Convert a value to a union of intervals.  The value must be
@@ -122,22 +122,19 @@ sub compare {
 #  Generate the various output formats
 #
 
-sub stringify {
-  my $self = shift;
-  join(' U ',@{$self->data});
-}
-
 sub string {
   my $self = shift; my $equation = shift;
   my $context = $equation->{context} || $$Value::context;
+  my $union = $context->{operators}{'U'}{string} || ' U ';
   my @intervals = ();
   foreach my $x (@{$self->data}) {push(@intervals,$x->string($equation))}
-  return join($context->operators->get('U')->{string},@intervals);
+  return join($union,@intervals);
 }
+
 sub TeX {
   my $self = shift; my $equation = shift;
   my $context = $equation->{context} || $$Value::context;
-  my @intervals = (); my $op = $context->operators->get('U');
+  my @intervals = (); my $op = $context->{operators}{'U'} || {string => ' U '};
   foreach my $x (@{$self->data}) {push(@intervals,$x->TeX($equation))}
   return join($op->{TeX} ? $op->{TeX} : $op->{string},@intervals);
 }

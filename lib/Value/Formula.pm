@@ -28,7 +28,7 @@ use overload
        'sqrt' => sub {Parser::Function->call('sqrt',$_[0])},
       'atan2' => \&atan2,
    'nomethod' => \&Value::nomethod,
-         '""' => \&stringify;
+         '""' => \&Value::stringify;
 
 #
 #  Call Parser to make the new item
@@ -114,11 +114,6 @@ sub atan2 {
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   Parser::Function->call('atan2',$l,$r);
 }
-
-#
-#  Let the Parser object handle it
-#
-sub stringify {(shift)->string}
 
 ###########################################################################
 

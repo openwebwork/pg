@@ -24,6 +24,7 @@ our $cmp_defaults = {
 
 sub cmp {
   my $self = shift;
+  $$Value::context->flags->set(StringifyAsTeX => 0);  # reset this, just in case.
   my $ans = new AnswerEvaluator;
   my $defaults = ref($self)."::cmp_defaults";
   $ans->ans_hash(
@@ -445,9 +446,8 @@ sub cmp_equal {
   $typeMatch = Value::Real->make($typeMatch)
     if !ref($typeMatch) && Value::matchNumber($typeMatch);
   my $value = getOption($ans->{entry_type},
-      Value::isValue($typeMatch)? lc($typeMatch->showClass): 'value');
+      Value::isValue($typeMatch)? lc($typeMatch->showCmpClass): 'value');
   $value =~ s/^an? //; $value =~ s/(real|complex) //;
-  $value = "interval or union" if $value =~ m/interval/;
   my $ltype = getOption($ans->{list_type},lc($self->type));
   $showTypeWarnings = $showHints = $showLengthHints = 0 if $ans->{isPreview};
 

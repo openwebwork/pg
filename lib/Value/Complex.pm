@@ -26,7 +26,7 @@ use overload
        'cos' => sub {$_[0]->cos},
      'atan2' => \&atan2,
   'nomethod' => \&Value::nomethod,
-        '""' => \&stringify;
+        '""' => \&Value::stringify;
 
 #
 #  Check that the inputs are:
@@ -329,8 +329,7 @@ sub acoth {my $z = promote(@_); CORE::log((1+$z)/($z-1))/2}
 
 ##################################################
 
-sub stringify {my $self = shift; Value::Complex::format(@{$self->data},@_)}
-
+sub string {my $self = shift; Value::Complex::format(@{$self->data},@_)}
 sub TeX {my $self = shift; Value::Complex::format(@{$self->data},'TeX')}
 
 #

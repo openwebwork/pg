@@ -239,7 +239,8 @@ my $ijk_TeX = ['\boldsymbol{i}','\boldsymbol{j}','\boldsymbol{k}','\boldsymbol{0
 
 sub stringify {
   my $self = shift;
-  $self->string(undef,$self->{open},$self->{close})
+  return $self->TeX(undef,$self->{open},$self->{close}) if $$Value::context->flag('StringifyAsTeX');
+  return $self->string(undef,$self->{open},$self->{close})
 };
 
 sub string {

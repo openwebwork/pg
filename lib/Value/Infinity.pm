@@ -13,7 +13,7 @@ use overload
        'cmp' => \&compare,
        'neg' => \&neg,
   'nomethod' => \&Value::nomethod,
-        '""' => \&stringify;
+        '""' => \&Value::stringify;
 
 #
 #  Create an infinity object
@@ -74,11 +74,9 @@ sub compare {
 #  Generate the various output formats
 #
 
-sub stringify {shift->value}
 sub TeX {(shift->{isNegative} ? '-\infty': '\infty ')}
 sub perl {(shift->{isNegative} ? '-(Infinity)': '(Infinity)')}
 
 ###########################################################################
 
 1;
-

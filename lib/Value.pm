@@ -352,7 +352,7 @@ sub _dot {
   my ($l,$r,$flag) = @_;
   return Value::_dot($r,$l,!$flag) if ($l->promotePrecedence($r));
   return $l->dot($r,$flag) if (Value::isValue($r));
-  $l = '(' . $l->stringify . ')';
+  $l = $l->stringify; $l = '('.$l.')' unless $$Value::context->flag('StringifyAsTeX');
   return ($flag)? ($r.$l): ($l.$r);
 }
 #
@@ -360,7 +360,9 @@ sub _dot {
 #
 sub dot {
   my ($l,$r,$flag) = @_;
-  $l = '(' . $l->stringify . ')'; $r = '(' . $r->stringify . ')' if ref($r);
+  my $tex = $$Value::context->flag('StringifyAsTeX');
+  $l = $l->stringify; $l = '('.$l.')' if $tex;
+  if (ref($r)) {$r = $r->stringify; $r = '('.$l.')' if $tex}
   return ($flag)? ($r.$l): ($l.$r);
 }
 
@@ -376,10 +378,15 @@ sub compare {
 
 #
 #  Generate the various output formats
+#  (can be replaced by sub-classes)
 #
-sub stringify {shift->value}
-sub string {my $self = shift; shift; $self->stringify(@_)}
-sub TeX {(shift)->string(@_)}
+sub stringify {
+  my $self = shift;
+  return $self->TeX() if $$Value::context->flag('StringifyAsTeX');
+  $self->string();
+}
+sub string {shift->value}
+sub TeX {shift->string(@_)}
 #
 #  For perl, call the appropriate constructor around the objects data
 #
@@ -472,7 +479,6 @@ $Value::installed = 1;
 #
 #    To Do:
 #
-#  Make a class for infinity?
 #  Make Complex class include more of Complex1.pm
 #  Make better interval comparison
 #  

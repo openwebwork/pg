@@ -178,9 +178,8 @@ sub abs {
 
 sub stringify {
   my $self = shift;
-  my $open  = $self->{open}  || $$Value::context->lists->get('Point')->{open};
-  my $close = $self->{close} || $$Value::context->lists->get('Point')->{close};
-  $open . join(',',@{$self->data}) . $close;
+  return $self->TeX(undef,$self->{open},$self->{close}) if $$Value::context->flag('StringifyAsTeX');
+  return $self->string(undef,$self->{open},$self->{close});
 }
 
 sub string {

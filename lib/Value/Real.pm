@@ -28,7 +28,7 @@ use overload
        'cos' => sub {$_[0]->cos},
      'atan2' => \&atan2,
   'nomethod' => \&Value::nomethod,
-        '""' => \&stringify;
+        '""' => \&Value::stringify;
 
 #
 #  Check that the input is a real number or a formula
@@ -177,8 +177,6 @@ sub atan2 {
 }
 
 ##################################################
-
-sub stringify {shift->string}
 
 sub string {
   my $self = shift; my $equation = shift; my $parens = shift;
