@@ -157,7 +157,7 @@ sub usePrecedence {
       last;
     };
     
-    Value::Error("Precedence type should be one of 'Standard' or 'Non-standard'");
+    Value::Error("Precedence type should be one of 'Standard' or 'Non-Standard'");
   }
 }
 
