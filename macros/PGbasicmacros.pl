@@ -66,6 +66,8 @@ my ($PAR,
 	$envir,
 	$PG_random_generator,
 	$inputs_ref,
+	$rh_sticky_answers,
+	$r_ans_rule_count,
 	);
 
 sub _PGbasicmacros_init {
@@ -121,7 +123,7 @@ main::PG_restricted_eval( <<'EndOfFile');
 	$main::PI				= PI();
 	$main::E				= E();
 	@main::ALPHABET			= ('A'..'ZZ');
-
+	%main::STICKY_ANSWERS   = ();
 
 
 EndOfFile
@@ -170,7 +172,8 @@ EndOfFile
    $envir               = PG_restricted_eval(q!\%main::envir!);
    $PG_random_generator = PG_restricted_eval(q!$main::PG_random_generator!);
    $inputs_ref          = $envir{inputs_ref};
-
+   $rh_sticky_answers   = PG_restricted_eval(q!\%main::STICKY_ANSWERS!);
+   $r_ans_rule_count     = PG_restricted_eval(q!\$ans_rule_count!);
 }
 
 =head2  Answer blank macros:
@@ -270,14 +273,14 @@ sub NAMED_ANS_RULE {
     if ($answer_value =~ /\0/ ) {
     	my @answers = split("\0", $answer_value);
     	$answer_value = shift(@answers);  # use up the first answer
-    	PG_restricted_eval(q!$main::rh_sticky_answers{$name}=\@answers;!);
+    	$rh_sticky_answers->{$name}=\@answers;
     	# store the rest -- beacuse this stores to a main:; variable
     	# it must be evaluated at run time
     	$answer_value= '' unless defined($answer_value);
 	} elsif (ref($answer_value) eq 'ARRAY') {
 		my @answers = @{ $answer_value};
     	$answer_value = shift(@answers);  # use up the first answer
-    	PG_restricted_eval(q!$main::rh_sticky_answers{$name}=\@answers;!);
+    	$rh_sticky_answers->{$name}=\@answers;
     	# store the rest -- beacuse this stores to a main:; variable
     	# it must be evaluated at run time
     	$answer_value= '' unless defined($answer_value);
@@ -308,8 +311,8 @@ sub NAMED_ANS_RULE_EXTENSION {
 	my $len = 0.07*$col;
 	my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
-	if ( defined(PG_restricted_eval(q!$main::rh_sticky_answers{$name}!)) ) {
-		$answer_value = shift( @{PG_restricted_eval(q!$main::rh_sticky_answers{$name}!)});
+	if ( defined( $rh_sticky_answers->{$name} ) ) {
+		$answer_value = shift( @{ $rh_sticky_answers->{$name} });
 		$answer_value = '' unless defined($answer_value);
 	}
 	$answer_value =~ tr/\\$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
@@ -580,7 +583,7 @@ sub ans_rule {
 sub ans_rule_extension {
 	my $len = shift;
     $len    = 20 unless $len ;
-	my $name = NEW_ANS_NAME(PG_restricted_eval(q!$main::ans_rule_count!));  # don't update the answer name
+	my $name = NEW_ANS_NAME($$r_ans_rule_count);  # don't update the answer name
 	NAMED_ANS_RULE($name ,$len);
 }
 sub ans_radio_buttons {
@@ -631,7 +634,7 @@ sub tex_ans_rule {
 sub tex_ans_rule_extension {
 	my $len = shift;
 	$len    = 20 unless $len ;
-    my $name = NEW_ANS_NAME(PG_restricted_eval(q!$main::ans_rule_count!));
+    my $name = NEW_ANS_NAME($$r_ans_rule_count);
     my $answer_rule = NAMED_ANS_RULE($name ,$len);  # we don't want to create three answer rules in different modes.
     my $out = MODES(
                      'TeX' => $answer_rule,
