@@ -536,29 +536,16 @@ sub tolatex {
     return ($args[0] . $p1 . $args[1]->tolatex() . $p2);
   };
   /binop2/ && do {
-    my ($p1, $p2, $p3, $p4) = ('','','','');
-    if ($args[0] =~ /implicit/) {
-      if ( (($args[1]->head eq qq(number)) &&
-            ($args[2]->head eq qq(number))) ||
-           (($args[1]->head eq qq(binop2)) &&
-            ($args[1]->[2]->head eq qq(number))) ) {
-        $args[0] = '\\,';
-      } else {
-        $args[0] = ' ';
-      }
-    }
-    if ($args[1]->[0] =~ /binop1|numberE/)
-      {($p1,$p2)=qw{ \left( \right) };}
- #   if ($args[2]->[0] =~ /binop[12]|numberE/)
-	if ($args[2]->[0] =~ /binop[12]|numberE|unop1/)
-      {($p3,$p4)=qw{ \left( \right) };}
+    my ($lop,$rop) = ($args[1]->tolatex,$args[2]->tolatex);
     if ($args[0] eq '/'){
-	return('\frac{' . $p1 . $args[1]->tolatex() . $p2 . '}'.
-               '{' . $p3 . $args[2]->tolatex() . $p4 . '}' );
-    }
-    else{
-    return ($p1 . $args[1]->tolatex() . $p2 . $args[0] . $p3 .
-            $args[2]->tolatex() . $p4);
+      return('\frac{'.$lop.'}{'.$rop.'}');
+    } else {
+      $lop = '\left('.$lop.'\right)' if ($args[1]->[0] =~ /binop1|numberE/);
+      $rop = '\left('.$rop.'\right)' if ($args[2]->[0] =~ /binop[12]|numberE|unop1/);
+      if ($args[0] =~ /implicit/) {
+	$args[0] = ($lop =~ m/[.0-9]$/ && $rop =~ m/^[-+.0-9]/) ? '\cdot ' : ' ';
+      }
+      return ($p1.$lop.$p2. $args[0] .$p3.$rop.$p4);
     }
   };
   /binop3/ && do {
