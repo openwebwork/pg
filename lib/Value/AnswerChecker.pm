@@ -703,6 +703,10 @@ sub cmp {
     $self->{tree}{open} = $self->{tree}{close} = '';
     $cmp->ans_hash(correct_ans => $self->stringify);
   }
+  if ($cmp->{rh_ans}{eval} && $self->isConstant) {
+    $cmp->ans_hash(correct_value => $self->eval);
+    return $cmp;
+  }
   if ($cmp->{rh_ans}{upToConstant}) {
     my $current = Parser::Context->current();
     my $context = $self->{context} = $self->{context}->copy;
