@@ -681,6 +681,134 @@ sub pop_up_list {
 	NAMED_POP_UP_LIST($name, @list);
 }
 
+
+
+=head5  answer_matrix
+
+		Usage   \[ \{   answer_matrix(rows,columns,width_of_ans_rule, @options) \} \]
+		
+		Creates an array of answer blanks and passes it to display_matrix which returns
+		text which represents the matrix in TeX format used in math display mode. Answers
+		are then passed back to whatever answer evaluators you write at the end of the problem.
+		(note, if you have an m x n matrix, you will need mn answer evaluators, and they will be
+		returned to the evaluaters starting in the top left hand corner and proceed to the left 
+		and then at the end moving down one row, just as you would read them.)
+		
+		The options are passed on to display_matrix.
+
+
+=cut
+
+
+sub answer_matrix{
+	my $m = shift;
+	my $n = shift;
+	my $width = shift;
+	my @options = @_;
+	my @array=();
+	for( my $i = 0; $i < $m; $i+=1)
+	{
+		my @row_array = ();
+	
+		for( my $i = 0; $i < $n; $i+=1)
+		{
+			push @row_array,  ans_rule($width);
+		}	
+		my $r_row_array = \@row_array;
+		push @array,  $r_row_array;
+	}
+	display_matrix( \@array, @options );
+	
+}
+
+sub NAMED_ANS_ARRAY_EXTENSION{
+	
+	my $name = shift;
+	my $col = shift;
+	$col = 20 unless $col;
+	my $answer_value = '';
+	
+	$answer_value = ${$main::inputs_ref}{$name} if    defined(${$main::inputs_ref}{$name});
+	if ($answer_value =~ /\0/ ) {
+		my @answers = split("\0", $answer_value);
+		$answer_value = shift(@answers); 
+		$answer_value= '' unless defined($answer_value);
+	} elsif (ref($answer_value) eq 'ARRAY') {
+		my @answers = @{ $answer_value};
+  		$answer_value = shift(@answers); 
+    		$answer_value= '' unless defined($answer_value);
+	}
+	
+	$answer_value =~ tr/$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
+	MODES(
+		TeX => "\\mbox{\\parbox[t]{10pt}{\\hrulefill}}\\hrulefill\\quad ",
+		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\n\\end{rawhtml}\n!,
+		HTML => "<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"$answer_value\">\n"
+	);
+}
+
+sub ans_array{
+	my $m = shift;
+	my $n = shift;
+	my $col = shift;
+	$col = 20 unless $col;
+	my $num = ++$main::ans_rule_count ;
+	my $name = NEW_ANS_ARRAY_NAME($num,0,0);
+	my @options = @_;
+	my @array=();
+	my $string;
+	my $answer_value = "";
+	
+	$array[0][0] =   NAMED_ANS_RULE($name,$col);
+		
+	for( my $i = 1; $i < $n; $i+=1)
+	{
+		$name = NEW_ANS_ARRAY_NAME_EXTENSION($num,0,$i);
+		$array[0][$i] =   NAMED_ANS_ARRAY_EXTENSION($name,$col);
+	
+	}
+	
+	for( my $j = 1; $j < $m; $j+=1 ){
+		
+		for( my $i = 0; $i < $n; $i+=1)
+		{
+			$name = NEW_ANS_ARRAY_NAME_EXTENSION($num,$j,$i);
+		 	$array[$j][$i] =  NAMED_ANS_ARRAY_EXTENSION($name,$col);
+	
+		}
+	
+	}
+	display_matrix( \@array, @options );
+	
+}
+
+sub ans_array_extension{
+	my $m = shift;
+	my $n = shift;
+	my $col = shift;
+	$col = 20 unless $col;
+	my $num = $main::ans_rule_count;
+	my @options = @_;
+	my $name;
+	my @array=();
+	my $string;
+	my $answer_value = "";
+			
+	for( my $j = 0; $j < $m; $j+=1 ){
+		
+		for( my $i = 0; $i < $n; $i+=1)
+		{
+			$name = NEW_ANS_ARRAY_NAME_EXTENSION($num,$j,$i);
+			$array[$j][$i] =  NAMED_ANS_ARRAY_EXTENSION($name,$col);
+	
+		}
+	
+	}
+	display_matrix( \@array, @options );
+	
+}
+
+
 # end answer blank macros
 
 =head2 Hints and solutions macros
