@@ -1,4 +1,4 @@
-
+#!/usr/local/bin/perl
 # This file     is PGcomplexmacros.pl
 # This includes the subroutines for the ANS macros, that
 # is, macros allowing a more flexible answer checking
@@ -24,7 +24,7 @@
 
 BEGIN{
 	be_strict();
-
+	
 }
 
 
@@ -34,11 +34,11 @@ sub _PGcomplexmacros_init {
 # export functions from Complex1.
 
 foreach my $f (@Complex1::EXPORT) {
-#		#PG_restricted_eval("\*$f = \*Complex1::$f"); # this is too clever --
+#		#PG_restricted_eval("\*$f = \*Complex1::$f"); # this is too clever -- 
 		                                              # the original subroutines are destroyed
-        next if $f eq 'sqrt';  #exporting the square root caused conflicts with the standard version
-                               # You can still use Complex1::sqrt to take square root of complex numbers
-        next if $f eq 'log';  #exporting loq caused conflicts with the standard version
+        	next if $f eq 'sqrt';  #exporting the square root caused conflicts with the standard version
+               	               		# You can still use Complex1::sqrt to take square root of complex numbers
+        	next if $f eq 'log';  #exporting loq caused conflicts with the standard version
                                # You can still use Complex1::log to take square root of complex numbers
 
 		my $string = qq{
@@ -50,7 +50,7 @@ foreach my $f (@Complex1::EXPORT) {
 }
 
 
-# You need to add
+# You need to add 
 # sub i();  # to your problem or else to dangerousMacros.pl
 # in order to use expressions such as 1 +3*i;
 # Without this prototype you would have to write 1+3*i();
@@ -75,7 +75,7 @@ sub polar{
 }
 
 =head4 cplx_cmp
-
+	
 	This subroutine compares complex numbers.
 	Available prefilters include:
 	each of these are called by cplx_cmp( answer, mode => '(prefilter name)' )
@@ -102,34 +102,34 @@ sub polar{
 sub cplx_cmp {
 	my $correctAnswer = shift;
 	my %cplx_params = @_;
-	my @keys = qw ( correctAnswer tolerance tolType format mode zeroLevel zeroLevelTol debug );
+	
 	assign_option_aliases( \%cplx_params,
     						'reltol'    =>      'relTol',
 	    );
     	set_default_options(\%cplx_params,
-    					'tolType'		=>  (defined($cplx_params{tol}) ) ? 'absolute' : 'relative',
-    					   # default mode should be relative, to obtain this tol must not be defined
-					    'tolerance'			=>	$main::numAbsTolDefault,
-	               		'relTol'		=>	$main::numRelPercentTolDefault,
+    						'tolType'		=>  (defined($cplx_params{tol}) ) ? 'absolute' : 'relative',
+    					   	# default mode should be relative, to obtain this tol must not be defined
+					    	'tolerance'		=>	$main::numAbsTolDefault, 
+	               				'relTol'		=>	$main::numRelPercentTolDefault,
 						'zeroLevel'		=>	$main::numZeroLevelDefault,
-						'zeroLevelTol'	=>	$main::numZeroLevelTolDefault,
+						'zeroLevelTol'		=>	$main::numZeroLevelTolDefault,
 						'format'		=>	$main::numFormatDefault,
-						'debug'			=>  0,
-						'mode' 			=> 'std',
+						'debug'			=> 	0,
+						'mode' 			=> 	'std',
+						'strings'		=> 	undef,
 
     	);
-	$correctAnswer = cplx($correctAnswer,0) unless ref($correctAnswer) =~/Complex/;
 	my $format		=	$cplx_params{'format'};
 	my $mode		=	$cplx_params{'mode'};
-
+	
 	if( $cplx_params{tolType} eq 'relative' ) {
 		$cplx_params{'tolerance'} = .01*$cplx_params{'tolerance'};
 	}
-
+	
 	my $formattedCorrectAnswer;
 	my $correct_num_answer;
 	my $corrAnswerIsString = 0;
-
+	
 
 	if (defined($cplx_params{strings}) && $cplx_params{strings}) {
 		my $legalString	= '';
@@ -139,7 +139,7 @@ sub cplx_cmp {
 		foreach	$legalString (@legalStrings) {
 			if ( uc($correctAnswer) eq uc($legalString) ) {
 				$corrAnswerIsString	= 1;
-
+				
 				last;
 			}
 		}		  ## at	this point $corrAnswerIsString = 0 iff correct answer is numeric
@@ -148,33 +148,33 @@ sub cplx_cmp {
 		$formattedCorrectAnswer = prfmt( $correctAnswer, $cplx_params{'format'} );
 	}
 	$correct_num_answer = math_constants($correct_num_answer);
+	
 	my $PGanswerMessage = '';
-
+	
 	my ($inVal,$correctVal,$PG_eval_errors,$PG_full_error_report);
-
+	
 	if (defined($correct_num_answer) && $correct_num_answer =~ /\S/ && $corrAnswerIsString == 0 )	{
 			($correctVal, $PG_eval_errors,$PG_full_error_report) = PG_answer_eval($correct_num_answer);
 	} else { # case of a string answer
 		$PG_eval_errors	= '	';
 		$correctVal = $correctAnswer;
 	}
-	## This throws an error all the time, and I don't know what it's for
-	#if ( ($PG_eval_errors && $corrAnswerIsString == 0) or ((not is_a_number($correctVal)) && $corrAnswerIsString == 0)) {
-				##error message from eval or above
+	
+	#if ( ($PG_eval_errors && $corrAnswerIsString == 0) or (not (( ref($correctAnswer) =~ /^Complex?/) || is_a_number($correctVal)) && $corrAnswerIsString == 0)) {
+			##error message from eval or above
 		#warn "Error in 'correct' answer: $PG_eval_errors<br>
-		 #     The answer $correctAnswer evaluates to $correctVal,
-		  #    which cannot be interpreted as a number.  ";
-
+		 #    The answer $correctAnswer evaluates to $correctVal, 
+		  #   which cannot be interpreted as a number.  ";
+		
 	#}
 	########################################################################
-	$correctVal = $correct_num_answer;#it took me two and a half hours to figure out that correctVal wasn't
-	#getting the number properly
-	#construct the answer evaluator
-    	my $answer_evaluator = new AnswerEvaluator;
-
-
-    	$answer_evaluator->{debug} = $cplx_params{debug};
-    	$answer_evaluator->ans_hash(
+	$correctVal = $correct_num_answer;
+	$correctVal = cplx( $correctVal, 0 ) unless ref($correctVal) =~/^Complex?/ || $corrAnswerIsString == 1;
+	
+	#construct the answer evaluator 
+    	my $answer_evaluator = new AnswerEvaluator; 
+	$answer_evaluator->{debug} = $cplx_params{debug};
+    	$answer_evaluator->ans_hash( 	 
     						correct_ans 			=> 	$correctVal,
     					 	type				=>	"${mode}_number",
     					 	tolerance			=>	$cplx_params{tolerance},
@@ -184,7 +184,7 @@ sub cplx_cmp {
 						answer_form			=>	'cartesian',
      	);
     	my ($in, $formattedSubmittedAnswer);
-	$answer_evaluator->install_pre_filter(sub {my $rh_ans = shift;
+	$answer_evaluator->install_pre_filter(sub {my $rh_ans = shift; 
 		$rh_ans->{original_student_ans} = $rh_ans->{student_ans}; $rh_ans;}
 	);
 	if (defined($cplx_params{strings}) && $cplx_params{strings}) {
@@ -192,12 +192,12 @@ sub cplx_cmp {
 	}
 
 	$answer_evaluator->install_pre_filter(\&check_syntax);
-
+		
 	$answer_evaluator->install_pre_filter(\&math_constants);
 	$answer_evaluator->install_pre_filter(\&cplx_constants);
 	$answer_evaluator->install_pre_filter(\&check_for_polar);
 	if ($mode eq 'std')	{
-				# do nothing
+				# do nothing	
 	} elsif ($mode eq 'strict_polar') {
 		$answer_evaluator->install_pre_filter(\&is_a_polar);
 	} elsif ($mode eq 'strict_num_cartesian') {
@@ -206,20 +206,16 @@ sub cplx_cmp {
 		$answer_evaluator->install_pre_filter(\&is_a_numeric_polar);
 	} elsif ($mode eq 'strict') {
 		$answer_evaluator->install_pre_filter(\&is_a_numeric_complex);
-	} elsif ($mode eq 'arith') {
-			$answer_evaluator->install_pre_filter(\&is_an_arithmetic_expression);
-		} elsif ($mode eq 'frac') {
-			$answer_evaluator->install_pre_filter(\&is_a_fraction);
-
-		} else {
-			$PGanswerMessage = 'Tell your professor	that there is an error in his or her answer mechanism. No mode was specified.';
-			$formattedSubmittedAnswer =	$in;
-		}
-	if ($corrAnswerIsString == 0 ){		# avoiding running compare_numbers when correct answer is a string.
-		$answer_evaluator->install_evaluator(\&compare_cplx, %cplx_params);
+	} else {	
+		$PGanswerMessage = 'Tell your professor	that there is an error in his or her answer mechanism. No mode was specified.';
+		$formattedSubmittedAnswer =	$in;
 	}
 
-
+	if ($corrAnswerIsString == 0 ){		# avoiding running compare_cplx when correct answer is a string.
+		$answer_evaluator->install_evaluator(\&compare_cplx, %cplx_params);
+	}
+	  
+	 	
 ###############################################################################
 # We'll leave these next lines out for now, so that the evaluated versions of the student's and professor's
 # can be displayed in the answer message.  This may still cause a few anomolies when strings are used
@@ -228,8 +224,8 @@ sub cplx_cmp {
 
 	$answer_evaluator->install_post_filter(\&fix_answers_for_display);
 	$answer_evaluator->install_post_filter(\&fix_for_polar_display);
-
-     	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift;
+	
+     	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift; 
 					return $rh_ans unless $rh_ans->catch_error('EVAL');
 					$rh_ans->{student_ans} = $rh_ans->{original_student_ans}. ' '. $rh_ans->{error_message};
 					$rh_ans->clear_error('EVAL'); } );
@@ -243,224 +239,45 @@ sub cplx_cmp {
 
 
 
-
-
-# sub cplx_cmp4{
-# 	my $number_of_answers = shift;
-# 	my $count = 0; my @answers;
-# 	while( $count < $number_of_answers )
-# 	{
-# 		$answers[$count] = shift;
-# 		$count++;
-# 	}
-# 	my %cplx_params = @_;
-# 	my @keys = qw ( correctAnswer tolerance tolType format mode zeroLevel zeroLevelTol debug );
-# 	my @correctVal;
-# 	my $formattedCorrectAnswer;
-# 	my @correct_num_answer;
-# 	my ($PG_eval_errors,$PG_full_error_report);
-# 	assign_option_aliases( \%cplx_params,
-#     						'reltol'    =>      'relTol',
-# 	    );
-#     	set_default_options(\%cplx_params,
-#     					'tolType'		=>  (defined($cplx_params{tol}) ) ? 'absolute' : 'relative',
-#     					# default mode should be relative, to obtain this tol must not be defined
-# 					'tolerance'		=>	$main::numAbsTolDefault,
-# 	               			'relTol'		=>	$main::numRelPercentTolDefault,
-# 					'zeroLevel'		=>	$main::numZeroLevelDefault,
-# 					'zeroLevelTol'		=>	$main::numZeroLevelTolDefault,
-# 					'format'		=>	$main::numFormatDefault,
-# 					'debug'			=>  	0,
-# 					'mode' 			=> 	'std',
-# 
-#     	);
-# 	foreach( @answers )
-# 	{
-# 		$_ = cplx( $_, 0 ) unless ref($_) =~/Complex/;
-# 	}
-# 	my $format		=	$cplx_params{'format'};
-# 	my $mode		=	$cplx_params{'mode'};
-# 
-# 	if( $cplx_params{tolType} eq 'relative' ) {
-# 		$cplx_params{'tolerance'} = .01*$cplx_params{'tolerance'};
-# 	}
-# 	#my $correctAnswer = $answers[0];
-# 
-# 	my $corrAnswerIsString = 0;
-# 
-# 	for( my $k = 0; $k < $number_of_answers; $k++ ){
-# 	if (defined($cplx_params{strings}) && $cplx_params{strings}) {
-# 		my $legalString	= '';
-# 		my @legalStrings = @{$cplx_params{strings}};
-# 		$correct_num_answer[$k] = $answers[$k];
-# 		$formattedCorrectAnswer .= $answers[$k] . ",";
-# 		foreach	$legalString (@legalStrings) {
-# 			if ( uc($answers[$k]) eq uc($legalString) ) {
-# 				$corrAnswerIsString	= 1;
-# 
-# 				last;
-# 			}
-# 		}		## at	this point $corrAnswerIsString = 0 iff correct answer is numeric
-# 	} else {
-# 		$correct_num_answer[$k] = $answers[$k];
-# 		$formattedCorrectAnswer .= prfmt( $answers[$k], $cplx_params{'format'} ). ", ";
-# 	}
-# 	$correct_num_answer[$k] = math_constants($correct_num_answer[$k]);
-# 	my $PGanswerMessage = '';
-# 
-# 
-# 	if (defined($correct_num_answer[$k]) && $correct_num_answer[$k] =~ /\S/ && $corrAnswerIsString == 0 )	{
-# 			($correctVal[$k], $PG_eval_errors,$PG_full_error_report) =
-# 			PG_answer_eval($correct_num_answer[$k]);
-# 	} else { # case of a string answer
-# 		$PG_eval_errors	= '	';
-# 		$correctVal[$k] = $answers[$k];
-# 	}
-# 
-# 	if ( ($PG_eval_errors && $corrAnswerIsString == 0) or ((not is_a_number($correctVal[$k])) && $corrAnswerIsString == 0)) {
-# 				##error message from eval or above
-# 		warn "Error in 'correct' answer: $PG_eval_errors<br>
-# 		      The answer $answers[$k] evaluates to $correctVal[$k],
-# 		      which cannot be interpreted as a number.  ";
-# 
-# 	}
-# 	########################################################################
-# 	$correctVal[$k] = $correct_num_answer[$k];#it took me two and a half hours to figure out that correctVal wasn't
-# 	}
-# 	#getting the number properly
-# 	#construct the answer evaluator
-# 
-#     	my $answer_evaluator = new AnswerEvaluator;
-# 
-# 
-#     	$answer_evaluator->{debug} = $cplx_params{debug};
-#     	$answer_evaluator->ans_hash(
-#     						correct_ans 			=> 	[@correctVal],
-#     					 	type				=>	"${mode}_number",
-#     					 	tolerance			=>	$cplx_params{tolerance},
-# 					 	tolType				=> 	'absolute', #	$cplx_params{tolType},
-# 					 	original_correct_ans		=>	$formattedCorrectAnswer,
-#      					 	answerIsString			=>	$corrAnswerIsString,
-# 						answer_form			=>	'cartesian',
-#      	);
-#     	my ($in, $formattedSubmittedAnswer);
-# 		$answer_evaluator->install_pre_filter(sub {my $rh_ans = shift;
-# 		$rh_ans->{original_student_ans} = $rh_ans->{student_ans}; $rh_ans;}
-# 	);
-# 	if (defined($cplx_params{strings}) && $cplx_params{strings}) {
-# 			$answer_evaluator->install_pre_filter(\&check_strings, %cplx_params);
-# 	}
-# 	#$answer_evaluator->install_pre_filter(\&check_syntax);
-# 
-# 	$answer_evaluator->install_pre_filter(\&math_constants);
-# 	$answer_evaluator->install_pre_filter(\&cplx_constants);
-# 	$answer_evaluator->install_pre_filter(\&check_for_polar);
-# 	if ($mode eq 'std')	{
-# 				# do nothing
-# 	} elsif ($mode eq 'strict_polar') {
-# 		$answer_evaluator->install_pre_filter(\&is_a_polar);
-# 	} elsif ($mode eq 'strict_num_cartesian') {
-# 		$answer_evaluator->install_pre_filter(\&is_a_numeric_cartesian);
-# 	} elsif ($mode eq 'strict_num_polar') {
-# 		$answer_evaluator->install_pre_filter(\&is_a_numeric_polar);
-# 	} elsif ($mode eq 'strict') {
-# 		$answer_evaluator->install_pre_filter(\&is_a_numeric_complex);
-# 	} elsif ($mode eq 'arith') {
-# 			$answer_evaluator->install_pre_filter(\&is_an_arithmetic_expression);
-# 		} elsif ($mode eq 'frac') {
-# 			$answer_evaluator->install_pre_filter(\&is_a_fraction);
-# 
-# 		} else {
-# 			#$PGanswerMessage = 'Tell your professor	that there is an error in his or her answer mechanism. No mode was specified.';
-# 			$formattedSubmittedAnswer =	$in;
-# 		}
-# 	if ($corrAnswerIsString == 0 ){		# avoiding running compare_numbers when correct answer is a string.
-# 		$answer_evaluator->install_evaluator(\&compare_cplx4, %cplx_params);
-# 	}
-# 
-# 
-# ###############################################################################
-# # We'll leave these next lines out for now, so that the evaluated versions of the student's and professor's
-# # can be displayed in the answer message.  This may still cause a few anomolies when strings are used
-# #
-# ###############################################################################
-# 	#$answer_evaluator->install_post_filter( sub{my $rh_ans = shift; $rh_ans->{student_ans} = $rh_ans->{original_student_ans};$rh_ans;});
-# 	$answer_evaluator->install_post_filter(\&fix_answers_for_display);
-# 	$answer_evaluator->install_post_filter(\&fix_for_polar_display);
-# 
-#      	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift;
-# 					return $rh_ans unless $rh_ans->catch_error('EVAL');
-# 					$rh_ans->{student_ans} = $rh_ans->{original_student_ans}. ' '. $rh_ans->{error_message};
-# 					$rh_ans->clear_error('EVAL'); } );
-#      	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift; $rh_ans->clear_error('SYNTAX'); } );
-#      	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift; $rh_ans->clear_error('POLAR'); } );
-#      	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift; $rh_ans->clear_error('CARTESIAN'); } );
-#      	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift; $rh_ans->clear_error('COMPLEX'); } );
-# 	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift; $rh_ans->clear_error('STRING'); } );
-#      	$answer_evaluator;
-# }
-
-
 # compares two complex numbers by comparing their real and imaginary parts
-# sub compare_cplx4 {
-# 	my ($rh_ans, %options) = @_;
-# 	my @student_answers = split/,/,$rh_ans->{student_ans};
-# 	my @correct_answers = @{$rh_ans->{correct_ans}};
-# 	my $one_correct = 1/@correct_answers;
-# 	foreach( @student_answers )
-# 	{
-# 		$rh_ans->{student_ans} = $_;
-# 		$rh_ans = &check_syntax( $rh_ans );
-# 		my ($inVal,$PG_eval_errors,$PG_full_error_report) = PG_answer_eval($rh_ans->{student_ans});
-# 
-# 		if ($PG_eval_errors) {
-# 			$rh_ans->throw_error('EVAL','There is a syntax error in your answer');
-# 			$rh_ans->{ans_message} = clean_up_error_msg($PG_eval_errors);
-# 			return $rh_ans;
-# 		} else {
-# 			$rh_ans->{student_ans} = prfmt($inVal,$options{format});
-# 		}
-# 
-# 		$inVal = cplx($inVal,0) unless ref($inVal) =~/Complex/;
-# 		my $permitted_error_Re;
-# 		my $permitted_error_Im;
-# 		foreach( @correct_answers ){
-# 			if ($rh_ans->{tolType} eq 'absolute')	{
-# 				$permitted_error_Re = $rh_ans->{tolerance};
-# 				$permitted_error_Im = $rh_ans->{tolerance};
-# 			}
-# 			elsif ( abs($_) <= $options{zeroLevel}) {
-# 					$permitted_error_Re = $options{zeroLevelTol};  ## want $tol to be non zero
-# 					$permitted_error_Im = $options{zeroLevelTol};  ## want $tol to be non zero
-# 			}
-# 			else {
-# 				$permitted_error_Re =  abs($rh_ans->{tolerance}*$_->Complex::Re);
-# 				$permitted_error_Im =  abs($rh_ans->{tolerance}*$_->Complex::Im);
-# 
-# 			}
-# 
-# 			if ( abs( $_->Complex::Re - $inVal->Complex::Re) <=$permitted_error_Re &&
-# 			abs($_->Complex::Im - $inVal->Complex::Im )<= $permitted_error_Im  ){
-# 				$rh_ans->{score} += $one_correct ;
-# 			}
-# 
-# 			if( $rh_ans->{score} == 1 ){ return $rh_ans; }
-# 		}
-# 
-# 	}
-# 	$rh_ans;
-# 
-# }
-
-
+sub compare_cplx {
+	my ($rh_ans, %options) = @_;
+	my ($inVal,$PG_eval_errors,$PG_full_error_report) = PG_answer_eval($rh_ans->{student_ans});
+	
+	if ($PG_eval_errors) {
+		$rh_ans->throw_error('EVAL','There is a syntax error in your answer');
+		$rh_ans->{ans_message} = clean_up_error_msg($PG_eval_errors);
+		# return $rh_ans;
+	} else {
+		$rh_ans->{student_ans} = prfmt($inVal,$options{format});
+	}
+	
+	$inVal = cplx($inVal,0) unless ref($inVal) =~/Complex/;
+	my $permitted_error_Re;
+	my $permitted_error_Im;
+	if ($rh_ans->{tolType} eq 'absolute')	{
+		$permitted_error_Re = $rh_ans->{tolerance};
+		$permitted_error_Im = $rh_ans->{tolerance};
+	}
+	elsif ( abs($rh_ans->{correct_ans}) <= $options{zeroLevel}) {
+			$permitted_error_Re = $options{zeroLevelTol};  ## want $tol to be non zero
+			$permitted_error_Im = $options{zeroLevelTol};  ## want $tol to be non zero			
+	}                                                                          			                                                                          			                                                                          			                                                                          			                                                                          			
+	else {
+		$permitted_error_Re =  abs($rh_ans->{tolerance}*$rh_ans->{correct_ans}->Complex::Re);
+		$permitted_error_Im =  abs($rh_ans->{tolerance}*$rh_ans->{correct_ans}->Complex::Im);
+		
+	}
+	
+	$rh_ans->{score} = 1 if ( abs( $rh_ans->{correct_ans}->Complex::Re - $inVal->Complex::Re) <=
+	$permitted_error_Re && abs($rh_ans->{correct_ans}->Complex::Im - $inVal->Complex::Im )<= $permitted_error_Im  );
+	
+	$rh_ans;
+}
 
 sub mult_cmp{
-	my $number_of_answers = shift;
-	my @answers;
-	for( my $count = 0; $count < $number_of_answers; $count++ )
-	{
-		$answers[$count] = shift;
-	}
+	my $answer = shift;
+	my @answers = @{$answer} if ref($answer) eq 'ARRAY';
 	my %mult_params = @_;
 	my @keys = qw ( tolerance tolType format mode zeroLevel zeroLevelTol debug );
 	my @correctVal;
@@ -473,7 +290,7 @@ sub mult_cmp{
     	set_default_options(\%mult_params,
     					'tolType'		=>  (defined($mult_params{tol}) ) ? 'absolute' : 'relative',
     					# default mode should be relative, to obtain this tol must not be defined
-					'tolerance'		=>	$main::numAbsTolDefault,
+					'tolerance'		=>	$main::numAbsTolDefault, 
 	               			'relTol'		=>	$main::numRelPercentTolDefault,
 					'zeroLevel'		=>	$main::numZeroLevelDefault,
 					'zeroLevelTol'		=>	$main::numZeroLevelTolDefault,
@@ -484,21 +301,22 @@ sub mult_cmp{
 	);
 	my $format		=	$mult_params{'format'};
 	my $mode		=	$mult_params{'mode'};
-
+	
+	
 	if( $mult_params{tolType} eq 'relative' ) {
 		$mult_params{'tolerance'} = .01*$mult_params{'tolerance'};
 	}
-
+	
 	if( $mult_params{ 'compare' } eq 'cplx' ){
 		foreach( @answers )
 		{
 			$_ = cplx( $_, 0 ) unless ref($_) =~/Complex/;
 		}
 	}
-
+	
 	my $corrAnswerIsString = 0;
-
-	for( my $k = 0; $k < $number_of_answers; $k++ ){
+	
+	for( my $k = 0; $k < @answers; $k++ ){
 	if (defined($mult_params{strings}) && $mult_params{strings}) {
 		my $legalString	= '';
 		my @legalStrings = @{$mult_params{strings}};
@@ -507,7 +325,7 @@ sub mult_cmp{
 		foreach	$legalString (@legalStrings) {
 			if ( uc($answers[$k]) eq uc($legalString) ) {
 				$corrAnswerIsString	= 1;
-
+				
 				last;
 			}
 		}		## at	this point $corrAnswerIsString = 0 iff correct answer is numeric
@@ -517,8 +335,8 @@ sub mult_cmp{
 	}
 	$correct_num_answer[$k] = math_constants($correct_num_answer[$k]);
 	my $PGanswerMessage = '';
-
-
+	
+	
 	if (defined($correct_num_answer[$k]) && $correct_num_answer[$k] =~ /\S/ && $corrAnswerIsString == 0 )	{
 			($correctVal[$k], $PG_eval_errors,$PG_full_error_report) =
 			PG_answer_eval($correct_num_answer[$k]);
@@ -526,26 +344,26 @@ sub mult_cmp{
 		$PG_eval_errors	= '	';
 		$correctVal[$k] = $answers[$k];
 	}
-
+	
 	#if ( ($PG_eval_errors && $corrAnswerIsString == 0) or ((not is_a_number($correctVal[$k])) && $corrAnswerIsString == 0)) {
 				##error message from eval or above
 		#warn "Error in 'correct' answer: $PG_eval_errors<br>
-		      #The answer $answers[$k] evaluates to $correctVal[$k],
+		      #The answer $answers[$k] evaluates to $correctVal[$k], 
 		      #which cannot be interpreted as a number.  ";
-
+		
 	#}
 	########################################################################
 	$correctVal[$k] = $correct_num_answer[$k];
 	}
-	$formattedCorrectAnswer =~ s/, \Z//;
+	$formattedCorrectAnswer =~ s/, \Z//;	
+	
+	#construct the answer evaluator 
+	
+    	my $answer_evaluator = new AnswerEvaluator; 
 
-	#construct the answer evaluator
-
-    	my $answer_evaluator = new AnswerEvaluator;
-
-
+	
     	$answer_evaluator->{debug} = $mult_params{debug};
-    	$answer_evaluator->ans_hash(
+    	$answer_evaluator->ans_hash( 	 
     						correct_ans 			=> 	[@correctVal],
     					 	type				=>	"${mode}_number",
     					 	tolerance			=>	$mult_params{tolerance},
@@ -555,21 +373,21 @@ sub mult_cmp{
 						answer_form			=>	'cartesian',
      	);
     	my ($in, $formattedSubmittedAnswer);
-		$answer_evaluator->install_pre_filter(sub {my $rh_ans = shift;
+		$answer_evaluator->install_pre_filter(sub {my $rh_ans = shift; 
 		$rh_ans->{original_student_ans} = $rh_ans->{student_ans}; $rh_ans;}
 	);
 	if (defined($mult_params{strings}) && $mult_params{strings}) {
 			$answer_evaluator->install_pre_filter(\&check_strings, %mult_params);
 	}
-
+	
 	$answer_evaluator -> install_pre_filter( \&mult_prefilters, %mult_params );
 	$answer_evaluator->install_pre_filter( sub{my $rh_ans = shift; $rh_ans->{original_student_ans} = $rh_ans->{student_ans};$rh_ans;});
-
+	
 	if ($corrAnswerIsString == 0 ){		# avoiding running compare_numbers when correct answer is a string.
 		$answer_evaluator->install_evaluator(\&compare_mult, %mult_params);
 	}
-
-
+	  
+	 	
 ###############################################################################
 # We'll leave these next lines out for now, so that the evaluated versions of the student's and professor's
 # can be displayed in the answer message.  This may still cause a few anomolies when strings are used
@@ -578,8 +396,8 @@ sub mult_cmp{
 	$answer_evaluator->install_post_filter( sub{my $rh_ans = shift; $rh_ans->{student_ans} = $rh_ans->{original_student_ans};$rh_ans;});
 	$answer_evaluator->install_post_filter(\&fix_answers_for_display);
 	$answer_evaluator->install_post_filter(\&fix_for_polar_display);
-
-     	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift;
+	
+     	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift; 
 					return $rh_ans unless $rh_ans->catch_error('EVAL');
 					$rh_ans->{student_ans} = $rh_ans->{original_student_ans}. ' '. $rh_ans->{error_message};
 					$rh_ans->clear_error('EVAL'); } );
@@ -603,7 +421,7 @@ sub mult_prefilters{
 			#$rh_ans = &check_for_polar( $rh_ans );
 		}
 		if ( $options{mode} eq 'std')	{
-				# do nothing
+				# do nothing	
 		} elsif ($options{mode} eq 'strict_polar') {
 			$rh_ans = &is_a_polar( $rh_ans );
 		} elsif ($options{mode} eq 'strict_num_cartesian') {
@@ -617,7 +435,7 @@ sub mult_prefilters{
 		} elsif ($options{mode} eq 'frac') {
 			$rh_ans = &is_a_fraction( $rh_ans );
 
-		} else {
+		} else {	
 			#$PGanswerMessage = 'Tell your professor	that there is an error in his or her answer mechanism. No mode was specified.';
 			#$formattedSubmittedAnswer =	$in;
 		}
@@ -627,7 +445,7 @@ sub mult_prefilters{
 	foreach( @student_answers )
 	{
 		$ans_string .= ", $_";
-	}
+	}	
 	$ans_string =~ s/\A,//;
 	$rh_ans->{student_ans} = $ans_string;
 	$rh_ans;
@@ -659,10 +477,43 @@ sub compare_mult {
 	}
 	$rh_ans->{score} = $temp_score;
 	$rh_ans;
-
+	
 }
 
+sub multi_cmp{
+	my $pointer = shift;
+	my %options = @_;
+	my @evals = @{$pointer};
+	my $answer_evaluator = new AnswerEvaluator;
+	$answer_evaluator->install_evaluator( sub { 
+		my $rh_ans = shift;
+		$rh_ans->{score} = 1;#in order to use AND below, score must be 1 
+		$rh_ans->{preview_text_string} = "";#needs to be initialized to prevent warnings
+		my @student_answers = split/,/,$rh_ans->{student_ans};
+		foreach my $eval ( @evals ){
+			my $temp_eval = new AnswerEvaluator;
+			my $temp_hash = $temp_eval->ans_hash;
+			$temp_hash->{preview_text_string} = "";#needs to be initialized to prevent warnings
+			foreach my $temp ( @student_answers ){
+				$eval->evaluate($temp);
+				$temp = $eval->ans_hash->{student_ans} unless $eval->ans_hash->{student_ans}=~ /you/i;
+				$temp_hash = $temp_hash->OR( $eval->ans_hash );
+				if( $eval->ans_hash->{score} == 1){ last; }
+			}
+			$rh_ans = $rh_ans->AND( $temp_hash );
+		}
+	$rh_ans->{correct_ans} =~ s/No correct answer specified (OR|AND) //g;
+	$rh_ans->{student_ans} = "";
+	foreach( @student_answers ){ $rh_ans->{student_ans} .= "$_, "; }
+	$rh_ans->{student_ans} =~ s/, \Z//;
+	if( scalar(@evals) != scalar(@student_answers) ){ $rh_ans->{score} = 0; }#wrong number of answers makes answer wrong
+	$rh_ans; });
+	$answer_evaluator;
+}
 
+# Output is text displaying the complex numver in "e to the i theta" form. The
+# formats for the argument theta is determined by the option C<theta_format> and the
+# format for the modulus is determined by the C<r_format> option.
 
 #this basically just checks for "e^" which unfortunately will show something like (e^4)*i as a polar, this should be changed
 sub check_for_polar{
@@ -673,7 +524,7 @@ sub check_for_polar{
 	if ($process_ans_hash) {
 		$rh_ans = $in;
 		$in = $rh_ans->{student_ans};
-	}
+	} 
 	# The code fragment above allows this filter to be used when the input is simply a string
 	# as well as when the input is an AnswerHash, and options.
 	if( $in =~ /2.71828182845905\*\*/ ){
@@ -683,42 +534,6 @@ sub check_for_polar{
 }
 
 
-# compares two complex numbers by comparing their real and imaginary parts
-sub compare_cplx {
-	my ($rh_ans, %options) = @_;
-	my ($inVal,$PG_eval_errors,$PG_full_error_report) = PG_answer_eval($rh_ans->{student_ans});
-
-	if ($PG_eval_errors) {
-		$rh_ans->throw_error('EVAL','There is a syntax error in your answer');
-		$rh_ans->{ans_message} = clean_up_error_msg($PG_eval_errors);
-		# return $rh_ans;
-	} else {
-		$rh_ans->{student_ans} = prfmt($inVal,$options{format});
-	}
-
-	$inVal = cplx($inVal,0) unless ref($inVal) =~/Complex/;
-	my $permitted_error_Re;
-	my $permitted_error_Im;
-	if ($rh_ans->{tolType} eq 'absolute')	{
-		$permitted_error_Re = $rh_ans->{tolerance};
-		$permitted_error_Im = $rh_ans->{tolerance};
-	}
-	elsif ( abs($rh_ans->{correct_ans}) <= $options{zeroLevel}) {
-			$permitted_error_Re = $options{zeroLevelTol};  ## want $tol to be non zero
-			$permitted_error_Im = $options{zeroLevelTol};  ## want $tol to be non zero
-	}
-	else {
-		$permitted_error_Re =  abs($rh_ans->{tolerance}*$rh_ans->{correct_ans}->Complex::Re);
-		$permitted_error_Im =  abs($rh_ans->{tolerance}*$rh_ans->{correct_ans}->Complex::Im);
-
-	}
-
-	$rh_ans->{score} = 1 if ( abs( $rh_ans->{correct_ans}->Complex::Re - $inVal->Complex::Re) <=
-	$permitted_error_Re && abs($rh_ans->{correct_ans}->Complex::Im - $inVal->Complex::Im )<= $permitted_error_Im  );
-
-	$rh_ans;
-}
-
 
 sub cplx_constants {
 	my($in,%options) = @_;
@@ -727,12 +542,12 @@ sub cplx_constants {
 	if ($process_ans_hash) {
 		$rh_ans = $in;
 		$in = $rh_ans->{student_ans};
-	}
+	} 
 	# The code fragment above allows this filter to be used when the input is simply a string
 	# as well as when the input is an AnswerHash, and options.
 	$in =~ s/\bi\b/(i)/g;  #try to keep -i being recognized as a file reference
                                                            # and recognized as a function whose output is an imaginary number
-
+                                                             
 	if ($process_ans_hash)   {
     	$rh_ans->{student_ans}=$in;
     	return $rh_ans;
@@ -750,18 +565,18 @@ sub is_a_numeric_complex {
 		$rh_ans = $num;
 		$num = $rh_ans->{student_ans};
 	}
-
+	
 	my $is_a_number	= 0;
 	return $is_a_number	unless defined($num);
 	$num =~	s/^\s*//; ## remove	initial	spaces
 	$num =~	s/\s*$//; ## remove	trailing spaces
-
+	
 	if ($num =~
 
 /^($number[+,-]?($number\*\(i\)|\(i\)|\(i\)\*$number)|($number\*\(i\)|-?\(i\)|-?\(i\)\*$number)([+,-]$number)?|($number\*)?2.71828182845905\*\*\(($number\*\(i\)|\(i\)\*$number|i|-\(i\))\)|$number)$/){
 		$is_a_number = 1;
 	}
-
+	
 	if ($process_ans_hash)   {
     		if ($is_a_number == 1 ) {
     			$rh_ans->{student_ans}=$num;
@@ -786,18 +601,18 @@ sub is_a_numeric_cartesian {
 		$rh_ans = $num;
 		$num = $rh_ans->{student_ans};
 	}
-
+	
 	my $is_a_number	= 0;
 	return $is_a_number	unless defined($num);
 	$num =~	s/^\s*//; ## remove	initial	spaces
 	$num =~	s/\s*$//; ## remove	trailing spaces
-
+	
 	if ($num =~
 
 /^($number[+,-]?($number\*\(i\)|\(i\)|\(i\)\*$number)|($number\*\(i\)|-?\(i\)|-?\(i\)\*$number)([+,-]$number)?|$number)$/){
 		$is_a_number = 1;
 	}
-
+	
 	if ($process_ans_hash)   {
     		if ($is_a_number == 1 ) {
     			$rh_ans->{student_ans}=$num;
@@ -821,7 +636,7 @@ sub is_a_numeric_polar {
 		$rh_ans = $num;
 		$num = $rh_ans->{student_ans};
 	}
-
+	
 	my $is_a_number	= 0;
 	return $is_a_number	unless defined($num);
 	$num =~	s/^\s*//; ## remove	initial	spaces
@@ -830,7 +645,7 @@ sub is_a_numeric_polar {
 	/^($number|($number\*)?2.71828182845905\*\*\(($number\*\(i\)|\(i\)\*$number|i|-\(i\))\))$/){
 		$is_a_number = 1;
 	}
-
+	
 	if ($process_ans_hash)   {
     		if ($is_a_number == 1 ) {
     			$rh_ans->{student_ans}=$num;
@@ -844,6 +659,7 @@ sub is_a_numeric_polar {
 		return $is_a_number;
 	}
 }
+
 #this subroutine mearly captures what is before and after the "e**" it does not verify that the "i" is there, or in the
 #exponent this must eventually be addresed
 sub is_a_polar {
@@ -854,7 +670,7 @@ sub is_a_polar {
 		$rh_ans = $num;
 		$num = $rh_ans->{student_ans};
 	}
-
+	
 	my $is_a_number	= 0;
 	return $is_a_number	unless defined($num);
 	$num =~	s/^\s*//; ## remove	initial	spaces
@@ -909,7 +725,7 @@ sub single_term{
 		}elsif( $character eq ")" ){
 			while( pop @stack ne "(" ){}
 		}
-
+		
 	}
 	if( scalar @stack == 0 ){ return 1;}else{ return 0;}
 }
@@ -937,7 +753,7 @@ sub cplx_cmp2 {
     	set_default_options(\%cplx_params,
     					'tolType'		=>  (defined($cplx_params{tol}) ) ? 'absolute' : 'relative',
     					# default mode should be relative, to obtain this tol must not be defined
-					'tolerance'		=>	$main::numAbsTolDefault,
+					'tolerance'		=>	$main::numAbsTolDefault, 
 	               			'relTol'		=>	$main::numRelPercentTolDefault,
 					'zeroLevel'		=>	$main::numZeroLevelDefault,
 					'zeroLevelTol'		=>	$main::numZeroLevelTolDefault,
@@ -949,15 +765,15 @@ sub cplx_cmp2 {
 	$correctAnswer = cplx($correctAnswer,0) unless ref($correctAnswer) =~/Complex/;
 	my $format		=	$cplx_params{'format'};
 	my $mode		=	$cplx_params{'mode'};
-
+	
 	if( $cplx_params{tolType} eq 'relative' ) {
 		$cplx_params{'tolerance'} = .01*$cplx_params{'tolerance'};
 	}
-
+	
 	my $formattedCorrectAnswer;
 	my $correct_num_answer;
 	my $corrAnswerIsString = 0;
-
+	
 
 	if (defined($cplx_params{strings}) && $cplx_params{strings}) {
 		my $legalString	= '';
@@ -967,7 +783,7 @@ sub cplx_cmp2 {
 		foreach	$legalString (@legalStrings) {
 			if ( uc($correctAnswer) eq uc($legalString) ) {
 				$corrAnswerIsString	= 1;
-
+				
 				last;
 			}
 		}		  ## at	this point $corrAnswerIsString = 0 iff correct answer is numeric
@@ -977,32 +793,32 @@ sub cplx_cmp2 {
 	}
 	$correct_num_answer = math_constants($correct_num_answer);
 	my $PGanswerMessage = '';
-
+	
 	my ($inVal,$correctVal,$PG_eval_errors,$PG_full_error_report);
-
+	
 	if (defined($correct_num_answer) && $correct_num_answer =~ /\S/ && $corrAnswerIsString == 0 )	{
 			($correctVal, $PG_eval_errors,$PG_full_error_report) = PG_answer_eval($correct_num_answer);
 	} else { # case of a string answer
 		$PG_eval_errors	= '	';
 		$correctVal = $correctAnswer;
 	}
-
+	
 	if ( ($PG_eval_errors && $corrAnswerIsString == 0) or ((not is_a_number($correctVal)) && $corrAnswerIsString == 0)) {
 				##error message from eval or above
 		warn "Error in 'correct' answer: $PG_eval_errors<br>
-		      The answer $correctAnswer evaluates to $correctVal,
+		      The answer $correctAnswer evaluates to $correctVal, 
 		      which cannot be interpreted as a number.  ";
-
+		
 	}
 	########################################################################
 	$correctVal = $correct_num_answer;#it took me two and a half hours to figure out that correctVal wasn't
 	#getting the number properly
-	#construct the answer evaluator
-    	my $answer_evaluator = new AnswerEvaluator;
+	#construct the answer evaluator 
+    	my $answer_evaluator = new AnswerEvaluator; 
 
-
+	
     	$answer_evaluator->{debug} = $cplx_params{debug};
-    	$answer_evaluator->ans_hash(
+    	$answer_evaluator->ans_hash( 	 
     						correct_ans 			=> 	$correctVal,
     					 	type				=>	"${mode}_number",
     					 	tolerance			=>	$cplx_params{tolerance},
@@ -1012,19 +828,19 @@ sub cplx_cmp2 {
 						answer_form			=>	'cartesian',
      	);
     	my ($in, $formattedSubmittedAnswer);
-		$answer_evaluator->install_pre_filter(sub {my $rh_ans = shift;
+		$answer_evaluator->install_pre_filter(sub {my $rh_ans = shift; 
 		$rh_ans->{original_student_ans} = $rh_ans->{student_ans}; $rh_ans;}
 	);
 	if (defined($cplx_params{strings}) && $cplx_params{strings}) {
 			$answer_evaluator->install_pre_filter(\&check_strings, %cplx_params);
 	}
 	#$answer_evaluator->install_pre_filter(\&check_syntax);
-
+		
 	$answer_evaluator->install_pre_filter(\&math_constants);
 	$answer_evaluator->install_pre_filter(\&cplx_constants);
 	$answer_evaluator->install_pre_filter(\&check_for_polar);
 	if ($mode eq 'std')	{
-				# do nothing
+				# do nothing	
 	} elsif ($mode eq 'strict_polar') {
 		$answer_evaluator->install_pre_filter(\&is_a_polar);
 	} elsif ($mode eq 'strict_num_cartesian') {
@@ -1038,15 +854,15 @@ sub cplx_cmp2 {
 		} elsif ($mode eq 'frac') {
 			$answer_evaluator->install_pre_filter(\&is_a_fraction);
 
-		} else {
+		} else {	
 			$PGanswerMessage = 'Tell your professor	that there is an error in his or her answer mechanism. No mode was specified.';
 			$formattedSubmittedAnswer =	$in;
 		}
 	if ($corrAnswerIsString == 0 ){		# avoiding running compare_numbers when correct answer is a string.
 		$answer_evaluator->install_evaluator(\&compare_cplx2, %cplx_params);
 	}
-
-
+	  
+	 	
 ###############################################################################
 # We'll leave these next lines out for now, so that the evaluated versions of the student's and professor's
 # can be displayed in the answer message.  This may still cause a few anomolies when strings are used
@@ -1055,8 +871,8 @@ sub cplx_cmp2 {
 
 	$answer_evaluator->install_post_filter(\&fix_answers_for_display);
 	$answer_evaluator->install_post_filter(\&fix_for_polar_display);
-
-     	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift;
+	
+     	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift; 
 					return $rh_ans unless $rh_ans->catch_error('EVAL');
 					$rh_ans->{student_ans} = $rh_ans->{original_student_ans}. ' '. $rh_ans->{error_message};
 					$rh_ans->clear_error('EVAL'); } );
@@ -1078,7 +894,7 @@ sub compare_cplx2 {
 	$rh_ans->{student_ans} = $_;
 	$rh_ans = &check_syntax( $rh_ans );
 	my ($inVal,$PG_eval_errors,$PG_full_error_report) = PG_answer_eval($rh_ans->{student_ans});
-
+	
 	if ($PG_eval_errors) {
 		$rh_ans->throw_error('EVAL','There is a syntax error in your answer');
 		$rh_ans->{ans_message} = clean_up_error_msg($PG_eval_errors);
@@ -1086,7 +902,7 @@ sub compare_cplx2 {
 	} else {
 		$rh_ans->{student_ans} = prfmt($inVal,$options{format});
 	}
-
+	
 	$inVal = cplx($inVal,0) unless ref($inVal) =~/Complex/;
 	my $permitted_error_Re;
 	my $permitted_error_Im;
@@ -1096,22 +912,22 @@ sub compare_cplx2 {
 	}
 	elsif ( abs($rh_ans->{correct_ans}) <= $options{zeroLevel}) {
 			$permitted_error_Re = $options{zeroLevelTol};  ## want $tol to be non zero
-			$permitted_error_Im = $options{zeroLevelTol};  ## want $tol to be non zero
-	}
+			$permitted_error_Im = $options{zeroLevelTol};  ## want $tol to be non zero			
+	}                                                                          			                                                                          			                                                                          			                                                                          			                                                                          			
 	else {
 		$permitted_error_Re =  abs($rh_ans->{tolerance}*$rh_ans->{correct_ans}->Complex::Re);
 		$permitted_error_Im =  abs($rh_ans->{tolerance}*$rh_ans->{correct_ans}->Complex::Im);
-
+		
 	}
-
+	
 	$rh_ans->{score} = 1 if ( abs( $rh_ans->{correct_ans}->Complex::Re - $inVal->Complex::Re) <=
 	$permitted_error_Re && abs($rh_ans->{correct_ans}->Complex::Im - $inVal->Complex::Im )<= $permitted_error_Im  );
 	if( $rh_ans->{score} == 1 ){ return $rh_ans; }
-
-
+	
+	
 	}
 	$rh_ans;
-
+	
 }
 
 
@@ -1125,7 +941,7 @@ sub cplx_cmp_mult {
     	set_default_options(\%cplx_params,
     					'tolType'		=>  (defined($cplx_params{tol}) ) ? 'absolute' : 'relative',
     					# default mode should be relative, to obtain this tol must not be defined
-					'tolerance'		=>	$main::numAbsTolDefault,
+					'tolerance'		=>	$main::numAbsTolDefault, 
 	               			'relTol'		=>	$main::numRelPercentTolDefault,
 					'zeroLevel'		=>	$main::numZeroLevelDefault,
 					'zeroLevelTol'		=>	$main::numZeroLevelTolDefault,
@@ -1137,15 +953,15 @@ sub cplx_cmp_mult {
 	$correctAnswer = cplx($correctAnswer,0) unless ref($correctAnswer) =~/Complex/;
 	my $format		=	$cplx_params{'format'};
 	my $mode		=	$cplx_params{'mode'};
-
+	
 	if( $cplx_params{tolType} eq 'relative' ) {
 		$cplx_params{'tolerance'} = .01*$cplx_params{'tolerance'};
 	}
-
+	
 	my $formattedCorrectAnswer;
 	my $correct_num_answer;
 	my $corrAnswerIsString = 0;
-
+	
 
 	if (defined($cplx_params{strings}) && $cplx_params{strings}) {
 		my $legalString	= '';
@@ -1155,7 +971,7 @@ sub cplx_cmp_mult {
 		foreach	$legalString (@legalStrings) {
 			if ( uc($correctAnswer) eq uc($legalString) ) {
 				$corrAnswerIsString	= 1;
-
+				
 				last;
 			}
 		}		  ## at	this point $corrAnswerIsString = 0 iff correct answer is numeric
@@ -1165,30 +981,30 @@ sub cplx_cmp_mult {
 	}
 	$correct_num_answer = math_constants($correct_num_answer);
 	my $PGanswerMessage = '';
-
+	
 	my ($inVal,$correctVal,$PG_eval_errors,$PG_full_error_report);
-
+	
 	if (defined($correct_num_answer) && $correct_num_answer =~ /\S/ && $corrAnswerIsString == 0 )	{
 			($correctVal, $PG_eval_errors,$PG_full_error_report) = PG_answer_eval($correct_num_answer);
 	} else { # case of a string answer
 		$PG_eval_errors	= '	';
 		$correctVal = $correctAnswer;
 	}
-
+	
 	if ( ($PG_eval_errors && $corrAnswerIsString == 0) or ((not is_a_number($correctVal)) && $corrAnswerIsString == 0)) {
 				##error message from eval or above
 		warn "Error in 'correct' answer: $PG_eval_errors<br>
-		      The answer $correctAnswer evaluates to $correctVal,
+		      The answer $correctAnswer evaluates to $correctVal, 
 		      which cannot be interpreted as a number.  ";
-
+		
 	}
 	########################################################################
 	$correctVal = $correct_num_answer;#it took me two and a half hours to figure out that correctVal wasn't
 	#getting the number properly
-	#construct the answer evaluator
+	#construct the answer evaluator 
 	my $counter = 0;
 	my $answer_evaluator = new AnswerEvaluator;
-
+	
 	my $number;
 	$answer_evaluator->install_pre_filter( sub{ my $rh_ans = shift; my @temp =
 	split/,/,$rh_ans->{student_ans}; $number = @temp; warn "this number ", $number; $rh_ans;});
@@ -1202,7 +1018,7 @@ sub cplx_cmp_mult {
 	$rh_ans;});
 	$counter += 1;
 	}
-
+	
 	$answer_evaluator;
 
 }
@@ -1214,13 +1030,13 @@ sub answer_mult{
 	my $corrAnswerIsString = shift;
 	my $counter = shift;
 	warn "counter ", $counter;
-
+	
 	my %cplx_params = @_;
-    	my $answer_evaluator = new AnswerEvaluator;
+    	my $answer_evaluator = new AnswerEvaluator; 
 
-
+	
     	$answer_evaluator->{debug} = $cplx_params{debug};
-    	$answer_evaluator->ans_hash(
+    	$answer_evaluator->ans_hash( 	 
     						correct_ans 			=> 	$correctVal,
     					 	type				=>	"${mode}_number",
     					 	tolerance			=>	$cplx_params{tolerance},
@@ -1230,8 +1046,8 @@ sub answer_mult{
 						answer_form			=>	'cartesian',
      	);
 	$answer_evaluator->install_pre_filter(sub {
-		my $rh_ans = shift;
-		$rh_ans->{original_student_ans} = $rh_ans->{student_ans};
+		my $rh_ans = shift; 
+		$rh_ans->{original_student_ans} = $rh_ans->{student_ans}; 
 		my @answers = split/,/,$rh_ans->{student_ans};
 		$rh_ans -> {student_ans} = $answers[$counter];
 		$rh_ans;
@@ -1240,12 +1056,12 @@ sub answer_mult{
 	if (defined($cplx_params{strings}) && $cplx_params{strings}) {
 			$answer_evaluator->install_pre_filter(\&check_strings, %cplx_params);
 	}
-	$answer_evaluator->install_pre_filter(\&check_syntax);
+	$answer_evaluator->install_pre_filter(\&check_syntax);	
 	$answer_evaluator->install_pre_filter(\&math_constants);
 	$answer_evaluator->install_pre_filter(\&cplx_constants);
 	$answer_evaluator->install_pre_filter(\&check_for_polar);
 	if ($mode eq 'std')	{
-				# do nothing
+				# do nothing	
 	} elsif ($mode eq 'strict_polar') {
 		$answer_evaluator->install_pre_filter(\&is_a_polar);
 	} elsif ($mode eq 'strict_num_cartesian') {
@@ -1259,14 +1075,14 @@ sub answer_mult{
 		} elsif ($mode eq 'frac') {
 			$answer_evaluator->install_pre_filter(\&is_a_fraction);
 
-		} else {
+		} else {	
 			#$PGanswerMessage = 'Tell your professor	that there is an error in his or her answer mechanism. No mode was specified.';
 		}
 	if ($corrAnswerIsString == 0 ){		# avoiding running compare_numbers when correct answer is a string.
 		$answer_evaluator->install_evaluator(\&compare_cplx, %cplx_params);
 	}
-
-
+	  
+	 	
 ###############################################################################
 # We'll leave these next lines out for now, so that the evaluated versions of the student's and professor's
 # can be displayed in the answer message.  This may still cause a few anomolies when strings are used
@@ -1275,7 +1091,7 @@ sub answer_mult{
 
 	$answer_evaluator->install_post_filter(\&fix_answers_for_display);
 	$answer_evaluator->install_post_filter(\&fix_for_polar_display);
-     	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift;
+     	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift; 
 					return $rh_ans unless $rh_ans->catch_error('EVAL');
 					$rh_ans->{student_ans} = $rh_ans->{original_student_ans}. ' '. $rh_ans->{error_message};
 					$rh_ans->clear_error('EVAL'); } );
