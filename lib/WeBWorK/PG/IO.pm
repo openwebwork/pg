@@ -4,10 +4,11 @@
 ################################################################################
 
 package WeBWorK::PG::IO;
+use base qw(Exporter);
 
 =head1 NAME
 
-WeBWorK::PG::IO - Load 
+WeBWorK::PG::IO - Private functions used by WeBWorK::PG::Translator for file IO.
 
 =cut
 
@@ -15,14 +16,195 @@ use strict;
 use warnings;
 
 BEGIN {
-	my $mod;
-	for ($main::VERSION) {
-		/^2\./ and $mod = "WeBWorK::PG::IO::WW2";
-		/^1\./ and $mod = "WeBWorK::PG::IO::WW1";
-	}
+	our @EXPORT = qw(
+		includePGtext
+		read_whole_problem_file
+		read_whole_file
+		convertPath
+		getDirDelim
+		fileFromPath
+		directoryFromPath
+		createFile
+		createDirectory
+	);
+
+	our %SHARE = map { $_ => __PACKAGE__ } @EXPORT;
 	
-	eval "package Main; require $mod; import $mod";
-	die $@ if $@;
+	if (defined $main::VERSION) {
+		my $mod;
+		for ($main::VERSION) {
+			/^1\./          and $mod = "WeBWorK::PG::IO::WW1";
+			/^2\./          and $mod = "WeBWorK::PG::IO::WW2";
+			/^Daemon\s*2\./ and $mod = "WeBWorK::PG::IO::Daemon2";
+		}
+		
+		eval "package Main; require $mod; import $mod"; # this is runtime_use
+		die $@ if $@;
+	} else {
+		warn "\$main::VERSION not defined -- not loading version-specific IO functions";
+	}
 }
+
+=head1 SYNOPSIS
+
+ BEGIN { $main::VERSION = "2.0" }
+ use WeBWorK::PG::IO;
+ my %functions_to_share = %WeBWorK::PG::IO::SHARE;
+
+=head1 DESCRIPTION
+
+This module defines several functions to be shared with a safe compartment by
+the PG translator. It also loads a version-specific module (if found) based on
+the value of the C<$main::VERSION> variable.
+
+This module also maintains a hash C<%WeBWorK::PG::IO::SHARE>. The keys of this
+hash are the names of functions, and the values are the name of the package that
+contains the function.
+
+=head1 FUNCTIONS
+
+=over
+
+=item includePGtext($string_ref, $envir_ref)
+
+Calls C<createPGtext> recursively with the $safeCompartment variable set to 0 so
+that the rendering continues in the current safe compartment.  The output is the
+same as the output from createPGtext. This is used in processing some of the
+sample CAPA files.
+
+=cut
+
+sub includePGtext  {
+	my $evalString = shift;
+	if (ref($evalString) eq 'SCALAR') {
+		$evalString = $$evalString;
+	}
+	$evalString =~ s/\nBEGIN_TEXT/TEXT\(EV3\(<<'END_TEXT'\)\);/g;
+	$evalString =~ s/\\/\\\\/g; # \ can't be used for escapes because of TeX conflict
+	$evalString =~ s/~~/\\/g;   # use ~~ as escape instead, use # for comments
+	no strict;
+	eval("package main; $evalString") ;
+	my $errors = $@;
+	die eval(q! "ERROR in included file:\n$main::envir{probFileName}\n $errors\n"!) if $errors;
+	use strict;
+	return "";
+}
+
+=item read_whole_problem_file($filePath)
+
+Don't use for huge files. The file name will have .pg appended to it if it
+doesn't already end in .pg.  Files may become double spaced.?  Check the join
+below. This is used in importing additional .pg files as is done in the sample
+problems translated from CAPA. Returns a reference to a string containing the
+contents of the file.
+
+=cut
+
+sub read_whole_problem_file {
+	my $filePath = shift;
+	$filePath =~s/^\s*//; # get rid of initial spaces
+	$filePath =~s/\s*$//; # get rid of final spaces
+	$filePath = "$filePath.pg" unless $filePath =~ /\.pg$/;
+	read_whole_file($filePath);
+}
+
+sub read_whole_file {
+	my $filePath = shift;
+	local (*INPUT);
+	open(INPUT, "<$filePath") || die "$0: readWholeProblemFile subroutine: <BR>Can't read file $filePath";
+	local($/)=undef;
+	my $string = <INPUT>;  # can't append spaces because this causes trouble with <<'EOF'   \nEOF construction
+	close(INPUT);
+	\$string;
+}
+
+=item convertPath($path)
+
+Currently a no-op. Returns $path unmodified.
+
+=cut
+
+sub convertPath {
+    return wantarray ? @_ : shift;
+}
+
+sub getDirDelim {
+	return ("/");
+}
+
+=item fileFromPath($path)
+
+Uses C<&getDirDelim> to determine the path delimiter.  Returns the last segment
+of the path (i.e. the text after the last delimiter).
+
+=cut
+
+sub fileFromPath {
+	my $path = shift;
+	my $delim = &getDirDelim();
+	$path = convertPath($path);
+	$path =~ m|([^$delim]+)$|;
+	$1;
+}
+
+=item directoryFromPath($path)
+
+Uses C<&getDirDelim> to determine the path delimiter.  Returns the initial
+segments of the of the path (i.e. the text up to the last delimiter).
+
+=cut
+   
+sub directoryFromPath {
+	my $path = shift;
+	my $delim = &getDirDelim();
+	$path = convertPath($path);
+	$path =~ s|[^$delim]*$||;
+	$path;
+}
+
+=item createFile($fileName, $permission, $numgid)
+
+Creates a file with the given name, permission bits, and group ID.
+
+=cut
+
+sub createFile {
+	my ($fileName, $permission, $numgid) = @_;
+	open(TEMPCREATEFILE, ">$fileName")
+		or die "Can't open $fileName: $!";
+	my @stat = stat TEMPCREATEFILE;
+	close(TEMPCREATEFILE);
+	
+	# if the owner of the file is running this script (e.g. when the file is
+	# first created) set the permissions and group correctly
+	if ($< == $stat[4]) {
+		my $tmp = chmod($permission, $fileName)
+			or warn "Can't do chmod($permission, $fileName): $!";
+		chown(-1, $numgid, $fileName)
+			or warn "Can't do chown($numgid, $fileName): $!";
+	}
+}
+
+=item createDirectory($dirName, $permission, $numgid)
+
+Creates a directory with the given name, permission bits, and group ID.
+
+=cut
+
+sub createDirectory {
+	my ($dirName, $permission, $numgid) = @_;
+	mkdir($dirName, $permission)
+		or warn "Can't do mkdir($dirName, $permission): $!";
+	chmod($permission, $dirName)
+		or warn "Can't do chmod($permission, $dirName): $!";
+	unless ($numgid == -1) {
+		chown(-1,$numgid,$dirName)
+			or warn "Can't do chown(-1,$numgid,$dirName): $!";
+	}
+}
+
+=back
+
+=cut
 
 1;

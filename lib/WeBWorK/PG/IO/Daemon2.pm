@@ -3,12 +3,12 @@
 # $Id$
 ################################################################################
 
-package WeBWorK::PG::IO::WW2;
+package WeBWorK::PG::IO::Daemon2;
 
 =head1 NAME
 
-WeBWorK::PG::IO::WW2 - Private functions used by WeBWorK::PG::Translator
-for file IO under WeBWorK 2.0.
+WeBWorK::PG::IO::Daemon2 - Private functions used by WeBWorK::PG::Translator
+for file IO under the render Daemon for WeBWorK 2.0.
 
 =cut
 

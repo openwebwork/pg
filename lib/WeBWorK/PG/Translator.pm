@@ -10,7 +10,6 @@ use warnings;
 use Opcode;
 use Safe;
 use Net::SMTP;
-#use WeBWorK::Utils qw(runtime_use); # change for WW1
 use WeBWorK::PG::IO;
 
 
@@ -260,13 +259,13 @@ sub time_it {
 }
 
 my %shared_subroutine_hash = (
-	'time_it'                  => 'Translator',
-	'&PG_answer_eval'          => 'Translator',
-	'&PG_restricted_eval'      => 'Translator',
-	'&be_strict'               => 'Translator',
-	'&PGsort'                  => 'Translator',
-	'&dumpvar'                 => 'Translator',
-	map { $_ => "IO" } @WeBWorK::PG::IO::EXPORT, # add subroutine names from IO.pm
+	'time_it'                  => __PACKAGE__,
+	'&PG_answer_eval'          => __PACKAGE__,
+	'&PG_restricted_eval'      => __PACKAGE__,
+	'&be_strict'               => __PACKAGE__,
+	'&PGsort'                  => __PACKAGE__,
+	'&dumpvar'                 => __PACKAGE__,
+	%WeBWorK::PG::IO::SHARE, # add names from WeBWorK::PG::IO and WeBWorK::PG::IO::*
 );
 
 sub initialize {
