@@ -181,7 +181,9 @@ sub display_matrix {
                                                                                         'midrule' => substr($styleParams,1,1),
                                                                                         'top_labels' => 0,
                                                                                         'box'=>[-1,-1], # pair location of boxed element
-                                                                                        'allow_unknown_options'=> 1);
+                                                                                        'allow_unknown_options'=> 1,
+											'num_format' => "%.0f",
+											);
         
         my ($numRows, $numCols, @myRows);
 
@@ -544,7 +546,10 @@ sub dm_mat_row {
                                 $element= shift(@elements);
                                 if (ref($element) eq 'Fraction') {
                                         $element=  $element->print_inline();
-                                }
+                                }elsif( $element =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ and $element != sprintf($opts{'num_format'},$element) and $element - sprintf($opts{'num_format'},$element) < $main::functZeroLevelTolDefault){
+					$element = sprintf($opts{'num_format'},$element);
+					$element = 0 if abs($element) < $main::functZeroLevelTolDefault;
+				}
                                 $out .= "$brh<TD nowrap=\"nowrap\" align=\"$myalign\">$erh";
                                 $out .= '<table border="1"><tr><td>' if ($colcount == $opts{'box'}->[1] and $opts{'cnt'} == $opts{'box'}->[0]);
                                 $out .= $element;
