@@ -21,11 +21,11 @@
 
 # this is equivalent to use strict, but can be used within the Safe compartment.
 BEGIN{
-	be_strict;
+	main::be_strict;
 }
 
 
-my $displayMode=$main::displayMode;
+my $displayMode;
 
 my ($PAR,
 	$BR,
@@ -63,10 +63,26 @@ my ($PAR,
 	$PI,
 	$E,
 	@ALPHABET,
+	$envir,
 	);
 
 sub _PGbasicmacros_init {
-    $displayMode    =$main::displayMode;
+
+    # The big problem is that at compile time in the cached Safe compartment
+    # main:: has one definition, probably Safe::Root1::
+    # At runtime main has another definition Safe::Rootx:: where x is > 1
+    
+    # It is important to 
+    # initialize the my variable version of $displayMode from the "runtime" version
+    # of main::displayMode
+    
+    $displayMode         =    main::PG_restricted_eval(q!$main::displayMode!);
+
+# This is initializes the remaining variables in the runtime main:: compartment.
+  
+main::PG_restricted_eval( <<'EndOfFile');
+    $displayMode            = $main::displayMode;
+
 	$main::PAR				= PAR();
 	$main::BR				= BR();
 	$main::LQ				= LQ();
@@ -104,41 +120,52 @@ sub _PGbasicmacros_init {
 	$main::E				= E();
 	@main::ALPHABET			= ('A'..'ZZ');
 
-	$PAR				= PAR();
-	$BR				= BR();
-	$LQ				= LQ();
-	$RQ				= RQ();
-	$BM				= BM();
-	$EM				= EM();
-	$BDM				= BDM();
-	$EDM				= EDM();
-	$LTS				= LTS();
-	$GTS				= GTS();
-	$LTE				= LTE();
-	$GTE				= GTE();
-	$BEGIN_ONE_COLUMN	= BEGIN_ONE_COLUMN();
-	$END_ONE_COLUMN	= END_ONE_COLUMN();
-	$SOL				= SOLUTION_HEADING();
-	$SOLUTION			= SOLUTION_HEADING();
-	$HINT				= HINT_HEADING();
-	$US				= US();
-	$SPACE			= SPACE();
-	$BBOLD			= BBOLD();
-	$EBOLD			= EBOLD();
-	$HR				= HR();
-	$LBRACE			= LBRACE();
-	$RBRACE			= RBRACE();
-	$LB				= LB();
-	$RB				= RB();
-	$DOLLAR			= DOLLAR();
-	$PERCENT			= PERCENT();
-	$CARET			= CARET();
-	$PI				= PI();
-	$E				= E();
+
+	
+EndOfFile
+
+# Next we transfer the correct definitions in the main:: compartment to the local my variables
+# This can't be done inside the eval above because my variables seem to be invisible inside the eval
+
+
+   	$PAR				= $main::PAR;
+	$BR				    = $main::BR;
+	$LQ				    = $main::LQ;
+	$RQ				    = $main::RQ;
+	$BM				    = $main::BM;
+	$EM				    = $main::EM;
+	$BDM				= $main::BDM;
+	$EDM				= $main::EDM;
+	$LTS				= $main::LTS;
+	$GTS				= $main::GTS;
+	$LTE				= $main::LTE;
+	$GTE				= $main::GTE;
+	$BEGIN_ONE_COLUMN	= $main::BEGIN_ONE_COLUMN;
+	$END_ONE_COLUMN	    = $main::END_ONE_COLUMN;
+	$SOL				= $main::SOLUTION_HEADING;
+	$SOLUTION			= $main::SOLUTION_HEADING;
+	$HINT				= $main::HINT_HEADING;
+	$US				    = $main::US;
+	$SPACE			    = $main::SPACE;
+	$BBOLD			    = $main::BBOLD;
+	$EBOLD			    = $main::EBOLD;
+	$HR				    = $main::HR;
+	$LBRACE			    = $main::LBRACE;
+	$RBRACE			    = $main::RBRACE;
+	$LB				    = $main::LB;
+	$RB				    = $main::RB;
+	$DOLLAR			    = $main::DOLLAR;
+	$PERCENT			= $main::PERCENT;
+	$CARET			    = $main::CARET;
+	$PI				    = $main::PI;
+	$E				    = $main::E;
 	@ALPHABET			= ('A'..'ZZ');
 
+#  We initialize a local reference to the environment hash rather than transfer the entire hash
+#  This way is slightly more efficient.
 
-
+   $envir              = PG_restricted_eval(q!\%main::envir!);
+  
 }
 
 =head2  Answer blank macros:
@@ -717,7 +744,11 @@ sub answer_matrix{
 		my $r_row_array = \@row_array;
 		push @array,  $r_row_array;
 	}
-	display_matrix( \@array, @options );
+	# display_matrix hasn't been loaded into the cache safe compartment
+	# so we need to refer to the subroutine in this way to make
+	# sure that main is defined correctly.
+	my $ra_local_display_matrix=PG_restricted_eval(q!\&main::display_matrix!);
+	&$ra_local_display_matrix( \@array, @options );
 	
 }
 
@@ -778,7 +809,8 @@ sub ans_array{
 		}
 	
 	}
-	display_matrix( \@array, @options );
+	my $ra_local_display_matrix=PG_restricted_eval(q!\&main::display_matrix!);
+	&$ra_local_display_matrix( \@array, @options );
 	
 }
 
@@ -804,7 +836,8 @@ sub ans_array_extension{
 		}
 	
 	}
-	display_matrix( \@array, @options );
+	my $ra_local_display_matrix=PG_restricted_eval(q!\&main::display_matrix!);
+	&$ra_local_display_matrix( \@array, @options );
 	
 }
 
@@ -823,13 +856,13 @@ Solution prints its concatenated input when the check box named 'ShowSol' is set
 the time is after the answer date.  The check box 'ShowSol' is visible only after the
 answer date or when the problem is viewed by a professor.
 
-$envir{'displaySolutionsQ'} is set to 1 when a solution is to be displayed.
+$main::envir{'displaySolutionsQ'} is set to 1 when a solution is to be displayed.
 
 Hints are shown only after the number of attempts is greater than $:showHint
 ($main::showHint defaults to 1) and the check box named 'ShowHint' is set. The check box
 'ShowHint' is visible only after the number of attempts is greater than $main::showHint.
 
-$envir{'displayHintsQ'} is set to 1 when a hint is to be displayed.
+$main::envir{'displayHintsQ'} is set to 1 when a hint is to be displayed.
 
 
 =cut
@@ -847,7 +880,7 @@ sub solution {
 	my @in = @_;
 	my $out = '';
 	$main::solutionExists =1;
-	if ($envir{'displaySolutionsQ'}) {$out = join(' ',@in);}
+	if ($main::envir{'displaySolutionsQ'}) {$out = join(' ',@in);}
     $out;
 }
 
@@ -867,7 +900,7 @@ sub hint {
 
 	if ($main::displayMode eq 'TeX')   {
 		$out = '';  # do nothing since hints are not available for download
-	} elsif (($envir{'displayHintsQ'}) and ($main::numOfAttempts >= $main::showHint))
+	} elsif (($main::envir{'displayHintsQ'}) and ($main::numOfAttempts >= $main::showHint))
 
 	 ## the second test above prevents a hint being shown if a doctored form is submitted
 
@@ -904,7 +937,7 @@ sub HINT {
 SRAND(time) will create a different problem everytime it is called.  This makes it difficult
 to check the answers :-).
 
-SRAND($envir{'inputs_ref'}->{'key'} ) will create a different problem for each login session.
+SRAND($envir->{'inputs_ref'}->{'key'} ) will create a different problem for each login session.
 This is probably what is desired.
 
 =cut
@@ -1366,9 +1399,9 @@ sub general_math_ev3 {
 		$out = tth($in_delim);
 	} elsif ($displayMode eq "HTML_dpng") {
 		# for jj's version of ImageGenerator
-		$out = $envir{'imagegen'}->add($in_delim);
+		$out = $envir->{'imagegen'}->add($in_delim);
 		# for my version of ImageGenerator
-		#$out = $envir{'imagegen'}->add($in, $mode);
+		#$out = $envir->{'imagegen'}->add($in, $mode);
 	} elsif ($displayMode eq "HTML_img") {
 		$out = math2img($in, $mode);
 	} else {
@@ -1447,7 +1480,7 @@ sub beginproblem {
 	my $points ='pts';
 	$points = 'pt' if $main::problemValue == 1;
 	##    Prepare header for the problem
-	grep($inlist{$_}++,@{ $envir{'PRINT_FILE_NAMES_FOR'} });
+	grep($inlist{$_}++,@{ $envir->{'PRINT_FILE_NAMES_FOR'} });
 	if ( defined($inlist{$main::studentLogin}) and ($inlist{$main::studentLogin} > 0) ) {
 		$out = &M3("\n\n\\medskip\\hrule\\smallskip\\par{\\bf ${main::probNum}.{\\footnotesize ($main::problemValue $points) $TeXFileName}}\\newline ",
 		" \\begin{rawhtml} ($main::problemValue $points) <B>$l2hFileName</B><BR>\\end{rawhtml}",
@@ -1717,7 +1750,7 @@ sub image {
 
 		if ($main::displayMode eq 'TeX') {
 			my $imagePath = $imageURL; # in TeX mode, alias gives us a path, not a URL
-			if ($envir{texDisposition} eq "pdf") {
+			if ($envir->{texDisposition} eq "pdf") {
 				# We're going to create PDF files with our TeX (using pdflatex), so
 				# alias should have given us the path to a PNG image. What we need
 				# to do is find out the dimmensions of this image, since pdflatex
