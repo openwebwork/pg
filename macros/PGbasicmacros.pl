@@ -1365,8 +1365,10 @@ sub general_math_ev3 {
 	if($displayMode eq "HTML_tth") {
 		$out = tth($in_delim);
 	} elsif ($displayMode eq "HTML_dpng") {
-		#$out = $envir{'imagegen'}->add($in_delim);
-		$out = $envir{'imagegen'}->add($in, $mode);
+		# for jj's version of ImageGenerator
+		$out = $envir{'imagegen'}->add($in_delim);
+		# for my version of ImageGenerator
+		#$out = $envir{'imagegen'}->add($in, $mode);
 	} elsif ($displayMode eq "HTML_img") {
 		$out = math2img($in, $mode);
 	} else {
