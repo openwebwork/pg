@@ -6,6 +6,7 @@
 #
 #  Constructors for the various types
 #
+sub Real     {Value::Real->new(@_)}
 sub Complex  {Value::Complex->new(@_)}
 sub Point    {Value::Point->new(@_)}
 sub Vector   {Value::Vector->new(@_)}
