@@ -257,7 +257,8 @@ sub render {
 	# call LaTeX
 	my $latexCommand  = "cd $wd && $latex equation > latex.out 2> latex.err";
 	my $latexStatus = system $latexCommand;
-	if ($latexStatus) {
+
+	if ($latexStatus and $latexStatus !=256) {
 		warn "$latexCommand returned non-zero status $latexStatus: $!";
 		warn "cd $wd failed" if system "cd $wd";
 		warn "Unable to write to directory $wd. " unless -w $wd;
@@ -276,6 +277,7 @@ sub render {
 		   warn "Unable to read logfile $wd/equation.log ";
 		}
 	}
+
 	warn "$latexCommand failed to generate a DVI file"
 		unless -e "$wd/equation.dvi";
 	
