@@ -111,7 +111,7 @@ sub parse {
     return if ($self->{error});
   }
   $self->Close('start'); return if ($self->{error});
-  $self->{tree} = $self->{stack}->[0]->{value};
+  $self->{tree} = $self->{stack}[0]{value};
 }
 
 
@@ -119,7 +119,7 @@ sub parse {
 # 
 sub top {
   my $self = shift; my $i = shift || 0;
-  return $self->{stack}->[$i-1];
+  return $self->{stack}[$i-1];
 }
 sub prev {(shift)->top(-1)}
 
@@ -267,8 +267,15 @@ sub Open {
   my $self = shift; my $type = shift;
   my $paren = $self->{context}{parens}{$type};
   if ($self->state eq 'operand') {
-    if ($type eq $paren->{close})
-      {$self->Close($type,$self->{ref}); return} else {$self->ImplicitMult()}
+    if ($type eq $paren->{close}) {
+      my $stack = $self->{stack}; my $i = scalar(@{$stack})-1;
+      while ($i >= 0 && $stack->[$i]{type} ne "open") {$i--}
+      if ($i >= 0 && $stack->[$i]{value} eq $type) {
+	$self->Close($type,$self->{ref});
+	return;
+      }
+    }
+    $self->ImplicitMult();
   }
   $self->push({type => 'open', value => $type, ref => $self->{ref}});
 }
