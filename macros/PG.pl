@@ -294,7 +294,7 @@ sub ANS_NUM_TO_NAME {     # This converts a number to an answer label for use in
                           # radio button and check box answers. No new answer
                           # name is recorded.
 		my $number=shift;
-		my $label = eval(q!$main::QUIZ_PREFIX$main::ANSWER_PREFIX$number"!);
+		my $label = eval(q!$main::QUIZ_PREFIX.$main::ANSWER_PREFIX!).$number;
 		$label;
 }
 
