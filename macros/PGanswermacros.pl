@@ -163,7 +163,7 @@ sub _PGanswermacros_init {
 		 $functULimitDefault				=	main::PG_restricted_eval(q!$main::functULimitDefault!);
 		 $functMaxConstantOfIntegration		=	main::PG_restricted_eval(q!$main::functMaxConstantOfIntegration!);
 		 $rh_envir                          =   main::PG_restricted_eval(q!\%main::envir!);
-		 $useBaseTenLog                     =   main::PG_restricted_eval(q!\%main::useBaseTenLog!);
+		 $useBaseTenLog                     =   main::PG_restricted_eval(q!$main::useBaseTenLog!);
 		 $inputs_ref                        =   main::PG_restricted_eval(q!$main::inputs_ref!);
 		 $QUESTIONNAIRE_ANSWERS				=   '';
 }
