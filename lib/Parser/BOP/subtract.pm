@@ -1,6 +1,6 @@
 #########################################################################
 #
-#  Implements ubstraction
+#  Implements subtraction
 #
 package Parser::BOP::subtract;
 use strict; use vars qw(@ISA);

@@ -11,8 +11,8 @@ sub new {
   my $equation = shift; my $num;
   my ($value,$ref) = @_;
   return Parser::Complex->new($equation,$value,$ref) if (ref($value) eq 'ARRAY');
+  $value = $value->value while Value::isReal($value);
   $value = $value + 0; # format the value as a number
-     ###  set equal to zero if near zero?
   $num = bless {
     value => $value, type => $Value::Type{number}, isConstant => 1,
     ref => $ref, equation => $equation,
@@ -43,6 +43,7 @@ sub reduce {
   if ($self->{value} < 0) {
     $self->{value} = -($self->{value});
     $self = Parser::UOP::Neg($self);
+    $self->{op}{isOne} = 1 if $self->{op}{value} == 1;
   }
   return $self;
 }
@@ -58,7 +59,7 @@ sub TeX {
   my $self = shift;
   Value::Real->make($self->{value})->TeX($self->{equation},@_);
 }
-sub perl {(shift)->{value}}
+sub perl {shift->{value}}
 
 #########################################################################
 

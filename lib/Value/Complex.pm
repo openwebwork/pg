@@ -39,7 +39,6 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $x = shift; $x = [$x,@_] if scalar(@_) > 0;
   $x = $x->data if ref($x) eq $pkg || Value::isReal($x);
-  Value::Error("Can't convert ".Value::showClass($x)." to a Complex Number") if Value::isValue($x);
   $x = [$x] unless ref($x) eq 'ARRAY'; $x->[1] = 0 unless defined($x->[1]);
   Value::Error("Can't convert ARRAY of length ".scalar(@{$x})." to a Complex Number") 
     unless (scalar(@{$x}) == 2);

@@ -46,7 +46,7 @@ sub new {
       $isFormula = 1 if Value::isFormula($x);
       Value::Error("Coordinate of Vector can't be ".Value::showClass($x))
         unless Value::isNumber($x);
-      $x = Value::Real->make($x);
+      $x = Value::Real->make($x) unless ref($x);
     }
   }
   return $self->formula($p) if $isFormula;

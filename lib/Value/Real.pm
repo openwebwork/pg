@@ -38,7 +38,6 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $x = shift; $x = [$x,@_] if scalar(@_) > 0;
   $x = $x->data if ref($x) eq $pkg;
-  Value::Error("Can't convert ".Value::showClass($x)." to a Real Number") if Value::isValue($x);
   $x = [$x] unless ref($x) eq 'ARRAY';
   Value::Error("Can't convert ARRAY of length ".scalar(@{$x})." to a Real Number") 
     unless (scalar(@{$x}) == 1);

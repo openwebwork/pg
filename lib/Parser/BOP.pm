@@ -334,6 +334,7 @@ use Parser::BOP::power;
 use Parser::BOP::cross;
 use Parser::BOP::dot;
 use Parser::BOP::underscore;
+use Parser::BOP::equality;
 
 #########################################################################
 
