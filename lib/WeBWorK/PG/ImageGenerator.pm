@@ -69,12 +69,20 @@ EOF
 use constant POSTAMBLE => <<'EOF';
 \end{document}
 EOF
+
+# Call for dvipng < 1.0
+#use constant DVIPNG_ARGS => join " ", qw(
+#-x4000.5
+#-bgTransparent
+#-Q6
+#-mode toshiba
+#-D180    
+#);
+
+# Call for dvipng >= 1.0
 use constant DVIPNG_ARGS => join " ", qw(
--x4000.5
 -bgTransparent
--Q6
--mode toshiba
--D180
+-D120
 );
 
 =head1 METHODS
