@@ -580,7 +580,7 @@ sub tolatex {
       #       added missing trig functions
       #
       #$specialfunc = '(?:abs|logten|asin|acos|atan|sech|sgn|step|fact)';
-      $specialfunc = '(?:abs|logten|a(?:sin|cos|tan|sec|csc|cot)h?|sgn|step|fact)';
+      $specialfunc = '(?:abs|logten|a(?:sin|cos|tan|sec|csc|cot)h?|sech|csch|sgn|step|fact)';
       #
       #  End DPVC
       #
