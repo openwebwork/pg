@@ -42,6 +42,7 @@ sub update {
 #
 sub create {
   my $self = shift; my $value = shift;
+  return $value if ref($value) eq 'HASH';
   if (defined($type{$value})) {
     $value = $type{$value};
   } elsif (Value::isValue($value)) {

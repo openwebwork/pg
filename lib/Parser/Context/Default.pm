@@ -177,11 +177,9 @@ $functions = {
 $strings = {
    'infinity'  => {infinite => 1},
    '-infinity' => {infinite => 1, negative => 1},
-#   'T' => {true => 1},
-#   'F' => {false => 1},
 
    '+infinity' => {alias => 'infinity'},
-   'INFINITY' => {alias => 'infinity'},
+   'INFINITY'  => {alias => 'infinity'},
    '+INFINITY' => {alias => 'infinity'},
    '-INFINITY' => {alias => '-infinity'},
    'inf'  => {alias => 'infinity'},
@@ -196,6 +194,9 @@ $strings = {
 
    'DNE'  => {},
    'dne'  => {alias => 'DNE'},
+
+#   'T' => {true => 1},
+#   'F' => {false => 1},
 };
 
 $flags = {
@@ -228,8 +229,8 @@ $fullContext = new Parser::Context(
 $fullContext->constants->set(
   pi => {TeX => '\pi ', perl => 'pi'},
   i => {isConstant => 1, perl => 'i'},
-  j => {TeX => '\boldsymbol{j}'},
-  k => {TeX => '\boldsymbol{k}'},
+  j => {TeX => '\boldsymbol{j}', perl => 'j'},
+  k => {TeX => '\boldsymbol{k}', perl => 'k'},
 );
 
 #
@@ -271,7 +272,7 @@ $vectorContext = $fullContext->copy;
 $vectorContext->variables->are(x=>'Real',y=>'Real',z=>'Real');
 $vectorContext->functions->undefine('arg','mod','Re','Im','conj');
 $vectorContext->constants->replace(i=>Value::Vector->new(1,0,0));
-$vectorContext->constants->set(i=>{TeX=>'\boldsymbol{i}'});
+$vectorContext->constants->set(i=>{TeX=>'\boldsymbol{i}', perl => 'i'});
 
 #
 #  Interval context (make intervals rather than lists)

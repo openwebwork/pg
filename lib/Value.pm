@@ -34,6 +34,11 @@ $defaultContext = Value::Context->new(
     #  word to use for infinity
     #
     infiniteWord => 'infinity',
+    #
+    #  For functions
+    #
+    limits => [-2,2],
+    num_points => 5,
   },
 );
 

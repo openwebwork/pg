@@ -17,7 +17,8 @@ use overload
        '**'   => \&power,
        '.'    => \&Value::_dot,
        'x'    => \&cross,
-       '<=>'  => sub {Value::nomethod(@_,'<=>')},
+       '<=>'  => \&compare,
+       'cmp'  => \&compare,
        '~'    => sub {Parser::Function->call('conj',$_[0])},
        'neg'  => sub {$_[0]->neg},
        'sin'  => sub {Parser::Function->call('sin',$_[0])},
@@ -46,6 +47,7 @@ sub blank {$pkg->SUPER::new('')}
 #
 sub typeRef {(shift)->{tree}->typeRef}
 
+############################################
 #
 #  Create a BOP from two operands
 #  
@@ -93,6 +95,7 @@ sub power {bop(@_,'**')}
 sub dot   {bop(@_,'.')}
 sub cross {bop(@_,'x')}
 
+############################################
 #
 #  Form the negation of a formula
 #
@@ -115,6 +118,134 @@ sub atan2 {
   Parser::Function->call('atan2',$l,$r);
 }
 
+############################################
+#
+#  Compare two functions for equality
+#
+sub compare {
+  my ($l,$r,$flag) = @_; my $self = $l;
+  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
+  $r = Value::Formula->new($r) unless Value::isFormula($r);
+  Value::Error("Functions from different contexts can't be compared")
+    unless $l->{context} == $r->{context};
+
+  #
+  #  Get the test points and evaluate the functions at those points
+  #
+  ##  FIXME: Check given points for consistency
+  my $points = $l->{test_points} || $r->{test_points} || $l->createRandomPoints;
+  my $lvalues = $l->{test_values} || $l->createPointValues($points,1);
+  my $rvalues = $r->createPointValues($points);
+  #
+  # Note: $l is bigger if $r can't be evaluated at one of the points
+  return 1 unless $rvalues;
+
+  #
+  #  Look through the two lists to see if they are equal.
+  #  If not, return the comparison of the first unequal value
+  #    (not good for < and >, but OK for ==).
+  #
+  my ($i, $cmp);
+  foreach $i (0..scalar(@{$lvalues})) {
+    $cmp = $lvalues->[$i] <=> $rvalues->[$i];
+    return $cmp if $cmp;
+  }
+  return 0;
+}
+
+#
+#  Create the value list from a given set of test points
+#
+sub createPointValues {
+  my $self = shift;
+  my $points = shift || $self->{test_points} || $self->createRandomPoints;
+  my $showError = shift;
+  my $f = $self->{f};
+  $f = $self->{f} = $self->perlFunction(undef,[$self->{context}->variables->names])
+     unless $f;
+
+  my $values = []; my $v;
+  foreach my $p (@{$points}) {
+    $v = eval {&$f(@{$p})};
+    if (!defined($v)) {
+      return unless $showError;
+      Value::Error("Can't evaluate formula on test point (".join(',',@{$p}).")");
+    }	
+    push @{$values}, Value::makeValue($v);
+  }
+
+  $self->{test_points} = $points;
+  $self->{test_values} = $values;
+}
+
+#
+#  Create a list of random points, making sure that the function
+#  is defined at the given points.  Error if we can't find enough.
+#
+sub createRandomPoints {
+  my $self = shift;
+  my $num_points = int($self->getFlag('num_points',5)); $num_points = 1 if $num_points < 1;
+  my @vars = $self->{context}->variables->names;
+  my @limits = $self->getVariableLimits(@vars);
+  foreach my $limit (@limits) {$limit->[2] = abs($limit->[1]-$limit->[0])/1000}
+  my $f = $self->{f}; $f = $self->{f} = $self->perlFunction(undef,[@vars]) unless $f;
+  my $seedRandom = $self->{context}->flag('random_seed')? 'PGseedRandom' : 'seedRandom';
+  my $getRandom  = $self->{context}->flag('random_seed')? 'PGgetRandom'  : 'getRandom';
+
+  $self->$seedRandom;
+  my $points = []; my $values = [];
+  my (@P,$v); my $k = 0;
+  while (scalar(@{$points}) < $num_points && $k < 10) {
+    @P = (); foreach my $limit (@limits) {push @P, $self->$getRandom(@{$limit})}
+    $v = eval {&$f(@P)};
+    if (!defined($v)) {$k++} else {
+      push @{$points}, [@P];
+      push @{$values}, Value::makeValue($v);
+      $k = 0; # reset count when we find a point
+    }
+  }
+
+  Value::Error("Can't generate enough valid points for comparison") if $k;
+  $self->{test_values} = $values;
+  $self->{test_points} = $points;
+}
+
+#
+#  Get the array of variable limits
+#
+sub getVariableLimits {
+  my $self = shift;
+  ## FIXME: check for consistency with @vars
+  return $self->{limits} if defined($self->{limits});
+  my @limits; my $default = $self->getFlag('limits',[-2,2]);
+  foreach my $x (@_) {
+    my $def = $self->{context}->variables->get($x);
+    push @limits, $def->{limits} || $default;
+  }
+  return @limits;
+}
+
+sub seedRandom {srand}
+sub getRandom {
+  my $self = shift;
+  my ($m,$M,$n) = @_; $n = 1 unless $n;
+  return $m + $n*int(rand()*(int(($M-$m)/$n)+1));
+}
+
+#
+#  Get the value of a flag from the object itself,
+#  or from the context, or from the default context
+#  or from the given default, whichever is found first.
+#
+sub getFlag {
+  my $self = shift; my $name = shift;
+  return $self->{$name} if defined($self->{$name});
+  return $self->{context}{flags}{$name} if defined($self->{context}{flags}{$name});
+  return $$Value::context->{flags}{$name} if defined($$Value::context->{flags}{$name});
+  return shift;
+}
+
+############################################
 #
 #  Check if the value of a formula is constant
 #    (could use shift->{tree}{isConstant}, but I don't trust it)

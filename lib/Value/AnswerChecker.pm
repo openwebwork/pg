@@ -517,13 +517,25 @@ sub cmp_equal {
   if ($student->class eq $self->class &&
       ($allowParens || (!$student->{open} && !$student->{close}))) {
     @student = @{$student->{data}};
-  } elsif ($student->class eq 'Formula' && $student->type eq 'List') {
-    @student = ();
-    foreach my $entry (@{$student->{tree}{coords}}) {
+  } elsif ($student->class eq 'Formula' && $student->type eq $self->type) {
+    #
+    #  Convert a formula returning a list to a list of formulas
+    #
+    @student = (); my @entries;
+    if ($self->type eq 'List') {@entries = @{$student->{tree}{coords}}}
+      else {@entries = $student->{tree}->makeUnion}
+    foreach my $entry (@entries) {
       my $v = Parser::Formula($entry);
          $v = Parser::Evaluate($v) if (defined($v) && $v->isConstant);
-      #  FIXME:  what if there is an error?
       push(@student,$v);
+      #
+      #  In case there is an error evaluating the answer.
+      #    (there shouldn't be, but you never know)
+      #
+      if (!defined($v)) {
+	my $cmp_error = $ans->{cmp_error} || 'cmp_error';
+	$self->$cmp_error; return;
+      }
     }
   }
 
@@ -555,10 +567,14 @@ sub cmp_equal {
     #
     #  Give messages about incorrect answers
     #
-    my $nth = ''; $nth = ' '.$self->NameForNumber($i) if (scalar(@student) > 1);
-    if ($showTypeWarnings && !$typeMatch->typeMatch($entry,$ans)) {
-      next ENTRY if ($ans->{ignoreStrings} && $entry->class eq 'String');
-      push(@errors,"Your$nth value isn't ".lc($ans->{cmp_class}).
+    my $nth = ''; my $class = $self->cmp_class;
+    if (scalar(@student) > 1) {
+      $nth = ' '.$self->NameForNumber($i);
+      $class = $ans->{cmp_class};
+    }
+    if ($showTypeWarnings && !$typeMatch->typeMatch($entry,$ans) &&
+	!($ans->{ignoreStrings} && $entry->class eq 'String')) {
+      push(@errors,"Your$nth value isn't ".lc($class).
 	   " (it looks like ".lc($entry->showClass(1)).")");
     } elsif ($showHints && $m > 1) {
       push(@errors,"Your$nth $value is incorrect");
@@ -599,12 +615,28 @@ sub getOption {
 
 package Value::Formula;
 
-#
-#  No cmp function (for now)
-#
-sub cmp {
-  die "Answer checker for formulas is not yet defined";
+## FIXME:  Need to check types for error reporting
+sub typeMatch {1}
+
+## FIXME:  Do formula returning list as list of formulas
+##         and formula returning union as union of formulas
+sub cmp_equal {
+  my $self = shift;
+  $self->{context}->flags->set(
+    random_seed => $self->getPG('$PG_original_problemSeed')
+  );
+  $self->SUPER::cmp_equal(@_);
 }
+
+#
+#  Replace the ones in Value::Formula
+#
+sub PGseedRandom {
+  my $self = shift;
+  return if $self->{PGrandom};
+  $self->{PGrandom} = new PGrandom($self->{context}->flag('random_seed'));
+}
+sub PGgetRandom {shift->{PGrandom}->getRandom(@_)}
 
 #############################################################
 
