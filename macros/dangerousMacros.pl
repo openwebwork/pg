@@ -304,7 +304,7 @@ sub compile_file {
  	$/ = undef;   # allows us to treat the file as a single line
  	open(MACROFILE, "<$filePath") || die "Cannot open file: $filePath";
  	my $string = <MACROFILE>;
- 	my ($result,$error,$fullerror) = &PG_macro_file_eval($string);
+ 	my ($result,$error,$fullerror) = &PG_restricted_eval($string);
  	if ($error) {    # the $fullerror report has formatting and is never empty
  		$fullerror =~ s/\(eval \d+\)/ $filePath\n/;   # attempt to insert file name instead of eval number
  		die "Error detected while loading $filePath:\n$fullerror";
@@ -985,11 +985,11 @@ sub alias {
 				my $gifFileName = fileFromPath($gifFilePath);
 
 				$gifFileName =~ /^(.*)\.gif$/;
-				my $pngFilePath = surePathToTmpFile("$tempDirectory/png/$1.png");
+				my $pngFilePath = surePathToTmpFile("${tempDirectory}png/$1.png");
 				my $returnCode = system "$envir{externalGif2PngPath} $gifFilePath $pngFilePath";
 
 				if ($returnCode or not -e $pngFilePath) {
-					die "failed to convert gif->png with $envir{externalGif2PngPath}: $!\n";
+					die "failed to convert $gifFilePath to $pngFilePath using gif->png with $envir{externalGif2PngPath}: $!\n";
 				}
 
 				$adr_output = $pngFilePath;
