@@ -77,7 +77,7 @@ sub cmp_check {
        unless Value::isValue($ans->{student_value});
     $ans->{preview_latex_string} = $ans->{student_formula}->TeX;
     $ans->{preview_text_string}  = $ans->{student_formula}->string;
-    $ans->{student_ans}          = $ans->{student_value}->stringify;
+    $ans->{student_ans}          = $ans->{preview_text_string};
     $self->$cmp_equal($ans);
     $self->$cmp_postprocess($ans) if !$ans->{error_message};
   } else {
@@ -217,8 +217,6 @@ sub typeMatch {
 package Value::Infinity;
 
 sub cmp_class {'a Number'};
-
-sub cmp_defaults {Value::Real->cmp_defaults};
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
@@ -435,7 +433,7 @@ sub typeMatch {
 sub cmp_defaults {(
   Value::List::cmp_defaults(@_),
   typeMatch => 'Value::Interval',
-  list_type => 'a union',
+  list_type => 'an interval or union',
   entry_type => 'an interval',
 )}
 
