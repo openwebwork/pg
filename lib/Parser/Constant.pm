@@ -20,8 +20,8 @@ sub new {
   my $const = $equation->{context}{constants}{$name};
   my ($value,$type) = Value::getValueType($equation,$const->{value});
   my $c = bless {
-    name => $name, constant => $value, type => $type,
-    def => $const, ref => $ref, equation => $equation
+    name => $name, type => $type, def => $const,
+    ref => $ref, equation => $equation
   }, $class;
   $c->{isConstant} = 1 if $const->{isConstant};
   return $c;
@@ -33,7 +33,7 @@ sub new {
 #     effect for the main equation).
 #
 sub eval {
-  my $self = shift; my $data = $self->{constant};
+  my $self = shift; my $data = $self->{def}{value};
   if (Value::isFormula($data)) {
     $data->{values} = $self->{equation}{values};
     my $value = $data->{tree}->eval;
@@ -58,7 +58,7 @@ sub TeX {
 
 sub perl {
   my $self = shift; my $parens = shift;
-  my $data = $self->{constant};
+  my $data = $self->{def}{value};
   return $self->{def}{perl} if defined($self->{def}{perl});
   if (Value::isFormula($data)) {
     $data->{values} = $self->{equation}{values};

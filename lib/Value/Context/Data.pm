@@ -158,9 +158,12 @@ sub set {
   my $self = shift; my %D = (@_);
   my $data = $self->{context}{$self->{dataName}};
   foreach my $x (keys(%D)) {
-    $data->{$x} = (defined($data->{$x}) && ref($data->{$x}) eq 'HASH') ?
-                    {%{$data->{$x}},%{$D{$x}}} :
-                    $self->create($D{$x});
+    my $xref = $data->{$x};
+    if (defined($xref) && ref($xref) eq 'HASH') {
+      foreach my $id (keys %{$D{$x}}) {$xref->{$id} = $D{$x}{$id}}
+    } else {
+      $data->{$x} = $self->create($D{$x});
+    }
   };
 }
 
