@@ -94,9 +94,10 @@ in addition the  subroutine &evaluate_units is shared from the module Units.
 
 BEGIN {
 	be_strict(); # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
-
+	
 }
 
+my $debugON = 0;
 
 sub _dangerousMacros_init {
 }
@@ -175,6 +176,7 @@ my ($macroDirectory,
 sub loadMacros {
     my @files = @_;
     my $fileName;
+    eval {main::time_it("begin load macros");};
     ###############################################################################
 	# At this point the directories have been defined from %envir and we can define
 	# the directories for this file
@@ -184,8 +186,8 @@ sub loadMacros {
     $courseScriptsDirectory = eval('$main::courseScriptsDirectory') unless defined($courseScriptsDirectory);
     $templateDirectory = eval('$main::courseScriptsDirectory') unless defined($templateDirectory);
     $scriptDirectory = eval('$main::scriptDirectory') unless defined($scriptDirectory);
-
-    unless (defined( $main::externalTTHPath) and $main::externalTTHPath) {
+    
+    unless (defined( eval('$main::externalTTHPath') and eval('$main::externalTTHPath') )){
     	warn "WARNING::Please make sure that the DOCUMENT() statement comes before<BR>\n" .
     	     " the loadMacros() statement in the problem template.<p>" .
     	     " The externalTTHPath variable |$main::externalTTHPath| was\n".
@@ -201,7 +203,7 @@ sub loadMacros {
 		$macro_file_name =~s/\.pl//;  # trim off the extension
 		$macro_file_name =~s/\.pg//;  # sometimes the extension is .pg (e.g. CAPA files)
 		my $init_subroutine_name = "_${macro_file_name}_init";
-    	my $macro_file_loaded;
+
  		#no strict;
  		###############################################################################
 		# For some reason the "no stict" which works on webwork-db doesn't work on
@@ -212,43 +214,55 @@ sub loadMacros {
 		# webwork-db used perl 5.6.1 and webwork used perl 5.6.0  It seems
 		# unlikely that this was the problem. Otherwise all files seemed to
 		# be the same.
+		
+		# 		local($temp::rf_init_subroutine);
+		#  		eval qq{ \$temp::rf_init_subroutine = \\&main::$init_subroutine_name;};
+		# 		#warn "loadMacros: defining \$temp::rf_init_subroutine ",$temp::rf_init_subroutine;
+		# 
+		# 		$macro_file_loaded	= defined($temp::rf_init_subroutine) && defined( &{$temp::rf_init_subroutine} );
 		###############################################################################
-
-		local($temp::rf_init_subroutine);
- 		eval qq{ \$temp::rf_init_subroutine = \\&main::$init_subroutine_name;};
-		#warn "loadMacros: defining \$temp::rf_init_subroutine ",$temp::rf_init_subroutine;
-
-		$macro_file_loaded	= defined($temp::rf_init_subroutine) && defined( &{$temp::rf_init_subroutine} );
-
+		no strict;
+		#  warn "dangerousMacros main:: contains <br>\n  ".join("<br>\n ", %main::) if $debugON;
+		my $init_subroutine  = eval { \&{$init_subroutine_name} };
+		use strict;
+        my $macro_file_loaded = defined($init_subroutine);
+        warn "dangerousMacros: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|" if $debugON;
         # macros are searched for first in the $macroDirectory of the course
         # and then in the webwork  $courseScripts directory.
         unless ($macro_file_loaded) {
         	#print STDERR "loadMacros: loading macro file $fileName\n";
-			if (-r "${main::macroDirectory}$fileName") {
-				compile_file("${main::macroDirectory}$fileName");
+			if (-r "$macroDirectory$fileName") {
+				compile_file("$macroDirectory$fileName");
 
-			} elsif (-r  "${main::courseScriptsDirectory}$fileName" ) {
-				 compile_file("${main::courseScriptsDirectory}$fileName");
+			} elsif (-r  "$courseScriptsDirectory$fileName" ) {
+				 compile_file("$courseScriptsDirectory$fileName");
 			} else {
-				die "Can't locate macro file via path: |${main::macroDirectory}$fileName| or |${main::courseScriptsDirectory}$fileName|";
+				die "Can't locate macro file via path: |$macroDirectory$fileName| or |$courseScriptsDirectory$fileName|";
 			}
 		}
 		# Try again to define the initialization subroutine.
-		eval qq{ \$temp::rf_init_subroutine = \\&main::$init_subroutine_name;};
+		#eval qq{ \$temp::rf_init_subroutine = \\&main::$init_subroutine_name;};
+		no strict;
+		$init_subroutine  = eval { \&{'main::'.$init_subroutine_name} };
+		use strict;
 		#warn "loadMacros: defining \$temp::rf_init_subroutine ",$temp::rf_init_subroutine;
+        warn "init file defined: $macro_file_name = ", defined(&{$init_subroutine}) if $debugON;
+       
+		if ( defined( &{$init_subroutine} ) ) {
 
-		if ( defined($temp::rf_init_subroutine) and defined( &{$temp::rf_init_subroutine} ) ) {
-		    #print " &$init_subroutine_name defined = ", $macro_file_loaded,"\n";
-			&{$temp::rf_init_subroutine}();  #initialize file
-			#print "initializing $init_subroutine_name\n";
+		    warn "dangerousMacros:  initializing $macro_file_name" if $debugON;
+		    &$init_subroutine($main::displayMode);
 		}
+		#warn "main:: contains <br>\n $macro_file_name ".join("<br>\n $macro_file_name ", %main::);
 
 	}
+	eval{main::time_it("end load macros");};
 }
 
 # errors in compiling macros is not always being reported.
 sub compile_file {
  	my $filePath = shift;
+ 	warn "loading $filePath" if $debugON; 
  	local(*MACROFILE);
  	local($/);
  	$/ = undef;   # allows us to treat the file as a single line
@@ -1166,6 +1180,8 @@ for ordering are B<required>. Note the commas!)
 #  one can write   3 +2i rather than 3+2i()
 #
 
-sub i;
+
+sub i {
+}
 
 1;  # required to load properly

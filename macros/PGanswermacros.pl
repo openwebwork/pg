@@ -114,23 +114,24 @@ BEGIN {
 }
 
 
-my ($BR 					,		# convenient localizations.
-	$PAR					,
+my ($BR 					        ,		# convenient localizations.
+	$PAR					        ,
 	$numRelPercentTolDefault		,
 	$numZeroLevelDefault			,
 	$numZeroLevelTolDefault			,
-	$numAbsTolDefault			,
-	$numFormatDefault			,
-	$functRelPercentTolDefault		,
+	$numAbsTolDefault			    ,
+	$numFormatDefault			    ,
+	$functRelPercentTolDefault	   	,
 	$functZeroLevelDefault			,
 	$functZeroLevelTolDefault		,
-	$functAbsTolDefault			,
-	$functNumOfPoints			,
-	$functVarDefault			,
-	$functLLimitDefault			,
-	$functULimitDefault			,
-	$functMaxConstantOfIntegration		,
-	$CA
+	$functAbsTolDefault			    ,
+	$functNumOfPoints			    ,
+	$functVarDefault			    ,
+	$functLLimitDefault			    ,
+	$functULimitDefault			    ,
+	$functMaxConstantOfIntegration	,
+	$CA                             ,
+	$rh_envir                          ,
 );
 
 
@@ -138,28 +139,26 @@ my ($BR 					,		# convenient localizations.
 
 sub _PGanswermacros_init {
 
-		 $BR 	= $main::BR;		# convenient localizations.
-		 $PAR	= $main::PAR;
+		 $BR 	                            = main::PG_restricted_eval(q!$main::BR!);		
+		 $PAR	                            = main::PG_restricted_eval(q!$main::PAR!);
 
 		# import defaults
 		# these	are	now imported from the %envir variable
-		 $numRelPercentTolDefault			=	$main::numRelPercentTolDefault;
-		 $numZeroLevelDefault				=	$main::numZeroLevelDefault;
-		 $numZeroLevelTolDefault			=	$main::numZeroLevelTolDefault;
-		 $numAbsTolDefault				=	$main::numAbsTolDefault;
-		 $numFormatDefault				=	$main::numFormatDefault;
-		 $functRelPercentTolDefault			=	$main::functRelPercentTolDefault;
-		 $functZeroLevelDefault				=	$main::functZeroLevelDefault;
-		 $functZeroLevelTolDefault			=	$main::functZeroLevelTolDefault;
-		 $functAbsTolDefault				=	$main::functAbsTolDefault;
-		 $functNumOfPoints				=	$main::functNumOfPoints;
-		 $functVarDefault				=	$main::functVarDefault;
-		 $functLLimitDefault				=	$main::functLLimitDefault;
-		 $functULimitDefault				=	$main::functULimitDefault;
-		 $functMaxConstantOfIntegration			=	$main::functMaxConstantOfIntegration;
-
-
-
+		 $numRelPercentTolDefault			=	main::PG_restricted_eval(q!$main::numRelPercentTolDefault!);
+		 $numZeroLevelDefault				=	main::PG_restricted_eval(q!$main::numZeroLevelDefault!);
+		 $numZeroLevelTolDefault			=	main::PG_restricted_eval(q!$main::numZeroLevelTolDefault!);
+		 $numAbsTolDefault				    =	main::PG_restricted_eval(q!$main::numAbsTolDefault!);
+		 $numFormatDefault				    =	main::PG_restricted_eval(q!$main::numFormatDefault!);
+		 $functRelPercentTolDefault			=	main::PG_restricted_eval(q!$main::functRelPercentTolDefault!);
+		 $functZeroLevelDefault				=	main::PG_restricted_eval(q!$main::functZeroLevelDefault!);
+		 $functZeroLevelTolDefault			=	main::PG_restricted_eval(q!$main::functZeroLevelTolDefault!);
+		 $functAbsTolDefault				=	main::PG_restricted_eval(q!$main::functAbsTolDefault!);
+		 $functNumOfPoints				    =	main::PG_restricted_eval(q!$main::functNumOfPoints!);
+		 $functVarDefault				    =	main::PG_restricted_eval(q!$main::functVarDefault!);
+		 $functLLimitDefault				=	main::PG_restricted_eval(q!$main::functLLimitDefault!);
+		 $functULimitDefault				=	main::PG_restricted_eval(q!$main::functULimitDefault!);
+		 $functMaxConstantOfIntegration		=	main::PG_restricted_eval(q!$main::functMaxConstantOfIntegration!);
+		 $rh_envir                          =   main::PG_restricted_eval(q!\%main::envir!);
 }
 
 ##########################################################################
@@ -583,21 +582,21 @@ Examples:
 sub std_num_cmp	{						# compare numbers allowing use of elementary functions
     my ( $correctAnswer, $relPercentTol, $format, $zeroLevel, $zeroLevelTol ) = @_;
 
-	my %options = ( 'relTol'		=>	$relPercentTol,
-		    'format'		=>	$format,
-		    'zeroLevel'		=>	$zeroLevel,
-		    'zeroLevelTol'	=>	$zeroLevelTol
+	my %options = ( 'relTol'        =>	$relPercentTol,
+		    		'format'		=>	$format,
+		    		'zeroLevel'		=>	$zeroLevel,
+		    		'zeroLevelTol'	=>	$zeroLevelTol
     );
 
     set_default_options( \%options,
-			 'tolType'	=>      'relative',
-			 'tolerance'    =>      $numRelPercentTolDefault,
-			 'mode'		=>	'std',
-			 'format'	=>	$numFormatDefault,
-			 'relTol'	=>	$numRelPercentTolDefault,
-			 'zeroLevel'    =>      $numZeroLevelDefault,
-			 'zeroLevelTol' =>      $numZeroLevelTolDefault,
-			 'debug'        =>      0,
+			 'tolType'	    =>  'relative',
+			 'tolerance'    =>  $numRelPercentTolDefault,
+			 'mode'		    =>	'std',
+			 'format'	    =>	$numFormatDefault,
+			 'relTol'	    =>	$numRelPercentTolDefault,
+			 'zeroLevel'    =>  $numZeroLevelDefault,
+			 'zeroLevelTol' =>  $numZeroLevelTolDefault,
+			 'debug'        =>  0,
     );
 
     num_cmp([$correctAnswer], %options);
@@ -1015,8 +1014,8 @@ sub NUM_CMP {		# low level	numeric	compare
 	}
 
 	my $correctAnswer	=	$num_params{'correctAnswer'};
-	my $format		=	$num_params{'format'};
-	my $mode		=	$num_params{'mode'};
+	my $format		    =	$num_params{'format'};
+	my $mode		    =	$num_params{'mode'};
 
 	if( $num_params{tolType} eq 'relative' ) {
 		$num_params{'tolerance'} = .01*$num_params{'tolerance'};
@@ -1499,10 +1498,10 @@ sub adaptive_function_cmp {
 			'vars'			=>	[qw( x y )],
 	               	'params'		=>	[],
 	               	'limits'		=>	[ [0,1], [0,1]],
-	               	'reltol'		=>	$main::functRelPercentTolDefault,
-	               	'numPoints'		=>	$main::functNumOfPoints,
-	               	'zeroLevel'		=>	$main::functZeroLevelDefault,
-	               	'zeroLevelTol'		=>	$main::functZeroLevelTolDefault,
+	               	'reltol'		=>	$functRelPercentTolDefault,
+	               	'numPoints'		=>	$functNumOfPoints,
+	               	'zeroLevel'		=>	$functZeroLevelDefault,
+	               	'zeroLevelTol'	=>	$functZeroLevelTolDefault,
 	               	'debug'			=>	0,
 	);
 
@@ -2470,9 +2469,9 @@ sub mail_answers_to {  #accepts	the	last answer	and	mails off the result
 		# then mail out	all of the answers, including this last one.
 
 		send_mail_to(	$user_address,
-					'subject'		=>	"$main::courseName WeBWorK questionnaire",
-					'body'			=>	$QUESTIONNAIRE_ANSWERS,
-					'ALLOW_MAIL_TO'		=>	$envir{ALLOW_MAIL_TO}
+					'subject'		    =>	"$main::courseName WeBWorK questionnaire",
+					'body'			    =>	$QUESTIONNAIRE_ANSWERS,
+					'ALLOW_MAIL_TO'		=>	$rh_envir->{ALLOW_MAIL_TO}
 		);
 
 		my $ans_hash = new AnswerHash(	'score'		=>	1,
@@ -2526,7 +2525,7 @@ sub mail_answers_to2 {	#accepts the last answer and mails off the result
 	send_mail_to($user_address,
 			'subject'			=> $subject,
 			'body'				=> $QUESTIONNAIRE_ANSWERS,
-			'ALLOW_MAIL_TO'		=> $envir{ALLOW_MAIL_TO}
+			'ALLOW_MAIL_TO'		=> $rh_envir->{ALLOW_MAIL_TO}
 	);
 }
 
@@ -2925,8 +2924,8 @@ sub function_from_string2 {
 				$PG_eval_errors	= clean_up_error_msg($PG_eval_errors);
 
  		my $PGanswerMessage = "There was an error in converting the expression
- 		 	$main::BR $originalEqn $main::BR into a function.
- 		 	$main::BR $PG_eval_errors.";
+ 		 	$BR $originalEqn $BR into a function.
+ 		 	$BR $PG_eval_errors.";
  		$rh_ans->{rf_student_ans} = $function_sub;
  		$rh_ans->{ans_message} = $PGanswerMessage;
  		$rh_ans->{error_message} = $PGanswerMessage;
