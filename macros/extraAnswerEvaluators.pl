@@ -657,8 +657,8 @@ answers of various "exotic" types.
 	 }
 
 	 if($strict_ordering==0) {
-		 @fs1 = main::PGsort(sub {$_[0]->[1] <=> $_[1]->[1];}, @fs1);
-		 @fs2 = main::PGsort(sub {$_[0]->[1] <=> $_[1]->[1];}, @fs2);
+		 @fs1 = main::PGsort(sub {$_[0]->[1] <=$_[1]->[1];}, @fs1);
+		 @fs2 = main::PGsort(sub {$_[0]->[1] < $_[1]->[1];}, @fs2);
 	 }
 
 	 for ($j=0; $j<scalar(@fs1);$j++) {

@@ -1691,7 +1691,7 @@ sub sspf {
 	uniq( @list);      # outputs a list with no duplicates.  Order is unspecified.
 
 	PGsort( \&sort_subroutine, @list);
-	# &sort_subroutine defines order. It's output must be -1,0 or 1.
+	# &sort_subroutine defines order. It's output must be 1 or 0 (true or false)
 
 =cut
 
@@ -1707,10 +1707,10 @@ sub sspf {
 }
 
 sub lex_sort {
-	PGsort sub {$_[0] cmp $_[1]}, @_;
+	PGsort sub {$_[0] lt $_[1]}, @_;
 }
 sub num_sort {
-	PGsort sub {$_[0] <=> $_[1]}, @_;
+	PGsort sub {$_[0] < $_[1]}, @_;
 }
 
 
