@@ -193,6 +193,9 @@ Creates a directory with the given name, permission bits, and group ID.
 
 sub createDirectory {
 	my ($dirName, $permission, $numgid) = @_;
+	$permission = (defined($permission)) ? $permission : '0770';
+	# FIXME -- find out where the permission is supposed to be defined.
+	#warn "dirName is $dirName and permission is $permission";
 	mkdir($dirName, $permission)
 		or warn "Can't do mkdir($dirName, $permission): $!";
 	chmod($permission, $dirName)

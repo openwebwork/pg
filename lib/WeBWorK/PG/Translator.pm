@@ -653,50 +653,7 @@ sub errors{
 	$self->{errors};
 }
 
-# sub DESTROY {
-#     my $self = shift;
-#     my $nameSpace = $self->nameSpace;
-#  	no strict 'refs';
-#    	my $nm = "${nameSpace}::";
-#      my $nsp = \%{"$nm"};
-#       my @list = keys %$nsp;
-#       while (@list) {
-#    	 	my $name = pop(@list);
-#   	 	if  ( defined(&{$nsp->{$name}})  )  {
-#   	 	   #print "checking \&$name\n";
-#   	 	   unless (exists( $shared_subroutine_hash{"\&$name"} ) ) {
-#   	 	 		undef( &{$nsp->{$name}} );
-#   	 	 		#print "destroying \&$name\n";
-#   	 	   } else {
-#   	 	   		#delete( $nsp->{$name} );
-#   	 	   		#print "what is left",join(" ",%$nsp) ,"\n\n";
-#   	 	   }
-#   	 	   
-#   	 	}
-#   	 	if  ( defined(${$nsp->{$name}})  )  {
-#   	 	   #undef( ${$nsp->{$name}} );         ## unless commented out download hardcopy bombs with Perl 5.6
-#            #print "destroying \$$name\n";
-#   	 	} 
-#   	 	if  ( defined(@{$nsp->{$name}})  )  {
-#   	 	   undef( @{$nsp->{$name}} );  
-#   	 	   #print "destroying \@$name\n";
-#   	 	} 
-#    	 	if  ( defined(%{$nsp->{$name}})  )  {
-#    	 	   undef( %{$nsp->{$name}} ) unless $name =~ /::/ ;  
-#    	 	   #print "destroying \%$name\n";
-#    	 	}
-#    	 	# changed for Perl 5.6
-# 	 	delete ( $nsp->{$name} ) if defined($nsp->{$name});  # this must be uncommented in Perl 5.6 to reinitialize variables
-# 	 	# changed for Perl 5.6
-# 	 #print "deleting $name\n";	
-# 		#undef( @{$nsp->{$name}} ) if defined(@{$nsp->{$name}});
-# 		#undef( %{$nsp->{$name}} ) if defined(%{$nsp->{$name}}) and $name ne "main::"; 	
-#  	 }
-# 
-# 	use strict;
-#     #print "\nObject going bye-bye\n";
-#     
-# }
+
 
 =head2  set_mask
 
@@ -837,7 +794,8 @@ sub translate {
 	     unless defined( $self->{envir} );
     # reset the error detection
     my $save_SIG_warn_trap = $SIG{__WARN__};
-    $SIG{__WARN__} = sub {&$save_SIG_warn_trap(PG_errorMessage('message',@_))};
+#    $SIG{__WARN__} = sub {&$save_SIG_warn_trap(PG_errorMessage('message',@_))};
+    $SIG{__WARN__} = sub {CORE::die(PG_errorMessage('message',@_))};
     my $save_SIG_die_trap = $SIG{__DIE__};
     $SIG{__DIE__} = sub {CORE::die(PG_errorMessage('traceback',@_))};
 
@@ -1123,10 +1081,6 @@ sub process_answers{
 		                                          # in case the answer evaluator forgets to check
 		$self->{safe}->share('$rf_fun','$temp_ans');
  	    
-		# reset the error detection
-		my $save_SIG_warn_trap = $SIG{__WARN__};
-		$SIG{__WARN__} = sub {&$save_SIG_warn_trap(PG_errorMessage('message',@_))};
-		my $save_SIG_die_trap = $SIG{__DIE__};
 		local %errorTable;
 		$SIG{__DIE__} = sub {
 		  #
@@ -1142,7 +1096,13 @@ sub process_answers{
 		  $error .= "\n";
 		  $errorTable{$error} = $fullerror;
 		  CORE::die($error);
-		};
+		};		
+		# reset the error detection
+		my $save_SIG_warn_trap = $SIG{__WARN__};
+		$SIG{__WARN__} = sub {&$save_SIG_warn_trap(PG_errorMessage('message',@_))};
+
+		my $save_SIG_die_trap = $SIG{__DIE__};
+
 		my $rh_ans_evaluation_result;
 		if (ref($rf_fun) eq 'CODE' ) {
 			$rh_ans_evaluation_result = $self->{safe} ->reval( '&{ $rf_fun }($temp_ans)' ) ;
