@@ -200,7 +200,7 @@ sub createRandomPoints {
   $num_points = 1 if $num_points < 1;
 
   my @vars = $self->{context}->variables->names;
-  my @limits = $self->addLimitGranularity($self->getVariableLimits(@vars));
+  my @limits = $self->getVariableLimits(@vars);
   my @make = $self->getVariableTypes(@vars);
   my $f = $self->{f}; $f = $self->{f} = $self->perlFunction(undef,[@vars]) unless $f;
   my $seedRandom = $self->{context}->flag('random_seed')? 'PGseedRandom' : 'seedRandom';
@@ -234,23 +234,26 @@ sub createRandomPoints {
 #
 sub getVariableLimits {
   my $self = shift;
-  my $userlimits = $self->{limits}; my $i = 0;
+  my $userlimits = $self->{limits};
   if (defined($userlimits)) {
     $userlimits = [[[-$userlimits,$userlimits]]] unless ref($userlimits) eq 'ARRAY';
     $userlimits = [$userlimits] unless ref($userlimits->[0]) eq 'ARRAY';
     $userlimits = [$userlimits] if scalar(@_) == 1 && ref($userlimits->[0][0]) ne 'ARRAY';
     foreach my $I (@{$userlimits}) {$I = [$I] unless ref($I->[0]) eq 'ARRAY'};
   }
-  $userlimits = [] unless $userlimits;
-  my $default = $userlimits->[0][0] || $self->{context}{flags}{limits} || [-2,2];
-  my @limits;
+  $userlimits = [] unless $userlimits; my @limits;
+  my $default;  $default = $userlimits->[0][0] if defined($userlimits->[0]);
+  my $default = $default || $self->{context}{flags}{limits} || [-2,2];
+  my $granularity = $self->getFlag('granularity',1000);
+  my $resolution = $self->getFlag('resolution');
+  my $i = 0;
   foreach my $x (@_) {
     my $def = $self->{context}{variables}{$x};
     my $limit = $userlimits->[$i++] || $def->{limits} || [];
-    $limit = [$limit] if $limit->[0] && ref($limit->[0]) ne 'ARRAY';
+    $limit = [$limit] if defined($limit->[0]) && ref($limit->[0]) ne 'ARRAY';
     push(@{$limit},$limit->[0] || $default) while (scalar(@{$limit}) < $def->{type}{length});
     pop(@{$limit}) while (scalar(@{$limit}) > $def->{type}{length});
-    push @limits, $limit;
+    push @limits, $self->addGranularity($limit,$def,$granularity,$resolution);
   }
   return @limits;
 }
@@ -258,15 +261,16 @@ sub getVariableLimits {
 #
 #  Add the granularity to the limit intervals
 #
-sub addLimitGranularity {
-  my $self = shift; my @limits = @_;
-  foreach my $x (@limits) {
-    foreach my $I (@{$x}) {
-      my ($a,$b) = @{$I}; $b = -$a unless defined $b;
-      $I = [$a,$b,abs($b-$a)/1000];
-    }
+sub addGranularity {
+  my $self = shift; my $limit = shift; my $def = shift;
+  my $granularity = shift; my $resolution = shift;
+  $granularity = $def->{granularity} || $granularity;
+  $resolution = $def->{resolution} || $resolution;
+  foreach my $I (@{$limit}) {
+    my ($a,$b,$n) = @{$I}; $b = -$a unless defined $b;
+    $I = [$a,$b,($n || $resolution || abs($b-$a)/$granularity)];
   }
-  return @limits;
+  return $limit;
 }
 
 #

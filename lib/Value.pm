@@ -37,8 +37,10 @@ $defaultContext = Value::Context->new(
     #
     #  For functions
     #
-    limits => [-2,2],
-    num_points => 5,
+    limits      => [-2,2],
+    num_points  => 5,
+    granularity => 1/1000,
+    resolution  => undef,
   },
 );
 
