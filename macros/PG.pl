@@ -289,6 +289,12 @@ sub ANS_NUM_TO_NAME {     # This converts a number to an answer label for use in
 
 my $vecnum;
 
+sub RECORD_FORM_LABEL  {             # this stores form data (such as sticky answers), but does nothing more
+                                     # it's a bit of hack since we are storing these in the KEPT_EXTRA_ANSWERS queue even if they aren't answers per se.
+	my $label   = shift;             # the label of the input box or textarea
+    eval(q!push(@main::KEPT_EXTRA_ANSWERS, $label)!); #put the labels into the hash to be caught later for recording purposes
+    $label;
+}
 sub NEW_ANS_ARRAY_NAME {        # this keeps track of the answers which are entered implicitly,
                           # rather than with a specific label
 		my $number=shift;
