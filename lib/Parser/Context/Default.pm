@@ -32,15 +32,15 @@ $operators = {
 
    '/' => {precedence => 3, associativity => 'left', type => 'bin', string => '/',
            class => 'Parser::BOP::divide', space => ' /',
-           rightparens => 'all', leftparens => 'all', fullparens => 1},
+           rightparens => 'all', leftparens => 'extra', fullparens => 1},
 
    ' /' => {precedence => 2.8, associativity => 'left', type => 'bin', string => '/',
            class => 'Parser::BOP::divide',
-           rightparens => 'all', leftparens => 'all', fullparens => 1, hidden => 1},
+           rightparens => 'all', leftparens => 'extra', fullparens => 1, hidden => 1},
 
    '/ ' => {precedence => 2.8, associativity => 'left', type => 'bin', string => '/',
            class => 'Parser::BOP::divide',
-           rightparens => 'all', leftparens => 'all', fullparens => 1},
+           rightparens => 'all', leftparens => 'extra', fullparens => 1},
 
    ' *'=> {precedence => 2.8, associativity => 'left', type => 'bin', string => '*',
            class => 'Parser::BOP::multiply', TeX => '', hidden => 1},

@@ -276,7 +276,7 @@ sub string {
   my $extraParens = $self->{equation}{context}->flag('showExtraParens');
   my $addparens = 
       defined($precedence) &&
-      ((($showparens eq 'all' || $bop->{fullparens}) && $extraParens) ||
+      ($showparens eq 'all' || (($showparens eq 'extra' || $bop->{fullparens}) && $extraParens) ||
        $precedence > $bop->{precedence} || ($precedence == $bop->{precedence} &&
         ($bop->{associativity} eq 'right' || $showparens eq 'same')));
   my $outerRight = !$addparens && ($outerRight || $position eq 'right');
