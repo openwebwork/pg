@@ -3621,6 +3621,7 @@ sub check_strings {
 	my ($ans_eval) = str_cmp($rh_ans->{correct_ans});
 	my $temp_ans_hash = &$ans_eval($ans);
 	$rh_ans->{test} = $temp_ans_hash;
+	
 	if ($temp_ans_hash->{score} ==1 ) {			# students answer matches the correct answer.
 		$rh_ans->{score} = 1;
 		$sensibleAnswer = 1;
@@ -3638,10 +3639,16 @@ sub check_strings {
 		# $temp_ans_hash -> setKeys( 'ans_message' => 'Your answer is not a recognized answer' ) unless ($sensibleAnswer);
 		# $temp_ans_hash -> setKeys( 'student_ans' => uc($ans) );
 	}
+	
 	$rh_ans->{student_ans} = $ans;
+	
 	if ($sensibleAnswer) {
 		$rh_ans->throw_error('STRING', "The student's answer $rh_ans->{student_ans} is interpreted as a string.");
 	}
+	
+	$rh_ans->{'preview_text_string'}	=	$ans,
+	$rh_ans->{'preview_latex_string'}	=	$ans,
+
 	# warn ("\$rh_ans->{answerIsString} = $rh_ans->{answerIsString}");
 	$rh_ans;
 }
