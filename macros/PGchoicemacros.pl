@@ -412,6 +412,115 @@ sub pop_up_list_print_q {
 
 }
 
+
+# For graphs in a matching question.
+
+#sub format_graphs {
+#	my $self = shift;
+#	my @in = @_;
+#	my $out = "";
+#	while (@in) {
+#		$out .= shift(@in). "#" ;
+#	}
+#	$out;
+#}
+
+
+# To put pop-up-list at the end of a question.
+# contributed by Mark Schmitt 3-6-03
+
+sub quest_first_pop_up_list_print_q {
+    my $self = shift;
+    my (@questions) = @_;
+    my $length = $self->{ans_rule_len};
+    my @list = @{$self->{ra_pop_up_list} };
+    my $out = "";
+
+	if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth'
+              || $main::displayMode eq 'HTML_dpng'|| $main::displayMode eq 'HTML_img') {
+ 		my $i=1; my $quest;
+ 		foreach $quest (@questions) {
+ 			 $out.=	"\n<p>" .  "&nbsp; $quest" . pop_up_list(@list);
+ 			 $i++;
+ 		}
+ 		$out .= "<br>\n";
+	} elsif ($main::displayMode eq 'Latex2HTML') {
+		my $i=1; my $quest;
+		foreach $quest (@questions) {
+			 $out.=	" \\begin{rawhtml}<p><B>\\end{rawhtml}" . pop_up_list(@list) . " $i. \\begin{rawhtml}</B>\\end{rawhtml}   $quest";
+			 $i++;
+		}
+		$out .= " \\begin{rawhtml}<BR>\\end{rawhtml} ";
+	}  elsif ($main::displayMode eq 'TeX') {
+	    $out = "\n\\par\\begin{enumerate}\n";
+	    my $i=1; my $quest;
+	 	foreach $quest (@questions) {
+	 		$out .= "\\item[" .  pop_up_list(@list) . "$i.] $quest\n";
+	 		$i++;
+	 	}
+	 	$out .= "\\end{enumerate}\n";
+	} else {
+		$out = "Error: PGchoicemacros: pop_up_list_print_q: Unknown displayMode: $main::displayMode.\n";
+	}
+	$out;
+
+}
+# To put pop-up-list in the middle of a question.
+# contributed by Mark Schmitt 3-6-03
+
+sub ans_in_middle_pop_up_list_print_q {
+    my $self = shift;
+    my (@questions) = @_;
+    my $length = $self->{ans_rule_len};
+    my @list = @{$self->{ra_pop_up_list} };
+    my $out = "";
+
+	if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth'
+              || $main::displayMode eq 'HTML_dpng'|| $main::displayMode eq 'HTML_img') {
+ 		my $i=1; my $quest;
+ 		foreach $quest (@questions) {
+ 			 $out.=	"" .  "&nbsp; $quest" . pop_up_list(@list);
+ 			 $i++;
+ 		}
+ 		$out .= "";
+	} elsif ($main::displayMode eq 'Latex2HTML') {
+		my $i=1; my $quest;
+		foreach $quest (@questions) {
+			 $out.=	" \\begin{rawhtml}<p><B>\\end{rawhtml}" . pop_up_list(@list) . " $i. \\begin{rawhtml}</B>\\end{rawhtml}   $quest";
+			 $i++;
+		}
+		$out .= " \\begin{rawhtml}<BR>\\end{rawhtml} ";
+	}  elsif ($main::displayMode eq 'TeX') {
+	    $out = "\n\\par\\begin{enumerate}\n";
+	    my $i=1; my $quest;
+	 	foreach $quest (@questions) {
+	 		$out .= "\\item[" .  pop_up_list(@list) . "$i.] $quest\n";
+	 		$i++;
+	 	}
+	 	$out .= "\\end{enumerate}\n";
+	} else {
+		$out = "Error: PGchoicemacros: pop_up_list_print_q: Unknown displayMode: $main::displayMode.\n";
+	}
+	$out;
+
+}
+
+
+# Units for physics class
+# contributed by Mark Schmitt 3-6-03
+
+sub units_list_print_q {
+    my $self = shift;
+    my (@questions) = @_;
+    my $length = $self->{ans_rule_len};
+    my @list = @{$self->{ra_pop_up_list} };
+    my $out = '';
+
+	$out.= pop_up_list(@list);
+
+    $out;
+}
+
 #Standard method of printing answers in a matching list
 sub std_print_a {
 	my $self = shift;
