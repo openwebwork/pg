@@ -142,6 +142,11 @@ sub DOCUMENT {
 #    warn eval(q! "PG.pl:  The envir variable $main::{envir} is".join(" ",%main::envir)!);
     my $rh_envir = eval(q!\%main::envir!);
     my %envir    = %$rh_envir;
+
+    # Save the file name for use in error messages
+    my ($callpkg,$callfile) = caller(0);
+    $envir{__files__}{$callfile} = $envir{templateDirectory}.$envir{fileName};
+
     #no strict;
     foreach  my  $var (keys %envir) {
    		eval(q!$main::!.$var.q! = $main::envir{!.$var.q!}! );  #whew!! makes sure $var is interpolated but $main:: is evaluated at run time.

@@ -234,7 +234,6 @@ sub loadMacros {
 		# since one could hide something nasty in a file name.
 		#  Keep an eye on this ???
 		# webwork-db used perl 5.6.1 and webwork used perl 5.6.0 
-
 		###############################################################################
 		# compile initialization subroutine. (5.6.0 version)
 
@@ -303,10 +302,12 @@ sub compile_file {
  	local($/);
  	$/ = undef;   # allows us to treat the file as a single line
  	open(MACROFILE, "<$filePath") || die "Cannot open file: $filePath";
- 	my $string = <MACROFILE>;
+ 	my $string = 'BEGIN {push @__eval__, __FILE__}; ' . <MACROFILE>;
  	my ($result,$error,$fullerror) = &PG_restricted_eval($string);
+	eval ('$main::__files__->{pop @main::__eval__} = $filePath');
  	if ($error) {    # the $fullerror report has formatting and is never empty
- 		$fullerror =~ s/\(eval \d+\)/ $filePath\n/;   # attempt to insert file name instead of eval number
+                # this is now handled by PG_errorMessage() in the PG translator
+ 		#$fullerror =~ s/\(eval \d+\)/ $filePath\n/;   # attempt to insert file name instead of eval number
  		die "Error detected while loading $filePath:\n$fullerror";
 
  	}

@@ -391,8 +391,9 @@ sub pre_load_macro_files {
 	        	$store_mask = $cached_safe_cmpt->mask();
 				$cached_safe_cmpt ->mask(Opcode::empty_opset());
 	        } 			
-			$cached_safe_cmpt -> reval("package main;\n" .$string);
-			warn "preload Macros: errors in compiling $macro_file_name:<br> $@" if $@; 
+			$cached_safe_cmpt -> reval('BEGIN{push @main::__eval__,__FILE__}; package main; ' .$string);
+			warn "preload Macros: errors in compiling $macro_file_name:<br> $@" if $@;
+			$self->{envir}{__files__}{$cached_safe_cmpt->reval('pop @main::__eval__')} = $filePath;
 			if ($fileName =~ /$unrestricted_files/) {
 	        	$cached_safe_cmpt ->mask($store_mask);
 	        	warn "mask restored after $fileName" if $debugON;
@@ -747,6 +748,79 @@ sub set_mask {
 
 ############################################################################
 
+=head2  PG_errorMessage
+
+This routine processes error messages by fixing file names and adding
+traceback information.  It loops through the function calls via
+caller() in order to give more information about where the error
+occurred.  Since the loadMacros() files and the .pg file itself are
+handled via various kinds of eval calls, the caller() information does
+not contain the file names.  So we have saved them in the
+$main::__files__ hash, which we look up here and use to replace the
+(eval nnn) file names that are in the caller stack.  We shorten the
+filenames by removing the templates or root directories when possible,
+so they are easier to read.
+
+We skip any nested calls to Parser:: or Value:: so that these act more like
+perl built-in functions.
+
+We stop when we find a routine in the WeBWorK:: package, or an __ANON__
+routine, in order to avoid reporting the PG translator calls that
+surround the pg file.  Finally, there is usually one more eval before
+that, so we remove it as well.
+
+File names are shortened, when possible, by replacing the templates
+directory with [TMPL], the WeBWorK root directory by [WW] and
+the PG root directory by [PG].
+  
+=cut
+
+sub PG_errorMessage {
+  my $return = shift; my $frame = 2;
+  my $message = join("\n",@_); $message =~ s/\.?\s+$//;
+  my $files = eval ('$main::__files__'); $files = {} unless $files;
+  my $tmpl = $files->{tmpl} || '$';
+  my $root = $files->{root} || '$';
+  my $pg   = $files->{pg}   || '$';
+  #
+  #  Fix initial message file names
+  #
+  $message =~ s! $tmpl! [TMPL]!g; $message =~ s! $root! [WW]!g; $message =~ s! $pg! [PG]!g;
+  $message =~ s/(\(eval \d+\)) (line (\d+))/$2 of $1/;
+  while ($message =~ m/of (?:file )?(\(eval \d+\))/ && defined($files->{$1})) {
+    my $name = $files->{$1};
+    $name =~ s!^$tmpl![TMPL]!; $name =~ s!^$root![WW]!; $name =~ s!^$pg![PG]!;
+    $message =~ s/\(eval \d+\)/$name/g;
+  }
+  #
+  #  Return just the message if that's all we want, or
+  #   if the message already includes a stack trace
+  #
+  return $message."\n" if $return eq 'message' || $message =~ m/\n   Died within/;
+  #
+  #  Look through caller stack for traceback information
+  #
+  my @trace = ($message);
+  my $skipParser = (caller(3))[3] =~ m/^(Parser|Value)::/;
+  while (my ($pkg,$file,$line,$subname) = caller($frame++)) {
+    last if ($subname =~ m/^(Safe::reval|main::__ANON__)/);
+    next if $skipParser && $subname =~ m/^(Parser|Value)::/;  # skip Parser and Value calls
+    next if $subname =~ m/__ANON__/;
+    $file = $files->{$file} || $file;
+    $file =~ s!^$tmpl![TMPL]!; $file =~ s!^$root![WW]!; $file =~ s!^$pg![PG]!;
+    $message =  "   from within $subname called at line $line of $file";
+    push @trace, $message; $skipParser = 0;
+  }
+  splice(@trace,1,1) while $trace[1] && $trace[1] =~ m/within \(eval\)/;
+  pop @trace while $trace[-1] && $trace[-1] =~ m/within \(eval\)/;
+  $trace[1] =~ s/   from/   Died/ if $trace[1];
+  #
+  #  report the full traceback
+  #
+  return join("\n",@trace,'');
+}
+
+############################################################################
 
 =head2  Translate
 
@@ -762,9 +836,10 @@ sub translate {
 	$self ->{errors} .= qq{ERROR:  You must define the environment before translating.}
 	     unless defined( $self->{envir} );
     # reset the error detection
+    my $save_SIG_warn_trap = $SIG{__WARN__};
+    $SIG{__WARN__} = sub {&$save_SIG_warn_trap(PG_errorMessage('message',@_))};
     my $save_SIG_die_trap = $SIG{__DIE__};
-    $SIG{__DIE__} = sub {CORE::die(@_) };
-
+    $SIG{__DIE__} = sub {CORE::die(PG_errorMessage('traceback',@_))};
 
 
 =pod
@@ -895,7 +970,7 @@ the errors.
                 #($self -> {errors}) =~ s/</&lt/g;
                 #($self -> {errors}) =~ s/>/&gt/g;
            #try to clean up errors so they will look ok
-                $self ->{errors} =~ s/\[.+?\.pl://gm;   #erase [Fri Dec 31 12:58:30 1999] processProblem7.pl:
+                $self ->{errors} =~ s/\[[^\]]+?\] [^ ]+?\.pl://gm;   #erase [Fri Dec 31 12:58:30 1999] processProblem7.pl:
                 #$self -> {errors} =~ s/eval\s+'(.|[\n|r])*$//;
             #end trying to clean up errors so they will look ok
 
@@ -954,6 +1029,7 @@ the errors.
 	    $self ->{ rh_correct_answers	}		= $PG_ANSWER_HASH_REF;
 	    $self ->{ PG_FLAGS_REF			}		= $PG_FLAGS_REF;
 	    $SIG{__DIE__} = $save_SIG_die_trap;
+	    $SIG{__WARN__} = $save_SIG_warn_trap;
 	    $self ->{errors};
 }  # end translate
 
@@ -1048,14 +1124,32 @@ sub process_answers{
 		$self->{safe}->share('$rf_fun','$temp_ans');
  	    
 		# reset the error detection
+		my $save_SIG_warn_trap = $SIG{__WARN__};
+		$SIG{__WARN__} = sub {&$save_SIG_warn_trap(PG_errorMessage('message',@_))};
 		my $save_SIG_die_trap = $SIG{__DIE__};
-		$SIG{__DIE__} = sub {CORE::die(@_) };
+		local %errorTable;
+		$SIG{__DIE__} = sub {
+		  #
+		  #  Get full traceback, but save it in local variable so that
+		  #  we can add it later.  This is because some evaluators use
+		  #  eval to trap errors and then report them in the message
+		  #  column of the results table, and we don't want to include
+		  #  the traceback there.
+		  #
+		  my $fullerror = PG_errorMessage('traceback',@_);
+		  my ($error,$traceback) = split /\n/, $fullerror, 2;
+		  $fullerror =~ s/\n   /<BR>&nbsp;&nbsp;&nbsp;/g; $fullerror =~ s/\n/<BR>/g;
+		  $error .= "\n";
+		  $errorTable{$error} = $fullerror;
+		  CORE::die($error);
+		};
 		my $rh_ans_evaluation_result;
 		if (ref($rf_fun) eq 'CODE' ) {
 			$rh_ans_evaluation_result = $self->{safe} ->reval( '&{ $rf_fun }($temp_ans)' ) ;
 			warn "Error in Translator.pm::process_answers: Answer $ans_name:<BR>\n $@\n" if $@;
 		} elsif (ref($rf_fun) eq 'AnswerEvaluator')   {
 			$rh_ans_evaluation_result = $self->{safe} ->reval('$rf_fun->evaluate($temp_ans, ans_label => \''.$ans_name.'\')');
+			$@ = $errorTable{$@} if $@ && defined($errorTable{$@});
 			warn "Error in Translator.pm::process_answers: Answer $ans_name:<BR>\n $@\n" if $@;
 			warn "Evaluation error: Answer $ans_name:<BR>\n", 
 				$rh_ans_evaluation_result->error_flag(), " :: ",
@@ -1067,6 +1161,7 @@ sub process_answers{
 		}	
   	    
 		$SIG{__DIE__} = $save_SIG_die_trap;
+		$SIG{__WARN__} = $save_SIG_warn_trap;
         
         
 		use strict;
@@ -1393,6 +1488,7 @@ evaluated before the problem template is read.  In PGbasicmacros.pl, the two sub
          }
        }
 
+
 =head2 includePGtext
 
 	includePGtext($string_ref, $envir_ref)
@@ -1439,11 +1535,14 @@ sub PG_restricted_eval {
     my $save_SIG_die_trap = $SIG{__DIE__};
     $SIG{__DIE__}= sub {CORE::die @_};
     no strict;
-    my $out = eval  ("package main; " . $string );
-    my $errors =$@;
-    my $full_error_report = "PG_restricted_eval detected error at line $line of file $file \n"
-                . $errors .
-                "The calling package is $pck\n" if defined($errors) && $errors =~/\S/;
+    my $out = eval ("package main; " . $string );
+    my $errors = $@;
+    my $full_error_report = $errors if $errors =~ /\S/;
+    #
+    #  These extra messages are no longer needed with full trace backs of errors
+    #my $full_error_report = "PG_restricted_eval detected error at line $line of file $file \n"
+    #            . $errors .
+    #            "The calling package is $pck\n" if defined($errors) && $errors =~/\S/;
     use strict;
     $SIG{__DIE__} = $save_SIG_die_trap;
     $SIG{__WARN__} = $save_SIG_warn_trap;
@@ -1486,7 +1585,7 @@ since at some point one might like to make the answer evaluations more stringent
 
 
 sub PG_answer_eval {
-   local($string) = shift;   # I made this local just in case -- see PG_estricted_eval
+   local($string) = shift;   # I made this local just in case -- see PG_restricted_eval
    my $errors = '';
    my $full_error_report = '';
    my ($pck,$file,$line) = caller; 
@@ -1509,8 +1608,7 @@ sub PG_answer_eval {
     no strict;
     my $out = eval('package main;'.$string);
     $out = '' unless defined($out);
-    $errors .=$@;
-
+    $errors .= $@;
     $full_error_report = "ERROR: at line $line of file $file
                 $errors
                 The calling package is $pck\n" if defined($errors) && $errors =~/\S/;
