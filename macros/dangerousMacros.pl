@@ -94,7 +94,10 @@ in addition the  subroutine &evaluate_units is shared from the module Units.
 
 BEGIN {
 	be_strict(); # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
+	
 }
+
+
 sub _dangerousMacros_init {
 }
 
@@ -181,8 +184,7 @@ sub loadMacros {
     $courseScriptsDirectory = eval('$main::courseScriptsDirectory') unless defined($courseScriptsDirectory);
     $templateDirectory = eval('$main::courseScriptsDirectory') unless defined($templateDirectory);
     $scriptDirectory = eval('$main::scriptDirectory') unless defined($scriptDirectory);
-    
-    # Hack to handle those problems where DOCUMENT() comes after loadMacros.
+
     unless (defined( $main::externalTTHPath) and $main::externalTTHPath) {   
     	warn "WARNING::Please make sure that the DOCUMENT() statement comes before<BR>\n" .
     	     " the loadMacros() statement in the problem template.<p>" .
@@ -402,7 +404,7 @@ sub tth {
     my $out;
     
     if (-x $tthpath ) {
-    	my $tthcmd      = "$tthpath -L -f5 -r 2>/dev/null " . $inputString;
+    	my $tthcmd      = "$tthpath -L -f5 -u -r  2>/dev/null " . $inputString;
     	if (open(TTH, "$tthcmd   |")) {  
     	    local($/);
 			$/ = undef;
@@ -418,6 +420,34 @@ sub tth {
 
     $out;
 }	
+
+# possible solution to the tth font problem?  Works only for iCab.
+sub symbolConvert {
+	my	$string = shift;
+	$string =~ s/\x5C/\&#092;/g;		#\      92                       &#092;
+	$string =~ s/\x7B/\&#123;/g;		#{      123                       &#123;
+	$string =~ s/\x7D/\&#125;/g;		#}      125                       &#125;
+	$string =~ s/\xE7/\&#193;/g;		#ç      231                       &#193;
+	$string =~ s/\xE6/\&#202;/g;		#æ      230                       &#202;
+	$string =~ s/\xE8/\&#203;/g;		#è      232                       &#203;
+	$string =~ s/\xF3/\&#219;/g;		#ó      243                       &#219;
+	$string =~ s/\xA5/\&bull;/g;		#¥      165                       &bull;
+	$string =~ s/\xB2/\&le;/g;			#²      178                       &le;
+	$string =~ s/\xB3/\&ge;/g;			#³      179                       &ge;
+	$string =~ s/\xB6/\&part;/g;		#¶      182                       &part;
+	$string =~ s/\xCE/\&#338;/g;		#Î      206                       &#338;
+	$string =~ s/\xD6/\&#732/g;			#Ö      214                       &#732;
+	$string =~ s/\xD9/\&Yuml;/g;		#Ù      217                       &Yuml;
+	$string =~ s/\xDA/\&frasl;/g;		#Ú      218                       &frasl;
+	$string =~ s/\xF5/\&#305;/g;		#õ      245                       &#305
+	$string =~ s/\xF6/\&#710;/g;		#ö      246                       &#710;
+	$string =~ s/\xF7/\&#193;/g;		#÷      247                       &#193;
+	$string =~ s/\xF8/\&#175;/g;		#ø      248                       &#175;
+	$string =~ s/\xF9/\&#728;/g;		#ù      249                       &#728;
+	$string =~ s/\xFA/\&#729;/g;		#ú      250                       &#729;
+	$string =~ s/\xFB/\&#730;;/g;		#û      251                       &#730;
+	$string;
+}
 
 # ----- ----- ----- -----
 
@@ -438,17 +468,16 @@ sub math2img {
 		. $math2imgCount++ . ".png";
 	my $tempPath = surePathToTmpFile($tempFile); #my $tempPath = "$envir{tempDirectory}$tempFile";
 	my $tempURL = "$envir{tempURL}/$tempFile";
-	
 	my $forceRefresh = $envir{refreshMath2img};
 	my $imageMissing = not -e $tempPath;
-	my $imageStale   = (stat $sourcePath)[9] > (stat $tempPath)[9];
+	my $imageStale   = (stat $sourcePath)[9] > (stat $tempPath)[9] if -e $tempPath;
 	if ($forceRefresh or $imageMissing or $imageStale) {
 		# image file doesn't exist, or source file is newer then image file
 		#warn "math2img: refreshMath2img forcing image generation for $tempFile\n" if $forceRefresh;
 		#warn "math2img: $tempFile doesn't exist, so generating it\n" if $imageMissing;
 		#warn "math2img: source file (", (stat $sourcePath)[9], ") is newer than image file (",
 		#	(stat $tempPath)[9], ") so re-generating image\n" if $imageStale;
-		if (-e tempPath) {
+		if (-e $tempPath) {
 			unlink $tempPath or die "Failed to delete stale math2img file $tempPath: $!";
 		}
 		dvipng(
@@ -467,60 +496,85 @@ sub math2img {
 	}
 };
 
-## dvipngTempDir externalLaTeXPath, externalDvipngPath
-#sub dvipng {
-#	my ($tex, $targetPath) = @_;
-#	
-#	# create a temporary directory for tex to shit in
-#	my $wd = $envir{dvipngTempDir};
-#	my $texFile  = "$wd/equation.tex";
-#	my $dviFile  = "$wd/equation.dvi";
-#	my $dviFile2 = "$wd/equationequation.dvi";
-#	my $dviCall  = "equation";
-#	my $pngFile  = "$wd/equation1.png";
-#	
-#	die "dvipng working directory $wd doesn't exist -- caller should have created it for us!\n"
-#		unless -e $wd;
-#	
-#	# write the tex file
-#	local *TEX;
-#	open TEX, ">", $texFile;
-#	print TEX <<'EOF';
-#% BEGIN HEADER
-#\batchmode
-#\documentclass[12pt]{article}
-#\usepackage{amsmath,amsfonts,amssymb}
-#\def\gt{>}
-#\def\lt{<}
-#\usepackage[active,textmath,displaymath]{preview}
-#\begin{document}
-#% END HEADER
-#EOF
-#	print TEX "\\( \\displaystyle{$tex} \\)\n";
-#	print TEX <<'EOF';
-#% BEGIN FOOTER
-#\end{document}
-#% END FOOTER
-#EOF
-#	close TEX;
-#	
-#	# call latex
-#	my $latex = $envir{externalLaTeXPath};
-#	system "cd $wd && $latex $texFile";
-#	
-#	return 0 unless -e $dviFile;
-#	
-#	# change the name of the DVI file to get around dvipng's crackheadedness
-#	system "/bin/mv", $dviFile, $dviFile2;
-#	
-#	# call dvipng
-#	my $dvipng = $envir{externalDvipngPath};
-#	system "cd $wd && $dvipng $dviCall" and die "dvipng:dvipng failed: $!";
-#	
-#	return 0 unless -e $pngFile;
-#	
-#	system "/bin/mv", $pngFile, $targetPath and die "Failed to mv: $!\n";
-#}
+
+# copied from IO.pm for backward compatibility with WeBWorK1.8;
+sub dvipng($$$$$) {
+	my (
+		$wd,        # working directory, for latex and dvipng garbage
+		            # (must already exist!)
+		$latex,     # path to latex binary
+		$dvipng,    # path to dvipng binary
+		$tex,       # tex string representing equation
+		$targetPath # location of resulting image file
+	) = @_;
+	
+	my $dvipngBroken = 0;
+	
+	my $texFile  = "$wd/equation.tex";
+	my $dviFile  = "$wd/equation.dvi";
+	my $dviFile2 = "$wd/equationequation.dvi";
+	my $dviCall  = "equation";
+	my $pngFile  = "$wd/equation1.png";
+	
+	unless (-e $wd) {
+		die "dvipng working directory $wd doesn't exist -- caller should have created it for us!\n";
+		return 0;
+	}
+	
+	# write the tex file
+	local *TEX;
+	open TEX, ">", $texFile or warn "Failed to create $texFile: $!";
+	print TEX <<'EOF';
+% BEGIN HEADER
+\batchmode
+\documentclass[12pt]{article}
+\usepackage{amsmath,amsfonts,amssymb}
+\def\gt{>}
+\def\lt{<}
+\usepackage[active,textmath,displaymath]{preview}
+\begin{document}
+% END HEADER
+EOF
+	print TEX "\\( \\displaystyle{$tex} \\)\n";
+	print TEX <<'EOF';
+% BEGIN FOOTER
+\end{document}
+% END FOOTER
+EOF
+	close TEX;
+	
+	# call latex
+	system "cd $wd && $latex $texFile"
+		and warn "Failed to call $latex with $texFile: $!";
+	
+	unless (-e $dviFile) {
+		warn "Failed to generate DVI file $dviFile";
+		return 0;
+	}
+	
+	if ($dvipngBroken) {
+		# change the name of the DVI file to get around dvipng's
+		# crackheadedness. This is no longer needed with the newest
+		# version of dvipng (10 something)
+		system "/bin/mv", $dviFile, $dviFile2;
+	}
+	
+	# call dvipng -- using warn instead of die passes some extra information
+	# back to the user the complete warning is still printed in the apache
+	# error log and a simple message (math2img failed) is returned to the
+	# webpage.
+	my $cmdout;
+	$cmdout = system "cd $wd && $dvipng $dviCall"
+		and warn "Failed to call$dvipng with $dviCall: $! with signal $cmdout";
+	
+	unless (-e $pngFile) {
+		warn "Failed to create PNG file $pngFile";
+		return 0;
+	}
+	
+	$cmdout = system "/bin/mv", $pngFile, $targetPath and warn "Failed to mv: /bin/mv  $pngFile $targetPath $!. Call returned $cmdout. \n";
+}
+
 
 # ----- ----- ----- -----
 
