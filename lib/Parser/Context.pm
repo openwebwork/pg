@@ -96,7 +96,7 @@ sub current {
     $contextTable->{current} = $context;
     $Value::context = \$contextTable->{current};
   } elsif (!defined($contextTable->{current})) {
-    $contextTable->{current} = $Parser::Context::Default::fullContext->initCopy;
+    $contextTable->{current} = $Parser::Context::Default::numericContext->initCopy;
     $Value::context = \$contextTable->{current};
   }
   return $contextTable->{current};

@@ -247,7 +247,7 @@ $numericContext->lists->remove('Point','Vector','Matrix');
 #  Complex context (no vectors or matrices)
 #
 $complexContext = $fullContext->copy;
-$complexContext->variables->replace(z=>'Complex');
+$complexContext->variables->are(z=>'Complex');
 $complexContext->operators->undefine('><','.');
 $complexContext->functions->undefine('norm','unit');
 $complexContext->constants->remove('j','k');
