@@ -2,16 +2,18 @@ package Parser;
 my $pkg = "Parser";
 use strict;
 
-#
-#  Map class names to packages (added to Context, and
-#  can be overriden to customize the parser)
-#
-our $class = {Formula => 'Parser::Formula'};
-
-#
-#  Collect the default reduction flags for use in the context
-#
-our $reduce = {};
+BEGIN {
+  #
+  #  Map class names to packages (added to Context, and
+  #  can be overriden to customize the parser)
+  #
+  our $class = {Formula => 'Parser::Formula'};
+  
+  #
+  #  Collect the default reduction flags for use in the context
+  #
+  our $reduce = {};
+}
 
 ##################################################
 #
