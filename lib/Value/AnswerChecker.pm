@@ -428,6 +428,20 @@ sub typeMatch {
   $other->type =~ m/^(Interval|Union)/;
 }
 
+#
+#  Use the List checker for unions, in order to get
+#  partial credit.  Set the various types for error
+#  messages.
+#
+sub cmp_defaults {(
+  Value::List->cmp_defaults,
+  typeMatch => Value::Interval->new("(1,2]"),
+  list_type => 'union',
+  entry_type => 'an interval',
+)}
+
+sub cmp_equal {Value::List::cmp_equal(@_)}
+
 #############################################################
 
 package Value::List;
@@ -481,7 +495,7 @@ sub cmp_equal {
   my $student = $ans->{student_value};
   my @correct = $self->value;
   my @student =
-    $student->class eq 'List' &&
+    $student->class =~ m/^(List|Union)$/ &&
       ($allowParens || (!$student->{open} && !$student->{close})) ?
     @{$student->{data}} : ($student);
 
