@@ -1488,7 +1488,7 @@ sub EV3{
 sub beginproblem {
 	my $out = "";
 	my $problemValue = $envir->{problemValue};
-	my $fileName     = $envir->{problemValue};
+	my $fileName     = $envir->{fileName};
 	my $probNum      = $envir->{probNum};
     my $TeXFileName = protect_underbar($envir->{fileName});
     my $l2hFileName = protect_underbar($envir->{fileName});
