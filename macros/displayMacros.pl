@@ -160,7 +160,10 @@ sub display_answers {			# this will be put in displayMacros.pl soon.
 	###### Print appropriate response to submitted answers
 	    my ($i,$answerIsCorrectQ, $normalizedSubmittedAnswer,$normalizedCorrectAnswer,$ans_name,$errors);
 	    $i=0;
-	    $printedResponse .= "\n<table border=0 cellpadding=0 cellspacing=0  bgcolor=\"#cccccc\">\n";
+#	    $printedResponse .= "\n<table border=0 cellpadding=0 cellspacing=0  bgcolor=\"#cccccc\">\n";
+# replace above line by next two lines as per Davide Cervone. AKP.
+	    $printedResponse .= "\n<table border=0 cellpadding=7 cellspacing=0 bgcolor=\"#cccccc\">\n";
+	    $printedResponse .= "<tr><td><table border=0 cellpadding=0 cellspacing=0>\n";
 	    foreach my $key ( @answer_entry_order ) {
 
 			$i++;
@@ -183,11 +186,12 @@ sub display_answers {			# this will be put in displayMacros.pl soon.
 			$printedResponse .= "\n<TR><TD align=left COLSPAN =2><em>Answer $ans_name entered:</em>--&gt; $normalizedSubmittedAnswer &lt;-- ";
 		    $printedResponse .=  "<B>Correct. </B></TD></TR>"   if  ($answerIsCorrectQ && $showPartialCorrectAnswers );
 		    $printedResponse .=  "<B>Incorrect. </B></TD></TR>" if (!($answerIsCorrectQ) && $showPartialCorrectAnswers);
+			$errors =~ s/\n/<BR>/g;  ## convert newlines to <BR> in error messages as per Davide Cervone
             # change 9/2/00 by MEG -- give width in pixels rather than %.
             # Some browsers break with %  widht which is not the standard
-			$printedResponse .=  "\n<TR> <TD align=left WIDTH = \"50\" ></TD><TD align=left>$errors</TD></TR>" if ($errors =~ /\w/);
+			$printedResponse .=  "\n<TR> <TD align=left WIDTH = \"50\" >&nbsp;</TD><TD align=left>$errors</TD></TR>" if ($errors =~ /\w/);
 
-			$printedResponse .= "\n<TR><TD align=left WIDTH = \"50\"></TD>              <TD align=left><em>Correct answer:</em> $normalizedCorrectAnswer</TD></TR>" if ($displayCorrectAnswersQ);
+			$printedResponse .= "\n<TR><TD align=left WIDTH = \"50\">&nbsp;</TD>              <TD align=left><em>Correct answer:</em> $normalizedCorrectAnswer</TD></TR>" if ($displayCorrectAnswersQ);
 
 	    }
 	    if ($i == 1) {
@@ -201,7 +205,9 @@ sub display_answers {			# this will be put in displayMacros.pl soon.
         my $percentCorr = int(100*$rh_problem_result->{score} +.5);
 
 	  $printedResponse .="\n<TR><TD align=left COLSPAN =2><B>Your score on this attempt is ${percentCorr}\%.</B><BR>";
-	  $printedResponse .= "\n</table>\n";
+#	  $printedResponse .= "\n</table>\n";
+# replace above line by next line as per Davide Cervone. AKP.
+	  $printedResponse .= "</td></tr>\n</table>\n</table>\n";
 #      $printedResponse .="\n problem grader is ".$rh_problem_result->{type}." and the score is ".$rh_problem_result->{score}."<BR>\n";
 	  $printedResponse;
 }
@@ -228,6 +234,7 @@ sub preview_answers {
 		$original_student_ans = $rh_answer_results ->{$key} -> {original_student_ans};
 		$normalizedSubmittedAnswer = $rh_answer_results ->{$key} -> {student_ans};
 		$errors = $rh_answer_results ->{$key} -> {ans_message};
+		$errors =~ s/\n/<BR>/g;  ## convert newlines to <BR> in error messages as per Davide Cervone
 		$preview_text_string ='';
 		$preview_text_string = $rh_answer_results ->{$key} -> {preview_text_string}
 			if defined $rh_answer_results ->{$key} -> {preview_text_string};
