@@ -138,13 +138,16 @@ sub Error {
 
 #
 #  Insert an implicit multiplication
+#  (fix up the reference for spaces or juxtaposition)
 #
 sub ImplicitMult {
   my $self = shift;
-  my $ref = $self->{ref};
-  $self->Error("Can't perform implied multiplication in this context",$ref)
+  my $ref = $self->{ref}; my $iref = [@{$ref}];
+  $iref->[2]--; $iref->[3] = $iref->[2]+1;
+  $iref->[3]++ unless substr($self->{string},$iref->[2],1) eq ' ';
+  $self->Error("Can't perform implied multiplication in this context",$iref)
     unless $self->{context}{operators}{' '}{class};
-  $self->Op(' ');
+  $self->Op(' ',$iref);
   $self->{ref} = $ref;
 }
 
