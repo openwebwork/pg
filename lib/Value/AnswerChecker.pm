@@ -331,11 +331,11 @@ sub cmp_postprocess {
       $self->length != $ans->{student_value}->length) {
     $self->cmp_Error($ans,"The dimension of your result is incorrect"); return;
   }
- if ($ans->{parallel} &&
-     $self->isParallel($ans->{student_value},$ans->{sameDirection})) {
-   $ans->score(1); return;
- }
-  if (!$ans->{isPreview} && $ans->{showCoordinateHints}) {
+  if ($ans->{parallel} &&
+      $self->isParallel($ans->{student_value},$ans->{sameDirection})) {
+    $ans->score(1); return;
+  }
+  if (!$ans->{isPreview} && $ans->{showCoordinateHints} && !$ans->{parallel}) {
     my @errors;
     foreach my $i (1..$self->length) {
       push(@errors,"The ".$self->NameForNumber($i)." coordinate is incorrect")
@@ -352,7 +352,7 @@ sub cmp_postprocess {
 package Value::Matrix;
 
 sub cmp_defaults {(
-  shiftf->SUPER::cmp_defaults,
+  shift->SUPER::cmp_defaults,
   showDimensionHints => 1,
   showEqualErrors => 0,
 )}
