@@ -163,6 +163,7 @@ sub cmp_postprocess {}
 #
 sub protectHTML {
     my $string = shift;
+    return $string if eval ('$main::displayMode') eq 'TeX';
     $string =~ s/&/\&amp;/g;
     $string =~ s/</\&lt;/g;
     $string =~ s/>/\&gt;/g;
@@ -443,14 +444,15 @@ sub cmp_defaults {
     Value::Real->cmp_defaults,
     showHints => undef,
     showLengthHints => undef,
+    showParenHints => undef,
 #    partialCredit => undef,
     partialCredit => 0,  #  only allow this once WW can deal with partial credit
     ordered => 0,
     entry_type => undef,
     list_type => undef,
     typeMatch => Value::makeValue($self->{data}[0]),
-    allowParens => 0,
-    showParens => 0,
+    requireParenMatch => 1,
+    removeParens => 1,
    );
 }
 
@@ -465,7 +467,7 @@ sub typeMatch {return !ref($other) || $other->class ne 'Formula'}
 sub cmp {
   my $self = shift;
   my $cmp = $self->SUPER::cmp(@_);
-  if (!$cmp->{rh_ans}{showParens}) {
+  if ($cmp->{rh_ans}{removeParens}) {
     $self->{open} = $self->{close} = '';
     $cmp->ans_hash(correct_ans => $self->stringify);
   }
@@ -482,8 +484,10 @@ sub cmp_equal {
   my $showTypeWarnings = $ans->{showTypeWarnings};
   my $showHints        = getOption($ans,'showHints');
   my $showLengthHints  = getOption($ans,'showLengthHints');
+  my $showParenHints   = getOption($ans,'showLengthHints');
   my $partialCredit    = getOption($ans,'partialCredit');
-  my $ordered = $ans->{ordered}; my $allowParens = $ans->{allowParens};
+  my $ordered = $ans->{ordered};
+  my $requireParenMatch = $ans->{requireParenMatch};
   my $typeMatch = $ans->{typeMatch};
   my $value     = $ans->{entry_type};
   my $ltype     = $ans->{list_type} || lc($self->type);
@@ -499,18 +503,41 @@ sub cmp_equal {
   #  Get the lists of correct and student answers
   #   (split formulas that return lists or unions)
   #
-  my @correct = ();
-  if ($self->class ne 'Formula') {@correct = $self->value}
-    else {@correct = Value::List->splitFormula($self,$ans)}
-  my $student = $ans->{student_value};
-  my @student = ($student);
+  my @correct = (); my ($cOpen,$cClose);
+  if ($self->class ne 'Formula') {
+    @correct = $self->value;
+    $cOpen = $ans->{correct_value}{open}; $cClose = $ans->{correct_value}{close};
+  } else {
+    @correct = Value::List->splitFormula($self,$ans);
+    $cOpen = $self->{tree}{open}; $cClose = $self->{tree}{close};
+  }
+  my $student = $ans->{student_value}; my @student = ($student);
+  my ($sOpen,$sClose) = ('','');
   if (Value::isFormula($student) && $student->type eq $self->type) {
     @student = Value::List->splitFormula($student,$ans);
-  } elsif ($student->class ne 'Formula' && $student->class eq $self->type &&
-      ($allowParens || (!$student->{open} && !$student->{close}))) {
+    $sOpen = $student->{tree}{open}; $sClose = $student->{tree}{close};
+  } elsif ($student->class ne 'Formula' && $student->class eq $self->type) {
     @student = @{$student->{data}};
+    $sOpen = $student->{open}; $sClose = $student->{close};
   }
   return if $ans->{split_error};
+  #
+  #  Check for parenthesis match
+  #
+  if ($requireParenMatch && ($sOpen ne $cOpen || $sClose ne $cClose)) {
+    if ($showParenHints && !($ans->{ignoreStrings} && $student->type eq 'String')) {
+      my $message = "The parentheses for your $ltype ";
+      if (($cOpen || $cClose) && ($sOpen || $sClose))
+                                {$message .= "are of the wrong type"}
+      elsif ($sOpen || $sClose) {$message .= "should be removed"}
+      else                      {$message .= "are missing"}
+      $self->cmp_Error($ans,$message);
+    }
+    return;
+  }
+  #
+  #  Check for empty lists
+  #
   if (scalar(@correct) == 0 && scalar(@student) == 0) {$ans->score(1); return}  
 
   #
@@ -625,6 +652,7 @@ sub cmp_defaults {
 
   return (
     Value::List::cmp_defaults($self,@_),
+    removeParens => $self->{autoFormula},
     typeMatch => Value::Formula->new(($self->createRandomPoints(1))[1]->[0]{data}[0]),
   );
 }
@@ -648,7 +676,7 @@ sub typeMatch {
 sub cmp {
   my $self = shift;
   my $cmp = $self->SUPER::cmp(@_);
-  if (!$cmp->{rh_ans}{showParens} && $self->type eq 'List') {
+  if ($cmp->{rh_ans}{removeParens} && $self->type eq 'List') {
     $self->{tree}{open} = $self->{tree}{close} = '';
     $cmp->ans_hash(correct_ans => $self->stringify);
   }
