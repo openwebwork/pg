@@ -73,7 +73,7 @@ sub numberMatrix {
   my @M = (); my $isFormula = 0;
   foreach my $x (@_) {
     Value::Error("Matrix row entries must be numbers") unless (Value::isNumber($x));
-    $x = Value::Real->make($x) if $$Value::context->flag('useFuzzyReals') && !Value::isFormula($x);
+    $x = Value::Real->make($x) if !Value::isFormula($x);
     push(@M,$x); $isFormula = 1 if Value::isFormula($x);
   }
   return $self->formula([@M]) if $isFormula;

@@ -29,8 +29,7 @@ sub new {
   $p = [$p,@_] if (ref($p) ne 'ARRAY' || scalar(@_) > 0);
   foreach my $x (@{$p}) {
     $isFormula = 1,last if Value::isFormula($x);
-    $x = Value::Real->make($x) if !ref($x) &&
-      $$Value::context->flag('useFuzzyReals') && Value::matchNumber($x);
+    $x = Value::makeValue($x) unless ref($x);
   }
   return $self->formula($p) if $isFormula;
   bless {data => $p}, $class;
@@ -52,7 +51,7 @@ sub promote {
   my $x = shift;
   return $x if (ref($x) eq $pkg && scalar(@_) == 0);
   return $pkg->new($x,@_)
-    if (scalar(@_) > 0 || Value::isValue($x) || Value::isComplex($x));
+    if (scalar(@_) > 0 || !Value::isValue($x) || Value::isComplex($x));
   return $pkg->make(@{$x->data});
 }
 

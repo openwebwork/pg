@@ -32,30 +32,26 @@ sub new {
   }
   my ($open,$a,$b,$close) = @_;
   if (!defined($close)) {$close = $b; $b = $a}
-  Value::Error("Endpoints of intervals must be numbers") unless
+  Value::Error("Interval() requires 3 or 4 arguments")
+    unless defined($open) && defined($a) && defined($b) && defined($close);
+  $a = Value::makeValue($a); $b = Value::makeValue($b);
+  Value::Error("Endpoints of intervals must be numbers on infinities") unless
     isNumOrInfinity($a) && isNumOrInfinity($b);
   my ($ia,$ib) = (isInfinity($a),isInfinity($b));
   my ($nia,$nib) = (isNegativeInfinity($a),isNegativeInfinity($b));
   Value::Error("Can't make an interval only out of Infinity") if ($ia && $ib) || ($nia && $nib);
   Value::Error("Left endpoint must be less than right endpoint")
     unless $nia || $ib || ($a <= $b && !$ia && !$nib);
-  $open  = '(' if $open  eq '[' && $nia;
-  $close = ')' if $close eq ']' && $ib;
+  $open  = '(' if $open  eq '[' && $nia; # should be error ?
+  $close = ')' if $close eq ']' && $ib;  # ditto?
   Value::Error("Open parenthesis of interval must be '(' or '['")
     unless $open eq '(' || $open eq '[';
   Value::Error("Close parenthesis of interval must be ')' or ']'")
     unless $close eq ')' || $close eq ']';
-  Value::Error("Single point intervals must use '[' and ']'")
-    if Value::matchNumber($a) && Value::matchNumber($b) && $a == $b &&
-      ($open ne '[' || $close ne ']');
   return $self->formula($open,$a,$b,$close)
     if Value::isFormula($a) || Value::isFormula($b);
-  if ($$Value::context->flag('useFuzzyReals')) {
-    $a = Value::Real->make($a) unless $nia;
-    $b = Value::Real->make($b) unless $ib;
-  }
-  $a = "-".$$Value::context->flag('infiniteWord') if $nia;
-  $b = $$Value::context->flag('infiniteWord') if $ib;
+  Value::Error("Single point intervals must use '[' and ']'")
+    if $a == $b && ($open ne '[' || $close ne ']');
   bless {
     data => [$a,$b], open => $open, close => $close,
     leftInfinite => $nia, rightInfinite => $ib,
@@ -101,13 +97,15 @@ sub isNumOrInfinity {
 }
 sub isInfinity {
   my $n = shift;
-  return 1 if !ref($n) && $n =~ m/^$$Value::context->{pattern}{infinity}$/i;
-  return (Value::isFormula($n) && $n->{tree}{isInfinity});
+  return $n->{tree}{isInfinity} if Value::isFormula($n);
+  $n = Value::makeValue($n); return 0 unless ref($n);
+  return $n->{isInfinite} && !$n->{isNegative};
 }
 sub isNegativeInfinity {
   my $n = shift;
-  return 1 if !ref($n) && $n =~ m/^$$Value::context->{pattern}{-infinity}$/i;
-  return (Value::isFormula($n) && $n->{tree}{isNegativeInfinity});
+  return $n->{tree}{isNegativeInfinity} if Value::isFormula($n);
+  $n = Value::makeValue($n); return 0 unless ref($n);
+  return $n->{isInfinite} && $n->{isNegative};
 }
 
 #
@@ -186,8 +184,8 @@ sub compare {
 sub stringify {
   my $self = shift;
   my ($a,$b) = @{$self->data};
-  $a = $a->string if Value::isReal($a);
-  $b = $b->string if Value::isReal($b);
+  $a = $a->string if Value::isValue($a);
+  $b = $b->string if Value::isValue($b);
 #  return $self->{open}.$a.$self->{close} 
 #    if $a == $b && !$self->{leftInfinte} && !$self->{rightInfinite};
   return $self->{open}.$a.','.$b.$self->{close};
@@ -196,8 +194,8 @@ sub stringify {
 sub TeX {
   my $self = shift;
   my ($a,$b) = @{$self->data};
-  $a = ($self->{leftInfinite})? '-\infty' : (Value::isReal($a) ? $a->TeX: $a);
-  $b = ($self->{rightInfinite})? '\infty' : (Value::isReal($b) ? $b->TeX: $b);
+  $a = ($self->{leftInfinite})? '-\infty' : (Value::isValue($a) ? $a->TeX: $a);
+  $b = ($self->{rightInfinite})? '\infty' : (Value::isValue($b) ? $b->TeX: $b);
 #  return $self->{open}.$a.$self->{close} 
 #    if !$self->{leftInfinte} && !$self->{rightInfinite} && $a == $b;
   return $self->{open}.$a.','.$b.$self->{close};

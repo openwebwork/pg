@@ -45,16 +45,17 @@ $context = \$defaultContext;
 #    (They will be promoted upward automatically when needed)
 #
 $$context->{precedence} = {
-   'Number'   => 0,
-   'Real'     => 1,
-   'Complex'  => 2,
-   'Point'    => 3,
-   'Vector'   => 4,
-   'Matrix'   => 5,
-   'List'     => 6,
-   'Interval' => 7,
-   'Union'    => 8,
-   'Formula'  => 9,
+   'Number'   =>  0,
+   'Real'     =>  1,
+   'Infinity' =>  2,
+   'Complex'  =>  3,
+   'Point'    =>  4,
+   'Vector'   =>  5,
+   'Matrix'   =>  6,
+   'List'     =>  7,
+   'Interval' =>  8,
+   'Union'    =>  9,
+   'Formula'  => 10,
 };
 
 #
@@ -82,7 +83,8 @@ push(@{$$context->{data}{values}},'method','precedence');
 #
 #  Check if a value is a number, complex, etc.
 #
-sub matchNumber {my $n = shift; $n =~ m/^$$context->{pattern}{signedNumber}$/i}
+sub matchNumber   {my $n = shift; $n =~ m/^$$context->{pattern}{signedNumber}$/i}
+sub matchInfinite {my $n = shift; $n =~ m/^$$context->{pattern}{infinite}$/i}
 sub isReal    {class(shift) eq 'Real'}
 sub isComplex {class(shift) eq 'Complex'}
 sub isFormula {class(shift) eq 'Formula'}
@@ -101,17 +103,30 @@ sub isRealNumber {
 }
 
 #
+#  Convert non-Value objects to Values, if possible
+#
+sub makeValue {
+  my $x = shift;
+  return $x if ref($x);
+  return Value::Real->make($x) if matchNumber($x);
+  return $x unless matchInfinite($x);
+  my $I = Value::Infinity->new();
+  $I = $I->neg if $x =~ m/^$$Value::context->{pattern}{-infinity}$/;
+  return $I;
+}
+
+#
 #  Get a printable version of the class of an object
 #
 sub showClass {
-  my $value = shift;
+  my $value = makeValue(shift);
   return "'".$value."'" unless ref($value);
   my $class = class($value);
   $class = 'Infinity' if $class eq 'String' && $value->{isInfinite};
   $class .= ' Number' if $class =~ m/^(Real|Complex)$/;
   $class .= ' of Intervals' if $class eq 'Union';
   return showType($value->{tree}) if $class eq 'Formula';
-  return 'an '.$class if substr($class,0,1) =~ m/[aeio]/i;
+  return 'an '.$class if $class =~ m/^[aeio]/i;
   return 'a '.$class;
 }
 
@@ -122,13 +137,12 @@ sub showType {
   my $value = shift;
   my $type = $value->type;
   return 'a Complex Number' if $value->isComplex;
-  return 'an Infinity' if $value->{isInfinite};
-  return 'an '.$type if substr($type,0,1) =~ m/[aeio]/i;
+  return 'an '.$type if $type =~ m/^[aeio]/i;
   return 'a '.$type;
 }
 
 #
-#  return a string describing a value's type
+#  Return a string describing a value's type
 #
 sub getType {
   my $equation = shift; my $value = shift;
@@ -336,13 +350,13 @@ sub _dot {
   my ($l,$r,$flag) = @_;
   return Value::_dot($r,$l,!$flag) if ($l->promotePrecedence($r));
   return $l->dot($r,$flag) if (Value::isValue($r));
-  $l = '(' . $l->string . ')';
+  $l = '(' . $l->stringify . ')';
   return ($flag)? ($r.$l): ($l.$r);
 }
 #
 #  Some classes override this
 #
-sub dot   {
+sub dot {
   my ($l,$r,$flag) = @_;
   $l = '(' . $l->stringify . ')'; $r = '(' . $r->stringify . ')' if ref($r);
   return ($flag)? ($r.$l): ($l.$r);
@@ -435,6 +449,7 @@ sub traceback {
 
 use Value::Real;
 use Value::Complex;
+use Value::Infinity;
 use Value::Point;
 use Value::Vector;
 use Value::Matrix;

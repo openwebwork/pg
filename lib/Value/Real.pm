@@ -131,16 +131,18 @@ sub compare {
   $r = promote($r);
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   my ($a,$b) = ($l->{data}[0],$r->{data}[0]);
-  my $tolerance = $$Value::context->flag('tolerance');
-  if ($$Value::context->flag('tolType') eq 'relative') {
-    my $zeroLevel = $$Value::context->flag('zeroLevel');
-    if (abs($a) < $zeroLevel || abs($b) < $zeroLevel) {
-      $tolerance = $$Value::context->flag('zeroLevelTol');
-    } else {
-      $tolerance = $tolerance * abs($a);
+  if ($$Value::context->{flags}{useFuzzyReals}) {
+    my $tolerance = $$Value::context->flag('tolerance');
+    if ($$Value::context->flag('tolType') eq 'relative') {
+      my $zeroLevel = $$Value::context->flag('zeroLevel');
+      if (abs($a) < $zeroLevel || abs($b) < $zeroLevel) {
+	$tolerance = $$Value::context->flag('zeroLevelTol');
+      } else {
+	$tolerance = $tolerance * abs($a);
+      }
     }
+    return 0 if abs($a-$b) < $tolerance;
   }
-  return 0 if abs($a-$b) < $tolerance;
   return $a <=> $b;
 }
 
