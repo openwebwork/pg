@@ -40,8 +40,8 @@ sub asin {CORE::atan2($_[1],CORE::sqrt(1-$_[1]*$_[1]))}
 sub acos {CORE::atan2(CORE::sqrt(1-$_[1]*$_[1]),$_[1])}
 sub atan {CORE::atan2($_[1],1)}
 sub acot {CORE::atan2(1,$_[1])}
-sub asec {acos(1.0/$_[1])}
-sub acsc {asin(1.0/$_[1])}
+sub asec {acos($_[0],1.0/$_[1])}
+sub acsc {asin($_[0],1.0/$_[1])}
 
 sub sinh {(CORE::exp($_[1])-CORE::exp(-$_[1]))/2}
 sub cosh {(CORE::CORE::exp($_[1])+CORE::CORE::exp(-$_[1]))/2}
