@@ -358,7 +358,7 @@ sub createDisplayedInsert
 
 
       open(TEXXX, "${PROBDIR}${psvn}output.html") or
-        wwerror("ERROR: $0", "Can't open ${PROBDIR}${psvn}output.html",'','', '');
+        die "ERROR: $0 Can't open ${PROBDIR}${psvn}output.html";
       @printlines = <TEXXX>;
       close(TEXXX);
 #   } else  {
@@ -406,7 +406,7 @@ sub l2hcreate {     ## for latex2HTML 96.1 and 98.1
    &createDirectory($TMPPROBDIR,$Global::l2h_prob_directory_permission,$Global::numericalGroupID)
      unless(-e "$TMPPROBDIR");
 
-   open(OUTTEXFILE, ">$TMPPROBDIR${psvn}output.tex") or wwerror($0, "Can't open temporary file $TMPPROBDIR${psvn}output.tex");
+   open(OUTTEXFILE, ">$TMPPROBDIR${psvn}output.tex") or die "Can't open temporary file $TMPPROBDIR${psvn}output.tex";
 
    print OUTTEXFILE &texInput($Global::TEX_PROB_PREAMBLE);
    print OUTTEXFILE &texInput($Global::TEX_PROB_HEADER);
@@ -448,7 +448,7 @@ sub l2hcreate {     ## for latex2HTML 96.1 and 98.1
 
    close(TEXORG);
    open(TEXNEW, ">${TMPPROBDIR}${psvn}output.html") or
-     wwerror($0, "Can't open ${TMPPROBDIR}${psvn}output.html",'','', '');
+     die "Can't open ${TMPPROBDIR}${psvn}output.html";
 
 
     foreach (@l2hOutputArray) {
@@ -473,7 +473,7 @@ sub l2hcreate {     ## for latex2HTML 96.1 and 98.1
          ## Now do global multiline changes on whole file
 
     open(TEXNEW, "${TMPPROBDIR}${psvn}output.html") or
-     wwerror("$0", "Can't open ${TMPPROBDIR}${psvn}output.html",'','', '');
+     die "Can't open ${TMPPROBDIR}${psvn}output.html";
     @l2hOutputArray = <TEXNEW>;
     close(TEXNEW);
     my $l2hOutputString = join('',@l2hOutputArray);
@@ -489,7 +489,7 @@ sub l2hcreate {     ## for latex2HTML 96.1 and 98.1
     $l2hOutputString =~ s|<!--.*?-->\n||sg;
 
     open(TEXNEW, ">${TMPPROBDIR}${psvn}output.html") or
-     wwerror("$0", "Can't open ${TMPPROBDIR}${psvn}output.html",'','', '');
+     die "Can't open ${TMPPROBDIR}${psvn}output.html";
     print TEXNEW $l2hOutputString;
     close(TEXNEW);
 

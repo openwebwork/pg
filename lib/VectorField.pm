@@ -237,7 +237,7 @@ sub _initialize {
 			$self->{dy_rule} = $input[1] ;
 
 	} else {
-		wwerror("$0:VectorField.pm:_initialize:", "Can't call VectorField with more than two arguments", "");
+		die "VectorField.pm:_initialize: Can't call VectorField with more than two arguments";
 	}
 }
 sub draw {

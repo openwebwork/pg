@@ -277,7 +277,7 @@ sub _initialize {
 			$self->y_rule($input[1]);
 		
 	} else {
-		wwerror("$0:Fun.pm:_initialize:", "Can't call function with more than two arguments", "");
+		die "Fun.pm:_initialize: Can't call function with more than two arguments";
 	}
 	
 }

@@ -33,7 +33,7 @@ BEGIN {
 =item send_mail_to($user_address,'subject'=>$subject,'body'=>$body)
 
 Returns true if the address is ok, otherwise a fatal error is signaled using
-wwerror.
+die.
 
 Sends $body to the address specified by $user_address provided that the address
 appears in C<@{$Global::PG_environment{'ALLOW_MAIL_TO'}}>.
@@ -89,11 +89,10 @@ sub send_mail_to {
 		}
 		$smtp->quit;
     } else {
-		Global::wwerror("$0","There has been an error in creating this problem.\n"
+		die "There has been an error in creating this problem.\n"
 			. "Please notify your instructor.\n\n"
 			. "Mail is not permitted to address $user_address.\n"
-			. "Permitted addresses are specified in the courseWeBWorK.ph file.",
-			"","","");
+			. "Permitted addresses are specified in the courseWeBWorK.ph file.";
 		$out = 0;
 	}
 	

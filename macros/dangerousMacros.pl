@@ -1039,7 +1039,7 @@ sub alias {
 				}
 			}
 		} else {
-			wwerror("Error in alias: dangerousMacros.pl"," unrecognizable displayMode = $displayMode","");
+			die "Error in alias: dangerousMacros.pl: unrecognizable displayMode = $displayMode";
 		}
 	} elsif ($ext eq 'png') {
 		if ( $displayMode eq 'HTML' ||
