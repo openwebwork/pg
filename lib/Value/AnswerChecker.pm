@@ -49,7 +49,7 @@ sub cmp_parse {
   #  Do some setup
   #
   my $current = $$Value::context; # save it for later
-  my $context = $ans->{correct_value}{context};
+  my $context = $ans->{correct_value}{context} || $current;
   Parser::Context->current(undef,$context); # change to correct answser's context
   $context->flags->set(StringifyAsTeX => 0);  # reset this, just in case.
   $context->flags->set(no_parameters => 1);   # don't let students enter parameters
