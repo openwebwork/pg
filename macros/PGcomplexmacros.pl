@@ -34,7 +34,7 @@ sub _PGcomplexmacros_init {
 # export functions from Complex1.
 
 foreach my $f (@Complex1::EXPORT) {
-		#PG_restricted_eval("\*$f = \*Complex1::$f"); # this is too clever -- 
+#		#PG_restricted_eval("\*$f = \*Complex1::$f"); # this is too clever -- 
 		                                              # the original subroutines are destroyed
         next if $f eq 'sqrt';  #exporting the square root caused conflicts with the standard version
                                # You can still use Complex1::sqrt to take square root of complex numbers
@@ -49,6 +49,7 @@ foreach my $f (@Complex1::EXPORT) {
 		PG_restricted_eval($string);
 }
 
+
 # You need to add 
 # sub i();  # to your problem or else to dangerousMacros.pl
 # in order to use expressions such as 1 +3*i;
@@ -58,7 +59,6 @@ foreach my $f (@Complex1::EXPORT) {
 
 # number format used frequently in strict prefilters
 my $number = '([+-]?)(?=\d|\.\d)\d*(\.\d*)?(E([+-]?\d+))?';
-
 
 
 sub polar{
