@@ -3,94 +3,14 @@ sub _PGauxiliaryFunctions_init {
 
 }
 
-sub tan {
-    sin($_[0])/cos($_[0]);
-}
-sub cot {
-    cos($_[0])/sin($_[0]);
-}
-sub sec {
-    1/cos($_[0]);
-}
-sub csc {
-	1/sin($_[0]);
-}
-sub ln {
-    log($_[0]);
-}
-sub logten {
-    log($_[0])/log(10);
-}
-sub arcsin {
-    atan2 ($_[0],sqrt(1-$_[0]*$_[0]));
-}
-sub asin {
-    atan2 ($_[0],sqrt(1-$_[0]*$_[0]));
-}
-sub arccos {
-    atan2 (sqrt(1-$_[0]*$_[0]),$_[0]);
-}
-sub acos {
-    atan2 (sqrt(1-$_[0]*$_[0]),$_[0]);
-}
-sub arctan {
-    atan2($_[0],1);
-}
-sub atan {
-    atan2($_[0],1);
-}
-sub arccot {
-    atan2(1,$_[0]);
-}
-sub acot {
-    atan2(1,$_[0]);
-}
-sub sinh {
-    (exp($_[0]) - exp(-$_[0]))/2;
-}
-sub cosh {
-    (exp($_[0]) + exp(-$_[0]))/2;
-}
-sub tanh {
-    (exp($_[0]) - exp(-$_[0]))/(exp($_[0]) + exp(-$_[0]));
-}
-sub sech {
-    2/(exp($_[0]) + exp(-$_[0]));
-}
 #
-#  DPVC  -- 2002/03/31
-#        added missing trig, inverse and hyperbolic functions
+#  Get the functions that are in common with Parser.pm
 #
-sub csch {2.0/(exp($_[0]) - exp(-$_[0]))}
-sub coth {(exp($_[0]) + exp(-$_[0]))/(exp($_[0]) - exp(-$_[0]))}
+loadMacros("PGcommonFunctions.pl");
 
-sub arcsec {acos(1.0/$_[0])}; sub asec {acos(1.0/$_[0])}
-sub arccsc {asin(1.0/$_[0])}; sub acsc {asin(1.0/$_[0])}
-
-sub arcsinh {log($_[0]+sqrt($_[0]*$_[0]+1.0))}
-sub arccosh {log($_[0]+sqrt($_[0]*$_[0]-1.0))}
-sub arctanh {log((1.0+$_[0])/(1.0-$_[0]))/2.0}
-sub arcsech {log((1.0+sqrt(1-$_[0]*$_[0]))/$_[0])}
-sub arccsch {log((1.0+sqrt(1+$_[0]*$_[0]))/$_[0])}
-sub arccoth {log(($_[0]+1.0)/($_[0]-1.0))/2.0}
-
-sub asinh {log($_[0]+sqrt($_[0]*$_[0]+1.0))}
-sub acosh {log($_[0]+sqrt($_[0]*$_[0]-1.0))}
-sub atanh {log((1.0+$_[0])/(1.0-$_[0]))/2.0}
-sub asech {log((1.0+sqrt(1-$_[0]*$_[0]))/$_[0])}
-sub acsch {log((1.0+sqrt(1+$_[0]*$_[0]))/$_[0])}
-sub acoth {log(($_[0]+1.0)/($_[0]-1.0))/2.0}
 #
-#  End DPVC
+#  Do the additional functions
 #
-sub sgn {
-	my $x = shift;
-	my $out;
-	$out = 1 if $x > 0;
-	$out = 0 if $x == 0;
-	$out = -1 if $x<0;
-	$out;
-}
 sub step {     # heavyside function (1 or x>0)
 	my $x = shift;
 	($x > 0 ) ? 1 : 0;

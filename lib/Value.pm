@@ -1,9 +1,3 @@
-#
-#  Make a class for infinity?
-#  Allow printing of ijk format for vectors
-#  
-#  Share more items between Value and Parser::Context?
-#  
 package Value;
 my $pkg = 'Value';
 use vars qw(%precedence %parens %Type);
@@ -395,6 +389,16 @@ use Value::Union;
 # use Value::Formula;
 
 ###########################################################################
+#
+#    To Do:
+#
+#  Make a Real class that does fuzzy comparisons for <, <=, ==, >=, >, !=.
+#  Make a class for infinity?
+#  Allow printing of ijk format for vectors
+#  
+#  Share more items between Value and Parser::Context?
+#    (In fact, make a Value::Context and have Parser::Context extend that)
+#  
+###########################################################################
 
 1;
-

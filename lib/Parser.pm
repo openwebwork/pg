@@ -1,12 +1,3 @@
-# handle sqrt(-1) and log of negatives (make complexes)
-# do division by zero and log of zero checks in compound functions
-# add context flags for various reduction checks
-# make context flag for reduction of constants
-# make reduce have reduce patterns as parameters
-# more reduce patterns
-# make operator strings customizable (reduce, and other places they are used)
-# add parens alternately as () and []?
-
 package Parser;
 my $pkg = "Parser";
 
@@ -24,12 +15,9 @@ sub new {
   my $string = shift;
   my $math = bless {
     string => undef,
-    tokens => [],
-    tree => undef, 
+    tokens => [], tree => undef, 
     variables => {}, values => {},
     context => Parser::Context->current,
-    error => 0, errorPos => undef,
-    message => '',
   }, $class;
   if (ref($string) =~ m/^(Parser|Value::Formula)/) {
     my $tree = $string; $tree = $tree->{tree} if exists $tree->{tree};
@@ -654,6 +642,7 @@ sub setValues {
   }
 }
 
+
 #########################################################################
 #########################################################################
 #
@@ -666,6 +655,22 @@ use Value::Formula;
 use Parser::Context;
 # use Parser::Differentiation;
 
+###########################################################################
+###########################################################################
+#
+#   To Do:
+#
+# handle sqrt(-1) and log of negatives (make complexes)
+# do division by zero and log of zero checks in compound functions
+# add context flags for various reduction checks
+# make context flag for reduction of constants
+# make reduce have reduce patterns as parameters
+# more reduce patterns
+# make operator strings customizable (reduce, and other places they are used)
+# add parens alternately as () and []?
+# eliminate Complex class (it only gets used by main::Complex() when the
+#   arguments are formulas; use $a + $b*i and let overload handle it instead.)
+#
 #########################################################################
 
 1;
