@@ -204,7 +204,7 @@ sub loadMacros {
 		use strict;
         my $macro_file_loaded = defined($init_subroutine);
         warn "dangerousMacros: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|" if $debugON;
- 		if ( defined( &{$init_subroutine} ) ) {
+ 		if ( defined($init_subroutine) && defined( &{$init_subroutine} ) ) {
 
 		    warn "dangerousMacros:  initializing $macro_file_name" if $debugON;
 		    &$init_subroutine();
@@ -271,7 +271,7 @@ sub loadMacros {
 		#warn "loadMacros: defining \$temp::rf_init_subroutine ",$temp::rf_init_subroutine;
         warn "init file defined: $macro_file_name = ", defined(&{$init_subroutine}) if $debugON;
        
-		if ( defined( &{$init_subroutine} ) ) {
+		if ( defined($init_subroutine) && defined( &{$init_subroutine} ) ) {
 
 		    warn "dangerousMacros:  initializing $macro_file_name" if $debugON;
 		    &$init_subroutine();

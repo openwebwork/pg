@@ -76,6 +76,7 @@ and the answer evaulator queue respectively.
 
 my ($STRINGforOUTPUT, $STRINGforHEADER_TEXT, @PG_ANSWERS, @PG_UNLABELED_ANSWERS);
 my %PG_ANSWERS_HASH ;
+
 # my variables are unreliable if two DOCUMENTS were to be called before and ENDDOCUMENT
 # there could be conflicts.  As I understand the behavior of the Apache child
 # this cannot occur -- a child finishes with one request before obtaining the next
@@ -138,6 +139,7 @@ sub DOCUMENT {
 	$main::solutionExists =0;
 	$main::hintExists =0;
 	%main::gifs_created = ();
+	
     !);
 #    warn eval(q! "PG.pl:  The envir variable $main::{envir} is".join(" ",%main::envir)!);
     my $rh_envir = eval(q!\%main::envir!);
@@ -256,7 +258,7 @@ sub NAMED_ANS{     # store answer evaluators which have been explicitly labeled 
   my @in = @_;
   while (@in ) {
   	my $label = shift @in;
-  	$label = $main::QUIZ_PREFIX.$label;
+  	$label = eval(q!$main::QUIZ_PREFIX.$label!);
   	my $ans_eval = shift @in;
   	TEXT("<BR><B>Error in NAMED_ANS:$in[0]</B>
   	      -- inputs must be references to subroutines<BR>")
@@ -266,14 +268,15 @@ sub NAMED_ANS{     # store answer evaluators which have been explicitly labeled 
 }
 sub RECORD_ANS_NAME {     # this maintains the order in which the answer rules are printed.
 	my $label = shift;
-	push(@main::PG_ANSWER_ENTRY_ORDER, $label);
+	eval(q!push(@main::PG_ANSWER_ENTRY_ORDER, $label)!);
 	$label;
 }
 
 sub NEW_ANS_NAME {        # this keeps track of the answers which are entered implicitly,
                           # rather than with a specific label
 		my $number=shift;
-		my $label = "$main::QUIZ_PREFIX$main::ANSWER_PREFIX$number";
+		my $prefix = eval(q!$main::QUIZ_PREFIX.$main::ANSWER_PREFIX!);
+		my $label = $prefix.$number;
 		push(@PG_UNLABELED_ANSWERS,$label);
 		$label;
 }
@@ -281,7 +284,7 @@ sub ANS_NUM_TO_NAME {     # This converts a number to an answer label for use in
                           # radio button and check box answers. No new answer
                           # name is recorded.
 		my $number=shift;
-		my $label = "$main::QUIZ_PREFIX$main::ANSWER_PREFIX$number";
+		my $label = eval(q!$main::QUIZ_PREFIX$main::ANSWER_PREFIX$number"!);
 		$label;
 }
 
@@ -358,6 +361,7 @@ sub ENDDOCUMENT {
     foreach my $label (@PG_UNLABELED_ANSWERS) {
         if ( defined($PG_ANSWERS[$index]) ) {
     		$PG_ANSWERS_HASH{"$label"}= $PG_ANSWERS[$index];
+ 			#warn "recording answer label = $label";
     	} else {
     		warn "No answer provided by instructor for answer $label";
     	}
@@ -405,6 +409,7 @@ sub ENDDOCUMENT {
 										 or $main::PG_FLAGS{PROBLEM_GRADER_TO_USE} = 'avg_problem_grader';
      # return results
     };
+    
 	(\$STRINGforOUTPUT, \$STRINGforHEADER_TEXT,\%PG_ANSWERS_HASH,eval(q!\%main::PG_FLAGS!));
 }
 
