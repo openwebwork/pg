@@ -150,8 +150,8 @@ sub init_graph {
 	    foreach $i (1..($ydiv-1) ) {
 	    	push( @y_values, $i*$y_delta+$graphRef->{ymin});
 	    }
-		$graphRef->v_ticks(0,'black',@x_values);
-		$graphRef->h_ticks(0,'black',@y_values);
+		$graphRef->h_ticks(0,'black',@x_values);
+		$graphRef->v_ticks(0,'black',@y_values);
 		$graphRef->lb(new Label($x_delta,0,$x_delta,'black','right'));
 		$graphRef->lb(new Label(0,$y_delta,$y_delta,'black','top'));
 
