@@ -174,6 +174,7 @@ sub new_from_col_vecs
 	}
     	return($matrix);
 }
+
 ######################################################################
 #  Modifications to MatrixReal.pm which allow use of complex entries
 ######################################################################
@@ -267,6 +268,8 @@ sub transpose
     }
     $matrix1;
 }
+
+
 
 
 1;
