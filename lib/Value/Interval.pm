@@ -108,6 +108,9 @@ sub isNegativeInfinity {
   return $n->{isInfinite} && $n->{isNegative};
 }
 
+sub isOne {0}
+sub isZero {0}
+
 #
 #  Return the open and close parens as well as the endpoints
 #

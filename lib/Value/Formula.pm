@@ -47,6 +47,9 @@ sub blank {$pkg->SUPER::new('')}
 #
 sub typeRef {(shift)->{tree}->typeRef}
 
+sub isZero {(shift)->{tree}{isZero}}
+sub isOne {(shift)->{tree}{isOne}}
+
 ############################################
 #
 #  Create a BOP from two operands

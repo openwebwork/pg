@@ -34,6 +34,9 @@ sub length {1}
 sub typeRef {$Value::Type{string}}
 sub value {shift->{data}[0]}
 
+sub isOne {0}
+sub isZero {0}
+
 ##################################################
 
 #

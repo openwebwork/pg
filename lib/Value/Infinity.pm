@@ -34,6 +34,9 @@ sub length {0}
 sub typeRef {$Value::Type{infinity}}
 sub value {shift->{data}[0]}
 
+sub isZero {0}
+sub isOne {0} 
+
 ##################################################
 
 #

@@ -139,6 +139,33 @@ sub isRow {
 }
 
 #
+#  See if the matrix is an Indenity matrix
+#
+sub isOne {
+  my $self = shift;
+  return 0 unless $self->isSquare;
+  my $i = 0;
+  foreach my $row (@{$self->{data}}) {
+    my $j = 0;
+    foreach my $k (@{$row->{data}}) {
+      return 0 unless $k eq (($i == $j)? "1": "0");
+      $j++;
+    }
+    $i++;
+  }
+  return 1;
+}
+
+#
+#  See if the matrix is all zeros
+#
+sub isZero {
+  my $self = shift;
+  foreach my $x (@{$self->{data}}) {return 0 unless $x->isZero}
+  return 1;
+}
+
+#
 #  Make arbitrary data into a matrix, if possible
 #
 sub promote {

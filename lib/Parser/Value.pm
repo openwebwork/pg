@@ -32,15 +32,15 @@ sub new {
     if ($type eq 'unknown');
   $type = 'Value::'.$type, $value = $type->new(@{$value}) unless $type eq 'value';
   my $type = $value->typeRef;
+
   my $c = bless {
     value => $value, type => $type, isConstant => 1,
     ref => $ref, equation => $equation,
   }, $class;
   $c->{canBeInterval} = 1 if ($value->class eq 'Point' && $type->{length} == 2);
-  ## check for isZero  (method of $value?)
-  ## (hack for now)
-  $c->{isZero} = 1 if $type->{name} eq 'Number' && $value == 0;
-  $c->{isOne}  = 1 if $type->{name} eq 'Number' && $value eq 1;
+
+  $c->{isZero} = $value->isZero;
+  $c->{isOne}  = $value->isOne;
   return $c;
 }
 

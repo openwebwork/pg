@@ -49,9 +49,16 @@ sub new {
     coords => $coords, type => $type, open => $open, close => $close,
     paren => $paren, equation => $equation, isConstant => $constant
   }, $context->{lists}{$type->{name}}{class};
+
+  my $zero = 1;
+  foreach my $x (@{$coords}) {$zero = 0, last unless $x->{isZero}}
+  $list->{isZero} = 1 if $zero && scalar(@{$coords}) > 0;
+
   $list->checkInterval;
   $list->_check;
+
 #  warn ">> $list->{type}{name} of $list->{type}{entryType}{name} of length $list->{type}{length}\n";
+
   if ($list->{isConstant} && $context->flag('reduceConstants')) {
     my $saveCBI = $list->{canBeInterval}; $type = $list->{type};
     $list = $context->{parser}{Value}->new($equation,[$list->eval]);

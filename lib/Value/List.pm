@@ -49,6 +49,9 @@ sub typeRef {
   return Value::Type($self->class, $self->length, Value::Type($self->{type},1));
 }
 
+sub isOne {0}
+sub isZero {0}
+
 #
 #  Turn arbitrary data into a List
 #

@@ -57,6 +57,9 @@ sub typeRef {
   return Value::Type($self->class, $self->length, $self->data->[0]->typeRef);
 }
 
+sub isOne {0}
+sub isZero {0}
+
 #
 #  Recursively convert the list of intervals to a tree of unions
 #
@@ -64,7 +67,6 @@ sub formula {
   my $selft = shift;
   my $formula = Value::Formula->blank;
   $formula->{tree} = recursiveUnion($formula,Value::toFormula($formula,@_));
-#   return $formula->eval if scalar(%{$formula->{variables}}) == 0;
   return $formula
 }
 sub recursiveUnion {

@@ -72,6 +72,9 @@ sub formula {
 #
 sub typeRef {return $Value::Type{complex}}
 
+sub isZero {shift eq "0"}
+sub isOne {shift eq "1"}
+
 ##################################################
 
 #
