@@ -632,10 +632,8 @@ sub setValues {
   foreach my $x (keys %{$self->{values}}) {
     $self->Error("Undeclared variable '$x'") unless defined $variables->{$x};
     $value = Value::makeValue($self->{values}{$x});
-    $value = Value::Formula->new($value) unless
-      Value::isFormula($value) || Value::isValue($value);
-    if (Value::isFormula($value)) {$type = $value->typeRef}
-      else {($value,$type) = Value::getValueType($self,$value)}
+    $value = Value::Formula->new($value) unless Value::isValue($value);
+    ($value,$type) = Value::getValueType($self,$value);
     $self->Error("Variable '$x' should be of type $variables->{$x}{type}{name}")
       unless Parser::Item::typeMatch($type,$variables->{$x}{type});
     $self->{values}{$x} = $value;

@@ -201,11 +201,11 @@ sub getValueType {
   my $type = Value::getType($equation,$value);
   if ($type eq 'String') {$type = $Value::Type{string}}
   elsif ($type eq 'Number') {$type = $Value::Type{number}}
-  elsif ($type eq 'value') {$type = $value->typeRef}
-  elsif ($type =~ m/unknown|Formula/) {
+  elsif ($type eq 'value' || $type eq 'Formula') {$type = $value->typeRef}
+  elsif ($type eq 'unknown') {
     $equation->Error("Can't convert ".Value::showClass($value)." to a constant");
   } else {
-    $type = 'Value::'.$type, $value = $type->new(@{$value}) unless $type eq 'value';
+    $type = 'Value::'.$type, $value = $type->new(@{$value});
     $type = $value->typeRef;
   }
   return ($value,$type);
@@ -453,7 +453,7 @@ sub ijk {
 sub Error {
   my $message = shift;
   $$context->setError($message,'');
-#  die $message . traceback();
+  die $message . traceback() if $$context->{debug};
   die $message . getCaller();
 }
 

@@ -27,9 +27,17 @@ sub new {
 
 #
 #  Return the value of the constant
+#    (for formulas, do the same substitutions the are in
+#     effect for the main equation).
 #
 sub eval {
   my $self = shift; my $data = $self->{constant};
+  if (Value::isFormula($data)) {
+    $data->{values} = $self->{equation}{values};
+    my $value = $data->{tree}->eval;
+    $data->{values} = {};
+    return $value;
+  }
   return $data unless ref($data) eq 'ARRAY';
   return @{$data};
 }
@@ -47,9 +55,18 @@ sub TeX {
 }
 
 sub perl {
-  my $self = shift;
+  my $self = shift; my $parens = shift;
+  my $data = $self->{constant};
   return $self->{def}{perl} if defined($self->{def}{perl});
-  return $self->{constant}->perl(@_) if ref($self->{constant});
+  if (Value::isFormula($data)) {
+    $data->{values} = $self->{equation}{values};
+    my $value = $data->{tree}->perl;
+    $data->{values} = {};
+    $value = '('.$value.')' if $parens;
+    return $value;
+  }
+  $data = Value::makeValue($data);
+  return $data->perl(@_) if Value::isValue($data);
   return '$'.$self->{name};
 }
 
