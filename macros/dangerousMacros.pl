@@ -870,7 +870,7 @@ sub alias {
 
 	if ($ext eq 'html') {
 		################################################################################
-		# .html FILES in HTML, HTML_tth, HTML_dpng, HTML_img and Latex2HTML mode
+		# .html FILES in HTML, HTML_tth, HTML_dpng, HTML_img, etc. and Latex2HTML mode
 		################################################################################
 
 		# No changes are made for auxiliary files in the
@@ -1048,10 +1048,9 @@ sub alias {
 		     $displayMode eq 'HTML_asciimath'||
 		     $displayMode eq 'HTML_jsMath'||
 		     $displayMode eq 'HTML_img'||
-		     $displayMode eq 'HTML_jsMath'||
 		     $displayMode eq 'Latex2HTML')  {
 			################################################################################
-			# .png FILES in HTML, HTML_tth, HTML_dpng, HTML_img, and Latex2HTML modes
+			# .png FILES in HTML, HTML_tth, HTML_dpng, HTML_img, etc. and Latex2HTML modes
 			################################################################################
 
 			#warn "tempDirectory is $tempDirectory";
