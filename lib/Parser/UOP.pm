@@ -185,7 +185,7 @@ sub string {
   } else {
     $string = $uop->{string}.$self->{op}->string($uop->{precedence});
   }
-  $string = $self->addparens($string) if ($addparens);
+  $string = $self->addParens($string) if ($addparens);
   return $string;
 }
 
