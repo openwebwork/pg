@@ -1818,7 +1818,7 @@ sub image {
 
 		if ($displayMode eq 'TeX') {
 			my $imagePath = $imageURL; # in TeX mode, alias gives us a path, not a URL
-			if ($envir->{texDisposition} eq "pdf") {
+			if (defined $envir->{texDisposition} and $envir->{texDisposition} eq "pdf") {
 				# We're going to create PDF files with our TeX (using pdflatex), so
 				# alias should have given us the path to a PNG image. What we need
 				# to do is find out the dimmensions of this image, since pdflatex
