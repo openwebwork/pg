@@ -77,18 +77,24 @@ sub parens    {(shift)->{_parens}}
 
 
 #
+#  Store pointer to user's context table
+#
+my $userContext;
+
+#
 #  Set/Get the current Context object
 #
 sub current {
   my $self = shift; my $contextTable = shift; my $name = shift;
+  if ($contextTable) {$userContext = $contextTable} else {$contextTable = $userContext}
   if ($name) {
     my $context = Parser::Context->get($contextTable,$name);
     Value::Error("Unknown context '$name'") unless defined($context);
     $contextTable->{current} = $context;
     $Value::context = \$contextTable->{current};
-  } else {
-    $contextTable->{current} = $Parser::Context::Default::fullContext->copy
-      unless defined($contextTable->{current});
+  } elsif (!defined($contextTable->{current})) {
+    $contextTable->{current} = $Parser::Context::Default::fullContext->copy;
+    $Value::context = \$contextTable->{current};
   }
   return $contextTable->{current};
 }
