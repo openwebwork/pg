@@ -1590,12 +1590,12 @@ sub beginproblem {
 		$out = &M3("\n\n\\medskip\\hrule\\smallskip\\par{\\bf ${probNum}.{\\footnotesize ($problemValue $points) $TeXFileName}}\\newline ",
 		" \\begin{rawhtml} ($problemValue $points) <B>$l2hFileName</B><BR>\\end{rawhtml}",
 		 "($problemValue $points) <B>$fileName</B><BR>"
-	 	   );
+	 	   ) if ($problemValue ne "");
 	}	else {
 		$out = &M3("\n\n\\smallskip\\hrule\\smallskip\\par{\\bf ${probNum}.}($problemValue $points) ",
 		"($problemValue $points) ",
 		 "($problemValue $points) "
-	 	   );
+	 	   ) if ($problemValue ne "");
 	}
 	$out;
 
