@@ -294,7 +294,13 @@ sub render {
 	my $strings  = $self->{strings};
 	my $depths   = $self->{depths};
 	$self->{body_text} = $options{body_text};
-	
+
+	# check that the equations directory exists and create if it doesn't
+	unless (-e "$dir") {
+		my $success = mkdir "$dir";
+		warn "Could not make directory $dir" unless $success;
+	}
+			
 	# determine which images need to be generated
 	my (@newStrings, @newNames);
 	for (my $i = 0; $i < @$strings; $i++) {
