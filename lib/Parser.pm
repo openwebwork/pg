@@ -226,7 +226,7 @@ sub Op {
             if $name eq ' ' or $name eq $context->{operators}{' '}{space};
           $self->pushOperator($name,$op->{precedence});
         }
-      } elsif ($ref || $self->state ne 'fn') {$self->Op($name,$ref)}
+      } elsif (($ref && $name ne ' ') || $self->state ne 'fn') {$self->Op($name,$ref)}
     }
   } else {
     $name = 'u'.$name, $op = $context->{operators}{$name}
@@ -287,7 +287,8 @@ sub Open {
 #        Replace the paren object with the operand
 #        If the parentheses are used for function calls and the
 #          previous stack object is a function call, do the function apply
-#        Otherwise report an appropriate error message
+#      Otherwise if the parens can form Intervals, do so
+#      Otherwise report an appropriate error message
 #
 #    A function:
 #      Report an error message about missing inputs
