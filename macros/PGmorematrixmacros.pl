@@ -26,6 +26,33 @@ sub random_inv_matrix { ## Builds and returns a random invertible \$row by \$col
     return $A;
 }
 
+=head4 random_diag_matrix
+
+This method returns a random nxn diagonal matrix.
+
+=cut
+
+sub random_diag_matrix{ ## Builds and returns a random diagonal \$n by \$n matrix
+	
+	warn "Usage: \$new_matrix = random_diag_matrix(\$n)" if (@_ != 1);
+	
+	my $D = new Matrix($_[0],$_[0]);
+	my $norm = 0;
+	while( $norm == 0 ){
+		foreach my $i (1..$_[0]){
+			foreach my $j (1..$_[0]){
+				if( $i != $j ){
+					$D->assign($i,$j,0);
+				}else{
+					$D->assign($i,$j,random(-9,9,1));
+				}			
+			}		
+		}
+		$norm = abs($D);
+	}
+	return $D;
+}
+
 sub swap_rows{
 
     warn "Usage: \$new_matrix = swap_rows(\$matrix,\$row1,\$row2);"
@@ -612,6 +639,83 @@ sub are_orthogonal_vecs{
 	}
 }
 
+sub is_diagonal{
+	my $matrix	=	shift;
+	my %options 	=	@_;
+	my $process_ans_hash = ( ref( $matrix ) eq 'AnswerHash' ) ? 1 : 0 ;
+	my ($rh_ans);
+	if ($process_ans_hash) {
+		$rh_ans = $matrix;
+		$matrix = $rh_ans->{ra_student_ans};
+	}
+
+	return 0 unless defined($matrix);
+
+	if( ref($matrix) eq 'ARRAY' ){
+		my @matrix = @{$matrix};
+		@matrix = @{$matrix[0]} if ref($matrix[0][0]) eq 'ARRAY';
+		if( ref($matrix[0]) ne 'ARRAY' or scalar( @matrix ) != scalar( @{$matrix[0]} ) ){
+			warn "It is impossible for a non-square matrix to be diagonal, if you are a student, please tell your professor that there is a problem."; 
+		}
+		
+		for( my $i = 0; $i < scalar( @matrix ) ; $i++ ){
+			for( my $j = 0; $j < scalar( @{$matrix[0]} ); $j++ ){
+				if( $matrix[$i][$j] != 0 and $i != $j )
+				{
+				    	if ($process_ans_hash){
+				    		$rh_ans->throw_error('EVAL');
+    						return $rh_ans;
+    					} else {
+						return 0;
+					}					
+				}				
+			}		
+		}
+		if ($process_ans_hash){
+	   		return $rh_ans;
+    		} else {
+			return 1;
+		}
+	}elsif( ref($matrix) eq 'Matrix' ){
+		if( $matrix->[1] != $matrix->[2] ){
+			warn "It is impossible for a non-square matrix to be diagonal, if you are a student, please tell your professor that there is a problem."; 
+			if ($process_ans_hash){
+				$rh_ans->throw_error('EVAL');
+    				return $rh_ans;
+    			} else {
+				return 0;
+			}
+		}
+		for( my $i = 0; $i < $matrix->[1] ; $i++ ){
+			for( my $j = 0; $j < $matrix->[2] ; $j++ ){
+				if( $matrix->[0][$i][$j] != 0 and $i != $j ){
+				    	if ($process_ans_hash){
+				    		$rh_ans->throw_error('EVAL');
+						return $rh_ans;
+    					} else {
+						return 0;
+					}
+				}
+			}
+		}
+		if ($process_ans_hash){
+	   		return $rh_ans;
+    		} else {
+			return 1;
+		}
+	}else{
+		warn "There is a problem with the problem, please alert your professor.";
+		if ($process_ans_hash){
+			$rh_ans->throw_error('EVAL');
+    			return $rh_ans;
+    		} else {
+			return 0;
+		}
+	}
+
+}
+
+
 sub are_unit_vecs{
 	my ( $vec_ref,%opts ) = @_;
 	my @vecs = ();
@@ -817,6 +921,23 @@ sub compare_vec_solution {
 	return compare_basis( $rh_ans, %options );
 	}
 }
+
+sub pretty_matrix{
+	my $matrix = shift;
 	
+	if( ref($matrix) ne 'Matrix' ){
+		warn "Usage: \$pretty_matrix = pretty_matrix(\$matrix)"; 
+	}
+	
+	for( my $i = 0; $i < $matrix->[1]; $i++ ){
+		for( my $j = 0; $j < $matrix->[2]; $j++ ){
+			if( $matrix->[0][$i][$j] - sprintf("%.0f", $matrix->[0][$i][$j] ) < $main::functZeroLevelTolDefault ){
+				$matrix->[0][$i][$j] = sprintf("%.0f", $matrix->[0][$i][$j] );
+				$matrix->[0][$i][$j] = 0 if( $matrix->[0][$i][$j] == 0);
+			}	
+		}	
+	}
+	$matrix;
+}
 
 1;
