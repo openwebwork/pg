@@ -1152,7 +1152,7 @@ sub NUM_CMP {		# low level	numeric	compare
      	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift; $rh_ans->clear_error('SYNTAX'); } );
      	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift; $rh_ans->clear_error('UNITS'); } );
      	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift; $rh_ans->clear_error('NUMBER'); } );
-	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift; $rh_ans->clear_error('STRING'); } );
+	    $answer_evaluator->install_post_filter(sub {my $rh_ans = shift; $rh_ans->clear_error('STRING'); } );
      	$answer_evaluator;
 }
 
