@@ -1,0 +1,144 @@
+########################################################################### 
+
+package Value::Union;
+my $pkg = 'Value::Union';
+
+use strict;
+use vars qw(@ISA);
+@ISA = qw(Value);
+
+use overload
+       '+'   => \&add,
+       '.'   => \&Value::_dot,
+       'x'   => \&Value::cross,
+       '<=>' => \&compare,
+       'cmp' => \&compare,
+  'nomethod' => \&Value::nomethod,
+        '""' => \&stringify;
+
+#
+#  Convert a value to a union of intervals.  The value must be
+#      a list of two or more Interval, Union or Point objects.
+#      Points will be converted to intervals if they are length 1 or 2.
+#
+sub new {
+  my $self = shift; my $class = ref($self) || $self;
+  Value::Error("Unions must be of at least two intervals") unless scalar(@_) > 1;
+  my @intervals = (); my $isFormula = 0;
+  foreach my $x (@_) {
+    if (Value::isFormula($x)) {
+      $x->{tree}->typeRef->{name} = 'Interval' if ($x->type eq 'Point' && $x->length == 1);
+      if ($x->type eq 'Interval') {push(@intervals,$x)}
+      elsif ($x->type eq 'Union') {push(@intervals,$x->{tree}->makeUnion)}
+      else {Value::Error("Unions can be taken only for Intervals")}
+      $isFormula = 1;
+    } else {
+      if (Value::class($x) eq 'Point') {
+        if ($x->length == 1) {$x = Value::Interval->new('[',$x->value,$x->value,']')}
+        elsif ($x->length == 2) {$x = Value::Interval->new($x->{open},$x->value,$x->{close})}
+      }
+      if (Value::class($x) eq 'Interval') {push(@intervals,$x)}
+      elsif (Value::class($x) eq 'Union') {push(@intervals,@{$x->{data}})}
+      else {Value::Error("Unions can be taken only for Intervals")}
+    }
+  }
+  return $self->formula(@intervals) if $isFormula;
+  bless {data => [@intervals]}, $class;
+}
+
+#
+#  Return the appropriate data.
+#
+sub length {return scalar(@{shift->{data}})}
+sub typeRef {
+  my $self = shift;
+  return Value::Type($self->class, $self->length, $self->data->[0]->typeRef);
+}
+
+#
+#  Recursively convert the list of intervals to a tree of unions
+#
+sub formula {
+  my $selft = shift;
+  my $formula = Value::Formula->blank;
+  $formula->{tree} = recursiveUnion($formula,Value::toFormula($formula,@_));
+  return $formula->eval if scalar(%{$formula->{variables}}) == 0;
+  return $formula
+}
+sub recursiveUnion {
+  my $formula = shift; my $right = pop(@_);
+  return $right if (scalar(@_) == 0);
+  return Parser::BOP->new($formula,'U',recursiveUnion($formula,@_),$right);
+}
+
+############################################
+#
+#  Operations on unions
+#
+
+#
+#  Addition forms additional unions
+#
+sub add {
+  my ($l,$r,$flag) = @_;
+  if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
+  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
+  Value::Error("Unions can only be added to Intervals or Unions")
+    unless Value::class($l) =~ m/Interval|Union/ &&
+           Value::class($r) =~ m/Interval|Union/;
+  $l = $pkg->make($l) if ($l->class eq 'Interval');
+  $r = $pkg->make($r) if ($r->class eq 'Interval');
+  return $pkg->make(@{$l->data},@{$r->data});
+}
+sub dot {add(@_)}
+
+#
+#  @@@ Needs work @@@
+#  
+#  Sort the intervals lexicographically, and then
+#    compare interval by interval.
+#
+sub compare {
+  my ($l,$r,$flag) = @_;
+  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
+  return  1 if Value::class($r) ne 'Union';
+  return -1 if Value::class($l) ne 'Union';
+  my @l = sort(@{$l->data}); my @r = sort(@{$r->data});
+  return scalar(@l) <=> scalar(@r) unless scalar(@l) == scalar(@r);
+  my $cmp = 0;
+  foreach my $i (0..$#l) {
+    $cmp = $l[$i] <=> $r[$i];
+    last if $cmp;
+  }
+  return $cmp;
+}
+
+# @@@ simplify (combine intervals, if possible) @@@
+
+############################################
+#
+#  Generate the various output formats
+#
+
+sub stringify {
+  my $self = shift;
+  join(' U ',@{$self->data});
+}
+
+sub string {
+  my $self = shift; my $equation = shift;
+  my @intervals = ();
+  foreach my $x (@{$self->data}) {push(@intervals,$x->string($equation))}
+  return join($equation->{context}{operators}{'U'}{string},@intervals);
+}
+sub TeX {
+  my $self = shift; my $equation = shift;
+  my @intervals = (); my $op = $equation->{context}{operators}{'U'};
+  foreach my $x (@{$self->data}) {push(@intervals,$x->TeX($equation))}
+  return join($op->{TeX} ? $op->{TeX} : $op->{string},@intervals);
+}
+
+###########################################################################
+
+1;
+

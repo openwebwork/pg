@@ -1,0 +1,58 @@
+#########################################################################
+#
+#  Implements division
+#
+package Parser::BOP::divide;
+use strict; use vars qw(@ISA);
+@ISA = qw(Parser::BOP);
+
+#
+#  Check that operand types are OK.
+#  Check for division by zero.
+#
+sub _check {
+  my $self = shift;
+  return if ($self->checkStrings());
+  return if ($self->checkLists());
+  $self->Error("Division by zero") if $self->{rop}{isZero};
+  return if ($self->checkNumbers());
+  my ($ltype,$rtype) = $self->promotePoints();
+  if ($ltype->{name} =~ m/Vector|Matrix/ && $rtype->{name} eq 'Number') {
+    $self->{type} = {%{$ltype}};
+  } else {$self->Error("Division is allowed only for Numbers or a Vector and a Number")}
+}
+
+#
+#  Do the division.
+#
+sub _eval {$_[1] / $_[2]}
+
+#
+#  Remove division by 1.
+#  Error for division by zero.
+#  Reduce zero divided by anything (non-zero) to zero.
+#  Factor out negatives.
+#
+sub _reduce {
+  my $self = shift;
+  return $self->{lop} if ($self->{rop}{isOne});
+  $self->Error("Division by zero"), return $self 
+    if ($self->{rop}{isZero});
+  return $self->{lop} if ($self->{lop}{isZero});
+  return $self->makeNeg($self->{lop}{op},$self->{rop}) if ($self->{lop}->isNeg);
+  return $self->makeNeg($self->{lop},$self->{rop}{op}) if ($self->{rop}->isNeg);
+  return $self;
+}
+
+#
+#  Use \frac for TeX version.
+#
+sub TeX {
+  my $self= shift;
+  '\frac{'.($self->{lop}->TeX).'}{'.($self->{rop}->TeX).'}';
+}
+
+#########################################################################
+
+1;
+
