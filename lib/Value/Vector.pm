@@ -186,6 +186,48 @@ sub unit {
   return $self / $n;
 }
 
+############################################
+#
+#  Check for parallel vectors
+#
+
+sub isParallel {
+  my $U = shift; my $V = shift; my $sameDirection = shift;
+  my @u = (promote($U))->value;
+  my @v = (promote($V))->value;
+  return 0 unless  scalar(@u) == scalar(@v);
+  my $k = ''; # will be scaling factor for u = k v
+  foreach my $i (0..$#u) {
+    #
+    #  make sure we use fuzzy math
+    #
+    $u[$i] = Value::Real->new($u[$i]) unless Value::isReal($u[$i]);
+    $v[$i] = Value::Real->new($v[$i]) unless Value::isReal($v[$i]);
+    if ($k ne '') {
+      return 0 if ($v[$i] != $k*$u[$i]);
+    } else {
+      #
+      #  if one is zero and the other isn't then not parallel
+      #  otherwise use the ratio of the two as k.
+      #
+      if ($u[$i] == 0) {
+	return 0 if $v[$i] != 0;
+      } else {
+	return 0 if $v[$i] == 0;
+	$k = ($v[$i]/$u[$i])->value;
+        return 0 if $k < 0 && $sameDirection;
+      }
+    }
+  }
+  #
+  #  Note: it will return 1 if both are zero vectors.  This is a
+  #  feature, since one is provided by the problem writer, and he
+  #  should only supply the zero vector if he means it.  One could
+  #  return ($k ne '') to return 0 if both are zero.
+  #
+  return 1;
+}
+
 
 ############################################
 #

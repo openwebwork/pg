@@ -55,6 +55,7 @@ sub cmp_check {
   my $self = shift; my $ans = shift;
   my $cmp_equal = $ans->{cmp_equal} || 'cmp_equal';
   my $cmp_error = $ans->{cmp_error} || 'cmp_error';
+  my $cmp_postprocess = $ans->{cmp_postprocess};
   $ans->score(0);  # assume failure
   my $vars = $$Value::context->{variables};
   $$Value::context->{variables} = {}; #  pretend there are no variables
@@ -68,6 +69,7 @@ sub cmp_check {
     $ans->{preview_text_string}  = $ans->{student_formula}->string;
     $ans->{student_ans}          = $ans->{student_value}->stringify;
     $self->$cmp_equal($ans);
+    $self->$cmp_postprocess($ans) if $cmp_postprocess && !$ans->{error_message};
   } else {
     $self->$cmp_error($ans);
   }
@@ -139,9 +141,14 @@ sub protectHTML {
 
 package Value::Real;
 
+our $cmp_defaults = {
+  %{$Value::cmp_defaults},
+  ignoreStrings => 1,
+};
+
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
-  if ($other->type eq 'String') {
+  if ($other->type eq 'String' && $ans->{ignoreStrings}) {
     $ans->{showEqualErrors} = 0;
     return 1;
   }
@@ -185,6 +192,9 @@ our $cmp_defaults = {
   %{$Value::cmp_defaults},
   showDimensionWarnings => 1,
   promotePoints => 0,
+  parallel => 0,
+  sameDirection => 0,
+  cmp_postprocess => 'cmp_postprocess',
 };
 
 sub typeMatch {
@@ -198,6 +208,17 @@ sub typeMatch {
   }
   return 1;
 }
+
+#
+#  Handle check for parallel vectors
+#
+sub cmp_postprocess {
+  my $self = shift; my $ans = shift;
+  return unless $ans->{parallel} && $ans->{score} == 0;
+  $ans->score(1) if $self->isParallel($ans->{student_value},$ans->{sameDirection});
+}
+
+
 
 #############################################################
 
@@ -251,7 +272,10 @@ package Value::Union;
 
 sub typeMatch {
   my $self = shift; my $other = shift;
-  return $other->length == 2 if $other->type eq 'Point';
+  return $other->length == 2 &&
+         ($other->{open} eq '(' || $other->{open} eq '[') &&
+         ($other->{close} eq ')' || $other->{close} eq ']')
+	   if $other->type =~ m/^(Point|List)$/;
   $other->type =~ m/^(Interval|Union)/;
 }
 

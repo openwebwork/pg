@@ -61,6 +61,11 @@ sub formula {
 #
 sub typeRef {return $Value::Type{number}}
 
+#
+#  return the real number
+#
+sub value {(shift)->{data}[0]}
+
 ##################################################
 
 #

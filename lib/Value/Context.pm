@@ -19,7 +19,7 @@ sub new {
       signedNumber => '[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:E[-+]?\d+)?',
     },
     format => {
-      number => '%.8g',  # default format for Reals
+      number => '%g',  # default format for Reals
     },
     error => {
       string => '',
