@@ -206,7 +206,7 @@ sub loadMacros {
         warn "dangerousMacros: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|" if $debugON;
  		if ( defined($init_subroutine) && defined( &{$init_subroutine} ) ) {
 
-		    warn "dangerousMacros:  initializing $macro_file_name" if $debugON;
+		    warn "dangerousMacros:  initializing $macro_file_name"  if $debugON;
 		    &$init_subroutine();
 		}
 	}
@@ -246,7 +246,7 @@ sub loadMacros {
 		#compile initialization subroutine. (5.6.1 version) also works with 5.6.0
 
 # 		no strict;
- 		my $init_subroutine  = eval { \&{$init_subroutine_name} };
+ 		my $init_subroutine  = eval { \&{'main::'.$init_subroutine_name} };
 # 		use strict;
 
 		###############################################################################
@@ -254,7 +254,7 @@ sub loadMacros {
         # and then in the webwork  $courseScripts directory.
         
         my $macro_file_loaded = defined($init_subroutine) && defined(&$init_subroutine);
-        warn "dangerousMacros: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|" if $debugON;
+        warn "dangerousMacros: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|"  if $debugON;
         unless ($macro_file_loaded) {
         	#print STDERR "loadMacros: loading macro file $fileName\n";
 			if (-r "$macroDirectory$fileName") {
