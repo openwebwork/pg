@@ -167,7 +167,7 @@ sub BASIS_CMP {
  	my $answer_evaluator = new AnswerEvaluator;
 
     	$answer_evaluator->{debug} = $mat_params{debug};
-	$answer_evaluator->ans_hash( 	correct_ans 		=> 	pretty_print($mat_params{correct_ans}),
+	$answer_evaluator->ans_hash( 	correct_ans 		=> 	display_correct_vecs($mat_params{correct_ans}),
 					rm_correct_ans		=> 	$matrix,
 					zeroLevelTol		=>	$mat_params{zeroLevelTol},
 					debug			=>	$mat_params{debug},
@@ -473,7 +473,6 @@ sub ans_array_filter{
 	my @keys = grep /ArRaY$ans_num/, keys(%{$main::inputs_ref});
 	my $key;
 	my @array = ();
-	#my @latex = ();
 	my ($i,$j,$k) = (0,0,0);
 	
 	#the keys aren't in order, so their info has to be put into the array before doing anything with it
@@ -484,18 +483,17 @@ sub ans_array_filter{
 	}
 	
 	my $display_ans = "";
-	
+		
 	for( $i=0; $i < scalar(@array) ; $i ++ )
 	{
 		$display_ans .= " [";
 	        $rh_ans->{preview_text_string} .= ' [';       
-        	$rh_ans->{preview_latex_string} .= ' [';
+        	$rh_ans->{preview_latex_string} .= '\begin{pmatrix} ';
 		for( $j = 0; $j < scalar( @{$array[$i]} ) ; $j++ )
 		{
 			$display_ans .= " [";
 	                $rh_ans->{preview_text_string} .= ' [';       
-        	        $rh_ans->{preview_latex_string} .= ' ['; 
-			for( $k = 0; $k < scalar( @{$array[$i][$j]} ) ; $k ++ ){
+        	        for( $k = 0; $k < scalar( @{$array[$i][$j]} ) ; $k ++ ){
 				my $entry = $array[$i][$j][$k];
 				$entry = math_constants($entry);
 				# This parser code was origianally taken from PGanswermacros::check_syntax
@@ -508,14 +506,12 @@ sub ans_array_filter{
 					$parser -> normalize();
 					$entry = $parser -> tostring();
 					$rh_ans->{preview_text_string} .= $entry.",";
-					$rh_ans->{preview_latex_string} .=	$parser -> tolatex().",";
-					#$latex[$i][$j][$k] = "\\{".$parser -> tolatex()."\\}";
+					$rh_ans->{preview_latex_string} .= $parser -> tolatex() . '& ';
 					
 				} else {					## error in	parsing
 					$rh_ans->{'student_ans'}			=	'syntax error:'.$display_ans. $parser->{htmlerror},
 					$rh_ans->{'ans_message'}			=	$display_ans.$parser -> {error_msg},
 					$rh_ans->{'preview_text_string'}	=	'',
-					$rh_ans->{'preview_latex_string'}	=	'',
 					$rh_ans->throw_error('SYNTAX',	'syntax error in answer:'.$display_ans.$parser->{htmlerror} . "$main::BR" .$parser -> {error_msg}.".$main::BR");
 				}
 				
@@ -531,28 +527,24 @@ sub ans_array_filter{
 				}		
 			}
 			chop($rh_ans->{preview_text_string});
-			chop($rh_ans->{preview_latex_string});
 			chop($display_ans);
 	                $rh_ans->{preview_text_string} .= '] ,';       
-        	        $rh_ans->{preview_latex_string} .= '] ,';      
+        	       $rh_ans->{preview_latex_string} .= '\\\\';     
 			$display_ans .= '] ,';	
 		
 		}
 		chop($rh_ans->{preview_text_string});
-		chop($rh_ans->{preview_latex_string});
 		chop($display_ans);
                 $rh_ans->{preview_text_string} .= '] ,';        
-                $rh_ans->{preview_latex_string} .= '] ,';       
+                $rh_ans->{preview_latex_string} .= '\end{pmatrix}'.' , ';
 		$display_ans .= '] ,';	
 	}
 	chop($rh_ans->{preview_text_string});
 	chop($rh_ans->{preview_latex_string});
+	chop($rh_ans->{preview_latex_string});
+	chop($rh_ans->{preview_latex_string});
 	chop($display_ans);
-	
-	#for( $i = 0 ; $i < scalar( @latex ); $i++ ){
-	#	$latex[$i] = display_matrix($latex[$i]);
-	#}
-	#$rh_ans->{preview_latex_string} = mbox(\@latex);
+
 	my @temp = ();
 	for( $i = 0 ; $i < scalar( @array ); $i++ ){
 		push @temp , display_matrix($array[$i], 'left'=>'.', 'right'=>'.');
@@ -584,14 +576,7 @@ sub are_orthogonal_vecs{
 	{
 		for( $j = $i+1; $j < $num ; $j++ )
 		{
-			my $sum = 0;
-			my $k = 0;
-			
-			for( ; $k < $length; $k++ ) {
-				$sum += $vecs[$i]->[0][$k][0]*$vecs[$j]->[0][$k][0];
-			}
-			
-			if( $sum > $main::functZeroLevelTolDefault )
+			if( $vecs[$i]->scalar_product($vecs[$j]) > $main::functZeroLevelTolDefault )
 			{
 				if( ref( $vec_ref ) eq 'AnswerHash' ){
 					$vec_ref->{score} = 0;
@@ -632,13 +617,7 @@ sub are_unit_vecs{
 		
 	for( ; $i < $num ; $i ++ )
 	{
-		my $sum = 0;
-		my $k = 0;
-
-		for( ; $k < $length; $k++ ) {
-			$sum += $vecs[$i]->[0][$k][0]*$vecs[$i]->[0][$k][0];
-		}
-		if( abs(sqrt($sum) - 1) > $main::functZeroLevelTolDefault )
+		if( abs(sqrt($vecs[$i]->scalar_product($vecs[$i]))- 1) > $main::functZeroLevelTolDefault )
 		{
 			if( ref( $vec_ref ) eq 'AnswerHash' ){
 				$vec_ref->{score} = 0;
@@ -665,32 +644,16 @@ sub are_unit_vecs{
 }
 
 sub display_correct_vecs{
-	my ( $vec_ref,%opts ) = @_;
-	my $corr_matrix;
-	my @vecs = ();
-	
-	if( ref($vec_ref) eq 'AnswerHash' )
-	{
-		$corr_matrix = Matrix->new_from_col_vecs($vec_ref->{correct_ans});
-	}else{
-		$corr_matrix = Matrix->new_from_col_vecs($vec_ref);
-	}
-	
+	my ( $ra_vecs,%opts ) = @_;
+	my @ra_vecs = @{$ra_vecs};
 	my @temp = ();
 	
-	for( my $i = 0 ; $i < $corr_matrix->[2] ; $i++ ){
-		push @temp, display_matrix($corr_matrix->column($i));
+	for( my $i = 0 ; $i < scalar(@ra_vecs) ; $i++ ){
+		push @temp, display_matrix(Matrix->new_from_col_vecs([$ra_vecs[$i]]),'left'=>'.','right'=>'.');
 		push @temp, ",";
 	}
 	
-	if( def(@temp) )
-	{
-		pop @temp;
-	}else{
-		@temp = [[" "]];
-	}
-	
-	
+	pop @temp;
 	
 	mbox(\@temp);
 
