@@ -42,8 +42,7 @@ sub new {
   $x = [$x] unless ref($x) eq 'ARRAY';
   Value::Error("Can't convert ARRAY of length ".scalar(@{$x})." to a Real Number") 
     unless (scalar(@{$x}) == 1);
-  Value::Error("Real Number can't be ".Value::showClass($x->[0]))
-     unless (Value::isRealNumber($x->[0]));
+  return $self->parseFormula(@{$x}) unless Value::isRealNumber($x->[0]);
   return $self->formula($x->[0]) if Value::isFormula($x->[0]);
   bless {data => $x}, $class;
 }

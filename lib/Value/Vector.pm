@@ -39,6 +39,7 @@ sub new {
   elsif ($pclass eq 'Matrix' && scalar(@d) == 1) {$p = [$p->value]}
   elsif ($pclass eq 'Matrix' && scalar(@d) == 2 && $d[0] == 1) {$p = ($p->value)[0]}
   elsif ($pclass eq 'Matrix' && scalar(@d) == 2 && $d[1] == 1) {$p = ($p->transpose->value)[0]}
+  elsif (defined($p) && ref($p) eq "") {return $self->parseFormula($p)}
   else {
     $p = [$p] if (defined($p) && ref($p) ne 'ARRAY');
     Value::Error("Vectors must have at least one coordinate") unless defined($p) && scalar(@{$p}) > 0;

@@ -28,21 +28,24 @@ use overload
 #
 #  Convert a value to a matrix.  The value can be:
 #     a list of numbers or list of (nested) references to arrays of numbers
-#     a point, vector or matrix object
+#     a point, vector or matrix object, a matrix-valued formula, or a string
+#     containing a matrix expression in the current context.
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $M = shift;
   return bless {data => $M->data}, $class 
     if (Value::class($M) =~ m/Point|Vector|Matrix/ && scalar(@_) == 0);
+  return $M if (Value::isFormula($M) && $M->type eq "Matrix");
   $M = [$M,@_] if ((defined($M) && ref($M) ne 'ARRAY') || scalar(@_) > 0);
   Value::Error("Matrices must have at least one entry") unless defined($M) && scalar(@{$M}) > 0;
   return $self->numberMatrix(@{$M}) if Value::isNumber($M->[0]);
-  return $self->matrixMatrix(@{$M});
+  return $self->matrixMatrix(@{$M}) if ref($M->[0]) =~ m/ARRAY|Matrix/;
+  return $self->parseFormula(@{$M});
 }
 
 #
-#  (Recusrively) make a matrix from a list of array refs
+#  (Recursively) make a matrix from a list of array refs
 #  and report errors about the entry types
 #
 sub matrixMatrix {
