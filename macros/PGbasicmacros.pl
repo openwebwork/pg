@@ -1067,87 +1067,39 @@ sub M3 {
 	MODES(TeX => $tex, Latex2HTML => $l2h, HTML => $html, HTML_tth => $html, HTML_dpng => $html);
 }
 
-# This replaces M3.  You can add new modes at will to this one.
+# MODES() is now table driven
+our %DISPLAY_MODE_FAILOVER = (
+	TeX            => [],
+	HTML           => [],
+	HTML_tth       => [ "HTML", ],
+	HTML_dpng      => [ "HTML_tth", "HTML", ],
+	HTML_jsMath    => [ "HTML_dpng", "HTML_tth", "HTML", ],
+	HTML_asciimath => [ "HTML_dpng", "HTML_tth", "HTML", ],
+	# legacy modes -- these are not supported, but some problems might try to
+	# set the display mode to one of these values manually and some macros may
+	# provide rendered versions for these modes but not the one we want.
+	Latex2HTML  => [ "TeX", "HTML", ],
+	HTML_img    => [ "HTML_dpng", "HTML_tth", "HTML", ],
+);
 
+# This replaces M3.  You can add new modes at will to this one.
 sub MODES {
 	my %options = @_;
-
+	
+	# is a string supplied for the current display mode? if so, return it
 	return $options{$displayMode} if defined $options{$displayMode};
 	
-	if (exists $envir{displayModeFailover}->{$displayMode}) {
-		my @backup_modes = @{$envir{displayModeFailover}->{$displayMode}};
+	# otherwise, fail over to backup modes
+	my @backup_modes;
+	if (exists $DISPLAY_MODE_FAILOVER{$displayMode}) {
+		@backup_modes = @{$DISPLAY_MODE_FAILOVER{$displayMode}};
 		foreach my $mode (@backup_modes) {
 			return $options{$mode} if defined $options{$mode};
 		}
-		die "ERROR in defining MODES: neither display mode $displayMode nor",
-			" any fallback modes (", join(", ", @backup_modes), ") defined.\n";
 	}
-	
-	die "ERROR in defining MODES: current display mode '$displayMode' not found. available modes: ",
-		join (", ", keys %{$envir{displayModeFailover}}), "\n";
-	
-	return $options{$displayMode}
-	           if defined( $options{$displayMode} );
-
-=for comment
-
-	# default searches.
-	if ($displayMode eq "Latex2HTML") {
-		return $options{TeX}
-	           if defined( $options{TeX} );
-	    return $options{HTML}
-	           if defined( $options{HTML} );
-	    die " ERROR in using MODES: 'HTML' and 'TeX' options not defined for 'Latex2HTML'";
-	}
-
-	if ($displayMode eq "HTML_tth") {
-		return $options{HTML}
-	           if defined( $options{HTML} );
-	    die " ERROR in using MODES: 'HTML' option not defined for HTML_tth";
-
-	}
-
-	if ($displayMode eq "HTML_img") {
-		return $options{HTML_dpng} if defined $options{HTML_dpng};
-		return $options{HTML_tth} if defined $options{HTML_tth};
-		return $options{HTML}     if defined $options{HTML};
-		die " ERROR in using MODES: 'HTML' option not defined for HTML_img";
-	}
-
-	if ($displayMode eq "HTML_dpng") {
-		return $options{HTML_tth}
-	           if defined( $options{HTML_tth} );
-		return $options{HTML}
-	           if defined( $options{HTML} );
-	    die " ERROR in using MODES: 'HTML' option not defined for HTML_dpng";
-
-	}
-
-	if ($displayMode eq "HTML_jsMath") {
-	  return $options{HTML_img}  if defined $options{HTML_img};
-	  return $options{HTML_dpng} if defined $options{HTML_dpng};
-	  return $options{HTML_tth}  if defined $options{HTML_tth};
-	  return $options{HTML}      if defined $options{HTML};
-	  die " ERROR in using MODES: 'HTML' option not defined for HTML_jsMath";
-	}
-
-	if ($displayMode eq "HTML_asciimath") {
-#	  return $options{HTML_img}  if defined $options{HTML_img};
-#	  return $options{HTML_dpng} if defined $options{HTML_dpng};
-	  return $options{HTML_tth}  if defined $options{HTML_tth};
-	  return $options{HTML}      if defined $options{HTML};
-	  die " ERROR in using MODES: 'HTML' option not defined for HTML_asciimath";
-	}
-
-	# trap undefined errors
-	die "ERROR in defining MODES:  Can't find |$displayMode| among
-	         available options:" . join(" ", keys(%options) )
-	         . " file " . __FILE__ ." line " . __LINE__."\n\n";
-
-=cut
-
+	die "ERROR in defining MODES: neither display mode $displayMode nor",
+		" any fallback modes (", join(", ", @backup_modes), ") supplied.\n";
 }
-
 
 # end display macros
 
