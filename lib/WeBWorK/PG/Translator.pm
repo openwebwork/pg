@@ -74,7 +74,7 @@ BEGIN {
 	# allows the use of strict within macro packages.
 	sub be_strict {
 		require 'ww_strict.pm';
-		strict::import('foo');
+		strict::import();
 	}
 	
 	# also define in Main::, for PG modules.
