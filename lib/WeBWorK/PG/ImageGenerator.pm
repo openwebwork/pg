@@ -184,13 +184,17 @@ sub add {
 
 =item render(%options)
 
-Uses LaTeX and dvipng to render the equations stored in the object. If the key
-"mtime" in C<%options> is given, its value will be interpreted as a unix date
-and compared with the modification date on any existing copy of the first image
-to be generated. It is recommended that the modification time of the source
-file from which the equations originate be used for this value. If the key
-"refresh" in C<%options> is true, images will be regenerated regardless of when
-they were last modified. If neither option is supplied, "refresh" is assumed.
+Uses LaTeX and dvipng to render the equations stored in the object. The 
+
+=for comment
+
+If the key "mtime" in C<%options> is given, its value will be interpreted as a
+unix date and compared with the modification date on any existing copy of the
+first image to be generated. It is recommended that the modification time of the
+source file from which the equations originate be used for this value. If the
+key "refresh" in C<%options> is true, images will be regenerated regardless of
+when they were last modified. If neither option is supplied, "refresh" is
+assumed.
 
 =cut
 
@@ -205,10 +209,10 @@ sub render {
 	my $names    = $self->{names};
 	my $strings  = $self->{strings};
 	
-	my $mtime   = $options{mtime};
-	my $refresh = $options{refresh} || ! defined $mtime;
-		# must refresh if no mtime is given
-	
+	#my $mtime   = $options{mtime};
+	#my $refresh = $options{refresh} || ! defined $mtime;
+	#	# must refresh if no mtime is given
+	#
 	#unless ($refresh) {
 	#	#my $firstImage = "$dir/$basename.1.png";
 	#	my $firstImage = "$dir/" . $names->[0];
