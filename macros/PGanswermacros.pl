@@ -2387,6 +2387,7 @@ sub checkbox_cmp {
 							'ans_message'		=>	"",
 							'type'			=>	"checkbox_cmp",
 							'preview_text_string'	=>	$in,
+							'preview_latex_string'	=>	$in,
 							'original_student_ans'	=>	$original_student_ans
 		);
 		return $ans_hash;
