@@ -562,7 +562,7 @@ sub ans_array_filter{
         	        $rh_ans->{preview_latex_string} .= ' ['; 
 			for( $k = 0; $k < scalar( @{$array[$i][$j]} ) ; $k ++ ){
 				my $entry = $array[$i][$j][$k];
-				
+				$entry = math_constants($entry);
 				# This parser code was origianally taken from PGanswermacros::check_syntax
 				# but parts of it needed to be slighty modified for this context
 				my $parser = new AlgParserWithImplicitExpand;
