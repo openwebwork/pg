@@ -31,15 +31,16 @@ sub _eval {$_[1] - $_[2]}
 #  Factor out common negatives.
 #
 sub _reduce {
-  my $self = shift;
+  my $self = shift; my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return $self->{lop} if ($self->{rop}{isZero});
   return Parser::UOP::Neg($self->{rop}) if ($self->{lop}{isZero});
   if ($self->{rop}->isNeg) {
-    $self = Parser::BOP->new($self->{equation},'+',$self->{lop},$self->{rop}{op});
+    $self = $parser->{BOP}->new($equation,'+',$self->{lop},$self->{rop}{op});
     $self = $self->reduce;
   } elsif ($self->{lop}->isNeg) {
     $self = Parser::UOP::Neg
-      (Parser::BOP->new($self->{equation},'+',$self->{lop}{op},$self->{rop}));
+      ($parser->{BOP}->new($equation,'+',$self->{lop}{op},$self->{rop}));
     $self = $self->reduce;
   }
   return $self;

@@ -7,6 +7,8 @@ package Parser::BOP;
 use strict; use vars qw(@ISA);
 @ISA = qw(Parser::Item);
 
+$Parser::class->{BOP} = 'Parser::BOP';
+
 #
 #  Make a new instance of a BOP
 #
@@ -19,9 +21,9 @@ sub new {
   my ($bop,$lop,$rop,$ref) = @_;
   my $def = $context->{operators}{$bop};
   if (!$def->{isComma}) {
-    $lop = Parser::List->new($equation,[$lop->makeList],
+    $lop = $context->{parser}{List}->new($equation,[$lop->makeList],
        $lop->{isConstant},$context->{parens}{start}) if ($lop->type eq 'Comma');
-    $rop = Parser::List->new($equation,[$rop->makeList],$rop->{isConstant},
+    $rop = $context->{parser}{List}->new($equation,[$rop->makeList],$rop->{isConstant},
        $context->{parens}{start}) if ($rop->type eq 'Comma');
   }
   my $BOP = bless {
@@ -30,7 +32,7 @@ sub new {
   }, $def->{class};
   $BOP->_check;
   $BOP->{isConstant} = 1 if ($lop->{isConstant} && $rop->{isConstant});
-  $BOP = Parser::Value->new($equation,[$BOP->eval])
+  $BOP = $context->{parser}{Value}->new($equation,[$BOP->eval])
     if ($BOP->{isConstant} && !$def->{isComma});
   return $BOP;
 }
@@ -65,7 +67,8 @@ sub reduce {
   my $self = shift; my $bop = $self->{def};
   $self->{lop} = $self->{lop}->reduce;
   $self->{rop} = $self->{rop}->reduce;
-  return Parser::Value->new($self->{equation},[$self->eval])
+  my $equation = $self->{equation};
+  return $equation->{context}{parser}{Value}->new($equation,[$self->eval])
     if (!$bop->{isComma} && $self->{lop}{isConstant} && $self->{rop}{isConstant});
   $self->_reduce;
 }
@@ -81,7 +84,8 @@ sub substitute {
   my $self = shift; my $bop = $self->{def};
   $self->{lop} = $self->{lop}->substitute;
   $self->{rop} = $self->{rop}->substitute;
-  return Parser::Value->new($self->{equation},[$self->eval])
+  my $equation = $self->{equation};
+  return $equation->{context}{parser}{Value}->new($equation,[$self->eval])
     if (!$bop->{isComma} && $self->{lop}{isConstant} && $self->{rop}{isConstant});
   return $self;
 }

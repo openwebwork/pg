@@ -42,7 +42,7 @@ sub Parser::BOP::union::D {Item::D(shift)}
 
 sub Parser::BOP::add::D {
   my $self = shift; my $x = shift;
-  $self = Parser::BOP->new(
+  $self = $self->{equation}{context}{parser}{BOP}->new(
     $self->{equation},$self->{bop},
     $self->{lop}->D($x),$self->{rop}->D($x)
   );
@@ -52,7 +52,7 @@ sub Parser::BOP::add::D {
 
 sub Parser::BOP::subtract::D {
   my $self = shift; my $x = shift;
-  $self = Parser::BOP->new(
+  $self = $self->{equation}{context}{parser}{BOP}->new(
     $self->{equation},$self->{bop},
     $self->{lop}->D($x),$self->{rop}->D($x)
   );
@@ -62,11 +62,12 @@ sub Parser::BOP::subtract::D {
 sub Parser::BOP::multiply::D {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   $self =
-    Parser::BOP->new($equation,'+',
-      Parser::BOP->new($equation,$self->{bop},
+    $parser->{BOP}->new($equation,'+',
+      $parser->{BOP}->new($equation,$self->{bop},
         $self->{lop}->D($x),$self->{rop}->copy($equation)),
-      Parser::BOP->new($equation,$self->{bop},
+      $parser->{BOP}->new($equation,$self->{bop},
         $self->{lop}->copy($equation),$self->{rop}->D($x))
     );
   return $self->reduce;
@@ -75,16 +76,17 @@ sub Parser::BOP::multiply::D {
 sub Parser::BOP::divide::D {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   $self =
-    Parser::BOP->new($equation,$self->{bop},
-      Parser::BOP->new($equation,'-',
-        Parser::BOP->new($equation,'*',
+    $parser->{BOP}->new($equation,$self->{bop},
+      $parser->{BOP}->new($equation,'-',
+        $parser->{BOP}->new($equation,'*',
           $self->{lop}->D($x),$self->{rop}->copy($equation)),
-        Parser::BOP->new($equation,'*',
+        $parser->{BOP}->new($equation,'*',
           $self->{lop}->copy($equation),$self->{rop}->D($x))
       ),
-      Parser::BOP->new($equation,'^',
-        $self->{rop},Parser::Number->new($equation,2)
+      $parser->{BOP}->new($equation,'^',
+        $self->{rop},$parser->{Number}->new($equation,2)
       )
     );
   return $self->reduce;
@@ -93,31 +95,32 @@ sub Parser::BOP::divide::D {
 sub Parser::BOP::power::D {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   my $vars = $self->{rop}->getVariables;
   if (defined($vars->{$x})) {
     $vars = $self->{lop}->getVariables;
     if (defined($vars->{$x})) {
       $self =
-        Parser::Function->new($equation,'exp',
-          [Parser::BOP->new($equation,'*',$self->{rop}->copy($equation),
-            Parser::Function->new($equation,'log',[$self->{lop}->copy($equation)],0))]);
+        $parser->{Function}->new($equation,'exp',
+          [$parser->{BOP}->new($equation,'*',$self->{rop}->copy($equation),
+            $parser->{Function}->new($equation,'log',[$self->{lop}->copy($equation)],0))]);
        return $self->D($x);
     }
-    $self = Parser::BOP->new($equation,'*',
-      Parser::Function->new($equation,'log',[$self->{lop}->copy($equation)],0),
-      Parser::BOP->new($equation,'*',
+    $self = $parser->{BOP}->new($equation,'*',
+      $parser->{Function}->new($equation,'log',[$self->{lop}->copy($equation)],0),
+      $parser->{BOP}->new($equation,'*',
         $self->copy($equation),$self->{rop}->D($x))
     );
   } else {
     $self =
-      Parser::BOP->new($equation,'*',
-        Parser::BOP->new($equation,'*',
+      $parser->{BOP}->new($equation,'*',
+        $parser->{BOP}->new($equation,'*',
           $self->{rop}->copy($equation),
-          Parser::BOP->new($equation,$self->{bop},
+          $parser->{BOP}->new($equation,$self->{bop},
             $self->{lop}->copy($equation),
-            Parser::BOP->new($equation,'-',
+            $parser->{BOP}->new($equation,'-',
               $self->{rop}->copy($equation),
-              Parser::Number->new($equation,1)
+              $parser->{Number}->new($equation,1)
             )
           )
         ),
@@ -140,7 +143,8 @@ sub Parser::UOP::plus::D {
 
 sub Parser::UOP::minus::D {
   my $self = shift; my $x = shift;
-  $self = Parser::UOP->new($self->{equation},'u-',$self->{op}->D($x));
+  $self = $self->{equation}{context}{parser}{UOP}->
+    new($self->{equation},'u-',$self->{op}->D($x));
   return $self->reduce;
 }
 
@@ -156,7 +160,8 @@ sub Parser::Function::D {
 sub Parser::Function::D_chain {
   my $self = shift; my $x = $self->{params}[0];
   my $name = "D_" . $self->{name};
-  $self = Parser::BOP->new($self->{equation},'*',$self->$name($x->copy),$x->D(shift));
+  $self = $self->{equation}{context}{parser}{BOP}->
+    new($self->{equation},'*',$self->$name($x->copy),$x->D(shift));
   return $self->reduce;
 }
 
@@ -166,36 +171,40 @@ sub Parser::Function::trig::D {Parser::Function::D_chain(@_)}
 
 sub Parser::Function::trig::D_sin {
   my $self = shift; my $x = shift;
-  return Parser::Function->new($self->{equation},'cos',[$x]);
+  return $self->{equation}{context}{parser}{Function}->
+    new($self->{equation},'cos',[$x]);
 }
 
 sub Parser::Function::trig::D_cos {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return 
-    Parser::UOP->new($equation,'u-',
-      Parser::Function->new($equation,'sin',[$x])
+    $parser->{UOP}->new($equation,'u-',
+      $parser->{Function}->new($equation,'sin',[$x])
     );
 }
 
 sub Parser::Function::trig::D_tan {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return 
-    Parser::BOP->new($equation,'^',
-      Parser::Function->new($equation,'sec',[$x]),
-      Parser::Number->new($equation,2)
+    $parser->{BOP}->new($equation,'^',
+      $parser->{Function}->new($equation,'sec',[$x]),
+      $parser->{Number}->new($equation,2)
     );
 }
 
 sub Parser::Function::trig::D_cot {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return 
-    Parser::UOP->new($equation,'u-',
-      Parser::BOP->new($equation,'^',
-        Parser::Function->new($equation,'csc',[$x]),
-        Parser::Number->new($equation,2)
+    $parser->{UOP}->new($equation,'u-',
+      $parser->{BOP}->new($equation,'^',
+        $parser->{Function}->new($equation,'csc',[$x]),
+        $parser->{Number}->new($equation,2)
       )
     );
 }
@@ -203,21 +212,23 @@ sub Parser::Function::trig::D_cot {
 sub Parser::Function::trig::D_sec {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return 
-    Parser::BOP->new($equation,'*',
-      Parser::Function->new($equation,'sec',[$x]),
-      Parser::Function->new($equation,'tan',[$x])
+    $parser->{BOP}->new($equation,'*',
+      $parser->{Function}->new($equation,'sec',[$x]),
+      $parser->{Function}->new($equation,'tan',[$x])
     );
 }
 
 sub Parser::Function::trig::D_csc {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return
-    Parser::UOP->new($equation,'u-',
-      Parser::BOP->new($equation,'*',
-        Parser::Function->new($equation,'csc',[$x]),
-        Parser::Function->new($equation,'cot',[$x])
+    $parser->{UOP}->new($equation,'u-',
+      $parser->{BOP}->new($equation,'*',
+        $parser->{Function}->new($equation,'csc',[$x]),
+        $parser->{Function}->new($equation,'cot',[$x])
       )
     );
 }
@@ -225,14 +236,15 @@ sub Parser::Function::trig::D_csc {
 sub Parser::Function::trig::D_asin {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return
-    Parser::BOP->new($equation,'/',
-      Parser::Number->new($equation,1),
-      Parser::Function->new($equation,'sqrt',[
-        Parser::BOP->new($equation,'-',
-          Parser::Number->new($equation,1),
-          Parser::BOP->new($equation,'^',
-            $x,Parser::Number->new($equation,2)
+    $parser->{BOP}->new($equation,'/',
+      $parser->{Number}->new($equation,1),
+      $parser->{Function}->new($equation,'sqrt',[
+        $parser->{BOP}->new($equation,'-',
+          $parser->{Number}->new($equation,1),
+          $parser->{BOP}->new($equation,'^',
+            $x,$parser->{Number}->new($equation,2)
           )
         )]
       )
@@ -242,15 +254,16 @@ sub Parser::Function::trig::D_asin {
 sub Parser::Function::trig::D_acos {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return
-    Parser::UOP->new($equation,'u-',
-      Parser::BOP->new($equation,'/',
-        Parser::Number->new($equation,1),
-        Parser::Function->new($equation,'sqrt',[
-          Parser::BOP->new($equation,'-',
-            Parser::Number->new($equation,1),
-            Parser::BOP->new($equation,'^',
-              $x,Parser::Number->new($equation,2)
+    $parser->{UOP}->new($equation,'u-',
+      $parser->{BOP}->new($equation,'/',
+        $parser->{Number}->new($equation,1),
+        $parser->{Function}->new($equation,'sqrt',[
+          $parser->{BOP}->new($equation,'-',
+            $parser->{Number}->new($equation,1),
+            $parser->{BOP}->new($equation,'^',
+              $x,$parser->{Number}->new($equation,2)
             )
           )]
         )
@@ -261,13 +274,14 @@ sub Parser::Function::trig::D_acos {
 sub Parser::Function::trig::D_atan {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return
-    Parser::BOP->new($equation,'/',
-      Parser::Number->new($equation,1),
-      Parser::BOP->new($equation,'+',
-        Parser::Number->new($equation,1),
-        Parser::BOP->new($equation,'^',
-          $x, Parser::Number->new($equation,2)
+    $parser->{BOP}->new($equation,'/',
+      $parser->{Number}->new($equation,1),
+      $parser->{BOP}->new($equation,'+',
+        $parser->{Number}->new($equation,1),
+        $parser->{BOP}->new($equation,'^',
+          $x, $parser->{Number}->new($equation,2)
         )
       )
     );
@@ -276,14 +290,15 @@ sub Parser::Function::trig::D_atan {
 sub Parser::Function::trig::D_acot {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return
-    Parser::UOP->new($equation,'u-',
-      Parser::BOP->new($equation,'/',
-        Parser::Number->new($equation,1),
-        Parser::BOP->new($equation,'+',
-          Parser::Number->new($equation,1),
-          Parser::BOP->new($equation,'^',
-            $x, Parser::Number->new($equation,2)
+    $parser->{UOP}->new($equation,'u-',
+      $parser->{BOP}->new($equation,'/',
+        $parser->{Number}->new($equation,1),
+        $parser->{BOP}->new($equation,'+',
+          $parser->{Number}->new($equation,1),
+          $parser->{BOP}->new($equation,'^',
+            $x, $parser->{Number}->new($equation,2)
           )
         )
       )
@@ -293,17 +308,18 @@ sub Parser::Function::trig::D_acot {
 sub Parser::Function::trig::D_asec {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return
-    Parser::BOP->new($equation,'/',
-      Parser::Number->new($equation,1),
-      Parser::BOP->new($equation,'*',
-        Parser::Function->new($equation,'abs',[$x]),
-        Parser::Function->new($equation,'sqrt',[
-          Parser::BOP->new($equation,'-',
-            Parser::BOP->new($equation,'^',
-              $x, Parser::Number->new($equation,2)
+    $parser->{BOP}->new($equation,'/',
+      $parser->{Number}->new($equation,1),
+      $parser->{BOP}->new($equation,'*',
+        $parser->{Function}->new($equation,'abs',[$x]),
+        $parser->{Function}->new($equation,'sqrt',[
+          $parser->{BOP}->new($equation,'-',
+            $parser->{BOP}->new($equation,'^',
+              $x, $parser->{Number}->new($equation,2)
             ),
-            Parser::Number->new($equation,1)
+            $parser->{Number}->new($equation,1)
           )]
         )
       )
@@ -313,18 +329,19 @@ sub Parser::Function::trig::D_asec {
 sub Parser::Function::trig::D_acsc {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return
-    Parser::UOP->new($equation,'u-',
-      Parser::BOP->new($equation,'/',
-        Parser::Number->new($equation,1),
-        Parser::BOP->new($equation,'*',
-          Parser::Function->new($equation,'abs',[$x]),
-          Parser::Function->new($equation,'sqrt',[
-            Parser::BOP->new($equation,'-',
-              Parser::BOP->new($equation,'^',
-                $x, Parser::Number->new($equation,2)
+    $parser->{UOP}->new($equation,'u-',
+      $parser->{BOP}->new($equation,'/',
+        $parser->{Number}->new($equation,1),
+        $parser->{BOP}->new($equation,'*',
+          $parser->{Function}->new($equation,'abs',[$x]),
+          $parser->{Function}->new($equation,'sqrt',[
+            $parser->{BOP}->new($equation,'-',
+              $parser->{BOP}->new($equation,'^',
+                $x, $parser->{Number}->new($equation,2)
               ),
-              Parser::Number->new($equation,1)
+              $parser->{Number}->new($equation,1)
             )]
           )
         )
@@ -339,32 +356,35 @@ sub Parser::Function::hyperbolic::D {Parser::Function::D_chain(@_)}
 
 sub Parser::Function::hyperbolic::D_sinh {
   my $self = shift; my $x = shift;
-  return Parser::Function->new($self->{equation},'cosh',[$x]);
+  return $self->{equation}{context}{parser}{Function}->
+    new($self->{equation},'cosh',[$x]);
 }
 
 sub Parser::Function::hyperbolic::D_cosh {
   my $self = shift; my $x = shift;
-  return Parser::Function->new($self->{equation},'sinh',[$x]);
+  return $self->{equation}{context}{parser}{Function}->new($self->{equation},'sinh',[$x]);
 }
 
 sub Parser::Function::hyperbolic::D_tanh {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return 
-    Parser::BOP->new($equation,'^',
-      Parser::Function->new($equation,'sech',[$x]),
-      Parser::Number->new($equation,2)
+    $parser->{BOP}->new($equation,'^',
+      $parser->{Function}->new($equation,'sech',[$x]),
+      $parser->{Number}->new($equation,2)
     );
 }
 
 sub Parser::Function::hyperbolic::D_coth {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return 
-    Parser::UOP->new($equation,'u-',
-      Parser::BOP->new($equation,'^',
-        Parser::Function->new($equation,'csch',[$x]),
-        Parser::Number->new($equation,2)
+    $parser->{UOP}->new($equation,'u-',
+      $parser->{BOP}->new($equation,'^',
+        $parser->{Function}->new($equation,'csch',[$x]),
+        $parser->{Number}->new($equation,2)
       )
     );
 }
@@ -372,11 +392,12 @@ sub Parser::Function::hyperbolic::D_coth {
 sub Parser::Function::hyperbolic::D_sech {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return 
-    Parser::UOP->new($equation,'u-',
-      Parser::BOP->new($equation,'*',
-        Parser::Function->new($equation,'sech',[$x]),
-        Parser::Function->new($equation,'tanh',[$x])
+    $parser->{UOP}->new($equation,'u-',
+      $parser->{BOP}->new($equation,'*',
+        $parser->{Function}->new($equation,'sech',[$x]),
+        $parser->{Function}->new($equation,'tanh',[$x])
       )
     );
 }
@@ -384,11 +405,12 @@ sub Parser::Function::hyperbolic::D_sech {
 sub Parser::Function::hyperbolic::D_csch {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return
-    Parser::UOP->new($equation,'u-',
-      Parser::BOP->new($equation,'*',
-        Parser::Function->new($equation,'csch',[$x]),
-        Parser::Function->new($equation,'coth',[$x])
+    $parser->{UOP}->new($equation,'u-',
+      $parser->{BOP}->new($equation,'*',
+        $parser->{Function}->new($equation,'csch',[$x]),
+        $parser->{Function}->new($equation,'coth',[$x])
       )
     );
 }
@@ -396,14 +418,15 @@ sub Parser::Function::hyperbolic::D_csch {
 sub Parser::Function::hyperbolic::D_asinh {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return
-    Parser::BOP->new($equation,'/',
-      Parser::Number->new($equation,1),
-      Parser::Function->new($equation,'sqrt',[
-        Parser::BOP->new($equation,'+',
-          Parser::Number->new($equation,1),
-          Parser::BOP->new($equation,'^',
-            $x, Parser::Number->new($equation,2)
+    $parser->{BOP}->new($equation,'/',
+      $parser->{Number}->new($equation,1),
+      $parser->{Function}->new($equation,'sqrt',[
+        $parser->{BOP}->new($equation,'+',
+          $parser->{Number}->new($equation,1),
+          $parser->{BOP}->new($equation,'^',
+            $x, $parser->{Number}->new($equation,2)
           )
         )]
       )
@@ -413,15 +436,16 @@ sub Parser::Function::hyperbolic::D_asinh {
 sub Parser::Function::hyperbolic::D_acosh {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return
-    Parser::BOP->new($equation,'/',
-      Parser::Number->new($equation,1),
-      Parser::Function->new($equation,'sqrt',[
-        Parser::BOP->new($equation,'-',
-          Parser::BOP->new($equation,'^',
-            $x, Parser::Number->new($equation,2)
+    $parser->{BOP}->new($equation,'/',
+      $parser->{Number}->new($equation,1),
+      $parser->{Function}->new($equation,'sqrt',[
+        $parser->{BOP}->new($equation,'-',
+          $parser->{BOP}->new($equation,'^',
+            $x, $parser->{Number}->new($equation,2)
           ),
-          Parser::Number->new($equation,1)
+          $parser->{Number}->new($equation,1)
         )]
       )
     );
@@ -430,13 +454,14 @@ sub Parser::Function::hyperbolic::D_acosh {
 sub Parser::Function::hyperbolic::D_atanh {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return
-    Parser::BOP->new($equation,'/',
-      Parser::Number->new($equation,1),
-      Parser::BOP->new($equation,'-',
-        Parser::Number->new($equation,1),
-        Parser::BOP->new($equation,'^',
-          $x, Parser::Number->new($equation,2)
+    $parser->{BOP}->new($equation,'/',
+      $parser->{Number}->new($equation,1),
+      $parser->{BOP}->new($equation,'-',
+        $parser->{Number}->new($equation,1),
+        $parser->{BOP}->new($equation,'^',
+          $x, $parser->{Number}->new($equation,2)
         )
       )
     );
@@ -445,13 +470,14 @@ sub Parser::Function::hyperbolic::D_atanh {
 sub Parser::Function::hyperbolic::D_acoth {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return
-    Parser::BOP->new($equation,'/',
-      Parser::Number->new($equation,1),
-      Parser::BOP->new($equation,'-',
-        Parser::Number->new($equation,1),
-        Parser::BOP->new($equation,'^',
-          $x, Parser::Number->new($equation,2)
+    $parser->{BOP}->new($equation,'/',
+      $parser->{Number}->new($equation,1),
+      $parser->{BOP}->new($equation,'-',
+        $parser->{Number}->new($equation,1),
+        $parser->{BOP}->new($equation,'^',
+          $x, $parser->{Number}->new($equation,2)
         )
       )
     );
@@ -460,17 +486,18 @@ sub Parser::Function::hyperbolic::D_acoth {
 sub Parser::Function::hyperbolic::D_asech {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return
-    Parser::UOP->new($equation,'u-',
-      Parser::BOP->new($equation,'/',
-        Parser::Number->new($equation,1),
-        Parser::BOP->new($equation,'*',
+    $parser->{UOP}->new($equation,'u-',
+      $parser->{BOP}->new($equation,'/',
+        $parser->{Number}->new($equation,1),
+        $parser->{BOP}->new($equation,'*',
           $x,
-          Parser::Function->new($equation,'sqrt',[
-            Parser::BOP->new($equation,'-',
-              Parser::Number->new($equation,1),
-              Parser::BOP->new($equation,'^',
-                $x, Parser::Number->new($equation,2)
+          $parser->{Function}->new($equation,'sqrt',[
+            $parser->{BOP}->new($equation,'-',
+              $parser->{Number}->new($equation,1),
+              $parser->{BOP}->new($equation,'^',
+                $x, $parser->{Number}->new($equation,2)
               )
             )]
           )
@@ -482,17 +509,18 @@ sub Parser::Function::hyperbolic::D_asech {
 sub Parser::Function::hyperbolic::D_acsch {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return
-    Parser::UOP->new($equation,'u-',
-      Parser::BOP->new($equation,'/',
-        Parser::Number->new($equation,1),
-        Parser::BOP->new($equation,'*',
-          Parser::Function->new($equation,'abs',[$x]),
-          Parser::Function->new($equation,'sqrt',[
-            Parser::BOP->new($equation,'+',
-              Parser::Number->new($equation,1),
-              Parser::BOP->new($equation,'^',
-                $x, Parser::Number->new($equation,2)
+    $parser->{UOP}->new($equation,'u-',
+      $parser->{BOP}->new($equation,'/',
+        $parser->{Number}->new($equation,1),
+        $parser->{BOP}->new($equation,'*',
+          $parser->{Function}->new($equation,'abs',[$x]),
+          $parser->{Function}->new($equation,'sqrt',[
+            $parser->{BOP}->new($equation,'+',
+              $parser->{Number}->new($equation,1),
+              $parser->{BOP}->new($equation,'^',
+                $x, $parser->{Number}->new($equation,2)
               )
             )]
           )
@@ -509,17 +537,19 @@ sub Parser::Function::numeric::D {Parser::Function::D_chain(@_)}
 sub Parser::Function::numeric::D_log {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
-  return Parser::BOP->new($equation,'/',Parser::Number->new($equation,1),$x);
+  my $parser = $equation->{context}{parser};
+  return $parser->{BOP}->new($equation,'/',$parser->{Number}->new($equation,1),$x);
 }
 
 sub Parser::Function::numeric::D_log10 {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return
-    Parser::BOP->new($equation,'/',
-      Parser::Number->new($equation,1),
-      Parser::BOP->new($equation,'*',
-        Parser::Number->new($equation,CORE::log(10)), $x
+    $parser->{BOP}->new($equation,'/',
+      $parser->{Number}->new($equation,1),
+      $parser->{BOP}->new($equation,'*',
+        $parser->{Number}->new($equation,CORE::log(10)), $x
       )
     );
 }
@@ -532,11 +562,12 @@ sub Parser::Function::numeric::D_exp {
 sub Parser::Function::numeric::D_sqrt {
   my $self = shift; my $x = shift;
   my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return
-    Parser::BOP->new($equation,'/',
-      Parser::Number->new($equation,1),
-      Parser::BOP->new($equation,'*',
-        Parser::Number->new($equation,2),
+    $parser->{BOP}->new($equation,'/',
+      $parser->{Number}->new($equation,1),
+      $parser->{BOP}->new($equation,'*',
+        $parser->{Number}->new($equation,2),
         $self->copy
       )
     );
@@ -569,21 +600,30 @@ sub Parser::List::AbsoluteValue::D {
 
 #########################################################################
 
-sub Parser::Number::D {Parser::Number->new(shift->{equation},0)}
+sub Parser::Number::D {
+  my $self = shift;
+  $self->{equation}{context}{parser}{Number}->new($self->{equation},0);
+}
 
 #########################################################################
 
-sub Parser::Complex::D {Parser::Number->new(shift->{equation},0)}
+sub Parser::Complex::D {
+  my $self = shift;
+  $self->{equation}{context}{parser}{Number}->new($self->{equation},0);
+}
 
 #########################################################################
 
-sub Parser::Constant::D {Parser::Number->new(shift->{equation},0)}
+sub Parser::Constant::D {
+  my $self = shift;
+  $self->{equation}{context}{parser}{Number}->new($self->{equation},0);
+}
 
 #########################################################################
 
 sub Parser::Value::D {
   my $self = shift; my $x = shift; my $equation = $self->{equation};
-  return Parser::Value->new($equation,$self->{value}->D($x,$equation));
+  return $equation->{context}{parser}{Value}->new($equation,$self->{value}->D($x,$equation));
 }
 
 sub Value::D {
@@ -618,12 +658,15 @@ sub Value::Union::D {
 sub Parser::Variable::D {
   my $self = shift; my $x = shift;
   my $d = ($self->{name} eq $x)? 1: 0;
-  return Parser::Number->new($self->{equation},$d);
+  return $self->{equation}{context}{parser}{Number}->new($self->{equation},$d);
 }
 
 #########################################################################
 
-sub Parser::String::D {Parser::Number->new(shift->{equation},0)}
+sub Parser::String::D {
+  my $self = shift;
+  $self->{equation}{context}{parser}{Number}->new($self->{equation},0);
+}
 
 #########################################################################
 

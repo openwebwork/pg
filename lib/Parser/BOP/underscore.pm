@@ -14,7 +14,8 @@ sub _check {
   return if ($self->checkStrings());
   my ($ltype,$rtype) = $self->promotePoints();
   if ($ltype->{name} =~ m/Vector|Matrix|List/) {
-    if ($rtype->{name} =~ m/Number|Vector/) {
+    if ($rtype->{name} =~ m/Number|Vector/ ||
+	($rtype->{name} eq 'List' && $rtype->{entryType}{name} eq 'Number')) {
       $self->{type} = {%{$ltype}};
       $self->{type}{length} = $rtype->{length};
     } else {$self->Error("Right-hand operand of '_' must be a Number or List of numbers")}
@@ -42,7 +43,8 @@ sub _eval {
 #    can be performed.
 #    
 sub _reduce {
-  my $self = shift;
+  my $self = shift; my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
   return $self unless $self->{rop}->{isConstant} && $self->{lop}{coords};
   my $index = $self->{rop}->eval; my $M = $self->{lop};
   $index = $index->data if Value::isValue($index);
@@ -50,16 +52,16 @@ sub _reduce {
   my @index = @{$index};
   while (scalar(@index) > 0) {
     unless ($M->{coords}) {
-      return Parser::Value->new($self->{equation},Value::List->new())
+      return $parser->{Value}->new($equation,Value::List->new())
         unless $M->type =~ m/Point|Vector|Matrix|List/;
-      return Parser::BOP->new($self->{equation},$self->{bop},
-          $M,Parser::Value->new($self->{equation},@index))
+      return $parser->{BOP}->new($equation,$self->{bop},
+          $M,$parser->{Value}->new($equation,@index))
     }
     my $i = shift(@index); $i-- if $i > 0;
     $self->Error("Can't extract element number '$i' (index must be an integer)")
       unless $i =~ m/^-?\d+$/;
     $M = $M->{coords}[$i];
-    return Parser::Value->new($self->{equation},Value::List->new()) unless $M;
+    return $parser->{Value}->new($equation,Value::List->new()) unless $M;
   }
   return $M;
 }

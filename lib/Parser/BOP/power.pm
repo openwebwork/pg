@@ -33,13 +33,14 @@ sub _eval {$_[1] ** $_[2]}
 #  Return 1/base if power is -1.
 #
 sub _reduce {
-  my $self = shift;
-  return Parser::Number->new($self->{equation},1)
+  my $self = shift; my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
+  return $parser->{Number}->new($equation,1)
    if ($self->{rop}{isZero} || $self->{lop}{isOne});
   return $self->{lop} if ($self->{rop}{isOne});
   if ($self->{rop}->isNeg && $self->{rop}->string eq '-1') {
-    $self = Parser::BOP->new($self->{equation},'/',
-       Parser::Number->new($self->{equation},1),$self->{lop});
+    $self = $parser->{BOP}->new($equation,'/',
+      $parser->{Number}->new($equation,1),$self->{lop});
     $self = $self->reduce;
   }
   return $self;

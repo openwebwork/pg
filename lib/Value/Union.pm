@@ -70,7 +70,8 @@ sub formula {
 sub recursiveUnion {
   my $formula = shift; my $right = pop(@_);
   return $right if (scalar(@_) == 0);
-  return Parser::BOP->new($formula,'U',recursiveUnion($formula,@_),$right);
+  return $formula->{context}{parser}{BOP}->
+    new($formula,'U',recursiveUnion($formula,@_),$right);
 }
 
 ############################################

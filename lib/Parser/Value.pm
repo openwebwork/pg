@@ -7,6 +7,8 @@ package Parser::Value;
 use strict; use vars qw(@ISA);
 @ISA = qw(Parser::Item);
 
+$Parser::class->{Value} = 'Parser::Value';
+
 #
 #  Get the Value.pm type of the constant
 #  Return it if it is an equation
@@ -16,15 +18,15 @@ use strict; use vars qw(@ISA);
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my $equation = shift;
+  my $equation = shift; my $parser = $equation->{context}{parser};
   my ($value,$ref) = @_;
   $value = $value->[0] if ref($value) eq 'ARRAY' && scalar(@{$value}) == 1;
   my $type = Value::getType($equation,$value);
   return $value->{tree}->copy($equation) if ($type eq 'Formula');
-  return Parser::String->new($equation,$value,$ref) if ($type eq 'String');
-  return Parser::String->newInfinity($equation,$value,$ref) if ($type eq 'Infinity');
-  return Parser::Number->new($equation,$value,$ref) if ($type eq 'Number');
-  return Parser::Number->new($equation,$value->{data},$ref) 
+  return $parser->{String}->new($equation,$value,$ref) if ($type eq 'String');
+  return $parser->{String}->newInfinity($equation,$value,$ref) if ($type eq 'Infinity');
+  return $parser->{Number}->new($equation,$value,$ref) if ($type eq 'Number');
+  return $parser->{Number}->new($equation,$value->{data},$ref) 
     if ($type eq 'value' && $value->class eq 'Complex');
   $equation->Error("Can't convert ".Value::showClass($value)." to a constant",$ref)
     if ($type eq 'unknown');
@@ -54,9 +56,9 @@ sub eval {return (shift)->{value}}
 sub coords {
   my $self = shift;
   return [$self->{value}] unless $self->typeRef->{list};
-  my @coords = ();
+  my @coords = (); my $equation = $self->{equation};
   foreach my $x (@{$self->{value}->data})
-    {push(@coords,Parser::Value->new($self->{equation},[$x]))}
+    {push(@coords,$equation->{context}{parser}{Value}->new($equation,[$x]))}
   return [@coords];
 }
 

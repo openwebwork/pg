@@ -6,11 +6,14 @@ package Parser::Number;
 use strict; use vars qw(@ISA);
 @ISA = qw(Parser::Item);
 
+$Parser::class->{Number} = 'Parser::Number';
+
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $equation = shift; my $num;
   my ($value,$ref) = @_;
-  return Parser::Complex->new($equation,$value,$ref) if (ref($value) eq 'ARRAY');
+  return $equation->{context}{parser}{Complex}->new($equation,$value,$ref)
+    if (ref($value) eq 'ARRAY');
   $value = $value->value while Value::isReal($value);
   $value = $value + 0; # format the value as a number, just in case
   $num = bless {

@@ -18,6 +18,8 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $context = $Value::defaultContext->initCopy;
   bless $context, $class;
+  $context->{parser} = {%{$Parser::class}};
+  push(@{$context->{data}{values}},'parser');
   $context->{_initialized} = 0;
   foreach my $list ('functions','variables','constants','operators','strings','parens') {
     push(@{$context->{data}{hashes}},$list);

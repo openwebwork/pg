@@ -6,6 +6,8 @@ package Parser::List;
 use strict; use vars qw(@ISA);
 @ISA = qw(Parser::Item);
 
+$Parser::class->{List} = 'Parser::List';
+
 #
 #  First, check to see if we might be forming an interval
 #    (true if the close paren is not the right one for the
@@ -51,7 +53,7 @@ sub new {
 #  warn ">> $list->{type}{name} of $list->{type}{entryType}{name} of length $list->{type}{length}\n";
   if ($list->{isConstant}) {
     my $saveCBI = $list->{canBeInterval}; $type = $list->{type};
-    $list = Parser::Value->new($equation,[$list->eval]);
+    $list = $equation->{context}{parser}{Value}->new($equation,[$list->eval]);
     $list->{type} = $type; $list->{open} = $open; $list->{close} = $close;
     $list->{value}->{open} = $open, $list->{value}->{close} = $close
       if ref($list->{value});
@@ -103,14 +105,15 @@ sub reduce {
   my $self = shift;
   my @coords = (); my $zero = 1; my $constant = 1;
   foreach my $x (@{$self->{coords}}) {
-    $x = $x->reduce; return if $self->{equation}{error};
+    $x = $x->reduce;
     $zero = 0 unless $x->{isZero};
     $constant = 0 unless $x->{isConstant};
   }
   $self->{isZero} = 1 if $zero and scalar(@coords) > 0;
   $self->{isConstant} = 1 if $constant;
   ## check matrix for being identity
-  return Parser::Value->new($self->{equation},[$self->eval]) if $constant;
+  return $self->{equation}{context}{parser}{Value}->
+    new($self->{equation},[$self->eval]) if $constant;
   $self->_reduce;
 }
 #
@@ -126,14 +129,15 @@ sub substitute {
   my $self = shift;
   my @coords = (); my $zero = 1; my $constant = 1;
   foreach my $x (@{$self->{coords}}) {
-    $x = $x->substitute; return if $self->{equation}{error};
+    $x = $x->substitute;
     $zero = 0 unless $x->{isZero};
     $constant = 0 unless $x->{isConstant};
   }
   $self->{isZero} = 1 if $zero and scalar(@coords) > 0;
   $self->{isConstant} = 1 if $constant;
   ## check matrix for being identity
-  return Parser::Value->new($self->{equation},[$self->eval]) if $constant;
+  return $self->{equation}{context}{parser}{Value}->
+    new($self->{equation},[$self->eval]) if $constant;
   return $self;
 }
 

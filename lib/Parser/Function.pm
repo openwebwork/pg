@@ -7,6 +7,8 @@ package Parser::Function;
 use strict; use vars qw(@ISA);
 @ISA = qw(Parser::Item);
 
+$Parser::class->{Function} = 'Parser::Function';
+
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $equation = shift; my $context = $equation->{context};
@@ -18,7 +20,7 @@ sub new {
     def => $def, ref => $ref, equation => $equation,
   }, $def->{class};
   $fn->_check;
-  $fn = Parser::Value->new($equation,[$fn->eval]) if ($constant);
+  $fn = $context->{parser}{Value}->new($equation,[$fn->eval]) if $constant;
   return $fn;
 }
 
@@ -53,7 +55,8 @@ sub reduce {
   my @params = (); my $constant = 1;
   foreach my $x (@{$self->{params}})
     {$x = $x->reduce; $constant = 0 unless $x->{isConstant}}
-  return Parser::Value->new($self->{equation},[$self->eval]) if $constant;
+  return $self->{equation}{context}{parser}{Value}->
+    new($self->{equation},[$self->eval]) if $constant;
   $self->_reduce;
 }
 #
@@ -69,7 +72,8 @@ sub substitute {
   my @params = (); my $constant = 1;
   foreach my $x (@{$self->{params}})
     {$x = $x->substitute; $constant = 0 unless $x->{isConstant}}
-  return Parser::Value->new($self->{equation},[$self->eval]) if $constant;
+  return $self->{equation}{context}{parser}{Value}->
+    new($self->{equation},[$self->eval]) if $constant;
   return $self;
 }
 
@@ -115,7 +119,7 @@ sub formula {
   my $self = shift; my $name = shift;
   my $formula = Value::Formula->blank;
   my @args = Value::toFormula($formula,@_);
-  $formula->{tree} = Parser::Function->new($formula,$name,[@args]);
+  $formula->{tree} = $formula->{context}{parser}{Function}->new($formula,$name,[@args]);
   return $formula->eval if scalar(%{$formula->{variables}}) == 0;
   return $formula;
 }

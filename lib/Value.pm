@@ -236,7 +236,7 @@ sub toFormula {
       $formula->{variables} = {%{$formula->{variables}},%{$x->{variables}}};
       push(@f,$x->{tree}->copy($formula));
     } else {
-      push(@f,Parser::Value->new($formula,$x));
+      push(@f,$formula->{context}{parser}{Value}->new($formula,$x));
     }
   }
   return (@f);
@@ -256,7 +256,7 @@ sub formula {
   my $paren = $open; $paren = 'list' if $class eq 'List';
   my $formula = Value::Formula->blank;
   my @coords = Value::toFormula($formula,@{$values});
-  $formula->{tree} = Parser::List->new($formula,[@coords],0,
+  $formula->{tree} = $formula->{context}{parser}{List}->new($formula,[@coords],0,
      $formula->{context}{parens}{$paren},$coords[0]->typeRef,$open,$close);
   $formula->{autoFormula} = 1;  # mark that this was generated automatically
 #   return $formula->eval if scalar(%{$formula->{variables}}) == 0;
@@ -323,10 +323,11 @@ sub class {
 #  Get an element from a point, vector, matrix, or list
 #
 sub extract {
-  my $M = shift; my $i;
-  while (scalar(@_) > 0) {
-    return unless Value::isValue($M);
-    $i = shift; $i-- if $i > 0;
+  my $M = shift; my $i; my @indices = @_;
+  return unless Value::isValue($M);
+  @indices = $_[0]->value if scalar(@_) == 1 && Value::isValue($_[0]);
+  while (scalar(@indices) > 0) {
+    $i = shift @indices; $i-- if $i > 0; $i = $i->value if Value::isValue($i);
     Value::Error("Can't extract element number '$i' (index must be an integer)")
       unless $i =~ m/^-?\d+$/;
     $M = $M->data->[$i];

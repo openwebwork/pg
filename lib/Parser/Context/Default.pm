@@ -242,7 +242,6 @@ $numericContext->parens->set(
    '[' => {type => 'List', formMatrix => 0},
    '{' => {type => 'List'},
 );
-$numericContext->lists->remove('Point','Vector','Matrix');
 
 #
 #  Complex context (no vectors or matrices)
@@ -258,7 +257,6 @@ $complexContext->parens->set(
    '[' => {type => 'List', formMatrix => 0},
    '{' => {type => 'List'},
 );
-$complexContext->lists->remove('Point','Vector','Matrix');
 
 #
 #  Vector context (no complex numbers)

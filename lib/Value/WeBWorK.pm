@@ -81,6 +81,7 @@ my @wwEvalFields = qw(
 sub Value::Context::initCopy {
   my $self = shift;
   my $context = $self->copy(@_);
+  return $context if $context->{WW};
   $context->{WW} = {}; push @{$context->{data}{values}}, 'WW';
   return $context if $Value::_no_WeBWorK_; # hack for command-line debugging
   return $context unless $Parser::installed;  # only do WW initialization after parser is fully loaded

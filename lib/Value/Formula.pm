@@ -63,7 +63,7 @@ sub bop {
   my ($l,$r,$flag,$bop) = @_;
   if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  my $formula = $pkg->blank;
+  my $formula = $pkg->blank; my $parser = $formula->{context}{parser};
   my $vars = {};
   if (ref($r) eq $pkg) {
     $formula->{context} = $r->{context};
@@ -77,11 +77,11 @@ sub bop {
   }
   $l = $pkg->new($l) if (!ref($l) && Value::getType($formula,$l) eq "unknown");
   $r = $pkg->new($r) if (!ref($r) && Value::getType($formula,$r) eq "unknown");
-  $l = Parser::Value->new($formula,$l) unless ref($l) =~ m/^Parser::/;
-  $r = Parser::Value->new($formula,$r) unless ref($r) =~ m/^Parser::/;
+  $l = $parser->{Value}->new($formula,$l) unless ref($l) =~ m/^Parser::/;
+  $r = $parser->{Value}->new($formula,$r) unless ref($r) =~ m/^Parser::/;
   $bop = 'U' if $bop eq '+' &&
     ($l->type =~ m/Interval|Union/ || $r->type =~ m/Interval|Union/);
-  $formula->{tree} = Parser::BOP->new($formula,$bop,$l,$r);
+  $formula->{tree} = $parser->{BOP}->new($formula,$bop,$l,$r);
   $formula->{variables} = {%{$vars}};
   return $formula->eval if scalar(%{$vars}) == 0;
   return $formula;
@@ -114,7 +114,7 @@ sub neg {
   my $formula = $self->blank;
   $formula->{context} = $self->{context};
   $formula->{variables} = $self->{variables};
-  $formula->{tree} = Parser::UOP->new($formula,'u-',$self->{tree}->copy($formula));
+  $formula->{tree} = $formula->{context}{parser}{UOP}->new($formula,'u-',$self->{tree}->copy($formula));
   return $formula->eval if scalar(%{$formula->{variables}}) == 0;
   return $formula;
 }

@@ -82,7 +82,7 @@ sub formula {
   my ($open,$a,$b,$close) = @_;
   my $formula = Value::Formula->blank;
   ($a,$b) = Value::toFormula($formula,$a,$b);
-  $formula->{tree} = Parser::List->new($formula,[$a,$b],0,
+  $formula->{tree} = $formula->{context}{parser}{List}->new($formula,[$a,$b],0,
      $formula->{context}{parens}{$open},$Value::Type{number},$open,$close);
 #   return $formula->eval if scalar(%{$formula->{variables}}) == 0;
   return $formula;

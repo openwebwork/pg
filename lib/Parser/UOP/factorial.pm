@@ -48,7 +48,7 @@ sub call {
   return $self->_eval(@_) unless Value::isFormula($_[0]);
   my $formula = Value::Formula->blank;
   my @args = Value::toFormula($formula,@_);
-  $formula->{tree} = Parser::UOP->new($formula,'!',@args);
+  $formula->{tree} = $formula->{context}{parser}{UOP}->new($formula,'!',@args);
   return $formula->eval if scalar(%{$formula->{variables}}) == 0;
   return $formula;
 }

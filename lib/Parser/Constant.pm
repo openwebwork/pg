@@ -6,6 +6,8 @@ package Parser::Constant;
 use strict; use vars qw(@ISA);
 @ISA = qw(Parser::Item);
 
+$Parser::class->{Constant} = 'Parser::Constant';
+
 #
 #  If a constant is marked with isConstant, then it will
 #  be combined with other constants automatically as formulas

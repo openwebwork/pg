@@ -32,11 +32,12 @@ sub _reduce {
   my $self = shift;
   return $self->{lop} if ($self->{rop}{isZero});
   return $self->{rop} if ($self->{lop}{isZero});
+  my $equation = $self->{equation};
   if ($self->{rop}->isNeg) {
-    $self = Parser::BOP->new($self->{equation},'-',$self->{lop},$self->{rop}{op});
+    $self = $equation->{context}{parser}{BOP}->new($equation,'-',$self->{lop},$self->{rop}{op});
     $self = $self->reduce;
   } elsif ($self->{lop}->isNeg) {
-    $self = Parser::BOP->new($self->{equation},'-',$self->{rop},$self->{lop}{op});
+    $self = $equation->{context}{parser}{BOP}->new($equation,'-',$self->{rop},$self->{lop}{op});
     $self = $self->reduce;
   }
   return $self;

@@ -1,8 +1,12 @@
 package Parser;
 my $pkg = "Parser";
-
 use strict;
-#use Carp;
+
+#
+#  Map class names to packages (added to Context, and
+#  can be overriden to customize the parser)
+#
+our %class = {Formula => 'Parser::Formula'};
 
 ##################################################
 #
@@ -25,7 +29,7 @@ sub new {
     my $tree = $string; $tree = $tree->{tree} if exists $tree->{tree};
     $math->{tree} = $tree->copy($math);
   } elsif (Value::isValue($string)) {
-    $math->{tree} = Parser::Value->new($math,$string);
+    $math->{tree} = $math->{context}{parser}{Value}->new($math,$string);
   } else {
     $math->{string} = $string;
     $math->tokenize;
@@ -216,7 +220,7 @@ sub Op {
       if ($self->state eq 'operand') {
         if ($op->{type} eq 'unary') {
           my $top = $self->pop;
-          $self->pushOperand(Parser::UOP->new($self,$name,$top->{value},$ref));
+          $self->pushOperand($context->{parser}{UOP}->new($self,$name,$top->{value},$ref));
         } else {
           $name = $context->{operators}{' '}{string}
             if $name eq ' ' or $name eq $context->{operators}{' '}{space};
@@ -294,13 +298,14 @@ sub Open {
 sub Close {
   my $self = shift; my $type = shift;
   my $ref = $self->{ref} = shift;
+  my $parser = $self->{context}{parser};
   my $parens = $self->{context}{parens};
   
   for ($self->state) {
     /open/ and do {
       my $top = $self->pop; my $paren = $parens->{$top->{value}};
       if ($paren->{emptyOK} && $paren->{close} eq $type) {
-        $self->pushOperand(Parser::List->new($self,[],1,$paren))
+        $self->pushOperand($parser->{List}->new($self,[],1,$paren))
       }
       elsif ($type eq 'start') {$self->Error("Missing close parenthesis for '$top->{value}'",$top->{ref})}
       elsif ($top->{value} eq 'start') {$self->Error("Extra close parenthesis '$type'",$ref)}
@@ -317,7 +322,7 @@ sub Close {
         if (!$paren->{removable} || ($top->{value}->type eq "Comma")) {
           $top = $top->{value};
           $top = {type => 'operand', value =>
-                  Parser::List->new($self,[$top->makeList],$top->{isConstant},$paren,
+	          $parser->{List}->new($self,[$top->makeList],$top->{isConstant},$paren,
                     ($top->type eq 'Comma') ? $top->entryType : $top->typeRef,
                     ($type ne 'start') ? ($self->top->{value},$type) : () )};
         }
@@ -326,8 +331,8 @@ sub Close {
       } elsif ($paren->{formInterval} eq $type && $self->top->{value}->length == 2) {
         my $top = $self->pop->{value}; my $open = $self->pop->{value};
         $self->pushOperand(
-           Parser::List->new($self,[$top->makeList],$top->{isConstant},
-                              $paren,$top->entryType,$open,$type));
+           $parser->{List}->new($self,[$top->makeList],$top->{isConstant},
+				     $paren,$top->entryType,$open,$type));
       } else {
         my $prev = $self->prev;
         if ($type eq "start") {$self->Error("Missing close parenthesis for '$prev->{value}'",$prev->{ref})}
@@ -410,12 +415,12 @@ sub Precedence {
           } else {
             my $rop = $self->pop; my $op = $self->pop; my $lop = $self->pop;
             if ($op->{reverse}) {my $tmp = $rop; $rop = $lop; $lop = $tmp}
-            $self->pushOperand(Parser::BOP->new($self,$op->{name},
+            $self->pushOperand($context->{parser}{BOP}->new($self,$op->{name},
                  $lop->{value},$rop->{value},$op->{ref}),$op->{reverse});
           }
         } else {
           my $rop = $self->pop; my $op = $self->pop;
-          $self->pushOperand(Parser::UOP->new
+          $self->pushOperand($context->{parser}{UOP}->new
              ($self,$op->{name},$rop->{value},$op->{ref}),$op->{reverse});
         }
         last;
@@ -450,7 +455,7 @@ sub CloseFn {
       $context->{parens}{$top->{open}}{close} eq $top->{close} &&
       !$context->{functions}{$fn->{name}}{vectorInput})
          {$top = $top->coords} else {$top = [$top]}
-  $self->pushOperand(Parser::Function->new
+  $self->pushOperand($context->{parser}{Function}->new
      ($self,$fn->{name},$top,$constant,$fn->{ref}));
 }
 
@@ -465,7 +470,7 @@ sub CloseFn {
 sub Num {
   my $self = shift;
   $self->ImplicitMult() if $self->state eq 'operand';
-  my $num = Parser::Number->new($self,shift,$self->{ref});
+  my $num = $self->{context}{parser}{Number}->new($self,shift,$self->{ref});
   my $check = $self->{context}->flag('NumberCheck');
   &$check($num) if $check;
   $self->pushOperand($num);
@@ -479,15 +484,16 @@ sub Num {
 #  Save the number as an operand
 #
 sub Const {
-  my $self = shift; my $ref = $self->{ref};
-  my $name = shift; my $const = $self->{context}{constants}{$name};
+  my $self = shift; my $ref = $self->{ref}; my $name = shift;
+  my $const = $self->{context}{constants}{$name};
+  my $parser = $self->{context}{parser};
   $self->ImplicitMult() if $self->state eq 'operand';
   if (defined($self->{context}{variables}{$name})) {
-    $self->pushOperand(Parser::Variable->new($self,$name,$ref));
+    $self->pushOperand($parser->{Variable}->new($self,$name,$ref));
   } elsif ($const->{keepName}) {
-    $self->pushOperand(Parser::Constant->new($self,$name,$ref));
+    $self->pushOperand($parser->{Constant}->new($self,$name,$ref));
   } else {
-    $self->pushOperand(Parser::Value->new($self,[$const->{value}],$ref));
+    $self->pushOperand($parser->{Value}->new($self,[$const->{value}],$ref));
   }
 }
 
@@ -501,7 +507,7 @@ sub Const {
 sub Var {
   my $self = shift;
   $self->ImplicitMult() if $self->state eq 'operand';
-  $self->pushOperand(Parser::Variable->new($self,shift,$self->{ref}));
+  $self->pushOperand($self->{context}{parser}{Variable}->new($self,shift,$self->{ref}));
 }
 
 ##################################################
@@ -527,7 +533,7 @@ sub Fn {
 sub Str {
   my $self = shift;
   $self->ImplicitMult() if $self->state eq 'operand';
-  $self->pushOperand(Parser::String->new($self,shift,$self->{ref}));
+  $self->pushOperand($self->{context}{parser}{String}->new($self,shift,$self->{ref}));
 }
 
 ##################################################

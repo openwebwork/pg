@@ -6,6 +6,8 @@ package Parser::Complex;
 use strict; use vars qw(@ISA);
 @ISA = qw(Parser::Item);
 
+$Parser::class->{Complex} = 'Parser::Complex';
+
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $equation = shift; my $num;

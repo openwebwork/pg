@@ -7,6 +7,8 @@ package Parser::String;
 use strict; use vars qw(@ISA);
 @ISA = qw(Parser::Item);
 
+$Parser::class->{String} = 'Parser::String';
+
 #
 #  Mark the created word as infinity or negative infinity, and so on.
 #

@@ -6,6 +6,8 @@ package Parser::UOP;
 use strict; use vars qw(@ISA);
 @ISA = qw(Parser::Item);
 
+$Parser::class->{UOP} = 'Parser::UOP';
+
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $equation = shift;
@@ -17,7 +19,7 @@ sub new {
   }, $def->{class};
   $UOP->_check;
   $UOP->{isConstant} = 1 if $op->{isConstant};
-  $UOP = Parser::Value->new($equation,[$UOP->eval])
+  $UOP = $equation->{context}{parser}{Value}->new($equation,[$UOP->eval])
     if $op->{isConstant} && !$UOP->isNeg;
   return $UOP;
 }
@@ -49,10 +51,10 @@ sub _eval {return $_[1]}
 #    return the value of the operation.
 #
 sub reduce {
-  my $self = shift;
-  my $uop = $self->{def};
+  my $self = shift; my $uop = $self->{def};
+  my $equation = $self->{equation};
   $self->{op} = $self->{op}->reduce;
-  return Parser::Value->new($self->{equation},[$self->eval])
+  return $equation->{context}{parser}{Value}->new($equation,[$self->eval])
     if $self->{op}{isConstant} && !$self->isNeg;
   $self->_reduce;
 }
@@ -62,10 +64,10 @@ sub reduce {
 sub _reduce {shift}
 
 sub substitute {
-  my $self = shift;
-  my $uop = $self->{def};
+  my $self = shift; my $uop = $self->{def};
+  my $equation = $self->{equation};
   $self->{op} = $self->{op}->substitute;
-  return Parser::Value->new($self->{equation},[$self->eval])
+  return $equation->{context}{parser}{Value}->new($equation,[$self->eval])
     if $self->{op}{isConstant} && !$self->isNeg;
   return $self;
 }
@@ -145,9 +147,10 @@ sub checkNumber {
 #
 sub Neg {
   my $self = shift;
+  my $equation = $self->{equation};
   $self->Error("Can't reduce:  negation operator is not defined")
-    if (!defined($self->{equation}{context}{operators}{'u-'}));
-  return (Parser::UOP->new($self->{equation},'u-',$self))->reduce;
+    if (!defined($equation->{context}{operators}{'u-'}));
+  return ($equation->{context}{parser}{UOP}->new($equation,'u-',$self))->reduce;
 }
 
 #

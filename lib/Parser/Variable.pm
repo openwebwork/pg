@@ -6,6 +6,8 @@ package Parser::Variable;
 use strict; use vars qw(@ISA);
 @ISA = qw(Parser::Item);
 
+$Parser::class->{Variable} = 'Parser::Variable';
+
 #
 #  Error if the variable is not declared in the current context.
 #  Record the variable in the equation's list of variables.
@@ -34,9 +36,10 @@ sub new {
 #  Replace the variable with its value, if one was given
 #
 sub reduce {
-  my $self = shift;
-  my $value = $self->{equation}{values}{$self->{name}};
-  $self = Parser::Value->new($self->{equation},[$value]) if defined($value);
+  my $self = shift; my $equation = $self->{equation};
+  my $value = $equation->{values}{$self->{name}};
+  $self = $equation->{context}{parser}{Value}->new($equation,[$value])
+    if defined($value);
   return $self;
 }
 
@@ -44,9 +47,10 @@ sub reduce {
 #  Substitute a variable's value, if there is one
 #
 sub substitute {
-  my $self = shift;
-  my $value = $self->{equation}{values}{$self->{name}};
-  $self = Parser::Value->new($self->{equation},[$value]) if defined($value);
+  my $self = shift; my $equation = $self->{equation};
+  my $value = $equation->{values}{$self->{name}};
+  $self = $equation->{context}{parser}{Value}->new($equation,[$value])
+    if defined($value);
   return $self;
 }
 

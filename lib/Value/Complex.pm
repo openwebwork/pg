@@ -59,9 +59,10 @@ sub formula {
   my $self = shift; my $value = shift;
   my $formula = Value::Formula->blank;
   my ($l,$r) = Value::toFormula($formula,@{$value});
-  my $I = Parser::Value->new($formula,$i);
-  $r = Parser::BOP->new($formula,'*',$r,$I);
-  $formula->{tree} = Parser::BOP->new($formula,'+',$l,$r);
+  my $parser = $formula->{context}{parser};
+  my $I = $parser->{Value}->new($formula,$i);
+  $r = $parser->{BOP}->new($formula,'*',$r,$I);
+  $formula->{tree} = $parser->{BOP}->new($formula,'+',$l,$r);
 #   return $formula->eval if scalar(%{$formula->{variables}}) == 0;
   return $formula;
 }
