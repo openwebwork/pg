@@ -40,9 +40,10 @@ sub eval {
 sub string {(shift)->{name}}
 
 sub TeX {
-  my $self = shift;
+  my $self = shift; my $name = $self->{name};
   return $self->{def}{TeX} if defined($self->{def}{TeX});
-  return $self->{name};
+  $name = $1.'_{'.$2.'}' if ($name =~ m/^(\D+)(\d+)$/);
+  return $name;
 }
 
 sub perl {

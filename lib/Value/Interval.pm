@@ -133,10 +133,11 @@ sub promote {
   my $x = shift;
   return $pkg->new($x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
   return $x if ref($x) eq $pkg;
-  return $pkg->new($x->{open},@{$x->data},$x->{close})
+  my $open  = $x->{open};  $open  = '(' unless defined($open);
+  my $close = $x->{close}; $close = ')' unless defined($close);
+  return $pkg->new($open,@{$x->data},$close)
     if Value::class($x) =~ m/^(Point|List)$/ && $x->length == 2 &&
-       ($x->{open} eq '(' || $x->{open} eq '[') &&
-       ($x->{close} eq ')' || $x->{close} eq ']');
+       ($open eq '(' || $open eq '[') && ($close eq ')' || $close eq ']');
   Value::Error("Can't convert ".Value::showClass($x)." to an Interval");
 }
 

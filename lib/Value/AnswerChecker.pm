@@ -631,6 +631,7 @@ package Value::Formula;
 
 sub cmp_defaults {
   my $self = shift;
+
   return (
     Value::Union::cmp_defaults($self,@_),
     typeMatch => Value::Formula->new("(1,2]"),

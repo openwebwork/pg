@@ -75,6 +75,8 @@ sub TeX {
 sub perl {
   my $self = shift; my $parens = shift; my $matrix = shift;
   my $perl = $self->{value}->perl(0,$matrix);
+  $perl = 'Closed('.$perl.')'
+    if $self->{canBeInterval} && $self->{open}.$self->{close} eq '[]';
   $perl = '('.$perl.')' if $parens;
   return $perl;
 }

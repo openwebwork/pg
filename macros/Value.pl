@@ -26,6 +26,15 @@ sub Union    {Value::Union->new(@_)}
 #   return $formula->eval(@_);
 # }  
 
+#
+# Make a point or list a closed interval
+#
+sub Closed {
+  my $x = shift;
+  if (Value::isValue($x)) {$x->{open} = '['; $x->{close} = ']'}
+  return $x;
+}
+
 ###########################################################################
 #
 #  Make it possible to use  1+3*i  in perl rather than  1+3*$i or 1+3*i()
