@@ -61,6 +61,7 @@ sub TeX {
 
   my $symbol = (defined($bop->{TeX}) ? $bop->{TeX} : $bop->{string});
   if ($self->{lop}->class eq 'Function' && $self->{rop}->class eq 'Number' &&
+      $self->{lop}{def}{simplePowers} &&
       $self->{rop}{value} > 0 && int($self->{rop}{value}) == $self->{rop}{value}) {
     $TeX = $self->{lop}->TeX($precedence,$showparens,$position,$outerRight,
 			     $symbol.'{'.$self->{rop}->TeX.'}');
