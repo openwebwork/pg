@@ -1486,6 +1486,27 @@ sub EV3{
 	$string;
 }
 
+sub EV4{
+    if ($displayMode eq "HTML_dpng") {
+        my $string = join(" ",@_);
+        my ($evaluated_string,$PG_eval_errors,$PG_full_errors) = PG_restricted_eval("<<END_OF_EVALUATION_STRING\n$string\nEND_OF_EVALUATION_STRING\n");
+        if ($PG_eval_errors) {
+            my @errorLines = split("\n",$PG_eval_errors);
+            $string =~ s/</&lt;/g; $string =~ s/>/&gt;/g;
+            $evaluated_string = "<PRE>$PAR % ERROR in $0:EV3, PGbasicmacros.pl:".
+			"$PAR % There is an error occuring in the following code:$BR ".
+			"$string $BR % $mBR % $errorLines[0]\n % $errorLines[1]$BR ".
+			"% $BR % $BR </PRE> ";
+        }
+        $string = $evaluated_string;
+        $string = $envir{'imagegen'}->add($string);
+        $string;
+    } else {
+    	EV3(@_);
+    }
+}
+
+
 =head2 Formatting macros
 
 	beginproblem()  # generates text listing number and the point value of
