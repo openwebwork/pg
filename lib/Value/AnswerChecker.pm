@@ -108,8 +108,8 @@ sub cmp_equal {
 #  Check if types are compatible for equality check
 #
 sub typeMatch {
-  my $self = shift;
-  my $other = shift;
+  my $self = shift;  my $other = shift;
+  return 1 unless ref($other);
   $self->type eq $other->type;
 }
 
@@ -167,7 +167,7 @@ our $cmp_defaults = {
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
-  return 1 if !ref($other);
+  return 1 unless ref($other);
   if ($other->type eq 'String' && $ans->{ignoreStrings}) {
     $ans->{showEqualErrors} = 0;
     return 1;
@@ -186,6 +186,7 @@ our $cmp_defaults = {
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
+  return 0 unless ref($other);
   return 0 unless $other->type eq 'Point';
   if (!$ans->{isPreview} && $ans->{showDimensionWarnings} &&
       $self->length != $other->length) {
@@ -210,6 +211,7 @@ our $cmp_defaults = {
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
+  return 0 unless ref($other);
   return 0 unless $other->type eq 'Vector' ||
                   ($ans->{promotePoints} && $other->type eq 'Point');
   if (!$ans->{isPreview} && $ans->{showDimensionWarnings} &&
@@ -242,6 +244,7 @@ our $cmp_defaults = {
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
+  return 0 unless ref($other);
   $other = $self->make($other->{data}) if $other->class eq 'Point';
   return 0 unless $other->type eq 'Matrix';
   return 1 unless $ans->{showDimensionWarnings};
@@ -270,6 +273,7 @@ package Value::Interval;
 
 sub typeMatch {
   my $self = shift; my $other = shift;
+  return 0 unless ref($other);
   return $other->length == 2 &&
          ($other->{open} eq '(' || $other->{open} eq '[') &&
          ($other->{close} eq ')' || $other->{close} eq ']')
@@ -283,6 +287,7 @@ package Value::Union;
 
 sub typeMatch {
   my $self = shift; my $other = shift;
+  return 0 unless ref($other);
   return $other->length == 2 &&
          ($other->{open} eq '(' || $other->{open} eq '[') &&
          ($other->{close} eq ')' || $other->{close} eq ']')
@@ -340,6 +345,8 @@ sub cmp_equal {
 
   ENTRY: foreach my $entry (@student) {
     $i++;
+    $entry = Value::Real->make($entry) if !ref($entry) && Value::matchNumber($entry);
+    $entry = Value::Formula->new($entry) if !Value::isValue($entry);
     if ($ordered) {
       if (eval {shift(@correct) == $entry}) {$score++; next ENTRY}
     } else {
@@ -354,7 +361,7 @@ sub cmp_equal {
         !$typeMatch->typeMatch($entry,$ans)) {
       push(@errors,
         "Your ".NameForNumber($i)." value isn't ".lc($typeMatch->showClass).
-	   " (it looks like ".lc(Value::showClass($entry)).")");
+	   " (it looks like ".lc($entry->showClass).")");
       next ENTRY;
     }
     push(@errors,"Your ".NameForNumber($i)." $value is incorrect")
