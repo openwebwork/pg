@@ -7,9 +7,19 @@ use strict; use vars qw(@ISA);
 @ISA = qw(Parser::List);
 
 #
-#  The basic List class does nearly everything.  We only need this class
-#  for its name.
+#  The basic List class does nearly everything.
 #
+
+#
+#  Check that the coordinates are numbers (avoid <i+j+k>)
+#
+sub _check {
+  my $self = shift;
+  foreach my $x (@{$self->{coords}}) {
+    $self->{equation}->Error("Coordinates of Vector must be Numbers")
+      unless $x->isNumber;
+  }
+}
 
 my $ijk_string = ['i','j','k','0'];
 my $ijk_TeX = ['\boldsymbol{i}','\boldsymbol{j}','\boldsymbol{k}','\boldsymbol(0)'];
