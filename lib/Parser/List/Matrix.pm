@@ -23,19 +23,20 @@ sub _check {
 
 #
 #  Handle a 2-dimensional matrix as a special case, using
-#  TeX's \matrix command.
+#  LaTeX's \array command.
 #
 sub TeX {
   my ($self,$precedence) = @_;
   return $self->SUPER::TeX(@_) unless $self->entryType->{entryType};
   my ($open,$close) = ($self->{open},$self->{close});
   $open = '\{' if $open eq '{'; $close = '\}' if $close eq '}';
-  my $TeX = ''; my @entries = ();
+  my $TeX = ''; my @entries = (); my $d;
   foreach my $row (@{$self->coords}) {
     foreach my $x (@{$row->coords}) {push(@entries,$x->TeX)}
-    $TeX .= join(' &',@entries) . '\cr'."\n"; @entries = ();
+    $TeX .= join(' &',@entries) . '\cr'."\n";
+    $d = scalar(@entries); @entries = ();
   }
-  return '\left'.$open.'\matrix{'."\n".$TeX.'}\right'.$close;
+  return '\left'.$open.'\begin{array}{'.('c'x$d).'}'."\n".$TeX.'\end{array}\right'.$close;
 }
 
 #

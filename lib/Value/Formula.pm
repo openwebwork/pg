@@ -199,7 +199,6 @@ sub createRandomPoints {
   $num_points = int($self->getFlag('num_points',5)) unless defined($num_points);
   $num_points = 1 if $num_points < 1;
 
-  ## FIXME:  deal with variables of type complex, etc.
   my @vars = $self->{context}->variables->names;
   my @limits = $self->addLimitGranularity($self->getVariableLimits(@vars));
   my @make = $self->getVariableTypes(@vars);

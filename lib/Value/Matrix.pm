@@ -364,14 +364,14 @@ sub TeX {
   my $TeX = ''; my @entries = (); my $d;
   if ($self->isRow) {
     foreach my $x (@{$self->data}) {
-      push(@entries,(Value::isValue($x))? $x->TeX($equation,$open,$close): $x);
+      push(@entries,(Value::isValue($x))? $x->TeX($equation): $x);
     }
     $TeX .= join(' &',@entries) . "\n";
     $d = scalar(@entries);
   } else {
     foreach my $row (@{$self->data}) {
       foreach my $x (@{$row->data}) {
-        push(@entries,(Value::isValue($x))? $x->TeX($equation,$open,$close): $x);
+        push(@entries,(Value::isValue($x))? $x->TeX($equation): $x);
       }
       $TeX .= join(' &',@entries) . '\cr'."\n";
       $d = scalar(@entries); @entries = ();

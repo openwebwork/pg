@@ -35,6 +35,7 @@ sub new {
   Value::Error("Interval() must be called with 3 or 4 arguments")
     unless defined($open) && defined($a) && defined($b) && defined($close);
   $a = Value::makeValue($a); $b = Value::makeValue($b);
+  return $self->formula($open,$a,$b,$close) if Value::isFormula($a) || Value::isFormula($b);
   Value::Error("Endpoints of intervals must be numbers on infinities") unless
     isNumOrInfinity($a) && isNumOrInfinity($b);
   my ($ia,$ib) = (isInfinity($a),isInfinity($b));
@@ -85,7 +86,6 @@ sub formula {
      $formula->{context}{parens}{$open},$Value::Type{number},$open,$close);
 #   return $formula->eval if scalar(%{$formula->{variables}}) == 0;
   return $formula;
-  
 }
 
 #
