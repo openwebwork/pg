@@ -662,7 +662,7 @@ sub Evaluate {
   my $f = shift;
   return unless defined($f);
   my $v = eval {$f->eval(@_)};
-  $v = Value::Real->new($v) if defined($v) && $f->isRealNumber;
+  $v = Value::makeValue($v) if defined($v);
   return $v;
 }
 

@@ -16,7 +16,10 @@ sub new {
   my ($name,$ref) = @_;
   unless (defined($equation->{context}{variables}{$name})) {
     my $string = substr($equation->{string},$ref->[2]);
-    $equation->Error("Unexpected word '$1'",$ref) if ($string =~ m/^([a-z][a-z]+)/i);
+    if ($string =~ m/^([a-z][a-z]+)/i) {
+      $ref->[3] = length($1);
+      $equation->Error("Unexpected word '$1'",$ref);
+    }
     $equation->Error("Unexpected variable '$name'",$ref);
   }
   $equation->{variables}{$name} = 1;

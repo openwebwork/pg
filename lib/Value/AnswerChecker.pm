@@ -17,21 +17,20 @@ package Value;
 #  Create an answer checker for the given type of object
 #
 
-our $cmp_defaults = {
+sub cmp_defaults {(
   showTypeWarnings => 1,
   showEqualErrors => 1,
-};
+)};
 
 sub cmp {
   my $self = shift;
   $$Value::context->flags->set(StringifyAsTeX => 0);  # reset this, just in case.
   my $ans = new AnswerEvaluator;
-  my $defaults = ref($self)."::cmp_defaults";
   $ans->ans_hash(
     type => "Value (".$self->class.")",
     correct_ans => $self->string,
     correct_value => $self,
-    %{$$defaults || $cmp_defaults},
+    $self->cmp_defaults,
     @_
   );
   $ans->install_evaluator(
@@ -41,6 +40,7 @@ sub cmp {
       $ans->{isPreview} = $self->getPG('$inputs_ref->{previewAnswers}');
       my $self = $ans->{correct_value};
       my $method = $ans->{cmp_check} || 'cmp_check';
+      $ans->{cmp_class} = $self->cmp_class($ans) unless $ans->{cmp_class};
       $self->$method($ans);
     }
   );
@@ -99,7 +99,7 @@ sub cmp_equal {
     $self->$cmp_error($ans);
   } else {
     $ans->{ans_message} = $ans->{error_message} =
-      "Your answer isn't ".lc($ans->{correct_value}->showCmpClass).
+      "Your answer isn't ".lc($ans->{cmp_class}).
         " (it looks like ".lc($ans->{student_value}->showClass).")"
 	   if !$ans->{isPreview} && $ans->{showTypeWarnings} && !$ans->{error_message};
   }
@@ -117,7 +117,13 @@ sub typeMatch {
 #
 #  Class name for cmp error messages
 #
-sub showCmpClass {shift->showClass}
+sub cmp_class {
+  my $self = shift; my $ans = shift;
+  my $class = $self->showClass;
+  return "an Interval or Union" if $class =~ m/Interval/i;
+  $class =~ s/Real //;
+  return $class; 
+}
 
 #
 #  Student answer evaluation failed.
@@ -191,11 +197,11 @@ sub getPG {
 
 package Value::Real;
 
-our $cmp_defaults = {
-  %{$Value::cmp_defaults},
+sub cmp_defaults {(
+  shift->SUPER::cmp_defaults,
   ignoreStrings => 1,
   ignoreInfinity => 1,
-};
+)};
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
@@ -212,7 +218,7 @@ sub typeMatch {
 
 package Value::Infinity;
 
-sub showCmpClass {'a Number'}
+sub cmp_class {'a Number'};
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
@@ -223,13 +229,35 @@ sub typeMatch {
 
 #############################################################
 
+package Value::String;
+
+sub cmp_defaults {(
+  Value::Real->cmp_defaults,
+  typeMatch => Value::Real->new(1),
+)};
+
+sub cmp_class {
+  my $self = shift; my $ans = shift;
+  my $typeMatch = $ans->{typeMatch};
+  return 'a Word' if $typeMatch->class eq 'String';
+  return $typeMatch->cmp_class;
+};
+
+sub typeMatch {
+  my $self = shift; my $other = shift; my $ans = shift;
+  return 1 if $self->type eq $other->type || $ans->{typeMatch}->class eq 'String';
+  return $ans->{typeMatch}->typeMatch($other,$ans);
+}
+
+#############################################################
+
 package Value::Point;
 
-our $cmp_defaults = {
-  %{$Value::cmp_defaults},
+sub cmp_defaults {(
+  shift->SUPER::cmp_defaults,
   showDimensionHints => 1,
   showCoordinateHints => 1,
-};
+)};
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
@@ -260,14 +288,14 @@ sub cmp_postprocess {
 
 package Value::Vector;
 
-our $cmp_defaults = {
-  %{$Value::cmp_defaults},
+sub cmp_defaults {(
+  shift->SUPPER::cmp_defaults,
   showDimensionHints => 1,
   showCoordinateHints => 1,
   promotePoints => 0,
   parallel => 0,
   sameDirection => 0,
-};
+)};
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
@@ -309,11 +337,11 @@ sub cmp_postprocess {
 
 package Value::Matrix;
 
-our $cmp_defaults = {
-  %{$Value::cmp_defaults},
+sub cmp_defaults {(
+  shiftf->SUPER::cmp_defaults,
   showDimensionHints => 1,
   showEqualErrors => 0,
-};
+)};
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
@@ -345,13 +373,11 @@ sub cmp_postprocess {
 
 package Value::Interval;
 
-our $cmp_defaults = {
-  %{$Value::cmp_defaults},
+sub cmp_defaults {(
+  shift->SUPER::cmp_defaults,
   showEndpointHints => 1,
   showEndTypeHints => 1,
-};
-
-sub showCmpClass {'an Interval or Union'}
+)};
 
 sub typeMatch {
   my $self = shift; my $other = shift;
@@ -389,8 +415,6 @@ sub cmp_postprocess {
 
 package Value::Union;
 
-sub showCmpClass {'an Interval or Union'}
-
 sub typeMatch {
   my $self = shift; my $other = shift;
   return 0 unless ref($other);
@@ -405,8 +429,8 @@ sub typeMatch {
 
 package Value::List;
 
-our $cmp_defaults = {
-  %{$Value::Real::cmp_defaults},
+sub cmp_defaults {(
+  Value::Real->cmp_defaults,
   showHints => undef,
   showLengthHints => undef,
 #  partialCredit => undef,
@@ -417,7 +441,7 @@ our $cmp_defaults = {
   typeMatch => undef,
   allowParens => 0,
   showParens => 0,
-};
+)};
 
 sub typeMatch {1}
 
@@ -446,8 +470,8 @@ sub cmp_equal {
   $typeMatch = Value::Real->make($typeMatch)
     if !ref($typeMatch) && Value::matchNumber($typeMatch);
   my $value = getOption($ans->{entry_type},
-      Value::isValue($typeMatch)? lc($typeMatch->showCmpClass): 'value');
-  $value =~ s/^an? //; $value =~ s/(real|complex) //;
+      Value::isValue($typeMatch)? lc($typeMatch->cmp_class): 'value');
+  $value =~ s/(real|complex) //; $ans->{cmp_class} = $value; $value =~ s/^an? //;
   my $ltype = getOption($ans->{list_type},lc($self->type));
   $showTypeWarnings = $showHints = $showLengthHints = 0 if $ans->{isPreview};
 
@@ -480,7 +504,7 @@ sub cmp_equal {
     if ($showTypeWarnings && defined($typeMatch) &&
         !$typeMatch->typeMatch($entry,$ans)) {
       push(@errors,
-        "Your ".$self->NameForNumber($i)." value isn't ".lc($typeMatch->showCmpClass).
+        "Your ".$self->NameForNumber($i)." value isn't ".lc($ans->{cmp_class}).
 	   " (it looks like ".lc($entry->showClass).")");
       next ENTRY;
     }

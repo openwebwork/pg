@@ -55,7 +55,8 @@ $$context->{precedence} = {
    'List'     =>  7,
    'Interval' =>  8,
    'Union'    =>  9,
-   'Formula'  => 10,
+   'String'   => 10,
+   'Formula'  => 11,
 };
 
 #
@@ -109,10 +110,13 @@ sub makeValue {
   my $x = shift;
   return $x if ref($x);
   return Value::Real->make($x) if matchNumber($x);
-  return $x unless matchInfinite($x);
-  my $I = Value::Infinity->new();
-  $I = $I->neg if $x =~ m/^$$Value::context->{pattern}{-infinity}$/;
-  return $I;
+  if (matchInfinite($x)) {
+    my $I = Value::Infinity->new();
+    $I = $I->neg if $x =~ m/^$$Value::context->{pattern}{-infinity}$/;
+    return $I;
+  }
+  if ($Parser::installed) {return $x unless $$Value::context->{strings}{$x}}
+  return Value::String->make($x);
 }
 
 #
@@ -126,6 +130,7 @@ sub showClass {
     $value->{tree} && $value->{tree}{isInfinite};
   $class .= ' Number' if $class =~ m/^(Real|Complex)$/;
   $class .= ' of Intervals' if $class eq 'Union';
+  $class = 'Word' if $class eq 'String';
   return showType($value->{tree}) if $class eq 'Formula';
   return 'an '.$class if $class =~ m/^[aeio]/i;
   return 'a '.$class;
@@ -137,6 +142,7 @@ sub showClass {
 sub showType {
   my $value = shift;
   my $type = $value->type;
+  return 'a Word' if $type eq 'String';
   return 'a Complex Number' if $value->isComplex;
   return 'an '.$type if $type =~ m/^[aeio]/i;
   return 'a '.$type;
@@ -465,6 +471,7 @@ use Value::Matrix;
 use Value::List;
 use Value::Interval;
 use Value::Union;
+use Value::String;
 # use Value::Formula;
 
 use Value::AnswerChecker;  #  for WeBWorK

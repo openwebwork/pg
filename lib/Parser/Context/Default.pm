@@ -190,6 +190,12 @@ $strings = {
    'INF'  => {alias => 'infinity'},
    '+INF' => {alias => 'infinity'},
    '-INF' => {alias => '-infinity'},
+
+   'NONE' => {},
+   'none' => {alias => 'NONE'},
+
+   'DNE'  => {},
+   'dne'  => {alias => 'DNE'},
 };
 
 $flags = {

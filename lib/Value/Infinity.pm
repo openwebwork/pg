@@ -37,14 +37,12 @@ sub value {shift->{data}[0]}
 ##################################################
 
 #
-#  Return a complex if it already is one, otherwise make it one
-#    (Guarantees that we have both parts in an array ref)
+#  Return an infinity or real
 #
 sub promote {
-  my $x = shift;
-  return $x if (ref($x) eq $pkg && scalar(@_) == 0);
-  return $x if Value::isReal($x);
-  return Value::Real->new($x) if !ref($x) && Value::matchNumber($x);
+  my $x = shift; $x = [$x,@_] if scalar(@_) > 0;
+  $x = Value::makeValue($x);
+  return $x if ref($x) eq $pkg || Value::isReal($x);
   Value::Error("Can't convert '$x' to Infinity");
 }
 

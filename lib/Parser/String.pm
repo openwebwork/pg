@@ -28,18 +28,19 @@ sub new {
 }
 
 #
-#  Just return the value of the string
+#  Make a Value::String or Value::Infinity object
 #
 sub eval {
   my $self = shift;
-  return $self->{value} unless $self->{isInfinite};
+  return Value::String->make($self->{value}) unless $self->{isInfinite};
   my $I = Value::Infinity->new();
   $I = $I->neg if $self->{isNegativeInfinity};
   return $I;
 }
 
 #
-#  Just return the value
+#  Return the replacement string if there is one,
+#    or let Value handle it if we can, otherwise return the string
 #
 sub string {
   my $self = shift;
