@@ -794,8 +794,10 @@ sub translate {
 	     unless defined( $self->{envir} );
     # reset the error detection
     my $save_SIG_warn_trap = $SIG{__WARN__};
-#    $SIG{__WARN__} = sub {&$save_SIG_warn_trap(PG_errorMessage('message',@_))};
-    $SIG{__WARN__} = sub {CORE::die(PG_errorMessage('message',@_))};
+    #FIXME  -- this may not work with the xmlrpc access
+    # this formats the error message within the existing warn message.
+    $SIG{__WARN__} = sub {&$save_SIG_warn_trap(PG_errorMessage('message',@_))};
+    #$SIG{__WARN__} = sub {CORE::warn(PG_errorMessage('message',@_))};
     my $save_SIG_die_trap = $SIG{__DIE__};
     $SIG{__DIE__} = sub {CORE::die(PG_errorMessage('traceback',@_))};
 
