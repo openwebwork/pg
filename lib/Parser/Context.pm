@@ -85,11 +85,14 @@ my $userContext;
 #  Set/Get the current Context object
 #
 sub current {
-  my $self = shift; my $contextTable = shift; my $name = shift;
+  my $self = shift; my $contextTable = shift; my $context = shift;
   if ($contextTable) {$userContext = $contextTable} else {$contextTable = $userContext}
-  if ($name) {
-    my $context = Parser::Context->get($contextTable,$name);
-    Value::Error("Unknown context '$name'") unless defined($context);
+  if (defined($context)) {
+    if (!ref($context)) {
+      my $name = $context;
+      $context = Parser::Context->get($contextTable,$context);
+      Value::Error("Unknown context '$name'") unless defined($context);
+    }
     $contextTable->{current} = $context;
     $Value::context = \$contextTable->{current};
   } elsif (!defined($contextTable->{current})) {
