@@ -285,10 +285,17 @@ sub NAMED_ANS_RULE {
 
 	$answer_value =~ tr/\\$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
 	$name = RECORD_ANS_NAME($name);
+
+	# incorporated Davide Cervone's changes  	
+	# removed newlines from around <INPUT> tags
+	# made TeX rule be based on specified width rather than varying size.
+
+	my $tcol = min(max($col/2,3),40);
+
 	MODES(
-		TeX => "\\mbox{\\parbox[t]{10pt}{\\hrulefill}}\\hrulefill\\quad ",
-		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\n\\end{rawhtml}\n!,
-		HTML => "<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"$answer_value\">\n"
+		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
+		Latex2HTML => qq!\\begin{rawhtml}<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\\end{rawhtml}!,
+		HTML => "<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"$answer_value\">"
 	);
 }
 
@@ -1122,18 +1129,19 @@ sub ALPHABET  {
 ###############################################################
 # Some constants which are different in tex and in HTML
 # The order of arguments is TeX, Latex2HTML, HTML
-sub PAR { MODES( TeX => '\\par ',Latex2HTML => '\\par ',HTML => '<P>' ); };
-sub BR { MODES( TeX => '\\par\\noindent ',Latex2HTML => '\\par\\noindent ',HTML => '<BR>'); };
+# Adopted Davide Cervone's improvements to PAR, BR, LTS, GTS, LTE, GTE, LBRACE, RBRACE, LB, RB. 7-14-03 AKP
+sub PAR { MODES( TeX => '\\par ', Latex2HTML => '\\begin{rawhtml}<P>\\end{rawhtml}', HTML => '<P>'); };
+sub BR { MODES( TeX => '\\\\', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR>'); };
 sub LQ { MODES( TeX => "``", Latex2HTML =>   '"',  HTML =>  '&quot;' ); };
 sub RQ { MODES( TeX => "''", Latex2HTML =>   '"',   HTML =>  '&quot;' ); };
 sub BM { MODES(TeX => '\\(', Latex2HTML => '\\(', HTML =>  ''); };  # begin math mode
 sub EM { MODES(TeX => '\\)', Latex2HTML => '\\)', HTML => ''); };  # end math mode
 sub BDM { MODES(TeX => '\\[', Latex2HTML =>   '\\[', HTML =>   '<P ALIGN=CENTER>'); };  #begin displayMath mode
 sub EDM { MODES(TeX => '\\]',  Latex2HTML =>  '\\]', HTML => '</P>'); };              #end displayMath mode
-sub LTS { MODES(TeX => ' < ', Latex2HTML => ' \\lt ',  HTML =>   '&lt;'); };
-sub GTS {MODES(TeX => ' > ', Latex2HTML => ' \\gt ',  HTML =>    '&gt;'); };
-sub LTE { MODES(TeX => ' \\le ', Latex2HTML =>  ' \\le ',  HTML => '&lt;=' ); };
-sub GTE { MODES(TeX => ' \\ge ',  Latex2HTML => ' \\ge ',  HTML =>  '&gt;'); };
+sub LTS { MODES(TeX => '<', Latex2HTML => '\\lt ', HTML => '&lt;', HTML_tth => '<' ); };
+sub GTS { MODES(TeX => '>', Latex2HTML => '\\gt ', HTML => '&gt;', HTML_tth => '>' ); };
+sub LTE { MODES(TeX => '\\le ', Latex2HTML => '\\le ', HTML => '<U>&lt;</U>', HTML_tth => '\\le ' ); };
+sub GTE { MODES(TeX => '\\ge ', Latex2HTML => '\\ge ', HTML => '<U>&gt;</U>', HTML_tth => '\\ge ' ); };
 sub BEGIN_ONE_COLUMN { MODES(TeX => " \\end{multicols}\n",  Latex2HTML => " ", HTML =>   " "); };
 sub END_ONE_COLUMN { MODES(TeX =>
               " \\begin{multicols}{2}\n\\columnwidth=\\linewidth\n",
@@ -1154,10 +1162,10 @@ sub EITALIC { MODES(TeX => '} ',  Latex2HTML => '} ', HTML => '</I>'); };
 sub BCENTER { MODES(TeX => '\\begin{center} ',  Latex2HTML => ' \\begin{rawhtml} <div align="center"> \\end{rawhtml} ', HTML => '<div align="center">'); };
 sub ECENTER { MODES(TeX => '\\end{center} ',  Latex2HTML => ' \\begin{rawhtml} </div> \\end{rawhtml} ', HTML => '</div>'); };
 sub HR { MODES(TeX => '\\par\\hrulefill\\par ', Latex2HTML => '\\begin{rawhtml} <HR> \\end{rawhtml}', HTML =>  '<HR>'); };
-sub LBRACE { MODES( TeX => '\{', Latex2HTML =>   '\\lbrace',  HTML =>  '\{' , HTML_tth=> '\\lbrace' ); };
-sub RBRACE { MODES( TeX => '\}', Latex2HTML =>   '\\rbrace',  HTML =>  '\}' , HTML_tth=> '\\rbrace',); };
-sub LB { MODES( TeX => '\{', Latex2HTML =>   '\\lbrace',  HTML =>  '\{' , HTML_tth=> '\\lbrace' ); };
-sub RB { MODES( TeX => '\}', Latex2HTML =>   '\\rbrace',  HTML =>  '\}' , HTML_tth=> '\\rbrace',); };
+sub LBRACE { MODES( TeX => '\{', Latex2HTML =>   '\\lbrace',  HTML =>  '{' , HTML_tth=> '\\lbrace' ); };
+sub RBRACE { MODES( TeX => '\}', Latex2HTML =>   '\\rbrace',  HTML =>  '}' , HTML_tth=> '\\rbrace',); };
+sub LB { MODES( TeX => '\{', Latex2HTML =>   '\\lbrace',  HTML =>  '{' , HTML_tth=> '\\lbrace' ); };
+sub RB { MODES( TeX => '\}', Latex2HTML =>   '\\rbrace',  HTML =>  '}' , HTML_tth=> '\\rbrace',); };
 sub DOLLAR { MODES( TeX => '\\$', Latex2HTML => '\\$', HTML => '$' ); };
 sub PERCENT { MODES( TeX => '\\%', Latex2HTML => '\\%', HTML => '%' ); };
 sub CARET { MODES( TeX => '\\verb+^+', Latex2HTML => '\\verb+^+', HTML => '^' ); };
@@ -1296,7 +1304,14 @@ sub ev_substring {
 	my $actionRef   = shift;
 	my ($eval_out,$PG_eval_errors,$PG_full_error_report)=();
     my $out = "";
-		while ($string) {
+                #
+                #  DPVC -- 2001/12/07
+                #     original "while ($string)" fails to process the string "0" correctly
+                #
+		while ($string ne "") {
+                #
+                #  end DPVC
+                #
 		    if ($string =~ /\Q$start_delim\E/s) {
 		   #print "$start_delim $end_delim evaluating_substring=$string<BR>";
 				$string =~ s/^(.*?)\Q$start_delim\E//s;  # get string up to next \{ ---treats string as a single line, ignoring returns
@@ -1402,6 +1417,11 @@ sub general_math_ev3 {
 	$in = FEQ($in); # Format EQuations
 	$in =~ s/%/\\%/g; # avoid % becoming TeX comments
 
+	## remove leading and trailing spaces so that HTML mode will
+	## not include unwanted spaces as per Davide Cervone.
+	$in =~ s/^\s+//;
+	$in =~ s/\s+$//;
+
 	# some modes want the delimiters, some don't
 	my $in_delim = $mode eq "inline"
 		? "\\($in\\)"
@@ -1410,6 +1430,9 @@ sub general_math_ev3 {
 	my $out;
 	if($displayMode eq "HTML_tth") {
 		$out = tth($in_delim);
+		## remove leading and trailing spaces as per Davide Cervone.
+		$in =~ s/^\s+//;
+		$in =~ s/\s+$//;
 	} elsif ($displayMode eq "HTML_dpng") {
 		# for jj's version of ImageGenerator
 		$out = $envir->{'imagegen'}->add($in_delim);
@@ -1660,7 +1683,7 @@ sub begintable {
 		$out .= "<TABLE BORDER=1>\n"
 	}
 	else {
-		$out = "Error: PGchoicemacros: begintable: Unknown displayMode: $displayMode.\n";
+		$out = "Error: PGbasicmacros: begintable: Unknown displayMode: $displayMode.\n";
 		}
 	$out;
 	}
@@ -1677,7 +1700,7 @@ sub endtable {
 		$out .= "</TABLE>\n";
 		}
 	else {
-		$out = "Error: PGchoicemacros: endtable: Unknown displayMode: $displayMode.\n";
+		$out = "Error: PGbasicmacros: endtable: Unknown displayMode: $displayMode.\n";
 		}
 	$out;
 	}
@@ -1709,7 +1732,7 @@ sub row {
 		$out .= "\n</TR>\n";
 	}
 	else {
-		$out = "Error: PGchoicemacros: row: Unknown displayMode: $displayMode.\n";
+		$out = "Error: PGbasicmacros: row: Unknown displayMode: $displayMode.\n";
 		}
 	$out;
 }
@@ -1794,7 +1817,7 @@ sub image {
  			$out = qq!<A HREF= "$imageURL" TARGET="ZOOM"><IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height"></A>
  			!
  		} else {
- 			$out = "Error: PGchoicemacros: image: Unknown displayMode: $displayMode.\n";
+ 			$out = "Error: PGbasicmacros: image: Unknown displayMode: $displayMode.\n";
  		}
  		push(@output_list, $out);
  	}
@@ -1886,7 +1909,7 @@ sub imageRow {
 		$out .= "\n</TR></TABLE></P>\n"
 	}
 	else {
-		$out = "Error: PGchoicemacros: imageRow: Unknown languageMode: $displayMode.\n";
+		$out = "Error: PGbasicmacros: imageRow: Unknown languageMode: $displayMode.\n";
 		warn $out;
 	}
 	$out;
