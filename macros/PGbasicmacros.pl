@@ -1495,7 +1495,7 @@ sub EV4{
             $string =~ s/</&lt;/g; $string =~ s/>/&gt;/g;
             $evaluated_string = "<PRE>$PAR % ERROR in $0:EV3, PGbasicmacros.pl:".
 			"$PAR % There is an error occuring in the following code:$BR ".
-			"$string $BR % $mBR % $errorLines[0]\n % $errorLines[1]$BR ".
+			"$string $BR % $BR % $errorLines[0]\n % $errorLines[1]$BR ".
 			"% $BR % $BR </PRE> ";
         }
         $string = $evaluated_string;
