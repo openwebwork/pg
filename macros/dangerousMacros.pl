@@ -1189,7 +1189,7 @@ sub alias {
 
 sub i () {
   #  check if Parser.pl is loaded, otherwise use Complex package
-  if (eval(q!%main::context!)) {return Value::Formula->new('i')->eval}
+  if (eval(q!$main::_parser_loaded!)) {return Value::Formula->new('i')->eval}
     else {return Complex::i}
 }
 sub j () {Value::Formula->new('j')->eval}

@@ -3,9 +3,16 @@
 ##  Set up the functions needed by the Parser.
 ##
 
-if (!defined(%Value::Type)) {
+if (!$Parser::installed) {
   die "\n************************************************************\n" .
         "* This problem requires the Parser.pm package, which doesn't\n".
+        "* seem to be installed.  Please contact your WeBWorK system\n".
+        "* administrator and ask him or her to install it first.\n".
+        "************************************************************\n\n"
+}
+if (!$Value::installed) {
+  die "\n************************************************************\n" .
+        "* This problem requires the Value.pm package, which doesn't\n".
         "* seem to be installed.  Please contact your WeBWorK system\n".
         "* administrator and ask him or her to install it first.\n".
         "************************************************************\n\n"
@@ -141,6 +148,10 @@ sub unit {Parser::Function->call('unit',@_)}
 #sub i () {Compute('i')}
 #sub j () {Compute('j')}
 #sub k () {Compute('k')}
+
+###########################################################################
+
+$_parser_loaded = 1;  #  use this to tell if Parser.pl is loaded
 
 ###########################################################################
 

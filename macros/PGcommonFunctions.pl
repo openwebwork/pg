@@ -4,9 +4,7 @@
 #  the new Parser.pm and the old PGauxiliaryFunctions.pl
 #
 
-sub _PGcommonFunctions_init {
-
-}
+sub _PGcommonFunctions_init {}
 
 #
 #  Make these interact nicely with Parser.pm
@@ -25,7 +23,7 @@ package CommonFunction;
 sub Call {
   my $self = shift;
   my $fn = shift;
-  if (defined(%main::context)) {return Parser::Function->call($fn,@_)}
+  if ($main::_parser_loaded) {return Parser::Function->call($fn,@_)}
   return $self->$fn(@_);
 }
 
