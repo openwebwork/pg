@@ -371,7 +371,7 @@ sub compare_basis {
 									#linear combo of the prof's
 		$ch_coord_mat = $ch_coord_mat->decompose_LR();
 		
-		if( $ch_coord_mat->det_LR() > $options{zeroLevelTol} )# if the det of the change of coordinate matrix is
+		if( abs($ch_coord_mat->det_LR()) > $options{zeroLevelTol} )# if the det of the change of coordinate  matrix is
 									# non-zero, this implies the existence of an inverse
 									# which implies all of the prof's vectors are a linear
 									# combo of the students vectors, showing containment
@@ -611,9 +611,8 @@ sub ans_array_filter{
 	chop($rh_ans->{preview_latex_string});
 	chop($display_ans);
 	
-	$rh_ans->{original_student_ans} = $display_ans;	
+	$rh_ans->{student_ans} = $display_ans;	
 	$rh_ans->{ra_student_ans} = \@array;
-	$rh_ans->{student_ans} = $display_ans;
 	
 	$rh_ans;
 
