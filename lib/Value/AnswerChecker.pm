@@ -435,7 +435,7 @@ sub typeMatch {
 sub cmp_defaults {(
   Value::List::cmp_defaults(@_),
   typeMatch => 'Value::Interval',
-  list_type => 'union',
+  list_type => 'a union',
   entry_type => 'an interval',
 )}
 
@@ -455,7 +455,7 @@ sub cmp_defaults {
     partialCredit => 0,  #  only allow this once WW can deal with partial credit
     ordered => 0,
     entry_type => undef,
-    list_type => lc($self->type),
+    list_type => undef,
     typeMatch => Value::makeValue($self->{data}[0]),
     allowParens => 0,
     showParens => 0,
@@ -494,12 +494,13 @@ sub cmp_equal {
   my $ordered = $ans->{ordered}; my $allowParens = $ans->{allowParens};
   my $typeMatch = $ans->{typeMatch};
   my $value     = $ans->{entry_type};
-  my $ltype     = $ans->{list_type};
+  my $ltype     = $ans->{list_type} || lc($self->type);
 
   $value = (Value::isValue($typeMatch)? lc($typeMatch->cmp_class): 'value')
     unless defined($value);
   $value =~ s/(real|complex) //; $ans->{cmp_class} = $value;
   $value =~ s/^an? //; $value = 'formula' if $value =~ m/formula/;
+  $ltype =~ s/^an? //;
   $showTypeWarnings = $showHints = $showLengthHints = 0 if $ans->{isPreview};
 
   #
@@ -513,7 +514,7 @@ sub cmp_equal {
   my @student = ($student);
   if ($student->class eq 'Formula' && $student->type eq $self->type) {
     @student = Value::List->splitFormula($student,$ans);
-  } elsif ($student->class ne 'Formula' && $student->class eq $self->class &&
+  } elsif ($student->class ne 'Formula' && $student->class eq $self->type &&
       ($allowParens || (!$student->{open} && !$student->{close}))) {
     @student = @{$student->{data}};
   }
@@ -548,7 +549,8 @@ sub cmp_equal {
     #
     #  Give messages about incorrect answers
     #
-    my $nth = ''; my $answer = 'answer'; my $class = $self->cmp_class;
+    my $nth = ''; my $answer = 'answer';
+    my $class = $ans->{list_type} || $self->cmp_class;
     if (scalar(@student) > 1) {
       $nth = ' '.$self->NameForNumber($i);
       $class = $ans->{cmp_class};
@@ -650,6 +652,19 @@ sub typeMatch {
   $other = eval {($other->createRandomPoints(1))[1]->[0]} if ($other->class eq 'Formula');
   return 1 unless defined($other); # can't really tell, so don't report type mismatch
   $typeMatch->typeMatch($other,$ans);
+}
+
+#
+#  Handle removal of outermost parens in a list.
+#
+sub cmp {
+  my $self = shift;
+  my $cmp = $self->SUPER::cmp(@_);
+  if (!$cmp->{rh_ans}{showParens} && $self->type eq 'List') {
+    $self->{tree}{open} = $self->{tree}{close} = '';
+    $cmp->ans_hash(correct_ans => $self->stringify);
+  }
+  return $cmp;
 }
 
 sub cmp_equal {

@@ -63,7 +63,7 @@ $operators = {
    '^' => {precedence => 7, associativity => 'right', type => 'bin', string => '^', perl => '**',
            class => 'Parser::BOP::power', leftf => 1, fullparens => 1, isInverse => 1},
 
-   '**'=> {precedence => 7, associativity => 'right', type => 'bin', string => '^',
+   '**'=> {precedence => 7, associativity => 'right', type => 'bin', string => '^', perl => '**',
            class => 'Parser::BOP::power', leftf => 1, fullparens => 1, isInverse => 1},
 
    '!' => {precedence => 8, associativity => 'right', type => 'unary', string => '!',
@@ -83,6 +83,7 @@ $parens = {
    'start' => {close => 'start', type => 'List', formList => 1,
                removable => 1, emptyOK => 1, hidden => 1},
    'interval' => {type => 'Interval', hidden => 1},
+   'list'     => {type => 'List', hidden => 1},
 };
 
 $lists = {
@@ -227,10 +228,10 @@ $fullContext = new Parser::Context(
 );
 
 $fullContext->constants->set(
-  pi => {TeX => '\pi ', perl => 'pi'},
-  i => {isConstant => 1, perl => 'i'},
-  j => {TeX => '\boldsymbol{j}', perl => 'j'},
-  k => {TeX => '\boldsymbol{k}', perl => 'k'},
+  pi => {TeX => '\pi ', perl => ' pi'},
+  i => {isConstant => 1, perl => ' i'},
+  j => {TeX => '\boldsymbol{j}', perl => ' j'},
+  k => {TeX => '\boldsymbol{k}', perl => ' k'},
 );
 
 #
@@ -272,7 +273,7 @@ $vectorContext = $fullContext->copy;
 $vectorContext->variables->are(x=>'Real',y=>'Real',z=>'Real');
 $vectorContext->functions->undefine('arg','mod','Re','Im','conj');
 $vectorContext->constants->replace(i=>Value::Vector->new(1,0,0));
-$vectorContext->constants->set(i=>{TeX=>'\boldsymbol{i}', perl => 'i'});
+$vectorContext->constants->set(i=>{TeX=>'\boldsymbol{i}', perl => ' i'});
 
 #
 #  Interval context (make intervals rather than lists)

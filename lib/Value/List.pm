@@ -25,7 +25,7 @@ use overload
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $p = shift; my $isFormula = 0;
-  $p = $p->data if (Value::isValue($p) && scalar(@_) == 0);
+  $p = $p->data if (Value::isValue($p) && $p->class eq 'List' && scalar(@_) == 0);
   $p = [$p,@_] if (ref($p) ne 'ARRAY' || scalar(@_) > 0);
   my $type;
   foreach my $x (@{$p}) {

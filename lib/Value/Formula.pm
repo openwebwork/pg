@@ -157,7 +157,7 @@ sub compare {
   #    (not good for < and >, but OK for ==).
   #
   my ($i, $cmp);
-  foreach $i (0..scalar(@{$lvalues})) {
+  foreach $i (0..scalar(@{$lvalues})-1) {
     $cmp = $lvalues->[$i] <=> $rvalues->[$i];
     return $cmp if $cmp;
   }

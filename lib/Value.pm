@@ -241,10 +241,11 @@ sub formula {
   my $list = $$context->lists->get($class);
   my $open = $list->{'open'};
   my $close = $list->{'close'};
+  my $paren = $open; $paren = 'list' if $class eq 'List';
   my $formula = Value::Formula->blank;
   my @coords = Value::toFormula($formula,@{$values});
   $formula->{tree} = Parser::List->new($formula,[@coords],0,
-     $formula->{context}{parens}{$open},$coords[0]->typeRef,$open,$close);
+     $formula->{context}{parens}{$paren},$coords[0]->typeRef,$open,$close);
 #   return $formula->eval if scalar(%{$formula->{variables}}) == 0;
   return $formula;
 }
