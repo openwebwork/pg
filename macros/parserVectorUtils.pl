@@ -99,15 +99,15 @@ sub Line {
 #  normal vector and a point on the plane.  (Better to use
 #  the ImplicitPlane class from parserImplicitPlane.pl).
 #
-#  Usage:  Plane(N,P);
+#  Usage:  Plane(P,N);
 #
 sub Plane {
-  my $N = Vector(shift); my $P = Point(shift); my @N = $N->value;
+  my $P = Point(shift); my $N = Vector(shift); my @N = $N->value;
   my $xyz = shift; $xyz = ['x','y','z'] unless defined($xyz);
   die "Number of variables doesn't match dimension of normal vector"
-    unless scalar(@n) == scalar(@{$xyz});
+    unless scalar(@N) == scalar(@{$xyz});
   my @terms = ();
-  foreach my $i (0..$#n) {push(@terms,$N[$i]->TeX.$xyz->[$i])}
+  foreach my $i (0..$#N) {push(@terms,$N[$i]->TeX.$xyz->[$i])}
   Formula(join(' + ',@terms))->reduce->TeX . " = " . ($N.$P)->TeX;
 }
 
