@@ -828,7 +828,7 @@ sub alias {
 	warn "The current studentLogin is not defined "                          unless $studentLogin;
 	warn "The current problem set number is not defined"                     if $setNumber eq ""; # allow for sets equal to 0
 	warn "The current problem number is not defined"                         if $probNum eq "";
-	warn "The current problem set version number (psvn) is not defined"      unless $psvnNumber;
+	warn "The current problem set version number (psvn) is not defined"      unless defined($psvnNumber);
 	warn "The displayMode is not defined"                                    unless $displayMode;
 
 	# required macros
