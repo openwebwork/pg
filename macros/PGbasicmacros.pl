@@ -1129,9 +1129,12 @@ sub ALPHABET  {
 ###############################################################
 # Some constants which are different in tex and in HTML
 # The order of arguments is TeX, Latex2HTML, HTML
-# Adopted Davide Cervone's improvements to PAR, BR, LTS, GTS, LTE, GTE, LBRACE, RBRACE, LB, RB. 7-14-03 AKP
+# Adopted Davide Cervone's improvements to PAR, LTS, GTS, LTE, GTE, LBRACE, RBRACE, LB, RB. 7-14-03 AKP
 sub PAR { MODES( TeX => '\\par ', Latex2HTML => '\\begin{rawhtml}<P>\\end{rawhtml}', HTML => '<P>'); };
-sub BR { MODES( TeX => '\\\\', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR>'); };
+sub BR { MODES( TeX => '\\par\\noindent ', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR>'); };
+# Alternate definition of BR which is slightly more flexible and gives more white space in printed output
+# which looks better but kills more trees.
+#sub BR { MODES( TeX => '\\\\', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR>'); };
 sub LQ { MODES( TeX => "``", Latex2HTML =>   '"',  HTML =>  '&quot;' ); };
 sub RQ { MODES( TeX => "''", Latex2HTML =>   '"',   HTML =>  '&quot;' ); };
 sub BM { MODES(TeX => '\\(', Latex2HTML => '\\(', HTML =>  ''); };  # begin math mode
