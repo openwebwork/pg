@@ -12,7 +12,7 @@ sub init {
   $self->{dataName} = 'strings';
   $self->{name} = 'string';
   $self->{Name} = 'String';
-  $self->{namePattern} = '[^\s]+';
+  $self->{namePattern} = '[\S ]+';
 }
 
 #########################################################################
