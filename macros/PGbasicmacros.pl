@@ -64,6 +64,7 @@ my ($PAR,
 	$E,
 	@ALPHABET,
 	$envir,
+	$PG_random_generator,
 	);
 
 sub _PGbasicmacros_init {
@@ -164,7 +165,8 @@ EndOfFile
 #  We initialize a local reference to the environment hash rather than transfer the entire hash
 #  This way is slightly more efficient.
 
-   $envir              = PG_restricted_eval(q!\%main::envir!);
+   $envir               = PG_restricted_eval(q!\%main::envir!);
+   $PG_random_generator = PG_restricted_eval(q!$main::PG_random_generator!);
   
 }
 
@@ -966,7 +968,7 @@ sub list_random {
 
 sub SRAND { # resets the main random generator -- use cautiously
     my $seed = shift;
-	$main::PG_random_generator -> srand($seed);
+	PG_random_generator -> srand($seed);
 }
 
 # display macros

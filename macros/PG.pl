@@ -107,12 +107,18 @@ L</webwork_system_html/docs/techdescription/pglanguage/PGenvironment.html>
 =cut
 
 sub DOCUMENT {
+
 	$STRINGforOUTPUT ="";
     $STRINGforHEADER_TEXT ="";
 	@PG_ANSWERS=();
-	@main::PG_ANSWER_ENTRY_ORDER = ();
+	
 	@PG_UNLABELED_ANSWERS = ();
 	%PG_ANSWERS_HASH = ();
+	# FIXME:  We are initializing these variables into both Safe::Root1 (the cached safe compartment) 
+	# and Safe::Root2 (the current one)
+	# There is a good chance they won't be properly updated in one or the other of these compartments.
+	
+	@main::PG_ANSWER_ENTRY_ORDER = ();
 	$main::ANSWER_PREFIX = 'AnSwEr';
 	%main::PG_FLAGS=();  #global flags
 	$main::showPartialCorrectAnswers = 0 unless defined($main::showPartialCorrectAnswers );
@@ -120,14 +126,23 @@ sub DOCUMENT {
 	$main::solutionExists =0;
 	$main::hintExists =0;
 	%main::gifs_created = ();
-
+	eval(q!
+	@main::PG_ANSWER_ENTRY_ORDER = ();
+	$main::ANSWER_PREFIX = 'AnSwEr';
+	%main::PG_FLAGS=();  #global flags
+	$main::showPartialCorrectAnswers = 0 unless defined($main::showPartialCorrectAnswers );
+	$main::showHint = 1 unless defined($main::showHint);
+	$main::solutionExists =0;
+	$main::hintExists =0;
+	%main::gifs_created = ();
+    !);
 	die "The environment variable envir has not been defined" unless defined(%main::envir);
 
    	foreach my $var ( keys %main::envir ) {
        eval("\$main::$var =\$main::envir{'$var'}");
    	   warn "Problem defining ", q{\$main::$var}, " while inititializing the PG problem: $@" if $@;
     }
-
+    eval(q!
 	@main::submittedAnswers = @{$main::refSubmittedAnswers} if defined($main::refSubmittedAnswers);
 	$main::PG_original_problemSeed = $main::problemSeed;
 	$main::PG_random_generator = new PGrandom($main::problemSeed) || die "Can't create random number generator.";
@@ -135,6 +150,16 @@ sub DOCUMENT {
 
   	# end unpacking of environment variables.
   	$main::QUIZ_PREFIX = '' unless defined($main::QUIZ_PREFIX)
+  
+	!);
+	@main::submittedAnswers = @{$main::refSubmittedAnswers} if defined($main::refSubmittedAnswers);
+	$main::PG_original_problemSeed = $main::problemSeed;
+	$main::PG_random_generator = new PGrandom($main::problemSeed) || die "Can't create random number generator.";
+	$main::ans_rule_count = 0;  # counts questions
+
+  	# end unpacking of environment variables.
+  	$main::QUIZ_PREFIX = '' unless defined($main::QUIZ_PREFIX)
+	
 }
 
 #	HEADER_TEXT is for material which is destined to be placed in the header of the html problem -- such
