@@ -1,4 +1,4 @@
-package strict;
+package ww_strict;
 
 $strict::VERSION = "1.03";
 
