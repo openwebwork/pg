@@ -12,18 +12,18 @@ use vars qw(@ISA);
 @ISA = qw(Value);
 
 use overload
-       '+'   => \&add,
-       '-'   => \&sub,
-       '*'   => \&mult,
-       '/'   => \&div,
-       '**'  => \&power,
+       '+'   => sub {shift->add(@_)},
+       '-'   => sub {shift->sub(@_)},
+       '*'   => sub {shift->mult(@_)},
+       '/'   => sub {shift->div(@_)},
+       '**'  => sub {shift->power(@_)},
        '.'   => \&Value::_dot,
-       'x'   => \&Value::cross,
-       '<=>' => \&compare,
-       'cmp' => \&Value::cmp,
-       'neg' => sub {$_[0]->neg},
-  'nomethod' => \&Value::nomethod,
-        '""' => \&stringify;
+       'x'   => sub {shift->cross(@_)},
+       '<=>' => sub {shift->compare(@_)},
+       'cmp' => sub {shift->compare_string(@_)},
+       'neg' => sub {shift->neg},
+  'nomethod' => sub {shift->nomethod(@_)},
+        '""' => sub {shift->stringify(@_)};
 
 #
 #  Convert a value to a matrix.  The value can be:

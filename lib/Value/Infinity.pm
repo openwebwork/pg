@@ -9,11 +9,11 @@ use vars qw(@ISA);
 
 use overload
        '.'   => \&Value::_dot,
-       '<=>' => \&compare,
-       'cmp' => \&Value::cmp,
-       'neg' => \&neg,
-  'nomethod' => \&Value::nomethod,
-        '""' => \&Value::stringify;
+       '<=>' => sub {shift->compare(@_)},
+       'cmp' => sub {shift->compare_string(@_)},
+       'neg' => sub {shift->neg(@_)},
+  'nomethod' => sub {shift->nomethod(@_)},
+        '""' => sub {shift->stringify(@_)};
 
 #
 #  Create an infinity object

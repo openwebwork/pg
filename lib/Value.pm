@@ -80,7 +80,7 @@ $$context->{method} = {
    '.'   => '_dot',  # see _dot below
    'x'   => 'cross',
    '<=>' => 'compare',
-   'cmp' => 'cmp',
+   'cmp' => 'compare_string',
 };
 
 $$context->{pattern}{infinite} = '[-+]?inf(?:inity)?';
@@ -330,7 +330,7 @@ sub typeRef {
 #
 sub class {
   my $self = shift; my $class = ref($self) || $self;
-  $class =~ s/Value:://;
+  $class =~ s/.*:://;
   return $class;
 }
 
@@ -359,8 +359,7 @@ sub promotePrecedence {
   return 0 unless Value::isValue($other);
   my $sprec = $$context->{precedence}{class($self)};
   my $oprec = $$context->{precedence}{class($other)};
-  return (defined($oprec) && $sprec < $oprec) ||
-    ($sprec > $oprec && $sprec >= $$context->{precedence}{special});
+  return (defined($oprec) && $sprec < $oprec);
 }
 
 sub promote {shift}
@@ -431,7 +430,7 @@ sub compare {
 #
 #  Compare the values as strings
 #
-sub cmp {
+sub compare_string {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
   $l = $l->stringify; $r = $r->stringify if Value::isValue($r);

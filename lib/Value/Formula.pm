@@ -10,26 +10,26 @@ use vars qw(@ISA);
 @ISA = qw(Parser Value);
 
 use overload
-       '+'    => \&add,
-       '-'    => \&sub,
-       '*'    => \&mult,
-       '/'    => \&div,
-       '**'   => \&power,
-       '.'    => \&dot,
-       'x'    => \&cross,
-       '<=>'  => \&compare,
-       'cmp'  => \&Value::cmp,
-       '~'    => sub {Parser::Function->call('conj',$_[0])},
-       'neg'  => sub {$_[0]->neg},
-       'sin'  => sub {Parser::Function->call('sin',$_[0])},
-       'cos'  => sub {Parser::Function->call('cos',$_[0])},
-       'exp'  => sub {Parser::Function->call('exp',$_[0])},
-       'abs'  => sub {Parser::Function->call('abs',$_[0])},
-       'log'  => sub {Parser::Function->call('log',$_[0])},
-       'sqrt' => sub {Parser::Function->call('sqrt',$_[0])},
-      'atan2' => \&atan2,
-   'nomethod' => \&Value::nomethod,
-         '""' => \&Value::stringify;
+       '+'    => sub {shift->add(@_)},
+       '-'    => sub {shift->sub(@_)},
+       '*'    => sub {shift->mult(@_)},
+       '/'    => sub {shift->div(@_)},
+       '**'   => sub {shift->power(@_)},
+       '.'    => sub {shift->dot(@_)},
+       'x'    => sub {shift->cross(@_)},
+       '<=>'  => sub {shift->compare(@_)},
+       'cmp'  => sub {shift->compare_string(@_)},
+       '~'    => sub {shift->call('conj',@_)},
+       'neg'  => sub {shift->neg},
+       'sin'  => sub {shift->call('sin',@_)},
+       'cos'  => sub {shift->call('cos',@_)},
+       'exp'  => sub {shift->call('exp',@_)},
+       'abs'  => sub {shift->call('abs',@_)},
+       'log'  => sub {shift->call('log',@_)},
+       'sqrt' => sub {shift->call('sqrt',@_)},
+      'atan2' => sub {shift->atan2(@_)},
+   'nomethod' => sub {shift->nomethod(@_)},
+         '""' => sub {shift->stringify(@_)};
 
 #
 #  Call Parser to make the new item
@@ -106,6 +106,14 @@ sub dot   {
   return bop('.',@_) if $l->type eq 'Vector' &&
      Value::isValue($r) && $r->type eq 'Vector';
   Value::_dot(@_);
+}
+
+#
+#  Call the Parser::Function call function
+#
+sub call {
+  my $self = shift; my $name = shift;
+  Parser::Function->call($name,$self);
 }
 
 ############################################

@@ -9,10 +9,10 @@ use vars qw(@ISA);
 
 use overload
        '.'   => \&Value::_dot,
-       '<=>' => \&compare,
-       'cmp' => \&compare,
-  'nomethod' => \&Value::nomethod,
-        '""' => \&Value::stringify;
+       '<=>' => sub {shift->compare(@_)},
+       'cmp' => sub {shift->compare(@_)},
+  'nomethod' => sub {shift->nomethod(@_)},
+        '""' => sub {shift->stringify(@_)};
 
 #
 #  Create a string object

@@ -10,13 +10,13 @@ use vars qw(@ISA);
 @ISA = qw(Value);
 
 use overload
-       '+'   => \&add,
+       '+'   => sub {shift->add(@_)},
        '.'   => \&Value::_dot,
-       'x'   => \&Value::cross,
-       '<=>' => \&compare,
-       'cmp' => \&Value::cmp,
-  'nomethod' => \&Value::nomethod,
-        '""' => \&stringify;
+       'x'   => sub {shift->cross(@_)},
+       '<=>' => sub {shift->compare(@_)},
+       'cmp' => sub {shift->compare_string(@_)},
+  'nomethod' => sub {shift->nomethod(@_)},
+        '""' => sub {shift->stringify(@_)};
 
 #
 #  Make a List out of a list of entries or a

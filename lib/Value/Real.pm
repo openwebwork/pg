@@ -11,25 +11,25 @@ use vars qw(@ISA);
 @ISA = qw(Value);
 
 use overload
-       '+'   => \&add,
-       '-'   => \&sub,
-       '*'   => \&mult,
-       '/'   => \&div,
-       '**'  => \&power,
+       '+'   => sub {shift->add(@_)},
+       '-'   => sub {shift->sub(@_)},
+       '*'   => sub {shift->mult(@_)},
+       '/'   => sub {shift->div(@_)},
+       '**'  => sub {shift->power(@_)},
        '.'   => \&Value::_dot,
-       'x'   => \&Value::cross,
-       '<=>' => \&compare,
-       'cmp' => \&Value::cmp,
-       'neg' => sub {$_[0]->neg},
-       'abs' => sub {$_[0]->abs},
-       'sqrt'=> sub {$_[0]->sqrt},
-       'exp' => sub {$_[0]->exp},
-       'log' => sub {$_[0]->log},
-       'sin' => sub {$_[0]->sin},
-       'cos' => sub {$_[0]->cos},
-     'atan2' => \&atan2,
-  'nomethod' => \&Value::nomethod,
-        '""' => \&Value::stringify;
+       'x'   => sub {shift->cross(@_)},
+       '<=>' => sub {shift->compare(@_)},
+       'cmp' => sub {shift->compare_string(@_)},
+       'neg' => sub {shift->neg},
+       'abs' => sub {shift->abs},
+       'sqrt'=> sub {shift->sqrt},
+       'exp' => sub {shift->exp},
+       'log' => sub {shift->log},
+       'sin' => sub {shift->sin},
+       'cos' => sub {shift->cos},
+     'atan2' => sub {shift->atan2(@_)},
+  'nomethod' => sub {shift->nomethod(@_)},
+        '""' => sub {shift->stringify(@_)};
 
 #
 #  Check that the input is a real number or a formula

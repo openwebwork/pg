@@ -8,13 +8,13 @@ use vars qw(@ISA);
 @ISA = qw(Value);
 
 use overload
-       '+'   => \&add,
+       '+'   => sub {shift->add(@_)},
        '.'   => \&Value::_dot,
-       'x'   => \&Value::cross,
-       '<=>' => \&compare,
-       'cmp' => \&Value::cmp,
-  'nomethod' => \&Value::nomethod,
-        '""' => \&Value::stringify;
+       'x'   => sub {shift->cross(@_)},
+       '<=>' => sub {shift->compare(@_)},
+       'cmp' => sub {shift->compare_string(@_)},
+  'nomethod' => sub {shift->nomethod(@_)},
+        '""' => sub {shift->stringify(@_)};
 
 #
 #  Convert a value to a union of intervals.  The value must be

@@ -10,19 +10,19 @@ use vars qw(@ISA);
 @ISA = qw(Value);
 
 use overload
-       '+'   => \&add,
-       '-'   => \&sub,
-       '*'   => \&mult,
-       '/'   => \&div,
-       '**'  => \&power,
+       '+'   => sub {shift->add(@_)},
+       '-'   => sub {shift->sub(@_)},
+       '*'   => sub {shift->mult(@_)},
+       '/'   => sub {shift->div(@_)},
+       '**'  => sub {shift->power(@_)},
        '.'   => \&Value::_dot,
-       'x'   => \&cross,
-       '<=>' => \&compare,
-       'cmp' => \&Value::cmp,
-       'neg' => sub {$_[0]->neg},
-       'abs' => sub {$_[0]->abs},
-  'nomethod' => \&Value::nomethod,
-        '""' => \&stringify;
+       'x'   => sub {shift->cross(@_)},
+       '<=>' => sub {shift->compare(@_)},
+       'cmp' => sub {shift->compare_string(@_)},
+       'neg' => sub {shift->neg},
+       'abs' => sub {shift->abs},
+  'nomethod' => sub {shift->nomethod(@_)},
+        '""' => sub {shift->stringify(@_)};
 
 #
 #  Convert a value to a Vector.  The value can be
