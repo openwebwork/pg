@@ -649,7 +649,12 @@ sub cmp_defaults {
     typeMatch => Value::Formula->new("(1,2]"),
   ) if $self->type eq 'Union';
 
-  return Value::Real::cmp_defaults($self,@_) unless $self->type eq 'List';
+  my $type = $self->type;
+  $type = ($self->isComplex)? 'Complex': 'Real' if $type eq 'Number';
+  $type = 'Value::'.$type.'::';
+
+  return (&{$type.'cmp_defaults'}($self,@_))
+    if defined(%$type) && $self->type ne 'List';
 
   return (
     Value::List::cmp_defaults($self,@_),
@@ -704,15 +709,16 @@ sub cmp_equal {
   }
 }
 
-#
-#  Replace the ones in Value::Formula
-#
-sub PGseedRandom {
-  my $self = shift;
-  return if $self->{PGrandom};
-  $self->{PGrandom} = new PGrandom($self->{context}->flag('random_seed'));
+sub cmp_postprocess {
+  my $self = shift; my $ans = shift;
+  return unless $ans->{score} == 0 && !$ans->{isPreview};
+  return if $ans->{ans_message} || !$ans->{showDimensionHints};
+  my $other = $ans->{student_value};
+  return unless $other->type =~ m/^(Point|Vector|Matrix)$/;
+  return unless $self->type  =~ m/^(Point|Vector|Matrix)$/;
+  return if Parser::Item::typeMatch($self->typeRef,$other->typeRef);
+  $self->cmp_Error($ans,"The dimension is incorrect");
 }
-sub PGgetRandom {shift->{PGrandom}->random(@_)}
 
 #############################################################
 
