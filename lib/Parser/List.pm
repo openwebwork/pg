@@ -50,7 +50,7 @@ sub new {
   $list->_check;
 #  warn ">> $list->{type}{name} of $list->{type}{entryType}{name} of length $list->{type}{length}\n";
   if ($list->{isConstant}) {
-    my $saveCBI = $list->{canBeInterval};
+    my $saveCBI = $list->{canBeInterval}; $type = $list->{type};
     $list = Parser::Value->new($equation,[$list->eval]);
     $list->{type} = $type; $list->{open} = $open; $list->{close} = $close;
     $list->{value}->{open} = $open, $list->{value}->{close} = $close
