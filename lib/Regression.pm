@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+
 
 package Regression;
 
@@ -42,8 +42,8 @@ for($i=0; $i<6; $i++){
 
 @coeff= $reg->theta();
 
-$b0 = $coeff[0][0]; 
-$b1 = $coeff[0][1]; 
+$b0 = $coeff[0][0];
+$b1 = $coeff[0][1];
 $b2 = $coeff[0][2];
 
 =head1 ALGORITHM
@@ -95,7 +95,7 @@ nicer ways to compute the R^2.
 #### let's start with handling of missing data ("nan" or "NaN")
 
 my $nan= "NaN";
-sub isNaN { 
+sub isNaN {
   if ($_[0] !~ /[0-9nan]/) { die "definitely not a number in NaN: '$_[0]'"; }
   return ($_[0]=~ /NaN/i) || ($_[0] != $_[0]);
 }
@@ -125,7 +125,7 @@ sub new {
 
   sub zerovec {
     my @rv;
-    for (my $i=0; $i<=$_[0]; ++$i) { $rv[$i]=0; } 
+    for (my $i=0; $i<=$_[0]; ++$i) { $rv[$i]=0; }
     return \@rv;
   }
 
@@ -259,7 +259,7 @@ sub include {
   if (isNaN($yelement)) { return $this->{n}; }
 
   my @xcopy;
-  for (my $i=1; $i<=$this->{k}; ++$i) { 
+  for (my $i=1; $i<=$this->{k}; ++$i) {
     if (!defined($xrow->[$i-1])) { die "Internal Error: xrow [ $i-1 ] is undef"; }
     if (isNaN($xrow->[$i-1])) { return $this->{n}; }
     $xcopy[$i]= $xrow->[$i-1];
@@ -420,7 +420,7 @@ if (DEBUGGING) {
   $reg->include( 1.0, [ 1.0, 5.0, 2.0 ] );
   $reg->include( 20.0, [ 1.0, 31.0, 0.0 ] );
   $reg->include( 15.0, [ 1.0, 11.0, 2.0 ] );
-  
+
 #  $reg->print();   or: my $coefs= $reg->theta(); print @coefs; print $reg->rsq;
 # my $coefs= $reg->theta(); print $coeff[0];
 }
@@ -455,7 +455,7 @@ does seem to work, and I could not find anything equivalent on cpan.
 =head1 INSTALLATION and DOCUMENTATION
 
 Installation consists of moving the file 'Regression.pm' into a subdirectory
-Statistics of your modules path (e.g., /usr/lib/perl5/site_perl/5.6.0/). 
+Statistics of your modules path (e.g., /usr/lib/perl5/site_perl/5.6.0/).
 
 The documentation was produced from the module:
 

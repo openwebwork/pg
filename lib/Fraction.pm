@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+
 #
 # Fraction object
 # Keeps track of two variables- numerator and denominator.

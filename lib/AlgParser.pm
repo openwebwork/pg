@@ -1,11 +1,10 @@
-#!/usr/bin/perl 
+
 
 ## Last modification: 8/3/00 by akp
 ## Originally written by Daniel Martin, Dept of Math, John Hopkins
 ## Additions and modifications were made by James Martino, Dept of Math, John Hopkins
 ## Additions and modifications were made by Arnold Pizer, Dept of Math, Univ of Rochester
 
-#use lib '/home/martind/lib/perl5/site_perl';
 #use Data::Dumper;
 
 package AlgParser;
@@ -47,7 +46,7 @@ $specialvalue = '(?:e|pi)';
 $numberplain = '(?:\d+(?:\.\d*)?|\.\d+)';
 $numberE = '(?:' . $numberplain . 'E[-+]?\d+)';
 $number = '(?:' . $numberE . '|' . $numberplain . ')';
-$trigfname = '(?:cosh|sinh|tanh|cot|(?:a(?:rc)?)?cos|(?:a(?:rc)?)?sin|' . 
+$trigfname = '(?:cosh|sinh|tanh|cot|(?:a(?:rc)?)?cos|(?:a(?:rc)?)?sin|' .
     '(?:a(?:rc)?)?tan|sech?)';
 $otherfunc = '(?:exp|abs|logten|log|ln|sqrt|sgn|step|fact)';
 $funcname = '(?:' . $otherfunc . '|' . $trigfname . ')';
@@ -86,7 +85,7 @@ sub parse {
   $self->{parseresult} = ['top', undef];
   my (@backtrace) = (\$self->{parseresult});
   my (@pushback) = ();
-  
+
   my $currentref = \$self->{parseresult}->[1];
   my $curenttok;
 
@@ -131,7 +130,7 @@ sub parse {
         # walk up the tree until an open paren, the top, binop1 or unop1
         # I decide arbitrarily that -3*4 should be parsed as -(3*4)
         # instead of as (-3)*4.  Not that it makes a difference.
-       
+
         while (${$currentref}->[0] !~ /^(openp|top|binop1)/) {
           $currentref = pop @backtrace;
         }
@@ -146,7 +145,7 @@ sub parse {
         # Error
         my($mark) = pop @{$self->{posarray}};
         my $position =1+$mark->[0];
-        return $self->error("Didn't expect " . $currenttok->[1] . 
+        return $self->error("Didn't expect " . $currenttok->[1] .
                             " at position $position" , $mark);
       }
     };
@@ -169,7 +168,7 @@ sub parse {
         # Error
         my($mark) = pop @{$self->{posarray}};
         my $position = 1+$mark->[0];
-        return $self->error("Didn't expect " . $currenttok->[1] . 
+        return $self->error("Didn't expect " . $currenttok->[1] .
                             " at position $position", $mark);
       }
     };
@@ -216,7 +215,7 @@ sub parse {
         } elsif ($close{${$currentref}->[1]} ne $currenttok->[1]) {
           my($mark) = pop @{$self->{posarray}};
           my $position = 1+$mark->[0];
-          return $self->error("Mismatched parens at position $position"  
+          return $self->error("Mismatched parens at position $position"
                               , ${$currentref}->[2], $mark);
         } else {
           ${$currentref}->[0] = 'closep';
@@ -265,13 +264,13 @@ sub parse {
         if (${$currentref}->[0] eq 'openp') {
           my($mark) = ${$currentref}->[2];
           my $position = 1+$mark->[0];
-          return $self->error("Unclosed parentheses beginning at position $position" 
+          return $self->error("Unclosed parentheses beginning at position $position"
                          , $mark);
         }
       }
       # Ok, we must really have parsed something
       return $self->{parseresult};
-    }  
+    }
   } else {
       my($mark) = pop @{$self->{posarray}};
       my $position = 1+$mark->[0];
@@ -286,7 +285,7 @@ sub arraytoexpr {
 
 sub error {
   my($self, $errstr, @markers) = @_;
-#  print STDERR Data::Dumper->Dump([\@markers], 
+#  print STDERR Data::Dumper->Dump([\@markers],
 #                                  ['$markers']);
   $self->{parseerror} = $errstr;
   my($htmledstring) = '<tt class="parseinput">';
@@ -305,7 +304,7 @@ sub error {
            '</b>';
     $lastpos = $pos2;
   }
-#  print STDERR Data::Dumper->Dump([$str, $htmledstring, $lastpos], 
+#  print STDERR Data::Dumper->Dump([$str, $htmledstring, $lastpos],
 #                                  ['$str', '$htmledstring', '$lastpos']);
   $htmledstring .= encode_entities(substr($str,$lastpos));
   $htmledstring .= '</tt>';
@@ -315,8 +314,8 @@ sub error {
 #                       $htmledstring . "\n" . '</p>' . "\n";
   $self->{htmlerror} =  $htmledstring ;
   $self->{htmlerror} =  'empty' if $errstr eq 'empty';
-  $self->{error_msg} = $errstr; 
-                        
+  $self->{error_msg} = $errstr;
+
 #  warn $errstr . "\n";
   return undef;
 }
@@ -403,7 +402,7 @@ sub head {
 sub normalize {
 #print STDERR "normalize\n";
 #print STDERR Data::Dumper->Dump([@_]);
-       
+
   my($self, $degree) = @_;
   my($class) = ref $self;
   $degree = $degree || 0;
@@ -433,25 +432,25 @@ sub normalize {
   $ret = $class->new($type, @args);
   $_ = $type;
   if (/binop1/ && ($args[2]->[0] =~ 'unop1')) {
-    my($h1, $h2) = ($args[0], $args[2]->[1]); 
+    my($h1, $h2) = ($args[0], $args[2]->[1]);
     my($s1, $s2) = ($h1 eq '-', $h2 eq '-');
     my($eventual) = ($s1==$s2);
     if ($eventual) {
-      $ret = $class->new('binop1', '+', $args[1], $args[2]->[2] ); 
+      $ret = $class->new('binop1', '+', $args[1], $args[2]->[2] );
     } else {
       $ret = $class->new('binop1', '-', $args[1], $args[2]->[2] );
     }
   } elsif (/binop2/ && ($args[1]->[0] =~ 'unop1')) {
-    $ret = $class->new('unop1', '-', 
-                       $class->new($type, $args[0], $args[1]->[2], 
-                                   $args[2])->normalize($degree) ); 
-  } elsif (/binop[12]/ && ($args[2]->[0] eq $type) && 
+    $ret = $class->new('unop1', '-',
+                       $class->new($type, $args[0], $args[1]->[2],
+                                   $args[2])->normalize($degree) );
+  } elsif (/binop[12]/ && ($args[2]->[0] eq $type) &&
                           ($args[0] =~ /[+*]/)) {
 # Remove frivolous right-association
 # For example, fix 3+(4-5) or 3*(4x)
-    $ret = $class->new($type, $args[2]->[1], 
-                       $class->new($type, $args[0], $args[1], 
-                                   $args[2]->[2])->normalize($degree), 
+    $ret = $class->new($type, $args[2]->[1],
+                       $class->new($type, $args[0], $args[1],
+                                   $args[2]->[2])->normalize($degree),
                        $args[2]->[3]);
   } elsif (/unop1/ && ($args[0] eq '+')) {
     $ret = $args[1];
@@ -505,9 +504,9 @@ sub tostring {
   /special|varname|numberE?/ && return $args[0];
   /closep/ && do {
     my(%close) = %AlgParser::close;
-    
-  
-    
+
+
+
     return ($args[0] . $args[1]->tostring() . $close{$args[0]});
   };
 }
@@ -531,9 +530,9 @@ sub tolatex {
   /binop2/ && do {
     my ($p1, $p2, $p3, $p4) = ('','','','');
     if ($args[0] =~ /implicit/) {
-      if ( (($args[1]->head eq qq(number)) && 
+      if ( (($args[1]->head eq qq(number)) &&
             ($args[2]->head eq qq(number))) ||
-           (($args[1]->head eq qq(binop2)) && 
+           (($args[1]->head eq qq(binop2)) &&
             ($args[1]->[2]->head eq qq(number))) ) {
         $args[0] = '\\,';
       } else {
@@ -543,7 +542,7 @@ sub tolatex {
     if ($args[1]->[0] =~ /binop1|numberE/)
       {($p1,$p2)=qw{ \left( \right) };}
  #   if ($args[2]->[0] =~ /binop[12]|numberE/)
-	if ($args[2]->[0] =~ /binop[12]|numberE|unop1/)  
+	if ($args[2]->[0] =~ /binop[12]|numberE|unop1/)
       {($p3,$p4)=qw{ \left( \right) };}
     if ($args[0] eq '/'){
 	return('\frac{' . $p1 . $args[1]->tolatex() . $p2 . '}'.
@@ -567,16 +566,16 @@ sub tolatex {
       my($p1,$p2);
       if($args[0] eq "sqrt"){($p1,$p2)=qw{ \left{ \right} };}
       else {($p1,$p2)=qw{ \left( \right) };}
-        
+
       $specialfunc = '(?:abs|logten|asin|acos|atan|sech|sgn|step|fact)';
 
-      
+
       if ($args[0] =~ /$specialfunc/) {
          return ('\mbox{' . $args[0] .'}'. $p1 . $args[1]->tolatex() . $p2);
       }
       else {
         return ('\\' . $args[0] . $p1 . $args[1]->tolatex() . $p2);
-      }  
+      }
   };
   /special/ && do {
     if ($args[0] eq 'pi') {return '\pi';} else {return $args[0];}
@@ -591,7 +590,7 @@ sub tolatex {
     my(%close) = %AlgParser::close;
     if ($args[0] eq '{') {$backslash = '\\';}
 #This is for editors to match: }
-    return ('\left' . $backslash . $args[0] . $args[1]->tolatex() . 
+    return ('\left' . $backslash . $args[0] . $args[1]->tolatex() .
             '\right' . $backslash . $close{$args[0]});
   };
 }

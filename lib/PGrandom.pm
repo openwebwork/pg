@@ -1,4 +1,4 @@
-#! /usr/math/bin/perl -w
+
 
 
 package PGrandom;
@@ -23,9 +23,9 @@ sub new {
 	             'original_seed'	=> $original_seed,  # this and the next value are largely for debugging
 	             'number_of_calls'  => 1                # there is always one call to set the seed.
 	};
-	
+
 	bless $self, $class;
- 
+
  	return $self;
 }
 sub mod {   # for some reason perl's % doesn't seem to work for large numbers?
@@ -51,7 +51,7 @@ sub random {
 		$out = $begin + ($end-$begin)*$new_seed/$modulus;
 	}
 	$out;
-		
+
 }
 sub rand {
 	my $self  = shift;

@@ -1,4 +1,3 @@
-#!/usr/math/bin/perl -w
 
 
 # This is the "exported" subroutine.  Use this to evaluate the units given in an answer.
@@ -241,13 +240,13 @@ my %known_units = ('m'  => {
                            'rad'       => 1
                           },
                 'rev'  => {
-                			'factor'   => 2*$PI, 
+                			'factor'   => 2*$PI,
                 			'rad'      => 1
                 		  },
                 'cycles'  => {
-                			'factor'   => 2*$PI, 
+                			'factor'   => 2*$PI,
                 			'rad'      => 1
-                		  },                       
+                		  },
 
 # COMPOUND UNITS
 #
@@ -404,14 +403,14 @@ my %known_units = ('m'  => {
 
 
 sub process_unit {
-	
-	my $string = shift; 
-    die ("UNIT ERROR: No units were defined.") unless defined($string);  #   
+
+	my $string = shift;
+    die ("UNIT ERROR: No units were defined.") unless defined($string);  #
 	#split the string into numerator and denominator --- the separator is /
     my ($numerator,$denominator) = split( m{/}, $string );
 
-	
-	
+
+
 	$denominator = "" unless defined($denominator);
 	my %numerator_hash = process_term($numerator);
 	my %denominator_hash =  process_term($denominator);
@@ -423,33 +422,33 @@ sub process_unit {
 		if ( $u eq 'factor' ) {
 			$unit_hash{$u} = $numerator_hash{$u}/$denominator_hash{$u};  # calculate the correction factor for the unit
 		} else {
-			
+
 			$unit_hash{$u} = $numerator_hash{$u} - $denominator_hash{$u}; # calculate the power of the fundamental unit in the unit
 		}
-	}	
-	# return a unit hash.  
+	}
+	# return a unit hash.
 	return(%unit_hash);
 }
 
 sub process_term {
-	my $string = shift;  
+	my $string = shift;
 	my %unit_hash = %fundamental_units;
 	if ($string) {
-		
+
 		#split the numerator or denominator into factors -- the separators are *
-		
+
 	    my @factors = split(/\*/, $string);
-		
+
 		my $f;
 		foreach $f (@factors) {
 			my %factor_hash = process_factor($f);
-			
+
 			my $u;
 			foreach $u (keys %unit_hash) {
 				if ( $u eq 'factor' ) {
 					$unit_hash{$u} = $unit_hash{$u} * $factor_hash{$u};  # calculate the correction factor for the unit
 				} else {
-					
+
 					$unit_hash{$u} = $unit_hash{$u} + $factor_hash{$u}; # calculate the power of the fundamental unit in the unit
 				}
 			}
@@ -458,17 +457,17 @@ sub process_term {
 	#returns a unit hash.
 	#print "process_term returns", %unit_hash, "\n";
 	return(%unit_hash);
-}	
-	
+}
+
 
 sub process_factor {
-	my $string = shift;  
+	my $string = shift;
 	#split the factor into unit and powers
-	
+
     my ($unit_name,$power) = split(/\^/, $string);
 	$power = 1 unless defined($power);
 	my %unit_hash = %fundamental_units;
-	
+
 	if ( defined( $known_units{$unit_name} )  ) {
 		my %unit_name_hash = %{$known_units{$unit_name}};   # $reference_units contains all of the known units.
 		my $u;

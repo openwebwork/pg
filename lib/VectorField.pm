@@ -1,6 +1,3 @@
-#!/usr/math/bin/perl -wx
-
-
 
 =head1 NAME
 
@@ -26,32 +23,32 @@ The following functions are provided:
 
 =head2	new  (direction field version)
 
-=over 4	
+=over 4
 
 =item	$fn = new VectorField( dy_rule_ref);
 
 rule_reference is a reference to a subroutine which accepts a pair of numerical values
 and returns a numerical value.
-The Fun object will draw the direction field associated with this subroutine.  
+The Fun object will draw the direction field associated with this subroutine.
 
 The new method returns a reference to the vector field object.
 
 =item	$fn = new Fun( rule_reference , graph_reference);
 
 The vector field is also placed into the printing queue of the graph
- object pointed to by graph_reference and the 
+ object pointed to by graph_reference and the
 domain of the vector field object is set to the domain of the graph.
 
 =back
 
-=head2 	new  (phase plane version)	
+=head2 	new  (phase plane version)
 
-=over 4	
+=over 4
 
 =item	$fn = new VectorField ( dx_rule_ref, dy_rule_ref );
 
 A vector field object is created where the subroutines refered to by dx_rule_ref and dy_rule_ref define
-the x and y components of the vector field at (x,y).  Both subroutines must be functions of two variables. 
+the x and y components of the vector field at (x,y).  Both subroutines must be functions of two variables.
 
 =item	$fn = new VectorField ( x_rule_ref, y_rule_ref, graph_ref );
 
@@ -62,14 +59,14 @@ of the vector field object is set to the domain of the graph.
 
 =head2 Properites
 
-	All of the properties are set using the construction $new_value = $fn->property($new_value) 
+	All of the properties are set using the construction $new_value = $fn->property($new_value)
 	and read using $current_value = $fn->property()
 
-=over 4	
+=over 4
 
 =item xmin, xmax, ymin, ymax
 
-The domain of the vector field defined by these values.  
+The domain of the vector field defined by these values.
 
 =item x_steps y_steps
 
@@ -79,7 +76,7 @@ field arrows.
 =item arrow_color, dot_color
 
 The colors of the arrow bodies and the dot "base" of the arrow are
- specified by a word such as 'orange' or 'yellow'. 
+ specified by a word such as 'orange' or 'yellow'.
 C<$vf->arrow_color('blue'); $vf->dot_color('red');> sets the drawing color to blue for the arrow body, with
 a red dot at the base of the arrow.  The RGB values for the color are defined in the graph
 object in which the vector field is drawn.  If the color, e.g. 'mauve', is not defined by the graph object
@@ -87,7 +84,7 @@ then the function is drawn using the color 'default_color' which is always defin
 
 =item dx_rule
 
-A reference to the subroutine used to calculate the dx value of the phase plane field.  
+A reference to the subroutine used to calculate the dx value of the phase plane field.
 This is set to the constant function 1
 when using the function object in direction field mode.
 
@@ -113,20 +110,20 @@ $array_ref = $fn->domain(-1,-2,1,2) sets xmin to -1, ymin to -2, xmax to 1, and 
 
 =item draw
 
-$fn->draw($graph_ref) draws the vector field in the graph object pointed to by $graph_ref. 
+$fn->draw($graph_ref) draws the vector field in the graph object pointed to by $graph_ref.
 
 The graph object must
-respond to the methods below.  The draw call is mainly for internal 
+respond to the methods below.  The draw call is mainly for internal
 use by the graph object. Most users will not
 call it directly.
 
-=over 4	
+=over 4
 
-=item   $graph_ref->{colors} 
+=item   $graph_ref->{colors}
 
 a hash containing the defined colors
 
-=item $graph_ref ->im       
+=item $graph_ref ->im
 
 a GD image object
 
@@ -143,7 +140,7 @@ draw line to the point (x,y) using the pattern set by SetBrushed (see GD documen
 
 set the current position to (x,y)
 
-=back    
+=back
 
 =back
 
@@ -169,11 +166,11 @@ sub gdBrushed {
 	&GD::gdBrushed();
 }
 
-my $GRAPH_REFERENCE = "WWPlot";   
+my $GRAPH_REFERENCE = "WWPlot";
 my $VECTORFIELD_REFERENCE = "VectorField";
 
 my %fields =(
-		xmin			=>	-4,  
+		xmin			=>	-4,
 		xmax			=>	4,
 		ymin        	=>  -4,
 		ymax        	=>   4,
@@ -186,8 +183,8 @@ my %fields =(
 		dt				=>  0.1,
 		dx_rule     	=> sub{1;},
 		dy_rule     	=> sub{1;},
-		rf_arrow_length => sub{my($dx,$dy)=@_; 
-		                           return(0) if sqrt($dx**2 + $dy**2) ==0; 
+		rf_arrow_length => sub{my($dx,$dy)=@_;
+		                           return(0) if sqrt($dx**2 + $dy**2) ==0;
 		                           0.5*1/sqrt($dx**2 + $dy**2);
 		                      },
 
@@ -197,11 +194,11 @@ my %fields =(
 sub new {
 	my $class 				=	shift;
 
-	my $self 			= { 
+	my $self 			= {
 				_permitted	=>	\%fields,
 				%fields,
 	};
-	
+
 	bless $self, $class;
 	$self -> _initialize(@_);
 	return $self;
@@ -212,18 +209,18 @@ sub identity {  # the identity function
 }
 
 
-sub _initialize {     
+sub _initialize {
 	my	$self 	= 	shift;
 	my  ($xrule,$yrule, $rule,$graphRef);
 	my @input = @_;
 	if (ref($input[$#input]) eq $GRAPH_REFERENCE ) {
-		$graphRef = pop @input;  # get the last argument if it refers to a graph.  
+		$graphRef = pop @input;  # get the last argument if it refers to a graph.
 		$graphRef->fn($self);    # Install this vector field in the graph.
 		$self->{xmin} = $graphRef->{xmin};
 		$self->{xmax} = $graphRef->{xmax};
 		$self->{ymin} = $graphRef->{ymin};
 		$self->{ymax} = $graphRef->{ymax};
-	} 
+	}
     if ( @input == 1 ) {        # only one argument left -- this is a non parametric function
         $rule = $input[0];
 		if ( ref($rule) eq $VECTORFIELD_REFERENCE ) {  # clone another function
@@ -238,18 +235,18 @@ sub _initialize {
 	} elsif (@input == 2 ) {   #  two arguments -- parametric functions
 			$self->{dx_rule} = $input[0] ;
 			$self->{dy_rule} = $input[1] ;
-		
+
 	} else {
 		wwerror("$0:VectorField.pm:_initialize:", "Can't call VectorField with more than two arguments", "");
-	}	
+	}
 }
 sub draw {
-    my $self = shift;  # this function 
+    my $self = shift;  # this function
 	my $g = shift;   # the graph containing the function.
 	warn "This vector field is not being called from an enclosing graph" unless defined($g);
 	my $arrow_color;   # get color scheme from graph
 	if ( defined( $g->{'colors'}{$self->arrow_color} )  ) {
-		$arrow_color = $g->{'colors'}{$self->arrow_color}; 
+		$arrow_color = $g->{'colors'}{$self->arrow_color};
 	} else {
 		$arrow_color = $g->{'colors'}{'blue'};  # what you do if the color isn't there
 	}
@@ -276,9 +273,9 @@ sub draw {
     		$g->moveTo($x,$y);
     		$g->stamps(new Circle($x, $y, $dot_radius,$dot_color,$dot_color) );
     		$g->lineTo($x+$dx*&$rf_arrow_length($dx,$dy), $y+$dy*&$rf_arrow_length($dx,$dy),gdBrushed);
-    		
+
     	}
-    }      
+    }
 }
 
 sub domain {
@@ -287,7 +284,7 @@ sub domain {
   	$self->{xmin} = $inputs[0];
   	$self->{ymin} = $inputs[1];
   	$self->{xmax} = $inputs[2];
-	$self->{ymax} = $inputs[3];  	
+	$self->{ymax} = $inputs[3];
 }
 
 

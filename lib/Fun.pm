@@ -1,13 +1,13 @@
-#!/usr/math/bin/perl -wx
+
 
 #  Fun.pm
 # methods:
 # 	new Fun($rule,$graphRef)
-# 		If $rule is a subroutine then a function object is created, 
+# 		If $rule is a subroutine then a function object is created,
 #        with default data. If the graphRef is present the function is
 #       installed into the
-#		graph and the domain is reset to the graphRef's domain. 		
-# 		If the $rule is another function object then a copy of that function is 
+#		graph and the domain is reset to the graphRef's domain.
+# 		If the $rule is another function object then a copy of that function is
 # 		made with all of its data  and it is installed in the graphRef if that is present.
 #		In this case the domain of the function is not affected by the domain of the graphRef.
 # 	initial data
@@ -23,7 +23,7 @@
 #			It will be the same as $rule if $rule is actually another function object
 #					ELSE	   	the same as the domain of $graphRef if that is present
 #					ELSE		the interval (-1,1)
-# 	public access methods:    
+# 	public access methods:
 # 		domain
 # 		steps
 # 		color
@@ -49,7 +49,7 @@
 =head1 DESCRIPTION
 
 This module defines a parametric or non-parametric function object.  The function object is designed to
-be inserted into a graph object defined by WWPlot.  
+be inserted into a graph object defined by WWPlot.
 
 The following functions are provided:
 
@@ -57,30 +57,30 @@ The following functions are provided:
 
 =head2	new  (non-parametric version)
 
-=over 4	
+=over 4
 
 =item	$fn = new Fun( rule_reference);
 
 rule_reference is a reference to a subroutine which accepts a numerical value and returns a numerical value.
-The Fun object will draw the graph associated with this subroutine.  
+The Fun object will draw the graph associated with this subroutine.
 For example: $rule = sub { my $x= shift; $x**2};  will produce a plot of the x squared.
 The new method returns a reference to the function object.
 
 =item	$fn = new Fun( rule_reference , graph_reference);
 
-The function is also placed into the printing queue of the graph object pointed to by graph_reference and the 
+The function is also placed into the printing queue of the graph object pointed to by graph_reference and the
 domain of the function object is set to the domain of the graph.
 
 =back
 
-=head2 	new  (parametric version)	
+=head2 	new  (parametric version)
 
-=over 4	
+=over 4
 
 =item	$fn = new Fun ( x_rule_ref, y_rule_ref );
 
 A parametric function object is created where the subroutines refered to by x_rule_ref and y_rule_ref define
-the x and y outputs in terms of the input t.  
+the x and y outputs in terms of the input t.
 
 =item	$fn = new Fun ( x_rule_ref, y_rule_ref, graph_ref );
 
@@ -91,10 +91,10 @@ of the function object is not adjusted.  The domain's default value is (-1, 1).
 
 =head2 Properites
 
-	All of the properties are set using the construction $new_value = $fn->property($new_value) 
+	All of the properties are set using the construction $new_value = $fn->property($new_value)
 	and read using $current_value = $fn->property()
 
-=over 4	
+=over 4
 
 =item tstart, tstop, steps
 
@@ -103,7 +103,7 @@ used in graphing the function.
 
 =item color
 
-The color used to draw the function is specified by a word such as 'orange' or 'yellow'. 
+The color used to draw the function is specified by a word such as 'orange' or 'yellow'.
 C<$fn->color('blue')> sets the drawing color to blue.  The RGB values for the color are defined in the graph
 object in which the function is drawn.  If the color, e.g. 'mauve', is not defined by the graph object
 then the function is drawn using the color 'default_color' which is always defined (and usually black).
@@ -127,22 +127,22 @@ The width in pixels of the pen used to draw the graph. The pen is square.
 
 =over 4
 
-=item rule 
+=item rule
 
-This defines a non-parametric function. 
+This defines a non-parametric function.
 
-	$fn->rule(sub {my $x =shift; $x**2;} ) 
-	
+	$fn->rule(sub {my $x =shift; $x**2;} )
+
 	is equivalent to
-	
+
 	$fn->x_rule(sub {my $x = shift; $x;});
 	$fn->y_rule(sub {my $x = shift; $x**2;);
-	
+
 	$fn->rule() returns the reference to the y_rule.
 
 =item domain
 
-$array_ref = $fn->domain(-1,1) sets tstart to -1 and tstop to 1 and 
+$array_ref = $fn->domain(-1,1) sets tstart to -1 and tstop to 1 and
 returns a reference to an array containing this pair of numbers.
 
 
@@ -156,13 +156,13 @@ The graph object must
 respond to the methods below.  The draw call is mainly for internal use by the graph object. Most users will not
 call it directly.
 
-=over 4	
+=over 4
 
-=item   $graph_ref->{colors} 
+=item   $graph_ref->{colors}
 
 a hash containing the defined colors
 
-=item $graph_ref ->im       
+=item $graph_ref ->im
 
 a GD image object
 
@@ -179,7 +179,7 @@ draw line to the point (x,y) using the pattern set by SetBrushed (see GD documen
 
 set the current position to (x,y)
 
-=back    
+=back
 
 =back
 
@@ -205,7 +205,7 @@ sub gdBrushed {
 	&GD::gdBrushed();
 }
 
-my $GRAPH_REFERENCE = "WWPlot";   
+my $GRAPH_REFERENCE = "WWPlot";
 my $FUNCTION_REFERENCE = "Fun";
 
 my %fields =(
@@ -223,11 +223,11 @@ sub new {
 	my $class 				=	shift;
 #	my ($rule,$graphRef)	=   @_;
 
-	my $self 			= { 
+	my $self 			= {
 				_permitted	=>	\%fields,
 				%fields,
 	};
-	
+
 	bless $self, $class;
 	$self -> _initialize(@_);
 	return $self;
@@ -250,15 +250,15 @@ sub rule  { # non-parametric functions are defined using rule; use x_rule and y_
 	$out;
 }
 
-sub _initialize {     
+sub _initialize {
 	my	$self 	= 	shift;
 	my  ($xrule,$yrule, $rule,$graphRef);
 	my @input = @_;
 	if (ref($input[$#input]) eq $GRAPH_REFERENCE ) {
-		$graphRef = pop @input;  # get the last argument if it refers to a graph.  
+		$graphRef = pop @input;  # get the last argument if it refers to a graph.
 		$graphRef->fn($self);     # Install this function in the graph.
-	} 
-  
+	}
+
     if ( @input == 1 ) {                 # only one argument left -- this is a non parametric function
         $rule = $input[0];
 		if ( ref($rule) eq $FUNCTION_REFERENCE ) {  # clone another function
@@ -267,7 +267,7 @@ sub _initialize {
 				$self->{$k} = $rule->{$k};
 			}
 		} else {
-			$self->rule($rule);                     
+			$self->rule($rule);
 			if (ref($graphRef) eq $GRAPH_REFERENCE) { # use graph to initialize domain
 				$self->domain($graphRef->xmin,$graphRef->xmax);
 			}
@@ -275,19 +275,19 @@ sub _initialize {
 	} elsif (@input == 2 ) {   #  two arguments -- parametric functions
 			$self->x_rule($input[0]);
 			$self->y_rule($input[1]);
-		
+
 	} else {
 		wwerror("$0:Fun.pm:_initialize:", "Can't call function with more than two arguments", "");
 	}
-	
+
 }
 
 sub draw {
-    my $self = shift;  # this function 
+    my $self = shift;  # this function
 	my $g = shift;   # the graph containing the function.
 	my $color;   # get color scheme from graph
 	if ( defined( $g->{'colors'}{$self->color} )  ) {
-		$color = $g->{'colors'}{$self->color}; 
+		$color = $g->{'colors'}{$self->color};
 	} else {
 		$color = $g->{'colors'}{'default_color'};  # what you do if the color isn't there
 	}
@@ -295,10 +295,10 @@ sub draw {
 	my $brush_color = $brush->colorAllocate($g->im->rgb($color));  # transfer color
 	$g->im->setBrush($brush);
  	my $stepsize = ( $self->tstop - $self->tstart )/$self->steps;
-  	
+
     my ($t,$x,$i,$y);
     my $x_prev = undef;
-    my $y_prev = undef;	
+    my $y_prev = undef;
     foreach $i (0..$self->steps) {
     		$t=$stepsize*$i + $self->tstart;
     		$x=&{$self->x_rule}( $t );;
@@ -321,7 +321,7 @@ sub domain {
 		$self->tstart($tstart);
 		$self->tstop($tstop);
 	}
-		[$self->tstart,$self->tstop];	
+		[$self->tstart,$self->tstop];
 }
 
 

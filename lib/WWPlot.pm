@@ -1,5 +1,5 @@
-#!/usr/math/bin/perl -w
-#  this module holds the graph.  Several functions 
+
+#  this module holds the graph.  Several functions
 #  and labels may be plotted on
 #  the graph.
 
@@ -16,7 +16,7 @@
     use Global;
 	use Carp;
 	use GD;
-	
+
 	$graph = new WWPlot(400,400); # creates a graph 400 pixels by 400 pixels
 	$graph->fn($fun1, $fun2);     # installs functions $fun1 and $fun2 in $graph
 	$image_binary = $graph->draw();  # creates the gif/png image of the functions installed in the graph
@@ -24,7 +24,7 @@
 =head1 DESCRIPTION
 
 This module creates a graph object -- a canvas on which to draw functions, labels, and other symbols.
-The graph can be drawn with an axis, with a grid, and/or with an axis with tick marks.  
+The graph can be drawn with an axis, with a grid, and/or with an axis with tick marks.
 The position of the axes and the granularity of the grid and tick marks can be specified.
 
 =head2 new
@@ -48,7 +48,7 @@ These determine the world co-ordinates of the graph. The constructions
 and
 	$current_xmin = $graph->xmin();
 
-set and read the values. 
+set and read the values.
 
 =item fn, lb, stamps
 
@@ -68,18 +68,18 @@ the constructions for labels and stamps are respectively:
 	@labels = $graph->lb($new_label);
 	@stamps = $graph->stamps($new_stamp);
 
-while 
-	
+while
+
 	@functions = $graph->fn();
 
 will give a list of the current functions (similary for labels and stamps).
 
 Either of the  commands
 
-	$graph->fn('reset'); 
+	$graph->fn('reset');
 	$graph->fn('erase');
 
-will erase the array containing the functions and similary for the label and stamps arrays.	
+will erase the array containing the functions and similary for the label and stamps arrays.
 
 
 =item h_axis, v_axis
@@ -88,7 +88,7 @@ will erase the array containing the functions and similary for the label and sta
 	$new_axis    =       $grpah -> h_axis($new_axis);
 
 Respectively read and set the vertical coordinate value in real world coordinates where the
-horizontal axis intersects the vertical one.  The same construction reads and sets the coordinate 
+horizontal axis intersects the vertical one.  The same construction reads and sets the coordinate
 value for the vertical axis. The axis is drawn more darkly than the grids.
 
 =item h_ticks, v_ticks
@@ -111,7 +111,7 @@ vertical axis.
 =item draw
 
 	$image = $graph ->draw();
-	
+
 Draws the  image of the graph.
 
 =item size
@@ -149,7 +149,7 @@ for GD.)
 
 Moves to the point ($x, $y) (defined in real world coordinates) or draws a line from the
 current position to the specified point ($x, $y) using the color $color.  $color is the
-name, e.g. 'white',  of the color, not an index value or RGB specification.  These are 
+name, e.g. 'white',  of the color, not an index value or RGB specification.  These are
 low level call back routines used by the function, label and stamp objects to draw themselves.
 
 
@@ -166,7 +166,7 @@ These functions translate from real world to pixel coordinates.
 
 BEGIN {
 	be_strict(); # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
-    
+
 }
 package WWPlot;
 
@@ -198,7 +198,7 @@ my %fields = (  # initialization only!!!
 	ymin   		=>  -1,
 	ymax   		=>  1,
 	imageName		=>	undef,
-	position	=>  undef,  #used internally in the draw routine lineTo	
+	position	=>  undef,  #used internally in the draw routine lineTo
 );
 
 
@@ -221,10 +221,10 @@ sub new {
 				vgrid		=>	[],
 				haxis       =>  [],
 				vaxis       =>  [],
-				
+
 
 	};
-	
+
 	bless $self, $class;
 	$self ->	_initialize;
 	return $self;
@@ -233,7 +233,7 @@ sub new {
 # access methods for function list, label list and image
 sub fn {
 	my $self =	shift;
-	
+
 	if (@_ == 0) {
 		# do nothing if input is empty
 	} elsif ($_[0] eq 'reset' or $_[0] eq 'erase' ) {
@@ -246,7 +246,7 @@ sub fn {
 # access methods for fillRegion list, label list and image
 sub fillRegion {
 	my $self =	shift;
-	
+
 	if (@_ == 0) {
 		# do nothing if input is empty
 	} elsif ($_[0] eq 'reset' or $_[0] eq 'erase' ) {
@@ -283,7 +283,7 @@ sub stamps {
 	} else {
 		push(@{$self->{stamps}},@_) if @_;
 	}
-	
+
 	@{$self->{stamps}};
 }
 sub colors {
@@ -323,7 +323,7 @@ sub	_initialize {
 	    $self->{'colors'}{'default_color'} 	= 	$self->im->colorAllocate(0,0,0);
 	    $self->{'colors'}{'white'} 	= 	$self->im->colorAllocate(255,255,255);
 	    $self->{'colors'}{'black'} 	= 	$self->im->colorAllocate(0,0,0);
-	    $self->{'colors'}{'red'} 	= 	$self->im->colorAllocate(255,0,0);      
+	    $self->{'colors'}{'red'} 	= 	$self->im->colorAllocate(255,0,0);
 	    $self->{'colors'}{'green'}	= 	$self->im->colorAllocate(0,255,0);
 	    $self->{'colors'}{'blue'} 	= 	$self->im->colorAllocate(0,0,255);
 	    $self->{'colors'}{'yellow'}	=	$self->im->colorAllocate(255,255,0);
@@ -337,7 +337,7 @@ sub	_initialize {
 # reference shapes
 # closed circle
 # open circle
-    
+
 #	The translation subroutines.
 
 sub ii {
@@ -353,7 +353,7 @@ sub jj {
 	my $self = shift;
 	my $y = shift;
 	return undef unless defined($y);
-	my $ymax = $self->ymax; 
+	my $ymax = $self->ymax;
 	my $ymin = $self->ymin;
 	#print "ymax=$ymax y=$y ymin=$ymin size=",${$self->size}[1],"<BR><BR><BR><BR>";
 	int( ($ymax - $y)*${$self->size}[1]/($ymax-$ymin) );
@@ -411,7 +411,7 @@ sub v_grid {
 	my $self = shift;
 	push(@{$self->{vgrid}},@_ );  #color, grid x values
 }
- 
+
 
 
 sub draw {
@@ -419,16 +419,16 @@ sub draw {
 		my $im =$self->{'im'};
 		my @size = @{$self->size};
 		my %colors =%{$self->colors};
-		
+
 # make the background transparent and interlaced
 #    	$im->transparent($colors{'white'});
 	    $im->interlaced('true');
-	
+
 	    # Put a black frame around the picture
 	    $im->rectangle(0,0,$size[0]-1,$size[1]-1,$colors{'black'});
- 	    
+
 	    # draw functions
-	    
+
  	     	foreach my $f ($self->fn) {
  			#$self->draw_function($f);
  			$f->draw($self);  # the graph is passed to the function so that the label can call back as needed.
@@ -439,7 +439,7 @@ sub draw {
 			my $color = ${$self->colors}{$color_name};
 			$self->im->fill($self->ii($x),$self->jj($y),$color);
 		}
-	    
+
  		#draw hticks
  		my $tk;
  		my @ticks = @{$self->{hticks}};
@@ -447,7 +447,7 @@ sub draw {
 	 		my $nudge = shift(@ticks);
 	 		my $j     = $self->jj(shift(@ticks));
 	 		my $tk_clr= $self->{'colors'}{shift(@ticks)};
- 		
+
 	 		foreach $tk (@ticks) {
 	 			$tk = $self->ii($tk);
 	 			# print "tk=$tk\n";
@@ -460,7 +460,7 @@ sub draw {
 	 		my $nudge = shift(@ticks);
 	 		my $i     = $self->ii(shift(@ticks));
 	 		my $tk_clr= $self->{'colors'}{shift(@ticks)};
-	 		
+
 	 		foreach $tk (@ticks) {
 	 			$tk = $self->jj($tk);
 	 			# print "tk=$tk\n";
@@ -468,12 +468,12 @@ sub draw {
 	 		}
 	 	}
  		#draw vgrid
- 		
+
  		my @grid = @{$self->{vgrid}};
  		if (@grid)  {
 	 		my $x_value;
 	 		my $grid_clr= $self->{'colors'}{shift(@grid)};
-	 		
+
 	 		foreach $x_value (@grid) {
 	 			$x_value = $self->ii($x_value); # scale
 	 			#print "grid_line=$grid_line\n";
@@ -509,12 +509,12 @@ sub draw {
 	 	    #print "draw haxis", @{$self->{haxis}},"\n";
 		}
 		# draw functions again
-	    
+
  		foreach my $f ($self->fn) {
  			#$self->draw_function($f);
  			$f->draw($self);  # the graph is passed to the function so that the label can call back as needed.
  		}
-		
+
 
  		#draw labels
  		my $lb;
@@ -533,7 +533,7 @@ sub draw {
         	$out = $im->gif;
         }
         $out;
-		
+
 }
 
 
@@ -557,13 +557,13 @@ sub AUTOLOAD {
 
 sub DESTROY {
 	# doing nothing about destruction, hope that isn't dangerous
-}	
+}
 
 sub save_image {
 		my $self = shift;
 	warn "The method save_image is no longer supported. Use insertGraph(\$graph)";
-	"The method save_image is no longer supported. Use insertGraph(\$graph)";		
+	"The method save_image is no longer supported. Use insertGraph(\$graph)";
 }
- 
+
 
 1;

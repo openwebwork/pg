@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+
 #Construct for matching list.
 #Inherits from List.pm
 #VS 6/16/2000
@@ -6,7 +6,7 @@
 =head1 NAME
 
 Match.pm -- sub-class of List that implements a matching list.
-	
+
 All items accessed by $out = $ml -> item( $in );
 
 =head1 SYNOPSIS
@@ -22,20 +22,20 @@ Match.pm is intended to be used to create standard matching questions in which t
 	questions			# array of questions as entered using qa()
 	answers				# array of answers as entered using qa()
 	extras				# array of extras as entered using extra()
-	
+
 	selected_q			# randomly selected subset of "questions"
 	selected_a			# the answers for the selected questions
 	selected_e			# randomly selected subset of "extras"
-	
-	ans_rule_len		# determines the length of the answer blanks 
+
+	ans_rule_len		# determines the length of the answer blanks
 						# default is 4
-	
+
 	slice				# index used to select specific questions
-	shuffle				# permutation array which can be applied to slice 
+	shuffle				# permutation array which can be applied to slice
 						# to shuffle the answers
-	
+
 	inverted_shuffle	# the inverse permutation array
-	
+
 	rf_print_q			# reference to any subroutine which should
 						# take ($self, @questions) as parameters and
 						# output the questions in a formatted string.
@@ -43,7 +43,7 @@ Match.pm is intended to be used to create standard matching questions in which t
 						# printed, write your own print method and set
 						# this equal to a reference to to that method
 						# (i.e. $sl->rf_print_q(~~&printing_routine_q) )
-	
+
 	rf_print_a			# reference to any subroutine which should
 						# take ($self, @answers) as parameters and
 						# output the answers in a formatted string.
@@ -54,23 +54,23 @@ Match.pm is intended to be used to create standard matching questions in which t
 
 =head3 Methods
 
-	qa( array )			# accepts an array of strings which can be used 
+	qa( array )			# accepts an array of strings which can be used
 						# for questions and answers
 
-	extra( array )		# accepts an array of strings which can be used 
+	extra( array )		# accepts an array of strings which can be used
 						# as extra answers
-		
-	print_q				# yields a formatted string of question to be 
+
+	print_q				# yields a formatted string of question to be
 						# matched with answer blanks
 	print_a				# yields a formatted string of answers
-		
-	choose([3, 4], 1)	# chooses questions indexed 3 and 4 and one other 
+
+	choose([3, 4], 1)	# chooses questions indexed 3 and 4 and one other
 						# randomly
-	choose_extra([3, 4], 1) # choooses extra answers indexed 3 and 4 and one 
+	choose_extra([3, 4], 1) # choooses extra answers indexed 3 and 4 and one
 						# other
-	makeLast( array )	# accepts an array of strings (like qa) which will 
+	makeLast( array )	# accepts an array of strings (like qa) which will
 						# be forced to the end of the list of answers.
-		
+
 	ra_correct_ans		# outputs a reference to the array of correct answers
 
 =head2 Usage
@@ -81,7 +81,7 @@ Create a match list using the new_match_list call.
 	<PRE>
 	<I>$ml = new_match_list</I></PRE>
 
-Use qa() first to enter questions and answers in alternating pairs.  Note that 
+Use qa() first to enter questions and answers in alternating pairs.  Note that
 multiple questions can have the same answer.  Any duplicates will be eliminated.
 
 =for html
@@ -99,7 +99,7 @@ multiple questions can have the same answer.  Any duplicates will be eliminated.
 		'None of the above',
 	);</I></PRE>
 
-After you call qa you can use extra() to enter extra 'answers'.  Again all 
+After you call qa you can use extra() to enter extra 'answers'.  Again all
 duplicates will be eliminated.
 
 =for html
@@ -123,22 +123,22 @@ would show the first question and a random question while
 	<I>$ml->choose(3);</I></PRE>
 
 would show 3 random questions (but never call choose more than once).
-	
-After calling choose, use choose_extra to select which of the extra 'answers' 
-will be given to each student.  Note that unused answers are dumped into the 
-list of extra 'answers' so the indexing may be difficult to grasp at first. 
+
+After calling choose, use choose_extra to select which of the extra 'answers'
+will be given to each student.  Note that unused answers are dumped into the
+list of extra 'answers' so the indexing may be difficult to grasp at first.
 (This can be stopped by doing the following: $ml->dumpExtra = "";)
 
 =for html
 	<PRE>
 	<I>$ml->choose_extra([0], 2);</I></PRE>
 
-would show 3 extra answers besides the correct one note that these extra 
+would show 3 extra answers besides the correct one note that these extra
 answers may consist of answers from the questions that were not used.
-	
-After calling choose_extra you can use makeLast to add specific answers to the 
-end of the list of answers or to force already existing answers to be moved to 
-the end of the list.  This is usually done for 'None of the above', or 'All of 
+
+After calling choose_extra you can use makeLast to add specific answers to the
+end of the list of answers or to force already existing answers to be moved to
+the end of the list.  This is usually done for 'None of the above', or 'All of
 the above' type answers.
 
 =for html
@@ -154,9 +154,9 @@ If you want you can change the size of the answer boxes at any time (the default
 	<PRE>
 	<I>$ml->ans_rule_len(10);</I></PRE>
 
-Now you would start your problem with a BEGIN_TEXT tag and print the questions 
-and answers with the print_q() and print_a() commands. Within the 
-BEGIN_TEXT/END_TEXT block, all calls to objects must be enclosed in \( \).  
+Now you would start your problem with a BEGIN_TEXT tag and print the questions
+and answers with the print_q() and print_a() commands. Within the
+BEGIN_TEXT/END_TEXT block, all calls to objects must be enclosed in \( \).
 (The $PAR start a new paragraph by printing a blank line).
 
 =for html
@@ -168,9 +168,9 @@ BEGIN_TEXT/END_TEXT block, all calls to objects must be enclosed in \( \).
 		\{ $ml->print_a() \}
 	END_TEXT</I></PRE>
 
-Now all that's left is sending the students answers to the answer evaluator 
-along with the correct answers so that the students answers can be checked and 
-a score can be given.  This is done using ANS, an answer evaluator and the 
+Now all that's left is sending the students answers to the answer evaluator
+along with the correct answers so that the students answers can be checked and
+a score can be given.  This is done using ANS, an answer evaluator and the
 ra_correct_ans variable.
 
 =for html

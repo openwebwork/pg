@@ -1,4 +1,4 @@
-#!/usr/math/bin/perl -w
+
 
 =head1 NAME
 
@@ -14,7 +14,7 @@ macros.
 =head1 DESCRIPTION
 
 
-=head2 Examples: 
+=head2 Examples:
 
 
 
@@ -39,9 +39,9 @@ sub saveAnswerToFile {
       my $string = shift;
       # We want to allow acces only to predetermined files
       # We accomplish this by translating legal IDs into a file name
-      
+
       my $rh_allowableFiles = {preflight => 'preflight.log',
-      
+
       	};
       my $error=undef;
       my $logFileName = $rh_allowableFiles->{$logFileID};

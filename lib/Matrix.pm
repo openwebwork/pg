@@ -1,13 +1,13 @@
-#!/usr/local/perl -w
+
 BEGIN {
 	be_strict(); # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
-    
+
 }
 package Matrix;
 @Matrix::ISA = qw(MatrixReal1);
 
 
-	
+
 $Matrix::DEFAULT_FORMAT = '% #-19.12E ';
 # allows specification of the format
 sub _stringify
@@ -16,15 +16,15 @@ sub _stringify
 #   my($name) = '""'; #&_trace($name,$object,$argument,$flag);
     my($rows,$cols) = ($object->[1],$object->[2]);
     my($i,$j,$s);
-    
+
     $s = '';
     for ( $i = 0; $i < $rows; $i++ )
     {
         $s .= "[ ";
         for ( $j = 0; $j < $cols; $j++ )
         {
-            my $format = (defined($object->rh_options->{display_format})) 
-            		     ?   $object->[3]->{display_format} : 	
+            my $format = (defined($object->rh_options->{display_format}))
+            		     ?   $object->[3]->{display_format} :
 										$Matrix::DEFAULT_FORMAT;
             $s .= sprintf($Matrix::DEFAULT_FORMAT, $object->[0][$i][$j]);
         }
@@ -106,8 +106,8 @@ sub new_row_matrix {   # this builds a row vector from an array
 sub proj{
 	my $self = shift;
 	my ($vec) = @_;
-	$self * $self ->proj_coeff($vec); 
-} 
+	$self * $self ->proj_coeff($vec);
+}
 sub proj_coeff{
 	my $self= shift;
 	my ($vec) = @_;
@@ -125,7 +125,7 @@ sub new_column_matrix {
 	my $vec = shift;
 	warn "The argument to assign column must be a reference to an array" unless ref($vec) =~/ARRAY/;
 	my $cols = 1;
-	my $rows = @{$vec}; 
+	my $rows = @{$vec};
 	my $matrix = new Matrix($rows,1);
 	foreach my $i (1..$rows) {
 		$matrix->assign($i,1,$vec->[$i-1]);
@@ -135,7 +135,7 @@ sub new_column_matrix {
 =head4
 
 	This method takes an array of column vectors, or an array of arrays,
-	and converts them to a matrix where each column is one of the previous 
+	and converts them to a matrix where each column is one of the previous
 	vectors.
 
 =cut
@@ -145,16 +145,16 @@ sub new_from_col_vecs
 	my $class = shift;
  	my($vecs) = shift;
  	my($rows,$cols);
-	
+
 	if(ref($vecs->[0])eq 'Matrix' ){
 		($rows,$cols) = (scalar($vecs->[0]->[1]),scalar(@$vecs));
 	}else{
 		($rows,$cols) = (scalar(@{$vecs->[0]}),scalar(@$vecs));
 	}
-    	
+
 	my($i,$j);
-    	my $matrix = Matrix->new($rows,$cols); 
-  
+    	my $matrix = Matrix->new($rows,$cols);
+
   	if(ref($vecs->[0])eq 'Matrix' ){
 	    	for ( $i = 0; $i < $cols; $i++ )
     		{
@@ -173,6 +173,6 @@ sub new_from_col_vecs
     		}
 	}
     	return($matrix);
-}	
+}
 
 1;
