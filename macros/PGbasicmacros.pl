@@ -1713,6 +1713,21 @@ sub htmlLink {
 	    );
 }
 
+
+sub helpLink {
+	my $type1 = shift;
+	return "" if(not defined($envir{'localHelpURL'}));
+	my $type = lc($type1);
+	my %typeHash = (
+		'interval notation' => 'IntervalNotation.html',
+		'units' => 'Units.html',
+		);
+
+	my $infoRef = $typeHash{$type};
+	return htmlLink( $envir{'localHelpURL'}.$infoRef, $type1,
+'target="ww_help" onclick="window.open(this.href,this.target,\'width=550,height=350,scrollbars=yes,resizable=on\'); return false;"');
+}
+
 sub appletLink {
 	my $url = shift;
 	my $options = shift;
