@@ -13,7 +13,7 @@ sub _contextTF_init {}; # don't load it again
 #  via the Context()->strings->add() and Context()-strings->remove()
 #  methods
 #
-#	ANS(String_cmp("T","F"));
+#	ANS(string_cmp("T","F"));
 #
 #  when there are two answers, the first being "T" and the second being "F".
 #
