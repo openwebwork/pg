@@ -132,6 +132,7 @@ my ($BR 					        ,		# convenient localizations.
 	$functMaxConstantOfIntegration	,
 	$CA                             ,
 	$rh_envir                       ,
+	$useBaseTenLog                  ,
 	$QUESTIONNAIRE_ANSWERS          ,
 );
 
@@ -160,6 +161,7 @@ sub _PGanswermacros_init {
 		 $functULimitDefault				=	main::PG_restricted_eval(q!$main::functULimitDefault!);
 		 $functMaxConstantOfIntegration		=	main::PG_restricted_eval(q!$main::functMaxConstantOfIntegration!);
 		 $rh_envir                          =   main::PG_restricted_eval(q!\%main::envir!);
+		 $useBaseTenLog                     =   main::PG_restricted_eval(q!\%main::useBaseTenLog!);
 		 $QUESTIONNAIRE_ANSWERS				=   '';
 }
 
@@ -3527,7 +3529,7 @@ sub math_constants {
 	$in	=~s/\bpi\b/(4*atan2(1,1))/ge;
 	$in	=~s/\be\b/(exp(1))/ge;
 	$in	=~s/\^/**/g;
-	if($main::useBaseTenLog) {
+	if($useBaseTenLog) {
 		$in =~ s/\blog\b/logten/g;
 	}
 
