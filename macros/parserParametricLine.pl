@@ -98,6 +98,7 @@ sub new {
 #
 sub compare {
   my ($l,$r,$flag) = @_;
+  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
   $r = ParametricLine->new($r);
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   my ($lp,$lv) = ($l->{p},$l->{v});
