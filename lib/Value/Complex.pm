@@ -34,6 +34,7 @@ use overload
 #    one or two real numbers, or
 #    an array ref of one or two reals, or
 #    a Value::Complex object
+#    a formula returning a real or complex
 #  Make a formula if either part is a formula
 #
 sub new {
@@ -44,6 +45,7 @@ sub new {
   Value::Error("Can't convert ARRAY of length ".scalar(@{$x})." to a Complex Number") 
     unless (scalar(@{$x}) == 2);
   $x->[0] = Value::makeValue($x->[0]); $x->[1] = Value::makeValue($x->[1]);
+  return $x->[0] if Value::isComplex($x->[0]) && scalar(@_) == 0;
   Value::Error("Real part can't be ".Value::showClass($x->[0]))
      unless (Value::isRealNumber($x->[0]));
   Value::Error("Imaginary part can't be ".Value::showClass($x->[1]))

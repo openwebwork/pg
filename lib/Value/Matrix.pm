@@ -33,15 +33,14 @@ use overload
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my $M = shift;
+  my $M = shift; $M = Value::makeValue($M) if !ref($M) && scalar(@_) == 0;
   return bless {data => $M->data}, $class 
     if (Value::class($M) =~ m/Point|Vector|Matrix/ && scalar(@_) == 0);
-  return $M if (Value::isFormula($M) && $M->type eq "Matrix");
-  $M = [$M,@_] if ((defined($M) && ref($M) ne 'ARRAY') || scalar(@_) > 0);
-  Value::Error("Matrices must have at least one entry") unless defined($M) && scalar(@{$M}) > 0;
-  return $self->numberMatrix(@{$M}) if Value::isNumber($M->[0]);
+  return $M if (Value::isFormula($M) && $M->type eq Value::class($self));
+  $M = [$M,@_] if (ref($M) ne 'ARRAY' || scalar(@_) > 0);
+  Value::Error("Matrices must have at least one entry") unless scalar(@{$M}) > 0;
   return $self->matrixMatrix(@{$M}) if ref($M->[0]) =~ m/ARRAY|Matrix/;
-  return $self->parseFormula(@{$M});
+  return $self->numberMatrix(@{$M});
 }
 
 #
@@ -75,8 +74,8 @@ sub numberMatrix {
   my $self = shift; my $class = ref($self) || $self;
   my @M = (); my $isFormula = 0;
   foreach my $x (@_) {
-    Value::Error("Matrix row entries must be numbers") unless (Value::isNumber($x));
-    $x = Value::Real->make($x) if !ref($x);
+    $x = Value::makeValue($x);
+    Value::Error("Matrix row entries must be numbers") unless Value::isNumber($x);
     push(@M,$x); $isFormula = 1 if Value::isFormula($x);
   }
   return $self->formula([@M]) if $isFormula;

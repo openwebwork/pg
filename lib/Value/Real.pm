@@ -38,13 +38,17 @@ use overload
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $x = shift; $x = [$x,@_] if scalar(@_) > 0;
-  $x = $x->data if ref($x) eq $pkg;
+  return $x if ref($x) eq $pkg;
   $x = [$x] unless ref($x) eq 'ARRAY';
-  Value::Error("Can't convert ARRAY of length ".scalar(@{$x})." to a Real Number") 
+  Value::Error("Can't convert ARRAY of length ".scalar(@{$x})." to ".Value::showClass($class)) 
     unless (scalar(@{$x}) == 1);
-  return $self->parseFormula(@{$x}) unless Value::isRealNumber($x->[0]);
-  return $self->formula($x->[0]) if Value::isFormula($x->[0]);
-  bless {data => $x}, $class;
+  if (Value::isRealNumber($x->[0])) {
+    return $self->formula($x->[0]) if Value::isFormula($x->[0]);
+    return (bless {data => $x}, $class);
+  }
+  $x = Value::makeValue($x->[0]);
+  return $x if Value::isRealNumber($x);
+  Value::Error("Can't convert ".Value::showClass($x)." to ".Value::showClass($class));
 }
 
 #

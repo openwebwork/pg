@@ -134,23 +134,29 @@ sub isOne {0}
 #  Convert non-Value objects to Values, if possible
 #
 sub makeValue {
-  my $x = shift;
-  return $x if ref($x);
+  my $x = shift; my %params = (showError => 0, makeFormula => 1, @_);
+  return $x if ref($x) || $x eq '';
   return Value::Real->make($x) if matchNumber($x);
   if (matchInfinite($x)) {
     my $I = Value::Infinity->new();
     $I = $I->neg if $x =~ m/^$$Value::context->{pattern}{-infinity}$/;
     return $I;
   }
-  if ($Parser::installed) {return $x unless $$Value::context->{strings}{$x}}
-  return Value::String->make($x);
+  return Value::String->make($x)
+    if (!$Parser::installed || $$Value::context->{strings}{$x});
+  return $x if !$params{makeFormula};
+  Value::Error("String constant '$x' is not defined in this context")
+    if $params{showError};
+  $x = Value::Formula->new($x);
+  $x = $x->eval if $x->isConstant;
+  return $x;
 }
 
 #
 #  Get a printable version of the class of an object
 #
 sub showClass {
-  my $value = makeValue(shift);
+  my $value = makeValue(shift,makeFormula=>0);
   return "'".$value."'" unless Value::isValue($value);
   my $class = class($value);
   return showType($value) if ($class eq 'List');
@@ -255,7 +261,7 @@ sub toFormula {
 #
 #  Convert a list of values (and open and close parens)
 #    to a formula whose type is the list type associated with
-#    the parens.  If the formula is constant, evaluate it.
+#    the parens.
 #
 sub formula {
   my $self = shift; my $values = shift;
@@ -269,23 +275,7 @@ sub formula {
   $formula->{tree} = $formula->{context}{parser}{List}->new($formula,[@coords],0,
      $formula->{context}{parens}{$paren},$coords[0]->typeRef,$open,$close);
   $formula->{autoFormula} = 1;  # mark that this was generated automatically
-#   return $formula->eval if scalar(%{$formula->{variables}}) == 0;
   return $formula;
-}
-
-#
-#  Parse a string and return the resulting formula if it of the right
-#  type.  If the formula is constant, return the value rather than the
-#  formula.
-#
-sub parseFormula {
-  my $self = shift; my $class = ref($self) ? $self->type : class($self);
-  $class = "Number" if $class eq 'Real' || $class eq "Complex";
-  my $f = (scalar(@_) > 1) ? join(',',@_) : shift;
-  $f = Value::Formula->new($f); $f = $f->eval() if $f->isConstant;
-  Value::Error("Can't convert ".Value::showClass($f)." to ".Value::showClass($self))
-    if ($f->type ne $class);
-  return $f;
 }
 
 #
@@ -517,7 +507,7 @@ sub getCaller {
 #  For debugging
 #
 sub traceback {
-  my $frame = 2;
+  my $frame = shift; $frame = 2 unless defined($frame);
   my $trace = '';
   while (my ($pkg,$file,$line,$subname) = caller($frame++)) 
     {$trace .= " in $subname at line $line of $file\n"}

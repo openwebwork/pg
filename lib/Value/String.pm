@@ -21,7 +21,7 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $x = join('',@_);
   if ($Parser::installed) {
-    Value::Error("Unrecognized string '$x'")
+    Value::Error("String constant '$x' is not defined in this context")
       unless $$Value::context->{strings}{$x};
   }
   bless {data => [$x]}, $class;
@@ -44,7 +44,7 @@ sub isZero {0}
 #
 sub promote {
   my $x = shift; $x = [$x,@_] if scalar(@_) > 0;
-  $x = Value::makeValue($x); $x = join('',@{$x}) if ref($x) eq 'ARRAY';
+  $x = Value::makeValue($x,showError=>1); $x = join('',@{$x}) if ref($x) eq 'ARRAY';
   $x = $pkg->make($x) unless Value::isValue($x);
   return $x;
 }

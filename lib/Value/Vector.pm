@@ -34,21 +34,22 @@ use overload
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $p = shift; $p = [$p,@_] if (scalar(@_) > 0);
+  $p = Value::makeValue($p) if (defined($p) && !ref($p));
+  return $p if (Value::isFormula($p) && $p->type eq Value::class($self));
   my $pclass = Value::class($p); my $isFormula = 0;
   my @d; @d = $p->dimensions if $pclass eq 'Matrix';
   if ($pclass =~ m/Point|Vector/) {$p = $p->data}
   elsif ($pclass eq 'Matrix' && scalar(@d) == 1) {$p = [$p->value]}
   elsif ($pclass eq 'Matrix' && scalar(@d) == 2 && $d[0] == 1) {$p = ($p->value)[0]}
   elsif ($pclass eq 'Matrix' && scalar(@d) == 2 && $d[1] == 1) {$p = ($p->transpose->value)[0]}
-  elsif (defined($p) && ref($p) eq "") {return $self->parseFormula($p)}
   else {
     $p = [$p] if (defined($p) && ref($p) ne 'ARRAY');
     Value::Error("Vectors must have at least one coordinate") unless defined($p) && scalar(@{$p}) > 0;
     foreach my $x (@{$p}) {
+      $x = Value::makeValue($x);
       $isFormula = 1 if Value::isFormula($x);
       Value::Error("Coordinate of Vector can't be ".Value::showClass($x))
         unless Value::isNumber($x);
-      $x = Value::Real->make($x) unless ref($x);
     }
   }
   return $self->formula($p) if $isFormula;
