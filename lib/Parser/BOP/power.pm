@@ -25,7 +25,13 @@ sub _check {
 #
 #  Do perl exponentiation
 #
-sub _eval {$_[1] ** $_[2]}
+sub _eval {
+  my $x = $_[1] ** $_[2];
+  return $x unless $x eq 'nan';
+  $_[0]->Error("Can't raise a negative number to a power")
+    if Value::isNumber($_[1]) && Value::makeValue($_[1])->value < 0;
+  $_[0]->Error("Result of exponentiation is not a number");
+}
 
 #
 #  Return 1 for power of zero or base of 1.

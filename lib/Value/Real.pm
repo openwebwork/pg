@@ -49,6 +49,15 @@ sub new {
 }
 
 #
+#  Check that result is a number
+#
+sub make {
+  my $self = shift;
+  return $self->SUPER::make(@_) unless $_[0] eq "nan";
+  Value::Error("Result is not a real number");
+}
+
+#
 #  Create a new formula from the number
 #
 sub formula {
@@ -126,8 +135,11 @@ sub power {
   if ($l->promotePrecedence($r)) {return $r->power($l,!$flag)}
   $r = promote($r);
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  return $pkg->make($l->{data}[0]**$r->{data}[0]);
- }
+  my $x = $l->{data}[0]**$r->{data}[0];
+  return $pkg->make($x) unless $x eq 'nan';
+  Value::Error("Can't raise a negative number to a power") if ($l->{data}[0] < 0);
+  Value::Error("result of exponention is not a number");
+}
 
 sub compare {
   my ($l,$r,$flag) = @_;
