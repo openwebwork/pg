@@ -73,15 +73,15 @@ sub _PGbasicmacros_init {
     # The big problem is that at compile time in the cached Safe compartment
     # main:: has one definition, probably Safe::Root1::
     # At runtime main has another definition Safe::Rootx:: where x is > 1
-    
-    # It is important to 
+
+    # It is important to
     # initialize the my variable version of $displayMode from the "runtime" version
     # of main::displayMode
-    
+
     $displayMode         =    main::PG_restricted_eval(q!$main::displayMode!);
 
 # This is initializes the remaining variables in the runtime main:: compartment.
-  
+
 main::PG_restricted_eval( <<'EndOfFile');
     $displayMode            = $displayMode;
 
@@ -123,7 +123,7 @@ main::PG_restricted_eval( <<'EndOfFile');
 	@main::ALPHABET			= ('A'..'ZZ');
 
 
-	
+
 EndOfFile
 
 # Next we transfer the correct definitions in the main:: compartment to the local my variables
@@ -170,7 +170,7 @@ EndOfFile
    $envir               = PG_restricted_eval(q!\%main::envir!);
    $PG_random_generator = PG_restricted_eval(q!$main::PG_random_generator!);
    $inputs_ref          = $envir{inputs_ref};
-  
+
 }
 
 =head2  Answer blank macros:
@@ -270,20 +270,20 @@ sub NAMED_ANS_RULE {
     if ($answer_value =~ /\0/ ) {
     	my @answers = split("\0", $answer_value);
     	$answer_value = shift(@answers);  # use up the first answer
-    	PG_restricted_eval(q!$main::rh_sticky_answers{$name}=\@answers;!);  
-    	# store the rest -- beacuse this stores to a main:; variable 
-    	# it must be evaluated at run time  
+    	PG_restricted_eval(q!$main::rh_sticky_answers{$name}=\@answers;!);
+    	# store the rest -- beacuse this stores to a main:; variable
+    	# it must be evaluated at run time
     	$answer_value= '' unless defined($answer_value);
 	} elsif (ref($answer_value) eq 'ARRAY') {
 		my @answers = @{ $answer_value};
     	$answer_value = shift(@answers);  # use up the first answer
-    	PG_restricted_eval(q!$main::rh_sticky_answers{$name}=\@answers;!);  
-    	# store the rest -- beacuse this stores to a main:; variable 
-    	# it must be evaluated at run time 
+    	PG_restricted_eval(q!$main::rh_sticky_answers{$name}=\@answers;!);
+    	# store the rest -- beacuse this stores to a main:; variable
+    	# it must be evaluated at run time
     	$answer_value= '' unless defined($answer_value);
 	}
 
-	$answer_value =~ tr/$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
+	$answer_value =~ tr/\\$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
 	$name = RECORD_ANS_NAME($name);
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{10pt}{\\hrulefill}}\\hrulefill\\quad ",
@@ -305,7 +305,7 @@ sub NAMED_ANS_RULE_EXTENSION {
 		$answer_value = shift( @{PG_restricted_eval(q!$main::rh_sticky_answers{$name}!)});
 		$answer_value = '' unless defined($answer_value);
 	}
-	$answer_value =~ tr/$@//d;   ## make sure student answers can not be interpolated by e.g. EV3
+	$answer_value =~ tr/\\$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
 	MODES(
 		TeX => '\\hrulefill\\quad ',
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\n\\end{rawhtml}\n!,
@@ -329,7 +329,7 @@ sub  NAMED_ANS_BOX {
 	my $height = .07*$row;
 	my $answer_value = '';
 	$answer_value = $inputs_ref->{$name} if defined( $inputs_ref->{$name} );
-	$answer_value =~ tr/$@//d;   ## make sure student answers can not be interpolated by e.g. EV3
+	$answer_value =~ tr/\\$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
 	my $out = M3(
 	     qq!\\vskip $height in \\hrulefill\\quad !,
 	     qq!\\begin{rawhtml}<TEXTAREA NAME="$name" ROWS="$row" COLS="$col"
@@ -724,14 +724,14 @@ sub pop_up_list {
 =head5  answer_matrix
 
 		Usage   \[ \{   answer_matrix(rows,columns,width_of_ans_rule, @options) \} \]
-		
+
 		Creates an array of answer blanks and passes it to display_matrix which returns
 		text which represents the matrix in TeX format used in math display mode. Answers
 		are then passed back to whatever answer evaluators you write at the end of the problem.
 		(note, if you have an m x n matrix, you will need mn answer evaluators, and they will be
-		returned to the evaluaters starting in the top left hand corner and proceed to the left 
+		returned to the evaluaters starting in the top left hand corner and proceed to the left
 		and then at the end moving down one row, just as you would read them.)
-		
+
 		The options are passed on to display_matrix.
 
 
@@ -747,11 +747,11 @@ sub answer_matrix{
 	for( my $i = 0; $i < $m; $i+=1)
 	{
 		my @row_array = ();
-	
+
 		for( my $i = 0; $i < $n; $i+=1)
 		{
 			push @row_array,  ans_rule($width);
-		}	
+		}
 		my $r_row_array = \@row_array;
 		push @array,  $r_row_array;
 	}
@@ -760,28 +760,28 @@ sub answer_matrix{
 	# sure that main is defined correctly.
 	my $ra_local_display_matrix=PG_restricted_eval(q!\&main::display_matrix!);
 	&$ra_local_display_matrix( \@array, @options );
-	
+
 }
 
 sub NAMED_ANS_ARRAY_EXTENSION{
-	
+
 	my $name = shift;
 	my $col = shift;
 	$col = 20 unless $col;
 	my $answer_value = '';
-	
+
 	$answer_value = ${$inputs_ref}{$name} if    defined(${$inputs_ref}{$name});
 	if ($answer_value =~ /\0/ ) {
 		my @answers = split("\0", $answer_value);
-		$answer_value = shift(@answers); 
+		$answer_value = shift(@answers);
 		$answer_value= '' unless defined($answer_value);
 	} elsif (ref($answer_value) eq 'ARRAY') {
 		my @answers = @{ $answer_value};
-  		$answer_value = shift(@answers); 
+  		$answer_value = shift(@answers);
     		$answer_value= '' unless defined($answer_value);
 	}
-	
-	$answer_value =~ tr/$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
+
+	$answer_value =~ tr/\\$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{10pt}{\\hrulefill}}\\hrulefill\\quad ",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\n\\end{rawhtml}\n!,
@@ -800,29 +800,29 @@ sub ans_array{
 	my @array=();
 	my $string;
 	my $answer_value = "";
-	
+
 	$array[0][0] =   NAMED_ANS_RULE($name,$col);
-		
+
 	for( my $i = 1; $i < $n; $i+=1)
 	{
 		$name = NEW_ANS_ARRAY_NAME_EXTENSION($num,0,$i);
 		$array[0][$i] =   NAMED_ANS_ARRAY_EXTENSION($name,$col);
-	
+
 	}
-	
+
 	for( my $j = 1; $j < $m; $j+=1 ){
-		
+
 		for( my $i = 0; $i < $n; $i+=1)
 		{
 			$name = NEW_ANS_ARRAY_NAME_EXTENSION($num,$j,$i);
 		 	$array[$j][$i] =  NAMED_ANS_ARRAY_EXTENSION($name,$col);
-	
+
 		}
-	
+
 	}
 	my $ra_local_display_matrix=PG_restricted_eval(q!\&main::display_matrix!);
 	&$ra_local_display_matrix( \@array, @options );
-	
+
 }
 
 sub ans_array_extension{
@@ -836,20 +836,20 @@ sub ans_array_extension{
 	my @array=();
 	my $string;
 	my $answer_value = "";
-			
+
 	for( my $j = 0; $j < $m; $j+=1 ){
-		
+
 		for( my $i = 0; $i < $n; $i+=1)
 		{
 			$name = NEW_ANS_ARRAY_NAME_EXTENSION($num,$j,$i);
 			$array[$j][$i] =  NAMED_ANS_ARRAY_EXTENSION($name,$col);
-	
+
 		}
-	
+
 	}
 	my $ra_local_display_matrix=PG_restricted_eval(q!\&main::display_matrix!);
 	&$ra_local_display_matrix( \@array, @options );
-	
+
 }
 
 
@@ -912,7 +912,7 @@ sub hint {
 
 	if ($displayMode eq 'TeX')   {
 		$out = '';  # do nothing since hints are not available for download
-	} elsif (($envir->{'displayHintsQ'}) and 
+	} elsif (($envir->{'displayHintsQ'}) and
 	        PG_restricted_eval(q!($main::numOfAttempts >= $main::showHint)!))
 
 	 ## the second test above prevents a hint being shown if a doctored form is submitted
@@ -1401,12 +1401,12 @@ sub general_math_ev3 {
 
 	$in = FEQ($in); # Format EQuations
 	$in =~ s/%/\\%/g; # avoid % becoming TeX comments
-	
+
 	# some modes want the delimiters, some don't
 	my $in_delim = $mode eq "inline"
 		? "\\($in\\)"
 		: "\\[$in\\]";
-	
+
 	my $out;
 	if($displayMode eq "HTML_tth") {
 		$out = tth($in_delim);
@@ -1494,7 +1494,7 @@ sub beginproblem {
     my $l2hFileName = protect_underbar($envir->{fileName});
 	my %inlist;
 	my $points ='pts';
-	
+
 	$points = 'pt' if $problemValue == 1;
 	##    Prepare header for the problem
 	grep($inlist{$_}++,@{ $envir->{'PRINT_FILE_NAMES_FOR'} });
