@@ -1219,7 +1219,8 @@ for ordering are B<required>. Note the commas!)
 #
 
 
+sub i; 
 sub i {
+	Complex::i;
 }
-
 1;  # required to load properly
