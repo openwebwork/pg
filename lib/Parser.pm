@@ -7,7 +7,7 @@ BEGIN {
   #  Map class names to packages (added to Context, and
   #  can be overriden to customize the parser)
   #
-  our $class = {Formula => 'Parser::Formula'};
+  our $class = {Formula => 'Value::Formula'};
   
   #
   #  Collect the default reduction flags for use in the context
@@ -22,7 +22,9 @@ BEGIN {
 #  If it is a Value, make an appropriate tree for it.
 #
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
+  my $self = shift;
+  my $context = Parser::Context->current;
+  my $class = $context->{parser}{Formula};
   my $string = shift;
   $string = Value::List->new($string,@_)
     if scalar(@_) > 0 || ref($string) eq 'ARRAY';
@@ -30,7 +32,7 @@ sub new {
     string => undef,
     tokens => [], tree => undef, 
     variables => {}, values => {},
-    context => Parser::Context->current,
+    context => $context,
   }, $class;
   if (ref($string) =~ m/^(Parser|Value::Formula)/) {
     my $tree = $string; $tree = $tree->{tree} if exists $tree->{tree};
