@@ -1,4 +1,3 @@
-#!/usr/local/bin/webwork-perl
 ###########
 #use Carp;
 
@@ -181,7 +180,7 @@ sub display_matrix {
                                                                                         'right' => substr($styleParams,2,1),
                                                                                         'midrule' => substr($styleParams,1,1),
                                                                                         'top_labels' => 0,
-                                                                                        'box'=>0, # pair location of boxed element
+                                                                                        'box'=>[-1,-1], # pair location of boxed element
                                                                                         'allow_unknown_options'=> 1);
         
         my ($numRows, $numCols, @myRows);
@@ -209,12 +208,6 @@ sub display_matrix {
                         }
                 }
         }
-        my ($boxrow,$boxcol) = (-1,-1); #default to impossible values so nothing is boxed
-        if($opts{'box'}) {
-                $boxrow = $opts{'box'}->[0];
-                $boxcol = $opts{'box'}->[1];
-        }
-        
         
         my $out;
         my $j;
@@ -244,12 +237,17 @@ sub display_matrix {
         # column labels for linear programming
         $out .= dm_special_tops(%opts, 'alignList'=>$alignList) if ($opts{'top_labels'});
         $out .= dm_mat_left($numRows, %opts);
+	my $cnt = 1; # we count rows in in case an element is boxed
         # vertical lines put in with first row
         $j = shift @myRows;
-        $out .= dm_mat_row($j, $alignList, %opts, 'isfirst'=>$numRows);
+        $out .= dm_mat_row($j, $alignList, %opts, 'isfirst'=>$numRows, 
+		'cnt' => $cnt);
+	$cnt++ unless ($j eq 'hline');
         $out .= dm_mat_right($numRows, %opts);
         for $j (@myRows) {
-                $out .= dm_mat_row($j, $alignList, %opts, 'isfirst'=>0);
+                $out .= dm_mat_row($j, $alignList, %opts, 'isfirst'=>0,
+		'cnt' => $cnt);
+		$cnt++ unless ($j eq 'hline');
         }
         $out .= dm_end_matrix(%opts);
         $out;
@@ -496,17 +494,22 @@ sub dm_mat_row {
         my $out = "";
         my ($brh, $erh) = ("",""); # Start and end raw html
         my $element;
+        my $colcount=0;
         if($main::displayMode eq 'Latex2HTML') {
                 $brh = "\\begin{rawhtml}";
                 $erh = "\\end{rawhtml}";
         }
         if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
                 while (@elements) {
+			$colcount++;
+			$out .= '\fbox{' if ($colcount == $opts{'box'}->[1] and $opts{'cnt'}  == $opts{'box'}->[0]);
                         $element= shift(@elements);
                         if(ref($element) eq 'Fraction') {
                                 $element=  $element->print_inline();
                         }
-                        $out .= "$element &";
+                        $out .= "$element";
+			$out .= '}' if ($colcount == $opts{'box'}->[1] and $opts{'cnt'} == $opts{'box'}->[0]);
+                        $out .= " &";
                 }
                 chop($out); # remove last &
                 $out .= "\\cr  \n";
@@ -536,12 +539,17 @@ sub dm_mat_row {
                                 if($myalign eq "c") { $myalign = "center";}
                                 if($myalign eq "l") { $myalign = "left";}
                                 if($myalign eq "r") { $myalign = "right";}
+				$colcount++;
+				$out .= '\fbox{' if ($colcount == $opts{'box'}->[1] and $opts{'cnt'} == $opts{'box'}->[0]);
                                 $element= shift(@elements);
                                 if (ref($element) eq 'Fraction') {
                                         $element=  $element->print_inline();
                                 }
-                                $out .= "$brh<TD nowrap=\"nowrap\" align=\"$myalign\">$erh" .
-                                                                                                                                                                 $element . "$brh</TD>$erh";
+                                $out .= "$brh<TD nowrap=\"nowrap\" align=\"$myalign\">$erh";
+                                $out .= '<table border="1"><tr><td>' if ($colcount == $opts{'box'}->[1] and $opts{'cnt'} == $opts{'box'}->[0]);
+                                $out .= $element;
+                                $out .= '</td></tr></table>' if ($colcount == $opts{'box'}->[1] and $opts{'cnt'} == $opts{'box'}->[0]);
+				$out .= "$brh</TD>$erh";
                         }
                 }
                         if(not $opts{'isfirst'}) {$out .="$brh</TR>$erh\n";}
