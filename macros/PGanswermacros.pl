@@ -3453,7 +3453,7 @@ sub calculate_difference_vector {
 		push(@differences, $diff);
 		push(@instructorVals,$instructorVal);
 	}
-	if ($errors eq '' or $options{error_msg_flag} ) {
+	if (( not defined($errors) )  or $errors eq '' or $options{error_msg_flag} ) {
 	    $rh_ans ->{$options{stdout}} = \@differences;
 		$rh_ans ->{ra_student_values} = \@student_values;
 		$rh_ans ->{ra_adjusted_student_values} = \@adjusted_student_values;
