@@ -63,7 +63,7 @@ sub isOne {(shift)->{tree}{isOne}}
 #  Evaluate the formula if it is constant.
 #
 sub bop {
-  my ($l,$r,$flag,$bop) = @_;
+  my ($bop,$l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   my $formula = $pkg->blank; my $parser = $formula->{context}{parser};
@@ -90,12 +90,12 @@ sub bop {
   return $formula;
 }
 
-sub add   {bop(@_,'+')}
-sub sub   {bop(@_,'-')}
-sub mult  {bop(@_,'*')}
-sub div   {bop(@_,'/')}
-sub power {bop(@_,'**')}
-sub cross {bop(@_,'><')}
+sub add   {bop('+',@_)}
+sub sub   {bop('-',@_)}
+sub mult  {bop('*',@_)}
+sub div   {bop('/',@_)}
+sub power {bop('**',@_)}
+sub cross {bop('><',@_)}
 
 #
 #  Make dot work for vector operands
