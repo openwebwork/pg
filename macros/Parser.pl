@@ -24,7 +24,7 @@ loadMacros("PGcommonFunctions.pl");
 #
 #  The main way to get a formula
 #
-sub Formula  {Value::Formula->new(@_)}
+sub Formula {Value::Formula->new(@_)}
 
 #
 #  Parse a formula and evaluate it

@@ -8,13 +8,17 @@ use vars qw(@ISA %type);
 @ISA = qw(Value::Context::Data);
 
 #
-#  The types that variables can be
-#  @@@ Should also include domain ranges for when
-#      we use these in answer checkers @@@
+#  The named types for variables
+#    (you can use arbitary types by supplying an
+#     instance of the type rather than a name)
 #
 %type = (
   'Real'    => $Value::Type{number},
   'Complex' => $Value::Type{complex},
+  'Point2D' => Value::Type('Point',2,$Value::Type{number}),
+  'Point3D' => Value::Type('Point',3,$Value::Type{number}),
+  'Vector2D' => Value::Type('Vector',2,$Value::Type{number}),
+  'Vector3D' => Value::Type('Vector',3,$Value::Type{number}),
 );
 
 sub init {

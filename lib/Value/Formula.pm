@@ -201,17 +201,21 @@ sub createRandomPoints {
 
   ## FIXME:  deal with variables of type complex, etc.
   my @vars = $self->{context}->variables->names;
-  my @limits = $self->getVariableLimits(@vars);
-  foreach my $limit (@limits) {$limit->[2] = abs($limit->[1]-$limit->[0])/1000}
+  my @limits = $self->addLimitGranularity($self->getVariableLimits(@vars));
+  my @make = $self->getVariableTypes(@vars);
   my $f = $self->{f}; $f = $self->{f} = $self->perlFunction(undef,[@vars]) unless $f;
   my $seedRandom = $self->{context}->flag('random_seed')? 'PGseedRandom' : 'seedRandom';
   my $getRandom  = $self->{context}->flag('random_seed')? 'PGgetRandom'  : 'getRandom';
 
   $self->$seedRandom;
   my $points = []; my $values = [];
-  my (@P,$v); my $k = 0;
+  my (@P,@p,$v,$i); my $k = 0;
   while (scalar(@{$points}) < $num_points && $k < 10) {
-    @P = (); foreach my $limit (@limits) {push @P, $self->$getRandom(@{$limit})}
+    @P = (); $i = 0;
+    foreach my $limit (@limits) {
+      @p = (); foreach my $I (@{$limit}) {push @p, $self->$getRandom(@{$I})}
+      push @P, $make[$i++]->make(@p);
+    }
     $v = eval {&$f(@P)};
     if (!defined($v)) {$k++} else {
       push @{$points}, [@P];
@@ -231,16 +235,76 @@ sub createRandomPoints {
 #
 sub getVariableLimits {
   my $self = shift;
-  ## FIXME: check for consistency with @vars
-  return $self->{limits} if defined($self->{limits});
-  my @limits; my $default = $self->getFlag('limits',[-2,2]);
+  my $userlimits = $self->{limits}; my $i = 0;
+  if (defined($userlimits)) {
+    $userlimits = [[[-$userlimits,$userlimits]]] unless ref($userlimits) eq 'ARRAY';
+    $userlimits = [$userlimits] unless ref($userlimits->[0]) eq 'ARRAY';
+    $userlimits = [$userlimits] if scalar(@_) == 1 && ref($userlimits->[0][0]) ne 'ARRAY';
+    foreach my $I (@{$userlimits}) {$I = [$I] unless ref($I->[0]) eq 'ARRAY'};
+  }
+  $userlimits = [] unless $userlimits;
+  my $default = $userlimits->[0][0] || $self->{context}{flags}{limits} || [-2,2];
+  my @limits;
   foreach my $x (@_) {
-    my $def = $self->{context}->variables->get($x);
-    push @limits, $def->{limits} || $default;
+    my $def = $self->{context}{variables}{$x};
+    my $limit = $userlimits->[$i++] || $def->{limits} || [];
+    $limit = [$limit] if $limit->[0] && ref($limit->[0]) ne 'ARRAY';
+    push(@{$limit},$limit->[0] || $default) while (scalar(@{$limit}) < $def->{type}{length});
+    pop(@{$limit}) while (scalar(@{$limit}) > $def->{type}{length});
+    push @limits, $limit;
   }
   return @limits;
 }
 
+#
+#  Add the granularity to the limit intervals
+#
+sub addLimitGranularity {
+  my $self = shift; my @limits = @_;
+  foreach my $x (@limits) {
+    foreach my $I (@{$x}) {
+      my ($a,$b) = @{$I}; $b = -$a unless defined $b;
+      $I = [$a,$b,abs($b-$a)/1000];
+    }
+  }
+  return @limits;
+}
+
+#
+#  Get the routines to make the coordinates of the points
+#
+sub getVariableTypes {
+  my $self = shift;
+  my @make;
+  foreach my $x (@_) {
+    my $type = $self->{context}{variables}{$x}{type};
+    if ($type->{name} eq 'Number') {
+      push @make,($type->{length} == 1)? 'Value::Formula::number': 'Value::Complex';
+    } else {
+      push @make, "Value::$type->{name}";
+    }
+  }
+  return @make;
+}
+
+#
+#  Fake object for making reals (rather than use overhead of Value::Real)
+#
+sub Value::Formula::number::make {shift; shift}
+
+##
+##  debugging routine
+##
+#sub main::Format {
+#  my $v = scalar(@_) > 1? [@_]: shift;
+#  return $v unless ref($v) eq 'ARRAY';
+#  my @V; foreach my $x (@{$v}) {push @V, main::Format($x)}
+#  return '['.join(",",@V).']';
+#}
+
+#
+#  Random number generator  (replaced by Value::WeBWorK.pm)
+#
 sub seedRandom {srand}
 sub getRandom {
   my $self = shift;
