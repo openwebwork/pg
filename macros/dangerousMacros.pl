@@ -785,7 +785,7 @@ but will of course not be active.
 
 sub sourceAlias {
 	my $path_to_file = shift;
-	my $envir        =  PG_restricted_eval(q!$main::envir!);
+	my $envir        =  PG_restricted_eval(q!\%main::envir!);
 	my $user         = $envir->{inputs_ref}->{user};
 	$user            = " " unless defined($user);
     my $out = 'source.pl?probSetKey='  . $envir->{psvn}.
