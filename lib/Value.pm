@@ -62,6 +62,7 @@ $$context->{precedence} = {
    'Union'    =>  9,
    'String'   => 10,
    'Formula'  => 11,
+   'special'  => 12,
 };
 
 #
@@ -94,8 +95,14 @@ sub matchNumber   {my $n = shift; $n =~ m/^$$context->{pattern}{signedNumber}$/i
 sub matchInfinite {my $n = shift; $n =~ m/^$$context->{pattern}{infinite}$/i}
 sub isReal    {class(shift) eq 'Real'}
 sub isComplex {class(shift) eq 'Complex'}
-sub isFormula {class(shift) eq 'Formula'}
-sub isValue   {my $v = shift; return (ref($v) || $v) =~ m/^Value::/}
+sub isFormula {
+  my $v = shift;
+  return class($v) eq 'Formula' || (ref($v) && $v->{isFormula});
+}
+sub isValue   {
+  my $v = shift;
+  return (ref($v) || $v) =~ m/^Value::/ || (ref($v) && $v->{isValue});
+}
 
 sub isNumber {
   my $n = shift;
@@ -328,7 +335,8 @@ sub promotePrecedence {
   my $self = shift; my $other = shift;
   my $sprec = $$context->{precedence}{class($self)};
   my $oprec = $$context->{precedence}{class($other)};
-  return defined($oprec) && $sprec < $oprec;
+  return (defined($oprec) && $sprec < $oprec) ||
+    $sprec >= $$context->{precedence}{special};
 }
 
 sub promote {shift}
@@ -338,7 +346,7 @@ sub promote {shift}
 #
 sub nomethod {
   my ($l,$r,$flag,$op) = @_;
-  my $call = $$context->{method}{$op}; 
+  my $call = $$context->{method}{$op};
   if (defined($call) && $l->promotePrecedence($r)) {return $r->$call($l,!$flag)}
   my $error = "Can't use '$op' with ".$l->class."-valued operands";
   $error .= " (use '**' for exponentiation)" if $op eq '^';
