@@ -39,7 +39,9 @@ sub _check {}
 sub eval {
   my $self = shift; my @params = ();
   foreach my $x (@{$self->{params}}) {push(@params,$x->eval)}
-  $self->_eval(@params);
+  my $result = eval {$self->_eval(@params)};
+  return $result unless $@;
+  $self->Error("Can't take $self->{name} of ".join(',',@params));
 }
 #
 #  Stub for sub-classes
@@ -105,7 +107,9 @@ sub call {
   my $isFormula = 0;
   foreach my $x (@_) {return $self->formula($name,@_) if Value::isFormula($x)}
   my $class = $fn->{class};
-  $class->_call($name,@_);
+  my $result = eval {$class->_call($name,@_)};
+  return $result unless $@;
+  Value::Error("Can't take $name of ".join(',',@_));
 }
 #
 #  Stub for sub-classes.
