@@ -572,7 +572,7 @@ sub tolatex {
   };
   /func1/ && do {
       my($p1,$p2);
-      if($args[0] eq "sqrt"){($p1,$p2)=qw{ \left{ \right} };}
+      if($args[0] eq "sqrt"){($p1,$p2)=('{','}');}
       else {($p1,$p2)=qw{ \left( \right) };}
 
       #
