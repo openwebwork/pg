@@ -89,7 +89,7 @@ sub new {
     $type = 'line' if scalar(@{$vars}) == 2;
     my @terms = (); my $i = 0;
     foreach my $x (@{$vars}) {push @terms, $N->{data}[$i++]->string.$x}
-    $plane = Value::Formula->new(join(' + ',@terms).' = '.$d->string)->reduce;
+    $plane = Value::Formula->new(join(' + ',@terms).' = '.$d->string)->reduce(@_);
   } else {
     #
     #  Determine the normal vector and d value from the equation
@@ -115,7 +115,7 @@ sub new {
     #  Check that the student's formula really is what we thought
     #
     $N = Value::Vector->new([@coeff]);
-    $plane = ImplicitPlane->new($N,$d,$vars);
+    $plane = ImplicitPlane->new($N,$d,$vars,'-x=-y'=>0,'-x=n'=>0);
     Value::Error("Your formula isn't a linear one")
       unless (Value::Formula->new($plane->{tree}{lop}) -
               Value::Formula->new($plane->{tree}{rop})) == $f;
