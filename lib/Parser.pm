@@ -651,36 +651,6 @@ sub setValues {
 ##################################################
 ##################################################
 #
-#  Convert a student answer to a formula, with error trapping.
-#  If the result is undef, there was an error (message is in Context()->{error} object)
-#
-
-sub Formula {
-  my $f = shift;
-  my $v = eval {Value::Formula->new($f)};
-  $$Value::context->setError($@) unless defined($v) ||
-    $$Value::context->{error}{flag};
-  return $v;
-}
-
-#
-#  Evaluate a formula, with error trapping.
-#  If the result is undef, there was an error (message is in Context()->{error} object)
-#  If the result was a real, make it a fuzzy one.
-#
-sub Evaluate {
-  my $f = shift;
-  return unless defined($f);
-  my $v = eval {$f->eval(@_)};
-  if (defined($v)) {$v = Value::makeValue($v)}
-    else {$f->setError($@) unless $f->{context}{error}{flag}}
-  return $v;
-}
-
-
-##################################################
-##################################################
-#
 #  Produce a vector in ijk form
 #
 sub ijk {
