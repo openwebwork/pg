@@ -26,13 +26,14 @@ sub displaySelectModeLine_string
                   # called from probSet.pl
                   # displays the option line for selecting display modes
 {
+   my ($displayMode) =@_ ;
+   $displayMode = $Global::htmlModeDefault unless(defined($displayMode));
    # If the system is set up with only one display mode, there is
    # no need to display a choice - use the default
    if(scalar(@{$Global::available_mode_list})<2) {
      return('<input type="hidden" name="Mode" value="'.
-          $Global::htmldisplayModeDefault .'">');
+          $displayMode .'">');
    }
-   my ($displayMode) =@_ ;
    my $out = "Display Mode: <BR>";
 
 # A list of the available modes.
@@ -55,7 +56,7 @@ sub displaySelectModeLine_string
 		push @{$mode_list->[$j]},'';
 	}
 
-   if (! defined($displayMode) ) {$displayMode = $Global::htmldisplayModeDefault;}
+   if (! defined($displayMode) ) {$displayMode = $Global::htmlModeDefault;}
 
 
    my $found = 0;
