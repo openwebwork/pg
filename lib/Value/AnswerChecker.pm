@@ -79,16 +79,15 @@ sub cmp_check {
 #
 sub cmp_equal {
   my $self = shift; my $ans = shift;
-  my $v = $ans->{correct_value};
-  my $V = $ans->{student_value};
-  if ($v->typeMatch($V,$ans)) {
-    my $equal = eval {$v == $V}; # let the overloaded == do the check
+  if ($ans->{correct_value}->typeMatch($ans->{student_value},$ans)) {
+    my $equal = eval {$ans->{correct_value} == $ans->{student_value}};
     if (defined($equal) || !$ans->{showEqualErrors}) {$ans->score(1) if $equal; return}
     my $cmp_error = $ans->{cmp_error} || 'cmp_error';
     $self->$cmp_error($ans);
   } else {
     $ans->{ans_message} = $ans->{error_message} =
-      "Your answer isn't ".$v->showClass." (it looks like ".$V->showClass.")"
+      "Your answer isn't ".$ans->{correct_value}->showClass.
+        " (it looks like ".$ans->{student_value}->showClass.")"
 	   if !$ans->{isPreview} && $ans->{showTypeWarnings} && !$ans->{error_message};
   }
 }
@@ -136,6 +135,19 @@ sub protectHTML {
 }
 
 #############################################################
+#############################################################
+
+package Value::Real;
+
+sub typeMatch {
+  my $self = shift; my $other = shift; my $ans = shift;
+  if ($other->type eq 'String') {
+    $ans->{showEqualErrors} = 0;
+    return 1;
+  }
+  $self->type eq $other->type;
+}
+
 #############################################################
 
 package Value::List;

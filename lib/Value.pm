@@ -30,6 +30,10 @@ $defaultContext = Value::Context->new(
     tolType => 'relative',
     zeroLevel => 1E-14,
     zeroLevelTol => 1E-12,
+    #
+    #  word to use for infinity
+    #
+    infiniteWord => 'infinity',
   },
 );
 
@@ -67,6 +71,10 @@ $$context->{method} = {
    '<=>' => 'compare',
 };
 
+$$context->{pattern}{infinite} = '^[-+]?inf(inity)?$';
+$$context->{pattern}{infinity} = '^\+?inf(inity)?$';
+$$context->{pattern}{-infinity} = '^-inf(inity)?$';
+
 push(@{$$context->{data}{values}},'method','precedence');
 
 #############################################################
@@ -99,6 +107,7 @@ sub showClass {
   my $value = shift;
   return "'".$value."'" unless ref($value);
   my $class = class($value);
+  $class = 'Infinity' if $class eq 'String' && $value->{isInfinite};
   $class .= ' Number' if $class =~ m/^(Real|Complex)$/;
   $class .= ' of Intervals' if $class eq 'Union';
   return showType($value->{tree}) if $class eq 'Formula';
@@ -113,6 +122,7 @@ sub showType {
   my $value = shift;
   my $type = $value->type;
   return 'a Complex Number' if $value->isComplex;
+  return 'an Infinity' if $value->{isInfinite};
   return 'an '.$type if substr($type,0,1) =~ m/[aeio]/i;
   return 'a '.$type;
 }

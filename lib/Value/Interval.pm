@@ -49,6 +49,8 @@ sub new {
     $a = Value::Real->make($a) unless $nia;
     $b = Value::Real->make($b) unless $ib;
   }
+  $a = "-".$$Value::context->flag('infiniteWord') if $nia;
+  $b = $$Value::context->flag('infiniteWord') if $ib;
   bless {
     data => [$a,$b], open => $open, close => $close,
     leftInfinite => $nia, rightInfinite => $ib,
@@ -94,12 +96,12 @@ sub isNumOrInfinity {
 }
 sub isInfinity {
   my $n = shift;
-  return 1 if !ref($n) && $n eq 'INF';
+  return 1 if !ref($n) && $n =~ m/$$Value::context->{pattern}{infinity}/i;
   return (Value::isFormula($n) && $n->{tree}{isInfinity});
 }
 sub isNegativeInfinity {
   my $n = shift;
-  return 1 if !ref($n) && $n eq '-INF';
+  return 1 if !ref($n) && $n =~ m/$$Value::context->{pattern}{-infinity}/i;
   return (Value::isFormula($n) && $n->{tree}{isNegativeInfinity});
 }
 
