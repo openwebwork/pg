@@ -19,7 +19,8 @@ package Value;
 
 sub cmp_defaults {(
   showTypeWarnings => 1,
-  showEqualErrors => 1,
+  showEqualErrors  => 1,
+  ignoreStrings    => 1,
 )}
 
 sub cmp {
@@ -90,15 +91,18 @@ sub cmp_check {
 #
 sub cmp_equal {
   my $self = shift; my $ans = shift;
-  if ($ans->{correct_value}->typeMatch($ans->{student_value},$ans)) {
-    my $equal = eval {$ans->{correct_value} == $ans->{student_value}};
+  my $correct = $ans->{correct_value};
+  my $student = $ans->{student_value};
+  if ($correct->typeMatch($student,$ans)) {
+    my $equal = eval {$correct == $student};
     if (defined($equal) || !$ans->{showEqualErrors}) {$ans->score(1) if $equal; return}
     my $cmp_error = $ans->{cmp_error} || 'cmp_error';
     $self->$cmp_error($ans);
   } else {
+    return if $ans->{ignoreStrings} && (!Value::isValue($student) || $student->type eq 'String');
     $ans->{ans_message} = $ans->{error_message} =
       "Your answer isn't ".lc($ans->{cmp_class}).
-        " (it looks like ".lc($ans->{student_value}->showClass).")"
+        " (it looks like ".lc($student->showClass).")"
 	   if !$ans->{isPreview} && $ans->{showTypeWarnings} && !$ans->{error_message};
   }
 }
@@ -197,7 +201,6 @@ package Value::Real;
 
 sub cmp_defaults {(
   shift->SUPER::cmp_defaults,
-  ignoreStrings => 1,
   ignoreInfinity => 1,
 )}
 
@@ -206,10 +209,6 @@ sub typeMatch {
   return 1 unless ref($other);
   return 0 if $other->class eq 'Formula';
   return 1 if $other->type eq 'Infinity' && $ans->{ignoreInfinity};
-  if ($other->type eq 'String' && $ans->{ignoreStrings}) {
-    $ans->{showEqualErrors} = 0;
-    return 1;
-  }
   $self->type eq $other->type;
 }
 
@@ -226,10 +225,6 @@ sub typeMatch {
   return 1 unless ref($other);
   return 0 if $other->class eq 'Formula';
   return 1 if $other->type eq 'Number';
-  if ($other->type eq 'String' && $ans->{ignoreStrings}) {
-    $ans->{showEqualErrors} = 0;
-    return 1;
-  }
   $self->type eq $other->type;
 }
 
@@ -308,9 +303,8 @@ sub cmp_defaults {(
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
   return 0 unless ref($other) && $other->class ne 'Formula';
-  $other = $ans->{student_value} = Value::Vector::promote($other)
-    if $ans->{promotePoints} && $other->type eq 'Point';
-  return $other->type eq 'Vector';
+  return $other->type eq 'Vector' ||
+     ($ans->{promotePoints} && $other->type eq 'Point');
 }
 
 #
@@ -354,9 +348,9 @@ sub cmp_defaults {(
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
   return 0 unless ref($other) && $other->class ne 'Formula';
-  $other = $ans->{student_value} = $self->make($other->{data})
-    if $other->class eq 'Point';
-  return $other->type eq 'Matrix';
+  return $other->type eq 'Matrix' ||
+    ($other->type =~ m/^(Point|list)$/ &&
+     $other->{open}.$other->{close} eq $self->{open}.$self->{close});
 }
 
 sub cmp_postprocess {
