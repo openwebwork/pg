@@ -1353,26 +1353,45 @@ C<sort {$a cmp $b} @list>
 sorts the list numerically and lexically respectively. 
 
 If C<my $a;> is used in a problem, before the sort routine is defined in a macro, then
-things get badly confused.  To correct this, the following macros are defined in
-dangerougMacros.pl which is evaluated before the problem template is read.
+things get badly confused.  To correct this the macro PGsort is defined below.  It is 
+evaluated before the problem template is read.  In PGbasicmacros.pl, the two subroutines
 
-	PGsort sub { $_[0] <=> $_[1] }, @list;
-	PGsort sub { $_[0] cmp $_[1] }, @list;
+	PGsort sub { $_[0] < $_[1] }, @list;
+	PGsort sub { $_[0] lt $_[1] }, @list;
 
-provide slightly slower, but safer, routines for the PG language. (The subroutines
-for ordering are B<required>. Note the commas!)
+(called num_sort and lex_sort) provide slightly slower, but safer, routines for the PG language. 
+(The subroutines for ordering are B<required>. Note the commas!)
 
 =cut
+
 # This sort can cause troubles because of its special use of $a and $b
 # Putting it in dangerousMacros.pl worked frequently, but not always.
 # In particular ANS( ans_eva1 ans_eval2) caused trouble.
 # One answer at a time did not --- very strange.
+# This was replaced by a quick sort routine because the original subroutine
+# did not work with Safe when Perl was built with ithreads
 
-sub PGsort {
-	my $sort_order = shift;
-	die "Must supply an ordering function with PGsort: PGsort sub {\$a cmp \$b }, \@list\n" unless ref($sort_order) eq 'CODE';
-	sort {&$sort_order($a,$b)} @_;
-}
+#sub PGsort {
+#	my $sort_order = shift;
+#	die "Must supply an ordering function with PGsort: PGsort sub {\$a cmp \$b }, \@list\n" unless ref($sort_order) eq 'CODE';
+#	sort {&$sort_order($a,$b)} @_;
+#}
+
+      # quicksort
+       sub PGsort {
+         my $cmp = shift;
+	 die "Must supply an ordering function with PGsort: PGsort  sub {$_[0]  <  $_[1] }, \@list\n" unless ref($cmp) eq 'CODE';
+         if (@_ == 0) { return () }
+         else {
+           my $b_item = shift;
+           my ($small, $large);
+           my $a_item;
+           for $a_item (@_) {
+             push @{&$cmp($a_item, $b_item) ? $small : $large}, $a_item;
+           }
+           return (PGsort($cmp, @$small), $b_item, PGsort($cmp, @$large));
+         }
+       }
 
 =head2 includePGtext
 
