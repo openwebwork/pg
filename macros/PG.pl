@@ -1,4 +1,4 @@
-#!/usr/local/bin/webwork-perl
+#!/usr/local/bin/perl
 
 #	This file provided the fundamental macros for the pg language
 #	These macros define the interface between the problems written by
@@ -311,6 +311,7 @@ sub NEW_ANS_ARRAY_NAME_EXTENSION {        # this keeps track of the answers whic
 			$vecnum += 1;		
 		}
 		my $label = "ArRaY"."$number"."["."$vecnum".","."$row".","."$col"."]";
+		eval(q!push(@main::KEPT_EXTRA_ANSWERS, $label)!);#put the labels into the hash to be caught later for recording purposes
 		$label;
 }
 
@@ -378,6 +379,7 @@ sub ENDDOCUMENT {
 		$main::PG_FLAGS{'showHintLimit'} = $main::showHint;
 		$main::PG_FLAGS{'solutionExists'} = $main::solutionExists;
 		$main::PG_FLAGS{ANSWER_ENTRY_ORDER} = \@main::PG_ANSWER_ENTRY_ORDER;
+		$main::PG_FLAGS{KEPT_EXTRA_ANSWERS} = \@main::KEPT_EXTRA_ANSWERS;##need to keep array labels that don't call "RECORD_ANS_NAME"
 		$main::PG_FLAGS{ANSWER_PREFIX} = $main::ANSWER_PREFIX;
 		# install problem grader
 		if (defined($main::PG_FLAGS{PROBLEM_GRADER_TO_USE}) ) {
