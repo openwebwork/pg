@@ -59,7 +59,7 @@ sub TeX {
   my $TeX; my $bop = $self->{def};
   my $addparens =
       defined($precedence) &&
-      ($showparens eq 'all' || $precedence > $bop->{precedence} ||
+      ($showparens eq 'all' || ($precedence > $bop->{precedence} && $showparens ne 'nofractions') ||
       ($precedence == $bop->{precedence} &&
         ($bop->{associativity} eq 'right' || $showparens eq 'same')));
 

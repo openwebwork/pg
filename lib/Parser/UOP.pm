@@ -195,13 +195,14 @@ sub string {
 sub TeX {
   my ($self,$precedence,$showparens,$position,$outerRight) = @_;
   my $TeX; my $uop = $self->{def};
+  my $fracparens = ($uop->{nofractionparens}) ? "nofractions" : "";
   my $addparens = defined($precedence) &&
     ($precedence >= $uop->{precedence} || $position eq 'right' || $outerRight);
   $TeX = (defined($uop->{TeX}) ? $uop->{TeX} : $uop->{string});
   if ($uop->{associativity} eq "right") {
-    $TeX = $self->{op}->TeX($uop->{precedence}) . $TeX;
+    $TeX = $self->{op}->TeX($uop->{precedence},$fracparens) . $TeX;
   } else {
-    $TeX = $TeX . $self->{op}->TeX($uop->{precedence});
+    $TeX = $TeX . $self->{op}->TeX($uop->{precedence},$fracparens);
   }
   $TeX = '\left('.$TeX.'\right)' if $addparens;
   return $TeX;
