@@ -3396,7 +3396,7 @@ sub calculate_difference_vector {
 		my ($inVal,  $correctVal);
 		($inVal, $err1) = &{$rf_fun}(@vars);
 		$errors .= " $err1 "  if defined($err1);
-		$errors .= " Error detected evaluating student input at (".join(' , ',@vars) ." ) " if  defined($options{debug}) and $options{debug}=1 and defined($err1);
+		$errors .= " Error detected evaluating student input at (".join(' , ',@vars) ." ) " if  defined($options{debug}) and $options{debug}==1 and defined($err1);
 		($correctVal, $err2) =&{$rf_correct_fun}(@inputs);
 		$errors .= " There is an error in WeBWorK's answer to this problem, please alert your instructor.<br> $err2 " if defined($err2);
 		$errors .= " Error detected evaluating correct adapted answer  at (".join(' , ',@inputs) ." ) " if defined($options{debug}) and $options{debug}=1 and defined($err2);
