@@ -397,6 +397,8 @@ sub render {
 	# remove temporary directory (and its contents)
 	if ($PreserveTempFiles) {
 		warn "ImageGenerator: preserved temp files in working directory '$wd'.\n";
+		chmod (0775,$wd);
+		chmod (0664,<$wd/*>);
 	} else {
 		removeTempDirectory($wd);
 	}
