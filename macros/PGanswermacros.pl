@@ -1955,8 +1955,9 @@ sub trim_whitespace {
 
 sub ignore_case {
 	my $filteredAnswer = shift;
-
-	$filteredAnswer = uc $filteredAnswer;
+	#warn "filtered answer is ", $filteredAnswer;
+	#$filteredAnswer = uc $filteredAnswer;  # this didn't work on webwork xmlrpc, but does elsewhere ????
+	$filteredAnswer =~ tr/a-z/A-Z/;
 
 	return $filteredAnswer;
 }
@@ -2297,6 +2298,10 @@ radio_cmp( $correctAnswer )
 # because of the conversion of the answer
 # string to an array, I thought it better not
 # to force STR_CMP() to work with this
+
+#added 2/26/2003 by Mike Gage
+# handled the case where multiple answers are passed as an array reference
+# rather than as a \0 delimited string.
 sub checkbox_cmp {
 	my	$correctAnswer = shift @_;
 	$correctAnswer = str_filters( $correctAnswer, 'ignore_order' );
@@ -2304,10 +2309,15 @@ sub checkbox_cmp {
 	my	$answer_evaluator =	sub	{
 		my $in = shift @_;
 		$in = '' unless defined $in;			#in case no boxes checked
-
-		my @temp = split( "\0", $in );			#convert "\0"-delimited string to array...
-		$in = join( "", @temp );				#and then to a single no-delimiter string
-
+												# multiple answers could come in two forms
+												# either a \0 delimited string or
+												# an array reference.  We handle both.
+        if (ref($in) eq 'ARRAY')   {
+        	$in = join("",@{$in});              # convert array to single no-delimiter string
+        } else {
+			my @temp = split( "\0", $in );		#convert "\0"-delimited string to array...
+			$in = join( "", @temp );			#and then to a single no-delimiter string
+		}
 		my $original_student_ans = $in;			#well, almost original
 		$in	= str_filters( $in, 'ignore_order' );
 
@@ -2315,7 +2325,7 @@ sub checkbox_cmp {
 
 		my $ans_hash = new AnswerHash(
 							'score'			=>	$correctQ,
-							'correct_ans'		=>	$correctAnswer,
+							'correct_ans'		=>	"$correctAnswer",
 							'student_ans'		=>	$in,
 							'ans_message'		=>	"",
 							'type'			=>	"checkbox_cmp",
@@ -2451,6 +2461,8 @@ sub anstext_non_anonymous {
 #  all of the answers to the designated	address.
 #  (This address must be listed	in PG_environment{'ALLOW_MAIL_TO'} or an error occurs.)
 
+# Fix me?? why is the body hard wired to the string QUESTIONNAIRE_ANSWERS?
+
 sub mail_answers_to {  #accepts	the	last answer	and	mails off the result
 	my $user_address = shift;
 	my $ans_eval = sub {
@@ -2475,6 +2487,37 @@ sub mail_answers_to {  #accepts	the	last answer	and	mails off the result
 
 	return $ans_eval;
 }
+
+sub save_answer_to_file {  #accepts	the	last answer	and	mails off the result
+	my $fileID = shift;
+	my $ans_eval = new AnswerEvaluator;
+	$ans_eval->install_evaluator(
+			sub {
+				 my $rh_ans = shift;
+        		
+       		 	 unless ( defined( $rh_ans->{student_ans} ) ) {
+        			$rh_ans->throw_error("save_answers_to_file","{student_ans} field not defined");
+        			return $rh_ans;
+       			}
+       
+				my $error;
+				my $string = '';
+				$string = qq![[<$main::studentLogin> $main::studentName /!. time() . qq!/]]\n!.
+					$rh_ans->{student_ans}. qq!\n\n============================\n\n!;
+				
+				if ($error = AnswerIO::saveAnswerToFile('preflight',$string) ) {
+					$rh_ans->throw_error("save_answers_to_file","Error:  $error");
+				} else {
+					$rh_ans->{'student_ans'} = 'Answer saved';
+					$rh_ans->{'score'} = 1; 
+				}
+				$rh_ans;
+			}
+	);
+
+	return $ans_eval;
+}
+
 sub mail_answers_to2 {	#accepts the last answer and mails off the result
 	my $user_address = shift;
 	my $subject = shift;

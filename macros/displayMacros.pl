@@ -167,7 +167,13 @@ sub display_answers {			# this will be put in displayMacros.pl soon.
 			$answerIsCorrectQ = $rh_answer_results ->{$key} -> {score};
 			$normalizedSubmittedAnswer = $rh_answer_results ->{$key} -> {student_ans};
 			$normalizedSubmittedAnswer = '' if ($normalizedSubmittedAnswer =~ /^error:\s+empty/);
-			$normalizedCorrectAnswer = $rh_answer_results ->{$key} -> {correct_ans};
+			$normalizedCorrectAnswer = $rh_answer_results ->{$key} -> {original_correct_ans};
+
+				##  Handle the case where the answer evaluator does not return original_correct_ans
+			if ((!defined $normalizedCorrectAnswer) or (!$normalizedCorrectAnswer =~ /\S/)) {
+				$normalizedCorrectAnswer = $rh_answer_results ->{$key} -> {correct_ans};
+			}
+
 			$errors = $rh_answer_results ->{$key} -> {ans_message};
 			$errors = '' if ($errors eq 'empty');
 			#$ans_name = $rh_answer_results ->{$key} -> {ans_name};
@@ -400,7 +406,7 @@ sub l2hcreate {     ## for latex2HTML 96.1 and 98.1
                   ##  system("/usr/math/bin/latex2html -init_file ${Global::mainDirectory}latex2html.init -dir $PROBDIR -prefix $psvn ${htmlDirectory}tmp/l2h/${psvn}output.tex > ${htmlDirectory}tmp/l2h/${psvn}l2h.log");
    my $latex2HTML_result = &makeL2H($TMPPROBDIR, $psvn) ;
    warn( "LaTeX2HTML failed. Returned with status: $latex2HTML_result\n" ) if $latex2HTML_result ;
-   
+
    ##Get rid of all unwanted stuff in html document created by latex2html
    unless(-e "${TMPPROBDIR}${psvn}output.html") {
         warn "Can't rename ${TMPPROBDIR}${psvn}output.html";

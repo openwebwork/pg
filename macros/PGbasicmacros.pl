@@ -1226,15 +1226,22 @@ sub display_math_ev3 {
 sub general_math_ev3 {
 	my $in = shift;
 	my $mode = shift || "inline";
-	
+   
 	$in = FEQ($in);
 	$in =~ s/%/\\%/g;
-	
+	my $in_delim;
+
+	if($mode eq "inline") {
+		$in_delim = "\\($in\\)";
+	} else { # assuming displayed math
+		$in_delim =				"\\[$in\\]";
+	}
+
 	my $out;
-	if ($displayMode eq "HTML_tth") {
-		$in = "\\($in\\)" if $mode eq "inline";
-		$in = "\\[$in\\]" if $mode eq "display";
-		$out = tth($in);
+	if($displayMode eq "HTML_tth") {
+		$out = tth($in_delim);
+	} elsif ($displayMode eq "HTML_dpng") {
+		$out = $envir{'imagegen'}->add($in_delim);
 	} elsif ($displayMode eq "HTML_img") {
 		$out = math2img($in, $mode);
 	} else {
@@ -1576,8 +1583,7 @@ sub image {
 		push(@image_list,$image_ref);
  	}
 	
-	
-	my @output_list = ();
+ 	my @output_list = ();
   	while(@image_list) {
  		my $imageURL = alias(shift @image_list);
  		my $out="";
