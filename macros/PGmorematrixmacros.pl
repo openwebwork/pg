@@ -567,7 +567,7 @@ sub ans_array_filter{
 
 
 sub are_orthogonal_vecs{
-	my ( $vec_ref,%opts ) = @_;
+	my ($vec_ref , %opts) = @_;
 	my @vecs = ();
 	if( ref($vec_ref) eq 'AnswerHash' )
 	{
@@ -575,7 +575,6 @@ sub are_orthogonal_vecs{
 	}else{
 		@vecs = @{$vec_ref};
 	}
-	
 	my ($i,$j) = (0,0);
 	
 	my $num = scalar(@vecs);
@@ -596,7 +595,7 @@ sub are_orthogonal_vecs{
 			{
 				if( ref( $vec_ref ) eq 'AnswerHash' ){
 					$vec_ref->{score} = 0;
-					if( $opts{help} =~ /orthogonal|orthonormal|verbose/ )
+					if( $vec_ref->{help} =~ /orthogonal|orthonormal|verbose/ )
 					{
 						$vec_ref->throw_error('EVAL','You have entered vectors which are not orthogonal. ');
 					}else{
@@ -643,7 +642,7 @@ sub are_unit_vecs{
 		{
 			if( ref( $vec_ref ) eq 'AnswerHash' ){
 				$vec_ref->{score} = 0;
-				if( $opts{mode} =~ /unit|orthonormal|verbose/ )
+				if( $vec_ref->{help} =~ /unit|orthonormal|verbose/ )
 				{
 					$vec_ref->throw_error('EVAL','You have entered vector(s) which are not of unit length.');
 				}else{
