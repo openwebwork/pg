@@ -488,7 +488,7 @@ sub get_student_answer {
 	my $self           = shift;
 	my $input          = shift;	
 	my %answer_options = @_;
-	my $display_input = $input;
+	my $display_input  = $input;
 	$display_input =~ s/\0/\\0/g;  # make null spacings visible
 	warn "Raw student answer is |$display_input|" if $self->{debug};
 	$input = '' unless defined($input); 
@@ -527,7 +527,7 @@ sub evaluate {
 	$self->get_student_answer(@_);
 	$self->{rh_ans}->{error_flag}=undef;  #reset the error flags in case 
 	$self->{rh_ans}->{done}=undef;        #the answer evaluator is called twice
-	my $rh_ans    =   $self ->{rh_ans};
+	my $rh_ans      =   $self ->{rh_ans};
     warn "<H3> Answer evaluator information: </H3>\n" if defined($self->{debug}) and $self->{debug}>0;
 	my @prefilters	= @{$self -> {pre_filters}};
 	my $count = -1;  # the blank filter is counted as filter 0
