@@ -27,7 +27,11 @@ sub new {
   my $p = shift; my $isFormula = 0;
   $p = $p->data if (Value::isValue($p) && scalar(@_) == 0);
   $p = [$p,@_] if (ref($p) ne 'ARRAY' || scalar(@_) > 0);
-  foreach my $x (@{$p}) {$isFormula = 1,last if Value::isFormula($x)}
+  foreach my $x (@{$p}) {
+    $isFormula = 1,last if Value::isFormula($x);
+    $x = Value::Real->make($x) if !ref($x) &&
+      $$Value::context->flag('useFuzzyReals') && Value::matchNumber($x);
+  }
   return $self->formula($p) if $isFormula;
   bless {data => $p}, $class;
 }
@@ -118,13 +122,14 @@ sub TeX {
   $open  = $$Value::context->lists->get('List')->{open} unless defined($open);
   $close = $$Value::context->lists->get('List')->{close} unless defined($close);
   $open = '\{' if $open eq '{'; $close = '\}' if $close eq '}';
+  $open = '\left'.$open if $open; $close = '\right'.$close if $close;
   my @coords = (); my $str = $equation->{context}{strings};
   foreach my $x (@{$self->data}) {
     if (Value::isValue($x)) {push(@coords,$x->TeX($equation,$open,$close))}
     elsif (defined($str->{$x}) && $str->{$x}{TeX}) {push(@coords,$str->{$x}{TeX})}
     else {push(@coords,$x)}
   }
-  return '\left'.$open.join(',',@coords).'\right'.$close;
+  return $open.join(',',@coords).$close;
 }
 
 ###########################################################################
