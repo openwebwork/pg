@@ -39,6 +39,7 @@ sub Evaluate {
 sub Parser::reportEvalError {
   my $error = shift; my $fullerror = $error;
   $error =~ s/ at \S+\.\S+ line \d+(\n|.)*//;
+  $error =~ s/ at line \d+ of (\n|.)*//;
   $$Value::context->setError($error);
   if ($$Value::context->{debug}) {
     $fullerror =~ s/\n/<BR>/g;
