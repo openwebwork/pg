@@ -126,7 +126,6 @@ sub formula {
   my $formula = Value::Formula->blank;
   my @args = Value::toFormula($formula,@_);
   $formula->{tree} = $formula->{context}{parser}{Function}->new($formula,$name,[@args]);
-#  return $formula->eval if scalar(%{$formula->{variables}}) == 0;
   return $formula;
 }
 
