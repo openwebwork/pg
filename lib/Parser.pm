@@ -132,7 +132,6 @@ sub Error {
   }
   $context->setError($message,$string,$ref);
   die $message . Value::getCaller();
-#  confess $message;
 }
 
 #
@@ -141,6 +140,8 @@ sub Error {
 sub ImplicitMult {
   my $self = shift;
   my $ref = $self->{ref};
+  $self->Error("Can't perform implied multiplication in this context",$ref)
+    unless $self->{context}{operators}{' '}{class};
   $self->Op(' ');
   $self->{ref} = $ref;
 }
@@ -654,7 +655,10 @@ sub setValues {
 
 sub Formula {
   my $f = shift;
-  eval {Value::Formula->new($f)};
+  my $v = eval {Value::Formula->new($f)};
+  $$Value::context->setError($@) unless defined($v) ||
+    $$Value::context->{error}{flag};
+  return $v;
 }
 
 #
@@ -666,7 +670,8 @@ sub Evaluate {
   my $f = shift;
   return unless defined($f);
   my $v = eval {$f->eval(@_)};
-  $v = Value::makeValue($v) if defined($v);
+  if (defined($v)) {$v = Value::makeValue($v)}
+    else {$f->setError($@) unless $f->{context}{error}{flag}}
   return $v;
 }
 
