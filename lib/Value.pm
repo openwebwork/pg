@@ -41,6 +41,7 @@ $defaultContext = Value::Context->new(
     num_points  => 5,
     granularity => 1000,
     resolution  => undef,
+    max_adapt   => 1E8,
   },
 );
 

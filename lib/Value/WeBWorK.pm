@@ -71,6 +71,7 @@ my @wwEvalFields = qw(
   functRelPercentTolDefault
   functZeroLevelDefault
   functZeroLevelTolDefault
+  functMaxConstantOfIntegration
   numAbsTolDefault
   numFormatDefault
   numRelPercentTolDefault
@@ -92,6 +93,7 @@ sub Value::Context::initCopy {
      zeroLevel    => $ww->{numZeroLevelDefault},
      zeroLevelTol => $ww->{numZeroLevelTolDefault},
      num_points   => $ww->{functNumOfPoints} + 2,
+     max_adapt    => $ww->{functMaxConstantOfIntegration},
   );
   $context->{format}{number} = $ww->{numFormatDefault} if $ww->{$numFormatDefault} ne '';
   $context;

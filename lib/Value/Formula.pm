@@ -310,7 +310,7 @@ sub Value::Formula::number::make {shift; shift}
 sub AdaptParameters {
   my $l = shift; my $r = shift;
   my @params = @_; my $d = scalar(@params);
-  return 0 if $d == 0;
+  return 0 if $d == 0; return 0 unless $l->usesOneOf(@params);
   $l->Error("Adaptive parameters can only be used for real-valued functions")
     unless $l->{tree}->isRealNumber;
   #
@@ -338,15 +338,29 @@ sub AdaptParameters {
   if (($d,$B,$M) = $M->solve_LR($B)) {
     if ($d == 0) {
       #
-      #  Get values and recompute the points using them
+      #  Get parameter values and recompute the points using them
       #
-      my @a;  foreach my $r (@{$B->[0]}) {push @a, $r->[0]}
+      my @a; my $i = 0; my $max = $l->getFlag('max_adapt',1E8);
+      foreach my $row (@{$B->[0]}) {
+	if (abs($row->[0]) > $max) {
+	  $l->Error("Constant of integration is too large: $row->[0]")
+	    if ($params[$i] eq 'C0');
+	  $l->Error("Adaptive constant is too large: $params[$i] = $row->[0]");
+	}
+	push @a, $row->[0]; $i++;
+      }
       $l->{parameters} = [@a];
       $l->createPointValues;
       return 1;
     }
   }
   $l->Error("Can't solve for adaptive parameters");
+}
+
+sub usesOneOf {
+  my $self = shift;
+  foreach my $x (@_) {return 1 if $self->{variables}{$x}}
+  return 0;
 }
 
 ##

@@ -48,8 +48,9 @@ sub cmp_parse {
   #
   #  Do some setup
   #
-  my $context = $$Value::context; # save it for later
-  Parser::Context->current(undef,$self->{context}); # change to object's context
+  my $current = $$Value::context; # save it for later
+  my $context = $ans->{correct_value}{context};
+  Parser::Context->current(undef,$context); # change to correct answser's context
   $context->flags->set(StringifyAsTeX => 0);  # reset this, just in case.
   $context->flags->set(no_parameters => 1);   # don't let students enter parameters
   $ans->{isPreview} = $self->getPG('$inputs_ref->{previewAnswers}');
@@ -79,7 +80,7 @@ sub cmp_parse {
     $self->cmp_error($ans);
   }
   $context->flags->set(no_parameters => 0);  # let professors enter parameters
-  Parser::Context->current(undef,$context);  # put back the old context
+  Parser::Context->current(undef,$current);  # put back the old context
   return $ans;
 }
 
@@ -655,7 +656,7 @@ sub cmp_defaults {
   $type = ($self->isComplex)? 'Complex': 'Real' if $type eq 'Number';
   $type = 'Value::'.$type.'::';
 
-  return (&{$type.'cmp_defaults'}($self,@_))
+  return (&{$type.'cmp_defaults'}($self,@_), upToConstant => 0)
     if defined(%$type) && $self->type ne 'List';
 
   return (
@@ -687,6 +688,16 @@ sub cmp {
   if ($cmp->{rh_ans}{removeParens} && $self->type eq 'List') {
     $self->{tree}{open} = $self->{tree}{close} = '';
     $cmp->ans_hash(correct_ans => $self->stringify);
+  }
+  if ($cmp->{rh_ans}{upToConstant}) {
+    my $current = Parser::Context->current();
+    my $context = $self->{context} = $self->{context}->copy;
+    Parser::Context->current(undef,$context);
+    $context->{_variables}->{pattern} = $context->{_variables}->{namePattern} =
+      'C0|' . $context->{_variables}->{pattern};
+    $context->update; $context->variables->add('C0' => 'Parameter');
+    $cmp->ans_hash(correct_value => Value::Formula->new('C0')+$self);
+    Parser::Context->current(undef,$current);
   }
   return $cmp;
 }
