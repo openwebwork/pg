@@ -106,17 +106,24 @@ sub min {
 
 }
 
-#round added 6/12/2000 by David Etlinger
+#round added 6/12/2000 by David Etlinger. Edited by AKP 3-6-03
+
 sub round {
 	my $input = shift;
-	my $out;
-	if( $input >= 0 ) {
-		$out = int ($input + .5);
-	}
-	else {
-		$out = ceil($input - .5);
-	}
+	my $out = Round($input);
+#	if( $input >= 0 ) {
+#		$out = int ($input + .5);
+#	}
+#	else {
+#		$out = ceil($input - .5);
+#	}
 	$out;
+}
+
+# Round contributed bt Mark Schmitt 3-6-03
+sub Round {
+	if (@_ == 1) { $_[0] > 0 ? int $_[0] + 0.5 : int $_[0] - 0.5}
+	elsif (@_ == 2) { $_[0] > 0 ? Round($_[0]*10**$_[1])/10**$_[1] :Round($_[0]*10**$_[1])/10**$_[1]}
 }
 
 #least common multiple
