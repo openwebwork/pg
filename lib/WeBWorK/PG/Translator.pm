@@ -249,13 +249,13 @@ The macros shared with the safe compartment are
 
 
 # Useful for timing portions of the translating process
-# The timer $WeBWorK::timer0 is defined in the module WeBWorK.pm
+# The timer $WeBWorK::timer is defined in the module WeBWorK.pm
 # You must make sure that the code in that script for initialzing the 
 # timer is active.
 
 sub time_it {
 	my $msg = shift;	
-	$WeBWorK::timer0->continue($msg) if defined($WeBWorK::timer0);
+	$WeBWorK::timer->continue("PG macro:". $msg) if defined($WeBWorK::timer);
 }
 
 my %shared_subroutine_hash = (
