@@ -554,7 +554,7 @@ sub eval {
     $self->Error("The value of '$x' can't be a formula")
       if Value::isFormula($self->{values}{$x});
   }
-  $self->{tree}->eval;
+  Value::makeValue($self->{tree}->eval);
 }
 
 ##################################################
@@ -613,7 +613,9 @@ sub TeX {
 sub perl {
   my $self = shift;
   $self->setValues(@_);
-  $self->{tree}->perl;
+  my $perl = $self->{tree}->perl;
+  $perl = 'Real('.$perl.')' if $self->isRealNumber;
+  return $perl;
 }
 
 ##################################################
