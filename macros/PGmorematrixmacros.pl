@@ -1,4 +1,4 @@
-
+#!/usr/local/bin/webwork-perl
 
 BEGIN{
 	be_strict();
@@ -182,7 +182,22 @@ sub BASIS_CMP {
 	});
 
 	$answer_evaluator->install_pre_filter(\&math_constants);
-	$answer_evaluator->install_pre_filter(\&vec_list_string);#ra_student_ans is now the students answer as an array of vectors
+	$answer_evaluator->install_pre_filter(sub{my $rh_ans = shift; my @options = @_;
+		if( $rh_ans->{ans_label} =~ /ArRaY/ ){
+			$rh_ans = ans_array_filter($rh_ans,@options);		
+			my @student_array = @{$rh_ans->{ra_student_ans}};
+			my @array = ();
+			for( my $i = 0; $i < scalar(@student_array) ; $i ++ )
+			{
+				push( @array, Matrix->new_from_array_ref($student_array[$i]));
+			}
+			$rh_ans->{ra_student_ans} = \@array;
+			$rh_ans;
+		}else{
+			vec_list_string($rh_ans,@options);
+		}
+			
+	});#ra_student_ans is now the students answer as an array of vectors
 	# anonymous subroutine to check dimension and length of the student vectors
 	# if either is wrong, the answer is wrong.
 	$answer_evaluator->install_pre_filter(sub{
@@ -513,6 +528,95 @@ sub vec_list_string{
 	$rh_ans->{ra_student_ans} = \@answers;
 	$rh_ans->{student_ans} = $display_ans unless $rh_ans->{error_flag};
 	$rh_ans;
+}
+
+sub ans_array_filter{
+	my $rh_ans = shift;
+	my %options = @_;
+	$rh_ans->{ans_label} =~ /ArRaY(\d+)\[\d+,\d+,\d+\]/;
+	my $ans_num = $1;
+	my @keys = grep /ArRaY$ans_num/, keys(%{$main::inputs_ref});
+	my $key;
+	my @array = ();
+	my ($i,$j,$k) = (0,0,0);
+	
+	#the keys aren't in order, so their info has to be put into the array before doing anything with it
+	foreach $key (@keys){
+		$key =~ /ArRaY\d+\[(\d+),(\d+),(\d+)\]/;
+		($i,$j,$k) = ($1,$2,$3);
+		$array[$i][$j][$k] = ${$main::inputs_ref}{'ArRaY'.$ans_num.'['.$i.','.$j.','.$k.']'};		
+	}
+	
+	my $display_ans = "";
+	
+	for( $i=0; $i < scalar(@array) ; $i ++ )
+	{
+		$display_ans .= " [";
+	        $rh_ans->{preview_text_string} .= ' [';       
+        	$rh_ans->{preview_latex_string} .= ' [';
+		for( $j = 0; $j < scalar( @{$array[$i]} ) ; $j++ )
+		{
+			$display_ans .= " [";
+	                $rh_ans->{preview_text_string} .= ' [';       
+        	        $rh_ans->{preview_latex_string} .= ' ['; 
+			for( $k = 0; $k < scalar( @{$array[$i][$j]} ) ; $k ++ ){
+				my $entry = $array[$i][$j][$k];
+				
+				# This parser code was origianally taken from PGanswermacros::check_syntax
+				# but parts of it needed to be slighty modified for this context
+				my $parser = new AlgParserWithImplicitExpand;
+				my $ret	= $parser -> parse($entry);			#for use with loops
+
+				if ( ref($ret) )  {		## parsed successfully
+					$parser -> tostring();
+					$parser -> normalize();
+					$entry = $parser -> tostring();
+					$rh_ans->{preview_text_string} .= $entry.",";
+					$rh_ans->{preview_latex_string} .=	$parser -> tolatex().",";
+				} else {					## error in	parsing
+					$rh_ans->{'student_ans'}			=	'syntax error:'.$display_ans. $parser->{htmlerror},
+					$rh_ans->{'ans_message'}			=	$display_ans.$parser -> {error_msg},
+					$rh_ans->{'preview_text_string'}	=	'',
+					$rh_ans->{'preview_latex_string'}	=	'',
+					$rh_ans->throw_error('SYNTAX',	'syntax error in answer:'.$display_ans.$parser->{htmlerror} . "$main::BR" .$parser -> {error_msg}.".$main::BR");
+				}
+				
+				my ($inVal,$PG_eval_errors,$PG_full_error_report) = PG_answer_eval($entry);
+				if ($PG_eval_errors) {
+					$rh_ans->throw_error('EVAL','There is a syntax error in your answer.') ;
+					$rh_ans->{ans_message} = clean_up_error_msg($PG_eval_errors);
+					last;
+				} else {
+					$entry = prfmt($inVal,$options{format});
+					$display_ans .= $entry.",";
+					$array[$i][$j][$k] = $entry;
+				}		
+			}
+			chop($rh_ans->{preview_text_string});
+			chop($rh_ans->{preview_latex_string});
+			chop($display_ans);
+	                $rh_ans->{preview_text_string} .= '] ,';       
+        	        $rh_ans->{preview_latex_string} .= '] ,';      
+			$display_ans .= '] ,';	
+		
+		}
+		chop($rh_ans->{preview_text_string});
+		chop($rh_ans->{preview_latex_string});
+		chop($display_ans);
+                $rh_ans->{preview_text_string} .= '] ,';        
+                $rh_ans->{preview_latex_string} .= '] ,';       
+		$display_ans .= '] ,';	
+	}
+	chop($rh_ans->{preview_text_string});
+	chop($rh_ans->{preview_latex_string});
+	chop($display_ans);
+	
+	$rh_ans->{original_student_ans} = $display_ans;	
+	$rh_ans->{ra_student_ans} = \@array;
+	$rh_ans->{student_ans} = $display_ans;
+	
+	$rh_ans;
+
 }
 
 1;
