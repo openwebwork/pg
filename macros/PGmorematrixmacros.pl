@@ -643,7 +643,7 @@ sub are_unit_vecs{
 		{
 			if( ref( $vec_ref ) eq 'AnswerHash' ){
 				$vec_ref->{score} = 0;
-				if( $opts{help} =~ /unit|orthonormal|verbose/ )
+				if( $opts{mode} =~ /unit|orthonormal|verbose/ )
 				{
 					$vec_ref->throw_error('EVAL','You have entered vector(s) which are not of unit length.');
 				}else{
@@ -663,6 +663,38 @@ sub are_unit_vecs{
 	}else{
 		1;
 	}
+}
+
+sub display_correct_vecs{
+	my ( $vec_ref,%opts ) = @_;
+	my $corr_matrix;
+	my @vecs = ();
+	
+	if( ref($vec_ref) eq 'AnswerHash' )
+	{
+		$corr_matrix = Matrix->new_from_col_vecs($vec_ref->{correct_ans});
+	}else{
+		$corr_matrix = Matrix->new_from_col_vecs($vec_ref);
+	}
+	
+	my @temp = ();
+	
+	for( my $i = 0 ; $i < $corr_matrix->[2] ; $i++ ){
+		push @temp, display_matrix($corr_matrix->column($i));
+		push @temp, ",";
+	}
+	
+	if( def(@temp) )
+	{
+		pop @temp;
+	}else{
+		@temp = [[" "]];
+	}
+	
+	
+	
+	mbox(\@temp);
+
 }
 
 1;
