@@ -644,19 +644,17 @@ sub std_print_q {
     my $out = "";
  	#if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth') {
  	if ($main::displayMode =~ /^HTML/) {
- 		my $i=1; my $quest;
+	        my $i=1; my $quest; $out = "\n<P>\n";
  		foreach $quest (@questions) {
- 			 $out.=	"\n<BR>" . ans_rule($length) . "<B>$i.</B> $quest";
+ 			 $out.=	ans_rule($length) . "&nbsp;<B>$i.</B> $quest<BR>";
  			 $i++;
  		}
- 		$out .= "<br>\n";
 	} elsif ($main::displayMode eq 'Latex2HTML') {
-		my $i=1; my $quest;
+	        my $i=1; my $quest; $out = "\\par\n";
 		foreach $quest (@questions) {
-			 $out.=	" \\begin{rawhtml}<BR>\\end{rawhtml} " . ans_rule($length) . "\\begin{rawhtml}<B>\\end{rawhtml} $i. \\begin{rawhtml}</B>\\end{rawhtml}   $quest"; #"$i.   $quest";
+			 $out.=	ans_rule($length) . "\\begin{rawhtml}<B>$i. </B>\\end{rawhtml} $quest\\begin{rawhtml}<BR>\\end{rawhtml}\n";
 			 $i++;
 		}
-		$out .= " \\begin{rawhtml}<BR>\\end{rawhtml} ";
 	}  elsif ($main::displayMode eq 'TeX') {
 	    $out = "\n\\par\\begin{enumerate}\n";
 	    my $i=1; my $quest;
