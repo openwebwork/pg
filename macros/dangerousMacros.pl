@@ -1171,49 +1171,6 @@ sub alias {
 
 # Experiments
 
-# It is important that these subroutines using sort are evaluated before
-# the problem template is evaluated.
-# Once the problem template has a "my $a;" susequent sort routines will not work.
-#
-# PGsort can be used as a slightly slower but safer sort within problems.
-
-
-
-=head2 PGsort
-
-Because of the way sort is optimized in Perl, the symbols $a and $b
-have special significance.
-
-C<sort {$a<=>$b} @list>
-C<sort {$a cmp $b} @list>
-
-sorts the list numerically and lexically respectively.
-
-If C<my $a;> is used in a problem, before the sort routine is defined in a macro, then
-things get badly confused.  To correct this, the following macros are defined in
-dangerougMacros.pl which is evaluated before the problem template is read.
-
-	PGsort sub { $_[0] <=> $_[1] }, @list;
-	PGsort sub { $_[0] cmp $_[1] }, @list;
-
-provide slightly slower, but safer, routines for the PG language. (The subroutines
-for ordering are B<required>. Note the commas!)
-
-=cut
-
-
-
-# sub PGsort {
-# 	my $sort_order = shift;
-# 	die "Must supply an ordering function with PGsort: PGsort sub {\$a cmp \$b }, \@list\n" unless ref($sort_order) eq 'CODE';
-# 	sort {&$sort_order($a,$b)} @_;
-# }
-# Moved to translate.pl
-# For some reason it still caused
-# trouble here when there was
-# more than one ans_eval in ANS()
-# No-one knows why?
-
 # This allows the use of i for  imaginary numbers
 #  one can write   3 +2i rather than 3+2i()
 #
