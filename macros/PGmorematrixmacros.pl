@@ -465,6 +465,17 @@ sub vec_list_string{
 	$rh_ans;
 }
 
+=head5
+	This filter was created to get, format, and evaluate each entry of the ans_array and ans_array_extension
+	answer entry methods. Running this filter is necessary to get all the entries out of the answer
+	hash. Each entry is evaluated and the resulting number is put in the display for student answer
+	as a string. For evaluation purposes an array of arrays of arrays is created called ra_student_ans
+	and placed in the hash. The entries are [array_number][row_number][column_number]. The latex strings
+	for each entry are taken from the parser and put, as a matrix, into the previewer. The preview text
+	string is also created, but this display method becomes confusing when large matrices are used.
+=cut
+
+
 sub ans_array_filter{
 	my $rh_ans = shift;
 	my %options = @_;
@@ -658,5 +669,154 @@ sub display_correct_vecs{
 	mbox(\@temp);
 
 }
+
+sub vec_solution_cmp{
+	my $correctAnswer = shift;
+	my %opt	= @_;
+
+ 	set_default_options(	\%opt,
+				'zeroLevelTol'				=>	$main::functZeroLevelTolDefault,
+	       			'debug'					=>	0,
+				'mode'					=>	'basis',
+				'help'					=>	'none',
+     	);
+	
+	$opt{debug} = 0 unless defined($opt{debug});
+	
+## This is where the correct answer should be checked someday.
+	my $matrix					=	Matrix->new_from_col_vecs($correctAnswer);
+	
+	
+#construct the answer evaluator
+ 	my $answer_evaluator = new AnswerEvaluator;
+
+    	$answer_evaluator->{debug} = $opt{debug};
+	$answer_evaluator->ans_hash( 	correct_ans 		=> 	display_correct_vecs($correctAnswer),
+					old_correct_ans		=>	$correctAnswer,
+					rm_correct_ans		=> 	$matrix,
+					zeroLevelTol		=>	$opt{zeroLevelTol},
+					debug			=>	$opt{debug},
+					mode			=> 	$opt{mode},
+					help			=>	$opt{help},
+    	);
+
+	$answer_evaluator->install_pre_filter(\&ans_array_filter);
+	$answer_evaluator->install_pre_filter(sub{
+			my ($rh_ans,@options) = @_;		
+			my @student_array = @{$rh_ans->{ra_student_ans}};
+			my @array = ();
+			for( my $i = 0; $i < scalar(@student_array) ; $i ++ )
+			{
+				push( @array, Matrix->new_from_array_ref($student_array[$i]));
+			}
+			$rh_ans->{ra_student_ans} = \@array;
+			$rh_ans;
+	});#ra_student_ans is now the students answer as an array of vectors
+	# anonymous subroutine to check dimension and length of the student vectors
+	# if either is wrong, the answer is wrong.
+	$answer_evaluator->install_pre_filter(sub{
+		my $rh_ans = shift;
+		my $length = $rh_ans->{rm_correct_ans}->[1];
+		my $dim = $rh_ans->{rm_correct_ans}->[2];
+		if( $dim != scalar(@{$rh_ans->{ra_student_ans}}))
+		{
+		
+			$rh_ans->{score} = 0;
+			if( $rh_ans->{help} =~ /dim|verbose/ )
+			{
+				$rh_ans->throw_error('EVAL','You have entered the wrong number of vectors.');
+			}else{
+				$rh_ans->throw_error('EVAL');
+			}
+		}
+		for( my $i = 0; $i < scalar( @{$rh_ans->{ra_student_ans} }) ; $i++ )
+		{
+			if( $length != $rh_ans->{ra_student_ans}->[$i]->[1])
+			{
+				$rh_ans->{score} = 0;
+				if( $rh_ans->{help} =~ /length|verbose/ )
+				{
+					$rh_ans->throw_error('EVAL','You have entered vector(s) of the wrong length.');
+				}else{
+					$rh_ans->throw_error('EVAL');
+				}
+			}
+		}
+		$rh_ans;
+	});
+	# Install prefilter for various modes
+	if( $opt{mode} ne 'basis' )
+	{
+		if( $opt{mode} =~ /orthogonal|orthonormal/ )
+		{
+			$answer_evaluator->install_pre_filter(\&are_orthogonal_vecs);
+		}
+		
+		if( $opt{mode} =~ /unit|orthonormal/ )
+		{
+			$answer_evaluator->install_pre_filter(\&are_unit_vecs);
+					
+		}
+	}
+    	
+	$answer_evaluator->install_evaluator(\&compare_vec_solution, %opt);
+ 	
+	$answer_evaluator->install_post_filter(
+		sub {my $rh_ans = shift;
+				if ($rh_ans->catch_error('SYNTAX') ) {
+					$rh_ans->{ans_message} = $rh_ans->{error_message};
+					$rh_ans->clear_error('SYNTAX');
+				}
+				if ($rh_ans->catch_error('EVAL') ) {
+					$rh_ans->{ans_message} = $rh_ans->{error_message};
+					$rh_ans->clear_error('EVAL');
+				}
+				$rh_ans;
+		}
+	);
+	$answer_evaluator;
+	
+}
+
+		
+sub compare_vec_solution {
+	my ( $rh_ans, %options ) = @_ ;
+	my @space = @{$rh_ans->{ra_student_ans}};
+	my $solution = shift @space;
+	
+	# A lot of the follosing code was taken from Matrix::proj_coeff
+	# calling this method recursively would be a waste of time since
+	# the prof's matrix never changes and solve_LR is an expensive
+	# operation. This way it is only done once.
+	my $matrix = $rh_ans->{rm_correct_ans};
+	my ($dim,$x_vector, $base_matrix);
+	my $errors = undef;
+	my $lin_space_tr= ~ $matrix;
+	$matrix = $lin_space_tr * $matrix;
+	my $matrix_lr = $matrix->decompose_LR();
+	
+	#this section determines whether or not the first vector, a solution to
+	#the system, is a linear combination of the prof's vectors in which there
+	#is a nonzero coefficient on the first term, the prof's solution to the system
+	$solution = $lin_space_tr*$solution;
+	($dim,$x_vector, $base_matrix) = $matrix_lr->solve_LR($solution);
+	if( $dim ){
+		$rh_ans->throw_error('EVAL', "A unique adapted answer could not be determined.  Possibly the parameters have coefficient zero.<br>  dim = $dim base_matrix is $base_matrix\n" );  # only print if the dim is not zero.
+		$rh_ans->{score} = 0;
+		$rh_ans;
+	}elsif( abs($x_vector->[0][0][0]) <= $options{zeroLevelTol} )
+	{
+		$rh_ans->{score} = 0;
+		$rh_ans;
+	}else{
+	$rh_ans->{score} = 1;
+	my @correct_space = @{$rh_ans->{old_correct_ans}};
+	shift @correct_space;
+	$rh_ans->{rm_correct_ans} = Matrix->new_from_col_vecs(\@correct_space);
+	$rh_ans->{ra_student_ans} = \@space;
+	return compare_basis( $rh_ans, %options );
+	}
+}
+	
 
 1;
