@@ -485,8 +485,9 @@ sub dereference_array_ans {
 }
 	
 sub get_student_answer {
-	my $self 	= shift;
-	my $input   = shift;
+	my $self    = shift;
+	my $input   = shift;	
+	my %answer_options             = @_;
 	$input = '' unless defined($input); 
 	if (ref($input) =~/AnswerHash/) {
 		# in this case nothing needs to be done, since the student's answer is already in an answerhash.
@@ -506,7 +507,7 @@ sub get_student_answer {
 		$self-> {rh_ans} -> {original_student_ans} = $input;
 		$self-> {rh_ans} -> {student_ans} = $input;
 	}
-	
+	$self->{rh_ans}->{ans_label}   = $answer_options{ans_label} if defined($answer_options{ans_label});	
 	
 	$input;
 }
@@ -520,7 +521,7 @@ sub get_student_answer {
 
 sub evaluate {
 	my $self 		= 	shift;
-	$self->get_student_answer(shift @_);
+	$self->get_student_answer(@_);
 	$self->{rh_ans}->{error_flag}=undef;  #reset the error flags in case 
 	$self->{rh_ans}->{done}=undef;        #the answer evaluator is called twice
 	my $rh_ans    =   $self ->{rh_ans};
