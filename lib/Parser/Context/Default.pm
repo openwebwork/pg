@@ -266,6 +266,15 @@ $complexContext->parens->set(
    '[' => {type => 'List', formMatrix => 0},
    '{' => {type => 'List'},
 );
+$complexContext->operators->set(
+  '^'  => {class => 'Parser::Function::complex_power', negativeIsComplex => 1},
+  '**' => {class => 'Parser::Function::complex_power', negativeIsComplex => 1},
+);
+$complexContext->functions->set(
+  'sqrt' => {class => 'Parser::Function::complex_numeric', negativeIsComplex => 1},
+  'log'  => {class => 'Parser::Function::complex_numeric', negativeIsComplex => 1},
+);
+
 
 #
 #  Vector context (no complex numbers)

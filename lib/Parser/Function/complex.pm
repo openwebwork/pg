@@ -38,6 +38,51 @@ sub _call {
   $c->$name;
 }
 
+##################################################
+#
+#  Sepcifal versions of sqrt, log and ^ that are used
+#  in the Complex context.
+#
+
+#
+#  Subclass of fumeric fuinctions that promote negative reals
+#  to complex before performing the function (so that sqrt(-2)
+#  is defined, for example).
+#
+package Parser::Function::complex_numeric;
+use strict; use vars qw(@ISA);
+@ISA = qw(Parser::Function::numeric);
+
+sub sqrt {
+  my $self = shift; my $x = Value::makeValue(shift);
+  $x = Value::Complex::promote($x) if $x->value < 0 && $self->{def}{negativeIsComplex};
+  $x->sqrt;
+}
+
+sub log {
+  my $self = shift; my $x = Value::makeValue(shift);
+  $x = Value::Complex::promote($x) if $x->value < 0 && $self->{def}{negativeIsComplex};
+  $x->log;
+}
+
+#
+#  Special power operator that promotes negative real
+#  bases to complex numbers before taking power (so that
+#  (-3)^(1/2) is define, for example).
+#
+package Parser::Function::complex_power;
+use strict; use vars qw(@ISA);
+@ISA = qw(Parser::BOP::power Parser::BOP);
+
+sub _eval {
+  my $self = shift;
+  my $a = Value::makeValue(shift); my $b = shift;
+  $a = Value::Complex::promote($a)
+    if Value::isReal($a) && $a->value < 0 && $self->{def}{negativeIsComplex};
+  return $a ** $b;
+}
+
+
 #########################################################################
 
 1;
