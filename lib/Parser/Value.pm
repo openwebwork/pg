@@ -96,6 +96,11 @@ sub makeMatrix {
   $self->{value} = Value::Matrix->new($self->{value}->value);
 }
 
+#
+#  Get a Union object's data
+#
+sub makeUnion {@{shift->{value}->{data}}}
+
 #########################################################################
 
 1;
