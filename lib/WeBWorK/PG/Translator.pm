@@ -1458,9 +1458,9 @@ sub PG_macro_file_eval {      # would like to modify this so that it requires us
     my $save_SIG_die_trap = $SIG{__DIE__};
     $SIG{__DIE__}= sub {CORE::die @_};
     no strict;
-    my $out = eval  ("be_strict(); package main; " . $string );
+    my $out = eval  ("package main; be_strict();" . $string );
     my $errors =$@;
-    my $full_error_report = "PG_restricted_eval detected error at line $line of file $file \n"
+    my $full_error_report = "PG_macro_file_eval detected error at line $line of file $file \n"
                 . $errors .
                 "The calling package is $pck\n" if defined($errors) && $errors =~/\S/;
     use strict;
