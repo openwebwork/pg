@@ -205,7 +205,7 @@ sub isPrime {
         my $num = shift;
         return 1 if ($num == 2 or $num == 3);
         return 0 if ($num == 1 or $num == 0);
-        for (my $i = 3; $i <= $num/2; $i++) { return 0 if ($num % $i == 0); }
+        for (my $i = 2; $i <= sqrt($num); $i++) { return 0 if ($num % $i == 0); }
         return 1;
 }
 
