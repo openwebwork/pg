@@ -2456,9 +2456,9 @@ sub escapeHTML {
 sub anstext {
 	my $num	= shift;
 	my $ans_eval_template =	store_ans_at(\$QUESTIONNAIRE_ANSWERS);
-	my $psvnNumber  = PG_restricted_eval($main::psvnNumber);
-	my $probNum  = PG_restricted_eval($main::probNum);
-	my $ans_eval = sub {
+	my $psvnNumber  = PG_restricted_eval(q!$main::psvnNumber!);
+	my $probNum     = PG_restricted_eval(q!$main::probNum!);
+	my $ans_eval    = sub {
 				 my	$text =	shift;
 				 $text = ''	unless defined($text);
 				 my	$new_text =	"\npsvnNumber-Problem-$probNum-Question-$num:\n $text "; #	modify entered text
@@ -2472,10 +2472,11 @@ sub anstext {
    $ans_eval;
 }
 
+
 sub ansradio {
 	my $num	= shift;
-	my $psvnNumber  = PG_restricted_eval($main::psvnNumber);
-	my $probNum  = PG_restricted_eval($main::probNum);
+	my $psvnNumber  = PG_restricted_eval(q!$main::psvnNumber!);
+	my $probNum  = PG_restricted_eval(q!$main::probNum!);
 
 	my $ans_eval_template =	store_ans_at(\$QUESTIONNAIRE_ANSWERS);
 	my $ans_eval = sub {
@@ -2494,11 +2495,11 @@ sub ansradio {
 sub anstext_non_anonymous {
 	## this emails identifying information
 	my $num	= shift;
-    my $psvnNumber  = PG_restricted_eval($main::psvnNumber);
-	my $probNum  = PG_restricted_eval($main::probNum);
-    my $studentLogin  = PG_restricted_eval($main::studentLogin);
-	my $studentID  = PG_restricted_eval($main::studentID);
-    my $studentName  = PG_restricted_eval($main::studentName);
+    my $psvnNumber  = PG_restricted_eval(q!$main::psvnNumber!);
+	my $probNum  = PG_restricted_eval(q!$main::probNum!);
+    my $studentLogin  = PG_restricted_eval(q!$main::studentLogin!);
+	my $studentID  = PG_restricted_eval(q!$main::studentID!);
+    my $studentName  = PG_restricted_eval(q!$main::studentName!);
 
 
 	my $ans_eval_template =	store_ans_at(\$QUESTIONNAIRE_ANSWERS);
