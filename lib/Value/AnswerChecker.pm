@@ -25,7 +25,6 @@ sub cmp_defaults {(
 
 sub cmp {
   my $self = shift;
-  $$Value::context->flags->set(StringifyAsTeX => 0);  # reset this, just in case.
   my $ans = new AnswerEvaluator;
   $ans->ans_hash(
     type => "Value (".$self->class.")",
@@ -34,17 +33,8 @@ sub cmp {
     $self->cmp_defaults,
     @_
   );
-  $ans->install_evaluator(
-    sub {
-      my $ans = shift;
-      #  can't seem to get $inputs_ref any other way
-      $ans->{isPreview} = $self->getPG('$inputs_ref->{previewAnswers}');
-      my $self = $ans->{correct_value};
-      my $method = $ans->{cmp_check} || 'cmp_check';
-      $ans->{cmp_class} = $self->cmp_class($ans) unless $ans->{cmp_class};
-      $self->$method($ans);
-    }
-  );
+  $ans->install_evaluator(sub {$ans = shift; $ans->{correct_value}->cmp_parse($ans)});
+  $self->{context} = $$Value::context unless defined($self->{context});
   return $ans;
 }
 
@@ -53,14 +43,17 @@ sub cmp {
 #    produce the preview strings, and then compare the
 #    student and professor's answers for equality.
 #
-sub cmp_check {
+sub cmp_parse {
   my $self = shift; my $ans = shift;
   #
-  #  Methods to call
+  #  Do some setup
   #
-  my $cmp_equal = $ans->{cmp_equal} || 'cmp_equal';
-  my $cmp_error = $ans->{cmp_error} || 'cmp_error';
-  my $cmp_postprocess = $ans->{cmp_postprocess} || 'cmp_postprocess';
+  my $context = $$Value::context; # save it for later
+  Parser::Context->current(undef,$self->{context}); # change to object's context
+  $context->flags->set(StringifyAsTeX => 0);  # reset this, just in case.
+  $ans->{isPreview} = $self->getPG('$inputs_ref->{previewAnswers}');
+  $ans->{cmp_class} = $self->cmp_class($ans) unless $ans->{cmp_class};
+
   #
   #  Parse and evaluate the student answer
   #
@@ -68,6 +61,7 @@ sub cmp_check {
   $ans->{student_value} = $ans->{student_formula} = Parser::Formula($ans->{student_ans});
   $ans->{student_value} = Parser::Evaluate($ans->{student_formula})
     if defined($ans->{student_formula}) && $ans->{student_formula}->isConstant;
+
   #
   #  If it parsed OK, save the output forms and check if it is correct
   #   otherwise report an error
@@ -76,13 +70,14 @@ sub cmp_check {
     $ans->{student_value} = Value::Formula->new($ans->{student_value})
        unless Value::isValue($ans->{student_value});
     $ans->{preview_latex_string} = $ans->{student_formula}->TeX;
-    $ans->{preview_text_string}  = $ans->{student_formula}->string;
+    $ans->{preview_text_string}  = protectHTML($ans->{student_formula}->string);
     $ans->{student_ans}          = $ans->{preview_text_string};
-    $self->$cmp_equal($ans);
-    $self->$cmp_postprocess($ans) if !$ans->{error_message};
+    $self->cmp_equal($ans);
+    $self->cmp_postprocess($ans) if !$ans->{error_message};
   } else {
-    $self->$cmp_error($ans);
+    $self->cmp_error($ans);
   }
+  Parser::Context->current(undef,$context);  # put back the old context
   return $ans;
 }
 
@@ -96,8 +91,7 @@ sub cmp_equal {
   if ($correct->typeMatch($student,$ans)) {
     my $equal = eval {$correct == $student};
     if (defined($equal) || !$ans->{showEqualErrors}) {$ans->score(1) if $equal; return}
-    my $cmp_error = $ans->{cmp_error} || 'cmp_error';
-    $self->$cmp_error($ans);
+    $self->cmp_error($ans);
   } else {
     return if $ans->{ignoreStrings} && (!Value::isValue($student) || $student->type eq 'String');
     $ans->{ans_message} = $ans->{error_message} =
@@ -207,7 +201,7 @@ sub cmp_defaults {(
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
   return 1 unless ref($other);
-  return 0 if $other->class eq 'Formula';
+  return 0 if Value::isFormula($other);
   return 1 if $other->type eq 'Infinity' && $ans->{ignoreInfinity};
   $self->type eq $other->type;
 }
@@ -221,7 +215,7 @@ sub cmp_class {'a Number'};
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
   return 1 unless ref($other);
-  return 0 if $other->class eq 'Formula';
+  return 0 if Value::isFormula($other);
   return 1 if $other->type eq 'Number';
   $self->type eq $other->type;
 }
@@ -243,7 +237,7 @@ sub cmp_class {
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
-  return 0 if ref($other) && $other->class eq 'Formula';
+  return 0 if ref($other) && Value::isFormula($other);
   my $typeMatch = $ans->{typeMatch};
   return 1 if !Value::isValue($typeMatch) || $typeMatch->class eq 'String' ||
                  $self->type eq $other->type;
@@ -510,7 +504,7 @@ sub cmp_equal {
     else {@correct = Value::List->splitFormula($self,$ans)}
   my $student = $ans->{student_value};
   my @student = ($student);
-  if ($student->class eq 'Formula' && $student->type eq $self->type) {
+  if (Value::isFormula($student) && $student->type eq $self->type) {
     @student = Value::List->splitFormula($student,$ans);
   } elsif ($student->class ne 'Formula' && $student->class eq $self->type &&
       ($allowParens || (!$student->{open} && !$student->{close}))) {
@@ -600,11 +594,7 @@ sub splitFormula {
     #  There shouldn't be an error evaluating the formula,
     #    but you never know...
     #
-    if (!defined($v)) {
-      $ans->{split_error} = 1;
-      my $cmp_error = $ans->{cmp_error} || 'cmp_error';
-      $self->$cmp_error; return;
-    }
+    if (!defined($v)) {$ans->{split_error} = 1; $self->cmp_error; return}
   }
   return @formula;
 }
@@ -647,7 +637,7 @@ sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
   return 1 if $self->type eq $other->type;
   my $typeMatch = ($self->createRandomPoints(1))[1]->[0];
-  $other = eval {($other->createRandomPoints(1))[1]->[0]} if ($other->class eq 'Formula');
+  $other = eval {($other->createRandomPoints(1))[1]->[0]} if Value::isFormula($other);
   return 1 unless defined($other); # can't really tell, so don't report type mismatch
   $typeMatch->typeMatch($other,$ans);
 }
