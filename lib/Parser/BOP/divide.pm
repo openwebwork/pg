@@ -48,8 +48,18 @@ sub _reduce {
 #  Use \frac for TeX version.
 #
 sub TeX {
-  my $self= shift;
-  '\frac{'.($self->{lop}->TeX).'}{'.($self->{rop}->TeX).'}';
+  my ($self,$precedence,$showparens,$position) = @_;
+  my $TeX; my $bop = $self->{def};
+  my $addparens =
+      defined($precedence) &&
+      ($showparens eq 'all' || $precedence > $bop->{precedence} ||
+      ($precedence == $bop->{precedence} &&
+        ($bop->{associativity} eq 'right' || $showparens eq 'same')));
+
+  $TeX = '\frac{'.($self->{lop}->TeX).'}{'.($self->{rop}->TeX).'}';
+
+  $TeX = '\left('.$TeX.'\right)' if ($addparens);
+  return $TeX;
 }
 
 #########################################################################
