@@ -33,7 +33,7 @@ sub new {
       else {Value::Error("Unions can be taken only for Intervals")}
       $isFormula = 1;
     } else {
-      if (Value::class($x) eq 'Point') {
+      if (Value::class($x) eq 'Point' || Value::class($x) eq 'List') {
         if ($x->length == 1) {$x = Value::Interval->new('[',$x->value,$x->value,']')}
         elsif ($x->length == 2) {$x = Value::Interval->new($x->{open},$x->value,$x->{close})}
       }
@@ -43,7 +43,7 @@ sub new {
     }
   }
   return $self->formula(@intervals) if $isFormula;
-  bless {data => [@intervals]}, $class;
+  bless {data => [@intervals], canBeInterval => 1}, $class;
 }
 
 #

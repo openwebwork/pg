@@ -33,6 +33,7 @@ sub new {
     value => $value, type => $type, isConstant => 1,
     ref => $ref, equation => $equation,
   }, $class;
+  $c->{canBeInterval} = 1 if ($value->class eq 'Point' && $type->{length} == 2);
   ## check for isZero  (method of $value?)
   ## (hack for now)
   $c->{isZero} = 1 if $type->{name} eq 'Number' && $value == 0;

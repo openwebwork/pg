@@ -19,6 +19,7 @@ package Value;
 
 our $cmp_defaults = {
   showTypeWarnings => 1,
+  showEqualErrors => 1,
 };
 
 sub cmp {
@@ -81,7 +82,10 @@ sub cmp_equal {
   my $v = $ans->{correct_value};
   my $V = $ans->{student_value};
   if ($v->typeMatch($V,$ans)) {
-    $ans->score(1) if (eval {$v == $V}); # let the overloaded == do the check
+    my $equal = eval {$v == $V}; # let the overloaded == do the check
+    if (defined($equal) || !$ans->{showEqualErrors}) {$ans->score(1) if $equal; return}
+    my $cmp_error = $ans->{cmp_error} || 'cmp_error';
+    $self->$cmp_error($ans);
   } else {
     $ans->{ans_message} = $ans->{error_message} =
       "Your answer isn't ".$v->showClass." (it looks like ".$V->showClass.")"
@@ -152,7 +156,7 @@ our $cmp_defaults = {
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
-  return 0 unless $other->type eq 'Vector';
+  return 0 unless $other->type eq 'Point';
   if (!$ans->{isPreview} && $ans->{showDimensionWarnings} &&
       $self->length != $other->length) {
     $ans->{ans_message} = $ans->{error_message} = "The dimension is incorrect";
@@ -168,11 +172,13 @@ package Value::Vector;
 our $cmp_defaults = {
   %{$Value::cmp_defaults},
   showDimensionWarnings => 1,
+  promotePoints => 0,
 };
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
-  return 0 unless $other->type eq 'Vector';
+  return 0 unless $other->type eq 'Vector' ||
+                  ($ans->{promotePoints} && $other->type eq 'Point');
   if (!$ans->{isPreview} && $ans->{showDimensionWarnings} &&
       $self->length != $other->length) {
     $ans->{ans_message} = $ans->{error_message} = "The dimension is incorrect";
@@ -216,10 +222,15 @@ sub typeMatch {
 
 package Value::Interval;
 
+## @@@ report interval-type mismatch? @@@
+
 sub typeMatch {
   my $self = shift; my $other = shift;
-  return $other->length == 2 if $other->type eq 'Point';
-  $other->type =~ m/^(Interval|Union)/;
+  return $other->length == 2 &&
+         ($other->{open} eq '(' || $other->{open} eq '[') &&
+         ($other->{close} eq ')' || $other->{close} eq ']')
+	   if $other->type =~ m/^(Point|List)$/;
+  $other->type =~ m/^(Interval|Union)$/;
 }
 
 #############################################################

@@ -52,6 +52,7 @@ sub new {
   bless {
     data => [$a,$b], open => $open, close => $close,
     leftInfinite => $nia, rightInfinite => $ib,
+    canBeInterval => 1,
   }, $class;
 }
 
@@ -65,6 +66,7 @@ sub make {
   bless {
     data => [$a,$b], open => $open, close => $close,
     leftInfinite => isNegativeInfinity($a), rightInfinite => isInfinity($b),
+    canBeInterval => 1,
   }, $class
 }
 
@@ -119,6 +121,20 @@ sub length {
   return $a == $b ? 1 : 2;
 }
 
+#
+#  Convert points and lists to intervals, when needed
+#
+sub promote {
+  my $x = shift;
+  return $pkg->new($x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
+  return $x if ref($x) eq $pkg;
+  return $pkg->new($x->{open},@{$x->data},$x->{close})
+    if Value::class($x) =~ m/^(Point|List)$/ && $x->length == 2 &&
+       ($x->{open} eq '(' || $x->{open} eq '[') &&
+       ($x->{close} eq ')' || $x->{close} eq ']');
+  Value::Error("Can't convert ".Value::showClass($x)." to an Interval");
+}
+
 ############################################
 #
 #  Operations on intervals
@@ -130,6 +146,7 @@ sub length {
 sub add {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
+  $r = promote($r);
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   Value::Error("Intervals can only be added to Intervals")
     unless Value::class($l) eq 'Interval' && Value::class($r) eq 'Interval';
@@ -145,19 +162,13 @@ sub dot {add(@_)}
 sub compare {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
-  if (Value::class($r) eq 'Interval' || Value::class($r) eq 'Point') {
-    if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
-    my ($la,$lb) = @{$l->data}; my ($ra,$rb) = @{$r->data};
-    my $cmp = $la <=> $ra; return $cmp if $cmp;
-    $cmp = $l->{open} cmp $r->{open}; return $cmp if $cmp;
-    $cmp = $lb <=> $rb; return $cmp if $cmp;
-    return $l->{close} cmp $r->{close};
-  } else {
-    if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
-    $l = $l->data if Value::isValue($l);
-    $r = $r->data if Value::isValue($r);
-    return $l <=> $r;
-  }
+  $r = promote($r);
+  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
+  my ($la,$lb) = @{$l->data}; my ($ra,$rb) = @{$r->data};
+  my $cmp = $la <=> $ra; return $cmp if $cmp;
+  $cmp = $l->{open} cmp $r->{open}; return $cmp if $cmp;
+  $cmp = $lb <=> $rb; return $cmp if $cmp;
+  return $l->{close} cmp $r->{close};
 }
 
 ############################################
@@ -170,8 +181,8 @@ sub stringify {
   my ($a,$b) = @{$self->data};
   $a = $a->string if Value::isReal($a);
   $b = $b->string if Value::isReal($b);
-  return $self->{open}.$a.$self->{close} 
-    if $a == $b && !$self->{leftInfinte} && !$self->{rightInfinite};
+#  return $self->{open}.$a.$self->{close} 
+#    if $a == $b && !$self->{leftInfinte} && !$self->{rightInfinite};
   return $self->{open}.$a.','.$b.$self->{close};
 }
 
@@ -180,8 +191,8 @@ sub TeX {
   my ($a,$b) = @{$self->data};
   $a = ($self->{leftInfinite})? '-\infty' : (Value::isReal($a) ? $a->TeX: $a);
   $b = ($self->{rightInfinite})? '\infty' : (Value::isReal($b) ? $b->TeX: $b);
-  return $self->{open}.$a.$self->{close} 
-    if !$self->{leftInfinte} && !$self->{rightInfinite} && $a == $b;
+#  return $self->{open}.$a.$self->{close} 
+#    if !$self->{leftInfinte} && !$self->{rightInfinite} && $a == $b;
   return $self->{open}.$a.','.$b.$self->{close};
 }
 

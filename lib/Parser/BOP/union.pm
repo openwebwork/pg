@@ -14,14 +14,11 @@ use strict; use vars qw(@ISA);
 sub _check {
   my $self = shift;
   return if ($self->checkStrings());
-  return if ($self->checkLists());
-  my ($ltype,$rtype) = ($self->{lop}->typeRef,$self->{rop}->typeRef);
-  if ($ltype->{name} =~ m/Interval|Union|Point/ &&
-      $rtype->{name} =~ m/Interval|Union|Point/ &&
-      $ltype->{length} <= 2 && $rtype->{length} <= 2) {
+  if ($self->{lop}->{canBeInterval} && $self->{rop}->{canBeInterval}) {
     $self->{type} = Value::Type('Union',2,$Value::Type{number});
   } else {$self->Error("Operands of '$self->{bop}' must be intervals")}
 }
+
 
 #
 #  Make a union of the two operands.

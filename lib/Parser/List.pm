@@ -46,15 +46,26 @@ sub new {
     coords => $coords, type => $type, open => $open, close => $close,
     paren => $paren, equation => $equation, isConstant => $constant
   }, $equation->{context}{lists}{$type->{name}}{class};
+  $list->checkInterval;
   $list->_check;
 #  warn ">> $list->{type}{name} of $list->{type}{entryType}{name} of length $list->{type}{length}\n";
   if ($list->{isConstant}) {
+    my $saveCBI = $list->{canBeInterval};
     $list = Parser::Value->new($equation,[$list->eval]);
     $list->{type} = $type; $list->{open} = $open; $list->{close} = $close;
     $list->{value}->{open} = $open, $list->{value}->{close} = $close
       if ref($list->{value});
+    $list->{canBeInterval} = $saveCBI if $saveCBI;
   }
   return $list;
+}
+
+sub checkInterval {
+  my $self = shift;
+  if ((($self->{open} eq '(' || $self->{open} eq '[') &&
+       ($self->{close} eq ')' || $self->{close} eq ']') && $self->length == 2) ||
+      ($self->{open}.$self->{close} eq '[]' && $self->length == 1))
+          {$self->{canBeInterval} = 1}
 }
 
 sub _check {}

@@ -76,9 +76,9 @@ $operators = {
 $parens = {
    '(' => {close => ')', type => 'Point', formMatrix => 1, formInterval => ']',
            formList => 1, removable => 1, emptyOK => 1, function => 1},
-   '[' => {close => ']', type => 'Point', formMatrix => 1, formInterval => ')'},
+   '[' => {close => ']', type => 'Point', formMatrix => 1, formInterval => ')', removable => 1},
    '<' => {close => '>', type => 'Vector', formMatrix => 1},
-   '{' => {close => '}', type => 'Point'},
+   '{' => {close => '}', type => 'Point', removable => 1},
    '|' => {close => '|', type => 'AbsoluteValue'},
    'start' => {close => 'start', type => 'List', formList => 1,
                removable => 1, emptyOK => 1, hidden => 1},
@@ -200,7 +200,7 @@ $flags = {
 #
 
 use vars qw(%context);
-use vars qw($fullContext $numericContext $complexContext $vectorContext);
+use vars qw($fullContext $numericContext $complexContext $vectorContext $intervalContext);
 
 #
 #  The default Context
@@ -264,16 +264,27 @@ $vectorContext->functions->undefine('arg','mod','Re','Im','conj');
 $vectorContext->constants->replace(i=>Value::Vector->new(1,0,0));
 $vectorContext->constants->set(i=>{TeX=>'\boldsymbol{i}'});
 
+#
+#  Interval context (make intervals rather than lists)
+#
+$intervalContext = $numericContext->copy;
+$intervalContext->parens->set(
+   '(' => {type => 'Interval'},
+   '[' => {type => 'Interval'},
+   '{' => {type => 'Interval'},
+);
+
 #########################################################################
 
 #
 #  list of all default contexts (users can add more)
 #
 %context = (
-  Full    => $fullContext,
-  Numeric => $numericContext,
-  Complex => $complexContext,
-  Vector  => $vectorContext,
+  Full     => $fullContext,
+  Numeric  => $numericContext,
+  Complex  => $complexContext,
+  Vector   => $vectorContext,
+  Interval => $intervalContext,
 );
 
 #########################################################################
