@@ -55,10 +55,10 @@ $operators = {
            class => 'Parser::BOP::multiply', space => ' *', hidden => 1},
 
    'u+'=> {precedence => 6, associativity => 'left', type => 'unary', string => '+',
-           class => 'Parser::UOP::plus', hidden => 1},
+           class => 'Parser::UOP::plus', hidden => 1, allowInfinite => 1},
 
    'u-'=> {precedence => 6, associativity => 'left', type => 'unary', string => '-',
-           class => 'Parser::UOP::minus', hidden => 1},
+           class => 'Parser::UOP::minus', hidden => 1, allowInfinite => 1},
 
    '^' => {precedence => 7, associativity => 'right', type => 'bin', string => '^', perl => '**',
            class => 'Parser::BOP::power', leftf => 1, fullparens => 1, isInverse => 1},

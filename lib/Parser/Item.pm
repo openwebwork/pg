@@ -57,7 +57,7 @@ sub isNumOrInfinity {
 #
 sub isNeg {
   my $self = shift;
-  return ($self->class eq 'UOP' && $self->{uop} eq 'u-');
+  return ($self->class eq 'UOP' && $self->{uop} eq 'u-' && !$self->{op}->{isInfinite});
 }
 
 #

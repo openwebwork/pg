@@ -113,6 +113,17 @@ sub checkList {
 
 
 #
+#  Determine if the operand is an infinity and set the type
+#
+sub checkInfinite {
+  my $self = shift;
+  my $uop = $self->{equation}{context}{operators}{$self->{uop}};
+  return 0 unless $self->{op}->{isInfinite} && $uop->{allowInfinite};
+  $self->{type} = $self->{op}->typeRef;
+  return 1;
+}
+
+#
 #  Determine if the operand is a number, and set the type
 #    to complex or number according to the type of operand.
 #

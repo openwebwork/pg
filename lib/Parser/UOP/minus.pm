@@ -11,9 +11,10 @@ use strict; use vars qw(@ISA);
 #
 sub _check {
   my $self = shift;
-  return if ($self->checkString());
-  return if ($self->checkList());
-  return if ($self->checkNumber());
+  return if ($self->checkInfinite);
+  return if ($self->checkString);
+  return if ($self->checkList);
+  return if ($self->checkNumber);
   $self->{type} = {%{$self->{op}->typeRef}};
 }
 
