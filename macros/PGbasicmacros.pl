@@ -286,11 +286,11 @@ sub NAMED_ANS_RULE {
 	$answer_value =~ tr/\\$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
 	$name = RECORD_ANS_NAME($name);
 
-	# incorporated Davide Cervone's changes  	
+	# incorporated Davide Cervone's changes
 	# removed newlines from around <INPUT> tags
 	# made TeX rule be based on specified width rather than varying size.
-
-	my $tcol = min(max($col/2,3),40);
+	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
+	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
 
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
