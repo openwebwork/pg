@@ -351,6 +351,7 @@ sub extract {
 #
 sub promotePrecedence {
   my $self = shift; my $other = shift;
+  return 0 unless Value::isValue($other);
   my $sprec = $$context->{precedence}{class($self)};
   my $oprec = $$context->{precedence}{class($other)};
   return (defined($oprec) && $sprec < $oprec) ||
