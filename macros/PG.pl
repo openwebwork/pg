@@ -176,12 +176,28 @@ sub DOCUMENT {
   	# end unpacking of environment variables.
 #  	$main::QUIZ_PREFIX = '' unless defined($main::QUIZ_PREFIX)
 
-	$STRINGforOUTPUT = '<SCRIPT SRC="'.$main::envir{jsMathURL}.'"></SCRIPT>' . "\n" .
-	      '<NOSCRIPT><CENTER><FONT COLOR="#CC0000">' .
-              '<B>Warning: the mathematics on this page requires JavaScript.<BR>' .
-              'If your browser supports it, be sure it is enabled.</B>'.
-              '</FONT></CENTER><p></NOSCRIPT>' .
-                  $STRINGforOUTPUT if ($main::envir{displayMode} eq 'HTML_jsMath');
+	if ($main::envir{displayMode} eq 'HTML_jsMath') {
+		my $prefix = "";
+		if (!$main::envir{jsMath}{reportMissingFonts}) {
+			$prefix .= '<SCRIPT>function NoFontMessage() {}</SCRIPT>';
+		} elsif ($main::envir{jsMath}{missingFontMessage}) {
+			$prefix .=
+			  '<SCRIPT>'.
+			  '  function NoFontMessage() {'.
+			  '    document.writeln(\'<DIV CLASS="noFontMessage">'.
+			  	$main::envir{jsMath}{missingFontMessage}.'</DIV>\');'.
+			  '  }' .
+			  '</SCRIPT>';
+		}
+		$STRINGforOUTPUT =
+		  $prefix . 
+		  '<SCRIPT SRC="'.$main::envir{jsMathURL}.'"></SCRIPT>' . "\n" .
+		  '<NOSCRIPT><CENTER><FONT COLOR="#CC0000">' .
+		  '<B>Warning: the mathematics on this page requires JavaScript.<BR>' .
+		  'If your browser supports it, be sure it is enabled.</B>'.
+		  '</FONT></CENTER><p></NOSCRIPT>' .
+		  $STRINGforOUTPUT;
+	}
 	
 	$STRINGforOUTPUT = '<SCRIPT SRC="'.$main::envir{asciimathURL}.'"></SCRIPT>' . "\n" .
                            '<SCRIPT>mathcolor = "black"</SCRIPT>' . $STRINGforOUTPUT
