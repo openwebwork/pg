@@ -20,7 +20,7 @@ package Value;
 sub cmp_defaults {(
   showTypeWarnings => 1,
   showEqualErrors => 1,
-)};
+)}
 
 sub cmp {
   my $self = shift;
@@ -64,11 +64,10 @@ sub cmp_check {
   #  Parse and evaluate the student answer
   #
   $ans->score(0);  # assume failure
-  my $vars = $$Value::context->{variables};
-  $$Value::context->{variables} = {}; #  pretend there are no variables
-  $ans->{student_formula} = Parser::Formula($ans->{student_ans});
-  $ans->{student_value}   = Parser::Evaluate($ans->{student_formula});
-  $$Value::context->{variables} = $vars;
+  $ans->{student_value} = $ans->{student_formula} = Parser::Formula($ans->{student_ans});
+  $ans->{student_value} = Parser::Evaluate($ans->{student_formula})
+    if defined($ans->{student_formula}) && $ans->{student_formula}->isConstant &&
+       $ans->{correct_value}->class ne 'Formula';
   #
   #  If it parsed OK, save the output forms and check if it is correct
   #   otherwise report an error
@@ -100,7 +99,7 @@ sub cmp_equal {
   } else {
     $ans->{ans_message} = $ans->{error_message} =
       "Your answer isn't ".lc($ans->{cmp_class}).
-        " (it looks like ".lc($ans->{student_value}->showClass).")"
+        " (it looks like ".lc($ans->{student_value}->showClass(1)).")"
 	   if !$ans->{isPreview} && $ans->{showTypeWarnings} && !$ans->{error_message};
   }
 }
@@ -111,7 +110,7 @@ sub cmp_equal {
 sub typeMatch {
   my $self = shift;  my $other = shift;
   return 1 unless ref($other);
-  $self->type eq $other->type;
+  $self->type eq $other->type && $other->class ne 'Formula';
 }
 
 #
@@ -201,11 +200,12 @@ sub cmp_defaults {(
   shift->SUPER::cmp_defaults,
   ignoreStrings => 1,
   ignoreInfinity => 1,
-)};
+)}
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
   return 1 unless ref($other);
+  return 0 if $other->class eq 'Formula';
   return 1 if $other->type eq 'Infinity' && $ans->{ignoreInfinity};
   if ($other->type eq 'String' && $ans->{ignoreStrings}) {
     $ans->{showEqualErrors} = 0;
@@ -220,10 +220,17 @@ package Value::Infinity;
 
 sub cmp_class {'a Number'};
 
+sub cmp_defaults {Value::Real->cmp_defaults};
+
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
   return 1 unless ref($other);
+  return 0 if $other->class eq 'Formula';
   return 1 if $other->type eq 'Number';
+  if ($other->type eq 'String' && $ans->{ignoreStrings}) {
+    $ans->{showEqualErrors} = 0;
+    return 1;
+  }
   $self->type eq $other->type;
 }
 
@@ -233,22 +240,21 @@ package Value::String;
 
 sub cmp_defaults {(
   Value::Real->cmp_defaults,
-  typeMatch => undef,
-)};
+  typeMatch => 'Value::Real',
+)}
 
 sub cmp_class {
-  my $self = shift; my $ans = shift;
-  my $typeMatch = $ans->{typeMatch};
-  my $typeMatch = $ans->{typeMatch} = Value::Real->new(1) unless defined($typeMatch);
+  my $self = shift; my $ans = shift; my $typeMatch = $ans->{typeMatch};
   return 'a Word' if !Value::isValue($typeMatch) || $typeMatch->class eq 'String';
   return $typeMatch->cmp_class;
 };
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
+  return 0 if ref($other) && $other->class eq 'Formula';
   my $typeMatch = $ans->{typeMatch};
-  my $typeMatch = $ans->{typeMatch} = Value::Real->new(1) unless defined($typeMatch);
-  return 1 if $self->type eq $other->type || !Value::isValue($typeMatch) || $typeMatch->class eq 'String';
+  return 1 if !Value::isValue($typeMatch) || $typeMatch->class eq 'String' ||
+                 $self->type eq $other->type;
   return $typeMatch->typeMatch($other,$ans);
 }
 
@@ -260,11 +266,11 @@ sub cmp_defaults {(
   shift->SUPER::cmp_defaults,
   showDimensionHints => 1,
   showCoordinateHints => 1,
-)};
+)}
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
-  return ref($other) && $other->type eq 'Point';
+  return ref($other) && $other->type eq 'Point' && $other->class ne 'Formula';
 }
 
 #
@@ -298,11 +304,11 @@ sub cmp_defaults {(
   promotePoints => 0,
   parallel => 0,
   sameDirection => 0,
-)};
+)}
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
-  return 0 unless ref($other);
+  return 0 unless ref($other) && $other->class ne 'Formula';
   $other = $ans->{student_value} = Value::Vector::promote($other)
     if $ans->{promotePoints} && $other->type eq 'Point';
   return $other->type eq 'Vector';
@@ -344,11 +350,11 @@ sub cmp_defaults {(
   shiftf->SUPER::cmp_defaults,
   showDimensionHints => 1,
   showEqualErrors => 0,
-)};
+)}
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
-  return 0 unless ref($other);
+  return 0 unless ref($other) && $other->class ne 'Formula';
   $other = $ans->{student_value} = $self->make($other->{data})
     if $other->class eq 'Point';
   return $other->type eq 'Matrix';
@@ -380,11 +386,11 @@ sub cmp_defaults {(
   shift->SUPER::cmp_defaults,
   showEndpointHints => 1,
   showEndTypeHints => 1,
-)};
+)}
 
 sub typeMatch {
   my $self = shift; my $other = shift;
-  return 0 unless ref($other);
+  return 0 unless ref($other) && $other->class ne 'Formula';
   return $other->length == 2 &&
          ($other->{open} eq '(' || $other->{open} eq '[') &&
          ($other->{close} eq ')' || $other->{close} eq ']')
@@ -420,7 +426,7 @@ package Value::Union;
 
 sub typeMatch {
   my $self = shift; my $other = shift;
-  return 0 unless ref($other);
+  return 0 unless ref($other) && $other->class ne 'Formula';
   return $other->length == 2 &&
          ($other->{open} eq '(' || $other->{open} eq '[') &&
          ($other->{close} eq ')' || $other->{close} eq ']')
@@ -434,8 +440,8 @@ sub typeMatch {
 #  messages.
 #
 sub cmp_defaults {(
-  Value::List->cmp_defaults,
-  typeMatch => Value::Interval->new("(1,2]"),
+  Value::List::cmp_defaults(@_),
+  typeMatch => 'Value::Interval',
   list_type => 'union',
   entry_type => 'an interval',
 )}
@@ -446,21 +452,27 @@ sub cmp_equal {Value::List::cmp_equal(@_)}
 
 package Value::List;
 
-sub cmp_defaults {(
-  Value::Real->cmp_defaults,
-  showHints => undef,
-  showLengthHints => undef,
-#  partialCredit => undef,
-  partialCredit => 0,  #  only allow this once WW can deal with partial credit
-  ordered => 0,
-  entry_type => undef,
-  list_type => undef,
-  typeMatch => undef,
-  allowParens => 0,
-  showParens => 0,
-)};
+sub cmp_defaults {
+  my $self = shift;
+  return (
+    Value::Real->cmp_defaults,
+    showHints => undef,
+    showLengthHints => undef,
+#    partialCredit => undef,
+    partialCredit => 0,  #  only allow this once WW can deal with partial credit
+    ordered => 0,
+    entry_type => undef,
+    list_type => lc($self->type),
+    typeMatch => Value::makeValue($self->{data}[0]),
+    allowParens => 0,
+    showParens => 0,
+   );
+}
 
-sub typeMatch {1}
+#
+#  Match anything but formulas
+#
+sub typeMatch {return !ref($other) || $other->class ne 'Formula'}
 
 #
 #  Handle removal of outermost parens in correct answer.
@@ -477,33 +489,55 @@ sub cmp {
 
 sub cmp_equal {
   my $self = shift; my $ans = shift;
-  my $showPartialCorrectAnswers = $self->getPG('$showPartialCorrectAnswers');
+  $ans->{showPartialCorrectAnswers} = $self->getPG('$showPartialCorrectAnswers');
+
+  #
+  #  get the paramaters
+  #
   my $showTypeWarnings = $ans->{showTypeWarnings};
-  my $showHints = getOption($ans->{showHints},$showPartialCorrectAnswers);
-  my $showLengthHints = getOption($ans->{showLengthHints},$showPartialCorrectAnswers);
-  my $partialCredit = getOption($ans->{partialCredit},$showPartialCorrectAnswers);
+  my $showHints        = getOption($ans,'showHints');
+  my $showLengthHints  = getOption($ans,'showLengthHints');
+  my $partialCredit    = getOption($ans,'partialCredit');
   my $ordered = $ans->{ordered}; my $allowParens = $ans->{allowParens};
-  my $typeMatch = $ans->{typeMatch} || $self->{data}[0];
-  $typeMatch = Value::Real->make($typeMatch)
-    if !ref($typeMatch) && Value::matchNumber($typeMatch);
-  my $value = getOption($ans->{entry_type},
-      Value::isValue($typeMatch)? lc($typeMatch->cmp_class): 'value');
+  my $typeMatch = $ans->{typeMatch};
+  my $value     = $ans->{entry_type};
+  my $ltype     = $ans->{list_type};
+
+  $value = (Value::isValue($typeMatch)? lc($typeMatch->cmp_class): 'value')
+    unless defined($value);
   $value =~ s/(real|complex) //; $ans->{cmp_class} = $value; $value =~ s/^an? //;
-  my $ltype = getOption($ans->{list_type},lc($self->type));
   $showTypeWarnings = $showHints = $showLengthHints = 0 if $ans->{isPreview};
 
-  my $student = $ans->{student_value};
+  #
+  #  Get the lists of correct and student answers
+  #
   my @correct = $self->value;
-  my @student =
-    $student->class =~ m/^(List|Union)$/ &&
-      ($allowParens || (!$student->{open} && !$student->{close})) ?
-    @{$student->{data}} : ($student);
+  my $student = $ans->{student_value};
+  my @student = ($student);
+  if ($student->class eq $self->class &&
+      ($allowParens || (!$student->{open} && !$student->{close}))) {
+    @student = @{$student->{data}};
+  } elsif ($student->class eq 'Formula' && $student->type eq 'List') {
+    @student = ();
+    foreach my $entry (@{$student->{tree}{coords}}) {
+      my $v = Parser::Formula($entry);
+         $v = Parser::Evaluate($v) if (defined($v) && $v->isConstant);
+      #  FIXME:  what if there is an error?
+      push(@student,$v);
+    }
+  }
 
+  #
+  #  Initialize the score
+  #
   my $maxscore = scalar(@correct);
   my $m = scalar(@student);
   $maxscore = $m if ($m > $maxscore);
   my $score = 0; my @errors; my $i = 0;
 
+  #
+  #  Loop through student answers looking for correct ones
+  #
   ENTRY: foreach my $entry (@student) {
     $i++;
     $entry = Value::makeValue($entry);
@@ -518,17 +552,22 @@ sub cmp_equal {
 	}
       }
     }
-    if ($showTypeWarnings && defined($typeMatch) &&
-        !$typeMatch->typeMatch($entry,$ans)) {
-      push(@errors,
-        "Your ".$self->NameForNumber($i)." value isn't ".lc($ans->{cmp_class}).
-	   " (it looks like ".lc($entry->showClass).")");
-      next ENTRY;
+    #
+    #  Give messages about incorrect answers
+    #
+    my $nth = ''; $nth = ' '.$self->NameForNumber($i) if (scalar(@student) > 1);
+    if ($showTypeWarnings && !$typeMatch->typeMatch($entry,$ans)) {
+      next ENTRY if ($ans->{ignoreStrings} && $entry->class eq 'String');
+      push(@errors,"Your$nth value isn't ".lc($ans->{cmp_class}).
+	   " (it looks like ".lc($entry->showClass(1)).")");
+    } elsif ($showHints && $m > 1) {
+      push(@errors,"Your$nth $value is incorrect");
     }
-    push(@errors,"Your ".$self->NameForNumber($i)." $value is incorrect")
-      if $showHints && $m > 1;
   }
 
+  #
+  #  Give hints about extra or missing answsers
+  #
   if ($showLengthHints) {
     $value =~ s/ or /s or /; # fix "interval or union"
     push(@errors,"There should be more ${value}s in your $ltype")
@@ -537,6 +576,9 @@ sub cmp_equal {
       if ($score < $maxscore && $score == scalar($self->value));
   }
 
+  #
+  #  Finalize the score
+  #
   $score = 0 if ($score != $maxscore && !$partialCredit);
   $ans->score($score/$maxscore);
   push(@errors,"Score = $ans->{score}") if $ans->{debug};
@@ -544,12 +586,13 @@ sub cmp_equal {
 }
 
 #
-#  Return the value if it is defined, otherwise a default
+#  Return the value if it is defined, otherwise use a default
 #
 sub getOption {
-  my $value = shift; my $default = shift;
+  my $ans = shift; my $name = shift; 
+  my $value = $ans->{$name};
   return $value if defined($value);
-  return $default;
+  return $ans->{showPartialCorrectAnswers};
 }
 
 #############################################################

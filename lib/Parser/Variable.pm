@@ -17,10 +17,10 @@ sub new {
   unless (defined($equation->{context}{variables}{$name})) {
     my $string = substr($equation->{string},$ref->[2]);
     if ($string =~ m/^([a-z][a-z]+)/i) {
-      $ref->[3] = length($1);
-      $equation->Error("Unexpected word '$1'",$ref);
+      $ref->[3] = $ref->[2]+length($1);
+      $equation->Error("'$1' is not defined in this context",$ref);
     }
-    $equation->Error("Unexpected variable '$name'",$ref);
+    $equation->Error("Variable '$name' is not defined in this context",$ref);
   }
   $equation->{variables}{$name} = 1;
   my $def = $equation->{context}{variables}{$name};

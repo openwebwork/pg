@@ -32,7 +32,7 @@ sub new {
   }
   my ($open,$a,$b,$close) = @_;
   if (!defined($close)) {$close = $b; $b = $a}
-  Value::Error("Interval() requires 3 or 4 arguments")
+  Value::Error("Interval() must be called with 3 or 4 arguments")
     unless defined($open) && defined($a) && defined($b) && defined($close);
   $a = Value::makeValue($a); $b = Value::makeValue($b);
   Value::Error("Endpoints of intervals must be numbers on infinities") unless

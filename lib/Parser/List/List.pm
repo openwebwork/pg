@@ -11,6 +11,15 @@ use strict; use vars qw(@ISA);
 #  for its name.
 #
 
+#
+#  Produce a string version with extra space
+#
+sub string {
+  my $self = shift; my $precedence = shift; my @coords = ();
+  foreach my $x (@{$self->{coords}}) {push(@coords,$x->string)}
+  return $self->{open}.join(', ',@coords).$self->{close};
+}
+
 #########################################################################
 
 1;

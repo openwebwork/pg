@@ -13,7 +13,7 @@ use strict; use vars qw(@ISA);
 sub _check {
   my $self = shift;
   my $length = $self->{type}{length}; my $coords = $self->{coords};
-  $self->Error("Intervals can have have only two endpoints") if ($length > 2);
+  $self->Error("Intervals can have only two endpoints") if ($length > 2);
   $self->Error("Intervals must have at least one endpoint") if ($length == 0);
   $self->Error("Coordinates of intervals can only be numbers or infinity")
     if !$coords->[0]->isNumOrInfinity ||

@@ -89,7 +89,7 @@ sub matchInfinite {my $n = shift; $n =~ m/^$$context->{pattern}{infinite}$/i}
 sub isReal    {class(shift) eq 'Real'}
 sub isComplex {class(shift) eq 'Complex'}
 sub isFormula {class(shift) eq 'Formula'}
-sub isValue {ref(shift) =~ m/^Value::/}
+sub isValue   {my $v = shift; return (ref($v) || $v) =~ m/^Value::/}
 
 sub isNumber {
   my $n = shift;
@@ -123,15 +123,15 @@ sub makeValue {
 #  Get a printable version of the class of an object
 #
 sub showClass {
-  my $value = makeValue(shift);
-  return "'".$value."'" unless ref($value);
+  my $value = makeValue(shift); my $showFormula = shift;
+  return "'".$value."'" unless Value::isValue($value);
   my $class = class($value);
-  $class = 'Infinity' if $class eq 'Formula' &&
-    $value->{tree} && $value->{tree}{isInfinite};
+  return showType($value) if ($class eq 'List');
   $class .= ' Number' if $class =~ m/^(Real|Complex)$/;
   $class .= ' of Intervals' if $class eq 'Union';
   $class = 'Word' if $class eq 'String';
-  return showType($value->{tree}) if $class eq 'Formula';
+  return ($showFormula ? 'a Formula that returns ' : '') . showType($value->{tree})
+    if ($class eq 'Formula');
   return 'an '.$class if $class =~ m/^[aeio]/i;
   return 'a '.$class;
 }
@@ -142,6 +142,13 @@ sub showClass {
 sub showType {
   my $value = shift;
   my $type = $value->type;
+  if ($type eq 'List') {
+    my $ltype = $value->typeRef->{entryType}{name};
+    if ($ltype && $ltype ne 'unknown') {
+      $ltype =~ s/y$/ie/;
+      $type .= ' of '.$ltype.'s';
+    }
+  }
   return 'a Word' if $type eq 'String';
   return 'a Complex Number' if $value->isComplex;
   return 'an '.$type if $type =~ m/^[aeio]/i;

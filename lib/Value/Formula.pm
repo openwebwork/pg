@@ -115,6 +115,12 @@ sub atan2 {
   Parser::Function->call('atan2',$l,$r);
 }
 
+#
+#  Check if the value of a formula is constant
+#    (could use shift->{tree}{isConstant}, but I don't trust it)
+#
+sub isConstant {scalar(%{shift->{variables}}) == 0}
+
 ###########################################################################
 
 1;

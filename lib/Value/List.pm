@@ -27,12 +27,17 @@ sub new {
   my $p = shift; my $isFormula = 0;
   $p = $p->data if (Value::isValue($p) && scalar(@_) == 0);
   $p = [$p,@_] if (ref($p) ne 'ARRAY' || scalar(@_) > 0);
+  my $type;
   foreach my $x (@{$p}) {
-    $isFormula = 1,last if Value::isFormula($x);
+    $isFormula = 1 if Value::isFormula($x);
     $x = Value::makeValue($x) unless ref($x);
+    if (Value::isValue($x)) {
+      if (!$type) {$type = $x->type}
+        else {$type = 'unknown' unless $type eq $x->type}
+    } else {$type = 'unknown'}
   }
   return $self->formula($p) if $isFormula;
-  bless {data => $p}, $class;
+  bless {data => $p, type => $type}, $class;
 }
 
 #
@@ -41,7 +46,7 @@ sub new {
 sub length {return scalar(@{shift->{data}})}
 sub typeRef {
   my $self = shift;
-  return Value::Type($self->class, $self->length, $Value::Type{unknown});
+  return Value::Type($self->class, $self->length, Value::Type($self->{type},1));
 }
 
 #
