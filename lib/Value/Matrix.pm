@@ -233,9 +233,9 @@ sub mult {
   #
   my @l = $l->value; my @r = $r->value;
   my @M = ();
-  foreach my $j (0..$dr[1]-1) {
+  foreach my $i (0..$dl[0]-1) {
     my @row = ();
-    foreach my $i (0..$dl[0]-1) {
+    foreach my $j (0..$dr[1]-1) {
       my $s = 0;
       foreach my $k (0..$dl[1]-1) {$s += $l[$i]->[$k] * $r[$k]->[$j]}
       push(@row,$s);
