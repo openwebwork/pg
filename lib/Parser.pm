@@ -453,12 +453,16 @@ sub CloseFn {
 #  Handle a numeric token
 #  
 #  Add an implicit multiplication, if needed
+#  Create the number object and check it
 #  Save the number as an operand
 #
 sub Num {
   my $self = shift;
   $self->ImplicitMult() if $self->state eq 'operand';
-  $self->pushOperand(Parser::Number->new($self,shift,$self->{ref}));
+  my $num = Parser::Number->new($self,shift,$self->{ref});
+  my $check = $self->{context}->flag('NumberCheck');
+  &$check($num) if $check;
+  $self->pushOperand($num);
 }
 
 ##################################################

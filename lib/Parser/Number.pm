@@ -12,7 +12,7 @@ sub new {
   my ($value,$ref) = @_;
   return Parser::Complex->new($equation,$value,$ref) if (ref($value) eq 'ARRAY');
   $value = $value->value while Value::isReal($value);
-  $value = $value + 0; # format the value as a number
+  $value = $value + 0; # format the value as a number, just in case
   $num = bless {
     value => $value, type => $Value::Type{number}, isConstant => 1,
     ref => $ref, equation => $equation,
@@ -61,6 +61,17 @@ sub TeX {
   Value::Real->make($self->{value})->TeX($self->{equation},@_);
 }
 sub perl {shift->{value}}
+
+###########################################
+
+sub NoDecimals {$$Value::context->flags->set(NumberCheck=>\&_NoDecimals)}
+
+sub _NoDecimals {
+  my $self = shift;
+  $self->Error("You are not allowed to type decimal numbers in this problem")
+    unless $self->{value} =~ m/^[-+]?[0-9]+$/;
+}
+
 
 #########################################################################
 
