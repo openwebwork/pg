@@ -1073,8 +1073,25 @@ sub M3 {
 
 sub MODES {
 	my %options = @_;
+
+	return $options{$displayMode} if defined $options{$displayMode};
+	
+	if (exists $envir{displayModeFailover}->{$displayMode}) {
+		my @backup_modes = @{$envir{displayModeFailover}->{$displayMode}};
+		foreach my $mode (@backup_modes) {
+			return $options{$mode} if defined $options{$mode};
+		}
+		die "ERROR in defining MODES: neither display mode $displayMode nor",
+			" any fallback modes (", join(", ", @backup_modes), ") defined.\n";
+	}
+	
+	die "ERROR in defining MODES: current display mode '$displayMode' not found. available modes: ",
+		join (", ", keys %{$envir{displayModeFailover}}), "\n";
+	
 	return $options{$displayMode}
 	           if defined( $options{$displayMode} );
+
+=for comment
 
 	# default searches.
 	if ($displayMode eq "Latex2HTML") {
@@ -1120,6 +1137,8 @@ sub MODES {
 	die "ERROR in defining MODES:  Can't find |$displayMode| among
 	         available options:" . join(" ", keys(%options) )
 	         . " file " . __FILE__ ." line " . __LINE__."\n\n";
+
+=cut
 
 }
 
