@@ -492,6 +492,8 @@ package Value::List;
 sub cmp_defaults {
   my $self = shift;
   my %options = (@_);
+  my $element = Value::makeValue($self->{data}[0]);
+  $element = Value::Formula->new($element) unless Value::isValue($element);
   return (
     Value::Real->cmp_defaults(@_),
     showHints => undef,
@@ -502,7 +504,8 @@ sub cmp_defaults {
     showEqualErrors => $options{ordered},
     entry_type => undef,
     list_type => undef,
-    typeMatch => Value::makeValue($self->{data}[0]),
+    typeMatch => $element,
+    extra => $element,
     requireParenMatch => 1,
     removeParens => 1,
    );
@@ -627,7 +630,8 @@ sub cmp_equal {
   $score = 0 if ($score != $maxscore && !$partialCredit);
   $ans->score($score/$maxscore);
   push(@errors,"Score = $ans->{score}") if $ans->{debug};
-  $ans->{error_message} = $ans->{ans_message} = join("\n",@errors);
+  my $error = join("\n",@errors); $error =~ s!</DIV>\n!</DIV>!g;
+  $ans->{error_message} = $ans->{ans_message} = $error;
 }
 
 #
@@ -640,6 +644,7 @@ sub cmp_list_compare {
   my $ordered = $ans->{ordered};
   my $showTypeWarnings = $ans->{showTypeWarnings} && !$ans->{isPreview};
   my $typeMatch = $ans->{typeMatch};
+  my $extra = $ans->{extra};
   my $showHints = getOption($ans,'showHints') && !$ans->{isPreview};
   my $error = $$Value::context->{error};
   my $score = 0; my @errors; my $i = 0;
@@ -657,7 +662,11 @@ sub cmp_list_compare {
     $entry = Value::makeValue($entry);
     $entry = Value::Formula->new($entry) if !Value::isValue($entry);
     if ($ordered) {
-      if (shift(@correct)->cmp_compare($entry,$ans)) {$score++; next ENTRY}
+      if (scalar(@correct)) {
+	if (shift(@correct)->cmp_compare($entry,$ans)) {$score++; next ENTRY}
+      } else {
+	$extra->cmp_compare($entry,$ans); # do syntax check
+      }
       if ($error->{flag} == $CMP_ERROR) {$self->cmp_error($ans); return}
     } else {
       foreach my $k (0..$#correct) {
@@ -679,8 +688,9 @@ sub cmp_list_compare {
       $answer = 'value';
     }
     if ($error->{flag} && $ans->{showEqualErrors}) {
-      push(@errors,"<I>An error occured while processing your$nth $answer:</I>",
-	           '<DIV STYLE="margin-left:1em">'.$error->{message}.'</DIV>');
+      my $message = $error->{message}; $message =~ s/\s+$//;
+      push(@errors,"<SMALL>There is a problem with your$nth $value:</SMALL>",
+	           '<DIV STYLE="margin-left:1em">'.$message.'</DIV>');
     } elsif ($showTypeWarnings && !$typeMatch->typeMatch($entry,$ans) &&
 	     !($ans->{ignoreStrings} && $entry->class eq 'String')) {
       push(@errors,"Your$nth $answer isn't ".lc($class).
