@@ -61,7 +61,7 @@ sub normal_prob {
                              $E**(-$x**2/2)/sqrt(2*$PI);
                              };
 
-        my $prob = romberg($function, $z_score_of_a, $z_score_of_b, 8);
+        my $prob = romberg($function, $z_score_of_a, $z_score_of_b, level => 8);
         $prob;
 }
 
