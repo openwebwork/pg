@@ -28,7 +28,7 @@ sub cmp {
   my $ans = new AnswerEvaluator;
   $ans->ans_hash(
     type => "Value (".$self->class.")",
-    correct_ans => $self->string,
+    correct_ans => protectHTML($self->string),
     correct_value => $self,
     $self->cmp_defaults,
     @_
