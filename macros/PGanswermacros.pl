@@ -1105,7 +1105,7 @@ sub NUM_CMP {		# low level	numeric	compare
 		$rh_ans->{original_student_ans} = $rh_ans->{student_ans}; $rh_ans;}
 	);
 
-	$answer_evaluator->install_pre_filter(\&check_syntax);
+	
 
 	if (defined($num_params{units}) && $num_params{units}) {
 			$answer_evaluator->install_pre_filter(\&check_units);
@@ -1113,11 +1113,14 @@ sub NUM_CMP {		# low level	numeric	compare
 	if (defined($num_params{strings}) && $num_params{strings}) {
 			$answer_evaluator->install_pre_filter(\&check_strings, %num_params);
 	}
-
+	
 	## FIXME? - this pre filter was moved before check_units to allow
 	## 	    for latex preview of answers with no units.
 	##          seems to work but may have unintended side effects elsewhere.
-	#$answer_evaluator->install_pre_filter(\&check_syntax);
+	
+	##      Actually it caused trouble with the check strings package so it has been moved back
+	#       We'll try some other method  -- perhaps add code to fix_answer for display
+	$answer_evaluator->install_pre_filter(\&check_syntax);
 
 	$answer_evaluator->install_pre_filter(\&math_constants);
 
@@ -3321,6 +3324,13 @@ sub fix_answers_for_display	{
 	}
 	if (defined ($rh_ans->{student_units})) {
 		$rh_ans->{student_ans} = $rh_ans->{student_ans}. ' '. $rh_ans->{student_units};
+		
+	}
+	if ( $rh_ans->catch_error('UNITS')  ) {  # create preview latex string for expressions even if the units are incorrect
+			my $rh_temp = new AnswerHash;
+			$rh_temp->{student_ans} = $rh_ans->{student_ans};
+			$rh_temp = check_syntax($rh_temp);
+			$rh_ans->{preview_latex_string} = $rh_temp->{preview_latex_string};
 	}
 	$rh_ans->{correct_ans} = $rh_ans->{original_correct_ans};
 
