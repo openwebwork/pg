@@ -1467,8 +1467,8 @@ sub general_math_ev3 {
 	if($displayMode eq "HTML_tth") {
 		$out = tth($in_delim);
 		## remove leading and trailing spaces as per Davide Cervone.
-		$in =~ s/^\s+//;
-		$in =~ s/\s+$//;
+		$out =~ s/^\s+//;
+		$out =~ s/\s+$//;
 	} elsif ($displayMode eq "HTML_dpng") {
 		# for jj's version of ImageGenerator
 		$out = $envir->{'imagegen'}->add($in_delim);
@@ -1591,12 +1591,12 @@ sub beginproblem {
 	##    Prepare header for the problem
 	grep($inlist{$_}++,@{ $envir->{'PRINT_FILE_NAMES_FOR'} });
 	if ( defined($inlist{$envir->{studentLogin}}) and ($inlist{$envir->{studentLogin}} > 0) ) {
-		$out = &M3("\n\n\\medskip\\hrule\\smallskip\\par{\\bf ${probNum}.{\\footnotesize ($problemValue $points) $TeXFileName}}\\newline ",
+		$out = &M3("{\\bf ${probNum}. {\\footnotesize ($problemValue $points) $TeXFileName}}\\newline ",
 		" \\begin{rawhtml} ($problemValue $points) <B>$l2hFileName</B><BR>\\end{rawhtml}",
 		 "($problemValue $points) <B>$fileName</B><BR>"
 	 	   ) if ($problemValue ne "");
-	}	else {
-		$out = &M3("\n\n\\smallskip\\hrule\\smallskip\\par{\\bf ${probNum}.}($problemValue $points) ",
+	} else {
+		$out = &M3("{\\bf ${probNum}.} ($problemValue $points) ",
 		"($problemValue $points) ",
 		 "($problemValue $points) "
 	 	   ) if ($problemValue ne "");
@@ -1688,9 +1688,9 @@ sub htmlLink {
 	my $options = shift;
 	$options = "" unless defined($options);
 	return "$BBOLD\[ broken link:  $text \] $EBOLD" unless defined($url);
-	M3( "{\\bf \\underline{$text}  }",
-	    "\\begin{rawhtml} <A HREF=\"$url\" $options> $text </A>\\end{rawhtml}",
-	    "<A HREF=\"$url\" $options> $text </A>"
+	M3( "{\\bf \\underline{$text}}",
+	    "\\begin{rawhtml}<A HREF=\"$url\" $options>$text</A>\\end{rawhtml}",
+	    "<A HREF=\"$url\" $options>$text</A>"
 	    );
 }
 
