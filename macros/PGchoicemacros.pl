@@ -1,4 +1,4 @@
-#!/usr/local/bin/webwork-perl
+
 BEGIN{
 	be_strict;
 }
@@ -15,15 +15,15 @@ PGchoicemacros.pl --- located in the courseScripts directory
 
 =pod
 
-There are two types of choice macros. The older versions are simply scripts. 
-The newer versions involve the "List.pm" class and its sub-classes 
+There are two types of choice macros. The older versions are simply scripts.
+The newer versions involve the "List.pm" class and its sub-classes
 and the use of objects based on these classes. The list sub-classes are:
-"Match.pm" which aids in setting up matching question 
- and answer lists, "Select.pm" which aids in selecting 
- and presenting a subset of questions with short answers 
+"Match.pm" which aids in setting up matching question
+ and answer lists, "Select.pm" which aids in selecting
+ and presenting a subset of questions with short answers
 (e.g. true/false questions) from a larger question set, and
-"Multiple.pm" which aids in setting up a 
-standard style, one question, many answers type multiple 
+"Multiple.pm" which aids in setting up a
+standard style, one question, many answers type multiple
 choice question.
 
 
@@ -34,25 +34,25 @@ Sample usage:
 
 	$ml = new_match_list();
 	# enter three questions and their answers
-	$ml->qa( 	 "What color is a rose?",   
+	$ml->qa( 	 "What color is a rose?",
 			 "Red",
 			 "What color is the sky?",
 			 "Blue",
 			 "What color is the sea?",
 			 "Green"
 	);
-	# choose two of these questions, ordered at random, 
+	# choose two of these questions, ordered at random,
 	#	which will be printed in the problem.
-	$ml->choose(2);   
+	$ml->choose(2);
 	BEGIN_TEXT
 		Match the answers below with these questions:$BR
 		\\{$ml->print_q\\} $BR
 		Answers:
 		\\{$ml->print_a\\}
 	END_TEXT
-	
+
 	ANS( $ml->ra_correct_ans()    );
-		 
+
 =cut
 
 
@@ -73,14 +73,14 @@ Which is short hand for the following direct call to Match
 	$ml = new Match(random(1,2000,1), ~~&std_print_q, ~~&std_print_a);
 
 
-Either call will create a matching list object in the variable $ml. 
+Either call will create a matching list object in the variable $ml.
 (I< Note: $ml cannot be a my variable if it is to be used within a BEGIN_TEXT/END_TEXT block.>)
 
-The first argument is the seed for the match list (choosen at random between 1 and 2000 in 
+The first argument is the seed for the match list (choosen at random between 1 and 2000 in
 the example above.).  The next two arguments are references to the print subroutines
 used to print the questions and the answers.
 Other printing methods can be used instead of the standard ones.  An
-example of how to do this is demonstrated with 
+example of how to do this is demonstrated with
 "pop_up_list_print_q"  below.
 
 =head4 std_print_q
@@ -90,8 +90,8 @@ Standard method for formatting a list of questions with answer blanks.
 This  formatting routine is the default method for formatting the
 way questions are printed
 for each of the three sub-classes of "List.pm". It lists the questions vertically, numbering
-them sequentially and providing an answer blank before each question. 
-C<std_print_q> checks which mode the user is trying to print the 
+them sequentially and providing an answer blank before each question.
+C<std_print_q> checks which mode the user is trying to print the
 questions from and returns the appropriately formatted string.
 
 The length of the answer blank can be set with C<$ml->
@@ -100,9 +100,9 @@ To replace the standard question formatting method with your own, use:
 
 	$ml->rf_print_q(~~&my_question_format_method)
 
-Your method should be a subroutine of the form C<my_question_format_method($self, @questions)> 
-and should return a string to be printed.  The @questions array contains the 
-questions to be listed, while $self  can be used to obtain extra information from 
+Your method should be a subroutine of the form C<my_question_format_method($self, @questions)>
+and should return a string to be printed.  The @questions array contains the
+questions to be listed, while $self  can be used to obtain extra information from
 the object for formatting purposes. The variable C<$main::displayMode> contains the
 current display mode.  (See "MODES" for more details on display modes and
 see "writing print methods for lists" for details on constructing formatting subroutines.)
@@ -120,9 +120,9 @@ To replace the standard answer formatting method with your own subroutine use:
 
 	$ml->rf_print_q(~~&my_answer_format_method)
 
-The answer formatting method has the same interface as the question formatting 
+The answer formatting method has the same interface as the question formatting
 method.
-	
+
 
 =head2 Select List macros
 

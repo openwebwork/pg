@@ -1,4 +1,4 @@
-#!/usr/local/bin/webwork-perl
+
 
 # This is extraAnswerEvaluators.pl
 
@@ -23,13 +23,13 @@
 	interval_cmp() -- checks answers which are unions of intervals.
 	                  It can also be used for checking an ordered pair or
 	                  list of ordered pairs.
-	
+
 	number_list_cmp() -- checks a comma separated list of numbers.  By use of
 	                     optional arguments, you can request that order be
 	                     important, that complex numbers be allowed, and
 	                     specify extra arguments to be sent to num_cmp (or
 											 cplx_cmp) for checking individual entries.
-	
+
 	equation_cmp() -- provides a limited facility for checking equations.
 	                  It makes no pretense of checking to see if the real locus
 	                  of the student's equation matches the real locus of the
@@ -49,7 +49,7 @@ answers of various "exotic" types.
 
 {
  package Intervals;
- 
+
  # We accept any of the following as infinity (case insensitive)
  @infinitywords = ("i", "inf", "infty", "infinity");
  $infinityre = join '|', @infinitywords;
@@ -125,7 +125,7 @@ answers of various "exotic" types.
 	 if($unions) {
 		 ($b1str,$b2str) = (' U ', ' \cup ');
 	 }
-	 
+
 	 my($tmp_ae) = main::num_cmp(1, %opts);
 	 $self->{'normalized'} = '';
 	 $self->{'value'} = '';
@@ -233,7 +233,7 @@ answers of various "exotic" types.
 		 }
 		 $spot++;
 	 }
-	 
+
 	 if($level>0) {
 		 $self->error("Your expression ended in the middle of an interval.",
 									[$hold, $spot]);
@@ -358,7 +358,7 @@ answers of various "exotic" types.
 		$str =~ s/\s//g; # remove white space
 		$str;
 		}
-	
+
 	#####  The answer evaluator
 
 	sub interval_cmp {
@@ -368,10 +368,10 @@ answers of various "exotic" types.
 
 		$opts{'mode'} = 'std' unless defined($opts{'mode'});
 		$opts{'tolType'} = 'relative' unless defined($opts{'tolType'});
-	
+
 		my $ans_eval = sub {
 			my $student = shift;
-		
+
 			my $ans_hash = new AnswerHash(
 																		'score'=>0,
 																		'correct_ans'=>$right_ans,
@@ -406,7 +406,7 @@ answers of various "exotic" types.
 					$ans_hash->{'ans_message'} = "$student_int->{error_msg}";
 					return $ans_hash;
 				}
-				
+
 				$ans_hash->{'student_ans'} = $student_int->{'value'};
 				$ans_hash->{'preview_text_string'} = $student_int->{'normalized'};
 				$ans_hash->{'preview_latex_string'} = $student_int->{'latex'};
@@ -441,7 +441,7 @@ answers of various "exotic" types.
 
 {
  package Number_List;
- 
+
  sub new {
 	 my $class = shift;
 	 my $base_string = shift;
@@ -466,7 +466,7 @@ answers of various "exotic" types.
  }
 
 
-																											 
+
  sub parse_number_list {
 	 my($self) = shift;
 	 my(%opts) = @_;
@@ -534,17 +534,17 @@ answers of various "exotic" types.
 		 }
 		 $spot++;
 	 }
-	 
+
 	 if($level>1) {
 		 $self->error("Your expression has unmatched parens.",
 									[$hold, $spot]);
 		 return 0;
 	 }
 	 $cur = substr($str,$hold, $spot-$hold);
-	 
+
 	 my($tmp_ah);
 	 $tmp_ah = $tmp_ae->evaluate($cur);
-	 
+
 	 if(has_errors($tmp_ah)) {
 		 $self->error("I could not parse your input correctly",[$hold, $spot]);
 		 return 0;
@@ -580,7 +580,7 @@ answers of various "exotic" types.
 
 		my $ans_eval = sub {
 			my $student = shift;
-		
+
 			my $ans_hash = new AnswerHash(
 																		'score'=>0,
 																		'correct_ans'=>$right_ans,
@@ -602,7 +602,7 @@ answers of various "exotic" types.
 			$ans_hash->{'student_ans'} = $student_list->{'value'};
 			$ans_hash->{'preview_text_string'} = $student_list->{'normalized'};
 			$ans_hash->{'preview_latex_string'} = $student_list->{'latex'};
-			
+
 			my $correct_list = new Number_List($right_ans);
 			if(! $correct_list->parse_number_list(%opts)) {
 				# Cannot parse instuctor's answer!
@@ -612,7 +612,7 @@ answers of various "exotic" types.
 			if (cmp_numlists($correct_list, $student_list, %opts)) {
 				$ans_hash -> setKeys('score' => 1);
 			}
-			
+
 			return $ans_hash;
 		};
 
@@ -632,7 +632,7 @@ answers of various "exotic" types.
 		 $strict_ordering = 1;
 	 }
 	 delete($opts{'ordered'});
-	 
+
 	 my $complex=0;
 	 if(defined($opts{'complex'}) &&
 			($opts{'complex'} =~ /(yes|ok)/i)) {
@@ -644,7 +644,7 @@ answers of various "exotic" types.
 	 my(@fs1) = @{$in1->{'forsort'}};
 	 my(@fs2) = @{$in2->{'forsort'}};
 
-	 
+
 	 # Same number of values?
 	 if (scalar(@fs1) != scalar(@fs2)) {
 		 return 0;
@@ -660,7 +660,7 @@ answers of various "exotic" types.
 		 @fs1 = main::PGsort(sub {$_[0]->[1] <=> $_[1]->[1];}, @fs1);
 		 @fs2 = main::PGsort(sub {$_[0]->[1] <=> $_[1]->[1];}, @fs2);
 	 }
-	 
+
 	 for ($j=0; $j<scalar(@fs1);$j++) {
 		 my $ae;
 		 if($complex) {
@@ -691,10 +691,10 @@ answers of various "exotic" types.
 	 $self->{htmlerror} =  $ap->{htmlerror};
 	 $self->{error_msg} = $ap->{error_msg};
  }
- 
+
  sub has_errors {
 	 my($ah) = shift;
-	 
+
 	 if($ah->{'student_ans'} =~ /error/) {
 		 return 1;
 	 }
@@ -717,7 +717,7 @@ answers of various "exotic" types.
 # 'ordering' which can be 'strict', which means that we do not want to test rearrangements
 # of the intervals.
 
- 
+
 }
 
 {
@@ -728,19 +728,19 @@ answers of various "exotic" types.
 
 		 split /=/, $instring;
 	}
-		
-	
+
+
 	sub equation_cmp {
 		my $right_ans = shift;
 		my %opts = @_;
 		my $vars = ['x','y'];
 
-		
+
 		$vars = $opts{'vars'} if defined($opts{'vars'});
 
 		my $ans_eval = sub {
 			my $student = shift;
-		
+
 			my $ans_hash = new AnswerHash(
 																		'score'=>0,
 																		'correct_ans'=>$right_ans,
@@ -753,7 +753,7 @@ answers of various "exotic" types.
 																	 );
 
 			if(! ($student =~ /\S/)) { return $ans_hash; }
-			
+
 			my @right= split_eqn($right_ans);
 			if(scalar(@right) != 2) {
 				$ans_hash->{'ans_message'} = "Tell your professor that there is an error in this problem.";
@@ -774,7 +774,7 @@ answers of various "exotic" types.
 				$ans_hash->{'ans_message'} = "Tell your professor that there is an error in this problem.";
 				return $ans_hash;
 			}
-			
+
 			$ah->input($right[1]);
 			$ah=main::check_syntax($ah);
 			if($ah->{error_flag}) {
@@ -794,8 +794,8 @@ answers of various "exotic" types.
 			}
 			$prevs[0] = $ah->{'preview_latex_string'};
 			$prevstxt[0] = $ah->{'preview_text_string'};
-			
-			
+
+
 			$ah->input($studsplit[1]);
 			$ah=main::check_syntax($ah);
 			if($ah->{error_flag}) {
@@ -807,8 +807,8 @@ answers of various "exotic" types.
 
 			$ans_hash->{'preview_latex_string'} = "$prevs[0] = $prevs[1]";
 			$ans_hash->{'preview_text_string'} = "$prevstxt[0] = $prevstxt[1]";
-			
-			
+
+
 			# Check for answer equivalent to 0=0
 			# Could be false positive below because of parameter
 			my $ae = main::fun_cmp("0", %opts);
@@ -829,11 +829,11 @@ answers of various "exotic" types.
 			}
 
 			# Finally, use fun_cmp to check the answers
-			
+
 			$ae = main::fun_cmp("o*($right[0]-($right[1]))", vars=>$vars, params=>['o'], %opts);
 			$res= $ae->evaluate("$studsplit[0]-($studsplit[1])");
 			$ans_hash-> setKeys('score' => $res->{'score'});
-			
+
 			return $ans_hash;
 		};
 

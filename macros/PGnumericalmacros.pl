@@ -1,4 +1,4 @@
-#!/usr/local/bin/webwork-perl
+
 #use strict;
 
 ###########
@@ -24,7 +24,7 @@
     Usage:  plot_list([x0,y0,x1,y1,...]);
 	    	plot_list([(x0,y0),(x1,y1),...]);
 	    	plot_list(\x_y_array);
-			  
+
             plot_list([x0,x1,x2...], [y0,y1,y2,...]);
             plot_list(\@xarray,\@yarray);
 
@@ -50,10 +50,10 @@ sub plot_list {
     my (@x_vals, @y_vals);
     unless( defined($yref) ) { #with only one entry we assume (x0,y0,x1,y1..);
         if ( @$xref % 2 ==1) {
-        	die "ERROR in plot_list -- single array of input has odd number of 
+        	die "ERROR in plot_list -- single array of input has odd number of
         	elements";
         }
-	    
+
 	   my  @in = @$xref;
 	   while (@in) {
 	    	push(@x_vals, shift(@in));
@@ -61,8 +61,8 @@ sub plot_list {
 	    }
 	    $xref = \@x_vals;
 	    $yref = \@y_vals;
-	} 
-    
+	}
+
  	my $fun =sub {
 		my $x = shift;
 		my $y;
@@ -95,7 +95,7 @@ sub plot_list {
 		&$fn(x) = q0 + q1*(x-x0) +q2*(x-x1)*(x-x0);
 
 Generates a subroutine which evaluates a polynomial passing through the points C<(x0,q0), (x1,q1),
-... > using Horner's method.  
+... > using Horner's method.
 
 =cut
 
@@ -122,7 +122,7 @@ sub horner {
 =pod
 
 	Usage:  $poly = hermit([x0,x1...],[y0,y1...],[yp0,yp1,...]);
-		Produces a reference to polynomial function 
+		Produces a reference to polynomial function
 		with the specified values and first derivatives
 		at (x0,x1,...).
 		&$poly(34) gives a number
@@ -146,9 +146,9 @@ sub hermite {
 		$qvals[2*$i][0] = $$y_ref[$i];
 		$qvals[2*$i+1][0] = $$y_ref[$i];
 		$qvals[2*$i+1][1] = $$yp_ref[$i];
-		$qvals[2*$i][1]  = ( $qvals[2*$i][0] - $qvals[2*$i-1][0] ) 
+		$qvals[2*$i][1]  = ( $qvals[2*$i][0] - $qvals[2*$i-1][0] )
 		                  / ( $zvals[2*$i]- $zvals[2*$i-1] ) unless $i ==0;
-		
+
 	}
 	my $j;
 	foreach $i ( 2..(2*$n+1) )  {
@@ -161,7 +161,7 @@ sub hermite {
 	foreach $i (0..2*$n+1) {
 		push(@output,$qvals[$i][$i]);
 	}
-	horner(\@zvals,\@output);  
+	horner(\@zvals,\@output);
 }
 
 
@@ -172,7 +172,7 @@ sub hermite {
 		Produces a reference to a piecewise cubic hermit spline
 		with the specified values and first derivatives
 		at (x0,x1,...).
-		
+
 		&$spline(45) evaluates to a number.
 
 Generates a subroutine which evaluates a piecewise cubic polynomial
@@ -203,8 +203,8 @@ sub hermite_spline {
 		$y0  = $y1;
 		$yp0 = $yp1;
 	}
-	
-	
+
+
 	my $hermite_spline_sub = sub {
 		my $x = shift;
 		my $y;
@@ -212,12 +212,12 @@ sub hermite_spline {
 		my @xvals = @$xref;
 		my @fns = @polys;
 		return $y=&{$fns[0]} ($x) if $x == $xvals[0]; #handle left most endpoint
-		
+
 		while (@xvals && $x > $xvals[0]) {  # find the function for this range of x
 			shift(@xvals);
 			$fun = shift(@fns);
 		}
-		
+
 		# now that we have the left hand of the input
 		#check first that x isn't out of range to the left or right
 		if (@xvals  && defined($fun) )  {
@@ -234,12 +234,12 @@ sub hermite_spline {
 
     Usage:
 		     $fun_ref = cubic_spline(~~@x_values, ~~@y_values);
-		     
+
 Where the x and y value arrays come from the function to be approximated.
 The function reference will take a single value x and produce value y.
 
     	$y = &$fun_ref($x);
-    	
+
 You can also generate javaScript which defines a cubic spline:
 
     		$function_string = javaScript_cubic_spline(~~@_x_values, ~~@y_values,
@@ -257,7 +257,7 @@ The string contains
 	}
 	</SCRIPT>
 
-and can be placed in the header of the HTML output using  
+and can be placed in the header of the HTML output using
 
 	HEADER_TEXT($function_string);
 
@@ -272,23 +272,23 @@ sub cubic_spline {
 	}
 }
 sub eval_cubic_spline {
-	my ($x, $t_ref,$a_ref,$b_ref,$c_ref,$d_ref ) = @_; 
+	my ($x, $t_ref,$a_ref,$b_ref,$c_ref,$d_ref ) = @_;
 #	The knot points given by $t_ref should be in order.
 	my $i=0;
 	my $out =0;
 	while (defined($t_ref->[$i+1] ) && $x  >  $t_ref->[$i+1] ) {
-	    
+
 		$i++;
 	}
 	unless (defined($t_ref->[$i]) && ( $t_ref->[$i] <= $x ) && ($x <= $t_ref->[$i+1] ) ) {
 		$out = undef;
 		# input value is not in the range defined by the function.
 	} else {
-		$out = ( $t_ref->[$i+1]   - $x )* ( ($d_ref->[$i]) +($a_ref->[$i])*( $t_ref->[$i+1] - $x )**2 )  
+		$out = ( $t_ref->[$i+1]   - $x )* ( ($d_ref->[$i]) +($a_ref->[$i])*( $t_ref->[$i+1] - $x )**2 )
 		       +
-		       ( $x  -  $t_ref->[$i] ) * ( ($b_ref->[$i])*( $x  -  $t_ref->[$i] )**2  + ($c_ref->[$i]) ) 
-		       
-	} 
+		       ( $x  -  $t_ref->[$i] ) * ( ($b_ref->[$i])*( $x  -  $t_ref->[$i] )**2  + ($c_ref->[$i]) )
+
+	}
 	$out;
 }
 
@@ -332,15 +332,15 @@ sub javaScript_cubic_spline {
 	my $x_ref = shift;
 	my $y_ref = shift;
 	my %options = @_;
-	assign_option_aliases(\%options, 
-	                       
+	assign_option_aliases(\%options,
+
 	);
 	set_default_options(\%options,
 						name			=>	'func',
 						llimit			=>	$x_ref->[0],
 						rlimit			=>	$x_ref->[$#$x_ref],
 	);
-	
+
 	my ($t_ref, $a_ref, $b_ref, $c_ref, $d_ref) = create_cubic_spline ($x_ref, $y_ref);
 
 
@@ -362,16 +362,16 @@ function $options{name}(x) {
 	$str_b_array
 	$str_c_array
 	$str_d_array
-	 
+
 	// Evaluate a cubic spline defined by the vectors above
 	i = 0;
 	while (x > t[i+1] ) {
 		i++
 	}
-	
+
 	if ( t[i] <= x && x <= t[i+1]  && $options{llimit} <= x && x <= $options{rlimit} ) {
 		return (   ( t[i+1] - x )*( d[i] +a[i]*( t[i+1] - x )*( t[i+1] - x ) )
-		         + ( x -   t[i] )*( b[i]*( x - t[i])*( x - t[i] ) +c[i] )		          
+		         + ( x -   t[i] )*( b[i]*( x - t[i])*( x - t[i] ) +c[i] )
 		       );
 
 	} else {
@@ -379,7 +379,7 @@ function $options{name}(x) {
 	}
 
 }
-// End 
+// End
  -->
 </SCRIPT>
 <NOSCRIPT>
@@ -411,7 +411,7 @@ sub trapezoid {
 	my $x0 = shift;
 	my $x1 = shift;
 	my %options = @_;
-	assign_option_aliases(\%options, 
+	assign_option_aliases(\%options,
 	                       intervals	=>	'steps',
 	);
 	set_default_options(\%options,
@@ -461,7 +461,7 @@ sub romberg_iter {
 	if ($k == 1 ) {
 		$out = trapezoid($fn_ref, $x0,$x1,steps => 2**($j-1) );
 	} else {
-		
+
 		$out = (  4**($k-1) * romberg_iter($fn_ref, $x0,$x1,$j,$k-1) -
 		        romberg_iter($fn_ref, $x0,$x1,$j-1,$k-1) ) / ( 4**($k-1) -1) ;
 	}
@@ -476,7 +476,7 @@ sub romberg_iter {
 
 Finds b such that the integral of the function from a to b is equal to value.
 Assumes that the function is continuous and doesn't take on the zero value.
-Uses Newton's method of approximating roots of equations, and Romberg to evaluate definite integrals. 
+Uses Newton's method of approximating roots of equations, and Romberg to evaluate definite integrals.
 
 =cut
 
@@ -486,26 +486,26 @@ sub inv_romberg {
         my $value = shift;
         my $b = $a;
         my $delta = 1;
-        my $i=0; 
+        my $i=0;
         my $funct;
         my $deriv;
-        while (abs($delta) > 0.000001 && $i < 5000) { 
+        while (abs($delta) > 0.000001 && $i < 5000) {
                 $funct = romberg($fn_ref,$a,$b)-$value;
                 $deriv = &$fn_ref ( $b );
         	if ($deriv == 0) {
 			warn 'Values of the function are too close to 0.';
                         return;
-                }         
+                }
                 $delta = $funct/$deriv;
-                $b = $b - $delta; 
+                $b = $b - $delta;
                 $i++;
-        } 
+        }
         if ($i == 5000) {
                 warn 'Newtons method does not converge.';
-                return;       
+                return;
  	}
         $b;
-} 
+}
 
 #########################################################
 

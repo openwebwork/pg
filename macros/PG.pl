@@ -1,4 +1,4 @@
-#!/usr/local/bin/webwork-perl
+
 
 #	This file provided the fundamental macros for the pg language
 #	These macros define the interface between the problems written by

@@ -1,4 +1,4 @@
-#!/usr/local/bin/webwork-perl
+
 
 use strict;
 

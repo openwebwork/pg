@@ -1,4 +1,4 @@
-#!/usr/local/bin/webwork-perl
+
 
 BEGIN {
 	be_strict();
@@ -9,24 +9,24 @@ sub CAPA_ans {
 	my $ans = shift;
 	my %options = @_;
 	my $answer_evaluator = 0;
-    
+
     #TEXT("answerCounter =". ++$problemCounter,"$BR"); # checking whether values are reinitialized
-    
+
     # explicitlty delete options which are meaningless to WeBWorK
     if (defined($options{'sig'})) { delete($options{'sig'}); }
     if (defined($options{'wgt'})) { delete($options{'wgt'}); }
     if (defined($options{'tries'})) { delete($options{'tries'}); }
-    
+
 #	$options{'allow_unknown_options'} = 1; 	## if uncommented, this is a fast and possibly dangerous
 											## way to prevent warning message about unknow options
-    
-    
+
+
 	if (defined($options{'reltol'}) or defined($options{'tol'}) or defined($options{'unit'})  ) {
-		
+
  		if (defined( $options{'unit'} ) ) {
 			#$ans = "$ans  $options{'unit'}";
-			$answer_evaluator = num_cmp($ans, 'format'	=>	$options{format}, 
-			                                   reltol	=>	( defined($options{reltol}) ) ? $options{reltol} :undef, 
+			$answer_evaluator = num_cmp($ans, 'format'	=>	$options{format},
+			                                   reltol	=>	( defined($options{reltol}) ) ? $options{reltol} :undef,
 			                                   tol		=>	( defined($options{tol})    ) ? $options{tol} : undef ,
 			                                   unit		=>	$options{unit},
 			);
@@ -54,7 +54,7 @@ sub CAPA_ans {
 	            $answer_evaluator = str_cmp($ans,filters=>[qw( compress_whitespace ignore_case )]);
 	   }
 	}
-	
+
    $answer_evaluator;
 }
 
@@ -88,7 +88,7 @@ sub CAPA_map {
      foreach $var (@$array_var_ref) {
 		$string .= "\$$var = \$\$main::array_values_ref[ $slice[$i++]]; ";
  	 }
-     
+
      # it is important that PG-restriced eval can accesss the $array_values_ref
      my($val, $PG_eval_errors,$PG_full_error_report) =PG_restricted_eval($string);
      my $out = '';
@@ -98,8 +98,8 @@ sub CAPA_map {
 }
 
 sub compare_units {
-	
-	
+
+
 }
 
 sub CAPA_hint {
@@ -142,8 +142,8 @@ sub var_in_tex {
 sub isNumberQ {  # determine whether the input is a number
 	my $in = shift;
 	$in =~ /^[\d\.\+\-Ee]+$/;
-}    
-    
+}
+
 sub choose {
    # my($in)=join(" ",@_);
     my($var)=$_[0];
@@ -169,7 +169,7 @@ sub set {
 sub question {
     $main::probNum;
 }
- 
+
 sub due_date {
  	$main::formattedDueDate;
  }
@@ -184,10 +184,10 @@ sub to_string {
     $_[0];
 }
 
-	
+
 sub CAPA_EV {
-   
-   my $out = &EV3(@_); 
+
+   my $out = &EV3(@_);
    $out  =~ s/\n\n/\n/g;  # hack to prevent introduction of paragraphs in TeX??
    # HACK TO DO THE RIGHT THING WITH DOLLAR SIGNS
    $out = ev_substring($out,"/*/*","/*/*",\&display_math_ev3);

@@ -1,4 +1,4 @@
-#!/usr/local/bin/webwork-perl
+
 sub _PGauxiliaryFunctions_init {
 
 }
@@ -84,27 +84,27 @@ sub max {
 
         my $maxVal = shift;
         my @input = @_;
- 
+
         foreach my $num (@input) {
                 $maxVal = $num if ($maxVal < $num);
         }
-        
+
         $maxVal;
 
-}   
+}
 
 sub min {
 
         my $minVal = shift;
         my @input = @_;
-        
+
         foreach my $num (@input) {
                 $minVal = $num if ($minVal > $num);
         }
 
         $minVal;
-        
-}       
+
+}
 
 #round added 6/12/2000 by David Etlinger
 sub round {
@@ -149,7 +149,7 @@ sub lcm {
 # takes in two scalar values and uses the Euclidean Algorithm to return the gcf
 #VS 6/29/2000
 
-sub gcf {   
+sub gcf {
         my $a = abs(shift);	# absolute values because this will yield the same gcd,
         my $b = abs(shift);	# but allows use of the mod operation
 
@@ -159,19 +159,19 @@ sub gcf {
 		$a = $b;
 		$b = $temp;
 	}
-	
+
 	return $a if $b == 0;
-	
+
 	my $q = int($a/$b);	# quotient
 	my $r = $a % $b;	# remainder
 
 	return $b if $r == 0;
 
 	my $tempR = $r;
-	
+
 	while ($r != 0) {
 
-		#keep track of what $r was in the last loop, as this is the value 
+		#keep track of what $r was in the last loop, as this is the value
 		#we will want when $r is set to 0
 		$tempR = $r;
 
@@ -222,7 +222,7 @@ sub reduce {
 }
 
 
-# takes a number and fixed object, as in "$a x" and formats 
+# takes a number and fixed object, as in "$a x" and formats
 # to account for when $a = 0, 1, -1
 # Usage: format($scalar, "quoted string");
 # Example: format(-1, "\pi") returns "-\pi"
@@ -232,7 +232,7 @@ sub preformat {
 	my $obj = shift;
 	my $out;
 
-	
+
 	if ($num == 0) { return 0; }
 	elsif ($num == 1) { return $obj; }
 	elsif ($num == -1) { return "-".$obj; }

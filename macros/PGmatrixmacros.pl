@@ -1,4 +1,4 @@
-#!/usr/local/bin/webwork-perl
+
 
 ###########
 #use Carp;
@@ -14,7 +14,7 @@
 =head1 DESCRIPTION
 
 Almost all of the macros in the file are very rough at best.  The most useful is display_matrix.
-Many of the other macros work with vectors and matrices stored as anonymous arrays. 
+Many of the other macros work with vectors and matrices stored as anonymous arrays.
 
 Frequently it may be
 more useful to use the Matrix objects defined RealMatrix.pm and Matrix.pm and the constructs listed there.
@@ -30,7 +30,7 @@ sub _PGmatrixmacros_init {
 }
 
 # this subroutine zero_check is not very well designed below -- if it is used much it should receive
-# more work -- particularly for checking relative tolerance.  More work needs to be done if this is 
+# more work -- particularly for checking relative tolerance.  More work needs to be done if this is
 # actually used.
 
 sub zero_check{
@@ -63,30 +63,30 @@ sub vec_dot{
 }
 sub proj_vec {
 	my $vec = shift;
-	warn "First input must be a column matrix" unless ref($vec) eq 'Matrix' and ${$vec->dim()}[1] == 1; 
-	my $matrix = shift;    # the matrix represents a set of vectors spanning the linear space 
+	warn "First input must be a column matrix" unless ref($vec) eq 'Matrix' and ${$vec->dim()}[1] == 1;
+	my $matrix = shift;    # the matrix represents a set of vectors spanning the linear space
 	                       # onto which we want to project the vector.
 	warn "Second input must be a matrix" unless ref($matrix) eq 'Matrix' and ${$matrix->dim()}[1] == ${$vec->dim()}[0];
 	$matrix * transpose($matrix) * $vec;
 }
-	        
+
 sub vec_cmp{    #check to see that the submitted vector is a non-zero multiple of the correct vector
     my $correct_vector = shift;
     my %options = @_;
 	my $ans_eval = sub {
 		my $in =  shift @_;
-		
+
 		my $ans_hash = new AnswerHash;
 		my @in = split("\0",$in);
-		my @correct_vector=@$correct_vector;		
+		my @correct_vector=@$correct_vector;
 		$ans_hash->{student_ans} = "( " . join(", ", @in ) . " )";
 		$ans_hash->{correct_ans} = "( " . join(", ", @correct_vector ) . " )";
 
 		return($ans_hash) unless @$correct_vector == @in;  # make sure the vectors are the same dimension
-		
+
 		my $correct_length = vec_dot($correct_vector,$correct_vector);
 		my $in_length = vec_dot(\@in,\@in);
-		return($ans_hash) if $in_length == 0; 
+		return($ans_hash) if $in_length == 0;
 
 		if (defined($correct_length) and $correct_length != 0) {
 			my $constant = vec_dot($correct_vector,\@in)/$correct_length;
@@ -95,14 +95,14 @@ sub vec_cmp{    #check to see that the submitted vector is a non-zero multiple o
 				$difference[$i]=$constant*$correct_vector[$i] - $in[$i];
 			}
 			$ans_hash->{score} = zero_check(\@difference);
-			
+
 		} else {
 			$ans_hash->{score} = 1 if vec_dot(\@in,\@in) == 0;
 		}
 		$ans_hash;
-		
+
     };
-    
+
     $ans_eval;
 }
 
@@ -160,7 +160,7 @@ sub vec_cmp{    #check to see that the submitted vector is a non-zero multiple o
 =cut
 
 
-sub display_matrix_mm{    # will display a matrix in tex format.  
+sub display_matrix_mm{    # will display a matrix in tex format.
                        # the matrix can be either of type array or type 'Matrix'
 	return display_matrix(@_, 'force_tex'=>1);
 }
@@ -175,7 +175,7 @@ sub display_matrix {
 	# Now a global variable?
 	my $styleParams = defined($main::defaultDisplayMatrixStyle) ?
 		$main::defaultDisplayMatrixStyle : "(s)";
-	
+
 	set_default_options(\%opts,
 											'_filter_name' => 'display_matrix',
 											'force_tex' => 0,
@@ -184,7 +184,7 @@ sub display_matrix {
 											'midrule' => substr($styleParams,1,1),
 											'top_labels' => 0,
 											'allow_unknown_options'=> 1);
-	
+
 	my ($numRows, $numCols, @myRows);
 
 	if (ref($ra_matrix) eq 'Matrix' )  {
@@ -269,7 +269,7 @@ sub dm_begin_matrix {
 					 or $main::displayMode eq 'HTML_img') {
 		$out .= qq!<TABLE BORDER="0" Cellspacing="8">\n!;
 	}
-	else { 
+	else {
 		$out = "Error: dm_begin_matrix: Unknown displayMode: $main::displayMode.\n";
 		}
 	$out;
@@ -286,7 +286,7 @@ sub dm_special_tops {
 		$brh = "\\begin{rawhtml}";
 		$erh = "\\end{rawhtml}";
 	}
-	
+
 	if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
 		for $j (@top_labels) {
 			$out .= '\smash{\raisebox{2.9ex}{\ensuremath{'.
@@ -349,7 +349,7 @@ sub dm_mat_right {
 		$erh = "\\end{rawhtml}";
 	}
 
-	
+
 	if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
 		return "";
 	}
@@ -358,7 +358,7 @@ sub dm_mat_right {
 		 or $main::displayMode eq 'Latex2HTML'
 		 or $main::displayMode eq 'HTML_dpng') {
 		$out .= "$brh<td nowrap=\"nowrap\" align=\"right\" rowspan=\"$numrows\">$erh";
-		
+
 		$out.= dm_image_delimeter($numrows, $opts{'right'});
 		return $out;
 	}
@@ -372,7 +372,7 @@ sub dm_mat_right {
 
 sub dm_end_matrix {
 	my %opts = @_;
-	
+
 	my $out = "";
 	if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
 		$out .= "\\end{array}\\right$opts{right}";
@@ -473,7 +473,7 @@ sub dm_mat_row {
 			return '<tr><td colspan="'.scalar(@align).'"><hr></td></tr>';
 		}
 	}
-	
+
 	my @elements = @{$elements};
 	my $out = "";
 	my ($brh, $erh) = ("",""); # Start and end raw html
@@ -550,7 +550,7 @@ sub dm_mat_row {
 	  output; and valign which sets vertical alignment on web page output.
 
 =cut
-	
+
 sub mbox {
 	my $inList = shift;
 	my %opts;
@@ -588,12 +588,12 @@ sub mbox {
 	}
 	return $out;
 }
-		
+
 
 =head4   ra_flatten_matrix
 
 		Usage:   ra_flatten_matrix($A)
-		
+
 			where $A is a matrix object
 			The output is a reference to an array.  The matrix is placed in the array by iterating
 			over  columns on the inside
@@ -617,7 +617,7 @@ sub ra_flatten_matrix{
 }
 
 # This subroutine is probably obsolete and not generally useful.  It was patterned after the APL
-# constructs for multiplying matrices. It might come in handy for non-standard multiplication of 
+# constructs for multiplying matrices. It might come in handy for non-standard multiplication of
 # of matrices (e.g. mod 2) for indice matrices.
 sub apl_matrix_mult{
 	my $ra_a= shift;
@@ -666,14 +666,14 @@ sub make_matrix{
 =head5  answer_matrix
 
 		Usage   \[ \{   answer_matrix(rows,columns,width_of_ans_rule, @options) \} \]
-		
+
 		Creates an array of answer blanks and passes it to display_matrix which returns
 		text which represents the matrix in TeX format used in math display mode. Answers
 		are then passed back to whatever answer evaluators you write at the end of the problem.
 		(note, if you have an m x n matrix, you will need mn answer evaluators, and they will be
-		returned to the evaluaters starting in the top left hand corner and proceed to the left 
+		returned to the evaluaters starting in the top left hand corner and proceed to the left
 		and then at the end moving down one row, just as you would read them.)
-		
+
 		The options are passed on to display_matrix.
 
 
@@ -689,18 +689,18 @@ sub answer_matrix{
 	for( my $i = 0; $i < $m; $i+=1)
 	{
 		my @row_array = ();
-	
+
 		for( my $i = 0; $i < $n; $i+=1)
 		{
 			push @row_array,  ans_rule($width);
-		}	
+		}
 		my $r_row_array = \@row_array;
 		push @array,  $r_row_array;
 	}
 	display_matrix( \@array, @options );
-	
+
 }
-     
+
 # sub format_answer{
 # 	my $ra_eigenvalues = shift;
 # 	my $ra_eigenvectors = shift;
@@ -731,7 +731,7 @@ sub answer_matrix{
 # sub format_question{
 # 	my $ra_matrix = shift;
 # 	my $out = qq! y'(t) = ! . displayMatrix($B). q! y(t)!
-# 
+#
 # }
 
 1;

@@ -1,4 +1,4 @@
-#!/usr/local/bin/webwork-perl
+
 
 
 ####################################################################
@@ -9,7 +9,7 @@
 ####################################################################
 #
 #  dangerousMacros.pl contains macros with potentially dangerous commands
-#  such as require and eval.  They can reference disk files for reading and 
+#  such as require and eval.  They can reference disk files for reading and
 #  writing and can create links.  It may be necessary to modify certain addresses
 #  in this file to make the scripts run in different environments.
 #
@@ -22,22 +22,22 @@
 =head1 SYNPOSIS
 
 	loadMacros(macrofile1,macrofile2,...)
-	
-	insertGraph(graphObject); 
+
+	insertGraph(graphObject);
 	  returns a path to the file containing the graph image.
-	   
+
 	tth(texString)
 	  returns an HTML version of the tex code passed to it.
-	  
-	alias(pathToFile);  
+
+	alias(pathToFile);
 	  returns URL which links to that file
-	  
+
 
 =head1 DESCRIPTION
 
 
 C<dangerousMacros.pl> contains macros with potentially dangerous commands
-such as require and eval.  They can reference disk files for reading and 
+such as require and eval.  They can reference disk files for reading and
 writing and can create links.  It may be necessary to modify certain addresses
 in this file to make the scripts run properly in different environments.
 
@@ -64,20 +64,20 @@ defined at run time.
  The following considerations come into play.
 
 	* One needs to limit the access to modules for safety -- hence only
-	 modules in the F<courseScriptsDirectory> can be loaded.  
-	 
+	 modules in the F<courseScriptsDirectory> can be loaded.
+
 	* Loading them in dangerousMacros.pl is wasteful, since the modules
 	 would need to be reloaded everytime a new safe compartment is created.
      (I believe that using require takes care of this.)
-    
+
 	* Loading GD within a safeCompartment creates infinite recurrsion in AUTOLOAD (probably a bug)
 	 hence this module is loaded by translate.pl and then shared with
 	 the safe compartment.
-	 
+
 	* Other modules loaded by translate.pl are C<Exporter> and C<DynaLoader.
-	
+
 	* PGrandom is loaded by F<PG.pl> , since it is needed there.
-	 
+
 
 
 The module name spaces loaded in dangerousMacros are:
@@ -86,7 +86,7 @@ The module name spaces loaded in dangerousMacros are:
 	WWPlot
 	Fun
 	Label
-	Circle 
+	Circle
 
 in addition the  subroutine &evaluate_units is shared from the module Units.
 
@@ -94,7 +94,7 @@ in addition the  subroutine &evaluate_units is shared from the module Units.
 
 BEGIN {
 	be_strict(); # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
-	
+
 }
 
 
@@ -127,16 +127,16 @@ directory C<($courseScriptsDirectory)> where the default behavior of the PG lang
 
 An individual course can modify the PG language, B<for that course only>, by
 duplicating one of the macro files in the courseScripts directory and placing this
-file in the macro directory for the course. The new file in the course 
+file in the macro directory for the course. The new file in the course
 macro directory will now be used instead of the file in the courseScripts directory.
 
 The new file in the course macro directory can by modified by adding macros or modifying existing macros.
 
 I< Modifying macros is for users with some experience.>
 
-Modifying existing macros might break other standard macros or problems which depend on the 
+Modifying existing macros might break other standard macros or problems which depend on the
 unmodified behavior of these macors so do this with great caution.
-In addition problems which use new macros defined in these files or which depend on the 
+In addition problems which use new macros defined in these files or which depend on the
 modified behavior of existing macros will not work in other courses unless the macros are also
 transferred to the new course.  It helps to document the  problems by indicating any special macros
 which the problems require.
@@ -157,8 +157,8 @@ they will not interfere with the normal behavior of B<WeBWorK> in other courses.
 # Global macros used
 #	None
 
-# Because of the need to use the directory variables it is tricky to define this 
-# in translate.pl since, as currently written, the directories are not available 
+# Because of the need to use the directory variables it is tricky to define this
+# in translate.pl since, as currently written, the directories are not available
 # at that time.  Perhaps if I rewrite translate as an object that method will work.
 
 # The only difficulty with defining loadMacros inside the Safe compartment is that
@@ -171,7 +171,7 @@ my ($macroDirectory,
 	$templateDirectory,
 	$scriptDirectory,
 	);
-	
+
 sub loadMacros {
     my @files = @_;
     my $fileName;
@@ -185,18 +185,18 @@ sub loadMacros {
     $templateDirectory = eval('$main::courseScriptsDirectory') unless defined($templateDirectory);
     $scriptDirectory = eval('$main::scriptDirectory') unless defined($scriptDirectory);
 
-    unless (defined( $main::externalTTHPath) and $main::externalTTHPath) {   
+    unless (defined( $main::externalTTHPath) and $main::externalTTHPath) {
     	warn "WARNING::Please make sure that the DOCUMENT() statement comes before<BR>\n" .
     	     " the loadMacros() statement in the problem template.<p>" .
     	     " The externalTTHPath variable |$main::externalTTHPath| was\n".
     	     " not defined which usually indicates the problem above.<br>\n";
-    	     
+
     }
     #warn "running load macros";
     while (@files) {
         $fileName = shift @files;
         next  if ($fileName =~ /^PG.pl$/) ;    # the PG.pl macro package is already loaded.
-        
+
         my $macro_file_name = $fileName;
 		$macro_file_name =~s/\.pl//;  # trim off the extension
 		$macro_file_name =~s/\.pg//;  # sometimes the extension is .pg (e.g. CAPA files)
@@ -217,18 +217,18 @@ sub loadMacros {
 		local($temp::rf_init_subroutine);
  		eval qq{ \$temp::rf_init_subroutine = \\&main::$init_subroutine_name;};
 		#warn "loadMacros: defining \$temp::rf_init_subroutine ",$temp::rf_init_subroutine;
-		
+
 		$macro_file_loaded	= defined($temp::rf_init_subroutine) && defined( &{$temp::rf_init_subroutine} );
- 		
+
         # macros are searched for first in the $macroDirectory of the course
         # and then in the webwork  $courseScripts directory.
         unless ($macro_file_loaded) {
         	#print STDERR "loadMacros: loading macro file $fileName\n";
 			if (-r "${main::macroDirectory}$fileName") {
 				compile_file("${main::macroDirectory}$fileName");
-				   
+
 			} elsif (-r  "${main::courseScriptsDirectory}$fileName" ) {
-				 compile_file("${main::courseScriptsDirectory}$fileName");  
+				 compile_file("${main::courseScriptsDirectory}$fileName");
 			} else {
 				die "Can't locate macro file via path: |${main::macroDirectory}$fileName| or |${main::courseScriptsDirectory}$fileName|";
 			}
@@ -242,7 +242,7 @@ sub loadMacros {
 			&{$temp::rf_init_subroutine}();  #initialize file
 			#print "initializing $init_subroutine_name\n";
 		}
-        
+
 	}
 }
 
@@ -258,24 +258,24 @@ sub compile_file {
  	if ($error) {    # the $fullerror report has formatting and is never empty
  		$fullerror =~ s/\(eval \d+\)/ $filePath\n/;   # attempt to insert file name instead of eval number
  		die "Error detected while loading $filePath:\n$fullerror";
- 	
+
  	}
 
  	close(MACROFILE);
- 
+
 }
 
 # This creates on the fly graphs
 
 =head2 insertGraph
 
-	$filePath = insertGraph(graphObject); 
+	$filePath = insertGraph(graphObject);
 		  returns a path to the file containing the graph image.
 
 insertGraph(graphObject) writes a gif file to the C<html/tmp/gif> directory of the current course.
 The file name
 is obtained from the graphObject.  Warnings are issued if errors occur while writing to
-the file. 
+the file.
 
 The permissions and ownership of the file are controlled by C<$main::tmp_file_permission>
 and C<$main::numericalGroupID>.
@@ -287,19 +287,19 @@ B<Returns:>   A string containing the full path to the temporary file containing
 InsertGraph draws the object $graph, stores it in "${tempDirectory}gif/$gifName.gif (or .png)" where
 the $imageName is obtained from the graph object.  ConvertPath and surePathToTmpFile are used to insure
 that the correct directory separators are used for the platform and that the necessary directories
-are created if they are not already present.  
+are created if they are not already present.
 
 The directory address to the file is the result.  This is most often used in the construct
 
 	TEXT(alias(insertGraph($graph)) );
 
-where alias converts the directory address to a URL when serving HTML pages and insures that 
+where alias converts the directory address to a URL when serving HTML pages and insures that
 an eps file is generated when creating TeX code for downloading.
 
 =cut
 
 # Global variables used:
-#	$main::tmp_file_permission, 
+#	$main::tmp_file_permission,
 #	$main::numericalGroupID
 
 #Global macros used:
@@ -310,7 +310,7 @@ sub insertGraph {
 		    # Convert the image to GIF and print it on standard output
 	my $graph = shift;
 	my $extension = ($WWPlot::use_png) ? '.png' : '.gif';
-	my $fileName = $graph->imageName  . $extension;   
+	my $fileName = $graph->imageName  . $extension;
 	my $filePath = convertPath("gif/$fileName");
 	$filePath = &surePathToTmpFile( $filePath );
  	#createFile($filePath, $main::tmp_file_permission, $main::numericalGroupID);
@@ -329,8 +329,8 @@ sub insertGraph {
 	tth(texString)
   		returns an HTML version of the tex code passed to it.
 
-This macro sends the texString to the filter program C<tth> created by Ian Hutchinson.  
-The tth program was created by Ian Hutchinson and is freely available 
+This macro sends the texString to the filter program C<tth> created by Ian Hutchinson.
+The tth program was created by Ian Hutchinson and is freely available
 for B<non-commerical purposes> at the C<tth> main site: C<http://hutchinson.belmont.ma.us/tth/>.
 
 The purpose of C<tth> is to translate text in the TeX or Latex markup language into
@@ -349,8 +349,8 @@ on C<tth> is available at the C<tth> main site.
 This macro contains code which is system dependent and may need to be modified
 to run on different systems.
 
-=for html 
-The link to <CODE>tth</CODE> for <STRONG>non-commerical</STRONG> is 
+=for html
+The link to <CODE>tth</CODE> for <STRONG>non-commerical</STRONG> is
 <A HREF="http://hutchinson.belmont.ma.us/tth/">http://hutchinson.belmont.ma.us/tth/</A>.
 Binaries for many operating systems are available as well as the source code.  Links
 describing how to obtain <CODE>tth</CODE> for commerical use are also available on this page.
@@ -371,41 +371,41 @@ my ($tthPreambleFile, $tthPreambleContents); # the contents of this file will no
                                              # it only needs to be read once
 sub tth {
 	my $inputString = shift;
-    
+
 	# read the contents of the tthPreamble.tex file, unless it has already been read
 	unless ( defined( $tthPreambleContents) ) {
 		$tthPreambleFile = "${main::templateDirectory}tthPreamble.tex" if ( -r "${main::templateDirectory}tthPreamble.tex" );
 		if ( defined($tthPreambleFile) )   {
 			local(*TTHIN);
-			open (TTHIN, "${main::templateDirectory}tthPreamble.tex") || die "Can't open file ${main::templateDirectory}tthPreamble.tex"; 
+			open (TTHIN, "${main::templateDirectory}tthPreamble.tex") || die "Can't open file ${main::templateDirectory}tthPreamble.tex";
 			#my @tthPreambleArray = <TTHIN>;
 			local($/);
 			$/ = undef;
 			$tthPreambleContents = <TTHIN>;#join("",@tthPreambleArray);
 			close(TTHIN);
-			
+
 			$tthPreambleContents =~ s/(.)\n/$1%\n/g;  # thanks to Jim Martino
 			                                          # each line in the definition file
 			                                          # should end with a % to prevent
 			                                          # adding supurious paragraphs to output.
-			                                          
+
 			$tthPreambleContents .="%\n";             # solves the problem if the file doesn't end with a return.
-			
+
 		} else {
 			$tthPreambleContents = "";
 		}
-	} 
-	
+	}
+
     $inputString = $tthPreambleContents . $inputString;
     $inputString    = "<<END_OF_TTH_INPUT_STRING;\n\n\n" . $inputString . "\nEND_OF_TTH_INPUT_STRING\necho \"\" >/dev/null"; #it's not clear why another command is needed.
-	
+
 	# $tthpath is now taken from $Global::externalTTHPath via %envir.
     my $tthpath     = $envir{externalTTHPath};
     my $out;
-    
+
     if (-x $tthpath ) {
     	my $tthcmd      = "$tthpath -L -f5 -u -r  2>/dev/null " . $inputString;
-    	if (open(TTH, "$tthcmd   |")) {  
+    	if (open(TTH, "$tthcmd   |")) {
     	    local($/);
 			$/ = undef;
 			$out = <TTH>;
@@ -419,7 +419,7 @@ sub tth {
     }
 
     $out;
-}	
+}
 
 # possible solution to the tth font problem?  Works only for iCab.
 sub symbolConvert {
@@ -462,7 +462,7 @@ my $math2imgCount = 0;
 sub math2img {
 	my $tex = shift;
 	my $mode = shift;
-	
+
 	my $sourcePath = $envir{templateDirectory} . "/" . $envir{fileName};
 	my $tempFile = "m2i/$envir{studentLogin}.$envir{setNumber}.$envir{probNum}."
 		. $math2imgCount++ . ".png";
@@ -485,7 +485,7 @@ sub math2img {
 			$envir{externalDvipngPath}, $tex, $tempPath
 		);
 	}
-	
+
 	if (-e $tempPath) {
 		return "<img align=\"middle\" src=\"$tempURL\" alt=\"$tex\">"            if $mode eq "inline";
 		return "<div align=\"center\"><img src=\"$tempURL\" alt=\"$tex\"></div>" if $mode eq "display";
@@ -507,20 +507,20 @@ sub dvipng($$$$$) {
 		$tex,       # tex string representing equation
 		$targetPath # location of resulting image file
 	) = @_;
-	
+
 	my $dvipngBroken = 0;
-	
+
 	my $texFile  = "$wd/equation.tex";
 	my $dviFile  = "$wd/equation.dvi";
 	my $dviFile2 = "$wd/equationequation.dvi";
 	my $dviCall  = "equation";
 	my $pngFile  = "$wd/equation1.png";
-	
+
 	unless (-e $wd) {
 		die "dvipng working directory $wd doesn't exist -- caller should have created it for us!\n";
 		return 0;
 	}
-	
+
 	# write the tex file
 	local *TEX;
 	open TEX, ">", $texFile or warn "Failed to create $texFile: $!";
@@ -542,23 +542,23 @@ EOF
 % END FOOTER
 EOF
 	close TEX;
-	
+
 	# call latex
 	system "cd $wd && $latex $texFile"
 		and warn "Failed to call $latex with $texFile: $!";
-	
+
 	unless (-e $dviFile) {
 		warn "Failed to generate DVI file $dviFile";
 		return 0;
 	}
-	
+
 	if ($dvipngBroken) {
 		# change the name of the DVI file to get around dvipng's
 		# crackheadedness. This is no longer needed with the newest
 		# version of dvipng (10 something)
 		system "/bin/mv", $dviFile, $dviFile2;
 	}
-	
+
 	# call dvipng -- using warn instead of die passes some extra information
 	# back to the user the complete warning is still printed in the apache
 	# error log and a simple message (math2img failed) is returned to the
@@ -566,12 +566,12 @@ EOF
 	my $cmdout;
 	$cmdout = system "cd $wd && $dvipng $dviCall"
 		and warn "Failed to call$dvipng with $dviCall: $! with signal $cmdout";
-	
+
 	unless (-e $pngFile) {
 		warn "Failed to create PNG file $pngFile";
 		return 0;
 	}
-	
+
 	$cmdout = system "/bin/mv", $pngFile, $targetPath and warn "Failed to mv: /bin/mv  $pngFile $targetPath $!. Call returned $cmdout. \n";
 }
 
@@ -580,8 +580,8 @@ EOF
 
 =head2  alias
 
-	alias(pathToFile);  
-	  returns A string describing the URL which links to GIF or html file 
+	alias(pathToFile);
+	  returns A string describing the URL which links to GIF or html file
 	          (in HTML and Latex2HTML modes).
 	          or a path to the appropriate eps version of a GIF file
 	           (TeX Mode)
@@ -590,7 +590,7 @@ EOF
 
 C<alias> allows you to refer to auxiliary files which are in a directory along with
 the problem definition.  In addition alias creates an eps copy of GIF files when
-downloading hard copy (TeX mode).  
+downloading hard copy (TeX mode).
 
 As a rule auxiliary files that are used by
 a number of problems in a course should be placed in C<html/gif> or C<html>
@@ -614,14 +614,14 @@ start with the prefix defined in $Global:htmlDirectory.
 B<When in TeX mode:>
 
 
-GIF files will be translated into an eps file (using system dependent code) 
+GIF files will be translated into an eps file (using system dependent code)
 and placed in the directory C<tmp/eps>.  The full path to this file is returned
 for use by TeX in producing the hard copy. (This should work even in a chrooted
 environment.) in producing the hard copy.   (This should work even in a chrooted
-environment.)  
+environment.)
 
 The conversion is done by a system dependent script
-called C<gif2eps> which should be in the scripts directory 
+called C<gif2eps> which should be in the scripts directory
 
 The URL's for the other files are produced as in non-tex mode
 but will of course not be active.
@@ -638,13 +638,13 @@ start with the prefix defined in $Global:tempDirectory.
 B<When in TeX mode:>
 
 
-GIF files will be translated into an eps file (using system dependent code) 
+GIF files will be translated into an eps file (using system dependent code)
 and placed in the directory C<tmp/eps>.  The full path to this file is returned
 for use by TeX in producing the hard copy.  (This should work even in a chrooted
-environment.)  
+environment.)
 
 The conversion is done by a system dependent script
-called C<gif2eps> which should be in the scripts directory 
+called C<gif2eps> which should be in the scripts directory
 
 The URL's for the other files are produced as in non-tex mode
 but will of course not be active.
@@ -653,11 +653,11 @@ but will of course not be active.
 
 B<When not in TeX mode:>
 
-If the file lies under the course templates subdirectory, 
+If the file lies under the course templates subdirectory,
 it is assumed to lie in subdirectory rooted in the directory
 containing the problem template file.
 An alias is created under the C<html/tmp/gif> or
-C<html/tmp/html> directory and linked to the original file.  
+C<html/tmp/html> directory and linked to the original file.
 The file path for this type of file is a relative
 path rooted at the directory containing the problem template file.
 
@@ -666,7 +666,7 @@ B<When in TeX mode:>
 GIF files will be translated into an eps file (using system dependent code)
 and placed in the directory C<html/tmp/eps>.  The full path to this file is returned
 for use by TeX in producing the hard copy.   (This should work even in a chrooted
-environment.)  
+environment.)
 
 The conversion is done by a system dependent script
 called C<gif2eps> which should be in the scripts directory
@@ -684,26 +684,26 @@ but will of course not be active.
 #
 # If the auxiliary file path has not extension then the extension .gif isassumed.
 #
-# If the auxiliary file path leads to a file in the ${Global::htmlDirectory} 
+# If the auxiliary file path leads to a file in the ${Global::htmlDirectory}
 # no changes are made to the file path.
 #
-# If the auxiliary file path is not complete, than it is assumed that it refers 
+# If the auxiliary file path is not complete, than it is assumed that it refers
 # to a subdirectoy of the directory containing the problem..
 #
 # The output is either the correct URL for the file
 # or (in TeX mode) the complete path to the eps version of the file
 # and can be used as input into the image macro.
 #
-# surePathToTmpFile takes a path and outputs the complete path: 
+# surePathToTmpFile takes a path and outputs the complete path:
 # ${main::htmlDirectory}/tmp/path
-# It insures that all of the directories in the path have been created, 
+# It insures that all of the directories in the path have been created,
 # but does not create the
 # final file.
 
 # For postscript printing, alias generates an eps version of the gif image and places
 # it in the directory eps.  This slows down downloading postscript versions somewhat,
 # but not excessivevly.
-# Alias does not do any garbage collection, so files and alias may accumulate and 
+# Alias does not do any garbage collection, so files and alias may accumulate and
 # need to be removed manually or by a reaper daemon.
 
 
@@ -728,7 +728,7 @@ but will of course not be active.
 
 # This subroutine  has commands which will not work on non-UNIX environments.
 # system("cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output") &&
-						 
+
 
 # local constants $User, $psvn $setNumber $probNum $displayMode
 
@@ -736,14 +736,14 @@ sub sourceAlias {
 	my $path_to_file = shift;
 	my $user = $main::inputs_ref->{user};
 	$user = " " unless defined($user);
-    my $out = "source.pl?probSetKey=$main::psvn". 		
+    my $out = "source.pl?probSetKey=$main::psvn".
   			"&amp;probNum=$main::probNum" .
    			"&amp;Mode=$main::displayMode" .
-   			"&amp;course=". $main::courseName .  
+   			"&amp;course=". $main::courseName .
     		"&amp;user=" . $user .
 			"&amp;displayPath=$path_to_file" .
 	   		"&amp;key=". $main::sessionKey;
-	 
+
  	 $out;
 }
 
@@ -760,64 +760,64 @@ sub alias {
 	#my $setNumber =  $main::setNumber;
 	#my $probNum =  $main::probNum;
 	#my $displayMode =  $main::displayMode;
-		
-	
+
+
 	my $aux_file_path = shift @_;
 	warn "Empty string used as input into the function alias" unless $aux_file_path;
-	
+
 	# problem specific data
-	warn "The path to the current problem file template is not defined." unless $main::fileName;	
+	warn "The path to the current problem file template is not defined." unless $main::fileName;
 	warn "The current studentLogin is not defined " unless $main::studentLogin;
 	warn "The current problem set number is not defined" if $main::setNumber eq ""; # allow for sets equal to 0
 	warn "The current problem number is not defined"  if $main::probNum eq "";
 	warn "The current problem set version number (psvn) is not defined" unless $main::psvnNumber;
 	warn "The displayMode is not defined" unless $main::displayMode;
-	
+
 	# required macros
 	warn "The macro &surePathToTmpFile can't be found" unless defined(&surePathToTmpFile);
 	warn "The macro &convertPath can't be found" unless defined(&convertPath);
 	warn "The macro &directoryFromPath can't be found" unless defined(&directoryFromPath);
 	warn "Can't execute the gif2eps script at ${main::externalGif2EpsPath}" unless ( -x "${main::externalGif2EpsPath}" );
 	warn "Can't execute the png2eps script at ${main::externalPng2EpsPath}" unless ( -x "${main::externalPng2EpsPath}" );
-	
+
 	# required directory addresses (and URL address)
 	warn "htmlDirectory is not defined in $main::htmlDirectory" unless $main::htmlDirectory;
 	warn "htmlURL is not defined in \$main::htmlURL" unless $main::htmlURL;
 	warn "tempURL is not defined in \$main::tempURL" unless $main::tempURL;
 	#warn "The scripts directory is not defined in \$main::scriptDirectory" unless $main::scriptDirectory;
 		# with the creation of externalGif2EpsPath and externalPng2EpsPath, the scripts directory is no longer used
-	
+
 	# determine extension, if there is one
 	# if extension exists, strip and use the value for $ext
 	# files without extensions are considered to be picture files:
-	
+
 	my $ext;
-	if ($aux_file_path =~ s/\.([^\.]*)$// ) { 
+	if ($aux_file_path =~ s/\.([^\.]*)$// ) {
 		$ext = $1;
-	} else { 
+	} else {
 		warn "This file name $aux_file_path did not have an extension.<BR> " .
 		     "Every file name used as an argument to alias must have an extension.<BR> " .
 		     "The permissable extensions are .gif, .png, and .html .<BR>";
 		$ext  = "gif";
 	}
-	
+
 	# $adr_output is a url in HTML and Latex2HTML modes
 	# and a complete path in TEX mode.
-	my $adr_output;  
+	my $adr_output;
 
-	# in order to facilitate maintenance of this macro the routines for handling 
+	# in order to facilitate maintenance of this macro the routines for handling
 	# different file types are defined separately.  This involves some redundancy
-	# in the code but it makes it easier to define special handling for a new file 
-	# type, (but harder to change the behavior for all of the file types at once 
+	# in the code but it makes it easier to define special handling for a new file
+	# type, (but harder to change the behavior for all of the file types at once
 	# (sigh)  ).
-	
-	
+
+
 	if ($ext eq 'html') {
 		################################################################################
 		# .html FILES in HTML, HTML_tth, HTML_dpng, HTML_img and Latex2HTML mode
 		################################################################################
-		
-		# No changes are made for auxiliary files in the 
+
+		# No changes are made for auxiliary files in the
 		# ${Global::htmlDirectory} subtree.
 		if ( $aux_file_path =~ m|^$main::tempDirectory| ) {
 			$adr_output = $aux_file_path;
@@ -827,24 +827,24 @@ sub alias {
 			$adr_output = $aux_file_path;
 			$adr_output =~ s|$main::htmlDirectory|$main::htmlURL|;
 			$adr_output .= ".$ext";
-		} else { 
+		} else {
 			# HTML files not in the htmlDirectory are assumed under live under the
 			# templateDirectory in the same directory as the problem.
-			# Create an alias file (link) in the directory html/tmp/html which 
+			# Create an alias file (link) in the directory html/tmp/html which
 			# points to the original file and return the URL of this alias.
 			# Create all of the subdirectories of html/tmp/html which are needed
 			# using sure file to path.
-			
+
 			# $fileName is obtained from environment for PGeval
 			# it gives the  full path to the current problem
-			my $filePath = directoryFromPath($main::fileName); 
+			my $filePath = directoryFromPath($main::fileName);
 			my $htmlFileSource = convertPath("$main::templateDirectory${filePath}$aux_file_path.html");
 			my $link = "html/$main::studentLogin-$main::psvnNumber-set$main::setNumber-prob$main::probNum-$aux_file_path.$ext";
 			my $linkPath = surePathToTmpFile($link);
 			$adr_output = "${main::tempURL}$link";
 			if (-e $htmlFileSource) {
 				if (-e $linkPath) {
-					unlink($linkPath) || warn "Unable to unlink alias file at |$linkPath|"; 
+					unlink($linkPath) || warn "Unable to unlink alias file at |$linkPath|";
 					# destroy the old link.
 				}
 				symlink( $htmlFileSource, $linkPath)
@@ -854,18 +854,18 @@ sub alias {
 			}
 		}
 	} elsif ($ext eq 'gif') {
-		if ( $main::displayMode eq 'HTML' ||  
-		     $main::displayMode eq 'HTML_tth'|| 
-		     $main::displayMode eq 'HTML_dpng'|| 
+		if ( $main::displayMode eq 'HTML' ||
+		     $main::displayMode eq 'HTML_tth'||
+		     $main::displayMode eq 'HTML_dpng'||
 		     $main::displayMode eq 'HTML_img'||
 		     $main::displayMode eq 'Latex2HTML')  {
 			################################################################################
 			# .gif FILES in HTML, HTML_tth, HTML_dpng, HTML_img, and Latex2HTML modes
 			################################################################################
-			
+
 			#warn "tempDirectory is $main::tempDirectory";
 			#warn "file Path for auxiliary file is $aux_file_path";
-			
+
 			# No changes are made for auxiliary files in the htmlDirectory or in the tempDirectory subtree.
 			if ( $aux_file_path =~ m|^$main::tempDirectory| ) {
 				$adr_output = $aux_file_path;
@@ -876,21 +876,21 @@ sub alias {
 				$adr_output = $aux_file_path;
 				$adr_output =~ s|$main::htmlDirectory|$main::htmlURL|;
 				$adr_output .= ".$ext";
-			} else {  
+			} else {
 				# files not in the htmlDirectory sub tree are assumed to live under the templateDirectory
 				# subtree in the same directory as the problem.
-				
+
 				# For a gif file the alias macro creates an alias under the html/images directory
 				# which points to the gif file in the problem directory.
 				# All of the subdirectories of html/tmp/gif which are needed are also created.
-				my $filePath = directoryFromPath($main::fileName); 
-				
+				my $filePath = directoryFromPath($main::fileName);
+
 				# $fileName is obtained from environment for PGeval
 				# it gives the full path to the current problem
 				my $gifSourceFile = convertPath("$main::templateDirectory${filePath}$aux_file_path.gif");
 				#my $link = "gif/$main::studentLogin-$main::psvnNumber-set$main::setNumber-prob$main::probNum-$aux_file_path.$ext";
 				my $link = "gif/$main::setNumber-prob$main::probNum-$aux_file_path.$ext";
-				
+
 				my $linkPath = surePathToTmpFile($link);
 				$adr_output = "${main::tempURL}$link";
 				#warn "linkPath is $linkPath";
@@ -909,13 +909,13 @@ sub alias {
 			################################################################################
 			# .gif FILES in TeX mode
 			################################################################################
-			
+
 			if ($envir{texDisposition} eq "pdf") {
 				# We're going to create PDF files with our TeX (using pdflatex), so we
 				# need images in PNG format.
-				
+
 				my $gifFilePath;
-				
+
 				if ($aux_file_path =~ m/^$main::htmlDirectory/ or $aux_file_path =~ m/^$main::tempDirectory/) {
 					# we've got a full pathname to a file
 					$gifFilePath = "$aux_file_path.gif";
@@ -923,28 +923,28 @@ sub alias {
 					# we assume the file is in the same directory as the problem source file
 					$gifFilePath = $main::templateDirectory . directoryFromPath($main::fileName) . "$aux_file_path.gif";
 				}
-				
+
 				my $gifFileName = fileFromPath($gifFilePath);
-				
+
 				$gifFileName =~ /^(.*)\.gif$/;
 				my $pngFilePath = surePathToTmpFile("$main::tempDirectory/png/$1.png");
 				my $returnCode = system "$envir{externalGif2PngPath} $gifFilePath $pngFilePath";
-				
+
 				if ($returnCode or not -e $pngFilePath) {
 					die "failed to convert gif->png with $envir{externalGif2PngPath}: $!\n";
 				}
-				
+
 				$adr_output = $pngFilePath;
 			} else {
 				# Since we're not creating PDF files, we're probably just using a plain
 				# vanilla latex. Hence, we need EPS images.
-				
+
 				################################################################################
 				# This is statement used below is system dependent.
 				# Notice that the range of colors is restricted when converting to postscript to keep the files small
-				# "cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmtops -noturn > $adr_output" 
-				# "cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn > $adr_output" 
-				################################################################################			
+				# "cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmtops -noturn > $adr_output"
+				# "cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn > $adr_output"
+				################################################################################
 				if ($aux_file_path =~  m|^$main::htmlDirectory|  or $aux_file_path =~  m|^$main::tempDirectory|)  {
 					# To serve an eps file copy an eps version of the gif file to the subdirectory of eps/
 					my $linkPath = directoryFromPath($main::fileName);
@@ -984,18 +984,18 @@ sub alias {
 			wwerror("Error in alias: dangerousMacros.pl","unrecognizable displayMode = $main::displayMode","");
 		}
 	} elsif ($ext eq 'png') {
-		if ( $main::displayMode eq 'HTML' ||  
-		     $main::displayMode eq 'HTML_tth'|| 
-		     $main::displayMode eq 'HTML_dpng'|| 
+		if ( $main::displayMode eq 'HTML' ||
+		     $main::displayMode eq 'HTML_tth'||
+		     $main::displayMode eq 'HTML_dpng'||
 		     $main::displayMode eq 'HTML_img'||
 		     $main::displayMode eq 'Latex2HTML')  {
 			################################################################################
 			# .png FILES in HTML, HTML_tth, HTML_dpng, HTML_img, and Latex2HTML modes
 			################################################################################
-			
+
 			#warn "tempDirectory is $main::tempDirectory";
 			#warn "file Path for auxiliary file is $aux_file_path";
-			
+
 			# No changes are made for auxiliary files in the htmlDirectory or in the tempDirectory subtree.
 			if ( $aux_file_path =~ m|^$main::tempDirectory| ) {
 			$adr_output = $aux_file_path;
@@ -1006,15 +1006,15 @@ sub alias {
 				$adr_output = $aux_file_path;
 				$adr_output =~ s|$main::htmlDirectory|$main::htmlURL|;
 				$adr_output .= ".$ext";
-			} else {  
+			} else {
 				# files not in the htmlDirectory sub tree are assumed to live under the templateDirectory
 				# subtree in the same directory as the problem.
-				
+
 				# For a png file the alias macro creates an alias under the html/images directory
 				# which points to the png file in the problem directory.
 				# All of the subdirectories of html/tmp/gif which are needed are also created.
-				my $filePath = directoryFromPath($main::fileName); 
-				
+				my $filePath = directoryFromPath($main::fileName);
+
 				# $fileName is obtained from environment for PGeval
 				# it gives the full path to the current problem
 				my $pngSourceFile = convertPath("$main::templateDirectory${filePath}$aux_file_path.png");
@@ -1041,9 +1041,9 @@ sub alias {
 			if ($envir{texDisposition} eq "pdf") {
 				# We're going to create PDF files with our TeX (using pdflatex), so we
 				# need images in PNG format. what luck! they're already in PDF format!
-				
+
 				my $pngFilePath;
-				
+
 				if ($aux_file_path =~ m/^$main::htmlDirectory/ or $aux_file_path =~ m/^$main::tempDirectory/) {
 					# we've got a full pathname to a file
 					$pngFilePath = "$aux_file_path.png";
@@ -1051,17 +1051,17 @@ sub alias {
 					# we assume the file is in the same directory as the problem source file
 					$pngFilePath = $main::templateDirectory . directoryFromPath($main::fileName) . "$aux_file_path.png";
 				}
-				
+
 				$adr_output = $pngFilePath;
 			} else {
 				# Since we're not creating PDF files, we're probably just using a plain
 				# vanilla latex. Hence, we need EPS images.
-				
+
 				################################################################################
 				# This is statement used below is system dependent.
 				# Notice that the range of colors is restricted when converting to postscript to keep the files small
-				# "cat $pngSourceFile  | /usr/math/bin/pngtopnm | /usr/math/bin/pnmtops -noturn > $adr_output" 
-				# "cat $pngSourceFile  | /usr/math/bin/pngtopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn > $adr_output" 
+				# "cat $pngSourceFile  | /usr/math/bin/pngtopnm | /usr/math/bin/pnmtops -noturn > $adr_output"
+				# "cat $pngSourceFile  | /usr/math/bin/pngtopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn > $adr_output"
 				################################################################################
 
 				if ($aux_file_path =~  m|^$main::htmlDirectory|  or $aux_file_path =~  m|^$main::tempDirectory|)  {
@@ -1105,10 +1105,10 @@ sub alias {
 		################################################################################
 		# FILES  with unrecognized file extensions in any display modes
 		################################################################################
-		
+
 		warn "Error in the macro alias. Alias does not understand how to process files with extension $ext.  (Path ot problem file is  $main::fileName) ";
 	}
-	
+
 	warn "The macro alias was unable to form a URL for some auxiliary file used in this problem." unless $adr_output;
 	return $adr_output;
 }
@@ -1119,7 +1119,7 @@ sub alias {
 
 # Experiments
 
-# It is important that these subroutines using sort are evaluated before 
+# It is important that these subroutines using sort are evaluated before
 # the problem template is evaluated.
 # Once the problem template has a "my $a;" susequent sort routines will not work.
 #
@@ -1135,7 +1135,7 @@ have special significance.
 C<sort {$a<=>$b} @list>
 C<sort {$a cmp $b} @list>
 
-sorts the list numerically and lexically respectively. 
+sorts the list numerically and lexically respectively.
 
 If C<my $a;> is used in a problem, before the sort routine is defined in a macro, then
 things get badly confused.  To correct this, the following macros are defined in
@@ -1163,7 +1163,7 @@ for ordering are B<required>. Note the commas!)
 # No-one knows why?
 
 # This allows the use of i for  imaginary numbers
-#  one can write   3 +2i rather than 3+2i() 
+#  one can write   3 +2i rather than 3+2i()
 #
 
 sub i;

@@ -1,4 +1,4 @@
-#!/usr/local/bin/webwork-perl
+
 
 # This file	is PGanswermacros.pl
 # This includes the subroutines for the ANS macros, that
@@ -17,7 +17,7 @@
 
 	Number Answer Evaluators:
 		num_cmp()	--	uses an input hash to determine parameters
-		
+
 		std_num_cmp(), std_num_cmp_list(), std_num_cmp_abs, std_num_cmp_abs_list()
 		frac_num_cmp(), frac_num_cmp_list(), frac_num_cmp_abs, frac_num_cmp_abs_list()
 		arith_num_cmp(), arith_num_cmp_list(), arith_num_cmp_abs, arith_num_cmp_abs_list()
@@ -27,14 +27,14 @@
 
 	Function Answer Evaluators:
 		fun_cmp()	--	uses an input hash to determine parameters
-		
+
 		function_cmp(), function_cmp_abs()
 		function_cmp_up_to_constant(), function_cmp_up_to_constant_abs()
 		multivar_function_cmp()
 
 	String Answer Evaluators:
 		str_cmp()	--	uses an input hash to determine parameters
-		
+
 		std_str_cmp(), std_str_cmp_list(), std_cs_str_cmp(), std_cs_str_cmp_list()
 		strict_str_cmp(), strict_str_cmp_list()
 		ordered_str_cmp(), ordered_str_cmp_list(), ordered_cs_str_cmp(), ordered_cs_str_cmp_list()
@@ -115,20 +115,20 @@ BEGIN {
 
 
 my ($BR 					,		# convenient localizations.
-	$PAR					, 
-	$numRelPercentTolDefault		, 
-	$numZeroLevelDefault			, 
-	$numZeroLevelTolDefault			, 
-	$numAbsTolDefault			, 
-	$numFormatDefault			, 
-	$functRelPercentTolDefault		, 
-	$functZeroLevelDefault			, 
-	$functZeroLevelTolDefault		, 
-	$functAbsTolDefault			, 
-	$functNumOfPoints			, 
-	$functVarDefault			, 
-	$functLLimitDefault			, 
-	$functULimitDefault			, 
+	$PAR					,
+	$numRelPercentTolDefault		,
+	$numZeroLevelDefault			,
+	$numZeroLevelTolDefault			,
+	$numAbsTolDefault			,
+	$numFormatDefault			,
+	$functRelPercentTolDefault		,
+	$functZeroLevelDefault			,
+	$functZeroLevelTolDefault		,
+	$functAbsTolDefault			,
+	$functNumOfPoints			,
+	$functVarDefault			,
+	$functLLimitDefault			,
+	$functULimitDefault			,
 	$functMaxConstantOfIntegration		,
 	$CA
 );
@@ -137,10 +137,10 @@ my ($BR 					,		# convenient localizations.
 
 
 sub _PGanswermacros_init {
-	
+
 		 $BR 	= $main::BR;		# convenient localizations.
 		 $PAR	= $main::PAR;
-		 
+
 		# import defaults
 		# these	are	now imported from the %envir variable
 		 $numRelPercentTolDefault			=	$main::numRelPercentTolDefault;
@@ -157,9 +157,9 @@ sub _PGanswermacros_init {
 		 $functLLimitDefault				=	$main::functLLimitDefault;
 		 $functULimitDefault				=	$main::functULimitDefault;
 		 $functMaxConstantOfIntegration			=	$main::functMaxConstantOfIntegration;
-		
-	
-	
+
+
+
 }
 
 ##########################################################################
@@ -293,12 +293,12 @@ ANS( num_cmp( answer or answer_array_ref, options_hash ) );
 
 	1. the correct answer, or a reference to an array of correct answers
 	2. a hash with the following keys (all optional):
-		mode			--	'std' (default) (allows any expression evaluating to 
+		mode			--	'std' (default) (allows any expression evaluating to
 								a number)
 							'strict' (only numbers are allowed)
 							'frac' (fractions are allowed)
 							'arith' (arithmetic expressions allowed)
-		format			--	'%0.5f#' (default); defines formatting for the 
+		format			--	'%0.5f#' (default); defines formatting for the
 								correct answer
 		tol				--	an absolute tolerance, or
 		relTol			--	a relative tolerance
@@ -309,7 +309,7 @@ ANS( num_cmp( answer or answer_array_ref, options_hash ) );
 								 then zeroLevelTol applies
 		zeroLevelTol	--	absolute tolerance to allow when answer is close
 								 to zero
-		
+
 		debug			--	if set to 1, provides verbose listing of
 								hash entries throughout fliters.
 
@@ -322,12 +322,12 @@ EXAMPLES:
 
 	num_cmp( 5 )					--	correct answer is 5, using defaults
 									for all options
-	num_cmp( [5,6,7] )				--	correct answers are 5, 6, and 7, 
+	num_cmp( [5,6,7] )				--	correct answers are 5, 6, and 7,
 									using defaults for all options
 	num_cmp( 5, mode => 'strict' )	--	correct answer is 5, mode is strict
 	num_cmp( [5,6], relTol => 5 )	--	correct answers are 5 and 6,
 										both with 5% relative tolerance
-	num_cmp( 6, strings => ["Inf", "Minf", "NaN"] ) 
+	num_cmp( 6, strings => ["Inf", "Minf", "NaN"] )
 									--	correct answer is 6, "Inf", "Minf",
 									 and "NaN" recognized as valid, but
 									 incorrect answers.
@@ -349,7 +349,7 @@ sub num_cmp	{
 # Retain this first check for backword compatibility.  Allows input of the form
 # num_cmp($ans, 1, '%0.5f') but warns against it
 #########################################################################
-	my %known_options =	(	
+	my %known_options =	(
 					'mode'			=>	'std',
 					'format'		=>	$numFormatDefault,
 					'tol'			=>	$numAbsTolDefault,
@@ -364,10 +364,10 @@ sub num_cmp	{
 					'unit'			=>	undef,			#alternate spelling
 					'debug'			=>	0
         );
-				
+
 	my @output_list;
 	my( $relPercentTol, $format, $zeroLevel, $zeroLevelTol) = @opt;
-	
+
 	unless( ref($correctAnswer) eq 'ARRAY' || scalar( @opt ) == 0 ||
 			  ( defined($opt[0]) and exists $known_options{$opt[0]} ) ) {
 		# unless the first parameter is	a list of arrays
@@ -378,7 +378,7 @@ sub num_cmp	{
 		warn "This method of using num_cmp() is deprecated. Please rewrite this" .
 					" problem using the options style of parameter passing (or" .
 					" check that your first option is spelled correctly).";
-		
+
 		%out_options = (	'relTol'		=> $relPercentTol,
 					'format'		=> $format,
 					'zeroLevel'		=> $zeroLevel,
@@ -388,7 +388,7 @@ sub num_cmp	{
 	}
 
 #########################################################################
-# Now handle the options assuming they are entered in the form 
+# Now handle the options assuming they are entered in the form
 # num_cmp($ans, relTol=>1, format=>'%0.5f')
 #########################################################################
 	%out_options = @opt;
@@ -417,17 +417,17 @@ sub num_cmp	{
 		warn "Can't use both 'units' and 'strings' in the same problem " .
 		"(check your parameters to num_cmp() )";
 	}
-	
-	# absolute tolType and relTol are incompatible. So are relative tolType and tol 
+
+	# absolute tolType and relTol are incompatible. So are relative tolType and tol
 	if( defined( $out_options{'relTol'} ) &&  $out_options{'tolType'} eq 'absolute' )  {
 		warn "The 'tolType' 'absolute' is not compatible with 'relTol' " .
 		"(check your parameters to num_cmp() )";
-	}	
+	}
 	if( defined( $out_options{'tol'} ) &&  $out_options{'tolType'} eq 'relative' )  {
 		warn "The 'tolType' 'relative' is not compatible with 'tol' " .
 		"(check your parameters to num_cmp() )";
-	}		
-	
+	}
+
 
 	# Handle legacy options
    	if ($out_options{tolType} eq 'absolute')   {
@@ -438,7 +438,7 @@ sub num_cmp	{
 		# delete($out_options{'tol'}) if exists( $out_options{'tol'} );
 	}
 	# end legacy options
-	
+
 	# thread over lists
 	my @ans_list = ();
 
@@ -452,7 +452,7 @@ sub num_cmp	{
 	foreach	my $ans	(@ans_list) {
 		if( defined( $out_options{'units'} ) ) {
 			$ans = "$ans $out_options{'units'}";
-			
+
 			push( @output_list, NUM_CMP(	'correctAnswer'	    	=>	$ans,
 							'tolerance'		=>	$out_options{'tolerance'},
 							'tolType'		=>	$out_options{'tolType'},
@@ -460,13 +460,13 @@ sub num_cmp	{
 							'mode'			=>	$out_options{'mode'},
 							'zeroLevel'		=>	$out_options{'zeroLevel'},
 							'zeroLevelTol'	=>	$out_options{'zeroLevelTol'},
-							'debug'			=>	$out_options{'debug'},		
+							'debug'			=>	$out_options{'debug'},
 							'units'			=>	$out_options{'units'},
-			      ) 
+			      )
 			);
 		} elsif( defined( $out_options{'strings'} ) ) {
-			
-			
+
+
 			push( @output_list, NUM_CMP( 	'correctAnswer'	=> 	$ans,
 							'tolerance'	=>	$out_options{tolerance},
 							'tolType'	=>	$out_options{tolType},
@@ -478,7 +478,7 @@ sub num_cmp	{
 							'strings'	=> 	$out_options{'strings'},
 				 )
 				 );
-		} else { 
+		} else {
 			push(@output_list,
 				NUM_CMP(	'correctAnswer'	    	=>	$ans,
 					'tolerance'		=>	$out_options{tolerance},
@@ -492,7 +492,7 @@ sub num_cmp	{
 			);
 	    }
 	}
-	
+
 	return (wantarray) ? @output_list : $output_list[0];
 }
 
@@ -588,7 +588,7 @@ sub std_num_cmp	{						# compare numbers allowing use of elementary functions
 		    'zeroLevel'		=>	$zeroLevel,
 		    'zeroLevelTol'	=>	$zeroLevelTol
     );
-    
+
     set_default_options( \%options,
 			 'tolType'	=>      'relative',
 			 'tolerance'    =>      $numRelPercentTolDefault,
@@ -599,7 +599,7 @@ sub std_num_cmp	{						# compare numbers allowing use of elementary functions
 			 'zeroLevelTol' =>      $numZeroLevelTolDefault,
 			 'debug'        =>      0,
     );
-	
+
     num_cmp([$correctAnswer], %options);
 }
 
@@ -635,7 +635,7 @@ sub std_num_cmp_abs	{			# compare numbers allowing use of elementary functions w
 	my %options = ( 'tolerance'  => $absTol,
 		      	'format'     => $format
 	);
-	
+
 	set_default_options (\%options,
 			     'tolType'      =>      'absolute',
 			     'tolerance'    =>      $absTol,
@@ -674,7 +674,7 @@ sub std_num_cmp_abs_list {
 sub frac_num_cmp {						# only allow fractions and numbers as submitted answer
 
 	my ( $correctAnswer, $relPercentTol, $format, $zeroLevel, $zeroLevelTol ) = @_;
-	
+
 	my %options = (	'relTol'	 =>		$relPercentTol,
 					'format'		 =>		$format,
 					'zeroLevel'	 =>		$zeroLevel,
@@ -698,11 +698,11 @@ sub frac_num_cmp {						# only allow fractions and numbers as submitted answer
 ##	See std_num_cmp_list for usage
 sub frac_num_cmp_list {
 	my ( $relPercentTol, $format, @answerList ) = @_;
-	
+
 	my %options = (			 'relTol'	 =>		$relPercentTol,
 							 'format'		 =>		$format
 	);
-	
+
 	set_default_options( \%options,
 			 'tolType'		 =>		'relative',
 			 'tolerance'	 =>		$relPercentTol,
@@ -713,17 +713,17 @@ sub frac_num_cmp_list {
 			 'relTol'		 =>		$numRelPercentTolDefault,
 			 'debug'		 =>		0,
 	);
-	
+
 	num_cmp(\@answerList, %options);
 }
 
 sub frac_num_cmp_abs {			# only allow fraction expressions as submitted answer with absolute tolerance
     my ( $correctAnswer, $absTol, $format ) = @_;
-    
+
     my %options = (           	'tolerance'    =>     $absTol,
 		        	'format'       =>     $format
     );
-	
+
 	set_default_options (\%options,
 			'tolType'	   =>	  'absolute',
 			'tolerance'	   =>	  $absTol,
@@ -736,16 +736,16 @@ sub frac_num_cmp_abs {			# only allow fraction expressions as submitted answer w
 
     num_cmp([$correctAnswer], %options);
 }
-    
+
 ##	See std_num_cmp_list for usage
 
 sub frac_num_cmp_abs_list {
     my ( $absTol, $format, @answerList ) = @_;
-    
+
     my %options = (           	'tolerance'    =>     $absTol,
 			      	'format'       =>     $format
     );
-    
+
     set_default_options (\%options,
 			 'tolType'      =>     'absolute',
 			 'tolerance'    =>     $absTol,
@@ -754,22 +754,22 @@ sub frac_num_cmp_abs_list {
 			 'zeroLevel'    =>     0,
 			 'zeroLevelTol' =>     0,
 			 'debug'        =>     0,
-    ); 
-    
+    );
+
     num_cmp(\@answerList, %options);
 }
 
 
 sub arith_num_cmp {						# only allow arithmetic expressions as submitted answer
-    
+
     my ( $correctAnswer, $relPercentTol, $format, $zeroLevel, $zeroLevelTol ) = @_;
-    
+
     my %options = (     'relTol'      =>     $relPercentTol,
 			'format'         =>     $format,
 			'zeroLevel'      =>     $zeroLevel,
 			'zeroLevelTol'   =>     $zeroLevelTol
     );
-    
+
     set_default_options( \%options,
                         'tolType'       =>     'relative',
                         'tolerance'     =>     $relPercentTol,
@@ -802,17 +802,17 @@ sub arith_num_cmp_list {
                          'relTol'        =>     $numRelPercentTolDefault,
                          'debug'         =>     0,
     );
-    
+
     num_cmp(\@answerList, %options);
 }
 
 sub arith_num_cmp_abs {			# only allow arithmetic expressions as submitted answer with absolute tolerance
     my ( $correctAnswer, $absTol, $format ) = @_;
-    
+
     my %options = (      'tolerance'    =>     $absTol,
                          'format'       =>     $format
     );
-    
+
     set_default_options (\%options,
                          'tolType'      =>     'absolute',
                          'tolerance'    =>     $absTol,
@@ -822,18 +822,18 @@ sub arith_num_cmp_abs {			# only allow arithmetic expressions as submitted answe
                          'zeroLevelTol' =>     0,
                          'debug'        =>     0,
     );
-    
+
     num_cmp([$correctAnswer], %options);
 }
 
 ##	See std_num_cmp_list for usage
 sub arith_num_cmp_abs_list {
     my ( $absTol, $format, @answerList ) = @_;
-    
+
     my %options = (      'tolerance'    =>     $absTol,
                          'format'       =>     $format
     );
-    
+
     set_default_options (\%options,
                          'tolType'      =>     'absolute',
                          'tolerance'    =>     $absTol,
@@ -843,19 +843,19 @@ sub arith_num_cmp_abs_list {
                          'zeroLevelTol' =>     0,
                          'debug'        =>     0,
     );
-    
+
     num_cmp(\@answerList, %options);
 }
 
 sub strict_num_cmp {					# only allow numbers as submitted answer
     my ( $correctAnswer, $relPercentTol, $format, $zeroLevel, $zeroLevelTol ) = @_;
-    
+
     my %options = (      'relTol'     =>     $relPercentTol,
                          'format'        =>     $format,
                          'zeroLevel'     =>     $zeroLevel,
                          'zeroLevelTol'  =>     $zeroLevelTol
     );
-    
+
     set_default_options( \%options,
                          'tolType'       =>     'relative',
                          'tolerance'     =>     $relPercentTol,
@@ -873,11 +873,11 @@ sub strict_num_cmp {					# only allow numbers as submitted answer
 ##	See std_num_cmp_list for usage
 sub strict_num_cmp_list	{				# compare numbers
     my ( $relPercentTol, $format, @answerList ) = @_;
-	
+
     my %options = (  	 'relTol'     =>     $relPercentTol,
 			 'format'        =>     $format,
     );
-	
+
     set_default_options( \%options,
                          'tolType'       =>     'relative',
                          'tolerance'     =>     $relPercentTol,
@@ -888,7 +888,7 @@ sub strict_num_cmp_list	{				# compare numbers
                          'relTol'        =>     $numRelPercentTolDefault,
                          'debug'         =>     0,
     );
-    
+
     num_cmp(\@answerList, %options);
 }
 
@@ -934,7 +934,7 @@ sub strict_num_cmp_abs_list	{			# compare numbers
     num_cmp(\@answerList, %options);
 }
 
-## sub numerical_compare_with_units 
+## sub numerical_compare_with_units
 ## Compares a number with units
 ## Deprecated; use num_cmp()
 ##
@@ -959,13 +959,13 @@ sub numerical_compare_with_units {
 	# it surprises me that the match below works since the first .*	is greedy.
 	my ($correct_num_answer, $correct_units) = $correct_answer =~ /^(.*)\s+([^\s]*)$/;
 	$options{units} = $correct_units;
-	
+
 	num_cmp($correct_num_answer, %options);
 }
-	
+
 
 =head3 std_num_str_cmp()
-    
+
 NOTE:	This function is maintained for compatibility. num_cmp() with the
 		'strings' parameter is slightly preferred.
 
@@ -1002,13 +1002,13 @@ Examples:
 sub std_num_str_cmp {
 	my ( $correctAnswer, $ra_legalStrings, $relpercentTol, $format, $zeroLevel, $zeroLevelTol ) = @_;
 	# warn ('This method is depreciated.  Use num_cmp instead.');
-	return num_cmp ($correctAnswer, strings=>$ra_legalStrings, relTol=>$relpercentTol, format=>$format, 
+	return num_cmp ($correctAnswer, strings=>$ra_legalStrings, relTol=>$relpercentTol, format=>$format,
 		zeroLevel=>$zeroLevel, zeroLevelTol=>$zeroLevelTol);
 }
 
 sub NUM_CMP {		# low level	numeric	compare
 	my %num_params = @_;
-    
+
 	my @keys = qw ( correctAnswer tolerance tolType format mode zeroLevel zeroLevelTol debug );
 	foreach my $key (@keys) {
 	    warn "$key must be defined in options when calling NUM_CMP" unless defined ($num_params{$key});
@@ -1017,23 +1017,23 @@ sub NUM_CMP {		# low level	numeric	compare
 	my $correctAnswer	=	$num_params{'correctAnswer'};
 	my $format		=	$num_params{'format'};
 	my $mode		=	$num_params{'mode'};
-	
+
 	if( $num_params{tolType} eq 'relative' ) {
 		$num_params{'tolerance'} = .01*$num_params{'tolerance'};
 	}
-	
+
 	my $formattedCorrectAnswer;
 	my $correct_units;
 	my $correct_num_answer;
 	my %correct_units;
 	my $corrAnswerIsString = 0;
-	
+
 
 	if (defined($num_params{units}) && $num_params{units}) {
 		$correctAnswer	= str_filters( $correctAnswer, 'trim_whitespace' );
 						# units are in form stuff space units where units contains no spaces.
-		
-		($correct_num_answer, $correct_units) = $correctAnswer =~ /^(.*)\s+([^\s]*)$/; 
+
+		($correct_num_answer, $correct_units) = $correctAnswer =~ /^(.*)\s+([^\s]*)$/;
 		%correct_units = Units::evaluate_units($correct_units);
 		if ( defined( $correct_units{'ERROR'} ) ) {
 			 warn ("ERROR: The answer \"$correctAnswer\" in the problem definition cannot be parsed:\n" .
@@ -1041,7 +1041,7 @@ sub NUM_CMP {		# low level	numeric	compare
 		}
 		# $formattedCorrectAnswer = spf($correct_num_answer,$num_params{'format'}) . " $correct_units";
 		$formattedCorrectAnswer = prfmt($correct_num_answer,$num_params{'format'}) . " $correct_units";
-	
+
 	} elsif (defined($num_params{strings}) && $num_params{strings}) {
 		my $legalString	= '';
 		my @legalStrings = @{$num_params{strings}};
@@ -1050,7 +1050,7 @@ sub NUM_CMP {		# low level	numeric	compare
 		foreach	$legalString (@legalStrings) {
 			if ( uc($correctAnswer) eq uc($legalString) ) {
 				$corrAnswerIsString	= 1;
-				
+
 				last;
 			}
 		}		  ## at	this point $corrAnswerIsString = 0 iff correct answer is numeric
@@ -1060,11 +1060,11 @@ sub NUM_CMP {		# low level	numeric	compare
 	}
 
 	$correct_num_answer = math_constants($correct_num_answer);
-	
+
 	my $PGanswerMessage = '';
-	
+
 	my ($inVal,$correctVal,$PG_eval_errors,$PG_full_error_report);
-	
+
 	if (defined($correct_num_answer) && $correct_num_answer =~ /\S/ && $corrAnswerIsString == 0 )	{
 			($correctVal, $PG_eval_errors,$PG_full_error_report) = PG_answer_eval($correct_num_answer);
 	} else { # case of a string answer
@@ -1075,16 +1075,16 @@ sub NUM_CMP {		# low level	numeric	compare
 	if ( ($PG_eval_errors && $corrAnswerIsString == 0) or ((not is_a_number($correctVal)) && $corrAnswerIsString == 0)) {
 				##error message from eval or above
 		warn "Error in 'correct' answer: $PG_eval_errors<br>
-		      The answer $correctAnswer evaluates to $correctVal, 
+		      The answer $correctAnswer evaluates to $correctVal,
 		      which cannot be interpreted as a number.  ";
-		
+
 	}
 	#########################################################################
 
-	#construct the answer evaluator 
-    	my $answer_evaluator = new AnswerEvaluator; 
+	#construct the answer evaluator
+    	my $answer_evaluator = new AnswerEvaluator;
     	$answer_evaluator->{debug} = $num_params{debug};
-    	$answer_evaluator->ans_hash( 	 
+    	$answer_evaluator->ans_hash(
     						correct_ans 			=> 	$correctVal,
     					 	type					=>	"${mode}_number",
     					 	tolerance				=>	$num_params{tolerance},
@@ -1095,7 +1095,7 @@ sub NUM_CMP {		# low level	numeric	compare
      					 	answerIsString			=>	$corrAnswerIsString,
      	);
     	my ($in, $formattedSubmittedAnswer);
-	$answer_evaluator->install_pre_filter(sub {my $rh_ans = shift; 
+	$answer_evaluator->install_pre_filter(sub {my $rh_ans = shift;
 		$rh_ans->{original_student_ans} = $rh_ans->{student_ans}; $rh_ans;}
 	);
 	if (defined($num_params{units}) && $num_params{units}) {
@@ -1106,11 +1106,11 @@ sub NUM_CMP {		# low level	numeric	compare
 	}
 
 	$answer_evaluator->install_pre_filter(\&check_syntax);
-		
+
 	$answer_evaluator->install_pre_filter(\&math_constants);
-	
+
 	if ($mode eq 'std')	{
-				# do nothing	
+				# do nothing
 	} elsif ($mode eq 'strict') {
 		$answer_evaluator->install_pre_filter(\&is_a_number);
 	} elsif ($mode eq 'arith') {
@@ -1121,16 +1121,16 @@ sub NUM_CMP {		# low level	numeric	compare
 		} elsif ($mode eq 'phase_pi') {
 			$answer_evaluator->install_pre_filter(\&phase_pi);
 
-		} else {	
+		} else {
 			$PGanswerMessage = 'Tell your professor	that there is an error in his or her answer mechanism. No mode was specified.';
 			$formattedSubmittedAnswer =	$in;
 		}
-    	
+
 	if ($corrAnswerIsString == 0 ){		# avoiding running compare_numbers when correct answer is a string.
 		$answer_evaluator->install_evaluator(\&compare_numbers, %num_params);
 	 }
-	  
-	 	
+
+
 ###############################################################################
 # We'll leave these next lines out for now, so that the evaluated versions of the student's and professor's
 # can be displayed in the answer message.  This may still cause a few anomolies when strings are used
@@ -1139,7 +1139,7 @@ sub NUM_CMP {		# low level	numeric	compare
 
 	$answer_evaluator->install_post_filter(\&fix_answers_for_display);
 
-     	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift; 
+     	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift;
 					return $rh_ans unless $rh_ans->catch_error('EVAL');
 					$rh_ans->{student_ans} = $rh_ans->{original_student_ans}. ' '. $rh_ans->{error_message};
 					$rh_ans->clear_error('EVAL'); } );
@@ -1255,13 +1255,13 @@ ANS( fun_cmp( answer or answer_array_ref, options_hash ) );
 		zeroLevel					--	if the correct answer is this close to zero, then
 											zeroLevelTol applies
 		zeroLevelTol					--	absolute tolerance to allow when answer is close to zero
-		params						   	an array of "free" parameters which can be used to adapt 
+		params						   	an array of "free" parameters which can be used to adapt
 								   	the correct answer to the submitted answer. (e.g. ['c'] for
 								   	a constant of integration in the answer x^3/3 + c.
-		debug						-- 	when set to 1 this provides extra information while checking the 
+		debug						-- 	when set to 1 this provides extra information while checking the
 		 						        the answer.
 
-	Returns an answer evaluator, or (if given a reference to an array 
+	Returns an answer evaluator, or (if given a reference to an array
 	of answers), a list of answer evaluators
 
 ANSWER:
@@ -1312,14 +1312,14 @@ EXAMPLES:
 sub fun_cmp {
 	my $correctAnswer =	shift @_;
 	my %opt	= @_;
-	
+
     assign_option_aliases( \%opt,
 				'vars'		=>	'var',    # set the standard option 'var' to the one specified as vars
     			'domain'	=>	'limits', # set the standard option 'limits' to the one specified as domain
     			'reltol'    =>  'relTol',
     			'param'		=>  'params',
     );
-    
+
     set_default_options(	\%opt,
 				'var'					=>	$functVarDefault,
 	       		'params'				=>	[],
@@ -1334,15 +1334,15 @@ sub fun_cmp {
 				'zeroLevelTol'			=>	$functZeroLevelTolDefault,
 	       		'debug'					=>	0,
      );
-   
+
     # allow var => 'x' as an abbreviation for var => ['x']
 	my %out_options = %opt;
 	unless ( ref($out_options{var}) eq 'ARRAY' ) {
-		$out_options{var} = [$out_options{var}];       
+		$out_options{var} = [$out_options{var}];
 	}
 	# allow params => 'c' as an abbreviation for params => ['c']
 	unless ( ref($out_options{params}) eq 'ARRAY' ) {
-		$out_options{params} = [$out_options{params}];       
+		$out_options{params} = [$out_options{params}];
 	}
 	my ($tolType, $tol);
    	if ($out_options{tolType} eq 'absolute') {
@@ -1354,7 +1354,7 @@ sub fun_cmp {
 		$tol = $out_options{'relTol'};
 		delete($out_options{'tol'}) if exists( $out_options{'tol'} );
 	}
-	
+
 	my @output_list	= ();
 	# thread over lists
 	my @ans_list = ();
@@ -1369,7 +1369,7 @@ sub fun_cmp {
 	# produce answer evaluators
 	foreach	my $ans	(@ans_list)	{
 		push(@output_list,
-			FUNCTION_CMP(	
+			FUNCTION_CMP(
 					'correctEqn'		=>	$ans,
 					'var'				=>	$out_options{'var'},
 					'limits'			=>	$out_options{'limits'},
@@ -1513,7 +1513,7 @@ sub adaptive_function_cmp {
     my $numPoints = $options{'numPoints'};
     my $zeroLevel = $options{'zeroLevel'};
     my $zeroLevelTol = $options{'zeroLevelTol'};
-	
+
 	FUNCTION_CMP(	'correctEqn'					=>	$correctEqn,
 			'var'						=>	$var_ref,
 			'limits'					=>	$limit_ref,
@@ -1700,8 +1700,8 @@ sub FUNCTION_CMP {
 	my $maxConstantOfIntegration			=	$func_params{'maxConstantOfIntegration'};
 	my $zeroLevel					=	$func_params{'zeroLevel'};
 	my $zeroLevelTol				=	$func_params{'zeroLevelTol'};
-	
-	 
+
+
     # Check that everything is defined:
     $func_params{debug} = 0 unless defined($func_params{debug});
     $mode = 'std' unless defined($mode);
@@ -1709,11 +1709,11 @@ sub FUNCTION_CMP {
 	my @limits = get_limits_array( $ra_limits );
 	my @PARAMS = ();
 	@PARAMS = @{$func_params{'params'}} if defined($func_params{'params'});
-	
+
 	if ($mode eq 'antider' ) {
 		# doctor the equation to allow addition of a constant
-		my $CONSTANT_PARAM = 'Q';  # unfortunately parameters must be single letters.  
-								   # There is the possibility of conflict here. 
+		my $CONSTANT_PARAM = 'Q';  # unfortunately parameters must be single letters.
+								   # There is the possibility of conflict here.
 								   #  'Q' seemed less dangerous than  'C'.
 		$correctEqn = "( $correctEqn ) + $CONSTANT_PARAM";
 		push(@PARAMS, $CONSTANT_PARAM);
@@ -1737,7 +1737,7 @@ sub FUNCTION_CMP {
 	$maxConstantOfIntegration = $functMaxConstantOfIntegration	unless defined $maxConstantOfIntegration;
 	$zeroLevel = $functZeroLevelDefault				unless defined $zeroLevel;
 	$zeroLevelTol = $functZeroLevelTolDefault			unless defined $zeroLevelTol;
-	
+
 	$func_params{'var'}				=	$var;
     	$func_params{'limits'}				=	\@limits;
     	$func_params{'tolerance'}			=	$tol;
@@ -1747,26 +1747,26 @@ sub FUNCTION_CMP {
     	$func_params{'maxConstantOfIntegration'}	=	$maxConstantOfIntegration;
     	$func_params{'zeroLevel'}			=	$zeroLevel;
     	$func_params{'zeroLevelTol'}  			= 	$zeroLevelTol;
-    	
+
 ########################################################
 #   End of cleanup of calling parameters
 ########################################################
 	my $i;						#for use with loops
 	my $PGanswerMessage	= "";
 	my $originalCorrEqn	= $correctEqn;
-	
+
 #prepare the correct answer and check it's syntax
     	my $rh_correct_ans = new AnswerHash;
 	$rh_correct_ans->input($correctEqn);
 	$rh_correct_ans = check_syntax($rh_correct_ans);
 	warn  $rh_correct_ans->{error_message} if $rh_correct_ans->{error_flag};
 	$rh_correct_ans->clear_error();
-	$rh_correct_ans = function_from_string2($rh_correct_ans, ra_vars => [ @VARS, @PARAMS ], 
+	$rh_correct_ans = function_from_string2($rh_correct_ans, ra_vars => [ @VARS, @PARAMS ],
 	                                                         store_in =>'rf_correct_ans',
 	                                                         debug =>  $func_params{debug});
 	my $correct_eqn_sub = $rh_correct_ans->{rf_correct_ans};
 	warn $rh_correct_ans->{error_message} if $rh_correct_ans->{error_flag};
-    
+
 #create the evaluation points
 	my $random_for_answers = new PGrandom($main::PG_original_problemSeed);
     	my $NUMBER_OF_STEPS_IN_RANDOM = 1000;    # determines the granularity of the random_for_answers number generator
@@ -1779,19 +1779,19 @@ sub FUNCTION_CMP {
 		    	$vars[$i] = $random_for_answers->random($limits[$i][0], $limits[$i][1], abs($limits[$i][1] - $limits[$i][0])/$NUMBER_OF_STEPS_IN_RANDOM );
 		    	last if $vars[$i]!=$limits[$i][0] and $vars[$i]!=$limits[$i][1];
 		    }
-		    warn "Unable to properly choose  evaluation points for this function in the interval ( $limits[$i][0] , $limits[$i][1] )" 
+		    warn "Unable to properly choose  evaluation points for this function in the interval ( $limits[$i][0] , $limits[$i][1] )"
 		      if $iteration_limit == 0;
 		};
-		
+
 		push(@evaluation_points,\@vars);
 	}
 	my $evaluation_points = Matrix->new_from_array_ref(\@evaluation_points);
-	
+
 	#my $COEFFS = determine_param_coeffs($correct_eqn_sub,$evaluation_points[0],$numOfParameters);
-    	#warn "coeff", join(" | ", @{$COEFFS}); 
-  
-#construct the answer evaluator 
-    my $answer_evaluator = new AnswerEvaluator; 
+    	#warn "coeff", join(" | ", @{$COEFFS});
+
+#construct the answer evaluator
+    my $answer_evaluator = new AnswerEvaluator;
     $answer_evaluator->{debug} = $func_params{debug};
     $answer_evaluator->ans_hash( 	correct_ans 		=> 	$originalCorrEqn,
 					rf_correct_ans		=> 	$rh_correct_ans->{rf_correct_ans},
@@ -1800,7 +1800,7 @@ sub FUNCTION_CMP {
 					ra_vars			=>	\@VARS,
 					type			=>	'function',
     );
-    
+
     $answer_evaluator->install_pre_filter(\&check_syntax);
     $answer_evaluator->install_pre_filter(\&function_from_string2, ra_vars => \@VARS,debug=>$func_params{debug},); # @VARS has been guaranteed to be an array, $var might be a single string.
     $answer_evaluator->install_pre_filter(\&best_approx_parameters, %func_params, param_vars => \@PARAMS);
@@ -1808,7 +1808,7 @@ sub FUNCTION_CMP {
     $answer_evaluator->install_evaluator(\&is_zero_array, tolerance => $tol );
     $answer_evaluator->install_post_filter(sub {my $rh_ans = shift; $rh_ans->clear_error('SYNTAX'); $rh_ans;} );
     $answer_evaluator->install_post_filter(
-    				sub {my $rh_ans = shift; 
+    				sub {my $rh_ans = shift;
 						if ($rh_ans->catch_error('EVAL') ) {
 							$rh_ans->{ans_message} = $rh_ans->{error_message};
 							$rh_ans->clear_error('EVAL');
@@ -2494,22 +2494,22 @@ sub save_answer_to_file {  #accepts	the	last answer	and	mails off the result
 	$ans_eval->install_evaluator(
 			sub {
 				 my $rh_ans = shift;
-        		
+
        		 	 unless ( defined( $rh_ans->{student_ans} ) ) {
         			$rh_ans->throw_error("save_answers_to_file","{student_ans} field not defined");
         			return $rh_ans;
        			}
-       
+
 				my $error;
 				my $string = '';
 				$string = qq![[<$main::studentLogin> $main::studentName /!. time() . qq!/]]\n!.
 					$rh_ans->{student_ans}. qq!\n\n============================\n\n!;
-				
+
 				if ($error = AnswerIO::saveAnswerToFile('preflight',$string) ) {
 					$rh_ans->throw_error("save_answers_to_file","Error:  $error");
 				} else {
 					$rh_ans->{'student_ans'} = 'Answer saved';
-					$rh_ans->{'score'} = 1; 
+					$rh_ans->{'score'} = 1;
 				}
 				$rh_ans;
 			}
@@ -2684,14 +2684,14 @@ sub prfmt {
 		} else { # number is probably a string representing an arithmetic expression
 			$out = $number;
 		}
-		
+
 	} else {
 		if (is_a_number($number)) {# only use capital E's for exponents. Little e is for 2.71828...
 			$out = $number;
 			$out =~ s/e/E/g;
-		} else { # number is probably a string representing an arithmetic expression					
+		} else { # number is probably a string representing an arithmetic expression
 			$out = $number;
-		}	
+		}
 	}
 	return $out;
 }
@@ -2713,7 +2713,7 @@ in an AnswerHash, such as 'student_ans', 'score' and so forth.  Other entries
 may be present for specialized answer evaluators.
 
 The hope is that a well designed set of filters can easily be combined to form
-a new answer_evaluator and that this method will produce answer evaluators which are 
+a new answer_evaluator and that this method will produce answer evaluators which are
 are more robust than the method of copying existing answer evaluators and modifying them.
 
 Here is an outline of how a filter is constructed:
@@ -2733,9 +2733,9 @@ Here is an outline of how a filter is constructed:
 		}
 		.... body code of filter .......
 			if ($error) {
-				$rh_ans->throw_error("FILTER_ERROR", "Something went wrong");  
+				$rh_ans->throw_error("FILTER_ERROR", "Something went wrong");
 				# see AnswerHash.pm for details on using the throw_error method.
-				
+
 		$rh_ans;  #reference to an AnswerHash object is returned.
 	}
 
@@ -2757,9 +2757,9 @@ sub compare_numbers {
 	} else {
 		$rh_ans->{student_ans} = prfmt($inVal,$options{format});
 	}
-	
+
 	my $permitted_error;
-		
+
 	if ($rh_ans->{tolType} eq 'absolute')	{
 		$permitted_error = $rh_ans->{tolerance};
 	}
@@ -2769,14 +2769,14 @@ sub compare_numbers {
 	else {
 		$permitted_error = abs($rh_ans->{tolerance}*$rh_ans->{correct_ans});
 	}
-	
+
 	my $is_a_number	= is_a_number($inVal);
 	$rh_ans->{score} = 1 if ( ($is_a_number) and
 		  (abs(	$inVal - $rh_ans->{correct_ans} ) <= $permitted_error) );
 	if (not $is_a_number) {
 		$rh_ans->{error_message} = "$rh_ans->{error_message}". 'Your answer does not evaluate to a number ';
 	}
-	
+
 	$rh_ans;
 }
 
@@ -2799,11 +2799,11 @@ sub std_num_filter {
 	my ($inVal,$PG_eval_errors,$PG_full_error_report);
 	if ($in	=~ /\S/) {
 		($inVal,$PG_eval_errors,$PG_full_error_report) = PG_answer_eval($in);
-	} else { 
+	} else {
 		$PG_eval_errors = '';
 	}
 
-	if ($PG_eval_errors) {			  ##error message from eval	or above 
+	if ($PG_eval_errors) {			  ##error message from eval	or above
 		$rh_ans->{ans_message} = 'There is a syntax error	in your	answer';
 		$rh_ans->{student_ans} = clean_up_error_msg($PG_eval_errors);
 	} else {
@@ -2816,18 +2816,18 @@ sub std_num_filter {
 
 	std_num_array_filter($rh_ans, %options)
 	returns $rh_ans
-	
+
 Assumes the {student_ans} field is a numerical  array, and applies BOTH check_syntax and std_num_filter
 to each element of the array.  Does it's best to generate sensible error messages for syntax errors.
 A typical error message displayed in {studnet_ans} might be ( 56, error message, -4).
 
 =cut
 
-sub std_num_array_filter { 
+sub std_num_array_filter {
 	my $rh_ans= shift;
 	my %options = @_;
 	set_default_options(  \%options,
-				'_filter_name'	=>	'std_num_array_filter',   				
+				'_filter_name'	=>	'std_num_array_filter',
     );
 	my @in = @{$rh_ans->{student_ans}};
 	my $temp_hash = new AnswerHash;
@@ -2845,10 +2845,10 @@ sub std_num_array_filter {
 			if (defined($temp_hash->{ans_message}) and $temp_hash->{ans_message} ) {
 				$PGanswerMessage .= $temp_hash->{ans_message};
 				$temp_hash->{ans_message} = undef;
-			} 
+			}
 		}
 		push(@out, $temp_hash->input());
-		
+
 	}
 	if ($PGanswerMessage) {
 		$rh_ans->input( "( " . join(", ", @out ) . " )" );
@@ -2877,7 +2877,7 @@ sub function_from_string2 {
 	            'store_in'		=>      'rf_student_ans',
     			'ra_vars'		=>	[qw( x y )],
     			'debug'			=>	0,
-    			'_filter_name'	=>	'function_from_string2',   				
+    			'_filter_name'	=>	'function_from_string2',
     );
     $rh_ans->{_filter_name} = $options{_filter_name};
     my @VARS = @{ $options{ 'ra_vars'}};
@@ -2892,39 +2892,39 @@ sub function_from_string2 {
 
 	}
 	#warn "equation evaluated = $eqn",$rh_ans->pretty_print(), "<br>\noptions<br>\n",
-	#     pretty_print(\%options) 
+	#     pretty_print(\%options)
 	#     if defined($options{debug}) and $options{debug} ==1;
     my ($function_sub,$PG_eval_errors, $PG_full_errors) = PG_answer_eval( q!
 	    sub {
 	    	my @VARS = @_;
-	    	my $input_str = '';	    	
+	    	my $input_str = '';
 	    	for( my $i=0; $i<@VARS; $i++ ) {
 	    		$input_str .= "\$VARS[$i] = $VARS[$i]; ";
 	    	}
 	    	my $PGanswerMessage;
-	    	$input_str .= '! . $eqn . q!';  # need the single quotes to keep the contents of $eqn from being 
+	    	$input_str .= '! . $eqn . q!';  # need the single quotes to keep the contents of $eqn from being
 	    	                                # evaluated when it is assigned to $input_str;
 	    	my ($out, $PG_eval_errors, $PG_full_errors) = PG_answer_eval($input_str); #Finally evaluated
-	    	
+
 	    	if ( defined($PG_eval_errors) and $PG_eval_errors =~ /\S/ ) {
-	    	    $PGanswerMessage	= clean_up_error_msg($PG_eval_errors);   
+	    	    $PGanswerMessage	= clean_up_error_msg($PG_eval_errors);
 # This message seemed too verbose, but it does give extra information, we'll see if it is needed.
 #                    "<br> There was an error in evaluating your function <br>
-# 					!. $originalEqn . q! <br> 
+# 					!. $originalEqn . q! <br>
 # 					at ( " . join(', ', @VARS) . " ) <br>
 # 					 $PG_eval_errors
 # 					";   # this message appears in the answer section which is not process by Latex2HTML so it must
 # 					     # be in HTML.  That is why $BR is NOT used.
-	
-			} 
+
+			}
 			(wantarray) ? ($out, $PGanswerMessage): $out;   # PGanswerMessage may be undefined.
 	    };
 	!);
 
 	if (defined($PG_eval_errors) and $PG_eval_errors =~/\S/	) {
 				$PG_eval_errors	= clean_up_error_msg($PG_eval_errors);
- 		
- 		my $PGanswerMessage = "There was an error in converting the expression 
+
+ 		my $PGanswerMessage = "There was an error in converting the expression
  		 	$main::BR $originalEqn $main::BR into a function.
  		 	$main::BR $PG_eval_errors.";
  		$rh_ans->{rf_student_ans} = $function_sub;
@@ -2940,8 +2940,8 @@ sub function_from_string2 {
 #  	    }
  	    $rh_ans ->{$options{store_in}} = $function_sub;
  	}
-	
-    $rh_ans;	
+
+    $rh_ans;
 }
 
 =head4 is_zero_array
@@ -2954,8 +2954,8 @@ sub is_zero_array {
     my $rh_ans = shift;
     my %options = @_;
     set_default_options(  \%options,
-				'_filter_name'	=>	'is_zero_array',   
-				'tolerance'	=>	0.000001,				
+				'_filter_name'	=>	'is_zero_array',
+				'tolerance'	=>	0.000001,
     );
     my $array = $rh_ans -> {ra_differences};
 	my $num = @$array;
@@ -2971,7 +2971,7 @@ sub is_zero_array {
 	}
 	if (not is_a_number($max)) {
 		$rh_ans->{score} = 0;
-	    my $error = "WeBWorK was unable evaluate your function. Please check that your 
+	    my $error = "WeBWorK was unable evaluate your function. Please check that your
  		            expression doesn't take roots of negative numbers, or divide by zero.";
  		$rh_ans->throw_error('EVAL',$error);
 	} else {
@@ -2984,50 +2984,50 @@ sub is_zero_array {
 
 	best_approx_parameters($rh_ans,%options);   #requires the following fields in $rh_ans
 	                      {rf_student_ans}    	# reference to the test answer
-	                      {rf_correct_ans}    	# reference to the comparison answer 
+	                      {rf_correct_ans}    	# reference to the comparison answer
 	                      {evaluation_points},  # an array of row vectors indicating the points
 	                             				# to evaluate when comparing the functions
-	                             				
+
 	                       %options				# debug => 1   gives more error answers
 	                       						# param_vars => ['']  additional parameters used to adapt to function
 	                       )
 
 
 The parameters for the comparison function which best approximates the test_function are stored
-in the field {ra_parameters}. 
+in the field {ra_parameters}.
 
 
 The last $dim_of_parms_space variables are assumed to be parameters, and it is also
 assumed that the function \&comparison_fun
-depends linearly on these variables.  This function finds the  values for these parameters which minimizes the 
+depends linearly on these variables.  This function finds the  values for these parameters which minimizes the
 Euclidean distance (L2 distance) between the test function and the comparison function and the test points specified
 by the array reference  \@rows_of_test_points.  This is assumed to be an array of arrays, with the inner arrays
-determining a test point.  
+determining a test point.
 
 The comparison function should have $dim_of_params_space more input variables than the test function.
 
 
 
- 
+
 
 =cut
 
 #	Used internally:
-# 	
+#
 # 	&$determine_param_coeff( $rf_comparison_function # a reference to the correct answer function
 # 	                 $ra_variables                   # an array of the active input variables to the functions
-# 	                 $dim_of_params_space            # indicates the number of parameters upon which the 
+# 	                 $dim_of_params_space            # indicates the number of parameters upon which the
 # 	                                                 # the comparison function depends linearly.  These are assumed to
 # 	                                                 # be the last group of inputs to the comparison function.
-# 	                                                 
+#
 # 	                 %options                        # $options{debug} gives more error messages
-# 	                 
-# 	                                                 # A typical function might look like 
+#
+# 	                                                 # A typical function might look like
 # 	                                                 # f(x,y,z,a,b) = x^2+a*cos(xz) + b*sin(x) with a parameter
 # 	                                                 # space of dimension 2 and a variable space of dimension 3.
 # 	                )
 # 				# returns a list of coefficients
- 				
+
 sub best_approx_parameters {
     my $rh_ans = shift;
     my %options = @_;
@@ -3074,7 +3074,7 @@ sub best_approx_parameters {
     }
     # inputs are row arrays in this case.
     my @zero_params=();
-  	
+
     for(my $i=1;$i<=$dim_of_param_space;$i++){push(@zero_params,0); }
     my @rows_of_vars = @$ra_vars_matrix;
     warn "input rows ", pretty_print(\@rows_of_vars) if defined($options{debug}) and $options{debug};
@@ -3086,19 +3086,19 @@ sub best_approx_parameters {
     my $number_of_data_points = $dim_of_param_space +2;
     while (@rows_of_vars and $row_num <= $number_of_data_points) {
  	   # get one set of data points from the test function;
-	    @vars = @{ shift(@rows_of_vars) };  
+	    @vars = @{ shift(@rows_of_vars) };
  	    ($val2, $err1) = &{$rf_fun}(@vars);
  	    $errors .= " $err1 "  if defined($err1);
  	    @inputs = (@vars,@zero_params);
  	    ($val1, $err2) = &{$rf_correct_fun}(@inputs);
  	    $errors .= " $err2 " if defined($err2);
- 	    
+
  	    unless (defined($err1) or defined($err2) ) {
  	        $rhs_vec->assign($row_num,1, $val2-$val1 );
-	 	    
+
 	 	# warn "rhs data  val1=$val1, val2=$val2, val2 - val1 = ", $val2 - $val1 if $options{debug};
 	 	# warn "vars ", join(" | ", @vars) if $options{debug};
-	 		
+
 	 		($ra_coeff, $err1) = &{$determine_param_coeffs}($rf_correct_fun,\@vars,$dim_of_param_space,%options);
 	 		if (defined($err1) ) {
 	 			$errors .= " $err1 ";
@@ -3112,14 +3112,14 @@ sub best_approx_parameters {
 		  	}
   		}
   		$row_num++;
-  		last if $errors;  # break if there are any errors.  
+  		last if $errors;  # break if there are any errors.
 		                  # This cuts down on the size of error messages.
 		                  # However it impossible to check for equivalence at 95% of points
 		   		  # which might be useful for functions that are not defined at some points.
- 	} 
+ 	}
  	  warn "<br> best_approx_parameters: matrix1 <br>  ", " $matrix " if $options{debug};
  	  warn "<br> best_approx_parameters: vector <br>  ", " $rhs_vec " if $options{debug};
- 	 
+
  	 # we have   Matrix * parameter = data_vec + perpendicular vector
  	 # where the matrix has column vectors defining the span of the parameter space
  	 # multiply both sides by Matrix_transpose and solve for the parameters
@@ -3140,14 +3140,14 @@ sub best_approx_parameters {
  		}
  	}
  	if ($max =~/NaN/) {
- 		$errors .= "WeBWorK was unable evaluate your function. Please check that your 
+ 		$errors .= "WeBWorK was unable evaluate your function. Please check that your
  		            expression doesn't take roots of negative numbers, or divide by zero.";
  	} elsif ($max > $options{maxConstantOfIntegration} ) {
- 		$errors .= "At least one of the adapting parameters 
- 	           (perhaps the constant of integration) is too large: $max, 
- 	           ( the maximum allowed is $options{maxConstantOfIntegration} )"; 
+ 		$errors .= "At least one of the adapting parameters
+ 	           (perhaps the constant of integration) is too large: $max,
+ 	           ( the maximum allowed is $options{maxConstantOfIntegration} )";
  	}
- 		
+
     $rh_ans->{ra_parameters} = \@array;
     $rh_ans->throw_error('EVAL', $errors) if defined($errors);
     $rh_ans;
@@ -3156,19 +3156,19 @@ sub best_approx_parameters {
 =head4 calculate_difference_vector
 
 	calculate_difference_vector( $ans_hash, %options);
-	
+
 	   			      {rf_student_ans},     # a reference to the test function
 	                             {rf_correct_ans},	    # a reference to the correct answer function
 	                             {evaluation_points},   # an array of row vectors indicating the points
 	                              			    # to evaluate when comparing the functions
-	                             {ra_parameters}        # these are the (optional) additional inputs to 
-	                                                    # the comparison function which adapt it properly 
+	                             {ra_parameters}        # these are the (optional) additional inputs to
+	                                                    # the comparison function which adapt it properly
 	                                                    # to the problem at hand.
-	                                                     
-	                             %options               # mode => 'rel'  specifies that each element in the 
+
+	                             %options               # mode => 'rel'  specifies that each element in the
 	                                                    # difference matrix is divided by the correct answer.
 	                                                    # unless the correct answer is nearly 0.
-	                            )                         
+	                            )
 
 =cut
 
@@ -3208,7 +3208,7 @@ sub calculate_difference_vector {
 		unless (defined($err1) or defined($err2) or defined($err3) ) {
 			$diff = ( $inVal - ($correctVal -$instructorVal ) ) - $instructorVal;  #prevents entering too high a number?
 			#warn "taking the difference of ", $inVal, " and ", $correctVal, " is ", $diff;
-			if (defined($options{tolType}) and $options{tolType} eq 'relative' ) {  #relative tolerance 
+			if (defined($options{tolType}) and $options{tolType} eq 'relative' ) {  #relative tolerance
 				#warn "diff = $diff";
 				#$diff = ( $inVal - ($correctVal-$instructorVal ) )/abs($instructorVal) -1    if abs($instructorVal) > $options{zeroLevel};
 				$diff = ( $inVal - ($correctVal-$instructorVal ) )/$instructorVal -1    if abs($instructorVal) > $options{zeroLevel};
@@ -3216,14 +3216,14 @@ sub calculate_difference_vector {
 				#warn "diff = $diff,   ", abs( &$rf_correct_fun(@inputs) ) , "-- $correctVal";
 			}
 		}
-		last if $errors;  # break if there are any errors.  
+		last if $errors;  # break if there are any errors.
                   # This cuts down on the size of error messages.
                   # However it impossible to check for equivalence at 95% of points
                   # which might be useful for functions that are not defined at some points.
         push(@student_values,$inVal);
-        push(@adjusted_student_values,(  $inVal - ($correctVal -$instructorVal) ) );	
-		push(@differences, $diff);	
-		push(@instructorVals,$instructorVal);	
+        push(@adjusted_student_values,(  $inVal - ($correctVal -$instructorVal) ) );
+		push(@differences, $diff);
+		push(@instructorVals,$instructorVal);
 	}
 	$rh_ans ->{ra_differences} = \@differences;
 	$rh_ans ->{ra_student_values} = \@student_values;
@@ -3246,7 +3246,7 @@ sub fix_answers_for_display	{
 		$rh_ans->{student_ans} = $rh_ans->{student_ans}. ' '. $rh_ans->{student_units};
 	}
 	$rh_ans->{correct_ans} = $rh_ans->{original_correct_ans};
-	
+
 	$rh_ans;
 }
 
@@ -3296,7 +3296,7 @@ sub is_a_number {
 		$rh_ans = $num;
 		$num = $rh_ans->{student_ans};
 	}
-	
+
 	my $is_a_number	= 0;
 	return $is_a_number	unless defined($num);
 	$num =~	s/^\s*//; ## remove	initial	spaces
@@ -3306,7 +3306,7 @@ sub is_a_number {
 	if ($num =~	/^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/){
 		$is_a_number = 1;
 	}
-	
+
 	if ($process_ans_hash)   {
     		if ($is_a_number == 1 ) {
     			$rh_ans->{student_ans}=$num;
@@ -3333,16 +3333,16 @@ sub is_a_fraction {
 		$rh_ans = $num;
 		$num = $rh_ans->{student_ans};
 	}
-	
+
 	my $is_a_fraction = 0;
 	return $is_a_fraction unless defined($num);
 	$num =~	s/^\s*//; ## remove	initial	spaces
 	$num =~	s/\s*$//; ## remove	trailing spaces
-	
+
 	if ($num =~	/^\s*\-?\s*[\/\d\.Ee\s]*$/) {
 		$is_a_fraction = 1;
 	}
-	
+
     if ($process_ans_hash)   {
     	if ($is_a_fraction == 1 ) {
     		$rh_ans->{student_ans}=$num;
@@ -3352,7 +3352,7 @@ sub is_a_fraction {
     		$rh_ans->throw_error('NUMBER', 'You must enter a number, e.g. -6, 5.3, or 6.12E-3');
     		return $rh_ans;
     	}
-    	
+
     	} else {
 		return $is_a_fraction;
 	}
@@ -3392,27 +3392,27 @@ sub is_an_arithmetic_expression {
 		$rh_ans = $num;
 		$num = $rh_ans->{student_ans};
 	}
-	
+
 	my $is_an_arithmetic_expression = 0;
 	return $is_an_arithmetic_expression unless defined($num);
 	$num =~	s/^\s*//; ## remove	initial	spaces
 	$num =~	s/\s*$//; ## remove	trailing spaces
-	
+
 	if ($num =~	/^[+\-*\/\^\(\)\[\]\{\}\s\d\.Ee]*$/) {
 		$is_an_arithmetic_expression =	1;
 	}
-		
+
     if ($process_ans_hash)   {
     	if ($is_an_arithmetic_expression == 1 ) {
     		$rh_ans->{student_ans}=$num;
     		return $rh_ans;
     	} else {
-    		
+
 		$rh_ans->{student_ans} = "Not an arithmetic expression: You must enter an arithmetic expression, e.g. -6 or (2.3*4+5/3)^2";
     		$rh_ans->throw_error('NUMBER', 'You must enter an arithmetic expression, e.g. -6 or (2.3*4+5/3)^2');
     		return $rh_ans;
     	}
-    	
+
     	} else {
 		return $is_an_arithmetic_expression;
 	}
@@ -3434,7 +3434,7 @@ sub math_constants {
 	if ($process_ans_hash) {
 		$rh_ans = $in;
 		$in = $rh_ans->{student_ans};
-	} 
+	}
 	# The code fragment above allows this filter to be used when the input is simply a string
 	# as well as when the input is an AnswerHash, and options.
 	$in	=~s/\bpi\b/(4*atan2(1,1))/ge;
@@ -3443,7 +3443,7 @@ sub math_constants {
 	if($main::useBaseTenLog) {
 		$in =~ s/\blog\b/logten/g;
 	}
-	
+
 	if ($process_ans_hash)   {
     	$rh_ans->{student_ans}=$in;
     	return $rh_ans;
@@ -3472,7 +3472,7 @@ sub is_array	{
 =head4 check_syntax
 
 	check_syntax( $rh_ans, %options)
-		returns an answer hash.  
+		returns an answer hash.
 
 latex2html preview code are installed in the answer hash.
 The input has been transformed, changing 7pi to 7*pi  or 7x to 7*x.
@@ -3493,7 +3493,7 @@ sub check_syntax {
         my $in = $rh_ans->{student_ans};
 		my $parser = new AlgParserWithImplicitExpand;
 		my $ret	= $parser -> parse($in);			#for use with loops
-		
+
 		if ( ref($ret) )  {		## parsed successfully
 			$parser -> tostring();
 			$parser -> normalize();
@@ -3502,12 +3502,12 @@ sub check_syntax {
 			$rh_ans->{preview_latex_string} =	$parser -> tolatex();
 
 		} else {					## error in	parsing
-			
+
 			$rh_ans->{'student_ans'}			=	'syntax error:'. $parser->{htmlerror},
 			$rh_ans->{'ans_message'}			=	$parser -> {error_msg},
 			$rh_ans->{'preview_text_string'}	=	'',
 			$rh_ans->{'preview_latex_string'}	=	'',
-			$rh_ans->throw_error('SYNTAX',	'syntax error in answer:'. $parser->{htmlerror} . "$BR" .$parser -> {error_msg});	
+			$rh_ans->throw_error('SYNTAX',	'syntax error in answer:'. $parser->{htmlerror} . "$BR" .$parser -> {error_msg});
 		}
 $rh_ans;
 
@@ -3522,9 +3522,9 @@ $rh_ans;
 
 sub check_strings {
 	my ($rh_ans, %options) = @_;
-	
+
 	# if the student's answer is a number, simply return the answer hash (unchanged).
-		
+
 	#  we allow constructions like -INF to be treated as a string. Thus we ignore an initial
 	# - in deciding whether the student's answer is a number or string
 
@@ -3535,7 +3535,7 @@ sub check_strings {
 	#	if ( $rh_ans->{answerIsString} == 1) {
 	#			#$rh_ans->throw_error('STRING','Incorrect Answer');	# student's answer is a number
 	#	}
-		return $rh_ans;		
+		return $rh_ans;
 	}
 	# the student's answer is recognized as a string
 	my $ans = $rh_ans->{student_ans};
@@ -3543,7 +3543,7 @@ sub check_strings {
 # OVERVIEW of reminder of function:
 # if answer is correct, return correct.  (adjust score to 1)
 # if answer is incorect:
-#	1) determine if the answer is sensible.  if it is, return incorrect. 
+#	1) determine if the answer is sensible.  if it is, return incorrect.
 #	2) if the answer is not sensible (and incorrect), then return an error message indicating so.
 # no matter what:  throw a 'STRING' error to skip numerical evaluations.  (error flag skips remainder of pre_filters and evaluators)
 # last: 'STRING' post_filter will clear the error (avoiding pink screen.)
@@ -3554,7 +3554,7 @@ sub check_strings {
 	my $temp_ans_hash = &$ans_eval($ans);
 	$rh_ans->{test} = $temp_ans_hash;
 	if ($temp_ans_hash->{score} ==1 ) {			# students answer matches the correct answer.
-		$rh_ans->{score} = 1;	
+		$rh_ans->{score} = 1;
 		$sensibleAnswer = 1;
 	} else {						# students answer does not match the correct answer.
 		my $legalString	= '';				# find out if string makes sense
@@ -3594,10 +3594,10 @@ sub check_units {
 	$ans = str_filters ($ans, 'trim_whitespace');
 	my $original_student_ans = $ans;
 	$rh_ans->{original_student_ans} = $original_student_ans;
-			
+
 	# it surprises me that the match below works since the first .*	is greedy.
 	my ($num_answer, $units) = $ans	=~ /^(.*)\s+([^\s]*)$/;
-		
+
 	unless ( defined($num_answer) && $units	) {
 		# there	is an error reading the input
 		if ( $ans =~ /\S/ )	 {	# the answer is not blank
@@ -3631,7 +3631,7 @@ sub check_units {
 		next if	$fund_unit eq 'factor';
 		$units_match = 0 unless	$correct_units{$fund_unit} == $units{$fund_unit};
 	}
-		
+
 	if ( $units_match )	{
 		    # units	are	ok.	 Evaluate the numerical	part of	the	answer
 		$rh_ans->{'tolerance'} = $rh_ans->{'tolerance'}* $correct_units{'factor'}/$units{'factor'}	if
@@ -3644,7 +3644,7 @@ sub check_units {
 		    $rh_ans -> setKeys( ans_message => 'There is an error in the units for this answer.' );
 		    $rh_ans -> throw_error ( 'UNITS', 'There is an error in the units for this answer.' );
 	}
-		
+
 	return $rh_ans;
 }
 
@@ -3682,19 +3682,19 @@ sub assign_option_aliases {
 	while (@option_aliases) {
 		my $alias = shift @option_aliases;
 		my $option_key = shift @option_aliases;
-		
+
 		if (defined($rh_options->{$alias} )) {                       # if the alias appears in the option list
 			if (not defined($rh_options->{$option_key}) ) {          # and the option itself is not defined,
 				$rh_options->{$option_key} = $rh_options->{$alias};  # insert the value defined by the alias into the option value
-				                                                     # the FIRST alias for a given option takes precedence 
+				                                                     # the FIRST alias for a given option takes precedence
 				                                                     # (after the option itself)
 			} else {
 				warn "option $option_key is already defined as", $rh_options->{$option_key}, "<br>\n",
 				     "The attempt to override this option with the alias $alias with value ", $rh_options->{$alias},
 				     " was ignored.";
 			}
-		}   
-		delete($rh_options->{$alias});                               # remove the alias from the initial list                                                          
+		}
+		delete($rh_options->{$alias});                               # remove the alias from the initial list
 	}
 
 }
@@ -3716,13 +3716,13 @@ The B<'_filter_name'> option should always be set, although there is no error if
 It is used mainly for debugging answer evaluators and allows
 you to keep track of which filter is currently processing the answer.
 
-If B<'allow_unknown_options'> is set to 0 then if the filter is called with options which do NOT appear in the 
+If B<'allow_unknown_options'> is set to 0 then if the filter is called with options which do NOT appear in the
 set_default_options list an error will be signaled and a warning message will be printed out.  This provides
-error checking against misspelling an option and is generally what is desired for most filters.  
+error checking against misspelling an option and is generally what is desired for most filters.
 
 Occasionally one wants to write a filter which accepts a long list of options, not all of which are known in advance,
 but only uses a subset of the options
-provided.  In this case, setting 'allow_unkown_options' to 1 prevents the error from being signaled. 
+provided.  In this case, setting 'allow_unkown_options' to 1 prevents the error from being signaled.
 
 =cut
 
@@ -3763,8 +3763,8 @@ This is an all-or-nothing grader.  A student must get all parts of the problem w
 before receiving credit.  You should make sure to use this grader on multiple choice
 and true-false questions, otherwise students will be able to deduce how many
 answers are correct by the grade reported by webwork.
-	
-	
+
+
 	install_problem_grader(~~&std_problem_grader);
 
 =cut
@@ -3795,9 +3795,9 @@ sub std_problem_grader {
 	# Checks
 
 	my $ansCount = keys	%evaluated_answers;	 # get the number of answers
-	
+
 	unless ($ansCount >	0 )	{
-		
+
 		$problem_result{msg} = "This problem did not ask any questions.";
 		return(\%problem_result,\%problem_state);
 	}
@@ -3852,10 +3852,10 @@ This is an all-or-nothing grader.  A student must get all parts of the problem w
 before receiving credit.  You should make sure to use this grader on multiple choice
 and true-false questions, otherwise students will be able to deduce how many
 answers are correct by the grade reported by webwork.
-	
-	
+
+
 	install_problem_grader(~~&std_problem_grader2);
-	
+
 The only difference between the two versions
 is at the end of the subroutine, where std_problem_grader2
 records the attempt only if there have been no syntax errors,
@@ -3951,17 +3951,17 @@ sub std_problem_grader2 {
 
 =head4 avg_problem_grader
 
-This grader gives a grade depending on how many questions from the problem are correct.  (The highest 
+This grader gives a grade depending on how many questions from the problem are correct.  (The highest
 grade is the one that is kept.  One can never lower the recorded grade on a problem by repeating it.)
 Many professors (and almost all students :-)  ) prefer this grader.
-	
-	
+
+
 	install_problem_grader(~~&avg_problem_grader);
 
 =cut
 
 
-sub avg_problem_grader { 
+sub avg_problem_grader {
 		my $rh_evaluated_answers = shift;
 	my $rh_problem_state = shift;
 	my %form_options = @_;
@@ -4024,7 +4024,7 @@ sub avg_problem_grader {
 =head4
 
 	warn pretty_print( $rh_hash_input)
-	
+
 This can be very useful for printing out messages about objects while debugging
 
 =cut
@@ -4047,7 +4047,7 @@ sub pretty_print {
 		while (@array) {
 			$out .= pretty_print(shift @array) . " , ";
 		}
-		$out .= " )"; 
+		$out .= " )";
 	} elsif (ref($r_input) eq 'CODE') {
 		$out = "$r_input";
 	} else {

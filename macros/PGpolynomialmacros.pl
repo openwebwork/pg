@@ -1,4 +1,4 @@
-#!/usr/local/bin/webwork-perl
+
 ##########################################################
 ##  This file is PGpolynomialmacros.pl                  ##
 ##  It contains rountines used to create and manipulate ##
@@ -45,7 +45,7 @@ sub PolyAdd{
     }
     elsif ($#local_y < $#local_x) {
     while ($#local_y < $#local_x) {unshift @local_y, 0;}
-    }   
+    }
     foreach $i (0..$#local_x) {
         $sum[$i] = $local_x[$i] + $local_y[$i];
     }

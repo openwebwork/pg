@@ -1,9 +1,9 @@
-#!/usr/bin/perl
+
 
 # Answer evaluator which always marks things correct
 sub auto_right {
 	my $ae = std_str_cmp("");
-	
+
 	my $ans_eval = sub {
 		my $tried = shift;
 		my $ans_hash = &$ae($tried);
@@ -17,7 +17,7 @@ sub auto_right {
 
 sub tthev {
 	my $cmt = shift;
-	
+
 	$mdm = $main::displayMode;
 	$main::displayMode = 'HTML_tth';
 	$cmt = EV3($cmt);
@@ -114,13 +114,13 @@ sub must_have_filter {
 			$num = $rh_ans->{original_student_ans};
 		}
 		my $is_ok = 0;
-		
+
 		return $is_ok unless defined($num);
-	
+
 		if (($yesno and ($num =~ /$str/)) or (!($yesno) and !($num=~ /$str/))) {
 			$is_ok = 1;
 		}
-		
+
 		if ($process_ans_hash)   {
 			if ($is_ok == 1 ) {
 				$rh_ans->{original_student_ans}=$num;
@@ -136,7 +136,7 @@ sub must_have_filter {
 				}
 				return $rh_ans;
 			}
-			
+
 		} else {
 			return $is_ok;
 		}
@@ -149,8 +149,8 @@ sub raw_student_answer_filter {
 #	warn "answer was ".$rh_ans->{student_ans};
 	$rh_ans->{student_ans} = $rh_ans->{original_student_ans}
 		unless ($rh_ans->{student_ans} =~ /[a-zA-Z]/);
-#	warn "2nd time ... answer was ".$rh_ans->{student_ans};	
-	
+#	warn "2nd time ... answer was ".$rh_ans->{student_ans};
+
 	return $rh_ans;
 }
 
@@ -233,12 +233,12 @@ sub log10_cmp {
 # Wrapper for an answer evaluator which can also supply comments
 sub with_comments {
 	my ($old_evaluator, $cmt) = @_;
-	
+
 # 	$mdm = $main::displayMode;
 # 	$main::displayMode = 'HTML_tth';
 # 	$cmt = EV2($cmt);
 # 	$main::displayMode =$mdm;
-	
+
 	my $ans_evaluator =  sub  {
 		my $tried = shift;
 		my $ans_hash;
@@ -250,7 +250,7 @@ sub with_comments {
 		} else {
 			warn "There is a problem using the answer evaluator";
 		}
-		
+
     if($ans_hash->{score}>0) {
       $ans_hash -> setKeys( 'ans_message' => $cmt);
     }
@@ -267,7 +267,7 @@ sub with_comments {
 
 sub pc_evaluator {
 	my ($evaluator_list) = @_;
-	
+
 	my $ans_evaluator =  sub  {
 		my $tried = shift;
 		my $ans_hash;
@@ -283,7 +283,7 @@ sub pc_evaluator {
 			} else {
 				warn "There is a problem using the answer evaluator";
 			}
-			
+
 			if($ans_hash->{score}>0) {
 				$ans_hash -> setKeys( 'ans_message' => $cmt);
 				$ans_hash->{score} *= $weight;
@@ -292,7 +292,7 @@ sub pc_evaluator {
 		};
 		return $ans_hash;
 	};
-	
+
   $ans_evaluator;
 }
 
@@ -379,7 +379,7 @@ sub beginmatrix {
 	elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng') {
 		$out .= "<TABLE BORDER=0>\n"
 	}
-	else { 
+	else {
 		$out = "Error: beginmatrix: Unknown displayMode: $displayMode.\n";
 		}
 	$out;
@@ -405,7 +405,7 @@ sub matleft {
 		$out .= '\(\left.\begin{array}{c}';
 		for($j=0;$j<$numrows;$j++)  { $out .= ' \\\\'; }
 		$out .= '\end{array}\right(\)';
-		
+
 		if($displayMode eq 'Latex2HTML') { $out .= '\begin{rawhtml}'; }
  		$out .= "<td><table border=0  cellspacing=5>\n";
 		if($displayMode eq 'Latex2HTML') { $out .= '\end{rawhtml}'; }
@@ -424,7 +424,7 @@ sub matright {
 	my $numrows = shift;
 	my $out='';
 	my $j;
-	
+
 	if ($displayMode eq 'TeX') {
 		return "";
 	}
@@ -433,7 +433,7 @@ sub matright {
 		if($displayMode eq 'Latex2HTML') { $out .= '\begin{rawhtml}'; }
 		$out .= "</table><td nowrap=\"nowrap\" align=\"right\">";
 		if($displayMode eq 'Latex2HTML') { $out .= '\end{rawhtml}'; }
-		
+
 #		$out .= "<img alt=\"(\" src = \"".
 #			"/webwork_system_html/images"."/right$numrows.png\" >";
 		$out .= '\(\left)\begin{array}{c}';

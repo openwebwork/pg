@@ -1,4 +1,4 @@
-#!/usr/local/bin/webwork-perl
+
 
 ####################################################################
 # Copyright @ 1995-1998 University of Rochester
@@ -47,7 +47,7 @@ my ($PAR,
 	$US,
 	$SPACE,
 	$BBOLD,
-	$EBOLD, 
+	$EBOLD,
 	$BITALIC,
 	$EITALIC,
 	$BCENTER,
@@ -87,7 +87,7 @@ sub _PGbasicmacros_init {
 	$main::US				= US();
 	$main::SPACE			= SPACE();
 	$main::BBOLD			= BBOLD();
-	$main::EBOLD			= EBOLD(); 
+	$main::EBOLD			= EBOLD();
 	$main::BITALIC			= BITALIC();
 	$main::EITALIC          = EITALIC();
 	$main::BCENTER          = BCENTER();
@@ -103,7 +103,7 @@ sub _PGbasicmacros_init {
 	$main::PI				= PI();
 	$main::E				= E();
 	@main::ALPHABET			= ('A'..'ZZ');
-	
+
 	$PAR				= PAR();
 	$BR				= BR();
 	$LQ				= LQ();
@@ -136,8 +136,8 @@ sub _PGbasicmacros_init {
 	$PI				= PI();
 	$E				= E();
 	@ALPHABET			= ('A'..'ZZ');
-	
-	
+
+
 
 }
 
@@ -243,8 +243,8 @@ sub NAMED_ANS_RULE {
     	$answer_value = shift(@answers);  # use up the first answer
     	$main::rh_sticky_answers{$name}=\@answers;  # store the rest
     	$answer_value= '' unless defined($answer_value);
-	} 
-	
+	}
+
 	$answer_value =~ tr/$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
 	$name = RECORD_ANS_NAME($name);
 	MODES(
@@ -580,7 +580,7 @@ sub tex_ans_rule {
                      'HTML_dpng' => '\\fbox{Answer boxes cannot be placed inside typeset equations}',
                      'HTML'     => $answer_rule
                    );
-    
+
     $out;
 }
 sub tex_ans_rule_extension {
@@ -595,7 +595,7 @@ sub tex_ans_rule_extension {
                      'HTML_dpng' => '\fbox{Answer boxes cannot be placed inside typeset equations}',
                      'HTML'     => $answer_rule
                    );
-    
+
     $out;
 }
 # still needs some cleanup.
@@ -611,7 +611,7 @@ sub NAMED_TEX_ANS_RULE {
                      'HTML_dpng' => '\\fbox{Answer boxes cannot be placed inside typeset equations}',
                      'HTML'     => $answer_rule
                    );
-    
+
     $out;
 }
 sub NAMED_TEX_ANS_RULE_EXTENSION {
@@ -626,7 +626,7 @@ sub NAMED_TEX_ANS_RULE_EXTENSION {
                      'HTML_dpng' => '\fbox{Answer boxes cannot be placed inside typeset equations}',
                      'HTML'     => $answer_rule
                    );
-    
+
     $out;
 }
 sub ans_box {
@@ -733,18 +733,18 @@ sub SOLUTION {
 sub hint {
    	my @in = @_;
 	my $out = '';
-		
+
 	$main::hintExists =1;
-    $main::numOfAttempts = 0 unless defined($main::numOfAttempts);  
+    $main::numOfAttempts = 0 unless defined($main::numOfAttempts);
 
 	if ($main::displayMode eq 'TeX')   {
 		$out = '';  # do nothing since hints are not available for download
-	} elsif (($envir{'displayHintsQ'}) and ($main::numOfAttempts >= $main::showHint)) 
-	
+	} elsif (($envir{'displayHintsQ'}) and ($main::numOfAttempts >= $main::showHint))
+
 	 ## the second test above prevents a hint being shown if a doctored form is submitted
-	 
+
 	{$out = join(' ',@in);}    # show hint
-	
+
   $out ;
 }
 
@@ -865,14 +865,14 @@ sub MODES {
 	    die " ERROR in using MODES: 'HTML' option not defined for HTML_tth";
 
 	}
-	
+
 	if ($displayMode eq "HTML_img") {
 		return $options{HTML_dpng} if defined $options{HTML_dpng};
 		return $options{HTML_tth} if defined $options{HTML_tth};
 		return $options{HTML}     if defined $options{HTML};
 		die " ERROR in using MODES: 'HTML' option not defined for HTML_img";
 	}
-	
+
 	if ($displayMode eq "HTML_dpng") {
 		return $options{HTML_tth}
 	           if defined( $options{HTML_tth} );
@@ -884,7 +884,7 @@ sub MODES {
 
 	# trap undefined errors
 	die "ERROR in defining MODES:  Can't find |$displayMode| among
-	         available options:" . join(" ", keys(%options) ) 
+	         available options:" . join(" ", keys(%options) )
 	         . " file " . __FILE__ ." line " . __LINE__."\n\n";
 
 }
@@ -920,7 +920,7 @@ sub MODES {
 	$BITALIC    		BITALIC()  			begin italic typeface
 	$EITALIC    		EITALIC()  			end italic typeface
 	$BCENTER    		BCENTER()   		begin centered environment
-	$ECENTER    		ECENTER()  			end centered environment	
+	$ECENTER    		ECENTER()  			end centered environment
 	$HR					HR()				horizontal rule
 	$LBRACE				LBRACE()			left brace
 	$LB					LB ()				left brace
@@ -1226,7 +1226,7 @@ sub display_math_ev3 {
 sub general_math_ev3 {
 	my $in = shift;
 	my $mode = shift || "inline";
-   
+
 	$in = FEQ($in);
 	$in =~ s/%/\\%/g;
 	my $in_delim;
@@ -1434,7 +1434,7 @@ sub sspf {
 }
 
 sub lex_sort {
-	PGsort sub {$_[0] cmp $_[1]}, @_; 
+	PGsort sub {$_[0] cmp $_[1]}, @_;
 }
 sub num_sort {
 	PGsort sub {$_[0] <=> $_[1]}, @_;
@@ -1481,7 +1481,7 @@ sub begintable {
 	elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng' || $displayMode eq 'HTML_img') {
 		$out .= "<TABLE BORDER=1>\n"
 	}
-	else { 
+	else {
 		$out = "Error: PGchoicemacros: begintable: Unknown displayMode: $displayMode.\n";
 		}
 	$out;
@@ -1582,12 +1582,12 @@ sub image {
  	} else {
 		push(@image_list,$image_ref);
  	}
-	
+
  	my @output_list = ();
   	while(@image_list) {
  		my $imageURL = alias(shift @image_list);
  		my $out="";
-		
+
 		if ($main::displayMode eq 'TeX') {
 			my $imagePath = $imageURL; # in TeX mode, alias gives us a path, not a URL
 			if ($envir{texDisposition} eq "pdf") {
@@ -1595,7 +1595,7 @@ sub image {
 				# alias should have given us the path to a PNG image. What we need
 				# to do is find out the dimmensions of this image, since pdflatex
 				# is too dumb to live.
-				
+
 				#my ($height, $width) = getImageDimmensions($imagePath);
 				##warn "&image: $imagePath $height $width\n";
 				#unless ($height and $width) {
@@ -1606,7 +1606,7 @@ sub image {
 			} else {
 				# Since we're not creating PDF files, alias should have given us the
 				# path to an EPS file. latex can get its dimmensions no problem!
-				
+
 				$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
 			}
 		} elsif ($main::displayMode eq 'Latex2HTML') {
