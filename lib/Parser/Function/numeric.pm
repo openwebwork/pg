@@ -35,15 +35,23 @@ sub _call {
 
 #
 #  Should make better errors about division by zero,
-#  roots of negatives, logs of negatives.  (Make complex results?)
+#  roots of negatives, logs of negatives.
 #
-sub log   {shift; CORE::log($_[0])}
+sub ln    {shift; CORE::log($_[0])}
 sub log10 {shift; CORE::log($_[0])/CORE::log(10)}
 sub exp   {shift; CORE::exp($_[0])}
 sub sqrt  {shift; CORE::sqrt($_[0])}
 sub abs   {shift; CORE::abs($_[0])}
 sub int   {shift; CORE::int($_[0])}
 sub sgn   {shift; $_[0] <=> 0}
+
+sub log   {
+  my $self = shift; my $context;
+  $context = $self->{context} if ref($self);
+  $context = $$Value::context unless $context;
+  return CORE::log($_[0])/CORE::log(10) if $context->flag('useBaseTenLogs');
+  CORE::log($_[0]);
+}
 
 #
 #  Handle absolute values as a special case

@@ -140,8 +140,9 @@ $functions = {
    'acsch'  => {class => 'Parser::Function::hyperbolic', TeX => '\mathop{\rm csch}^{-1}'},
    'acoth'  => {class => 'Parser::Function::hyperbolic', TeX => '\coth^{-1}'},
 
-   'log'   => {class => 'Parser::Function::numeric', inverse => 'exp',
-	       TeX => '\log', simplePowers => 1},
+   'ln'    => {class => 'Parser::Function::numeric', inverse => 'exp',
+	       TeX => '\ln', simplePowers => 1},
+   'log'   => {class => 'Parser::Function::numeric', TeX => '\log', simplePowers => 1},
    'log10' => {class => 'Parser::Function::numeric', nocomplex => 1, TeX => '\log_{10}'},
    'exp'   => {class => 'Parser::Function::numeric', inverse => 'log', TeX => '\exp'},
    'sqrt'  => {class => 'Parser::Function::numeric', braceTeX => 1, TeX => '\sqrt'},
@@ -176,7 +177,6 @@ $functions = {
    'arccsch' => {alias => 'acsch'},
    'arccoth' => {alias => 'acoth'},
 
-   'ln'     => {alias => 'log'},
    'logten' => {alias => 'log10'},
 };
 
