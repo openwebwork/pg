@@ -16,7 +16,7 @@ use vars qw(@ISA);
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my $context = $Value::defaultContext->copy();
+  my $context = $Value::defaultContext->initCopy;
   bless $context, $class;
   $context->{_initialized} = 0;
   foreach my $list ('functions','variables','constants','operators','strings','parens') {
@@ -96,7 +96,7 @@ sub current {
     $contextTable->{current} = $context;
     $Value::context = \$contextTable->{current};
   } elsif (!defined($contextTable->{current})) {
-    $contextTable->{current} = $Parser::Context::Default::fullContext->copy;
+    $contextTable->{current} = $Parser::Context::Default::fullContext->initCopy;
     $Value::context = \$contextTable->{current};
   }
   return $contextTable->{current};
@@ -112,7 +112,7 @@ sub get {
   return $context if $context;
   $context = $Parser::Context::Default::context{$name};
   return unless $context;
-  return $context->copy;
+  return $context->initCopy;
 }
 
 #

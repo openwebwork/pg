@@ -696,11 +696,9 @@ sub ijk {
 
 use Parser::Item;
 use Value;
-use Value::Formula;
 use Parser::Context;
 use Parser::Context::Default;
-
-# use Parser::Differentiation;
+use Parser::Differentiation;
 
 ###########################################################################
 

@@ -186,7 +186,8 @@ sub NameForNumber {
 #
 sub getPG {
   my $self = shift;
-  (WeBWorK::PG::Translator::PG_restricted_eval(shift))[0];
+#  (WeBWorK::PG::Translator::PG_restricted_eval(shift))[0];
+  eval ('package main; '.shift);  # faster
 }
 
 #############################################################
@@ -531,7 +532,7 @@ sub cmp_equal {
                                 {$message .= "are of the wrong type"}
       elsif ($sOpen || $sClose) {$message .= "should be removed"}
       else                      {$message .= "are missing"}
-      $self->cmp_Error($ans,$message);
+      $self->cmp_Error($ans,$message) unless $ans->{isPreview};
     }
     return;
   }

@@ -510,9 +510,9 @@ use Value::List;
 use Value::Interval;
 use Value::Union;
 use Value::String;
-# use Value::Formula;
+use Value::Formula;
 
-use Value::AnswerChecker;  #  for WeBWorK
+use Value::WeBWorK;  # stuff specific to WeBWorK
 
 ###########################################################################
 

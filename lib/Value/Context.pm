@@ -81,6 +81,12 @@ sub copy {
 }
 
 #
+#  Make a copy with additional initialization
+#  (defined in subclasses)
+#
+sub initCopy {shift->copy(@_)}
+
+#
 #  Make stringify produce TeX or regular strings
 #
 sub texStrings {shift->flags->set(StringifyAsTeX=>1)}
