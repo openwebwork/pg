@@ -1341,8 +1341,6 @@ sub FEQ   {    # Format EQuations
 
 sub math_ev3 {
 	my $in = shift;
-	$in = FEQ($in);
-	$in =~ s/%/\\%/g;
 	return general_math_ev3($in, "inline");
 }
 
@@ -1355,21 +1353,20 @@ sub general_math_ev3 {
 	my $in = shift;
 	my $mode = shift || "inline";
 
-	$in = FEQ($in);
-	$in =~ s/%/\\%/g;
-	my $in_delim;
-
-	if($mode eq "inline") {
-		$in_delim = "\\($in\\)";
-	} else { # assuming displayed math
-		$in_delim =				"\\[$in\\]";
-	}
-
+	$in = FEQ($in); # Format EQuations
+	$in =~ s/%/\\%/g; # avoid % becoming TeX comments
+	
+	# some modes want the delimiters, some don't
+	my $in_delim = $mode eq "inline"
+		? "\\($in\\)"
+		: "\\[$in\\]";
+	
 	my $out;
 	if($displayMode eq "HTML_tth") {
 		$out = tth($in_delim);
 	} elsif ($displayMode eq "HTML_dpng") {
-		$out = $envir{'imagegen'}->add($in_delim);
+		#$out = $envir{'imagegen'}->add($in_delim);
+		$out = $envir{'imagegen'}->add($in, $mode);
 	} elsif ($displayMode eq "HTML_img") {
 		$out = math2img($in, $mode);
 	} else {
