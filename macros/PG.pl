@@ -174,6 +174,10 @@ sub DOCUMENT {
 	$STRINGforOUTPUT = '<SCRIPT SRC="'.$main::envir{jsMathURL}.'"></SCRIPT>' . "\n" . $STRINGforOUTPUT
 	  if ($main::envir{displayMode} eq 'HTML_jsMath');
 	
+	$STRINGforOUTPUT = '<SCRIPT SRC="'.$main::envir{asciimathURL}.'"></SCRIPT>' . "\n" .
+                           '<SCRIPT>mathcolor = "black"</SCRIPT>' . $STRINGforOUTPUT
+	  if ($main::envir{displayMode} eq 'HTML_asciimath');
+	
 }
 
 sub inc_ans_rule_count {
@@ -427,6 +431,9 @@ sub ENDDOCUMENT {
 
     $STRINGforOUTPUT .= '<SCRIPT> jsMath.ProcessBeforeShowing() </SCRIPT>'
       if ($main::envir{displayMode} eq 'HTML_jsMath');
+
+    $STRINGforOUTPUT .= '<SCRIPT> translate() </SCRIPT>'
+      if ($main::envir{displayMode} eq 'HTML_asciimath');
     
 	(\$STRINGforOUTPUT, \$STRINGforHEADER_TEXT,\%PG_ANSWERS_HASH,eval(q!\%main::PG_FLAGS!));
 }
