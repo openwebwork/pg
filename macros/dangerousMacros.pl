@@ -1195,5 +1195,6 @@ sub i () {
 sub j () {Value::Formula->new('j')->eval}
 sub k () {Value::Formula->new('k')->eval}
 sub pi () {Value::Formula->new('pi')->eval}
+sub Infinity () {Value::Infinity->new()}
 
 1;  # required to load properly
