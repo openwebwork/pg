@@ -137,6 +137,11 @@ sub compare {
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   my ($lN,$ld) = ($l->{N},$l->{d});
   my ($rN,$rd) = ($r->{N},$r->{d});
+  if ($rd == 0 || $ld == 0) {
+    return $rd <=> $ld unless $ld == $rd;
+    return $lN <=> $rN unless (areParallel $lN $rN);
+    return 0;
+  }
   return $rd*$lN <=> $ld*$rN;
 }
 
