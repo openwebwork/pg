@@ -134,6 +134,7 @@ sub DOCUMENT {
 	$main::ans_rule_count = 0;  # counts questions
 
   	# end unpacking of environment variables.
+  	$main::QUIZ_PREFIX = '' unless defined($main::QUIZ_PREFIX)
 }
 
 #	HEADER_TEXT is for material which is destined to be placed in the header of the html problem -- such
@@ -217,6 +218,7 @@ sub NAMED_ANS{     # store answer evaluators which have been explicitly labeled 
   my @in = @_;
   while (@in ) {
   	my $label = shift @in;
+  	$label = $main::QUIZ_PREFIX.$label;
   	my $ans_eval = shift @in;
   	TEXT("<BR><B>Error in NAMED_ANS:$in[0]</B>
   	      -- inputs must be references to subroutines<BR>")
@@ -233,7 +235,7 @@ sub RECORD_ANS_NAME {     # this maintains the order in which the answer rules a
 sub NEW_ANS_NAME {        # this keeps track of the answers which are entered implicitly,
                           # rather than with a specific label
 		my $number=shift;
-		my $label = "$main::ANSWER_PREFIX$number";
+		my $label = "$main::QUIZ_PREFIX$main::ANSWER_PREFIX$number";
 		push(@PG_UNLABELED_ANSWERS,$label);
 		$label;
 }
@@ -241,7 +243,7 @@ sub ANS_NUM_TO_NAME {     # This converts a number to an answer label for use in
                           # radio button and check box answers. No new answer
                           # name is recorded.
 		my $number=shift;
-		my $label = "$main::ANSWER_PREFIX$number";
+		my $label = "$main::QUIZ_PREFIX$main::ANSWER_PREFIX$number";
 		$label;
 }
 
