@@ -26,9 +26,11 @@ sub cmp_defaults {(
 sub cmp {
   my $self = shift;
   my $ans = new AnswerEvaluator;
+  my $correct = $self->{correct_ans};
+  $correct = $self->string unless defined($correct);
   $ans->ans_hash(
     type => "Value (".$self->class.")",
-    correct_ans => protectHTML($self->string),
+    correct_ans => protectHTML($correct),
     correct_value => $self,
     $self->cmp_defaults,
     @_
@@ -489,7 +491,8 @@ sub cmp {
   my $cmp = $self->SUPER::cmp(@_);
   if ($cmp->{rh_ans}{removeParens}) {
     $self->{open} = $self->{close} = '';
-    $cmp->ans_hash(correct_ans => $self->stringify);
+    $cmp->ans_hash(correct_ans => $self->stringify)
+      unless defined($self->{correct_ans});
   }
   return $cmp;
 }
@@ -703,7 +706,8 @@ sub cmp {
   my $cmp = $self->SUPER::cmp(@_);
   if ($cmp->{rh_ans}{removeParens} && $self->type eq 'List') {
     $self->{tree}{open} = $self->{tree}{close} = '';
-    $cmp->ans_hash(correct_ans => $self->stringify);
+    $cmp->ans_hash(correct_ans => $self->stringify)
+      unless defined($self->{correct_ans});
   }
   if ($cmp->{rh_ans}{eval} && $self->isConstant) {
     $cmp->ans_hash(correct_value => $self->eval);

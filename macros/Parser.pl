@@ -30,8 +30,10 @@ sub Formula {Value::Formula->new(@_)}
 #  Parse a formula and evaluate it
 #
 sub Compute {
-  my $formula = Formula(shift);
-  return $formula->eval(@_);
+  my $string = shift;
+  my $formula = Formula($string)->eval(@_);
+  $formula->{correct_ans} = $string;
+  return $formula;
 }  
 
 #
