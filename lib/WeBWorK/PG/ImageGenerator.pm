@@ -42,8 +42,12 @@ sub makeTempDirectory($$) {
 		$fullPath = "$parent/$basename.$suffix";
 		$success = mkdir $fullPath;
 	} until ($success or not $!{EEXIST});
-	die "Failed to create directory $fullPath: $!"
-		unless $success;
+	unless ($success) {
+		my $msg = '';
+		$msg    .=  "Server does not have write access to the directory $parent" unless -w $parent;
+		die "$msg\r\nFailed to create directory $fullPath:\r\n $!"
+	}
+
 	return $fullPath;
 }
 use File::Path qw(rmtree);
@@ -249,20 +253,37 @@ sub render {
 	print $tex "$_\n" foreach @newStrings;
 	print $tex POSTAMBLE;
 	close $tex;
-	
+	warn "tex file $texFile was not written" unless -e $texFile;
 	# call LaTeX
 	my $latexCommand  = "cd $wd && $latex equation > latex.out 2> latex.err";
 	my $latexStatus = system $latexCommand;
-	warn "$latexCommand returned non-zero status $latexStatus: $!"
-		if $latexStatus;
+	if ($latexStatus) {
+		warn "$latexCommand returned non-zero status $latexStatus: $!";
+		warn "cd $wd failed" if system "cd $wd";
+		warn "Unable to write to directory $wd. " unless -w $wd;
+		warn "Unable to execute $latex " unless -e $latex ;
+		
+		warn `ls -l $wd`;
+		my $errorMessage = '';
+		if (-r "$wd/equation.log") {
+			local(*LOGFILE);
+			open LOGFILE,  "<$wd/equation.log" or die "Unable to read $wd/equation.log";
+			local($/) = undef;
+			$errorMessage = <LOGFILE>;
+			close(LOGFILE);
+			warn "<pre> Logfile contents:\n$errorMessage\n</pre>";
+		} else {
+		   warn "Unable to read logfile $wd/equation.log ";
+		}
+	}
 	warn "$latexCommand failed to generate a DVI file"
 		unless -e "$wd/equation.dvi";
 	
 	# call dvipng
 	my $dvipngCommand = "cd $wd && $dvipng " . DVIPNG_ARGS . " equation > dvipng.out 2> dvipng.err";
 	my $dvipngStatus = system $dvipngCommand;
-	#warn "$dvipngCommand returned non-zero status $dvipngStatus: $!"
-	#	if $dvipngStatus;
+	warn "$dvipngCommand returned non-zero status $dvipngStatus: $!"
+		if $dvipngStatus;
 	
 	# move/rename images
 	foreach my $image (readDirectory($wd)) {
@@ -278,8 +299,11 @@ sub render {
 		#my $mvCommand = "cd $wd && /bin/mv $wd/$image $dir/$basename.$imageNum.png";
 		my $mvCommand = "cd $wd && /bin/mv $wd/$image $dir/" . $newNames[$imageNum-1];
 		my $mvStatus = system $mvCommand;
-		warn "$mvCommand returned non-zero status $mvStatus: $!"
-			if $mvStatus;
+		if ( $mvStatus) {
+			warn "$mvCommand returned non-zero status $mvStatus: $!";
+			warn "Can't write to tmp/equations directory $dir" unless -w $dir;
+		}
+
 	}
 	
 	# remove temporary directory (and its contents)
