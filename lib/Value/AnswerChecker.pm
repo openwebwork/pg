@@ -695,7 +695,7 @@ sub PGseedRandom {
   return if $self->{PGrandom};
   $self->{PGrandom} = new PGrandom($self->{context}->flag('random_seed'));
 }
-sub PGgetRandom {shift->{PGrandom}->getRandom(@_)}
+sub PGgetRandom {shift->{PGrandom}->random(@_)}
 
 #############################################################
 
