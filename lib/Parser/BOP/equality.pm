@@ -24,7 +24,7 @@ sub _eval {
   my $self = shift; my ($a,$b) = @_;
   $a = Value::makeValue($a) unless ref($a);
   $b = Value::makeValue($b) unless ref($b);
-  $a == $b;
+  return ($a == $b)? 1 : 0;
 }
 
 #
@@ -42,7 +42,7 @@ sub Allow {
          precedence => $prec+.25,  #  just above comma
          associativity => 'left',  #  computed left to right
          type => 'bin',            #  binary operator
-         string => '=',            #  output string for it
+         string => ' = ',          #  output string for it
          perl => '==',             #  perl string
       }
     );
