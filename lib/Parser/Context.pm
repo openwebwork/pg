@@ -139,7 +139,7 @@ sub usePrecedence {
         '* ' => {precedence => 3},
         ' /' => {precedence => 3},
         '/ ' => {precedence => 3},
-         fn  => {precedence => 3},
+         fn  => {precedence => 7.5},
          ' ' => {precedence => 3},
       );
       last;
