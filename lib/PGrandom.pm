@@ -46,7 +46,7 @@ sub random {
 	my $new_seed = mod ($multiplier * $seed + $translate, $modulus) ;
 	$self->{'seed'} = $new_seed;
 	unless ( $incr <= 0 ) {
-		$out = $begin +$incr*int(  ($new_seed/($modulus))*( ($end-$begin)/$incr +1 )  )  ;
+		$out = $begin +$incr*int( ($new_seed/($modulus))*(int( ($end-$begin)/$incr) +1) );
 	} else { 					# if $incr is less than zero return "continuous" distribution
 		$out = $begin + ($end-$begin)*$new_seed/$modulus;
 	}
