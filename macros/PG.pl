@@ -1,4 +1,4 @@
-
+#!/usr/local/bin/webwork-perl
 
 #	This file provided the fundamental macros for the pg language
 #	These macros define the interface between the problems written by
@@ -127,6 +127,7 @@ sub DOCUMENT {
        eval("\$main::$var =\$main::envir{'$var'}");
    	   warn "Problem defining ", q{\$main::$var}, " while inititializing the PG problem: $@" if $@;
     }
+
 	@main::submittedAnswers = @{$main::refSubmittedAnswers} if defined($main::refSubmittedAnswers);
 	$main::PG_original_problemSeed = $main::problemSeed;
 	$main::PG_random_generator = new PGrandom($main::problemSeed) || die "Can't create random number generator.";
@@ -241,6 +242,31 @@ sub ANS_NUM_TO_NAME {     # This converts a number to an answer label for use in
                           # name is recorded.
 		my $number=shift;
 		my $label = "$main::ANSWER_PREFIX$number";
+		$label;
+}
+
+my $vecnum;
+
+sub NEW_ANS_ARRAY_NAME {        # this keeps track of the answers which are entered implicitly,
+                          # rather than with a specific label
+		my $number=shift;
+		$vecnum = 0;
+		my $row = shift;
+		my $col = shift;
+		my $label = "ArRaY"."$number"."["."$vecnum".","."$row".","."$col"."]";
+		push(@PG_UNLABELED_ANSWERS,$label);
+		$label;
+}
+
+sub NEW_ANS_ARRAY_NAME_EXTENSION {        # this keeps track of the answers which are entered implicitly,
+                          # rather than with a specific label
+		my $number=shift;
+		my $row = shift;
+		my $col = shift;
+		if( $row == 0 && $col == 0 ){
+			$vecnum += 1;		
+		}
+		my $label = "ArRaY"."$number"."["."$vecnum".","."$row".","."$col"."]";
 		$label;
 }
 
