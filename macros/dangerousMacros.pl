@@ -363,12 +363,17 @@ sub insertGraph {
 	my $fileName = $graph->imageName  . $extension;
 	my $filePath = convertPath("gif/$fileName");
 	$filePath = &surePathToTmpFile( $filePath );
- 	#createFile($filePath, $main::tmp_file_permission, $main::numericalGroupID);
-	local(*OUTPUT);  # create local file handle so it won't overwrite other open files.
- 	open(OUTPUT, ">$filePath")||warn ("$0","Can't open $filePath<BR>","");
- 	chmod( 0777, $filePath);
- 	print OUTPUT $graph->draw|| warn("$0","Can't print graph to $filePath<BR>","");
- 	close(OUTPUT)||warn("$0","Can't close $filePath<BR>","");
+	# Check to see if we already have this graph, or if we have to make it
+	if( not -e $filePath # does it exist?
+	  or ((stat "$templateDirectory"."$main::envir{fileName}")[9] > (stat $filePath)[9]) # source has changed
+          or $graph->imageName =~ /Undefined_Set/) { # problems from SetMaker and its ilk should always be redone
+ 		#createFile($filePath, $main::tmp_file_permission, $main::numericalGroupID);
+		local(*OUTPUT);  # create local file handle so it won't overwrite other open files.
+ 		open(OUTPUT, ">$filePath")||warn ("$0","Can't open $filePath<BR>","");
+ 		chmod( 0777, $filePath);
+ 		print OUTPUT $graph->draw|| warn("$0","Can't print graph to $filePath<BR>","");
+ 		close(OUTPUT)||warn("$0","Can't close $filePath<BR>","");
+	}
 	$filePath;
 }
 
