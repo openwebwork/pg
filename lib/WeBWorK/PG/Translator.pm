@@ -73,8 +73,8 @@ sets or PG macro files.  Use this way to imitate the behavior of C<use strict;>
 BEGIN {
 	# allows the use of strict within macro packages.
 	sub be_strict {
-		require 'strict.pm';
-		strict::import();
+		require 'ww_strict.pm';
+		strict::import('foo');
 	}
 	
 	# also define in Main::, for PG modules.
