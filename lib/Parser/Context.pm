@@ -75,25 +75,22 @@ sub variables {(shift)->{_variables}}
 sub strings   {(shift)->{_strings}}
 sub parens    {(shift)->{_parens}}
 
-#
-#  Storage for user contexts
-#
-our $contextTable = {};  # must be cleared each time for mod_perl
 
 #
 #  Set/Get the current Context object
 #
 sub current {
-  my $self = shift; my $main = shift; $contextTable = $main if $main;
-  my $context = $contextTable->{current};
-  if (scalar(@_) > 0) {
-    $context = Parser::Context->get(@_);
-    Value::Error("Unknown context '@_'") unless $context;
+  my $self = shift; my $contextTable = shift; my $name = shift;
+  if ($name) {
+    my $context = Parser::Context->get($contextTable,$name);
+    Value::Error("Unknown context '$name'") unless defined($context);
+    $contextTable->{current} = $context;
+    $Value::context = \$contextTable->{current};
+  } else {
+    $contextTable->{current} = $Parser::Context::Default::fullContext->copy
+      unless defined($contextTable->{current});
   }
-  $context = $Parser::Context::Default::fullContext->copy unless $context;
-  $contextTable->{current} = $context;
-  $Value::context = \$context;
-  return $context;
+  return $contextTable->{current};
 }
 
 #
@@ -101,7 +98,7 @@ sub current {
 #   (either from the main list or a copy from the default list)
 #
 sub get {
-  my $self = shift; my $name = shift;
+  my $self = shift; my $contextTable = shift; my $name = shift;
   my $context = $contextTable->{$name};
   return $context if $context;
   $context = $Parser::Context::Default::context{$name};
