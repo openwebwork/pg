@@ -170,6 +170,9 @@ sub DOCUMENT {
 
   	# end unpacking of environment variables.
 #  	$main::QUIZ_PREFIX = '' unless defined($main::QUIZ_PREFIX)
+
+	$STRINGforOUTPUT = '<SCRIPT SRC="'.$main::envir{jsMathURL}.'"></SCRIPT>' . "\n" . $STRINGforOUTPUT
+	  if ($main::envir{displayMode} eq 'HTML_jsMath');
 	
 }
 
@@ -421,6 +424,9 @@ sub ENDDOCUMENT {
 										 or $main::PG_FLAGS{PROBLEM_GRADER_TO_USE} = 'avg_problem_grader';
      # return results
     };
+
+    $STRINGforOUTPUT .= '<SCRIPT> jsMath.ProcessBeforeShowing() </SCRIPT>'
+      if ($main::envir{displayMode} eq 'HTML_jsMath');
     
 	(\$STRINGforOUTPUT, \$STRINGforHEADER_TEXT,\%PG_ANSWERS_HASH,eval(q!\%main::PG_FLAGS!));
 }
