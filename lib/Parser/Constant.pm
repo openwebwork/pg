@@ -9,7 +9,7 @@ use strict; use vars qw(@ISA);
 #
 #  If a constant is marked with isConstant, then it will
 #  be combined with other constants automatically as formulas
-#  are built, to only mark it if you want that to happen.
+#  are built, so only mark it if you want that to happen.
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
