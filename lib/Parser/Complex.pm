@@ -59,7 +59,7 @@ sub reduce {
 sub string {
   my $self = shift; my $precedence = shift;
   my $plus = $self->{context}{operators}{'+'}{precedence};
-  my $z = Value::Complex->make(@{$self->{value}})->stringify;
+  my $z = Value::Complex->make(@{$self->{value}})->string($self->{equation});
   $z = "(".$z.")" if defined($precedence) && $precedence > $plus && $z =~ m/[-+]/;
   return $z;
 }
@@ -67,7 +67,7 @@ sub string {
 sub TeX {
   my $self = shift; my $precedence = shift;
   my $plus = $self->{context}{operators}{'+'}{precedence};
-  my $z = Value::Complex->make(@{$self->{value}})->TeX;
+  my $z = Value::Complex->make(@{$self->{value}})->TeX($self->{equation});
   $z = '\left('.$z.'\right)' if defined($precedence) && $precedence > $plus && $z =~ m/[-+]/;
   return $z;
 }

@@ -50,8 +50,14 @@ sub reduce {
 #
 #  Call the Value::Real versions to format numbers
 #
-sub string {Value::Real->make(shift->{value})->string(@_)}
-sub TeX {Value::Real->make(shift->{value})->TeX(@_)}
+sub string {
+  my $self = shift;
+  Value::Real->make($self->{value})->string($self->{equation},@_);
+}
+sub TeX {
+  my $self = shift;
+  Value::Real->make($self->{value})->TeX($self->{equation},@_);
+}
 sub perl {(shift)->{value}}
 
 #########################################################################

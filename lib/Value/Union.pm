@@ -134,9 +134,9 @@ sub string {
 sub TeX {
   my $self = shift; my $equation = shift;
   my $context = $equation->{context} || $$Value::context;
-  my @intervals = (); my $op = $context->{operators}{'U'} || {string => ' U '};
+  my @intervals = (); my $op = $context->{operators}{'U'};
   foreach my $x (@{$self->data}) {push(@intervals,$x->TeX($equation))}
-  return join($op->{TeX} ? $op->{TeX} : $op->{string},@intervals);
+  return join($op->{TeX} || $op->{string} || ' U ',@intervals);
 }
 
 ###########################################################################

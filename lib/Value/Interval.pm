@@ -182,20 +182,20 @@ sub compare {
 #
 
 sub string {
-  my $self = shift;
+  my $self = shift; my $equation = shift;
   my ($a,$b) = @{$self->data};
-  $a = $a->string if Value::isValue($a);
-  $b = $b->string if Value::isValue($b);
+  $a = $a->string($equation) if Value::isValue($a);
+  $b = $b->string($equation) if Value::isValue($b);
 #  return $self->{open}.$a.$self->{close} 
 #    if !$self->{leftInfinte} && !$self->{rightInfinite} && $a == $b;
   return $self->{open}.$a.','.$b.$self->{close};
 }
 
 sub TeX {
-  my $self = shift;
+  my $self = shift; my $equation = shift;
   my ($a,$b) = @{$self->data};
-  $a = $a->TeX if Value::isValue($a);
-  $b = $b->TeX if Value::isValue($b);
+  $a = $a->TeX($equation) if Value::isValue($a);
+  $b = $b->TeX($equation) if Value::isValue($b);
   my $open = $self->{open}; my $close = $self->{close};
   $open = '\{' if $open eq '{'; $close = '\}' if $close eq '}';
   $open = '\left'.$open if $open; $close = '\right'.$close if $close;
@@ -206,4 +206,3 @@ sub TeX {
 ###########################################################################
 
 1;
-

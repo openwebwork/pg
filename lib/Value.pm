@@ -172,6 +172,7 @@ sub getType {
   }
   elsif (Value::isFormula($value)) {return 'Formula'}
   elsif (Value::class($value) eq 'Infinity') {return 'String'}
+  elsif (Value::isReal($value)) {return 'Number'}
   elsif (Value::isValue($value)) {return 'value'}
   elsif (ref($value)) {return 'unknown'}
   elsif (defined($strings->{$value})) {return 'String'}
@@ -389,7 +390,7 @@ sub compare {
 sub stringify {
   my $self = shift;
   return $self->TeX() if $$Value::context->flag('StringifyAsTeX');
-  $self->string();
+  $self->string;
 }
 sub string {shift->value}
 sub TeX {shift->string(@_)}

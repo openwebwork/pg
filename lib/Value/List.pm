@@ -97,7 +97,7 @@ sub compare {
 
 sub stringify {
   my $self = shift;
-  return $self->TeX(@_) if $$Value::context->flag('StringifyAsTeX');
+  return $self->TeX() if $$Value::context->flag('StringifyAsTeX');
   my $open = $self->{open}; my $close = $self->{close};
   $open  = $$Value::context->lists->get('List')->{open} unless defined($open);
   $close = $$Value::context->lists->get('List')->{close} unless defined($close);
@@ -106,26 +106,29 @@ sub stringify {
 
 sub string {
   my $self = shift; my $equation = shift;
+  my $def = ($equation->{context} || $$Value::context)->lists->get('List');
   my $open = shift; my $close = shift;
-  $open  = $$Value::context->lists->get('List')->{open} unless defined($open);
-  $close = $$Value::context->lists->get('List')->{close} unless defined($close);
+  $open  = $def->{open} unless defined($open);
+  $close = $def->{close} unless defined($close);
   my @coords = ();
   foreach my $x (@{$self->data}) {
     if (Value::isValue($x)) 
-      {push(@coords,$x->string($equation,$open,$close))} else {push(@coords,$x)}
+      {push(@coords,$x->string($equation))} else {push(@coords,$x)}
   }
   return $open.join(', ',@coords).$close;
 }
 sub TeX {
   my $self = shift; my $equation = shift;
+  my $context = $equation->{context} || $$Value::context;
+  my $def = $context->lists->get('List');
   my $open = shift; my $close = shift;
-  $open  = $$Value::context->lists->get('List')->{open} unless defined($open);
-  $close = $$Value::context->lists->get('List')->{close} unless defined($close);
+  $open  = $def->{open} unless defined($open);
+  $close = $def->{close} unless defined($close);
   $open = '\{' if $open eq '{'; $close = '\}' if $close eq '}';
   $open = '\left'.$open if $open; $close = '\right'.$close if $close;
-  my @coords = (); my $str = $equation->{context}{strings};
+  my @coords = (); my $str = $context->{strings};
   foreach my $x (@{$self->data}) {
-    if (Value::isValue($x)) {push(@coords,$x->TeX($equation,$open,$close))}
+    if (Value::isValue($x)) {push(@coords,$x->TeX($equation))}
     elsif (defined($str->{$x}) && $str->{$x}{TeX}) {push(@coords,$str->{$x}{TeX})}
     else {push(@coords,$x)}
   }

@@ -245,10 +245,10 @@ sub stringify {
 
 sub string {
   my $self = shift; my $equation = shift;
-  if ($self->{ijk} || (defined($equation) && $equation->{ijk}) || $$Value::context->flag("ijk"))
-    {return $self->ijk($ijk_string)}
-  my $open = shift || $$Value::context->lists->get('Vector')->{open};
-  my $close = shift || $$Value::context->lists->get('Vector')->{close};
+  return $self->ijk($ijk_string)
+    if ($self->{ijk} || $equation->{ijk} || $$Value::context->flag("ijk"));
+  my $def = ($equation->{context} || $$Value::context)->lists->get('Vector');
+  my $open = shift || $def->{open}; my $close = shift || $def->{close};
   my @coords = ();
   foreach my $x (@{$self->data}) {
     if (Value::isValue($x)) {push(@coords,$x->string($equation))} else {push(@coords,$x)}
@@ -258,10 +258,9 @@ sub string {
 
 sub TeX {
   my $self = shift; my $equation = shift;
-  if ($self->{ijk} || (defined($equation) && $equation->{ijk}) || $$Value::context->flag("ijk"))
-    {return $self->ijk}
-  my $open = shift || $$Value::context->lists->get('Vector')->{open};
-  my $close = shift || $$Value::context->lists->get('Vector')->{close};
+  return $self->ijk if ($self->{ijk} || $equation->{ijk} || $$Value::context->flag("ijk"));
+  my $def = ($equation->{context} || $$Value::context)->lists->get('Vector');
+  my $open = shift || $def->{open}; my $close = shift || $def->{close};
   my @coords = ();
   foreach my $x (@{$self->data}) {
     if (Value::isValue($x)) {push(@coords,$x->TeX($equation))} else {push(@coords,$x)}

@@ -184,8 +184,8 @@ sub stringify {
 
 sub string {
   my $self = shift; my $equation = shift;
-  my $open = shift || $$Value::context->lists->get('Point')->{open};
-  my $close = shift || $$Value::context->lists->get('Point')->{close};
+  my $def = ($equation->{context} || $$Value::context)->lists->get('Point');
+  my $open = shift || $def->{open}; my $close = shift || $def->{close};
   my @coords = ();
   foreach my $x (@{$self->data}) {
     if (Value::isValue($x)) {push(@coords,$x->string($equation))} else {push(@coords,$x)}
@@ -195,8 +195,8 @@ sub string {
 
 sub TeX {
   my $self = shift; my $equation = shift;
-  my $open = shift || $$Value::context->lists->get('Point')->{open};
-  my $close = shift || $$Value::context->lists->get('Point')->{close};
+  my $def = ($equation->{context} || $$Value::context)->lists->get('Point');
+  my $open = shift || $def->{open}; my $close = shift || $def->{close};
   my @coords = ();
   foreach my $x (@{$self->data}) {
     if (Value::isValue($x)) {push(@coords,$x->TeX($equation))} else {push(@coords,$x)}

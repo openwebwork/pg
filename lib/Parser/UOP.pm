@@ -93,7 +93,7 @@ sub checkString {
   my $self = shift;
   my $type = $self->{op}->typeRef;
   return 0 if ($type->{name} ne 'String');
-  my $name = $self->{equation}{context}{operators}{$self->{uop}}{string} || $self->{uop};
+  my $name = $self->{def}{string} || $self->{uop};
   $self->Error("Operand of '$name' can't be ".
 	       ($self->{op}{isInfinite}? 'an infinity': 'a word'));
   return 1;
@@ -106,7 +106,7 @@ sub checkList {
   my $self = shift;
   my $type = $self->{op}->typeRef;
   return 0 if ($type->{name} ne 'List');
-  my $name = $self->{equation}{context}{operators}{$self->{uop}}{string} || $self->{uop};
+  my $name = $self->{def}{string} || $self->{uop};
   $self->Error("Operand of '$name' can't be a list");
   return 1;
 }
@@ -117,7 +117,7 @@ sub checkList {
 #
 sub checkInfinite {
   my $self = shift;
-  my $uop = $self->{equation}{context}{operators}{$self->{uop}};
+  my $uop = $self->{def}{$self->{uop}};
   return 0 unless $self->{op}->{isInfinite} && $uop->{allowInfinite};
   $self->{type} = $self->{op}->typeRef;
   return 1;

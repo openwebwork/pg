@@ -233,20 +233,23 @@ package Value::String;
 
 sub cmp_defaults {(
   Value::Real->cmp_defaults,
-  typeMatch => Value::Real->new(1),
+  typeMatch => undef,
 )};
 
 sub cmp_class {
   my $self = shift; my $ans = shift;
   my $typeMatch = $ans->{typeMatch};
-  return 'a Word' if $typeMatch->class eq 'String';
+  my $typeMatch = $ans->{typeMatch} = Value::Real->new(1) unless defined($typeMatch);
+  return 'a Word' if !Value::isValue($typeMatch) || $typeMatch->class eq 'String';
   return $typeMatch->cmp_class;
 };
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
-  return 1 if $self->type eq $other->type || $ans->{typeMatch}->class eq 'String';
-  return $ans->{typeMatch}->typeMatch($other,$ans);
+  my $typeMatch = $ans->{typeMatch};
+  my $typeMatch = $ans->{typeMatch} = Value::Real->new(1) unless defined($typeMatch);
+  return 1 if $self->type eq $other->type || !Value::isValue($typeMatch) || $typeMatch->class eq 'String';
+  return $typeMatch->typeMatch($other,$ans);
 }
 
 #############################################################

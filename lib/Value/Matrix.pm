@@ -343,8 +343,8 @@ sub stringify {
 
 sub string {
   my $self = shift; my $equation = shift;
-  my $open  = shift || $$Value::context->lists->get('Matrix')->{open};
-  my $close = shift || $$Value::context->lists->get('Matrix')->{close};
+  my $def = ($equation->{context} || $$Value::context)->lists->get('Matrix');
+  my $open = shift || $def->{open}; my $close = shift || $def->{close};
   my @coords = ();
   foreach my $x (@{$self->data}) {
     if (Value::isValue($x)) {push(@coords,$x->string($equation,$open,$close))}
@@ -358,8 +358,8 @@ sub string {
 #
 sub TeX {
   my $self = shift; my $equation = shift;
-  my $open  = shift || $$Value::context->lists->get('Matrix')->{open};
-  my $close = shift || $$Value::context->lists->get('Matrix')->{close};
+  my $def = ($equation->{context} || $$Value::context)->lists->get('Matrix');
+  my $open = shift || $def->{open}; my $close = shift || $def->{close};
   $open = '\{' if $open eq '{'; $close = '\}' if $close eq '}';
   my $TeX = ''; my @entries = (); my $d;
   if ($self->isRow) {

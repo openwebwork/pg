@@ -329,23 +329,25 @@ sub acoth {my $z = promote(@_); CORE::log((1+$z)/($z-1))/2}
 
 ##################################################
 
-sub string {my $self = shift; Value::Complex::format(@{$self->data},@_)}
-sub TeX {my $self = shift; Value::Complex::format(@{$self->data},'TeX')}
+sub string {my $self = shift; Value::Complex::format(@{$self->data},'string',@_)}
+sub TeX {my $self = shift; Value::Complex::format(@{$self->data},'TeX',@_)}
 
 #
 #  Try to make a pretty version of the number
 #     
 sub format {
-  my ($a,$b) = (shift,shift); my $method = shift || 'string';
+  my ($a,$b) = (shift,shift);
+  my $method = shift || 'string';
+  my $equation = shift;
   $a = Value::Real->make($a) unless ref($a);
   $b = Value::Real->make($b) unless ref($b);
   my $bi = 'i';
-  return $a->$method if $b == 0;
-  $bi = abs($b)->$method(1) . 'i' if abs($b) != 1;
+  return $a->$method($equation) if $b == 0;
+  $bi = abs($b)->$method($equation,1) . 'i' if abs($b) != 1;
   $bi = '-' . $bi if $b < 0;
   return $bi if $a == 0;
   $bi = '+' . $bi if $b > 0;
-  $a = $a->$method; $a = "($a)" if $a =~ m/E/i;
+  $a = $a->$method($equation); $a = "($a)" if $a =~ m/E/i;
   return $a.$bi;
 }
 
