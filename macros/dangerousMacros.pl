@@ -1179,16 +1179,21 @@ sub alias {
 
 # Experiments
 
-# This allows the use of i for  imaginary numbers
-#  one can write   3+2*i rather than 3+2*i()
+# This allows the use of i for imaginary numbers
+#  one can write  3+2*i  rather than  3+2*i()
 #
 
 #sub i {
 #	Complex::i;
 #}
 
-sub i () {Value::Formula->new('i')->eval}
+sub i () {
+  #  check if Parser.pl is loaded, otherwise use Complex package
+  if (eval(q!%main::context!)) {return Value::Formula->new('i')->eval}
+    else {return Complex::i}
+}
 sub j () {Value::Formula->new('j')->eval}
 sub k () {Value::Formula->new('k')->eval}
+sub pi () {Value::Formula->new('pi')->eval}
 
 1;  # required to load properly
