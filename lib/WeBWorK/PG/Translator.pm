@@ -262,6 +262,7 @@ my %shared_subroutine_hash = (
 	'time_it'                  => __PACKAGE__,
 	'&PG_answer_eval'          => __PACKAGE__,
 	'&PG_restricted_eval'      => __PACKAGE__,
+	'&PG_macro_file_eval'       => __PACKAGE__,     
 	'&be_strict'               => __PACKAGE__,
 	'&PGsort'                  => __PACKAGE__,
 	'&dumpvar'                 => __PACKAGE__,
@@ -1430,6 +1431,24 @@ sub PG_restricted_eval {
     return (wantarray) ?  ($out, $errors,$full_error_report) : $out;
 }
 
+sub PG_macro_file_eval {      # would like to modify this so that it requires use strict on the files that it evaluates.
+    my $string = shift;
+    my ($pck,$file,$line) = caller;
+    my $save_SIG_warn_trap = $SIG{__WARN__};
+    $SIG{__WARN__} = sub { CORE::die @_};
+    my $save_SIG_die_trap = $SIG{__DIE__};
+    $SIG{__DIE__}= sub {CORE::die @_};
+    no strict;
+    my $out = eval  ("be_strict(); package main; " . $string );
+    my $errors =$@;
+    my $full_error_report = "PG_restricted_eval detected error at line $line of file $file \n"
+                . $errors .
+                "The calling package is $pck\n" if defined($errors) && $errors =~/\S/;
+    use strict;
+    $SIG{__DIE__} = $save_SIG_die_trap;
+    $SIG{__WARN__} = $save_SIG_warn_trap;
+    return (wantarray) ?  ($out, $errors,$full_error_report) : $out;
+}
 =head2 PG_answer_eval
 
 

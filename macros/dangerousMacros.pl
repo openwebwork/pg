@@ -305,7 +305,7 @@ sub compile_file {
  	$/ = undef;   # allows us to treat the file as a single line
  	open(MACROFILE, "<$filePath") || die "Cannot open file: $filePath";
  	my $string = <MACROFILE>;
- 	my ($result,$error,$fullerror) = PG_restricted_eval($string);
+ 	my ($result,$error,$fullerror) = &PG_macro_file_eval($string);
  	if ($error) {    # the $fullerror report has formatting and is never empty
  		$fullerror =~ s/\(eval \d+\)/ $filePath\n/;   # attempt to insert file name instead of eval number
  		die "Error detected while loading $filePath:\n$fullerror";
