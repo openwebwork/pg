@@ -449,8 +449,8 @@ sub cmp_defaults {
     showHints => undef,
     showLengthHints => undef,
     showParenHints => undef,
-#    partialCredit => undef,
-    partialCredit => 0,  #  only allow this once WW can deal with partial credit
+    partialCredit => undef,
+#    partialCredit => 0,  #  only allow this once WW can deal with partial credit
     ordered => 0,
     entry_type => undef,
     list_type => undef,
@@ -596,7 +596,7 @@ sub cmp_equal {
     push(@errors,"There should be more ${value}s in your $ltype")
       if ($score == $m && scalar(@correct) > 0);
     push(@errors,"There should be fewer ${value}s in your $ltype")
-      if ($score < $maxscore && $score == $M);
+      if ($score < $maxscore && $score == $M && !$showHints);
   }
 
   #
