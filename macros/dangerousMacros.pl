@@ -544,7 +544,7 @@ EOF
 	close TEX;
 
 	# call latex
-	system "cd $wd && $latex $texFile"
+	system "cd $wd && $latex $texFile > /dev/null"
 		and warn "Failed to call $latex with $texFile: $!";
 
 	unless (-e $dviFile) {
@@ -564,7 +564,7 @@ EOF
 	# error log and a simple message (math2img failed) is returned to the
 	# webpage.
 	my $cmdout;
-	$cmdout = system "cd $wd && $dvipng $dviCall"
+	$cmdout = system "cd $wd && $dvipng $dviCall > /dev/null"
 		and warn "Failed to call$dvipng with $dviCall: $! with signal $cmdout";
 
 	unless (-e $pngFile) {
