@@ -306,7 +306,7 @@ sub draw {
 # Points where the function were not defined were not being handled
 # gracefully.  They would come as blank y values, which would ultimately
 # trigger errors downstream unless y was undefined.
-		if($y eq "") { $y = undef; }
+		if(defined($y) and $y eq "") { $y = undef; }
     		if (defined($x) && defined($x_prev) && defined($y) && defined($y_prev) ) {
     			$g->lineTo($x, $y, gdBrushed);
     		} else {
