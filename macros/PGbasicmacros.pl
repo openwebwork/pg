@@ -85,12 +85,12 @@ sub _PGbasicmacros_init {
 main::PG_restricted_eval( <<'EndOfFile');
     $displayMode            = $displayMode;
 
-	$PAR				= PAR();
-	$BR				= BR();
+	$main::PAR				= PAR();
+	$main::BR				= BR();
 	$main::LQ				= LQ();
 	$main::RQ				= RQ();
-	$BM				= BM();
-	$EM				= EM();
+	$main::BM				= BM();
+	$main::EM				= EM();
 	$main::BDM				= BDM();
 	$main::EDM				= EDM();
 	$main::LTS				= LTS();
@@ -104,8 +104,8 @@ main::PG_restricted_eval( <<'EndOfFile');
 	$main::HINT				= HINT_HEADING();
 	$main::US				= US();
 	$main::SPACE			= SPACE();
-	$BBOLD			= BBOLD();
-	$EBOLD			= EBOLD();
+	$main::BBOLD			= BBOLD();
+	$main::EBOLD			= EBOLD();
 	$main::BITALIC			= BITALIC();
 	$main::EITALIC          = EITALIC();
 	$main::BCENTER          = BCENTER();
@@ -130,41 +130,42 @@ EndOfFile
 # This can't be done inside the eval above because my variables seem to be invisible inside the eval
 
 
-   	$PAR				= $PAR;
-	$BR				    = $BR;
-	$LQ				    = $main::LQ;
-	$RQ				    = $main::RQ;
-	$BM				    = $BM;
-	$EM				    = $EM;
-	$BDM				= $main::BDM;
-	$EDM				= $main::EDM;
-	$LTS				= $main::LTS;
-	$GTS				= $main::GTS;
-	$LTE				= $main::LTE;
-	$GTE				= $main::GTE;
-	$BEGIN_ONE_COLUMN	= $main::BEGIN_ONE_COLUMN;
-	$END_ONE_COLUMN	    = $main::END_ONE_COLUMN;
-	$SOL				= $main::SOLUTION_HEADING;
-	$SOLUTION			= $main::SOLUTION_HEADING;
-	$HINT				= $main::HINT_HEADING;
-	$US				    = $main::US;
-	$SPACE			    = $main::SPACE;
-	$BBOLD			    = $BBOLD;
-	$EBOLD			    = $EBOLD;
-	$HR				    = $main::HR;
-	$LBRACE			    = $main::LBRACE;
-	$RBRACE			    = $main::RBRACE;
-	$LB				    = $main::LB;
-	$RB				    = $main::RB;
-	$DOLLAR			    = $main::DOLLAR;
-	$PERCENT			= $main::PERCENT;
-	$CARET			    = $main::CARET;
-	$PI				    = $main::PI;
-	$E				    = $main::E;
-	@ALPHABET			= ('A'..'ZZ');
-
-#  We initialize a local reference to the environment hash rather than transfer the entire hash
-#  This way is slightly more efficient.
+   	$PAR				 = PAR();
+	$BR				     = BR();
+	$LQ				     = LQ();
+	$RQ				     = RQ();
+	$BM				     = BM();
+	$EM				     = EM();
+	$BDM				 = BDM();
+	$EDM				 = EDM();
+	$LTS				 = LTS();
+	$GTS				 = GTS();
+	$LTE				 = LTE();
+	$GTE				 = GTE();
+	$BEGIN_ONE_COLUMN	 = BEGIN_ONE_COLUMN();
+	$END_ONE_COLUMN	     = END_ONE_COLUMN();
+	$SOL				 = SOLUTION_HEADING();
+	$SOLUTION			 = SOLUTION_HEADING();
+	$HINT				 = HINT_HEADING();
+	$US				     = US();
+	$SPACE			     = SPACE();
+	$BBOLD			     = BBOLD();
+	$EBOLD			     = EBOLD();
+	$BITALIC			 = BITALIC();
+	$EITALIC             = EITALIC();
+	$BCENTER             = BCENTER();
+	$ECENTER             = ECENTER();
+	$HR				     = HR();
+	$LBRACE			     = LBRACE();
+	$RBRACE			     = RBRACE();
+	$LB				     = LB();
+	$RB				     = RB();
+	$DOLLAR			     = DOLLAR();
+	$PERCENT			 = PERCENT();
+	$CARET			     = CARET();
+	$PI				     = PI();
+	$E				     = E();
+	@ALPHABET			 = ('A'..'ZZ');
 
    $envir               = PG_restricted_eval(q!\%main::envir!);
    $PG_random_generator = PG_restricted_eval(q!$main::PG_random_generator!);
