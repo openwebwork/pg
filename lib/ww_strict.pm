@@ -1,5 +1,7 @@
 package strict;
 
+$strict::VERSION = "1.03";
+
 =head1 NAME
 
 strict - Perl pragma to restrict unsafe constructs
@@ -92,13 +94,23 @@ vars => 0x00000400
 
 sub bits {
     my $bits = 0;
-    foreach my $s (@_){ $bits |= $bitmask{$s} || 0; };
+    my @wrong;
+    foreach my $s (@_) {
+	push @wrong, $s unless exists $bitmask{$s};
+        $bits |= $bitmask{$s} || 0;
+    }
+    if (@wrong) {
+        #require Carp;
+        Carp::croak("Unknown 'strict' tag(s) '@wrong'");
+    }
     $bits;
 }
 
+my $default_bits = bits(qw(refs subs vars));
+
 sub import {
     shift;
-    $^H |= bits(@_ ? @_ : qw(refs subs vars));
+    $^H |= @_ ? bits(@_) : $default_bits;
 }
 
 sub unimport {
@@ -107,3 +119,5 @@ sub unimport {
 }
 
 1;
+__END__
+
