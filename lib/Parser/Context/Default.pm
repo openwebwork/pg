@@ -175,8 +175,8 @@ $functions = {
 };
 
 $strings = {
-   'infinity'  => {infinite => 1, TeX => '\infty '},
-   '-infinity' => {infinite => 1, TeX => '-\infty ', negative => 1},
+   'infinity'  => {infinite => 1},
+   '-infinity' => {infinite => 1, negative => 1},
 #   'T' => {true => 1},
 #   'F' => {false => 1},
 

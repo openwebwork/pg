@@ -165,6 +165,7 @@ sub getType {
     return 'List';
   }
   elsif (Value::isFormula($value)) {return 'Formula'}
+  elsif (Value::class($value) eq 'Infinity') {return 'String'}
   elsif (Value::isValue($value)) {return 'value'}
   elsif (ref($value)) {return 'unknown'}
   elsif (defined($strings->{$value})) {return 'String'}

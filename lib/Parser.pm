@@ -631,13 +631,11 @@ sub setValues {
   $self->{values} = {@_};
   foreach my $x (keys %{$self->{values}}) {
     $self->Error("Undeclared variable '$x'") unless defined $variables->{$x};
-    $value = $self->{values}{$x};
-    $value = Value::Formula->new($value) unless
-      Value::matchNumber($value) || Value::isFormula($value) || Value::isValue($value);
+    $value = Value::makeValue($self->{values}{$x});
     if (Value::isFormula($value)) {$type = $value->typeRef}
-     else {($value,$type) = Value::getValueType($self,$value)}
+      else {($value,$type) = Value::getValueType($self,$value)}
     $self->Error("Variable '$x' should be of type $variables->{$x}{type}{name}")
-       unless Parser::Item::typeMatch($type,$variables->{$x}{type});
+      unless Parser::Item::typeMatch($type,$variables->{$x}{type});
     $self->{values}{$x} = $value;
   }
 }

@@ -110,9 +110,18 @@ sub copy {
 sub checkStrings {
   my $self = shift;
   my $ltype = $self->{lop}->typeRef; my $rtype = $self->{rop}->typeRef;
-  return 0 if ($ltype->{name} ne 'String' and $rtype->{name} ne 'String');
-  $self->Error("Operands of '$self->{bop}' can't be words");
-  return 1;
+  my $name = $self->{equation}{context}{operators}{$self->{bop}}{string} || $self->{bop};
+  if ($ltype->{name} eq 'String') {
+    $self->Error("Operands of '$name' can't be ".
+		 ($self->{lop}{isInfinite}? 'infinities': 'words'));
+    return 1;
+  }
+  if ($rtype->{name} eq 'String') {
+    $self->Error("Operands of '$name' can't be ".
+		 ($self->{rop}{isInfinite}? 'infinities': 'words'));
+    return 1;
+  }
+  return 0;
 }
 
 #
@@ -122,7 +131,8 @@ sub checkLists {
   my $self = shift;
   my $ltype = $self->{lop}->typeRef; my $rtype = $self->{rop}->typeRef;
   return 0 if ($ltype->{name} ne 'List' and $rtype->{name} ne 'List');
-  $self->Error("Operands of '$self->{bop}' can't be lists");
+  my $name = $self->{equation}{context}{operators}{$self->{bop}}{string} || $self->{bop};
+  $self->Error("Operands of '$name' can't be lists");
   return 1;
 }
 

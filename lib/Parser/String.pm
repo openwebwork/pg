@@ -30,12 +30,24 @@ sub new {
 #
 #  Just return the value of the string
 #
-sub eval {return (shift)->{value}}
+sub eval {
+  my $self = shift;
+  return $self->{value} unless $self->{isInfinite};
+  my $I = Value::Infinity->new();
+  $I = $I->neg if $self->{isNegativeInfinity};
+  return $I;
+}
 
 #
 #  Just return the value
 #
-sub string {return (shift)->{value}}
+sub string {
+  my $self = shift;
+  return $self->{def}{string} if defined($self->{def}{string});
+  my $value = $self->eval;
+  return $value unless Value::isValue($value);
+  return $value->string($self->{equation});
+}
 
 #
 #  Typeset the value in \rm
@@ -43,13 +55,21 @@ sub string {return (shift)->{value}}
 sub TeX {
   my $self = shift;
   return $self->{def}{TeX} if defined($self->{def}{TeX});
-  return '{\rm '.$self->{value}.'}';
+  my $value = $self->eval;
+  return '{\rm '.$value.'}' unless Value::isValue($value);
+  return $value->TeX($self->{equation});
 }
 
 #
 #  Put the value in quotes
 #
-sub perl {return "'".(shift)->{value}."'"}
+sub perl {
+  my $self = shift;
+  return $self->{def}{perl} if defined($self->{def}{perl});
+  my $value = $self->eval;
+  return "'".$value."'" unless Value::isValue($value);
+  return $value->perl;
+}
 
 #########################################################################
 

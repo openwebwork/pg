@@ -98,7 +98,7 @@ sub cmp_equal {
     $self->$cmp_error($ans);
   } else {
     $ans->{ans_message} = $ans->{error_message} =
-      "Your answer isn't ".lc($ans->{correct_value}->showClass).
+      "Your answer isn't ".lc($ans->{correct_value}->showCmpClass).
         " (it looks like ".lc($ans->{student_value}->showClass).")"
 	   if !$ans->{isPreview} && $ans->{showTypeWarnings} && !$ans->{error_message};
   }
@@ -112,6 +112,11 @@ sub typeMatch {
   return 1 unless ref($other);
   $self->type eq $other->type;
 }
+
+#
+#  Class name for cmp error messages
+#
+sub showCmpClass {shift->showClass}
 
 #
 #  Student answer evaluation failed.
@@ -188,15 +193,30 @@ package Value::Real;
 our $cmp_defaults = {
   %{$Value::cmp_defaults},
   ignoreStrings => 1,
+  ignoreInfinity => 1,
 };
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
   return 1 unless ref($other);
+  return 1 if $other->type eq 'Infinity' && $ans->{ignoreInfinity};
   if ($other->type eq 'String' && $ans->{ignoreStrings}) {
     $ans->{showEqualErrors} = 0;
     return 1;
   }
+  $self->type eq $other->type;
+}
+
+#############################################################
+
+package Value::Infinity;
+
+sub showCmpClass {'a Number'}
+
+sub typeMatch {
+  my $self = shift; my $other = shift; my $ans = shift;
+  return 1 unless ref($other);
+  return 1 if $other->type eq 'Number';
   $self->type eq $other->type;
 }
 
@@ -330,6 +350,8 @@ our $cmp_defaults = {
   showEndTypeHints => 1,
 };
 
+sub showCmpClass {'an Interval or Union'}
+
 sub typeMatch {
   my $self = shift; my $other = shift;
   return 0 unless ref($other);
@@ -366,6 +388,8 @@ sub cmp_postprocess {
 
 package Value::Union;
 
+sub showCmpClass {'an Interval or Union'}
+
 sub typeMatch {
   my $self = shift; my $other = shift;
   return 0 unless ref($other);
@@ -381,7 +405,7 @@ sub typeMatch {
 package Value::List;
 
 our $cmp_defaults = {
-  %{$Value::cmp_defaults},
+  %{$Value::Real::cmp_defaults},
   showHints => undef,
   showLengthHints => undef,
 #  partialCredit => undef,
@@ -441,7 +465,7 @@ sub cmp_equal {
 
   ENTRY: foreach my $entry (@student) {
     $i++;
-    $entry = Value::Real->make($entry) if !ref($entry) && Value::matchNumber($entry);
+    $entry = Value::makeValue($entry);
     $entry = Value::Formula->new($entry) if !Value::isValue($entry);
     if ($ordered) {
       if (eval {shift(@correct) == $entry}) {$score++; next ENTRY}
@@ -456,7 +480,7 @@ sub cmp_equal {
     if ($showTypeWarnings && defined($typeMatch) &&
         !$typeMatch->typeMatch($entry,$ans)) {
       push(@errors,
-        "Your ".$self->NameForNumber($i)." value isn't ".lc($typeMatch->showClass).
+        "Your ".$self->NameForNumber($i)." value isn't ".lc($typeMatch->showCmpClass).
 	   " (it looks like ".lc($entry->showClass).")");
       next ENTRY;
     }
