@@ -1,6 +1,22 @@
+=head1 NAME
+
+        PSasu.pl -- located in the pg/macros directory
+
+=head1 SYNPOSIS
+
+
+	Macros contributed by John Jones
+
+=cut
 
 
 # Answer evaluator which always marks things correct
+
+=head3 auto_right()
+
+
+=cut
+
 sub auto_right {
 	my $ae = std_str_cmp("");
 
@@ -15,6 +31,12 @@ sub auto_right {
 
 # Evaluate in tth mode
 
+=head3	tthev()
+
+
+
+=cut
+
 sub tthev {
 	my $cmt = shift;
 
@@ -27,6 +49,13 @@ sub tthev {
 	$cmt
 }
 
+=head3	no_decs()
+
+
+
+=cut
+
+
 sub no_decs {
 	my ($old_evaluator) = @_;
 
@@ -37,6 +66,12 @@ sub no_decs {
 	return $old_evaluator;
 	}
 
+=head3     must_include()
+
+ 
+
+=cut
+
 sub must_include {
 	my ($old_evaluator) = shift;
 	my $muststr = shift;
@@ -45,6 +80,11 @@ sub must_include {
 	$old_evaluator->install_post_filter(\&raw_student_answer_filter);
 	return $old_evaluator;
 	}
+=head3      no_trig_fun()
+
+
+
+=cut
 
 sub no_trig_fun {
 	my ($ans) = shift;
@@ -60,6 +100,16 @@ sub no_trig_fun {
 	return $new_eval;
 }
 
+=head3      no_trig()
+
+
+
+=cut
+=head3      no_trig()
+
+
+
+=cut
 
 sub no_trig {
 	my ($ans) = shift;
@@ -75,6 +125,12 @@ sub no_trig {
 	return $new_eval;
 }
 
+=head3      exact_no_trig()
+
+
+
+=cut
+
 sub exact_no_trig {
 	my ($ans) = shift;
 	my $old_eval = num_cmp($ans);
@@ -89,6 +145,18 @@ sub exact_no_trig {
 
 	return $new_eval;
 }
+
+
+=head3      must_have_filter()
+
+
+     
+          # First argument is the string to have, or not have
+		  # Second argument is optional, and tells us whether yes or no
+		  # Third argument is the error message to produce (if any).
+
+=cut
+
 
 # First argument is the string to have, or not have
 # Second argument is optional, and tells us whether yes or no
@@ -144,6 +212,13 @@ sub must_have_filter {
 	return $newfilt;
 }
 
+=head3      raw_student_answer_filter()
+
+
+
+=cut
+
+
 sub raw_student_answer_filter {
 	my ($rh_ans) = shift;
 #	warn "answer was ".$rh_ans->{student_ans};
@@ -153,6 +228,13 @@ sub raw_student_answer_filter {
 
 	return $rh_ans;
 }
+
+=head3      no_decimal_list()
+
+
+
+=cut
+
 
 sub no_decimal_list {
 	my ($ans) = shift;
@@ -181,6 +263,13 @@ sub no_decimal_list {
 }
 
 
+=head3      no_decimals()
+
+
+
+=cut
+
+
 sub no_decimals {
 	my ($ans) = shift;
 	my (%jopts) = @_;
@@ -207,6 +296,13 @@ sub no_decimals {
 	return $answer_evaluator;
 }
 
+=head3      log_switcheroo()
+
+
+
+=cut
+
+
 sub log_switcheroo {
 	my $foo = shift;
 
@@ -222,6 +318,14 @@ sub log_switcheroo_filter {
 	return $rh_ans;
 	}
 
+=head3      log10_cmp()
+
+
+
+=cut
+
+
+
 sub log10_cmp {
  my(@stuff) = @_;
  $stuff[0] = log_switcheroo($stuff[0]);
@@ -230,7 +334,17 @@ sub log10_cmp {
  return $ae;
 }
 
+
+=head3      with_comments()
+
+
+	# Wrapper for an answer evaluator which can also supply comments
+
+=cut
+
 # Wrapper for an answer evaluator which can also supply comments
+
+
 sub with_comments {
 	my ($old_evaluator, $cmt) = @_;
 
@@ -259,6 +373,19 @@ sub with_comments {
 
   $ans_evaluator;
 }
+
+
+=head3      pc_evaluator()
+
+
+		# Wrapper for multiple answer evaluators, it takes a list of the following as inputs
+		# [answer_evaluator, partial credit factor, comment]
+		# it applies evaluators from the list until it hits one with positive credit,
+		# weights it by the partial credit factor, and throws in its comment
+
+
+=cut
+
 
 # Wrapper for multiple answer evaluators, it takes a list of the following as inputs
 # [answer_evaluator, partial credit factor, comment]
@@ -295,6 +422,13 @@ sub pc_evaluator {
 
   $ans_evaluator;
 }
+
+=head3      nicestring
+
+
+
+=cut
+
 
 sub nicestring {
   my($thingy) = shift;
@@ -335,6 +469,13 @@ sub nicestring {
 }
 
 
+=head3      displaymat
+
+
+
+=cut
+
+
 sub displaymat {
 	my $tmpp = shift;
 	my %opts = @_;
@@ -366,6 +507,13 @@ sub displaymat {
 	$out;
 }
 
+=head3      beginmatrix
+
+
+
+=cut
+
+
 sub beginmatrix {
 	my ($aligns)=shift;   #alignments of columns in table
 #	my %options = @_;
@@ -384,6 +532,14 @@ sub beginmatrix {
 		}
 	$out;
 }
+
+
+=head3      matleft
+
+
+
+=cut
+
 
 
 sub matleft {
@@ -420,6 +576,14 @@ sub matleft {
 	return $out;
 }
 
+
+=head3      matright
+
+
+
+=cut
+
+
 sub matright {
 	my $numrows = shift;
 	my $out='';
@@ -451,6 +615,13 @@ sub matright {
 	return $out;
 }
 
+=head3      endmatrix
+
+
+
+=cut
+
+
 sub endmatrix {
 	my $out = "";
 	if ($displayMode eq 'TeX') {
@@ -467,6 +638,14 @@ sub endmatrix {
 		}
 	$out;
 }
+
+
+=head3      matrow
+
+
+
+=cut
+
 
 
 sub matrow {
