@@ -104,7 +104,10 @@ sub init_graph {
 	}
     my $graphRef = new WWPlot(@size);
 	# select a  name for this graph based on the user, the psvn and the problem
-	my $imageName = "$main::studentLogin-$main::psvnNumber-set${main::setNumber}prob${main::probNum}";
+	my $setName = $main::setNumber;
+	# replace dots in set name to keep latex happy
+	$setName =~ s/\./d0T/g;
+	my $imageName = "$main::studentLogin-$main::problemSeed-set${setName}prob${main::probNum}";
 	# $imageNum counts the number of graphs with this name which have been created since PGgraphmacros.pl was initiated.
 	my $imageNum  = ++$main::images_created{$imageName};
 	# this provides a unique name for the graph -- it does not include an extension.
