@@ -73,6 +73,7 @@ sub numberMatrix {
   my @M = (); my $isFormula = 0;
   foreach my $x (@_) {
     Value::Error("Matrix row entries must be numbers") unless (Value::isNumber($x));
+    $x = Value::Real->make($x) if $$Value::context->flag('useFuzzyReals') && !Value::isFormula($x);
     push(@M,$x); $isFormula = 1 if Value::isFormula($x);
   }
   return $self->formula([@M]) if $isFormula;
@@ -336,8 +337,8 @@ sub column {
 
 sub stringify {
   my $self = shift;
-  my $open = $Value::parens{Matrix}{open};
-  my $close = $Value::parens{Matrix}{close};
+  my $open  = $$Value::context->lists->get('Matrix')->{open};
+  my $close = $$Value::context->lists->get('Matrix')->{close};
   return $open.join(',',@{$self->data}).$close
     if (Value::class($self->data->[0]) ne 'Matrix');
   return $open.join(",\n ",@{$self->data}).$close;
@@ -345,8 +346,8 @@ sub stringify {
 
 sub string {
   my $self = shift; my $equation = shift;
-  my $open = shift || $Value::parens{Matrix}{open};
-  my $close = shift || $Value::parens{Matrix}{close};
+  my $open  = shift || $$Value::context->lists->get('Matrix')->{open};
+  my $close = shift || $$Value::context->lists->get('Matrix')->{close};
   my @coords = ();
   foreach my $x (@{$self->data}) {
     if (Value::isValue($x)) {push(@coords,$x->string($equation,$open,$close))}
@@ -360,16 +361,22 @@ sub string {
 #
 sub TeX {
   my $self = shift; my $equation = shift;
-  my $open = shift || $Value::parens{Matrix}{open};
-  my $close = shift || $Value::parens{Matrix}{close};
+  my $open  = shift || $$Value::context->lists->get('Matrix')->{open};
+  my $close = shift || $$Value::context->lists->get('Matrix')->{close};
   $open = '\{' if $open eq '{'; $close = '\}' if $close eq '}';
-  return $open.join(',',@{$self->data}).$close if ($self->isRow);
   my $TeX = ''; my @entries = ();
-  foreach my $row (@{$self->data}) {
-    foreach my $x (@{$row->data}) {
+  if ($self->isRow) {
+    foreach my $x (@{$self->data}) {
       push(@entries,(Value::isValue($x))? $x->TeX($equation,$open,$close): $x);
     }
-    $TeX .= join(' &',@entries) . '\cr'."\n"; @entries = ();
+    $TeX .= join(' &',@entries) . "\n";
+  } else {
+    foreach my $row (@{$self->data}) {
+      foreach my $x (@{$row->data}) {
+        push(@entries,(Value::isValue($x))? $x->TeX($equation,$open,$close): $x);
+      }
+      $TeX .= join(' &',@entries) . '\cr'."\n"; @entries = ();
+    }
   }
   return '\left'.$open.'\matrix{'."\n".$TeX.'}\right'.$close;
 }

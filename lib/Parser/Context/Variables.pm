@@ -5,7 +5,7 @@
 package Parser::Context::Variables;
 use strict;
 use vars qw(@ISA %type);
-@ISA = qw(Parser::Context::Data);
+@ISA = qw(Value::Context::Data);
 
 #
 #  The types that variables can be

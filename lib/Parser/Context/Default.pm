@@ -1,7 +1,8 @@
 #########################################################################
 
 package Parser::Context::Default;
-use vars qw($operators $parens $lists $constants $variables $functions $strings); 
+use vars qw($operators $parens $lists $constants $variables $functions $strings $flags); 
+use strict;
 
 #
 #  The default operators, functions, etc.
@@ -188,6 +189,10 @@ $strings = {
    '+infinity' => {alias => 'INF'},
 };
 
+$flags = {
+  ijk => 0,
+};
+
 ############################################################################
 ############################################################################
 #
@@ -195,11 +200,12 @@ $strings = {
 #
 
 use vars qw(%context);
+use vars qw($fullContext $numericContext $complexContext $vectorContext);
 
 #
 #  The default Context
 #
-$fullContext = Parser::Context->new(
+$fullContext = new Parser::Context(
   operators => $operators,
   functions => $functions,
   constants => $constants,
@@ -207,6 +213,7 @@ $fullContext = Parser::Context->new(
   strings   => $strings,
   parens    => $parens,
   lists     => $lists,
+  flags     => $flags,
 );
 
 $fullContext->constants->set(

@@ -1,17 +1,17 @@
 #########################################################################
 #
-#  Implement the list of known strings
+#  Implement the list of known Value::List types
 #
-package Parser::Context::Strings;
+package Value::Context::Lists;
 use strict;
 use vars qw (@ISA);
 @ISA = qw(Value::Context::Data);
 
 sub init {
   my $self = shift;
-  $self->{dataName} = 'strings';
-  $self->{name} = 'string';
-  $self->{Name} = 'String';
+  $self->{dataName} = 'lists';
+  $self->{name} = 'list';
+  $self->{Name} = 'List';
   $self->{namePattern} = '[^\s]+';
 }
 

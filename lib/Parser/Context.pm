@@ -1,8 +1,6 @@
 #
 # add/remove/get reduction flags
-# add/remove/get other flags
-# 
-# Make routine for selecting traditional multiplication parsing
+# make patterns into real patterns, not strings
 # 
 
 #########################################################################
@@ -10,38 +8,40 @@
 package Parser::Context;
 my $pkg = "Parser::Context";
 use strict;
+use vars qw(@ISA);
+@ISA = qw(Value::Context);
 
 #
-#  Crete a new Context object and initialize its data lists
+#  Create a new Context object and initialize its data lists
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my $context = bless {
-    operators => {}, parens => {}, lists => {}, functions => {},
-    variables => {}, constants => {}, strings => {},
-    pattern => {
-      number => '(?:\d+(?:\.\d*)?|\.\d+)(?:E[-+]?\d+)?',
-      signedNumber => '[-+]?(\d+(\.\d*)?|\.\d+)(E[-+]?\d+)?',
-      token => '',  # created in update() below
-    },
-    format => {
-      number => '%g',
-    },
-    error => {
-      string => '',
-      pos => undef,
-      message => '',
-      flag => 0,
-    },
-  }, $class;
-  my %data = (@_);
+  my $context = $Value::defaultContext->copy();
+  bless $context, $class;
+  $context->{_initialized} = 0;
+  foreach my $list ('functions','variables','constants','operators','strings','parens') {
+    push(@{$context->{data}{hashes}},$list);
+    $context->{$list} = {};
+  }
+  my %data = (
+    functions => {},
+    variables => {},
+    constants => {},
+    operators => {},
+    strings   => {},
+    parens    => {},
+    lists     => {},
+    flags     => {},
+    @_
+  );
   $context->{_functions} = new Parser::Context::Functions($context,%{$data{functions}});
   $context->{_variables} = new Parser::Context::Variables($context,%{$data{variables}});
   $context->{_constants} = new Parser::Context::Constants($context,%{$data{constants}});
   $context->{_operators} = new Parser::Context::Operators($context,%{$data{operators}});
   $context->{_strings}   = new Parser::Context::Strings($context,%{$data{strings}});
   $context->{_parens}    = new Parser::Context::Parens($context,%{$data{parens}});
-  $context->{_lists}     = new Parser::Context::Lists($context,%{$data{lists}});
+  $context->lists->set(%{$data{lists}}) if defined($data{lists});
+  $context->flags->set(%{$data{flags}}) if defined($data{flags});
   $context->{_initialized} = 1;
   $context->update;
   return $context;
@@ -74,29 +74,6 @@ sub constants {(shift)->{_constants}}
 sub variables {(shift)->{_variables}}
 sub strings   {(shift)->{_strings}}
 sub parens    {(shift)->{_parens}}
-sub lists     {(shift)->{_lists}}
-
-#
-#  Make a copy of a Context object
-#
-sub copy {
-  my $self = shift;
-  my $context = Parser::Context->new();
-  $context->{_initialized} = 0;
-  foreach my $data ('operators','functions','constants','variables',
-                  'strings','parens','lists') {
-    $context->{$data} = {};
-    foreach my $x (keys %{$self->{$data}}) {
-      $context->{$data}{$x} = {%{$self->{$data}{$x}}};
-    }
-    $context->{"_$data"}->update;
-  }
-  foreach my $data ('pattern','format') {
-    $context->{$data} = {%{$self->{$data}}};
-  }
-  $context->{_initialized} = 1;
-  return $context;
-}
 
 #
 #  Storage for user contexts
@@ -115,6 +92,7 @@ sub current {
   }
   $context = $Parser::Context::Default::fullContext->copy unless $context;
   $contextTable->{current} = $context;
+  $Value::context = \$context;
   return $context;
 }
 
@@ -168,35 +146,17 @@ sub usePrecedence {
   }
 }
 
-#
-#  Clear error flags
-#
-sub clearError {
-  my $error = (shift)->{error};
-  $error->{string} = '';
-  $error->{pos} = undef;
-  $error->{message} = '';
-  $error->{flag} = 0;
-}
-
-#
-#  Set the error flags
-#
-sub setError {
-  my $error = (shift)->{error};
-  $error->{message} = shift;
-  $error->{string} = shift;
-  $error->{pos} = shift;
-  $error->{flag} = 1;
-}
-
 #########################################################################
 #
 #  Load the subclasses.
 #
 
-use Parser::Context::Data;
-use Parser::Context::Default;
+use Parser::Context::Constants;
+use Parser::Context::Functions;
+use Parser::Context::Operators;
+use Parser::Context::Parens;
+use Parser::Context::Strings;
+use Parser::Context::Variables;
 
 #########################################################################
 

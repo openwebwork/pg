@@ -1,18 +1,18 @@
 #########################################################################
 #
-#  Implement the list of known Parser::List types
+#  Implement the list of Value::Flags types
 #
-package Parser::Context::Lists;
+package Value::Context::Flags;
 use strict;
 use vars qw (@ISA);
-@ISA = qw(Parser::Context::Data);
+@ISA = qw(Value::Context::Data);
 
 sub init {
   my $self = shift;
-  $self->{dataName} = 'lists';
-  $self->{name} = 'list';
-  $self->{Name} = 'List';
-  $self->{namePattern} = '[^\s]+';
+  $self->{dataName} = 'flags';
+  $self->{name} = 'flag';
+  $self->{Name} = 'Flag';
+  $self->{namePattern} = '[-\w_.]+';
 }
 
 sub update {} # no pattern needed

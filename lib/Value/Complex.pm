@@ -48,6 +48,10 @@ sub new {
   Value::Error("Imaginary part can't be ".Value::showClass($x->[1]))
      unless (Value::isRealNumber($x->[1]));
   return $self->formula($x) if Value::isFormula($x->[0]) || Value::isFormula($x->[1]);
+  if ($$Value::context->flag('useFuzzyReals')) {
+    $x->[0] = Value::Real->make($x->[0]);
+    $x->[1] = Value::Real->make($x->[1]);
+  }
   bless {data => $x}, $class;
 }
 
@@ -61,7 +65,7 @@ sub formula {
   my $I = Parser::Value->new($formula,$i);
   $r = Parser::BOP->new($formula,'*',$r,$I);
   $formula->{tree} = Parser::BOP->new($formula,'+',$l,$r);
-  return $formula->eval if scalar(%{$formula->{variables}}) == 0;
+#   return $formula->eval if scalar(%{$formula->{variables}}) == 0;
   return $formula;
 }
 
@@ -326,25 +330,25 @@ sub acoth {my $z = promote(@_); CORE::log((1+$z)/($z-1))/2}
 
 ##################################################
 
-sub stringify {my $self = shift; Value::Complex::format(@{$self->data})}
+sub stringify {my $self = shift; Value::Complex::format(@{$self->data},@_)}
+
+sub TeX {my $self = shift; Value::Complex::format(@{$self->data},'TeX')}
 
 #
-#  Try to make a pretty version of the number:
-#     make small numbers be zero,
-#     put parens around numbers containing exponential notation,
-#     don't show zeros
-#     don's show a+-bi when b is negative
+#  Try to make a pretty version of the number
 #     
 sub format {
-  my ($aa,$b) = @_; my $bi = 'i';
-  $aa = 0 if abs($aa) < 1E-10; $b = 0 if abs($b) < 1E-10;
-  $a = $aa; $a = '('.$aa.')' if ($a =~ m/e/i);
-  return $a if $b == 0;
-  $bi = abs($b).'i' if abs($b) != 1;
-  $bi = '('.abs($b).')i' if ($b =~ m/e/i);
-  return ($b > 0 ? $bi : "-$bi") if $aa == 0;
-  return "$a+$bi" if $b > 0;
-  return "$a-$bi";
+  my ($a,$b) = (shift,shift); my $method = shift || 'string';
+  $a = Value::Real->make($a) unless ref($a);
+  $b = Value::Real->make($b) unless ref($b);
+  my $bi = 'i';
+  return $a->$method if $b == 0;
+  $bi = abs($b)->$method(1) . 'i' if abs($b) != 1;
+  $bi = '-' . $bi if $b < 0;
+  return $bi if $a == 0;
+  $bi = '+' . $bi if $b > 0;
+  $a = $a->$method; $a = "($a)" if $a =~ m/E/i;
+  return $a.$bi;
 }
 
 #

@@ -47,6 +47,7 @@ sub new {
       $isFormula = 1 if Value::isFormula($x);
       Value::Error("Coordinate of Point can't be ".Value::showClass($x))
         unless Value::isNumber($x);
+      $x = Value::Real->make($x) if $$Value::context->flag('useFuzzyReals');
     }
   }
   return $self->formula($p) if $isFormula;
@@ -177,14 +178,30 @@ sub abs {
 
 sub stringify {
   my $self = shift;
-  $Value::parens{Point}{open}.join(',',@{$self->data}).$Value::parens{Point}{close};
+  my $point = $$Value::context->lists->get('Point');
+  $point->{open} . join(',',@{$self->data}) . $point->{close};
 }
 
 sub string {
   my $self = shift; my $equation = shift;
-  my $open = shift || $Value::parens{Point}{open};
-  my $close = shift || $Value::parens{Point}{close};
-  return $open.join(',',@{$self->data}).$close;
+  my $open = shift || $$Value::context->lists->get('Point')->{open};
+  my $close = shift || $$Value::context->lists->get('Point')->{close};
+  my @coords = ();
+  foreach my $x (@{$self->data}) {
+    if (Value::isValue($x)) {push(@coords,$x->string($equation))} else {push(@coords,$x)}
+  }
+  return $open.join(',',@coords).$close;
+}
+
+sub string {
+  my $self = shift; my $equation = shift;
+  my $open = shift || $$Value::context->lists->get('Point')->{open};
+  my $close = shift || $$Value::context->lists->get('Point')->{close};
+  my @coords = ();
+  foreach my $x (@{$self->data}) {
+    if (Value::isValue($x)) {push(@coords,$x->TeX($equation))} else {push(@coords,$x)}
+  }
+  return '\left'.$open.join(',',@coords).'\right'.$close;
 }
   
 ###########################################################################

@@ -2,7 +2,7 @@
 #
 #  Implements base class for data list in Context objects.
 #
-package Parser::Context::Data;
+package Value::Context::Data;
 use strict;
 
 sub new {
@@ -155,7 +155,11 @@ sub get {
 sub set {
   my $self = shift; my %D = (@_);
   my $data = $self->{context}{$self->{dataName}};
-  foreach my $x (keys(%D)) {$data->{$x} = {%{$data->{$x}},%{$D{$x}}}};
+  foreach my $x (keys(%D)) {
+    $data->{$x} = (defined($data->{$x}) && ref($data->{$x}) eq 'HASH') ?
+                    {%{$data->{$x}},%{$D{$x}}} :
+                    $self->create($D{$x});
+  };
 }
 
 #
@@ -179,13 +183,8 @@ sub all {
 #  Load the subclasses.
 #
 
-use Parser::Context::Constants;
-use Parser::Context::Functions;
-use Parser::Context::Lists;
-use Parser::Context::Operators;
-use Parser::Context::Parens;
-use Parser::Context::Strings;
-use Parser::Context::Variables;
+use Value::Context::Flags;
+use Value::Context::Lists;
 
 #########################################################################
 

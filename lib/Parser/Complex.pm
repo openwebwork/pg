@@ -54,17 +54,23 @@ sub reduce {
 #
 #  Use Value::Complex to format the number
 #  Add parens if the parent oparator has higher precedence
-#    than addition.
+#    than addition (and there IS an addition or subtraction).
 #
 sub string {
   my $self = shift; my $precedence = shift;
   my $plus = $self->{context}{operators}{'+'}{precedence};
   my $z = Value::Complex->make(@{$self->{value}})->stringify;
-  $z = "(".$z.")" if defined($precedence) && $precedence > $plus;
+  $z = "(".$z.")" if defined($precedence) && $precedence > $plus && $z =~ m/[-+]/;
   return $z;
 }
 
-sub TeX {(shift)->string(@_)}
+sub TeX {
+  my $self = shift; my $precedence = shift;
+  my $plus = $self->{context}{operators}{'+'}{precedence};
+  my $z = Value::Complex->make(@{$self->{value}})->TeX;
+  $z = '\left('.$z.'\right)' if defined($precedence) && $precedence > $plus && $z =~ m/[-+]/;
+  return $z;
+}
 
 sub perl {
   my $self = shift; my $parens = shift;

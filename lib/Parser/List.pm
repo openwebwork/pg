@@ -47,7 +47,7 @@ sub new {
     paren => $paren, equation => $equation, isConstant => $constant
   }, $equation->{context}{lists}{$type->{name}}{class};
   $list->_check;
-#   warn ">> $list->{type}{name} of $list->{type}{entryType}{name} of length $list->{type}{length}\n";
+#  warn ">> $list->{type}{name} of $list->{type}{entryType}{name} of length $list->{type}{length}\n";
   if ($list->{isConstant}) {
     $list = Parser::Value->new($equation,[$list->eval]);
     $list->{type} = $type; $list->{open} = $open; $list->{close} = $close;
@@ -78,7 +78,7 @@ sub eval {
 sub _eval {
   my $self = shift;
   my $type = 'Value::'.$self->type;
-  return $type->make(@_);
+  return $type->new(@_);
 }
 
 #

@@ -48,15 +48,10 @@ sub reduce {
 }
 
 #
-#  Put parens around it if it is negative and inside another computation
+#  Call the Value::Real versions to format numbers
 #
-sub string {
-  my $self = shift; my $precedence = shift;
-  my $n = $self->{value};
-  $n = "(".$n.")" if ($n < 0 && defined($precedence));
-  return $n;
-}
-sub TeX {(shift)->string(@_)}
+sub string {Value::Real->make(shift->{value})->string(@_)}
+sub TeX {Value::Real->make(shift->{value})->TeX(@_)}
 sub perl {(shift)->{value}}
 
 #########################################################################

@@ -1,33 +1,62 @@
 package Value;
 my $pkg = 'Value';
-use vars qw(%precedence %parens %Type);
+use vars qw($context $defaultContext %Type);
 use strict;
 
+#############################################################
 #
-#  Pattern for a generic real number
-# 
-my $numPattern = '-?(\d+(\.\d*)?|\.\d+)(E[-+]?\d+)?';
+#  Initialize the context
+#
+
+use Value::Context;
+
+$defaultContext = Value::Context->new(
+  lists => {
+    'Point'  => {open => '(', close => ')'},
+    'Vector' => {open => '<', close => '>'},
+    'Matrix' => {open => '[', close => ']'},
+    'List'   => {open => '(', close => ')'},
+  },
+  flags => {
+    #
+    #  For vectors:
+    #
+    ijk => 0,  # print vectors as <...>
+    #
+    #  For fuzzy reals:
+    #
+    useFuzzyReals => 1,
+    tolerance => 1E-6,
+    tolType => 'relative',
+    zeroLevel => 1E-14,
+    zeroLevelTol => 1E-12,
+  },
+);
+
+$context = \$defaultContext;
+
 
 #
 #  Precedence of the various types
 #    (They will be promoted upward automatically when needed)
 #
-%precedence = (
+$$context->{precedence} = {
    'Number'   => 0,
-   'Complex'  => 1,
-   'Point'    => 2,
-   'Vector'   => 3,
-   'Matrix'   => 4,
-   'List'     => 5,
-   'Interval' => 6,
-   'Union'    => 7,
-   'Formula'  => 8,
-);
+   'Real'     => 1,
+   'Complex'  => 2,
+   'Point'    => 3,
+   'Vector'   => 4,
+   'Matrix'   => 5,
+   'List'     => 6,
+   'Interval' => 7,
+   'Union'    => 8,
+   'Formula'  => 9,
+};
 
 #
 #  Binding of perl operator to class method
 #
-my %method = (
+$$context->{method} = {
    '+'   => 'add',
    '-'   => 'sub',
    '*'   => 'mult',
@@ -36,36 +65,31 @@ my %method = (
    '.'   => '_dot',  # see _dot below
    'x'   => 'cross',
    '<=>' => 'compare',
-);
+};
 
-#
-#  The type of paren used in printing a value
-#
-%parens = (
-   'Point'  => {open => '(', close => ')'},
-   'Vector' => {open => '<', close => '>'},
-   'Matrix' => {open => '[', close => ']'},
-   'List'   => {open => '(', close => ')'},
-);
+push(@{$$context->{data}{values}},'method','precedence');
+
+#############################################################
 
 #
 #  Check if a value is a number, complex, etc.
 #
-sub matchNumber {my $n = shift; $n =~ m/^$numPattern$/oi}
-sub isComplex {my $n = shift; class($n) eq 'Complex'}
-sub isFormula {my $value = shift; class($value) eq 'Formula'}
-sub isValue {my $value = shift; ref($value) =~ m/^Value::/}
+sub matchNumber {my $n = shift; $n =~ m/^$$context->{pattern}{signedNumber}$/i}
+sub isReal    {class(shift) eq 'Real'}
+sub isComplex {class(shift) eq 'Complex'}
+sub isFormula {class(shift) eq 'Formula'}
+sub isValue {ref(shift) =~ m/^Value::/}
 
 sub isNumber {
   my $n = shift;
-  return 1 if matchNumber($n) || isComplex($n);
-  return (isFormula($n)  && $n->{tree}->isNumber);
+  return $n->{tree}->isNumber if isFormula($n);
+  return isReal($n) || isComplex($n) || matchNumber($n);
 }
 
 sub isRealNumber {
   my $n = shift;
-  return 1 if matchNumber($n);
-  return (isFormula($n) && $n->{tree}->isRealNumber);
+  return $n->{tree}->isRealNumber if isFormula($n);
+  return isReal($n) || matchNumber($n);
 }
 
 #
@@ -167,13 +191,14 @@ sub toFormula {
 sub formula {
   my $self = shift; my $values = shift;
   my $class = $self->class;
-  my $open = $Value::parens{$class}{'open'};
-  my $close = $Value::parens{$class}{'close'};
+  my $list = $$context->lists->get($class);
+  my $open = $list->{'open'};
+  my $close = $list->{'close'};
   my $formula = Value::Formula->blank;
   my @coords = Value::toFormula($formula,@{$values});
   $formula->{tree} = Parser::List->new($formula,[@coords],0,
      $formula->{context}{parens}{$open},$coords[0]->typeRef,$open,$close);
-  return $formula->eval if scalar(%{$formula->{variables}}) == 0;
+#   return $formula->eval if scalar(%{$formula->{variables}}) == 0;
   return $formula;
 }
 
@@ -253,8 +278,8 @@ sub extract {
 #
 sub promotePrecedence {
   my $self = shift; my $other = shift;
-  my $sprec = $precedence{class($self)};
-  my $oprec = $precedence{class($other)};
+  my $sprec = $$context->{precedence}{class($self)};
+  my $oprec = $$context->{precedence}{class($other)};
   return defined($oprec) && $sprec < $oprec;
 }
 
@@ -263,7 +288,7 @@ sub promotePrecedence {
 #
 sub nomethod {
   my ($l,$r,$flag,$op) = @_;
-  my $call = $method{$op}; 
+  my $call = $$context->{method}{$op}; 
   if (defined($call) && $l->promotePrecedence($r)) {return $r->$call($l,!$flag)}
   my $error = "Can't use '$op' with ".$l->class."-valued operands";
   $error .= " (use '**' for exponentiation)" if $op eq '^';
@@ -288,7 +313,7 @@ sub cross {nomethod(@_,'x')}
 #
 #  Otherwise, since . is used for string concatenation, we want to retain
 #  that.  Since the resulting string is often used in Formula and will be
-#  parsed again, we put parentheses around the values to guearantee that
+#  parsed again, we put parentheses around the values to guarantee that
 #  the values will be treated as one mathematical unit.  For example, if
 #  $f = Formula("1+x") and $g = Formula("y") then Formula("$f/$g") will be
 #  (1+x)/y not 1+(x/y), as it would be without the implicit parentheses.
@@ -351,13 +376,17 @@ sub perl {
 sub eval {shift}
 sub reduce {shift}
 
+sub ijk {
+  Value::Error("Can't use method 'ijk' with objects of type '".(shift)->class."'");
+}
+
+use carp;
 #
 #  Report an error
 #
 sub Error {
   my $message = shift;
-  my $context = $Parser::Context::contextTable->{current};
-  $context->setError($message,'') if (defined($context));
+  $$context->setError($message,'');
   die $message . Value::getCaller();
 }
 
@@ -374,11 +403,23 @@ sub getCaller {
   return "";
 }
 
+#
+#  For debugging
+#
+sub traceback {
+  my $frame = 2;
+  my $trace = '';
+  while (my ($pkg,$file,$line,$subname) = caller($frame++)) 
+    {$trace .= " in $subname at line $line of $file\n"}
+  return $trace;
+}
+
 ###########################################################################
 #
 #  Load the sub-classes.
 #
 
+use Value::Real;
 use Value::Complex;
 use Value::Point;
 use Value::Vector;
@@ -392,12 +433,9 @@ use Value::Union;
 #
 #    To Do:
 #
-#  Make a Real class that does fuzzy comparisons for <, <=, ==, >=, >, !=.
 #  Make a class for infinity?
-#  Allow printing of ijk format for vectors
-#  
-#  Share more items between Value and Parser::Context?
-#    (In fact, make a Value::Context and have Parser::Context extend that)
+#  Make Complex class include more of Complex1.pm
+#  Make better interval comparison
 #  
 ###########################################################################
 

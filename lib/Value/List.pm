@@ -100,8 +100,8 @@ sub stringify {
 
 sub string {
   my $self = shift; my $equation = shift;
-  my $open = shift || $Value::parens{List}{open};
-  my $close = shift || $Value::parens{List}{close};
+  my $open = shift || $$Value::context->lists->get('List')->{open};
+  my $close = shift || $$Value::context->lists->get('List')->{close};
   my @coords = ();
   foreach my $x (@{$self->data}) {
     if (Value::isValue($x)) 
@@ -111,8 +111,8 @@ sub string {
 }
 sub TeX {
   my $self = shift; my $equation = shift;
-  my $open = shift || $Value::parens{List}{open};
-  my $close = shift || $Value::parens{List}{close};
+  my $open = shift || $$Value::context->lists->get('List')->{open};
+  my $close = shift || $$Value::context->lists->get('List')->{close};
   $open = '\{' if $open eq '{'; $close = '\}' if $close eq '}';
   my @coords = (); my $str = $equation->{context}{strings};
   foreach my $x (@{$self->data}) {

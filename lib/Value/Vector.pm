@@ -46,6 +46,7 @@ sub new {
       $isFormula = 1 if Value::isFormula($x);
       Value::Error("Coordinate of Vector can't be ".Value::showClass($x))
         unless Value::isNumber($x);
+      $x = Value::Real->make($x) if $$Value::context->flag('useFuzzyReals');
     }
   }
   return $self->formula($p) if $isFormula;
@@ -191,22 +192,54 @@ sub unit {
 #  Generate the various output formats
 #
 
-sub stringify {
-  my $self = shift;
-  $Value::parens{Vector}{open}.join(',',@{$self->data}).$Value::parens{Vector}{close};
-}
+my $ijk_string = ['i','j','k','0'];
+my $ijk_TeX = ['\boldsymbol{i}','\boldsymbol{j}','\boldsymbol{k}','\boldsymbol{0}'];
+
+sub stringify {(shift)->string};
 
 sub string {
   my $self = shift; my $equation = shift;
-  my $open = shift || $Value::parens{Vector}{open};
-  my $close = shift || $Value::parens{Vector}{close};
-  return $open.join(',',@{$self->data}).$close;
+  if ($self->{ijk} || (defined($equation) && $equation->{ijk}) || $$Value::context->flag("ijk"))
+    {return $self->ijk($ijk_string)}
+  my $open = shift || $$Value::context->lists->get('Vector')->{open};
+  my $close = shift || $$Value::context->lists->get('Vector')->{close};
+  my @coords = ();
+  foreach my $x (@{$self->data}) {
+    if (Value::isValue($x)) {push(@coords,$x->string($equation))} else {push(@coords,$x)}
+  }
+  return $open.join(',',@coords).$close;
 }
+
 sub TeX {
   my $self = shift; my $equation = shift;
-  my $open = shift || $Value::parens{Vector}{open};
-  my $close = shift || $Value::parens{Vector}{close};
-  return '\left'.$open.join(',',@{$self->data}).'\right'.$close;
+  if ($self->{ijk} || (defined($equation) && $equation->{ijk}) || $$Value::context->flag("ijk"))
+    {return $self->ijk}
+  my $open = shift || $$Value::context->lists->get('Vector')->{open};
+  my $close = shift || $$Value::context->lists->get('Vector')->{close};
+  my @coords = ();
+  foreach my $x (@{$self->data}) {
+    if (Value::isValue($x)) {push(@coords,$x->TeX($equation))} else {push(@coords,$x)}
+  }
+  return '\left'.$open.join(',',@coords).'\right'.$close;
+}
+
+sub ijk {
+  my $self = shift; my $ijk = shift || $ijk_TeX;
+  my @coords = @{$self->data};
+  Value::Error("Method 'ijk' can only be used on vectors in three-space")
+    unless (scalar(@coords) <= 3);
+  my $string = ''; my $n; my $term;
+  foreach $n (0..scalar(@coords)-1) {
+    $term = $coords[$n];
+    if ($term != 0) {
+      $term = '' if $term == 1; $term = '-' if $term == -1;
+      $term = '('.$term.')' if $term =~ m/e/i;
+      $term = '+' . $term unless $string eq '' or $term =~ m/^-/;
+      $string .= $term . $ijk->[$n];
+    }
+  }
+  $string = $ijk->[3] if $string eq '';
+  return $string;
 }
 
 ###########################################################################

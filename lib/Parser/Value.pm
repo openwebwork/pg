@@ -78,6 +78,8 @@ sub perl {
   return $perl;
 }
 
+sub ijk {(shift)->{value}->ijk}
+
 #
 #  Convert the value to a Matrix object
 #

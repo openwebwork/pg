@@ -45,6 +45,10 @@ sub new {
       ($open ne '[' || $close ne ']');
   return $self->formula($open,$a,$b,$close)
     if Value::isFormula($a) || Value::isFormula($b);
+  if ($$Value::context->flag('useFuzzyReals')) {
+    $a = Value::Real->make($a) unless $nia;
+    $b = Value::Real->make($b) unless $ib;
+  }
   bless {
     data => [$a,$b], open => $open, close => $close,
     leftInfinite => $nia, rightInfinite => $ib,
@@ -74,7 +78,7 @@ sub formula {
   ($a,$b) = Value::toFormula($formula,$a,$b);
   $formula->{tree} = Parser::List->new($formula,[$a,$b],0,
      $formula->{context}{parens}{$open},$Value::Type{number},$open,$close);
-  return $formula->eval if scalar(%{$formula->{variables}}) == 0;
+#   return $formula->eval if scalar(%{$formula->{variables}}) == 0;
   return $formula;
   
 }
@@ -163,6 +167,8 @@ sub compare {
 sub stringify {
   my $self = shift;
   my ($a,$b) = @{$self->data};
+  $a = $a->string if Value::isReal($a);
+  $b = $b->string if Value::isReal($b);
   return $self->{open}.$a.$self->{close} 
     if $a == $b && !$self->{leftInfinte} && !$self->{rightInfinite};
   return $self->{open}.$a.','.$b.$self->{close};
@@ -171,10 +177,10 @@ sub stringify {
 sub TeX {
   my $self = shift;
   my ($a,$b) = @{$self->data};
-  $a = '-\infty' if $self->{leftInfinite};
-  $b = '\infty'  if $self->{rightInfinite};
+  $a = ($self->{leftInfinite})? '-\infty' : (Value::isReal($a) ? $a->TeX: $a);
+  $b = ($self->{rightInfinite})? '\infty' : (Value::isReal($b) ? $b->TeX: $b);
   return $self->{open}.$a.$self->{close} 
-    if $a == $b && !$self->{leftInfinte} && !$self->{rightInfinite};
+    if !$self->{leftInfinte} && !$self->{rightInfinite} && $a == $b;
   return $self->{open}.$a.','.$b.$self->{close};
 }
 

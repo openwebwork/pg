@@ -643,6 +643,16 @@ sub setValues {
 }
 
 
+##################################################
+##################################################
+#
+#  Produce a vector in ijk form
+#
+sub ijk {
+  my $self = shift;
+  $self->{tree}->ijk;
+}
+
 #########################################################################
 #########################################################################
 #
@@ -653,6 +663,8 @@ use Parser::Item;
 use Value;
 use Value::Formula;
 use Parser::Context;
+use Parser::Context::Default;
+
 # use Parser::Differentiation;
 
 ###########################################################################
@@ -668,8 +680,6 @@ use Parser::Context;
 # more reduce patterns
 # make operator strings customizable (reduce, and other places they are used)
 # add parens alternately as () and []?
-# eliminate Complex class (it only gets used by main::Complex() when the
-#   arguments are formulas; use $a + $b*i and let overload handle it instead.)
 #
 #########################################################################
 

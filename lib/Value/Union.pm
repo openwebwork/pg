@@ -62,7 +62,7 @@ sub formula {
   my $selft = shift;
   my $formula = Value::Formula->blank;
   $formula->{tree} = recursiveUnion($formula,Value::toFormula($formula,@_));
-  return $formula->eval if scalar(%{$formula->{variables}}) == 0;
+#   return $formula->eval if scalar(%{$formula->{variables}}) == 0;
   return $formula
 }
 sub recursiveUnion {

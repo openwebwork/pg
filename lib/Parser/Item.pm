@@ -74,6 +74,11 @@ sub string {}
 sub TeX {}
 sub perl {}
 
+sub ijk {
+  my $self = shift;
+  $self->Error("Can't use method 'ijk' with objects of type '".$self->type."'");
+}
+
 #
 #  Recursively copy an item, and set a new equation pointer, if any
 #
