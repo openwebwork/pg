@@ -16,44 +16,55 @@
 
 =head3 auto_right()
 
+=pod
+
+	Usage: ANS(auto_right()); 
+          or
+               ANS(auto_right("this answer can be left blank"));
+
+This answer checker marks any answer correct.  It is useful when you want
+to leave multiple answer blanks, only some of which will be used.  If you
+turn off showing partial correct answers and partial credit, the effect is
+not visible to the students.  The comment in the second case is what will
+be displayed as the correct answer.  This helps avoid confusion.
 
 =cut
 
 sub auto_right {
-	my $ae = std_str_cmp("");
+        my $cmt = shift;
+        my %params = @_;
+        $cmt = '' unless defined($cmt);
+        
+        my $answerEvaluator = new AnswerEvaluator;
+        $answerEvaluator->ans_hash(
+            type => "auto_right", 
+            correct_ans => "$cmt"
+        );
+        $answerEvaluator->install_pre_filter('reset');
+        $answerEvaluator->install_evaluator(\&auto_right_checker,%params);
 
-	my $ans_eval = sub {
-		my $tried = shift;
-		my $ans_hash = &$ae($tried);
-		$ans_hash->{score} = 1;
-		return $ans_hash;
-	};
-	return $ans_eval;
+        return $answerEvaluator;
 }
 
-# Evaluate in tth mode
+# used in auto_right above
 
-=head3	tthev()
-
-
-
-=cut
-
-sub tthev {
-	my $cmt = shift;
-
-	$mdm = $main::displayMode;
-	$main::displayMode = 'HTML_tth';
-	$cmt = EV3($cmt);
-	$cmt =~ s/\\par/<P>/g;
-        $cmt =~ s/\\noindent//g;
-	$main::displayMode =$mdm;
-	$cmt
+sub auto_right_checker {
+ my $ans = shift;
+ $ans->score(1);
+ return($ans);
 }
+
 
 =head3	no_decs()
 
+=pod
 
+Can be wrapped around an numerical evaluation.  It marks the answer wrong
+if it contains a decimal point.  Usage:
+
+  ANS(no_decs(num_cmp("sqrt(3)")));
+
+This will accept "sqrt(3)" or "3^(1/2)" as answers, but not 1.7320508
 
 =cut
 
@@ -70,7 +81,10 @@ sub no_decs {
 
 =head3     must_include()
 
- 
+=pod
+
+Wrapper for other answer evaluators.  It insists that a string is part of
+the answer to be marked right. 
 
 =cut
 
@@ -82,9 +96,14 @@ sub must_include {
 	$old_evaluator->install_post_filter(\&raw_student_answer_filter);
 	return $old_evaluator;
 	}
+
 =head3      no_trig_fun()
 
+Wrapper for other answer evaluators.  It marks the answer wrong if
+it contains one of the six basic trig functions.
 
+This is useful if you want students to report the value of sin(pi/4),
+but you don't want to allow "sin(pi/4)" as the answer.
 
 =cut
 
@@ -102,11 +121,6 @@ sub no_trig_fun {
 	return $new_eval;
 }
 
-=head3      no_trig()
-
-
-
-=cut
 =head3      no_trig()
 
 
@@ -151,11 +165,16 @@ sub exact_no_trig {
 
 =head3      must_have_filter()
 
+=pod
 
+Filter for checking that an answer has (or doesn't have) a certain
+string in it.  This can be used to screen answers where you want them
+in a particular form (e.g., if you allow most functions, but not trig
+functions in the answer, or if the answer must include some string).
      
-          # First argument is the string to have, or not have
-		  # Second argument is optional, and tells us whether yes or no
-		  # Third argument is the error message to produce (if any).
+First argument is the string to have, or not have
+Second argument is optional, and tells us whether yes or no
+Third argument is the error message to produce (if any).
 
 =cut
 
@@ -298,45 +317,6 @@ sub no_decimals {
 	return $answer_evaluator;
 }
 
-=head3      log_switcheroo()
-
-
-
-=cut
-
-
-sub log_switcheroo {
-	my $foo = shift;
-
-	$foo =~ s/log(?!ten)/logten/gi;
-	return $foo;
-}
-
-# only used below, so assumes it is being applied to num_cmp
-sub log_switcheroo_filter {
-	my ($rh_ans) = shift;
-	$rh_ans->{student_ans} = log_switcheroo($rh_ans->{student_ans});
-
-	return $rh_ans;
-	}
-
-=head3      log10_cmp()
-
-
-
-=cut
-
-
-
-sub log10_cmp {
- my(@stuff) = @_;
- $stuff[0] = log_switcheroo($stuff[0]);
- my ($ae) = num_cmp(@stuff);
- $ae->install_pre_filter(\&log_switcheroo_filter);
- return $ae;
-}
-
-
 =head3      with_comments()
 
 
@@ -395,38 +375,64 @@ sub with_comments {
 # weights it by the partial credit factor, and throws in its comment
 
 sub pc_evaluator {
-	my ($evaluator_list) = @_;
+        my @ev_list;
+        if(ref($_[0]) ne 'ARRAY') {
+                warn "Improper input to pc_evaluator";
+        }
+        if(ref($_[0]->[0]) ne 'ARRAY') {
+                @ev_list = @_;
+        } else {
+                @ev_list = @{$_[0]};
+        }
+        
+        my $ans_evaluator =  sub  {
+                my $tried = shift;
+                my $ans_hash;
+                for($j=0;$j<scalar(@ev_list); $j++) {
+                        my $old_evaluator = $ev_list[$j][0];
+                        my $cmt = $ev_list[$j][2];
+                        my $weight = $ev_list[$j][1];
+                        $weight = 1 unless defined($weight);
 
-	my $ans_evaluator =  sub  {
-		my $tried = shift;
-		my $ans_hash;
-		for($j=0;$j<scalar(@{$evaluator_list}); $j++) {
-			my $old_evaluator = $evaluator_list->[$j][0];
-			my $cmt = $evaluator_list->[$j][2];
-			my $weight = $evaluator_list->[$j][1];
-
-			if  ( ref($old_evaluator) eq 'AnswerEvaluator' ) { # new style
-				$ans_hash = $old_evaluator->evaluate($tried);
-			} elsif (ref($old_evaluator) eq  'CODE' )     { #old style
-				$ans_hash = &$old_evaluator($tried);
-			} else {
-				warn "There is a problem using the answer evaluator";
-			}
-
-			if($ans_hash->{score}>0) {
-				$ans_hash -> setKeys( 'ans_message' => $cmt);
-				$ans_hash->{score} *= $weight;
-				return $ans_hash;
-			};
-		};
-		return $ans_hash;
-	};
-
+                        if  ( ref($old_evaluator) eq 'AnswerEvaluator' ) { # new style
+                                $ans_hash = $old_evaluator->evaluate($tried);
+                        } elsif (ref($old_evaluator) eq  'CODE' )     { #old style
+                                $ans_hash = &$old_evaluator($tried);
+                        } else {
+                                warn "There is a problem using the answer evaluator";
+                        }
+                        
+                        if($ans_hash->{score}>0) {
+                                $ans_hash -> setKeys( 'ans_message' => $cmt) if defined($cmt);
+                                $ans_hash->{score} *= $weight;
+                                return $ans_hash;
+                        };
+                };
+                return $ans_hash;
+        };
+        
   $ans_evaluator;
 }
 
+
 =head3      nicestring
 
+=pod
+
+A formatting function for dealing with 1, -1, and 0 coefficients in
+linear combinations.
+
+Usage:
+
+  $a = nicestring([0,1,-1,2], ['x', 'y', 'z', 'w']);
+
+produces "y-z+ 2w" in $a.
+
+As a shorthand for polynomials,
+
+  $b = nicestring([1,2, -1, 0, 3]);
+
+produces 'x^4 + 2 x^3 - x^2 + 3' in $b.
 
 
 =cut
@@ -471,228 +477,90 @@ sub nicestring {
 }
 
 
-=head3      displaymat
+=head3      weighted_partial_grader
 
+=pod
 
+This is a grader which weights the different parts of the problem
+differently.  The weights passed to it through the environment.  In
+the problem:
 
-=cut
+ $ENV{'partial_weights'} = [.2,.2,.2,.3];
 
-
-sub displaymat {
-	my $tmpp = shift;
-	my %opts = @_;
-	my @myrows = @{$tmpp};
-	my $numrows = scalar(@myrows);
-	my @arow = $myrows->[0];
-	my ($number)= scalar(@arow);   #number of columns in table
-	my $out;
-	my $j;
-	my $align1=''; # alignment as a string
-	my @align;     # alignment as a list
-	if(defined($opts{'align'})) {
-		$align1= $opts{'align'};
-		@align = split //, $opts{'align'};
-	} else {
-		for($j=0; $j<$number; $j++) {
-			$align[$j] = "c";
-			$align1 .= "c";
-		}
-	}
-
-	$out .= beginmatrix($align1);
-	$out .= matleft($numrows);
-	for $j (@myrows) {
-		$out .= matrow($j, @align);
-	}
-	$out .= matright($numrows);
-	$out .= endmatrix();
-	$out;
-}
-
-=head3      beginmatrix
-
-
+This will soon be superceded by a better grader.
 
 =cut
 
+sub weighted_partial_grader {
+    my $rh_evaluated_answers = shift;
+    my $rh_problem_state = shift;
+    my %form_options = @_;
+    my %evaluated_answers = %{$rh_evaluated_answers};
+        #  The hash $rh_evaluated_answers typically contains: 
+        #      'answer1' => 34, 'answer2'=> 'Mozart', etc.
+       
+        # By default the  old problem state is simply passed back out again.
+    my %problem_state = %$rh_problem_state;
+        
+        
+        # %form_options might include
+        # The user login name 
+        # The permission level of the user
+        # The studentLogin name for this psvn.
+        # Whether the form is asking for a refresh or
+        #     is submitting a new answer.
+        
+        # initial setup of the answer
+    my      $total=0; 
+        my %problem_result = ( score => 0,
+                errors => '',
+                type => 'custom_problem_grader',
+                msg => $ENV{'grader_message'}
+                               );
 
-sub beginmatrix {
-	my ($aligns)=shift;   #alignments of columns in table
-#	my %options = @_;
-	my $out =	"";
-	if ($displayMode eq 'TeX') {
-		$out .= "\n\\(\\displaystyle\\left(\\begin{array}{$aligns} \n";
-		}
-	elsif ($displayMode eq 'Latex2HTML') {
-		$out .= "\n\\begin{rawhtml} <TABLE  BORDER=0>\n\\end{rawhtml}";
-		}
-	elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng') {
-		$out .= "<TABLE BORDER=0>\n"
-	}
-	else {
-		$out = "Error: beginmatrix: Unknown displayMode: $displayMode.\n";
-		}
-	$out;
+
+    # Return unless answers have been submitted
+    unless ($form_options{answers_submitted} == 1) {
+        return(\%problem_result,\%problem_state);
+    }
+        # Answers have been submitted -- process them.
+        
+        ########################################################
+        # Here's where we compute the score.  The variable     #
+        # $numright is the number of correct answers.          #
+        ########################################################
+
+
+    my      $numright=0;
+    my      $i;
+    my      $ans_ref;
+
+    warn "Partial value weights not defined" if not defined($ENV{'partial_weights'});
+    my      @partial_weights = @{$ENV{'partial_weights'}};
+    my      $total_weight=0;
+
+    # Renormalize weights so they add to 1
+    for $i (@partial_weights) { $total_weight += $i; }
+    warn("Weights do not add to a positive number") unless ($total_weight >0);
+    for $i (0..$#partial_weights) { $partial_weights[$i] /= $total_weight; }
+
+    $i = 1;
+    while (defined($ans_ref = $evaluated_answers{'AnSwEr'."$i"})) { 
+      $total += $ans_ref->{score}*$partial_weights[$i-1];
+      $i++;
+    }
+    
+    $problem_result{score} = $total; 
+        # increase recorded score if the current score is greater.
+    $problem_state{recorded_score} = $problem_result{score} if $problem_result{score} > $problem_state{recorded_score};
+
+    $problem_state{num_of_correct_ans}++ if $total == 1;
+    $problem_state{num_of_incorrect_ans}++ if $total < 1 ;
+        
+    (\%problem_result, \%problem_state);
 }
 
-
-=head3      matleft
-
-
-
-=cut
-
-
-
-sub matleft {
-	my $numrows = shift;
-	if ($displayMode eq 'TeX') {
-		return "";
-	}
-	my $out='';
-	my $j;
-
-	if(($displayMode eq 'HTML_dpng') || ($displayMode eq 'Latex2HTML')) {
-# 		if($numrows>12) {		$numrows = 12; }
-		if($displayMode eq 'Latex2HTML') { $out .= '\begin{rawhtml}'; }
- 		$out .= "<tr><td nowrap=\"nowrap\" align=\"left\">";
-		if($displayMode eq 'Latex2HTML') { $out .= '\end{rawhtml}'; }
-# 		$out .= "<img alt=\"(\" src = \"".
-# 			$main::imagesURL."/left$numrows.png\" >";
-# 		return $out;
-		$out .= '\(\left.\begin{array}{c}';
-		for($j=0;$j<$numrows;$j++)  { $out .= ' \\\\'; }
-		$out .= '\end{array}\right(\)';
-
-		if($displayMode eq 'Latex2HTML') { $out .= '\begin{rawhtml}'; }
- 		$out .= "<td><table border=0  cellspacing=5>\n";
-		if($displayMode eq 'Latex2HTML') { $out .= '\end{rawhtml}'; }
-		return $out;
-	}
-	$out = "<tr><td nowrap=\"nowrap\" align=\"left\"><font face=\"symbol\">æ<br />";
-	for($j=0;$j<$numrows;$j++)  {
-		$out .= "ç<br />";
-	}
-	$out .= "è</font></td>\n";
-	$out .= "<td><table border=0  cellspacing=5>\n";
-	return $out;
-}
-
-
-=head3      matright
-
-
-
-=cut
-
-
-sub matright {
-	my $numrows = shift;
-	my $out='';
-	my $j;
-
-	if ($displayMode eq 'TeX') {
-		return "";
-	}
-
-	if(($displayMode eq 'HTML_dpng') || ($displayMode eq 'Latex2HTML')) {
-		if($displayMode eq 'Latex2HTML') { $out .= '\begin{rawhtml}'; }
-		$out .= "</table><td nowrap=\"nowrap\" align=\"right\">";
-		if($displayMode eq 'Latex2HTML') { $out .= '\end{rawhtml}'; }
-
-#		$out .= "<img alt=\"(\" src = \"".
-#			"/webwork_system_html/images"."/right$numrows.png\" >";
-		$out .= '\(\left)\begin{array}{c}';
-		for($j=0;$j<$numrows;$j++)  { $out .= ' \\\\'; }
-		$out .= '\end{array}\right.\)';
-		return $out;
-	}
-
-	$out .= "</table>";
-	$out .= "<td nowrap=\"nowrap\" align=\"left\"><font face=\"symbol\">ö<br />";
-	for($j=0;$j<$numrows;$j++)  {
-		$out .= "÷<br />";
-	}
-	$out .= "ø</font></td>\n";
-	return $out;
-}
-
-=head3      endmatrix
-
-
-
-=cut
-
-
-sub endmatrix {
-	my $out = "";
-	if ($displayMode eq 'TeX') {
-		$out .= "\n\\end{array}\\right)\\)\n";
-		}
-	elsif ($displayMode eq 'Latex2HTML') {
-		$out .= "\n\\begin{rawhtml} </TABLE >\n\\end{rawhtml}";
-		}
-	elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng') {
-		$out .= "</TABLE>\n";
-		}
-	else {
-		$out = "Error: PGchoicemacros: endtable: Unknown displayMode: $displayMode.\n";
-		}
-	$out;
-}
-
-
-=head3      matrow
-
-
-
-=cut
-
-
-
-sub matrow {
-	my $elements = shift;
-	my @align = @_;
-	my @elements = @{$elements};
-	my $out = "";
-	if ($displayMode eq 'TeX') {
-		while (@elements) {
-			$out .= shift(@elements) . " &";
-			}
-		 chop($out); # remove last &
-		 $out .= "\\\\  \n";
-		 # carriage returns must be added manually for tex
-		}
-	elsif ($displayMode eq 'Latex2HTML') {
-		$out .= "\n\\begin{rawhtml}\n<TR>\n\\end{rawhtml}\n";
-		while (@elements) {
-			$out .= " \n\\begin{rawhtml}\n<TD> \n\\end{rawhtml}\n" . shift(@elements) . " \n\\begin{rawhtml}\n</TD> \n\\end{rawhtml}\n";
-			}
-		$out .= " \n\\begin{rawhtml}\n</TR> \n\\end{rawhtml}\n";
-	}
-	elsif ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng') {
-		$out .= "<TR><td nowrap=\"nowrap\">\n";
-		while (@elements) {
-			my $myalign;
-			#do {$myalign = shift @align;} until($myalign ne "|");
-			$myalign = shift @align;
-			if($myalign eq "|") {
-				$out .= '<td> | </td>';
-			} else {
-				if($myalign eq "c") { $myalign = "center";}
-				if($myalign eq "l") { $myalign = "left";}
-				if($myalign eq "r") { $myalign = "right";}
-				$out .= "<TD nowrap=\"nowrap\" align=\"$myalign\">" . shift(@elements) . "</TD>";
-			}
-			}
-		$out .= "<td>\n</TR>\n";
-	}
-	else {
-		$out = "Error: matrow: Unknown displayMode: $main::displayMode.\n";
-		}
-	$out;
-}
-
+1;
 
 ## Local Variables:
 ## mode: CPerl
