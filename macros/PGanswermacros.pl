@@ -1323,6 +1323,7 @@ sub fun_cmp {
 				'var'					=>	$functVarDefault,
 	       		'params'				=>	[],
 				'limits'				=>	[[$functLLimitDefault, $functULimitDefault]],
+				'test_points'   => undef,
 				'mode'					=>	'std',
 				'tolType'				=>  	(defined($opt{tol}) ) ? 'absolute' : 'relative',
 				'tol'					=>	.01, # default mode should be relative, to obtain this tol must not be defined
@@ -1375,6 +1376,7 @@ sub fun_cmp {
 					'tolerance'			=>	$tol,
 					'tolType'			=>	$tolType,
 					'numPoints'			=>	$out_options{'numPoints'},
+					'test_points' =>  $out_options{'test_points'},
 					'mode'				=>	$out_options{'mode'},
 					'maxConstantOfIntegration'	=>	$out_options{'maxConstantOfIntegration'},
 					'zeroLevel'			=>	$out_options{'zeroLevel'},
@@ -1699,6 +1701,7 @@ sub FUNCTION_CMP {
 	my $maxConstantOfIntegration			=	$func_params{'maxConstantOfIntegration'};
 	my $zeroLevel					=	$func_params{'zeroLevel'};
 	my $zeroLevelTol				=	$func_params{'zeroLevelTol'};
+	my $ra_test_points    = $func_params{'test_points'};
 
 
     # Check that everything is defined:
@@ -1708,6 +1711,33 @@ sub FUNCTION_CMP {
 	my @limits = get_limits_array( $ra_limits );
 	my @PARAMS = ();
 	@PARAMS = @{$func_params{'params'}} if defined($func_params{'params'});
+	
+	my (@evaluation_points);
+	if(defined($ra_test_points)) {
+		# see if this is the standard format
+		if( ref($ra_test_points->[0]) eq 'ARRAY') {
+			$numPoints = scalar(@{$ra_test_points->[0]});
+			# now a little sanity check
+			my $j;
+			for $j (@{$ra_test_points}) {
+				warn "Test points do not give the same number of values for each variable"
+					unless(scalar(@{$j}) == $numPoints);
+			}
+			warn "Test points do not match the number of variables"
+				unless scalar(@{$ra_test_points}) == scalar(@VARS);
+		} else { # we are got the one-variable format
+			$ra_test_points = [$ra_test_points];
+			$numPoints = scalar($ra_test_points->[0]);
+		}
+		# The input format for test points is the transpose of what is used
+		# internally below, so take care of that now.
+		my ($j1, $j2);
+		for ($j1=0; $j1<scalar(@{$ra_test_points}); $j1++) {
+			for ($j2=0; $j2<scalar(@{$ra_test_points->[$j1]}); $j2++) {
+				$evaluation_points[$j2][$j1] = $ra_test_points->[$j1][$j2];
+			}
+		}
+	} # end of handling of user supplied evaluation points
 
 	if ($mode eq 'antider' ) {
 		# doctor the equation to allow addition of a constant
@@ -1766,23 +1796,24 @@ sub FUNCTION_CMP {
 	my $correct_eqn_sub = $rh_correct_ans->{rf_correct_ans};
 	warn $rh_correct_ans->{error_message} if $rh_correct_ans->{error_flag};
 
-#create the evaluation points
-	my $random_for_answers = new PGrandom($main::PG_original_problemSeed);
-    	my $NUMBER_OF_STEPS_IN_RANDOM = 1000;    # determines the granularity of the random_for_answers number generator
-	my (@evaluation_points);
-	for( my $count = 0; $count < @PARAMS+1+$numPoints; $count++ ) {
+	if(not defined($ra_test_points)) {
+		#create the evaluation points
+		my $random_for_answers = new PGrandom($main::PG_original_problemSeed);
+		my $NUMBER_OF_STEPS_IN_RANDOM = 1000;    # determines the granularity of the random_for_answers number generator
+		for( my $count = 0; $count < @PARAMS+1+$numPoints; $count++ ) {
 	    my (@vars,$iteration_limit);
-		for( my $i = 0; $i < @VARS; $i++ ) {
-			my $iteration_limit = 10;
-			while (  0 < --$iteration_limit ) {  # make sure that the endpoints of the interval are not included
+			for( my $i = 0; $i < @VARS; $i++ ) {
+				my $iteration_limit = 10;
+				while (  0 < --$iteration_limit ) {  # make sure that the endpoints of the interval are not included
 		    	$vars[$i] = $random_for_answers->random($limits[$i][0], $limits[$i][1], abs($limits[$i][1] - $limits[$i][0])/$NUMBER_OF_STEPS_IN_RANDOM );
 		    	last if $vars[$i]!=$limits[$i][0] and $vars[$i]!=$limits[$i][1];
 		    }
 		    warn "Unable to properly choose  evaluation points for this function in the interval ( $limits[$i][0] , $limits[$i][1] )"
 		      if $iteration_limit == 0;
-		};
-
-		push(@evaluation_points,\@vars);
+			};
+			
+			push(@evaluation_points,\@vars);
+		}
 	}
 	my $evaluation_points = Matrix->new_from_array_ref(\@evaluation_points);
 
