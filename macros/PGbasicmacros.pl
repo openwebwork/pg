@@ -1863,6 +1863,7 @@ sub row {
 
 	Usage:
 	$string = image($image, width => 100, height => 100, tex_size => 800)
+	$string = image($image, width => 100, height => 100, extra_html_tags => 'align="middle"', tex_size => 800)
 	$string = image([$image1, $image2], width => 100, height => 100, tex_size => 800)
 	$string = caption($string);
 	$string = imageRow([$image1, $image2 ], [$caption1, $caption2]);
@@ -1883,6 +1884,7 @@ sub image {
 		width    => 100,
 		height   => 100,
 		tex_size => 800,
+		extra_html_tags => '',
 	);
 	# handle options
 	my %out_options = %known_options;
@@ -1938,7 +1940,7 @@ sub image {
 			\\end{rawhtml}\n !
  		} elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng' || $displayMode eq 'HTML_img' || $displayMode eq 'HTML_jsMath' || $displayMode eq 'HTML_asciimath') {
 			my $wid = ($envir->{onTheFlyImageSize} || 0) +30;
- 			$out = qq!<A HREF= "$imageURL" TARGET="_blank" onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;"><IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height"></A>
+ 			$out = qq!<A HREF= "$imageURL" TARGET="_blank" onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;"><IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height" $out_options{extra_html_tags} ></A>
  			!
  		} else {
  			$out = "Error: PGbasicmacros: image: Unknown displayMode: $displayMode.\n";
