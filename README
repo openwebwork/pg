@@ -1,0 +1,82 @@
+
+                                     WeBWorK                                    
+                           Program Generation Language                          
+                                   Version 2.1                                  
+
+                    Copyright 2000-2004, The WeBWorK Project                    
+                              All rights reserved.                              
+
+Introduction
+
+   The [7]WeBWorKTeam is pleased to announce the release of version 2.1
+   of the WeBWorK Program Generating Language (PG). This release includes
+   new features and bug fixes:
+
+     * New [8]mathematical-expression parser (for use in writing PG
+       problems).
+     * Fixed generation of LaTeX version of sqrt.
+     * Fixed implementation of useBaseTenLog flag.
+     * Make combinations function C(n,k) return 0 when k>n, which is
+       standard.
+     * Fixed error when using cplx_cmp.
+
+   (Contributiors: please feel free to add anything I've forgotten.)
+
+Availability
+
+   PG is distributed as a tarball. It is available on our SourceForge
+   project page:
+   [9]http://sourceforge.net/project/showfiles.php?group_id=93112
+
+   To use this library, you will probably want to download WeBWorK. See
+   [10]AvailableVersions for more information.
+
+   Installation directly from CVS is also possible. Refer to the
+   [11]InstallationManualV2pt1 for more information.
+
+Installation
+
+   Documentation on installing and configuring PG is available in the
+   WeBWorK [12]InstallationManualV2pt1. If you are upgrading an existing
+   installation, be sure to read the section [13]Upgrading an existing
+   WeBWorK installation.
+
+Help
+
+   If you need help installing or using PG 2.1, consult [14]WeBWorKDocs
+   and [15]WeBWorKFAQs.
+
+   You can also visit the [16]WeBWorK discussion group and post your
+   question there. The developers monitor this forum.
+
+Bug Reports & Feature Requests
+
+   Submit bug reports and feature requests at
+   [17]http://bugs.webwork.rochester.edu/. We can't fix bugs and add
+   features if you don't tell us about them!
+
+Patches
+
+   While we welcome patches of any sort, by patching against the latest
+   CVS code, you save us and yourself time. A bug in this release may be
+   fixed in CVS, and we can more easily handle patches against the latest
+   code. Check out the latest development version from CVS and patch
+   against that. Consult the [18]WeBWorKCVS topic for more information.
+
+   -- [19]SamHathaway - 28 Oct 2004
+
+References
+
+   7. http://devel.webwork.rochester.edu/twiki/bin/view/Webwork/WeBWorKTeam
+   8. http://devel.webwork.rochester.edu/doc/cvs/webwork2_rel-2-1/doc/parser/
+   9. http://sourceforge.net/project/showfiles.php?group_id=93112
+  10. http://devel.webwork.rochester.edu/twiki/bin/view/Webwork/AvailableVersions
+  11. http://devel.webwork.rochester.edu/twiki/bin/view/Webwork/InstallationManualV2pt1
+  12. http://devel.webwork.rochester.edu/twiki/bin/view/Webwork/InstallationManualV2pt1
+  13. http://devel.webwork.rochester.edu/twiki/bin/view/Webwork/InstallationManualV2pt1#Upgrading_an_existing_WeBWorK_in
+  14. http://devel.webwork.rochester.edu/twiki/bin/view/Webwork/WeBWorKDocs
+  15. http://devel.webwork.rochester.edu/twiki/bin/view/Webwork/WeBWorKFAQs
+  16. http://webhost.math.rochester.edu/webworkdocs/discuss/
+  17. http://bugs.webwork.rochester.edu/
+  18. http://devel.webwork.rochester.edu/twiki/bin/view/Webwork/WeBWorKCVS
+  19. http://devel.webwork.rochester.edu/twiki/bin/view/Main/SamHathaway
