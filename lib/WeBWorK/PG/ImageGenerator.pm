@@ -215,9 +215,9 @@ sub add {
 	my $imageURL = "$url/$imageName";
 	
 	my $imageTag  = ($mode eq "display")
-		? " <div align=\"center\"><img src=\"$imageURL\" align=\"baseline\" alt=\"$string\"></div> "
-		: " <img src=\"$imageURL\" align=\"baseline\" alt=\"$string\"> ";
-	
+		? "<div align=\"center\"><img src=\"$imageURL\" align=\"baseline\" alt=\"$string\"></div>"
+		: "<img src=\"$imageURL\" align=\"baseline\" alt=\"$string\">";
+
 	return $imageTag;
 }
 
