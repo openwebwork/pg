@@ -33,7 +33,7 @@ use overload
 
 #
 #  Check that the input is a real number or a formula
-#  Make a formula if either part is a formula
+#  or a string that evaluates to a number
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;

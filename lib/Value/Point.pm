@@ -29,6 +29,7 @@ use overload
 #    a list of numbers, or an reference to an array of numbers
 #    a point or vector object (demote a vector)
 #    a matrix if it is  n x 1  or  1 x n
+#    a string that evaluates to a point
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;

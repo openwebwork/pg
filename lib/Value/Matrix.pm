@@ -29,7 +29,7 @@ use overload
 #  Convert a value to a matrix.  The value can be:
 #     a list of numbers or list of (nested) references to arrays of numbers
 #     a point, vector or matrix object, a matrix-valued formula, or a string
-#     containing a matrix expression in the current context.
+#     that evaluates to a matrix
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;

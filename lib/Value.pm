@@ -274,6 +274,21 @@ sub formula {
 }
 
 #
+#  Parse a string and return the resulting formula if it of the right
+#  type.  If the formula is constant, return the value rather than the
+#  formula.
+#
+sub parseFormula {
+  my $self = shift; my $class = ref($self) ? $self->type : class($self);
+  $class = "Number" if $class eq 'Real' || $class eq "Complex";
+  my $f = (scalar(@_) > 1) ? join(',',@_) : shift;
+  $f = Value::Formula->new($f); $f = $f->eval() if $f->isConstant;
+  Value::Error("Can't convert ".Value::showClass($f)." to ".Value::showClass($self))
+    if ($f->type ne $class);
+  return $f;
+}
+
+#
 #  A shortcut for new() that creates an instance of the object,
 #    but doesn't do the error checking.  We assume the data are already
 #    known to be good.
