@@ -146,7 +146,7 @@ sub vec_cmp{    #check to see that the submitted vector is a non-zero multiple o
 
     You can specify an optional argument of 'top_labels'=> ['a', 'b', 'c'].
     These are placed above the columns of the matrix (as is typical for
-    linear programming tableaux, for example.  The entries will be typeset
+    linear programming tableau, for example).  The entries will be typeset
     in math mode.
 
     Top labels require a bit of care.  For image modes, they look better
@@ -242,7 +242,7 @@ sub display_matrix {
 
         $out .= dm_begin_matrix($alignString, %opts);
         # column labels for linear programming
-        $out .= dm_special_tops(%opts) if ($opts{'top_labels'});
+        $out .= dm_special_tops(%opts, 'alignList'=>$alignList) if ($opts{'top_labels'});
         $out .= dm_mat_left($numRows, %opts);
         # vertical lines put in with first row
         $j = shift @myRows;
@@ -290,9 +290,9 @@ sub dm_begin_matrix {
 sub dm_special_tops {
         my %opts = @_;
         my @top_labels = @{$opts{'top_labels'}};
-        my $ncols = scalar(@top_labels);
         my $out = '';
-        my $j;
+	my @alignList = @{$opts{'alignList'}};
+        my ($j, $k);
         my ($brh, $erh) = ("",""); # Start and end raw html
         if($main::displayMode eq 'Latex2HTML') {
                 $brh = "\\begin{rawhtml}";
@@ -312,8 +312,14 @@ sub dm_special_tops {
                                          or $main::displayMode eq 'Latex2HTML') {
                 $out .= "$brh<tr><td>$erh"; # Skip a column for the left brace
                 for $j (@top_labels) {
-                        $out .= "$brh<td>$erh". ' \('.$j.'\)'."$brh</td>$erh";
+			$k = shift @alignList;
+			while(defined($k) and ($k !~ /[lrc]/)) {
+				$out .= "$brh<td></td>$erh";
+				$k = shift @alignList;
+			}
+                        $out .= "$brh<td align=\"center\">$erh". ' \('.$j.'\)'."$brh</td>$erh";
                 }
+		$out .= "<td></td>";
         } else {
                 $out = "Error: dm_begin_matrix: Unknown displayMode: $main::displayMode.\n";
         }
@@ -388,11 +394,11 @@ sub dm_end_matrix {
         my $out = "";
         if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
                 $out .= "\\end{array}\\right$opts{right}";
-                $out .= $opts{'force_tex'} ? '' : "\\) ";
                 if($opts{'top_labels'}) {
                         $out .= '}} \dimen3=\ht3 \advance\dimen3 by 3ex \ht3=\dimen3'."\n".
                         '\box3\endgroup';
                 }
+                $out .= $opts{'force_tex'} ? '' : "\\) ";
         }
         elsif ($main::displayMode eq 'Latex2HTML') {
                 $out .= "\n\\begin{rawhtml} </TABLE >\n\\end{rawhtml}";
