@@ -19,6 +19,7 @@ FIXME: add this
 use strict;
 use warnings;
 use WeBWorK::EquationCache;
+
 #use WeBWorK::Utils qw(readDirectory makeTempDirectory removeTempDirectory);
 # can't use WeBWorK::Utils from here :(
 # so we define the needed functions here instead
@@ -50,40 +51,57 @@ sub makeTempDirectory($$) {
 
 	return $fullPath;
 }
+
 use File::Path qw(rmtree);
+#FIXME: what is this for?
 sub removeTempDirectory($) {
 	my ($dir) = @_;
 	rmtree($dir, 0, 0);
 }
-# okay, all set.
 
-use constant PREAMBLE => <<'EOF';
-\documentclass[12pt]{article}
-\nonstopmode
-\usepackage{amsmath,amsfonts,amssymb}
-\def\gt{>}
-\def\lt{<}
-\usepackage[active,textmath,displaymath]{preview}
-\begin{document}
-EOF
-use constant POSTAMBLE => <<'EOF';
-\end{document}
-EOF
+################################################################################
 
-# Call for dvipng < 1.0
-#use constant DVIPNG_ARGS => join " ", qw(
-#-x4000.5
-#-bgTransparent
-#-Q6
-#-mode toshiba
-#-D180    
-#);
+=head1 CONFIGURATION VARIABLES
 
-# Call for dvipng >= 1.0
-use constant DVIPNG_ARGS => join " ", qw(
--bgTransparent
--D120
-);
+=over
+
+=item $DvipngArgs
+
+Arguments to pass to dvipng.
+
+=cut
+
+our $DvipngArgs = "" unless defined $DvipngArgs;
+
+=item $PreserveTempFiles
+
+If true, don't delete temporary files.
+
+=cut
+
+our $PreserveTempFiles = 0 unless defined $PreserveTempFiles;
+
+=item $TexPreamble
+
+TeX to prepend to equations to be processed.
+
+=cut
+
+our $TexPreamble = "" unless defined $TexPreamble;
+
+=item $TexPostamble
+
+TeX to append to equations to be processed.
+
+=cut
+
+our $TexPostamble = "" unless defined $TexPostamble;
+
+=back
+
+=cut
+
+################################################################################
 
 =head1 METHODS
 
@@ -230,19 +248,6 @@ sub render {
 	my $names    = $self->{names};
 	my $strings  = $self->{strings};
 	
-	#my $mtime   = $options{mtime};
-	#my $refresh = $options{refresh} || ! defined $mtime;
-	#	# must refresh if no mtime is given
-	#
-	#unless ($refresh) {
-	#	#my $firstImage = "$dir/$basename.1.png";
-	#	my $firstImage = "$dir/" . $names->[0];
-	#	if (-e $firstImage) {
-	#		# return if first image newer than $mtime
-	#		return if (stat $firstImage)[9] >= $mtime;
-	#	}
-	#}
-	
 	# determine which images need to be generated
 	my (@newStrings, @newNames);
 	for (my $i = 0; $i < @$strings; $i++) {
@@ -266,11 +271,12 @@ sub render {
 	my $texFile = "$wd/equation.tex";
 	open my $tex, ">", $texFile
 		or die "failed to open file $texFile for writing: $!";
-	print $tex PREAMBLE;
+	print $tex $TexPreamble;
 	print $tex "$_\n" foreach @newStrings;
-	print $tex POSTAMBLE;
+	print $tex $TexPostamble;
 	close $tex;
 	warn "tex file $texFile was not written" unless -e $texFile;
+	
 	# call LaTeX
 	my $latexCommand  = "cd $wd && $latex equation > latex.out 2> latex.err";
 	my $latexStatus = system $latexCommand;
@@ -299,7 +305,7 @@ sub render {
 		unless -e "$wd/equation.dvi";
 	
 	# call dvipng
-	my $dvipngCommand = "cd $wd && $dvipng " . DVIPNG_ARGS . " equation > dvipng.out 2> dvipng.err";
+	my $dvipngCommand = "cd $wd && $dvipng " . $DvipngArgs . " equation > dvipng.out 2> dvipng.err";
 	my $dvipngStatus = system $dvipngCommand;
 	warn "$dvipngCommand returned non-zero status $dvipngStatus: $!"
 		if $dvipngStatus;
@@ -333,7 +339,15 @@ sub render {
 	}
 	
 	# remove temporary directory (and its contents)
-	removeTempDirectory($wd);
+	if ($PreserveTempFiles) {
+		warn "ImageGenerator: preserved temp files in working directory '$wd'.\n";
+	} else {
+		removeTempDirectory($wd);
+	}
 }
+
+=back
+
+=cut
 
 1;
