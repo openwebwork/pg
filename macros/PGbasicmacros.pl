@@ -1660,25 +1660,33 @@ sub protect_underbar {
 sub OL {
 	my(@array) = @_;
 	my $i = 0;
+	my @alpha = ("A".."Z");
+	my $letter;
 	my	$out= 	&M3(
 					"\\begin{enumerate}\n",
 					" \\begin{rawhtml} <OL TYPE=\"A\" VALUE=\"1\"> \\end{rawhtml} ",
-					"<OL TYPE=\"A\" VALUE=\"1\">\n"
+					# kludge to fix IE/CSS problem
+					#"<OL TYPE=\"A\" VALUE=\"1\">\n"
+					"<BLOCKQUOTE>\n"
 				 	) ;
 	my $elem;
 	foreach $elem (@array) {
+		$letter = shift @alpha;
                 $out .= MODES(
                         TeX=>   "\\item[$ALPHABET[$i].] $elem\n",
                         Latex2HTML=>    " \\begin{rawhtml} <LI> \\end{rawhtml} $elem  ",
-                        HTML=>  "<LI> $elem\n",
-                        HTML_dpng=>     "<LI> $elem <br /> <br /> \n"
+                        #HTML=>  "<LI> $elem\n",
+                        HTML=>  "<br /> <b>$letter.</b> $elem\n",
+                        #HTML_dpng=>     "<LI> $elem <br /> <br /> \n"
+                        HTML_dpng=>     "<br /> <b>$letter.</b> $elem \n"
                                         );
 		$i++;
 	}
 	$out .= &M3(
 				"\\end{enumerate}\n",
 				" \\begin{rawhtml} </OL>\n \\end{rawhtml} ",
-				"</OL>\n"
+				#"</OL>\n"
+				"</BLOCKQUOTE>\n"
 				) ;
 }
 

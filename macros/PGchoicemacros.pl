@@ -528,24 +528,31 @@ sub std_print_a {
 	my $self = shift;
 	my(@array) = @_;
 	my $i = 0;
+	my @alpha = ("A".."Z");
+	my $letter;
 	my	$out= 	&main::M3(
 					"\\begin{enumerate}\n",
 					" \\begin{rawhtml} <OL TYPE=\"A\" VALUE=\"1\"> \\end{rawhtml} ",
-					"<OL COMPACT TYPE=\"A\" START=\"1\">\n"
+					# kludge to fix IE/CSS problem
+					#"<OL COMPACT TYPE=\"A\" START=\"1\">\n"
+					"<BLOCKQUOTE>\n"
 	) ;
 	my $elem;
 	foreach $elem (@array) {
+		$letter = shift @alpha;
 		$out .= &main::M3(
 					"\\item[$main::ALPHABET[$i].] $elem\n",
 					" \\begin{rawhtml} <LI> \\end{rawhtml} $elem  ",
-					"<LI> $elem\n"
+					#"<LI> $elem</LI>\n"
+					"<br /> <b>$letter.</b> $elem\n"
 		) ;
 		$i++;
 	}
 	$out .= &main::M3(
 				"\\end{enumerate}\n",
 				" \\begin{rawhtml} </OL>\n \\end{rawhtml} ",
-				"</OL>\n"
+				#"</OL>\n"
+				"</BLOCKQUOTE>\n"
 	) ;
 	$out;
 
