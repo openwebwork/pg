@@ -1,5 +1,3 @@
-#!/usr/local/bin/webwork-perl
-
 BEGIN{
 	be_strict();
 }
