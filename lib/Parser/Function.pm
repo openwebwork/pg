@@ -243,7 +243,7 @@ sub string {
   $fn_precedence = $fn->{parenPrecedence}
     if ($position && $position eq 'right' && $fn->{parenPrecedence});
   foreach my $x (@{$self->{params}}) {push(@pstr,$x->string)}
-  $string = $self->{name}.'('.join(',',@pstr).')';
+  $string = ($self->{def}{string} || $self->{name}).'('.join(',',@pstr).')';
   $string = '('.$string.')'
     if (defined($precedence) and $precedence > $fn_precedence);
   return $string;
