@@ -271,5 +271,113 @@ sub transpose
 
 
 
+sub decompose_LR
+{
+    croak "Usage: \$LR_matrix = \$matrix->decompose_LR();"
+      if (@_ != 1);
+
+    my($matrix) = @_;
+    my($rows,$cols) = ($matrix->[1],$matrix->[2]);
+    my($perm_row,$perm_col);
+    my($row,$col,$max);
+#    my($i,$j,$k,$n);  #MEG
+    my($i,$j,$k,);
+    my($sign) = 1;
+    my($swap);
+    my($temp);
+#    Why won't this work on non-square matrices?
+#    croak "MatrixReal1::decompose_LR(): matrix is not quadratic"
+#      unless ($rows == $cols);
+    croak "MatrixReal1::decompose_LR(): matrix has more rows than columns"
+      unless ($rows <= $cols);
+
+    $temp = $matrix->new($rows,$cols);
+    $temp->copy($matrix);
+#    $n = $rows;
+    $perm_row = [ ];
+    $perm_col = [ ];
+    for ( $i = 0; $i < $rows; $i++ )  #i is a row number
+    {
+        $perm_row->[$i] = $i;
+        $perm_col->[$i] = $i;
+    }
+    NONZERO:
+    for ( $k = 0; $k < $rows; $k++ ) # use Gauss's algorithm:  #k is row number
+    {
+        # complete pivot-search:
+
+        $max = 0;
+        for ( $i = $k; $i < $cols; $i++ )   # i is column number
+        {
+            for ( $j = $k; $j < $cols; $j++ )
+            {
+                if (($swap = abs($temp->[0][$i][$j])) > $max)
+                {
+                    $max = $swap;
+                    $row = $i;
+                    $col = $j;
+                }
+            }
+        }
+        last NONZERO if ($max == 0); # (all remaining elements are zero)
+        if ($k != $row) # swap row $k and row $row:
+        {
+            $sign = -$sign;
+            $swap             = $perm_row->[$k];
+            $perm_row->[$k]   = $perm_row->[$row];
+            $perm_row->[$row] = $swap;
+            for ( $j = 0; $j < $cols; $j++ )   # j is a column number
+            {
+                # (must run from 0 since L has to be swapped too!)
+
+                $swap                = $temp->[0][$k][$j];
+                $temp->[0][$k][$j]   = $temp->[0][$row][$j];
+                $temp->[0][$row][$j] = $swap;
+            }
+        }
+        if ($k != $col) # swap column $k and column $col:
+        {
+            $sign = -$sign;
+            $swap             = $perm_col->[$k];
+            $perm_col->[$k]   = $perm_col->[$col];
+            $perm_col->[$col] = $swap;
+            for ( $i = 0; $i < $rows; $i++ )   #i is a row number
+            {
+                $swap                = $temp->[0][$i][$k];
+                $temp->[0][$i][$k]   = $temp->[0][$i][$col];
+                $temp->[0][$i][$col] = $swap;
+            }
+        }
+        for ( $i = ($k + 1); $i < $cols; $i++ )   # i is column number
+        {
+            # scan the remaining rows, add multiples of row $k to row $i:
+
+            $swap = $temp->[0][$i][$k] / $temp->[0][$k][$k];
+            if ($swap != 0)
+            {
+                # calculate a row of matrix R:
+
+                for ( $j = ($k + 1); $j < $cols; $j++ )   #j is also a column number
+                {
+                    $temp->[0][$i][$j] -= $temp->[0][$k][$j] * $swap;
+                }
+
+                # store matrix L in same matrix as R:
+
+                $temp->[0][$i][$k] = $swap;
+            }
+        }
+    }
+    my $rh_options = $temp->[3];
+    $temp->[3] = $sign;
+    $temp->[4] = $perm_row;
+    $temp->[5] = $perm_col;
+    $temp->[6] = $temp->[3];
+    return($temp);
+}
+
+
+
+
 
 1;
