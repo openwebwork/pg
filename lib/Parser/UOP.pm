@@ -117,7 +117,7 @@ sub checkList {
 #
 sub checkInfinite {
   my $self = shift;
-  my $uop = $self->{def}{$self->{uop}};
+  my $uop = $self->{def};
   return 0 unless $self->{op}->{isInfinite} && $uop->{allowInfinite};
   $self->{type} = $self->{op}->typeRef;
   return 1;

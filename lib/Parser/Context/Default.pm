@@ -177,18 +177,9 @@ $functions = {
 
 $strings = {
    'infinity'  => {infinite => 1},
-   '-infinity' => {infinite => 1, negative => 1},
-
-   '+infinity' => {alias => 'infinity'},
    'INFINITY'  => {alias => 'infinity'},
-   '+INFINITY' => {alias => 'infinity'},
-   '-INFINITY' => {alias => '-infinity'},
    'inf'  => {alias => 'infinity'},
-   '+inf' => {alias => 'infinity'},
-   '-inf' => {alias => '-infinity'},
    'INF'  => {alias => 'infinity'},
-   '+INF' => {alias => 'infinity'},
-   '-INF' => {alias => '-infinity'},
 
    'NONE' => {},
    'none' => {alias => 'NONE'},
