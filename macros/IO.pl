@@ -114,7 +114,15 @@ sub surePathToTmpFile {
 	my $path = shift;
 	my $delim = "/"; #&getDirDelim();
 	my $tmpDirectory = getCourseTempDirectory();
+	unless ( -e $tmpDirectory) {   # if by some unlucky chance the tmpDirectory hasn't been created, create it.
+	    my $parentDirectory =  $tmpDirectory;
+	    $parentDirectory =~s|/$||;  # remove a trailing /
+	    $parentDirectory =~s|/\w*$||; # remove last node
+	    my ($perms, $groupID) = (stat $parentDirectory)[2,5];
+		createDirectory($tmpDirectory, $perms, $groupID)
+				or warn "Failed to create directory at $path";
 	
+	}
 	# use the permissions/group on the temp directory itself as a template
 	my ($perms, $groupID) = (stat $tmpDirectory)[2,5];
 	#warn "&urePathToTmpFile: perms=$perms groupID=$groupID\n";
@@ -135,7 +143,7 @@ sub surePathToTmpFile {
 			#system("mkdir $path");
 			#createDirectory($path,$Global::tmp_directory_permission, $Global::numericalGroupID)
 			createDirectory($path, $perms, $groupID)
-				or Global::wwerror($0, "Failed to create directory $path","","","");
+				or warn "Failed to create directory at $path";
 		}
 
 	}
