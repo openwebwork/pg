@@ -100,7 +100,8 @@ sub init_graph {
 	}	elsif ( defined($options{'pixels'}) ) {
 		@size = @{$options{'pixels'}};
 	}   else {
-		@size=(200,200);
+		my $defaultSize = $main::envir{onTheFlyImageSize} || 200;
+		@size=($defaultSize,  $defaultSize);
 	}
     my $graphRef = new WWPlot(@size);
 	# select a  name for this graph based on the user, the psvn and the problem
@@ -182,7 +183,8 @@ sub init_graph_no_labels {
 	}	elsif ( defined($options{'pixels'}) ) {
 		@size = @{$options{'pixels'}};
 	}   else {
-		@size=(200,200);
+		my $defaultSize = $main::envir{onTheFlyImageSize} || 200;
+		@size=($defaultSize,  $defaultSize);
 	}
     my $graphRef = new WWPlot(@size);
 	# select a  name for this graph based on the user, the psvn and the problem

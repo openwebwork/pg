@@ -1982,10 +1982,12 @@ sub image {
 				$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
 			}
 		} elsif ($displayMode eq 'Latex2HTML') {
-			$out = qq!\\begin{rawhtml}\n<A HREF= "$imageURL" TARGET="ZOOM"><IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height"></A>\n
+			my $wid = ($envir->{onTheFlyImageSize} || 0)+ 30;
+			$out = qq!\\begin{rawhtml}\n<A HREF= "$imageURL" TARGET="_blank" onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;"><IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height"></A>\n
 			\\end{rawhtml}\n !
  		} elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng' || $displayMode eq 'HTML_img' || $displayMode eq 'HTML_jsMath' || $displayMode eq 'HTML_asciimath') {
- 			$out = qq!<A HREF= "$imageURL" TARGET="ZOOM"><IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height"></A>
+			my $wid = ($envir->{onTheFlyImageSize} || 0) +30;
+ 			$out = qq!<A HREF= "$imageURL" TARGET="_blank" onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;"><IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height"></A>
  			!
  		} else {
  			$out = "Error: PGbasicmacros: image: Unknown displayMode: $displayMode.\n";
