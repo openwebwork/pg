@@ -234,6 +234,8 @@ $fullContext->constants->set(
   k => {TeX => '\boldsymbol{k}', perl => ' k'},
 );
 
+$fullContext->usePrecedence('Standard');
+
 #
 #  Numeric context (no vectors, matrices or complex numbers)
 #
