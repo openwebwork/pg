@@ -76,6 +76,9 @@ and the answer evaulator queue respectively.
 
 my ($STRINGforOUTPUT, $STRINGforHEADER_TEXT, @PG_ANSWERS, @PG_UNLABELED_ANSWERS);
 my %PG_ANSWERS_HASH ;
+# my variables are unreliable if two DOCUMENTS were to be called before and ENDDOCUMENT
+# there could be conflicts.  As I understand the behavior of the Apache child
+# this cannot occur -- a child finishes with one request before obtaining the next
 
 #  	DOCUMENT must come early in every .pg file, before any answers or text are
 #	defined.  It initializes the variables.
@@ -118,14 +121,14 @@ sub DOCUMENT {
 	# and Safe::Root2 (the current one)
 	# There is a good chance they won't be properly updated in one or the other of these compartments.
 	
-	@main::PG_ANSWER_ENTRY_ORDER = ();
-	$main::ANSWER_PREFIX = 'AnSwEr';
-	%main::PG_FLAGS=();  #global flags
-	$main::showPartialCorrectAnswers = 0 unless defined($main::showPartialCorrectAnswers );
-	$main::showHint = 1 unless defined($main::showHint);
-	$main::solutionExists =0;
-	$main::hintExists =0;
-	%main::gifs_created = ();
+# 	@main::PG_ANSWER_ENTRY_ORDER = ();
+# 	$main::ANSWER_PREFIX = 'AnSwEr';
+# 	%main::PG_FLAGS=();  #global flags
+# 	$main::showPartialCorrectAnswers = 0 unless defined($main::showPartialCorrectAnswers );
+# 	$main::showHint = 1 unless defined($main::showHint);
+# 	$main::solutionExists =0;
+# 	$main::hintExists =0;
+# 	%main::gifs_created = ();
 	eval(q!
 	@main::PG_ANSWER_ENTRY_ORDER = ();
 	$main::ANSWER_PREFIX = 'AnSwEr';
@@ -136,12 +139,19 @@ sub DOCUMENT {
 	$main::hintExists =0;
 	%main::gifs_created = ();
     !);
-	die "The environment variable envir has not been defined" unless defined(%main::envir);
-
-   	foreach my $var ( keys %main::envir ) {
-       eval("\$main::$var =\$main::envir{'$var'}");
-   	   warn "Problem defining ", q{\$main::$var}, " while inititializing the PG problem: $@" if $@;
+#    warn eval(q! "PG.pl:  The envir variable $main::{envir} is".join(" ",%main::envir)!);
+    my $rh_envir = eval(q!\%main::envir!);
+    my %envir    = %$rh_envir;
+    no strict;
+    foreach  my  $var (keys %envir) {
+   		eval(q!$main::!.$var.q! = $main::envir{!.$var.q!}! );  #whew!! makes sure $var is interpolated but $main:: is evaluated at run time.
+    #    warn eval(q! "var $var is defined ". $main::!.$var);
+        warn "Problem defining ", q{\$main::}.$var, " while initializing the PG problem: $@" if $@;
     }
+    use strict;
+
+    
+
     eval(q!
 	@main::submittedAnswers = @{$main::refSubmittedAnswers} if defined($main::refSubmittedAnswers);
 	$main::PG_original_problemSeed = $main::problemSeed;
@@ -152,16 +162,19 @@ sub DOCUMENT {
   	$main::QUIZ_PREFIX = '' unless defined($main::QUIZ_PREFIX)
   
 	!);
-	@main::submittedAnswers = @{$main::refSubmittedAnswers} if defined($main::refSubmittedAnswers);
-	$main::PG_original_problemSeed = $main::problemSeed;
-	$main::PG_random_generator = new PGrandom($main::problemSeed) || die "Can't create random number generator.";
-	$main::ans_rule_count = 0;  # counts questions
+# 	@main::submittedAnswers = @{$main::refSubmittedAnswers} if defined($main::refSubmittedAnswers);
+# 	$main::PG_original_problemSeed = $main::problemSeed;
+# 	$main::PG_random_generator = new PGrandom($main::problemSeed) || die "Can't create random number generator.";
+# 	$main::ans_rule_count = 0;  # counts questions
 
   	# end unpacking of environment variables.
-  	$main::QUIZ_PREFIX = '' unless defined($main::QUIZ_PREFIX)
+#  	$main::QUIZ_PREFIX = '' unless defined($main::QUIZ_PREFIX)
 	
 }
 
+sub inc_ans_rule_count {
+	eval(q!++$main::ans_rule_count!); # evalute at runtime to get correct main::
+}
 #	HEADER_TEXT is for material which is destined to be placed in the header of the html problem -- such
 #   as javaScript code.
 
@@ -352,7 +365,7 @@ sub ENDDOCUMENT {
     }
 
     $STRINGforOUTPUT .="\n";
-   ##eval q{  #make sure that "main" points to the current safe compartment by evaluating these lines.
+   eval q{  #make sure that "main" points to the current safe compartment by evaluating these lines.
 		$main::PG_FLAGS{'showPartialCorrectAnswers'} = $main::showPartialCorrectAnswers;
 		$main::PG_FLAGS{'recordSubmittedAnswers'} = $main::recordSubmittedAnswers;
 		$main::PG_FLAGS{'refreshCachedImages'} = $main::refreshCachedImages;
@@ -386,12 +399,13 @@ sub ENDDOCUMENT {
 		} else {
 			# PGtranslator will install its default problem grader
 		}
-	##};
+	
     warn "ERROR: The problem grader is not a subroutine" unless ref( $main::PG_FLAGS{PROBLEM_GRADER_TO_USE}) eq 'CODE'
 										 or $main::PG_FLAGS{PROBLEM_GRADER_TO_USE} = 'std_problem_grader'
 										 or $main::PG_FLAGS{PROBLEM_GRADER_TO_USE} = 'avg_problem_grader';
      # return results
-	(\$STRINGforOUTPUT, \$STRINGforHEADER_TEXT,\%PG_ANSWERS_HASH,\%main::PG_FLAGS);
+    };
+	(\$STRINGforOUTPUT, \$STRINGforHEADER_TEXT,\%PG_ANSWERS_HASH,eval(q!\%main::PG_FLAGS!));
 }
 
 
