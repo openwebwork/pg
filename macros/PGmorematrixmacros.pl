@@ -154,19 +154,19 @@ sub basis_cmp {
 	my %opt	= @_;
 
  	set_default_options(	\%opt,
-				'zeroLevelTol'				=>	$main::functZeroLevelTolDefault,
-	       			'debug'					=>	0,
-				'mode'					=>	'basis',
-				'help'					=>	'none',
-     	);
+			'zeroLevelTol'			=>	$main::functZeroLevelTolDefault,
+			'debug'					=>	0,
+			'mode'					=>	'basis',
+			'help'					=>	'none',
+	);
 	
 	# produce answer evaluator
 	BASIS_CMP(
-				'correct_ans'			=>	$correctAnswer,
-				'zeroLevelTol'			=>	$opt{'zeroLevelTol'},
-				'debug'				=>	$opt{'debug'},
-				'mode'				=> 	$opt{'mode'},
-				'help'				=>	$opt{'help'},				
+			'correct_ans'		=>	$correctAnswer,
+			'zeroLevelTol'		=>	$opt{'zeroLevelTol'},
+			'debug'				=>	$opt{'debug'},
+			'mode'				=> 	$opt{'mode'},
+			'help'				=>	$opt{'help'},				
 	);
 }
 
@@ -191,68 +191,78 @@ sub BASIS_CMP {
 #construct the answer evaluator
  	my $answer_evaluator = new AnswerEvaluator;
 
-    	$answer_evaluator->{debug} = $mat_params{debug};
-	$answer_evaluator->ans_hash( 	correct_ans 		=> 	display_correct_vecs($mat_params{correct_ans}),
-					rm_correct_ans		=> 	$matrix,
-					zeroLevelTol		=>	$mat_params{zeroLevelTol},
-					debug			=>	$mat_params{debug},
-					mode			=> 	$mat_params{mode},
-					help			=>	$mat_params{help},
-    	);
+    $answer_evaluator->{debug} = $mat_params{debug};
+	$answer_evaluator->ans_hash( 	
+		correct_ans 		=> 	display_correct_vecs($mat_params{correct_ans}),
+		rm_correct_ans		=> 	$matrix,
+		zeroLevelTol		=>	$mat_params{zeroLevelTol},
+		debug			    =>	$mat_params{debug},
+		mode			    => 	$mat_params{mode},
+		help			    =>	$mat_params{help},
+    );
 
-	$answer_evaluator->install_pre_filter(sub {my $rh_ans = shift;
-		$rh_ans->{student_ans} =~ s/\s+//g;		# remove all whitespace
-		$rh_ans;
-	});
-	$answer_evaluator->install_pre_filter(sub{my $rh_ans = shift; my @options = @_;
-		if( $rh_ans->{ans_label} =~ /ArRaY/ ){
-			$rh_ans = ans_array_filter($rh_ans,@options);		
-			my @student_array = @{$rh_ans->{ra_student_ans}};
-			my @array = ();
-			for( my $i = 0; $i < scalar(@student_array) ; $i ++ )
-			{
-				push( @array, Matrix->new_from_array_ref($student_array[$i]));
-			}
-			$rh_ans->{ra_student_ans} = \@array;
+	$answer_evaluator->install_pre_filter(
+		sub {my $rh_ans              = shift;
+			$rh_ans->{_filter_name}  = 'remove_white_space';
+			$rh_ans->{student_ans}   =~ s/\s+//g;		# remove all whitespace
 			$rh_ans;
-		}else{
-			$rh_ans->{student_ans} = math_constants($rh_ans->{student_ans});
-			vec_list_string($rh_ans,@options);
 		}
-			
-	});#ra_student_ans is now the students answer as an array of vectors
+	);
+	$answer_evaluator->install_pre_filter(
+		sub{my $rh_ans      = shift; 
+			my @options     = @_;
+			$rh_ans->{_filter_name}  = 'mung_student_answer';
+			if( $rh_ans->{ans_label} =~ /ArRaY/ ){
+				$rh_ans           = ans_array_filter($rh_ans,@options);		
+				my @student_array = @{$rh_ans->{ra_student_ans}};
+				my @array         = ();
+				for( my $i = 0; $i < scalar(@student_array) ; $i ++ )
+				{
+					push( @array, Matrix->new_from_array_ref($student_array[$i]));
+				}
+				$rh_ans->{ra_student_ans} = \@array;
+				$rh_ans;
+			}else{
+				$rh_ans->{student_ans}    = math_constants($rh_ans->{student_ans});
+				vec_list_string($rh_ans, '_filter_name' => 'vec_list_string', @options);
+			}
+		}
+	);#ra_student_ans is now the students answer as an array of vectors
 	# anonymous subroutine to check dimension and length of the student vectors
 	# if either is wrong, the answer is wrong.
-	$answer_evaluator->install_pre_filter(sub{
-		my $rh_ans = shift;
-		my $length = $rh_ans->{rm_correct_ans}->[1];
-		my $dim = $rh_ans->{rm_correct_ans}->[2];
-		if( $dim != scalar(@{$rh_ans->{ra_student_ans}}))
-		{
-		
-			$rh_ans->{score} = 0;
-			if( $rh_ans->{help} =~ /dim|verbose/ )
+	$answer_evaluator->install_pre_filter(
+		sub{
+			my $rh_ans               = shift;
+			$rh_ans->{_filter_name}  = 'check_vector_size';
+			my $length               = $rh_ans->{rm_correct_ans}->[1];
+			my $dim                  = $rh_ans->{rm_correct_ans}->[2];
+			if( $dim != scalar(@{$rh_ans->{ra_student_ans}}))
 			{
-				$rh_ans->throw_error('EVAL','You have entered the wrong number of vectors.');
-			}else{
-				$rh_ans->throw_error('EVAL');
-			}
-		}
-		for( my $i = 0; $i < scalar( @{$rh_ans->{ra_student_ans} }) ; $i++ )
-		{
-			if( $length != $rh_ans->{ra_student_ans}->[$i]->[1])
-			{
+			
 				$rh_ans->{score} = 0;
-				if( $rh_ans->{help} =~ /length|verbose/ )
+				if( $rh_ans->{help} =~ /dim|verbose/ )
 				{
-					$rh_ans->throw_error('EVAL','You have entered vector(s) of the wrong length.');
+					$rh_ans->throw_error('EVAL','You have entered the wrong number of vectors.');
 				}else{
 					$rh_ans->throw_error('EVAL');
 				}
 			}
+			for( my $i = 0; $i < scalar( @{$rh_ans->{ra_student_ans} }) ; $i++ )
+			{
+				if( $length != $rh_ans->{ra_student_ans}->[$i]->[1])
+				{
+					$rh_ans->{score} = 0;
+					if( $rh_ans->{help} =~ /length|verbose/ )
+					{
+						$rh_ans->throw_error('EVAL','You have entered vector(s) of the wrong length.');
+					}else{
+						$rh_ans->throw_error('EVAL');
+					}
+				}
+			}
+			$rh_ans;
 		}
-		$rh_ans;
-	});
+	);
 	# Install prefilter for various modes
 	if( $mat_params{mode} ne 'basis' )
 	{
@@ -504,7 +514,13 @@ sub vec_list_string{
 sub ans_array_filter{
 	my $rh_ans = shift;
 	my %options = @_;
-	$rh_ans->{ans_label} =~ /ArRaY(\d+)\[\d+,\d+,\d+\]/;
+# 	assign_option_aliases( \%opt,
+#     );
+	set_default_options(\%options,
+				'_filter_name'	=>	'ans_array_filter',				
+	);
+#	$rh_ans->{ans_label} =~ /ArRaY(\d+)\[\d+,\d+,\d+\]/;  # CHANGE made to accomodate HTML 4.01 standards for name attribute
+	$rh_ans->{ans_label} =~ /ArRaY(\d+)\_\_\d+:\d+:\d+\_\_/;
 	my $ans_num = $1;
 	my @keys = grep /ArRaY$ans_num/, keys(%{$main::inputs_ref});
 	my $key;
@@ -513,11 +529,15 @@ sub ans_array_filter{
 	
 	#the keys aren't in order, so their info has to be put into the array before doing anything with it
 	foreach $key (@keys){
-		$key =~ /ArRaY\d+\[(\d+),(\d+),(\d+)\]/;
+# 		$key =~ /ArRaY\d+\[(\d+),(\d+),(\d+)\]/;
+# 		($i,$j,$k) = ($1,$2,$3);
+# 		$array[$i][$j][$k] = ${$main::inputs_ref}{'ArRaY'.$ans_num.'['.$i.','.$j.','.$k.']'};
+		$key =~ /ArRaY\d+\_\_(\d+):(\d+):(\d+)\_\_/;
 		($i,$j,$k) = ($1,$2,$3);
-		$array[$i][$j][$k] = ${$main::inputs_ref}{'ArRaY'.$ans_num.'['.$i.','.$j.','.$k.']'};		
+		$array[$i][$j][$k] = ${$main::inputs_ref}{'ArRaY'.$ans_num.'__'.$i.':'.$j.':'.$k.'__'};		
+
 	}
-	
+	$rh_ans->{debug_student_answer }=  \@array;
 	my $display_ans = "";
 		
 	for( $i=0; $i < scalar(@array) ; $i ++ )
@@ -596,6 +616,7 @@ sub ans_array_filter{
 
 sub are_orthogonal_vecs{
 	my ($vec_ref , %opts) = @_;
+	$vec_ref->{_filter_name}  = 'are_orthogonal_vecs';
 	my @vecs = ();
 	if( ref($vec_ref) eq 'AnswerHash' )
 	{
@@ -716,6 +737,7 @@ sub is_diagonal{
 
 sub are_unit_vecs{
 	my ( $vec_ref,%opts ) = @_;
+	$vec_ref->{_filter_name}  = 'are_unit_vecs';
 	my @vecs = ();
 	if( ref($vec_ref) eq 'AnswerHash' )
 	{
@@ -911,12 +933,12 @@ sub compare_vec_solution {
 		$rh_ans->{score} = 0;
 		$rh_ans;
 	}else{
-	$rh_ans->{score} = 1;
-	my @correct_space = @{$rh_ans->{old_correct_ans}};
-	shift @correct_space;
-	$rh_ans->{rm_correct_ans} = Matrix->new_from_col_vecs(\@correct_space);
-	$rh_ans->{ra_student_ans} = \@space;
-	return compare_basis( $rh_ans, %options );
+		$rh_ans->{score} = 1;
+		my @correct_space = @{$rh_ans->{old_correct_ans}};
+		shift @correct_space;
+		$rh_ans->{rm_correct_ans} = Matrix->new_from_col_vecs(\@correct_space);
+		$rh_ans->{ra_student_ans} = \@space;
+		return compare_basis( $rh_ans, %options );
 	}
 }
 
