@@ -108,12 +108,12 @@ my ($macroDirectory,
 	$externalTTHPath,
 	);
 
-sub _dangerousMacros_init {   #FIXME  use local envir instead of local variables?
-	$macroDirectory           = eval('$main::macroDirectory') ;
-    $courseScriptsDirectory   = eval('$main::courseScriptsDirectory');
-    $templateDirectory        = eval('$main::templateDirectory');
-    $scriptDirectory          = eval('$main::scriptDirectory');
-    $externalTTHPath          = eval('$envir{externalTTHPath}');
+sub _dangerousMacros_init {   #use  %envir instead of variables such as $macroDirectory  -- not sure why -- perhaps variables haven't been unpacked yet.
+	$macroDirectory           = eval('$main::envir{macroDirectory}') ;
+    $courseScriptsDirectory   = eval('$main::envir{courseScriptsDirectory}');
+    $templateDirectory        = eval('$main::envir{templateDirectory}');
+    $scriptDirectory          = eval('$main::envir{scriptDirectory}');
+    $externalTTHPath          = eval('$main::envir{externalTTHPath}');
     warn "dangerousmacros initialized" if $debugON;
     warn eval(q! "dangerousmacros.pl externalTTHPath is ".$main::externalTTHPath;!) if $debugON;
     warn eval(q! "dangerousmacros.pl:  The envir variable $main::{envir} is".join(" ",%main::envir)!) if $debugON; 
@@ -193,7 +193,7 @@ sub loadMacros {
 	# At this point the directories have been defined from %envir and we can define
 	# the directories for this file
 	###############################################################################
-
+   
 	# special case inits
 	foreach my $file ('PG.pl','dangerousMacros.pl','IO.pl') {
 	    my $macro_file_name = $file;
@@ -256,7 +256,6 @@ sub loadMacros {
         
         my $macro_file_loaded = defined($init_subroutine) && defined(&$init_subroutine);
         warn "dangerousMacros: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|" if $debugON;
-       
         unless ($macro_file_loaded) {
         	#print STDERR "loadMacros: loading macro file $fileName\n";
 			if (-r "$macroDirectory$fileName") {
