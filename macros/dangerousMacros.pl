@@ -831,8 +831,8 @@ sub alias {
 	warn "The macro &surePathToTmpFile can't be found" unless defined(&surePathToTmpFile);
 	warn "The macro &convertPath can't be found" unless defined(&convertPath);
 	warn "The macro &directoryFromPath can't be found" unless defined(&directoryFromPath);
-	warn "Can't execute the gif2eps script at ${externalGif2EpsPath}" unless ( -x "${externalGif2EpsPath}" );
-	warn "Can't execute the png2eps script at ${externalPng2EpsPath}" unless ( -x "${externalPng2EpsPath}" );
+	warn "The webwork server does not have permission to execute the gif2eps script at  ${externalGif2EpsPath}." unless ( -x "${externalGif2EpsPath}" );
+	warn "The webwork server does not have permission to execute the png2eps script at ${externalPng2EpsPath}." unless ( -x "${externalPng2EpsPath}" );
 
 	# required directory addresses (and URL address)
 	warn "htmlDirectory is not defined in $htmlDirectory" unless $htmlDirectory;

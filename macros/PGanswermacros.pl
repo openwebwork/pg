@@ -132,6 +132,7 @@ my ($BR 					        ,		# convenient localizations.
 	$functMaxConstantOfIntegration	,
 	$CA                             ,
 	$rh_envir                       ,
+	$QUESTIONNAIRE_ANSWERS          ,
 );
 
 
@@ -139,8 +140,8 @@ my ($BR 					        ,		# convenient localizations.
 
 sub _PGanswermacros_init {
 
-		 $BR 	                            = main::PG_restricted_eval(q!$main::BR!);		
-		 $PAR	                            = main::PG_restricted_eval(q!$main::PAR!);
+		 $BR 	                            =   main::PG_restricted_eval(q!$main::BR!);		
+		 $PAR	                            =   main::PG_restricted_eval(q!$main::PAR!);
 
 		# import defaults
 		# these	are	now imported from the %envir variable
@@ -159,6 +160,7 @@ sub _PGanswermacros_init {
 		 $functULimitDefault				=	main::PG_restricted_eval(q!$main::functULimitDefault!);
 		 $functMaxConstantOfIntegration		=	main::PG_restricted_eval(q!$main::functMaxConstantOfIntegration!);
 		 $rh_envir                          =   main::PG_restricted_eval(q!\%main::envir!);
+		 $QUESTIONNAIRE_ANSWERS				=   '';
 }
 
 
@@ -2436,7 +2438,7 @@ sub store_ans_at {
 #### subroutines used in producing a questionnaire
 #### these are at least	good models	for	other answers of this type
 
-my $QUESTIONNAIRE_ANSWERS='';	#  stores the answers until	it is time to send them
+# my $QUESTIONNAIRE_ANSWERS='';	#  stores the answers until	it is time to send them
 		   #  this must	be initialized before the answer evaluators	are	run
 		   #  but that happens long	after all of the text in the problem is
 		   #  evaluated.
