@@ -1191,10 +1191,17 @@ sub alias {
 sub i () {
   #  check if Parser.pl is loaded, otherwise use Complex package
   if (eval(q!$main::_parser_loaded!)) {return Value::Formula->new('i')->eval}
-    else {return Complex::i}
+  Complex::i;
 }
-sub j () {Value::Formula->new('j')->eval}
-sub k () {Value::Formula->new('k')->eval}
+sub j () {
+  if (!eval(q!$main::_parser_loaded!)) {return 'j'}
+  Value::Formula->new('j')->eval
+}
+sub k () {
+  if (!eval(q!$main::_parser_loaded!)) {return 'k'}
+  Value::Formula->new('k')->eval;
+}
+
 sub pi () {Value::Formula->new('pi')->eval}
 sub Infinity () {Value::Infinity->new()}
 
