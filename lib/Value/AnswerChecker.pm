@@ -60,6 +60,8 @@ sub cmp_parse {
   );
   $ans->{isPreview} = $self->getPG('$inputs_ref->{previewAnswers}');
   $ans->{cmp_class} = $self->cmp_class($ans) unless $ans->{cmp_class};
+  $ans->{error_message} = $ans->{ans_message} = ''; # clear any old messages
+  $ans->{preview_latex_string} = $ans->{preview_text_string} = '';
 
   #
   #  Parse and evaluate the student answer
