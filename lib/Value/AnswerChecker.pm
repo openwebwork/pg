@@ -32,7 +32,7 @@ sub cmp {
     type => "Value (".$self->class.")",
     correct_ans => protectHTML($correct),
     correct_value => $self,
-    $self->cmp_defaults,
+    $self->cmp_defaults(@_),
     @_
   );
   $ans->install_evaluator(sub {$ans = shift; $ans->{correct_value}->cmp_parse($ans)});
@@ -101,7 +101,7 @@ sub cmp_equal {
   my $correct = $ans->{correct_value};
   my $student = $ans->{student_value};
   if ($correct->typeMatch($student,$ans)) {
-    my $equal = eval {$correct == $student};
+    my $equal = $correct->cmp_compare($student,$ans);
     if (defined($equal) || !$ans->{showEqualErrors}) {$ans->score(1) if $equal; return}
     $self->cmp_error($ans);
   } else {
@@ -112,6 +112,28 @@ sub cmp_equal {
 	   if !$ans->{isPreview} && $ans->{showTypeWarnings} && !$ans->{error_message};
   }
 }
+
+#
+#  Perform the comparison, either using the checker supplied
+#  by the answer evaluator, or the overloaded == operator.
+#
+
+our $CMP_ERROR = 2; # a fatal error was detected
+
+sub cmp_compare {
+  my $self = shift; my $other = shift; my $ans = shift;
+  return eval {$self == $other} unless ref($ans->{checker}) eq 'CODE';
+  my $equal = eval {&{$ans->{checker}}($self,$other,$ans)};
+  if (!defined($equal) && $@ ne '' && !$$Value::context->{error}{flag}) {
+    $$Value::context->setError("<I>An error occurred while checking your answer:</I>\n".
+      '<DIV STYLE="margin-left:1em">'.$@.'</DIV>','');
+    $$Value::context->{error}{flag} = $CMP_ERROR;
+    warn "Please inform your instructor that an error occurred while checking your answer";
+  }
+  return $equal;
+}
+
+sub cmp_list_compare {Value::List::cmp_list_compare(@_)}
 
 #
 #  Check if types are compatible for equality check
@@ -139,11 +161,11 @@ sub cmp_class {
 #
 sub cmp_error {
   my $self = shift; my $ans = shift;
-  my $context = $$Value::context;
-  my $message = $context->{error}{message};
-  if ($context->{error}{pos}) {
-    my $string = $context->{error}{string};
-    my ($s,$e) = @{$context->{error}{pos}};
+  my $error = $$Value::context->{error};
+  my $message = $error->{message};
+  if ($error->{pos}) {
+    my $string = $error->{string};
+    my ($s,$e) = @{$error->{pos}};
     $message =~ s/; see.*//;  # remove the position from the message
     $ans->{student_ans} =
        protectHTML(substr($string,0,$s)) .
@@ -218,7 +240,7 @@ sub getPG {
 package Value::Real;
 
 sub cmp_defaults {(
-  shift->SUPER::cmp_defaults,
+  shift->SUPER::cmp_defaults(@_),
   ignoreInfinity => 1,
 )}
 
@@ -249,7 +271,7 @@ sub typeMatch {
 package Value::String;
 
 sub cmp_defaults {(
-  Value::Real->cmp_defaults,
+  Value::Real->cmp_defaults(@_),
   typeMatch => 'Value::Real',
 )}
 
@@ -273,7 +295,7 @@ sub typeMatch {
 package Value::Point;
 
 sub cmp_defaults {(
-  shift->SUPER::cmp_defaults,
+  shift->SUPER::cmp_defaults(@_),
   showDimensionHints => 1,
   showCoordinateHints => 1,
 )}
@@ -309,7 +331,7 @@ sub cmp_postprocess {
 package Value::Vector;
 
 sub cmp_defaults {(
-  shift->SUPER::cmp_defaults,
+  shift->SUPER::cmp_defaults(@_),
   showDimensionHints => 1,
   showCoordinateHints => 1,
   promotePoints => 0,
@@ -359,7 +381,7 @@ sub cmp_postprocess {
 package Value::Matrix;
 
 sub cmp_defaults {(
-  shift->SUPER::cmp_defaults,
+  shift->SUPER::cmp_defaults(@_),
   showDimensionHints => 1,
   showEqualErrors => 0,
 )}
@@ -397,7 +419,7 @@ sub cmp_postprocess {
 package Value::Interval;
 
 sub cmp_defaults {(
-  shift->SUPER::cmp_defaults,
+  shift->SUPER::cmp_defaults(@_),
   showEndpointHints => 1,
   showEndTypeHints => 1,
 )}
@@ -469,13 +491,15 @@ package Value::List;
 
 sub cmp_defaults {
   my $self = shift;
+  my %options = (@_);
   return (
-    Value::Real->cmp_defaults,
+    Value::Real->cmp_defaults(@_),
     showHints => undef,
     showLengthHints => undef,
     showParenHints => undef,
     partialCredit => undef,
     ordered => 0,
+    showEqualErrors => $options{ordered},
     entry_type => undef,
     list_type => undef,
     typeMatch => Value::makeValue($self->{data}[0]),
@@ -510,23 +534,21 @@ sub cmp_equal {
   #
   #  get the paramaters
   #
-  my $showTypeWarnings = $ans->{showTypeWarnings};
-  my $showHints        = getOption($ans,'showHints');
-  my $showLengthHints  = getOption($ans,'showLengthHints');
-  my $showParenHints   = getOption($ans,'showLengthHints');
-  my $partialCredit    = getOption($ans,'partialCredit');
-  my $ordered   = $ans->{ordered};
+  my $showHints         = getOption($ans,'showHints');
+  my $showLengthHints   = getOption($ans,'showLengthHints');
+  my $showParenHints    = getOption($ans,'showLengthHints');
+  my $partialCredit     = getOption($ans,'partialCredit');
   my $requireParenMatch = $ans->{requireParenMatch};
-  my $typeMatch = $ans->{typeMatch};
-  my $value     = $ans->{entry_type};
-  my $ltype     = $ans->{list_type} || lc($self->type);
+  my $typeMatch         = $ans->{typeMatch};
+  my $value             = $ans->{entry_type};
+  my $ltype             = $ans->{list_type} || lc($self->type);
 
   $value = (Value::isValue($typeMatch)? lc($typeMatch->cmp_class): 'value')
     unless defined($value);
   $value =~ s/(real|complex) //; $ans->{cmp_class} = $value;
   $value =~ s/^an? //; $value = 'formula' if $value =~ m/formula/;
   $ltype =~ s/^an? //;
-  $showTypeWarnings = $showHints = $showLengthHints = 0 if $ans->{isPreview};
+  $showHints = $showLengthHints = 0 if $ans->{isPreview};
 
   #
   #  Get the lists of correct and student answers
@@ -564,62 +586,37 @@ sub cmp_equal {
     }
     return;
   }
-  #
-  #  Check for empty lists
-  #
-  if (scalar(@correct) == 0 && scalar(@student) == 0) {$ans->score(1); return}  
 
   #
-  #  Initialize the score
+  #  Determine the maximum score
   #
   my $M = scalar(@correct);
   my $m = scalar(@student);
   my $maxscore = ($m > $M)? $m : $M;
-  my $score = 0; my @errors; my $i = 0;
 
   #
-  #  Loop through student answers looking for correct ones
+  #  Compare the two lists
+  #  (Handle errors in user-supplied functions)
   #
-  ENTRY: foreach my $entry (@student) {
-    $i++;
-    $entry = Value::makeValue($entry);
-    $entry = Value::Formula->new($entry) if !Value::isValue($entry);
-    if ($ordered) {
-      if (eval {shift(@correct) == $entry}) {$score++; next ENTRY}
-    } else {
-      foreach my $k (0..$#correct) {
-	if (eval {$correct[$k] == $entry}) {
-	  splice(@correct,$k,1);
-	  $score++; next ENTRY;
-	}
-      }
+  my ($score,@errors);
+  if (ref($ans->{list_checker}) eq 'CODE') {
+    eval {($score,@errors) = &{$ans->{list_checker}}([@correct],[@student],$ans,$value)};
+    if (!defined($score)) {
+      die $@ if $@ ne '' && $self->{context}{error}{flag} == 0;
+      $self->cmp_error($ans) if $self->{context}{error}{flag};
     }
-    #
-    #  Give messages about incorrect answers
-    #
-    my $nth = ''; my $answer = 'answer';
-    my $class = $ans->{list_type} || $self->cmp_class;
-    if (scalar(@student) > 1) {
-      $nth = ' '.$self->NameForNumber($i);
-      $class = $ans->{cmp_class};
-      $answer = 'value';
-    }
-    if ($showTypeWarnings && !$typeMatch->typeMatch($entry,$ans) &&
-	!($ans->{ignoreStrings} && $entry->class eq 'String')) {
-      push(@errors,"Your$nth $answer isn't ".lc($class).
-	   " (it looks like ".lc($entry->showClass).")");
-    } elsif ($showHints && $m > 1) {
-      push(@errors,"Your$nth $value is incorrect");
-    }
+  } else {
+    ($score,@errors) = $self->cmp_list_compare([@correct],[@student],$ans,$value);
   }
+  return unless defined($score);
 
   #
-  #  Give hints about extra or missing answsers
+  #  Give hints about extra or missing answers
   #
   if ($showLengthHints) {
     $value =~ s/ or /s or /; # fix "interval or union"
     push(@errors,"There should be more ${value}s in your $ltype")
-      if ($score == $m && scalar(@correct) > 0);
+      if ($score < $maxscore && $score == $m);
     push(@errors,"There should be fewer ${value}s in your $ltype")
       if ($score < $maxscore && $score == $M && !$showHints);
   }
@@ -631,6 +628,72 @@ sub cmp_equal {
   $ans->score($score/$maxscore);
   push(@errors,"Score = $ans->{score}") if $ans->{debug};
   $ans->{error_message} = $ans->{ans_message} = join("\n",@errors);
+}
+
+#
+#  Compare the contents of the list to see of they are equal
+#
+sub cmp_list_compare {
+  my $self = shift;
+  my $correct = shift; my $student = shift; my $ans = shift; my $value = shift;
+  my @correct = @{$correct}; my @student = @{$student}; my $m = scalar(@student);
+  my $ordered = $ans->{ordered};
+  my $showTypeWarnings = $ans->{showTypeWarnings} && !$ans->{isPreview};
+  my $typeMatch = $ans->{typeMatch};
+  my $showHints = getOption($ans,'showHints') && !$ans->{isPreview};
+  my $error = $$Value::context->{error};
+  my $score = 0; my @errors; my $i = 0;
+
+  #
+  #  Check for empty lists
+  #
+  if (scalar(@correct) == 0) {$ans->score($m == 0); return}
+
+  #
+  #  Loop through student answers looking for correct ones
+  #
+  ENTRY: foreach my $entry (@student) {
+    $i++; $$Value::context->clearError;
+    $entry = Value::makeValue($entry);
+    $entry = Value::Formula->new($entry) if !Value::isValue($entry);
+    if ($ordered) {
+      if (shift(@correct)->cmp_compare($entry,$ans)) {$score++; next ENTRY}
+      if ($error->{flag} == $CMP_ERROR) {$self->cmp_error($ans); return}
+    } else {
+      foreach my $k (0..$#correct) {
+	if ($correct[$k]->cmp_compare($entry,$ans)) {
+	  splice(@correct,$k,1);
+	  $score++; next ENTRY;
+	}
+	if ($error->{flag} == $CMP_ERROR) {$self->cmp_error($ans); return}
+      }
+    }
+    #
+    #  Give messages about incorrect answers
+    #
+    my $nth = ''; my $answer = 'answer';
+    my $class = $ans->{list_type} || $self->cmp_class;
+    if ($m > 1) {
+      $nth = ' '.$self->NameForNumber($i);
+      $class = $ans->{cmp_class};
+      $answer = 'value';
+    }
+    if ($error->{flag} && $ans->{showEqualErrors}) {
+      push(@errors,"<I>An error occured while processing your$nth $answer:</I>",
+	           '<DIV STYLE="margin-left:1em">'.$error->{message}.'</DIV>');
+    } elsif ($showTypeWarnings && !$typeMatch->typeMatch($entry,$ans) &&
+	     !($ans->{ignoreStrings} && $entry->class eq 'String')) {
+      push(@errors,"Your$nth $answer isn't ".lc($class).
+	   " (it looks like ".lc($entry->showClass).")");
+    } elsif ($showHints && $m > 1) {
+      push(@errors,"Your$nth $value is incorrect");
+    }
+  }
+
+  #
+  #  Return the score and errors
+  #
+  return ($score,@errors);
 }
 
 #
