@@ -922,22 +922,4 @@ sub compare_vec_solution {
 	}
 }
 
-sub pretty_matrix{
-	my $matrix = shift;
-	
-	if( ref($matrix) ne 'Matrix' ){
-		warn "Usage: \$pretty_matrix = pretty_matrix(\$matrix)"; 
-	}
-	
-	for( my $i = 0; $i < $matrix->[1]; $i++ ){
-		for( my $j = 0; $j < $matrix->[2]; $j++ ){
-			if( $matrix->[0][$i][$j] - sprintf("%.0f", $matrix->[0][$i][$j] ) < $main::functZeroLevelTolDefault ){
-				$matrix->[0][$i][$j] = sprintf("%.0f", $matrix->[0][$i][$j] );
-				$matrix->[0][$i][$j] = 0 if( $matrix->[0][$i][$j] == 0);
-			}	
-		}	
-	}
-	$matrix;
-}
-
 1;
