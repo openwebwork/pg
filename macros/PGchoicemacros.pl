@@ -528,7 +528,7 @@ sub std_print_a {
 	my $self = shift;
 	my(@array) = @_;
 	my $i = 0;
-	my @alpha = ("A".."Z");
+	my @alpha = ('A'..'Z', 'AA'..'ZZ');
 	my $letter;
 	my	$out= 	&main::M3(
 					"\\begin{enumerate}\n",

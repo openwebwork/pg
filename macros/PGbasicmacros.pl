@@ -1660,7 +1660,7 @@ sub protect_underbar {
 sub OL {
 	my(@array) = @_;
 	my $i = 0;
-	my @alpha = ("A".."Z");
+	my @alpha = ('A'..'Z', 'AA'..'ZZ');
 	my $letter;
 	my	$out= 	&M3(
 					"\\begin{enumerate}\n",
