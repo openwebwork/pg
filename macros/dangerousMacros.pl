@@ -108,7 +108,7 @@ my ($macroDirectory,
 	$externalTTHPath,
 	);
 
-sub _dangerousMacros_init {   #use  %envir instead of variables such as $macroDirectory  -- not sure why -- perhaps variables haven't been unpacked yet.
+sub _dangerousMacros_init {   #use  envir instead of local variables?
 	$macroDirectory           = eval('$main::envir{macroDirectory}') ;
     $courseScriptsDirectory   = eval('$main::envir{courseScriptsDirectory}');
     $templateDirectory        = eval('$main::envir{templateDirectory}');
@@ -256,6 +256,8 @@ sub loadMacros {
         
         my $macro_file_loaded = defined($init_subroutine) && defined(&$init_subroutine);
         warn "dangerousMacros: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|" if $debugON;
+        warn "for $fileName <br>courseScriptsDirectory = $courseScriptsDirectory";
+        warn "macroDirectory is $macroDirectory";
         unless ($macro_file_loaded) {
         	#print STDERR "loadMacros: loading macro file $fileName\n";
 			if (-r "$macroDirectory$fileName") {

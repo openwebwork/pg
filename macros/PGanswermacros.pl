@@ -169,19 +169,6 @@ sub _PGanswermacros_init {
 }
 
 
-loadMacros( 'compositionAnswer.pl',
-            'intervalAnswer.pl',
-            'listAnswer.pl',
-            'planeAnswer.pl',
-            'unionAnswer.pl',
-            'variableAnswer.pl',
-            'infiniteAnswer.pl',
-            'lineAnswer.pl',
-            'parallelAnswer.pl',
-            'pointAnswer.pl',
-            'unorderedAnswer.pl',
-            'vectorAnswer.pl',
-);
 
 ##########################################################################
 
