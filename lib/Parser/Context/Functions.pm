@@ -29,5 +29,60 @@ sub undefine {
 }
 
 #########################################################################
+#
+#  Handle enabling and disabling functions
+#
+
+my %Category = (
+   SimpleTrig  => [qw(sin cos tan sec csc cot)],
+   InverseTrig => [qw(asin acos atan asec acsc acot
+		      arcsin arccos arctan arcsec arccsc arccot atan2)],
+
+   SimpleHyperbolic  => [qw(sinh cosh tanh sech csch coth)],
+   InverseHyperbolic => [qw(asinh acosh atanh asech acsch acoth
+                            arcsinh arccosh arctanh arcsech arccsch arccoth)],
+
+   Numeric     => [qw(log log10 exp sqrt abs int sgn ln logten)],
+
+   Vector      => [qw(norm unit)],
+
+   Complex     => [qw(arg mod Re Im conj)],
+
+   Hyperbolic  => [qw(_alias_ SimpleHyperbolic InverseHyperbolic)],
+   Trig        => [qw(_alias_ SimpleTrig InverseTrig Hyperbolic)],
+   All         => [qw(_alias_ Trig Numeric Vector Complex)],
+);
+
+sub Disable {
+  my @names = @_; my ($list,$name);
+  my $context = Parser::Context->current;
+  while ($name = shift(@names)) {
+    $list = $Category{$name};
+    $list = [$name] if !$list && $context->{functions}{$name};
+    unless (defined($list)) {warn "Undefined function or category '$name'"; next}
+    if ($list->[0] eq '_alias_') 
+      {unshift @names, @{$list}[1..scalar(@{$list})-1]; next}
+    $context->functions->undefine(@{$list});
+  }
+}
+
+sub Enable {
+  my @names = @_; my ($list,$name);
+  my $context = Parser::Context->current;
+  while ($name = shift(@names)) {
+    $list = $Category{$name};
+    $list = [$name] if !$list && $context->{functions}{$name};
+    unless (defined($list)) {warn "Undefined function or category '$name'"; next}
+    if ($list->[0] eq '_alias_') 
+      {unshift @names, @{$list}[1..scalar(@{$list})-1]; next}
+    my @fn; foreach my $f (@{$list}) {
+      push @fn, $f => 
+        {class => $Parser::Context::Default::fullContext->{functions}{$f}{class}};
+    }
+    $context->functions->set(@fn);
+  }
+}
+
+#########################################################################
 
 1;
