@@ -1254,6 +1254,7 @@ ANS( fun_cmp( answer or answer_array_ref, options_hash ) );
 		zeroLevel					--	if the correct answer is this close to zero, then
 											zeroLevelTol applies
 		zeroLevelTol					--	absolute tolerance to allow when answer is close to zero
+	  test_points    -- a list of points to use in checking the function, or a list of lists when there is more than one variable.
 		params						   	an array of "free" parameters which can be used to adapt
 								   	the correct answer to the submitted answer. (e.g. ['c'] for
 								   	a constant of integration in the answer x^3/3 + c.
@@ -1295,6 +1296,19 @@ LIMITS:
 	"vars => 2, limits => [[0,2], [-3,8]]" would cause x to be evaluated in [0,2) and
 	y to be evaluated in [-3,8). If only one variable is being used, you can write
 	either "limits => [[0,3]]" for consistency or "limits => [0,3]" as a shortcut.
+
+TEST POINTS:
+
+  In some cases, the problem writer may want to specify the points
+  used to check a particular function.  For example, if you want to
+  use only integer values, they can be specified.  With one variable,
+  you can specify "test_points => [1,4,5,6]" or "test_points => [[1,4,5,6]]".
+  With more variables, specify the list for the first variable, then the
+  second, and so on: "vars=>['x','y'], test_points => [[1,4,5],[7,14,29]]".
+
+  If the problem writer wants random values which need to meet some special
+  restrictions (such as being integers), they can be generated in the problem:
+  "test_points=>[random(1,50), random(1,50), random(1,50), random(1,50)]".
 
 EXAMPLES:
 
@@ -1686,6 +1700,9 @@ sub multivar_function_cmp {
 ##			zeroLevel			--	if the correct answer is this close to zero,
 ##												then zeroLevelTol applies
 ##			zeroLevelTol			--	absolute tolerance to allow when answer is close to zero
+##			test_points			--	user supplied points to use for testing the
+##                          function, either array of arrays, or optionally
+##                          reference to single array (for one variable)
 
 
 sub FUNCTION_CMP {
