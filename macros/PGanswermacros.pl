@@ -131,7 +131,7 @@ my ($BR 					        ,		# convenient localizations.
 	$functULimitDefault			    ,
 	$functMaxConstantOfIntegration	,
 	$CA                             ,
-	$rh_envir                          ,
+	$rh_envir                       ,
 );
 
 
@@ -161,7 +161,12 @@ sub _PGanswermacros_init {
 		 $rh_envir                          =   main::PG_restricted_eval(q!\%main::envir!);
 }
 
+
+
 ##########################################################################
+
+#Note   use $rh_envir to read environment variables
+
 ##########################################################################
 ## Number answer evaluators
 
@@ -2494,11 +2499,11 @@ sub ansradio {
 
 sub anstext_non_anonymous {
 	## this emails identifying information
-	my $num	= shift;
-    my $psvnNumber  = PG_restricted_eval(q!$main::psvnNumber!);
-	my $probNum  = PG_restricted_eval(q!$main::probNum!);
-    my $studentLogin  = PG_restricted_eval(q!$main::studentLogin!);
-	my $studentID  = PG_restricted_eval(q!$main::studentID!);
+	my $num	         = shift;
+    my $psvnNumber   = PG_restricted_eval(q!$main::psvnNumber!);
+	my $probNum      = PG_restricted_eval(q!$main::probNum!);
+    my $studentLogin = PG_restricted_eval(q!$main::studentLogin!);
+	my $studentID    = PG_restricted_eval(q!$main::studentID!);
     my $studentName  = PG_restricted_eval(q!$main::studentName!);
 
 
@@ -2535,7 +2540,7 @@ sub mail_answers_to {  #accepts	the	last answer	and	mails off the result
 		send_mail_to(	$user_address,
 					'subject'		    =>	"$main::courseName WeBWorK questionnaire",
 					'body'			    =>	$QUESTIONNAIRE_ANSWERS,
-					'ALLOW_MAIL_TO'		=>	PG_restricted_eval(q!$main::rh_envir->{ALLOW_MAIL_TO}!)
+					'ALLOW_MAIL_TO'		=>	$rh_envir->{ALLOW_MAIL_TO}
 		);
 
 		my $ans_hash = new AnswerHash(	'score'		=>	1,
@@ -2589,7 +2594,7 @@ sub mail_answers_to2 {	#accepts the last answer and mails off the result
 	send_mail_to($user_address,
 			'subject'			=> $subject,
 			'body'				=> $QUESTIONNAIRE_ANSWERS,
-			'ALLOW_MAIL_TO'		=> $ra_allow_mail_to,
+			'ALLOW_MAIL_TO'		=> $rh_envir->{ALLOW_MAIL_TO},
 	);
 }
 
