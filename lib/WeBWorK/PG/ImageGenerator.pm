@@ -170,10 +170,19 @@ sub add {
 		: '\(' . $string . '\)';
 	
 	# determine what the image's "number" is
-	my $imageNum = ($useCache)
-		? $self->{equationCache}->lookup($realString)
-		: @$strings + 1;
+	my $imageNum;
+	if($useCache) {
+		$imageNum = $self->{equationCache}->lookup($realString);
+		# insert a slash after 2 characters
+		# this effectively divides the images into 16^2 = 256 subdirectories
+		substr($imageNum,2,0) = '/';
+	} else {
+		$imageNum = @$strings + 1;
+	}
 	
+	# We are banking on the fact that if useCache is true, then basename is empty.
+	# Maybe we should simplify and drop support for useCache =0 and having a basename.
+
 	# get the full file name of the image
 	my $imageName = ($basename)
 		? "$basename.$imageNum.png"
@@ -307,6 +316,13 @@ sub render {
 		
 		# move/rename image
 		#my $mvCommand = "cd $wd && /bin/mv $wd/$image $dir/$basename.$imageNum.png";
+		# check to see if this requires a directory we haven't made yet
+		my $newdir = $newNames[$imageNum-1];
+		$newdir =~ s|/.*$||;
+		if($newdir and not -d "$dir/$newdir") {
+			my $success = mkdir "$dir/$newdir";
+			warn "Could not make directory $dir/$newdir" unless $success;
+		}
 		my $mvCommand = "cd $wd && /bin/mv $wd/$image $dir/" . $newNames[$imageNum-1];
 		my $mvStatus = system $mvCommand;
 		if ( $mvStatus) {
