@@ -20,7 +20,8 @@ sub new {
   $UOP->_check;
   $UOP->{isConstant} = 1 if $op->{isConstant};
   $UOP = $context->{parser}{Value}->new($equation,[$UOP->eval])
-    if $op->{isConstant} && (!$UOP->isNeg || $op->isNeg) && $context->flag('reduceConstants');
+    if $op->{isConstant} && (!$UOP->isNeg || $op->isNeg) &&
+       ($context->flag('reduceConstants') || $op->{isInfinity});
   return $UOP;
 }
 
