@@ -437,6 +437,7 @@ sub quest_first_pop_up_list_print_q {
     my $out = "";
 
 	if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth'
+	      || $main::displayMode eq 'HTML_jsMath' || $main::displayMode eq 'HTML_asciimath'
               || $main::displayMode eq 'HTML_dpng'|| $main::displayMode eq 'HTML_img') {
  		my $i=1; my $quest;
  		foreach $quest (@questions) {
@@ -476,6 +477,7 @@ sub ans_in_middle_pop_up_list_print_q {
     my $out = "";
 
 	if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth'
+	      || $main::displayMode eq 'HTML_jsMath' || $main::displayMode eq 'HTML_asciimath'
               || $main::displayMode eq 'HTML_dpng'|| $main::displayMode eq 'HTML_img') {
  		my $i=1; my $quest;
  		foreach $quest (@questions) {

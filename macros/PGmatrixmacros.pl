@@ -277,6 +277,8 @@ sub dm_begin_matrix {
         }        elsif ($main::displayMode eq 'Latex2HTML') {
                 $out .= "\n\\begin{rawhtml} <TABLE  BORDER=0>\n\\end{rawhtml}";
         }        elsif ($main::displayMode eq 'HTML' or $main::displayMode eq 'HTML_tth'
+                                         or $main::displayMode eq 'HTML_jsMath'
+                                         or $main::displayMode eq 'HTML_asciimath'
                                          or $main::displayMode eq 'HTML_dpng'
                                          or $main::displayMode eq 'HTML_img') {
                 $out .= qq!<TABLE BORDER="0" Cellspacing="8">\n!;
@@ -307,6 +309,8 @@ sub dm_special_tops {
                 chop($out); # remove last &
                 $out .= '\cr\noalign{\vskip -2.5ex}'."\n"; # want skip jump up 2.5ex
         } elsif ($main::displayMode eq 'HTML' or $main::displayMode eq 'HTML_tth'
+                                         or $main::displayMode eq 'HTML_jsMath'
+                                         or $main::displayMode eq 'HTML_asciimath'
                                          or $main::displayMode eq 'HTML_dpng'
                                          or $main::displayMode eq 'HTML_img'
                                          or $main::displayMode eq 'Latex2HTML') {
@@ -341,6 +345,8 @@ sub dm_mat_left {
         }
 
         if($main::displayMode eq 'HTML_dpng'
+	         or $main::displayMode eq 'HTML_jsMath'
+                 or $main::displayMode eq 'HTML_asciimath'
                  or $main::displayMode eq 'HTML_img'
                  or $main::displayMode eq 'Latex2HTML') {
                 $out .= "$brh<tr valign=\"center\"><td nowrap=\"nowrap\" align=\"left\" rowspan=\"$numrows\">$erh";
@@ -373,8 +379,10 @@ sub dm_mat_right {
         }
 
         if($main::displayMode eq 'HTML_dpng'
+                 or $main::displayMode eq 'HTML_jsMath'
+                 or $main::displayMode eq 'HTML_asciimath'
                  or $main::displayMode eq 'Latex2HTML'
-                 or $main::displayMode eq 'HTML_dpng') {
+                 or $main::displayMode eq 'HTML_img') {
                 $out .= "$brh<td nowrap=\"nowrap\" align=\"right\" rowspan=\"$numrows\">$erh";
                 
                 $out.= dm_image_delimeter($numrows, $opts{'right'});
@@ -404,6 +412,8 @@ sub dm_end_matrix {
                 $out .= "\n\\begin{rawhtml} </TABLE >\n\\end{rawhtml}";
                 }
         elsif ($main::displayMode eq 'HTML' or $main::displayMode eq 'HTML_tth'
+	                         or $main::displayMode eq 'HTML_jsMath'
+                                 or $main::displayMode eq 'HTML_asciimath'
                                  or $main::displayMode eq 'HTML_img'
                                  or $main::displayMode eq 'HTML_dpng') {
                 $out .= "</TABLE>\n";
@@ -517,6 +527,8 @@ sub dm_mat_row {
                 $out .= "\\cr  \n";
                  # carriage returns must be added manually for tex
                 }         elsif ($main::displayMode eq 'HTML' or $main::displayMode eq 'HTML_tth'
+				 or $main::displayMode eq 'HTML_jsMath'
+				 or $main::displayMode eq 'HTML_asciimath'
                                  or $main::displayMode eq 'HTML_dpng'
                                  or $main::displayMode eq 'HTML_img'
                                  or $main::displayMode eq 'Latex2HTML') {
