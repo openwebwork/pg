@@ -538,6 +538,7 @@ sub ans_array_filter{
 	my @keys = grep /ArRaY$ans_num/, keys(%{$main::inputs_ref});
 	my $key;
 	my @array = ();
+	#my @latex = ();
 	my ($i,$j,$k) = (0,0,0);
 	
 	#the keys aren't in order, so their info has to be put into the array before doing anything with it
@@ -573,6 +574,8 @@ sub ans_array_filter{
 					$entry = $parser -> tostring();
 					$rh_ans->{preview_text_string} .= $entry.",";
 					$rh_ans->{preview_latex_string} .=	$parser -> tolatex().",";
+					#$latex[$i][$j][$k] = "\\{".$parser -> tolatex()."\\}";
+					
 				} else {					## error in	parsing
 					$rh_ans->{'student_ans'}			=	'syntax error:'.$display_ans. $parser->{htmlerror},
 					$rh_ans->{'ans_message'}			=	$display_ans.$parser -> {error_msg},
@@ -611,7 +614,16 @@ sub ans_array_filter{
 	chop($rh_ans->{preview_latex_string});
 	chop($display_ans);
 	
-	$rh_ans->{student_ans} = $display_ans;	
+	#for( $i = 0 ; $i < scalar( @latex ); $i++ ){
+	#	$latex[$i] = display_matrix($latex[$i]);
+	#}
+	#$rh_ans->{preview_latex_string} = mbox(\@latex);
+	my @temp = ();
+	for( $i = 0 ; $i < scalar( @array ); $i++ ){
+		push @temp , display_matrix($array[$i], 'left'=>'.', 'right'=>'.');
+		push @temp , "," unless $i == scalar(@array) - 1;
+	}
+	$rh_ans->{student_ans} = mbox(\@temp);
 	$rh_ans->{ra_student_ans} = \@array;
 	
 	$rh_ans;
