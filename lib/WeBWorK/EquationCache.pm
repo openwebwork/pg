@@ -51,6 +51,9 @@ entries:
 
  cacheDB => path to image cache database file
 
+If cacheDB is the empty string, don't use a cache file and assume that there
+are no md5 collisions.
+
 =cut
 
 sub new {
@@ -76,6 +79,7 @@ sub lookup {
 	my $md5 = md5_hex($tex);
 	
 	my $db = $self->{cacheDB};
+	unless($db) { return($md5 ."1"); }
 	sysopen(DB, $db, O_RDWR|O_CREAT)
 		or die "failed to create/open cacheDB $db: $!";
 	flock(DB, LOCK_EX)
