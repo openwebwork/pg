@@ -51,10 +51,13 @@ sub cmp_parse {
   my $current = $$Value::context; # save it for later
   my $context = $ans->{correct_value}{context} || $current;
   Parser::Context->current(undef,$context); # change to correct answser's context
-  $context->flags->set(StringifyAsTeX => 0);  # reset this, just in case.
-  $context->flags->set(no_parameters => 1);   # don't let students enter parameters
-  my $showParens = $context->flag('showExtraParens'); # save for later
-  $context->flags->set(showExtraParens=>1);   # make student answer painfully unambiguous
+  my $flags = contextSet($context, # save old context flags for the below
+    StringifyAsTeX => 0,             # reset this, just in case.
+    no_parameters => 1,              # don't let students enter parameters
+    showExtraParens => 1,            # make student answer painfully unambiguous
+    reduceConstants => 0,            # don't combine student constants
+    reduceConstantFunctions => 0,    # don't reduce constant functions
+  );
   $ans->{isPreview} = $self->getPG('$inputs_ref->{previewAnswers}');
   $ans->{cmp_class} = $self->cmp_class($ans) unless $ans->{cmp_class};
 
@@ -81,8 +84,7 @@ sub cmp_parse {
   } else {
     $self->cmp_error($ans);
   }
-  $context->flags->set(no_parameters => 0);  # let professors enter parameters
-  $context->flags->set(showExtraParens=>$showParens); # put back old value
+  contextSet($context,%{$flags});            # restore context values
   Parser::Context->current(undef,$current);  # put back the old context
   return $ans;
 }
@@ -163,6 +165,16 @@ sub cmp_Error {
 #  filled in by sub-classes
 #
 sub cmp_postprocess {}
+
+#
+#  Get and Set values in context
+#
+sub contextSet {
+  my $context = shift; my %set = (@_);
+  my $flags = $context->{flags}; my $get = {};
+  foreach my $id (keys %set) {$get->{$id} = $flags->{$id}; $flags->{$id} = $set{$id}}
+  return $get;
+}
 
 #
 #  Quote HTML characters
