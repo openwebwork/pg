@@ -103,7 +103,7 @@ sub cross {bop('><',@_)}
 sub dot   {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
-  return bop(@_,'.') if $l->type eq 'Vector' &&
+  return bop('.',@_) if $l->type eq 'Vector' &&
      Value::isValue($r) && $r->type eq 'Vector';
   Value::_dot(@_);
 }
