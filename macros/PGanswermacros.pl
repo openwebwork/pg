@@ -1731,33 +1731,32 @@ sub multivar_function_cmp {
 
 sub FUNCTION_CMP {
 	my %func_params = @_;
-
-	my $correctEqn					=	$func_params{'correctEqn'};
-	my $var						    =	$func_params{'var'};
-	my $ra_limits					=	$func_params{'limits'};
-	my $tol						    =	$func_params{'tolerance'};
-	my $tolType					    =	$func_params{'tolType'};
-	my $numPoints					=	$func_params{'numPoints'};
-	my $mode					    =	$func_params{'mode'};
-	my $maxConstantOfIntegration    =	$func_params{'maxConstantOfIntegration'};
-	my $zeroLevel					=	$func_params{'zeroLevel'};
-	my $zeroLevelTol				=	$func_params{'zeroLevelTol'};
-	my $ra_test_points              =   $func_params{'test_points'};
-
-
-    # Check that everything is defined:
-    $func_params{debug} = 0 unless defined($func_params{debug});
-    $mode = 'std' unless defined($mode);
-    my @VARS = get_var_array( $var );
-	my @limits = get_limits_array( $ra_limits );
-	my @PARAMS = ();
-	@PARAMS = @{$func_params{'params'}} if defined($func_params{'params'});
 	
-	my (@evaluation_points);
-	if(defined($ra_test_points)) {
+	my $correctEqn               = $func_params{'correctEqn'};
+	my $var                      = $func_params{'var'};
+	my $ra_limits                = $func_params{'limits'};
+	my $tol                      = $func_params{'tolerance'};
+	my $tolType                  = $func_params{'tolType'};
+	my $numPoints                = $func_params{'numPoints'};
+	my $mode                     = $func_params{'mode'};
+	my $maxConstantOfIntegration = $func_params{'maxConstantOfIntegration'};
+	my $zeroLevel                = $func_params{'zeroLevel'};
+	my $zeroLevelTol             = $func_params{'zeroLevelTol'};
+	my $ra_test_points           = $func_params{'test_points'};
+	
+    # Check that everything is defined:
+    $func_params{debug} = 0 unless defined $func_params{debug};
+    $mode = 'std' unless defined $mode;
+    my @VARS = get_var_array($var);
+	my @limits = get_limits_array($ra_limits);
+	my @PARAMS = ();
+	@PARAMS = @{$func_params{'params'}} if defined $func_params{'params'};
+	
+	my @evaluation_points;
+	if(defined $ra_test_points) {
 		# see if this is the standard format
-		if( ref($ra_test_points->[0]) eq 'ARRAY') {
-			$numPoints = scalar(@{$ra_test_points->[0]});
+		if(ref $ra_test_points->[0] eq 'ARRAY') {
+			$numPoints = scalar @{$ra_test_points->[0]};
 			# now a little sanity check
 			my $j;
 			for $j (@{$ra_test_points}) {
@@ -1765,189 +1764,210 @@ sub FUNCTION_CMP {
 					unless(scalar(@{$j}) == $numPoints);
 			}
 			warn "Test points do not match the number of variables"
-				unless scalar(@{$ra_test_points}) == scalar(@VARS);
+				unless scalar @{$ra_test_points} == scalar @VARS;
 		} else { # we are got the one-variable format
 			$ra_test_points = [$ra_test_points];
-			$numPoints = scalar($ra_test_points->[0]);
+			$numPoints = scalar $ra_test_points->[0];
 		}
 		# The input format for test points is the transpose of what is used
 		# internally below, so take care of that now.
 		my ($j1, $j2);
-		for ($j1=0; $j1<scalar(@{$ra_test_points}); $j1++) {
-			for ($j2=0; $j2<scalar(@{$ra_test_points->[$j1]}); $j2++) {
+		for ($j1 = 0; $j1 < scalar @{$ra_test_points}; $j1++) {
+			for ($j2 = 0; $j2 < scalar @{$ra_test_points->[$j1]}; $j2++) {
 				$evaluation_points[$j2][$j1] = $ra_test_points->[$j1][$j2];
 			}
 		}
 	} # end of handling of user supplied evaluation points
-
-	if ($mode eq 'antider' ) {
+	
+	if ($mode eq 'antider') {
 		# doctor the equation to allow addition of a constant
-		my $CONSTANT_PARAM = 'Q';  # unfortunately parameters must be single letters.
-								   # There is the possibility of conflict here.
-								   #  'Q' seemed less dangerous than  'C'.
+		my $CONSTANT_PARAM = 'Q'; # unfortunately parameters must be single letters.
+		                          # There is the possibility of conflict here.
+		                          #  'Q' seemed less dangerous than  'C'.
 		$correctEqn = "( $correctEqn ) + $CONSTANT_PARAM";
-		push(@PARAMS, $CONSTANT_PARAM);
+		push @PARAMS, $CONSTANT_PARAM;
 	}
     my $dim_of_param_space = @PARAMS;      # dimension of equivalence space
-
-	if( $tolType eq 'relative' ) {
-		$tol = $functRelPercentTolDefault			unless defined $tol;
+	
+	if($tolType eq 'relative') {
+		$tol = $functRelPercentTolDefault unless defined $tol;
 		$tol *= .01;
+	} else {
+		$tol = $functAbsTolDefault unless defined $tol;
 	}
-	else {
-		$tol = $functAbsTolDefault				unless defined $tol;
-	}
-
+	
 	#loop ensures that number of limits matches number of variables
-	for( my $i = 0; $i < scalar(@VARS); $i++ ) {
-		$limits[$i][0] = $functLLimitDefault			unless defined $limits[$i][0];
-		$limits[$i][1] = $functULimitDefault			unless defined $limits[$i][1];
+	for(my $i = 0; $i < scalar @VARS; $i++) {
+		$limits[$i][0] = $functLLimitDefault unless defined $limits[$i][0];
+		$limits[$i][1] = $functULimitDefault unless defined $limits[$i][1];
 	}
-	$numPoints = $functNumOfPoints					            unless defined $numPoints;
-	$maxConstantOfIntegration = $functMaxConstantOfIntegration	unless defined $maxConstantOfIntegration;
-	$zeroLevel = $functZeroLevelDefault				            unless defined $zeroLevel;
-	$zeroLevelTol = $functZeroLevelTolDefault			        unless defined $zeroLevelTol;
-
-	$func_params{'var'}				            =	$var;
-	$func_params{'limits'}				        =	\@limits;
-	$func_params{'tolerance'}			        =	$tol;
-	$func_params{'tolType'}				        =	$tolType;
-	$func_params{'numPoints'}			        =	$numPoints;
-	$func_params{'mode'}				        =	$mode;
-	$func_params{'maxConstantOfIntegration'}	=	$maxConstantOfIntegration;
-	$func_params{'zeroLevel'}			        =	$zeroLevel;
-	$func_params{'zeroLevelTol'}  			    = 	$zeroLevelTol;
-
-########################################################
-#   End of cleanup of calling parameters
-########################################################
-	my $i;						#for use with loops
+	$numPoints                = $functNumOfPoints              unless defined $numPoints;
+	$maxConstantOfIntegration = $functMaxConstantOfIntegration unless defined $maxConstantOfIntegration;
+	$zeroLevel                = $functZeroLevelDefault         unless defined $zeroLevel;
+	$zeroLevelTol             = $functZeroLevelTolDefault      unless defined $zeroLevelTol;
+	
+	$func_params{'var'}	                     = $var;
+	$func_params{'limits'}                   = \@limits;
+	$func_params{'tolerance'}                = $tol;
+	$func_params{'tolType'}                  = $tolType;
+	$func_params{'numPoints'}                = $numPoints;
+	$func_params{'mode'}                     = $mode;
+	$func_params{'maxConstantOfIntegration'} = $maxConstantOfIntegration;
+	$func_params{'zeroLevel'}                = $zeroLevel;
+	$func_params{'zeroLevelTol'}             = $zeroLevelTol;
+	
+	########################################################
+	#   End of cleanup of calling parameters
+	########################################################
+	
+	my $i; # for use with loops
 	my $PGanswerMessage	= "";
 	my $originalCorrEqn	= $correctEqn;
-######################################################################
-# prepare the correct answer and check its syntax
-######################################################################
-    my $rh_correct_ans   = new AnswerHash;
+	
+	######################################################################
+	# prepare the correct answer and check its syntax
+	######################################################################
+	
+    my $rh_correct_ans = new AnswerHash;
 	$rh_correct_ans->input($correctEqn);
-	$rh_correct_ans      = check_syntax($rh_correct_ans);
+	$rh_correct_ans = check_syntax($rh_correct_ans);
 	warn  $rh_correct_ans->{error_message} if $rh_correct_ans->{error_flag};
 	$rh_correct_ans->clear_error();
-	$rh_correct_ans      = function_from_string2($rh_correct_ans, ra_vars  => [ @VARS, @PARAMS ],
-	                                                         stdout        => 'rf_correct_ans',
-	                                                         debug         =>  $func_params{debug});
-	my $correct_eqn_sub  = $rh_correct_ans->{rf_correct_ans};
+	$rh_correct_ans = function_from_string2($rh_correct_ans,
+		ra_vars => [ @VARS, @PARAMS ],
+		stdout  => 'rf_correct_ans',
+		debug   => $func_params{debug}
+	);
+	my $correct_eqn_sub = $rh_correct_ans->{rf_correct_ans};
 	warn $rh_correct_ans->{error_message} if $rh_correct_ans->{error_flag};
-
-
-
-######################################################################
-# define the points at which the functions are to be evaluated
-######################################################################
-
-	if(not defined($ra_test_points)) {
+	
+	######################################################################
+	# define the points at which the functions are to be evaluated
+	######################################################################
+	
+	if(not defined $ra_test_points) {
 		#create the evaluation points
 		my $random_for_answers = new PGrandom($main::PG_original_problemSeed);
-		my $NUMBER_OF_STEPS_IN_RANDOM = 1000;    # determines the granularity of the random_for_answers number generator
-		for( my $count = 0; $count < @PARAMS+1+$numPoints; $count++ ) {
-	    my (@vars,$iteration_limit);
-			for( my $i = 0; $i < @VARS; $i++ ) {
+		my $NUMBER_OF_STEPS_IN_RANDOM = 1000; # determines the granularity of the random_for_answers number generator
+		for(my $count = 0; $count < @PARAMS+1+$numPoints; $count++) {
+	    	my (@vars,$iteration_limit);
+			for(my $i = 0; $i < @VARS; $i++) {
 				my $iteration_limit = 10;
-				while (  0 < --$iteration_limit ) {  # make sure that the endpoints of the interval are not included
-		    	$vars[$i] = $random_for_answers->random($limits[$i][0], $limits[$i][1], abs($limits[$i][1] - $limits[$i][0])/$NUMBER_OF_STEPS_IN_RANDOM );
-		    	last if $vars[$i]!=$limits[$i][0] and $vars[$i]!=$limits[$i][1];
-		    }
-		    warn "Unable to properly choose  evaluation points for this function in the interval ( $limits[$i][0] , $limits[$i][1] )"
-		      if $iteration_limit == 0;
-			};
+				while (0 < --$iteration_limit) {  # make sure that the endpoints of the interval are not included
+		    		$vars[$i] = $random_for_answers->random($limits[$i][0], $limits[$i][1], abs($limits[$i][1] - $limits[$i][0])/$NUMBER_OF_STEPS_IN_RANDOM);
+		    		last if $vars[$i]!=$limits[$i][0] and $vars[$i]!=$limits[$i][1];
+				}
+				warn "Unable to properly choose  evaluation points for this function in the interval ( $limits[$i][0] , $limits[$i][1] )"
+					if $iteration_limit == 0;
+			}
 			
-			push(@evaluation_points,\@vars);
+			push @evaluation_points, \@vars;
 		}
 	}
 	my $evaluation_points = Matrix->new_from_array_ref(\@evaluation_points);
-
+	
 	#my $COEFFS = determine_param_coeffs($correct_eqn_sub,$evaluation_points[0],$numOfParameters);
-    	#warn "coeff", join(" | ", @{$COEFFS});
-
-#construct the answer evaluator
+	#warn "coeff", join(" | ", @{$COEFFS});
+	
+	#construct the answer evaluator
     my $answer_evaluator = new AnswerEvaluator;
     $answer_evaluator->{debug} = $func_params{debug};
     $answer_evaluator->ans_hash( 	
-                    correct_ans         => 	$originalCorrEqn,
-					rf_correct_ans      => 	$rh_correct_ans->{rf_correct_ans},
-					evaluation_points   =>	\@evaluation_points,
-					ra_param_vars       => 	\@PARAMS,
-					ra_vars             =>	\@VARS,
-					type                =>	'function',
-					score               =>  0,
+		correct_ans       => $originalCorrEqn,
+		rf_correct_ans    => $rh_correct_ans->{rf_correct_ans},
+		evaluation_points => \@evaluation_points,
+		ra_param_vars     => \@PARAMS,
+		ra_vars           => \@VARS,
+		type              => 'function',
+		score             => 0,
     );
+    
     #########################################################
     # Prepare the previous answer for evaluation, discard errors
     #########################################################
-    $answer_evaluator->install_pre_filter(sub { my $rh_ans = shift; 
-    											$rh_ans->{_filter_name} = "fetch_previous_answer";
-                                                my $prev_ans_label = "previous_".$rh_ans->{ans_label};
-                                                $rh_ans->{prev_ans} = 
-                                                       (defined( $inputs_ref->{$prev_ans_label} and $inputs_ref->{$prev_ans_label} =~/\S/) ) ?
-                                                           $inputs_ref->{$prev_ans_label} : undef; 
-                                                $rh_ans;
-                                              }
-    );
-    $answer_evaluator->install_pre_filter(sub { my $rh_ans = shift;
-                                                return $rh_ans unless defined($rh_ans->{prev_ans});
-                                                check_syntax($rh_ans, 
-                                                             stdin           => 'prev_ans', 
-                                                             stdout          => 'prev_ans', 
-                                                             error_msg_flag  => 0 
-                                                 );
-                                                $rh_ans->{_filter_name} = "check_syntax_of_previous_answer";
-                                                $rh_ans;
-                                               }
-    );
-    $answer_evaluator->install_pre_filter(sub { my $rh_ans = shift;
-                                                return $rh_ans unless defined($rh_ans->{prev_ans});
-                                                function_from_string2($rh_ans, 
-                                                                      stdin   => 'prev_ans', 
-                                                                      stdout  => 'rf_prev_ans',
-                                                                      ra_vars => \@VARS, 
-                                                                      debug=>$func_params{debug}
-                                                );
-                                                $rh_ans->{_filter_name} = "compile_previous_answer";
-                                                $rh_ans;
-                                               }
-    );
+    
+	$answer_evaluator->install_pre_filter(
+		sub {
+			my $rh_ans = shift; 
+			$rh_ans->{_filter_name} = "fetch_previous_answer";
+			my $prev_ans_label = "previous_".$rh_ans->{ans_label};
+			$rh_ans->{prev_ans} = (defined $inputs_ref->{$prev_ans_label} and $inputs_ref->{$prev_ans_label} =~/\S/)
+				? $inputs_ref->{$prev_ans_label}
+				: undef; 
+			$rh_ans;
+		}
+	);
+	
+	$answer_evaluator->install_pre_filter(
+		sub {
+			my $rh_ans = shift;
+			return $rh_ans unless defined $rh_ans->{prev_ans};
+			check_syntax($rh_ans,
+				stdin          => 'prev_ans',
+				stdout         => 'prev_ans',
+				error_msg_flag => 0
+			);
+			$rh_ans->{_filter_name} = "check_syntax_of_previous_answer";
+			$rh_ans;
+		}
+	);
+	
+	$answer_evaluator->install_pre_filter(
+		sub {
+			my $rh_ans = shift;
+			return $rh_ans unless defined $rh_ans->{prev_ans};
+			function_from_string2($rh_ans, 
+				stdin   => 'prev_ans', 
+				stdout  => 'rf_prev_ans',
+				ra_vars => \@VARS, 
+				debug   => $func_params{debug}
+			);
+			$rh_ans->{_filter_name} = "compile_previous_answer";
+			$rh_ans;
+		}
+	);
+	
     #########################################################
     # Prepare the current answer for evaluation
     #########################################################
-
-    $answer_evaluator->install_pre_filter(\&check_syntax);
-    $answer_evaluator->install_pre_filter(\&function_from_string2, ra_vars => \@VARS,
-                                                                   debug   => $func_params{debug}
+	
+	$answer_evaluator->install_pre_filter(\&check_syntax);
+	$answer_evaluator->install_pre_filter(\&function_from_string2,
+		ra_vars => \@VARS,
+		debug   => $func_params{debug}
     ); # @VARS has been guaranteed to be an array, $var might be a single string.
+    
     #########################################################
     # Compare the previous and current answer.  Discard errors
     #########################################################
-
-    $answer_evaluator->install_evaluator(sub {  my $rh_ans = shift;
-                                                return $rh_ans unless defined($rh_ans->{rf_prev_ans});
-                                                calculate_difference_vector($rh_ans, 
-                                                                            %func_params, 
-																			stdin1         => 'rf_student_ans', 
-																			stdin2         => 'rf_prev_ans',
-																			stdout         => 'ra_diff_with_prev_ans',
-																			error_msg_flag => 0,
-                                                );
-                                                $rh_ans->{_filter_name} = "calculate_difference_vector_of_previous_answer";
-                                                $rh_ans;
-                                               }
-    );
-    $answer_evaluator->install_evaluator(sub {  my $rh_ans = shift;
-                                                return $rh_ans unless defined($rh_ans->{ra_diff_with_prev_ans});
-                                                is_zero_array( $rh_ans,
-                                                               stdin => 'ra_diff_with_prev_ans', 
-                                                               stdout => 'ans_equals_prev_ans' 
-                                                );
-                                             }
-    );
+	
+	$answer_evaluator->install_evaluator(
+		sub {
+			my $rh_ans = shift;
+			return $rh_ans unless defined $rh_ans->{rf_prev_ans};
+			calculate_difference_vector($rh_ans, 
+				%func_params, 
+				stdin1         => 'rf_student_ans', 
+				stdin2         => 'rf_prev_ans',
+				stdout         => 'ra_diff_with_prev_ans',
+				error_msg_flag => 0,
+			);
+			$rh_ans->{_filter_name} = "calculate_difference_vector_of_previous_answer";
+			$rh_ans;
+		}
+	);
+	
+	$answer_evaluator->install_evaluator(
+		sub {
+			my $rh_ans = shift;
+			return $rh_ans unless defined $rh_ans->{ra_diff_with_prev_ans};
+			is_zero_array($rh_ans,
+				stdin  => 'ra_diff_with_prev_ans', 
+				stdout => 'ans_equals_prev_ans' 
+			);
+		}
+	);
+	
     #########################################################
     # Calculate values for approximation parameters and
     # compare the current answer with the correct answer.  Keep errors this time.
@@ -1957,26 +1977,36 @@ sub FUNCTION_CMP {
     $answer_evaluator->install_evaluator(\&calculate_difference_vector, %func_params);
     $answer_evaluator->install_evaluator(\&is_zero_array, tolerance => $tol );
 
-    $answer_evaluator->install_post_filter(sub {my $rh_ans = shift; $rh_ans->clear_error('SYNTAX'); $rh_ans;} );
     $answer_evaluator->install_post_filter(
-    				sub {my $rh_ans = shift;
-						if ($rh_ans->catch_error('EVAL') ) {
-							$rh_ans->{ans_message} = $rh_ans->{error_message};
-							$rh_ans->clear_error('EVAL');
-						}
-						$rh_ans;
-					}
-	);
+    	sub {
+    		my $rh_ans = shift;
+    		$rh_ans->clear_error('SYNTAX');
+    		$rh_ans;
+    	}
+    );
+    
 	$answer_evaluator->install_post_filter(
-	               sub {my $rh_ans = shift;
-						if ( defined($rh_ans->{'ans_equals_prev_ans'}) and $rh_ans->{'ans_equals_prev_ans'} and $rh_ans->{score}==0) {
-							$rh_ans->{ans_message} = "This answer is the same as the one you just submitted.";
-						
-						}
-						$rh_ans;
-					}
+		sub {
+			my $rh_ans = shift;
+			if ($rh_ans->catch_error('EVAL')) {
+				$rh_ans->{ans_message} = $rh_ans->{error_message};
+				$rh_ans->clear_error('EVAL');
+			}
+			$rh_ans;
+		}
 	);
-    $answer_evaluator;
+	
+	$answer_evaluator->install_post_filter(
+		sub {
+			my $rh_ans = shift;
+			if ( defined($rh_ans->{'ans_equals_prev_ans'}) and $rh_ans->{'ans_equals_prev_ans'} and $rh_ans->{score}==0) {
+				$rh_ans->{ans_message} = "This answer is the same as the one you just submitted.";
+			}
+			$rh_ans;
+		}
+	);
+	
+	$answer_evaluator;
 }
 
 
