@@ -2000,7 +2000,7 @@ sub FUNCTION_CMP {
 		sub {
 			my $rh_ans = shift;
 			if ( defined($rh_ans->{'ans_equals_prev_ans'}) and $rh_ans->{'ans_equals_prev_ans'} and $rh_ans->{score}==0) {
-				$rh_ans->{ans_message} = "This answer is the same as the one you just submitted.";
+				$rh_ans->{ans_message} = "This answer is the same as the one you just submitted or previewed.";
 			}
 			$rh_ans;
 		}
