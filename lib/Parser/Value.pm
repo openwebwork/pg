@@ -22,6 +22,7 @@ sub new {
   my $type = Value::getType($equation,$value);
   return $value->{tree}->copy($equation) if ($type eq 'Formula');
   return Parser::String->new($equation,$value,$ref) if ($type eq 'String');
+  return Parser::String->newInfinity($equation,$value,$ref) if ($type eq 'Infinity');
   return Parser::Number->new($equation,$value,$ref) if ($type eq 'Number');
   return Parser::Number->new($equation,$value->{data},$ref) 
     if ($type eq 'value' && $value->class eq 'Complex');

@@ -27,6 +27,14 @@ sub new {
   return $str;
 }
 
+sub newInfinity {
+  my $self = shift; my $equation = shift; my $value = shift;
+  my $neg = ($value =~ s/^-//);
+  $self = $self->new($equation,$value,@_);
+  if ($neg) {$self->{isInfinity} = 0; $self->{isNegativeInfinity} = 1}
+  return $self;
+}
+
 #
 #  Make a Value::String or Value::Infinity object
 #

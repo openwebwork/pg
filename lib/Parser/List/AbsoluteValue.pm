@@ -21,6 +21,8 @@ sub _check {
   $self->{type} = $Value::Type{number};
 }
 
+sub class {'AbsoluteValue'}; # don't report List
+
 #
 #  Compute using abs()
 #

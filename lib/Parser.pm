@@ -13,6 +13,8 @@ use strict;
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $string = shift;
+  $string = Value::List->new($string,@_)
+    if scalar(@_) > 0 || ref($string) eq 'ARRAY';
   my $math = bless {
     string => undef,
     tokens => [], tree => undef, 
@@ -22,7 +24,7 @@ sub new {
   if (ref($string) =~ m/^(Parser|Value::Formula)/) {
     my $tree = $string; $tree = $tree->{tree} if exists $tree->{tree};
     $math->{tree} = $tree->copy($math);
-  } elsif (ref($string) =~ m/^Value/) {
+  } elsif (Value::isValue($string)) {
     $math->{tree} = Parser::Value->new($math,$string);
   } else {
     $math->{string} = $string;
@@ -299,7 +301,7 @@ sub Close {
       }
       elsif ($type eq 'start') {$self->Error("Missing close parenthesis for '$top->{value}'",$top->{ref})}
       elsif ($top->{value} eq 'start') {$self->Error("Extra close parenthesis '$type'",$ref)}
-      else {$self->Error("Empty parentheses: '$top->{value} $type'",$top->{ref})}
+      else {$top->{ref}[3]=$ref->[3]; $self->Error("Empty parentheses",$top->{ref})}
       last;
     };
 

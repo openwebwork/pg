@@ -97,11 +97,13 @@ sub isReal    {class(shift) eq 'Real'}
 sub isComplex {class(shift) eq 'Complex'}
 sub isFormula {
   my $v = shift;
-  return class($v) eq 'Formula' || (ref($v) && $v->{isFormula});
+  return class($v) eq 'Formula' ||
+         (ref($v) && ref($v) ne 'ARRAY' && $v->{isFormula});
 }
 sub isValue   {
   my $v = shift;
-  return (ref($v) || $v) =~ m/^Value::/ || (ref($v) && $v->{isValue});
+  return (ref($v) || $v) =~ m/^Value::/ ||
+         (ref($v) && ref($v) ne 'ARRAY' && $v->{isValue});
 }
 
 sub isNumber {
@@ -190,7 +192,7 @@ sub getType {
     return 'List';
   }
   elsif (Value::isFormula($value)) {return 'Formula'}
-  elsif (Value::class($value) eq 'Infinity') {return 'String'}
+  elsif (Value::class($value) eq 'Infinity') {return 'Infinity'}
   elsif (Value::isReal($value)) {return 'Number'}
   elsif (Value::isValue($value)) {return 'value'}
   elsif (ref($value)) {return 'unknown'}
@@ -208,6 +210,7 @@ sub getValueType {
   my $type = Value::getType($equation,$value);
   if ($type eq 'String') {$type = $Value::Type{string}}
   elsif ($type eq 'Number') {$type = $Value::Type{number}}
+  elsif ($type eq 'Infinity') {$type = $Value::Type{infinity}}
   elsif ($type eq 'value' || $type eq 'Formula') {$type = $value->typeRef}
   elsif ($type eq 'unknown') {
     $equation->Error("Can't convert ".Value::showClass($value)." to a constant");
@@ -253,6 +256,7 @@ sub formula {
   my @coords = Value::toFormula($formula,@{$values});
   $formula->{tree} = Parser::List->new($formula,[@coords],0,
      $formula->{context}{parens}{$paren},$coords[0]->typeRef,$open,$close);
+  $formula->{autoFormula} = 1;  # mark that this was generated automatically
 #   return $formula->eval if scalar(%{$formula->{variables}}) == 0;
   return $formula;
 }
@@ -282,10 +286,11 @@ sub Type {
 #  Some predefined types
 #
 %Type = (
-  number  => Value::Type('Number',1),
-  complex => Value::Type('Number',2),
-  string  => Value::Type('String',1),
-  unknown => Value::Type('unknown',0,undef,list => 1)
+  number   => Value::Type('Number',1),
+  complex  => Value::Type('Number',2),
+  string   => Value::Type('String',1),
+  infinity => Value::Type('Infinity',1),
+  unknown  => Value::Type('unknown',0,undef,list => 1)
 );
 
 #

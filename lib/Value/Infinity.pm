@@ -31,7 +31,7 @@ sub new {
 #  Return the appropriate data.
 #
 sub length {0}
-sub typeRef {my $self = shift; Value::Type($self->class,$self->length)}
+sub typeRef {$Value::Type{infinity}}
 sub value {shift->{data}[0]}
 
 ##################################################
