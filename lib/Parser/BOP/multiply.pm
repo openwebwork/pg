@@ -80,7 +80,7 @@ sub TeX {
 
   my $left  = $self->{lop}->TeX($bop->{precedence},$bop->{leftparens},'left',$outerRight);
   my $right = $self->{rop}->TeX($bop->{precedence},$bop->{rightparens},'right');
-  $mult = $cdot if $left =~ m/\d$/ && $right =~ m/^\d/;
+  $mult = $cdot if $right =~ m/^\d/;
   $TeX = $left.$mult.$right;
 
   $TeX = '\left('.$TeX.'\right)' if $addparens;
