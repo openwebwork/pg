@@ -10,7 +10,7 @@ use vars qw(@ISA);
 use overload
        '.'   => \&Value::_dot,
        '<=>' => \&compare,
-       'cmp' => \&compare,
+       'cmp' => \&Value::cmp,
        'neg' => \&neg,
   'nomethod' => \&Value::nomethod,
         '""' => \&Value::stringify;

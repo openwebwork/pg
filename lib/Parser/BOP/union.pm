@@ -16,6 +16,13 @@ sub _check {
   return if ($self->checkStrings());
   if ($self->{lop}->{canBeInterval} && $self->{rop}->{canBeInterval}) {
     $self->{type} = Value::Type('Union',2,$Value::Type{number});
+    $self->{canBeInterval} = 1;
+    foreach my $op ('lop','rop') {
+      if ($self->{$op}->type !~ m/^(Interval|Union)$/) {
+	$self->{$op} = bless $self->{$op}, 'Parser::List::Interval';
+	$self->{$op}->typeRef->{name} = $self->{equation}{context}{parens}{interval}{type};
+      }
+    }
   } else {$self->Error("Operands of '$self->{bop}' must be intervals")}
 }
 
@@ -41,8 +48,10 @@ sub perl {
 #
 sub makeUnion {
   my $self = shift;
-  return $self unless ($self->{def}{isUnion});
-  return ($self->{lop}->makeUnion,$self->{rop}->makeUnion);
+  return (
+    $self->{lop}{def}{isUnion}? $self->{lop}->makeUnion : $self->{lop},
+    $self->{rop}{def}{isUnion}? $self->{rop}->makeUnion : $self->{rop},
+  );
 }
 
 #########################################################################

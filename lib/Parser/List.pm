@@ -218,13 +218,6 @@ sub perl {
   return $perl;
 }
 
-sub makeUnion {
-  my $self = shift;
-  $self = bless $self->copy, 'Parser::List::Interval';
-  $self->typeRef->{name} = $self->{equation}{context}{parens}{interval}{type};
-  return $self;
-}
-
 #########################################################################
 #
 #  Load the subclasses.

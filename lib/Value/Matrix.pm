@@ -20,7 +20,7 @@ use overload
        '.'   => \&Value::_dot,
        'x'   => \&Value::cross,
        '<=>' => \&compare,
-       'cmp' => \&compare,
+       'cmp' => \&Value::cmp,
        'neg' => sub {$_[0]->neg},
   'nomethod' => \&Value::nomethod,
         '""' => \&stringify;

@@ -18,7 +18,7 @@ use overload
        '.'   => \&Value::_dot,
        'x'   => \&cross,
        '<=>' => \&compare,
-       'cmp' => \&compare,
+       'cmp' => \&Value::cmp,
        'neg' => sub {$_[0]->neg},
        'abs' => sub {$_[0]->abs},
   'nomethod' => \&Value::nomethod,

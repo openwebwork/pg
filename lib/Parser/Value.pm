@@ -37,7 +37,7 @@ sub new {
   ## check for isZero  (method of $value?)
   ## (hack for now)
   $c->{isZero} = 1 if $type->{name} eq 'Number' && $value == 0;
-  $c->{isOne}  = 1 if $type->{name} eq 'Number' && $value == 1;
+  $c->{isOne}  = 1 if $type->{name} eq 'Number' && $value eq 1;
   return $c;
 }
 

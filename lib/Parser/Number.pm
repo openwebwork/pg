@@ -17,8 +17,9 @@ sub new {
     value => $value, type => $Value::Type{number}, isConstant => 1,
     ref => $ref, equation => $equation,
   }, $class;
-  $num->{isOne}  = 1 if ($value == 1);
-  $num->{isZero} = 1 if ($value == 0);
+  my $x = Value::Real->make($value);
+  $num->{isOne}  = 1 if $x eq 1;
+  $num->{isZero} = 1 if $x == 0;
   return $num;
 }
 
@@ -43,7 +44,7 @@ sub reduce {
   if ($self->{value} < 0) {
     $self->{value} = -($self->{value});
     $self = Parser::UOP::Neg($self);
-    $self->{op}{isOne} = 1 if $self->{op}{value} == 1;
+    $self->{op}{isOne} = 1 if Value::Real->make($self->{op}{value}) eq 1;
   }
   return $self;
 }

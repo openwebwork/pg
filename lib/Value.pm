@@ -76,6 +76,7 @@ $$context->{method} = {
    '.'   => '_dot',  # see _dot below
    'x'   => 'cross',
    '<=>' => 'compare',
+   'cmp' => 'cmp',
 };
 
 $$context->{pattern}{infinite} = '[-+]?inf(?:inity)?';
@@ -392,6 +393,17 @@ sub compare {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
   return $l->value <=> $r->value;
+}
+
+#
+#  Compare the values as strings
+#
+sub cmp {
+  my ($l,$r,$flag) = @_;
+  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
+  $l = $l->stringify; $r = $r->stringify if Value::isValue($r);
+  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
+  return $l cmp $r;
 }
 
 #

@@ -19,6 +19,7 @@ use overload
        '.'   => \&Value::_dot,
        'x'   => \&Value::cross,
        '<=>' => \&compare,
+       'cmp' => \&Value::cmp,
        'neg' => sub {$_[0]->neg},
        'abs' => sub {$_[0]->abs},
        'sqrt'=> sub {$_[0]->sqrt},

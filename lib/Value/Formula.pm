@@ -15,10 +15,10 @@ use overload
        '*'    => \&mult,
        '/'    => \&div,
        '**'   => \&power,
-       '.'    => \&Value::_dot,
+       '.'    => \&dot,
        'x'    => \&cross,
        '<=>'  => \&compare,
-       'cmp'  => \&compare,
+       'cmp'  => \&Value::cmp,
        '~'    => sub {Parser::Function->call('conj',$_[0])},
        'neg'  => sub {$_[0]->neg},
        'sin'  => sub {Parser::Function->call('sin',$_[0])},
@@ -92,8 +92,18 @@ sub sub   {bop(@_,'-')}
 sub mult  {bop(@_,'*')}
 sub div   {bop(@_,'/')}
 sub power {bop(@_,'**')}
-sub dot   {bop(@_,'.')}
-sub cross {bop(@_,'x')}
+sub cross {bop(@_,'><')}
+
+#
+#  Make dot work for vector operands
+#
+sub dot   {
+  my ($l,$r,$flag) = @_;
+  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
+  return bop(@_,'.') if $l->type eq 'Vector' &&
+     Value::isValue($r) && $r->type eq 'Vector';
+  Value::_dot(@_);
+}
 
 ############################################
 #
@@ -114,6 +124,7 @@ sub neg {
 #
 sub atan2 {
   my ($l,$r,$flag) = @_;
+  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   Parser::Function->call('atan2',$l,$r);
 }

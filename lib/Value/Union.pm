@@ -12,7 +12,7 @@ use overload
        '.'   => \&Value::_dot,
        'x'   => \&Value::cross,
        '<=>' => \&compare,
-       'cmp' => \&compare,
+       'cmp' => \&Value::cmp,
   'nomethod' => \&Value::nomethod,
         '""' => \&Value::stringify;
 

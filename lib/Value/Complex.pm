@@ -16,6 +16,7 @@ use overload
        '.'   => \&Value::_dot,
        'x'   => \&Value::cross,
        '<=>' => \&compare,
+       'cmp' => \&Value::cmp,
        '~'   => sub {$_[0]->conj},
        'neg' => sub {$_[0]->neg},
        'abs' => sub {$_[0]->norm},
@@ -137,9 +138,9 @@ sub power {
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   my ($a,$b) = (@{$l->data});
   my ($c,$d) = (@{$r->data});
-  return 1 if ($a == 1 && $b == 0) || ($c == 0 && $d == 0);
-  return 0 if $c > 0 && ($a == 0 && $b == 0);
-  return CORE::exp($r * CORE::log($l))
+  return Value::Real->make(1) if ($a eq '1' && $b == 0) || ($c == 0 && $d == 0);
+  return Value::Real->make(0) if $c > 0 && ($a == 0 && $b == 0);
+  return exp($r * log($l))
  }
 
 sub equal {
@@ -342,7 +343,7 @@ sub format {
   $b = Value::Real->make($b) unless ref($b);
   my $bi = 'i';
   return $a->$method($equation) if $b == 0;
-  $bi = abs($b)->$method($equation,1) . 'i' if abs($b) != 1;
+  $bi = abs($b)->$method($equation,1) . 'i' if abs($b) ne 1;
   $bi = '-' . $bi if $b < 0;
   return $bi if $a == 0;
   $bi = '+' . $bi if $b > 0;

@@ -12,15 +12,15 @@ sub new {
   my ($value,$ref) = @_;
   $value = [$value,0] unless ref($value) eq 'ARRAY';
   $value->[1] = 0 unless defined($value->[1]);
-  ### set values near zero to being equal to zero?
   $equation->Error("Complex Numbers must have real and complex parts",$ref)
     if (scalar(@{$value}) != 2);
   $num = bless {
     value => $value, type => $Value::Type{complex}, isConstant => 1,
     ref => $ref, equation => $equation,
   }, $class;
-  $num->{isOne}  = 1 if ($value->[0] == 1 && $value->[1] == 0);
-  $num->{isZero} = 1 if ($value->[0] == 0 && $value->[1] == 0);
+  my $z = Value::Complex->make(@{$value});
+  $num->{isOne}  = 1 if $z cmp 1;
+  $num->{isZero} = 1 if $z == 0;
   return $num;
 }
 
@@ -47,6 +47,7 @@ sub reduce {
   if ($a <= 0 && $b <= 0 && ($a != 0 || $b != 0)) {
     $self->{value} = [-$a,-$b];
     $self = Parser::UOP::Neg($self);
+    $self->{isOne} = 1 if Value::Complex->make(-$a,-$b) == 1;
   }
   return $self;
 }

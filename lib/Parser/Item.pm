@@ -65,7 +65,6 @@ sub isNeg {
 #
 sub getVariables {{}}   #  find out what variables are used
 sub makeList {shift}    #  flatten a tree of commas into a list
-sub makeUnion {shift}   #  flatten a tree of unions into a list of intervals
 sub makeMatrix {}       #  convert a list to a matrix
 
 sub reduce {shift}
