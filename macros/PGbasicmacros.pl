@@ -1427,6 +1427,9 @@ sub general_math_ev3 {
 	## not include unwanted spaces as per Davide Cervone.
 	$in =~ s/^\s+//;
 	$in =~ s/\s+$//;
+	## If it ends with a backslash, there should be another space
+	## at the end
+	if($in =~ /\\$/) { $in .= ' ';} 
 
 	# some modes want the delimiters, some don't
 	my $in_delim = $mode eq "inline"
