@@ -11,7 +11,7 @@ sub new {
   my $data = bless {
     context => $parent,     # parent context
     dataName => {},         # name of data storage in context hash
-    pattern => '',          # pattern for names of data items
+    pattern => '^$',        # pattern for names of data items (default never matches)
     namePattern => '',      # pattern for allowed names for new items
     name => '', Name => '', # lower- and upper-case names for the class of items
   }, $class;
@@ -64,6 +64,7 @@ sub getPattern {
   push(@pattern,protectRegexp($s)) if length($s) ==1;
   push(@pattern,"[".protectChars($s)."]") if length($s) > 1;
   my $pattern = join('|',@pattern);
+  $pattern = '^$' if $pattern eq '';
   return $pattern;
 }
 

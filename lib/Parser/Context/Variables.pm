@@ -23,6 +23,7 @@ sub init {
   $self->{name} = 'variable';
   $self->{Name} = 'Variable';
   $self->{namePattern} = '[a-zA-Z]';
+  $self->{pattern} = $self->{namePattern};
 }
 
 #
