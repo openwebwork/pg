@@ -1104,6 +1104,9 @@ sub NUM_CMP {		# low level	numeric	compare
 	$answer_evaluator->install_pre_filter(sub {my $rh_ans = shift;
 		$rh_ans->{original_student_ans} = $rh_ans->{student_ans}; $rh_ans;}
 	);
+
+	$answer_evaluator->install_pre_filter(\&check_syntax);
+
 	if (defined($num_params{units}) && $num_params{units}) {
 			$answer_evaluator->install_pre_filter(\&check_units);
 	}
@@ -1111,7 +1114,10 @@ sub NUM_CMP {		# low level	numeric	compare
 			$answer_evaluator->install_pre_filter(\&check_strings, %num_params);
 	}
 
-	$answer_evaluator->install_pre_filter(\&check_syntax);
+	## FIXME? - this pre filter was moved before check_units to allow
+	## 	    for latex preview of answers with no units.
+	##          seems to work but may have unintended side effects elsewhere.
+	#$answer_evaluator->install_pre_filter(\&check_syntax);
 
 	$answer_evaluator->install_pre_filter(\&math_constants);
 
