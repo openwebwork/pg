@@ -2535,7 +2535,7 @@ sub mail_answers_to {  #accepts	the	last answer	and	mails off the result
 		send_mail_to(	$user_address,
 					'subject'		    =>	"$main::courseName WeBWorK questionnaire",
 					'body'			    =>	$QUESTIONNAIRE_ANSWERS,
-					'ALLOW_MAIL_TO'		=>	$rh_envir->{ALLOW_MAIL_TO}
+					'ALLOW_MAIL_TO'		=>	PG_restricted_eval(q!$main::rh_envir->{ALLOW_MAIL_TO}!)
 		);
 
 		my $ans_hash = new AnswerHash(	'score'		=>	1,
@@ -2548,7 +2548,7 @@ sub mail_answers_to {  #accepts	the	last answer	and	mails off the result
 		return $ans_hash;
 	};
 
-	return $ans_eval;
+	return $ans_eval; 
 }
 
 sub save_answer_to_file {  #accepts	the	last answer	and	mails off the result
@@ -2582,14 +2582,14 @@ sub save_answer_to_file {  #accepts	the	last answer	and	mails off the result
 }
 
 sub mail_answers_to2 {	#accepts the last answer and mails off the result
-	my $user_address = shift;
-	my $subject = shift;
+	my $user_address         = shift;
+	my $subject              = shift;
+	my $ra_allow_mail_to     = shift;	 
 	$subject = "$main::courseName WeBWorK questionnaire" unless defined $subject;
-
 	send_mail_to($user_address,
 			'subject'			=> $subject,
 			'body'				=> $QUESTIONNAIRE_ANSWERS,
-			'ALLOW_MAIL_TO'		=> $rh_envir->{ALLOW_MAIL_TO}
+			'ALLOW_MAIL_TO'		=> $ra_allow_mail_to,
 	);
 }
 
@@ -3817,7 +3817,8 @@ sub set_default_options {
 #####################################
 sub install_problem_grader {
 	my $rf_problem_grader =	shift;
-	PG_restricted_eval(q!$main::PG_FLAGS{PROBLEM_GRADER_TO_USE} = $rf_problem_grader!);
+	my $rh_flags = PG_restricted_eval(q!\\%main::PG_FLAGS!);
+	$rh_flags->{PROBLEM_GRADER_TO_USE} = $rf_problem_grader;
 }
 
 =head4 std_problem_grader
