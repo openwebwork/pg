@@ -11,12 +11,22 @@ use strict; use vars qw(@ISA);
 #  And that they are numbers or infinity.
 #
 sub _check {
-  my $self = shift; my $type = $self->{type};
-  $self->Error("Intervals can have have only two endpoints") if ($type->{length} > 2);
-  $self->Error("Intervals must have at least one endpoint") if ($type->{length} == 0);
+  my $self = shift;
+  my $length = $self->{type}{length}; my $coords = $self->{coords};
+  $self->Error("Intervals can have have only two endpoints") if ($length > 2);
+  $self->Error("Intervals must have at least one endpoint") if ($length == 0);
   $self->Error("Coordinates of intervals can only be numbers or infinity")
-    if (!$self->{coords}->[0]->isNumOrInfinity ||
-       ($type->{length} == 2 && !$self->{coords}->[1]->isNumOrInfinity));
+    if !$coords->[0]->isNumOrInfinity ||
+       ($length == 2 && !$coords->[1]->isNumOrInfinity);
+  $self->Error("Infinite intervals require two endpoints")
+    if ($length == 1 && $coords->[0]{isInfinite});
+  $self->Error("The left endpoint of an interval can't be positive infinity")
+    if ($coords->[0]{isInfinity});
+  $self->Error("The right endpoint of an interval can't be negative infinity")
+    if ($length == 2 && $coords->[1]{isNegativeInfinity});
+  $self->Error("Infinite endpoints must be open")
+    if ($self->{open} ne '(' && $coords->[0]{isInfinite}) ||
+       ($self->{close} ne ')' && $length == 2 && $coords->[1]{isInfinite});
 }
 
 #

@@ -195,7 +195,10 @@ sub unit {
 my $ijk_string = ['i','j','k','0'];
 my $ijk_TeX = ['\boldsymbol{i}','\boldsymbol{j}','\boldsymbol{k}','\boldsymbol{0}'];
 
-sub stringify {(shift)->string};
+sub stringify {
+  my $self = shift;
+  $self->string(undef,$self->{open},$self->{close})
+};
 
 sub string {
   my $self = shift; my $equation = shift;

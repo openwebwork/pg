@@ -12,7 +12,7 @@ $operators = {
            class => 'Parser::BOP::comma', isComma => 1},
 
    'U' => {precedence => 0.5, associativity => 'left', type => 'bin', isUnion => 1,
-           string => ' U ', TeX => '\union ', class => 'Parser::BOP::union'},
+           string => ' U ', TeX => '\cup ', class => 'Parser::BOP::union'},
 
    '+' => {precedence => 1, associativity => 'left', type => 'both', string => '+',
            class => 'Parser::BOP::add'},
@@ -264,12 +264,18 @@ $vectorContext->functions->undefine('arg','mod','Re','Im','conj');
 $vectorContext->constants->replace(i=>Value::Vector->new(1,0,0));
 $vectorContext->constants->set(i=>{TeX=>'\boldsymbol{i}'});
 
+#########################################################################
+
+#
+#  list of all default contexts (users can add more)
+#
 %context = (
   Full    => $fullContext,
   Numeric => $numericContext,
   Complex => $complexContext,
   Vector  => $vectorContext,
 );
+
 #########################################################################
 
 1;

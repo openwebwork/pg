@@ -38,7 +38,7 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $x = shift; $x = [$x,@_] if scalar(@_) > 0;
   $x = $x->data if ref($x) eq $pkg;
-  Value::Error("Can't convert ".Value::showClass($x)." to a Complex Number") if Value::isValue($x);
+  Value::Error("Can't convert ".Value::showClass($x)." to a Real Number") if Value::isValue($x);
   $x = [$x] unless ref($x) eq 'ARRAY';
   Value::Error("Can't convert ARRAY of length ".scalar(@{$x})." to a Real Number") 
     unless (scalar(@{$x}) == 1);
@@ -121,7 +121,8 @@ sub power {
  }
 
 sub compare {
-  my ($l,$r,$flag) = @_; $r = promote($r);
+  my ($l,$r,$flag) = @_;
+  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
   $r = promote($r);
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   my ($a,$b) = ($l->{data}[0],$r->{data}[0]);
@@ -170,10 +171,10 @@ sub atan2 {
 
 ##################################################
 
-sub stringify {shift->string(@_)}
+sub stringify {shift->string}
 
 sub string {
-  my $self = shift; my $parens = shift;
+  my $self = shift; my $equation = shift; my $parens = shift;
   my $n = $self->{data}[0];
   my $format = $$Value::context->{format}{number};
   $n = sprintf($format,$n) if $format; #  use the specified precision, if any

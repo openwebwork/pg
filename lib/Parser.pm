@@ -58,7 +58,7 @@ sub tokenize {
       push(@{$tokens},['close',$7,$p0,$p1,$space]) if (defined($7));
       push(@{$tokens},['var',$8,$p0,$p1,$space])   if (defined($8));
     } else {
-      push(@{$tokens},['error',substr($string,$p0,3),$p0]);
+      push(@{$tokens},['error',substr($string,$p0,1),$p0,$p0+1]);
       $self->{error} = 1;
       last;
     }
@@ -91,7 +91,7 @@ sub parse {
       /var/   and do {$self->Var($ref->[1]); last};
       /fn/    and do {$self->Fn($ref->[1]); last};
       /str/   and do {$self->Str($ref->[1]); last};
-      /error/ and do {$self->Error("Unexpected characters '$ref->[1]'",$ref); last};
+      /error/ and do {$self->Error("Unexpected character '$ref->[1]'",$ref); last};
     }
     return if ($self->{error});
   }
@@ -646,6 +646,32 @@ sub setValues {
 ##################################################
 ##################################################
 #
+#  Convert a student answer to a formula, with error trapping.
+#  If the result is undef, there was an error (message is in Context()->{error} object)
+#
+
+sub Formula {
+  my $f = shift;
+  eval {Value::Formula->new($f)};
+}
+
+#
+#  Evaluate a formula, with error trapping.
+#  If the result is undef, there was an error (message is in Context()->{error} object)
+#  If the result was a real, make it a fuzzy one.
+#
+sub Evaluate {
+  my $f = shift;
+  return unless defined($f);
+  my $v = eval {$f->eval(@_)};
+  $v = Value::Real->new($v) if defined($v) && $f->isRealNumber;
+  return $v;
+}
+
+
+##################################################
+##################################################
+#
 #  Produce a vector in ijk form
 #
 sub ijk {
@@ -666,6 +692,11 @@ use Parser::Context;
 use Parser::Context::Default;
 
 # use Parser::Differentiation;
+
+###########################################################################
+
+use vars qw($installed);
+$Parser::installed = 1;
 
 ###########################################################################
 ###########################################################################

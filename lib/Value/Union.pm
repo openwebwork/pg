@@ -127,13 +127,15 @@ sub stringify {
 
 sub string {
   my $self = shift; my $equation = shift;
+  my $context = $equation->{context} || $$Value::context;
   my @intervals = ();
   foreach my $x (@{$self->data}) {push(@intervals,$x->string($equation))}
-  return join($equation->{context}{operators}{'U'}{string},@intervals);
+  return join($context->operators->get('U')->{string},@intervals);
 }
 sub TeX {
   my $self = shift; my $equation = shift;
-  my @intervals = (); my $op = $equation->{context}{operators}{'U'};
+  my $context = $equation->{context} || $$Value::context;
+  my @intervals = (); my $op = $context->operators->get('U');
   foreach my $x (@{$self->data}) {push(@intervals,$x->TeX($equation))}
   return join($op->{TeX} ? $op->{TeX} : $op->{string},@intervals);
 }

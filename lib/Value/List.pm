@@ -25,7 +25,7 @@ use overload
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $p = shift; my $isFormula = 0;
-  $p = $p->data if (Value::isValue($p) && Scalar(@_) == 0);
+  $p = $p->data if (Value::isValue($p) && scalar(@_) == 0);
   $p = [$p,@_] if (ref($p) ne 'ARRAY' || scalar(@_) > 0);
   foreach my $x (@{$p}) {$isFormula = 1,last if Value::isFormula($x)}
   return $self->formula($p) if $isFormula;
@@ -79,12 +79,11 @@ sub compare {
   if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
   ($l,$r) = (promote($l)->data,promote($r)->data);
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
-  my $cmp = 0;
-  foreach my $i (0..min(scalar(@{$l}),scalar(@{$r}))-1) {
+  my $cmp = 0; my $n = scalar(@{$l}); $n = scalar(@{$r}) if scalar(@{$r}) < $n;
+  foreach my $i (0..$n-1) {
     $cmp = $l->[$i] <=> $r->[$i];
-    last if $cmp;
+    return $cmp if $cmp;
   }
-  return $cmp if $cmp;
   return scalar(@{$l}) <=> scalar(@{$r});
 }
 
@@ -95,13 +94,17 @@ sub compare {
 
 sub stringify {
   my $self = shift;
-  '('.join(',',@{$self->data}).')';
+  my $open  = $self->{open}; my $close = $self->{close};
+  $open  = $$Value::context->lists->get('List')->{open} unless defined($open);
+  $close = $$Value::context->lists->get('List')->{close} unless defined($close);
+  $open.join(',',@{$self->data}).$close;
 }
 
 sub string {
   my $self = shift; my $equation = shift;
-  my $open = shift || $$Value::context->lists->get('List')->{open};
-  my $close = shift || $$Value::context->lists->get('List')->{close};
+  my $open = shift; my $close = shift;
+  $open  = $$Value::context->lists->get('List')->{open} unless defined($open);
+  $close = $$Value::context->lists->get('List')->{close} unless defined($close);
   my @coords = ();
   foreach my $x (@{$self->data}) {
     if (Value::isValue($x)) 
@@ -111,8 +114,9 @@ sub string {
 }
 sub TeX {
   my $self = shift; my $equation = shift;
-  my $open = shift || $$Value::context->lists->get('List')->{open};
-  my $close = shift || $$Value::context->lists->get('List')->{close};
+  my $open = shift; my $close = shift;
+  $open  = $$Value::context->lists->get('List')->{open} unless defined($open);
+  $close = $$Value::context->lists->get('List')->{close} unless defined($close);
   $open = '\{' if $open eq '{'; $close = '\}' if $close eq '}';
   my @coords = (); my $str = $equation->{context}{strings};
   foreach my $x (@{$self->data}) {

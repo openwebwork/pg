@@ -37,8 +37,8 @@ sub new {
     if (Value::class($M) =~ m/Point|Vector|Matrix/ && scalar(@_) == 0);
   $M = [$M,@_] if ((defined($M) && ref($M) ne 'ARRAY') || scalar(@_) > 0);
   Value::Error("Matrices must have at least one entry") unless defined($M) && scalar(@{$M}) > 0;
-  return $self->matrixMatrix(@{$M}) if (ref($M->[0]) eq 'ARRAY');
-  return $self->numberMatrix(@{$M});
+  return $self->numberMatrix(@{$M}) if Value::isNumber($M->[0]);
+  return $self->matrixMatrix(@{$M});
 }
 
 #
@@ -47,7 +47,7 @@ sub new {
 #
 sub matrixMatrix {
   my $self = shift; my $class = ref($self) || $self;
-  my ($x,$m); my @M = (); my $d = scalar(@{$_[0]}); my $isFormula = 0;
+  my ($x,$m); my @M = (); my $isFormula = 0;
   foreach $x (@_) {
     if (Value::isFormula($x)) {push(@M,$x); $isFormula = 1} else {
       $m = $pkg->new($x); push(@M,$m);
@@ -364,21 +364,23 @@ sub TeX {
   my $open  = shift || $$Value::context->lists->get('Matrix')->{open};
   my $close = shift || $$Value::context->lists->get('Matrix')->{close};
   $open = '\{' if $open eq '{'; $close = '\}' if $close eq '}';
-  my $TeX = ''; my @entries = ();
+  my $TeX = ''; my @entries = (); my $d;
   if ($self->isRow) {
     foreach my $x (@{$self->data}) {
       push(@entries,(Value::isValue($x))? $x->TeX($equation,$open,$close): $x);
     }
     $TeX .= join(' &',@entries) . "\n";
+    $d = scalar(@entries);
   } else {
     foreach my $row (@{$self->data}) {
       foreach my $x (@{$row->data}) {
         push(@entries,(Value::isValue($x))? $x->TeX($equation,$open,$close): $x);
       }
-      $TeX .= join(' &',@entries) . '\cr'."\n"; @entries = ();
+      $TeX .= join(' &',@entries) . '\cr'."\n";
+      $d = scalar(@entries); @entries = ();
     }
   }
-  return '\left'.$open.'\matrix{'."\n".$TeX.'}\right'.$close;
+  return '\left'.$open.'\begin{array}{'.('c'x$d).'}'."\n".$TeX.'\end{array}\right'.$close;
 }
   
 ###########################################################################

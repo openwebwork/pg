@@ -38,7 +38,7 @@ use overload
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $x = shift; $x = [$x,@_] if scalar(@_) > 0;
-  $x = $x->data if ref($x) eq $pkg;
+  $x = $x->data if ref($x) eq $pkg || Value::isReal($x);
   Value::Error("Can't convert ".Value::showClass($x)." to a Complex Number") if Value::isValue($x);
   $x = [$x] unless ref($x) eq 'ARRAY'; $x->[1] = 0 unless defined($x->[1]);
   Value::Error("Can't convert ARRAY of length ".scalar(@{$x})." to a Complex Number") 
@@ -154,7 +154,9 @@ sub equal {
 }
 
 sub compare {
-  my ($l,$r,$flag) = @_; $r = promote($r);
+  my ($l,$r,$flag) = @_;
+  if ($l->promotePrecedence($r)) {return $r->power($l,!$flag)}
+  $r = promote($r);
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   my ($a,$b) = (@{$l->data});
   my ($c,$d) = (@{$r->data});

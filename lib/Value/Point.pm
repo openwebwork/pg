@@ -178,8 +178,9 @@ sub abs {
 
 sub stringify {
   my $self = shift;
-  my $point = $$Value::context->lists->get('Point');
-  $point->{open} . join(',',@{$self->data}) . $point->{close};
+  my $open  = $self->{open}  || $$Value::context->lists->get('Point')->{open};
+  my $close = $self->{close} || $$Value::context->lists->get('Point')->{close};
+  $open . join(',',@{$self->data}) . $close;
 }
 
 sub string {
@@ -193,7 +194,7 @@ sub string {
   return $open.join(',',@coords).$close;
 }
 
-sub string {
+sub TeX {
   my $self = shift; my $equation = shift;
   my $open = shift || $$Value::context->lists->get('Point')->{open};
   my $close = shift || $$Value::context->lists->get('Point')->{close};

@@ -99,6 +99,8 @@ sub showClass {
   my $value = shift;
   return "'".$value."'" unless ref($value);
   my $class = class($value);
+  $class .= ' Number' if $class =~ m/^(Real|Complex)$/;
+  $class .= ' of Intervals' if $class eq 'Union';
   return showType($value->{tree}) if $class eq 'Formula';
   return 'an '.$class if substr($class,0,1) =~ m/[aeio]/i;
   return 'a '.$class;
@@ -283,6 +285,8 @@ sub promotePrecedence {
   return defined($oprec) && $sprec < $oprec;
 }
 
+sub promote {shift}
+
 #
 #  Default stub to call when no function is defined for an operation
 #
@@ -380,14 +384,14 @@ sub ijk {
   Value::Error("Can't use method 'ijk' with objects of type '".(shift)->class."'");
 }
 
-use carp;
 #
 #  Report an error
 #
 sub Error {
   my $message = shift;
   $$context->setError($message,'');
-  die $message . Value::getCaller();
+#  die $message . traceback();
+  die $message . getCaller();
 }
 
 #
@@ -429,6 +433,14 @@ use Value::Interval;
 use Value::Union;
 # use Value::Formula;
 
+use Value::AnswerChecker;  #  for WeBWorK
+
+###########################################################################
+
+use vars qw($installed);
+$Value::installed = 1;
+
+###########################################################################
 ###########################################################################
 #
 #    To Do:

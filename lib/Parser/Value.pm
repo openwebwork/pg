@@ -63,12 +63,12 @@ sub coords {
 #
 sub string {
   my $self = shift; my $precedence = shift;
-  my $string = $self->{value}->string($self->{equation},$self->{open},$self->{close});
+  my $string = $self->{value}->string($self->{equation},$self->{open},$self->{close},$precedence);
   return $string;
 }
 sub TeX {
   my $self = shift; my $precedence = shift;
-  my $TeX = $self->{value}->TeX($self->{equation},$self->{open},$self->{close});
+  my $TeX = $self->{value}->TeX($self->{equation},$self->{open},$self->{close},$precedence);
   return $TeX;
 }
 sub perl {

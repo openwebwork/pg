@@ -145,14 +145,15 @@ sub dot {add(@_)}
 sub compare {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
-  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
-  if (Value::class($l) eq 'Interval' && Value::class($r) eq 'Interval') {
+  if (Value::class($r) eq 'Interval' || Value::class($r) eq 'Point') {
+    if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
     my ($la,$lb) = @{$l->data}; my ($ra,$rb) = @{$r->data};
     my $cmp = $la <=> $ra; return $cmp if $cmp;
     $cmp = $l->{open} cmp $r->{open}; return $cmp if $cmp;
     $cmp = $lb <=> $rb; return $cmp if $cmp;
     return $l->{close} cmp $r->{close};
   } else {
+    if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
     $l = $l->data if Value::isValue($l);
     $r = $r->data if Value::isValue($r);
     return $l <=> $r;
