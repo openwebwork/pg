@@ -152,6 +152,12 @@ sub compare {
   return 1 unless $rvalues;
 
   #
+  #  Handle parameters
+  #
+  $lvalues = $l->{test_values}
+    if $l->AdaptParameters($r,$self->{context}->variables->parameters);
+
+  #
   #  Look through the two lists to see if they are equal.
   #  If not, return the comparison of the first unequal value
   #    (not good for < and >, but OK for ==).
@@ -171,13 +177,14 @@ sub createPointValues {
   my $self = shift;
   my $points = shift || $self->{test_points} || $self->createRandomPoints;
   my $showError = shift;
-  my $f = $self->{f};
-  $f = $self->{f} = $self->perlFunction(undef,[$self->{context}->variables->names])
-     unless $f;
+  my @vars   = $self->{context}->variables->variables;
+  my @params = $self->{context}->variables->parameters;
+  my @zeros  = @{$self->{parameters} || [split('',"0" x scalar(@params))]};
+  my $f = $self->{f}; $f = $self->{f} = $self->perlFunction(undef,[@vars,@params]) unless $f;
 
   my $values = []; my $v;
   foreach my $p (@{$points}) {
-    $v = eval {&$f(@{$p})};
+    $v = eval {&$f(@{$p},@zeros)};
     if (!defined($v)) {
       return unless $showError;
       Value::Error("Can't evaluate formula on test point (".join(',',@{$p}).")");
@@ -199,10 +206,12 @@ sub createRandomPoints {
   $num_points = int($self->getFlag('num_points',5)) unless defined($num_points);
   $num_points = 1 if $num_points < 1;
 
-  my @vars = $self->{context}->variables->names;
+  my @vars   = $self->{context}->variables->variables;
+  my @params = $self->{context}->variables->parameters;
   my @limits = $self->getVariableLimits(@vars);
-  my @make = $self->getVariableTypes(@vars);
-  my $f = $self->{f}; $f = $self->{f} = $self->perlFunction(undef,[@vars]) unless $f;
+  my @make   = $self->getVariableTypes(@vars);
+  my @zeros  = split('',"0" x scalar(@params));
+  my $f = $self->{f}; $f = $self->{f} = $self->perlFunction(undef,[@vars,@params]) unless $f;
   my $seedRandom = $self->{context}->flag('random_seed')? 'PGseedRandom' : 'seedRandom';
   my $getRandom  = $self->{context}->flag('random_seed')? 'PGgetRandom'  : 'getRandom';
 
@@ -215,7 +224,7 @@ sub createRandomPoints {
       @p = (); foreach my $I (@{$limit}) {push @p, $self->$getRandom(@{$I})}
       push @P, $make[$i++]->make(@p);
     }
-    $v = eval {&$f(@P)};
+    $v = eval {&$f(@P,@zeros)};
     if (!defined($v)) {$k++} else {
       push @{$points}, [@P];
       push @{$values}, Value::makeValue($v);
@@ -294,6 +303,51 @@ sub getVariableTypes {
 #  Fake object for making reals (rather than use overhead of Value::Real)
 #
 sub Value::Formula::number::make {shift; shift}
+
+#
+#  Find adaptive parameters, if any
+#
+sub AdaptParameters {
+  my $l = shift; my $r = shift;
+  my @params = @_; my $d = scalar(@params);
+  return 0 if $d == 0;
+  $l->Error("Adaptive parameters can only be used for real-valued functions")
+    unless $l->{tree}->isRealNumber;
+  #
+  #  Get coefficient matrix of adaptive parameters
+  #  and value vector for linear system
+  #
+  my ($p,$v) = $l->createRandomPoints($d,1);
+  my @P = split('',"0" x $d); my ($f,$F) = ($l->{f},$r->{f});
+  my @A = (); my @b = ();
+  foreach my $i (0..$d-1) {
+    my @a = (); my @p = @{$p->[$i]};
+    foreach my $j (0..$d-1) {
+      $P[$j] = 1; push(@a,&$f(@p,@P)-$v->[$i]);
+      $P[$j] = 0;
+    }
+    push @A, [@a]; push @b, [&$F(@p,@P)-$v->[$i]];
+  }
+  #
+  #  Use MatrixReal1.pm to solve system of linear equations
+  #
+  my $M = MatrixReal1->new($d,$d); $M->[0] = \@A;
+  my $B = MatrixReal1->new($d,1);  $B->[0] = \@b;
+  ($M,$B) = $M->normalize($B);
+  $M = $M->decompose_LR;
+  if (($d,$B,$M) = $M->solve_LR($B)) {
+    if ($d == 0) {
+      #
+      #  Get values and recompute the points using them
+      #
+      my @a;  foreach my $r (@{$B->[0]}) {push @a, $r->[0]}
+      $l->{parameters} = [@a];
+      $l->createPointValues;
+      return 1;
+    }
+  }
+  $l->Error("Can't solve for adaptive parameters");
+}
 
 ##
 ##  debugging routine

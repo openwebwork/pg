@@ -51,6 +51,7 @@ sub cmp_parse {
   my $context = $$Value::context; # save it for later
   Parser::Context->current(undef,$self->{context}); # change to object's context
   $context->flags->set(StringifyAsTeX => 0);  # reset this, just in case.
+  $context->flags->set(no_parameters => 1);   # don't let students enter parameters
   $ans->{isPreview} = $self->getPG('$inputs_ref->{previewAnswers}');
   $ans->{cmp_class} = $self->cmp_class($ans) unless $ans->{cmp_class};
 
@@ -77,6 +78,7 @@ sub cmp_parse {
   } else {
     $self->cmp_error($ans);
   }
+  $context->flags->set(no_parameters => 0);  # let professors enter parameters
   Parser::Context->current(undef,$context);  # put back the old context
   return $ans;
 }

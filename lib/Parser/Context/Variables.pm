@@ -19,6 +19,7 @@ use vars qw(@ISA %type);
   'Point3D' => Value::Type('Point',3,$Value::Type{number}),
   'Vector2D' => Value::Type('Vector',2,$Value::Type{number}),
   'Vector3D' => Value::Type('Vector',3,$Value::Type{number}),
+  'Parameter' => $Value::Type{number},
 );
 
 sub init {
@@ -46,9 +47,10 @@ sub update {
 #  Otherwise report an error
 #
 sub create {
-  my $self = shift; my $value = shift;
+  my $self = shift; my $value = shift; my @extra;
   return $value if ref($value) eq 'HASH';
   if (defined($type{$value})) {
+    @extra = (parameter => 1) if $value eq 'Parameter';
     $value = $type{$value};
   } elsif (Value::isValue($value)) {
     $value = $value->typeRef;
@@ -57,7 +59,7 @@ sub create {
   } else {
     Value::Error("Unrecognized variable type '$value'");
   }
-  return {type => $value};
+  return {type => $value, @extra};
 }
 
 #
@@ -66,6 +68,26 @@ sub create {
 sub type {
   my $self = shift; my $x = shift;
   return $self->{context}{variables}{$x}{type};
+}
+
+#
+#  Get the names of all variables
+#
+sub variables {
+  my $self = shift; my @names;
+  foreach my $x ($self->SUPER::names)
+    {push(@names,$x) unless $self->{context}{variables}{$x}{parameter}}
+  return @names;
+}
+
+#
+#  Get the names of all parameters
+#
+sub parameters {
+  my $self = shift; my @names;
+  foreach my $x ($self->SUPER::names)
+    {push(@names,$x) if $self->{context}{variables}{$x}{parameter}}
+  return @names;
 }
 
 #########################################################################

@@ -16,7 +16,7 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $equation = shift;
   my ($name,$ref) = @_;
-  unless (defined($equation->{context}{variables}{$name})) {
+  unless ($equation->{context}{variables}{$name}) {
     my $string = substr($equation->{string},$ref->[2]);
     if ($string =~ m/^([a-z][a-z]+)/i) {
       $ref->[3] = $ref->[2]+length($1);
@@ -24,6 +24,9 @@ sub new {
     }
     $equation->Error("Variable '$name' is not defined in this context",$ref);
   }
+  $equation->Error("Variable '$name' is not defined in this context",$ref)
+    if $equation->{context}{variables}{$name}{parameter} &&
+       $equation->{context}{flags}{no_parameters};
   $equation->{variables}{$name} = 1;
   my $def = $equation->{context}{variables}{$name};
   bless {
