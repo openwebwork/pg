@@ -45,7 +45,7 @@ sub trace {
 	my $self = shift;
 	my $rows = $self->[1];
 	my $cols = $self->[2];
-	warn "Can't take trace of non-square matrix " unless $rows = $cols;
+	warn "Can't take trace of non-square matrix " unless $rows == $cols;
 	my $sum = 0;
 	for( my $i = 0; $i<$rows;$i++) {
 		$sum +=$self->[0][$i][$i];
@@ -130,5 +130,49 @@ sub new_column_matrix {
 	foreach my $i (1..$rows) {
 		$matrix->assign($i,1,$vec->[$i-1]);
 	}
-	$matrix;	
+	$matrix;
 }
+=head4
+
+	This method takes an array of column vectors, or an array of arrays,
+	and converts them to a matrix where each column is one of the previous 
+	vectors.
+
+=cut
+
+sub new_from_col_vecs
+{
+	my $class = shift;
+ 	my($vecs) = shift;
+ 	my($rows,$cols);
+	
+	if(ref($vecs->[0])eq 'Matrix' ){
+		($rows,$cols) = (scalar($vecs->[0]->[1]),scalar(@$vecs));
+	}else{
+		($rows,$cols) = (scalar(@{$vecs->[0]}),scalar(@$vecs));
+	}
+    	
+	my($i,$j);
+    	my $matrix = Matrix->new($rows,$cols); 
+  
+  	if(ref($vecs->[0])eq 'Matrix' ){
+	    	for ( $i = 0; $i < $cols; $i++ )
+    		{
+    			for( $j = 0; $j < $rows; $j++ )
+			{
+	        		$matrix->[0][$j][$i] = $vecs->[$i][0][$j][0];
+			}
+    		}
+	}else{
+		for ( $i = 0; $i < $cols; $i++ )
+    		{
+    			for( $j = 0; $j < $rows; $j++ )
+			{
+	        		$matrix->[0][$j][$i] = $vecs->[$i]->[$j];
+			}
+    		}
+	}
+    	return($matrix);
+}	
+
+1;
