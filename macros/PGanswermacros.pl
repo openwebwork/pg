@@ -1310,6 +1310,9 @@ TEST POINTS:
   restrictions (such as being integers), they can be generated in the problem:
   "test_points=>[random(1,50), random(1,50), random(1,50), random(1,50)]".
 
+  Note that test_points should not be used for function checks which involve
+  parameters  (either explicitly given by "params", or as antiderivatives).
+
 EXAMPLES:
 
 	fun_cmp( "3*x" )	--	standard compare, variable is x
