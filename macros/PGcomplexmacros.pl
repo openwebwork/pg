@@ -246,7 +246,7 @@ sub compare_cplx {
 	if ($PG_eval_errors) {
 		$rh_ans->throw_error('EVAL','There is a syntax error in your answer');
 		$rh_ans->{ans_message} = clean_up_error_msg($PG_eval_errors);
-		# return $rh_ans;
+		 return $rh_ans;
 	} else {
 		$rh_ans->{student_ans} = prfmt($inVal,$options{format});
 	}
