@@ -57,6 +57,32 @@ sub tanh {
 sub sech {
     2/(exp($_[0]) + exp(-$_[0]));
 }
+#
+#  DPVC  -- 2002/03/31
+#        added missing trig, inverse and hyperbolic functions
+#
+sub csch {2.0/(exp($_[0]) - exp(-$_[0]))}
+sub coth {(exp($_[0]) + exp(-$_[0]))/(exp($_[0]) - exp(-$_[0]))}
+
+sub arcsec {acos(1.0/$_[0])}; sub asec {acos(1.0/$_[0])}
+sub arccsc {asin(1.0/$_[0])}; sub acsc {asin(1.0/$_[0])}
+
+sub arcsinh {log($_[0]+sqrt($_[0]*$_[0]+1.0))}
+sub arccosh {log($_[0]+sqrt($_[0]*$_[0]-1.0))}
+sub arctanh {log((1.0+$_[0])/(1.0-$_[0]))/2.0}
+sub arcsech {log((1.0+sqrt(1-$_[0]*$_[0]))/$_[0])}
+sub arccsch {log((1.0+sqrt(1+$_[0]*$_[0]))/$_[0])}
+sub arccoth {log(($_[0]+1.0)/($_[0]-1.0))/2.0}
+
+sub asinh {log($_[0]+sqrt($_[0]*$_[0]+1.0))}
+sub acosh {log($_[0]+sqrt($_[0]*$_[0]-1.0))}
+sub atanh {log((1.0+$_[0])/(1.0-$_[0]))/2.0}
+sub asech {log((1.0+sqrt(1-$_[0]*$_[0]))/$_[0])}
+sub acsch {log((1.0+sqrt(1+$_[0]*$_[0]))/$_[0])}
+sub acoth {log(($_[0]+1.0)/($_[0]-1.0))/2.0}
+#
+#  End DPVC
+#
 sub sgn {
 	my $x = shift;
 	my $out;

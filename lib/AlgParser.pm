@@ -46,8 +46,16 @@ $specialvalue = '(?:e|pi)';
 $numberplain = '(?:\d+(?:\.\d*)?|\.\d+)';
 $numberE = '(?:' . $numberplain . 'E[-+]?\d+)';
 $number = '(?:' . $numberE . '|' . $numberplain . ')';
-$trigfname = '(?:cosh|sinh|tanh|cot|(?:a(?:rc)?)?cos|(?:a(?:rc)?)?sin|' .
-    '(?:a(?:rc)?)?tan|sech?)';
+#
+#  DPVC -- 2003/03/31
+#       added missing trig and inverse functions
+#
+#$trigfname = '(?:cosh|sinh|tanh|cot|(?:a(?:rc)?)?cos|(?:a(?:rc)?)?sin|' .
+#    '(?:a(?:rc)?)?tan|sech?)';
+$trigfname = '(?:(?:a(?:rc)?)?(?:sin|cos|tan|sec|csc|cot)h?)';
+#
+#  End DPVC
+#
 $otherfunc = '(?:exp|abs|logten|log|ln|sqrt|sgn|step|fact)';
 $funcname = '(?:' . $otherfunc . '|' . $trigfname . ')';
 
@@ -567,8 +575,15 @@ sub tolatex {
       if($args[0] eq "sqrt"){($p1,$p2)=qw{ \left{ \right} };}
       else {($p1,$p2)=qw{ \left( \right) };}
 
-      $specialfunc = '(?:abs|logten|asin|acos|atan|sech|sgn|step|fact)';
-
+      #
+      #  DPVC -- 2003/03/31
+      #       added missing trig functions
+      #
+      #$specialfunc = '(?:abs|logten|asin|acos|atan|sech|sgn|step|fact)';
+      $specialfunc = '(?:abs|logten|a(?:sin|cos|tan|sec|csc|cot)h?|sgn|step|fact)';
+      #
+      #  End DPVC
+      #
 
       if ($args[0] =~ /$specialfunc/) {
          return ('\mbox{' . $args[0] .'}'. $p1 . $args[1]->tolatex() . $p2);
