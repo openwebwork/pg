@@ -1576,6 +1576,11 @@ sub EV4{
 
 	spf($number, $format)   # prints the number with the given format
 	sspf($number, $format)  # prints the number with the given format, always including a sign.
+	nicestring($coefficients, $terms) # print a linear combinations of terms using coefficients
+	nicestring($coefficients) # uses the coefficients to make a polynomial
+			# For example
+			# nicestring([1,-2, 0]) produces 'x^2-2x'
+			# nicestring([2,0,-1],['', 't', 't^2']) produces '2-t^2'
 	protect_underbar($string) # protects the underbar (class_name) in strings which may have to pass through TeX.
 
 =cut
@@ -1606,6 +1611,44 @@ sub beginproblem {
 	}
 	$out;
 
+}
+
+sub nicestring {
+    my($thingy) = shift;
+    my(@coefs) = @{$thingy};
+    my $n = scalar(@coefs);
+    $thingy = shift;
+    my(@others);
+    if(defined($thingy)) {
+	@others = @{$thingy};
+    } else {
+	my($j);
+	for $j (1..($n-2)) {
+	    $others[$j-1] = "x^".($n-$j);
+	}
+	if($n>=2) { $others[$n-2] = "x";}
+	$others[$n-1] = "";
+    }
+    my($j, $k)=(0,0);
+    while(($k<$n) && ($coefs[$k]==0)) {$k++;}
+    if($k==$n) {return("0");}
+    my $ans;
+    if($coefs[$k]==1) {$ans = ($others[$k]) ? "$others[$k]" : "1";}
+    elsif($coefs[$k]== -1) {$ans =  ($others[$k]) ? "- $others[$k]" : "-1"}
+    else { $ans = "$coefs[$k] $others[$k]";}
+    $k++;
+    for $j ($k..($n-1)) {
+	if($coefs[$j] != 0) {
+	    if($coefs[$j] == 1) {
+		$ans .= ($others[$j]) ? "+ $others[$j]" : "+ 1";
+	    } elsif($coefs[$j] == -1) {
+		$ans .= ($others[$j]) ? "- $others[$j]" : "-1";
+	    } else {
+		$ans .= "+ $coefs[$j] $others[$j]";
+	    }
+	}
+    }
+    return($ans);
 }
 
 # kludge to clean up path names

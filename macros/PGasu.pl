@@ -415,67 +415,6 @@ sub pc_evaluator {
 }
 
 
-=head3      nicestring
-
-=pod
-
-A formatting function for dealing with 1, -1, and 0 coefficients in
-linear combinations.
-
-Usage:
-
-  $a = nicestring([0,1,-1,2], ['x', 'y', 'z', 'w']);
-
-produces "y-z+ 2w" in $a.
-
-As a shorthand for polynomials,
-
-  $b = nicestring([1,2, -1, 0, 3]);
-
-produces 'x^4 + 2 x^3 - x^2 + 3' in $b.
-
-
-=cut
-
-
-sub nicestring {
-  my($thingy) = shift;
-  my(@coefs) = @{$thingy};
-  my $n = scalar(@coefs);
-  $thingy = shift;
-  my(@others);
-  if(defined($thingy)) {
-    @others = @{$thingy};
-  } else {
-    my($j);
-    for $j (1..($n-2)) {
-      $others[$j-1] = "x^".($n-$j);
-    }
-    if($n>=2) { $others[$n-2] = "x";}
-    $others[$n-1] = "";
-  }
-  my($j, $k)=(0,0);
-  while(($k<$n) && ($coefs[$k]==0)) {$k++;}
-  if($k==$n) {return("0");}
-  my $ans;
-  if($coefs[$k]==1) {$ans = ($others[$k]) ? "$others[$k]" : "1";}
-  elsif($coefs[$k]== -1) {$ans =  ($others[$k]) ? "- $others[$k]" : "-1"}
-  else { $ans = "$coefs[$k] $others[$k]";}
-  $k++;
-  for $j ($k..($n-1)) {
-    if($coefs[$j] != 0) {
-      if($coefs[$j] == 1) {
-        $ans .= ($others[$j]) ? "+ $others[$j]" : "+ 1";
-      } elsif($coefs[$j] == -1) {
-        $ans .= ($others[$j]) ? "- $others[$j]" : "-1";
-      } else {
-        $ans .= "+ $coefs[$j] $others[$j]";
-      }
-    }
-  }
-  return($ans);
-}
-
 
 =head3      weighted_partial_grader
 
