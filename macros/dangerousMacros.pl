@@ -227,31 +227,36 @@ sub loadMacros {
 		$macro_file_name =~s/\.pg//;  # sometimes the extension is .pg (e.g. CAPA files)
 		my $init_subroutine_name = "_${macro_file_name}_init";
 
- 		#no strict;
  		###############################################################################
 		# For some reason the "no stict" which works on webwork-db doesn't work on
 		# webwork.  For this reason the constuction &{$init_subroutine_name}
 		# was abandoned and replaced by eval.  This is considerably more dangerous
 		# since one could hide something nasty in a file name.
 		#  Keep an eye on this ???
-		# webwork-db used perl 5.6.1 and webwork used perl 5.6.0  It seems
-		# unlikely that this was the problem. Otherwise all files seemed to
-		# be the same.
-		
-		# 		local($temp::rf_init_subroutine);
-		#  		eval qq{ \$temp::rf_init_subroutine = \\&main::$init_subroutine_name;};
-		# 		#warn "loadMacros: defining \$temp::rf_init_subroutine ",$temp::rf_init_subroutine;
-		# 
-		# 		$macro_file_loaded	= defined($temp::rf_init_subroutine) && defined( &{$temp::rf_init_subroutine} );
+		# webwork-db used perl 5.6.1 and webwork used perl 5.6.0 
+
 		###############################################################################
-		no strict;
-		#  warn "dangerousMacros main:: contains <br>\n  ".join("<br>\n ", %main::) if $debugON;
-		my $init_subroutine  = eval { \&{$init_subroutine_name} };
-		use strict;
-        my $macro_file_loaded = defined($init_subroutine);
-        warn "dangerousMacros: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|" if $debugON;
+		# compile initialization subroutine. (5.6.0 version)
+
+		
+#		eval( q{ \$init_subroutine = \\&main::}.$init_subroutine_name);
+#		warn "dangerousMacros: failed to compile $init_subroutine_name. $@" if $@;
+
+
+		###############################################################################
+		#compile initialization subroutine. (5.6.1 version) also works with 5.6.0
+
+# 		no strict;
+ 		my $init_subroutine  = eval { \&{$init_subroutine_name} };
+# 		use strict;
+
+		###############################################################################
         # macros are searched for first in the $macroDirectory of the course
         # and then in the webwork  $courseScripts directory.
+        
+        my $macro_file_loaded = defined($init_subroutine) && defined(&$init_subroutine);
+        warn "dangerousMacros: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|" if $debugON;
+       
         unless ($macro_file_loaded) {
         	#print STDERR "loadMacros: loading macro file $fileName\n";
 			if (-r "$macroDirectory$fileName") {
@@ -263,14 +268,23 @@ sub loadMacros {
 				die "Can't locate macro file via path: |$macroDirectory$fileName| or |$courseScriptsDirectory$fileName|";
 			}
 		}
-		# Try again to define the initialization subroutine.
-		#eval qq{ \$temp::rf_init_subroutine = \\&main::$init_subroutine_name;};
-		no strict;
-		$init_subroutine  = eval { \&{'main::'.$init_subroutine_name} };
-		use strict;
+		###############################################################################
+		# Try again to define the initialization subroutine. (5.6.0 version)
+		
+#		eval( q{ \$init_subroutine = \\&main::}.$init_subroutine_name );
+#		warn "dangerousMacros: failed to compile $init_subroutine_name. $@" if $@;
+#		$init_subroutine = $temp::rf_init_subroutine;
+		###############################################################################
+		# Try again to define the initialization subroutine. (5.6.1 version) also works with 5.6.0	
+			
+# 		no strict;            
+ 		$init_subroutine  = eval { \&{'main::'.$init_subroutine_name} };
+# 		use strict;
+		###############################################################################
 		#warn "loadMacros: defining \$temp::rf_init_subroutine ",$temp::rf_init_subroutine;
-        warn "init file defined: $macro_file_name = ", defined(&{$init_subroutine}) if $debugON;
-       
+       $macro_file_loaded = defined($init_subroutine) && defined(&$init_subroutine);
+       warn "dangerousMacros: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|" if $debugON;
+
 		if ( defined($init_subroutine) && defined( &{$init_subroutine} ) ) {
 
 		    warn "dangerousMacros:  initializing $macro_file_name" if $debugON;
