@@ -432,8 +432,13 @@ sub ENDDOCUMENT {
     $STRINGforOUTPUT .= '<SCRIPT> jsMath.ProcessBeforeShowing() </SCRIPT>'
       if ($main::envir{displayMode} eq 'HTML_jsMath');
 
-    $STRINGforOUTPUT .= '<SCRIPT> translate() </SCRIPT>'
-      if ($main::envir{displayMode} eq 'HTML_asciimath');
+    if ($main::envir{displayMode} eq 'HTML_asciimath') {
+      $STRINGforOUTPUT .= '<SCRIPT> translate() </SCRIPT>';
+      $STRINGforHEADER_TEXT .=
+        '<object id="mathplayer" classid="clsid:32F66A20-7614-11D4-BD11-00104BD3F987">' . "\n" .
+        '</object><?import namespace="mml" implementation="#mathplayer"?>'
+	unless ($STRINGforHEADER_TEXT =~ m/mathplayer/);
+    }	
     
 	(\$STRINGforOUTPUT, \$STRINGforHEADER_TEXT,\%PG_ANSWERS_HASH,eval(q!\%main::PG_FLAGS!));
 }
