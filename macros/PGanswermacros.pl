@@ -133,7 +133,9 @@ my ($BR 					        ,		# convenient localizations.
 	$CA                             ,
 	$rh_envir                       ,
 	$useBaseTenLog                  ,
+	$inputs_ref                     ,
 	$QUESTIONNAIRE_ANSWERS          ,
+	
 );
 
 
@@ -162,6 +164,7 @@ sub _PGanswermacros_init {
 		 $functMaxConstantOfIntegration		=	main::PG_restricted_eval(q!$main::functMaxConstantOfIntegration!);
 		 $rh_envir                          =   main::PG_restricted_eval(q!\%main::envir!);
 		 $useBaseTenLog                     =   main::PG_restricted_eval(q!\%main::useBaseTenLog!);
+		 $inputs_ref                        =   main::PG_restricted_eval(q!$main::inputs_ref!);
 		 $QUESTIONNAIRE_ANSWERS				=   '';
 }
 
@@ -1345,7 +1348,7 @@ EXAMPLES:
 
 sub fun_cmp {
 	my $correctAnswer =	shift @_;
-	my %opt	= @_;
+	my %opt	          = @_;
 
     assign_option_aliases( \%opt,
 				'vars'		=>	'var',    # set the standard option 'var' to the one specified as vars
@@ -1730,16 +1733,16 @@ sub FUNCTION_CMP {
 	my %func_params = @_;
 
 	my $correctEqn					=	$func_params{'correctEqn'};
-	my $var						=	$func_params{'var'};
+	my $var						    =	$func_params{'var'};
 	my $ra_limits					=	$func_params{'limits'};
-	my $tol						=	$func_params{'tolerance'};
-	my $tolType					=	$func_params{'tolType'};
+	my $tol						    =	$func_params{'tolerance'};
+	my $tolType					    =	$func_params{'tolType'};
 	my $numPoints					=	$func_params{'numPoints'};
-	my $mode					=	$func_params{'mode'};
-	my $maxConstantOfIntegration			=	$func_params{'maxConstantOfIntegration'};
+	my $mode					    =	$func_params{'mode'};
+	my $maxConstantOfIntegration    =	$func_params{'maxConstantOfIntegration'};
 	my $zeroLevel					=	$func_params{'zeroLevel'};
 	my $zeroLevelTol				=	$func_params{'zeroLevelTol'};
-	my $ra_test_points    = $func_params{'test_points'};
+	my $ra_test_points              =   $func_params{'test_points'};
 
 
     # Check that everything is defined:
@@ -1830,31 +1833,12 @@ sub FUNCTION_CMP {
 	warn  $rh_correct_ans->{error_message} if $rh_correct_ans->{error_flag};
 	$rh_correct_ans->clear_error();
 	$rh_correct_ans      = function_from_string2($rh_correct_ans, ra_vars  => [ @VARS, @PARAMS ],
-	                                                         stdout =>'rf_correct_ans',
-	                                                         debug    =>  $func_params{debug});
+	                                                         stdout        => 'rf_correct_ans',
+	                                                         debug         =>  $func_params{debug});
 	my $correct_eqn_sub  = $rh_correct_ans->{rf_correct_ans};
 	warn $rh_correct_ans->{error_message} if $rh_correct_ans->{error_flag};
 
-######################################################################
-# prepare the previous student answer and check its syntax as well
-######################################################################
-#   FIXME  We need to be able to retrieve, not the sticky answer, but the answer previous to that one
-#   in order to be able to check whether the current answer is different from the one just entered
-#   This will require additional storage provided, I believe by PGtranslator.pm
-#   OR BETTER YET perhaps we can store this in the HTML document using hidden variables.
-#   this could be a change in PGbasicmacros which printed a hidden version of the previous answer
-#   along with the blank that was modified.
-#
-#   my $rh_prev_ans      = new AnswerHash;
-# 	$rh_prev_ans->input( PREVIOUS ANSWER FOR COMPARISON HERE);
-# 	$rh_prev_ans         = check_syntax($rh_prev_ans);
-# 	warn  $rh_prev_ans->{error_message} if $rh_prev_ans->{error_flag};
-# 	$rh_prev_ans->clear_error();
-# 	$rh_prev_ans         = function_from_string2($rh_prev_ans, ra_vars  => [ @VARS, @PARAMS ],
-# 	                                                         stdout =>'rf_prev_ans',
-# 	                                                         debug    =>  $func_params{debug});
-# 	my $prev_eqn_sub     = $rh_prev_ans->{rf_prev_ans};
-# 	warn $rh_prev_ans->{error_message} if $rh_prev_ans->{error_flag};
+
 
 ######################################################################
 # define the points at which the functions are to be evaluated
@@ -1894,19 +1878,100 @@ sub FUNCTION_CMP {
 					ra_param_vars       => 	\@PARAMS,
 					ra_vars             =>	\@VARS,
 					type                =>	'function',
+					score               =>  0,
     );
+    #########################################################
+    # Prepare the previous answer for evaluation, discard errors
+    #########################################################
+    $answer_evaluator->install_pre_filter(sub { my $rh_ans = shift; 
+    											$rh_ans->{_filter_name} = "fetch_previous_answer";
+                                                my $prev_ans_label = "previous_".$rh_ans->{ans_label};
+                                                $rh_ans->{prev_ans} = 
+                                                       (defined( $inputs_ref->{$prev_ans_label} and $inputs_ref->{$prev_ans_label} =~/\S/) ) ?
+                                                           $inputs_ref->{$prev_ans_label} : undef; 
+                                                $rh_ans;
+                                              }
+    );
+    $answer_evaluator->install_pre_filter(sub { my $rh_ans = shift;
+                                                return $rh_ans unless defined($rh_ans->{prev_ans});
+                                                check_syntax($rh_ans, 
+                                                             stdin           => 'prev_ans', 
+                                                             stdout          => 'prev_ans', 
+                                                             error_msg_flag  => 0 
+                                                 );
+                                                $rh_ans->{_filter_name} = "check_syntax_of_previous_answer";
+                                                $rh_ans;
+                                               }
+    );
+    $answer_evaluator->install_pre_filter(sub { my $rh_ans = shift;
+                                                return $rh_ans unless defined($rh_ans->{prev_ans});
+                                                function_from_string2($rh_ans, 
+                                                                      stdin   => 'prev_ans', 
+                                                                      stdout  => 'rf_prev_ans',
+                                                                      ra_vars => \@VARS, 
+                                                                      debug=>$func_params{debug}
+                                                );
+                                                $rh_ans->{_filter_name} = "compile_previous_answer";
+                                                $rh_ans;
+                                               }
+    );
+    #########################################################
+    # Prepare the current answer for evaluation
+    #########################################################
 
     $answer_evaluator->install_pre_filter(\&check_syntax);
-    $answer_evaluator->install_pre_filter(\&function_from_string2, ra_vars => \@VARS,debug=>$func_params{debug},); # @VARS has been guaranteed to be an array, $var might be a single string.
+    $answer_evaluator->install_pre_filter(\&function_from_string2, ra_vars => \@VARS,
+                                                                   debug   => $func_params{debug}
+    ); # @VARS has been guaranteed to be an array, $var might be a single string.
+    #########################################################
+    # Compare the previous and current answer.  Discard errors
+    #########################################################
+
+    $answer_evaluator->install_evaluator(sub {  my $rh_ans = shift;
+                                                return $rh_ans unless defined($rh_ans->{rf_prev_ans});
+                                                calculate_difference_vector($rh_ans, 
+                                                                            %func_params, 
+																			stdin1         => 'rf_student_ans', 
+																			stdin2         => 'rf_prev_ans',
+																			stdout         => 'ra_diff_with_prev_ans',
+																			error_msg_flag => 0,
+                                                );
+                                                $rh_ans->{_filter_name} = "calculate_difference_vector_of_previous_answer";
+                                                $rh_ans;
+                                               }
+    );
+    $answer_evaluator->install_evaluator(sub {  my $rh_ans = shift;
+                                                return $rh_ans unless defined($rh_ans->{ra_diff_with_prev_ans});
+                                                is_zero_array( $rh_ans,
+                                                               stdin => 'ra_diff_with_prev_ans', 
+                                                               stdout => 'ans_equals_prev_ans' 
+                                                );
+                                             }
+    );
+    #########################################################
+    # Calculate values for approximation parameters and
+    # compare the current answer with the correct answer.  Keep errors this time.
+    #########################################################
+   
     $answer_evaluator->install_pre_filter(\&best_approx_parameters, %func_params, param_vars => \@PARAMS);
     $answer_evaluator->install_evaluator(\&calculate_difference_vector, %func_params);
     $answer_evaluator->install_evaluator(\&is_zero_array, tolerance => $tol );
+
     $answer_evaluator->install_post_filter(sub {my $rh_ans = shift; $rh_ans->clear_error('SYNTAX'); $rh_ans;} );
     $answer_evaluator->install_post_filter(
     				sub {my $rh_ans = shift;
 						if ($rh_ans->catch_error('EVAL') ) {
 							$rh_ans->{ans_message} = $rh_ans->{error_message};
 							$rh_ans->clear_error('EVAL');
+						}
+						$rh_ans;
+					}
+	);
+	$answer_evaluator->install_post_filter(
+	               sub {my $rh_ans = shift;
+						if ( defined($rh_ans->{'ans_equals_prev_ans'}) and $rh_ans->{'ans_equals_prev_ans'} and $rh_ans->{score}==0) {
+							$rh_ans->{ans_message} = "This answer is the same as the one you just submitted.";
+						
 						}
 						$rh_ans;
 					}
@@ -2766,7 +2831,7 @@ sub clean_up_error_msg {
 	$msg =~ s/Unquoted string//g;
 	$msg =~ s/may\s+clash.*/does not make sense here/;
 	$msg =~ s/\sat.*line [\d]*//g;
-	$msg = 'error: '. $msg;
+	$msg = 'Error: '. $msg;
 
 	return $msg;
 }
@@ -2914,7 +2979,8 @@ sub std_num_filter {
 
 	if ($PG_eval_errors) {			  ##error message from eval	or above
 		$rh_ans->{ans_message} = 'There is a syntax error	in your	answer';
-		$rh_ans->{student_ans} = clean_up_error_msg($PG_eval_errors);
+		$rh_ans->{student_ans} = 
+		clean_up_error_msg($PG_eval_errors);
 	} else {
 		$rh_ans->{student_ans} = $inVal;
 	}
@@ -2992,11 +3058,11 @@ sub function_from_string2 {
     # initialize
     $rh_ans->{_filter_name} = $options{_filter_name};
     
-    my $eqn = $rh_ans->{student_ans};
-    my @VARS = @{ $options{ 'ra_vars'}};
+    my $eqn         = $rh_ans->{ $options{stdin} };
+    my @VARS        = @{ $options{ 'ra_vars'}    };
     #warn "VARS = ", join("<>", @VARS) if defined($options{debug}) and $options{debug} ==1;
     my $originalEqn = $eqn;
-    $eqn = &math_constants($eqn);
+    $eqn            = &math_constants($eqn);
     for( my $i = 0; $i < @VARS; $i++ ) {
         #  This next line is a hack required for 5.6.0 -- it doesn't appear to be needed in 5.6.1
         my ($temp,$er1,$er2) = PG_restricted_eval('"'. $VARS[$i] . '"');
@@ -3069,11 +3135,13 @@ sub is_zero_array {
     set_default_options(  \%options,
 				'_filter_name'	=>	'is_zero_array',
 				'tolerance'	    =>	0.000001,
+				'stdin'         => 'ra_differences',
+				'stdout'        => 'score',
     );
     #intialize
     $rh_ans->{_filter_name} = $options{_filter_name};
     
-    my $array = $rh_ans -> {ra_differences};
+    my $array = $rh_ans -> {$options{stdin}};  # default ra_differences
 	my $num = @$array;
 	my $i;
 	my $max = 0; my $mm;
@@ -3091,7 +3159,7 @@ sub is_zero_array {
  		            expression doesn't take roots of negative numbers, or divide by zero.";
  		$rh_ans->throw_error('EVAL',$error);
 	} else {
-    	$rh_ans->{score} = ($max < $options{tolerance} ) ? 1: 0;       # 1 if the array is close to 0;
+    	$rh_ans->{$options{stdout}} = ($max < $options{tolerance} ) ? 1: 0;       # set 'score' to 1 if the array is close to 0;
 	}
 	$rh_ans;
 }
@@ -3291,17 +3359,31 @@ sub best_approx_parameters {
 sub calculate_difference_vector {
 	my $rh_ans = shift;
 	my %options = @_;
+	assign_option_aliases( \%options,
+    );
+    set_default_options(	\%options,
+        allow_unknown_options  =>  1,
+    	stdin1		           => 'rf_student_ans',
+    	stdin2                 => 'rf_correct_ans',
+    	stdout                 => 'ra_differences',
+		debug                  =>  0,
+		tolType                => 'absolute',
+		error_msg_flag         =>  1,
+     );
 	# initialize
-	my $rf_fun = $rh_ans -> {rf_student_ans};
-	my $rf_correct_fun = $rh_ans -> {rf_correct_ans};
-	my $ra_parameters = $rh_ans ->{ra_parameters};
-	my @evaluation_points = @{$rh_ans->{evaluation_points} };
-	my @parameters = ();
-	@parameters = @$ra_parameters if defined($ra_parameters) and ref($ra_parameters) eq 'ARRAY';
-	my $errors = undef;
-	my @zero_params=();
-	for(my $i=1;$i<=@{$ra_parameters};$i++){push(@zero_params,0); }
-	my @differences = ();
+	$rh_ans->{_filter_name} = 'calculate_difference_vector';
+	my $rf_fun              = $rh_ans -> {$options{stdin1}};        # rf_student_ans by default
+	my $rf_correct_fun      = $rh_ans -> {$options{stdin2}};        # rf_correct_ans by default
+	my $ra_parameters       = $rh_ans -> {ra_parameters};
+	my @evaluation_points   = @{$rh_ans->{evaluation_points} };
+	my @parameters          = ();
+	@parameters             = @$ra_parameters if defined($ra_parameters) and ref($ra_parameters) eq 'ARRAY';
+	my $errors              = undef;
+	my @zero_params         = ();
+	for (my $i=1;$i<=@{$ra_parameters};$i++) { 
+		push(@zero_params,0); 
+	}
+	my @differences         = ();
 	my @student_values;
 	my @adjusted_student_values;
 	my @instructorVals;
@@ -3324,7 +3406,7 @@ sub calculate_difference_vector {
 		unless (defined($err1) or defined($err2) or defined($err3) ) {
 			$diff = ( $inVal - ($correctVal -$instructorVal ) ) - $instructorVal;  #prevents entering too high a number?
 			#warn "taking the difference of ", $inVal, " and ", $correctVal, " is ", $diff;
-			if (defined($options{tolType}) and $options{tolType} eq 'relative' ) {  #relative tolerance
+			if ( $options{tolType} eq 'relative' ) {  #relative tolerance
 				#warn "diff = $diff";
 				#$diff = ( $inVal - ($correctVal-$instructorVal ) )/abs($instructorVal) -1    if abs($instructorVal) > $options{zeroLevel};
 				$diff = ( $inVal - ($correctVal-$instructorVal ) )/$instructorVal -1    if abs($instructorVal) > $options{zeroLevel};
@@ -3341,11 +3423,17 @@ sub calculate_difference_vector {
 		push(@differences, $diff);
 		push(@instructorVals,$instructorVal);
 	}
-	$rh_ans ->{ra_differences} = \@differences;
-	$rh_ans ->{ra_student_values} = \@student_values;
-	$rh_ans ->{ra_adjusted_student_values} = \@adjusted_student_values;
-	$rh_ans->{ra_instructor_values}=\@instructorVals;
-	$rh_ans->throw_error('EVAL', $errors) if defined($errors);
+	if ($errors eq '' or $options{error_msg_flag} ) {
+	    $rh_ans ->{$options{stdout}} = \@differences;
+		$rh_ans ->{ra_student_values} = \@student_values;
+		$rh_ans ->{ra_adjusted_student_values} = \@adjusted_student_values;
+		$rh_ans->{ra_instructor_values}=\@instructorVals;
+		$rh_ans->throw_error('EVAL', $errors) if defined($errors);
+	} else { 
+	     
+	}      # no output if error_msg_flag is set to 0.
+	
+	
 	$rh_ans;
 }
 
@@ -3616,6 +3704,7 @@ sub check_syntax {
 					'ra_vars'		=>	[qw( x y )],
 					'debug'			=>	0,
 					'_filter_name'	=>	'check_syntax',
+					error_msg_flag  =>  1,
 		);
 		#initialize
 		$rh_ans->{_filter_name}     = $options{_filter_name};
@@ -3629,20 +3718,20 @@ sub check_syntax {
 		my $ret	   = $parser -> parse($in);			#for use with loops
 
 		if ( ref($ret) )  {		## parsed successfully
-			$parser -> tostring();
+			# $parser -> tostring();   # FIXME?  was this needed for some reason?????
 			$parser -> normalize();
-			$rh_ans -> input( $parser -> tostring() );
-			$rh_ans -> {preview_text_string} = $in;
+			$rh_ans -> {$options{stdout}}     = $parser -> tostring();
+			$rh_ans -> {preview_text_string}  = $in;
 			$rh_ans -> {preview_latex_string} =	$parser -> tolatex();
 
-		} else {					## error in	parsing
+		} elsif ($options{error_msg_flag} ) {					## error in	parsing
 
 			$rh_ans->{$options{stdout}}			=	'syntax error:'. $parser->{htmlerror},
 			$rh_ans->{'ans_message'}			=	$parser -> {error_msg},
 			$rh_ans->{'preview_text_string'}	=	'',
 			$rh_ans->{'preview_latex_string'}	=	'',
 			$rh_ans->throw_error('SYNTAX',	'syntax error in answer:'. $parser->{htmlerror} . "$BR" .$parser -> {error_msg});
-		}
+		}   # no output is produced if there is an error and the error_msg_flag is set to zero
        $rh_ans;
 
 }

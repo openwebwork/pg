@@ -298,7 +298,10 @@ sub NAMED_ANS_RULE {
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\\end{rawhtml}!,
-		HTML => "<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"$answer_value\">"
+		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" VALUE = "$answer_value">\n
+		           <INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">
+				  !
+		
 	);
 }
 
@@ -308,7 +311,7 @@ sub NAMED_ANS_RULE_OPTION {   # deprecated
 
 sub NAMED_ANS_RULE_EXTENSION {
 	my($name,$col) = @_;
-	my $len = 0.07*$col;
+	my $len = 0.07*$col; 
 	my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
 	if ( defined( $rh_sticky_answers->{$name} ) ) {
@@ -319,7 +322,9 @@ sub NAMED_ANS_RULE_EXTENSION {
 	MODES(
 		TeX => '\\hrulefill\\quad ',
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\n\\end{rawhtml}\n!,
-		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME = "$name" VALUE = "$answer_value">\n!
+		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME = "$name" VALUE = "$answer_value">\n
+		           <INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">
+		          !
 	);
 }
 
@@ -345,7 +350,9 @@ sub  NAMED_ANS_BOX {
 	     qq!\\begin{rawhtml}<TEXTAREA NAME="$name" ROWS="$row" COLS="$col"
                WRAP="VIRTUAL">$answer_value</TEXTAREA>\\end{rawhtml}!,
          qq!<TEXTAREA NAME="$name" ROWS="$row" COLS="$col"
-               WRAP="VIRTUAL">$answer_value</TEXTAREA>!
+               WRAP="VIRTUAL">$answer_value</TEXTAREA>
+             <INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">
+           !
          );
 	$out;
 }
