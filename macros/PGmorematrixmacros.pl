@@ -167,8 +167,7 @@ sub BASIS_CMP {
  	my $answer_evaluator = new AnswerEvaluator;
 
     	$answer_evaluator->{debug} = $mat_params{debug};
-
-    	$answer_evaluator->ans_hash( 	correct_ans 		=> 	pretty_print($mat_params{correct_ans}),
+	$answer_evaluator->ans_hash( 	correct_ans 		=> 	pretty_print($mat_params{correct_ans}),
 					rm_correct_ans		=> 	$matrix,
 					zeroLevelTol		=>	$mat_params{zeroLevelTol},
 					debug			=>	$mat_params{debug},
@@ -180,8 +179,6 @@ sub BASIS_CMP {
 		$rh_ans->{student_ans} =~ s/\s+//g;		# remove all whitespace
 		$rh_ans;
 	});
-
-	$answer_evaluator->install_pre_filter(\&math_constants);
 	$answer_evaluator->install_pre_filter(sub{my $rh_ans = shift; my @options = @_;
 		if( $rh_ans->{ans_label} =~ /ArRaY/ ){
 			$rh_ans = ans_array_filter($rh_ans,@options);		
@@ -194,6 +191,7 @@ sub BASIS_CMP {
 			$rh_ans->{ra_student_ans} = \@array;
 			$rh_ans;
 		}else{
+			$rh_ans->{student_ans} = math_constants($rh_ans->{student_ans});
 			vec_list_string($rh_ans,@options);
 		}
 			
@@ -235,75 +233,12 @@ sub BASIS_CMP {
 	{
 		if( $mat_params{mode} =~ /orthogonal|orthonormal/ )
 		{
-			$answer_evaluator->install_pre_filter(sub{
-				my $rh_ans = shift;
-				my @vecs = @{$rh_ans->{ra_student_ans}};
-				my ($i,$j) = (0,0);
-				my $num = scalar(@vecs);
-				my $length = $vecs[0]->[1];
-				
-				for( ; $i < $num ; $i ++ )
-				{
-					for( $j = $i+1; $j < $num ; $j++ )
-					{
-						my $sum = 0;
-						my $k = 0;
-
-						for( ; $k < $length; $k++ ) {
-							$sum += $vecs[$i]->[0][$k][0]*$vecs[$j]->[0][$k][0];
-						}
-					
-						if( $sum > $mat_params{zeroLevelTol} )
-						{
-							$rh_ans->{score} = 0;
-							if( $rh_ans->{help} =~ /orthogonal|orthonormal|verbose/ )
-							{
-								$rh_ans->throw_error('EVAL','You have entered vectors which are not orthogonal. ');
-							}else{
-								$rh_ans->throw_error('EVAL');
-							}			
-						}
-					}
-				}
-				
-				
-				$rh_ans;
-			});
+			$answer_evaluator->install_pre_filter(\&are_orthogonal_vecs);
 		}
 		
 		if( $mat_params{mode} =~ /unit|orthonormal/ )
 		{
-			$answer_evaluator->install_pre_filter(sub{
-				my $rh_ans = shift;
-				my @vecs = @{$rh_ans->{ra_student_ans}};
-				my $i = 0;
-				my $num = scalar(@vecs);
-				my $length = $vecs[0]->[1];
-				
-				for( ; $i < $num ; $i ++ )
-				{
-					my $sum = 0;
-					my $k = 0;
-
-					for( ; $k < $length; $k++ ) {
-						$sum += $vecs[$i]->[0][$k][0]*$vecs[$i]->[0][$k][0];
-					}
-					if( abs(sqrt($sum) - 1) > $mat_params{zeroLevelTol} )
-					{
-						$rh_ans->{score} = 0;
-						
-						if( $rh_ans->{help} =~ /unit|orthonormal|verbose/ )
-						{
-							$rh_ans->throw_error('EVAL','You have entered vector(s) which are not of unit length.');
-						}else{
-							$rh_ans->throw_error('EVAL');
-						}				
-					}
-				}
-				
-				
-				$rh_ans;
-			});
+			$answer_evaluator->install_pre_filter(\&are_unit_vecs);
 					
 		}
 	}
@@ -628,6 +563,106 @@ sub ans_array_filter{
 	
 	$rh_ans;
 
+}
+
+
+sub are_orthogonal_vecs{
+	my ( $vec_ref,%opts ) = @_;
+	my @vecs = ();
+	if( ref($vec_ref) eq 'AnswerHash' )
+	{
+		@vecs = @{$vec_ref->{ra_student_ans}};
+	}else{
+		@vecs = @{$vec_ref};
+	}
+	
+	my ($i,$j) = (0,0);
+	
+	my $num = scalar(@vecs);
+	my $length = $vecs[0]->[1];
+	
+	for( ; $i < $num ; $i ++ )
+	{
+		for( $j = $i+1; $j < $num ; $j++ )
+		{
+			my $sum = 0;
+			my $k = 0;
+			
+			for( ; $k < $length; $k++ ) {
+				$sum += $vecs[$i]->[0][$k][0]*$vecs[$j]->[0][$k][0];
+			}
+			
+			if( $sum > $main::functZeroLevelTolDefault )
+			{
+				if( ref( $vec_ref ) eq 'AnswerHash' ){
+					$vec_ref->{score} = 0;
+					if( $opts{help} =~ /orthogonal|orthonormal|verbose/ )
+					{
+						$vec_ref->throw_error('EVAL','You have entered vectors which are not orthogonal. ');
+					}else{
+						$vec_ref->throw_error('EVAL');
+					}
+					return $vec_ref;
+				}else{
+					return 0;
+				}				
+			}
+		}
+	}
+	if( ref( $vec_ref ) eq 'AnswerHash' ){
+		$vec_ref->{score} = 1;
+		$vec_ref;
+	}else{
+		1;
+	}
+}
+
+sub are_unit_vecs{
+	my ( $vec_ref,%opts ) = @_;
+	my @vecs = ();
+	if( ref($vec_ref) eq 'AnswerHash' )
+	{
+		@vecs = @{$vec_ref->{ra_student_ans}};
+	}else{
+		@vecs = @{$vec_ref};
+	}
+	
+	my $i = 0;
+	my $num = scalar(@vecs);
+	my $length = $vecs[0]->[1];
+		
+	for( ; $i < $num ; $i ++ )
+	{
+		my $sum = 0;
+		my $k = 0;
+
+		for( ; $k < $length; $k++ ) {
+			$sum += $vecs[$i]->[0][$k][0]*$vecs[$i]->[0][$k][0];
+		}
+		if( abs(sqrt($sum) - 1) > $main::functZeroLevelTolDefault )
+		{
+			if( ref( $vec_ref ) eq 'AnswerHash' ){
+				$vec_ref->{score} = 0;
+				if( $opts{help} =~ /unit|orthonormal|verbose/ )
+				{
+					$vec_ref->throw_error('EVAL','You have entered vector(s) which are not of unit length.');
+				}else{
+					$vec_ref->throw_error('EVAL');
+				}
+				return $vec_ref;
+			}else{
+				return 0;
+			}
+								
+		}
+	}
+				
+	if( ref( $vec_ref ) eq 'AnswerHash' ){
+		$vec_ref->{score} = 1;
+		$vec_ref;
+	}else{
+		1;
+	}
 }
 
 1;
