@@ -121,6 +121,15 @@ sub isRealNumber {
   return isReal($n) || matchNumber($n);
 }
 
+sub isZero {
+  my $self = shift;
+  return 0 if scalar(@{$self->{data}}) == 0;
+  foreach my $x (@{$self->{data}}) {return 0 unless $x eq "0"}
+  return 1;
+}
+
+sub isOne {0}
+
 #
 #  Convert non-Value objects to Values, if possible
 #
