@@ -1,6 +1,8 @@
+###
+
 =head1 NAME
 
-        PSasu.pl -- located in the pg/macros directory
+        PGasu.pl -- located in the pg/macros directory
 
 =head1 SYNPOSIS
 
