@@ -104,8 +104,8 @@ sub new {
     #
     #  Find the coefficients of the formula
     #
-    my $f = Value::Formula->new($plane->{tree}{lop}) -
-	    Value::Formula->new($plane->{tree}{rop});
+    my $f = (Value::Formula->new($plane->{tree}{lop}) -
+	     Value::Formula->new($plane->{tree}{rop}))->reduce;
     my $F = $f->perlFunction(undef,[@{$vars}]);
     my @v = split('','0' x scalar(@{$vars}));
     $d = -&$F(@v); my @coeff = (@v);
