@@ -66,8 +66,7 @@ sub cmp_check {
   $ans->score(0);  # assume failure
   $ans->{student_value} = $ans->{student_formula} = Parser::Formula($ans->{student_ans});
   $ans->{student_value} = Parser::Evaluate($ans->{student_formula})
-    if defined($ans->{student_formula}) && $ans->{student_formula}->isConstant &&
-       $ans->{correct_value}->class ne 'Formula';
+    if defined($ans->{student_formula}) && $ans->{student_formula}->isConstant;
   #
   #  If it parsed OK, save the output forms and check if it is correct
   #   otherwise report an error
@@ -99,7 +98,7 @@ sub cmp_equal {
   } else {
     $ans->{ans_message} = $ans->{error_message} =
       "Your answer isn't ".lc($ans->{cmp_class}).
-        " (it looks like ".lc($ans->{student_value}->showClass(1)).")"
+        " (it looks like ".lc($ans->{student_value}->showClass).")"
 	   if !$ans->{isPreview} && $ans->{showTypeWarnings} && !$ans->{error_message};
   }
 }
@@ -118,9 +117,9 @@ sub typeMatch {
 #
 sub cmp_class {
   my $self = shift; my $ans = shift;
-  my $class = $self->showClass;
+  my $class = $self->showClass; $class =~ s/Real //;
+  return $class if $class =~ m/Formula/;
   return "an Interval or Union" if $class =~ m/Interval/i;
-  $class =~ s/Real //;
   return $class; 
 }
 
@@ -505,46 +504,34 @@ sub cmp_equal {
 
   $value = (Value::isValue($typeMatch)? lc($typeMatch->cmp_class): 'value')
     unless defined($value);
-  $value =~ s/(real|complex) //; $ans->{cmp_class} = $value; $value =~ s/^an? //;
+  $value =~ s/(real|complex) //; $ans->{cmp_class} = $value;
+  $value =~ s/^an? //; $value = 'formula' if $value =~ m/formula/;
   $showTypeWarnings = $showHints = $showLengthHints = 0 if $ans->{isPreview};
 
   #
   #  Get the lists of correct and student answers
+  #   (split formulas that return lists or unions)
   #
-  my @correct = $self->value;
+  my @correct = ();
+  if ($self->class ne 'Formula') {@correct = $self->value}
+    else {@correct = Value::List->splitFormula($self,$ans)}
   my $student = $ans->{student_value};
   my @student = ($student);
-  if ($student->class eq $self->class &&
+  if ($student->class eq 'Formula' && $student->type eq $self->type) {
+    @student = Value::List->splitFormula($student,$ans);
+  } elsif ($student->class ne 'Formula' && $student->class eq $self->class &&
       ($allowParens || (!$student->{open} && !$student->{close}))) {
     @student = @{$student->{data}};
-  } elsif ($student->class eq 'Formula' && $student->type eq $self->type) {
-    #
-    #  Convert a formula returning a list to a list of formulas
-    #
-    @student = (); my @entries;
-    if ($self->type eq 'List') {@entries = @{$student->{tree}{coords}}}
-      else {@entries = $student->{tree}->makeUnion}
-    foreach my $entry (@entries) {
-      my $v = Parser::Formula($entry);
-         $v = Parser::Evaluate($v) if (defined($v) && $v->isConstant);
-      push(@student,$v);
-      #
-      #  In case there is an error evaluating the answer.
-      #    (there shouldn't be, but you never know)
-      #
-      if (!defined($v)) {
-	my $cmp_error = $ans->{cmp_error} || 'cmp_error';
-	$self->$cmp_error; return;
-      }
-    }
   }
+  return if $ans->{split_error};
+  if (scalar(@correct) == 0 && scalar(@student) == 0) {$ans->score(1); return}  
 
   #
   #  Initialize the score
   #
-  my $maxscore = scalar(@correct);
+  my $M = scalar(@correct);
   my $m = scalar(@student);
-  $maxscore = $m if ($m > $maxscore);
+  my $maxscore = ($m > $M)? $m : $M;
   my $score = 0; my @errors; my $i = 0;
 
   #
@@ -567,15 +554,16 @@ sub cmp_equal {
     #
     #  Give messages about incorrect answers
     #
-    my $nth = ''; my $class = $self->cmp_class;
+    my $nth = ''; my $answer = 'answer'; my $class = $self->cmp_class;
     if (scalar(@student) > 1) {
       $nth = ' '.$self->NameForNumber($i);
       $class = $ans->{cmp_class};
+      $answer = 'value';
     }
     if ($showTypeWarnings && !$typeMatch->typeMatch($entry,$ans) &&
 	!($ans->{ignoreStrings} && $entry->class eq 'String')) {
-      push(@errors,"Your$nth value isn't ".lc($class).
-	   " (it looks like ".lc($entry->showClass(1)).")");
+      push(@errors,"Your$nth $answer isn't ".lc($class).
+	   " (it looks like ".lc($entry->showClass).")");
     } elsif ($showHints && $m > 1) {
       push(@errors,"Your$nth $value is incorrect");
     }
@@ -589,7 +577,7 @@ sub cmp_equal {
     push(@errors,"There should be more ${value}s in your $ltype")
       if ($score == $m && scalar(@correct) > 0);
     push(@errors,"There should be fewer ${value}s in your $ltype")
-      if ($score < $maxscore && $score == scalar($self->value));
+      if ($score < $maxscore && $score == $M);
   }
 
   #
@@ -599,6 +587,32 @@ sub cmp_equal {
   $ans->score($score/$maxscore);
   push(@errors,"Score = $ans->{score}") if $ans->{debug};
   $ans->{error_message} = $ans->{ans_message} = join("\n",@errors);
+}
+
+#
+#  Split a formula that is a list or union into a
+#    list of formulas (or Value objects).
+#
+sub splitFormula {
+  my $self = shift; my $formula = shift; my $ans = shift;
+  my @formula; my @entries;
+  if ($formula->type eq 'List') {@entries = @{$formula->{tree}{coords}}}
+      else {@entries = $formula->{tree}->makeUnion}
+  foreach my $entry (@entries) {
+    my $v = Parser::Formula($entry);
+       $v = Parser::Evaluate($v) if (defined($v) && $v->isConstant);
+    push(@formula,$v);
+    #
+    #  There shouldn't be an error evaluating the formula,
+    #    but you never know...
+    #
+    if (!defined($v)) {
+      $ans->{split_error} = 1;
+      my $cmp_error = $ans->{cmp_error} || 'cmp_error';
+      $self->$cmp_error; return;
+    }
+  }
+  return @formula;
 }
 
 #
@@ -615,17 +629,52 @@ sub getOption {
 
 package Value::Formula;
 
-## FIXME:  Need to check types for error reporting
-sub typeMatch {1}
-
-## FIXME:  Do formula returning list as list of formulas
-##         and formula returning union as union of formulas
-sub cmp_equal {
+sub cmp_defaults {
   my $self = shift;
+  return (
+    Value::Union::cmp_defaults($self,@_),
+    typeMatch => Value::Formula->new("(1,2]"),
+  ) if $self->type eq 'Union';
+
+  return Value::Real::cmp_defaults($self,@_) unless $self->type eq 'List';
+
+  return (
+    Value::List::cmp_defaults($self,@_),
+    typeMatch => Value::Formula->new(($self->createRandomPoints(1))[1]->[0]{data}[0]),
+  );
+}
+
+#
+#  Get the types from the values of the formulas
+#     and compare those.
+#
+sub typeMatch {
+  my $self = shift; my $other = shift; my $ans = shift;
+  return 1 if $self->type eq $other->type;
+  my $typeMatch = ($self->createRandomPoints(1))[1]->[0];
+  $other = eval {($other->createRandomPoints(1))[1]->[0]} if ($other->class eq 'Formula');
+  return 1 unless defined($other); # can't really tell, so don't report type mismatch
+  $typeMatch->typeMatch($other,$ans);
+}
+
+sub cmp_equal {
+  my $self = shift; my $ans = shift;
+  #
+  #  Get the problem's seed
+  #
   $self->{context}->flags->set(
     random_seed => $self->getPG('$PG_original_problemSeed')
   );
-  $self->SUPER::cmp_equal(@_);
+
+  #
+  #  Use the list checker if the formula is a list or union
+  #    Otherwise use the normal checker
+  #
+  if ($self->type =~ m/^(List|Union)$/) {
+    Value::List::cmp_equal($self,$ans);
+  } else {
+    $self->SUPER::cmp_equal($ans);
+  }
 }
 
 #

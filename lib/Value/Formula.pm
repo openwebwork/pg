@@ -184,7 +184,11 @@ sub createPointValues {
 #
 sub createRandomPoints {
   my $self = shift;
-  my $num_points = int($self->getFlag('num_points',5)); $num_points = 1 if $num_points < 1;
+  my $num_points = @_[0];
+  $num_points = int($self->getFlag('num_points',5)) unless defined($num_points);
+  $num_points = 1 if $num_points < 1;
+
+  ## FIXME:  deal with variables of type complex, etc.
   my @vars = $self->{context}->variables->names;
   my @limits = $self->getVariableLimits(@vars);
   foreach my $limit (@limits) {$limit->[2] = abs($limit->[1]-$limit->[0])/1000}
@@ -206,6 +210,7 @@ sub createRandomPoints {
   }
 
   Value::Error("Can't generate enough valid points for comparison") if $k;
+  return ($points,$values) if defined(@_[0]);
   $self->{test_values} = $values;
   $self->{test_points} = $points;
 }

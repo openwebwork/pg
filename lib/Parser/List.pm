@@ -89,7 +89,9 @@ sub eval {
 sub _eval {
   my $self = shift;
   my $type = 'Value::'.$self->type;
-  return $type->new(@_);
+  my $value = $type->new(@_);
+  $value->{open} = $self->{open}; $value->{close} = $self->{close};
+  return $value;
 }
 
 #
@@ -214,6 +216,13 @@ sub perl {
   $perl = $self->type.'('.join(',',@p).')';
   $perl = '('.$perl.')' if $parens;
   return $perl;
+}
+
+sub makeUnion {
+  my $self = shift;
+  $self = bless $self->copy, 'Parser::List::Interval';
+  $self->typeRef->{name} = $self->{equation}{context}{parens}{interval}{type};
+  return $self;
 }
 
 #########################################################################

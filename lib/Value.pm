@@ -23,17 +23,17 @@ $defaultContext = Value::Context->new(
     #
     ijk => 0,  # print vectors as <...>
     #
-    #  For fuzzy reals:
-    #
-    useFuzzyReals => 1,
-    tolerance => 1E-6,
-    tolType => 'relative',
-    zeroLevel => 1E-14,
-    zeroLevelTol => 1E-12,
-    #
     #  word to use for infinity
     #
     infiniteWord => 'infinity',
+    #
+    #  For fuzzy reals:
+    #
+    useFuzzyReals => 1,
+    tolerance    => 1E-4,
+    tolType      => 'relative',
+    zeroLevel    => 1E-14,
+    zeroLevelTol => 1E-12,
     #
     #  For functions
     #
@@ -128,15 +128,14 @@ sub makeValue {
 #  Get a printable version of the class of an object
 #
 sub showClass {
-  my $value = makeValue(shift); my $showFormula = shift;
+  my $value = makeValue(shift);
   return "'".$value."'" unless Value::isValue($value);
   my $class = class($value);
   return showType($value) if ($class eq 'List');
   $class .= ' Number' if $class =~ m/^(Real|Complex)$/;
   $class .= ' of Intervals' if $class eq 'Union';
   $class = 'Word' if $class eq 'String';
-  return ($showFormula ? 'a Formula that returns ' : '') . showType($value->{tree})
-    if ($class eq 'Formula');
+  return 'a Formula that returns '.showType($value->{tree}) if ($class eq 'Formula');
   return 'an '.$class if $class =~ m/^[aeio]/i;
   return 'a '.$class;
 }
