@@ -979,7 +979,7 @@ sub list_random {
 
 sub SRAND { # resets the main random generator -- use cautiously
     my $seed = shift;
-	PG_random_generator -> srand($seed);
+	$PG_random_generator -> srand($seed);
 }
 
 # display macros
