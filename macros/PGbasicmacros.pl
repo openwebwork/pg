@@ -462,6 +462,39 @@ sub ANS_RADIO_BUTTONS {
 	}
 	(wantarray) ? @out : join(" ",@out);
 }
+##############################################
+#   contained_in( $elem, $array_reference or null separated string);
+#   determine whether element is equal 
+#   ( in the sense of eq,  not ==, ) to an element in the array.
+##############################################
+sub contained_in {
+	my $element = shift;
+	my @input_list    = @_;
+	my @output_list = ();
+	# Expand the list -- convert references to  arrays to arrays
+	# Convert null separated strings to arrays
+	foreach my $item   (@input_list ) {
+		if ($item =~ /\0/) {
+			push @output_list,   split('\0', $item);
+		 } elsif (ref($item) =~/ARRAY/) {
+		 	push @output_list, @{$item};
+		 } else {
+		 	push @output_list, $item;
+		 }
+	}
+	
+	my @match_list = grep {$element eq $_ } @output_list;
+	if ( @match_list ) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+##########################
+# If multiple boxes are checked then the $inputs_ref->{name }will be a null separated string
+# or a reference to an array.
+##########################
 
 sub NAMED_ANS_CHECKBOX {
 	my $name = shift;
@@ -476,7 +509,7 @@ sub NAMED_ANS_CHECKBOX {
     }
 
 	if (defined($inputs_ref->{$name}) ) {
-		if ($inputs_ref->{$name} eq $value) {
+		if ( contained_in($value, $inputs_ref->{$name} ) ) {
 			$checked = 'CHECKED'
 		}
 		else {
@@ -505,7 +538,7 @@ sub NAMED_ANS_CHECKBOX_OPTION {
     }
 
 	if (defined($inputs_ref->{$name}) ) {
-		if ($inputs_ref->{$name} eq $value) {
+		if ( contained_in($value, $inputs_ref->{$name}) ) {
 			$checked = 'CHECKED'
 		}
 		else {
@@ -556,6 +589,8 @@ sub ANS_CHECKBOX_OPTION {
 
 	NAMED_ANS_CHECKBOX_OPTION($name,$value,$tag);
 }
+
+
 
 sub ANS_CHECKBOX_BUTTONS {
     my $number  =shift;
