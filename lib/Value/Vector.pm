@@ -228,6 +228,8 @@ sub isParallel {
   return 1;
 }
 
+sub areParallel {shift->isParallel(@_)}
+
 
 ############################################
 #
