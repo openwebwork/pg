@@ -46,13 +46,16 @@ sub eval {
 #
 sub reduce {
   my $self = shift; my ($a,$b) = @{$self->{value}};
-  if ($a <= 0 && $b <= 0 && ($a != 0 || $b != 0)) {
+  my $reduce = $self->{equation}{context}{reduction};
+  if ($reduce->{'-a-bi'} && $a <= 0 && $b <= 0 && ($a != 0 || $b != 0)) {
     $self->{value} = [-$a,-$b];
     $self = Parser::UOP::Neg($self);
     $self->{isOne} = 1 if Value::Complex->make(-$a,-$b) == 1;
   }
   return $self;
 }
+
+$Parser::reduce->{'-a-bi'} = 1;
 
 #
 #  Use Value::Complex to format the number

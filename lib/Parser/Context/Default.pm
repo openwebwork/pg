@@ -225,6 +225,7 @@ $fullContext = new Parser::Context(
   parens    => $parens,
   lists     => $lists,
   flags     => $flags,
+  reduction => $Parser::reduce,
 );
 
 $fullContext->constants->set(

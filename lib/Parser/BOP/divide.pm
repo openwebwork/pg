@@ -35,14 +35,21 @@ sub _eval {$_[1] / $_[2]}
 #
 sub _reduce {
   my $self = shift;
-  return $self->{lop} if ($self->{rop}{isOne});
-  $self->Error("Division by zero"), return $self 
-    if ($self->{rop}{isZero});
-  return $self->{lop} if ($self->{lop}{isZero});
-  return $self->makeNeg($self->{lop}{op},$self->{rop}) if ($self->{lop}->isNeg);
-  return $self->makeNeg($self->{lop},$self->{rop}{op}) if ($self->{rop}->isNeg);
+  my $reduce = $self->{equation}{context}{reduction};
+  return $self->{lop} if $self->{rop}{isOne} && $reduce->{'x/1'};
+  $self->Error("Division by zero"), return $self if $self->{rop}{isZero};
+  return $self->{lop} if $self->{lop}{isZero} && $reduce->{'0/x'};
+  return $self->makeNeg($self->{lop}{op},$self->{rop})
+    if $self->{lop}->isNeg && $reduce->{'(-x)/y'};
+  return $self->makeNeg($self->{lop},$self->{rop}{op})
+    if $self->{rop}->isNeg && $reduce->{'x/(-y)'};
   return $self;
 }
+
+$Parser::reduce->{'x/1'} = 1;
+$Parser::reduce->{'0/x'} = 1;
+$Parser::reduce->{'(-x)/y'} = 1;
+$Parser::reduce->{'x/(-y)'} = 1;
 
 #
 #  Use \frac for TeX version.

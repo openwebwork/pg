@@ -32,12 +32,18 @@ sub _eval {$_[1] x $_[2]}
 #
 sub _reduce {
   my $self = shift;
-  return $self->{lop} if ($self->{lop}{isZero});
-  return $self->{rop} if ($self->{rop}{isZero});
-  return $self->makeNeg($self->{lop}{op},$self->{rop}) if ($self->{lop}->isNeg);
-  return $self->makeNeg($self->{lop},$self->{rop}{op}) if ($self->{rop}->isNeg);
+  my $reduce = $self->{equation}{context}{reduction};
+  return $self->{lop} if $self->{lop}{isZero} && $reduce->{'0><x'};
+  return $self->{rop} if $self->{rop}{isZero} && $reduce->{'x><0'};
+  return $self->makeNeg($self->{lop}{op},$self->{rop}) if $self->{lop}->isNeg && $reduce->{'(-x)><y'};
+  return $self->makeNeg($self->{lop},$self->{rop}{op}) if $self->{rop}->isNeg && $reduce->{'x><(-y)'};
   return $self;
 }
+
+$Parser::reduce->{'0><x'} = 1;
+$Parser::reduce->{'x><0'} = 1;
+$Parser::reduce->{'x><(-y)'} = 1;
+$Parser::reduce->{'(-x)><y'} = 1;
 
 #########################################################################
 

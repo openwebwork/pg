@@ -28,9 +28,12 @@ sub _eval {-($_[1])}
 #
 sub _reduce {
   my $self = shift; my $op = $self->{op};
-  $self = $op->{op} if ($op->isNeg);
+  my $reduce = $self->{equation}{context}{reduction};
+  $self = $op->{op} if $op->isNeg && $reduce->{'-(-x)'};
   return $self;
 }
+
+$Parser::reduce->{'-(-x)'} = 1;
 
 #########################################################################
 

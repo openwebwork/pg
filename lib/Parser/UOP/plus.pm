@@ -26,7 +26,14 @@ sub _eval {$_[1]}
 #
 #  Remove the redundant plus sign
 #
-sub _reduce {(shift)->{op}}
+sub _reduce {
+  my $self = shift;
+  my $reduce = $self->{equation}{context}{reduction};
+  return $self->{op} if $reduce->{'+x'};
+  return $self;
+}
+
+$Parser::reduce->{'+x'} = 1;
 
 #########################################################################
 

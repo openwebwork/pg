@@ -32,19 +32,25 @@ sub _eval {$_[1] - $_[2]}
 #
 sub _reduce {
   my $self = shift; my $equation = $self->{equation};
+  my $reduce = $equation->{context}{reduction};
   my $parser = $equation->{context}{parser};
-  return $self->{lop} if ($self->{rop}{isZero});
-  return Parser::UOP::Neg($self->{rop}) if ($self->{lop}{isZero});
-  if ($self->{rop}->isNeg) {
+  return $self->{lop} if $self->{rop}{isZero} && $reduce->{'x-0'};
+  return Parser::UOP::Neg($self->{rop}) if $self->{lop}{isZero} && $reduce->{'0-x'};
+  if ($self->{rop}->isNeg && $reduce->{'x-(-y)'}) {
     $self = $parser->{BOP}->new($equation,'+',$self->{lop},$self->{rop}{op});
     $self = $self->reduce;
-  } elsif ($self->{lop}->isNeg) {
+  } elsif ($self->{lop}->isNeg && $reduce->{'(-x)-y'}) {
     $self = Parser::UOP::Neg
       ($parser->{BOP}->new($equation,'+',$self->{lop}{op},$self->{rop}));
     $self = $self->reduce;
   }
   return $self;
 }
+
+$Parser::reduce->{'x-0'} = 1;
+$Parser::reduce->{'0-x'} = 1;
+$Parser::reduce->{'x-(-y)'} = 1;
+$Parser::reduce->{'(-x)-y'} = 1;
 
 #########################################################################
 

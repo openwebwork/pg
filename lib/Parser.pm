@@ -6,7 +6,12 @@ use strict;
 #  Map class names to packages (added to Context, and
 #  can be overriden to customize the parser)
 #
-our %class = {Formula => 'Parser::Formula'};
+our $class = {Formula => 'Parser::Formula'};
+
+#
+#  Collect the default reduction flags for use in the context
+#
+our $reduce = {};
 
 ##################################################
 #
@@ -555,14 +560,16 @@ sub eval {
 ##################################################
 #
 #  Removes redundent items (like x+-y, 0+x and 1*x, etc)
-#  (substituting the given values).
+#  using the provided flags
 #
 sub reduce {
   my $self = shift;
   $self = $self->copy($self);
-  $self->setValues(@_);
+  my $reduce = $self->{context}{reduction};
+  $self->{context}{reduction} = {%{$reduce},@_};
   $self->{tree} = $self->{tree}->reduce;
   $self->{variables} = $self->{tree}->getVariables;
+  $self->{context}{reduction} = $reduce if $reduce;
   return $self;
 }
 
@@ -692,12 +699,9 @@ $Parser::installed = 1;
 #
 # handle sqrt(-1) and log of negatives (make complexes)
 # do division by zero and log of zero checks in compound functions
-# add context flags for various reduction checks
-# make context flag for reduction of constants
 # make reduce have reduce patterns as parameters
 # more reduce patterns
 # make operator strings customizable (reduce, and other places they are used)
-# add parens alternately as () and []?
 #
 #########################################################################
 

@@ -53,7 +53,7 @@ sub _eval {shift; return @_}
 #
 sub reduce {
   my $self = shift;
-  my @params = (); my $constant = 1;
+  my $constant = 1;
   foreach my $x (@{$self->{params}})
     {$x = $x->reduce; $constant = 0 unless $x->{isConstant}}
   return $self->{equation}{context}{parser}{Value}->

@@ -44,8 +44,9 @@ sub _eval {
 #    
 sub _reduce {
   my $self = shift; my $equation = $self->{equation};
+  my $reduce = $equation->{context}{reduction};
   my $parser = $equation->{context}{parser};
-  return $self unless $self->{rop}->{isConstant} && $self->{lop}{coords};
+  return $self unless $self->{rop}->{isConstant} && $self->{lop}{coords} && $reduce->{'V_n'};
   my $index = $self->{rop}->eval; my $M = $self->{lop};
   $index = $index->data if Value::isValue($index);
   $index = [$index] unless ref($index) eq 'ARRAY';
@@ -65,6 +66,8 @@ sub _reduce {
   }
   return $M;
 }
+
+$Parser::reduce->{'V_n'} = 1;
 
 #
 #  Brace the index for TeX.  (Not really good for multiple indices.)

@@ -44,13 +44,17 @@ sub eval {(shift)->{value}}
 #
 sub reduce {
   my $self = shift;
-  if ($self->{value} < 0) {
+  my $reduce = $self->{equation}{context}{reduction};
+  if ($reduce->{'-n'} && $self->{value} < 0) {
     $self->{value} = -($self->{value});
     $self = Parser::UOP::Neg($self);
     $self->{op}{isOne} = 1 if Value::Real->make($self->{op}{value}) eq 1;
   }
   return $self;
 }
+
+$Parser::reduce->{'-n'} = 1;
+
 
 #
 #  Call the Value::Real versions to format numbers

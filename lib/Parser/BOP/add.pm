@@ -30,18 +30,24 @@ sub _eval {$_[1] + $_[2]}
 #
 sub _reduce {
   my $self = shift;
-  return $self->{lop} if ($self->{rop}{isZero});
-  return $self->{rop} if ($self->{lop}{isZero});
   my $equation = $self->{equation};
-  if ($self->{rop}->isNeg) {
+  my $reduce = $equation->{context}{reduction};
+  return $self->{lop} if $self->{rop}{isZero} && $reduce->{'x+0'};
+  return $self->{rop} if $self->{lop}{isZero} && $reduce->{'0+x'};
+  if ($self->{rop}->isNeg && $reduce->{'x+(-y)'}) {
     $self = $equation->{context}{parser}{BOP}->new($equation,'-',$self->{lop},$self->{rop}{op});
     $self = $self->reduce;
-  } elsif ($self->{lop}->isNeg) {
+  } elsif ($self->{lop}->isNeg && $reduce->{'(-x)+y'}) {
     $self = $equation->{context}{parser}{BOP}->new($equation,'-',$self->{rop},$self->{lop}{op});
     $self = $self->reduce;
   }
   return $self;
 }
+
+$Parser::reduce->{'0+x'} = 1;
+$Parser::reduce->{'x+0'} = 1;
+$Parser::reduce->{'x+(-y)'} = 1;
+$Parser::reduce->{'(-x)+y'} = 1;
 
 #########################################################################
 

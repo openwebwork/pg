@@ -25,6 +25,7 @@ sub new {
     push(@{$context->{data}{hashes}},$list);
     $context->{$list} = {};
   }
+  push(@{$context->{data}{values}},'reduction');
   my %data = (
     functions => {},
     variables => {},
@@ -34,6 +35,7 @@ sub new {
     parens    => {},
     lists     => {},
     flags     => {},
+    reduction => {},
     @_
   );
   $context->{_functions} = new Parser::Context::Functions($context,%{$data{functions}});
@@ -42,6 +44,7 @@ sub new {
   $context->{_operators} = new Parser::Context::Operators($context,%{$data{operators}});
   $context->{_strings}   = new Parser::Context::Strings($context,%{$data{strings}});
   $context->{_parens}    = new Parser::Context::Parens($context,%{$data{parens}});
+  $context->{_reduction} = new Parser::Context::Reduction($context,%{$data{reduction}});
   $context->lists->set(%{$data{lists}}) if defined($data{lists});
   $context->flags->set(%{$data{flags}}) if defined($data{flags});
   $context->{_initialized} = 1;
@@ -76,7 +79,11 @@ sub constants {(shift)->{_constants}}
 sub variables {(shift)->{_variables}}
 sub strings   {(shift)->{_strings}}
 sub parens    {(shift)->{_parens}}
+sub reduction {(shift)->{_reduction}}
 
+sub reduce     {(shift)->{_reduction}->reduce(@_)}
+sub noreduce   {(shift)->{_reduction}->noreduce(@_)}
+sub reductions {(shift)->{_reduction}}
 
 #
 #  Store pointer to user's context table
@@ -165,6 +172,7 @@ use Parser::Context::Operators;
 use Parser::Context::Parens;
 use Parser::Context::Strings;
 use Parser::Context::Variables;
+use Parser::Context::Reduction;
 
 #########################################################################
 

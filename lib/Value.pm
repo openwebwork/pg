@@ -530,6 +530,7 @@ $Value::installed = 1;
 #
 #  Make Complex class include more of Complex1.pm
 #  Make better interval comparison
+#  Include context in objects within new() calls.
 #  
 ###########################################################################
 

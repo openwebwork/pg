@@ -25,7 +25,8 @@ sub new {
   my $constant = shift; my $paren = shift;
   my $entryType = shift || $Value::Type{unknown};
   my $open = shift || ''; my $close = shift || '';
-  my $parens = $equation->{context}{parens}; my $list;
+  my $context = $equation->{context};
+  my $parens = $context->{parens}; my $list;
  
   if ($paren && $close && $paren->{formInterval}) {
     $paren = $parens->{interval}
@@ -47,13 +48,13 @@ sub new {
   $list = bless {
     coords => $coords, type => $type, open => $open, close => $close,
     paren => $paren, equation => $equation, isConstant => $constant
-  }, $equation->{context}{lists}{$type->{name}}{class};
+  }, $context->{lists}{$type->{name}}{class};
   $list->checkInterval;
   $list->_check;
 #  warn ">> $list->{type}{name} of $list->{type}{entryType}{name} of length $list->{type}{length}\n";
-  if ($list->{isConstant}) {
+  if ($list->{isConstant} && $context->flag('reduceConstants')) {
     my $saveCBI = $list->{canBeInterval}; $type = $list->{type};
-    $list = $equation->{context}{parser}{Value}->new($equation,[$list->eval]);
+    $list = $context->{parser}{Value}->new($equation,[$list->eval]);
     $list->{type} = $type; $list->{open} = $open; $list->{close} = $close;
     $list->{value}->{open} = $open, $list->{value}->{close} = $close
       if ref($list->{value});
@@ -103,13 +104,13 @@ sub _eval {
 #
 sub reduce {
   my $self = shift;
-  my @coords = (); my $zero = 1; my $constant = 1;
+  my $zero = 1; my $constant = 1;
   foreach my $x (@{$self->{coords}}) {
     $x = $x->reduce;
     $zero = 0 unless $x->{isZero};
     $constant = 0 unless $x->{isConstant};
   }
-  $self->{isZero} = 1 if $zero and scalar(@coords) > 0;
+  $self->{isZero} = 1 if $zero and scalar(@{$self->{coords}}) > 0;
   $self->{isConstant} = 1 if $constant;
   ## check matrix for being identity
   return $self->{equation}{context}{parser}{Value}->
@@ -137,7 +138,8 @@ sub substitute {
   $self->{isConstant} = 1 if $constant;
   ## check matrix for being identity
   return $self->{equation}{context}{parser}{Value}->
-    new($self->{equation},[$self->eval]) if $constant;
+    new($self->{equation},[$self->eval])
+      if $constant && $self->{equation}{context}->flag('reduceConstants');
   return $self;
 }
 

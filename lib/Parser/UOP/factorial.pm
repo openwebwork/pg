@@ -49,7 +49,7 @@ sub call {
   my $formula = Value::Formula->blank;
   my @args = Value::toFormula($formula,@_);
   $formula->{tree} = $formula->{context}{parser}{UOP}->new($formula,'!',@args);
-  return $formula->eval if scalar(%{$formula->{variables}}) == 0;
+#  return $formula->eval if scalar(%{$formula->{variables}}) == 0;
   return $formula;
 }
 
