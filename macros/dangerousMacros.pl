@@ -1183,12 +1183,8 @@ sub alias {
 #  one can write   3+2*i rather than 3+2*i()
 #
 
-#sub i {
-#	Complex::i;
-#}
-
-sub i () {Value::Formula->new('i')->eval}
-sub j () {Value::Formula->new('j')->eval}
-sub k () {Value::Formula->new('k')->eval}
+sub i {
+	Complex::i;
+}
 
 1;  # required to load properly
