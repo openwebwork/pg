@@ -122,7 +122,7 @@ sub cplx_cmp {
 	my $mode		=	$cplx_params{'mode'};
 	
 	if( $cplx_params{tolType} eq 'relative' ) {
-		$cplx_params{'tolerance'} = .01*$cplx_params{'tolerance'};
+		$cplx_params{'tolerance'} = .01*$cplx_params{'relTol'};
 	}
 	
 	my $formattedCorrectAnswer;
@@ -303,7 +303,7 @@ sub mult_cmp{
 	
 	
 	if( $mult_params{tolType} eq 'relative' ) {
-		$mult_params{'tolerance'} = .01*$mult_params{'tolerance'};
+		$mult_params{'tolerance'} = .01*$mult_params{'relTol'};
 	}
 	
 	if( $mult_params{ 'compare' } eq 'cplx' ){
@@ -766,7 +766,7 @@ sub cplx_cmp2 {
 	my $mode		=	$cplx_params{'mode'};
 	
 	if( $cplx_params{tolType} eq 'relative' ) {
-		$cplx_params{'tolerance'} = .01*$cplx_params{'tolerance'};
+		$cplx_params{'tolerance'} = .01*$cplx_params{'relTol'};
 	}
 	
 	my $formattedCorrectAnswer;
@@ -954,7 +954,7 @@ sub cplx_cmp_mult {
 	my $mode		=	$cplx_params{'mode'};
 	
 	if( $cplx_params{tolType} eq 'relative' ) {
-		$cplx_params{'tolerance'} = .01*$cplx_params{'tolerance'};
+		$cplx_params{'tolerance'} = .01*$cplx_params{'relTol'};
 	}
 	
 	my $formattedCorrectAnswer;
