@@ -144,13 +144,14 @@ sub DOCUMENT {
 #    warn eval(q! "PG.pl:  The envir variable $main::{envir} is".join(" ",%main::envir)!);
     my $rh_envir = eval(q!\%main::envir!);
     my %envir    = %$rh_envir;
-    no strict;
+    #no strict;
     foreach  my  $var (keys %envir) {
    		eval(q!$main::!.$var.q! = $main::envir{!.$var.q!}! );  #whew!! makes sure $var is interpolated but $main:: is evaluated at run time.
     #    warn eval(q! "var $var is defined ". $main::!.$var);
         warn "Problem defining ", q{\$main::}.$var, " while initializing the PG problem: $@" if $@;
     }
-    use strict;
+    #use strict;
+    #FIXME these strict pragmas don't seem to be needed and they cause trouble in perl 5.6.0
 
     
 
