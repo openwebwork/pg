@@ -298,10 +298,8 @@ sub NAMED_ANS_RULE {
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\\end{rawhtml}!,
-		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" VALUE = "$answer_value">\n
-		           <INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">
-				  !
-		
+		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" VALUE="$answer_value">!.
+                        qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE="$answer_value">!
 	);
 }
 
@@ -1527,6 +1525,7 @@ sub general_math_ev3 {
 	} elsif ($displayMode eq "HTML_img") {
 		$out = math2img($in, $mode);
 	} elsif ($displayMode eq "HTML_jsMath") {
+	  $in =~ s/</&lt;/g; $in =~ s/>/&gt;/g;
 	  $out = '<SPAN CLASS="math">'.$in.'</SPAN>' if $mode eq "inline";
 	  $out = '<DIV CLASS="math">'.$in.'</DIV>' if $mode eq "display";
 	} elsif ($displayMode eq "HTML_asciimath") {
