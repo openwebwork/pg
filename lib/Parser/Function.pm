@@ -20,7 +20,8 @@ sub new {
     def => $def, ref => $ref, equation => $equation,
   }, $def->{class};
   $fn->_check;
-  $fn = $context->{parser}{Value}->new($equation,[$fn->eval]) if $constant;
+  $fn = $context->{parser}{Value}->new($equation,[$fn->eval])
+    if $constant && $context->flag('reduceConstantFunctions');
   return $fn;
 }
 
@@ -70,10 +71,11 @@ sub _reduce {shift}
 sub substitute {
   my $self = shift;
   my @params = (); my $constant = 1;
+  my $equation = $self->{equation}; my $context = $equation->{context};
   foreach my $x (@{$self->{params}})
     {$x = $x->substitute; $constant = 0 unless $x->{isConstant}}
-  return $self->{equation}{context}{parser}{Value}->
-    new($self->{equation},[$self->eval]) if $constant;
+  return $context->{parser}{Value}->new($equation,[$self->eval])
+    if $constant && $context->flag('reduceConstantFunctions');
   return $self;
 }
 
@@ -244,7 +246,7 @@ sub string {
     if ($position && $position eq 'right' && $fn->{parenPrecedence});
   foreach my $x (@{$self->{params}}) {push(@pstr,$x->string)}
   $string = ($self->{def}{string} || $self->{name})."$power".'('.join(',',@pstr).')';
-  $string = '('.$string.')'
+  $string = $self->addParens($string)
     if (defined($precedence) and $precedence > $fn_precedence);
   return $string;
 }

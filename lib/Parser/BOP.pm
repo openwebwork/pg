@@ -33,7 +33,7 @@ sub new {
   $BOP->_check;
   $BOP->{isConstant} = 1 if ($lop->{isConstant} && $rop->{isConstant});
   $BOP = $context->{parser}{Value}->new($equation,[$BOP->eval])
-    if ($BOP->{isConstant} && !$def->{isComma});
+    if $BOP->{isConstant} && !$def->{isComma} && $context->flag('reduceConstants');
   return $BOP;
 }
 
@@ -84,9 +84,10 @@ sub substitute {
   my $self = shift; my $bop = $self->{def};
   $self->{lop} = $self->{lop}->substitute;
   $self->{rop} = $self->{rop}->substitute;
-  my $equation = $self->{equation};
-  return $equation->{context}{parser}{Value}->new($equation,[$self->eval])
-    if (!$bop->{isComma} && $self->{lop}{isConstant} && $self->{rop}{isConstant});
+  my $equation = $self->{equation}; my $context = $equation->{context};
+  return $context->{parser}{Value}->new($equation,[$self->eval])
+    if !$bop->{isComma} && $self->{lop}{isConstant} && $self->{rop}{isConstant} &&
+        $context->flag('reduceConstants');
   return $self;
 }
 
@@ -272,10 +273,11 @@ sub getVariables {
 sub string {
   my ($self,$precedence,$showparens,$position,$outerRight) = @_;
   my $string; my $bop = $self->{def};
+  my $extraParens = $self->{equation}{context}->flag('showExtraParens');
   my $addparens = 
       defined($precedence) &&
-      ($showparens eq 'all' || $bop->{fullparens} || $precedence > $bop->{precedence} ||
-      ($precedence == $bop->{precedence} &&
+      ((($showparens eq 'all' || $bop->{fullparens}) && $extraParens) ||
+       $precedence > $bop->{precedence} || ($precedence == $bop->{precedence} &&
         ($bop->{associativity} eq 'right' || $showparens eq 'same')));
   my $outerRight = !$addparens && ($outerRight || $position eq 'right');
 
@@ -283,10 +285,7 @@ sub string {
             $bop->{string}.
             $self->{rop}->string($bop->{precedence},$bop->{rightparens},'right');
 
-  if ($addparens) {
-    if ($bop->{fullparens} and $string =~ m/\(/)
-      {$string = "[".$string."]"} else {$string = "(".$string.")"}
-  }
+  $string = $self->addParens($string) if ($addparens);
   return $string;
 }
 
@@ -296,9 +295,10 @@ sub string {
 sub TeX {
   my ($self,$precedence,$showparens,$position,$outerRight) = @_;
   my $TeX; my $bop = $self->{def};
+  my $extraParens = $self->{equation}{context}->flag('showExtraParens');
   my $addparens =
       defined($precedence) &&
-      ($showparens eq 'all' || $precedence > $bop->{precedence} ||
+      (($showparens eq 'all' && $extraParens) || $precedence > $bop->{precedence} ||
       ($precedence == $bop->{precedence} &&
         ($bop->{associativity} eq 'right' || $showparens eq 'same')));
   my $outerRight = !$addparens && ($outerRight || $position eq 'right');

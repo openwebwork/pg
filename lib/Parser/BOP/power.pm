@@ -36,7 +36,7 @@ sub _reduce {
   my $self = shift; my $equation = $self->{equation};
   my $parser = $equation->{context}{parser};
   return $parser->{Number}->new($equation,1)
-   if ($self->{rop}{isZero} || $self->{lop}{isOne});
+    if (($self->{rop}{isZero} && !$self->{lop}{isZero}) || $self->{lop}{isOne});
   return $self->{lop} if ($self->{rop}{isOne});
   if ($self->{rop}->isNeg && $self->{rop}->string eq '-1') {
     $self = $parser->{BOP}->new($equation,'/',
@@ -52,9 +52,10 @@ sub _reduce {
 sub TeX {
   my ($self,$precedence,$showparens,$position,$outerRight) = @_;
   my $TeX; my $bop = $self->{def};
+  my $extraParens = $self->{equation}{context}->flag('showExtraParens');
   my $addparens =
       defined($precedence) &&
-      ($showparens eq 'all' || $precedence > $bop->{precedence} ||
+      (($showparens eq 'all' && $extraParens) || $precedence > $bop->{precedence} ||
       ($precedence == $bop->{precedence} &&
         ($bop->{associativity} eq 'right' || $showparens eq 'same')));
   my $outerRight = !$addparens && ($outerRight || $position eq 'right');

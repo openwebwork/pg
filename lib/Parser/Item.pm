@@ -61,6 +61,15 @@ sub isNeg {
 }
 
 #
+#  Add parens to an expression (alternating the type of paren)
+#
+sub addParens {
+  my $self = shift; my $string = shift;
+  if ($string =~ m/^[^\[]*\(/) {return '['.$string.']'}
+  return '('.$string.')';
+}
+
+#
 #  These are stubs for the subclasses
 #
 sub getVariables {{}}   #  find out what variables are used

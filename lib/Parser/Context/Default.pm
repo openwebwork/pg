@@ -197,7 +197,10 @@ $strings = {
 };
 
 $flags = {
-  ijk => 0,
+  ijk => 0,                     # 1 = show vectors in ijk form
+  reduceConstants => 1,         # 1 = automatically combine constants
+  reduceConstantFunctions => 1, # 1 = compute function values of constants
+  showExtraParens => 0,         # 1 = make things painfully unambiguous
 };
 
 ############################################################################

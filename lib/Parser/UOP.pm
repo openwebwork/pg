@@ -10,17 +10,17 @@ $Parser::class->{UOP} = 'Parser::UOP';
 
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my $equation = shift;
+  my $equation = shift; my $context = $equation->{context};
   my ($uop,$op,$ref) = @_;
-  my $def = $equation->{context}{operators}{$uop};
+  my $def = $context->{operators}{$uop};
   my $UOP = bless {
     uop => $uop, op => $op,
     def => $def, ref => $ref, equation => $equation
   }, $def->{class};
   $UOP->_check;
   $UOP->{isConstant} = 1 if $op->{isConstant};
-  $UOP = $equation->{context}{parser}{Value}->new($equation,[$UOP->eval])
-    if $op->{isConstant} && !$UOP->isNeg;
+  $UOP = $context->{parser}{Value}->new($equation,[$UOP->eval])
+    if $op->{isConstant} && (!$UOP->isNeg || $op->isNeg) && $context->flag('reduceConstants');
   return $UOP;
 }
 
@@ -47,7 +47,7 @@ sub _eval {return $_[1]}
 
 #
 #  Reduce the operand.
-#  If it is constant and we are not negation (we want to be ablet o factor it out),
+#  If it is constant and we are not negation (we want to be able to factor it out),
 #    return the value of the operation.
 #
 sub reduce {
@@ -65,10 +65,10 @@ sub _reduce {shift}
 
 sub substitute {
   my $self = shift; my $uop = $self->{def};
-  my $equation = $self->{equation};
+  my $equation = $self->{equation}; my $context = $equation->{context};
   $self->{op} = $self->{op}->substitute;
-  return $equation->{context}{parser}{Value}->new($equation,[$self->eval])
-    if $self->{op}{isConstant} && !$self->isNeg;
+  return $context->{parser}{Value}->new($equation,[$self->eval])
+    if $self->{op}{isConstant} && $context->flag('reduceConstants');
   return $self;
 }
 
@@ -185,7 +185,7 @@ sub string {
   } else {
     $string = $uop->{string}.$self->{op}->string($uop->{precedence});
   }
-  $string = "(".$string.")" if $addparens;
+  $string = $self->addparens($string) if ($addparens);
   return $string;
 }
 
