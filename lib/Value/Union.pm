@@ -23,9 +23,11 @@ use overload
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
+  @_ = split("U",@_[0]) if scalar(@_) == 1 && !ref($_[0]);
   Value::Error("Unions must be of at least two intervals") unless scalar(@_) > 1;
   my @intervals = (); my $isFormula = 0;
-  foreach my $x (@_) {
+  foreach my $xx (@_) {
+    my $x = $xx; $x = Value::Interval->new($x) if !ref($x);
     if (Value::isFormula($x)) {
       $x->{tree}->typeRef->{name} = 'Interval' if ($x->type eq 'Point' && $x->length == 1);
       if ($x->type eq 'Interval') {push(@intervals,$x)}

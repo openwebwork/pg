@@ -25,6 +25,11 @@ use overload
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
+  if (scalar(@_) == 1 && !ref($_[0])) {
+    my $num = $$Value::context->{pattern}{signedNumber};
+    my $inf = $$Value::context->{pattern}{infinite};
+    @_ = ($1,$2,$3,$4) if $_[0] =~ m/^ *(\(|\[) *($num|$inf) *, *($num|$inf) *(\)|\]) *$/;
+  }
   my ($open,$a,$b,$close) = @_;
   if (!defined($close)) {$close = $b; $b = $a}
   Value::Error("Endpoints of intervals must be numbers") unless
@@ -96,12 +101,12 @@ sub isNumOrInfinity {
 }
 sub isInfinity {
   my $n = shift;
-  return 1 if !ref($n) && $n =~ m/$$Value::context->{pattern}{infinity}/i;
+  return 1 if !ref($n) && $n =~ m/^$$Value::context->{pattern}{infinity}$/i;
   return (Value::isFormula($n) && $n->{tree}{isInfinity});
 }
 sub isNegativeInfinity {
   my $n = shift;
-  return 1 if !ref($n) && $n =~ m/$$Value::context->{pattern}{-infinity}/i;
+  return 1 if !ref($n) && $n =~ m/^$$Value::context->{pattern}{-infinity}$/i;
   return (Value::isFormula($n) && $n->{tree}{isNegativeInfinity});
 }
 

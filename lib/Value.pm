@@ -71,9 +71,9 @@ $$context->{method} = {
    '<=>' => 'compare',
 };
 
-$$context->{pattern}{infinite} = '^[-+]?inf(inity)?$';
-$$context->{pattern}{infinity} = '^\+?inf(inity)?$';
-$$context->{pattern}{-infinity} = '^-inf(inity)?$';
+$$context->{pattern}{infinite} = '[-+]?inf(?:inity)?';
+$$context->{pattern}{infinity} = '\+?inf(?:inity)?';
+$$context->{pattern}{-infinity} = '-inf(?:inity)?';
 
 push(@{$$context->{data}{values}},'method','precedence');
 

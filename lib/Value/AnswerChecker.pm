@@ -58,7 +58,7 @@ sub cmp_check {
   #
   my $cmp_equal = $ans->{cmp_equal} || 'cmp_equal';
   my $cmp_error = $ans->{cmp_error} || 'cmp_error';
-  my $cmp_postprocess = $ans->{cmp_postprocess};
+  my $cmp_postprocess = $ans->{cmp_postprocess} || 'cmp_postprocess';
   #
   #  Parse and evaluate the student answer
   #
@@ -79,7 +79,7 @@ sub cmp_check {
     $ans->{preview_text_string}  = $ans->{student_formula}->string;
     $ans->{student_ans}          = $ans->{student_value}->stringify;
     $self->$cmp_equal($ans);
-    $self->$cmp_postprocess($ans) if $cmp_postprocess && !$ans->{error_message};
+    $self->$cmp_postprocess($ans) if !$ans->{error_message};
   } else {
     $self->$cmp_error($ans);
   }
@@ -132,9 +132,23 @@ sub cmp_error {
        '</SPAN>' .
        protectHTML(substr($string,$e));
   }
-  $ans->score(0);
-  $ans->{ans_message} = $ans->{error_message} = $message;
+  $self->cmp_Error($ans,$message);
 }
+
+#
+#  Set the error message
+#
+sub cmp_Error {
+  my $self = shift; my $ans = shift;
+  return unless scalar(@_) > 0;
+  $ans->score(0);
+  $ans->{ans_message} = $ans->{error_message} = join("\n",@_);
+}
+
+#
+#  filled in by sub-classes
+#
+sub cmp_postprocess {}
 
 #
 #  Quote HTML characters
@@ -145,6 +159,17 @@ sub protectHTML {
     $string =~ s/</\&lt;/g;
     $string =~ s/>/\&gt;/g;
     $string;
+}
+
+#
+#  names for numbers
+#
+sub NameForNumber {
+  my $self = shift; my $n = shift;
+  my $name =  ('zeroth','first','second','third','fourth','fifth',
+               'sixth','seventh','eighth','ninth','tenth')[$n];
+  $name = "$n-th" if ($n > 10);
+  return $name;
 }
 
 #
@@ -181,19 +206,33 @@ package Value::Point;
 
 our $cmp_defaults = {
   %{$Value::cmp_defaults},
-  showDimensionWarnings => 1,
+  showDimensionHints => 1,
+  showCoordinateHints => 1,
 };
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
-  return 0 unless ref($other);
-  return 0 unless $other->type eq 'Point';
-  if (!$ans->{isPreview} && $ans->{showDimensionWarnings} &&
-      $self->length != $other->length) {
-    $ans->{ans_message} = $ans->{error_message} = "The dimension is incorrect";
-    return 0;
+  return ref($other) && $other->type eq 'Point';
+}
+
+#
+#  Check for dimension mismatch and incorrect coordinates
+#
+sub cmp_postprocess {
+  my $self = shift; my $ans = shift;
+  return unless $ans->{score} == 0 && !$ans->{isPreview};
+  if ($ans->{showDimensionHints} &&
+      $self->length != $ans->{student_value}->length) {
+    $self->cmp_Error($ans,"The dimension is incorrect"); return;
   }
-  return 1;
+  if ($ans->{showCoordinateHints}) {
+    my @errors;
+    foreach my $i (1..$self->length) {
+      push(@errors,"The ".$self->NameForNumber($i)." coordinate is incorrect")
+	if ($self->{data}[$i-1] != $ans->{student_value}{data}[$i-1]);
+    }
+    $self->cmp_Error($ans,@errors); return;
+  }
 }
 
 #############################################################
@@ -202,33 +241,45 @@ package Value::Vector;
 
 our $cmp_defaults = {
   %{$Value::cmp_defaults},
-  showDimensionWarnings => 1,
+  showDimensionHints => 1,
+  showCoordinateHints => 1,
   promotePoints => 0,
   parallel => 0,
   sameDirection => 0,
-  cmp_postprocess => 'cmp_postprocess',
 };
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
   return 0 unless ref($other);
-  return 0 unless $other->type eq 'Vector' ||
-                  ($ans->{promotePoints} && $other->type eq 'Point');
-  if (!$ans->{isPreview} && $ans->{showDimensionWarnings} &&
-      $self->length != $other->length) {
-    $ans->{ans_message} = $ans->{error_message} = "The dimension is incorrect";
-    return 0;
-  }
-  return 1;
+  $other = $ans->{student_value} = Value::Vector::promote($other)
+    if $ans->{promotePoints} && $other->type eq 'Point';
+  return $other->type eq 'Vector';
 }
 
 #
-#  Handle check for parallel vectors
+#  check for dimension mismatch
+#        for parallel vectors, and
+#        for incorrect coordinates
 #
 sub cmp_postprocess {
   my $self = shift; my $ans = shift;
-  return unless $ans->{parallel} && $ans->{score} == 0;
-  $ans->score(1) if $self->isParallel($ans->{student_value},$ans->{sameDirection});
+  return unless $ans->{score} == 0;
+  if (!$ans->{isPreview} && $ans->{showDimensionHints} &&
+      $self->length != $ans->{student_value}->length) {
+    $self->cmp_Error($ans,"The dimension is incorrect"); return;
+  }
+ if ($ans->{parallel} &&
+     $self->isParallel($ans->{student_value},$ans->{sameDirection})) {
+   $ans->score(1); return;
+ }
+  if (!$ans->{isPreview} && $ans->{showCoordinateHints}) {
+    my @errors;
+    foreach my $i (1..$self->length) {
+      push(@errors,"The ".$self->NameForNumber($i)." coordinate is incorrect")
+	if ($self->{data}[$i-1] != $ans->{student_value}{data}[$i-1]);
+    }
+    $self->cmp_Error($ans,@errors); return;
+  }
 }
 
 
@@ -239,37 +290,45 @@ package Value::Matrix;
 
 our $cmp_defaults = {
   %{$Value::cmp_defaults},
-  showDimensionWarnings => 1,
+  showDimensionHints => 1,
+  showEqualErrors => 0,
 };
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
   return 0 unless ref($other);
-  $other = $self->make($other->{data}) if $other->class eq 'Point';
-  return 0 unless $other->type eq 'Matrix';
-  return 1 unless $ans->{showDimensionWarnings};
-  my @d1 = $self->dimensions; my @d2 = $other->dimensions;
+  $other = $ans->{student_value} = $self->make($other->{data})
+    if $other->class eq 'Point';
+  return $other->type eq 'Matrix';
+}
+
+sub cmp_postprocess {
+  my $self = shift; my $ans = shift;
+  return unless $ans->{score} == 0 &&
+    !$ans->{isPreview} && $ans->{showDimensionHints};
+  my @d1 = $self->dimensions; my @d2 = $ans->{student_value}->dimensions;
   if (scalar(@d1) != scalar(@d2)) {
-    $ans->{ans_message} = $ans->{error_message} =
-      "Matrix dimension is not correct";
-    return 0;
+    $self->cmp_Error($ans,"Matrix dimension is not correct");
+    return;
   } else {
     foreach my $i (0..scalar(@d1)-1) {
       if ($d1[$i] != $d2[$i]) {
-	$ans->{ans_message} = $ans->{error_message} =
-	  "Matrix dimension is not correct";
-	return 0;
+	$self->cmp_Error($ans,"Matrix dimension is not correct");
+	return;
       }
     }
   }
-  return 1;
 }
 
 #############################################################
 
 package Value::Interval;
 
-## @@@ report interval-type mismatch? @@@
+our $cmp_defaults = {
+  %{$Value::cmp_defaults},
+  showEndpointHints => 1,
+  showEndTypeHints => 1,
+};
 
 sub typeMatch {
   my $self = shift; my $other = shift;
@@ -279,6 +338,27 @@ sub typeMatch {
          ($other->{close} eq ')' || $other->{close} eq ']')
 	   if $other->type =~ m/^(Point|List)$/;
   $other->type =~ m/^(Interval|Union)$/;
+}
+
+#
+#  Check for wrong enpoints and wrong type of endpoints
+#
+sub cmp_postprocess {
+  my $self = shift; my $ans = shift;
+  return unless $ans->{score} == 0 && !$ans->{isPreview};
+  my $other = $ans->{student_value};
+  my @errors;
+  if ($ans->{showEndpointHints}) {
+    push(@errors,"Your left endpoint is incorrect")
+      if ($self->{data}[0] != $other->{data}[0]);
+    push(@errors,"Your right endpoint is incorrect")
+      if ($self->{data}[1] != $other->{data}[1]);
+  }
+  if (scalar(@errors) == 0 && $ans->{showEndTypeHints}) {
+    push(@errors,"The type of interval is incorrect")
+      if ($self->{open}.$self->{close} ne $other->{open}.$other->{close});
+  }
+  $self->cmp_Error($ans,@errors);
 }
 
 #############################################################
@@ -328,6 +408,7 @@ sub cmp_equal {
   my $value = getOption($ans->{entry_type},
       Value::isValue($typeMatch)? lc($typeMatch->showClass): 'value');
   $value =~ s/^an? //; $value =~ s/(real|complex) //;
+  $value = "interval or union" if $value =~ m/interval/;
   my $ltype = getOption($ans->{list_type},lc($self->type));
   $showTypeWarnings = $showHints = $showLengthHints = 0 if $ans->{isPreview};
 
@@ -360,11 +441,11 @@ sub cmp_equal {
     if ($showTypeWarnings && defined($typeMatch) &&
         !$typeMatch->typeMatch($entry,$ans)) {
       push(@errors,
-        "Your ".NameForNumber($i)." value isn't ".lc($typeMatch->showClass).
+        "Your ".$self->NameForNumber($i)." value isn't ".lc($typeMatch->showClass).
 	   " (it looks like ".lc($entry->showClass).")");
       next ENTRY;
     }
-    push(@errors,"Your ".NameForNumber($i)." $value is incorrect")
+    push(@errors,"Your ".$self->NameForNumber($i)." $value is incorrect")
       if $showHints && $m > 1;
   }
 
@@ -389,17 +470,6 @@ sub getOption {
   my $value = shift; my $default = shift;
   return $value if defined($value);
   return $default;
-}
-
-#
-#  names for numbers
-#
-sub NameForNumber {
-  my $n = shift;
-  my $name =  ('zeroth','first','second','third','fourth','fifth',
-               'sixth','seventh','eighth','ninth','tenth')[$n];
-  $name = "$n-th" if ($n > 10);
-  return $name;
 }
 
 #############################################################
