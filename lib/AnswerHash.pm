@@ -488,7 +488,9 @@ sub get_student_answer {
 	my $self           = shift;
 	my $input          = shift;	
 	my %answer_options = @_;
-	warn "Raw student answer is |$input|" if $self->{debug};
+	my $display_input = $input;
+	$display_input =~ s/\0/\\0/g;  # make null spacings visible
+	warn "Raw student answer is |$display_input|" if $self->{debug};
 	$input = '' unless defined($input); 
 	if (ref($input) =~/AnswerHash/) {
 		# in this case nothing needs to be done, since the student's answer is already in an answerhash.
