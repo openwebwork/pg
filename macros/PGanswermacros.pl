@@ -1800,20 +1800,20 @@ sub FUNCTION_CMP {
 		$limits[$i][0] = $functLLimitDefault			unless defined $limits[$i][0];
 		$limits[$i][1] = $functULimitDefault			unless defined $limits[$i][1];
 	}
-	$numPoints = $functNumOfPoints					unless defined $numPoints;
+	$numPoints = $functNumOfPoints					            unless defined $numPoints;
 	$maxConstantOfIntegration = $functMaxConstantOfIntegration	unless defined $maxConstantOfIntegration;
-	$zeroLevel = $functZeroLevelDefault				unless defined $zeroLevel;
-	$zeroLevelTol = $functZeroLevelTolDefault			unless defined $zeroLevelTol;
+	$zeroLevel = $functZeroLevelDefault				            unless defined $zeroLevel;
+	$zeroLevelTol = $functZeroLevelTolDefault			        unless defined $zeroLevelTol;
 
-	$func_params{'var'}				=	$var;
-    	$func_params{'limits'}				=	\@limits;
-    	$func_params{'tolerance'}			=	$tol;
-    	$func_params{'tolType'}				=	$tolType;
-    	$func_params{'numPoints'}			=	$numPoints;
-    	$func_params{'mode'}				=	$mode;
-    	$func_params{'maxConstantOfIntegration'}	=	$maxConstantOfIntegration;
-    	$func_params{'zeroLevel'}			=	$zeroLevel;
-    	$func_params{'zeroLevelTol'}  			= 	$zeroLevelTol;
+	$func_params{'var'}				            =	$var;
+	$func_params{'limits'}				        =	\@limits;
+	$func_params{'tolerance'}			        =	$tol;
+	$func_params{'tolType'}				        =	$tolType;
+	$func_params{'numPoints'}			        =	$numPoints;
+	$func_params{'mode'}				        =	$mode;
+	$func_params{'maxConstantOfIntegration'}	=	$maxConstantOfIntegration;
+	$func_params{'zeroLevel'}			        =	$zeroLevel;
+	$func_params{'zeroLevelTol'}  			    = 	$zeroLevelTol;
 
 ########################################################
 #   End of cleanup of calling parameters
@@ -1821,18 +1821,44 @@ sub FUNCTION_CMP {
 	my $i;						#for use with loops
 	my $PGanswerMessage	= "";
 	my $originalCorrEqn	= $correctEqn;
-
-#prepare the correct answer and check it's syntax
-    	my $rh_correct_ans = new AnswerHash;
+######################################################################
+# prepare the correct answer and check its syntax
+######################################################################
+    my $rh_correct_ans   = new AnswerHash;
 	$rh_correct_ans->input($correctEqn);
-	$rh_correct_ans = check_syntax($rh_correct_ans);
+	$rh_correct_ans      = check_syntax($rh_correct_ans);
 	warn  $rh_correct_ans->{error_message} if $rh_correct_ans->{error_flag};
 	$rh_correct_ans->clear_error();
-	$rh_correct_ans = function_from_string2($rh_correct_ans, ra_vars => [ @VARS, @PARAMS ],
-	                                                         store_in =>'rf_correct_ans',
-	                                                         debug =>  $func_params{debug});
-	my $correct_eqn_sub = $rh_correct_ans->{rf_correct_ans};
+	$rh_correct_ans      = function_from_string2($rh_correct_ans, ra_vars  => [ @VARS, @PARAMS ],
+	                                                         stdout =>'rf_correct_ans',
+	                                                         debug    =>  $func_params{debug});
+	my $correct_eqn_sub  = $rh_correct_ans->{rf_correct_ans};
 	warn $rh_correct_ans->{error_message} if $rh_correct_ans->{error_flag};
+
+######################################################################
+# prepare the previous student answer and check its syntax as well
+######################################################################
+#   FIXME  We need to be able to retrieve, not the sticky answer, but the answer previous to that one
+#   in order to be able to check whether the current answer is different from the one just entered
+#   This will require additional storage provided, I believe by PGtranslator.pm
+#   OR BETTER YET perhaps we can store this in the HTML document using hidden variables.
+#   this could be a change in PGbasicmacros which printed a hidden version of the previous answer
+#   along with the blank that was modified.
+#
+#   my $rh_prev_ans      = new AnswerHash;
+# 	$rh_prev_ans->input( PREVIOUS ANSWER FOR COMPARISON HERE);
+# 	$rh_prev_ans         = check_syntax($rh_prev_ans);
+# 	warn  $rh_prev_ans->{error_message} if $rh_prev_ans->{error_flag};
+# 	$rh_prev_ans->clear_error();
+# 	$rh_prev_ans         = function_from_string2($rh_prev_ans, ra_vars  => [ @VARS, @PARAMS ],
+# 	                                                         stdout =>'rf_prev_ans',
+# 	                                                         debug    =>  $func_params{debug});
+# 	my $prev_eqn_sub     = $rh_prev_ans->{rf_prev_ans};
+# 	warn $rh_prev_ans->{error_message} if $rh_prev_ans->{error_flag};
+
+######################################################################
+# define the points at which the functions are to be evaluated
+######################################################################
 
 	if(not defined($ra_test_points)) {
 		#create the evaluation points
@@ -1861,12 +1887,13 @@ sub FUNCTION_CMP {
 #construct the answer evaluator
     my $answer_evaluator = new AnswerEvaluator;
     $answer_evaluator->{debug} = $func_params{debug};
-    $answer_evaluator->ans_hash( 	correct_ans 		=> 	$originalCorrEqn,
-					rf_correct_ans		=> 	$rh_correct_ans->{rf_correct_ans},
-					evaluation_points	=>	\@evaluation_points,
-					ra_param_vars 		=> 	\@PARAMS,
-					ra_vars			=>	\@VARS,
-					type			=>	'function',
+    $answer_evaluator->ans_hash( 	
+                    correct_ans         => 	$originalCorrEqn,
+					rf_correct_ans      => 	$rh_correct_ans->{rf_correct_ans},
+					evaluation_points   =>	\@evaluation_points,
+					ra_param_vars       => 	\@PARAMS,
+					ra_vars             =>	\@VARS,
+					type                =>	'function',
     );
 
     $answer_evaluator->install_pre_filter(\&check_syntax);
@@ -2950,18 +2977,22 @@ sub std_num_array_filter {
 sub function_from_string2 {
     my $rh_ans = shift;
     my %options = @_;
-	my $eqn = $rh_ans->{student_ans};
 	assign_option_aliases(\%options,
 				'vars'			=> 'ra_vars',
 				'var'           => 'ra_vars',
+				'store_in'      => 'stdout',
 	);
 	set_default_options(  \%options,
-	            'store_in'		=>      'rf_student_ans',
+				'stdin'         =>  'student_ans',
+	            'stdout'		=>  'rf_student_ans',
     			'ra_vars'		=>	[qw( x y )],
     			'debug'			=>	0,
     			'_filter_name'	=>	'function_from_string2',
     );
+    # initialize
     $rh_ans->{_filter_name} = $options{_filter_name};
+    
+    my $eqn = $rh_ans->{student_ans};
     my @VARS = @{ $options{ 'ra_vars'}};
     #warn "VARS = ", join("<>", @VARS) if defined($options{debug}) and $options{debug} ==1;
     my $originalEqn = $eqn;
@@ -2969,7 +3000,7 @@ sub function_from_string2 {
     for( my $i = 0; $i < @VARS; $i++ ) {
         #  This next line is a hack required for 5.6.0 -- it doesn't appear to be needed in 5.6.1
         my ($temp,$er1,$er2) = PG_restricted_eval('"'. $VARS[$i] . '"');
-	#$eqn	=~ s/\b$VARS[$i]\b/\$VARS[$i]/g;
+		#$eqn	=~ s/\b$VARS[$i]\b/\$VARS[$i]/g;
         $eqn	=~ s/\b$temp\b/\$VARS[$i]/g;
 
 	}
@@ -3015,12 +3046,12 @@ sub function_from_string2 {
  		$rh_ans->{error_flag} = 1;
  		 # we couldn't compile the equation, we'll return an error message.
  	} else {
-#  		if (defined($options{store_in} )) {
-#  			$rh_ans ->{$options{store_in}} = $function_sub;
+#  		if (defined($options{stdout} )) {
+#  			$rh_ans ->{$options{stdout}} = $function_sub;
 #  		} else {
 #  	    	$rh_ans->{rf_student_ans} = $function_sub;
 #  	    }
- 	    $rh_ans ->{$options{store_in}} = $function_sub;
+ 	    $rh_ans ->{$options{stdout}} = $function_sub;
  	}
 
     $rh_ans;
@@ -3037,8 +3068,11 @@ sub is_zero_array {
     my %options = @_;
     set_default_options(  \%options,
 				'_filter_name'	=>	'is_zero_array',
-				'tolerance'	=>	0.000001,
+				'tolerance'	    =>	0.000001,
     );
+    #intialize
+    $rh_ans->{_filter_name} = $options{_filter_name};
+    
     my $array = $rh_ans -> {ra_differences};
 	my $num = @$array;
 	my $i;
@@ -3574,31 +3608,42 @@ Additional syntax error messages are stored in {ans_message} and duplicated in {
 sub check_syntax {
         my $rh_ans = shift;
         my %options = @_;
-        unless ( defined( $rh_ans->{student_ans} ) ) {
-        	warn "Check_syntax requires an equation in the field {student_ans} or input";
-        	$rh_ans->throw_error("1","{student_ans} field not defined");
+        assign_option_aliases(\%options,
+		);
+		set_default_options(  \%options,
+					'stdin'         =>  'student_ans',
+					'stdout'		=>  'student_ans',
+					'ra_vars'		=>	[qw( x y )],
+					'debug'			=>	0,
+					'_filter_name'	=>	'check_syntax',
+		);
+		#initialize
+		$rh_ans->{_filter_name}     = $options{_filter_name};
+        unless ( defined( $rh_ans->{$options{stdin}} ) ) {
+        	warn "Check_syntax requires an equation in the field '$options{stdin}' or input";
+        	$rh_ans->throw_error("1","'$options{stdin}' field not defined");
         	return $rh_ans;
         }
-        my $in = $rh_ans->{student_ans};
+        my $in     = $rh_ans->{$options{stdin}};
 		my $parser = new AlgParserWithImplicitExpand;
-		my $ret	= $parser -> parse($in);			#for use with loops
+		my $ret	   = $parser -> parse($in);			#for use with loops
 
 		if ( ref($ret) )  {		## parsed successfully
 			$parser -> tostring();
 			$parser -> normalize();
-			$rh_ans->input( $parser -> tostring() );
-			$rh_ans->{preview_text_string} = $in;
-			$rh_ans->{preview_latex_string} =	$parser -> tolatex();
+			$rh_ans -> input( $parser -> tostring() );
+			$rh_ans -> {preview_text_string} = $in;
+			$rh_ans -> {preview_latex_string} =	$parser -> tolatex();
 
 		} else {					## error in	parsing
 
-			$rh_ans->{'student_ans'}			=	'syntax error:'. $parser->{htmlerror},
+			$rh_ans->{$options{stdout}}			=	'syntax error:'. $parser->{htmlerror},
 			$rh_ans->{'ans_message'}			=	$parser -> {error_msg},
 			$rh_ans->{'preview_text_string'}	=	'',
 			$rh_ans->{'preview_latex_string'}	=	'',
 			$rh_ans->throw_error('SYNTAX',	'syntax error in answer:'. $parser->{htmlerror} . "$BR" .$parser -> {error_msg});
 		}
-$rh_ans;
+       $rh_ans;
 
 }
 
