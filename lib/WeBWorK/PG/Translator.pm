@@ -91,6 +91,7 @@ which can be used by the PG problems.  The keyword 'reset' or 'erase' erases the
 
 =cut
 
+
 sub evaluate_modules {
 	my $self = shift;
 	my @modules = @_;
@@ -793,6 +794,7 @@ sub translate {
 	$self ->{errors} .= qq{ERROR:  You must define the environment before translating.}
 	     unless defined( $self->{envir} );
     # reset the error detection
+    $SIG{__WARN__} = sub {CORE::warn(@_) } unless ref($SIG{__WARN__}) =~/CODE/;
     my $save_SIG_warn_trap = $SIG{__WARN__};
     #FIXME  -- this may not work with the xmlrpc access
     # this formats the error message within the existing warn message.
@@ -1101,6 +1103,7 @@ sub process_answers{
 		};		
 		# reset the error detection
 		my $save_SIG_warn_trap = $SIG{__WARN__};
+        $save_SIG_warn_trap = sub {CORE::warn @_} unless  ref($save_SIG_warn_trap) =~/CODE/;
 		$SIG{__WARN__} = sub {&$save_SIG_warn_trap(PG_errorMessage('message',@_))};
 
 		my $save_SIG_die_trap = $SIG{__DIE__};
@@ -1108,11 +1111,11 @@ sub process_answers{
 		my $rh_ans_evaluation_result;
 		if (ref($rf_fun) eq 'CODE' ) {
 			$rh_ans_evaluation_result = $self->{safe} ->reval( '&{ $rf_fun }($temp_ans)' ) ;
-			warn "Error in Translator.pm::process_answers: Answer $ans_name:<BR>\n $@\n" if $@;
+			warn "Error in Translator.pm::process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
 		} elsif (ref($rf_fun) =~ /AnswerEvaluator/)   {
 			$rh_ans_evaluation_result = $self->{safe} ->reval('$rf_fun->evaluate($temp_ans, ans_label => \''.$ans_name.'\')');
 			$@ = $errorTable{$@} if $@ && defined($errorTable{$@});
-			warn "Error in Translator.pm::process_answers: Answer $ans_name:<BR>\n $@\n" if $@;
+			warn "Error in Translator.pm::process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
 			warn "Evaluation error: Answer $ans_name:<BR>\n", 
 				$rh_ans_evaluation_result->error_flag(), " :: ",
 				$rh_ans_evaluation_result->error_message(),"<BR>\n" 
