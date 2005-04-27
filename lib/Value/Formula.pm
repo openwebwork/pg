@@ -190,7 +190,7 @@ sub createPointValues {
   my $showError = shift;
   my @vars   = $self->{context}->variables->variables;
   my @params = $self->{context}->variables->parameters;
-  my @zeros  = @{$self->{parameters} || [split('',"0" x scalar(@params))]};
+  my @zeros  = @{$self->{parameters} || [(0) x scalar(@params)]};
   my $f = $self->{f}; $f = $self->{f} = $self->perlFunction(undef,[@vars,@params]) unless $f;
 
   my $values = []; my $v;
@@ -221,7 +221,7 @@ sub createRandomPoints {
   my @params = $self->{context}->variables->parameters;
   my @limits = $self->getVariableLimits(@vars);
   my @make   = $self->getVariableTypes(@vars);
-  my @zeros  = split('',"0" x scalar(@params));
+  my @zeros  = (0) x scalar(@params);
   my $f = $self->{f}; $f = $self->{f} = $self->perlFunction(undef,[@vars,@params]) unless $f;
   my $seedRandom = $self->{context}->flag('random_seed')? 'PGseedRandom' : 'seedRandom';
   my $getRandom  = $self->{context}->flag('random_seed')? 'PGgetRandom'  : 'getRandom';
@@ -329,7 +329,7 @@ sub AdaptParameters {
   #  and value vector for linear system
   #
   my ($p,$v) = $l->createRandomPoints($d,1);
-  my @P = split('',"0" x $d); my ($f,$F) = ($l->{f},$r->{f});
+  my @P = (0) x $d; my ($f,$F) = ($l->{f},$r->{f});
   my @A = (); my @b = ();
   foreach my $i (0..$d-1) {
     my @a = (); my @p = @{$p->[$i]};
