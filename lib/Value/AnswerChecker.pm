@@ -799,7 +799,10 @@ sub cmp {
     $context->{_variables}->{pattern} = $context->{_variables}->{namePattern} =
       'C0|' . $context->{_variables}->{pattern};
     $context->update; $context->variables->add('C0' => 'Parameter');
-    $cmp->ans_hash(correct_value => Value::Formula->new('C0')+$self);
+    my $f = Value::Formula->new('C0')+$self;
+    for ('limits','test_points','test_values','num_points','granularity','resolution')
+      {$f->{$_} = $self->{$_} if defined($self->{$_})}
+    $cmp->ans_hash(correct_value => $f);
     Parser::Context->current(undef,$current);
   }
   return $cmp;
