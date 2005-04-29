@@ -561,12 +561,12 @@ sub Parser::Function::numeric::D_log10 {
 }
 
 sub Parser::Function::numeric::D_exp {
-  my $self = shift; my $x = shift;
+  my $self = shift;
   return $self->copy();
 }
 
 sub Parser::Function::numeric::D_sqrt {
-  my $self = shift; my $x = shift;
+  my $self = shift;
   my $equation = $self->{equation};
   my $parser = $equation->{context}{parser};
   return
@@ -579,7 +579,13 @@ sub Parser::Function::numeric::D_sqrt {
     );
 }
  
-sub Parser::Function::numeric::D_abs {Parser::Function::D(@_)} 
+sub Parser::Function::numeric::D_abs {
+  my $self = shift; my $x = shift;
+  my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
+  return $parser->{BOP}->new($equation,'/',$x,$self->copy);
+} 
+
 sub Parser::Function::numeric::D_int {Parser::Function::D(@_)} 
 sub Parser::Function::numeric::D_sgn {Parser::Function::D(@_)} 
 
@@ -599,8 +605,10 @@ sub Parser::List::Interval::D {
 }
 
 sub Parser::List::AbsoluteValue::D {
-  my $self = shift;
-  $self->Error("Can't differentiate absolute values");
+  my $self = shift; my $x = $self->{coords}[0]->copy;
+  my $equation = $self->{equation};
+  my $parser = $equation->{context}{parser};
+  return $parser->{BOP}->new($equation,'/', $x, $self->copy);
 }
 
 
