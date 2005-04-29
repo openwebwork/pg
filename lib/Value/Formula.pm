@@ -162,18 +162,33 @@ sub compare {
   # Note: $l is bigger if $r can't be evaluated at one of the points
   return 1 unless $rvalues;
 
+  my ($i, $cmp);
+
   #
-  #  Handle parameters
+  #  Handle adaptive parameters:
+  #    Get the tolerances, and check each adapted point relative
+  #    to the ORIGINAL correct answer.  (This will have to be
+  #    fixed if we ever do adaptive parameters for non-real formulas)
   #
-  $lvalues = $l->{test_values}
-    if $l->AdaptParameters($r,$self->{context}->variables->parameters);
+  if ($l->AdaptParameters($r,$self->{context}->variables->parameters)) {
+    my $avalues = $l->{test_adapt};
+    my $tolerance  = $self->getFlag('tolerance',1E-4);
+    my $isRelative = $self->getFlag('tolType','relative') eq 'relative';
+    my $zeroLevel  = $self->getFlag('zeroLevel',1E-14);
+    foreach $i (0..scalar(@{$lvalues})-1) {
+      my $tol = $tolerance;
+      $tol *= abs($lvalues->[$i]) if $isRelative && abs($lvalues->[$i]) > $zeroLevel;
+      return $rvalues->[$i]->value <=> $avalues->[$i]->value
+	unless abs($rvalues->[$i] - $avalues->[$i]) < $tol;
+    }
+    return 0;
+  }
 
   #
   #  Look through the two lists to see if they are equal.
   #  If not, return the comparison of the first unequal value
   #    (not good for < and >, but OK for ==).
   #
-  my ($i, $cmp);
   foreach $i (0..scalar(@{$lvalues})-1) {
     $cmp = $lvalues->[$i] <=> $rvalues->[$i];
     return $cmp if $cmp;
@@ -190,7 +205,7 @@ sub createPointValues {
   my $showError = shift;
   my @vars   = $self->{context}->variables->variables;
   my @params = $self->{context}->variables->parameters;
-  my @zeros  = @{$self->{parameters} || [(0) x scalar(@params)]};
+  my @zeros  = (0) x scalar(@params);
   my $f = $self->{f}; $f = $self->{f} = $self->perlFunction(undef,[@vars,@params]) unless $f;
 
   my $values = []; my $v;
@@ -199,12 +214,36 @@ sub createPointValues {
     if (!defined($v)) {
       return unless $showError;
       Value::Error("Can't evaluate formula on test point (".join(',',@{$p}).")");
-    }	
+    }
     push @{$values}, Value::makeValue($v);
   }
-
   $self->{test_points} = $points;
   $self->{test_values} = $values;
+}
+
+#
+#  Create the adapted value list for the test points
+#
+sub createAdaptedValues {
+  my $self = shift;
+  my $points = shift || $self->{test_points} || $self->createRandomPoints;
+  my $showError = shift;
+  my @vars   = $self->{context}->variables->variables;
+  my @params = $self->{context}->variables->parameters;
+  my $f = $self->{f}; $f = $self->{f} = $self->perlFunction(undef,[@vars,@params]) unless $f;
+
+  my $values = []; my $v;
+  my @adapt = @{$self->{parameters}};
+  foreach my $p (@{$points}) {
+    $v = eval {&$f(@{$p},@adapt)};
+    if (!defined($v)) {
+      return unless $showError;
+      Value::Error("Can't evaluate formula on test point (".join(',',@{$p}).") ".
+		   "with parameters (".join(',',@adapt).")");
+    }
+    push @{$values}, Value::makeValue($v);
+  }
+  $self->{test_adapt} = $values;
 }
 
 #
@@ -361,7 +400,7 @@ sub AdaptParameters {
 	push @a, $row->[0]; $i++;
       }
       $l->{parameters} = [@a];
-      $l->createPointValues;
+      $l->createAdaptedValues;
       return 1;
     }
   }
