@@ -23,7 +23,10 @@ package CommonFunction;
 sub Call {
   my $self = shift;
   my $fn = shift;
-  if ($main::_parser_loaded) {return Parser::Function->call($fn,@_)}
+  if ($main::_parser_loaded) {
+    return Parser::Function->call($fn,@_)
+      if Parser::Context->current->{functions}{$fn};
+  }
   return $self->$fn(@_);
 }
 
