@@ -109,6 +109,7 @@ sub call {
   my $class = $fn->{class};
   my $result = eval {$class->_call($name,@_)};
   return $result unless $@;
+  Value::Error($context->{error}{message}) if $context->{error}{message};
   Value::Error("Can't take $name of ".join(',',@_));
 }
 #
