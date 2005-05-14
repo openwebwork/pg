@@ -101,16 +101,16 @@ my $debugON = 0;
 
 # grab read only variables from the current safe compartment
 
-my ($macroDirectory,
-	$courseScriptsDirectory,
+my ($macrosPath,
+    $pwd,
 	$templateDirectory,
 	$scriptDirectory,
 	$externalTTHPath,
 	);
 
 sub _dangerousMacros_init {   #use  envir instead of local variables?
-	$macroDirectory           = eval('$main::envir{macroDirectory}') ;
-    $courseScriptsDirectory   = eval('$main::envir{courseScriptsDirectory}');
+    $macrosPath               = eval('$main::envir{macrosPath}');
+    $pwd                      = eval('$main::envir{fileName}'); $pwd =~ s!/[^/]*$!!;
     $templateDirectory        = eval('$main::envir{templateDirectory}');
     $scriptDirectory          = eval('$main::envir{scriptDirectory}');
     $externalTTHPath          = eval('$main::envir{externalTTHPath}');
@@ -139,9 +139,10 @@ sub _dangerousMacros_export {
 C<loadMacros(macrofile1,macrofile2,...)>
 
 loadMacros takes a list of file names and evaluates the contents of each file.  This is used to load macros
-which define and augment the PG language.  The macro files are first searched for in the macro
-directory of the course C<($macroDirectory)> and then, if not found, in the WeBWorK courseScripts
-directory C<($courseScriptsDirectory)> where the default behavior of the PG language is defined.
+which define and augment the PG language.  The macro files are searched for in the directories specified by
+C<($macrosPath)>, which by default is the course macros directory followed by WeBWorK's pg/macros directory.
+The latter is where the default behaviour of the PG language is defined.  The default path is set in
+the C<(global.conf)> file.
 
 An individual course can modify the PG language, B<for that course only>, by
 duplicating one of the macro files in the courseScripts directory and placing this
@@ -170,8 +171,7 @@ they will not interfere with the normal behavior of B<WeBWorK> in other courses.
 =cut
 
 # Global variables used
-#   ${main::macroDirectory}
-#	${main::courseScriptsDirectory}
+#   ${main::macrosPath}
 # Global macros used
 #	None
 
@@ -226,6 +226,7 @@ sub loadMacros {
 		$macro_file_name =~s/\.pl//;  # trim off the extension
 		$macro_file_name =~s/\.pg//;  # sometimes the extension is .pg (e.g. CAPA files)
 		my $init_subroutine_name = "_${macro_file_name}_init";
+		$init_subroutine_name =~ s![^a-zA-Z0-9_]!_!g;  # remove dangerous chars
 
  		###############################################################################
 		# For some reason the "no stict" which works on webwork-db doesn't work on
@@ -235,6 +236,7 @@ sub loadMacros {
 		#  Keep an eye on this ???
 		# webwork-db used perl 5.6.1 and webwork used perl 5.6.0 
 		###############################################################################
+
 		# compile initialization subroutine. (5.6.0 version)
 
 		
@@ -250,21 +252,18 @@ sub loadMacros {
 # 		use strict;
 
 		###############################################################################
-        # macros are searched for first in the $macroDirectory of the course
-        # and then in the webwork  $courseScripts directory.
+        # macros are searched for in the directories listed in the $macrosPath array reference.
         
         my $macro_file_loaded = defined($init_subroutine) && defined(&$init_subroutine);
         warn "dangerousMacros: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|"  if $debugON;
         unless ($macro_file_loaded) {
-        	#print STDERR "loadMacros: loading macro file $fileName\n";
-			if (-r "$macroDirectory$fileName") {
-				compile_file("$macroDirectory$fileName");
-
-			} elsif (-r  "$courseScriptsDirectory$fileName" ) {
-				 compile_file("$courseScriptsDirectory$fileName");
-			} else {
-				die "Can't locate macro file via path: |$macroDirectory$fileName| or |$courseScriptsDirectory$fileName|";
-			}
+        	warn "loadMacros: loading macro file $fileName\n" if $debugON;
+		my $filePath = findMacroFile($fileName);
+		#### (check for renamed files here?) ####
+		if ($filePath) {compile_file($filePath)}
+		else {
+		  die "Can't locate macro file |$fileName| via path: |".join("|, |",@{$macrosPath})."|";
+		}
 		}
 		###############################################################################
 		# Try again to define the initialization subroutine. (5.6.0 version)
@@ -292,6 +291,20 @@ sub loadMacros {
 
 	}
 	eval{main::time_it("end load macros");};
+}
+
+#
+#  Look for a macro file in the directories specified in the macros path
+#
+sub findMacroFile {
+  my $fileName = shift;
+  my $filePath;
+  foreach my $dir (@{$macrosPath}) {
+    $filePath = "$dir/$fileName";
+    $filePath =~ s!^\.\.?/!$templateDirectory$pwd/!;
+    return $filePath if (-r $filePath);
+  }
+  return;  # no file found
 }
 
 # errors in compiling macros is not always being reported.
