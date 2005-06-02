@@ -748,19 +748,24 @@ sub cmp_defaults {
   return (
     Value::Union::cmp_defaults($self,@_),
     typeMatch => Value::Formula->new("(1,2]"),
+    showDomainErrors => 1,
   ) if $self->type eq 'Union';
 
   my $type = $self->type;
   $type = ($self->isComplex)? 'Complex': 'Real' if $type eq 'Number';
   $type = 'Value::'.$type.'::';
 
-  return (&{$type.'cmp_defaults'}($self,@_), upToConstant => 0)
-    if defined(%$type) && $self->type ne 'List';
+  return (
+    &{$type.'cmp_defaults'}($self,@_),
+    upToConstant => 0,
+    showDomainErrors => 1,
+  ) if defined(%$type) && $self->type ne 'List';
 
   return (
     Value::List::cmp_defaults($self,@_),
     removeParens => $self->{autoFormula},
     typeMatch => Value::Formula->new(($self->createRandomPoints(1))[1]->[0]{data}[0]),
+    showDomainErrors => 1,
   );
 }
 
@@ -800,7 +805,8 @@ sub cmp {
       'C0|' . $context->{_variables}->{pattern};
     $context->update; $context->variables->add('C0' => 'Parameter');
     my $f = Value::Formula->new('C0')+$self;
-    for ('limits','test_points','test_values','num_points','granularity','resolution')
+    for ('limits','test_points','test_values','num_points','granularity','resolution',
+	 'checkUndefinedPoints','max_undefined')
       {$f->{$_} = $self->{$_} if defined($self->{$_})}
     $cmp->ans_hash(correct_value => $f);
     Parser::Context->current(undef,$current);
@@ -831,7 +837,12 @@ sub cmp_equal {
 sub cmp_postprocess {
   my $self = shift; my $ans = shift;
   return unless $ans->{score} == 0 && !$ans->{isPreview};
-  return if $ans->{ans_message} || !$ans->{showDimensionHints};
+  return if $ans->{ans_message};
+  if ($self->{domainMismatch} && $ans->{showDomainErrors}) {
+    $self->cmp_Error($ans,"The domain of your function doesn't match that of the correct answer");
+    return;
+  }
+  return if !$ans->{showDimensionHints};
   my $other = $ans->{student_value};
   return if $ans->{ignoreStrings} && (!Value::isValue($other) || $other->type eq 'String');
   return unless $other->type =~ m/^(Point|Vector|Matrix)$/;

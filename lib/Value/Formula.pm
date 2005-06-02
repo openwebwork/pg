@@ -5,6 +5,8 @@
 package Value::Formula;
 my $pkg = 'Value::Formula';
 
+my $UNDEF = bless {}, "UNDEF";
+
 use strict;
 use vars qw(@ISA);
 @ISA = qw(Parser Value);
@@ -158,7 +160,7 @@ sub compare {
   ##  FIXME: Check given points for consistency
   my $points = $l->{test_points} || $r->{test_points} || $l->createRandomPoints;
   my $lvalues = $l->{test_values} || $l->createPointValues($points,1);
-  my $rvalues = $r->createPointValues($points);
+  my $rvalues = $r->createPointValues($points,0,$l->{checkUndefinedPoints});
   #
   # Note: $l is bigger if $r can't be evaluated at one of the points
   return 1 unless $rvalues;
@@ -186,15 +188,17 @@ sub compare {
   }
 
   #
-  #  Look through the two lists to see if they are equal.
+  #  Look through the two lists of values to see if they are equal.
   #  If not, return the comparison of the first unequal value
   #    (not good for < and >, but OK for ==).
   #
+  my $domainError = 0;
   foreach $i (0..scalar(@{$lvalues})-1) {
+    if (ref($lvalues->[$i]) eq 'UNDEF' ^ ref($rvalues->[$i]) eq 'UNDEF') {$domainError = 1; next}
     $cmp = $lvalues->[$i] <=> $rvalues->[$i];
     return $cmp if $cmp;
   }
-  return 0;
+  $l->{domainMismatch} = $domainError;
 }
 
 #
@@ -208,15 +212,16 @@ sub createPointValues {
   my @params = $self->{context}->variables->parameters;
   my @zeros  = (0) x scalar(@params);
   my $f = $self->{f}; $f = $self->{f} = $self->perlFunction(undef,[@vars,@params]) unless $f;
+  my $checkUndef = scalar(@params) == 0 && (shift || $self->getFlag('checkUndefinedPoints',0));
 
   my $values = []; my $v;
   foreach my $p (@{$points}) {
     $v = eval {&$f(@{$p},@zeros)};
-    if (!defined($v)) {
+    if (!defined($v) && !$checkUndef) {
       return unless $showError;
       Value::Error("Can't evaluate formula on test point (".join(',',@{$p}).")");
     }
-    push @{$values}, Value::makeValue($v);
+    push @{$values}, (defined($v)? Value::makeValue($v): $UNDEF);
   }
   $self->{test_points} = $points;
   $self->{test_values} = $values;
@@ -265,18 +270,27 @@ sub createRandomPoints {
   my $f = $self->{f}; $f = $self->{f} = $self->perlFunction(undef,[@vars,@params]) unless $f;
   my $seedRandom = $self->{context}->flag('random_seed')? 'PGseedRandom' : 'seedRandom';
   my $getRandom  = $self->{context}->flag('random_seed')? 'PGgetRandom'  : 'getRandom';
+  my $checkUndef = scalar(@params) == 0 && $self->getFlag('checkUndefinedPoints',0);
+  my $maxUndef   = $self->getFlag('max_undefined',$num_points);
 
   $self->$seedRandom;
-  my $points = []; my $values = [];
+  my $points = []; my $values = []; my $num_undef = 0;
   my (@P,@p,$v,$i); my $k = 0;
-  while (scalar(@{$points}) < $num_points && $k < 10) {
+  while (scalar(@{$points}) < $num_points+$num_undef && $k < 10) {
     @P = (); $i = 0;
     foreach my $limit (@limits) {
       @p = (); foreach my $I (@{$limit}) {push @p, $self->$getRandom(@{$I})}
       push @P, $make[$i++]->make(@p);
     }
     $v = eval {&$f(@P,@zeros)};
-    if (!defined($v)) {$k++} else {
+    if (!defined($v)) {
+      if ($k == 0 && $checkUndef) {
+	push @{$points}, [@P];
+	push @{$values}, $UNDEF;
+	$num_undef++;
+      }
+      $k++;
+    } else {
       push @{$points}, [@P];
       push @{$values}, Value::makeValue($v);
       $k = 0; # reset count when we find a point
