@@ -64,7 +64,8 @@ sub isOne {(shift)->{tree}{isOne}}
 #
 sub bop {
   my ($bop,$l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
+  my $call = $$Value::context->{method}{$bop};
+  if ($l->promotePrecedence($r)) {return $r->$call($l,!$flag)}
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   my $formula = $pkg->blank; my $parser = $formula->{context}{parser};
   my $vars = {};
