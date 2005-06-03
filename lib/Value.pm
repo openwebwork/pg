@@ -42,6 +42,8 @@ $defaultContext = Value::Context->new(
     granularity => 1000,
     resolution  => undef,
     max_adapt   => 1E8,
+    checkUndefinedPoints => 0,
+    max_undefined => undef,
   },
 );
 
@@ -286,6 +288,15 @@ sub formula {
 sub make {
   my $self = shift; my $class = ref($self) || $self;
   bless {data => [@_]}, $class;
+}
+
+#
+#  Easy method for setting parameters of an object
+#
+sub with {
+  my $self = shift; my %hash = @_;
+  foreach my $id (keys(%hash)) {$self->{$id} = $hash{$id}}
+  return $self;
 }
 
 #
