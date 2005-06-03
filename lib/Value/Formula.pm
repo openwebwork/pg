@@ -158,9 +158,9 @@ sub compare {
   #  Get the test points and evaluate the functions at those points
   #
   ##  FIXME: Check given points for consistency
-  my $points = $l->{test_points} || $r->{test_points} || $l->createRandomPoints;
-  my $lvalues = $l->{test_values} || $l->createPointValues($points,1);
-  my $rvalues = $r->createPointValues($points,0,$l->{checkUndefinedPoints});
+  my $points  = $l->{test_points} || $l->createRandomPoints(undef,$l->{test_at});
+  my $lvalues = $l->{test_values} || $l->createPointValues($points,1,1);
+  my $rvalues = $r->createPointValues($points,0,1,$l->{checkUndefinedPoints});
   #
   # Note: $l is bigger if $r can't be evaluated at one of the points
   return 1 unless $rvalues;
@@ -198,7 +198,7 @@ sub compare {
     $cmp = $lvalues->[$i] <=> $rvalues->[$i];
     return $cmp if $cmp;
   }
-  $l->{domainMismatch} = $domainError;
+  $l->{domainMismatch} = $domainError;  # return this value
 }
 
 #
@@ -207,7 +207,7 @@ sub compare {
 sub createPointValues {
   my $self = shift;
   my $points = shift || $self->{test_points} || $self->createRandomPoints;
-  my $showError = shift;
+  my $showError = shift; my $cacheResults = shift;
   my @vars   = $self->{context}->variables->variables;
   my @params = $self->{context}->variables->parameters;
   my @zeros  = (0) x scalar(@params);
@@ -223,8 +223,11 @@ sub createPointValues {
     }
     push @{$values}, (defined($v)? Value::makeValue($v): $UNDEF);
   }
-  $self->{test_points} = $points;
-  $self->{test_values} = $values;
+  if ($cacheResults) {
+    $self->{test_points} = $points;
+    $self->{test_values} = $values;
+  }
+  return $values;
 }
 
 #
@@ -258,7 +261,7 @@ sub createAdaptedValues {
 #
 sub createRandomPoints {
   my $self = shift;
-  my $num_points = @_[0];
+  my ($num_points,$include) = @_; my $cacheResults = !defined($num_points);
   $num_points = int($self->getFlag('num_points',5)) unless defined($num_points);
   $num_points = 1 if $num_points < 1;
 
@@ -271,10 +274,14 @@ sub createRandomPoints {
   my $seedRandom = $self->{context}->flag('random_seed')? 'PGseedRandom' : 'seedRandom';
   my $getRandom  = $self->{context}->flag('random_seed')? 'PGgetRandom'  : 'getRandom';
   my $checkUndef = scalar(@params) == 0 && $self->getFlag('checkUndefinedPoints',0);
-  my $maxUndef   = $self->getFlag('max_undefined',$num_points);
+  my $max_undef  = $self->getFlag('max_undefined',$num_points);
 
   $self->$seedRandom;
   my $points = []; my $values = []; my $num_undef = 0;
+  if ($include) {
+    push(@{$points},@{$include});
+    push(@{$values},@{$self->createPointValues($include,1,$cacheResults,$self->{checkundefinedPoints})});
+  }
   my (@P,@p,$v,$i); my $k = 0;
   while (scalar(@{$points}) < $num_points+$num_undef && $k < 10) {
     @P = (); $i = 0;
@@ -284,7 +291,7 @@ sub createRandomPoints {
     }
     $v = eval {&$f(@P,@zeros)};
     if (!defined($v)) {
-      if ($k == 0 && $checkUndef) {
+      if ($checkUndef && $num_undef < $max_undef) {
 	push @{$points}, [@P];
 	push @{$values}, $UNDEF;
 	$num_undef++;
@@ -298,7 +305,7 @@ sub createRandomPoints {
   }
 
   Value::Error("Can't generate enough valid points for comparison") if $k;
-  return ($points,$values) if defined(@_[0]);
+  return ($points,$values) unless $cacheResults;
   $self->{test_values} = $values;
   $self->{test_points} = $points;
 }
@@ -382,7 +389,7 @@ sub AdaptParameters {
   #  Get coefficient matrix of adaptive parameters
   #  and value vector for linear system
   #
-  my ($p,$v) = $l->createRandomPoints($d,1);
+  my ($p,$v) = $l->createRandomPoints($d);
   my @P = (0) x $d; my ($f,$F) = ($l->{f},$r->{f});
   my @A = (); my @b = ();
   foreach my $i (0..$d-1) {
