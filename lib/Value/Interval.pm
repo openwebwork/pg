@@ -84,7 +84,6 @@ sub formula {
   ($a,$b) = Value::toFormula($formula,$a,$b);
   $formula->{tree} = $formula->{context}{parser}{List}->new($formula,[$a,$b],0,
      $formula->{context}{parens}{$open},$Value::Type{number},$open,$close);
-#   return $formula->eval if scalar(%{$formula->{variables}}) == 0;
   return $formula;
 }
 
