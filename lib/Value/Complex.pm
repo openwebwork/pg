@@ -73,6 +73,7 @@ sub formula {
 #  Return the complex type
 #
 sub typeRef {return $Value::Type{complex}}
+sub length {2}
 
 sub isZero {shift eq "0"}
 sub isOne {shift eq "1"}

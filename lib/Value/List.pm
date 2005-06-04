@@ -43,7 +43,6 @@ sub new {
 #
 #  Return the proper data
 #
-sub length {return scalar(@{shift->{data}})}
 sub typeRef {
   my $self = shift;
   return Value::Type($self->class, $self->length, Value::Type($self->{type},1));

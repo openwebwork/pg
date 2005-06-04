@@ -57,11 +57,6 @@ sub new {
 }
 
 #
-#  The number of coordinates
-#
-sub length {return scalar(@{shift->{data}})}
-
-#
 #  Try to promote arbitary data to a vector
 #
 sub promote {

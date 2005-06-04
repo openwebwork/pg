@@ -58,11 +58,6 @@ sub new {
 }
 
 #
-#  The number of coordinates
-#
-sub length {return scalar(@{shift->{data}})}
-
-#
 #  Try to promote arbitrary data to a point
 #
 sub promote {

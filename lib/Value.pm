@@ -326,7 +326,7 @@ sub Type {
 #
 sub value {return @{(shift)->{data}}}                  # the value of the object (as an array)
 sub data {return (shift)->{data}}                      # the reference to the value
-sub length {return (shift)->typeRef->{length}}         # the number of coordinates
+sub length {return scalar(@{(shift)->{data}})}         # the number of coordinates
 sub type {return (shift)->typeRef->{name}}             # the object type
 sub entryType {return (shift)->typeRef->{entryType}}   # the coordinate type
 #

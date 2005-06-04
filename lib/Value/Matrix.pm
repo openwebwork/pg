@@ -95,11 +95,6 @@ sub value {
   return @M;
 }
 #
-#  The number of rows in the matrix (for n x m)
-#  or the number of entries in a 1 x n matrix
-#
-sub length {return scalar(@{shift->{data}})}
-#
 #  Recursively get the dimensions of the matrix.
 #  Returns (n) for a 1 x n, or (n,m) for an n x m, etc.
 #

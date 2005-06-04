@@ -48,6 +48,7 @@ sub blank {$pkg->SUPER::new('')}
 #  Get the type from the tree
 #
 sub typeRef {(shift)->{tree}->typeRef}
+sub length {(shift)->{tree}->typeRef->{length}}
 
 sub isZero {(shift)->{tree}{isZero}}
 sub isOne {(shift)->{tree}{isOne}}

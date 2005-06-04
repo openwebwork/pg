@@ -72,6 +72,7 @@ sub formula {
 #  Return the real number type
 #
 sub typeRef {return $Value::Type{number}}
+sub length {1}
 
 #
 #  return the real number
