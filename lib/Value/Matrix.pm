@@ -361,14 +361,14 @@ sub column {
 
 sub stringify {
   my $self = shift;
-  return $self->TeX(undef,$self->{open},$self->{close}) if $$Value::context->flag('StringifyAsTeX');
-  return $self->string(undef,$self->{open},$self->{close})
+  return $self->TeX if $$Value::context->flag('StringifyAsTeX');
+  return $self->string(undef,$self->{open},$self->{close});
 }
 
 sub string {
   my $self = shift; my $equation = shift;
   my $def = ($equation->{context} || $$Value::context)->lists->get('Matrix');
-  my $open = shift || $def->{open}; my $close = shift || $def->{close};
+  my $open  = shift || $def->{open}; my $close = shift || $def->{close};
   my @coords = ();
   foreach my $x (@{$self->data}) {
     if (Value::isValue($x)) {push(@coords,$x->string($equation,$open,$close))}
@@ -378,12 +378,13 @@ sub string {
 }
 
 #
-#  Use \matrix to lay out matrices
+#  Use array environment to lay out matrices
 #
 sub TeX {
   my $self = shift; my $equation = shift;
   my $def = ($equation->{context} || $$Value::context)->lists->get('Matrix');
-  my $open = shift || $def->{open}; my $close = shift || $def->{close};
+  my $open  = shift || $self->{open} || $def->{open};
+  my $close = shift || $self->{close} || $def->{close};
   $open = '\{' if $open eq '{'; $close = '\}' if $close eq '}';
   my $TeX = ''; my @entries = (); my $d;
   if ($self->isRow) {

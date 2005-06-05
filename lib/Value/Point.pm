@@ -176,7 +176,7 @@ sub abs {
 
 sub stringify {
   my $self = shift;
-  return $self->TeX(undef,$self->{open},$self->{close}) if $$Value::context->flag('StringifyAsTeX');
+  return $self->TeX if $$Value::context->flag('StringifyAsTeX');
   return $self->string(undef,$self->{open},$self->{close});
 }
 
@@ -194,7 +194,8 @@ sub string {
 sub TeX {
   my $self = shift; my $equation = shift;
   my $def = ($equation->{context} || $$Value::context)->lists->get('Point');
-  my $open = shift || $def->{open}; my $close = shift || $def->{close};
+  my $open  = shift || $self->{open} || $def->{open};
+  my $close = shift || $self->{close} || $def->{close};
   my @coords = ();
   foreach my $x (@{$self->data}) {
     if (Value::isValue($x)) {push(@coords,$x->TeX($equation))} else {push(@coords,$x)}
