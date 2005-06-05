@@ -52,8 +52,17 @@ sub new {
         unless Value::isNumber($x);
     }
   }
-  return $self->formula($p) if $isFormula;
-  bless {data => $p}, $class;
+  if ($isFormula) {
+    my $v = $self->formula($p);
+    if (ref($self) && $self->{ColumnVector}) {
+      $v->{tree}{ColumnVector} = 1;
+      $v->{tree}{open} = $v->{tree}{close} = undef;
+    }
+    return $v;
+  }
+  my $v = bless {data => $p}, $class;
+  $v->{ColumnVector} = 1 if ref($self) && $self->{ColumnVector};
+  return $v;
 }
 
 #
@@ -136,7 +145,7 @@ sub dot {
 
 sub cross {
   my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->dot($l,!$flag)}
+  if ($l->promotePrecedence($r)) {return $r->cross($l,!$flag)}
   ($l,$r) = (promote($l)->data,promote($r)->data);
   Value::Error("Vector must be in 3-space for cross product")
     unless scalar(@{$l}) == 3 && scalar(@{$r}) == 3;
@@ -239,8 +248,8 @@ my $ijk_TeX = ['\boldsymbol{i}','\boldsymbol{j}','\boldsymbol{k}','\boldsymbol{0
 
 sub stringify {
   my $self = shift;
-  return $self->TeX(undef,$self->{open},$self->{close}) if $$Value::context->flag('StringifyAsTeX');
-  return $self->string(undef,$self->{open},$self->{close})
+  return $self->TeX if $$Value::context->flag('StringifyAsTeX');
+  return $self->string(undef,$self->{open},$self->{close});
 };
 
 sub string {
@@ -248,7 +257,7 @@ sub string {
   return $self->ijk($ijk_string)
     if ($self->{ijk} || $equation->{ijk} || $$Value::context->flag("ijk"));
   my $def = ($equation->{context} || $$Value::context)->lists->get('Vector');
-  my $open = shift || $def->{open}; my $close = shift || $def->{close};
+  my $open  = shift || $def->{open}; my $close = shift || $def->{close};
   my @coords = ();
   foreach my $x (@{$self->data}) {
     if (Value::isValue($x)) {push(@coords,$x->string($equation))} else {push(@coords,$x)}
@@ -260,12 +269,17 @@ sub TeX {
   my $self = shift; my $equation = shift;
   return $self->ijk if ($self->{ijk} || $equation->{ijk} || $$Value::context->flag("ijk"));
   my $def = ($equation->{context} || $$Value::context)->lists->get('Vector');
-  my $open = shift || $def->{open}; my $close = shift || $def->{close};
+  my $open  = shift || $self->{open} || $def->{open};
+  my $close = shift || $self->{close} || $def->{close};
   my @coords = ();
   foreach my $x (@{$self->data}) {
     if (Value::isValue($x)) {push(@coords,$x->TeX($equation))} else {push(@coords,$x)}
   }
-  return '\left'.$open.join(',',@coords).'\right'.$close;
+  return '\left'.$open.join(',',@coords).'\right'.$close unless $self->{ColumnVector};
+  $def = ($equation->{context} || $$Value::context)->lists->get('Matrix');
+  $open  = shift || $self->{open} || $def->{open};
+  $close = shift || $self->{close} || $def->{close};
+  return '\left'.$open.'\begin{array}{c}'.join('\\\\',@coords).'\\\\\end{array}\right'.$close;
 }
 
 sub ijk {
