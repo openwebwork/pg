@@ -26,19 +26,22 @@ sub cmp_defaults {(
 sub cmp {
   my $self = shift;
   my $ans = new AnswerEvaluator;
-  my $correct = $self->{correct_ans};
-  $correct = $self->string unless defined($correct);
+  my $correct = protectHTML($self->{correct_ans});
+  $correct = $self->correct_ans unless defined($correct);
   $ans->ans_hash(
     type => "Value (".$self->class.")",
-    correct_ans => protectHTML($correct),
+    correct_ans => $correct,
     correct_value => $self,
     $self->cmp_defaults(@_),
     @_
   );
   $ans->install_evaluator(sub {$ans = shift; $ans->{correct_value}->cmp_parse($ans)});
+  $ans->install_pre_filter('erase') if $self->{ans_name}; # don't do blank check if answer_array
   $self->{context} = $$Value::context unless defined($self->{context});
   return $ans;
 }
+
+sub correct_ans {protectHTML(shift->string)}
 
 #
 #  Parse the student answer and compute its value,
@@ -83,14 +86,48 @@ sub cmp_parse {
     $ans->{preview_latex_string} = $ans->{student_formula}->TeX;
     $ans->{preview_text_string}  = protectHTML($ans->{student_formula}->string);
     $ans->{student_ans}          = $ans->{preview_text_string};
-    $self->cmp_equal($ans);
-    $self->cmp_postprocess($ans) if !$ans->{error_message};
+    if ($self->cmp_collect($ans)) {
+      $self->cmp_equal($ans);
+      $self->cmp_postprocess($ans) if !$ans->{error_message};
+    }
   } else {
     $self->cmp_error($ans);
+    $self->cmp_collect($ans);
   }
   contextSet($context,%{$flags});            # restore context values
   Parser::Context->current(undef,$current);  # put back the old context
   return $ans;
+}
+
+#
+#  Check if the object has an answer array and collect the results
+#  Build the combined student answer and set the preview values
+#
+sub cmp_collect {
+  my $self = shift; my $ans = shift;
+  return 1 unless $self->{ans_name};
+  $ans->{preview_latex_string} = $ans->{preview_text_string} = "";
+  my $OK = $self->ans_collect($ans);
+  $ans->{student_ans} = $self->format_matrix($ans->{student_formula},@{$self->{format_options}},tth_delims=>1);
+  return 0 unless $OK;
+  my $array = $ans->{student_formula};
+  if ($self->{ColumnVector}) {
+    my @V = (); foreach my $x (@{$array}) {push(@V,$x->[0])}
+    $array = [@V];
+  } elsif (scalar(@{$array}) == 1) {$array = $array->[0]}
+  my $type = $self;
+  $type = "Value::".$self->{tree}->type if $self->class eq 'Formula';
+  $ans->{student_formula} = eval {$type->new($array)->with(ColumnVector=>$self->{ColumnVector})};
+  if (!defined($ans->{student_formula}) || $$Value::context->{error}{flag}) 
+    {Parser::reportEvalError($@); return 0}
+  $ans->{student_value} = $ans->{student_formula};
+  $ans->{preview_text_string} = $ans->{student_ans};
+  $ans->{preview_latex_string} = $ans->{student_formula}->TeX;
+  if (Value::isFormula($ans->{student_formula}) && $ans->{student_formula}->isConstant) {
+    $ans->{student_value} = Parser::Evaluate($ans->{student_formula});
+    return 0 unless $ans->{student_value};
+  }
+  return 1;
 }
 
 #
@@ -107,8 +144,8 @@ sub cmp_equal {
   } else {
     return if $ans->{ignoreStrings} && (!Value::isValue($student) || $student->type eq 'String');
     $ans->{ans_message} = $ans->{error_message} =
-      "Your answer isn't ".lc($ans->{cmp_class}).
-        " (it looks like ".lc($student->showClass).")"
+      "Your answer isn't ".lc($ans->{cmp_class}).'<BR>'.
+        "(it looks like ".lc($student->showClass).")"
 	   if !$ans->{isPreview} && $ans->{showTypeWarnings} && !$ans->{error_message};
   }
 }
@@ -191,6 +228,229 @@ sub cmp_Error {
 #  filled in by sub-classes
 #
 sub cmp_postprocess {}
+
+#
+#  create answer rules of various types
+#
+sub ans_rule {shift; pgCall('ans_rule',@_)}
+sub named_ans_rule {shift; pgCall('NAMED_ANS_RULE',@_)}
+sub named_ans_rule_extension {shift; pgCall('NAMED_ANS_RULE_EXTENSION',@_)}
+sub ans_array {shift->ans_rule(@_)};
+sub named_ans_array {shift->named_ans_rule(@_)};
+sub named_ans_array_extension {shift->named_ans_rule_extension(@_)};
+
+sub pgCall {my $call = shift; &{WeBWorK::PG::Translator::PG_restricted_eval('\&'.$call)}(@_)}
+sub pgRef {WeBWorK::PG::Translator::PG_restricted_eval('\&'.shift)}
+
+our $answerPrefix = "MaTrIx";
+
+#
+#  Lay out a matrix of answer rules
+#
+sub ans_matrix {
+  my $self = shift;
+  my ($extend,$name,$rows,$cols,$size,$open,$close,$sep) = @_;
+  my $named_extension = pgRef('NAMED_ANS_RULE_EXTENSION');
+  my $new_name = pgRef('RECORD_FORM_LABEL');
+  my $HTML = ""; my $ename = $name;
+  if ($name eq '') {
+    my $n = pgCall('inc_ans_rule_count');
+    $name = pgCall('NEW_ANS_NAME',$n);
+    $ename = $answerPrefix.$n;
+  }
+  $self->{ans_name} = $ename;
+  $self->{ans_rows} = $rows;
+  $self->{ans_cols} = $cols;
+  my @array = ();
+  foreach my $i (0..$rows-1) {
+    my @row = ();
+    foreach my $j (0..$cols-1) {
+      if ($i == 0 && $j == 0) {
+	if ($extend) {push(@row,&$named_extension(&$new_name($name),$size))}
+	        else {push(@row,pgCall('NAMED_ANS_RULE',$name,$size))}
+      } else {
+	push(@row,&$named_extension(&$new_name(ANS_NAME($ename,$i,$j)),$size));
+      }
+    }
+    push(@array,[@row]);
+  }
+  $self->format_matrix([@array],open=>$open,close=>$close,sep=>$sep);
+}
+
+sub ANS_NAME {
+  my ($name,$i,$j) = @_;
+  $name.'_'.$i.'_'.$j;
+}
+
+
+#
+#  Lay out an arbitrary matrix
+#
+sub format_matrix {
+  my $self = shift;
+  my $displayMode = $self->getPG('$displayMode');
+  return $self->format_matrix_tex(@_) if ($displayMode eq 'TeX');
+  return $self->format_matrix_HTML(@_);
+}
+
+sub format_matrix_tex {
+  my $self = shift; my $array = shift;
+  my %options = {open=>'',close=>'',sep=>'',@_};
+  $self->{format_options} = [%options] unless $self->{format_options};
+  my ($open,$close,$sep) = ($options{open},$options{close},$options{sep});
+  my ($rows,$cols) = (scalar(@{$array}),scalar(@{$array->[0]}));
+  my $tex = "";
+  $tex .= '\left'.$open.'\begin{array}{'.('c'x$cols).'}';
+  foreach my $i (0..$rows-1) {$tex .= join('&',@{$array->[$i]}).'\\'."\n"}
+  $tex .= '\end{array}\right'.$close;
+  return $tex;
+}
+
+sub format_matrix_HTML {
+  my $self = shift; my $array = shift;
+  my %options = (open=>'',close=>'',sep=>'',tth_delims=>0,@_);
+  $self->{format_options} = [%options] unless $self->{format_options};
+  my ($open,$close,$sep) = ($options{open},$options{close},$options{sep});
+  my ($rows,$cols) = (scalar(@{$array}),scalar(@{$array->[0]}));
+  my $HTML = "";
+  if ($sep) {$sep = '</TD><TD STYLE="padding: 0px 1px">'.$sep.'</TD><TD>'}
+       else {$sep = '</TD><TD WIDTH="8px"></TD><TD>'}
+  foreach my $i (0..$rows-1) {
+    $HTML .= '<TR><TD HEIGHT="6px"></TD></TR>' if $i;
+    $HTML .= '<TR ALIGN="MIDDLE"><TD>'.join($sep,@{$array->[$i]}).'</TD></TR>'."\n";
+  }
+  $open = $self->format_delimiter($open,$rows,$options{tth_delims});
+  $close = $self->format_delimiter($close,$rows,$options{tth_delims});
+  if ($open ne '' || $close ne '') {
+    $HTML = '<TR ALIGN="MIDDLE">'
+          . '<TD>'.$open.'</TD>'
+          . '<TD WIDTH="2"></TD>'
+          . '<TD><TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0" CLASS="ArrayLayout">'
+          .   $HTML
+          . '</TABLE></TD>'
+          . '<TD WIDTH="4"></TD>'
+          . '<TD>'.$close.'</TD>'
+          . '</TR>'."\n";
+  }
+  return '<TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0" CLASS="ArrayLayout"'
+          . ' STYLE="display:inline;vertical-align:-'.(1.1*$rows-.6).'em">'
+          . $HTML
+          . '</TABLE>';
+}
+
+#
+#  Create a tall delimiter to match the line height
+#
+sub format_delimiter {
+  my $self = shift; my $delim = shift; my $rows = shift; my $tth = shift;
+  return '' if $delim eq '' || $delim eq '.';
+  my $displayMode = $self->getPG('$displayMode');
+  return $self->format_delimiter_tth($delim,$rows,$tth)
+    if $tth || $displayMode eq 'HTML_tth' || $displayMode !~ m/^HTML_/;
+  my $rule = '\vrule width 0pt height '.(.8*$rows).'em depth 0pt';
+  $rule = '\rule 0pt '.(.8*$rows).'em 0pt' if $displayMode eq 'HTML_jsMath';
+  $delim = '\\'.$delim if $delim eq '{' || $delim eq '}';
+  return '\(\left'.$delim.$rule.'\right.\)';
+}
+
+#
+#  Data for tth delimiters [top,mid,bot,rep]
+#
+my %tth_delim = (
+  '[' => ['&#xF8EE;','','&#xF8F0;','&#xF8EF;'],
+  ']' => ['&#xF8F9;','','&#xF8FB;','&#xF8FA;'],
+  '(' => ['&#xF8EB;','','&#xF8ED;','&#xF8EC;'],
+  ')' => ['&#xF8F6;','','&#xF8F8;','&#xF8F7;'],
+  '{' => ['&#xF8F1;','&#xF8F2;','&#xF8F3;','&#xF8F4;'],
+  '}' => ['&#xF8FC;','&#xF8FD;','&#xF8FE;','&#xF8F4;'],
+  '|' => ['|','','|','|'],
+  '<' => ['&lt;'],
+  '>' => ['&gt;'],
+  '\lgroup' => ['&#xF8F1;','','&#xF8F3;','&#xF8F4;'],
+  '\rgroup' => ['&#xF8FC;','','&#xF8FE;','&#xF8F4;'],
+);
+
+#
+#  Make delimiters as stacks of characters
+#
+sub format_delimiter_tth {
+  my $self = shift;
+  my $delim = shift; my $rows = shift; my $tth = shift;
+  return '' if $delim eq '' || !defined($tth_delim{$delim});
+  my $c = $delim; $delim = $tth_delim{$delim};
+  $c = $delim->[0] if scalar(@{$delim}) == 1;
+  my $size = ($tth? "": "font-size:175%; ");
+  return '<SPAN STYLE="'.$size.'margin:0px 2px">'.$c.'</SPAN>'
+    if $rows == 1 || scalar(@{$delim}) == 1;
+  my $HTML = "";
+  if ($delim->[1] eq '') {
+    $HTML = join('<BR>',$delim->[0],($delim->[3])x(2*($rows-1)),$delim->[2]);
+  } else {
+    $HTML = join('<BR>',$delim->[0],($delim->[3])x($rows-1),
+		        $delim->[1],($delim->[3])x($rows-1),
+		        $delim->[2]);
+  }
+  return '<DIV STYLE="line-height:90%; margin: 0px 2px">'.$HTML.'</DIV>';
+}
+
+
+#
+#  Look up the values of the answer array entries, and check them
+#  for syntax and other errors.  Build the student answer
+#  based on these, and keep track of error messages.
+#
+
+my @ans_defaults = (showCoodinateHints => 0, checker => sub {0});
+
+sub ans_collect {
+  my $self = shift; my $ans = shift;
+  my $inputs = $self->getPG('$inputs_ref');
+  my $blank = ($self->getPG('$displayMode') eq 'TeX') ? '\_\_' : '__';
+  my ($rows,$cols) = ($self->{ans_rows},$self->{ans_cols});
+  my @array = (); my $data = [$self->value]; my $errors = []; my $OK = 1;
+  if ($self->{ColumnVector}) {foreach my $x (@{$data}) {$x = [$x]}}
+  $data = [$data] unless ref($data->[0]) eq 'ARRAY';
+  foreach my $i (0..$rows-1) {
+    my @row = ();
+    foreach my $j (0..$cols-1) {
+      if ($i || $j) {
+	my $entry = $inputs->{ANS_NAME($self->{ans_name},$i,$j)};
+	my $result = $data->[$i][$j]->cmp(@ans_cmp_defaults)->evaluate($entry);
+	$OK &= entryCheck($result,$blank);
+	push(@row,$result->{student_formula});
+	entryMessage($result->{ans_message},$errors,$i,$j,$rows);
+      } else {
+	$ans->{student_formula} = $ans->{student_value} = undef unless $ans->{student_ans} =~ m/\S/;
+	$OK &= entryCheck($ans,$blank);
+	push(@row,$ans->{student_formula});
+	entryMessage($ans->{ans_message},$errors,$i,$j,$rows);
+      }
+    }
+    push(@array,[@row]);
+  }
+  $ans->{student_formula} = [@array];
+  $ans->{ans_message} = $ans->{error_message} = join("<BR>",@{$errors});
+  return $OK && scalar(@{$errors}) == 0;
+}
+
+sub entryMessage {
+  my $message = shift; return unless $message;
+  my ($errors,$i,$j,$rows) = @_; $i++; $j++;
+  if ($rows == 1) {$message = "Coordinate $j: $message"}
+    else {$message = "Entry ($i,$j): $message"}
+  push(@{$errors},$message);
+}
+
+sub entryCheck {
+  my $ans = shift; my $blank = shift;
+  return 1 if defined($ans->{student_value});
+  if (!defined($ans->{student_formula})) {
+    $ans->{student_formula} = $ans->{student_ans};
+    $ans->{student_formula} = $blank unless $ans->{student_formula};
+  }
+  return 0
+}
+
 
 #
 #  Get and Set values in context
@@ -314,7 +574,7 @@ sub cmp_postprocess {
   my $student = $ans->{student_value};
   return if $ans->{ignoreStrings} && (!Value::isValue($student) || $student->type eq 'String');
   if ($ans->{showDimensionHints} && $self->length != $student->length) {
-    $self->cmp_Error($ans,"The dimension of your result is incorrect"); return;
+    $self->cmp_Error($ans,"The number of coordinates is incorrect"); return;
   }
   if ($ans->{showCoordinateHints}) {
     my @errors;
@@ -325,6 +585,25 @@ sub cmp_postprocess {
     $self->cmp_Error($ans,@errors); return;
   }
 }
+
+sub correct_ans {
+  my $self = shift;
+  return $self->SUPER::correct_ans unless $self->{ans_name};
+  return $self->format_matrix([[@{$self->{data}}]],@{$self->{format_options}},tth_delims=>1);
+}
+
+sub ANS_MATRIX {
+  my $self = shift;
+  my $extend = shift; my $name = shift;
+  my $size = shift || 5;
+  my $def = ($self->{context} || $$Value::context)->lists->get('Point');
+  my $open = $self->{open} || $def->{open}; my $close = $self->{close} || $def->{close};
+  $self->ans_matrix($extend,$name,1,$self->length,$size,$open,$close,',');
+}
+
+sub ans_array {my $self = shift; $self->ANS_MATRIX(0,'',@_)}
+sub named_ans_array {my $self = shift; $self->ANS_MATRIX(0,@_)}
+sub named_ans_array_extension {my $self = shift; $self->ANS_MATRIX(1,@_)}
 
 #############################################################
 
@@ -358,7 +637,7 @@ sub cmp_postprocess {
   return if $ans->{ignoreStrings} && (!Value::isValue($student) || $student->type eq 'String');
   if (!$ans->{isPreview} && $ans->{showDimensionHints} &&
       $self->length != $student->length) {
-    $self->cmp_Error($ans,"The dimension of your result is incorrect"); return;
+    $self->cmp_Error($ans,"The number of coordinates is incorrect"); return;
   }
   if ($ans->{parallel} &&
       $self->isParallel($student,$ans->{sameDirection})) {
@@ -374,6 +653,31 @@ sub cmp_postprocess {
   }
 }
 
+sub correct_ans {
+  my $self = shift;
+  return $self->SUPER::correct_ans unless $self->{ans_name};
+  return $self->format_matrix([[$self->value]],@{$self->{format_options}},tth_delims=>1)
+    unless $self->{ColumnVector};
+  my @array = (); foreach my $x ($self->value) {push(@array,[$x])}
+  return $self->format_matrix([@array],@{$self->{format_options}},tth_delims=>1);
+}
+
+sub ANS_MATRIX {
+  my $self = shift;
+  my $extend = shift; my $name = shift;
+  my $size = shift || 5; my ($def,$open,$close);
+  $def = ($self->{context} || $$Value::context)->lists->get('Matrix');
+  $open = $self->{open} || $def->{open}; $close = $self->{close} || $def->{close};
+  return $self->ans_matrix($extend,$name,$self->length,1,$size,$open,$close)
+    if ($self->{ColumnVector});
+  $def = ($self->{context} || $$Value::context)->lists->get('Vector');
+  $open = $self->{open} || $def->{open}; $close = $self->{close} || $def->{close};
+  $self->ans_matrix($extend,$name,1,$self->length,$size,$open,$close,',');
+}
+
+sub ans_array {my $self = shift; $self->ANS_MATRIX(0,'',@_)}
+sub named_ans_array {my $self = shift; $self->ANS_MATRIX(0,@_)}
+sub named_ans_array_extension {my $self = shift; $self->ANS_MATRIX(1,@_)}
 
 
 #############################################################
@@ -413,6 +717,30 @@ sub cmp_postprocess {
     }
   }
 }
+
+sub correct_ans {
+  my $self = shift;
+  return $self->SUPER::correct_ans unless $self->{ans_name};
+  my @array = $self->value; @array = ([@array]) if $self->isRow;
+  return $self->format_matrix([$self->value],@{$self->{format_options}},tth_delims=>1);
+}
+
+sub ANS_MATRIX {
+  my $self = shift;
+  my $extend = shift; my $name = shift;
+  my $size = shift || 5;
+  my $def = ($self->{context} || $$Value::context)->lists->get('Matrix');
+  my $open = $self->{open} || $def->{open}; my $close = $self->{close} || $def->{close};
+  my @d = $self->dimensions;
+  Value::Error("Can't create ans_array for ".scalar(@d)."-dimensional matrix")
+    if (scalar(@d) > 2);
+  @d = (1,@d) if (scalar(@d) == 1);
+  $self->ans_matrix($extend,$name,@d,$size,$open,$close,'');
+}
+
+sub ans_array {my $self = shift; $self->ANS_MATRIX(0,'',@_)}
+sub named_ans_array {my $self = shift; $self->ANS_MATRIX(0,@_)}
+sub named_ans_array_extension {my $self = shift; $self->ANS_MATRIX(1,@_)}
 
 #############################################################
 
@@ -849,6 +1177,92 @@ sub cmp_postprocess {
   return unless $self->type  =~ m/^(Point|Vector|Matrix)$/;
   return if Parser::Item::typeMatch($self->typeRef,$other->typeRef);
   $self->cmp_Error($ans,"The dimension of your result is incorrect");
+}
+
+#
+#  If an answer array was used, get the data from the
+#  Matrix, Vector or Point, and format the array of
+#  data using the original parameter
+#
+sub correct_ans {
+  my $self = shift;
+  return $self->SUPER::correct_ans unless $self->{ans_name};
+  my @array = ();
+  if ($self->{tree}->type eq 'Matrix') {
+    foreach my $row (@{$self->{tree}{coords}}) {
+      my @row = ();
+      foreach my $x (@{$row->coords}) {push(@row,$x->string)}
+      push(@array,[@row]);
+    }
+  } else {
+    foreach my $x (@{$self->{tree}{coords}}) {push(@array,$x->string)}
+    if ($self->{tree}{ColumnVector}) {foreach my $x (@array) {$x = [$x]}}
+      else {@array = [@array]}
+  }
+  return $self->format_matrix([@array],@{$self->{format_options}},tth_delims=>1);
+}
+
+#
+#  Get the size of the array and create the appropriate answer array
+#
+sub ANS_MATRIX {
+  my $self = shift;
+  my $extend = shift; my $name = shift;
+  my $size = shift || 5; my $type = $self->type; 
+  my $cols = $self->length; my $rows = 1; my $sep = ',';
+  if ($type eq 'Matrix') {
+    $sep = ''; $rows = $cols; $cols = $self->{tree}->typeRef->{entryType}{length};
+  }
+  if ($self->{tree}{ColumnVector}) {
+    $sep = ""; $type = "Matrix";
+    my $tmp = $rows; $rows = $cols; $cols = $tmp;
+    $self->{ColumnVector} = 1;
+  }
+  my $def = ($self->{context} || $$Value::context)->lists->get($type);
+  my $open = $self->{open} || $self->{tree}{open} || $def->{open};
+  my $close = $self->{close} || $self->{tree}{close} || $def->{close};
+  $self->ans_matrix($extend,$name,$rows,$cols,$size,$open,$close,$sep);
+}
+
+sub ans_array {
+  my $self = shift;
+  return $self->SUPER::ans_array(@_) unless $self->array_OK;
+  $self->ANS_MATRIX(0,'',@_);
+}
+sub named_ans_array {
+  my $self = shift;
+  return $self->SUPER::named_ans_array(@_) unless $self->array_OK;
+  $self->ANS_MATRIX(0,@_);
+}
+sub named_ans_array_extension {
+  my $self = shift;
+  return $self->SUPER::named_ans_array_extension(@_) unless $self->array_OK;
+  $self->ANS_MATRIX(1,@_);
+}
+
+sub array_OK {
+  my $self = shift; my $tree = $self->{tree};
+  return $tree->type =~ m/^(Point|Vector|Matrix)$/ && $tree->class eq 'List';
+}
+
+#
+#  Get an array of values from a Matrix, Vector or Point
+#
+sub value {
+  my $self = shift;
+  my @array = ();
+  if ($self->{tree}->type eq 'Matrix') {
+    foreach my $row (@{$self->{tree}->coords}) {
+      my @row = ();
+      foreach my $x (@{$row->coords}) {push(@row,Value::Formula->new($x))}
+      push(@array,[@row]);
+    }
+  } else {
+    foreach my $x (@{$self->{tree}->coords}) {
+      push(@array,Value::Formula->new($x));
+    }
+  }
+  return @array;
 }
 
 #############################################################
