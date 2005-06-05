@@ -71,7 +71,6 @@ my ($PAR,
 	);
 
 sub _PGbasicmacros_init {
-
     # The big problem is that at compile time in the cached Safe compartment
     # main:: has one definition, probably Safe::Root1::
     # At runtime main has another definition Safe::Rootx:: where x is > 1
@@ -267,7 +266,6 @@ sub labeled_ans_rule {   # syntactic sugar for NAMED_ANS_RULE
 
 sub NAMED_ANS_RULE {
 	my($name,$col) = @_;
-	my $len = 0.07*$col;
 	my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if    defined(${$inputs_ref}{$name});
     if ($answer_value =~ /\0/ ) {
@@ -289,9 +287,6 @@ sub NAMED_ANS_RULE {
 	$answer_value =~ tr/\\$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
 	$name = RECORD_ANS_NAME($name);
 
-	# incorporated Davide Cervone's changes
-	# removed newlines from around <INPUT> tags
-	# made TeX rule be based on specified width rather than varying size.
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
 
@@ -309,7 +304,6 @@ sub NAMED_ANS_RULE_OPTION {   # deprecated
 
 sub NAMED_ANS_RULE_EXTENSION {
 	my($name,$col) = @_;
-	my $len = 0.07*$col; 
 	my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
 	if ( defined( $rh_sticky_answers->{$name} ) ) {
@@ -317,12 +311,13 @@ sub NAMED_ANS_RULE_EXTENSION {
 		$answer_value = '' unless defined($answer_value);
 	}
 	$answer_value =~ tr/\\$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
+	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
+	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
 	MODES(
-		TeX => '\\hrulefill\\quad ',
+		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\n\\end{rawhtml}\n!,
-		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME = "$name" VALUE = "$answer_value">\n
-		           <INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">
-		          !
+		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME = "$name" VALUE = "$answer_value">!.
+                        qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">!
 	);
 }
 
@@ -338,7 +333,6 @@ sub  NAMED_ANS_BOX {
 	$row = 10 unless defined($row);
 	$col = 80 unless defined($col);
 	$name = RECORD_ANS_NAME($name);
-	my $len = 0.07*$col;
 	my $height = .07*$row;
 	my $answer_value = '';
 	$answer_value = $inputs_ref->{$name} if defined( $inputs_ref->{$name} );
@@ -1164,7 +1158,7 @@ sub PAR { MODES( TeX => '\\par ', Latex2HTML => '\\begin{rawhtml}<P>\\end{rawhtm
 sub BR { MODES( TeX => '\\par\\noindent ', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR>'); };
 # Alternate definition of BR which is slightly more flexible and gives more white space in printed output
 # which looks better but kills more trees.
-#sub BR { MODES( TeX => '\\\\', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR>'); };
+#sub BR { MODES( TeX => '\\leavevmode\\\\', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR>'); };
 sub LQ { MODES( TeX => "``", Latex2HTML =>   '"',  HTML =>  '&quot;' ); };
 sub RQ { MODES( TeX => "''", Latex2HTML =>   '"',   HTML =>  '&quot;' ); };
 sub BM { MODES(TeX => '\\(', Latex2HTML => '\\(', HTML =>  ''); };  # begin math mode
