@@ -16,6 +16,8 @@ sub List     {Value::List->new(@_)}
 sub Interval {Value::Interval->new(@_)}
 sub Union    {Value::Union->new(@_)}
 
+sub ColumnVector {Value::Vector->new(@_)->with(ColumnVector=>1,open=>undef,close=>undef)}
+
 # sub Formula  {Value::Formula->new(@_)}
 # 
 # #

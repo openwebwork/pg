@@ -216,7 +216,8 @@ sub TeX {
   $open  = '\left' .$open  if $open  ne '';
   $close = '\right'.$close if $close ne '';
   foreach my $x (@{$self->{coords}}) {push(@coords,$x->TeX)}
-  return $open.join(',',@coords).$close;
+  return $open.join(',',@coords).$close unless $self->{ColumnVector};
+  '\left[\begin{array}{c}'.join('\cr'."\n",@coords).'\cr\end{array}\right]';
 }
 
 #
