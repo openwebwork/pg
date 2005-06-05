@@ -159,7 +159,7 @@ sub equal {
 
 sub compare {
   my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->power($l,!$flag)}
+  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
   $r = promote($r);
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   my ($a,$b) = (@{$l->data});

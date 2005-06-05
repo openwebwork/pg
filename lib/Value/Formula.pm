@@ -45,6 +45,16 @@ sub new {shift; $pkg->SUPER::new(@_)}
 sub blank {$pkg->SUPER::new('')}
 
 #
+#  with() changes tree element not formula itself
+#    (maybe the wrong choice?)
+#
+sub with {
+  my $self = shift; my %hash = @_;
+  foreach my $id (keys(%hash)) {$self->{tree}{$id} = $hash{$id}}
+  return $self;
+}
+
+#
 #  Get the type from the tree
 #
 sub typeRef {(shift)->{tree}->typeRef}
@@ -106,7 +116,7 @@ sub cross {bop('><',@_)}
 #
 sub dot   {
   my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
+  if ($l->promotePrecedence($r)) {return $r->dot($l,!$flag)}
   return bop('.',@_) if $l->type eq 'Vector' &&
      Value::isValue($r) && $r->type eq 'Vector';
   Value::_dot(@_);
@@ -139,7 +149,7 @@ sub neg {
 #
 sub atan2 {
   my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
+  if ($l->promotePrecedence($r)) {return $r->atan2($l,!$flag)}
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   Parser::Function->call('atan2',$l,$r);
 }
