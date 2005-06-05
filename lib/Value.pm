@@ -465,14 +465,16 @@ sub TeX {shift->string(@_)}
 #
 sub perl {
   my $self = shift; my $parens = shift; my $matrix = shift;
-  my $class = $self->class; my $mtype = $class eq 'Matrix';
+  my $class = $self->class;
+  my $mtype = $class eq 'Matrix'; $mtype = -1 if $mtype & !$matrix;
   my $perl; my @p = ();
   foreach my $x (@{$self->data}) {
     if (Value::isValue($x)) {push(@p,$x->perl(0,$mtype))} else {push(@p,$x)}
   }
   @p = ("'".$self->{open}."'",@p,"'".$self->{close}."'") if $class eq 'Interval';
   if ($matrix) {
-    $perl = '['.join(',',@p).']';
+    $perl = join(',',@p);
+    $perl = '['.$perl.']' if $mtype > 0;
   } else {
     $perl = $class.'('.join(',',@p).')';
     $perl = '('.$perl.')' if $parens == 1;
