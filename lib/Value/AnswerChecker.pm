@@ -295,14 +295,17 @@ sub format_matrix {
 
 sub format_matrix_tex {
   my $self = shift; my $array = shift;
-  my %options = {open=>'',close=>'',sep=>'',@_};
+  my %options = (open=>'.',close=>'.',sep=>'',@_);
   $self->{format_options} = [%options] unless $self->{format_options};
   my ($open,$close,$sep) = ($options{open},$options{close},$options{sep});
   my ($rows,$cols) = (scalar(@{$array}),scalar(@{$array->[0]}));
   my $tex = "";
-  $tex .= '\left'.$open.'\begin{array}{'.('c'x$cols).'}';
-  foreach my $i (0..$rows-1) {$tex .= join('&',@{$array->[$i]}).'\\'."\n"}
-  $tex .= '\end{array}\right'.$close;
+  $open = '\\'.$open if $open =~ m/[{}]/; $close = '\\'.$close if $close =~ m/[{}]/;
+  $tex .= '\(\left'.$open;
+  $tex .= '\setlength{\arraycolsep}{2pt}', $sep = '\,'.$sep if $sep;
+  $tex .= '\begin{array}{'.('c'x$cols).'}';
+  foreach my $i (0..$rows-1) {$tex .= join($sep.'&',@{$array->[$i]}).'\cr'."\n"}
+  $tex .= '\end{array}\right'.$close.'\)';
   return $tex;
 }
 
@@ -336,6 +339,13 @@ sub format_matrix_HTML {
           . ' STYLE="display:inline;vertical-align:-'.(1.1*$rows-.6).'em">'
           . $HTML
           . '</TABLE>';
+}
+
+sub VERBATIM {
+  my $string = shift;
+  my $displayMode = Value->getPG('$displayMode');
+  $string = '\end{verbatim}'.$string.'\begin{verbatim}' if $displayMode eq 'TeX';
+  return $string;
 }
 
 #
@@ -589,7 +599,7 @@ sub cmp_postprocess {
 sub correct_ans {
   my $self = shift;
   return $self->SUPER::correct_ans unless $self->{ans_name};
-  return $self->format_matrix([[@{$self->{data}}]],@{$self->{format_options}},tth_delims=>1);
+  Value::VERBATIM($self->format_matrix([[@{$self->{data}}]],@{$self->{format_options}},tth_delims=>1));
 }
 
 sub ANS_MATRIX {
@@ -656,10 +666,10 @@ sub cmp_postprocess {
 sub correct_ans {
   my $self = shift;
   return $self->SUPER::correct_ans unless $self->{ans_name};
-  return $self->format_matrix([[$self->value]],@{$self->{format_options}},tth_delims=>1)
+  return Value::VERBATIM($self->format_matrix([[$self->value]],@{$self->{format_options}},tth_delims=>1))
     unless $self->{ColumnVector};
   my @array = (); foreach my $x ($self->value) {push(@array,[$x])}
-  return $self->format_matrix([@array],@{$self->{format_options}},tth_delims=>1);
+  return Value::VERBATIM($self->format_matrix([@array],@{$self->{format_options}},tth_delims=>1));
 }
 
 sub ANS_MATRIX {
@@ -722,7 +732,7 @@ sub correct_ans {
   my $self = shift;
   return $self->SUPER::correct_ans unless $self->{ans_name};
   my @array = $self->value; @array = ([@array]) if $self->isRow;
-  return $self->format_matrix([$self->value],@{$self->{format_options}},tth_delims=>1);
+  Value::VERBATIM($self->format_matrix([$self->value],@{$self->{format_options}},tth_delims=>1));
 }
 
 sub ANS_MATRIX {
@@ -1199,7 +1209,7 @@ sub correct_ans {
     if ($self->{tree}{ColumnVector}) {foreach my $x (@array) {$x = [$x]}}
       else {@array = [@array]}
   }
-  return $self->format_matrix([@array],@{$self->{format_options}},tth_delims=>1);
+  Value::VERBATIM($self->format_matrix([@array],@{$self->{format_options}},tth_delims=>1));
 }
 
 #
