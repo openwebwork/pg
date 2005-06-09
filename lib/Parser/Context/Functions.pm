@@ -53,7 +53,9 @@ my %Category = (
    All         => [qw(_alias_ Trig Numeric Vector Complex)],
 );
 
+sub disable {Disable(@_)}
 sub Disable {
+  shift if ref($_[0]) ne ""; # pop off the $self reference
   my @names = @_; my ($list,$name);
   my $context = Parser::Context->current;
   while ($name = shift(@names)) {
@@ -66,7 +68,9 @@ sub Disable {
   }
 }
 
+sub enable {Enable(@_)}
 sub Enable {
+  shift if ref($_[0]) ne ""; # pop off the $self reference
   my @names = @_; my ($list,$name);
   my $context = Parser::Context->current;
   while ($name = shift(@names)) {
