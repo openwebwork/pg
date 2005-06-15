@@ -75,7 +75,17 @@ is returned. If necessary, the string is added to the database.
 
 sub lookup {
 	my ($self, $tex) = @_;
-	$tex =~ s/\s+//g;
+	# There are several ways to normalize TeX strings.  Use only
+	# one of them.
+
+	# Option 1 (default): remove leading and trailing whitespace, and
+	# compress all other whitespace to single spaces.
+	$tex =~ s/^\s+//g;
+	$tex =~ s/\s+$//g;
+	$tex =~ s/\s+/ /g;
+	# Option 2 (the old default): remove all whitespace
+	# $tex =~ s/\s+//g;
+
 	my $md5 = md5_hex($tex);
 	
 	my $db = $self->{cacheDB};
