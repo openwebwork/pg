@@ -81,15 +81,12 @@ sub bop {
   if ($l->promotePrecedence($r)) {return $r->$call($l,!$flag)}
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   my $formula = $pkg->blank; my $parser = $formula->{context}{parser};
-  my $vars = {};
   if (ref($r) eq $pkg) {
     $formula->{context} = $r->{context};
-    $vars = {%{$vars},%{$r->{variables}}};
     $r = $r->{tree}->copy($formula);
   }
   if (ref($l) eq $pkg) {
     $formula->{context} = $l->{context};
-    $vars = {%{$vars},%{$l->{variables}}};
     $l = $l->{tree}->copy($formula);
   }
   $l = $pkg->new($l) if (!ref($l) && Value::getType($formula,$l) eq "unknown");
@@ -99,8 +96,8 @@ sub bop {
   $bop = 'U' if $bop eq '+' &&
     ($l->type =~ m/Interval|Union/ || $r->type =~ m/Interval|Union/);
   $formula->{tree} = $parser->{BOP}->new($formula,$bop,$l,$r);
-  $formula->{variables} = {%{$vars}};
-  return $formula->eval if scalar(%{$vars}) == 0;
+  $formula->{variables} = $formula->{tree}->getVariables;
+  return $formula->eval if scalar(%{$formula->{variables}}) == 0;
   return $formula;
 }
 
