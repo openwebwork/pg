@@ -116,10 +116,10 @@ Draws the  image of the graph.
 
 =item size
 
-	($horizontal_pixels, $vertical_pixels) = $graph ->size();
+	($horizontal_pixels, $vertical_pixels)  = @{$graph ->size()};
 
 Reads the size of the graph image in pixels.  This cannot be reset. It is defined by
-the new constructor and cannot be changed.
+the new constructor and cannot be changed. 
 
 =item colors
 
