@@ -161,7 +161,7 @@ sub cmp_compare {
   my $self = shift; my $other = shift; my $ans = shift;
   return eval {$self == $other} unless ref($ans->{checker}) eq 'CODE';
   my $equal = eval {&{$ans->{checker}}($self,$other,$ans)};
-  if (!defined($equal) && $@ ne '' && !$$Value::context->{error}{flag}) {
+  if (!defined($equal) && $@ ne '' && (!$$Value::context->{error}{flag} || $ans->{showAllErrors})) {
     $$Value::context->setError("<I>An error occurred while checking your answer:</I>\n".
       '<DIV STYLE="margin-left:1em">'.$@.'</DIV>','');
     $$Value::context->{error}{flag} = $CMP_ERROR;
