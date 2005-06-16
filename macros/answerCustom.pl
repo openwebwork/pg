@@ -99,10 +99,10 @@ sub custom_cmp {
 #  that should be included in the answer checker following those
 #  two required ones.
 #
-#  The checker will be passe a reference to the array of correct
-#  answers, a reference ro the array of student answers, and
+#  The checker will be passed a reference to the array of correct
+#  answers, a reference to the array of student answers, and
 #  the answer evaluator object.  Note that the correct and student
-#  anwers are array references, not List structures (this is because
+#  answers are array references, not List structures (this is because
 #  a list of formulas becomes a formula returning a list, so in order
 #  to keep the formulas separate, they are passed in an array).
 #
