@@ -62,6 +62,23 @@ sub acoth {CORE::log(($_[1]+1.0)/($_[1]-1.0))/2.0}
 
 sub sgn {$_[1] <=> 0}
 
+#our @ISA = qw(Parser::Function::numeric2);
+sub C {
+  shift; my ($n,$r) = @_; my $C = 1;
+  return (0) if($r>$n);
+  $r = $n-$r if ($r > $n-$r); # find the smaller of the two
+  for (1..$r) {$C = ($C*($n-$_+1))/$_}
+  return $C
+}
+
+sub P {
+  shift; my ($n,$r) = @_; my $P = 1;
+  return (0) if($r>$n);
+  for (1..$r) {$P *= ($n-$_+1)}
+  return $P
+}
+
+
 #
 #  Back to main package
 #
@@ -102,5 +119,10 @@ sub arccsch {CommonFunction->Call('acsch',@_)}; sub acsch {CommonFunction->Call(
 sub arccoth {CommonFunction->Call('acoth',@_)}; sub acoth {CommonFunction->Call('acoth',@_)}
 
 sub sgn {CommonFunction->Call('sgn',@_)}
+
+sub C {CommonFunction->Call('C', @_)}
+sub P {CommonFunction->Call('P', @_)}
+sub Comb {CommonFunction->Call('C', @_)}
+sub Perm {CommonFunction->Call('P', @_)}
 
 1;

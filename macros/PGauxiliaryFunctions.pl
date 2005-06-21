@@ -193,44 +193,6 @@ sub preformat {
 	return $num.$obj;
 }
 
-# Combinations and permutations
-
-sub C {
-	my $n = shift;
-	my $k = shift;
-	my $ans = 1;
-
-	return(0) if ($k>$n);
-	if($k>($n-$k)) { $k = $n-$k; }
-	for (1..$k) { $ans = ($ans*($n-$_+1))/$_; }
-	return $ans;
-}
-
-sub Comb {
-	C(@_);
-}
-
-sub P {
-	my $n = shift;
-	my $k = shift;
-	my $perm = 1;
-
-	if($n != int($n) or $n < 0) {
-                warn 'Non-negative integer required.';
-                return;
-        }
-	if($k>$n) {
-		warn 'Second argument of Permutation bigger than first.';
-                return;
-        }
-	for (($n-$k+1)..$n) { $perm *= $_;}
-	return $perm;
-}
-
-sub Perm {
-	P(@_);
-}
-
 #factorial
 
 sub fact {
