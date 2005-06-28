@@ -373,15 +373,15 @@ answers of various "exotic" types.
 			my $student = shift;
 
 			my $ans_hash = new AnswerHash(
-																		'score'=>0,
-																		'correct_ans'=>$right_ans,
-																		'student_ans'=>$student,
-																		'original_student_ans' => $student,
-																		# 'type' => undef,
-																		'ans_message'=>'',
-																		'preview_text_string'=>'',
-																		'preview_latex_string'=>'',
-																	 );
+				'score'=>0,
+				'correct_ans'=>$right_ans,
+				'student_ans'=>$student,
+				'original_student_ans' => $student,
+				# 'type' => undef,
+				'ans_message'=>'',
+				'preview_text_string'=>'',
+				'preview_latex_string'=>'',
+			);
 			# Handle string matches separately
 			my($studentisstring, $correctisstring, $tststr) = (0,0,"");
 			my($nicestud, $nicecorrect) = (nicify_string($student),
