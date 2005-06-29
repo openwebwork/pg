@@ -2657,7 +2657,7 @@ sub radio_cmp {
 	#strict_str_cmp( @_ );
 	my $response = shift;  # there should be only one item.
 	warn "Multiple choices -- this should not happen with radio buttons. Have
-	you used checkboxes perhaps?" if ref($response);
+	you used checkboxes perhaps?" if ref($response); #triggered if an ARRAY is passed
 	str_cmp($response);
 }
 
