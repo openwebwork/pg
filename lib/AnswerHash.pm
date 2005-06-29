@@ -423,7 +423,8 @@ sub AND {
 	$out_hash->{correct_ans} = join(" AND ", $self->{correct_ans}, $rh_ans2->{correct_ans} );
 	$out_hash->{student_ans} = $self->{student_ans};
 	$out_hash->{type} = join(" AND ", $self->{type}, $rh_ans2->{type} );
-	$out_hash->{preview_text_string} = join("   ", $self->{preview_text_string}, $rh_ans2->{preview_text_string} );
+	$out_hash->{preview_text_string} = join("  ", $self->{preview_text_string}, $rh_ans2->{preview_text_string} );
+	$out_hash->{preview_latex_string} = join("\\quad", $self->{preview_latex_string}, $rh_ans2->{preview_latex_string} );
 	$out_hash->{original_student_ans} = $self->{original_student_ans};
 	$out_hash;
 }
