@@ -2650,8 +2650,15 @@ sub checkbox_cmp {
 #added 6/28/2000 by David Etlinger
 #exactly the same as strict_str_cmp,
 #but more intuitive to the user
+
+# check that answer is really a string and not an array
+# also use ordinary string compare
 sub radio_cmp {
-	strict_str_cmp( @_ );
+	#strict_str_cmp( @_ );
+	my $response = shift;  # there should be only one item.
+	warn "Multiple choices -- this should not happen with radio buttons. Have
+	you used checkboxes perhaps?" if ref($response);
+	str_cmp($response);
 }
 
 ##########################################################################
