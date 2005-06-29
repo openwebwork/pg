@@ -2080,85 +2080,142 @@ String Filters
 ## Use this subroutine instead of the
 ## individual filters below it
 
-sub str_filters {
-	my $stringToFilter = shift @_;
-	my @filters_to_use = @_;
-	my %known_filters = (	'remove_whitespace'		=>	undef,
-				'compress_whitespace'		=>	undef,
-				'trim_whitespace'		=>	undef,
-				'ignore_case'			=>	undef,
-				'ignore_order'			=>	undef
-	);
+# sub str_filters {
+# 	my $stringToFilter = shift @_;
+# 	my @filters_to_use = @_;
+# 	my %known_filters = (	
+# 	            'remove_whitespace'		=>	&remove_whitespace,
+# 				'compress_whitespace'	=>	&compress_whitespace,
+# 				'trim_whitespace'		=>	&trim_whitespace,
+# 				'ignore_case'			=>	&ignore_case,
+# 				'ignore_order'			=>	&ignore_order,
+# 	);
+# 
+# 	#test for unknown filters
+# 	foreach my $filter ( @filters_to_use ) {
+# 		#check that filter is known
+# 		die "Unknown string filter $filter (try checking the parameters to str_cmp() )"
+# 								unless exists $known_filters{$filter};
+# 		$stringToFilter = $known_filters{$filter}($stringToFilter);  # apply filter.
+# 	}
+# 	foreach $filter (@filters_to_use) {
+# 		die "Unknown string filter $filter (try checking the parameters to str_cmp() )"
+# 								unless exists $known_filters{$filter};
+# 	}
+# 
+# 	if( grep( /remove_whitespace/i, @filters_to_use ) ) {
+# 		$stringToFilter = remove_whitespace( $stringToFilter );
+# 	}
+# 	if( grep( /compress_whitespace/i, @filters_to_use ) ) {
+# 		$stringToFilter = compress_whitespace( $stringToFilter );
+# 	}
+# 	if( grep( /trim_whitespace/i, @filters_to_use ) ) {
+# 		$stringToFilter = trim_whitespace( $stringToFilter );
+# 	}
+# 	if( grep( /ignore_case/i, @filters_to_use ) ) {
+# 		$stringToFilter = ignore_case( $stringToFilter );
+# 	}
+# 	if( grep( /ignore_order/i, @filters_to_use ) ) {
+# 		$stringToFilter = ignore_order( $stringToFilter );
+# 	}
 
-	#test for unknown filters
-	my $filter;
-	foreach $filter (@filters_to_use) {
-		die "Unknown string filter $filter (try checking the parameters to str_cmp() )"
-								unless exists $known_filters{$filter};
-	}
-
-	if( grep( /remove_whitespace/i, @filters_to_use ) ) {
-		$stringToFilter = remove_whitespace( $stringToFilter );
-	}
-	if( grep( /compress_whitespace/i, @filters_to_use ) ) {
-		$stringToFilter = compress_whitespace( $stringToFilter );
-	}
-	if( grep( /trim_whitespace/i, @filters_to_use ) ) {
-		$stringToFilter = trim_whitespace( $stringToFilter );
-	}
-	if( grep( /ignore_case/i, @filters_to_use ) ) {
-		$stringToFilter = ignore_case( $stringToFilter );
-	}
-	if( grep( /ignore_order/i, @filters_to_use ) ) {
-		$stringToFilter = ignore_order( $stringToFilter );
-	}
-
-	return $stringToFilter;
-}
-
+# 	return $stringToFilter;
+# }
 sub remove_whitespace {
-	my $filteredAnswer = shift;
-
-	$filteredAnswer =~ s/\s+//g;		# remove all whitespace
-
-	return $filteredAnswer;
+	my $rh_ans = shift;
+	die "expected an answer hash" unless ref($rh_ans)=~/HASH/i;
+	$rh_ans->{_filter_name} = 'remove_whitespace'; 
+	$rh_ans->{student_ans} =~ s/\s+//g;		# remove all whitespace
+	$rh_ans->{correct_ans} =~ s/\s+//g;		# remove all whitespace
+	return $rh_ans;
 }
 
 sub compress_whitespace	{
-	my $filteredAnswer = shift;
+	my $rh_ans = shift;
+	die "expected an answer hash" unless ref($rh_ans)=~/HASH/i;
+	$rh_ans->{_filter_name} = 'compress_whitespace';
+	$rh_ans->{student_ans} =~ s/^\s*//;		# remove initial whitespace
+	$rh_ans->{student_ans} =~ s/\s*$//;		# remove trailing whitespace
+	$rh_ans->{student_ans} =~ s/\s+/ /g;		# replace spaces by	single space
+	$rh_ans->{correct_ans} =~ s/^\s*//;		# remove initial whitespace
+	$rh_ans->{correct_ans} =~ s/\s*$//;		# remove trailing whitespace
+	$rh_ans->{correct_ans} =~ s/\s+/ /g;		# replace spaces by	single space
 
-	$filteredAnswer =~ s/^\s*//;		# remove initial whitespace
-	$filteredAnswer =~ s/\s*$//;		# remove trailing whitespace
-	$filteredAnswer =~ s/\s+/ /g;		# replace spaces by	single space
-
-	return $filteredAnswer;
+	return $rh_ans;
 }
 
 sub trim_whitespace {
-	my $filteredAnswer = shift;
+	my $rh_ans = shift;
+	die "expected an answer hash" unless ref($rh_ans)=~/HASH/i;
+	$rh_ans->{_filter_name} = 'trim_whitespace';
+	$rh_ans->{student_ans} =~ s/^\s*//;		# remove initial whitespace
+	$rh_ans->{student_ans} =~ s/\s*$//;		# remove trailing whitespace
+	$rh_ans->{correct_ans} =~ s/^\s*//;		# remove initial whitespace
+	$rh_ans->{correct_ans} =~ s/\s*$//;		# remove trailing whitespace
 
-	$filteredAnswer =~ s/^\s*//;		# remove initial whitespace
-	$filteredAnswer =~ s/\s*$//;		# remove trailing whitespace
-
-	return $filteredAnswer;
+	return $rh_ans;
 }
 
 sub ignore_case {
-	my $filteredAnswer = shift;
-	#warn "filtered answer is ", $filteredAnswer;
-	#$filteredAnswer = uc $filteredAnswer;  # this didn't work on webwork xmlrpc, but does elsewhere ????
-	$filteredAnswer =~ tr/a-z/A-Z/;
-
-	return $filteredAnswer;
+	my $rh_ans = shift;
+	die "expected an answer hash" unless ref($rh_ans)=~/HASH/i;
+	$rh_ans->{_filter_name} = 'ignore_case';
+	$rh_ans->{student_ans} =~ tr/a-z/A-Z/;
+	$rh_ans->{correct_ans} =~ tr/a-z/A-Z/;
+	return $rh_ans;
 }
 
 sub ignore_order {
-	my $filteredAnswer = shift;
-
-	$filteredAnswer = join( "", lex_sort( split( /\s*/, $filteredAnswer ) ) );
-
-	return $filteredAnswer;
+	my $rh_ans = shift;
+	die "expected an answer hash" unless ref($rh_ans)=~/HASH/i;
+	$rh_ans->{student_ans} = join( "", lex_sort( split( /\s*/, $rh_ans->{student_ans} ) ) );
+	$rh_ans->{correct_ans} = join( "", lex_sort( split( /\s*/, $rh_ans->{correct_ans} ) ) );
+	
+	return $rh_ans;
 }
+# sub remove_whitespace {
+# 	my $filteredAnswer = shift;
+# 	
+# 	$filteredAnswer =~ s/\s+//g;		# remove all whitespace
+# 
+# 	return $filteredAnswer;
+# }
+# 
+# sub compress_whitespace	{
+# 	my $filteredAnswer = shift;
+# 
+# 	$filteredAnswer =~ s/^\s*//;		# remove initial whitespace
+# 	$filteredAnswer =~ s/\s*$//;		# remove trailing whitespace
+# 	$filteredAnswer =~ s/\s+/ /g;		# replace spaces by	single space
+# 
+# 	return $filteredAnswer;
+# }
+# 
+# sub trim_whitespace {
+# 	my $filteredAnswer = shift;
+# 
+# 	$filteredAnswer =~ s/^\s*//;		# remove initial whitespace
+# 	$filteredAnswer =~ s/\s*$//;		# remove trailing whitespace
+# 
+# 	return $filteredAnswer;
+# }
+# 
+# sub ignore_case {
+# 	my $filteredAnswer = shift;
+# 	#warn "filtered answer is ", $filteredAnswer;
+# 	#$filteredAnswer = uc $filteredAnswer;  # this didn't work on webwork xmlrpc, but does elsewhere ????
+# 	$filteredAnswer =~ tr/a-z/A-Z/;
+# 
+# 	return $filteredAnswer;
+# }
+# 
+# sub ignore_order {
+# 	my $filteredAnswer = shift;
+# 
+# 	$filteredAnswer = join( "", lex_sort( split( /\s*/, $filteredAnswer ) ) );
+# 
+# 	return $filteredAnswer;
+# }
 ################################
 ## END STRING ANSWER FILTERS
 
@@ -2204,19 +2261,35 @@ sub str_cmp {
 	my $correctAnswer =	shift @_;
 	$correctAnswer = '' unless defined($correctAnswer);
 	my @options	= @_;
+	my %options = ();
+	# backward compatibility
+	if (grep /filters|debug|filter/, @options) { # see whether we have hash keys in the input.
+		%options = @options;
+	} elsif (@options) {     # all options are names of filters.
+		$options{filters} = [@options];
+	}
 	my $ra_filters;
-
+ 	assign_option_aliases( \%options,
+ 				'filter'               =>  'filters',
+     );
+    set_default_options(	\%options,
+    			'filters'               =>  [qw(trim_whitespace compress_whitespace ignore_case)],
+	       		'debug'					=>	0,
+	       		'type'                  =>  'str_cmp',
+    );
+	$options{filters} = (ref($options{filters}))?$options{filters}:[$options{filters}]; 
+	# make sure this is a reference to an array.
 	# error-checking for filters occurs in the filters() subroutine
-	if( not defined( $options[0] ) ) {		# used with no filters as alias for std_str_cmp()
-		@options = ( 'compress_whitespace', 'ignore_case' );
-	}
-
-	if( $options[0] eq 'filters' ) {		# using filters => [f1, f2, ...] notation
-		$ra_filters = $options[1];
-	}
-	else {						# using a list of filters
-		$ra_filters = \@options;
-	}
+# 	if( not defined( $options[0] ) ) {		# used with no filters as alias for std_str_cmp()
+# 		@options = ( 'compress_whitespace', 'ignore_case' );
+# 	}
+# 
+# 	if( $options[0] eq 'filters' ) {		# using filters => [f1, f2, ...] notation
+# 		$ra_filters = $options[1];
+# 	}
+# 	else {						# using a list of filters
+# 		$ra_filters = \@options;
+# 	}
 
 	# thread over lists
 	my @ans_list = ();
@@ -2232,9 +2305,11 @@ sub str_cmp {
 	my @output_list	= ();
 
 	foreach	my $ans	(@ans_list)	{
-		push(@output_list, STR_CMP(	'correctAnswer'	=>	$ans,
-						'filters'	=>	$ra_filters,
-						'type'		=>	'str_cmp'
+		push(@output_list, STR_CMP(	
+		            	'correct_ans'	=>	$ans,
+						'filters'		=>	$options{filters},
+						'type'			=>	$options{type},
+						'debug'         =>  $options{debug},
 		     )
 		);
 	}
@@ -2299,7 +2374,7 @@ sub std_str_cmp	{					# compare strings
 	my $correctAnswer = shift @_;
 	my @filters = ( 'compress_whitespace', 'ignore_case' );
 	my $type = 'std_str_cmp';
-	STR_CMP(	'correctAnswer'	=>	$correctAnswer,
+	STR_CMP('correct_ans'	=>	$correctAnswer,
 			'filters'	=>	\@filters,
 			'type'		=>	$type
 	);
@@ -2318,7 +2393,7 @@ sub std_cs_str_cmp {				# compare strings case sensitive
 	my $correctAnswer = shift @_;
 	my @filters = ( 'compress_whitespace' );
 	my $type = 'std_cs_str_cmp';
-	STR_CMP(	'correctAnswer'	=>	$correctAnswer,
+	STR_CMP(	'correct_ans'	=>	$correctAnswer,
 			'filters'	=>	\@filters,
 			'type'		=>	$type
 	);
@@ -2337,7 +2412,7 @@ sub strict_str_cmp {				# strict string compare
 	my $correctAnswer = shift @_;
 	my @filters = ( 'trim_whitespace' );
 	my $type = 'strict_str_cmp';
-	STR_CMP(	'correctAnswer'	=>	$correctAnswer,
+	STR_CMP(	'correct_ans'	=>	$correctAnswer,
 			'filters'	=>	\@filters,
 			'type'		=>	$type
 	);
@@ -2356,7 +2431,7 @@ sub unordered_str_cmp {				# unordered, case insensitive, spaces ignored
 	my $correctAnswer = shift @_;
 	my @filters = ( 'ignore_order', 'ignore_case' );
 	my $type = 'unordered_str_cmp';
-	STR_CMP(	'correctAnswer'		=>	$correctAnswer,
+	STR_CMP(	'correct_ans'		=>	$correctAnswer,
 			'filters'		=>	\@filters,
 			'type'			=>	$type
 	);
@@ -2375,7 +2450,7 @@ sub unordered_cs_str_cmp {			# unordered, case sensitive, spaces ignored
 	my $correctAnswer = shift @_;
 	my @filters = ( 'ignore_order' );
 	my $type = 'unordered_cs_str_cmp';
-	STR_CMP(	'correctAnswer'		=>	$correctAnswer,
+	STR_CMP(	'correct_ans'		=>	$correctAnswer,
 			'filters'		=>	\@filters,
 			'type'			=>	$type
 	);
@@ -2394,7 +2469,7 @@ sub ordered_str_cmp {				# ordered, case insensitive, spaces ignored
 	my $correctAnswer = shift @_;
 	my @filters = ( 'remove_whitespace', 'ignore_case' );
 	my $type = 'ordered_str_cmp';
-	STR_CMP(	'correctAnswer'	=>	$correctAnswer,
+	STR_CMP(	'correct_ans'	=>	$correctAnswer,
 			'filters'	=>	\@filters,
 			'type'		=>	$type
 	);
@@ -2413,7 +2488,7 @@ sub ordered_cs_str_cmp {			# ordered,	case sensitive,	spaces ignored
 	my $correctAnswer = shift @_;
 	my @filters = ( 'remove_whitespace' );
 	my $type = 'ordered_cs_str_cmp';
-	STR_CMP(	'correctAnswer'	=>	$correctAnswer,
+	STR_CMP(	'correct_ans'	=>	$correctAnswer,
 			'filters'	=>	\@filters,
 			'type'		=>	$type
 	);
@@ -2436,29 +2511,72 @@ sub ordered_cs_str_cmp_list {		# alias	for	ordered_cs_str_cmp
 ##			filters			--	reference to an array containing the filters to be applied
 ##			type			--	a string containing the type of answer evaluator in use
 ## OUT:	a reference to an answer evaluator subroutine
-
 sub STR_CMP {
 	my %str_params = @_;
-	$str_params{'correctAnswer'} = str_filters( $str_params{'correctAnswer'}, @{$str_params{'filters'}} );
-	my $answer_evaluator = sub {
-		my $in = shift @_;
-		$in = '' unless defined $in;
-		my $original_student_ans = $in;
-		$in = str_filters( $in, @{$str_params{'filters'}} );
-		my $correctQ = ( $in eq $str_params{'correctAnswer'} ) ? 1: 0;
-		my $ans_hash = new AnswerHash(		'score'				=>	$correctQ,
-							'correct_ans'			=>	$str_params{'correctAnswer'},
-							'student_ans'			=>	$in,
-							'ans_message'			=>	'',
-							'type'				=>	$str_params{'type'},
-							'preview_text_string'		=>	$in,
-							'preview_latex_string'		=>	$in,
-							'original_student_ans'		=>	$original_student_ans
-		);
-		return $ans_hash;
-	};
+	#my $correctAnswer =  str_filters( $str_params{'correct_ans'}, @{$str_params{'filters'}} );
+	my $answer_evaluator = new AnswerEvaluator;
+	$answer_evaluator->{debug} = $str_params{debug};
+	$answer_evaluator->ans_hash( 	
+		correct_ans       => $str_params{correct_ans}||'',
+		type              => $str_params{type}||'str_cmp',
+		score             => 0,
+
+    );
+	my %known_filters = (	
+	            'remove_whitespace'		=>	\&remove_whitespace,
+				'compress_whitespace'	=>	\&compress_whitespace,
+				'trim_whitespace'		=>	\&trim_whitespace,
+				'ignore_case'			=>	\&ignore_case,
+				'ignore_order'			=>	\&ignore_order,
+	);
+
+	foreach my $filter ( @{$str_params{filters}} ) {
+		#check that filter is known
+		die "Unknown string filter |$filter|. Known filters are ".
+		     join(" ", keys %known_filters) .
+		     "(try checking the parameters to str_cmp() )"
+								unless exists $known_filters{$filter};
+		# install related pre_filter
+		$answer_evaluator->install_pre_filter( $known_filters{$filter} );
+	}
+	$answer_evaluator->install_evaluator(sub {
+			my $rh_ans = shift;
+			$rh_ans->{_filter_name} = "Evaluator: Compare string answers with eq";
+			$rh_ans->{score} = ($rh_ans->{student_ans} eq $rh_ans->{correct_ans})?1:0  ;
+			$rh_ans;
+	});
+	$answer_evaluator->install_post_filter(sub {
+		my $rh_hash = shift;
+		$rh_hash->{_filter_name} = "clean up preview strings";
+		$rh_hash->{'preview_text_string'} = $rh_hash->{student_ans};
+		$rh_hash->{'preview_latex_string'} = "\\text{ ".$rh_hash->{student_ans}." }";
+		$rh_hash;		
+	});
 	return $answer_evaluator;
 }
+
+# sub STR_CMP_old {
+# 	my %str_params = @_;
+# 	$str_params{'correct_ans'} = str_filters( $str_params{'correct_ans'}, @{$str_params{'filters'}} );
+# 	my $answer_evaluator = sub {
+# 		my $in = shift @_;
+# 		$in = '' unless defined $in;
+# 		my $original_student_ans = $in;
+# 		$in = str_filters( $in, @{$str_params{'filters'}} );
+# 		my $correctQ = ( $in eq $str_params{'correct_ans'} ) ? 1: 0;
+# 		my $ans_hash = new AnswerHash(		'score'				=>	$correctQ,
+# 							'correct_ans'			=>	$str_params{'correctAnswer'},
+# 							'student_ans'			=>	$in,
+# 							'ans_message'			=>	'',
+# 							'type'				=>	$str_params{'type'},
+# 							'preview_text_string'		=>	$in,
+# 							'preview_latex_string'		=>	$in,
+# 							'original_student_ans'		=>	$original_student_ans
+# 		);
+# 		return $ans_hash;
+# 	};
+# 	return $answer_evaluator;
+# }
 
 ##########################################################################
 ##########################################################################
