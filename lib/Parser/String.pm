@@ -17,6 +17,10 @@ sub new {
   my $equation = shift;
   my ($value, $ref) = @_;
   my $def = $equation->{context}{strings}{$value};
+  unless ($def) {
+    $def = $equation->{context}{strings}{uc($value)};
+    $def = undef if $def->{caseSensitive} && $value ne uc($value);
+  }
   $value = $def->{alias}, $def = $equation->{context}{strings}{$value}
     if defined($def->{alias});
   my $str = bless {

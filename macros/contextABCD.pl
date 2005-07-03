@@ -32,10 +32,10 @@ sub _contextABCD_init {}; # don't load it again
 
 $context{ABCD} = Context("String")->copy;
 $context{ABCD}->strings->are(
- "A" => {}, "a" => {alias => "A"},
- "B" => {}, "b" => {alias => "B"},
- "C" => {}, "c" => {alias => "C"},
- "D" => {}, "d" => {alias => "D"},
+ "A" => {},
+ "B" => {},
+ "C" => {},
+ "D" => {},
 );
 
 $context{'ABCD-List'} = $context{ABCD}->copy;

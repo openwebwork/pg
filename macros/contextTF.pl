@@ -11,7 +11,9 @@ sub _contextTF_init {}; # don't load it again
 #
 #  You can add new strings to the context as needed (or remove old ones)
 #  via the Context()->strings->add() and Context()-strings->remove()
-#  methods
+#  methods.
+#
+#  Use
 #
 #	ANS(string_cmp("T","F"));
 #
@@ -20,11 +22,10 @@ sub _contextTF_init {}; # don't load it again
 
 $context{TF} = Context("String")->copy;
 $context{TF}->strings->are(
- "T" => {value => 1}, "t" => {alias => "T"},
- "F" => {value => 0}, "f" => {alias => "F"},
- "True" => {alias => "T"}, "False" => {alias => "F"},
- "TRUE" => {alias => "T"}, "FALSE" => {alias => "F"},
- "true" => {alias => "T"}, "false" => {alias => "F"},
+ "T" => {value => 1},
+ "F" => {value => 0},
+ "True" => {alias => "T"},
+ "False" => {alias => "F"},
 );
 
 Context("TF");

@@ -182,16 +182,9 @@ $functions = {
 
 $strings = {
    'infinity'  => {infinite => 1},
-   'INFINITY'  => {alias => 'infinity'},
    'inf'  => {alias => 'infinity'},
-   'INF'  => {alias => 'infinity'},
-
    'NONE' => {},
-   'none' => {alias => 'NONE'},
-
    'DNE'  => {},
-   'dne'  => {alias => 'DNE'},
-
 #   'T' => {true => 1},
 #   'F' => {false => 1},
 };

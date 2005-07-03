@@ -20,11 +20,18 @@ use overload
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $x = join('',@_);
+  my $s = bless {data => [$x]}, $class;
   if ($Parser::installed) {
-    Value::Error("String constant '$x' is not defined in this context")
-      unless $$Value::context->{strings}{$x};
+    my $strings = $$Value::context->{strings};
+    if (!$strings->{$x}) {
+      my $X = $strings->{uc($x)};
+      Value::Error("String constant '$x' is not defined in this context")
+        unless $X && !$X->{caseSensitive};
+      $x = uc($x); while ($strings->{$x}{alias}) {$x = $strings->{$x}{alias}}
+    }
+    $s->{caseSensitive} = 1 if $strings->{$x}{caseSensitive};
   }
-  bless {data => [$x]}, $class;
+  return $s;
 }
 
 #
@@ -53,12 +60,12 @@ sub promote {
 #
 #  Operations on strings
 #
-
 sub compare {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
   $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  return $l->value cmp $r->value;
+  return $l->value cmp $r->value if $l->{caseSensitive} || $r->{caseSensitive};
+  return uc($l->value) cmp uc($r->value);
 }
 
 ############################################
