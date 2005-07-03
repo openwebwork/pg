@@ -61,7 +61,7 @@ sub getPattern {
   foreach my $x (@_) {$x = protectRegexp($x)}
   my @pattern = ();
   push(@pattern,join('|',@_)) if scalar(@_) > 0;
-  push(@pattern,protectRegexp($s)) if length($s) ==1;
+  push(@pattern,protectRegexp($s)) if length($s) == 1;
   push(@pattern,"[".protectChars($s)."]") if length($s) > 1;
   my $pattern = join('|',@pattern);
   $pattern = '^$' if $pattern eq '';
