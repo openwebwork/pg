@@ -55,9 +55,9 @@ my %Category = (
 
 sub disable {Disable(@_)}
 sub Disable {
-  shift if ref($_[0]) ne ""; # pop off the $self reference
-  my @names = @_; my ($list,$name);
   my $context = Parser::Context->current;
+  if (ref($_[0]) ne "") {$context = (shift)->{context}}
+  my @names = @_; my ($list,$name);
   while ($name = shift(@names)) {
     $list = $Category{$name};
     $list = [$name] if !$list && $context->{functions}{$name};
@@ -70,9 +70,9 @@ sub Disable {
 
 sub enable {Enable(@_)}
 sub Enable {
-  shift if ref($_[0]) ne ""; # pop off the $self reference
-  my @names = @_; my ($list,$name);
   my $context = Parser::Context->current;
+  if (ref($_[0]) ne "") {$context = (shift)->{context}}
+  my @names = @_; my ($list,$name);
   while ($name = shift(@names)) {
     $list = $Category{$name};
     $list = [$name] if !$list && $context->{functions}{$name};
