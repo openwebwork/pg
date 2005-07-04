@@ -505,7 +505,7 @@ sub get_student_answer {
 	} elsif (ref($input) eq 'ARRAY' ) {  # sometimes the answer may already be decoded into an array.   
 	   	my @input = @$input;
 	   	$self-> {rh_ans} -> {original_student_ans} = " ( " .join(", ",@input) . " ) ";
-		$input = \@input;  #make a local copy
+		$input = \@input;
 		$self-> {rh_ans} -> {student_ans} = $input;
 	} else {
 	    
