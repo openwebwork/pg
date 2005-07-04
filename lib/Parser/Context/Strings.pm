@@ -28,7 +28,7 @@ sub update {
   my $self = shift;
   my $data = $self->{context}->{$self->{dataName}};
   my $single = ''; my @multi = ();
-  foreach my $x (sort Value::Context::Data::byName (keys %{$data})) {
+  foreach my $x (sort byName (keys %{$data})) {
     unless ($data->{$x}{hidden}) {
       if ($data->{$x}{caseSensitive} || uc($x) eq lc($x)) {
 	if (length($x) == 1) {$single .= $x}
@@ -41,6 +41,16 @@ sub update {
   }
   $self->{pattern} = $self->getPattern($single,@multi);
   $self->{context}->update;
+}
+
+#
+#  Must be in the same package as the sort call
+#  (due to global $a and $b, I assume)
+#
+sub byName {
+  my $result = length($b) <=> length($a);
+  return $result unless $result == 0;
+  return $a cmp $b;
 }
 
 #
