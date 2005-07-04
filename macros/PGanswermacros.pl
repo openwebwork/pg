@@ -2080,47 +2080,52 @@ String Filters
 ## Use this subroutine instead of the
 ## individual filters below it
 
-# sub str_filters {
-# 	my $stringToFilter = shift @_;
-# 	my @filters_to_use = @_;
-# 	my %known_filters = (	
-# 	            'remove_whitespace'		=>	&remove_whitespace,
-# 				'compress_whitespace'	=>	&compress_whitespace,
-# 				'trim_whitespace'		=>	&trim_whitespace,
-# 				'ignore_case'			=>	&ignore_case,
-# 				'ignore_order'			=>	&ignore_order,
-# 	);
-# 
-# 	#test for unknown filters
-# 	foreach my $filter ( @filters_to_use ) {
-# 		#check that filter is known
-# 		die "Unknown string filter $filter (try checking the parameters to str_cmp() )"
-# 								unless exists $known_filters{$filter};
-# 		$stringToFilter = $known_filters{$filter}($stringToFilter);  # apply filter.
-# 	}
+sub str_filters {
+	my $stringToFilter = shift @_;
+	# filters now take an answer hash, so encapsulate the string 
+	# in the answer hash.
+	my $rh_ans = new AnswerHash;
+	$rh_ans->{student_ans} = $stringToFilter;
+	$rh_ans->{correct_ans}='';
+	my @filters_to_use = @_;
+	my %known_filters = (	
+	            'remove_whitespace'		=>	\&remove_whitespace,
+				'compress_whitespace'	=>	\&compress_whitespace,
+				'trim_whitespace'		=>	\&trim_whitespace,
+				'ignore_case'			=>	\&ignore_case,
+				'ignore_order'			=>	\&ignore_order,
+	);
+
+	#test for unknown filters
+	foreach my $filter ( @filters_to_use ) {
+		#check that filter is known
+		die "Unknown string filter $filter (try checking the parameters to str_cmp() )"
+								unless exists $known_filters{$filter};
+		$rh_ans = $known_filters{$filter}($rh_ans);  # apply filter.
+	}
 # 	foreach $filter (@filters_to_use) {
 # 		die "Unknown string filter $filter (try checking the parameters to str_cmp() )"
 # 								unless exists $known_filters{$filter};
 # 	}
 # 
 # 	if( grep( /remove_whitespace/i, @filters_to_use ) ) {
-# 		$stringToFilter = remove_whitespace( $stringToFilter );
+# 		$rh_ans = remove_whitespace( $rh_ans );
 # 	}
 # 	if( grep( /compress_whitespace/i, @filters_to_use ) ) {
-# 		$stringToFilter = compress_whitespace( $stringToFilter );
+# 		$rh_ans = compress_whitespace( $rh_ans );
 # 	}
 # 	if( grep( /trim_whitespace/i, @filters_to_use ) ) {
-# 		$stringToFilter = trim_whitespace( $stringToFilter );
+# 		$rh_ans = trim_whitespace( $rh_ans );
 # 	}
 # 	if( grep( /ignore_case/i, @filters_to_use ) ) {
-# 		$stringToFilter = ignore_case( $stringToFilter );
+# 		$rh_ans = ignore_case( $rh_ans );
 # 	}
 # 	if( grep( /ignore_order/i, @filters_to_use ) ) {
-# 		$stringToFilter = ignore_order( $stringToFilter );
+# 		$rh_ans = ignore_order( $rh_ans );
 # 	}
 
-# 	return $stringToFilter;
-# }
+	return $rh_ans->{student_ans};
+}
 sub remove_whitespace {
 	my $rh_ans = shift;
 	die "expected an answer hash" unless ref($rh_ans)=~/HASH/i;
@@ -2632,14 +2637,14 @@ sub checkbox_cmp {
 		my $correctQ = ($in	eq $correctAnswer) ? 1: 0;
 
 		my $ans_hash = new AnswerHash(
-							'score'			=>	$correctQ,
-							'correct_ans'		=>	"$correctAnswer",
-							'student_ans'		=>	$in,
-							'ans_message'		=>	"",
-							'type'			=>	"checkbox_cmp",
-							'preview_text_string'	=>	$in,
-							'preview_latex_string'	=>	$in,
-							'original_student_ans'	=>	$original_student_ans
+			'score'			        =>	$correctQ,
+			'correct_ans'		    =>	"$correctAnswer",
+			'student_ans'		    =>	$in,
+			'ans_message'		    =>	"",
+			'type'			        =>	"checkbox_cmp",
+			'preview_text_string'	=>	$in,
+			'preview_latex_string'	=>	$in,
+			'original_student_ans'	=>	$original_student_ans
 		);
 		return $ans_hash;
 
