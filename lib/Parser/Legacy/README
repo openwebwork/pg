@@ -1,0 +1,60 @@
+These files are used to replace the original answer evaluators in
+PGanswermacros.pl with new ones based on the new Parser package.
+The NUM_CMP and FUNCTION_CMP routines are replaced by ones that use
+the Parser to handle the details of the answer checking, so this means
+all the standard routines (like std_num_cmp(), func_cmp(), etc.) now
+work with the new Parser.  The string answer checkers have not been
+modified, however (and I don't think there is much need to convert
+those).
+
+To install these changes, update the Parser from the CVS directory
+using "cvs update -d" in order to get the new Legacy direcrtory.  Then
+replace the PGanswermacros.pl file that is in pg/macros with the new
+one that is in pg/lib/Parser/Legacy (perhaps renaming the old one as
+PGanswermacros.pl-orig in case you want to go back to it).  Then edit
+the global.conf file and add [qw(Parser::Legacy)] to the $pg{macros}
+list (this forces the loading of a few items needed by the new
+PGanswermacros but that aren't loaded by default).  Finally, restart
+the server.  Youre WW server should now be using Parser-based answer
+checkers for all string and function comparisons.
+
+I believe that I have covered all the bases with these answer
+checkers, but this is a pretty major switch, so there undoubtedly will
+be problems.  I have arrange to have the original answer macros remain
+available, and you can go back to them on either a site-wide,
+course-by-course, or problem-by-problem basis.
+
+If something major goes wrong and you want to go back to using the
+original answer checkers, set
+
+    $pg{specialPGEnvironmentVars}{useOldAnswerMacros} = 1;
+
+in global.conf.  This will disable the new answer checkers on a
+site-wide basis.  You can set this variable in a course.conf file to
+change back for just one course.
+
+If a particular problem file is causing trouble, you can set it to use
+the original answer checkers by putting 
+
+    $useOldAnswerMacros = 1;
+
+at the top of the .pg file.  This will cause the std_num_cmp() and
+other answer checkers to revert to the original versions.
+
+If you have set the useOldAnswerMacros value in the global.conf or
+course.conf file, you can still use the new Parser-based checkers in
+individual problem files by putting
+
+    $useOldAnswerMacros = 0;
+
+at the top of the file BEFORE the loadMacros() call that loads
+PGanswermacros.pl.  With this set up, you can try out the new answer
+checkers on an active server until you are satisfied it will work for
+your courses, without affecting current users while you do the tests.
+
+
+The new checkers should be equivalent to the original ones, at least
+from the problem-writer's point of view.  The internals of how they
+operate are not the same, however, so code that takes advantage of
+values within the AnswerHash structure, for example, may no longer
+operate correctly.
