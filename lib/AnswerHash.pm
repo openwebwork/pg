@@ -479,6 +479,7 @@ sub new {
 sub dereference_array_ans {
 	my $self = shift;
 	my $rh_ans = shift;
+	$rh_ans->{_filter_name} = 'dereference_array_ans';
 	if (defined($rh_ans->{student_ans}) and ref($rh_ans->{student_ans}) eq 'ARRAY'  ) {
 		$rh_ans->{student_ans} = "( ". join(" , ",@{$rh_ans->{student_ans}} ) . " ) ";
 	}
@@ -512,119 +513,118 @@ sub get_student_answer {
 		$self-> {rh_ans} -> {student_ans} = $input;
 	}
 	$self->{rh_ans}->{ans_label}   = $answer_options{ans_label} if defined($answer_options{ans_label});	
-	
+	$self->{rh_ans}->{_filter_name} = 'get_student_answer';
 	$input;
 }
 
 =head4  evaluate
 
-
+	$answer_evaluator->evaluate($student_answer_string
 
 
 =cut
+our $count;   # used to keep track of where we are in queue
 
 sub evaluate {
 	my $self 		= 	shift;
 	$self->get_student_answer(@_);
-	$self->{rh_ans}->{error_flag}=undef;  #reset the error flags in case 
-	$self->{rh_ans}->{done}=undef;        #the answer evaluator is called twice
+	# dereference $self->{rh_ans};
 	my $rh_ans      =   $self ->{rh_ans};
+	$rh_ans->{error_flag}=undef;  #reset the error flags in case 
+	$rh_ans->{done}=undef;        #the answer evaluator is called twice
+	
     warn "<H3> Answer evaluator information: </H3>\n" if defined($self->{debug}) and $self->{debug}>0;
+    $self->print_result_if_debug('pre_filter',$rh_ans);
+    
 	my @prefilters	= @{$self -> {pre_filters}};
-	my $count = -1;  # the blank filter is counted as filter 0
+	$count = 0;  # the get student answer filter is counted as filter -1
 	foreach my $i	(@prefilters) {
-	    last if defined( $self->{rh_ans}->{error_flag} );
+	    last if defined( $rh_ans->{error_flag} );
 	    my @array = @$i;
 	    my $filter = shift(@array);      # the array now contains the options for the filter
-	    my %options = @array;
-	    if (defined($self->{debug}) and $self->{debug}>0) {
-	    	
-	    	$self->{rh_ans}->{rh_options} = \%options;  #include the options in the debug information
-	    	warn "before pre-filter: ",++$count, $self->{rh_ans}->pretty_print();
-	    }
-	    $rh_ans 	= &$filter($rh_ans,@array);
-	    warn "<h4>Filter Name:", $rh_ans->{_filter_name},"</h4><BR>\n" 
-	    	if defined($self->{debug}) and $self->{debug}>0 and defined($rh_ans->{_filter_name});
-	    $rh_ans->{_filter_name} = undef;
+	    $rh_ans 	            = &$filter($rh_ans,@array); 
+	    $self->print_result_if_debug('pre_filter',$rh_ans,@array);
 	}
 	my @evaluators = @{$self -> {evaluators} };
 	$count = 0;
 	foreach my $i ( @evaluators )   {
-	    last if defined($self->{rh_ans}->{error_flag});
+	    last if defined($rh_ans->{error_flag});
 		my @array = @$i;
 	    my $evaluator = shift(@array);   # the array now contains the options for the filter
-	    my %options = @array;
-	    if (defined($self->{debug}) and $self->{debug}>0) {
-	    	$self->{rh_ans}->{rh_options} = \%options;  #include the options in the debug information
-	    	warn "before evaluator: ",++$count, $self->{rh_ans}->pretty_print();
-	    }
-		$rh_ans 	= &$evaluator($rh_ans,@array);
-		warn "<h4>Filter Name:", $rh_ans->{_filter_name},"</h4><BR>\n" if defined($self->{debug}) and $self->{debug}>0 and defined($rh_ans->{_filter_name});
-		$rh_ans->{_filter_name} = undef;
+	    $rh_ans 	            = &$evaluator($rh_ans,@array);
+	    $self->print_result_if_debug('evaluator',$rh_ans,@array);
 	}
 	my @post_filters = @{$self -> {post_filters} };
-	$count = -1;  # blank filter catcher is filter 0
+	$count = 0;  # blank filter catcher is filter 0
 	foreach my $i ( @post_filters ) {
 	    last if defined($rh_ans->{done}) and $rh_ans->{done} == 1;    # no further action needed
 		my @array = @$i;
 		
 	    my $filter = shift(@array);      # the array now contains the options for the filter
-	    my %options = @array;
-	    if (defined($self->{debug}) and $self->{debug}>0) {
-	    	$self->{rh_ans}->{rh_options} = \%options;  #include the options in the debug information
-	    	warn "before post-filter: ",++$count, $self->{rh_ans}->pretty_print(),"\n";
-	    }
-	   
-		$rh_ans 	= &$filter($rh_ans,@array);
-		warn "<h4>Filter Name:", $rh_ans->{_filter_name},"</h4><BR>\n" if defined($self->{debug}) and $self->{debug}>0 and defined($rh_ans->{_filter_name});
-		$rh_ans->{_filter_name} = undef;
+	    $rh_ans 	            = &$filter($rh_ans,@array);
+	    $self->print_result_if_debug('post_filter',$rh_ans,@array);
 	}
 	$rh_ans = $self->dereference_array_ans($rh_ans);   
 	# make sure that the student answer is not an array so that it is reported correctly in answer section.
-	warn "<h4>final result: </h4>", $self->{rh_ans}->pretty_print() if defined($self->{debug}) and $self->{debug}>0;
+	warn "<h4>final result: </h4>", $rh_ans->pretty_print() if defined($self->{debug}) and $self->{debug}>0;
+	# re-refrence $rh_ans;
 	$self ->{rh_ans} = $rh_ans;
 	$rh_ans;
 }
+sub print_result_if_debug {
+	my $self = shift;
+	my $queue = shift;    # the name of the queue we are in
+	my $rh_ans= shift;
+	my %options = @_;
+	if (defined($self->{debug}) and $self->{debug}>0) {
+	    	$rh_ans->{rh_options} = \%options;  #include the options in the debug information
+	    	my $name = (defined($rh_ans->{_filter_name})) ? $rh_ans->{_filter_name}: 'unnamed';
+	    	warn "$count. Result from \"$name\" $queue:", $rh_ans->pretty_print();
+	    	++$count; 	
+	 }
+	$rh_ans->{_filter_name} = undef;
+}
+
 # This next subroutine is for checking the instructor's answer and is not yet in use.
-sub correct_answer_evaluate {
-	my $self 		= 	shift;
-	$self-> {rh_ans} -> {correct_ans} = shift @_;
-	my $rh_ans    =   $self ->{rh_ans}; 
-	my @prefilters	= @{$self -> {correct_answer_pre_filters}};
-	my $count = -1;  # the blank filter is counted as filter 0
-	foreach my $i	(@prefilters) {
-	    last if defined( $self->{rh_ans}->{error_flag} );
-	    my @array = @$i;
-	    my $filter = shift(@array);      # the array now contains the options for the filter
-	    warn "before pre-filter: ",++$count, $self->{rh_ans}->pretty_print() if defined($self->{debug}) and $self->{debug}>0;
-		$rh_ans 	= &$filter($rh_ans,@array);
-		warn "Filter Name:", $rh_ans->{_filter_name},"<BR>\n" if $self->{debug}>0 and defined($rh_ans->{_filter_name})
-	}
-	my @evaluators = @{$self -> {correct_answer_evaluators} };
-	$count = 0;
-	foreach my $i ( @evaluators )   {
-	    last if defined($self->{rh_ans}->{error_flag});
-		my @array = @$i;
-	    my $evaluator = shift(@array);   # the array now contains the options for the filter
-	    warn "before evaluator: ",++$count, $self->{rh_ans}->pretty_print() if defined($self->{debug}) and $self->{debug}>0;
-		$rh_ans 	= &$evaluator($rh_ans,@array);
-	}
-	my @post_filters = @{$self -> {correct_answer_post_filters} };
-	$count = -1;  # blank filter catcher is filter 0
-	foreach my $i ( @post_filters ) {
-	    last if defined($rh_ans->{done}) and $rh_ans->{done} == 1;    # no further action needed
-		my @array = @$i;
-	    my $filter = shift(@array);      # the array now contains the options for the filter
-	    warn "before post-filter: ",++$count, $self->{rh_ans}->pretty_print() if defined($self->{debug}) and $self->{debug}>0;
-		$rh_ans 	= &$filter($rh_ans,@array);
-		warn "Filter Name:", $rh_ans->{_filter_name},"<BR>\n" if $self->{debug}>0 and defined($rh_ans->{_filter_name})
-	}
-	$rh_ans = $self->dereference_array_ans($rh_ans);   
-	# make sure that the student answer is not an array so that it is reported correctly in answer section.
-	warn "final result: ", $self->{rh_ans}->pretty_print() if defined($self->{debug}) and $self->{debug}>0;
-	$self ->{rh_ans} = $rh_ans;
-	$rh_ans;
-}
+# sub correct_answer_evaluate {
+# 	my $self 		= 	shift;
+# 	$self-> {rh_ans} -> {correct_ans} = shift @_;
+# 	my $rh_ans    =   $self ->{rh_ans}; 
+# 	my @prefilters	= @{$self -> {correct_answer_pre_filters}};
+# 	my $count = -1;  # the blank filter is counted as filter 0
+# 	foreach my $i	(@prefilters) {
+# 	    last if defined( $rh_ans->{error_flag} );
+# 	    my @array = @$i;
+# 	    my $filter = shift(@array);      # the array now contains the options for the filter
+# 	    warn "before pre-filter: ",++$count, $self->{rh_ans}->pretty_print() if defined($self->{debug}) and $self->{debug}>0;
+# 		$rh_ans 	= &$filter($rh_ans,@array);
+# 		warn "Filter Name:", $rh_ans->{_filter_name},"<BR>\n" if $self->{debug}>0 and defined($rh_ans->{_filter_name})
+# 	}
+# 	my @evaluators = @{$self -> {correct_answer_evaluators} };
+# 	$count = 0;
+# 	foreach my $i ( @evaluators )   {
+# 	    last if defined($self->{rh_ans}->{error_flag});
+# 		my @array = @$i;
+# 	    my $evaluator = shift(@array);   # the array now contains the options for the filter
+# 	    warn "before evaluator: ",++$count, $self->{rh_ans}->pretty_print() if defined($self->{debug}) and $self->{debug}>0;
+# 		$rh_ans 	= &$evaluator($rh_ans,@array);
+# 	}
+# 	my @post_filters = @{$self -> {correct_answer_post_filters} };
+# 	$count = -1;  # blank filter catcher is filter 0
+# 	foreach my $i ( @post_filters ) {
+# 	    last if defined($rh_ans->{done}) and $rh_ans->{done} == 1;    # no further action needed
+# 		my @array = @$i;
+# 	    my $filter = shift(@array);      # the array now contains the options for the filter
+# 	    warn "before post-filter: ",++$count, $self->{rh_ans}->pretty_print() if defined($self->{debug}) and $self->{debug}>0;
+# 		$rh_ans 	= &$filter($rh_ans,@array);
+# 		warn "Filter Name:", $rh_ans->{_filter_name},"<BR>\n" if $self->{debug}>0 and defined($rh_ans->{_filter_name})
+# 	}
+# 	$rh_ans = $self->dereference_array_ans($rh_ans);   
+# 	# make sure that the student answer is not an array so that it is reported correctly in answer section.
+# 	warn "final result: ", $self->{rh_ans}->pretty_print() if defined($self->{debug}) and $self->{debug}>0;
+# 	$self ->{rh_ans} = $rh_ans;
+# 	$rh_ans;
+# }
 
 
 =head4 install_pre_filter
@@ -640,7 +640,6 @@ sub correct_answer_evaluate {
 
 
 =cut
-
 
 sub install_pre_filter {
 	my $self =	shift;
@@ -780,6 +779,7 @@ the AnswerHash past the remaining post_filters.
 
 sub blank_prefilter  { # check for blanks
 	my $rh_ans = shift;  
+	$rh_ans->{_filter_name} = 'blank_prefilter';
     # undefined answers are BLANKS
 	( not defined($rh_ans->{student_ans}) ) && do {$rh_ans->throw_error("BLANK", 'The answer is blank');
 													  return($rh_ans);};
@@ -795,6 +795,7 @@ sub blank_prefilter  { # check for blanks
 
 sub blank_postfilter  { 
 	my $rh_ans=shift;
+	$rh_ans->{_filter_name} = 'blank_postfilter';
     return($rh_ans) unless defined($rh_ans->{error_flag}) and $rh_ans->{error_flag} eq 'BLANK';
     $rh_ans->{error_flag} = undef;
     $rh_ans->{error_message} = '';
