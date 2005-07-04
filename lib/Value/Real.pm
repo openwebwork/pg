@@ -202,7 +202,10 @@ sub string {
   my $self = shift; my $equation = shift; my $prec = shift;
   my $n = $self->{data}[0];
   my $format = ($equation->{context} || $$Value::context)->{format}{number};
-  $n = sprintf($format,$n) if $format; #  use the specified precision, if any
+  if ($format) {
+    $n = sprintf($format,$n);
+    if ($format =~ m/#\s*$/) {$n =~ s/(\.\d*?)0*#$/$1/; $n =~ s/\.$//}
+  }
   $n = uc($n); # force e notation to E
   $n = 0 if $self == 0; # make near zero print as zero
   $n = "(".$n.")" if ($n < 0 || $n =~ m/E/i) && defined($prec) && $prec >= 1;
