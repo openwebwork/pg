@@ -144,7 +144,7 @@ sub cmp_equal {
   } else {
     return if $ans->{ignoreStrings} && (!Value::isValue($student) || $student->type eq 'String');
     $ans->{ans_message} = $ans->{error_message} =
-      "Your answer isn't ".lc($ans->{cmp_class}).'<BR>'.
+      "Your answer isn't ".lc($ans->{cmp_class})."\n".
         "(it looks like ".lc($student->showClass).")"
 	   if !$ans->{isPreview} && $ans->{showTypeWarnings} && !$ans->{error_message};
   }
