@@ -188,9 +188,9 @@ sub compare {
     my $zeroLevel  = $self->getFlag('zeroLevel',1E-14);
     foreach $i (0..scalar(@{$lvalues})-1) {
       my $tol = $tolerance;
-      $tol *= abs($lvalues->[$i]) if $isRelative && abs($lvalues->[$i]) > $zeroLevel;
-      return $rvalues->[$i]->value <=> $avalues->[$i]->value
-	unless abs($rvalues->[$i] - $avalues->[$i]) < $tol;
+      my ($lv,$rv,$av) = ($lvalues->[$i]->value,$rvalues->[$i]->value,$avalues->[$i]->value);
+      $tol *= abs($lv) if $isRelative && abs($lv) > $zeroLevel;
+      return $rv <=> $av unless abs($rv - $av) < $tol;
     }
     return 0;
   }
