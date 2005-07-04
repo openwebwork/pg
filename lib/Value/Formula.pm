@@ -420,12 +420,13 @@ sub AdaptParameters {
       #
       #  Get parameter values and recompute the points using them
       #
-      my @a; my $i = 0; my $max = $l->getFlag('max_adapt',1E8);
+      my @a; my $i = 0; my $max = Value::Real->new($l->getFlag('max_adapt',1E8));
       foreach my $row (@{$B->[0]}) {
 	if (abs($row->[0]) > $max) {
-	  $l->Error("Constant of integration is too large: $row->[0]")
-	    if ($params[$i] eq 'C0');
-	  $l->Error("Adaptive constant is too large: $params[$i] = $row->[0]");
+	  $l->Error("Constant of integration is too large: ".$row->[0]->string."\n".
+		    "(maximum allowed is ".$max->string.")") if ($params[$i] eq 'C0');
+	  $l->Error("Adaptive constant is too large: $params[$i] = ".$row->[0]->string."\n".
+		    "(maximum allowed is ".$max->string.")");
 	}
 	push @a, $row->[0]; $i++;
       }
