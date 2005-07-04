@@ -71,7 +71,10 @@ sub perl {shift->{value}}
 
 ###########################################
 
-sub NoDecimals {$$Value::context->flags->set(NumberCheck=>\&_NoDecimals)}
+sub NoDecimals {
+  my $context = shift || $$Value::context;
+  $context->flags->set(NumberCheck=>\&_NoDecimals);
+}
 
 sub _NoDecimals {
   my $self = shift;
