@@ -105,7 +105,7 @@ sub TeX {
   my $self = shift; my $name = $self->{name};
   my $value = $self->{equation}{values}{$name};
   return $value if defined($value);
-  $name = $1.'_{'.$2.'}' if ($name =~ m/^(\D+)(\d+)$/);
+  $name = $1.'_{'.$2.'}' if ($name =~ m/^([^_]+)_?(\d+)$/);
   return $name;
 }
 #
