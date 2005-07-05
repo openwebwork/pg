@@ -10,6 +10,15 @@ use Carp;
 
 $Matrix::DEFAULT_FORMAT = '% #-19.12E ';
 # allows specification of the format
+
+=head4
+
+	Method $matrix->_stringify() 
+	-- overrides MatrixReal1 display mode
+
+=cut
+
+
 sub _stringify
 {
     my($object,$argument,$flag) = @_;
@@ -33,6 +42,12 @@ sub _stringify
     return($s);
 }
 
+=head4
+
+	Method $matrix->rh_options
+
+=cut
+
 sub rh_options {
     my $self = shift;
     my $last_element = $#$self;
@@ -40,6 +55,13 @@ sub rh_options {
 	$self->[$last_element];     # provides a reference to the options hash MEG
 }
 
+=head4
+
+	Method $matrix->trace
+	
+	Returns: scalar which is the trace of the matrix.
+
+=cut
 
 sub trace {
 	my $self = shift;
@@ -52,6 +74,13 @@ sub trace {
 	}
 	$sum;
 }
+
+=head4
+
+	Method $matrix->new_from_array_ref
+
+=cut
+
 sub new_from_array_ref {  # this will build a matrix or a row vector from  [a, b, c, ]
 	my $class = shift;
 	my $array = shift;
@@ -62,10 +91,22 @@ sub new_from_array_ref {  # this will build a matrix or a row vector from  [a, b
 	$matrix;
 }
 
+=head4
+
+	Method $matrix->array_ref
+
+=cut
+
 sub array_ref {
 	my $this = shift;
 	$this->[0];
 }
+
+=head4
+
+	Method $matrix->list
+
+=cut
 
 sub list {           # this is used only for column vectors
 	my $self = shift;
@@ -77,6 +118,13 @@ sub list {           # this is used only for column vectors
 	}
 	@list;
 }
+
+=head4
+
+	Method $matrix->new_from_list
+
+=cut
+
 sub new_from_list {   # this builds a row vector from an array
 	my $class = shift;
 	my @list = @_;
@@ -90,6 +138,13 @@ sub new_from_list {   # this builds a row vector from an array
 	}
 	$matrix;
 }
+
+=head4
+
+	Method $matrix->new_row_matrix
+
+=cut
+
 sub new_row_matrix {   # this builds a row vector from an array
 	my $class = shift;
 	my @list = @_;
@@ -103,11 +158,25 @@ sub new_row_matrix {   # this builds a row vector from an array
 	}
 	$matrix;
 }
+
+=head4
+
+	Method $matrix->proj
+
+=cut
+
 sub proj{
 	my $self = shift;
 	my ($vec) = @_;
 	$self * $self ->proj_coeff($vec);
 }
+
+=head4
+
+	Method $matrix->proj_coeff
+
+=cut
+
 sub proj_coeff{
 	my $self= shift;
 	my ($vec) = @_;
@@ -120,6 +189,13 @@ sub proj_coeff{
 	warn "A unique adapted answer could not be determined.  Possibly the parameters have coefficient zero.<br>  dim = $dim base_matrix is $base_matrix\n" if $dim;  # only print if the dim is not zero.
 	$x_vector;
 }
+
+=head4
+
+	Method $matrix->new_column_matrix
+
+=cut
+
 sub new_column_matrix {
 	my $class = shift;
 	my $vec = shift;
@@ -132,11 +208,14 @@ sub new_column_matrix {
 	}
 	$matrix;
 }
+
 =head4
 
 	This method takes an array of column vectors, or an array of arrays,
 	and converts them to a matrix where each column is one of the previous
 	vectors.
+	
+	Method $matrix->new_from_col_vecs
 
 =cut
 
@@ -179,12 +258,31 @@ sub new_from_col_vecs
 #  Modifications to MatrixReal.pm which allow use of complex entries
 ######################################################################
 
+=head3
+
+	Overrides of MatrixReal which allow use of complex entries
+	
+=cut
+
+=head4
+
+	Method $matrix->new_from_col_vecs
+
+=cut
+
 sub cp  { # MEG  makes new copies of complex number
 	my $z = shift;
 	return $z unless ref($z);
 	my $w = Complex1::cplx($z->Re,$z->Im);
 	return $w;
 }
+
+=head4
+
+	Method $matrix->copy
+
+=cut
+
 sub copy
 {
     croak "Usage: \$matrix1->copy(\$matrix2);"
@@ -221,11 +319,25 @@ sub copy
 ###################################################################
 
 # MEG added 6/25/03 to accomodate complex entries
+
+=head4
+
+	Method $matrix->conj
+
+=cut
+
 sub conj {
 	my $elem = shift;
     $elem = (ref($elem)) ? ($elem->conjugate) : $elem;
     $elem;
 }
+
+=head4
+
+	Method $matrix->transpose
+
+=cut
+
 sub transpose
 {
     croak "Usage: \$matrix1->transpose(\$matrix2);"
@@ -269,7 +381,11 @@ sub transpose
     $matrix1;
 }
 
+=head4
 
+	Method $matrix->decompose_LR
+
+=cut
 
 sub decompose_LR
 {
@@ -285,7 +401,7 @@ sub decompose_LR
     my($sign) = 1;
     my($swap);
     my($temp);
-#    Why won't this work on non-square matrices?
+#    FIXEME Why won't this work on non-square matrices?
 #    croak "MatrixReal1::decompose_LR(): matrix is not quadratic"
 #      unless ($rows == $cols);
     croak "MatrixReal1::decompose_LR(): matrix has more rows than columns"
