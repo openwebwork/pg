@@ -461,7 +461,7 @@ sub stringify {
 sub string {shift->value}
 sub TeX {shift->string(@_)}
 #
-#  For perl, call the appropriate constructor around the objects data
+#  For perl, call the appropriate constructor around the object's data
 #
 sub perl {
   my $self = shift; my $parens = shift; my $matrix = shift;
@@ -476,7 +476,7 @@ sub perl {
     $perl = join(',',@p);
     $perl = '['.$perl.']' if $mtype > 0;
   } else {
-    $perl = $class.'('.join(',',@p).')';
+    $perl = 'new '.ref($self).'('.join(',',@p).')';
     $perl = '('.$perl.')' if $parens == 1;
   }
   return $perl;

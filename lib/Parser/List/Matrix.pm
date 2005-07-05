@@ -50,7 +50,7 @@ sub perl {
   if ($matrix) {
     $perl = '['.join(',',@p).']';
   } else {
-    $perl = $self->type.'('.join(',',@p).')';
+    $perl = 'new Value::'.$self->type.'('.join(',',@p).')';
     $perl = '('.$perl.')' if $parens;
   }
   return $perl;

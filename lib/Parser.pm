@@ -625,7 +625,7 @@ sub perl {
   my $self = shift;
   $self->setValues(@_);
   my $perl = $self->{tree}->perl;
-  $perl = 'Real('.$perl.')' if $self->isRealNumber;
+  $perl = 'new Value::Real('.$perl.')' if $self->isRealNumber;
   return $perl;
 }
 

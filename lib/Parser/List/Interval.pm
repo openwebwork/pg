@@ -45,7 +45,7 @@ sub perl {
   my $self = shift; my $parens = shift;
   my $perl; my @p = ();
   foreach my $x (@{$self->{coords}}) {push(@p,$x->perl)}
-  $perl = $self->type.'('.join(',',"'".$self->{open}."'",@p,"'".$self->{close}."'").')';
+  $perl = 'new Value::'.$self->type.'('.join(',',"'".$self->{open}."'",@p,"'".$self->{close}."'").')';
   $perl = '('.$perl.')' if $parens;
   return $perl;
 }

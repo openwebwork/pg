@@ -38,7 +38,7 @@ sub _eval {shift; Value::Union->new(@_)}
 sub perl {
   my $self = shift; my $parens = shift; my @union = ();
   foreach my $x ($self->makeUnion) {push(@union,$x->perl)}
-  my $perl = 'Union('.join(',',@union).')';
+  my $perl = 'new Value::Union('.join(',',@union).')';
   $perl = '('.$perl.')' if $parens;
   return $perl;
 }

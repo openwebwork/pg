@@ -227,7 +227,7 @@ sub perl {
   my $self = shift; my $parens = shift; my $matrix = shift;
   my $perl; my @p = ();
   foreach my $x (@{$self->{coords}}) {push(@p,$x->perl)}
-  $perl = $self->type.'('.join(',',@p).')';
+  $perl = 'new Value::'.$self->type.'('.join(',',@p).')';
   $perl = 'Closed('.$perl.')'
     if $self->{canBeInterval} && $self->{open}.$self->{close} eq '[]';
   $perl = '('.$perl.')' if $parens;
