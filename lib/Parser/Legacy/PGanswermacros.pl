@@ -133,8 +133,8 @@ my ($BR 					        ,		# convenient localizations.
 	$useBaseTenLog                  ,
 	$inputs_ref                     ,
 	$QUESTIONNAIRE_ANSWERS          ,
-    $user_context                   ,
-    $Context                        ,
+	$user_context,
+	$Context,
 );
 
 
@@ -167,11 +167,8 @@ sub _PGanswermacros_init {
 		 $QUESTIONNAIRE_ANSWERS				=   '';
 
 		 if (!main::PG_restricted_eval(q!$main::useOldAnswerMacros!)) {
-		   #
-		   #  Force loading of Parser.pl and get the Context command
-		   #
-		   main::PG_restricted_eval(q!loadMacros("Parser.pl")!);
-		   $Context = main::PG_restricted_eval(q!\&Context!);
+		   $user_context = main::PG_restricted_eval(q!\%context!);
+		   $Context = sub {Parser::Context->current($user_context,@_)};
 		 }
 }
 
