@@ -436,21 +436,35 @@ describing how to obtain <CODE>tth</CODE> for commerical use are also available 
 # Global macros:
 # 	None
 
-my ($tthPreambleFile, $tthPreambleContents); # the contents of this file will not change during problem compilation
-                                             # it only needs to be read once
+# the contents of this file will not change during problem compilation it
+# only needs to be read once. however, the contents of the file may change,
+# and indeed the file refered to may change, between rendering passes. thus,
+# we need to keep track of the file name and the mtime as well.
+my ($tthPreambleFile, $tthPreambleMtime, $tthPreambleContents);
+
 sub tth {
 	my $inputString = shift;
-
-	# read the contents of the tthPreamble.tex file, unless it has already been read
-	unless ( defined( $tthPreambleContents) ) {
-		$tthPreambleFile = "${templateDirectory}tthPreamble.tex" if ( -r "${templateDirectory}tthPreamble.tex" );
-		if ( defined($tthPreambleFile) )   {
+	
+	my $thisFile = "${templateDirectory}tthPreamble.tex" if -r "${templateDirectory}tthPreamble.tex";
+	
+	if (defined $thisFile) {
+		my $thisMtime = (stat $thisFile)[9];
+		my $load = 
+			# load preamble if we haven't loaded it ever
+			(not defined $tthPreambleFile or not defined $tthPreambleMtime or not defined $tthPreambleContents)
+				||
+			# load if the file path has changed
+			($tthPreambleFile ne $thisFile)
+				||
+			# load if the file has been modified
+			($tthPreambleMtime < $thisMtime);
+		
+		if ($load) {
 			local(*TTHIN);
 			open (TTHIN, "${templateDirectory}tthPreamble.tex") || die "Can't open file ${templateDirectory}tthPreamble.tex";
-			#my @tthPreambleArray = <TTHIN>;
 			local($/);
 			$/ = undef;
-			$tthPreambleContents = <TTHIN>;#join("",@tthPreambleArray);
+			$tthPreambleContents = <TTHIN>;
 			close(TTHIN);
 
 			$tthPreambleContents =~ s/(.)\n/$1%\n/g;  # thanks to Jim Martino
@@ -459,12 +473,11 @@ sub tth {
 			                                          # adding supurious paragraphs to output.
 
 			$tthPreambleContents .="%\n";             # solves the problem if the file doesn't end with a return.
-
-		} else {
-			$tthPreambleContents = "";
 		}
+	} else {
+		$tthPreambleContents = "";
 	}
-
+	
     $inputString = $tthPreambleContents . $inputString;
     $inputString    = "<<END_OF_TTH_INPUT_STRING;\n\n\n" . $inputString . "\nEND_OF_TTH_INPUT_STRING\necho \"\" >/dev/null"; #it's not clear why another command is needed.
 
@@ -496,25 +509,25 @@ sub symbolConvert {
 	$string =~ s/\x5C/\&#092;/g;		#\      92                       &#092;
 	$string =~ s/\x7B/\&#123;/g;		#{      123                       &#123;
 	$string =~ s/\x7D/\&#125;/g;		#}      125                       &#125;
-	$string =~ s/\xE7/\&#193;/g;		#Á      231                       &#193;
-	$string =~ s/\xE6/\&#202;/g;		#Ê      230                       &#202;
-	$string =~ s/\xE8/\&#203;/g;		#Ë      232                       &#203;
-	$string =~ s/\xF3/\&#219;/g;		#Û      243                       &#219;
-	$string =~ s/\xA5/\&bull;/g;		#•      165                       &bull;
-	$string =~ s/\xB2/\&le;/g;			#≤      178                       &le;
-	$string =~ s/\xB3/\&ge;/g;			#≥      179                       &ge;
-	$string =~ s/\xB6/\&part;/g;		#∂      182                       &part;
-	$string =~ s/\xCE/\&#338;/g;		#Œ      206                       &#338;
-	$string =~ s/\xD6/\&#732/g;			#÷      214                       &#732;
-	$string =~ s/\xD9/\&Yuml;/g;		#Ÿ      217                       &Yuml;
-	$string =~ s/\xDA/\&frasl;/g;		#⁄      218                       &frasl;
-	$string =~ s/\xF5/\&#305;/g;		#ı      245                       &#305
-	$string =~ s/\xF6/\&#710;/g;		#ˆ      246                       &#710;
-	$string =~ s/\xF7/\&#193;/g;		#˜      247                       &#193;
-	$string =~ s/\xF8/\&#175;/g;		#¯      248                       &#175;
-	$string =~ s/\xF9/\&#728;/g;		#˘      249                       &#728;
-	$string =~ s/\xFA/\&#729;/g;		#˙      250                       &#729;
-	$string =~ s/\xFB/\&#730;;/g;		#˚      251                       &#730;
+	$string =~ s/\xE7/\&#193;/g;		#¡      231                       &#193;
+	$string =~ s/\xE6/\&#202;/g;		#       230                       &#202;
+	$string =~ s/\xE8/\&#203;/g;		#À      232                       &#203;
+	$string =~ s/\xF3/\&#219;/g;		#€      243                       &#219;
+	$string =~ s/\xA5/\&bull;/g;		#Ä      165                       &bull;
+	$string =~ s/\xB2/\&le;/g;			#æ      178                       &le;
+	$string =~ s/\xB3/\&ge;/g;			#Ñ      179                       &ge;
+	$string =~ s/\xB6/\&part;/g;		#è      182                       &part;
+	$string =~ s/\xCE/\&#338;/g;		#ë      206                       &#338;
+	$string =~ s/\xD6/\&#732/g;			#˜      214                       &#732;
+	$string =~ s/\xD9/\&Yuml;/g;		#ç      217                       &Yuml;
+	$string =~ s/\xDA/\&frasl;/g;		#é      218                       &frasl;
+	$string =~ s/\xF5/\&#305;/g;		#û      245                       &#305
+	$string =~ s/\xF6/\&#710;/g;		#ñ      246                       &#710;
+	$string =~ s/\xF7/\&#193;/g;		#ó      247                       &#193;
+	$string =~ s/\xF8/\&#175;/g;		#Ø      248                       &#175;
+	$string =~ s/\xF9/\&#728;/g;		#ò      249                       &#728;
+	$string =~ s/\xFA/\&#729;/g;		#ô      250                       &#729;
+	$string =~ s/\xFB/\&#730;;/g;		#ö      251                       &#730;
 	$string;
 }
 
