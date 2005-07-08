@@ -12,7 +12,7 @@ using "cvs update -d" in order to get the new Legacy direcrtory.  Then
 replace the PGanswermacros.pl file that is in pg/macros with the new
 one that is in pg/lib/Parser/Legacy (perhaps renaming the old one as
 PGanswermacros.pl-orig in case you want to go back to it).  Then edit
-the global.conf file and add [qw(Parser::Legacy)] to the $pg{macros}
+the global.conf file and add [qw(Parser::Legacy)] to the $pg{modules}
 list (this forces the loading of a few items needed by the new
 PGanswermacros but that aren't loaded by default).  Finally, restart
 the server.  Youre WW server should now be using Parser-based answer
