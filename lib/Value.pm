@@ -147,7 +147,7 @@ sub makeValue {
   return Value::String->make($x)
     if (!$Parser::installed || $$Value::context->{strings}{$x});
   return $x if !$params{makeFormula};
-  Value::Error("String constant '$x' is not defined in this context")
+  Value::Error("String constant '%s' is not defined in this context",$x)
     if $params{showError};
   $x = Value::Formula->new($x);
   $x = $x->eval if $x->isConstant;
@@ -233,7 +233,7 @@ sub getValueType {
   elsif ($type eq 'Infinity') {$type = $Value::Type{infinity}}
   elsif ($type eq 'value' || $type eq 'Formula') {$type = $value->typeRef}
   elsif ($type eq 'unknown') {
-    $equation->Error("Can't convert ".Value::showClass($value)." to a constant");
+    $equation->Error("Can't convert %s to a constant",Value::showClass($value));
   } else {
     $type = 'Value::'.$type, $value = $type->new(@{$value});
     $type = $value->typeRef;
@@ -354,7 +354,7 @@ sub extract {
   @indices = $_[0]->value if scalar(@_) == 1 && Value::isValue($_[0]);
   while (scalar(@indices) > 0) {
     $i = shift @indices; $i-- if $i > 0; $i = $i->value if Value::isValue($i);
-    Value::Error("Can't extract element number '$i' (index must be an integer)")
+    Value::Error("Can't extract element number '%s' (index must be an integer)",$i)
       unless $i =~ m/^-?\d+$/;
     $M = $M->data->[$i];
   }
@@ -382,9 +382,9 @@ sub nomethod {
   my ($l,$r,$flag,$op) = @_;
   my $call = $$context->{method}{$op};
   if (defined($call) && $l->promotePrecedence($r)) {return $r->$call($l,!$flag)}
-  my $error = "Can't use '$op' with ".$l->class."-valued operands";
+  my $error = "Can't use '%s' with %s-valued operands";
   $error .= " (use '**' for exponentiation)" if $op eq '^';
-  Value::Error($error);
+  Value::Error($error,$op,$l->class);
 }
 
 #
@@ -489,7 +489,7 @@ sub eval {shift}
 sub reduce {shift}
 
 sub ijk {
-  Value::Error("Can't use method 'ijk' with objects of type '".(shift)->class."'");
+  Value::Error("Can't use method 'ijk' with objects of type '%s'",(shift)->class);
 }
 
 #
@@ -497,7 +497,9 @@ sub ijk {
 #
 sub Error {
   my $message = shift;
+  $message = [$message,@_] if (scalar(@_));
   $$context->setError($message,'');
+  $message = $$context->{error}{message};
   die $message . traceback() if $$context->{debug};
   die $message . getCaller();
 }

@@ -46,7 +46,7 @@ sub promote {
   my $x = shift; $x = [$x,@_] if scalar(@_) > 0;
   $x = Value::makeValue($x);
   return $x if ref($x) eq $pkg || Value::isReal($x);
-  Value::Error("Can't convert '$x' to Infinity");
+  Value::Error("Can't convert '%s' to Infinity",$x);
 }
 
 ############################################

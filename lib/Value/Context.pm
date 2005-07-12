@@ -26,6 +26,7 @@ sub new {
       pos => undef,
       message => '',
       flag => 0,
+      msg => {},  # for localization
     },
     data => {
       hashes => ['lists'],
@@ -100,6 +101,7 @@ sub clearError {
   $error->{string} = '';
   $error->{pos} = undef;
   $error->{message} = '';
+  $error->{original} = '';
   $error->{flag} = 0;
 }
 
@@ -108,9 +110,17 @@ sub clearError {
 #
 sub setError {
   my $error = (shift)->{error};
-  $error->{message} = shift;
-  $error->{string} = shift;
-  $error->{pos} = shift;
+  my ($message,$string,$pos,$more) = @_;
+  my @args = ();
+  ($message,@args) = @{$message} if ref($message) eq 'ARRAY';
+  $error->{original} = $message;
+  while ($message && $error->{msg}{$message}) {$message = $error->{msg}{$message}}
+  while ($more && $error->{msg}{$more}) {$more = $error->{msg}{$more}}
+  $message = sprintf($message,@args) if scalar(@args) > 0;
+  $message .= sprintf($more,$pos->[0]+1) if $more;
+  $error->{message} = $message;
+  $error->{string} = $string;
+  $error->{pos} = $string;
   $error->{flag} = 1;
 }
 

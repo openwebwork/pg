@@ -227,7 +227,7 @@ sub createPointValues {
     $v = eval {&$f(@{$p},@zeros)};
     if (!defined($v) && !$checkUndef) {
       return unless $showError;
-      Value::Error("Can't evaluate formula on test point (".join(',',@{$p}).")");
+      Value::Error("Can't evaluate formula on test point (%s)",join(',',@{$p}));
     }
     push @{$values}, (defined($v)? Value::makeValue($v): $UNDEF);
   }
@@ -255,8 +255,8 @@ sub createAdaptedValues {
     $v = eval {&$f(@{$p},@adapt)};
     if (!defined($v)) {
       return unless $showError;
-      Value::Error("Can't evaluate formula on test point (".join(',',@{$p}).") ".
-		   "with parameters (".join(',',@adapt).")");
+      Value::Error("Can't evaluate formula on test point (%s) with parameters (%s)",
+		   join(',',@{$p}),join(',',@adapt));
     }
     push @{$values}, Value::makeValue($v);
   }
@@ -423,10 +423,10 @@ sub AdaptParameters {
       my @a; my $i = 0; my $max = Value::Real->new($l->getFlag('max_adapt',1E8));
       foreach my $row (@{$B->[0]}) {
 	if (abs($row->[0]) > $max) {
-	  $l->Error("Constant of integration is too large: ".$row->[0]->string."\n".
-		    "(maximum allowed is ".$max->string.")") if ($params[$i] eq 'C0');
-	  $l->Error("Adaptive constant is too large: $params[$i] = ".$row->[0]->string."\n".
-		    "(maximum allowed is ".$max->string.")");
+	  $l->Error("Constant of integration is too large: %s\n(maximum allowed is %s)",
+		    $row->[0]->string,$max->string) if ($params[$i] eq 'C0');
+	  $l->Error("Adaptive constant is too large: %s = %s\n(maximum allowed is %s)",
+		    $params[$i],$row->[0]->string,$max->string);
 	}
 	push @a, $row->[0]; $i++;
       }

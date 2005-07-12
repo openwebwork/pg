@@ -23,7 +23,7 @@ sub _check {
 	$self->{$op}->typeRef->{name} = $self->{equation}{context}{parens}{interval}{type};
       }
     }
-  } else {$self->Error("Operands of '$self->{bop}' must be intervals")}
+  } else {$self->Error("Operands of '%s' must be intervals",$self->{bop})}
 }
 
 

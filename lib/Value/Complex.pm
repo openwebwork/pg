@@ -42,13 +42,13 @@ sub new {
   my $x = shift; $x = [$x,@_] if scalar(@_) > 0;
   $x = $x->data if ref($x) eq $pkg || Value::isReal($x);
   $x = [$x] unless ref($x) eq 'ARRAY'; $x->[1] = 0 unless defined($x->[1]);
-  Value::Error("Can't convert ARRAY of length ".scalar(@{$x})." to a Complex Number") 
+  Value::Error("Can't convert ARRAY of length %d to a Complex Number",scalar(@{$x}))
     unless (scalar(@{$x}) == 2);
   $x->[0] = Value::makeValue($x->[0]); $x->[1] = Value::makeValue($x->[1]);
   return $x->[0] if Value::isComplex($x->[0]) && scalar(@_) == 0;
-  Value::Error("Real part can't be ".Value::showClass($x->[0]))
+  Value::Error("Real part can't be %s",Value::showClass($x->[0]))
      unless (Value::isRealNumber($x->[0]));
-  Value::Error("Imaginary part can't be ".Value::showClass($x->[1]))
+  Value::Error("Imaginary part can't be %s",Value::showClass($x->[1]))
      unless (Value::isRealNumber($x->[1]));
   return $self->formula($x) if Value::isFormula($x->[0]) || Value::isFormula($x->[1]);
   bless {data => $x}, $class;

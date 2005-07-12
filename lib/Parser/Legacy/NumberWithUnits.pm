@@ -16,7 +16,7 @@ sub new {
   Value::Error("You must provide units for your number")
     unless $units;
   $num = Value::makeValue($num);
-  Value::Error("A number with units must be a constant, not ".lc(Value::showClass($num)))
+  Value::Error("A number with units must be a constant, not %s",lc(Value::showClass($num)))
     unless Value::isReal($num);
   my %Units = getUnits($units);
   Value::Error($Units{ERROR}) if ($Units{ERROR});

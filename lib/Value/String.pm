@@ -25,7 +25,7 @@ sub new {
     my $strings = $$Value::context->{strings};
     if (!$strings->{$x}) {
       my $X = $strings->{uc($x)};
-      Value::Error("String constant '$x' is not defined in this context")
+      Value::Error("String constant '%s' is not defined in this context",$x)
         unless $X && !$X->{caseSensitive};
       $x = uc($x); while ($strings->{$x}{alias}) {$x = $strings->{$x}{alias}}
     }

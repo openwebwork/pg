@@ -84,7 +84,7 @@ sub perl {}
 
 sub ijk {
   my $self = shift;
-  $self->Error("Can't use method 'ijk' with objects of type '".$self->type."'");
+  $self->Error("Can't use method 'ijk' with objects of type '%s'",$self->type);
 }
 
 #
@@ -107,8 +107,9 @@ sub copy {
 #
 sub Error {
   my $self = shift;
-  $self->{equation}->Error(@_,$self->{ref}) if defined($self->{equation});
-  Parser->Error(@_);
+  my $message = shift; $message = [$message,@_] if scalar(@_) > 0;
+  $self->{equation}->Error($message,$self->{ref}) if defined($self->{equation});
+  Parser->Error($message);
 }
 
 #########################################################################

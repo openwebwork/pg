@@ -117,12 +117,12 @@ sub checkStrings {
   my $ltype = $self->{lop}->typeRef; my $rtype = $self->{rop}->typeRef;
   my $name = $self->{def}{string} || $self->{bop};
   if ($ltype->{name} eq 'String') {
-    $self->Error("Operands of '$name' can't be ".
+    $self->Error("Operands of '%s' can't be %s",$name,
 		 ($self->{lop}{isInfinite}? 'infinities': 'words'));
     return 1;
   }
   if ($rtype->{name} eq 'String') {
-    $self->Error("Operands of '$name' can't be ".
+    $self->Error("Operands of '%s' can't be %s",$name,
 		 ($self->{rop}{isInfinite}? 'infinities': 'words'));
     return 1;
   }
@@ -137,7 +137,7 @@ sub checkLists {
   my $ltype = $self->{lop}->typeRef; my $rtype = $self->{rop}->typeRef;
   return 0 if ($ltype->{name} ne 'List' and $rtype->{name} ne 'List');
   my $name = $self->{def}{string} || $self->{bop};
-  $self->Error("Operands of '$name' can't be lists");
+  $self->Error("Operands of '%s' can't be lists",$name);
   return 1;
 }
 
@@ -170,7 +170,7 @@ sub checkMatrixSize {
     if ($lc == $rr) {
       my $rowType = Value::Type('Matrix',$rc,$Value::Type{number},formMatrix=>1);
       $self->{type} = Value::Type('Matrix',$lr,$rowType,formMatrix=>1);
-    } else {$self->Error("Matrix of dimensions ${lr}x${lc} and ${rr}x${rc} can't be multiplied")}
+    } else {$self->Error("Matrices of dimensions %dx%d and %dx%d can't be multiplied",$lr,$lc,$rr,$rc)}
   } else {$self->Error("Matrices are too deep to be multiplied")}
 }
 
@@ -204,8 +204,8 @@ sub matchError {
   my ($ltype,$rtype) = @_;
   my ($op,$ref) = ($self->{bop});
   if ($ltype->{name} eq $rtype->{name}) 
-       {$self->Error("Operands for '$op' must be of the same length")}
-  else {$self->Error("Operands for '$op' must be of the same type")}
+       {$self->Error("Operands for '%s' must be of the same length",$op)}
+  else {$self->Error("Operands for '%s' must be of the same type",$op)}
 }
 
 ##################################################

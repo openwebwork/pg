@@ -89,7 +89,7 @@ sub add {
   my $self = shift; my %D = (@_); return if scalar(@_) == 0;
   my $data = $self->{context}{$self->{dataName}};
   foreach my $x (keys %D) {
-    Value::Error("Illegal $self->{name} name '$x'") unless $x =~ m/^$self->{namePattern}$/;
+    Value::Error("Illegal %s name '%s'",$self->{name},$x) unless $x =~ m/^$self->{namePattern}$/;
     warn "$self->{Name} '$x' already exists" if defined($data->{$x});
     $data->{$x} = $self->create($D{$x});
   }

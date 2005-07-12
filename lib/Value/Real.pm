@@ -40,7 +40,7 @@ sub new {
   my $x = shift; $x = [$x,@_] if scalar(@_) > 0;
   return $x if ref($x) eq $pkg;
   $x = [$x] unless ref($x) eq 'ARRAY';
-  Value::Error("Can't convert ARRAY of length ".scalar(@{$x})." to ".Value::showClass($class)) 
+  Value::Error("Can't convert ARRAY of length %d to %s",scalar(@{$x}),Value::showClass($class)) 
     unless (scalar(@{$x}) == 1);
   if (Value::isRealNumber($x->[0])) {
     return $self->formula($x->[0]) if Value::isFormula($x->[0]);
@@ -48,7 +48,7 @@ sub new {
   }
   $x = Value::makeValue($x->[0]);
   return $x if Value::isRealNumber($x);
-  Value::Error("Can't convert ".Value::showClass($x)." to ".Value::showClass($class));
+  Value::Error("Can't convert %s to %s",Value::showClass($x),Value::showClass($class));
 }
 
 #

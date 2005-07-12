@@ -42,7 +42,7 @@ sub new {
       if ($paren->{formList}) {$type->{name} = 'List'}
       elsif ($type->{name} eq 'Point') {
         $equation->Error("Entries in a Matrix must be of the same type and length")}
-      else {$equation->Error("Entries in a $type->{name} must be of the same type")}
+      else {$equation->Error(["Entries in a %s must be of the same type",$type->{name}])}
     }
   }
   $list = bless {

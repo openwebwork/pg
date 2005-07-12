@@ -12,12 +12,12 @@ use strict; use vars qw(@ISA);
 
 sub _check {
   my $self = shift;
-  $self->Error("Function '$self->{name}' is not allowed in this context");
+  $self->Error("Function '%s' is not allowed in this context",$self->{name});
 }
 
 sub _call {
   my $self = shift; my $name = shift;
-  Value::Error("Function '$name' is not allowed in this context");
+  Value::Error("Function '%s' is not allowed in this context",$name);
 }
 
 #########################################################################

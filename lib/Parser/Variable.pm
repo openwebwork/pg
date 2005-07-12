@@ -20,11 +20,11 @@ sub new {
     my $string = substr($equation->{string},$ref->[2]);
     if ($string =~ m/^([a-z][a-z]+)/i) {
       $ref->[3] = $ref->[2]+length($1);
-      $equation->Error("'$1' is not defined in this context",$ref);
+      $equation->Error(["'%s' is not defined in this context",$1],$ref);
     }
-    $equation->Error("Variable '$name' is not defined in this context",$ref);
+    $equation->Error(["Variable '%s' is not defined in this context",$name],$ref);
   }
-  $equation->Error("Variable '$name' is not defined in this context",$ref)
+  $equation->Error(["Variable '%s' is not defined in this context",$name],$ref)
     if $equation->{context}{variables}{$name}{parameter} &&
        $equation->{context}{flags}{no_parameters};
   $equation->{variables}{$name} = 1;
@@ -64,7 +64,7 @@ sub eval {
   my $self = shift;
   my $value = $self->{equation}{values}{$self->{name}};
   return $value if defined($value);
-  $self->Error("No value given for variable '$self->{name}'");
+  $self->Error("No value given for variable '%s'",$self->{name});
 }
 
 #

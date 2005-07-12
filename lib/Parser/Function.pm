@@ -41,7 +41,7 @@ sub eval {
   foreach my $x (@{$self->{params}}) {push(@params,$x->eval)}
   my $result = eval {$self->_eval(@params)};
   return $result unless $@;
-  $self->Error("Can't take $self->{name} of ".join(',',@params));
+  $self->Error("Can't take %s of %s",$self->{name},join(',',@params));
 }
 #
 #  Stub for sub-classes
@@ -103,14 +103,14 @@ sub call {
   my $self = shift; my $name = shift;
   my $context = Parser::Context->current;
   my $fn = $context->{functions}{$name};
-  Value::Error("No definition for function '$name'") unless defined($fn);
+  Value::Error("No definition for function '%s'",$name) unless defined($fn);
   my $isFormula = 0;
   foreach my $x (@_) {return $self->formula($name,@_) if Value::isFormula($x)}
   my $class = $fn->{class};
   my $result = eval {$class->_call($name,@_)};
   return $result unless $@;
   Value::Error($context->{error}{message}) if $context->{error}{message};
-  Value::Error("Can't take $name of ".join(',',@_));
+  Value::Error("Can't take %s of %s",$name,join(',',@_));
 }
 #
 #  Stub for sub-classes.
@@ -145,10 +145,10 @@ sub checkNumeric {
   my $arg = $self->{params}->[0];
   if ($arg->isComplex) {
     if (!($self->{def}{nocomplex})) {$self->{type} = $Value::Type{complex}}
-    else {$self->Error("Function '$self->{name}' doesn't accept Complex inputs")}
+    else {$self->Error("Function '%s' doesn't accept Complex inputs",$self->{name})}
   } elsif ($arg->isNumber) {
     $self->{type} = $Value::Type{number};
-  } else {$self->Error("The input for '$self->{name}' must be a number")}
+  } else {$self->Error("The input for '%s' must be a number",$self->{name})}
 }
 
 #
@@ -159,7 +159,7 @@ sub checkVector {
   return if ($self->checkArgCount(1));
   if ($self->{params}->[0]->type =~ m/Point|Vector/) {
     $self->{type} = $Value::Type{number};
-  } else {$self->Error("Function '$self->{name}' requires a Vector input")}
+  } else {$self->Error("Function '%s' requires a Vector input",$self->{name})}
 }
 
 #
@@ -171,7 +171,7 @@ sub checkReal {
   return if ($self->checkArgCount(1));
   if ($self->{params}->[0]->isNumber) {
     $self->{type} = $Value::Type{number};
-  } else {$self->Error("Function '$self->{name}' requires a Complex input")}
+  } else {$self->Error("Function '%s' requires a Complex input",$self->{name})}
 }
 
 #
@@ -183,7 +183,7 @@ sub checkComplex {
   return if ($self->checkArgCount(1));
   if ($self->{params}->[0]->isNumber) {
     $self->{type} = $Value::Type{complex};
-  } else {$self->Error("Function '$self->{name}' requires a Complex input")}
+  } else {$self->Error("Function '%s' requires a Complex input",$self->{name})}
 }
 
 ##################################################
@@ -211,11 +211,11 @@ sub checkArgCount {
   my $args = scalar(@{$self->{params}});
   if ($args == $count) {
     return 0 if ($count == 0 || $self->{params}->[0]->length > 0);
-    $self->Error("Function '$name' requires a non-empty input list");
+    $self->Error("Function '%s' requires a non-empty input list",$name);
   } elsif ($args < $count) {
-    $self->Error("Function '$name' has too few inputs");
+    $self->Error("Function '%s' has too few inputs",$name);
   } else {
-    $self->Error("Function '$name' has too many inputs");
+    $self->Error("Function '%s' has too many inputs",$name);
   }
   return 1;
 }

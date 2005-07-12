@@ -170,7 +170,7 @@ sub promote {
   return $pkg->new($x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
   return $x if ref($x) eq $pkg;
   return $pkg->make(@{$x->data}) if Value::class($x) =~ m/Point|Vector/;
-  Value::Error("Can't convert ".Value::showClass($x)." to a Matrix");
+  Value::Error("Can't convert %s to a Matrix",Value::showClass($x));
 }
 
 ############################################
@@ -223,7 +223,7 @@ sub mult {
   if (scalar(@dl) == 1) {@dl = (1,@dl); $l = $pkg->make($l)}
   if (scalar(@dr) == 1) {@dr = (@dr,1); $r = $pkg->make($r)->transpose}
   Value::Error("Can only multiply 2-dimensional matrices") if scalar(@dl) > 2 || scalar(@dr) > 2;
-  Value::Error("Matices of dimensions $dl[0]x$dl[1] and $dr[0]x$dr[1] can't be multiplied")
+  Value::Error("Matices of dimensions %dx%d and %dx%d can't be multiplied",@dl,@dr)
     unless ($dl[1] == $dr[0]);
   #
   #  Do matrix multiplication
@@ -297,7 +297,7 @@ sub transpose {
   my $self = shift;
   my @d = $self->dimensions;
   if (scalar(@d) == 1) {@d = (1,@d); $self = $pkg->make($self)}
-  Value::Error("Can't transpose ".scalar(@d)."-dimensional matrices") unless scalar(@d) == 2;
+  Value::Error("Can't transpose %d-dimensional matrices",scalar(@d)) unless scalar(@d) == 2;
   my @M = (); my $M = $self->data;
   foreach my $j (0..$d[1]-1) {
     my @row = ();

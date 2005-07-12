@@ -106,7 +106,7 @@ sub parse {
       /var/   and do {$self->Var($ref->[1]); last};
       /fn/    and do {$self->Fn($ref->[1]); last};
       /str/   and do {$self->Str($ref->[1]); last};
-      /error/ and do {$self->Error("Unexpected character '$ref->[1]'",$ref); last};
+      /error/ and do {$self->Error(["Unexpected character '%s'",$ref->[1]],$ref); last};
     }
     return if ($self->{error});
   }
@@ -139,14 +139,15 @@ sub state {(shift)->top->{type}}
 #
 sub Error {
   my $self = shift; my $context = $self->{context};
-  my $message = shift; my $ref = shift; my $string;
+  my $message = shift; my $ref = shift;
+  my $string; my $more = "";
   if ($ref) {
-    $message .= "; see position ".($ref->[2]+1)." of formula";
+    $more = "; see position %d of formula";
     $string = $self->{string};
     $ref = [$ref->[2],$ref->[3]];
   }
-  $context->setError($message,$string,$ref);
-  die $message . Value::getCaller();
+  $context->setError($message,$string,$ref,$more);
+  die $context->{error}{message} . Value::getCaller();
 }
 
 #
@@ -247,9 +248,9 @@ sub Op {
         $self->pushOperator($name,$op->{precedence},1);
       } else {
         my $top = $self->top;
-        $self->Error("Function '$top->{name}' is missing its input(s)",$top->{ref});
+        $self->Error(["Function '%s' is missing its input(s)",$top->{name}],$top->{ref});
       }
-    } else {$self->Error("Missing operand before '$name'",$ref)}
+    } else {$self->Error(["Missing operand before '%s'",$name],$ref)}
   }
 }
 
@@ -324,8 +325,8 @@ sub Close {
       if ($paren->{emptyOK} && $paren->{close} eq $type) {
         $self->pushOperand($parser->{List}->new($self,[],1,$paren))
       }
-      elsif ($type eq 'start') {$self->Error("Missing close parenthesis for '$top->{value}'",$top->{ref})}
-      elsif ($top->{value} eq 'start') {$self->Error("Extra close parenthesis '$type'",$ref)}
+      elsif ($type eq 'start') {$self->Error(["Missing close parenthesis for '%s'",$top->{value}],$top->{ref})}
+      elsif ($top->{value} eq 'start') {$self->Error(["Extra close parenthesis '%s'",$type],$ref)}
       else {$top->{ref}[3]=$ref->[3]; $self->Error("Empty parentheses",$top->{ref})}
       last;
     };
@@ -352,9 +353,9 @@ sub Close {
 				     $paren,$top->entryType,$open,$type));
       } else {
         my $prev = $self->prev;
-        if ($type eq "start") {$self->Error("Missing close parenthesis for '$prev->{value}'",$prev->{ref})}
-        elsif ($prev->{value} eq "start") {$self->Error("Extra close parenthesis '$type'",$ref)}
-        else {$self->Error("Mismatched parentheses: '$prev->{value}' and '$type'",$ref)}
+        if ($type eq "start") {$self->Error(["Missing close parenthesis for '%s'",$prev->{value}],$prev->{ref})}
+        elsif ($prev->{value} eq "start") {$self->Error(["Extra close parenthesis '%s'",$type],$ref)}
+        else {$self->Error(["Mismatched parentheses: '%s' and '%s'",$prev->{value},$type],$ref)}
         return;
       }
       last;
@@ -362,13 +363,13 @@ sub Close {
 
     /fn/ and do {
       my $top = $self->top;
-      $self->Error("Function '$top->{name}' is missing its input(s)",$top->{ref});
+      $self->Error(["Function '%s' is missing its input(s)",$top->{name}],$top->{ref});
       return;
     };
 
     /operator/ and do {
       my $top = $self->top(); my $name = $top->{name}; $name =~ s/^u//;
-      $self->Error("Missing operand after '$name'",$top->{ref});
+      $self->Error(["Missing operand after '%s'",$name],$top->{ref});
       return;
     };
   }
@@ -562,7 +563,7 @@ sub eval {
   my $self = shift;
   $self->setValues(@_);
   foreach my $x (keys %{$self->{values}}) {
-    $self->Error("The value of '$x' can't be a formula")
+    $self->Error(["The value of '%s' can't be a formula",$x])
       if Value::isFormula($self->{values}{$x});
   }
   Value::makeValue($self->{tree}->eval);
@@ -667,11 +668,11 @@ sub setValues {
   my $variables = $self->{context}{variables};
   $self->{values} = {@_};
   foreach my $x (keys %{$self->{values}}) {
-    $self->Error("Undeclared variable '$x'") unless defined $variables->{$x};
+    $self->Error(["Undeclared variable '%s'",$x]) unless defined $variables->{$x};
     $value = Value::makeValue($self->{values}{$x});
     $value = Value::Formula->new($value) unless Value::isValue($value);
     ($value,$type) = Value::getValueType($self,$value);
-    $self->Error("Variable '$x' should be of type $variables->{$x}{type}{name}")
+    $self->Error(["Variable '%s' should be of type %s",$x,$variables->{$x}{type}{name}])
       unless Parser::Item::typeMatch($type,$variables->{$x}{type});
     $self->{values}{$x} = $value;
   }

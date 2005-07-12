@@ -140,7 +140,7 @@ sub promote {
   return $pkg->new($open,@{$x->data},$close)
     if Value::class($x) =~ m/^(Point|List)$/ && $x->length == 2 &&
        ($open eq '(' || $open eq '[') && ($close eq ')' || $close eq ']');
-  Value::Error("Can't convert ".Value::showClass($x)." to an Interval");
+  Value::Error("Can't convert %s to an Interval",Value::showClass($x));
 }
 
 ############################################

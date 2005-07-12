@@ -32,8 +32,8 @@ sub _eval {
 #
 sub _call {
   my $self = shift; my $name = shift;
-  Value::Error("Function '$name' has too many inputs") if scalar(@_) > 1;
-  Value::Error("Function '$name' has too few inputs") if scalar(@_) == 0;
+  Value::Error("Function '%s' has too many inputs",$name) if scalar(@_) > 1;
+  Value::Error("Function '%s' has too few inputs",$name) if scalar(@_) == 0;
   my $c = Value::Complex::promote($_[0]);
   $c->$name;
 }

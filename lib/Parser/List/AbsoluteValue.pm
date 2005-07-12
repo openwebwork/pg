@@ -16,7 +16,7 @@ sub _check {
   $self->Error("Only one value allowed within absolute values")
     if ($self->{type}{length} != 1);
   my $arg = $self->{coords}[0];
-  $self->Error("Absolute value can't be taken of ".$arg->type)
+  $self->Error("Absolute value can't be taken of %s",$arg->type)
     unless ($arg->type =~ /Number|Point|Vector/);
   $self->{type} = $Value::Type{number};
 }

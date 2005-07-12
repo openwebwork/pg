@@ -57,7 +57,7 @@ sub create {
   } elsif ($value =~ m/$self->{context}{pattern}{signedNumber}/) {
     $value = $type{'Real'};
   } else {
-    Value::Error("Unrecognized variable type '$value'");
+    Value::Error("Unrecognized variable type '%s'",$value);
   }
   return {type => $value, @extra};
 }

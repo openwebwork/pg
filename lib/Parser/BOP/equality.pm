@@ -13,7 +13,7 @@ sub _check {
   my $self = shift; my $name = $self->{def}{string} || $self->{bop};
   $self->Error("Only one equality is allowed in an equation")
     if ($self->{lop}->type eq 'Equality' || $self->{rop}->type eq 'Equality');
-  $self->Error("Operands of '$name' must be Numbers") unless $self->checkNumbers();
+  $self->Error("Operands of '%s' must be Numbers",$name) unless $self->checkNumbers();
   $self->{type} = Value::Type('Equality',1); # Make it not a number, to get errors with other operations.
 }
 

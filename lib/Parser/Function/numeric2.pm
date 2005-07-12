@@ -16,7 +16,7 @@ sub _check {
       !$self->{params}->[0]->isComplex && !$self->{params}->[1]->isComplex) {
     $self->{type} = $Value::Type{number};
   } else {
-    $self->Error("Function '$self->{name}' has the wrong type of inputs");
+    $self->Error("Function '%s' has the wrong type of inputs",$self->{name});
   }
 }
 
@@ -25,9 +25,9 @@ sub _check {
 #
 sub _call {
   my $self = shift; my $name = shift;
-  Value::Error("Function '$name' has too many inputs") if scalar(@_) > 2;
-  Value::Error("Function '$name' has too few inputs") if scalar(@_) < 2;
-  Value::Error("Function '$name' has the wrong type of inputs")
+  Value::Error("Function '%s' has too many inputs",$name) if scalar(@_) > 2;
+  Value::Error("Function '%s' has too few inputs",$name) if scalar(@_) < 2;
+  Value::Error("Function '%s' has the wrong type of inputs",$name)
     unless Value::matchNumber($_[0]) && Value::matchNumber($_[1]);
   return $self->$name(@_);
 }

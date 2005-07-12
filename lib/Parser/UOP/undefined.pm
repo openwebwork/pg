@@ -13,7 +13,7 @@ use strict; use vars qw(@ISA);
 sub _check {
   my $self = shift;
   my $uop = $self->{def}{string} || $self->{uop};
-  $self->Error("Can't use '$uop' in this context");
+  $self->Error("Can't use '%s' in this context",$uop);
 }
 
 #########################################################################

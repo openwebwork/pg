@@ -59,7 +59,7 @@ sub _reduce {
           $M,$parser->{Value}->new($equation,@index))
     }
     my $i = shift(@index); $i-- if $i > 0;
-    $self->Error("Can't extract element number '$i' (index must be an integer)")
+    $self->Error("Can't extract element number '%s' (index must be an integer)",$i)
       unless $i =~ m/^-?\d+$/;
     $M = $M->{coords}[$i];
     return $parser->{Value}->new($equation,Value::List->new()) unless $M;

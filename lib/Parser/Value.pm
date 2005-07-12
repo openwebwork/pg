@@ -28,7 +28,7 @@ sub new {
   return $parser->{Number}->new($equation,$value,$ref) if ($type eq 'Number');
   return $parser->{Number}->new($equation,$value->{data},$ref) 
     if ($type eq 'value' && $value->class eq 'Complex');
-  $equation->Error("Can't convert ".Value::showClass($value)." to a constant",$ref)
+  $equation->Error(["Can't convert %s to a constant",Value::showClass($value)],$ref)
     if ($type eq 'unknown');
   $type = 'Value::'.$type, $value = $type->new(@{$value}) unless $type eq 'value';
   $type = $value->typeRef;

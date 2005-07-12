@@ -31,7 +31,7 @@ sub Parser::D {
 sub Item::D {
   my $self = shift;
   my $type = ref($self); $type =~ s/.*:://;
-  $self->Error("Differentiation for '$type' is not implemented");
+  $self->Error("Differentiation for '%s' is not implemented",$type);
 }
 
 
@@ -154,7 +154,7 @@ sub Parser::UOP::factorial::D  {Item::D(shift)}
 
 sub Parser::Function::D {
   my $self = shift;
-  $self->Error("Differentiation of '$self->{name}' not implemented");
+  $self->Error("Differentiation of '%s' not implemented",$self->{name});
 }
 
 sub Parser::Function::D_chain {

@@ -22,7 +22,7 @@ sub _check {
   my $self = shift;
   $self->SUPER::_check;
   my $uop = $self->{def}{string} || $self->{uop};
-  $self->Error("You can only use '$uop' with (non-negative) numbers")
+  $self->Error("You can only use '%s' with (non-negative) numbers",$uop)
     unless $self->{op}->class =~ /Number|DIVIDE/;
 }
 
@@ -40,7 +40,7 @@ sub _check {
   my $self = shift;
   $self->SUPER::_check;
   my $bop = $self->{def}{string} || $self->{bop};
-  $self->Error("You can only use '$bop' between (non-negative) numbers")
+  $self->Error("You can only use '%s' between (non-negative) numbers",$bop)
     unless $self->{lop}->class =~ /Number|MINUS/ &&
            $self->{rop}->class eq 'Number';
 }

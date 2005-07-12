@@ -100,7 +100,7 @@ sub current {
     if (!ref($context)) {
       my $name = $context;
       $context = Parser::Context->get($contextTable,$context);
-      Value::Error("Unknown context '$name'") unless defined($context);
+      Value::Error("Unknown context '%s'",$name) unless defined($context);
     }
     $contextTable->{current} = $context;
     $Value::context = \$contextTable->{current};

@@ -162,8 +162,8 @@ sub cmp_compare {
   return eval {$self == $other} unless ref($ans->{checker}) eq 'CODE';
   my $equal = eval {&{$ans->{checker}}($self,$other,$ans)};
   if (!defined($equal) && $@ ne '' && (!$$Value::context->{error}{flag} || $ans->{showAllErrors})) {
-    $$Value::context->setError("<I>An error occurred while checking your answer:</I>\n".
-      '<DIV STYLE="margin-left:1em">'.$@.'</DIV>','');
+    $$Value::context->setError(["<I>An error occurred while checking your answer:</I>\n".
+      '<DIV STYLE="margin-left:1em">%s</DIV>',$@],'');
     $$Value::context->{error}{flag} = $CMP_ERROR;
     warn "Please inform your instructor that an error occurred while checking your answer";
   }
@@ -742,7 +742,7 @@ sub ANS_MATRIX {
   my $def = ($self->{context} || $$Value::context)->lists->get('Matrix');
   my $open = $self->{open} || $def->{open}; my $close = $self->{close} || $def->{close};
   my @d = $self->dimensions;
-  Value::Error("Can't create ans_array for ".scalar(@d)."-dimensional matrix")
+  Value::Error("Can't create ans_array for %d-dimensional matrix",scalar(@d))
     if (scalar(@d) > 2);
   @d = (1,@d) if (scalar(@d) == 1);
   $self->ans_matrix($extend,$name,@d,$size,$open,$close,'');

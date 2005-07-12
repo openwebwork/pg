@@ -49,7 +49,7 @@ sub new {
     foreach my $x (@{$p}) {
       $x = Value::makeValue($x);
       $isFormula = 1 if Value::isFormula($x);
-      Value::Error("Coordinate of Point can't be ".Value::showClass($x))
+      Value::Error("Coordinate of Point can't be %s",Value::showClass($x))
         unless Value::isNumber($x);
     }
   }
@@ -64,7 +64,7 @@ sub promote {
   my $x = shift;
   return $pkg->new($x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
   return $x if ref($x) eq $pkg;
-  Value::Error("Can't convert ".Value::showClass($x)." to a Point");
+  Value::Error("Can't convert %s to a Point",Value::showClass($x));
 }
 
 ############################################

@@ -97,7 +97,7 @@ sub checkString {
   my $type = $self->{op}->typeRef;
   return 0 if ($type->{name} ne 'String');
   my $name = $self->{def}{string} || $self->{uop};
-  $self->Error("Operand of '$name' can't be ".
+  $self->Error("Operand of '%s' can't be %s",$name,
 	       ($self->{op}{isInfinite}? 'an infinity': 'a word'));
   return 1;
 }
@@ -110,7 +110,7 @@ sub checkList {
   my $type = $self->{op}->typeRef;
   return 0 if ($type->{name} ne 'List');
   my $name = $self->{def}{string} || $self->{uop};
-  $self->Error("Operand of '$name' can't be a list");
+  $self->Error("Operand of '%s' can't be a list",$name);
   return 1;
 }
 
