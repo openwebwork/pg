@@ -18,7 +18,7 @@ $operators = {
            class => 'Parser::BOP::add'},
 
    '-' => {precedence => 1, associativity => 'left', type => 'both', string => '-',
-           class => 'Parser::BOP::subtract', rightparens => 'same'},
+           perl => '- ', class => 'Parser::BOP::subtract', rightparens => 'same'},
 
    '><'=> {precedence => 2, associativity => 'left', type => 'bin',
            string => ' >< ', TeX => '\times ', perl => ' x ', fullparens => 1,
@@ -57,7 +57,7 @@ $operators = {
    'u+'=> {precedence => 6, associativity => 'left', type => 'unary', string => '+',
            class => 'Parser::UOP::plus', hidden => 1, allowInfinite => 1, nofractionparens => 1},
 
-   'u-'=> {precedence => 6, associativity => 'left', type => 'unary', string => '-',
+   'u-'=> {precedence => 6, associativity => 'left', type => 'unary', string => '-', perl => '- ',
            class => 'Parser::UOP::minus', hidden => 1, allowInfinite => 1, nofractionparens => 1},
 
    '^' => {precedence => 7, associativity => 'right', type => 'bin', string => '^', perl => '**',
