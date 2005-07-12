@@ -47,9 +47,9 @@ sub _check {
     return if $self->checkVectors;
   }
   my $bop = $self->{def}{string} || $self->{bop};
-  $self->Error("In this context, '$bop' can only be used with Numbers")
+  $self->Error("In this context, '%s' can only be used with Numbers",$bop)
     if $self->{equation}{context}{flags}{vector_format} eq 'coordinate';
-  $self->Error("In this context, '$bop' can only be used with Numbers or i,j and k");
+  $self->Error("In this context, '%s' can only be used with Numbers or i,j and k",$bop);
 }
 
 #
@@ -74,7 +74,7 @@ sub checkConstants {
       $self->{ijk}{$x} = $self->{ijk}{$x} || $op->{ijk}{$x};
     }
   }
-  Value::Error("The constant '$duplicate' may appear only once in your formula")
+  Value::Error("The constant '%s' may appear only once in your formula",$duplicate)
     if $duplicate;
 }
 
@@ -125,7 +125,7 @@ our @ISA = qw(LimitedVector::BOP Parser::BOP::divide);
 sub checkVectors {
   my $self = shift;
   my $bop = $self->{def}{string} || $self->{bop};
-  $self->Error("In this context, '$bop' can only be used with Numbers");
+  $self->Error("In this context, '%s' can only be used with Numbers",$bop);
 }
 
 ##############################################
@@ -146,9 +146,9 @@ sub _check {
     return if $self->checkVector;
   }
   my $uop = $self->{def}{string} || $self->{uop};
-  $self->Error("In this context, '$uop' can only be used with Numbers")
+  $self->Error("In this context, '%s' can only be used with Numbers",$uop)
     if $self->{equation}{context}{flags}{vector_format} eq 'coordinate';
-  $self->Error("In this context, '$uop' can only be used with Numbers or i,j and k");
+  $self->Error("In this context, '%s' can only be used with Numbers or i,j and k",$uop);
 }
 
 sub checkVector {return 0}

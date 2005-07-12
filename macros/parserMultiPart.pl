@@ -132,7 +132,7 @@ my @ans_defaults = (
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my @data = @_; my @cmp;
-  Value::Error($class." lists can't be empty") if scalar(@data) == 0;
+  Value::Error("%s lists can't be empty",$class) if scalar(@data) == 0;
   foreach my $x (@data) {
     $x = Value::makeValue($x) unless Value::isValue($x);
     push(@cmp,$x->cmp(@ans_defaults));

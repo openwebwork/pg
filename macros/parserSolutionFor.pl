@@ -103,7 +103,7 @@ sub SolutionFor {
   #
   #  Make sure professor's answer actually works
   #
-  Value::Error("Professor's answer of ".$p->string." does not satisfy the given equation") 
+  Value::Error("Professor's answer of %s does not satisfy the given equation",$p->string)
     unless $p->f($p);
 
   #

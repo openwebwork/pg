@@ -22,7 +22,7 @@ sub _check {
   my $self = shift;
   $self->SUPER::_check;
   my $uop = $self->{def}{string} || $self->{uop};
-  $self->Error("Can't use '$uop' in this context")
+  $self->Error("Can't use '%s' in this context",$uop)
     unless $self->{op}->class eq 'Number';
 }
 

@@ -99,7 +99,7 @@ sub new {
     $vars = shift || [$$Value::context->variables->names];
     $vars = [$vars] unless ref($vars) eq 'ARRAY';
     $type = 'line' if scalar(@{$vars}) == 2;
-    Value::Error("Your formula doesn't look like an implicit $type")
+    Value::Error("Your formula doesn't look like an implicit %s",$type)
       unless $plane->type eq 'Equality';
     #
     #  Find the coefficients of the formula
@@ -120,7 +120,7 @@ sub new {
       unless (Value::Formula->new($plane->{tree}{lop}) -
               Value::Formula->new($plane->{tree}{rop})) == $f;
   }
-  Value::Error("The equation of a $type must be non-zero somewhere")
+  Value::Error("The equation of a %s must be non-zero somewhere",$type)
     if ($N->norm == 0);
   $plane->{d} = $d; $plane->{N} = $N; $plane->{implicit} = $type;
   $plane->{isValue} = $plane->{isFormula} = 1;

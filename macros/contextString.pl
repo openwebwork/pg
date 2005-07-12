@@ -26,7 +26,7 @@ sub new {
   my @strings = grep {not defined($context->strings->get($_)->{alias})}
                   $context->strings->names;
   my $strings = join(', ',@strings[0..$#strings-1]).' or '.$strings[-1];
-  $equation->Error("Your answer should be one of $strings");
+  $equation->Error("Your answer should be one of %s",$strings);
 }
 
 package contextString::Formula;

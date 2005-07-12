@@ -178,7 +178,7 @@ sub _check {
   &{$super."::_check"}($self);
   my $op = $self->{op};
   return if LimitedPolynomail::isConstant($op);
-  $self->Error("You can only use '$self->{def}{string}' with monomials")
+  $self->Error("You can only use '%s' with monomials",$self->{def}{string})
     if $op->{isPoly};
   $self->{isPoly} = 2;
   $self->{powers} = {%{$op->{powers}}} if $op->{powers};
@@ -226,7 +226,7 @@ sub _check {
   &{$super."::_check"}($self);
   my $arg = $self->{params}->[0];
   return if LimitedPolynomial::isConstant($arg);
-  $self->Error("Function '$self->{name}' can only be used with numbers");  
+  $self->Error("Function '%s' can only be used with numbers",$self->{name});
 }
 
 

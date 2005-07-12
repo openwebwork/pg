@@ -80,7 +80,7 @@ sub new {
     Value::Error("A line can't be just a constant vector") unless $t;
     $p = Value::Point->new($line->eval($t=>0));
     $v = Value::Vector->new($line->eval($t=>1) - $p);
-    Value::Error("Your formula isn't linear in the variable $t")
+    Value::Error("Your formula isn't linear in the variable %s",$t)
       unless $line == $p + Value::Formula->new($t) * $v;
   }
   Value::Error("The direction vector for a parametric line can't be the zero vector")

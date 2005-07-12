@@ -26,7 +26,7 @@ sub _check {
   &{$super."::_check"}($self);
   return if $self->checkNumbers;
   my $bop = $self->{def}{string} || $self->{bop};
-  $self->Error("In this context, '$bop' can only be used with Numbers");
+  $self->Error("In this context, '%s' can only be used with Numbers",$bop);
 }
 
 ##############################################
@@ -69,7 +69,7 @@ sub _check {
   &{$super."::_check"}($self);
   return if $self->checkNumber;
   my $uop = $self->{def}{string} || $self->{uop};
-  $self->Error("In this context, '$uop' can only be used with Numbers");
+  $self->Error("In this context, '%s' can only be used with Numbers",$uop);
 }
 
 ##############################################
