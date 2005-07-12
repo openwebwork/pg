@@ -279,7 +279,7 @@ sub string {
       ($showparens eq 'all' || (($showparens eq 'extra' || $bop->{fullparens}) && $extraParens) ||
        $precedence > $bop->{precedence} || ($precedence == $bop->{precedence} &&
         ($bop->{associativity} eq 'right' || $showparens eq 'same')));
-  my $outerRight = !$addparens && ($outerRight || $position eq 'right');
+  $outerRight = !$addparens && ($outerRight || $position eq 'right');
 
   $string = $self->{lop}->string($bop->{precedence},$bop->{leftparens},'left',$outerRight).
             $bop->{string}.
@@ -301,7 +301,7 @@ sub TeX {
       (($showparens eq 'all' && $extraParens) || $precedence > $bop->{precedence} ||
       ($precedence == $bop->{precedence} &&
         ($bop->{associativity} eq 'right' || $showparens eq 'same')));
-  my $outerRight = !$addparens && ($outerRight || $position eq 'right');
+  $outerRight = !$addparens && ($outerRight || $position eq 'right');
 
   $TeX = $self->{lop}->TeX($bop->{precedence},$bop->{leftparens},'left',$outerRight).
          (defined($bop->{TeX}) ? $bop->{TeX} : $bop->{string}) .

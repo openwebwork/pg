@@ -80,7 +80,7 @@ sub TeX {
       ($showparens eq 'all' || $precedence > $bop->{precedence} ||
       ($precedence == $bop->{precedence} &&
         ($bop->{associativity} eq 'right' || $showparens eq 'same')));
-  my $outerRight = !$addparens && ($outerRight || $position eq 'right');
+  $outerRight = !$addparens && ($outerRight || $position eq 'right');
 
   my $symbol = (defined($bop->{TeX}) ? $bop->{TeX} : $bop->{string});
   $TeX = $self->{lop}->TeX($bop->{precedence},$bop->{leftparens},'left',$outerRight).

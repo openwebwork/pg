@@ -350,7 +350,7 @@ sub format {
   $b = Value::Real->make($b) unless ref($b);
   my $bi = 'i';
   return $a->$method($equation) if $b == 0;
-  $bi = abs($b)->$method($equation,1) . 'i' if abs($b) ne 1;
+  $bi = CORE::abs($b)->$method($equation,1) . 'i' if CORE::abs($b) ne 1;
   $bi = '-' . $bi if $b < 0;
   return $bi if $a == 0;
   $bi = '+' . $bi if $b > 0;
@@ -362,7 +362,7 @@ sub format {
 #  Values for i and pi
 #
 $i = $pkg->make(0,1);
-$pi = 4*atan2(1,1);
+$pi = 4*CORE::atan2(1,1);
 
 #
 #  So that we can use 1+3*i rather than 1+3*$i, etc.

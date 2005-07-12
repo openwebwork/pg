@@ -71,7 +71,7 @@ sub TeX {
       (($showparens eq 'all' && $extraParens) || $precedence > $bop->{precedence} ||
       ($precedence == $bop->{precedence} &&
         ($bop->{associativity} eq 'right' || $showparens eq 'same')));
-  my $outerRight = !$addparens && ($outerRight || $position eq 'right');
+  $outerRight = !$addparens && ($outerRight || $position eq 'right');
 
   my $symbol = (defined($bop->{TeX}) ? $bop->{TeX} : $bop->{string});
   if ($self->{lop}->class eq 'Function' && $self->{rop}->class eq 'Number' &&

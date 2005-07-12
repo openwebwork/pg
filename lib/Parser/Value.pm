@@ -31,7 +31,7 @@ sub new {
   $equation->Error("Can't convert ".Value::showClass($value)." to a constant",$ref)
     if ($type eq 'unknown');
   $type = 'Value::'.$type, $value = $type->new(@{$value}) unless $type eq 'value';
-  my $type = $value->typeRef;
+  $type = $value->typeRef;
 
   my $c = bless {
     value => $value, type => $type, isConstant => 1,

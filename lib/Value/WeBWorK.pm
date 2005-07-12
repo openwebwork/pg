@@ -80,7 +80,7 @@ my @wwEvalFields = qw(
   useBaseTenLogs
 );
 
-sub Value::Context::initCopy {
+sub Parser::Context::initCopy {
   my $self = shift;
   my $context = $self->copy(@_);
   return $context if $context->{WW} && scalar(keys %{$context->{WW}}) > 0;

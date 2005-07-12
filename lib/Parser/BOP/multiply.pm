@@ -87,7 +87,7 @@ sub TeX {
       ($showparens eq 'all' || $precedence > $bop->{precedence} ||
       ($precedence == $bop->{precedence} &&
         ($bop->{associativity} eq 'right' || $showparens eq 'same')));
-  my $outerRight = !$addparens && ($outerRight || $position eq 'right');
+  $outerRight = !$addparens && ($outerRight || $position eq 'right');
 
   my $left  = $self->{lop}->TeX($bop->{precedence},$bop->{leftparens},'left',$outerRight);
   my $right = $self->{rop}->TeX($bop->{precedence},$bop->{rightparens},'right');

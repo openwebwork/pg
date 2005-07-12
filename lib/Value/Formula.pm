@@ -332,7 +332,7 @@ sub getVariableLimits {
   }
   $userlimits = [] unless $userlimits; my @limits;
   my $default;  $default = $userlimits->[0][0] if defined($userlimits->[0]);
-  my $default = $default || $self->{context}{flags}{limits} || [-2,2];
+  $default = $default || $self->{context}{flags}{limits} || [-2,2];
   my $granularity = $self->getFlag('granularity',1000);
   my $resolution = $self->getFlag('resolution');
   my $i = 0;

@@ -70,7 +70,7 @@ sub string {
 sub TeX {
   my $self = shift;
   return $self->{def}{TeX} if defined($self->{def}{TeX});
-  my $value = $self->eval; $value =~ s/([ _])/\\\1/g;
+  my $value = $self->eval; $value =~ s/([ _])/\\$1/g;
   return '{\rm '.$value.'}' unless Value::isValue($value);
   return $value->TeX($self->{equation});
 }
