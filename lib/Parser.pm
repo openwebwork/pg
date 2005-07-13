@@ -644,7 +644,7 @@ sub perlFunction {
   $vars = [sort(keys %{$self->{variables}})] unless $vars;
   my $n = scalar(@{$vars}); my $vnames = '';
   if ($n > 0) {
-    my @v = (); foreach my $x (@{$vars}) {&push(@v,'$'.$x)}
+    my @v = (); foreach my $x (@{$vars}) {CORE::push(@v,'$'.$x)}
     $vnames = "my (".join(',',@v).") = \@_;";
   }
   my $fn = eval
