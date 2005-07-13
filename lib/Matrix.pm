@@ -15,12 +15,12 @@ Implements overrides for MatrixReal.pm for WeBWorK
 
 =cut
 
-
-
-BEGIN {
-	be_strict(); # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
-
-}
+our $OPTION_ENTRY = $MatrixReal1::OPTION_ENTRY;
+use strict;
+# BEGIN {
+# 	be_strict(); # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
+# 
+# }
 package Matrix;
 @Matrix::ISA = qw(MatrixReal1);
 
@@ -37,29 +37,87 @@ $Matrix::DEFAULT_FORMAT = '% #-19.12E ';
 =cut
 
 
-sub _stringify
-{
-    my($object,$argument,$flag) = @_;
-#   my($name) = '""'; #&_trace($name,$object,$argument,$flag);
+sub _stringify {  
+    my ($object,$argument,$flag) = @_;
+    return unless ref($object);
+    $argument = "" unless defined $argument;
+    $flag    = "" unless defined $flag;
+    #warn " object ".ref($object);
+    #warn " args $argument";
+    #warn "flag $flag";
+#   my($name) = '""'; &_trace($name,$object,$argument,$flag);
     my($rows,$cols) = ($object->[1],$object->[2]);
     my($i,$j,$s);
-
+    
     $s = '';
     for ( $i = 0; $i < $rows; $i++ )
     {
         $s .= "[ ";
         for ( $j = 0; $j < $cols; $j++ )
-        {
+        {  #warn " i $i j $j ",$object->rh_options;
             my $format = (defined($object->rh_options->{display_format}))
-            		     ?   $object->[3]->{display_format} :
+            		     ?   $object->rh_options->{display_format} :
 										$Matrix::DEFAULT_FORMAT;
-            $s .= sprintf($Matrix::DEFAULT_FORMAT, $object->[0][$i][$j]);
+            $s .= (ref($object->[0][$i][$j]) =~/Complex/) ?
+            		  " ".$object->[0][$i][$j]->stringify_cartesian." " :  #FIXME
+                      sprintf($Matrix::DEFAULT_FORMAT, $object->[0][$i][$j]) ;
         }
         $s .= "]\n";
     }
     return($s);
 }
 
+# obtain the Left Right matrices of the decomposition and the two pivot permutation matrices
+# the original is M = PL*L*R*PR
+sub L {
+	my $matrix = shift;
+	my $rows = $matrix->[1];
+	my $cols = $rows;
+	my $L_matrix = new Matrix($rows,$cols);
+	for (my $i=0; $i<$rows;$i++) {
+		for(my $j=0;$j<$i;$j++) {
+			$L_matrix->[0][$i][$j] = $matrix->[0][$i][$j];
+		}
+		$L_matrix->[0][$i][$i]= 1;
+	}
+	$L_matrix;
+}
+sub R {
+	my $matrix = shift;
+	my $rows = $matrix->[1];
+	my $cols = $matrix->[2];
+	my $R_matrix = new Matrix($rows,$cols);
+	for (my $i=0; $i<$rows;$i++) {
+		for(my $j=$i;$j<$cols;$j++) {
+			$R_matrix->[0][$i][$j] = $matrix->[0][$i][$j];
+		}
+	}
+	$R_matrix;
+}
+sub PL { # use this permuation on the left PL*L*R*PR =M
+	my $matrix = shift;
+	my $rows = $matrix->[1];
+	my $cols = $rows;
+	my $PL_matrix = new Matrix($rows,$cols); #rows=cols
+	for (my $j=0; $j<$cols;$j++) {
+		$PL_matrix->[0][$matrix->[4][$j]][$j]=1;
+	}
+	$PL_matrix;
+}
+
+sub PR { # use this permuation on the right PL*L*R*PR =M
+	my $matrix = shift;
+	my $cols = $matrix->[2];
+	my $rows = $cols;
+	my $PR_matrix = new Matrix($rows,$cols); #rows=cols
+	for (my $i=0; $i<$rows;$i++) {
+		$PR_matrix->[0][$i][$matrix->[5][$i]]=1;
+	}
+	$PR_matrix;
+
+}
+# obtain the Left Right matrices of the decomposition and the two pivot permutation matrices
+# the original is M = PL*L*R*PR
 =head4
 
 	Method $matrix->rh_options
@@ -68,9 +126,9 @@ sub _stringify
 
 sub rh_options {
     my $self = shift;
-    my $last_element = $#$self;
-    $self->[$last_element] = {} unless defined($self->[3]); # not sure why this needs to be done
-	$self->[$last_element];     # provides a reference to the options hash MEG
+    my $rh_option = shift;
+    $self->[$MatrixReal1::OPTION_ENTRY] = $rh_option if defined $rh_option; # not sure why this needs to be done
+	$self->[$MatrixReal1::OPTION_ENTRY];     # provides a reference to the options hash MEG
 }
 
 =head4
@@ -414,36 +472,33 @@ sub decompose_LR
     my($rows,$cols) = ($matrix->[1],$matrix->[2]);
     my($perm_row,$perm_col);
     my($row,$col,$max);
-#    my($i,$j,$k,$n);  #MEG
     my($i,$j,$k,);
     my($sign) = 1;
     my($swap);
     my($temp);
+    my $rh_options = $matrix->[$MatrixReal1::OPTION_ENTRY];
 #    FIXEME Why won't this work on non-square matrices?
 #    croak "MatrixReal1::decompose_LR(): matrix is not quadratic"
 #      unless ($rows == $cols);
-    croak "MatrixReal1::decompose_LR(): matrix has more rows than columns"
-      unless ($rows <= $cols);
+#    croak "MatrixReal1::decompose_LR(): matrix has more rows than columns"
+#      unless ($rows <= $cols);
 
     $temp = $matrix->new($rows,$cols);
     $temp->copy($matrix);
 #    $n = $rows;
     $perm_row = [ ];
     $perm_col = [ ];
-    for ( $i = 0; $i < $rows; $i++ )  #i is a row number
-    {
-        $perm_row->[$i] = $i;
-        $perm_col->[$i] = $i;
-    }
+    for ( my $i = 0; $i < $rows; $i++ )  { $perm_row->[$i] = $i;} #i is a row number   
+    for (my $j=0;$j<$cols;$j++) {    $perm_col->[$j] = $j; }
     NONZERO:
     for ( $k = 0; $k < $rows; $k++ ) # use Gauss's algorithm:  #k is row number
     {
         # complete pivot-search:
 
         $max = 0;
-        for ( $i = $k; $i < $cols; $i++ )   # i is column number
+        for ( $i = $k; $i < $rows; $i++ )   # i is row number
         {
-            for ( $j = $k; $j < $cols; $j++ )
+            for ( $j = $k; $j < $cols; $j++ )  #j is a col number
             {
                 if (($swap = abs($temp->[0][$i][$j])) > $max)
                 {
@@ -453,6 +508,7 @@ sub decompose_LR
                 }
             }
         }
+        # warn "max is $max row is $row and col is $col and k is $k";
         last NONZERO if ($max == 0); # (all remaining elements are zero)
         if ($k != $row) # swap row $k and row $row:
         {
@@ -470,7 +526,7 @@ sub decompose_LR
             }
         }
         if ($k != $col) # swap column $k and column $col:
-        {
+        {   my $swap;  # localize variable MEG
             $sign = -$sign;
             $swap             = $perm_col->[$k];
             $perm_col->[$k]   = $perm_col->[$col];
@@ -482,7 +538,7 @@ sub decompose_LR
                 $temp->[0][$i][$col] = $swap;
             }
         }
-        for ( $i = ($k + 1); $i < $cols; $i++ )   # i is column number
+        for (my $i = ($k + 1); $i < $rows; $i++ )   # i is row number
         {
             # scan the remaining rows, add multiples of row $k to row $i:
 
@@ -491,22 +547,21 @@ sub decompose_LR
             {
                 # calculate a row of matrix R:
 
-                for ( $j = ($k + 1); $j < $cols; $j++ )   #j is also a column number
+                for (my $j = ($k + 1); $j < $cols; $j++ )   #j is  a column number
                 {
                     $temp->[0][$i][$j] -= $temp->[0][$k][$j] * $swap;
                 }
 
                 # store matrix L in same matrix as R:
-
                 $temp->[0][$i][$k] = $swap;
             }
         }
     }
-    my $rh_options = $temp->[3];
+    #my $rh_options = $temp->[3];
     $temp->[3] = $sign;
     $temp->[4] = $perm_row;
     $temp->[5] = $perm_col;
-    $temp->[6] = $temp->[3];
+    $temp->[$MatrixReal1::OPTION_ENTRY] = $rh_options;
     return($temp);
 }
 
