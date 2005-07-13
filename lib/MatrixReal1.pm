@@ -25,6 +25,7 @@ require Exporter;
 %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 $VERSION = '1.3a5';
+$MatrixReal1::OPTION_ENTRY=7;
 
 use Carp;
 
@@ -75,8 +76,9 @@ sub new
       if ($cols <= 0);
 
 #    $this = [ [ ], $rows, $cols ];
-    $this = [ [ ], $rows, $cols,{} ];  # added a holder for options MEG
-                                       # see also modifications to LR decomposition
+    $this = [ [ ], $rows, $cols ];  
+    $this->[$MatrixReal1::OPTION_ENTRY] = {};   # added a holder for options MEG
+                                                # see also modifications to LR decomposition
 
     # Creates first empty row
     my $empty = [ ];
@@ -254,18 +256,18 @@ sub column
     return($temp);
 }
 
-sub _undo_LR
+sub _undo_LR  # I don't think gives original matrix. LR is not the same as the original matrix
 {
     croak "Usage: \$matrix->_undo_LR();"
       if (@_ != 1);
 
     my($this) = @_;
-    my $rh_options = $this->[6];
+    my $rh_options = $this->[$MatrixReal1::OPTION_ENTRY];
     undef $this->[3];
     undef $this->[4];
     undef $this->[5];
     undef $this->[6];
-    $this->[3] = $rh_options;
+    $this->[$MatrixReal1::OPTION_ENTRY] = $rh_options;
 }
 
 sub zero
@@ -530,9 +532,9 @@ sub multiply_scalar
 
     $matrix1->_undo_LR();
 
-    for ( $i = 0; $i < $rows1; $i++ )
+    for ( my $i = 0; $i < $rows1; $i++ )
     {
-        for ( $j = 0; $j < $cols1; $j++ )
+        for ( my $j = 0; $j < $cols1; $j++ )
         {
             $matrix1->[0][$i][$j] = $matrix2->[0][$i][$j] * $scalar;
         }
