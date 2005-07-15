@@ -177,7 +177,7 @@ sub _check {
   my $super = ref($self); $super =~ s/LimitedPolynomial/Parser/;
   &{$super."::_check"}($self);
   my $op = $self->{op};
-  return if LimitedPolynomail::isConstant($op);
+  return if LimitedPolynomial::isConstant($op);
   $self->Error("You can only use '%s' with monomials",$self->{def}{string})
     if $op->{isPoly};
   $self->{isPoly} = 2;
