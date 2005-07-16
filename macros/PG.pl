@@ -255,10 +255,30 @@ sub TEXT {
 	my @in = @_;
 	$STRINGforOUTPUT .= join(" ",@in);
 }
+
+=head2 STOP_RENDERING()
+
+	STOP_RENDERING() unless all_answers_are_correct;
+
+No text is printed and no answer blanks or answer evaluators are stored or processed until
+RESUME_RENDERING() is executed.
+
+=cut
+
 sub STOP_RENDERING {
 	$PG_STOP_FLAG=1;
 	"";
 }
+
+=head2 RESUME_RENDERING()
+
+	RESUME_RENDERING();
+
+Resumes processing of text,  answer blanks,  and
+answer evaluators.
+
+=cut
+
 sub RESUME_RENDERING {
 	$PG_STOP_FLAG=0;
 	"";
