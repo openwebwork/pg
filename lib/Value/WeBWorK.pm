@@ -77,7 +77,7 @@ my @wwEvalFields = qw(
   numRelPercentTolDefault
   numZeroLevelDefault
   numZeroLevelTolDefault
-  useBaseTenLogs
+  useBaseTenLog
 );
 
 sub Parser::Context::initCopy {
@@ -95,7 +95,7 @@ sub Parser::Context::initCopy {
      zeroLevelTol   => $ww->{numZeroLevelTolDefault},
      num_points     => $ww->{functNumOfPoints} + 2,
      max_adapt      => $ww->{functMaxConstantOfIntegration},
-     useBaseTenLogs => $ww->{useBaseTenLogs},
+     useBaseTenLog => $ww->{useBaseTenLog},
   );
   $context->{format}{number} = $ww->{numFormatDefault} if $ww->{$numFormatDefault} ne '';
   $context;

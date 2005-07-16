@@ -49,7 +49,7 @@ sub log   {
   my $self = shift; my $context;
   $context = $self->{context} if ref($self);
   $context = $$Value::context unless $context;
-  return CORE::log($_[0])/CORE::log(10) if $context->flag('useBaseTenLogs');
+  return CORE::log($_[0])/CORE::log(10) if $context->flag('useBaseTenLog');
   CORE::log($_[0]);
 }
 
