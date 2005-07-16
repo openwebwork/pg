@@ -74,8 +74,9 @@ and the answer evaulator queue respectively.
 
 my ($STRINGforOUTPUT, $STRINGforHEADER_TEXT, @PG_ANSWERS, @PG_UNLABELED_ANSWERS);
 my %PG_ANSWERS_HASH ;
+our $PG_STOP_FLAG;
 
-# my variables are unreliable if two DOCUMENTS were to be called before and ENDDOCUMENT
+# my variables are unreliable if two DOCUMENTS were to be called before an ENDDOCUMENT
 # there could be conflicts.  As I understand the behavior of the Apache child
 # this cannot occur -- a child finishes with one request before obtaining the next
 
@@ -113,7 +114,7 @@ sub DOCUMENT {
 	$STRINGforOUTPUT ="";
     $STRINGforHEADER_TEXT ="";
 	@PG_ANSWERS=();
-	
+	$PG_STOP_FLAG=0;
 	@PG_UNLABELED_ANSWERS = ();
 	%PG_ANSWERS_HASH = ();
 	# FIXME:  We are initializing these variables into both Safe::Root1 (the cached safe compartment) 
@@ -250,11 +251,18 @@ It can be used more than once in a file.
 =cut
 
 sub TEXT {
+	return "" if $PG_STOP_FLAG;
 	my @in = @_;
 	$STRINGforOUTPUT .= join(" ",@in);
-	}
-
-
+}
+sub STOP_RENDERING {
+	$PG_STOP_FLAG=1;
+	"";
+}
+sub RESUME_RENDERING {
+	$PG_STOP_FLAG=0;
+	"";
+}
 
 =head2 ANS()
 
@@ -273,19 +281,21 @@ order.
 =cut
 
 sub ANS{             # store answer evaluators which have not been explicitly labeled
+  return "" if $PG_STOP_FLAG;
   my @in = @_;
   while (@in ) {
          warn("<BR><B>Error in ANS:$in[0]</B> -- inputs must be references to
                       subroutines<BR>")
 			unless ref($in[0]);
     	push(@PG_ANSWERS, shift @in );
-    	}
+  }
 }
 sub LABELED_ANS {  #a better alias for NAMED_ANS
 	&NAMED_ANS;
 }
 
 sub NAMED_ANS{     # store answer evaluators which have been explicitly labeled (submitted in a hash)
+  return "" if $PG_STOP_FLAG;
   my @in = @_;
   while (@in ) {
   	my $label = shift @in;
@@ -298,6 +308,7 @@ sub NAMED_ANS{     # store answer evaluators which have been explicitly labeled 
   }
 }
 sub RECORD_ANS_NAME {     # this maintains the order in which the answer rules are printed.
+    return "" if $PG_STOP_FLAG;
 	my $label = shift;
 	eval(q!push(@main::PG_ANSWER_ENTRY_ORDER, $label)!);
 	$label;
@@ -305,6 +316,7 @@ sub RECORD_ANS_NAME {     # this maintains the order in which the answer rules a
 
 sub NEW_ANS_NAME {        # this keeps track of the answers which are entered implicitly,
                           # rather than with a specific label
+        return "" if $PG_STOP_FLAG;
 		my $number=shift;
 		my $prefix = eval(q!$main::QUIZ_PREFIX.$main::ANSWER_PREFIX!);
 		my $label = $prefix.$number;
@@ -323,12 +335,14 @@ my $vecnum;
 
 sub RECORD_FORM_LABEL  {             # this stores form data (such as sticky answers), but does nothing more
                                      # it's a bit of hack since we are storing these in the KEPT_EXTRA_ANSWERS queue even if they aren't answers per se.
+	return "" if $PG_STOP_FLAG;
 	my $label   = shift;             # the label of the input box or textarea
     eval(q!push(@main::KEPT_EXTRA_ANSWERS, $label)!); #put the labels into the hash to be caught later for recording purposes
     $label;
 }
 sub NEW_ANS_ARRAY_NAME {        # this keeps track of the answers which are entered implicitly,
                           # rather than with a specific label
+        return "" if $PG_STOP_FLAG;
 		my $number=shift;
 		$vecnum = 0;
 		my $row = shift;
@@ -340,7 +354,8 @@ sub NEW_ANS_ARRAY_NAME {        # this keeps track of the answers which are ente
 }
 
 sub NEW_ANS_ARRAY_NAME_EXTENSION {        # this keeps track of the answers which are entered implicitly,
-                          # rather than with a specific label
+                                          # rather than with a specific label
+        return "" if $PG_STOP_FLAG;
 		my $number=shift;
 		my $row = shift;
 		my $col = shift;
@@ -356,6 +371,33 @@ sub NEW_ANS_ARRAY_NAME_EXTENSION {        # this keeps track of the answers whic
 		$label;
 }
 
+
+sub get_PG_ANSWERS_HASH {
+	# update the PG_ANSWWERS_HASH, then report the result.  
+	# This is used in writing sequential problems
+	# if there is an input, use that as a key into the answer hash
+	my $key = shift;
+	my (%pg_answers_hash, @pg_unlabeled_answers);
+	%pg_answers_hash= %PG_ANSWERS_HASH;
+	#warn "order ", eval(q!@main::PG_ANSWER_ENTRY_ORDER!);
+	#warn "pg answers", %PG_ANSWERS_HASH;
+	#warn "unlabeled", @PG_UNLABELED_ANSWERS;
+    my $index=0;
+    foreach my $label (@PG_UNLABELED_ANSWERS) {
+        if ( defined($PG_ANSWERS[$index]) ) {
+    		$pg_answers_hash{"$label"}= $PG_ANSWERS[$index];
+ 			#warn "recording answer label = $label";
+    	} else {
+    		warn "No answer provided by instructor for answer $label";
+    	}
+    	$index++;
+    }
+    if ($key) {
+    	return $pg_answers_hash{$key};
+    } else {
+    	return %pg_answers_hash;
+    }
+}
 #	ENDDOCUMENT must come at the end of every .pg file.
 #   It exports the resulting text of the problem, the text to be used in HTML header material
 #   (for javaScript), the list of answer evaluators and any other flags.  It can appear only once and
