@@ -56,16 +56,23 @@ of the problem are hidden until earlier questions are answered correctly.
 =head2  listFormVariables
 
 	listFormVariables();
+	listVariables();
 
-Lists all variables submitted in the problem form.  This is used for debugging.
+Lists all variables submitted in the problem form and all variables in the 
+the Problem environment.  This is used for debugging.
 
 =cut
+
+sub listVariables {
+	listFormVariables(@_);
+}
 
 sub listFormVariables {
     # Lists all of the variables filled out on the input form
 	# Useful for debugging
     TEXT($HR,"Form variables", );
     TEXT(pretty_print($inputs_ref));
+    # list the environment variables
     TEXT("Environment",$BR);
    TEXT(pretty_print(\%envir));
    TEXT($HR);
