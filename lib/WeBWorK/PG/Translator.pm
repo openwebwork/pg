@@ -793,16 +793,26 @@ sub translate {
 	$self ->{errors} .= qq{ERROR:  This problem file was empty!\n} unless ($evalString) ;
 	$self ->{errors} .= qq{ERROR:  You must define the environment before translating.}
 	     unless defined( $self->{envir} );
-    # reset the error detection
-    $SIG{__WARN__} = sub {CORE::warn(@_) } unless ref($SIG{__WARN__}) =~/CODE/;
-    my $save_SIG_warn_trap = $SIG{__WARN__};
-    #FIXME  -- this may not work with the xmlrpc access
-    # this formats the error message within the existing warn message.
-    $SIG{__WARN__} = sub {&$save_SIG_warn_trap(PG_errorMessage('message',@_))};
-    #$SIG{__WARN__} = sub {CORE::warn(PG_errorMessage('message',@_))};
-    my $save_SIG_die_trap = $SIG{__DIE__};
-    $SIG{__DIE__} = sub {CORE::die(PG_errorMessage('traceback',@_))};
-
+    
+	# install handlers for warn and die that call PG_errorMessage.
+	# if the existing signal handler is not a coderef, the built-in warn or
+	# die function is called. this does not account for the case where the
+	# handler is set to "IGNORE" or to the name of a function. in these cases
+	# the built-in function will be called.
+	
+	my $outer_sig_warn = $SIG{__WARN__};
+	local $SIG{__WARN__} = sub {
+		ref $outer_sig_warn eq "CODE"
+			? &$outer_sig_warn(PG_errorMessage('message', $_[0]))
+			: warn PG_errorMessage('message', $_[0]);
+	};
+	
+	my $outer_sig_die = $SIG{__DIE__};
+	local $SIG{__DIE__} = sub {
+		ref $outer_sig_die eq "CODE"
+			? &$outer_sig_die(PG_errorMessage('traceback', $_[0]))
+			: die PG_errorMessage('traceback', $_[0]);
+	};
 
 =pod
 
@@ -990,8 +1000,6 @@ the errors.
 	    $self ->{ PG_HEADER_TEXT_REF 	}		= $PG_HEADER_TEXT_REF;
 	    $self ->{ rh_correct_answers	}		= $PG_ANSWER_HASH_REF;
 	    $self ->{ PG_FLAGS_REF			}		= $PG_FLAGS_REF;
-	    $SIG{__DIE__} = $save_SIG_die_trap;
-	    $SIG{__WARN__} = $save_SIG_warn_trap;
 	    $self ->{errors};
 }  # end translate
 
@@ -1068,8 +1076,48 @@ sub process_answers{
 	my @answer_entry_order = ( defined($self->{PG_FLAGS_REF}->{ANSWER_ENTRY_ORDER}) ) ?
 	                      @{$self->{PG_FLAGS_REF}->{ANSWER_ENTRY_ORDER}} : keys %{$rh_correct_answers};
 
+	# define custom warn/die handlers for answer evaluation. these used to be inside
+	# the foreach loop around the conditional involving $rf_fun, but for efficiency
+	# we've moved it out here. This means that the handlers will be active during the
+	# code before and after the actual answer evaluation.
+	
+	my $outer_sig_warn = $SIG{__WARN__};
+	local $SIG{__WARN__} = sub {
+		ref $outer_sig_warn eq "CODE"
+			? &$outer_sig_warn(PG_errorMessage('message', $_[0]))
+			: warn PG_errorMessage('message', $_[0]);
+	};
+	
+	# the die handler is a closure over %errorTable and $outer_sig_die.
+	# 
+	# %errorTable accumulates a "full" error message for each error that occurs during
+	# answer evaluation. then, right after the evaluation (which is done within a call
+	# to Safe::reval), $@ is checked and it's value is looked up in %errorTable to get
+	# the full error to report.
+	# 
+	# my question: why is this a hash? this is die, so once one occurs, we exit the reval.
+	# wouldn't it be sufficient to have a scalar like $backtrace_for_last_error?
+	# 
+	# Note that %errorTable is cleared for each answer.
+	my %errorTable;
+	my $outer_sig_die = $SIG{__DIE__};
+	local $SIG{__DIE__} = sub {
+		
+		# this chunk taken from dpvc's original handler
+		my $fullerror = PG_errorMessage('traceback', @_);
+		my ($error,$traceback) = split /\n/, $fullerror, 2;
+		$fullerror =~ s/\n	 /<BR>&nbsp;&nbsp;&nbsp;/g; $fullerror =~ s/\n/<BR>/g;
+		$error .= "\n";
+		$errorTable{$error} = $fullerror;
+		# end of dpvc's original code
+		
+		ref $outer_sig_die eq "CODE"
+			? &$outer_sig_die($error)
+			: die $error;
+	};
+	
  	# apply each instructors answer to the corresponding student answer
-
+	
  	foreach my $ans_name ( @answer_entry_order ) {
 		my ($ans, $errors) = $self->filter_answer( $h_student_answers{$ans_name} );
 		no strict;
@@ -1085,29 +1133,9 @@ sub process_answers{
 		                                          # in case the answer evaluator forgets to check
 		$self->{safe}->share('$rf_fun','$temp_ans');
  	    
-		local %errorTable;
-		$SIG{__DIE__} = sub {
-		  #
-		  #  Get full traceback, but save it in local variable so that
-		  #  we can add it later.  This is because some evaluators use
-		  #  eval to trap errors and then report them in the message
-		  #  column of the results table, and we don't want to include
-		  #  the traceback there.
-		  #
-		  my $fullerror = PG_errorMessage('traceback',@_);
-		  my ($error,$traceback) = split /\n/, $fullerror, 2;
-		  $fullerror =~ s/\n   /<BR>&nbsp;&nbsp;&nbsp;/g; $fullerror =~ s/\n/<BR>/g;
-		  $error .= "\n";
-		  $errorTable{$error} = $fullerror;
-		  CORE::die($error);
-		};		
-		# reset the error detection
-		my $save_SIG_warn_trap = $SIG{__WARN__};
-        $save_SIG_warn_trap = sub {CORE::warn @_} unless  ref($save_SIG_warn_trap) =~/CODE/;
-		$SIG{__WARN__} = sub {&$save_SIG_warn_trap(PG_errorMessage('message',@_))};
-
-		my $save_SIG_die_trap = $SIG{__DIE__};
-
+ 	    # clear %errorTable for each problem
+ 	    %errorTable = ();
+ 	    
 		my $rh_ans_evaluation_result;
 		if (ref($rf_fun) eq 'CODE' ) {
 			$rh_ans_evaluation_result = $self->{safe} ->reval( '&{ $rf_fun }($temp_ans)' ) ;
@@ -1125,10 +1153,6 @@ sub process_answers{
 			warn "Error in Translator.pm::process_answers: Answer $ans_name:<BR>\n Unrecognized evaluator type |", ref($rf_fun), "|";
 		}	
   	    
-		$SIG{__DIE__} = $save_SIG_die_trap;
-		$SIG{__WARN__} = $save_SIG_warn_trap;
-        
-        
 		use strict;
 		unless ( ( ref($rh_ans_evaluation_result) eq 'HASH') or ( ref($rh_ans_evaluation_result) eq 'AnswerHash') ) {
 			warn "Error in Translator.pm::process_answers: Answer $ans_name:<BR>\n
@@ -1495,10 +1519,10 @@ is 'main'.
 sub PG_restricted_eval {
     my $string = shift;
     my ($pck,$file,$line) = caller;
-    my $save_SIG_warn_trap = $SIG{__WARN__};
-    $SIG{__WARN__} = sub { CORE::die @_};
-    my $save_SIG_die_trap = $SIG{__DIE__};
-    $SIG{__DIE__}= sub {CORE::die @_};
+    
+	local $SIG{__WARN__} = "DEFAULT";
+	local $SIG{__DIE__} = "DEFAULT";
+	
     no strict;
     my $out = eval ("package main; " . $string );
     my $errors = $@;
@@ -1509,18 +1533,17 @@ sub PG_restricted_eval {
     #            . $errors .
     #            "The calling package is $pck\n" if defined($errors) && $errors =~/\S/;
     use strict;
-    $SIG{__DIE__} = $save_SIG_die_trap;
-    $SIG{__WARN__} = $save_SIG_warn_trap;
+    
     return (wantarray) ?  ($out, $errors,$full_error_report) : $out;
 }
 
 sub PG_macro_file_eval {      # would like to modify this so that it requires use strict on the files that it evaluates.
     my $string = shift;
     my ($pck,$file,$line) = caller;
-    my $save_SIG_warn_trap = $SIG{__WARN__};
-    $SIG{__WARN__} = sub { CORE::die @_};
-    my $save_SIG_die_trap = $SIG{__DIE__};
-    $SIG{__DIE__}= sub {CORE::die @_};
+	
+	local $SIG{__WARN__} = "DEFAULT";
+	local $SIG{__DIE__} = "DEFAULT";
+	
     no strict;
     my $out = eval  ("package main; be_strict();" . $string );
     my $errors =$@;
@@ -1528,8 +1551,7 @@ sub PG_macro_file_eval {      # would like to modify this so that it requires us
                 . $errors .
                 "The calling package is $pck\n" if defined($errors) && $errors =~/\S/;
     use strict;
-    $SIG{__DIE__} = $save_SIG_die_trap;
-    $SIG{__WARN__} = $save_SIG_warn_trap;
+    
     return (wantarray) ?  ($out, $errors,$full_error_report) : $out;
 }
 =head2 PG_answer_eval
@@ -1563,13 +1585,10 @@ sub PG_answer_eval {
     # This is pretty tricky and doesn't always work right.
     # We seem to need PG_priv instead of main when PG_answer_eval is called within a completion
     # 'package PG_priv; '
-    my $save_SIG_warn_trap = $SIG{__WARN__};
-    $SIG{__WARN__} = sub { CORE::die @_};
-    my $save_SIG_die_trap = $SIG{__DIE__};
-    $SIG{__DIE__}= sub {CORE::die @_};
-    my $save_SIG_FPE_trap= $SIG{'FPE'};
-    #$SIG{'FPE'} = \&main::PG_floating_point_exception_handler;
-    #$SIG{'FPE'} = sub {exit(0)};
+    
+	local $SIG{__WARN__} = "DEFAULT";
+	local $SIG{__DIE__} = "DEFAULT";
+	
     no strict;
     my $out = eval('package main;'.$string);
     $out = '' unless defined($out);
@@ -1578,9 +1597,7 @@ sub PG_answer_eval {
                 $errors
                 The calling package is $pck\n" if defined($errors) && $errors =~/\S/;
     use strict;
-    $SIG{__DIE__} = $save_SIG_die_trap;
-    $SIG{__WARN__} = $save_SIG_warn_trap;
-    $SIG{'FPE'} = $save_SIG_FPE_trap if defined $save_SIG_FPE_trap;
+    
     return (wantarray) ?  ($out, $errors,$full_error_report) : $out;
 
 
