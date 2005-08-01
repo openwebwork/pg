@@ -4614,6 +4614,9 @@ sub std_problem_grader {
 
 	$problem_state{num_of_correct_ans}++ if	$allAnswersCorrectQ	== 1;
 	$problem_state{num_of_incorrect_ans}++ if $allAnswersCorrectQ == 0;
+	
+	$problem_state{state_summary_msg} = '';  # an HTML formatted message printed at the bottom of the problem page
+	
 	(\%problem_result, \%problem_state);
 }
 
@@ -4713,6 +4716,8 @@ sub std_problem_grader2 {
 	if ($record_problem_attempt	== 1) {
 		$problem_state{num_of_correct_ans}++ if	$allAnswersCorrectQ	== 1;
 		$problem_state{num_of_incorrect_ans}++ if $allAnswersCorrectQ == 0;
+		$problem_state{state_summary_msg} = '';  # an HTML formatted message printed at the bottom of the problem page
+	
 	}
 	else {
 		$problem_result{show_partial_correct_answers} =	0 ;	 # prevent partial correct answers from	being shown	for	syntax errors.
@@ -4786,6 +4791,9 @@ sub avg_problem_grader {
 
 	$problem_state{num_of_correct_ans}++ if	$total == $count;
 	$problem_state{num_of_incorrect_ans}++ if $total < $count ;
+	
+	$problem_state{state_summary_msg} = '';  # an HTML formatted message printed at the bottom of the problem page
+	
 	warn "Error	in grading this	problem	the	total $total is	larger than	$count"	if $total >	$count;
 	(\%problem_result, \%problem_state);
 }
