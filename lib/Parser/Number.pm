@@ -15,9 +15,10 @@ sub new {
   return $equation->{context}{parser}{Complex}->new($equation,$value,$ref)
     if (ref($value) eq 'ARRAY');
   $value = $value->value while Value::isReal($value);
-  $value = $value + 0; # format the value as a number, just in case
   $num = bless {
-    value => $value, type => $Value::Type{number}, isConstant => 1,
+    value => $value + 0, # format the value as a number, just in case
+    value_string => $value, # for decimal checking, etc.
+    type => $Value::Type{number}, isConstant => 1,
     ref => $ref, equation => $equation,
   }, $class;
   my $x = Value::Real->make($value);
@@ -79,7 +80,7 @@ sub NoDecimals {
 sub _NoDecimals {
   my $self = shift;
   $self->Error("You are not allowed to type decimal numbers in this problem")
-    unless $self->{value} =~ m/^[-+]?[0-9]+$/;
+    unless $self->{value_string} =~ m/^[-+]?[0-9]+$/;
 }
 
 
