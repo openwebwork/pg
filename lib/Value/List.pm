@@ -25,6 +25,7 @@ use overload
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $p = shift; my $isFormula = 0;
+  my $isSingleton = (scalar(@_) == 0 && !(Value::isValue($p) && $p->class eq 'List'));
   $p = $p->data if (Value::isValue($p) && $p->class eq 'List' && scalar(@_) == 0);
   $p = [$p,@_] if (ref($p) ne 'ARRAY' || scalar(@_) > 0);
   my $type;
@@ -36,6 +37,7 @@ sub new {
         else {$type = 'unknown' unless $type eq $x->type}
     } else {$type = 'unknown'}
   }
+  return $p->[0] if ($isSingleton && $type eq 'List' && !$p->[0]{open});
   return $self->formula($p) if $isFormula;
   bless {data => $p, type => $type}, $class;
 }
