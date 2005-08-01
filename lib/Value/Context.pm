@@ -120,7 +120,7 @@ sub setError {
   $message .= sprintf($more,$pos->[0]+1) if $more;
   $error->{message} = $message;
   $error->{string} = $string;
-  $error->{pos} = $string;
+  $error->{pos} = $pos;
   $error->{flag} = 1;
 }
 
