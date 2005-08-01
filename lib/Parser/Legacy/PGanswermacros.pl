@@ -1050,7 +1050,7 @@ sub NUM_CMP {                              # low level numeric compare (now uses
 	    last;
 	  };
 	  /^arith$/i     and do {
-	    $context = &$Context("Numeric")->copy;
+	    $context = &$Context("LegacyNumeric")->copy;
 	    $context->functions->disable('All');
 	    last;
 	  };
@@ -1060,7 +1060,7 @@ sub NUM_CMP {                              # low level numeric compare (now uses
 	  };
 
 	  # default
-	  $context = &$Context("Numeric")->copy;
+	  $context = &$Context("LegacyNumeric")->copy;
 	}
 	$context->{format}{number} = $num_params{'format'};
 	$context->strings->clear;
@@ -1931,7 +1931,7 @@ sub FUNCTION_CMP {
 	#
 	#  Initialize the context for the formula
 	#
-	my $context = &$Context("Numeric")->copy;
+	my $context = &$Context("LegacyNumeric")->copy;
 	$context->flags->set(
 	  tolerance    => $func_params{'tolerance'},
 	  tolType      => $func_params{'tolType'},
