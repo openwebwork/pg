@@ -1124,6 +1124,12 @@ sub NUM_CMP {                              # low level numeric compare (now uses
 	  $rh_ans->{original_correct_ans} = $rh_ans->{correct_ans};
 	  return $rh_ans;
 	});
+	$cmp->install_post_filter(sub {
+	  my $rh_ans = shift;
+	  $rh_ans->{student_ans} = $rh_ans->{student_value}->string
+	    if ref($rh_ans->{student_value});
+	  return $rh_ans;
+	});
 	$cmp->{debug} = $num_params{debug};
 	&$Context($oldContext);
 
