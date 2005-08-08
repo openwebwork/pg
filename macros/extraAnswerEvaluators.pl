@@ -1,4 +1,4 @@
-
+loadMacros('Parser.pl');
 
 # This is extraAnswerEvaluators.pl
 
@@ -438,288 +438,6 @@ answers of various "exotic" types.
 
 }
 
-
-{
- package Number_List;
-
- sub new {
-	 my $class = shift;
-	 my $base_string = shift;
-	 my $self = {};
-	 $self->{'original'} = $base_string;
-	 return bless $self, $class;
- }
-
- sub make_complex_number {
-	 my $instring = shift;
-
-	 $instring = main::math_constants($instring);
-	 $instring =~ s/e\^/exp /g;
-	 my $parser = new AlgParserWithImplicitExpand;
-	 my $ret = $parser -> parse($instring);
-	 $parser -> tostring();
-	 $parser -> normalize();
-	 $instring = $parser -> tostring();
-	 $instring =~ s/\bi\b/(i)/g;
-	 my ($in,$PG_errors,$PG_errors_long) = main::PG_restricted_eval($instring);
-	 return ($in+0*Complex1::i());
- }
-
-
-
- sub parse_number_list {
-	 my($self) = shift;
-	 my(%opts) = @_;
-	 my($str) = $self->{'original'};
-	 my(@ans_list) = ();
-	 my(@sort_list) = ();
-	 delete($opts{'ordered'});
-
-	 my $complex=0;
-	 if(defined($opts{'complex'}) &&
-			($opts{'complex'} =~ /(yes|ok)/i)) {
-		 $complex=1;
-		 delete($opts{'mode'});
-	 }
-	 delete($opts{'complex'});
-	 $self->{'normalized'} = '';
-	 $self->{'value'} = '';
-	 $self->{'latex'} = '';
-	 $self->{'htmlerror'} = '';
-	 $self->{'error_msg'} = '';
-	 my($cur) = "";
-	 my($level,$spot,$hold,$char) = (1,0,0,"a");
-	 my($strt, $end) = (0, length($str));
-	 my($specials) = '[\(\[\]\),\{\}]';
-	 my($tmp_ae,$tmp_ae2);
-	 if($complex) {
-		 $tmp_ae = main::cplx_cmp(new Complex(1,0), %opts);
-		 $tmp_ae2 = main::cplx_cmp(new Complex(1,0));
-	 } else {
-		 $tmp_ae = main::num_cmp(1, %opts);
-		 $tmp_ae2 = main::num_cmp(1);
-	 }
-
-	 while ($spot < $end) {
-		 $char = substr($str,$spot,1);
-		 if ($char=~ /$specials/) { # Its a special character
-			 if ($char eq ",") {
-				 if ($level == 1) {			# Level 1 comma
-						 $cur = substr($str,$hold, $spot-$hold);
-						 my($tmp_ah);
-						 $tmp_ah = $tmp_ae->evaluate($cur);
-						 if(has_errors($tmp_ah)) {
-							 $self->error("I could not parse your input correctly",[$hold, $spot]);
-							 return 0;
-						 }
-						 $self->{'normalized'} .= (defined($tmp_ah->{'preview_text_string'}) ? $tmp_ah->{'preview_text_string'} : $tmp_ah->{'student_ans'}).", ";
-						 $self->{'value'} .= $tmp_ah->{'student_ans'}.", ";
-						 $self->{'latex'} .= (defined($tmp_ah->{'preview_latex_string'}) ? $tmp_ah->{'preview_latex_string'} : $tmp_ah->{'student_ans'}).", ";
-						 $tmp_ah = $tmp_ae2->evaluate($cur);
-						 $hold = $spot+1;
-						 push @sort_list, [$cur,$tmp_ah->{'student_ans'}];
-						 push @ans_list, $cur;
-					 }
-			 }			# end of comma
-			 elsif ($char eq "[" or $char eq "(" or $char eq "{") { #opening
-				 $level++;
-			 }												# end of open paren
-			 else {										# must be closing paren
-				 if ($level == 1) {
-					 $self->error("Not a valid entry; unmatched $char.",[$spot]);
-					 return 0;
-				 } # end of level <= 1
-				 $level--;
-			 } # end of closing brace
-		 }
-		 $spot++;
-	 }
-
-	 if($level>1) {
-		 $self->error("Your expression has unmatched parens.",
-									[$hold, $spot]);
-		 return 0;
-	 }
-	 $cur = substr($str,$hold, $spot-$hold);
-
-	 my($tmp_ah);
-	 $tmp_ah = $tmp_ae->evaluate($cur);
-
-	 if(has_errors($tmp_ah)) {
-		 $self->error("I could not parse your input correctly",[$hold, $spot]);
-		 return 0;
-	 }
-	 if(not ($cur =~ /\w/)) { # Input was empty
-		 $self->{'forsort'} = [];
-		 return 1;
-	 }
-
-	 $self->{'normalized'} .= defined($tmp_ah->{'preview_text_string'}) ? $tmp_ah->{'preview_text_string'} : $tmp_ah->{'student_ans'};
-	 $self->{'value'} .= $tmp_ah->{'student_ans'};
-	 $self->{'latex'} .= defined($tmp_ah->{'preview_latex_string'}) ? $tmp_ah->{'preview_latex_string'} : $tmp_ah->{'student_ans'};
-	 if((3==4) && $complex) {
-		 $tmp_ah =&{$tmp_ae2}($cur);
-	 } else {
-		 $tmp_ah = $tmp_ae2->evaluate($cur);
-	 }
-	 $hold = $spot+1;
-	 push @sort_list, [$cur, $tmp_ah->{'student_ans'}];
-	 push @ans_list, $cur;
-
-	 $self->{'parsed'} = \@ans_list;
-	 $self->{'forsort'} = \@sort_list;
-	 return 1;
- }
-
- sub number_list_cmp {
-		my $right_ans = shift;
-		my %opts = @_;
-
-		$opts{'mode'} = 'std' unless defined($opts{'mode'});
-		$opts{'tolType'} = 'relative' unless defined($opts{'tolType'});
-
-		my $ans_eval = sub {
-			my $student = shift;
-
-			my $ans_hash = new AnswerHash(
-																		'score'=>0,
-																		'correct_ans'=>$right_ans,
-																		'student_ans'=>$student,
-																		'original_student_ans' => $student,
-																		# 'type' => undef,
-																		'ans_message'=>'',
-																		'preview_text_string'=>'',
-																		'preview_latex_string'=>'',
-																	 );
-			my $student_list = new Number_List($student);
-			if(! $student_list->parse_number_list(%opts)) {
-				# Error in student input
-				$ans_hash->{'student_ans'} = "error:	$student_list->{htmlerror}";
-				$ans_hash->{'ans_message'} = "$student_list->{error_msg}";
-				return $ans_hash;
-			}
-
-			$ans_hash->{'student_ans'} = $student_list->{'value'};
-			$ans_hash->{'preview_text_string'} = $student_list->{'normalized'};
-			$ans_hash->{'preview_latex_string'} = $student_list->{'latex'};
-
-			my $correct_list = new Number_List($right_ans);
-			if(! $correct_list->parse_number_list(%opts)) {
-				# Cannot parse instuctor's answer!
-				$ans_hash->{'ans_message'} = "Tell your professor that there is an error in this problem.";
-				return $ans_hash;
-			}
-			if (cmp_numlists($correct_list, $student_list, %opts)) {
-				$ans_hash -> setKeys('score' => 1);
-			}
-
-			return $ans_hash;
-		};
-
-		return $ans_eval;
-	}
-
- sub sorting_sub {
-	 $_[0]->[1] <=> $_[1]->[1];
- }
-
- sub cmp_numlists {
-	 my($in1) = shift;
-	 my($in2) = shift;
-	 my(%opts) = @_;
-	 my($strict_ordering) = 0;
-	 if (defined($opts{'ordered'}) && ($opts{'ordered'} eq 'yes')) {
-		 $strict_ordering = 1;
-	 }
-	 delete($opts{'ordered'});
-
-	 my $complex=0;
-	 if(defined($opts{'complex'}) &&
-			($opts{'complex'} =~ /(yes|ok)/i)) {
-		 $complex=1;
-		 delete($opts{'mode'});
-	 }
-	 delete($opts{'complex'});
-
-	 my(@fs1) = @{$in1->{'forsort'}};
-	 my(@fs2) = @{$in2->{'forsort'}};
-
-
-	 # Same number of values?
-	 if (scalar(@fs1) != scalar(@fs2)) {
-		 return 0;
-	 }
-
-	 my($j);
-	 if($complex) {
-		 for $j (@fs1) {$j->[1] = make_complex_number($j->[1]);}
-		 for $j (@fs2) {$j->[1] = make_complex_number($j->[1]);}
-	 }
-
-	 if($strict_ordering==0) {
-		 @fs1 = main::PGsort(sub {$_[0]->[1] <=$_[1]->[1];}, @fs1);
-		 @fs2 = main::PGsort(sub {$_[0]->[1] < $_[1]->[1];}, @fs2);
-	 }
-
-	 for ($j=0; $j<scalar(@fs1);$j++) {
-		 my $ae;
-		 if($complex) {
-			 $ae = main::cplx_cmp($fs1[$j]->[1], %opts);
-		 } else {
-			 $ae = main::num_cmp($fs1[$j]->[0], %opts);
-		 }
-		 my $result;
-		 if($complex) {
-			 $result =$ae->evaluate($fs2[$j]->[1]);
-		 } else {
-			 $result = $ae->evaluate($fs2[$j]->[0]);
-		 }
-		 if ($result->{score} == 0) {
-			 return 0;
-		 }
-	 }
-	 return 1;
- }
-
- # error routine copied from AlgParser
- sub error {
-	 my($self, @args) = @_;
-	 # we cheat to use error from algparser
-	 my($ap) = new AlgParser();
-	 $ap->inittokenizer($self->{'original'});
-	 $ap->error(@args);
-	 $self->{htmlerror} =  $ap->{htmlerror};
-	 $self->{error_msg} = $ap->{error_msg};
- }
-
- sub has_errors {
-	 my($ah) = shift;
-
-	 if($ah->{'student_ans'} =~ /error/) {
-		 return 1;
-	 }
-	 my($am) = $ah->{'ans_message'};
-	 if($am =~ /error/) {
-		 return 2;
-	 }
-	 if($am =~ /must enter/) {
-		 return 3;
-	 }
-	 if($am =~ /does not evaluate/) {
-		 return 4;
-	 }
-	 return 0;
- }
-
-# Syntax is
-#     interval_cmp("[1,2) U [3, infty)", options)
-# where options are key/value pairs for num_cmp.  Also, we allow the option
-# 'ordering' which can be 'strict', which means that we do not want to test rearrangements
-# of the intervals.
-
-
-}
-
 {
 	package Equation_eval;
 
@@ -933,13 +651,84 @@ will mark "none" wrong, but not generate an error.  On the other hand,
 
   number_list_cmp("none", strings=>['none'])
 
-will makr "none" as correct.
+will mark "none" as correct.
 
 =cut
 
 sub number_list_cmp {
-	Number_List::number_list_cmp(@_);
+	my $list = shift;
+
+	my %num_params = @_;
+
+        my $mode          = $num_params{mode} || 'std';
+        my %options       = (debug => $num_params{debug});
+
+        #
+        #  Get an apppropriate context based on the mode
+        #
+	my $oldContext = Context();
+        my $context;
+	#my $Context = sub {Parser::Context->current($user_context,@_)};
+        for ($mode) {
+          /^strict$/i    and do {
+            $context = Context("LimitedNumeric")->copy;
+	    $context->operators->set(',' => {class=> 'Parser::BOP::comma'});
+            last;
+          };
+          /^arith$/i     and do {
+            $context = Context("LegacyNumeric")->copy;
+            $context->functions->disable('All');
+            last;
+          };
+          /^frac$/i      and do {
+            $context = Context("LimitedNumeric-Fraction")->copy;
+            last;
+          };
+	if(defined($num_params{'complex'}) &&
+			($num_params{'complex'} =~ /(yes|ok)/i)) {
+		$context = Context("Complex")->copy;
+		last;
+	}
+
+          # default
+          $context = Context("LegacyNumeric")->copy;
+        }
+        $context->{format}{number} = $num_params{'format'} || $main::numFormatDefault;
+        $context->strings->clear;
+	if (defined($num_params{strings}) && $num_params{strings}) {
+          foreach my $string (@{$num_params{strings}}) {
+            my %tex = ($string =~ m/(-?)inf(inity)?/i)? (TeX => "$1\\infty"): ();
+            $context->strings->add(uc($string) => {%tex});
+          }
+        }
+
+	$num_params{tolType} = $num_params{tolType} || 'relative';
+	$num_params{tolerance} = $num_params{tolerance} || $num_params{tol} || $num_params{reltol} || $num_params{relTol} || $num_params{abstol} || 1;
+	$num_params{zeroLevel} = $num_params{zeroLevel} || $num_params{zeroLevelTol} || $main::numZeroLevelTolDefault;
+	if ($num_params{tolType} eq 'absolute' or defined($num_params{tol})
+		or defined($num_params{abstol})) {
+          $context->flags->set(
+            tolerance => $num_params{tolerance},
+            tolType => 'absolute',
+          );
+        } else {
+          $context->flags->set(
+            tolerance => .01*$num_params{tolerance},
+            tolType => 'relative',
+          );
+        }
+        $context->flags->set(
+          zeroLevel => $num_params{zeroLevel},
+          zeroLevelTol => $num_params{zeroLevelTol},
+        );
+	$options{ordered} = 1 if(defined($num_params{ordered}));
+
+	Context($context);
+	$ans_eval = List($list)->cmp(%options);
+	Context($oldContext);
+	return($ans_eval);
 }
+
 
 =head3 equation_cmp ()
 
