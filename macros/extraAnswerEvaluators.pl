@@ -682,6 +682,7 @@ sub number_list_cmp {
           };
           /^frac$/i      and do {
             $context = Context("LimitedNumeric-Fraction")->copy;
+	    $context->operators->set(',' => {class=> 'Parser::BOP::comma'});
             last;
           };
 	if(defined($num_params{'complex'}) &&
