@@ -760,6 +760,7 @@ sub cmp_defaults {(
   shift->SUPER::cmp_defaults(@_),
   showEndpointHints => 1,
   showEndTypeHints => 1,
+  requireParenMatch => 1,
 )}
 
 sub typeMatch {
@@ -770,6 +771,15 @@ sub typeMatch {
          ($other->{close} eq ')' || $other->{close} eq ']')
 	   if $other->type =~ m/^(Point|List)$/;
   $other->type =~ m/^(Interval|Union)$/;
+}
+
+sub cmp_compare {
+  my $self = shift; my $other = shift; my $ans = shift;
+  my $oldignore = $self->{requireParenMatch};
+  $self->{ignoreEndpointTypes} = !$ans->{requireParenMatch};
+  my $equal = $self->SUPER::cmp_compare($other,$ans);
+  $self->{ignoreEndpointTypes} = $oldignore;
+  return $equal;
 }
 
 #
@@ -788,7 +798,7 @@ sub cmp_postprocess {
     push(@errors,"Your right endpoint is incorrect")
       if ($self->{data}[1] != $other->{data}[1]);
   }
-  if (scalar(@errors) == 0 && $ans->{showEndTypeHints}) {
+  if (scalar(@errors) == 0 && $ans->{showEndTypeHints} && $ans->{requireParenMatch}) {
     push(@errors,"The type of interval is incorrect")
       if ($self->{open}.$self->{close} ne $other->{open}.$other->{close});
   }

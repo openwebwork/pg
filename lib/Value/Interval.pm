@@ -174,8 +174,8 @@ sub compare {
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
   my ($la,$lb) = @{$l->data}; my ($ra,$rb) = @{$r->data};
   my $cmp = $la <=> $ra; return $cmp if $cmp;
+  $cmp = $lb <=> $rb; return $cmp if $cmp || $l->{ignoreEndpointTypes};
   $cmp = $l->{open} cmp $r->{open}; return $cmp if $cmp;
-  $cmp = $lb <=> $rb; return $cmp if $cmp;
   return $l->{close} cmp $r->{close};
 }
 
