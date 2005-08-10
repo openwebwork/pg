@@ -626,21 +626,25 @@ sub interval_cmp2 {
 	my $oldContext = Context();
 	my ($context, $ans_eval);
 	if(defined($opts{unions}) and $opts{unions} eq 'no' ) {
-		# This is really a list of points
-		$context = Context("Vector")->copy;
+		# This is really a list of points, not intervals at all
+		$context = $Parser::Context::Default::context{Vector}->copy;
 		$ans_type = 'List';
 		$options{showCoordinateHints} = 0;
 		$options{showHints} = 0;
 		$options{partialCredit}=0;
 		$options{showLengthHints} = 0;
 	} else {
-		$context = Context("Numeric")->copy;
+		$context = $Parser::Context::Default::context{Numeric}->copy;
+		$context->parens->set(
+			'(' => {type => 'Interval'},
+			'[' => {type => 'Interval'},
+			'{' => {type => 'Interval'},
+			);
 		$correct_ans =~ tr/u/U/;
 		if($correct_ans =~ /U/) {
 			$context->operators->add('u'=> {precedence => 0.5, associativity => 'left',
 			   type => 'bin', isUnion => 1, string => ' U ', TeX => '\cup ',
 			   class => 'Parser::BOP::union'});
-#		$context->operators->add('u'=> {alias => 'U'});
 			$ans_type = 'Union';
 			$options{showHints} = 0;
 			$options{showLengthHints} = 0;
@@ -676,23 +680,30 @@ sub interval_cmp2 {
 	if (defined($opts{'sloppy'}) && $opts{'sloppy'} eq 'yes') {
 		 $options{requireParenMatch} = 0;
 	}
+	$context->strings->add(
+		'i' => {alias=>'infinity'},
+		'infty' => {alias=>'infinity'},
+		'minfinity' => {infinite=>1, negative=>1},
+		'minfty' => {alias=>'minfinity'},
+		'minf' => {alias=>'minfinity'},
+		'mi' => {alias=>'minfinity'},
+    );
 	Context($context);
 	if($ans_type eq 'List') {
 		$ans_eval = List($correct_ans)->cmp(%options);
 	} elsif($ans_type eq 'Union') {
 		$ans_eval = Union($correct_ans)->cmp(%options);
-		warn "Union with options ".join(',', %options);
 	} elsif($ans_type eq 'Interval') {
 		$ans_eval = Interval($correct_ans)->cmp(%options);
 	} else {
-		warn "Bug -- should not be here";
+		warn "Bug -- should not be here in interval_cmp";
 	}
 		
 	Context($oldContext);
 	return($ans_eval);
 
 
-	# ToDo: tolerances
+	# ToDo:
 	#  modes?
 	#  strings
 	#  infinities
@@ -787,7 +798,7 @@ sub number_list_cmp {
 	}
 	$context->{format}{number} = $num_params{'format'} || $main::numFormatDefault;
 	$context->strings->clear;
-	if (defined($num_params{strings}) && $num_params{strings}) {
+	if ($num_params{strings}) {
 		foreach my $string (@{$num_params{strings}}) {
 			my %tex = ($string =~ m/(-?)inf(inity)?/i)? (TeX => "$1\\infty"): ();
 			$context->strings->add(uc($string) => {%tex});
@@ -816,6 +827,11 @@ sub number_list_cmp {
 		zeroLevelTol => $num_params{zeroLevelTol},
 		);
 	$options{ordered} = 1 if(defined($num_params{ordered}) and $opts{ordered});
+	# These didn't exist before in number_list_cmp so they behaved like
+	# in List()->cmp.  Now they can be optionally set
+	$options{showHints}= $num_params{showHints} || 0;
+	$options{showLengthHints}= $num_params{showHints} || 0;
+	$options{partialCredit}= $num_params{showHints} || 0;
 	
 	Context($context);
 	my $ans_eval = List($list)->cmp(%options);
