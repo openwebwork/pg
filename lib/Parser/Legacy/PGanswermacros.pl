@@ -1046,21 +1046,21 @@ sub NUM_CMP {                              # low level numeric compare (now uses
 	my $context;
 	for ($mode) {
 	  /^strict$/i    and do {
-	    $context = &$Context("LimitedNumeric")->copy;
+	    $context = $Parser::Context::Default::context{LimitedNumeric}->copy;
 	    last;
 	  };
 	  /^arith$/i     and do {
-	    $context = &$Context("LegacyNumeric")->copy;
+	    $context = $Parser::Context::Default::context{LegacyNumeric}->copy;
 	    $context->functions->disable('All');
 	    last;
 	  };
 	  /^frac$/i	 and do {
-	    $context = &$Context("LimitedNumeric-Fraction")->copy;
+	    $context = $Parser::Context::Default::context{'LimitedNumeric-Fraction'}->copy;
 	    last;
 	  };
 
 	  # default
-	  $context = &$Context("LegacyNumeric")->copy;
+	  $context = $Parser::Context::Default::context{LegacyNumeric}->copy;
 	}
 	$context->{format}{number} = $num_params{'format'};
 	$context->strings->clear;
@@ -1069,7 +1069,7 @@ sub NUM_CMP {                              # low level numeric compare (now uses
 	#
 	#  Add the strings to the context
 	#
-	if (defined($num_params{strings}) && $num_params{strings}) {
+	if ($num_params{strings}) {
 	  foreach my $string (@{$num_params{strings}}) {
 	    my %tex = ($string =~ m/(-?)inf(inity)?/i)? (TeX => "$1\\infty"): ();
 	    $context->strings->add(uc($string) => {%tex});
@@ -1100,7 +1100,7 @@ sub NUM_CMP {                              # low level numeric compare (now uses
 	#  using the initialized context
 	#
 	my $oldContext = &$Context($context); my $r;
-	if (defined($num_params{units}) && $num_params{units}) {
+	if ($num_params{units}) {
 	  $r = new Parser::Legacy::NumberWithUnits($correctAnswer);
           $options{rh_correct_units} = $num_params{units};
 	} else {
