@@ -497,7 +497,7 @@ sub ijk {
 #
 sub Error {
   my $message = shift;
-  $message = [$message,@_] if (scalar(@_));
+  $message = [$message,@_] if scalar(@_) > 0;
   $$context->setError($message,'');
   $message = $$context->{error}{message};
   die $message . traceback() if $$context->{debug};
