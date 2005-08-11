@@ -26,14 +26,17 @@ use overload
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   if (scalar(@_) == 1 && !ref($_[0])) {
-    my $num = $$Value::context->{pattern}{signedNumber};
-    my $inf = $$Value::context->{pattern}{infinite};
-    @_ = ($1,$2,$3,$4) if $_[0] =~ m/^ *(\(|\[) *($num|$inf) *, *($num|$inf) *(\)|\]) *$/;
+    my $x = Value::makeValue($_[0]);
+    if (Value::isFormula($x)) {
+      return $x if $x->type eq 'Interval';
+      Value::Error("Formula does not return an Interval");
+    }
+    return promote($x);
   }
   my ($open,$a,$b,$close) = @_;
   if (!defined($close)) {$close = $b; $b = $a}
   Value::Error("Interval() must be called with 3 or 4 arguments")
-    unless defined($open) && defined($a) && defined($b) && defined($close);
+    unless defined($open) && defined($a) && defined($b) && defined($close) && scalar(@_) <= 4;
   $a = Value::makeValue($a); $b = Value::makeValue($b);
   return $self->formula($open,$a,$b,$close) if Value::isFormula($a) || Value::isFormula($b);
   Value::Error("Endpoints of intervals must be numbers on infinities") unless
@@ -135,9 +138,11 @@ sub promote {
   my $x = shift;
   return $pkg->new($x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
   return $x if ref($x) eq $pkg;
+  $x = Value::makeValue($x);
+  return Value::Set->new($x) if Value::class($x) eq 'Real';
   my $open  = $x->{open};  $open  = '(' unless defined($open);
   my $close = $x->{close}; $close = ')' unless defined($close);
-  return $pkg->new($open,@{$x->data},$close)
+  return $pkg->new($open,$x->value,$close)
     if Value::class($x) =~ m/^(Point|List)$/ && $x->length == 2 &&
        ($open eq '(' || $open eq '[') && ($close eq ')' || $close eq ']');
   Value::Error("Can't convert %s to an Interval",Value::showClass($x));
@@ -156,11 +161,12 @@ sub add {
   if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
   $r = promote($r);
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  Value::Error("Intervals can only be added to Intervals")
-    unless Value::class($l) eq 'Interval' && Value::class($r) eq 'Interval';
+  Value::Error("Intervals can only be added to Intervals, Sets or Unions")
+    unless Value::class($l) =~ m/Interval|Union|Set/ &&
+           Value::class($r) =~ m/Interval|Union|Set/;
   return Value::Union->new($l,$r);
 }
-sub dot {add(@_)}
+sub dot {my $self = shift; $self->add(@_)}
 
 
 #
@@ -174,36 +180,9 @@ sub compare {
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
   my ($la,$lb) = @{$l->data}; my ($ra,$rb) = @{$r->data};
   my $cmp = $la <=> $ra; return $cmp if $cmp;
+  $cmp = $l->{open} cmp $r->{open}; return $cmp if $cmp && !$l->{ignoreEndpointTypes};
   $cmp = $lb <=> $rb; return $cmp if $cmp || $l->{ignoreEndpointTypes};
-  $cmp = $l->{open} cmp $r->{open}; return $cmp if $cmp;
   return $l->{close} cmp $r->{close};
-}
-
-############################################
-#
-#  Generate the various output formats.
-#
-
-sub string {
-  my $self = shift; my $equation = shift;
-  my ($a,$b) = @{$self->data};
-  $a = $a->string($equation) if Value::isValue($a);
-  $b = $b->string($equation) if Value::isValue($b);
-#  return $self->{open}.$a.$self->{close} 
-#    if !$self->{leftInfinte} && !$self->{rightInfinite} && $a == $b;
-  return $self->{open}.$a.','.$b.$self->{close};
-}
-
-sub TeX {
-  my $self = shift; my $equation = shift;
-  my ($a,$b) = @{$self->data};
-  $a = $a->TeX($equation) if Value::isValue($a);
-  $b = $b->TeX($equation) if Value::isValue($b);
-  my $open = $self->{open}; my $close = $self->{close};
-  $open = '\{' if $open eq '{'; $close = '\}' if $close eq '}';
-  $open = '\left'.$open if $open; $close = '\right'.$close if $close;
-#  return $open.$a.$close if !$self->{leftInfinte} && !$self->{rightInfinite} && $a == $b;
-  return $open.$a.','.$b.$close;
 }
 
 ###########################################################################
