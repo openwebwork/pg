@@ -87,12 +87,14 @@ $parens = {
 };
 
 $lists = {
-   'Point'         => {class =>'Parser::List::Point'},
-   'Vector'        => {class =>'Parser::List::Vector'},
-   'Matrix'        => {class =>'Parser::List::Matrix', open => '[', close => ']'},
-   'List'          => {class =>'Parser::List::List'},
-   'Interval'      => {class =>'Parser::List::Interval'},
-   'AbsoluteValue' => {class =>'Parser::List::AbsoluteValue'},
+   'Point'         => {class =>'Parser::List::Point',         open => '(', close => ')', separator => ','},
+   'Vector'        => {class =>'Parser::List::Vector',        open => '<', close => '>', separator => ','},
+   'Matrix'        => {class =>'Parser::List::Matrix',        open => '[', close => ']', separator => ','},
+   'List'          => {class =>'Parser::List::List',          open => '(', close => ')', separator => ', '},
+   'Interval'      => {class =>'Parser::List::Interval',      open => '(', close => ')', separator => ','},
+   'Set'           => {class =>'Parser::List::Set',           open => '{', close => '}', separator => ','},
+   'Union'         => {class =>'Parser::List::Union',         open => '',  close => '',  separator => ' U '},
+   'AbsoluteValue' => {class =>'Parser::List::AbsoluteValue', open => '|', close => '|', separator => ''},
 };
 
 $constants = {
@@ -222,10 +224,10 @@ $fullContext = new Parser::Context(
 );
 
 $fullContext->constants->set(
-  pi => {TeX => '\pi ', perl => ' pi'},
-  i => {isConstant => 1, perl => ' i'},
-  j => {TeX => '\boldsymbol{j}', perl => ' j'},
-  k => {TeX => '\boldsymbol{k}', perl => ' k'},
+  pi => {TeX => '\pi ', perl => 'pi'},
+  i => {isConstant => 1, perl => 'i'},
+  j => {TeX => '\boldsymbol{j}', perl => 'j'},
+  k => {TeX => '\boldsymbol{k}', perl => 'k'},
 );
 
 $fullContext->usePrecedence('Standard');
@@ -276,7 +278,7 @@ $vectorContext = $fullContext->copy;
 $vectorContext->variables->are(x=>'Real',y=>'Real',z=>'Real');
 $vectorContext->functions->undefine('arg','mod','Re','Im','conj');
 $vectorContext->constants->replace(i=>Value::Vector->new(1,0,0));
-$vectorContext->constants->set(i=>{TeX=>'\boldsymbol{i}', perl => ' i'});
+$vectorContext->constants->set(i=>{TeX=>'\boldsymbol{i}', perl=>'i'});
 
 #
 #  Matrix context (square brackets make matrices in preference to points or intervals)
@@ -291,7 +293,7 @@ $intervalContext = $numericContext->copy;
 $intervalContext->parens->set(
    '(' => {type => 'Interval'},
    '[' => {type => 'Interval'},
-   '{' => {type => 'Interval'},
+   '{' => {type => 'Set', removable => 0, emptyOK => 1},
 );
 
 #########################################################################
