@@ -323,7 +323,7 @@ sub Close {
     /open/ and do {
       my $top = $self->pop; my $paren = $parens->{$top->{value}};
       if ($paren->{emptyOK} && $paren->{close} eq $type) {
-        $self->pushOperand($parser->{List}->new($self,[],1,$paren))
+        $self->pushOperand($parser->{List}->new($self,[],1,$paren,undef,$top->{value},$paren->{close}))
       }
       elsif ($type eq 'start') {$self->Error(["Missing close parenthesis for '%s'",$top->{value}],$top->{ref})}
       elsif ($top->{value} eq 'start') {$self->Error(["Extra close parenthesis '%s'",$type],$ref)}
