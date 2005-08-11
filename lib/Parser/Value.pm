@@ -37,7 +37,10 @@ sub new {
     value => $value, type => $type, isConstant => 1,
     ref => $ref, equation => $equation,
   }, $class;
-  $c->{canBeInterval} = 1 if ($value->class eq 'Point' && $type->{length} == 2);
+  $c->{canBeInterval} = 1 
+    if $value->{canBeInterval} ||
+       ($value->class =~ m/Point|List/ &&
+        $type->{length} == 2 && $type->{entryType}{name} eq 'Number');
 
   $c->{isZero} = $value->isZero;
   $c->{isOne}  = $value->isOne;
@@ -78,7 +81,7 @@ sub TeX {
 sub perl {
   my $self = shift; my $parens = shift; my $matrix = shift;
   my $perl = $self->{value}->perl(0,$matrix);
-  $perl = 'Closed('.$perl.')'
+  $perl = "(($perl)->with(open=>'$self->{open}',close=>'$self->{close}'))"
     if $self->{canBeInterval} && $self->{open}.$self->{close} eq '[]';
   $perl = '('.$perl.')' if $parens;
   return $perl;
@@ -99,7 +102,7 @@ sub makeMatrix {
 #
 #  Get a Union object's data
 #
-sub makeUnion {@{shift->{value}->{data}}}
+sub makeUnion {@{shift->{value}{data}}}
 
 #########################################################################
 

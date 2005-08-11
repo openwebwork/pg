@@ -27,7 +27,7 @@ sub new {
   my $open = shift || ''; my $close = shift || '';
   my $context = $equation->{context};
   my $parens = $context->{parens}; my $list;
- 
+
   if ($paren && $close && $paren->{formInterval}) {
     $paren = $parens->{interval}
       if ($paren->{close} ne $close || (scalar(@{$coords}) == 2 &&
@@ -36,7 +36,7 @@ sub new {
   }
   my $type = Value::Type($paren->{type},scalar(@{$coords}),$entryType,
                                 list => 1, formMatrix => $paren->{formMatrix});
-  if ($type->{name} ne 'Interval') {
+  if ($type->{name} ne 'Interval' && ($type->{name} ne 'Set' || $type->{length} != 0)) {
     if ($paren->{formMatrix} && $entryType->{formMatrix}) {$type->{name} = 'Matrix'}
     elsif ($entryType->{name} eq 'unknown') {
       if ($paren->{formList}) {$type->{name} = 'List'}
@@ -228,7 +228,7 @@ sub perl {
   my $perl; my @p = ();
   foreach my $x (@{$self->{coords}}) {push(@p,$x->perl)}
   $perl = 'new Value::'.$self->type.'('.join(',',@p).')';
-  $perl = 'Closed('.$perl.')'
+  $perl = "${perl}->with(open=>'$self->{open}',close=>'$self->{close}')"
     if $self->{canBeInterval} && $self->{open}.$self->{close} eq '[]';
   $perl = '('.$perl.')' if $parens;
   return $perl;
@@ -244,6 +244,7 @@ use Parser::List::Vector;
 use Parser::List::Matrix;
 use Parser::List::List;
 use Parser::List::Interval;
+use Parser::List::Set;
 use Parser::List::AbsoluteValue;
 
 #########################################################################

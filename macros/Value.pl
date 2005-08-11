@@ -14,6 +14,7 @@ sub Vector   {Value::Vector->new(@_)}
 sub Matrix   {Value::Matrix->new(@_)}
 sub List     {Value::List->new(@_)}
 sub Interval {Value::Interval->new(@_)}
+sub Set      {Value::Set->new(@_)}
 sub Union    {Value::Union->new(@_)}
 
 sub ColumnVector {Value::Vector->new(@_)->with(ColumnVector=>1,open=>undef,close=>undef)}
