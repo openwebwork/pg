@@ -188,7 +188,7 @@ sub cmp_class {
   my $self = shift; my $ans = shift;
   my $class = $self->showClass; $class =~ s/Real //;
   return $class if $class =~ m/Formula/;
-  return "an Interval or Union" if $class =~ m/Interval/i;
+  return "an Interval, Set or Union" if $class =~ m/Interval|Set|Union/i;
   return $class; 
 }
 
@@ -770,7 +770,7 @@ sub typeMatch {
          ($other->{open} eq '(' || $other->{open} eq '[') &&
          ($other->{close} eq ')' || $other->{close} eq ']')
 	   if $other->type =~ m/^(Point|List)$/;
-  $other->type =~ m/^(Interval|Union)$/;
+  $other->type =~ m/^(Interval|Union|Set)$/;
 }
 
 sub cmp_compare {
@@ -807,6 +807,46 @@ sub cmp_postprocess {
 
 #############################################################
 
+package Value::Set;
+
+sub typeMatch {
+  my $self = shift; my $other = shift;
+  return 0 unless ref($other) && $other->class ne 'Formula';
+  return $other->length == 2 &&
+         ($other->{open} eq '(' || $other->{open} eq '[') &&
+         ($other->{close} eq ')' || $other->{close} eq ']')
+	   if $other->type =~ m/^(Point|List)$/;
+  $other->type =~ m/^(Interval|Union|Set)/;
+}
+
+#
+#  Use the List checker for sets, in order to get
+#  partial credit.  Set the various types for error
+#  messages.
+#
+sub cmp_defaults {(
+  Value::List::cmp_defaults(@_),
+  typeMatch => 'Value::Real',
+  list_type => 'a set',
+  entry_type => 'a number',
+  removeParens => 0,
+  showParenHints => 1,
+)}
+
+#
+#  Use the list checker if the student answer is a set
+#    otherwise use the standard compare (to get better
+#    error messages
+#
+sub cmp_equal {
+  my ($self,$ans) = @_;
+  Value::List::cmp_equal(@_)
+    if $ans->{student_value}->type eq 'Set';
+  Value::cmp_equal(@_);
+}
+
+#############################################################
+
 package Value::Union;
 
 sub typeMatch {
@@ -816,7 +856,7 @@ sub typeMatch {
          ($other->{open} eq '(' || $other->{open} eq '[') &&
          ($other->{close} eq ')' || $other->{close} eq ']')
 	   if $other->type =~ m/^(Point|List)$/;
-  $other->type =~ m/^(Interval|Union)/;
+  $other->type =~ m/^(Interval|Union|Set)/;
 }
 
 #
@@ -827,8 +867,9 @@ sub typeMatch {
 sub cmp_defaults {(
   Value::List::cmp_defaults(@_),
   typeMatch => 'Value::Interval',
-  list_type => 'an interval or union',
-  entry_type => 'an interval',
+  list_type => 'an interval, set or union',
+  short_type => 'a union',
+  entry_type => 'an interval or set',
 )}
 
 sub cmp_equal {Value::List::cmp_equal(@_)}
@@ -887,18 +928,19 @@ sub cmp_equal {
   #
   my $showHints         = getOption($ans,'showHints');
   my $showLengthHints   = getOption($ans,'showLengthHints');
-  my $showParenHints    = getOption($ans,'showLengthHints');
+  my $showParenHints    = getOption($ans,'showParenHints');
   my $partialCredit     = getOption($ans,'partialCredit');
   my $requireParenMatch = $ans->{requireParenMatch};
   my $typeMatch         = $ans->{typeMatch};
   my $value             = $ans->{entry_type};
   my $ltype             = $ans->{list_type} || lc($self->type);
+  my $stype             = $ans->{short_type} || $ltype;
 
   $value = (Value::isValue($typeMatch)? lc($typeMatch->cmp_class): 'value')
     unless defined($value);
   $value =~ s/(real|complex) //; $ans->{cmp_class} = $value;
   $value =~ s/^an? //; $value = 'formula' if $value =~ m/formula/;
-  $ltype =~ s/^an? //;
+  $ltype =~ s/^an? //; $stype =~ s/^an? //;
   $showHints = $showLengthHints = 0 if $ans->{isPreview};
 
   #
@@ -932,7 +974,7 @@ sub cmp_equal {
       if (($cOpen || $cClose) && ($sOpen || $sClose))
                                 {$message .= "are of the wrong type"}
       elsif ($sOpen || $sClose) {$message .= "should be removed"}
-      else                      {$message .= "are missing"}
+      else                      {$message .= "seem to be missing"}
       $self->cmp_Error($ans,$message) unless $ans->{isPreview};
     }
     return;
@@ -966,9 +1008,9 @@ sub cmp_equal {
   #
   if ($showLengthHints) {
     $value =~ s/ or /s or /; # fix "interval or union"
-    push(@errors,"There should be more ${value}s in your $ltype")
+    push(@errors,"There should be more ${value}s in your $stype")
       if ($score < $maxscore && $score == $m);
-    push(@errors,"There should be fewer ${value}s in your $ltype")
+    push(@errors,"There should be fewer ${value}s in your $stype")
       if ($score < $maxscore && $score == $M && !$showHints);
   }
 
@@ -1061,8 +1103,8 @@ sub cmp_list_compare {
 sub splitFormula {
   my $self = shift; my $formula = shift; my $ans = shift;
   my @formula; my @entries;
-  if ($formula->type eq 'List') {@entries = @{$formula->{tree}{coords}}}
-      else {@entries = $formula->{tree}->makeUnion}
+  if ($formula->type eq 'Union') {@entries = $formula->{tree}->makeUnion}
+    else {@entries = @{$formula->{tree}{coords}}}
   foreach my $entry (@entries) {
     my $v = Parser::Formula($entry);
        $v = Parser::Evaluate($v) if (defined($v) && $v->isConstant);
