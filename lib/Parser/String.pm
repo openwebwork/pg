@@ -22,7 +22,7 @@ sub new {
     $def = undef if $def->{caseSensitive} && $value ne uc($value);
   }
   $value = $def->{alias}, $def = $equation->{context}{strings}{$value}
-    if defined($def->{alias});
+    while defined($def->{alias});
   my $str = bless {
     value => $value, type => $Value::Type{string}, isConstant => 1,
     def => $def, ref => $ref, equation => $equation,
