@@ -168,42 +168,6 @@ sub abs {
   return CORE::sqrt($s);
 }
 
-
-############################################
-#
-#  Generate the various output formats
-#
-
-sub stringify {
-  my $self = shift;
-  return $self->TeX if $$Value::context->flag('StringifyAsTeX');
-  return $self->string(undef,$self->{open},$self->{close});
-}
-
-sub string {
-  my $self = shift; my $equation = shift;
-  my $def = ($equation->{context} || $$Value::context)->lists->get('Point');
-  my $open = shift || $def->{open}; my $close = shift || $def->{close};
-  my @coords = ();
-  foreach my $x (@{$self->data}) {
-    if (Value::isValue($x)) {push(@coords,$x->string($equation))} else {push(@coords,$x)}
-  }
-  return $open.join(',',@coords).$close;
-}
-
-sub TeX {
-  my $self = shift; my $equation = shift;
-  my $def = ($equation->{context} || $$Value::context)->lists->get('Point');
-  my $open  = shift || $self->{open} || $def->{open};
-  my $close = shift || $self->{close} || $def->{close};
-  my @coords = ();
-  foreach my $x (@{$self->data}) {
-    if (Value::isValue($x)) {push(@coords,$x->TeX($equation))} else {push(@coords,$x)}
-  }
-  return '\left'.$open.join(',',@coords).'\right'.$close;
-}
-  
 ###########################################################################
 
 1;
-

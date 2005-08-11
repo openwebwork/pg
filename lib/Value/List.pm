@@ -81,7 +81,7 @@ sub add {
   ($l,$r) = (promote($l)->data,promote($r)->data);
   return $pkg->new(@{$l},@{$r});
 }
-sub dot {add(@_)}
+sub dot {my $self = shift; $self->add(@_)}
 
 #
 #  Lexicographic compare
@@ -97,51 +97,6 @@ sub compare {
     return $cmp if $cmp;
   }
   return scalar(@{$l}) <=> scalar(@{$r});
-}
-
-############################################
-#
-#  Generate the various output formats.
-#
-
-sub stringify {
-  my $self = shift;
-  return $self->TeX() if $$Value::context->flag('StringifyAsTeX');
-  my $open = $self->{open}; my $close = $self->{close};
-  $open  = $$Value::context->lists->get('List')->{open} unless defined($open);
-  $close = $$Value::context->lists->get('List')->{close} unless defined($close);
-  $open.join(', ',@{$self->data}).$close;
-}
-
-sub string {
-  my $self = shift; my $equation = shift;
-  my $def = ($equation->{context} || $$Value::context)->lists->get('List');
-  my $open = shift; my $close = shift;
-  $open  = $def->{open} unless defined($open);
-  $close = $def->{close} unless defined($close);
-  my @coords = ();
-  foreach my $x (@{$self->data}) {
-    if (Value::isValue($x)) 
-      {push(@coords,$x->string($equation))} else {push(@coords,$x)}
-  }
-  return $open.join(', ',@coords).$close;
-}
-sub TeX {
-  my $self = shift; my $equation = shift;
-  my $context = $equation->{context} || $$Value::context;
-  my $def = $context->lists->get('List');
-  my $open = shift; my $close = shift;
-  $open  = $def->{open} unless defined($open);
-  $close = $def->{close} unless defined($close);
-  $open = '\{' if $open eq '{'; $close = '\}' if $close eq '}';
-  $open = '\left'.$open if $open; $close = '\right'.$close if $close;
-  my @coords = (); my $str = $context->{strings};
-  foreach my $x (@{$self->data}) {
-    if (Value::isValue($x)) {push(@coords,$x->TeX($equation))}
-    elsif (defined($str->{$x}) && $str->{$x}{TeX}) {push(@coords,$str->{$x}{TeX})}
-    else {push(@coords,$x)}
-  }
-  return $open.join(',',@coords).$close;
 }
 
 ###########################################################################

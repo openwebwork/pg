@@ -179,7 +179,7 @@ sub neg {
   return $pkg->make(@coords);
 }
 
-sub abs {norm(@_)}
+sub abs {my $self = shift; $self->norm(@_)}
 sub norm {
   my $p = promote(@_)->data;
   my $s = 0;
@@ -249,37 +249,36 @@ my $ijk_TeX = ['\boldsymbol{i}','\boldsymbol{j}','\boldsymbol{k}','\boldsymbol{0
 sub stringify {
   my $self = shift;
   return $self->TeX if $$Value::context->flag('StringifyAsTeX');
-  return $self->string(undef,$self->{open},$self->{close});
-};
+  $self->string;
+}
 
 sub string {
   my $self = shift; my $equation = shift;
   return $self->ijk($ijk_string)
-    if ($self->{ijk} || $equation->{ijk} || $$Value::context->flag("ijk"));
-  my $def = ($equation->{context} || $$Value::context)->lists->get('Vector');
-  my $open  = shift || $def->{open}; my $close = shift || $def->{close};
-  my @coords = ();
-  foreach my $x (@{$self->data}) {
-    if (Value::isValue($x)) {push(@coords,$x->string($equation))} else {push(@coords,$x)}
-  }
-  return $open.join(',',@coords).$close;
+    if ($self->{ijk} || $equation->{ijk} || $$Value::context->flag("ijk")) &&
+        !$self->{ColumnVector};
+  return $self->SUPER::string($equation,@_);
 }
 
 sub TeX {
   my $self = shift; my $equation = shift;
-  return $self->ijk if ($self->{ijk} || $equation->{ijk} || $$Value::context->flag("ijk"));
-  my $def = ($equation->{context} || $$Value::context)->lists->get('Vector');
-  my $open  = shift || $self->{open} || $def->{open};
-  my $close = shift || $self->{close} || $def->{close};
-  my @coords = ();
-  foreach my $x (@{$self->data}) {
-    if (Value::isValue($x)) {push(@coords,$x->TeX($equation))} else {push(@coords,$x)}
+  if ($self->{ColumnVector}) {
+    my $def = ($equation->{context} || $$Value::context)->lists->get('Matrix');
+    my $open = shift; my $close = shift;
+    $open  = $self->{open}  unless defined($open);
+    $open  = $def->{open}   unless defined($open);
+    $close = $self->{close} unless defined($close);
+    $close = $def->{close}  unless defined($close);
+    $open =~ s/([{}])/\\$1/g; $close =~ s/([{}])/\\$1/g;
+    $open = '\left'.$open if $open; $close = '\right'.$close if $close;
+    my @coords = ();
+    foreach my $x (@{$self->data}) {
+      if (Value::isValue($x)) {push(@coords,$x->TeX($equation))} else {push(@coords,$x)}
+    }
+    return $open.'\begin{array}{c}'.join('\\\\',@coords).'\\\\\end{array}'.$close;
   }
-  return '\left'.$open.join(',',@coords).'\right'.$close unless $self->{ColumnVector};
-  $def = ($equation->{context} || $$Value::context)->lists->get('Matrix');
-  $open  = shift || $self->{open} || $def->{open};
-  $close = shift || $self->{close} || $def->{close};
-  return '\left'.$open.'\begin{array}{c}'.join('\\\\',@coords).'\\\\\end{array}\right'.$close;
+  return $self->ijk if ($self->{ijk} || $equation->{ijk} || $$Value::context->flag("ijk"));
+  return $self->SUPER::TeX($equation,@_) unless $self->{ColumnVector};
 }
 
 sub ijk {
@@ -289,9 +288,9 @@ sub ijk {
     unless (scalar(@coords) <= 3);
   my $string = ''; my $n; my $term;
   foreach $n (0..scalar(@coords)-1) {
-    $term = $coords[$n];
-    if ($term != 0) {
-      $term = '' if $term == 1; $term = '-' if $term == -1;
+    $term = $coords[$n]; $term = (Value::isValue($term))? $term->string : "$term";
+    if ($term ne 0) {
+      $term = '' if $term eq '1'; $term = '-' if $term eq '-1';
       $term = '('.$term.')' if $term =~ m/e/i;
       $term = '+' . $term unless $string eq '' or $term =~ m/^-/;
       $string .= $term . $ijk->[$n];

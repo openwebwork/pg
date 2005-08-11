@@ -94,7 +94,7 @@ sub bop {
   $l = $parser->{Value}->new($formula,$l) unless ref($l) =~ m/^Parser::/;
   $r = $parser->{Value}->new($formula,$r) unless ref($r) =~ m/^Parser::/;
   $bop = 'U' if $bop eq '+' &&
-    ($l->type =~ m/Interval|Union/ || $r->type =~ m/Interval|Union/);
+    ($l->type =~ m/Interval|Union|Set/ || $r->type =~ m/Interval|Union|Set/);
   $formula->{tree} = $parser->{BOP}->new($formula,$bop,$l,$r);
   $formula->{variables} = $formula->{tree}->getVariables;
   return $formula->eval if scalar(%{$formula->{variables}}) == 0;
@@ -484,6 +484,16 @@ sub getFlag {
 #    (could use shift->{tree}{isConstant}, but I don't trust it)
 #
 sub isConstant {scalar(%{shift->{variables}}) == 0}
+
+############################################
+#
+#  Provide output formats
+#
+sub stringify {
+  my $self = shift;
+  return $self->TeX if $$Value::context->flag('StringifyAsTeX');
+  $self->string;
+}
 
 ###########################################################################
 
