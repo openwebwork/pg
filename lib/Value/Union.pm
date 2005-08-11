@@ -23,29 +23,48 @@ use overload
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  @_ = split("U",$_[0]) if scalar(@_) == 1 && !ref($_[0]);
-  Value::Error("Unions must be of at least two intervals") unless scalar(@_) > 1;
+  if (scalar(@_) == 1 && !ref($_[0])) {
+    my $x = Value::makeValue($_[0]);
+    if (Value::isFormula($x)) {
+      return $x if $x->type =~ m/Interval|Union|Set/;
+      Value::Error("Formula does not return an Interval, Set or Union");
+    }
+    return promote($x);
+  }
+  Value::Error("Empty unions are not allowed") if scalar(@_) == 0;
   my @intervals = (); my $isFormula = 0;
   foreach my $xx (@_) {
-    my $x = $xx; $x = Value::Interval->new($x) if !ref($x);
+    my $x = $xx; $x = Value::makeValue($x);
     if (Value::isFormula($x)) {
-      $x->{tree}->typeRef->{name} = 'Interval' if ($x->type eq 'Point' && $x->length == 1);
-      if ($x->type eq 'Interval') {push(@intervals,$x)}
+      $x->{tree}->typeRef->{name} = 'Interval'
+	if ($x->type =~ m/Point|List/ && $x->length == 2 &&
+	    $x->typeRef->{entryType}{name} eq 'Number');
+      if ($x->type =~ m/Interval|Set/) {push(@intervals,$x)}
       elsif ($x->type eq 'Union') {push(@intervals,$x->{tree}->makeUnion)}
-      else {Value::Error("Unions can be taken only for Intervals")}
+      else {Value::Error("Unions can be taken only for Intervals and Sets")}
       $isFormula = 1;
     } else {
       if (Value::class($x) eq 'Point' || Value::class($x) eq 'List') {
         if ($x->length == 1) {$x = Value::Interval->new('[',$x->value,$x->value,']')}
         elsif ($x->length == 2) {$x = Value::Interval->new($x->{open},$x->value,$x->{close})}
       }
-      if (Value::class($x) eq 'Interval') {push(@intervals,$x)}
+      if (Value::class($x) =~ m/Interval|Set/) {push(@intervals,$x)}
       elsif (Value::class($x) eq 'Union') {push(@intervals,@{$x->{data}})}
-      else {Value::Error("Unions can be taken only for Intervals")}
+      else {Value::Error("Unions can be taken only for Intervals or Sets")}
     }
   }
   return $self->formula(@intervals) if $isFormula;
   bless {data => [@intervals], canBeInterval => 1}, $class;
+}
+
+#
+#  Set the canBeInterval flag
+#
+sub make {
+  my $self = shift;
+  $self = $self->SUPER::make(@_);
+  $self->{canBeInterval} = 1;
+  return $self;
 }
 
 #
@@ -75,6 +94,18 @@ sub recursiveUnion {
     new($formula,'U',recursiveUnion($formula,@_),$right);
 }
 
+#
+#  Try to promote arbitrary data to a set
+#
+sub promote {
+  my $x = shift;
+  return Value::Set->new($x,@_)
+    if scalar(@_) > 0 || ref($x) eq 'ARRAY' || Value::isRealNumber($x);
+  return $x if Value::class($x) =~ m/Interval|Union|Set/;
+  return Value::Interval::promote($x) if Value::class($x) eq 'List';
+  Value::Error("Can't convert %s to an Interval, Set or Union",Value::showClass($x));
+}
+
 ############################################
 #
 #  Operations on unions
@@ -86,15 +117,16 @@ sub recursiveUnion {
 sub add {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
+  $r = promote($r);
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  Value::Error("Unions can only be added to Intervals or Unions")
-    unless Value::class($l) =~ m/Interval|Union/ &&
-           Value::class($r) =~ m/Interval|Union/;
-  $l = $pkg->make($l) if ($l->class eq 'Interval');
-  $r = $pkg->make($r) if ($r->class eq 'Interval');
+  Value::Error("Unions can only be added to Intervals, Sets or Unions")
+    unless Value::class($l) =~ m/Interval|Union|Set/ &&
+           Value::class($r) =~ m/Interval|Union|Set/;
+  $l = $pkg->make($l) if ($l->class ne 'Union');
+  $r = $pkg->make($r) if ($r->class ne 'Union');
   return $pkg->make(@{$l->data},@{$r->data});
 }
-sub dot {add(@_)}
+sub dot {my $self = shift; $self->add(@_)}
 
 #
 #  @@@ Needs work @@@
@@ -104,17 +136,15 @@ sub dot {add(@_)}
 #
 sub compare {
   my ($l,$r,$flag) = @_;
+  if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
+  $r = promote($r);
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
-  return  1 if Value::class($r) ne 'Union';
-  return -1 if Value::class($l) ne 'Union';
-  my @l = sort(@{$l->data}); my @r = sort(@{$r->data});
-  return scalar(@l) <=> scalar(@r) unless scalar(@l) == scalar(@r);
-  my $cmp = 0;
-  foreach my $i (0..$#l) {
-    $cmp = $l[$i] <=> $r[$i];
-    last if $cmp;
+  my @l = sort {$a <=> $b} $l->value; my @r = sort {$a <=> $b} $r->value;
+  while (scalar(@l) && scalar(@r)) {
+    my $cmp = shift(@l) <=> shift(@r);
+    return $cmp if $cmp;
   }
-  return $cmp;
+  return scalar(@l) - scalar(@r);
 }
 
 # @@@ simplify (combine intervals, if possible) @@@
@@ -123,6 +153,12 @@ sub compare {
 #
 #  Generate the various output formats
 #
+
+sub stringify {
+  my $self = shift;
+  return $self->TeX if $$Value::context->flag('StringifyAsTeX');
+  $self->string;
+}
 
 sub string {
   my $self = shift; my $equation = shift;
