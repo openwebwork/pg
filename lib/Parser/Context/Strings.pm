@@ -70,7 +70,7 @@ sub getPattern {
 }
 
 #
-#  Add lower-case alias for case-insensitive strings
+#  Add upper-case alias for case-insensitive strings
 #  (so we can always find their definitions)
 #
 sub add {
@@ -79,7 +79,7 @@ sub add {
   $self->SUPER::add(@_);
   my %D = (@_);
   foreach my $x (keys %D) {
-    $data->{uc($x)} = {alias => $x} 
+    $data->{uc($x)} = {alias => $x, hidden => 1} 
       unless $data->{$x}{caseSensitive} || uc($x) eq $x;
   }
 }
