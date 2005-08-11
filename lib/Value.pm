@@ -16,6 +16,7 @@ $defaultContext = Value::Context->new(
     'Vector' => {open => '<', close => '>'},
     'Matrix' => {open => '[', close => ']'},
     'List'   => {open => '(', close => ')'},
+    'Set'    => {open => '{', close => '}'},
   },
   flags => {
     #
@@ -64,10 +65,11 @@ $$context->{precedence} = {
    'Matrix'   =>  6,
    'List'     =>  7,
    'Interval' =>  8,
-   'Union'    =>  9,
-   'String'   => 10,
-   'Formula'  => 11,
-   'special'  => 12,
+   'Set'      =>  9,
+   'Union'    => 10,
+   'String'   => 11,
+   'Formula'  => 12,
+   'special'  => 20,
 };
 
 #
@@ -456,10 +458,51 @@ sub compare_string {
 sub stringify {
   my $self = shift;
   return $self->TeX() if $$Value::context->flag('StringifyAsTeX');
-  $self->string;
+  my $def = $$Value::context->lists->get($self->class);
+  return $self->string unless $def;
+  my $open = $self->{open};   $open  = $def->{open}  unless defined($open);
+  my $close = $self->{close}; $close = $def->{close} unless defined($close);
+  $open.join($def->{separator},@{$self->data}).$close;
 }
-sub string {shift->value}
-sub TeX {shift->string(@_)}
+
+sub string {
+  my $self = shift; my $equation = shift;
+  my $def = ($equation->{context} || $$Value::context)->lists->get($self->class);
+  return $self->value unless $def;
+  my $open = shift; my $close = shift;
+  $open  = $self->{open}  unless defined($open);
+  $open  = $def->{open}   unless defined($open);
+  $close = $self->{close} unless defined($close);
+  $close = $def->{close}  unless defined($close);
+  my @coords = ();
+  foreach my $x (@{$self->data}) {
+    if (Value::isValue($x)) 
+      {push(@coords,$x->string($equation))} else {push(@coords,$x)}
+  }
+  return $open.join($def->{separator},@coords).$close;
+}
+
+sub TeX {
+  my $self = shift; my $equation = shift;
+  my $context = $equation->{context} || $$Value::context;
+  my $def = $context->lists->get($self->class);
+  return $self->string(@_) unless $def;
+  my $open = shift; my $close = shift;
+  $open  = $self->{open}  unless defined($open);
+  $open  = $def->{open}   unless defined($open);
+  $close = $self->{close} unless defined($close);
+  $close = $def->{close}  unless defined($close);
+  $open =~ s/([{}])/\\$1/g; $close =~ s/([{}])/\\$1/g;
+  $open = '\left'.$open if $open; $close = '\right'.$close if $close;
+  my @coords = (); my $str = $context->{strings};
+  foreach my $x (@{$self->data}) {
+    if (Value::isValue($x)) {push(@coords,$x->TeX($equation))}
+    elsif (defined($str->{$x}) && $str->{$x}{TeX}) {push(@coords,$str->{$x}{TeX})}
+    else {push(@coords,$x)}
+  }
+  return $open.join(',',@coords).$close;
+}
+
 #
 #  For perl, call the appropriate constructor around the object's data
 #
@@ -541,6 +584,7 @@ use Value::Vector;
 use Value::Matrix;
 use Value::List;
 use Value::Interval;
+use Value::Set;
 use Value::Union;
 use Value::String;
 use Value::Formula;
