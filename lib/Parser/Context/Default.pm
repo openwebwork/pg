@@ -11,14 +11,14 @@ $operators = {
    ',' => {precedence => 0, associativity => 'left', type => 'bin', string => ',',
            class => 'Parser::BOP::comma', isComma => 1},
 
-   'U' => {precedence => 0.5, associativity => 'left', type => 'bin', isUnion => 1,
-           string => ' U ', TeX => '\cup ', class => 'Parser::BOP::union'},
-
    '+' => {precedence => 1, associativity => 'left', type => 'both', string => '+',
            class => 'Parser::BOP::add'},
 
    '-' => {precedence => 1, associativity => 'left', type => 'both', string => '-',
            perl => '- ', class => 'Parser::BOP::subtract', rightparens => 'same'},
+
+   'U' => {precedence => 1.5, associativity => 'left', type => 'bin', isUnion => 1,
+           string => ' U ', TeX => '\cup ', class => 'Parser::BOP::union'},
 
    '><'=> {precedence => 2, associativity => 'left', type => 'bin',
            string => ' >< ', TeX => '\times ', perl => ' x ', fullparens => 1,
@@ -294,6 +294,10 @@ $intervalContext->parens->set(
    '(' => {type => 'Interval'},
    '[' => {type => 'Interval'},
    '{' => {type => 'Set', removable => 0, emptyOK => 1},
+);
+my $infinity = Value::Infinity->new();
+$intervalContext->constants->add(
+  R => Value::Interval->new('(',-$infinity,$infinity,')'),
 );
 
 #########################################################################

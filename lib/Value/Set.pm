@@ -9,6 +9,7 @@ use vars qw(@ISA);
 
 use overload
        '+'   => sub {shift->add(@_)},
+       '-'   => sub {shift->sub(@_)},
        '.'   => \&Value::_dot,
        'x'   => sub {shift->cross(@_)},
        '<=>' => sub {shift->compare(@_)},
@@ -86,11 +87,7 @@ sub promote {
 sub add {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
-  $r = promote($r);
-  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  Value::Error("Sets can only be added to Intervals, Sets or Unions")
-    unless Value::class($l) =~ m/Interval|Union|Set/ &&
-           Value::class($r) =~ m/Interval|Union|Set/;
+  $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   return Value::Union->new($l,$r)
     unless Value::class($l) eq 'Set' && Value::class($r) eq 'Set';
   my @combined = (sort {$a <=> $b} (@{$l->data},@{$r->data}));
@@ -103,6 +100,79 @@ sub add {
 }
 sub dot {my $self = shift; $self->add(@_)}
 
+#
+#  Subtraction removes items from a set
+#
+sub sub {
+  my ($l,$r,$flag) = @_;
+  if ($l->promotePrecedence($r)) {return $r->sub($l,!$flag)}
+  $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
+  return Value::Union::form(subIntervalSet($l,$r)) if Value::class($l) eq 'Interval';
+  return Value::Union::form(subSetInterval($l,$r)) if Value::class($r) eq 'Interval';
+  return Value::Union::form(subSetSet($l,$r));
+}
+
+#
+#  Subtract one set from another
+#    (return the resulting set or nothing for empty set)
+#
+sub subSetSet {
+  my @l = sort {$a <=> $b} (@{$_[0]->data});
+  my @r = sort {$a <=> $b} (@{$_[1]->data});
+  my @entries = ();
+  while (scalar(@l) && scalar(@r)) {
+    if ($l[0] < $r[0]) {push(@entries,shift(@l))}
+      else {if ($l[0] == $r[0]) {shift(@l)}; shift(@r)}
+  }
+  push(@entries,@l);
+  return () unless scalar(@entries);
+  return $pkg->make(@entries);
+}
+
+#
+#  Subtract a set from an interval
+#    (returns a collection of intervals)
+#
+sub subIntervalSet {
+  my $I = shift; my $S = shift;
+  my @union = (); my ($a,$b) = $I->value;
+  foreach my $x ($S->value) {
+    next if $x < $a;
+    if ($x == $a) {
+      return @union if $a == $b;
+      $I->{open} = '(';
+    } elsif ($x < $b) {
+      push(@union,Value::Interval->new($I->{open},$a,$x,')'));
+      $I->{open} = '('; $I->{data}[0] = $x;
+    } else {
+      $I->{close} = ')' if ($x == $b);
+      last;
+    }
+  }
+  return (@union,$I);
+}
+
+#
+#  Subtract an interval from a set
+#    (returns the resulting set or nothing for the empty set)
+#    
+sub subSetInterval {
+  my $S = shift; my $I = shift;
+  my ($a,$b) = $I->value;
+  my @entries = ();
+  foreach my $x ($S->value) {
+    push(@entries,$x)
+      if ($x < $a || $x > $b) ||
+         ($x == $a && $I->{open}  ne '[') ||
+	 ($x == $b && $I->{close} ne ']');
+  }
+  return () unless scalar(@entries);
+  return $pkg->make(@entries);
+}
+
+#
+#  Compare two sets lexicographically on their sorted contents
+#
 sub compare {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
@@ -126,4 +196,3 @@ sub compare {
 ###########################################################################
 
 1;
-

@@ -14,7 +14,7 @@ use strict; use vars qw(@ISA);
 sub _check {
   my $self = shift;
   return if ($self->checkStrings());
-  if ($self->{lop}->{canBeInterval} && $self->{rop}->{canBeInterval}) {
+  if ($self->{lop}{canBeInterval} && $self->{rop}{canBeInterval}) {
     $self->{type} = Value::Type('Union',2,$Value::Type{number});
     $self->{canBeInterval} = 1;
     foreach my $op ('lop','rop') {

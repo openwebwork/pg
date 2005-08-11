@@ -14,6 +14,24 @@ sub _check {
   return if ($self->checkStrings());
   return if ($self->checkLists());
   return if ($self->checkNumbers());
+  if ($self->{lop}{canBeInterval} && $self->{rop}{canBeInterval}) {
+    if ($self->{lop}->type =~ m/Interval|Union|Set/ ||
+	$self->{rop}->type =~ m/Interval|Union|Set/) {
+      $self->{type} = Value::Type('Union',2,$Value::Type{number});
+      $self->{canBeInterval} = 1;
+      foreach my $op ('lop','rop') {
+	if ($self->{$op}->type !~ m/Interval|Union|Set/) {
+	  if ($self->{$op}->class eq 'Value') {
+	    $self->{$op}{value} = Value::Interval::promote($self->{$op}{value});
+	  } else {
+	    $self->{$op} = bless $self->{$op}, 'Parser::List::Interval';
+	  }
+	  $self->{$op}->typeRef->{name} = $self->{equation}{context}{parens}{interval}{type};
+	}
+      }
+    }
+    return;
+  }
   my ($ltype,$rtype) = $self->promotePoints();
   if (Parser::Item::typeMatch($ltype,$rtype)) {$self->{type} = $ltype}
   else {$self->matchError($ltype,$rtype)}

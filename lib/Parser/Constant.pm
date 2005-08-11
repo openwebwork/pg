@@ -24,6 +24,8 @@ sub new {
     ref => $ref, equation => $equation
   }, $class;
   $c->{isConstant} = 1 if $const->{isConstant};
+  $c->{canBeInterval} = 1
+    if Value::isValue($const->{value}) && $const->{value}{canBeInterval};
   return $c;
 }
 

@@ -9,6 +9,7 @@ use vars qw(@ISA);
 
 use overload
        '+'   => sub {shift->add(@_)},
+       '-'   => sub {shift->sub(@_)},
        '.'   => \&Value::_dot,
        'x'   => sub {shift->cross(@_)},
        '<=>' => sub {shift->compare(@_)},
@@ -29,7 +30,7 @@ sub new {
       return $x if $x->type =~ m/Interval|Union|Set/;
       Value::Error("Formula does not return an Interval, Set or Union");
     }
-    return promote($x);
+    return $self->new(promote($x));
   }
   Value::Error("Empty unions are not allowed") if scalar(@_) == 0;
   my @intervals = (); my $isFormula = 0;
@@ -65,6 +66,16 @@ sub make {
   $self = $self->SUPER::make(@_);
   $self->{canBeInterval} = 1;
   return $self;
+}
+
+#
+#  Make a union or interval or set, depending on how
+#  many there are in the union
+#
+sub form {
+  return @_[0] if scalar(@_) == 1;
+  return Value::Set->new() if scalar(@_) == 0;
+  $pkg->new(@_);
 }
 
 #
@@ -112,16 +123,12 @@ sub promote {
 #
 
 #
-#  Addition forms additional unions
+#  Addition forms unions
 #
 sub add {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
-  $r = promote($r);
-  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  Value::Error("Unions can only be added to Intervals, Sets or Unions")
-    unless Value::class($l) =~ m/Interval|Union|Set/ &&
-           Value::class($r) =~ m/Interval|Union|Set/;
+  $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   $l = $pkg->make($l) if ($l->class ne 'Union');
   $r = $pkg->make($r) if ($r->class ne 'Union');
   return $pkg->make(@{$l->data},@{$r->data});
@@ -129,14 +136,52 @@ sub add {
 sub dot {my $self = shift; $self->add(@_)}
 
 #
-#  @@@ Needs work @@@
+#  Subtraction can split intervals into unions
+#
+sub sub {
+  my ($l,$r,$flag) = @_;
+  if ($l->promotePrecedence($r)) {return $r->sub($l,!$flag)}
+  $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
+  my $ll = [($l->class eq 'Union')? $l->value: $l];
+  my $rr = [($r->class eq 'Union')? $r->value: $r];
+  form(subUnionUnion($ll,$rr));
+}
+
+#
+#  Which routines to call for the various combinations
+#    of sets and intervals to do subtraction
+#
+my %subCall = (
+  SetSet => \&Value::Set::subSetSet,
+  SetInterval => \&Value::Set::subSetInterval,
+  IntervalSet => \&Value::Set::subIntervalSet,
+  IntervalInterval => \&Value::Interval::subIntervalInterval,
+);
+
+#
+#  Subtract a union from another by running through both lists
+#  and subtracting everything in the second list from everything
+#  in the first.
+#
+sub subUnionUnion {
+  my ($l,$r) = @_;
+  my @union = (@{$l});
+  foreach my $J (@{$r}) {
+    my @newUnion = ();
+    foreach my $I (@union)
+      {push(@newUnion,&{$subCall{$I->type.$J->type}}($I,$J))}
+    @union = @newUnion;
+  }
+  return @union;
+}
+
 #  
 #  Sort the intervals lexicographically, and then
 #    compare interval by interval.
 #
 sub compare {
   my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
+  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
   $r = promote($r);
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
   my @l = sort {$a <=> $b} $l->value; my @r = sort {$a <=> $b} $r->value;
@@ -161,20 +206,23 @@ sub stringify {
 }
 
 sub string {
-  my $self = shift; my $equation = shift;
-  my $context = $equation->{context} || $$Value::context;
-  my $union = $context->{operators}{'U'}{string} || ' U ';
+  my $self = shift; my $equation = shift; shift; shift; my $prec = shift;
+  my $op = ($equation->{context} || $$Value::context)->{operators}{'U'};
   my @intervals = ();
   foreach my $x (@{$self->data}) {push(@intervals,$x->string($equation))}
-  return join($union,@intervals);
+  my $string = join($op->{string} || ' U ',@intervals);
+  $string = '('.$string.')' if $prec > ($op->{precedence} || 1.5);
+  return $string;
 }
 
 sub TeX {
-  my $self = shift; my $equation = shift;
-  my $context = $equation->{context} || $$Value::context;
-  my @intervals = (); my $op = $context->{operators}{'U'};
+  my $self = shift; my $equation = shift; shift; shift; my $prec = shift;
+  my $op = ($equation->{context} || $$Value::context)->{operators}{'U'};
+  my @intervals = ();
   foreach my $x (@{$self->data}) {push(@intervals,$x->TeX($equation))}
-  return join($op->{TeX} || $op->{string} || ' U ',@intervals);
+  my $TeX = join($op->{TeX} || $op->{string} || ' U ',@intervals);
+  $TeX = '\left('.$TeX.'\right)' if $prec > ($op->{precedence} || 1.5);
+  return $TeX;
 }
 
 ###########################################################################

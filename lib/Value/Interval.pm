@@ -11,6 +11,7 @@ use vars qw(@ISA);
 
 use overload
        '+'   => sub {shift->add(@_)},
+       '-'   => sub {shift->sub(@_)},
        '.'   => \&Value::_dot,
        'x'   => sub {shift->cross(@_)},
        '<=>' => sub {shift->compare(@_)},
@@ -159,15 +160,54 @@ sub promote {
 sub add {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
-  $r = promote($r);
-  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  Value::Error("Intervals can only be added to Intervals, Sets or Unions")
-    unless Value::class($l) =~ m/Interval|Union|Set/ &&
-           Value::class($r) =~ m/Interval|Union|Set/;
+  $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   return Value::Union->new($l,$r);
 }
 sub dot {my $self = shift; $self->add(@_)}
 
+#
+#  Subtraction can split into a union
+#
+sub sub {
+  my ($l,$r,$flag) = @_;
+  if ($l->promotePrecedence($r)) {return $r->sub($l,!$flag)}
+  $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
+  Value::Union::form(subIntervalInterval($l,$r));
+}
+
+#
+#  Subtract an interval from another
+#    (returns the resulting interval(s), set
+#     or nothing for emtpy set)
+#
+sub subIntervalInterval {
+  my ($l,$r) = @_;
+  my ($a,$b) = $l->value; my ($c,$d) = $r->value;
+  my @union = ();
+  if ($d <= $a) {
+    $l->{open} = '(' if $d == $a && $r->{close} eq ']';
+    push(@union,$l) unless $a == $b && $l->{open} eq '(';
+  } elsif ($c >= $b) {
+    $l->{close} = ')' if $c == $b && $r->{open} eq '[';
+    push(@union,$l) unless $a == $b && $l->{close} eq ')';
+  } else {
+    if ($a == $c) {
+      push(@union,Value::Set->new($a))
+	if $l->{open} eq '[' && $r->{open} eq '(';
+    } elsif ($a < $c) {
+      my $close = ($r->{open} eq '[')? ')': ']';
+      push(@union,Value::Interval->new($l->{open},$a,$c,$close));
+    }
+    if ($d == $b) {
+      push(@union,Value::Set->new($b))
+	if $l->{close} eq ']' && $r->{close} eq ')';
+    } elsif ($d < $b) {
+      my $open = ($r->{close} eq ']') ? '(': '[';
+      push(@union,Value::Interval->new($open,$d,$b,$l->{close}));
+    }
+  }
+  return @union;
+}
 
 #
 #  Lexicographic order, but with type of endpoint included
@@ -176,8 +216,7 @@ sub dot {my $self = shift; $self->add(@_)}
 sub compare {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
-  $r = promote($r);
-  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
+  $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
   my ($la,$lb) = @{$l->data}; my ($ra,$rb) = @{$r->data};
   my $cmp = $la <=> $ra; return $cmp if $cmp;
   $cmp = $l->{open} cmp $r->{open}; return $cmp if $cmp && !$l->{ignoreEndpointTypes};
