@@ -18,22 +18,26 @@ sub _check {
     $self->{type} = Value::Type('Union',2,$Value::Type{number});
     $self->{canBeInterval} = 1;
     foreach my $op ('lop','rop') {
-      if ($self->{$op}->type !~ m/^(Interval|Union)$/) {
-	$self->{$op} = bless $self->{$op}, 'Parser::List::Interval';
+      if ($self->{$op}->type !~ m/^(Interval|Union|Set)$/) {
+	if ($self->{$op}->class eq 'Value') {
+	  $self->{$op}{value} = Value::Interval::promote($self->{$op}{value});
+	} else {
+	  $self->{$op} = bless $self->{$op}, 'Parser::List::Interval';
+	}
 	$self->{$op}->typeRef->{name} = $self->{equation}{context}{parens}{interval}{type};
       }
     }
-  } else {$self->Error("Operands of '%s' must be intervals",$self->{bop})}
+  } else {$self->Error("Operands of '%s' must be intervals or sets",$self->{bop})}
 }
 
 
 #
 #  Make a union of the two operands.
 #
-sub _eval {shift; Value::Union->new(@_)}
+sub _eval {$_[1] + $_[2]}
 
 #
-#  Make a union of intervals.
+#  Make a union of intervals or sets.
 #
 sub perl {
   my $self = shift; my $parens = shift; my @union = ();
@@ -44,7 +48,7 @@ sub perl {
 }
 
 #
-#  Turn a union into a list of the intervals in the union.
+#  Turn a union into a list of the intervals or sets in the union.
 #
 sub makeUnion {
   my $self = shift;
