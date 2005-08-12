@@ -142,6 +142,28 @@ sub are {
 #
 sub undefine {my $self = shift; $self->remove(@_)}
 
+#
+#  Redefine items from the default context, or a given one
+#
+sub redefine {
+  my $self = shift; my $X = shift;
+  my %options = (using => undef, from => "Full", @_);
+  my $Y = $options{using}; my $from = $options{from};
+  $from = $Parser::Context::Default::context{$from} unless ref($from);
+  $Y = $X if !defined($Y) && !ref($X);
+  $X = [$X] unless ref($X) eq 'ARRAY';
+  my @data = (); my @remove = ();
+  foreach my $x (@{$X}) {
+    my $y = defined($Y)? $Y: $x;
+    Value::Error("No definition for %s '%s' in the given context",$self->{name},$y)
+      unless $from->{$self->{dataName}}{$y};
+    push(@remove,$x) if $self->get($x);
+    push(@data,$x => $from->{$self->{dataName}}{$y});
+  }
+  $self->remove(@remove);
+  $self->add(@data);
+}
+
 
 #
 #  Get hash for an item

@@ -19,12 +19,31 @@ sub init {
 #  Remove a function from the list by assigning it
 #    the undefined function.  This means it will still
 #    be recognized by the parser, but will generate an
-#    error message whenever it is used.
+#    error message whenever it is used.  The old class
+#    is saved so that it can be redefined again.
 #
 sub undefine {
   my $self = shift;
   my @data = ();
-  foreach my $x (@_) {push(@data,$x => {class => 'Parser::Function::undefined'})}
+  foreach my $x (@_) {
+    push(@data,$x => {
+      oldClass => $self->get($x)->{class},
+      class => 'Parser::Function::undefined',
+    });
+  }
+  $self->set(@data);
+}
+
+sub redefine {
+  my $self = shift; my $X = shift;
+  return $self->SUPER::redefine($X,@_) if scalar(@_) > 0;
+  $X = [$X] unless ref($X) eq 'ARRAY';
+  my @data = ();
+  foreach my $x (@{$X}) {
+    my $oldClass = $self->get($x)->{oldClass};
+    push(@data,$x => {class => $oldClass, oldClass => undef})
+      if $oldClass;
+  }
   $self->set(@data);
 }
 
@@ -71,6 +90,7 @@ sub Disable {
 sub enable {Enable(@_)}
 sub Enable {
   my $context = Parser::Context->current;
+  my $functions = $Parser::Context::Default::fullContext->{functions};
   if (ref($_[0]) ne "") {$context = (shift)->{context}}
   my @names = @_; my ($list,$name);
   while ($name = shift(@names)) {
@@ -79,10 +99,8 @@ sub Enable {
     unless (defined($list)) {warn "Undefined function or category '$name'"; next}
     if ($list->[0] eq '_alias_') 
       {unshift @names, @{$list}[1..scalar(@{$list})-1]; next}
-    my @fn; foreach my $f (@{$list}) {
-      push @fn, $f => 
-        {class => $Parser::Context::Default::fullContext->{functions}{$f}{class}};
-    }
+    my @fn; foreach my $f (@{$list}) 
+      {push @fn, $f => {class => $functions->{$f}{class}}}
     $context->functions->set(@fn);
   }
 }
