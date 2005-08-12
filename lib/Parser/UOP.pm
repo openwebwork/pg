@@ -178,7 +178,7 @@ sub getVariables {
 #
 sub string {
   my ($self,$precedence,$showparens,$position,$outerRight) = @_;
-  my $string; my $uop = $self->{def};
+  my $string; my $uop = $self->{def}; $position = '' unless defined($position);
   my $addparens = defined($precedence) &&
     ($precedence >= $uop->{precedence} || $position eq 'right' || $outerRight);
   if ($uop->{associativity} eq "right") {
@@ -195,7 +195,7 @@ sub string {
 #
 sub TeX {
   my ($self,$precedence,$showparens,$position,$outerRight) = @_;
-  my $TeX; my $uop = $self->{def};
+  my $TeX; my $uop = $self->{def}; $position = '' unless defined($position);
   my $fracparens = ($uop->{nofractionparens}) ? "nofractions" : "";
   my $addparens = defined($precedence) &&
     ($precedence >= $uop->{precedence} || $position eq 'right' || $outerRight);

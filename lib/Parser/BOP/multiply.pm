@@ -77,7 +77,7 @@ $Parser::reduce->{'fn*x'} = 1;
 
 sub TeX {
   my ($self,$precedence,$showparens,$position,$outerRight) = @_;
-  my $TeX; my $bop = $self->{def}; my $cdot;
+  my $TeX; my $bop = $self->{def}; my $cdot; $position = '' unless defind($position);
   my $mult = (defined($bop->{TeX}) ? $bop->{TeX} : $bop->{string});
   ($mult,$cdot) = @{$mult} if ref($mult) eq 'ARRAY';
   $cdot = '\cdot ' unless $cdot;

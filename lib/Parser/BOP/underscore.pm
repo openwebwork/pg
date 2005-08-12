@@ -74,7 +74,7 @@ $Parser::reduce->{'V_n'} = 1;
 #
 sub TeX {
   my ($self,$precedence,$showparens,$position,$outerRight) = @_;
-  my $TeX; my $bop = $self->{def};
+  my $TeX; my $bop = $self->{def}; $position = '' unless defind($position);
   my $addparens =
       defined($precedence) &&
       ($showparens eq 'all' || $precedence > $bop->{precedence} ||

@@ -272,7 +272,7 @@ sub getVariables {
 #
 sub string {
   my ($self,$precedence,$showparens,$position,$outerRight) = @_;
-  my $string; my $bop = $self->{def};
+  my $string; my $bop = $self->{def}; $position = '' unless defined($position);
   my $extraParens = $self->{equation}{context}->flag('showExtraParens');
   my $addparens = 
       defined($precedence) &&
@@ -294,7 +294,7 @@ sub string {
 #
 sub TeX {
   my ($self,$precedence,$showparens,$position,$outerRight) = @_;
-  my $TeX; my $bop = $self->{def};
+  my $TeX; my $bop = $self->{def}; $position = '' unless defined($position);
   my $extraParens = $self->{equation}{context}->flag('showExtraParens');
   my $addparens =
       defined($precedence) &&
