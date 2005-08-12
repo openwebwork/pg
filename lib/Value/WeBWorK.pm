@@ -97,7 +97,7 @@ sub Parser::Context::initCopy {
      max_adapt      => $ww->{functMaxConstantOfIntegration},
      useBaseTenLog => $ww->{useBaseTenLog},
   );
-  $context->{format}{number} = $ww->{numFormatDefault} if $ww->{$numFormatDefault} ne '';
+  $context->{format}{number} = $ww->{numFormatDefault} if $ww->{numFormatDefault} ne '';
   $context;
 }
 
