@@ -1,16 +1,5 @@
 loadMacros('Parser.pl');
 
-# This is extraAnswerEvaluators.pl
-
-# Most of the work is done in special namespaces
-# At the end, we provide one global function, the interval answer evaluator
-
-# To do:
-#    Convert these to AnswerEvaluator objects
-#    Better error checking/messages
-#    Simplify checks so we don't make so much use of num_cmp and cplx_cmp.
-#      When they change, these functions may have to change.
-
 =head1 NAME
 
         extraAnswerEvaluators.pl -- located in the courseScripts directory
@@ -46,407 +35,15 @@ answers of various "exotic" types.
 
 =cut
 
-
-{
- package Intervals;
-
- # We accept any of the following as infinity (case insensitive)
- @infinitywords = ("i", "inf", "infty", "infinity");
- $infinityre = join '|', @infinitywords;
- $infinityre = "^([-+m]?)($infinityre)\$";
-
- sub new {
-	 my $class = shift;
-	 my $base_string = shift;
-	 my $self = {};
-	 $self->{'original'} = $base_string;
-	 return bless $self, $class;
- }
-
- # Not object oriented.  It just returns the structure
- sub new_interval {					# must call with 4 arguments
-	 my($l,$r,$lec, $rec) = @_;
-	 return [[$l,$r],[$lec,$rec]];
- }
-
- # error routine copied from AlgParser
- sub error {
-	 my($self, @args) = @_;
-	 # we cheat to use error from algparser
-	 my($ap) = new AlgParser();
-	 $ap->inittokenizer($self->{'original'});
-	 $ap->error(@args);
-	 $self->{htmlerror} =  $ap->{htmlerror};
-	 $self->{error_msg} = $ap->{error_msg};
- }
-
- # Determine if num_cmp detected a parsing/syntax type error
-
- sub has_errors {
-	 my($ah) = shift;
-
-	 if($ah->{'student_ans'} =~ /error/) {
-		 return 1;
-	 }
-	 my($am) = $ah->{'ans_message'};
-	 if($am =~ /error/) {
-		 return 2;
-	 }
-	 if($am =~ /must enter/) {
-		 return 3;
-	 }
-	 if($am =~ /does not evaluate/) {
-		 return 4;
-	 }
-	 return 0;
- }
-
-
- ## Parse a string into a bunch of intervals
- ## We do it by hand to avoid problems of nested parentheses
- ## This also builds a normalized version of the string, one with values,
- ## and a latex version.
- ##
- ## Return value simply says whether or not this was successful
- sub parse_intervals {
-	 my($self) = shift;
-	 my(%opts) = @_;
-	 my($str) = $self->{'original'};
-	 my(@ans_list) = ();
-	 delete($opts{'sloppy'});
-	 delete($opts{'ordered'});
-	 my($unions) = 1;
-	 if (defined($opts{'unions'}) and ($opts{'unions'} eq 'no')) {
-		 $unions = 0;
-	 }
-	 # Sometimes we use this for lists of points
-	 delete($opts{'unions'});
-	 my($b1str,$b2str) = (', ', ', ');
-	 if($unions) {
-		 ($b1str,$b2str) = (' U ', ' \cup ');
-	 }
-
-	 my($tmp_ae) = main::num_cmp(1, %opts);
-	 $self->{'normalized'} = '';
-	 $self->{'value'} = '';
-	 $self->{'latex'} = '';
-	 $self->{'htmlerror'} = '';
-	 $self->{'error_msg'} = '';
-	 my($pmi) = 0;
-	 my(@cur) = ("","");
-	 my($lb,$rb) = (0,0);
-	 my($level,$spot,$hold,$char,$lr) = (0,0,0,"a",0);
-
-	 while ($spot < length($str)) {
-		 $char = substr($str,$spot,1);
-		 if ($char=~ /[\[(,)\]]/) { # Its a special character
-			 if ($char eq ",") {
-				 if ($level == 1) {			# Level 1 comma
-					 if ($lr == 1) {
-						 $self->error("Not a valid interval; too many commas.",[$spot]);
-						 return 0;
-					 } else {
-						 $lr=1;
-						 $cur[0] = substr($str,$hold, $spot-$hold);
-						 if($pmi = pminf($cur[0])) {
-							 if($pmi<0) {
-								 $self->{'value'} .= '-';
-								 $self->{'normalized'} .= '-';
-								 $self->{'latex'} .= '-';
-							 }
-							 $self->{'value'} .= 'Infinity, ';
-							 $self->{'normalized'} .= 'Infinity, ';
-							 $self->{'latex'} .= '\infty, ';
-						 } else {
-							 my($tmp_ah) = $tmp_ae->evaluate($cur[0]);
-							 if(has_errors($tmp_ah)) {
-								 $self->error("I could not parse your input correctly",[$hold, $spot]);
-								 return 0;
-							 }
-							 $self->{'normalized'} .= $tmp_ah->{'preview_text_string'}.", ";
-							 $self->{'value'} .= $tmp_ah->{'student_ans'}.", ";
-							 $self->{'latex'} .= $tmp_ah->{'preview_latex_string'}.", ";
-						 }
-						 $hold = $spot+1;
-					 }
-				 }
-			 }												# end of comma
-			 elsif ($char eq "[" or $char eq "(") { #opening
-				 if ($level==0) {
-					 $lr = 0;
-					 if(scalar(@ans_list)) { # this is not the first interval
-						 $self->{'normalized'} .= $b1str;
-						 $self->{'value'} .= $b1str;
-						 $self->{'latex'} .= $b2str;
-					 }
-					 $self->{'normalized'} .= "$char";
-					 $self->{'value'} .= "$char";
-					 $self->{'latex'} .= "$char";
-					 $hold=$spot+1;
-					 if ($char eq "[") {
-						 $lb = 1;
-					 } else {
-						 $lb = 0;
-					 }
-				 }
-				 $level++;
-			 }												# end of open paren
-			 else {										# must be closed paren
-				 if ($level == 0) {
-					 $self->error("Not a valid interval; extra $char when I expected a new interval to open.",[$spot]);
-					 return 0;
-				 } elsif ($level == 1) {
-					 if ($lr != 1) {
-						 $self->error("Not a valid interval; closing an interval without a right component.", [$spot]);
-						 return 0;
-					 } else {
-						 $cur[1] = substr($str, $hold, $spot-$hold);
-						 if($pmi = pminf($cur[1])) {
-							 if($pmi<0) {
-								 $self->{'value'} .= '-';
-								 $self->{'normalized'} .= '-';
-								 $self->{'latex'} .= '-';
-							 }
-							 $self->{'value'} .= "Infinity$char";
-							 $self->{'normalized'} .= "Infinity$char";
-							 $self->{'latex'} .= '\infty'."$char";
-							 } else {
-							 my($tmp_ah) = $tmp_ae->evaluate($cur[1]);
-							 if(has_errors($tmp_ah)) {
-								 $self->error("I could not parse your input correctly",[$hold, $spot]);
-								 return 0;
-							 }
-							 $self->{'normalized'} .= $tmp_ah->{'preview_text_string'}."$char";
-							 $self->{'value'} .= $tmp_ah->{'student_ans'}."$char";
-							 $self->{'latex'} .= $tmp_ah->{'preview_latex_string'}."$char";
-						 }
-						 if ($char eq "]") {
-							 $rb = 1;
-						 } else {
-							 $rb = 0;
-						 }
-						 push @ans_list, new_interval($cur[0], $cur[1], $lb, $rb);
-					 }
-				 }
-				 $level--;
-			 }
-		 }
-		 $spot++;
-	 }
-
-	 if($level>0) {
-		 $self->error("Your expression ended in the middle of an interval.",
-									[$hold, $spot]);
-		 return 0;
-	 }
-	 $self->{'parsed'} = \@ans_list;
-	 return 1;
- }
-
- # Is the argument an exceptable +/- infinity
- # Its sort of multiplies the input by 0 using 0 * oo = 1, 0 * (-oo) = -1.
- sub pminf {
-	 my($val) = shift;
-	 $val = "\L$val";							# lowercase
-	 $val =~ s/ //g;							# remove space
-	 if ($val =~ /$infinityre/) {
-		 if (($1 eq '-') or ($1 eq 'm')) {
-			 return -1;
-		 } else {
-			 return 1;
-		 }
-	 }
-	 return 0;
- }
-
- # inputs are now of type Intervals, and then options
-
- sub cmp_intervals {
-	 my($in1) = shift;
-	 my($in2) = shift;
-	 my(%opts) = @_;
-	 my($strict_ordering) = 0;
-	 if (defined($opts{'ordering'}) && $opts{'ordering'} eq 'strict') {
-		 $strict_ordering = 1;
-	 }
-	 delete($opts{'ordering'});
-
-	 my($issloppy) = 0;
-	 if (defined($opts{'sloppy'}) && $opts{'sloppy'} eq 'yes') {
-		 $issloppy = 1;
-	 }
-	 delete($opts{'sloppy'});
-
-	 delete($opts{'unions'});
-
-
-	 my(@i1) = @{$in1->{'parsed'}};
-	 my(@i2) = @{$in2->{'parsed'}};
-
-	 my($j,$pm10,$pm11,$pm20,$pm21);
-	 # Same number of intervals?
-	 if (scalar(@i1) != scalar(@i2)) {
-		 return 0;
-	 }
-	 for ($j=0; $j<scalar(@i1);$j++) {
-		 my($lbound) = 0;
-		 my($ubound) = scalar(@i1)-1;
-		 my($lookformatch) = 1;
-		 if ($strict_ordering) {
-			 $lbound = $j;
-			 $ubound = $j;
-		 }
-		 for ($k=$lbound; $lookformatch && $k<=$ubound; $k++) {
-			 # Do they all have correct inclusions ()[]?
-			 if (! $issloppy and ($i1[$j]->[1][0] != $i2[$k]->[1][0] or
-					 $i1[$j]->[1][1] != $i2[$k]->[1][1])) {
-				 next;
-			 }
-			 $pm10 = pminf($i1[$j]->[0][0]);
-			 $pm11 = pminf($i1[$j]->[0][1]);
-			 $pm20 = pminf($i2[$k]->[0][0]);
-			 $pm21 = pminf($i2[$k]->[0][1]);
-			 if ($pm10 != $pm20) {
-				 next;
-			 }
-			 if ($pm11 != $pm21) {
-				 next;
-			 }
-			 # Now we deal with only numbers, no infinities
-			 if ($pm10 == 0) {
-#				 $opts{'correctAnswer'} = $i1[$j]->[0][0];
-				 my $ae = main::num_cmp($i1[$j]->[0][0], %opts);
-				 my $result = $ae->evaluate($i2[$k]->[0][0]);
-				 if ($result->{score} == 0) {
-					 next;
-				 }
-			 }
-			 if ($pm11 == 0) {
-#				 $opts{'correctAnswer'} = $i1[$j]->[0][1];
-				 my $ae = main::num_cmp($i1[$j]->[0][1], %opts);
-				 my $result = $ae->evaluate($i2[$k]->[0][1]);
-				 if ($result->{score} == 0) {
-					 next;
-				 }
-			 }
-			 $lookformatch=0;
-		 }
-		 if ($lookformatch) {				# still looking ...
-			 return 0;
-		 }
-	 }
-	 return 1;
- }
-
- sub show_int {
-	 my($intt) = shift;
-	 my($intstring) = "";
-	 return "|$intt->[0]->[0]%%$intt->[0]->[1]|";
- }
-
-
-
-} # End of package Intervals
-
-{
-	package Interval_evaluator;
-
-	sub nicify_string {
-		my $str = shift;
-
-		$str = uc($str);
-		$str =~ s/\s//g; # remove white space
-		$str;
-		}
-
-	#####  The answer evaluator
-
-	sub interval_cmp {
-
-		my $right_ans = shift;
-		my %opts = @_;
-
-		$opts{'mode'} = 'std' unless defined($opts{'mode'});
-		$opts{'tolType'} = 'relative' unless defined($opts{'tolType'});
-
-		my $ans_eval = sub {
-			my $student = shift;
-
-			my $ans_hash = new AnswerHash(
-				'score'=>0,
-				'correct_ans'=>$right_ans,
-				'student_ans'=>$student,
-				'original_student_ans' => $student,
-				# 'type' => undef,
-				'ans_message'=>'',
-				'preview_text_string'=>'',
-				'preview_latex_string'=>'',
-			);
-			# Handle string matches separately
-			my($studentisstring, $correctisstring, $tststr) = (0,0,"");
-			my($nicestud, $nicecorrect) = (nicify_string($student),
-																		 nicify_string($right_ans));
-			if(defined($opts{'strings'})) {
-				for $tststr (@{$opts{'strings'}}) {
-					$tststr = nicify_string($tststr);
-					if(($tststr eq $nicestud)) {$studentisstring=1;}
-					if(($tststr eq $nicecorrect)) {$correctisstring=1;}
-				}
-				if($studentisstring) {
-					$ans_hash->{'preview_text_string'} = $student;
-					$ans_hash->{'preview_latex_string'} = $student;
-				}
-			}
-			my($student_int, $correct_int);
-			if(!$studentisstring) {
-				$student_int = new Intervals($student);
-				if(! $student_int->parse_intervals(%opts)) {
-					# Error in student input
-					$ans_hash->{'student_ans'} = "error:	$student_int->{htmlerror}";
-					$ans_hash->{'ans_message'} = "$student_int->{error_msg}";
-					return $ans_hash;
-				}
-
-				$ans_hash->{'student_ans'} = $student_int->{'value'};
-				$ans_hash->{'preview_text_string'} = $student_int->{'normalized'};
-				$ans_hash->{'preview_latex_string'} = $student_int->{'latex'};
-			}
-
-			if(!$correctisstring) {
-				$correct_int = new Intervals($right_ans);
-				if(! $correct_int->parse_intervals(%opts)) {
-					# Cannot parse instuctor's answer!
-					$ans_hash->{'ans_message'} = "Tell your professor that there is an error in this problem.";
-					return $ans_hash;
-				}
-			}
-			if($correctisstring || $studentisstring) {
-				if($nicestud eq $nicecorrect) {
-					$ans_hash -> setKeys('score' => 1);
-				}
-			} else {
-				if (Intervals::cmp_intervals($correct_int, $student_int, %opts)) {
-					$ans_hash -> setKeys('score' => 1);
-				}
-			}
-
-			return $ans_hash;
-		};
-
-		return $ans_eval;
-	}
-
-}
-
 {
 	package Equation_eval;
-
+	
 	sub split_eqn {
 		my $instring = shift;
-
-		 split /=/, $instring;
+		
+		split /=/, $instring;
 	}
-
+	
 
 	sub equation_cmp {
 		my $right_ans = shift;
@@ -609,52 +206,82 @@ Note that interval_cmp makes no attempt at simplifying overlapping intervals.
 This becomes an important feature when you are really checking lists of
 ordered pairs.
 
+Now we use the Parser package for checking intervals (or lists of
+points if unions=>'no').  So, one can specify the Parser options
+showCoordinateHints, showHints, partialCredit, and/or showLengthHints
+as optional arguments:
+
+  interval_cmp("(1,2), (2,3), (4,-1)", unions=>'no', partialCredit=>1)
+
+Also, set differences and 'R' for all real numbers now work too since they work
+for Parser Intervals and Unions.
+
 =cut
 
-sub interval_cmp2 {
+sub interval_cmp {
 	my $correct_ans = shift;
 
 	my %opts = @_;
 	
-	my $mode          = $num_params{mode} || 'std';
+	my $mode          = $opts{mode} || 'std';
 	my %options       = (debug => $opts{debug});
-	my $ans_type = ''; # set to List, Union, or Interval below
+	my $ans_type = ''; # set to List, Union, Interval, or String below
 	
 	#
 	#  Get an apppropriate context based on the mode
 	#
 	my $oldContext = Context();
 	my ($context, $ans_eval);
+	for ($mode) {
+		/^strict$/i	   and do {
+			$context = $Parser::Context::Default::context{LimitedNumeric}->copy;
+			$context->operators->set(',' => {class=> 'Parser::BOP::comma'});
+			last;
+		};
+		/^arith$/i	   and do {
+			$context = $Parser::Context::Default::context{LegacyNumeric}->copy;
+			$context->functions->disable('All');
+			last;
+		};
+		/^frac$/i	   and do {
+			$context = $Parser::Context::Default::context{'LimitedNumeric-Fraction'}->copy;
+			$context->operators->set(',' => {class=> 'Parser::BOP::comma'});
+			last;
+		};
+		
+		# default
+		$context = $Parser::Context::Default::context{LegacyNumeric}->copy;
+	}
+
 	if(defined($opts{unions}) and $opts{unions} eq 'no' ) {
 		# This is really a list of points, not intervals at all
-		$context = $Parser::Context::Default::context{Vector}->copy;
 		$ans_type = 'List';
-		$options{showCoordinateHints} = 0;
-		$options{showHints} = 0;
-		$options{partialCredit}=0;
-		$options{showLengthHints} = 0;
+		$context->parens->redefine('(');
+		$context->parens->redefine('[');
+		$context->parens->redefine('{', from=>'Interval');
+		$correct_ans =~ s/u/,/gi;
 	} else {
-		$context = $Parser::Context::Default::context{Numeric}->copy;
-		$context->parens->set(
-			'(' => {type => 'Interval'},
-			'[' => {type => 'Interval'},
-			'{' => {type => 'Interval'},
+		$context->parens->redefine('(', from=>'Interval');
+		$context->parens->redefine('[', from=>'Interval');
+		$context->parens->redefine('{', from=>'Interval');
+		my $infinity = Value::Infinity->new();
+		$context->constants->add(
+			R => Value::Interval->new('(',-$infinity,$infinity,')'),
 			);
 		$correct_ans =~ tr/u/U/;
+		$context->operators->redefine('U',from=>"Interval");
+		$context->operators->redefine('u',from=>"Interval",using=>"U");
 		if($correct_ans =~ /U/) {
-			$context->operators->add('u'=> {precedence => 0.5, associativity => 'left',
-			   type => 'bin', isUnion => 1, string => ' U ', TeX => '\cup ',
-			   class => 'Parser::BOP::union'});
 			$ans_type = 'Union';
-			$options{showHints} = 0;
-			$options{showLengthHints} = 0;
-			$options{showEndpointHints}=0;
-			$options{partialCredit}=0;
 		} else {
 			$ans_type = 'Interval';
-			$options{showEndpointHints}=0;
 		}
 	}
+	# Take optional arguments intended for Interval, List, or Union
+	for my $o qw( showCoordinateHints showHints partialCredit showLengthHints ) {
+		$options{$o} = $opts{$o} || 0;
+	}
+	# Tolerances
 	$opts{tolType} = $opts{tolType} || 'relative';
 	$opts{tolerance} = $opts{tolerance} || $opts{tol} ||
 		$opts{reltol} || $opts{relTol} || $opts{abstol} || 1;
@@ -680,6 +307,7 @@ sub interval_cmp2 {
 	if (defined($opts{'sloppy'}) && $opts{'sloppy'} eq 'yes') {
 		 $options{requireParenMatch} = 0;
 	}
+	# historically we allow more infinities
 	$context->strings->add(
 		'i' => {alias=>'infinity'},
 		'infty' => {alias=>'infinity'},
@@ -688,6 +316,16 @@ sub interval_cmp2 {
 		'minf' => {alias=>'minfinity'},
 		'mi' => {alias=>'minfinity'},
     );
+	# Add any strings
+	if ($opts{strings}) {
+		foreach my $string (@{$opts{strings}}) {
+			$string = uc($string);
+			$context->strings->add($string) unless
+				defined($context->strings->get($string));
+			$ans_type = 'String' if $string eq uc($correct_ans);
+		}
+	}
+	$context->{format}{number} = $opts{'format'} || $main::numFormatDefault;
 	Context($context);
 	if($ans_type eq 'List') {
 		$ans_eval = List($correct_ans)->cmp(%options);
@@ -695,27 +333,14 @@ sub interval_cmp2 {
 		$ans_eval = Union($correct_ans)->cmp(%options);
 	} elsif($ans_type eq 'Interval') {
 		$ans_eval = Interval($correct_ans)->cmp(%options);
+	} elsif($ans_type eq 'String') {
+		$ans_eval = List($correct_ans)->cmp(%options);
 	} else {
 		warn "Bug -- should not be here in interval_cmp";
 	}
 		
 	Context($oldContext);
 	return($ans_eval);
-
-
-	# ToDo:
-	#  modes?
-	#  strings
-	#  infinities
-	#@infinitywords = ("i", "inf", "infty", "infinity");
-	#$infinityre = join '|', @infinitywords;
-	#$infinityre = "^([-+m]?)($infinityre)\$";
-
-
-}
-
-sub interval_cmp {
-	Interval_evaluator::interval_cmp(@_);
 }
 
 =head3 number_list_cmp ()
@@ -755,6 +380,11 @@ will mark "none" wrong, but not generate an error.  On the other hand,
   number_list_cmp("none", strings=>['none'])
 
 will mark "none" as correct.
+
+One can also specify optionnal arguments for Parser's List checker: showHints,
+partialCredit, and showLengthHints, as in:
+
+  number_list_cmp("cos(3), sqrt(111)", partialCredit=>1)
 
 =cut
 
@@ -797,11 +427,13 @@ sub number_list_cmp {
 		$context = $Parser::Context::Default::context{LegacyNumeric}->copy;
 	}
 	$context->{format}{number} = $num_params{'format'} || $main::numFormatDefault;
-	$context->strings->clear;
+	#$context->strings->clear;
 	if ($num_params{strings}) {
 		foreach my $string (@{$num_params{strings}}) {
 			my %tex = ($string =~ m/(-?)inf(inity)?/i)? (TeX => "$1\\infty"): ();
-			$context->strings->add(uc($string) => {%tex});
+			$string = uc($string);
+			$context->strings->add($string => {%tex}) unless
+				defined($context->strings->get($string));
 		}
 	}
 	
@@ -829,9 +461,9 @@ sub number_list_cmp {
 	$options{ordered} = 1 if(defined($num_params{ordered}) and $opts{ordered});
 	# These didn't exist before in number_list_cmp so they behaved like
 	# in List()->cmp.  Now they can be optionally set
-	$options{showHints}= $num_params{showHints} || 0;
-	$options{showLengthHints}= $num_params{showHints} || 0;
-	$options{partialCredit}= $num_params{showHints} || 0;
+	for my $o qw( showHints partialCredit showLengthHints ) {
+		$options{$o} = $num_params{$o} || 0;
+	}
 	
 	Context($context);
 	my $ans_eval = List($list)->cmp(%options);
