@@ -65,7 +65,8 @@ sub cmp_parse {
     ($ans->{requireParenMatch}? (): ignoreEndpointTypes => 1),  # for Intervals
     $self->cmp_contextFlags($ans),   # any additional ones from the object itself
   );
-  $ans->{isPreview} = $self->getPG('$inputs_ref->{previewAnswers}');
+  my $inputs = $self->getPG('$inputs_ref',{action=>""});
+  $ans->{isPreview} = $inputs->{previewAnswers} || ($inputs->{action} =~ m/^Preview/);
   $ans->{cmp_class} = $self->cmp_class($ans) unless $ans->{cmp_class};
   $ans->{error_message} = $ans->{ans_message} = ''; # clear any old messages
   $ans->{preview_latex_string} = $ans->{preview_text_string} = '';
