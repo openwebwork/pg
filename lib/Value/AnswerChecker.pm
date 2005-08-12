@@ -480,6 +480,7 @@ sub contextSet {
 #
 sub protectHTML {
     my $string = shift;
+    return unless defined($string);
     return $string if eval ('$main::displayMode') eq 'TeX';
     $string =~ s/&/\&amp;/g;
     $string =~ s/</\&lt;/g;
