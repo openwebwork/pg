@@ -299,6 +299,7 @@ my $infinity = Value::Infinity->new();
 $intervalContext->constants->add(
   R => Value::Interval->new('(',-$infinity,$infinity,')'),
 );
+$intervalContext->constants->set(R => {TeX => '{\bf R}'});
 
 #########################################################################
 
