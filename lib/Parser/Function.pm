@@ -19,6 +19,7 @@ sub new {
     name => $name, params => $params,
     def => $def, ref => $ref, equation => $equation,
   }, $def->{class};
+  $fn->{isConstant} = $constant;
   $fn->_check;
   $fn = $context->{parser}{Value}->new($equation,[$fn->eval])
     if $constant && $context->flag('reduceConstantFunctions');
