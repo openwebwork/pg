@@ -13,6 +13,8 @@ sub init {
   $self->{name} = 'parenthesis';
   $self->{Name} = 'Parenthesis';
   $self->{namePattern} = '[^\s]+';
+  $self->{open} = '^$';
+  $self->{close} = '^$';
 }
 
 #
