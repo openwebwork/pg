@@ -219,8 +219,9 @@ sub compare {
   $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
   my ($la,$lb) = @{$l->data}; my ($ra,$rb) = @{$r->data};
   my $cmp = $la <=> $ra; return $cmp if $cmp;
-  $cmp = $l->{open} cmp $r->{open}; return $cmp if $cmp && !$l->{ignoreEndpointTypes};
-  $cmp = $lb <=> $rb; return $cmp if $cmp || $l->{ignoreEndpointTypes};
+  my $ignoreEndpointTypes = $l->getFlag('ignoreEndpointTypes');
+  $cmp = $l->{open} cmp $r->{open}; return $cmp if $cmp && !$ignoreEndpointTypes;
+  $cmp = $lb <=> $rb; return $cmp if $cmp || $ignoreEndpointTypes;
   return $l->{close} cmp $r->{close};
 }
 

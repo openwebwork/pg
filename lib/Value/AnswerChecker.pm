@@ -62,6 +62,8 @@ sub cmp_parse {
     showExtraParens => 1,            # make student answer painfully unambiguous
     reduceConstants => 0,            # don't combine student constants
     reduceConstantFunctions => 0,    # don't reduce constant functions
+    ($ans->{requireParenMatch}? (): ignoreEndpointTypes => 1),  # for Intervals
+    $self->cmp_contextFlags($ans),   # any additional ones from the object itself
   );
   $ans->{isPreview} = $self->getPG('$inputs_ref->{previewAnswers}');
   $ans->{cmp_class} = $self->cmp_class($ans) unless $ans->{cmp_class};
@@ -92,7 +94,7 @@ sub cmp_parse {
     }
   } else {
     $self->cmp_error($ans);
-    $self->cmp_collect($ans);
+    $self->cmp_collect($ans);  ## FIXME: why is this here a second time?
   }
   contextSet($context,%{$flags});            # restore context values
   Parser::Context->current(undef,$current);  # put back the old context
@@ -228,6 +230,7 @@ sub cmp_Error {
 #  filled in by sub-classes
 #
 sub cmp_postprocess {}
+sub cmp_contextFlags {return ()}
 
 #
 #  create answer rules of various types
@@ -773,15 +776,6 @@ sub typeMatch {
   $other->type =~ m/^(Interval|Union|Set)$/;
 }
 
-sub cmp_compare {
-  my $self = shift; my $other = shift; my $ans = shift;
-  my $oldignore = $self->{requireParenMatch};
-  $self->{ignoreEndpointTypes} = !$ans->{requireParenMatch};
-  my $equal = $self->SUPER::cmp_compare($other,$ans);
-  $self->{ignoreEndpointTypes} = $oldignore;
-  return $equal;
-}
-
 #
 #  Check for wrong enpoints and wrong type of endpoints
 #
@@ -840,8 +834,7 @@ sub cmp_defaults {(
 #
 sub cmp_equal {
   my ($self,$ans) = @_;
-  Value::List::cmp_equal(@_)
-    if $ans->{student_value}->type eq 'Set';
+  Value::List::cmp_equal(@_) if $ans->{student_value}->type eq 'Set';
   Value::cmp_equal(@_);
 }
 
@@ -897,7 +890,7 @@ sub cmp_defaults {
     extra => $element,
     requireParenMatch => 1,
     removeParens => 1,
-   );
+  );
 }
 
 #

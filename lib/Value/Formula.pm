@@ -45,12 +45,15 @@ sub new {shift; $pkg->SUPER::new(@_)}
 sub blank {$pkg->SUPER::new('')}
 
 #
-#  with() changes tree element not formula itself
-#    (maybe the wrong choice?)
+#  with() changes tree element as well
+#    as the formula itself.
 #
 sub with {
   my $self = shift; my %hash = @_;
-  foreach my $id (keys(%hash)) {$self->{tree}{$id} = $hash{$id}}
+  foreach my $id (keys(%hash)) {
+    $self->{tree}{$id} = $hash{$id};
+    $self->{$id} = $hash{$id};
+  }
   return $self;
 }
 
@@ -463,19 +466,6 @@ sub getRandom {
   my $self = shift;
   my ($m,$M,$n) = @_; $n = 1 unless $n;
   return $m + $n*int(rand()*(int(($M-$m)/$n)+1));
-}
-
-#
-#  Get the value of a flag from the object itself,
-#  or from the context, or from the default context
-#  or from the given default, whichever is found first.
-#
-sub getFlag {
-  my $self = shift; my $name = shift;
-  return $self->{$name} if defined($self->{$name});
-  return $self->{context}{flags}{$name} if defined($self->{context}{flags}{$name});
-  return $$Value::context->{flags}{$name} if defined($$Value::context->{flags}{$name});
-  return shift;
 }
 
 ############################################
