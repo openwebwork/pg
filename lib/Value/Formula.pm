@@ -34,9 +34,14 @@ use overload
          '""' => sub {shift->stringify(@_)};
 
 #
-#  Call Parser to make the new item
+#  Call Parser to make the new item, copying important
+#    fields from the tree.
 #
-sub new {shift; $pkg->SUPER::new(@_)}
+sub new {
+  shift; my $self = $pkg->SUPER::new(@_);
+  foreach my $id ('open','close') {$self->{$id} = $self->{tree}{$id}}
+  return $self;
+}
 
 #
 #  Create the new parser with no string
@@ -65,6 +70,8 @@ sub length {(shift)->{tree}->typeRef->{length}}
 
 sub isZero {(shift)->{tree}{isZero}}
 sub isOne {(shift)->{tree}{isOne}}
+
+sub isSetOfReals {(shift)->type =~ m/Interval|Set|Union/}
 
 ############################################
 #
@@ -97,7 +104,7 @@ sub bop {
   $l = $parser->{Value}->new($formula,$l) unless ref($l) =~ m/^Parser::/;
   $r = $parser->{Value}->new($formula,$r) unless ref($r) =~ m/^Parser::/;
   $bop = 'U' if $bop eq '+' &&
-    ($l->type =~ m/Interval|Union|Set/ || $r->type =~ m/Interval|Union|Set/);
+    ($l->type =~ m/Interval|Set|Union/ || $r->type =~ m/Interval|Set|Union/);
   $formula->{tree} = $parser->{BOP}->new($formula,$bop,$l,$r);
   $formula->{variables} = $formula->{tree}->getVariables;
   return $formula->eval if scalar(%{$formula->{variables}}) == 0;

@@ -26,8 +26,9 @@ sub new {
   my $context = Parser::Context->current;
   my $class = $context->{parser}{Formula};
   my $string = shift;
-  $string = Value::List->new($string,@_)
-    if scalar(@_) > 0 || ref($string) eq 'ARRAY';
+  $string = Value::List->new($string,@_) if scalar(@_) > 0;
+  $string = Value::List->new($string)->with(open=>'[',close=>']')
+    if ref($string) eq 'ARRAY';
   my $math = bless {
     string => undef,
     tokens => [], tree => undef, 
