@@ -158,7 +158,7 @@ answers of various "exotic" types.
 
 sub mode2context {
 	my $mode = shift;
-	my $options = @_;
+	my %options = @_;
 	my $context;
 	for ($mode) {
 		/^strict$/i	   and do {
@@ -176,14 +176,17 @@ sub mode2context {
 			$context->operators->redefine(',');
 			last;
 		};
-		if(defined($options{'complex'}) &&
-		   ($options{'complex'} =~ /(yes|ok)/i)) {
-			$context = $Parser::Context::Default::context{Complex}->copy;
-			last;
-		}
 		
 		# default
 		$context = $Parser::Context::Default::context{LegacyNumeric}->copy;
+	}
+	# If we are using complex numbers, then we ignore the other mode parts
+	if(defined($options{'complex'}) &&
+	   ($options{'complex'} =~ /(yes|ok)/i)) {
+		#$context->constants->redefine('i', from=>'Complex');
+		#$context->functions->redefine(['arg','mod','Re','Im','conj', 'sqrt', 'log'], from=>'Complex');
+		#$context->operators->redefine(['^', '**'], from=>'Complex');
+		$context = $Parser::Context::Default::context{'Complex'};
 	}
 	$options{tolType} = $options{tolType} || 'relative';
 	$options{tolerance} = $options{tolerance} || $options{tol} ||
@@ -300,11 +303,7 @@ sub interval_cmp {
 		$context->parens->redefine('[', from=>'Interval');
 		$context->parens->redefine('{', from=>'Interval');
 		
-		#$context->constants->redefine('R',from=>'Interval');
-		my $infinity = Value::Infinity->new();
-		$context->constants->add(
-		   R => Value::Interval->new('(',-$infinity,$infinity,')'),
-		);
+		$context->constants->redefine('R',from=>'Interval');
 		$context->operators->redefine('U',from=>"Interval");
 		$context->operators->redefine('u',from=>"Interval",using=>"U");
 		$ans_type = 'Union';
@@ -313,9 +312,13 @@ sub interval_cmp {
 	for my $o qw( showCoordinateHints showHints partialCredit showLengthHints ) {
 		$options{$o} = $opts{$o} || 0;
 	}
-	$options{ordered} = 1 if(defined($opts{ordered}) and $opts{ordered});
-	$options{showUnionReduceWarnings}= $opts{showUnionReduceWarnings} || 1;
-	$options{studentsMustReduceUnions} = $opts{studentsMustReduceUnions} || 0;
+	$options{showUnionReduceWarnings} = $opts{showUnionReduceWarnings};
+	$options{studentsMustReduceUnions} = $opts{studentsMustReduceUnions};
+	if(defined($opts{ordered}) and $opts{ordered}) {
+		$options{ordered} = 1;
+		# Force this option if the the union must be ordered
+		$options{studentsMustReduceUnions} = 1;
+	}
 	if (defined($opts{'sloppy'}) && $opts{'sloppy'} eq 'yes') {
 		 $options{requireParenMatch} = 0;
 	}
@@ -327,7 +330,7 @@ sub interval_cmp {
 		'minfty' => {alias=>'minfinity'},
 		'minf' => {alias=>'minfinity'},
 		'mi' => {alias=>'minfinity'},
-    );
+	);
 	# Add any strings
 	if ($opts{strings}) {
 		foreach my $string (@{$opts{strings}}) {
