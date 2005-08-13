@@ -44,6 +44,7 @@ my ($PAR,
 	$SOL,
 	$SOLUTION,
 	$HINT,
+	$COMMENT,
 	$US,
 	$SPACE,
 	$BBOLD,
@@ -976,6 +977,31 @@ sub HINT {
 # End hints and solutions macros
 #################################
 
+=head2 Comments to instructors
+
+	COMMENT('text','text2',...);
+
+Takes the text to be lines of a comment to be shown only 
+in the Library Browser below the rendered problem.
+
+The function COMMENT stores the needed html in the variable
+pgComment, which gets transfered to the flag 'comment' in PG_FLAGS.
+
+=cut
+
+# Add a comment which will display in the Library browser
+#  Currently, the only output is html
+
+sub COMMENT {
+   	my @in = @_;
+	my $out = join("$BR", @in);
+	my $out = '<div class=\"AuthorComment\">'.$out.'</div>';
+
+	PG_restricted_eval(q!$main::pgComment = "!.$out.q!"!);
+	return('');
+}
+
+#################################
 #	Produces a random number between $begin and $end with increment 1.
 #	You do not have to worry about integer or floating point types.
 

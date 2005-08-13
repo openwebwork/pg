@@ -137,6 +137,7 @@ sub DOCUMENT {
 	$main::showHint = 1 unless defined($main::showHint);
 	$main::solutionExists =0;
 	$main::hintExists =0;
+	$main::pgComment = '';
 	%main::gifs_created = ();
 	
     !);
@@ -446,9 +447,10 @@ an array consisting of
 	    images are not used).
 	(4) solutionExits   -- indicates the existence of a solution.
 	(5) hintExits   -- indicates the existence of a hint.
-	(6) showHintLimit -- determines the number of attempts after which hint(s) will be shown
+	(6) comment   -- contents of COMMENT commands if any.
+	(7) showHintLimit -- determines the number of attempts after which hint(s) will be shown
 
-	(7) PROBLEM_GRADER_TO_USE -- chooses the problem grader to be used in this order
+	(8) PROBLEM_GRADER_TO_USE -- chooses the problem grader to be used in this order
 		(a) A problem grader specified by the problem using:
 		    install_problem_grader(\&grader);
 		(b) One of the standard problem graders defined in PGanswermacros.pl when set to
@@ -478,6 +480,7 @@ sub ENDDOCUMENT {
 		$main::PG_FLAGS{'showPartialCorrectAnswers'} = $main::showPartialCorrectAnswers;
 		$main::PG_FLAGS{'recordSubmittedAnswers'} = $main::recordSubmittedAnswers;
 		$main::PG_FLAGS{'refreshCachedImages'} = $main::refreshCachedImages;
+		$main::PG_FLAGS{'comment'} = $main::pgComment;
 		$main::PG_FLAGS{'hintExists'} = $main::hintExists;
 		$main::PG_FLAGS{'showHintLimit'} = $main::showHint;
 		$main::PG_FLAGS{'solutionExists'} = $main::solutionExists;
