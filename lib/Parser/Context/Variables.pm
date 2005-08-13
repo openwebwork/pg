@@ -61,6 +61,7 @@ sub create {
   }
   return {type => $value, @extra};
 }
+sub uncreate {shift; (shift)->{type}};
 
 #
 #  Return a variable's type

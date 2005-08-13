@@ -16,12 +16,13 @@ sub init {
 }
 
 #
-#  Create data for constants
+#  Create/Uncreate data for constants
 #
 sub create {
   my $self = shift; my $value = shift;
   return {value => $value, keepName => 1};
 }
+sub uncreate {shift; (shift)->{value}}
 
 #
 #  Return a constant's value

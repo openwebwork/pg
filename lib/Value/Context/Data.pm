@@ -26,6 +26,7 @@ sub new {
 #
 sub init {}
 sub create {shift; shift}
+sub uncreate {shift; shift}
 
 #
 #  Sort names so that they can be joined for regexp matching
@@ -158,7 +159,7 @@ sub redefine {
     Value::Error("No definition for %s '%s' in the given context",$self->{name},$y)
       unless $from->{$self->{dataName}}{$y};
     push(@remove,$x) if $self->get($x);
-    push(@data,$x => $from->{$self->{dataName}}{$y});
+    push(@data,$x => $self->uncreate($from->{$self->{dataName}}{$y}));
   }
   $self->remove(@remove);
   $self->add(@data);
