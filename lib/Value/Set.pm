@@ -30,7 +30,8 @@ sub new {
   return $p if (Value::isFormula($p) && $p->type eq Value::class($self));
   my $pclass = Value::class($p); my $isFormula = 0;
   my @d; @d = $p->dimensions if $pclass eq 'Matrix';
-  if ($pclass =~ m/Point|Vector|Set/) {$p = $p->data}
+  if ($pclass eq 'List' && $p->typeRef->{entryType}{name} eq 'Number') {$p = $p->data}
+  elsif ($pclass =~ m/Point|Vector|Set/) {$p = $p->data}
   elsif ($pclass eq 'Matrix' && scalar(@d) == 1) {$p = [$p->value]}
   elsif ($pclass eq 'Matrix' && scalar(@d) == 2 && $d[0] == 1) {$p = ($p->value)[0]}
   elsif ($pclass eq 'Matrix' && scalar(@d) == 2 && $d[1] == 1) {$p = ($p->transpose->value)[0]}
@@ -76,6 +77,8 @@ sub promote {
   return $x if ref($x) eq $pkg;
   $x = Value::Interval::promote($x) if $x->canBeInUnion;
   return $x if $x->isSetOfReals;
+  return $pkg->new($x->value)
+    if $x->type eq 'List' && $x->typeRef->{entryType}{name} eq 'Number';
   Value::Error("Can't convert %s to a Set",Value::showClass($x));
 }
 
