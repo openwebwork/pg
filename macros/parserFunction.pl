@@ -78,7 +78,7 @@ sub Create {
       @_, class => 'parserFunction', argCount => scalar(@argNames),
       argNames => [@argNames], argTypes => [@argTypes],
       function => $formula->perlFunction(undef,[@argNames]),
-      type => $formula->typeRef,
+      formula => $formula, type => $formula->typeRef,
     }
   );
   main::PG_restricted_eval("sub main::$name {Parser::Function->call('$name',\@_)}");
@@ -117,6 +117,20 @@ sub _call {
   my $self = shift; my $name = shift;
   my $def = $$Value::context->{functions}{$name};
   &{$def->{function}}(@_);
+}
+
+#
+#  Compute the derivative of (single-variable) functions
+#    using the chain rule.
+#
+sub D {
+  my $self = shift; my $def = $self->{def};
+  $self->Error("Can't differentiate function '%s'",$self->{name})
+    unless $def->{argCount} == 1;
+  my $x = $def->{argNames}[0];
+  my $Df = $def->{formula}->D($x);
+  my $g = $self->{params}[0];
+  return (($Df->substitute($x=>$g))*($g->D(@_)))->{tree}->reduce;
 }
 
 #
