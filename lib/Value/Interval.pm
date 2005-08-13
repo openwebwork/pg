@@ -26,7 +26,7 @@ use overload
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  if (scalar(@_) == 1 && !ref($_[0])) {
+  if (scalar(@_) == 1 && (!ref($_[0]) || ref($_[0]) eq 'ARRAY')) {
     my $x = Value::makeValue($_[0]);
     if (Value::isFormula($x)) {
       return $x if $x->type eq 'Interval';
@@ -34,13 +34,16 @@ sub new {
     }
     return promote($x);
   }
-  my ($open,$a,$b,$close) = @_;
+  my @params = @_;
+  Value::Error("Interval can't be empty") unless scalar(@params) > 0;
+  Value::Error("Extra arguments for Interval()") if scalar(@params) > 4;
+  return Value::Set->new(@params) if scalar(@params) == 1;
+  @params = ('(',@params,')') if (scalar(@params) == 2);
+  my ($open,$a,$b,$close) = @params;
   if (!defined($close)) {$close = $b; $b = $a}
-  Value::Error("Interval() must be called with 3 or 4 arguments")
-    unless defined($open) && defined($a) && defined($b) && defined($close) && scalar(@_) <= 4;
   $a = Value::makeValue($a); $b = Value::makeValue($b);
   return $self->formula($open,$a,$b,$close) if Value::isFormula($a) || Value::isFormula($b);
-  Value::Error("Endpoints of intervals must be numbers on infinities") unless
+  Value::Error("Endpoints of intervals must be numbers or infinities") unless
     isNumOrInfinity($a) && isNumOrInfinity($b);
   my ($ia,$ib) = (isInfinity($a),isInfinity($b));
   my ($nia,$nib) = (isNegativeInfinity($a),isNegativeInfinity($b));
@@ -60,7 +63,6 @@ sub new {
   bless {
     data => [$a,$b], open => $open, close => $close,
     leftInfinite => $nia, rightInfinite => $ib,
-    canBeInterval => 1,
   }, $class;
 }
 
@@ -74,7 +76,6 @@ sub make {
   bless {
     data => [$a,$b], open => $open, close => $close,
     leftInfinite => isNegativeInfinity($a), rightInfinite => isInfinity($b),
-    canBeInterval => 1,
   }, $class
 }
 
@@ -114,6 +115,9 @@ sub isNegativeInfinity {
 sub isOne {0}
 sub isZero {0}
 
+sub canBeInUnion {1}
+sub isSetOfReals {1}
+
 #
 #  Return the open and close parens as well as the endpoints
 #
@@ -136,16 +140,13 @@ sub length {
 #  Convert points and lists to intervals, when needed
 #
 sub promote {
-  my $x = shift;
-  return $pkg->new($x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
-  return $x if ref($x) eq $pkg;
-  $x = Value::makeValue($x);
+  my $x = Value::makeValue(shift);
+  return $pkg->new($x,@_) if scalar(@_) > 0;
+  return $x if $x->isSetOfReals;
   return Value::Set->new($x) if Value::class($x) eq 'Real';
   my $open  = $x->{open};  $open  = '(' unless defined($open);
   my $close = $x->{close}; $close = ')' unless defined($close);
-  return $pkg->new($open,$x->value,$close)
-    if Value::class($x) =~ m/^(Point|List)$/ && $x->length == 2 &&
-       ($open eq '(' || $open eq '[') && ($close eq ')' || $close eq ']');
+  return $pkg->new($open,$x->value,$close) if $x->canBeInUnion;
   Value::Error("Can't convert %s to an Interval",Value::showClass($x));
 }
 
@@ -192,18 +193,18 @@ sub subIntervalInterval {
     push(@union,$l) unless $a == $b && $l->{close} eq ')';
   } else {
     if ($a == $c) {
-      push(@union,Value::Set->new($a))
+      push(@union,Value::Set->make($a))
 	if $l->{open} eq '[' && $r->{open} eq '(';
     } elsif ($a < $c) {
       my $close = ($r->{open} eq '[')? ')': ']';
-      push(@union,Value::Interval->new($l->{open},$a,$c,$close));
+      push(@union,Value::Interval->make($l->{open},$a,$c,$close));
     }
     if ($d == $b) {
-      push(@union,Value::Set->new($b))
+      push(@union,Value::Set->make($b))
 	if $l->{close} eq ']' && $r->{close} eq ')';
     } elsif ($d < $b) {
       my $open = ($r->{close} eq ']') ? '(': '[';
-      push(@union,Value::Interval->new($open,$d,$b,$l->{close}));
+      push(@union,Value::Interval->make($open,$d,$b,$l->{close}));
     }
   }
   return @union;

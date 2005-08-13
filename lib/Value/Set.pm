@@ -45,8 +45,7 @@ sub new {
   }
   return $self->formula($p) if $isFormula;
   my $def = $$Value::context->lists->get('Set');
-  my $set = bless {data => $p, canBeInterval => 1,
-    open => $def->{open}, close => $def->{close}}, $class;
+  my $set = bless {data => $p, open => $def->{open}, close => $def->{close}}, $class;
   $set = $set->reduce if $self->getFlag('reduceSets');
   return $set;
 }
@@ -58,7 +57,6 @@ sub make {
   my $self = shift;
   my $def = $$Value::context->lists->get('Set');
   $self = $self->SUPER::make(@_);
-  $self->{canBeInterval} = 1;
   $self->{open} = $def->{open}; $self->{close} = $def->{close};
   return $self;
 }
@@ -66,14 +64,18 @@ sub make {
 sub isOne {0}
 sub isZero {0}
 
+sub canBeInUnion {1}
+sub isSetOfReals {1}
+
 #
 #  Try to promote arbitrary data to a set
 #
 sub promote {
-  my $x = shift;
-  return $pkg->new($x,@_)
-    if scalar(@_) > 0 || ref($x) eq 'ARRAY' || Value::isRealNumber($x);
-  return $x if Value::class($x) =~ m/Interval|Union|Set/;
+  my $x = Value::makeValue(shift);
+  return $pkg->new($x,@_) if scalar(@_) > 0 || Value::isRealNumber($x);
+  return $x if ref($x) eq $pkg;
+  $x = Value::Interval::promote($x) if $x->canBeInUnion;
+  return $x if $x->isSetOfReals;
   Value::Error("Can't convert %s to a Set",Value::showClass($x));
 }
 
@@ -134,7 +136,7 @@ sub subIntervalSet {
       return @union if $a == $b;
       $I->{open} = '(';
     } elsif ($x < $b) {
-      push(@union,Value::Interval->new($I->{open},$a,$x,')'));
+      push(@union,Value::Interval->make($I->{open},$a,$x,')'));
       $I->{open} = '('; $I->{data}[0] = $x;
     } else {
       $I->{close} = ')' if ($x == $b);
@@ -192,7 +194,7 @@ sub compare {
 #
 
 #
-#  Remove redundant values
+#  Remove repeated values
 #
 sub reduce {
   my $self = shift;

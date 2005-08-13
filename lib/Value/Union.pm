@@ -33,42 +33,30 @@ sub new {
     $x = promote($x); $x = $pkg->make($x) unless $x->type eq 'Union';
     return $x;
   }
-  Value::Error("Empty unions are not allowed") if scalar(@_) == 0;
   my @intervals = (); my $isFormula = 0;
   foreach my $xx (@_) {
-    my $x = $xx; $x = Value::makeValue($x);
-    if (Value::isFormula($x)) {
+    next if $xx eq ''; my $x = Value::makeValue($xx);
+    if ($x->isFormula) {
       $x->{tree}->typeRef->{name} = 'Interval'
 	if ($x->type =~ m/Point|List/ && $x->length == 2 &&
 	    $x->typeRef->{entryType}{name} eq 'Number');
-      if ($x->type =~ m/Interval|Set/) {push(@intervals,$x)}
-      elsif ($x->type eq 'Union') {push(@intervals,$x->{tree}->makeUnion)}
+      if ($x->type eq 'Union') {push(@intervals,$x->{tree}->makeUnion)}
+      elsif ($x->isSetOfReals) {push(@intervals,$x)}
       else {Value::Error("Unions can be taken only for Intervals and Sets")}
       $isFormula = 1;
     } else {
-      if (Value::class($x) eq 'Point' || Value::class($x) eq 'List') {
-        if ($x->length == 1) {$x = Value::Interval->new('[',$x->value,$x->value,']')}
-        elsif ($x->length == 2) {$x = Value::Interval->new($x->{open},$x->value,$x->{close})}
-      }
-      if (Value::class($x) =~ m/Interval|Set/) {push(@intervals,$x)}
-      elsif (Value::class($x) eq 'Union') {push(@intervals,@{$x->{data}})}
+      if ($x->type ne 'Interval' && $x->canBeInUnion) 
+        {$x = Value::Interval->new($x->{open},$x->value,$x->{close})}
+      if ($x->class eq 'Union') {push(@intervals,$x->value)}
+      elsif ($x->isSetOfReals) {push(@intervals,$x)}
       else {Value::Error("Unions can be taken only for Intervals or Sets")}
     }
   }
+  Value::Error("Empty unions are not allowed") if scalar(@intervals) == 0;
   return $self->formula(@intervals) if $isFormula;
   my $union = form(@intervals);
   $union = $self->make($union) unless $union->type eq 'Union';
   return $union;
-}
-
-#
-#  Set the canBeInterval flag
-#
-sub make {
-  my $self = shift;
-  $self = $self->SUPER::make(@_);
-  $self->{canBeInterval} = 1;
-  return $self;
 }
 
 #
@@ -95,6 +83,9 @@ sub typeRef {
 sub isOne {0}
 sub isZero {0}
 
+sub canBeInUnion {1}
+sub isSetOfReals {1}
+
 #
 #  Recursively convert the list of intervals to a tree of unions
 #
@@ -115,12 +106,11 @@ sub recursiveUnion {
 #  Try to promote arbitrary data to a set
 #
 sub promote {
-  my $x = shift;
-  return Value::Set->new($x,@_)
-    if scalar(@_) > 0 || ref($x) eq 'ARRAY' || Value::isRealNumber($x);
-  return $x if Value::class($x) eq 'Union';
-  $x = Value::Interval::promote($x) if Value::class($x) eq 'List';
-  return $pkg->make($x) if Value::class($x) =~ m/Interval|Set/;
+  my $x = Value::makeValue(shift);
+  return Value::Set->new($x,@_) if scalar(@_) > 0 || Value::isRealNumber($x);
+  return $x if ref($x) eq $pkg;
+  $x = Value::Interval::promote($x) if $x->canBeInUnion;
+  return $pkg->make($x) if Value::isValue($x) && $x->isSetOfReals;
   Value::Error("Can't convert %s to an Interval, Set or Union",Value::showClass($x));
 }
 

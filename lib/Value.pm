@@ -155,12 +155,19 @@ sub isZero {
 
 sub isOne {0}
 
+sub isSetOfReals {0}
+sub canBeInUnion {
+  my $self = shift;
+  return $self->length == 2 && $self->typeRef->{entryType}{name} eq 'Number' &&
+    $self->{open} =~ m/^[\(\[]$/ && $self->{close} =~ m/^[\)\]]$/;
+}
+
 #
 #  Convert non-Value objects to Values, if possible
 #
 sub makeValue {
   my $x = shift; my %params = (showError => 0, makeFormula => 1, @_);
-  return $x if ref($x) || $x eq '';
+  return $x if (ref($x) && ref($x) ne 'ARRAY') || $x eq '';
   return Value::Real->make($x) if matchNumber($x);
   if (matchInfinite($x)) {
     my $I = Value::Infinity->new();

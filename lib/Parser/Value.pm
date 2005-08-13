@@ -47,10 +47,7 @@ sub new {
 sub check {
   my $self = shift;
   my $type = $self->{type}; my $value = $self->{value};
-  $self->{canBeInterval} = 1 
-    if $value->{canBeInterval} ||
-       ($value->class =~ m/Point|List/ &&
-        $type->{length} == 2 && $type->{entryType}{name} eq 'Number');
+  $self->{canBeInterval} = $value->canBeInUnion;
   $self->{isZero} = $value->isZero;
   $self->{isOne}  = $value->isOne;
 }

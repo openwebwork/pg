@@ -199,7 +199,7 @@ sub cmp_class {
   my $self = shift; my $ans = shift;
   my $class = $self->showClass; $class =~ s/Real //;
   return $class if $class =~ m/Formula/;
-  return "an Interval, Set or Union" if $class =~ m/Interval|Set|Union/i;
+  return "an Interval, Set or Union" if $self->isSetOfReals;
   return $class; 
 }
 
@@ -260,7 +260,7 @@ sub cmp_checkUnionReduce {
 	unless $R[$i] == $S[$i] && $R[$i]->length == $S[$i]->length;
     }
   } elsif ($student->type eq 'Set' && $student->length >= 2) {
-    return "Your$nth set should have no redundant elements"
+    return "Your$nth set should have no repeated elements"
       unless $student->reduce->length == $student->length;
   }
   return;
@@ -803,14 +803,9 @@ sub cmp_defaults {(
 
 sub typeMatch {
   my $self = shift; my $other = shift;
-  return 0 unless ref($other) && $other->class ne 'Formula';
-  return $other->length == 2 &&
-         ($other->{open} eq '(' || $other->{open} eq '[') &&
-         ($other->{close} eq ')' || $other->{close} eq ']')
-	   if $other->type =~ m/^(Point|List)$/;
-  $other->type =~ m/^(Interval|Union|Set)$/;
+  return 0 if !Value::isValue($other) || $other->isFormula;
+  return $other->canBeInUnion;
 }
-
 
 #
 #  Check for unreduced sets and unions
@@ -851,12 +846,8 @@ package Value::Set;
 
 sub typeMatch {
   my $self = shift; my $other = shift;
-  return 0 unless ref($other) && $other->class ne 'Formula';
-  return $other->length == 2 &&
-         ($other->{open} eq '(' || $other->{open} eq '[') &&
-         ($other->{close} eq ')' || $other->{close} eq ']')
-	   if $other->type =~ m/^(Point|List)$/;
-  $other->type =~ m/^(Interval|Union|Set)/;
+  return 0 if !Value::isValue($other) || $other->isFormula;
+  return $other->canBeInUnion;
 }
 
 #
@@ -905,7 +896,7 @@ sub typeMatch {
          ($other->{open} eq '(' || $other->{open} eq '[') &&
          ($other->{close} eq ')' || $other->{close} eq ']')
 	   if $other->type =~ m/^(Point|List)$/;
-  $other->type =~ m/^(Interval|Union|Set)/;
+  $other->isSetOfReals;
 }
 
 #
