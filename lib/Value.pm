@@ -548,6 +548,8 @@ sub perl {
     $perl = '['.$perl.']' if $mtype > 0;
   } else {
     $perl = 'new '.ref($self).'('.join(',',@p).')';
+    $perl = "($perl)->with(open=>'$self->{open}',close=>'$self->{close}')"
+      if $class eq 'List' && $self->{open}.$self->{close} ne '()';
     $perl = '('.$perl.')' if $parens == 1;
   }
   return $perl;
