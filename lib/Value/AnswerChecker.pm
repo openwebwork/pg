@@ -257,12 +257,11 @@ sub cmp_checkUnionReduce {
     my @S = $student->sort->value;
     foreach my $i (0..$#R) {
       return "Your$nth union can be written in a simpler form"
-	unless $R[$i] == $S[$i];
+	unless $R[$i] == $S[$i] && $R[$i]->length == $S[$i]->length;
     }
-  } elsif ($student->type eq 'Set') {
-    my $reduced = $student->reduce;
+  } elsif ($student->type eq 'Set' && $student->length >= 2) {
     return "Your$nth set should have no redundant elements"
-      unless $reduced->length == $student->length;
+      unless $student->reduce->length == $student->length;
   }
   return;
 }
