@@ -13,21 +13,20 @@ use strict; use vars qw(@ISA);
 sub _check {
   my $self = shift;
   my $length = $self->{type}{length}; my $coords = $self->{coords};
-  $self->Error("Intervals can have only two endpoints") if ($length > 2);
-  $self->Error("Intervals must have at least one endpoint") if ($length == 0);
+  $self->Error("Intervals can have only two endpoints") if $length > 2;
+  $self->Error("Intervals must have two endpoints") if $length < 2;
   $self->Error("Coordinates of intervals can only be numbers or infinity")
-    if !$coords->[0]->isNumOrInfinity ||
-       ($length == 2 && !$coords->[1]->isNumOrInfinity);
-  $self->Error("Infinite intervals require two endpoints")
-    if ($length == 1 && $coords->[0]{isInfinite});
+    if !$coords->[0]->isNumOrInfinity || !$coords->[1]->isNumOrInfinity;
   $self->Error("The left endpoint of an interval can't be positive infinity")
-    if ($coords->[0]{isInfinity});
+    if $coords->[0]{isInfinity};
   $self->Error("The right endpoint of an interval can't be negative infinity")
-    if ($length == 2 && $coords->[1]{isNegativeInfinity});
+    if $coords->[1]{isNegativeInfinity};
   $self->Error("Infinite endpoints must be open")
     if ($self->{open} ne '(' && $coords->[0]{isInfinite}) ||
-       ($self->{close} ne ')' && $length == 2 && $coords->[1]{isInfinite});
+       ($self->{close} ne ')' && $coords->[1]{isInfinite});
 }
+
+sub canBeInUnion {1}
 
 #
 #  Use the Value.pm class to produce the result

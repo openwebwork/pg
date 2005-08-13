@@ -47,15 +47,14 @@ sub new {
 sub check {
   my $self = shift;
   my $type = $self->{type}; my $value = $self->{value};
-  $self->{canBeInterval} = $value->canBeInUnion;
   $self->{isZero} = $value->isZero;
   $self->{isOne}  = $value->isOne;
 }
 
 #
-#  Return the Value.pm object
+#  Return the Value object
 #
-sub eval {return (shift)->{value}}
+sub eval {(shift)->{value}}
 
 #
 #  Call the Value object's reduce method and reset the flags
@@ -66,6 +65,11 @@ sub reduce {
   $self->check;
   return $self;
 }
+
+#
+#  Pass on the request to the Value object
+#
+sub canBeInUnion {(shift)->{value}->canBeInUnion}
 
 #
 #  Return the item's list of coordinates
@@ -96,8 +100,6 @@ sub TeX {
 sub perl {
   my $self = shift; my $parens = shift; my $matrix = shift;
   my $perl = $self->{value}->perl(0,$matrix);
-  $perl = "(($perl)->with(open=>'$self->{open}',close=>'$self->{close}'))"
-    if $self->{canBeInterval} && $self->{open}.$self->{close} eq '[]';
   $perl = '('.$perl.')' if $parens;
   return $perl;
 }

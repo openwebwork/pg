@@ -31,8 +31,7 @@ sub new {
   if ($paren && $close && $paren->{formInterval}) {
     $paren = $parens->{interval}
       if ($paren->{close} ne $close || (scalar(@{$coords}) == 2 &&
-           ($coords->[0]->{isInfinite} || $coords->[1]->{isInfinite})) ||
-           (scalar(@{$coords}) == 1 && $coords->[0]->{isInfinite}));
+           ($coords->[0]->{isInfinite} || $coords->[1]->{isInfinite})));
   }
   my $type = Value::Type($paren->{type},scalar(@{$coords}),$entryType,
                                 list => 1, formMatrix => $paren->{formMatrix});
@@ -54,28 +53,24 @@ sub new {
   foreach my $x (@{$coords}) {$zero = 0, last unless $x->{isZero}}
   $list->{isZero} = 1 if $zero && scalar(@{$coords}) > 0;
 
-  $list->checkInterval;
   $list->_check;
 
 #  warn ">> $list->{type}{name} of $list->{type}{entryType}{name} of length $list->{type}{length}\n";
 
   if ($list->{isConstant} && $context->flag('reduceConstants')) {
-    my $saveCBI = $list->{canBeInterval}; $type = $list->{type};
+    $type = $list->{type};
     $list = $context->{parser}{Value}->new($equation,[$list->eval]);
     $list->{type} = $type; $list->{open} = $open; $list->{close} = $close;
     $list->{value}->{open} = $open, $list->{value}->{close} = $close
       if ref($list->{value});
-    $list->{canBeInterval} = $saveCBI if $saveCBI;
   }
   return $list;
 }
 
-sub checkInterval {
+sub canBeInUnion {
   my $self = shift;
-  if ((($self->{open} eq '(' || $self->{open} eq '[') &&
-       ($self->{close} eq ')' || $self->{close} eq ']') && $self->length == 2) ||
-      ($self->{open}.$self->{close} eq '[]' && $self->length == 1))
-          {$self->{canBeInterval} = 1}
+  $self->length == 2 && $self->typeRef->{entryType}{name} eq 'Number' &&
+    $self->{open} =~ m/^[\(\[]$/ && $self->{close} =~ m/^[\)\]]$/;
 }
 
 sub _check {}
@@ -228,8 +223,9 @@ sub perl {
   my $perl; my @p = ();
   foreach my $x (@{$self->{coords}}) {push(@p,$x->perl)}
   $perl = 'new Value::'.$self->type.'('.join(',',@p).')';
-  $perl = "${perl}->with(open=>'$self->{open}',close=>'$self->{close}')"
-    if $self->{canBeInterval} && $self->{open}.$self->{close} eq '[]';
+  $perl = "(${perl})->with(open=>'$self->{open}',close=>'$self->{close}')"
+    if $self->canBeInUnion ||
+      ($self->type eq 'List' && $self->{open}.$self->{close} ne '()');
   $perl = '('.$perl.')' if $parens;
   return $perl;
 }

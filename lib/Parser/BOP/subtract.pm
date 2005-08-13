@@ -14,13 +14,11 @@ sub _check {
   return if ($self->checkStrings());
   return if ($self->checkLists());
   return if ($self->checkNumbers());
-  if ($self->{lop}{canBeInterval} && $self->{rop}{canBeInterval}) {
-    if ($self->{lop}->type =~ m/Interval|Union|Set/ ||
-	$self->{rop}->type =~ m/Interval|Union|Set/) {
+  if ($self->{lop}->canBeInUnion && $self->{rop}->canBeInUnion) {
+    if ($self->{lop}->isSetOfReals || $self->{rop}->isSetOfReals) {
       $self->{type} = Value::Type('Union',2,$Value::Type{number});
-      $self->{canBeInterval} = 1;
       foreach my $op ('lop','rop') {
-	if ($self->{$op}->type !~ m/Interval|Union|Set/) {
+	if (!$self->{$op}->isSetOfReals) {
 	  if ($self->{$op}->class eq 'Value') {
 	    $self->{$op}{value} = Value::Interval::promote($self->{$op}{value});
 	  } else {
@@ -36,6 +34,8 @@ sub _check {
   if (Parser::Item::typeMatch($ltype,$rtype)) {$self->{type} = $ltype}
   else {$self->matchError($ltype,$rtype)}
 }
+
+sub canBeInUnion {(shift)->type eq 'Union'}
 
 #
 #  Do subtraction

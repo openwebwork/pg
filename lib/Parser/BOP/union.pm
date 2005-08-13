@@ -14,14 +14,13 @@ use strict; use vars qw(@ISA);
 sub _check {
   my $self = shift;
   return if ($self->checkStrings());
-  if ($self->{lop}{canBeInterval} && $self->{rop}{canBeInterval}) {
+  if ($self->{lop}->canBeInUnion && $self->{rop}->canBeInUnion) {
     $self->{type} = Value::Type('Union',2,$Value::Type{number});
-    $self->{canBeInterval} = 1;
     foreach my $op ('lop','rop') {
-      if ($self->{$op}->type !~ m/^(Interval|Union|Set)$/) {
+      if (!$self->{$op}->isSetOfReals) {
 	if ($self->{$op}->class eq 'Value') {
 	  $self->{$op}{value} = Value::Interval::promote($self->{$op}{value});
-	} else {
+	} else  {
 	  $self->{$op} = bless $self->{$op}, 'Parser::List::Interval';
 	}
 	$self->{$op}->typeRef->{name} = $self->{equation}{context}{parens}{interval}{type};
@@ -29,6 +28,8 @@ sub _check {
     }
   } else {$self->Error("Operands of '%s' must be intervals or sets",$self->{bop})}
 }
+
+sub canBeInUnion {(shift)->type eq 'Union'}
 
 
 #

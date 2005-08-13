@@ -24,8 +24,6 @@ sub new {
     ref => $ref, equation => $equation
   }, $class;
   $c->{isConstant} = 1 if $const->{isConstant};
-  $c->{canBeInterval} = 1
-    if Value::isValue($const->{value}) && $const->{value}{canBeInterval};
   return $c;
 }
 
@@ -44,6 +42,14 @@ sub eval {
   }
   return $data unless ref($data) eq 'ARRAY';
   return @{$data};
+}
+
+#
+#  Use constant to tell if it can be in a union
+#
+sub canBeInUnion {
+  my $self = shift;
+  Value::isValue($self->{def}{value}) && $self->{def}{value}->canBeInUnion;
 }
 
 #

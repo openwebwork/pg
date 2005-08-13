@@ -17,10 +17,7 @@ sub _check {
   }
 }
 
-sub checkInterval {
-  my $self = shift;
-  $self->{canBeInterval} = 1;
-}
+sub canBeInUnion {1}
 
 #########################################################################
 

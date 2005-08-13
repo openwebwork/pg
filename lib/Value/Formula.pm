@@ -71,7 +71,7 @@ sub length {(shift)->{tree}->typeRef->{length}}
 sub isZero {(shift)->{tree}{isZero}}
 sub isOne {(shift)->{tree}{isOne}}
 
-sub isSetOfReals {(shift)->type =~ m/Interval|Set|Union/}
+sub isSetOfReals {(shift)->{tree}->isSetOfReals}
 sub canBeInUnion {(shift)->{tree}->canBeInUnion}
 
 ############################################

@@ -61,6 +61,13 @@ sub isNeg {
 }
 
 #
+#  Check if an item can be in a union or is a set or reals
+#    (overridden in subclasses)
+#
+sub canBeInUnion {0}
+sub isSetOfReals {(shift)->type =~ m/^(Interval|Union|Set)$/}
+
+#
 #  Add parens to an expression (alternating the type of paren)
 #
 sub addParens {
