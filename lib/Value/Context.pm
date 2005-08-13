@@ -110,7 +110,7 @@ sub clearError {
 #
 sub setError {
   my $error = (shift)->{error};
-  my ($message,$string,$pos,$more) = @_;
+  my ($message,$string,$pos,$more,$flag) = @_;
   my @args = ();
   ($message,@args) = @{$message} if ref($message) eq 'ARRAY';
   $error->{original} = $message;
@@ -121,7 +121,7 @@ sub setError {
   $error->{message} = $message;
   $error->{string} = $string;
   $error->{pos} = $pos;
-  $error->{flag} = 1;
+  $error->{flag} = $flag || 1;
 }
 
 #########################################################################

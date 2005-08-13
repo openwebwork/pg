@@ -166,16 +166,16 @@ sub cmp_equal {
 #  by the answer evaluator, or the overloaded == operator.
 #
 
-our $CMP_ERROR = 2; # a fatal error was detected
+our $CMP_ERROR = 2;   # a fatal error was detected
+our $CMP_WARNING = 3; # a warning was produced
 
 sub cmp_compare {
-  my $self = shift; my $other = shift; my $ans = shift;
+  my $self = shift; my $other = shift; my $ans = shift; my $nth = shift || '';
   return eval {$self == $other} unless ref($ans->{checker}) eq 'CODE';
-  my $equal = eval {&{$ans->{checker}}($self,$other,$ans)};
+  my $equal = eval {&{$ans->{checker}}($self,$other,$ans,$nth,@_)};
   if (!defined($equal) && $@ ne '' && (!$$Value::context->{error}{flag} || $ans->{showAllErrors})) {
-    $$Value::context->setError(["<I>An error occurred while checking your answer:</I>\n".
-      '<DIV STYLE="margin-left:1em">%s</DIV>',$@],'');
-    $$Value::context->{error}{flag} = $CMP_ERROR;
+    $$Value::context->setError(["<I>An error occurred while checking your$nth answer:</I>\n".
+      '<DIV STYLE="margin-left:1em">%s</DIV>',$@],'',undef,undef,$CMP_ERROR);
     warn "Please inform your instructor that an error occurred while checking your answer";
   }
   return $equal;
@@ -242,27 +242,26 @@ sub cmp_postprocess {}
 sub cmp_contextFlags {return ()}
 
 #
-#  For reducing Unions, Sets and Intervals
+#  Check for unreduced reduced Unions and Sets
 #
 sub cmp_checkUnionReduce {
-  my $self = shift; my $ans = shift;
+  my $self = shift; my $student = shift; my $ans = shift; my $nth = shift || '';
   return unless $ans->{studentsMustReduceUnions} &&
                 $ans->{showUnionReduceWarnings} &&
-                !$ans->{isPreview};
-  my $student = $ans->{student_value};
-  return unless defined($student) && !Value::isFormula($student);
+                !$ans->{isPreview} && !Value::isFormula($student);
   if ($student->type eq 'Union' && $student->length >= 2) {
     my $reduced = $student->reduce;
-    return "Your union can be written in a simpler form"
+    return "Your$nth union can be written in a simpler form"
       unless $reduced->type eq 'Union' && $reduced->length == $student->length;
-    my @R = $reduced->value; my @S = sort {$a <=> $b} $student->value;
+    my @R = sort {$a <=> $b} $reduced->value;
+    my @S = sort {$a <=> $b} $student->value;
     foreach my $i (0..$#R) {
-      return "Your union can be written in a simpler form"
+      return "Your$nth union can be written in a simpler form"
 	unless $R[$i] == $S[$i];
     }
   } elsif ($student->type eq 'Set') {
     my $reduced = $student->reduce;
-    return "Your set must have no redundant elements"
+    return "Your$nth set should have no redundant elements"
       unless $reduced->length == $student->length;
   }
   return;
@@ -813,14 +812,15 @@ sub typeMatch {
   $other->type =~ m/^(Interval|Union|Set)$/;
 }
 
+
 #
-#  Check for unreduced unions and sets
+#  Check for unreduced sets and unions
 #
-sub cmp_equal {
-  my $self = shift; my $ans = shift;
-  my $error = $self->cmp_checkUnionReduce($ans);
-  if ($error) {$self->cmp_Error($ans,$error); return}
-  $self->SUPER::cmp_equal($ans);
+sub cmp_compare {
+  my $self = shift; my $student = shift; my $ans = shift;
+  my $error = $self->cmp_checkUnionReduce($student,$ans,@_);
+  if ($error) {$$Value::context->setError($error,'',undef,undef,$CMP_WARNING); return 0}
+  $self->SUPER::cmp_compare($student,$ans,@_);
 }
 
 #
@@ -877,15 +877,22 @@ sub cmp_defaults {(
 #
 #  Use the list checker if the student answer is a set
 #    otherwise use the standard compare (to get better
-#    error messages).  But check for unreduced unions
-#    and sets first.
+#    error messages).
 #
 sub cmp_equal {
   my ($self,$ans) = @_;
-  my $error = $self->cmp_checkUnionReduce($ans);
-  if ($error) {$self->cmp_Error($ans,$error); return}
   return Value::List::cmp_equal(@_) if $ans->{student_value}->type eq 'Set';
   $self->SUPER::cmp_equal($ans);
+}
+
+#
+#  Check for unreduced sets and unions
+#
+sub cmp_compare {
+  my $self = shift; my $student = shift; my $ans = shift;
+  my $error = $self->cmp_checkUnionReduce($student,$ans,@_);
+  if ($error) {$$Value::context->setError($error,'',undef,undef,$CMP_WARNING); return 0}
+  $self->SUPER::cmp_compare($student,$ans,@_);
 }
 
 #############################################################
@@ -915,14 +922,16 @@ sub cmp_defaults {(
   entry_type => 'an interval or set',
 )}
 
+sub cmp_equal {Value::List::cmp_equal(@_)}
+
 #
 #  Check for unreduced sets and unions
 #
-sub cmp_equal {
-  my $self = shift; my $ans = shift;
-  my $error = $self->cmp_checkUnionReduce($ans);
-  if ($error) {$self->cmp_Error($ans,$error); return}
-  Value::List::cmp_equal($self,$ans);
+sub cmp_compare {
+  my $self = shift; my $student = shift; my $ans = shift;
+  my $error = $self->cmp_checkUnionReduce($student,$ans,@_);
+  if ($error) {$$Value::context->setError($error,'',undef,undef,$CMP_WARNING); return 0}
+  $self->SUPER::cmp_compare($student,$ans,@_);
 }
 
 #############################################################
@@ -941,7 +950,6 @@ sub cmp_defaults {
     showParenHints => undef,
     partialCredit => undef,
     ordered => 0,
-    showEqualErrors => $options{ordered},
     entry_type => undef,
     list_type => undef,
     typeMatch => $element,
@@ -962,7 +970,6 @@ sub typeMatch {return !ref($other) || $other->class ne 'Formula'}
 sub cmp {
   my $self = shift;
   my $cmp = $self->SUPER::cmp(@_);
-  $cmp->{rh_ans}{showUnionReduceWarnings} = 0;
   if ($cmp->{rh_ans}{removeParens}) {
     $self->{open} = $self->{close} = '';
     $cmp->ans_hash(correct_ans => $self->stringify)
@@ -1059,7 +1066,7 @@ sub cmp_equal {
   #  Give hints about extra or missing answers
   #
   if ($showLengthHints) {
-    $value =~ s/ or /s or /; # fix "interval or union"
+    $value =~ s/( or|,) /s$1 /g; # fix "interval or union"
     push(@errors,"There should be more ${value}s in your $stype")
       if ($score < $maxscore && $score == $m);
     push(@errors,"There should be fewer ${value}s in your $stype")
@@ -1114,24 +1121,9 @@ sub cmp_list_compare {
     $i++; $$Value::context->clearError;
     $entry = Value::makeValue($entry);
     $entry = Value::Formula->new($entry) if !Value::isValue($entry);
-    if ($ordered) {
-      if (scalar(@correct)) {
-	if (shift(@correct)->cmp_compare($entry,$ans)) {$score++; next ENTRY}
-      } else {
-	$extra->cmp_compare($entry,$ans); # do syntax check
-      }
-      if ($error->{flag} == $CMP_ERROR) {$self->cmp_error($ans); return}
-    } else {
-      foreach my $k (0..$#correct) {
-	if ($correct[$k]->cmp_compare($entry,$ans)) {
-	  splice(@correct,$k,1);
-	  $score++; next ENTRY;
-	}
-	if ($error->{flag} == $CMP_ERROR) {$self->cmp_error($ans); return}
-      }
-    }
+
     #
-    #  Give messages about incorrect answers
+    #  Some words differ if ther eis only one entry in the student's list
     #
     my $nth = ''; my $answer = 'answer';
     my $class = $ans->{list_type} || $self->cmp_class;
@@ -1140,14 +1132,42 @@ sub cmp_list_compare {
       $class = $ans->{cmp_class};
       $answer = 'value';
     }
-    if ($error->{flag} && $ans->{showEqualErrors}) {
-      my $message = $error->{message}; $message =~ s/\s+$//;
-      push(@errors,"<SMALL>There is a problem with your$nth $value:</SMALL>",
-	           '<DIV STYLE="margin-left:1em">'.$message.'</DIV>');
-    } elsif ($showTypeWarnings && !$typeMatch->typeMatch($entry,$ans) &&
+
+    #
+    #  See if the entry matches the correct answer
+    #  and perform syntax checking if not
+    #
+    if ($ordered) {
+      if (scalar(@correct)) {
+	if (shift(@correct)->cmp_compare($entry,$ans,$nth,$value)) {$score++; next ENTRY}
+      } else {
+	$extra->cmp_compare($entry,$ans,$nth,$value); # do syntax check
+      }
+      if ($error->{flag} == $CMP_ERROR) {$self->cmp_error($ans); return}
+    } else {
+      foreach my $k (0..$#correct) {
+	if ($correct[$k]->cmp_compare($entry,$ans,$nth,$value)) {
+	  splice(@correct,$k,1);
+	  $score++; next ENTRY;
+	}
+	if ($error->{flag} == $CMP_ERROR) {$self->cmp_error($ans); return}
+      }
+      $$Value::context->clearError;
+      $extra->cmp_compare($entry,$ans,$nth,$value); # do syntax check
+    }
+    #
+    #  Give messages about incorrect answers
+    #
+    if ($showTypeWarnings && !$typeMatch->typeMatch($entry,$ans) &&
 	     !($ans->{ignoreStrings} && $entry->class eq 'String')) {
       push(@errors,"Your$nth $answer isn't ".lc($class).
 	   " (it looks like ".lc($entry->showClass).")");
+    } elsif ($error->{flag} && $ans->{showEqualErrors}) {
+      my $message = $error->{message}; $message =~ s/\s+$//;
+      if ($m > 1 && $error->{flag} != $CMP_WARNING) {
+        push(@errors,"<SMALL>There is a problem with your$nth $value:</SMALL>",
+	             '<DIV STYLE="margin-left:1em">'.$message.'</DIV>');
+      } else {push(@errors,$message)}
     } elsif ($showHints && $m > 1) {
       push(@errors,"Your$nth $value is incorrect");
     }
