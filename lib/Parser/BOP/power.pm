@@ -64,7 +64,7 @@ $Parser::reduce->{'x^(-1)'} = 1;
 #
 sub TeX {
   my ($self,$precedence,$showparens,$position,$outerRight) = @_;
-  my $TeX; my $bop = $self->{def}; $position = '' unless defind($position);
+  my $TeX; my $bop = $self->{def}; $position = '' unless defined($position);
   my $extraParens = $self->{equation}{context}->flag('showExtraParens');
   my $addparens =
       defined($precedence) &&
