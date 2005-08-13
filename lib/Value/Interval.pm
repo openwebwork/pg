@@ -225,6 +225,15 @@ sub compare {
   return $l->{close} cmp $r->{close};
 }
 
+############################################
+#
+#  Utility routines
+#
+
+sub reduce {shift}
+sub isReduced {1}
+sub sort {shift}
+
 ###########################################################################
 
 1;

@@ -201,9 +201,12 @@ sub compare {
 
 ############################################
 #
-#  Reduce unions to simplest form
+#  Utility routines
 #
 
+#
+#  Reduce unions to simplest form
+#
 sub reduce {
   my $self = shift;
   return $self if $self->{isReduced} || $self->length < 2;
@@ -245,7 +248,21 @@ sub reduce {
   return $pkg->make(@union)->with(isReduced=>1);
 }
 
-############################################
+#
+#  True if a union is reduced
+#
+sub isReduced {
+  my $self = shift;
+  return 1 if $self->{isReduced} || $self->length < 2;
+  my $reduced = $self->reduce;
+  return unless $reduced->type eq 'Union' && $reduced->length == $self->length;
+  my @R = $reduced->sort->value; my @S = $self->sort->value;
+  foreach my $i (0..$#R) {
+    return unless $R[$i] == $S[$i] && $R[$i]->length == $S[$i]->length;
+  }
+  return 1;
+}
+
 #
 #  Sort a union lexicographically
 #

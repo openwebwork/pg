@@ -186,6 +186,11 @@ sub compare {
   return scalar(@l) - scalar(@r);
 }
 
+############################################
+#
+#  Utility routines
+#
+
 #
 #  Remove redundant values
 #
@@ -201,11 +206,20 @@ sub reduce {
 }
 
 #
+#  True if the set is reduced
+#
+sub isReduced {
+  my $self = shift;
+  return 1 if $self->{isReduced} || $self->length < 2;
+  return $self->reduce->length == $self->length;
+}
+
+#
 #  Sort the data for a set
 #
 sub sort {
   my $self = shift;
-  return $self->make(sort {$a <=> $b} $self->value);
+  return $self->make(CORE::sort {$a <=> $b} $self->value);
 }
 
 ###########################################################################
