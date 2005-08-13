@@ -156,6 +156,60 @@ answers of various "exotic" types.
 	}
 }
 
+sub mode2context {
+	my $mode = shift;
+	my $options = @_;
+	my $context;
+	for ($mode) {
+		/^strict$/i	   and do {
+			$context = $Parser::Context::Default::context{LimitedNumeric}->copy;
+			$context->operators->redefine(',');
+			last;
+		};
+		/^arith$/i	   and do {
+			$context = $Parser::Context::Default::context{LegacyNumeric}->copy;
+			$context->functions->disable('All');
+			last;
+		};
+		/^frac$/i	   and do {
+			$context = $Parser::Context::Default::context{'LimitedNumeric-Fraction'}->copy;
+			$context->operators->redefine(',');
+			last;
+		};
+		if(defined($options{'complex'}) &&
+		   ($options{'complex'} =~ /(yes|ok)/i)) {
+			$context = $Parser::Context::Default::context{Complex}->copy;
+			last;
+		}
+		
+		# default
+		$context = $Parser::Context::Default::context{LegacyNumeric}->copy;
+	}
+	$options{tolType} = $options{tolType} || 'relative';
+	$options{tolerance} = $options{tolerance} || $options{tol} ||
+		$options{reltol} || $options{relTol} || $options{abstol} || 1;
+	$options{zeroLevel} = $options{zeroLevel} || $options{zeroLevelTol} ||
+		$main::numZeroLevelTolDefault;
+	if ($options{tolType} eq 'absolute' or defined($options{tol})
+		or defined($options{abstol})) {
+		$context->flags->set(
+			tolerance => $options{tolerance},
+			tolType => 'absolute',
+			);
+	} else {
+		$context->flags->set(
+			tolerance => .01*$options{tolerance},
+			tolType => 'relative',
+			);
+	}
+	$context->flags->set(
+		zeroLevel => $options{zeroLevel},
+		zeroLevelTol => $options{zeroLevelTol},
+		);
+	$context->{format}{number} = $options{'format'} || $main::numFormatDefault;
+	return($context);
+}
+
 =head3 interval_cmp ()
 
 Compares an interval or union of intervals.  Typical invocations are
@@ -225,85 +279,43 @@ sub interval_cmp {
 	
 	my $mode          = $opts{mode} || 'std';
 	my %options       = (debug => $opts{debug});
-	my $ans_type = ''; # set to List, Union, Interval, or String below
+	my $ans_type = ''; # set to List, Union, or String below
 	
 	#
 	#  Get an apppropriate context based on the mode
 	#
 	my $oldContext = Context();
-	my ($context, $ans_eval);
-	for ($mode) {
-		/^strict$/i	   and do {
-			$context = $Parser::Context::Default::context{LimitedNumeric}->copy;
-			$context->operators->set(',' => {class=> 'Parser::BOP::comma'});
-			last;
-		};
-		/^arith$/i	   and do {
-			$context = $Parser::Context::Default::context{LegacyNumeric}->copy;
-			$context->functions->disable('All');
-			last;
-		};
-		/^frac$/i	   and do {
-			$context = $Parser::Context::Default::context{'LimitedNumeric-Fraction'}->copy;
-			$context->operators->set(',' => {class=> 'Parser::BOP::comma'});
-			last;
-		};
-		
-		# default
-		$context = $Parser::Context::Default::context{LegacyNumeric}->copy;
-	}
+	my $context = mode2context($mode, %opts);
 
 	if(defined($opts{unions}) and $opts{unions} eq 'no' ) {
 		# This is really a list of points, not intervals at all
 		$ans_type = 'List';
 		$context->parens->redefine('(');
 		$context->parens->redefine('[');
-		$context->parens->redefine('{', from=>'Interval');
-		$correct_ans =~ s/u/,/gi;
+		$context->parens->redefine('{');
+		$context->operators->redefine('u',using=>',');
+		$context->operators->set(u=>{string=>", ", TeX=>',\,'});
 	} else {
 		$context->parens->redefine('(', from=>'Interval');
 		$context->parens->redefine('[', from=>'Interval');
 		$context->parens->redefine('{', from=>'Interval');
+		
+		#$context->constants->redefine('R',from=>'Interval');
 		my $infinity = Value::Infinity->new();
 		$context->constants->add(
-			R => Value::Interval->new('(',-$infinity,$infinity,')'),
-			);
-		$correct_ans =~ tr/u/U/;
+		   R => Value::Interval->new('(',-$infinity,$infinity,')'),
+		);
 		$context->operators->redefine('U',from=>"Interval");
 		$context->operators->redefine('u',from=>"Interval",using=>"U");
-		if($correct_ans =~ /U/) {
-			$ans_type = 'Union';
-		} else {
-			$ans_type = 'Interval';
-		}
+		$ans_type = 'Union';
 	}
-	# Take optional arguments intended for Interval, List, or Union
+	# Take optional arguments intended for List, or Union
 	for my $o qw( showCoordinateHints showHints partialCredit showLengthHints ) {
 		$options{$o} = $opts{$o} || 0;
 	}
-	# Tolerances
-	$opts{tolType} = $opts{tolType} || 'relative';
-	$opts{tolerance} = $opts{tolerance} || $opts{tol} ||
-		$opts{reltol} || $opts{relTol} || $opts{abstol} || 1;
-	$opts{zeroLevel} = $opts{zeroLevel} || $opts{zeroLevelTol} ||
-		$main::numZeroLevelTolDefault;
-	if ($opts{tolType} eq 'absolute' or defined($opts{tol})
-		or defined($opts{abstol})) {
-		$context->flags->set(
-			tolerance => $opts{tolerance},
-			tolType => 'absolute',
-			);
-	} else {
-		$context->flags->set(
-			tolerance => .01*$opts{tolerance},
-			tolType => 'relative',
-			);
-	}
-	$context->flags->set(
-		zeroLevel => $opts{zeroLevel},
-		zeroLevelTol => $opts{zeroLevelTol},
-		);
 	$options{ordered} = 1 if(defined($opts{ordered}) and $opts{ordered});
+	$options{showUnionReduceWarnings}= $opts{showUnionReduceWarnings} || 1;
+	$options{studentsMustReduceUnions} = $opts{studentsMustReduceUnions} || 0;
 	if (defined($opts{'sloppy'}) && $opts{'sloppy'} eq 'yes') {
 		 $options{requireParenMatch} = 0;
 	}
@@ -325,14 +337,12 @@ sub interval_cmp {
 			$ans_type = 'String' if $string eq uc($correct_ans);
 		}
 	}
-	$context->{format}{number} = $opts{'format'} || $main::numFormatDefault;
+	my $ans_eval;
 	Context($context);
 	if($ans_type eq 'List') {
 		$ans_eval = List($correct_ans)->cmp(%options);
 	} elsif($ans_type eq 'Union') {
 		$ans_eval = Union($correct_ans)->cmp(%options);
-	} elsif($ans_type eq 'Interval') {
-		$ans_eval = Interval($correct_ans)->cmp(%options);
 	} elsif($ans_type eq 'String') {
 		$ans_eval = List($correct_ans)->cmp(%options);
 	} else {
@@ -400,33 +410,8 @@ sub number_list_cmp {
 	#  Get an apppropriate context based on the mode
 	#
 	my $oldContext = Context();
-	my $context;
-	for ($mode) {
-		/^strict$/i	   and do {
-			$context = $Parser::Context::Default::context{LimitedNumeric}->copy;
-			$context->operators->set(',' => {class=> 'Parser::BOP::comma'});
-			last;
-		};
-		/^arith$/i	   and do {
-			$context = $Parser::Context::Default::context{LegacyNumeric}->copy;
-			$context->functions->disable('All');
-			last;
-		};
-		/^frac$/i	   and do {
-			$context = $Parser::Context::Default::context{'LimitedNumeric-Fraction'}->copy;
-			$context->operators->set(',' => {class=> 'Parser::BOP::comma'});
-			last;
-		};
-		if(defined($num_params{'complex'}) &&
-		   ($num_params{'complex'} =~ /(yes|ok)/i)) {
-			$context = $Parser::Context::Default::context{Complex}->copy;
-			last;
-		}
+	my $context = mode2context($mode, %num_params);
 		
-		# default
-		$context = $Parser::Context::Default::context{LegacyNumeric}->copy;
-	}
-	$context->{format}{number} = $num_params{'format'} || $main::numFormatDefault;
 	#$context->strings->clear;
 	if ($num_params{strings}) {
 		foreach my $string (@{$num_params{strings}}) {
@@ -437,27 +422,6 @@ sub number_list_cmp {
 		}
 	}
 	
-	$num_params{tolType} = $num_params{tolType} || 'relative';
-	$num_params{tolerance} = $num_params{tolerance} || $num_params{tol} ||
-		$num_params{reltol} || $num_params{relTol} || $num_params{abstol} || 1;
-	$num_params{zeroLevel} = $num_params{zeroLevel} || $num_params{zeroLevelTol} ||
-		$main::numZeroLevelTolDefault;
-	if ($num_params{tolType} eq 'absolute' or defined($num_params{tol})
-		or defined($num_params{abstol})) {
-		$context->flags->set(
-			tolerance => $num_params{tolerance},
-			tolType => 'absolute',
-			);
-	} else {
-		$context->flags->set(
-			tolerance => .01*$num_params{tolerance},
-			tolType => 'relative',
-			);
-	}
-	$context->flags->set(
-		zeroLevel => $num_params{zeroLevel},
-		zeroLevelTol => $num_params{zeroLevelTol},
-		);
 	$options{ordered} = 1 if(defined($num_params{ordered}) and $opts{ordered});
 	# These didn't exist before in number_list_cmp so they behaved like
 	# in List()->cmp.  Now they can be optionally set
