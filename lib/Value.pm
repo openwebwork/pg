@@ -256,7 +256,7 @@ sub getValueType {
   elsif ($type eq 'Infinity') {$type = $Value::Type{infinity}}
   elsif ($type eq 'value' || $type eq 'Formula') {$type = $value->typeRef}
   elsif ($type eq 'unknown') {
-    $equation->Error("Can't convert %s to a constant",Value::showClass($value));
+    $equation->Error(["Can't convert %s to a constant",Value::showClass($value)]);
   } else {
     $type = 'Value::'.$type, $value = $type->new(@{$value});
     $type = $value->typeRef;
