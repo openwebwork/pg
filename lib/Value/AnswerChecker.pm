@@ -818,7 +818,7 @@ sub typeMatch {
 sub cmp_compare {
   my $self = shift; my $student = shift; my $ans = shift;
   my $error = $self->cmp_checkUnionReduce($student,$ans,@_);
-  if ($error) {$$Value::context->setError($error,'',undef,undef,$CMP_WARNING); return 0}
+  if ($error) {$$Value::context->setError($error,'',undef,undef,$CMP_WARNING); return}
   $self->SUPER::cmp_compare($student,$ans,@_);
 }
 
@@ -890,7 +890,7 @@ sub cmp_equal {
 sub cmp_compare {
   my $self = shift; my $student = shift; my $ans = shift;
   my $error = $self->cmp_checkUnionReduce($student,$ans,@_);
-  if ($error) {$$Value::context->setError($error,'',undef,undef,$CMP_WARNING); return 0}
+  if ($error) {$$Value::context->setError($error,'',undef,undef,$CMP_WARNING); return}
   $self->SUPER::cmp_compare($student,$ans,@_);
 }
 
@@ -921,7 +921,12 @@ sub cmp_defaults {(
   entry_type => 'an interval or set',
 )}
 
-sub cmp_equal {Value::List::cmp_equal(@_)}
+sub cmp_equal {
+  my $self = shift; my $ans = shift;
+  my $error = $self->cmp_checkUnionReduce($ans->{student_value},$ans);
+  if ($error) {$self->cmp_Error($ans,$error); return}
+  Value::List::cmp_equal($self,$ans);
+}
 
 #
 #  Check for unreduced sets and unions
@@ -929,7 +934,7 @@ sub cmp_equal {Value::List::cmp_equal(@_)}
 sub cmp_compare {
   my $self = shift; my $student = shift; my $ans = shift;
   my $error = $self->cmp_checkUnionReduce($student,$ans,@_);
-  if ($error) {$$Value::context->setError($error,'',undef,undef,$CMP_WARNING); return 0}
+  if ($error) {$$Value::context->setError($error,'',undef,undef,$CMP_WARNING); return}
   $self->SUPER::cmp_compare($student,$ans,@_);
 }
 
