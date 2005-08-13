@@ -209,7 +209,7 @@ sub compare {
 #
 sub reduce {
   my $self = shift;
-  return $self if $self->{isReduced} || $self->length < 2;
+  return $self if $self->{isReduced};
   my @singletons = (); my @intervals = ();
   foreach my $x ($self->value) {
     if ($x->type eq 'Set') {push(@singletons,$x->value)}
@@ -253,7 +253,7 @@ sub reduce {
 #
 sub isReduced {
   my $self = shift;
-  return 1 if $self->{isReduced} || $self->length < 2;
+  return 1 if $self->{isReduced};
   my $reduced = $self->reduce;
   return unless $reduced->type eq 'Union' && $reduced->length == $self->length;
   my @R = $reduced->sort->value; my @S = $self->sort->value;
