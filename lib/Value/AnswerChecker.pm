@@ -253,8 +253,8 @@ sub cmp_checkUnionReduce {
     my $reduced = $student->reduce;
     return "Your$nth union can be written in a simpler form"
       unless $reduced->type eq 'Union' && $reduced->length == $student->length;
-    my @R = sort {$a <=> $b} $reduced->value;
-    my @S = sort {$a <=> $b} $student->value;
+    my @R = $reduced->sort->value;
+    my @S = $student->sort->value;
     foreach my $i (0..$#R) {
       return "Your$nth union can be written in a simpler form"
 	unless $R[$i] == $S[$i];

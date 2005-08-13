@@ -186,10 +186,12 @@ sub compare {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
   $r = promote($r);
-  if ($l->getFlag('reduceUnionsForComparison')) {$l = $l->reduce; $r = $r->reduce}
+  if ($l->getFlag('reduceUnionsForComparison')) {
+    $l = $l->reduce; $l = $pkg->make($l) unless $l->type eq 'Union';
+    $r = $r->reduce; $r = $pkg->make($r) unless $r->type eq 'Union';
+  }
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
-  my @l = sort {$a <=> $b} $l->value;
-  my @r = sort {$a <=> $b} $r->value;
+  my @l = $l->sort->value; my @r = $r->sort->value;
   while (scalar(@l) && scalar(@r)) {
     my $cmp = shift(@l) <=> shift(@r);
     return $cmp if $cmp;
@@ -212,7 +214,7 @@ sub reduce {
     else {push(@intervals,$x)}
   }
   my @union = (); my @set = (); my $prevX;
-  @intervals = (sort {$a <=> $b} @intervals);
+  @intervals = (CORE::sort {$a <=> $b} @intervals);
   ELEMENT: foreach my $x (@singletons) {
     next if defined($prevX) && $prevX == $x; $prevX = $x;
     foreach my $I (@intervals) {
@@ -241,6 +243,15 @@ sub reduce {
   return Value::Set->new() if scalar(@union) == 0;
   return $union[0] if scalar(@union) == 1;
   return $pkg->make(@union)->with(isReduced=>1);
+}
+
+############################################
+#
+#  Sort a union lexicographically
+#
+sub sort {
+  my $self = shift;
+  $self->make(CORE::sort {$a <=> $b} $self->value);
 }
 
 ############################################

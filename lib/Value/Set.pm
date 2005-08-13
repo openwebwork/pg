@@ -110,12 +110,11 @@ sub sub {
 #    (return the resulting set or nothing for empty set)
 #
 sub subSetSet {
-  my @l = sort {$a <=> $b} (@{$_[0]->data});
-  my @r = sort {$a <=> $b} (@{$_[1]->data});
+  my @l = $_[0]->sort->value; my @r = $_[1]->sort->value;
   my @entries = ();
   while (scalar(@l) && scalar(@r)) {
     if ($l[0] < $r[0]) {push(@entries,shift(@l))}
-      else {if ($l[0] == $r[0]) {shift(@l)}; shift(@r)}
+      else {while ($l[0] == $r[0]) {shift(@l)}; shift(@r)}
   }
   push(@entries,@l);
   return () unless scalar(@entries);
@@ -179,8 +178,7 @@ sub compare {
   }
   if ($l->getFlag('reduceSetsForComparison')) {$l = $l->reduce; $r = $r->reduce}
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
-  my @l = sort {$a <=> $b} $l->value;
-  my @r = sort {$a <=> $b} $r->value;
+  my @l = $l->sort->value; my @r = $r->sort->value;
   while (scalar(@l) && scalar(@r)) {
     my $cmp = shift(@l) <=> shift(@r);
     return $cmp if $cmp;
@@ -194,13 +192,20 @@ sub compare {
 sub reduce {
   my $self = shift;
   return $self if $self->{isReduced} || $self->length < 2;
-  my @data = (sort {$a <=> $b} ($self->value));
-  my @set = ();
+  my @data = $self->sort->value; my @set = ();
   while (scalar(@data)) {
     push(@set,shift(@data));
     shift(@data) while (scalar(@data) && $set[-1] == $data[0]);
   }
-  return $pkg->make(@set)->with(isReduced=>1);
+  return $self->make(@set)->with(isReduced=>1);
+}
+
+#
+#  Sort the data for a set
+#
+sub sort {
+  my $self = shift;
+  return $self->make(sort {$a <=> $b} $self->value);
 }
 
 ###########################################################################
