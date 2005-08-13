@@ -21,6 +21,8 @@ sub cmp_defaults {(
   showTypeWarnings => 1,
   showEqualErrors  => 1,
   ignoreStrings    => 1,
+  studentsMustReduceUnions => 1,
+  showUnionReduceWarnings => 1,
 )}
 
 sub cmp {
@@ -62,6 +64,12 @@ sub cmp_parse {
     showExtraParens => 1,            # make student answer painfully unambiguous
     reduceConstants => 0,            # don't combine student constants
     reduceConstantFunctions => 0,    # don't reduce constant functions
+    ($ans->{studentsMustReduceUnions} ?
+      (reduceUnions => 0, reduceSets => 0,
+       reduceUnionsForComparison => $ans->{showUnionReduceWarnings},
+       reduceSetsForComparison => $ans->{showUnionReduceWarnings}) :
+      (reduceUnions => 1, reduceSets => 1,
+       reduceUnionsForComparison => 1, reduceSetsForComparison => 1)),
     ($ans->{requireParenMatch}? (): ignoreEndpointTypes => 1),  # for Intervals
     $self->cmp_contextFlags($ans),   # any additional ones from the object itself
   );
@@ -232,6 +240,33 @@ sub cmp_Error {
 #
 sub cmp_postprocess {}
 sub cmp_contextFlags {return ()}
+
+#
+#  For reducing Unions, Sets and Intervals
+#
+sub cmp_checkUnionReduce {
+  my $self = shift; my $ans = shift;
+  return unless $ans->{studentsMustReduceUnions} &&
+                $ans->{showUnionReduceWarnings} &&
+                !$ans->{isPreview};
+  my $student = $ans->{student_value};
+  return unless defined($student) && !Value::isFormula($student);
+  if ($student->type eq 'Union' && $student->length >= 2) {
+    my $reduced = $student->reduce;
+    return "Your union can be written in a simpler form"
+      unless $reduced->type eq 'Union' && $reduced->length == $student->length;
+    my @R = $reduced->value; my @S = sort {$a <=> $b} $student->value;
+    foreach my $i (0..$#R) {
+      return "Your union can be written in a simpler form"
+	unless $R[$i] == $S[$i];
+    }
+  } elsif ($student->type eq 'Set') {
+    my $reduced = $student->reduce;
+    return "Your set must have no redundant elements"
+      unless $reduced->length == $student->length;
+  }
+  return;
+}
 
 #
 #  create answer rules of various types
@@ -779,6 +814,16 @@ sub typeMatch {
 }
 
 #
+#  Check for unreduced unions and sets
+#
+sub cmp_equal {
+  my $self = shift; my $ans = shift;
+  my $error = $self->cmp_checkUnionReduce($ans);
+  if ($error) {$self->cmp_Error($ans,$error); return}
+  $self->SUPER::cmp_equal($ans);
+}
+
+#
 #  Check for wrong enpoints and wrong type of endpoints
 #
 sub cmp_postprocess {
@@ -832,12 +877,15 @@ sub cmp_defaults {(
 #
 #  Use the list checker if the student answer is a set
 #    otherwise use the standard compare (to get better
-#    error messages
+#    error messages).  But check for unreduced unions
+#    and sets first.
 #
 sub cmp_equal {
   my ($self,$ans) = @_;
-  Value::List::cmp_equal(@_) if $ans->{student_value}->type eq 'Set';
-  Value::cmp_equal(@_);
+  my $error = $self->cmp_checkUnionReduce($ans);
+  if ($error) {$self->cmp_Error($ans,$error); return}
+  return Value::List::cmp_equal(@_) if $ans->{student_value}->type eq 'Set';
+  $self->SUPER::cmp_equal($ans);
 }
 
 #############################################################
@@ -867,7 +915,15 @@ sub cmp_defaults {(
   entry_type => 'an interval or set',
 )}
 
-sub cmp_equal {Value::List::cmp_equal(@_)}
+#
+#  Check for unreduced sets and unions
+#
+sub cmp_equal {
+  my $self = shift; my $ans = shift;
+  my $error = $self->cmp_checkUnionReduce($ans);
+  if ($error) {$self->cmp_Error($ans,$error); return}
+  Value::List::cmp_equal($self,$ans);
+}
 
 #############################################################
 
@@ -906,6 +962,7 @@ sub typeMatch {return !ref($other) || $other->class ne 'Formula'}
 sub cmp {
   my $self = shift;
   my $cmp = $self->SUPER::cmp(@_);
+  $cmp->{rh_ans}{showUnionReduceWarnings} = 0;
   if ($cmp->{rh_ans}{removeParens}) {
     $self->{open} = $self->{close} = '';
     $cmp->ans_hash(correct_ans => $self->stringify)
@@ -1007,6 +1064,17 @@ sub cmp_equal {
       if ($score < $maxscore && $score == $m);
     push(@errors,"There should be fewer ${value}s in your $stype")
       if ($score < $maxscore && $score == $M && !$showHints);
+  }
+
+  #
+  #  If all the entries are in error, don't give individual messages
+  #
+  if ($score == 0) {
+    my $i = 0;
+    while ($i <= $#errors) {
+      if ($errors[$i++] =~ m/^Your .* is incorrect$/)
+        {splice(@errors,--$i,1)}
+    }
   }
 
   #
@@ -1212,7 +1280,7 @@ sub cmp_equal {
   #  Use the list checker if the formula is a list or union
   #    Otherwise use the normal checker
   #
-  if ($self->type =~ m/^(List|Union)$/) {
+  if ($self->type =~ m/^(List|Union|Set)$/) {
     Value::List::cmp_equal($self,$ans);
   } else {
     $self->SUPER::cmp_equal($ans);

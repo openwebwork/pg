@@ -45,17 +45,18 @@ sub new {
   }
   return $self->formula($p) if $isFormula;
   my $def = $$Value::context->lists->get('Set');
-  bless {
-    data => $p, canBeInterval => 1,
-    open => $def->{open}, close => $def->{close}
-  }, $class;
+  my $set = bless {data => $p, canBeInterval => 1,
+    open => $def->{open}, close => $def->{close}}, $class;
+  $set = $set->reduce if $self->getFlag('reduceSets');
+  return $set;
 }
 
 #
 #  Set the canBeInterval flag
 #
 sub make {
-  my $self = shift; my $def = $$Value::context->lists->get('Set');
+  my $self = shift;
+  my $def = $$Value::context->lists->get('Set');
   $self = $self->SUPER::make(@_);
   $self->{canBeInterval} = 1;
   $self->{open} = $def->{open}; $self->{close} = $def->{close};
@@ -88,15 +89,7 @@ sub add {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
   $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  return Value::Union->new($l,$r)
-    unless Value::class($l) eq 'Set' && Value::class($r) eq 'Set';
-  my @combined = (sort {$a <=> $b} (@{$l->data},@{$r->data}));
-  my @entries = ();
-  while (scalar(@combined)) {
-    push(@entries,shift(@combined));
-    shift(@combined) while (scalar(@combined) && $entries[-1] == $combined[0]);
-  }
-  return $pkg->make(@entries);
+  Value::Union::form($l,$r);
 }
 sub dot {my $self = shift; $self->add(@_)}
 
@@ -184,13 +177,30 @@ sub compare {
       if ($l->length == 1 && $a == $b) || $a != $c;
     return ($flag? 1: -1);
   }
+  if ($l->getFlag('reduceSetsForComparison')) {$l = $l->reduce; $r = $r->reduce}
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
-  my @l = sort {$a <=> $b} @{$l->data}; my @r = sort {$a <=> $b} @{$r->data};
+  my @l = sort {$a <=> $b} $l->value;
+  my @r = sort {$a <=> $b} $r->value;
   while (scalar(@l) && scalar(@r)) {
     my $cmp = shift(@l) <=> shift(@r);
     return $cmp if $cmp;
   }
   return scalar(@l) - scalar(@r);
+}
+
+#
+#  Remove redundant values
+#
+sub reduce {
+  my $self = shift;
+  return $self if $self->{isReduced} || $self->length < 2;
+  my @data = (sort {$a <=> $b} ($self->value));
+  my @set = ();
+  while (scalar(@data)) {
+    push(@set,shift(@data));
+    shift(@data) while (scalar(@data) && $set[-1] == $data[0]);
+  }
+  return $pkg->make(@set)->with(isReduced=>1);
 }
 
 ###########################################################################

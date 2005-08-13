@@ -161,7 +161,7 @@ sub add {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
   $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  return Value::Union->new($l,$r);
+  Value::Union::form($l,$r);
 }
 sub dot {my $self = shift; $self->add(@_)}
 

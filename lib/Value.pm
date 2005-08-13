@@ -28,6 +28,14 @@ $defaultContext = Value::Context->new(
     #
     infiniteWord => 'infinity',
     #
+    #  For intervals and unions:
+    #
+    ignoreEndpointTypes => 0,
+    reduceSets => 1,
+    reduceSetsForComparison => 1,
+    reduceUnions => 1,
+    reduceUnionsForComparison => 1,
+    #
     #  For fuzzy reals:
     #
     useFuzzyReals => 1,
@@ -36,13 +44,13 @@ $defaultContext = Value::Context->new(
     zeroLevel    => 1E-14,
     zeroLevelTol => 1E-12,
     #
-    #  For functions
+    #  For Formulas:
     #
-    limits      => [-2,2],
-    num_points  => 5,
-    granularity => 1000,
-    resolution  => undef,
-    max_adapt   => 1E8,
+    limits       => [-2,2],
+    num_points   => 5,
+    granularity  => 1000,
+    resolution   => undef,
+    max_adapt    => 1E8,
     checkUndefinedPoints => 0,
     max_undefined => undef,
   },
@@ -92,6 +100,19 @@ $$context->{pattern}{infinity} = '\+?inf(?:inity)?';
 $$context->{pattern}{-infinity} = '-inf(?:inity)?';
 
 push(@{$$context->{data}{values}},'method','precedence');
+
+#
+#  Get the value of a flag from the object itself,
+#  or from the context, or from the default context
+#  or from the given default, whichever is found first.
+#
+sub getFlag {
+  my $self = shift; my $name = shift;
+  return $self->{$name} if ref($self) && defined($self->{$name});
+  return $self->{context}{flags}{$name} if ref($self) && defined($self->{context}{flags}{$name});
+  return $$Value::context->{flags}{$name} if defined($$Value::context->{flags}{$name});
+  return shift;
+}
 
 #############################################################
 

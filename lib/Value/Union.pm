@@ -30,7 +30,8 @@ sub new {
       return $x if $x->type =~ m/Interval|Union|Set/;
       Value::Error("Formula does not return an Interval, Set or Union");
     }
-    return $self->new(promote($x));
+    $x = promote($x); $x = $pkg->make($x) unless $x->type eq 'Union';
+    return $x;
   }
   Value::Error("Empty unions are not allowed") if scalar(@_) == 0;
   my @intervals = (); my $isFormula = 0;
@@ -55,7 +56,9 @@ sub new {
     }
   }
   return $self->formula(@intervals) if $isFormula;
-  bless {data => [@intervals], canBeInterval => 1}, $class;
+  my $union = form(@intervals);
+  $union = $self->make($union) unless $union->type eq 'Union';
+  return $union;
 }
 
 #
@@ -70,12 +73,15 @@ sub make {
 
 #
 #  Make a union or interval or set, depending on how
-#  many there are in the union
+#  many there are in the union, and mark the
+#  
 #
 sub form {
-  return @_[0] if scalar(@_) == 1;
+  return $_[0] if scalar(@_) == 1;
   return Value::Set->new() if scalar(@_) == 0;
-  $pkg->new(@_);
+  my $union = $pkg->make(@_);
+  $union = $union->reduce if $union->getFlag('reduceUnions');
+  return $union;
 }
 
 #
@@ -112,8 +118,9 @@ sub promote {
   my $x = shift;
   return Value::Set->new($x,@_)
     if scalar(@_) > 0 || ref($x) eq 'ARRAY' || Value::isRealNumber($x);
-  return $x if Value::class($x) =~ m/Interval|Union|Set/;
-  return Value::Interval::promote($x) if Value::class($x) eq 'List';
+  return $x if Value::class($x) eq 'Union';
+  $x = Value::Interval::promote($x) if Value::class($x) eq 'List';
+  return $pkg->make($x) if Value::class($x) =~ m/Interval|Set/;
   Value::Error("Can't convert %s to an Interval, Set or Union",Value::showClass($x));
 }
 
@@ -129,9 +136,7 @@ sub add {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
   $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  $l = $pkg->make($l) if ($l->class ne 'Union');
-  $r = $pkg->make($r) if ($r->class ne 'Union');
-  return $pkg->make(@{$l->data},@{$r->data});
+  form(@{$l->data},@{$r->data});
 }
 sub dot {my $self = shift; $self->add(@_)}
 
@@ -142,9 +147,7 @@ sub sub {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->sub($l,!$flag)}
   $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  my $ll = [($l->class eq 'Union')? $l->value: $l];
-  my $rr = [($r->class eq 'Union')? $r->value: $r];
-  form(subUnionUnion($ll,$rr));
+  form(subUnionUnion($l->data,$r->data));
 }
 
 #
@@ -183,8 +186,10 @@ sub compare {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
   $r = promote($r);
+  if ($l->getFlag('reduceUnionsForComparison')) {$l = $l->reduce; $r = $r->reduce}
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
-  my @l = sort {$a <=> $b} $l->value; my @r = sort {$a <=> $b} $r->value;
+  my @l = sort {$a <=> $b} $l->value;
+  my @r = sort {$a <=> $b} $r->value;
   while (scalar(@l) && scalar(@r)) {
     my $cmp = shift(@l) <=> shift(@r);
     return $cmp if $cmp;
@@ -192,7 +197,51 @@ sub compare {
   return scalar(@l) - scalar(@r);
 }
 
-# @@@ simplify (combine intervals, if possible) @@@
+############################################
+#
+#  Reduce unions to simplest form
+#
+
+sub reduce {
+  my $self = shift;
+  return $self if $self->{isReduced} || $self->length < 2;
+  my @singletons = (); my @intervals = ();
+  foreach my $x ($self->value) {
+    if ($x->type eq 'Set') {push(@singletons,$x->value)}
+    elsif ($x->{data}[0] == $x->{data}[1]) {push(@singletons,$x->{data}[0])}
+    else {push(@intervals,$x)}
+  }
+  my @union = (); my @set = (); my $prevX;
+  @intervals = (sort {$a <=> $b} @intervals);
+  ELEMENT: foreach my $x (@singletons) {
+    next if defined($prevX) && $prevX == $x; $prevX = $x;
+    foreach my $I (@intervals) {
+      my ($a,$b) = $I->value;
+      last if $x < $a;
+      if ($x > $a && $x < $b) {next ELEMENT}
+      elsif ($x == $a) {$I->{open} = '['; next ELEMENT}
+      elsif ($x == $b) {$I->{close} = ']'; next ELEMENT}
+    }
+    push(@set,$x);
+  }
+  while (scalar(@intervals) > 1) {
+    my $I = shift(@intervals); my $J = $intervals[0];
+    my ($a,$b) = $I->value; my ($c,$d) = $J->value;
+    if ($b < $c || ($b == $c && $I->{close} eq ')' && $J->{open} eq '(')) {
+      push(@union,$I);
+    } else {
+      if ($a < $c) {$J->{data}[0] = $a; $J->{open} = $I->{open}}
+              else {$J->{open} = '[' if $I->{open} eq '['}
+      if ($b > $d) {$J->{data}[1] = $b; $J->{close} = $I->{close}}
+              else {$J->{close} = ']' if $b == $d && $I->{close} eq ']'}
+    }
+  }
+  push(@union,@intervals);
+  push(@union,Value::Set->make(@set)) unless scalar(@set) == 0;
+  return Value::Set->new() if scalar(@union) == 0;
+  return $union[0] if scalar(@union) == 1;
+  return $pkg->make(@union)->with(isReduced=>1);
+}
 
 ############################################
 #

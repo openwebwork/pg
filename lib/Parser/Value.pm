@@ -37,20 +37,38 @@ sub new {
     value => $value, type => $type, isConstant => 1,
     ref => $ref, equation => $equation,
   }, $class;
-  $c->{canBeInterval} = 1 
+  $c->check;
+  return $c;
+}
+
+#
+#  Set flags for the object
+#
+sub check {
+  my $self = shift;
+  my $type = $self->{type}; my $value = $self->{value};
+  $self->{canBeInterval} = 1 
     if $value->{canBeInterval} ||
        ($value->class =~ m/Point|List/ &&
         $type->{length} == 2 && $type->{entryType}{name} eq 'Number');
-
-  $c->{isZero} = $value->isZero;
-  $c->{isOne}  = $value->isOne;
-  return $c;
+  $self->{isZero} = $value->isZero;
+  $self->{isOne}  = $value->isOne;
 }
 
 #
 #  Return the Value.pm object
 #
 sub eval {return (shift)->{value}}
+
+#
+#  Call the Value object's reduce method and reset the flags
+#
+sub reduce {
+  my $self = shift;
+  $self->{value} = $self->{value}->reduce;
+  $self->check;
+  return $self;
+}
 
 #
 #  Return the item's list of coordinates
