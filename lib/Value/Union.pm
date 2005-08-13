@@ -218,7 +218,7 @@ sub reduce {
   }
   my @union = (); my @set = (); my $prevX;
   @intervals = (CORE::sort {$a <=> $b} @intervals);
-  ELEMENT: foreach my $x (@singletons) {
+  ELEMENT: foreach my $x (sort {$a <=> $b} @singletons) {
     next if defined($prevX) && $prevX == $x; $prevX = $x;
     foreach my $I (@intervals) {
       my ($a,$b) = $I->value;
