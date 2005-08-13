@@ -39,7 +39,7 @@ sub new {
     foreach my $x (@{$p}) {
       $x = Value::makeValue($x);
       $isFormula = 1 if Value::isFormula($x);
-      Value::Error("An element of sets can't be %s",Value::showClass($x))
+      Value::Error("An element of a set can't be %s",Value::showClass($x))
         unless Value::isRealNumber($x);
     }
   }
