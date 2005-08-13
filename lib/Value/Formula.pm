@@ -72,6 +72,7 @@ sub isZero {(shift)->{tree}{isZero}}
 sub isOne {(shift)->{tree}{isOne}}
 
 sub isSetOfReals {(shift)->type =~ m/Interval|Set|Union/}
+sub canBeInUnion {(shift)->{tree}->canBeInUnion}
 
 ############################################
 #
