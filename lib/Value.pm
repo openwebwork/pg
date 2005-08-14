@@ -114,6 +114,13 @@ sub getFlag {
   return shift;
 }
 
+sub copy {
+  my $self = shift;
+  my $copy = {%{$self}}; $copy->{data} = [@{$self->{data}}];
+  foreach my $x (@{$copy->{data}}) {$x = $x->copy if Value::isValue($x)}
+  return bless $copy, ref($self);
+}
+
 #############################################################
 
 #
