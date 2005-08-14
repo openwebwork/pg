@@ -182,7 +182,7 @@ sub sub {
 #     or nothing for emtpy set)
 #
 sub subIntervalInterval {
-  my ($l,$r) = @_;
+  my ($l,$r) = @_; $l = $l->copy; $r = $r->copy;
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
   my @union = ();
   if ($d <= $a) {
@@ -234,6 +234,33 @@ sub compare {
 sub reduce {shift}
 sub isReduced {1}
 sub sort {shift}
+
+
+#
+#  Tests for containment, subsets, etc.
+#
+
+sub contains {
+  my $self = shift; my $other = promote(shift);
+  return ($other - $self)->isEmpty;
+}
+
+sub isSubsetOf {
+  my $self = shift; my $other = promote(shift);
+  return $other->contains($self);
+}
+
+sub isEmpty {0}
+
+sub intersect {
+  my $self = shift; my $other = shift;
+  return $self-($self-$other);
+}
+
+sub intersects {
+  my $self = shift; my $other = shift;
+  return !$self->intersect($other)->isEmpty;
+}
 
 ###########################################################################
 

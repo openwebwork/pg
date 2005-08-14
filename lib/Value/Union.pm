@@ -126,7 +126,7 @@ sub add {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
   $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  form(@{$l->data},@{$r->data});
+  form($l->value,$r->value);
 }
 sub dot {my $self = shift; $self->add(@_)}
 
@@ -137,6 +137,8 @@ sub sub {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->sub($l,!$flag)}
   $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
+  $l = $l->reduce; $l = $pkg->make($l) unless $l->type eq 'Union';
+  $r = $r->reduce; $r = $pkg->make($r) unless $r->type eq 'Union';
   form(subUnionUnion($l->data,$r->data));
 }
 
@@ -204,7 +206,7 @@ sub reduce {
   foreach my $x ($self->value) {
     if ($x->type eq 'Set') {push(@singletons,$x->value)}
     elsif ($x->{data}[0] == $x->{data}[1]) {push(@singletons,$x->{data}[0])}
-    else {push(@intervals,$x)}
+    else {push(@intervals,$x->copy)}
   }
   my @union = (); my @set = (); my $prevX;
   @intervals = (CORE::sort {$a <=> $b} @intervals);
@@ -259,6 +261,36 @@ sub isReduced {
 sub sort {
   my $self = shift;
   $self->make(CORE::sort {$a <=> $b} $self->value);
+}
+
+
+#
+#  Tests for containment, subsets, etc.
+#
+
+sub contains {
+  my $self = shift; my $other = promote(shift);
+  return ($other - $self)->isEmpty;
+}
+
+sub isSubsetOf {
+  my $self = shift; my $other = promote(shift);
+  return $other->contains($self);
+}
+
+sub isEmpty {
+  my $self = (shift)->reduce;
+  $self->type eq 'Set' && $self->isEmpty;
+}
+
+sub intersect {
+  my $self = shift; my $other = shift;
+  return $self-($self-$other);
+}
+
+sub intersects {
+  my $self = shift; my $other = shift;
+  return !$self->intersect($other)->isEmpty;
 }
 
 ############################################

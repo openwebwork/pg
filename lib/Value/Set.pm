@@ -118,8 +118,12 @@ sub subSetSet {
   my @l = $_[0]->sort->value; my @r = $_[1]->sort->value;
   my @entries = ();
   while (scalar(@l) && scalar(@r)) {
-    if ($l[0] < $r[0]) {push(@entries,shift(@l))}
-      else {while ($l[0] == $r[0]) {shift(@l)}; shift(@r)}
+    if ($l[0] < $r[0]) {
+      push(@entries,shift(@l));
+    } else {
+      while ($l[0] == $r[0]) {shift(@l); last if scalar(@l) == 0};
+      shift(@r);
+    }
   }
   push(@entries,@l);
   return () unless scalar(@entries);
@@ -131,9 +135,9 @@ sub subSetSet {
 #    (returns a collection of intervals)
 #
 sub subIntervalSet {
-  my $I = shift; my $S = shift;
+  my $I = (shift)->copy; my $S = shift;
   my @union = (); my ($a,$b) = $I->value;
-  foreach my $x ($S->value) {
+  foreach my $x ($S->reduce->value) {
     next if $x < $a;
     if ($x == $a) {
       return @union if $a == $b;
@@ -225,6 +229,34 @@ sub isReduced {
 sub sort {
   my $self = shift;
   return $self->make(CORE::sort {$a <=> $b} $self->value);
+}
+
+
+#
+#  Tests for containment, subsets, etc.
+#
+
+sub contains {
+  my $self = shift; my $other = promote(shift)->reduce;
+  return unless $other->type eq 'Set';
+  return ($other-$self)->isEmpty;
+}
+
+sub isSubsetOf {
+  my $self = shift; my $other = promote(shift);
+  return $other->contains($self);
+}
+
+sub isEmpty {(shift)->length == 0}
+
+sub intersect {
+  my $self = shift; my $other = shift;
+  return $self-($self-$other);
+}
+
+sub intersects {
+  my $self = shift; my $other = shift;
+  return !$self->intersect($other)->isEmpty;
 }
 
 ###########################################################################
