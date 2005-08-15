@@ -1931,7 +1931,7 @@ sub FUNCTION_CMP {
 	#
 	#  Initialize the context for the formula
 	#
-	my $context = &$Context("LegacyNumeric")->copy;
+	my $context = $Parser::Context::Default::context{"LegacyNumeric"}->copy;
 	$context->flags->set(
 	  tolerance    => $func_params{'tolerance'},
 	  tolType      => $func_params{'tolType'},
