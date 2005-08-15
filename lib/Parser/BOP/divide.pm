@@ -57,6 +57,7 @@ $Parser::reduce->{'x/(-y)'} = 1;
 sub TeX {
   my ($self,$precedence,$showparens,$position,$outerRight) = @_;
   my $TeX; my $bop = $self->{def};
+  $showparens = '' unless defined($showparens);
   my $addparens =
       defined($precedence) &&
       ($showparens eq 'all' || ($precedence > $bop->{precedence} && $showparens ne 'nofractions') ||
