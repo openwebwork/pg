@@ -1041,6 +1041,13 @@ sub NUM_CMP {                              # low level numeric compare (now uses
 	my %options       = (debug => $num_params{debug});
 
 	#
+	#  Hack to fix up exponential notation in correct answer
+	#  (e.g., perl will pass .0000001 as 1e-07).
+	#
+	$correctAnswer = Value::Real->new($correctAnswer)->string
+	  if $correctAnswer =~ m/e/ && Value::isNumber($correctAnswer);
+
+	#
 	#  Get an apppropriate context based on the mode
 	#
 	my $context;
