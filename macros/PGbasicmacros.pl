@@ -1623,8 +1623,6 @@ sub beginproblem {
 		 "($problemValue $points) "
 	 	   ) if ($problemValue ne "");
 	}
-	$out .= '<BLOCKQUOTE>
-	<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 BGCOLOR=#AAAAAA><TR><TD><TABLE BORDER=1 CELLSPACING=1 CELLPADDING=15 BGCOLOR=#E8E8E8><TR><TD>';
 	$out;
 
 }
