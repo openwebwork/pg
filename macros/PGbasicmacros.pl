@@ -286,6 +286,7 @@ sub NAMED_ANS_RULE {
 	}
 
 	$answer_value =~ tr/\\$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
+	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
 	$name = RECORD_ANS_NAME($name);
 
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
@@ -312,6 +313,7 @@ sub NAMED_ANS_RULE_EXTENSION {
 		$answer_value = '' unless defined($answer_value);
 	}
 	$answer_value =~ tr/\\$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
+	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
 	MODES(
@@ -1621,6 +1623,8 @@ sub beginproblem {
 		 "($problemValue $points) "
 	 	   ) if ($problemValue ne "");
 	}
+	$out .= '<BLOCKQUOTE>
+	<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 BGCOLOR=#AAAAAA><TR><TD><TABLE BORDER=1 CELLSPACING=1 CELLPADDING=15 BGCOLOR=#E8E8E8><TR><TD>';
 	$out;
 
 }
