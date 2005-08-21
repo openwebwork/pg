@@ -181,15 +181,9 @@ sub DOCUMENT {
 	if ($main::envir{displayMode} eq 'HTML_jsMath') {
 		my $prefix = "";
 		if (!$main::envir{jsMath}{reportMissingFonts}) {
-			$prefix .= '<SCRIPT>function NoFontMessage() {}</SCRIPT>';
+			$prefix .= '<SCRIPT>noFontMessage = 1</SCRIPT>';
 		} elsif ($main::envir{jsMath}{missingFontMessage}) {
-			$prefix .=
-			  '<SCRIPT>'.
-			  '  function NoFontMessage() {'.
-			  '    document.writeln(\'<DIV CLASS="noFontMessage">'.
-			  	$main::envir{jsMath}{missingFontMessage}.'</DIV>\');'.
-			  '  }' .
-			  '</SCRIPT>';
+			$prefix .= '<SCRIPT>missingFontMessage = "'.$main::envir{jsMath}{missingFontMessage}.'"</SCRIPT>';
 		}
 		$STRINGforOUTPUT =
 		  $prefix . 
@@ -199,6 +193,9 @@ sub DOCUMENT {
 		  'If your browser supports it, be sure it is enabled.</B>'.
 		  '</FONT></CENTER><p></NOSCRIPT>' .
 		  $STRINGforOUTPUT;
+		$STRINGforOUTPUT .= 
+		  '<SCRIPT>jsMath.Setup.Script("plugins/noImageFonts.js")</SCRIPT>'
+		    if ($main::envir{jsMath}{noImageFonts});
 	}
 	
 	$STRINGforOUTPUT = '<SCRIPT SRC="'.$main::envir{asciimathURL}.'"></SCRIPT>' . "\n" .
