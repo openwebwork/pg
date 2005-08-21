@@ -674,6 +674,8 @@ sub level_curve_check {
     my $diffEqRHS = shift;    #required differential equation
     my $correctEqn = shift;   # required answer in order to check the equation
     my %options = @_;
+	my $saveUseOldAnswerMacros = main::PG_restricted_eval('$main::useOldAnswerMacros') || 0;
+	main::PG_restricted_eval('$main::useOldAnswerMacros = 1');
     assign_option_aliases( \%options,
 			  'vars'			=>		'var',
 			  'numPoints'		=>		'num_of_points',
@@ -803,6 +805,7 @@ sub level_curve_check {
 							  $rh_ans;
 						      });
     
+	main::PG_restricted_eval('$main::useOldAnswerMacros = '.$saveUseOldAnswerMacros);
     $answer_evaluator;
     
 }
