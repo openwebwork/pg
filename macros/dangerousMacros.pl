@@ -865,8 +865,8 @@ sub alias {
 	warn "The macro &surePathToTmpFile can't be found" unless defined(&surePathToTmpFile);
 	warn "The macro &convertPath can't be found" unless defined(&convertPath);
 	warn "The macro &directoryFromPath can't be found" unless defined(&directoryFromPath);
-	warn "The webwork server does not have permission to execute the gif2eps script at  ${externalGif2EpsPath}." unless ( -x "${externalGif2EpsPath}" );
-	warn "The webwork server does not have permission to execute the png2eps script at ${externalPng2EpsPath}." unless ( -x "${externalPng2EpsPath}" );
+	# warn "The webwork server does not have permission to execute the gif2eps script at  ${externalGif2EpsPath}." unless ( -x "${externalGif2EpsPath}" );
+	# warn "The webwork server does not have permission to execute the png2eps script at ${externalPng2EpsPath}." unless ( -x "${externalPng2EpsPath}" );
 
 	# required directory addresses (and URL address)
 	warn "htmlDirectory is not defined in $htmlDirectory" unless $htmlDirectory;
@@ -1016,7 +1016,7 @@ sub alias {
 
 				$gifFileName =~ /^(.*)\.gif$/;
 				my $pngFilePath = surePathToTmpFile("${tempDirectory}png/$probNum-$1.png");
-				my $returnCode = system "$envir{externalGif2PngPath} $gifFilePath $pngFilePath";
+				my $returnCode = system "cat $gifFilePath | $envir{externalGif2PngPath} > $pngFilePath";
 
 				if ($returnCode or not -e $pngFilePath) {
 					die "failed to convert $gifFilePath to $pngFilePath using gif->png with $envir{externalGif2PngPath}: $!\n";
@@ -1043,7 +1043,7 @@ sub alias {
 
 					if (-e $gifSourceFile) {
 						#system("cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output")
-						system("${externalGif2EpsPath} $gifSourceFile $adr_output" )
+						system("cat $gifSourceFile | ${externalGif2EpsPath} > $adr_output" )
 							&& die "Unable to create eps file:\n |$adr_output| from file\n |$gifSourceFile|\n in problem $probNum " .
 							       "using the system dependent script\n |${externalGif2EpsPath}| \n";
 					} else {
@@ -1060,9 +1060,9 @@ sub alias {
 						#system("cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output") &&
 						#warn "Unable to create eps file: |$adr_output|\n from file\n |$gifSourceFile|\n in problem $probNum";
 						#warn "Help ${:externalGif2EpsPath}" unless -x "${main::externalGif2EpsPath}";
-						system("${externalGif2EpsPath} $gifSourceFile $adr_output" )
+						system("cat $gifSourceFile | ${externalGif2EpsPath} > $adr_output" )
 							&& die "Unable to create eps file:\n |$adr_output| from file\n |$gifSourceFile|\n in problem $probNum " .
-							       "using the system dependent script\n |${externalGif2EpsPath}| \n ";
+							       "using the system dependent commands \n |${externalGif2EpsPath}| \n ";
 					}  else {
 						die "|$gifSourceFile| cannot be found.  Problem number: |$probNum|";
 					}
@@ -1164,9 +1164,9 @@ sub alias {
 
 					if (-e $pngSourceFile) {
 						#system("cat $pngSourceFile  | /usr/math/bin/pngtopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output")
-						system("${externalPng2EpsPath} $pngSourceFile $adr_output" )
+						system("cat $pngSourceFile | ${externalPng2EpsPath} > $adr_output" )
 							&& die "Unable to create eps file:\n |$adr_output| from file\n |$pngSourceFile|\n in problem $probNum " .
-							       "using the system dependent script\n |${externalPng2EpsPath}| \n";
+							       "using the system dependent commands\n |${externalPng2EpsPath}| \n";
 					} else {
 						die "|$pngSourceFile| cannot be found.  Problem number: |$probNum|";
 					}
@@ -1180,9 +1180,9 @@ sub alias {
 						#system("cat $pngSourceFile  | /usr/math/bin/pngtopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output") &&
 						#warn "Unable to create eps file: |$adr_output|\n from file\n |$pngSourceFile|\n in problem $probNum";
 						#warn "Help ${externalPng2EpsPath}" unless -x "${externalPng2EpsPath}";
-						system("${externalPng2EpsPath} $pngSourceFile $adr_output" )
+						system("cat $pngSourceFile | ${externalPng2EpsPath} > $adr_output" )
 							&& die "Unable to create eps file:\n |$adr_output| from file\n |$pngSourceFile|\n in problem $probNum " .
-							       "using the system dependent script\n |${externalPng2EpsPath}| \n ";
+							       "using the system dependent commands\n |${externalPng2EpsPath}| \n ";
 					} else {
 						die "|$pngSourceFile| cannot be found.  Problem number: |$probNum|";
 					}
