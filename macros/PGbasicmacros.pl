@@ -1623,6 +1623,7 @@ sub beginproblem {
 		 "($problemValue $points) "
 	 	   ) if ($problemValue ne "");
 	}
+	$out .= MODES(%{main::PG_restricted_eval(q!$main::problemPreamble!)});
 	$out;
 
 }

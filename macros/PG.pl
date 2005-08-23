@@ -526,6 +526,8 @@ sub ENDDOCUMENT {
         '</object><?import namespace="mml" implementation="#mathplayer"?>'
 	unless ($STRINGforHEADER_TEXT =~ m/mathplayer/);
     }	
+	$STRINGforOUTPUT .= MODES(%{PG_restricted_eval('$main::problemPostamble')});
+	#$STRINGforOUTPUT .= join('--', keys(PG_restricted_eval('$main::problemPostamble')));
     
 	(\$STRINGforOUTPUT, \$STRINGforHEADER_TEXT,\%PG_ANSWERS_HASH,eval(q!\%main::PG_FLAGS!));
 }
