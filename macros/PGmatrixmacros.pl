@@ -519,8 +519,12 @@ sub dm_mat_row {
                         if(ref($element) eq 'Fraction') {
                                 $element=  $element->print_inline();
                         }
-                        $out .= '\\mbox{'."$element".'}';
-			$out .= '}' if ($colcount == $opts{'box'}->[1] and $opts{'cnt'} == $opts{'box'}->[0]);
+						if($opts{'force_tex'}) {
+                        	$out .= "$element";
+						} else {
+                        	$out .= '\\mbox{'."$element".'}';
+						}
+						$out .= '}' if ($colcount == $opts{'box'}->[1] and $opts{'cnt'} == $opts{'box'}->[0]);
                         $out .= " &";
                 }
                 chop($out); # remove last &
