@@ -207,7 +207,7 @@ sub mode2context {
 	}
 	$context->flags->set(
 		zeroLevel => $options{zeroLevel},
-		zeroLevelTol => $options{zeroLevelTol},
+		zeroLevelTol => $options{zeroLevelTol} || $main::numZeroLevelTolDefault,
 		);
 	$context->{format}{number} = $options{'format'} || $main::numFormatDefault;
 	return($context);
