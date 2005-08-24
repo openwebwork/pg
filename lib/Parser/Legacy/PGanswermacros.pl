@@ -1044,7 +1044,7 @@ sub NUM_CMP {                              # low level numeric compare (now uses
 	#  Hack to fix up exponential notation in correct answer
 	#  (e.g., perl will pass .0000001 as 1e-07).
 	#
-	$correctAnswer = Value::Real->new($correctAnswer)->string
+	$correctAnswer = uc($correctAnswer)
 	  if $correctAnswer =~ m/e/ && Value::isNumber($correctAnswer);
 
 	#
@@ -1086,15 +1086,15 @@ sub NUM_CMP {                              # low level numeric compare (now uses
 	#
 	#  Set the tolerances
 	#
-	if ($num_params{tolType} eq 'relative') {
-	  $context->flags->set(
-	    tolerance => .01*$num_params{tolerance},
-	    tolType => 'relative',
-	  );
-	} else {
+	if ($num_params{tolType} eq 'absolute') {
 	  $context->flags->set(
 	    tolerance => $num_params{tolerance},
 	    tolType => 'absolute',
+	  );
+	} else {
+	  $context->flags->set(
+	    tolerance => .01*$num_params{tolerance},
+	    tolType => 'relative',
 	  );
 	}
 	$context->flags->set(
