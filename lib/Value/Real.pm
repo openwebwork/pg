@@ -207,7 +207,7 @@ sub string {
     if ($format =~ m/#\s*$/) {$n =~ s/(\.\d*?)0*#$/$1/; $n =~ s/\.$//}
   }
   $n = uc($n); # force e notation to E
-  $n = 0 if $self == 0; # make near zero print as zero
+  $n = 0 if abs($n) < $$Value::context->flag('zeroLevelTol');
   $n = "(".$n.")" if ($n < 0 || $n =~ m/E/i) && defined($prec) && $prec >= 1;
   return $n;
 }
