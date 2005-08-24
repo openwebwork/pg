@@ -189,17 +189,21 @@ sub mode2context {
 		$context = $Parser::Context::Default::context{'Complex'};
 	}
 	$options{tolType} = $options{tolType} || 'relative';
-	$options{tolerance} = $options{tolerance} || $options{tol} ||
-		$options{reltol} || $options{relTol} || $options{abstol} || 1;
+	$options{tolType} = 'absolute' if defined($options{tol});
 	$options{zeroLevel} = $options{zeroLevel} || $options{zeroLevelTol} ||
 		$main::numZeroLevelTolDefault;
-	if ($options{tolType} eq 'absolute' or defined($options{tol})
-		or defined($options{abstol})) {
+	if ($options{tolType} eq 'absolute' or defined($options{abstol})) {
+		$options{tolerance} = $options{tolerance} || $options{tol} ||
+			$options{reltol} || $options{relTol} || $options{abstol} ||
+			$main::numAbsTolDefault;
 		$context->flags->set(
 			tolerance => $options{tolerance},
 			tolType => 'absolute',
 			);
 	} else {
+		$options{tolerance} = $options{tolerance} || $options{tol} ||
+			$options{reltol} || $options{relTol} || $options{abstol} ||
+			$main::numRelPercentTolDefault;
 		$context->flags->set(
 			tolerance => .01*$options{tolerance},
 			tolType => 'relative',
