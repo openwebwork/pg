@@ -8,30 +8,25 @@ modified, however (and I don't think there is much need to convert
 those).
 
 To install these changes, update the Parser from the CVS directory
-using "cvs update -d" in order to get the new Legacy direcrtory.  Then
-replace the PGanswermacros.pl file that is in pg/macros with the new
-one that is in pg/lib/Parser/Legacy (perhaps renaming the old one as
-PGanswermacros.pl-orig in case you want to go back to it).  Then edit
-the global.conf file and add [qw(Parser::Legacy)] to the $pg{modules}
-list (this forces the loading of a few items needed by the new
-PGanswermacros but that aren't loaded by default).  Finally, restart
-the server.  Youre WW server should now be using Parser-based answer
-checkers for all string and function comparisons.
+using "cvs update -d" in order to get the new Legacy direcrtory.
+Then edit the global.conf file, changing the line for
+useOldAnswerMacros to:
 
-I believe that I have covered all the bases with these answer
-checkers, but this is a pretty major switch, so there undoubtedly will
-be problems.  I have arrange to have the original answer macros remain
-available, and you can go back to them on either a site-wide,
-course-by-course, or problem-by-problem basis.
+  $pg{specialPGEnvironmentVars}{useOldAnswerMacros} = 0;
 
-If something major goes wrong and you want to go back to using the
-original answer checkers, set
+Your WW server should now be using Parser-based answer checkers for
+all string and function comparisons.
+
+The original answer macros remain available, and you can go back to
+them on either a site-wide, course-by-course, or problem-by-problem
+basis.  To change the setting for the system as a whole change the
+line original answer checkers, set
 
     $pg{specialPGEnvironmentVars}{useOldAnswerMacros} = 1;
 
 in global.conf.  This will disable the new answer checkers on a
 site-wide basis.  You can set this variable in a course.conf file to
-change back for just one course.
+set things one way or the other for just one course.
 
 If a particular problem file is causing trouble, you can set it to use
 the original answer checkers by putting 
@@ -41,9 +36,9 @@ the original answer checkers by putting
 at the top of the .pg file.  This will cause the std_num_cmp() and
 other answer checkers to revert to the original versions.
 
-If you have set the useOldAnswerMacros value in the global.conf or
-course.conf file, you can still use the new Parser-based checkers in
-individual problem files by putting
+If you have set the useOldAnswerMacros value to 0 in the global.conf
+or course.conf file, you can still use the new Parser-based checkers
+in individual problem files by putting
 
     $useOldAnswerMacros = 0;
 
