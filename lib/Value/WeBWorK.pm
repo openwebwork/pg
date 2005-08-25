@@ -80,15 +80,16 @@ my @wwEvalFields = qw(
   useBaseTenLog
 );
 
-sub Parser::Context::initCopy {
+sub Parser::Context::copy {
   my $self = shift;
-  my $context = $self->copy(@_);
-  return $context if $context->{WW} && scalar(keys %{$context->{WW}}) > 0;
-  $context->{WW} = {}; push @{$context->{data}{values}}, 'WW';
-  return $context if $Value::_no_WeBWorK_; # hack for command-line debugging
+  my $context = Value::Context::copy($self,@_);
   return $context unless $Parser::installed;  # only do WW initialization after parser is fully loaded
-  foreach my $x (@wwEvalFields) {$context->{WW}{$x} = eval('$main::envir{'.$x.'}');}
-  my $ww = $context->{WW};
+  return $context if $context->{WW} && scalar(keys %{$context->{WW}}) > 0;
+  my $envir = eval('\\%main::envir');
+  return $context unless $envir && scalar(keys(%{$envir})) > 0;
+  my $ww = $context->{WW} = {}; push @{$context->{data}{values}}, 'WW';
+  return $context if $Value::_no_WeBWorK_; # hack for command-line debugging
+  foreach my $x (@wwEvalFields) {$context->{WW}{$x} = $envir->{$x}}
   $context->flags->set(
      tolerance      => $ww->{numRelPercentTolDefault} / 100,
      zeroLevel      => $ww->{numZeroLevelDefault},

@@ -81,11 +81,6 @@ sub copy {
   return $context;
 }
 
-#
-#  Make a copy with additional initialization
-#  (defined in subclasses)
-#
-sub initCopy {shift->copy(@_)}
 
 #
 #  Make stringify produce TeX or regular strings
