@@ -516,7 +516,7 @@ sub ENDDOCUMENT {
      # return results
     };
 
-    $STRINGforOUTPUT .= '<SCRIPT> jsMath.ProcessBeforeShowing() </SCRIPT>'
+    $STRINGforOUTPUT .= '<SCRIPT> jsMath.wwProcess() </SCRIPT>'
       if ($main::envir{displayMode} eq 'HTML_jsMath');
 
     if ($main::envir{displayMode} eq 'HTML_asciimath') {
