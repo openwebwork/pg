@@ -41,6 +41,7 @@ my %fundamental_units = ('factor' => 1,
                      'degF'   => 0,
                      'degK'   => 0,
                      'mol'    => 0,  # moles, treated as a fundamental unit?
+                     'amp'    => 0,
 );
 
 # This hash contains all of the units which will be accepted.  These must
@@ -80,9 +81,13 @@ my %known_units = ('m'  => {
                            'degK'      => 1
                           },
                'mol'  => {
-               				'factor'	=>1,
-               				'mol'		=>1
-               			  },
+                           'factor'    =>1,
+                           'mol'       =>1
+                         },
+                'amp'  => {
+                           'factor'    => 1,
+                           'amp'       => 1,
+                         },
 # ANGLES
 # deg  -- degrees
 #
@@ -397,7 +402,61 @@ my %known_units = ('m'  => {
                            'kg'        => 1,
                            's'         => -2
                           },
-
+# ELECTRICAL UNITS (incomplete)
+# C      -- Coulomb
+# V      -- volt
+# mV     -- milivolt
+# kV     -- kilovolt
+# MV     -- megavolt
+# F      -- Farad
+# mF     -- miliFarad
+# uF     -- microFarad
+# ohm    -- ohm
+# kohm   -- kilo-ohm
+                'C'    => {
+                           'factor'    => 1,
+                           'amp'       => 1,
+                           's'         => 1,
+                         },
+                'V'    => {
+                           'factor'    => 1,
+                           'J'         => 1,
+                           'C'         => -1,
+                         },
+                'mV'   => {
+                           'factor'    => 0.001,
+                           'V'         => 1,
+                         },
+                'kV'   => {
+                           'factor'    => 1000,
+                           'V'         => 1,
+                         },
+                'MV'   => {
+                           'factor'    => 10**(6),
+                           'V'         => 1,
+                         },
+                'F'    => {
+                           'factor'    => 1,
+                           'C'         => 1,
+                           'V'         => -1,
+                         },
+                'mF'   => {
+                           'factor'    => 0.001,
+                           'F'         => 1,
+                         },
+                'uF'   => {
+                           'factor'    => 10**(-6),
+                           'F'         => 1,
+                         },
+                'ohm'  => {
+                           'factor'    => 1,
+                           'V'         => 1,
+                           'amp'       => -1,
+                         },
+                'kohm' => {
+                           'factor'    => 1000,
+                           'ohm'       => 1,
+                         },
 );
 
 
