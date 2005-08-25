@@ -1,5 +1,3 @@
-
-
 # This file	is PGanswermacros.pl
 # This includes the subroutines for the ANS macros, that
 # is, macros allowing a more flexible answer checking
@@ -135,7 +133,8 @@ my ($BR 					        ,		# convenient localizations.
 	$useBaseTenLog                  ,
 	$inputs_ref                     ,
 	$QUESTIONNAIRE_ANSWERS          ,
-	
+	$user_context,
+	$Context,
 );
 
 
@@ -166,6 +165,11 @@ sub _PGanswermacros_init {
 		 $useBaseTenLog                     =   main::PG_restricted_eval(q!$main::useBaseTenLog!);
 		 $inputs_ref                        =   main::PG_restricted_eval(q!$main::inputs_ref!);
 		 $QUESTIONNAIRE_ANSWERS				=   '';
+
+		 if (!main::PG_restricted_eval(q!$main::useOldAnswerMacros!)) {
+		   $user_context = main::PG_restricted_eval(q!\%context!);
+		   $Context = sub {Parser::Context->current($user_context,@_)};
+		 }
 }
 
 
@@ -1017,7 +1021,133 @@ sub std_num_str_cmp {
 		zeroLevel=>$zeroLevel, zeroLevelTol=>$zeroLevelTol);
 }
 
-sub NUM_CMP {		# low level	numeric	compare
+sub NUM_CMP {                              # low level numeric compare (now uses Parser)
+	return ORIGINAL_NUM_CMP(@_)
+	  if main::PG_restricted_eval(q!$main::useOldAnswerMacros!);
+
+	my %num_params = @_;
+
+	#
+	#  check for required parameters
+	#
+	my @keys = qw(correctAnswer tolerance tolType format mode zeroLevel zeroLevelTol debug);
+	foreach my $key (@keys) {
+	    warn "$key must be defined in options when calling NUM_CMP"
+	      unless defined($num_params{$key});
+	}
+
+	my $correctAnswer = $num_params{correctAnswer};
+	my $mode          = $num_params{mode};
+	my %options       = (debug => $num_params{debug});
+
+	#
+	#  Hack to fix up exponential notation in correct answer
+	#  (e.g., perl will pass .0000001 as 1e-07).
+	#
+	$correctAnswer = uc($correctAnswer)
+	  if $correctAnswer =~ m/e/ && Value::isNumber($correctAnswer);
+
+	#
+	#  Get an apppropriate context based on the mode
+	#
+	my $context;
+	for ($mode) {
+	  /^strict$/i    and do {
+	    $context = $Parser::Context::Default::context{LimitedNumeric}->copy;
+	    last;
+	  };
+	  /^arith$/i     and do {
+	    $context = $Parser::Context::Default::context{LegacyNumeric}->copy;
+	    $context->functions->disable('All');
+	    last;
+	  };
+	  /^frac$/i	 and do {
+	    $context = $Parser::Context::Default::context{'LimitedNumeric-Fraction'}->copy;
+	    last;
+	  };
+
+	  # default
+	  $context = $Parser::Context::Default::context{LegacyNumeric}->copy;
+	}
+	$context->{format}{number} = $num_params{'format'};
+	$context->strings->clear;
+	#  FIXME:  should clear variables as well? Copy them from the current context?
+	
+	#
+	#  Add the strings to the context
+	#
+	if ($num_params{strings}) {
+	  foreach my $string (@{$num_params{strings}}) {
+	    my %tex = ($string =~ m/(-?)inf(inity)?/i)? (TeX => "$1\\infty"): ();
+	    $context->strings->add(uc($string) => {%tex});
+	  }
+	}
+
+	#
+	#  Set the tolerances
+	#
+	if ($num_params{tolType} eq 'absolute') {
+	  $context->flags->set(
+	    tolerance => $num_params{tolerance},
+	    tolType => 'absolute',
+	  );
+	} else {
+	  $context->flags->set(
+	    tolerance => .01*$num_params{tolerance},
+	    tolType => 'relative',
+	  );
+	}
+	$context->flags->set(
+	  zeroLevel => $num_params{zeroLevel},
+	  zeroLevelTol => $num_params{zeroLevelTol},
+	);
+
+	#
+	#  Get the proper Parser object for the professor's answer
+	#  using the initialized context
+	#
+	my $oldContext = &$Context($context); my $r;
+	if ($num_params{units}) {
+	  $r = new Parser::Legacy::NumberWithUnits($correctAnswer);
+          $options{rh_correct_units} = $num_params{units};
+	} else {
+	  $r = Value::Formula->new($correctAnswer);
+	  die "The professor's answer can't be a formula" unless $r->isConstant;
+	  $r = $r->eval; $r = new Value::Real($r) unless Value::class($r) eq 'String';
+	  $r->{correct_ans} = $correctAnswer;
+	  if ($mode eq 'phase_pi') {
+	    my $pi = 4*atan2(1,1);
+	    while ($r >  $pi/2) {$r -= $pi}
+	    while ($r < -$pi/2) {$r += $pi}
+	  }
+	}
+	#
+	#  Get the answer checker from the parser object
+	#
+	my $cmp = $r->cmp(%options);
+	$cmp->install_pre_filter(sub {
+	  my $rh_ans = shift;
+	  $rh_ans->{original_student_ans} = $rh_ans->{student_ans};
+	  $rh_ans->{original_correct_ans} = $rh_ans->{correct_ans};
+	  return $rh_ans;
+	});
+	$cmp->install_post_filter(sub {
+	  my $rh_ans = shift;
+	  $rh_ans->{student_ans} = $rh_ans->{student_value}->string
+	    if ref($rh_ans->{student_value});
+	  return $rh_ans;
+	});
+	$cmp->{debug} = $num_params{debug};
+	&$Context($oldContext);
+
+	return $cmp;
+}
+
+#
+#  The original version, for backward compatibility
+#  (can be removed when the Parser-based version is more fully tested.)
+#
+sub ORIGINAL_NUM_CMP {		# low level	numeric	compare
 	my %num_params = @_;
 
 	my @keys = qw ( correctAnswer tolerance tolType format mode zeroLevel zeroLevelTol debug );
@@ -1375,7 +1505,7 @@ sub fun_cmp {
 
     # allow var => 'x' as an abbreviation for var => ['x']
 	my %out_options = %opt;
-	unless ( ref($out_options{var}) eq 'ARRAY' ) {
+	unless ( ref($out_options{var}) eq 'ARRAY' || $out_options{var} =~ m/^\d+$/) {
 		$out_options{var} = [$out_options{var}];
 	}
 	# allow params => 'c' as an abbreviation for params => ['c']
@@ -1730,6 +1860,188 @@ sub multivar_function_cmp {
 
 
 sub FUNCTION_CMP {
+	return ORIGINAL_FUNCTION_CMP(@_)
+	  if main::PG_restricted_eval(q!$main::useOldAnswerMacros!);
+
+	my %func_params = @_;
+
+	my $correctEqn               = $func_params{'correctEqn'};
+	my $var                      = $func_params{'var'};
+	my $ra_limits                = $func_params{'limits'};
+	my $tol                      = $func_params{'tolerance'};
+	my $tolType                  = $func_params{'tolType'};
+	my $numPoints                = $func_params{'numPoints'};
+	my $mode                     = $func_params{'mode'};
+	my $maxConstantOfIntegration = $func_params{'maxConstantOfIntegration'};
+	my $zeroLevel                = $func_params{'zeroLevel'};
+	my $zeroLevelTol             = $func_params{'zeroLevelTol'};
+	my $testPoints               = $func_params{'test_points'};
+	
+	#
+	#  Check that everything is defined:
+	#
+	$func_params{debug} = 0 unless defined $func_params{debug};
+	$mode = 'std' unless defined $mode;
+	my @VARS   = get_var_array($var);
+	my @limits = get_limits_array($ra_limits);
+	my @PARAMS = @{$func_params{'params'} || []};
+	
+	if($tolType eq 'relative') {
+	  $tol = $functRelPercentTolDefault unless defined $tol;
+	  $tol *= .01;
+	} else {
+	  $tol = $functAbsTolDefault unless defined $tol;
+	}
+	
+	#
+	#  Ensure that the number of limits matches number of variables
+	#
+	foreach my $i (0..scalar(@VARS)-1) {
+	  $limits[$i][0] = $functLLimitDefault unless defined $limits[$i][0];
+	  $limits[$i][1] = $functULimitDefault unless defined $limits[$i][1];
+	}
+
+	#
+	#  Check that the test points are array references with the right number of coordinates
+	#
+	if ($testPoints) {
+	  my $n = scalar(@VARS); my $s = ($n != 1)? "s": "";
+	  foreach my $p (@{$testPoints}) {
+	    $p = [$p] unless ref($p) eq 'ARRAY';
+	    warn "Test point (".join(',',@{$p}).") should have $n coordiante$s"
+	      unless scalar(@{$p}) == $n;
+	  }
+	}
+
+	$numPoints                = $functNumOfPoints              unless defined $numPoints;
+	$maxConstantOfIntegration = $functMaxConstantOfIntegration unless defined $maxConstantOfIntegration;
+	$zeroLevel                = $functZeroLevelDefault         unless defined $zeroLevel;
+	$zeroLevelTol             = $functZeroLevelTolDefault      unless defined $zeroLevelTol;
+	
+	$func_params{'var'}                      = \@VARS;
+        $func_params{'params'}                   = \@PARAMS;
+	$func_params{'limits'}                   = \@limits;
+	$func_params{'tolerance'}                = $tol;
+	$func_params{'tolType'}                  = $tolType;
+	$func_params{'numPoints'}                = $numPoints;
+	$func_params{'mode'}                     = $mode;
+	$func_params{'maxConstantOfIntegration'} = $maxConstantOfIntegration;
+	$func_params{'zeroLevel'}                = $zeroLevel;
+	$func_params{'zeroLevelTol'}             = $zeroLevelTol;
+	
+	########################################################
+	#   End of cleanup of calling parameters
+	########################################################
+
+        my %options = (debug => $func_params{'debug'});
+
+	#
+	#  Initialize the context for the formula
+	#
+	my $context = $Parser::Context::Default::context{"LegacyNumeric"}->copy;
+	$context->flags->set(
+	  tolerance    => $func_params{'tolerance'},
+	  tolType      => $func_params{'tolType'},
+	  zeroLevel    => $func_params{'zeroLevel'},
+	  zeroLevelTol => $func_params{'zeroLevelTol'},
+	  num_points   => $func_params{'numPoints'},
+	);
+	if ($func_params{'mode'} eq 'antider') {
+	  $context->flags->set(max_adapt => $func_params{'maxConstantOfIntegration'});
+	  $options{upToConstant} = 1;
+	}
+
+	#
+	#  Add the variables and parameters to the context
+	#
+	my %variables; my $x;
+	foreach $x (@{$func_params{'var'}}) {
+	  if (length($x) > 1) {
+	    $context->{_variables}->{pattern} = $context->{_variables}->{namePattern} =
+	      $x . '|' . $context->{_variables}->{pattern};
+	    $context->update;
+	  }
+	  $variables{$x} = 'Real';
+	}
+	foreach $x (@{$func_params{'params'}}) {$variables{$x} = 'Parameter'}
+	$context->variables->are(%variables);
+
+	#
+	#  Create the Formula object and get its answer checker
+	#
+	my $oldContext = &$Context($context);
+	my $f = new Value::Formula($correctEqn);
+	$f->{limits}      = $func_params{'limits'};
+	$f->{test_points} = $func_params{'test_points'};
+	my $cmp = $f->cmp(%options);
+	$cmp->{debug} = 1 if $func_params{'debug'};
+	&$Context($oldContext);
+
+	#
+	#  Get previous answer from hidden field of form
+	#
+	$cmp->install_pre_filter(
+	  sub {
+	    my $rh_ans = shift;
+	    $rh_ans->{_filter_name} = "fetch_previous_answer";
+	    my $prev_ans_label = "previous_".$rh_ans->{ans_label};
+	    $rh_ans->{prev_ans} = 
+	      (defined $inputs_ref->{$prev_ans_label} and
+	       $inputs_ref->{$prev_ans_label} =~/\S/) ? $inputs_ref->{$prev_ans_label} : undef; 
+	    $rh_ans;
+	  }
+	);
+
+	#
+	#  Parse the previous answer, if any
+	#
+	$cmp->install_pre_filter(
+	  sub {
+	    my $rh_ans = shift;
+	    $rh_ans->{_filter_name} = "parse_previous_answer";
+	    return $rh_ans unless defined $rh_ans->{prev_ans};
+	    $rh_ans->{prev_formula} = Parser::Formula($rh_ans->{prev_ans});
+	    $rh_ans;
+	  }
+	);
+
+	#
+	#  Check if previous answer equals this current one
+	#
+	$cmp->install_evaluator(
+	  sub {
+	    my $rh_ans = shift;
+	    $rh_ans->{_filter_name} = "compare_to_previous_answer";
+	    return $rh_ans unless defined($rh_ans->{prev_formula}) && defined($rh_ans->{student_formula});
+	    $rh_ans->{prev_equals_current} =
+	      Value::cmp_compare($rh_ans->{student_formula},$rh_ans->{prev_formula},{});
+	    $rh_ans;
+	  }
+	);
+
+	#
+	#  Produce a message if the previous answer equals this one
+	#  (and is not correct, and is not specified the same way)
+	#
+	$cmp->install_post_filter(
+	  sub {
+	    my $rh_ans = shift;
+	    $rh_ans->{_filter_name} = "produce_equivalence_message";
+	    return $rh_ans unless $rh_ans->{prev_equals_current} && $rh_ans->{score} == 0;
+	    return $rh_ans if $rh_ans->{prev_ans} eq $rh_ans->{original_student_ans};
+	    $rh_ans->{ans_message} = "This answer is equivalent to the one you just submitted or previewed.";
+	    $rh_ans;
+	  }
+	);
+
+	return $cmp;
+}
+	
+#
+#  The original version, for backward compatibility
+#  (can be removed when the Parser-based version is more fully tested.)
+#
+sub ORIGINAL_FUNCTION_CMP {
 	my %func_params = @_;
 	
 	my $correctEqn               = $func_params{'correctEqn'};
@@ -1961,6 +2273,13 @@ sub FUNCTION_CMP {
 		sub {
 			my $rh_ans = shift;
 			return $rh_ans unless defined $rh_ans->{ra_diff_with_prev_ans};
+			##
+			## DPVC -- only give the message if the answer is specified differently
+			##
+			return $rh_ans if $rh_ans->{prev_ans} eq $rh_ans->{student_ans};
+			##
+			## /DPVC
+			##
 			is_zero_array($rh_ans,
 				stdin  => 'ra_diff_with_prev_ans', 
 				stdout => 'ans_equals_prev_ans' 
@@ -2000,7 +2319,8 @@ sub FUNCTION_CMP {
 		sub {
 			my $rh_ans = shift;
 			if ( defined($rh_ans->{'ans_equals_prev_ans'}) and $rh_ans->{'ans_equals_prev_ans'} and $rh_ans->{score}==0) {
-				$rh_ans->{ans_message} = "This answer is the same as the one you just submitted or previewed.";
+##				$rh_ans->{ans_message} = "This answer is the same as the one you just submitted or previewed.";
+				$rh_ans->{ans_message} = "This answer is equivalent to the one you just submitted or previewed."; ## DPVC
 			}
 			$rh_ans;
 		}
@@ -2984,11 +3304,7 @@ sub get_var_array {
 		}
 		else {	#default to the x_1, x_2, ... convention
 			my ($i, $tag);
-			for( $i=0; $i < $in; $i++ ) {
-							## akp the above seems to be off by one 1/4/00
-				$tag = $i + 1;														## akp 1/4/00
-				$out[$i] = "${functVarDefault}_" . $tag;							## akp 1/4/00
-			}
+			for($i = 0; $i < $in; $i++) {$out[$i] = "${functVarDefault}_".($i+1)}
 		}
 		return @out;
 	}
@@ -3670,7 +3986,6 @@ sub calculate_difference_vector {
 	} else { 
 	     
 	}      # no output if error_msg_flag is set to 0.
-	
 	
 	$rh_ans;
 }
