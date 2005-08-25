@@ -69,6 +69,17 @@ sub TeX {
   return '\left|'.$self->{params}[0]->TeX.'\right|' if $self->{name} eq 'abs';
   return $self->SUPER::TeX(@_);
 }
+#
+#  Handle log (and useBaseTenLog) as a special case
+#
+sub perl {
+  my $self = shift; my $context;
+  $context = $self->{context} if ref($self);
+  $context = $$Value::context unless $context;
+  return $self->SUPER::perl
+    unless $self->{name} eq 'log' && $context->flag('useBaseTenLog');
+  '(log('.$self->{params}[0]->perl.')/log(10))';
+}
 
 #########################################################################
 

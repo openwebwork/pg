@@ -281,9 +281,10 @@ sub TeX {
 #
 sub perl {
   my $self = shift; my $parens = shift;
-  my $fn = $self->{def}; my @p = ();
+  my $fn = $self->{def}; my @p = (); my $perl;
   foreach my $x (@{$self->{params}}) {push(@p,$x->perl)}
-  my $perl = ($fn->{perl}? $fn->{perl} : $self->{name}).'('.join(',',@p).')';
+  if ($fn->{perl}) {$perl = $fn->{perl}.'('.join(',',@p).')'}
+    else {$perl = 'Parser::Function->call('.join(',',"'$self->{name}'",@p).')'}
   $perl = '('.$perl.')' if $parens == 1;
   return $perl;
 }
