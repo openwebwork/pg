@@ -107,8 +107,12 @@ sub init_graph {
 	# select a  name for this graph based on the user, the psvn and the problem
 	my $setName = $main::setNumber;
 	# replace dots in set name to keep latex happy
-	$setName =~ s/\./d0T/g;
-	my $imageName = "$main::studentLogin-$main::problemSeed-set${setName}prob${main::probNum}";
+	$setName =~ s/Q/QQ/g;
+	$setName =~ s/\./-Q-/g;
+	my $studentLogin = $main::studentLogin;
+	$studentLogin =~ s/Q/QQ/g;
+	$studentLogin =~ s/\./-Q-/g;
+	my $imageName = "$studentLogin-$main::problemSeed-set${setName}prob${main::probNum}";
 	# $imageNum counts the number of graphs with this name which have been created since PGgraphmacros.pl was initiated.
 	my $imageNum  = ++$main::images_created{$imageName};
 	# this provides a unique name for the graph -- it does not include an extension.
