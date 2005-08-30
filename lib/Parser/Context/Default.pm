@@ -205,7 +205,7 @@ $flags = {
 #
 
 use vars qw(%context);
-use vars qw($fullContext $numericContext $complexContext
+use vars qw($fullContext $numericContext $complexContext $pointContext
 	    $vectorContext $matrixContext $intervalContext);
 
 #
@@ -281,6 +281,11 @@ $vectorContext->constants->replace(i=>Value::Vector->new(1,0,0));
 $vectorContext->constants->set(i=>{TeX=>'\boldsymbol{i}', perl=>'i'});
 
 #
+#  Point context (for symmetry)
+#
+$pointContext = $vectorContext->copy;
+
+#
 #  Matrix context (square brackets make matrices in preference to points or intervals)
 #
 $matrixContext = $vectorContext->copy;
@@ -310,6 +315,7 @@ $intervalContext->constants->set(R => {TeX => '{\bf R}'});
   Full     => $fullContext,
   Numeric  => $numericContext,
   Complex  => $complexContext,
+  Point    => $pointContext,
   Vector   => $vectorContext,
   Matrix   => $matrixContext,
   Interval => $intervalContext,
