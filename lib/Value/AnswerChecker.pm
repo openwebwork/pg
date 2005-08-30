@@ -14,6 +14,12 @@
 package Value;
 
 #
+#  Context can add default values to the answer checkers by class;
+#
+$Value::defaultContext->{cmpDefaults} = {};
+
+
+#
 #  Create an answer checker for the given type of object
 #
 
@@ -30,16 +36,17 @@ sub cmp {
   my $ans = new AnswerEvaluator;
   my $correct = protectHTML($self->{correct_ans});
   $correct = $self->correct_ans unless defined($correct);
+  $self->{context} = $$Value::context unless defined($self->{context});
   $ans->ans_hash(
     type => "Value (".$self->class.")",
     correct_ans => $correct,
     correct_value => $self,
     $self->cmp_defaults(@_),
+    %{$self->{context}{cmpDefaults}{$self->class} || {}},  # context-specified defaults
     @_
   );
   $ans->install_evaluator(sub {$ans = shift; $ans->{correct_value}->cmp_parse($ans)});
   $ans->install_pre_filter('erase') if $self->{ans_name}; # don't do blank check if answer_array
-  $self->{context} = $$Value::context unless defined($self->{context});
   return $ans;
 }
 
