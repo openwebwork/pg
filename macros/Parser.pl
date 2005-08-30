@@ -157,6 +157,8 @@ $_parser_loaded = 1;  #  use this to tell if Parser.pl is loaded
 
 sub _Parser_init {}; # don't let loadMacros load it again
 
+loadMacros("parserCustomization.pl");
+
 ###########################################################################
 
 1;
