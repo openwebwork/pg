@@ -214,8 +214,12 @@ sub TeX {
 # 
 sub perl {
   my $self = shift; my $parens = shift;
-  my $uop = $self->{def};
-  my $perl = (defined($uop->{perl})? $uop->{perl}: $uop->{string}).$self->{op}->perl(1);
+  my $uop = $self->{def}; my $perl;
+  if ($uop->{isCommand}) {
+    $perl = ($uop->{perl} || ref($self).'->call').'('.$self->{op}->perl.')';
+  } else {
+    $perl = ($uop->{perl} || $uop->{string})." ".$self->{op}->perl(1);
+  }
   $perl = '('.$perl.')' if $parens;
   return $perl;
 }

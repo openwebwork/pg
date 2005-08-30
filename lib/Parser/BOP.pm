@@ -320,12 +320,17 @@ sub TeX {
 #
 sub perl {
   my $self= shift; my $parens = shift;
-  my $bop = $self->{def};
-  my ($lparen,$rparen); if (!$bop->{isCommand}) {$lparen = 1; $rparen = 2}
-  my $perl =
-        $self->{lop}->perl($lparen).
-        (defined($bop->{perl}) ? $bop->{perl} : $bop->{string}).
-        $self->{rop}->perl($rparen);
+  my $bop = $self->{def}; my $perl;
+  if ($bop->{isCommand}) {
+    $perl = 
+      ($bop->{perl} || ref($self).'->call').
+        '('.$self->{lop}->perl.','.$self->{rop}->perl.')';
+  } else {
+    $perl =
+        $self->{lop}->perl(1).
+	" ".($bop->{perl} || $bop->{string})." ".
+        $self->{rop}->perl(2);
+  }
   $perl = '('.$perl.')' if $parens;
   return $perl;
 }

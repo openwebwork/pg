@@ -15,13 +15,13 @@ $operators = {
            class => 'Parser::BOP::add'},
 
    '-' => {precedence => 1, associativity => 'left', type => 'both', string => '-',
-           perl => '- ', class => 'Parser::BOP::subtract', rightparens => 'same'},
+           class => 'Parser::BOP::subtract', rightparens => 'same'},
 
    'U' => {precedence => 1.5, associativity => 'left', type => 'bin', isUnion => 1,
            string => ' U ', TeX => '\cup ', class => 'Parser::BOP::union'},
 
    '><'=> {precedence => 2, associativity => 'left', type => 'bin',
-           string => ' >< ', TeX => '\times ', perl => ' x ', fullparens => 1,
+           string => ' >< ', TeX => '\times ', perl => 'x', fullparens => 1,
            class => 'Parser::BOP::cross'},
 
    '.' => {precedence => 2, associativity => 'left', type => 'bin',
@@ -57,7 +57,7 @@ $operators = {
    'u+'=> {precedence => 6, associativity => 'left', type => 'unary', string => '+',
            class => 'Parser::UOP::plus', hidden => 1, allowInfinite => 1, nofractionparens => 1},
 
-   'u-'=> {precedence => 6, associativity => 'left', type => 'unary', string => '-', perl => '- ',
+   'u-'=> {precedence => 6, associativity => 'left', type => 'unary', string => '-',
            class => 'Parser::UOP::minus', hidden => 1, allowInfinite => 1, nofractionparens => 1},
 
    '^' => {precedence => 7, associativity => 'right', type => 'bin', string => '^', perl => '**',
@@ -67,7 +67,7 @@ $operators = {
            class => 'Parser::BOP::power', leftf => 1, fullparens => 1, isInverse => 1},
 
    '!' => {precedence => 8, associativity => 'right', type => 'unary', string => '!',
-           class => 'Parser::UOP::factorial', perl => 'Factorial'},
+           class => 'Parser::UOP::factorial', isCommand => 1},
 
    '_' => {precedence => 9, associativity => 'left', type => 'bin', string => '_',
            class => 'Parser::BOP::underscore', leftparens => 'all'},

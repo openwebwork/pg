@@ -27,14 +27,6 @@ sub _eval {
   return $f;
 }
 
-#
-#  Perl version uses Factorial()
-#
-sub perl {
-  my $self = shift;
-  return 'Factorial('.$self->{op}->perl.')';
-}
-
 #########################################################################
 
 #

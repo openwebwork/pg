@@ -284,7 +284,7 @@ sub perl {
   my $fn = $self->{def}; my @p = (); my $perl;
   foreach my $x (@{$self->{params}}) {push(@p,$x->perl)}
   if ($fn->{perl}) {$perl = $fn->{perl}.'('.join(',',@p).')'}
-    else {return('(Parser::Function->call('.join(',',"'$self->{name}'",@p).'))')}
+    else {$perl = 'Parser::Function->call('.join(',',"'$self->{name}'",@p).')'}
   $perl = '('.$perl.')' if $parens == 1;
   return $perl;
 }
