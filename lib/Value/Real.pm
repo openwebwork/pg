@@ -192,6 +192,8 @@ sub cos {$pkg->make(CORE::cos(shift->{data}[0]))}
 
 sub atan2 {
   my ($l,$r,$flag) = @_;
+  if ($l->promotePrecedence($r)) {return $r->atan2($l,!$flag)}
+  $r = promote($r);
   if ($flag) {my $tmp = $l; $l = $r; $r = $l}
   return $pkg->make(CORE::atan2($l->{data}[0],$r->{data}[0]));
 }
