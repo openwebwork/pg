@@ -35,17 +35,20 @@ sub _PGcomplexmacros_init {
 foreach my $f (@Complex1::EXPORT) {
 #		#PG_restricted_eval("\*$f = \*Complex1::$f"); # this is too clever -- 
 		                                              # the original subroutines are destroyed
-        	next if $f eq 'sqrt';  #exporting the square root caused conflicts with the standard version
-               	               		# You can still use Complex1::sqrt to take square root of complex numbers
-        	next if $f eq 'log';  #exporting loq caused conflicts with the standard version
-                               # You can still use Complex1::log to take square root of complex numbers
+#        	next if $f eq 'sqrt';  #exporting the square root caused conflicts with the standard version
+#               	               		# You can still use Complex1::sqrt to take square root of complex numbers
+#        	next if $f eq 'log';  #exporting loq caused conflicts with the standard version
+#                               # You can still use Complex1::log to take square root of complex numbers
 
-		my $string = qq{
-		   sub main::$f {
-		   	   &Complex1::$f;
-		   }
-		};
+	next if $f eq 'i' || $f eq 'pi';
+	my $code = PG_restricted_eval("\\&CommonFunction::$f");
+	if (defined($code) && defined(&{$code})) {
+		$CommonFunction::function{$f} = "Complex1::$f";  # PGcommonMacros now takes care of this.
+	} else {
+		my $string = qq{sub main::$f {&Complex1::$f}};
 		PG_restricted_eval($string);
+	}
+
 }
 
 
@@ -137,15 +140,28 @@ sub cplx_cmp {
 	$correct_num_answer = math_constants($correct_num_answer);
 	
 	my $PGanswerMessage = '';
-	
-	my ($inVal,$correctVal,$PG_eval_errors,$PG_full_error_report);
-	
-	if (defined($correct_num_answer) && $correct_num_answer =~ /\S/ && $corrAnswerIsString == 0 )	{
-			($correctVal, $PG_eval_errors,$PG_full_error_report) = PG_answer_eval($correct_num_answer);
-	} else { # case of a string answer
-		$PG_eval_errors	= '	';
-		$correctVal = $correctAnswer;
-	}
+
+#
+#  The following lines don't have any effect (other than to take time and produce errors
+#  in the error log).  The $correctVal is replaced on the line following the comments,
+#  and the error values are never used.  It LOOKS like this was supposed to perform a
+#  check on the professor's answer, but that is not occurring.  (There used to be some
+#  error checking, but that was removed in version 1.9 and it had been commented out
+#  prior to that because it was always producing errors.  This is because $correct_num_answer
+#  usually is somethine like "1+4i", which will produce a "missing operation before 'i'"
+#  error, and "1-i" wil produce an "amiguous use of '-i' resolved as '-&i'" message.
+#  You probably need a call to check_syntax and the other filters that are used on
+#  the student answer first. (Unless the item is already a reference to a Complex,
+#  in which canse you should just accept it.)
+#
+#	my ($inVal,$correctVal,$PG_eval_errors,$PG_full_error_report);
+	my $correctVal;
+#	if (defined($correct_num_answer) && $correct_num_answer =~ /\S/ && $corrAnswerIsString == 0 )	{
+#			($correctVal, $PG_eval_errors,$PG_full_error_report) = PG_answer_eval($correct_num_answer);
+#	} else { # case of a string answer
+#		$PG_eval_errors	= '	';
+#		$correctVal = $correctAnswer;
+#	}
 	
 	########################################################################
 	$correctVal = $correct_num_answer;

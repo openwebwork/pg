@@ -27,6 +27,7 @@ sub Call {
     return Parser::Function->call($fn,@_)
       if Parser::Context->current->{functions}{$fn};
   }
+  return &{$CommonFunction::function{$fn}}(@_) if $CommonFunction::function{$fn};
   return $self->$fn(@_);
 }
 
