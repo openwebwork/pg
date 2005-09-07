@@ -10,7 +10,7 @@ sub _contextLimitedComplex_init {}; # don't load it again
 #  parts of the complex numbers, but not between complex numbers.
 #
 #
-#  Complex Numbers can still be entered in a+bi or r*e^(it) form.
+#  Complex Numbers can still be entered in a+bi or a*e^(bt) form.
 #  The e and i are allowed to be entered only once, so we have
 #  to keep track of that, and allow SOME complex operations,
 #  but only when one term is one of these constants (or an expression
@@ -27,6 +27,20 @@ sub _contextLimitedComplex_init {}; # don't load it again
 #      Context("LimitedComplex-cartesian");
 #      Context("LimitedComplex-polar");
 #
+#  You can require that the a and b used in these forms be strictly
+#  numbers (not expressions) by setting the strict_numeric flag and
+#  disabling all the functions:
+#
+#      Context()->flags->set(strict_numeric=>1);
+#      Context()->functions->disable('All');
+#
+#  There are predefined contexts that already have these values
+#  set:
+#
+#      Context("LimitedComplex-cartesian-strict");
+#      Context("LimitedComplex-polar-strict");
+#      Context("LimitedComplex-strict");
+#
 
 #
 #  Handle common checking for BOPs
@@ -42,24 +56,33 @@ sub _check {
   my $self = shift;
   my $super = ref($self); $super =~ s/LimitedComplex/Parser/;
   &{$super."::_check"}($self);
-  return if $self->{lop}->isRealNumber && $self->{rop}->isRealNumber;
-  Value::Error("The constant 'i' may appear only once in your formula")
-    if ($self->{lop}->isComplex and $self->{rop}->isComplex);
-  return if $self->checkComplex;
-  my $bop = $self->{def}{string} || $self->{bop};
-  $self->Error("Exponential form is 'r*e^(ai)'")
-    if $self->{lop}{isPower} || $self->{rop}{isPower};
-  $self->Error("Your answer should be of the form a+bi")
-    if $self->{equation}{context}{flags}{complex_format} eq 'cartesian';
-  $self->Error("Your answer should be of the form r*e^(ai)")
-    if $self->{equation}{context}{flags}{complex_format} eq 'polar';
-  $self->Error("Your answer should be of the form a+bi or r*e^(ai)");
+  if ($self->{lop}->isRealNumber && $self->{rop}->isRealNumber) {
+    return unless $self->{equation}{context}{flags}{strict_numeric};
+  } else {
+    Value::Error("The constant 'i' may appear only once in your formula")
+      if ($self->{lop}->isComplex and $self->{rop}->isComplex);
+    return if $self->checkComplex;
+    $self->Error("Exponential form is 'a*e^(bi)'")
+      if $self->{lop}{isPower} || $self->{rop}{isPower};
+  }
+  $self->Error("Your answer should be of the form %s",$self->theForm)
 }
 
 #
 #  filled in by subclasses
 #
 sub checkComplex {return 0}
+
+#
+#  Get the form for use in error messages
+#
+sub theForm {
+  my $self = shift;
+  my $format = $self->{equation}{context}{flags}{complex_format};
+  return 'a+bi' if $format eq 'cartesian';
+  return 'a*e^(bi)' if $format eq 'polar';
+  return 'a+bi or a*e^(bi)';
+}
 
 ##############################################
 #
@@ -130,7 +153,7 @@ sub checkComplex {
   my ($l,$r) = ($self->{lop},$self->{rop});
   $self->{isPower} = 1;
   return 1 if ($l->class eq 'Constant' && $l->{name} eq 'e' &&
-	       ($r->class eq 'Constant' || $r->{isMult} ||
+	       ($r->class eq 'Constant' || $r->{isMult} || $r->{isOp} ||
 		$r->class eq 'Complex' && $r->{value}[0] == 0));
   $self->Error("Exponentials can only be of the form 'e^(ai)' in this context");
 }
@@ -147,19 +170,20 @@ sub _check {
   my $self = shift;
   my $super = ref($self); $super =~ s/LimitedComplex/Parser/;
   &{$super."::_check"}($self);
-  my $op = $self->{op};
-  return if $op->isRealNumber;
-  return if $self->{op}{isMult} || $self->{op}{isPower};
-  return if $op->class eq 'Constant' && $op->{name} eq 'i';
-  my $uop = $self->{def}{string} || $self->{uop};
-  $self->Error("Your answer should be of the form a+bi")
-    if $self->{equation}{context}{flags}{complex_format} eq 'cartesian';
-  $self->Error("Your answer should be of the form r*e^(ai)")
-    if $self->{equation}{context}{flags}{complex_format} eq 'polar';
-  $self->Error("Your answer should be of the form a+bi or r*e^(ai)");
+  my $op = $self->{op}; $self->{isOp} = 1;
+  if ($op->isRealNumber) {
+    return unless $self->{equation}{context}{flags}{strict_numeric};
+    return if $op->class eq 'Number';
+  } else {
+    return if $self->{op}{isMult} || $self->{op}{isPower};
+    return if $op->class eq 'Constant' && $op->{name} eq 'i';
+  }
+  $self->Error("Your answer should be of the form %s",$self->theForm)
 }
 
 sub checkComplex {return 0}
+
+sub theForm {LimitedComplex::BOP::theForm(@_)}
 
 ##############################################
 
@@ -221,7 +245,7 @@ $context{LimitedComplex}->lists->set(
   AbsoluteValue => {class => 'LimitedComplex::List::AbsoluteValue'},
 );
 $context{LimitedComplex}->operators->undefine('_','U');
-Parser::Context::Functions::Disable('Complex');
+$context{LimitedComplex}->functions->disable('Complex');
 foreach my $fn ($context{LimitedComplex}->functions->names) 
   {$context{LimitedComplex}->{functions}{$fn}{nocomplex} = 1}
 #
@@ -234,5 +258,17 @@ $context{'LimitedComplex-cartesian'}->flags->set(complex_format => 'cartesian');
 
 $context{'LimitedComplex-polar'} = $context{LimitedComplex}->copy;
 $context{'LimitedComplex-polar'}->flags->set(complex_format => 'polar');
+
+$context{'LimitedComplex-cartesian-strict'} = $context{'LimitedComplex-cartesian'}->copy;
+$context{'LimitedComplex-cartesian-strict'}->flags->set(strict_numeric => 1);
+$context{'LimitedComplex-cartesian-strict'}->functions->disable('All');
+
+$context{'LimitedComplex-polar-strict'} = $context{'LimitedComplex-polar'}->copy;
+$context{'LimitedComplex-polar-strict'}->flags->set(strict_numeric => 1);
+$context{'LimitedComplex-polar-strict'}->functions->disable('All');
+
+$context{'LimitedComplex-strict'} = $context{'LimitedComplex'}->copy;
+$context{'LimitedComplex-strict'}->flags->set(strict_numeric => 1);
+$context{'LimitedComplex-strict'}->functions->disable('All');
 
 Context("LimitedComplex");
