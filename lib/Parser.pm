@@ -470,7 +470,7 @@ sub CloseFn {
   my $self = shift; my $context = $self->{context};
   my $top = $self->pop->{value}; my $fn = $self->pop;
   my $constant = $top->{isConstant};
-  if ($context->{parens}{$top->{open}}{function} &&
+  if ($top->{open} && $context->{parens}{$top->{open}}{function} &&
       $context->{parens}{$top->{open}}{close} eq $top->{close} &&
       !$context->{functions}{$fn->{name}}{vectorInput})
          {$top = $top->coords} else {$top = [$top]}
@@ -641,7 +641,7 @@ sub perl {
 #   then the variables from the formula are used in sorted order.)
 #
 sub perlFunction {
-  my $self = shift; my $name = shift; my $vars = shift;
+  my $self = shift; my $name = shift || ''; my $vars = shift;
   $vars = [sort(keys %{$self->{variables}})] unless $vars;
   my $n = scalar(@{$vars}); my $vnames = '';
   if ($n > 0) {
