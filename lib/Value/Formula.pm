@@ -108,7 +108,7 @@ sub bop {
     ($l->type =~ m/Interval|Set|Union/ || $r->type =~ m/Interval|Set|Union/);
   $formula->{tree} = $parser->{BOP}->new($formula,$bop,$l,$r);
   $formula->{variables} = $formula->{tree}->getVariables;
-  return $formula->eval if scalar(%{$formula->{variables}}) == 0;
+#  return $formula->eval if $formula->{isConstant};
   return $formula;
 }
 
@@ -148,7 +148,7 @@ sub neg {
   $formula->{context} = $self->{context};
   $formula->{variables} = $self->{variables};
   $formula->{tree} = $formula->{context}{parser}{UOP}->new($formula,'u-',$self->{tree}->copy($formula));
-  return $formula->eval if scalar(%{$formula->{variables}}) == 0;
+#  return $formula->eval if $formula->isConstant;
   return $formula;
 }
 
@@ -481,7 +481,10 @@ sub getRandom {
 #  Check if the value of a formula is constant
 #    (could use shift->{tree}{isConstant}, but I don't trust it)
 #
-sub isConstant {scalar(%{shift->{variables}}) == 0}
+sub isConstant {
+  my @vars = (%{shift->{variables}});
+  return scalar(@vars) == 0;
+}
 
 ############################################
 #
