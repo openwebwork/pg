@@ -4327,7 +4327,7 @@ sub check_strings {
 	my $sensibleAnswer = 0;
 	$ans = str_filters( $ans, 'compress_whitespace' );	# remove trailing, leading, and double spaces.
 	my ($ans_eval) = str_cmp($rh_ans->{correct_ans});
-	my $temp_ans_hash = &$ans_eval($ans);
+	my $temp_ans_hash = $ans_eval->evaluate($ans);
 	$rh_ans->{test} = $temp_ans_hash;
 	
 	if ($temp_ans_hash->{score} ==1 ) {			# students answer matches the correct answer.
