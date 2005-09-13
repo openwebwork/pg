@@ -1078,7 +1078,8 @@ sub NUM_CMP {                              # low level numeric compare (now uses
 	#
 	if ($num_params{strings}) {
 	  foreach my $string (@{$num_params{strings}}) {
-	    my %tex = ($string =~ m/(-?)inf(inity)?/i)? (TeX => "$1\\infty"): ();
+	    my %tex = ($string =~ m/^(-?)inf(inity)?$/i)? (TeX => "$1\\infty"): ();
+	    %tex = (TeX => "-\\infty") if uc($string) eq "MINF";
 	    $context->strings->add(uc($string) => {%tex});
 	  }
 	}
