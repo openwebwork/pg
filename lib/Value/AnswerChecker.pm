@@ -503,7 +503,7 @@ sub entryMessage {
   if ($rows == 1) {$title = "In entry $j"}
   elsif ($cols == 1) {$title = "In entry $i"}
   else {$title = "In entry ($i,$j)"}
-  push(@{$errors},"<TR VALIGN=\"TOP\"><TD STYLE=\"text-align:right; border:0px\"><I>$title</I>:&nbsp;</TD>".
+  push(@{$errors},"<TR VALIGN=\"TOP\"><TD NOWRAP STYLE=\"text-align:right; border:0px\"><I>$title</I>:&nbsp;</TD>".
                   "<TD STYLE=\"text-align:left; border:0px\">$message</TD></TR>");
 }
 
