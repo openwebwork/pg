@@ -105,7 +105,7 @@ sub cmp_parse {
        unless Value::isValue($ans->{student_value});
     $ans->{preview_latex_string} = $ans->{student_formula}->TeX;
     $ans->{preview_text_string}  = protectHTML($ans->{student_formula}->string);
-    $ans->{student_ans}          = $ans->{preview_text_string};
+    $ans->{student_ans}          = protectHTML($ans->{student_value}->string);
     if ($self->cmp_collect($ans)) {
       $self->cmp_equal($ans);
       $self->cmp_postprocess($ans) if !$ans->{error_message};
@@ -366,7 +366,7 @@ sub format_matrix_HTML {
        else {$sep = '</TD><TD WIDTH="8px"></TD><TD>'}
   foreach my $i (0..$rows-1) {
     $HTML .= '<TR><TD HEIGHT="6px"></TD></TR>' if $i;
-    $HTML .= '<TR ALIGN="MIDDLE"><TD>'.join($sep,@{$array->[$i]}).'</TD></TR>'."\n";
+    $HTML .= '<TR ALIGN="MIDDLE"><TD>'.join($sep,EVALUATE(@{$array->[$i]})).'</TD></TR>'."\n";
   }
   $open = $self->format_delimiter($open,$rows,$options{tth_delims});
   $close = $self->format_delimiter($close,$rows,$options{tth_delims});
@@ -386,6 +386,8 @@ sub format_matrix_HTML {
           . $HTML
           . '</TABLE>';
 }
+
+sub EVALUATE {map {(Value::isFormula($_) && $_->isConstant? $_->eval: $_)} @_}
 
 sub VERBATIM {
   my $string = shift;
