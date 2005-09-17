@@ -218,11 +218,19 @@ sub single_check {
     push(@text,check_string($result->{preview_text_string},'__'));
     push(@student,check_string($result->{student_ans},'__'));
     if ($result->{ans_message}) {
-      push(@errors,"Answer $i: ".$result->{ans_message});
+      push(@errors,'<TR VALIGN="TOP"><TD STYLE="text-align:right; border:0px" NOWRAP>' .
+                   "<I>In answer $i</I>:&nbsp;</TD>".
+                   '<TD STYLE="text-align:left; border:0px">'.$result->{ans_message}.'</TD></TR>');
     } else {$score += $result->{score}}
   }
   $ans->score($score/$self->length);
-  $ans->{ans_message} = $ans->{error_message} = join("<BR>",@errors);
+  $ans->{ans_message} = $ans->{error_message} = "";
+  if (scalar(@errors)) {
+    $ans->{ans_message} = $ans->{error_message} =
+      '<TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0" CLASS="ArrayLayout">' .
+       join('<TR><TD HEIGHT="4"></TD></TR>',@errors).
+      '</TABLE>';
+  }
   if ($nonblank) {
     $ans->{preview_latex_string} = '{'.join('}'.$self->{tex_separator}.'{',@latex).'}';
     $ans->{preview_text_string}  = join($self->{separator},@text);
