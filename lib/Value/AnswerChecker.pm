@@ -260,12 +260,12 @@ sub cmp_checkUnionReduce {
                 !$ans->{isPreview} && !Value::isFormula($student);
   if ($student->type eq 'Union' && $student->length >= 2) {
     my $reduced = $student->reduce;
-    return "Your$nth union can be written in a simpler form"
+    return "Your$nth union can be written without overlaps"
       unless $reduced->type eq 'Union' && $reduced->length == $student->length;
     my @R = $reduced->sort->value;
     my @S = $student->sort->value;
     foreach my $i (0..$#R) {
-      return "Your$nth union can be written in a simpler form"
+      return "Your$nth union can be written without overlaps"
 	unless $R[$i] == $S[$i] && $R[$i]->length == $S[$i]->length;
     }
   } elsif ($student->type eq 'Set' && $student->length >= 2) {
