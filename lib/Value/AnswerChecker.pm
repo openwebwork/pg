@@ -20,9 +20,8 @@ $Value::defaultContext->{cmpDefaults} = {};
 
 
 #
-#  Create an answer checker for the given type of object
+#  Default flags for the answer checkers
 #
-
 sub cmp_defaults {(
   showTypeWarnings => 1,
   showEqualErrors  => 1,
@@ -31,6 +30,9 @@ sub cmp_defaults {(
   showUnionReduceWarnings => 1,
 )}
 
+#
+#  Create an answer checker for the given type of object
+#
 sub cmp {
   my $self = shift;
   my $ans = new AnswerEvaluator;
@@ -109,8 +111,8 @@ sub cmp_parse {
       $self->cmp_postprocess($ans) if !$ans->{error_message};
     }
   } else {
+    $self->cmp_collect($ans);
     $self->cmp_error($ans);
-    $self->cmp_collect($ans);  ## FIXME: why is this here a second time?
   }
   contextSet($context,%{$flags});            # restore context values
   Parser::Context->current(undef,$current);  # put back the old context
@@ -137,7 +139,7 @@ sub cmp_collect {
   $type = "Value::".$self->{tree}->type if $self->class eq 'Formula';
   $ans->{student_formula} = eval {$type->new($array)->with(ColumnVector=>$self->{ColumnVector})};
   if (!defined($ans->{student_formula}) || $$Value::context->{error}{flag}) 
-    {Parser::reportEvalError($@); return 0}
+    {Parser::reportEvalError($@); $self->cmp_error($ans); return 0}
   $ans->{student_value} = $ans->{student_formula};
   $ans->{preview_text_string} = $ans->{student_ans};
   $ans->{preview_latex_string} = $ans->{student_formula}->TeX;
@@ -454,7 +456,7 @@ sub format_delimiter_tth {
 #  based on these, and keep track of error messages.
 #
 
-my @ans_defaults = (showCoodinateHints => 0, checker => sub {0});
+my @ans_cmp_defaults = (showCoodinateHints => 0, checker => sub {0});
 
 sub ans_collect {
   my $self = shift; my $ans = shift;
@@ -465,34 +467,42 @@ sub ans_collect {
   if ($self->{ColumnVector}) {foreach my $x (@{$data}) {$x = [$x]}}
   $data = [$data] unless ref($data->[0]) eq 'ARRAY';
   foreach my $i (0..$rows-1) {
-    my @row = ();
+    my @row = (); my $entry;
     foreach my $j (0..$cols-1) {
       if ($i || $j) {
-	my $entry = $inputs->{ANS_NAME($self->{ans_name},$i,$j)};
-	my $result = $data->[$i][$j]->cmp(@ans_cmp_defaults)->evaluate($entry);
-	$OK &= entryCheck($result,$blank);
-	push(@row,$result->{student_formula});
-	entryMessage($result->{ans_message},$errors,$i,$j,$rows);
+	$entry = $inputs->{ANS_NAME($self->{ans_name},$i,$j)};
       } else {
-	$ans->{student_formula} = $ans->{student_value} = undef unless $ans->{student_ans} =~ m/\S/;
-	$OK &= entryCheck($ans,$blank);
-	push(@row,$ans->{student_formula});
-	entryMessage($ans->{ans_message},$errors,$i,$j,$rows);
+	$entry = $ans->{original_student_ans};
+	$ans->{student_formula} = $ans->{student_value} = undef unless $entry =~ m/\S/;
       }
+      my $result = $data->[$i][$j]->cmp(@ans_cmp_defaults)->evaluate($entry);
+      $OK &= entryCheck($result,$blank);
+      push(@row,$result->{student_formula});
+      entryMessage($result->{ans_message},$errors,$i,$j,$rows,$cols);
     }
     push(@array,[@row]);
   }
   $ans->{student_formula} = [@array];
-  $ans->{ans_message} = $ans->{error_message} = join("<BR>",@{$errors});
-  return $OK && scalar(@{$errors}) == 0;
+  $ans->{ans_message} = $ans->{error_message} = "";
+  if (scalar(@{$errors})) {
+    $ans->{ans_message} = $ans->{error_message} = 
+      '<TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0" CLASS="ArrayLayout">'.
+      join('<TR><TD HEIGHT="4"></TD></TR>',@{$errors}).
+      '</TABLE>';
+    $OK = 0;
+  }
+  return $OK;
 }
 
 sub entryMessage {
   my $message = shift; return unless $message;
-  my ($errors,$i,$j,$rows) = @_; $i++; $j++;
-  if ($rows == 1) {$message = "Coordinate $j: $message"}
-    else {$message = "Entry ($i,$j): $message"}
-  push(@{$errors},$message);
+  my ($errors,$i,$j,$rows,$cols) = @_; $i++; $j++;
+  my $title;
+  if ($rows == 1) {$title = "In entry $j"}
+  elsif ($cols == 1) {$title = "In entry $i"}
+  else {$title = "In entry ($i,$j)"}
+  push(@{$errors},"<TR VALIGN=\"TOP\"><TD STYLE=\"text-align:right; border:0px\"><I>$title</I>:&nbsp;</TD>".
+                  "<TD STYLE=\"text-align:left; border:0px\">$message</TD></TR>");
 }
 
 sub entryCheck {
