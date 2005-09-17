@@ -220,6 +220,7 @@ sub showType {
       $type .= ' of '.$ltype.'s';
     }
   }
+  return 'an Infinity' if $type eq 'String' && $value->{isInfinite};
   return 'a Word' if $type eq 'String';
   return 'a Complex Number' if $value->isComplex;
   return 'an '.$type if $type =~ m/^[aeio]/i;
