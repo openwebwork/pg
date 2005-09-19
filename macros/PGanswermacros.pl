@@ -2844,7 +2844,7 @@ sub STR_CMP {
 	my $answer_evaluator = new AnswerEvaluator;
 	$answer_evaluator->{debug} = $str_params{debug};
 	$answer_evaluator->ans_hash( 	
-		correct_ans       => $str_params{correct_ans}||'',
+		correct_ans       => "$str_params{correct_ans}",
 		type              => $str_params{type}||'str_cmp',
 		score             => 0,
 
