@@ -44,6 +44,7 @@ sub new {
       else {$equation->Error(["Entries in a %s must be of the same type",$type->{name}])}
     }
   }
+  $open = '' if $open eq 'start'; $close = '' if $close eq 'start';
   $list = bless {
     coords => $coords, type => $type, open => $open, close => $close,
     paren => $paren, equation => $equation, isConstant => $constant
