@@ -29,7 +29,7 @@ sub _parserMultiPart_init {}
 #  You need to provide a checker routine that will be called to determine if the
 #  answers are correct or not.  The checker will only be called if the student
 #  answers have no syntax errors and their types match the types of the professor's
-#  answers, so you don't ahve to worry about handling bad data from the student
+#  answers, so you don't have to worry about handling bad data from the student
 #  (at least as far as typechecking goes).
 #
 #  The checker routine should accept three parameters:  a reference to the array
@@ -103,7 +103,7 @@ our $separator = ';';                # separator for singleResult previews
 #                                 or one for each answer rule.
 #                                 (Default: 0)
 #
-#      namedRules => 0 or 1       wether to use named rules or default
+#      namedRules => 0 or 1       whether to use named rules or default
 #                                 rule names.  Use named rules if you need
 #                                 to intersperse other rules with the
 #                                 ones for the MultiPart, in which case
@@ -116,6 +116,12 @@ our $separator = ';';                # separator for singleResult previews
 #                                 checking (in which case, you should check
 #                                 the types before you use the data).
 #	                          (Default: 1)
+#
+#      allowBlankAnswers=>0 or 1  whether to remove the blank-check prefilter
+#                                 from the answer checkers for the answer
+#                                 checkers used for type checking the student's
+#                                 answers.
+#                                 (Default: 0)
 #
 #      separator => string        the string to use between entries in the
 #                                 results area when singleResult is set.
@@ -139,7 +145,8 @@ sub new {
   }
   bless {
     data => [@data], cmp => [@cmp], ans => [],
-    part => 0, singleResult => 0, namedRules => 0, checkTypes => 1,
+    part => 0, singleResult => 0, namedRules => 0,
+    checkTypes => 1, allowBlankAnswers => 0,
     tex_separator => $separator.'\,', separator => $separator.' ',
     context => $$Value::context, id => $answerPrefix.($count++),
   }, $class;
@@ -159,6 +166,17 @@ sub cmp {
     }
   }
   die "You must supply a checker subroutine" unless ref($self->{checker}) eq 'CODE';
+  if ($self->{allowBlankAnswers}) {
+    foreach my $cmp (@{$self->{cmp}}) {
+      $cmp->install_pre_filter('erase');
+      $cmp->install_pre_filter(sub {
+	my $ans = shift;
+	$ans->{student_ans} =~ s/^\s+//g;
+	$ans->{student_ans} =~ s/\s+$//g;
+	return $ans;
+      });
+    }
+  }
   my @cmp = ();
   if ($self->{singleResult}) {
     push(@cmp,$self->ANS_NAME(0)) if $self->{namedRules};
@@ -278,7 +296,7 @@ sub entry_check {
   my $i = $ans->{part};
   $self->{ans}[$i] = $self->{cmp}[$i]->evaluate($ans->{student_ans});
   $self->{ans}[$i]->score(0);
-  $self->perform_check if ($i == $self->length - 1);
+  $self->perform_check($ans) if ($i == $self->length - 1);
   return $self->{ans}[$i];
 }
 
@@ -294,7 +312,8 @@ sub entry_check {
 #  Set the individual scores based on the result from the user's routine.
 #
 sub perform_check {
-  my $self = shift; $self->{context}->clearError;
+  my $self = shift; my $rh_ans = shift;
+  $self->{context}->clearError;
   my @correct; my @student;
   foreach my $ans (@{$self->{ans}}) {
     push(@correct,$ans->{correct_value});
@@ -302,7 +321,7 @@ sub perform_check {
     return if $ans->{ans_message} ne "" || !defined($ans->{student_value});
     return if $self->{checkTypes} && $ans->{student_value}->type ne $ans->{correct_value}->type;
   }
-  my $result = Value::cmp_compare([@correct],[@student],$self);
+  my $result = Value::cmp_compare([@correct],[@student],$self,$rh_ans);
   if (!defined($result) && $self->{context}{error}{flag}) {$self->cmp_error($self->{ans}[0]); return 1}
   $result = 0 if (!defined($result) || $result eq '');
   if (ref($result) eq 'ARRAY') {
