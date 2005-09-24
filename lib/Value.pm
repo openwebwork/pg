@@ -24,8 +24,9 @@ $defaultContext = Value::Context->new(
     #
     ijk => 0,  # print vectors as <...>
     #
-    #  word to use for infinity
+    #  For strings:
     #
+    allowEmptyStrings => 1,
     infiniteWord => 'infinity',
     #
     #  For intervals and unions:
@@ -174,7 +175,7 @@ sub canBeInUnion {
 #
 sub makeValue {
   my $x = shift; my %params = (showError => 0, makeFormula => 1, @_);
-  return $x if (ref($x) && ref($x) ne 'ARRAY') || $x eq '';
+  return $x if ref($x) && ref($x) ne 'ARRAY';
   return Value::Real->make($x) if matchNumber($x);
   if (matchInfinite($x)) {
     my $I = Value::Infinity->new();
@@ -182,7 +183,8 @@ sub makeValue {
     return $I;
   }
   return Value::String->make($x)
-    if (!$Parser::installed || $$Value::context->{strings}{$x});
+    if !$Parser::installed || $$Value::context->{strings}{$x} ||
+       ($x eq '' && $$Value::context->{flags}{allowEmptyStrings});
   return $x if !$params{makeFormula};
   Value::Error("String constant '%s' is not defined in this context",$x)
     if $params{showError};
@@ -256,6 +258,7 @@ sub getType {
   elsif (ref($value)) {return 'unknown'}
   elsif (defined($strings->{$value})) {return 'String'}
   elsif (Value::isNumber($value)) {return 'Number'}
+  elsif ($value eq '' && $equation->{context}{flags}{allowEmptyStrings}) {return 'String'}
   return 'unknown';
 }
 

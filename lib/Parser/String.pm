@@ -19,7 +19,7 @@ sub new {
   my $def = $equation->{context}{strings}{$value};
   unless ($def) {
     $def = $equation->{context}{strings}{uc($value)};
-    $def = undef if $def->{caseSensitive} && $value ne uc($value);
+    $def = {} if $def->{caseSensitive} && $value ne uc($value);
   }
   $value = $def->{alias}, $def = $equation->{context}{strings}{$value}
     while defined($def->{alias});

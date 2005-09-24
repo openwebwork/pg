@@ -39,7 +39,10 @@ sub new {
     my $tree = $string; $tree = $tree->{tree} if exists $tree->{tree};
     $math->{tree} = $tree->copy($math);
   } elsif (Value::isValue($string)) {
-    $math->{tree} = $math->{context}{parser}{Value}->new($math,$string);
+    $math->{tree} = $context->{parser}{Value}->new($math,$string);
+  } elsif ($string eq '' && $context->{flags}{allowEmptyStrings}) {
+    $math->{string} = "";
+    $math->{tree} = $context->{parser}{Value}->new($math,"");
   } else {
     $math->{string} = $string;
     $math->tokenize;

@@ -617,6 +617,25 @@ sub typeMatch {
   return $typeMatch->typeMatch($other,$ans);
 }
 
+#
+#  Remove the blank-check prefilter when the string is empty,
+#  and add a filter that removes leading and trailing whitespace.
+#
+sub cmp {
+  my $self = shift;
+  my $cmp = $self->SUPER::cmp(@_);
+  if ($self->value =~ m/^\s*$/) {
+    $cmp->install_pre_filter('erase');
+    $cmp->install_pre_filter(sub {
+      my $ans = shift;
+      $ans->{student_ans} =~ s/^\s+//g;
+      $ans->{student_ans} =~ s/\s+$//g;
+      return $ans;
+    });
+  }
+  return $cmp;
+}
+
 #############################################################
 
 package Value::Point;

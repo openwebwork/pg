@@ -21,7 +21,8 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $x = join('',@_);
   my $s = bless {data => [$x]}, $class;
-  if ($Parser::installed) {
+  if ($Parser::installed &&
+      !($x eq '' && $$Value::context->flag('allowEmptyStrings'))) {
     my $strings = $$Value::context->{strings};
     if (!$strings->{$x}) {
       my $X = $strings->{uc($x)};
