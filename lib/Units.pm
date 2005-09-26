@@ -51,6 +51,7 @@ my %fundamental_units = ('factor' => 1,
 # be zero.
 
 my $PI = 4*atan2(1,1);
+#         9.80665 m/s^2  -- standard accelearationof gravity
 
 my %known_units = ('m'  => {
                            'factor'    => 1,
@@ -288,7 +289,7 @@ my %known_units = ('m'  => {
                            's'         => -2
                           },
                  'lb'  => {
-                           'factor'    => 4.45,
+                           'factor'    => 4.4482216152605,
                            'm'         => 1,
                            'kg'        => 1,
                            's'         => -2
@@ -328,7 +329,7 @@ my %known_units = ('m'  => {
                            's'         => -2
                           },
                 'lbf'  => {
-                           'factor'    => 1.355,
+                           'factor'    => 1.35582,
                            'm'         => 2,
                            'kg'        => 1,
                            's'         => -2
