@@ -28,7 +28,7 @@ sub _parserDifferenceQuotient_init {}; # don't reload this file
 #      ANS($df->cmp);
 #
 #      Context()->variables->are(t=>'Real',a=>'Real');
-#      ANS(DifferenceQuotient("-a/t(t+dt)","dt")->cmp);
+#      ANS(DifferenceQuotient("-a/[t(t+dt)]","dt")->cmp);
 #
 
 Context("Numeric");
