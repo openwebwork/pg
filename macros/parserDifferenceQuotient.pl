@@ -52,10 +52,10 @@ sub new {
     $dx . '|' . $context->{_variables}->{pattern};
   $context->update;
   $context->variables->add($dx=>'Real');
-  $dx = bless $self->SUPER::new($formula), $class;
-  $dx->{isValue} = 1; $dx->{isFormula} = 1;
+  $q = bless $self->SUPER::new($formula), $class;
+  $q->{isValue} = 1; $q->{isFormula} = 1; $q->{dx} = $dx;
   main::Context($current);  # put back the original context;
-  return $dx;
+  return $q;
 }
 
 sub cmp_class {'a Difference Quotient'}
@@ -66,10 +66,10 @@ sub cmp_defaults{(
 )}
 
 sub cmp_postprocess {
-  my $self = shift; my $ans = shift;
+  my $self = shift; my $ans = shift; my $dx = $self->{dx};
   return if $ans->{score} == 0 || $ans->{isPreview};
   $main::__student_value__ = $ans->{student_value};
-  my ($value,$err) = main::PG_restricted_eval('$__student_value__->reduce(dx=>0)');
+  my ($value,$err) = main::PG_restricted_eval('$__student_value__->substitute('.$dx.'=>0)->reduce');
   $self->cmp_Error($ans,"It looks like you didn't finish simplifying your answer")
     if $err && $err =~ m/division by zero/i;
 }
