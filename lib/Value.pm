@@ -411,7 +411,7 @@ sub promotePrecedence {
   return 0 unless Value::isValue($other);
   my $sprec = $$context->{precedence}{class($self)};
   my $oprec = $$context->{precedence}{class($other)};
-  return (defined($oprec) && $sprec < $oprec);
+  return (defined($sprec) && defined($oprec) && $sprec < $oprec);
 }
 
 sub promote {shift}
