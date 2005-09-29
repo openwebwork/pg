@@ -48,10 +48,12 @@ sub new {
   #
   my $current = $$Value::context;
   my $context = main::Context($current->copy);
-  $context->{_variables}->{pattern} = $context->{_variables}->{namePattern} =
-    $dx . '|' . $context->{_variables}->{pattern};
-  $context->update;
-  $context->variables->add($dx=>'Real');
+  unless ($context->variables->get($dx)) {
+    $context->{_variables}->{pattern} = $context->{_variables}->{namePattern} =
+      $dx . '|' . $context->{_variables}->{pattern};
+    $context->update;
+    $context->variables->add($dx=>'Real');
+  }
   $q = bless $self->SUPER::new($formula), $class;
   $q->{isValue} = 1; $q->{isFormula} = 1; $q->{dx} = $dx;
   main::Context($current);  # put back the original context;
