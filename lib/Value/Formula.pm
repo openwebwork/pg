@@ -35,13 +35,20 @@ use overload
 
 #
 #  Call Parser to make the new item, copying important
-#    fields from the tree.
+#    fields from the tree.  The Context can override the
+#    Context()->{value}{Formula} setting to substitue a
+#    different class to call for creating the formula.
 #
 sub new {
-  shift; my $self = $pkg->SUPER::new(@_);
+  shift; my $self = $$Value::context->{value}{Formula}->create(@_);
   foreach my $id ('open','close') {$self->{$id} = $self->{tree}{$id}}
   return $self;
 }
+
+#
+#  Call Parser to creat the formula
+#
+sub create {shift; $pkg->SUPER::new(@_)}
 
 #
 #  Create the new parser with no string

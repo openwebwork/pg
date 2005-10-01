@@ -33,6 +33,9 @@ sub new {
       arrays => ['data'],
       values => ['flags','pattern','format'],
     },
+    value => {
+      Formula => "Value::Formula"
+    },
   }, $class;
   my %data = (lists=>{},flags=>{},@_);
   $context->{_lists} = new Value::Context::Lists($context,%{$data{lists}});
