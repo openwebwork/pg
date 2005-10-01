@@ -51,11 +51,13 @@ sub _parserImplicitPlane_init {}; # don't reload this file
 #
 $context{ImplicitPlane} = Context("Vector")->copy();
 $context{ImplicitPlane}->{precedence}{ImplicitPlane} = Context()->{precedence}{special};
+$context{ImplicitPlane}->{value}{Formula} = "ImplicitPlane";
 Context("ImplicitPlane");
 #
 # allow equalities in formulas
 #
 Parser::BOP::equality::Allow;
+$context{ImplicitPlane}->operators->set('=' => {class => 'ImplicitPlane::equality'});
 
 #
 #  Syntactic sugar for creating implicit planes
@@ -89,7 +91,7 @@ sub new {
     $type = 'line' if scalar(@{$vars}) == 2;
     my @terms = (); my $i = 0;
     foreach my $x (@{$vars}) {push @terms, $N->{data}[$i++]->string.$x}
-    $plane = Value::Formula->new(join(' + ',@terms).' = '.$d->string)->reduce(@_);
+    $plane = Value::Formula->create(join(' + ',@terms).' = '.$d->string)->reduce(@_);
   } else {
     #
     #  Determine the normal vector and d value from the equation
@@ -119,6 +121,7 @@ sub new {
     Value::Error("Your formula isn't a linear one")
       unless (Value::Formula->new($plane->{tree}{lop}) -
               Value::Formula->new($plane->{tree}{rop})) == $f;
+    $plane = $plane->reduce;
   }
   Value::Error("The equation of a %s must be non-zero somewhere",$type)
     if ($N->norm == 0);
@@ -128,12 +131,30 @@ sub new {
 }
 
 #
-#  We already know the vectors are none zero, so check
+#  Substitute for Context()->{value}{Formula} which creates
+#    an implicit plane if there is an equality, otherwise
+#    creates a regular formula.
+#
+sub create {
+  my $self = shift; my $f = shift;
+  return $f if Value::isFormula($f);
+  my $isEquals = ref($f) eq 'ImplicitPlane::equality';
+  $f = bless $f, 'Parser::BOP::equality' if $isEquals;  # so Parser will recognize it
+  my $f = Value::Formula->create($f,@_);
+  $f = $self->new($f) if $isEquals || ref($f->{tree}) eq 'ImplicitPlane::equality';
+  return $f;
+}
+
+#
+#  We already know the vectors are non-zero, so check
 #  if the equations are multiples of each other.
+#  (If the comparison is to a string, mark it wrong, otherwise
+#   turn the right-hand side into an implicit plane)
 #
 sub compare {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
+  return 1 if Value::isValue($r) && $r->type eq 'String';
   $r = ImplicitPlane->new($r);
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   my ($lN,$ld) = ($l->{N},$l->{d});
@@ -158,7 +179,22 @@ sub cmp_defaults{(
 #
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
+  return ref($other) && $other->type eq 'Equality' unless ref($self);
   return ref($other) && $self->type eq $other->type;
+}
+
+#
+#  We subclass BOP::equality so that we can give a warning about
+#  things like 1 = 3
+#
+package ImplicitPlane::equality;
+our @ISA = qw(Parser::BOP::equality);
+
+sub _check {
+  my $self = shift;
+  $self->SUPER::_check;
+  $self->Error("An implicit equation can't be constant on both sides")
+    if $self->{lop}{isConstant} && $self->{rop}{isConstant};
 }
 
 1;
