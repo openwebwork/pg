@@ -610,7 +610,7 @@ sub cmp_class {
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
-  return 0 if ref($other) && Value::isFormula($other);
+#  return 0 if ref($other) && Value::isFormula($other);
   my $typeMatch = $ans->{typeMatch};
   return 1 if !Value::isValue($typeMatch) || $typeMatch->class eq 'String' ||
                  $self->type eq $other->type;
@@ -986,7 +986,7 @@ sub cmp_defaults {
     entry_type => undef,
     list_type => undef,
     typeMatch => $element,
-    extra => $element,
+    extra => undef,
     requireParenMatch => 1,
     removeParens => 1,
   );
@@ -1028,7 +1028,7 @@ sub cmp_equal {
   my $ltype             = $ans->{list_type} || lc($self->type);
   my $stype             = $ans->{short_type} || $ltype;
 
-  $value = (Value::isValue($typeMatch)? lc($typeMatch->cmp_class): 'value')
+  $value = (Value::isValue($typeMatch)? lc($typeMatch->cmp_class): 'a value')
     unless defined($value);
   $value =~ s/(real|complex) //; $ans->{cmp_class} = $value;
   $value =~ s/^an? //; $value = 'formula' if $value =~ m/formula/;
@@ -1137,7 +1137,7 @@ sub cmp_list_compare {
   my $ordered = $ans->{ordered};
   my $showTypeWarnings = $ans->{showTypeWarnings} && !$ans->{isPreview};
   my $typeMatch = $ans->{typeMatch};
-  my $extra = $ans->{extra};
+  my $extra = $ans->{extra} || $typeMatch;
   my $showHints = getOption($ans,'showHints') && !$ans->{isPreview};
   my $error = $$Value::context->{error};
   my $score = 0; my @errors; my $i = 0;
@@ -1159,7 +1159,7 @@ sub cmp_list_compare {
     #  Some words differ if ther eis only one entry in the student's list
     #
     my $nth = ''; my $answer = 'answer';
-    my $class = $ans->{list_type} || $self->cmp_class;
+    my $class = $ans->{list_type} || $ans->{cmp_class};
     if ($m > 1) {
       $nth = ' '.$self->NameForNumber($i);
       $class = $ans->{cmp_class};
@@ -1267,10 +1267,13 @@ sub cmp_defaults {
     showDomainErrors => 1,
   ) if defined(%$type) && $self->type ne 'List';
 
+  my $element;
+  if ($self->{tree}->class eq 'List') {$element = Value::Formula->new($self->{tree}{coords}[0])}
+    else {$element = Value::Formula->new(($self->createRandomPoints(1))[1]->[0]{data}[0])}
   return (
     Value::List::cmp_defaults($self,@_),
     removeParens => $self->{autoFormula},
-    typeMatch => Value::Formula->new(($self->createRandomPoints(1))[1]->[0]{data}[0]),
+    typeMatch => $element,
     showDomainErrors => 1,
   );
 }
