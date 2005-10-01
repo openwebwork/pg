@@ -30,8 +30,8 @@ sub new {
   $p = [$p,@_] if (ref($p) ne 'ARRAY' || scalar(@_) > 0);
   my $type;
   foreach my $x (@{$p}) {
-    $isFormula = 1 if Value::isFormula($x);
     $x = Value::makeValue($x) unless ref($x);
+    $isFormula = 1 if Value::isFormula($x);
     if (Value::isValue($x)) {
       if (!$type) {$type = $x->type}
         else {$type = 'unknown' unless $type eq $x->type}
