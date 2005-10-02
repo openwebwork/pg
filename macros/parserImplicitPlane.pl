@@ -140,7 +140,7 @@ sub create {
   return $f if Value::isFormula($f);
   my $isEquals = ref($f) eq 'ImplicitPlane::equality';
   $f = bless $f, 'Parser::BOP::equality' if $isEquals;  # so Parser will recognize it
-  my $f = Value::Formula->create($f,@_);
+  $f = Value::Formula->create($f,@_);
   $f = $self->new($f) if $isEquals || ref($f->{tree}) eq 'ImplicitPlane::equality';
   return $f;
 }
