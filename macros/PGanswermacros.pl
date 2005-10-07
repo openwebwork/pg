@@ -1107,7 +1107,7 @@ sub NUM_CMP {                              # low level numeric compare (now uses
 	#  Get the proper Parser object for the professor's answer
 	#  using the initialized context
 	#
-	my $oldContext = &$Context($context); my $r;
+	my $oldContext = &$Context(); &$Context($context); my $r;
 	if ($num_params{units}) {
 	  $r = new Parser::Legacy::NumberWithUnits($correctAnswer);
           $options{rh_correct_units} = $num_params{units};
@@ -1970,7 +1970,7 @@ sub FUNCTION_CMP {
 	#
 	#  Create the Formula object and get its answer checker
 	#
-	my $oldContext = &$Context($context);
+	my $oldContext = &$Context(); &$Context($context);
 	my $f = new Value::Formula($correctEqn);
 	$f->{limits}      = $func_params{'limits'};
 	$f->{test_points} = $func_params{'test_points'};
