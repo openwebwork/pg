@@ -31,6 +31,28 @@ sub cmp_defaults {(
 )}
 
 #
+#  Special Context flags to be set for the student answer
+#
+sub cmp_contextFlags {
+  my $self = shift; my $ans = shift;
+  return (
+    StringifyAsTeX => 0,                 # reset this, just in case.
+    no_parameters => 1,                  # don't let students enter parameters
+    showExtraParens => 1,                # make student answer painfully unambiguous
+    reduceConstants => 0,                # don't combine student constants
+    reduceConstantFunctions => 0,        # don't reduce constant functions
+    ($ans->{studentsMustReduceUnions} ?
+      (reduceUnions => 0, reduceSets => 0,
+       reduceUnionsForComparison => $ans->{showUnionReduceWarnings},
+       reduceSetsForComparison => $ans->{showUnionReduceWarnings}) :
+      (reduceUnions => 1, reduceSets => 1,
+       reduceUnionsForComparison => 1, reduceSetsForComparison => 1)),
+    ($ans->{requireParenMatch}? (): ignoreEndpointTypes => 1),  # for Intervals
+  );
+}
+
+
+#
 #  Create an answer checker for the given type of object
 #
 sub cmp {
@@ -67,21 +89,7 @@ sub cmp_parse {
   my $current = $$Value::context; # save it for later
   my $context = $ans->{correct_value}{context} || $current;
   Parser::Context->current(undef,$context); # change to correct answser's context
-  my $flags = contextSet($context, # save old context flags for the below
-    StringifyAsTeX => 0,             # reset this, just in case.
-    no_parameters => 1,              # don't let students enter parameters
-    showExtraParens => 1,            # make student answer painfully unambiguous
-    reduceConstants => 0,            # don't combine student constants
-    reduceConstantFunctions => 0,    # don't reduce constant functions
-    ($ans->{studentsMustReduceUnions} ?
-      (reduceUnions => 0, reduceSets => 0,
-       reduceUnionsForComparison => $ans->{showUnionReduceWarnings},
-       reduceSetsForComparison => $ans->{showUnionReduceWarnings}) :
-      (reduceUnions => 1, reduceSets => 1,
-       reduceUnionsForComparison => 1, reduceSetsForComparison => 1)),
-    ($ans->{requireParenMatch}? (): ignoreEndpointTypes => 1),  # for Intervals
-    $self->cmp_contextFlags($ans),   # any additional ones from the object itself
-  );
+  my $flags = contextSet($context,$self->cmp_contextFlags($ans)); # save old context flags
   my $inputs = $self->getPG('$inputs_ref',{action=>""});
   $ans->{isPreview} = $inputs->{previewAnswers} || ($inputs->{action} =~ m/^Preview/);
   $ans->{cmp_class} = $self->cmp_class($ans) unless $ans->{cmp_class};
@@ -105,7 +113,19 @@ sub cmp_parse {
        unless Value::isValue($ans->{student_value});
     $ans->{preview_latex_string} = $ans->{student_formula}->TeX;
     $ans->{preview_text_string}  = protectHTML($ans->{student_formula}->string);
-    $ans->{student_ans}          = protectHTML($ans->{student_value}->string);
+    #
+    #  Get the string for the student answer
+    #
+    for ($ans->{formatStudentAnswer} || $context->flag('formatStudentAnswer')) {
+      /evaluated/i  and do {$ans->{student_ans} = protectHTML($ans->{student_value}->string); last};
+      /parsed/i     and do {$ans->{student_ans} = $ans->{preview_text_string}; last};
+      /reduced/i    and do {
+	my $oldFlags = contextSet($context,reduceConstants=>1,reduceConstantFunctions=>0);
+	$ans->{student_ans} = protectHTML($ans->{student_formula}->substitute()->string);
+	contextSet($context,%{$oldFags}); last;
+      };
+      warn "Unkown student answer format |$ans->{formatStudentAnswer}|";
+    }
     if ($self->cmp_collect($ans)) {
       $self->cmp_equal($ans);
       $self->cmp_postprocess($ans) if !$ans->{error_message};
@@ -248,7 +268,6 @@ sub cmp_Error {
 #  filled in by sub-classes
 #
 sub cmp_postprocess {}
-sub cmp_contextFlags {return ()}
 
 #
 #  Check for unreduced reduced Unions and Sets
