@@ -21,8 +21,9 @@ sub new {
   }, $def->{class};
   $fn->{isConstant} = $constant;
   $fn->_check;
-  $fn = $context->{parser}{Value}->new($equation,[$fn->eval])
+  return $context->{parser}{Value}->new($equation,[$fn->eval])
     if $constant && $context->flag('reduceConstantFunctions');
+  $fn->{isConstant} = 0;
   return $fn;
 }
 
@@ -79,6 +80,7 @@ sub substitute {
     {$x = $x->substitute; $constant = 0 unless $x->{isConstant}}
   return $context->{parser}{Value}->new($equation,[$self->eval])
     if $constant && $context->flag('reduceConstantFunctions');
+  $self->{isConstant} = 0;
   return $self;
 }
 
