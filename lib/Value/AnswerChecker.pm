@@ -1002,11 +1002,12 @@ sub typeMatch {return !ref($other) || $other->class ne 'Formula'}
 #
 sub cmp {
   my $self = shift;
+  my %params = @_;
   my $cmp = $self->SUPER::cmp(@_);
   if ($cmp->{rh_ans}{removeParens}) {
     $self->{open} = $self->{close} = '';
     $cmp->ans_hash(correct_ans => $self->stringify)
-      unless defined($self->{correct_ans});
+      unless defined($self->{correct_ans}) || defined($params{correct_ans});
   }
   return $cmp;
 }
