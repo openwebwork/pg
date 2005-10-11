@@ -185,7 +185,12 @@ generated implicitly.
 	ans_rule( width )
 	tex_ans_rule( width )
 	ans_radio_buttons(value1=>label1, value2,label2 => value3,label3=>...)
-	pop_up_list(@list)  # list consists of (value => label,  PR => "Product rule",...)
+	pop_up_list(@list)   # list consists of (value => label,  PR => "Product rule",...)
+	pop_up_list([@list]) # list consists of values
+
+In the last case, one can use C<pop_up_list(['?', 'yes', 'no'])> to produce a
+pop-up list containing the three strings listed, and then use str_cmp to check
+the answer.
 
 To indicate the checked position of radio buttons put a '%' in front of the value: C<ans_radio_buttons(1, 'Yes','%2','No')>
 will have 'No' checked.  C<tex_ans_rule> works inside math equations in C<HTML_tth> mode.  It does not work in C<Latex2HTML> mode
@@ -212,6 +217,7 @@ with the default answer prefix (currently AnSwEr).
 	NAMED_ANS_RADIO_BUTTONS(name,value1,label1,value2,label2,...)
 	check_box('-name' =>answer5,'-value' =>'statement3','-label' =>'I loved this course!'   )
 	NAMED_POP_UP_LIST($name, @list) # list consists of (value => tag,  PR => "Product rule",...)
+	NAMED_POP_UP_LIST($name, [@list]) # list consists of a list of values (and each tag will be set to the corresponding value)
 
 (Name is the name of the variable, value is the value given to the variable when this option is selected,
 and label is the text printed next to the button or check box.    Check box variables can have multiple values.)
@@ -733,6 +739,10 @@ sub checkbox {
 sub NAMED_POP_UP_LIST {
     my $name = shift;
 	my @list = @_;
+	if(ref($list[0]) eq 'ARRAY') {
+		my @list1 = @{$list[0]};
+		@list = map { $_ => $_ } @list1;
+	}
 	$name = RECORD_ANS_NAME($name);   # record answer name
 		my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
