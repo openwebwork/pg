@@ -69,6 +69,7 @@ sub cmp {
     %{$self->{context}{cmpDefaults}{$self->class} || {}},  # context-specified defaults
     @_
   );
+  $ans->{debug} = $ans->{rh_ans}{debug};
   $ans->install_evaluator(sub {$ans = shift; $ans->{correct_value}->cmp_parse($ans)});
   $ans->install_pre_filter('erase') if $self->{ans_name}; # don't do blank check if answer_array
   return $ans;
