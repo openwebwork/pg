@@ -21,10 +21,9 @@ sub new {
   $context->{parser} = {%{$Parser::class}};
   push(@{$context->{data}{values}},'parser');
   $context->{_initialized} = 0;
-  foreach my $list ('functions','variables','constants','operators','strings','parens') {
-    push(@{$context->{data}{hashes}},$list);
-    $context->{$list} = {};
-  }
+  push(@{$context->{data}{objects}},(
+    'functions','variables','constants','operators','strings','parens',
+  ));
   push(@{$context->{data}{values}},'reduction');
   my %data = (
     functions => {},
@@ -45,8 +44,8 @@ sub new {
   $context->{_strings}   = new Parser::Context::Strings($context,%{$data{strings}});
   $context->{_parens}    = new Parser::Context::Parens($context,%{$data{parens}});
   $context->{_reduction} = new Parser::Context::Reduction($context,%{$data{reduction}});
-  $context->lists->set(%{$data{lists}}) if defined($data{lists});
-  $context->flags->set(%{$data{flags}}) if defined($data{flags});
+  $context->lists->set(%{$data{lists}});
+  $context->flags->set(%{$data{flags}});
   $context->{_initialized} = 1;
   $context->update;
   return $context;

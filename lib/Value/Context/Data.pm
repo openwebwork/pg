@@ -29,6 +29,25 @@ sub create {shift; shift}
 sub uncreate {shift; shift}
 
 #
+#  Copy the hash data
+#
+sub copy {
+  my $self = shift;
+  my $data = $self->{context}->{$self->{dataName}};
+  my $copy = {};
+  foreach my $name (keys %{$data}) {
+    if (ref($data->{$name}) eq 'ARRAY') {
+      $copy->{$name} = [@{$data->{$name}}];
+    } elsif (ref($data->{$name}) eq 'HASH') {
+      $copy->{$name} = {%{$data->{$name}}};
+    } else {
+      $copy->{$name} = $data->{$name};
+    }
+  }
+  return $copy;
+}
+
+#
 #  Sort names so that they can be joined for regexp matching
 #
 sub byName {
@@ -213,6 +232,7 @@ sub all {
 
 use Value::Context::Flags;
 use Value::Context::Lists;
+use Value::Context::Diagnostics;
 
 #########################################################################
 
