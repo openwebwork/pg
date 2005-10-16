@@ -13,7 +13,7 @@ use overload
        '*'   => sub {shift->mult(@_)},
        '/'   => sub {shift->div(@_)},
        '**'  => sub {shift->power(@_)},
-       '.'   => \&Value::_dot,
+       '.'   => sub {shift->_dot(@_)},
        'x'   => sub {shift->cross(@_)},
        '<=>' => sub {shift->compare(@_)},
        'cmp' => sub {shift->compare_string(@_)},
@@ -335,6 +335,13 @@ sub acsch {asinh(1/$_[0])}
 sub acoth {my $z = promote(@_); CORE::log((1+$z)/($z-1))/2}
 
 ##################################################
+
+sub pdot {
+  my $self = shift;
+  my $z = $self->stringify;
+  return $z if $z !~ /[-+]/;
+  return "($z)";
+}
 
 sub string {my $self = shift; Value::Complex::format(@{$self->data},'string',@_)}
 sub TeX {my $self = shift; Value::Complex::format(@{$self->data},'TeX',@_)}

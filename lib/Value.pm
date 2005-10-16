@@ -90,7 +90,7 @@ $$context->{method} = {
    '*'   => 'mult',
    '/'   => 'div',
    '**'  => 'power',
-   '.'   => '_dot',  # see _dot below
+   '.'   => '_dot',       # see _dot below
    'x'   => 'cross',
    '<=>' => 'compare',
    'cmp' => 'compare_string',
@@ -453,9 +453,9 @@ sub cross {nomethod(@_,'x')}
 # 
 sub _dot {
   my ($l,$r,$flag) = @_;
-  return Value::_dot($r,$l,!$flag) if ($l->promotePrecedence($r));
+  return $r->_dot($l,!$flag) if ($l->promotePrecedence($r));
   return $l->dot($r,$flag) if (Value::isValue($r));
-  $l = $l->stringify; $l = '('.$l.')' unless $$Value::context->flag('StringifyAsTeX');
+  if ($$Value::context->flag('StringifyAsTeX')) {$l = $l->TeX} else {$l = $l->pdot}
   return ($flag)? ($r.$l): ($l.$r);
 }
 #
@@ -464,10 +464,16 @@ sub _dot {
 sub dot {
   my ($l,$r,$flag) = @_;
   my $tex = $$Value::context->flag('StringifyAsTeX');
-  $l = $l->stringify; $l = '('.$l.')' if $tex;
-  if (ref($r)) {$r = $r->stringify; $r = '('.$l.')' if $tex}
+  if ($tex) {$l = $l->TeX} else {$l = $l->pdot}
+  if (ref($r)) {if ($tex) {$r = $r->TeX} else {$r = $r->pdot}}
   return ($flag)? ($r.$l): ($l.$r);
 }
+
+#
+#  Some classes override this to add parens
+#
+sub pdot {shift->stringify}
+  
 
 #
 #  Compare the values of the objects
@@ -584,7 +590,7 @@ sub Error {
   $message = [$message,@_] if scalar(@_) > 0;
   $$context->setError($message,'');
   $message = $$context->{error}{message};
-  die $message . traceback() if $$context->{debug};
+  die $message . traceback() if $$context->flags('showTraceback');
   die $message . getCaller();
 }
 

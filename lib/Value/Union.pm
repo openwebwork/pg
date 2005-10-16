@@ -10,7 +10,7 @@ use vars qw(@ISA);
 use overload
        '+'   => sub {shift->add(@_)},
        '-'   => sub {shift->sub(@_)},
-       '.'   => \&Value::_dot,
+       '.'   => sub {shift->_dot(@_)},
        'x'   => sub {shift->cross(@_)},
        '<=>' => sub {shift->compare(@_)},
        'cmp' => sub {shift->compare_string(@_)},
@@ -297,6 +297,8 @@ sub intersects {
 #
 #  Generate the various output formats
 #
+
+sub pdot {'('.(shift->stringify).')'}
 
 sub stringify {
   my $self = shift;

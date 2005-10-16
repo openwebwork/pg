@@ -11,7 +11,7 @@ use vars qw(@ISA);
 
 use overload
        '+'   => sub {shift->add(@_)},
-       '.'   => \&Value::_dot,
+       '.'   => sub {shift->_dot(@_)},
        'x'   => sub {shift->cross(@_)},
        '<=>' => sub {shift->compare(@_)},
        'cmp' => sub {shift->compare_string(@_)},

@@ -8,7 +8,7 @@ use vars qw(@ISA);
 @ISA = qw(Value);
 
 use overload
-       '.'   => \&Value::_dot,
+       '.'   => sub {shift->_dot(@_)},
        '<=>' => sub {shift->compare(@_)},
        'cmp' => sub {shift->compare_string(@_)},
        'neg' => sub {shift->neg(@_)},

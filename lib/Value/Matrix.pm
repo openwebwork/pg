@@ -17,7 +17,7 @@ use overload
        '*'   => sub {shift->mult(@_)},
        '/'   => sub {shift->div(@_)},
        '**'  => sub {shift->power(@_)},
-       '.'   => \&Value::_dot,
+       '.'   => sub {shift->_dot(@_)},
        'x'   => sub {shift->cross(@_)},
        '<=>' => sub {shift->compare(@_)},
        'cmp' => sub {shift->compare_string(@_)},

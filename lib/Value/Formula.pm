@@ -17,7 +17,7 @@ use overload
        '*'    => sub {shift->mult(@_)},
        '/'    => sub {shift->div(@_)},
        '**'   => sub {shift->power(@_)},
-       '.'    => sub {shift->dot(@_)},
+       '.'    => sub {shift->_dot(@_)},
        'x'    => sub {shift->cross(@_)},
        '<=>'  => sub {shift->compare(@_)},
        'cmp'  => sub {shift->compare_string(@_)},
@@ -129,13 +129,15 @@ sub cross {bop('><',@_)}
 #
 #  Make dot work for vector operands
 #
-sub dot   {
+sub _dot   {
   my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->dot($l,!$flag)}
+  if ($l->promotePrecedence($r)) {return $r->_dot($l,!$flag)}
   return bop('.',@_) if $l->type eq 'Vector' &&
      Value::isValue($r) && $r->type eq 'Vector';
-  Value::_dot(@_);
+  $l->SUPER::_dot($r,$flag);
 }
+
+sub pdot {'('.(shift->stringify).')'}
 
 #
 #  Call the Parser::Function call function
@@ -155,7 +157,6 @@ sub neg {
   $formula->{context} = $self->{context};
   $formula->{variables} = $self->{variables};
   $formula->{tree} = $formula->{context}{parser}{UOP}->new($formula,'u-',$self->{tree}->copy($formula));
-#  return $formula->eval if $formula->isConstant;
   return $formula;
 }
 
