@@ -1138,7 +1138,6 @@ sub NUM_CMP {                              # low level numeric compare (now uses
 	    if ref($rh_ans->{student_value});
 	  return $rh_ans;
 	});
-	$cmp->{debug} = $num_params{debug};
 	&$Context($oldContext);
 
 	return $cmp;
@@ -1502,6 +1501,7 @@ sub fun_cmp {
 				'zeroLevel'				=>	$functZeroLevelDefault,
 				'zeroLevelTol'			=>	$functZeroLevelTolDefault,
 	       		'debug'					=>	0,
+	       		'diagnostics'                           =>      undef,
      );
 
     # allow var => 'x' as an abbreviation for var => ['x']
@@ -1552,6 +1552,7 @@ sub fun_cmp {
 					'zeroLevelTol'		=>	$out_options{'zeroLevelTol'},
 					'params'			=>	$out_options{'params'},
 					'debug'				=>	$out_options{'debug'},
+				        'diagnostics'  		       	=> 	$out_options{'diagnostics'} ,
 			),
 		);
 	}
@@ -1674,6 +1675,7 @@ sub adaptive_function_cmp {
 	               	'zeroLevel'		=>	$functZeroLevelDefault,
 	               	'zeroLevelTol'	=>	$functZeroLevelTolDefault,
 	               	'debug'			=>	0,
+	       		'diagnostics'           =>      undef,
 	);
 
     my $var_ref = $options{'vars'};
@@ -1697,6 +1699,7 @@ sub adaptive_function_cmp {
 			'scale_norm'                			=>  	1,
 			'params'                    			=>  	$ra_params,
 			'debug'     					=> 	$options{debug} ,
+			'diagnostics'  					=> 	$options{diagnostics} ,
 	);
 }
 
@@ -1934,7 +1937,10 @@ sub FUNCTION_CMP {
 	#   End of cleanup of calling parameters
 	########################################################
 
-        my %options = (debug => $func_params{'debug'});
+        my %options = (
+	  debug => $func_params{'debug'},
+          diagnostics => $func_params{'diagnostics'},
+        );
 
 	#
 	#  Initialize the context for the formula
@@ -1975,7 +1981,6 @@ sub FUNCTION_CMP {
 	$f->{limits}      = $func_params{'limits'};
 	$f->{test_points} = $func_params{'test_points'};
 	my $cmp = $f->cmp(%options);
-	$cmp->{debug} = 1 if $func_params{'debug'};
 	&$Context($oldContext);
 
 	#

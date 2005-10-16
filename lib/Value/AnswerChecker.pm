@@ -72,10 +72,12 @@ sub cmp {
   $ans->{debug} = $ans->{rh_ans}{debug};
   $ans->install_evaluator(sub {$ans = shift; $ans->{correct_value}->cmp_parse($ans)});
   $ans->install_pre_filter('erase') if $self->{ans_name}; # don't do blank check if answer_array
+  $self->cmp_diagnostics($ans);
   return $ans;
 }
 
 sub correct_ans {protectHTML(shift->string)}
+sub cmp_diagnostics {}
 
 #
 #  Parse the student answer and compute its value,
@@ -130,6 +132,7 @@ sub cmp_parse {
     if ($self->cmp_collect($ans)) {
       $self->cmp_equal($ans);
       $self->cmp_postprocess($ans) if !$ans->{error_message};
+      $self->cmp_diagnostics($ans);
     }
   } else {
     $self->cmp_collect($ans);
@@ -1314,6 +1317,8 @@ sub typeMatch {
 
 #
 #  Handle removal of outermost parens in a list.
+#  Evaluate answer, if the eval option is used.
+#  Handle the UpToConstant option.
 #
 sub cmp {
   my $self = shift;
@@ -1379,6 +1384,231 @@ sub cmp_postprocess {
   return unless $self->type  =~ m/^(Point|Vector|Matrix)$/;
   return if Parser::Item::typeMatch($self->typeRef,$other->typeRef);
   $self->cmp_Error($ans,"The dimension of your result is incorrect");
+}
+
+#
+#  Diagnostics for Formulas
+#
+sub cmp_diagnostics {
+  my $self = shift;  my $ans = shift;
+  my $isEvaluator = (ref($ans) =~ /Evaluator/)? 1: 0;
+  my $hash = $isEvaluator? $ans->rh_ans : $ans;
+  my $diagnostics = $self->{context}->diagnostics->merge("formulas",$self,$hash);
+  my $formulas = $diagnostics->{formulas};
+  return unless $formulas->{show};
+
+  my $output = "";
+  if ($isEvaluator) {
+    #
+    #  The tests to be performed with the answer checker is created
+    #
+    $self->getPG('loadMacros("PGgraphmacros.pl")');
+    my ($inputs) = $self->getPG('$inputs_ref');
+    my $process = $inputs->{checkAnswers} || $inputs->{previewAnswers} || $inputs->{submitAnswers};
+    if ($formulas->{checkNumericStability} && !$process) {
+      ### still needs to be written
+    }
+  } else {
+    #
+    #  The checks to be performed when an answer is submitted
+    #
+    my $student = $ans->{student_formula};
+    my $points = [map {$_->[0]} @{$self->{test_points}}];
+
+    #
+    #  The graphs of the functions and errors
+    #
+    if ($formulas->{showGraphs}) {
+      my @G = ();
+      if ($formulas->{combineGraphs}) {
+	push(@G,$self->cmp_graph($diagnostics,[$student,$self],
+				 title=>'Student Answer (red)<BR>Correct Answer (green)<BR>',
+				 points=>$points,showDomain=>1));
+      } else {
+	push(@G,$self->cmp_graph($diagnostics,$self,title=>'Correct Answer'));
+	push(@G,$self->cmp_graph($diagnostics,$student,title=>'Student Answer'));
+      }
+      my $cutoff = Value::Formula->new($self->getFlag('tolerance'));
+      if ($formulas->{graphAbsoluteErrors}) {
+	push(@G,$self->cmp_graph($diagnostics,[abs($self-$student),$cutoff],
+				 clip=>$formulas->{clipAbsoluteError},
+				 title=>'Absolute Error',points=>$points));
+      }
+      if ($formulas->{graphRelativeErrors}) {
+	push(@G,$self->cmp_graph($diagnostics,[abs(($self-$student)/$self),$cutoff],
+				 clip=>$formulas->{clipRelativeError},
+				 title=>'Relative Error',points=>$points));
+      }
+      $output .= '<TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0">'
+	. '<TR VALIGN="TOP">'.join('<TD WIDTH="20"></TD>',@G).'</TR></TABLE>';
+    }
+    
+    #
+    #  The test points and values
+    #
+    my @rows = (); my $colsep = '</TD><TD WIDTH="20"></TD><TD ALIGN="RIGHT">';
+    my @P = (map {(scalar(@{$_}) == 1)? $_->[0]: Value::Point->make(@{$_})} @{$self->{test_points}});
+    my @i = sort {$P[$a] <=> $P[$b]} (0..$#P);
+    if ($formulas->{showTestPoints}) {
+      $student->createPointValues($self->{test_points},0,1,1) unless $student->{test_values};
+      my @p = ("Input:",(map {$P[$i[$_]]} (0..$#P)));
+      push(@rows,'<TR><TD ALIGN="RIGHT">'.join($colsep,@p).'</TD></TR>');
+      push(@rows,'<TR><TD ALIGN="RIGHT">'.join($colsep,("<HR>")x scalar(@p)).'</TD></TR>');
+      push(@rows,'<TR><TD ALIGN="RIGHT">'
+	   .join($colsep,"Correct Answer:", map {$self->{test_values}[$i[$_]]} (0..$#P))
+	   .'</TD></TR>');
+      my $test = $student->{test_values};
+      push(@rows,'<TR><TD ALIGN="RIGHT">'
+	   .join($colsep,"Student Answer:", map {Value::isNumber($test->[$i[$_]])? $test->[$i[$_]]: "undefined"} (0..$#P))
+	   .'</TD></TR>');
+    }
+    #
+    #  The absolute errors (colored by whether they are ok or too big)
+    #
+    if ($formulas->{showAbsoluteErrors}) {
+      my @p = ("Absolute Error:");
+      my $tolerance = $self->getFlag('tolerance');
+      my $tolType = $self->getFlag('tolType'); my $error;
+      foreach my $j (0..$#P) {
+	if (Value::isNumber($student->{test_values}[$i[$j]])) {
+	  $error = abs($self->{test_values}[$i[$j]]-$student->{test_values}[$i[$j]]);
+	  $error = '<SPAN STYLE="color:#'.($error<$tolerance ? '00AA00': 'AA0000').'">'.$error.'</SPAN>'
+	    if $tolType eq 'absolute';
+	} else {$error = "---"}
+	push(@p,$error);
+      }
+      push(@rows,'<TR><TD ALIGN="RIGHT">'.join($colsep,@p).'</TD></TR>');
+    }
+    #
+    #  The relative errors (colored by whether they are OK ro too big)
+    #
+    if ($formulas->{showRelativeErrors}) {
+      my @p = ("Relative Error:");
+      my $tolerance = $self->getFlag('tolerance');
+      my $tolType = $self->getFlag('tolType'); my $error;
+      foreach my $j (0..$#P) {
+	if (Value::isNumber($student->{test_values}[$i[$j]])) {
+	  $error = abs(($self->{test_values}[$i[$j]]-$student->{test_values}[$i[$j]])/
+		       ($self->{test_values}[$i[$j]]||1E-10));
+	  $error = '<SPAN STYLE="color:#'.($error<$tolerance ? '00AA00': 'AA0000').'">'.$error.'</SPAN>'
+	    if $tolType eq 'relative';
+	} else {$error = "---"}
+	push(@p,$error);
+      }
+      push(@rows,'<TR><TD ALIGN="RIGHT">'.join($colsep,@p).'</TD></TR>');
+    }
+    #
+    #  Put the data into a table
+    #
+    if (scalar(@rows)) {
+      $output .= '<p><HR><p><TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0">'
+	. join('<TR><TD HEIGHT="3"></TD>',@rows)
+	. '</TABLE>';
+    }
+  }
+  #
+  #  Put all the diagnostic output into a frame
+  #
+  return unless $output;
+  $output 
+    = '<TABLE BORDER="1" CELLSPACING="2" CELLPADDING="20" BGCOLOR="#F0F0F0">'
+    . '<TR><TD ALIGN="LEFT"><B>Diagnostics for '.$self->string .':</B>'
+    . '<P><CENTER>' . $output . '</CENTER></TD></TR></TABLE><P>';
+  warn $output;
+}
+
+#
+#  Draw a graph from a given Formula object
+#
+sub cmp_graph {
+  my $self = shift; my $diagnostics = shift;
+  my $F1 = shift; my $F2; ($F1,$F2) = @{$F1} if (ref($F1) eq 'ARRAY');
+  #
+  #  Get the various options
+  #
+  my %options = (title=>'',points=>[],@_);
+  my $graphs = $diagnostics->{graphs};
+  my $limits = $graphs->{limits}; $limits = $self->getFlag('limits',[-2,2]) unless $limits;
+  $limits = $limits->[0] if ref($limits) eq 'ARRAY' &&  ref($limits->[0]) eq 'ARRAY';
+  my $size = $graphs->{size}; $size = [$size,$size] unless ref($size) eq 'ARRAY';
+  my $steps = $graphs->{divisions};
+  my $points = $options{points}; my $clip = $options{clip};
+  my ($my,$My) = (0,0); my ($mx,$Mx) = @{$limits};
+  my $dx = ($Mx-$mx)/$steps; my $f; my $y;
+
+  #
+  #  Find the max and min values of the function
+  #
+  foreach $f ($F1,$F2) {
+    next unless defined($f);
+    unless (scalar(keys(%{$f->{variables}})) < 2) {
+      warn "Only formulas with one variable can be graphed";
+      return "";
+    }
+    if ($f->isConstant) {
+      $y = $f->eval;
+      $my = $y if $y < $my; $My = $y if $y > $My;
+    } else {
+      my $F = $f->perlFunction;
+      foreach my $i (0..$steps-1) {
+        $y = eval {&{$F}($mx+$i*$dx)}; next unless defined($y) && Value::isNumber($y);
+        $my = $y if $y < $my; $My = $y if $y > $My;
+      }
+    }
+  }
+  $My = 1 if abs($My - $my) < 1E-5;
+  $my *= 1.1; $My *= 1.1;
+  if ($clip) {
+    $my = -$clip if $my < -$clip;
+    $My = $clip if $My > $clip;
+  }
+  $my = -$My/10 if $my > -$My/10; $My = -$my/10 if $My < -$my/10;
+  my $a = Value::Real->new(($My-$my)/($Mx-$mx));
+
+  #
+  #  Create the graph itself, with suitable title
+  #
+  my $grf = $self->getPG('$_grf_ = {n => 0}');
+  $grf->{Goptions} = [
+     $mx,$my,$Mx,$My,
+     axes => $graphs->{axes},
+     grid => $graphs->{grid},
+     size => $size,
+  ];
+  $grf->{G} = $self->getPG('init_graph(@{$_grf_->{Goptions}})');
+  $grf->{G}->imageName($grf->{G}->imageName.'-'.time()); # avoid browser cache
+  $self->cmp_graph_function($grf,$F2,"green",$steps,$points) if defined($F2);
+  $self->cmp_graph_function($grf,$F1,"red",$steps,$points);
+  my $image = $self->getPG('alias(insertGraph($_grf_->{G}))');
+  $image = '<IMG SRC="'.$image.'" WIDTH="'.$size->[0].'" HEIGHT="'.$size->[1].'" BORDER="0" STYLE="margin-bottom:5px">';
+  my $title = $options{title}; $title .= '<DIV STYLE="margin-top:5px"></DIV>' if $title;
+  $title .= "<SMALL>Domain: [$mx,$Mx]</SMALL><BR>" if $options{showDomain};
+  $title .= "<SMALL>Range: [$my,$My]<BR>Aspect ratio: $a:1</SMALL>";
+  return '<TD ALIGN="CENTER" VALIGN="TOP" NOWRAP>'.$image.'<BR>'.$title.'</TD>';
+}
+
+#
+#  Add a function to a graph object, and plot the points
+#  that are used to test the function
+#
+sub cmp_graph_function {
+  my $self = shift; my $grf = shift; my $F = shift;
+  my $color = shift; my $steps = shift; my $points = shift;
+  $grf->{n}++; my $Fn = "F".$grf->{n}; $grf->{$Fn} = $F; my $f;
+  if ($F->isConstant) {
+    my $y = $F->eval;
+    $f = $self->getPG('new Fun(sub {'.$y.'},$_grf_->{G})');
+  } else {
+    my $X = (keys %{$F->{variables}})[0];
+    $f = $self->getPG('new Fun(sub {Parser::Evaluate($_grf_->{'.$Fn.'},'.$X.'=>shift)},$_grf_->{G})');
+    foreach my $x (@{$points}) {
+      my $y = Parser::Evaluate($F,($X)=>$x); next unless defined($y) && Value::isNumber($y);
+      $grf->{x} = $x; $grf->{y} = $y;
+      my $C = $self->getPG('new Circle($_grf_->{x},$_grf_->{y},4,"'.$color.'","'.$color.'")');
+      $grf->{G}->stamps($C);
+    }
+  }
+  $f->color($color); $f->weight(2); $f->steps($steps);
 }
 
 #
