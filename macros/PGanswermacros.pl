@@ -3133,10 +3133,13 @@ sub anstext {
 	my $ans_eval_template =	store_ans_at(\$QUESTIONNAIRE_ANSWERS);
 	my $psvnNumber  = PG_restricted_eval(q!$main::psvnNumber!);
 	my $probNum     = PG_restricted_eval(q!$main::probNum!);
+	my $courseName  = PG_restricted_eval(q!$main::courseName!);
+	my $setNumber     = PG_restricted_eval(q!$main::setNumber!);
+	
 	my $ans_eval    = sub {
 				 my	$text =	shift;
 				 $text = ''	unless defined($text);
-				 my	$new_text =	"\n$psvnNumber-Problem-$probNum-Question-$num:\n $text "; #	modify entered text
+				 my	$new_text =	"\n$setNumber$courseName$psvnNumber-Problem-$probNum-Question-$num:\n $text "; #	modify entered text
 				 my	$out = &$ans_eval_template($new_text);			 # standard	evaluator
 				 #warn "$QUESTIONNAIRE_ANSWERS";
 				 $out->{student_ans} = escapeHTML($text);  #	restore	original entered text
