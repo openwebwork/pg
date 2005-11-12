@@ -2001,12 +2001,13 @@ sub FUNCTION_CMP {
 	#
 	#  Parse the previous answer, if any
 	#
-	$cmp->install_pre_filter(
+	$cmp->install_evaluator(
 	  sub {
 	    my $rh_ans = shift;
 	    $rh_ans->{_filter_name} = "parse_previous_answer";
 	    return $rh_ans unless defined $rh_ans->{prev_ans};
-	    my $oldContext = &$Context(); &$Context($context);
+	    my $oldContext = &$Context();
+	    &$Context($rh_ans->{correct_value}{context});
 	    $rh_ans->{prev_formula} = Parser::Formula($rh_ans->{prev_ans});
 	    &$Context($oldContext);
 	    $rh_ans;
