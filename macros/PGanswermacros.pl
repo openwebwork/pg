@@ -2006,7 +2006,9 @@ sub FUNCTION_CMP {
 	    my $rh_ans = shift;
 	    $rh_ans->{_filter_name} = "parse_previous_answer";
 	    return $rh_ans unless defined $rh_ans->{prev_ans};
+	    my $oldContext = &$Context(); &$Context($context);
 	    $rh_ans->{prev_formula} = Parser::Formula($rh_ans->{prev_ans});
+	    &$Context($oldContext);
 	    $rh_ans;
 	  }
 	);
@@ -2034,7 +2036,9 @@ sub FUNCTION_CMP {
 	    my $rh_ans = shift;
 	    $rh_ans->{_filter_name} = "produce_equivalence_message";
 	    return $rh_ans unless $rh_ans->{prev_equals_current} && $rh_ans->{score} == 0;
-	    return $rh_ans if $rh_ans->{prev_ans} eq $rh_ans->{original_student_ans};
+	    # the match is exact don't give an error since the previous entry
+	    # might have been from the preview button
+		return $rh_ans if $rh_ans->{prev_ans} eq $rh_ans->{original_student_ans};
 	    $rh_ans->{ans_message} = "This answer is equivalent to the one you just submitted or previewed.";
 	    $rh_ans;
 	  }
