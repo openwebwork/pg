@@ -2036,16 +2036,18 @@ sub FUNCTION_CMP {
 	  sub {
 	    my $rh_ans = shift;
 	    $rh_ans->{_filter_name} = "produce_equivalence_message";
-	    return $rh_ans unless $rh_ans->{prev_equals_current} &&
-	      ($rh_ans->{score} != 1 || $rh_ans->{isPreview});
-	    #
-	    #  If the match is exact don't give an error since there may be multiple
-	    #  entry blanks and the student is trying to get one of the other ones
-	    #  right.  We should only give this message when the student is actually
-	    #  working on this answer.
-	    #
-	    return $rh_ans if $rh_ans->{prev_ans} eq $rh_ans->{original_student_ans};
-	    $rh_ans->{ans_message} = "This answer is equivalent to the one you just submitted or previewed.";
+	    my $preview_mode_flag = $inputs_ref->{previewAnswers};
+	    $preview_mode_flag    = defined($preview_mode_flag) and $preview_mode_flag;
+	    # no message if no duplication
+	    return $rh_ans unless $rh_ans->{prev_equals_current}; 
+	    
+	    if ($preview_mode_flag) { #previews generate warning message always
+	    	$rh_ans->{ans_message} = "This answer is equivalent to the one you just submitted or previewed.";
+	    } elsif ($rh_ans->{score} != 1) {# non correct answers generate warning message
+	    	$rh_ans->{ans_message} = "This answer is equivalent to the one you just submitted or previewed.";
+	    } else { # correct answers in submit mode don't generate warning messages.
+	    
+	    }
 	    $rh_ans;
 	  }
 	);
