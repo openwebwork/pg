@@ -2036,10 +2036,10 @@ sub FUNCTION_CMP {
 	  sub {
 	    my $rh_ans = shift;
 	    $rh_ans->{_filter_name} = "produce_equivalence_message";
-	    return $rh_ans unless $rh_ans->{prev_equals_current} && $rh_ans->{score} == 0;
+	    return $rh_ans unless $rh_ans->{prev_equals_current} &&
+	      ($rh_ans->{score} != 1 || $rh_ans->{isPreview});
 	    #
-	    #  If the match is exact don't give an error since the previous entry
-	    #  might have been from the preview button, or because there are multiple
+	    #  If the match is exact don't give an error since there may be multiple
 	    #  entry blanks and the student is trying to get one of the other ones
 	    #  right.  We should only give this message when the student is actually
 	    #  working on this answer.
