@@ -204,19 +204,14 @@ our $CMP_WARNING = 3; # a warning was produced
 
 sub cmp_compare {
   my $self = shift; my $other = shift; my $ans = shift; my $nth = shift || '';
-  my $equal = undef;
-  unless ( ref($ans->{checker}) eq 'CODE' ) {
-  	$equal = eval {$self == $other} ;
-  } else {
-	$equal = eval {&{$ans->{checker}}($self,$other,$ans,$nth,@_)};
-  }
-  if (!defined($equal) && $@ ne '' && ($$Value::context->{error}{flag} || $ans->{showAllErrors})) {
-	 $$Value::context->setError(["<I>An error occurred while checking your$nth answer:</I>\n".
-		  '<DIV STYLE="margin-left:1em">%s</DIV>',$@],'',undef,undef,$CMP_ERROR);
-	 warn "Please inform your instructor that an error occurred while checking your answer";
+  return eval {$self == $other} unless ref($ans->{checker}) eq 'CODE';
+  my $equal = eval {&{$ans->{checker}}($self,$other,$ans,$nth,@_)};
+  if (!defined($equal) && $@ ne '' && (!$$Value::context->{error}{flag} || $ans->{showAllErrors})) {
+    $$Value::context->setError(["<I>An error occurred while checking your$nth answer:</I>\n".
+      '<DIV STYLE="margin-left:1em">%s</DIV>',$@],'',undef,undef,$CMP_ERROR);
+    warn "Please inform your instructor that an error occurred while checking your answer";
   }
   return $equal;
-
 }
 
 sub cmp_list_compare {Value::List::cmp_list_compare(@_)}
