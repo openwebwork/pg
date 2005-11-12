@@ -2037,9 +2037,14 @@ sub FUNCTION_CMP {
 	    my $rh_ans = shift;
 	    $rh_ans->{_filter_name} = "produce_equivalence_message";
 	    return $rh_ans unless $rh_ans->{prev_equals_current} && $rh_ans->{score} == 0;
-	    # the match is exact don't give an error since the previous entry
-	    # might have been from the preview button
-		return $rh_ans if $rh_ans->{prev_ans} eq $rh_ans->{original_student_ans};
+	    #
+	    #  If the match is exact don't give an error since the previous entry
+	    #  might have been from the preview button, or because there are multiple
+	    #  entry blanks and the student is trying to get one of the other ones
+	    #  right.  We should only give this message when the student is actually
+	    #  working on this answer.
+	    #
+	    return $rh_ans if $rh_ans->{prev_ans} eq $rh_ans->{original_student_ans};
 	    $rh_ans->{ans_message} = "This answer is equivalent to the one you just submitted or previewed.";
 	    $rh_ans;
 	  }
