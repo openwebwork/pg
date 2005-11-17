@@ -181,10 +181,11 @@ sub DOCUMENT {
 	if ($main::envir{displayMode} eq 'HTML_jsMath') {
 		my $prefix = "";
 		if (!$main::envir{jsMath}{reportMissingFonts}) {
-			$prefix .= '<SCRIPT>noFontMessage = 1</SCRIPT>';
+			$prefix .= '<SCRIPT>noFontMessage = 1</SCRIPT>'."\n";
 		} elsif ($main::envir{jsMath}{missingFontMessage}) {
-			$prefix .= '<SCRIPT>missingFontMessage = "'.$main::envir{jsMath}{missingFontMessage}.'"</SCRIPT>';
+			$prefix .= '<SCRIPT>missingFontMessage = "'.$main::envir{jsMath}{missingFontMessage}.'"</SCRIPT>'."\n";
 		}
+		$prefix .= '<SCRIPT>processDoubleClicks = '.($main::envir{jsMath}{processDoubleClicks}?'1':'0')."</SCRIPT>\n";
 		$STRINGforOUTPUT =
 		  $prefix . 
 		  '<SCRIPT SRC="'.$main::envir{jsMathURL}.'"></SCRIPT>' . "\n" .
