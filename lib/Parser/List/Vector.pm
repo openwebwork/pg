@@ -16,8 +16,11 @@ use strict; use vars qw(@ISA);
 sub _check {
   my $self = shift;
   foreach my $x (@{$self->{coords}}) {
-    $self->{equation}->Error("Coordinates of Vector must be Numbers")
-      unless $x->isNumber;
+    unless ($x->isNumber) {
+      my $type = $x->type;
+      $type = (($type =~ m/^[aeiou]/i)? "an ": "a ") . $type;
+      $self->{equation}->Error(["Coordinates of Vectors must be Numbers, not %s",$type]);
+    }
   }
 }
 

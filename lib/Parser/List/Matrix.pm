@@ -19,6 +19,10 @@ sub _check {
     foreach my $x (@{$self->{coords}})
       {$x->makeMatrix($self->{type}{name},$self->{open},$self->{close})}
   }
+  foreach my $x (@{$self->{coords}}) {
+    $self->{equation}->Error("Entries in a Matrix must be Numbers or Lists")
+      unless ($x->class =~ m/Number|List/);
+  }
 }
 
 #
