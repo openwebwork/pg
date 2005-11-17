@@ -77,7 +77,7 @@ $parens = {
    '(' => {close => ')', type => 'Point', formMatrix => 1, formInterval => ']',
            formList => 1, removable => 1, emptyOK => 1, function => 1},
    '[' => {close => ']', type => 'Point', formMatrix => 1, formInterval => ')', removable => 1},
-   '<' => {close => '>', type => 'Vector', formMatrix => 1},
+   '<' => {close => '>', type => 'Vector'},
    '{' => {close => '}', type => 'Point', removable => 1},
    '|' => {close => '|', type => 'AbsoluteValue'},
    'start' => {close => 'start', type => 'List', formList => 1,
@@ -280,6 +280,7 @@ $vectorContext->variables->are(x=>'Real',y=>'Real',z=>'Real');
 $vectorContext->functions->undefine('arg','mod','Re','Im','conj');
 $vectorContext->constants->replace(i=>Value::Vector->new(1,0,0));
 $vectorContext->constants->set(i=>{TeX=>'\boldsymbol{i}', perl=>'i'});
+$vectorContext->parens->set('(' => {formMatrix => 0});
 
 #
 #  Point context (for symmetry)
@@ -290,7 +291,10 @@ $pointContext = $vectorContext->copy;
 #  Matrix context (square brackets make matrices in preference to points or intervals)
 #
 $matrixContext = $vectorContext->copy;
-$matrixContext->parens->set('[' => {type => 'Matrix', removable => 0});
+$matrixContext->parens->set(
+  '(' => {formMatrix => 1},
+  '[' => {type => 'Matrix', removable => 0},
+);
 
 #
 #  Interval context (make intervals rather than lists)
