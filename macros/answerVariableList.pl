@@ -44,6 +44,7 @@ $context{VariableList} = Parser::Context->new(
   flags => {
     NumberCheck => 
       sub {shift->Error("Entries in your list must be variable names")},
+    formatStudentAnswer => 'evaluated',  # or 'parsed' or 'reduced'
   },
 );
 Context("VariableList");
