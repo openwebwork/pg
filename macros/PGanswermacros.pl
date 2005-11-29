@@ -3149,7 +3149,7 @@ sub anstext {
 	my $ans_eval    = sub {
 				 my	$text =	shift;
 				 $text = ''	unless defined($text);
-				 my	$new_text =	"\n$setNumber$courseName$psvnNumber-Problem-$probNum-Question-$num:\n $text "; #	modify entered text
+				 my	$new_text =	"\n${setNumber}_${courseName}_$psvnNumber-Problem-$probNum-Question-$num:\n $text "; #	modify entered text
 				 my	$out = &$ans_eval_template($new_text);			 # standard	evaluator
 				 #warn "$QUESTIONNAIRE_ANSWERS";
 				 $out->{student_ans} = escapeHTML($text);  #	restore	original entered text
