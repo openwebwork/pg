@@ -68,7 +68,12 @@ sub TeX {
   my $self = shift;
   Value::Real->make($self->{value})->TeX($self->{equation},@_);
 }
-sub perl {shift->{value}}
+sub perl {
+  my $self = shift; my $parens = shift;
+  my $n = $self->{value};
+  $n = '('.$n.')' if $parens && $n < 0;
+  return $n;
+}
 
 ###########################################
 
