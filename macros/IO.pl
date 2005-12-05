@@ -72,7 +72,7 @@ sub send_mail_to {
 		die "There has been an error in creating this problem.\n"
 			. "Please notify your instructor.\n\n"
 			. "Mail is not permitted to address $user_address.\n"
-			. "Permitted addresses are specified in the courseWeBWorK.ph file.";
+			. "Permitted addresses are specified in global.conf or course.conf.";
 		$out = 0;
 	}
 	
