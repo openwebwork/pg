@@ -2030,15 +2030,13 @@ sub FUNCTION_CMP {
 	);
 
 	#
-	#  Produce a message if the previous answer equals this one
-	#  (and is not correct, and is not specified the same way)
+	#  Produce a message if the previous answer equals this one and is not specified the same way
 	#
 	$cmp->install_post_filter(
 	  sub {
 	    my $rh_ans = shift;
 	    $rh_ans->{_filter_name} = "produce_equivalence_message";
-	    return $rh_ans unless $rh_ans->{prev_equals_current} &&
-	      ($rh_ans->{score} != 1 || $rh_ans->{isPreview});
+	    return $rh_ans unless $rh_ans->{prev_equals_current};
 	    #
 	    #  If the match is exact don't give an error since there may be multiple
 	    #  entry blanks and the student is trying to get one of the other ones
@@ -2335,7 +2333,7 @@ sub ORIGINAL_FUNCTION_CMP {
 	$answer_evaluator->install_post_filter(
 		sub {
 			my $rh_ans = shift;
-			if ( defined($rh_ans->{'ans_equals_prev_ans'}) and $rh_ans->{'ans_equals_prev_ans'} and $rh_ans->{score}==0) {
+			if ( defined($rh_ans->{'ans_equals_prev_ans'}) and $rh_ans->{'ans_equals_prev_ans'}) {
 ##				$rh_ans->{ans_message} = "This answer is the same as the one you just submitted or previewed.";
 				$rh_ans->{ans_message} = "This answer is equivalent to the one you just submitted or previewed."; ## DPVC
 			}
