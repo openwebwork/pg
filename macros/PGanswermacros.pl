@@ -2030,25 +2030,25 @@ sub FUNCTION_CMP {
 	);
 
 	#
-	#  Produce a message if the previous answer equals this one
-	#  (and is not correct, and is not specified the same way)
+	#  Show a message when the answer is equivalent to the previous answer.
+	#  
+	#  We want to show the message when we're not in preview mode AND the
+	#  answers are equivalent AND the answers are not identical. We DON'T CARE
+	#  whether the answers are correct or not, because that leaks information in
+	#  multipart questions when $showPartialCorrectAnswers is off.
 	#
 	$cmp->install_post_filter(
-	  sub {
-	    my $rh_ans = shift;
-	    $rh_ans->{_filter_name} = "produce_equivalence_message";
-	    return $rh_ans unless $rh_ans->{prev_equals_current} &&
-	      ($rh_ans->{score} != 1 || $rh_ans->{isPreview});
-	    #
-	    #  If the match is exact don't give an error since there may be multiple
-	    #  entry blanks and the student is trying to get one of the other ones
-	    #  right.  We should only give this message when the student is actually
-	    #  working on this answer.
-	    #
-	    return $rh_ans if $rh_ans->{prev_ans} eq $rh_ans->{original_student_ans};
-	    $rh_ans->{ans_message} = "This answer is equivalent to the one you just submitted or previewed.";
-	    $rh_ans;
-	  }
+		sub {
+			my $rh_ans = shift;
+			$rh_ans->{_filter_name} = "produce_equivalence_message";
+			
+			return $rh_ans unless !$rh_ans->{isPreview} # not preview mode
+				and $rh_ans->{prev_equals_current} # equivalent
+				and $rh_ans->{prev_ans} ne $rh_ans->{original_student_ans}; # not identical
+			
+			$rh_ans->{ans_message} = "This answer is equivalent to the one you just submitted.";
+			$rh_ans;
+		}
 	);
 
 	return $cmp;
@@ -2332,13 +2332,25 @@ sub ORIGINAL_FUNCTION_CMP {
 		}
 	);
 	
+	#
+	#  Show a message when the answer is equivalent to the previous answer.
+	#  
+	#  We want to show the message when we're not in preview mode AND the
+	#  answers are equivalent AND the answers are not identical. We DON'T CARE
+	#  whether the answers are correct or not, because that leaks information in
+	#  multipart questions when $showPartialCorrectAnswers is off.
+	#
 	$answer_evaluator->install_post_filter(
 		sub {
 			my $rh_ans = shift;
-			$rh_ans->{ans_message} = "This answer is equivalent to the one you just submitted or previewed."
-				if defined $rh_ans->{'ans_equals_prev_ans'} and $rh_ans->{'ans_equals_prev_ans'}
-					and ($rh_ans->{score}!=1 || $rh_ans->{isPreview});
-			$rh_ans;
+			
+			my $isPreview = $inputs_ref->{previewAnswers} || ($inputs_ref->{action} =~ m/^Preview/);
+			return $rh_ans unless !$isPreview # not preview mode
+				and $rh_ans->{ans_equals_prev_ans} # equivalent
+				and $rh_ans->{prev_ans} ne $rh_ans->{original_student_ans}; # not identical
+			
+			$rh_ans->{ans_message} = "This answer is equivalent to the one you just submitted.";
+			return $rh_ans;
 		}
 	);
 	
