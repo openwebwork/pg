@@ -635,6 +635,7 @@ sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
 #  return 0 if ref($other) && Value::isFormula($other);
   my $typeMatch = $ans->{typeMatch};
+  return &$typeMatch($other,$ans) if ref($typeMatch) eq 'CODE';
   return 1 if !Value::isValue($typeMatch) || $typeMatch->class eq 'String' ||
                  $self->type eq $other->type;
   return $typeMatch->typeMatch($other,$ans);
@@ -1009,6 +1010,7 @@ sub cmp_defaults {
     entry_type => undef,
     list_type => undef,
     typeMatch => $element,
+    firstElement => $element,
     extra => undef,
     requireParenMatch => 1,
     removeParens => 1,
@@ -1171,7 +1173,9 @@ sub cmp_list_compare {
   my $ordered = $ans->{ordered};
   my $showTypeWarnings = $ans->{showTypeWarnings} && !$ans->{isPreview};
   my $typeMatch = $ans->{typeMatch};
-  my $extra = $ans->{extra} || $typeMatch;
+  my $extra = $ans->{extra} ||
+              (Value::isValue($typeMatch) ? $typeMatch: $ans->{firstElement}) ||
+              "Value::List";
   my $showHints = getOption($ans,'showHints') && !$ans->{isPreview};
   my $error = $$Value::context->{error};
   my $score = 0; my @errors; my $i = 0;
@@ -1208,7 +1212,9 @@ sub cmp_list_compare {
       if (scalar(@correct)) {
 	if (shift(@correct)->cmp_compare($entry,$ans,$nth,$value)) {$score++; next ENTRY}
       } else {
-	$extra->cmp_compare($entry,$ans,$nth,$value); # do syntax check
+	# do syntax check
+	if (ref($extra) eq 'CODE') {&$extra($entry,$ans,$nth,$value)}
+	  else {$extra->cmp_compare($entry,$ans,$nth,$value)}
       }
       if ($error->{flag} == $CMP_ERROR) {$self->cmp_error($ans); return}
     } else {
@@ -1220,13 +1226,17 @@ sub cmp_list_compare {
 	if ($error->{flag} == $CMP_ERROR) {$self->cmp_error($ans); return}
       }
       $$Value::context->clearError;
-      $extra->cmp_compare($entry,$ans,$nth,$value); # do syntax check
+      # do syntax check
+      if (ref($extra) eq 'CODE') {&$extra($entry,$ans,$nth,$value)}
+        else {$extra->cmp_compare($entry,$ans,$nth,$value)}
     }
     #
     #  Give messages about incorrect answers
     #
-    if ($showTypeWarnings && !$typeMatch->typeMatch($entry,$ans) &&
-	     !($ans->{ignoreStrings} && $entry->class eq 'String')) {
+    my $match = (ref($typeMatch) eq 'CODE')? &$typeMatch($entry,$ans) :
+                                             $typeMatch->typeMatch($entry,$ans);
+    if ($showTypeWarnings && !$match &&
+	!($ans->{ignoreStrings} && $entry->class eq 'String')) {
       push(@errors,"Your$nth $answer isn't ".lc($class).
 	   " (it looks like ".lc($entry->showClass).")");
     } elsif ($error->{flag} && $ans->{showEqualErrors}) {
