@@ -344,6 +344,17 @@ sub interval_cmp {
 			$ans_type = 'String' if $string eq uc($correct_ans);
 		}
 	}
+	# Add any variables
+	$opts{vars} = $opts{var} if ($opts{var});
+	if ($opts{vars}) {
+		$context->variables->are(); # clear old vars
+		$opts{vars} = [$opts{vars}] unless ref($opts{vars}) eq 'ARRAY';
+		foreach my $v (@{$opts{vars}}) {
+			$context->variables->add($v=>'Real')
+				unless $context->variables->get($v);
+		}
+	}
+	
 	my $ans_eval;
 	Context($context);
 	if($ans_type eq 'List') {
