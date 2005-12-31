@@ -1336,9 +1336,7 @@ sub cmp {
     my $current = Parser::Context->current();
     my $context = $self->{context} = $self->{context}->copy;
     Parser::Context->current(undef,$context);
-    $context->{_variables}->{pattern} = $context->{_variables}->{namePattern} =
-      'C0|' . $context->{_variables}->{pattern};
-    $context->update; $context->variables->add('C0' => 'Parameter');
+    $context->variables->add('C0' => 'Parameter');
     my $f = Value::Formula->new('C0')+$self;
     for ('limits','test_points','test_values','num_points','granularity','resolution',
 	 'checkUndefinedPoints','max_undefined')
