@@ -13,7 +13,7 @@ sub _parserDifferenceQuotient_init {}; # don't reload this file
 #  is not fully reduced.
 #
 #  Use DifferenceQuotient(formula) to create a difference equation
-#  object.  If the context has more than one variable, the first one
+#  object.  If the context has more than one variable, the last one
 #  alphabetically is used to form the dx.  Otherwise, you can specify
 #  the variable used for dx as the second argument to
 #  DifferenceQuotient().  You could use a variable like h instead of
@@ -40,20 +40,14 @@ our @ISA = qw(Value::Formula);
 
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my $formula = shift;
-  my $dx = shift || 'd'.($$Value::context->variables->names)[0];
+  my $formula = shift; my $current = $$Value::context;
+  my $dx = shift || $current->flag('diffQuotientVar') || 'd'.($current->variables->names)[-1];
   #
   #  Save the original context, and make a copy to which we
   #  add a variable for 'dx'
   #
-  my $current = $$Value::context;
   my $context = main::Context($current->copy);
-  unless ($context->variables->get($dx)) {
-    $context->{_variables}->{pattern} = $context->{_variables}->{namePattern} =
-      $dx . '|' . $context->{_variables}->{pattern};
-    $context->update;
-    $context->variables->add($dx=>'Real');
-  }
+  $context->variables->add($dx=>'Real') unless ($context->variables->get($dx));
   $q = bless $self->SUPER::new($formula), $class;
   $q->{isValue} = 1; $q->{isFormula} = 1; $q->{dx} = $dx;
   main::Context($current);  # put back the original context;
