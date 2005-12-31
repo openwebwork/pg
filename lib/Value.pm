@@ -136,10 +136,10 @@ sub isFormula {
   return class($v) eq 'Formula' ||
          (ref($v) && ref($v) ne 'ARRAY' && $v->{isFormula});
 }
-sub isValue   {
+sub isValue {
   my $v = shift;
   return (ref($v) || $v) =~ m/^Value::/ ||
-         (ref($v) && ref($v) ne 'ARRAY' && $v->{isValue});
+         (ref($v) && ref($v) ne 'ARRAY' && ref($v) ne 'CODE' && $v->{isValue});
 }
 
 sub isNumber {
