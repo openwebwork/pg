@@ -1012,6 +1012,7 @@ sub cmp_defaults {
     extra => undef,
     requireParenMatch => 1,
     removeParens => 1,
+    implicitList => 1,
   );
 }
 
@@ -1047,6 +1048,7 @@ sub cmp_equal {
   my $showParenHints    = getOption($ans,'showParenHints');
   my $partialCredit     = getOption($ans,'partialCredit');
   my $requireParenMatch = $ans->{requireParenMatch};
+  my $implicitList      = $ans->{implicitList};
   my $typeMatch         = $ans->{typeMatch};
   my $value             = $ans->{entry_type};
   my $ltype             = $ans->{list_type} || lc($self->type);
@@ -1074,11 +1076,19 @@ sub cmp_equal {
   my $student = $ans->{student_value}; my @student = ($student);
   my ($sOpen,$sClose) = ('','');
   if (Value::isFormula($student) && $student->type eq $self->type) {
-    @student = Value::List->splitFormula($student,$ans);
-    $sOpen = $student->{tree}{open}; $sClose = $student->{tree}{close};
+    if ($implicitList && $student->{tree}{open} ne '') {
+      @student = ($student);
+    } else {
+      @student = Value::List->splitFormula($student,$ans);
+      $sOpen = $student->{tree}{open}; $sClose = $student->{tree}{close};
+    }
   } elsif ($student->class ne 'Formula' && $student->class eq $self->type) {
-    @student = @{$student->{data}};
-    $sOpen = $student->{open}; $sClose = $student->{close};
+    if ($implicitList && $student->{open} ne '') {
+      @student = ($student);
+    } else {
+      @student = @{$student->{data}};
+      $sOpen = $student->{open}; $sClose = $student->{close};
+    }
   }
   return if $ans->{split_error};
   #
