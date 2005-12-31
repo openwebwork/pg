@@ -27,7 +27,7 @@ sub init {
   $self->{dataName} = 'variables';
   $self->{name} = 'variable';
   $self->{Name} = 'Variable';
-  $self->{namePattern} = '[a-zA-Z]';
+  $self->{namePattern} = '[a-zA-Z][a-zA-Z0-9]*';
   $self->{pattern} = $self->{namePattern};
 }
 
