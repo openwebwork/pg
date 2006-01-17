@@ -28,16 +28,12 @@ sub init {
   $self->{name} = 'variable';
   $self->{Name} = 'Variable';
   $self->{namePattern} = '[a-zA-Z][a-zA-Z0-9]*';
-  $self->{pattern} = $self->{namePattern};
 }
 
-#
-#  Our pattern should match ANY variable name
-#    (Parser takes care of reporting unknown ones)
-# 
-sub update {
+sub getPattern {
   my $self = shift;
-  $self->{pattern} = $self->{namePattern};
+  my $pattern = $self->SUPER::getPattern(@_);
+  return '(?:' . $pattern . '|' . $self->{namePattern} . ')';
 }
 
 #
