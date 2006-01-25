@@ -49,7 +49,7 @@ sub new {
   my $context = main::Context($current->copy);
   $context->variables->add($dx=>'Real') unless ($context->variables->get($dx));
   $q = bless $self->SUPER::new($formula), $class;
-  $q->{isValue} = 1; $q->{isFormula} = 1; $q->{dx} = $dx;
+  $q->{isValue} = 1; $q->{isFormula} = 1; $q->{'dx'} = $dx;
   main::Context($current);  # put back the original context;
   return $q;
 }
@@ -62,10 +62,10 @@ sub cmp_defaults{(
 )}
 
 sub cmp_postprocess {
-  my $self = shift; my $ans = shift; my $dx = $self->{dx};
+  my $self = shift; my $ans = shift; my $dx = $self->{'dx'};
   return if $ans->{score} == 0 || $ans->{isPreview};
   $main::__student_value__ = $ans->{student_value};
-  my ($value,$err) = main::PG_restricted_eval('$__student_value__->substitute('.$dx.'=>0)->reduce');
+  my ($value,$err) = main::PG_restricted_eval('$__student_value__->substitute(\''.$dx.'\'=>0)->reduce');
   $self->cmp_Error($ans,"It looks like you didn't finish simplifying your answer")
     if $err && $err =~ m/division by zero/i;
 }
