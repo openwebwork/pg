@@ -130,7 +130,7 @@ sub div {
   if ($l->promotePrecedence($r)) {return $r->div($l,!$flag)}
   $r = promote($r);
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  Value::Error("Division by zero") if $r == 0;
+  Value::Error("Division by zero") if $r->{data}[0] == 0;
   return $pkg->make($l->{data}[0]/$r->{data}[0]);
 }
 
