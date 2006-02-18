@@ -23,7 +23,7 @@ sub new {
   }, $class;
   my $x = Value::Real->make($value);
   $num->{isOne}  = 1 if $x eq 1;
-  $num->{isZero} = 1 if $x == 0;
+  $num->{isZero} = 1 if $value == 0;
   return $num;
 }
 
