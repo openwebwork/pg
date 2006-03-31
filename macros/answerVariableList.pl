@@ -57,6 +57,7 @@ sub variable_cmp {
     ordered => 1,
     entry_type =>'a variable',
     list_type => 'a list',
+    implicitList => 0,
     @_
   );
 }
