@@ -110,7 +110,7 @@ push(@{$$context->{data}{values}},'method','precedence');
 sub getFlag {
   my $self = shift; my $name = shift;
   return $self->{$name} if ref($self) && defined($self->{$name});
-  return $self->{context}{flags}{$name} if ref($self) && defined($self->{context}{flags}{$name});
+  return $self->{context}{flags}{$name} if ref($self) && defined($self->{context}) && defined($self->{context}{flags}{$name});
   return $$Value::context->{flags}{$name} if defined($$Value::context->{flags}{$name});
   return shift;
 }
