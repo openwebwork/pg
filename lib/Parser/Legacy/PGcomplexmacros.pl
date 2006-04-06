@@ -174,7 +174,7 @@ sub cplx_cmp {
 	#  using the initialized context
 	#
 	my $oldContext = Parser::Context->current(\%main::context,$context); my $z;
-	if (ref($correctAnswer) eq 'Complex') {
+	if (ref($correctAnswer) =~ /^Complex1?$/) {
 	  $z = Value::Complex->new($correctAnswer->Re,$correctAnswer->Im);
 	} else {
 	  $z = Value::Formula->new($correctAnswer);
