@@ -1751,12 +1751,60 @@ sub helpLink {
 }
 
 sub appletLink {
+	my $url  = $_[0];
+	return oldAppletLink(@_) unless ref($url) ; # handle legacy where applet link completely defined
+	# search for applet
+	# get fileName of applet
+ 	my $applet       = shift;
+ 	my $options      = shift;
+ 	my $archive      = $applet ->{archive};
+ 	my $codebase     = $applet ->{codebase};
+ 	my $appletHeader = '';
+ 	# find location of applet
+
+ 	unless ( $archive  ){
+ 		warn "Must define the achive where the applet code is to be found";
+ 		return;
+ 	}
+ 	$codebase = findAppletFile($archive ) unless defined($codebase);
+ 	if ( $codebase =~/^Error/) {
+ 		warn $codebase;
+ 		return;
+ 	} else {
+ 	
+ 	}
+ 	my $appletHeader  =  qq! archive = "$archive " codebase = "$codebase" !;
+ 	foreach my $key ('name', 'code','width','height', ) {
+ 		if ( defined($applet->{$key})   ) {
+ 			$appletHeader .= qq! $key = "!.$applet->{$key}.q!" ! ;
+ 		} else {
+ 			warn " $key is not defined for applet ".$applet->{name};
+ 			# technically name is not required, but all of the other parameters are
+ 		}
+ 	}
+ 	# add parameters to options
+ 	if (defined($applet->{params}) ) {
+ 		foreach my $key (keys %{ $applet->{params} }) {
+ 			my $value = $applet->{params}->{$key};
+ 			$options .=  qq{< PARAM NAME = $key VALUE = "$value" >\n};
+ 		}
+ 	
+ 	
+ 	}
+ 	MODES( TeX        => "{\\bf \\underline{APPLET}  }".$applet->{name},
+ 	       Latex2HTML => "\\begin{rawhtml} <APPLET $appletHeader> $options </APPLET>\\end{rawhtml}",
+ 	       HTML       => "<APPLET\n $appletHeader> \n $options \n </APPLET>",
+ 	       #HTML       => qq!<OBJECT $appletHeader codetype="application/java"> $options </OBJECT>!
+ 	);
+}
+
+sub oldAppletLink {
 	my $url = shift;
 	my $options = shift;
 	$options = "" unless defined($options);
-	M3( "{\\bf \\underline{APPLET}  }",
-	    "\\begin{rawhtml} <APPLET $url> $options </APPLET>\\end{rawhtml}",
-	    "<APPLET $url> $options </APPLET>"
+	MODES( TeX        => "{\\bf \\underline{APPLET}  }",
+	       Latex2HTML => "\\begin{rawhtml} <APPLET $url> $options </APPLET>\\end{rawhtml}",
+	       HTML       => "<APPLET $url> $options </APPLET>"
 	    );
 }
 sub spf {

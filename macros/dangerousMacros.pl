@@ -103,6 +103,7 @@ my $debugON = 0;
 
 my ($macrosPath,
     $pwd,
+    $appletDirs,
 	$templateDirectory,
 	$scriptDirectory,
 	$externalTTHPath,
@@ -111,6 +112,8 @@ my ($macrosPath,
 sub _dangerousMacros_init {   #use  envir instead of local variables?
     $macrosPath               = eval('$main::envir{macrosPath}');
     $pwd                      = eval('$main::envir{fileName}'); $pwd =~ s!/[^/]*$!!;
+    $appletDirs               = eval('$main::envir{appletDirs}');
+
     $templateDirectory        = eval('$main::envir{templateDirectory}');
     $scriptDirectory          = eval('$main::envir{scriptDirectory}');
     $externalTTHPath          = eval('$main::envir{externalTTHPath}');
@@ -306,7 +309,21 @@ sub findMacroFile {
   }
   return;  # no file found
 }
+	
+sub findAppletFile {
+  my $fileName = shift;  # probably the name of a jar file
+  my $filePath;
 
+  foreach my $appletLocation (@{$appletDirs}) {
+    $filePath = $appletLocation->{path}."/$fileName";
+    $filePath =~ s!^\.\.?/!$templateDirectory$pwd/!;
+#    my $url = $appletLocation->{url}."/$filePath";
+#    print "url $url ".LWPpg::check_url($url);
+    return $appletLocation->{url}   # return codebase part of url
+          if (-r $filePath);
+  }
+  return "Error: $fileName not found in ". join(" ",map {$_->{path}} @{$appletDirs} );  # no file found
+}
 # errors in compiling macros is not always being reported.
 sub compile_file {
  	my $filePath = shift;
