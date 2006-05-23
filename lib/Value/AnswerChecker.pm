@@ -131,7 +131,7 @@ sub cmp_parse {
     }
     if ($self->cmp_collect($ans)) {
       $self->cmp_equal($ans);
-      $self->cmp_postprocess($ans) if !$ans->{error_message};
+      $self->cmp_postprocess($ans) if !$ans->{error_message} && !$ans->{typeError};
       $self->cmp_diagnostics($ans);
     }
   } else {
@@ -187,6 +187,7 @@ sub cmp_equal {
     $self->cmp_error($ans);
   } else {
     return if $ans->{ignoreStrings} && (!Value::isValue($student) || $student->type eq 'String');
+    $ans->{typeError} = 1;
     $ans->{ans_message} = $ans->{error_message} =
       "Your answer isn't ".lc($ans->{cmp_class})."\n".
         "(it looks like ".lc($student->showClass).")"
@@ -742,18 +743,17 @@ sub typeMatch {
 #
 sub cmp_postprocess {
   my $self = shift; my $ans = shift;
-  return unless $ans->{score} == 0;
+  return unless $ans->{score} == 0 && !$ans->{isPreview};
   my $student = $ans->{student_value};
   return if $ans->{ignoreStrings} && (!Value::isValue($student) || $student->type eq 'String');
-  if (!$ans->{isPreview} && $ans->{showDimensionHints} &&
-      $self->length != $student->length) {
+  if ($ans->{showDimensionHints} && $self->length != $student->length) {
     $self->cmp_Error($ans,"The number of coordinates is incorrect"); return;
   }
-  if ($ans->{parallel} &&
+  if ($ans->{parallel} && $student->class ne 'String' &&
       $self->isParallel($student,$ans->{sameDirection})) {
     $ans->score(1); return;
   }
-  if (!$ans->{isPreview} && $ans->{showCoordinateHints} && !$ans->{parallel}) {
+  if ($ans->{showCoordinateHints} && !$ans->{parallel}) {
     my @errors;
     foreach my $i (1..$self->length) {
       push(@errors,"The ".$self->NameForNumber($i)." coordinate is incorrect")
