@@ -103,16 +103,18 @@ my $debugON = 0;
 
 my ($macrosPath,
     $pwd,
-    $appletDirs,
+    $appletPath,
 	$templateDirectory,
 	$scriptDirectory,
 	$externalTTHPath,
 	);
 
 sub _dangerousMacros_init {   #use  envir instead of local variables?
-    $macrosPath               = eval('$main::envir{macrosPath}');
+    # will allow easy addition of new directories -- is this too liberal? do some pg directories need to be protected?
+    $macrosPath               = eval('$main::envir{pgDirectories}{macrosPath}'); 
+    # will allow easy addition of new directories -- is this too liberal? do some pg directories need to be protected?
     $pwd                      = eval('$main::envir{fileName}'); $pwd =~ s!/[^/]*$!!;
-    $appletDirs               = eval('$main::envir{appletDirs}');
+    $appletPath               = eval('$main::envir{pgDirectories}{appletPath}');
 
     $templateDirectory        = eval('$main::envir{templateDirectory}');
     $scriptDirectory          = eval('$main::envir{scriptDirectory}');
@@ -309,20 +311,35 @@ sub findMacroFile {
   }
   return;  # no file found
 }
-	
-sub findAppletFile {
-  my $fileName = shift;  # probably the name of a jar file
-  my $filePath;
+sub check_url {
+	my $url  = shift;
+	return undef if $url =~ /;/;   # make sure we can't get a second command in the url
+	#FIXME -- check for other exploits of the system call
+	#FIXME -- ALARM feature so that the response cannot be held up for too long.
+	#FIXME doesn't seem to work with relative addresses.
+	#FIXME  Can we get the machine name of the server?
 
-  foreach my $appletLocation (@{$appletDirs}) {
-    $filePath = $appletLocation->{path}."/$fileName";
-    $filePath =~ s!^\.\.?/!$templateDirectory$pwd/!;
-#    my $url = $appletLocation->{url}."/$filePath";
-#    print "url $url ".LWPpg::check_url($url);
-    return $appletLocation->{url}   # return codebase part of url
-          if (-r $filePath);
+	 my $check_url_command = $envir{externalCheckUrl};
+	 my $response = system("$check_url_command $url"); 
+	return ($response) ? 0 : 1; # 0 indicates success, 256 is failure possibly more checks can be made
+}
+
+
+our %appletCodebaseLocations = ();
+sub findAppletCodebase {
+  my $fileName = shift;  # probably the name of a jar file
+  return $appletCodebaseLocations{$fileName}    #check cache first
+        if defined($appletCodebaseLocations{$fileName}) 
+           and $appletCodebaseLocations{$fileName} =~/\S/;
+  
+  foreach my $appletLocation (@{$appletPath}) {
+    my $url = "$appletLocation/$fileName";
+    if (check_url($url)) {
+        $appletCodebaseLocations{$fileName} = $appletLocation; #update cache
+    	return $appletLocation   # return codebase part of url
+    }
   }
-  return "Error: $fileName not found in ". join(" ",map {$_->{path}} @{$appletDirs} );  # no file found
+  return "Error: $fileName not found at ". join(",  ", @{$appletPath} );  # no file found
 }
 # errors in compiling macros is not always being reported.
 sub compile_file {

@@ -1759,19 +1759,25 @@ sub appletLink {
  	my $options      = shift;
  	my $archive      = $applet ->{archive};
  	my $codebase     = $applet ->{codebase};
+ 	my $code         = $applet ->{code};
  	my $appletHeader = '';
  	# find location of applet
-
- 	unless ( $archive  ){
- 		warn "Must define the achive where the applet code is to be found";
- 		return;
- 	}
- 	$codebase = findAppletFile($archive ) unless defined($codebase);
+    if (defined($codebase) and $codebase =~/\S/) {
+    	# do nothing
+    } elsif(defined($archive) and $archive =~/\S/) {
+    	$codebase = findAppletCodebase($archive )
+    } elsif (defined($code) and $code =~/\S/) {
+    	$codebase =  findAppletCodebase($code )
+    } else {
+    	warn "Must define the achive (.jar file) or code (.class file) where the applet code is to be found";
+    	return;
+    }
+    	
  	if ( $codebase =~/^Error/) {
  		warn $codebase;
  		return;
  	} else {
- 	
+ 	   # we are set to include the applet
  	}
  	my $appletHeader  =  qq! archive = "$archive " codebase = "$codebase" !;
  	foreach my $key ('name', 'code','width','height', ) {
@@ -1786,7 +1792,7 @@ sub appletLink {
  	if (defined($applet->{params}) ) {
  		foreach my $key (keys %{ $applet->{params} }) {
  			my $value = $applet->{params}->{$key};
- 			$options .=  qq{< PARAM NAME = $key VALUE = "$value" >\n};
+ 			$options .=  qq{<PARAM NAME = "$key" VALUE = "$value" >\n};
  		}
  	
  	
