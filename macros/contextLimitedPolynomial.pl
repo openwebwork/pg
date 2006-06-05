@@ -51,9 +51,10 @@ sub checkPowers {
   my $self = shift;
   my ($l,$r) = ($self->{lop},$self->{rop});
   my $single = $self->{equation}{context}->flag('singlePowers');
+  $l->{powers} = {1=>1} if $l->class eq 'Variable';
+  $r->{powers} = {1=>1} if $r->class eq 'Variable';
   $self->{isPoly} = 1;
   $self->{powers} = $l->{powers}? {%{$l->{powers}}} : {};
-  $r->{powers} = {1=>1} if $r->class eq 'Variable';
   return 1 unless $r->{powers};
   foreach my $n (keys(%{$r->{powers}})) {
     $self->Error("Polynomials can have at most one term of each degree")
