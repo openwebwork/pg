@@ -27,6 +27,7 @@ FIXME: add this
 use strict;
 use warnings;
 use WeBWorK::EquationCache;
+use WeBWorK::Constants;
 use DBI;
 
 #use WeBWorK::Utils qw(readDirectory makeTempDirectory removeTempDirectory);
@@ -106,7 +107,7 @@ TeX to prepend to equations to be processed.
 
 =cut
 
-our $TexPreamble = "" unless defined $TexPreamble;
+our $TexPreamble = "" unless defined $WeBWorK::PG::ImageGenerator::TexPreamble;
 
 =item $TexPostamble
 
