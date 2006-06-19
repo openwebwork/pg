@@ -1179,15 +1179,17 @@ sub process_answers{
 
 sub grade_problem {
 	my $self = shift;
-    my %form_options = @_;
-	my $rf_grader = $self->{rf_problem_grader};
-	($self->{rh_problem_result},$self->{rh_problem_state} )  =
-	                  &{$rf_grader}(	$self -> {rh_evaluated_answers},
-	                                	$self -> {rh_problem_state},
-	                                	%form_options
-	                                );
-
-	($self->{rh_problem_result}, $self->{rh_problem_state} ) ;
+	no strict;
+	local %rf_options = @_;
+	local $rf_grader = $self->{rf_problem_grader};
+	local $rh_answers = $self->{rh_evaluated_answers};
+	local $rh_state = $self->{rh_problem_state};
+	$self->{safe}->share('$rf_grader','$rh_answers','$rh_state','%rf_options');
+	($self->{rh_problem_result},$self->{rh_problem_state}) =
+		$self->{safe}->reval('&{$rf_grader}($rh_answers,$rh_state,%rf_options)');
+	use strict;
+	die $@ if $@;
+	($self->{rh_problem_result}, $self->{rh_problem_state});
 }
 
 sub rf_std_problem_grader {
