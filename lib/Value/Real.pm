@@ -151,12 +151,12 @@ sub compare {
   $r = promote($r);
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   my ($a,$b) = ($l->{data}[0],$r->{data}[0]);
-  if ($$Value::context->{flags}{useFuzzyReals}) {
-    my $tolerance = $$Value::context->flag('tolerance');
-    if ($$Value::context->flag('tolType') eq 'relative') {
-      my $zeroLevel = $$Value::context->flag('zeroLevel');
+  if ($l->getFlag('useFuzzyReals')) {
+    my $tolerance = $l->getFlag('tolerance');
+    if ($l->getFlag('tolType') eq 'relative') {
+      my $zeroLevel = $l->getFlag('zeroLevel');
       if (abs($a) < $zeroLevel || abs($b) < $zeroLevel) {
-	$tolerance = $$Value::context->flag('zeroLevelTol');
+	$tolerance = $l->getFlag('zeroLevelTol');
       } else {
 	$tolerance = $tolerance * abs($a);
       }
@@ -178,7 +178,6 @@ sub log {$pkg->make(CORE::log(shift->{data}[0]))}
 
 sub sqrt {
   my $self = shift;
-  return $pkg->make(0) if $self == 0;
   return $pkg->make(CORE::sqrt($self->{data}[0]));
 }
 
@@ -209,7 +208,7 @@ sub string {
     if ($format =~ m/#\s*$/) {$n =~ s/(\.\d*?)0*#$/$1/; $n =~ s/\.$//}
   }
   $n = uc($n); # force e notation to E
-  $n = 0 if abs($n) < $$Value::context->flag('zeroLevelTol');
+  $n = 0 if abs($n) < $self->getFlag('zeroLevelTol');
   $n = "(".$n.")" if ($n < 0 || $n =~ m/E/i) && defined($prec) && $prec >= 1;
   return $n;
 }
