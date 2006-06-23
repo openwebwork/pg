@@ -749,7 +749,7 @@ sub cmp_postprocess {
   if ($ans->{showDimensionHints} && $self->length != $student->length) {
     $self->cmp_Error($ans,"The number of coordinates is incorrect"); return;
   }
-  if ($ans->{parallel} && $student->class ne 'String' &&
+  if ($ans->{parallel} && $student->class ne 'Formula' && $student->class ne 'String' &&
       $self->isParallel($student,$ans->{sameDirection})) {
     $ans->score(1); return;
   }
@@ -1431,7 +1431,13 @@ sub cmp_diagnostics {
     #  The checks to be performed when an answer is submitted
     #
     my $student = $ans->{student_formula};
-    my $points = [map {$_->[0]} @{$self->{test_points}}];
+    #
+    #  Get the test points
+    #
+    my @names = $self->{context}->variables->names;
+    my $vx = (keys(%{$self->{variables}}))[0];
+    my $vi = 0; while ($names[$vi] ne $vx) {$vi++}
+    my $points = [map {$_->[$vi]} @{$self->{test_points}}];
 
     #
     #  The graphs of the functions and errors
@@ -1467,17 +1473,23 @@ sub cmp_diagnostics {
     my @rows = (); my $colsep = '</TD><TD WIDTH="20"></TD><TD ALIGN="RIGHT">';
     my @P = (map {(scalar(@{$_}) == 1)? $_->[0]: Value::Point->make(@{$_})} @{$self->{test_points}});
     my @i = sort {$P[$a] <=> $P[$b]} (0..$#P);
+    foreach $p (@P) {if (Value::isValue($p) && $p->length > 2) {$p = $p->string; $p =~ s|,|,<br />|g}}
+    my $zeroLevelTol = $self->getFlag('zeroLevelTol');
+    $self->{context}{flags}{zeroLevelTol} = 0; # always show full resolution in the tables below
+    my $names = join(',',@names); $names = '('.$names.')' if scalar(@names) > 1;
     if ($formulas->{showTestPoints}) {
       $student->createPointValues($self->{test_points},0,1,1) unless $student->{test_values};
-      my @p = ("Input:",(map {$P[$i[$_]]} (0..$#P)));
+      my @p = ("$names:", (map {$P[$i[$_]]} (0..$#P)));
       push(@rows,'<TR><TD ALIGN="RIGHT">'.join($colsep,@p).'</TD></TR>');
       push(@rows,'<TR><TD ALIGN="RIGHT">'.join($colsep,("<HR>")x scalar(@p)).'</TD></TR>');
       push(@rows,'<TR><TD ALIGN="RIGHT">'
-	   .join($colsep,"Correct Answer:", map {$self->{test_values}[$i[$_]]} (0..$#P))
+	   .join($colsep,"Correct Answer:",
+		 map {Value::isNumber($self->{test_values}[$i[$_]])? $self->{test_values}[$i[$_]]: "undefined"} (0..$#P))
 	   .'</TD></TR>');
       my $test = $student->{test_values};
       push(@rows,'<TR><TD ALIGN="RIGHT">'
-	   .join($colsep,"Student Answer:", map {Value::isNumber($test->[$i[$_]])? $test->[$i[$_]]: "undefined"} (0..$#P))
+	   .join($colsep,"Student Answer:",
+		 map {Value::isNumber($test->[$i[$_]])? $test->[$i[$_]]: "undefined"} (0..$#P))
 	   .'</TD></TR>');
     }
     #
@@ -1490,7 +1502,7 @@ sub cmp_diagnostics {
       foreach my $j (0..$#P) {
 	if (Value::isNumber($student->{test_values}[$i[$j]])) {
 	  $error = abs($self->{test_values}[$i[$j]]-$student->{test_values}[$i[$j]]);
-	  $error = '<SPAN STYLE="color:#'.($error<$tolerance ? '00AA00': 'AA0000').'">'.$error.'</SPAN>'
+	  $error = '<SPAN STYLE="color:#'.($error->value<$tolerance ? '00AA00': 'AA0000').'">'.$error.'</SPAN>'
 	    if $tolType eq 'absolute';
 	} else {$error = "---"}
 	push(@p,$error);
@@ -1498,23 +1510,27 @@ sub cmp_diagnostics {
       push(@rows,'<TR><TD ALIGN="RIGHT">'.join($colsep,@p).'</TD></TR>');
     }
     #
-    #  The relative errors (colored by whether they are OK ro too big)
+    #  The relative errors (colored by whether they are OK or too big)
     #
     if ($formulas->{showRelativeErrors}) {
       my @p = ("Relative Error:");
-      my $tolerance = $self->getFlag('tolerance');
+      my $tolerance = $self->getFlag('tolerance'); my $tol;
       my $tolType = $self->getFlag('tolType'); my $error;
+      my $zeroLevel = $self->getFlag('zeroLevel');
       foreach my $j (0..$#P) {
 	if (Value::isNumber($student->{test_values}[$i[$j]])) {
-	  $error = abs(($self->{test_values}[$i[$j]]-$student->{test_values}[$i[$j]])/
-		       ($self->{test_values}[$i[$j]]||1E-10));
-	  $error = '<SPAN STYLE="color:#'.($error<$tolerance ? '00AA00': 'AA0000').'">'.$error.'</SPAN>'
+	  my $c = $self->{test_values}[$i[$j]]; my $s = $student->{test_values}[$i[$j]];
+	  if (abs($c->value) < $zeroLevel || abs($s->value) < $zeroLevel)
+            {$error = abs($c-$s); $tol = $zeroLevelTol} else
+            {$error = abs(($c-$s)/($c||1E-10)); $tol = $tolerance}
+	  $error = '<SPAN STYLE="color:#'.($error < $tol ? '00AA00': 'AA0000').'">'.$error.'</SPAN>'
 	    if $tolType eq 'relative';
 	} else {$error = "---"}
 	push(@p,$error);
       }
       push(@rows,'<TR><TD ALIGN="RIGHT">'.join($colsep,@p).'</TD></TR>');
     }
+    $self->{context}{flags}{zeroLevelTol} = $zeroLevelTol;
     #
     #  Put the data into a table
     #
@@ -1547,7 +1563,7 @@ sub cmp_graph {
   my %options = (title=>'',points=>[],@_);
   my $graphs = $diagnostics->{graphs};
   my $limits = $graphs->{limits}; $limits = $self->getFlag('limits',[-2,2]) unless $limits;
-  $limits = $limits->[0] if ref($limits) eq 'ARRAY' &&  ref($limits->[0]) eq 'ARRAY';
+  $limits = $limits->[0] while ref($limits) eq 'ARRAY' && ref($limits->[0]) eq 'ARRAY';
   my $size = $graphs->{size}; $size = [$size,$size] unless ref($size) eq 'ARRAY';
   my $steps = $graphs->{divisions};
   my $points = $options{points}; my $clip = $options{clip};
