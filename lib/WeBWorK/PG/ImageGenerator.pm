@@ -375,6 +375,9 @@ sub render {
 		
 		# get image number from above match
 		my $imageNum = $1;
+		# note, problems with solutions/hints can have empty values in newNames
+		next unless $newNames[$imageNum-1];
+
 		# record the dvipng offset
 		my $hashkey = $newNames[$imageNum-1];
 		$hashkey =~ s|/||;
