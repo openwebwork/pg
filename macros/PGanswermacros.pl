@@ -1981,6 +1981,7 @@ sub FUNCTION_CMP {
 	my $f = new Value::Formula($correctEqn);
 	$f->{limits}      = $func_params{'limits'};
 	$f->{test_points} = $func_params{'test_points'};
+        $f->{correct_ans} = $correctEqn;
 	my $cmp = $f->cmp(%options);
 	&$Context($oldContext);
 
