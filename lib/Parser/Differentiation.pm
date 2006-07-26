@@ -8,26 +8,41 @@
 
 ##################################################
 #
-#  Differentiate the formula in terms of the given variable
+#  Differentiate the formula in terms of the given variable(s)
 #
 sub Parser::D {
-  my $self = shift; my $x = shift;
-  if (!defined($x)) {
+  my $self = shift;
+  my $d; my @x = @_; my $x;
+  if (defined(@x[0]) && $x[0] =~ m/^\d+$/) {
+    $d = shift(@x);
+    $self->Error("You can only specify one variable when you give a derivative count")
+      unless scalar(@x) <= 1;
+    return($self) if $d == 0;
+  }
+  if (scalar(@x) == 0) {
     my @vars = keys(%{$self->{variables}});
     my $n = scalar(@vars);
     if ($n == 0) {
       return $self->new('0') if $self->{isNumber};
       $x = 'x';
     } else {
-      $self->Error("You must specify a variable to differentiate by") unless $n ==1;
+      $self->Error("You must specify a variable to differentiate by") unless $n == 1;
       $x = $vars[0];
     }
-  } else {
-    return $self->new('0') unless defined $self->{variables}{$x};
+    push(@x,$x);
   }
-  return $self->new($self->{tree}->D($x));
+  @x = ($x[0]) x $d if $d;
+  my $f = $self->{tree};
+  foreach $x (@x) {
+    return $self->new('0') unless defined $self->{variables}{$x};
+    $f = $f->D($x);
+  }
+  return $self->new($f);
 }
 
+#
+#  Overridden by the classes that DO implement differentiation
+#
 sub Item::D {
   my $self = shift;
   my $type = ref($self); $type =~ s/.*:://;
