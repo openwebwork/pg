@@ -652,21 +652,20 @@ sub Parser::Constant::D {
 
 sub Parser::Value::D {
   my $self = shift; my $x = shift; my $equation = $self->{equation};
-  return $equation->{context}{parser}{Value}->new($equation,$self->{value}->D($x,$equation));
+  return $equation->{context}{parser}{Value}->new($equation,$self->{value}->D($x));
 }
 
 sub Value::D {
-  my $self = shift; my $x = shift; my $equation = shift;
-  return 0 if $self->isComplex;
-  my @coords = @{$self->{data}};
+  my $self = shift; my $x = shift;
+  my @coords = $self->value;
   foreach my $n (@coords)
-    {if (ref($n) eq "") {$n = 0} else {$n = $n->D($x,$equation)->data}}
-  return $self->new([@coords]);
+    {if (ref($n) eq "") {$n = 0} else {$n = $n->D($x)->value}}
+  return $self->new(@coords);
 }
 
 sub Value::List::D {
-  my $self = shift; my $x = shift; my $equation = shift;
-  my @coords = @{$self->{data}};
+  my $self = shift; my $x = shift;
+  my @coords = $self->value;
   foreach my $n (@coords)
     {if (ref($n) eq "") {$n = 0} else {$n = $n->D($x)}}
   return $self->new([@coords]);
