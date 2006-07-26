@@ -39,7 +39,8 @@ sub new {
   return $M if (Value::isFormula($M) && $M->type eq Value::class($self));
   $M = [$M,@_] if (ref($M) ne 'ARRAY' || scalar(@_) > 0);
   Value::Error("Matrices must have at least one entry") unless scalar(@{$M}) > 0;
-  return $self->matrixMatrix(@{$M}) if ref($M->[0]) =~ m/ARRAY|Matrix/;
+  return $self->matrixMatrix(@{$M}) if ref($M->[0]) =~ m/ARRAY|Matrix|Vector|Point/ ||
+    Value::isFormula($M->[0]) && $M->[0]->type =~ m/Matrix|Vector|Point/;
   return $self->numberMatrix(@{$M});
 }
 
