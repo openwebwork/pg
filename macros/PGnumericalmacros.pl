@@ -508,6 +508,74 @@ sub inv_romberg {
 }
 
 #########################################################
+=pod
+
+    rungeKutta4
+    
+    Finds integral curve of a vector field using the 4th order Runge Kutta method.
+    
+	Useage:  rungeKutta4( &vectorField(t,x),%options);
+	
+    Returns:  \@array of points [t,y})  
+    
+    Default %options:
+    			'initial_t'					=>	1,
+			    'initial_y'					=>	1,
+			    'dt'						=>  .01,
+			    'num_of_points'				=>  10,     #number of reported points
+			    'interior_points'			=>  5,      # number of 'interior' steps between reported points
+			    'debug'			
+    
+=cut
+
+sub rungeKutta4 { 
+	my $rh_ans = shift;
+	my %options = @_;
+ 	my $rf_fun = $rh_ans->{rf_diffeq};
+	set_default_options(	\%options,
+			    'initial_t'					=>	1,
+			    'initial_y'					=>	1,
+			    'dt'						=>  .01,
+			    'num_of_points'				=>  10,     #number of reported points
+			    'interior_points'			=>  5,      # number of 'interior' steps between reported points
+			    'debug'						=>	1,      # remind programmers to always pass the debug parameter
+			    );
+ 	my $t = $options{initial_t};
+ 	my $y = $options{initial_y};
+	
+ 	my $num = $options{'num_of_points'};  # number of points
+ 	my $num2 = $options{'interior_points'};  # number of steps between points.
+ 	my $dt   = $options{'dt'}; 
+ 	my $errors = undef;
+	my $rf_rhs = sub { 	my @in = @_; 
+				my ( $out, $err) = &$rf_fun(@in);
+				$errors .= " $err at ( ".join(" , ", @in) . " )<br>\n" if defined($err);
+				$out = 'NaN' if defined($err) and not is_a_number($out);
+				$out;
+			    };
+	
+ 	my @output = ([$t, $y]);
+ 	my ($i, $j, $K1,$K2,$K3,$K4);
+ 	
+ 	for ($j=0; $j<$num; $j++) {
+	    for ($i=0; $i<$num2; $i++) {	
+		$K1 = $dt*&$rf_rhs($t, $y);
+		$K2 = $dt*&$rf_rhs($t+$dt/2,$y+$K1/2);
+		$K3 = $dt*&$rf_rhs($t+$dt/2, $y+$K2/2);
+		$K4 = $dt*&$rf_rhs($t+$dt, $y+$K3);
+		$y = $y + ($K1 + 2*$K2 + 2*$K3 + $K4)/6;
+		$t = $t + $dt;
+	    }
+	    push(@output, [$t, $y]);
+ 	}
+ 	if (defined $errors) {
+ 		return $errors;
+ 	} else {
+ 		return \@output;
+ 	}
+}
+
+
 
 1;
 

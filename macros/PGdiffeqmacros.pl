@@ -619,7 +619,9 @@ sub check_eigenvector {
 
     rungeKutta4a
     
-
+	Answer checker filter for comparing to an integral curve of a vector field.
+	
+	
 =cut
 
     
