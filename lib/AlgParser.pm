@@ -635,3 +635,5 @@ sub tostring {
     return $self->SUPER::tostring(@_);
   }
 }
+
+1;
