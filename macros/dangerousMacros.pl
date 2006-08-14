@@ -104,6 +104,7 @@ my $debugON = 0;
 my ($macrosPath,
     $pwd,
     $appletPath,
+    $server_root_url,
 	$templateDirectory,
 	$scriptDirectory,
 	$externalTTHPath,
@@ -115,6 +116,7 @@ sub _dangerousMacros_init {   #use  envir instead of local variables?
     # will allow easy addition of new directories -- is this too liberal? do some pg directories need to be protected?
     $pwd                      = eval('$main::envir{fileName}'); $pwd =~ s!/[^/]*$!!;
     $appletPath               = eval('$main::envir{pgDirectories}{appletPath}');
+    $server_root_url          = eval('$main::envir{server_root_url}');
 
     $templateDirectory        = eval('$main::envir{templateDirectory}');
     $scriptDirectory          = eval('$main::envir{scriptDirectory}');
@@ -327,19 +329,22 @@ sub check_url {
 
 our %appletCodebaseLocations = ();
 sub findAppletCodebase {
-  my $fileName = shift;  # probably the name of a jar file
-  return $appletCodebaseLocations{$fileName}    #check cache first
-        if defined($appletCodebaseLocations{$fileName}) 
-           and $appletCodebaseLocations{$fileName} =~/\S/;
-  
-  foreach my $appletLocation (@{$appletPath}) {
-    my $url = "$appletLocation/$fileName";
-    if (check_url($url)) {
-        $appletCodebaseLocations{$fileName} = $appletLocation; #update cache
-    	return $appletLocation   # return codebase part of url
-    }
-  }
-  return "Error: $fileName not found at ". join(",  ", @{$appletPath} );  # no file found
+	my $fileName = shift;  # probably the name of a jar file
+	return $appletCodebaseLocations{$fileName}    #check cache first
+		if defined($appletCodebaseLocations{$fileName})
+			and $appletCodebaseLocations{$fileName} =~/\S/;
+	
+	foreach my $appletLocation (@{$appletPath}) {
+		if ($appletLocation =~ m|^/|) {
+			$appletLocation = "$server_root_url$appletLocation";
+		}
+		my $url = "$appletLocation/$fileName";
+		if (check_url($url)) {
+				$appletCodebaseLocations{$fileName} = $appletLocation; #update cache
+			return $appletLocation	 # return codebase part of url
+		}
+	}
+	return "Error: $fileName not found at ". join(",	", @{$appletPath} );	# no file found
 }
 # errors in compiling macros is not always being reported.
 sub compile_file {
