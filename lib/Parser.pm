@@ -570,7 +570,9 @@ sub eval {
     $self->Error(["The value of '%s' can't be a formula",$x])
       if Value::isFormula($self->{values}{$x});
   }
-  Value::makeValue($self->{tree}->eval);
+  my $value = Value::makeValue($self->{tree}->eval);
+  $self->unsetValues;
+  return $value;
 }
 
 ##################################################
@@ -599,6 +601,7 @@ sub substitute {
   $self->setValues(@_);
   foreach my $x (keys %{$self->{values}}) {delete $self->{variables}{$x}}
   $self->{tree} = $self->{tree}->substitute;
+  $self->unsetValues;
   return $self;
 }
 
@@ -609,7 +612,9 @@ sub substitute {
 sub string {
   my $self = shift;
   $self->setValues(@_);
-  $self->{tree}->string;
+  my $string = $self->{tree}->string;
+  $self->unsetValues;
+  return $string;
 }
 
 ##################################################
@@ -619,7 +624,9 @@ sub string {
 sub TeX {
   my $self = shift;
   $self->setValues(@_);
-  $self->{tree}->TeX;
+  my $tex = $self->{tree}->TeX;
+  $self->unsetValues;
+  return $tex;
 }
 
 ##################################################
@@ -631,6 +638,7 @@ sub perl {
   $self->setValues(@_);
   my $perl = $self->{tree}->perl;
   $perl = 'new Value::Real('.$perl.')' if $self->isRealNumber;
+  $self->unsetValues;
   return $perl;
 }
 
@@ -680,6 +688,11 @@ sub setValues {
       unless Parser::Item::typeMatch($type,$variables->{$x}{type});
     $self->{values}{$x} = $value;
   }
+}
+
+sub unsetValues {
+  my $self = shift;
+  delete $self->{values};
 }
 
 
