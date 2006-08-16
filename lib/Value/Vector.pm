@@ -85,7 +85,7 @@ sub add {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
   ($l,$r) = (promote($l)->data,promote($r)->data);
-  Value::Error("Vector addition with different number of coordiantes")
+  Value::Error("Vector addition with different number of coordinates")
     unless scalar(@{$l}) == scalar(@{$r});
   my @s = ();
   foreach my $i (0..scalar(@{$l})-1) {push(@s,$l->[$i] + $r->[$i])}
@@ -96,7 +96,7 @@ sub sub {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->sub($l,!$flag)}
   ($l,$r) = (promote($l)->data,promote($r)->data);
-  Value::Error("Vector subtraction with different number of coordiantes")
+  Value::Error("Vector subtraction with different number of coordinates")
     unless scalar(@{$l}) == scalar(@{$r});
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
   my @s = ();
@@ -136,7 +136,7 @@ sub power {
 sub dot {
   my ($l,$r,$flag) = @_;
   ($l,$r) = (promote($l)->data,promote($r)->data);
-  Value::Error("Vector dot product with different number of coordiantes")
+  Value::Error("Vector dot product with different number of coordinates")
     unless scalar(@{$l}) == scalar(@{$r});
   my $s = 0;
   foreach my $i (0..scalar(@{$l})-1) {$s += $l->[$i] * $r->[$i]}
