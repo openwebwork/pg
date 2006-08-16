@@ -168,6 +168,7 @@ sub compare {
 }
 
 sub cmp_class {'an Implicit '.(shift->{implicit})};
+sub showClass {shift->cmp_class};
 
 sub cmp_defaults{(
   shift->SUPER::cmp_defaults,

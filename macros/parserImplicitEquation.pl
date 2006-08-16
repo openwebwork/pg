@@ -221,6 +221,7 @@ sub string {shift->{F}->string}
 sub TeX    {shift->{F}->TeX}
 
 sub cmp_class {'an Implicit Equation'}
+sub showClass {shift->cmp_class}
 
 #
 #  Locate points that satisfy the equation
