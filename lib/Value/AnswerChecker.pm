@@ -924,6 +924,7 @@ sub cmp_defaults {(
   entry_type => 'a number',
   removeParens => 0,
   showParenHints => 1,
+  implicitList => 0,
 )}
 
 #
