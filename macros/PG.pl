@@ -202,7 +202,10 @@ sub DOCUMENT {
 	$STRINGforOUTPUT = '<SCRIPT SRC="'.$main::envir{asciimathURL}.'"></SCRIPT>' . "\n" .
                            '<SCRIPT>mathcolor = "black"</SCRIPT>' . $STRINGforOUTPUT
 	  if ($main::envir{displayMode} eq 'HTML_asciimath');
-	
+
+	$STRINGforOUTPUT = '<SCRIPT SRC="'.$main::envir{LaTeXMathMLURL}.'"></SCRIPT>'."\n" . $STRINGforOUTPUT
+	  if ($main::envir{displayMode} eq 'HTML_LaTeXMathML');
+
 }
 
 sub inc_ans_rule_count {

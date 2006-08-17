@@ -748,7 +748,8 @@ sub NAMED_POP_UP_LIST {
 	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
 	my $out = "";
 	if ($displayMode eq 'HTML' or $displayMode eq 'HTML_tth' or
-            $displayMode eq 'HTML_dpng' or $displayMode eq 'HTML_img' or $displayMode eq 'HTML_jsMath' or $displayMode eq 'HTML_asciimath') {
+            $displayMode eq 'HTML_dpng' or $displayMode eq 'HTML_img' or $displayMode eq 'HTML_jsMath' or
+	    $displayMode eq 'HTML_asciimath' or $displayMode eq 'HTML_LaTeXMathML') {
 		$out = qq!<SELECT NAME = "$name" SIZE=1> \n!;
 		my $i;
 		foreach ($i=0; $i< @list; $i=$i+2) {
@@ -1101,12 +1102,13 @@ sub M3 {
 
 # MODES() is now table driven
 our %DISPLAY_MODE_FAILOVER = (
-	TeX            => [],
-	HTML           => [],
-	HTML_tth       => [ "HTML", ],
-	HTML_dpng      => [ "HTML_tth", "HTML", ],
-	HTML_jsMath    => [ "HTML_dpng", "HTML_tth", "HTML", ],
-	HTML_asciimath => [ "HTML_dpng", "HTML_tth", "HTML", ],
+	TeX              => [],
+	HTML             => [],
+	HTML_tth         => [ "HTML", ],
+	HTML_dpng        => [ "HTML_tth", "HTML", ],
+	HTML_jsMath      => [ "HTML_dpng", "HTML_tth", "HTML", ],
+	HTML_asciimath   => [ "HTML_dpng", "HTML_tth", "HTML", ],
+	HTML_LaTeXMathML => [ "HTML_dpng", "HTML_tth", "HTML", ],
 	# legacy modes -- these are not supported, but some problems might try to
 	# set the display mode to one of these values manually and some macros may
 	# provide rendered versions for these modes but not the one we want.
@@ -1515,6 +1517,12 @@ sub general_math_ev3 {
 	} elsif ($displayMode eq "HTML_asciimath") {
 	  $out = "`$in`" if $mode eq "inline";
 	  $out = '<DIV ALIGN="CENTER">`'.$in.'`</DIV>' if $mode eq "display";
+	} elsif ($displayMode eq "HTML_LaTeXMathML") {
+	  $in = '{'.$in.'}';
+	  $in =~ s/</\\lt/g; $in =~ s/>/\\gt/g;
+	  $in =~ s/\{\s*(\\(display|text|script|scriptscript)style)/$1\{/g;
+	  $out = '$$'.$in.'$$' if $mode eq "inline";
+	  $out = '<DIV ALIGN="CENTER">$$\displaystyle{'.$in.'}$$</DIV>' if $mode eq "display";
 	} else {
 		$out = "\\($in\\)" if $mode eq "inline";
 		$out = "\\[$in\\]" if $mode eq "display";
@@ -1896,7 +1904,9 @@ sub begintable {
 	elsif ($displayMode eq 'Latex2HTML') {
 		$out .= "\n\\begin{rawhtml} <TABLE , BORDER=1>\n\\end{rawhtml}";
 		}
-	elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng' || $displayMode eq 'HTML_img' || $displayMode eq 'HTML_jsMath' || $displayMode eq 'HTML_asciimath') {
+	elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng' ||
+               $displayMode eq 'HTML_img' || $displayMode eq 'HTML_jsMath' ||
+	       $displayMode eq 'HTML_asciimath' || $displayMode eq 'HTML_LaTeXMathML') {
 		$out .= "<TABLE BORDER=1>\n"
 	}
 	else {
@@ -1913,7 +1923,9 @@ sub endtable {
 	elsif ($displayMode eq 'Latex2HTML') {
 		$out .= "\n\\begin{rawhtml} </TABLE >\n\\end{rawhtml}";
 		}
-	elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng' ||$displayMode eq 'HTML_img' || $displayMode eq 'HTML_jsMath' || $displayMode eq 'HTML_asciimath') {
+	elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng' ||
+               $displayMode eq 'HTML_img' || $displayMode eq 'HTML_jsMath' ||
+	       $displayMode eq 'HTML_asciimath' || $displayMode eq 'HTML_LaTeXMathML') {
 		$out .= "</TABLE>\n";
 		}
 	else {
@@ -1941,7 +1953,9 @@ sub row {
 			}
 		$out .= " \n\\begin{rawhtml}\n</TR> \n\\end{rawhtml}\n";
 	}
-	elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng'||$displayMode eq 'HTML_img' || $displayMode eq 'HTML_jsMath' || $displayMode eq 'HTML_asciimath') {
+	elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng'||
+	       $displayMode eq 'HTML_img' || $displayMode eq 'HTML_jsMath' ||
+	       $displayMode eq 'HTML_asciimath' || $displayMode eq 'HTML_LaTeXMathML') {
 		$out .= "<TR>\n";
 		while (@elements) {
 			$out .= "<TD>" . shift(@elements) . "</TD>";
@@ -2033,7 +2047,9 @@ sub image {
 			my $wid = ($envir->{onTheFlyImageSize} || 0)+ 30;
 			$out = qq!\\begin{rawhtml}\n<A HREF= "$imageURL" TARGET="_blank" onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;"><IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height"></A>\n
 			\\end{rawhtml}\n !
- 		} elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng' || $displayMode eq 'HTML_img' || $displayMode eq 'HTML_jsMath' || $displayMode eq 'HTML_asciimath') {
+ 		} elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng' ||
+			 $displayMode eq 'HTML_img' || $displayMode eq 'HTML_jsMath' ||
+			 $displayMode eq 'HTML_asciimath' || $displayMode eq 'HTML_LaTeXMathML') {
 			my $wid = ($envir->{onTheFlyImageSize} || 0) +30;
  			$out = qq!<A HREF= "$imageURL" TARGET="_blank" onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;"><IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height" $out_options{extra_html_tags} ></A>
  			!
@@ -2065,6 +2081,7 @@ sub caption {
 	$out = " $out  " if $displayMode eq 'HTML_img';
 	$out = " $out  " if $displayMode eq 'HTML_jsMath';
 	$out = " $out  " if $displayMode eq 'HTML_asciimath';
+	$out = " $out  " if $displayMode eq 'HTML_LaTeXMathML';
 	$out = " $out  " if $displayMode eq 'Latex2HTML';
 		$out;
 }
@@ -2120,7 +2137,9 @@ sub imageRow {
 		}
 
 		$out .= "\n\\begin{rawhtml} </TR> </TABLE >\n\\end{rawhtml}";
-	} elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng'|| $displayMode eq 'HTML_img' || $displayMode eq 'HTML_jsMath' || $displayMode eq 'HTML_asciimath'){
+	} elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng' ||
+		 $displayMode eq 'HTML_img' || $displayMode eq 'HTML_jsMath' ||
+		 $displayMode eq 'HTML_asciimath' || $displayMode eq 'HTML_LaTeXMathML') {
 		$out .= "<P>\n <TABLE BORDER=2 CELLPADDING=3 CELLSPACING=2 ><TR ALIGN=CENTER		VALIGN=MIDDLE>\n";
 		while (@images) {
 			$out .= " \n<TD>". &image( shift(@images),%options ) ."</TD>";

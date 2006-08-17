@@ -983,6 +983,7 @@ sub alias {
 		     $displayMode eq 'HTML_tth'||
 		     $displayMode eq 'HTML_dpng'||
 		     $displayMode eq 'HTML_asciimath'||
+		     $displayMode eq 'HTML_LaTeXMathML'||
 		     $displayMode eq 'HTML_jsMath'||
 		     $displayMode eq 'HTML_img'||
 		     $displayMode eq 'Latex2HTML')  {
@@ -1115,6 +1116,7 @@ sub alias {
 		     $displayMode eq 'HTML_tth'||
 		     $displayMode eq 'HTML_dpng'||
 		     $displayMode eq 'HTML_asciimath'||
+		     $displayMode eq 'HTML_LaTeXMathML'||
 		     $displayMode eq 'HTML_jsMath'||
 		     $displayMode eq 'HTML_img'||
 		     $displayMode eq 'Latex2HTML')  {
