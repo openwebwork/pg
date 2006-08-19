@@ -1588,7 +1588,7 @@ sub PG_answer_eval {
     # We seem to need PG_priv instead of main when PG_answer_eval is called within a completion
     # 'package PG_priv; '
     
-	local $SIG{__WARN__} = "DEFAULT";
+        local $SIG{__WARN__} = sub {die(@_)};  # make warn die, so all errors are reported.
 	local $SIG{__DIE__} = "DEFAULT";
 	
     no strict;
