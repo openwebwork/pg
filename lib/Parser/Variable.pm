@@ -105,7 +105,9 @@ sub TeX {
   my $self = shift; my $name = $self->{name};
   my $value = $self->{equation}{values}{$name};
   return $value if defined($value);
+  return $self->{def}{TeX} if defined $self->{def}{TeX};
   $name = $1.'_{'.$2.'}' if ($name =~ m/^([^_]+)_?(\d+)$/);
+  $name = '\boldsymbol '.$name if $self->{type}{name} eq 'Vector';
   return $name;
 }
 #
@@ -115,6 +117,7 @@ sub perl {
   my $self = shift;
   my $value = $self->{equation}{values}{$self->{name}};
   return $value if defined($value);
+  return $self->{def}{perl} if defined $self->{def}{perl};
   return '$'.$self->{name};
 }
 
