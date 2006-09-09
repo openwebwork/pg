@@ -260,6 +260,14 @@ sub string {
   return $self->SUPER::string($equation,@_);
 }
 
+sub pdot {
+  my $self = shift;
+  my $string = $self->string;
+  $string = '('.$string.')' if $string =~ m/[-+]/ &&
+    ($self->{ijk} || $$Value::context->flag("ijk")) && !$self->{ColumnVector};
+  return $string;
+}
+
 sub TeX {
   my $self = shift; my $equation = shift;
   if ($self->{ColumnVector}) {
@@ -278,7 +286,7 @@ sub TeX {
     return $open.'\begin{array}{c}'.join('\\\\',@coords).'\\\\\end{array}'.$close;
   }
   return $self->ijk if ($self->{ijk} || $equation->{ijk} || $$Value::context->flag("ijk"));
-  return $self->SUPER::TeX($equation,@_) unless $self->{ColumnVector};
+  return $self->SUPER::TeX($equation,@_);
 }
 
 sub ijk {
