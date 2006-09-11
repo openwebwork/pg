@@ -40,7 +40,11 @@ sub TeX {
     $TeX .= join(' &',@entries) . '\cr'."\n";
     $d = scalar(@entries); @entries = ();
   }
-  return '\left'.$open.'\begin{array}{'.('c'x$d).'}'."\n".$TeX.'\end{array}\right'.$close;
+  $TeX = '\begin{array}{'.($self->{array_template} || ('c'x$d)).'}'."\n".$TeX.'\end{array}';
+  return $TeX unless $open || $close;
+  $open  = "." if $close && !$open;
+  $close = "." if $open && !$close;
+  return '\left'.$open.$TeX.'\right'.$close;
 }
 
 #
