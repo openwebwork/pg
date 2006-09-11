@@ -30,8 +30,8 @@ sub new {
     bop => $bop, lop => $lop, rop => $rop,
     def => $def, ref => $ref, equation => $equation,
   }, $def->{class};
-  $BOP->_check;
   $BOP->{isConstant} = 1 if ($lop->{isConstant} && $rop->{isConstant});
+  $BOP->_check;
   $BOP = $context->{parser}{Value}->new($equation,[$BOP->eval])
     if $BOP->{isConstant} && !$def->{isComma} && $context->flag('reduceConstants');
   return $BOP;

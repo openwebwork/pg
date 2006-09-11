@@ -17,8 +17,8 @@ sub new {
     uop => $uop, op => $op,
     def => $def, ref => $ref, equation => $equation
   }, $def->{class};
-  $UOP->_check;
   $UOP->{isConstant} = 1 if $op->{isConstant};
+  $UOP->_check;
   $UOP = $context->{parser}{Value}->new($equation,[$UOP->eval])
     if $op->{isConstant} && (!$UOP->isNeg || $op->isNeg) &&
        ($context->flag('reduceConstants') || $op->{isInfinity});
