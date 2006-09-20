@@ -12,9 +12,9 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $num = shift; my $units = shift;
   Value::Error("You must provide a number") unless defined($num);
-  ($num,$units) = $num =~ m/^(.*)\s+(\S*)$/ unless $units;
-  Value::Error("You must provide units for your number")
-    unless $units;
+  ($num,$units) = $num =~ m!^(.*?)\s+((\S| *[/*^] *)+)$! unless $units;
+  $units =~ s/ //g if $units;
+  Value::Error("You must provide units for your number") unless $units;
   $num = Value::makeValue($num);
   Value::Error("A number with units must be a constant, not %s",lc(Value::showClass($num)))
     unless Value::isReal($num);
@@ -56,7 +56,8 @@ sub cmp_parse {
   #
   #  Check that the units are defined and legal
   #
-  my ($num,$units) = $ans->{student_ans} =~ m/^(.*)\s+(\S*)$/;
+  my ($num,$units) = $ans->{student_ans} =~ m!^(.*?)\s+((\S| *[/*^] *)+)$!;
+  $units =~ s/ //g if $units;
   unless (defined($num) && $units) {
     $self->cmp_Error($ans,"Your answer doesn't look like a number with units");
     return $ans;
@@ -70,6 +71,7 @@ sub cmp_parse {
   $ans->{correct_value} *= $self->{units_ref}{factor}/$Units{factor};
   $ans->{student_ans} = $num;
   $ans = $self->SUPER::cmp_parse($ans);
+  $ans->{student_value} = $self->new($num,$units);
   $ans->{student_ans} .= " " . $units;
   $ans->{preview_text_string}  .= " ".$units;
   $ans->{preview_latex_string} .= '\ '.TeXunits($units);
