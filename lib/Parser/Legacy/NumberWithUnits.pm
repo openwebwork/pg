@@ -12,8 +12,7 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $num = shift; my $units = shift;
   Value::Error("You must provide a number") unless defined($num);
-  ($num,$units) = $num =~ m!^(.*?)\s+((\S| *[/*^] *)+)$! unless $units;
-  $units =~ s/ //g if $units;
+  ($num,$units) = splitUnits($num) unless $units;
   Value::Error("You must provide units for your number") unless $units;
   $num = Value::makeValue($num);
   Value::Error("A number with units must be a constant, not %s",lc(Value::showClass($num)))
@@ -24,6 +23,22 @@ sub new {
   $num->{units_ref} = \%Units;
   $num->{isValue} = 1;
   bless $num, $class;
+}
+
+#
+#  Find the units for and split that off
+#  (Too bad the Units::known_units hash is private)
+#
+my $aUnit = '([a-zA-Z]+|light-year)(\s*(\^|\*\*)\s*[-+]?\d+)?';
+my $unitPattern = $aUnit.'(\s*[/*]\s*'.$aUnit.')*';
+sub splitUnits {
+  my $string = shift;
+  my ($num,$units) = $string =~ m!^(.*?)\s*($unitPattern)$!o;
+  if ($units) {
+    $units =~ s/ //g;
+    $units =~ s/\*\*/^/g;
+  }
+  return ($num,$units);
 }
 
 #
@@ -56,8 +71,7 @@ sub cmp_parse {
   #
   #  Check that the units are defined and legal
   #
-  my ($num,$units) = $ans->{student_ans} =~ m!^(.*?)\s+((\S| *[/*^] *)+)$!;
-  $units =~ s/ //g if $units;
+  my ($num,$units) = splitUnits($ans->{student_ans});
   unless (defined($num) && $units) {
     $self->cmp_Error($ans,"Your answer doesn't look like a number with units");
     return $ans;
@@ -71,20 +85,26 @@ sub cmp_parse {
   $ans->{correct_value} *= $self->{units_ref}{factor}/$Units{factor};
   $ans->{student_ans} = $num;
   $ans = $self->SUPER::cmp_parse($ans);
-  $ans->{student_value} = $self->new($num,$units);
   $ans->{student_ans} .= " " . $units;
   $ans->{preview_text_string}  .= " ".$units;
   $ans->{preview_latex_string} .= '\ '.TeXunits($units);
   #
-  #  If there is not already a message, check the units
-  #
   return $ans unless $ans->{ans_message} eq '';
-  foreach my $funit (keys %{$self->{units_ref}}) {
-    next if $funit eq 'factor';
-    next if $self->{units_ref}{$funit} == $Units{$funit};
-    $self->cmp_Error($ans,"The units for your answer are not correct")
-      unless $ans->{isPreview};
-    $ans->score(0); last;
+  #
+  #  Check that we have an actual number, and check the units
+  #
+  if (!$ans->{student_value} || $ans->{student_value}->class ne 'Real') {
+    $ans->{student_value} = undef; $ans->score(0);
+    $self->cmp_Error($ans,"Your answer doesn't look like a number with units");
+  } else {
+    $ans->{student_value} = $self->new($num,$units);
+    foreach my $funit (keys %{$self->{units_ref}}) {
+      next if $funit eq 'factor';
+      next if $self->{units_ref}{$funit} == $Units{$funit};
+      $self->cmp_Error($ans,"The units for your answer are not correct")
+        unless $ans->{isPreview};
+      $ans->score(0); last;
+    }
   }
   return $ans;
 }
