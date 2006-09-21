@@ -313,7 +313,7 @@ sub createRandomPoints {
   while (scalar(@{$points}) < $num_points+$num_undef && $k < 10) {
     @P = (); $i = 0;
     foreach my $limit (@limits) {
-      @p = (); foreach my $I (@{$limit}) {push @p, $self->$getRandom(@{$I})}
+      @p = (); foreach my $I (@{$limit}) {push @p, Value::Real->make($self->$getRandom(@{$I}))}
       push @P, $make[$i++]->make(@p);
     }
     $v = eval {&$f(@P,@zeros)};
@@ -401,7 +401,7 @@ sub getVariableTypes {
 #
 #  Fake object for making reals (rather than use overhead of Value::Real)
 #
-sub Value::Formula::number::make {shift; shift}
+sub Value::Formula::number::make {shift; shift->value}
 
 #
 #  Find adaptive parameters, if any
