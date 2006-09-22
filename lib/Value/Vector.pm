@@ -290,7 +290,13 @@ sub TeX {
 }
 
 sub ijk {
-  my $self = shift; my $ijk = shift || $ijk_TeX;
+  my $self = shift; my $ijk = shift;
+  if (!$ijk) {
+    my $context = $self->{context} || $$Value::context;
+    $ijk = []; $ijk->[3] = '{\bf 0}';
+    foreach my $i (0,1,2) 
+     {$ijk->[$i] = $context->{constants}{$ijk_string->[$i]}{TeX} || $ijk_TeX->[$i]}
+  }
   my @coords = @{$self->data};
   Value::Error("Method 'ijk' can only be used on vectors in three-space")
     unless (scalar(@coords) <= 3);
