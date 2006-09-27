@@ -72,7 +72,7 @@ sub cmp_parse {
   #  Check that the units are defined and legal
   #
   my ($num,$units) = splitUnits($ans->{student_ans});
-  unless (defined($num) && $units) {
+  unless (defined($num) && defined($units) && $units ne '') {
     $self->cmp_Error($ans,"Your answer doesn't look like a number with units");
     return $ans;
   }
@@ -93,7 +93,7 @@ sub cmp_parse {
   #
   #  Check that we have an actual number, and check the units
   #
-  if (!$ans->{student_value} || $ans->{student_value}->class ne 'Real') {
+  if (!defined($ans->{student_value}) || $ans->{student_value}->class ne 'Real') {
     $ans->{student_value} = undef; $ans->score(0);
     $self->cmp_Error($ans,"Your answer doesn't look like a number with units");
   } else {
