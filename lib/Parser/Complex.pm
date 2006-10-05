@@ -21,7 +21,7 @@ sub new {
     ref => $ref, equation => $equation,
   }, $class;
   my $z = Value::Complex->make(@{$value});
-  $num->{isOne}  = 1 if $z cmp 1;
+  $num->{isOne}  = 1 if ($z cmp 1) == 0;
   $num->{isZero} = 1 if $z == 0;
   return $num;
 }
