@@ -75,6 +75,7 @@ sub no_decs {
   my $msg= "Your answer contains a decimal.  You must provide an exact answer, e.g. sqrt(5)/3";
 	$old_evaluator->install_pre_filter(must_have_filter(".", 'no', $msg));
 	$old_evaluator->install_post_filter(\&raw_student_answer_filter);
+	$old_evaluator->install_post_filter(\&catch_errors_filter);
 
 	return $old_evaluator;
 	}
@@ -94,6 +95,7 @@ sub must_include {
 
 	$old_evaluator->install_pre_filter(must_have_filter($muststr));
 	$old_evaluator->install_post_filter(\&raw_student_answer_filter);
+	$old_evaluator->install_post_filter(\&catch_errors_filter);
 	return $old_evaluator;
 	}
 
@@ -118,6 +120,7 @@ sub no_trig_fun {
 	$new_eval->install_pre_filter(must_have_filter("csc", 'no', $msg));
 	$new_eval->install_pre_filter(must_have_filter("cot", 'no', $msg));
 
+	$new_eval->install_post_filter(\&catch_errors_filter);
 	return $new_eval;
 }
 
@@ -138,6 +141,7 @@ sub no_trig {
 	$new_eval->install_pre_filter(must_have_filter("csc", 'no', $msg));
 	$new_eval->install_pre_filter(must_have_filter("cot", 'no', $msg));
 
+	$new_eval->install_post_filter(\&catch_errors_filter);
 	return $new_eval;
 }
 
@@ -231,6 +235,23 @@ sub must_have_filter {
 		}
 	};
 	return $newfilt;
+}
+
+=head3      catch_errors_filter()
+
+=cut
+
+sub catch_errors_filter {
+	my ($rh_ans) = shift;
+	if ($rh_ans->catch_error('SYNTAX') ) {
+		$rh_ans->{ans_message} = $rh_ans->{error_message};
+		$rh_ans->clear_error('SYNTAX');
+	}
+	if ($rh_ans->catch_error('NUMBER') ) {
+		$rh_ans->{ans_message} = $rh_ans->{error_message};
+		$rh_ans->clear_error('NUMBER');
+	}
+	$rh_ans;
 }
 
 =head3      raw_student_answer_filter()
