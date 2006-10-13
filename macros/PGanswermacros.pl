@@ -1918,6 +1918,16 @@ sub FUNCTION_CMP {
 	  }
 	}
 
+	#
+	#  Reorder variables, limits, and test_points if the variables are not in alphabetical order
+	#
+	if (scalar(@VARS) > 1 && join('',@VARS) ne join('',lex_sort(@VARS))) {
+	  my %order; foreach my $i (0..$#VARS) {$order{$VARS[$i]} = $i}
+	  @VARS = lex_sort(@VARS);
+	  @limits = map {$limits[$order{$_}]} @VARS;
+	  if ($testPoints) {foreach my $p (@{$testPoints}) {$p = [map {$p->[$order{$_}]} @VARS]}}
+	}
+
 	$numPoints                = $functNumOfPoints              unless defined $numPoints;
 	$maxConstantOfIntegration = $functMaxConstantOfIntegration unless defined $maxConstantOfIntegration;
 	$zeroLevel                = $functZeroLevelDefault         unless defined $zeroLevel;
