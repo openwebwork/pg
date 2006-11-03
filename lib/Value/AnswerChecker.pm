@@ -130,6 +130,7 @@ sub cmp_parse {
       warn "Unkown student answer format |$ans->{formatStudentAnswer}|";
     }
     if ($self->cmp_collect($ans)) {
+      $self->cmp_preprocess($ans);
       $self->cmp_equal($ans);
       $self->cmp_postprocess($ans) if !$ans->{error_message} && !$ans->{typeError};
       $self->cmp_diagnostics($ans);
@@ -272,6 +273,7 @@ sub cmp_Error {
 #
 #  filled in by sub-classes
 #
+sub cmp_preprocess {}
 sub cmp_postprocess {}
 
 #
@@ -357,10 +359,11 @@ sub ANS_NAME {
 #  Lay out an arbitrary matrix
 #
 sub format_matrix {
-  my $self = shift;
+  my $self = shift; my $array = shift;
   my $displayMode = $self->getPG('$displayMode');
-  return $self->format_matrix_tex(@_) if ($displayMode eq 'TeX');
-  return $self->format_matrix_HTML(@_);
+  $array = [$array] unless ref($array->[0]) eq 'ARRAY';
+  return $self->format_matrix_tex($array,@_) if ($displayMode eq 'TeX');
+  return $self->format_matrix_HTML($array,@_);
 }
 
 sub format_matrix_tex {
@@ -806,6 +809,15 @@ sub typeMatch {
   return $other->type eq 'Matrix' ||
     ($other->type =~ m/^(Point|list)$/ &&
      $other->{open}.$other->{close} eq $self->{open}.$self->{close});
+}
+
+sub cmp_preprocess {
+  my $self = shift; my $ans = shift;
+  my $student = $ans->{student_value};
+  return if $student->type ne 'Matrix';
+  my @d1 = $self->dimensions; my @d2 = $student->dimensions;
+  $ans->{student_value} = $student->make([$student->value])
+    if (scalar(@d2) == 1 && scalar(@d1) == 2);
 }
 
 sub cmp_postprocess {
