@@ -2887,6 +2887,9 @@ sub STR_CMP {
 		score             => 0,
 
     );
+	# Remove blank prefilter if the correct answer is blank
+	$answer_evaluator->install_pre_filter('erase') if $answer_evaluator->{correct_ans} eq '';
+
 	my %known_filters = (	
 	            'remove_whitespace'		=>	\&remove_whitespace,
 				'compress_whitespace'	=>	\&compress_whitespace,
