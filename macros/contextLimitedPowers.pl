@@ -32,13 +32,13 @@ our @NoBaseE = (
 );
 
 our @OnlyIntegers = (
-  '^'  => {class => LimitedPowers::OnlyIntegers, isCommand=>1, perl=>'LimitedPowers::OnlyIntegers->_eval'},
-  '**' => {class => LimitedPowers::OnlyIntegers, isCommand=>1, perl=>'LimitedPowers::OnlyIntegers->_eval'},
+  '^'  => {class => LimitedPowers::OnlyIntegers},
+  '**' => {class => LimitedPowers::OnlyIntegers},
 );
 
 our @OnlyPositiveIntegers = (
-  '^'  => {class => LimitedPowers::OnlyPositiveIntegers, isCommand=>1, perl=>'LimitedPowers::OnlyPositiveIntegers->_eval'},
-  '**' => {class => LimitedPowers::OnlyPositiveIntegers, isCommand=>1, perl=>'LimitedPowers::OnlyPositiveIntegers->_eval'},
+  '^'  => {class => LimitedPowers::OnlyPositiveIntegers},
+  '**' => {class => LimitedPowers::OnlyPositiveIntegers},
 );
 
 ##################################################
