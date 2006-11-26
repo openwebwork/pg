@@ -54,7 +54,9 @@ sub string {
 #
 sub TeX {
   my $self = shift;
-  $self->SUPER::TeX . '\ ' . TeXunits($self->{units});
+  my $n = $self->SUPER::string(@_);
+  $n =~ s/E\+?(-?)0*([^)]*)/\\times 10^{$1$2}/i; # convert E notation to x10^(...)
+  return $n . '\ ' . TeXunits($self->{units});
 }
 
 
