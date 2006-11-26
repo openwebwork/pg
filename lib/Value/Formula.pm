@@ -331,7 +331,14 @@ sub createRandomPoints {
     }
   }
 
-  Value::Error("Can't generate enough valid points for comparison") if $k;
+  if ($k) {
+    my $error = "Can't generate enough valid points for comparison";
+    $error .= ':<div style="margin-left:1em">'.($$Value::context->{error}{message} || $@).'</div>'
+      if ($self->getFlag('showTestPointErrors'));
+    $error =~ s/ (in \S+ )?at line \d+.*//s;
+    Value::Error($error);
+  }
+
   return ($points,$values) unless $cacheResults;
   $self->{test_values} = $values;
   $self->{test_points} = $points;
