@@ -114,6 +114,7 @@ sub cmp_parse {
   if (defined $ans->{student_value}) {
     $ans->{student_value} = Value::Formula->new($ans->{student_value})
        unless Value::isValue($ans->{student_value});
+    $ans->{student_value}{isStudent} = 1;
     $ans->{preview_latex_string} = $ans->{student_formula}->TeX;
     $ans->{preview_text_string}  = protectHTML($ans->{student_formula}->string);
     #
@@ -183,8 +184,10 @@ sub cmp_equal {
   my $correct = $ans->{correct_value};
   my $student = $ans->{student_value};
   if ($correct->typeMatch($student,$ans)) {
+    $$Value::context->clearError();
     my $equal = $correct->cmp_compare($student,$ans);
-    if (defined($equal) || !$ans->{showEqualErrors}) {$ans->score(1) if $equal; return}
+    if ($$Value::context->{error}{flag} != $CMP_MESSAGE && 
+        (defined($equal) || !$ans->{showEqualErrors})) {$ans->score(1) if $equal; return}
     $self->cmp_error($ans);
   } else {
     return if $ans->{ignoreStrings} && (!Value::isValue($student) || $student->type eq 'String');
@@ -203,6 +206,7 @@ sub cmp_equal {
 
 our $CMP_ERROR = 2;   # a fatal error was detected
 our $CMP_WARNING = 3; # a warning was produced
+our $CMP_MESSAGE = 4; # an message should be reported for this check
 
 sub cmp_compare {
   my $self = shift; my $other = shift; my $ans = shift; my $nth = shift || '';
@@ -268,6 +272,21 @@ sub cmp_Error {
   return unless scalar(@_) > 0;
   $ans->score(0);
   $ans->{ans_message} = $ans->{error_message} = join("\n",@_);
+}
+
+#
+#  Force a message into the results message column and die
+#  (To be used when overriding Parser classes that need
+#  to report errors to the student but can't do it in
+#  the overridden == since errors are trapped.)
+#
+sub cmp_Message {
+  my $message = shift;
+  $message = [$message,@_] if scalar(@_) > 0;
+  $$context->setError($message,'',undef,undef,$CMP_MESSAGE);
+  $message = $$context->{error}{message};
+  die $message . traceback() if $$context->flags('showTraceback');
+  die $message . getCaller();
 }
 
 #
