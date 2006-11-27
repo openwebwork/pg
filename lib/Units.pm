@@ -31,8 +31,10 @@ package Units;
     #      degK   => power
     #      perhaps other fundamental units will added later as well.
 
+# Unfortunately there will be no automatic conversion between the different
+# temperature scales since we haven't allowed for affine conversions.
 
-my %fundamental_units = ('factor' => 1,
+our %fundamental_units = ('factor' => 1,
                      'm'      => 0,
                      'kg'     => 0,
                      's'      => 0,
@@ -44,16 +46,17 @@ my %fundamental_units = ('factor' => 1,
                      'amp'    => 0,
 );
 
+
 # This hash contains all of the units which will be accepted.  These must
 #be defined in terms of the
 # fundamental units given above.  If the power of the fundamental unit is
 #not included it is assumed to
 # be zero.
 
-my $PI = 4*atan2(1,1);
+our $PI = 4*atan2(1,1);
 #         9.80665 m/s^2  -- standard accelearationof gravity
 
-my %known_units = ('m'  => {
+our %known_units = ('m'  => {
                            'factor'    => 1,
                            'm'         => 1
                           },
