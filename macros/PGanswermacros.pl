@@ -3307,6 +3307,37 @@ sub mail_answers_to2 {	#accepts the last answer and mails off the result
 	);
 }
 
+# This should be renamed to mail_answers_to2 after it works.
+sub mail_answers_to3 {
+	my ($to, $subject, $ra_allow_mail_to) = @_;
+	
+	$subject = "$main::courseName WeBWorK questionnaire" unless defined $subject;
+	warn "The third argument (ra_allow_mail_to) to mail_answers_to2() is ignored. The list of allowed addresses is fixed."
+		if defined $ra_allow_mail_to;
+	
+	my $mailer = $rh_envir->{mailer};
+	
+	my $open_result = $mailer->Open({to => $to, subject => $subject});
+	if (not ref $open_result) {
+		die "An error occured while opening the mailer: ",
+		$mailer->error_msg, " (", $mailer->error, ")";
+	}
+	
+	my $sendenc_result = $mailer->SendEnc($QUESTIONNAIRE_ANSWERS);
+	if (not ref $sendenc_result) {
+		die "An error occured while sending the message body: ",
+		$mailer->error_msg, " (", $mailer->error, ")";
+	}
+	
+	my $close_result = $mailer->Close;
+	if (not ref $open_result) {
+		die "An error occured while closing the mailer: ",
+		$mailer->error_msg, " (", $mailer->error, ")";
+	}
+	
+	return;
+}
+
 ##########################################################################
 ##########################################################################
 
