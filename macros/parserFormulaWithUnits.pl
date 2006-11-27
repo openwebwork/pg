@@ -14,9 +14,11 @@ sub _parserFormulaWithUnits_init {}; # don't reload this file
 #
 #  Usage examples:
 #
-#      ANS(FormulaWithUnits("3 ft")->cmp);
-#      ANS(FormulaWithUnits("$a*$b ft")->cmp);
-#      ANS(FormulaWithUnits($a*$b,"ft")->cmp);
+#      ANS(FormulaWithUnits("3x+1 ft")->cmp);
+#      ANS(FormulaWithUnits("$a*x+1 ft")->cmp);
+#
+#      $x = Formula("x");
+#      ANS(FormulaWithUnits($a*$x+1,"ft")->cmp);
 #
 ######################################################################
 
