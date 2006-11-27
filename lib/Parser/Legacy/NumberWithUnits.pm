@@ -14,6 +14,7 @@ sub new {
   Value::Error("You must provide a number") unless defined($num);
   ($num,$units) = splitUnits($num) unless $units;
   Value::Error("You must provide units for your number") unless $units;
+  Value::Error("Your units can only contain one division") if $units =~ m!/.*/!;
   $num = Value::makeValue($num);
   Value::Error("A number with units must be a constant, not %s",lc(Value::showClass($num)))
     unless Value::isReal($num);
@@ -26,7 +27,7 @@ sub new {
 }
 
 #
-#  Find the units for and split that off
+#  Find the units for the number and split that off
 #  (Too bad the Units::known_units hash is private)
 #
 my $aUnit = '([a-zA-Z]+|light-year)(\s*(\^|\*\*)\s*[-+]?\d+)?';
@@ -76,6 +77,10 @@ sub cmp_parse {
   my ($num,$units) = splitUnits($ans->{student_ans});
   unless (defined($num) && defined($units) && $units ne '') {
     $self->cmp_Error($ans,"Your answer doesn't look like a number with units");
+    return $ans;
+  }
+  if ($units =~ m!/.*/!) {
+    $self->cmp_Error($ans,"Your units can only contain one division");
     return $ans;
   }
   my %Units = getUnits($units);
