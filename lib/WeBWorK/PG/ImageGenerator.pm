@@ -26,13 +26,27 @@ FIXME: add this
 
 use strict;
 use warnings;
-use WeBWorK::EquationCache;
-use WeBWorK::Constants;
 use DBI;
+use WeBWorK::Constants;
+use WeBWorK::EquationCache;
 
-#use WeBWorK::Utils qw(readDirectory makeTempDirectory removeTempDirectory);
-# can't use WeBWorK::Utils from here :(
-# so we define the needed functions here instead
+# can't use WeBWorK::Utils from here, so we define the needed functions here
+#use WeBWorK::Utils qw/readFile readDirectory makeTempDirectory removeTempDirectory/;
+
+use constant MKDIR_ATTEMPTS => 10;
+use File::Path qw(rmtree);
+
+sub readFile($) {
+	my $filename = shift;
+	my $contents = '';
+	local(*FILEH);
+	open FILEH,  "<$filename" or die "Unable to read $filename";
+	local($/) = undef;
+	$contents = <FILEH>;
+	close(FILEH);
+	return($contents);
+}
+
 sub readDirectory($) {
 	my $dirName = shift;
 	opendir my $dh, $dirName
@@ -41,7 +55,7 @@ sub readDirectory($) {
 	close $dh;
 	return @result;
 }
-use constant MKDIR_ATTEMPTS => 10;
+
 sub makeTempDirectory($$) {
 	my ($parent, $basename) = @_;
 	# Loop until we're able to create a directory, or it fails for some
@@ -62,23 +76,11 @@ sub makeTempDirectory($$) {
 	return $fullPath;
 }
 
-use File::Path qw(rmtree);
-# for deleting the temp directory
 sub removeTempDirectory($) {
 	my ($dir) = @_;
 	rmtree($dir, 0, 0);
 }
 
-sub readFile($) {
-	my $filename = shift;
-	my $contents = '';
-	local(*FILEH);
-	open FILEH,  "<$filename" or die "Unable to read $filename";
-	local($/) = undef;
-	$contents = <FILEH>;
-	close(FILEH);
-	return($contents);
-}
 ################################################################################
 
 =head1 CONFIGURATION VARIABLES
