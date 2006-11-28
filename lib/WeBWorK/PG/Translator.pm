@@ -386,16 +386,19 @@ sub pre_load_macro_files {
 #    PG.pl, IO.pl and dangerousMacros.pl are loaded without restriction
 #    All other files are loaded with restriction
 #     
+			# construct a regex that matches only these three files safely
+			my @unrestricted_files = qw/PG.pl dangerousMacros.pl IO.pl/;
+			my $unrestricted_files = join("|", map { quotemeta } @unrestricted_files);
+			
 			my $store_mask; 
-			my $unrestricted_files  = "PG.pl|dangerousMacros.pl|IO.pl";
-			if ($fileName =~ /^$unrestricted_files$/) {
+			if ($fileName =~ /^($unrestricted_files)$/) {
 	        	$store_mask = $cached_safe_cmpt->mask();
 				$cached_safe_cmpt ->mask(Opcode::empty_opset());
 	        } 			
 			$cached_safe_cmpt -> reval('BEGIN{push @main::__eval__,__FILE__}; package main; ' .$string);
 			warn "preload Macros: errors in compiling $macro_file_name:<br> $@" if $@;
 			$self->{envir}{__files__}{$cached_safe_cmpt->reval('pop @main::__eval__')} = $filePath;
-			if ($fileName =~ /^$unrestricted_files$/) {
+			if ($fileName =~ /^($unrestricted_files)$/) {
 	        	$cached_safe_cmpt ->mask($store_mask);
 	        	warn "mask restored after $fileName" if $debugON;
 	        }
