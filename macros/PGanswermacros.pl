@@ -3246,10 +3246,18 @@ sub mail_answers_to {  #accepts	the	last answer	and	mails off the result
 
 		# then mail out	all of the answers, including this last one.
 
-		send_mail_to(	$user_address,
-					'subject'		    =>	"$main::courseName WeBWorK questionnaire",
-					'body'			    =>	$QUESTIONNAIRE_ANSWERS,
-					'ALLOW_MAIL_TO'		=>	$rh_envir->{ALLOW_MAIL_TO}
+		# this is the old mechanism for sending mail (via IO.pl)
+		#send_mail_to(	$user_address,
+		#			'subject'		    =>	"$main::courseName WeBWorK questionnaire",
+		#			'body'			    =>	$QUESTIONNAIRE_ANSWERS,
+		#			'ALLOW_MAIL_TO'		=>	$rh_envir->{ALLOW_MAIL_TO}
+		#);
+		
+		# DelayedMailer is the new method (for now)
+		$rh_envir->{mailer}->add_message(
+			to => $user_address,
+			subject => "$main::courseName WeBWorK questionnaire",
+			msg => $QUESTIONNAIRE_ANSWERS,
 		);
 
 		my $ans_hash = new AnswerHash(	'score'		=>	1,
@@ -3295,45 +3303,50 @@ sub save_answer_to_file {  #accepts	the	last answer	and	mails off the result
 	return $ans_eval;
 }
 
-sub mail_answers_to2 {	#accepts the last answer and mails off the result
-	my $user_address         = shift;
-	my $subject              = shift;
-	my $ra_allow_mail_to     = shift;	 
-	$subject = "$main::courseName WeBWorK questionnaire" unless defined $subject;
-	send_mail_to($user_address,
-			'subject'			=> $subject,
-			'body'				=> $QUESTIONNAIRE_ANSWERS,
-			'ALLOW_MAIL_TO'		=> $rh_envir->{ALLOW_MAIL_TO},
-	);
-}
+#sub mail_answers_to2 {	#accepts the last answer and mails off the result
+#	my $user_address         = shift;
+#	my $subject              = shift;
+#	my $ra_allow_mail_to     = shift;	 
+#	$subject = "$main::courseName WeBWorK questionnaire" unless defined $subject;
+#	send_mail_to($user_address,
+#			'subject'			=> $subject,
+#			'body'				=> $QUESTIONNAIRE_ANSWERS,
+#			'ALLOW_MAIL_TO'		=> $rh_envir->{ALLOW_MAIL_TO},
+#	);
+#}
 
-# This should be renamed to mail_answers_to2 after it works.
-sub mail_answers_to3 {
+sub mail_answers_to2 {
 	my ($to, $subject, $ra_allow_mail_to) = @_;
 	
 	$subject = "$main::courseName WeBWorK questionnaire" unless defined $subject;
 	warn "The third argument (ra_allow_mail_to) to mail_answers_to2() is ignored. The list of allowed addresses is fixed."
 		if defined $ra_allow_mail_to;
 	
-	my $mailer = $rh_envir->{mailer};
+	$rh_envir->{mailer}->add_message(
+		to => $to,
+		subject => $subject,
+		msg => $QUESTIONNAIRE_ANSWERS,
+	);
 	
-	my $open_result = $mailer->Open({to => $to, subject => $subject});
-	if (not ref $open_result) {
-		die "An error occured while opening the mailer: ",
-		$mailer->error_msg, " (", $mailer->error, ")";
-	}
-	
-	my $sendenc_result = $mailer->SendEnc($QUESTIONNAIRE_ANSWERS);
-	if (not ref $sendenc_result) {
-		die "An error occured while sending the message body: ",
-		$mailer->error_msg, " (", $mailer->error, ")";
-	}
-	
-	my $close_result = $mailer->Close;
-	if (not ref $open_result) {
-		die "An error occured while closing the mailer: ",
-		$mailer->error_msg, " (", $mailer->error, ")";
-	}
+	#my $mailer = $rh_envir->{mailer};
+	#
+	#my $open_result = $mailer->Open({to => $to, subject => $subject});
+	#if (not ref $open_result) {
+	#	die "An error occured while opening the mailer: ",
+	#	$mailer->error_msg, " (", $mailer->error, ")";
+	#}
+	#
+	#my $sendenc_result = $mailer->SendEnc($QUESTIONNAIRE_ANSWERS);
+	#if (not ref $sendenc_result) {
+	#	die "An error occured while sending the message body: ",
+	#	$mailer->error_msg, " (", $mailer->error, ")";
+	#}
+	#
+	#my $close_result = $mailer->Close;
+	#if (not ref $open_result) {
+	#	die "An error occured while closing the mailer: ",
+	#	$mailer->error_msg, " (", $mailer->error, ")";
+	#}
 	
 	return;
 }
