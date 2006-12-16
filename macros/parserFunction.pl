@@ -7,7 +7,7 @@ sub _parserFunction_init {}; # don't reload this file
 #  This file implements an easy way of creating new functions that
 #  are added to the current Parser context.  (This avoids having to
 #  do the complicated procedure outlined in the docs/parser/extensions
-#  samples.
+#  samples.)
 #
 #  To create a function that can be used in Formula() calls (and by
 #  students in their answers), use the parserFunction() routine, as
