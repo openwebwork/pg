@@ -55,8 +55,10 @@ $Parser::reduce->{'x/(-y)'} = 1;
 #  Use \frac for TeX version.
 #
 sub TeX {
-  my ($self,$precedence,$showparens,$position,$outerRight) = @_;
+  my $self = shift;
+  my ($precedence,$showparens,$position,$outerRight) = @_;
   my $TeX; my $bop = $self->{def};
+  return $self->SUPER::TeX(@_) if $self->{def}{noFrac};
   $showparens = '' unless defined($showparens);
   my $addparens =
       defined($precedence) &&

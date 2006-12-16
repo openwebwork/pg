@@ -34,6 +34,10 @@ $operators = {
            class => 'Parser::BOP::divide', space => ' /',
            rightparens => 'all', leftparens => 'extra', fullparens => 1},
 
+   '//'=> {precedence => 3, associativity => 'left', type => 'bin', string => '/',
+           class => 'Parser::BOP::divide',
+           rightparens => 'all', leftparens => 'extra', fullparens => 1, noFrac => 1},
+
    ' /' => {precedence => 2.8, associativity => 'left', type => 'bin', string => '/',
            class => 'Parser::BOP::divide',
            rightparens => 'all', leftparens => 'extra', fullparens => 1, hidden => 1},
