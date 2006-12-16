@@ -429,10 +429,10 @@ sub AdaptParameters {
   foreach my $i (0..$d-1) {
     my @a = (); my @p = @{$p->[$i]};
     foreach my $j (0..$d-1) {
-      $P[$j] = 1; push(@a,&$f(@p,@P)-$v->[$i]);
+      $P[$j] = 1; push(@a,(&$f(@p,@P)-$v->[$i])->value);
       $P[$j] = 0;
     }
-    push @A, [@a]; push @b, [&$F(@p,@P)-$v->[$i]];
+    push @A, [@a]; push @b, [(&$F(@p,@P)-$v->[$i])->value];
   }
   #
   #  Use MatrixReal1.pm to solve system of linear equations
