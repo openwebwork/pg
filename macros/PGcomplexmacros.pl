@@ -295,8 +295,10 @@ sub multi_cmp {
 	my @answer_evaluators = @{$ra_answer_evaluators};
 	my $backup_ans_eval = $answer_evaluators[0];
 	my $multi_ans_evaluator = new AnswerEvaluator;
+	$multi_ans_evaluator->{debug}=$options{debug} if defined($options{debug});
 	$multi_ans_evaluator->install_evaluator( sub { 
 		my $rh_ans = shift;
+		
 		my @student_answers = split/\s*,\s*/,$rh_ans->{student_ans};
 		my @evaluated_ans_hashes = ();
 		for ( my $j=0; $j<@student_answers; $j++ ) {
@@ -334,13 +336,17 @@ sub multi_cmp {
 				
 		}
 		# construct the final answer hash
+		my @saved_evaluated_ans_hashes = @evaluated_ans_hashes;
 		my $rh_ans_out = shift @evaluated_ans_hashes;
 		while (@evaluated_ans_hashes) {
 			my $temp_hash = shift @evaluated_ans_hashes;
 			$rh_ans_out =$rh_ans_out->AND($temp_hash);
 		}
+		$rh_ans_out->{original_student_ans} = $rh_ans->{student_ans};
 		$rh_ans_out->{student_ans} = $rh_ans->{student_ans};
 		$rh_ans_out->{score}=0 unless @{$ra_answer_evaluators} == @student_answers; # require the  correct number of answers
+		$rh_ans_out->{_filter_name} = 'multi_cmp';
+        $rh_ans_out->{intermediate_response_evaluations} = [@saved_evaluated_ans_hashes];
 		$rh_ans_out;
 	});
 	$multi_ans_evaluator;
