@@ -1,12 +1,37 @@
 #########################################################################
+=head1 DESCRIPTION
+# 
+# Defines the assumptions about symbols for
+# the following contexts 
+#   Full     => 
+#   Numeric  => 
+#   Complex  => 
+#   Point    => 
+#   Vector   => 
+#   Matrix   => 
+#   Interval => 
+# 
+# You can list the defined contexts using:
+# 
+# \{join("$BR", lex_sort keys  %Parser::Context::Default::context )\}
+
+=cut
 
 package Parser::Context::Default;
 use vars qw($operators $parens $lists $constants $variables $functions $strings $flags); 
 use strict;
 
+=head2 Context hashes
+
 #
-#  The default operators, functions, etc.
+#  Define the default  operators, parens, constants, variables functions, etc.
 #
+#  List types: e.g. Point, Vector, Matrix, -- define open and close brackets
+#
+#  strings, flags
+
+=cut
+
 $operators = {
    ',' => {precedence => 0, associativity => 'left', type => 'bin', string => ',',
            class => 'Parser::BOP::comma', isComma => 1},
