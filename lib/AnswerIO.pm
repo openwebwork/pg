@@ -40,7 +40,9 @@ sub saveAnswerToFile {
       # We want to allow acces only to predetermined files
       # We accomplish this by translating legal IDs into a file name
 
-      my $rh_allowableFiles = {preflight => 'preflight.log',
+      my $rh_allowableFiles = {
+         preflight => 'preflight.log',
+         questionnaire => 'questionnaire.txt',
 
       	};
       my $error=undef;
