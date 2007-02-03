@@ -529,9 +529,8 @@ sub inv_romberg {
 =cut
 
 sub rungeKutta4 { 
-	my $rh_ans = shift;
+	my $rf_fun = shift;
 	my %options = @_;
- 	my $rf_fun = $rh_ans->{rf_diffeq};
 	set_default_options(	\%options,
 			    'initial_t'					=>	1,
 			    'initial_y'					=>	1,
