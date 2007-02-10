@@ -129,7 +129,7 @@ sub custom_list_cmp {
   $correct = Value::makeValue($correct);
   $correct = main::Formula($correct) unless Value::isValue($correct);
   $correct->cmp(
-    custom_list_checker => $checker,
+    list_checker => $checker,
     @custom_list_cmp_defaults,
     @_,
   );
