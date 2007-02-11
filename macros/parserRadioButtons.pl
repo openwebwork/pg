@@ -39,6 +39,13 @@ sub _parserRadioButtons_init {}; # don't reload this file
 #                                will be trimmed and "..." inserted)
 #                                  Default: 25
 #
+#     uncheckable => 0 or 1      determines whether the radio buttons can
+#                    or "shift"  be unchecked (requires JavaScript).
+#                                To uncheck, click a second time; when
+#                                set to "shift", unchecking requires the
+#                                shift key to be pressed.
+#                                  Default: 0
+#
 #
 #  To insert the radio buttons into the problem text, use
 #
@@ -65,6 +72,8 @@ sub RadioButtons {parserRadioButtons->new(@_)}
 package parserRadioButtons;
 our @ISA = qw(Value::String);
 
+my $jsPrinted = 0;  # true when the JavaScript has been printed
+
 
 #
 #  Create a new RadioButtons object
@@ -78,6 +87,7 @@ sub new {
     separator => $main::BR,
     checked => undef,
     maxLabelSize => 25,
+    uncheckable => 0,
     @_,
   );
   $options{labels} = [1..scalar(@$choices)] if $options{labels} eq "123";
@@ -99,6 +109,7 @@ sub new {
     %options,
   ), $class;
   main::Context($oldContext);
+  $self->JavaScript if $self->{uncheckable};
   return $self;
 }
 
@@ -163,16 +174,57 @@ sub Index {
 }
 
 #
+#  Print the JavaScript needed for uncheckable radio buttons
+#
+sub JavaScript {
+  return if $main::displayMode eq 'TeX';
+  return if $jsPrinted;
+  main::TEXT(
+    "\n<script>\n" .
+    "if (window.ww == null) {var ww = {}}\n" .
+    "if (ww.RadioButtons == null) {ww.RadioButtons = {}}\n" .
+    "if (ww.RadioButtons.selected == null) {ww.RadioButtons.selected = {}}\n" .
+    "ww.RadioButtons.Toggle = function (obj,event,shift) {\n" .
+    "  if (!event) {event = window.event}\n" .
+    "  if (shift && !event.shiftKey) {\n" .
+    "    this.selected[obj.name] = obj\n" .
+    "    return\n" .
+    "  }\n" .
+    "  var selected = this.selected[obj.name]\n" .
+    "  if (selected && selected == obj) {\n".
+    "    this.selected[obj.name] = null\n" .
+    "    obj.checked = false\n" .
+    "  } else {\n" .
+    "    this.selected[obj.name] = obj\n".
+    "  }\n" .
+    "}\n".
+    "</script>\n"
+  );
+  $jsSPrinted = 1;
+}
+
+sub makeUncheckable {
+  my $self = shift;
+  my $shift = ($self->{uncheckable} =~ m/shift/i ? ",1" : "");
+  my $onclick = "onclick=\"ww.RadioButtons.Toggle(this,event$shift)\"";
+  my @radio = @_;
+  foreach (@radio) {$_ =~ s/<INPUT/<INPUT $onclick/i}
+  return @radio;
+}
+
+#
 #  Create the radio-buttons text
 #
 sub buttons {
   my $self = shift;
   my @radio = main::ans_radio_buttons($self->choiceHash);
+  @radio = $self->makeUncheckable(@radio) if $self->{uncheckable};
   (wantarray) ? @radio : join($self->{separator}, @radio);
 }
 sub named_buttons {
   my $self = shift; my $name = shift;
   my @radio = NAMED_ANS_RADIO_BUTTONS($name,$self->choiceHash);
+  @radio = $self->makeUncheckable(@radio) if $self->{uncheckable};
   #
   #  Taken from PGbasicmacros.pl
   #  It is wrong to have \item in the radio buttons and to add itemize here,
