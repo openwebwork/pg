@@ -1364,6 +1364,7 @@ sub typeMatch {
   my $typeMatch = ($self->createRandomPoints(1))[1]->[0];
   $other = eval {($other->createRandomPoints(1))[1]->[0]} if Value::isFormula($other);
   return 1 unless defined($other); # can't really tell, so don't report type mismatch
+  return 1 if $typeMatch->class eq 'String' && Value::isFormula($ans->{typeMatch});  # avoid infinite loop
   $typeMatch->typeMatch($other,$ans);
 }
 
@@ -1609,6 +1610,10 @@ sub cmp_graph {
     next unless defined($f);
     unless (scalar(keys(%{$f->{variables}})) < 2) {
       warn "Only formulas with one variable can be graphed";
+      return "";
+    }
+    unless ($f->typeRef->{length} == 1) {
+      warn "Only real-valued functions can be graphed";
       return "";
     }
     if ($f->isConstant) {
