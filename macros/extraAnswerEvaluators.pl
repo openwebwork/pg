@@ -2,8 +2,8 @@ loadMacros('Parser.pl');
 
 =head1 NAME
 
-        extraAnswerEvaluators.pl -- located in the courseScripts directory
-
+        extraAnswerEvaluators.pl
+        
 =head1 SYNPOSIS
 
         Answer Evaluators for intervals, lists of numbers, lists of points,

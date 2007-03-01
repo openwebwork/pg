@@ -1233,7 +1233,7 @@ sub LBRACE { MODES( TeX => '\{', Latex2HTML =>   '\\lbrace',  HTML =>  '{' , HTM
 sub RBRACE { MODES( TeX => '\}', Latex2HTML =>   '\\rbrace',  HTML =>  '}' , HTML_tth=> '\\rbrace',); };
 sub LB { MODES( TeX => '\{', Latex2HTML =>   '\\lbrace',  HTML =>  '{' , HTML_tth=> '\\lbrace' ); };
 sub RB { MODES( TeX => '\}', Latex2HTML =>   '\\rbrace',  HTML =>  '}' , HTML_tth=> '\\rbrace',); };
-sub DOLLAR { MODES( TeX => '\\$', Latex2HTML => '\\$', HTML => '$' ); };
+sub DOLLAR { MODES( TeX => '\\$', Latex2HTML => '&#36;', HTML => '&#36;' ); };
 sub PERCENT { MODES( TeX => '\\%', Latex2HTML => '\\%', HTML => '%' ); };
 sub CARET { MODES( TeX => '\\verb+^+', Latex2HTML => '\\verb+^+', HTML => '^' ); };
 sub PI {4*atan2(1,1);};

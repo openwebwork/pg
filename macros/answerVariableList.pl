@@ -2,6 +2,8 @@ loadMacros('Parser.pl');
 
 sub _answerVariableList_init {}; # don't reload this file
 
+=head1 DESCRIPTION
+
 ######################################################################
 #
 #  This answer checker compares the student answer to a list of
@@ -32,6 +34,10 @@ sub _answerVariableList_init {}; # don't reload this file
 #
 #  A new context for variable lists
 #
+
+=cut
+
+
 $context{VariableList} = Parser::Context->new(
   operators => {',' => Context()->operators->get(',')},
   lists => {'List'  => {class =>'Parser::List::List'}},

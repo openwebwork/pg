@@ -2,6 +2,7 @@ loadMacros("Parser.pl");
 
 sub _contextString_init {}; # don't load it again
 
+=head1 DESCRIPTION
 ##########################################################
 #
 #  Implements contexts for string-valued answers.
@@ -17,6 +18,8 @@ sub _contextString_init {}; # don't load it again
 #	ANS(string_cmp("Foo"));
 #
 #
+
+=cut
 
 package contextString::Variable;
 
