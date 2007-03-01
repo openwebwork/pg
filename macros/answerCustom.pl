@@ -2,6 +2,8 @@ loadMacros('Parser.pl');
 
 sub _answerCustom_init {}; # don't reload this file
 
+=head custom response evaluator
+
 ######################################################################
 #
 #  This answer checker provides an easy method for creating an answer
@@ -57,6 +59,8 @@ sub _answerCustom_init {}; # don't reload this file
 #  "pink screen of death", and includes a request for the student to
 #  inform the instructor.
 #
+
+=cut
 
 sub custom_cmp {
   my $correct = shift; my $checker = shift;
