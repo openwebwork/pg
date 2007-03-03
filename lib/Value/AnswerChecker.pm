@@ -1451,7 +1451,7 @@ sub cmp_diagnostics {
   my $output = "";
   if ($isEvaluator) {
     #
-    #  The tests to be performed with the answer checker is created
+    #  The tests to be performed when the answer checker is created
     #
     $self->getPG('loadMacros("PGgraphmacros.pl")');
     my ($inputs) = $self->getPG('$inputs_ref');
@@ -1471,6 +1471,8 @@ sub cmp_diagnostics {
     my $vx = (keys(%{$self->{variables}}))[0];
     my $vi = 0; while ($names[$vi] ne $vx) {$vi++}
     my $points = [map {$_->[$vi]} @{$self->{test_points}}];
+    my @params = $self->{context}->variables->parameters;
+       @names = $self->{context}->variables->variables;
 
     #
     #  The graphs of the functions and errors
@@ -1499,7 +1501,16 @@ sub cmp_diagnostics {
       $output .= '<TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0">'
 	. '<TR VALIGN="TOP">'.join('<TD WIDTH="20"></TD>',@G).'</TR></TABLE>';
     }
-    
+
+    #
+    #  The adaptive parameters
+    #
+    if ($formulas->{showParameters}) {
+      $output .= '<HR><TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD>Adaptive Parameters:<BR>';
+      $output .= join("<BR>",map {"&nbsp;&nbsp;$params[$_]: ".$self->{parameters}[$_]} (0..$#params));
+      $output .= '</TD></TR></TABLE>';
+    }
+
     #
     #  The test points and values
     #
@@ -1510,19 +1521,24 @@ sub cmp_diagnostics {
     my $zeroLevelTol = $self->getFlag('zeroLevelTol');
     $self->{context}{flags}{zeroLevelTol} = 0; # always show full resolution in the tables below
     my $names = join(',',@names); $names = '('.$names.')' if scalar(@names) > 1;
+
+    $student->createPointValues($self->{test_points},0,1,1) unless $student->{test_values};
+
+    my $cv = $self->{test_values};
+    my $sv = $student->{test_values};
+    my $av = $self->{test_adapt} || $lv;
+
     if ($formulas->{showTestPoints}) {
-      $student->createPointValues($self->{test_points},0,1,1) unless $student->{test_values};
       my @p = ("$names:", (map {$P[$i[$_]]} (0..$#P)));
       push(@rows,'<TR><TD ALIGN="RIGHT">'.join($colsep,@p).'</TD></TR>');
       push(@rows,'<TR><TD ALIGN="RIGHT">'.join($colsep,("<HR>")x scalar(@p)).'</TD></TR>');
       push(@rows,'<TR><TD ALIGN="RIGHT">'
-	   .join($colsep,"Correct Answer:",
-		 map {Value::isNumber($self->{test_values}[$i[$_]])? $self->{test_values}[$i[$_]]: "undefined"} (0..$#P))
+	   .join($colsep,($av == $cv)? "Correct Answer:" : "Adapted Answer:",
+		 map {Value::isNumber($av->[$i[$_]])? $av->[$i[$_]]: "undefined"} (0..$#P))
 	   .'</TD></TR>');
-      my $test = $student->{test_values};
       push(@rows,'<TR><TD ALIGN="RIGHT">'
 	   .join($colsep,"Student Answer:",
-		 map {Value::isNumber($test->[$i[$_]])? $test->[$i[$_]]: "undefined"} (0..$#P))
+		 map {Value::isNumber($sv->[$i[$_]])? $sv->[$i[$_]]: "undefined"} (0..$#P))
 	   .'</TD></TR>');
     }
     #
@@ -1533,8 +1549,8 @@ sub cmp_diagnostics {
       my $tolerance = $self->getFlag('tolerance');
       my $tolType = $self->getFlag('tolType'); my $error;
       foreach my $j (0..$#P) {
-	if (Value::isNumber($student->{test_values}[$i[$j]])) {
-	  $error = abs($self->{test_values}[$i[$j]]-$student->{test_values}[$i[$j]]);
+	if (Value::isNumber($sv->[$i[$j]])) {
+	  $error = abs($av->[$i[$j]] - $sv->[$i[$j]]);
 	  $error = '<SPAN STYLE="color:#'.($error->value<$tolerance ? '00AA00': 'AA0000').'">'.$error.'</SPAN>'
 	    if $tolType eq 'absolute';
 	} else {$error = "---"}
@@ -1551,9 +1567,9 @@ sub cmp_diagnostics {
       my $tolType = $self->getFlag('tolType'); my $error;
       my $zeroLevel = $self->getFlag('zeroLevel');
       foreach my $j (0..$#P) {
-	if (Value::isNumber($student->{test_values}[$i[$j]])) {
-	  my $c = $self->{test_values}[$i[$j]]; my $s = $student->{test_values}[$i[$j]];
-	  if (abs($c->value) < $zeroLevel || abs($s->value) < $zeroLevel)
+	if (Value::isNumber($sv->[$i[$j]])) {
+	  my $c = $av->[$i[$j]]; my $s = $sv->[$i[$j]];
+	  if (abs($cv->[$i[$j]]->value) < $zeroLevel || abs($s->value) < $zeroLevel)
             {$error = abs($c-$s); $tol = $zeroLevelTol} else
             {$error = abs(($c-$s)/($c||1E-10)); $tol = $tolerance}
 	  $error = '<SPAN STYLE="color:#'.($error < $tol ? '00AA00': 'AA0000').'">'.$error.'</SPAN>'
@@ -1603,13 +1619,28 @@ sub cmp_graph {
   my ($my,$My) = (0,0); my ($mx,$Mx) = @{$limits};
   my $dx = ($Mx-$mx)/$steps; my $f; my $y;
 
+  my @pnames = $self->{context}->variables->parameters;
+  my @pvalues = ($self->{parameters} ? @{$self->{parameters}} : (0) x scalar(@pnames));
+  my $x = "";
+
   #
   #  Find the max and min values of the function
   #
   foreach $f ($F1,$F2) {
     next unless defined($f);
-    unless (scalar(keys(%{$f->{variables}})) < 2) {
-      warn "Only formulas with one variable can be graphed";
+    foreach my $v (keys(%{$f->{variables}})) {
+      if ($v ne $x && !$f->{context}->variables->get($v)->{parameter}) {
+	if ($x) {
+	  warn "Only formulas with one variable can be graphed" unless $self->{graphWarning};
+	  $self->{graphWarning} = 1;
+	  return "";
+	}
+	$x = $v;
+      }
+    }
+    unless ($f->typeRef->{length} == 1) {
+      warn "Only real-valued functions can be graphed" unless $self->{graphWarning};
+      $self->{graphWarning} = 1;
       return "";
     }
     unless ($f->typeRef->{length} == 1) {
@@ -1620,9 +1651,10 @@ sub cmp_graph {
       $y = $f->eval;
       $my = $y if $y < $my; $My = $y if $y > $My;
     } else {
-      my $F = $f->perlFunction;
+      my $F = $f->perlFunction(undef,[$x,@pnames]);
       foreach my $i (0..$steps-1) {
-        $y = eval {&{$F}($mx+$i*$dx)}; next unless defined($y) && Value::isNumber($y);
+        $y = eval {&{$F}($mx+$i*$dx,@pvalues)};
+	next unless defined($y) && Value::isNumber($y);
         $my = $y if $y < $my; $My = $y if $y > $My;
       }
     }
@@ -1646,6 +1678,10 @@ sub cmp_graph {
      grid => $graphs->{grid},
      size => $size,
   ];
+  $grf->{params} = {
+    names => [$x,@pnames],
+    values => {map {$pnames[$_] => $pvalues[$_]} (0..scalar(@pnames)-1)},
+  };
   $grf->{G} = $self->getPG('init_graph(@{$_grf_->{Goptions}})');
   $grf->{G}->imageName($grf->{G}->imageName.'-'.time()); # avoid browser cache
   $self->cmp_graph_function($grf,$F2,"green",$steps,$points) if defined($F2);
@@ -1670,10 +1706,12 @@ sub cmp_graph_function {
     my $y = $F->eval;
     $f = $self->getPG('new Fun(sub {'.$y.'},$_grf_->{G})');
   } else {
-    my $X = (keys %{$F->{variables}})[0];
-    $f = $self->getPG('new Fun(sub {Parser::Evaluate($_grf_->{'.$Fn.'},'.$X.'=>shift)},$_grf_->{G})');
+    my $X = $grf->{params}{names}[0];
+    $f = $self->getPG('new Fun(sub {Parser::Evaluate($_grf_->{'.$Fn.'},'
+           .$X.'=>shift,%{$_grf_->{params}{values}})},$_grf_->{G})');
     foreach my $x (@{$points}) {
-      my $y = Parser::Evaluate($F,($X)=>$x); next unless defined($y) && Value::isNumber($y);
+      my $y = Parser::Evaluate($F,($X)=>$x,%{$grf->{params}{values}});
+      next unless defined($y) && Value::isNumber($y);
       $grf->{x} = $x; $grf->{y} = $y;
       my $C = $self->getPG('new Circle($_grf_->{x},$_grf_->{y},4,"'.$color.'","'.$color.'")');
       $grf->{G}->stamps($C);

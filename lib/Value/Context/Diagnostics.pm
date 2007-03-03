@@ -13,6 +13,7 @@ sub new {
     formulas => {
       show => 0,
       showTestPoints => 1,
+      showParameters => 1,
       showAbsoluteErrors => 1,
       showRelativeErrors => 1,
       showGraphs => 1,
