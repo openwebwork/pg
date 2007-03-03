@@ -202,13 +202,17 @@ sub compare {
   #
   if ($l->AdaptParameters($r,$self->{context}->variables->parameters)) {
     my $avalues = $l->{test_adapt};
-    my $tolerance  = $self->getFlag('tolerance',1E-4);
-    my $isRelative = $self->getFlag('tolType','relative') eq 'relative';
-    my $zeroLevel  = $self->getFlag('zeroLevel',1E-14);
+    my $tolerance    = $self->getFlag('tolerance',1E-4);
+    my $isRelative   = $self->getFlag('tolType','relative') eq 'relative';
+    my $zeroLevel    = $self->getFlag('zeroLevel',1E-14);
+    my $zeroLevelTol = $self->getFlag('zeroLevelTol',1E-12);
     foreach $i (0..scalar(@{$lvalues})-1) {
       my $tol = $tolerance;
       my ($lv,$rv,$av) = ($lvalues->[$i]->value,$rvalues->[$i]->value,$avalues->[$i]->value);
-      $tol *= abs($lv) if $isRelative && abs($lv) > $zeroLevel;
+      if ($isRelative) {
+	if (abs($lv) <= $zeroLevel) {$tol = $zeroLevelTol}
+	                       else {$tol *= abs($lv)}
+      }
       return $rv <=> $av unless abs($rv - $av) < $tol;
     }
     return 0;
