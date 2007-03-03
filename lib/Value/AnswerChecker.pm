@@ -1505,7 +1505,7 @@ sub cmp_diagnostics {
     #
     #  The adaptive parameters
     #
-    if ($formulas->{showParameters}) {
+    if ($formulas->{showParameters} && scalar(@params) > 0) {
       $output .= '<HR><TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD>Adaptive Parameters:<BR>';
       $output .= join("<BR>",map {"&nbsp;&nbsp;$params[$_]: ".$self->{parameters}[$_]} (0..$#params));
       $output .= '</TD></TR></TABLE>';
@@ -1526,7 +1526,7 @@ sub cmp_diagnostics {
 
     my $cv = $self->{test_values};
     my $sv = $student->{test_values};
-    my $av = $self->{test_adapt} || $lv;
+    my $av = $self->{test_adapt} || $cv;
 
     if ($formulas->{showTestPoints}) {
       my @p = ("$names:", (map {$P[$i[$_]]} (0..$#P)));
