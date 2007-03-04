@@ -4902,9 +4902,11 @@ sub avg_problem_grader {
 
 =head2 Utility subroutines
 
-=head4
+=head4 pretty_print
 
-	warn pretty_print( $rh_hash_input)
+	Usage: warn pretty_print( $rh_hash_input)
+		   TEXT(pretty_print($ans_hash));
+		   TEXT(~~%envir);
 
 This can be very useful for printing out messages about objects while debugging
 
