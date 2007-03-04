@@ -641,9 +641,6 @@ sub print_result_if_debug {
 =head4 install_post_filter
 
 
-=head4 
-
-
 
 =cut
 

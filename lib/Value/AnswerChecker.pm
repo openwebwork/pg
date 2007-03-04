@@ -673,8 +673,8 @@ sub typeMatch {
 			  typeMatch        => 'Value::Real'
 	
 	Initial and final spaces are ignored when comparing strings.
-			  
-=cut		
+
+=cut
 
 package Value::String;
 
