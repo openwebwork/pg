@@ -5,8 +5,11 @@
  #  Implements the ->cmp method for Value objects. 
  #  Otherwise known as MathObjects.  This produces
  #  an answer checker appropriate for the type of object.
- #  Additional options can be passed to the checker to
+ #  Additional options can be passed to the cmp method to
  #  modify its action.
+ #
+ #   Usage:  $num = Real(3.45); # Real can be replaced by any other MathObject
+ #			 ANS($num->cmp(compareOptionName => compareOptionValue, ... ))
  #
  #  The individual Value packages are modified below to add the
  #  needed methods.
@@ -617,9 +620,9 @@ sub getPG {
 
 =head3 Value::Real
 
-	Usage $a = Real(3.56)
-		Creates a real number
-		Options:
+	Usage ANS( Real(3.56)->cmp() )
+		Compares response to a real value using 'fuzzy' comparison
+		compareOptions and default values:
 			  showTypeWarnings => 1,
 			  showEqualErrors  => 1,
 			  ignoreStrings    => 1,
@@ -660,10 +663,13 @@ sub typeMatch {
 
 =head3 Value::String
 	
-	Usage:  $s = String("a word or phrase");
+	Usage:  $s = String("pole");
+			ANS( $s->cmp(typeMatch => Complex("4+i") ) ); # compare to response 'pole', don't complain about complex number responses.
+			
+			  compareOptions and default values:
               showTypeWarnings => 1,
 			  showEqualErrors  => 1,
-			  ignoreStrings    => 1
+			  ignoreStrings    => 1   # never complain about string valued responses??
 			  typeMatch        => 'Value::Real'
 	
 	Initial and final spaces are ignored when comparing strings.
@@ -716,14 +722,18 @@ sub cmp {
 
 =head3 Value::Point
 
-	Usage  $pt = Point(3,6) or $pt = Point([3,6])
-		Options:
+	Usage: $pt = Point("(3,6)"); # preferred
+	       or $pt = Point(3,6);
+	       or $pt = Point([3,6]);
+	       ANS( $pt->cmp() );
+	       
+		compareOptions:
 		  showTypeWarnings => 1,   # warns if student response is of incorrect type
 		  showEqualErrors  => 1,
 		  ignoreStrings    => 1,
 		  showDimensionHints => 1, # reports incorrect number of coordinates
 		  showCoordinateHints =>1, # flags individual coordinates which are incorrect
-		  
+
 =cut
 
 package Value::Point;
@@ -783,8 +793,12 @@ sub named_ans_array_extension {my $self = shift; $self->ANS_MATRIX(1,@_)}
 
 =head3 Value::Vector
 
-	Usage  $pt = Vector(3,6,7) or $pt = Vector([3,6,7])
-		Options:
+	Usage:  $vec = Vector("<3,6,7");
+	        or $vec = Vector(3,6,7); 
+	        or $vec = Vector([3,6,7]);
+	        ANS( $vec->cmp() );
+
+		compareOptions:
 		  showTypeWarnings => 1,   # warns if student response is of incorrect type
 		  showEqualErrors  => 1,
 		  ignoreStrings    => 1,
@@ -793,8 +807,8 @@ sub named_ans_array_extension {my $self = shift; $self->ANS_MATRIX(1,@_)}
 		  promotePoints     => 0, # allow students to enter vectors as points (3,5,6)
 		  parallel          => 1, # response is correct if it is parallel to correct answer
 		  sameDirection     => 1, # response is correct if it has same orientation as correct answer
-		  
-		  
+
+
 =cut
 
 package Value::Vector;
@@ -874,16 +888,19 @@ sub named_ans_array_extension {my $self = shift; $self->ANS_MATRIX(1,@_)}
 =head3 Value::Matrix
 
 	Usage   $ma = Matrix([[3,6],[2,5]]) or $ma =Matrix([3,6],[2,5])
-		Options:
+	        ANS($ma->cmp());
+	        
+		compareOptions:
 
 		  showTypeWarnings => 1,   # warns if student response is of incorrect type
 		  showEqualErrors  => 1,
 		  ignoreStrings    => 1,
 		  showDimensionHints => 1, # reports incorrect number of coordinates
-		  ???showCoordinateHints =>1, # flags individual coordinates which are incorrect
+		  showCoordinateHints =>1, # flags individual coordinates which are incorrect
 
 
 =cut
+
 package Value::Matrix;
 
 sub cmp_defaults {(
@@ -957,16 +974,18 @@ sub named_ans_array_extension {my $self = shift; $self->ANS_MATRIX(1,@_)}
 
 =head3   Value::Interval
 
-	Usage:    $interval = Interval( '(',1,2,']')
-	
-		showTypeWarnings => 1,
-		showEqualErrors  => 1,
-		ignoreStrings    => 1,
-		showEndpointHints =>1,  # show hints about which end point values are correct
-		showEndTypeHints  => 1, # show hints about endpoint types
-		requireParenMatch => 1,
-		
-		
+	Usage:    $interval = Interval("(1,2]");
+	          or $interval = Interval( '(',1,2,']');
+	          ANS($inteval->cmp);
+		compareOptions and defaults:
+			showTypeWarnings => 1,
+			showEqualErrors  => 1,
+			ignoreStrings    => 1,
+			showEndpointHints =>1,  # show hints about which end point values are correct
+			showEndTypeHints  => 1, # show hints about endpoint types
+			requireParenMatch => 1,
+
+
 =cut
 
 package Value::Interval;
@@ -1022,9 +1041,15 @@ sub cmp_postprocess {
 =head3 Value::Set
 
 	Usage:   $set = Set(5,6,'a', 'b')
-	
-		Question:  How does this differ from List?
+	      or $set = Set("{5, 6, a, b}")
+	      
+	      The object is a finite set of real numbers. It can be used with Union and 
+	      Interval.
 		
+	Examples:  Interval("(-inf,inf)") - Set(0)
+	
+	           Compute("R-{0}") # in the Interval context: Context("Interval");
+
 =cut
 
 package Value::Set;
@@ -1075,10 +1100,11 @@ sub cmp_compare {
 
 =head3 Value::Union
 
-	Usage Union(I1, I2 ... In) where 'I1' is an interval
-	
-	
-	
+	Usage: $union = Union("[4,5] U [6,7]");
+	       or $union = Union(Interval("[4,5]",Interval("[6,7]"));
+	       ANS($union->cmp());
+
+
 =cut
 
 package Value::Union;
@@ -1127,15 +1153,18 @@ sub cmp_compare {
 
 =head3 Value::List
 
-	Usage:  $lst = List(mathobj1, mathobj2,   ) 
-		Options:
+	Usage:  $lst = List( "1, x, <4,5,6>" ); # list of a real, a formula and a vector.
+	        or $lst = List( Real(1), Formula("x"), Vector(4,5,6)   );
+	        ANS( $lst->cmp(showHints=>1) );
+	        
+		compareOptions and defaults:
 			showTypeWarnings => 1,
 			showEqualErrors  => 1,
 			ignoreStrings    => 1,
 			studentsMustReduceUnions => 1,
 			showUnionReduceWarnings => 1,
-			showHints => undef,
-			showLengthHints => undef,
+			showHints => undef,        # set to 1 if $showPartialCorrectAnswers = 1
+			showLengthHints => undef,  # set to 1 if $showPartialCorrectAnswers = 1
 			showParenHints => undef,
 			partialCredit => undef,
 			ordered => 0,
@@ -1453,7 +1482,7 @@ sub getOption {
 =head3  Value::Formula
 
 	Usage: $fun = Formula("x^2-x+1");
-	       $set = Formula("[-1, 0) U (0, 2]");
+	       $set = Formula("[-1, x) U (x, 2]");
 
 	
 	A formula can have any of the other math object types as its range.
