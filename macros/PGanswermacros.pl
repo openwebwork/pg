@@ -3630,7 +3630,7 @@ sub std_num_filter {
 	$rh_ans;
 }
 
-=head std_num_array_filter
+=head4 std_num_array_filter
 
 	std_num_array_filter($rh_ans, %options)
 	returns $rh_ans

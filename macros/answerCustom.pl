@@ -2,63 +2,63 @@ loadMacros('Parser.pl');
 
 sub _answerCustom_init {}; # don't reload this file
 
-=head custom response evaluator
+=head3 custom response evaluator
 
-######################################################################
-#
-#  This answer checker provides an easy method for creating an answer
-#  checker with a custom subroutine that performs the check for
-#  correctness.
-#
-#  Pass the correct answer (either as a string or as a Parser object)
-#  as the first argument, and a reference to the checker subroutine
-#  as the second argument.  Additional parameters can follow.  These
-#  include any of the parameters for the usual answer checker of the
-#  of the type of the correct answer (e.g., showCoordinateHints), plus
-#  the following:
-#
-#     sameClass => 0 or 1      If 1 (the default), only call the
-#                              custom checker if the student answer
-#                              is the same object class as the correct
-#                              answer (e.g., both are points).
-#                              If 0, the checker will be called
-#                              whenever the student answer passes
-#                              the typeMatch check for the correct
-#                              answer.  For example, if the correct
-#                              answer is a vector, and promotePoints
-#                              has been set to 1, then the checker
-#                              will be called when the student answer
-#                              is a vector OR a point.
-#
-#    sameLength => 0 or 1      If 1 (the default), only call the
-#                              custom checker if the student answer
-#                              has the same number of coordinates as
-#                              the correct answer.
-#
-#  If the correct answer is a list, the custom checker will be called
-#  on the individual entries of the list, not on the list as a whole.
-#  If the list is an unordered list, the routine may be called
-#  multiple times with various combinations of student and professor's
-#  answers in order to find a correct match.
-#
-#  The checker routine will be passed the correct answer, the
-#  student's answer, and the answer evaluator object, in that order.
-#
-#  For example, the following checks if a student entered
-#  a unit vector (any unit vector in R^3 will do):
-#
-#     custom_cmp("<1,2,3>",sub {
-#       my ($correct,$student,$ans) = @_;
-#       return norm($student) == 1;
-#     });
-#
-#  The checker subroutine can call Value::Error(message) to generate
-#  an error message that will be reported in the table at the top of
-#  the page.  If the checker generates a fatal runtime error (e.g.,
-#  calls the "die" function), then the message is reported with the
-#  "pink screen of death", and includes a request for the student to
-#  inform the instructor.
-#
+ ######################################################################
+ #
+ #  This answer checker provides an easy method for creating an answer
+ #  checker with a custom subroutine that performs the check for
+ #  correctness.
+ #
+ #  Pass the correct answer (either as a string or as a Parser object)
+ #  as the first argument, and a reference to the checker subroutine
+ #  as the second argument.  Additional parameters can follow.  These
+ #  include any of the parameters for the usual answer checker of the
+ #  of the type of the correct answer (e.g., showCoordinateHints), plus
+ #  the following:
+ #
+ #     sameClass => 0 or 1      If 1 (the default), only call the
+ #                              custom checker if the student answer
+ #                              is the same object class as the correct
+ #                              answer (e.g., both are points).
+ #                              If 0, the checker will be called
+ #                              whenever the student answer passes
+ #                              the typeMatch check for the correct
+ #                              answer.  For example, if the correct
+ #                              answer is a vector, and promotePoints
+ #                              has been set to 1, then the checker
+ #                              will be called when the student answer
+ #                              is a vector OR a point.
+ #
+ #    sameLength => 0 or 1      If 1 (the default), only call the
+ #                              custom checker if the student answer
+ #                              has the same number of coordinates as
+ #                              the correct answer.
+ #
+ #  If the correct answer is a list, the custom checker will be called
+ #  on the individual entries of the list, not on the list as a whole.
+ #  If the list is an unordered list, the routine may be called
+ #  multiple times with various combinations of student and professor's
+ #  answers in order to find a correct match.
+ #
+ #  The checker routine will be passed the correct answer, the
+ #  student's answer, and the answer evaluator object, in that order.
+ #
+ #  For example, the following checks if a student entered
+ #  a unit vector (any unit vector in R^3 will do):
+ #
+ #     custom_cmp("<1,2,3>",sub {
+ #       my ($correct,$student,$ans) = @_;
+ #       return norm($student) == 1;
+ #     });
+ #
+ #  The checker subroutine can call Value::Error(message) to generate
+ #  an error message that will be reported in the table at the top of
+ #  the page.  If the checker generates a fatal runtime error (e.g.,
+ #  calls the "die" function), then the message is reported with the
+ #  "pink screen of death", and includes a request for the student to
+ #  inform the instructor.
+ #
 
 =cut
 
