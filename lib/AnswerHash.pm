@@ -341,12 +341,13 @@ sub error_message {
 sub pretty_print {
     my $r_input = shift;
     my $level = shift;
-    $level = 3 unless defined($level);
+    $level = 4 unless defined($level);
     $level--;
     return '' unless $level > 0;  # only print three levels of hashes (safety feature)
     my $out = '';
     if ( not ref($r_input) ) {
     	$out = $r_input;    # not a reference
+    	$out =~ s/</&lt;/g; # protect for HTML output
     } elsif (ref($r_input) =~/hash/i) {
 	    local($^W) = 0;
 		$out .= "<TABLE border = \"2\" cellpadding = \"3\" BGCOLOR = \"#FFFFFF\">";
@@ -365,6 +366,7 @@ sub pretty_print {
 		$out = "$r_input";
 	} else {
 		$out = $r_input;
+		$out =~ s/</&lt;/g; # protect for HTML output
 	}
 		$out;
 }
