@@ -4915,6 +4915,7 @@ sub pretty_print {
     my $out = '';
     if ( not ref($r_input) ) {
     	$out = $r_input;    # not a reference
+    	$out =~ s/</&lt;/g;  # protect for HTML output
     } elsif ("$r_input" =~/hash/i) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_iput).
 	    local($^W) = 0;
 		$out .= "$r_input " ."<TABLE border = \"2\" cellpadding = \"3\" BGCOLOR = \"#FFFFFF\">";
@@ -4933,6 +4934,7 @@ sub pretty_print {
 		$out = "$r_input";
 	} else {
 		$out = $r_input;
+		$out =~ s/</&lt;/g;  # protect for HTML output
 	}
 		$out;
 }
