@@ -793,7 +793,7 @@ sub named_ans_array_extension {my $self = shift; $self->ANS_MATRIX(1,@_)}
 
 =head3 Value::Vector
 
-	Usage:  $vec = Vector("<3,6,7");
+	Usage:  $vec = Vector("<3,6,7>");
 	        or $vec = Vector(3,6,7); 
 	        or $vec = Vector([3,6,7]);
 	        ANS( $vec->cmp() );
