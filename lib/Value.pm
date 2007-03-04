@@ -2,11 +2,74 @@ package Value;
 my $pkg = 'Value';
 use vars qw($context $defaultContext %Type);
 use strict;
+=head1 DESCRIPTION
+	
+Value (also called MathObjects) are intelligent versions of standard mathematical
+objects.  They 'know' how to produce to string or TeX or perl representations
+of themselves. They also 'know' how to compare themselves to student responses -- 
+in other words they contain their own answer evaluators (response evaluators).
 
-#############################################################
-#
-#  Initialize the context
-#
+
+=cut
+
+
+=head3 Value context
+
+ #############################################################
+ #
+ #  Initialize the context-- flags set
+ #
+	The following are list objects, meaning that they involve delimiters (parentheses)
+	of some type.
+	
+	lists => {
+		'Point'  => {open => '(', close => ')'},
+		'Vector' => {open => '<', close => '>'},
+		'Matrix' => {open => '[', close => ']'},
+		'List'   => {open => '(', close => ')'},
+		'Set'    => {open => '{', close => '}'},
+  	},
+	
+	The following context flags are set:
+	
+    #  For vectors:
+    #
+    ijk => 0,  # print vectors as <...>
+    #
+    #  For strings:
+    #
+    allowEmptyStrings => 1,
+    infiniteWord => 'infinity',
+    #
+    #  For intervals and unions:
+    #
+    ignoreEndpointTypes => 0,
+    reduceSets => 1,
+    reduceSetsForComparison => 1,
+    reduceUnions => 1,
+    reduceUnionsForComparison => 1,
+    #
+    #  For fuzzy reals:
+    #
+    useFuzzyReals => 1,
+    tolerance    => 1E-4,
+    tolType      => 'relative',
+    zeroLevel    => 1E-14,
+    zeroLevelTol => 1E-12,
+    #
+    #  For Formulas:
+    #
+    limits       => [-2,2],
+    num_points   => 5,
+    granularity  => 1000,
+    resolution   => undef,
+    max_adapt    => 1E8,
+    checkUndefinedPoints => 0,
+    max_undefined => undef,
+  },
+
+
+=cut
 
 use Value::Context;
 
@@ -59,11 +122,30 @@ $defaultContext = Value::Context->new(
 
 $context = \$defaultContext;
 
+=head3 Implemented MathObject types and their precedence
 
-#
-#  Precedence of the various types
-#    (They will be promoted upward automatically when needed)
-#
+ #
+ #  Precedence of the various types
+ #    (They will be promoted upward automatically when needed)
+ #
+
+  'Number'   =>  0,
+   'Real'     =>  1,
+   'Infinity' =>  2,
+   'Complex'  =>  3,
+   'Point'    =>  4,
+   'Vector'   =>  5,
+   'Matrix'   =>  6,
+   'List'     =>  7,
+   'Interval' =>  8,
+   'Set'      =>  9,
+   'Union'    => 10,
+   'String'   => 11,
+   'Formula'  => 12,
+   'special'  => 20,
+
+=cut
+
 $$context->{precedence} = {
    'Number'   =>  0,
    'Real'     =>  1,
@@ -102,11 +184,18 @@ $$context->{pattern}{-infinity} = '-inf(?:inity)?';
 
 push(@{$$context->{data}{values}},'method','precedence');
 
+=head3 getFlag
+
 #
 #  Get the value of a flag from the object itself,
 #  or from the context, or from the default context
 #  or from the given default, whichever is found first.
 #
+
+	Usage  $mathObj->getFlag("showTypeWarnings");
+	
+=cut
+
 sub getFlag {
   my $self = shift; my $name = shift;
   return $self->{$name} if ref($self) && defined($self->{$name});
@@ -170,9 +259,17 @@ sub canBeInUnion {
     $self->{open} =~ m/^[\(\[]$/ && $self->{close} =~ m/^[\)\]]$/;
 }
 
-#
-#  Convert non-Value objects to Values, if possible
-#
+=head3 makeValue
+
+	Usage:  $mathObj->makeValue(45);
+	
+	Will create a Number.
+ #
+ #  Convert non-Value objects to Values, if possible
+ #	
+
+=cut
+
 sub makeValue {
   my $x = shift; my %params = (showError => 0, makeFormula => 1, @_);
   return $x if ref($x) && ref($x) ne 'ARRAY';
@@ -193,9 +290,18 @@ sub makeValue {
   return $x;
 }
 
-#
-#  Get a printable version of the class of an object
-#
+=head3 showClass
+	
+	Usage:   TEXT( $mathObj -> showClass() );
+	
+		Will print the class of the MathObject
+		
+ #
+ #  Get a printable version of the class of an object
+ #
+ 
+=cut
+
 sub showClass {
   my $value = makeValue(shift,makeFormula=>0);
   return "'".$value."'" unless Value::isValue($value);
@@ -209,9 +315,18 @@ sub showClass {
   return 'a '.$class;
 }
 
-#
-#  Get a printable version of the type of an object
-#
+=head3 showClass
+	
+	Usage:   TEXT( $mathObj -> showType() );
+	
+		Will print the class of the MathObject
+
+ #
+ #  Get a printable version of the type of an object
+ #
+
+=cut
+
 sub showType {
   my $value = shift;
   my $type = $value->type;
@@ -496,10 +611,27 @@ sub compare_string {
   return $l cmp $r;
 }
 
-#
-#  Generate the various output formats
-#  (can be replaced by sub-classes)
-#
+=head3 output methods for MathObjects
+ 
+ #
+ #  Generate the various output formats
+ #  (can be replaced by sub-classes)
+ #
+
+=cut
+
+=head4 stringify
+	
+	Usage:   TEXT($mathObj); or TEXT( $mathObj->stringify() ) ;
+	
+		Produces text string or TeX output depending on context
+			Context()->texStrings;
+			Context()->normalStrings;
+			
+		called automatically when object is called in a string context.
+
+=cut
+
 sub stringify {
   my $self = shift;
   return $self->TeX() if $$Value::context->flag('StringifyAsTeX');
@@ -509,6 +641,14 @@ sub stringify {
   my $close = $self->{close}; $close = $def->{close} unless defined($close);
   $open.join($def->{separator},@{$self->data}).$close;
 }
+
+=head4 ->string
+
+	Usage: $mathObj->string()
+
+	---this description is not yet complete
+
+=cut
 
 sub string {
   my $self = shift; my $equation = shift;
@@ -526,6 +666,14 @@ sub string {
   }
   return $open.join($def->{separator},@coords).$close;
 }
+
+=head4 ->TeX
+
+	Usage: $mathObj->TeX()
+
+	---produce TeX prepresentation of the object
+
+=cut
 
 sub TeX {
   my $self = shift; my $equation = shift;
@@ -582,9 +730,17 @@ sub ijk {
   Value::Error("Can't use method 'ijk' with objects of type '%s'",(shift)->class);
 }
 
-#
-#  Report an error
-#
+
+=head3 Error
+
+	Usage: $mathObj->Error("We're sorry...");
+	
+ #
+ #  Report an error
+ #
+
+=cut 
+
 sub Error {
   my $message = shift;
   $message = [$message,@_] if scalar(@_) > 0;

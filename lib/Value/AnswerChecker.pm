@@ -1,15 +1,20 @@
-#############################################################
-#
-#  Implements the ->cmp method for Value objects.  This produces
-#  an answer checker appropriate for the type of object.
-#  Additional options can be passed to the checker to
-#  modify its action.
-#
-#  The individual Value packages are modified below to add the
-#  needed methods.
-#
+=head1 DESCRIPTION
 
-#############################################################
+ #############################################################
+ #
+ #  Implements the ->cmp method for Value objects. 
+ #  Otherwise known as MathObjects.  This produces
+ #  an answer checker appropriate for the type of object.
+ #  Additional options can be passed to the checker to
+ #  modify its action.
+ #
+ #  The individual Value packages are modified below to add the
+ #  needed methods.
+ #
+ 
+ #############################################################
+
+=cut 
 
 package Value;
 
@@ -610,6 +615,18 @@ sub getPG {
 #############################################################
 #############################################################
 
+=head3 Value::Real
+
+	Usage $a = Real(3.56)
+		Creates a real number
+		Options:
+			  showTypeWarnings => 1,
+			  showEqualErrors  => 1,
+			  ignoreStrings    => 1,
+
+=cut
+
+
 package Value::Real;
 
 sub cmp_defaults {(
@@ -640,6 +657,18 @@ sub typeMatch {
 }
 
 #############################################################
+
+=head3 Value::String
+	
+	Usage:  $s = String("a word or phrase");
+              showTypeWarnings => 1,
+			  showEqualErrors  => 1,
+			  ignoreStrings    => 1
+			  typeMatch        => 'Value::Real'
+	
+	Initial and final spaces are ignored when comparing strings.
+			  
+=cut		
 
 package Value::String;
 
@@ -684,6 +713,18 @@ sub cmp {
 }
 
 #############################################################
+
+=head3 Value::Point
+
+	Usage  $pt = Point(3,6) or $pt = Point([3,6])
+		Options:
+		  showTypeWarnings => 1,   # warns if student response is of incorrect type
+		  showEqualErrors  => 1,
+		  ignoreStrings    => 1,
+		  showDimensionHints => 1, # reports incorrect number of coordinates
+		  showCoordinateHints =>1, # flags individual coordinates which are incorrect
+		  
+=cut
 
 package Value::Point;
 
@@ -739,6 +780,22 @@ sub named_ans_array {my $self = shift; $self->ANS_MATRIX(0,@_)}
 sub named_ans_array_extension {my $self = shift; $self->ANS_MATRIX(1,@_)}
 
 #############################################################
+
+=head3 Value::Vector
+
+	Usage  $pt = Vector(3,6,7) or $pt = Vector([3,6,7])
+		Options:
+		  showTypeWarnings => 1,   # warns if student response is of incorrect type
+		  showEqualErrors  => 1,
+		  ignoreStrings    => 1,
+		  showDimensionHints => 1, # reports incorrect number of coordinates
+		  showCoordinateHints =>1, # flags individual coordinates which are incorrect
+		  promotePoints     => 0, # allow students to enter vectors as points (3,5,6)
+		  parallel          => 1, # response is correct if it is parallel to correct answer
+		  sameDirection     => 1, # response is correct if it has same orientation as correct answer
+		  
+		  
+=cut
 
 package Value::Vector;
 
@@ -814,6 +871,19 @@ sub named_ans_array_extension {my $self = shift; $self->ANS_MATRIX(1,@_)}
 
 #############################################################
 
+=head3 Value::Matrix
+
+	Usage   $ma = Matrix([[3,6],[2,5]]) or $ma =Matrix([3,6],[2,5])
+		Options:
+
+		  showTypeWarnings => 1,   # warns if student response is of incorrect type
+		  showEqualErrors  => 1,
+		  ignoreStrings    => 1,
+		  showDimensionHints => 1, # reports incorrect number of coordinates
+		  ???showCoordinateHints =>1, # flags individual coordinates which are incorrect
+
+
+=cut
 package Value::Matrix;
 
 sub cmp_defaults {(
@@ -885,6 +955,20 @@ sub named_ans_array_extension {my $self = shift; $self->ANS_MATRIX(1,@_)}
 
 #############################################################
 
+=head3   Value::Interval
+
+	Usage:    $interval = Interval( '(',1,2,']')
+	
+		showTypeWarnings => 1,
+		showEqualErrors  => 1,
+		ignoreStrings    => 1,
+		showEndpointHints =>1,  # show hints about which end point values are correct
+		showEndTypeHints  => 1, # show hints about endpoint types
+		requireParenMatch => 1,
+		
+		
+=cut
+
 package Value::Interval;
 
 sub cmp_defaults {(
@@ -935,6 +1019,14 @@ sub cmp_postprocess {
 
 #############################################################
 
+=head3 Value::Set
+
+	Usage:   $set = Set(5,6,'a', 'b')
+	
+		Question:  How does this differ from List?
+		
+=cut
+
 package Value::Set;
 
 sub typeMatch {
@@ -981,6 +1073,14 @@ sub cmp_compare {
 
 #############################################################
 
+=head3 Value::Union
+
+	Usage Union(I1, I2 ... In) where 'I1' is an interval
+	
+	
+	
+=cut
+
 package Value::Union;
 
 sub typeMatch {
@@ -1024,6 +1124,32 @@ sub cmp_compare {
 }
 
 #############################################################
+
+=head3 Value::List
+
+	Usage:  $lst = List(mathobj1, mathobj2,   ) 
+		Options:
+			showTypeWarnings => 1,
+			showEqualErrors  => 1,
+			ignoreStrings    => 1,
+			studentsMustReduceUnions => 1,
+			showUnionReduceWarnings => 1,
+			showHints => undef,
+			showLengthHints => undef,
+			showParenHints => undef,
+			partialCredit => undef,
+			ordered => 0,
+			entry_type => undef,
+			list_type => undef,
+			typeMatch => $element,
+			firstElement => $element,
+			extra => undef,
+			requireParenMatch => 1,
+			removeParens => 1,
+			implicitList => 1,
+
+
+=cut
 
 package Value::List;
 
@@ -1288,6 +1414,8 @@ sub cmp_list_compare {
   return ($score,@errors);
 }
 
+
+
 #
 #  Split a formula that is a list or union into a
 #    list of formulas (or Value objects).
@@ -1310,7 +1438,7 @@ sub splitFormula {
   return @formula;
 }
 
-#
+#  Override for List ?
 #  Return the value if it is defined, otherwise use a default
 #
 sub getOption {
@@ -1321,6 +1449,18 @@ sub getOption {
 }
 
 #############################################################
+
+=head3  Value::Formula
+
+	Usage: $fun = Formula("x^2-x+1");
+	       $set = Formula("[-1, 0) U (0, 2]");
+
+	
+	A formula can have any of the other math object types as its range.
+		Union, List, Number (Complex or Real), 
+
+
+=cut
 
 package Value::Formula;
 
@@ -1712,7 +1852,7 @@ sub cmp_graph_function {
     foreach my $x (@{$points}) {
       my $y = Parser::Evaluate($F,($X)=>$x,%{$grf->{params}{values}});
       next unless defined($y) && Value::isNumber($y);
-      $grf->{x} = $x; $grf->{y} = $y;
+      $grf->{x} = $x; $grf->{'y'} = $y;
       my $C = $self->getPG('new Circle($_grf_->{x},$_grf_->{y},4,"'.$color.'","'.$color.'")');
       $grf->{G}->stamps($C);
     }

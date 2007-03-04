@@ -547,38 +547,38 @@ sub condense {
 #                }
 #        }
 #}
-sub pretty_print {
-    my $r_input = shift;
-    my $out = '';
-    if ( not ref($r_input) ) {
-    	$out = $r_input;    # not a reference
-    } elsif ("$r_input" =~/hash/i ) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_iput).
-	    local($^W) = 0;
-		$out .= "$r_input " ."<TABLE border = \"2\" cellpadding = \"3\" BGCOLOR = \"#FFFFFF\">";
-		foreach my $key (sort keys %$r_input ) {
-			$out .= "<tr><TD> $key</TD><TD> =&gt; </td><td>".pretty_print($r_input->{$key}) . "</td></tr>";
-		}
-		$out .="</table>";
-	} elsif (ref($r_input) eq 'ARRAY' ) {
-		my @array = @$r_input;
-		$out .= "( " ;
-		while (@array) {
-			$out .= pretty_print(shift @array) . " , ";
-		}
-		$out .= " )";
-	} elsif (ref($r_input) eq 'CODE') {
-		$out = "$r_input";
-# 	} elsif (ref($r_input) =~/list/i  or ref($r_input) =~/match/i or ref($r_input) =~/multiple/i) {
-# 		local($^W) = 0;
-# 		$out .= ref($r_input) . " <BR>" ."<TABLE BGCOLOR = \"#FFFFFF\">";
+# sub pretty_print {
+#     my $r_input = shift;
+#     my $out = '';
+#     if ( not ref($r_input) ) {
+#     	$out = $r_input;    # not a reference
+#     } elsif ("$r_input" =~/hash/i ) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_iput).
+# 	    local($^W) = 0;
+# 		$out .= "$r_input " ."<TABLE border = \"2\" cellpadding = \"3\" BGCOLOR = \"#FFFFFF\">";
 # 		foreach my $key (sort keys %$r_input ) {
 # 			$out .= "<tr><TD> $key</TD><TD> =&gt; </td><td>".pretty_print($r_input->{$key}) . "</td></tr>";
 # 		}
 # 		$out .="</table>";
-	} else {
-		$out = $r_input;
-	}
-		$out;
-}
+# 	} elsif (ref($r_input) eq 'ARRAY' ) {
+# 		my @array = @$r_input;
+# 		$out .= "( " ;
+# 		while (@array) {
+# 			$out .= pretty_print(shift @array) . " , ";
+# 		}
+# 		$out .= " )";
+# 	} elsif (ref($r_input) eq 'CODE') {
+# 		$out = "$r_input";
+# # 	} elsif (ref($r_input) =~/list/i  or ref($r_input) =~/match/i or ref($r_input) =~/multiple/i) {
+# # 		local($^W) = 0;
+# # 		$out .= ref($r_input) . " <BR>" ."<TABLE BGCOLOR = \"#FFFFFF\">";
+# # 		foreach my $key (sort keys %$r_input ) {
+# # 			$out .= "<tr><TD> $key</TD><TD> =&gt; </td><td>".pretty_print($r_input->{$key}) . "</td></tr>";
+# # 		}
+# # 		$out .="</table>";
+# 	} else {
+# 		$out = $r_input;
+# 	}
+# 		$out;
+# }
 
 1;
