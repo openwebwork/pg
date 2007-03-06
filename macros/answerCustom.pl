@@ -90,6 +90,7 @@ sub custom_cmp {
 #
 @custom_cmp_defaults = ();
 
+=head3 another example
 
 #
 #  This one installs a custom list-based answer checker (for the
@@ -125,6 +126,8 @@ sub custom_cmp {
 #  "pink screen of death", and includes a request for the student to
 #  inform the instructor.
 #
+
+=cut
 
 sub custom_list_cmp {
   my $correct = shift; my $checker = shift;

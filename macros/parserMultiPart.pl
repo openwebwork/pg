@@ -1,81 +1,85 @@
 sub _parserMultiPart_init {}
 
-#
-#  MultiPart objects let you tie several answer blanks to a single
-#  answer checker, so you can have the answer in one blank influence
-#  the answer in another.  The MultiPart can produce either a single
-#  result in the answer results area, or a separate result for each
-#  blank.
-#
-#  To create a MultiPart pass a list of answers to MultiPart() in the
-#  order they will appear in the problem.  For example:
-#
-#    $mp = MultiPart("x^2",-1,1);
-#
-#  or
-#
-#    $mp = MultiPart(Vector(1,1,1),Vector(2,2,2))->with(singleResult=>1);
-#
-#  Then, use $mp->ans_rule to create answer blanks for the various parts
-#  just as you would ans_rule.  You can pass the width of the blank, which
-#  defaults to 20 otherwise.  For example:
-#
-#    BEGIN_TEXT
-#      \(f(x)\) = \{$mp->ans_rule(20)\} produces the same value
-#      at \(x\) = \{$mp->ans_rule(10)\} as it does at \(x\) = \{$mp->ans_rule(10)\}.
-#    END_TEXT
-#
-#  Finally, call $mp->cmp to produce the answer checker(s) used in the MultiPart.
-#  You need to provide a checker routine that will be called to determine if the
-#  answers are correct or not.  The checker will only be called if the student
-#  answers have no syntax errors and their types match the types of the professor's
-#  answers, so you don't have to worry about handling bad data from the student
-#  (at least as far as typechecking goes).
-#
-#  The checker routine should accept three parameters:  a reference to the array
-#  of correct answers, a reference to the array of student answers, and a reference
-#  to the MultiPart itself.  It should do whatever checking it needs to do and
-#  then return a score for the MultiPart as a whole (every answer blank will be
-#  given the same score), or a reference to an array of scores, one for each
-#  blank.  The routine can set error messages via the MultiPart's setMessage()
-#  method (e.g., $mp->setMessage(1,"The function can't be the identity") would
-#  set the message for the first answer blank of the MultiPart), or can call
-#  Value::Error() to generate an error and die.
-#
-#  The checker routine can be supplied either when the MultiPart is created, or
-#  when the cmp() method is called.  For example:
-#
-#      $mp = MultiPart("x^2",1,-1)->with(
-#        singleResult => 1,
-#        checker => sub {
-#          my ($correct,$student,$self) = @_;  # get the parameters
-#          my ($f,$x1,$x2) = @{$student};      # extract the student answers
-#          Value::Error("Function can't be the identity") if ($f == 'x');
-#          Value::Error("Function can't be constant") if ($f->isConstant);
-#          return $f->eval(x=>$x1) == $f->eval(x=>$x2);
-#        },
-#      );
-#           .
-#           .
-#           .
-#      ANS($mp->cmp);
-#
-#  or
-#
-#      $mp = MultiPart("x^2",1,-1)->with(singleResult=>1);
-#      sub check {
-#        my ($correct,$student,$self) = @_;  # get the parameters
-#        my ($f,$x1,$x2) = @{$student};      # extract the student answers
-#        Value::Error("Function can't be the identity") if ($f == 'x');
-#        Value::Error("Function can't be constant") if ($f->isConstant);
-#        return $f->eval(x=>$x1) == $f->eval(x=>$x2);
-#      };
-#           .
-#           .
-#           .
-#      ANS($mp->cmp(checker=>~~&check));
-# 
+=head3 MultiPart
+
+ #
+ #  MultiPart objects let you tie several answer blanks to a single
+ #  answer checker, so you can have the answer in one blank influence
+ #  the answer in another.  The MultiPart can produce either a single
+ #  result in the answer results area, or a separate result for each
+ #  blank.
+ #
+ #  To create a MultiPart pass a list of answers to MultiPart() in the
+ #  order they will appear in the problem.  For example:
+ #
+ #    $mp = MultiPart("x^2",-1,1);
+ #
+ #  or
+ #
+ #    $mp = MultiPart(Vector(1,1,1),Vector(2,2,2))->with(singleResult=>1);
+ #
+ #  Then, use $mp->ans_rule to create answer blanks for the various parts
+ #  just as you would ans_rule.  You can pass the width of the blank, which
+ #  defaults to 20 otherwise.  For example:
+ #
+ #    BEGIN_TEXT
+ #      \(f(x)\) = \{$mp->ans_rule(20)\} produces the same value
+ #      at \(x\) = \{$mp->ans_rule(10)\} as it does at \(x\) = \{$mp->ans_rule(10)\}.
+ #    END_TEXT
+ #
+ #  Finally, call $mp->cmp to produce the answer checker(s) used in the MultiPart.
+ #  You need to provide a checker routine that will be called to determine if the
+ #  answers are correct or not.  The checker will only be called if the student
+ #  answers have no syntax errors and their types match the types of the professor's
+ #  answers, so you don't have to worry about handling bad data from the student
+ #  (at least as far as typechecking goes).
+ #
+ #  The checker routine should accept three parameters:  a reference to the array
+ #  of correct answers, a reference to the array of student answers, and a reference
+ #  to the MultiPart itself.  It should do whatever checking it needs to do and
+ #  then return a score for the MultiPart as a whole (every answer blank will be
+ #  given the same score), or a reference to an array of scores, one for each
+ #  blank.  The routine can set error messages via the MultiPart's setMessage()
+ #  method (e.g., $mp->setMessage(1,"The function can't be the identity") would
+ #  set the message for the first answer blank of the MultiPart), or can call
+ #  Value::Error() to generate an error and die.
+ #
+ #  The checker routine can be supplied either when the MultiPart is created, or
+ #  when the cmp() method is called.  For example:
+ #
+ #      $mp = MultiPart("x^2",1,-1)->with(
+ #        singleResult => 1,
+ #        checker => sub {
+ #          my ($correct,$student,$self) = @_;  # get the parameters
+ #          my ($f,$x1,$x2) = @{$student};      # extract the student answers
+ #          Value::Error("Function can't be the identity") if ($f == 'x');
+ #          Value::Error("Function can't be constant") if ($f->isConstant);
+ #          return $f->eval(x=>$x1) == $f->eval(x=>$x2);
+ #        },
+ #      );
+ #           .
+ #           .
+ #           .
+ #      ANS($mp->cmp);
+ #
+ #  or
+ #
+ #      $mp = MultiPart("x^2",1,-1)->with(singleResult=>1);
+ #      sub check {
+ #        my ($correct,$student,$self) = @_;  # get the parameters
+ #        my ($f,$x1,$x2) = @{$student};      # extract the student answers
+ #        Value::Error("Function can't be the identity") if ($f == 'x');
+ #        Value::Error("Function can't be constant") if ($f->isConstant);
+ #        return $f->eval(x=>$x1) == $f->eval(x=>$x2);
+ #      };
+ #           .
+ #           .
+ #           .
+ #      ANS($mp->cmp(checker=>~~&check));
+ # 
 ######################################################################
+
+=cut
 
 package MultiPart;
 our @ISA = qw(Value);
