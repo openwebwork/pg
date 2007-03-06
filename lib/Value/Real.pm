@@ -156,9 +156,9 @@ sub compare {
     if ($l->getFlag('tolType') eq 'relative') {
       my $zeroLevel = $l->getFlag('zeroLevel');
       if (abs($a) < $zeroLevel || abs($b) < $zeroLevel) {
-	$tolerance = $l->getFlag('zeroLevelTol');
+	     $tolerance = $l->getFlag('zeroLevelTol');
       } else {
-	$tolerance = $tolerance * abs($a);
+	     $tolerance = $tolerance * abs($a);
       }
     }
     return 0 if abs($a-$b) < $tolerance;
