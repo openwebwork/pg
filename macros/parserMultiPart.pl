@@ -326,7 +326,7 @@ sub perform_check {
     return if $self->{checkTypes} && $ans->{student_value}->type ne $ans->{correct_value}->type;
   }
   my @result = Value::cmp_compare([@correct],[@student],$self,$rh_ans);
-  if (!defined(@result) && $self->{context}{error}{flag}) {$self->cmp_error($self->{ans}[0]); return 1}
+  if (!@result && $self->{context}{error}{flag}) {$self->cmp_error($self->{ans}[0]); return 1}
   my $result = (scalar(@result) > 1 ? [@result] : $result[0] || 0);
   if (ref($result) eq 'ARRAY') {
     die "Checker subroutine returned the wrong number of results"
