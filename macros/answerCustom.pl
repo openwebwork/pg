@@ -41,7 +41,7 @@ sub _answerCustom_init {}; # don't reload this file
  #  multiple times with various combinations of student and professor's
  #  answers in order to find a correct match.
  #
- *  Note: If you want a correct answer whose class is a complex variable
+ #  Note: If you want a correct answer whose class is a complex variable
  #  to check a real number entry you will have to set both sameClass and
  #  sameLength to 0 since a complex number has length 2 and a real number
  #  has length 1.
