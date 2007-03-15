@@ -370,7 +370,7 @@ sub NEW_ANS_ARRAY_NAME {        # this keeps track of the answers which are ente
 		my $row = shift;
 		my $col = shift;
 #		my $label = "ArRaY"."$number"."["."$vecnum".","."$row".","."$col"."]";
-		my $label = "ArRaY"."$number"."__"."$vecnum".":"."$row".":"."$col"."__";
+		my $label = eval(q!$main::QUIZ_PREFIX."ArRaY"."$number"."__"."$vecnum".":"."$row".":"."$col"."__"!);
 		push(@PG_UNLABELED_ANSWERS,$label);
 		$label;
 }
@@ -388,7 +388,7 @@ sub NEW_ANS_ARRAY_NAME_EXTENSION {        # this keeps track of the answers whic
 		# alphanumeric characters,   _ : and .   
 		# Also need to make corresponding changes in PGmorematrixmacros.  grep for ArRaY.
 		#my $label = "ArRaY"."$number"."["."$vecnum".","."$row".","."$col"."]";
-		my $label = "ArRaY"."$number"."__"."$vecnum".":"."$row".":"."$col"."__";
+		my $label = eval(q!$main::QUIZ_PREFIX."ArRaY"."$number"."__"."$vecnum".":"."$row".":"."$col"."__"!);
 		eval(q!push(@main::KEPT_EXTRA_ANSWERS, $label)!);#put the labels into the hash to be caught later for recording purposes
 		$label;
 }
