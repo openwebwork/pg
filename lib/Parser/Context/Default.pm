@@ -236,7 +236,7 @@ $flags = {
 
 use vars qw(%context);
 use vars qw($fullContext $numericContext $complexContext $pointContext
-	    $vectorContext $matrixContext $intervalContext);
+	    $vectorContext $vector2DContext $matrixContext $intervalContext);
 
 #
 #  The default Context
@@ -311,6 +311,14 @@ $vectorContext->constants->replace(i=>Value::Vector->new(1,0,0));
 $vectorContext->constants->set(i=>{TeX=>'\boldsymbol{i}', perl=>'i'});
 $vectorContext->parens->set('(' => {formMatrix => 0});
 
+$vector2DContext = $vectorContext->copy;
+$vector2DContext->constants->replace(
+  i => Value::Vector->new(1,0),
+  j => Value::Vector->new(0,1),
+);
+$vector2DContext->constants->set(i => {TeX=>'\boldsymbol{i}', perl=>'i'});
+$vector2DContext->constants->remove("k");
+
 #
 #  Point context (for symmetry)
 #
@@ -351,6 +359,7 @@ $intervalContext->constants->set(R => {TeX => '{\bf R}'});
   Complex  => $complexContext,
   Point    => $pointContext,
   Vector   => $vectorContext,
+  Vector2D => $vector2DContext,
   Matrix   => $matrixContext,
   Interval => $intervalContext,
 );
