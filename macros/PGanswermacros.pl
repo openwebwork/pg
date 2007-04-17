@@ -1052,22 +1052,22 @@ sub NUM_CMP {                              # low level numeric compare (now uses
 	#
 	my $context;
 	for ($mode) {
-	  /^strict$/i    and do {
-	    $context = $Parser::Context::Default::context{LimitedNumeric}->copy;
+	  /^strict$/i and do {
+	    $context = Parser::Context->getCopy($user_context,"LimitedNumeric");
 	    last;
 	  };
-	  /^arith$/i     and do {
-	    $context = $Parser::Context::Default::context{LegacyNumeric}->copy;
+	  /^arith$/i  and do {
+	    $context = Parser::Context->getCopy($user_context,"LegacyNumeric");
 	    $context->functions->disable('All');
 	    last;
 	  };
-	  /^frac$/i	 and do {
-	    $context = $Parser::Context::Default::context{'LimitedNumeric-Fraction'}->copy;
+	  /^frac$/i   and do {
+	    $context = Parser::Context->getCopy($user_context,"LimitedNumeric-Fraction");
 	    last;
 	  };
 
 	  # default
-	  $context = $Parser::Context::Default::context{LegacyNumeric}->copy;
+	  $context = Parser::Context->getCopy($user_context,"LegacyNumeric");
 	}
 	$context->{format}{number} = $num_params{'format'};
 	$context->strings->clear;
@@ -1891,7 +1891,7 @@ sub FUNCTION_CMP {
 	my @limits = get_limits_array($ra_limits);
 	my @PARAMS = @{$func_params{'params'} || []};
 	
-	if($tolType eq 'relative') {
+	if ($tolType eq 'relative') {
 	  $tol = $functRelPercentTolDefault unless defined $tol;
 	  $tol *= .01;
 	} else {
@@ -1956,7 +1956,7 @@ sub FUNCTION_CMP {
 	#
 	#  Initialize the context for the formula
 	#
-	my $context = $Parser::Context::Default::context{"LegacyNumeric"}->copy;
+	my $context = Parser::Context->getCopy($user_context,"LegacyNumeric");
 	$context->flags->set(
 	  tolerance    => $func_params{'tolerance'},
 	  tolType      => $func_params{'tolType'},
@@ -4053,6 +4053,10 @@ sub calculate_difference_vector {
 				#warn "diff = $diff";
 				#$diff = ( $inVal - ($correctVal-$instructorVal ) )/abs($instructorVal) -1    if abs($instructorVal) > $options{zeroLevel};
 				$diff = ( $inVal - ($correctVal-$instructorVal ) )/$instructorVal -1    if abs($instructorVal) > $options{zeroLevel};
+#  DPVC -- adjust so that a check for tolerance will
+#          do a zeroLevelTol check
+## $diff *= $options{tolerance}/$options{zeroLevelTol} unless abs($instructorVal) > $options{zeroLevel};
+# /DPVC
 				#$diff = ( $inVal - ($correctVal-$instructorVal- $instructorVal ) )/abs($instructorVal)    if abs($instructorVal) > $options{zeroLevel};
 				#warn "diff = $diff,   ", abs( &$rf_correct_fun(@inputs) ) , "-- $correctVal";
 			}

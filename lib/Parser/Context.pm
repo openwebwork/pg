@@ -116,9 +116,22 @@ sub current {
 #
 sub get {
   my $self = shift; my $contextTable = shift; my $name = shift;
+  $contextTable = $userContext unless $contextTable;
   my $context = $contextTable->{$name};
   return $context if $context;
   $context = $Parser::Context::Default::context{$name};
+  return unless $context;
+  return $context->copy;
+}
+
+#
+#  Get a copy of named context
+#
+sub getCopy {
+  my $self = shift; my $contextTable = shift; my $name = shift;
+  $contextTable = $userContext unless $contextTable;
+  my $context = $contextTable->{$name};
+  $context = $Parser::Context::Default::context{$name} unless $context;
   return unless $context;
   return $context->copy;
 }

@@ -161,24 +161,24 @@ sub mode2context {
 	my %options = @_;
 	my $context;
 	for ($mode) {
-		/^strict$/i	   and do {
-			$context = $Parser::Context::Default::context{LimitedNumeric}->copy;
+		/^strict$/i  and do {
+			$context = Parser::Context->getCopy(\%main::context,"LimitedNumeric");
 			$context->operators->redefine(',');
 			last;
 		};
-		/^arith$/i	   and do {
-			$context = $Parser::Context::Default::context{LegacyNumeric}->copy;
+		/^arith$/i   and do {
+			$context = Parser::Context->getCopy(\%main::context,"LegacyNumeric");
 			$context->functions->disable('All');
 			last;
 		};
-		/^frac$/i	   and do {
-			$context = $Parser::Context::Default::context{'LimitedNumeric-Fraction'}->copy;
+		/^frac$/i    and do {
+			$context = Parser::Context->getCopy(\%main::context,"LimitedNumeric-Fraction");
 			$context->operators->redefine(',');
 			last;
 		};
 		
 		# default
-		$context = $Parser::Context::Default::context{LegacyNumeric}->copy;
+		$context = Parser::Context->getCopy(\%main::context,"LegacyNumeric");
 	}
 	# If we are using complex numbers, then we ignore the other mode parts
 	if(defined($options{'complex'}) &&

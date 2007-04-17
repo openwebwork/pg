@@ -132,7 +132,7 @@ sub cplx_cmp {
 
 	my $context = $cplx_context{$mode};
 	unless ($context) {$context = "Complex"; warn "Unknown mode '$mode'"}
-	$context = $Parser::Context::Default::context{$context}->copy;
+	$context = Parser::Context->getCopy(\%main::context,$context);
 
 	#
 	#  Set the format for the context
@@ -397,12 +397,11 @@ sub compare_cplx {
 	}
 	elsif ( abs($rh_ans->{correct_ans}) <= $options{zeroLevel}) {
 			$permitted_error_Re = $options{zeroLevelTol};  ## want $tol to be non zero
-			$permitted_error_Im = $options{zeroLevelTol};  ## want $tol to be non zero			
-	}                                                                          			                                                                          			                                                                          			                                                                          			                                                                          			
+			$permitted_error_Im = $options{zeroLevelTol};  ## want $tol to be non zero
+	}
 	else {
 		$permitted_error_Re =  abs($rh_ans->{tolerance}*$rh_ans->{correct_ans}->Complex::Re);
 		$permitted_error_Im =  abs($rh_ans->{tolerance}*$rh_ans->{correct_ans}->Complex::Im);
-		
 	}
 	
 	$rh_ans->{score} = 1 if ( abs( $rh_ans->{correct_ans}->Complex::Re - $inVal->Complex::Re) <=
