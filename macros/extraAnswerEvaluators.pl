@@ -186,7 +186,7 @@ sub mode2context {
 		#$context->constants->redefine('i', from=>'Complex');
 		#$context->functions->redefine(['arg','mod','Re','Im','conj', 'sqrt', 'log'], from=>'Complex');
 		#$context->operators->redefine(['^', '**'], from=>'Complex');
-		$context = $Parser::Context::Default::context{'Complex'};
+		$context = Parser::Context->getCopy(\%main::context,"Complex");
 	}
 	$options{tolType} = $options{tolType} || 'relative';
 	$options{tolType} = 'absolute' if defined($options{tol});
