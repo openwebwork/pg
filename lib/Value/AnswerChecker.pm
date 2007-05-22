@@ -1361,9 +1361,9 @@ sub cmp_list_compare {
   my $ordered = $ans->{ordered};
   my $showTypeWarnings = $ans->{showTypeWarnings} && !$ans->{isPreview};
   my $typeMatch = $ans->{typeMatch};
-  my $extra = $ans->{extra} ||
-              (Value::isValue($typeMatch) ? $typeMatch: $ans->{firstElement}) ||
-              "Value::List";
+  my $extra = defined($ans->{extra}) ? $ans->{extra} :
+              (Value::isValue($typeMatch) ? $typeMatch: $ans->{firstElement});
+  $extra = Value::List->new() unless defined($extra);
   my $showHints = getOption($ans,'showHints') && !$ans->{isPreview};
   my $error = $$Value::context->{error};
   my $score = 0; my @errors; my $i = 0;
