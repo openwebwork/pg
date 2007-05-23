@@ -3314,7 +3314,10 @@ sub save_answer_to_file {  #accepts	the	last answer	and	mails off the result
 #			'ALLOW_MAIL_TO'		=> $rh_envir->{ALLOW_MAIL_TO},
 #	);
 #}
-
+sub save_questionnaire_answers_to {
+	my $fileName =shift;
+	SaveFile::printAnswerFile($fileName,[$QUESTIONNAIRE_ANSWERS]);
+}
 sub mail_answers_to2 {
 	my ($to, $subject, $ra_allow_mail_to) = @_;
 	
