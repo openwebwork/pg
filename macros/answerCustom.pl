@@ -97,40 +97,40 @@ sub custom_cmp {
 
 =head3 another example
 
-#
-#  This one installs a custom list-based answer checker (for the
-#  List and Union classes).  Basically it is just a shell that makes
-#  it a little easier to do, and provides an interface similar to 
-#  custom_cmp.
-#
-#  You pass the correct answer (as a string or as a List or Union
-#  object) as the first argument, and the custom list checker as
-#  the second argument.  You can pass any additional parameters
-#  that should be included in the answer checker following those
-#  two required ones.
-#
-#  The checker will be passed a reference to the array of correct
-#  answers, a reference to the array of student answers, and
-#  the answer evaluator object.  Note that the correct and student
-#  answers are array references, not List structures (this is because
-#  a list of formulas becomes a formula returning a list, so in order
-#  to keep the formulas separate, they are passed in an array).
-#
-#  For example, the following checks for any list of the same length
-#  as the instructor's list.  (A stupid checker, but just an example.)
-#
-#      custom_list_cmp("1,2,3",sub {
-#        my ($correct,$student,$ans) = @_;
-#        scalar(@{$correct}) == scalar(@{$student});
-#      });
-#
-#  The checker subroutine can call Value::Error(message) to generate
-#  an error message that will be reported in the table at the top of
-#  the page.  If the checker generates a fatal runtime error (e.g.,
-#  calls the "die" function), then the message is reported with the
-#  "pink screen of death", and includes a request for the student to
-#  inform the instructor.
-#
+ #
+ #  This one installs a custom list-based answer checker (for the
+ #  List and Union classes).  Basically it is just a shell that makes
+ #  it a little easier to do, and provides an interface similar to 
+ #  custom_cmp.
+ #
+ #  You pass the correct answer (as a string or as a List or Union
+ #  object) as the first argument, and the custom list checker as
+ #  the second argument.  You can pass any additional parameters
+ #  that should be included in the answer checker following those
+ #  two required ones.
+ #
+ #  The checker will be passed a reference to the array of correct
+ #  answers, a reference to the array of student answers, and
+ #  the answer evaluator object.  Note that the correct and student
+ #  answers are array references, not List structures (this is because
+ #  a list of formulas becomes a formula returning a list, so in order
+ #  to keep the formulas separate, they are passed in an array).
+ #
+ #  For example, the following checks for any list of the same length
+ #  as the instructor's list.  (A stupid checker, but just an example.)
+ #
+ #      custom_list_cmp("1,2,3",sub {
+ #        my ($correct,$student,$ans) = @_;
+ #        scalar(@{$correct}) == scalar(@{$student});
+ #      });
+ #
+ #  The checker subroutine can call Value::Error(message) to generate
+ #  an error message that will be reported in the table at the top of
+ #  the page.  If the checker generates a fatal runtime error (e.g.,
+ #  calls the "die" function), then the message is reported with the
+ #  "pink screen of death", and includes a request for the student to
+ #  inform the instructor.
+ #
 
 =cut
 

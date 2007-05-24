@@ -10,7 +10,8 @@ Complex contexts in the future and this file will not be needed.
 	usage    Context("RealPeriodic");
 			 $a = Real("pi/2")->with(period=>pi);
 			 $a->cmp   # will match pi/2,  3pi/2 etc.
-			 
+
+
 =cut
 
 
@@ -52,7 +53,7 @@ sub isReal {1}
 	usage    Context("ComplexPeriodic");
 			 $z0 = Real("i^i")->with(period=>2pi, logPeriodic=>1);
 			 $z0->cmp   # will match exp( i (ln(1) + Arg(pi/2)+2k pi ) )
-			 
+
 =cut
 
 
