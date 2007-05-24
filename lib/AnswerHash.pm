@@ -132,6 +132,7 @@ my %fields = (		'score'					=>	undef,
 			);
 
 ## Initializing constructor
+
 =head4 new
 
 	Useage		$rh_anshash = new AnswerHash;

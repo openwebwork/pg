@@ -170,7 +170,7 @@ sub basis_cmp {
     );
 }
 
-=head BASIS_CMP
+=head1 BASIS_CMP
 
 Made to keep the same format as num_cmp and fun_cmp.
 
@@ -373,7 +373,7 @@ sub compare_basis {
 }
 
 
-=head 2 vec_list_string
+=head2 vec_list_string
 
 This is a check_syntax type method (in fact I borrowed some of that method's code) for vector input.
 The student needs to enter vectors like:        [1,0,0],[1,2,3],[0,9/sqrt(10),1/sqrt(10)]
@@ -501,7 +501,7 @@ sub vec_list_string{
     $rh_ans;
 }
 
-=head5
+=head5 ans_array_filter
 
     This filter was created to get, format, and evaluate each entry of the ans_array and ans_array_extension
     answer entry methods. Running this filter is necessary to get all the entries out of the answer
