@@ -1,3 +1,20 @@
+=head1 contextPeriodic.pl
+
+The features in this file will probably be added to the Real and
+Complex contexts in the future and this file will not be needed. 
+
+=cut
+
+=head3 RealPeriodic
+
+	usage    Context("RealPeriodic");
+			 $a = Real("pi/2")->with(period=>pi);
+			 $a->cmp   # will match pi/2,  3pi/2 etc.
+			 
+=cut
+
+
+
 package RealPeriodic;
 @ISA = ("Value::Real");
 
@@ -29,6 +46,14 @@ sub modulo {
 }
 
 sub isReal {1}
+
+=head3 ComplexPeriodic
+
+	usage    Context("ComplexPeriodic");
+			 $z0 = Real("i^i")->with(period=>2pi, logPeriodic=>1);
+			 $z0->cmp   # will match exp( i (ln(1) + Arg(pi/2)+2k pi ) )
+			 
+=cut
 
 
 package ComplexPeriodic;
