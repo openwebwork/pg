@@ -110,14 +110,26 @@ sub power {
 sub modulo {
   my ($self,$l,$r) = Value::checkOpOrder(@_);
   $l = $l->{data}[0]; $r = $r->{data}[0];
-  return $self->make(0) if $r == 0;
-  my $m = $l/$r; my $n = int($m);
-  $n-- if $n > $m || ($r < 0 && $n == $m);
+  return $self->make(0) if $r->value == 0; # non-fuzzy check
+  my $m = $l/$r;
+  my $n = int($m); $n-- if $n > $m; # act as floor() rather than int()
   return $self->make($l - $n*$r);
 }
 
 sub compare {
   my ($self,$l,$r) = Value::checkOpOrder(@_);
+  #
+  #  Handle periodic Reals
+  #
+  my $m = $self->{period};
+  if (defined $m) {
+    if ($self->{logPeriodic}) {
+      return 1 if $l->value == 0 || $r->value == 0; # non-fuzzy checks
+      $l = log($l); $r = log($r);
+    }
+    return (($l-$r+$m/2) % $m) <=> $m/2;
+  }
+
   my ($a,$b) = ($l->{data}[0],$r->{data}[0]);
   if ($self->getFlag('useFuzzyReals')) {
     my $tolerance = $self->getFlag('tolerance');

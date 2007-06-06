@@ -32,6 +32,12 @@ sub new {
   bless {data => $x, context => $self->context}, $class;
 }
 
+sub make {
+  my $self = shift; my $class = ref($self) || $self;
+  while (scalar(@_) < 2) {push(@_,0)}
+  bless {data => [@_], context => $self->context}, $class;
+}
+
 #
 #  Create a new a+b*i formula from the two parts
 #
@@ -118,14 +124,26 @@ sub power {
 
 sub modulo {
   my ($self,$l,$r) = Value::checkOpOrder(@_);
-  return $self->make(0) if $r eq "0";
+  return $self->make(0) if $r->value == 0; # non-fuzzy check
   my $m = Re($l/$r)->value;
-  my $n = int($m); $n-- if $n > $m;
+  my $n = int($m); $n-- if $n > $m; # act as floor() rather than int()
   return $self->make($l - $n*$r);
 }
 
 sub compare {
   my ($self,$l,$r) = Value::checkOpOrder(@_);
+  #
+  #  Handle periodic Complex numbers
+  #
+  my $m = $self->{period};
+  if (defined $m) {
+    if ($self->{logPeriodic}) {
+      return 1 if $l->value == 0 || $r->value == 0; # non-fuzzy checks
+      $l = log($l); $r = log($r);
+    }
+    return (($l-$r+$m/2) % $m) <=> $m/2;
+  }
+
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
   return ($a <=> $c) if $a != $c;
   return ($b <=> $d);
