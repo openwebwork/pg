@@ -3,12 +3,12 @@
 #  Implement functions having two real inputs
 #
 package Parser::Function::numeric2;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::Function);
+use strict;
+our @ISA = qw(Parser::Function);
 
 #
 #  Check for two real-valued arguments
-#  
+#
 sub _check {
   my $self = shift;
   return if ($self->checkArgCount(2));

@@ -3,8 +3,8 @@
 #  Implements hyperbolic functions
 #
 package Parser::Function::hyperbolic;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::Function);
+use strict;
+our @ISA = qw(Parser::Function);
 
 #
 #  Check that the argument is numeric (complex or real)
@@ -30,7 +30,7 @@ sub _call {
   Value::Error("Function '%s' has too few inputs",$name) if scalar(@_) == 0;
   my $n = $_[0];
   return $self->$name($n) if Value::matchNumber($n);
-  (Value::Complex::promote($n))->$name;
+  (Value::Complex->promote($n))->$name;
 }
 
 #

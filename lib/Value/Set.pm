@@ -4,18 +4,7 @@ package Value::Set;
 my $pkg = 'Value::Set';
 
 use strict;
-use vars qw(@ISA);
-@ISA = qw(Value);
-
-use overload
-       '+'   => sub {shift->add(@_)},
-       '-'   => sub {shift->sub(@_)},
-       '.'   => sub {shift->_dot(@_)},
-       'x'   => sub {shift->cross(@_)},
-       '<=>' => sub {shift->compare(@_)},
-       'cmp' => sub {shift->compare_string(@_)},
-  'nomethod' => sub {shift->nomethod(@_)},
-        '""' => sub {shift->stringify(@_)};
+our @ISA = qw(Value);
 
 #  Convert a value to a Set.  The value can be
 #    a list of numbers, or an reference to an array of numbers
@@ -25,8 +14,9 @@ use overload
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
+  my %context = (context => $self->context);
   my $p = shift; $p = [$p,@_] if (scalar(@_) > 0);
-  $p = Value::makeValue($p) if (defined($p) && !ref($p));
+  $p = Value::makeValue($p,%context) if (defined($p) && !ref($p));
   return $p if (Value::isFormula($p) && $p->type eq Value::class($self));
   my $pclass = Value::class($p); my $isFormula = 0;
   my @d; @d = $p->dimensions if $pclass eq 'Matrix';
@@ -38,7 +28,7 @@ sub new {
   else {
     $p = [$p] if (defined($p) && ref($p) ne 'ARRAY');
     foreach my $x (@{$p}) {
-      $x = Value::makeValue($x);
+      $x = Value::makeValue($x,%context);
       $isFormula = 1 if Value::isFormula($x);
       Value::Error("An element of a set can't be %s",Value::showClass($x))
         unless Value::isRealNumber($x);
@@ -46,7 +36,10 @@ sub new {
   }
   return $self->formula($p) if $isFormula;
   my $def = $$Value::context->lists->get('Set');
-  my $set = bless {data => $p, open => $def->{open}, close => $def->{close}}, $class;
+  my $set = bless {
+    data => $p, open => $def->{open}, close => $def->{close},
+    %context,
+  }, $class;
   $set = $set->reduce if $self->getFlag('reduceSets');
   return $set;
 }
@@ -72,14 +65,16 @@ sub isSetOfReals {1}
 #  Try to promote arbitrary data to a set
 #
 sub promote {
-  my $x = Value::makeValue(shift);
-  return $pkg->new($x,@_) if scalar(@_) > 0 || Value::isRealNumber($x);
-  return $x if ref($x) eq $pkg;
-  $x = Value::Interval::promote($x) if $x->canBeInUnion;
+  my $self = shift; my $class = ref($self) || $self;
+  my $x = (scalar(@_) ? shift : $self);
+  $x = Value::makeValue($x,context=>$self->context);
+  return $self->new($x,@_) if scalar(@_) > 0 || Value::isRealNumber($x);
+  return $x if ref($x) eq $class;
+  $x = Value::Interval->promote($x)->with(context=>$self->context) if $x->canBeInUnion;
   return $x if $x->isSetOfReals;
-  return $pkg->new($x->value)
+  return $self->new($x->value)
     if $x->type eq 'List' && $x->typeRef->{entryType}{name} eq 'Number';
-  Value::Error("Can't convert %s to a Set",Value::showClass($x));
+  Value::Error("Can't convert %s to %s",$x->showClass,$self->showClass);
 }
 
 ############################################
@@ -91,10 +86,8 @@ sub promote {
 #  Addition forms additional sets
 #
 sub add {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
-  $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  Value::Union::form($l,$r);
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  Value::Union::form($self->context,$l,$r);
 }
 sub dot {my $self = shift; $self->add(@_)}
 
@@ -102,12 +95,10 @@ sub dot {my $self = shift; $self->add(@_)}
 #  Subtraction removes items from a set
 #
 sub sub {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->sub($l,!$flag)}
-  $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  return Value::Union::form(subIntervalSet($l,$r)) if Value::class($l) eq 'Interval';
-  return Value::Union::form(subSetInterval($l,$r)) if Value::class($r) eq 'Interval';
-  return Value::Union::form(subSetSet($l,$r));
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  return Value::Union::form($self->context,subIntervalSet($l,$r)) if Value::class($l) eq 'Interval';
+  return Value::Union::form($self->context,subSetInterval($l,$r)) if Value::class($r) eq 'Interval';
+  return Value::Union::form($self->context,subSetSet($l,$r));
 }
 
 #
@@ -115,7 +106,8 @@ sub sub {
 #    (return the resulting set or nothing for empty set)
 #
 sub subSetSet {
-  my @l = $_[0]->sort->value; my @r = $_[1]->sort->value;
+  my ($self,$other) = @_;
+  my @l = $self->sort->value; my @r = $other->sort->value;
   my @entries = ();
   while (scalar(@l) && scalar(@r)) {
     if ($l[0] < $r[0]) {
@@ -127,7 +119,7 @@ sub subSetSet {
   }
   push(@entries,@l);
   return () unless scalar(@entries);
-  return $pkg->make(@entries);
+  return $self->make(@entries);
 }
 
 #
@@ -135,7 +127,8 @@ sub subSetSet {
 #    (returns a collection of intervals)
 #
 sub subIntervalSet {
-  my $I = (shift)->copy; my $S = shift;
+  my $self = shift;
+  my $I = $self->copy; my $S = shift;
   my @union = (); my ($a,$b) = $I->value;
   foreach my $x ($S->reduce->value) {
     next if $x < $a;
@@ -143,7 +136,7 @@ sub subIntervalSet {
       return @union if $a == $b;
       $I->{open} = '(';
     } elsif ($x < $b) {
-      push(@union,Value::Interval->make($I->{open},$a,$x,')'));
+      push(@union,Value::Interval->make($I->{open},$a,$x,')')->with(context=>$self->context));
       $I->{open} = '('; $I->{data}[0] = $x;
     } else {
       $I->{close} = ')' if ($x == $b);
@@ -156,7 +149,7 @@ sub subIntervalSet {
 #
 #  Subtract an interval from a set
 #    (returns the resulting set or nothing for the empty set)
-#    
+#
 sub subSetInterval {
   my $S = shift; my $I = shift;
   my ($a,$b) = $I->value;
@@ -168,16 +161,14 @@ sub subSetInterval {
 	 ($x == $b && $I->{close} ne ']');
   }
   return () unless scalar(@entries);
-  return $pkg->make(@entries);
+  return $S->make(@entries);
 }
 
 #
 #  Compare two sets lexicographically on their sorted contents
 #
 sub compare {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
-  $r = promote($r);
+  my ($l,$r,$flag) = @_; my $self = $l;
   if ($r->class eq 'Interval') {
     return ($flag? 1: -1) if $l->length == 0;
     my ($a,$b) = $r->value; my $c = $l->{data}[0];
@@ -237,13 +228,13 @@ sub sort {
 #
 
 sub contains {
-  my $self = shift; my $other = promote(shift)->reduce;
+  my $self = shift; my $other = $self->promote(shift)->reduce;
   return unless $other->type eq 'Set';
   return ($other-$self)->isEmpty;
 }
 
 sub isSubsetOf {
-  my $self = shift; my $other = promote(shift);
+  my $self = shift; my $other = $self->promote(shift);
   return $other->contains($self);
 }
 

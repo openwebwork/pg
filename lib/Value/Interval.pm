@@ -6,18 +6,7 @@ package Value::Interval;
 my $pkg = 'Value::Interval';
 
 use strict;
-use vars qw(@ISA);
-@ISA = qw(Value);
-
-use overload
-       '+'   => sub {shift->add(@_)},
-       '-'   => sub {shift->sub(@_)},
-       '.'   => sub {shift->_dot(@_)},
-       'x'   => sub {shift->cross(@_)},
-       '<=>' => sub {shift->compare(@_)},
-       'cmp' => sub {shift->compare_string(@_)},
-  'nomethod' => sub {shift->nomethod(@_)},
-        '""' => sub {shift->stringify(@_)};
+our @ISA = qw(Value);
 
 #
 #  Convert a value to an interval.  The value consists of
@@ -26,22 +15,23 @@ use overload
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
+  my %context = (context => $self->context);
   if (scalar(@_) == 1 && (!ref($_[0]) || ref($_[0]) eq 'ARRAY')) {
-    my $x = Value::makeValue($_[0]);
+    my $x = Value::makeValue($_[0],%context);
     if (Value::isFormula($x)) {
       return $x if $x->type eq 'Interval';
       Value::Error("Formula does not return an Interval");
     }
-    return promote($x);
+    return $self->promote($x);
   }
   my @params = @_;
   Value::Error("Interval can't be empty") unless scalar(@params) > 0;
   Value::Error("Extra arguments for Interval()") if scalar(@params) > 4;
-  return Value::Set->new(@params) if scalar(@params) == 1;
+  return Value::Set->new(@params)->with(%context) if scalar(@params) == 1;
   @params = ('(',@params,')') if (scalar(@params) == 2);
   my ($open,$a,$b,$close) = @params;
   if (!defined($close)) {$close = $b; $b = $a}
-  $a = Value::makeValue($a); $b = Value::makeValue($b);
+  $a = Value::makeValue($a,%context); $b = Value::makeValue($b,%context);
   return $self->formula($open,$a,$b,$close) if Value::isFormula($a) || Value::isFormula($b);
   Value::Error("Endpoints of intervals must be numbers or infinities") unless
     isNumOrInfinity($a) && isNumOrInfinity($b);
@@ -63,6 +53,7 @@ sub new {
   bless {
     data => [$a,$b], open => $open, close => $close,
     leftInfinite => $nia, rightInfinite => $ib,
+    %context,
   }, $class;
 }
 
@@ -76,6 +67,7 @@ sub make {
   bless {
     data => [$a,$b], open => $open, close => $close,
     leftInfinite => isNegativeInfinity($a), rightInfinite => isInfinity($b),
+    context => $self->context,
   }, $class
 }
 
@@ -85,7 +77,7 @@ sub make {
 sub formula {
   my $self = shift;
   my ($open,$a,$b,$close) = @_;
-  my $formula = Value::Formula->blank;
+  my $formula = Value::Formula->blank($self->context);
   ($a,$b) = Value::toFormula($formula,$a,$b);
   $formula->{tree} = $formula->{context}{parser}{List}->new($formula,[$a,$b],0,
      $formula->{context}{parens}{$open},$Value::Type{number},$open,$close);
@@ -140,14 +132,15 @@ sub length {
 #  Convert points and lists to intervals, when needed
 #
 sub promote {
-  my $x = Value::makeValue(shift);
-  return $pkg->new($x,@_) if scalar(@_) > 0;
+  my $self = shift; my $x = (scalar(@_) ? shift : $self);
+  $x = Value::makeValue($x,context=>$self->context);
+  return $self->new($x,@_) if scalar(@_) > 0;
   return $x if $x->isSetOfReals;
-  return Value::Set->new($x) if Value::class($x) eq 'Real';
+  return Value::Set->new($x)->with(context=>$self->context) if Value::isReal($x);
   my $open  = $x->{open};  $open  = '(' unless defined($open);
   my $close = $x->{close}; $close = ')' unless defined($close);
-  return $pkg->new($open,$x->value,$close) if $x->canBeInUnion;
-  Value::Error("Can't convert %s to an Interval",Value::showClass($x));
+  return $self->new($open,$x->value,$close) if $x->canBeInUnion;
+  Value::Error("Can't convert %s to %s",$x->showClass,$self->showClass);
 }
 
 ############################################
@@ -159,10 +152,8 @@ sub promote {
 #  Addition forms unions
 #
 sub add {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
-  $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  Value::Union::form($l,$r);
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  Value::Union::form($self->context,$l,$r);
 }
 sub dot {my $self = shift; $self->add(@_)}
 
@@ -170,10 +161,8 @@ sub dot {my $self = shift; $self->add(@_)}
 #  Subtraction can split into a union
 #
 sub sub {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->sub($l,!$flag)}
-  $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  Value::Union::form(subIntervalInterval($l,$r));
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  Value::Union::form($self->context,subIntervalInterval($l,$r));
 }
 
 #
@@ -184,6 +173,7 @@ sub sub {
 sub subIntervalInterval {
   my ($l,$r) = @_; $l = $l->copy; $r = $r->copy;
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
+  my %context = (context=>$l->context);
   my @union = ();
   if ($d <= $a) {
     $l->{open} = '(' if $d == $a && $r->{close} eq ']';
@@ -193,18 +183,18 @@ sub subIntervalInterval {
     push(@union,$l) unless $a == $b && $l->{close} eq ')';
   } else {
     if ($a == $c) {
-      push(@union,Value::Set->make($a))
+      push(@union,Value::Set->make($a)->with(%context))
 	if $l->{open} eq '[' && $r->{open} eq '(';
     } elsif ($a < $c) {
       my $close = ($r->{open} eq '[')? ')': ']';
-      push(@union,Value::Interval->make($l->{open},$a,$c,$close));
+      push(@union,Value::Interval->make($l->{open},$a,$c,$close)->with(%context));
     }
     if ($d == $b) {
-      push(@union,Value::Set->make($b))
+      push(@union,Value::Set->make($b)->with(%context))
 	if $l->{close} eq ']' && $r->{close} eq ')';
     } elsif ($d < $b) {
       my $open = ($r->{close} eq ']') ? '(': '[';
-      push(@union,Value::Interval->make($open,$d,$b,$l->{close}));
+      push(@union,Value::Interval->make($open,$d,$b,$l->{close})->with(%context));
     }
   }
   return @union;
@@ -215,10 +205,8 @@ sub subIntervalInterval {
 #    in the test.
 #
 sub compare {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
-  $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
-  my ($la,$lb) = @{$l->data}; my ($ra,$rb) = @{$r->data};
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($la,$lb) = $l->value; my ($ra,$rb) = $r->value;
   my $cmp = $la <=> $ra; return $cmp if $cmp;
   my $ignoreEndpointTypes = $l->getFlag('ignoreEndpointTypes');
   $cmp = $l->{open} cmp $r->{open}; return $cmp if $cmp && !$ignoreEndpointTypes;
@@ -241,12 +229,12 @@ sub sort {shift}
 #
 
 sub contains {
-  my $self = shift; my $other = promote(shift);
+  my $self = shift; my $other = $self->promote(shift);
   return ($other - $self)->isEmpty;
 }
 
 sub isSubsetOf {
-  my $self = shift; my $other = promote(shift);
+  my $self = shift; my $other = $self->promote(shift);
   return $other->contains($self);
 }
 

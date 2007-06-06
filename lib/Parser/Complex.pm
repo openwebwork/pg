@@ -50,7 +50,7 @@ sub reduce {
   if ($reduce->{'-a-bi'} && $a <= 0 && $b <= 0 && ($a != 0 || $b != 0)) {
     $self->{value} = [-$a,-$b];
     $self = Parser::UOP::Neg($self);
-    $self->{isOne} = 1 if Value::Complex->make(-$a,-$b) == 1;
+    $self->{isOne} = 1 if Value::Complex->make(-$a,-$b) eq "1";
   }
   return $self;
 }

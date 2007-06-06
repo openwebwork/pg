@@ -98,7 +98,7 @@ sub copy {
 #
 #  Create a new formula if the function's arguments are formulas
 #  Otherwise evaluate the function call.
-#  
+#
 #  (This is used to "overload" function calls so that they will
 #   work in Value.pm to produce formulas when called on formulas.)
 #
@@ -249,8 +249,7 @@ sub string {
   my ($self,$precedence,$showparens,$position,$outerRight,$power) = @_;
   my $string; my $fn = $self->{equation}{context}{operators}{'fn'};
   my @pstr = (); my $fn_precedence = $fn->{precedence};
-  $fn_precedence = $fn->{parenPrecedence}
-    if ($position && $position eq 'right' && $fn->{parenPrecedence});
+  $fn_precedence = $fn->{parenPrecedence} if $fn->{parenPrecedence};
   foreach my $x (@{$self->{params}}) {push(@pstr,$x->string)}
   $string = ($self->{def}{string} || $self->{name})."$power".'('.join(',',@pstr).')';
   $string = $self->addParens($string)
@@ -265,8 +264,7 @@ sub TeX {
   my ($self,$precedence,$showparens,$position,$outerRight,$power) = @_;
   my $TeX; my $fn = $self->{equation}{context}{operators}{'fn'};
   my @pstr = (); my $fn_precedence = $fn->{precedence};
-  $fn_precedence = $fn->{parenPrecedence}
-    if ($position && $position eq 'right' && $fn->{parenPrecedence});
+  $fn_precedence = $fn->{parenPrecedence} if $fn->{parenPrecedence};
   $fn = $self->{def};
   my $name = '\mathop{\rm '.$self->{name}.'}';
   $name = $fn->{TeX} if defined($fn->{TeX});

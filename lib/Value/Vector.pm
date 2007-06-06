@@ -6,23 +6,7 @@ package Value::Vector;
 my $pkg = 'Value::Vector';
 
 use strict;
-use vars qw(@ISA);
-@ISA = qw(Value);
-
-use overload
-       '+'   => sub {shift->add(@_)},
-       '-'   => sub {shift->sub(@_)},
-       '*'   => sub {shift->mult(@_)},
-       '/'   => sub {shift->div(@_)},
-       '**'  => sub {shift->power(@_)},
-       '.'   => sub {shift->_dot(@_)},
-       'x'   => sub {shift->cross(@_)},
-       '<=>' => sub {shift->compare(@_)},
-       'cmp' => sub {shift->compare_string(@_)},
-       'neg' => sub {shift->neg},
-       'abs' => sub {shift->abs},
-  'nomethod' => sub {shift->nomethod(@_)},
-        '""' => sub {shift->stringify(@_)};
+our @ISA = qw(Value);
 
 #
 #  Convert a value to a Vector.  The value can be
@@ -33,8 +17,9 @@ use overload
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
+  my %context = (context => $self->context);
   my $p = shift; $p = [$p,@_] if (scalar(@_) > 0);
-  $p = Value::makeValue($p) if (defined($p) && !ref($p));
+  $p = Value::makeValue($p,%context) if (defined($p) && !ref($p));
   return $p if (Value::isFormula($p) && $p->type eq Value::class($self));
   my $pclass = Value::class($p); my $isFormula = 0;
   my @d; @d = $p->dimensions if $pclass eq 'Matrix';
@@ -46,7 +31,7 @@ sub new {
     $p = [$p] if (defined($p) && ref($p) ne 'ARRAY');
     Value::Error("Vectors must have at least one coordinate") unless defined($p) && scalar(@{$p}) > 0;
     foreach my $x (@{$p}) {
-      $x = Value::makeValue($x);
+      $x = Value::makeValue($x,%context);
       $isFormula = 1 if Value::isFormula($x);
       Value::Error("Coordinate of Vector can't be %s",Value::showClass($x))
         unless Value::isNumber($x);
@@ -60,7 +45,7 @@ sub new {
     }
     return $v;
   }
-  my $v = bless {data => $p}, $class;
+  my $v = bless {data => $p, %context}, $class;
   $v->{ColumnVector} = 1 if ref($self) && $self->{ColumnVector};
   return $v;
 }
@@ -69,11 +54,12 @@ sub new {
 #  Try to promote arbitary data to a vector
 #
 sub promote {
-  my $x = shift;
-  return $pkg->new($x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
-  return $x if ref($x) eq $pkg;
-  return $pkg->make(@{$x->data}) if Value::class($x) eq 'Point';
-  Value::Error("Can't convert %s to a Vector",Value::showClass($x));
+  my $self = shift; my $class = ref($self) || $self;
+  my $x = (scalar(@_) ? shift : $self);
+  return $self->new($x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
+  return $x if ref($x) eq $class;
+  return $self->make($x->value) if Value::class($x) eq 'Point';
+  Value::Error("Can't convert %s to %s",Value::showClass($x),Value::showClass($self));
 }
 
 ############################################
@@ -81,77 +67,77 @@ sub promote {
 #  Operations on vectors
 #
 
+#
+#  Don't automatically promote to Vectors for these
+#
+sub _mult  {Value::binOp(@_,"mult")}
+sub _div   {Value::binOp(@_,"div")}
+sub _power {Value::binOp(@_,"power")}
+
 sub add {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
-  ($l,$r) = (promote($l)->data,promote($r)->data);
+  my ($l,$r) = @_; my $self = $l;
+  my @l = $l->value; my @r = $r->value;
   Value::Error("Vector addition with different number of coordinates")
-    unless scalar(@{$l}) == scalar(@{$r});
+    unless scalar(@l) == scalar(@r);
   my @s = ();
-  foreach my $i (0..scalar(@{$l})-1) {push(@s,$l->[$i] + $r->[$i])}
-  return $pkg->make(@s);
+  foreach my $i (0..scalar(@l)-1) {push(@s,$l[$i] + $r[$i])}
+  return $self->make(@s);
 }
 
 sub sub {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->sub($l,!$flag)}
-  ($l,$r) = (promote($l)->data,promote($r)->data);
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my @l = $l->value; my @r = $r->value;
   Value::Error("Vector subtraction with different number of coordinates")
-    unless scalar(@{$l}) == scalar(@{$r});
-  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
+    unless scalar(@l) == scalar(@r);
   my @s = ();
-  foreach my $i (0..scalar(@{$l})-1) {push(@s,$l->[$i] - $r->[$i])}
-  return $pkg->make(@s);
+  foreach my $i (0..scalar(@l)-1) {push(@s,$l[$i] - $r[$i])}
+  return $self->make(@s);
 }
 
 sub mult {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->mult($l,!$flag)}
+  my ($l,$r,$flag) = @_; my $self = $l;
   Value::Error("Vectors can only be multiplied by numbers")
     unless (Value::matchNumber($r) || Value::isComplex($r));
   my @coords = ();
-  foreach my $x (@{$l->data}) {push(@coords,$x*$r)}
-  return $pkg->make(@coords);
+  foreach my $x ($l->value) {push(@coords,$x*$r)}
+  return $self->make(@coords);
 }
 
 sub div {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->div($l,!$flag)}
+  my ($l,$r,$flag) = @_; my $self = $l;
   Value::Error("Can't divide by a Vector") if $flag;
   Value::Error("Vectors can only be divided by numbers")
     unless (Value::matchNumber($r) || Value::isComplex($r));
   Value::Error("Division by zero") if $r == 0;
   my @coords = ();
-  foreach my $x (@{$l->data}) {push(@coords,$x/$r)}
-  return $pkg->make(@coords);
+  foreach my $x ($l->value) {push(@coords,$x/$r)}
+  return $self->make(@coords);
 }
 
 sub power {
   my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->power($l,!$flag)}
   Value::Error("Can't raise Vectors to powers") unless $flag;
   Value::Error("Can't use Vectors in exponents");
 }
 
 sub dot {
-  my ($l,$r,$flag) = @_;
-  ($l,$r) = (promote($l)->data,promote($r)->data);
+  my ($l,$r,$flag) = @_; my $self = $l;
+  my @l = $l->value; my @r = $r->value;
   Value::Error("Vector dot product with different number of coordinates")
-    unless scalar(@{$l}) == scalar(@{$r});
+    unless scalar(@l) == scalar(@r);
   my $s = 0;
-  foreach my $i (0..scalar(@{$l})-1) {$s += $l->[$i] * $r->[$i]}
+  foreach my $i (0..scalar(@l)-1) {$s += $l[$i] * $r[$i]}
   return $s;
 }
 
 sub cross {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->cross($l,!$flag)}
-  ($l,$r) = (promote($l)->data,promote($r)->data);
+  my ($l,$r,$flag) = @_; my $self = $l;
+  my @l = $l->value; my @r = $r->value;
   Value::Error("Vector must be in 3-space for cross product")
-    unless scalar(@{$l}) == 3 && scalar(@{$r}) == 3;
-  $pkg->make($l->[1]*$r->[2] - $l->[2]*$r->[1],
-           -($l->[0]*$r->[2] - $l->[2]*$r->[0]),
-             $l->[0]*$r->[1] - $l->[1]*$r->[0]);
+    unless scalar(@l) == 3 && scalar(@r) == 3;
+  $pkg->make($l[1]*$r[2] - $l[2]*$r[1],
+           -($l[0]*$r[2] - $l[2]*$r[0]),
+             $l[0]*$r[1] - $l[1]*$r[0]);
 }
 
 #
@@ -159,36 +145,32 @@ sub cross {
 #  Otherwise, do lexicographic comparison.
 #
 sub compare {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
-  ($l,$r) = (promote($l)->data,promote($r)->data);
-  return scalar(@{$l}) <=> scalar(@{$r}) unless scalar(@{$l}) == scalar(@{$r});
-  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my @l = $l->value; my @r = $r->value;
+  return scalar(@l) <=> scalar(@r) unless scalar(@l) == scalar(@r);
   my $cmp = 0;
-  foreach my $i (0..scalar(@{$l})-1) {
-    $cmp = $l->[$i] <=> $r->[$i];
+  foreach my $i (0..scalar(@l)-1) {
+    $cmp = $l[$i] <=> $r[$i];
     last if $cmp;
   }
   return $cmp;
 }
 
 sub neg {
-  my $p = promote(@_)->data;
-  my @coords = ();
-  foreach my $x (@{$p}) {push(@coords,-$x)}
-  return $pkg->make(@coords);
+  my $self = promote(@_); my @coords = ();
+  foreach my $x ($self->value) {push(@coords,-$x)}
+  return $self->make(@coords);
 }
 
 sub abs {my $self = shift; $self->norm(@_)}
 sub norm {
-  my $p = promote(@_)->data;
-  my $s = 0;
-  foreach my $x (@{$p}) {$s += $x*$x}
+  my $self = promote(@_); my $s = 0;
+  foreach my $x ($self->value) {$s += $x*$x}
   return CORE::sqrt($s);
 }
 
 sub unit {
-  my $self = shift;
+  my $self = promote(@_);
   my $n = $self->norm; return $self if $n == 0;
   return $self / $n;
 }
@@ -199,17 +181,19 @@ sub unit {
 #
 
 sub isParallel {
-  my $U = shift; my $V = shift; my $sameDirection = shift;
-  my @u = (promote($U))->value;
-  my @v = (promote($V))->value;
+  my $self = (ref($_[0]) ? $_[0] : shift);
+  my $U = $self->promote(shift); my $V = $self->promote(shift);
+  my %context = (context => $self->context);
+  my $sameDirection = shift;
+  my @u = $U->value; my @v = $V->value;
   return 0 unless  scalar(@u) == scalar(@v);
   my $k = ''; # will be scaling factor for u = k v
   foreach my $i (0..$#u) {
     #
     #  make sure we use fuzzy math
     #
-    $u[$i] = Value::Real->new($u[$i]) unless Value::isReal($u[$i]);
-    $v[$i] = Value::Real->new($v[$i]) unless Value::isReal($v[$i]);
+    $u[$i] = Value::Real->new($u[$i])->with(%context) unless Value::isReal($u[$i]);
+    $v[$i] = Value::Real->new($v[$i])->with(%context) unless Value::isReal($v[$i]);
     if ($k ne '') {
       return 0 if ($v[$i] != $k*$u[$i]);
     } else {
@@ -235,7 +219,7 @@ sub isParallel {
   return 1;
 }
 
-sub areParallel {shift->isParallel(@_)}
+sub areParallel {isParallel(@_)}
 
 
 ############################################
@@ -294,7 +278,7 @@ sub ijk {
   if (!$ijk) {
     my $context = $self->{context} || $$Value::context;
     $ijk = []; $ijk->[3] = '{\bf 0}';
-    foreach my $i (0,1,2) 
+    foreach my $i (0,1,2)
      {$ijk->[$i] = $context->{constants}{$ijk_string->[$i]}{TeX} || $ijk_TeX->[$i]}
   }
   my @coords = @{$self->data};

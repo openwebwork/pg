@@ -4,18 +4,7 @@ package Value::Union;
 my $pkg = 'Value::Union';
 
 use strict;
-use vars qw(@ISA);
-@ISA = qw(Value);
-
-use overload
-       '+'   => sub {shift->add(@_)},
-       '-'   => sub {shift->sub(@_)},
-       '.'   => sub {shift->_dot(@_)},
-       'x'   => sub {shift->cross(@_)},
-       '<=>' => sub {shift->compare(@_)},
-       'cmp' => sub {shift->compare_string(@_)},
-  'nomethod' => sub {shift->nomethod(@_)},
-        '""' => sub {shift->stringify(@_)};
+our @ISA = qw(Value);
 
 #
 #  Convert a value to a union of intervals.  The value must be
@@ -24,18 +13,19 @@ use overload
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
+  my %context = (context => $self->context);
   if (scalar(@_) == 1 && !ref($_[0])) {
-    my $x = Value::makeValue($_[0]);
+    my $x = Value::makeValue($_[0],%context);
     if (Value::isFormula($x)) {
       return $x if $x->type =~ m/Interval|Union|Set/;
       Value::Error("Formula does not return an Interval, Set or Union");
     }
-    $x = promote($x); $x = $pkg->make($x) unless $x->type eq 'Union';
+    $x = $self->promote($x); $x = $self->make($x) unless $x->type eq 'Union';
     return $x;
   }
   my @intervals = (); my $isFormula = 0;
   foreach my $xx (@_) {
-    next if $xx eq ''; my $x = Value::makeValue($xx);
+    next if $xx eq ''; my $x = Value::makeValue($xx,%context);
     if ($x->isFormula) {
       $x->{tree}->typeRef->{name} = 'Interval'
 	if ($x->type =~ m/Point|List/ && $x->length == 2 &&
@@ -45,7 +35,7 @@ sub new {
       else {Value::Error("Unions can be taken only for Intervals and Sets")}
       $isFormula = 1;
     } else {
-      if ($x->type ne 'Interval' && $x->canBeInUnion) 
+      if ($x->type ne 'Interval' && $x->canBeInUnion)
         {$x = Value::Interval->new($x->{open},$x->value,$x->{close})}
       if ($x->class eq 'Union') {push(@intervals,$x->value)}
       elsif ($x->isSetOfReals) {push(@intervals,$x)}
@@ -54,7 +44,7 @@ sub new {
   }
   Value::Error("Empty unions are not allowed") if scalar(@intervals) == 0;
   return $self->formula(@intervals) if $isFormula;
-  my $union = form(@intervals);
+  my $union = form($self->context,@intervals);
   $union = $self->make($union) unless $union->type eq 'Union';
   return $union;
 }
@@ -62,12 +52,12 @@ sub new {
 #
 #  Make a union or interval or set, depending on how
 #  many there are in the union, and mark the
-#  
 #
 sub form {
+  my $context = shift;
   return $_[0] if scalar(@_) == 1;
-  return Value::Set->new() if scalar(@_) == 0;
-  my $union = $pkg->make(@_);
+  return Value::Set->new()->with(context=>$context) if scalar(@_) == 0;
+  my $union = $pkg->make(@_)->with(context=>$context);
   $union = $union->reduce if $union->getFlag('reduceUnions');
   return $union;
 }
@@ -90,8 +80,8 @@ sub isSetOfReals {1}
 #  Recursively convert the list of intervals to a tree of unions
 #
 sub formula {
-  my $selft = shift;
-  my $formula = Value::Formula->blank;
+  my $self = shift;
+  my $formula = Value::Formula->blank($self->context);
   $formula->{tree} = recursiveUnion($formula,Value::toFormula($formula,@_));
   return $formula
 }
@@ -106,11 +96,13 @@ sub recursiveUnion {
 #  Try to promote arbitrary data to a set
 #
 sub promote {
-  my $x = Value::makeValue(shift);
-  return Value::Set->new($x,@_) if scalar(@_) > 0 || Value::isRealNumber($x);
+  my $self = shift; my %context = (context => $self->context);
+  my $x = (scalar(@_) ? shift : $self);
+  $x = Value::makeValue($x,%context);
+  return Value::Set->new($x,@_)->with(%context) if scalar(@_) > 0 || Value::isRealNumber($x);
   return $x if ref($x) eq $pkg;
-  $x = Value::Interval::promote($x) if $x->canBeInUnion;
-  return $pkg->make($x) if Value::isValue($x) && $x->isSetOfReals;
+  $x = Value::Interval->promote($x) if $x->canBeInUnion;
+  return $self->make($x) if Value::isValue($x) && $x->isSetOfReals;
   Value::Error("Can't convert %s to an Interval, Set or Union",Value::showClass($x));
 }
 
@@ -123,10 +115,8 @@ sub promote {
 #  Addition forms unions
 #
 sub add {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
-  $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  form($l->value,$r->value);
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  form($self->contest,$l->value,$r->value);
 }
 sub dot {my $self = shift; $self->add(@_)}
 
@@ -134,12 +124,10 @@ sub dot {my $self = shift; $self->add(@_)}
 #  Subtraction can split intervals into unions
 #
 sub sub {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->sub($l,!$flag)}
-  $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  $l = $l->reduce; $l = $pkg->make($l) unless $l->type eq 'Union';
-  $r = $r->reduce; $r = $pkg->make($r) unless $r->type eq 'Union';
-  form(subUnionUnion($l->data,$r->data));
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  $l = $l->reduce; $l = $self->make($l) unless $l->type eq 'Union';
+  $r = $r->reduce; $r = $self->make($r) unless $r->type eq 'Union';
+  form($self->context,subUnionUnion($l->data,$r->data));
 }
 
 #
@@ -170,19 +158,16 @@ sub subUnionUnion {
   return @union;
 }
 
-#  
+#
 #  Sort the intervals lexicographically, and then
 #    compare interval by interval.
 #
 sub compare {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
-  $r = promote($r);
-  if ($l->getFlag('reduceUnionsForComparison')) {
-    $l = $l->reduce; $l = $pkg->make($l) unless $l->type eq 'Union';
-    $r = $r->reduce; $r = $pkg->make($r) unless $r->type eq 'Union';
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  if ($self->getFlag('reduceUnionsForComparison')) {
+    $l = $l->reduce; $l = $self->make($l) unless $l->type eq 'Union';
+    $r = $r->reduce; $r = $self->make($r) unless $r->type eq 'Union';
   }
-  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
   my @l = $l->sort->value; my @r = $r->sort->value;
   while (scalar(@l) && scalar(@r)) {
     my $cmp = shift(@l) <=> shift(@r);
@@ -233,11 +218,12 @@ sub reduce {
               else {$J->{close} = ']' if $b == $d && $I->{close} eq ']'}
     }
   }
+  my %context = (context => $self->context);
   push(@union,@intervals);
-  push(@union,Value::Set->make(@set)) unless scalar(@set) == 0;
-  return Value::Set->new() if scalar(@union) == 0;
+  push(@union,Value::Set->make(@set)->with(%context)) unless scalar(@set) == 0;
+  return Value::Set->new()->with(%context) if scalar(@union) == 0;
   return $union[0] if scalar(@union) == 1;
-  return $pkg->make(@union)->with(isReduced=>1);
+  return $self->make(@union)->with(isReduced=>1);
 }
 
 #
@@ -269,12 +255,12 @@ sub sort {
 #
 
 sub contains {
-  my $self = shift; my $other = promote(shift);
+  my $self = shift; my $other = $self->promote(shift);
   return ($other - $self)->isEmpty;
 }
 
 sub isSubsetOf {
-  my $self = shift; my $other = promote(shift);
+  my $self = shift; my $other = $self->promote(shift);
   return $other->contains($self);
 }
 

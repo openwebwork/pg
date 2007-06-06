@@ -5,33 +5,10 @@
 package Value::Formula;
 my $pkg = 'Value::Formula';
 
-my $UNDEF = bless {}, "UNDEF";
-
 use strict;
-use vars qw(@ISA);
-@ISA = qw(Parser Value);
+our @ISA = qw(Parser Value);
 
-use overload
-       '+'    => sub {shift->add(@_)},
-       '-'    => sub {shift->sub(@_)},
-       '*'    => sub {shift->mult(@_)},
-       '/'    => sub {shift->div(@_)},
-       '**'   => sub {shift->power(@_)},
-       '.'    => sub {shift->_dot(@_)},
-       'x'    => sub {shift->cross(@_)},
-       '<=>'  => sub {shift->compare(@_)},
-       'cmp'  => sub {shift->compare_string(@_)},
-       '~'    => sub {shift->call('conj',@_)},
-       'neg'  => sub {shift->neg},
-       'sin'  => sub {shift->call('sin',@_)},
-       'cos'  => sub {shift->call('cos',@_)},
-       'exp'  => sub {shift->call('exp',@_)},
-       'abs'  => sub {shift->call('abs',@_)},
-       'log'  => sub {shift->call('log',@_)},
-       'sqrt' => sub {shift->call('sqrt',@_)},
-      'atan2' => sub {shift->atan2(@_)},
-   'nomethod' => sub {shift->nomethod(@_)},
-         '""' => sub {shift->stringify(@_)};
+my $UNDEF = bless {}, "UNDEF"; # used for undefined points
 
 #
 #  Call Parser to make the new item, copying important
@@ -46,7 +23,7 @@ sub new {
 }
 
 #
-#  Call Parser to creat the formula
+#  Call Parser to create the formula
 #
 sub create {shift; $pkg->SUPER::new(@_)}
 
@@ -54,7 +31,12 @@ sub create {shift; $pkg->SUPER::new(@_)}
 #  Create the new parser with no string
 #    (we'll fill in its tree by hand)
 #
-sub blank {$pkg->SUPER::new('')}
+sub blank {
+  my $self = shift; my $context = shift;
+  $self = $self->SUPER::new('');
+  $self->{context} = $context if $context;
+  return $self;
+}
 
 #
 #  with() changes tree element as well
@@ -84,7 +66,7 @@ sub canBeInUnion {(shift)->{tree}->canBeInUnion}
 ############################################
 #
 #  Create a BOP from two operands
-#  
+#
 #  Get the context and variables from the left and right operands
 #    if they are formulas
 #  Make them into Value objects if they aren't already.
@@ -94,28 +76,28 @@ sub canBeInUnion {(shift)->{tree}->canBeInUnion}
 #  Evaluate the formula if it is constant.
 #
 sub bop {
-  my ($bop,$l,$r,$flag) = @_;
-  my $call = $$Value::context->{method}{$bop};
-  if ($l->promotePrecedence($r)) {return $r->$call($l,!$flag)}
-  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  my $formula = $pkg->blank; my $parser = $formula->{context}{parser};
-  if (ref($r) eq $pkg) {
+  my $bop = shift;
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my $class = ref($self) || $self;
+  my $call = $self->context->{method}{$bop};
+  my $formula = $self->blank($self->context);
+  my $parser = $formula->{context}{parser};
+  if (ref($r) eq $class || ref($r) eq $pkg) {
     $formula->{context} = $r->{context};
     $r = $r->{tree}->copy($formula);
   }
-  if (ref($l) eq $pkg) {
+  if (ref($l) eq $class || ref($l) eq $pkg) {
     $formula->{context} = $l->{context};
     $l = $l->{tree}->copy($formula);
   }
-  $l = $pkg->new($l) if (!ref($l) && Value::getType($formula,$l) eq "unknown");
-  $r = $pkg->new($r) if (!ref($r) && Value::getType($formula,$r) eq "unknown");
+  $l = $self->new($l) if (!ref($l) && Value::getType($formula,$l) eq "unknown");
+  $r = $self->new($r) if (!ref($r) && Value::getType($formula,$r) eq "unknown");
   $l = $parser->{Value}->new($formula,$l) unless ref($l) =~ m/^Parser::/;
   $r = $parser->{Value}->new($formula,$r) unless ref($r) =~ m/^Parser::/;
   $bop = 'U' if $bop eq '+' &&
     ($l->type =~ m/Interval|Set|Union/ || $r->type =~ m/Interval|Set|Union/);
   $formula->{tree} = $parser->{BOP}->new($formula,$bop,$l,$r);
   $formula->{variables} = $formula->{tree}->getVariables;
-#  return $formula->eval if $formula->{isConstant};
   return $formula;
 }
 
@@ -132,8 +114,8 @@ sub cross {bop('><',@_)}
 sub _dot   {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->_dot($l,!$flag)}
-  return bop('.',@_) if $l->type eq 'Vector' &&
-     Value::isValue($r) && $r->type eq 'Vector';
+  return bop('.',@_) if ($l->type eq 'Vector' || $l->{isVector}) &&
+     Value::isValue($r) && ($r->type eq 'Vector' || $r->{isVector});
   $l->SUPER::_dot($r,$flag);
 }
 
@@ -153,8 +135,7 @@ sub call {
 #
 sub neg {
   my $self = shift;
-  my $formula = $self->blank;
-  $formula->{context} = $self->{context};
+  my $formula = $self->blank($self->context);
   $formula->{variables} = $self->{variables};
   $formula->{tree} = $formula->{context}{parser}{UOP}->new($formula,'u-',$self->{tree}->copy($formula));
   return $formula;
@@ -164,19 +145,25 @@ sub neg {
 #  Form the function atan2 function call on two operands
 #
 sub atan2 {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->atan2($l,!$flag)}
-  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
   Parser::Function->call('atan2',$l,$r);
 }
+
+sub sin  {shift->call('sin',@_)}
+sub cos  {shift->call('cos',@_)}
+sub abs  {shift->call('abs',@_)}
+sub exp  {shift->call('exp',@_)}
+sub log  {shift->call('log',@_)}
+sub sqrt {shift->call('sqrt',@_)}
+
+sub twiddle {shift->call('conj',@_)}
 
 ############################################
 #
 #  Compare two functions for equality
 #
 sub compare {
-  my ($l,$r,$flag) = @_; my $self = $l;
-  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
+  my ($l,$r) = @_; my $self = $l;
   $r = Value::Formula->new($r) unless Value::isFormula($r);
   Value::Error("Functions from different contexts can't be compared")
     unless $l->{context} == $r->{context};
@@ -252,7 +239,7 @@ sub createPointValues {
       return unless $showError;
       Value::Error("Can't evaluate formula on test point (%s)",join(',',@{$p}));
     }
-    push @{$values}, (defined($v)? Value::makeValue($v): $UNDEF);
+    push @{$values}, (defined($v)? Value::makeValue($v,context=>$self->context): $UNDEF);
   }
   if ($cacheResults) {
     $self->{test_points} = $points;
@@ -281,7 +268,7 @@ sub createAdaptedValues {
       Value::Error("Can't evaluate formula on test point (%s) with parameters (%s)",
 		   join(',',@{$p}),join(',',@adapt));
     }
-    push @{$values}, Value::makeValue($v);
+    push @{$values}, Value::makeValue($v,context=>$self->context);
   }
   $self->{test_adapt} = $values;
 }
@@ -330,7 +317,7 @@ sub createRandomPoints {
       $k++;
     } else {
       push @{$points}, [@P];
-      push @{$values}, Value::makeValue($v);
+      push @{$values}, Value::makeValue($v,context=>$self->context);
       $k = 0; # reset count when we find a point
     }
   }

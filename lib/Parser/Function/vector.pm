@@ -3,8 +3,8 @@
 #  Implement functions on vectors
 #
 package Parser::Function::vector;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::Function);
+use strict;
+our @ISA = qw(Parser::Function);
 
 #
 #  Check for a single vector-valued input
@@ -17,7 +17,7 @@ sub _check {(shift)->checkVector(@_)}
 #
 sub _eval {
   my $self = shift; my $name = $self->{name};
-  my $v = Value::Vector::promote($_[0]);
+  my $v = Value::Vector->promote($_[0]);
   $v->$name;
 }
 
@@ -30,7 +30,7 @@ sub _call {
   my $self = shift; my $name = shift;
   Value::Error("Function '%s' has too many inputs",$name) if scalar(@_) > 1;
   Value::Error("Function '%s' has too few inputs",$name) if scalar(@_) == 0;
-  my $v = Value::Vector::promote($_[0]);
+  my $v = Value::Vector->promote($_[0]);
   $v->$name;
 }
 

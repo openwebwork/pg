@@ -4,30 +4,8 @@ package Value::Complex;
 my $pkg = 'Value::Complex';
 
 use strict;
-use vars qw(@ISA $i $pi);
-@ISA = qw(Value);
-
-use overload
-       '+'   => sub {shift->add(@_)},
-       '-'   => sub {shift->sub(@_)},
-       '*'   => sub {shift->mult(@_)},
-       '/'   => sub {shift->div(@_)},
-       '**'  => sub {shift->power(@_)},
-       '.'   => sub {shift->_dot(@_)},
-       'x'   => sub {shift->cross(@_)},
-       '<=>' => sub {shift->compare(@_)},
-       'cmp' => sub {shift->compare_string(@_)},
-       '~'   => sub {shift->conj},
-       'neg' => sub {shift->neg},
-       'abs' => sub {shift->norm},
-       'sqrt'=> sub {shift->sqrt},
-       'exp' => sub {shift->exp},
-       'log' => sub {shift->log},
-       'sin' => sub {shift->sin},
-       'cos' => sub {shift->cos},
-     'atan2' => sub {shift->atan2(@_)},
-  'nomethod' => sub {shift->nomethod(@_)},
-        '""' => sub {shift->stringify(@_)};
+our @ISA = qw(Value);
+our $i; our $pi;
 
 #
 #  Check that the inputs are:
@@ -40,7 +18,7 @@ use overload
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $x = shift; $x = [$x,@_] if scalar(@_) > 0;
-  $x = $x->data if ref($x) eq $pkg || Value::isReal($x);
+  $x = $x->data if ref($x) eq $class || Value::isReal($x);
   $x = [$x] unless ref($x) eq 'ARRAY'; $x->[1] = 0 unless defined($x->[1]);
   Value::Error("Can't convert ARRAY of length %d to a Complex Number",scalar(@{$x}))
     unless (scalar(@{$x}) == 2);
@@ -51,7 +29,7 @@ sub new {
   Value::Error("Imaginary part can't be %s",Value::showClass($x->[1]))
      unless (Value::isRealNumber($x->[1]));
   return $self->formula($x) if Value::isFormula($x->[0]) || Value::isFormula($x->[1]);
-  bless {data => $x}, $class;
+  bless {data => $x, context => $self->context}, $class;
 }
 
 #
@@ -59,13 +37,12 @@ sub new {
 #
 sub formula {
   my $self = shift; my $value = shift;
-  my $formula = Value::Formula->blank;
+  my $formula = Value::Formula->blank($self->context);
   my ($l,$r) = Value::toFormula($formula,@{$value});
   my $parser = $formula->{context}{parser};
   my $I = $parser->{Value}->new($formula,$i);
   $r = $parser->{BOP}->new($formula,'*',$r,$I);
   $formula->{tree} = $parser->{BOP}->new($formula,'+',$l,$r);
-#   return $formula->eval if scalar(%{$formula->{variables}}) == 0;
   return $formula;
 }
 
@@ -85,15 +62,20 @@ sub isOne {shift eq "1"}
 #    (Guarantees that we have both parts in an array ref)
 #
 sub promote {
-  my $x = shift;
-  return $x if (ref($x) eq $pkg && scalar(@_) == 0);
-  return $pkg->new($x,@_);
+  my $self = shift; my $class = ref($self) || $self;
+  my $x = (scalar(@_) ? shift : $self);
+  return $x if ref($x) eq $class && scalar(@_) == 0;
+  return $self->new($x,@_);
 }
 #
 #  Get the data from the promoted item
 #    (guarantees that we have an array with two elements)
 #
-sub promoteData {@{(promote(shift))->data}}
+sub promoteData {
+  my $self = shift;
+  return $self->value if Value::isValue($self) && scalar(@_) == 0;
+  return ($self->promote(@_))->value;
+}
 
 ##################################################
 #
@@ -101,69 +83,50 @@ sub promoteData {@{(promote(shift))->data}}
 #
 
 sub add {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
-  my ($a,$b) = (@{$l->data});
-  my ($c,$d) = promoteData($r);
-  return $pkg->make($a + $c, $b + $d);
+  my ($l,$r) = @_; my $self = $l;
+  my ($a,$b) = $l->value; my ($c,$d) = $r->value;
+  return $self->make($a + $c, $b + $d);
 }
 
 sub sub {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->sub($l,!$flag)}
-  $r = promote($r);
-  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  my ($a,$b) = (@{$l->data});
-  my ($c,$d) = (@{$r->data});
-  return $pkg->make($a - $c, $b - $d);
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($a,$b) = $l->value; my ($c,$d) = $r->value;
+  return $self->make($a - $c, $b - $d);
 }
 
 sub mult {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->mult($l,!$flag)}
-  my ($a,$b) = (@{$l->data});
-  my ($c,$d) = promoteData($r);
-  return $pkg->make($a*$c - $b*$d, $b*$c + $a*$d);
+  my ($l,$r) = @_; my $self = $l;
+  my ($a,$b) = $l->value; my ($c,$d) = $r->value;
+  return $self->make($a*$c - $b*$d, $b*$c + $a*$d);
 }
 
 sub div {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->div($l,!$flag)}
-  $r = promote($r);
-  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  my ($a,$b) = (@{$l->data});
-  my ($c,$d) = (@{$r->data});
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($a,$b) = $l->value; my ($c,$d) = $r->value;
   my $x = $c*$c + $d*$d;
   Value::Error("Division by zero") if $x == 0;
-  return $pkg->make(($a*$c + $b*$d)/$x,($b*$c - $a*$d)/$x);
+  return $self->make(($a*$c + $b*$d)/$x,($b*$c - $a*$d)/$x);
 }
 
 sub power {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->power($l,!$flag)}
-  $r = promote($r);
-  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  my ($a,$b) = (@{$l->data});
-  my ($c,$d) = (@{$r->data});
-  return Value::Real->make(1) if ($a eq '1' && $b == 0) || ($c == 0 && $d == 0);
-  return Value::Real->make(0) if $c > 0 && ($a == 0 && $b == 0);
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($a,$b) = $l->value; my ($c,$d) = $r->value;
+  return Value::makeValue(1) if ($a eq '1' && $b == 0) || ($c == 0 && $d == 0);
+  return Value::makeValue(0) if $c > 0 && ($a == 0 && $b == 0);
   return exp($r * log($l))
  }
 
-sub equal {
-  my ($l,$r,$flag) = @_;
-  my ($a,$b) = (@{$l->data});
-  my ($c,$d) = promoteData($r);
-  return $a == $c && $b == $d;
+sub modulo {
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  return $self->make(0) if $r eq "0";
+  my $m = Re($l/$r)->value;
+  my $n = int($m); $n-- if $n > $m;
+  return $self->make($l - $n*$r);
 }
 
 sub compare {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
-  $r = promote($r);
-  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  my ($a,$b) = (@{$l->data});
-  my ($c,$d) = (@{$r->data});
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($a,$b) = $l->value; my ($c,$d) = $r->value;
   return ($a <=> $c) if $a != $c;
   return ($b <=> $d);
 }
@@ -183,8 +146,8 @@ sub mod {
   return CORE::sqrt($a*$a+$b*$b);
 }
 
-sub Re {return (promote(@_))->data->[0]}
-sub Im {return (promote(@_))->data->[1]}
+sub Re {return (promoteData(@_))[0]}
+sub Im {return (promoteData(@_))[1]}
 
 sub abs {norm(@_)}
 sub norm {
@@ -193,33 +156,34 @@ sub norm {
 }
 
 sub neg {
-  my ($a,$b) = promoteData(@_);
-  return $pkg->make(-$a,-$b);
+  my $self = promote(@_);
+  my ($a,$b) = $self->value;
+  return $self->make(-$a,-$b);
 }
 
-sub conj {
-  my ($a,$b) = promoteData(@_);
-  return $pkg->make($a,-$b);
+sub conj {(shift)->twiddle(@_)}
+sub twiddle {
+  my $self = promote(@_);
+  my ($a,$b) = $self->value;
+  return $self->make($a,-$b);
 }
 
 sub exp {
-  my ($a,$b) = promoteData(@_);
+  my $self = promote(@_);
+  my ($a,$b) = $self->value;
   my $e = CORE::exp($a);
   my ($c,$s) = (CORE::cos($b),CORE::sin($b));
-  return $pkg->make($e*$c,$e*$s);
+  return $self->make($e*$c,$e*$s);
 }
 
 sub log {
-  my $z = promote(@_);
-  my ($r,$t) = ($z->mod,$z->arg);
+  my $self = promote(@_);
+  my ($r,$t) = ($self->mod,$self->arg);
   Value::Error("Can't compute log of zero") if ($r == 0);
-  return $pkg->make(CORE::log($r),$t);
+  return $self->make(CORE::log($r),$t);
 }
 
-sub sqrt {
-  my $z = promote(@_);
-  $z->power(.5);
-}
+sub sqrt {promote(@_)**(.5)}
 
 ##################################################
 #
@@ -228,16 +192,18 @@ sub sqrt {
 
 # sin(z) = (exp(iz) - exp(-iz))/(2i)
 sub sin {
-  my ($a,$b) = promoteData(@_);
+  my $self = promote(@_);
+  my ($a,$b) = $self->value;
   my $e = CORE::exp($b); my $e1 = 1/$e;
-  $pkg->make(CORE::sin($a)*($e+$e1)/2, CORE::cos($a)*($e-$e1)/2);
+  $self->make(CORE::sin($a)*($e+$e1)/2, CORE::cos($a)*($e-$e1)/2);
 }
 
 # cos(z) = (exp(iz) + exp(-iz))/2
 sub cos {
-  my ($a,$b) = promoteData(@_);
+  my $self = promote(@_);
+  my ($a,$b) = $self->value;
   my $e = CORE::exp($b); my $e1 = 1/$e;
-  $pkg->make(CORE::cos($a)*($e+$e1)/2, CORE::sin($a)*($e1-$e)/2);
+  $self->make(CORE::cos($a)*($e+$e1)/2, CORE::sin($a)*($e1-$e)/2);
 }
 
 # tan(z) = sin(z) / cos(z)
@@ -272,17 +238,15 @@ sub acot {atan(1/$_[0])}
 
 # atan2(z1,z2) = atan(z1/z2)
 sub atan2 {
-  my ($l,$r,$flag) = @_;
-  if ($flag) {my $tmp = $l; $l = $r; $r = $l}
-  my ($a,$b) = promoteData($l);
-  my ($c,$d) = promoteData($r);
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($a,$b) = $l->value; my ($c,$d) = $r->value;
   if ($b == 0) {
     return CORE::atan2($a,$c) if $b == 0;
-    return $pkg->make($pi/2,0) if $a == 0;
+    return $self->make($pi/2,0) if $a == 0;
   }
-  ($a,$b) = @{atan($l/$r)->data};
+  ($a,$b) = atan($l/$r)->value;
   $a += $pi if $c <0; $a -= 2*$pi if $a > $pi;
-  return $pkg->make($a,$b);
+  return $self->make($a,$b);
 }
 
 ##################################################
@@ -292,16 +256,18 @@ sub atan2 {
 
 # sinh(z) = (exp(z) - exp(-z))/2
 sub sinh {
-  my ($a,$b) = promoteData(@_);
+  my $self = promote(@_);
+  my ($a,$b) = $self->value;
   my $e = CORE::exp($a); my $e1 = 1/$e;
-  $pkg->make(CORE::cos($b)*($e-$e1)/2, CORE::sin($b)*($e+$e1)/2);
+  $self->make(CORE::cos($b)*($e-$e1)/2, CORE::sin($b)*($e+$e1)/2);
 }
 
 # cosh(z) = (exp(z) + exp(-z))/2
 sub cosh {
-  my ($a,$b) = promoteData(@_);
+  my $self = promote(@_);
+  my ($a,$b) = $self->value;
   my $e = CORE::exp($a); my $e1 = 1/$e;
-  $pkg->make(CORE::cos($b)*($e+$e1)/2, CORE::sin($b)*($e-$e1)/2);
+  $self->make(CORE::cos($b)*($e+$e1)/2, CORE::sin($b)*($e-$e1)/2);
 }
 
 # tanh(z) = sinh(z) / cosh(z)
@@ -343,12 +309,12 @@ sub pdot {
   return "($z)";
 }
 
-sub string {my $self = shift; Value::Complex::format(@{$self->data},'string',@_)}
-sub TeX {my $self = shift; Value::Complex::format(@{$self->data},'TeX',@_)}
+sub string {my $self = shift; Value::Complex::format($self->value,'string',@_)}
+sub TeX {my $self = shift; Value::Complex::format($self->value,'TeX',@_)}
 
 #
 #  Try to make a pretty version of the number
-#     
+#
 sub format {
   my ($a,$b) = (shift,shift);
   my $method = shift || 'string';

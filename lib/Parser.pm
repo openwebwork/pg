@@ -8,7 +8,7 @@ BEGIN {
   #  can be overriden to customize the parser)
   #
   our $class = {Formula => 'Value::Formula'};
-  
+
   #
   #  Collect the default reduction flags for use in the context
   #
@@ -464,7 +464,7 @@ sub Precedence {
 ##################################################
 #
 #  Apply a function to its parameters
-#  
+#
 #  If the operand is a list and the parens are those for function calls
 #    Use the list items as the parameters, otherwise use the top item
 #  Pop the function object, and push the result of the function call
@@ -484,7 +484,7 @@ sub CloseFn {
 ##################################################
 #
 #  Handle a numeric token
-#  
+#
 #  Add an implicit multiplication, if needed
 #  Create the number object and check it
 #  Save the number as an operand
@@ -645,7 +645,7 @@ sub perl {
 ##################################################
 #
 #  Produce a perl function
-#  
+#
 #  (Parameters specify an optional name and an array reference of 
 #   optional variables. If the name is not included, an anonymous
 #   code reference is returned.  If the variables are not included,
@@ -712,29 +712,19 @@ sub ijk {
 #  Load the sub-classes and Value.pm
 #
 
-use Parser::Item;
-use Value;
-use Parser::Context;
-use Parser::Context::Default;
-use Parser::Differentiation;
+END {
+  use Parser::Item;
+  use Value;
+  use Parser::Context;
+  use Parser::Context::Default;
+  use Parser::Differentiation;
+}
 
 ###########################################################################
 
-use vars qw($installed);
-$Parser::installed = 1;
+our $installed = 1;
 
 ###########################################################################
-###########################################################################
-#
-#   To Do:
-#
-# handle sqrt(-1) and log of negatives (make complexes)
-# do division by zero and log of zero checks in compound functions
-# make reduce have reduce patterns as parameters
-# more reduce patterns
-# make operator strings customizable (reduce, and other places they are used)
-#
-#########################################################################
 
 1;
 

@@ -4,15 +4,7 @@ package Value::String;
 my $pkg = 'Value::String';
 
 use strict;
-use vars qw(@ISA);
-@ISA = qw(Value);
-
-use overload
-       '.'   => sub {shift->_dot(@_)},
-       '<=>' => sub {shift->compare(@_)},
-       'cmp' => sub {shift->compare(@_)},
-  'nomethod' => sub {shift->nomethod(@_)},
-        '""' => sub {shift->stringify(@_)};
+our @ISA = qw(Value);
 
 #
 #  Create a string object
@@ -20,7 +12,7 @@ use overload
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $x = join('',@_);
-  my $s = bless {data => [$x]}, $class;
+  my $s = bless {data => [$x], context => $self->context}, $class;
   if ($Parser::installed &&
       !($x eq '' && $$Value::context->flag('allowEmptyStrings'))) {
     my $strings = $$Value::context->{strings};
@@ -51,9 +43,11 @@ sub isZero {0}
 #  Convert to a string object
 #
 sub promote {
-  my $x = shift; $x = [$x,@_] if scalar(@_) > 0;
-  $x = Value::makeValue($x,showError=>1); $x = join('',@{$x}) if ref($x) eq 'ARRAY';
-  $x = $pkg->make($x) unless Value::isValue($x);
+  my $self = shift;
+  my $x = (scalar(@_) ? shift : $self); $x = [$x,@_] if scalar(@_) > 0;
+  $x = Value::makeValue($x,showError=>1,context=>$self->context);
+  $x = join('',@{$x}) if ref($x) eq 'ARRAY';
+  $x = $self->make($x) unless Value::isValue($x);
   return $x;
 }
 
@@ -62,9 +56,7 @@ sub promote {
 #  Operations on strings
 #
 sub compare {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
-  $r = promote($r); if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
+  my ($self,$l,$r,$flag) = Value::checkOpOrder(@_);
   return $l->value cmp $r->value if $l->{caseSensitive} || $r->{caseSensitive};
   return uc($l->value) cmp uc($r->value);
 }

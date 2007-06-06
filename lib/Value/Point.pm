@@ -6,23 +6,7 @@ package Value::Point;
 my $pkg = 'Value::Point';
 
 use strict;
-use vars qw(@ISA);
-@ISA = qw(Value);
-
-use overload
-       '+'   => sub {shift->add(@_)},
-       '-'   => sub {shift->sub(@_)},
-       '*'   => sub {shift->mult(@_)},
-       '/'   => sub {shift->div(@_)},
-       '**'  => sub {shift->power(@_)},
-       '.'   => sub {shift->_dot(@_)},
-       'x'   => sub {shift->cross(@_)},
-       '<=>' => sub {shift->compare(@_)},
-       'cmp' => sub {shift->compate_string(@_)},
-       'neg' => sub {shift->neg},
-       'abs' => sub {shift->abs},
-  'nomethod' => sub {shift->nomethod(@_)},
-        '""' => sub {shift->stringify(@_)};
+our @ISA = qw(Value);
 
 #
 #  Convert a value to a point.  The value can be
@@ -33,8 +17,9 @@ use overload
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
+  my %context = (context => $self->context);
   my $p = shift; $p = [$p,@_] if (scalar(@_) > 0);
-  $p = Value::makeValue($p) if (defined($p) && !ref($p));
+  $p = Value::makeValue($p,%context) if (defined($p) && !ref($p));
   return $p if (Value::isFormula($p) && $p->type eq Value::class($self));
   my $pclass = Value::class($p); my $isFormula = 0;
   my @d; @d = $p->dimensions if $pclass eq 'Matrix';
@@ -47,24 +32,25 @@ sub new {
     Value::Error("Points must have at least one coordinate")
       unless defined($p) && scalar(@{$p}) > 0;
     foreach my $x (@{$p}) {
-      $x = Value::makeValue($x);
+      $x = Value::makeValue($x,%context);
       $isFormula = 1 if Value::isFormula($x);
       Value::Error("Coordinate of Point can't be %s",Value::showClass($x))
         unless Value::isNumber($x);
     }
   }
   return $self->formula($p) if $isFormula;
-  bless {data => $p}, $class;
+  bless {data => $p, %context}, $class;
 }
 
 #
 #  Try to promote arbitrary data to a point
 #
 sub promote {
-  my $x = shift;
-  return $pkg->new($x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
-  return $x if ref($x) eq $pkg;
-  Value::Error("Can't convert %s to a Point",Value::showClass($x));
+  my $self = shift; my $class = ref($self) || $self;
+  my $x = (scalar(@_) ? shift: $self);
+  return $self->new($x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
+  return $x if ref($x) eq $class;
+  Value::Error("Can't convert %s to %s",Value::showClass($x),$self->showClass);
 }
 
 ############################################
@@ -72,54 +58,56 @@ sub promote {
 #  Operations on points
 #
 
+#
+#  Don't automatically promote to Points for these
+#
+sub _mult  {Value::binOp(@_,"mult")}
+sub _div   {Value::binOp(@_,"div")}
+sub _power {Value::binOp(@_,"power")}
+sub _cross {Value::binOp(@_,"cross")}
+
 sub add {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
-  ($l,$r) = (promote($l)->data,promote($r)->data);
-  Value::Error("Point addition with different number of coordiantes")
-    unless scalar(@{$l}) == scalar(@{$r});
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my @l = $l->value; my @r = $r->value;
+  Value::Error("Can't add Points with different number of coordiantes")
+    unless scalar(@l) == scalar(@r);
   my @s = ();
-  foreach my $i (0..scalar(@{$l})-1) {push(@s,$l->[$i] + $r->[$i])}
-  return $pkg->make(@s);
+  foreach my $i (0..scalar(@l)-1) {push(@s,$l[$i] + $r[$i])}
+  return $self->make(@s);
 }
 
 sub sub {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->sub($l,!$flag)}
-  ($l,$r) = (promote($l)->data,promote($r)->data);
-  Value::Error("Point subtraction with different number of coordiantes")
-    unless scalar(@{$l}) == scalar(@{$r});
-  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my @l = $l->value; my @r = $r->value;
+  Value::Error("Can't subtract Points with different number of coordiantes")
+    unless scalar(@l) == scalar(@r);
   my @s = ();
-  foreach my $i (0..scalar(@{$l})-1) {push(@s,$l->[$i] - $r->[$i])}
-  return $pkg->make(@s);
+  foreach my $i (0..scalar(@l)-1) {push(@s,$l[$i] - $r[$i])}
+  return $self->make(@s);
 }
 
 sub mult {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->mult($l,!$flag)}
+  my ($l,$r) = @_; my $self = $l;
   Value::Error("Points can only be multiplied by numbers")
     unless (Value::matchNumber($r) || Value::isComplex($r));
   my @coords = ();
-  foreach my $x (@{$l->data}) {push(@coords,$x*$r)}
-  return $pkg->make(@coords);
+  foreach my $x ($l->value) {push(@coords,$x*$r)}
+  return $self->make(@coords);
 }
 
 sub div {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->div($l,!$flag)}
+  my ($l,$r,$flag) = @_; my $self = $l;
   Value::Error("Can't divide by a point") if $flag;
   Value::Error("Points can only be divided by numbers")
     unless (Value::matchNumber($r) || Value::isComplex($r));
   Value::Error("Division by zero") if $r == 0;
   my @coords = ();
-  foreach my $x (@{$l->data}) {push(@coords,$x/$r)}
-  return $pkg->make(@coords);
+  foreach my $x ($l->value) {push(@coords,$x/$r)}
+  return $self->make(@coords);
 }
 
 sub power {
   my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->power($l,!$flag)}
   Value::Error("Can't raise Points to powers") unless $flag;
   Value::Error("Can't use Points in exponents");
 }
@@ -129,7 +117,7 @@ sub power {
 #
 sub cross {
   my ($l,$r,$flag) = @_;
-  $l = Value::Vector::promote($l);
+  $l = Value::Vector->promote($l)->with(context=>$l->context);
   $l->cross($r,$flag);
 }
 
@@ -138,33 +126,29 @@ sub cross {
 #  Otherwise, do lexicographic comparison.
 #
 sub compare {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
-  ($l,$r) = (promote($l)->data,promote($r)->data);
-  return scalar(@{$l}) <=> scalar(@{$r}) unless scalar(@{$l}) == scalar(@{$r});
-  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my @l = $l->value; my @r = $r->value;
+  return scalar(@l) <=> scalar(@r) unless scalar(@l) == scalar(@r);
   my $cmp = 0;
-  foreach my $i (0..scalar(@{$l})-1) {
-    $cmp = $l->[$i] <=> $r->[$i];
+  foreach my $i (0..scalar(@l)-1) {
+    $cmp = $l[$i] <=> $r[$i];
     last if $cmp;
   }
   return $cmp;
 }
 
 sub neg {
-  my $p = promote(@_)->data;
-  my @coords = ();
-  foreach my $x (@{$p}) {push(@coords,-$x)}
-  return $pkg->make(@coords);
+  my $self = promote(@_); my @coords = ();
+  foreach my $x ($self->value) {push(@coords,-$x)}
+  return $self->make(@coords);
 }
 
 #
 #  abs() is norm of vector
 #
 sub abs {
-  my $p = promote(@_)->data;
-  my $s = 0;
-  foreach my $x (@{$p}) {$s += $x*$x}
+  my $self = promote(@_); my $s = 0;
+  foreach my $x ($self->value) {$s += $x*$x}
   return CORE::sqrt($s);
 }
 

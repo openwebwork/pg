@@ -7,8 +7,8 @@
 #
 
 package Parser::Function::undefined;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::Function);
+use strict;
+our @ISA = qw(Parser::Function);
 
 sub _check {
   my $self = shift;

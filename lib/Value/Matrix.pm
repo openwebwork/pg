@@ -8,22 +8,7 @@ package Value::Matrix;
 my $pkg = 'Value::Matrix';
 
 use strict;
-use vars qw(@ISA);
-@ISA = qw(Value);
-
-use overload
-       '+'   => sub {shift->add(@_)},
-       '-'   => sub {shift->sub(@_)},
-       '*'   => sub {shift->mult(@_)},
-       '/'   => sub {shift->div(@_)},
-       '**'  => sub {shift->power(@_)},
-       '.'   => sub {shift->_dot(@_)},
-       'x'   => sub {shift->cross(@_)},
-       '<=>' => sub {shift->compare(@_)},
-       'cmp' => sub {shift->compare_string(@_)},
-       'neg' => sub {shift->neg},
-  'nomethod' => sub {shift->nomethod(@_)},
-        '""' => sub {shift->stringify(@_)};
+our @ISA = qw(Value);
 
 #
 #  Convert a value to a matrix.  The value can be:
@@ -33,8 +18,9 @@ use overload
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my $M = shift; $M = Value::makeValue($M) if !ref($M) && scalar(@_) == 0;
-  return bless {data => $M->data}, $class 
+  my %context = (context => $self->context);
+  my $M = shift; $M = Value::makeValue($M,%context) if !ref($M) && scalar(@_) == 0;
+  return bless {data => $M->data, %context}, $class
     if (Value::class($M) =~ m/Point|Vector|Matrix/ && scalar(@_) == 0);
   return $M if (Value::isFormula($M) && $M->type eq Value::class($self));
   $M = [$M,@_] if (ref($M) ne 'ARRAY' || scalar(@_) > 0);
@@ -53,7 +39,7 @@ sub matrixMatrix {
   my ($x,$m); my @M = (); my $isFormula = 0;
   foreach $x (@_) {
     if (Value::isFormula($x)) {push(@M,$x); $isFormula = 1} else {
-      $m = $pkg->new($x); push(@M,$m);
+      $m = $self->new($x); push(@M,$m);
       $isFormula = 1 if Value::isFormula($m);
     }
   }
@@ -64,7 +50,7 @@ sub matrixMatrix {
     Value::Error("Matrix rows must all be the same length") unless ($len eq $x->length);
   }
   return $self->formula([@M]) if $isFormula;
-  bless {data => [@M]}, $class;
+  bless {data => [@M], context=>$self->context}, $class;
 }
 
 #
@@ -75,12 +61,12 @@ sub numberMatrix {
   my $self = shift; my $class = ref($self) || $self;
   my @M = (); my $isFormula = 0;
   foreach my $x (@_) {
-    $x = Value::makeValue($x);
+    $x = Value::makeValue($x,context=>$self->context);
     Value::Error("Matrix row entries must be numbers") unless Value::isNumber($x);
     push(@M,$x); $isFormula = 1 if Value::isFormula($x);
   }
   return $self->formula([@M]) if $isFormula;
-  bless {data => [@M]}, $class;
+  bless {data => [@M], context=>$self->context}, $class;
 }
 
 #
@@ -167,11 +153,12 @@ sub isZero {
 #  Make arbitrary data into a matrix, if possible
 #
 sub promote {
-  my $x = shift;
-  return $pkg->new($x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
-  return $x if ref($x) eq $pkg;
-  return $pkg->make(@{$x->data}) if Value::class($x) =~ m/Point|Vector/;
-  Value::Error("Can't convert %s to a Matrix",Value::showClass($x));
+  my $self = shift; my $class = ref($self) || $self;
+  my $x = (scalar(@_) ? shift : $self);
+  return $self->new($x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
+  return $x if ref($x) eq $class;
+  return $self->make(@{$x->data}) if Value::class($x) =~ m/Point|Vector/;
+  Value::Error("Can't convert %s to %s",Value::showClass($x),$self->showClass);
 }
 
 ############################################
@@ -179,58 +166,60 @@ sub promote {
 #  Operations on matrices
 #
 
+#
+#  Don't automatically promote to Matrices for these
+#
+sub _mult  {Value::binOp(@_,"mult")}
+sub _div   {Value::binOp(@_,"div")}
+sub _power {Value::binOp(@_,"power")}
+
 sub add {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->add($l,!$flag)}
-  ($l,$r) = (promote($l)->data,promote($r)->data);
-  Value::Error("Matrix addition with different dimensions")
-    unless scalar(@{$l}) == scalar(@{$r});
+  my ($l,$r) = @_; my $self = $l;
+  my @l = @{$l->data}; my @r = @{$r->data};
+  Value::Error("Can't add Matrices with different dimensions")
+    unless scalar(@l) == scalar(@r);
   my @s = ();
-  foreach my $i (0..scalar(@{$l})-1) {push(@s,$l->[$i] + $r->[$i])}
-  return $pkg->make(@s);
+  foreach my $i (0..scalar(@l)-1) {push(@s,$l[$i] + $r[$i])}
+  return $self->make(@s);
 }
 
 sub sub {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->sub($l,!$flag)}
-  ($l,$r) = (promote($l)->data,promote($r)->data);
-  Value::Error("Matrix subtraction with different dimensions")
-    unless scalar(@{$l}) == scalar(@{$r});
-  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my @l = @{$l->data}; my @r = @{$r->data};
+  Value::Error("Can't subtract Matrices with different dimensions")
+    unless scalar(@l) == scalar(@r);
   my @s = ();
-  foreach my $i (0..scalar(@{$l})-1) {push(@s,$l->[$i] - $r->[$i])}
-  return $pkg->make(@s);
+  foreach my $i (0..scalar(@l)-1) {push(@s,$l[$i] - $r[$i])}
+  return $self->make(@s);
 }
 
 sub mult {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->mult($l,!$flag)}
+  my ($l,$r,$flag) = @_; my $self = $l;
   #
   #  Constant multiplication
   #
   if (Value::matchNumber($r) || Value::isComplex($r)) {
     my @coords = ();
     foreach my $x (@{$l->data}) {push(@coords,$x*$r)}
-    return $pkg->make(@coords);
+    return $self->make(@coords);
   }
   #
   #  Make points and vectors into columns if they are on the right
   #
   if (!$flag && Value::class($r) =~ m/Point|Vector/)
-    {$r = (promote($r))->transpose} else {$r = promote($r)}
+    {$r = ($self->promote($r))->transpose} else {$r = $self->promote($r)}
   #
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   my @dl = $l->dimensions; my @dr = $r->dimensions;
-  if (scalar(@dl) == 1) {@dl = (1,@dl); $l = $pkg->make($l)}
-  if (scalar(@dr) == 1) {@dr = (@dr,1); $r = $pkg->make($r)->transpose}
+  if (scalar(@dl) == 1) {@dl = (1,@dl); $l = $self->make($l)}
+  if (scalar(@dr) == 1) {@dr = (@dr,1); $r = $self->make($r)->transpose}
   Value::Error("Can only multiply 2-dimensional matrices") if scalar(@dl) > 2 || scalar(@dr) > 2;
   Value::Error("Matices of dimensions %dx%d and %dx%d can't be multiplied",@dl,@dr)
     unless ($dl[1] == $dr[0]);
   #
   #  Do matrix multiplication
   #
-  my @l = $l->value; my @r = $r->value;
-  my @M = ();
+  my @l = $l->value; my @r = $r->value; my @M = ();
   foreach my $i (0..$dl[0]-1) {
     my @row = ();
     foreach my $j (0..$dr[1]-1) {
@@ -238,29 +227,27 @@ sub mult {
       foreach my $k (0..$dl[1]-1) {$s += $l[$i]->[$k] * $r[$k]->[$j]}
       push(@row,$s);
     }
-    push(@M,$pkg->make(@row));
+    push(@M,$self->make(@row));
   }
-  return $pkg->make(@M);
+  return $self->make(@M);
 }
 
 sub div {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->div($l,!$flag)}
+  my ($l,$r,$flag) = @_; my $self = $l;
   Value::Error("Can't divide by a Matrix") if $flag;
   Value::Error("Matrices can only be divided by numbers")
     unless (Value::matchNumber($r) || Value::isComplex($r));
   Value::Error("Division by zero") if $r == 0;
   my @coords = ();
   foreach my $x (@{$l->data}) {push(@coords,$x/$r)}
-  return $pkg->make(@coords);
+  return $self->make(@coords);
 }
 
 sub power {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->power($l,!$flag)}
+  my ($l,$r,$flag) = @_; my $self = shift;
   Value::Error("Can't use Matrices in exponents") if $flag;
   Value::Error("Only square matrices can be raised to a power") unless $l->isSquare;
-  return Value::Matrix::I($l->length) if $r == 0;
+  return Value::Matrix->I($l->length,$self->context) if $r == 0;
   Value::Error("Matrix powers must be positive integers") unless $r =~ m/^[1-9]\d*$/;
   my $M = $l; foreach my $i (2..$r) {$M = $M*$l}
   return $M;
@@ -270,32 +257,29 @@ sub power {
 #  Do lexicographic comparison
 #
 sub compare {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
-  ($l,$r) = (promote($l)->data,promote($r)->data);
-  Value::Error("Matrix comparison with different dimensions")
-    unless scalar(@{$l}) == scalar(@{$r});
-  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp};
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my @l = @{$l->data}; my @r = @{$r->data};
+  Value::Error("Can't compare Matrices with different dimensions")
+    unless scalar(@l) == scalar(@r);
   my $cmp = 0;
-  foreach my $i (0..scalar(@{$l})-1) {
-    $cmp = $l->[$i] <=> $r->[$i];
+  foreach my $i (0..scalar(@l)-1) {
+    $cmp = $l[$i] <=> $r[$i];
     last if $cmp;
   }
   return $cmp;
 }
 
 sub neg {
-  my $p = promote(@_)->data;
-  my @coords = ();
-  foreach my $x (@{$p}) {push(@coords,-$x)}
-  return $pkg->make(@coords);
+  my $self = promote(@_); my @coords = ();
+  foreach my $x (@{$self->data}) {push(@coords,-$x)}
+  return $self->make(@coords);
 }
 
 #
 #  Transpose an  n x m  matrix
 #
 sub transpose {
-  my $self = shift;
+  my $self = promote(@_);
   my @d = $self->dimensions;
   if (scalar(@d) == 1) {@d = (1,@d); $self = $pkg->make($self)}
   Value::Error("Can't transpose %d-dimensional matrices",scalar(@d)) unless scalar(@d) == 2;
@@ -303,29 +287,30 @@ sub transpose {
   foreach my $j (0..$d[1]-1) {
     my @row = ();
     foreach my $i (0..$d[0]-1) {push(@row,$M->[$i]->data->[$j])}
-    push(@M,$pkg->make(@row));
+    push(@M,$self->make(@row));
   }
-  return $pkg->make(@M);
+  return $self->make(@M);
 }
 
 #
 #  Get an identity matrix of the requested size
 #
 sub I {
-  my $d = shift; $d = shift if ref($d) eq $pkg;
+  my $self = shift; my $d = shift; my $context = shift || $self->context;
   my @M = (); my @Z = split('',0 x $d);
   foreach my $i (0..$d-1) {
     my @row = @Z; $row[$i] = 1;
-    push(@M,$pkg->make(@row));
+    push(@M,$self->make(@row)->with(context=>$context));
   }
-  return $pkg->make(@M);
+  return $self->make(@M)->with(context=>$context);
 }
 
 #
 #  Extract a given row from the matrix
 #
 sub row {
-  my $M = promote(shift); my $i = shift;
+  my $self = (ref($_[0]) ? $_[0] : shift);
+  my $M = $self->promote(shift); my $i = shift;
   return if $i == 0; $i-- if $i > 0;
   if ($M->isRow) {return if $i != 0; return $M}
   return $M->data->[$i];
@@ -335,7 +320,8 @@ sub row {
 #  Extract a given element from the matrix
 #
 sub element {
-  my $M = promote(shift);
+  my $self = (ref($_[0]) ? $_[0] : shift);
+  my $M = $self->promote(shift);
   return $M->extract(@_);
 }
 
@@ -343,16 +329,18 @@ sub element {
 #  Extract a given column from the matrix
 #
 sub column {
-  my $M = promote(shift); my $j = shift;
+  my $self = (ref($_[0]) ? $_[0] : shift);
+  my $M = $self->promote(shift); my $j = shift;
   return if $j == 0; $j-- if $j > 0;
   my @d = $M->dimensions; my @col = ();
   return if $j+1 > $d[1];
   return $M->data->[$j] if scalar(@d) == 1;
-  foreach my $row (@{$M->data}) {push(@col,$pkg->make($row->data->[$j]))}
-  return $pkg->make(@col);
+  foreach my $row (@{$M->data}) {push(@col,$self->make($row->data->[$j]))}
+  return $self->make(@col);
 }
 
 # @@@ removeRow, removeColumn @@@
+# @@@ Minor @@@
 # @@@ Det, inverse @@@
 
 ############################################
@@ -405,7 +393,7 @@ sub TeX {
   }
   return '\left'.$open.'\begin{array}{'.('c'x$d).'}'."\n".$TeX.'\end{array}\right'.$close;
 }
-  
+
 ###########################################################################
 
 1;

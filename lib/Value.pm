@@ -2,13 +2,17 @@ package Value;
 my $pkg = 'Value';
 use vars qw($context $defaultContext %Type);
 use strict;
-=head1 DESCRIPTION
-	
-Value (also called MathObjects) are intelligent versions of standard mathematical
-objects.  They 'know' how to produce to string or TeX or perl representations
-of themselves. They also 'know' how to compare themselves to student responses -- 
-in other words they contain their own answer evaluators (response evaluators).
 
+=head1 DESCRIPTION
+
+Value (also called MathObjects) are intelligent versions of standard mathematical
+objects.  They 'know' how to produce string or TeX or perl representations
+of themselves.  They also 'know' how to compare themselves to student responses --
+in other words they contain their own answer evaluators (response evaluators).
+The standard operators like +, -, *, <, ==, >, etc, all work with them (when they
+make sense), so that you can use these MathObjects in a natural way.  The comparisons
+like equality are "fuzzy", meaning that two items are equal when they are "close enough"
+(by tolerances that are set in the current Context).
 
 =cut
 
@@ -21,7 +25,7 @@ in other words they contain their own answer evaluators (response evaluators).
  #
 	The following are list objects, meaning that they involve delimiters (parentheses)
 	of some type.
-	
+
 	lists => {
 		'Point'  => {open => '(', close => ')'},
 		'Vector' => {open => '<', close => '>'},
@@ -29,9 +33,9 @@ in other words they contain their own answer evaluators (response evaluators).
 		'List'   => {open => '(', close => ')'},
 		'Set'    => {open => '{', close => '}'},
   	},
-	
+
 	The following context flags are set:
-	
+
     #  For vectors:
     #
     ijk => 0,  # print vectors as <...>
@@ -70,6 +74,8 @@ in other words they contain their own answer evaluators (response evaluators).
 
 
 =cut
+
+BEGIN {
 
 use Value::Context;
 
@@ -121,6 +127,8 @@ $defaultContext = Value::Context->new(
 );
 
 $context = \$defaultContext;
+
+}
 
 =head3 Implemented MathObject types and their precedence
 
@@ -174,6 +182,7 @@ $$context->{method} = {
    '**'  => 'power',
    '.'   => '_dot',       # see _dot below
    'x'   => 'cross',
+   '%'   => 'modulo',
    '<=>' => 'compare',
    'cmp' => 'compare_string',
 };
@@ -192,8 +201,9 @@ push(@{$$context->{data}{values}},'method','precedence');
 #  or from the given default, whichever is found first.
 #
 
-	Usage  $mathObj->getFlag("showTypeWarnings");
-	
+	Usage:   $mathObj->getFlag("showTypeWarnings");
+	         $mathObj->getFlag("showTypeWarnings",1); # default is second parameter
+
 =cut
 
 sub getFlag {
@@ -259,52 +269,60 @@ sub canBeInUnion {
     $self->{open} =~ m/^[\(\[]$/ && $self->{close} =~ m/^[\)\]]$/;
 }
 
+######################################################################
+
 =head3 makeValue
 
 	Usage:  $mathObj->makeValue(45);
-	
-	Will create a Number.
+
+	Will create a Real mathObject.
  #
  #  Convert non-Value objects to Values, if possible
- #	
+ #
 
 =cut
 
 sub makeValue {
-  my $x = shift; my %params = (showError => 0, makeFormula => 1, @_);
+  my $x = shift;
+  my %params = (showError => 0, makeFormula => 1, context => $$Value::context, @_);
+  my %context = (context => $params{context});
   return $x if ref($x) && ref($x) ne 'ARRAY';
-  return Value::Real->make($x) if matchNumber($x);
+  return Value::Real->make($x)->with(%context) if matchNumber($x);
   if (matchInfinite($x)) {
-    my $I = Value::Infinity->new();
+    my $I = Value::Infinity->new()->with(%context);
     $I = $I->neg if $x =~ m/^$$Value::context->{pattern}{-infinity}$/;
     return $I;
   }
-  return Value::String->make($x)
+  return Value::String->make($x)->with(%context)
     if !$Parser::installed || $$Value::context->{strings}{$x} ||
        ($x eq '' && $$Value::context->{flags}{allowEmptyStrings});
   return $x if !$params{makeFormula};
   Value::Error("String constant '%s' is not defined in this context",$x)
     if $params{showError};
-  $x = Value::Formula->new($x);
+  $x = Value::Formula->new($x)->with(%context);
   $x = $x->eval if $x->isConstant;
   return $x;
 }
 
 =head3 showClass
-	
+
 	Usage:   TEXT( $mathObj -> showClass() );
-	
+
 		Will print the class of the MathObject
-		
+
  #
  #  Get a printable version of the class of an object
+ #  (used primarily in error messages)
  #
- 
+
 =cut
 
 sub showClass {
-  my $value = makeValue(shift,makeFormula=>0);
-  return "'".$value."'" unless Value::isValue($value);
+  my $value = shift; my $class;
+  if (ref($value) || $value !~ m/::/) {
+    $value = makeValue($value,makeFormula=>0);
+    return "'".$value."'" unless Value::isValue($value);
+  }
   my $class = class($value);
   return showType($value) if ($class eq 'List');
   $class .= ' Number' if $class =~ m/^(Real|Complex)$/;
@@ -315,14 +333,16 @@ sub showClass {
   return 'a '.$class;
 }
 
-=head3 showClass
-	
+=head3 showType
+
 	Usage:   TEXT( $mathObj -> showType() );
-	
+
 		Will print the class of the MathObject
 
  #
  #  Get a printable version of the type of an object
+ #  (the class and type are not the same.  For example
+ #  a Formula-class object can be of type Number)
  #
 
 =cut
@@ -391,7 +411,7 @@ sub getValueType {
   elsif ($type eq 'unknown') {
     $equation->Error(["Can't convert %s to a constant",Value::showClass($value)]);
   } else {
-    $type = 'Value::'.$type, $value = $type->new(@{$value});
+    $type = 'Value::'.$type; $value = $type->new(@{$value})->with(context => $equation->{context});
     $type = $value->typeRef;
   }
   return ($value,$type);
@@ -399,7 +419,7 @@ sub getValueType {
 
 #
 #  Convert a list of values to a list of formulas (called by Parser::Value)
-#  
+#
 sub toFormula {
   my $formula = shift;
   my $processed = 0;
@@ -428,7 +448,7 @@ sub formula {
   my $open = $list->{'open'};
   my $close = $list->{'close'};
   my $paren = $open; $paren = 'list' if $class eq 'List';
-  my $formula = Value::Formula->blank;
+  my $formula = Value::Formula->blank($self->context);
   my @coords = Value::toFormula($formula,@{$values});
   $formula->{tree} = $formula->{context}{parser}{List}->new($formula,[@coords],0,
      $formula->{context}{parens}{$paren},$coords[0]->typeRef,$open,$close);
@@ -443,7 +463,7 @@ sub formula {
 #
 sub make {
   my $self = shift; my $class = ref($self) || $self;
-  bless {data => [@_]}, $class;
+  bless {data => [@_], context => $self->context}, $class;
 }
 
 #
@@ -454,6 +474,17 @@ sub with {
   foreach my $id (keys(%hash)) {$self->{$id} = $hash{$id}}
   return $self;
 }
+
+#
+#  Get the context of an object
+#
+sub context {
+  my $self = shift;
+  return $self->{context} if ref($self) && $self->{context};
+  return $$Value::context;
+}
+
+######################################################################
 
 #
 #  Return a type structure for the item
@@ -517,6 +548,30 @@ sub extract {
   return $M;
 }
 
+######################################################################
+
+use overload
+       '+'   => '_add',
+       '-'   => '_sub',
+       '*'   => '_mult',
+       '/'   => '_div',
+       '**'  => '_power',
+       '.'   => '_dot',
+       'x'   => '_cross',
+       '%'   => '_modulo',
+       '<=>' => '_compare',
+       'cmp' => '_compare_string',
+       '~'   => '_twiddle',
+       'neg' => '_neg',
+       'abs' => '_abs',
+       'sqrt'=> '_sqrt',
+       'exp' => '_exp',
+       'log' => '_log',
+       'sin' => '_sin',
+       'cos' => '_cos',
+     'atan2' => '_atan2',
+  'nomethod' => 'nomethod',
+        '""' => 'stringify';
 
 #
 #  Promote an operand to the same precedence as the current object
@@ -529,7 +584,55 @@ sub promotePrecedence {
   return (defined($sprec) && defined($oprec) && $sprec < $oprec);
 }
 
-sub promote {shift}
+sub promote {
+  my $self = shift;
+  return $self->new(shift);
+}
+
+sub checkOpOrder {
+  my ($l,$r,$flag) = @_;
+  if ($flag) {return ($l,$r,$l)} else {return ($l,$l,$r)}
+}
+
+#
+#  Handle a binary operator, promoting the object types
+#  as needed, and then calling the main method
+#
+sub binOpPromote {
+  my ($l,$r,$flag,$call) = @_;
+  if ($l->promotePrecedence($r)) {return $r->$call($r->promote($l),!$flag)}
+                            else {return $l->$call($l->promote($r),$flag)}
+}
+sub binOp {
+  my ($l,$r,$flag,$call) = @_;
+  if ($l->promotePrecedence($r)) {return $r->$call($l,!$flag)}
+                            else {return $l->$call($r,$flag)}
+}
+
+#
+#  stubs for binary operations (with promotion)
+#
+sub _add    {binOpPromote(@_,'add')}
+sub _sub    {binOpPromote(@_,'sub')}
+sub _mult   {binOpPromote(@_,'mult')}
+sub _div    {binOpPromote(@_,'div')}
+sub _power  {binOpPromote(@_,'power')}
+sub _cross  {binOpPromote(@_,'cross')}
+sub _modulo {binOpPromote(@_,'modulo')}
+
+sub _compare        {binOpPromote(@_,'compare')}
+sub _compare_string {binOp(@_,'compare_string')}
+
+sub _atan2  {binOp(@_,'atan2')}
+
+sub _twiddle {(shift)->twiddle}
+sub _neg     {(shift)->neg}
+sub _abs     {(shift)->abs}
+sub _sqrt    {(shift)->sqrt}
+sub _exp     {(shift)->exp}
+sub _log     {(shift)->log}
+sub _sin     {(shift)->sin}
+sub _cos     {(shift)->cos}
 
 #
 #  Default stub to call when no function is defined for an operation
@@ -543,19 +646,34 @@ sub nomethod {
   Value::Error($error,$op,$l->class);
 }
 
+sub nodef {
+  my $self = shift; my $func = shift;
+  Value::Error("Can't use '%s' with %s-valued operands",$func,$self->class);
+}
+
 #
 #  Stubs for the sub-classes
 #
-sub add   {nomethod(@_,'+')}
-sub sub   {nomethod(@_,'-')}
-sub mult  {nomethod(@_,'*')}
-sub div   {nomethod(@_,'/')}
-sub power {nomethod(@_,'**')}
-sub cross {nomethod(@_,'x')}
+sub add    {nomethod(@_,'+')}
+sub sub    {nomethod(@_,'-')}
+sub mult   {nomethod(@_,'*')}
+sub div    {nomethod(@_,'/')}
+sub power  {nomethod(@_,'**')}
+sub cross  {nomethod(@_,'x')}
+sub modulo {nomethod(@_,'%')}
+
+sub twiddle {nodef(shift,"~")}
+sub neg     {nodef(shift,"-")}
+sub abs     {nodef(shift,"abs")}
+sub sqrt    {nodef(shift,"sqrt")}
+sub exp     {nodef(shift,"exp")}
+sub log     {nodef(shift,"log")}
+sub sin     {nodef(shift,"sin")}
+sub cos     {nodef(shift,"cos")}
 
 #
 #  If the right operand is higher precedence, we switch the order.
-#  
+#
 #  If the right operand is also a Value object, we do the object's
 #  dot method to combine the two objects of the same class.
 #
@@ -565,7 +683,7 @@ sub cross {nomethod(@_,'x')}
 #  the values will be treated as one mathematical unit.  For example, if
 #  $f = Formula("1+x") and $g = Formula("y") then Formula("$f/$g") will be
 #  (1+x)/y not 1+(x/y), as it would be without the implicit parentheses.
-# 
+#
 sub _dot {
   my ($l,$r,$flag) = @_;
   return $r->_dot($l,!$flag) if ($l->promotePrecedence($r));
@@ -588,15 +706,14 @@ sub dot {
 #  Some classes override this to add parens
 #
 sub pdot {shift->stringify}
-  
+
 
 #
 #  Compare the values of the objects
 #    (list classes should replace this)
 #
 sub compare {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
+  my ($l,$r) = Value::checkOpOrder(@_);
   return $l->value <=> $r->value;
 }
 
@@ -605,14 +722,13 @@ sub compare {
 #
 sub compare_string {
   my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->compare_string($l,!$flag)}
   $l = $l->stringify; $r = $r->stringify if Value::isValue($r);
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   return $l cmp $r;
 }
 
 =head3 output methods for MathObjects
- 
+
  #
  #  Generate the various output formats
  #  (can be replaced by sub-classes)
@@ -621,13 +737,13 @@ sub compare_string {
 =cut
 
 =head4 stringify
-	
+
 	Usage:   TEXT($mathObj); or TEXT( $mathObj->stringify() ) ;
-	
+
 		Produces text string or TeX output depending on context
 			Context()->texStrings;
 			Context()->normalStrings;
-			
+
 		called automatically when object is called in a string context.
 
 =cut
@@ -661,7 +777,7 @@ sub string {
   $close = $def->{close}  unless defined($close);
   my @coords = ();
   foreach my $x (@{$self->data}) {
-    if (Value::isValue($x)) 
+    if (Value::isValue($x))
       {push(@coords,$x->string($equation))} else {push(@coords,$x)}
   }
   return $open.join($def->{separator},@coords).$close;
@@ -734,12 +850,12 @@ sub ijk {
 =head3 Error
 
 	Usage: $mathObj->Error("We're sorry...");
-	
+
  #
  #  Report an error
  #
 
-=cut 
+=cut
 
 sub Error {
   my $message = shift;
@@ -752,11 +868,11 @@ sub Error {
 
 #
 #  Try to locate the line and file where the error occurred
-#  
+#
 sub getCaller {
   my $frame = 2;
   while (my ($pkg,$file,$line,$subname) = caller($frame++)) {
-    return " at line $line of $file\n" 
+    return " at line $line of $file\n"
       unless $pkg =~ /^(Value|Parser)/ ||
              $subname =~ m/^(Value|Parser).*(new|call)$/;
   }
@@ -779,35 +895,27 @@ sub traceback {
 #  Load the sub-classes.
 #
 
-use Value::Real;
-use Value::Complex;
-use Value::Infinity;
-use Value::Point;
-use Value::Vector;
-use Value::Matrix;
-use Value::List;
-use Value::Interval;
-use Value::Set;
-use Value::Union;
-use Value::String;
-use Value::Formula;
+END {
+  use Value::Real;
+  use Value::Complex;
+  use Value::Infinity;
+  use Value::Point;
+  use Value::Vector;
+  use Value::Matrix;
+  use Value::List;
+  use Value::Interval;
+  use Value::Set;
+  use Value::Union;
+  use Value::String;
+  use Value::Formula;
 
-use Value::WeBWorK;  # stuff specific to WeBWorK
-
-###########################################################################
-
-use vars qw($installed);
-$Value::installed = 1;
+  use Value::WeBWorK;  # stuff specific to WeBWorK
+}
 
 ###########################################################################
-###########################################################################
-#
-#    To Do:
-#
-#  Make Complex class include more of Complex1.pm
-#  Make better interval comparison
-#  Include context in objects within new() calls.
-#  
+
+our $installed = 1;
+
 ###########################################################################
 
 1;

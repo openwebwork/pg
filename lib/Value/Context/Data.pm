@@ -230,9 +230,11 @@ sub all {
 #  Load the subclasses.
 #
 
-use Value::Context::Flags;
-use Value::Context::Lists;
-use Value::Context::Diagnostics;
+END {
+  use Value::Context::Flags;
+  use Value::Context::Lists;
+  use Value::Context::Diagnostics;
+}
 
 #########################################################################
 

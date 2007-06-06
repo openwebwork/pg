@@ -132,7 +132,9 @@ sub setError {
 #  Load the subclasses.
 #
 
-use Value::Context::Data;
+END {
+  use Value::Context::Data;
+}
 
 #########################################################################
 
