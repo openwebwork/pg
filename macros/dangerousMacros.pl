@@ -1260,12 +1260,12 @@ sub alias {
 
 sub i () {
   #  check if Parser.pl is loaded, otherwise use Complex package
-  if (eval(q!$main::_parser_loaded!)) {return Value::Formula->new('i')->eval}
-  Complex::i;
+  if (!eval(q!$main::_parser_loaded!)) {Complex::i}
+  return Value::Formula->new('i')->eval;
 }
 sub j () {
   if (!eval(q!$main::_parser_loaded!)) {return 'j'}
-  Value::Formula->new('j')->eval
+  Value::Formula->new('j')->eval;
 }
 sub k () {
   if (!eval(q!$main::_parser_loaded!)) {return 'k'}
