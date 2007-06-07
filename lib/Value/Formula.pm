@@ -294,7 +294,7 @@ sub createRandomPoints {
     foreach my $limit (@limits) {
       @p = (); foreach my $I (@{$limit})
         {push @p, $self->Package("Real")->make($self->$getRandom(@{$I}))->inContext($context)}
-      push @P, $make[$i++]->make(@p)->inContext($context);
+      push @P, $make[$i++]->make(@p); #->inContext($context);
     }
     $v = eval {&$f(@P,@zeros)};
     if (!defined($v)) {
