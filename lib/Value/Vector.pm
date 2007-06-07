@@ -183,7 +183,7 @@ sub unit {
 sub isParallel {
   my $self = (ref($_[0]) ? $_[0] : shift);
   my $U = $self->promote(shift); my $V = $self->promote(shift);
-  my %context = (context => $self->context);
+  my $context =  $self->context;
   my $sameDirection = shift;
   my @u = $U->value; my @v = $V->value;
   return 0 unless  scalar(@u) == scalar(@v);
@@ -192,8 +192,8 @@ sub isParallel {
     #
     #  make sure we use fuzzy math
     #
-    $u[$i] = Value::Real->new($u[$i])->with(%context) unless Value::isReal($u[$i]);
-    $v[$i] = Value::Real->new($v[$i])->with(%context) unless Value::isReal($v[$i]);
+    $u[$i] = Value::Real->new($u[$i])->inContext($context) unless Value::isReal($u[$i]);
+    $v[$i] = Value::Real->new($v[$i])->inContext($context) unless Value::isReal($v[$i]);
     if ($k ne '') {
       return 0 if ($v[$i] != $k*$u[$i]);
     } else {
@@ -232,14 +232,14 @@ my $ijk_TeX = ['\boldsymbol{i}','\boldsymbol{j}','\boldsymbol{k}','\boldsymbol{0
 
 sub stringify {
   my $self = shift;
-  return $self->TeX if $$Value::context->flag('StringifyAsTeX');
+  return $self->TeX if $self->getFlag('StringifyAsTeX');
   $self->string;
 }
 
 sub string {
   my $self = shift; my $equation = shift;
   return $self->ijk($ijk_string)
-    if ($self->{ijk} || $equation->{ijk} || $$Value::context->flag("ijk")) &&
+    if ($self->{ijk} || $equation->{ijk} || $self->getFlag("ijk")) &&
         !$self->{ColumnVector};
   return $self->SUPER::string($equation,@_);
 }
@@ -248,14 +248,14 @@ sub pdot {
   my $self = shift;
   my $string = $self->string;
   $string = '('.$string.')' if $string =~ m/[-+]/ &&
-    ($self->{ijk} || $$Value::context->flag("ijk")) && !$self->{ColumnVector};
+    ($self->getFlag("ijk")) && !$self->{ColumnVector};
   return $string;
 }
 
 sub TeX {
   my $self = shift; my $equation = shift;
   if ($self->{ColumnVector}) {
-    my $def = ($equation->{context} || $$Value::context)->lists->get('Matrix');
+    my $def = ($equation->{context} || $self->context)->lists->get('Matrix');
     my $open = shift; my $close = shift;
     $open  = $self->{open}  unless defined($open);
     $open  = $def->{open}   unless defined($open);
@@ -269,14 +269,14 @@ sub TeX {
     }
     return $open.'\begin{array}{c}'.join('\\\\',@coords).'\\\\\end{array}'.$close;
   }
-  return $self->ijk if ($self->{ijk} || $equation->{ijk} || $$Value::context->flag("ijk"));
+  return $self->ijk if ($self->{ijk} || $equation->{ijk} || $self->getFlag("ijk"));
   return $self->SUPER::TeX($equation,@_);
 }
 
 sub ijk {
   my $self = shift; my $ijk = shift;
   if (!$ijk) {
-    my $context = $self->{context} || $$Value::context;
+    my $context = $self->context;
     $ijk = []; $ijk->[3] = '{\bf 0}';
     foreach my $i (0,1,2)
      {$ijk->[$i] = $context->{constants}{$ijk_string->[$i]}{TeX} || $ijk_TeX->[$i]}

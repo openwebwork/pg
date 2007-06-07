@@ -107,6 +107,7 @@ sub cmp_parse {
   $ans->{error_message} = $ans->{ans_message} = ''; # clear any old messages
   $ans->{preview_latex_string} = $ans->{preview_text_string} = '';
   $context->clearError();
+  $contest->{answerHash} = $ans; # values here can override context flags
 
   #
   #  Parse and evaluate the student answer
@@ -149,6 +150,7 @@ sub cmp_parse {
     $self->cmp_collect($ans);
     $self->cmp_error($ans);
   }
+  $context->{answerHash} = undef;
   contextSet($context,%{$flags});            # restore context values
   Parser::Context->current(undef,$current);  # put back the old context
   return $ans;

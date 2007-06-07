@@ -56,8 +56,8 @@ sub new {
 sub form {
   my $context = shift;
   return $_[0] if scalar(@_) == 1;
-  return Value::Set->new()->with(context=>$context) if scalar(@_) == 0;
-  my $union = $pkg->make(@_)->with(context=>$context);
+  return Value::Set->new()->inContext($context) if scalar(@_) == 0;
+  my $union = $pkg->make(@_)->inContext($context);
   $union = $union->reduce if $union->getFlag('reduceUnions');
   return $union;
 }
@@ -96,10 +96,10 @@ sub recursiveUnion {
 #  Try to promote arbitrary data to a set
 #
 sub promote {
-  my $self = shift; my %context = (context => $self->context);
+  my $self = shift; my $context = $self->context;
   my $x = (scalar(@_) ? shift : $self);
-  $x = Value::makeValue($x,%context);
-  return Value::Set->new($x,@_)->with(%context) if scalar(@_) > 0 || Value::isRealNumber($x);
+  $x = Value::makeValue($x,context=>$context);
+  return Value::Set->new($x,@_)->inContext($context) if scalar(@_) > 0 || Value::isRealNumber($x);
   return $x if ref($x) eq $pkg;
   $x = Value::Interval->promote($x) if $x->canBeInUnion;
   return $self->make($x) if Value::isValue($x) && $x->isSetOfReals;
@@ -218,10 +218,10 @@ sub reduce {
               else {$J->{close} = ']' if $b == $d && $I->{close} eq ']'}
     }
   }
-  my %context = (context => $self->context);
+  my $context = $self->context;
   push(@union,@intervals);
-  push(@union,Value::Set->make(@set)->with(%context)) unless scalar(@set) == 0;
-  return Value::Set->new()->with(%context) if scalar(@union) == 0;
+  push(@union,Value::Set->make(@set)->inContext($context)) unless scalar(@set) == 0;
+  return Value::Set->new()->inContext($context) if scalar(@union) == 0;
   return $union[0] if scalar(@union) == 1;
   return $self->make(@union)->with(isReduced=>1);
 }
@@ -288,13 +288,13 @@ sub pdot {'('.(shift->stringify).')'}
 
 sub stringify {
   my $self = shift;
-  return $self->TeX if $$Value::context->flag('StringifyAsTeX');
+  return $self->TeX if $self->Glag('StringifyAsTeX');
   $self->string;
 }
 
 sub string {
   my $self = shift; my $equation = shift; shift; shift; my $prec = shift;
-  my $op = ($equation->{context} || $$Value::context)->{operators}{'U'};
+  my $op = ($equation->{context} || $self->context)->{operators}{'U'};
   my @intervals = ();
   foreach my $x (@{$self->data}) {push(@intervals,$x->string($equation))}
   my $string = join($op->{string} || ' U ',@intervals);
@@ -304,7 +304,7 @@ sub string {
 
 sub TeX {
   my $self = shift; my $equation = shift; shift; shift; my $prec = shift;
-  my $op = ($equation->{context} || $$Value::context)->{operators}{'U'};
+  my $op = ($equation->{context} || $self->context)->{operators}{'U'};
   my @intervals = ();
   foreach my $x (@{$self->data}) {push(@intervals,$x->TeX($equation))}
   my $TeX = join($op->{TeX} || $op->{string} || ' U ',@intervals);

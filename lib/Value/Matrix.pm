@@ -300,9 +300,9 @@ sub I {
   my @M = (); my @Z = split('',0 x $d);
   foreach my $i (0..$d-1) {
     my @row = @Z; $row[$i] = 1;
-    push(@M,$self->make(@row)->with(context=>$context));
+    push(@M,$self->make(@row)->inContext($context));
   }
-  return $self->make(@M)->with(context=>$context);
+  return $self->make(@M)->inContext($context);
 }
 
 #
@@ -350,13 +350,13 @@ sub column {
 
 sub stringify {
   my $self = shift;
-  return $self->TeX if $$Value::context->flag('StringifyAsTeX');
+  return $self->TeX if $self->getFlag('StringifyAsTeX');
   return $self->string(undef,$self->{open},$self->{close});
 }
 
 sub string {
   my $self = shift; my $equation = shift;
-  my $def = ($equation->{context} || $$Value::context)->lists->get('Matrix');
+  my $def = ($equation->{context} || $self->context)->lists->get('Matrix');
   my $open  = shift || $def->{open}; my $close = shift || $def->{close};
   my @coords = ();
   foreach my $x (@{$self->data}) {
@@ -371,7 +371,7 @@ sub string {
 #
 sub TeX {
   my $self = shift; my $equation = shift;
-  my $def = ($equation->{context} || $$Value::context)->lists->get('Matrix');
+  my $def = ($equation->{context} || $self->context)->lists->get('Matrix');
   my $open  = shift || $self->{open} || $def->{open};
   my $close = shift || $self->{close} || $def->{close};
   $open = '\{' if $open eq '{'; $close = '\}' if $close eq '}';

@@ -17,26 +17,22 @@ my $UNDEF = bless {}, "UNDEF"; # used for undefined points
 #    different class to call for creating the formula.
 #
 sub new {
-  shift; my $self = $$Value::context->{value}{Formula}->create(@_);
-  foreach my $id ('open','close') {$self->{$id} = $self->{tree}{$id}}
-  return $self;
+  my $self = shift;
+  my $f = $self->context->{value}{Formula}->create(@_)->inContext($self->context);
+  foreach my $id ('open','close') {$f->{$id} = $f->{tree}{$id}}
+  return $f;
 }
 
 #
 #  Call Parser to create the formula
 #
-sub create {shift; $pkg->SUPER::new(@_)}
+sub create {shift->SUPER::new(@_)}
 
 #
-#  Create the new parser with no string
+#  Create a new Formula with no string
 #    (we'll fill in its tree by hand)
 #
-sub blank {
-  my $self = shift; my $context = shift;
-  $self = $self->SUPER::new('');
-  $self->{context} = $context if $context;
-  return $self;
-}
+sub blank {shift->SUPER::new('')->inContext(@_)}
 
 #
 #  with() changes tree element as well
@@ -324,7 +320,7 @@ sub createRandomPoints {
 
   if ($k) {
     my $error = "Can't generate enough valid points for comparison";
-    $error .= ':<div style="margin-left:1em">'.($$Value::context->{error}{message} || $@).'</div>'
+    $error .= ':<div style="margin-left:1em">'.($self->context->{error}{message} || $@).'</div>'
       if ($self->getFlag('showTestPointErrors'));
     $error =~ s/ (in \S+ )?at line \d+.*//s;
     Value::Error($error);
@@ -498,7 +494,7 @@ sub isConstant {
 #
 sub stringify {
   my $self = shift;
-  return $self->TeX if $$Value::context->flag('StringifyAsTeX');
+  return $self->TeX if $self->getFlag('StringifyAsTeX');
   $self->string;
 }
 

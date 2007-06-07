@@ -14,9 +14,9 @@ our @ISA = qw(Value);
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my %context = (context => $self->context);
+  my $context = $self->context;
   my $p = shift; $p = [$p,@_] if (scalar(@_) > 0);
-  $p = Value::makeValue($p,%context) if (defined($p) && !ref($p));
+  $p = Value::makeValue($p,context=>$context) if (defined($p) && !ref($p));
   return $p if (Value::isFormula($p) && $p->type eq Value::class($self));
   my $pclass = Value::class($p); my $isFormula = 0;
   my @d; @d = $p->dimensions if $pclass eq 'Matrix';
@@ -28,17 +28,17 @@ sub new {
   else {
     $p = [$p] if (defined($p) && ref($p) ne 'ARRAY');
     foreach my $x (@{$p}) {
-      $x = Value::makeValue($x,%context);
+      $x = Value::makeValue($x,context=>$context);
       $isFormula = 1 if Value::isFormula($x);
       Value::Error("An element of a set can't be %s",Value::showClass($x))
         unless Value::isRealNumber($x);
     }
   }
   return $self->formula($p) if $isFormula;
-  my $def = $$Value::context->lists->get('Set');
+  my $def = $context->lists->get('Set');
   my $set = bless {
     data => $p, open => $def->{open}, close => $def->{close},
-    %context,
+    context => $context,
   }, $class;
   $set = $set->reduce if $self->getFlag('reduceSets');
   return $set;
@@ -49,7 +49,7 @@ sub new {
 #
 sub make {
   my $self = shift;
-  my $def = $$Value::context->lists->get('Set');
+  my $def = $self->context->lists->get('Set');
   $self = $self->SUPER::make(@_);
   $self->{open} = $def->{open}; $self->{close} = $def->{close};
   return $self;
@@ -70,7 +70,7 @@ sub promote {
   $x = Value::makeValue($x,context=>$self->context);
   return $self->new($x,@_) if scalar(@_) > 0 || Value::isRealNumber($x);
   return $x if ref($x) eq $class;
-  $x = Value::Interval->promote($x)->with(context=>$self->context) if $x->canBeInUnion;
+  $x = Value::Interval->promote($x)->inContext($self->context) if $x->canBeInUnion;
   return $x if $x->isSetOfReals;
   return $self->new($x->value)
     if $x->type eq 'List' && $x->typeRef->{entryType}{name} eq 'Number';
@@ -136,7 +136,7 @@ sub subIntervalSet {
       return @union if $a == $b;
       $I->{open} = '(';
     } elsif ($x < $b) {
-      push(@union,Value::Interval->make($I->{open},$a,$x,')')->with(context=>$self->context));
+      push(@union,Value::Interval->make($I->{open},$a,$x,')')->inContext($self->context));
       $I->{open} = '('; $I->{data}[0] = $x;
     } else {
       $I->{close} = ')' if ($x == $b);

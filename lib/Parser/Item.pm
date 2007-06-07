@@ -99,7 +99,7 @@ sub ijk {
 #
 sub copy {
   my $self = shift; my $equation = shift;
-  my $new = {%{$self}}; 
+  my $new = {%{$self}};
   if (ref($self) ne 'HASH') {
     bless $new, ref($self);
     $new->{equation} = $equation if defined($equation);

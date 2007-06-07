@@ -193,6 +193,16 @@ $$context->{pattern}{-infinity} = '-inf(?:inity)?';
 
 push(@{$$context->{data}{values}},'method','precedence');
 
+#
+#  Copy a context and its data
+#
+sub copy {
+  my $self = shift;
+  my $copy = {%{$self}}; $copy->{data} = [@{$self->{data}}];
+  foreach my $x (@{$copy->{data}}) {$x = $x->copy if Value::isValue($x)}
+  return bless $copy, ref($self);
+}
+
 =head3 getFlag
 
 #
@@ -208,18 +218,36 @@ push(@{$$context->{data}{values}},'method','precedence');
 
 sub getFlag {
   my $self = shift; my $name = shift;
-  return $self->{$name} if ref($self) && defined($self->{$name});
-  return $self->{context}{flags}{$name} if ref($self) && defined($self->{context}) && defined($self->{context}{flags}{$name});
-  return $$Value::context->{flags}{$name} if defined($$Value::context->{flags}{$name});
+  return $self->{$name} if ref($self) && ref($self) ne 'ARRAY' && defined($self->{$name});
+  my $context = $self->context;
+  return $context->{answerHash}{$name}
+    if defined($context->{answerHash}) && defined($context->{answerHash}{$name});  # use WW answerHash flags first
+  return $context->{flags}{$name} if defined($context->{flags}{$name});
   return shift;
 }
 
-sub copy {
-  my $self = shift;
-  my $copy = {%{$self}}; $copy->{data} = [@{$self->{data}}];
-  foreach my $x (@{$copy->{data}}) {$x = $x->copy if Value::isValue($x)}
-  return bless $copy, ref($self);
+#
+#  Get or set the context of an object
+#
+sub context {
+  my $self = shift; my $context = shift;
+  if (ref($self) && ref($self) ne 'ARRAY') {
+    if ($context && $self->{context} ne $context) {
+      $self->{context} = $context;
+      if (defined $self->{data}) {
+        foreach my $x (@{$self->{data}}) {$x->context($context) if ref($x)}
+      }
+    }
+    return $self->{context} if $self->{context};
+  }
+  return $$Value::context;
 }
+
+#
+#  Set context but return object
+#
+sub inContext {my $self = shift; $self->context(@_); $self}
+
 
 #############################################################
 
@@ -256,7 +284,7 @@ sub isRealNumber {
 sub isZero {
   my $self = shift;
   return 0 if scalar(@{$self->{data}}) == 0;
-  foreach my $x (@{$self->{data}}) {return 0 unless $x eq "0"}
+  foreach my $x (@{$self->{data}}) {return 0 if $x ne "0"}
   return 1;
 }
 
@@ -285,21 +313,21 @@ sub canBeInUnion {
 sub makeValue {
   my $x = shift;
   my %params = (showError => 0, makeFormula => 1, context => $$Value::context, @_);
-  my %context = (context => $params{context});
+  my $context = $params{context};
   return $x if ref($x) && ref($x) ne 'ARRAY';
-  return Value::Real->make($x)->with(%context) if matchNumber($x);
+  return Value::Real->make($x)->inContext($context) if matchNumber($x);
   if (matchInfinite($x)) {
-    my $I = Value::Infinity->new()->with(%context);
-    $I = $I->neg if $x =~ m/^$$Value::context->{pattern}{-infinity}$/;
+    my $I = Value::Infinity->new()->inContext($context);
+    $I = $I->neg if $x =~ m/^$context->{pattern}{-infinity}$/;
     return $I;
   }
-  return Value::String->make($x)->with(%context)
-    if !$Parser::installed || $$Value::context->{strings}{$x} ||
-       ($x eq '' && $$Value::context->{flags}{allowEmptyStrings});
+  return Value::String->make($x)->inContext($context)
+    if !$Parser::installed || $context->{strings}{$x} ||
+       ($x eq '' && $context->{flags}{allowEmptyStrings});
   return $x if !$params{makeFormula};
   Value::Error("String constant '%s' is not defined in this context",$x)
     if $params{showError};
-  $x = Value::Formula->new($x)->with(%context);
+  $x = Value::Formula->new($x)->inContext($context);
   $x = $x->eval if $x->isConstant;
   return $x;
 }
@@ -411,7 +439,7 @@ sub getValueType {
   elsif ($type eq 'unknown') {
     $equation->Error(["Can't convert %s to a constant",Value::showClass($value)]);
   } else {
-    $type = 'Value::'.$type; $value = $type->new(@{$value})->with(context => $equation->{context});
+    $type = 'Value::'.$type; $value = $type->new(@{$value})->inContext($equation->{context});
     $type = $value->typeRef;
   }
   return ($value,$type);
@@ -473,15 +501,6 @@ sub with {
   my $self = shift; my %hash = @_;
   foreach my $id (keys(%hash)) {$self->{$id} = $hash{$id}}
   return $self;
-}
-
-#
-#  Get the context of an object
-#
-sub context {
-  my $self = shift;
-  return $self->{context} if ref($self) && $self->{context};
-  return $$Value::context;
 }
 
 ######################################################################
@@ -688,7 +707,7 @@ sub _dot {
   my ($l,$r,$flag) = @_;
   return $r->_dot($l,!$flag) if ($l->promotePrecedence($r));
   return $l->dot($r,$flag) if (Value::isValue($r));
-  if ($$Value::context->flag('StringifyAsTeX')) {$l = $l->TeX} else {$l = $l->pdot}
+  if ($l->getFlag('StringifyAsTeX')) {$l = $l->TeX} else {$l = $l->pdot}
   return ($flag)? ($r.$l): ($l.$r);
 }
 #
@@ -696,7 +715,7 @@ sub _dot {
 #
 sub dot {
   my ($l,$r,$flag) = @_;
-  my $tex = $$Value::context->flag('StringifyAsTeX');
+  my $tex = $l->getFlag('StringifyAsTeX');
   if ($tex) {$l = $l->TeX} else {$l = $l->pdot}
   if (ref($r)) {if ($tex) {$r = $r->TeX} else {$r = $r->pdot}}
   return ($flag)? ($r.$l): ($l.$r);
@@ -750,8 +769,8 @@ sub compare_string {
 
 sub stringify {
   my $self = shift;
-  return $self->TeX() if $$Value::context->flag('StringifyAsTeX');
-  my $def = $$Value::context->lists->get($self->class);
+  return $self->TeX() if $self->getFlag('StringifyAsTeX');
+  my $def = $self->context->lists->get($self->class);
   return $self->string unless $def;
   my $open = $self->{open};   $open  = $def->{open}  unless defined($open);
   my $close = $self->{close}; $close = $def->{close} unless defined($close);
@@ -762,13 +781,14 @@ sub stringify {
 
 	Usage: $mathObj->string()
 
-	---this description is not yet complete
+	---produce a string representation of the object
+           (as opposed to stringify, which can produce TeX or string versions)
 
 =cut
 
 sub string {
   my $self = shift; my $equation = shift;
-  my $def = ($equation->{context} || $$Value::context)->lists->get($self->class);
+  my $def = ($equation->{context} || $self->context)->lists->get($self->class);
   return $self->value unless $def;
   my $open = shift; my $close = shift;
   $open  = $self->{open}  unless defined($open);
@@ -793,7 +813,7 @@ sub string {
 
 sub TeX {
   my $self = shift; my $equation = shift;
-  my $context = $equation->{context} || $$Value::context;
+  my $context = $equation->{context} || $self->context;
   my $def = $context->lists->get($self->class);
   return $self->string(@_) unless $def;
   my $open = shift; my $close = shift;

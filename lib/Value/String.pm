@@ -11,11 +11,11 @@ our @ISA = qw(Value);
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
+  my $context = $self->context;
   my $x = join('',@_);
-  my $s = bless {data => [$x], context => $self->context}, $class;
-  if ($Parser::installed &&
-      !($x eq '' && $$Value::context->flag('allowEmptyStrings'))) {
-    my $strings = $$Value::context->{strings};
+  my $s = bless {data => [$x], context => $context}, $class;
+  if ($Parser::installed && !($x eq '' && $self->getFlag('allowEmptyStrings'))) {
+    my $strings = $context->{strings};
     if (!$strings->{$x}) {
       my $X = $strings->{uc($x)};
       Value::Error("String constant '%s' is not defined in this context",$x)

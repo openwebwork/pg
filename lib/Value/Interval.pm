@@ -15,9 +15,9 @@ our @ISA = qw(Value);
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my %context = (context => $self->context);
+  my $context = $self->context;
   if (scalar(@_) == 1 && (!ref($_[0]) || ref($_[0]) eq 'ARRAY')) {
-    my $x = Value::makeValue($_[0],%context);
+    my $x = Value::makeValue($_[0],context=>$context);
     if (Value::isFormula($x)) {
       return $x if $x->type eq 'Interval';
       Value::Error("Formula does not return an Interval");
@@ -27,11 +27,11 @@ sub new {
   my @params = @_;
   Value::Error("Interval can't be empty") unless scalar(@params) > 0;
   Value::Error("Extra arguments for Interval()") if scalar(@params) > 4;
-  return Value::Set->new(@params)->with(%context) if scalar(@params) == 1;
+  return Value::Set->new(@params)->inContext($context) if scalar(@params) == 1;
   @params = ('(',@params,')') if (scalar(@params) == 2);
   my ($open,$a,$b,$close) = @params;
   if (!defined($close)) {$close = $b; $b = $a}
-  $a = Value::makeValue($a,%context); $b = Value::makeValue($b,%context);
+  $a = Value::makeValue($a,context=>$context); $b = Value::makeValue($b,context=>$context);
   return $self->formula($open,$a,$b,$close) if Value::isFormula($a) || Value::isFormula($b);
   Value::Error("Endpoints of intervals must be numbers or infinities") unless
     isNumOrInfinity($a) && isNumOrInfinity($b);
@@ -53,7 +53,7 @@ sub new {
   bless {
     data => [$a,$b], open => $open, close => $close,
     leftInfinite => $nia, rightInfinite => $ib,
-    %context,
+    context => $context,
   }, $class;
 }
 
@@ -136,7 +136,7 @@ sub promote {
   $x = Value::makeValue($x,context=>$self->context);
   return $self->new($x,@_) if scalar(@_) > 0;
   return $x if $x->isSetOfReals;
-  return Value::Set->new($x)->with(context=>$self->context) if Value::isReal($x);
+  return Value::Set->new($x)->inContext($self->context) if Value::isReal($x);
   my $open  = $x->{open};  $open  = '(' unless defined($open);
   my $close = $x->{close}; $close = ')' unless defined($close);
   return $self->new($open,$x->value,$close) if $x->canBeInUnion;
@@ -173,7 +173,7 @@ sub sub {
 sub subIntervalInterval {
   my ($l,$r) = @_; $l = $l->copy; $r = $r->copy;
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
-  my %context = (context=>$l->context);
+  my $context = $l->context;
   my @union = ();
   if ($d <= $a) {
     $l->{open} = '(' if $d == $a && $r->{close} eq ']';
@@ -183,18 +183,18 @@ sub subIntervalInterval {
     push(@union,$l) unless $a == $b && $l->{close} eq ')';
   } else {
     if ($a == $c) {
-      push(@union,Value::Set->make($a)->with(%context))
+      push(@union,Value::Set->make($a)->inContext($context))
 	if $l->{open} eq '[' && $r->{open} eq '(';
     } elsif ($a < $c) {
       my $close = ($r->{open} eq '[')? ')': ']';
-      push(@union,Value::Interval->make($l->{open},$a,$c,$close)->with(%context));
+      push(@union,Value::Interval->make($l->{open},$a,$c,$close)->inContext($context));
     }
     if ($d == $b) {
-      push(@union,Value::Set->make($b)->with(%context))
+      push(@union,Value::Set->make($b)->inContext($context))
 	if $l->{close} eq ']' && $r->{close} eq ')';
     } elsif ($d < $b) {
       my $open = ($r->{close} eq ']') ? '(': '[';
-      push(@union,Value::Interval->make($open,$d,$b,$l->{close})->with(%context));
+      push(@union,Value::Interval->make($open,$d,$b,$l->{close})->inContext($context));
     }
   }
   return @union;

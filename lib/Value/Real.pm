@@ -15,18 +15,19 @@ our @ISA = qw(Value);
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
+  my %context = (context => $self->context);
   my $x = shift; $x = [$x,@_] if scalar(@_) > 0;
   return $x if ref($x) eq $pkg;
   $x = [$x] unless ref($x) eq 'ARRAY';
-  Value::Error("Can't convert ARRAY of length %d to %s",scalar(@{$x}),$self->showClass)
+  Value::Error("Can't convert ARRAY of length %d to %s",scalar(@{$x}),Value::showClass($self))
     unless (scalar(@{$x}) == 1);
   if (Value::isRealNumber($x->[0])) {
     return $self->formula($x->[0]) if Value::isFormula($x->[0]);
-    return (bless {data => $x, context => $self->context}, $class);
+    return (bless {data => $x, %context}, $class);
   }
-  $x = Value::makeValue($x->[0],context=>$self->context);
+  $x = Value::makeValue($x->[0],%context);
   return $x if Value::isRealNumber($x);
-  Value::Error("Can't convert %s to %s",$x->showClass,$self->showClass);
+  Value::Error("Can't convert %s to %s",Value::showClass($x),Value::showClass($self));
 }
 
 #
@@ -43,7 +44,7 @@ sub make {
 #
 sub formula {
   my $self = shift; my $value = shift;
-  Value::Formula->new($value)->with(context=>$self->context);
+  Value::Formula->new($value)->inContext($self->context);
 }
 
 #
@@ -179,7 +180,7 @@ sub atan2 {
 sub string {
   my $self = shift; my $equation = shift; my $prec = shift;
   my $n = $self->{data}[0]; my $format = $self->{format};
-  $format = ($equation->{context} || $$Value::context)->{format}{number} unless defined $format;
+  $format = ($equation->{context} || $self->context)->{format}{number} unless defined $format;
   if ($format) {
     $n = sprintf($format,$n);
     if ($format =~ m/#\s*$/) {$n =~ s/(\.\d*?)0*#$/$1/; $n =~ s/\.$//}

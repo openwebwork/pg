@@ -13,7 +13,7 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   Value::Error("Infinity should have no parameters") if scalar(@_);
   bless {
-    data => [$$Value::context->flag('infiniteWord')],
+    data => [$self->getFlag('infiniteWord')],
     isInfinite => 1, isNegative => 0,
     context => $self->context,
   }, $class;
@@ -49,7 +49,7 @@ sub promote {
 
 sub neg {
   my $self = shift;
-  my $neg = Value::Infinity->new()->with(context=>$self->context);
+  my $neg = Value::Infinity->new()->inContext($self->context);
   $neg->{isNegative} = !$self->{isNegative};
   $neg->{data}[0] = '-'.$neg->{data}[0] if $neg->{isNegative};
   return $neg;

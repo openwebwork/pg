@@ -31,7 +31,7 @@ sub new {
     if ref($string) eq 'ARRAY';
   my $math = bless {
     string => undef,
-    tokens => [], tree => undef, 
+    tokens => [], tree => undef,
     variables => {}, values => {},
     context => $context,
   }, $class;
