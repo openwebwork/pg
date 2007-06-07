@@ -13,7 +13,7 @@ package Parser;
 
 sub Formula {
   my $f = shift;
-  my $v = eval {Value::Formula->new($f)};
+  my $v = eval {Value->Package("Formula")->new($f)};
   reportEvalError($@) unless defined($v) || $$Value::context->{error}{flag};
   return $v;
 }

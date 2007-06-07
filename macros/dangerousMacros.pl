@@ -1246,34 +1246,25 @@ sub alias {
 }
 
 
-
-
-
-# Experiments
-
-# This allows the use of i for imaginary numbers
-#  one can write  3+2*i  rather than  3+2*i()
 #
-
-#sub i {
-#	Complex::i;
-#}
+#  Some constants that can be used in perl experssions
+#
 
 sub i () {
   #  check if Parser.pl is loaded, otherwise use Complex package
   if (!eval(q!$main::_parser_loaded!)) {Complex::i}
-  return Value::Formula->new('i')->eval;
+  return Value->Package("Formula")->new('i')->eval;
 }
 sub j () {
   if (!eval(q!$main::_parser_loaded!)) {return 'j'}
-  Value::Formula->new('j')->eval;
+  Value->Package("Formula")->new('j')->eval;
 }
 sub k () {
   if (!eval(q!$main::_parser_loaded!)) {return 'k'}
-  Value::Formula->new('k')->eval;
+  Value->Package("Formula")->new('k')->eval;
 }
 
-sub pi () {Value::Formula->new('pi')->eval}
-sub Infinity () {Value::Infinity->new()}
+sub pi () {Value->Package("Formula")->new('pi')->eval}
+sub Infinity () {Value->Package("Infinity")->new()}
 
 1;  # required to load properly

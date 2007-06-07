@@ -6,20 +6,20 @@
 #
 #  Constructors for the various types
 #
-sub String   {Value::String->new(@_)}
-sub Real     {Value::Real->new(@_)}
-sub Complex  {Value::Complex->new(@_)}
-sub Point    {Value::Point->new(@_)}
-sub Vector   {Value::Vector->new(@_)}
-sub Matrix   {Value::Matrix->new(@_)}
-sub List     {Value::List->new(@_)}
-sub Interval {Value::Interval->new(@_)}
-sub Set      {Value::Set->new(@_)}
-sub Union    {Value::Union->new(@_)}
+sub String   {Value->Package("String")->new(@_)}
+sub Real     {Value->Package("Real")->new(@_)}
+sub Complex  {Value->Package("Complex")->new(@_)}
+sub Point    {Value->Package("Point")->new(@_)}
+sub Vector   {Value->Package("Vector")->new(@_)}
+sub Matrix   {Value->Package("Matrix")->new(@_)}
+sub List     {Value->Package("List")->new(@_)}
+sub Interval {Value->Package("Interval")->new(@_)}
+sub Set      {Value->Package("Set")->new(@_)}
+sub Union    {Value->Package("Union")->new(@_)}
 
-sub ColumnVector {Value::Vector->new(@_)->with(ColumnVector=>1,open=>undef,close=>undef)}
+sub ColumnVector {Value->Package("Vector")->new(@_)->with(ColumnVector=>1,open=>undef,close=>undef)}
 
-# sub Formula  {Value::Formula->new(@_)}  # in Parser.pl
+# sub Formula  {Value->Package("Formula")->new(@_)}  # in Parser.pl
 
 #
 #  Make a point or list a closed interval
@@ -34,8 +34,8 @@ sub Closed {
 #
 #  Make it possible to use  1+3*i  in perl rather than  1+3*$i or 1+3*i()
 #
-#sub i ()  {Value::Complex->i};   #  defined in Parser.pl
-#sub pi () {Value::Complex->pi};  #  defined in dangerousMacros.pl
+#sub i ()  {Value->Package("Complex")->i};   #  defined in Parser.pl
+#sub pi () {Value->Package("Complex")->pi};  #  defined in dangerousMacros.pl
 
 ###########################################################################
 
