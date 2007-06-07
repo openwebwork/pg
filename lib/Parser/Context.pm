@@ -1,7 +1,7 @@
 #
 # add/remove/get reduction flags
 # make patterns into real patterns, not strings
-# 
+#
 
 #########################################################################
 
@@ -111,21 +111,8 @@ sub current {
 }
 
 #
-#  Get a named context
-#   (either from the main list or a copy from the default list)
-#
-sub get {
-  my $self = shift; my $contextTable = shift; my $name = shift;
-  $contextTable = $userContext unless $contextTable;
-  my $context = $contextTable->{$name};
-  return $context if $context;
-  $context = $Parser::Context::Default::context{$name};
-  return unless $context;
-  return $context->copy;
-}
-
-#
-#  Get a copy of named context
+#  Get a copy of a named context
+#   (either from the main list or from the default list)
 #
 sub getCopy {
   my $self = shift; my $contextTable = shift; my $name = shift;
@@ -137,6 +124,11 @@ sub getCopy {
 }
 
 #
+#  Obsolete:  use "getCopy" instead
+#
+sub get {shift->getCopy(@_)}
+
+#
 #  Update the precedences of multiplication so that they
 #  are the standard or non-standard ones, depending on the
 #  argument.  It should be 'Standard' or 'Non-Standard'.
@@ -144,7 +136,7 @@ sub getCopy {
 sub usePrecedence {
   my $self = shift;
   for (shift) {
-    
+
     /^Standard/i  and do {
       $self->operators->set(
         ' *' => {precedence => 3},
@@ -156,7 +148,7 @@ sub usePrecedence {
       );
       last;
     };
-    
+
     /^Non-Standard/i and do {
       $self->operators->set(
         ' *' => {precedence => 2.8},
@@ -168,7 +160,7 @@ sub usePrecedence {
       );
       last;
     };
-    
+
     Value::Error("Precedence type should be one of 'Standard' or 'Non-Standard'");
   }
 }
