@@ -43,7 +43,7 @@ sub make {
 #
 sub formula {
   my $self = shift; my $value = shift;
-  my $formula = Value::Formula->blank($self->context);
+  my $formula = $self->Package("Formula")->blank($self->context);
   my ($l,$r) = Value::toFormula($formula,@{$value});
   my $parser = $formula->{context}{parser};
   my $I = $parser->{Value}->new($formula,$i);

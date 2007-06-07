@@ -247,7 +247,7 @@ sub power {
   my ($l,$r,$flag) = @_; my $self = shift;
   Value::Error("Can't use Matrices in exponents") if $flag;
   Value::Error("Only square matrices can be raised to a power") unless $l->isSquare;
-  return Value::Matrix->I($l->length,$self->context) if $r == 0;
+  return $self->Package("Matrix")->I($l->length,$self->context) if $r == 0;
   Value::Error("Matrix powers must be positive integers") unless $r =~ m/^[1-9]\d*$/;
   my $M = $l; foreach my $i (2..$r) {$M = $M*$l}
   return $M;

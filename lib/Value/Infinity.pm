@@ -49,7 +49,7 @@ sub promote {
 
 sub neg {
   my $self = shift;
-  my $neg = Value::Infinity->new()->inContext($self->context);
+  my $neg = $self->Package("Infinity")->new()->inContext($self->context);
   $neg->{isNegative} = !$self->{isNegative};
   $neg->{data}[0] = '-'.$neg->{data}[0] if $neg->{isNegative};
   return $neg;

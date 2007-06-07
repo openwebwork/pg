@@ -299,9 +299,22 @@ sub canBeInUnion {
 
 ######################################################################
 
+#
+#  Value->Package(name[,context])
+#
+#  Returns the package name for the specificied Value object class
+#  (as specified by the context's {value} hash, or "Value::name").
+#
+sub Package {
+  my $self = shift; my $class = shift; my $context = $self->context;
+  return $context->{value}{$class} if defined $context->{value}{$class};
+  return "Value::$class" if defined @{"Value::${class}::ISA"};
+  Value::Error("No such package 'Value::%s'",$class);
+}
+
 =head3 makeValue
 
-	Usage:  $mathObj->makeValue(45);
+	Usage:  Value::makeValue(45);
 
 	Will create a Real mathObject.
  #
@@ -315,19 +328,19 @@ sub makeValue {
   my %params = (showError => 0, makeFormula => 1, context => $$Value::context, @_);
   my $context = $params{context};
   return $x if ref($x) && ref($x) ne 'ARRAY';
-  return Value::Real->make($x)->inContext($context) if matchNumber($x);
+  return Value->Package("Real",$context)->make($x)->inContext($context) if matchNumber($x);
   if (matchInfinite($x)) {
-    my $I = Value::Infinity->new()->inContext($context);
+    my $I = Value->Package("Infinity",$context)->new()->inContext($context);
     $I = $I->neg if $x =~ m/^$context->{pattern}{-infinity}$/;
     return $I;
   }
-  return Value::String->make($x)->inContext($context)
+  return Value->Package("String",$context)->make($x)->inContext($context)
     if !$Parser::installed || $context->{strings}{$x} ||
        ($x eq '' && $context->{flags}{allowEmptyStrings});
   return $x if !$params{makeFormula};
   Value::Error("String constant '%s' is not defined in this context",$x)
     if $params{showError};
-  $x = Value::Formula->new($x)->inContext($context);
+  $x = Value->Package("Formula",$context)->new($x)->inContext($context);
   $x = $x->eval if $x->isConstant;
   return $x;
 }
@@ -346,7 +359,7 @@ sub makeValue {
 =cut
 
 sub showClass {
-  my $value = shift; my $class;
+  my $value = shift;
   if (ref($value) || $value !~ m/::/) {
     $value = makeValue($value,makeFormula=>0);
     return "'".$value."'" unless Value::isValue($value);
@@ -439,7 +452,8 @@ sub getValueType {
   elsif ($type eq 'unknown') {
     $equation->Error(["Can't convert %s to a constant",Value::showClass($value)]);
   } else {
-    $type = 'Value::'.$type; $value = $type->new(@{$value})->inContext($equation->{context});
+    $type = Value->Package($type,$equation->{context});
+    $value = $type->new(@{$value})->inContext($equation->{context});
     $type = $value->typeRef;
   }
   return ($value,$type);
@@ -476,7 +490,7 @@ sub formula {
   my $open = $list->{'open'};
   my $close = $list->{'close'};
   my $paren = $open; $paren = 'list' if $class eq 'List';
-  my $formula = Value::Formula->blank($self->context);
+  my $formula = $self->Package("Formula")->blank($self->context);
   my @coords = Value::toFormula($formula,@{$values});
   $formula->{tree} = $formula->{context}{parser}{List}->new($formula,[@coords],0,
      $formula->{context}{parens}{$paren},$coords[0]->typeRef,$open,$close);
@@ -905,7 +919,7 @@ sub getCaller {
 sub traceback {
   my $frame = shift; $frame = 2 unless defined($frame);
   my $trace = '';
-  while (my ($pkg,$file,$line,$subname) = caller($frame++)) 
+  while (my ($pkg,$file,$line,$subname) = caller($frame++))
     {$trace .= " in $subname at line $line of $file\n"}
   return $trace;
 }

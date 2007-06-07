@@ -70,7 +70,7 @@ sub promote {
   $x = Value::makeValue($x,context=>$self->context);
   return $self->new($x,@_) if scalar(@_) > 0 || Value::isRealNumber($x);
   return $x if ref($x) eq $class;
-  $x = Value::Interval->promote($x)->inContext($self->context) if $x->canBeInUnion;
+  $x = $self->Package("Interval")->promote($x)->inContext($self->context) if $x->canBeInUnion;
   return $x if $x->isSetOfReals;
   return $self->new($x->value)
     if $x->type eq 'List' && $x->typeRef->{entryType}{name} eq 'Number';
@@ -136,7 +136,7 @@ sub subIntervalSet {
       return @union if $a == $b;
       $I->{open} = '(';
     } elsif ($x < $b) {
-      push(@union,Value::Interval->make($I->{open},$a,$x,')')->inContext($self->context));
+      push(@union,$self->Package("Interval")->make($I->{open},$a,$x,')')->inContext($self->context));
       $I->{open} = '('; $I->{data}[0] = $x;
     } else {
       $I->{close} = ')' if ($x == $b);

@@ -44,7 +44,7 @@ sub make {
 #
 sub formula {
   my $self = shift; my $value = shift;
-  Value::Formula->new($value)->inContext($self->context);
+  $self->Package("Formula")->new($value)->inContext($self->context);
 }
 
 #

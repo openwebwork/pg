@@ -27,7 +27,7 @@ sub new {
   my @params = @_;
   Value::Error("Interval can't be empty") unless scalar(@params) > 0;
   Value::Error("Extra arguments for Interval()") if scalar(@params) > 4;
-  return Value::Set->new(@params)->inContext($context) if scalar(@params) == 1;
+  return $self->Package("Set")->new(@params)->inContext($context) if scalar(@params) == 1;
   @params = ('(',@params,')') if (scalar(@params) == 2);
   my ($open,$a,$b,$close) = @params;
   if (!defined($close)) {$close = $b; $b = $a}
@@ -77,7 +77,7 @@ sub make {
 sub formula {
   my $self = shift;
   my ($open,$a,$b,$close) = @_;
-  my $formula = Value::Formula->blank($self->context);
+  my $formula = $self->Package("Formula")->blank($self->context);
   ($a,$b) = Value::toFormula($formula,$a,$b);
   $formula->{tree} = $formula->{context}{parser}{List}->new($formula,[$a,$b],0,
      $formula->{context}{parens}{$open},$Value::Type{number},$open,$close);
@@ -136,7 +136,7 @@ sub promote {
   $x = Value::makeValue($x,context=>$self->context);
   return $self->new($x,@_) if scalar(@_) > 0;
   return $x if $x->isSetOfReals;
-  return Value::Set->new($x)->inContext($self->context) if Value::isReal($x);
+  return $self->Package("Set")->new($x)->inContext($self->context) if Value::isReal($x);
   my $open  = $x->{open};  $open  = '(' unless defined($open);
   my $close = $x->{close}; $close = ')' unless defined($close);
   return $self->new($open,$x->value,$close) if $x->canBeInUnion;
@@ -173,7 +173,7 @@ sub sub {
 sub subIntervalInterval {
   my ($l,$r) = @_; $l = $l->copy; $r = $r->copy;
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
-  my $context = $l->context;
+  my $self = $l; my $context = $self->context;
   my @union = ();
   if ($d <= $a) {
     $l->{open} = '(' if $d == $a && $r->{close} eq ']';
@@ -183,18 +183,18 @@ sub subIntervalInterval {
     push(@union,$l) unless $a == $b && $l->{close} eq ')';
   } else {
     if ($a == $c) {
-      push(@union,Value::Set->make($a)->inContext($context))
+      push(@union,$self->Package("Set")->make($a)->inContext($context))
 	if $l->{open} eq '[' && $r->{open} eq '(';
     } elsif ($a < $c) {
       my $close = ($r->{open} eq '[')? ')': ']';
-      push(@union,Value::Interval->make($l->{open},$a,$c,$close)->inContext($context));
+      push(@union,$self->Package("Interval")->make($l->{open},$a,$c,$close)->inContext($context));
     }
     if ($d == $b) {
-      push(@union,Value::Set->make($b)->inContext($context))
+      push(@union,$self->Package("Set")->make($b)->inContext($context))
 	if $l->{close} eq ']' && $r->{close} eq ')';
     } elsif ($d < $b) {
       my $open = ($r->{close} eq ']') ? '(': '[';
-      push(@union,Value::Interval->make($open,$d,$b,$l->{close})->inContext($context));
+      push(@union,$self->Package("Interval")->make($open,$d,$b,$l->{close})->inContext($context));
     }
   }
   return @union;

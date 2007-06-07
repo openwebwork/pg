@@ -122,7 +122,7 @@ sub cmp_parse {
   #   otherwise report an error
   #
   if (defined $ans->{student_value}) {
-    $ans->{student_value} = Value::Formula->new($ans->{student_value})
+    $ans->{student_value} = $self->Package("Formula")->new($ans->{student_value})
        unless Value::isValue($ans->{student_value});
     $ans->{student_value}{isStudent} = 1;
     $ans->{preview_latex_string} = $ans->{student_formula}->TeX;
@@ -173,9 +173,9 @@ sub cmp_collect {
     $array = [@V];
   } elsif (scalar(@{$array}) == 1) {$array = $array->[0]}
   my $type = $self;
-  $type = "Value::".$self->{tree}->type if $self->class eq 'Formula';
+  $type = $self->Package($self->{tree}->type) if $self->class eq 'Formula';
   $ans->{student_formula} = eval {$type->new($array)->with(ColumnVector=>$self->{ColumnVector})};
-  if (!defined($ans->{student_formula}) || $$Value::context->{error}{flag}) 
+  if (!defined($ans->{student_formula}) || $self->context->{error}{flag})
     {Parser::reportEvalError($@); $self->cmp_error($ans); return 0}
   $ans->{student_value} = $ans->{student_formula};
   $ans->{preview_text_string} = $ans->{student_ans};
@@ -195,9 +195,9 @@ sub cmp_equal {
   my $correct = $ans->{correct_value};
   my $student = $ans->{student_value};
   if ($correct->typeMatch($student,$ans)) {
-    $$Value::context->clearError();
+    $self->context->clearError();
     my $equal = $correct->cmp_compare($student,$ans);
-    if ($$Value::context->{error}{flag} != $CMP_MESSAGE && 
+    if ($self->context->{error}{flag} != $CMP_MESSAGE && 
         (defined($equal) || !$ans->{showEqualErrors})) {$ans->score(1) if $equal; return}
     $self->cmp_error($ans);
   } else {
@@ -223,8 +223,8 @@ sub cmp_compare {
   my $self = shift; my $other = shift; my $ans = shift; my $nth = shift || '';
   return eval {$self == $other} unless ref($ans->{checker}) eq 'CODE';
   my @equal = eval {&{$ans->{checker}}($self,$other,$ans,$nth,@_)};
-  if (!defined($equal) && $@ ne '' && (!$$Value::context->{error}{flag} || $ans->{showAllErrors})) {
-    $$Value::context->setError(["<I>An error occurred while checking your$nth answer:</I>\n".
+  if (!defined($equal) && $@ ne '' && (!$self->context->{error}{flag} || $ans->{showAllErrors})) {
+    $self->context->setError(["<I>An error occurred while checking your$nth answer:</I>\n".
       '<DIV STYLE="margin-left:1em">%s</DIV>',$@],'',undef,undef,$CMP_ERROR);
     warn "Please inform your instructor that an error occurred while checking your answer";
   }
@@ -250,7 +250,7 @@ sub cmp_class {
   my $class = $self->showClass; $class =~ s/Real //;
   return $class if $class =~ m/Formula/;
   return "an Interval, Set or Union" if $self->isSetOfReals;
-  return $class; 
+  return $class;
 }
 
 #
@@ -259,7 +259,7 @@ sub cmp_class {
 #
 sub cmp_error {
   my $self = shift; my $ans = shift;
-  my $error = $$Value::context->{error};
+  my $error = $self->context->{error};
   my $message = $error->{message};
   if ($error->{pos}) {
     my $string = $error->{string};
@@ -267,7 +267,7 @@ sub cmp_error {
     $message =~ s/; see.*//;  # remove the position from the message
     $ans->{student_ans} =
        protectHTML(substr($string,0,$s)) .
-       '<SPAN CLASS="parsehilight">' . 
+       '<SPAN CLASS="parsehilight">' .
          protectHTML(substr($string,$s,$e-$s)) .
        '</SPAN>' .
        protectHTML(substr($string,$e));
@@ -665,16 +665,17 @@ sub typeMatch {
 #############################################################
 
 =head3 Value::String
-	
+
 	Usage:  $s = String("pole");
-			ANS( $s->cmp(typeMatch => Complex("4+i") ) ); # compare to response 'pole', don't complain about complex number responses.
-			
-			  compareOptions and default values:
-              showTypeWarnings => 1,
-			  showEqualErrors  => 1,
-			  ignoreStrings    => 1   # never complain about string valued responses??
-			  typeMatch        => 'Value::Real'
-	
+		ANS($s->cmp(typeMatch => Complex("4+i")));
+		    # compare to response 'pole', don't complain about complex number responses.
+
+		compareOptions and default values:
+		  showTypeWarnings => 1,
+		  showEqualErrors  => 1,
+		  ignoreStrings    => 1   # don't complain about string-valued responses
+		  typeMatch        => 'Value::Real'
+
 	Initial and final spaces are ignored when comparing strings.
 
 =cut
@@ -694,7 +695,6 @@ sub cmp_class {
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
-#  return 0 if ref($other) && Value::isFormula($other);
   my $typeMatch = $ans->{typeMatch};
   return &$typeMatch($other,$ans) if ref($typeMatch) eq 'CODE';
   return 1 if !Value::isValue($typeMatch) || $typeMatch->class eq 'String' ||
@@ -728,14 +728,14 @@ sub cmp {
 	Usage: $pt = Point("(3,6)"); # preferred
 	       or $pt = Point(3,6);
 	       or $pt = Point([3,6]);
-	       ANS( $pt->cmp() );
-	       
+	       ANS($pt->cmp());
+
 		compareOptions:
 		  showTypeWarnings => 1,   # warns if student response is of incorrect type
 		  showEqualErrors  => 1,
 		  ignoreStrings    => 1,
 		  showDimensionHints => 1, # reports incorrect number of coordinates
-		  showCoordinateHints =>1, # flags individual coordinates which are incorrect
+		  showCoordinateHints =>1, # flags individual coordinates that are incorrect
 
 =cut
 
@@ -783,7 +783,7 @@ sub ANS_MATRIX {
   my $self = shift;
   my $extend = shift; my $name = shift;
   my $size = shift || 5;
-  my $def = ($self->{context} || $$Value::context)->lists->get('Point');
+  my $def = $self->context->lists->get('Point');
   my $open = $self->{open} || $def->{open}; my $close = $self->{close} || $def->{close};
   $self->ans_matrix($extend,$name,1,$self->length,$size,$open,$close,',');
 }
@@ -797,19 +797,20 @@ sub named_ans_array_extension {my $self = shift; $self->ANS_MATRIX(1,@_)}
 =head3 Value::Vector
 
 	Usage:  $vec = Vector("<3,6,7>");
-	        or $vec = Vector(3,6,7); 
+	        or $vec = Vector(3,6,7);
 	        or $vec = Vector([3,6,7]);
-	        ANS( $vec->cmp() );
+	        ANS($vec->cmp());
 
 		compareOptions:
-		  showTypeWarnings => 1,   # warns if student response is of incorrect type
-		  showEqualErrors  => 1,
-		  ignoreStrings    => 1,
-		  showDimensionHints => 1, # reports incorrect number of coordinates
-		  showCoordinateHints =>1, # flags individual coordinates which are incorrect
-		  promotePoints     => 0, # allow students to enter vectors as points (3,5,6)
-		  parallel          => 1, # response is correct if it is parallel to correct answer
-		  sameDirection     => 1, # response is correct if it has same orientation as correct answer
+		  showTypeWarnings    => 1,   # warns if student response is of incorrect type
+		  showEqualErrors     => 1,
+		  ignoreStrings       => 1,
+		  showDimensionHints  => 1, # reports incorrect number of coordinates
+		  showCoordinateHints => 1, # flags individual coordinates which are incorrect
+		  promotePoints       => 0, # allow students to enter vectors as points (3,5,6)
+		  parallel            => 1, # response is correct if it is parallel to correct answer
+		  sameDirection       => 1, # response is correct if it has same orientation as correct answer
+		                            #  (only has an effect when parallel => 1 is specified)
 
 
 =cut
@@ -872,11 +873,11 @@ sub ANS_MATRIX {
   my $self = shift;
   my $extend = shift; my $name = shift;
   my $size = shift || 5; my ($def,$open,$close);
-  $def = ($self->{context} || $$Value::context)->lists->get('Matrix');
+  $def = $self->context->lists->get('Matrix');
   $open = $self->{open} || $def->{open}; $close = $self->{close} || $def->{close};
   return $self->ans_matrix($extend,$name,$self->length,1,$size,$open,$close)
     if ($self->{ColumnVector});
-  $def = ($self->{context} || $$Value::context)->lists->get('Vector');
+  $def = $self->context->lists->get('Vector');
   $open = $self->{open} || $def->{open}; $close = $self->{close} || $def->{close};
   $self->ans_matrix($extend,$name,1,$self->length,$size,$open,$close,',');
 }
@@ -892,14 +893,14 @@ sub named_ans_array_extension {my $self = shift; $self->ANS_MATRIX(1,@_)}
 
 	Usage   $ma = Matrix([[3,6],[2,5]]) or $ma =Matrix([3,6],[2,5])
 	        ANS($ma->cmp());
-	        
+
 		compareOptions:
 
-		  showTypeWarnings => 1,   # warns if student response is of incorrect type
-		  showEqualErrors  => 1,
-		  ignoreStrings    => 1,
-		  showDimensionHints => 1, # reports incorrect number of coordinates
-		  showCoordinateHints =>1, # flags individual coordinates which are incorrect
+		  showTypeWarnings    => 1, # warns if student response is of incorrect type
+		  showEqualErrors     => 1, # reports messages that occur during element comparisons
+		  ignoreStrings       => 1,
+		  showDimensionHints  => 1, # reports incorrect number of coordinates
+		  showCoordinateHints => 1, # flags individual coordinates which are incorrect
 
 
 =cut
@@ -960,7 +961,7 @@ sub ANS_MATRIX {
   my $self = shift;
   my $extend = shift; my $name = shift;
   my $size = shift || 5;
-  my $def = ($self->{context} || $$Value::context)->lists->get('Matrix');
+  my $def = $self->context->lists->get('Matrix');
   my $open = $self->{open} || $def->{open}; my $close = $self->{close} || $def->{close};
   my @d = $self->dimensions;
   Value::Error("Can't create ans_array for %d-dimensional matrix",scalar(@d))
@@ -978,13 +979,14 @@ sub named_ans_array_extension {my $self = shift; $self->ANS_MATRIX(1,@_)}
 =head3   Value::Interval
 
 	Usage:    $interval = Interval("(1,2]");
-	          or $interval = Interval( '(',1,2,']');
+	          or $interval = Interval('(',1,2,']');
 	          ANS($inteval->cmp);
-		compareOptions and defaults:
-			showTypeWarnings => 1,
-			showEqualErrors  => 1,
-			ignoreStrings    => 1,
-			showEndpointHints =>1,  # show hints about which end point values are correct
+
+		  compareOptions and defaults:
+			showTypeWarnings  => 1,
+			showEqualErrors   => 1,
+			ignoreStrings     => 1,
+			showEndpointHints => 1, # show hints about which end point values are correct
 			showEndTypeHints  => 1, # show hints about endpoint types
 			requireParenMatch => 1,
 
@@ -1012,7 +1014,7 @@ sub typeMatch {
 sub cmp_compare {
   my $self = shift; my $student = shift; my $ans = shift;
   my $error = $self->cmp_checkUnionReduce($student,$ans,@_);
-  if ($error) {$$Value::context->setError($error,'',undef,undef,$CMP_WARNING); return}
+  if ($error) {$self->context->setError($error,'',undef,undef,$CMP_WARNING); return}
   $self->SUPER::cmp_compare($student,$ans,@_);
 }
 
@@ -1045,13 +1047,12 @@ sub cmp_postprocess {
 
 	Usage:   $set = Set(5,6,'a', 'b')
 	      or $set = Set("{5, 6, a, b}")
-	      
-	      The object is a finite set of real numbers. It can be used with Union and 
+
+	      The object is a finite set of real numbers. It can be used with Union and
 	      Interval.
-		
+
 	Examples:  Interval("(-inf,inf)") - Set(0)
-	
-	           Compute("R-{0}") # in the Interval context: Context("Interval");
+	           Compute("R-{0}")   # in Interval context: Context("Interval");
 
 =cut
 
@@ -1095,7 +1096,7 @@ sub cmp_equal {
 sub cmp_compare {
   my $self = shift; my $student = shift; my $ans = shift;
   my $error = $self->cmp_checkUnionReduce($student,$ans,@_);
-  if ($error) {$$Value::context->setError($error,'',undef,undef,$CMP_WARNING); return}
+  if ($error) {$self->context->setError($error,'',undef,undef,$CMP_WARNING); return}
   $self->SUPER::cmp_compare($student,$ans,@_);
 }
 
@@ -1148,7 +1149,7 @@ sub cmp_equal {
 sub cmp_compare {
   my $self = shift; my $student = shift; my $ans = shift;
   my $error = $self->cmp_checkUnionReduce($student,$ans,@_);
-  if ($error) {$$Value::context->setError($error,'',undef,undef,$CMP_WARNING); return}
+  if ($error) {$self->context->setError($error,'',undef,undef,$CMP_WARNING); return}
   $self->SUPER::cmp_compare($student,$ans,@_);
 }
 
@@ -1156,29 +1157,29 @@ sub cmp_compare {
 
 =head3 Value::List
 
-	Usage:  $lst = List( "1, x, <4,5,6>" ); # list of a real, a formula and a vector.
-	        or $lst = List( Real(1), Formula("x"), Vector(4,5,6)   );
-	        ANS( $lst->cmp(showHints=>1) );
-	        
+	Usage:  $lst = List("1, x, <4,5,6>"); # list of a real, a formula and a vector.
+	        or $lst = List(Real(1), Formula("x"), Vector(4,5,6));
+	        ANS($lst->cmp(showHints=>1));
+
 		compareOptions and defaults:
 			showTypeWarnings => 1,
-			showEqualErrors  => 1,
-			ignoreStrings    => 1,
+			showEqualErrors  => 1,         # show errors produced when checking equality of entries
+			ignoreStrings    => 1,         # don't show type warnings for strings
 			studentsMustReduceUnions => 1,
 			showUnionReduceWarnings => 1,
-			showHints => undef,        # set to 1 if $showPartialCorrectAnswers = 1
-			showLengthHints => undef,  # set to 1 if $showPartialCorrectAnswers = 1
-			showParenHints => undef,
-			partialCredit => undef,
-			ordered => 0,
-			entry_type => undef,
-			list_type => undef,
-			typeMatch => $element,
+			showHints => undef,            # automatically set to 1 if $showPartialCorrectAnswers == 1
+			showLengthHints => undef,      # automatically set to 1 if $showPartialCorrectAnswers == 1
+			showParenHints => undef,       # automatically set to 1 if $showPartialCorrectAnswers == 1
+			partialCredit => undef,        # automatically set to 1 if $showPartialCorrectAnswers == 1
+			ordered => 0,                  # 1 = must be in same order as correct answer
+			entry_type => undef,           # determined from first entry
+			list_type => undef,            # determined automatically
+			typeMatch => $element,         # used for type checking the entries
 			firstElement => $element,
-			extra => undef,
-			requireParenMatch => 1,
-			removeParens => 1,
-			implicitList => 1,
+			extra => undef,                # used to check syntax of incorrect answers
+			requireParenMatch => 1,        # student parens must match correct parens
+			removeParens => 1,             # remove outermost parens, if any
+			implicitList => 1,             # force single answers to be lists (even if they ARE lists)
 
 
 =cut
@@ -1188,8 +1189,8 @@ package Value::List;
 sub cmp_defaults {
   my $self = shift;
   my %options = (@_);
-  my $element = Value::makeValue($self->{data}[0]);
-  $element = Value::Formula->new($element) unless Value::isValue($element);
+  my $element = Value::makeValue($self->{data}[0],$self->context);
+  $element = $self->Package("Formula")->new($element) unless Value::isValue($element);
   return (
     Value::Real->cmp_defaults(@_),
     showHints => undef,
@@ -1357,7 +1358,7 @@ sub cmp_equal {
 #  Compare the contents of the list to see of they are equal
 #
 sub cmp_list_compare {
-  my $self = shift;
+  my $self = shift; my $context = $self->context;
   my $correct = shift; my $student = shift; my $ans = shift; my $value = shift;
   my @correct = @{$correct}; my @student = @{$student}; my $m = scalar(@student);
   my $ordered = $ans->{ordered};
@@ -1365,9 +1366,9 @@ sub cmp_list_compare {
   my $typeMatch = $ans->{typeMatch};
   my $extra = defined($ans->{extra}) ? $ans->{extra} :
               (Value::isValue($typeMatch) ? $typeMatch: $ans->{firstElement});
-  $extra = Value::List->new() unless defined($extra);
+  $extra = $self->Package("List")->new() unless defined($extra);
   my $showHints = getOption($ans,'showHints') && !$ans->{isPreview};
-  my $error = $$Value::context->{error};
+  my $error = $context->{error};
   my $score = 0; my @errors; my $i = 0;
 
   #
@@ -1379,9 +1380,9 @@ sub cmp_list_compare {
   #  Loop through student answers looking for correct ones
   #
   ENTRY: foreach my $entry (@student) {
-    $i++; $$Value::context->clearError;
-    $entry = Value::makeValue($entry);
-    $entry = Value::Formula->new($entry) if !Value::isValue($entry);
+    $i++; $context->clearError;
+    $entry = Value::makeValue($entry,$context);
+    $entry = $self->Package("Formula")->new($entry) if !Value::isValue($entry);
 
     #
     #  Some words differ if ther eis only one entry in the student's list
@@ -1415,7 +1416,7 @@ sub cmp_list_compare {
 	}
 	if ($error->{flag} == $CMP_ERROR) {$self->cmp_error($ans); return}
       }
-      $$Value::context->clearError;
+      $context->clearError;
       # do syntax check
       if (ref($extra) eq 'CODE') {&$extra($entry,$ans,$nth,$value)}
         else {$extra->cmp_compare($entry,$ans,$nth,$value)}
@@ -1487,9 +1488,8 @@ sub getOption {
 	Usage: $fun = Formula("x^2-x+1");
 	       $set = Formula("[-1, x) U (x, 2]");
 
-	
 	A formula can have any of the other math object types as its range.
-		Union, List, Number (Complex or Real), 
+		Union, List, Number (Complex or Real),
 
 
 =cut
@@ -1501,13 +1501,13 @@ sub cmp_defaults {
 
   return (
     Value::Union::cmp_defaults($self,@_),
-    typeMatch => Value::Formula->new("(1,2]"),
+    typeMatch => $self->Package("Formula")->new("(1,2]"),
     showDomainErrors => 1,
   ) if $self->type eq 'Union';
 
   my $type = $self->type;
   $type = ($self->isComplex)? 'Complex': 'Real' if $type eq 'Number';
-  $type = 'Value::'.$type.'::';
+  $type = $self->Package($type).'::';
 
   return (
     &{$type.'cmp_defaults'}($self,@_),
@@ -1516,8 +1516,8 @@ sub cmp_defaults {
   ) if defined(%$type) && $self->type ne 'List';
 
   my $element;
-  if ($self->{tree}->class eq 'List') {$element = Value::Formula->new($self->{tree}{coords}[0])}
-    else {$element = Value::Formula->new(($self->createRandomPoints(1))[1]->[0]{data}[0])}
+  if ($self->{tree}->class eq 'List') {$element = $self->Package("Formula")->new($self->{tree}{coords}[0])}
+    else {$element = $self->Package("Formula")->new(($self->createRandomPoints(1))[1]->[0]{data}[0])}
   return (
     Value::List::cmp_defaults($self,@_),
     removeParens => $self->{autoFormula},
@@ -1562,7 +1562,7 @@ sub cmp {
     my $context = $self->{context} = $self->{context}->copy;
     Parser::Context->current(undef,$context);
     $context->variables->add('C0' => 'Parameter');
-    my $f = Value::Formula->new('C0')+$self;
+    my $f = $self->Package("Formula")->new('C0')+$self;
     for ('limits','test_points','test_values','num_points','granularity','resolution',
 	 'checkUndefinedPoints','max_undefined')
       {$f->{$_} = $self->{$_} if defined($self->{$_})}
@@ -1659,7 +1659,7 @@ sub cmp_diagnostics {
 	push(@G,$self->cmp_graph($diagnostics,$self,title=>'Correct Answer'));
 	push(@G,$self->cmp_graph($diagnostics,$student,title=>'Student Answer'));
       }
-      my $cutoff = Value::Formula->new($self->getFlag('tolerance'));
+      my $cutoff = $self->Package("Formula")->new($self->getFlag('tolerance'));
       if ($formulas->{graphAbsoluteErrors}) {
 	push(@G,$self->cmp_graph($diagnostics,[abs($self-$student),$cutoff],
 				 clip=>$formulas->{clipAbsoluteError},
@@ -1687,7 +1687,7 @@ sub cmp_diagnostics {
     #  The test points and values
     #
     my @rows = (); my $colsep = '</TD><TD WIDTH="20"></TD><TD ALIGN="RIGHT">';
-    my @P = (map {(scalar(@{$_}) == 1)? $_->[0]: Value::Point->make(@{$_})} @{$self->{test_points}});
+    my @P = (map {(scalar(@{$_}) == 1)? $_->[0]: $self->Package("Point")->make(@{$_})} @{$self->{test_points}});
     my @i = sort {$P[$a] <=> $P[$b]} (0..$#P);
     foreach $p (@P) {if (Value::isValue($p) && $p->length > 2) {$p = $p->string; $p =~ s|,|,<br />|g}}
     my $zeroLevelTol = $self->getFlag('zeroLevelTol');
@@ -1838,7 +1838,7 @@ sub cmp_graph {
     $My = $clip if $My > $clip;
   }
   $my = -$My/10 if $my > -$My/10; $My = -$my/10 if $My < -$my/10;
-  my $a = Value::Real->new(($My-$my)/($Mx-$mx));
+  my $a = $self->Package("Real")->new(($My-$my)/($Mx-$mx));
 
   #
   #  Create the graph itself, with suitable title
@@ -1931,7 +1931,7 @@ sub ANS_MATRIX {
     my $tmp = $rows; $rows = $cols; $cols = $tmp;
     $self->{ColumnVector} = 1;
   }
-  my $def = ($self->{context} || $$Value::context)->lists->get($type);
+  my $def = $self->context->lists->get($type);
   my $open = $self->{open} || $self->{tree}{open} || $def->{open};
   my $close = $self->{close} || $self->{tree}{close} || $def->{close};
   $self->ans_matrix($extend,$name,$rows,$cols,$size,$open,$close,$sep);
@@ -1967,12 +1967,12 @@ sub value {
   if ($self->{tree}->type eq 'Matrix') {
     foreach my $row (@{$self->{tree}->coords}) {
       my @row = ();
-      foreach my $x (@{$row->coords}) {push(@row,Value::Formula->new($x))}
+      foreach my $x (@{$row->coords}) {push(@row,$self->Package("Formula")->new($x))}
       push(@array,[@row]);
     }
   } else {
     foreach my $x (@{$self->{tree}->coords}) {
-      push(@array,Value::Formula->new($x));
+      push(@array,$self->Package("Formula")->new($x));
     }
   }
   return @array;

@@ -11,22 +11,14 @@ our @ISA = qw(Parser Value);
 my $UNDEF = bless {}, "UNDEF"; # used for undefined points
 
 #
-#  Call Parser to make the new item, copying important
-#    fields from the tree.  The Context can override the
-#    Context()->{value}{Formula} setting to substitue a
-#    different class to call for creating the formula.
+#  Call Parser to make the new Formula
 #
 sub new {
   my $self = shift;
-  my $f = $self->context->{value}{Formula}->create(@_)->inContext($self->context);
+  my $f = $self->SUPER::new(@_)->inContext($self->context);
   foreach my $id ('open','close') {$f->{$id} = $f->{tree}{$id}}
   return $f;
 }
-
-#
-#  Call Parser to create the formula
-#
-sub create {shift->SUPER::new(@_)}
 
 #
 #  Create a new Formula with no string
@@ -160,7 +152,7 @@ sub twiddle {shift->call('conj',@_)}
 #
 sub compare {
   my ($l,$r) = @_; my $self = $l;
-  $r = Value::Formula->new($r) unless Value::isFormula($r);
+  $r = $self->Package("Formula")->new($r)->inContext($self->context) unless Value::isFormula($r);
   Value::Error("Functions from different contexts can't be compared")
     unless $l->{context} == $r->{context};
 
@@ -274,19 +266,19 @@ sub createAdaptedValues {
 #  is defined at the given points.  Error if we can't find enough.
 #
 sub createRandomPoints {
-  my $self = shift;
+  my $self = shift; my $context = $self->context;
   my ($num_points,$include) = @_; my $cacheResults = !defined($num_points);
   $num_points = int($self->getFlag('num_points',5)) unless defined($num_points);
   $num_points = 1 if $num_points < 1;
 
-  my @vars   = $self->{context}->variables->variables;
-  my @params = $self->{context}->variables->parameters;
+  my @vars   = $context->variables->variables;
+  my @params = $context->variables->parameters;
   my @limits = $self->getVariableLimits(@vars);
   my @make   = $self->getVariableTypes(@vars);
   my @zeros  = (0) x scalar(@params);
   my $f = $self->{f}; $f = $self->{f} = $self->perlFunction(undef,[@vars,@params]) unless $f;
-  my $seedRandom = $self->{context}->flag('random_seed')? 'PGseedRandom' : 'seedRandom';
-  my $getRandom  = $self->{context}->flag('random_seed')? 'PGgetRandom'  : 'getRandom';
+  my $seedRandom = $context->flag('random_seed')? 'PGseedRandom' : 'seedRandom';
+  my $getRandom  = $context->flag('random_seed')? 'PGgetRandom'  : 'getRandom';
   my $checkUndef = scalar(@params) == 0 && $self->getFlag('checkUndefinedPoints',0);
   my $max_undef  = $self->getFlag('max_undefined',$num_points);
 
@@ -300,8 +292,9 @@ sub createRandomPoints {
   while (scalar(@{$points}) < $num_points+$num_undef && $k < 10) {
     @P = (); $i = 0;
     foreach my $limit (@limits) {
-      @p = (); foreach my $I (@{$limit}) {push @p, Value::Real->make($self->$getRandom(@{$I}))}
-      push @P, $make[$i++]->make(@p);
+      @p = (); foreach my $I (@{$limit})
+        {push @p, $self->Package("Real")->make($self->$getRandom(@{$I}))->inContext($context)}
+      push @P, $make[$i++]->make(@p)->inContext($context);
     }
     $v = eval {&$f(@P,@zeros)};
     if (!defined($v)) {
@@ -313,14 +306,14 @@ sub createRandomPoints {
       $k++;
     } else {
       push @{$points}, [@P];
-      push @{$values}, Value::makeValue($v,context=>$self->context);
+      push @{$values}, Value::makeValue($v,context=>$context);
       $k = 0; # reset count when we find a point
     }
   }
 
   if ($k) {
     my $error = "Can't generate enough valid points for comparison";
-    $error .= ':<div style="margin-left:1em">'.($self->context->{error}{message} || $@).'</div>'
+    $error .= ':<div style="margin-left:1em">'.($context->{error}{message} || $@).'</div>'
       if ($self->getFlag('showTestPointErrors'));
     $error =~ s/ (in \S+ )?at line \d+.*//s;
     Value::Error($error);
@@ -345,7 +338,7 @@ sub getVariableLimits {
   }
   $userlimits = [] unless $userlimits; my @limits;
   my $default;  $default = $userlimits->[0][0] if defined($userlimits->[0]);
-  $default = $default || $self->{context}{flags}{limits} || [-2,2];
+  $default = $default || $self->getFlag('limits',[-2,2]);
   my $granularity = $self->getFlag('granularity',1000);
   my $resolution = $self->getFlag('resolution');
   my $i = 0;
@@ -384,9 +377,9 @@ sub getVariableTypes {
   foreach my $x (@_) {
     my $type = $self->{context}{variables}{$x}{type};
     if ($type->{name} eq 'Number') {
-      push @make,($type->{length} == 1)? 'Value::Formula::number': 'Value::Complex';
+      push @make,($type->{length} == 1)? 'Value::Formula::number': $self->Package("Complex");
     } else {
-      push @make, "Value::$type->{name}";
+      push @make, $self->Package($type->{name});
     }
   }
   return @make;
@@ -433,9 +426,10 @@ sub AdaptParameters {
       #
       #  Get parameter values and recompute the points using them
       #
-      my @a; my $i = 0; my $max = Value::Real->new($l->getFlag('max_adapt',1E8));
+      my @a; my $i = 0; my $max = $l->getFlag('max_adapt',1E8);
       foreach my $row (@{$B->[0]}) {
 	if (abs($row->[0]) > $max) {
+	  $max = Value::makeValue($max);
 	  $l->Error("Constant of integration is too large: %s\n(maximum allowed is %s)",
 		    $row->[0]->string,$max->string) if ($params[$i] eq 'C0');
 	  $l->Error("Adaptive constant is too large: %s = %s\n(maximum allowed is %s)",
