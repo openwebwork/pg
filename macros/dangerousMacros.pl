@@ -121,6 +121,7 @@ sub _dangerousMacros_init {   #use  envir instead of local variables?
     $templateDirectory        = eval('$main::envir{templateDirectory}');
     $scriptDirectory          = eval('$main::envir{scriptDirectory}');
     $externalTTHPath          = eval('$main::envir{externalTTHPath}');
+    $pwd = $templateDirectory.$pwd unless substr($pwd,0,1) eq '/';
     warn "dangerousmacros initialized" if $debugON;
     warn eval(q! "dangerousmacros.pl externalTTHPath is ".$main::externalTTHPath;!) if $debugON;
     warn eval(q! "dangerousmacros.pl:  The envir variable $main::{envir} is".join(" ",%main::envir)!) if $debugON; 
@@ -259,6 +260,7 @@ sub loadMacros {
 # 		use strict;
 
 		###############################################################################
+
         # macros are searched for in the directories listed in the $macrosPath array reference.
         
         my $macro_file_loaded = defined($init_subroutine) && defined(&$init_subroutine);
@@ -290,12 +292,10 @@ sub loadMacros {
        warn "dangerousMacros: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|" if $debugON;
 
 		if ( defined($init_subroutine) && defined( &{$init_subroutine} ) ) {
-
 		    warn "dangerousMacros:  initializing $macro_file_name" if $debugON;
 		    &$init_subroutine();
 		}
 		#warn "main:: contains <br>\n $macro_file_name ".join("<br>\n $macro_file_name ", %main::);
-
 	}
 	eval{main::time_it("end load macros");};
 }
@@ -308,7 +308,7 @@ sub findMacroFile {
   my $filePath;
   foreach my $dir (@{$macrosPath}) {
     $filePath = "$dir/$fileName";
-    $filePath =~ s!^\.\.?/!$templateDirectory$pwd/!;
+    $filePath =~ s!^\.\.?/!$pwd/!;
     return $filePath if (-r $filePath);
   }
   return;  # no file found
@@ -1055,7 +1055,8 @@ sub alias {
 				my $gifFileName = fileFromPath($gifFilePath);
 
 				$gifFileName =~ /^(.*)\.gif$/;
-				my $pngFilePath = surePathToTmpFile("${tempDirectory}png/$probNum-$1.png");
+#				my $pngFilePath = surePathToTmpFile("${tempDirectory}png/$probNum-$1.png");
+				my $pngFilePath = surePathToTmpFile("${tempDirectory}png/$setNumber-$probNum-$1.png");
 				my $returnCode = system "cat $gifFilePath | $envir{externalGif2PngPath} > $pngFilePath";
 
 				if ($returnCode or not -e $pngFilePath) {
