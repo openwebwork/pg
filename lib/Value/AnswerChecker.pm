@@ -78,7 +78,11 @@ sub cmp {
     @_
   );
   $ans->{debug} = $ans->{rh_ans}{debug};
-  $ans->install_evaluator(sub {$ans = shift; $ans->{correct_value}->cmp_parse($ans)});
+  $ans->install_evaluator(sub {
+     $ans = shift;
+     $ans->{_filter_name} = "MathObjects answer checker";
+     $ans->{correct_value}->cmp_parse($ans);
+  });
   $ans->install_pre_filter('erase') if $self->{ans_name}; # don't do blank check if answer_array
   $self->cmp_diagnostics($ans);
   return $ans;
@@ -197,7 +201,7 @@ sub cmp_equal {
   if ($correct->typeMatch($student,$ans)) {
     $self->context->clearError();
     my $equal = $correct->cmp_compare($student,$ans);
-    if ($self->context->{error}{flag} != $CMP_MESSAGE && 
+    if ($self->context->{error}{flag} != $CMP_MESSAGE &&
         (defined($equal) || !$ans->{showEqualErrors})) {$ans->score(1) if $equal; return}
     $self->cmp_error($ans);
   } else {
