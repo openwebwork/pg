@@ -19,18 +19,10 @@ sub Union    {Value::Union->new(@_)}
 
 sub ColumnVector {Value::Vector->new(@_)->with(ColumnVector=>1,open=>undef,close=>undef)}
 
-# sub Formula  {Value::Formula->new(@_)}
-# 
-# #
-# #  Parse a formula and evaluate it
-# #
-# sub Compute {
-#   my $formula = Formula(shift);
-#   return $formula->eval(@_);
-# }  
+# sub Formula  {Value::Formula->new(@_)}  # in Parser.pl
 
 #
-# Make a point or list a closed interval
+#  Make a point or list a closed interval
 #
 sub Closed {
   my $x = shift;

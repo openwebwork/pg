@@ -31,17 +31,18 @@ sub Formula {Value::Formula->new(@_)}
 #
 sub Compute {
   my $string = shift;
-  my $formula = Formula($string)->eval(@_);
+  my $formula = Formula($string);
+  $formula = $formula->eval(@_) if scalar(@_) || $formula->isConstant;
   $formula->{correct_ans} = $string;
   return $formula;
-}  
+}
 
 #
 #  Deal with contexts
 #
 sub Context {Parser::Context->current(\%context,@_)}
 %context = ();  # locally defined contexts, including 'current' context
-Context();  # Initialize context (for persistent mod_perl)
+Context();      # Initialize context (for persistent mod_perl)
 
 ###########################################################################
 #
