@@ -21,8 +21,8 @@ sub new {
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $M = shift; $M = Value::makeValue($M,context=>$context) if !ref($M) && scalar(@_) == 0;
   return bless {data => $M->data, context=>$context}, $class
-    if (Value::class($M) =~ m/Point|Vector|Matrix/ && scalar(@_) == 0);
-  return $M if (Value::isFormula($M) && $M->type eq Value::class($self));
+    if (Value::classMatch($M,'Point','Vector','Matrix') && scalar(@_) == 0);
+  return $M if (Value::isFormula($M) && Value::classMatch($self,$M->type));
   $M = [$M,@_] if (ref($M) ne 'ARRAY' || scalar(@_) > 0);
   Value::Error("Matrices must have at least one entry") unless scalar(@{$M}) > 0;
   return $self->matrixMatrix(@{$M}) if ref($M->[0]) =~ m/ARRAY|Matrix|Vector|Point/ ||
@@ -76,7 +76,7 @@ sub numberMatrix {
 sub value {
   my $self = shift;
   my $M = $self->data;
-  return @{$M} if Value::class($M->[0]) ne 'Matrix';
+  return @{$M} unless Value::classMatch($M->[0],'Matrix');
   my @M = ();
   foreach my $x (@{$M}) {push(@M,[$x->value])}
   return @M;
@@ -89,7 +89,7 @@ sub dimensions {
   my $self = shift;
   my $r = $self->length;
   my $v = $self->data;
-  return ($r,) if (Value::class($v->[0]) ne 'Matrix');
+  return ($r,) unless Value::classMatch($v->[0],'Matrix');
   return ($r,$v->[0]->dimensions);
 }
 #
@@ -98,7 +98,7 @@ sub dimensions {
 sub typeRef {
   my $self = shift;
   return Value::Type($self->class, $self->length, $Value::Type{number})
-    if (Value::class($self->data->[0]) ne 'Matrix');
+    unless Value::classMatch($self->data->[0],'Matrix');
   return Value::Type($self->class, $self->length, $self->data->[0]->typeRef);
 }
 
@@ -157,7 +157,7 @@ sub promote {
   my $x = (scalar(@_) ? shift : $self);
   return $self->new($x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
   return $x if ref($x) eq $class;
-  return $self->make(@{$x->data}) if Value::class($x) =~ m/Point|Vector/;
+  return $self->make(@{$x->data}) if Value::classMatch($x,'Point','Vector');
   Value::Error("Can't convert %s to %s",Value::showClass($x),$self->showClass);
 }
 
@@ -206,7 +206,7 @@ sub mult {
   #
   #  Make points and vectors into columns if they are on the right
   #
-  if (!$flag && Value::class($r) =~ m/Point|Vector/)
+  if (!$flag && Value::classMatch($r,'Point','Vector'))
     {$r = ($self->promote($r))->transpose} else {$r = $self->promote($r)}
   #
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}

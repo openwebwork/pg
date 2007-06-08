@@ -16,8 +16,8 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $p = shift; my $isFormula = 0;
-  my $isSingleton = (scalar(@_) == 0 && !(Value::isValue($p) && $p->class eq 'List'));
-  $p = $p->data if (Value::isValue($p) && $p->class eq 'List' && scalar(@_) == 0);
+  my $isSingleton = (scalar(@_) == 0 && !(Value::isValue($p) && $p->classMatch('List')));
+  $p = $p->data if (Value::isValue($p) && $p->classMatch('List') && scalar(@_) == 0);
   $p = [$p,@_] if (ref($p) ne 'ARRAY' || scalar(@_) > 0);
   my $type;
   foreach my $x (@{$p}) {
@@ -66,8 +66,8 @@ sub promote {
 #
 sub add {
   my ($self,$l,$r) = Value::checkOpOrder(@_);
-  $l = $self->make($l) if Value::class($l) =~ m/Point|Vector|Matrix/;
-  $r = $self->make($r) if Value::class($r) =~ m/Point|Vector|Matrix/;
+  $l = $self->make($l) if Value::classMatch($l,'Point','Vector','Matrix');
+  $r = $self->make($r) if Value::classMatch($r,'Point','Vector','Matrix');
   return $self->new($l->value,$r->value);
 }
 sub dot {my $self = shift; $self->add(@_)}

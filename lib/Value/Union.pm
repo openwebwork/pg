@@ -37,7 +37,7 @@ sub new {
     } else {
       if ($x->type ne 'Interval' && $x->canBeInUnion)
         {$x = $self->Package("Interval")->new($x->{open},$x->value,$x->{close})}
-      if ($x->class eq 'Union') {push(@intervals,$x->value)}
+      if ($x->classMatch('Union')) {push(@intervals,$x->value)}
       elsif ($x->isSetOfReals) {push(@intervals,$x)}
       else {Value::Error("Unions can be taken only for Intervals or Sets")}
     }

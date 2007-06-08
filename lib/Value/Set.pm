@@ -17,14 +17,14 @@ sub new {
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $p = shift; $p = [$p,@_] if (scalar(@_) > 0);
   $p = Value::makeValue($p,context=>$context) if (defined($p) && !ref($p));
-  return $p if (Value::isFormula($p) && $p->type eq Value::class($self));
-  my $pclass = Value::class($p); my $isFormula = 0;
-  my @d; @d = $p->dimensions if $pclass eq 'Matrix';
-  if ($pclass eq 'List' && $p->typeRef->{entryType}{name} eq 'Number') {$p = $p->data}
-  elsif ($pclass =~ m/Point|Vector|Set/) {$p = $p->data}
-  elsif ($pclass eq 'Matrix' && scalar(@d) == 1) {$p = [$p->value]}
-  elsif ($pclass eq 'Matrix' && scalar(@d) == 2 && $d[0] == 1) {$p = ($p->value)[0]}
-  elsif ($pclass eq 'Matrix' && scalar(@d) == 2 && $d[1] == 1) {$p = ($p->transpose->value)[0]}
+  return $p if (Value::isFormula($p) && Value::classMatch($self,$p->type));
+  my $isMatrix = Value::classMatch($p,'Matrix'); my $isFormula = 0;
+  my @d; @d = $p->dimensions if $isMatrix;
+  if (Value::classMatch($p,'List') && $p->typeRef->{entryType}{name} eq 'Number') {$p = $p->data}
+  elsif (Value::classMatch($p,'Point','Vector','Set')) {$p = $p->data}
+  elsif ($isMatrix && scalar(@d) == 1) {$p = [$p->value]}
+  elsif ($isMatrix && scalar(@d) == 2 && $d[0] == 1) {$p = ($p->value)[0]}
+  elsif ($isMatrix && scalar(@d) == 2 && $d[1] == 1) {$p = ($p->transpose->value)[0]}
   else {
     $p = [$p] if (defined($p) && ref($p) ne 'ARRAY');
     foreach my $x (@{$p}) {
@@ -97,8 +97,8 @@ sub dot {my $self = shift; $self->add(@_)}
 #
 sub sub {
   my ($self,$l,$r) = Value::checkOpOrder(@_);
-  return Value::Union::form($self->context,subIntervalSet($l,$r)) if Value::class($l) eq 'Interval';
-  return Value::Union::form($self->context,subSetInterval($l,$r)) if Value::class($r) eq 'Interval';
+  return Value::Union::form($self->context,subIntervalSet($l,$r)) if Value::classMatch($l,'Interval');
+  return Value::Union::form($self->context,subSetInterval($l,$r)) if Value::classMatch($r,'Interval');
   return Value::Union::form($self->context,subSetSet($l,$r));
 }
 
@@ -170,7 +170,7 @@ sub subSetInterval {
 #
 sub compare {
   my ($l,$r,$flag) = @_; my $self = $l;
-  if ($r->class eq 'Interval') {
+  if ($r->classMatch('Interval')) {
     return ($flag? 1: -1) if $l->length == 0;
     my ($a,$b) = $r->value; my $c = $l->{data}[0];
     return (($flag) ? $a <=> $c : $c <=> $a)

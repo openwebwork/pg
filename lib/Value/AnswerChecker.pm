@@ -177,7 +177,7 @@ sub cmp_collect {
     $array = [@V];
   } elsif (scalar(@{$array}) == 1) {$array = $array->[0]}
   my $type = $self;
-  $type = $self->Package($self->{tree}->type) if $self->class eq 'Formula';
+  $type = $self->Package($self->{tree}->type) if $self->isFormula;
   $ans->{student_formula} = eval {$type->new($array)->with(ColumnVector=>$self->{ColumnVector})};
   if (!defined($ans->{student_formula}) || $self->context->{error}{flag})
     {Parser::reportEvalError($@); $self->cmp_error($ans); return 0}
@@ -243,7 +243,7 @@ sub cmp_list_compare {Value::List::cmp_list_compare(@_)}
 sub typeMatch {
   my $self = shift;  my $other = shift;
   return 1 unless ref($other);
-  $self->type eq $other->type && $other->class ne 'Formula';
+  $self->type eq $other->type && !$other->isFormula;
 }
 
 #
@@ -298,9 +298,9 @@ sub cmp_Error {
 sub cmp_Message {
   my $message = shift;
   $message = [$message,@_] if scalar(@_) > 0;
-  $$context->setError($message,'',undef,undef,$CMP_MESSAGE);
-  $message = $$context->{error}{message};
-  die $message . traceback() if $$context->flags('showTraceback');
+  $$Value::context->setError($message,'',undef,undef,$CMP_MESSAGE);
+  $message = $$Value::context->{error}{message};
+  die $message . traceback() if $$Value::context->flags('showTraceback');
   die $message . getCaller();
 }
 
@@ -693,7 +693,7 @@ sub cmp_defaults {(
 
 sub cmp_class {
   my $self = shift; my $ans = shift; my $typeMatch = $ans->{typeMatch};
-  return 'a Word' if !Value::isValue($typeMatch) || $typeMatch->class eq 'String';
+  return 'a Word' if !Value::isValue($typeMatch) || $typeMatch->classMatch('String');
   return $typeMatch->cmp_class;
 };
 
@@ -701,7 +701,7 @@ sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
   my $typeMatch = $ans->{typeMatch};
   return &$typeMatch($other,$ans) if ref($typeMatch) eq 'CODE';
-  return 1 if !Value::isValue($typeMatch) || $typeMatch->class eq 'String' ||
+  return 1 if !Value::isValue($typeMatch) || $typeMatch->classMatch('String') ||
                  $self->type eq $other->type;
   return $typeMatch->typeMatch($other,$ans);
 }
@@ -753,7 +753,7 @@ sub cmp_defaults {(
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
-  return ref($other) && $other->type eq 'Point' && $other->class ne 'Formula';
+  return ref($other) && $other->type eq 'Point' && !$other->isFormula;
 }
 
 #
@@ -832,7 +832,7 @@ sub cmp_defaults {(
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
-  return 0 unless ref($other) && $other->class ne 'Formula';
+  return 0 unless ref($other) && !$other->isFormula;
   return $other->type eq 'Vector' ||
      ($ans->{promotePoints} && $other->type eq 'Point');
 }
@@ -850,7 +850,7 @@ sub cmp_postprocess {
   if ($ans->{showDimensionHints} && $self->length != $student->length) {
     $self->cmp_Error($ans,"The number of coordinates is incorrect"); return;
   }
-  if ($ans->{parallel} && $student->class ne 'Formula' && $student->class ne 'String' &&
+  if ($ans->{parallel} && !$student->isFormula && !$student->classMatch('String') &&
       $self->isParallel($student,$ans->{sameDirection})) {
     $ans->score(1); return;
   }
@@ -919,7 +919,7 @@ sub cmp_defaults {(
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
-  return 0 unless ref($other) && $other->class ne 'Formula';
+  return 0 unless ref($other) && !$other->isFormula;
   return $other->type eq 'Matrix' ||
     ($other->type =~ m/^(Point|list)$/ &&
      $other->{open}.$other->{close} eq $self->{open}.$self->{close});
@@ -1030,7 +1030,7 @@ sub cmp_postprocess {
   return unless $ans->{score} == 0 && !$ans->{isPreview};
   my $other = $ans->{student_value};
   return if $ans->{ignoreStrings} && (!Value::isValue($other) || $other->type eq 'String');
-  return unless $other->class eq 'Interval';
+  return unless $other->classMatch('Interval');
   my @errors;
   if ($ans->{showEndpointHints}) {
     push(@errors,"Your left endpoint is incorrect")
@@ -1119,7 +1119,7 @@ package Value::Union;
 
 sub typeMatch {
   my $self = shift; my $other = shift;
-  return 0 unless ref($other) && $other->class ne 'Formula';
+  return 0 unless ref($other) && !$other->isFormula;
   return $other->length == 2 &&
          ($other->{open} eq '(' || $other->{open} eq '[') &&
          ($other->{close} eq ')' || $other->{close} eq ']')
@@ -1216,7 +1216,7 @@ sub cmp_defaults {
 #
 #  Match anything but formulas
 #
-sub typeMatch {return !ref($other) || $other->class ne 'Formula'}
+sub typeMatch {return !ref($other) || !$other->isFormula}
 
 #
 #  Handle removal of outermost parens in correct answer.
@@ -1263,7 +1263,7 @@ sub cmp_equal {
   #   (split formulas that return lists or unions)
   #
   my @correct = (); my ($cOpen,$cClose);
-  if ($self->class ne 'Formula') {
+  if (!$self->isFormula) {
     @correct = $self->value;
     $cOpen = $ans->{correct_value}{open}; $cClose = $ans->{correct_value}{close};
   } else {
@@ -1279,7 +1279,7 @@ sub cmp_equal {
       @student = Value::List->splitFormula($student,$ans);
       $sOpen = $student->{tree}{open}; $sClose = $student->{tree}{close};
     }
-  } elsif ($student->class ne 'Formula' && $student->class eq $self->type) {
+  } elsif (!$student->isFormula && $student->classMatch($self->type)) {
     if ($implicitList && $student->{open} ne '') {
       @student = ($student);
     } else {
@@ -1431,7 +1431,7 @@ sub cmp_list_compare {
     my $match = (ref($typeMatch) eq 'CODE')? &$typeMatch($entry,$ans) :
                                              $typeMatch->typeMatch($entry,$ans);
     if ($showTypeWarnings && !$match &&
-	!($ans->{ignoreStrings} && $entry->class eq 'String')) {
+	!($ans->{ignoreStrings} && $entry->classMatch('String'))) {
       push(@errors,"Your$nth $answer isn't ".lc($class).
 	   " (it looks like ".lc($entry->showClass).")");
     } elsif ($error->{flag} && $ans->{showEqualErrors}) {
@@ -1540,7 +1540,7 @@ sub typeMatch {
   my $typeMatch = ($self->createRandomPoints(1))[1]->[0];
   $other = eval {($other->createRandomPoints(1))[1]->[0]} if Value::isFormula($other);
   return 1 unless defined($other); # can't really tell, so don't report type mismatch
-  return 1 if $typeMatch->class eq 'String' && Value::isFormula($ans->{typeMatch});  # avoid infinite loop
+  return 1 if $typeMatch->classMatch('String') && Value::isFormula($ans->{typeMatch});  # avoid infinite loop
   $typeMatch->typeMatch($other,$ans);
 }
 

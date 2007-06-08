@@ -20,13 +20,13 @@ sub new {
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $p = shift; $p = [$p,@_] if (scalar(@_) > 0);
   $p = Value::makeValue($p,context=>$context) if (defined($p) && !ref($p));
-  return $p if (Value::isFormula($p) && $p->type eq Value::class($self));
-  my $pclass = Value::class($p); my $isFormula = 0;
-  my @d; @d = $p->dimensions if $pclass eq 'Matrix';
-  if ($pclass =~ m/Point|Vector/) {$p = $p->data}
-  elsif ($pclass eq 'Matrix' && scalar(@d) == 1) {$p = [$p->value]}
-  elsif ($pclass eq 'Matrix' && scalar(@d) == 2 && $d[0] == 1) {$p = ($p->value)[0]}
-  elsif ($pclass eq 'Matrix' && scalar(@d) == 2 && $d[1] == 1) {$p = ($p->transpose->value)[0]}
+  return $p if (Value::isFormula($p) && Value::classMatch($self,$p->type));
+  my $isMatrix = Value::classMatch($p,'Matrix'); my $isFormula = 0;
+  my @d; @d = $p->dimensions if $isMatrix;
+  if (Value::classMatch($p,'Point','Vector')) {$p = $p->data}
+  elsif ($isMatrix && scalar(@d) == 1) {$p = [$p->value]}
+  elsif ($isMatrix && scalar(@d) == 2 && $d[0] == 1) {$p = ($p->value)[0]}
+  elsif ($isMatrix && scalar(@d) == 2 && $d[1] == 1) {$p = ($p->transpose->value)[0]}
   else {
     $p = [$p] if (defined($p) && ref($p) ne 'ARRAY');
     Value::Error("Vectors must have at least one coordinate") unless defined($p) && scalar(@{$p}) > 0;
@@ -58,7 +58,7 @@ sub promote {
   my $x = (scalar(@_) ? shift : $self);
   return $self->new($x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
   return $x if ref($x) eq $class;
-  return $self->make($x->value) if Value::class($x) eq 'Point';
+  return $self->make($x->value) if Value::classMatch($x,'Point');
   Value::Error("Can't convert %s to %s",Value::showClass($x),Value::showClass($self));
 }
 

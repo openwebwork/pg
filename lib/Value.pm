@@ -252,18 +252,28 @@ sub inContext {my $self = shift; $self->context(@_); $self}
 #############################################################
 
 #
+#  Check if the object class matches one of a list of classes
+#
+sub classMatch {
+  my $self = shift; my $class = class($self);
+  my $ref = ref($self); my $isHash = ($ref && $ref ne 'ARRAY' && $ref ne 'CODE');
+  my $context = ($isHash ? $self->{context} : $$Value::context);
+  foreach my $name (@_) {
+    return 1 if $class eq $name || $ref eq Value->Package($name,$context,0) ||
+                $ref eq "Value::$name" || ($isHash && $self->{"is".$name});
+  }
+  return 0;
+}
+
+#
 #  Check if a value is a number, complex, etc.
 #
-sub matchNumber   {my $n = shift; $n =~ m/^$$context->{pattern}{signedNumber}$/i}
-sub matchInfinite {my $n = shift; $n =~ m/^$$context->{pattern}{infinite}$/i}
-sub isReal    {class(shift) eq 'Real'}
-sub isComplex {class(shift) eq 'Complex'}
+sub matchNumber   {my $n = shift; $n =~ m/^$$Value::context->{pattern}{signedNumber}$/i}
+sub matchInfinite {my $n = shift; $n =~ m/^$$Value::context->{pattern}{infinite}$/i}
+sub isReal    {classMatch(shift,'Real')}
+sub isComplex {classMatch(shift,'Complex')}
 sub isContext {class(shift) eq 'Context'}
-sub isFormula {
-  my $v = shift;
-  return class($v) eq 'Formula' ||
-         (ref($v) && ref($v) ne 'ARRAY' && $v->{isFormula});
-}
+sub isFormula {classMatch(shift,'Formula')}
 sub isValue {
   my $v = shift;
   return (ref($v) || $v) =~ m/^Value::/ ||
@@ -301,7 +311,7 @@ sub canBeInUnion {
 ######################################################################
 
 #
-#  Value->Package(name[,context])
+#  Value->Package(name[,context[,noerror]])
 #
 #  Returns the package name for the specificied Value object class
 #  (as specified by the context's {value} hash, or "Value::name").
@@ -310,7 +320,7 @@ sub Package {
   my $self = shift; my $class = shift; my $context = $self->context;
   return $context->{value}{$class} if defined $context->{value}{$class};
   return "Value::$class" if defined @{"Value::${class}::ISA"};
-  Value::Error("No such package 'Value::%s'",$class);
+  Value::Error("No such package 'Value::%s'",$class) unless $_[0];
 }
 
 =head3 makeValue
@@ -362,15 +372,15 @@ sub makeValue {
 sub showClass {
   my $value = shift;
   if (ref($value) || $value !~ m/::/) {
-    $value = makeValue($value,makeFormula=>0);
+    $value = Value::makeValue($value,makeFormula=>0);
     return "'".$value."'" unless Value::isValue($value);
   }
   my $class = class($value);
-  return showType($value) if ($class eq 'List');
-  $class .= ' Number' if $class =~ m/^(Real|Complex)$/;
-  $class .= ' of Intervals' if $class eq 'Union';
-  $class = 'Word' if $class eq 'String';
-  return 'a Formula that returns '.showType($value->{tree}) if ($class eq 'Formula');
+  return showType($value) if Value::classMatch($value,'List');
+  $class .= ' Number' if Value::classMatch($value,'Real','Complex');
+  $class .= ' of Intervals' if Value::classMatch($value,'Union');
+  $class = 'Word' if Value::classMatch($value,'String');
+  return 'a Formula that returns '.showType($value->{tree}) if Value::isFormula($value);
   return 'an '.$class if $class =~ m/^[aeio]/i;
   return 'a '.$class;
 }
@@ -418,8 +428,8 @@ sub getType {
     foreach my $x (@{$value}) {
       $type = getType($equation,$x);
       if ($type eq 'value') {
-        $type = $x->type if $x->class eq 'Formula';
-        $type = 'Number' if $x->class eq 'Complex' || $type eq 'Complex';
+        $type = $x->type if $x->classMatch('Formula');
+        $type = 'Number' if $x->classMatch('Complex') || $type eq 'Complex';
       }
       $ltype = $type if $ltype eq '';
       return 'List' if $type ne $ltype;
@@ -429,7 +439,7 @@ sub getType {
     return 'List';
   }
   elsif (Value::isFormula($value)) {return 'Formula'}
-  elsif (Value::class($value) eq 'Infinity') {return 'Infinity'}
+  elsif (Value::classMatch($value,'Infinity')) {return 'Infinity'}
   elsif (Value::isReal($value)) {return 'Number'}
   elsif (Value::isValue($value)) {return 'value'}
   elsif (ref($value)) {return 'unknown'}
@@ -487,11 +497,10 @@ sub toFormula {
 sub formula {
   my $self = shift; my $values = shift;
   my $context = $self->context;
-  my $class = $self->class;
-  my $list = $context->lists->get($class);
+  my $list = $context->lists->get($self->class);
   my $open = $list->{'open'};
   my $close = $list->{'close'};
-  my $paren = $open; $paren = 'list' if $class eq 'List';
+  my $paren = $open; $paren = 'list' if $self->classMatch('List');
   my $formula = $self->Package("Formula")->blank($context);
   my @coords = Value::toFormula($formula,@{$values});
   $formula->{tree} = $formula->{context}{parser}{List}->new($formula,[@coords],0,
@@ -613,10 +622,10 @@ use overload
 #  Promote an operand to the same precedence as the current object
 #
 sub promotePrecedence {
-  my $self = shift; my $other = shift;
+  my $self = shift; my $other = shift; my $context = $self->context;
   return 0 unless Value::isValue($other);
-  my $sprec = $$context->{precedence}{class($self)};
-  my $oprec = $$context->{precedence}{class($other)};
+  my $sprec = $context->{precedence}{class($self)};
+  my $oprec = $context->{precedence}{class($other)};
   return (defined($sprec) && defined($oprec) && $sprec < $oprec);
 }
 
@@ -675,7 +684,7 @@ sub _cos     {(shift)->cos}
 #
 sub nomethod {
   my ($l,$r,$flag,$op) = @_;
-  my $call = $$context->{method}{$op};
+  my $call = $l->context->{method}{$op};
   if (defined($call) && $l->promotePrecedence($r)) {return $r->$call($l,!$flag)}
   my $error = "Can't use '%s' with %s-valued operands";
   $error .= " (use '**' for exponentiation)" if $op eq '^';
@@ -854,20 +863,19 @@ sub TeX {
 #
 sub perl {
   my $self = shift; my $parens = shift; my $matrix = shift;
-  my $class = $self->class;
-  my $mtype = $class eq 'Matrix'; $mtype = -1 if $mtype & !$matrix;
+  my $mtype = $self->classMatch('Matrix'); $mtype = -1 if $mtype & !$matrix;
   my $perl; my @p = ();
   foreach my $x (@{$self->data}) {
     if (Value::isValue($x)) {push(@p,$x->perl(0,$mtype))} else {push(@p,$x)}
   }
-  @p = ("'".$self->{open}."'",@p,"'".$self->{close}."'") if $class eq 'Interval';
+  @p = ("'".$self->{open}."'",@p,"'".$self->{close}."'") if $self->classMatch('Interval');
   if ($matrix) {
     $perl = join(',',@p);
     $perl = '['.$perl.']' if $mtype > 0;
   } else {
     $perl = 'new '.ref($self).'('.join(',',@p).')';
     $perl = "($perl)->with(open=>'$self->{open}',close=>'$self->{close}')"
-      if $class eq 'List' && $self->{open}.$self->{close} ne '()';
+      if $self->classMatch('List') && $self->{open}.$self->{close} ne '()';
     $perl = '('.$perl.')' if $parens == 1;
   }
   return $perl;
@@ -897,9 +905,9 @@ sub ijk {
 sub Error {
   my $message = shift;
   $message = [$message,@_] if scalar(@_) > 0;
-  $$context->setError($message,'');
-  $message = $$context->{error}{message};
-  die $message . traceback() if $$context->flags('showTraceback');
+  $$Value::context->setError($message,'');
+  $message = $$Value::context->{error}{message};
+  die $message . traceback() if $$Value::context->flags('showTraceback');
   die $message . getCaller();
 }
 

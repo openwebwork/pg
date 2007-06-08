@@ -58,7 +58,7 @@ sub neg {
 
 sub compare {
   my ($l,$r,$flag) = @_; my $sgn = ($flag ? -1: 1);
-  return 0 if $r->class ne 'Real' && $l->{isNegative} == $r->{isNegative};
+  return 0 if !$r->classMatch('Real') && $l->{isNegative} == $r->{isNegative};
   return ($l->{isNegative}? -$sgn: $sgn);
 }
 
