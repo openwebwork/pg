@@ -288,7 +288,7 @@ sub pdot {'('.(shift->stringify).')'}
 
 sub stringify {
   my $self = shift;
-  return $self->TeX if $self->Glag('StringifyAsTeX');
+  return $self->TeX if $self->getFlag('StringifyAsTeX');
   $self->string;
 }
 
