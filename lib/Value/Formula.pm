@@ -15,7 +15,7 @@ my $UNDEF = bless {}, "UNDEF"; # used for undefined points
 #
 sub new {
   my $self = shift;
-  my $f = $self->SUPER::new(@_)->inContext($self->context);
+  my $f = $self->SUPER::new(@_);
   foreach my $id ('open','close') {$f->{$id} = $f->{tree}{$id}}
   return $f;
 }
@@ -24,7 +24,7 @@ sub new {
 #  Create a new Formula with no string
 #    (we'll fill in its tree by hand)
 #
-sub blank {shift->SUPER::new('')->inContext(@_)}
+sub blank {shift->SUPER::new(@_)}
 
 #
 #  with() changes tree element as well
@@ -152,7 +152,7 @@ sub twiddle {shift->call('conj',@_)}
 #
 sub compare {
   my ($l,$r) = @_; my $self = $l;
-  $r = $self->Package("Formula")->new($r)->inContext($self->context) unless Value::isFormula($r);
+  $r = $self->Package("Formula")->new($self->context,$r) unless Value::isFormula($r);
   Value::Error("Functions from different contexts can't be compared")
     unless $l->{context} == $r->{context};
 
@@ -293,8 +293,8 @@ sub createRandomPoints {
     @P = (); $i = 0;
     foreach my $limit (@limits) {
       @p = (); foreach my $I (@{$limit})
-        {push @p, $self->Package("Real")->make($self->$getRandom(@{$I}))->inContext($context)}
-      push @P, $make[$i++]->make(@p); #->inContext($context);
+        {push @p, $self->Package("Real")->make($context,$self->$getRandom(@{$I}))}
+      push @P, $make[$i++]->make($context,@p);
     }
     $v = eval {&$f(@P,@zeros)};
     if (!defined($v)) {
@@ -388,7 +388,7 @@ sub getVariableTypes {
 #
 #  Fake object for making reals (rather than use overhead of Value::Real)
 #
-sub Value::Formula::number::make {shift; shift->value}
+sub Value::Formula::number::make {shift; shift; shift->value}
 
 #
 #  Find adaptive parameters, if any

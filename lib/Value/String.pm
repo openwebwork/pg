@@ -11,7 +11,7 @@ our @ISA = qw(Value);
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my $context = $self->context;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $x = join('',@_);
   my $s = bless {data => [$x], context => $context}, $class;
   if ($Parser::installed && !($x eq '' && $self->getFlag('allowEmptyStrings'))) {

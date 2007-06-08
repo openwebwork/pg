@@ -18,9 +18,9 @@ our @ISA = qw(Value);
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my %context = (context => $self->context);
-  my $M = shift; $M = Value::makeValue($M,%context) if !ref($M) && scalar(@_) == 0;
-  return bless {data => $M->data, %context}, $class
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
+  my $M = shift; $M = Value::makeValue($M,context=>$context) if !ref($M) && scalar(@_) == 0;
+  return bless {data => $M->data, context=>$context}, $class
     if (Value::class($M) =~ m/Point|Vector|Matrix/ && scalar(@_) == 0);
   return $M if (Value::isFormula($M) && $M->type eq Value::class($self));
   $M = [$M,@_] if (ref($M) ne 'ARRAY' || scalar(@_) > 0);
@@ -300,9 +300,9 @@ sub I {
   my @M = (); my @Z = split('',0 x $d);
   foreach my $i (0..$d-1) {
     my @row = @Z; $row[$i] = 1;
-    push(@M,$self->make(@row)->inContext($context));
+    push(@M,$self->make($context,@row));
   }
-  return $self->make(@M)->inContext($context);
+  return $self->make($context,@M);
 }
 
 #

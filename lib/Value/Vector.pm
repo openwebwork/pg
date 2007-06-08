@@ -17,9 +17,9 @@ our @ISA = qw(Value);
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my %context = (context => $self->context);
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $p = shift; $p = [$p,@_] if (scalar(@_) > 0);
-  $p = Value::makeValue($p,%context) if (defined($p) && !ref($p));
+  $p = Value::makeValue($p,context=>$context) if (defined($p) && !ref($p));
   return $p if (Value::isFormula($p) && $p->type eq Value::class($self));
   my $pclass = Value::class($p); my $isFormula = 0;
   my @d; @d = $p->dimensions if $pclass eq 'Matrix';
@@ -31,7 +31,7 @@ sub new {
     $p = [$p] if (defined($p) && ref($p) ne 'ARRAY');
     Value::Error("Vectors must have at least one coordinate") unless defined($p) && scalar(@{$p}) > 0;
     foreach my $x (@{$p}) {
-      $x = Value::makeValue($x,%context);
+      $x = Value::makeValue($x,context=>$context);
       $isFormula = 1 if Value::isFormula($x);
       Value::Error("Coordinate of Vector can't be %s",Value::showClass($x))
         unless Value::isNumber($x);
@@ -45,7 +45,7 @@ sub new {
     }
     return $v;
   }
-  my $v = bless {data => $p, %context}, $class;
+  my $v = bless {data => $p, context => $context}, $class;
   $v->{ColumnVector} = 1 if ref($self) && $self->{ColumnVector};
   return $v;
 }
@@ -192,8 +192,8 @@ sub isParallel {
     #
     #  make sure we use fuzzy math
     #
-    $u[$i] = Value::Real->new($u[$i])->inContext($context) unless Value::isReal($u[$i]);
-    $v[$i] = Value::Real->new($v[$i])->inContext($context) unless Value::isReal($v[$i]);
+    $u[$i] = Value::Real->new($context,$u[$i]) unless Value::isReal($u[$i]);
+    $v[$i] = Value::Real->new($context,$v[$i]) unless Value::isReal($v[$i]);
     if ($k ne '') {
       return 0 if ($v[$i] != $k*$u[$i]);
     } else {

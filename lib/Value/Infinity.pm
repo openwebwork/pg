@@ -11,11 +11,12 @@ our @ISA = qw(Value);
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   Value::Error("Infinity should have no parameters") if scalar(@_);
   bless {
     data => [$self->getFlag('infiniteWord')],
     isInfinite => 1, isNegative => 0,
-    context => $self->context,
+    context => $context,
   }, $class;
 }
 
@@ -49,7 +50,7 @@ sub promote {
 
 sub neg {
   my $self = shift;
-  my $neg = $self->Package("Infinity")->new()->inContext($self->context);
+  my $neg = $self->Package("Infinity")->new($self->context);
   $neg->{isNegative} = !$self->{isNegative};
   $neg->{data}[0] = '-'.$neg->{data}[0] if $neg->{isNegative};
   return $neg;

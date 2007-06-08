@@ -14,14 +14,14 @@ our @ISA = qw(Value);
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my %context = (context => $self->context);
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $p = shift; my $isFormula = 0;
   my $isSingleton = (scalar(@_) == 0 && !(Value::isValue($p) && $p->class eq 'List'));
   $p = $p->data if (Value::isValue($p) && $p->class eq 'List' && scalar(@_) == 0);
   $p = [$p,@_] if (ref($p) ne 'ARRAY' || scalar(@_) > 0);
   my $type;
   foreach my $x (@{$p}) {
-    $x = Value::makeValue($x,%context) unless ref($x);
+    $x = Value::makeValue($x,context=>$context) unless ref($x);
     $isFormula = 1 if Value::isFormula($x);
     if (Value::isValue($x)) {
       if (!$type) {$type = $x->type}
@@ -30,7 +30,7 @@ sub new {
   }
   return $p->[0] if ($isSingleton && $type eq 'List' && !$p->[0]{open});
   return $self->formula($p) if $isFormula;
-  bless {data => $p, type => $type, %context}, $class;
+  bless {data => $p, type => $type, context=>$context}, $class;
 }
 
 #

@@ -258,6 +258,7 @@ sub matchNumber   {my $n = shift; $n =~ m/^$$context->{pattern}{signedNumber}$/i
 sub matchInfinite {my $n = shift; $n =~ m/^$$context->{pattern}{infinite}$/i}
 sub isReal    {class(shift) eq 'Real'}
 sub isComplex {class(shift) eq 'Complex'}
+sub isContext {class(shift) eq 'Context'}
 sub isFormula {
   my $v = shift;
   return class($v) eq 'Formula' ||
@@ -328,19 +329,19 @@ sub makeValue {
   my %params = (showError => 0, makeFormula => 1, context => $$Value::context, @_);
   my $context = $params{context};
   return $x if ref($x) && ref($x) ne 'ARRAY';
-  return Value->Package("Real",$context)->make($x)->inContext($context) if matchNumber($x);
+  return Value->Package("Real",$context)->make($context,$x) if matchNumber($x);
   if (matchInfinite($x)) {
-    my $I = Value->Package("Infinity",$context)->new()->inContext($context);
+    my $I = Value->Package("Infinity",$context)->new($context);
     $I = $I->neg if $x =~ m/^$context->{pattern}{-infinity}$/;
     return $I;
   }
-  return Value->Package("String",$context)->make($x)->inContext($context)
+  return Value->Package("String",$context)->make($context,$x)
     if !$Parser::installed || $context->{strings}{$x} ||
        ($x eq '' && $context->{flags}{allowEmptyStrings});
   return $x if !$params{makeFormula};
   Value::Error("String constant '%s' is not defined in this context",$x)
     if $params{showError};
-  $x = Value->Package("Formula",$context)->new($x)->inContext($context);
+  $x = Value->Package("Formula",$context)->new($context,$x);
   $x = $x->eval if $x->isConstant;
   return $x;
 }
@@ -453,7 +454,7 @@ sub getValueType {
     $equation->Error(["Can't convert %s to a constant",Value::showClass($value)]);
   } else {
     $type = Value->Package($type,$equation->{context});
-    $value = $type->new(@{$value})->inContext($equation->{context});
+    $value = $type->new($equation->{context},@{$value});
     $type = $value->typeRef;
   }
   return ($value,$type);
@@ -485,12 +486,13 @@ sub toFormula {
 #
 sub formula {
   my $self = shift; my $values = shift;
+  my $context = $self->context;
   my $class = $self->class;
-  my $list = $$context->lists->get($class);
+  my $list = $context->lists->get($class);
   my $open = $list->{'open'};
   my $close = $list->{'close'};
   my $paren = $open; $paren = 'list' if $class eq 'List';
-  my $formula = $self->Package("Formula")->blank($self->context);
+  my $formula = $self->Package("Formula")->blank($context);
   my @coords = Value::toFormula($formula,@{$values});
   $formula->{tree} = $formula->{context}{parser}{List}->new($formula,[@coords],0,
      $formula->{context}{parens}{$paren},$coords[0]->typeRef,$open,$close);
@@ -505,7 +507,8 @@ sub formula {
 #
 sub make {
   my $self = shift; my $class = ref($self) || $self;
-  bless {data => [@_], context => $self->context}, $class;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
+  bless {data => [@_], context => $context}, $class;
 }
 
 #

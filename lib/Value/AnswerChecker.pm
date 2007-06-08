@@ -1964,6 +1964,7 @@ sub array_OK {
 
 #
 #  Get an array of values from a Matrix, Vector or Point
+#  (this needs to be made more general)
 #
 sub value {
   my $self = shift;

@@ -23,7 +23,7 @@ BEGIN {
 #
 sub new {
   my $self = shift;
-  my $context = Parser::Context->current;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $class = $context->{parser}{Formula};
   my $string = shift;
   $string = Value::List->new($string,@_) if scalar(@_) > 0;
@@ -50,6 +50,8 @@ sub new {
   }
   return $math;
 }
+
+sub context {Parser::Context->current}
 
 sub copy {my $self = shift; $self->new($self)}
 

@@ -14,7 +14,7 @@ our @ISA = qw(Value);
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my $context = $self->context;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $p = shift; $p = [$p,@_] if (scalar(@_) > 0);
   $p = Value::makeValue($p,context=>$context) if (defined($p) && !ref($p));
   return $p if (Value::isFormula($p) && $p->type eq Value::class($self));
@@ -49,8 +49,9 @@ sub new {
 #
 sub make {
   my $self = shift;
-  my $def = $self->context->lists->get('Set');
-  $self = $self->SUPER::make(@_);
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
+  my $def = $context->lists->get('Set');
+  $self = $self->SUPER::make($context,@_);
   $self->{open} = $def->{open}; $self->{close} = $def->{close};
   return $self;
 }
@@ -136,7 +137,7 @@ sub subIntervalSet {
       return @union if $a == $b;
       $I->{open} = '(';
     } elsif ($x < $b) {
-      push(@union,$self->Package("Interval")->make($I->{open},$a,$x,')')->inContext($self->context));
+      push(@union,$self->Package("Interval")->make($self->context,$I->{open},$a,$x,')'));
       $I->{open} = '('; $I->{data}[0] = $x;
     } else {
       $I->{close} = ')' if ($x == $b);

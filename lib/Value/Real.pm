@@ -15,7 +15,7 @@ our @ISA = qw(Value);
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my %context = (context => $self->context);
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $x = shift; $x = [$x,@_] if scalar(@_) > 0;
   return $x if ref($x) eq $pkg;
   $x = [$x] unless ref($x) eq 'ARRAY';
@@ -23,9 +23,9 @@ sub new {
     unless (scalar(@{$x}) == 1);
   if (Value::isRealNumber($x->[0])) {
     return $self->formula($x->[0]) if Value::isFormula($x->[0]);
-    return (bless {data => $x, %context}, $class);
+    return (bless {data => $x, context=>$context}, $class);
   }
-  $x = Value::makeValue($x->[0],%context);
+  $x = Value::makeValue($x->[0],context=>$context);
   return $x if Value::isRealNumber($x);
   Value::Error("Can't convert %s to %s",Value::showClass($x),Value::showClass($self));
 }
@@ -35,7 +35,8 @@ sub new {
 #
 sub make {
   my $self = shift;
-  return $self->SUPER::make(@_) unless $_[0] eq "nan";
+  my $n = (Value::isContext($_[0]) ? $_[1] : $_[0]);
+  return $self->SUPER::make(@_) unless $n eq "nan";
   Value::Error("Result is not a real number");
 }
 
@@ -44,7 +45,7 @@ sub make {
 #
 sub formula {
   my $self = shift; my $value = shift;
-  $self->Package("Formula")->new($value)->inContext($self->context);
+  $self->Package("Formula")->new($self->context,$value);
 }
 
 #

@@ -13,9 +13,9 @@ our @ISA = qw(Value);
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my %context = (context => $self->context);
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   if (scalar(@_) == 1 && !ref($_[0])) {
-    my $x = Value::makeValue($_[0],%context);
+    my $x = Value::makeValue($_[0],context=>$context);
     if (Value::isFormula($x)) {
       return $x if $x->type =~ m/Interval|Union|Set/;
       Value::Error("Formula does not return an Interval, Set or Union");
@@ -25,7 +25,7 @@ sub new {
   }
   my @intervals = (); my $isFormula = 0;
   foreach my $xx (@_) {
-    next if $xx eq ''; my $x = Value::makeValue($xx,%context);
+    next if $xx eq ''; my $x = Value::makeValue($xx,context=>$context);
     if ($x->isFormula) {
       $x->{tree}->typeRef->{name} = 'Interval'
 	if ($x->type =~ m/Point|List/ && $x->length == 2 &&
@@ -56,8 +56,8 @@ sub new {
 sub form {
   my $context = shift;
   return $_[0] if scalar(@_) == 1;
-  return Value->Package("Set",$context)->new()->inContext($context) if scalar(@_) == 0;
-  my $union = $pkg->make(@_)->inContext($context);
+  return Value->Package("Set",$context)->new($context) if scalar(@_) == 0;
+  my $union = $pkg->make($context,@_);
   $union = $union->reduce if $union->getFlag('reduceUnions');
   return $union;
 }
@@ -99,7 +99,7 @@ sub promote {
   my $self = shift; my $context = $self->context;
   my $x = (scalar(@_) ? shift : $self);
   $x = Value::makeValue($x,context=>$context);
-  return $self->Package("Set")->new($x,@_)->inContext($context) if scalar(@_) > 0 || Value::isRealNumber($x);
+  return $self->Package("Set")->new($context,$x,@_) if scalar(@_) > 0 || Value::isRealNumber($x);
   return $x if ref($x) eq $pkg;
   $x = $self->Package("Interval")->promote($x) if $x->canBeInUnion;
   return $self->make($x) if Value::isValue($x) && $x->isSetOfReals;
@@ -220,8 +220,8 @@ sub reduce {
   }
   my $context = $self->context;
   push(@union,@intervals);
-  push(@union,$self->Package("Set")->make(@set)->inContext($context)) unless scalar(@set) == 0;
-  return $self->Package("Set")->new()->inContext($context) if scalar(@union) == 0;
+  push(@union,$self->Package("Set")->make($context,@set)) unless scalar(@set) == 0;
+  return $self->Package("Set")->new($context) if scalar(@union) == 0;
   return $union[0] if scalar(@union) == 1;
   return $self->make(@union)->with(isReduced=>1);
 }
