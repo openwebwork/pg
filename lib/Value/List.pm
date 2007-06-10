@@ -49,11 +49,12 @@ sub isZero {0}
 #
 sub promote {
   my $self = shift; my $class = ref($self) || $self;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $x = (scalar(@_) ? shift : $self);
-  return $x if ref($x) eq $class && scalar(@_) == 0;
-  return $self->new($x,@_)
+  return $x->inContext($context) if ref($x) eq $class && scalar(@_) == 0;
+  return $self->new($context,$x,@_)
     if (scalar(@_) > 0 || !Value::isValue($x) || Value::isComplex($x));
-  return $self->make($x->value);
+  return $self->make($context,$x->value);
 }
 
 ############################################

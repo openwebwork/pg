@@ -69,9 +69,11 @@ sub isOne {shift eq "1"}
 #  Return a real if it already is one, otherwise make it one
 #
 sub promote {
-  my $self = shift; my $x = (scalar(@_) ? shift : $self);
-  return $x if (ref($x) eq $pkg && scalar(@_) == 0);
-  return $self->new($x,@_);
+  my $self = shift;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
+  my $x = (scalar(@_) ? shift : $self);
+  return $x->inContext($context) if ref($x) eq $pkg && scalar(@_) == 0;
+  return $self->new($context,$x,@_);
 }
 
 

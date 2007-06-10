@@ -21,7 +21,7 @@ sub _check {
 	if (!$self->{$op}->isSetOfReals) {
 	  if ($self->{$op}->class eq 'Value') {
 	    $self->{$op}{value} =
-	      Value->Package("Interval",$context)->promote($self->{$op}{value})->inContext($context);
+	      Value->Package("Interval",$context)->promote($context,$self->{$op}{value});
 	  } else {
 	    $self->{$op} = bless $self->{$op}, 'Parser::List::Interval';
 	  }

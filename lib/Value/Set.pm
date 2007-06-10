@@ -67,15 +67,16 @@ sub isSetOfReals {1}
 #
 sub promote {
   my $self = shift; my $class = ref($self) || $self;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $x = (scalar(@_) ? shift : $self);
-  $x = Value::makeValue($x,context=>$self->context);
-  return $self->new($x,@_) if scalar(@_) > 0 || Value::isRealNumber($x);
-  return $x if ref($x) eq $class;
-  $x = $self->Package("Interval")->promote($x)->inContext($self->context) if $x->canBeInUnion;
-  return $x if $x->isSetOfReals;
-  return $self->new($x->value)
+  $x = Value::makeValue($x,context=>$context);
+  return $self->new($context,$x,@_) if scalar(@_) > 0 || Value::isRealNumber($x);
+  return $x->inContext($context) if ref($x) eq $class;
+  $x = $self->Package("Interval",$context)->promote($context,$x) if $x->canBeInUnion;
+  return $x->inContext($context) if $x->isSetOfReals;
+  return $self->new($context,$x->value)
     if $x->type eq 'List' && $x->typeRef->{entryType}{name} eq 'Number';
-  Value::Error("Can't convert %s to %s",$x->showClass,$self->showClass);
+  Value::Error("Can't convert %s to %s",Value::showClass($x),Value::showClass($self));
 }
 
 ############################################

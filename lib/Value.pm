@@ -631,7 +631,7 @@ sub promotePrecedence {
 
 sub promote {
   my $self = shift;
-  return $self->new(shift);
+  return $self->new(@_);
 }
 
 sub checkOpOrder {

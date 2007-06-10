@@ -44,10 +44,11 @@ sub isZero {0}
 #
 sub promote {
   my $self = shift;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $x = (scalar(@_) ? shift : $self); $x = [$x,@_] if scalar(@_) > 0;
-  $x = Value::makeValue($x,showError=>1,context=>$self->context);
+  $x = Value::makeValue($x,showError=>1,context=>$context);
   $x = join('',@{$x}) if ref($x) eq 'ARRAY';
-  $x = $self->make($x) unless Value::isValue($x);
+  $x = $self->make($context,$x) unless Value::isValue($x);
   return $x;
 }
 

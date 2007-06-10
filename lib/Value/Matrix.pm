@@ -154,11 +154,12 @@ sub isZero {
 #
 sub promote {
   my $self = shift; my $class = ref($self) || $self;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $x = (scalar(@_) ? shift : $self);
-  return $self->new($x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
-  return $x if ref($x) eq $class;
-  return $self->make(@{$x->data}) if Value::classMatch($x,'Point','Vector');
-  Value::Error("Can't convert %s to %s",Value::showClass($x),$self->showClass);
+  return $self->new($context,$x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
+  return $x->inContext($context) if ref($x) eq $class;
+  return $self->make($context,@{$x->data}) if Value::classMatch($x,'Point','Vector');
+  Value::Error("Can't convert %s to %s",Value::showClass($x),Value::showClass($self));
 }
 
 ############################################

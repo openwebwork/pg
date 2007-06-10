@@ -133,14 +133,15 @@ sub length {
 #
 sub promote {
   my $self = shift; my $x = (scalar(@_) ? shift : $self);
-  $x = Value::makeValue($x,context=>$self->context);
-  return $self->new($x,@_) if scalar(@_) > 0;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
+  $x = Value::makeValue($x,context=>$context);
+  return $self->new($context,$x,@_) if scalar(@_) > 0;
   return $x if $x->isSetOfReals;
-  return $self->Package("Set")->new($self->context,$x) if Value::isReal($x);
+  return $self->Package("Set")->new($context,$x) if Value::isReal($x);
   my $open  = $x->{open};  $open  = '(' unless defined($open);
   my $close = $x->{close}; $close = ')' unless defined($close);
-  return $self->new($open,$x->value,$close) if $x->canBeInUnion;
-  Value::Error("Can't convert %s to %s",$x->showClass,$self->showClass);
+  return $self->new($context,$open,$x->value,$close) if $x->canBeInUnion;
+  Value::Error("Can't convert %s to %s",Value::showClass($x),Value::showClass($self));
 }
 
 ############################################

@@ -21,7 +21,7 @@ sub _check {
 #
 sub _eval {
   my $self = shift; my $context = $self->context; my $name = $self->{name};
-  my $c = Value->Package("Complex",$context)->promote($_[0])->inContext($context);
+  my $c = Value->Package("Complex",$context)->promote($context,$_[0]);
   $c->$name;
 }
 
@@ -34,7 +34,7 @@ sub _call {
   my $self = shift; my $context = $self->context; my $name = shift;
   Value::Error("Function '%s' has too many inputs",$name) if scalar(@_) > 1;
   Value::Error("Function '%s' has too few inputs",$name) if scalar(@_) == 0;
-  my $c = Value->Package("Complex",$context)->promote($_[0])->inContext($context);
+  my $c = Value->Package("Complex",$context)->promote($context,$_[0]);
   $c->$name;
 }
 
@@ -56,7 +56,7 @@ our @ISA = qw(Parser::Function::numeric);
 sub sqrt {
   my $self = shift; my $context = $self->context;
   my $x = Value::makeValue(shift,context=>$context);
-  $x = Value->Package("Complex",$context)->promote($x)->inContext($context)
+  $x = Value->Package("Complex",$context)->promote($context,$x)
     if $x->value < 0 && $self->{def}{negativeIsComplex};
   $x->sqrt;
 }
@@ -64,7 +64,7 @@ sub sqrt {
 sub log {
   my $self = shift; my $context = $self->context;
   my $x = Value::makeValue(shift,$context);
-  $x = Value->Package("Complex",$context)->promote($x)->inContext($context)
+  $x = Value->Package("Complex",$context)->promote($context,$x)
     if $x->value < 0 && $self->{def}{negativeIsComplex};
   $x->log;
 }
@@ -81,7 +81,7 @@ our @ISA = qw(Parser::BOP::power Parser::BOP);
 sub _eval {
   my $self = shift; my $context = $self->context;
   my $a = Value::makeValue(shift,context=>$context); my $b = shift;
-  $a = Value->Package("Complex",$context)->promote($a)->inContext($context)
+  $a = Value->Package("Complex",$context)->promote($context,$a)
     if Value::isReal($a) && $a->value < 0 && $self->{def}{negativeIsComplex};
   return $a ** $b;
 }

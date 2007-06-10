@@ -37,9 +37,11 @@ sub isOne {0}
 #
 sub promote {
   my $self = shift; my $class = ref($self) || $self;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $x = (scalar(@_) ? shift : $self); $x = [$x,@_] if scalar(@_) > 0;
-  $x = Value::makeValue($x,context=>$self->context);
-  return $x if ref($x) eq $class || ref($x) eq $pkg || Value::isReal($x);
+  $x = Value::makeValue($x,context=>$context);
+  return $x->inContext($context)
+    if ref($x) eq $class || ref($x) eq $pkg || Value::isReal($x);
   Value::Error("Can't convert '%s' to %s",$x,$self->showClass);
 }
 

@@ -96,13 +96,14 @@ sub recursiveUnion {
 #  Try to promote arbitrary data to a set
 #
 sub promote {
-  my $self = shift; my $context = $self->context;
+  my $self = shift;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $x = (scalar(@_) ? shift : $self);
   $x = Value::makeValue($x,context=>$context);
-  return $self->Package("Set")->new($context,$x,@_) if scalar(@_) > 0 || Value::isRealNumber($x);
-  return $x if ref($x) eq $pkg;
-  $x = $self->Package("Interval")->promote($x) if $x->canBeInUnion;
-  return $self->make($x) if Value::isValue($x) && $x->isSetOfReals;
+  return $self->Package("Set",$context)->new($context,$x,@_) if scalar(@_) > 0 || Value::isRealNumber($x);
+  return $x->inContext($context) if ref($x) eq $pkg;
+  $x = $self->Package("Interval",$context)->promote($context,$x) if $x->canBeInUnion;
+  return $self->make($context,$x) if Value::isValue($x) && $x->isSetOfReals;
   Value::Error("Can't convert %s to an Interval, Set or Union",Value::showClass($x));
 }
 

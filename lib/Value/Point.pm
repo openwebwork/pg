@@ -47,10 +47,11 @@ sub new {
 #
 sub promote {
   my $self = shift; my $class = ref($self) || $self;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $x = (scalar(@_) ? shift: $self);
-  return $self->new($x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
-  return $x if ref($x) eq $class;
-  Value::Error("Can't convert %s to %s",Value::showClass($x),$self->showClass);
+  return $self->new($context,$x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
+  return $x->inContext($context) if ref($x) eq $class;
+  Value::Error("Can't convert %s to %s",Value::showClass($x),Value::showClass($self));
 }
 
 ############################################
@@ -117,7 +118,7 @@ sub power {
 #
 sub cross {
   my ($l,$r,$flag) = @_;
-  $l = $l->Package("Vector")->promote($l)->inContext($l->context);
+  $l = $l->Package("Vector")->promote($l->context,$l);
   $l->cross($r,$flag);
 }
 

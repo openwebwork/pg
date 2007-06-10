@@ -17,7 +17,7 @@ sub _check {(shift)->checkVector(@_)}
 #
 sub _eval {
   my $self = shift; my $context = $self->context; my $name = $self->{name};
-  my $v = Value->Package("Vector",$context)->promote($_[0])->inContext($context);
+  my $v = Value->Package("Vector",$context)->promote($context,$_[0]);
   $v->$name;
 }
 
@@ -30,7 +30,7 @@ sub _call {
   my $self = shift; my $context = $self->context; my $name = shift;
   Value::Error("Function '%s' has too many inputs",$name) if scalar(@_) > 1;
   Value::Error("Function '%s' has too few inputs",$name) if scalar(@_) == 0;
-  my $v = Value->Package("Vector",$context)->promote($_[0])->inContext($context);
+  my $v = Value->Package("Vector",$context)->promote($context,$_[0]);
   $v->$name;
 }
 
