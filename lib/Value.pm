@@ -232,7 +232,7 @@ sub getFlag {
 sub context {
   my $self = shift; my $context = shift;
   if (ref($self) && ref($self) ne 'ARRAY') {
-    if ($context && $self->{context} ne $context) {
+    if ($context && $self->{context} != $context) {
       $self->{context} = $context;
       if (defined $self->{data}) {
         foreach my $x (@{$self->{data}}) {$x->context($context) if ref($x)}
