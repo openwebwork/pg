@@ -1,15 +1,9 @@
-#
-# add/remove/get reduction flags
-# make patterns into real patterns, not strings
-#
-
 #########################################################################
 
 package Parser::Context;
 my $pkg = "Parser::Context";
 use strict;
-use vars qw(@ISA);
-@ISA = qw(Value::Context);
+our @ISA = qw(Value::Context);
 
 #
 #  Create a new Context object and initialize its data lists
@@ -170,13 +164,15 @@ sub usePrecedence {
 #  Load the subclasses.
 #
 
-use Parser::Context::Constants;
-use Parser::Context::Functions;
-use Parser::Context::Operators;
-use Parser::Context::Parens;
-use Parser::Context::Strings;
-use Parser::Context::Variables;
-use Parser::Context::Reduction;
+END {
+  use Parser::Context::Constants;
+  use Parser::Context::Functions;
+  use Parser::Context::Operators;
+  use Parser::Context::Parens;
+  use Parser::Context::Strings;
+  use Parser::Context::Variables;
+  use Parser::Context::Reduction;
+}
 
 #########################################################################
 

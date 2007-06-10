@@ -4,8 +4,8 @@
 #    (Used for things like INFINITY, and so on)
 #
 package Parser::String;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::Item);
+use strict;
+our @ISA = qw(Parser::Item);
 
 $Parser::class->{String} = 'Parser::String';
 
@@ -14,15 +14,14 @@ $Parser::class->{String} = 'Parser::String';
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my $equation = shift;
+  my $equation = shift; my $strings = $equation->{context}{strings};
   my ($value, $ref) = @_;
-  my $def = $equation->{context}{strings}{$value};
+  my $def = $strings->{$value};
   unless ($def) {
-    $def = $equation->{context}{strings}{uc($value)};
+    $def = $strings->{uc($value)};
     $def = {} if $def->{caseSensitive} && $value ne uc($value);
   }
-  $value = $def->{alias}, $def = $equation->{context}{strings}{$value}
-    while defined($def->{alias});
+  $value = $def->{alias}, $def = $strings->{$value} while defined($def->{alias});
   my $str = bless {
     value => $value, type => $Value::Type{string}, isConstant => 1,
     def => $def, ref => $ref, equation => $equation,
@@ -45,9 +44,9 @@ sub newInfinity {
 #  Make a Value::String or Value::Infinity object
 #
 sub eval {
-  my $self = shift;
-  return Value::String->make($self->{value}) unless $self->{isInfinite};
-  my $I = Value::Infinity->new();
+  my $self = shift; my $context = $self->context;
+  return Value->Package("String",$context)->make($context,$self->{value}) unless $self->{isInfinite};
+  my $I = Value->Package("Infinity",$context)->new($context);
   $I = $I->neg if $self->{isNegativeInfinity};
   return $I;
 }
@@ -89,4 +88,3 @@ sub perl {
 #########################################################################
 
 1;
-

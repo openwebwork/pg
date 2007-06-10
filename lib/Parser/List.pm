@@ -3,8 +3,8 @@
 #  Implements base List class.
 #
 package Parser::List;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::Item);
+use strict;
+our @ISA = qw(Parser::Item);
 
 $Parser::class->{List} = 'Parser::List';
 
@@ -93,9 +93,9 @@ sub eval {
 #  (Can be over-written by sub-classes)
 #
 sub _eval {
-  my $self = shift;
-  my $type = 'Value::'.$self->type;
-  my $value = $type->new(@_);
+  my $self = shift; my $context = $self->context;
+  my $type = Value->Package($self->type,$context);
+  my $value = $type->new($context,@_);
   $value->{open} = $self->{open}; $value->{close} = $self->{close};
   return $value;
 }
@@ -223,7 +223,7 @@ sub perl {
   my $self = shift; my $parens = shift; my $matrix = shift;
   my $perl; my @p = ();
   foreach my $x (@{$self->{coords}}) {push(@p,$x->perl)}
-  $perl = 'new Value::'.$self->type.'('.join(',',@p).')';
+  $perl = Value->Package($self->type,$self->context).'->new('.join(',',@p).')';
   $perl = "(${perl})->with(open=>'$self->{open}',close=>'$self->{close}')"
     if $self->canBeInUnion ||
       ($self->type eq 'List' && $self->{open}.$self->{close} ne '()');
@@ -236,13 +236,15 @@ sub perl {
 #  Load the subclasses.
 #
 
-use Parser::List::Point;
-use Parser::List::Vector;
-use Parser::List::Matrix;
-use Parser::List::List;
-use Parser::List::Interval;
-use Parser::List::Set;
-use Parser::List::AbsoluteValue;
+END {
+  use Parser::List::Point;
+  use Parser::List::Vector;
+  use Parser::List::Matrix;
+  use Parser::List::List;
+  use Parser::List::Interval;
+  use Parser::List::Set;
+  use Parser::List::AbsoluteValue;
+}
 
 #########################################################################
 

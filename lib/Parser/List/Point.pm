@@ -3,8 +3,8 @@
 #  Implements the Point class
 #
 package Parser::List::Point;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::List);
+use strict;
+our @ISA = qw(Parser::List);
 
 #
 #  The basic List class does most of the checking.

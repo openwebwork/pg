@@ -3,8 +3,8 @@
 #  Implements the Set class
 #
 package Parser::List::Set;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::List);
+use strict;
+our @ISA = qw(Parser::List);
 
 #
 #  Check that the entries are numbers.
@@ -22,4 +22,3 @@ sub canBeInUnion {1}
 #########################################################################
 
 1;
-

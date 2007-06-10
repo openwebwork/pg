@@ -25,12 +25,12 @@ sub _eval {
 #  Check the arguments and return the (real or complex) result.
 #
 sub _call {
-  my $self = shift; my $name = shift;
+  my $self = shift; my $context = $self->context; my $name = shift;
   Value::Error("Function '%s' has too many inputs",$name) if scalar(@_) > 1;
   Value::Error("Function '%s' has too few inputs",$name) if scalar(@_) == 0;
   my $n = $_[0];
   return $self->$name($n) if Value::matchNumber($n);
-  (Value::Complex->promote($n))->$name;
+  (Value->Package("Complex",$context)->promote($n)->inContext($context))->$name;
 }
 
 #
@@ -46,9 +46,7 @@ sub int   {shift; CORE::int($_[0])}
 sub sgn   {shift; $_[0] <=> 0}
 
 sub log   {
-  my $self = shift; my $context;
-  $context = $self->{context} if ref($self);
-  $context = $$Value::context unless $context;
+  my $self = shift; my $context = $self->context;
   return CORE::log($_[0])/CORE::log(10) if $context->flag('useBaseTenLog');
   CORE::log($_[0]);
 }
@@ -63,7 +61,7 @@ sub string {
 }
 #
 #  Handle absolute values as special case.
-#  
+#
 sub TeX {
   my $self = shift; my $def = $self->{def};
   return '\left|'.$self->{params}[0]->TeX.'\right|' if $self->{name} eq 'abs';
@@ -73,9 +71,7 @@ sub TeX {
 #  Handle log (and useBaseTenLog) as a special case
 #
 sub perl {
-  my $self = shift; my $context;
-  $context = $self->{context} if ref($self);
-  $context = $$Value::context unless $context;
+  my $self = shift; my $context = $self->context;
   return $self->SUPER::perl
     unless $self->{name} eq 'log' && $context->flag('useBaseTenLog');
   '(log('.$self->{params}[0]->perl.')/log(10))';

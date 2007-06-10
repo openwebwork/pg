@@ -3,8 +3,8 @@
 #  Implements named constants (e, pi, etc.)
 #
 package Parser::Constant;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::Item);
+use strict;
+our @ISA = qw(Parser::Item);
 
 $Parser::class->{Constant} = 'Parser::Constant';
 
@@ -33,15 +33,19 @@ sub new {
 #     effect for the main equation).
 #
 sub eval {
-  my $self = shift; my $data = $self->{def}{value};
+  my $self = shift; my $context = $self->context;
+  my $data = $self->{def}{value};
   if (Value::isFormula($data)) {
     $data->{values} = $self->{equation}{values};
     my $value = $data->{tree}->eval;
     $data->{values} = {};
-    return $value;
+    return $value->inContext($self->context);
+  } elsif (ref($data) eq 'ARRAY') {
+    foreach my $x (@{$data}) {$x->inContext($context)}
+    return @{$data};
+  } else {
+    return $data->inContext($context);
   }
-  return $data unless ref($data) eq 'ARRAY';
-  return @{$data};
 }
 
 #

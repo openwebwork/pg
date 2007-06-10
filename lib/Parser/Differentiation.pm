@@ -2,9 +2,9 @@
 #  Extend differentiation to multiple variables
 #  Check differentiation for complex functions
 #  Do derivatives for norm and unit.
-#  
+#
 #  Make shortcuts for getting numbers 1, 2, and sqrt, etc.
-#  
+#
 
 ##################################################
 #
@@ -709,4 +709,3 @@ our $loaded = 1;
 #########################################################################
 
 1;
-

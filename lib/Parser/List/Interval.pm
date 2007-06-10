@@ -3,8 +3,8 @@
 #  Implements the Interval class
 #
 package Parser::List::Interval;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::List);
+use strict;
+our @ISA = qw(Parser::List);
 
 #
 #  Check that the number of endpoints is OK
@@ -32,9 +32,9 @@ sub canBeInUnion {1}
 #  Use the Value.pm class to produce the result
 #
 sub _eval {
-  my $self = shift;
-  my $type = 'Value::'.$self->type;
-  return $type->new($self->{open},@_,$self->{close});
+  my $self = shift; my $context = $self->context;
+  my $type = Value->Package($self->type,$context);
+  return $type->new($context,$self->{open},@_,$self->{close});
 }
 
 #
@@ -44,7 +44,8 @@ sub perl {
   my $self = shift; my $parens = shift;
   my $perl; my @p = ();
   foreach my $x (@{$self->{coords}}) {push(@p,$x->perl)}
-  $perl = 'new Value::'.$self->type.'('.join(',',"'".$self->{open}."'",@p,"'".$self->{close}."'").')';
+  $perl = Value->Package($self->type,$self->context).'->new('.
+    join(',',"'".$self->{open}."'",@p,"'".$self->{close}."'").')';
   $perl = '('.$perl.')' if $parens;
   return $perl;
 }
@@ -52,4 +53,3 @@ sub perl {
 #########################################################################
 
 1;
-

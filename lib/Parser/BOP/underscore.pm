@@ -3,8 +3,8 @@
 #  Implement vector and matrix element extraction.
 #
 package Parser::BOP::underscore;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::BOP);
+use strict;
+our @ISA = qw(Parser::BOP);
 
 #
 #  Check that the operand types are OK
@@ -26,12 +26,13 @@ sub _check {
 #  Perform the extraction.
 #
 sub _eval {
-  shift; my $M = shift; my $i = shift;
+  my $self = shift; my $context = $self->context;
+  my $M = shift; my $i = shift;
   $i = $i->data if Value::isValue($i);
   $i = [$i] unless ref($i) eq 'ARRAY';
   my $n = $M->extract(@{$i});
   return $n if ref($n);
-  return Value::List->new() if $n eq '';
+  return Value->Package("List",$context)->new($context) if $n eq '';
   return $n;
 }
 
@@ -41,11 +42,12 @@ sub _eval {
 #    if we run past the end of the coordinates.  Return
 #    a simpler extraction if a portion of the extraction
 #    can be performed.
-#    
+#
 sub _reduce {
   my $self = shift; my $equation = $self->{equation};
-  my $reduce = $equation->{context}{reduction};
-  my $parser = $equation->{context}{parser};
+  my $context = $self->context;
+  my $reduce = $context->{reduction};
+  my $parser = $context->{parser};
   return $self unless $self->{rop}->{isConstant} && $self->{lop}{coords} && $reduce->{'V_n'};
   my $index = $self->{rop}->eval; my $M = $self->{lop};
   $index = $index->data if Value::isValue($index);
@@ -53,7 +55,7 @@ sub _reduce {
   my @index = @{$index};
   while (scalar(@index) > 0) {
     unless ($M->{coords}) {
-      return $parser->{Value}->new($equation,Value::List->new())
+      return $parser->{Value}->new($equation,Value->Package("List",$context)->new($context))
         unless $M->type =~ m/Point|Vector|Matrix|List/;
       return $parser->{BOP}->new($equation,$self->{bop},
           $M,$parser->{Value}->new($equation,@index))
@@ -62,7 +64,7 @@ sub _reduce {
     $self->Error("Can't extract element number '%s' (index must be an integer)",$i)
       unless $i =~ m/^-?\d+$/;
     $M = $M->{coords}[$i];
-    return $parser->{Value}->new($equation,Value::List->new()) unless $M;
+    return $parser->{Value}->new($equation,Value->Package("List",$context)->new($context)) unless $M;
   }
   return $M;
 }
@@ -105,4 +107,3 @@ sub perl {
 #########################################################################
 
 1;
-

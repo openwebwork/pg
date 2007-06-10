@@ -3,8 +3,8 @@
 #  Implements exponentiation
 #
 package Parser::BOP::power;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::BOP);
+use strict;
+our @ISA = qw(Parser::BOP);
 
 #
 #  Check that operand types are OK.
@@ -26,11 +26,12 @@ sub _check {
 #  Do perl exponentiation
 #
 sub _eval {
+  my $self = $_[0];
   my $x = $_[1] ** $_[2];
   return $x unless $x eq 'nan';
-  $_[0]->Error("Can't raise a negative number to a power")
-    if Value::isNumber($_[1]) && Value::makeValue($_[1])->value < 0;
-  $_[0]->Error("Result of exponentiation is not a number");
+  $self->Error("Can't raise a negative number to a power")
+    if Value::isNumber($_[1]) && Value::makeValue($_[1],context=>$self->context)->value < 0;
+  $self->Error("Result of exponentiation is not a number");
 }
 
 #
@@ -94,4 +95,3 @@ sub TeX {
 #########################################################################
 
 1;
-

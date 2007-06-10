@@ -3,8 +3,8 @@
 #  Implements the Vector class
 #
 package Parser::List::Vector;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::List);
+use strict;
+our @ISA = qw(Parser::List);
 
 #
 #  The basic List class does nearly everything.
@@ -64,4 +64,3 @@ sub string {
 #########################################################################
 
 1;
-

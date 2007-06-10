@@ -3,8 +3,8 @@
 #  Implements the Matrix class.
 #
 package Parser::List::Matrix;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::List);
+use strict;
+our @ISA = qw(Parser::List);
 
 #
 #  The main checks are all done in the List object.
@@ -52,13 +52,14 @@ sub TeX {
 #  to form reference to array of (references to arrays of ...) entries
 #
 sub perl {
-  my $self = shift; my $parens = shift; my $matrix = shift;
+  my $self = shift; my $context = $self->context;
+  my $parens = shift; my $matrix = shift;
   my $perl; my @p = ();
   foreach my $x (@{$self->{coords}}) {push(@p,$x->perl(0,1))}
   if ($matrix) {
     $perl = '['.join(',',@p).']';
   } else {
-    $perl = 'new Value::'.$self->type.'('.join(',',@p).')';
+    $perl = Value->Package($self->type,$context).'->new('.join(',',@p).')';
     $perl = '('.$perl.')' if $parens;
   }
   return $perl;
@@ -67,4 +68,3 @@ sub perl {
 #########################################################################
 
 1;
-

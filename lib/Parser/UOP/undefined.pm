@@ -7,8 +7,8 @@
 #
 
 package Parser::UOP::undefined;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::UOP);
+use strict;
+our @ISA = qw(Parser::UOP);
 
 sub _check {
   my $self = shift;
@@ -19,4 +19,3 @@ sub _check {
 #########################################################################
 
 1;
-

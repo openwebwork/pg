@@ -2,7 +2,7 @@
 #
 #  Implements the basic parse tree node.  Subclasses of this class
 #  are things like binary operator, function call, and so on.
-#  
+#
 package Parser::Item;
 use strict;
 
@@ -14,6 +14,11 @@ sub class {
   $self =~ s/[^:]*:://; $self =~ s/::.*//;
   return $self;
 }
+
+#
+#  Get the equation context
+#
+sub context {return shift->{equation}{context}}
 
 #
 #  Get various type information
@@ -124,18 +129,19 @@ sub Error {
 #  Load the subclasses.
 #
 
-use Parser::BOP;
-use Parser::UOP;
-use Parser::List;
-use Parser::Function;
-use Parser::Variable;
-use Parser::Constant;
-use Parser::Value;
-use Parser::Number;
-use Parser::Complex;
-use Parser::String;
+END {
+  use Parser::BOP;
+  use Parser::UOP;
+  use Parser::List;
+  use Parser::Function;
+  use Parser::Variable;
+  use Parser::Constant;
+  use Parser::Value;
+  use Parser::Number;
+  use Parser::Complex;
+  use Parser::String;
+}
 
 #########################################################################
 
 1;
-

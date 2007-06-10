@@ -3,8 +3,8 @@
 #  Implements equality
 #
 package Parser::BOP::equality;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::BOP);
+use strict;
+our @ISA = qw(Parser::BOP);
 
 #
 #  Check that the operand types are numbers.
@@ -21,9 +21,10 @@ sub _check {
 #  Determine if the two sides are equal (use fuzzy reals)
 #
 sub _eval {
-  my $self = shift; my ($a,$b) = @_;
-  $a = Value::makeValue($a) unless ref($a);
-  $b = Value::makeValue($b) unless ref($b);
+  my $self = shift; my %context = (context => $self->context);
+  my ($a,$b) = @_;
+  $a = Value::makeValue($a,%context) unless ref($a);
+  $b = Value::makeValue($b,%context) unless ref($b);
   return ($a == $b)? 1 : 0;
 }
 
@@ -97,7 +98,7 @@ sub TeX {
 #  Add/Remove the equality operator to/from a context
 #
 sub Allow {
-  my $self = shift; my $context = shift || $$Value::context;
+  my $self = shift; my $context = self->context;
   my $allow = shift; $allow = 1 unless defined($allow);
   if ($allow) {
     my $prec = $context->{operators}{','}{precedence};

@@ -20,8 +20,8 @@ sub _check {
 #  Evaluate by calling the appropriate routine from Value.pm.
 #
 sub _eval {
-  my $self = shift; my $name = $self->{name};
-  my $c = Value::Complex->promote($_[0]);
+  my $self = shift; my $context = $self->context; my $name = $self->{name};
+  my $c = Value->Package("Complex",$context)->promote($_[0])->inContext($context);
   $c->$name;
 }
 
@@ -31,10 +31,10 @@ sub _eval {
 #    and then call the appropriate routine from Value.pm.
 #
 sub _call {
-  my $self = shift; my $name = shift;
+  my $self = shift; my $context = $self->context; my $name = shift;
   Value::Error("Function '%s' has too many inputs",$name) if scalar(@_) > 1;
   Value::Error("Function '%s' has too few inputs",$name) if scalar(@_) == 0;
-  my $c = Value::Complex->promote($_[0]);
+  my $c = Value->Package("Complex",$context)->promote($_[0])->inContext($context);
   $c->$name;
 }
 
@@ -54,14 +54,18 @@ use strict;
 our @ISA = qw(Parser::Function::numeric);
 
 sub sqrt {
-  my $self = shift; my $x = Value::makeValue(shift);
-  $x = Value::Complex->promote($x) if $x->value < 0 && $self->{def}{negativeIsComplex};
+  my $self = shift; my $context = $self->context;
+  my $x = Value::makeValue(shift,context=>$context);
+  $x = Value->Package("Complex",$context)->promote($x)->inContext($context)
+    if $x->value < 0 && $self->{def}{negativeIsComplex};
   $x->sqrt;
 }
 
 sub log {
-  my $self = shift; my $x = Value::makeValue(shift);
-  $x = Value::Complex->promote($x) if $x->value < 0 && $self->{def}{negativeIsComplex};
+  my $self = shift; my $context = $self->context;
+  my $x = Value::makeValue(shift,$context);
+  $x = Value->Package("Complex",$context)->promote($x)->inContext($context)
+    if $x->value < 0 && $self->{def}{negativeIsComplex};
   $x->log;
 }
 
@@ -75,9 +79,9 @@ use strict;
 our @ISA = qw(Parser::BOP::power Parser::BOP);
 
 sub _eval {
-  my $self = shift;
-  my $a = Value::makeValue(shift); my $b = shift;
-  $a = Value::Complex->promote($a)
+  my $self = shift; my $context = $self->context;
+  my $a = Value::makeValue(shift,context=>$context); my $b = shift;
+  $a = Value->Package("Complex",$context)->promote($a)->inContext($context)
     if Value::isReal($a) && $a->value < 0 && $self->{def}{negativeIsComplex};
   return $a ** $b;
 }
@@ -86,4 +90,3 @@ sub _eval {
 #########################################################################
 
 1;
-

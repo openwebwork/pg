@@ -3,15 +3,15 @@
 #  Implements the Number class
 #
 package Parser::Number;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::Item);
+use strict;
+our @ISA = qw(Parser::Item);
 
 $Parser::class->{Number} = 'Parser::Number';
 
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my $equation = shift; my $num;
-  my ($value,$ref) = @_;
+  my $equation = shift; my $context = $equation->{context};
+  my $num; my ($value,$ref) = @_;
   return $equation->{context}{parser}{Complex}->new($equation,$value,$ref)
     if (ref($value) eq 'ARRAY');
   $value = $value->value while Value::isReal($value);
@@ -21,7 +21,7 @@ sub new {
     type => $Value::Type{number}, isConstant => 1,
     ref => $ref, equation => $equation,
   }, $class;
-  my $x = Value::Real->make($value);
+  my $x = Value->Package("Real",$context)->make($context,$value);
   $num->{isOne}  = 1 if $x eq 1;
   $num->{isZero} = 1 if $value == 0;
   return $num;
@@ -44,12 +44,12 @@ sub eval {(shift)->{value}}
 #    try using that in the reductions of the parent objects.
 #
 sub reduce {
-  my $self = shift;
-  my $reduce = $self->{equation}{context}{reduction};
+  my $self = shift; my $context = $self->context;
+  my $reduce = $context->{reduction};
   if ($reduce->{'-n'} && $self->{value} < 0) {
     $self->{value} = -($self->{value});
     $self = Parser::UOP::Neg($self);
-    $self->{op}{isOne} = 1 if Value::Real->make($self->{op}{value}) eq 1;
+    $self->{op}{isOne} = 1 if Value->Package("Real",$context)->make($context,$self->{op}{value}) eq 1;
   }
   return $self;
 }
@@ -61,12 +61,12 @@ $Parser::reduce->{'-n'} = 1;
 #  Call the Value::Real versions to format numbers
 #
 sub string {
-  my $self = shift;
-  Value::Real->make($self->{value})->string($self->{equation},@_);
+  my $self = shift; my $context = $self->context;
+  Value->Package("Real",$context)->make($context,$self->{value})->string($self->{equation},@_);
 }
 sub TeX {
-  my $self = shift;
-  Value::Real->make($self->{value})->TeX($self->{equation},@_);
+  my $self = shift; my $context = $self->context;
+  Value->Package("Real",$context)->make($context,$self->{value})->TeX($self->{equation},@_);
 }
 sub perl {
   my $self = shift; my $parens = shift;
@@ -92,4 +92,3 @@ sub _NoDecimals {
 #########################################################################
 
 1;
-

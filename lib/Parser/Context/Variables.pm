@@ -4,15 +4,14 @@
 #
 package Parser::Context::Variables;
 use strict;
-use vars qw(@ISA %type);
-@ISA = qw(Value::Context::Data);
+our @ISA = qw(Value::Context::Data);
 
 #
 #  The named types for variables
 #    (you can use arbitary types by supplying an
 #     instance of the type rather than a name)
 #
-%type = (
+our %type = (
   'Real'    => $Value::Type{number},
   'Complex' => $Value::Type{complex},
   'Point2D' => Value::Type('Point',2,$Value::Type{number}),
@@ -90,4 +89,3 @@ sub parameters {
 #########################################################################
 
 1;
-

@@ -4,8 +4,8 @@
 #    (used to store constant Vector values, etc.)
 #
 package Parser::Value;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::Item);
+use strict;
+our @ISA = qw(Parser::Item);
 
 $Parser::class->{Value} = 'Parser::Value';
 
@@ -18,7 +18,8 @@ $Parser::class->{Value} = 'Parser::Value';
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my $equation = shift; my $parser = $equation->{context}{parser};
+  my $equation = shift; my $context = $equation->{context};
+  my $parser = $context->{parser};
   my ($value,$ref) = @_;
   $value = $value->[0] if ref($value) eq 'ARRAY' && scalar(@{$value}) == 1;
   my $type = Value::getType($equation,$value);
@@ -26,11 +27,11 @@ sub new {
   return $parser->{String}->new($equation,$value,$ref) if ($type eq 'String');
   return $parser->{String}->newInfinity($equation,$value,$ref) if ($type eq 'Infinity');
   return $parser->{Number}->new($equation,$value,$ref) if ($type eq 'Number');
-  return $parser->{Number}->new($equation,$value->{data},$ref) 
+  return $parser->{Number}->new($equation,$value->{data},$ref)
     if ($type eq 'value' && $value->class eq 'Complex');
   $equation->Error(["Can't convert %s to a constant",Value::showClass($value)],$ref)
     if ($type eq 'unknown');
-  $type = 'Value::'.$type, $value = $type->new(@{$value}) unless $type eq 'value';
+  $type = Value->Package($type,$context), $value = $type->new($context,@{$value}) unless $type eq 'value';
   $type = $value->typeRef;
 
   my $c = bless {
@@ -110,10 +111,10 @@ sub ijk {(shift)->{value}->ijk}
 #  Convert the value to a Matrix object
 #
 sub makeMatrix {
-  my $self = shift;
+  my $self = shift; my $context = $self->context;
   my ($name,$open,$close) = @_;
   $self->{type}{name} = $name;
-  $self->{value} = Value::Matrix->new($self->{value}->value);
+  $self->{value} = Value->Package("Matrix",$context)->new($context,$self->{value}->value);
 }
 
 #
@@ -124,4 +125,3 @@ sub makeUnion {@{shift->{value}{data}}}
 #########################################################################
 
 1;
-

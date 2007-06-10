@@ -9,7 +9,10 @@ package Parser::Legacy::ObjectWithUnits;
 
 sub name {'object'};
 sub cmp_class {'an Object with Units'};
-sub makeValue {Value::makeValue(shift)}
+sub makeValue {
+  my $self = shift; my $context = (ref($self) ? $self->context : $$Value::context);
+  Value::makeValue(@_,context=>$context);
+}
 
 sub new {
   my $self = shift; my $class = ref($self) || $self;
@@ -166,7 +169,7 @@ sub cmp_class {'a Number with Units'};
 
 sub makeValue {
   my $self = shift;
-  my $num = Value::makeValue(shift);
+  my $num = Value::makeValue(shift,context=>$self->context);
   Value::Error("A number with units must be a constant, not %s",lc(Value::showClass($num)))
     unless Value::isReal($num);
   return $num;
@@ -203,8 +206,8 @@ sub name {'formula'};
 sub cmp_class {'a Formula with Units'};
 
 sub makeValue {
-  my $self = shift;
-  Value::Formula->new(shift);
+  my $self = shift; my $context = $self->context;
+  Value->Package("Formula",$context)->new($context,shift);
 }
 
 sub checkStudentValue {

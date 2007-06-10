@@ -16,8 +16,8 @@ sub _check {(shift)->checkVector(@_)}
 #    and then calling the routine from Value.pm
 #
 sub _eval {
-  my $self = shift; my $name = $self->{name};
-  my $v = Value::Vector->promote($_[0]);
+  my $self = shift; my $context = $self->context; my $name = $self->{name};
+  my $v = Value->Package("Vector",$context)->promote($_[0])->inContext($context);
   $v->$name;
 }
 
@@ -27,14 +27,13 @@ sub _eval {
 #    and call the routine from Value.pm
 #
 sub _call {
-  my $self = shift; my $name = shift;
+  my $self = shift; my $context = $self->context; my $name = shift;
   Value::Error("Function '%s' has too many inputs",$name) if scalar(@_) > 1;
   Value::Error("Function '%s' has too few inputs",$name) if scalar(@_) == 0;
-  my $v = Value::Vector->promote($_[0]);
+  my $v = Value->Package("Vector",$context)->promote($_[0])->inContext($context);
   $v->$name;
 }
 
 #########################################################################
 
 1;
-

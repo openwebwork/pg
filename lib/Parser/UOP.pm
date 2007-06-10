@@ -3,8 +3,8 @@
 #  Implements the base Unary Operator class
 #
 package Parser::UOP;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::Item);
+use strict;
+our @ISA = qw(Parser::Item);
 
 $Parser::class->{UOP} = 'Parser::UOP';
 
@@ -229,12 +229,13 @@ sub perl {
 #  Load the subclasses.
 #
 
-use Parser::UOP::undefined;
-use Parser::UOP::plus;
-use Parser::UOP::minus;
-use Parser::UOP::factorial;
+END {
+  use Parser::UOP::undefined;
+  use Parser::UOP::plus;
+  use Parser::UOP::minus;
+  use Parser::UOP::factorial;
+}
 
 #########################################################################
 
 1;
-

@@ -25,12 +25,12 @@ sub _eval {
 #  Check the arguments and return the (real or complex) result.
 #
 sub _call {
-  my $self = shift; my $name = shift;
+  my $self = shift; my $context = $self->context; my $name = shift;
   Value::Error("Function '%s' has too many inputs",$name) if scalar(@_) > 1;
   Value::Error("Function '%s' has too few inputs",$name) if scalar(@_) == 0;
   my $n = $_[0];
   return $self->$name($n) if Value::matchNumber($n);
-  (Value::Complex->promote($n))->$name;
+  (Value->Package("Complex",$context)->promote($n)->inContext($context))->$name;
 }
 
 #
@@ -54,4 +54,3 @@ sub acoth {shift; CORE::log(($_[0]+1)/($_[0]-1))/2}
 #########################################################################
 
 1;
-

@@ -3,8 +3,8 @@
 #  Implement vector dot product.
 #
 package Parser::BOP::dot;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::BOP);
+use strict;
+our @ISA = qw(Parser::BOP);
 
 #
 #  Check that the operands are vectors of compatible types.
@@ -50,4 +50,3 @@ $Parser::reduce->{'x.(-y)'} = 1;
 #########################################################################
 
 1;
-

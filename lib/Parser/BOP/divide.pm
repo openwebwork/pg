@@ -3,8 +3,8 @@
 #  Implements division
 #
 package Parser::BOP::divide;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::BOP);
+use strict;
+our @ISA = qw(Parser::BOP);
 
 #
 #  Check that operand types are OK.
@@ -75,4 +75,3 @@ sub TeX {
 #########################################################################
 
 1;
-

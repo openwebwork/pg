@@ -26,8 +26,8 @@ sub new {
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $class = $context->{parser}{Formula};
   my $string = shift;
-  $string = Value::List->new($string,@_) if scalar(@_) > 0;
-  $string = Value::List->new($string)->with(open=>'[',close=>']')
+  $string = Value->Package($context,"List")->new($string,@_) if scalar(@_) > 0;
+  $string = Value->Package($context,"List")->new($string)->with(open=>'[',close=>']')
     if ref($string) eq 'ARRAY';
   my $math = bless {
     string => undef,
@@ -35,7 +35,7 @@ sub new {
     variables => {}, values => {},
     context => $context,
   }, $class;
-  if (ref($string) =~ m/^(Parser|Value::Formula)/) {
+  if (Value::isFormula($string)) {
     my $tree = $string; $tree = $tree->{tree} if exists $tree->{tree};
     $math->{tree} = $tree->copy($math);
   } elsif (Value::isValue($string)) {
@@ -572,7 +572,7 @@ sub eval {
     $self->Error(["The value of '%s' can't be a formula",$x])
       if Value::isFormula($self->{values}{$x});
   }
-  my $value = Value::makeValue($self->{tree}->eval);
+  my $value = Value::makeValue($self->{tree}->eval,context=>$self->context);
   $self->unsetValues;
   return $value;
 }
@@ -639,7 +639,7 @@ sub perl {
   my $self = shift;
   $self->setValues(@_);
   my $perl = $self->{tree}->perl;
-  $perl = 'new Value::Real('.$perl.')' if $self->isRealNumber;
+  $perl = Value->Package("Real",$self->context).'->new('.$perl.')' if $self->isRealNumber;
   $self->unsetValues;
   return $perl;
 }
@@ -648,7 +648,7 @@ sub perl {
 #
 #  Produce a perl function
 #
-#  (Parameters specify an optional name and an array reference of 
+#  (Parameters specify an optional name and an array reference of
 #   optional variables. If the name is not included, an anonymous
 #   code reference is returned.  If the variables are not included,
 #   then the variables from the formula are used in sorted order.)
@@ -678,16 +678,17 @@ sub perlFunction {
 #  Sets the values of variables for evaluation purposes
 #
 sub setValues {
-  my $self = shift; my ($value,$type);
+  my $self = shift; my ($value,$type); my $context = $self->context;
   my $variables = $self->{context}{variables};
   $self->{values} = {@_};
   foreach my $x (keys %{$self->{values}}) {
     $self->Error(["Undeclared variable '%s'",$x]) unless defined $variables->{$x};
-    $value = Value::makeValue($self->{values}{$x});
-    $value = Value::Formula->new($value) unless Value::isValue($value);
+    $value = Value::makeValue($self->{values}{$x},context=>$context);
+    $value = Value->Package("Formula",$context)->new($value) unless Value::isValue($value);
     ($value,$type) = Value::getValueType($self,$value);
     $self->Error(["Variable '%s' should be of type %s",$x,$variables->{$x}{type}{name}])
       unless Parser::Item::typeMatch($type,$variables->{$x}{type});
+    $value->inContext($self->context) if $value->context != $self->context;
     $self->{values}{$x} = $value;
   }
 }

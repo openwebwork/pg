@@ -1,6 +1,6 @@
 ##########################################################
 #
-#  Implements a context in which the "step" and "fact" 
+#  Implements a context in which the "step" and "fact"
 #  functions are defined.  These were defined in the old
 #  AlgParser, but are not in the Parser's standard
 #  Numeric context.
@@ -25,4 +25,3 @@ $context->functions->add(
   step => {class => 'Parser::Legacy::Numeric', perl => 'Parser::Legacy::Numeric::do_step'},
   fact => {class => 'Parser::Legacy::Numeric', perl => 'Parser::Legacy::Numeric::do_fact'},
 );
-

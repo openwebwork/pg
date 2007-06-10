@@ -3,8 +3,8 @@
 #  Implements unary plus
 #
 package Parser::UOP::plus;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::UOP);
+use strict;
+our @ISA = qw(Parser::UOP);
 
 #
 #  Check that the operand is OK
@@ -38,4 +38,3 @@ $Parser::reduce->{'+x'} = 1;
 #########################################################################
 
 1;
-

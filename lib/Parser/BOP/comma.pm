@@ -3,8 +3,8 @@
 #  The comma operator
 #
 package Parser::BOP::comma;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::BOP);
+use strict;
+our @ISA = qw(Parser::BOP);
 
 #
 #  Start forming a list, and set the list type if
@@ -47,4 +47,3 @@ sub makeList {
 #########################################################################
 
 1;
-

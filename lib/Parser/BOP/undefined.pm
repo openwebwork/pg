@@ -7,8 +7,8 @@
 #
 
 package Parser::BOP::undefined;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::BOP);
+use strict;
+our @ISA = qw(Parser::BOP);
 
 sub _check {
   my $self = shift;
@@ -19,4 +19,3 @@ sub _check {
 #########################################################################
 
 1;
-

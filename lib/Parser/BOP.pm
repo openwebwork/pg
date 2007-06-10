@@ -4,8 +4,8 @@
 #
 
 package Parser::BOP;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::Item);
+use strict;
+our @ISA = qw(Parser::Item);
 
 $Parser::class->{BOP} = 'Parser::BOP';
 
@@ -62,7 +62,7 @@ sub _eval {return $_[1]}
 #  Reduce the left and right operands.
 #  If they are constant (and it's not a comma), make a constant value of them.
 #  Otherwise, reduce the result.
-#  
+#
 sub reduce {
   my $self = shift; my $bop = $self->{def};
   $self->{lop} = $self->{lop}->reduce;
@@ -322,7 +322,7 @@ sub perl {
   my $self= shift; my $parens = shift;
   my $bop = $self->{def}; my $perl;
   if ($bop->{isCommand}) {
-    $perl = 
+    $perl =
       ($bop->{perl} || ref($self).'->call').
         '('.$self->{lop}->perl.','.$self->{rop}->perl.')';
   } else {
@@ -340,20 +340,21 @@ sub perl {
 #  Load the subclasses.
 #
 
-use Parser::BOP::undefined;
-use Parser::BOP::comma;
-use Parser::BOP::union;
-use Parser::BOP::add;
-use Parser::BOP::subtract;
-use Parser::BOP::multiply;
-use Parser::BOP::divide;
-use Parser::BOP::power;
-use Parser::BOP::cross;
-use Parser::BOP::dot;
-use Parser::BOP::underscore;
-use Parser::BOP::equality;
+END {
+  use Parser::BOP::undefined;
+  use Parser::BOP::comma;
+  use Parser::BOP::union;
+  use Parser::BOP::add;
+  use Parser::BOP::subtract;
+  use Parser::BOP::multiply;
+  use Parser::BOP::divide;
+  use Parser::BOP::power;
+  use Parser::BOP::cross;
+  use Parser::BOP::dot;
+  use Parser::BOP::underscore;
+  use Parser::BOP::equality;
+}
 
 #########################################################################
 
 1;
-

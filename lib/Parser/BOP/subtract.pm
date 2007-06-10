@@ -3,14 +3,14 @@
 #  Implements subtraction
 #
 package Parser::BOP::subtract;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::BOP);
+use strict;
+our @ISA = qw(Parser::BOP);
 
 #
 #  Check that the operand types match.
 #
 sub _check {
-  my $self = shift;
+  my $self = shift; my $context = $self->context;
   return if ($self->checkStrings());
   return if ($self->checkLists());
   return if ($self->checkNumbers());
@@ -20,11 +20,12 @@ sub _check {
       foreach my $op ('lop','rop') {
 	if (!$self->{$op}->isSetOfReals) {
 	  if ($self->{$op}->class eq 'Value') {
-	    $self->{$op}{value} = Value::Interval::promote($self->{$op}{value});
+	    $self->{$op}{value} =
+	      Value->Package("Interval",$context)->promote($self->{$op}{value})->inContext($context);
 	  } else {
 	    $self->{$op} = bless $self->{$op}, 'Parser::List::Interval';
 	  }
-	  $self->{$op}->typeRef->{name} = $self->{equation}{context}{parens}{interval}{type};
+	  $self->{$op}->typeRef->{name} = $context->{parens}{interval}{type};
 	}
       }
     }
@@ -73,4 +74,3 @@ $Parser::reduce->{'(-x)-y'} = 1;
 #########################################################################
 
 1;
-

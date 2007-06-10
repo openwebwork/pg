@@ -1,24 +1,25 @@
 #########################################################################
 =head1 DESCRIPTION
-# 
+#
 # Defines the assumptions about symbols for
-# the following contexts 
-#   Full     => 
-#   Numeric  => 
-#   Complex  => 
-#   Point    => 
-#   Vector   => 
-#   Matrix   => 
-#   Interval => 
-# 
+# the following contexts
+#   Full     => tries to include everything, but has some compromises
+#   Numeric  => includes lists, but no complexes, points, vector, intervals, etc.
+#   Complex  => has complexes, but no points, vectors, etc.
+#   Point    => numeric context with syntax for points
+#   Vector   => numeric context with points and vectors
+#   Vector2D => vector context where i and j are vectors in 2D rather than 3D
+#   Matrix   => numeric context with points, vectors and matrices
+#   Interval => numeric context with syntax for intervals and unions
+#
 # You can list the defined contexts using:
-# 
-# \{join("$BR", lex_sort keys  %Parser::Context::Default::context )\}
+#
+# \{join($BR, lex_sort keys  %Parser::Context::Default::context )\}
 
 =cut
 
 package Parser::Context::Default;
-use vars qw($operators $parens $lists $constants $variables $functions $strings $flags); 
+use vars qw($operators $parens $lists $constants $variables $functions $strings $flags);
 use strict;
 
 =head2 Context hashes
@@ -182,17 +183,17 @@ $functions = {
    'sgn'   => {class => 'Parser::Function::numeric', nocomplex => 1},
 
    'atan2' => {class => 'Parser::Function::numeric2'},
-   
+
    'norm'  => {class => 'Parser::Function::vector', vectorInput => 1},
    'unit'  => {class => 'Parser::Function::vector', vectorInput => 1},
-   
+
    'arg'   => {class => 'Parser::Function::complex'},
    'mod'   => {class => 'Parser::Function::complex'},
    'Re'    => {class => 'Parser::Function::complex', TeX => '\Re'},
    'Im'    => {class => 'Parser::Function::complex', TeX => '\Im'},
    'conj'  => {class => 'Parser::Function::complex', complex => 1, TeX=>'\overline', braceTeX => 1},
-   
-   # Det, Inverse, Transpose, Floor, Ceil
+
+   # Det, Inverse, Transpose, Floor, Ceil?
 
    'arcsin' => {alias => 'asin'},
    'arccos' => {alias => 'acos'},

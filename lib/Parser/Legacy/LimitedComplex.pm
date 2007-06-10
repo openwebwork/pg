@@ -16,7 +16,7 @@
 #  context flag to 'cartesian', 'polar' or 'either'. E.g.,
 #
 #      Context()->flags->set(complex_format => 'polar');
-#  
+#
 #  The default is 'either'.  There are predefined contexts that
 #  already have these values set:
 #

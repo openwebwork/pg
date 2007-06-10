@@ -4,8 +4,8 @@
 #
 
 package Parser::Function;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::Item);
+use strict;
+our @ISA = qw(Parser::Item);
 
 $Parser::class->{Function} = 'Parser::Function';
 
@@ -126,10 +126,10 @@ sub _call {shift; shift; shift}
 #    given arguments.  They are converted to formulas as well.
 #
 sub formula {
-  my $self = shift; my $name = shift;
-  my $formula = Value::Formula->blank;
+  my $self = shift; my $name = shift; my $context = $self->contest;
+  my $formula = Value->Package("Formula",$context)->blank($context);
   my @args = Value::toFormula($formula,@_);
-  $formula->{tree} = $formula->{context}{parser}{Function}->new($formula,$name,[@args]);
+  $formula->{tree} = $context->{parser}{Function}->new($formula,$name,[@args]);
   return $formula;
 }
 
@@ -294,15 +294,16 @@ sub perl {
 #  Load the subclasses.
 #
 
-use Parser::Function::undefined;
-use Parser::Function::trig;
-use Parser::Function::hyperbolic;
-use Parser::Function::numeric;
-use Parser::Function::numeric2;
-use Parser::Function::complex;
-use Parser::Function::vector;
+END {
+  use Parser::Function::undefined;
+  use Parser::Function::trig;
+  use Parser::Function::hyperbolic;
+  use Parser::Function::numeric;
+  use Parser::Function::numeric2;
+  use Parser::Function::complex;
+  use Parser::Function::vector;
+}
 
 #########################################################################
 
 1;
-

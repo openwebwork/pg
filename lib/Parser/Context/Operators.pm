@@ -4,8 +4,7 @@
 #
 package Parser::Context::Operators;
 use strict;
-use vars qw (@ISA);
-@ISA = qw(Value::Context::Data);
+our @ISA = qw(Value::Context::Data);
 
 sub init {
   my $self = shift;

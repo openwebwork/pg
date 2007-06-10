@@ -4,8 +4,8 @@
 #    (it works like a list, since it has "parens" at both ends)
 #
 package Parser::List::AbsoluteValue;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::List);
+use strict;
+our @ISA = qw(Parser::List);
 
 #
 #  Check that only one number is inside the |...|
@@ -41,4 +41,3 @@ sub perl {
 #########################################################################
 
 1;
-

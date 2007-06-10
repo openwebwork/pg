@@ -3,8 +3,8 @@
 #  Implement multiplication.
 #
 package Parser::BOP::multiply;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::BOP);
+use strict;
+our @ISA = qw(Parser::BOP);
 
 #
 #  Check that operand types are compatible for multiplication.
@@ -103,4 +103,3 @@ sub TeX {
 #########################################################################
 
 1;
-

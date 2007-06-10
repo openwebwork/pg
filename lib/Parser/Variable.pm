@@ -3,8 +3,8 @@
 #  Implements named variables
 #
 package Parser::Variable;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::Item);
+use strict;
+our @ISA = qw(Parser::Item);
 
 $Parser::class->{Variable} = 'Parser::Variable';
 
@@ -14,9 +14,9 @@ $Parser::class->{Variable} = 'Parser::Variable';
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my $equation = shift;
+  my $equation = shift; my $variables = $equation->{context}{variables};
   my ($name,$ref) = @_;
-  unless ($equation->{context}{variables}{$name}) {
+  unless ($variables->{$name}) {
     my $string = substr($equation->{string},$ref->[2]);
     if ($string =~ m/^([a-z][a-z]+)/i) {
       $ref->[3] = $ref->[2]+length($1);
@@ -25,10 +25,9 @@ sub new {
     $equation->Error(["Variable '%s' is not defined in this context",$name],$ref);
   }
   $equation->Error(["Variable '%s' is not defined in this context",$name],$ref)
-    if $equation->{context}{variables}{$name}{parameter} &&
-       $equation->{context}{flags}{no_parameters};
+    if $variables-> {$name}{parameter} && $equation->{context}{flags}{no_parameters};
   $equation->{variables}{$name} = 1;
-  my $def = $equation->{context}{variables}{$name};
+  my $def = $variables->{$name};
   bless {
     name => $name, def => $def, type => $def->{type},
     ref => $ref, equation => $equation
@@ -76,7 +75,7 @@ sub getVariables {
   return {} if defined($self->{equation}{values}{$self->{name}});
   return {$self->{name} => 1};
 }
- 
+
 #
 #  Copy the variable, and add the name to the new equation's list
 #

@@ -3,8 +3,8 @@
 #  Implement addition.
 #
 package Parser::BOP::add;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::BOP);
+use strict;
+our @ISA = qw(Parser::BOP);
 
 #
 #  Check that the operand types are compatible.
@@ -52,4 +52,3 @@ $Parser::reduce->{'(-x)+y'} = 1;
 #########################################################################
 
 1;
-

@@ -1,15 +1,15 @@
 #########################################################################
 #
 #  Implement cross product of vectors.
-#  
+#
 package Parser::BOP::cross;
-use strict; use vars qw(@ISA);
-@ISA = qw(Parser::BOP);
+use strict;
+our @ISA = qw(Parser::BOP);
 
 #
 #  Promote points to vectors, if possible.
 #  Check that they are of length three.
-#  
+#
 sub _check {
   my $self = shift;
   my ($ltype,$rtype) = $self->promotePoints();
@@ -23,7 +23,7 @@ sub _check {
 
 #
 #  Use 'x' as cross product in perl (see Value.pm for more).
-#  
+#
 sub _eval {$_[1] x $_[2]}
 
 #
@@ -48,4 +48,3 @@ $Parser::reduce->{'(-x)><y'} = 1;
 #########################################################################
 
 1;
-
