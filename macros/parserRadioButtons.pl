@@ -2,6 +2,8 @@ loadMacros('Parser.pl','contextString.pl');
 
 sub _parserRadioButtons_init {}; # don't reload this file
 
+=head1 DESCRIPTION
+
 ####################################################################
 #
 #  This file implements a radio button group object that is compatible
@@ -63,6 +65,8 @@ sub _parserRadioButtons_init {}; # don't reload this file
 #  the reason for the RadioButton's ans_rule method (since that is what
 #  MultiPart calls to get answer rules).
 #
+
+=cut
 
 sub RadioButtons {parserRadioButtons->new(@_)}
 

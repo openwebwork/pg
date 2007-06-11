@@ -1,6 +1,9 @@
+
 loadMacros("Parser.pl");
 
 sub _contextLimitedPolynomial_init {}; # don't load it again
+
+=head3 Context("LimitedPolynomial")
 
 ##########################################################
 #
@@ -21,6 +24,9 @@ sub _contextLimitedPolynomial_init {}; # don't load it again
 #
 #  Handle common checking for BOPs
 #
+
+=cut
+
 package LimitedPolynomial::BOP;
 
 #

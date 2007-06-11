@@ -1,8 +1,13 @@
+
+=head1 DESCRIPTION
+
 ##############################################
 #
 #  Implements functions that are common to
 #  the new Parser.pm and the old PGauxiliaryFunctions.pl
 #
+
+=cut
 
 sub _PGcommonFunctions_init {}
 
@@ -10,6 +15,8 @@ sub _PGcommonFunctions_init {}
 #  Make these interact nicely with Parser.pm
 #
 package CommonFunction;
+
+=head3 NOTE
 
 #
 #  Either call Parser (if it has been loaded) or
@@ -19,6 +26,8 @@ package CommonFunction;
 #  this, as you can always use the Parser versions.
 #  We only need this because Parser might not be loaded.)
 #
+
+=cut
 
 sub Call {
   my $self = shift;

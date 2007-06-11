@@ -1,5 +1,9 @@
-#163macros.pl
-#macros for Prills 163 problems
+
+=head1 PGdiffeqmacros.pl DESCRIPTION
+
+# Macros for Prills 163 problems
+
+=cut
 
 #!/usr/bin/perl -w
 #use strict;
@@ -27,17 +31,22 @@ sub complexmult {
     my $I = $S *$V + $T * $U ;
     ($R,$I) ;#this returns ($R,$I) from the subroutine
 }      
+
+=head3 addtwo($1stAddend,$1stIndicator,$2ndAddend,$2ndIndicator)
+
 ##########					
-#sub addtwo adds two strings formally
-#An "indicator"  for a string is a
-# number ,e.g. coefficient,which indicates 
-#whether the string is to be 
-#added or is to be regarded as zero. 
-#The  non-zero terms are formally added as strings.
-#The input is an array 
-#($1staddend, $1stindicator,$2ndaddend,$2ndindicator)
-#The return is an array
-#(formal sum, indicator of formal sum)
+# sub addtwo adds two strings formally
+# An "indicator"  for a string is a
+#  number ,e.g. coefficient,which indicates 
+# whether the string is to be 
+# added or is to be regarded as zero. 
+# The  non-zero terms are formally added as strings.
+# The input is an array 
+# ($1staddend, $1stindicator,$2ndaddend,$2ndindicator)
+# The return is an array
+# (formal sum, indicator of formal sum)
+
+=cut
 
 sub addtwo {
    my ($A,$a,$B,$b) = @_;
@@ -57,13 +66,17 @@ sub addtwo {
     my $ind = abs($a) + abs($b);
     ($out,$ind); 
 }
-########
 
-#sub add generalizes sub addtwo to more addends.
-#It formally adds the nonzero terms. 
+=head3 add($1stAddend,$1stIndicator,$2ndAddend,$2ndIndicator,...)
+
+########
+# sub add generalizes sub addtwo to more addends.
+# It formally adds the nonzero terms. 
 # The input is an array of even length
 # consisting of each addend,a string,
 # followed by its indicator.  
+
+=cut
 
 sub add { 
     # this function takes the first two terms, puts them together, and keep repeating until you have emptied the list.
@@ -81,13 +94,17 @@ sub add {
     }
     @sum ;
 }
-#######
 
+=head3 diffop($a,$b,$c)
+
+#######
 # sub diffop cleans up the typed expression 
-#of a diff. operator.
-#input @diffop =($A,$B,$C) is the coefficients.
-#input is given as arguments viz difftop($A,$B,$C);
-#output is the diff. operator as a string $L in TEX
+# of a diff. operator.
+# input @diffop =($A,$B,$C) is the coefficients.
+# input is given as arguments viz difftop($A,$B,$C);
+# output is the diff. operator as a string $L in TEX
+
+=cut
 
 sub diffop 
 {
@@ -117,12 +134,15 @@ sub diffop
     $L;
 }
 
-########
+=head3 rad($num1,$num2,$num3)
 
-#sub rad simplifies (a/b)*(sqrt(c))
-#input is given as arguments on rad viz.: rad($a,$b,$c);
-#$a,$b,$c are integers and $c>=0 and $b is not zero.
-#output is an array =(answer as string,new$a,new$b, new$c)
+########
+# sub rad simplifies (a/b)*(sqrt(c))
+# input is given as arguments on rad viz.: rad($a,$b,$c);
+# $a,$b,$c are integers and $c>=0 and $b is not zero.
+# output is an array =(answer as string,new$a,new$b, new$c)
+
+=cut
 
 sub rad{
     # initalize primes
@@ -222,7 +242,7 @@ sub rad{
 
 }
 
-#######
+##########
 sub frac {
     # use rad subroutine 
     my ($a,$b) = @_;
@@ -230,13 +250,18 @@ sub frac {
 }
 ##########
 
+=head3 simpleexp($r,$ind)
+
 ####
-#sub exp simplifies exp($r*t) in form for writing perl
-#or tex.The input is exp($r,$ind); $ind indicates whether
-#we want perl or tex mode.$r is a string that represents
-#a number.
-#If $ind = 0  output is "exp(($r)*t)", simplified if possible.
-#If $ind = 1  output is "exp(($r) t)", simplified if possible.
+# sub exp simplifies exp($r*t) in form for writing perl
+# or tex. The input is exp($r,$ind); $ind indicates whether
+# we want perl or tex mode. $r is a string that represents
+# a number.
+# If $ind = 0  output is "exp(($r)*t)", simplified if possible.
+# If $ind = 1  output is "exp(($r)*t)", simplified if possible.
+
+=cut
+
 sub simpleexp {
     my $r = shift;
     my @rr = @_;
@@ -342,6 +367,7 @@ sub ivy {
     }
     $answer;
 }
+
 
 ############
 #sub ivy solves the initial value problem
@@ -456,19 +482,23 @@ sub undeterminedExp {
     }
     
 }
-#################
 
+=head3 undeterminedSin($A,$B,$C,$r,$w,$q1,$q0,$r1,$r0)
+
+#################
 # undeterminedSin is a subroutine to solve 
-#undetermined coefficient problems that have
-#sines and cosines. 
-#The input is an array ($A,$B,$C,$r,$w,$q1,$q0,$r1,$r0)
-#given as arguments on undeterminedSin 
+# undetermined coefficient problems that have
+# sines and cosines. 
+# The input is an array ($A,$B,$C,$r,$w,$q1,$q0,$r1,$r0)
+# given as arguments on undeterminedSin 
 # $L =$A y'' + $B y' + $C y
 # $rhs = ($q1 t + $q0) cos($w t)exp($r t) +
 #        ($r1 t + $r0) sin($w t)exp($r t)
-#The subroutine uses undetermined coefficients
-#to find a solution $y of $L = $rhs .
-#The output \is $y
+# The subroutine uses undetermined coefficients
+# to find a solution $y of $L = $rhs .
+# The output \is $y
+
+=cut
 
 sub undeterminedSin {
     my ($A,$B,$C,$r,$w,$q1,$q0,$r1,$r0) = @_;

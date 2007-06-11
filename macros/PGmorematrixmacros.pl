@@ -1,3 +1,4 @@
+
 BEGIN{
     be_strict();
 }
@@ -383,8 +384,7 @@ Most errors are handled well. Any error in an entry is caught by the PG_answer_e
 Right now the method basically ignores every thing outside the vectors. Also, an unmatched open parenthesis is caught,
 but a unmatched close parenthesis ends the vector, and since everything outside is ignored, no error is sent (other than the
 later when the length of the vectors is checked.
-In the end, the method returns an array of Matrix objects.
-    
+In the end, the method returns an array of Matrix objects.   
 
 =cut
 

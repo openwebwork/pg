@@ -66,7 +66,7 @@ my $number = '([+-]?)(?=\d|\.\d)\d*(\.\d*)?(E([+-]?\d+))?';
 
 
 =head3 cplx_cmp
-	
+
  #	This subroutine compares complex numbers.
  #	Available prefilters include:
  #	each of these are called by cplx_cmp( answer, mode => '(prefilter name)' )
@@ -86,7 +86,6 @@ my $number = '([+-]?)(?=\d|\.\d)\d*(\.\d*)?(E([+-]?\d+))?';
  #	'strict'		This is a combination of strict_num_cartesian and strict_num_polar, so it
  #				allows complex numbers of either the form "a+bi" or "ae^(bi)" where a and b
  #				are strictly numbers.
-
 
 =cut
 
@@ -376,7 +375,7 @@ sub cplx_constants {
 
 =head2 Utility functions 
 
- #	for checking the form of a number or of the C<student_ans> field in an answer hash
+ #	for checking the form of a number or of the <student_ans> field in an answer hash
 
 =cut
 

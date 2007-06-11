@@ -2,6 +2,8 @@ loadMacros("Parser.pl");
 
 sub _parserImplicitEquation_init {}; # don't reload this file
 
+=head1 DESCRIPTION
+
 ######################################################################
 #
 #  This is a Parser class that implements an answer checker for
@@ -57,7 +59,7 @@ sub _parserImplicitEquation_init {}; # don't reload this file
 #  These problems should be rare, and the values for the various
 #  parameters have been set in an attempt to minimize the possibility
 #  of these errors, but they can occur, and you should be aware of
-#  them, and their possibnle solutions.
+#  them, and their possible solutions.
 #  
 #
 #  Usage examples:
@@ -86,7 +88,7 @@ sub _parserImplicitEquation_init {}; # don't reload this file
 #                                           actual solution)
 #    BisectionTolerance => .01             (extra factor used for the tolerance
 #                                           when finding the solutions)
-#    BusectionCutoff => 40                 (maximum number of bisections to
+#    BisectionCutoff => 40                 (maximum number of bisections to
 #                                           perform when looking for a solution)
 #
 #  You may set any of these using Context()->flags->set(...).
@@ -122,6 +124,8 @@ sub _parserImplicitEquation_init {}; # don't reload this file
 #  above.
 #
 ######################################################################
+
+=cut
 
 #
 #  Set up the context for ImplicitEquations and activate it
@@ -173,6 +177,8 @@ sub new {
   return $F;
 }
 
+=head3 compare($lhs,$rhs,%options)
+
 #
 #  Override the comparison method.
 #
@@ -181,6 +187,9 @@ sub new {
 #  the professor's function on the student's test points and the
 #  student's function on the professor's test points.
 #
+
+=cut
+
 sub compare {
   my ($l,$r,$flag) = @_; my $tolerance;
   if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}

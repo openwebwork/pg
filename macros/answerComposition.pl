@@ -1,3 +1,7 @@
+
+
+=head1 DESCRIPTION
+
 ######################################################################
 #
 #  An answer checker that determines if two functions compose
@@ -7,7 +11,11 @@
 #  function.)
 #
 
+=cut
+
 sub _answerComposition_init {}; # don't reload this file
+
+=head3 COMPOSITION_ANS($fn_f,$fn_g)
 
 ######################################################################
 #
@@ -34,7 +42,9 @@ sub _answerComposition_init {}; # don't reload this file
 #     END_TEXT
 #     COMPOSITION_ANS("x^2","1+x");
 #     
-#
+
+=cut
+
 sub COMPOSITION_ANS {
   my $f = shift; my $g = shift;
   my $fID = ANS_NUM_TO_NAME($main::ans_rule_count-1);
@@ -43,12 +53,13 @@ sub COMPOSITION_ANS {
   ANS($ans{$fID},$ans{$gID});
 }
 
+=head3 NAMED_COMPOSITION_ANS(fID=>f,gID=>g,options)
 
 ######################################################################
 #
 #  An answer checked to see if f composed with g matches a given function.
 #
-#  Usage:  NAMED_COMPOSITION_ANS(fID=>f,gID->g,options)
+#  Usage:  NAMED_COMPOSITION_ANS(fID=>f,gID=>g,options)
 #
 #  where fID and gID are the names of the answer rules for the functions
 #  f and g, and f and g are the answers for the functions.  Options are
@@ -65,7 +76,12 @@ sub COMPOSITION_ANS {
 #     END_TEXT
 #     NAMED_COMPOSITION_ANS(f => "x^2", g => "1+x");
 #
+
+=cut
+
 sub NAMED_COMPOSITION_ANS {NAMED_ANS(composition_ans_list(@_))}
+
+=head3  composition_ans_list(fID=>f,gID=>g,options)
 
 ######################################################################
 #
@@ -81,12 +97,14 @@ sub NAMED_COMPOSITION_ANS {NAMED_ANS(composition_ans_list(@_))}
 #      var => 'x'              the name of the variable to use when
 #                              both functions use the same one
 #
-#      vars => ['x','t']       the names of the variabless for f and g
+#      vars => ['x','t']       the names of the variables for f and g
 #
 #      showVariableHints => 1 or 0
 #                              do/don't show errors when the variable
 #                              used by the student is incorrect
 #
+
+=cut
 
 sub composition_ans_list {
   my ($fID,$f,$gID,$g,%params) = @_; my @IDs = ($fID,$gID);
@@ -168,7 +186,7 @@ sub composition_ans_list {
   }
 
   #
-  #  If no error, nd both answers are given, check if compositions are equal
+  #  If no error, and both answers are given, check if compositions are equal
   #
   if (!$error && defined($student{$fID}) && defined($student{$gID})) {
     if ($fog == $student{$fID}->substitute($x{$fID}=>$student{$gID})) {

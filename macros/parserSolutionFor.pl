@@ -2,6 +2,8 @@ loadMacros("Parser.pl");
 
 sub _parserSolutionFor_init {}; # don't reload this file
 
+=head1 DESCRIPTION
+
 ######################################################################
 #
 #  This is a Parser class that implements an answer checker that
@@ -50,6 +52,8 @@ sub _parserSolutionFor_init {}; # don't reload this file
 #     ANS($f->cmp);
 #
 ######################################################################
+
+=cut
 
 #
 #  Create a SolutionFor object of the correct type

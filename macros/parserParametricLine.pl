@@ -2,6 +2,8 @@ loadMacros('Parser.pl');
 
 sub _parserParametricLine_init {}; # don't reload this file
 
+=head1 DESCRIPTION
+
 ######################################################################
 #
 #  This is a Parser class that implements parametric lines as
@@ -36,6 +38,8 @@ sub _parserParametricLine_init {}; # don't reload this file
 #
 #  to get the answer checker for $L.
 #
+
+=cut
 
 #
 #  Define a new context for lines
@@ -90,12 +94,17 @@ sub new {
   return bless $line, $class;
 }
 
+=head3 compare($lhs,$rhs)
+
 #
 #  Two parametric lines are equal if they have 
 #  parallel direction vectors and either the same
 #  points or the vector between the points is
 #  parallel to the (common) direction vector.
 #
+
+=cut 
+
 sub compare {
   my ($l,$r,$flag) = @_;
   if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}

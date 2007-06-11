@@ -2,6 +2,8 @@ loadMacros('Parser.pl');
 
 sub _contextIntegerFunctions_init {}; # don't reload this file
 
+=head3 Context("IntegerFunctions")
+
 ######################################################################
 #
 #  This is a Parser context that adds integer related functions C(n,r)
@@ -21,6 +23,7 @@ sub _contextIntegerFunctions_init {}; # don't reload this file
 #  Note: If the context is set to something else, such as Numeric, it
 #        can be set back with Context("IntegerFunctions").
 
+=cut
 
 $context{IntegerFunctions} = Context("Numeric")->copy;
 

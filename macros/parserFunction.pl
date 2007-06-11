@@ -1,6 +1,9 @@
+
 loadMacros('Parser.pl');
 
 sub _parserFunction_init {}; # don't reload this file
+
+=head1 DESCRIPTION
 
 ####################################################################
 #
@@ -31,6 +34,8 @@ sub _parserFunction_init {}; # don't reload this file
 #  of the function.  It can be either a string or a Parser Formula
 #  object.
 #
+
+=cut
 
 sub parserFunction {parserFunction->Create(@_)}
 
@@ -119,10 +124,15 @@ sub _call {
   &{$def->{function}}(@_);
 }
 
+=head3 ($Function)->D
+
 #
 #  Compute the derivative of (single-variable) functions
 #    using the chain rule.
 #
+
+=cut
+
 sub D {
   my $self = shift; my $def = $self->{def};
   $self->Error("Can't differentiate function '%s'",$self->{name})
@@ -133,9 +143,14 @@ sub D {
   return (($Df->substitute($x=>$g))*($g->D(@_)))->{tree}->reduce;
 }
 
+=head3 NameForNumber($number)
+
 #
 #  Get the name for a number
 #
+
+=cut
+
 sub NameForNumber {
   my $n = shift;
   my $name =  ('zeroth','first','second','third','fourth','fifth',

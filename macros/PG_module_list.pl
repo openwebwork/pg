@@ -2,9 +2,13 @@
 
 use PGtranslator;
 
+=head1 DESCRIPTION
+
 # defines the modules to be used by PGtranslator
 
 # This file is read in processProblem, in welcomeAction and in l2hPrecreateSet
+
+=cut
 
 PGtranslator -> evaluate_modules(qw( Exporter
                                      DynaLoader

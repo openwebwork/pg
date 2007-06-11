@@ -1,6 +1,9 @@
+
 loadMacros('Parser.pl');
 
 sub _parserDifferenceQuotient_init {}; # don't reload this file
+
+=head1 DESCRIPTION
 
 ######################################################################
 #
@@ -30,6 +33,8 @@ sub _parserDifferenceQuotient_init {}; # don't reload this file
 #      Context()->variables->are(t=>'Real',a=>'Real');
 #      ANS(DifferenceQuotient("-a/[t(t+dt)]","dt")->cmp);
 #
+
+=cut
 
 Context("Numeric");
 

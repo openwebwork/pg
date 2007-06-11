@@ -2,6 +2,8 @@ loadMacros("Parser.pl","contextString.pl");
 
 sub _contextABCD_init {}; # don't load it again
 
+=head1 DESCRIPTION
+
 ##########################################################
 #
 #  Implements contexts for string-valued answers especially
@@ -29,6 +31,8 @@ sub _contextABCD_init {}; # don't load it again
 #
 #  when there are two answers, the first being "A" and the second being "B".
 #
+
+=cut
 
 $context{ABCD} = Context("String")->copy;
 $context{ABCD}->strings->are(

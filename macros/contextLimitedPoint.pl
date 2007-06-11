@@ -1,6 +1,9 @@
+
 loadMacros("Parser.pl");
 
 sub _contextLimitedPoint_init {}; # don't load it again
+
+=head3 Context("LimitedPoint")
 
 ##########################################################
 #
@@ -9,11 +12,13 @@ sub _contextLimitedPoint_init {}; # don't load it again
 #  students will be able to perform operations within the
 #  coordinates of the points, but not between points.
 #
-#
 
 #
 #  Handle common checking for BOPs
 #
+
+=cut
+
 package LimitedPoint::BOP;
 
 #

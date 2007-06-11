@@ -1,5 +1,11 @@
 
 
+=head1 displayMacros.pl
+
+This file is used with WeBWorK 1.9 and is not used for WeBWorK 2.x.
+
+=cut
+
 use strict;
 
 ## $ENV{'PATH'} .= ':/usr/math/bin';
@@ -11,7 +17,7 @@ $debug = 1 if $Global::imageDebugMode;
 
 ##############################################################
 #  File: DisplayMacros.pl
-#  This contains the subroutines for  creating problem files
+#  This contains the subroutines for creating problem files
 ##############################################################
 
 ################################################################

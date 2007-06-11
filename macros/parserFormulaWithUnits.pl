@@ -1,6 +1,9 @@
+
 loadMacros('Parser.pl');
 
 sub _parserFormulaWithUnits_init {}; # don't reload this file
+
+=head1 DESCRIPTION
 
 ######################################################################
 #
@@ -26,6 +29,8 @@ sub _parserFormulaWithUnits_init {}; # don't reload this file
 #  Now uses the version in Parser::Legacy::NumberWithUnits
 #  to avoid duplication of common code.
 #
+
+=cut
 
 sub FormulaWithUnits {Parser::Legacy::FormulaWithUnits->new(@_)}
 

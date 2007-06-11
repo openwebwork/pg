@@ -18,7 +18,7 @@ sub CAPA_ans {
     if (defined($options{'tries'})) { delete($options{'tries'}); }
 
 #	$options{'allow_unknown_options'} = 1; 	## if uncommented, this is a fast and possibly dangerous
-											## way to prevent warning message about unknow options
+											## way to prevent warning message about unknown options
 
 
 	if (defined($options{'reltol'}) or defined($options{'tol'}) or defined($options{'unit'})  ) {

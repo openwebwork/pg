@@ -1,40 +1,52 @@
 
-##########################################################
-##  This file is PGpolynomialmacros.pl                  ##
-##  It contains rountines used to create and manipulate ##
-##  polynomials for WeBWorK                             ##
-##                                                      ##
-##  Copyright 2002 Mark Schmitt                         ##
-##  Version 1.1.2                                       ##
-##########################################################
+=head1 PGpolynomialmacros.pl DESCRIPTION
 
-##  In the current version, there is no attempt to verify that correct arrays are being passed to the routines.
-##  This ought to be changed in the next incarnation.
-##  It is assumed that arrays passed to the routines have no leading zeros, and represent the coefficients of
-##  a polynomial written in standard form using place-holding zeros.
-##  This means $array[0] is the leading coefficient of the polynomial and $array[$#array] is the constant term.
-##
-##  The routines were written based on the needs of my Honors Algebra 2 course.  The following algorithms have been
-##  coded:
-##      Polynomial Multiplication
-##      Polynomial Long Division
-##      Polynomial Synthetic Division (mainly as a support routine for checking bounds on roots)
-##      Finding the least positive integral upper bounds for roots
-##      Finding the greatest negative integral lower bounds for roots
-##      Descartes' Rule of Signs for the maximum number of positive and negative roots
-##      Stringification : converting an array of coefficients into a properly formatted polynomial string
-##      Polynomial Addition
-##      Polynomial Subtraction
+ ##########################################################
+ #  It contains rountines used to create and manipulate  ##
+ #  polynomials for WeBWorK                              ##
+ #                                                       ##
+ #  Copyright 2002 Mark Schmitt                          ##
+ #  Version 1.1.2                                        ##
+ ##########################################################
 
+ #  In the current version, there is no attempt to verify that correct arrays are being passed to the routines.
+ #  This ought to be changed in the next incarnation.
+ #  It is assumed that arrays passed to the routines have no leading zeros, and represent the coefficients of
+ #  a polynomial written in standard form using place-holding zeros.
+ #  This means $array[0] is the leading coefficient of the polynomial and $array[$#array] is the constant term.
+ #
+ #  The routines were written based on the needs of my Honors Algebra 2 course.  The following algorithms have been
+ #  coded:
+ #      Polynomial Multiplication
+ #      Polynomial Long Division
+ #      Polynomial Synthetic Division (mainly as a support routine for checking bounds on roots)
+ #      Finding the least positive integral upper bounds for roots
+ #      Finding the greatest negative integral lower bounds for roots
+ #      Descartes' Rule of Signs for the maximum number of positive and negative roots
+ #      Stringification : converting an array of coefficients into a properly formatted polynomial string
+ #      Polynomial Addition
+ #      Polynomial Subtraction
 
-##
-## ValidPoly
-##
+=cut
+
+=head3 ValidPoly(@PolynomialCoeffs)
+
+=cut
+
 sub ValidPoly {
     my $xref = @_;
     if (${$xref}[0] != 0) {return 1;}
     else {return 0;}
 }
+
+=head3 PolyAdd(@Polyn1,@Polyn2)
+
+#
+# Takes two arrays of polynomial coefficients representing 
+# two polynomials and returns their sum.
+#
+
+=cut
 
 sub PolyAdd{
     my ($xref,$yref) = @_;
@@ -52,6 +64,15 @@ sub PolyAdd{
     return @sum;
 }
 
+=head3 PolySub(@Polyn1,@Polyn2)
+
+#
+# Takes two arrays of polynomial coefficients representing 
+# two polynomials and returns their difference.
+#
+
+=cut
+
 sub PolySub{
     my ($xref,$yref) = @_;
     @local_x = @{$xref};
@@ -68,12 +89,14 @@ sub PolySub{
     return @diff;
 }
 
-##
-## @newPoly = PolyMult(~~@coefficientArray1,~~@coefficientArray2);
-##
-## accepts two arrays containing coefficients in descending order
-## returns an array with the coefficients of the product
-##
+=head3 PolyMult(~~@coefficientArray1,~~@coefficientArray2)
+
+#
+# Accepts two arrays containing coefficients in descending order
+# returns an array with the coefficients of the product
+#
+
+=cut
 
 sub PolyMult{
     my ($xref,$yref) = @_;
@@ -88,9 +111,14 @@ sub PolyMult{
     return @result;
 }
 
-##
-## (@quotient,$remainder) = SynDiv(~~@dividend,~~@divisor);
-##
+=head3 (@quotient,$remainder) = SynDiv(~~@dividend,~~@divisor)
+
+#
+# Performs synthetic division on two polynomials returning 
+# the quotient and remainder in an array.
+#
+
+=cut
 
 sub SynDiv{
     my ($dividendref,$divisorref)=@_;
@@ -104,11 +132,14 @@ sub SynDiv{
     return @quotient;
 }
 
-##
-##
-##
-##
-##
+=head3 (@quotient,@remainder) = LongDiv($dividendref,$divisorref)
+
+#
+# Performs long division on two polynomials
+# returning the quotient and remainder
+#
+
+=cut
 
 sub LongDiv{
     my ($dividendref,$divisorref)=@_;
@@ -129,15 +160,19 @@ sub LongDiv{
 
 
 
-##
-## $upperBound = UpBound(~~@polynomial);
-##
-## accepts a reference to an array containing the coefficients, in descending
-##   order, of a polynomial.
-##
-## returns the lowest positive integral upper bound to the roots of the
-##   polynomial
-##
+
+=head3 UpBound(~~@polynomial)
+
+#
+# Accepts a reference to an array containing the coefficients, in descending
+#   order, of a polynomial.
+#
+# Returns the lowest positive integral upper bound to the roots of the
+#   polynomial.
+#
+
+=cut
+
 
 sub UpBound {
     my $polyref=$_[0];
@@ -159,15 +194,18 @@ sub UpBound {
 }
 
 
-##
-## $lowerBound = LowBound(~~@polynomial);
-##
-## accepts a reference to an array containing the coefficients, in descending
-##   order, of a polynomial.
-##
-## returns the greatest negative integral lower bound to the roots of the
-##   polynomial
-##
+
+=head3 LowBound(~~@polynomial)
+
+#
+# Accepts a reference to an array containing the coefficients, in descending
+#   order, of a polynomial.
+#
+# Returns the greatest negative integral lower bound to the roots of the
+#   polynomial
+#
+
+=cut
 
 sub LowBound {
     my $polyref=$_[0];
@@ -191,16 +229,16 @@ sub LowBound {
 }
 
 
+=head3 PolyString(~~@coefficientArray,x)
 
+#
+# Accepts an array containing the coefficients of a polynomial
+#   in descending order
+# Returns a sting containing the polynomial with variable x
+# Default variable is x
+#
 
-##
-## $string = PolyString(~~@coefficientArray,x);
-##
-## accepts an array containing the coefficients of a polynomial
-##   in descending order
-## returns a sting containing the polynomial with variable v
-## default variable is x
-##
+=cut
 
 sub PolyString{
 	my $temp = $_[0];
@@ -264,17 +302,19 @@ sub PolyFunc {
     return $func;
 }
 
-##
-## ($maxpos,$maxneg) = Descartes(~~@poly);
-##
-## accepts an array containing the coefficients, in descending order, of a
-##  polynomial
-## returns the maximum number of positive and negative roots according to
-##  Descartes Rule of Signs
-##
-## IMPORTANT NOTE:  this function currently does not accept coefficients of
-##  zero.
-##
+=head3 ($maxpos,$maxneg) = Descartes(~~@poly)
+
+#
+# Accepts an array containing the coefficients, in descending order, of a
+#  polynomial
+# Returns the maximum number of positive and negative roots according to
+#  Descartes Rule of Signs
+#
+# IMPORTANT NOTE:  this function currently does not accept coefficients of
+#  zero.
+#
+
+=cut
 
 sub Descartes {
     my $temp = $_[0];

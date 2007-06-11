@@ -1,6 +1,9 @@
+
 loadMacros("Parser.pl");
 
 sub _contextLimitedNumeric_init {}; # don't load it again
+
+=head3 Context("LimitedNumeric")
 
 ##########################################################
 #
@@ -14,6 +17,8 @@ sub _contextLimitedNumeric_init {}; # don't load it again
 #      Context("LimitedNumeric-list");
 #      Context("LimiteNumeric");
 #
+
+=cut
 
 package LimitedNumeric::UOP::minus;
 our @ISA = qw(Parser::UOP::minus);

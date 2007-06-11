@@ -2,6 +2,8 @@ loadMacros("Parser.pl","contextString.pl");
 
 sub _contextTF_init {}; # don't load it again
 
+=head3 Context("TF")
+
 ##########################################################
 #
 #  Implements contexts for string-valued answers especially
@@ -13,12 +15,14 @@ sub _contextTF_init {}; # don't load it again
 #  via the Context()->strings->add() and Context()-strings->remove()
 #  methods.
 #
-#  Use
+#  Use:
 #
 #	ANS(string_cmp("T","F"));
 #
 #  when there are two answers, the first being "T" and the second being "F".
 #
+
+=cut
 
 $context{TF} = Context("String")->copy;
 $context{TF}->strings->are(

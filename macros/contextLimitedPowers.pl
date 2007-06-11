@@ -1,6 +1,9 @@
+
 loadMacros("Parser.pl");
 
 sub _contextLimitedPowers_init {}; # don't load it again
+
+=head3 Context("LimitedPowers")
 
 ##########################################################
 #
@@ -23,6 +26,7 @@ sub _contextLimitedPowers_init {}; # don't load it again
 #
 ##########################################################
 
+=cut
 
 package LimitedPowers;
 

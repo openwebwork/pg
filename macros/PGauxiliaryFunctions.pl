@@ -3,14 +3,37 @@ sub _PGauxiliaryFunctions_init {
 
 }
 
+=head1 DESCRIPTION
+
 #
 #  Get the functions that are in common with Parser.pm
 #
+
+=cut
+
 loadMacros("PGcommonFunctions.pl");
 
+=head3
+
 #
-#  Do the additional functions
+#  Do the additional functions such as:
 #
+#  step($number)
+#  ceil($number)
+#  floor($number)
+#  max(@listNumbers)
+#  min(@listNumbers)
+#  round($number)
+#  lcm($number1,$number2)
+#  gfc($number1,$number2)
+#  gcd($number1,$number2)  
+#  isPrime($number)
+#  reduce($numerator,$denominator)
+#  preformat($scalar, "QuotedString")
+#
+
+=cut
+
 sub step {     # heavyside function (1 or x>0)
 	my $x = shift;
 	($x > 0 ) ? 1 : 0;
@@ -177,8 +200,8 @@ sub reduce {
 
 # takes a number and fixed object, as in "$a x" and formats
 # to account for when $a = 0, 1, -1
-# Usage: format($scalar, "quoted string");
-# Example: format(-1, "\pi") returns "-\pi"
+# Usage: preformat($scalar, "quoted string");
+# Example: preformat(-1, "\pi") returns "-\pi"
 # VS 8/1/2000  -  slight adaption of code from T. Shemanske of Dartmouth College
 sub preformat {
 	my $num = shift;

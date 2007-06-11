@@ -1,4 +1,18 @@
 
+=head1 PGgraders.pl DESCRIPTION
+
+Grader Plug-ins
+
+=cut
+
+=head3 full_partial_grader
+
+###########################################################
+#    If the final answer is correct, then the problem is given full credit
+#    and a message is generated to that effect.  Otherwise, partial credit 
+#    is given for previous parts.
+
+=cut
 
 sub full_partial_grader {
     # Get the standard inputs to a grader:
@@ -13,13 +27,6 @@ sub full_partial_grader {
         # Evaluate these inputs using the "average problem grader"
         my ($rh_problem_result, $rh_problem_state) =
             &avg_problem_grader($rh_evaluated_answers,$rh_orig_problem_state,%form_options);
-
-
-
-
-#       #If the final answer is correct, then the problem is given full credit
-#       # and a message is generated to that effect.
-
 
     my $count = keys %{$rh_evaluated_answers};
     my $last_label = 'AnSwEr'.$count;
@@ -57,6 +64,7 @@ sub full_partial_grader {
         ($rh_problem_result, $rh_problem_state);
 }
 
+=head3 custom_problem_grader_0_60_100(@rh_evaluated_answers,$rh_problem_state,%form_options)
 
 ################################################################
 # We need a special problem grader on this problem, since we
@@ -72,6 +80,7 @@ sub full_partial_grader {
 # announcing the problem itself.
 ################################################################
 
+=cut
 
 sub custom_problem_grader_0_60_100 {
     my $rh_evaluated_answers = shift;
@@ -153,13 +162,15 @@ of 0%.',
 
 }
 
+=head3 NOTE:
+
 ################################################################
 # This problem grader was contributed by Prof. Zig Fiedorowicz,
 # Dept. of Mathematics, Ohio State University on 8/25/01.
 # As written, the problem grader should be put in a separate macro file.
 # If actually inserted into a problem, you need to replace a couple
 # of backslashes by double tildes.
-
+#
 # This is a generalization of the previous custom grader.
 # This grader expects two array references to be passed to it, eg.
 # $ENV['grader_numright'] = [2,5,7,10];
@@ -184,6 +195,7 @@ of 0%.',
 # or something similar.
 ################################################################
 
+=cut
 
 sub custom_problem_grader_fluid {
     my $rh_evaluated_answers = shift;

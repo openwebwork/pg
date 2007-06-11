@@ -2,7 +2,8 @@ loadMacros("Parser.pl");
 
 sub _contextString_init {}; # don't load it again
 
-=head1 DESCRIPTION
+=head3 Context("String")
+
 ##########################################################
 #
 #  Implements contexts for string-valued answers.

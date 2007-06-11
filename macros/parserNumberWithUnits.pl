@@ -2,6 +2,8 @@ loadMacros('Parser.pl');
 
 sub _parserNumberWithUnits_init {}; # don't reload this file
 
+=head1 DESCRIPTION
+
 ######################################################################
 #
 #  This is a Parser class that implements a number with units.
@@ -23,6 +25,9 @@ sub _parserNumberWithUnits_init {}; # don't reload this file
 #  We now call on the Legacy version, which is used by
 #  num_cmp to handle numbers with units.
 #
+
+=cut
+
 sub NumberWithUnits {Parser::Legacy::NumberWithUnits->new(@_)}
 
 1;

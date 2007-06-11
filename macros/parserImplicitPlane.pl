@@ -2,6 +2,8 @@ loadMacros('Parser.pl');
 
 sub _parserImplicitPlane_init {}; # don't reload this file
 
+=head1 DESCRIPTION
+
 ######################################################################
 #
 #  This is a Parser class that implements implicit planes as
@@ -45,6 +47,8 @@ sub _parserImplicitPlane_init {}; # don't reload this file
 #
 #  to get the answer checker for $P.
 #
+
+=cut
 
 #
 #  Create a context for implicit planes and activate it

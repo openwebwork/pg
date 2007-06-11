@@ -4,6 +4,8 @@ Context("Numeric");
 
 sub _parserPopUp_init {}; # don't reload this file
 
+=head1 DESCRIPTION
+
 ####################################################################
 #
 #  This file implements a pop-up menu object that is compatible
@@ -33,6 +35,8 @@ sub _parserPopUp_init {}; # don't reload this file
 #  the reason for the pop-up menu's ans_rule method (since that is what
 #  MultiPart calls to get answer rules).
 #
+
+=cut
 
 sub PopUp {parserPopUp->new(@_)}
 

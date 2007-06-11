@@ -2,6 +2,8 @@ loadMacros("Parser.pl");
 
 sub _contextLimitedVector_init {}; # don't load it again
 
+=head3 Context("LimitedVector")
+
 ##########################################################
 #
 #  Implements a context in which vectors can be entered,
@@ -28,6 +30,9 @@ sub _contextLimitedVector_init {}; # don't load it again
 #
 #  Handle common checking for BOPs
 #
+
+=cut
+
 package LimitedVector::BOP;
 
 #

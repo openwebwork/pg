@@ -1,7 +1,13 @@
+
+
+=head1 DESCRIPTION
+
 ###########################################################################
 ##
 ##  Set up the functions needed by the Parser.
 ##
+
+=cut
 
 if (!$Parser::installed) {
   die "\n************************************************************\n" .
@@ -21,14 +27,27 @@ if (!$Value::installed) {
 loadMacros("Value.pl");
 loadMacros("PGcommonFunctions.pl");
 
+=head3 Formula("$formula")
+
 #
 #  The main way to get a formula
 #
+
+=cut
+
+
 sub Formula {Value->Package("Formula")->new(@_)}
+
+
+
+=head3 Compute($formula,$value)
 
 #
 #  Parse a formula and evaluate it
 #
+
+=cut
+
 sub Compute {
   my $string = shift;
   my $formula = Formula($string);
@@ -37,9 +56,14 @@ sub Compute {
   return $formula;
 }
 
+=head3 Context()
+
 #
 #  Deal with contexts
 #
+
+=cut
+
 sub Context {Parser::Context->current(\%context,@_)}
 %context = ();  # locally defined contexts, including 'current' context
 Context();      # Initialize context (for persistent mod_perl)
