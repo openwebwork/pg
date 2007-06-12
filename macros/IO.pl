@@ -11,6 +11,7 @@ environment. Formerly defined in IO.pm
 
 See notes in Translator.pm
 
+--testing
 
 =cut
 
