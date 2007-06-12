@@ -21,9 +21,9 @@ sub new {
   my ($bop,$lop,$rop,$ref) = @_;
   my $def = $context->{operators}{$bop};
   if (!$def->{isComma}) {
-    $lop = $context->{parser}{List}->new($equation,[$lop->makeList],
+    $lop = $self->Item("List",$context)->new($equation,[$lop->makeList],
        $lop->{isConstant},$context->{parens}{start}) if ($lop->type eq 'Comma');
-    $rop = $context->{parser}{List}->new($equation,[$rop->makeList],$rop->{isConstant},
+    $rop = $self->Item("List",$context)->new($equation,[$rop->makeList],$rop->{isConstant},
        $context->{parens}{start}) if ($rop->type eq 'Comma');
   }
   my $BOP = bless {
@@ -32,7 +32,7 @@ sub new {
   }, $def->{class};
   $BOP->{isConstant} = 1 if ($lop->{isConstant} && $rop->{isConstant});
   $BOP->_check;
-  $BOP = $context->{parser}{Value}->new($equation,[$BOP->eval])
+  $BOP = $BOP->Item("Value")->new($equation,[$BOP->eval])
     if $BOP->{isConstant} && !$def->{isComma} && $context->flag('reduceConstants');
   return $BOP;
 }
@@ -67,8 +67,7 @@ sub reduce {
   my $self = shift; my $bop = $self->{def};
   $self->{lop} = $self->{lop}->reduce;
   $self->{rop} = $self->{rop}->reduce;
-  my $equation = $self->{equation};
-  return $equation->{context}{parser}{Value}->new($equation,[$self->eval])
+  return $self->Item("Value")->new($self->{equation},[$self->eval])
     if (!$bop->{isComma} && $self->{lop}{isConstant} && $self->{rop}{isConstant});
   $self->_reduce;
 }
@@ -85,7 +84,7 @@ sub substitute {
   $self->{lop} = $self->{lop}->substitute;
   $self->{rop} = $self->{rop}->substitute;
   my $equation = $self->{equation}; my $context = $equation->{context};
-  return $context->{parser}{Value}->new($equation,[$self->eval])
+  return $self->Item("Value")->new($equation,[$self->eval])
     if !$bop->{isComma} && $self->{lop}{isConstant} && $self->{rop}{isConstant} &&
         $context->flag('reduceConstants');
   return $self;

@@ -12,7 +12,7 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $equation = shift; my $context = $equation->{context};
   my $num; my ($value,$ref) = @_;
-  return $equation->{context}{parser}{Complex}->new($equation,$value,$ref)
+  return $self->Item("Complex",$context)->new($equation,$value,$ref)
     if (ref($value) eq 'ARRAY');
   $value = $value->value while Value::isReal($value);
   $num = bless {
@@ -21,7 +21,7 @@ sub new {
     type => $Value::Type{number}, isConstant => 1,
     ref => $ref, equation => $equation,
   }, $class;
-  my $x = Value->Package("Real",$context)->make($context,$value);
+  my $x = $num->Package("Real")->make($context,$value);
   $num->{isOne}  = 1 if $x eq 1;
   $num->{isZero} = 1 if $value == 0;
   return $num;
@@ -49,7 +49,7 @@ sub reduce {
   if ($reduce->{'-n'} && $self->{value} < 0) {
     $self->{value} = -($self->{value});
     $self = Parser::UOP::Neg($self);
-    $self->{op}{isOne} = 1 if Value->Package("Real",$context)->make($context,$self->{op}{value}) eq 1;
+    $self->{op}{isOne} = 1 if $self->Package("Real")->make($context,$self->{op}{value}) eq 1;
   }
   return $self;
 }
@@ -61,12 +61,12 @@ $Parser::reduce->{'-n'} = 1;
 #  Call the Value::Real versions to format numbers
 #
 sub string {
-  my $self = shift; my $context = $self->context;
-  Value->Package("Real",$context)->make($context,$self->{value})->string($self->{equation},@_);
+  my $self = shift;
+  $self->Package("Real")->make($self->context,$self->{value})->string($self->{equation},@_);
 }
 sub TeX {
-  my $self = shift; my $context = $self->context;
-  Value->Package("Real",$context)->make($context,$self->{value})->TeX($self->{equation},@_);
+  my $self = shift;
+  $self->Package("Real")->make($self->context,$self->{value})->TeX($self->{equation},@_);
 }
 sub perl {
   my $self = shift; my $parens = shift;

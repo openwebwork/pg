@@ -19,19 +19,18 @@ $Parser::class->{Value} = 'Parser::Value';
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $equation = shift; my $context = $equation->{context};
-  my $parser = $context->{parser};
   my ($value,$ref) = @_;
   $value = $value->[0] if ref($value) eq 'ARRAY' && scalar(@{$value}) == 1;
   my $type = Value::getType($equation,$value);
   return $value->{tree}->copy($equation) if ($type eq 'Formula');
-  return $parser->{String}->new($equation,$value,$ref) if ($type eq 'String');
-  return $parser->{String}->newInfinity($equation,$value,$ref) if ($type eq 'Infinity');
-  return $parser->{Number}->new($equation,$value,$ref) if ($type eq 'Number');
-  return $parser->{Number}->new($equation,$value->{data},$ref)
+  return $self->Item("String",$context)->new($equation,$value,$ref) if ($type eq 'String');
+  return $self->Item("String",$context)->newInfinity($equation,$value,$ref) if ($type eq 'Infinity');
+  return $self->Item("Number",$context)->new($equation,$value,$ref) if ($type eq 'Number');
+  return $self->Item("Number",$context)->new($equation,$value->{data},$ref)
     if ($type eq 'value' && $value->class eq 'Complex');
   $equation->Error(["Can't convert %s to a constant",Value::showClass($value)],$ref)
     if ($type eq 'unknown');
-  $type = Value->Package($type,$context), $value = $type->new($context,@{$value}) unless $type eq 'value';
+  $type = $self->Package($type,$context), $value = $type->new($context,@{$value}) unless $type eq 'value';
   $type = $value->typeRef;
 
   my $c = bless {
@@ -80,8 +79,8 @@ sub coords {
   my $self = shift;
   return [$self->{value}] unless $self->typeRef->{list};
   my @coords = (); my $equation = $self->{equation};
-  foreach my $x (@{$self->{value}->data})
-    {push(@coords,$equation->{context}{parser}{Value}->new($equation,[$x]))}
+  my $value = $self->Item("Value");
+  foreach my $x (@{$self->{value}->data}) {push(@coords,$value->new($equation,[$x]))}
   return [@coords];
 }
 
@@ -114,7 +113,7 @@ sub makeMatrix {
   my $self = shift; my $context = $self->context;
   my ($name,$open,$close) = @_;
   $self->{type}{name} = $name;
-  $self->{value} = Value->Package("Matrix",$context)->new($context,$self->{value}->value);
+  $self->{value} = $self->Package("Matrix",$context)->new($context,$self->{value}->value);
 }
 
 #

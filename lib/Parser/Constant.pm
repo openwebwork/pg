@@ -79,7 +79,7 @@ sub perl {
     $value = '('.$value.')' if $parens;
     return $value;
   }
-  $data = Value::makeValue($data);
+  $data = Value::makeValue($data,context=>$self->context);
   return $data->perl(@_) if Value::isValue($data);
   return '$'.$self->{name};
 }

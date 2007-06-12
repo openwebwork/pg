@@ -21,6 +21,26 @@ sub class {
 sub context {return shift->{equation}{context}}
 
 #
+#  Get the package for a given Parser class
+#
+sub Item {
+  my $self = shift; my $class = shift;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
+  return $context->{parser}{$class} if defined $context->{parser}{$class};
+  return "Parser::$class" if defined @{"Parser::${class}::ISA"};
+  Value::Error("No such package 'Parser::%s'",$class);
+}
+
+#
+#  Same but for Value classes
+#
+sub Package {
+  my $self = shift; my $class = shift;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
+  Value->Package($class,$context);
+}
+
+#
 #  Get various type information
 #
 sub type {my $self = shift; return $self->{type}{name}}

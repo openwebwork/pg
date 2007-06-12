@@ -88,8 +88,7 @@ sub formula {
 sub recursiveUnion {
   my $formula = shift; my $right = pop(@_);
   return $right if (scalar(@_) == 0);
-  return $formula->{context}{parser}{BOP}->
-    new($formula,'U',recursiveUnion($formula,@_),$right);
+  return $formula->Item("BOP")->new($formula,'U',recursiveUnion($formula,@_),$right);
 }
 
 #

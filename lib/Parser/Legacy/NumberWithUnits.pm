@@ -21,7 +21,7 @@ sub new {
   ($num,$units) = splitUnits($num) unless $units;
   Value::Error("You must provide units for your ".$self->name) unless $units;
   Value::Error("Your units can only contain one division") if $units =~ m!/.*/!;
-  $num = $self->makeValue($num);
+  $num = $self->makeValue($num,context=>$self->context);
   my %Units = getUnits($units);
   Value::Error($Units{ERROR}) if ($Units{ERROR});
   $num->{units} = $units;
@@ -206,8 +206,8 @@ sub name {'formula'};
 sub cmp_class {'a Formula with Units'};
 
 sub makeValue {
-  my $self = shift; my $context = $self->context;
-  Value->Package("Formula",$context)->new($context,shift);
+  my $self = shift;
+  $self->Package("Formula")->new($self->context,shift);
 }
 
 sub checkStudentValue {
@@ -218,8 +218,8 @@ sub checkStudentValue {
 sub adjustCorrectValue {
   my $self = shift; my $ans = shift;
   my $factor = shift;
-  my $f = $ans->{correct_value}; my $parser = $f->{context}{parser};
-  $f->{tree} = $parser->{BOP}->new($f,'*',$f->{tree},$parser->{Value}->new($f,$factor));
+  my $f = $ans->{correct_value}; my $parser = $f->
+  $f->{tree} = $f->Item("BOP")->new($f,'*',$f->{tree},$f->Item("Value")->new($f,$factor));
 }
 
 sub string {

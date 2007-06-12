@@ -21,7 +21,7 @@ sub new {
   }, $def->{class};
   $fn->{isConstant} = $constant;
   $fn->_check;
-  return $context->{parser}{Value}->new($equation,[$fn->eval])
+  return $fn->Item("Value")->new($equation,[$fn->eval])
     if $constant && $context->flag('reduceConstantFunctions');
   $fn->{isConstant} = 0;
   return $fn;
@@ -60,8 +60,7 @@ sub reduce {
   my $constant = 1;
   foreach my $x (@{$self->{params}})
     {$x = $x->reduce; $constant = 0 unless $x->{isConstant}}
-  return $self->{equation}{context}{parser}{Value}->
-    new($self->{equation},[$self->eval]) if $constant;
+  return $self->Item("Value")->new($self->{equation},[$self->eval]) if $constant;
   $self->_reduce;
 }
 #
@@ -78,7 +77,7 @@ sub substitute {
   my $equation = $self->{equation}; my $context = $equation->{context};
   foreach my $x (@{$self->{params}})
     {$x = $x->substitute; $constant = 0 unless $x->{isConstant}}
-  return $context->{parser}{Value}->new($equation,[$self->eval])
+  return $self->Item("Value")->new($equation,[$self->eval])
     if $constant && $context->flag('reduceConstantFunctions');
   $self->{isConstant} = 0;
   return $self;
@@ -126,10 +125,10 @@ sub _call {shift; shift; shift}
 #    given arguments.  They are converted to formulas as well.
 #
 sub formula {
-  my $self = shift; my $name = shift; my $context = $self->contest;
-  my $formula = Value->Package("Formula",$context)->blank($context);
+  my $self = shift; my $name = shift;
+  my $formula = $self->Package("Formula")->blank($self->context);
   my @args = Value::toFormula($formula,@_);
-  $formula->{tree} = $context->{parser}{Function}->new($formula,$name,[@args]);
+  $formula->{tree} = $formula->Item("Function")->new($formula,$name,[@args]);
   return $formula;
 }
 

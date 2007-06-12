@@ -60,7 +60,7 @@ sub new {
 
   if ($list->{isConstant} && $context->flag('reduceConstants')) {
     $type = $list->{type};
-    $list = $context->{parser}{Value}->new($equation,[$list->eval]);
+    $list = $list->Item("Value")->new($equation,[$list->eval]);
     $list->{type} = $type; $list->{open} = $open; $list->{close} = $close;
     $list->{value}->{open} = $open, $list->{value}->{close} = $close
       if ref($list->{value});
@@ -93,9 +93,8 @@ sub eval {
 #  (Can be over-written by sub-classes)
 #
 sub _eval {
-  my $self = shift; my $context = $self->context;
-  my $type = Value->Package($self->type,$context);
-  my $value = $type->new($context,@_);
+  my $self = shift;
+  my $value = $self->Package($self->type)->new($self->context,@_);
   $value->{open} = $self->{open}; $value->{close} = $self->{close};
   return $value;
 }
@@ -116,8 +115,7 @@ sub reduce {
   $self->{isZero} = 1 if $zero and scalar(@{$self->{coords}}) > 0;
   $self->{isConstant} = 1 if $constant;
   ## check matrix for being identity
-  return $self->{equation}{context}{parser}{Value}->
-    new($self->{equation},[$self->eval]) if $constant;
+  return $self->Item("Value")->new($self->{equation},[$self->eval]) if $constant;
   $self->_reduce;
 }
 #
@@ -140,8 +138,7 @@ sub substitute {
   $self->{isZero} = 1 if $zero and scalar(@coords) > 0;
   $self->{isConstant} = 1 if $constant;
   ## check matrix for being identity
-  return $self->{equation}{context}{parser}{Value}->
-    new($self->{equation},[$self->eval])
+  return $self->Item("Value")->new($self->{equation},[$self->eval])
       if $constant && $self->{equation}{context}->flag('reduceConstants');
   return $self;
 }
@@ -223,7 +220,7 @@ sub perl {
   my $self = shift; my $parens = shift; my $matrix = shift;
   my $perl; my @p = ();
   foreach my $x (@{$self->{coords}}) {push(@p,$x->perl)}
-  $perl = Value->Package($self->type,$self->context).'->new('.join(',',@p).')';
+  $perl = $self->Package($self->type).'->new('.join(',',@p).')';
   $perl = "(${perl})->with(open=>'$self->{open}',close=>'$self->{close}')"
     if $self->canBeInUnion ||
       ($self->type eq 'List' && $self->{open}.$self->{close} ne '()');

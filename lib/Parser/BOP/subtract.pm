@@ -10,7 +10,7 @@ our @ISA = qw(Parser::BOP);
 #  Check that the operand types match.
 #
 sub _check {
-  my $self = shift; my $context = $self->context;
+  my $self = shift;
   return if ($self->checkStrings());
   return if ($self->checkLists());
   return if ($self->checkNumbers());
@@ -21,11 +21,11 @@ sub _check {
 	if (!$self->{$op}->isSetOfReals) {
 	  if ($self->{$op}->class eq 'Value') {
 	    $self->{$op}{value} =
-	      Value->Package("Interval",$context)->promote($context,$self->{$op}{value});
+	      $self->Package("Interval")->promote($self->context,$self->{$op}{value});
 	  } else {
 	    $self->{$op} = bless $self->{$op}, 'Parser::List::Interval';
 	  }
-	  $self->{$op}->typeRef->{name} = $context->{parens}{interval}{type};
+	  $self->{$op}->typeRef->{name} = $self->context->{parens}{interval}{type};
 	}
       }
     }
@@ -52,15 +52,14 @@ sub _eval {$_[1] - $_[2]}
 sub _reduce {
   my $self = shift; my $equation = $self->{equation};
   my $reduce = $equation->{context}{reduction};
-  my $parser = $equation->{context}{parser};
   return $self->{lop} if $self->{rop}{isZero} && $reduce->{'x-0'};
   return Parser::UOP::Neg($self->{rop}) if $self->{lop}{isZero} && $reduce->{'0-x'};
   if ($self->{rop}->isNeg && $reduce->{'x-(-y)'}) {
-    $self = $parser->{BOP}->new($equation,'+',$self->{lop},$self->{rop}{op});
+    $self = $self->Item("BOP")->new($equation,'+',$self->{lop},$self->{rop}{op});
     $self = $self->reduce;
   } elsif ($self->{lop}->isNeg && $reduce->{'(-x)-y'}) {
     $self = Parser::UOP::Neg
-      ($parser->{BOP}->new($equation,'+',$self->{lop}{op},$self->{rop}));
+      ($self->Item("BOP")->new($equation,'+',$self->{lop}{op},$self->{rop}));
     $self = $self->reduce;
   }
   return $self;

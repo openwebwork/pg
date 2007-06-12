@@ -25,12 +25,12 @@ sub _eval {
 #  Check the arguments and return the (real or complex) result.
 #
 sub _call {
-  my $self = shift; my $context = $self->context; my $name = shift;
+  my $self = shift; my $name = shift;
   Value::Error("Function '%s' has too many inputs",$name) if scalar(@_) > 1;
   Value::Error("Function '%s' has too few inputs",$name) if scalar(@_) == 0;
   my $n = $_[0];
   return $self->$name($n) if Value::matchNumber($n);
-  Value->Package("Complex",$context)->promote($context,$n)->$name;
+  $self->Package("Complex")->promote($self->context,$n)->$name;
 }
 
 #

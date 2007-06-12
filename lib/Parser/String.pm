@@ -45,8 +45,8 @@ sub newInfinity {
 #
 sub eval {
   my $self = shift; my $context = $self->context;
-  return Value->Package("String",$context)->make($context,$self->{value}) unless $self->{isInfinite};
-  my $I = Value->Package("Infinity",$context)->new($context);
+  return $self->Package("String")->make($context,$self->{value}) unless $self->{isInfinite};
+  my $I = $self->Package("Infinity")->new($context);
   $I = $I->neg if $self->{isNegativeInfinity};
   return $I;
 }

@@ -24,10 +24,10 @@ BEGIN {
 sub new {
   my $self = shift;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  my $class = $context->{parser}{Formula};
+  my $class = $self->Item("Formula",$context);
   my $string = shift;
-  $string = Value->Package($context,"List")->new($string,@_) if scalar(@_) > 0;
-  $string = Value->Package($context,"List")->new($string)->with(open=>'[',close=>']')
+  $string = $self->Package("List",$context)->new($context,$string,@_) if scalar(@_) > 0;
+  $string = $self->Package("List",$context)->new($context,$string)->with(open=>'[',close=>']')
     if ref($string) eq 'ARRAY';
   my $math = bless {
     string => undef,
@@ -36,13 +36,13 @@ sub new {
     context => $context,
   }, $class;
   if (Value::isFormula($string)) {
-    my $tree = $string; $tree = $tree->{tree} if exists $tree->{tree};
+    my $tree = $string; $tree = $tree->{tree} if defined $tree->{tree};
     $math->{tree} = $tree->copy($math);
   } elsif (Value::isValue($string)) {
-    $math->{tree} = $context->{parser}{Value}->new($math,$string);
+    $math->{tree} = $math->Item("Value")->new($math,$string);
   } elsif ($string eq '' && $context->{flags}{allowEmptyStrings}) {
     $math->{string} = "";
-    $math->{tree} = $context->{parser}{Value}->new($math,"");
+    $math->{tree} = $math->Item("Value")->new($math,"");
   } else {
     $math->{string} = $string;
     $math->tokenize;
@@ -51,8 +51,24 @@ sub new {
   return $math;
 }
 
-sub context {Parser::Context->current}
+#
+#  Get the object's context, or the default one
+#
+sub context {
+  my $self = shift;
+  return $self->{context}
+    if ref($self) && ref($self) ne "ARRAY" && ref($self) ne "CODE" && $self->{context};
+  Parser::Context->current;
+}
 
+#
+#  Get the package for a parser item
+#
+sub Item {Parser::Item::Item(@_)}
+
+#
+#  Make a copy of a formula
+#
 sub copy {my $self = shift; $self->new($self)}
 
 ##################################################
@@ -96,7 +112,7 @@ sub tokenize {
 #  For each token, try to add that token to the tree.
 #  After all tokens have been finished, add a CLOSE object for the initial OPEN
 #    and save the complete tree
-# 
+#
 sub parse {
   my $self = shift;
   $self->{tree} = undef; $self->{error} = 0;
@@ -144,7 +160,7 @@ sub state {(shift)->top->{type}}
 #  Report an error at a given possition (if possible)
 #
 sub Error {
-  my $self = shift; my $context = $self->{context};
+  my $self = shift; my $context = $self->context;
   my $message = shift; my $ref = shift;
   my $string; my $more = "";
   if ($ref) {
@@ -236,7 +252,7 @@ sub Op {
       if ($self->state eq 'operand') {
         if ($op->{type} eq 'unary') {
           my $top = $self->pop;
-          $self->pushOperand($context->{parser}{UOP}->new($self,$name,$top->{value},$ref));
+          $self->pushOperand($self->Item("UOP")->new($self,$name,$top->{value},$ref));
         } else {
           $name = $context->{operators}{' '}{string}
             if $name eq ' ' or $name eq $context->{operators}{' '}{space};
@@ -322,14 +338,13 @@ sub Open {
 sub Close {
   my $self = shift; my $type = shift;
   my $ref = $self->{ref} = shift;
-  my $parser = $self->{context}{parser};
   my $parens = $self->{context}{parens};
-  
+
   for ($self->state) {
     /open/ and do {
       my $top = $self->pop; my $paren = $parens->{$top->{value}};
       if ($paren->{emptyOK} && $paren->{close} eq $type) {
-        $self->pushOperand($parser->{List}->new($self,[],1,$paren,undef,$top->{value},$paren->{close}))
+        $self->pushOperand($self->Item("List")->new($self,[],1,$paren,undef,$top->{value},$paren->{close}))
       }
       elsif ($type eq 'start') {$self->Error(["Missing close parenthesis for '%s'",$top->{value}],$top->{ref})}
       elsif ($top->{value} eq 'start') {$self->Error(["Extra close parenthesis '%s'",$type],$ref)}
@@ -346,7 +361,7 @@ sub Close {
         if (!$paren->{removable} || ($top->{value}->type eq "Comma")) {
           $top = $top->{value};
           $top = {type => 'operand', value =>
-	          $parser->{List}->new($self,[$top->makeList],$top->{isConstant},$paren,
+	          $self->Item("List")->new($self,[$top->makeList],$top->{isConstant},$paren,
                     ($top->type eq 'Comma') ? $top->entryType : $top->typeRef,
                     ($type ne 'start') ? ($self->top->{value},$type) : () )};
         }
@@ -355,7 +370,7 @@ sub Close {
       } elsif ($paren->{formInterval} eq $type && $self->top->{value}->length == 2) {
         my $top = $self->pop->{value}; my $open = $self->pop->{value};
         $self->pushOperand(
-           $parser->{List}->new($self,[$top->makeList],$top->{isConstant},
+           $self->Item("List")->new($self,[$top->makeList],$top->{isConstant},
 				     $paren,$top->entryType,$open,$type));
       } else {
         my $prev = $self->prev;
@@ -384,7 +399,7 @@ sub Close {
 ##################################################
 #
 #  Handle any pending operations of higher precedence
-#  
+#
 #  While the top stack item is an operand:
 #    When the preceding item is:
 #      An pending operator:
@@ -417,7 +432,7 @@ sub Close {
 #    If there was an error, stop processing
 #
 sub Precedence {
-  my $self = shift; my $precedence = shift; 
+  my $self = shift; my $precedence = shift;
   my $context = $self->{context};
   while ($self->state eq 'operand') {
     my $prev = $self->prev;
@@ -439,13 +454,13 @@ sub Precedence {
           } else {
             my $rop = $self->pop; my $op = $self->pop; my $lop = $self->pop;
             if ($op->{reverse}) {my $tmp = $rop; $rop = $lop; $lop = $tmp}
-            $self->pushOperand($context->{parser}{BOP}->new($self,$op->{name},
+            $self->pushOperand($self->Item("BOP")->new($self,$op->{name},
                  $lop->{value},$rop->{value},$op->{ref}),$op->{reverse});
           }
         } else {
           my $rop = $self->pop; my $op = $self->pop;
-          $self->pushOperand($context->{parser}{UOP}->new
-             ($self,$op->{name},$rop->{value},$op->{ref}),$op->{reverse});
+          $self->pushOperand($self->Item("UOP")->new
+	       ($self,$op->{name},$rop->{value},$op->{ref}),$op->{reverse});
         }
         last;
       };
@@ -479,8 +494,7 @@ sub CloseFn {
       $context->{parens}{$top->{open}}{close} eq $top->{close} &&
       !$context->{functions}{$fn->{name}}{vectorInput})
          {$top = $top->coords} else {$top = [$top]}
-  $self->pushOperand($context->{parser}{Function}->new
-     ($self,$fn->{name},$top,$constant,$fn->{ref}));
+  $self->pushOperand($self->Item("Function")->new($self,$fn->{name},$top,$constant,$fn->{ref}));
 }
 
 ##################################################
@@ -494,7 +508,7 @@ sub CloseFn {
 sub Num {
   my $self = shift;
   $self->ImplicitMult() if $self->state eq 'operand';
-  my $num = $self->{context}{parser}{Number}->new($self,shift,$self->{ref});
+  my $num = $self->Item("Number")->new($self,shift,$self->{ref});
   my $check = $self->{context}->flag('NumberCheck');
   &$check($num) if $check;
   $self->pushOperand($num);
@@ -503,41 +517,40 @@ sub Num {
 ##################################################
 #
 #  Handle a constant token
-#  
+#
 #  Add an implicit multiplication, if needed
 #  Save the number as an operand
 #
 sub Const {
   my $self = shift; my $ref = $self->{ref}; my $name = shift;
   my $const = $self->{context}{constants}{$name};
-  my $parser = $self->{context}{parser};
   $self->ImplicitMult() if $self->state eq 'operand';
   if (defined($self->{context}{variables}{$name})) {
-    $self->pushOperand($parser->{Variable}->new($self,$name,$ref));
+    $self->pushOperand($self->Item("Variable")->new($self,$name,$ref));
   } elsif ($const->{keepName}) {
-    $self->pushOperand($parser->{Constant}->new($self,$name,$ref));
+    $self->pushOperand($self->Item("Constant")->new($self,$name,$ref));
   } else {
-    $self->pushOperand($parser->{Value}->new($self,[$const->{value}],$ref));
+    $self->pushOperand($self->Item("Value")->new($self,[$const->{value}],$ref));
   }
 }
 
 ##################################################
 #
 #  Handle a variable token
-#  
+#
 #  Add an implicit multiplication, if needed
 #  Save the variable as an operand
-#  
+#
 sub Var {
   my $self = shift;
   $self->ImplicitMult() if $self->state eq 'operand';
-  $self->pushOperand($self->{context}{parser}{Variable}->new($self,shift,$self->{ref}));
+  $self->pushOperand($self->Item("Variable")->new($self,shift,$self->{ref}));
 }
 
 ##################################################
 #
 #  Handle a function token
-#  
+#
 #  Add an implicit multiplication, if needed
 #  Save the function object on the stack
 #
@@ -550,14 +563,14 @@ sub Fn {
 ##################################################
 #
 #  Handle a string constant
-#  
+#
 #  Add an implicit multiplication, if needed (will report an error)
 #  Save the string object on the stack
 #
 sub Str {
   my $self = shift;
   $self->ImplicitMult() if $self->state eq 'operand';
-  $self->pushOperand($self->{context}{parser}{String}->new($self,shift,$self->{ref}));
+  $self->pushOperand($self->Item("String")->new($self,shift,$self->{ref}));
 }
 
 ##################################################
@@ -639,7 +652,7 @@ sub perl {
   my $self = shift;
   $self->setValues(@_);
   my $perl = $self->{tree}->perl;
-  $perl = Value->Package("Real",$self->context).'->new('.$perl.')' if $self->isRealNumber;
+  $perl = $self->Package("Real").'->new('.$perl.')' if $self->isRealNumber;
   $self->unsetValues;
   return $perl;
 }
@@ -679,12 +692,12 @@ sub perlFunction {
 #
 sub setValues {
   my $self = shift; my ($value,$type); my $context = $self->context;
-  my $variables = $self->{context}{variables};
+  my $variables = $context->{variables};
   $self->{values} = {@_};
   foreach my $x (keys %{$self->{values}}) {
     $self->Error(["Undeclared variable '%s'",$x]) unless defined $variables->{$x};
     $value = Value::makeValue($self->{values}{$x},context=>$context);
-    $value = Value->Package("Formula",$context)->new($value) unless Value::isValue($value);
+    $value = $self->Package("Formula")->new($context,$value) unless Value::isValue($value);
     ($value,$type) = Value::getValueType($self,$value);
     $self->Error(["Variable '%s' should be of type %s",$x,$variables->{$x}{type}{name}])
       unless Parser::Item::typeMatch($type,$variables->{$x}{type});

@@ -19,7 +19,7 @@ sub new {
   }, $def->{class};
   $UOP->{isConstant} = 1 if $op->{isConstant};
   $UOP->_check;
-  $UOP = $context->{parser}{Value}->new($equation,[$UOP->eval])
+  $UOP = $UOP->Item("Value")->new($equation,[$UOP->eval])
     if $op->{isConstant} && (!$UOP->isNeg || $op->isNeg) &&
        ($context->flag('reduceConstants') || $op->{isInfinity});
   return $UOP;
@@ -55,7 +55,7 @@ sub reduce {
   my $self = shift; my $uop = $self->{def};
   my $equation = $self->{equation};
   $self->{op} = $self->{op}->reduce;
-  return $equation->{context}{parser}{Value}->new($equation,[$self->eval])
+  return $self->Item("Value")->new($equation,[$self->eval])
     if $self->{op}{isConstant} && !$self->isNeg;
   $self->_reduce;
 }
@@ -68,7 +68,7 @@ sub substitute {
   my $self = shift; my $uop = $self->{def};
   my $equation = $self->{equation}; my $context = $equation->{context};
   $self->{op} = $self->{op}->substitute;
-  return $context->{parser}{Value}->new($equation,[$self->eval])
+  return $self->Item("Value")->new($equation,[$self->eval])
     if $self->{op}{isConstant} && $context->flag('reduceConstants');
   return $self;
 }
@@ -151,7 +151,7 @@ sub Neg {
   my $equation = $self->{equation};
   $self->Error("Can't reduce:  negation operator is not defined")
     if (!defined($equation->{context}{operators}{'u-'}));
-  return ($equation->{context}{parser}{UOP}->new($equation,'u-',$self))->reduce;
+  return ($self->Item("UOP")->new($equation,'u-',$self))->reduce;
 }
 
 #

@@ -40,8 +40,7 @@ sub new {
 sub reduce {
   my $self = shift; my $equation = $self->{equation};
   my $value = $equation->{values}{$self->{name}};
-  $self = $equation->{context}{parser}{Value}->new($equation,[$value])
-    if defined($value);
+  $self = $self->Item("Value")->new($equation,[$value]) if defined($value);
   return $self;
 }
 
@@ -51,8 +50,7 @@ sub reduce {
 sub substitute {
   my $self = shift; my $equation = $self->{equation};
   my $value = $equation->{values}{$self->{name}};
-  $self = $equation->{context}{parser}{Value}->new($equation,[$value])
-    if defined($value);
+  $self = $self->Item("Value")->new($equation,[$value]) if defined($value);
   return $self;
 }
 

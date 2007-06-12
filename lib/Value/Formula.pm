@@ -69,7 +69,6 @@ sub bop {
   my $class = ref($self) || $self;
   my $call = $self->context->{method}{$bop};
   my $formula = $self->blank($self->context);
-  my $parser = $formula->{context}{parser};
   if (ref($r) eq $class || ref($r) eq $pkg) {
     $formula->{context} = $r->{context};
     $r = $r->{tree}->copy($formula);
@@ -80,11 +79,11 @@ sub bop {
   }
   $l = $self->new($l) if (!ref($l) && Value::getType($formula,$l) eq "unknown");
   $r = $self->new($r) if (!ref($r) && Value::getType($formula,$r) eq "unknown");
-  $l = $parser->{Value}->new($formula,$l) unless ref($l) =~ m/^Parser::/;
-  $r = $parser->{Value}->new($formula,$r) unless ref($r) =~ m/^Parser::/;
+  $l = $formula->Item("Value")->new($formula,$l) unless ref($l) =~ m/^Parser::/;
+  $r = $formula->Item("Value")->new($formula,$r) unless ref($r) =~ m/^Parser::/;
   $bop = 'U' if $bop eq '+' &&
     ($l->type =~ m/Interval|Set|Union/ || $r->type =~ m/Interval|Set|Union/);
-  $formula->{tree} = $parser->{BOP}->new($formula,$bop,$l,$r);
+  $formula->{tree} = $formula->Item("BOP")->new($formula,$bop,$l,$r);
   $formula->{variables} = $formula->{tree}->getVariables;
   return $formula;
 }
@@ -125,7 +124,7 @@ sub neg {
   my $self = shift;
   my $formula = $self->blank($self->context);
   $formula->{variables} = $self->{variables};
-  $formula->{tree} = $formula->{context}{parser}{UOP}->new($formula,'u-',$self->{tree}->copy($formula));
+  $formula->{tree} = $formula->Item("UOP")->new($formula,'u-',$self->{tree}->copy($formula));
   return $formula;
 }
 

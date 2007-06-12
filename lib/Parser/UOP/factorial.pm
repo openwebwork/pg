@@ -34,14 +34,13 @@ sub _eval {
 #  Otherwise evaluate the function call.
 #
 sub call {
-  my $self = shift; my $context = $self->context;
+  my $self = shift;
   $self->Error("Factorial requires an argument") if scalar(@_) == 0;
   $self->Error("Factorial should have only one argument") unless scalar(@_) == 1;
   return $self->_eval(@_) unless Value::isFormula($_[0]);
-  my $formula = Value->Package("Formula",$context)->blank($context);
+  my $formula = $self->Package("Formula")->blank($self->context);
   my @args = Value::toFormula($formula,@_);
-  $formula->{tree} = $formula->{context}{parser}{UOP}->new($formula,'!',@args);
-#  return $formula->eval if scalar(%{$formula->{variables}}) == 0;
+  $formula->{tree} = $formula->Item("UOP")->new($formula,'!',@args);
   return $formula;
 }
 

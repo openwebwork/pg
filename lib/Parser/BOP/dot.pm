@@ -35,7 +35,7 @@ sub _eval {$_[1] . $_[2]}
 sub _reduce {
   my $self = shift;
   my $reduce = $self->{equation}{context}{reduction};
-  return $self->{equation}{context}{parser}{Number}->new($self->{equation},0)
+  return $self->Item("Number")->new($self->{equation},0)
     if ($self->{lop}{isZero} && $reduce->{'0.x'}) || ($self->{rop}{isZero} && $reduce->{'x.0'});
   return $self->makeNeg($self->{lop}{op},$self->{rop}) if $self->{lop}->isNeg && $reduce->{'(-x).y'};
   return $self->makeNeg($self->{lop},$self->{rop}{op}) if $self->{rop}->isNeg && $reduce->{'x.(-y)'};

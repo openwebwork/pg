@@ -36,13 +36,12 @@ sub _reduce {
   my $equation = $self->{equation};
   my $reduce = $equation->{context}{reduction};
   if ($self->{lop}->isNeg && $self->{rop}->isNeg && $reduce->{'-x=-y'}) {
-    $self = $equation->{context}{parser}{BOP}->new($equation,'=',$self->{lop}{op},$self->{rop}{op});
+    $self = $self->Item("BOP")->new($equation,'=',$self->{lop}{op},$self->{rop}{op});
     $self = $self->reduce;
   }
   if ($self->{lop}->isNeg && $self->{rop}{isConstant} && 
       $self->{rop}->isNumber && $reduce->{'-x=n'}) {
-    $self = $equation->{context}{parser}{BOP}->new
-      ($equation,"=",$self->{lop}{op},Parser::UOP::Neg($self->{rop}));
+    $self = $self->Item("BOP")->new($equation,"=",$self->{lop}{op},Parser::UOP::Neg($self->{rop}));
     $self = $self->reduce;
   }
   return $self;

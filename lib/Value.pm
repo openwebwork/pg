@@ -317,7 +317,8 @@ sub canBeInUnion {
 #  (as specified by the context's {value} hash, or "Value::name").
 #
 sub Package {
-  my $self = shift; my $class = shift; my $context = $self->context;
+  my $self = shift; my $class = shift;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   return $context->{value}{$class} if defined $context->{value}{$class};
   return "Value::$class" if defined @{"Value::${class}::ISA"};
   Value::Error("No such package 'Value::%s'",$class) unless $_[0];
@@ -483,7 +484,7 @@ sub toFormula {
       $formula->{variables} = {%{$formula->{variables}},%{$x->{variables}}};
       push(@f,$x->{tree}->copy($formula));
     } else {
-      push(@f,$formula->{context}{parser}{Value}->new($formula,$x));
+      push(@f,$formula->Item("Value")->new($formula,$x));
     }
   }
   return (@f);
@@ -503,7 +504,7 @@ sub formula {
   my $paren = $open; $paren = 'list' if $self->classMatch('List');
   my $formula = $self->Package("Formula")->blank($context);
   my @coords = Value::toFormula($formula,@{$values});
-  $formula->{tree} = $formula->{context}{parser}{List}->new($formula,[@coords],0,
+  $formula->{tree} = $formula->Item("List")->new($formula,[@coords],0,
      $formula->{context}{parens}{$paren},$coords[0]->typeRef,$open,$close);
   $formula->{autoFormula} = 1;  # mark that this was generated automatically
   return $formula;
@@ -873,7 +874,7 @@ sub perl {
     $perl = join(',',@p);
     $perl = '['.$perl.']' if $mtype > 0;
   } else {
-    $perl = 'new '.ref($self).'('.join(',',@p).')';
+    $perl = ref($self).'->new('.join(',',@p).')';
     $perl = "($perl)->with(open=>'$self->{open}',close=>'$self->{close}')"
       if $self->classMatch('List') && $self->{open}.$self->{close} ne '()';
     $perl = '('.$perl.')' if $parens == 1;

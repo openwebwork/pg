@@ -26,13 +26,12 @@ sub _check {
 #  Perform the extraction.
 #
 sub _eval {
-  my $self = shift; my $context = $self->context;
-  my $M = shift; my $i = shift;
+  my $self = shift; my $M = shift; my $i = shift;
   $i = $i->data if Value::isValue($i);
   $i = [$i] unless ref($i) eq 'ARRAY';
   my $n = $M->extract(@{$i});
   return $n if ref($n);
-  return Value->Package("List",$context)->new($context) if $n eq '';
+  return $self->Package("List")->new($self->context) if $n eq '';
   return $n;
 }
 
@@ -47,7 +46,6 @@ sub _reduce {
   my $self = shift; my $equation = $self->{equation};
   my $context = $self->context;
   my $reduce = $context->{reduction};
-  my $parser = $context->{parser};
   return $self unless $self->{rop}->{isConstant} && $self->{lop}{coords} && $reduce->{'V_n'};
   my $index = $self->{rop}->eval; my $M = $self->{lop};
   $index = $index->data if Value::isValue($index);
@@ -55,16 +53,16 @@ sub _reduce {
   my @index = @{$index};
   while (scalar(@index) > 0) {
     unless ($M->{coords}) {
-      return $parser->{Value}->new($equation,Value->Package("List",$context)->new($context))
+      return $self->Item("Value")->new($equation,$self->Package("List")->new($context))
         unless $M->type =~ m/Point|Vector|Matrix|List/;
-      return $parser->{BOP}->new($equation,$self->{bop},
-          $M,$parser->{Value}->new($equation,@index))
+      return $self->Item("BOP")->new($equation,$self->{bop},
+          $M,$self->Item("Value")->new($equation,@index))
     }
     my $i = shift(@index); $i-- if $i > 0;
     $self->Error("Can't extract element number '%s' (index must be an integer)",$i)
       unless $i =~ m/^-?\d+$/;
     $M = $M->{coords}[$i];
-    return $parser->{Value}->new($equation,Value->Package("List",$context)->new($context)) unless $M;
+    return $self->Item("Value")->new($equation,$self->Package("List")->new($context)) unless $M;
   }
   return $M;
 }

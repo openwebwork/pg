@@ -42,14 +42,12 @@ sub _eval {
 sub _reduce {
   my $self = shift; my $equation = $self->{equation};
   my $reduce = $equation->{context}{reduction};
-  my $parser = $equation->{context}{parser};
-  return $parser->{Number}->new($equation,1)
+  return $self->Item("Number")->new($equation,1)
     if (($self->{rop}{isZero} && !$self->{lop}{isZero} && $reduce->{'x^0'}) ||
 	($self->{lop}{isOne} && $reduce->{'1^x'}));
   return $self->{lop} if ($self->{rop}{isOne});
   if ($self->{rop}->isNeg && $self->{rop}->string eq '-1' && $reduce->{'x^(-1)'}) {
-    $self = $parser->{BOP}->new($equation,'/',
-      $parser->{Number}->new($equation,1),$self->{lop});
+    $self = $self->Item("BOP")->new($equation,'/',$self->Item("Number")->new($equation,1),$self->{lop});
     $self = $self->reduce;
   }
   return $self;

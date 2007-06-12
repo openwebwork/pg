@@ -14,10 +14,9 @@
  #  The individual Value packages are modified below to add the
  #  needed methods.
  #
- 
  #############################################################
 
-=cut 
+=cut
 
 package Value;
 

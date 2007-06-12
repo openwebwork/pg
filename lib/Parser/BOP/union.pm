@@ -12,7 +12,7 @@ our @ISA = qw(Parser::BOP);
 #    or points of length two (which can be promoted).
 #
 sub _check {
-  my $self = shift; my $context = $self->context;
+  my $self = shift;
   return if ($self->checkStrings());
   if ($self->{lop}->canBeInUnion && $self->{rop}->canBeInUnion) {
     $self->{type} = Value::Type('Union',2,$Value::Type{number});
@@ -20,11 +20,11 @@ sub _check {
       if (!$self->{$op}->isSetOfReals) {
 	if ($self->{$op}->class eq 'Value') {
 	  $self->{$op}{value} =
-	    Value->Package("Interval",$context)->promote($context,$self->{$op}{value});
+	    $self->Package("Interval")->promote($self->context,$self->{$op}{value});
 	} else  {
 	  $self->{$op} = bless $self->{$op}, 'Parser::List::Interval';
 	}
-	$self->{$op}->typeRef->{name} = $context->{parens}{interval}{type};
+	$self->{$op}->typeRef->{name} = $self->context->{parens}{interval}{type};
       }
     }
   } else {$self->Error("Operands of '%s' must be intervals or sets",$self->{bop})}
@@ -44,7 +44,7 @@ sub _eval {$_[1] + $_[2]}
 sub perl {
   my $self = shift; my $parens = shift; my @union = ();
   foreach my $x ($self->makeUnion) {push(@union,$x->perl)}
-  my $perl = Value->Package("Union",$self->context).'->new('.join(',',@union).')';
+  my $perl = $self->Package("Union").'->new('.join(',',@union).')';
   $perl = '('.$perl.')' if $parens;
   return $perl;
 }

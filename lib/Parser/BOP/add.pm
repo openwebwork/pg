@@ -35,10 +35,10 @@ sub _reduce {
   return $self->{lop} if $self->{rop}{isZero} && $reduce->{'x+0'};
   return $self->{rop} if $self->{lop}{isZero} && $reduce->{'0+x'};
   if ($self->{rop}->isNeg && $reduce->{'x+(-y)'}) {
-    $self = $equation->{context}{parser}{BOP}->new($equation,'-',$self->{lop},$self->{rop}{op});
+    $self = $self->Item("BOP")->new($equation,'-',$self->{lop},$self->{rop}{op});
     $self = $self->reduce;
   } elsif ($self->{lop}->isNeg && $reduce->{'(-x)+y'}) {
-    $self = $equation->{context}{parser}{BOP}->new($equation,'-',$self->{rop},$self->{lop}{op});
+    $self = $self->Item("BOP")->new($equation,'-',$self->{rop},$self->{lop}{op});
     $self = $self->reduce;
   }
   return $self;

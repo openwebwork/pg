@@ -52,14 +52,13 @@ sub TeX {
 #  to form reference to array of (references to arrays of ...) entries
 #
 sub perl {
-  my $self = shift; my $context = $self->context;
-  my $parens = shift; my $matrix = shift;
+  my $self = shift; my $parens = shift; my $matrix = shift;
   my $perl; my @p = ();
   foreach my $x (@{$self->{coords}}) {push(@p,$x->perl(0,1))}
   if ($matrix) {
     $perl = '['.join(',',@p).']';
   } else {
-    $perl = Value->Package($self->type,$context).'->new('.join(',',@p).')';
+    $perl = $self->Package($self->type).'->new('.join(',',@p).')';
     $perl = '('.$perl.')' if $parens;
   }
   return $perl;

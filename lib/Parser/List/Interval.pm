@@ -32,9 +32,8 @@ sub canBeInUnion {1}
 #  Use the Value.pm class to produce the result
 #
 sub _eval {
-  my $self = shift; my $context = $self->context;
-  my $type = Value->Package($self->type,$context);
-  return $type->new($context,$self->{open},@_,$self->{close});
+  my $self = shift;
+  $self->Package($self->type)->new($self->context,$self->{open},@_,$self->{close});
 }
 
 #
@@ -44,8 +43,7 @@ sub perl {
   my $self = shift; my $parens = shift;
   my $perl; my @p = ();
   foreach my $x (@{$self->{coords}}) {push(@p,$x->perl)}
-  $perl = Value->Package($self->type,$self->context).'->new('.
-    join(',',"'".$self->{open}."'",@p,"'".$self->{close}."'").')';
+  $perl = $self->Package($self->type).'->new('.join(',',"'".$self->{open}."'",@p,"'".$self->{close}."'").')';
   $perl = '('.$perl.')' if $parens;
   return $perl;
 }
