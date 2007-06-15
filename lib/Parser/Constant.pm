@@ -44,7 +44,8 @@ sub eval {
     foreach my $x (@{$data}) {$x->inContext($context)}
     return @{$data};
   } else {
-    return $data->inContext($context);
+    $data = $data->inContext($context) if Value::isValue($data);
+    return $data;
   }
 }
 
