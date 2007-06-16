@@ -669,7 +669,7 @@ sub _modulo {binOpPromote(@_,'modulo')}
 sub _compare        {binOpPromote(@_,'compare')}
 sub _compare_string {binOp(@_,'compare_string')}
 
-sub _atan2  {binOp(@_,'atan2')}
+sub _atan2  {binOpPromote(@_,'atan2')}
 
 sub _twiddle {(shift)->twiddle}
 sub _neg     {(shift)->neg}
