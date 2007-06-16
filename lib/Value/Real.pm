@@ -114,7 +114,7 @@ sub power {
 sub modulo {
   my ($self,$l,$r) = Value::checkOpOrder(@_);
   $l = $l->{data}[0]; $r = $r->{data}[0];
-  return $self->make(0) if $r->value == 0; # non-fuzzy check
+  return $self->make(0) if $r == 0; # non-fuzzy check
   my $m = $l/$r;
   my $n = int($m); $n-- if $n > $m; # act as floor() rather than int()
   return $self->make($l - $n*$r);
@@ -155,15 +155,11 @@ sub compare {
 #   Numeric functions
 #
 
-sub abs {my $self = shift; $self->make(CORE::abs($self->{data}[0]))}
-sub neg {my $self = shift; $self->make(-($self->{data}[0]))}
-sub exp {my $self = shift; $self->make(CORE::exp($self->{data}[0]))}
-sub log {my $self = shift; $self->make(CORE::log($self->{data}[0]))}
-
-sub sqrt {
-  my $self = shift;
-  return $self->make(CORE::sqrt($self->{data}[0]));
-}
+sub abs  {my $self = shift; $self->make(CORE::abs($self->{data}[0]))}
+sub neg  {my $self = shift; $self->make(-($self->{data}[0]))}
+sub exp  {my $self = shift; $self->make(CORE::exp($self->{data}[0]))}
+sub log  {my $self = shift; $self->make(CORE::log($self->{data}[0]))}
+sub sqrt {my $self = shift; $self->make(CORE::sqrt($self->{data}[0]))}
 
 ##################################################
 #
