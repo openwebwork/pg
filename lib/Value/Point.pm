@@ -118,7 +118,8 @@ sub power {
 #
 sub cross {
   my ($l,$r,$flag) = @_;
-  $l = $l->Package("Vector")->promote($l->context,$l);
+  my $context = $l->context;
+  $l = $context->Package("Vector")->promote($context,$l);
   $l->cross($r,$flag);
 }
 

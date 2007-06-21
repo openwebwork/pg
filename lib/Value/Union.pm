@@ -36,7 +36,7 @@ sub new {
       $isFormula = 1;
     } else {
       if ($x->type ne 'Interval' && $x->canBeInUnion)
-        {$x = $self->Package("Interval")->new($x->{open},$x->value,$x->{close})}
+        {$x = $context->Package("Interval")->new($context,$x->{open},$x->value,$x->{close})}
       if ($x->classMatch('Union')) {push(@intervals,$x->value)}
       elsif ($x->isSetOfReals) {push(@intervals,$x)}
       else {Value::Error("Unions can be taken only for Intervals or Sets")}
@@ -56,7 +56,7 @@ sub new {
 sub form {
   my $context = shift;
   return $_[0] if scalar(@_) == 1;
-  return Value->Package("Set",$context)->new($context) if scalar(@_) == 0;
+  return $context->Package("Set")->new($context) if scalar(@_) == 0;
   my $union = $pkg->make($context,@_);
   $union = $union->reduce if $union->getFlag('reduceUnions');
   return $union;
@@ -99,9 +99,9 @@ sub promote {
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $x = (scalar(@_) ? shift : $self);
   $x = Value::makeValue($x,context=>$context);
-  return $self->Package("Set",$context)->new($context,$x,@_) if scalar(@_) > 0 || Value::isRealNumber($x);
+  return $context->Package("Set")->new($context,$x,@_) if scalar(@_) > 0 || Value::isRealNumber($x);
   return $x->inContext($context) if ref($x) eq $pkg;
-  $x = $self->Package("Interval",$context)->promote($context,$x) if $x->canBeInUnion;
+  $x = $context->Package("Interval")->promote($context,$x) if $x->canBeInUnion;
   return $self->make($context,$x) if Value::isValue($x) && $x->isSetOfReals;
   Value::Error("Can't convert %s to an Interval, Set or Union",Value::showClass($x));
 }

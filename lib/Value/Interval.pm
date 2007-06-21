@@ -27,7 +27,7 @@ sub new {
   my @params = @_;
   Value::Error("Interval can't be empty") unless scalar(@params) > 0;
   Value::Error("Extra arguments for Interval()") if scalar(@params) > 4;
-  return $self->Package("Set")->new($context,@params) if scalar(@params) == 1;
+  return $context->Package("Set")->new($context,@params) if scalar(@params) == 1;
   @params = ('(',@params,')') if (scalar(@params) == 2);
   my ($open,$a,$b,$close) = @params;
   if (!defined($close)) {$close = $b; $b = $a}
@@ -77,10 +77,11 @@ sub make {
 sub formula {
   my $self = shift;
   my ($open,$a,$b,$close) = @_;
-  my $formula = $self->Package("Formula")->blank($self->context);
+  my $context = $self->context;
+  my $formula = $context->Package("Formula")->blank($context);
   ($a,$b) = Value::toFormula($formula,$a,$b);
   $formula->{tree} = $formula->Item("List")->new($formula,[$a,$b],0,
-     $formula->{context}{parens}{$open},$Value::Type{number},$open,$close);
+     $context->{parens}{$open},$Value::Type{number},$open,$close);
   return $formula;
 }
 
@@ -137,7 +138,7 @@ sub promote {
   $x = Value::makeValue($x,context=>$context);
   return $self->new($context,$x,@_) if scalar(@_) > 0;
   return $x if $x->isSetOfReals;
-  return $self->Package("Set")->new($context,$x) if Value::isReal($x);
+  return $context->Package("Set")->new($context,$x) if Value::isReal($x);
   my $open  = $x->{open};  $open  = '(' unless defined($open);
   my $close = $x->{close}; $close = ')' unless defined($close);
   return $self->new($context,$open,$x->value,$close) if $x->canBeInUnion;
@@ -184,18 +185,18 @@ sub subIntervalInterval {
     push(@union,$l) unless $a == $b && $l->{close} eq ')';
   } else {
     if ($a == $c) {
-      push(@union,$self->Package("Set")->make($context,$a))
+      push(@union,$context->Package("Set")->make($context,$a))
 	if $l->{open} eq '[' && $r->{open} eq '(';
     } elsif ($a < $c) {
       my $close = ($r->{open} eq '[')? ')': ']';
-      push(@union,$self->Package("Interval")->make($context,$l->{open},$a,$c,$close));
+      push(@union,$context->Package("Interval")->make($context,$l->{open},$a,$c,$close));
     }
     if ($d == $b) {
-      push(@union,$self->Package("Set")->make($context,$b))
+      push(@union,$context->Package("Set")->make($context,$b))
 	if $l->{close} eq ']' && $r->{close} eq ')';
     } elsif ($d < $b) {
       my $open = ($r->{close} eq ']') ? '(': '[';
-      push(@union,$self->Package("Interval")->make($context,$open,$d,$b,$l->{close}));
+      push(@union,$context->Package("Interval")->make($context,$open,$d,$b,$l->{close}));
     }
   }
   return @union;

@@ -1192,7 +1192,7 @@ package Value::List;
 sub cmp_defaults {
   my $self = shift;
   my %options = (@_);
-  my $element = Value::makeValue($self->{data}[0],$self->context);
+  my $element = Value::makeValue($self->{data}[0],context=>$self->context);
   $element = $self->Package("Formula")->new($element) unless Value::isValue($element);
   return (
     Value::Real->cmp_defaults(@_),

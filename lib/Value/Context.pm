@@ -89,6 +89,14 @@ sub copy {
   return $context;
 }
 
+#
+#  Get the package name for a Value class
+#
+sub Package {
+  my $self = shift; my $name = shift;
+  Value->Package($name,$self,@_);
+}
+
 
 #
 #  Make stringify produce TeX or regular strings

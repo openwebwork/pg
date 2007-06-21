@@ -23,7 +23,8 @@ sub new {
   $x = [$x] unless ref($x) eq 'ARRAY'; $x->[1] = 0 unless defined($x->[1]);
   Value::Error("Can't convert ARRAY of length %d to a Complex Number",scalar(@{$x}))
     unless (scalar(@{$x}) == 2);
-  $x->[0] = Value::makeValue($x->[0],$context); $x->[1] = Value::makeValue($x->[1],$context);
+  $x->[0] = Value::makeValue($x->[0],context=>$context);
+  $x->[1] = Value::makeValue($x->[1],context=>$context);
   return $x->[0] if Value::isComplex($x->[0]) && scalar(@_) == 0;
   Value::Error("Real part can't be %s",Value::showClass($x->[0]))
      unless (Value::isRealNumber($x->[0]));

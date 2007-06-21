@@ -45,7 +45,8 @@ sub make {
 #
 sub formula {
   my $self = shift; my $value = shift;
-  $self->Package("Formula")->new($self->context,$value);
+  my $context = $self->context;
+  $context->Package("Formula")->new($context,$value);
 }
 
 #

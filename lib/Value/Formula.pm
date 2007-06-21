@@ -151,7 +151,8 @@ sub twiddle {shift->call('conj',@_)}
 #
 sub compare {
   my ($l,$r) = @_; my $self = $l;
-  $r = $self->Package("Formula")->new($self->context,$r) unless Value::isFormula($r);
+  my $context = $self->context;
+  $r = $context->Package("Formula")->new($context,$r) unless Value::isFormula($r);
   Value::Error("Functions from different contexts can't be compared")
     unless $l->{context} == $r->{context};
 
@@ -292,7 +293,7 @@ sub createRandomPoints {
     @P = (); $i = 0;
     foreach my $limit (@limits) {
       @p = (); foreach my $I (@{$limit})
-        {push @p, $self->Package("Real")->make($context,$self->$getRandom(@{$I}))}
+        {push @p, $context->Package("Real")->make($context,$self->$getRandom(@{$I}))}
       push @P, $make[$i++]->make($context,@p);
     }
     $v = eval {&$f(@P,@zeros)};
