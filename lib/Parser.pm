@@ -26,8 +26,8 @@ sub new {
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $class = $self->Item("Formula",$context);
   my $string = shift;
-  $string = $self->Package("List",$context)->new($context,$string,@_) if scalar(@_) > 0;
-  $string = $self->Package("List",$context)->new($context,$string)->with(open=>'[',close=>']')
+  $string = $context->Package("List")->new($context,$string,@_) if scalar(@_) > 0;
+  $string = $context->Package("List")->new($context,$string)->with(open=>'[',close=>']')
     if ref($string) eq 'ARRAY';
   my $math = bless {
     string => undef,
@@ -35,7 +35,7 @@ sub new {
     variables => {}, values => {},
     context => $context,
   }, $class;
-  if (Value::isFormula($string)) {
+  if (ref($string) =~ m/^Parser::/ || Value::isFormula($string)) {
     my $tree = $string; $tree = $tree->{tree} if defined $tree->{tree};
     $math->{tree} = $tree->copy($math);
   } elsif (Value::isValue($string)) {

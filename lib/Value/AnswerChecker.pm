@@ -1967,16 +1967,17 @@ sub array_OK {
 #
 sub value {
   my $self = shift;
+  my $context = $self->context;
   my @array = ();
   if ($self->{tree}->type eq 'Matrix') {
     foreach my $row (@{$self->{tree}->coords}) {
       my @row = ();
-      foreach my $x (@{$row->coords}) {push(@row,$self->Package("Formula")->new($x))}
+      foreach my $x (@{$row->coords}) {push(@row,$context->Package("Formula")->new($context,$x))}
       push(@array,[@row]);
     }
   } else {
     foreach my $x (@{$self->{tree}->coords}) {
-      push(@array,$self->Package("Formula")->new($x));
+      push(@array,$context->Package("Formula")->new($context,$x));
     }
   }
   return @array;
