@@ -10,18 +10,20 @@ package Parser::Legacy::ObjectWithUnits;
 sub name {'object'};
 sub cmp_class {'an Object with Units'};
 sub makeValue {
-  my $self = shift; my $context = (ref($self) ? $self->context : $$Value::context);
-  Value::makeValue(@_,context=>$context);
+  my $self = shift; my $value = shift;
+  my %options = (context=>$self->context,@_);
+  Value::makeValue($value,%options);
 }
 
 sub new {
   my $self = shift; my $class = ref($self) || $self;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $num = shift; my $units = shift;
   Value::Error("You must provide a ".$self->name) unless defined($num);
   ($num,$units) = splitUnits($num) unless $units;
   Value::Error("You must provide units for your ".$self->name) unless $units;
   Value::Error("Your units can only contain one division") if $units =~ m!/.*/!;
-  $num = $self->makeValue($num,context=>$self->context);
+  $num = $self->makeValue($num,context=>$context);
   my %Units = getUnits($units);
   Value::Error($Units{ERROR}) if ($Units{ERROR});
   $num->{units} = $units;
@@ -40,7 +42,7 @@ my $unitPattern = $aUnit.'(?:\s*[/* ]\s*'.$aUnit.')*';
 my $unitSpace = "($aUnit) +($aUnit)";
 sub splitUnits {
   my $string = shift;
-  my ($num,$units) = $string =~ m!^(.*?(?:[)}\]0-9a-z]|\d\.))\s*($unitPattern)$!o;
+  my ($num,$units) = $string =~ m!^(.*?(?:[)}\]0-9a-z]|\d\.))\s*($unitPattern)\s*$!o;
   if ($units) {
     while ($units =~ s/$unitSpace/$1*$2/) {};
     $units =~ s/ //g;
@@ -155,6 +157,8 @@ sub adjustCorrectValue {
 
 sub cmp_reparse {Value::cmp_parse(@_)}
 
+sub _compare {Value::binOp(@_,'compare')}
+
 ######################################################################
 
 #
@@ -168,8 +172,9 @@ sub name {'number'};
 sub cmp_class {'a Number with Units'};
 
 sub makeValue {
-  my $self = shift;
-  my $num = Value::makeValue(shift,context=>$self->context);
+  my $self = shift; my $value = shift;
+  my %options = (context => $self->context,@_);
+  my $num = Value::makeValue(shift,%options);
   Value::Error("A number with units must be a constant, not %s",lc(Value::showClass($num)))
     unless Value::isReal($num);
   return $num;
@@ -206,8 +211,9 @@ sub name {'formula'};
 sub cmp_class {'a Formula with Units'};
 
 sub makeValue {
-  my $self = shift;
-  $self->Package("Formula")->new($self->context,shift);
+  my $self = shift; my $value = shift;
+  my %options = (context => $self->context,@_);
+  $self->Package("Formula")->new($options{context},$value);
 }
 
 sub checkStudentValue {
@@ -218,7 +224,7 @@ sub checkStudentValue {
 sub adjustCorrectValue {
   my $self = shift; my $ans = shift;
   my $factor = shift;
-  my $f = $ans->{correct_value}; my $parser = $f->
+  my $f = $ans->{correct_value};
   $f->{tree} = $f->Item("BOP")->new($f,'*',$f->{tree},$f->Item("Value")->new($f,$factor));
 }
 
