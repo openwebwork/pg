@@ -152,7 +152,7 @@ sub cmp_parse {
 sub adjustCorrectValue {
   my $self = shift; my $ans = shift;
   my $factor = shift;
-  $ans->{correct_value} *= $factor;
+  $ans->{correct_value}{data}[0] *= $factor;
 }
 
 sub cmp_reparse {Value::cmp_parse(@_)}
@@ -174,7 +174,7 @@ sub cmp_class {'a Number with Units'};
 sub makeValue {
   my $self = shift; my $value = shift;
   my %options = (context => $self->context,@_);
-  my $num = Value::makeValue(shift,%options);
+  my $num = Value::makeValue($value,%options);
   Value::Error("A number with units must be a constant, not %s",lc(Value::showClass($num)))
     unless Value::isReal($num);
   return $num;
