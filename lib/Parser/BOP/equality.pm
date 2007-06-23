@@ -97,7 +97,7 @@ sub TeX {
 #  Add/Remove the equality operator to/from a context
 #
 sub Allow {
-  my $self = shift; my $context = self->context;
+  my $self = shift || "Value"; my $context = shift || $self->context;
   my $allow = shift; $allow = 1 unless defined($allow);
   if ($allow) {
     my $prec = $context->{operators}{','}{precedence};
