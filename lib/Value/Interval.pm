@@ -62,12 +62,13 @@ sub new {
 #
 sub make {
   my $self = shift; my $class = ref($self) || $self;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my ($open,$a,$b,$close) = @_;
   $close = $b, $b = $a unless defined($close);
   bless {
     data => [$a,$b], open => $open, close => $close,
     leftInfinite => isNegativeInfinity($a), rightInfinite => isInfinity($b),
-    context => $self->context,
+    context => $context,
   }, $class
 }
 
