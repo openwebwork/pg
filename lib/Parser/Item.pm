@@ -18,7 +18,10 @@ sub class {
 #
 #  Get the equation context
 #
-sub context {return shift->{equation}{context}}
+sub context {
+  my $self = shift;
+  return (ref($self) ? $self->{equation}{context} : Value->context);
+}
 
 #
 #  Get the package for a given Parser class
