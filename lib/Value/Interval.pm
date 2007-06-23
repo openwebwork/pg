@@ -133,8 +133,9 @@ sub length {
 #  Convert points and lists to intervals, when needed
 #
 sub promote {
-  my $self = shift; my $x = (scalar(@_) ? shift : $self);
+  my $self = shift;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
+  my $x = (scalar(@_) ? shift : $self);
   $x = Value::makeValue($x,context=>$context);
   return $self->new($context,$x,@_) if scalar(@_) > 0;
   return $x if $x->isSetOfReals;
