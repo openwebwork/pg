@@ -259,7 +259,7 @@ sub classMatch {
   my $ref = ref($self); my $isHash = ($ref && $ref ne 'ARRAY' && $ref ne 'CODE');
   my $context = ($isHash ? $self->{context} : $$Value::context);
   foreach my $name (@_) {
-    return 1 if $class eq $name || $ref eq Value->Package($name,$context,0) ||
+    return 1 if $class eq $name || $ref eq $context->Package($name,0) ||
                 $ref eq "Value::$name" || ($isHash && $self->{"is".$name});
   }
   return 0;
@@ -311,18 +311,12 @@ sub canBeInUnion {
 ######################################################################
 
 #
-#  Value->Package(name[,context[,noerror]])
+#  Value->Package(name[,noerror]])
 #
 #  Returns the package name for the specificied Value object class
 #  (as specified by the context's {value} hash, or "Value::name").
 #
-sub Package {
-  my $self = shift; my $class = shift;
-  my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  return $context->{value}{$class} if defined $context->{value}{$class};
-  return "Value::$class" if defined @{"Value::${class}::ISA"};
-  Value::Error("No such package 'Value::%s'",$class) unless $_[0];
-}
+sub Package {(shift)->context->Package(@_)}
 
 =head3 makeValue
 
@@ -340,19 +334,19 @@ sub makeValue {
   my %params = (showError => 0, makeFormula => 1, context => $$Value::context, @_);
   my $context = $params{context};
   return $x if ref($x) && ref($x) ne 'ARRAY';
-  return Value->Package("Real",$context)->make($context,$x) if matchNumber($x);
+  return $context->Package("Real")->make($context,$x) if matchNumber($x);
   if (matchInfinite($x)) {
-    my $I = Value->Package("Infinity",$context)->new($context);
+    my $I = $context->Package("Infinity")->new($context);
     $I = $I->neg if $x =~ m/^$context->{pattern}{-infinity}$/;
     return $I;
   }
-  return Value->Package("String",$context)->make($context,$x)
+  return $context->Package("String")->make($context,$x)
     if !$Parser::installed || $context->{strings}{$x} ||
        ($x eq '' && $context->{flags}{allowEmptyStrings});
   return $x if !$params{makeFormula};
   Value::Error("String constant '%s' is not defined in this context",$x)
     if $params{showError};
-  $x = Value->Package("Formula",$context)->new($context,$x);
+  $x = $context->Package("Formula")->new($context,$x);
   $x = $x->eval if $x->isConstant;
   return $x;
 }
@@ -464,7 +458,7 @@ sub getValueType {
   elsif ($type eq 'unknown') {
     $equation->Error(["Can't convert %s to a constant",Value::showClass($value)]);
   } else {
-    $type = Value->Package($type,$equation->{context});
+    $type = $equation->{context}->Package($type);
     $value = $type->new($equation->{context},@{$value});
     $type = $value->typeRef;
   }

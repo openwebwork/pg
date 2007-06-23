@@ -90,13 +90,15 @@ sub copy {
 }
 
 #
-#  Get the package name for a Value class
+#  Returns the package name for the specificied Value object class
+#  (as specified by the context's {value} hash, or "Value::name").
 #
 sub Package {
-  my $self = shift; my $name = shift;
-  Value->Package($name,$self,@_);
+  my $context = shift; my $class = shift;
+  return $context->{value}{$class} if defined $context->{value}{$class};
+  return "Value::$class" if defined @{"Value::${class}::ISA"};
+  Value::Error("No such package 'Value::%s'",$class) unless $_[0];
 }
-
 
 #
 #  Make stringify produce TeX or regular strings

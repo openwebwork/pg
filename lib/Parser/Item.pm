@@ -40,7 +40,7 @@ sub Item {
 sub Package {
   my $self = shift; my $class = shift;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  Value->Package($class,$context);
+  $context->Package($class);
 }
 
 #

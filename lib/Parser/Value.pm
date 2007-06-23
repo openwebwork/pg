@@ -30,7 +30,7 @@ sub new {
     if ($type eq 'value' && $value->class eq 'Complex');
   $equation->Error(["Can't convert %s to a constant",Value::showClass($value)],$ref)
     if ($type eq 'unknown');
-  $type = $self->Package($type,$context), $value = $type->new($context,@{$value}) unless $type eq 'value';
+  $type = $context->Package($type), $value = $type->new($context,@{$value}) unless $type eq 'value';
   $type = $value->typeRef;
 
   my $c = bless {
