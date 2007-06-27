@@ -10,6 +10,7 @@ our @ISA = qw(Parser Value);
 
 my $UNDEF = bless {}, "UNDEF"; # used for undefined points
 
+
 #
 #  Call Parser to make the new Formula
 #
