@@ -517,11 +517,12 @@ sub make {
 
 #
 #  Easy method for setting parameters of an object
+#  (returns a copy with the new values set, but the copy
+#  is not a deep copy.)
 #
 sub with {
-  my $self = shift; my %hash = @_;
-  foreach my $id (keys(%hash)) {$self->{$id} = $hash{$id}}
-  return $self;
+  my $self = shift;
+  bless {%{$self},@_}, ref($self);
 }
 
 ######################################################################
