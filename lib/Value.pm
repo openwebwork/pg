@@ -627,7 +627,7 @@ sub promotePrecedence {
 
 sub promote {
   my $self = shift;
-  return $_[0] if scalar(@_) == 1 && ref($_[1]) == ref($self);
+  return $_[0] if scalar(@_) == 1 && ref($_[1]) eq ref($self);
   return $self->new(@_);
 }
 
