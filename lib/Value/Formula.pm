@@ -437,6 +437,8 @@ sub AdaptParameters {
 	}
 	push @a, $row->[0]; $i++;
       }
+      my $context = $l->context;
+      foreach my $i (0..$#a) {$context->{variables}{$params[$i]}{value} = $a[$i]}
       $l->{parameters} = [@a];
       $l->createAdaptedValues;
       return 1;
