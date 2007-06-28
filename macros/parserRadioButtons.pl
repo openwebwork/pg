@@ -84,6 +84,7 @@ my $jsPrinted = 0;  # true when the JavaScript has been printed
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $choices = shift; my $value = shift;
   my %options;
   main::set_default_options(\%options,
@@ -101,18 +102,12 @@ sub new {
     unless ref($choices) eq 'ARRAY';
   Value::Error("A RadioButton's second argument should be the correct button choice")
     unless defined($value) && $value ne "";
-  my $oldContext = main::Context();
-  my $context = $main::context{String}->copy;
-  main::Context($context);
+  my $context = Parser::Context->getCopy(undef,"String");
   my %choiceHash = $self->choiceHash(1);
   $context->strings->add(map {$_=>{}} (keys %choiceHash));
   $value = $self->correctChoice($value);
-  $self = bless Value::String->new($value)->with(
-    isValue => 1, context => $context,
-    choices => $choices,
-    %options,
-  ), $class;
-  main::Context($oldContext);
+  $self = bless $context->Package("String")->new($context,$value)->with(
+    isValue => 1, choices => $choices, %options), $class;
   $self->JavaScript if $self->{uncheckable};
   return $self;
 }
