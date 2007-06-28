@@ -27,12 +27,11 @@ sub _contextLimitedVector_init {}; # don't load it again
 #       Context("LimitedVector");      # either one
 #
 
+=cut
+
 #
 #  Handle common checking for BOPs
 #
-
-=cut
-
 package LimitedVector::BOP;
 
 #
@@ -46,7 +45,7 @@ sub _check {
   my $super = ref($self); $super =~ s/LimitedVector/Parser/;
   &{$super."::_check"}($self);
   return if $self->checkNumbers;
-  if ($self->{equation}{context}{flags}{vector_format} ne 'coordinate') {
+  if ($self->context->{flags}{vector_format} ne 'coordinate') {
     $self->checkConstants($self->{lop});
     $self->checkConstants($self->{rop});
     return if $self->checkVectors;
@@ -146,7 +145,7 @@ sub _check {
   my $super = ref($self); $super =~ s/LimitedVector/Parser/;
   &{$super."::_check"}($self);
   return if $self->checkNumber;
-  if ($self->{equation}{context}{flags}{vector_format} ne 'coordinate') {
+  if ($self->context->{flags}{vector_format} ne 'coordinate') {
     LimitedVector::BOP::checkConstants($self,$self->{op});
     return if $self->checkVector;
   }
@@ -197,7 +196,7 @@ our @ISA = qw(Parser::List::Vector);
 sub _check {
   my $self = shift;
   $self->SUPER::_check;
-  return if $self->{equation}{context}{flags}{vector_format} ne 'ijk';
+  return if $self->context->{flags}{vector_format} ne 'ijk';
   $self->Error("Vectors must be given in the form 'ai+bj+ck' in this context");
 }
 
@@ -211,7 +210,7 @@ package main;
 #  above classes rather than the usual ones
 #
 
-$context{LimitedVector} = Context("Vector");
+$context{LimitedVector} = Parser::Context->getCopy(undef,"Vector");
 $context{LimitedVector}->operators->set(
    '+' => {class => 'LimitedVector::BOP::add'},
    '-' => {class => 'LimitedVector::BOP::subtract'},
