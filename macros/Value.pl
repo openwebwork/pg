@@ -32,10 +32,11 @@ sub ColumnVector {Value->Package("Vector")->new(@_)->with(ColumnVector=>1,open=>
 
 # sub Formula  {Value->Package("Formula")->new(@_)}  # in Parser.pl
 
-=head3 Closed($L_bound,$U_bound)
+=head3 Closed($point)
 
 #
-#  Make a point or list a closed interval
+#  Make a point or list a closed interval.
+#  (Obsolete: use $x->with(open=>'[',close=>']') instead.)
 #
 
 =cut

@@ -27,10 +27,11 @@ if (!$Value::installed) {
 loadMacros("Value.pl");
 loadMacros("PGcommonFunctions.pl");
 
-=head3 Formula("$formula")
+=head3 Formula("formula")
 
 #
-#  The main way to get a formula
+#  The main way to get a MathObject Formula object (an equation
+#  that depends on one or more variables).
 #
 
 =cut
@@ -40,10 +41,19 @@ sub Formula {Value->Package("Formula")->new(@_)}
 
 
 
-=head3 Compute($formula,$value)
+=head3 Compute("formula"[,var=>value,...])
 
 #
-#  Parse a formula and evaluate it
+#  Compute the value of a formula and return a MathObject appropriate
+#  to its value.  Set the object so that the correct answer will be
+#  shown exatly as in the given string rather than by its usual
+#  stringification.  If the value is a Formula and any var=>value
+#  pairs are specified, then the formula will be evaluated using
+#  the given variable values.  E.g.,
+#
+#    $x = Compute("x+3",x=>2)
+#
+#  will produce the equivalent of $x = Real(5).
 #
 
 =cut
@@ -56,16 +66,19 @@ sub Compute {
   return $formula;
 }
 
-=head3 Context()
+=head3 Context(), Context(name) or Context(context)
 
 #
-#  Deal with contexts
+#  Set or get the current context.  When a name is given, the context
+#  with that name is selected as the current context.  When a context
+#  reference is provided, that context is set as the current one.  In
+#  all three cases, the current context (after setting) is returned.
 #
 
 =cut
 
 sub Context {Parser::Context->current(\%context,@_)}
-%context = ();  # locally defined contexts, including 'current' context
+%context = ();  # Locally defined contexts, including 'current' context
 Context();      # Initialize context (for persistent mod_perl)
 
 ###########################################################################
