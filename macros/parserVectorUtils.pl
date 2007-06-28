@@ -77,6 +77,8 @@ $GRAD = '\nabla ';
 #  with the given random range (which defaults to (-5,5,1)).
 #
 #  non_zero_point(n,a,b,c)
+#  non_zero_point_2D(a,b,c)
+#  non_zero_point_3D(a,b,c)
 #
 #  non_zero_point2D and 3D automatically set Dimension to 2 and 3 respectively.
 #
@@ -103,11 +105,11 @@ sub non_zero_point3D {non_zero_point(3,@_)}
 
 =cut
 
-sub non_zero_vector {Vector(non_zero_point(@_))}
+sub non_zero_vector   {Vector(non_zero_point(@_))}
 sub non_zero_vector2D {non_zero_vector(2,@_)}
 sub non_zero_vector3D {non_zero_vector(3,@_)}
 
-=head3 Line(Point($coord1),Vector($coord2),'variableLetter')
+=head3 Line(Point(@coords1),Vector(@coords2),'variableLetter')
 
 #
 #  Form the vector-parametric form for a line given its point and vector
@@ -119,6 +121,9 @@ sub non_zero_vector3D {non_zero_vector(3,@_)}
 #
 #  Ex:  Line([1,-3],[2,1]) produces Vector("1+2t","-3+t").
 #  Ex:  Line(Point(1,-3),Vector(2,1)) produces Vector("1+2t","-3+t").
+#
+#  (It may be better to use the ParametricLine class from
+#  parserParametricLine.pl).
 #
 
 =cut
@@ -132,7 +137,7 @@ sub Line {
   return Vector(@coords);
 }
 
-=head3 Plane(@Point,@NormalVector
+=head3 Plane($point,$NormalVector)
 
 #
 #  Creates a displayable string for a plane given its
