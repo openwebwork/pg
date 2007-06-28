@@ -47,7 +47,7 @@ sub parse {
 
 package main;
 
-$context{String} = Context("Numeric");
+$context{String} = Parser::Context->getCopy(undef,"Numeric");
 $context{String}->parens->undefine('|','{','(','[');
 $context{String}->variables->clear();
 $context{String}->constants->clear();
