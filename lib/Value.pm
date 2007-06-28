@@ -737,7 +737,7 @@ sub _dot {
   my ($l,$r,$flag) = @_;
   return $r->_dot($l,!$flag) if ($l->promotePrecedence($r));
   return $l->dot($r,$flag) if (Value::isValue($r));
-  if ($l->getFlag('StringifyAsTeX')) {$l = $l->TeX} else {$l = $l->pdot}
+  if (Value->context->flag('StringifyAsTeX')) {$l = $l->TeX} else {$l = $l->pdot}
   return ($flag)? ($r.$l): ($l.$r);
 }
 #
@@ -745,7 +745,7 @@ sub _dot {
 #
 sub dot {
   my ($l,$r,$flag) = @_;
-  my $tex = $l->getFlag('StringifyAsTeX');
+  my $tex = Value->context->flag('StringifyAsTeX');
   if ($tex) {$l = $l->TeX} else {$l = $l->pdot}
   if (ref($r)) {if ($tex) {$r = $r->TeX} else {$r = $r->pdot}}
   return ($flag)? ($r.$l): ($l.$r);
@@ -799,7 +799,7 @@ sub compare_string {
 
 sub stringify {
   my $self = shift;
-  return $self->TeX() if $self->getFlag('StringifyAsTeX');
+  return $self->TeX() if Value->context->flag('StringifyAsTeX');
   my $def = $self->context->lists->get($self->class);
   return $self->string unless $def;
   my $open = $self->{open};   $open  = $def->{open}  unless defined($open);
