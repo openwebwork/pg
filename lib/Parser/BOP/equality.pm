@@ -59,7 +59,7 @@ sub string {
   $position = '' unless defined($position);
   $showparens = '' unless defined($showparens);
   my $extraParens = $self->{equation}{context}->flag('showExtraParens');
-  my $addparens = 
+  my $addparens =
       defined($precedence) &&
       ($precedence > $bop->{precedence} || ($precedence == $bop->{precedence} &&
         ($bop->{associativity} eq 'right' || $showparens eq 'same')));
@@ -92,6 +92,18 @@ sub TeX {
   $TeX = '\left('.$TeX.'\right)' if ($addparens);
   return $TeX;
 }
+
+sub perl {
+  my $self= shift;
+  my $bop = $self->{def};
+  return
+     "(" .
+       $self->{lop}->perl(1).
+       " ".($bop->{perl} || $bop->{string})." ".
+       $self->{rop}->perl(2) .
+     " ? 1 : 0)";
+}
+
 
 #
 #  Add/Remove the equality operator to/from a context
