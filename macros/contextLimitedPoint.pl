@@ -13,12 +13,11 @@ sub _contextLimitedPoint_init {}; # don't load it again
 #  coordinates of the points, but not between points.
 #
 
+=cut
+
 #
 #  Handle common checking for BOPs
 #
-
-=cut
-
 package LimitedPoint::BOP;
 
 #
@@ -114,7 +113,7 @@ package main;
 #  above classes rather than the usual ones
 #
 
-$context{LimitedPoint} = Context("Vector");
+$context{LimitedPoint} = Parser::Context->getCopy(undef,"Point");
 $context{LimitedPoint}->operators->set(
    '+' => {class => 'LimitedPoint::BOP::add'},
    '-' => {class => 'LimitedPoint::BOP::subtract'},
