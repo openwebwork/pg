@@ -45,17 +45,16 @@ our @ISA = qw(Value::Formula);
 
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my $formula = shift; my $current = $$Value::context;
+  my $current = (Value::isContext($_[0]) ? shift : $self->context);
+  my $formula = shift;
   my $dx = shift || $current->flag('diffQuotientVar') || 'd'.($current->variables->names)[-1];
   #
-  #  Save the original context, and make a copy to which we
-  #  add a variable for 'dx'
+  #  Make a copy of the context to which we add a variable for 'dx'
   #
-  my $context = main::Context($current->copy);
+  my $context = $current->copy;
   $context->variables->add($dx=>'Real') unless ($context->variables->get($dx));
-  $q = bless $self->SUPER::new($formula), $class;
+  $q = bless $context->Package("Formula")->new($context,$formula), $class;
   $q->{isValue} = 1; $q->{isFormula} = 1; $q->{'dx'} = $dx;
-  main::Context($current);  # put back the original context;
   return $q;
 }
 
