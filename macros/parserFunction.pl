@@ -47,7 +47,7 @@ our @ISA = qw(Parser::Function);
 
 sub Create {
   my $self = shift; my $name = shift; my $formula = shift;
-  my $context = $$Value::context;
+  my $context = (Value::isContext($_[0]) ? shift : Value->context);
   my @argNames; my @argTypes; my @newVars;
   #
   #  Look for argument names for the function
@@ -71,7 +71,7 @@ sub Create {
   #
   #  Create the formula and get its arguments and types
   #
-  $formula = Value::Formula->new($formula) unless Value::isFormula($formula);
+  $formula = $context->Package("Formula")->new($context,$formula) unless Value::isFormula($formula);
   @argNames = main::lex_sort(keys(%{$formula->{variables}})) unless scalar(@argNames);
   foreach my $x (@argNames) {push(@argTypes,$context->{variables}{$x}{type})}
   #
@@ -120,7 +120,7 @@ sub _eval {
 #
 sub _call {
   my $self = shift; my $name = shift;
-  my $def = $$Value::context->{functions}{$name};
+  my $def = Value->context->{functions}{$name};
   &{$def->{function}}(@_);
 }
 
