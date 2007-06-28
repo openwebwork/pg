@@ -141,10 +141,11 @@ my @ans_defaults = (
 
 sub new {
   my $self = shift; my $class = ref($self) || $self;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my @data = @_; my @cmp;
   Value::Error("%s lists can't be empty",$class) if scalar(@data) == 0;
   foreach my $x (@data) {
-    $x = Value::makeValue($x) unless Value::isValue($x);
+    $x = Value::makeValue($x,context=>$context) unless Value::isValue($x);
     push(@cmp,$x->cmp(@ans_defaults));
   }
   bless {
@@ -152,7 +153,7 @@ sub new {
     part => 0, singleResult => 0, namedRules => 0,
     checkTypes => 1, allowBlankAnswers => 0,
     tex_separator => $separator.'\,', separator => $separator.' ',
-    context => $$Value::context, id => $answerPrefix.($count++),
+    context => $context, id => $answerPrefix.($count++),
   }, $class;
 }
 
