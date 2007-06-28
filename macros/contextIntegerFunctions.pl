@@ -25,7 +25,7 @@ sub _contextIntegerFunctions_init {}; # don't reload this file
 
 =cut
 
-$context{IntegerFunctions} = Context("Numeric")->copy;
+$context{IntegerFunctions} = Parser::Context->getCopy(undef,"Numeric");
 
 package IntegerFunction2;
 our @ISA = qw(Parser::Function::numeric2); # checks for 2 numeric inputs
