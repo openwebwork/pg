@@ -59,16 +59,8 @@ sub promote {
 #  Operations on points
 #
 
-#
-#  Don't automatically promote to Points for these
-#
-sub _mult  {Value::binOp(@_,"mult")}
-sub _div   {Value::binOp(@_,"div")}
-sub _power {Value::binOp(@_,"power")}
-sub _cross {Value::binOp(@_,"cross")}
-
 sub add {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
   Value::Error("Can't add Points with different number of coordiantes")
     unless scalar(@l) == scalar(@r);
@@ -78,7 +70,7 @@ sub add {
 }
 
 sub sub {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
   Value::Error("Can't subtract Points with different number of coordiantes")
     unless scalar(@l) == scalar(@r);
@@ -128,7 +120,7 @@ sub cross {
 #  Otherwise, do lexicographic comparison.
 #
 sub compare {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
   return scalar(@l) <=> scalar(@r) unless scalar(@l) == scalar(@r);
   my $cmp = 0;

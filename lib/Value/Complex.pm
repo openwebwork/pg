@@ -92,25 +92,25 @@ sub promoteData {
 #
 
 sub add {
-  my ($l,$r) = @_; my $self = $l;
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
   return $self->make($a + $c, $b + $d);
 }
 
 sub sub {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
   return $self->make($a - $c, $b - $d);
 }
 
 sub mult {
-  my ($l,$r) = @_; my $self = $l;
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
   return $self->make($a*$c - $b*$d, $b*$c + $a*$d);
 }
 
 sub div {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
   my $x = $c*$c + $d*$d;
   Value::Error("Division by zero") if $x == 0;
@@ -118,15 +118,15 @@ sub div {
 }
 
 sub power {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
-  return Value::makeValue(1) if ($a eq '1' && $b == 0) || ($c == 0 && $d == 0);
-  return Value::makeValue(0) if $c > 0 && ($a == 0 && $b == 0);
+  return $self->make(1,0) if ($a eq '1' && $b == 0) || ($c == 0 && $d == 0);
+  return $self->make(0,0) if $c > 0 && ($a == 0 && $b == 0);
   return exp($r * log($l))
  }
 
 sub modulo {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   return $self->make(0) if $r->value == 0; # non-fuzzy check
   my $m = Re($l/$r)->value;
   my $n = int($m); $n-- if $n > $m; # act as floor() rather than int()
@@ -134,7 +134,7 @@ sub modulo {
 }
 
 sub compare {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   #
   #  Handle periodic Complex numbers
   #

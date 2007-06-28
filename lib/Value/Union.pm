@@ -57,7 +57,7 @@ sub form {
   my $context = shift;
   return $_[0] if scalar(@_) == 1;
   return $context->Package("Set")->new($context) if scalar(@_) == 0;
-  my $union = $pkg->make($context,@_);
+  my $union = $context->Package("Union")->make($context,@_);
   $union = $union->reduce if $union->getFlag('reduceUnions');
   return $union;
 }

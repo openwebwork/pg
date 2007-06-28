@@ -84,28 +84,28 @@ sub promote {
 #
 
 sub add {
-  my ($l,$r) = @_; my $self = $l;
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   return $self->make($l->{data}[0] + $r->{data}[0]);
 }
 
 sub sub {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   return $self->make($l->{data}[0] - $r->{data}[0]);
 }
 
 sub mult {
-  my ($l,$r) = @_; my $self = $l;
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   return $self->make($l->{data}[0] * $r->{data}[0]);
 }
 
 sub div {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   Value::Error("Division by zero") if $r->{data}[0] == 0;
   return $self->make($l->{data}[0] / $r->{data}[0]);
 }
 
 sub power {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my $x = $l->{data}[0] ** $r->{data}[0];
   return $self->make($x) unless $x eq 'nan';
   Value::Error("Can't raise a negative number to a power") if ($l->{data}[0] < 0);
@@ -113,7 +113,7 @@ sub power {
 }
 
 sub modulo {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   $l = $l->{data}[0]; $r = $r->{data}[0];
   return $self->make(0) if $r == 0; # non-fuzzy check
   my $m = $l/$r;
@@ -122,7 +122,7 @@ sub modulo {
 }
 
 sub compare {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   #
   #  Handle periodic Reals
   #
@@ -171,7 +171,7 @@ sub sin {my $self = shift; $self->make(CORE::sin($self->{data}[0]))}
 sub cos {my $self = shift; $self->make(CORE::cos($self->{data}[0]))}
 
 sub atan2 {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   return $self->make(CORE::atan2($l->{data}[0],$r->{data}[0]));
 }
 

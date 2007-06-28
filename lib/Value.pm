@@ -631,8 +631,20 @@ sub promote {
   return $self->new(@_);
 }
 
+#
+#  Return the operators in the correct order
+#
 sub checkOpOrder {
   my ($l,$r,$flag) = @_;
+  if ($flag) {return ($l,$r,$l)} else {return ($l,$l,$r)}
+}
+
+#
+#  Return the operators in the correct order, and promote the
+#  other value, if needed.
+#
+sub checkOpOrderWithPromote {
+  my ($l,$r,$flag) = @_; $r = $l->promote($r);
   if ($flag) {return ($l,$r,$l)} else {return ($l,$l,$r)}
 }
 
@@ -640,11 +652,6 @@ sub checkOpOrder {
 #  Handle a binary operator, promoting the object types
 #  as needed, and then calling the main method
 #
-sub binOpPromote {
-  my ($l,$r,$flag,$call) = @_;
-  if ($l->promotePrecedence($r)) {return $r->$call($r->promote($l),!$flag)}
-                            else {return $l->$call($l->promote($r),$flag)}
-}
 sub binOp {
   my ($l,$r,$flag,$call) = @_;
   if ($l->promotePrecedence($r)) {return $r->$call($l,!$flag)}
@@ -654,27 +661,27 @@ sub binOp {
 #
 #  stubs for binary operations (with promotion)
 #
-sub _add    {binOpPromote(@_,'add')}
-sub _sub    {binOpPromote(@_,'sub')}
-sub _mult   {binOpPromote(@_,'mult')}
-sub _div    {binOpPromote(@_,'div')}
-sub _power  {binOpPromote(@_,'power')}
-sub _cross  {binOpPromote(@_,'cross')}
-sub _modulo {binOpPromote(@_,'modulo')}
+sub _add            {binOp(@_,'add')}
+sub _sub            {binOp(@_,'sub')}
+sub _mult           {binOp(@_,'mult')}
+sub _div            {binOp(@_,'div')}
+sub _power          {binOp(@_,'power')}
+sub _cross          {binOp(@_,'cross')}
+sub _modulo         {binOp(@_,'modulo')}
 
-sub _compare        {binOpPromote(@_,'compare')}
+sub _compare        {binOp(@_,'compare')}
 sub _compare_string {binOp(@_,'compare_string')}
 
-sub _atan2  {binOpPromote(@_,'atan2')}
+sub _atan2          {binOp(@_,'atan2')}
 
-sub _twiddle {(shift)->twiddle}
-sub _neg     {(shift)->neg}
-sub _abs     {(shift)->abs}
-sub _sqrt    {(shift)->sqrt}
-sub _exp     {(shift)->exp}
-sub _log     {(shift)->log}
-sub _sin     {(shift)->sin}
-sub _cos     {(shift)->cos}
+sub _twiddle        {(shift)->twiddle}
+sub _neg            {(shift)->neg}
+sub _abs            {(shift)->abs}
+sub _sqrt           {(shift)->sqrt}
+sub _exp            {(shift)->exp}
+sub _log            {(shift)->log}
+sub _sin            {(shift)->sin}
+sub _cos            {(shift)->cos}
 
 #
 #  Default stub to call when no function is defined for an operation

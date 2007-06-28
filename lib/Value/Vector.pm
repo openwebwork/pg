@@ -68,15 +68,8 @@ sub promote {
 #  Operations on vectors
 #
 
-#
-#  Don't automatically promote to Vectors for these
-#
-sub _mult  {Value::binOp(@_,"mult")}
-sub _div   {Value::binOp(@_,"div")}
-sub _power {Value::binOp(@_,"power")}
-
 sub add {
-  my ($l,$r) = @_; my $self = $l;
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
   Value::Error("Vector addition with different number of coordinates")
     unless scalar(@l) == scalar(@r);
@@ -86,7 +79,7 @@ sub add {
 }
 
 sub sub {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
   Value::Error("Vector subtraction with different number of coordinates")
     unless scalar(@l) == scalar(@r);
@@ -122,7 +115,7 @@ sub power {
 }
 
 sub dot {
-  my ($l,$r,$flag) = @_; my $self = $l;
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
   Value::Error("Vector dot product with different number of coordinates")
     unless scalar(@l) == scalar(@r);
@@ -132,7 +125,7 @@ sub dot {
 }
 
 sub cross {
-  my ($l,$r,$flag) = @_; my $self = $l;
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
   Value::Error("Vector must be in 3-space for cross product")
     unless scalar(@l) == 3 && scalar(@r) == 3;
@@ -146,7 +139,7 @@ sub cross {
 #  Otherwise, do lexicographic comparison.
 #
 sub compare {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
   return scalar(@l) <=> scalar(@r) unless scalar(@l) == scalar(@r);
   my $cmp = 0;

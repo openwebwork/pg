@@ -77,7 +77,7 @@ sub dot {my $self = shift; $self->add(@_)}
 #  Lexicographic compare
 #
 sub compare {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
   my $cmp = 0; my $n = scalar(@l); $n = scalar(@r) if scalar(@r) < $n;
   foreach my $i (0..$n-1) {

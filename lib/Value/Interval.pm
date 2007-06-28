@@ -156,7 +156,7 @@ sub promote {
 #  Addition forms unions
 #
 sub add {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   Value::Union::form($self->context,$l,$r);
 }
 sub dot {my $self = shift; $self->add(@_)}
@@ -165,7 +165,7 @@ sub dot {my $self = shift; $self->add(@_)}
 #  Subtraction can split into a union
 #
 sub sub {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   Value::Union::form($self->context,subIntervalInterval($l,$r));
 }
 
@@ -209,7 +209,7 @@ sub subIntervalInterval {
 #    in the test.
 #
 sub compare {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my ($la,$lb) = $l->value; my ($ra,$rb) = $r->value;
   my $cmp = $la <=> $ra; return $cmp if $cmp;
   my $ignoreEndpointTypes = $l->getFlag('ignoreEndpointTypes');

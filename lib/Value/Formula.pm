@@ -133,7 +133,7 @@ sub neg {
 #  Form the function atan2 function call on two operands
 #
 sub atan2 {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   Parser::Function->call('atan2',$l,$r);
 }
 

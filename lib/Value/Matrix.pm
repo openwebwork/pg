@@ -167,15 +167,8 @@ sub promote {
 #  Operations on matrices
 #
 
-#
-#  Don't automatically promote to Matrices for these
-#
-sub _mult  {Value::binOp(@_,"mult")}
-sub _div   {Value::binOp(@_,"div")}
-sub _power {Value::binOp(@_,"power")}
-
 sub add {
-  my ($l,$r) = @_; my $self = $l;
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my @l = @{$l->data}; my @r = @{$r->data};
   Value::Error("Can't add Matrices with different dimensions")
     unless scalar(@l) == scalar(@r);
@@ -185,7 +178,7 @@ sub add {
 }
 
 sub sub {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my @l = @{$l->data}; my @r = @{$r->data};
   Value::Error("Can't subtract Matrices with different dimensions")
     unless scalar(@l) == scalar(@r);
@@ -258,7 +251,7 @@ sub power {
 #  Do lexicographic comparison
 #
 sub compare {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my @l = @{$l->data}; my @r = @{$r->data};
   Value::Error("Can't compare Matrices with different dimensions")
     unless scalar(@l) == scalar(@r);
