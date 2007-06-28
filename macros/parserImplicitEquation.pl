@@ -6,7 +6,7 @@ sub _parserImplicitEquation_init {}; # don't reload this file
 
 ######################################################################
 #
-#  This is a Parser class that implements an answer checker for
+#  This is a MathObject class that implements an answer checker for
 #  implicitly defined equations.  The checker looks for the zeros of
 #  the equation and tests that the student and professor equations
 #  both have the same solutions.
@@ -29,7 +29,7 @@ sub _parserImplicitEquation_init {}; # don't reload this file
 #  algorithm will fail to find any solutions for this equation.
 #
 #  In order to locate the zeros, you may need to change the limits so
-#  that they include regions where the function is both positive an
+#  that they include regions where the function is both positive and
 #  negative (see below).  The algorithm will avoid discontinuities, so
 #  you can specify things like x-y=1/(x+y) rather than x^2-y^2=1.
 #
@@ -48,7 +48,7 @@ sub _parserImplicitEquation_init {}; # don't reload this file
 #  that the random location of solutions will not find zeros on some
 #  of the branches, and so might incorrectly mark as correct an
 #  equation that only is zero on one of the components.  For example,
-#  x^2-y^2=0 has solutions along the line y=x and y=-x, so it is
+#  x^2-y^2=0 has solutions along the lines y=x and y=-x, so it is
 #  possible that x-y=0 or x+y=0 will be marked as correct if the
 #  random points are unluckily chosen.  One way to reduce this problem
 #  is to increase the number of solutions that are required (by
@@ -60,7 +60,7 @@ sub _parserImplicitEquation_init {}; # don't reload this file
 #  parameters have been set in an attempt to minimize the possibility
 #  of these errors, but they can occur, and you should be aware of
 #  them, and their possible solutions.
-#  
+#
 #
 #  Usage examples:
 #
@@ -80,7 +80,7 @@ sub _parserImplicitEquation_init {}; # don't reload this file
 #
 #    ImplicitPoints => 7                   (the number of solutions to test)
 #    ImplicitTolerance => 1E-6             (relative tolerance value for when
-#                                           the a tested function is zero)
+#                                           the tested function is zero)
 #    ImplicitAbsoluteMinTolerance => 1E-3  (the minimum tolerance allowed)
 #    ImplicitAbsoluteMaxTolerance => 1E-3  (the maximum tolerance allowed)
 #    ImplicitPointTolerance => 1E-9        (relative tolerance for how close
@@ -119,7 +119,7 @@ sub _parserImplicitEquation_init {}; # don't reload this file
 #
 #    $f = ImplicitEquation("xy=5",limits=>[-3,3]);
 #
-#  The limits value can be set globally within the Context, if you wish, 
+#  The limits value can be set globally within the Context, if you wish,
 #  and the others can be controlled by the Context flags discussed
 #  above.
 #
@@ -130,11 +130,10 @@ sub _parserImplicitEquation_init {}; # don't reload this file
 #
 #  Set up the context for ImplicitEquations and activate it
 #
-$context{ImplicitEquation} = Context("Numeric")->copy;
+$context{ImplicitEquation} = Parser::Context->getCopy(undef,"Numeric");
 $context{ImplicitEquation}->variables->are(x=>'Real',y=>'Real');
 $context{ImplicitEquation}{precedence}{ImplicitEquation} = Context()->{precedence}{special};
-Context("ImplicitEquation");
-Parser::BOP::equality::Allow;
+Parser::BOP::equality->Allow($context{ImplicitEquation});
 $context{ImplicitEquation}->flags->set(
   ImplicitPoints => 10,
   ImplicitTolerance => 1E-6,
@@ -144,6 +143,8 @@ $context{ImplicitEquation}->flags->set(
   BisectionTolerance => .01,
   BisectionCutoff => 40,
 );
+
+Context("ImplicitEquation");
 
 #
 #  Syntactic sugar for creating ImplicitEquations
@@ -158,17 +159,18 @@ our @ISA = qw(Value::Formula);
 
 sub new {
   my $self = shift; my $class = ref($self) || $self;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $f = shift; return $f if ref($f) eq $class;
   $f = main::Formula($f);
   Value::Error("Your formula doesn't look like an implicit equation")
     unless $f->type eq 'Equality';
-  my $F = (Value::Formula->new($f->{tree}{lop}) -
-	   Value::Formula->new($f->{tree}{rop}))->reduce;
-  $F = main::Formula($F) unless Value::isFormula($F);
+  my $F = ($context->Package("Formula")->new($context,$f->{tree}{lop}) -
+	   $context->Package("Formula")->new($context,$f->{tree}{rop}))->reduce;
+  $F = $context->Package("Formula")->new($F) unless Value::isFormula($F);
   Value::Error("Your equation must be real-valued") unless $F->isRealNumber;
   Value::Error("Your equation should not be constant") if $F->isConstant;
   Value::Error("Your equation can not contain adaptive parameters")
-    if ($F->usesOneOf($F->{context}->variables->parameters));
+    if ($F->usesOneOf($context->variables->parameters));
   $F = bless $F, $class;
   my %options = (@_);  # user can supply limits, tolerance, etc.
   foreach my $id (keys %options) {$F->{$id} = $options{$id}}
@@ -176,8 +178,6 @@ sub new {
   $F->createPoints unless $F->{solutions};
   return $F;
 }
-
-=head3 compare($lhs,$rhs,%options)
 
 #
 #  Override the comparison method.
@@ -188,11 +188,8 @@ sub new {
 #  student's function on the professor's test points.
 #
 
-=cut
-
 sub compare {
-  my ($l,$r,$flag) = @_; my $tolerance;
-  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
+  my ($l,$r) = @_; my $self = $l; my $tolerance;
   my @params; @params = (limits=>$l->{limits}) if $l->{limits};
   $r = ImplicitEquation->new($r,@params);
   Value::Error("Functions from different contexts can't be compared")
@@ -307,9 +304,11 @@ sub getPositiveNegativeZero {
 sub getIntervals {
   my $self = shift; my $pos = shift; my $neg = shift;
   my @intervals = (); my $D = 0;
+  my $point = $self->Package("Point");
+  my $context = $self->context;
   foreach my $p (@{$pos}) {
     foreach my $n (@{$neg}) {
-      my $d = abs(Value::Point->make(@{$p}) - Value::Point->make(@{$n}));
+      my $d = abs($point->make($context,@{$p}) - $point->make($context,@{$n}));
       push(@intervals,[$p,$n,$d]); $D += $d;
     }
   }
@@ -328,7 +327,8 @@ sub Bisect {
   my $tolerance  = $self->getFlag('bisect_tolerance',1E-5);
   my $ptolerance = $self->getFlag('point_tolerance',1E-9);
   my $m = $self->getFlag('BisectionCutoff',30); my ($P,$f);
-  my $P0 = Value::Point->make(@{$_[0]}); my $P1 = Value::Point->make(@{$_[1]});
+  my $point = $self->Package("Point"); my $context = $self->context;
+  my $P0 = $point->make($context,@{$_[0]}); my $P1 = $point->make($context,@{$_[1]});
   my ($f0,$f1) = @{$self->createPointValues([$P0->data,$P1->data],1)};
   for (my $i = 0; $i < $m; $i++) {
     $P = ($P0+$P1)/2; $f = $self->createPointValues([$P->data]);
