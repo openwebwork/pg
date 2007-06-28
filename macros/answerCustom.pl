@@ -45,7 +45,7 @@ sub _answerCustom_init {}; # don't reload this file
  #  to check a real number entry you will have to set both sameClass and
  #  sameLength to 0 since a complex number has length 2 and a real number
  #  has length 1.
- # 
+ #
  #  The checker routine will be passed the correct answer, the
  #  student's answer, and the answer evaluator object, in that order.
  #
@@ -72,7 +72,7 @@ sub custom_cmp {
   die "custom_cmp requires a correct answer" unless defined($correct);
   die "custom_cmp requires a checker subroutine" unless defined($checker);
   $correct = Value::makeValue($correct);
-  $correct = main::Formula($correct) unless Value::isValue($correct);
+  $correct = Value->Package("Formula")->new($correct) unless Value::isValue($correct);
   $correct->cmp(
     checker => sub {
       my ($correct,$student,$ans) = @_;
@@ -139,7 +139,7 @@ sub custom_list_cmp {
   die "custom_list_cmp requires a correct answer" unless defined($correct);
   die "custom_list_cmp requires a checker subroutine" unless defined($checker);
   $correct = Value::makeValue($correct);
-  $correct = main::Formula($correct) unless Value::isValue($correct);
+  $correct = Value->Package("Formula")->new($correct) unless Value::isValue($correct);
   $correct->cmp(
     list_checker => $checker,
     @custom_list_cmp_defaults,
