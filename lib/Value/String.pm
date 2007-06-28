@@ -57,7 +57,7 @@ sub promote {
 #  Operations on strings
 #
 sub compare {
-  my ($self,$l,$r) = Value::checkOpOrderPromote(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   return $l->value cmp $r->value if $l->{caseSensitive} || $r->{caseSensitive};
   return uc($l->value) cmp uc($r->value);
 }
