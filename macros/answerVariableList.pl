@@ -26,20 +26,18 @@ sub _answerVariableList_init {}; # don't reload this file
 #
 #	addVariables('x','y','z','s','t,);
 #	ANS(variable_cmp("s,t"));
-#       
+#
 #	addVariables('x','y','z');
 #	ANS(variable_cmp("(x)",showHints=>0,showLengthHints=>0));
 #
 
+=cut
+
 #
 #  A new context for variable lists
 #
-
-=cut
-
-
 $context{VariableList} = Parser::Context->new(
-  operators => {',' => Context()->operators->get(',')},
+  operators => {',' => $Parser::Context::Default::fullContext->operators->get(',')},
   lists => {'List'  => {class =>'Parser::List::List'}},
   parens => {
    '(' => {close => ')', type => 'List', formList => 1},
@@ -59,7 +57,7 @@ Context("VariableList");
 #  A shell that calls Formula()->cmp with the right defaults
 #
 sub variable_cmp {
-  Value::Formula->new(shift)->cmp(
+  Value->Package("Formula")->new(shift)->cmp(
     ordered => 1,
     entry_type =>'a variable',
     list_type => 'a list',
