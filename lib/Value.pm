@@ -257,7 +257,7 @@ sub inContext {my $self = shift; $self->context(@_); $self}
 sub classMatch {
   my $self = shift; my $class = class($self);
   my $ref = ref($self); my $isHash = ($ref && $ref ne 'ARRAY' && $ref ne 'CODE');
-  my $context = ($isHash ? $self->{context} : $$Value::context);
+  my $context = ($isHash ? $self->{context} : Value->context);
   foreach my $name (@_) {
     return 1 if $class eq $name || $ref eq $context->Package($name,0) ||
                 $ref eq "Value::$name" || ($isHash && $self->{"is".$name});
@@ -331,7 +331,7 @@ sub Package {(shift)->context->Package(@_)}
 
 sub makeValue {
   my $x = shift;
-  my %params = (showError => 0, makeFormula => 1, context => $$Value::context, @_);
+  my %params = (showError => 0, makeFormula => 1, context => Value->context, @_);
   my $context = $params{context};
   return $x if ref($x) && ref($x) ne 'ARRAY';
   return $context->Package("Real")->make($context,$x) if matchNumber($x);
@@ -907,11 +907,11 @@ sub ijk {
 =cut
 
 sub Error {
-  my $message = shift;
+  my $message = shift; my $context = Value->context;
   $message = [$message,@_] if scalar(@_) > 0;
-  $$Value::context->setError($message,'');
-  $message = $$Value::context->{error}{message};
-  die $message . traceback() if $$Value::context->flags('showTraceback');
+  $context->setError($message,'');
+  $message = $context->{error}{message};
+  die $message . traceback() if $context->flags('showTraceback');
   die $message . getCaller();
 }
 

@@ -78,7 +78,7 @@ sub perl {
 ###########################################
 
 sub NoDecimals {
-  my $context = shift || $$Value::context;
+  my $context = shift || Value->context;
   $context->flags->set(NumberCheck=>\&_NoDecimals);
 }
 

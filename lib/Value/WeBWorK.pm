@@ -14,7 +14,7 @@ package Parser;
 sub Formula {
   my $f = shift;
   my $v = eval {Value->Package("Formula")->new($f)};
-  reportEvalError($@) unless defined($v) || $$Value::context->{error}{flag};
+  reportEvalError($@) unless defined($v) || Value->context->{error}{flag};
   return $v;
 }
 
@@ -40,8 +40,8 @@ sub Parser::reportEvalError {
   my $error = shift; my $fullerror = $error;
   $error =~ s/ at \S+\.\S+ line \d+(\n|.)*//;
   $error =~ s/ at line \d+ of (\n|.)*//;
-  $$Value::context->setError($error);
-  if ($$Value::context->{debug}) {
+  Value->context->setError($error);
+  if (Value->context->{debug}) {
     $fullerror =~ s/\n/<BR>/g;
     warn $fullerror;
   }

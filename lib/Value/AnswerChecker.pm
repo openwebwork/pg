@@ -67,7 +67,7 @@ sub cmp {
   my $ans = new AnswerEvaluator;
   my $correct = protectHTML($self->{correct_ans});
   $correct = $self->correct_ans unless defined($correct);
-  $self->{context} = $$Value::context unless defined($self->{context});
+  $self->{context} = Value->context unless defined($self->{context});
   $ans->ans_hash(
     type => "Value (".$self->class.")",
     correct_ans => $correct,
@@ -100,7 +100,7 @@ sub cmp_parse {
   #
   #  Do some setup
   #
-  my $current = $$Value::context; # save it for later
+  my $current = Value->context; # save it for later
   my $context = $ans->{correct_value}{context} || $current;
   Parser::Context->current(undef,$context); # change to correct answser's context
   my $flags = contextSet($context,$self->cmp_contextFlags($ans)); # save old context flags
@@ -295,11 +295,11 @@ sub cmp_Error {
 #  the overridden == since errors are trapped.)
 #
 sub cmp_Message {
-  my $message = shift;
+  my $message = shift; my $context = Value->context;
   $message = [$message,@_] if scalar(@_) > 0;
-  $$Value::context->setError($message,'',undef,undef,$CMP_MESSAGE);
-  $message = $$Value::context->{error}{message};
-  die $message . traceback() if $$Value::context->flags('showTraceback');
+  $context->setError($message,'',undef,undef,$CMP_MESSAGE);
+  $message = $context->{error}{message};
+  die $message . traceback() if $context->flags('showTraceback');
   die $message . getCaller();
 }
 
