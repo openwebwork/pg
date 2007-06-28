@@ -44,9 +44,9 @@ sub _parserParametricLine_init {}; # don't reload this file
 #
 #  Define a new context for lines
 #
-$context{ParametricLine} = Context("Vector")->copy();
+$context{ParametricLine} = Parser::Context->getCopy(undef,"Vector");
 $context{ParametricLine}->variables->are(t=>'Real');
-$context{ParametricLine}->{precedence}{ParametricLine} = 
+$context{ParametricLine}->{precedence}{ParametricLine} =
   $context{ParametricLine}->{precedence}{special};
 $context{ParametricLine}->reduction->set('(-x)-y'=>0);
 #
@@ -67,25 +67,26 @@ our @ISA = qw(Value::Formula);
 
 sub new {
   my $self = shift; my $class = ref($self) || $self;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my ($p,$v,$line,$t);
   return shift if scalar(@_) == 1 && ref($_[0]) eq $class;
-  $_[0] = Value::Point->new($_[0]) if ref($_[0]) eq 'ARRAY';
-  $_[1] = Value::Vector->new($_[1]) if ref($_[1]) eq 'ARRAY';
-  if (scalar(@_) >= 2 && Value::class($_[0]) eq 'Point' &&
-                         Value::class($_[1]) eq 'Vector') {
+  $_[0] = $context->Package("Point")->new($context,$_[0]) if ref($_[0]) eq 'ARRAY';
+  $_[1] = $context->Package("Vector")->new($context,$_[1]) if ref($_[1]) eq 'ARRAY';
+  if (scalar(@_) >= 2 && Value::classMatch($_[0],'Point') &&
+                         Value::classMatch($_[1],'Vector')) {
     $p = shift; $v = shift;
-    $t = shift || Value::Formula->new('t');
+    $t = shift || $context->Package("Formula")->new($context,'t');
     $line = $p + $t*$v;
   } else {
-    $line = Value::Formula->new(shift);
+    $line = $context->Package("Formula")->new($context,shift);
     Value::Error("Your formula doesn't look like a parametric line")
       unless $line->type eq 'Vector';
     $t = shift || (keys %{$line->{variables}})[0];
     Value::Error("A line can't be just a constant vector") unless $t;
-    $p = Value::Point->new($line->eval($t=>0));
-    $v = Value::Vector->new($line->eval($t=>1) - $p);
+    $p = $context->Package("Point")->new($context,$line->eval($t=>0));
+    $v = $context->Package("Vector")->new($context,$line->eval($t=>1) - $p);
     Value::Error("Your formula isn't linear in the variable %s",$t)
-      unless $line == $p + Value::Formula->new($t) * $v;
+      unless $line == $p + $context->Package("Formula")->new($context,$t) * $v;
   }
   Value::Error("The direction vector for a parametric line can't be the zero vector")
     if ($v->norm == 0);
@@ -97,19 +98,16 @@ sub new {
 =head3 compare($lhs,$rhs)
 
 #
-#  Two parametric lines are equal if they have 
+#  Two parametric lines are equal if they have
 #  parallel direction vectors and either the same
 #  points or the vector between the points is
 #  parallel to the (common) direction vector.
 #
 
-=cut 
+=cut
 
 sub compare {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
-  $r = ParametricLine->new($r);
-  if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my ($lp,$lv) = ($l->{p},$l->{v});
   my ($rp,$rv) = ($r->{p},$r->{v});
   return $lv <=> $rv unless ($lv->isParallel($rv));
@@ -131,8 +129,8 @@ sub cmp_defaults {(
 #
 sub cmp_postprocess {
   my $self = shift; my $ans = shift;
-  my $error = $$Value::context->{error}{message};
-  $self->cmp_error($ans) 
+  my $error = $sef->context->{error}{message};
+  $self->cmp_error($ans)
     if $error =~ m/^(Your formula (isn't linear|doesn't look)|A line can't|The direction vector)/;
 }
 
