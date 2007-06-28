@@ -22,7 +22,7 @@ sub _contextLimitedComplex_init {}; # don't load it again
  #  context flag to 'cartesian', 'polar' or 'either'. E.g.,
  #
  #      Context()->flags->set(complex_format => 'polar');
- #  
+ #
  #  The default is 'either'.  There are predefined contexts that
  #  already have these values set:
  #
@@ -43,13 +43,12 @@ sub _contextLimitedComplex_init {}; # don't load it again
  #      Context("LimitedComplex-polar-strict");
  #      Context("LimitedComplex-strict");
  #
- 
- #
- #  Handle common checking for BOPs
- #
 
 =cut
 
+#
+#  Handle common checking for BOPs
+#
 package LimitedComplex::BOP;
 
 #
@@ -62,7 +61,7 @@ sub _check {
   my $super = ref($self); $super =~ s/LimitedComplex/Parser/;
   &{$super."::_check"}($self);
   if ($self->{lop}->isRealNumber && $self->{rop}->isRealNumber) {
-    return unless $self->{equation}{context}{flags}{strict_numeric};
+    return unless $self->context->{flags}{strict_numeric};
   } else {
     Value::Error("The constant 'i' may appear only once in your formula")
       if ($self->{lop}->isComplex and $self->{rop}->isComplex);
@@ -83,7 +82,7 @@ sub checkComplex {return 0}
 #
 sub theForm {
   my $self = shift;
-  my $format = $self->{equation}{context}{flags}{complex_format};
+  my $format = $self->context->{flags}{complex_format};
   return 'a+bi' if $format eq 'cartesian';
   return 'a*e^(bi)' if $format eq 'polar';
   return 'a+bi or a*e^(bi)';
@@ -104,7 +103,7 @@ our @ISA = qw(LimitedComplex::BOP Parser::BOP::add);
 
 sub checkComplex {
   my $self = shift;
-  return 0 if $self->{equation}{context}{flags}{complex_format} eq 'polar';
+  return 0 if $self->context->{flags}{complex_format} eq 'polar';
   my ($l,$r) = ($self->{lop},$self->{rop});
   if ($l->isComplex) {my $tmp = $l; $l = $r; $r = $tmp};
   return $r->class eq 'Constant' || $r->{isMult} ||
@@ -118,7 +117,7 @@ our @ISA = qw(LimitedComplex::BOP Parser::BOP::subtract);
 
 sub checkComplex {
   my $self = shift;
-  return 0 if $self->{equation}{context}{flags}{complex_format} eq 'polar';
+  return 0 if $self->context->{flags}{complex_format} eq 'polar';
   my ($l,$r) = ($self->{lop},$self->{rop});
   if ($l->isComplex) {my $tmp = $l; $l = $r; $r = $tmp};
   return $r->class eq 'Constant' || $r->{isMult} ||
@@ -154,7 +153,7 @@ our @ISA = qw(LimitedComplex::BOP Parser::BOP::power);
 #
 sub checkComplex {
   my $self = shift;
-  return 0 if $self->{equation}{context}{flags}{complex_format} eq 'cartesian';
+  return 0 if $self->context->{flags}{complex_format} eq 'cartesian';
   my ($l,$r) = ($self->{lop},$self->{rop});
   $self->{isPower} = 1;
   return 1 if ($l->class eq 'Constant' && $l->{name} eq 'e' &&
@@ -177,7 +176,7 @@ sub _check {
   &{$super."::_check"}($self);
   my $op = $self->{op}; $self->{isOp} = 1;
   if ($op->isRealNumber) {
-    return unless $self->{equation}{context}{flags}{strict_numeric};
+    return unless $self->context->{flags}{strict_numeric};
     return if $op->class eq 'Number';
   } else {
     return if $self->{op}{isMult} || $self->{op}{isPower};
@@ -227,7 +226,7 @@ package main;
 #  above classes rather than the usual ones
 #
 
-$context{LimitedComplex} = Context("Complex");
+$context{LimitedComplex} = Parser::Context->getCopy(undef,"Complex");
 $context{LimitedComplex}->operators->set(
    '+' => {class => 'LimitedComplex::BOP::add'},
    '-' => {class => 'LimitedComplex::BOP::subtract'},
