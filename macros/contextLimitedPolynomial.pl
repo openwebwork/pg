@@ -21,12 +21,11 @@ sub _contextLimitedPolynomial_init {}; # don't load it again
 #      Context("LimitedPolynomial")->flags->set(singlePowers=>1);
 #
 
+=cut
+
 #
 #  Handle common checking for BOPs
 #
-
-=cut
-
 package LimitedPolynomial::BOP;
 
 #
@@ -61,7 +60,7 @@ sub checkExponents {
   my $exponents = $self->{exponents} = $r->{exponents};
   delete $r->{exponents}; delete $r->{powers};
   if ($l->{exponents}) {
-    my $single = $self->{equation}{context}->flag('singlePowers');
+    my $single = $self->context->flag('singlePowers');
     foreach my $i (0..scalar(@{$exponents})-1) {
       $self->Error("A variable can appear only once in each term of a polynomial")
 	if $exponents->[$i] && $l->{exponents}[$i] && $single;
@@ -80,7 +79,7 @@ sub checkExponents {
 sub checkPowers {
   my $self = shift;
   my ($l,$r) = ($self->{lop},$self->{rop});
-  my $single = $self->{equation}{context}->flag('singlePowers');
+  my $single = $self->context->flag('singlePowers');
   LimitedPolynomial::markPowers($l);
   LimitedPolynomial::markPowers($r);
   $self->{isPoly} = 1;
@@ -318,7 +317,7 @@ package main;
 #  above classes rather than the usual ones
 #
 
-$context{LimitedPolynomial} = Context("Numeric");
+$context{LimitedPolynomial} = Parser::Context->getCopy(undef,"Numeric");
 $context{LimitedPolynomial}->operators->set(
    '+' => {class => 'LimitedPolynomial::BOP::add'},
    '-' => {class => 'LimitedPolynomial::BOP::subtract'},
