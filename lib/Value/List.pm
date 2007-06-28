@@ -1,4 +1,4 @@
-########################################################################### 
+###########################################################################
 #
 #  Implements the List object
 #
@@ -30,7 +30,9 @@ sub new {
   }
   return $p->[0] if ($isSingleton && $type eq 'List' && !$p->[0]{open});
   return $self->formula($p) if $isFormula;
-  bless {data => $p, type => $type, context=>$context}, $class;
+  my $list = bless {data => $p, type => $type, context=>$context}, $class;
+  $list->{correct_ans} = $p->[0]{correct_ans} if $isSingleton && defined $p->[0]{correct_ans};
+  return $list;
 }
 
 #
