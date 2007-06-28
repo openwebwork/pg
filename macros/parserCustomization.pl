@@ -9,14 +9,14 @@ sub _parserCustomization_init {}
  #  ijk notation (and force students to use it for entering
  #  vectors) by uncommenting:
  #
- #    $context{Vector} = $Parser::Context::Default::context{Vector}->copy;
+ #    $context{Vector} = Parser::Context->getCopy(undef,"Vector");
  #    $context{Vector}->flags->set(ijk=>1);
  #    $context{Vector}->parens->remove('<');
  #
  #  To allow vectors to be entered with parens (and displayed with
  #  parens) rather than angle-brakets, uncomment
  #
- #    $context{Vector} = $Parser::Context::Default::context{Vector}->copy;
+ #    $context{Vector} = Parser::Context->getCopy(undef,"Vector");
  #    $context{Vector}->{cmpDefaults}{Vector} = {promotePoints => 1};
  #    $context{Vector}->lists->set(Vector=>{open=>'(', close=>')'});
  #
