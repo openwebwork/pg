@@ -28,7 +28,7 @@ sub _parserSolutionFor_init {}; # don't reload this file
 #
 #  Usage examples:
 #
-#     Context("Vector")->variables->are(x=>'Real',y=>'real');
+#     Context("Vector")->variables->are(x=>'Real',y=>'Real');
 #     $f = SolutionFor("x^2 = cos(y)","(1,0)");
 #     $f = SolutionFor("x^2 - y = 0",[2,4]);
 #     $f = SolutionFor("x^2 - y = 0",Point(4,2),vars=>['y','x']);
@@ -62,9 +62,8 @@ sub SolutionFor {
   #
   #  Get the professor's equation
   #
-  my $oldContext = SolutionFor::SetContext();  # use a context in which equality is defined
-  my $f = main::Formula(shift);                # get equation as a formula
-  SolutionFor::RestoreContext($oldContext);    # go back to user's context
+  my $context = SolutionFor::getContext();     # use a context in which equality is defined
+  my $f = main::Formula($context,shift);       # get equation as a formula
 
   #
   #  Get the professor's correct point
@@ -96,7 +95,7 @@ sub SolutionFor {
   #  Save some data about the original object
   #  and make the Value package think we are one of its objects
   #
-  $p->{originalClass} = $p->cmp_class; 
+  $p->{originalClass} = $p->cmp_class;
   $p->{isValue} = 1;
 
   #
@@ -112,7 +111,7 @@ sub SolutionFor {
 
   #
   #  Return the SolutionFor object
-  #  
+  #
   return $p;
 }
 
@@ -145,9 +144,8 @@ sub cmp_class {shift->{originalClass}}
 #  to return 0 when true and 1 when false.)
 #
 sub compare {
-  my ($l,$r,$flag) = @_;
-  if ($l->promotePrecedence($r)) {return $r->compare($l,!$flag)}
-  $r = Value::makeValue($r);
+  my ($l,$r) = @_;
+  $r = Value::makeValue($r,context=>$l->context);
   return ($l->f($r)) ? 0 : 1;
 }
 
@@ -157,20 +155,13 @@ sub compare {
 #  prededence set so that comparisons with points or numbers will
 #  be promoted to comparisons with the SolutionFor
 #
-sub SetContext {
+sub getContext {
   my $oldContext = main::Context();
   $oldContext->{precedence}{SolutionFor} = $oldContext->{precedence}{special};
   my $context = $oldContext->copy;
   Parser::BOP::equality->Allow($context);
-  main::Context($context);
-  return $oldContext
+  return $context
 }
-
-#
-#  Put back a saved context
-#
-sub RestoreContext {main::Context(@_)}
-
 
 ######################################################################
 #
