@@ -121,7 +121,7 @@ sub composition_ans_list {
   #
   #  Get correct answer data and determine which variables to use
   #
-  $f = Value::Formula->new($f); $g = Value::Formula->new($g);
+  $f = Value->Package("Formula")->new($f); $g = Value->Package("Formula")->new($g);
   my %correct = ($fID => $f, $gID => $g);
   my %x = ($fID => $vars->[0], $gID => $vars->[1]);
   foreach $i (@IDs) {
@@ -182,7 +182,7 @@ sub composition_ans_list {
 	unless $isPreview;
       $error = 1; next;
     }
-    
+
   }
 
   #
