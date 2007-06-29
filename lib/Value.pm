@@ -283,7 +283,7 @@ sub isValue {
 sub isNumber {
   my $n = shift;
   return $n->{tree}->isNumber if isFormula($n);
-  return isReal($n) || isComplex($n) || matchNumber($n);
+  return classMatch($n,'Real','Complex') || matchNumber($n);
 }
 
 sub isRealNumber {
