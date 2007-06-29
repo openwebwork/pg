@@ -19,7 +19,8 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $x = shift; $x = [$x,@_] if scalar(@_) > 0;
-  $x = $x->data if ref($x) eq $class || Value::isReal($x);
+  return $x if Value::isComplex($x) || (Value::isFormula($x) && $x->{tree}->isComplex);
+  $x = $x->data if Value::isReal($x);
   $x = [$x] unless ref($x) eq 'ARRAY'; $x->[1] = 0 unless defined($x->[1]);
   Value::Error("Can't convert ARRAY of length %d to a Complex Number",scalar(@{$x}))
     unless (scalar(@{$x}) == 2);
@@ -38,7 +39,7 @@ sub make {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   while (scalar(@_) < 2) {push(@_,0)}
-  bless {data => [@_], context => $context}, $class;
+  bless {data => [@_[0,1]], context => $context}, $class;
 }
 
 #
@@ -82,7 +83,7 @@ sub promote {
 #
 sub promoteData {
   my $self = shift;
-  return $self->value if Value::isValue($self) && scalar(@_) == 0;
+  return $self->value if Value::isComplex($self) && scalar(@_) == 0;
   return ($self->promote(@_))->value;
 }
 
@@ -113,21 +114,21 @@ sub div {
   my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
   my $x = $c*$c + $d*$d;
-  Value::Error("Division by zero") if $x == 0;
+  Value::Error("Division by zero") if $x->value == 0;
   return $self->make(($a*$c + $b*$d)/$x,($b*$c - $a*$d)/$x);
 }
 
 sub power {
   my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
-  return $self->make(1,0) if ($a eq '1' && $b == 0) || ($c == 0 && $d == 0);
-  return $self->make(0,0) if $c > 0 && ($a == 0 && $b == 0);
+  return $self->make(1,0) if ($a->value == 1 && $b->value == 0) || ($c->value == 0 && $d->value == 0);
+  return $self->make(0,0) if $c->value > 0 && ($a->value == 0 && $b->value == 0);
   return exp($r * log($l))
  }
 
 sub modulo {
   my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
-  return $self->make(0) if $r->value == 0; # non-fuzzy check
+  return $self->make(0) if abs($r)->value == 0; # non-fuzzy check
   my $m = Re($l/$r)->value;
   my $n = int($m); $n-- if $n > $m; # act as floor() rather than int()
   return $self->make($l - $n*$r);
@@ -141,13 +142,15 @@ sub compare {
   my $m = $self->{period};
   if (defined $m) {
     if ($self->{logPeriodic}) {
-      return 1 if $l->value == 0 || $r->value == 0; # non-fuzzy checks
+      return 1 if abs($l)->value == 0 || abs($r)->value == 0; # non-fuzzy checks
       $l = log($l); $r = log($r);
     }
     return (($l-$r+$m/2) % $m) <=> $m/2;
   }
 
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
+  foreach my $flag ('tolerance','tolType','zeroLevel','zeroLevelTol')
+    {$a->{$flag} = $b->{$flag} = $self->{$flag} if defined $self->{$flag}}
   return ($a <=> $c) if $a != $c;
   return ($b <=> $d);
 }
@@ -240,13 +243,13 @@ sub csc {1/CORE::sin($_[0])}
 sub cot {CORE::cos($_[0])/CORE::sin($_[0])}
 
 # acos(z) = -i log(z + sqrt(z^2 - 1))
-sub acos {my $z = promote(@_); -$i * CORE::log($z + CORE::sqrt($z*$z - 1))}
+sub acos {my $z = promote(@_); CORE::log($z + CORE::sqrt($z*$z - 1)) * (-$i)}
 
 # asin(z) = -i log(iz + sqrt(1 - z^2))
-sub asin {my $z = promote(@_); -$i * CORE::log($i*$z + CORE::sqrt(1 - $z*$z))}
+sub asin {my $z = promote(@_); CORE::log($z*$i + CORE::sqrt(1 - $z*$z)) * (-$i)}
 
 # atan(z) = (i/2) log((i+z)/(i-z))
-sub atan {my $z = promote(@_); ($i/2)*CORE::log(($i+$z)/($i-$z))}
+sub atan {my $z = promote(@_); CORE::log(($z+$i)/($i-$z))*($i/2)}
 
 # asec(z) = acos(1/z)
 sub asec {acos(1/$_[0])}
@@ -259,14 +262,14 @@ sub acot {atan(1/$_[0])}
 
 # atan2(z1,z2) = atan(z1/z2)
 sub atan2 {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
-  if ($b == 0) {
-    return CORE::atan2($a,$c) if $b == 0;
-    return $self->make($pi/2,0) if $a == 0;
+  if ($c->value == 0 && $d->value == 0) {
+    return $self->make(0,0) if ($a->value == 0 && $b->value == 0);
+    return $self->make(($a->value > 0 ? $pi/2 : -$pi/2),0);
   }
   ($a,$b) = atan($l/$r)->value;
-  $a += $pi if $c <0; $a -= 2*$pi if $a > $pi;
+  $a += $pi if $c->value < 0; $a -= 2*$pi if $a->value > $pi;
   return $self->make($a,$b);
 }
 
@@ -330,21 +333,23 @@ sub pdot {
   return "($z)";
 }
 
-sub string {my $self = shift; Value::Complex::format($self->value,'string',@_)}
-sub TeX {my $self = shift; Value::Complex::format($self->value,'TeX',@_)}
+sub string {my $self = shift; Value::Complex::format($self->{format},$self->value,'string',@_)}
+sub TeX {my $self = shift; Value::Complex::format($self->{format},$self->value,'TeX',@_)}
 
 #
 #  Try to make a pretty version of the number
 #
 sub format {
+  my $format = shift;
   my ($a,$b) = (shift,shift);
   my $method = shift || 'string';
   my $equation = shift;
   $a = Value::Real->make($a) unless ref($a);
   $b = Value::Real->make($b) unless ref($b);
+  $a->{format} = $b->{format} = $format if defined $format;
   my $bi = 'i';
   return $a->$method($equation) if $b == 0;
-  $bi = CORE::abs($b)->$method($equation,1) . 'i' if CORE::abs($b) ne 1;
+  $bi = CORE::abs($b)->with(format=>$format)->$method($equation,1) . 'i' if CORE::abs($b) ne 1;
   $bi = '-' . $bi if $b < 0;
   return $bi if $a == 0;
   $bi = '+' . $bi if $b > 0;
