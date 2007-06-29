@@ -17,11 +17,11 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $x = shift; $x = [$x,@_] if scalar(@_) > 0;
-  return $x if ref($x) eq $pkg;
+  return $x if Value::isReal($x);
   $x = [$x] unless ref($x) eq 'ARRAY';
   Value::Error("Can't convert ARRAY of length %d to %s",scalar(@{$x}),Value::showClass($self))
     unless (scalar(@{$x}) == 1);
-  if (Value::isRealNumber($x->[0])) {
+  if (Value::matchNumber($x->[0])) {
     return $self->formula($x->[0]) if Value::isFormula($x->[0]);
     return (bless {data => $x, context=>$context}, $class);
   }
