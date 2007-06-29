@@ -1,7 +1,7 @@
 ########################################################################### 
 #
 #  Implements the Matrix class.
-#  
+#
 #    @@@ Still needs lots of work @@@
 #
 package Value::Matrix;
@@ -342,9 +342,10 @@ sub column {
 #  Generate the various output formats
 #
 
+#  @@@ do these really need to be overriden? @@@
 sub stringify {
   my $self = shift;
-  return $self->TeX if $self->getFlag('StringifyAsTeX');
+  return $self->TeX if Value->context->getFlag('StringifyAsTeX');
   return $self->string(undef,$self->{open},$self->{close});
 }
 
@@ -354,8 +355,12 @@ sub string {
   my $open  = shift || $def->{open}; my $close = shift || $def->{close};
   my @coords = ();
   foreach my $x (@{$self->data}) {
-    if (Value::isValue($x)) {push(@coords,$x->string($equation,$open,$close))}
-      else {push(@coords,$x)}
+    if (Value::isValue($x)) {
+      $x->{format} = $self->{format} if defined $self->{format};
+      push(@coords,$x->string($equation,$open,$close));
+    } else {
+      push(@coords,$x);
+    }
   }
   return $open.join(',',@coords).$close;
 }
@@ -368,18 +373,24 @@ sub TeX {
   my $def = ($equation->{context} || $self->context)->lists->get('Matrix');
   my $open  = shift || $self->{open} || $def->{open};
   my $close = shift || $self->{close} || $def->{close};
-  $open = '\{' if $open eq '{'; $close = '\}' if $close eq '}';
+  $open =~ s/([{}])/\\$1/g; $close =~ s/([{}])/\\$1/g;
   my $TeX = ''; my @entries = (); my $d;
   if ($self->isRow) {
     foreach my $x (@{$self->data}) {
-      push(@entries,(Value::isValue($x))? $x->TeX($equation): $x);
+      if (Value::isValue($x)) {
+	$x->{format} = $self->{format} if defined $self->{format};
+	push(@entries,$x->TeX($equation));
+      } else {push(@entries,$x)}
     }
     $TeX .= join(' &',@entries) . "\n";
     $d = scalar(@entries);
   } else {
     foreach my $row (@{$self->data}) {
       foreach my $x (@{$row->data}) {
-        push(@entries,(Value::isValue($x))? $x->TeX($equation): $x);
+	if (Value::isValue($x)) {
+	  $x->{format} = $self->{format} if defined $self->{format};
+	  push(@entries,$x->TeX($equation));
+	} else {push(@entries,$x)}
       }
       $TeX .= join(' &',@entries) . '\cr'."\n";
       $d = scalar(@entries); @entries = ();

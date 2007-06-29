@@ -69,8 +69,10 @@ sub promote {
 #
 sub add {
   my ($self,$l,$r) = Value::checkOpOrder(@_);
-  $l = $self->make($l) if Value::classMatch($l,'Point','Vector','Matrix');
-  $r = $self->make($r) if Value::classMatch($r,'Point','Vector','Matrix');
+  $l = Value::makeValue($l) unless Value::isValue($l);
+  $r = Value::makeValue($r) unless Value::isValue($r);
+  $l = $self->make($l) unless Value::classMatch($l,'List');
+  $r = $self->make($r) unless Value::classMatch($r,'List');
   return $self->new($l->value,$r->value);
 }
 sub dot {my $self = shift; $self->add(@_)}

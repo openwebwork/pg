@@ -39,7 +39,9 @@ sub make {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   while (scalar(@_) < 2) {push(@_,0)}
-  bless {data => [@_[0,1]], context => $context}, $class;
+  my $c = bless {data => [@_[0,1]], context => $context}, $class;
+  foreach my $x (@{$c->{data}}) {$x = $context->Package("Real")->make($context,$x) unless Value::isValue($x)}
+  return $c;
 }
 
 #
@@ -149,8 +151,6 @@ sub compare {
   }
 
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
-  foreach my $flag ('tolerance','tolType','zeroLevel','zeroLevelTol')
-    {$a->{$flag} = $b->{$flag} = $self->{$flag} if defined $self->{$flag}}
   return ($a <=> $c) if $a != $c;
   return ($b <=> $d);
 }

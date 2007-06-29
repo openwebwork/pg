@@ -63,6 +63,8 @@ sub value {(shift)->{data}[0]}
 sub isZero {shift eq "0"}
 sub isOne {shift eq "1"}
 
+sub transferFlags {}
+
 
 ##################################################
 

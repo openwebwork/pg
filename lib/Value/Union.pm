@@ -296,7 +296,10 @@ sub string {
   my $self = shift; my $equation = shift; shift; shift; my $prec = shift;
   my $op = ($equation->{context} || $self->context)->{operators}{'U'};
   my @intervals = ();
-  foreach my $x (@{$self->data}) {push(@intervals,$x->string($equation))}
+  foreach my $x (@{$self->data}) {
+    $x->{format} = $self->{format} if defined $self->{format};
+    push(@intervals,$x->string($equation))
+  }
   my $string = join($op->{string} || ' U ',@intervals);
   $string = '('.$string.')' if $prec > ($op->{precedence} || 1.5);
   return $string;

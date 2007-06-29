@@ -52,6 +52,8 @@ sub isOne {(shift)->{tree}{isOne}}
 sub isSetOfReals {(shift)->{tree}->isSetOfReals}
 sub canBeInUnion {(shift)->{tree}->canBeInUnion}
 
+sub transferFlags {}
+
 ############################################
 #
 #  Create a BOP from two operands

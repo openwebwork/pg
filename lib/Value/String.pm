@@ -37,6 +37,8 @@ sub value {shift->{data}[0]}
 sub isOne {0}
 sub isZero {0}
 
+sub transferFlags {}
+
 ##################################################
 
 #

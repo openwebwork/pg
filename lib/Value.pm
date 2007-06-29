@@ -669,7 +669,7 @@ sub _power          {binOp(@_,'power')}
 sub _cross          {binOp(@_,'cross')}
 sub _modulo         {binOp(@_,'modulo')}
 
-sub _compare        {binOp(@_,'compare')}
+sub _compare        {transferTolerances(@_); binOp(@_,'compare')}
 sub _compare_string {binOp(@_,'compare_string')}
 
 sub _atan2          {binOp(@_,'atan2')}
@@ -776,6 +776,27 @@ sub compare_string {
   return $l cmp $r;
 }
 
+#
+#  Copy flags from the parent object to its children (recursively).
+#
+sub transferFlags {
+  my $self = shift;
+  foreach my $x ($self->value) {
+    foreach my $flag (@_) {
+      if ($x->{$flag} ne $self->{$flag}) {
+	$x->{$flag} = $self->{$flag};
+	$x->transferFlags($flag);
+      }
+    }
+  }
+}
+
+sub transferTolerances {
+  my ($self,$other) = @_;
+  $self->transferFlags("tolerance","tolType","zeroLevel","zeroLevelTol");
+  $other->transferFlags("tolerance","tolType","zeroLevel","zeroLevelTol") if Value::isValue($other);
+}
+
 =head3 output methods for MathObjects
 
  #
@@ -800,11 +821,7 @@ sub compare_string {
 sub stringify {
   my $self = shift;
   return $self->TeX() if Value->context->flag('StringifyAsTeX');
-  my $def = $self->context->lists->get($self->class);
-  return $self->string unless $def;
-  my $open = $self->{open};   $open  = $def->{open}  unless defined($open);
-  my $close = $self->{close}; $close = $def->{close} unless defined($close);
-  $open.join($def->{separator},@{$self->data}).$close;
+  return $self->string;
 }
 
 =head4 ->string
@@ -827,8 +844,12 @@ sub string {
   $close = $def->{close}  unless defined($close);
   my @coords = ();
   foreach my $x (@{$self->data}) {
-    if (Value::isValue($x))
-      {push(@coords,$x->string($equation))} else {push(@coords,$x)}
+    if (Value::isValue($x)) {
+      $x->{format} = $self->{format} if defined $self->{format};
+      push(@coords,$x->string($equation));
+    } else {
+      push(@coords,$x);
+    }
   }
   return $open.join($def->{separator},@coords).$close;
 }
@@ -855,8 +876,10 @@ sub TeX {
   $open = '\left'.$open if $open; $close = '\right'.$close if $close;
   my @coords = (); my $str = $context->{strings};
   foreach my $x (@{$self->data}) {
-    if (Value::isValue($x)) {push(@coords,$x->TeX($equation))}
-    elsif (defined($str->{$x}) && $str->{$x}{TeX}) {push(@coords,$str->{$x}{TeX})}
+    if (Value::isValue($x)) {
+      $x->{format} = $self->{format} if defined $self->{format};
+      push(@coords,$x->TeX($equation));
+    } elsif (defined($str->{$x}) && $str->{$x}{TeX}) {push(@coords,$str->{$x}{TeX})}
     else {push(@coords,$x)}
   }
   return $open.join(',',@coords).$close;
