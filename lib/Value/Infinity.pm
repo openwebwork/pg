@@ -42,7 +42,7 @@ sub promote {
   $x = Value::makeValue($x,context=>$context);
   return $x->inContext($context)
     if ref($x) eq $class || ref($x) eq $pkg || Value::isReal($x);
-  Value::Error("Can't convert '%s' to %s",$x,$self->showClass);
+  Value::Error("Can't convert %s to %s",Value::showClass($x),$self->showClass);
 }
 
 ############################################
@@ -59,7 +59,9 @@ sub neg {
 }
 
 sub compare {
-  my ($l,$r,$flag) = @_; my $sgn = ($flag ? -1: 1);
+  my ($l,$r,$flag) = @_;
+  my $sgn = ($flag ? -1: 1);
+  $r = $l->promote($r);
   return 0 if !$r->classMatch('Real') && $l->{isNegative} == $r->{isNegative};
   return ($l->{isNegative}? -$sgn: $sgn);
 }
@@ -69,7 +71,7 @@ sub compare {
 #  Generate the various output formats
 #
 
-sub TeX {(shift->{isNegative} ? '-\infty': '\infty ')}
+sub TeX {(shift->{isNegative} ? '-\infty ': '\infty ')}
 sub perl {(shift->{isNegative} ? '-(Infinity)': '(Infinity)')}
 
 ###########################################################################
