@@ -63,6 +63,8 @@ sub promote {
   Value::Error("Can't convert %s to %s",Value::showClass($x),Value::showClass($self));
 }
 
+sub canBeInUnion {0}
+
 ############################################
 #
 #  Operations on vectors
