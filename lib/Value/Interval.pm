@@ -26,7 +26,7 @@ sub new {
   }
   my @params = @_;
   Value::Error("Interval can't be empty") unless scalar(@params) > 0;
-  Value::Error("Extra arguments for Interval()") if scalar(@params) > 4;
+  Value::Error("Too many arguments for Interval") if scalar(@params) > 4;
   return $context->Package("Set")->new($context,@params) if scalar(@params) == 1;
   @params = ('(',@params,')') if (scalar(@params) == 2);
   my ($open,$a,$b,$close) = @params;
@@ -50,6 +50,7 @@ sub new {
     if Value::isFormula($a) || Value::isFormula($b);
   Value::Error("Single point intervals must use '[' and ']'")
     if $a == $b && ($open ne '[' || $close ne ']');
+  return $context->Package("Set")->new($context,$a) if $a == $b;
   bless {
     data => [$a,$b], open => $open, close => $close,
     leftInfinite => $nia, rightInfinite => $ib,
@@ -126,8 +127,19 @@ sub value {
 #
 sub length {
   my $self = shift;
-  my ($a,$b) = $self->data;
+  my ($a,$b) = $self->value;
   return $a == $b ? 1 : 2;
+}
+
+#
+#  Only transfer flags to the endpoints
+#
+sub transferFlags {
+  my $self = shift;
+  foreach my $flag (@_) {
+    next unless defined $self->{$flag};
+    foreach my $i (1,2) {$self->{data}[$i]->{$flag} = $self->{$flag}}
+  }
 }
 
 #
@@ -137,8 +149,8 @@ sub promote {
   my $self = shift;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $x = (scalar(@_) ? shift : $self);
-  $x = Value::makeValue($x,context=>$context);
   return $self->new($context,$x,@_) if scalar(@_) > 0;
+  $x = Value::makeValue($x,context=>$context);
   return $x if $x->isSetOfReals;
   return $context->Package("Set")->new($context,$x) if Value::isReal($x);
   my $open  = $x->{open};  $open  = '(' unless defined($open);
@@ -166,7 +178,7 @@ sub dot {my $self = shift; $self->add(@_)}
 #
 sub sub {
   my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
-  Value::Union::form($self->context,subIntervalInterval($l,$r));
+  Value::Union::form($self->context,Value::Union::subUnionUnion([$l],[$r]));
 }
 
 #
@@ -213,7 +225,7 @@ sub compare {
   my ($la,$lb) = $l->value; my ($ra,$rb) = $r->value;
   my $cmp = $la <=> $ra; return $cmp if $cmp;
   my $ignoreEndpointTypes = $l->getFlag('ignoreEndpointTypes');
-  $cmp = $l->{open} cmp $r->{open}; return $cmp if $cmp && !$ignoreEndpointTypes;
+  $cmp = $r->{open} cmp $l->{open}; return $cmp if $cmp && !$ignoreEndpointTypes;
   $cmp = $lb <=> $rb; return $cmp if $cmp || $ignoreEndpointTypes;
   return $l->{close} cmp $r->{close};
 }
@@ -233,24 +245,24 @@ sub sort {shift}
 #
 
 sub contains {
-  my $self = shift; my $other = $self->promote(shift);
+  my $self = shift; my $other = $self->promote(@_);
   return ($other - $self)->isEmpty;
 }
 
 sub isSubsetOf {
-  my $self = shift; my $other = $self->promote(shift);
+  my $self = shift; my $other = $self->promote(@_);
   return $other->contains($self);
 }
 
 sub isEmpty {0}
 
 sub intersect {
-  my $self = shift; my $other = shift;
+  my $self = shift; my $other = $self->promote(@_);
   return $self-($self-$other);
 }
 
 sub intersects {
-  my $self = shift; my $other = shift;
+  my $self = shift; my $other = $self->promote(@_);
   return !$self->intersect($other)->isEmpty;
 }
 
