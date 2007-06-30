@@ -20,19 +20,21 @@ sub new {
       return $x if $x->type =~ m/Interval|Union|Set/;
       Value::Error("Formula does not return an Interval, Set or Union");
     }
-    $x = $self->promote($x); $x = $self->make($x) unless $x->type eq 'Union';
+    $x = $self->promote($context,$x); $x = $self->make($context,$x) unless $x->type eq 'Union';
     return $x;
   }
   my @intervals = (); my $isFormula = 0;
   foreach my $xx (@_) {
     next if $xx eq ''; my $x = Value::makeValue($xx,context=>$context);
     if ($x->isFormula) {
-      $x->{tree}->typeRef->{name} = 'Interval'
-	if ($x->type =~ m/Point|List/ && $x->length == 2 &&
-	    $x->typeRef->{entryType}{name} eq 'Number');
-      if ($x->type eq 'Union') {push(@intervals,$x->{tree}->makeUnion)}
+      if ($x->type =~ m/Point|List/ && $x->length == 2 &&
+	  $x->typeRef->{entryType}{name} eq 'Number') {
+	$x->{tree} = $x->Item("List")->new($x->{tree}{equation},$x->{tree}{coords},$x->{tree}{isConstant},
+					   $context->{parens}{interval},$x->typeRef->{entryType},'(',')');
+      }
+      if ($x->type eq 'Union') {push(@intervals,map {new Parser($context,$_)} ($x->{tree}->makeUnion))}
       elsif ($x->isSetOfReals) {push(@intervals,$x)}
-      else {Value::Error("Unions can be taken only for Intervals and Sets")}
+      else {Value::Error("Unions can be taken only for Intervals or Sets")}
       $isFormula = 1;
     } else {
       if ($x->classMatch('Union')) {push(@intervals,$x->value)}
@@ -44,18 +46,18 @@ sub new {
   }
   Value::Error("Empty unions are not allowed") if scalar(@intervals) == 0;
   return $self->formula(@intervals) if $isFormula;
-  my $union = form($self->context,@intervals);
-  $union = $self->make($union) unless $union->type eq 'Union';
+  my $union = form($context,@intervals);
+  $union = $self->make($context,$union) unless $union->type eq 'Union';
   return $union;
 }
 
 #
 #  Make a union or interval or set, depending on how
-#  many there are in the union, and mark the
+#  many there are in the union.
 #
 sub form {
   my $context = shift;
-  return $_[0] if scalar(@_) == 1;
+  return $_[0]->inContext($context) if scalar(@_) == 1;
   return $context->Package("Set")->new($context) if scalar(@_) == 0;
   my $union = $context->Package("Union")->make($context,@_);
   $union = $union->reduce if $union->getFlag('reduceUnions');
@@ -95,12 +97,12 @@ sub recursiveUnion {
 #  Try to promote arbitrary data to a set
 #
 sub promote {
-  my $self = shift;
+  my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $x = (scalar(@_) ? shift : $self);
   $x = Value::makeValue($x,context=>$context);
-  return $context->Package("Set")->new($context,$x,@_) if scalar(@_) > 0 || Value::isRealNumber($x);
-  return $x->inContext($context) if ref($x) eq $pkg;
+  return $context->Package("Set")->new($context,$x,@_) if scalar(@_) > 0 || Value::isReal($x);
+  return $x->inContext($context) if ref($x) eq $class;
   $x = $context->Package("Interval")->promote($context,$x) if $x->canBeInUnion;
   return $self->make($context,$x) if Value::isValue($x) && $x->isSetOfReals;
   Value::Error("Can't convert %s to an Interval, Set or Union",Value::showClass($x));
@@ -116,6 +118,8 @@ sub promote {
 #
 sub add {
   my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
+  $l = $self->make($l) unless $l->type eq 'Union';
+  $r = $self->make($r) unless $r->type eq 'Union';
   form($self->context,$l->value,$r->value);
 }
 sub dot {my $self = shift; $self->add(@_)}
@@ -163,11 +167,10 @@ sub subUnionUnion {
 #    compare interval by interval.
 #
 sub compare {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
-  if ($self->getFlag('reduceUnionsForComparison')) {
-    $l = $l->reduce; $l = $self->make($l) unless $l->type eq 'Union';
-    $r = $r->reduce; $r = $self->make($r) unless $r->type eq 'Union';
-  }
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
+  if ($self->getFlag('reduceUnionsForComparison')) {$l = $l->reduce; $r = $r->reduce}
+  $l = $self->make($l) unless $l->type eq 'Union';
+  $r = $self->make($r) unless $r->type eq 'Union';
   my @l = $l->sort->value; my @r = $r->sort->value;
   while (scalar(@l) && scalar(@r)) {
     my $cmp = shift(@l) <=> shift(@r);
@@ -220,9 +223,9 @@ sub reduce {
   }
   my $context = $self->context;
   push(@union,@intervals);
-  push(@union,$self->Package("Set")->make($context,@set)) unless scalar(@set) == 0;
-  return $self->Package("Set")->new($context) if scalar(@union) == 0;
-  return $union[0] if scalar(@union) == 1;
+  push(@union,$context->Package("Set")->make($context,@set)) unless scalar(@set) == 0;
+  return $context->Package("Set")->new($context) if scalar(@union) == 0;
+  return $union[0]->inContext($context) if scalar(@union) == 1;
   return $self->make(@union)->with(isReduced=>1);
 }
 
@@ -232,8 +235,10 @@ sub reduce {
 sub isReduced {
   my $self = shift;
   return 1 if $self->{isReduced};
+  return $self->{data}[0]->isReduced if $self->length == 1;
   my $reduced = $self->reduce;
-  return unless $reduced->type eq 'Union' && $reduced->length == $self->length;
+  $reduced = $self->make($reduced) unless $reduced->type eq 'Union';
+  return unless $reduced->length == $self->length;
   my @R = $reduced->sort->value; my @S = $self->sort->value;
   foreach my $i (0..$#R) {
     return unless $R[$i] == $S[$i] && $R[$i]->length == $S[$i]->length;
@@ -284,7 +289,12 @@ sub intersects {
 #  Generate the various output formats
 #
 
-sub pdot {'('.(shift->stringify).')'}
+sub pdot {
+  my $self = shift;
+  my $text = $self->stringify;
+  $text = '('.$text.')' if $self->length > 1;
+  return $text;
+}
 
 sub string {
   my $self = shift; my $equation = shift; shift; shift; my $prec = shift;
