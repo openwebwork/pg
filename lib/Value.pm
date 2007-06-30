@@ -305,7 +305,7 @@ sub isSetOfReals {0}
 sub canBeInUnion {
   my $self = shift;
   return $self->length == 2 && $self->typeRef->{entryType}{name} eq 'Number' &&
-    $self->{open} =~ m/^[\(\[]$/ && $self->{close} =~ m/^[\)\]]$/;
+    $self->{open} =~ m/^[\(\[]?$/ && $self->{close} =~ m/^[\)\]]?$/;
 }
 
 ######################################################################
@@ -781,8 +781,9 @@ sub compare_string {
 #
 sub transferFlags {
   my $self = shift;
-  foreach my $x ($self->value) {
-    foreach my $flag (@_) {
+  foreach my $flag (@_) {
+    next unless defined $self->{$flag};
+    foreach my $x (@{$self->{data}}) {
       if ($x->{$flag} ne $self->{$flag}) {
 	$x->{$flag} = $self->{$flag};
 	$x->transferFlags($flag);
