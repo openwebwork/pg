@@ -257,9 +257,9 @@ sub inContext {my $self = shift; $self->context(@_); $self}
 sub classMatch {
   my $self = shift; my $class = class($self);
   my $ref = ref($self); my $isHash = ($ref && $ref ne 'ARRAY' && $ref ne 'CODE');
-  my $context = ($isHash ? $self->{context} : Value->context);
+  my $context = ($isHash ? $self->{context} || Value->context : Value->context);
   foreach my $name (@_) {
-    return 1 if $class eq $name || $ref eq $context->Package($name,0) ||
+    return 1 if $class eq $name || $ref eq $context->Package($name,1) ||
                 $ref eq "Value::$name" || ($isHash && $self->{"is".$name});
   }
   return 0;
