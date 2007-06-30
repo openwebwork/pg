@@ -115,8 +115,8 @@ sub promote {
 #  Addition forms unions
 #
 sub add {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
-  form($self->contest,$l->value,$r->value);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
+  form($self->context,$l->value,$r->value);
 }
 sub dot {my $self = shift; $self->add(@_)}
 
@@ -124,7 +124,7 @@ sub dot {my $self = shift; $self->add(@_)}
 #  Subtraction can split intervals into unions
 #
 sub sub {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   $l = $l->reduce; $l = $self->make($l) unless $l->type eq 'Union';
   $r = $r->reduce; $r = $self->make($r) unless $r->type eq 'Union';
   form($self->context,subUnionUnion($l->data,$r->data));
@@ -255,12 +255,12 @@ sub sort {
 #
 
 sub contains {
-  my $self = shift; my $other = $self->promote(shift);
+  my $self = shift; my $other = $self->promote(@_);
   return ($other - $self)->isEmpty;
 }
 
 sub isSubsetOf {
-  my $self = shift; my $other = $self->promote(shift);
+  my $self = shift; my $other = $self->promote(@_);
   return $other->contains($self);
 }
 
@@ -270,12 +270,12 @@ sub isEmpty {
 }
 
 sub intersect {
-  my $self = shift; my $other = shift;
+  my $self = shift; my $other = $self->promote(@_);
   return $self-($self-$other);
 }
 
 sub intersects {
-  my $self = shift; my $other = shift;
+  my $self = shift; my $other = $self->promote(@_);
   return !$self->intersect($other)->isEmpty;
 }
 
@@ -285,12 +285,6 @@ sub intersects {
 #
 
 sub pdot {'('.(shift->stringify).')'}
-
-sub stringify {
-  my $self = shift;
-  return $self->TeX if $self->getFlag('StringifyAsTeX');
-  $self->string;
-}
 
 sub string {
   my $self = shift; my $equation = shift; shift; shift; my $prec = shift;
