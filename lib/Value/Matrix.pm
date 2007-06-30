@@ -345,7 +345,7 @@ sub column {
 #  @@@ do these really need to be overriden? @@@
 sub stringify {
   my $self = shift;
-  return $self->TeX if Value->context->getFlag('StringifyAsTeX');
+  return $self->TeX if Value->context->flag('StringifyAsTeX');
   return $self->string(undef,$self->{open},$self->{close});
 }
 
