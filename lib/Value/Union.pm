@@ -35,10 +35,10 @@ sub new {
       else {Value::Error("Unions can be taken only for Intervals and Sets")}
       $isFormula = 1;
     } else {
-      if ($x->type ne 'Interval' && $x->canBeInUnion)
-        {$x = $context->Package("Interval")->new($context,$x->{open},$x->value,$x->{close})}
       if ($x->classMatch('Union')) {push(@intervals,$x->value)}
       elsif ($x->isSetOfReals) {push(@intervals,$x)}
+      elsif ($x->canBeInUnion)
+	{push(@intervals,$x = $context->Package("Interval")->new($context,$x->{open}||"(",$x->value,$x->{close}||")"))}
       else {Value::Error("Unions can be taken only for Intervals or Sets")}
     }
   }
