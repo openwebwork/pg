@@ -821,7 +821,7 @@ sub transferTolerances {
 
 sub stringify {
   my $self = shift;
-  return $self->TeX() if Value->context->flag('StringifyAsTeX');
+  return $self->TeX if Value->context->flag('StringifyAsTeX');
   return $self->string;
 }
 
