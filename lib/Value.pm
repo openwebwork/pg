@@ -580,9 +580,11 @@ sub extract {
   return unless Value::isValue($M);
   @indices = $_[0]->value if scalar(@_) == 1 && Value::isValue($_[0]);
   while (scalar(@indices) > 0) {
-    $i = shift @indices; $i-- if $i > 0; $i = $i->value if Value::isValue($i);
+    return if Value::isNumber($M);
+    $i = shift @indices; $i = $i->value if Value::isValue($i);
     Value::Error("Can't extract element number '%s' (index must be an integer)",$i)
       unless $i =~ m/^-?\d+$/;
+    return if $i == 0; $i-- if $i > 0;
     $M = $M->data->[$i];
   }
   return $M;
