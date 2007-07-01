@@ -18,17 +18,16 @@ our @ISA = qw(Value);
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  my $p = shift; $p = [$p,@_] if (scalar(@_) > 0);
-  $p = Value::makeValue($p,context=>$context) if (defined($p) && !ref($p));
-  return $p if (Value::isFormula($p) && Value::classMatch($self,$p->type));
-  my $isMatrix = Value::classMatch($p,'Matrix'); my $isFormula = 0;
-  my @d; @d = $p->dimensions if $isMatrix;
+  my $p = shift; $p = [$p,@_] if scalar(@_) > 0;
+  $p = Value::makeValue($p,context=>$context) if defined($p) && !ref($p);
+  return $p if Value::isFormula($p) && Value::classMatch($self,$p->type);
+  my $isFormula = 0; my @d; @d = $p->dimensions if Value::classMatch($p,'Matrix');
   if (Value::classMatch($p,'Point','Vector')) {$p = $p->data}
-  elsif ($isMatrix && scalar(@d) == 1) {$p = [$p->value]}
-  elsif ($isMatrix && scalar(@d) == 2 && $d[0] == 1) {$p = ($p->value)[0]}
-  elsif ($isMatrix && scalar(@d) == 2 && $d[1] == 1) {$p = ($p->transpose->value)[0]}
+  elsif (scalar(@d) == 1) {$p = [$p->value]}
+  elsif (scalar(@d) == 2 && $d[0] == 1) {$p = ($p->value)[0]}
+  elsif (scalar(@d) == 2 && $d[1] == 1) {$p = ($p->transpose->value)[0]}
   else {
-    $p = [$p] if (defined($p) && ref($p) ne 'ARRAY');
+    $p = [$p] if defined($p) && ref($p) ne 'ARRAY';
     Value::Error("Vectors must have at least one coordinate") unless defined($p) && scalar(@{$p}) > 0;
     foreach my $x (@{$p}) {
       $x = Value::makeValue($x,context=>$context);
@@ -51,6 +50,16 @@ sub new {
 }
 
 #
+#  Make sure column vector is retained
+#
+sub make {
+  my $self = shift;
+  my $v = $self->SUPER::make(@_);
+  $v->{ColumnVector} = 1 if ref($self) && $self->{ColumnVector};
+  return $v;
+}
+
+#
 #  Try to promote arbitary data to a vector
 #
 sub promote {
@@ -58,6 +67,7 @@ sub promote {
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $x = (scalar(@_) ? shift : $self);
   return $self->new($context,$x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
+  $x = Value::makeValue($x,context=>$context);
   return $x->inContext($context) if ref($x) eq $class;
   return $self->make($context,$x->value) if Value::classMatch($x,'Point');
   Value::Error("Can't convert %s to %s",Value::showClass($x),Value::showClass($self));
@@ -73,7 +83,7 @@ sub canBeInUnion {0}
 sub add {
   my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
-  Value::Error("Vector addition with different number of coordinates")
+  Value::Error("Can't add Vectors with different numbers of coordinates")
     unless scalar(@l) == scalar(@r);
   my @s = ();
   foreach my $i (0..scalar(@l)-1) {push(@s,$l[$i] + $r[$i])}
@@ -83,7 +93,7 @@ sub add {
 sub sub {
   my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
-  Value::Error("Vector subtraction with different number of coordinates")
+  Value::Error("Can't subtract Vectors with different numbers of coordinates")
     unless scalar(@l) == scalar(@r);
   my @s = ();
   foreach my $i (0..scalar(@l)-1) {push(@s,$l[$i] - $r[$i])}
@@ -92,7 +102,7 @@ sub sub {
 
 sub mult {
   my ($l,$r,$flag) = @_; my $self = $l;
-  Value::Error("Vectors can only be multiplied by numbers")
+  Value::Error("Vectors can only be multiplied by Numbers")
     unless (Value::matchNumber($r) || Value::isComplex($r));
   my @coords = ();
   foreach my $x ($l->value) {push(@coords,$x*$r)}
@@ -102,7 +112,7 @@ sub mult {
 sub div {
   my ($l,$r,$flag) = @_; my $self = $l;
   Value::Error("Can't divide by a Vector") if $flag;
-  Value::Error("Vectors can only be divided by numbers")
+  Value::Error("Vectors can only be divided by Numbers")
     unless (Value::matchNumber($r) || Value::isComplex($r));
   Value::Error("Division by zero") if $r == 0;
   my @coords = ();
@@ -119,7 +129,7 @@ sub power {
 sub dot {
   my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
-  Value::Error("Vector dot product with different number of coordinates")
+  Value::Error("Can't dot Vectors with different numbers of coordinates")
     unless scalar(@l) == scalar(@r);
   my $s = 0;
   foreach my $i (0..scalar(@l)-1) {$s += $l[$i] * $r[$i]}
@@ -129,15 +139,15 @@ sub dot {
 sub cross {
   my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
-  Value::Error("Vector must be in 3-space for cross product")
+  Value::Error("Vectors for cross product must be in 3-space")
     unless scalar(@l) == 3 && scalar(@r) == 3;
-  $pkg->make($l[1]*$r[2] - $l[2]*$r[1],
-           -($l[0]*$r[2] - $l[2]*$r[0]),
-             $l[0]*$r[1] - $l[1]*$r[0]);
+  $self->make($l[1]*$r[2] - $l[2]*$r[1],
+            -($l[0]*$r[2] - $l[2]*$r[0]),
+              $l[0]*$r[1] - $l[1]*$r[0]);
 }
 
 #
-#  If points are different length, shorter is smaller,
+#  If vectors are different length, shorter is smaller,
 #  Otherwise, do lexicographic comparison.
 #
 sub compare {
@@ -158,16 +168,17 @@ sub neg {
   return $self->make(@coords);
 }
 
-sub abs {my $self = shift; $self->norm(@_)}
+sub abs {(shift)->norm(@_)}
 sub norm {
-  my $self = promote(@_); my $s = 0;
+  my $self = promote(@_);
+  my $s = $self->Package("Real")->make($self->context,0);
   foreach my $x ($self->value) {$s += $x*$x}
   return CORE::sqrt($s);
 }
 
 sub unit {
   my $self = promote(@_);
-  my $n = $self->norm; return $self if $n == 0;
+  my $n = $self->norm; return $self if $n == 0; # fuzzy check
   return $self / $n;
 }
 
@@ -188,8 +199,8 @@ sub isParallel {
     #
     #  make sure we use fuzzy math
     #
-    $u[$i] = Value::Real->new($context,$u[$i]) unless Value::isReal($u[$i]);
-    $v[$i] = Value::Real->new($context,$v[$i]) unless Value::isReal($v[$i]);
+    $u[$i] = $context->Package("Real")->new($context,$u[$i]) unless Value::isReal($u[$i]);
+    $v[$i] = $context->Package("Real")->new($context,$v[$i]) unless Value::isReal($v[$i]);
     if ($k ne '') {
       return 0 if ($v[$i] != $k*$u[$i]);
     } else {
@@ -215,7 +226,7 @@ sub isParallel {
   return 1;
 }
 
-sub areParallel {isParallel(@_)}
+sub areParallel {(shift)->isParallel(@_)}
 
 
 ############################################
@@ -226,25 +237,18 @@ sub areParallel {isParallel(@_)}
 my $ijk_string = ['i','j','k','0'];
 my $ijk_TeX = ['\boldsymbol{i}','\boldsymbol{j}','\boldsymbol{k}','\boldsymbol{0}'];
 
-sub stringify {
-  my $self = shift;
-  return $self->TeX if $self->getFlag('StringifyAsTeX');
-  $self->string;
-}
-
 sub string {
   my $self = shift; my $equation = shift;
   return $self->ijk($ijk_string)
-    if ($self->{ijk} || $equation->{ijk} || $self->getFlag("ijk")) &&
-        !$self->{ColumnVector};
+    if ($equation->{ijk} || $self->getFlag("ijk")) && !$self->{ColumnVector};
   return $self->SUPER::string($equation,@_);
 }
 
 sub pdot {
   my $self = shift;
   my $string = $self->string;
-  $string = '('.$string.')' if $string =~ m/[-+]/ &&
-    ($self->getFlag("ijk")) && !$self->{ColumnVector};
+  $string = '('.$string.')'
+    if $string =~ m/[-+]/ && $self->getFlag("ijk") && !$self->{ColumnVector};
   return $string;
 }
 
@@ -265,7 +269,7 @@ sub TeX {
     }
     return $open.'\begin{array}{c}'.join('\\\\',@coords).'\\\\\end{array}'.$close;
   }
-  return $self->ijk if ($self->{ijk} || $equation->{ijk} || $self->getFlag("ijk"));
+  return $self->ijk if ($equation->{ijk} || $self->getFlag("ijk"));
   return $self->SUPER::TeX($equation,@_);
 }
 
@@ -273,12 +277,12 @@ sub ijk {
   my $self = shift; my $ijk = shift;
   if (!$ijk) {
     my $context = $self->context;
-    $ijk = []; $ijk->[3] = '{\bf 0}';
+    $ijk = []; $ijk->[3] = $ijk_TeX->[3];
     foreach my $i (0,1,2)
-     {$ijk->[$i] = $context->{constants}{$ijk_string->[$i]}{TeX} || $ijk_TeX->[$i]}
+      {$ijk->[$i] = $context->{constants}{$ijk_string->[$i]}{TeX} || $ijk_TeX->[$i]}
   }
   my @coords = @{$self->data};
-  Value::Error("Method 'ijk' can only be used on vectors in three-space")
+  Value::Error("Method 'ijk' can only be used on Vectors in 3-space")
     unless (scalar(@coords) <= 3);
   my $string = ''; my $n; my $term;
   foreach $n (0..scalar(@coords)-1) {
