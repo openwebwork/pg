@@ -21,9 +21,8 @@ sub _check {
 #
 sub _eval {
   my $self = shift; my $name = $self->{name};
-  my $c = shift;
-  $c = $self->Package("Complex")->promote($self->context,$c) unless Value::isComplex($c);
-  $c->$name;
+  my $c = shift; my $context = (Value::isValue($c) ? $c : $self)->context;
+  $self->Package("Complex")->promote($context,$c)->$name;
 }
 
 #
@@ -35,9 +34,8 @@ sub _call {
   my $self = shift; my $name = shift;
   Value::Error("Function '%s' has too many inputs",$name) if scalar(@_) > 1;
   Value::Error("Function '%s' has too few inputs",$name) if scalar(@_) == 0;
-  my $c = shift;
-  $c = $self->Package("Complex")->promote($self->context,$c) unless Value::isComplex($c);
-  $c->$name;
+  my $c = shift; my $context = (Value::isValue($c) ? $c : $self)->context;
+  $self->Package("Complex")->promote($context,$c)->$name;
 }
 
 ##################################################

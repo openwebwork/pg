@@ -30,8 +30,8 @@ sub _call {
   Value::Error("Function '%s' has too few inputs",$name) if scalar(@_) == 0;
   my $n = $_[0];
   return $self->$name($n) if Value::matchNumber($n);
-  $n = $self->Package("Complex")->promote($self->context,$n) unless Value::isComplex($n);
-  $n->$name;
+  my $context = (Value::isValue($n) ? $n : $self)->context;
+  $self->Package("Complex")->promote($context,$n)->$name;
 }
 
 #

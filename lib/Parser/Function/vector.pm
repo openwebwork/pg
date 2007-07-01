@@ -30,8 +30,8 @@ sub _call {
   my $self = shift; my $name = shift;
   Value::Error("Function '%s' has too many inputs",$name) if scalar(@_) > 1;
   Value::Error("Function '%s' has too few inputs",$name) if scalar(@_) == 0;
-  my $v = $self->Package("Vector")->promote($self->context,$_[0]);
-  $v->$name;
+  my $v = shift; my $context = (Value::isValue($v) ? $v : $self)->context;
+  $self->Package("Vector")->promote($context,$v)->$name;
 }
 
 #########################################################################
