@@ -85,7 +85,7 @@ sub _check {}
 sub eval {
   my $self = shift; my @p = ();
   foreach my $x (@{$self->{coords}}) {push(@p,$x->eval)}
-  $self->_eval(@p);
+  $self->_eval([@p]);
 }
 
 #

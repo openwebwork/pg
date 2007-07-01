@@ -26,7 +26,7 @@ sub class {'AbsoluteValue'}; # don't report List
 #
 #  Compute using abs()
 #
-sub _eval {abs($_[1])}
+sub _eval {abs($_[1][0])}
 
 #
 #  Use abs() in perl mode

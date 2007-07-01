@@ -32,8 +32,8 @@ sub canBeInUnion {1}
 #  Use the Value.pm class to produce the result
 #
 sub _eval {
-  my $self = shift;
-  $self->Package($self->type)->new($self->context,$self->{open},@_,$self->{close});
+  my $self = shift; my @ab = @{(shift)};
+  $self->Package($self->type)->new($self->context,$self->{open},@ab,$self->{close});
 }
 
 #
