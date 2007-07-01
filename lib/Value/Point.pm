@@ -18,7 +18,7 @@ our @ISA = qw(Value);
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  my $p = shift; $p = [$p,@_] if (scalar(@_) > 0);
+  my $p = shift; $p = [$p,@_] if scalar(@_) > 0;
   $p = Value::makeValue($p,context=>$context) if defined($p) && !ref($p);
   return $p if Value::isFormula($p) && Value::classMatch($self,$p->type);
   my $isFormula = 0; my @d; @d = $p->dimensions if Value::classMatch($p,'Matrix');
@@ -49,6 +49,7 @@ sub promote {
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $x = (scalar(@_) ? shift: $self);
   return $self->new($context,$x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
+  $x = Value::makeValue($x,context=>$context);
   return $x->inContext($context) if ref($x) eq $class;
   Value::Error("Can't convert %s to %s",Value::showClass($x),Value::showClass($self));
 }
