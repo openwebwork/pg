@@ -330,10 +330,9 @@ sub Package {(shift)->context->Package(@_)}
 =cut
 
 sub makeValue {
-  my $x = shift;
+  my $x = shift; return $x if Value::isValue($x);
   my %params = (showError => 0, makeFormula => 1, context => Value->context, @_);
   my $context = $params{context};
-  return $x if ref($x) && ref($x) ne 'ARRAY';
   return $context->Package("Real")->make($context,$x) if matchNumber($x);
   if (matchInfinite($x)) {
     my $I = $context->Package("Infinity")->new($context);
