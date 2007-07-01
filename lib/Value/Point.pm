@@ -19,16 +19,15 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $p = shift; $p = [$p,@_] if (scalar(@_) > 0);
-  $p = Value::makeValue($p,context=>$context) if (defined($p) && !ref($p));
-  return $p if (Value::isFormula($p) && Value::classMatch($self,$p->type));
-  my $isMatrix = Value::classMatch($p,'Matrix'); my $isFormula = 0;
-  my @d; @d = $p->dimensions if $isMatrix;
+  $p = Value::makeValue($p,context=>$context) if defined($p) && !ref($p);
+  return $p if Value::isFormula($p) && Value::classMatch($self,$p->type);
+  my $isFormula = 0; my @d; @d = $p->dimensions if Value::classMatch($p,'Matrix');
   if (Value::classMatch($p,'Point','Vector')) {$p = $p->data}
-  elsif ($isMatrix && scalar(@d) == 1) {$p = [$p->value]}
-  elsif ($isMatrix && scalar(@d) == 2 && $d[0] == 1) {$p = ($p->value)[0]}
-  elsif ($isMatrix && scalar(@d) == 2 && $d[1] == 1) {$p = ($p->transpose->value)[0]}
+  elsif (scalar(@d) == 1) {$p = [$p->value]}
+  elsif (scalar(@d) == 2 && $d[0] == 1) {$p = ($p->value)[0]}
+  elsif (scalar(@d) == 2 && $d[1] == 1) {$p = ($p->transpose->value)[0]}
   else {
-    $p = [$p] if (defined($p) && ref($p) ne 'ARRAY');
+    $p = [$p] if defined($p) && ref($p) ne 'ARRAY';
     Value::Error("Points must have at least one coordinate")
       unless defined($p) && scalar(@{$p}) > 0;
     foreach my $x (@{$p}) {
@@ -62,7 +61,7 @@ sub promote {
 sub add {
   my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
-  Value::Error("Can't add Points with different number of coordiantes")
+  Value::Error("Can't add Points with different numbers of coordinates")
     unless scalar(@l) == scalar(@r);
   my @s = ();
   foreach my $i (0..scalar(@l)-1) {push(@s,$l[$i] + $r[$i])}
@@ -72,7 +71,7 @@ sub add {
 sub sub {
   my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
-  Value::Error("Can't subtract Points with different number of coordiantes")
+  Value::Error("Can't subtract Points with different numbers of coordinates")
     unless scalar(@l) == scalar(@r);
   my @s = ();
   foreach my $i (0..scalar(@l)-1) {push(@s,$l[$i] - $r[$i])}
@@ -81,7 +80,7 @@ sub sub {
 
 sub mult {
   my ($l,$r) = @_; my $self = $l;
-  Value::Error("Points can only be multiplied by numbers")
+  Value::Error("Points can only be multiplied by Numbers")
     unless (Value::matchNumber($r) || Value::isComplex($r));
   my @coords = ();
   foreach my $x ($l->value) {push(@coords,$x*$r)}
@@ -90,8 +89,8 @@ sub mult {
 
 sub div {
   my ($l,$r,$flag) = @_; my $self = $l;
-  Value::Error("Can't divide by a point") if $flag;
-  Value::Error("Points can only be divided by numbers")
+  Value::Error("Can't divide by a Point") if $flag;
+  Value::Error("Points can only be divided by Numbers")
     unless (Value::matchNumber($r) || Value::isComplex($r));
   Value::Error("Division by zero") if $r == 0;
   my @coords = ();
