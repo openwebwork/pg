@@ -12,22 +12,24 @@ our @ISA = qw(Value);
 
 #
 #  Convert a value to a matrix.  The value can be:
-#     a list of numbers or list of (nested) references to arrays of numbers
+#     a list of numbers or list of (nested) references to arrays of numbers,
 #     a point, vector or matrix object, a matrix-valued formula, or a string
 #     that evaluates to a matrix
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  my $M = shift; $M = Value::makeValue($M,context=>$context) if !ref($M) && scalar(@_) == 0;
+  my $M = shift; $M = [] unless defined $M; $M = [$M,@_] if scalar(@_) > 0;
+  $M = Value::makeValue($M,context=>$context) if ref($M) ne 'ARRAY';
   return bless {data => $M->data, context=>$context}, $class
     if (Value::classMatch($M,'Point','Vector','Matrix') && scalar(@_) == 0);
-  return $M if (Value::isFormula($M) && Value::classMatch($self,$M->type));
-  $M = [$M,@_] if (ref($M) ne 'ARRAY' || scalar(@_) > 0);
-  Value::Error("Matrices must have at least one entry") unless scalar(@{$M}) > 0;
-  return $self->matrixMatrix(@{$M}) if ref($M->[0]) =~ m/ARRAY|Matrix|Vector|Point/ ||
-    Value::isFormula($M->[0]) && $M->[0]->type =~ m/Matrix|Vector|Point/;
-  return $self->numberMatrix(@{$M});
+  return $M if Value::isFormula($M) && Value::classMatch($self,$M->type);
+  my @M = (ref($M) eq 'ARRAY' ? @{$M} : $M);
+  Value::Error("Matrices must have at least one entry") unless scalar(@M) > 0;
+  return $self->matrixMatrix($context,@M) if ref($M[0]) eq 'ARRAY' ||
+    Value::classMatch($M[0],'Matrix','Vector','Point') ||
+    (Value::isFormula($M[0]) && $M[0]->type =~ m/Matrix|Vector|Point/);
+  return $self->numberMatrix($context,@M);
 }
 
 #
@@ -36,10 +38,11 @@ sub new {
 #
 sub matrixMatrix {
   my $self = shift; my $class = ref($self) || $self;
+  my $context = shift;
   my ($x,$m); my @M = (); my $isFormula = 0;
   foreach $x (@_) {
     if (Value::isFormula($x)) {push(@M,$x); $isFormula = 1} else {
-      $m = $self->new($x); push(@M,$m);
+      $m = $self->new($context,$x); push(@M,$m);
       $isFormula = 1 if Value::isFormula($m);
     }
   }
@@ -50,7 +53,7 @@ sub matrixMatrix {
     Value::Error("Matrix rows must all be the same length") unless ($len eq $x->length);
   }
   return $self->formula([@M]) if $isFormula;
-  bless {data => [@M], context=>$self->context}, $class;
+  bless {data => [@M], context=>$context}, $class;
 }
 
 #
@@ -59,14 +62,15 @@ sub matrixMatrix {
 #
 sub numberMatrix {
   my $self = shift; my $class = ref($self) || $self;
+  my $context = shift;
   my @M = (); my $isFormula = 0;
   foreach my $x (@_) {
-    $x = Value::makeValue($x,context=>$self->context);
+    $x = Value::makeValue($x,context=>$context);
     Value::Error("Matrix row entries must be numbers") unless Value::isNumber($x);
     push(@M,$x); $isFormula = 1 if Value::isFormula($x);
   }
   return $self->formula([@M]) if $isFormula;
-  bless {data => [@M], context=>$self->context}, $class;
+  bless {data => [@M], context=>$context}, $class;
 }
 
 #
@@ -81,6 +85,7 @@ sub value {
   foreach my $x (@{$M}) {push(@M,[$x->value])}
   return @M;
 }
+
 #
 #  Recursively get the dimensions of the matrix.
 #  Returns (n) for a 1 x n, or (n,m) for an n x m, etc.
@@ -92,6 +97,7 @@ sub dimensions {
   return ($r,) unless Value::classMatch($v->[0],'Matrix');
   return ($r,$v->[0]->dimensions);
 }
+
 #
 #  Return the proper type for the matrix
 #
@@ -157,6 +163,7 @@ sub promote {
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $x = (scalar(@_) ? shift : $self);
   return $self->new($context,$x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
+  $x = Value::makeValue($x,context=>$context);
   return $x->inContext($context) if ref($x) eq $class;
   return $self->make($context,@{$x->data}) if Value::classMatch($x,'Point','Vector');
   Value::Error("Can't convert %s to %s",Value::showClass($x),Value::showClass($self));
@@ -229,7 +236,7 @@ sub mult {
 sub div {
   my ($l,$r,$flag) = @_; my $self = $l;
   Value::Error("Can't divide by a Matrix") if $flag;
-  Value::Error("Matrices can only be divided by numbers")
+  Value::Error("Matrices can only be divided by Numbers")
     unless (Value::matchNumber($r) || Value::isComplex($r));
   Value::Error("Division by zero") if $r == 0;
   my @coords = ();
@@ -241,26 +248,26 @@ sub power {
   my ($l,$r,$flag) = @_; my $self = shift; my $context = $self->context;
   Value::Error("Can't use Matrices in exponents") if $flag;
   Value::Error("Only square matrices can be raised to a power") unless $l->isSquare;
+  $r = Value::makeValue($r,context=>$context);
+  Value::Error("Matrix powers must be non-negative integers") unless $r->isNumber && $r =~ m/^\d+$/;
   return $context->Package("Matrix")->I($l->length,$context) if $r == 0;
-  Value::Error("Matrix powers must be positive integers") unless $r =~ m/^[1-9]\d*$/;
   my $M = $l; foreach my $i (2..$r) {$M = $M*$l}
   return $M;
 }
 
 #
-#  Do lexicographic comparison
+#  Do lexicographic comparison (row by row)
 #
 sub compare {
   my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
-  my @l = @{$l->data}; my @r = @{$r->data};
   Value::Error("Can't compare Matrices with different dimensions")
-    unless scalar(@l) == scalar(@r);
-  my $cmp = 0;
+    unless join(',',$l->dimensions) eq join(',',$r->dimensions);
+  my @l = @{$l->data}; my @r = @{$r->data};
   foreach my $i (0..scalar(@l)-1) {
-    $cmp = $l[$i] <=> $r[$i];
-    last if $cmp;
+    my $cmp = $l[$i] <=> $r[$i];
+    return $cmp if $cmp;
   }
-  return $cmp;
+  return 0;
 }
 
 sub neg {
@@ -275,7 +282,7 @@ sub neg {
 sub transpose {
   my $self = promote(@_);
   my @d = $self->dimensions;
-  if (scalar(@d) == 1) {@d = (1,@d); $self = $pkg->make($self)}
+  if (scalar(@d) == 1) {@d = (1,@d); $self = $self->make($self)}
   Value::Error("Can't transpose %d-dimensional matrices",scalar(@d)) unless scalar(@d) == 2;
   my @M = (); my $M = $self->data;
   foreach my $j (0..$d[1]-1) {
@@ -291,6 +298,9 @@ sub transpose {
 #
 sub I {
   my $self = shift; my $d = shift; my $context = shift || $self->context;
+  $d = ($self->dimensions)[0] if !defined $d && ref($self) && $self->isSquare;
+  Value::Error("You must provide a dimension for the Identity matrix") unless defined $d;
+  Value::Error("Dimension must be a positive integer") unless $d =~ m/^[1-9]\d*$/;
   my @M = (); my @Z = split('',0 x $d);
   foreach my $i (0..$d-1) {
     my @row = @Z; $row[$i] = 1;
@@ -306,7 +316,7 @@ sub row {
   my $self = (ref($_[0]) ? $_[0] : shift);
   my $M = $self->promote(shift); my $i = shift;
   return if $i == 0; $i-- if $i > 0;
-  if ($M->isRow) {return if $i != 0; return $M}
+  if ($M->isRow) {return if $i != 0 && $i != -1; return $M}
   return $M->data->[$i];
 }
 
@@ -326,9 +336,13 @@ sub column {
   my $self = (ref($_[0]) ? $_[0] : shift);
   my $M = $self->promote(shift); my $j = shift;
   return if $j == 0; $j-- if $j > 0;
-  my @d = $M->dimensions; my @col = ();
-  return if $j+1 > $d[1];
-  return $M->data->[$j] if scalar(@d) == 1;
+  my @d = $M->dimensions;
+  if (scalar(@d) == 1) {
+    return if $j+1 > $d[0] || $j < -$d[0];
+    return $M->data->[$j];
+  }
+  return if $j+1 > $d[1] || $j < -$d[1];
+  my @col = ();
   foreach my $row (@{$M->data}) {push(@col,$self->make($row->data->[$j]))}
   return $self->make(@col);
 }
@@ -341,29 +355,6 @@ sub column {
 #
 #  Generate the various output formats
 #
-
-#  @@@ do these really need to be overriden? @@@
-sub stringify {
-  my $self = shift;
-  return $self->TeX if Value->context->flag('StringifyAsTeX');
-  return $self->string(undef,$self->{open},$self->{close});
-}
-
-sub string {
-  my $self = shift; my $equation = shift;
-  my $def = ($equation->{context} || $self->context)->lists->get('Matrix');
-  my $open  = shift || $def->{open}; my $close = shift || $def->{close};
-  my @coords = ();
-  foreach my $x (@{$self->data}) {
-    if (Value::isValue($x)) {
-      $x->{format} = $self->{format} if defined $self->{format};
-      push(@coords,$x->string($equation,$open,$close));
-    } else {
-      push(@coords,$x);
-    }
-  }
-  return $open.join(',',@coords).$close;
-}
 
 #
 #  Use array environment to lay out matrices
