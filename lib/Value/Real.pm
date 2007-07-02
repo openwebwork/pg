@@ -128,9 +128,9 @@ sub compare {
   #
   #  Handle periodic Reals
   #
-  my $m = $self->{period};
+  my $m = $self->getFlag("period");
   if (defined $m) {
-    if ($self->{logPeriodic}) {
+    if ($self->getFlag("logPeriodic")) {
       return 1 if $l->value == 0 || $r->value == 0; # non-fuzzy checks
       $l = log($l); $r = log($r);
     }

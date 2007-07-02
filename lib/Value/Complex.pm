@@ -141,9 +141,9 @@ sub compare {
   #
   #  Handle periodic Complex numbers
   #
-  my $m = $self->{period};
+  my $m = $self->getFlag("period");
   if (defined $m) {
-    if ($self->{logPeriodic}) {
+    if ($self->getFlag("logPeriodic")) {
       return 1 if abs($l)->value == 0 || abs($r)->value == 0; # non-fuzzy checks
       $l = log($l); $r = log($r);
     }
