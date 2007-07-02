@@ -32,7 +32,7 @@ sub blank {shift->SUPER::new(@_)}
 #    as the formula itself.
 #
 sub with {
-  my $self = shift; my %hash = @_;
+  my $self = (shift)->copy; my %hash = @_;
   foreach my $id (keys(%hash)) {
     $self->{tree}{$id} = $hash{$id};
     $self->{$id} = $hash{$id};
@@ -75,15 +75,15 @@ sub bop {
   if (ref($r) eq $class || ref($r) eq $pkg) {
     $formula->{context} = $r->{context};
     $r = $r->{tree}->copy($formula);
+  } else {
+    $r = $self->new($r)->{tree};
   }
   if (ref($l) eq $class || ref($l) eq $pkg) {
     $formula->{context} = $l->{context};
     $l = $l->{tree}->copy($formula);
+  } else {
+    $l = $self->new($l)->{tree};
   }
-  $l = $self->new($l) if (!ref($l) && Value::getType($formula,$l) eq "unknown");
-  $r = $self->new($r) if (!ref($r) && Value::getType($formula,$r) eq "unknown");
-  $l = $formula->Item("Value")->new($formula,$l) unless ref($l) =~ m/^Parser::/;
-  $r = $formula->Item("Value")->new($formula,$r) unless ref($r) =~ m/^Parser::/;
   $bop = 'U' if $bop eq '+' &&
     ($l->type =~ m/Interval|Set|Union/ || $r->type =~ m/Interval|Set|Union/);
   $formula->{tree} = $formula->Item("BOP")->new($formula,$bop,$l,$r);
@@ -139,6 +139,9 @@ sub atan2 {
   Parser::Function->call('atan2',$l,$r);
 }
 
+#
+#  Other overloaded functions
+#
 sub sin  {shift->call('sin',@_)}
 sub cos  {shift->call('cos',@_)}
 sub abs  {shift->call('abs',@_)}
@@ -450,12 +453,6 @@ sub AdaptParameters {
   $l->Error("Can't solve for adaptive parameters");
 }
 
-sub usesOneOf {
-  my $self = shift;
-  foreach my $x (@_) {return 1 if $self->{variables}{$x}}
-  return 0;
-}
-
 ##
 ##  debugging routine
 ##
@@ -487,14 +484,13 @@ sub isConstant {
   return scalar(@vars) == 0;
 }
 
-############################################
 #
-#  Provide output formats
+#  Check if the Formula includes one of the named variables
 #
-sub stringify {
+sub usesOneOf {
   my $self = shift;
-  return $self->TeX if $self->getFlag('StringifyAsTeX');
-  $self->string;
+  foreach my $x (@_) {return 1 if $self->{variables}{$x}}
+  return 0;
 }
 
 ###########################################################################
