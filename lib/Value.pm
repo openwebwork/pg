@@ -218,7 +218,10 @@ sub copy {
 
 sub getFlag {
   my $self = shift; my $name = shift;
-  return $self->{$name} if ref($self) && ref($self) ne 'ARRAY' && defined($self->{$name});
+  if (ref($self) && ref($self) ne 'ARRAY') {
+    return $self->{$name} if defined($self->{$name});
+    return $self->{equation}{$name} if defined($self->{equation}) && defined($self->{equation}{$name});
+  }
   my $context = $self->context;
   return $context->{answerHash}{$name}
     if defined($context->{answerHash}) && defined($context->{answerHash}{$name});  # use WW answerHash flags first

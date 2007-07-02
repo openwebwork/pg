@@ -181,8 +181,8 @@ sub atan2 {
 
 sub string {
   my $self = shift; my $equation = shift; my $prec = shift;
-  my $n = $self->{data}[0]; my $format = $self->{format};
-  $format = ($equation->{context} || $self->context)->{format}{number} unless defined $format;
+  my $n = $self->{data}[0];
+  my $format = $self->getFlag("format",$equation->{format} || ($equation->{context} || $self->context)->{format}{number});
   if ($format) {
     $n = sprintf($format,$n);
     if ($format =~ m/#\s*$/) {$n =~ s/(\.\d*?)0*#$/$1/; $n =~ s/\.$//}

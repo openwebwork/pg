@@ -239,8 +239,7 @@ my $ijk_TeX = ['\boldsymbol{i}','\boldsymbol{j}','\boldsymbol{k}','\boldsymbol{0
 
 sub string {
   my $self = shift; my $equation = shift;
-  return $self->ijk($ijk_string)
-    if ($equation->{ijk} || $self->getFlag("ijk")) && !$self->{ColumnVector};
+  return $self->ijk($ijk_string) if $self->getFlag("ijk") && !$self->{ColumnVector};
   return $self->SUPER::string($equation,@_);
 }
 
@@ -269,7 +268,7 @@ sub TeX {
     }
     return $open.'\begin{array}{c}'.join('\\\\',@coords).'\\\\\end{array}'.$close;
   }
-  return $self->ijk if ($equation->{ijk} || $self->getFlag("ijk"));
+  return $self->ijk if $self->getFlag("ijk");
   return $self->SUPER::TeX($equation,@_);
 }
 
