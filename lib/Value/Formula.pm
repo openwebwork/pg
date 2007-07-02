@@ -159,13 +159,15 @@ sub compare {
   my ($l,$r) = @_; my $self = $l;
   my $context = $self->context;
   $r = $context->Package("Formula")->new($context,$r) unless Value::isFormula($r);
-  Value::Error("Functions from different contexts can't be compared")
+  Value::Error("Formulas from different contexts can't be compared")
     unless $l->{context} == $r->{context};
 
   #
   #  Get the test points and evaluate the functions at those points
   #
   ##  FIXME: Check given points for consistency
+  ##  FIXME: make arrays if only a single value is given
+  ##  FIXME: insert additional values if vars in use in formula aren't all the vars in the context
   my $points  = $l->{test_points} || $l->createRandomPoints(undef,$l->{test_at});
   my $lvalues = $l->{test_values} || $l->createPointValues($points,1,1);
   my $rvalues = $r->createPointValues($points,0,1,$l->{checkUndefinedPoints});
@@ -233,7 +235,13 @@ sub createPointValues {
       return unless $showError;
       Value::Error("Can't evaluate formula on test point (%s)",join(',',@{$p}));
     }
-    push @{$values}, (defined($v)? Value::makeValue($v,context=>$self->context): $UNDEF);
+    if (defined($v)) {
+      $v = Value::makeValue($v,context=>$self->context)->with(equation=>$self);
+      $v->transferFlags("equation");
+      push @{$values}, $v;
+    } else {
+      push @{$values}, $UNDEF;
+    }
   }
   if ($cacheResults) {
     $self->{test_points} = $points;
@@ -262,7 +270,9 @@ sub createAdaptedValues {
       Value::Error("Can't evaluate formula on test point (%s) with parameters (%s)",
 		   join(',',@{$p}),join(',',@adapt));
     }
-    push @{$values}, Value::makeValue($v,context=>$self->context);
+    $v = Value::makeValue($v,context=>$self->context)->with(equation=>$self);
+    $v->transferFlags("equation");
+    push @{$values}, $v;
   }
   $self->{test_adapt} = $values;
 }
@@ -311,8 +321,10 @@ sub createRandomPoints {
       }
       $k++;
     } else {
+      $v = Value::makeValue($v,context=>$self->context)->with(equation=>$self);
+      $v->transferFlags("equation");
       push @{$points}, [@P];
-      push @{$values}, Value::makeValue($v,context=>$context);
+      push @{$values}, $v;
       $k = 0; # reset count when we find a point
     }
   }
@@ -403,7 +415,7 @@ sub AdaptParameters {
   my $l = shift; my $r = shift;
   my @params = @_; my $d = scalar(@params);
   return 0 if $d == 0; return 0 unless $l->usesOneOf(@params);
-  $l->Error("Adaptive parameters can only be used for real-valued functions")
+  $l->Error("Adaptive parameters can only be used for real-valued formulas")
     unless $l->{tree}->isRealNumber;
   #
   #  Get coefficient matrix of adaptive parameters
@@ -435,11 +447,11 @@ sub AdaptParameters {
       my @a; my $i = 0; my $max = $l->getFlag('max_adapt',1E8);
       foreach my $row (@{$B->[0]}) {
 	if (abs($row->[0]) > $max) {
-	  $max = Value::makeValue($max);
-	  $l->Error("Constant of integration is too large: %s\n(maximum allowed is %s)",
-		    $row->[0]->string,$max->string) if ($params[$i] eq 'C0');
-	  $l->Error("Adaptive constant is too large: %s = %s\n(maximum allowed is %s)",
-		    $params[$i],$row->[0]->string,$max->string);
+	  $max = Value::makeValue($max); $row->[0] = Value::makeValue($row->[0]);
+	  $l->Error(["Constant of integration is too large: %s\n(maximum allowed is %s)",
+		    $row->[0]->string,$max->string]) if $params[$i] eq 'C0';
+	  $l->Error(["Adaptive constant is too large: %s = %s\n(maximum allowed is %s)",
+		    $params[$i],$row->[0]->string,$max->string]);
 	}
 	push @a, $row->[0]; $i++;
       }
