@@ -4,8 +4,7 @@
 #
 package Value::Context::Flags;
 use strict;
-use vars qw (@ISA);
-@ISA = qw(Value::Context::Data);
+our @ISA = ("Value::Context::Data");
 
 sub init {
   my $self = shift;
@@ -15,7 +14,9 @@ sub init {
   $self->{namePattern} = '[-\w_.]+';
 }
 
-sub update {} # no pattern needed
+sub update {} # no pattern or tokens needed
+sub addToken {}
+sub removeToken {}
 
 #########################################################################
 

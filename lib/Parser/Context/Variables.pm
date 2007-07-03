@@ -27,13 +27,13 @@ sub init {
   $self->{name} = 'variable';
   $self->{Name} = 'Variable';
   $self->{namePattern} = '[a-zA-Z][a-zA-Z0-9]*';
+  $self->{tokenType} = 'var';
+  $self->{precedence} = 5;
+  $self->{patterns}{$self->{namePattern}} = [$self->{precedence},$self->{tokenType}];
 }
 
-sub getPattern {
-  my $self = shift;
-  my $pattern = $self->SUPER::getPattern(@_);
-  return '(?:' . $pattern . '|' . $self->{namePattern} . ')';
-}
+#sub addToken {}    # no tokens needed
+#sub removeToken {}
 
 #
 #  If the type is one of the names ones, use it's known type
@@ -64,6 +64,14 @@ sub uncreate {shift; (shift)->{type}};
 sub type {
   my $self = shift; my $x = shift;
   return $self->{context}{variables}{$x}{type};
+}
+
+#
+#  Return a parameter's value
+#
+sub value {
+  my $self = shift; my $x = shift;
+  return $self->{context}{variables}{$x}{value};
 }
 
 #

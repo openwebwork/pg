@@ -3,7 +3,7 @@
 package Parser::Context;
 my $pkg = "Parser::Context";
 use strict;
-our @ISA = qw(Value::Context);
+our @ISA = ("Value::Context");
 
 #
 #  Create a new Context object and initialize its data lists
@@ -15,10 +15,6 @@ sub new {
   $context->{parser} = {%{$Parser::class}};
   push(@{$context->{data}{values}},'parser');
   $context->{_initialized} = 0;
-  push(@{$context->{data}{objects}},(
-    'functions','variables','constants','operators','strings','parens',
-  ));
-  push(@{$context->{data}{values}},'reduction');
   my %data = (
     functions => {},
     variables => {},
@@ -50,18 +46,80 @@ sub new {
 #
 sub update {
   my $self = shift; return unless $self->{_initialized};
-  $self->{pattern}{token} =
-   '(?:('.join(')|(',
-         $self->strings->{pattern},
-         $self->functions->{pattern},
-         $self->constants->{pattern},
-         $self->{pattern}{number},
-         $self->operators->{pattern},
-         $self->parens->{open},
-         $self->parens->{close},
-         $self->variables->{pattern},
-  ).'))';
+  my @patterns = ([$self->{pattern}{number},-10,'num']);
+  my @tokens;
+  foreach my $name (@{$self->{data}{objects}}) {
+    my $data = $self->{$name};
+    foreach my $pattern (keys %{$data->{patterns}}) {
+      my $def = $data->{patterns}{$pattern};
+      $def = [$def,$data->{tokenType}] unless ref($def) eq 'ARRAY';
+      push @patterns,[$pattern,@{$def}];
+    }
+    push @tokens,%{$data->{tokens}};
+  }
+  $self->{pattern}{type} = [];
+  $self->{pattern}{tokenType} = {@tokens};
+  push @patterns,[getPattern(keys %{$self->{pattern}{tokenType}}),0,''];
+  @patterns = sort byPrecedence @patterns;
+  foreach my $pattern (@patterns) {
+    push @{$self->{pattern}{type}}, $pattern->[2];
+    $pattern = $pattern->[0];
+  }
+  my $pattern = '('.join(')|(',@patterns).')';
+  $self->{pattern}{token} = qr/$pattern/;
 }
+
+#
+#  Build a regexp pattern from the characters and list of names
+#  (protect special characters)
+#
+sub getPattern {
+  my $single = ''; my @multi = ();
+  foreach my $x (sort byName (@_))
+    {if (length($x) == 1) {$single .= $x} else {push(@multi,$x)}}
+  foreach my $x (@multi) {$x = protectRegexp($x) unless substr($x,0,3) eq '(?:'}
+  my @pattern = ();
+  push(@pattern,join('|',@multi)) if scalar(@multi) > 0;
+  push(@pattern,protectRegexp($single)) if length($single) == 1;
+  push(@pattern,"[".protectChars($single)."]") if length($single) > 1;
+  my $pattern = join('|',@pattern);
+  $pattern = '^$' if $pattern eq '';
+  return $pattern;
+}
+
+sub protectRegexp {
+  my $string = shift;
+  $string =~ s/[\[\](){}|+.*?\\]/\\$&/g;
+  return $string;
+}
+
+sub protectChars {
+  my $string = shift;
+  $string =~ s/\]/\\\]/g;
+  $string =~ s/^(.*)-(.*)$/-$1$2/g;
+  return $string;
+}
+
+#
+#  Sort names so that they can be joined for regexp matching
+#  (longest first, then alphabetically)
+#
+sub byName {
+  my $result = length($b) <=> length($a);
+  $result = $a cmp $b unless $result;
+  return $result;
+}
+#
+#  Sort by precedence, then type
+#
+sub byPrecedence {
+  my $result = $a->[1] <=> $b->[1];
+  $result = $a->[2] cmp $b->[2] unless $result;
+  $result = $b->[0] cmp $a->[0] unless $result;
+  return $result;
+}
+
+
 
 #
 #  Access to the data lists

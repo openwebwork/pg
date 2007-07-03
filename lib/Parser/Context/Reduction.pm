@@ -14,7 +14,9 @@ sub init {
   $self->{namePattern} = '[^ ]+';
 }
 
-sub update {} # no pattern needed
+sub update {} # no pattern or tokens needed
+sub addToken {}
+sub removeToken {}
 
 sub reduce {
   my $self = shift;

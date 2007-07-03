@@ -77,23 +77,23 @@ sub copy {my $self = shift; $self->new($self)}
 #  types of objects.
 #
 sub tokenize {
-  my $self = shift; my $space;
+  my $self = shift; my $space; my @match;
   my $tokens = $self->{tokens}; my $string = $self->{string};
   my $tokenPattern = $self->{context}{pattern}{token};
-  @{$tokens} = (); $self->{error} = 0; $self->{message} = '';
-  $string =~ m/^\s*/gc; my $p0 = 0; my $p1;
+  my $tokenType = $self->{context}{pattern}{tokenType};
+  my @patternType = @{$self->{context}{pattern}{type}};
+  @{$tokens} = (); $self->{error} = 0;
+  $string =~ m/^\s*/gc; my $p0; my $p1;
   while (pos($string) < length($string)) {
     $p0 = pos($string);
-    if ($string =~ m/\G$tokenPattern/gc) {
-      $p1 = pos($string);
-      push(@{$tokens},['str',$1,$p0,$p1,$space])   if (defined($1));
-      push(@{$tokens},['fn',$2,$p0,$p1,$space])    if (defined($2));
-      push(@{$tokens},['const',$3,$p0,$p1,$space]) if (defined($3));
-      push(@{$tokens},['num',$4,$p0,$p1,$space])   if (defined($4));
-      push(@{$tokens},['op',$5,$p0,$p1,$space])    if (defined($5));
-      push(@{$tokens},['open',$6,$p0,$p1,$space])  if (defined($6));
-      push(@{$tokens},['close',$7,$p0,$p1,$space]) if (defined($7));
-      push(@{$tokens},['var',$8,$p0,$p1,$space])   if (defined($8));
+    if (@match = ($string =~ m/\G$tokenPattern/)) {
+      foreach my $i (0..$#patternType) {
+	if (defined($match[$i])) {
+	  $p1 = pos($string) = pos($string) + length($match[$i]);
+	  push(@{$tokens},[($patternType[$i]||$tokenType->{$match[$i]}),$match[$i],$p0,$p1,$space]);
+	  last;
+	}
+      }
     } else {
       push(@{$tokens},['error',substr($string,$p0,1),$p0,$p0+1]);
       $self->{error} = 1;
@@ -138,7 +138,7 @@ sub parse {
 
 
 #  Get the top or previous item of the stack
-# 
+#
 sub top {
   my $self = shift; my $i = shift || 0;
   return $self->{stack}[$i-1];
@@ -211,7 +211,7 @@ sub pushOperand {
 ##################################################
 #
 #  Handle an operator token
-#  
+#
 #  Get the operator data from the context
 #  If the top of the stack is an operand
 #    If the operator is a left-associative unary operator
@@ -279,7 +279,7 @@ sub Op {
 ##################################################
 #
 #  Handle an open parenthesis
-#  
+#
 #  If the top of the stack is an operand
 #    Check if the open paren is really a close paren (for when the open
 #      and close symbol are the same)
@@ -306,7 +306,7 @@ sub Open {
 ##################################################
 #
 #  Handle a close parenthesis
-#  
+#
 #  When the top stack object is
 #    An open parenthesis (that is empty):
 #      Get the data for the type of parentheses

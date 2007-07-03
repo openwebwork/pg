@@ -30,8 +30,8 @@ sub new {
     data => {
       hashes => [],
       arrays => ['data'],
-      values => ['flags','pattern','format','value'],
-      objects => ['diagnostics','lists'],
+      values => ['pattern','format','value'],
+      objects => [],
     },
     value => {
       Formula => "Value::Formula"
@@ -67,8 +67,7 @@ sub copy {
   my $context = $self->new();
   $context->{_initialized} = 0;
   foreach my $data (@{$context->{data}{objects}}) {
-    $context->{$data} = $self->{"_$data"}->copy;
-    $context->{"_$data"}->update;
+    $context->{$data}->copy($self->{$data});
   }
   foreach my $data (@{$context->{data}{hashes}}) {
     $context->{$data} = {};

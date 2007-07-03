@@ -11,12 +11,15 @@ sub new {
   my $data = bless {
     context => $parent,     # parent context
     dataName => {},         # name of data storage in context hash
-    pattern => '^$',        # pattern for names of data items (default never matches)
+    tokens => {},           # hash of id => type specifications that will be made into a pattern
+    patterns => {},         # hash of pattern => [type,precedence] specification for extra patterns
+    tokenType => {},        # type of Parser token for these pattern
     namePattern => '',      # pattern for allowed names for new items
     name => '', Name => '', # lower- and upper-case names for the class of items
   }, $class;
   $data->init();
   $parent->{$data->{dataName}} = {};
+  push @{$parent->{data}{objects}},"_$data->{dataName}";
   $data->add(@_);
   return $data;
 }
@@ -29,12 +32,12 @@ sub create {shift; shift}
 sub uncreate {shift; shift}
 
 #
-#  Copy the hash data
+#  Copy the context data
 #
 sub copy {
-  my $self = shift;
-  my $data = $self->{context}->{$self->{dataName}};
-  my $copy = {};
+  my $self = shift; my $orig = shift;
+  my $data = $orig->{context}->{$orig->{dataName}};
+  my $copy = $self->{context}->{$self->{dataName}};
   foreach my $name (keys %{$data}) {
     if (ref($data->{$name}) eq 'ARRAY') {
       $copy->{$name} = [@{$data->{$name}}];
@@ -44,61 +47,27 @@ sub copy {
       $copy->{$name} = $data->{$name};
     }
   }
-  return $copy;
-}
-
-#
-#  Sort names so that they can be joined for regexp matching
-#
-sub byName {
-  my $result = length($b) <=> length($a);
-  return $result unless $result == 0;
-  return $a cmp $b;
-}
-
-#
-#  Update the pattern for the names
-#
-sub update {
-  my $self = shift;
-  my $data = $self->{context}->{$self->{dataName}};
-  my $single = ''; my @multi = ();
-  foreach my $x (sort byName (keys %{$data})) {
-    unless ($data->{$x}{hidden}) {
-      if (length($x) == 1) {$single .= $x} else {push(@multi,$x)}
-    }
+  $self->{tokens} = {%{$orig->{tokens}}};
+  foreach my $p (keys %{$orig->{patterns}}) {
+    $self->{patterns}{$p} =
+      (ref($orig->{patterns}{$p}) ? [@{$orig->{patterns}{$p}}] : $orig->{patterns}{$p});
   }
-  $self->{pattern} = $self->getPattern($single,@multi);
-  $self->{context}->update;
 }
 
 #
-#  Build a regexp pattern from the characters and list of names
-#  (protect special characters)
+#  Update the context patterns
 #
-sub getPattern {
-  shift; my $s = shift;
-  foreach my $x (@_) {$x = protectRegexp($x)}
-  my @pattern = ();
-  push(@pattern,join('|',@_)) if scalar(@_) > 0;
-  push(@pattern,protectRegexp($s)) if length($s) == 1;
-  push(@pattern,"[".protectChars($s)."]") if length($s) > 1;
-  my $pattern = join('|',@pattern);
-  $pattern = '^$' if $pattern eq '';
-  return $pattern;
+sub update {(shift)->{context}->update}
+
+sub addToken {
+  my $self = shift; my $token = shift;
+  $self->{tokens}{$token} = $self->{tokenType}
+    unless $self->{context}{$self->{dataName}}{$token}{hidden};
 }
 
-sub protectRegexp {
-  my $string = shift;
-  $string =~ s/[\[\](){}|+.*?\\]/\\$&/g;
-  return $string;
-}
-
-sub protectChars {
-  my $string = shift;
-  $string =~ s/\]/\\\]/g;
-  $string =~ s/^(.*)-(.*)$/-$1$2/g;
-  return $string;
+sub removeToken {
+  my $self = shift; my $token = shift;
+  delete $self->{tokens}{$token};
 }
 
 
@@ -112,6 +81,7 @@ sub add {
     Value::Error("Illegal %s name '%s'",$self->{name},$x) unless $x =~ m/^$self->{namePattern}$/;
     warn "$self->{Name} '$x' already exists" if defined($data->{$x});
     $data->{$x} = $self->create($D{$x});
+    $self->addToken($x);
   }
   $self->update;
 }
@@ -124,6 +94,7 @@ sub remove {
   my $data = $self->{context}{$self->{dataName}};
   foreach my $x (@_) {
     warn "$self->{Name} '$x' doesn't exist" unless defined($data->{$x});
+    $self->removeToken($x);
     delete $data->{$x};
   }
   $self->update;
@@ -144,6 +115,7 @@ sub replace {
 sub clear {
   my $self = shift;
   $self->{context}{$self->{dataName}} = {};
+  $self->{tokens} = {};
   $self->update;
 }
 
@@ -205,6 +177,7 @@ sub set {
       foreach my $id (keys %{$D{$x}}) {$xref->{$id} = $D{$x}{$id}}
     } else {
       $data->{$x} = $self->create($D{$x});
+      $self->addToken($x);
     }
   };
 }

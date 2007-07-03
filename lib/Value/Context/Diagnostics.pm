@@ -4,8 +4,7 @@
 #
 package Value::Context::Diagnostics;
 use strict;
-use vars qw (@ISA);
-@ISA = qw(Value::Context::Data);
+our @ISA = ("Value::Context::Data");
 
 sub new {
   my $self = shift; my $parent = shift;
@@ -44,7 +43,9 @@ sub init {
   $self->{namePattern} = '[-\w_.]+';
 }
 
-sub update {} # no pattern needed
+sub update {} # no pattern or tokens needed
+sub addToken {}
+sub removeToken {}
 
 sub merge {
   my $self = shift; my $type = shift;

@@ -12,6 +12,7 @@ sub init {
   $self->{name} = 'operator';
   $self->{Name} = 'operator';
   $self->{namePattern} = '.+';
+  $self->{tokenType} = 'op';
 }
 
 #

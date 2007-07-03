@@ -11,29 +11,23 @@ sub init {
   $self->{dataName} = 'parens';
   $self->{name} = 'parenthesis';
   $self->{Name} = 'Parenthesis';
-  $self->{namePattern} = '[^\s]+';
-  $self->{open} = '^$';
-  $self->{close} = '^$';
+  $self->{namePattern} = '\S+';
 }
 
-#
-#  Make open and close patterns from the list
-#
-sub update {
-  my $self = shift;
-  my $parens = $self->{context}{$self->{dataName}};
-  my @open = (); my $openS = ''; my $openN = 0;
-  my @close = (); my $closeS = ''; my $closeN = 0;
-  foreach my $x (keys %{$parens}) {
-    unless ($parens->{$x}{hidden}) {
-      if (length($x) > 1) {push(@open,$x)} else {$openS .= $x}
-      if (length($parens->{$x}{close}) > 1) {push(@close,$parens->{x}{close})}
-        else {$closeS .= $parens->{$x}{close}}
-    }
+sub addToken {
+  my $self = shift; my $token = shift;
+  my $data = $self->{context}{$self->{dataName}}{$token};
+  unless ($data->{hidden}) {
+    $self->{tokens}{$token} = "open";
+    $self->{tokens}{$data->{close}} = "close" unless $data->{close} eq $token;
   }
-  $self->{open} = $self->getPattern($openS,@open);
-  $self->{close} = $self->getPattern($closeS,@close);
-  $self->{context}->update;
+}
+
+sub removeToken {
+  my $self = shift; my $token = shift;
+  my $data = $self->{context}{$self->{dataName}}{$token};
+  delete $self->{tokens}{$token};
+  delete $self->{tokens}{$data->{close}} unless $data->{hidden} || $data->{close} eq $token;
 }
 
 #########################################################################

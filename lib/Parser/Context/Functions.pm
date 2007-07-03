@@ -12,6 +12,7 @@ sub init {
   $self->{name} = 'function';
   $self->{Name} = 'Function';
   $self->{namePattern} = '[a-zA-Z][a-zA-Z0-9]*';
+  $self->{tokenType} = 'fn';
 }
 
 #
