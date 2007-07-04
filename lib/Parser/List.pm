@@ -201,7 +201,7 @@ sub string {
 #  Produce TeX version.
 #
 #  Use stretchable open and close delimiters (quoting braces)
-#  
+#
 sub TeX {
   my $self = shift; my $precedence = shift; my @coords = ();
   my ($open,$close) = ($self->{open},$self->{close});

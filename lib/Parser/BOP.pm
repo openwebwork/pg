@@ -260,7 +260,7 @@ sub getVariables {
 
 #
 #  Produce a string version of the BOP.
-#  
+#
 #  Parentheses are added when either:
 #    we are told to from our parent
 #    the BOP says to (fullparens)
