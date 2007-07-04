@@ -26,7 +26,7 @@ sub new {
   my $entryType = shift || $Value::Type{unknown};
   my $open = shift || ''; my $close = shift || '';
   my $context = $equation->{context};
-  my $parens = $context->{parens}; my $list;
+  my $parens = $context->{parens};
 
   if ($paren && $close && $paren->{formInterval}) {
     $paren = $parens->{interval}
@@ -45,7 +45,7 @@ sub new {
     }
   }
   $open = '' if $open eq 'start'; $close = '' if $close eq 'start';
-  $list = bless {
+  my $list = bless {
     coords => $coords, type => $type, open => $open, close => $close,
     paren => $paren, equation => $equation, isConstant => $constant
   }, $context->{lists}{$type->{name}}{class};
