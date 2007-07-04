@@ -353,7 +353,7 @@ sub Close {
     };
 
     /operand/ and do {
-      $self->Precedence(0); return if ($self->{error});
+      $self->Precedence(-1); return if ($self->{error});
       if ($self->state ne 'operand') {$self->Close($type,$ref); return}
       my $paren = $parens->{$self->prev->{value}};
       if ($paren->{close} eq $type) {
