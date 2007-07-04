@@ -60,7 +60,11 @@ sub canBeInUnion {
 #
 #  Return the constant's name
 #
-sub string {(shift)->{name}}
+sub string {
+  my $self = shift;
+  return $self->{def}{string} if defined($self->{def}{string});
+  return $self->{name}
+}
 
 sub TeX {
   my $self = shift; my $name = $self->{name};
