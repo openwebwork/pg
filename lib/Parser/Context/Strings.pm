@@ -11,7 +11,7 @@ sub init {
   $self->{dataName} = 'strings';
   $self->{name} = 'string';
   $self->{Name} = 'String';
-  $self->{namePattern} = '[\S ]+';
+  $self->{namePattern} = qr/[\S ]+/;
   $self->{tokenType} = 'str';
   $self->{precedence} = -5;
   $self->{caseInsensitive} = {};
@@ -25,6 +25,12 @@ sub update {
     $self->{patterns} = {$pattern => [$self->{precedence},$self->{tokenType}]};
   }
   $self->SUPER::update;
+}
+
+sub copy {
+  my $self = shift; my $orig = shift;
+  $self->SUPER::copy($orig);
+  $self->{caseInsensitive} = {%{$orig->{caseInsensitive}}};
 }
 
 sub addToken {
