@@ -11,7 +11,7 @@ sub init {
   $self->{dataName} = 'parens';
   $self->{name} = 'parenthesis';
   $self->{Name} = 'Parenthesis';
-  $self->{namePattern} = '\S+';
+  $self->{namePattern} = qr/\S+/;
 }
 
 sub addToken {

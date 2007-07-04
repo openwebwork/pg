@@ -11,7 +11,7 @@ sub init {
   $self->{dataName} = 'operators';
   $self->{name} = 'operator';
   $self->{Name} = 'operator';
-  $self->{namePattern} = '.+';
+  $self->{namePattern} = qr/.+/;
   $self->{tokenType} = 'op';
 }
 

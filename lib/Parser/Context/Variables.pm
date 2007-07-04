@@ -26,7 +26,7 @@ sub init {
   $self->{dataName} = 'variables';
   $self->{name} = 'variable';
   $self->{Name} = 'Variable';
-  $self->{namePattern} = '[a-zA-Z][a-zA-Z0-9]*';
+  $self->{namePattern} = qr/[a-zA-Z][a-zA-Z0-9]*/;
   $self->{tokenType} = 'var';
   $self->{precedence} = 5;
   $self->{patterns}{$self->{namePattern}} = [$self->{precedence},$self->{tokenType}];

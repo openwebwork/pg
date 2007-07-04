@@ -11,7 +11,7 @@ sub init {
   $self->{dataName} = 'reduction';
   $self->{name} = 'reduction';
   $self->{Name} = 'Reduction';
-  $self->{namePattern} = '[^ ]+';
+  $self->{namePattern} = qr/\S+/;
 }
 
 sub update {} # no pattern or tokens needed
