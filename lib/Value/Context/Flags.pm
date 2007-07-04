@@ -11,7 +11,7 @@ sub init {
   $self->{dataName} = 'flags';
   $self->{name} = 'flag';
   $self->{Name} = 'Flag';
-  $self->{namePattern} = '[-\w_.]+';
+  $self->{namePattern} = qr/[-\w_.]+/;
 }
 
 sub update {} # no pattern or tokens needed

@@ -40,7 +40,7 @@ sub init {
   $self->{dataName} = 'diagnostics';
   $self->{name} = 'diagnostics';
   $self->{Name} = 'Diagnostics';
-  $self->{namePattern} = '[-\w_.]+';
+  $self->{namePattern} = qr/[-\w_.]+/;
 }
 
 sub update {} # no pattern or tokens needed
