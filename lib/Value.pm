@@ -220,7 +220,11 @@ sub getFlag {
   my $self = shift; my $name = shift;
   if (ref($self) && ref($self) ne 'ARRAY') {
     return $self->{$name} if defined($self->{$name});
-    return $self->{equation}{$name} if defined($self->{equation}) && defined($self->{equation}{$name});
+    if (defined $self->{equation}) {
+      return $self->{equation}{$name} if defined($self->{equation}{$name});
+      return $self->{equation}{equation}{$name}
+	if defined($self->{equation}{equation}) && defined($self->{equation}{equation}{$name});
+    }
   }
   my $context = $self->context;
   return $context->{answerHash}{$name}
