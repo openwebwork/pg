@@ -133,7 +133,7 @@ sub modulo {
   return $self->make(0) if abs($r)->value == 0; # non-fuzzy check
   my $m = Re($l/$r)->value;
   my $n = int($m); $n-- if $n > $m; # act as floor() rather than int()
-  return $self->make($l - $n*$r);
+  return $l - $n*$r;
 }
 
 sub compare {
