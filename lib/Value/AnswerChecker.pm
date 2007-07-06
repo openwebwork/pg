@@ -1286,6 +1286,8 @@ sub cmp_equal {
       $sOpen = $student->{open}; $sClose = $student->{close};
     }
   }
+  foreach my $x (@correct) {$x->{equation} = $self};
+  foreach my $x (@student) {$x->{equation} = $self};
   return if $ans->{split_error};
   #
   #  Check for parenthesis match
@@ -1464,6 +1466,7 @@ sub splitFormula {
   foreach my $entry (@entries) {
     my $v = Parser::Formula($entry);
        $v = Parser::Evaluate($v) if (defined($v) && $v->isConstant);
+    $v->{equation} = $self;
     push(@formula,$v);
     #
     #  There shouldn't be an error evaluating the formula,
