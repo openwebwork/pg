@@ -98,6 +98,7 @@ sub TeX {
   $mult = $cdot if $right =~ m/^\d/ ||
      ($left =~ m/\d+$/ && $self->{rop}{isConstant} &&
       $self->{rop}->type eq 'Number' && $self->{rop}->class ne 'Constant');
+  $right = '\!'.$right if $mult eq '' && substr($right,0,5) eq '\left';
   $TeX = $left.$mult.$right;
 
   $TeX = '\left('.$TeX.'\right)' if $addparens;
