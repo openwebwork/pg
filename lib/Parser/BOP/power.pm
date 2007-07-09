@@ -69,12 +69,12 @@ sub TeX {
   my $TeX; my $bop = $self->{def};
   $position = '' unless defined($position);
   $showparens = '' unless defined($showparens);
-  my $extraParens = $self->{equation}{context}->flag('showExtraParens');
+  my $extraParens = $self->context->flag('showExtraParens');
   my $addparens =
       defined($precedence) &&
-      (($showparens eq 'all' && $extraParens) || $precedence > $bop->{precedence} ||
+      (($showparens eq 'all' && $extraParens > 1) || $precedence > $bop->{precedence} ||
       ($precedence == $bop->{precedence} &&
-        ($bop->{associativity} eq 'right' || $showparens eq 'same')));
+        ($bop->{associativity} eq 'right' || ($showparens eq 'same' && $extraParens))));
   $outerRight = !$addparens && ($outerRight || $position eq 'right');
 
   my $symbol = (defined($bop->{TeX}) ? $bop->{TeX} : $bop->{string});

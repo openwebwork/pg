@@ -45,7 +45,7 @@ sub cmp_contextFlags {
   return (
     StringifyAsTeX => 0,                 # reset this, just in case.
     no_parameters => 1,                  # don't let students enter parameters
-    showExtraParens => 1,                # make student answer painfully unambiguous
+    showExtraParens => 2,                # make student answer painfully unambiguous
     reduceConstants => 0,                # don't combine student constants
     reduceConstantFunctions => 0,        # don't reduce constant functions
     ($ans->{studentsMustReduceUnions} ?

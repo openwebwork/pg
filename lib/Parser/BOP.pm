@@ -275,19 +275,19 @@ sub string {
   my $string; my $bop = $self->{def};
   $position = '' unless defined($position);
   $showparens = '' unless defined($showparens);
-  my $extraParens = $self->{equation}{context}->flag('showExtraParens');
-  my $addparens = 
+  my $extraParens = $self->context->flag('showExtraParens');
+  my $addparens =
       defined($precedence) &&
-      ($showparens eq 'all' || (($showparens eq 'extra' || $bop->{fullparens}) && $extraParens) ||
+      ($showparens eq 'all' || (($showparens eq 'extra' || $bop->{fullparens}) && $extraParens > 1) ||
        $precedence > $bop->{precedence} || ($precedence == $bop->{precedence} &&
-        ($bop->{associativity} eq 'right' || $showparens eq 'same')));
+        ($bop->{associativity} eq 'right' || ($showparens eq 'same' && $extraParens))));
   $outerRight = !$addparens && ($outerRight || $position eq 'right');
 
   $string = $self->{lop}->string($bop->{precedence},$bop->{leftparens},'left',$outerRight).
             $bop->{string}.
             $self->{rop}->string($bop->{precedence},$bop->{rightparens},'right');
 
-  $string = $self->addParens($string) if ($addparens);
+  $string = $self->addParens($string) if $addparens;
   return $string;
 }
 
@@ -299,19 +299,19 @@ sub TeX {
   my $TeX; my $bop = $self->{def};
   $position = '' unless defined($position);
   $showparens = '' unless defined($showparens);
-  my $extraParens = $self->{equation}{context}->flag('showExtraParens');
+  my $extraParens = $self->context->flag('showExtraParens');
   my $addparens =
       defined($precedence) &&
-      (($showparens eq 'all' && $extraParens) || $precedence > $bop->{precedence} ||
+      (($showparens eq 'all' && $extraParens > 1) || $precedence > $bop->{precedence} ||
       ($precedence == $bop->{precedence} &&
-        ($bop->{associativity} eq 'right' || $showparens eq 'same')));
+        ($bop->{associativity} eq 'right' || ($showparens eq 'same' && $extraParens))));
   $outerRight = !$addparens && ($outerRight || $position eq 'right');
 
   $TeX = $self->{lop}->TeX($bop->{precedence},$bop->{leftparens},'left',$outerRight).
          (defined($bop->{TeX}) ? $bop->{TeX} : $bop->{string}) .
          $self->{rop}->TeX($bop->{precedence},$bop->{rightparens},'right');
 
-  $TeX = '\left('.$TeX.'\right)' if ($addparens);
+  $TeX = '\left('.$TeX.'\right)' if $addparens;
   return $TeX;
 }
 

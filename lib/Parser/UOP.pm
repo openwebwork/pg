@@ -179,14 +179,15 @@ sub getVariables {
 sub string {
   my ($self,$precedence,$showparens,$position,$outerRight) = @_;
   my $string; my $uop = $self->{def}; $position = '' unless defined($position);
-  my $addparens = defined($precedence) &&
-    ($precedence >= $uop->{precedence} || $position eq 'right' || $outerRight);
+  my $extraParens = $self->context->flag('showExtraParens');
+  my $addparens = ((defined($precedence) && $precedence >= $uop->{precedence}) ||
+                    $position eq 'right' || $outerRight) && $extraParens;
   if ($uop->{associativity} eq "right") {
     $string = $self->{op}->string($uop->{precedence}).$uop->{string};
   } else {
     $string = $uop->{string}.$self->{op}->string($uop->{precedence});
   }
-  $string = $self->addParens($string) if ($addparens);
+  $string = $self->addParens($string) if $addparens;
   return $string;
 }
 
@@ -197,8 +198,9 @@ sub TeX {
   my ($self,$precedence,$showparens,$position,$outerRight) = @_;
   my $TeX; my $uop = $self->{def}; $position = '' unless defined($position);
   my $fracparens = ($uop->{nofractionparens}) ? "nofractions" : "";
-  my $addparens = defined($precedence) &&
-    ($precedence >= $uop->{precedence} || $position eq 'right' || $outerRight);
+  my $extraParens = $self->context->flag('showExtraParens');
+  my $addparens = ((defined($precedence) && $precedence >= $uop->{precedence}) ||
+                    $position eq 'right' || $outerRight) && $extraParens;
   $TeX = (defined($uop->{TeX}) ? $uop->{TeX} : $uop->{string});
   if ($uop->{associativity} eq "right") {
     $TeX = $self->{op}->TeX($uop->{precedence},$fracparens) . $TeX;
@@ -211,7 +213,7 @@ sub TeX {
 
 #
 #  Produce a Perl expression
-# 
+#
 sub perl {
   my $self = shift; my $parens = shift;
   my $uop = $self->{def}; my $perl;

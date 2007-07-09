@@ -59,18 +59,18 @@ sub string {
   my $string; my $bop = $self->{def};
   $position = '' unless defined($position);
   $showparens = '' unless defined($showparens);
-  my $extraParens = $self->{equation}{context}->flag('showExtraParens');
+  my $extraParens = $self->context->flag('showExtraParens');
   my $addparens =
       defined($precedence) &&
       ($precedence > $bop->{precedence} || ($precedence == $bop->{precedence} &&
-        ($bop->{associativity} eq 'right' || $showparens eq 'same')));
+        ($bop->{associativity} eq 'right' || ($showparens eq 'same' && $extraParens))));
   $outerRight = !$addparens && ($outerRight || $position eq 'right');
 
   $string = $self->{lop}->string($bop->{precedence}).
             $bop->{string}.
             $self->{rop}->string($bop->{precedence});
 
-  $string = $self->addParens($string) if ($addparens);
+  $string = $self->addParens($string) if $addparens;
   return $string;
 }
 
@@ -79,18 +79,18 @@ sub TeX {
   my $TeX; my $bop = $self->{def};
   $position = '' unless defined($position);
   $showparens = '' unless defined($showparens);
-  my $extraParens = $self->{equation}{context}->flag('showExtraParens');
+  my $extraParens = $self->context->flag('showExtraParens');
   my $addparens =
       defined($precedence) &&
       ($precedence > $bop->{precedence} || ($precedence == $bop->{precedence} &&
-        ($bop->{associativity} eq 'right' || $showparens eq 'same')));
+        ($bop->{associativity} eq 'right' || ($showparens eq 'same' && $extraParens))));
   $outerRight = !$addparens && ($outerRight || $position eq 'right');
 
   $TeX = $self->{lop}->TeX($bop->{precedence}).
          (defined($bop->{TeX}) ? $bop->{TeX} : $bop->{string}) .
          $self->{rop}->TeX($bop->{precedence});
 
-  $TeX = '\left('.$TeX.'\right)' if ($addparens);
+  $TeX = '\left('.$TeX.'\right)' if $addparens;
   return $TeX;
 }
 
