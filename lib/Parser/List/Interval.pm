@@ -16,7 +16,8 @@ sub _check {
   $self->Error("Intervals can have only two endpoints") if $length > 2;
   $self->Error("Intervals must have two endpoints") if $length < 2;
   $self->Error("Coordinates of intervals can only be numbers or infinity")
-    if !$coords->[0]->isNumOrInfinity || !$coords->[1]->isNumOrInfinity;
+    if (!$coords->[0]->isNumOrInfinity || !$coords->[1]->isNumOrInfinity) &&
+      !$self->context->flag("allowBadOperands");
   $self->Error("The left endpoint of an interval can't be positive infinity")
     if $coords->[0]{isInfinity};
   $self->Error("The right endpoint of an interval can't be negative infinity")

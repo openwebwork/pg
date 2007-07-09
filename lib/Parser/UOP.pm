@@ -93,7 +93,7 @@ sub copy {
 #  Error if the operand is a string
 #
 sub checkString {
-  my $self = shift;
+  my $self = shift; return 0 if $self->context->flag("allowBadOperands");
   my $type = $self->{op}->typeRef;
   return 0 if ($type->{name} ne 'String');
   my $name = $self->{def}{string} || $self->{uop};
@@ -106,7 +106,7 @@ sub checkString {
 #  Error if operand is a list
 #
 sub checkList {
-  my $self = shift;
+  my $self = shift;  return 0 if $self->context->flag("allowBadOperands");
   my $type = $self->{op}->typeRef;
   return 0 if ($type->{name} ne 'List');
   my $name = $self->{def}{string} || $self->{uop};

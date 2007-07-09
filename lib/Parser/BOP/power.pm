@@ -12,14 +12,17 @@ our @ISA = qw(Parser::BOP);
 #    that the sizes are OK and that the exponents are numbers
 sub _check {
   my $self = shift;
-  return if ($self->checkStrings());
-  return if ($self->checkLists());
-  return if ($self->checkNumbers());
+  return if $self->checkStrings();
+  return if $self->checkLists();
+  return if $self->checkNumbers();
   my ($ltype,$rtype) = $self->promotePoints('Matrix');
   if ($rtype->{name} eq 'Number') {
     if ($ltype->{name} eq 'Matrix') {$self->checkMatrixSize($ltype,$ltype)}
+    elsif ($self->context->flag("allowBadOperands")) {$self->{type} = $Value::Type{number}}
     else {$self->Error("You can only raise a Number to a power")}
-  } else {$self->Error("Exponents must be Numbers")}
+  }
+  elsif ($self->context->flag("allowBadOperands")) {$self->{type} = $Value::Type{number}}
+  else {$self->Error("Exponents must be Numbers")}
 }
 
 #

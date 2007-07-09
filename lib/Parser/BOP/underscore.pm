@@ -18,8 +18,10 @@ sub _check {
 	($rtype->{name} eq 'List' && $rtype->{entryType}{name} eq 'Number')) {
       $self->{type} = {%{$ltype}};
       $self->{type}{length} = $rtype->{length};
-    } else {$self->Error("Right-hand operand of '_' must be a Number or List of numbers")}
-  } else {$self->Error("Entries can be extracted only from Vectors, Matrices, or Lists")}
+    } elsif ($self->context->flag("allowBadOperands")) {$self->{type} = $Value::Type{number}}
+    else {$self->Error("Right-hand operand of '_' must be a Number or List of numbers")}
+  } elsif ($self->context->flag("allowBadOperands")) {$self->{type} = $Value::Type{number}}
+  else {$self->Error("Entries can be extracted only from Vectors, Matrices, or Lists")}
 }
 
 #

@@ -11,7 +11,7 @@ sub init {
   $self->{dataName} = 'constants';
   $self->{name} = 'constant';
   $self->{Name} = 'Constant';
-  $self->{namePattern} = qr/[a-zA-Z][a-zA-Z0-9]*/;
+  $self->{namePattern} = qr/[a-zA-Z][a-zA-Z0-9]*|_blank_/;
   $self->{tokenType} = 'const';
 }
 

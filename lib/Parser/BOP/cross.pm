@@ -17,8 +17,11 @@ sub _check {
     if ($ltype->{length} == 3 && $rtype->{length} == 3 &&
         $ltype->{entryType}{length} == 1 && $rtype->{entryType}{length} == 1)
           {$self->{type} = {%{$ltype}}}
+    elsif ($self->context->flag("allowBadOperands")) {$self->{type} = $Value::Type{number}}
     else {$self->Error("Operands of '><' must by in three-space")}
-  } else {$self->Error("Operands of '><' must be Vectors")}
+  }
+  elsif ($self->context->flag("allowBadOperands")) {$self->{type} = $Value::Type{number}}
+  else {$self->Error("Operands of '><' must be Vectors")}
 }
 
 #

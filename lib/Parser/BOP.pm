@@ -112,7 +112,7 @@ sub copy {
 #  Error if one of the operands is a string.
 #
 sub checkStrings {
-  my $self = shift;
+  my $self = shift; return 0 if $self->context->flag("allowBadOperands");
   my $ltype = $self->{lop}->typeRef; my $rtype = $self->{rop}->typeRef;
   my $name = $self->{def}{string} || $self->{bop};
   if ($ltype->{name} eq 'String') {
@@ -132,7 +132,7 @@ sub checkStrings {
 #  Error if one of the operands is a list.
 #
 sub checkLists {
-  my $self = shift;
+  my $self = shift; return 0 if $self->context->flag("allowBadOperands");
   my $ltype = $self->{lop}->typeRef; my $rtype = $self->{rop}->typeRef;
   return 0 if ($ltype->{name} ne 'List' and $rtype->{name} ne 'List');
   my $name = $self->{def}{string} || $self->{bop};
@@ -146,7 +146,8 @@ sub checkLists {
 #
 sub checkNumbers {
   my $self = shift;
-  return 0 if !($self->{lop}->isNumber && $self->{rop}->isNumber);
+  return 0 if !($self->{lop}->isNumber && $self->{rop}->isNumber) &&
+              !$self->context->flag("allowBadOperands");
   if ($self->{lop}->isComplex || $self->{rop}->isComplex) {
     $self->{type} = $Value::Type{complex};
   } else {
@@ -180,7 +181,7 @@ sub promotePoints {
   my $self = shift; my $class = shift;
   my $ltype = $self->{lop}->typeRef;
   my $rtype = $self->{rop}->typeRef;
-  if ($ltype->{name} eq 'Point' || 
+  if ($ltype->{name} eq 'Point' ||
       ($ltype->{name} eq 'Matrix' && !$ltype->{entryType}{entryType})) {
     $ltype = {%{$ltype}, name => 'Vector'};
     $ltype = Value::Type($class,1,Value::Type($class,1,$ltype->{entryType}))
@@ -199,10 +200,10 @@ sub promotePoints {
 #  Report an error if the operand types don't match.
 #
 sub matchError {
-  my $self = shift;
+  my $self = shift; return if $self->context->flag("allowBadOperands");
   my ($ltype,$rtype) = @_;
   my ($op,$ref) = ($self->{bop});
-  if ($ltype->{name} eq $rtype->{name}) 
+  if ($ltype->{name} eq $rtype->{name})
        {$self->Error("Operands for '%s' must be of the same length",$op)}
   else {$self->Error("Operands for '%s' must be of the same type",$op)}
 }

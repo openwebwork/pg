@@ -12,8 +12,9 @@ our @ISA = qw(Parser::Function);
 sub _check {
   my $self = shift;
   return if ($self->checkArgCount(2));
-  if ($self->{params}->[0]->isNumber && $self->{params}->[1]->isNumber &&
-      !$self->{params}->[0]->isComplex && !$self->{params}->[1]->isComplex) {
+  if (($self->{params}->[0]->isNumber && $self->{params}->[1]->isNumber &&
+      !$self->{params}->[0]->isComplex && !$self->{params}->[1]->isComplex) ||
+      $self->context->flag("allowBadFunctionInputs")) {
     $self->{type} = $Value::Type{number};
   } else {
     $self->Error("Function '%s' has the wrong type of inputs",$self->{name});

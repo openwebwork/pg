@@ -12,14 +12,14 @@ our @ISA = qw(Parser::BOP);
 #
 sub _check {
   my $self = shift;
-  return if ($self->checkStrings());
-  return if ($self->checkLists());
+  return if $self->checkStrings();
+  return if $self->checkLists();
   $self->Error("Division by zero") if $self->{rop}{isZero};
-  return if ($self->checkNumbers());
+  return if $self->checkNumbers();
   my ($ltype,$rtype) = $self->promotePoints();
-  if ($ltype->{name} =~ m/Vector|Matrix/ && $rtype->{name} eq 'Number') {
-    $self->{type} = {%{$ltype}};
-  } else {$self->Error("Division is allowed only for Numbers or a Vector and a Number")}
+  if ($ltype->{name} =~ m/Vector|Matrix/ && $rtype->{name} eq 'Number') {$self->{type} = {%{$ltype}}}
+  elsif ($self->context->flag("allowBadOperands")) {$self->{type} = $Value::Type{number}}
+  else {$self->Error("Division is allowed only for Numbers or a Vector, Point, or Matrix and a Number")}
 }
 
 #

@@ -208,6 +208,14 @@ sub pushOperand {
   $self->push({type => 'operand', ref => $self->{ref}, value => $value});
 }
 
+#
+#  Push a blank operand (just as a place-holder)
+#
+sub pushBlankOperand {
+  my $self = shift;
+  $self->pushOperand($self->Item("Constant")->new($self,"_blank_",$self->{ref}));
+}
+
 ##################################################
 #
 #  Handle an operator token
@@ -268,10 +276,17 @@ sub Op {
     } elsif ($self->state eq 'fn') {
       if ($op->{leftf}) {
         $self->pushOperator($name,$op->{precedence},1);
+      } elsif ($self->{context}->flag("allowMissingFunctionInputs")) {
+	$self->pushBlankOperand;
+	$self->CloseFn;
+	$self->pushOperator($name,$op->{precedence});
       } else {
         my $top = $self->top;
         $self->Error(["Function '%s' is missing its input(s)",$top->{name}],$top->{ref});
       }
+    } elsif ($self->{context}->flag("allowMissingOperands")) {
+      $self->pushBlankOperand;
+      $self->Op($name,$ref);
     } else {$self->Error(["Missing operand before '%s'",$name],$ref)}
   }
 }
@@ -383,14 +398,24 @@ sub Close {
     };
 
     /fn/ and do {
-      my $top = $self->top;
-      $self->Error(["Function '%s' is missing its input(s)",$top->{name}],$top->{ref});
+      if ($self->{context}->flag("allowMissingFunctionInputs")) {
+	$self->pushBlankOperand;
+	$self->Close($type,$ref);
+      } else {
+        my $top = $self->top;
+        $self->Error(["Function '%s' is missing its input(s)",$top->{name}],$top->{ref});
+      }
       return;
     };
 
     /operator/ and do {
-      my $top = $self->top(); my $name = $top->{name}; $name =~ s/^u//;
-      $self->Error(["Missing operand after '%s'",$name],$top->{ref});
+      if ($self->{context}->flag("allowMissingOperands")) {
+	$self->pushBlankOperand;
+	$self->Close($type,$ref);
+      } else {
+        my $top = $self->top(); my $name = $top->{name}; $name =~ s/^u//;
+        $self->Error(["Missing operand after '%s'",$name],$top->{ref});
+      }
       return;
     };
   }

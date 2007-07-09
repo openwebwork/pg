@@ -11,9 +11,9 @@ our @ISA = qw(Parser::BOP);
 #
 sub _check {
   my $self = shift;
-  return if ($self->checkStrings());
-  return if ($self->checkLists());
-  return if ($self->checkNumbers());
+  return if $self->checkStrings();
+  return if $self->checkLists();
+  return if $self->checkNumbers();
   my ($ltype,$rtype) = $self->promotePoints('Matrix');
   if ($ltype->{name} eq 'Number' && $rtype->{name} =~ m/Vector|Matrix/) {
     $self->{type} = {%{$rtype}};
@@ -25,6 +25,8 @@ sub _check {
     $self->checkMatrixSize(Value::Type('Matrix',1,$ltype),$rtype);
   } elsif ($ltype->{name} eq 'Matrix' && $rtype->{name} eq 'Matrix') {
     $self->checkMatrixSize($ltype,$rtype);
+  } elsif ($self->context->flag("allowBadOperands")) {
+    $self->{type} = $Value::Type{number};
   } else {$self->Error("Operands of '*' are not of compatible types")}
 }
 

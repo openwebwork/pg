@@ -19,6 +19,7 @@ sub _check {
     foreach my $x (@{$self->{coords}})
       {$x->makeMatrix($self->{type}{name},$self->{open},$self->{close})}
   }
+  return if $self->context->flag("allowBadOperands");
   foreach my $x (@{$self->{coords}}) {
     $self->{equation}->Error("Entries in a Matrix must be Numbers or Lists of Numbers")
       unless ($x->type =~ m/Number|Matrix/);

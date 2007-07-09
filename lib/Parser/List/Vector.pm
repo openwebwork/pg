@@ -14,7 +14,7 @@ our @ISA = qw(Parser::List);
 #  Check that the coordinates are numbers (avoid <i+j+k>)
 #
 sub _check {
-  my $self = shift;
+  my $self = shift; return if $self->context->flag("allowBadOperands");
   foreach my $x (@{$self->{coords}}) {
     unless ($x->isNumber) {
       my $type = $x->type;

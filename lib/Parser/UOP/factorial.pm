@@ -11,8 +11,10 @@ our @ISA = qw(Parser::UOP);
 #
 sub _check {
   my $self = shift;
-  if ($self->{op}->isRealNumber) {$self->{type} = $Value::Type{number}}
-  else {$self->Error("Factorial only works on integers")}
+  if ($self->{op}->isRealNumber || $self->context->flag("allowBadOperands"))
+    {$self->{type} = $Value::Type{number}}
+  else
+    {$self->Error("Factorial only works on integers")}
 }
 
 #

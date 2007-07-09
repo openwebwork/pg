@@ -133,6 +133,7 @@ $constants = {
    'i'  => Value::Complex->new(0,1),
    'j'  => Value::Vector->new(0,1,0),
    'k'  => Value::Vector->new(0,0,1),
+   '_blank_' => {value => 0, hidden => 1, string => "", TeX => ""},
 };
 
 $variables = {
@@ -227,6 +228,11 @@ $flags = {
   reduceConstantFunctions => 1, # 1 = compute function values of constants
   showExtraParens => 0,         # 1 = make things painfully unambiguous
   formatStudentAnswer => 'evaluated',  # or 'parsed' or 'reduced'
+  allowMissingOperands => 0,           # 1 is used by Typeset context
+  allowMissingFunctionInputs => 0,     # 1 is used by Typeset context
+  allowBadOperands => 0,               # 1 is used by Typeset context (types need not match)
+  allowBadFunctionInputs => 0,         # 1 is used by Typeset context (types need not match)
+  allowWrongArgCount => 0,             # 1 = numbers need not be correct
 };
 
 ############################################################################

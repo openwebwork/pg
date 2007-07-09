@@ -11,14 +11,16 @@ our @ISA = qw(Parser::BOP);
 #
 sub _check {
   my $self = shift;
-  return if ($self->checkStrings());
-  return if ($self->checkLists());
-  return if ($self->checkNumbers());
+  return if $self->checkStrings();
+  return if $self->checkLists();
+  return if $self->checkNumbers();
   my ($ltype,$rtype) = $self->promotePoints();
   if ($ltype->{name} eq 'Vector' && $rtype->{name} eq 'Vector') {
-    if (Parser::Item::typeMatch($ltype,$rtype)) {$self->{type} = $Value::Type{number}}
-    else {$self->matchError($ltype,$rtype)}
-  } else {$self->Error("Operands for dot product must be Vectors")}
+    if (Parser::Item::typeMatch($ltype,$rtype) || $self->context->flag("allowBadOperands"))
+      {$self->{type} = $Value::Type{number}} else {$self->matchError($ltype,$rtype)}
+  }
+  elsif ($self->context->flag("allowBadOperands")) {$self->{type} = $Value::Type{number}}
+  else {$self->Error("Operands for dot product must be Vectors")}
 }
 
 #

@@ -27,7 +27,9 @@ sub _check {
 	$self->{$op}->typeRef->{name} = $self->context->{parens}{interval}{type};
       }
     }
-  } else {$self->Error("Operands of '%s' must be intervals or sets",$self->{bop})}
+  }
+  elsif ($self->context->flag("allowBadOperands")) {$self->{type} = Value::Type("Union",2,$Value::Type{number})}
+  else {$self->Error("Operands of '%s' must be intervals or sets",$self->{bop})}
 }
 
 sub canBeInUnion {(shift)->type eq 'Union'}

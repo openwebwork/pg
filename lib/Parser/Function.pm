@@ -146,9 +146,11 @@ sub checkNumeric {
   return if ($self->checkArgCount(1));
   my $arg = $self->{params}->[0];
   if ($arg->isComplex) {
-    if (!($self->{def}{nocomplex})) {$self->{type} = $Value::Type{complex}}
-    else {$self->Error("Function '%s' doesn't accept Complex inputs",$self->{name})}
-  } elsif ($arg->isNumber) {
+    if (!$self->{def}{nocomplex} || $self->context->flag("allowBadFunctionInputs"))
+      {$self->{type} = $Value::Type{complex}}
+    else
+      {$self->Error("Function '%s' doesn't accept Complex inputs",$self->{name})}
+  } elsif ($arg->isNumber || $self->context->flag("allowBadFunctionInputs")) {
     $self->{type} = $Value::Type{number};
   } else {$self->Error("The input for '%s' must be a number",$self->{name})}
 }
@@ -159,7 +161,7 @@ sub checkNumeric {
 sub checkVector {
   my $self = shift;
   return if ($self->checkArgCount(1));
-  if ($self->{params}->[0]->type =~ m/Point|Vector/) {
+  if ($self->{params}->[0]->type =~ m/Point|Vector/ || $self->context->flag("allowBadFunctionInputs")) {
     $self->{type} = $Value::Type{number};
   } else {$self->Error("Function '%s' requires a Vector input",$self->{name})}
 }
@@ -171,7 +173,7 @@ sub checkVector {
 sub checkReal {
   my $self = shift;
   return if ($self->checkArgCount(1));
-  if ($self->{params}->[0]->isNumber) {
+  if ($self->{params}->[0]->isNumber || $self->context->flag("allowBadFunctionInputs")) {
     $self->{type} = $Value::Type{number};
   } else {$self->Error("Function '%s' requires a Complex input",$self->{name})}
 }
@@ -183,7 +185,7 @@ sub checkReal {
 sub checkComplex {
   my $self = shift;
   return if ($self->checkArgCount(1));
-  if ($self->{params}->[0]->isNumber) {
+  if ($self->{params}->[0]->isNumber || $self->context->flag("allowBadFunctionInputs")) {
     $self->{type} = $Value::Type{complex};
   } else {$self->Error("Function '%s' requires a Complex input",$self->{name})}
 }
@@ -209,6 +211,7 @@ sub checkInverse {
 #
 sub checkArgCount {
   my $self = shift; my $count = shift;
+  return 1 if $self->context->flag("allowWrongArgCount");
   my $name = $self->{name};
   my $args = scalar(@{$self->{params}});
   if ($args == $count) {

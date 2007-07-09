@@ -17,7 +17,7 @@ sub _check {
     if ($self->{type}{length} != 1);
   my $arg = $self->{coords}[0];
   $self->Error("Absolute value can't be taken of %s",$arg->type)
-    unless ($arg->type =~ /Number|Point|Vector/);
+    unless $arg->type =~ /Number|Point|Vector/ || $self->context->flag("allowBadOperands");
   $self->{type} = $Value::Type{number};
 }
 
