@@ -56,6 +56,7 @@ sub Closed {
 
 #sub i ()  {Value->Package("Complex")->i};   #  defined in Parser.pl
 #sub pi () {Value->Package("Complex")->pi};  #  defined in dangerousMacros.pl
+#sub Infinity () {Value->Package("Infinity")->new()} # defined in dangerousMacros.pl
 
 
 =cut
