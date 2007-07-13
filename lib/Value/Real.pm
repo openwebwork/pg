@@ -120,8 +120,9 @@ sub compare {
       return 1 if $l->value == 0 || $r->value == 0; # non-fuzzy checks
       $l = log($l); $r = log($r);
     }
-    $m = $self->promote($m);
-    return (($l-$r+$m/2) % $m) <=> $m/2;
+    $m = $self->promote($m); my $m2 = $m/2;
+    $m2 = 3*$m/2 if $m2 == -$l; # make sure we don't get zero tolerances accidentally
+    return $l + (($l-$r+$m2) % $m) <=> $l + $m2; # tolerances appropriate to $l centered in $m
   }
 
   my ($a,$b) = ($l->{data}[0],$r->{data}[0]);
