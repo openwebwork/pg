@@ -1,9 +1,99 @@
+################################################################################
+# WeBWorK Program Generation Language
+# Copyright � 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# $CVSHeader: webwork2/lib/WeBWorK.pm,v 1.97 2007/06/29 19:54:19 sh002i Exp $
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
 
-#	This file provided the fundamental macros for the pg language
-#	These macros define the interface between the problems written by
-#	the professor and the processing which occurs in the script
-#	processProblem.pl
+=head1 NAME
 
+PG.pl - Provides core Program Generation Language functionality.
+
+=head1 SYNPOSIS
+
+In a PG problem:
+
+ DOCUMENT();             # should be the first statment in the problem
+ 
+ loadMacros(.....);      # (optional) load other macro files if needed.
+                         # (loadMacros is defined in F<dangerousMacros.pl>)
+
+ HEADER_TEXT(...);       # (optional) used only for inserting javaScript into problems.
+ 
+ TEXT(                   # insert text of problems
+ 	"Problem text to be",
+ 	"displayed. Enter 1 in this blank:",
+ 	ANS_RULE(1,30)       # ANS_RULE() defines an answer blank 30 characters long.
+ 	                     # It is defined in F<PGbasicmacros.pl>
+ );
+ 
+ ANS(answer_evalutors);  # see F<PGanswermacros.pl> for examples of answer evaluatiors.
+ 
+ ENDDOCUMENT()           # must be the last statement in the problem
+
+=head1 DESCRIPTION
+
+This file provides the fundamental macros that define the PG language. It
+maintains a problem's text, header text, and answers:
+
+=over
+
+=item *
+
+Problem text: The text to appear in the body of the problem. See TEXT()
+below.
+
+=item *
+
+Header text: When a problem is processed in an HTML-based display mode,
+this variable can contain text that the caller should place in the HEAD of the
+resulting HTML page. See HEADER_TEXT() below.
+
+=item *
+
+Implicitly-labeled answers: Answers that have not been explicitly
+assigned names, and are associated with their answer blanks by the order in
+which they appear in the problem. These types of answers are designated using
+the ANS() macro.
+
+=item *
+
+Explicitly-labeled answers: Answers that have been explicitly assigned
+names with the LABELED_ANS() macro, or a macro that uses it. An explicitly-
+labeled answer is associated with its answer blank by name.
+
+=item *
+
+"Extra" answers: Names of answer blanks that do not have a 1-to-1
+correspondance to an answer evaluator. For example, in matrix problems, there
+will be several input fields that correspond to the same answer evaluator.
+
+=back
+
+=head1 USAGE
+
+This file is automatically loaded into the namespace of every PG problem. The
+macros within can then be called to define the structure of the problem.
+
+DOCUMENT() should be the first executable statement in any problem. It
+initializes vriables and defines the problem environment.
+
+ENDDOCUMENT() must be the last executable statement in any problem. It packs
+up the results of problem processing for delivery back to WeBWorK.
+
+The HEADER_TEXT(), TEXT(), and ANS() macros add to the header text string,
+body text string, and answer evaluator queue, respectively.
+
+=cut
 
 BEGIN {
 	be_strict();
@@ -15,62 +105,6 @@ sub _PG_init{
 
 #package PG;
 
-
-=head1 NAME
-
-	PG.pl --- located in the courseScripts directory.
-	Defines the Program Generating language at the most basic level.
-
-=head1 SYNPOSIS
-
-	The basic PG problem structure:
-
-	DOCUMENT();          # should be the first statment in the problem
-	loadMacros(.....);   # (optional) load other macro files if needed.
-	                     # (loadMacros is defined in F<dangerousMacros.pl>)
-
-	HEADER_TEXT(...);    # (optional) used only for inserting javaScript into problems.
-
-	# 					 #	insert text of problems
-	TEXT("Problem text to be",
-	     "displayed. Enter 1 in this blank:",
-	     ANS_RULE(1,30)  #	ANS_RULE() defines an answer blank 30 characters long.
-	                     #  It is defined in F<PGbasicmacros.pl>
-	     );
-
-
-	ANS( answer_evalutors);  # see F<PGanswermacros.pl> for examples of answer evaluatiors.
-
-	ENDDOCUMENT()        # must be the last statement in the problem
-
-
-
-=head1 DESCRIPTION
-
-As described in the synopsis, this file and the macros C<DOCUMENT()> and C<ENDDOCUMENT()> determine
-the interface between problems written in the PG language and the rest of B<WeBWorK>, in particular
-the subroutine C<createPGtext(()> in the file F<translate.pl>.
-
-C<DOCUMENT()> must be the first statement in each problem template.
-It  initializes variables,
-in particular all of the contents of the
-environment variable  become defined in the problem enviroment.
-(See
-L</webwork_system_html/docs/techdescription/pglanguage/PGenvironment.html>)
-
-ENDDOCUMENT() must the last executable statement in any problem template.  It returns
-the rendered problem, answer evaluators and other flags to the rest of B<WeBWorK>, specificially
-to the routine C<createPGtext()> defined in F<translate.pl>
-
-
-The C<HEADER_TEXT()>, C<TEXT()>, and C<ANS()> functions load the
-header text string, the problem text string.
-and the answer evaulator queue respectively.
-
-
-=cut
-
-
 #  Private variables for the PG.pl file.
 
 my ($STRINGforOUTPUT, $STRINGforHEADER_TEXT, @PG_ANSWERS, @PG_UNLABELED_ANSWERS);
@@ -81,32 +115,31 @@ our $PG_STOP_FLAG;
 # there could be conflicts.  As I understand the behavior of the Apache child
 # this cannot occur -- a child finishes with one request before obtaining the next
 
-#  	DOCUMENT must come early in every .pg file, before any answers or text are
-#	defined.  It initializes the variables.
-#	It can appear only once.
+################################################################################
 
-=head2 DOCUMENT()
+=head1 MACROS
 
-C<DOCUMENT()> must be the first statement in each problem template.  It can
+These macros may be used from PG problem files.
+
+=over
+
+=item DOCUMENT()
+
+DOCUMENT() should be the first statement in each problem template.  It can
 only be used once in each problem.
 
-C<DOCUMENT()> initializes some empty variables and via C<INITIALIZE_PG()> unpacks the
-variables in the C<%envir> variable which is implicitly passed to the problem. It must
-be the first statement in any problem template. It
-also unpacks any answers submitted and places them in the C<@submittedAnswer> list,
-saves the problem seed in C<$PG_original_problemSeed> in case you need it later, and
-initializes the pseudo random number generator object in C<$PG_random_generator>.
+DOCUMENT() initializes some empty variables and unpacks the variables in the
+%envir hash which is implicitly passed from WeBWorK to the problem. It must be 
+the first statement in any problem. It also unpacks any answers submitted and
+places them in the @submittedAnswer list, saves the problem seed in
+$PG_original_problemSeed in case you need it later, and initializes the pseudo
+random number generator object in $PG_random_generator.
 
 You can reset the standard number generator using the command:
 
-	$PG_random_generator->srand($new_seed_value);
+ $PG_random_generator->srand($new_seed_value);
 
-(See also C<SRAND> in the L<PGbasicmacros.pl> file.)
-
-The
-environment variable contents is defined in
-L</webwork_system_html/docs/techdescription/pglanguage/PGenvironment.html>
-
+See also SRAND() in the L<PGbasicmacros.pl> file.
 
 =cut
 
@@ -209,23 +242,19 @@ sub DOCUMENT {
 
 }
 
-sub inc_ans_rule_count {
-	eval(q!++$main::ans_rule_count!); # evalute at runtime to get correct main::
-}
-#	HEADER_TEXT is for material which is destined to be placed in the header of the html problem -- such
-#   as javaScript code.
+=item HEADER_TEXT()
 
-=head2 HEADER_TEXT()
+ HEADER_TEXT("string1", "string2", "string3");
 
+HEADER_TEXT() concatenates its arguments and appends them to the stored header
+text string. It can be used more than once in a file.
 
-	HEADER_TEXT("string1", "string2", "string3");
+The macro is used for material which is destined to be placed in the HEAD of
+the page when in HTML mode, such as JavaScript code.
 
-The C<HEADER_TEXT()>
-function concatenates its arguments and places them in the output
-header text string.  It is used for material which is destined to be placed in
-the header of the html problem -- such as javaScript code.
- It can be used more than once in a file.
-
+Spaces are placed between the arguments during concatenation, but no spaces are
+introduced between the existing content of the header text string and the new
+content being appended.
 
 =cut
 
@@ -234,22 +263,26 @@ sub HEADER_TEXT {
 	$STRINGforHEADER_TEXT .= join(" ",@in);
 	}
 
-#	TEXT is the function which defines text which will appear in the problem.
-#	All text must be an argument to this function.  Any other statements
-# 	are calculations (done in perl) which will not directly appear in the
-#	output.  Think of this as the "print" function for the .pg language.
-#	It can be used more than once in a file.
+=item TEXT()
 
-=head2 TEXT()
+ TEXT("string1", "string2", "string3");
 
-	TEXT("string1", "string2", "string3");
+TEXT() concatenates its arguments and appends them to the stored problem text
+string. It is used to define the text which will appear in the body of the
+problem. It can be used more than once in a file.
 
-The C<TEXT()> function concatenates its arguments and places them in the output
-text string. C<TEXT()> is the function which defines text which will appear in the problem.
-All text must be an argument to this function.  Any other statements
-are calculations (done in perl) which will not directly appear in the
-output.  Think of this as the "print" function for the .pg language.
-It can be used more than once in a file.
+This macro has no effect if rendering has been stopped with the STOP_RENDERING()
+macro.
+
+This macro defines text which will appear in the problem. All text must be
+passed to this macro, passed to another macro that calls this macro, or included
+in a BEGIN_TEXT/END_TEXT block, which uses this macro internally. No other
+statements in a PG file will directly appear in the output. Think of this as the
+"print" function for the PG language.
+
+Spaces are placed between the arguments during concatenation, but no spaces are
+introduced between the existing content of the header text string and the new
+content being appended.
 
 =cut
 
@@ -259,51 +292,24 @@ sub TEXT {
 	$STRINGforOUTPUT .= join(" ",@in);
 }
 
-=head2 STOP_RENDERING()
+=item ANS()
 
-	STOP_RENDERING() unless all_answers_are_correct;
+ TEXT(ans_rule(), ans_rule(), ans_rule());
+ ANS($answer_evaluator1, $answer_evaluator2, $answer_evaluator3);
 
-No text is printed and no answer blanks or answer evaluators are stored or processed until
-RESUME_RENDERING() is executed.
+Adds the answer evaluators listed to the list of unlabeled answer evaluators.
+They will be paired with unlabeled answer rules (a.k.a. answer blanks) in the
+order entered. This is the standard method for entering answers.
 
-=cut
-
-sub STOP_RENDERING {
-	$PG_STOP_FLAG=1;
-	"";
-}
-
-=head2 RESUME_RENDERING()
-
-	RESUME_RENDERING();
-
-Resumes processing of text,  answer blanks,  and
-answer evaluators.
+In the above example, answer_evaluator1 will be associated with the first
+answer rule, answer_evaluator2 with the second, and answer_evaluator3 with the
+third. In practice, the arguments to ANS() will usually be calls to an answer
+evaluator generator such as the cmp() method of MathObjects or the num_cmp()
+macro in L<PGanswermacros.pl>.
 
 =cut
 
-sub RESUME_RENDERING {
-	$PG_STOP_FLAG=0;
-	"";
-}
-
-=head2 ANS()
-
-	ANS(answer_evaluator1, answer_evaluator2, answer_evaluator3,...)
-
-Places the answer evaluators in the unlabeled answer_evaluator queue.  They will be paired
-with unlabeled answer rules (answer entry blanks) in the order entered.  This is the standard
-method for entering answers.
-
-	LABELED_ANS(answer_evaluater_name1, answer_evaluator1, answer_evaluater_name2,answer_evaluator2,...)
-
-Places the answer evaluators in the labeled answer_evaluator hash.  This allows pairing of
-labeled answer evaluators and labeled answer rules which may not have been entered in the same
-order.
-
-=cut
-
-sub ANS{             # store answer evaluators which have not been explicitly labeled
+sub ANS{
   return "" if $PG_STOP_FLAG;
   my @in = @_;
   while (@in ) {
@@ -313,11 +319,30 @@ sub ANS{             # store answer evaluators which have not been explicitly la
     	push(@PG_ANSWERS, shift @in );
   }
 }
-sub LABELED_ANS {  #a better alias for NAMED_ANS
+
+=item LABELED_ANS()
+
+ TEXT(labeled_ans_rule("name1"), labeled_ans_rule("name2"));
+ LABELED_ANS(name1 => answer_evaluator1, name2 => answer_evaluator2);
+
+Adds the answer evaluators listed to the list of labeled answer evaluators.
+They will be paired with labeled answer rules (a.k.a. answer blanks) in the
+order entered. This allows pairing of answer evaluators and answer rules that
+may not have been entered in the same order.
+
+=cut
+
+sub LABELED_ANS {
 	&NAMED_ANS;
 }
 
-sub NAMED_ANS{     # store answer evaluators which have been explicitly labeled (submitted in a hash)
+=item NAMED_ANS()
+
+Old name for LABELED_ANS(). DEPRECATED.
+
+=cut
+
+sub NAMED_ANS{
   return "" if $PG_STOP_FLAG;
   my @in = @_;
   while (@in ) {
@@ -330,137 +355,128 @@ sub NAMED_ANS{     # store answer evaluators which have been explicitly labeled 
   	$PG_ANSWERS_HASH{$label}= $ans_eval;
   }
 }
-sub RECORD_ANS_NAME {     # this maintains the order in which the answer rules are printed.
-    return "" if $PG_STOP_FLAG;
-	my $label = shift;
-	eval(q!push(@main::PG_ANSWER_ENTRY_ORDER, $label)!);
-	$label;
+
+=item STOP_RENDERING()
+
+ STOP_RENDERING() unless all_answers_are_correct();
+
+Temporarily suspends accumulation of problem text and storing of answer blanks
+and answer evaluators until RESUME_RENDERING() is called.
+
+=cut
+
+sub STOP_RENDERING {
+	$PG_STOP_FLAG=1;
+	"";
 }
 
-sub NEW_ANS_NAME {        # this keeps track of the answers which are entered implicitly,
-                          # rather than with a specific label
-        return "" if $PG_STOP_FLAG;
-		my $number=shift;
-		my $prefix = eval(q!$main::QUIZ_PREFIX.$main::ANSWER_PREFIX!);
-		my $label = $prefix.$number;
-		push(@PG_UNLABELED_ANSWERS,$label);
-		$label;
-}
-sub ANS_NUM_TO_NAME {     # This converts a number to an answer label for use in
-                          # radio button and check box answers. No new answer
-                          # name is recorded.
-		my $number=shift;
-		my $label = eval(q!$main::QUIZ_PREFIX.$main::ANSWER_PREFIX!).$number;
-		$label;
+=item RESUME_RENDERING()
+
+ RESUME_RENDERING();
+
+Resumes accumulating problem text and storing answer blanks and answer
+evaluators. Reverses the effect of STOP_RENDERING().
+
+=cut
+
+sub RESUME_RENDERING {
+	$PG_STOP_FLAG=0;
+	"";
 }
 
-my $vecnum;
+=item ENDDOCUMENT()
 
-sub RECORD_FORM_LABEL  {             # this stores form data (such as sticky answers), but does nothing more
-                                     # it's a bit of hack since we are storing these in the KEPT_EXTRA_ANSWERS queue even if they aren't answers per se.
-	return "" if $PG_STOP_FLAG;
-	my $label   = shift;             # the label of the input box or textarea
-    eval(q!push(@main::KEPT_EXTRA_ANSWERS, $label)!); #put the labels into the hash to be caught later for recording purposes
-    $label;
-}
-sub NEW_ANS_ARRAY_NAME {        # this keeps track of the answers which are entered implicitly,
-                          # rather than with a specific label
-        return "" if $PG_STOP_FLAG;
-		my $number=shift;
-		$vecnum = 0;
-		my $row = shift;
-		my $col = shift;
-#		my $label = "ArRaY"."$number"."["."$vecnum".","."$row".","."$col"."]";
-		my $label = eval(q!$main::QUIZ_PREFIX."ArRaY"."$number"."__"."$vecnum".":"."$row".":"."$col"."__"!);
-		push(@PG_UNLABELED_ANSWERS,$label);
-		$label;
-}
+ ENDDOCUMENT();
 
-sub NEW_ANS_ARRAY_NAME_EXTENSION {        # this keeps track of the answers which are entered implicitly,
-                                          # rather than with a specific label
-        return "" if $PG_STOP_FLAG;
-		my $number=shift;
-		my $row = shift;
-		my $col = shift;
-		if( $row == 0 && $col == 0 ){
-			$vecnum += 1;		
-		}
-		#FIXME   change made to conform to HTML 4.01 standards.  "Name" attributes can only contain
-		# alphanumeric characters,   _ : and .   
-		# Also need to make corresponding changes in PGmorematrixmacros.  grep for ArRaY.
-		#my $label = "ArRaY"."$number"."["."$vecnum".","."$row".","."$col"."]";
-		my $label = eval(q!$main::QUIZ_PREFIX."ArRaY"."$number"."__"."$vecnum".":"."$row".":"."$col"."__"!);
-		eval(q!push(@main::KEPT_EXTRA_ANSWERS, $label)!);#put the labels into the hash to be caught later for recording purposes
-		$label;
-}
+When PG problems are evaluated, the result of evaluating the entire problem is
+interpreted as the return value of ENDDOCUMENT(). Therefore, ENDDOCUMENT() must
+the last executable statement of every problem. It can only appear once. It
+returns an list consisting of:
 
+=over
 
-sub get_PG_ANSWERS_HASH {
-	# update the PG_ANSWWERS_HASH, then report the result.  
-	# This is used in writing sequential problems
-	# if there is an input, use that as a key into the answer hash
-	my $key = shift;
-	my (%pg_answers_hash, @pg_unlabeled_answers);
-	%pg_answers_hash= %PG_ANSWERS_HASH;
-	#warn "order ", eval(q!@main::PG_ANSWER_ENTRY_ORDER!);
-	#warn "pg answers", %PG_ANSWERS_HASH;
-	#warn "unlabeled", @PG_UNLABELED_ANSWERS;
-    my $index=0;
-    foreach my $label (@PG_UNLABELED_ANSWERS) {
-        if ( defined($PG_ANSWERS[$index]) ) {
-    		$pg_answers_hash{"$label"}= $PG_ANSWERS[$index];
- 			#warn "recording answer label = $label";
-    	} else {
-    		warn "No answer provided by instructor for answer $label";
-    	}
-    	$index++;
-    }
-    if ($key) {
-    	return $pg_answers_hash{$key};
-    } else {
-    	return %pg_answers_hash;
-    }
-}
-#	ENDDOCUMENT must come at the end of every .pg file.
-#   It exports the resulting text of the problem, the text to be used in HTML header material
-#   (for javaScript), the list of answer evaluators and any other flags.  It can appear only once and
-#   it MUST be the last statement in the problem.
+=item *
 
-=head2 ENDDOCUMENT()
+A reference to a string containing the rendered text of the problem.
 
-ENDDOCUMENT() must the last executable statement in any problem template.  It can
-only appear once.  It returns
-an array consisting of
+=item *
 
-	A reference to a string containing the rendered text of the problem.
-	A reference to a string containing text to be placed in the header
-	             (for javaScript)
-	A reference to the array containing the answer evaluators.
-	             (May be changed to a hash soon.)
-	A reference to an associative array (hash) containing various flags.
+A reference to a string containing text to be placed in the HEAD block
+when in and HTML-based mode (e.g. for JavaScript).
 
-	The following flags are set by ENDDOCUMENT:
-	(1) showPartialCorrectAnswers  -- determines whether students are told which
-	    of their answers in a problem are wrong.
-	(2) recordSubmittedAnswers  -- determines whether students submitted answers
-	    are saved.
-	(3) refreshCachedImages  -- determines whether the cached image of the problem
-	    in typeset mode is always refreshed (i.e. setting this to 1 means cached
-	    images are not used).
-	(4) solutionExits   -- indicates the existence of a solution.
-	(5) hintExits   -- indicates the existence of a hint.
-	(6) comment   -- contents of COMMENT commands if any.
-	(7) showHintLimit -- determines the number of attempts after which hint(s) will be shown
+=item *
 
-	(8) PROBLEM_GRADER_TO_USE -- chooses the problem grader to be used in this order
-		(a) A problem grader specified by the problem using:
-		    install_problem_grader(\&grader);
-		(b) One of the standard problem graders defined in PGanswermacros.pl when set to
-		    'std_problem_grader' or 'avg_problem_grader' by the environment variable
-		    $PG_environment{PROBLEM_GRADER_TO_USE}
-		(c) A subroutine referenced by $PG_environment{PROBLEM_GRADER_TO_USE}
-		(d) The default &std_problem_grader defined in PGanswermacros.pl
+A reference to the hash mapping answer labels to answer evaluators.
 
+=item *
+
+A reference to a hash containing various flags:
+
+=over
+
+=item *
+
+C<showPartialCorrectAnswers>: determines whether students are told which of their answers in a problem are wrong.
+
+=item *
+
+C<recordSubmittedAnswers>: determines whether students submitted answers are saved.
+
+=item *
+
+C<refreshCachedImages>: determines whether the cached image of the problem in typeset mode is always refreshed
+(i.e. setting this to 1 means cached images are not used).
+
+=item *
+
+C<solutionExits>: indicates the existence of a solution.
+
+=item *
+
+C<hintExits>: indicates the existence of a hint.
+
+=item *
+
+C<comment>: contents of COMMENT commands if any.
+
+=item *
+
+C<showHintLimit>: determines the number of attempts after which hint(s) will be shown
+
+=item *
+
+C<PROBLEM_GRADER_TO_USE>: a reference to the chosen problem grader.
+ENDDOCUMENT chooses the problem grader as follows:
+
+=over
+
+=item *
+
+If a problem grader has been chosen in the problem by calling
+C<install_problem_grader(\&grader)>, it is used.
+
+=item *
+
+Otherwise, if the C<PROBLEM_GRADER_TO_USE> PG environment variable
+contains a reference to a subroutine, it is used.
+
+=item *
+
+Otherwise, if the C<PROBLEM_GRADER_TO_USE> PG environment variable
+contains the string C<std_problem_grader> or the string C<avg_problem_grader>,
+C<&std_problem_grader> or C<&avg_problem_grader> are used. These graders are defined
+in L<PGanswermacros.pl>.
+
+=item *
+
+Otherwise, the PROBLEM_GRADER_TO_USE flag will contain an empty value
+and the PG translator should select C<&std_problem_grader>.
+
+=back
+
+=back
+
+=back
 
 =cut
 
@@ -536,15 +552,198 @@ sub ENDDOCUMENT {
 	(\$STRINGforOUTPUT, \$STRINGforHEADER_TEXT,\%PG_ANSWERS_HASH,eval(q!\%main::PG_FLAGS!));
 }
 
-
-
-=head2 INITIALIZE_PG()
-
-This is executed each C<DOCUMENT()> is called.  For backward compatibility
-C<loadMacros> also checks whether the C<macroDirectory> has been defined
-and if not, it runs C<INITIALIZE_PG()> and issues a warning.
+=back
 
 =cut
 
+################################################################################
+
+=head1 PRIVATE MACROS
+
+These macros should only be used by other macro files. In practice, they are
+used exclusively by L<PGbasicmacros.pl>.
+
+=over
+
+=item inc_ans_rule_count()
+
+ NEW_ANS_NAME(inc_ans_rule_count());
+
+Increments the internal count of the number of answer blanks that have been
+defined ($ans_rule_count) and returns the new count. This should only be used
+when one is about to define a new answer blank, for example with NEW_ANS_NAME().
+
+=cut
+
+sub inc_ans_rule_count {
+	eval(q!++$main::ans_rule_count!); # evalute at runtime to get correct main::
+}
+
+=item RECORD_ANS_NAME()
+
+ RECORD_ANS_NAME("label");
+
+Records the label for an answer blank. Used internally by L<PGbasicmacros.pl>
+to record the order of explicitly-labelled answer blanks.
+
+=cut
+
+sub RECORD_ANS_NAME {
+    return "" if $PG_STOP_FLAG;
+	my $label = shift;
+	eval(q!push(@main::PG_ANSWER_ENTRY_ORDER, $label)!);
+	$label;
+}
+
+=item NEW_ANS_NAME()
+
+ NEW_ANS_NAME($num);
+
+Generates an answer label from the supplied answer number. The label is
+added to the list of implicity-labeled answers. Used internally by
+L<PGbasicmacros.pl> to generate labels for unlabeled answer blanks.
+
+=cut
+
+sub NEW_ANS_NAME {
+        return "" if $PG_STOP_FLAG;
+		my $number=shift;
+		my $prefix = eval(q!$main::QUIZ_PREFIX.$main::ANSWER_PREFIX!);
+		my $label = $prefix.$number;
+		push(@PG_UNLABELED_ANSWERS,$label);
+		$label;
+}
+
+=item ANS_NUM_TO_NAME()
+
+ ANS_NUM_TO_NAME($num);
+
+Generates an answer label from the supplied answer number, but does not add it
+to the list of inplicitly-labeled answers. Used internally by
+L<PGbasicmacros.pl> in generating answers blanks that use radio buttons or
+check boxes. (This type of answer blank uses multiple HTML INPUT elements with
+the same label, but the label should only be added to the list of implicitly-
+labeled answers once.)
+
+=cut
+
+sub ANS_NUM_TO_NAME {
+		my $number=shift;
+		my $label = eval(q!$main::QUIZ_PREFIX.$main::ANSWER_PREFIX!).$number;
+		$label;
+}
+
+my $vecnum;
+
+=item RECORD_FROM_LABEL()
+
+ RECORD_FORM_LABEL("label");
+
+Stores the label of a form field in the "extra" answers list. This is used to
+keep track of answer blanks that are not associated with an answer evaluator.
+
+=cut
+
+sub RECORD_FORM_LABEL  {             # this stores form data (such as sticky answers), but does nothing more
+                                     # it's a bit of hack since we are storing these in the KEPT_EXTRA_ANSWERS queue even if they aren't answers per se.
+	return "" if $PG_STOP_FLAG;
+	my $label   = shift;             # the label of the input box or textarea
+    eval(q!push(@main::KEPT_EXTRA_ANSWERS, $label)!); #put the labels into the hash to be caught later for recording purposes
+    $label;
+}
+
+=item NEW_ANS_ARRAY_NAME()
+
+ NEW_ANS_ARRAY_NAME($num, $row, $col);
+
+Generates a new answer label for an array (vector) element and adds it to the
+list of implicitly-labeled answers.
+
+=cut
+
+sub NEW_ANS_ARRAY_NAME {        # this keeps track of the answers which are entered implicitly,
+                          # rather than with a specific label
+        return "" if $PG_STOP_FLAG;
+		my $number=shift;
+		$vecnum = 0;
+		my $row = shift;
+		my $col = shift;
+#		my $label = "ArRaY"."$number"."["."$vecnum".","."$row".","."$col"."]";
+		my $label = eval(q!$main::QUIZ_PREFIX."ArRaY"."$number"."__"."$vecnum".":"."$row".":"."$col"."__"!);
+		push(@PG_UNLABELED_ANSWERS,$label);
+		$label;
+}
+
+=item NEW_ANS_ARRAY_NAME_EXTENSION()
+
+ NEW_ANS_ARRAY_NAME_EXTENSION($num, $row, $col);
+
+Generate an additional answer label for an existing array (vector) element and
+add it to the list of "extra" answers.
+
+=cut
+
+sub NEW_ANS_ARRAY_NAME_EXTENSION {        # this keeps track of the answers which are entered implicitly,
+                                          # rather than with a specific label
+        return "" if $PG_STOP_FLAG;
+		my $number=shift;
+		my $row = shift;
+		my $col = shift;
+		if( $row == 0 && $col == 0 ){
+			$vecnum += 1;		
+		}
+		#FIXME   change made to conform to HTML 4.01 standards.  "Name" attributes can only contain
+		# alphanumeric characters,   _ : and .   
+		# Also need to make corresponding changes in PGmorematrixmacros.  grep for ArRaY.
+		#my $label = "ArRaY"."$number"."["."$vecnum".","."$row".","."$col"."]";
+		my $label = eval(q!$main::QUIZ_PREFIX."ArRaY"."$number"."__"."$vecnum".":"."$row".":"."$col"."__"!);
+		eval(q!push(@main::KEPT_EXTRA_ANSWERS, $label)!);#put the labels into the hash to be caught later for recording purposes
+		$label;
+}
+
+=item get_PG_ANSWERS_HASH()
+
+ get_PG_ANSWERS_HASH();
+ get_PG_ANSWERS_HASH($key);
+
+
+
+=cut
+
+sub get_PG_ANSWERS_HASH {
+	# update the PG_ANSWWERS_HASH, then report the result.  
+	# This is used in writing sequential problems
+	# if there is an input, use that as a key into the answer hash
+	my $key = shift;
+	my (%pg_answers_hash, @pg_unlabeled_answers);
+	%pg_answers_hash= %PG_ANSWERS_HASH;
+	#warn "order ", eval(q!@main::PG_ANSWER_ENTRY_ORDER!);
+	#warn "pg answers", %PG_ANSWERS_HASH;
+	#warn "unlabeled", @PG_UNLABELED_ANSWERS;
+    my $index=0;
+    foreach my $label (@PG_UNLABELED_ANSWERS) {
+        if ( defined($PG_ANSWERS[$index]) ) {
+    		$pg_answers_hash{"$label"}= $PG_ANSWERS[$index];
+ 			#warn "recording answer label = $label";
+    	} else {
+    		warn "No answer provided by instructor for answer $label";
+    	}
+    	$index++;
+    }
+    if ($key) {
+    	return $pg_answers_hash{$key};
+    } else {
+    	return %pg_answers_hash;
+    }
+}
+
+=back
+
+=head1 SEE ALSO
+
+L<PGbasicmacros.pl>, L<PGanswermacros.pl>.
+
+=cut
 
 1;
+
