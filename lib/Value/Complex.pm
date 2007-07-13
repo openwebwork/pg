@@ -69,17 +69,6 @@ sub isOne {shift eq "1"}
 ##################################################
 
 #
-#  Return a complex if it already is one, otherwise make it one
-#    (Guarantees that we have both parts in an array ref)
-#
-sub promote {
-  my $self = shift; my $class = ref($self) || $self;
-  my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  my $x = (scalar(@_) ? shift : $self);
-  return $x->inContext($context) if ref($x) eq $class && scalar(@_) == 0;
-  return $self->new($context,$x,@_);
-}
-#
 #  Get the data from the promoted item
 #    (guarantees that we have an array with two elements)
 #
@@ -147,6 +136,7 @@ sub compare {
       return 1 if abs($l)->value == 0 || abs($r)->value == 0; # non-fuzzy checks
       $l = log($l); $r = log($r);
     }
+    $m = $self->promote($m);
     return (($l-$r+$m/2) % $m) <=> $m/2;
   }
 

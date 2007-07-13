@@ -634,9 +634,11 @@ sub promotePrecedence {
 }
 
 sub promote {
-  my $self = shift;
-  return $_[0] if scalar(@_) == 1 && ref($_[1]) eq ref($self);
-  return $self->new(@_);
+  my $self = shift; my $class = ref($self) || $self;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
+  my $x = (scalar(@_) ? shift : $self);
+  return $x->inContext($context) if ref($x) eq $class && scalar(@_) == 0;
+  return $self->new($context,$x,@_);
 }
 
 #

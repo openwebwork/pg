@@ -67,20 +67,6 @@ sub transferFlags {}
 
 
 ##################################################
-
-#
-#  Return a real if it already is one, otherwise make it one
-#
-sub promote {
-  my $self = shift;
-  my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  my $x = (scalar(@_) ? shift : $self);
-  return $x->inContext($context) if ref($x) eq $pkg && scalar(@_) == 0;
-  return $self->new($context,$x,@_);
-}
-
-
-##################################################
 #
 #  Binary operations
 #
@@ -134,6 +120,7 @@ sub compare {
       return 1 if $l->value == 0 || $r->value == 0; # non-fuzzy checks
       $l = log($l); $r = log($r);
     }
+    $m = $self->promote($m);
     return (($l-$r+$m/2) % $m) <=> $m/2;
   }
 
