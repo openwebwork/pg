@@ -291,7 +291,7 @@ sub NAMED_ANS_RULE {
     	$answer_value= '' unless defined($answer_value);
 	}
 
-	$answer_value =~ tr/\\$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
+	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
 	$name = RECORD_ANS_NAME($name);
 
@@ -318,7 +318,7 @@ sub NAMED_ANS_RULE_EXTENSION {
 		$answer_value = shift( @{ $rh_sticky_answers->{$name} });
 		$answer_value = '' unless defined($answer_value);
 	}
-	$answer_value =~ tr/\\$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
+	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
@@ -345,7 +345,7 @@ sub  NAMED_ANS_BOX {
 	my $height = .07*$row;
 	my $answer_value = '';
 	$answer_value = $inputs_ref->{$name} if defined( $inputs_ref->{$name} );
-	$answer_value =~ tr/\\$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
+	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	my $out = M3(
 	     qq!\\vskip $height in \\hrulefill\\quad !,
 	     qq!\\begin{rawhtml}<TEXTAREA NAME="$name" ROWS="$row" COLS="$col"
@@ -839,7 +839,7 @@ sub NAMED_ANS_ARRAY_EXTENSION{
     		$answer_value= '' unless defined($answer_value);
 	}
 
-	$answer_value =~ tr/\\$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
+	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{10pt}{\\hrulefill}}\\hrulefill\\quad ",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\n\\end{rawhtml}\n!,
