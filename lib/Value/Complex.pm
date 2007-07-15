@@ -171,34 +171,31 @@ sub norm {
 }
 
 sub neg {
-  my $self = Value::Complex->promote(@_);
-  my ($a,$b) = $self->value;
+  my $self = shift; my ($a,$b) = $self->value;
   return $self->make(-$a,-$b);
 }
 
 sub conj {(shift)->twiddle(@_)}
 sub twiddle {
-  my $self = Value::Complex->promote(@_);
-  my ($a,$b) = $self->value;
+  my $self = shift; my ($a,$b) = $self->value;
   return $self->make($a,-$b);
 }
 
 sub exp {
-  my $self = Value::Complex->promote(@_);
-  my ($a,$b) = $self->value;
+  my $self = shift; my ($a,$b) = $self->value;
   my $e = CORE::exp($a);
   my ($c,$s) = (CORE::cos($b),CORE::sin($b));
   return $self->make($e*$c,$e*$s);
 }
 
 sub log {
-  my $self = Value::Complex->promote(@_);
+  my $self = shift;
   my ($r,$t) = ($self->mod,$self->arg);
   Value::Error("Can't compute log of zero") if ($r == 0);
   return $self->make(CORE::log($r),$t);
 }
 
-sub sqrt {Value::Complex->promote(@_)**(.5)}
+sub sqrt {(shift)**(.5)}
 
 ##################################################
 #
@@ -207,16 +204,14 @@ sub sqrt {Value::Complex->promote(@_)**(.5)}
 
 # sin(z) = (exp(iz) - exp(-iz))/(2i)
 sub sin {
-  my $self = Value::Complex->promote(@_);
-  my ($a,$b) = $self->value;
+  my $self = shift; my ($a,$b) = $self->value;
   my $e = CORE::exp($b); my $e1 = 1/$e;
   $self->make(CORE::sin($a)*($e+$e1)/2, CORE::cos($a)*($e-$e1)/2);
 }
 
 # cos(z) = (exp(iz) + exp(-iz))/2
 sub cos {
-  my $self = Value::Complex->promote(@_);
-  my ($a,$b) = $self->value;
+  my $self = shift; my ($a,$b) = $self->value;
   my $e = CORE::exp($b); my $e1 = 1/$e;
   $self->make(CORE::cos($a)*($e+$e1)/2, CORE::sin($a)*($e1-$e)/2);
 }
@@ -234,13 +229,13 @@ sub csc {1/CORE::sin($_[0])}
 sub cot {CORE::cos($_[0])/CORE::sin($_[0])}
 
 # acos(z) = -i log(z + sqrt(z^2 - 1))
-sub acos {my $z = Value::Complex->promote(@_); CORE::log($z + CORE::sqrt($z*$z - 1)) * (-$i)}
+sub acos {my $z = shift; CORE::log($z + CORE::sqrt($z*$z - 1)) * (-$i)}
 
 # asin(z) = -i log(iz + sqrt(1 - z^2))
-sub asin {my $z = Value::Complex->promote(@_); CORE::log($z*$i + CORE::sqrt(1 - $z*$z)) * (-$i)}
+sub asin {my $z = shift; CORE::log($z*$i + CORE::sqrt(1 - $z*$z)) * (-$i)}
 
 # atan(z) = (i/2) log((i+z)/(i-z))
-sub atan {my $z = Value::Complex->promote(@_); CORE::log(($z+$i)/($i-$z))*($i/2)}
+sub atan {my $z = shift; CORE::log(($z+$i)/($i-$z))*($i/2)}
 
 # asec(z) = acos(1/z)
 sub asec {acos(1/$_[0])}
@@ -271,16 +266,14 @@ sub atan2 {
 
 # sinh(z) = (exp(z) - exp(-z))/2
 sub sinh {
-  my $self = Value::Complex->promote(@_);
-  my ($a,$b) = $self->value;
+  my $self = shift; my ($a,$b) = $self->value;
   my $e = CORE::exp($a); my $e1 = 1/$e;
   $self->make(CORE::cos($b)*($e-$e1)/2, CORE::sin($b)*($e+$e1)/2);
 }
 
 # cosh(z) = (exp(z) + exp(-z))/2
 sub cosh {
-  my $self = Value::Complex->promote(@_);
-  my ($a,$b) = $self->value;
+  my $self = shift; my ($a,$b) = $self->value;
   my $e = CORE::exp($a); my $e1 = 1/$e;
   $self->make(CORE::cos($b)*($e+$e1)/2, CORE::sin($b)*($e-$e1)/2);
 }
@@ -298,13 +291,13 @@ sub csch {1/sinh($_[0])}
 sub coth {cosh($_[0]) / sinh($_[0])}
 
 # asinh(z) = log(z + sqrt(z^2 + 1))
-sub asinh {my $z = Value::Complex->promote(@_); CORE::log($z + CORE::sqrt($z*$z + 1))}
+sub asinh {my $z = shift; CORE::log($z + CORE::sqrt($z*$z + 1))}
 
 # acosh(z) = log(z + sqrt(z^2 - 1))
-sub acosh {my $z = Value::Complex->promote(@_); CORE::log($z + CORE::sqrt($z*$z - 1))}
+sub acosh {my $z = shift; CORE::log($z + CORE::sqrt($z*$z - 1))}
 
 # atanh(z) = (1/2) log((1+z) / (1-z))
-sub atanh {my $z = Value::Complex->promote(@_); CORE::log((1+$z)/(1-$z))/2}
+sub atanh {my $z = shift; CORE::log((1+$z)/(1-$z))/2}
 
 # asech(z) = acosh(1/z)
 sub asech {acosh(1/$_[0])}
@@ -313,7 +306,7 @@ sub asech {acosh(1/$_[0])}
 sub acsch {asinh(1/$_[0])}
 
 # acoth(z) = (1/2) log((1+z)/(z-1))
-sub acoth {my $z = Value::Complex->promote(@_); CORE::log((1+$z)/($z-1))/2}
+sub acoth {my $z = shift; CORE::log((1+$z)/($z-1))/2}
 
 ##################################################
 
