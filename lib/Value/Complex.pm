@@ -253,7 +253,7 @@ sub acot {atan(1/$_[0])}
 
 # atan2(z1,z2) = atan(z1/z2)
 sub atan2 {
-  my ($self,$l,$r) = Value::checkOpOrderWithValue::Complex->Promote(@_);
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
   if ($c->value == 0 && $d->value == 0) {
     return $self->make(0,0) if ($a->value == 0 && $b->value == 0);
