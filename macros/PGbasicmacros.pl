@@ -1597,7 +1597,24 @@ sub EV4{
 	                # A common usage is \{ htmlLink(alias('prob1_help.html') \}, 'for help')
 	                # where alias finds the full address of the prob1_help.html file in the same directory
 	                # as the problem file
-	appletLink($url, $parameters)
+	appletLink( { name => "xFunctions", 
+	              codebase => '',    # use this to specify the complete url
+	                                 # otherwise libraries specified in global.conf are searched
+	              archive  => 'xFunctions.zip', # name the archive containing code (.jar files go here also)
+	              code     => 'xFunctionsLauncher.class',  
+	              width    => 100,
+	              height   => 14,
+	              params   => { param1 =>value1, param2 => value2},
+	            }
+	          );
+	helpLink()     allows site specific help specified in global.conf or course.conf
+	               the parameter localHelpURL  must be defined in the environment
+	               currently works only for 'interval notation' and 'units'
+	               NEEDS REFINEMENT
+	
+	########################
+	              deprecated coding method
+					appletLink	($url, $parameters)
 	                # For example
 	                # appletLink(q!  archive="http: //webwork.math.rochester.edu/gage/xFunctions/xFunctions.zip"
 	                                code="xFunctionsLauncher.class"  width=100 height=14!,
