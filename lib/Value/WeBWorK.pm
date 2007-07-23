@@ -12,8 +12,7 @@
 package Parser;
 
 sub Formula {
-  my $f = shift;
-  my $v = eval {Value->Package("Formula")->new($f)};
+  my $v = eval {Value->Package("Formula")->new(@_)};
   reportEvalError($@) unless defined($v) || Value->context->{error}{flag};
   return $v;
 }
@@ -34,7 +33,7 @@ sub Evaluate {
 
 #
 #  Remove backtrace and line number, since these
-#  will be reported in the student 
+#  will be reported in the student message area.
 #
 sub Parser::reportEvalError {
   my $error = shift; my $fullerror = $error;
