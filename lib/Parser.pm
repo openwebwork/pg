@@ -610,7 +610,8 @@ sub eval {
     $self->Error(["The value of '%s' can't be a formula",$x])
       if Value::isFormula($self->{values}{$x});
   }
-  my $value = Value::makeValue($self->{tree}->eval,context=>$self->context);
+  my $value = Value::makeValue($self->{tree}->eval,context=>$self->context)->with(equation=>$self);
+  $value->transferFlags("equation");
   $self->unsetValues;
   return $value;
 }
@@ -696,15 +697,19 @@ sub perlFunction {
   $vars = [sort(keys %{$self->{variables}})] unless $vars;
   my $n = scalar(@{$vars}); my $vnames = '';
   if ($n > 0) {
-    my @v = (); foreach my $x (@{$vars}) {CORE::push(@v,'$'.$x)}
+    my @v = (); foreach my $x (@{$vars}) {CORE::push(@v,"\$".$x)}
     $vnames = "my (".join(',',@v).") = \@_;";
   }
+  my $context = $self->context;
   my $fn = eval
    "package main;
     sub $name {
       die \"Wrong number of arguments".($name?" to '$name'":'')."\" if scalar(\@_) != $n;
       $vnames
-      return ".$self->perl.";
+      my \$oldContext = \$\$Value::context; \$\$Value::context = \$context;
+      my \@result = ".$self->perl.";
+      \$\$Value::context = \$oldContext;
+      return (wantarray ? \@result : \$result[0]);
     }";
   $self->Error($@) if $@;
   return $fn;
