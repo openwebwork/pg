@@ -138,7 +138,7 @@ sub transferFlags {
   my $self = shift;
   foreach my $flag (@_) {
     next unless defined $self->{$flag};
-    foreach my $i (1,2) {$self->{data}[$i]->{$flag} = $self->{$flag}}
+    foreach my $i (0,1) {$self->{data}[$i]->{$flag} = $self->{$flag}}
   }
 }
 
