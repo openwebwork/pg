@@ -44,8 +44,9 @@ sub init {
 sub create {
   my $self = shift; my $value = shift; my @extra;
   return $value if ref($value) eq 'HASH';
+  ($value,@extra) = @{$value} if ref($value) eq 'ARRAY';
   if (defined($type{$value})) {
-    @extra = (parameter => 1) if $value eq 'Parameter';
+    push(@extra,(parameter => 1)) if $value eq 'Parameter';
     $value = $type{$value};
   } elsif (Value::isValue($value)) {
     $value = $value->typeRef;
