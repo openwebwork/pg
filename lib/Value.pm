@@ -932,7 +932,7 @@ sub ijk {
 
 =head3 Error
 
-	Usage: $mathObj->Error("We're sorry...");
+	Usage: Value::Error("We're sorry...");
 
  #
  #  Report an error
