@@ -219,11 +219,11 @@ sub compare {
 #  Create the value list from a given set of test points
 #
 sub createPointValues {
-  my $self = shift;
+  my $self = shift; my $context = $self->context;
   my $points = shift || $self->{test_points} || $self->createRandomPoints;
   my $showError = shift; my $cacheResults = shift;
-  my @vars   = $self->{context}->variables->variables;
-  my @params = $self->{context}->variables->parameters;
+  my @vars   = $context->variables->variables;
+  my @params = $context->variables->parameters;
   my @zeros  = (0) x scalar(@params);
   my $f = $self->{f}; $f = $self->{f} = $self->perlFunction(undef,[@vars,@params]) unless $f;
   my $checkUndef = scalar(@params) == 0 && (shift || $self->getFlag('checkUndefinedPoints',0));
@@ -236,7 +236,7 @@ sub createPointValues {
       Value::Error("Can't evaluate formula on test point (%s)",join(',',@{$p}));
     }
     if (defined($v)) {
-      $v = Value::makeValue($v,context=>$self->context)->with(equation=>$self);
+      $v = Value::makeValue($v,context=>$context)->with(equation=>$self);
       $v->transferFlags("equation");
       push @{$values}, $v;
     } else {
@@ -254,11 +254,11 @@ sub createPointValues {
 #  Create the adapted value list for the test points
 #
 sub createAdaptedValues {
-  my $self = shift;
+  my $self = shift; my $context = $self->context;
   my $points = shift || $self->{test_points} || $self->createRandomPoints;
   my $showError = shift;
-  my @vars   = $self->{context}->variables->variables;
-  my @params = $self->{context}->variables->parameters;
+  my @vars   = $context->variables->variables;
+  my @params = $context->variables->parameters;
   my $f = $self->{f}; $f = $self->{f} = $self->perlFunction(undef,[@vars,@params]) unless $f;
 
   my $values = []; my $v;
@@ -270,7 +270,7 @@ sub createAdaptedValues {
       Value::Error("Can't evaluate formula on test point (%s) with parameters (%s)",
 		   join(',',@{$p}),join(',',@adapt));
     }
-    $v = Value::makeValue($v,context=>$self->context)->with(equation=>$self);
+    $v = Value::makeValue($v,context=>$context)->with(equation=>$self);
     $v->transferFlags("equation");
     push @{$values}, $v;
   }
@@ -321,7 +321,7 @@ sub createRandomPoints {
       }
       $k++;
     } else {
-      $v = Value::makeValue($v,context=>$self->context)->with(equation=>$self);
+      $v = Value::makeValue($v,context=>$context)->with(equation=>$self);
       $v->transferFlags("equation");
       push @{$points}, [@P];
       push @{$values}, $v;
