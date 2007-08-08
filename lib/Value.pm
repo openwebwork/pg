@@ -312,7 +312,7 @@ sub isSetOfReals {0}
 sub canBeInUnion {
   my $self = shift;
   return $self->length == 2 && $self->typeRef->{entryType}{name} eq 'Number' &&
-    $self->{open} =~ m/^[\(\[]?$/ && $self->{close} =~ m/^[\)\]]?$/;
+    $self->{open} =~ m/^[\(\[]$/ && $self->{close} =~ m/^[\)\]]$/;
 }
 
 ######################################################################
