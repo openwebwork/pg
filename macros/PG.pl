@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Program Generation Language
 # Copyright � 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: webwork2/lib/WeBWorK.pm,v 1.97 2007/06/29 19:54:19 sh002i Exp $
+# $CVSHeader: pg/macros/PG.pl,v 1.31 2007/07/13 22:43:22 sh002i Exp $
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -736,6 +736,39 @@ sub get_PG_ANSWERS_HASH {
     	return %pg_answers_hash;
     }
 }
+
+=item includePGproblem($filePath)
+
+ includePGproblem($filePath);
+
+ Essentially runs the pg problem specified by $filePath, which is
+ a path relative to the top of the templates directory.  The output
+ of that problem appears in the given problem.
+
+=cut
+
+sub includePGproblem {
+    my $filePath = shift;
+    my %save_envir = %main::envir;
+    my $fullfilePath = $main::envir{templateDirectory}.$filePath;
+    my $r_string =  read_whole_problem_file($fullfilePath);
+    if (ref($r_string) eq 'SCALAR') {
+        $r_string = $$r_string;      
+    }
+
+	# The problem calling this should provide DOCUMENT and ENDDOCUMENT,
+	# so we remove them from the included file.
+    $r_string=~ s/^\s*(END)?DOCUMENT(\(\s*\));?//gm;
+
+	# Reset the problem path so that static images can be found via
+	# their relative paths.
+    eval('$main::envir{probFileName} = $filePath');
+    eval('$main::envir{fileName} = $filePath');
+    includePGtext($r_string);
+    # Reset the environment to what it is before.
+    %main::envir = %save_envir;
+}
+
 
 =back
 
