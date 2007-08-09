@@ -95,7 +95,7 @@ sub protectRegexp {
 
 sub protectChars {
   my $string = shift;
-  $string =~ s/\]/\\\]/g;
+  $string =~ s/([\^\]])/\\$1/g;
   $string =~ s/^(.*)-(.*)$/-$1$2/g;
   return $string;
 }
