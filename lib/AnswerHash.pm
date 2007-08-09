@@ -549,29 +549,28 @@ sub evaluate {
 	    last if defined( $rh_ans->{error_flag} );
 	    my @array = @$i;
 	    my $filter = shift(@array);      # the array now contains the options for the filter
-	    $rh_ans 	            = &$filter($rh_ans,@array); 
+	    $rh_ans = &$filter($rh_ans,@array);
 	    $self->print_result_if_debug('pre_filter',$rh_ans,@array);
 	}
 	my @evaluators = @{$self -> {evaluators} };
 	$count = 0;
 	foreach my $i ( @evaluators )   {
 	    last if defined($rh_ans->{error_flag});
-		my @array = @$i;
+	    my @array = @$i;
 	    my $evaluator = shift(@array);   # the array now contains the options for the filter
-	    $rh_ans 	            = &$evaluator($rh_ans,@array);
+	    $rh_ans = &$evaluator($rh_ans,@array);
 	    $self->print_result_if_debug('evaluator',$rh_ans,@array);
 	}
 	my @post_filters = @{$self -> {post_filters} };
 	$count = 0;  # blank filter catcher is filter 0
 	foreach my $i ( @post_filters ) {
 	    last if defined($rh_ans->{done}) and $rh_ans->{done} == 1;    # no further action needed
-		my @array = @$i;
-		
+	    my @array = @$i;
 	    my $filter = shift(@array);      # the array now contains the options for the filter
-	    $rh_ans 	            = &$filter($rh_ans,@array);
+	    $rh_ans = &$filter($rh_ans,@array);
 	    $self->print_result_if_debug('post_filter',$rh_ans,@array);
 	}
-	$rh_ans = $self->dereference_array_ans($rh_ans);   
+	$rh_ans = $self->dereference_array_ans($rh_ans);
 	# make sure that the student answer is not an array so that it is reported correctly in answer section.
 	warn "<h4>final result: </h4>", $rh_ans->pretty_print() if defined($self->{debug}) and $self->{debug}>0;
 	# re-refrence $rh_ans;
@@ -721,6 +720,48 @@ sub install_correct_answer_post_filter {
 		push(@{$self->{correct_answer_post_filters}}, [ @_ ]) if @_; #install post_filter and it's options
 	}
 	@{$self->{correct_answer_post_filters}};  # return array of all post_filters
+}
+
+=head4 withPreFilter
+
+    $answerHash->withPreFilter(filter[,options]);
+
+    Installs a prefilter (possibly with options), and returns the AnswerHash. This is so that you
+    can add a filter to a checker without having to save the checker in a variable, e.g.,
+
+        ANS(Real(10)->cmp->withPreFilter(...));
+
+    or
+
+        ANS(num_cmp(10)->withPreFilter(...));
+
+=cut
+
+sub withPreFilter {
+  my $self = shift;
+  $self->install_pre_filter(@_);
+  return $self;
+}
+
+=head4 withPostFilter
+
+    $answerHash->withPostFilter(filter[,options]);
+
+    Installs a postfilter (possibly with options), and returns the AnswerHash. This is so that you
+    can add a filter to a checker without having to save the checker in a variable, e.g.,
+
+        ANS(Real(10)->cmp->withPostFilter(...));
+
+    or
+
+        ANS(num_cmp(10)->withPostFilter(...));
+
+=cut
+
+sub withPostFilter {
+  my $self = shift;
+  $self->install_post_filter(@_);
+  return $self;
 }
 
 sub ans_hash {  #alias for rh_ans
