@@ -84,6 +84,7 @@ sub copy {
   foreach my $data (@{$context->{data}{values}}) {
     $context->{$data} = {%{$self->{$data}}};
   }
+  $context->{error}{msg} = {%{$self->{error}{msg}}};
   $context->{_initialized} = 1;
   return $context;
 }
