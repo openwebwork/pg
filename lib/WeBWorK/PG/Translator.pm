@@ -1521,25 +1521,24 @@ is 'main'.
 
 =cut
 
+# Remember, eval STRING evaluates code in the current lexical context, so any
+# lexicals available here will also be available in the evaluated code. So we
+# move the actual eval into a helper function called PG_restricted_eval_helper,
+# which doesn't need to have any lexicals.
 sub PG_restricted_eval {
-    my $string = shift;
-    my ($pck,$file,$line) = caller;
-    
+	my $string = shift;
+	my $out = PG_restricted_eval_helper($string);
+	my $err = $@;
+	my $err_report = $err if $err =~ /\S/;
+	return wantarray ? ($out, $err, $err_report) : $out;
+}
+
+# This is a helper that doesn't use any lexicals. See above.
+sub PG_restricted_eval_helper {
+	no strict;
 	local $SIG{__WARN__} = "DEFAULT";
 	local $SIG{__DIE__} = "DEFAULT";
-	
-    no strict;
-    my $out = eval ("package main; " . $string );
-    my $errors = $@;
-    my $full_error_report = $errors if $errors =~ /\S/;
-    #
-    #  These extra messages are no longer needed with full trace backs of errors
-    #my $full_error_report = "PG_restricted_eval detected error at line $line of file $file \n"
-    #            . $errors .
-    #            "The calling package is $pck\n" if defined($errors) && $errors =~/\S/;
-    use strict;
-    
-    return (wantarray) ?  ($out, $errors,$full_error_report) : $out;
+	return eval("package main;\n" . $_[0]);
 }
 
 sub PG_macro_file_eval {      # would like to modify this so that it requires use strict on the files that it evaluates.
