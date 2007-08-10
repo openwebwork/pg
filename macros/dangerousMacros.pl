@@ -354,7 +354,7 @@ sub compile_file {
  	local($/);
  	$/ = undef;   # allows us to treat the file as a single line
  	open(MACROFILE, "<$filePath") || die "Cannot open file: $filePath";
- 	my $string = 'BEGIN {push @__eval__, __FILE__}; ' . <MACROFILE>;
+ 	my $string = 'BEGIN {push @__eval__, __FILE__};' . "\n" . <MACROFILE>;
  	my ($result,$error,$fullerror) = &PG_restricted_eval($string);
 	eval ('$main::__files__->{pop @main::__eval__} = $filePath');
  	if ($error) {    # the $fullerror report has formatting and is never empty
