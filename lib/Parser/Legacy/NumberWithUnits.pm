@@ -157,8 +157,6 @@ sub adjustCorrectValue {
 
 sub cmp_reparse {Value::cmp_parse(@_)}
 
-sub _compare {Value::binOp(@_,'compare')}
-
 ######################################################################
 
 #
@@ -183,6 +181,14 @@ sub makeValue {
 sub checkStudentValue {
   my $self = shift; my $student = shift;
   return $student->class ne 'Real';
+}
+
+sub promote {
+  my $self = shift; my $class = ref($self) || $self;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
+  my $x = (scalar(@_) ? shift : $self);
+  return $x->inContext($context) if (ref($x) eq $class || Value::isReal($x)) && scalar(@_) == 0;
+  return $self->new($context,$x,@_);
 }
 
 sub string {
