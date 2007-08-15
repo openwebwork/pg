@@ -150,7 +150,7 @@ sub new {
     push(@cmp,$x->cmp(@ans_defaults));
   }
   bless {
-    data => [@data], cmp => [@cmp], ans => [],
+    data => [@data], cmp => [@cmp], ans => [], isValue => 1,
     part => 0, singleResult => 0, namedRules => 0,
     checkTypes => 1, allowBlankAnswers => 0,
     tex_separator => $separator.'\,', separator => $separator.' ',
@@ -225,7 +225,7 @@ sub single_cmp {
 #      them for the single result.
 #
 sub single_check {
-  my $self = shift; my $ans = shift;
+  my $self = shift; my $ans = shift; $ans->{_filter_name} = "MultiAnswer Single Check";
   my $inputs = $main::inputs_ref;
   $self->{ans}[0] = $self->{cmp}[0]->evaluate($ans->{student_ans});
   foreach my $i (1..$self->length-1) 
@@ -298,7 +298,7 @@ sub entry_cmp {
 #  Return the individual answer (our answer hash is discarded).
 #
 sub entry_check {
-  my $self = shift; my $ans = shift;
+  my $self = shift; my $ans = shift; $ans->{_filter_name} = "MultiAnswer Entry Check";
   my $i = $ans->{part};
   $self->{ans}[$i] = $self->{cmp}[$i]->evaluate($ans->{student_ans});
   $self->{ans}[$i]->score(0);
@@ -325,7 +325,8 @@ sub perform_check {
     push(@correct,$ans->{correct_value});
     push(@student,$ans->{student_value});
     return if $ans->{ans_message} ne "" || !defined($ans->{student_value});
-    return if $self->{checkTypes} && $ans->{student_value}->type ne $ans->{correct_value}->type;
+    return if $self->{checkTypes} && $ans->{student_value}->type ne $ans->{correct_value}->type &&
+              !($self->{allowBlankAnswers} && $ans->{student_ans} !~ m/\S/) ;
   }
   my @result = Value::cmp_compare([@correct],[@student],$self,$rh_ans);
   if (!@result && $self->{context}{error}{flag}) {$self->cmp_error($self->{ans}[0]); return 1}
