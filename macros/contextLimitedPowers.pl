@@ -13,6 +13,7 @@ sub _contextLimitedPowers_init {}; # don't load it again
 #
 #    No raising e to a power
 #    Only allowing integer powers (positive or negative)
+#    Only allowing positive interger powers
 #    Only allowing positive interger powers (and 0)
 #
 #  You install these via one of the commands:
@@ -20,6 +21,7 @@ sub _contextLimitedPowers_init {}; # don't load it again
 #    Context()->operators->set(@LimitedPowers::NoBaseE);
 #    Context()->operators->set(@LimitedPowers::OnlyIntegers);
 #    Context()->operators->set(@LimitedPowers::OnlyPositiveIntegers);
+#    Context()->operators->set(@LimitedPowers::OnlyNonNegativeIntegers);
 #
 #  Only one of the three can be in effect at a time; setting
 #  a second one overrides the first.
@@ -43,6 +45,11 @@ our @OnlyIntegers = (
 our @OnlyPositiveIntegers = (
   '^'  => {class => LimitedPowers::OnlyPositiveIntegers},
   '**' => {class => LimitedPowers::OnlyPositiveIntegers},
+);
+
+our @OnlyNonNegativeIntegers = (
+  '^'  => {class => LimitedPowers::OnlyNonNegativeIntegers},
+  '**' => {class => LimitedPowers::OnlyNonNegativeIntegers},
 );
 
 ##################################################
@@ -94,6 +101,23 @@ sub _check {
 }
 
 sub isPositiveInteger {
+  my $n = shift;
+  return $n > 0 && (Value::Real->make($n) - int($n)) == 0;
+}
+
+##################################################
+
+package LimitedPowers::OnlyNonNegativeIntegers;
+@ISA = qw(Parser::BOP::power);
+
+sub _check {
+  my $self = shift; my $p = $self->{rop};
+  $self->SUPER::_check(@_);
+  $self->Error("Powers must be non-negative integer constants")
+    if $p->type ne 'Number' || !$p->{isConstant} || !isNonNegativeInteger($p->eval);
+}
+
+sub isNonNegativeInteger {
   my $n = shift;
   return $n >= 0 && (Value::Real->make($n) - int($n)) == 0;
 }
