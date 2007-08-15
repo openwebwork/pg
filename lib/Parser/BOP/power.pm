@@ -48,7 +48,7 @@ sub _reduce {
   return $self->Item("Number")->new($equation,1)
     if (($self->{rop}{isZero} && !$self->{lop}{isZero} && $reduce->{'x^0'}) ||
 	($self->{lop}{isOne} && $reduce->{'1^x'}));
-  return $self->{lop} if ($self->{rop}{isOne});
+  return $self->{lop} if $self->{rop}{isOne} && $reduce->{'x^1'};
   if ($self->{rop}->isNeg && $self->{rop}->string eq '-1' && $reduce->{'x^(-1)'}) {
     $self = $self->Item("BOP")->new($equation,'/',$self->Item("Number")->new($equation,1),$self->{lop});
     $self = $self->reduce;
@@ -59,6 +59,7 @@ sub _reduce {
 $Parser::reduce->{'x^0'} = 1;
 $Parser::reduce->{'1^x'} = 1;
 $Parser::reduce->{'x^(-1)'} = 1;
+$Parser::reduce->{'x^1'} = 1;
 
 
 #
