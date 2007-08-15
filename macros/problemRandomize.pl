@@ -331,8 +331,10 @@ sub grader {
   if (lc($self->{when}) eq 'always' ||
      (lc($self->{when}) eq 'correct' && $result->{score} >= 1 &&
          !$main::inputs_ref->{previewAnswers})) {
-    my $method = "randomize".$self->{style};
-    $result->{msg} .= $self->$method($self->{label},1).'<br/>';
+    if (!$self->{onlyAfterDue} || time >= $main::dueDate) {
+      my $method = "randomize".$self->{style};
+      $result->{msg} .= $self->$method($self->{label},1).'<br/>';
+    }
   }
 
   #
