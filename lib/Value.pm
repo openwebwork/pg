@@ -1,6 +1,7 @@
 package Value;
 my $pkg = 'Value';
 use vars qw($context $defaultContext %Type);
+use Scalar::Util qw(refaddr);
 use strict;
 
 =head1 DESCRIPTION
@@ -578,6 +579,10 @@ sub class {
   $class =~ s/.*:://;
   return $class;
 }
+#
+#  The address of a Value object.
+#
+sub Ref {refaddr(shift) || 0}
 
 #
 #  Get an element from a point, vector, matrix, or list
