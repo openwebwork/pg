@@ -308,6 +308,7 @@ sub grader {
   #
   $self->{grader} = \&problemRandomize::resetGrader if $self->{isReset};
   my ($result,$state) = &{$self->{grader}}(@_);
+  shift; shift; my %options = @_;
 
   #
   #  Update that state information and encode it.
@@ -321,9 +322,9 @@ sub grader {
   #
   #  Conditions for when to show the reseed message
   #
+  my $score = ($options{answer_submitted} ? $result->{score} : $state->{recorded_score});
   my $isWhen = ($self->{when} eq 'always' ||
-     ($self->{when} eq 'correct' && $result->{score} >= 1 &&
-         !$main::inputs_ref->{previewAnswers}));
+     ($self->{when} eq 'correct' && $score >= 1 && !$main::inputs_ref->{previewAnswers}));
   my $okDate = (!$self->{onlyAfterDue} || time >= $main::dueDate);
 
   #
