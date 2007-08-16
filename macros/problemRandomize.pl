@@ -133,7 +133,7 @@ our $installGrader = \&main::install_problem_grader;
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $pr = bless {
-    when => "Correct",
+    when => "correct",
     onlyAfterDue => 1,
     style => "Button",
     label => undef,
@@ -146,6 +146,7 @@ sub new {
     @_
   }, $class;
   $pr->{style} = uc(substr($pr->{style},0,1)) . lc(substr($pr->{style},1));
+  $pr->{when} = lc($pr->{when});
   $pr->getStatus;
   $pr->initProblem;
   return $pr;
@@ -315,11 +316,23 @@ sub grader {
   $status->{ans_rule_count} = $main::ans_rule_count;
   $status->{answers} = join(';',grep(!/${main::QUIZ_PREFIX}${main::ANSWER_PREFIX}/o,keys(%{$_[0]})));
   my $data = quoteHTML($self->encode);
+  $result->{type} = "problemRandomize ($result->{type})";
+
+  #
+  #  Conditions for when to show the reseed message
+  #
+  my $isWhen = ($self->{when} eq 'always' ||
+     ($self->{when} eq 'correct' && $result->{score} >= 1 &&
+         !$main::inputs_ref->{previewAnswers}));
+  my $okDate = (!$self->{onlyAfterDue} || time >= $main::dueDate);
 
   #
   #  Add the problemRandomize message and data
   #
-  $result->{type} = "problemRandomize ($result->{type})";
+  if ($isWhen && !$okDate) {
+    $result->{msg} .= "</i><br /><b>Note:</b> <i>" if $result->{msg};
+    $result->{msg} .= "You can get a new version of this problem after the due date.";
+  }
   if (!$result->{msg}) {
     # hack to remove unwanted "<b>Note: </b>" from the problem
     #  (it is inserted automatically by Problem.pm when {msg} is non-emtpy).
@@ -331,13 +344,9 @@ sub grader {
   #
   #  Include the "randomize" checkbox, button, or whatever.
   #
-  if (lc($self->{when}) eq 'always' ||
-     (lc($self->{when}) eq 'correct' && $result->{score} >= 1 &&
-         !$main::inputs_ref->{previewAnswers})) {
-    if (!$self->{onlyAfterDue} || time >= $main::dueDate) {
-      my $method = "randomize".$self->{style};
-      $result->{msg} .= $self->$method($self->{label},1).'<br/>';
-    }
+  if ($isWhen && $okDate) {
+    my $method = "randomize".$self->{style};
+    $result->{msg} .= $self->$method($self->{label},1).'<br/>';
   }
 
   #
