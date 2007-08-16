@@ -157,12 +157,12 @@ sub new {
 #
 sub getStatus {
   my $self = shift;
-  main::RECORD_FORM_LABEL("_randomize");
+  main::RECORD_FORM_LABEL("_reseed");
   main::RECORD_FORM_LABEL("_status");
   my $label = $self->{label} || $self->{lc($self->{style})."Label"};
   $self->{status} = $self->decode;
   $self->{submit} = $main::inputs_ref->{submitAnswers};
-  $self->{isReset} = $main::inputs_ref->{_randomize} || ($self->{submit} && $self->{submit} eq $label);
+  $self->{isReset} = $main::inputs_ref->{_reseed} || ($self->{submit} && $self->{submit} eq $label);
   $self->{isReset} = 0 unless !$self->{onlyAfterDue} || time >= $main::dueDate;
 }
 
@@ -187,9 +187,10 @@ sub reset {
   foreach my $id (1..$status->{ans_rule_count})
     {delete $main::inputs_ref->{"${main::QUIZ_PREFIX}${main::ANSWER_PREFIX}$id"}}
   $main::inputs_ref->{_status} = $self->encode(\%defaultStatus);
-  $main::inputs_ref->{_randomize} = 1;
-  $status->{seed} = ($main::inputs_ref->{_seed} || substr(time,5,5));
+  $status->{seed} = ($main::inputs_ref->{_reseed} || seed());
 }
+
+sub seed {substr(time,5,5)}
 
 ##################################################
 
@@ -201,8 +202,8 @@ sub randomizeCheckbox {
   my $label = shift || $self->{checkboxLabel};
   $label = "<b>$label</b> (when you submit your answers).";
   my $par = shift; $par = ($par ? $main::PAR : '');
-  $self->{randomizeInserted} = 1;
-  $par . '<input type="checkbox" name="_randomize" value="1" />' . $label;
+  $self->{reseedInserted} = 1;
+  $par . '<input type="checkbox" name="_reseed" value="'.seed().'" />' . $label;
 }
 
 #
@@ -213,7 +214,7 @@ sub randomizeButton {
   my $label = quoteHTML(shift || $self->{buttonLabel});
   my $par = shift; $par = ($par ? $main::PAR : '');
   $par . qq!<input type="submit" name="submitAnswers" value="$label" !
-       .      q!onclick="document.getElementById('_randomize').value=1" />!;
+       .  q!onclick="document.getElementById('_reseed').value=!.seed().'" />';
 }
 
 #
@@ -223,8 +224,9 @@ sub randomizeInput {
   my $self = shift;
   my $label = quoteHTML(shift || $self->{inputLabel});
   my $par = shift; $par = ($par ? main::PAR : '');
-  $par . qq!<input type="submit" name="submitAnswers" value="$label">!
-       . qq!<input name="_seed" value="$self->{status}{seed}" size="10">!;
+  $par . qq!<input type="submit" name="submitAnswers" value="$label" !
+       .  q!onclick="document.getElementById('_reseed').value=document.getElementById('_seed').value" />!
+       . qq!<input name="_seed" id="_seed" value="$self->{status}{seed}" size="10">!;
 }
 
 #
@@ -303,6 +305,7 @@ sub grader {
   #
   #  Call the original grader
   #
+  $self->{grader} = \&problemRandomize::resetGrader if $self->{isReset};
   my ($result,$state) = &{$self->{grader}}(@_);
 
   #
@@ -351,9 +354,25 @@ sub grader {
   #
   #  Make sure we don't go on unless the next button really is checked
   #
-  $result->{msg} .= '<input type="hidden" name="_randomize" value="0" />'
-    unless $self->{randomizeInserted};
+  $result->{msg} .= '<input type="hidden" name="_reseed" id="_reseed" value="0" />'
+    unless $self->{reseedInserted};
 
+  return ($result,$state);
+}
+
+#
+#  Fake grader for when the problem is reset
+#
+sub resetGrader {
+  my $answers = shift;
+  my $state = shift;
+  my %options = @_;
+  my $result = {
+    score => 0,
+    msg => '',
+    errors => '',
+    type => 'problemRandomize (reset)',
+  };
   return ($result,$state);
 }
 
