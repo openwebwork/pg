@@ -322,7 +322,9 @@ sub grader {
   #
   #  Conditions for when to show the reseed message
   #
-  my $score = ($options{answer_submitted} ? $result->{score} : $state->{recorded_score});
+  my $inputs = $main::inputs_ref;
+  my $isSubmit = $inputs->{submitAnswers} || $inputs->{previewAnswers} || $inputs->{checkAnswers};
+  my $score = ($isSubmit || $self->{isReset} ? $result->{score} : $state->{recorded_score});
   my $isWhen = ($self->{when} eq 'always' ||
      ($self->{when} eq 'correct' && $score >= 1 && !$main::inputs_ref->{previewAnswers}));
   my $okDate = (!$self->{onlyAfterDue} || time >= $main::dueDate);
@@ -353,7 +355,7 @@ sub grader {
   #
   #  Don't show the summary section if the problem is being reset.
   #
-  if ($self->{isReset}) {
+  if ($self->{isReset} && $isSubmit) {
     $result->{msg} .= "<style>.problemHeader {display:none}</style>";
     $state->{state_summary_msg} =
        "<b>Note:</b> This is a new (re-randomized) version of the problem.".$main::BR.
