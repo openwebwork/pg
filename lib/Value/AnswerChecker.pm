@@ -110,7 +110,7 @@ sub cmp_parse {
   $ans->{error_message} = $ans->{ans_message} = ''; # clear any old messages
   $ans->{preview_latex_string} = $ans->{preview_text_string} = '';
   $context->clearError();
-  $contest->{answerHash} = $ans; # values here can override context flags
+  $context->{answerHash} = $ans; # values here can override context flags
 
   #
   #  Parse and evaluate the student answer
