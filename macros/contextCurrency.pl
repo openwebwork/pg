@@ -182,7 +182,7 @@ sub new {
     $symbol => {precedence => 10, associativity => $associativity, type => "unary", string => $symbol,
                 TeX => Currency::quoteTeX($symbol), class => 'Currency::UOP::currency'},
   );
-  $context->flags->set(tolerance => .005, tolType => "absolute");
+  $context->flags->set(tolerance => .005, tolType => "absolute", promoteReals => 1);
   $context->{_initialized} = 1;
   $context->update;
   $context->{error}{msg}{"Missing operand after '%s'"} = "There should be a number after '%s'";
@@ -361,6 +361,7 @@ sub _check {
    if $op->{value_string} && $op->{value_string} =~ m/$decimal\d/ &&
       $op->{value_string} !~ m/$decimal\d\d$/;
   $self->{type} = {%{$op->typeRef}};
+  $self->{isCurrency} = 1;
 }
 
 sub _eval {my $self = shift; Value->Package("Currency")->make($self->context,@_)}
@@ -368,20 +369,9 @@ sub _eval {my $self = shift; Value->Package("Currency")->make($self->context,@_)
 #
 #  Use the Currency MathObject to produce the output formats
 #
-sub string {
-  my $self = shift;
-  $self->Package("Currency")->make($self->context,$self->{op}{value})->string;
-}
-
-sub TeX {
-  my $self = shift;
-  $self->Package("Currency")->make($self->context,$self->{op}{value})->TeX;
-}
-
-sub perl {
-  my $self = shift;
-  $self->Package("Currency")->make($self->context,$self->{op}{value})->perl;
-}
+sub string {(shift)->eval->string}
+sub TeX    {(shift)->eval->TeX}
+sub perl   {(shift)->eval->perl}
 
 
 ######################################################################
@@ -398,19 +388,24 @@ our @ISA = ('Value::Real');
 #
 #  We need to override the new() and make() methods
 #  so that the Currency object will be counted as
-#  a Value object.
+#  a Value object.  If we aren't promoting Reals,
+#  produce an error message.
 #
 sub new {
   my $self = shift;
-  $self = $self->SUPER::new(@_);
-  $self->{isReal} = $self->{isValue} = 1;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
+  my $x = shift;
+  Value::Error("Can't convert %s to a monitary value",lc(Value::showClass($x)))
+      if !$self->getFlag("promoteReals",1) && Value::isRealNumber($x) && !Value::classMatch($x,"Currency");
+  $self = $self->SUPER::new($context,$x,@_);
+  $self->{isReal} = $self->{isValue} = $self->{isCurrency} = 1;
   return $self;
 }
 
 sub make {
   my $self = shift;
   $self = $self->SUPER::make(@_);
-  $self->{isReal} = $self->{isValue} = 1;
+  $self->{isReal} = $self->{isValue} = $self->{isCurrency} = 1;
   return $self;
 }
 
@@ -452,12 +447,12 @@ sub cmp_class {"a Monetary Value"}
 #
 sub cmp_defaults {(
   (shift)->SUPER::cmp_defaults,
-  promoteReals => 1,
+  promoteReals => 0,
 )}
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
-  return $self->SUPER::typeMatch($other,$ans,@_) if $ans->{promoteReals};
+  return $self->SUPER::typeMatch($other,$ans,@_) if $self->getFlag("promoteReals");
   return Value::classMatch($other,'Currency');
 }
 
