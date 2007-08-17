@@ -954,7 +954,7 @@ sub Error {
   $message = [$message,@_] if scalar(@_) > 0;
   $context->setError($message,'');
   $message = $context->{error}{message};
-  die $message . traceback() if $context->flag('showTraceback');
+  die $message . traceback() if $self->getFlag('showTraceback');
   die $message . getCaller();
 }
 
