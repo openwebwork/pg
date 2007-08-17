@@ -74,6 +74,8 @@ sub _contextLimitedPowers_init {}; # don't load it again
 #      message => "integer constants other than 0 or 1",
 #    );
 #
+#  would accept any integer power other than 0 and 1.
+#
 ##########################################################
 
 =cut
