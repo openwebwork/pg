@@ -8,7 +8,7 @@ sub _contextLimitedPowers_init {}; # don't load it again
 ##########################################################
 #
 #  Implements subclasses of the "^" operator that restrict
-#  the base or power that is allowed.  There are three
+#  the base or power that is allowed.  There are four
 #  available restrictions:
 #
 #    No raising e to a power
@@ -18,13 +18,40 @@ sub _contextLimitedPowers_init {}; # don't load it again
 #
 #  You install these via one of the commands:
 #
-#    Context()->operators->set(@LimitedPowers::NoBaseE);
-#    Context()->operators->set(@LimitedPowers::OnlyIntegers);
-#    Context()->operators->set(@LimitedPowers::OnlyPositiveIntegers);
-#    Context()->operators->set(@LimitedPowers::OnlyNonNegativeIntegers);
+#    LimitedPowers::NoBaseE();
+#    LimitedPowers::OnlyIntegers();
+#    LimitedPowers::OnlyPositiveIntegers();
+#    LimitedPowers::OnlyNonNegativeIntegers();
 #
 #  Only one of the three can be in effect at a time; setting
 #  a second one overrides the first.
+#
+#  These function affect the current context, or you can pass
+#  a context reference, as in
+#
+#    $context = Context("Numeric")->copy;
+#    LimitedPowers::OnlyIntegers($context);
+#
+#  For the Interger power functions, you can pass additional
+#  parameters that control the range of values that are allowed
+#  for the powers.  The oprtions include:
+#
+#    minPower => m      only integer powers bigger than or equal
+#                       to m are allowed.  (If m is undef, then
+#                       there is no minimum power.)
+#
+#    maxPower => M      only integer powers less than or equal
+#                       to M are allowed.  (If M is undef, then
+#                       there is no maximum power.)
+#
+#    message => "text"  a description of the type of power
+#                       allowed (e.g., "positive integer constants");
+#
+#    checker => code    a reference to a subroutine that will be
+#                       used to check if the powers are acceptable.
+#                       It should accept a reference to the BOP::power
+#                       structure and return 1 or 0 depending on
+#                       whether the power is OK or not.
 #
 ##########################################################
 
@@ -32,25 +59,61 @@ sub _contextLimitedPowers_init {}; # don't load it again
 
 package LimitedPowers;
 
+sub NoBaseE {
+  my $context = (Value::isContext($_[0]) ? shift : Value->context);
+  $context->operators->set(
+    '^'  => {class => LimitedPowers::NoBaseE, isCommand=>1, perl=>'LimitedPowers::NoBaseE->_eval', @_},
+    '**' => {class => LimitedPowers::NoBaseE, isCommand=>1, perl=>'LimitedPowers::NoBaseE->_eval', @_},
+  );
+}
+
+sub OnlyIntegers {
+  my $context = (Value::isContext($_[0]) ? shift : Value->context);
+  $context->operators->set(
+    '^'  => {class => LimitedPowers::OnlyIntegers, message => "integer constants", @_},
+    '**' => {class => LimitedPowers::OnlyIntegers, message => "integer constants",@_},
+  );
+}
+
+sub OnlyNonNegativeIntegers {
+  my $context = (Value::isContext($_[0]) ? shift : Value->context);
+  OnlyIntegers($context, minPower=>0, message=>"non-negative integer constants", @_);
+}
+
+sub OnlyPositiveIntegers {
+  my $context = (Value::isContext($_[0]) ? shift : Value->context);
+  OnlyIntegers($context, minPower => 1, message => "positive integer constants", @_);
+}
+
+sub OnlyNonTrivialPositiveIntegers {
+  my $context = (Value::isContext($_[0]) ? shift : Value->context);
+  OnlyIntegers($context, minPower=>2, message=>"integer constants bigger than 1", @_);
+}
+
+#
+#  Legacy code to accommodate older approach to setting the operators
+#
 our @NoBaseE = (
   '^'  => {class => LimitedPowers::NoBaseE, isCommand=>1, perl=>'LimitedPowers::NoBaseE->_eval'},
   '**' => {class => LimitedPowers::NoBaseE, isCommand=>1, perl=>'LimitedPowers::NoBaseE->_eval'},
 );
-
 our @OnlyIntegers = (
-  '^'  => {class => LimitedPowers::OnlyIntegers},
-  '**' => {class => LimitedPowers::OnlyIntegers},
+  '^'  => {class => LimitedPowers::OnlyIntegers, message => "integer constants"},
+  '**' => {class => LimitedPowers::OnlyIntegers, message => "integer constants"},
 );
-
-our @OnlyPositiveIntegers = (
-  '^'  => {class => LimitedPowers::OnlyPositiveIntegers},
-  '**' => {class => LimitedPowers::OnlyPositiveIntegers},
-);
-
 our @OnlyNonNegativeIntegers = (
-  '^'  => {class => LimitedPowers::OnlyNonNegativeIntegers},
-  '**' => {class => LimitedPowers::OnlyNonNegativeIntegers},
+  '^'  => {class => LimitedPowers::OnlyIntegers, minPower => 0, message => "non-negative integer constants"},
+  '**' => {class => LimitedPowers::OnlyIntegers, minPower => 0, message => "non-negative integer constants"},
 );
+our @OnlyPositiveIntegers = (
+  '^'  => {class => LimitedPowers::OnlyIntegers, minPower => 1, message => "positive integer constants"},
+  '**' => {class => LimitedPowers::OnlyIntegers, minPower => 1, message => "positive integer constants"},
+);
+our @OnlyNonTrivialPositiveIntegers = (
+  '^'  => {class => LimitedPowers::OnlyIntegers, minPower => 2, message => "integer constants bigger than 1"},
+  '**' => {class => LimitedPowers::OnlyIntegers, minPower => 2, message => "integer constants bigger than 1"},
+);
+
 
 ##################################################
 
@@ -77,49 +140,19 @@ package LimitedPowers::OnlyIntegers;
 @ISA = qw(Parser::BOP::power);
 
 sub _check {
-  my $self = shift; my $p = $self->{rop};
+  my $self = shift; my $p = $self->{rop}; my $def = $self->{def};
+  my $checker = (defined($def->{checker}) ? $def->{checker} :  \&isInteger);
   $self->SUPER::_check(@_);
-  $self->Error("Powers must be integer constants")
-    if $p->type ne 'Number' || !$p->{isConstant} || !isInteger($p->eval);
+  $self->Error("Powers must be $def->{message}")
+    if $p->type ne 'Number' || !$p->{isConstant} || !&{$checker}($self);
 }
 
 sub isInteger {
-  my $n = shift;
-  return (Value::Real->make($n) - int($n)) == 0;
-}
-
-##################################################
-
-package LimitedPowers::OnlyPositiveIntegers;
-@ISA = qw(Parser::BOP::power);
-
-sub _check {
-  my $self = shift; my $p = $self->{rop};
-  $self->SUPER::_check(@_);
-  $self->Error("Powers must be positive integer constants")
-    if $p->type ne 'Number' || !$p->{isConstant} || !isPositiveInteger($p->eval);
-}
-
-sub isPositiveInteger {
-  my $n = shift;
-  return $n > 0 && (Value::Real->make($n) - int($n)) == 0;
-}
-
-##################################################
-
-package LimitedPowers::OnlyNonNegativeIntegers;
-@ISA = qw(Parser::BOP::power);
-
-sub _check {
-  my $self = shift; my $p = $self->{rop};
-  $self->SUPER::_check(@_);
-  $self->Error("Powers must be non-negative integer constants")
-    if $p->type ne 'Number' || !$p->{isConstant} || !isNonNegativeInteger($p->eval);
-}
-
-sub isNonNegativeInteger {
-  my $n = shift;
-  return $n >= 0 && (Value::Real->make($n) - int($n)) == 0;
+  my $self = shift; my $n = $self->{rop}->eval;
+  my $def = $self->{def};
+  return 0 if defined($def->{minPower}) && $n < $def->{minPower};
+  return 0 if defined($def->{maxPower}) && $n > $def->{maxPower};
+  return Value::Real->make($n - int($n)) == 0;
 }
 
 ##################################################
