@@ -166,46 +166,46 @@ sub _eval {
 }
 
 sub evalLessThan {
-  my ($self,$a,$b) = @_;
-  my $I = Value::Infinity->new;
-  return Value->Package("Interval")->new('(',-$I,$b,')') if $self->{varPos} eq 'lop';
-  return Value->Package("Interval")->new('(',$a,$I,')');
+  my ($self,$a,$b) = @_; my $context = $self->context;
+  my $I = Value::Infinity->new($context);
+  return $self->Package("Interval")->new($context,'(',-$I,$b,')') if $self->{varPos} eq 'lop';
+  return $self->Package("Interval")->new($context,'(',$a,$I,')');
 }
 
 sub evalGreaterThan {
-  my ($self,$a,$b) = @_;
+  my ($self,$a,$b) = @_; my $context = $self->context;
   my $I = Value::Infinity->new;
-  return Value->Package("Interval")->new('(',$b,$I,')') if $self->{varPos} eq 'lop';
-  return Value->Package("Interval")->new('(',-$I,$a,')');
+  return $self->Package("Interval")->new($context,'(',$b,$I,')') if $self->{varPos} eq 'lop';
+  return $self->Package("Interval")->new($context,'(',-$I,$a,')');
 }
 
 sub evalLessThanOrEqualTo {
-  my ($self,$a,$b) = @_;
+  my ($self,$a,$b) = @_; my $context = $self->context;
   my $I = Value::Infinity->new;
-  return Value->Package("Interval")->new('(',-$I,$b,']') if $self->{varPos} eq 'lop';
-  return Value->Package("Interval")->new('[',$a,$I,')');
+  return $self->Package("Interval")->new($context,'(',-$I,$b,']') if $self->{varPos} eq 'lop';
+  return $self->Package("Interval")->new($context,'[',$a,$I,')');
 }
 
 sub evalGreaterThanOrEqualTo {
-  my ($self,$a,$b) = @_;
+  my ($self,$a,$b) = @_; my $context = $self->context;
   my $I = Value::Infinity->new;
-  return Value->Package("Interval")->new('[',$b,$I,')') if $self->{varPos} eq 'lop';
-  return Value->Package("Interval")->new('(',-$I,$a,']');
+  return $self->Package("Interval")->new($context,'[',$b,$I,')') if $self->{varPos} eq 'lop';
+  return $self->Package("Interval")->new($context,'(',-$I,$a,']');
 }
 
 sub evalEqualTo {
-  my ($self,$a,$b) = @_;
+  my ($self,$a,$b) = @_; my $context = $self->context;
   my $x = ($self->{varPos} eq 'lop' ? $b : $a);
-  return Value->Package("Set")->new($x);
+  return $self->Package("Set")->new($context,$x);
 }
 
 sub evalNotEqualTo {
-  my ($self,$a,$b) = @_;
+  my ($self,$a,$b) = @_; my $context = $self->context;
   my $x = ($self->{varPos} eq 'lop' ? $b : $a);
   my $I = Value::Infinity->new;
-  return Value->Package("Union")->new(
-            Value->Package("Interval")->new('(',-$I,$x,')'),
-            Value->Package("Interval")->new('(',$x,$I,')')
+  return $self->Package("Union")->new($context,
+            $self->Package("Interval")->new($context,'(',-$I,$x,')'),
+            $self->Package("Interval")->new($context,'(',$x,$I,')')
          );
 }
 

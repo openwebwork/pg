@@ -211,7 +211,7 @@ sub _check {
 #
 sub _eval {
   my ($self,$a,$b) = @_;
-  Value->Package("ScientificNotation")->make($self->context,$a*$b);
+  $self->Package("ScientificNotation")->make($self->context,$a*$b);
 }
 
 #
