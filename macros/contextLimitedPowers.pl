@@ -1,9 +1,12 @@
-
 loadMacros("Parser.pl");
 
 sub _contextLimitedPowers_init {}; # don't load it again
 
-=head3 Context("LimitedPowers")
+=head3 LimitedPowers::NoBaseE();
+=head3 LimitedPowers::OnlyIntegers();
+=head3 LimitedPowers::OnlyNonNegativeIntegers();
+=head3 LimitedPowers::OnlyPositiveIntegers();
+=head3 LimitedPowers::OnlyNonTrivialPositiveIntegers();
 
 ##########################################################
 #
