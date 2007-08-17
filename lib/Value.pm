@@ -937,20 +937,24 @@ sub ijk {
 
 =head3 Error
 
-	Usage: Value::Error("We're sorry...");
+	Usage: Value->Error("We're sorry...");
+           or  $mathObject->Error("We're still sorry...");
 
  #
- #  Report an error
+ #  Report an error and die.  This can be used within custom answer checkers
+ #  to report errors during the check, or when sub-classing a MathObject to
+ #  report error conditions.
  #
 
 =cut
 
 sub Error {
-  my $message = shift; my $context = Value->context;
+  my $self = (Value::isValue($_[0]) || (ref($_[0]) eq "" and $_[0] eq 'Value') ? shift : "Value");
+  my $message = shift; my $context = $self->context;
   $message = [$message,@_] if scalar(@_) > 0;
   $context->setError($message,'');
   $message = $context->{error}{message};
-  die $message . traceback() if $context->flags('showTraceback');
+  die $message . traceback() if $context->flag('showTraceback');
   die $message . getCaller();
 }
 
