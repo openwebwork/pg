@@ -35,15 +35,18 @@ sub _parserMultiAnswer_init {}
  #  answers, so you don't have to worry about handling bad data from the student
  #  (at least as far as typechecking goes).
  #
- #  The checker routine should accept three parameters:  a reference to the array
- #  of correct answers, a reference to the array of student answers, and a reference
- #  to the MultiAnswer itself.  It should do whatever checking it needs to do and
- #  then return a score for the MultiAnswer as a whole (every answer blank will be
- #  given the same score), or a reference to an array of scores, one for each
- #  blank.  The routine can set error messages via the MultiAnswer's setMessage()
- #  method (e.g., $mp->setMessage(1,"The function can't be the identity") would
- #  set the message for the first answer blank of the MultiAnswer), or can call
- #  Value::Error() to generate an error and die.
+ #  The checker routine should accept four parameters:  a reference to the array
+ #  of correct answers, a reference to the array of student answers, a reference
+ #  to the MultiAnswer itself, and a reference to the answer hash.  It should do
+ #  whatever checking it needs to do and then return a score for the MultiAnswer
+ #  as a whole (every answer blank will be given the same score), or a reference
+ #  to an array of scores, one for each blank.  The routine can set error messages
+ #  via the MultiAnswer's setMessage() method (e.g.,
+ #
+ #     $mp->setMessage(1,"The function can't be the identity");
+ #
+ #  would set the message for the first answer blank of the MultiAnswer), or can
+ #  call Value::Error() to generate an error and die.
  #
  #  The checker routine can be supplied either when the MultiAnswer is created, or
  #  when the cmp() method is called.  For example:
@@ -96,12 +99,13 @@ our $separator = ';';                # separator for singleResult previews
 #
 #      checker => code            a subroutine to be called to check the
 #                                 student answers.  The routine is passed
-#                                 three parameters: a reference to the array
+#                                 four parameters: a reference to the array
 #                                 or correct answers, a reference to the
-#                                 array of student answers, and a reference
-#                                 to the MultiAnswer object itself.  The routine
-#                                 should return either a score or an array of
-#                                 scores (one for each student answer).
+#                                 array of student answers, a reference to the
+#                                 MultiAnswer object itself, and a reference to
+#                                 the checker's answer hash.  The routine
+#                                 should return either a score or a reference
+#                                 to an array of scores (one for each answer).
 #
 #      singleResult => 0 or 1     whether to show only one entry in the
 #                                 results area at the top of the page,
@@ -130,8 +134,24 @@ our $separator = ';';                # separator for singleResult previews
 #
 #      separator => string        the string to use between entries in the
 #                                 results area when singleResult is set.
+#                                 (Default: semicolon)
 #
 #      tex_separator => string    same, but for the preview area.
+#                                 (Default: semicolon followed by thinspace)
+#
+#      format => string           an sprintf-style string used to format the
+#                                 students answers for the results area
+#                                 when singleResults is true.  If undefined,
+#                                 the separator parameter (above) is used to
+#                                 form the string.
+#                                 (Default: undef)
+#
+#      tex_format => string       an sprintf-style string used to format the
+#                                 students answer previews when singleResults
+#                                 mode is in effect.  If undefined, the
+#                                 tex_separator (above) is used to form the
+#                                 string.
+#                                 (Default: undef)
 #
 my @ans_defaults = (
   checker => sub {0},
@@ -154,13 +174,14 @@ sub new {
     part => 0, singleResult => 0, namedRules => 0,
     checkTypes => 1, allowBlankAnswers => 0,
     tex_separator => $separator.'\,', separator => $separator.' ',
+    tex_format => undef, format => undef,
     context => $context, id => $answerPrefix.($count++),
   }, $class;
 }
 
 #
 #  Creates an answer checker (or array of same) to be passed
-#  to ANS() or NAMED_ANS().  Any parameters are passed to 
+#  to ANS() or NAMED_ANS().  Any parameters are passed to
 #  the individual answer checkers.
 #
 sub cmp {
@@ -238,7 +259,7 @@ sub single_check {
   }
   foreach my $result (@{$self->{ans}}) {
     $i++; $nonblank |= ($result->{student_ans} =~ m/\S/);
-    push(@latex,check_string($result->{preview_latex_string},'\_\_'));
+    push(@latex,'{'.check_string($result->{preview_latex_string},'\_\_').'}');
     push(@text,check_string($result->{preview_text_string},'__'));
     push(@student,check_string($result->{student_ans},'__'));
     if ($result->{ans_message}) {
@@ -256,9 +277,12 @@ sub single_check {
       '</TABLE>';
   }
   if ($nonblank) {
-    $ans->{preview_latex_string} = '{'.join('}'.$self->{tex_separator}.'{',@latex).'}';
-    $ans->{preview_text_string}  = join($self->{separator},@text);
-    $ans->{student_ans} = join($self->{separator},@student);
+    $ans->{preview_latex_string} =
+      (defined($self->{tex_format}) ? sprintf($self->{tex_format},@latex) : join($self->{tex_separator},@latex));
+    $ans->{preview_text_string} =
+      (defined($self->{format}) ? sprintf($self->{format},@text) : join($self->{separator},@text));
+    $ans->{student_ans} =
+      (defined($self->{format}) ? sprintf($self->{format},@student) : join($self->{separator},@student));
   }
   return $ans;
 }
@@ -328,6 +352,9 @@ sub perform_check {
     return if $self->{checkTypes} && $ans->{student_value}->type ne $ans->{correct_value}->type &&
               !($self->{allowBlankAnswers} && $ans->{student_ans} !~ m/\S/) ;
   }
+  my $inputs = $main::inputs_ref;
+  $rh_ans->{isPreview} = $inputs->{previewAnswers} ||
+                         ($inputs_{action} && $inputs->{action} =~ m/^Preview/);
   my @result = Value::cmp_compare([@correct],[@student],$self,$rh_ans);
   if (!@result && $self->context->{error}{flag}) {$self->cmp_error($self->{ans}[0]); return 1}
   my $result = (scalar(@result) > 1 ? [@result] : $result[0] || 0);
