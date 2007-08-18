@@ -228,12 +228,12 @@ sub single_check {
   my $self = shift; my $ans = shift; $ans->{_filter_name} = "MultiAnswer Single Check";
   my $inputs = $main::inputs_ref;
   $self->{ans}[0] = $self->{cmp}[0]->evaluate($ans->{student_ans});
-  foreach my $i (1..$self->length-1) 
+  foreach my $i (1..$self->length-1)
     {$self->{ans}[$i] = $self->{cmp}[$i]->evaluate($inputs->{$self->ANS_NAME($i)})}
   my $score = 0; my (@errors,@student,@latex,@text);
   my $i = 0; my $nonblank = 0;
-  if ($self->perform_check) {
-    push(@errors,$self->{ans}[0]{ans_message});
+  if ($self->perform_check($ans)) {
+    push(@errors,'<TR><TD STYLE="text-align:left" COLSPAN="2">'.$self->{ans}[0]{ans_message}.'</TD></TR>');
     $self->{ans}[0]{ans_message} = "";
   }
   foreach my $result (@{$self->{ans}}) {
@@ -319,7 +319,7 @@ sub entry_check {
 #
 sub perform_check {
   my $self = shift; my $rh_ans = shift;
-  $self->{context}->clearError;
+  $self->context->clearError;
   my @correct; my @student;
   foreach my $ans (@{$self->{ans}}) {
     push(@correct,$ans->{correct_value});
@@ -329,7 +329,7 @@ sub perform_check {
               !($self->{allowBlankAnswers} && $ans->{student_ans} !~ m/\S/) ;
   }
   my @result = Value::cmp_compare([@correct],[@student],$self,$rh_ans);
-  if (!@result && $self->{context}{error}{flag}) {$self->cmp_error($self->{ans}[0]); return 1}
+  if (!@result && $self->context->{error}{flag}) {$self->cmp_error($self->{ans}[0]); return 1}
   my $result = (scalar(@result) > 1 ? [@result] : $result[0] || 0);
   if (ref($result) eq 'ARRAY') {
     die "Checker subroutine returned the wrong number of results"
