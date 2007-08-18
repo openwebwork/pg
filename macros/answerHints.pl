@@ -123,7 +123,6 @@ sub AnswerHints {
 
 package AnswerHints;
 
-my $noValueRef = ! defined &{\&{Value::Ref}};
 #
 #  Calls the answer checker on two values with a copy of the answer hash
 #  and returns true if the two values match and false otherwise.
@@ -132,12 +131,12 @@ sub Compare {
   my $self = shift; my $other = shift; my $ans = shift;
   $ans = bless {%{$ans},@_}, ref($ans);  # make a copy
   $ans->{typeError} = 0; $ans->{ans_message} = $ans->{error_message} = ""; $ans->{score} = 0;
-  if ($noValueRef || Value::Ref($self) != Value::Ref($ans->{correct_value})) {
+  if (sprintf("%p",$self) ne sprintf("%p",$ans->{correct_value})) {
     $ans->{correct_ans} = $self->string;
     $ans->{correct_value} = $self;
     $ans->{correct_formula} = Value->Package("Formula")->new($self);
   }
-  if ($noValueRef || Value::Ref($other) != Value::Ref($ans->{student_value})) {
+  if (sprintf("%p",$other) ne sprintf("%p",$ans->{student_value})) {
     $ans->{student_ans} = $other->string;
     $ans->{student_value} = $other;
     $ans->{student_formula} = Value->Package("Formula")->new($other);
