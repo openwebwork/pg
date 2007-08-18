@@ -135,7 +135,7 @@ sub _check {
     if ($v->class eq 'Variable') {
       $self->{varName} = $v->{name};
       delete $self->{equation}{variables}{$v->{name}} if $v->{isNew};
-      $self->{$self->{varPos}} = Inequalities::DummyVariable->new($equation,$v->{name},$v->{ref});
+      $self->{$self->{varPos}} = Inequalities::DummyVariable->new($self->{equation},$v->{name},$v->{ref});
       return;
     }
     if ($self->{def}{combine} && $v->{isInequality}) {
@@ -216,8 +216,19 @@ sub evalNotEqualTo {
 sub getVariables {{}}
 
 #
-#  Avoid unwanted parentheses from the standard TeX routine.
+#  Avoid unwanted parentheses from the standard routines.
 #
+sub string {
+  my ($self,$precedence) = @_;
+  my $string; my $bop = $self->{def};
+
+  $string = $self->{lop}->string($bop->{precedence}).
+            $bop->{string}.
+            $self->{rop}->string($bop->{precedence});
+
+  return $string;
+}
+
 sub TeX {
   my ($self,$precedence) = @_;
   my $TeX; my $bop = $self->{def};
@@ -241,6 +252,7 @@ sub _check {
   $self->Error("The operands of '%s' must be Intervals, Sets or Unions")
     unless $self->{lop}->isSetOfReals && $self->{rop}->isSetOfReals;
   $self->{type} = Value::Type("Interval",2);
+  $self->{varName} = $self->{lop}{varName} || $self->{rop}{varName};
 }
 
 sub _eval {$_[1]->intersect($_[2])}
@@ -257,6 +269,7 @@ sub _check {
   $self->Error("The operands of '%s' must be Intervals, Sets or Unions")
     unless $self->{lop}->isSetOfReals && $self->{rop}->isSetOfReals;
   $self->{type} = Value::Type("Interval",2);
+  $self->{varName} = $self->{lop}{varName} || $self->{rop}{varName};
 }
 
 sub _eval {$_[1] + $_[2]}
@@ -294,19 +307,25 @@ our @ISA = ("Parser::Item");
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my ($equation,$name,$ref) = @_;
-  bless {name => $name, ref => $ref, equation => $equation}, $class;
+  my $def = $equation->{context}{variables}{$name};
+  bless {name => $name, ref => $ref, def => $def, equation => $equation}, $class;
 }
 
 sub eval {shift};
 
-sub string {
-  my $self = shift;
-  return $self->{name};
-}
+sub string {(shift)->{name}}
 
 sub TeX {
+  my $self = shift; my $name = $self->{name};
+  return $self->{def}{TeX} if defined $self->{def}{TeX};
+  $name = $1.'_{'.$2.'}' if ($name =~ m/^([^_]+)_?(\d+)$/);
+  return $name;
+}
+
+sub perl {
   my $self = shift;
-  return $self->{name};
+  return $self->{def}{perl} if defined $self->{def}{perl};
+  return '$'.$self->{name};
 }
 
 ##################################################
