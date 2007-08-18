@@ -1,7 +1,7 @@
 package Value;
 my $pkg = 'Value';
 use vars qw($context $defaultContext %Type);
-use Scalar::Util qw(refaddr);
+use Scalar::Util;
 use strict;
 
 =head1 DESCRIPTION
@@ -219,7 +219,7 @@ sub copy {
 
 sub getFlag {
   my $self = shift; my $name = shift;
-  if (ref($self) && ref($self) ne 'ARRAY') {
+  if (Value::isHash($self)) {
     return $self->{$name} if defined($self->{$name});
     if (defined $self->{equation}) {
       return $self->{equation}{$name} if defined($self->{equation}{$name});
@@ -239,11 +239,11 @@ sub getFlag {
 #
 sub context {
   my $self = shift; my $context = shift;
-  if (ref($self) && ref($self) ne 'ARRAY') {
+  if (Value::isHash($self)) {
     if ($context && $self->{context} != $context) {
       $self->{context} = $context;
       if (defined $self->{data}) {
-        foreach my $x (@{$self->{data}}) {$x->context($context) if ref($x)}
+        foreach my $x (@{$self->{data}}) {$x->context($context) if Value::isBlessed($x)}
       }
     }
     return $self->{context} if $self->{context};
@@ -260,17 +260,29 @@ sub inContext {my $self = shift; $self->context(@_); $self}
 #############################################################
 
 #
-#  Check if the object class matches one of a list of classes
 #
-sub classMatch {
-  my $self = shift; my $class = class($self);
-  my $ref = ref($self); my $isHash = ($ref && $ref ne 'ARRAY' && $ref ne 'CODE');
-  my $context = ($isHash ? $self->{context} || Value->context : Value->context);
-  foreach my $name (@_) {
-    return 1 if $class eq $name || $ref eq $context->Package($name,1) ||
-                $ref eq "Value::$name" || ($isHash && $self->{"is".$name});
-  }
-  return 0;
+#  The address of a Value object (actually ANY perl value).
+#  Use this to compare two objects to see of they are
+#  the same object (avoids automatic stringification).
+#
+sub address {oct(sprintf("0x%p",shift))}
+
+sub isBlessed {Scalar::Util::blessed(shift) ne ""}
+sub blessedClass {Scalar::Util::blessed(shift)}
+sub blessedType {Scalar::Util::reftype(shift)}
+
+sub isa {UNIVERSAL::isa(@_)}
+sub can {UNIVERSAL::can(@_)}
+
+sub isHash {
+  my $self = shift;
+  return ref($self) eq 'HASH' || blessedType($self) eq 'HASH';
+}
+
+sub subclassed {
+  my $self = shift; my $obj = shift; my $method = shift;
+  my $code = UNIVERSAL::can($obj,$method);
+  return $code && $code ne $self->can($method);
 }
 
 #
@@ -282,10 +294,10 @@ sub isReal    {classMatch(shift,'Real')}
 sub isComplex {classMatch(shift,'Complex')}
 sub isContext {class(shift) eq 'Context'}
 sub isFormula {classMatch(shift,'Formula')}
+sub isParser  {my $v = shift; isBlessed($v) && $v->isa('Parser::Item')}
 sub isValue {
   my $v = shift;
-  return (ref($v) || $v) =~ m/^Value::/ ||
-         (ref($v) && ref($v) ne 'ARRAY' && ref($v) ne 'CODE' && $v->{isValue});
+  return (ref($v) || $v) =~ m/^Value::/ || (isHash($v) && $v->{isValue}) || isa($v,'Value');
 }
 
 sub isNumber {
@@ -328,6 +340,23 @@ sub canBeInUnion {
 #  (as specified by the context's {value} hash, or "Value::name").
 #
 sub Package {(shift)->context->Package(@_)}
+
+#  Check if the object class matches one of a list of classes
+#
+sub classMatch {
+  my $self = shift;
+  return $self->classMatch(@_) if Value->subclassed($self,"classMatch");
+  my $class = class($self); my $ref = ref($self);
+  my $isHash = ($ref && $ref ne 'ARRAY' && $ref ne 'CODE');
+  my $context = ($isHash ? $self->{context} || Value->context : Value->context);
+  foreach my $name (@_) {
+    return 1 if $class eq $name || $ref eq "Value::$name" ||
+                ($isHash && $self->{"is".$name}) ||
+		$ref eq $context->Package($name,1) ||
+		isa($self,"Value::$name");
+  }
+  return 0;
+}
 
 =head3 makeValue
 
@@ -380,11 +409,12 @@ sub showClass {
     $value = Value::makeValue($value,makeFormula=>0);
     return "'".$value."'" unless Value::isValue($value);
   }
+  return $value->showClass(@_) if Value->subclassed($value,"showClass");
   my $class = class($value);
   return showType($value) if Value::classMatch($value,'List');
   $class .= ' Number' if Value::classMatch($value,'Real','Complex');
   $class .= ' of Intervals' if Value::classMatch($value,'Union');
-  $class = 'Word' if Value::classMatch($value,'String');
+  $class = ($value eq '' ? 'Empty Value' : 'Word') if Value::classMatch($value,'String');
   return 'a Formula that returns '.showType($value->{tree}) if Value::isFormula($value);
   return 'an '.$class if $class =~ m/^[aeio]/i;
   return 'a '.$class;
@@ -415,6 +445,7 @@ sub showType {
     }
   }
   return 'an Infinity' if $type eq 'String' && $value->{isInfinite};
+  return 'an Empty Value' if $type eq 'String' && $value eq '';
   return 'a Word' if $type eq 'String';
   return 'a Complex Number' if $value->isComplex;
   return 'an '.$type if $type =~ m/^[aeio]/i;
@@ -426,6 +457,7 @@ sub showType {
 #
 sub getType {
   my $equation = shift; my $value = shift;
+  return $value->getType($equation,@_) if Value->subclassed($value,"getType");
   my $strings = $equation->{context}{strings};
   if (ref($value) eq 'ARRAY') {
     return 'Interval' if ($value->[0] =~ m/^[(\[]$/ && $value->[-1] =~ m/^[)\]]$/);
@@ -439,18 +471,18 @@ sub getType {
       $ltype = $type if $ltype eq '';
       return 'List' if $type ne $ltype;
     }
-    return 'Point' if $ltype eq 'Number';
+    return 'Point'  if $ltype eq 'Number';
     return 'Matrix' if $ltype =~ m/Point|Matrix/;
     return 'List';
   }
-  elsif (Value::isFormula($value)) {return 'Formula'}
-  elsif (Value::classMatch($value,'Infinity')) {return 'Infinity'}
-  elsif (Value::isReal($value)) {return 'Number'}
-  elsif (Value::isValue($value)) {return 'value'}
-  elsif (ref($value)) {return 'unknown'}
-  elsif (defined($strings->{$value})) {return 'String'}
-  elsif (Value::isNumber($value)) {return 'Number'}
-  elsif ($value eq '' && $equation->{context}{flags}{allowEmptyStrings}) {return 'String'}
+  return 'Formula'  if Value::isFormula($value);
+  return 'Infinity' if Value::classMatch($value,'Infinity');
+  return 'Number'   if Value::isReal($value);
+  return 'value'    if Value::isValue($value);
+  return 'unknown'  if ref($value);
+  return 'String'   if defined($strings->{$value});
+  return 'Number'   if Value::isNumber($value);
+  return 'String'   if $value eq '' && $equation->{context}{flags}{allowEmptyStrings};
   return 'unknown';
 }
 
@@ -460,6 +492,7 @@ sub getType {
 #
 sub getValueType {
   my $equation = shift; my $value = shift;
+  return $value->getValueType($equation,@_) if Value->subclassed($value,"getValueType");
   my $type = Value::getType($equation,$value);
   if ($type eq 'String') {$type = $Value::Type{string}}
   elsif ($type eq 'Number') {$type = $Value::Type{number}}
@@ -578,14 +611,11 @@ sub typeRef {
 #  The Value.pm object class
 #
 sub class {
-  my $self = shift; my $class = ref($self) || $self;
-  $class =~ s/.*:://;
+  my $self = shift;
+  return $self->class(@_) if Value->subclassed($self,"class");
+  my $class = ref($self) || $self; $class =~ s/.*:://;
   return $class;
 }
-#
-#  The address of a Value object.
-#
-sub Ref {refaddr(shift) || 0}
 
 #
 #  Get an element from a point, vector, matrix, or list
@@ -765,7 +795,7 @@ sub dot {
   my ($l,$r,$flag) = @_;
   my $tex = Value->context->flag('StringifyAsTeX');
   if ($tex) {$l = $l->TeX} else {$l = $l->pdot}
-  if (ref($r)) {if ($tex) {$r = $r->TeX} else {$r = $r->pdot}}
+  if (Value::isBlessed($r)) {if ($tex) {$r = $r->TeX} else {$r = $r->pdot}}
   return ($flag)? ($r.$l): ($l.$r);
 }
 
@@ -952,7 +982,7 @@ sub ijk {
 =cut
 
 sub Error {
-  my $self = (Value::isValue($_[0]) || (ref($_[0]) eq "" and $_[0] eq 'Value') ? shift : "Value");
+  my $self = (UNIVERSAL::can($_[0],"getFlag") ? shift : "Value");
   my $message = shift; my $context = $self->context;
   $message = [$message,@_] if scalar(@_) > 0;
   $context->setError($message,'');
