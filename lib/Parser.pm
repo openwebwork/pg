@@ -35,9 +35,10 @@ sub new {
     variables => {}, values => {},
     context => $context,
   }, $class;
-  if (ref($string) =~ m/^Parser::/ || Value::isFormula($string)) {
+  if (Value::isParser($string) || Value::isFormula($string)) {
     my $tree = $string; $tree = $tree->{tree} if defined $tree->{tree};
     $math->{tree} = $tree->copy($math);
+    $math->{variables} = $math->{tree}->getVariables;
   } elsif (Value::isValue($string)) {
     $math->{tree} = $math->Item("Value")->new($math,$string);
   } elsif ($string eq '' && $context->{flags}{allowEmptyStrings}) {
@@ -56,8 +57,7 @@ sub new {
 #
 sub context {
   my $self = shift;
-  return $self->{context}
-    if ref($self) && ref($self) ne "ARRAY" && ref($self) ne "CODE" && $self->{context};
+  return $self->{context} if Value::isHash($self) && $self->{context};
   Parser::Context->current;
 }
 
