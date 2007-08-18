@@ -224,10 +224,11 @@ our $CMP_MESSAGE = 4; # an message should be reported for this check
 
 sub cmp_compare {
   my $self = shift; my $other = shift; my $ans = shift; my $nth = shift || '';
+  my $context = (Value::isValue($self) ? $self->context : Value->context);
   return eval {$self == $other} unless ref($ans->{checker}) eq 'CODE';
   my @equal = eval {&{$ans->{checker}}($self,$other,$ans,$nth,@_)};
-  if (!defined($equal) && $@ ne '' && (!$self->context->{error}{flag} || $ans->{showAllErrors})) {
-    $self->context->setError(["<I>An error occurred while checking your$nth answer:</I>\n".
+  if (!defined($equal) && $@ ne '' && (!$context->{error}{flag} || $ans->{showAllErrors})) {
+    $context->setError(["<I>An error occurred while checking your$nth answer:</I>\n".
       '<DIV STYLE="margin-left:1em">%s</DIV>',$@],'',undef,undef,$CMP_ERROR);
     warn "Please inform your instructor that an error occurred while checking your answer";
   }
