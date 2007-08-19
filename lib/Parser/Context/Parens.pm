@@ -30,6 +30,15 @@ sub removeToken {
   delete $self->{tokens}{$data->{close}} unless $data->{hidden} || $data->{close} eq $token;
 }
 
+#
+#  Always retain 'start' since it si crucial to the parser
+#
+sub clear {
+  my $self = shift;
+  $self->SUPER::clear();
+  $self->redefine('start');
+}
+
 #########################################################################
 
 1;
