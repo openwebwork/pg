@@ -54,7 +54,7 @@ sub EscapeAnswers {
   foreach my $id (keys %{$original}) {
     my $value = $original->{$id};
     next if !defined($value) || ref($value);
-    $value =~ s/([\\\$@\`])/EscapeHTMLchar($1)/ge;
+    $value =~ s/([\\\$@\`"&<>])/EscapeHTMLchar($1)/ge;
     $inputs->{$id} = $value;
   }
 }
