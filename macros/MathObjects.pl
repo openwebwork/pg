@@ -11,6 +11,6 @@ It may later be used for other purposes as well.
 
 =cut
 
-
 loadMacros("Parser.pl");
 
+1;
