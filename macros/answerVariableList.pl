@@ -1,7 +1,5 @@
 loadMacros('MathObjects.pl');
 
-sub _answerVariableList_init {}; # don't reload this file
-
 =head1 DESCRIPTION
 
  ######################################################################
@@ -33,25 +31,29 @@ sub _answerVariableList_init {}; # don't reload this file
 
 =cut
 
-#
-#  A new context for variable lists
-#
-$context{VariableList} = Parser::Context->new(
-  operators => {',' => $Parser::Context::Default::fullContext->operators->get(',')},
-  lists => {'List'  => {class =>'Parser::List::List'}},
-  parens => {
-   '(' => {close => ')', type => 'List', formList => 1},
-   'start' => {close => 'start', type => 'List', formList => 1,
-               removable => 1, emptyOK => 1, hidden => 1},
-   'list'  => {type => 'List', hidden => 1},
-  },
-  flags => {
-    NumberCheck => 
-      sub {shift->Error("Entries in your list must be variable names")},
-    formatStudentAnswer => 'evaluated',  # or 'parsed' or 'reduced'
-  },
-);
-Context("VariableList");
+sub _answerVariableList_init {
+  #
+  #  A new context for variable lists
+  #
+  $main::context{VariableList} = Parser::Context->new(
+    operators => {',' => $Parser::Context::Default::fullContext->operators->get(',')},
+    lists => {'List'  => {class =>'Parser::List::List'}},
+    parens => {
+     '(' => {close => ')', type => 'List', formList => 1},
+     'start' => {close => 'start', type => 'List', formList => 1,
+                 removable => 1, emptyOK => 1, hidden => 1},
+     'list'  => {type => 'List', hidden => 1},
+    },
+    flags => {
+      NumberCheck => 
+        sub {shift->Error("Entries in your list must be variable names")},
+      formatStudentAnswer => 'evaluated',  # or 'parsed' or 'reduced'
+    },
+  );
+
+  main::Context("VariableList");  ### FIXME:  probably should require author to set this explicitly.
+}
+
 
 #
 #  A shell that calls Formula()->cmp with the right defaults
