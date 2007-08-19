@@ -114,7 +114,7 @@ sub Init {
   #
   $context->variables->clear;
   $context->constants->clear;
-  $context->parens->remove('(','[','{','|');
+  $context->parens->clear;
   $context->operators->clear;
   $context->functions->clear;
   $context->strings->clear;
