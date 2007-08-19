@@ -1,6 +1,6 @@
 loadMacros("MathObjects.pl");
 
-sub _contextLimitedVector_init {}; # don't load it again
+sub _contextLimitedVector_init {LimitedVector::Init()}; # don't load it again
 
 =head3 Context("LimitedVector")
 
@@ -29,6 +29,7 @@ sub _contextLimitedVector_init {}; # don't load it again
 
 =cut
 
+##################################################
 #
 #  Handle common checking for BOPs
 #
@@ -203,48 +204,56 @@ sub _check {
 ##############################################
 ##############################################
 
-package main;
+package LimitedVector;
 
-#
-#  Now build the new context that calls the
-#  above classes rather than the usual ones
-#
+sub Init {
+  #
+  #  Build the new context that calls the
+  #  above classes rather than the usual ones
+  #
 
-$context{LimitedVector} = Parser::Context->getCopy("Vector");
-$context{LimitedVector}->operators->set(
-   '+' => {class => 'LimitedVector::BOP::add'},
-   '-' => {class => 'LimitedVector::BOP::subtract'},
-   '*' => {class => 'LimitedVector::BOP::multiply'},
-  '* ' => {class => 'LimitedVector::BOP::multiply'},
-  ' *' => {class => 'LimitedVector::BOP::multiply'},
-   ' ' => {class => 'LimitedVector::BOP::multiply'},
-   '/' => {class => 'LimitedVector::BOP::divide'},
-  ' /' => {class => 'LimitedVector::BOP::divide'},
-  '/ ' => {class => 'LimitedVector::BOP::divide'},
-  'u+' => {class => 'LimitedVector::UOP::plus'},
-  'u-' => {class => 'LimitedVector::UOP::minus'},
-);
-#
-#  Remove these operators and functions
-#
-$context{LimitedVector}->operators->undefine('_','U','><','.');
-$context{LimitedVector}->functions->undefine('norm','unit');
-$context{LimitedVector}->lists->set(
-  AbsoluteValue => {class => 'LimitedVector::List::AbsoluteValue'},
-  Vector        => {class => 'LimitedVector::List::Vector'},
-);
-#
-#  Format can be 'coordinate', 'ijk', or 'either'
-#
-$context{LimitedVector}->flags->set(vector_format => 'either');
+  my $context = $main::context{LimitedVector} = Parser::Context->getCopy("Vector");
+  $context->operators->set(
+     '+' => {class => 'LimitedVector::BOP::add'},
+     '-' => {class => 'LimitedVector::BOP::subtract'},
+     '*' => {class => 'LimitedVector::BOP::multiply'},
+    '* ' => {class => 'LimitedVector::BOP::multiply'},
+    ' *' => {class => 'LimitedVector::BOP::multiply'},
+     ' ' => {class => 'LimitedVector::BOP::multiply'},
+     '/' => {class => 'LimitedVector::BOP::divide'},
+    ' /' => {class => 'LimitedVector::BOP::divide'},
+    '/ ' => {class => 'LimitedVector::BOP::divide'},
+    'u+' => {class => 'LimitedVector::UOP::plus'},
+    'u-' => {class => 'LimitedVector::UOP::minus'},
+  );
+  #
+  #  Remove these operators and functions
+  #
+  $context->operators->undefine('_','U','><','.');
+  $context->functions->undefine('norm','unit');
+  $context->lists->set(
+    AbsoluteValue => {class => 'LimitedVector::List::AbsoluteValue'},
+    Vector        => {class => 'LimitedVector::List::Vector'},
+  );
+  #
+  #  Format can be 'coordinate', 'ijk', or 'either'
+  #
+  $context->flags->set(vector_format => 'either');
 
-$context{'LimitedVector-ijk'} = $context{LimitedVector}->copy;
-$context{'LimitedVector-ijk'}->flags->set(vector_format => 'ijk');
+  #########################
 
-$context{'LimitedVector-coordinate'} = $context{LimitedVector}->copy;
-$context{'LimitedVector-coordinate'}->flags->set(vector_format => 'coordinate');
-$context{'LimitedVector-coordinate'}->constants->undefine('i','j','k');
+  $context = $main::context{'LimitedVector-ijk'} = $main::context{LimitedVector}->copy;
+  $context->flags->set(vector_format => 'ijk');
 
-Context("LimitedVector");
+  #########################
+
+  $context = $main::context{'LimitedVector-coordinate'} = $main::context{LimitedVector}->copy;
+  $context->flags->set(vector_format => 'coordinate');
+  $context->constants->undefine('i','j','k');
+
+  #########################
+
+  main::Context("LimitedVector");  ### FIXME:  probably should require author to set this explicitly
+}
 
 1;

@@ -1,6 +1,6 @@
 loadMacros("MathObjects.pl");
 
-sub _contextLimitedComplex_init {}; # don't load it again
+sub _contextLimitedComplex_init {LimitedComplex::Init()}; # don't load it again
 
 =head3 Context("LimitedComplex")
 
@@ -46,6 +46,7 @@ sub _contextLimitedComplex_init {}; # don't load it again
 
 =cut
 
+##################################################
 #
 #  Handle common checking for BOPs
 #
@@ -219,62 +220,76 @@ sub _check {
 ##############################################
 ##############################################
 
-package main;
+package LimitedComplex;
 
-#
-#  Now build the new context that calls the
-#  above classes rather than the usual ones
-#
+sub Init {
 
-$context{LimitedComplex} = Parser::Context->getCopy("Complex");
-$context{LimitedComplex}->operators->set(
-   '+' => {class => 'LimitedComplex::BOP::add'},
-   '-' => {class => 'LimitedComplex::BOP::subtract'},
-   '*' => {class => 'LimitedComplex::BOP::multiply'},
-  '* ' => {class => 'LimitedComplex::BOP::multiply'},
-  ' *' => {class => 'LimitedComplex::BOP::multiply'},
-   ' ' => {class => 'LimitedComplex::BOP::multiply'},
-   '/' => {class => 'LimitedComplex::BOP::divide'},
-  ' /' => {class => 'LimitedComplex::BOP::divide'},
-  '/ ' => {class => 'LimitedComplex::BOP::divide'},
-   '^' => {class => 'LimitedComplex::BOP::power'},
-  '**' => {class => 'LimitedComplex::BOP::power'},
-  'u+' => {class => 'LimitedComplex::UOP::plus'},
-  'u-' => {class => 'LimitedComplex::UOP::minus'},
-);
-#
-#  Remove these operators and functions
-#
-$context{LimitedComplex}->lists->set(
-  AbsoluteValue => {class => 'LimitedComplex::List::AbsoluteValue'},
-);
-$context{LimitedComplex}->operators->undefine('_','U');
-$context{LimitedComplex}->functions->disable('Complex');
-foreach my $fn ($context{LimitedComplex}->functions->names) 
-  {$context{LimitedComplex}->{functions}{$fn}{nocomplex} = 1}
-#
-#  Format can be 'cartesian', 'polar', or 'either'
-#
-$context{LimitedComplex}->flags->set(complex_format => 'either');
+  #
+  #  Build the new context that calls the
+  #  above classes rather than the usual ones
+  #
 
-$context{'LimitedComplex-cartesian'} = $context{LimitedComplex}->copy;
-$context{'LimitedComplex-cartesian'}->flags->set(complex_format => 'cartesian');
+  my $context = $main::context{LimitedComplex} = Parser::Context->getCopy("Complex");
+  $context->operators->set(
+     '+' => {class => 'LimitedComplex::BOP::add'},
+     '-' => {class => 'LimitedComplex::BOP::subtract'},
+     '*' => {class => 'LimitedComplex::BOP::multiply'},
+    '* ' => {class => 'LimitedComplex::BOP::multiply'},
+    ' *' => {class => 'LimitedComplex::BOP::multiply'},
+     ' ' => {class => 'LimitedComplex::BOP::multiply'},
+     '/' => {class => 'LimitedComplex::BOP::divide'},
+    ' /' => {class => 'LimitedComplex::BOP::divide'},
+    '/ ' => {class => 'LimitedComplex::BOP::divide'},
+     '^' => {class => 'LimitedComplex::BOP::power'},
+    '**' => {class => 'LimitedComplex::BOP::power'},
+    'u+' => {class => 'LimitedComplex::UOP::plus'},
+    'u-' => {class => 'LimitedComplex::UOP::minus'},
+  );
+  #
+  #  Remove these operators and functions
+  #
+  $context->lists->set(
+    AbsoluteValue => {class => 'LimitedComplex::List::AbsoluteValue'},
+  );
+  $context->operators->undefine('_','U');
+  $context->functions->disable('Complex');
+  foreach my $fn ($context->functions->names) {$context->{functions}{$fn}{nocomplex} = 1}
+  #
+  #  Format can be 'cartesian', 'polar', or 'either'
+  #
+  $context->flags->set(complex_format => 'either');
 
-$context{'LimitedComplex-polar'} = $context{LimitedComplex}->copy;
-$context{'LimitedComplex-polar'}->flags->set(complex_format => 'polar');
+  #########################
 
-$context{'LimitedComplex-cartesian-strict'} = $context{'LimitedComplex-cartesian'}->copy;
-$context{'LimitedComplex-cartesian-strict'}->flags->set(strict_numeric => 1);
-$context{'LimitedComplex-cartesian-strict'}->functions->disable('All');
+  $context = $main::context{'LimitedComplex-cartesian'} = $main::context{LimitedComplex}->copy;
+  $context->flags->set(complex_format => 'cartesian');
 
-$context{'LimitedComplex-polar-strict'} = $context{'LimitedComplex-polar'}->copy;
-$context{'LimitedComplex-polar-strict'}->flags->set(strict_numeric => 1);
-$context{'LimitedComplex-polar-strict'}->functions->disable('All');
+  #########################
 
-$context{'LimitedComplex-strict'} = $context{'LimitedComplex'}->copy;
-$context{'LimitedComplex-strict'}->flags->set(strict_numeric => 1);
-$context{'LimitedComplex-strict'}->functions->disable('All');
+  $context = $main::context{'LimitedComplex-polar'} = $main::context{LimitedComplex}->copy;
+  $context->flags->set(complex_format => 'polar');
 
-Context("LimitedComplex");
+  #########################
+
+  $context = $main::context{'LimitedComplex-cartesian-strict'} = $main::context{'LimitedComplex-cartesian'}->copy;
+  $context->flags->set(strict_numeric => 1);
+  $context->functions->disable('All');
+
+  #########################
+
+  $context = $main::context{'LimitedComplex-polar-strict'} = $main::context{'LimitedComplex-polar'}->copy;
+  $context->flags->set(strict_numeric => 1);
+  $context->functions->disable('All');
+
+  #########################
+
+  $context = $main::context{'LimitedComplex-strict'} = $main::context{'LimitedComplex'}->copy;
+  $context->flags->set(strict_numeric => 1);
+  $context->functions->disable('All');
+
+  #########################
+
+  main::Context("LimitedComplex");  ### FIXME:  probably should require the author to set this explicitly
+}
 
 1;

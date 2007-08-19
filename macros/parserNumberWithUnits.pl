@@ -1,7 +1,5 @@
 loadMacros('MathObjects.pl');
 
-sub _parserNumberWithUnits_init {}; # don't reload this file
-
 =head1 DESCRIPTION
 
  ######################################################################
@@ -28,6 +26,8 @@ sub _parserNumberWithUnits_init {}; # don't reload this file
 
 =cut
 
-sub NumberWithUnits {Parser::Legacy::NumberWithUnits->new(@_)}
+sub _parserNumberWithUnits_init {
+  main::PG_restricted_eval('sub NumberWithUnits {Parser::Legacy::NumberWithUnits->new(@_)}');
+}
 
 1;

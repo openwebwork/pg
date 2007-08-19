@@ -1,6 +1,6 @@
 loadMacros('MathObjects.pl');
 
-sub _contextIntegerFunctions_init {}; # don't reload this file
+sub _contextIntegerFunctions_init {context::IntegerFunctions2::Init()}; # don't reload this file
 
 =head3 Context("IntegerFunctions")
 
@@ -25,9 +25,7 @@ sub _contextIntegerFunctions_init {}; # don't reload this file
 
 =cut
 
-$context{IntegerFunctions} = Parser::Context->getCopy("Numeric");
-
-package IntegerFunction2;
+package context::IntegerFunction2;
 our @ISA = qw(Parser::Function::numeric2); # checks for 2 numeric inputs
 
 sub C {
@@ -45,13 +43,15 @@ sub P {
   return $P
 }
 
-package main;
+sub Init {
+  my $context = $main::context{IntegerFunctions} = Parser::Context->getCopy("Numeric");
 
-$context{'IntegerFunctions'}->functions->add(
-  C => {class => 'IntegerFunction2'},
-  P => {class => 'IntegerFunction2'},
-);
+  $context->functions->add(
+    C => {class => 'context::IntegerFunction2'},
+    P => {class => 'context::IntegerFunction2'},
+  );
 
-Context("IntegerFunctions");
+  main::Context("IntegerFunctions");
+}
 
 1;

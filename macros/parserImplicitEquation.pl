@@ -1,6 +1,6 @@
 loadMacros("MathObjects.pl");
 
-sub _parserImplicitEquation_init {}; # don't reload this file
+sub _parserImplicitEquation_init {ImplicitEquation::Init()}; # don't reload this file
 
 =head1 DESCRIPTION
 
@@ -128,34 +128,30 @@ sub _parserImplicitEquation_init {}; # don't reload this file
 =cut
 
 #
-#  Set up the context for ImplicitEquations and activate it
-#
-$context{ImplicitEquation} = Parser::Context->getCopy("Numeric");
-$context{ImplicitEquation}->variables->are(x=>'Real',y=>'Real');
-$context{ImplicitEquation}{precedence}{ImplicitEquation} = Context()->{precedence}{special};
-Parser::BOP::equality->Allow($context{ImplicitEquation});
-$context{ImplicitEquation}->flags->set(
-  ImplicitPoints => 10,
-  ImplicitTolerance => 1E-6,
-  ImplicitAbsoluteMinTolerance => 1E-3,
-  ImplicitAbsoluteMaxTolerance => 1,
-  ImplicitPointTolerance => 1E-9,
-  BisectionTolerance => .01,
-  BisectionCutoff => 40,
-);
-
-Context("ImplicitEquation");
-
-#
-#  Syntactic sugar for creating ImplicitEquations
-#
-sub ImplicitEquation {ImplicitEquation->new(@_)}
-
-#
 #  Create the ImplicitEquation package
 #
 package ImplicitEquation;
 our @ISA = qw(Value::Formula);
+
+sub Init {
+  my $context = $main::context{ImplicitEquation} = Parser::Context->getCopy("Numeric");
+  $context->variables->are(x=>'Real',y=>'Real');
+  $context{precedence}{ImplicitEquation} = $context->{precedence}{special};
+  Parser::BOP::equality->Allow($context);
+  $context->flags->set(
+    ImplicitPoints => 10,
+    ImplicitTolerance => 1E-6,
+    ImplicitAbsoluteMinTolerance => 1E-3,
+    ImplicitAbsoluteMaxTolerance => 1,
+    ImplicitPointTolerance => 1E-9,
+    BisectionTolerance => .01,
+    BisectionCutoff => 40,
+  );
+
+  main::Context("ImplicitEquation");  ### FIXEME:  probably should require author to set this explicitly
+
+  main::PG_restricted_eval('sub ImplicitEquation {ImplicitEquation->new(@_)}');
+}
 
 sub new {
   my $self = shift; my $class = ref($self) || $self;

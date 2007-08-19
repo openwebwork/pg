@@ -1,8 +1,6 @@
 loadMacros('MathObjects.pl','contextString.pl');
 
-Context("Numeric");
-
-sub _parserPopUp_init {}; # don't reload this file
+sub _parserPopUp_init {parserPopUp::Init()}; # don't reload this file
 
 =head1 DESCRIPTION
 
@@ -38,14 +36,20 @@ sub _parserPopUp_init {}; # don't reload this file
 
 =cut
 
-sub PopUp {parserPopUp->new(@_)}
-
 #
 #  The package that implements pop-up menus
 #
 package parserPopUp;
 our @ISA = qw(Value::String);
 
+#
+#  Setup the main:: namespace
+#
+sub Init {main::PG_restricted_eval('sub PopUp {parserPopUp->new(@_)}')}
+
+#
+#  Create a new PopUp object
+#
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $choices = shift; my $value = shift;
@@ -53,22 +57,23 @@ sub new {
     unless ref($choices) eq 'ARRAY';
   Value::Error("A PopUp's second argument should be the correct menu choice")
     unless defined($value) && $value ne "";
-  my $oldContext = main::Context();
-  my $context = $main::context{String}->copy;
-  main::Context($context);
+  my $context = Parser::Context->getCopy("String");
   $context->strings->add(map {$_=>{}} @{$choices});
-  my $self = bless Value::String->new($value), $class;
-  $self->{isValue} = 1; $self->{choices} = $choices;
-  $self->{context} = $context;
-  main::Context($oldContext);
+  my $self = bless $context->Package("String")->new($context,$value)->with(choices => $choices), $class;
   return $self;
 }
 
+#
+#  Create the menu list
+#
 sub menu {
   my $self = shift;
   main::pop_up_list($self->{choices});
 }
 
+#
+#  Answer rule is the menu list
+#
 sub ans_rule {shift->menu(@_)}
 
 1;

@@ -1,7 +1,5 @@
 loadMacros("MathObjects.pl","contextString.pl");
 
-sub _contextABCD_init {}; # don't load it again
-
 =head1 DESCRIPTION
 
  ##########################################################
@@ -34,20 +32,20 @@ sub _contextABCD_init {}; # don't load it again
 
 =cut
 
-$context{ABCD} = Parser::Context->getCopy("String");
-$context{ABCD}->strings->are(
- "A" => {},
- "B" => {},
- "C" => {},
- "D" => {},
-);
+sub _contextABCD_init {
+  my $context = $main::context{ABCD} = Parser::Context->getCopy("String");
+  $context->strings->are(
+    "A" => {},
+    "B" => {},
+    "C" => {},
+    "D" => {},
+   );
 
-$context{'ABCD-List'} = $context{ABCD}->copy;
-$context{'ABCD-List'}->operators->add(
-  ',' => $Parser::Context::Default::fullContext->operators->get(','),
-);
-$context{'ABCD-List'}->strings->add("NONE"=>{});
+  $context = $main::context{'ABCD-List'} = $context->copy;
+  $context->operators->redefine(',', from => "Full");
+  $context->strings->add("NONE"=>{});
 
-Context("ABCD");
+  main::Context("ABCD");  ### FIXME:  probably should make author select context explicitly
+}
 
 1;

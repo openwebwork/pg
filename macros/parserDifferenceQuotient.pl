@@ -1,7 +1,7 @@
 
 loadMacros('MathObjects.pl');
 
-sub _parserDifferenceQuotient_init {}; # don't reload this file
+sub _parserDifferenceQuotient_init {DifferenceQuotient::Init()}; # don't reload this file
 
 =head1 DESCRIPTION
 
@@ -36,12 +36,13 @@ sub _parserDifferenceQuotient_init {}; # don't reload this file
 
 =cut
 
-Context("Numeric");
-
-sub DifferenceQuotient {new DifferenceQuotient(@_)}
-
 package DifferenceQuotient;
 our @ISA = qw(Value::Formula);
+
+sub Init {
+  main::Context("Numeric");  ### FIXME:  probably should require author to set this explicitly
+  main::PG_restricted_eval('sub DifferenceQuotient {new DifferenceQuotient(@_)}');
+}
 
 sub new {
   my $self = shift; my $class = ref($self) || $self;
@@ -54,7 +55,7 @@ sub new {
   my $context = $current->copy;
   $context->variables->add($dx=>'Real') unless ($context->variables->get($dx));
   $q = bless $context->Package("Formula")->new($context,$formula), $class;
-  $q->{isValue} = 1; $q->{isFormula} = 1; $q->{'dx'} = $dx;
+  $q->{'dx'} = $dx;
   return $q;
 }
 

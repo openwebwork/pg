@@ -1,8 +1,6 @@
 
 loadMacros('MathObjects.pl');
 
-sub _parserFormulaWithUnits_init {}; # don't reload this file
-
 =head1 DESCRIPTION
 
  ######################################################################
@@ -32,7 +30,9 @@ sub _parserFormulaWithUnits_init {}; # don't reload this file
 
 =cut
 
-sub FormulaWithUnits {Parser::Legacy::FormulaWithUnits->new(@_)}
+sub _parserFormulaWithUnits_init {
+  main::PG_restricted_eval('sub FormulaWithUnits {Parser::Legacy::FormulaWithUnits->new(@_)}');
+}
 
 1;
 

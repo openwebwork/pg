@@ -1,7 +1,7 @@
 
 loadMacros("MathObjects.pl");
 
-sub _contextLimitedPolynomial_init {}; # don't load it again
+sub _contextLimitedPolynomial_init {LimitedPolynomial::Init()}; # don't load it again
 
 =head3 Context("LimitedPolynomial")
 
@@ -23,6 +23,7 @@ sub _contextLimitedPolynomial_init {}; # don't load it again
 
 =cut
 
+##################################################
 #
 #  Handle common checking for BOPs
 #
@@ -86,13 +87,15 @@ sub checkPowers {
   $self->{powers} = $l->{powers} || {}; delete $l->{powers};
   return 1 unless $r->{powers};
   foreach my $n (keys(%{$r->{powers}})) {
-    $self->Error("Polynomials can have at most one term of each degree")
+    $self->Error("Simplified polynomials can have at most one term of each degree")
       if $self->{powers}{$n} && $single;
     $self->{powers}{$n} = 1;
   }
   delete $r->{powers};
   return 1;
 }
+
+##################################################
 
 package LimitedPolynomial;
 
@@ -310,53 +313,55 @@ our @ISA = qw(LimitedPolynomial::Function Parser::Function::hyperbolic);
 ##############################################
 ##############################################
 
-package main;
+package LimitedPolynomial;
 
-#
-#  Now build the new context that calls the
-#  above classes rather than the usual ones
-#
+sub Init {
+  #
+  #  Build the new context that calls the
+  #  above classes rather than the usual ones
+  #
 
-$context{LimitedPolynomial} = Parser::Context->getCopy("Numeric");
-$context{LimitedPolynomial}->operators->set(
-   '+' => {class => 'LimitedPolynomial::BOP::add'},
-   '-' => {class => 'LimitedPolynomial::BOP::subtract'},
-   '*' => {class => 'LimitedPolynomial::BOP::multiply'},
-  '* ' => {class => 'LimitedPolynomial::BOP::multiply'},
-  ' *' => {class => 'LimitedPolynomial::BOP::multiply'},
-   ' ' => {class => 'LimitedPolynomial::BOP::multiply'},
-   '/' => {class => 'LimitedPolynomial::BOP::divide'},
-  ' /' => {class => 'LimitedPolynomial::BOP::divide'},
-  '/ ' => {class => 'LimitedPolynomial::BOP::divide'},
-   '^' => {class => 'LimitedPolynomial::BOP::power'},
-  '**' => {class => 'LimitedPolynomial::BOP::power'},
-  'u+' => {class => 'LimitedPolynomial::UOP::plus'},
-  'u-' => {class => 'LimitedPolynomial::UOP::minus'},
-);
-#
-#  Remove these operators and functions
-#
-$context{LimitedPolynomial}->lists->set(
-  AbsoluteValue => {class => 'LimitedPolynomial::List::AbsoluteValue'},
-);
-$context{LimitedPolynomial}->operators->undefine('_','!','U');
-$context{LimitedPolynomial}->functions->disable("atan2");
-#
-#  Hook into the numeric, trig, and hyperbolic functions
-#
-foreach ('ln','log','log10','exp','sqrt','abs','int','sgn') {
-  $context{LimitedPolynomial}->functions->set(
-    "$_"=>{class => 'LimitedPolynomial::Function::numeric'}
+  my $context = $main::context{LimitedPolynomial} = Parser::Context->getCopy("Numeric");
+  $context->operators->set(
+     '+' => {class => 'LimitedPolynomial::BOP::add'},
+     '-' => {class => 'LimitedPolynomial::BOP::subtract'},
+     '*' => {class => 'LimitedPolynomial::BOP::multiply'},
+    '* ' => {class => 'LimitedPolynomial::BOP::multiply'},
+    ' *' => {class => 'LimitedPolynomial::BOP::multiply'},
+     ' ' => {class => 'LimitedPolynomial::BOP::multiply'},
+     '/' => {class => 'LimitedPolynomial::BOP::divide'},
+    ' /' => {class => 'LimitedPolynomial::BOP::divide'},
+    '/ ' => {class => 'LimitedPolynomial::BOP::divide'},
+     '^' => {class => 'LimitedPolynomial::BOP::power'},
+    '**' => {class => 'LimitedPolynomial::BOP::power'},
+    'u+' => {class => 'LimitedPolynomial::UOP::plus'},
+    'u-' => {class => 'LimitedPolynomial::UOP::minus'},
   );
-}
-foreach ('sin','cos','tan','sec','csc','cot',
-         'asin','acos','atan','asec','acsc','acot') {
-  $context{LimitedPolynomial}->functions->set(
-     "$_"=>{class => 'LimitedPolynomial::Function::trig'},
-     "${_}h"=>{class => 'LimitedPolynomial::Function::hyperbolic'}
+  #
+  #  Remove these operators and functions
+  #
+  $context->lists->set(
+    AbsoluteValue => {class => 'LimitedPolynomial::List::AbsoluteValue'},
   );
-}
+  $context->operators->undefine('_','!','U');
+  $context->functions->disable("atan2");
+  #
+  #  Hook into the numeric, trig, and hyperbolic functions
+  #
+  foreach ('ln','log','log10','exp','sqrt','abs','int','sgn') {
+    $context->functions->set(
+      "$_"=>{class => 'LimitedPolynomial::Function::numeric'}
+    );
+  }
+  foreach ('sin','cos','tan','sec','csc','cot',
+           'asin','acos','atan','asec','acsc','acot') {
+    $context->functions->set(
+       "$_"=>{class => 'LimitedPolynomial::Function::trig'},
+       "${_}h"=>{class => 'LimitedPolynomial::Function::hyperbolic'}
+    );
+  }
 
-Context("LimitedPolynomial");
+  main::Context("LimitedPolynomial");  ### FIXME:  probably should require author to set this explicitly
+}
 
 1;

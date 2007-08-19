@@ -1,7 +1,7 @@
 
 loadMacros("MathObjects.pl");
 
-sub _contextLimitedPoint_init {}; # don't load it again
+sub _contextLimitedPoint_init {LimitedPoint::Init()}; # don't load it again
 
 =head3 Context("LimitedPoint")
 
@@ -15,6 +15,7 @@ sub _contextLimitedPoint_init {}; # don't load it again
 
 =cut
 
+##################################################
 #
 #  Handle common checking for BOPs
 #
@@ -106,43 +107,45 @@ sub _check {
 ##############################################
 ##############################################
 
-package main;
+package LimitedPoint;
 
-#
-#  Now build the new context that calls the
-#  above classes rather than the usual ones
-#
+sub Init {
+  #
+  #  Build the new context that calls the
+  #  above classes rather than the usual ones
+  #
 
-$context{LimitedPoint} = Parser::Context->getCopy("Point");
-$context{LimitedPoint}->operators->set(
-   '+' => {class => 'LimitedPoint::BOP::add'},
-   '-' => {class => 'LimitedPoint::BOP::subtract'},
-   '*' => {class => 'LimitedPoint::BOP::multiply'},
-  '* ' => {class => 'LimitedPoint::BOP::multiply'},
-  ' *' => {class => 'LimitedPoint::BOP::multiply'},
-   ' ' => {class => 'LimitedPoint::BOP::multiply'},
-   '/' => {class => 'LimitedPoint::BOP::divide'},
-  ' /' => {class => 'LimitedPoint::BOP::divide'},
-  '/ ' => {class => 'LimitedPoint::BOP::divide'},
-  'u+' => {class => 'LimitedPoint::UOP::plus'},
-  'u-' => {class => 'LimitedPoint::UOP::minus'},
-);
-#
-#  Remove these operators and functions
-#
-$context{LimitedPoint}->operators->undefine('_','U','><','.');
-$context{LimitedPoint}->functions->undefine('norm','unit');
-$context{LimitedPoint}->lists->set(
-  AbsoluteValue => {class => 'LimitedPoint::List::AbsoluteValue'},
-);
-$context{LimitedPoint}->parens->set(
-  '(' => {formMatrix => 0},
-  '[' => {formMatrix => 0},
-);
-$context{LimitedPoint}->parens->remove('<');
-$context{LimitedPoint}->variables->are(x=>'Real');
-$context{LimitedPoint}->constants->remove('i','j','k');
+  my $context = $main::context{LimitedPoint} = Parser::Context->getCopy("Point");
+  $context->operators->set(
+    '+' => {class => 'LimitedPoint::BOP::add'},
+    '-' => {class => 'LimitedPoint::BOP::subtract'},
+    '*' => {class => 'LimitedPoint::BOP::multiply'},
+   '* ' => {class => 'LimitedPoint::BOP::multiply'},
+   ' *' => {class => 'LimitedPoint::BOP::multiply'},
+    ' ' => {class => 'LimitedPoint::BOP::multiply'},
+    '/' => {class => 'LimitedPoint::BOP::divide'},
+   ' /' => {class => 'LimitedPoint::BOP::divide'},
+   '/ ' => {class => 'LimitedPoint::BOP::divide'},
+   'u+' => {class => 'LimitedPoint::UOP::plus'},
+   'u-' => {class => 'LimitedPoint::UOP::minus'},
+ );
+  #
+  #  Remove these operators and functions
+  #
+  $context->operators->undefine('_','U','><','.');
+  $context->functions->undefine('norm','unit');
+  $context->lists->set(
+    AbsoluteValue => {class => 'LimitedPoint::List::AbsoluteValue'},
+  );
+  $context->parens->set(
+    '(' => {formMatrix => 0},
+    '[' => {formMatrix => 0},
+  );
+  $context->parens->remove('<');
+  $context->variables->are(x=>'Real');
+  $context->constants->remove('i','j','k');
 
-Context("LimitedPoint");
+  main::Context("LimitedPoint");  ### FIXME:  probably should require author to set this explicitly
+}
 
 1;

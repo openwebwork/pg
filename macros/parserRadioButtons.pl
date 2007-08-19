@@ -1,6 +1,6 @@
 loadMacros('MathObjects.pl','contextString.pl');
 
-sub _parserRadioButtons_init {}; # don't reload this file
+sub _parserRadioButtons_init {parserRadioButtons::Init()}; # don't reload this file
 
 =head1 DESCRIPTION
 
@@ -68,8 +68,7 @@ sub _parserRadioButtons_init {}; # don't reload this file
 
 =cut
 
-sub RadioButtons {parserRadioButtons->new(@_)}
-
+##################################################
 #
 #  The package that implements RadioButtons
 #
@@ -78,6 +77,13 @@ our @ISA = qw(Value::String);
 
 my $jsPrinted = 0;  # true when the JavaScript has been printed
 
+#
+#  Set up the main:: namespace
+#
+sub Init {
+  $jsPrinted = 0;
+  main::PG_restricted_eval('sub RadioButtons {parserRadioButtons->new(@_)}');
+}
 
 #
 #  Create a new RadioButtons object
@@ -106,8 +112,7 @@ sub new {
   my %choiceHash = $self->choiceHash(1);
   $context->strings->add(map {$_=>{}} (keys %choiceHash));
   $value = $self->correctChoice($value);
-  $self = bless $context->Package("String")->new($context,$value)->with(
-    isValue => 1, choices => $choices, %options), $class;
+  $self = bless $context->Package("String")->new($context,$value)->with(choices => $choices, %options), $class;
   $self->JavaScript if $self->{uncheckable};
   return $self;
 }

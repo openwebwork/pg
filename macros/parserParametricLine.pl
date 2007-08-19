@@ -1,6 +1,6 @@
 loadMacros('MathObjects.pl');
 
-sub _parserParametricLine_init {}; # don't reload this file
+sub _parserParametricLine_init {ParametricLine::Init()}; # don't reload this file
 
 =head1 DESCRIPTION
 
@@ -42,28 +42,21 @@ sub _parserParametricLine_init {}; # don't reload this file
 =cut
 
 #
-#  Define a new context for lines
-#
-$context{ParametricLine} = Parser::Context->getCopy("Vector");
-$context{ParametricLine}->variables->are(t=>'Real');
-$context{ParametricLine}->{precedence}{ParametricLine} =
-  $context{ParametricLine}->{precedence}{special};
-$context{ParametricLine}->reduction->set('(-x)-y'=>0);
-#
-#  Make it active
-#
-Context("ParametricLine");
-
-#
-#  Syntactic sugar
-#
-sub ParametricLine {ParametricLine->new(@_)}
-
-#
 #  Define the subclass of Formula
 #
 package ParametricLine;
 our @ISA = qw(Value::Formula);
+
+sub Init {
+  my $context = $main::context{ParametricLine} = Parser::Context->getCopy("Vector");
+  $context->variables->are(t=>'Real');
+  $context->{precedence}{ParametricLine} = $context->{precedence}{special};
+  $context->reduction->set('(-x)-y'=>0);
+
+  main::Context("ParametricLine");  ### FIXME:  probably should require author to set this explicitly
+
+  main::PG_restricted_eval('sub ParametricLine {ParametricLine->new(@_)}');
+}
 
 sub new {
   my $self = shift; my $class = ref($self) || $self;
@@ -95,14 +88,14 @@ sub new {
   return bless $line, $class;
 }
 
-=head3 compare($lhs,$rhs)
+=head3 $lhs == $rhs
 
-#
-#  Two parametric lines are equal if they have
-#  parallel direction vectors and either the same
-#  points or the vector between the points is
-#  parallel to the (common) direction vector.
-#
+ #
+ #  Two parametric lines are equal if they have
+ #  parallel direction vectors and either the same
+ #  points or the vector between the points is
+ #  parallel to the (common) direction vector.
+ #
 
 =cut
 
@@ -129,7 +122,7 @@ sub cmp_defaults {(
 #
 sub cmp_postprocess {
   my $self = shift; my $ans = shift;
-  my $error = $sef->context->{error}{message};
+  my $error = $self->context->{error}{message};
   $self->cmp_error($ans)
     if $error =~ m/^(Your formula (isn't linear|doesn't look)|A line can't|The direction vector)/;
 }

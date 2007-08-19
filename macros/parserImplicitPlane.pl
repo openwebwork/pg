@@ -1,6 +1,6 @@
 loadMacros('MathObjects.pl');
 
-sub _parserImplicitPlane_init {}; # don't reload this file
+sub _parserImplicitPlane_init {ImplicitPlane::Init()}; # don't reload this file
 
 =head1 DESCRIPTION
 
@@ -50,30 +50,24 @@ sub _parserImplicitPlane_init {}; # don't reload this file
 
 =cut
 
-#
-#  Create a context for implicit planes and activate it
-#
-$context{ImplicitPlane} = Parser::Context->getCopy("Vector");
-$context{ImplicitPlane}->{precedence}{ImplicitPlane} = $context{ImplicitPlane}->{precedence}{special};
-#$context{ImplicitPlane}->{value}{Equality} = "ImplicitPlane::equality";
-#
-# allow equalities in formulas
-#
-Parser::BOP::equality->Allow($context{ImplicitPlane});
-$context{ImplicitPlane}->operators->set('=' => {class => 'ImplicitPlane::equality'});
-
-Context("ImplicitPlane");
-
-#
-#  Syntactic sugar for creating implicit planes
-#
-sub ImplicitPlane {ImplicitPlane->new(@_)}
-
+##################################################
 #
 #  Define the subclass of Formula
 #
 package ImplicitPlane;
 our @ISA = qw(Value::Formula);
+
+sub Init {
+  my $context = $main::context{ImplicitPlane} = Parser::Context->getCopy("Vector");
+  $context->{precedence}{ImplicitPlane} = $context->{precedence}{special};
+  #$context->{value}{Equality} = "ImplicitPlane::equality";
+  Parser::BOP::equality->Allow($context);
+  $context->operators->set('=' => {class => 'ImplicitPlane::equality'});
+
+  main::Context("ImplicitPlane");  ### FIXME:  probably should require authors to set this explicitly
+
+  main::PG_restricted_eval('sub ImplicitPlane {ImplicitPlane->new(@_)}');
+}
 
 sub new {
   my $self = shift; my $class = ref($self) || $self;
@@ -137,7 +131,6 @@ sub new {
   Value::Error("The equation of a %s must be non-zero somewhere",$type)
     if ($N->norm == 0);
   $plane->{d} = $d; $plane->{N} = $N; $plane->{implicit} = $type;
-  $plane->{isValue} = $plane->{isFormula} = 1;
   return bless $plane, $class;
 }
 

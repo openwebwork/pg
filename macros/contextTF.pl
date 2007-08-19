@@ -1,7 +1,5 @@
 loadMacros("MathObjects.pl","contextString.pl");
 
-sub _contextTF_init {}; # don't load it again
-
 =head3 Context("TF")
 
  ##########################################################
@@ -24,14 +22,17 @@ sub _contextTF_init {}; # don't load it again
 
 =cut
 
-$context{TF} = Parser::Context->getCopy("String");
-$context{TF}->strings->are(
- "T" => {value => 1},
- "F" => {value => 0},
- "True" => {alias => "T"},
- "False" => {alias => "F"},
-);
+sub _contextTF_init {
 
-Context("TF");
+  my $context = $main::context{TF} = Parser::Context->getCopy("String");
+  $context->strings->are(
+    "T" => {value => 1},
+    "F" => {value => 0},
+    "True" => {alias => "T"},
+    "False" => {alias => "F"},
+  );
+
+  main::Context("TF");  ### FIXME:  probably should require author to set this explicitly
+}
 
 1;

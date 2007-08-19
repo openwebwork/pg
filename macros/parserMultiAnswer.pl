@@ -1,4 +1,4 @@
-sub _parserMultiAnswer_init {}
+loadMacros("MathObjects.pl");
 
 =head3 MultiAnswer
 
@@ -84,6 +84,12 @@ sub _parserMultiAnswer_init {}
  ######################################################################
 
 =cut
+
+sub _parserMultiAnswer_init {
+  main::PG_restricted_eval('sub MultiAnswer {MultiAnswer->new(@_)}');
+}
+
+##################################################
 
 package MultiAnswer;
 our @ISA = qw(Value);
@@ -441,12 +447,5 @@ sub ans_array {
 }
 
 ######################################################################
-
-package main;
-
-#
-#  Main routine to create MultiAnswer items.
-#
-sub MultiAnswer {MultiAnswer->new(@_)};
 
 1;
