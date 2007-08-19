@@ -1,7 +1,7 @@
 
 loadMacros('MathObjects.pl');
 
-sub _parserFunction_init {}; # don't reload this file
+sub _parserFunction_init {parserFunction::Init()}; # don't reload this file
 
 =head1 DESCRIPTION
 
@@ -37,13 +37,15 @@ sub _parserFunction_init {}; # don't reload this file
 
 =cut
 
-sub parserFunction {parserFunction->Create(@_)}
-
 #
 #  The package that will manage user-defined functions
 #
 package parserFunction;
 our @ISA = qw(Parser::Function);
+
+sub Init {
+  main::PG_restricted_eval('sub parserFunction {parserFunction->Create(@_)}');
+}
 
 sub Create {
   my $self = shift; my $name = shift; my $formula = shift;
@@ -126,10 +128,10 @@ sub _call {
 
 =head3 ($Function)->D
 
-#
-#  Compute the derivative of (single-variable) functions
-#    using the chain rule.
-#
+ #
+ #  Compute the derivative of (single-variable) functions
+ #    using the chain rule.
+ #
 
 =cut
 
@@ -143,14 +145,9 @@ sub D {
   return (($Df->substitute($x=>$g))*($g->D(@_)))->{tree}->reduce;
 }
 
-=head3 NameForNumber($number)
-
 #
 #  Get the name for a number
 #
-
-=cut
-
 sub NameForNumber {
   my $n = shift;
   my $name =  ('zeroth','first','second','third','fourth','fifth',
