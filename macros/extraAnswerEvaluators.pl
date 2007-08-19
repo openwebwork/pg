@@ -1,4 +1,4 @@
-loadMacros('Parser.pl');
+loadMacros('MathObjects.pl');
 
 =head1 NAME
 

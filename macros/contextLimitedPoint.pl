@@ -1,5 +1,5 @@
 
-loadMacros("Parser.pl");
+loadMacros("MathObjects.pl");
 
 sub _contextLimitedPoint_init {}; # don't load it again
 

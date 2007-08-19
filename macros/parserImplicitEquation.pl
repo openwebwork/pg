@@ -1,4 +1,4 @@
-loadMacros("Parser.pl");
+loadMacros("MathObjects.pl");
 
 sub _parserImplicitEquation_init {}; # don't reload this file
 

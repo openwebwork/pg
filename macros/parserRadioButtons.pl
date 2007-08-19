@@ -1,4 +1,4 @@
-loadMacros('Parser.pl','contextString.pl');
+loadMacros('MathObjects.pl','contextString.pl');
 
 sub _parserRadioButtons_init {}; # don't reload this file
 
