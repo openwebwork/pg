@@ -607,7 +607,7 @@ sub protectHTML {
 #
 sub preformat {
   my $string = protectHTML(shift);
-  $string =~ s!\n!<br />!g;
+  $string =~ s!\n!<br />!g if eval('$main::displayMode') eq 'TeX';
   $string;
 }
 
