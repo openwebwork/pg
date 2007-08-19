@@ -34,7 +34,7 @@ sub _contextABCD_init {}; # don't load it again
 
 =cut
 
-$context{ABCD} = Parser::Context->getCopy(undef,"String");
+$context{ABCD} = Parser::Context->getCopy("String");
 $context{ABCD}->strings->are(
  "A" => {},
  "B" => {},

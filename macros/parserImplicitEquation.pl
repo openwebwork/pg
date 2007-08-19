@@ -130,7 +130,7 @@ sub _parserImplicitEquation_init {}; # don't reload this file
 #
 #  Set up the context for ImplicitEquations and activate it
 #
-$context{ImplicitEquation} = Parser::Context->getCopy(undef,"Numeric");
+$context{ImplicitEquation} = Parser::Context->getCopy("Numeric");
 $context{ImplicitEquation}->variables->are(x=>'Real',y=>'Real');
 $context{ImplicitEquation}{precedence}{ImplicitEquation} = Context()->{precedence}{special};
 Parser::BOP::equality->Allow($context{ImplicitEquation});

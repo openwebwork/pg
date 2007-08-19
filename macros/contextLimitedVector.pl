@@ -210,7 +210,7 @@ package main;
 #  above classes rather than the usual ones
 #
 
-$context{LimitedVector} = Parser::Context->getCopy(undef,"Vector");
+$context{LimitedVector} = Parser::Context->getCopy("Vector");
 $context{LimitedVector}->operators->set(
    '+' => {class => 'LimitedVector::BOP::add'},
    '-' => {class => 'LimitedVector::BOP::subtract'},

@@ -99,6 +99,8 @@
 
 =cut
 
+loadMacros("MathObjects.pl");
+
 sub _contextCurrency_init {Currency::Init()}
 
 ######################################################################
@@ -168,7 +170,7 @@ sub new {
     associativity => "left",
     @_,
   );
-  my $context = bless Parser::Context->getCopy(undef,"Numeric"), $class;
+  my $context = bless Parser::Context->getCopy("Numeric"), $class;
   $context->{_initialized} = 0;
   $context->{_currency} = new Currency::Context::currency($context,%data);
   my $symbol = $context->{currency}{symbol};

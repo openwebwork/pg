@@ -53,7 +53,7 @@ sub _parserImplicitPlane_init {}; # don't reload this file
 #
 #  Create a context for implicit planes and activate it
 #
-$context{ImplicitPlane} = Parser::Context->getCopy(undef,"Vector");
+$context{ImplicitPlane} = Parser::Context->getCopy("Vector");
 $context{ImplicitPlane}->{precedence}{ImplicitPlane} = $context{ImplicitPlane}->{precedence}{special};
 #$context{ImplicitPlane}->{value}{Equality} = "ImplicitPlane::equality";
 #

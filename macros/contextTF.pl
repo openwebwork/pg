@@ -24,7 +24,7 @@ sub _contextTF_init {}; # don't load it again
 
 =cut
 
-$context{TF} = Parser::Context->getCopy(undef,"String");
+$context{TF} = Parser::Context->getCopy("String");
 $context{TF}->strings->are(
  "T" => {value => 1},
  "F" => {value => 0},

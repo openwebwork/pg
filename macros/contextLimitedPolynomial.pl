@@ -317,7 +317,7 @@ package main;
 #  above classes rather than the usual ones
 #
 
-$context{LimitedPolynomial} = Parser::Context->getCopy(undef,"Numeric");
+$context{LimitedPolynomial} = Parser::Context->getCopy("Numeric");
 $context{LimitedPolynomial}->operators->set(
    '+' => {class => 'LimitedPolynomial::BOP::add'},
    '-' => {class => 'LimitedPolynomial::BOP::subtract'},

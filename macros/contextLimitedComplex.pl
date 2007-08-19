@@ -226,7 +226,7 @@ package main;
 #  above classes rather than the usual ones
 #
 
-$context{LimitedComplex} = Parser::Context->getCopy(undef,"Complex");
+$context{LimitedComplex} = Parser::Context->getCopy("Complex");
 $context{LimitedComplex}->operators->set(
    '+' => {class => 'LimitedComplex::BOP::add'},
    '-' => {class => 'LimitedComplex::BOP::subtract'},

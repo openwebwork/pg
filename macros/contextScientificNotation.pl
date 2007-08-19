@@ -91,6 +91,8 @@
 
 =cut
 
+loadMacros("MathObjects.pl");
+
 sub _contextScientificNotation_init {ScientificNotation::Init()}
 
 ######################################################################
@@ -104,7 +106,7 @@ sub Init {
   #
   #  Create the Scientific Notation context
   #
-  my $context = $main::context{ScientificNotation} = Parser::Context->getCopy(undef,"Numeric");
+  my $context = $main::context{ScientificNotation} = Parser::Context->getCopy("Numeric");
 
   #
   #  Make numbers include the leading + or - and not allow E notation

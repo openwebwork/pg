@@ -44,7 +44,7 @@ sub _parserParametricLine_init {}; # don't reload this file
 #
 #  Define a new context for lines
 #
-$context{ParametricLine} = Parser::Context->getCopy(undef,"Vector");
+$context{ParametricLine} = Parser::Context->getCopy("Vector");
 $context{ParametricLine}->variables->are(t=>'Real');
 $context{ParametricLine}->{precedence}{ParametricLine} =
   $context{ParametricLine}->{precedence}{special};

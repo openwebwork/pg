@@ -113,7 +113,7 @@ package main;
 #  above classes rather than the usual ones
 #
 
-$context{LimitedPoint} = Parser::Context->getCopy(undef,"Point");
+$context{LimitedPoint} = Parser::Context->getCopy("Point");
 $context{LimitedPoint}->operators->set(
    '+' => {class => 'LimitedPoint::BOP::add'},
    '-' => {class => 'LimitedPoint::BOP::subtract'},

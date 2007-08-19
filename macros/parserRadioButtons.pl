@@ -102,7 +102,7 @@ sub new {
     unless ref($choices) eq 'ARRAY';
   Value::Error("A RadioButton's second argument should be the correct button choice")
     unless defined($value) && $value ne "";
-  my $context = Parser::Context->getCopy(undef,"String");
+  my $context = Parser::Context->getCopy("String");
   my %choiceHash = $self->choiceHash(1);
   $context->strings->add(map {$_=>{}} (keys %choiceHash));
   $value = $self->correctChoice($value);

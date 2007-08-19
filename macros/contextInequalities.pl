@@ -44,6 +44,8 @@
 
 =cut
 
+loadMacros("MathObjects.pl");
+
 sub _contextInequalities_init {Inequalities::Init()}
 
 ##################################################
@@ -54,7 +56,7 @@ package Inequalities;
 #  Sets up the two inequality contexts
 #
 sub Init {
-  my $context = $main::context{Inequalities} = Parser::Context->getCopy(undef,"Interval");
+  my $context = $main::context{Inequalities} = Parser::Context->getCopy("Interval");
   $context->operators->add(
      '<'  => {precedence => .5, associativity => 'left', type => 'bin', string => ' < ',
               class => 'Inequalities::BOP::inequality', eval => 'evalLessThan', combine => 1},
