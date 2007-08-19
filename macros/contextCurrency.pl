@@ -99,6 +99,27 @@ sub _contextCurrency_init {Currency::Init()}
  #
  #  would allow the student to enter just 150 rather than $150.
  #
+ #  By default, the students may omit the commas, but you can
+ #  force them to supply the commas using forceCommas=>1 in
+ #  your cmp() call.
+ #
+ #    ANS(Compute('$10,000.00')->cmp(forceCommas=>1));
+ #
+ #  By default, students need not enter decimal digits, so could use
+ #  $100 or $1,000. as valid entries.  You can require that the cents
+ #  be provided using the forceDecimals=>1 flag.
+ #
+ #    ANS(Compute('$10.95')->cmp(forceDecimals=>1));
+ #
+ #  By default, if the monitary value includes decimals digits, it
+ #  must have exactly two.  You can weaken this requirement to all
+ #  any number of decimals by using noExtraDecimals=>0.
+ #
+ #    ANS(Compute('$10.23372')->cmp(noExtraDecimals=>0);
+ #
+ #  If forceDecimals is set to 1 at the same time, then they must
+ #  have 2 or more decimals, otherwise any number is OK.
+ #
  ######################################################################
 
 =cut
@@ -180,7 +201,14 @@ sub new {
     $symbol => {precedence => 10, associativity => $associativity, type => "unary", string => $symbol,
                 TeX => Currency::quoteTeX($symbol), class => 'Currency::UOP::currency'},
   );
-  $context->flags->set(tolerance => .005, tolType => "absolute", promoteReals => 1);
+  $context->flags->set(
+    tolerance => .005,
+    tolType => "absolute",
+    promoteReals => 1,
+    forceCommas => 0,
+    forceDecimals => 0,
+    noExtraDecimals => 1,
+  );
   $context->{_initialized} = 1;
   $context->update;
   $context->{error}{msg}{"Missing operand after '%s'"} = "There should be a number after '%s'";
@@ -316,7 +344,9 @@ our @ISA = ('Parser::Number');
 
 sub new {
   my $self = shift; my $equation = shift;
-  my $pattern = $equation->{context}{pattern};
+  my $context = $equation->{context};
+  my $pattern = $context->{pattern};
+  my $currency = $context->{currency};
   my $value = shift; my $value_string;
   if (ref($value) eq "") {
     $value_string = "$value";
@@ -348,16 +378,19 @@ package Currency::UOP::currency;
 our @ISA = ('Parser::UOP');
 
 sub _check {
-  my $self = shift; my $decimal = $self->context->{pattern}{currencyDecimal};
-  my $op = $self->{op};
+  my $self = shift;
+  my $context = $self->context;
+  my $decimal = $context->{pattern}{currencyDecimal};
+  my $op = $self->{op}; my $value = $op->{value_string};
   $self->Error("'%s' can only be used with numeric constants",$self->{uop})
     unless $op->type eq 'Number' && $op->class eq 'Number';
-  ### FIXME: these checks should be controlled by context flags
-  ###   (e.g., force to have decimals, allow extra decimals, force commas, etc.)
   $self->{ref} = $op->{ref}; # highlight the number, not the operator
+  $self->Error("You should have a '%s' every 3 digits",$context->{currency}{comma})
+    if $context->flag("forceCommas") && $value =~ m/\d\d\d\d/;
   $self->Error("Monetary values must have exactly two decimal places")
-   if $op->{value_string} && $op->{value_string} =~ m/$decimal\d/ &&
-      $op->{value_string} !~ m/$decimal\d\d$/;
+   if $value && $value =~ m/$decimal\d/ && $value !~ m/$decimal\d\d$/ && $context->flag('noExtraDecimals');
+  $self->Error("Monitary values require two decimal places",shift)
+    if $context->flag("forceDecimals") && $value !~ m/$decimal\d\d$/;
   $self->{type} = {%{$op->typeRef}};
   $self->{isCurrency} = 1;
 }
