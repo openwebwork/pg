@@ -52,7 +52,7 @@ sub _answerCustom_init {}; # don't reload this file
  #  For example, the following checks if a student entered
  #  a unit vector (any unit vector in R^3 will do):
  #
- #     custom_cmp("<1,2,3>",sub {
+ #     custom_cmp("<1,0,0>",sub {
  #       my ($correct,$student,$ans) = @_;
  #       return norm($student) == 1;
  #     });
