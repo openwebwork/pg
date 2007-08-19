@@ -10,9 +10,8 @@ use strict;
 #  Return the class name of an item
 #
 sub class {
-  my $self = ref(shift);
-  $self =~ s/[^:]*:://; $self =~ s/::.*//;
-  return $self;
+  my @parts = split(/::/,ref(shift));
+  return $parts[(scalar(@parts) > 2 ? -2 : -1)];
 }
 
 #
