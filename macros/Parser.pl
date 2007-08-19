@@ -55,13 +55,25 @@ sub Formula {Value->Package("Formula")->new(@_)}
 #
 #  will produce the equivalent of $x = Real(5).
 #
+#  The original parsed formula will be saved in the object's
+#  original_formula field, and can be obtained by
+#
+#    $x->{original_formula};
+#
+#  if needed later in the problem.
+#
 
 =cut
 
 sub Compute {
   my $string = shift;
   my $formula = Formula($string);
-  $formula = $formula->eval(@_) if scalar(@_) || $formula->isConstant;
+  $formula = $formula->{tree}->Compute if $formula->{tree}{canCompute};
+  if (scalar(@_) || $formula->isConstant) {
+    my $f = $formula;
+    $formula = $formula->eval(@_);
+    $formula->{original_formula} = $f;
+  }
   $formula->{correct_ans} = $string;
   return $formula;
 }
