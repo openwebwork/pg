@@ -350,10 +350,12 @@ sub classMatch {
   my $isHash = ($ref && $ref ne 'ARRAY' && $ref ne 'CODE');
   my $context = ($isHash ? $self->{context} || Value->context : Value->context);
   foreach my $name (@_) {
+    my $isName = "is".$name;
     return 1 if $class eq $name || $ref eq "Value::$name" ||
-                ($isHash && $self->{"is".$name}) ||
+                ($isHash && $self->{$isName}) ||
 		$ref eq $context->Package($name,1) ||
-		isa($self,"Value::$name");
+		(isa($self,"Value::$name") &&
+		   !($isHash && defined($self->{$isName}) && $self->{$isName} == 0));
   }
   return 0;
 }
