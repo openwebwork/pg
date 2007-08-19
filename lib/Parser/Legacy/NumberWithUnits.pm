@@ -87,8 +87,8 @@ sub TeXunits {
   $units =~ s/\*/\\,/g;
   return '{\rm '.$units.'}' unless $units =~ m!^(.*)/(.*)$!;
   my $displayMode = WeBWorK::PG::Translator::PG_restricted_eval(q!$main::displayMode!);
-  return '\frac{'.$1.'}{'.$2.'}' if ($displayMode eq 'HTML_tth');
-  return '\frac{\rm\mathstrut '.$1.'}{\rm\mathstrut '.$2.'}';
+  return '{\textstyle\frac{'.$1.'}{'.$2.'}}' if ($displayMode eq 'HTML_tth');
+  return '{\textstyle\frac{\rm\mathstrut '.$1.'}{\rm\mathstrut '.$2.'}}';
 }
 
 ##################################################
