@@ -4,28 +4,28 @@ sub _contextLimitedVector_init {}; # don't load it again
 
 =head3 Context("LimitedVector")
 
-##########################################################
-#
-#  Implements a context in which vectors can be entered,
-#  but no vector operations are permitted.  So students will
-#  be able to perform operations within the coordinates
-#  of the vectors, but not between vectors.
-#
-#  Vectors can still be entered either in < , , > or ijk format.
-#  Most of the complication here is to handle ijk format
-#  properly.  Each coordinate vector is allowed to appear
-#  only once, so we have to keep track of that, and allow
-#  SOME vector operations, but only when one term is
-#  one of the coordinate constants, or one of the formulas
-#  we've already OKed.
-#
-#  You control which format to use by setting the context
-#  to one of the following:
-#
-#	Context("LimitedVector-coordinate");
-#       Context("LimitedVector-ijk");
-#       Context("LimitedVector");      # either one
-#
+ ##########################################################
+ #
+ #  Implements a context in which vectors can be entered,
+ #  but no vector operations are permitted.  So students will
+ #  be able to perform operations within the coordinates
+ #  of the vectors, but not between vectors.
+ #
+ #  Vectors can still be entered either in < , , > or ijk format.
+ #  Most of the complication here is to handle ijk format
+ #  properly.  Each coordinate vector is allowed to appear
+ #  only once, so we have to keep track of that, and allow
+ #  SOME vector operations, but only when one term is
+ #  one of the coordinate constants, or one of the formulas
+ #  we've already OKed.
+ #
+ #  You control which format to use by setting the context
+ #  to one of the following:
+ #
+ #       Context("LimitedVector-coordinate");
+ #       Context("LimitedVector-ijk");
+ #       Context("LimitedVector");      # either one
+ #
 
 =cut
 
@@ -246,3 +246,5 @@ $context{'LimitedVector-coordinate'}->flags->set(vector_format => 'coordinate');
 $context{'LimitedVector-coordinate'}->constants->undefine('i','j','k');
 
 Context("LimitedVector");
+
+1;

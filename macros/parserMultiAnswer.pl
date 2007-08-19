@@ -92,67 +92,72 @@ our $count = 0;                      # counter for unique identifier for multi-p
 our $answerPrefix = "MuLtIaNsWeR";   # answer rule prefix
 our $separator = ';';                # separator for singleResult previews
 
-#
-#  Create a new MultiAnswer item from a list of items.
-#  The items are converted if Value items, if they aren't already.
-#  You can set the following fields of the resulting item:
-#
-#      checker => code            a subroutine to be called to check the
-#                                 student answers.  The routine is passed
-#                                 four parameters: a reference to the array
-#                                 or correct answers, a reference to the
-#                                 array of student answers, a reference to the
-#                                 MultiAnswer object itself, and a reference to
-#                                 the checker's answer hash.  The routine
-#                                 should return either a score or a reference
-#                                 to an array of scores (one for each answer).
-#
-#      singleResult => 0 or 1     whether to show only one entry in the
-#                                 results area at the top of the page,
-#                                 or one for each answer rule.
-#                                 (Default: 0)
-#
-#      namedRules => 0 or 1       whether to use named rules or default
-#                                 rule names.  Use named rules if you need
-#                                 to intersperse other rules with the
-#                                 ones for the MultiAnswer, in which case
-#                                 you must use NAMED_ANS not ANS.
-#                                 (Default: 0)
-#
-#      checkTypes => 0 or 1       whether the types of the student and
-#                                 professor's answers must match exactly
-#                                 or just pass the usual type-match error
-#                                 checking (in which case, you should check
-#                                 the types before you use the data).
-#	                          (Default: 1)
-#
-#      allowBlankAnswers=>0 or 1  whether to remove the blank-check prefilter
-#                                 from the answer checkers for the answer
-#                                 checkers used for type checking the student's
-#                                 answers.
-#                                 (Default: 0)
-#
-#      separator => string        the string to use between entries in the
-#                                 results area when singleResult is set.
-#                                 (Default: semicolon)
-#
-#      tex_separator => string    same, but for the preview area.
-#                                 (Default: semicolon followed by thinspace)
-#
-#      format => string           an sprintf-style string used to format the
-#                                 students answers for the results area
-#                                 when singleResults is true.  If undefined,
-#                                 the separator parameter (above) is used to
-#                                 form the string.
-#                                 (Default: undef)
-#
-#      tex_format => string       an sprintf-style string used to format the
-#                                 students answer previews when singleResults
-#                                 mode is in effect.  If undefined, the
-#                                 tex_separator (above) is used to form the
-#                                 string.
-#                                 (Default: undef)
-#
+=pod
+
+ #
+ #  Create a new MultiAnswer item from a list of items.
+ #  The items are converted if Value items, if they aren't already.
+ #  You can set the following fields of the resulting item:
+ #
+ #      checker => code            a subroutine to be called to check the
+ #                                 student answers.  The routine is passed
+ #                                 four parameters: a reference to the array
+ #                                 or correct answers, a reference to the
+ #                                 array of student answers, a reference to the
+ #                                 MultiAnswer object itself, and a reference to
+ #                                 the checker's answer hash.  The routine
+ #                                 should return either a score or a reference
+ #                                 to an array of scores (one for each answer).
+ #
+ #      singleResult => 0 or 1     whether to show only one entry in the
+ #                                 results area at the top of the page,
+ #                                 or one for each answer rule.
+ #                                 (Default: 0)
+ #
+ #      namedRules => 0 or 1       whether to use named rules or default
+ #                                 rule names.  Use named rules if you need
+ #                                 to intersperse other rules with the
+ #                                 ones for the MultiAnswer, in which case
+ #                                 you must use NAMED_ANS not ANS.
+ #                                 (Default: 0)
+ #
+ #      checkTypes => 0 or 1       whether the types of the student and
+ #                                 professor's answers must match exactly
+ #                                 or just pass the usual type-match error
+ #                                 checking (in which case, you should check
+ #                                 the types before you use the data).
+ #	                          (Default: 1)
+ #
+ #      allowBlankAnswers=>0 or 1  whether to remove the blank-check prefilter
+ #                                 from the answer checkers for the answer
+ #                                 checkers used for type checking the student's
+ #                                 answers.
+ #                                 (Default: 0)
+ #
+ #      separator => string        the string to use between entries in the
+ #                                 results area when singleResult is set.
+ #                                 (Default: semicolon)
+ #
+ #      tex_separator => string    same, but for the preview area.
+ #                                 (Default: semicolon followed by thinspace)
+ #
+ #      format => string           an sprintf-style string used to format the
+ #                                 students answers for the results area
+ #                                 when singleResults is true.  If undefined,
+ #                                 the separator parameter (above) is used to
+ #                                 form the string.
+ #                                 (Default: undef)
+ #
+ #      tex_format => string       an sprintf-style string used to format the
+ #                                 students answer previews when singleResults
+ #                                 mode is in effect.  If undefined, the
+ #                                 tex_separator (above) is used to form the
+ #                                 string.
+ #                                 (Default: undef)
+ #
+
+=cut
+
 my @ans_defaults = (
   checker => sub {0},
   showCoordinateHints => 0,

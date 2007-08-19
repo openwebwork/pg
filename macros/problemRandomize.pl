@@ -1,99 +1,98 @@
 
-=head3 problemRandomize.pl
+=head1 ProblemRandomize();
 
-######################################################################
-#
-#  This file implements a mechanism for allowing a problem file to be
-#  "reseeded" so that the student can do additional versions of the
-#  problem.  You can control when the reseed message is available,
-#  and what style to use for it.
-#
-#  To use the problemRandimize library, use
-#
-#      loadMacros("problemRandomize.pl");
-#
-#  at the top of your problem file, and then create a problemRandomize
-#  object with
-#
-#      $pr = ProblemRandomize(options);
-#
-#  where '$pr' is the name of the variable you will use to refer
-#  to the randomized problem (if needed), and 'options' can include:
-#
-#    when => type               Specifies the condition on which
-#                               reseeding the problem is allowed.
-#                               The choices include:
-#
-#                                 "Correct"   (only when the problem has
-#                                              been answered correctly.)
-#
-#                                 "Always"    (reseeding is always allowed.)
-#
-#                                 Default:  "Correct"
-#
-#    onlyAfterDue => 0 or 1     Specifies if the reseed option is only
-#                               allowed after the due date has passed.
-#                                 Default:  1
-#
-#    style => type              Determines the type of interaction needed
-#                               to reseed the problem.  Types include:
-#
-#                                 "Button"    (a button)
-#
-#                                 "Checkbox"  (a checkbox plus pressing submit)
-#
-#                                 "Input"     (an input box where the seed
-#                                              can be set explicitly)
-#
-#                                 "HTML"      (the HTML is given explicitly
-#                                              via the "label" option below)
-#
-#                                 Default:  "Button"
-#
-#    label => "text"            Specifies the text used for the button name,
-#                               checkbox label, input box label, or raw HTML
-#                               used for the reseed mechanism.
-#
-#  The problemRandomize library installs a special grader that handles determining
-#  when the reseed option will be available.  It also redefines install_problem_grader
-#  so that it will not overwrite the one installed by the library (it is stored so
-#  that it can be called internally by the problemRandomize library's grader).
-#
-#  Note that the problem will store the new problem seed only if the student can
-#  submit saved answers (i.e., only before the due date).  After the due date,
-#  the student can get new versions, but the problem will revert to the original
-#  version when they come back to the problem later.  Since the default is only
-#  to allow reseeding afer the due date, the reseeding will not be sticky by default.
-#  Hardcopy ALWAYS produces the original version of the problem, regardless of
-#  the seed saved by the student.
-#
-#  Examples:
-#
-#    ProblemRandomize();                    # use all defaults
-#    ProblemRandomize(when=>"Always");      # always can reseed (after due date)
-#    ProblemRandomize(onlyAfterDue=>0);     # can reseed whenever correct
-#    ProblemRandomize(when=>"always",onlyAfterDue=>0);    # always can reseed
-#
-#    ProblemRandomize(style=>"Input");      # use an input box to set the seed
-#
-#  For problems that include "PGcourse.pl" in their loadMacros() calls, you can
-#  use that file to provide reseed buttons for ALL problems simply by including
-#
-#    loadMacros("problemRandomize.pl");
-#    ProblemRandomize();
-#
-#  in PGcourse.pl.  You can make the ProblemRandomize() be dependent on the set
-#  number or the set or the login ID or whatever.  For example
-#
-#    loadMacros("problemRandomize.pl");
-#    ProblemRandomize(when=>"always",onlyAfterDue=>0,style=>"Input")
-#      if $studentLogin eq "dpvc";
-#
-#  would enable reseeding at any time for the user called "dpvc" (presumably a
-#  professor).  You can test $probNum and $setNumber to make reseeding available
-#  only for specific sets or problems within a set.
-#
-
+ ######################################################################
+ #
+ #  This file implements a mechanism for allowing a problem file to be
+ #  "reseeded" so that the student can do additional versions of the
+ #  problem.  You can control when the reseed message is available,
+ #  and what style to use for it.
+ #
+ #  To use the problemRandimize library, use
+ #
+ #      loadMacros("problemRandomize.pl");
+ #
+ #  at the top of your problem file, and then create a problemRandomize
+ #  object with
+ #
+ #      $pr = ProblemRandomize(options);
+ #
+ #  where '$pr' is the name of the variable you will use to refer
+ #  to the randomized problem (if needed), and 'options' can include:
+ #
+ #    when => type               Specifies the condition on which
+ #                               reseeding the problem is allowed.
+ #                               The choices include:
+ #
+ #                                 "Correct"   (only when the problem has
+ #                                              been answered correctly.)
+ #
+ #                                 "Always"    (reseeding is always allowed.)
+ #
+ #                                 Default:  "Correct"
+ #
+ #    onlyAfterDue => 0 or 1     Specifies if the reseed option is only
+ #                               allowed after the due date has passed.
+ #                                 Default:  1
+ #
+ #    style => type              Determines the type of interaction needed
+ #                               to reseed the problem.  Types include:
+ #
+ #                                 "Button"    (a button)
+ #
+ #                                 "Checkbox"  (a checkbox plus pressing submit)
+ #
+ #                                 "Input"     (an input box where the seed
+ #                                              can be set explicitly)
+ #
+ #                                 "HTML"      (the HTML is given explicitly
+ #                                              via the "label" option below)
+ #
+ #                                 Default:  "Button"
+ #
+ #    label => "text"            Specifies the text used for the button name,
+ #                               checkbox label, input box label, or raw HTML
+ #                               used for the reseed mechanism.
+ #
+ #  The problemRandomize library installs a special grader that handles determining
+ #  when the reseed option will be available.  It also redefines install_problem_grader
+ #  so that it will not overwrite the one installed by the library (it is stored so
+ #  that it can be called internally by the problemRandomize library's grader).
+ #
+ #  Note that the problem will store the new problem seed only if the student can
+ #  submit saved answers (i.e., only before the due date).  After the due date,
+ #  the student can get new versions, but the problem will revert to the original
+ #  version when they come back to the problem later.  Since the default is only
+ #  to allow reseeding afer the due date, the reseeding will not be sticky by default.
+ #  Hardcopy ALWAYS produces the original version of the problem, regardless of
+ #  the seed saved by the student.
+ #
+ #  Examples:
+ #
+ #    ProblemRandomize();                    # use all defaults
+ #    ProblemRandomize(when=>"Always");      # always can reseed (after due date)
+ #    ProblemRandomize(onlyAfterDue=>0);     # can reseed whenever correct
+ #    ProblemRandomize(when=>"always",onlyAfterDue=>0);    # always can reseed
+ #
+ #    ProblemRandomize(style=>"Input");      # use an input box to set the seed
+ #
+ #  For problems that include "PGcourse.pl" in their loadMacros() calls, you can
+ #  use that file to provide reseed buttons for ALL problems simply by including
+ #
+ #    loadMacros("problemRandomize.pl");
+ #    ProblemRandomize();
+ #
+ #  in PGcourse.pl.  You can make the ProblemRandomize() be dependent on the set
+ #  number or the set or the login ID or whatever.  For example
+ #
+ #    loadMacros("problemRandomize.pl");
+ #    ProblemRandomize(when=>"always",onlyAfterDue=>0,style=>"Input")
+ #      if $studentLogin eq "dpvc";
+ #
+ #  would enable reseeding at any time for the user called "dpvc" (presumably a
+ #  professor).  You can test $probNum and $setNumber to make reseeding available
+ #  only for specific sets or problems within a set.
+ #
 
 =cut
 

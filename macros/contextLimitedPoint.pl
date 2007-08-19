@@ -5,13 +5,13 @@ sub _contextLimitedPoint_init {}; # don't load it again
 
 =head3 Context("LimitedPoint")
 
-##########################################################
-#
-#  Implements a context in which points can be entered,
-#  but no operations are permitted between points.  So
-#  students will be able to perform operations within the
-#  coordinates of the points, but not between points.
-#
+ ##########################################################
+ #
+ #  Implements a context in which points can be entered,
+ #  but no operations are permitted between points.  So
+ #  students will be able to perform operations within the
+ #  coordinates of the points, but not between points.
+ #
 
 =cut
 
@@ -144,3 +144,5 @@ $context{LimitedPoint}->variables->are(x=>'Real');
 $context{LimitedPoint}->constants->remove('i','j','k');
 
 Context("LimitedPoint");
+
+1;

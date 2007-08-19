@@ -4,33 +4,33 @@ sub _contextABCD_init {}; # don't load it again
 
 =head1 DESCRIPTION
 
-##########################################################
-#
-#  Implements contexts for string-valued answers especially
-#  for matching problems (where you match against A, B, C, D,
-#  and so on).
-#
-#  There are two contexts defined here,
-#
-#	Context("ABCD");
-#	Context("ABCD-List");
-#
-#  The second allows the students to enter lists of strings,
-#  while the first does not.
-#
-#  You can add new strings to the context as needed (or remove old ones)
-#  via the Context()->strings->add() and Context()-strings->remove()
-#  methods, eg.
-#
-#	Context("ABCD-List")->strings->add(E=>{},e=>{alias=>"E"});
-#
-#  Use string_cmp() to produce the answer checker(s) for your
-#  correct values.  Eg.
-#
-#	ANS(string_cmp("A","B"));
-#
-#  when there are two answers, the first being "A" and the second being "B".
-#
+ ##########################################################
+ #
+ #  Implements contexts for string-valued answers especially
+ #  for matching problems (where you match against A, B, C, D,
+ #  and so on).
+ #
+ #  There are two contexts defined here,
+ #
+ #	Context("ABCD");
+ #	Context("ABCD-List");
+ #
+ #  The second allows the students to enter lists of strings,
+ #  while the first does not.
+ #
+ #  You can add new strings to the context as needed (or remove old ones)
+ #  via the Context()->strings->add() and Context()-strings->remove()
+ #  methods, eg.
+ #
+ #	Context("ABCD-List")->strings->add(E=>{},e=>{alias=>"E"});
+ #
+ #  Use string_cmp() to produce the answer checker(s) for your
+ #  correct values.  Eg.
+ #
+ #	ANS(string_cmp("A","B"));
+ #
+ #  when there are two answers, the first being "A" and the second being "B".
+ #
 
 =cut
 
@@ -49,3 +49,5 @@ $context{'ABCD-List'}->operators->add(
 $context{'ABCD-List'}->strings->add("NONE"=>{});
 
 Context("ABCD");
+
+1;

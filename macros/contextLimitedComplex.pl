@@ -276,3 +276,5 @@ $context{'LimitedComplex-strict'}->flags->set(strict_numeric => 1);
 $context{'LimitedComplex-strict'}->functions->disable('All');
 
 Context("LimitedComplex");
+
+1;

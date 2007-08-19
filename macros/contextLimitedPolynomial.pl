@@ -5,21 +5,21 @@ sub _contextLimitedPolynomial_init {}; # don't load it again
 
 =head3 Context("LimitedPolynomial")
 
-##########################################################
-#
-#  Implements a context in which students can only 
-#  enter (expanded) polynomials (i.e., sums of multiples
-#  of powers of x).
-#
-#  Select the context using:
-#
-#      Context("LimitedPolynomial");
-#
-#  If you set the "singlePowers" flag, then only one monomial of
-#  each degree can be included in the polynomial:
-#
-#      Context("LimitedPolynomial")->flags->set(singlePowers=>1);
-#
+ ##########################################################
+ #
+ #  Implements a context in which students can only 
+ #  enter (expanded) polynomials (i.e., sums of multiples
+ #  of powers of x).
+ #
+ #  Select the context using:
+ #
+ #      Context("LimitedPolynomial");
+ #
+ #  If you set the "singlePowers" flag, then only one monomial of
+ #  each degree can be included in the polynomial:
+ #
+ #      Context("LimitedPolynomial")->flags->set(singlePowers=>1);
+ #
 
 =cut
 
@@ -358,3 +358,5 @@ foreach ('sin','cos','tan','sec','csc','cot',
 }
 
 Context("LimitedPolynomial");
+
+1;

@@ -4,24 +4,24 @@ sub _contextIntegerFunctions_init {}; # don't reload this file
 
 =head3 Context("IntegerFunctions")
 
-######################################################################
-#
-#  This is a Parser context that adds integer related functions C(n,r)
-#  and P(n,r).  They can be used by the problem author and also by
-#  students if the answer checking is done by Parser.  The latter is
-#  the main purpose of this file.
-#
-#  Note: by default, webwork problems do not permit students to use
-#        C(n,r) and P(n,r) functions.  Problems which do permit this
-#        should alert the student in their text.
-#
-#  Usage examples:
-#     $b = random(2, 5); $a = $b+random(0, 5);
-#     $c = C($a, $b);
-#     ANS(Compute("P($a, $b)")->cmp);
-#
-#  Note: If the context is set to something else, such as Numeric, it
-#        can be set back with Context("IntegerFunctions").
+ ######################################################################
+ #
+ #  This is a Parser context that adds integer related functions C(n,r)
+ #  and P(n,r).  They can be used by the problem author and also by
+ #  students if the answer checking is done by Parser.  The latter is
+ #  the main purpose of this file.
+ #
+ #  Note: by default, webwork problems do not permit students to use
+ #        C(n,r) and P(n,r) functions.  Problems which do permit this
+ #        should alert the student in their text.
+ #
+ #  Usage examples:
+ #     $b = random(2, 5); $a = $b+random(0, 5);
+ #     $c = C($a, $b);
+ #     ANS(Compute("P($a, $b)")->cmp);
+ #
+ #  Note: If the context is set to something else, such as Numeric, it
+ #        can be set back with Context("IntegerFunctions").
 
 =cut
 
@@ -54,3 +54,4 @@ $context{'IntegerFunctions'}->functions->add(
 
 Context("IntegerFunctions");
 
+1;

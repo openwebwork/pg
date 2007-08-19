@@ -2,13 +2,13 @@ sub _parserMultiPart_init {}
 
 =head3 MultiPart
 
-######################################################################
-#
-#  This object has been renamed MultiAnswer and is now available in
-#  parserMultiAnswer.pl.  Loading this file will produce a warning
-#  to that effect.
-#
-######################################################################
+ ######################################################################
+ #
+ #  This object has been renamed MultiAnswer and is now available in
+ #  parserMultiAnswer.pl.  Using a MultiPart object will produce a
+ #  warning to that effect.
+ #
+ ######################################################################
 
 =cut
 

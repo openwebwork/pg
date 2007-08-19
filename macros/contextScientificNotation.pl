@@ -1,5 +1,8 @@
+loadMacros("MathObjects.pl");
 
-=pod
+sub _contextScientificNotation_init {ScientificNotation::Init()}
+
+=head1 Context("ScientificNotation");
 
  #########################################################################
  #
@@ -87,15 +90,8 @@
  #  order to require the answers to be correct to the three
  #  digits that are shown.
  #
- #
 
 =cut
-
-loadMacros("MathObjects.pl");
-
-sub _contextScientificNotation_init {ScientificNotation::Init()}
-
-######################################################################
 
 package ScientificNotation;
 

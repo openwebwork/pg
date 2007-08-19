@@ -6,35 +6,35 @@ sub _parserPopUp_init {}; # don't reload this file
 
 =head1 DESCRIPTION
 
-####################################################################
-#
-#  This file implements a pop-up menu object that is compatible
-#  with Value objects, and in particular, with the MultiPart object.
-#
-#  To create a PopUp object, use
-#
-#    $popup = PopUp([choices,...],correct);
-#
-#  where "choices" are the strings for the items in the popup menu,
-#  and "correct" is the choice that is the correct answer for the
-#  popup.
-#
-#  To insert the popup menu into the problem text, use
-#
-#    BEGIN_TEXT
-#      \{$popup->menu\}
-#    END_TEXT
-#
-#  and then
-#
-#    ANS($popup->cmp);
-#
-#  to get the answer checker for the popup.
-#
-#  You can use the PopUp menu object in MultiPart objects.  This is
-#  the reason for the pop-up menu's ans_rule method (since that is what
-#  MultiPart calls to get answer rules).
-#
+ ####################################################################
+ #
+ #  This file implements a pop-up menu object that is compatible
+ #  with Value objects, and in particular, with the MultiPart object.
+ #
+ #  To create a PopUp object, use
+ #
+ #    $popup = PopUp([choices,...],correct);
+ #
+ #  where "choices" are the strings for the items in the popup menu,
+ #  and "correct" is the choice that is the correct answer for the
+ #  popup.
+ #
+ #  To insert the popup menu into the problem text, use
+ #
+ #    BEGIN_TEXT
+ #      \{$popup->menu\}
+ #    END_TEXT
+ #
+ #  and then
+ #
+ #    ANS($popup->cmp);
+ #
+ #  to get the answer checker for the popup.
+ #
+ #  You can use the PopUp menu object in MultiPart objects.  This is
+ #  the reason for the pop-up menu's ans_rule method (since that is what
+ #  MultiPart calls to get answer rules).
+ #
 
 =cut
 

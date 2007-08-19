@@ -4,54 +4,54 @@ sub _parserSolutionFor_init {}; # don't reload this file
 
 =head1 DESCRIPTION
 
-######################################################################
-#
-#  This is a Parser class that implements an answer checker that
-#  checks if a student's answer satisfies an implicit equation.
-#  We define a SolutionFor object class that lets you specify an
-#  equality that the student answer must satisfy, and a point that
-#  DOES satify the equation.  The overloaded == operator will
-#  check if a given point satisfies the given equality.
-#
-#  Use SolutionFor(equality,point[,options]) to create a SolutionFor object.
-#  The equality is a Formula object containing an equality, or a string
-#  representing such a formula, and the point is a Point object or string
-#  containing a point that satisfies the equation (to be used as the
-#  correct answer when the student asks to see the answers).
-#
-#  The variables to use are declared in the Context in the usual way,
-#  and the coordinates of the student point will be considered to be in
-#  alphabetical order.  You can override this by supplying the vars=>[...]
-#  option, where you specify the variable names in the order you want the
-#  student to give them.  E.g., vars=>['y','x'] will make the student answer
-#  represent the point (y,x) rather than the default (x,y).
-#
-#  Usage examples:
-#
-#     Context("Vector")->variables->are(x=>'Real',y=>'Real');
-#     $f = SolutionFor("x^2 = cos(y)","(1,0)");
-#     $f = SolutionFor("x^2 - y = 0",[2,4]);
-#     $f = SolutionFor("x^2 - y = 0",Point(4,2),vars=>['y','x']);
-#
-#  Then use
-#
-#     ANS($f->cmp);
-#
-#  to get the answer checker for $f.
-#
-#  You can use $f->{f} to get the Formula object for the equality used
-#  in the object, and $f->f(point) to determine if the given point is
-#  a solution to the equality or not.  For example, if you want to include
-#  the TeX version of a formula within the text of a problem, you can use:
-#
-#     Context()->texStrings;
-#     BEGIN_TEXT
-#       A solution to \($f->{f}\) is \((x,y)\) = \{ans_rule(30)\}.
-#     END_TEXT
-#     Context()->normalStrings;
-#     ANS($f->cmp);
-#
-######################################################################
+ ######################################################################
+ #
+ #  This is a Parser class that implements an answer checker that
+ #  checks if a student's answer satisfies an implicit equation.
+ #  We define a SolutionFor object class that lets you specify an
+ #  equality that the student answer must satisfy, and a point that
+ #  DOES satify the equation.  The overloaded == operator will
+ #  check if a given point satisfies the given equality.
+ #
+ #  Use SolutionFor(equality,point[,options]) to create a SolutionFor object.
+ #  The equality is a Formula object containing an equality, or a string
+ #  representing such a formula, and the point is a Point object or string
+ #  containing a point that satisfies the equation (to be used as the
+ #  correct answer when the student asks to see the answers).
+ #
+ #  The variables to use are declared in the Context in the usual way,
+ #  and the coordinates of the student point will be considered to be in
+ #  alphabetical order.  You can override this by supplying the vars=>[...]
+ #  option, where you specify the variable names in the order you want the
+ #  student to give them.  E.g., vars=>['y','x'] will make the student answer
+ #  represent the point (y,x) rather than the default (x,y).
+ #
+ #  Usage examples:
+ #
+ #     Context("Vector")->variables->are(x=>'Real',y=>'Real');
+ #     $f = SolutionFor("x^2 = cos(y)","(1,0)");
+ #     $f = SolutionFor("x^2 - y = 0",[2,4]);
+ #     $f = SolutionFor("x^2 - y = 0",Point(4,2),vars=>['y','x']);
+ #
+ #  Then use
+ #
+ #     ANS($f->cmp);
+ #
+ #  to get the answer checker for $f.
+ #
+ #  You can use $f->{f} to get the Formula object for the equality used
+ #  in the object, and $f->f(point) to determine if the given point is
+ #  a solution to the equality or not.  For example, if you want to include
+ #  the TeX version of a formula within the text of a problem, you can use:
+ #
+ #     Context()->texStrings;
+ #     BEGIN_TEXT
+ #       A solution to \($f->{f}\) is \((x,y)\) = \{ans_rule(30)\}.
+ #     END_TEXT
+ #     Context()->normalStrings;
+ #     ANS($f->cmp);
+ #
+ ######################################################################
 
 =cut
 

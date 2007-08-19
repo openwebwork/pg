@@ -5,18 +5,18 @@ sub _contextLimitedNumeric_init {}; # don't load it again
 
 =head3 Context("LimitedNumeric")
 
-##########################################################
-#
-#  Implements a context in which numbers can be entered,
-#  but no operations are permitted between them.
-#
-#  There are two versions:  one for lists of numbers
-#  and one for a single number.  Select them using
-#  one of the following commands:
-#
-#      Context("LimitedNumeric-list");
-#      Context("LimiteNumeric");
-#
+ ##########################################################
+ #
+ #  Implements a context in which numbers can be entered,
+ #  but no operations are permitted between them.
+ #
+ #  There are two versions:  one for lists of numbers
+ #  and one for a single number.  Select them using
+ #  one of the following commands:
+ #
+ #      Context("LimitedNumeric-list");
+ #      Context("LimiteNumeric");
+ #
 
 =cut
 
@@ -47,3 +47,5 @@ $context{'LimitedNumeric-List'} = $context{LimitedNumeric}->copy;
 $context{LimitedNumeric}->operators->undefine(',');
 
 Context("LimitedNumeric");
+
+1;

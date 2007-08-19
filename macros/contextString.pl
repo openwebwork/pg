@@ -4,21 +4,20 @@ sub _contextString_init {}; # don't load it again
 
 =head3 Context("String")
 
-##########################################################
-#
-#  Implements contexts for string-valued answers.
-#
-#  You can add new strings to the context as needed
-#  via the Context()->strings->add() method.  E.g.,
-#
-#	Context("String")->strings->add(Foo=>{}, Bar=>{alias=>"Foo"});
-#
-#  Use string_cmp() to produce the answer checker(s) for your
-#  correct values.  Eg.
-#
-#	ANS(string_cmp("Foo"));
-#
-#
+ ##########################################################
+ #
+ #  Implements contexts for string-valued answers.
+ #
+ #  You can add new strings to the context as needed
+ #  via the Context()->strings->add() method.  E.g.,
+ #
+ #	Context("String")->strings->add(Foo=>{}, Bar=>{alias=>"Foo"});
+ #
+ #  Use string_cmp() to produce the answer checker(s) for your
+ #  correct values.  Eg.
+ #
+ #	ANS(string_cmp("Foo"));
+ #
 
 =cut
 
@@ -65,4 +64,6 @@ sub string_cmp {
   $strings = [$strings] unless ref($strings) eq 'ARRAY';
   return map {String($_)->cmp(showHints=>0,showLengthHints=>0)} @{$strings};
 }
+
+1;
 

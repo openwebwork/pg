@@ -1,5 +1,7 @@
 
-=pod
+sub _problemPreserveAnswers_init {PreserveAnswers::Init()}
+
+=head1 PreserveAnswers();
 
 ######################################################################
 #
@@ -24,8 +26,6 @@
 #
 
 =cut
-
-sub _problemPreserveAnswers_init {PreserveAnswers::Init()}
 
 package PreserveAnswers;
 
@@ -66,7 +66,7 @@ sub RestoreAnswers {
   foreach my $id (keys %{$original}) {$inputs->{$id} = $original->{$id}}
 }
 
-our $ENDDOCUMENT;
+our $ENDDOCUMENT; # holds pointer to original ENDDOCUMENT
 
 ######################################################################
 

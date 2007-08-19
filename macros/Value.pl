@@ -1,9 +1,10 @@
 
 
-=head1 Value.pl DESCRIPTION
+=head1 DESCRIPTION
 
-#
-#  Declares constructors for MathObjects
+ #
+ #  Declares constructors for MathObjects
+ #
 
 =cut
 
@@ -11,11 +12,9 @@
 
 =pod
 
-
-
 MathObjects are objects which behave much like you would expect
-their true mathematical counterparts to behave.  
-      
+their true mathematical counterparts to behave.
+
 MathObject types (classes) -- defined in Value.pl
 
     Standard
@@ -49,7 +48,7 @@ MathObject types (classes) -- defined in Value.pl
         A formula object contains a parse tree inside it which allows
           you to calculate output values from given input values.
         This MathObject is more complicated than the ones above.
-        
+
 Constructing MathObjects
 	$a = Real(3.5);
 	$a = Real("345/45");
@@ -80,10 +79,10 @@ sub ColumnVector {Value->Package("Vector")->new(@_)->with(ColumnVector=>1,open=>
 
 =head3 Closed($point)
 
-#
-#  Make a point or list a closed interval.
-#  (Obsolete: use $x->with(open=>'[',close=>']') instead.)
-#
+ #
+ #  Make a point or list a closed interval.
+ #  (Obsolete: use $x->with(open=>'[',close=>']') instead.)
+ #
 
 =cut
 
@@ -99,11 +98,10 @@ sub Closed {
  #
  #  Make it possible to use  1+3*i  in perl rather than  1+3*$i or 1+3*i()
  #  as well as 3*pi instead of 3*pi()
- 
+
  #sub i ()  {Value->Package("Complex")->i};   #  defined in Parser.pl
  #sub pi () {Value->Package("Complex")->pi};  #  defined in dangerousMacros.pl
  #sub Infinity () {Value->Package("Infinity")->new()} # defined in dangerousMacros.pl
-
 
 =cut
 

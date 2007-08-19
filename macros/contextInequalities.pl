@@ -1,54 +1,51 @@
-
-=pod
-
-#########################################################################
-#
-#  Implements contexts that provides for inequalities that produce
-#  the cooresponding Interval, Set or Union MathObjects.  There are
-#  two such contexts:  Context("Inequalities"), in which both
-#  intervals and inequalities are defined, and Context("Inequalities-Only"),
-#  which allows only inequalities as a means of producing intervals.
-#
-#  Usage:    loadMacros("contextInequalities.pl");
-#
-#            Context("Inequalities");
-#            $S1 = Formula("1 < x <= 4");
-#            $S2 = Formula("(1,4]");        # either form is OK
-#
-#            Context("Inequalities-Only");
-#            $S1 = Formula("1 < x <= 4");
-#            $S2 = Formula("(1,4]");        # generates an error
-#
-#            $S3 = Formula("x < -2 or x > 2");  # forms a Union
-#            $S4 = Formula("x = 1");            # forms a Set
-#
-#  You can set the "stringifyAsInequalities" flag to 1 to force
-#  output from the intervals, sets, and unions created in this
-#  context to be output as inequalities rather than their
-#  usual Inerval, Set or Union forms.
-#
-#     Context("Inequalities")->flags->set(stringifyAsInequalities=>1);
-#
-#  You can also set the "noneWord" flag to specify the string to
-#  use when the inequalities specify the empty set.  By default,
-#  it is "NONE", but you can change it to other strings.  Be sure
-#  that you use a string that is defined in the Context, however,
-#  if you expect the student to be able to enter it.  For example
-#
-#    Context("Inequalities");
-#    Context()->constants->add(EmptySet => Set());
-#    Context()->flags->set(noneWord=>"EmptySet");
-#
-#  creates an empty set as a named constant and uses that name.
-#
-
-=cut
-
 loadMacros("MathObjects.pl");
 
 sub _contextInequalities_init {Inequalities::Init()}
 
-##################################################
+=head1 Context("Inequalities"), Context("Inequalities-Only")
+
+ #########################################################################
+ #
+ #  Implements contexts that provides for inequalities that produce
+ #  the cooresponding Interval, Set or Union MathObjects.  There are
+ #  two such contexts:  Context("Inequalities"), in which both
+ #  intervals and inequalities are defined, and Context("Inequalities-Only"),
+ #  which allows only inequalities as a means of producing intervals.
+ #
+ #  Usage:    loadMacros("contextInequalities.pl");
+ #
+ #            Context("Inequalities");
+ #            $S1 = Formula("1 < x <= 4");
+ #            $S2 = Formula("(1,4]");        # either form is OK
+ #
+ #            Context("Inequalities-Only");
+ #            $S1 = Formula("1 < x <= 4");
+ #            $S2 = Formula("(1,4]");        # generates an error
+ #
+ #            $S3 = Formula("x < -2 or x > 2");  # forms a Union
+ #            $S4 = Formula("x = 1");            # forms a Set
+ #
+ #  You can set the "stringifyAsInequalities" flag to 1 to force
+ #  output from the intervals, sets, and unions created in this
+ #  context to be output as inequalities rather than their
+ #  usual Inerval, Set or Union forms.
+ #
+ #     Context("Inequalities")->flags->set(stringifyAsInequalities=>1);
+ #
+ #  You can also set the "noneWord" flag to specify the string to
+ #  use when the inequalities specify the empty set.  By default,
+ #  it is "NONE", but you can change it to other strings.  Be sure
+ #  that you use a string that is defined in the Context, however,
+ #  if you expect the student to be able to enter it.  For example
+ #
+ #    Context("Inequalities");
+ #    Context()->constants->add(EmptySet => Set());
+ #    Context()->flags->set(noneWord=>"EmptySet");
+ #
+ #  creates an empty set as a named constant and uses that name.
+ #
+
+=cut
 
 package Inequalities;
 

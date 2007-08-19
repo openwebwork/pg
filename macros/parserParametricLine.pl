@@ -4,40 +4,40 @@ sub _parserParametricLine_init {}; # don't reload this file
 
 =head1 DESCRIPTION
 
-######################################################################
-#
-#  This is a Parser class that implements parametric lines as
-#  a subclass of the Formula class.  The standard ->cmp routine
-#  will work for this, provided we define the compare() function
-#  needed by the overloaded ==.  We assign the special precedence
-#  so that overloaded operations will be promoted to the ones below.
-#
-#  Use ParametricLine(point,vector) or ParametricLine(formula)
-#  to create a ParametricLine object.  You can pass an optional
-#  additional parameter that indicated the variable to use for the
-#  parameter for the line.
-#
-#  Usage examples:
-#
-#      $L = ParametricLine(Point(3,-1,2),Vector(1,1,3));
-#      $L = ParametricLine([3,-1,2],[1,1,3]);
-#      $L = ParametricLine("<t,1-t,2t-3>");
-#
-#      $p = Point(3,-1,2); $v = Vector(1,1,3);
-#      $L = ParametricLine($p,$v);
-#
-#      $t = Formula('t'); $p = Point(3,-1,2); $v = Vector(1,1,3);
-#      $L = ParametricLine($p+$t*$v);
-#
-#      Context()->constants->are(a=>1+pi^2); # won't guess this value
-#      $L = ParametricLine("(a,2a,-1) + t <1,a,a^2>");
-#
-#  Then use
-#
-#     ANS($L->cmp);
-#
-#  to get the answer checker for $L.
-#
+ ######################################################################
+ #
+ #  This is a Parser class that implements parametric lines as
+ #  a subclass of the Formula class.  The standard ->cmp routine
+ #  will work for this, provided we define the compare() function
+ #  needed by the overloaded ==.  We assign the special precedence
+ #  so that overloaded operations will be promoted to the ones below.
+ #
+ #  Use ParametricLine(point,vector) or ParametricLine(formula)
+ #  to create a ParametricLine object.  You can pass an optional
+ #  additional parameter that indicated the variable to use for the
+ #  parameter for the line.
+ #
+ #  Usage examples:
+ #
+ #      $L = ParametricLine(Point(3,-1,2),Vector(1,1,3));
+ #      $L = ParametricLine([3,-1,2],[1,1,3]);
+ #      $L = ParametricLine("<t,1-t,2t-3>");
+ #
+ #      $p = Point(3,-1,2); $v = Vector(1,1,3);
+ #      $L = ParametricLine($p,$v);
+ #
+ #      $t = Formula('t'); $p = Point(3,-1,2); $v = Vector(1,1,3);
+ #      $L = ParametricLine($p+$t*$v);
+ #
+ #      Context()->constants->are(a=>1+pi^2); # won't guess this value
+ #      $L = ParametricLine("(a,2a,-1) + t <1,a,a^2>");
+ #
+ #  Then use
+ #
+ #     ANS($L->cmp);
+ #
+ #  to get the answer checker for $L.
+ #
 
 =cut
 
