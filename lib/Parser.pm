@@ -69,7 +69,12 @@ sub Item {Parser::Item::Item(@_)}
 #
 #  Make a copy of a formula
 #
-sub copy {my $self = shift; $self->new($self)}
+sub copy {
+  my $self = shift;
+  $self = bless {%{$self}}, ref($self);
+  $self->{tree} = $self->{tree}->copy($self);
+  return $self;
+}
 
 ##################################################
 #
