@@ -164,12 +164,14 @@ sub current {
 
 #
 #  Get a copy of a named context
-#   (either from the main list or from the default list)
+#   (either from the (optional) list provided, the main user's list
+#    or from the default list)
 #
 sub getCopy {
-  my $self = shift; my $contextTable = shift; my $name = shift;
+  my $self = shift; my $contextTable;
+  $contextTable = shift if !defined $_[0] || ref($_[0]) eq 'HASH';
   $contextTable = $userContext unless $contextTable;
-  my $context = $contextTable->{$name};
+  my $name = shift; my $context = $contextTable->{$name};
   $context = $Parser::Context::Default::context{$name} unless $context;
   return unless $context;
   return $context->copy;
