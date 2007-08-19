@@ -1,6 +1,6 @@
 loadMacros("MathObjects.pl");
 
-sub _contextString_init {}; # don't load it again
+sub _contextString_init {context::String::Init()}; # don't load it again
 
 =head3 Context("String")
 
@@ -21,7 +21,9 @@ sub _contextString_init {}; # don't load it again
 
 =cut
 
-package contextString::Variable;
+##################################################
+
+package context::String::Variable;
 
 sub new {
   my $self = shift; my $equation = shift;
@@ -32,37 +34,57 @@ sub new {
   $equation->Error(["Your answer should be one of %s",$strings]);
 }
 
-package contextString::Formula;
-our @ISA = qw(Value::Formula Parser Value);
+##################################################
+
+package context::String::Formula;
+our @ISA = qw(Value::Formula);
 
 sub parse {
   my $self = shift;
   foreach my $ref (@{$self->{tokens}}) {
     $self->{ref} = $ref;
-    contextString::Variable->new($self) if ($ref->[0] eq 'error'); # display the error
+    context::String::Variable->new($self->{equation}) if ($ref->[0] eq 'error'); # display the error
   }
   $self->SUPER::parse(@_);
 }
 
-package main;
+package context::String::BOP::mult;
+our @ISA = qw(Parser::BOP);
 
-$context{String} = Parser::Context->getCopy("Numeric");
-$context{String}->parens->undefine('|','{','(','[');
-$context{String}->variables->clear();
-$context{String}->constants->clear();
-$context{String}->operators->clear();
-$context{String}->functions->clear();
-$context{String}->strings->clear();
-$context{String}->{parser}{Variable} = 'contextString::Variable';
-$context{String}->{parser}{Formula}  = 'contextString::Formula';
+sub _check {
+  my $self = shift;
+  context::String::Variable->new($self->{equation}); # report an error
+}
 
-Context("String");
+##################################################
 
-sub string_cmp {
-  my $strings = shift;
-  $strings = [$strings,@_] if (scalar(@_));
-  $strings = [$strings] unless ref($strings) eq 'ARRAY';
-  return map {String($_)->cmp(showHints=>0,showLengthHints=>0)} @{$strings};
+package context::String;
+
+sub Init {
+  my $context = $main::context{String} = Parser::Context->getCopy("Numeric");
+  $context->parens->clear();
+  $context->variables->clear();
+  $context->constants->clear();
+  $context->operators->clear();
+  $context->functions->clear();
+  $context->strings->clear();
+  $context->{parser}{Variable} = 'context::String::Variable';
+  $context->{parser}{Formula}  = 'context::String::Formula';
+  $context->operators->add(
+    ' ' => {precedence => 3, associativity=>"left", type=>"bin", string => "*", class => 'context::String::BOP::mult'},
+    '*' => {precedence => 3, associativity=>"left", type=>"bin", class => 'context::String::BOP::mult'}
+  );
+
+  main::PG_restricted_eval(<<'  END_EVAL');
+    sub string_cmp {
+      my $strings = shift;
+      $strings = [$strings,@_] if (scalar(@_));
+      $strings = [$strings] unless ref($strings) eq 'ARRAY';
+      return map {String($_)->cmp(showHints=>0,showLengthHints=>0)} @{$strings};
+    }
+  END_EVAL
+
+  main::Context("String");  ### FIXME:  probably should require author to set this explicitly
 }
 
 1;
