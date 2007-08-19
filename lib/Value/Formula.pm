@@ -32,11 +32,10 @@ sub blank {shift->SUPER::new(@_)}
 #    as the formula itself.
 #
 sub with {
-  my $self = (shift)->copy; my %hash = @_;
-  foreach my $id (keys(%hash)) {
-    $self->{tree}{$id} = $hash{$id};
-    $self->{$id} = $hash{$id};
-  }
+  my $self = shift; my %hash = @_;
+  $self = $self->SUPER::with(@_);
+  $self->{tree} = $self->{tree}->copy($self); # make a new copy pointing to the new equation.
+  foreach my $id (keys(%hash)) {$self->{tree}{$id} = $hash{$id}}
   return $self;
 }
 
