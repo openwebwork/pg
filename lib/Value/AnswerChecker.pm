@@ -65,7 +65,7 @@ sub cmp_contextFlags {
 sub cmp {
   my $self = shift;
   my $ans = new AnswerEvaluator;
-  my $correct = protectHTML($self->{correct_ans});
+  my $correct = preformat($self->{correct_ans});
   $correct = $self->correct_ans unless defined($correct);
   $self->{context} = Value->context unless defined($self->{context});
   $ans->ans_hash(
@@ -87,7 +87,7 @@ sub cmp {
   return $ans;
 }
 
-sub correct_ans {protectHTML(shift->string)}
+sub correct_ans {preformat(shift->string)}
 sub cmp_diagnostics {}
 
 #
@@ -129,16 +129,16 @@ sub cmp_parse {
        unless Value::isValue($ans->{student_value});
     $ans->{student_value}{isStudent} = 1;
     $ans->{preview_latex_string} = $ans->{student_formula}->TeX;
-    $ans->{preview_text_string}  = protectHTML($ans->{student_formula}->string);
+    $ans->{preview_text_string}  = preformat($ans->{student_formula}->string);
     #
     #  Get the string for the student answer
     #
-    for ($ans->{formatStudentAnswer} || $context->flag('formatStudentAnswer')) {
-      /evaluated/i  and do {$ans->{student_ans} = protectHTML($ans->{student_value}->string); last};
+    for ($self->getFlag('formatStudentAnswer')) {
+      /evaluated/i  and do {$ans->{student_ans} = preformat($ans->{student_value}->string); last};
       /parsed/i     and do {$ans->{student_ans} = $ans->{preview_text_string}; last};
       /reduced/i    and do {
 	my $oldFlags = contextSet($context,reduceConstants=>1,reduceConstantFunctions=>0);
-	$ans->{student_ans} = protectHTML($ans->{student_formula}->substitute()->string);
+	$ans->{student_ans} = preformat($ans->{student_formula}->substitute()->string);
 	contextSet($context,%{$oldFags}); last;
       };
       warn "Unkown student answer format |$ans->{formatStudentAnswer}|";
@@ -593,13 +593,22 @@ sub contextSet {
 #  Quote HTML characters
 #
 sub protectHTML {
-    my $string = shift;
-    return unless defined($string);
-    return $string if eval ('$main::displayMode') eq 'TeX';
-    $string =~ s/&/\&amp;/g;
-    $string =~ s/</\&lt;/g;
-    $string =~ s/>/\&gt;/g;
-    $string;
+  my $string = shift;
+  return unless defined($string);
+  return $string if eval ('$main::displayMode') eq 'TeX';
+  $string =~ s/&/\&amp;/g;
+  $string =~ s/</\&lt;/g;
+  $string =~ s/>/\&gt;/g;
+  $string;
+}
+
+#
+#  Convert newlines to <BR>
+#
+sub preformat {
+  my $string = protectHTML(shift);
+  $string =~ s!\n!<br />!g;
+  $string;
 }
 
 #
