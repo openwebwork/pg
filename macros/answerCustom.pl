@@ -52,10 +52,10 @@ sub _answerCustom_init {}; # don't reload this file
  #  For example, the following checks if a student entered
  #  a unit vector (any unit vector in R^3 will do):
  #
- #     custom_cmp("<1,0,0>",sub {
+ #     ANS(custom_cmp("<1,0,0>",sub {
  #       my ($correct,$student,$ans) = @_;
  #       return norm($student) == 1;
- #     });
+ #     },showCoordinateHints => 0));
  #
  #  The checker subroutine can call Value::Error(message) to generate
  #  an error message that will be reported in the table at the top of
@@ -95,7 +95,7 @@ sub custom_cmp {
 #
 @custom_cmp_defaults = ();
 
-=head3 another example
+=head3 a custom list evaluator
 
  #
  #  This one installs a custom list-based answer checker (for the
@@ -116,13 +116,17 @@ sub custom_cmp {
  #  a list of formulas becomes a formula returning a list, so in order
  #  to keep the formulas separate, they are passed in an array).
  #
+ #  The checker should return the number of list entries that were
+ #  matched by the students answers.  (I.e., a number between 0
+ #  and the length of the list.)
+ #
  #  For example, the following checks for any list of the same length
  #  as the instructor's list.  (A stupid checker, but just an example.)
  #
- #      custom_list_cmp("1,2,3",sub {
+ #      ANS(custom_list_cmp("1,2,3",sub {
  #        my ($correct,$student,$ans) = @_;
- #        scalar(@{$correct}) == scalar(@{$student});
- #      });
+ #        (scalar(@{$correct}) == scalar(@{$student}) ? 3 : 0);
+ #      }));
  #
  #  The checker subroutine can call Value::Error(message) to generate
  #  an error message that will be reported in the table at the top of
