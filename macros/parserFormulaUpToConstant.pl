@@ -65,6 +65,12 @@ sub _parserFormulaUpToConstant_init {FormulaUpToConstant::Init()}
  #    $h = $f->removeConstant + $g;  # $h will be "sin(x)+cos(x)"
  #    $h = FormulaUpToConstant($h);  # $h will be "sin(x)+cos(x)+C"
  #
+ #  The answer evaluator by default will give "helpful" messages
+ #  to the student when the "+ C" is left out.  You can turn off
+ #  these messages using the showHints option to the cmp() method:
+ #
+ #    ANS($f->cmp(showHints => 0));
+ #
  ######################################################################
 
 =cut
