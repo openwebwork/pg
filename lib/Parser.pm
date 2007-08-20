@@ -71,9 +71,13 @@ sub Item {Parser::Item::Item(@_)}
 #
 sub copy {
   my $self = shift;
-  $self = bless {%{$self}}, ref($self);
-  $self->{tree} = $self->{tree}->copy($self);
-  return $self;
+  my $copy  = bless {%{$self}}, ref($self);
+  $copy->{tree} = $self->{tree}->copy($copy);
+  foreach my $id (keys %{$copy}) {
+    $copy->{$id} = {%{$self->{$id}}} if ref($copy->{$id}) eq 'HASH';
+    $copy->{$id} = [@{$self->{$id}}] if ref($copy->{$id}) eq 'ARRAY';
+  }
+  return $copy;
 }
 
 ##################################################
