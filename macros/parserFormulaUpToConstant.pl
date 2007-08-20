@@ -15,7 +15,7 @@ sub _parserFormulaUpToConstant_init {FormulaUpToConstant::Init()}
  #  To use FormulaWithConstat objects, load this macro file at the
  #  top of your problem:
  #
- #    loadMacros("parserFormulaUpToConstant");
+ #    loadMacros("parserFormulaUpToConstant.pl");
  #
  #  then create a formula with constant as follows:
  #
