@@ -62,20 +62,20 @@ See Parser.pm for information on turning strings into MathObjects.
 =cut
 
 
-sub String   {Value->Package("String")->new(@_)}
-sub Real     {Value->Package("Real")->new(@_)}
-sub Complex  {Value->Package("Complex")->new(@_)}
-sub Point    {Value->Package("Point")->new(@_)}
-sub Vector   {Value->Package("Vector")->new(@_)}
-sub Matrix   {Value->Package("Matrix")->new(@_)}
-sub List     {Value->Package("List")->new(@_)}
-sub Interval {Value->Package("Interval")->new(@_)}
-sub Set      {Value->Package("Set")->new(@_)}
-sub Union    {Value->Package("Union")->new(@_)}
+sub String   {Value->Package("String()")->new(@_)}
+sub Real     {Value->Package("Real()")->new(@_)}
+sub Complex  {Value->Package("Complex()")->new(@_)}
+sub Point    {Value->Package("Point()")->new(@_)}
+sub Vector   {Value->Package("Vector()")->new(@_)}
+sub Matrix   {Value->Package("Matrix()")->new(@_)}
+sub List     {Value->Package("List()")->new(@_)}
+sub Interval {Value->Package("Interval()")->new(@_)}
+sub Set      {Value->Package("Set()")->new(@_)}
+sub Union    {Value->Package("Union()")->new(@_)}
 
-sub ColumnVector {Value->Package("Vector")->new(@_)->with(ColumnVector=>1,open=>undef,close=>undef)}
+sub ColumnVector {Value->Package("Vector()")->new(@_)->with(ColumnVector=>1,open=>undef,close=>undef)}
 
-# sub Formula  {Value->Package("Formula")->new(@_)}  # in Parser.pl
+# sub Formula  {Value->Package("Formula()")->new(@_)}  # in Parser.pl
 
 =head3 Closed($point)
 

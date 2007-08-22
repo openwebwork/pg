@@ -96,6 +96,8 @@ sub copy {
 sub Package {
   my $context = shift; my $class = shift;
   return $context->{value}{$class} if defined $context->{value}{$class};
+  $class =~ s/\(\)$//;
+  return $context->{value}{$class} if defined $context->{value}{$class};
   return "Value::$class" if defined @{"Value::${class}::ISA"};
   Value::Error("No such package 'Value::%s'",$class) unless $_[0];
 }

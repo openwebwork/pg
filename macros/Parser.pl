@@ -37,7 +37,7 @@ loadMacros("PGcommonFunctions.pl");
 =cut
 
 
-sub Formula {Value->Package("Formula")->new(@_)}
+sub Formula {Value->Package("Formula()")->new(@_)}
 
 
 
