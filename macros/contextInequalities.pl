@@ -80,6 +80,10 @@ sub Init {
 	      TeX => '\hbox{ or }', class => 'Inequalities::BOP::or'},
   );
   $context->flags->set(stringifyAsInequalities => 0, noneWord => 'NONE');
+  $context->{cmpDefaults}{Inequalities} = {reduceSets=>1};
+  $context->{cmpDefaults}{Interval} = {reduceSets=>1};
+  $context->{cmpDefaults}{Union} = {reduceSets=>1};
+  $context->{cmpDefaults}{Set} = {reduceSets=>1};
   $context->strings->remove("NONE");
   $context->constants->add(NONE=>Value::Set->new());
   $context->{parser}{Variable} = "Inequalities::Variable";
@@ -339,7 +343,7 @@ our @ISA = ("Parser::List::List");
 sub _check {
   my $self = shift;
   $self->SUPER::_check(@_);
-  $self->Error("You are not allowed to use intervals in this context") if $self->{open};
+  $self->Error("You are not allowed to use intervals or sets in this context") if $self->{open};
 }
 
 ##################################################
@@ -397,6 +401,8 @@ sub TeX {
   return $inequality;
 }
 
+sub cmp_class {"an Inequality"}
+
 ##################################################
 #
 #  Override the string and TeX methods
@@ -444,6 +450,8 @@ sub TeX {
   $TeX = '\left('.$TeX.'\right)' if $prec > ($op->{precedence} || 1.5);
   return $TeX;
 }
+
+sub cmp_class {"an Inequality"}
 
 ##################################################
 #
@@ -502,6 +510,8 @@ sub TeX {
   return '\hbox{'.$self->getFlag('noneWord').'}' unless scalar(@coords);
   return join(" or ",@coords);
 }
+
+sub cmp_class {"an Equality"}
 
 ##################################################
 
