@@ -230,20 +230,31 @@ sub reduce {
 }
 
 #
-#  True if a union is reduced
+#  True if a union is reduced.
+#
+#  (In scalar context, is a pair whose first entry is true or
+#   false, and when true the second value is the reason the
+#   set is not reduced.)
 #
 sub isReduced {
   my $self = shift;
   return 1 if $self->{isReduced};
-  return $self->{data}[0]->isReduced if $self->length == 1;
-  my $reduced = $self->reduce;
-  $reduced = $self->make($reduced) unless $reduced->type eq 'Union';
-  return unless $reduced->length == $self->length;
-  my @R = $reduced->sort->value; my @S = $self->sort->value;
-  foreach my $i (0..$#R) {
-    return unless $R[$i] == $S[$i] && $R[$i]->length == $S[$i]->length;
+  return $self->{data}[0]->isReduced if ($self->length == 1);
+  my @I; my @S; my $Sn = 0; my $error;
+  foreach my $x (@{$self->{data}})
+    {if ($x->type eq 'Interval') {push(@I,$x)} else {$Sn++; push(@S,@{$x->{data}})}}
+  my $U = $self->make(@I); my $sU = $U->sort;
+  my $S = $self->Package("Set")->new($self->context,@S);
+  foreach my $i (0..$sU->length-2) {
+    my ($x,$y) = ($sU->{data}[$i],$sU->{data}[$i+1]);
+    if ($x->intersects($y)) {$error = "overlaps"; last}
+    if (($x + $y)->reduce->type ne 'Union') {$error = "uncombined intervals"; last}
   }
-  return 1;
+  $error = "overlaps" if !$error && $S->intersects($U);
+  $error = "uncombined sets" if !$error && $Sn > 1 && !$self->getFlag('reduceSets');
+  $error = "repeated elements in set" if !$error && !$S->isReduced;
+  return $error ne "" unless $error && wantarray;
+  return (0,$error);
 }
 
 #

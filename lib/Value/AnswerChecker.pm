@@ -74,7 +74,7 @@ sub cmp {
     correct_value => $self,
     $self->cmp_defaults(@_),
     %{$self->{context}{cmpDefaults}{$self->class} || {}},  # context-specified defaults
-    @_
+    @_,
   );
   $ans->{debug} = $ans->{rh_ans}{debug};
   $ans->install_evaluator(sub {
@@ -318,21 +318,15 @@ sub cmp_checkUnionReduce {
   return unless $ans->{studentsMustReduceUnions} &&
                 $ans->{showUnionReduceWarnings} &&
                 !$ans->{isPreview} && !Value::isFormula($student);
-  if ($student->type eq 'Union' && $student->length >= 2) {
-    my $reduced = $student->reduce;
-    return "Your$nth union can be written without overlaps"
-      unless $reduced->type eq 'Union' && $reduced->length == $student->length;
-    my @R = $reduced->sort->value;
-    my @S = $student->sort->value;
-    foreach my $i (0..$#R) {
-      return "Your$nth union can be written without overlaps"
-	unless $R[$i] == $S[$i] && $R[$i]->length == $S[$i]->length;
-    }
-  } elsif ($student->type eq 'Set' && $student->length >= 2) {
-    return "Your$nth set should have no repeated elements"
-      unless $student->reduce->length == $student->length;
-  }
-  return;
+  my ($result,$error) = $student->isReduced;
+  return unless $error;
+  return {
+    overlaps => "Your$nth union can be written without overlaps",
+    "uncombined intervals" => "Your$nth union can be simplified by combining intervals",
+    "uncombined sets" => "Your$nth union can be simplified by combining some sets",
+    "repeated elements in set" => "Your$nth union contains sets with repeated elements",
+    "repeated elements" => "Your$nth set should have no repeated elements",
+  }->{$error};
 }
 
 #

@@ -207,12 +207,18 @@ sub reduce {
 }
 
 #
-#  True if the set is reduced
+#  True if a union is reduced.
+#
+#  (In scalar context, is a pair whose first entry is true or
+#   false, and when true the second value is the reason the
+#   set is not reduced.)
 #
 sub isReduced {
   my $self = shift;
   return 1 if $self->{isReduced} || $self->length < 2;
-  return $self->reduce->length == $self->length;
+  my $isReduced = $self->reduce->length == $self->length;
+  return $isReduced if $isReduced || !wantarray;
+  return (0,"repeated elements");
 }
 
 #
