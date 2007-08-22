@@ -1,3 +1,82 @@
+################################################################################
+# WeBWorK Program Generation Language
+# Copyright � 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# $CVSHeader: pg/macros/PG.pl,v 1.32 2007/08/09 23:24:56 jj Exp $
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
+
+=head1 NAME
+
+PGchoicemacros.pl - Macros for multiple choice, matching, and true/false questions.
+
+=head1 SYNOPSIS
+
+Matching example:
+
+ loadMacros("PGchoicemacros.pl");
+ 
+ # create a new match list
+ $ml = new_match_list();
+ 
+ # enter three questions and their answers
+ $ml->qa(
+ 	"What color is a rose?",
+ 	"Red",
+ 	"What color is the sky?",
+ 	"Blue",
+ 	"What color is the sea?",
+ 	"Green",
+ );
+ 
+ # choose two of these questions, ordered at random,
+ # which will be printed in the problem.
+ $ml->choose(2);
+ 
+ # print the question and answer choices
+ BEGIN_TEXT
+ Match the answers below with these questions: $BR
+ \{ $ml->print_q \} $BR
+ Answers:
+ \{ $ml->print_a \}
+ END_TEXT
+ 
+ # register the correct answer
+ ANS($ml->ra_correct_ans);
+
+=head1 DESCRIPTION
+
+There are two types of choice macros. The older versions are simple subroutines.
+The newer versions involve the List class and its sub-classes and the use of
+objects based on these classes. The list sub-classes are:
+
+=over
+
+=item *
+
+B<Match>, which aids in setting up matching question and answer lists,
+
+=item *
+
+B<Select>, which aids in selecting and presenting a subset of questions with short
+answers (e.g. true/false questions) from a larger question set, and
+
+=item *
+
+B<Multiple>, which aids in setting up a standard one-question-many-answers multiple
+choice question.
+
+=back
+
+=cut
 
 BEGIN{
 	be_strict;
@@ -5,320 +84,36 @@ BEGIN{
 
 package main;
 
-
-=head1 NAME
-
-PGchoicemacros.pl --- located in the courseScripts directory
-
-
-=head1 SYNPOSIS
-
-=pod
-
-There are two types of choice macros. The older versions are simply scripts.
-The newer versions involve the "List.pm" class and its sub-classes
-and the use of objects based on these classes. The list sub-classes are:
-"Match.pm" which aids in setting up matching question
- and answer lists, "Select.pm" which aids in selecting
- and presenting a subset of questions with short answers
-(e.g. true/false questions) from a larger question set, and
-"Multiple.pm" which aids in setting up a
-standard style, one question, many answers type multiple
-choice question.
-
-
-=head1 DESCRIPTION
-
-Sample usage:
-
-
-	$ml = new_match_list();
-	# enter three questions and their answers
-	$ml->qa( 	 "What color is a rose?",
-			 "Red",
-			 "What color is the sky?",
-			 "Blue",
-			 "What color is the sea?",
-			 "Green"
-	);
-	# choose two of these questions, ordered at random,
-	#	which will be printed in the problem.
-	$ml->choose(2);
-	BEGIN_TEXT
-		Match the answers below with these questions:$BR
-		\\{$ml->print_q\\} $BR
-		Answers:
-		\\{$ml->print_a\\}
-	END_TEXT
-
-	ANS( $ml->ra_correct_ans()    );
-
-=cut
-
-
-=head2 Matching List macros
-
-
-=head3 new_match_list
-
-Matching list object creation macro
-
-Usage:
-
-
-	$ml = new_match_list();
-
-Which is short hand for the following direct call to Match
-
-	$ml = new Match(random(1,2000,1), ~~&std_print_q, ~~&std_print_a);
-
-
-Either call will create a matching list object in the variable $ml.
-(I< Note: $ml cannot be a my variable if it is to be used within a BEGIN_TEXT/END_TEXT block.>)
-
-The first argument is the seed for the match list (choosen at random between 1 and 2000 in
-the example above.).  The next two arguments are references to the print subroutines
-used to print the questions and the answers.
-Other printing methods can be used instead of the standard ones.  An
-example of how to do this is demonstrated with
-"pop_up_list_print_q"  below.
-
-=head4 std_print_q
-
-Standard method for formatting a list of questions with answer blanks.
-
-This  formatting routine is the default method for formatting the
-way questions are printed
-for each of the three sub-classes of "List.pm". It lists the questions vertically, numbering
-them sequentially and providing an answer blank before each question.
-C<std_print_q> checks which mode the user is trying to print the
-questions from and returns the appropriately formatted string.
-
-The length of the answer blank can be set with C<$ml->
-
-To replace the standard question formatting method with your own, use:
-
-	$ml->rf_print_q(~~&my_question_format_method)
-
-Your method should be a subroutine of the form C<my_question_format_method($self, @questions)>
-and should return a string to be printed.  The @questions array contains the
-questions to be listed, while $self  can be used to obtain extra information from
-the object for formatting purposes. The variable C<$main::displayMode> contains the
-current display mode.  (See "MODES" for more details on display modes and
-see "writing print methods for lists" for details on constructing formatting subroutines.)
-
-
-=head4 std_print_a
-
-Standard method for formatting a list of answers.
-
-This simple formatting routine is the default method for formatting
-the answers for matching lists.  It lists the answers vertically
-lettered sequentially.
-
-To replace the standard answer formatting method with your own subroutine use:
-
-	$ml->rf_print_q(~~&my_answer_format_method)
-
-The answer formatting method has the same interface as the question formatting
-method.
-
-
-=head2 Select List macros
-
-
-=head3 new_select_list
-
-Select list object creation macro
-
-Usage:
-
-	$sl = new_select_list;
-
-Which is equivalent to this direct call to Select
-
-	$sl = new Select(random(1,2000,1), ~~&std_print_q, ~~&std_print_a);
-
-
-Either call will create a select list object in the variable $sl. ( Note that
-$sl cannot be a my variable if it is to be used within a BEGIN_TEXT/END_TEXT
-block.)  The printing methods are the same as those defined for C<new_match_list>
-above.
-See the documentation for "Select.pm" to see how to use this
-object to create a true/false question.
-
-std_print_a is only intended to be used for debugging with select lists, as there is rarely a reason to
-print out the answers to a select list.
-
-
-=head3 new_pop_up_select_list
-
-
-
-Usage:
-
-	$sl = new_pop_up_select_list;</I></PRE>
-
-Which is equivalent to this direct call to Select
-
-	$sl = new Select(random(1,2000,1), ~~&pop_up_list_print_q, ~~&std_print_a);
-
-
-Either call will create a select list object in the variable $sl. ( Note that
-$sl cannot be a my variable if it is to be used within a BEGIN_TEXT/END_TEXT
-block.)  The printing methods are passed as references (~~ in PG equals \ in
-perl) to subroutines so that no matter what printing subroutines are used,
-those subroutines can be used by saying $sl->print_q and $sl->print_a.  This
-also means that other subroutines can be used instead of the default ones.
-
-See the documentation for <a href='Select'>Select.pm</a> to see how to use this
-	object to create a true/false question.
-
-
-=head4 std_print_q
-
-Standard method for printing questions with answer boxes
-
-See std_print_q under Matching Lists above.
-
-
-=head4 pop_up_list_print_q
-
-Alternate method for print questions with pop up lists.
-
-Usage:
-
-This printing routine is used to print the questions for a true/false or other
-select list with a preceding pop up list of possible answers.  A list of values
-and labels need to be given to the pop_up_list so that the intended answer is
-returned when a student selects an answer form the list.  Notethe use of => to
-associate the values on the left with the labels on the right, this means that,
-for instance, the student will see the word True in the pop_up_list but the
-answer that is returned to the grader is T, so that it corresponds with what
-the professor typed in as the answer when using $sl->qa('blah blah', 'T');
-
-=for html
-	<PRE>
-	<I>$sl->ra_pop_up_list([</I>value<I> => </I>label<I>,
-							T => 'True',
-							F => 'False']);</I></PRE>
-
-
-=head4 std_print_a
-
-This is only intended to be used for debugging as there is rarely a reason to
-print out the answers to a select list.
-
-See std_print_a under Matching Lists above.
-
-
-=head2 Multiple Choice macros
-
-
-=head3 new_multiple_choice
-
-Multiple choice object creation macro
-
-Usage:
-
-=for html
-	<PRE>
-	<I>$mc = new_multiple_choice;</I></PRE>
-
-Which is equivalent to this direct call to Multiple
-
-=for html
-	<PRE>
-	<I>$mc = new Multiple(random(1,2000,1), ~~&std_print_q, ~~&std_print_a);</I></PRE>
-
-Either call will create a multiple choice object in the variable $mc. Note that
-$mc cannot be a my variable if it is to be used within a BEGIN_TEXT/END_TEXT
-block.
-
-=for html
-	<P>See the documentation for <a href='Multiple'>Multiple.pm</a> to see how to use
-	this object to create a multiple choice question.
-
-
-=head4 std_print_q
-
-Standard method for printing questions
-
-See std_print_q under Matching Lists above.
-
-
-=head4 radio_print_a
-
-Method for printing answers with radio buttons
-
-This simple printing routine is used to print the answers to multiple choice
-questions in a bulleted style with radio buttons preceding each possible answer.
-When a multiple choice object is created, a reference to radio_print_a is passed
-to that object so that it can be used from within the object later.
-
-radio_print_a checks which mode the user is trying to print the answers from and
-returns the appropriately formatted string.
-
-
-=head3 new_checkbox_multiple_choice
-
-Checkbox multiple choice object creation macro
-
-Usage:
-
-=for html
-	<PRE>
-	<I>$cmc = new_checkbox_multiple_choice;</I></PRE>
-
-Which is equivalent to this direct call to Multiple
-
-=for html
-	<PRE>
-	<I>$cmc = new Multiple(random(1,2000,1), ~~&std_print_q, ~~&checkbox_print_a);</I></PRE>
-
-Either call will create a checkbox multiple choice object in the variable $cmc. Note that
-$cmc cannot be a my variable if it is to be used within a BEGIN_TEXT/END_TEXT
-block.
-
-=for html
-	<P>See the documentation for <a href='Multiple'>Multiple.pm</a> to see how to use
-	this object to create a multiple choice question.
-
-
-=head4 std_print_q
-
-Standard method for printing questions
-
-See std_print_q under Matching Lists above.
-
-
-=head4 checkbox_print_a
-
-Method for printing answers with radio buttons
-
-This simple printing routine is used to print the answers to multiple choice
-questions in a bulleted style with checkboxes preceding each possible answer.
-When a multiple choice object is created, a reference to checkbox_print_a is passed
-to that object so that it can be used from within the object later.
-
-checkbox_print_a checks which mode the user is trying to print the answers from and
-returns the appropriately formatted string.
-
-
-
-=cut
 BEGIN {
 	be_strict();
 }
 sub _PGchoicemacros_init{
 }
 
-=head4 new_match_list
+=head1 MACROS
 
-	Usage: $ml = new_match_list();
+=cut
 
+################################################################################
 
-Note that $ml cannot be a my variable if used within a BEGIN_TEXT/END_TEXT block
+=head2 Match lists
+
+=over
+
+=item new_match_list
+
+ $ml = new_match_list();
+
+new_match_list() creates a new Match object and initializes it with sensible
+defaults. It is equivalent to:
+
+ $ml = new Match(random(1,2000,1), ~~&std_print_q, ~~&std_print_a);
+
+The first argument is the seed for the match list (choosen at random between 1
+and 2000 in the example above). The next two arguments are references to the
+print subroutines used to print the questions and the answers. Other printing
+methods can be used instead of the standard ones. An example of how to do this
+is demonstrated with pop_up_list_print_q() below.
 
 =cut
 
@@ -326,10 +121,33 @@ sub new_match_list {
 	new Match(random(1,2000,1), \&std_print_q, \&std_print_a);
 }
 
-=head4 new_select_list
-	sage: $sl = new_select_list();
+=back
 
-Note that $sl cannot be a my variable if used within a BEGIN_TEXT/END_TEXT block
+=cut
+
+################################################################################
+
+=head2 Select lists
+
+=over
+
+=item new_select_list
+
+ $sl = new_select_list();
+
+new_select_list() creates a new Select object and initializes it with sensible
+defaults. It is equivalent to:
+
+ $sl = new Select(random(1,2000,1), ~~&std_print_q, ~~&std_print_a);
+
+The parameters to the Select constructor are the same as those for the Match
+constrcutor described above under new_match_list().
+
+See the documentation for the Select class to see how to use this object to
+create a true/false question.
+
+std_print_a is only intended to be used for debugging with select lists, as
+there is rarely a reason to print out the answers to a select list.
 
 =cut
 
@@ -337,9 +155,14 @@ sub new_select_list {
 	new Select(random(1,2000,1), \&std_print_q, \&std_print_a);
 }
 
-=head4 new_pop_up_select_list;
+=item new_pop_up_select_list()
 
-	Usage: $pusl = new_pop_up_select_list();
+ $sl = new_pop_up_select_list();
+
+new_popup_select_list() creates a new Select object and initializes it such that
+it will render as a popup list. It is equivalent to:
+
+ $selectlist = new Select(random(1,2000,1), ~~&pop_up_list_print_q, ~~&std_print_a);
 
 =cut
 
@@ -347,20 +170,43 @@ sub new_pop_up_select_list {
 	new Select(random(1,2000,1), \&pop_up_list_print_q, \&std_print_a);
 }
 
-=head4 new_multiple_choice
-
-	Usage: $mc = new_multiple_choice();
+=back
 
 =cut
 
+################################################################################
+
+=head2 Multiple choice quesitons
+
+=over
+
+=item new_multiple_choice()
+
+ $mc = new_multiple_choice();
+
+new_multiple_choice() creates a new Multiple object that presents a question and
+a number possible answers, only one of which can be chosen. It is equivalent to:
+
+ $mc = new Multiple(random(1,2000,1), ~~&std_print_q, ~~&radio_print_a);
+
+The parameters to the Multiple constructor are the same as those for the Match
+constrcutor described above under new_match_list().
+
+=cut
 
 sub new_multiple_choice {
 	new Multiple(random(1,2000,1), \&std_print_q, \&radio_print_a);
 }
 
-=head4 new_checkbox_multiple_choice
+=item new_checkbox_multiple_choice()
 
-	Usage: $mcc = new_checkbox_multiple_choice();
+ $mc = new_checkbox_multiple_choice();
+
+new_checkbox_multiple_choice() creates a new Multiple object that presents a
+question and a number possible answers, any number of which can be chosen. It is
+equivalent to:
+
+ $mc = new Multiple(random(1,2000,1), ~~&std_print_q, ~~&checkbox_print_a);
 
 =cut
 
@@ -368,10 +214,81 @@ sub new_checkbox_multiple_choice {
 	new Multiple(random(1,2000,1), \&std_print_q, \&checkbox_print_a);
 }
 
-=head4 initializing a pop_up_list
+=back
 
-	Usage:	$sl->rf_print_a(~~&pop_up_list_print_q);
-			$sl->ra_pop_up_list([</I>value<I> => </I>label<I>, T => 'True', F => 'False']);
+=cut
+
+################################################################################
+
+=head2 Question printing subroutines
+
+=over
+
+=item std_print_q()
+
+ # $list can be a matching list, a select list, or a multiple choice list
+ $list->rf_print_q(~~&std_print_q);
+ TEXT($list->print_q);
+
+This formatting routine is the default method for formatting the way questions
+are printed for each of the three List sub-classes. It lists the questions
+vertically, numbering them sequentially and providing an answer blank before
+each question. std_print_q() checks which mode the user is trying to print the
+questions from and returns the appropriately formatted string.
+
+=cut
+
+#Standard method of printing questions in a matching or select list
+sub std_print_q {
+    my $self = shift;
+    my (@questions) = @_;
+    my $length = $self->{ans_rule_len};
+    my $out = "";
+ 	#if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth') {
+ 	if ($main::displayMode =~ /^HTML/) {
+	        my $i=1; my $quest; $out = "\n<P>\n";
+ 		foreach $quest (@questions) {
+ 			 $out.=	ans_rule($length) . "&nbsp;<B>$i.</B> $quest<BR>";
+ 			 $i++;
+ 		}
+	} elsif ($main::displayMode eq 'Latex2HTML') {
+	        my $i=1; my $quest; $out = "\\par\n";
+		foreach $quest (@questions) {
+			 $out.=	ans_rule($length) . "\\begin{rawhtml}<B>$i. </B>\\end{rawhtml} $quest\\begin{rawhtml}<BR>\\end{rawhtml}\n";
+			 $i++;
+		}
+	}  elsif ($main::displayMode eq 'TeX') {
+	    $out = "\n\\par\\begin{enumerate}\n";
+	    my $i=1; my $quest;
+	 	foreach $quest (@questions) {
+	 		$out .= "\\item[" . ans_rule($length) . "$i.] $quest\n";
+	 		$i++;
+	 	}
+	 	$out .= "\\end{enumerate}\n";
+	} else {
+		$out = "Error: PGchoicemacros: std_print_q: Unknown displayMode: $main::displayMode.\n";
+	}
+	$out;
+
+}
+
+=item pop_up_list_print_q()
+
+ $sl->rf_print_q(~~&pop_up_list_print_q);
+ $sl->ra_pop_up_list([T => 'True', F => 'False']);
+ TEXT($sl->print_q);
+
+Alternate method for print questions with pop up lists.
+
+This printing routine is used to print the questions for a true/false or other
+select list with a preceding pop up list of possible answers. A list of values
+and labels need to be given to the pop_up_list so that the intended answer is
+returned when a student selects an answer form the list. Note the use of => in
+the example above to associate the values on the left with the labels on the
+right, this means that, for instance, the student will see the word True in the
+pop_up_list but the answer that is returned to the grader is T, so that it
+corresponds with what the professor typed in as the answer when using
+$sl->qa('blah blah', 'T');
 
 =cut
 
@@ -425,10 +342,19 @@ sub pop_up_list_print_q {
 #	$out;
 #}
 
+=item quest_first_pop_up_list_print_q()
+
+ $sl->rf_print_q(~~&quest_first_pop_up_list_print_q);
+ $sl->ra_pop_up_list([T => 'True', F => 'False']);
+ TEXT($sl->print_q);
+
+Similar to pop_up_list_print_q(), but places the popup list after the question
+text in the output.
+
+=cut
 
 # To put pop-up-list at the end of a question.
 # contributed by Mark Schmitt 3-6-03
-
 sub quest_first_pop_up_list_print_q {
     my $self = shift;
     my (@questions) = @_;
@@ -467,9 +393,21 @@ sub quest_first_pop_up_list_print_q {
 	$out;
 
 }
+
+=item ans_in_middle_pop_up_list_print_q()
+
+ $sl->rf_print_q(~~&ans_in_middle_pop_up_list_print_q);
+ $sl->ra_pop_up_list([T => 'True', F => 'False']);
+ TEXT($sl->print_q);
+
+Similar to quest_first_pop_up_list_print_q(), except that no linebreaks are
+printed between questions, allowing for the popup list to be placed in the
+middle of the text of a problem.
+
+=cut
+
 # To put pop-up-list in the middle of a question.
 # contributed by Mark Schmitt 3-6-03
-
 sub ans_in_middle_pop_up_list_print_q {
     my $self = shift;
     my (@questions) = @_;
@@ -509,10 +447,15 @@ sub ans_in_middle_pop_up_list_print_q {
 
 }
 
+=item units_list_print_q
+
+A simple popup question printer. No question text is printed, instead the
+pop_up_list contents only are printed as a popup menu.
+
+=cut
 
 # Units for physics class
 # contributed by Mark Schmitt 3-6-03
-
 sub units_list_print_q {
     my $self = shift;
     my (@questions) = @_;
@@ -524,6 +467,27 @@ sub units_list_print_q {
 
     $out;
 }
+
+=back
+
+=cut
+
+################################################################################
+
+=head2 Answer printing subroutines
+
+=over
+
+=item std_print_a
+
+ # $list can be a matching list, a select list, or a multiple choice list
+ $list->rf_print_a(~~&std_print_a);
+ TEXT($list->print_a);
+
+This simple formatting routine is the default method for formatting the answers
+for matching lists.  It lists the answers vertically lettered sequentially.
+
+=cut
 
 #Standard method of printing answers in a matching list
 sub std_print_a {
@@ -560,8 +524,21 @@ sub std_print_a {
 
 }
 
+=item radio_print_a()
 
+ # $list can be a matching list, a select list, or a multiple choice list
+ $list->rf_print_q(~~&radio_print_q);
+ TEXT($list->print_q);
 
+This simple printing routine is used to print the answers to multiple choice
+questions in a bulleted style with radio buttons preceding each possible answer.
+When a multiple choice object is created, a reference to radio_print_a is passed
+to that object so that it can be used from within the object later.
+
+radio_print_a checks which mode the user is trying to print the answers from and
+returns the appropriately formatted string.
+
+=cut
 
 #Alternate method of printing answers as a list of radio buttons for multiple choice
 sub radio_print_a {
@@ -602,6 +579,22 @@ sub radio_print_a {
 	$out;
 
 }
+
+=item checkbox_print_a()
+
+ # $list can be a matching list, a select list, or a multiple choice list
+ $list->rf_print_q(~~&radio_print_q);
+ TEXT($list->print_q);
+
+This simple printing routine is used to print the answers to multiple choice
+questions in a bulleted style with checkboxes preceding each possible answer.
+When a multiple choice object is created, a reference to checkbox_print_a is passed
+to that object so that it can be used from within the object later.
+
+checkbox_print_a checks which mode the user is trying to print the answers from and
+returns the appropriately formatted string.
+
+=cut
 
 #Second alternate method of printing answers as a list of radio buttons for multiple choice
 #Method for naming radio buttons is no longer round about and hackish
@@ -644,53 +637,27 @@ sub checkbox_print_a {
 
 }
 
-
-#Standard method of printing questions in a matching or select list
-sub std_print_q {
-    my $self = shift;
-    my (@questions) = @_;
-    my $length = $self->{ans_rule_len};
-    my $out = "";
- 	#if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth') {
- 	if ($main::displayMode =~ /^HTML/) {
-	        my $i=1; my $quest; $out = "\n<P>\n";
- 		foreach $quest (@questions) {
- 			 $out.=	ans_rule($length) . "&nbsp;<B>$i.</B> $quest<BR>";
- 			 $i++;
- 		}
-	} elsif ($main::displayMode eq 'Latex2HTML') {
-	        my $i=1; my $quest; $out = "\\par\n";
-		foreach $quest (@questions) {
-			 $out.=	ans_rule($length) . "\\begin{rawhtml}<B>$i. </B>\\end{rawhtml} $quest\\begin{rawhtml}<BR>\\end{rawhtml}\n";
-			 $i++;
-		}
-	}  elsif ($main::displayMode eq 'TeX') {
-	    $out = "\n\\par\\begin{enumerate}\n";
-	    my $i=1; my $quest;
-	 	foreach $quest (@questions) {
-	 		$out .= "\\item[" . ans_rule($length) . "$i.] $quest\n";
-	 		$i++;
-	 	}
-	 	$out .= "\\end{enumerate}\n";
-	} else {
-		$out = "Error: PGchoicemacros: std_print_q: Unknown displayMode: $main::displayMode.\n";
-	}
-	$out;
-
-}
-
-
-
-=head3 legacy macros
-
-These are maintained for backward compatibility.
-They can still be useful in constructing non-standard lists that don't fit
-the various list objects.  In general the using the list objects is likely
-to give better results and is preferred.
+=back
 
 =cut
 
-=head4 qa
+################################################################################
+
+=head2 Legacy macros
+
+These are maintained for backward compatibility. They can still be useful in
+constructing non-standard lists that don't fit the various list objects. In
+general the using the list objects is likely to give better results and is
+preferred.
+
+=over
+
+=item [DEPRECATED] qa()
+
+ qa($questions, $answers, @new_qa);
+
+$questions and $answers are references to arrays, and @new_qa is a list of
+questions and answers to add to the $questions and $answers arrays.
 
 =cut
 
@@ -703,7 +670,12 @@ sub qa {
 	}
 }
 
-=head4 invert
+=item [DEPRECATED] invert()
+
+ @b = invert(@a);
+
+Inverts an arrays values and indexes. For example, C<invert(1,2,4,8)> returns
+C<undef,0,1,undef,2,undef,undef,undef,4>.
 
 =cut
 
@@ -717,7 +689,11 @@ sub invert {
 	@out;
 }
 
-=head4 NchooseK
+=item [DEPRECATED] NchooseK()
+
+ @b = NchooseK($N, $K);
+
+Selects $K random nonrepeating elements in the range 0 to $N-1.
 
 =cut
 
@@ -731,7 +707,11 @@ sub NchooseK {
 	@out;
 }
 
-=head4 shuffle
+=item [DEPRECATED] shuffle()
+
+ @b = shuffle($i);
+
+Returns the integers from 0 to $i-1 in random order.
 
 =cut
 
@@ -741,7 +721,7 @@ sub shuffle {
 	@out;
 }
 
-=head4 match_questions_list
+=item [DEPRECATED] match_questions_list()
 
 =cut
 
@@ -777,7 +757,9 @@ sub match_questions_list {
 	$out;
 }
 
+=item [DEPRECATED] match_questions_list_varbox()
 
+=cut
 
 sub match_questions_list_varbox {
 	my ($length, @questions) = @_;
@@ -811,6 +793,9 @@ sub match_questions_list_varbox {
 	$out;
 }
 
+=back
 
+=cut
 
 1;
+
