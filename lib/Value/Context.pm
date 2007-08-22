@@ -28,7 +28,7 @@ sub new {
       msg => {},  # for localization
     },
     data => {
-      hashes => [],
+      hashes => ['cmpDefaults'],
       arrays => ['data'],
       values => ['pattern','format','value'],
       objects => [],
