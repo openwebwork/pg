@@ -161,6 +161,7 @@ sub Init {
   #  Hook into the Value package lookup mechanism
   #
   $context->{value}{ScientificNotation} = 'ScientificNotation::Real';
+  $context->{value}{"Real()"} = 'ScientificNotation::Real';
 
   #
   #  Create the constructor function
