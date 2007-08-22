@@ -85,6 +85,8 @@ sub copy {
     $context->{$data} = {%{$self->{$data}}};
   }
   $context->{error}{msg} = {%{$self->{error}{msg}}};
+  $context->{error}{convert} = $self->{error}{convert}
+    if defined $self->{error}{convert};
   $context->{_initialized} = 1;
   return $context;
 }
@@ -133,6 +135,8 @@ sub setError {
   while ($more && $error->{msg}{$more}) {$more = $error->{msg}{$more}}
   $message = sprintf($message,@args) if scalar(@args) > 0;
   $message .= sprintf($more,$pos->[0]+1) if $more;
+  while ($message && $error->{msg}{$message}) {$message = $error->{msg}{$message}}
+  $message = &{$error->{convert}}($message) if defined $error->{convert};
   $error->{message} = $message;
   $error->{string} = $string;
   $error->{pos} = $pos;
