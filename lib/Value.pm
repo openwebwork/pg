@@ -821,7 +821,7 @@ sub compare {
 #
 sub compare_string {
   my ($l,$r,$flag) = @_;
-  $l = $l->stringify; $r = $r->stringify if Value::isValue($r);
+  $l = $l->string; $r = $r->string if Value::isValue($r);
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
   return $l cmp $r;
 }
