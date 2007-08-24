@@ -5,6 +5,13 @@
 #
 package Parser::Item;
 use strict;
+use UNIVERSAL;
+
+#
+#  Make these available to Parser items
+#
+sub isa {UNIVERSAL::isa(@_)}
+sub can {UNIVERSAL::can(@_)}
 
 #
 #  Return the class name of an item

@@ -6,6 +6,7 @@
 package Value::Context;
 my $pkg = "Value::Context";
 use strict;
+use UNIVERSAL;
 
 #
 #  Create a new Context object and initialize its data lists
@@ -103,6 +104,12 @@ sub Package {
   return "Value::$class" if defined @{"Value::${class}::ISA"};
   Value::Error("No such package 'Value::%s'",$class) unless $_[0];
 }
+
+#
+#  Make these available to Contexts
+#
+sub isa {UNIVERSAL::isa(@_)}
+sub can {UNIVERSAL::can(@_)}
 
 #
 #  Make stringify produce TeX or regular strings
