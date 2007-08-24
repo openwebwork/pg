@@ -73,9 +73,9 @@ sub copy {
   my $self = shift;
   my $copy  = bless {%{$self}}, ref($self);
   $copy->{tree} = $self->{tree}->copy($copy);
-  foreach my $id (keys %{$copy}) {
-    $copy->{$id} = {%{$self->{$id}}} if ref($copy->{$id}) eq 'HASH';
-    $copy->{$id} = [@{$self->{$id}}] if ref($copy->{$id}) eq 'ARRAY';
+  foreach my $id (keys %{$self}) {
+    $copy->{$id} = {%{$self->{$id}}} if ref($self->{$id}) eq 'HASH';
+    $copy->{$id} = [@{$self->{$id}}] if ref($self->{$id}) eq 'ARRAY';
   }
   return $copy;
 }
