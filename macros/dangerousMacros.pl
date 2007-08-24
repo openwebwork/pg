@@ -122,6 +122,7 @@ sub _dangerousMacros_init {   #use  envir instead of local variables?
     $scriptDirectory          = eval('$main::envir{scriptDirectory}');
     $externalTTHPath          = eval('$main::envir{externalTTHPath}');
     $pwd = $templateDirectory.$pwd unless substr($pwd,0,1) eq '/';
+    $pwd =~ s!/tmpEdit/!/!;
     warn "dangerousmacros initialized" if $debugON;
     warn eval(q! "dangerousmacros.pl externalTTHPath is ".$main::externalTTHPath;!) if $debugON;
     warn eval(q! "dangerousmacros.pl:  The envir variable $main::{envir} is".join(" ",%main::envir)!) if $debugON; 
@@ -891,6 +892,10 @@ sub alias {
 
 	my $aux_file_path = shift @_;
 	warn "Empty string used as input into the function alias" unless $aux_file_path;
+	#
+	#  Find auxiliary files even when the main file is in tempates/tmpEdit
+	#
+	$fileName =~ s!(^|/)tmpEdit/!\1!;
 
 	# problem specific data
 	warn "The path to the current problem file template is not defined."     unless $fileName;
@@ -1023,7 +1028,7 @@ sub alias {
 				my $libFix = "";
 				if ($setNumber eq "Undefined_Set") {
 				  $libFix = $fileName;
-				  $libFix =~ s!.*/!!; $libFix =~ s!\.[^.]*$!!;
+				  $libFix =~ s!.*/!!; $libFix =~ s!\.pg(\..*)?$!!;
 				  $libFix =~ s![^a-zA-Z0-9._-]!!g;
 				  $libFix .= '-';
 				}
