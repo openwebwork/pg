@@ -1017,7 +1017,18 @@ sub alias {
 				# it gives the full path to the current problem
 				my $gifSourceFile = convertPath("$templateDirectory${filePath}$aux_file_path.gif");
 				#my $link = "gif/$studentLogin-$psvnNumber-set$setNumber-prob$probNum-$aux_file_path.$ext";
-				my $link = "gif/$setNumber-prob$probNum-$aux_file_path.$ext";
+
+				#  Make file names work in Library Browser when the images in several
+				#  files have the same names.
+				my $libFix = "";
+				if ($setNumber eq "Undefined_Set") {
+				  $libFix = $fileName;
+				  $libFix =~ s!.*/!!; $libFix =~ s!\.[^.]*$!!;
+				  $libFix =~ s![^a-zA-Z0-9._-]!!g;
+				  $libFix .= '-';
+				}
+
+				my $link = "gif/$setNumber-prob$probNum-$libFix$aux_file_path.$ext";
 
 				my $linkPath = surePathToTmpFile($link);
 				$adr_output = "${tempURL}$link";
