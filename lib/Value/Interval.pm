@@ -16,7 +16,7 @@ our @ISA = qw(Value);
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  if (scalar(@_) == 1 && (!ref($_[0]) || ref($_[0]) eq 'ARRAY')) {
+  if (scalar(@_) == 1) {
     my $x = Value::makeValue($_[0],context=>$context);
     if (Value::isFormula($x)) {
       return $x if $x->type eq 'Interval';
@@ -151,7 +151,7 @@ sub promote {
   my $x = (scalar(@_) ? shift : $self);
   return $self->new($context,$x,@_) if scalar(@_) > 0;
   $x = Value::makeValue($x,context=>$context);
-  return $x if $x->isSetOfReals;
+  return $x->inContext($context) if $x->isSetOfReals;
   return $context->Package("Set")->new($context,$x) if Value::isReal($x);
   my $open  = $x->{open};  $open  = '(' unless defined($open);
   my $close = $x->{close}; $close = ')' unless defined($close);
