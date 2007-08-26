@@ -28,10 +28,9 @@ sub new {
   my $context = $equation->{context};
   my $parens = $context->{parens};
 
-  if ($paren && $close && $paren->{formInterval}) {
+  if ($paren && $close && $paren->{formInterval} && scalar(@{$coords}) == 2) {
     $paren = $parens->{interval}
-      if ($paren->{close} ne $close || (scalar(@{$coords}) == 2 &&
-           ($coords->[0]->{isInfinite} || $coords->[1]->{isInfinite})));
+      if $paren->{close} ne $close || $coords->[0]->{isInfinite} || $coords->[1]->{isInfinite};
   }
   my $type = Value::Type($paren->{type},scalar(@{$coords}),$entryType,
                                 list => 1, formMatrix => $paren->{formMatrix});
