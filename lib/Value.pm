@@ -669,10 +669,11 @@ use overload
 sub promotePrecedence {
   my $self = shift; my $other = shift; my $context = $self->context;
   return 0 unless Value::isValue($other);
-  my $sprec = $context->{precedence}{class($self)};
-  my $oprec = $context->{precedence}{class($other)};
+  my $sprec = $self->precedence; my $oprec = $other->precedence;
   return (defined($sprec) && defined($oprec) && $sprec < $oprec);
 }
+
+sub precedence {my $self = shift; return $self->context->{precedence}{$self->class}}
 
 sub promote {
   my $self = shift; my $class = ref($self) || $self;
