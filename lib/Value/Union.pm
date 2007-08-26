@@ -253,7 +253,7 @@ sub isReduced {
   $error = "overlaps" if !$error && $S->intersects($U);
   $error = "uncombined sets" if !$error && $Sn > 1 && !$self->getFlag('reduceSets');
   $error = "repeated elements in set" if !$error && !$S->isReduced;
-  return $error ne "" unless $error && wantarray;
+  return $error eq "" unless $error && wantarray;
   return (0,$error);
 }
 
