@@ -104,7 +104,7 @@ sub promote {
   return $context->Package("Set")->new($context,$x,@_) if scalar(@_) > 0 || Value::isReal($x);
   return $x->inContext($context) if ref($x) eq $class;
   $x = $context->Package("Interval")->promote($context,$x) if $x->canBeInUnion;
-  return $self->make($context,$x) if Value::isValue($x) && $x->isSetOfReals;
+  return $self->make($context,$x) if $x->isSetOfReals;
   Value::Error("Can't convert %s to an Interval, Set or Union",Value::showClass($x));
 }
 
