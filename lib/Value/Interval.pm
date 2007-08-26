@@ -22,7 +22,7 @@ sub new {
       return $x if $x->type eq 'Interval';
       Value::Error("Formula does not return an Interval");
     }
-    return $self->promote($x);
+    return $self->promote($context,$x);
   }
   my @params = @_;
   Value::Error("Interval can't be empty") unless scalar(@params) > 0;
