@@ -591,6 +591,7 @@ sub Type {
   complex  => Value::Type('Number',2),
   string   => Value::Type('String',1),
   infinity => Value::Type('Infinity',1),
+  interval => Value::Type('Interval',2),
   unknown  => Value::Type('unknown',0,undef,list => 1)
 );
 
