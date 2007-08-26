@@ -321,7 +321,8 @@ sub cmp_checkUnionReduce {
   my ($result,$error) = $student->isReduced;
   return unless $error;
   return {
-    overlaps => "Your$nth union can be written without overlaps",
+    "overlaps" => "Your$nth union contains overlapping intervals",
+    "overlaps in sets" => "Your$nth union contains sets and intervals that overlap",
     "uncombined intervals" => "Your$nth union can be simplified by combining intervals",
     "uncombined sets" => "Your$nth union can be simplified by combining some sets",
     "repeated elements in set" => "Your$nth union contains sets with repeated elements",
