@@ -65,6 +65,7 @@ package Inequalities;
 #
 sub Init {
   my $context = $main::context{Inequalities} = Parser::Context->getCopy("Interval");
+  $context->{name} = "Inequalities";
   $context->operators->add(
      '<'  => {precedence => .5, associativity => 'left', type => 'bin', string => ' < ',
               class => 'Inequalities::BOP::inequality', eval => 'evalLessThan', combine => 1},

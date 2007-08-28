@@ -62,6 +62,7 @@ package context::String;
 
 sub Init {
   my $context = $main::context{String} = Parser::Context->getCopy("Numeric");
+  $context->{name} = "String";
   $context->parens->clear();
   $context->variables->clear();
   $context->constants->clear();

@@ -59,6 +59,7 @@ our @ISA = qw(Value::Formula);
 
 sub Init {
   my $context = $main::context{ImplicitPlane} = Parser::Context->getCopy("Vector");
+  $context->{name} = "ImplicitPlane";
   $context->{precedence}{ImplicitPlane} = $context->{precedence}{special};
   #$context->{value}{Equality} = "ImplicitPlane::equality";
   Parser::BOP::equality->Allow($context);

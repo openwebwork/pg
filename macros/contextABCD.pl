@@ -34,6 +34,7 @@ loadMacros("MathObjects.pl","contextString.pl");
 
 sub _contextABCD_init {
   my $context = $main::context{ABCD} = Parser::Context->getCopy("String");
+  $context->{name} = "ABCD";
   $context->strings->are(
     "A" => {},
     "B" => {},

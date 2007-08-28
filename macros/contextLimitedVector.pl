@@ -213,6 +213,7 @@ sub Init {
   #
 
   my $context = $main::context{LimitedVector} = Parser::Context->getCopy("Vector");
+  $context->{name} = "LimitedVector";
   $context->operators->set(
      '+' => {class => 'LimitedVector::BOP::add'},
      '-' => {class => 'LimitedVector::BOP::subtract'},

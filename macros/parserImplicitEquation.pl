@@ -135,6 +135,7 @@ our @ISA = qw(Value::Formula);
 
 sub Init {
   my $context = $main::context{ImplicitEquation} = Parser::Context->getCopy("Numeric");
+  $context->{name} = "ImplicitEquation";
   $context->variables->are(x=>'Real',y=>'Real');
   $context{precedence}{ImplicitEquation} = $context->{precedence}{special};
   Parser::BOP::equality->Allow($context);

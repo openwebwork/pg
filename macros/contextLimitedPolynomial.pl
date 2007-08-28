@@ -322,6 +322,7 @@ sub Init {
   #
 
   my $context = $main::context{LimitedPolynomial} = Parser::Context->getCopy("Numeric");
+  $context->{name} = "LimitedPolynomial";
   $context->operators->set(
      '+' => {class => 'LimitedPolynomial::BOP::add'},
      '-' => {class => 'LimitedPolynomial::BOP::subtract'},

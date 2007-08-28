@@ -45,6 +45,7 @@ sub P {
 
 sub Init {
   my $context = $main::context{IntegerFunctions} = Parser::Context->getCopy("Numeric");
+  $context->{name} = "IntegerFunctions";
 
   $context->functions->add(
     C => {class => 'context::IntegerFunction2'},

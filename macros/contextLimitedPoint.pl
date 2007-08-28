@@ -116,6 +116,7 @@ sub Init {
   #
 
   my $context = $main::context{LimitedPoint} = Parser::Context->getCopy("Point");
+  $context->{name} = "LimitedPoint";
   $context->operators->set(
     '+' => {class => 'LimitedPoint::BOP::add'},
     '-' => {class => 'LimitedPoint::BOP::subtract'},

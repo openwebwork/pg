@@ -230,6 +230,7 @@ sub Init {
   #
 
   my $context = $main::context{LimitedComplex} = Parser::Context->getCopy("Complex");
+  $context->{name} = "LimitedComplex";
   $context->operators->set(
      '+' => {class => 'LimitedComplex::BOP::add'},
      '-' => {class => 'LimitedComplex::BOP::subtract'},

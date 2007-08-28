@@ -49,6 +49,7 @@ our @ISA = qw(Value::Formula);
 
 sub Init {
   my $context = $main::context{ParametricLine} = Parser::Context->getCopy("Vector");
+  $context->{name} = "ParametricLine";
   $context->variables->are(t=>'Real');
   $context->{precedence}{ParametricLine} = $context->{precedence}{special};
   $context->reduction->set('(-x)-y'=>0);

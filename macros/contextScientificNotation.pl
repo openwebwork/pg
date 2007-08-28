@@ -103,6 +103,7 @@ sub Init {
   #  Create the Scientific Notation context
   #
   my $context = $main::context{ScientificNotation} = Parser::Context->getCopy("Numeric");
+  $context->{name} = "ScientificNotation";
 
   #
   #  Make numbers include the leading + or - and not allow E notation

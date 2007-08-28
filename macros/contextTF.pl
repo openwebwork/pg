@@ -25,6 +25,7 @@ loadMacros("MathObjects.pl","contextString.pl");
 sub _contextTF_init {
 
   my $context = $main::context{TF} = Parser::Context->getCopy("String");
+  $context->{name} = "TF";
   $context->strings->are(
     "T" => {value => 1},
     "F" => {value => 0},

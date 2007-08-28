@@ -132,6 +132,8 @@ package Currency;
 #
 sub Init {
   my $context = $main::context{Currency} = new Currency::Context();
+  $context->{name} = "Currency";
+
   main::PG_restricted_eval('sub Currency {Value->Package("Currency")->new(@_)}');
 }
 
