@@ -71,6 +71,14 @@ sub _parserFormulaUpToConstant_init {FormulaUpToConstant::Init()}
  #
  #    ANS($f->cmp(showHints => 0));
  #
+ #  One of the hints is about whether the student's answer is linear
+ #  in the arbitrary constant.  This test requires differentiating
+ #  the student answer.  Since there are times when that could be
+ #  problematic, you can disable that test via the showLinearityHints
+ #  flag.  (Note: setting showHints to 0 also disables these hints.)
+ #
+ #    ANS($f->cmp(showLinearityHints => 0));
+ #
  ######################################################################
 
 =cut
@@ -157,10 +165,18 @@ sub compare {
   return abs($context->variables->get("n0")->{value}) < $context->flag("zeroLevelTol");
 }
 
+##################################################
+#
+#  Here we override part of the answer comparison
+#  routines in order to be able to generate
+#  helpful error messages for students when
+#  they leave off the + C.
+#
+
 #
 #  Show hints by default
 #
-sub cmp_defaults {((shift)->SUPER::cmp_defaults,showHints => 1)};
+sub cmp_defaults {((shift)->SUPER::cmp_defaults,showHints => 1, showLinearityHints => 1)};
 
 #
 #  Add useful messages, if the author requested them
@@ -170,12 +186,16 @@ sub cmp_postprocess {
   $self->SUPER::cmp_postprocess($ans);
   return unless $ans->{score} == 0 && !$ans->{isPreview};
   return if $ans->{ans_message} || !$self->getFlag("showHints");
-  my $result = $ans->{correct_value} <=> $ans->{student_value};  # compare encodes the reason in the result
+  my $student = $ans->{student_value};
+  my $result = $ans->{correct_value} <=> $student;  # compare encodes the reason in the result
   $self->cmp_Error($ans,"Note: there is always more than one posibility") if $result == 2 || $result == 3;
   $self->cmp_Error($ans,"Your answer is not the most general solution")
-    if $result == 1 || ($result == 3 && $self->removeConstant == $ans->{student_value});
+    if $result == 1 || ($result == 3 && $self->removeConstant == $student);
+  $self->cmp_Error($ans,"Your formula should be linear in the constant '$student->{constant}'")
+    if $result == -1 && $self->getFlag("showLinearityHints") && !$student->D($student->{constant})->isConstant;
 }
 
+##################################################
 #
 #  Get the name of the constant
 #
@@ -238,6 +258,5 @@ sub new {
   #
   $self->SUPER::new($equation,$name,$ref);
 }
-
 
 1;
