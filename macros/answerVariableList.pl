@@ -36,7 +36,7 @@ sub _answerVariableList_init {
   #  A new context for variable lists
   #
   $main::context{VariableList} = Parser::Context->new(
-    operators => {',' => $Parser::Context::Default::fullContext->operators->get(',')},
+    operators => {',' => $Parser::Context::Default::context{Full}->operators->get(',')},
     lists => {'List'  => {class =>'Parser::List::List'}},
     parens => {
      '(' => {close => ')', type => 'List', formList => 1},

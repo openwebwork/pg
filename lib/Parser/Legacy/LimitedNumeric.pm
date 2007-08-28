@@ -16,8 +16,10 @@
 #
 #      Context("LimitedNumeric-StrictFraction");
 #
+##########################################################
 
 
+##################################################
 #
 #  Minus can only appear in front of a number
 #
@@ -35,6 +37,7 @@ sub _check {
 sub class {'MINUS'};
 
 
+##################################################
 #
 #  Divides can only appear between numbers or a negative
 #  number and a number
@@ -53,6 +56,7 @@ sub _check {
 
 sub class {'DIVIDE'};
 
+##################################################
 #
 #  Distinguish integers from decimals
 #
@@ -66,6 +70,8 @@ sub class {
 }
 
 
+##################################################
+
 package Parser::Legacy::LimitedNumeric;
 
 #
@@ -74,6 +80,8 @@ package Parser::Legacy::LimitedNumeric;
 #
 my $context = $Parser::Context::Default::context{Numeric}->copy;
 $Parser::Context::Default::context{'LimitedNumeric'} = $context;
+$context->{name} = 'LimitedNumeric';
+
 $context->operators->set('u-' => {class => 'Parser::Legacy::LimitedNumeric::UOP::minus'});
 $context->operators->undefine(
    '+', '-', '*', '* ', ' *', ' ', '/', '/ ', ' /', '^', '**',
@@ -82,12 +90,15 @@ $context->operators->undefine(
 $context->parens->undefine('|','{','(','[');
 $context->functions->disable('All');
 
+##################################################
 #
 #  For the Fraction versions, allow the modified division, and
 #  make sure numbers used in fractions are just integers
 #
 $context = $Parser::Context::Default::context{Numeric}->copy;
 $Parser::Context::Default::context{'LimitedNumeric-Fraction'} = $context;
+$context->{name} = "LimitedNumeric-Fraction";
+
 $context->operators->set(
   'u-' => {class => 'Parser::Legacy::LimitedNumeric::UOP::minus'},
   '/'  => {class => 'Parser::Legacy::LimitedNumeric::BOP::divide'},
@@ -102,11 +113,15 @@ $context->parens->undefine('|','{','[');
 $context->functions->disable('All');
 $context->{parser}{Number} = "Parser::Legacy::LimitedNumeric::Number";
 
+##################################################
 #
 #  For strict fractions, don't allow decimal numbers
 #
 $context = $context->copy;
 $Parser::Context::Default::context{'LimitedNumeric-StrictFraction'} = $context;
 Parser::Number::NoDecimals($context);
+$context->{name} = "LimitedNumeric-StrictFractions";
+
+######################################################################
 
 1;

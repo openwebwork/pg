@@ -25,3 +25,6 @@ $context->functions->add(
   step => {class => 'Parser::Legacy::Numeric', perl => 'Parser::Legacy::Numeric::do_step'},
   fact => {class => 'Parser::Legacy::Numeric', perl => 'Parser::Legacy::Numeric::do_fact'},
 );
+$context->{name} = "LegacyNumeric";
+
+1;

@@ -81,7 +81,7 @@ sub Disable {
     $list = $Category{$name};
     $list = [$name] if !$list && $context->{functions}{$name};
     unless (defined($list)) {warn "Undefined function or category '$name'"; next}
-    if ($list->[0] eq '_alias_') 
+    if ($list->[0] eq '_alias_')
       {unshift @names, @{$list}[1..scalar(@{$list})-1]; next}
     $context->functions->undefine(@{$list});
   }
@@ -90,16 +90,16 @@ sub Disable {
 sub enable {Enable(@_)}
 sub Enable {
   my $context = Parser::Context->current;
-  my $functions = $Parser::Context::Default::fullContext->{functions};
+  my $functions = $Parser::Context::Default::context{Full}->{functions};
   if (ref($_[0]) ne "") {$context = (shift)->{context}}
   my @names = @_; my ($list,$name);
   while ($name = shift(@names)) {
     $list = $Category{$name};
     $list = [$name] if !$list && $context->{functions}{$name};
     unless (defined($list)) {warn "Undefined function or category '$name'"; next}
-    if ($list->[0] eq '_alias_') 
+    if ($list->[0] eq '_alias_')
       {unshift @names, @{$list}[1..scalar(@{$list})-1]; next}
-    my @fn; foreach my $f (@{$list}) 
+    my @fn; foreach my $f (@{$list})
       {push @fn, $f => {class => $functions->{$f}{class}}}
     $context->functions->set(@fn);
   }

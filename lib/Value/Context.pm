@@ -88,6 +88,7 @@ sub copy {
   $context->{error}{msg} = {%{$self->{error}{msg}}};
   $context->{error}{convert} = $self->{error}{convert}
     if defined $self->{error}{convert};
+  $context->{name} = $self->{name};
   $context->{_initialized} = 1;
   return $context;
 }

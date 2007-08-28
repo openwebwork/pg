@@ -156,7 +156,7 @@ sub current {
     $contextTable->{current} = $context;
     $Value::context = \$contextTable->{current};
   } elsif (!defined($contextTable->{current})) {
-    $contextTable->{current} = $Parser::Context::Default::numericContext->copy;
+    $contextTable->{current} = $Parser::Context::Default::context{Numeric}->copy;
     $Value::context = \$contextTable->{current};
   }
   return $contextTable->{current};
@@ -174,7 +174,9 @@ sub getCopy {
   my $name = shift; my $context = $contextTable->{$name};
   $context = $Parser::Context::Default::context{$name} unless $context;
   return unless $context;
-  return $context->copy;
+  $context = $context->copy;
+  $context->{name} = $name;
+  return $context;
 }
 
 #

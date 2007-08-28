@@ -242,13 +242,12 @@ $flags = {
 #
 
 use vars qw(%context);
-use vars qw($fullContext $numericContext $complexContext $pointContext
-	    $vectorContext $vector2DContext $matrixContext $intervalContext);
+my $context;
 
 #
 #  The default Context
 #
-$fullContext = new Parser::Context(
+$context = $context{Full} = new Parser::Context(
   operators => $operators,
   functions => $functions,
   constants => $constants,
@@ -260,116 +259,111 @@ $fullContext = new Parser::Context(
   reduction => $Parser::reduce,
 );
 
-$fullContext->constants->set(
+$context->constants->set(
   pi => {TeX => '\pi ', perl => 'pi'},
   i => {isConstant => 1, perl => 'i'},
   j => {TeX => '\boldsymbol{j}', perl => 'j'},
   k => {TeX => '\boldsymbol{k}', perl => 'k'},
 );
 
-$fullContext->usePrecedence('Standard');
+$context->usePrecedence('Standard');
+$context->{name} = "Full";
 
 #
 #  Numeric context (no vectors, matrices or complex numbers)
 #
-$numericContext = $fullContext->copy;
-$numericContext->variables->are(x=>'Real');
-$numericContext->operators->undefine('><','.');
-$numericContext->functions->undefine('norm','unit','arg','mod','Re','Im','conj');
-$numericContext->constants->remove('i','j','k');
-$numericContext->parens->remove('<');
-$numericContext->parens->set(
+$context = $context{Numeric} = $context{Full}->copy;
+$context->variables->are(x=>'Real');
+$context->operators->undefine('><','.');
+$context->functions->undefine('norm','unit','arg','mod','Re','Im','conj');
+$context->constants->remove('i','j','k');
+$context->parens->remove('<');
+$context->parens->set(
    '(' => {type => 'List', formMatrix => 0},
    '[' => {type => 'List', formMatrix => 0},
    '{' => {type => 'List'},
 );
+$context->{name} = "Numeric";
 
 #
 #  Complex context (no vectors or matrices)
 #
-$complexContext = $fullContext->copy;
-$complexContext->variables->are(z=>'Complex');
-$complexContext->operators->undefine('><','.');
-$complexContext->functions->undefine('norm','unit');
-$complexContext->constants->remove('j','k');
-$complexContext->parens->remove('<');
-$complexContext->parens->set(
+$context = $context{Complex} = $context{Full}->copy;
+$context->variables->are(z=>'Complex');
+$context->operators->undefine('><','.');
+$context->functions->undefine('norm','unit');
+$context->constants->remove('j','k');
+$context->parens->remove('<');
+$context->parens->set(
    '(' => {type => 'List', formMatrix => 0},
    '[' => {type => 'List', formMatrix => 0},
    '{' => {type => 'List'},
 );
-$complexContext->operators->set(
+$context->operators->set(
   '^'  => {class => 'Parser::Function::complex_power', negativeIsComplex => 1},
   '**' => {class => 'Parser::Function::complex_power', negativeIsComplex => 1},
 );
-$complexContext->functions->set(
+$context->functions->set(
   'sqrt' => {class => 'Parser::Function::complex_numeric', negativeIsComplex => 1},
   'log'  => {class => 'Parser::Function::complex_numeric', negativeIsComplex => 1},
 );
+$context->{name} = "Complex";
 
 
 #
 #  Vector context (no complex numbers)
 #
-$vectorContext = $fullContext->copy;
-$vectorContext->variables->are(x=>'Real',y=>'Real',z=>'Real');
-$vectorContext->functions->undefine('arg','mod','Re','Im','conj');
-$vectorContext->constants->replace(i=>Value::Vector->new(1,0,0));
-$vectorContext->constants->set(i=>{TeX=>'\boldsymbol{i}', perl=>'i'});
-$vectorContext->parens->set('(' => {formMatrix => 0});
+$context = $context{Vector} = $context{Full}->copy;
+$context->variables->are(x=>'Real',y=>'Real',z=>'Real');
+$context->functions->undefine('arg','mod','Re','Im','conj');
+$context->constants->replace(i=>Value::Vector->new(1,0,0));
+$context->constants->set(i=>{TeX=>'\boldsymbol{i}', perl=>'i'});
+$context->parens->set('(' => {formMatrix => 0});
 
-$vector2DContext = $vectorContext->copy;
-$vector2DContext->constants->replace(
+$context = $context{Vector2D} = $context{Vector}->copy;
+$context->constants->replace(
   i => Value::Vector->new(1,0),
   j => Value::Vector->new(0,1),
 );
-$vector2DContext->constants->set(i => {TeX=>'\boldsymbol{i}', perl=>'i'});
-$vector2DContext->constants->remove("k");
+$context->constants->set(i => {TeX=>'\boldsymbol{i}', perl=>'i'});
+$context->constants->remove("k");
+$context->{name} = "Vector2D";
 
 #
 #  Point context (for symmetry)
 #
-$pointContext = $vectorContext->copy;
+$context = $context{Point} = $context{Vector}->copy;
+$context->operators->undefine("><",".");
+$context->functions->undefine('norm','unit');
+$context->constants->remove('i','j','k');
+$context->parens->remove("<");
+$context->{name} = "Point";
 
 #
 #  Matrix context (square brackets make matrices in preference to points or intervals)
 #
-$matrixContext = $vectorContext->copy;
-$matrixContext->parens->set(
+$context = $context{Matrix} = $context{Vector}->copy;
+$context->parens->set(
   '(' => {formMatrix => 1},
   '[' => {type => 'Matrix', removable => 0},
 );
+$context->{name} = "Vector";
 
 #
 #  Interval context (make intervals rather than lists)
 #
-$intervalContext = $numericContext->copy;
-$intervalContext->parens->set(
+$context = $context{Interval} = $context{Numeric}->copy;
+$context->parens->set(
    '(' => {type => 'Interval'},
    '[' => {type => 'Interval'},
    '{' => {type => 'Set', removable => 0, emptyOK => 1},
 );
 my $infinity = Value::Infinity->new();
-$intervalContext->constants->add(
+$context->constants->add(
   R => Value::Interval->new('(',-$infinity,$infinity,')'),
 );
-$intervalContext->constants->set(R => {TeX => '{\bf R}'});
-
-#########################################################################
-
-#
-#  list of all default contexts (users can add more)
-#
-%context = (
-  Full     => $fullContext,
-  Numeric  => $numericContext,
-  Complex  => $complexContext,
-  Point    => $pointContext,
-  Vector   => $vectorContext,
-  Vector2D => $vector2DContext,
-  Matrix   => $matrixContext,
-  Interval => $intervalContext,
-);
+$context->constants->set(R => {TeX => '{\bf R}'});
+$context->{name} = "Interval";
 
 #########################################################################
 

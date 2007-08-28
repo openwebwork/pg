@@ -141,7 +141,6 @@ sub Init {
     '(' => {formMatrix => 0},
     '[' => {formMatrix => 0},
   );
-  $context->parens->remove('<');
   $context->variables->are(x=>'Real');
   $context->constants->remove('i','j','k');
 

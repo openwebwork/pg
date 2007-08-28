@@ -220,6 +220,11 @@ package Parser::Legacy::LimitedComplex;
 
 my $context = $Parser::Context::Default::context{Complex}->copy;
 $Parser::Context::Default::context{LimitedComplex} = $context;
+$context->{name} = "LimtedComplex";
+
+#
+#  Override operator classes
+#
 $context->operators->set(
    '+' => {class => 'Parser::Legacy::LimitedComplex::BOP::add'},
    '-' => {class => 'Parser::Legacy::LimitedComplex::BOP::subtract'},
@@ -249,27 +254,44 @@ foreach my $fn ($context->functions->names) {$context->{functions}{$fn}{nocomple
 #
 $context->flags->set(complex_format => 'either');
 
+##################################################
+
 $context = $context->copy;
 $Parser::Context::Default::context{'LimitedComplex-cartesian'} = $context;
 $context->flags->set(complex_format => 'cartesian');
+$context->{name} = "LimtedComplex-cartesian";
+
+##################################################
 
 $context = $context->copy;
 $Parser::Context::Default::context{'LimitedComplex-cartesian-strict'} = $context;
 $context->flags->set(strict_numeric => 1);
 $context->functions->disable('All');
+$context->{name} = "LimtedComplex-cartesian-strinct";
+
+##################################################
 
 $context = $Parser::Context::Default::context{'LimitedComplex'}->copy;
 $Parser::Context::Default::context{'LimitedComplex-polar'} = $context;
 $context->flags->set(complex_format => 'polar');
+$context->{name} = "LimtedComplex-polar";
+
+##################################################
 
 $context = $context->copy;
 $Parser::Context::Default::context{'LimitedComplex-polar-strict'} = $context;
 $context->flags->set(strict_numeric => 1);
 $context->functions->disable('All');
+$context->{name} = "LimtedComplex-polar-strict";
+
+##################################################
 
 $context = $Parser::Context::Default::context{'LimitedComplex'}->copy;
 $Parser::Context::Default::context{'LimitedComplex-strict'} = $context;
 $context->flags->set(strict_numeric => 1);
 $context->functions->disable('All');
+$context->{name} = "LimtedComplex-strict";
+
+##################################################
 
 1;
