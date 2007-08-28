@@ -1,3 +1,4 @@
+
 =head1 DESCRIPTION
 
  #############################################################
@@ -25,10 +26,19 @@ package Value;
 #
 $Value::defaultContext->{cmpDefaults} = {};
 
+=head5 $mathObject->cmp_defaults()
 
-#
-#  Default flags for the answer checkers
-#
+#  Internal use.
+#  Set default flags for the answer checker in this object
+#  		showTypeWarnings =>	1
+#       showEqualErrors  =>	1
+#       ignoreStrings    => 1
+#       studentsMustReduceUnions => 1
+#       show UnionReduceWarnings => 1
+# 
+
+=cut
+
 sub cmp_defaults {(
   showTypeWarnings => 1,
   showEqualErrors  => 1,
@@ -37,9 +47,11 @@ sub cmp_defaults {(
   showUnionReduceWarnings => 1,
 )}
 
+
 #
 #  Special Context flags to be set for the student answer
 #
+
 sub cmp_contextFlags {
   my $self = shift; my $ans = shift;
   return (
@@ -62,6 +74,7 @@ sub cmp_contextFlags {
 #
 #  Create an answer checker for the given type of object
 #
+
 sub cmp {
   my $self = shift;
   my $ans = new AnswerEvaluator;

@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Program Generation Language
 # Copyright � 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PG.pl,v 1.31 2007/07/13 22:43:22 sh002i Exp $
+# $CVSHeader: pg/macros/PG.pl,v 1.32 2007/08/09 23:24:56 jj Exp $
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -390,8 +390,8 @@ sub RESUME_RENDERING {
 
 When PG problems are evaluated, the result of evaluating the entire problem is
 interpreted as the return value of ENDDOCUMENT(). Therefore, ENDDOCUMENT() must
-the last executable statement of every problem. It can only appear once. It
-returns an list consisting of:
+be the last executable statement of every problem. It can only appear once. It
+returns a list consisting of:
 
 =over
 
