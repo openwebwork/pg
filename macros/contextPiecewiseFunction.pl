@@ -513,16 +513,29 @@ sub reduce {
 
 #
 #  Substitute into each branch individually.
-#
-#  ### FIXME: only allow the variable to be substituted
-#    by another variable, and change the intervals as well.
-#    If it is a constant, then evaluate?
+#  If the function's variable is substituted, then
+#    if it is a constant, find the branch for that value
+#    and substitute into that, otherwise if it is
+#    just another variable, replace the variable
+#    in the inequalities as well as the formulas.
+#  Otherwise, just replace in the formulas.
 #
 sub substitute {
-  my $self = shift; my @cases = ();
+  my $self = shift;
+  my @cases = (); my $x = $self->{varName};
+  $self->setValues(@_); my $a = $self->{values}{$x}; $self->unsetValues(@_);
+  if (defined $a) {
+    if (!Value::isFormula($a)) {
+      my $f = $self->getFunctionFor($a);
+      die "undefined value" unless defined $f;
+      return $f->substitute(@_);
+    }
+    $x = $a->{tree}{name} if $a->{tree}->class eq 'Variable';
+  }
   foreach my $If (@{$self->{data}}) {
     my ($I,$f) = @{$If};
-    push(@cases,$I->copy => $f->substitute(@_));
+    $I = $I->copy; if ($x ne $I->{varName}) {$I->{varName} = $x; $I->updateParts}
+    push(@cases,$I => $f->substitute(@_));
   }
   push(@cases,$self->{otherwise}->substitute(@_)) if defined $self->{otherwise};
   return $self->make(@cases);
@@ -577,6 +590,41 @@ sub noOtherwise {
   delete $self->{otherwise};
   foreach my $If (@{$self->{data}}) {$If->[0]{equation} = $If->[1]{equation} = $self}
   return $self;
+}
+
+#
+#  Look up the function for the nth branch (or the "otherwise"
+#  function if n is omitted or too big or too small).
+#
+sub getFunction {
+  my $self = shift; my $n = shift;
+  return $self->{otherwise} if !defined $n || $n < 1 || $n > $self->length;
+  return $self->{data}[$n-1][1];
+}
+
+#
+#  Look up the domain for the nth branch (or the "otherwise"
+#  domain if n is omitted or too big or too small).
+#
+sub getDomain {
+  my $self = shift; my $n = shift;
+  return $self->Package("Inequality")->new($self->context,
+    $self->domainR - $self->domainUnion,$self->{varName})
+       if !defined $n || $n < 1 || $n > $self->length;
+  return $self->{data}[$n-1][0];
+}
+
+#
+#  Get the function for the given value of the variable
+#  (or undef if there is none).
+#
+sub getFunctionFor {
+  my $self = shift; my $x = shift;
+  foreach my $If (@{$self->{data}}) {
+    my ($I,$f) = @$If;
+    return $f if $I->contains($x);
+  }
+  return $self->{otherwise};
 }
 
 #
