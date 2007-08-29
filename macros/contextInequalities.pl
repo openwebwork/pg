@@ -539,8 +539,8 @@ sub TeX {
   my $x = $self->{varName} || ($context->variables->names)[0];
   $x = $context->{variables}{$x}{TeX} if defined $context->{variables}{$x}{TeX};
   $x =~ s/^([^_]+)_?(\d+)$/$1_{$2}/;
-  my $left  = ($open  eq '(' ? ' < ' : ' <= ');
-  my $right = ($close eq ')' ? ' < ' : ' <= ');
+  my $left  = ($open  eq '(' ? ' < ' : ' \le ');
+  my $right = ($close eq ')' ? ' < ' : ' \le ');
   my $inequality = "";
   $inequality .= $a->string.$left unless $self->{leftInfinite};
   $inequality .= $x;
