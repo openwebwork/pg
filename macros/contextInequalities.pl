@@ -275,8 +275,10 @@ sub _check {
   my $self = shift;
   $self->Error("The operands of '%s' must be inequalities",$self->{bop})
     unless $self->{lop}{isInequality} && $self->{rop}{isInequality};
+  $self->Error("Inequalities combined by '%s' must both use the same variable",$self->{bop})
+    unless $self->{lop}{varName} eq $self->{rop}{varName};
   $self->{type} = Value::Type("Interval",2);
-  $self->{varName} = $self->{lop}{varName} || $self->{rop}{varName};
+  $self->{varName} = $self->{lop}{varName};
   $self->{isInequality} = 1;
 }
 
@@ -293,8 +295,10 @@ sub _check {
   my $self = shift;
   $self->Error("The operands of '%s' must be inequalities",$self->{bop})
     unless $self->{lop}{isInequality} && $self->{rop}{isInequality};
+  $self->Error("Inequalities combined by '%s' must both use the same variable",$self->{bop})
+    unless $self->{lop}{varName} eq $self->{rop}{varName};
   $self->{type} = Value::Type("Interval",2);
-  $self->{varName} = $self->{lop}{varName} || $self->{rop}{varName};
+  $self->{varName} = $self->{lop}{varName};
   $self->{isInequality} = 1;
 }
 
