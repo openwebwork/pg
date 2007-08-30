@@ -736,7 +736,9 @@ sub setValues {
   while (scalar(@_)) {
     $xref = shift; $value = shift;
     if (ref($xref) eq "ARRAY") {
-      $value = [@{$value->{data}}] if Value::isValue($value);
+      $value = Value::makeValue($value,context=>$context) unless ref($value);
+      $value = [$value->value] if Value::isValue($value);
+      $value = @{$value}[0,1] if Value::classMatch("Interval");
       $value = [$value] unless ref($value) eq 'ARRAY';
     } else {
       $xref = [$xref]; $value = [$value];
