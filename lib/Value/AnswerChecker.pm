@@ -1988,6 +1988,7 @@ sub array_OK {
 #
 sub value {
   my $self = shift;
+  return $self unless defined $self->{tree}{coords};
   my $context = $self->context;
   my @array = ();
   if ($self->{tree}->type eq 'Matrix') {
