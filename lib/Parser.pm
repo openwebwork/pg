@@ -730,18 +730,28 @@ sub perlFunction {
 #  Sets the values of variables for evaluation purposes
 #
 sub setValues {
-  my $self = shift; my ($value,$type); my $context = $self->context;
+  my $self = shift; my ($xref,$value,$type);
+  my $context = $self->context;
   my $variables = $context->{variables};
-  $self->{values} = {@_};
-  foreach my $x (keys %{$self->{values}}) {
-    $self->Error(["Undeclared variable '%s'",$x]) unless defined $variables->{$x};
-    $value = Value::makeValue($self->{values}{$x},context=>$context);
-    $value = $self->Package("Formula")->new($context,$value) unless Value::isValue($value);
-    ($value,$type) = Value::getValueType($self,$value);
-    $self->Error(["Variable '%s' should be of type %s",$x,$variables->{$x}{type}{name}])
-      unless Parser::Item::typeMatch($type,$variables->{$x}{type});
-    $value->inContext($self->context) if $value->context != $self->context;
-    $self->{values}{$x} = $value;
+  while (scalar(@_)) {
+    $xref = shift; $value = shift;
+    if (ref($xref) eq "ARRAY") {
+      $value = [@{$value->{data}}] if Value::isValue($value);
+      $value = [$value] unless ref($value) eq 'ARRAY';
+    } else {
+      $xref = [$xref]; $value = [$value];
+    }
+    foreach my $i (0..scalar(@$xref)-1) {
+      my $x = $xref->[$i]; my $v = $value->[$i];
+      $self->Error(["Null value can't be assigned to variable '%s'",$x]) unless defined $v;
+      $self->Error(["Undeclared variable '%s'",$x]) unless defined $variables->{$x};
+      $v = Value::makeValue($v,context=>$context);
+      ($v,$type) = Value::getValueType($self,$v);
+      $self->Error(["Variable '%s' should be of type %s",$x,$variables->{$x}{type}{name}])
+	unless Parser::Item::typeMatch($type,$variables->{$x}{type});
+      $v->inContext($self->context) if $v->context != $self->context;
+      $self->{values}{$x} = $v;
+    }
   }
 }
 
