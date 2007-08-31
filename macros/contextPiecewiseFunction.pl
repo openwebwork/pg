@@ -5,59 +5,59 @@ sub _contextPiecewiseFunction_init {PiecewiseFunction::Init()}
 
 =head1 Context("PiecewiseFunction");
 
-######################################################################
-#
-#  This file implements a context in which piecewise-defined functions
-#  can be specified by students and problem authors.  To use it, add
-#
-#    loadMacros("contextPiecewieFunction.pl");
-#
-#  and then use
-#
-#    Context("PiecewiseFuntion");
-#
-#  to select the context for piecewise functions.  There are several
-#  ways to produce a piecewise function.  For example:
-#
-#    $f = Compute("x if x >= 0 else -x");
-#    $f = Compute("x if x >= 0 else -x if x < 0");
-#    $f = Formula("x+1 if x > 2 else 4 if x = 2 else 1-x");
-#    $f = PiecewiseFunction("x^2 if 1 < x <= 2 else 2x+1");
-#    $f = PiecewiseFunction("1 < x <= 2" => "x^2", "2x+1");
-#    $f = PiecewiseFunction("(1,2]" => "x^2", "2x+1");
-#    $f = PiecewiseFunction(Interval("(1,2]") => "x^2", "2x+1");
-#
-#  You can use either Compute() or Formula() interchangeably to
-#  convert a string containing "if" and "else" to the corresponding
-#  PiecewiseFunction.  The PiecewiseFunction() constructor can
-#  also do this, or you can pass it a list of interval=>formula
-#  pairs that specify the various branches.  If there is an
-#  unpaired final formula, it represents the "otherwise" portion
-#  of the function (the formula to use of the input is not in
-#  any of the given intervals).
-#
-#  Note that you can use Inveral, Set, or Union objects in place of
-#  the intervals in the specification of a piecewise function.
-#
-#  The PiecewiseFunction object TeXifies using a LaTeX "cases"
-#  environment, so you can use these objects to produce nice
-#  output even if you are not asking a student to enter one.
-#  For example:
-#
-#      Context("PiecewiseFunction");
-#
-#      $f = Formula("1-x if x > 0 else 4 if x = 0 else 1+x if x < 0");
-#      $a = random(-2,2,.1);
-#
-#      Context()->texStrings;
-#      BEGIN_TEXT
-#      Suppose \(f(x)=$f\).  Then \(f($a)\) = \{ans_rule(20)\}.
-#      END_TEXT
-#      Context()->normalStrings;
-#
-#      ANS($f->eval(x=>$a)->cmp);
-#
-######################################################################
+ ######################################################################
+ #
+ #  This file implements a context in which piecewise-defined functions
+ #  can be specified by students and problem authors.  To use it, add
+ #
+ #    loadMacros("contextPiecewieFunction.pl");
+ #
+ #  and then use
+ #
+ #    Context("PiecewiseFuntion");
+ #
+ #  to select the context for piecewise functions.  There are several
+ #  ways to produce a piecewise function.  For example:
+ #
+ #    $f = Compute("x if x >= 0 else -x");
+ #    $f = Compute("x if x >= 0 else -x if x < 0");
+ #    $f = Formula("x+1 if x > 2 else 4 if x = 2 else 1-x");
+ #    $f = PiecewiseFunction("x^2 if 1 < x <= 2 else 2x+1");
+ #    $f = PiecewiseFunction("1 < x <= 2" => "x^2", "2x+1");
+ #    $f = PiecewiseFunction("(1,2]" => "x^2", "2x+1");
+ #    $f = PiecewiseFunction(Interval("(1,2]") => "x^2", "2x+1");
+ #
+ #  You can use either Compute() or Formula() interchangeably to
+ #  convert a string containing "if" and "else" to the corresponding
+ #  PiecewiseFunction.  The PiecewiseFunction() constructor can
+ #  also do this, or you can pass it a list of interval=>formula
+ #  pairs that specify the various branches.  If there is an
+ #  unpaired final formula, it represents the "otherwise" portion
+ #  of the function (the formula to use of the input is not in
+ #  any of the given intervals).
+ #
+ #  Note that you can use Inveral, Set, or Union objects in place of
+ #  the intervals in the specification of a piecewise function.
+ #
+ #  The PiecewiseFunction object TeXifies using a LaTeX "cases"
+ #  environment, so you can use these objects to produce nice
+ #  output even if you are not asking a student to enter one.
+ #  For example:
+ #
+ #      Context("PiecewiseFunction");
+ #
+ #      $f = Formula("1-x if x > 0 else 4 if x = 0 else 1+x if x < 0");
+ #      $a = random(-2,2,.1);
+ #
+ #      Context()->texStrings;
+ #      BEGIN_TEXT
+ #      Suppose \(f(x)=$f\).  Then \(f($a)\) = \{ans_rule(20)\}.
+ #      END_TEXT
+ #      Context()->normalStrings;
+ #
+ #      ANS($f->eval(x=>$a)->cmp);
+ #
+ ######################################################################
 
 =cut
 
