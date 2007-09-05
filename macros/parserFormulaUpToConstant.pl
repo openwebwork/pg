@@ -122,15 +122,17 @@ sub new {
   Value->Error("Your formula isn't linear in the arbitrary constant '%s'",$f->{constant})
     unless $n->isConstant;
   #
-  #  Make a version with an adaptive parameter for use in the
+  #  Make a version with adaptive parameters for use in the
   #  comparison later on.  We could like n0*C, but already have $n
   #  copies of C, so remove them.  That way, n0 will be 0 when there
   #  are no C's in the student answer during the adaptive comparison.
   #  (Again, should really check that n0 is not in use already)
   #
-  my $n0 = $context->variables->get("n0");
-  $context->variables->add(n0=>'Parameter') unless $n0 and $n0->{parameter};
-  $f->{adapt} = $f + "(n0-$n)$f->{constant}";
+  my $n00 = $context->variables->get("n00");
+  $context->variables->add(n00=>'Parameter') unless $n00 and $n00->{parameter};
+  my $n01 = $context->variables->get("n01");
+  $context->variables->add(n01=>'Parameter') unless $n01 and $n01->{parameter};
+  $f->{adapt} = $f + "(n00-$n)$f->{constant} + n01";
   return bless $f, $class;
 }
 
@@ -162,7 +164,7 @@ sub compare {
   #  Check that n0 is non-zero (i.e., there is a multiple of C in the student answer)
   #  (remember: return value of 0 is equal, and non-zero is unequal)
   #
-  return abs($context->variables->get("n0")->{value}) < $context->flag("zeroLevelTol");
+  return abs($context->variables->get("n00")->{value}) < $context->flag("zeroLevelTol");
 }
 
 ##################################################
