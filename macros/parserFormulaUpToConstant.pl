@@ -191,8 +191,12 @@ sub cmp_postprocess {
   my $student = $ans->{student_value};
   my $result = $ans->{correct_value} <=> $student;  # compare encodes the reason in the result
   $self->cmp_Error($ans,"Note: there is always more than one posibility") if $result == 2 || $result == 3;
-  $self->cmp_Error($ans,"Your answer is not the most general solution")
-    if $result == 1 || ($result == 3 && $self->removeConstant == $student);
+  if ($result == 3) {
+    $self->context->flags->set(no_parameters=>0);
+    $result = 1 if $self->removeConstant+"n01+n00x" == $student+"x"; # must use both parameters
+    $self->context->flags->set(no_parameters=>1);
+  }
+  $self->cmp_Error($ans,"Your answer is not the most general solution") if $result == 1;
   $self->cmp_Error($ans,"Your formula should be linear in the constant '$student->{constant}'")
     if $result == -1 && $self->getFlag("showLinearityHints") && !$student->D($student->{constant})->isConstant;
 }
