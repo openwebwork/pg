@@ -331,6 +331,7 @@ sub cmp_checkUnionReduce {
   return unless $ans->{studentsMustReduceUnions} &&
                 $ans->{showUnionReduceWarnings} &&
                 !$ans->{isPreview} && !Value::isFormula($student);
+  return unless $student->isSetOfReals;
   my ($result,$error) = $student->isReduced;
   return unless $error;
   return {
