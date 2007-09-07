@@ -602,7 +602,12 @@ sub Parser::List::Interval::D {
 sub Parser::List::AbsoluteValue::D {
   my $self = shift; my $x = $self->{coords}[0]->copy;
   my $equation = $self->{equation};
-  return $self->Item("BOP")->new($equation,'/', $x, $self->copy);
+  my $BOP = $self->Item("BOP");
+  return
+    $BOP->new($equation,"*",
+      $BOP->new($equation,'/', $x, $self->copy),
+      $x->D(shift),
+   );
 }
 
 
