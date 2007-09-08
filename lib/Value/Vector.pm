@@ -143,10 +143,6 @@ sub cross {
 sub compare {
   my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
-  if ($self->getFlag("ignoreTrailingZeros")) {
-    while (scalar(@l) < scalar(@r) && $r[scalar(@l)] == 0) {push(@l,0)}
-    while (scalar(@r) < scalar(@l) && $r[scalar(@r)] == 0) {push(@r,0)}
-  }
   return scalar(@l) <=> scalar(@r) unless scalar(@l) == scalar(@r);
   my $cmp = 0;
   foreach my $i (0..scalar(@l)-1) {
