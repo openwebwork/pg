@@ -131,8 +131,8 @@ $constants = {
    'e'  => exp(1),
    'pi' => 4*atan2(1,1),
    'i'  => Value::Complex->new(0,1),
-   'j'  => Value::Vector->new(0,1,0),
-   'k'  => Value::Vector->new(0,0,1),
+   'j'  => Value::Vector->new(0,1,0)->with(ijk=>1),
+   'k'  => Value::Vector->new(0,0,1)->with(ijk=>1),
    '_blank_' => {value => 0, hidden => 1, string => "", TeX => ""},
 };
 
@@ -223,7 +223,8 @@ $strings = {
 };
 
 $flags = {
-  ijk => 0,                     # 1 = show vectors in ijk form
+  ijk => 0,                     # 1 = show all vectors in ijk form
+  ijkAnyDimension => 1,         # 1 = add/remove trailing zeros to match dimension in comparisons
   reduceConstants => 1,         # 1 = automatically combine constants
   reduceConstantFunctions => 1, # 1 = compute function values of constants
   showExtraParens => 1,         # 1 = add useful parens, 2 = make things painfully unambiguous
@@ -316,14 +317,14 @@ $context->{name} = "Complex";
 $context = $context{Vector} = $context{Full}->copy;
 $context->variables->are(x=>'Real',y=>'Real',z=>'Real');
 $context->functions->undefine('arg','mod','Re','Im','conj');
-$context->constants->replace(i=>Value::Vector->new(1,0,0));
+$context->constants->replace(i=>Value::Vector->new(1,0,0)->with(ijk=>1));
 $context->constants->set(i=>{TeX=>'\boldsymbol{i}', perl=>'i'});
 $context->parens->set('(' => {formMatrix => 0});
 
 $context = $context{Vector2D} = $context{Vector}->copy;
 $context->constants->replace(
-  i => Value::Vector->new(1,0),
-  j => Value::Vector->new(0,1),
+  i => Value::Vector->new(1,0)->with(ijk=>1),
+  j => Value::Vector->new(0,1)->with(ijk=>1),
 );
 $context->constants->set(i => {TeX=>'\boldsymbol{i}', perl=>'i'});
 $context->constants->remove("k");
