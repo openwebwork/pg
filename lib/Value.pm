@@ -195,7 +195,7 @@ $$context->{pattern}{-infinity} = '-inf(?:inity)?';
 push(@{$$context->{data}{values}},'method','precedence');
 
 #
-#  Copy a context and its data
+#  Copy an item and its data
 #
 sub copy {
   my $self = shift;
@@ -557,7 +557,7 @@ sub formula {
 sub make {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  bless {data => [@_], context => $context}, $class;
+  bless {$self->hash, data => [@_], context => $context}, $class;
 }
 
 #
@@ -568,6 +568,35 @@ sub make {
 sub with {
   my $self = shift;
   bless {%{$self},@_}, ref($self);
+}
+
+#
+#  Return a copy with the specified fields removed
+#
+sub without {
+  my $self = shift;
+  $self = bless {%{$self}}, ref($self);
+  foreach my $id (@_) {delete $self->{$id} if defined $self->{$id}}
+  return $self;
+}
+
+#
+#  Return the hash data as an array of key=>value pairs
+#
+sub hash {
+  my $self = shift;
+  return %$self if isHash($self);
+  return ();
+}
+
+#
+#  Copy attributes that are not already in the current object
+#  from the given objects.  (Used by binary operators to make sure
+#  the result inherits the values from the two terms.)
+#
+sub inherit {
+  my $self = shift;
+  bless {(map {%$_} @_),%$self}, ref($self);
 }
 
 ######################################################################
@@ -688,7 +717,7 @@ sub promote {
 #
 sub checkOpOrder {
   my ($l,$r,$flag) = @_;
-  if ($flag) {return ($l,$r,$l)} else {return ($l,$l,$r)}
+  if ($flag) {return ($l,$r,$l,$r)} else {return ($l,$l,$r,$r)}
 }
 
 #
@@ -697,7 +726,7 @@ sub checkOpOrder {
 #
 sub checkOpOrderWithPromote {
   my ($l,$r,$flag) = @_; $r = $l->promote($r);
-  if ($flag) {return ($l,$r,$l)} else {return ($l,$l,$r)}
+  if ($flag) {return ($l,$r,$l,$r)} else {return ($l,$l,$r,$r)}
 }
 
 #

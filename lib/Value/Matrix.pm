@@ -175,27 +175,27 @@ sub promote {
 #
 
 sub add {
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
+  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
   my @l = @{$l->data}; my @r = @{$r->data};
   Value::Error("Can't add Matrices with different dimensions")
     unless scalar(@l) == scalar(@r);
   my @s = ();
   foreach my $i (0..scalar(@l)-1) {push(@s,$l[$i] + $r[$i])}
-  return $self->make(@s);
+  return $self->inherit($other)->make(@s);
 }
 
 sub sub {
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
+  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
   my @l = @{$l->data}; my @r = @{$r->data};
   Value::Error("Can't subtract Matrices with different dimensions")
     unless scalar(@l) == scalar(@r);
   my @s = ();
   foreach my $i (0..scalar(@l)-1) {push(@s,$l[$i] - $r[$i])}
-  return $self->make(@s);
+  return $self->inherit($other)->make(@s);
 }
 
 sub mult {
-  my ($l,$r,$flag) = @_; my $self = $l;
+  my ($l,$r,$flag) = @_; my $self = $l; my $other = $r;
   #
   #  Constant multiplication
   #
@@ -230,6 +230,7 @@ sub mult {
     }
     push(@M,$self->make(@row));
   }
+  $self = $self->inherit($other) if Value::isValue($other);
   return $self->make(@M);
 }
 

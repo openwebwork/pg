@@ -60,23 +60,23 @@ sub promote {
 #
 
 sub add {
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
+  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
   Value::Error("Can't add Points with different numbers of coordinates")
     unless scalar(@l) == scalar(@r);
   my @s = ();
   foreach my $i (0..scalar(@l)-1) {push(@s,$l[$i] + $r[$i])}
-  return $self->make(@s);
+  return $self->inherit($other)->make(@s);
 }
 
 sub sub {
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
+  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
   Value::Error("Can't subtract Points with different numbers of coordinates")
     unless scalar(@l) == scalar(@r);
   my @s = ();
   foreach my $i (0..scalar(@l)-1) {push(@s,$l[$i] - $r[$i])}
-  return $self->make(@s);
+  return $self->inherit($other)->make(@s);
 }
 
 sub mult {

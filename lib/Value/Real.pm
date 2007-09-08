@@ -72,41 +72,41 @@ sub transferFlags {}
 #
 
 sub add {
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
-  return $self->make($l->{data}[0] + $r->{data}[0]);
+  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
+  return $self->inherit($other)->make($l->{data}[0] + $r->{data}[0]);
 }
 
 sub sub {
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
-  return $self->make($l->{data}[0] - $r->{data}[0]);
+  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
+  return $self->inherit($other)->make($l->{data}[0] - $r->{data}[0]);
 }
 
 sub mult {
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
-  return $self->make($l->{data}[0] * $r->{data}[0]);
+  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
+  return $self->inherit($other)->make($l->{data}[0] * $r->{data}[0]);
 }
 
 sub div {
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
+  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
   Value::Error("Division by zero") if $r->{data}[0] == 0;
-  return $self->make($l->{data}[0] / $r->{data}[0]);
+  return $self->inherit($other)->make($l->{data}[0] / $r->{data}[0]);
 }
 
 sub power {
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
+  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
   my $x = $l->{data}[0] ** $r->{data}[0];
-  return $self->make($x) unless $x eq 'nan';
+  return $self->inherit($other)->make($x) unless $x eq 'nan';
   Value::Error("Can't raise a negative number to a power") if ($l->{data}[0] < 0);
   Value::Error("Result of exponention is not a number");
 }
 
 sub modulo {
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
+  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
   $l = $l->{data}[0]; $r = $r->{data}[0];
-  return $self->make(0) if $r == 0; # non-fuzzy check
+  return $self->inherit($other)->make(0) if $r == 0; # non-fuzzy check
   my $m = $l/$r;
   my $n = int($m); $n-- if $n > $m; # act as floor() rather than int()
-  return $self->make($l - $n*$r);
+  return $self->inherit($other)->make($l - $n*$r);
 }
 
 sub compare {
@@ -116,6 +116,8 @@ sub compare {
   #
   my $m = $self->getFlag("period");
   if (defined $m) {
+    $l = $l->with(period=>undef);  # make sure tests below don't use period
+    $r = $r->with(period=>undef);
     if ($self->getFlag("logPeriodic")) {
       return 1 if $l->value == 0 || $r->value == 0; # non-fuzzy checks
       $l = log($l); $r = log($r);
@@ -161,8 +163,8 @@ sub sin {my $self = shift; $self->make(CORE::sin($self->{data}[0]))}
 sub cos {my $self = shift; $self->make(CORE::cos($self->{data}[0]))}
 
 sub atan2 {
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
-  return $self->make(CORE::atan2($l->{data}[0],$r->{data}[0]));
+  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
+  return $self->inherit($other)->make(CORE::atan2($l->{data}[0],$r->{data}[0]));
 }
 
 ##################################################
@@ -170,7 +172,8 @@ sub atan2 {
 sub string {
   my $self = shift; my $equation = shift; my $prec = shift;
   my $n = $self->{data}[0];
-  my $format = $self->getFlag("format",$equation->{format} || ($equation->{context} || $self->context)->{format}{number});
+  my $format = $self->getFlag("format",$equation->{format} ||
+			        ($equation->{context} || $self->context)->{format}{number});
   if ($format) {
     $n = sprintf($format,$n);
     if ($format =~ m/#\s*$/) {$n =~ s/(\.\d*?)0*#$/$1/; $n =~ s/\.$//}

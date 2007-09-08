@@ -50,16 +50,6 @@ sub new {
 }
 
 #
-#  Make sure column vector is retained
-#
-sub make {
-  my $self = shift;
-  my $v = $self->SUPER::make(@_);
-  $v->{ColumnVector} = 1 if ref($self) && $self->{ColumnVector};
-  return $v;
-}
-
-#
 #  Try to promote arbitary data to a vector
 #
 sub promote {
@@ -69,7 +59,7 @@ sub promote {
   return $self->new($context,$x,@_) if scalar(@_) > 0 || ref($x) eq 'ARRAY';
   $x = Value::makeValue($x,context=>$context);
   return $x->inContext($context) if ref($x) eq $class;
-  return $self->make($context,$x->value) if Value::classMatch($x,'Point');
+  return $self->make($context,$x->value)->inherit($x->without('open','close')) if Value::classMatch($x,'Point');
   Value::Error("Can't convert %s to %s",Value::showClass($x),Value::showClass($self));
 }
 
@@ -81,23 +71,23 @@ sub canBeInUnion {0}
 #
 
 sub add {
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
+  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
   Value::Error("Can't add Vectors with different numbers of coordinates")
     unless scalar(@l) == scalar(@r);
   my @s = ();
   foreach my $i (0..scalar(@l)-1) {push(@s,$l[$i] + $r[$i])}
-  return $self->make(@s);
+  return $self->inherit($other)->make(@s);
 }
 
 sub sub {
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
+  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
   Value::Error("Can't subtract Vectors with different numbers of coordinates")
     unless scalar(@l) == scalar(@r);
   my @s = ();
   foreach my $i (0..scalar(@l)-1) {push(@s,$l[$i] - $r[$i])}
-  return $self->make(@s);
+  return $self->inherit($other)->make(@s);
 }
 
 sub mult {
@@ -137,13 +127,13 @@ sub dot {
 }
 
 sub cross {
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
+  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
   Value::Error("Vectors for cross product must be in 3-space")
     unless scalar(@l) == 3 && scalar(@r) == 3;
-  $self->make($l[1]*$r[2] - $l[2]*$r[1],
-            -($l[0]*$r[2] - $l[2]*$r[0]),
-              $l[0]*$r[1] - $l[1]*$r[0]);
+  $self->inherit($other)->make($l[1]*$r[2] - $l[2]*$r[1],
+                             -($l[0]*$r[2] - $l[2]*$r[0]),
+                               $l[0]*$r[1] - $l[1]*$r[0]);
 }
 
 #
@@ -153,6 +143,10 @@ sub cross {
 sub compare {
   my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my @l = $l->value; my @r = $r->value;
+  if ($self->getFlag("ignoreTrailingZeros")) {
+    while (scalar(@l) < scalar(@r) && $r[scalar(@l)] == 0) {push(@l,0)}
+    while (scalar(@r) < scalar(@l) && $r[scalar(@r)] == 0) {push(@r,0)}
+  }
   return scalar(@l) <=> scalar(@r) unless scalar(@l) == scalar(@r);
   my $cmp = 0;
   foreach my $i (0..scalar(@l)-1) {
@@ -300,4 +294,3 @@ sub ijk {
 ###########################################################################
 
 1;
-

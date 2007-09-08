@@ -39,7 +39,7 @@ sub make {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   while (scalar(@_) < 2) {push(@_,0)}
-  my $c = bless {data => [@_[0,1]], context => $context}, $class;
+  my $c = bless {$self->hash, data => [@_[0,1]], context => $context}, $class;
   foreach my $x (@{$c->{data}}) {$x = $context->Package("Real")->make($context,$x) unless Value::isValue($x)}
   return $c;
 }
@@ -84,42 +84,42 @@ sub promoteData {
 #
 
 sub add {
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
+  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
-  return $self->make($a + $c, $b + $d);
+  return $self->inherit($other)->make($a + $c, $b + $d);
 }
 
 sub sub {
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
+  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
-  return $self->make($a - $c, $b - $d);
+  return $self->inherit($other)->make($a - $c, $b - $d);
 }
 
 sub mult {
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
+  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
-  return $self->make($a*$c - $b*$d, $b*$c + $a*$d);
+  return $self->inherit($other)->make($a*$c - $b*$d, $b*$c + $a*$d);
 }
 
 sub div {
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
+  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
   my $x = $c*$c + $d*$d;
   Value::Error("Division by zero") if $x->value == 0;
-  return $self->make(($a*$c + $b*$d)/$x,($b*$c - $a*$d)/$x);
+  return $self->inherit($other)->make(($a*$c + $b*$d)/$x,($b*$c - $a*$d)/$x);
 }
 
 sub power {
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
+  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
-  return $self->make(1,0) if ($a->value == 1 && $b->value == 0) || ($c->value == 0 && $d->value == 0);
-  return $self->make(0,0) if $c->value > 0 && ($a->value == 0 && $b->value == 0);
+  return $self->inherit($other)->make(1,0) if ($a->value == 1 && $b->value == 0) || ($c->value == 0 && $d->value == 0);
+  return $self->inherit($other)->make(0,0) if $c->value > 0 && ($a->value == 0 && $b->value == 0);
   return exp($r * log($l))
  }
 
 sub modulo {
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
-  return $self->make(0) if abs($r)->value == 0; # non-fuzzy check
+  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
+  return $self->inherit($other)->make(0) if abs($r)->value == 0; # non-fuzzy check
   my $m = Re($l/$r)->value;
   my $n = int($m); $n-- if $n > $m; # act as floor() rather than int()
   return $l - $n*$r;
@@ -132,6 +132,8 @@ sub compare {
   #
   my $m = $self->getFlag("period");
   if (defined $m) {
+    $l = $l->with(period=>undef);  # make sure tests below don't use period
+    $r = $r->with(period=>undef);
     if ($self->getFlag("logPeriodic")) {
       return 1 if abs($l)->value == 0 || abs($r)->value == 0; # non-fuzzy checks
       $l = log($l); $r = log($r);
@@ -248,7 +250,8 @@ sub acot {atan(1/$_[0])}
 
 # atan2(z1,z2) = atan(z1/z2)
 sub atan2 {
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
+  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
+  $self = $self->inherit($other);
   my ($a,$b) = $l->value; my ($c,$d) = $r->value;
   if ($c->value == 0 && $d->value == 0) {
     return $self->make(0,0) if ($a->value == 0 && $b->value == 0);
@@ -333,7 +336,7 @@ sub format {
   $a->{format} = $b->{format} = $format if defined $format;
   my $bi = 'i';
   return $a->$method($equation) if $b == 0;
-  $bi = CORE::abs($b)->with(format=>$format)->$method($equation,1) . 'i' if CORE::abs($b) ne 1;
+  $bi = CORE::abs($b)->with(format=>$format)->$method($equation,1) . 'i' if CORE::abs($b) !~ m/^1(\.0*)?$/;
   $bi = '-' . $bi if $b < 0;
   return $bi if $a == 0;
   $bi = '+' . $bi if $b > 0;
