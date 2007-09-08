@@ -36,15 +36,16 @@ sub eval {
   my $self = shift; my $context = $self->context;
   my $data = $self->{def}{value};
   if (Value::isFormula($data)) {
+    $data = $data->copy;
     $data->{values} = $self->{equation}{values};
-    my $value = $data->{tree}->eval;
-    $data->{values} = {};
-    return $value->inContext($self->context);
+    $data = $data->{tree}->eval->inContext($context);
+    return $data;
   } elsif (ref($data) eq 'ARRAY') {
-    foreach my $x (@{$data}) {$x->inContext($context)}
+    $data = [@${data}];
+    foreach my $x (@{$data}) {$x = $x->copy->inContext($context)}
     return @{$data};
   } else {
-    $data = $data->inContext($context) if Value::isValue($data);
+    $data = $data->copy->inContext($context) if Value::isValue($data);
     return $data;
   }
 }
