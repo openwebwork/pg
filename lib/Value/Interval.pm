@@ -30,7 +30,8 @@ sub new {
   return $context->Package("Set")->new($context,@params) if scalar(@params) == 1;
   @params = ('(',@params,')') if (scalar(@params) == 2);
   my ($open,$a,$b,$close) = @params;
-  if (!defined($close)) {$close = $b; $b = $a}
+  ($b,$close) = ($a,$b) unless defined($close);
+  ($a,$b,$open) = ($open,$a,$b) if !ref($b) && ($b eq '(' || $b eq '[');
   $a = Value::makeValue($a,context=>$context); $b = Value::makeValue($b,context=>$context);
   return $self->formula($open,$a,$b,$close) if Value::isFormula($a) || Value::isFormula($b);
   Value::Error("Endpoints of intervals must be numbers or infinities") unless
@@ -52,6 +53,7 @@ sub new {
     if $a == $b && ($open ne '[' || $close ne ']');
   return $context->Package("Set")->new($context,$a) if $a == $b;
   bless {
+    $self->hash,
     data => [$a,$b], open => $open, close => $close,
     leftInfinite => $nia, rightInfinite => $ib,
     context => $context,
@@ -65,7 +67,9 @@ sub make {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my ($open,$a,$b,$close) = @_;
-  $close = $b, $b = $a unless defined($close);
+  ($open,$a,$b,$close) = ("(",$open,$a,")") unless defined($b);
+  ($b,$close) = ($a,$b) unless defined($close);
+  ($a,$b,$open) = ($open,$a,$b) if !ref($b) && ($b eq '(' || $b eq '[');
   bless {
     data => [$a,$b], open => $open, close => $close,
     leftInfinite => isNegativeInfinity($a), rightInfinite => isInfinity($b),
