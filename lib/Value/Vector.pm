@@ -189,7 +189,13 @@ sub isParallel {
   my $context =  $self->context;
   my $sameDirection = shift;
   my @u = $U->value; my @v = $V->value;
-  return 0 unless  scalar(@u) == scalar(@v);
+  if (scalar(@u) != scalar(@v)) {
+    return 0 unless
+       ($U->getFlag("ijk") || $V->getFlag("ijk")) &&
+       ($U->getFlag("ijkAnyDimension") || $V->getFlag("ijkAnyDimension"));
+    if (scalar(@u) < scalar(@v)) {push(@u,0 x (scalar(@v)-scalar(@u)))}
+                            else {push(@v,0 x (scalar(@u)-scalar(@v)))}
+  }
   my $k = ''; # will be scaling factor for u = k v
   foreach my $i (0..$#u) {
     #
