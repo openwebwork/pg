@@ -865,8 +865,11 @@ sub cmp_postprocess {
   return unless $ans->{score} == 0 && !$ans->{isPreview};
   my $student = $ans->{student_value};
   return if $ans->{ignoreStrings} && (!Value::isValue($student) || $student->type eq 'String');
-  if ($ans->{showDimensionHints} && $self->length != $student->length) {
-    $self->cmp_Error($ans,"The number of coordinates is incorrect"); return;
+  if ($self->length != $student->length) {
+    ($self,$student) = $self->cmp_pad($student);
+    if ($ans->{showDimensionHints} && $self->length != $student->length) {
+      $self->cmp_Error($ans,"The number of coordinates is incorrect"); return;
+    }
   }
   if ($ans->{parallel} && !$student->isFormula && !$student->classMatch('String') &&
       $self->isParallel($student,$ans->{sameDirection})) {
@@ -880,6 +883,23 @@ sub cmp_postprocess {
     }
     $self->cmp_Error($ans,@errors); return;
   }
+}
+
+#
+#  Pad the student or correct answer if either is in ijk notation
+#  and they are not the same dimension.  Only add zeros when the other one
+#  also has zeros in those places.
+#
+sub cmp_pad {
+  my $self = shift; my $student = shift;
+  if (($self->getFlag("ijk") || $student->getFlag("ijk")) && $self->getFlag("ijkAnyDimension")) {
+    $self = $self->copy; $student = $student->copy;
+    while ($self->length > $student->length && $self->{data}[$student->length] == 0)
+      {push(@{$student->{data}},Value::Real->new(0))}
+    while ($self->length < $student->length && $student->{data}[$self->length] == 0)
+      {push(@{$self->{data}},Value::Real->new(0))}
+  }
+  return ($self,$student);
 }
 
 sub correct_ans {
