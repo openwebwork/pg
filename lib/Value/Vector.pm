@@ -147,7 +147,7 @@ sub compare {
     return scalar(@l) <=> scalar(@r) unless
        ($l->getFlag("ijk") || $r->getFlag("ijk")) &&
        ($l->getFlag("ijkAnyDimension") || $r->getFlag("ijkAnyDimension"));
-    if (scalar(@l) > scalar(@r)) {push(@l,0 x (scalar(@r)-scalar(@l)))}
+    if (scalar(@l) < scalar(@r)) {push(@l,0 x (scalar(@r)-scalar(@l)))}
                             else {push(@r,0 x (scalar(@l)-scalar(@r)))}
   }
   my $cmp = 0;
