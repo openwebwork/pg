@@ -516,11 +516,6 @@ our @ISA = ("Inequalities::common", "Value::Interval");
 
 sub type {"Interval"}
 
-sub makeData {
-  my ($a,$b,$open,$close) = (shift)->value;
-  return ($open,$a,$b,$close);
-}
-
 sub string {
   my $self = shift;
   my ($a,$b,$open,$close) = $self->value;
