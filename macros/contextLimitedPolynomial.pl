@@ -361,6 +361,10 @@ sub Init {
        "${_}h"=>{class => 'LimitedPolynomial::Function::hyperbolic'}
     );
   }
+  #
+  #  Don't convert -ax-b to -(ax+b), etc.
+  #
+  $context->reduction->set("(-x)-y"=>0);
 
   main::Context("LimitedPolynomial");  ### FIXME:  probably should require author to set this explicitly
 }
