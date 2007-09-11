@@ -13,7 +13,7 @@
 sub Parser::D {
   my $self = shift;
   my $d; my @x = @_; my $x;
-  if (defined(@x[0]) && $x[0] =~ m/^\d+$/) {
+  if (defined($x[0]) && $x[0] =~ m/^\d+$/) {
     $d = shift(@x);
     $self->Error("You can only specify one variable when you give a derivative count")
       unless scalar(@x) <= 1;
@@ -29,7 +29,7 @@ sub Parser::D {
       $self->Error("You must specify a variable to differentiate by") unless $n == 1;
       $x = $vars[0];
     }
-    push(@x,$x);
+    CORE::push(@x,$x);
   }
   @x = ($x[0]) x $d if $d;
   my $f = $self->{tree};
