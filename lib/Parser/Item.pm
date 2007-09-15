@@ -6,12 +6,15 @@
 package Parser::Item;
 use strict;
 use UNIVERSAL;
+use Scalar::Util;
 
 #
 #  Make these available to Parser items
 #
 sub isa {UNIVERSAL::isa(@_)}
 sub can {UNIVERSAL::can(@_)}
+
+sub weaken {Scalar::Util::weaken((shift)->{equation})}
 
 #
 #  Return the class name of an item
@@ -135,9 +138,10 @@ sub copy {
   my $self = shift; my $equation = shift;
   my $new = {%{$self}};
   if (ref($self) ne 'HASH') {
-    bless $new, ref($self);
     $new->{equation} = $equation if defined($equation);
     $new->{ref} = undef;
+    bless $new, ref($self);
+    $new->weaken;
   }
   $new->{type} = copy($self->{type}) if defined($self->{type});
   return $new;

@@ -75,13 +75,13 @@ sub bop {
     $formula->{context} = $r->{context};
     $r = $r->{tree}->copy($formula);
   } else {
-    $r = $self->new($r)->{tree};
+    $r = $self->new($r)->{tree}->copy($formula);
   }
   if (ref($l) eq $class || ref($l) eq $pkg) {
     $formula->{context} = $l->{context};
     $l = $l->{tree}->copy($formula);
   } else {
-    $l = $self->new($l)->{tree};
+    $l = $self->new($l)->{tree}->copy($formula);
   }
   $bop = 'U' if $bop eq '+' &&
     ($l->type =~ m/Interval|Set|Union/ || $r->type =~ m/Interval|Set|Union/);

@@ -37,6 +37,7 @@ sub new {
     value => $value, type => $type, isConstant => 1,
     ref => $ref, equation => $equation,
   }, $class;
+  $c->weaken;
   $c->check;
   return $c;
 }

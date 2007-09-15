@@ -30,6 +30,7 @@ sub new {
     bop => $bop, lop => $lop, rop => $rop,
     def => $def, ref => $ref, equation => $equation,
   }, $def->{class};
+  $BOP->weaken;
   $BOP->{isConstant} = 1 if ($lop->{isConstant} && $rop->{isConstant});
   $BOP->_check;
   $BOP = $BOP->Item("Value")->new($equation,[$BOP->eval])

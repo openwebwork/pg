@@ -17,6 +17,7 @@ sub new {
     uop => $uop, op => $op,
     def => $def, ref => $ref, equation => $equation
   }, $def->{class};
+  $UOP->weaken;
   $UOP->{isConstant} = 1 if $op->{isConstant};
   $UOP->_check;
   $UOP = $UOP->Item("Value")->new($equation,[$UOP->eval])

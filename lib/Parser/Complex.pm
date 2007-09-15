@@ -20,6 +20,7 @@ sub new {
     value => $value, type => $Value::Type{complex}, isConstant => 1,
     ref => $ref, equation => $equation,
   }, $class;
+  $num->weaken;
   my $z = $self->Package("Complex",$context)->make($context,@{$value});
   $num->{isOne}  = 1 if ($z cmp 1) == 0;
   $num->{isZero} = 1 if $z == 0;

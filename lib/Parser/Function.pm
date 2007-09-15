@@ -19,6 +19,7 @@ sub new {
     name => $name, params => $params,
     def => $def, ref => $ref, equation => $equation,
   }, $def->{class};
+  $fn->weaken;
   $fn->{isConstant} = $constant;
   $fn->_check;
   return $fn->Item("Value")->new($equation,[$fn->eval])

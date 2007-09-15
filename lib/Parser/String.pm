@@ -26,6 +26,7 @@ sub new {
     value => $value, type => $Value::Type{string}, isConstant => 1,
     def => $def, ref => $ref, equation => $equation,
   }, $class;
+  $str->weaken;
   $str->{isInfinite} = 1 if ($def->{infinite});
   $str->{isInfinity} = 1 if ($def->{infinite} && !$def->{negative});
   $str->{isNegativeInfinity} = 1 if ($def->{infinite} && $def->{negative});

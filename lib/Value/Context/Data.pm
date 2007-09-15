@@ -4,6 +4,7 @@
 #
 package Value::Context::Data;
 use strict;
+use Scalar::Util;
 
 sub new {
   my $self = shift; my $class = ref($self) || $self;
@@ -17,6 +18,7 @@ sub new {
     namePattern => '',      # pattern for allowed names for new items
     name => '', Name => '', # lower- and upper-case names for the class of items
   }, $class;
+  $data->weaken;
   $data->init();
   $parent->{$data->{dataName}} = {};
   push @{$parent->{data}{objects}},"_$data->{dataName}";
@@ -53,6 +55,11 @@ sub copy {
       (ref($orig->{patterns}{$p}) ? [@{$orig->{patterns}{$p}}] : $orig->{patterns}{$p});
   }
 }
+
+#
+#  Make context pointer a weak pointer (avoids reference loops)
+#
+sub weaken {Scalar::Util::weaken((shift)->{context})}
 
 #
 #  Update the context patterns

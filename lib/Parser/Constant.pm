@@ -23,6 +23,7 @@ sub new {
     name => $name, type => $type, def => $const,
     ref => $ref, equation => $equation
   }, $class;
+  $c->weaken;
   $c->{isConstant} = 1 if $const->{isConstant};
   return $c;
 }

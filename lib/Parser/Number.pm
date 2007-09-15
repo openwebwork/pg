@@ -21,6 +21,7 @@ sub new {
     type => $Value::Type{number}, isConstant => 1,
     ref => $ref, equation => $equation,
   }, $class;
+  $num->weaken;
   my $x = $num->Package("Real")->make($context,$value);
   $num->{isOne}  = 1 if $x eq 1;
   $num->{isZero} = 1 if $value == 0;

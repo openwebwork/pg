@@ -28,10 +28,12 @@ sub new {
     if $variables-> {$name}{parameter} && $equation->{context}{flags}{no_parameters};
   $equation->{variables}{$name} = 1;
   my $def = $variables->{$name};
-  bless {
+  my $v = bless {
     name => $name, def => $def, type => $def->{type},
     ref => $ref, equation => $equation
   }, $class;
+  $v->weaken;
+  return $v;
 }
 
 #

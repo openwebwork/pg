@@ -48,6 +48,7 @@ sub new {
     coords => $coords, type => $type, open => $open, close => $close,
     paren => $paren, equation => $equation, isConstant => $constant
   }, $context->{lists}{$type->{name}}{class};
+  $list->weaken;
 
   my $zero = 1;
   foreach my $x (@{$coords}) {$zero = 0, last unless $x->{isZero}}
