@@ -40,7 +40,7 @@ sub _reduce {
     $self = $self->Item("BOP")->new($equation,'=',$self->{lop}{op},$self->{rop}{op});
     $self = $self->reduce;
   }
-  if ($self->{lop}->isNeg && $self->{rop}{isConstant} && 
+  if ($self->{lop}->isNeg && $self->{rop}{isConstant} &&
       $self->{rop}->isNumber && $reduce->{'-x=n'}) {
     $self = $self->Item("BOP")->new($equation,"=",$self->{lop}{op},Parser::UOP::Neg($self->{rop}));
     $self = $self->reduce;

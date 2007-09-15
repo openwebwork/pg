@@ -11,11 +11,11 @@ $Parser::class->{Number} = 'Parser::Number';
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $equation = shift; my $context = $equation->{context};
-  my $num; my ($value,$ref) = @_;
+  my ($value,$ref) = @_;
   return $self->Item("Complex",$context)->new($equation,$value,$ref)
     if (ref($value) eq 'ARRAY');
   $value = $value->value while Value::isReal($value);
-  $num = bless {
+  my $num = bless {
     value => $value + 0, # format the value as a number, just in case
     value_string => $value, # for decimal checking, etc.
     type => $Value::Type{number}, isConstant => 1,
