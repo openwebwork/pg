@@ -196,6 +196,11 @@ sub new {
   my $associativity = $context->{currency}{associativity};
   my $string = ($symbol =~ m/[a-z]/i ? " $symbol " : $symbol);
   $context->{_currency}{symbol} = $symbol;
+  $context->operators->remove($symbol) if $context->operators->get($symbol);
+  $context->operators->add(
+    $symbol => {precedence => 10, associativity => $associativity, type => "unary", string => $symbol,
+                TeX => Currency::quoteTeX($symbol), class => 'Currency::UOP::currency'},
+  );
   $context->{parser}{Number} = "Currency::Number";
   $context->{value}{Currency} = "Currency::Currency";
   $context->flags->set(
