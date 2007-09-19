@@ -456,6 +456,7 @@ sub format {
   my $currency = ($self->{currency} || $self->context->{currency});
   my ($symbol,$comma,$decimal) = ($currency->{symbol},$currency->{comma},$currency->{decimal});
   $symbol = $self->context->operators->get($symbol)->{$type} || $symbol;
+  $comma = "{$comma}" if $type eq 'TeX';
   my $s = main::prfmt($self->value,"%.2f");
   $s =~ s/\./$decimal/;
   while ($s =~ s/(\d)(\d\d\d\D)/$1$comma$2/) {}
