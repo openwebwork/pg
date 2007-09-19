@@ -198,11 +198,6 @@ sub new {
   $context->{_currency}{symbol} = $symbol;
   $context->{parser}{Number} = "Currency::Number";
   $context->{value}{Currency} = "Currency::Currency";
-  $context->operators->remove($symbol) if $context->operators->get($symbol);
-  $context->operators->add(
-    $symbol => {precedence => 10, associativity => $associativity, type => "unary", string => $symbol,
-                TeX => Currency::quoteTeX($symbol), class => 'Currency::UOP::currency'},
-  );
   $context->flags->set(
     tolerance => .005,
     tolType => "absolute",
@@ -293,7 +288,8 @@ sub addSymbol {
     $operators->add(
       $symbol => {
         %{$def}, associativity => $associativity,
-        string => $string, TeX => Currency::quoteTeX($string),
+        string => ($main::qisplayMode eq 'TeX' ? Currency::quoteTeX($string) : $string),
+	TeX => Currency::quoteTeX($string),
       }
     );
   }
@@ -329,7 +325,8 @@ sub update {
   my $string = ($data->{symbol} =~ m/[^a-z]/i ? $data->{symbol} : " $data->{symbol} ");
   $context->operators->set($data->{symbol}=>{
     associativity => $data->{associativity},
-    string => $string, tex => Currency::quoteTeX($string),
+    string => ($main::displayMode eq 'TeX' ? Currency::quoteTeX($string) : $string),
+    TeX => Currency::quoteTeX($string),
   });
   $context->update;
 }
@@ -449,11 +446,11 @@ sub make {
 #  on the correct end for the associativity and remove leading
 #  and trailing spaces.
 #
-sub string {
-  my $self = shift;
+sub format {
+  my $self = shift; my $type = shift;
   my $currency = ($self->{currency} || $self->context->{currency});
   my ($symbol,$comma,$decimal) = ($currency->{symbol},$currency->{comma},$currency->{decimal});
-  $symbol = $self->context->operators->get($symbol)->{string} || $symbol;
+  $symbol = $self->context->operators->get($symbol)->{$type} || $symbol;
   my $s = main::prfmt($self->value,"%.2f");
   $s =~ s/\./$decimal/;
   while ($s =~ s/(\d)(\d\d\d\D)/$1$comma$2/) {}
@@ -462,13 +459,10 @@ sub string {
   return $s;
 }
 
-#
-#  Just use the string and escape any TeX specials
-#
-sub TeX {
-  my $self = shift;
-  return Currency::quoteTeX($self->string(@_));
-}
+sub string {(shift)->format("string")}
+sub TeX    {(shift)->format("TeX")}
+
+
 
 #
 #  Override the class name to get better error messages
