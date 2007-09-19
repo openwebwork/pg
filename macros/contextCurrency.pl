@@ -198,7 +198,8 @@ sub new {
   $context->{_currency}{symbol} = $symbol;
   $context->operators->remove($symbol) if $context->operators->get($symbol);
   $context->operators->add(
-    $symbol => {precedence => 10, associativity => $associativity, type => "unary", string => $symbol,
+    $symbol => {precedence => 10, associativity => $associativity, type => "unary",
+		string => ($main::displayMode eq 'TeX' ? Currency::quoteTeX($symbol) : $symbol),
                 TeX => Currency::quoteTeX($symbol), class => 'Currency::UOP::currency'},
   );
   $context->{parser}{Number} = "Currency::Number";
