@@ -7,18 +7,28 @@ sub _contextLimitedPolynomial_init {LimitedPolynomial::Init()}; # don't load it 
 
  ##########################################################
  #
- #  Implements a context in which students can only 
- #  enter (expanded) polynomials (i.e., sums of multiples
- #  of powers of x).
+ #  Implements a context in which students can only enter (expanded)
+ #  polynomials (i.e., sums of multiples of powers of x).
  #
  #  Select the context using:
  #
  #      Context("LimitedPolynomial");
  #
- #  If you set the "singlePowers" flag, then only one monomial of
- #  each degree can be included in the polynomial:
+ #  If you set the "singlePowers" flag, then only one monomial of each
+ #  degree can be included in the polynomial:
  #
  #      Context("LimitedPolynomial")->flags->set(singlePowers=>1);
+ #
+ #  There is also a strict limited context that does not allow
+ #  operations even within the coefficients.  Select it using:
+ #
+ #      Context("LimitedPolynomial-Strict");
+ #
+ #  In addition to disallowing operations within the coefficients,
+ #  this context does not reduce constant operations (since they are
+ #  not allowed), and sets the singlePowers flag automatically.  In
+ #  addition, it disables all the functions, though they can be
+ #  re-enabled, if needed.
  #
 
 =cut
@@ -38,8 +48,11 @@ sub _check {
   my $self = shift;
   my $super = ref($self); $super =~ s/LimitedPolynomial/Parser/;
   &{$super."::_check"}($self);
-  return if LimitedPolynomial::isConstant($self->{lop}) &&
-            LimitedPolynomial::isConstant($self->{rop});
+  if (LimitedPolynomial::isConstant($self->{lop}) &&
+      LimitedPolynomial::isConstant($self->{rop})) {
+    $self->checkStrict if $self->context->flag("strictCoefficients");
+    return;
+  }
   return if $self->checkPolynomial;
   $self->Error("Your answer doesn't look like a polynomial");
 }
@@ -93,6 +106,15 @@ sub checkPowers {
   }
   delete $r->{powers};
   return 1;
+}
+
+#
+#  Report an error when both operands are constants
+#  and strictCoefficients is in effect.
+#
+sub checkStrict {
+  my $self = shift;
+  $self->Error("Can't use '%s' between constants",$self->{bop});
 }
 
 ##################################################
@@ -157,9 +179,13 @@ our @ISA = qw(LimitedPolynomial::BOP Parser::BOP::add);
 sub checkPolynomial {
   my $self = shift;
   my ($l,$r) = ($self->{lop},$self->{rop});
-  $self->Error("Addition is allowed only between monomials")
-    if $r->{isPoly};
+  $self->Error("Addition is allowed only between monomials") if $r->{isPoly};
   $self->checkPowers;
+}
+
+sub checkStrict {
+  my $self = shift;
+  $self->Error("You can only use addition for the terms of a polynomial",$self->{bop});
 }
 
 ##############################################
@@ -170,9 +196,13 @@ our @ISA = qw(LimitedPolynomial::BOP Parser::BOP::subtract);
 sub checkPolynomial {
   my $self = shift;
   my ($l,$r) = ($self->{lop},$self->{rop});
-  $self->Error("Subtraction is only allowed between monomials")
-    if $r->{isPoly};
+  $self->Error("Subtraction is allowed only between monomials") if $r->{isPoly};
   $self->checkPowers;
+}
+
+sub checkStrict {
+  my $self = shift;
+  $self->Error("You can only use subtraction between the terms of a polynomial",$self->{bop});
 }
 
 ##############################################
@@ -192,6 +222,11 @@ sub checkPolynomial {
   $self->Error("Multiplication can only be used between coefficients and variables");
 }
 
+sub checkStrict {
+  my $self = shift;
+  $self->Error("You can only use '%s' between a coefficent and a variable in a polynomial",$self->{bop});
+}
+
 ##############################################
 
 package LimitedPolynomial::BOP::divide;
@@ -208,6 +243,11 @@ sub checkPolynomial {
   $self->{powers} = $l->{powers}; delete $l->{powers};
   $self->{exponents} = $l->{exponents}; delete $l->{exponents};
   return 1;
+}
+
+sub checkStrict {
+  my $self = shift;
+  $self->Error("You can only use '%s' to form fractions",$self->{bop}) if $self->{lop}->class eq 'BOP';
 }
 
 ##############################################
@@ -232,6 +272,11 @@ sub checkPolynomial {
   foreach my $i (@{$self->{exponents}}) {$i = $n if $i}
   $self->{isPower} = 1;
   return 1;
+}
+
+sub checkStrict {
+  my $self = shift;
+  $self->Error("You can only use powers of a variable in a polynomial");
 }
 
 ##############################################
@@ -365,6 +410,13 @@ sub Init {
   #  Don't convert -ax-b to -(ax+b), etc.
   #
   $context->reduction->set("(-x)-y"=>0);
+
+  #
+  #  A context where coefficients can't include operations
+  #
+  $context = $main::context{"LimitedPolynomial-Strict"} = $context->copy;
+  $context->flags->set(strictCoefficients=>1, singelPowers=>1, reduceConstants=>0);
+  $context->functions->disable("All");  # can be re-enabled if needed
 
   main::Context("LimitedPolynomial");  ### FIXME:  probably should require author to set this explicitly
 }
