@@ -182,6 +182,11 @@ sub compare {
   #    to the ORIGINAL correct answer.  (This will have to be
   #    fixed if we ever do adaptive parameters for non-real formulas)
   #
+  #  FIXME:  it doesn't make sense to apply the ORIGINAL value's
+  #          tolerance, and causes problems when the values
+  #          differ in magnitude by much.  Gavin has found several
+  #          situations where this is a problem.
+  #
   if ($l->AdaptParameters($r,$self->{context}->variables->parameters)) {
     my $avalues = $l->{test_adapt};
     my $tolerance    = $self->getFlag('tolerance',1E-4);
@@ -412,53 +417,59 @@ sub Value::Formula::number::make {shift; shift; shift->value}
 #
 sub AdaptParameters {
   my $l = shift; my $r = shift;
-  my @params = @_; my $d = scalar(@params);
+  my @params = @_; my $d = scalar(@params); my $D;
   return 0 if $d == 0; return 0 unless $l->usesOneOf(@params);
   $l->Error("Adaptive parameters can only be used for real-valued formulas")
     unless $l->{tree}->isRealNumber;
+
   #
-  #  Get coefficient matrix of adaptive parameters
-  #  and value vector for linear system
+  #  Try up to three times (the random points might not work the first time)
   #
-  my ($p,$v) = $l->createRandomPoints($d);
-  my @P = (0) x $d; my ($f,$F) = ($l->{f},$r->{f});
-  my @A = (); my @b = ();
-  foreach my $i (0..$d-1) {
-    my @a = (); my @p = @{$p->[$i]};
-    foreach my $j (0..$d-1) {
-      $P[$j] = 1; push(@a,(&$f(@p,@P)-$v->[$i])->value);
-      $P[$j] = 0;
-    }
-    push @A, [@a]; push @b, [(&$F(@p,@P)-$v->[$i])->value];
-  }
-  #
-  #  Use MatrixReal1.pm to solve system of linear equations
-  #
-  my $M = MatrixReal1->new($d,$d); $M->[0] = \@A;
-  my $B = MatrixReal1->new($d,1);  $B->[0] = \@b;
-  ($M,$B) = $M->normalize($B);
-  $M = $M->decompose_LR;
-  if (($d,$B,$M) = $M->solve_LR($B)) {
-    if ($d == 0) {
-      #
-      #  Get parameter values and recompute the points using them
-      #
-      my @a; my $i = 0; my $max = $l->getFlag('max_adapt',1E8);
-      foreach my $row (@{$B->[0]}) {
-	if (abs($row->[0]) > $max) {
-	  $max = Value::makeValue($max); $row->[0] = Value::makeValue($row->[0]);
-	  $l->Error(["Constant of integration is too large: %s\n(maximum allowed is %s)",
-		    $row->[0]->string,$max->string]) if $params[$i] eq 'C0';
-	  $l->Error(["Adaptive constant is too large: %s = %s\n(maximum allowed is %s)",
-		    $params[$i],$row->[0]->string,$max->string]);
-	}
-	push @a, $row->[0]; $i++;
+  foreach my $attempt (1..3) {
+    #
+    #  Get coefficient matrix of adaptive parameters
+    #  and value vector for linear system
+    #
+    my ($p,$v) = $l->createRandomPoints($d);
+    my @P = (0) x $d; my ($f,$F) = ($l->{f},$r->{f});
+    my @A = (); my @b = ();
+    foreach my $i (0..$d-1) {
+      my @a = (); my @p = @{$p->[$i]};
+      foreach my $j (0..$d-1) {
+        $P[$j] = 1; push(@a,(&$f(@p,@P)-$v->[$i])->value);
+        $P[$j] = 0;
       }
-      my $context = $l->context;
-      foreach my $i (0..$#a) {$context->{variables}{$params[$i]}{value} = $a[$i]}
-      $l->{parameters} = [@a];
-      $l->createAdaptedValues;
-      return 1;
+      push @A, [@a]; push @b, [(&$F(@p,@P)-$v->[$i])->value];
+    }
+    #
+    #  Use MatrixReal1.pm to solve system of linear equations
+    #
+    my $M = MatrixReal1->new($d,$d); $M->[0] = \@A;
+    my $B = MatrixReal1->new($d,1);  $B->[0] = \@b;
+    ($M,$B) = $M->normalize($B);
+    $M = $M->decompose_LR;
+    if (($D,$B,$M) = $M->solve_LR($B)) {
+      if ($D == 0) {
+        #
+        #  Get parameter values and recompute the points using them
+        #
+        my @a; my $i = 0; my $max = $l->getFlag('max_adapt',1E8);
+        foreach my $row (@{$B->[0]}) {
+	  if (abs($row->[0]) > $max) {
+	    $max = Value::makeValue($max); $row->[0] = Value::makeValue($row->[0]);
+	    $l->Error(["Constant of integration is too large: %s\n(maximum allowed is %s)",
+		      $row->[0]->string,$max->string]) if $params[$i] eq 'C0' or $params[$i] eq 'n00';
+	    $l->Error(["Adaptive constant is too large: %s = %s\n(maximum allowed is %s)",
+		      $params[$i],$row->[0]->string,$max->string]);
+	  }
+	  push @a, $row->[0]; $i++;
+        }
+        my $context = $l->context;
+        foreach my $i (0..$#a) {$context->{variables}{$params[$i]}{value} = $a[$i]}
+        $l->{parameters} = [@a];
+        $l->createAdaptedValues;
+        return 1;
+      }
     }
   }
   $l->Error("Can't solve for adaptive parameters");
