@@ -15,10 +15,12 @@ our @ISA = qw(Value);
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
+  my $def = $context->lists->get("List");
   my $p = shift; my $isFormula = 0;
   my $isSingleton = (scalar(@_) == 0 && !(Value::isValue($p) && $p->classMatch('List')));
   $p = $p->data if (Value::isValue($p) && $p->classMatch('List') && scalar(@_) == 0);
-  $p = [$p,@_] if (ref($p) ne 'ARRAY' || scalar(@_) > 0);
+  $p = [] unless defined $p;
+  $p = [$p,@_] if ref($p) ne 'ARRAY' || scalar(@_) > 0;
   my $type;
   foreach my $x (@{$p}) {
     $x = Value::makeValue($x,context=>$context) unless ref($x);
@@ -27,11 +29,20 @@ sub new {
       if (!$type) {$type = $x->type}
         else {$type = 'unknown' unless $type eq $x->type}
     } else {$type = 'unknown'}
+    if (!$isSingleton && $x->type eq 'List') {
+      $x->{open}  = $def->{nestedOpen}  unless $x->{open};
+      $x->{close} = $def->{nestedClose} unless $x->{close};
+    }
   }
   return $p->[0] if ($isSingleton && $type eq 'List' && !$p->[0]{open});
   return $self->formula($p) if $isFormula;
   my $list = bless {data => $p, type => $type, context=>$context}, $class;
-  $list->{correct_ans} = $p->[0]{correct_ans} if $isSingleton && defined $p->[0]{correct_ans};
+  $list->{correct_ans} = $p->[0]{correct_ans}
+    if $isSingleton && defined scalar(@{$p}) && defined $p->[0]{correct_ans};
+  if (scalar(@{$p}) == 0) {
+    $list->{open}  = $def->{nestedOpen};
+    $list->{close} = $def->{nestedClose};
+  }
   return $list;
 }
 

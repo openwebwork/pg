@@ -325,8 +325,8 @@ sub isSetOfReals {0}
 sub canBeInUnion {
   my $self = shift;
   my $def = $self->context->lists->get($self->class);
-  my $open = $self->{open}; $open = $def->{open} unless defined $open;
-  my $close = $self->{close}; $close = $def->{close} unless defined $close;
+  my $open = $self->{open}; $open = $def->{open}||$def->{nestedOpen} unless defined $open;
+  my $close = $self->{close}; $close = $def->{close}||$def->{nestedClose} unless defined $close;
   return $self->length == 2 && $self->typeRef->{entryType}{name} eq 'Number' &&
     $open =~ m/^[\(\[]$/ && $close =~ m/^[\)\]]$/;
 }
