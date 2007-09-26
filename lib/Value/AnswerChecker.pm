@@ -91,7 +91,7 @@ sub cmp {
   );
   $ans->{debug} = $ans->{rh_ans}{debug};
   $ans->install_evaluator(sub {
-     $ans = shift;
+     my $ans = shift;
      $ans->{_filter_name} = "MathObjects answer checker";
      $ans->{correct_value}->cmp_parse($ans);
   });
