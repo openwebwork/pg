@@ -155,7 +155,7 @@ sub _check {
   ($self->{varPos},$self->{numPos}) =
     ($self->{lop}->class eq 'Variable' || $self->{lop}{isInequality} ? ('lop','rop') : ('rop','lop'));
   my ($v,$n) = ($self->{$self->{varPos}},$self->{$self->{numPos}});
-  if ($n->isNumber && $n->{isConstant}) {
+  if (($n->isNumber || $n->{isInfinite}) && $n->{isConstant}) {
     if ($v->class eq 'Variable') {
       $self->{varName} = $v->{name};
       delete $self->{equation}{variables}{$v->{name}} if $v->{isNew};
