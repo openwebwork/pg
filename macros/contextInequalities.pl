@@ -669,8 +669,8 @@ sub new {
     if (defined($x)) {$S->{varName} = $x; $S->updateParts}
     return $S;
   }
-  $x = ($self->context->variables->names)[0] unless $x;
-  $S = bless $S->inContext($context), $self->Package("Inequality".$S->type);
+  $x = ($context->variables->names)[0] unless $x;
+  $S = bless $S->inContext($context), $context->Package("Inequality".$S->type);
   $S->{varName} = $x; $S->{reduceSets} = $S->{"is".$S->Type} = 1;
   $S->updateParts;
   return $S;
