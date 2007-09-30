@@ -740,7 +740,7 @@ sub TeX {
   my $self = shift; my @cases = ();
   foreach my $If (@{$self->{data}}) {
     my ($I,$f) = @{$If};
-    push(@cases,'\displaystyle{'.$f->TeX."}&\\text{if \$".$I->TeX."\$}");
+    push(@cases,'\displaystyle{'.$f->TeX."}&\\text{if}\\ ".$I->TeX);
   }
   if (scalar(@cases)) {
     push(@cases,'\displaystyle{'.$self->{otherwise}->TeX.'}&\text{otherwise}') if defined $self->{otherwise};
