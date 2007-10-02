@@ -1,35 +1,11 @@
-loadMacros('MathObjects.pl');
+=head1 NAME
 
-=head1 DESCRIPTION
-
- ######################################################################
- #
- #  This answer checker compares the student answer to a list of
- #  variable names (so, for example, you can ask for what values a
- #  given function depends on).
- #
- #  Use addVariables() to create the list of variables that from which
- #  the student can choose, and then use variable_cmp() to generate the
- #  answer checker.  If the formula passed to variable_cmp contains
- #  parentheses around the list, then the student's answer must as
- #  well.
- #
- #  You can also include additional parameters to variable_cmp.  These
- #  can be any of the flags appropriate for List() answer checker.
- #
- #  Usage examples:
- #
- #	addVariables('x','y','z');
- #	ANS(variable_cmp("(x,y)"));
- #
- #	addVariables('x','y','z','s','t,);
- #	ANS(variable_cmp("s,t"));
- #
- #	addVariables('x','y','z');
- #	ANS(variable_cmp("(x)",showHints=>0,showLengthHints=>0));
- #
+answerVariableList.pl - Creates answer checkers that compare the student's
+answer to a list of variable names.
 
 =cut
+
+loadMacros('MathObjects.pl');
 
 sub _answerVariableList_init {
   #
@@ -54,10 +30,38 @@ sub _answerVariableList_init {
   main::Context("VariableList");  ### FIXME:  probably should require author to set this explicitly.
 }
 
+=head1 MACROS
 
-#
-#  A shell that calls Formula()->cmp with the right defaults
-#
+=head2 variable_cmp
+
+ ANS(variable_cmp($var_string, %options))
+
+This answer checker compares the student answer to a list of
+variable names (so, for example, you can ask for what values a
+given function depends on).
+
+Use addVariables() to create the list of variables that from which
+the student can choose, and then use variable_cmp() to generate the
+answer checker.  If the formula passed to variable_cmp contains
+parentheses around the list, then the student's answer must as
+well.
+
+You can also include additional parameters to variable_cmp.  These
+can be any of the flags appropriate for List() answer checker.
+
+Usage examples:
+
+    addVariables('x','y','z');
+    ANS(variable_cmp("(x,y)"));
+
+    addVariables('x','y','z','s','t,);
+    ANS(variable_cmp("s,t"));
+
+    addVariables('x','y','z');
+    ANS(variable_cmp("(x)",showHints=>0,showLengthHints=>0));
+
+=cut
+
 sub variable_cmp {
   Value->Package("Formula")->new(shift)->cmp(
     ordered => 1,
@@ -68,12 +72,18 @@ sub variable_cmp {
   );
 }
 
-#
-#  Handy routine to set up variables
-#
+=head2 addVariables
+
+ addVariables(@vars)
+
+Adds each string in @vars as a varible to the current context.
+
+=cut
+
 sub addVariables {
   my $context = Context();
   foreach my $v (@_) {$context->variables->add($v=>'Real')}
 }
 
 1;
+

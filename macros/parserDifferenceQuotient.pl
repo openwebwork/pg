@@ -1,40 +1,40 @@
+=head1 NAME
+
+parserDifferenceQuotient.pl - An answer checker for difference quotients.
+
+=head1 DESCRIPTION
+
+This is a Parser class that implements an answer checker for
+difference quotients as a subclass of the Formula class.  The
+standard ->cmp routine will work for this.  The difference quotient
+is just a special type of formula with a special variable
+for 'dx'.  The checker will give an error message if the
+student's result contains a dx in the denominator, meaning it
+is not fully reduced.
+
+Use DifferenceQuotient(formula) to create a difference equation
+object.  If the context has more than one variable, the last one
+alphabetically is used to form the dx.  Otherwise, you can specify
+the variable used for dx as the second argument to
+DifferenceQuotient().  You could use a variable like h instead of
+dx if you prefer.
+
+Usage examples:
+
+    $df = DifferenceQuotient("2x+dx");
+    ANS($df->cmp);
+
+    $df = DifferenceQuotient("2x+h","h");
+    ANS($df->cmp);
+
+    Context()->variables->are(t=>'Real',a=>'Real');
+    ANS(DifferenceQuotient("-a/[t(t+dt)]","dt")->cmp);
+
+=cut
 
 loadMacros('MathObjects.pl');
 
 sub _parserDifferenceQuotient_init {DifferenceQuotient::Init()}; # don't reload this file
-
-=head1 DESCRIPTION
-
- ######################################################################
- #
- #  This is a Parser class that implements an answer checker for
- #  difference quotients as a subclass of the Formula class.  The
- #  standard ->cmp routine will work for this.  The difference quotient
- #  is just a special type of formula with a special variable
- #  for 'dx'.  The checker will give an error message if the
- #  student's result contains a dx in the denominator, meaning it
- #  is not fully reduced.
- #
- #  Use DifferenceQuotient(formula) to create a difference equation
- #  object.  If the context has more than one variable, the last one
- #  alphabetically is used to form the dx.  Otherwise, you can specify
- #  the variable used for dx as the second argument to
- #  DifferenceQuotient().  You could use a variable like h instead of
- #  dx if you prefer.
- #
- #  Usage examples:
- #
- #      $df = DifferenceQuotient("2x+dx");
- #      ANS($df->cmp);
- #
- #      $df = DifferenceQuotient("2x+h","h");
- #      ANS($df->cmp);
- #
- #      Context()->variables->are(t=>'Real',a=>'Real');
- #      ANS(DifferenceQuotient("-a/[t(t+dt)]","dt")->cmp);
- #
-
-=cut
 
 package DifferenceQuotient;
 our @ISA = qw(Value::Formula);

@@ -1,88 +1,92 @@
+=head1 NAME
+
+contextLimitedPowers.pl - Restrict the base or power allowed in exponentials.
+
+=head1 DESCRIPTION
+
+Implements subclasses of the "^" operator that restrict
+the base or power that is allowed.  There are four
+available restrictions:
+
+    No raising e to a power
+    Only allowing integer powers (positive or negative)
+    Only allowing positive interger powers
+    Only allowing positive interger powers (and 0)
+
+You install these via one of the commands:
+
+    LimitedPowers::NoBaseE();
+    LimitedPowers::OnlyIntegers();
+    LimitedPowers::OnlyPositiveIntegers();
+    LimitedPowers::OnlyNonNegativeIntegers();
+
+Only one of the three can be in effect at a time; setting
+a second one overrides the first.
+
+These function affect the current context, or you can pass
+a context reference, as in
+
+    $context = Context("Numeric")->copy;
+    LimitedPowers::OnlyIntegers($context);
+
+For the Interger power functions, you can pass additional
+parameters that control the range of values that are allowed
+for the powers.  The oprtions include:
+
+=over
+
+=item S<C<< minPower => m >>>
+
+only integer powers bigger than or equal
+to m are allowed.  (If m is undef, then
+there is no minimum power.)
+
+=item S<C<< maxPower => M >>>
+
+only integer powers less than or equal
+to M are allowed.  (If M is undef, then
+there is no maximum power.)
+
+=item S<C<< message => "text" >>>
+
+a description of the type of power
+allowed (e.g., "positive integer constants");
+
+=item S<C<< checker => code >>>
+
+a reference to a subroutine that will be
+used to check if the powers are acceptable.
+It should accept a reference to the BOP::power
+structure and return 1 or 0 depending on
+whether the power is OK or not.
+
+=back
+
+For example:
+
+    LimitedPowers::OnlyIntegers(
+        minPower => -5, maxPower => 5,
+        message => "integer constants between -5 and 5",
+    );
+
+would accept only powers between -5 and 5, while
+
+    LimitedPowers::OnlyIntegers(
+        checker => sub {
+            return 0 unless LimitedPowers::isInteger(@_);
+            my $self = shift; my $p = shift; # the power as a constant
+            return $p != 0 && $p != 1;
+        },
+        message => "integer constants other than 0 or 1",
+    );
+
+would accept any integer power other than 0 and 1.
+
+=cut
+
 loadMacros("MathObjects.pl");
 
 sub _contextLimitedPowers_init {}; # don't load it again
-
-=head3 LimitedPowers::NoBaseE();
-
-=head3 LimitedPowers::OnlyIntegers();
-
-=head3 LimitedPowers::OnlyNonNegativeIntegers();
-
-=head3 LimitedPowers::OnlyPositiveIntegers();
-
-=head3 LimitedPowers::OnlyNonTrivialPositiveIntegers();
-
- ##########################################################
- #
- #  Implements subclasses of the "^" operator that restrict
- #  the base or power that is allowed.  There are four
- #  available restrictions:
- #
- #    No raising e to a power
- #    Only allowing integer powers (positive or negative)
- #    Only allowing positive interger powers
- #    Only allowing positive interger powers (and 0)
- #
- #  You install these via one of the commands:
- #
- #    LimitedPowers::NoBaseE();
- #    LimitedPowers::OnlyIntegers();
- #    LimitedPowers::OnlyPositiveIntegers();
- #    LimitedPowers::OnlyNonNegativeIntegers();
- #
- #  Only one of the three can be in effect at a time; setting
- #  a second one overrides the first.
- #
- #  These function affect the current context, or you can pass
- #  a context reference, as in
- #
- #    $context = Context("Numeric")->copy;
- #    LimitedPowers::OnlyIntegers($context);
- #
- #  For the Interger power functions, you can pass additional
- #  parameters that control the range of values that are allowed
- #  for the powers.  The oprtions include:
- #
- #    minPower => m      only integer powers bigger than or equal
- #                       to m are allowed.  (If m is undef, then
- #                       there is no minimum power.)
- #
- #    maxPower => M      only integer powers less than or equal
- #                       to M are allowed.  (If M is undef, then
- #                       there is no maximum power.)
- #
- #    message => "text"  a description of the type of power
- #                       allowed (e.g., "positive integer constants");
- #
- #    checker => code    a reference to a subroutine that will be
- #                       used to check if the powers are acceptable.
- #                       It should accept a reference to the BOP::power
- #                       structure and return 1 or 0 depending on
- #                       whether the power is OK or not.
- #
- #  For example:
- #
- #    LimitedPowers::OnlyIntegers(
- #         minPower => -5, maxPower => 5,
- #         message => "integer constants between -5 and 5",
- #    );
- #
- #  would accept only powers between -5 and 5, while
- #
- #    LimitedPowers::OnlyIntegers(
- #      checker => sub {
- #        return 0 unless LimitedPowers::isInteger(@_);
- #        my $self = shift; my $p = shift; # the power as a constant
- #        return $p != 0 && $p != 1;
- #      },
- #      message => "integer constants other than 0 or 1",
- #    );
- #
- #  would accept any integer power other than 0 and 1.
- #
- ##########################################################
-
-=cut
 
 package LimitedPowers;
 

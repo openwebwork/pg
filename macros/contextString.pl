@@ -1,25 +1,26 @@
+=head1 NAME
+
+contextString.pl - Allow string-valued answers.
+
+=head1 DESCRIPTION
+
+Implements contexts for string-valued answers.
+
+You can add new strings to the context as needed
+via the Context()->strings->add() method.  E.g.,
+
+    Context("String")->strings->add(Foo=>{}, Bar=>{alias=>"Foo"});
+
+Use string_cmp() to produce the answer checker(s) for your
+correct values.  Eg.
+
+    ANS(string_cmp("Foo"));
+
+=cut
+
 loadMacros("MathObjects.pl");
 
 sub _contextString_init {context::String::Init()}; # don't load it again
-
-=head3 Context("String")
-
- ##########################################################
- #
- #  Implements contexts for string-valued answers.
- #
- #  You can add new strings to the context as needed
- #  via the Context()->strings->add() method.  E.g.,
- #
- #	Context("String")->strings->add(Foo=>{}, Bar=>{alias=>"Foo"});
- #
- #  Use string_cmp() to produce the answer checker(s) for your
- #  correct values.  Eg.
- #
- #	ANS(string_cmp("Foo"));
- #
-
-=cut
 
 ##################################################
 

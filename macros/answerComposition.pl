@@ -1,47 +1,44 @@
+=head1 NAME
 
+answerComposition.pl - An answer checker that determines if two functions
+compose to form a given function.
 
 =head1 DESCRIPTION
 
- ######################################################################
- #
- #  An answer checker that determines if two functions compose
- #  to form a given function.  (For use in problems where you ask
- #  a student to break a given function into a composition of two
- #  simpler functions, neither of which is allowed to be the identity
- #  function.)
- #
+answerComposition.pl provides an answer checker that determines if two functions
+compose to form a given function. This can be used in problems where you ask a
+student to break a given function into a composition of two simpler functions,
+neither of which is allowed to be the identity function.
 
 =cut
 
 sub _answerComposition_init {}; # don't reload this file
 
-=head3 COMPOSITION_ANS($fn_f,$fn_g)
+=head1 MACROS
 
- ######################################################################
- #
- #  An answer checked to see if f composed with g matches a given function.
- #
- #  Usage:  COMPOSITION_ANS(f,g,options)
- #
- #  where f and g are one possible decomposition of the target function
- #  (these are used to display the "correct" answer, and the composition
- #  is computed from them) and options are any of the options allowed
- #  by composition_ans_list() below.
- #
- #  This function actually supplies TWO answer checkers, for the two
- #  previous answer blanks.  So be sure to call it immediately after
- #  the answer blanks have been supplied.  (It may be best to use the
- #  NAMED_COMPOSITION_ANS checker below, which specifies the answer
- #  blanks explicitly.)
- #
- #  Example:
- #
- #     BEGIN_TEXT
- #       \(f\circ g = (1+x)^2\) when
- #       \(f(x)\) = \{ans_rule(20)\} and \(g(x)\) = \{ans_rule(20)\}
- #     END_TEXT
- #     COMPOSITION_ANS("x^2","1+x");
- #
+=head2 COMPOSITION_ANS
+
+ COMPOSITION_ANS($f, $g, %options)
+
+An answer checked to see if $f composed with $g matches a given function,where
+$f and $g are one possible decomposition of the target function, and options are
+any of the options allowed by composition_ans_list() below.
+
+$f and $g are used to display the "correct" answer, and the composition is
+computed from them.
+
+This function actually supplies TWO answer checkers, for the two previous answer
+blanks.  So be sure to call it immediately after the answer blanks have been
+supplied. (It may be best to use the NAMED_COMPOSITION_ANS checker below, which
+specifies the answer blanks explicitly.)
+
+Example:
+
+ BEGIN_TEXT
+ \(f\circ g = (1+x)^2\) when
+ \(f(x)\) = \{ans_rule(20)\} and \(g(x)\) = \{ans_rule(20)\}
+ END_TEXT
+ COMPOSITION_ANS("x^2","1+x");
 
 =cut
 
@@ -53,56 +50,57 @@ sub COMPOSITION_ANS {
   ANS($ans{$fID},$ans{$gID});
 }
 
-=head3 NAMED_COMPOSITION_ANS(fID=>f,gID=>g,options)
+=head2 NAMED_COMPOSITION_ANS
 
- ######################################################################
- #
- #  An answer checked to see if f composed with g matches a given function.
- #
- #  Usage:  NAMED_COMPOSITION_ANS(fID=>f,gID=>g,options)
- #
- #  where fID and gID are the names of the answer rules for the functions
- #  f and g, and f and g are the answers for the functions.  Options are
- #  any of the options allowed by composition_ans_list() below.
- #
- #  This routine allows you to put the f and g answer blanks at any
- #  location in the problem, and in any order.
- #
- #  Example:
- #
- #     BEGIN_TEXT
- #       \(g\circ f = (1+x)^2\) when
- #       \(f(x)\) = \{NAMED_ANS('f',20)\} and \(g(x)\) = \{NAMED_ANS('g',20)\}
- #     END_TEXT
- #     NAMED_COMPOSITION_ANS(f => "x^2", g => "1+x");
- #
+ NAMED_COMPOSITION_ANS($fID=>$f, $gID=>$g, %options)
+
+An answer checked to see if $f composed with $g matches a given function, where
+$fID and $gID are the names of the answer rules for the functions $f and $g, and
+$f and $g are the answers for the functions. %options are any of the options
+allowed by composition_ans_list() below.
+
+This routine allows you to put the answer blanks for $f and $g at any location
+in the problem, and in any order.
+
+Example:
+
+ BEGIN_TEXT
+ \(g\circ f = (1+x)^2\) when
+ \(f(x)\) = \{NAMED_ANS('f',20)\} and \(g(x)\) = \{NAMED_ANS('g',20)\}
+ END_TEXT
+ NAMED_COMPOSITION_ANS(f => "x^2", g => "1+x");
 
 =cut
 
 sub NAMED_COMPOSITION_ANS {NAMED_ANS(composition_ans_list(@_))}
 
-=head3  composition_ans_list(fID=>f,gID=>g,options)
+=head2 composition_ans_list
 
- ######################################################################
- #
- #  This is an internal routine that returns the named answer checkers
- #  used by COMPOSITION_ANS and NAMED_COMPOSITION_ANS above.
- #
- #  Usage:  composition_ans_list(fID=>f,gID=>g,options)
- #
- #  where fID and gID are the names of the answer rules for the functions
- #  and f and g are the answers for these functions.  Options are from
- #  among:
- #
- #      var => 'x'              the name of the variable to use when
- #                              both functions use the same one
- #
- #      vars => ['x','t']       the names of the variables for f and g
- #
- #      showVariableHints => 1 or 0
- #                              do/don't show errors when the variable
- #                              used by the student is incorrect
- #
+ composition_ans_list($fID=>$f, $gID=>$g, %options)
+
+This is an internal routine that returns the named answer checkers
+used by COMPOSITION_ANS and NAMED_COMPOSITION_ANS above.
+
+$fID and $gID are the names of the answer rules for the functions and $f and $g
+are the answers for these functions. %options are from among:
+
+=over
+
+=item S<C<< var => 'x' >>>
+
+the name of the variable to use when
+both functions use the same one
+
+=item S<C<< vars => ['x','t'] >>>
+
+the names of the variables for $f and $g
+
+=item S<C<< showVariableHints => 1 or 0 >>>
+
+do/don't show errors when the variable
+used by the student is incorrect
+
+=back
 
 =cut
 
@@ -197,12 +195,16 @@ sub composition_ans_list {
   return (%ans);
 }
 
-######################################################################
-#
-#  Evaluator that always returns incorrect, with a given error
-#  message.  Used by COMPOSITION_ANS to produce "dummy" answer
-#  checkers for the two parts of the composition.
-#
+=head2 message_cmp
+
+ message_cmp($correct)
+
+Returns an answer evaluator that always returns incorrect, with a given error
+message. Used by COMPOSITION_ANS to produce "dummy" answer checkers for the two
+parts of the composition.
+
+=cut
+
 sub message_cmp {
   my $correct = shift;
   my $answerEvaluator = new AnswerEvaluator;
@@ -216,3 +218,4 @@ sub message_cmp {
 }
 
 1;
+

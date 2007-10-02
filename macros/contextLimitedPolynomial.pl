@@ -1,37 +1,37 @@
+=head1 NAME
+
+contextLimitedPolynomial.pl - Allow only entry of polynomials.
+
+=head1 DESCRIPTION
+
+Implements a context in which students can only enter (expanded)
+polynomials (i.e., sums of multiples of powers of x).
+
+Select the context using:
+
+    Context("LimitedPolynomial");
+
+If you set the "singlePowers" flag, then only one monomial of each
+degree can be included in the polynomial:
+
+    Context("LimitedPolynomial")->flags->set(singlePowers=>1);
+
+There is also a strict limited context that does not allow
+operations even within the coefficients.  Select it using:
+
+    Context("LimitedPolynomial-Strict");
+
+In addition to disallowing operations within the coefficients,
+this context does not reduce constant operations (since they are
+not allowed), and sets the singlePowers flag automatically.  In
+addition, it disables all the functions, though they can be
+re-enabled, if needed.
+
+=cut
 
 loadMacros("MathObjects.pl");
 
 sub _contextLimitedPolynomial_init {LimitedPolynomial::Init()}; # don't load it again
-
-=head3 Context("LimitedPolynomial")
-
- ##########################################################
- #
- #  Implements a context in which students can only enter (expanded)
- #  polynomials (i.e., sums of multiples of powers of x).
- #
- #  Select the context using:
- #
- #      Context("LimitedPolynomial");
- #
- #  If you set the "singlePowers" flag, then only one monomial of each
- #  degree can be included in the polynomial:
- #
- #      Context("LimitedPolynomial")->flags->set(singlePowers=>1);
- #
- #  There is also a strict limited context that does not allow
- #  operations even within the coefficients.  Select it using:
- #
- #      Context("LimitedPolynomial-Strict");
- #
- #  In addition to disallowing operations within the coefficients,
- #  this context does not reduce constant operations (since they are
- #  not allowed), and sets the singlePowers flag automatically.  In
- #  addition, it disables all the functions, though they can be
- #  re-enabled, if needed.
- #
-
-=cut
 
 ##################################################
 #

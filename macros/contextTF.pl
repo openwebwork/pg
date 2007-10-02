@@ -1,26 +1,27 @@
-loadMacros("MathObjects.pl","contextString.pl");
+=head1 NAME
 
-=head3 Context("TF")
+contextTF.pl - Imlements contexts for true/false problems.
 
- ##########################################################
- #
- #  Implements contexts for string-valued answers especially
- #  for matching problems (where you match against T and F).
- #
- #	Context("TF");
- #
- #  You can add new strings to the context as needed (or remove old ones)
- #  via the Context()->strings->add() and Context()-strings->remove()
- #  methods.
- #
- #  Use:
- #
- #	ANS(string_cmp("T","F"));
- #
- #  when there are two answers, the first being "T" and the second being "F".
- #
+=head1 DESCRIPTION
+
+Implements contexts for string-valued answers especially
+for matching problems (where you match against T and F).
+
+    Context("TF");
+
+You can add new strings to the context as needed (or remove old ones)
+via the Context()->strings->add() and Context()-strings->remove()
+methods.
+
+Use:
+
+    ANS(string_cmp("T","F"));
+
+when there are two answers, the first being "T" and the second being "F".
 
 =cut
+
+loadMacros("MathObjects.pl","contextString.pl");
 
 sub _contextTF_init {
 

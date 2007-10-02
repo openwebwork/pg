@@ -1,42 +1,41 @@
+=head1 NAME
 
-loadMacros('MathObjects.pl');
-
-sub _parserFunction_init {parserFunction::Init()}; # don't reload this file
+parserFunction.pl - An easy way of adding new functions to the current context.
 
 =head1 DESCRIPTION
 
- ####################################################################
- #
- #  This file implements an easy way of creating new functions that
- #  are added to the current Parser context.  (This avoids having to
- #  do the complicated procedure outlined in the docs/parser/extensions
- #  samples.)
- #
- #  To create a function that can be used in Formula() calls (and by
- #  students in their answers), use the parserFunction() routine, as
- #  in the following examples:
- #
- #     parserFunction(f => "sqrt(x+1)-2");
- #
- #     $x = Formula('x');
- #     parserFunction(f => sqrt($x+1)-2);
- #
- #     parserFunction("f(x)" => "sqrt(x+1)-2");
- #
- #     parserFunction("f(x,y)" => "sqrt(x*y)");
- #
- #  The first parameter to parserFunction is the name of the function
- #  or the name with its argument list.  In the first case, the
- #  names of the variables are taken from the formula for the
- #  function, and are listed in alphabetical order.
- #
- #  The second argument is the formula used to compute the value
- #  of the function.  It can be either a string or a Parser Formula
- #  object.
- #
+This file implements an easy way of creating new functions that
+are added to the current Parser context.  (This avoids having to
+do the complicated procedure outlined in the docs/parser/extensions
+samples.)
+
+To create a function that can be used in Formula() calls (and by
+students in their answers), use the parserFunction() routine, as
+in the following examples:
+
+   parserFunction(f => "sqrt(x+1)-2");
+
+   $x = Formula('x');
+   parserFunction(f => sqrt($x+1)-2);
+
+   parserFunction("f(x)" => "sqrt(x+1)-2");
+
+   parserFunction("f(x,y)" => "sqrt(x*y)");
+
+The first parameter to parserFunction is the name of the function
+or the name with its argument list.  In the first case, the
+names of the variables are taken from the formula for the
+function, and are listed in alphabetical order.
+
+The second argument is the formula used to compute the value
+of the function.  It can be either a string or a Parser Formula
+object.
 
 =cut
+	
+loadMacros('MathObjects.pl');
 
+sub _parserFunction_init {parserFunction::Init()}; # don't reload this file
 #
 #  The package that will manage user-defined functions
 #

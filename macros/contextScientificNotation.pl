@@ -1,97 +1,98 @@
+=head1 NAME
+
+contextScientificNotation.pl - Allows entry of scientific notation.
+
+=head1 DESCRIPTION
+
+This file implements a context in which students can enter
+answers in scientific notation.  It tries hard to report
+useful error messages when the student's answer is not
+in the proper format, and it also allows you to control
+how many decimal digits they are allowed/required to
+enter, and how many the system will display.
+
+This probably should be called LimitedScientificNotation
+since it does not allow any operations other than the ones
+needed in Scientific notation.  In the future it may be
+renamed if we produce a computational scientific notation
+context.
+
+To use this context, add
+
+    loadMacros("contextScientificNotation.pl");
+
+to the top of your problem file, and then use
+
+    Context("ScientificNotation");
+
+to select the contxt and make it active.  You can create
+values in scientific notation in two ways:
+
+    $n1 = Compute("1.23 x 10^3");
+
+or
+
+    $n2 = ScientificNotation(1.23 * 10**3);
+
+(or even $n2 = ScientificNotation(1230), and it will be converted).
+
+You can control how many digits are displayed by setting the
+snDigits flag in the context.  For example,
+
+    Context()->flags->set(snDigits=>2);
+
+sets the context to display at most 2 digits.  The default is 6.
+By default, trailing zeros are removed, but you can ask that
+they be retained by issuing the command
+
+    Context()->flags->set(snTrimZeros=>0);
+
+It is also possible to specify how many decimal digits the
+student must enter.  For example,
+
+    Context()->flags->set(snMinDigits=>3);
+
+would require the student to enter at least 3 digits past
+the decimal place (for a total of 4 significant digits,
+including the one to the left of the decimal).  The default
+is 1 digit beyond the decimal.  A value of 0 means that
+a decimal point and decimal values is optional.
+
+Similarly,
+
+    Context()->flags->set(snMaxDigits=>6);
+
+sets the maximum number to 6, so the student can't enter
+more than that.  Setting this to 0 means no decimal places
+are allowed, effectively meaning students can only enter
+the numbers 0 through 9 (times a power of 10).  Setting
+this to a negative number means that there is no upper
+limit on the number of digits the student may enter (this
+is the default).
+
+As an example, in order to force a fixed precision of
+three digits of precision, use
+
+    Context()->flags->set(
+        snDigits => 3,
+        snTrimZeros => 0,
+        snMinDigits => 3,
+        snMaxDigits => 3,
+    );
+
+Note that if you restrict the number of digits, you may
+need to adjust the tolerance values since the student
+may not be allowed to enter a more precise answer.  In
+the example above, it would be appropriate to set the
+tolerance to .0001 and the tolType to "relative" in
+order to require the answers to be correct to the three
+digits that are shown.
+
+=cut
+
 loadMacros("MathObjects.pl");
 
 sub _contextScientificNotation_init {ScientificNotation::Init()}
-
-=head1 Context("ScientificNotation");
-
- #########################################################################
- #
- #  This file implements a context in which students can enter
- #  answers in scientific notation.  It tries hard to report
- #  useful error messages when the student's answer is not
- #  in the proper format, and it also allows you to control
- #  how many decimal digits they are allowed/required to
- #  enter, and how many the system will display.
- #
- #  This probably should be called LimitedScientificNotation
- #  since it does not allow any operations other than the ones
- #  needed in Scientific notation.  In the future it may be
- #  renamed if we produce a computational scientific notation
- #  context.
- #
- #  To use this context, add
- #
- #    loadMacros("contextScientificNotation.pl");
- #
- #  to the top of your problem file, and then use
- #
- #    Context("ScientificNotation");
- #
- #  to select the contxt and make it active.  You can create
- #  values in scientific notation in two ways:
- #
- #    $n1 = Compute("1.23 x 10^3");
- #
- #  or
- #
- #    $n2 = ScientificNotation(1.23 * 10**3);
- #
- #  (or even $n2 = ScientificNotation(1230), and it will be converted).
- #
- #  You can control how many digits are displayed by setting the
- #  snDigits flag in the context.  For example,
- #
- #    Context()->flags->set(snDigits=>2);
- #
- #  sets the context to display at most 2 digits.  The default is 6.
- #  By default, trailing zeros are removed, but you can ask that
- #  they be retained by issuing the command
- #
- #    Context()->flags->set(snTrimZeros=>0);
- #
- #  It is also possible to specify how many decimal digits the
- #  student must enter.  For example,
- #
- #    Context()->flags->set(snMinDigits=>3);
- #
- #  would require the student to enter at least 3 digits past
- #  the decimal place (for a total of 4 significant digits,
- #  including the one to the left of the decimal).  The default
- #  is 1 digit beyond the decimal.  A value of 0 means that
- #  a decimal point and decimal values is optional.
- #
- #  Similarly,
- #
- #    Context()->flags->set(snMaxDigits=>6);
- #
- #  sets the maximum number to 6, so the student can't enter
- #  more than that.  Setting this to 0 means no decimal places
- #  are allowed, effectively meaning students can only enter
- #  the numbers 0 through 9 (times a power of 10).  Setting
- #  this to a negative number means that there is no upper
- #  limit on the number of digits the student may enter (this
- #  is the default).
- #
- #  As an example, in order to force a fixed precision of
- #  three digits of precision, use
- #
- #    Context()->flags->set(
- #      snDigits => 3,
- #      snTrimZeros => 0,
- #      snMinDigits => 3,
- #      snMaxDigits => 3,
- #    );
- #
- #  Note that if you restrict the number of digits, you may
- #  need to adjust the tolerance values since the student
- #  may not be allowed to enter a more precise answer.  In
- #  the example above, it would be appropriate to set the
- #  tolerance to .0001 and the tolType to "relative" in
- #  order to require the answers to be correct to the three
- #  digits that are shown.
- #
-
-=cut
 
 package ScientificNotation;
 
