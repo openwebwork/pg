@@ -1,6 +1,7 @@
 =head1 NAME
 
-contextPeriodic.pl - Allow for specifying periodic functions. [DEPRECATED]
+contextPeriodic.pl - [DEPRECATED] Features added to Real and Complex 
+MathObjects classes.
 
 =head1 DESCRIPTION
 
