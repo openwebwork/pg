@@ -1,16 +1,16 @@
-sub _parserMultiPart_init {}
+=head1 NAME
 
-=head3 MultiPart
+parserMultiPart.pl - [DEPRECATED] Renamed to MultiAnswer.
 
- ######################################################################
- #
- #  This object has been renamed MultiAnswer and is now available in
- #  parserMultiAnswer.pl.  Using a MultiPart object will produce a
- #  warning to that effect.
- #
- ######################################################################
+=head1 DESCRIPTION
+
+This object has been renamed MultiAnswer and is now available in
+parserMultiAnswer.pl.  Using a MultiPart object will produce a
+warning to that effect.
 
 =cut
+
+sub _parserMultiPart_init {}
 
 loadMacros("parserMultiAnswer.pl");
 sub MultiPart {

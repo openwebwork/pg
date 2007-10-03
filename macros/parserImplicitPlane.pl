@@ -1,54 +1,53 @@
-loadMacros('MathObjects.pl');
+=head1 NAME
 
-sub _parserImplicitPlane_init {ImplicitPlane::Init()}; # don't reload this file
+parserImplicitPlane.pl - Implement implicit planes.
 
 =head1 DESCRIPTION
 
- ######################################################################
- #
- #  This is a Parser class that implements implicit planes as
- #  a subclass of the Formula class.  The standard ->cmp routine
- #  will work for this, provided we define the compare() function
- #  needed by the overloaded ==.  We assign the special precedence
- #  so that overloaded operations will be promoted to the ones below.
- #
- #
- #  Use ImplicitPlane(point,vector), ImplicitPlane(point,number) or
- #  ImplicitPlane(formula) to create an ImplicitPlane object.
- #  The first form uses the point as a point on the plane and the
- #  vector as the normal for the plane.  The second form uses the point
- #  as the coefficients of the variables and the number as the value
- #  that the formula must equal.  The third form uses the formula
- #  directly.
- #
- #  The number of variables in the Context determines the dimension of
- #  the "plane" being defined.  If there are only two, the formula
- #  produces an implicit line, but if there are four variables, it will
- #  be a hyperplane in four-space.  You can specify the variables you
- #  want to use by supplying an additional parameter, which is a
- #  reference to an array of variable names.
- #
- #
- #  Usage examples:
- #
- #     $P = ImplicitPlane(Point(1,0,2),Vector(-1,1,3)); #  -x+y+3z = 5
- #     $P = ImplicitPlane([1,0,2],[-1,1,3]);            #  -x+y+3z = 5
- #     $P = ImplicitPlane([1,0,2],4);                   #  x+2z = 4
- #     $P = ImplicitPlane("x+2y-z=5");
- #
- #     Context()->variables->are(x=>'Real',y=>'Real',z=>'Real',w=>'Real');
- #     $P = ImplicitPlane([1,0,2,-1],10);               # w+2y-z = 10 (alphabetical order)
- #     $P = ImplicitPlane([3,-1,2,4],5,['x','y','z','w']);  # 3x-y+2z+4w = 5
- #     $P = ImplicitPlane([3,-1,2],5,['y','z','w']);  # 3y-z+2w = 5
- #
- #  Then use
- #
- #     ANS($P->cmp);
- #
- #  to get the answer checker for $P.
- #
+This is a Parser class that implements implicit planes as
+a subclass of the Formula class.  The standard ->cmp routine
+will work for this, provided we define the compare() function
+needed by the overloaded ==.  We assign the special precedence
+so that overloaded operations will be promoted to the ones below.
+
+Use ImplicitPlane(point,vector), ImplicitPlane(point,number) or
+ImplicitPlane(formula) to create an ImplicitPlane object.
+The first form uses the point as a point on the plane and the
+vector as the normal for the plane.  The second form uses the point
+as the coefficients of the variables and the number as the value
+that the formula must equal.  The third form uses the formula
+directly.
+
+The number of variables in the Context determines the dimension of
+the "plane" being defined.  If there are only two, the formula
+produces an implicit line, but if there are four variables, it will
+be a hyperplane in four-space.  You can specify the variables you
+want to use by supplying an additional parameter, which is a
+reference to an array of variable names.
+
+Usage examples:
+
+   $P = ImplicitPlane(Point(1,0,2),Vector(-1,1,3)); #  -x+y+3z = 5
+   $P = ImplicitPlane([1,0,2],[-1,1,3]);            #  -x+y+3z = 5
+   $P = ImplicitPlane([1,0,2],4);                   #  x+2z = 4
+   $P = ImplicitPlane("x+2y-z=5");
+
+   Context()->variables->are(x=>'Real',y=>'Real',z=>'Real',w=>'Real');
+   $P = ImplicitPlane([1,0,2,-1],10);               # w+2y-z = 10 (alphabetical order)
+   $P = ImplicitPlane([3,-1,2,4],5,['x','y','z','w']);  # 3x-y+2z+4w = 5
+   $P = ImplicitPlane([3,-1,2],5,['y','z','w']);  # 3y-z+2w = 5
+
+Then use
+
+   ANS($P->cmp);
+
+to get the answer checker for $P.
 
 =cut
+
+loadMacros('MathObjects.pl');
+
+sub _parserImplicitPlane_init {ImplicitPlane::Init()}; # don't reload this file
 
 ##################################################
 #

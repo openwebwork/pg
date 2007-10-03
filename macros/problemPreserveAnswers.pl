@@ -1,32 +1,31 @@
+=head1 NAME
 
-sub _problemPreserveAnswers_init {PreserveAnswers::Init()}
+problemPreserveAnswers.pl - Allow sticky answers to preserve special characters.
 
-=head1 PreserveAnswers();
+=head1 DESCRIPTION
 
- ######################################################################
- #
- #  This file implements a fragile hack to overcome a problem with
- #  PGbasicmacros.pl, which removes special characters from student
- #  answers (in order to prevent EV3 from mishandling them).
- #
- #  Unfortunately, this means that "sticky" answers will lose
- #  those characters, which makes it very difficult to answer
- #  problems with more than one answer when the student wants
- #  to submit several times while working on later parts.
- #
- #  The real fix to to rewrite PGbasicmacros.pl to handle
- #  this better, but this hack will handle the situation for
- #  now until that can be accomplished.
- #
- #  To use this hack, simply load the file using
- #
- #    loadMacros("problemPreserveAnswers.pl");
- #
- #  at the top of your PG file.
- #
- ######################################################################
+This file implements a fragile hack to overcome a problem with
+PGbasicmacros.pl, which removes special characters from student
+answers (in order to prevent EV3 from mishandling them).
+
+Unfortunately, this means that "sticky" answers will lose
+those characters, which makes it very difficult to answer
+problems with more than one answer when the student wants
+to submit several times while working on later parts.
+
+The real fix to to rewrite PGbasicmacros.pl to handle
+this better, but this hack will handle the situation for
+now until that can be accomplished.
+
+To use this hack, simply load the file using
+
+	loadMacros("problemPreserveAnswers.pl");
+
+at the top of your PG file.
 
 =cut
+
+sub _problemPreserveAnswers_init {PreserveAnswers::Init()}
 
 package PreserveAnswers;
 

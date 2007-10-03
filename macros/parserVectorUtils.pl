@@ -1,27 +1,27 @@
+=head1 NAME
+
+parserVectorUtils.pl - Utility macros that are useful in vector problems.
 
 =head1 DESCRIPTION
 
- #####################################################################
- #
- #   Some utility routines that are useful in vector problems
- #
+Some utility routines that are useful in vector problems
 
 =cut
 
 sub _parserVectorUtils_init {}; # don't reload this file
 
-=head3 Overline($vectorName)
+=head1 MACROS
 
- ##################################################
+=head2 Overline
 
- #
- #  formats a vector name (should be used in math mode)
- #
- #  Vectors will be in bold italics in HTML modes, and
- #  will be overlined in TeX modes.  (Bold italic could also work in
- #  TeX modes, but the low resolution on screen made it less easy
- #  to distinguish the difference between bold and regular letters.)
- #
+ Overline($vectorName)
+
+formats a vector name (should be used in math mode)
+
+Vectors will be in bold italics in HTML modes, and
+will be overlined in TeX modes.  (Bold italic could also work in
+TeX modes, but the low resolution on screen made it less easy
+to distinguish the difference between bold and regular letters.)
 
 =cut
 
@@ -36,15 +36,15 @@ sub Overline {
   );
 }
 
-=head3 BoldMath($vectorName)
+=head2 BoldMath
 
- #
- #  This gets a bold letter in TeX as well as HTML modes.
- #  Although \boldsymbol{} works fine on screen in latex2html mode,
- #  the PDF file produces non-bold letters.  I haven't been able to
- #  track this down, so used \mathbf{} in TeX mode, which produces
- #  roman bold, not math-italic bold.
- #
+ BoldMath($vectorName)
+
+This gets a bold letter in TeX as well as HTML modes.
+Although \boldsymbol{} works fine on screen in latex2html mode,
+the PDF file produces non-bold letters.  I haven't been able to
+track this down, so used \mathbf{} in TeX mode, which produces
+roman bold, not math-italic bold.
 
 =cut
 
@@ -61,28 +61,32 @@ sub BoldMath {
   );
 }
 
-=head3 $GRAD
+=head2 $GRAD
 
- #
- #  Grad symbol
- #
+ TEXT($GRAD)
+
+ BEGIN_TEXT
+ $GRAD
+ END_TEXT
+
+Grad symbol.
 
 =cut
 
 $GRAD = '\nabla ';
 
-=head3 non_zero_point($Dim,$L_bound,$U_bound,$step)
+=head2 non_zero_point
 
- #
- #  Create a non-zero point with the given number of coordinates
- #  with the given random range (which defaults to (-5,5,1)).
- #
- #  non_zero_point(n,a,b,c)
- #  non_zero_point_2D(a,b,c)
- #  non_zero_point_3D(a,b,c)
- #
- #  non_zero_point2D and 3D automatically set Dimension to 2 and 3 respectively.
- #
+ non_zero_point($Dim,$L_bound,$U_bound,$step)
+
+Create a non-zero point with the given number of coordinates
+with the given random range (which defaults to (-5,5,1)).
+
+non_zero_point(n,a,b,c)
+non_zero_point_2D(a,b,c)
+non_zero_point_3D(a,b,c)
+
+non_zero_point2D and 3D automatically set Dimension to 2 and 3 respectively.
 
 =cut
 
@@ -96,13 +100,16 @@ sub non_zero_point {
 sub non_zero_point2D {non_zero_point(2,@_)}
 sub non_zero_point3D {non_zero_point(3,@_)}
 
-=head3 non_zero_vector($Dim,$L_bound,$U_bound,$step)
+=head2 non_zero_vector, non_zero_vector2D, non_zero_vector3D
 
- #
- #  Functions the same as non_zero_point but for Vectors
- #
- #  non_zero_vector2D and 3D automatically set Dimension to 2 and 3 respectively.
- #
+ non_zero_vector($Dim,$L_bound,$U_bound,$step)
+
+ non_zero_vector2D($L_bound,$U_bound,$step)
+
+ non_zero_vector3D($L_bound,$U_bound,$step)
+
+Functions the same as non_zero_point but for Vectors. non_zero_vector2D and
+non_zero_vector3D automatically set Dimension to 2 and 3 respectively.
 
 =cut
 
@@ -110,22 +117,25 @@ sub non_zero_vector   {Vector(non_zero_point(@_))}
 sub non_zero_vector2D {non_zero_vector(2,@_)}
 sub non_zero_vector3D {non_zero_vector(3,@_)}
 
-=head3 Line(Point(@coords1),Vector(@coords2),'variableLetter')
+=head2 Line
 
- #
- #  Form the vector-parametric form for a line given its point and vector
- #
- #  Usage:  Line(P,V); or Line(P,V,'t');
- #
- #  where P is the point and V the direction vector for the line, and
- #  t is the variable to use (default is 't').
- #
- #  Ex:  Line([1,-3],[2,1]) produces Vector("1+2t","-3+t").
- #  Ex:  Line(Point(1,-3),Vector(2,1)) produces Vector("1+2t","-3+t").
- #
- #  (It may be better to use the ParametricLine class from
- #  parserParametricLine.pl).
- #
+	$P = Point(@coords1);
+	$V = Vector(@coords2);
+	$t = 't';
+	Line($P,$V);
+	Line($P,$V,$t);
+
+Form the vector-parametric form for a line given its point and vector, where $P
+is the point and $V the direction vector for the line, and $t is the variable to
+use (default is 't').
+
+For example:
+
+	Line([1,-3],[2,1]);            # produces Vector("1+2t","-3+t").
+	Line(Point(1,-3),Vector(2,1)); # produces Vector("1+2t","-3+t").
+
+(It may be better to use the ParametricLine class from
+parserParametricLine.pl).
 
 =cut
 
@@ -138,15 +148,13 @@ sub Line {
   return Vector(@coords);
 }
 
-=head3 Plane($point,$NormalVector)
+=head2 Plane
 
- #
- #  Creates a displayable string for a plane given its
- #  normal vector and a point on the plane.  (Better to use
- #  the ImplicitPlane class from parserImplicitPlane.pl).
- #
- #  Usage:  Plane(P,N);
- #
+ Plane($point,$NormalVector)
+
+Creates a displayable string for a plane given its
+normal vector and a point on the plane.  (Better to use
+the ImplicitPlane class from parserImplicitPlane.pl).
 
 =cut
 
