@@ -2,76 +2,89 @@ sub _answerHints_init {}
 
 =head1 AnswerHints()
 
- #  This is an answer-checker post-filter that allows you to produce
- #  additional error messages for incorrect answers.  You can trigger
- #  a message for a single answer, a collection of answers, or via a
- #  subroutine that determines the condition for the message.
- #
- #  Note that this filter only works for MathObjects answer checkers.
- #
- #  The answer hints are given as a pair using => with the right-hand
- #  side being the answer message and the left-hand side being one of
- #  three possibilities:  1) the value that triggers the message,
- #  2) a reference to an array of values that trigger the message, or
- #  3) a code reference to a subtroutine that accepts tthe correct
- #  answer, the student's answer, and the answer hash, and returns
- #  1 or 0 depending on whether the message should or should not be
- #  displayed.  (See the examples below.)
- #
- #  The right-hand side can be either the message string itself, or
- #  a referrence to an array where the first element is the message
- #  string, and the remaining elements are name-value pairs that
- #  set options for the message.  These can include:
- #
- #      checkCorrect => 0 or 1      1 means check for messages even
- #                                  if the answer is correct.
- #                                      Default: 0
- #
- #      replaceMessage => 0 or 1    1 means it's OK to repalce any
- #                                  message that is already in place
- #                                  in the answer hash.
- #                                      Default: 0
- #
- #      checkTypes => 0 or 1        1 means only perform the test
- #                                  if the student answer is the
- #                                  same type as the correct one.
- #                                      Default: 1
- #
- #      score => number             Specifies the score to use if
- #                                  the message is triggered (so that
- #                                  partial credit can be given).
- #                                      Default: keep original score
- #
- #      cmp_options => [...]        provides options for the cmp routine
- #                                  used to check if the student answer
- #                                  matches these answers.
- #                                     Default: []
- #
- #  If more than one message matches the student's answer, the first
- #  one in the list is used.
- #
- #  Example:
- #
- #    ANS(Vector(1,2,3)->cmp(showCoordinateHints=>0)->withPostFilter(AnswerHints(
- #      Vector(0,0,0) => "The zero vector is not a valid solution",
- #      "-<1,2,3>" => "Try the opposite direction",
- #      "<1,2,3>" => "Well done!",
- #      ["<1,1,1>","<2,2,2>","<3,3,3>"] => "Don't just guess!",
- #      sub {
- #        my ($correct,$student,$ans) = @_;
- #        return $correct . $student == 0;
- #      } => "Your answer is perpendicular to the correct one",
- #      Vector(1,2,3) => [
- #        "You have the right direction, but not length",
- #        cmp_options => [parallel=>1],
- #      ],
- #      0 => ["Careful, your answer should be a vector!", checkTypes => 0, replaceMessage => 1],
- #      sub {
- #        my ($correct,$student,$ans) = @_;
- #        return norm($correct-$student) < .1;
- #      } => ["Close!  Keep trying.", score => .25],
- #    )));
- #
+This is an answer-checker post-filter that allows you to produce
+additional error messages for incorrect answers.  You can trigger
+a message for a single answer, a collection of answers, or via a
+subroutine that determines the condition for the message.
+
+Note that this filter only works for MathObjects answer checkers.
+
+The answer hints are given as a pair using => with the right-hand
+side being the answer message and the left-hand side being one of
+three possibilities:  1) the value that triggers the message,
+2) a reference to an array of values that trigger the message, or
+3) a code reference to a subtroutine that accepts tthe correct
+answer, the student's answer, and the answer hash, and returns
+1 or 0 depending on whether the message should or should not be
+displayed.  (See the examples below.)
+
+The right-hand side can be either the message string itself, or
+a referrence to an array where the first element is the message
+string, and the remaining elements are name-value pairs that
+set options for the message.  These can include:
+
+=over
+
+=item C<S<< checkCorrect => 0 or 1 >>>
+
+1 means check for messages even
+if the answer is correct.
+Default: 0
+
+=item C<S<< replaceMessage => 0 or 1 >>>
+
+1 means it's OK to repalce any
+message that is already in place
+in the answer hash.
+Default: 0
+
+=item C<S<< checkTypes => 0 or 1 >>>
+
+1 means only perform the test
+if the student answer is the
+same type as the correct one.
+Default: 1
+
+=item C<S<< score => number >>>
+
+Specifies the score to use if
+the message is triggered (so that
+partial credit can be given).
+Default: keep original score
+
+=item C<S<< cmp_options => [...] >>>
+
+provides options for the cmp routine
+used to check if the student answer
+matches these answers.
+Default: []
+
+=back
+
+If more than one message matches the student's answer, the first
+one in the list is used.
+
+Example:
+
+  ANS(Vector(1,2,3)->cmp(showCoordinateHints=>0)->withPostFilter(AnswerHints(
+    Vector(0,0,0) => "The zero vector is not a valid solution",
+    "-<1,2,3>" => "Try the opposite direction",
+    "<1,2,3>" => "Well done!",
+    ["<1,1,1>","<2,2,2>","<3,3,3>"] => "Don't just guess!",
+    sub {
+      my ($correct,$student,$ans) = @_;
+      return $correct . $student == 0;
+    } => "Your answer is perpendicular to the correct one",
+    Vector(1,2,3) => [
+      "You have the right direction, but not length",
+      cmp_options => [parallel=>1],
+    ],
+    0 => ["Careful, your answer should be a vector!", checkTypes => 0, replaceMessage => 1],
+    sub {
+      my ($correct,$student,$ans) = @_;
+      return norm($correct-$student) < .1;
+    } => ["Close!  Keep trying.", score => .25],
+  )));
 
 =cut
 

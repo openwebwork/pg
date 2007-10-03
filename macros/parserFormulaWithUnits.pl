@@ -14,11 +14,11 @@ to get an answer checker for your formula with units.
 
 Usage examples:
 
-    ANS(FormulaWithUnits("3x+1 ft")->cmp);
-    ANS(FormulaWithUnits("$a*x+1 ft")->cmp);
-    
-    $x = Formula("x");
-    ANS(FormulaWithUnits($a*$x+1,"ft")->cmp);
+	ANS(FormulaWithUnits("3x+1 ft")->cmp);
+	ANS(FormulaWithUnits("$a*x+1 ft")->cmp);
+
+	$x = Formula("x");
+	ANS(FormulaWithUnits($a*$x+1,"ft")->cmp);
 
 =cut
 

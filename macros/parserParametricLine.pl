@@ -90,7 +90,7 @@ sub new {
   return bless $line, $class;
 }
 
-=head3 $lhs == $rhs
+=head2 $lhs == $rhs
 
  #
  #  Two parametric lines are equal if they have

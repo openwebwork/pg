@@ -32,7 +32,7 @@ of the function.  It can be either a string or a Parser Formula
 object.
 
 =cut
-	
+
 loadMacros('MathObjects.pl');
 
 sub _parserFunction_init {parserFunction::Init()}; # don't reload this file
@@ -125,7 +125,7 @@ sub _call {
   &{$def->{function}}(@_);
 }
 
-=head3 ($Function)->D
+=head2 ($Function)->D
 
  #
  #  Compute the derivative of (single-variable) functions
