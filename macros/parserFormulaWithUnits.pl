@@ -12,7 +12,7 @@ Use FormulaWithUnits("num units") or FormulaWithUnits(formula,"units")
 to generate a FormulaWithUnits object, and then call its cmp() method
 to get an answer checker for your formula with units.
 
-Usage examples:
+=head1 USAGE
 
 	ANS(FormulaWithUnits("3x+1 ft")->cmp);
 	ANS(FormulaWithUnits("$a*x+1 ft")->cmp);

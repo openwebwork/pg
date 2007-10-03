@@ -9,7 +9,7 @@ but no complex operations are permitted.  So students will
 be able to perform operations within the real and imaginary
 parts of the complex numbers, but not between complex numbers.
 
-    Context("LimitedComplex")
+	Context("LimitedComplex")
 
 Complex Numbers can still be entered in a+bi or a*e^(bt) form.
 The e and i are allowed to be entered only once, so we have
@@ -20,27 +20,27 @@ involving it that we've already OKed).
 You control which format to use by setting the complex_format
 context flag to 'cartesian', 'polar' or 'either'. E.g.,
 
-    Context()->flags->set(complex_format => 'polar');
+	Context()->flags->set(complex_format => 'polar');
 
 The default is 'either'.  There are predefined contexts that
 already have these values set:
 
-    Context("LimitedComplex-cartesian");
-    Context("LimitedComplex-polar");
+	Context("LimitedComplex-cartesian");
+	Context("LimitedComplex-polar");
 
 You can require that the a and b used in these forms be strictly
 numbers (not expressions) by setting the strict_numeric flag and
 disabling all the functions:
 
-    Context()->flags->set(strict_numeric=>1);
-    Context()->functions->disable('All');
+	Context()->flags->set(strict_numeric=>1);
+	Context()->functions->disable('All');
 
 There are predefined contexts that already have these values
 set:
 
-    Context("LimitedComplex-cartesian-strict");
-    Context("LimitedComplex-polar-strict");
-    Context("LimitedComplex-strict");
+	Context("LimitedComplex-cartesian-strict");
+	Context("LimitedComplex-polar-strict");
+	Context("LimitedComplex-strict");
 
 =cut
 

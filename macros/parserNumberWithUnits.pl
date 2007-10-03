@@ -14,9 +14,9 @@ to get an answer checker for your number with units.
 
 Usage examples:
 
-    ANS(NumberWithUnits("3 ft")->cmp);
-    ANS(NumberWithUnits("$a*$b ft")->cmp);
-    ANS(NumberWithUnits($a*$b,"ft")->cmp);
+	ANS(NumberWithUnits("3 ft")->cmp);
+	ANS(NumberWithUnits("$a*$b ft")->cmp);
+	ANS(NumberWithUnits($a*$b,"ft")->cmp);
 
 We now call on the Legacy version, which is used by
 num_cmp to handle numbers with units.

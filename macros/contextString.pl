@@ -9,12 +9,12 @@ Implements contexts for string-valued answers.
 You can add new strings to the context as needed
 via the Context()->strings->add() method.  E.g.,
 
-    Context("String")->strings->add(Foo=>{}, Bar=>{alias=>"Foo"});
+	Context("String")->strings->add(Foo=>{}, Bar=>{alias=>"Foo"});
 
 Use string_cmp() to produce the answer checker(s) for your
 correct values.  Eg.
 
-    ANS(string_cmp("Foo"));
+	ANS(string_cmp("Foo"));
 
 =cut
 

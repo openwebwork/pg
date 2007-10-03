@@ -11,8 +11,8 @@ There are two versions:  one for lists of numbers
 and one for a single number.  Select them using
 one of the following commands:
 
-    Context("LimitedNumeric-List");
-    Context("LimiteNumeric");
+	Context("LimitedNumeric-List");
+	Context("LimiteNumeric");
 
 (Now uses Parcer::Legacy::LimitedNumeric to implement
 these contexts.)

@@ -27,19 +27,19 @@ reference to an array of variable names.
 
 Usage examples:
 
-   $P = ImplicitPlane(Point(1,0,2),Vector(-1,1,3)); #  -x+y+3z = 5
-   $P = ImplicitPlane([1,0,2],[-1,1,3]);            #  -x+y+3z = 5
-   $P = ImplicitPlane([1,0,2],4);                   #  x+2z = 4
-   $P = ImplicitPlane("x+2y-z=5");
+	$P = ImplicitPlane(Point(1,0,2),Vector(-1,1,3)); #  -x+y+3z = 5
+	$P = ImplicitPlane([1,0,2],[-1,1,3]);            #  -x+y+3z = 5
+	$P = ImplicitPlane([1,0,2],4);                   #  x+2z = 4
+	$P = ImplicitPlane("x+2y-z=5");
 
-   Context()->variables->are(x=>'Real',y=>'Real',z=>'Real',w=>'Real');
-   $P = ImplicitPlane([1,0,2,-1],10);               # w+2y-z = 10 (alphabetical order)
-   $P = ImplicitPlane([3,-1,2,4],5,['x','y','z','w']);  # 3x-y+2z+4w = 5
-   $P = ImplicitPlane([3,-1,2],5,['y','z','w']);  # 3y-z+2w = 5
+	Context()->variables->are(x=>'Real',y=>'Real',z=>'Real',w=>'Real');
+	$P = ImplicitPlane([1,0,2,-1],10);               # w+2y-z = 10 (alphabetical order)
+	$P = ImplicitPlane([3,-1,2,4],5,['x','y','z','w']);  # 3x-y+2z+4w = 5
+	$P = ImplicitPlane([3,-1,2],5,['y','z','w']);  # 3y-z+2w = 5
 
 Then use
 
-   ANS($P->cmp);
+	ANS($P->cmp);
 
 to get the answer checker for $P.
 

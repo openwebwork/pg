@@ -7,7 +7,7 @@ contextTF.pl - Imlements contexts for true/false problems.
 Implements contexts for string-valued answers especially
 for matching problems (where you match against T and F).
 
-    Context("TF");
+	Context("TF");
 
 You can add new strings to the context as needed (or remove old ones)
 via the Context()->strings->add() and Context()-strings->remove()
@@ -15,7 +15,7 @@ methods.
 
 Use:
 
-    ANS(string_cmp("T","F"));
+	ANS(string_cmp("T","F"));
 
 when there are two answers, the first being "T" and the second being "F".
 

@@ -13,18 +13,18 @@ which allows only inequalities as a means of producing intervals.
 
 =head1 USAGE
 
-    loadMacros("contextInequalities.pl");
-    
-    Context("Inequalities");
-    $S1 = Compute("1 < x <= 4");
-    $S2 = Inequality("(1,4]");     # force interval to be inequality
-    
-    Context("Inequalities-Only");
-    $S1 = Compute("1 < x <= 4");
-    $S2 = Inequality("(1,4]");     # generates an error
-    
-    $S3 = Compute("x < -2 or x > 2");  # forms a Union
-    $S4 = Compute("x = 1");            # forms a Set
+	loadMacros("contextInequalities.pl");
+	
+	Context("Inequalities");
+	$S1 = Compute("1 < x <= 4");
+	$S2 = Inequality("(1,4]");     # force interval to be inequality
+	
+	Context("Inequalities-Only");
+	$S1 = Compute("1 < x <= 4");
+	$S2 = Inequality("(1,4]");     # generates an error
+	
+	$S3 = Compute("x < -2 or x > 2");  # forms a Union
+	$S4 = Compute("x = 1");            # forms a Set
 
 You can set the "noneWord" flag to specify the string to
 use when the inequalities specify the empty set.  By default,
@@ -32,9 +32,9 @@ it is "NONE", but you can change it to other strings.  Be sure
 that you use a string that is defined in the Context, however,
 if you expect the student to be able to enter it.  For example
 
-    Context("Inequalities");
-    Context()->constants->add(EmptySet => Set());
-    Context()->flags->set(noneWord=>"EmptySet");
+	Context("Inequalities");
+	Context()->constants->add(EmptySet => Set());
+	Context()->flags->set(noneWord=>"EmptySet");
 
 creates an empty set as a named constant and uses that name.
 
@@ -45,11 +45,11 @@ to an Inequality, and use Interval(), Set(), or Union() to
 convert from an Inequality object to one in interval notation.
 For example:
 
-    $I0 = Compute("(1,2]");            # the interval (1,2]
-    $I1 = Inequality($I);              # the inequality 1 < x <= 2
+	$I0 = Compute("(1,2]");            # the interval (1,2]
+	$I1 = Inequality($I);              # the inequality 1 < x <= 2
 
-    $I0 = Compute("1 < x <= 2");       # the inequality 1 < x <= 2
-    $I1 = Interval($I0);               # the interval (1,2]
+	$I0 = Compute("1 < x <= 2");       # the inequality 1 < x <= 2
+	$I1 = Interval($I0);               # the interval (1,2]
 
 Note that ineqaulities and inervals can be compared and combined
 regardless of the format, so $I0 == $I1 is true in either example

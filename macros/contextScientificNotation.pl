@@ -19,38 +19,38 @@ context.
 
 To use this context, add
 
-    loadMacros("contextScientificNotation.pl");
+	loadMacros("contextScientificNotation.pl");
 
 to the top of your problem file, and then use
 
-    Context("ScientificNotation");
+	Context("ScientificNotation");
 
 to select the contxt and make it active.  You can create
 values in scientific notation in two ways:
 
-    $n1 = Compute("1.23 x 10^3");
+	$n1 = Compute("1.23 x 10^3");
 
 or
 
-    $n2 = ScientificNotation(1.23 * 10**3);
+	$n2 = ScientificNotation(1.23 * 10**3);
 
 (or even $n2 = ScientificNotation(1230), and it will be converted).
 
 You can control how many digits are displayed by setting the
 snDigits flag in the context.  For example,
 
-    Context()->flags->set(snDigits=>2);
+	Context()->flags->set(snDigits=>2);
 
 sets the context to display at most 2 digits.  The default is 6.
 By default, trailing zeros are removed, but you can ask that
 they be retained by issuing the command
 
-    Context()->flags->set(snTrimZeros=>0);
+	Context()->flags->set(snTrimZeros=>0);
 
 It is also possible to specify how many decimal digits the
 student must enter.  For example,
 
-    Context()->flags->set(snMinDigits=>3);
+	Context()->flags->set(snMinDigits=>3);
 
 would require the student to enter at least 3 digits past
 the decimal place (for a total of 4 significant digits,
@@ -60,7 +60,7 @@ a decimal point and decimal values is optional.
 
 Similarly,
 
-    Context()->flags->set(snMaxDigits=>6);
+	Context()->flags->set(snMaxDigits=>6);
 
 sets the maximum number to 6, so the student can't enter
 more than that.  Setting this to 0 means no decimal places
@@ -73,12 +73,12 @@ is the default).
 As an example, in order to force a fixed precision of
 three digits of precision, use
 
-    Context()->flags->set(
-        snDigits => 3,
-        snTrimZeros => 0,
-        snMinDigits => 3,
-        snMaxDigits => 3,
-    );
+	Context()->flags->set(
+		snDigits => 3,
+		snTrimZeros => 0,
+		snMinDigits => 3,
+		snMaxDigits => 3,
+	);
 
 Note that if you restrict the number of digits, you may
 need to adjust the tolerance values since the student

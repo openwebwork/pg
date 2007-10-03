@@ -9,7 +9,7 @@ but no operations are permitted between points.  So
 students will be able to perform operations within the
 coordinates of the points, but not between points.
 
-    Context("LimitedPoint")
+	Context("LimitedPoint")
 
 =cut
 

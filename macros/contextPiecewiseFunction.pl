@@ -7,22 +7,22 @@ contextPiecewiseFunction.pl - Allow usage of piecewise functions.
 This file implements a context in which piecewise-defined functions
 can be specified by students and problem authors.  To use it, add
 
-    loadMacros("contextPiecewiseFunction.pl");
+	loadMacros("contextPiecewiseFunction.pl");
 
 and then use
 
-    Context("PiecewiseFuntion");
+	Context("PiecewiseFuntion");
 
 to select the context for piecewise functions.  There are several
 ways to produce a piecewise function.  For example:
 
-    $f = Compute("x if x >= 0 else -x");
-    $f = Compute("x if x >= 0 else -x if x < 0");
-    $f = Formula("x+1 if x > 2 else 4 if x = 2 else 1-x");
-    $f = PiecewiseFunction("x^2 if 1 < x <= 2 else 2x+1");
-    $f = PiecewiseFunction("1 < x <= 2" => "x^2", "2x+1");
-    $f = PiecewiseFunction("(1,2]" => "x^2", "2x+1");
-    $f = PiecewiseFunction(Interval("(1,2]") => "x^2", "2x+1");
+	$f = Compute("x if x >= 0 else -x");
+	$f = Compute("x if x >= 0 else -x if x < 0");
+	$f = Formula("x+1 if x > 2 else 4 if x = 2 else 1-x");
+	$f = PiecewiseFunction("x^2 if 1 < x <= 2 else 2x+1");
+	$f = PiecewiseFunction("1 < x <= 2" => "x^2", "2x+1");
+	$f = PiecewiseFunction("(1,2]" => "x^2", "2x+1");
+	$f = PiecewiseFunction(Interval("(1,2]") => "x^2", "2x+1");
 
 You can use either Compute() or Formula() interchangeably to
 convert a string containing "if" and "else" to the corresponding
@@ -41,18 +41,18 @@ environment, so you can use these objects to produce nice
 output even if you are not asking a student to enter one.
 For example:
 
-    Context("PiecewiseFunction");
-    
-    $f = Formula("1-x if x > 0 else 4 if x = 0 else 1+x if x < 0");
-    $a = random(-2,2,.1);
-    
-    Context()->texStrings;
-    BEGIN_TEXT
-    Suppose \(f(x)=$f\).  Then \(f($a)\) = \{ans_rule(20)\}.
-    END_TEXT
-    Context()->normalStrings;
-    
-    ANS($f->eval(x=>$a)->cmp);
+	Context("PiecewiseFunction");
+	
+	$f = Formula("1-x if x > 0 else 4 if x = 0 else 1+x if x < 0");
+	$a = random(-2,2,.1);
+	
+	Context()->texStrings;
+	BEGIN_TEXT
+	Suppose \(f(x)=$f\).  Then \(f($a)\) = \{ans_rule(20)\}.
+	END_TEXT
+	Context()->normalStrings;
+	
+	ANS($f->eval(x=>$a)->cmp);
 
 =cut
 

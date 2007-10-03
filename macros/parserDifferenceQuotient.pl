@@ -19,16 +19,16 @@ the variable used for dx as the second argument to
 DifferenceQuotient().  You could use a variable like h instead of
 dx if you prefer.
 
-Usage examples:
+=head1 USAGE
 
-    $df = DifferenceQuotient("2x+dx");
-    ANS($df->cmp);
+	$df = DifferenceQuotient("2x+dx");
+	ANS($df->cmp);
 
-    $df = DifferenceQuotient("2x+h","h");
-    ANS($df->cmp);
+	$df = DifferenceQuotient("2x+h","h");
+	ANS($df->cmp);
 
-    Context()->variables->are(t=>'Real',a=>'Real');
-    ANS(DifferenceQuotient("-a/[t(t+dt)]","dt")->cmp);
+	Context()->variables->are(t=>'Real',a=>'Real');
+	ANS(DifferenceQuotient("-a/[t(t+dt)]","dt")->cmp);
 
 =cut
 

@@ -100,11 +100,11 @@ the seed saved by the student.
 
 Examples:
 
-	ProblemRandomize();				  # use all defaults
-	ProblemRandomize(when=>"Always");		  # always can reseed (after due date)
+	ProblemRandomize();                               # use all defaults
+	ProblemRandomize(when=>"Always");                 # always can reseed (after due date)
 	ProblemRandomize(onlyAfterDue=>0);                # can reseed whenever correct
 	ProblemRandomize(when=>"always",onlyAfterDue=>0); # always can reseed
-	ProblemRandomize(style=>"Input");		  # use an input box to set the seed
+	ProblemRandomize(style=>"Input");                 # use an input box to set the seed
 
 For problems that include "PGcourse.pl" in their loadMacros() calls, you can
 use that file to provide reseed buttons for ALL problems simply by including

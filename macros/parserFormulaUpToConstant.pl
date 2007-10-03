@@ -13,11 +13,11 @@ they want, and it doesn't have to be the one the professor used.
 To use FormulaWithConstat objects, load this macro file at the
 top of your problem:
 
-    loadMacros("parserFormulaUpToConstant.pl");
+	loadMacros("parserFormulaUpToConstant.pl");
 
 then create a formula with constant as follows:
 
-    $f = FormulaUpToConstant("sin(x)+C");
+	$f = FormulaUpToConstant("sin(x)+C");
 
 Note that the C should NOT already be a variable in the Context;
 the FormulaUpToConstant object will handle adding it in for
@@ -28,7 +28,7 @@ then the FormulaUpToConstant object will add "+C" for you.
 The FormulaUpToConstant should work like any normal Formula,
 and in particular, you use $f->cmp to get its answer checker.
 
-    ANS($f->cmp);
+	ANS($f->cmp);
 
 Note that the FormulaUpToConstant object creates its only private
 copy of the current Context (so that it can add variables without
@@ -36,19 +36,19 @@ affecting the rest of the problem).  You should not notice this
 in general, but if you need to access that context, use $f->{context}.
 E.g.
 
-    Context($f->{context});
+	Context($f->{context});
 
 would make the current context the one being used by the
 FormulaUpToConstant, while
 
-    $f->{context}->variables->names
+	$f->{context}->variables->names
 
 would return a list of the variables in the private context.
 
 To get the name of the constant in use in the formula,
 use
 
-    $f->constant.
+	$f->constant.
 
 If you combine a FormulaUpToConstant with other formulas,
 the result will be a new FormulaUpToConstant object, with
@@ -58,16 +58,16 @@ back to a Formula first, then combine with other objects,
 then convert back to a FormulaUpToConstant, if necessary.
 To do this, use the removeConstant() method:
 
-    $f = FormulaUpToConstant("sin(x)+C");
-    $g = Formula("cos(x)");
-    $h = $f->removeConstant + $g;  # $h will be "sin(x)+cos(x)"
-    $h = FormulaUpToConstant($h);  # $h will be "sin(x)+cos(x)+C"
+	$f = FormulaUpToConstant("sin(x)+C");
+	$g = Formula("cos(x)");
+	$h = $f->removeConstant + $g;  # $h will be "sin(x)+cos(x)"
+	$h = FormulaUpToConstant($h);  # $h will be "sin(x)+cos(x)+C"
 
 The answer evaluator by default will give "helpful" messages
 to the student when the "+ C" is left out.  You can turn off
 these messages using the showHints option to the cmp() method:
 
-    ANS($f->cmp(showHints => 0));
+	ANS($f->cmp(showHints => 0));
 
 One of the hints is about whether the student's answer is linear
 in the arbitrary constant.  This test requires differentiating
@@ -75,7 +75,7 @@ the student answer.  Since there are times when that could be
 problematic, you can disable that test via the showLinearityHints
 flag.  (Note: setting showHints to 0 also disables these hints.)
 
-    ANS($f->cmp(showLinearityHints => 0));
+	ANS($f->cmp(showLinearityHints => 0));
 
 =cut
 

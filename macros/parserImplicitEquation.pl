@@ -61,14 +61,14 @@ them, and their possible solutions.
 
 Usage examples:
 
-   Context("ImplicitEquation");
-   $f = ImplicitEquation("x^2 = cos(y)");
-   $f = ImplicitEquation("x^2 - 2y^2 = 5",limits=>[[-3,3],[-2,2]]);
-   $f = ImplicitEquation("x=1/y",tolerance=>.0001);
+	Context("ImplicitEquation");
+	$f = ImplicitEquation("x^2 = cos(y)");
+	$f = ImplicitEquation("x^2 - 2y^2 = 5",limits=>[[-3,3],[-2,2]]);
+	$f = ImplicitEquation("x=1/y",tolerance=>.0001);
 
 Then use
 
-   ANS($f->cmp);
+	ANS($f->cmp);
 
 to get the answer checker for $f.
 
@@ -150,13 +150,12 @@ the object, as in the examples below:
 
 For example:
 
-  $f = ImplicitEquation("x^2-y^2=0",
-          solutions => [[0,0],[1,1],[-1,1],[-1,-1],[1,-1]],
-          tolerance => .001
-       );
+	$f = ImplicitEquation("x^2-y^2=0",
+		solutions => [[0,0],[1,1],[-1,1],[-1,-1],[1,-1]],
+		tolerance => .001
+	);
 
-
-  $f = ImplicitEquation("xy=5",limits=>[-3,3]);
+	$f = ImplicitEquation("xy=5",limits=>[-3,3]);
 
 The limits value can be set globally within the Context, if you wish,
 and the others can be controlled by the Context flags discussed
