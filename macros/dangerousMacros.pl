@@ -1,84 +1,84 @@
-
-
-
-####################################################################
-# Copyright @ 1995-1999 University of Rochester
-# All Rights Reserved
-####################################################################
-
-####################################################################
-#
-#  dangerousMacros.pl contains macros with potentially dangerous commands
-#  such as require and eval.  They can reference disk files for reading and
-#  writing and can create links.  It may be necessary to modify certain addresses
-#  in this file to make the scripts run in different environments.
-#
-#
+################################################################################
+# WeBWorK Online Homework Delivery System
+# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# $CVSHeader: webwork2/lib/WeBWorK.pm,v 1.100 2007/08/13 22:59:53 sh002i Exp $
+# 
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+# 
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
 
 =head1 NAME
 
-	 dangerousMacros.pl --- located in the courseScripts directory
+dangerousMacros.pl - Macros which require elevated permissions to execute.
 
 =head1 SYNPOSIS
 
 	loadMacros(macrofile1,macrofile2,...)
-
-	insertGraph(graphObject);
-	  returns a path to the file containing the graph image.
-
-	tth(texString)
-	  returns an HTML version of the tex code passed to it.
-
-	alias(pathToFile);
-	  returns URL which links to that file
-
+	
+	insertGraph(graphObject); # returns a path to the file containing the graph image.
+	
+	tth(texString); # returns an HTML version of the tex code passed to it.
+	
+	alias(pathToFile); # returns URL which links to that file
 
 =head1 DESCRIPTION
 
+dangerousMacros.pl contains macros that use potentially dangerous functions line
+require and eval. They can reference disk files for reading and writing, create
+links, and execute commands. It may be necessary to modify certain addresses in
+this file to make the scripts run properly in different environments.
 
-C<dangerousMacros.pl> contains macros with potentially dangerous commands
-such as require and eval.  They can reference disk files for reading and
-writing and can create links.  It may be necessary to modify certain addresses
-in this file to make the scripts run properly in different environments.
+This file is loaded implicitly every time a new problem is rendered.
 
-C<dangerousMacros.pl> is loaded and reinitialized
-every time a new problem is rendered.
+=for comment
 
-=cut
+FIXME this information belongs in global.conf where modules to load are listed.
+I don't see why this shows up here.
 
-
-######## Dangerous macros#########
-## The macros in this file are defined while the safe compartment is wide open.
-## Be careful!
-#########################################
-
-
-=head2 Sharing modules:
+=head2 Sharing modules
 
 Most modules are loaded by dangerousMacros.pl
 
-The modules must be loaded using require (not use) since the courseScriptsDirectory is
-defined at run time.
+The modules must be loaded using require (not use) since the
+courseScriptsDirectory is defined at run time.
 
+The following considerations come into play.
 
- The following considerations come into play.
+=over
 
-	* One needs to limit the access to modules for safety -- hence only
-	 modules in the F<courseScriptsDirectory> can be loaded.
+=item *
 
-	* Loading them in dangerousMacros.pl is wasteful, since the modules
-	 would need to be reloaded everytime a new safe compartment is created.
-     (I believe that using require takes care of this.)
+One needs to limit the access to modules for safety -- hence only modules in the
+F<courseScriptsDirectory> can be loaded.
 
-	* Loading GD within a safeCompartment creates infinite recurrsion in AUTOLOAD (probably a bug)
-	 hence this module is loaded by translate.pl and then shared with
-	 the safe compartment.
+=item *
 
-	* Other modules loaded by translate.pl are C<Exporter> and C<DynaLoader.
+Loading them in dangerousMacros.pl is wasteful, since the modules would need to
+be reloaded everytime a new safe compartment is created. (I believe that using
+require takes care of this.)
 
-	* PGrandom is loaded by F<PG.pl> , since it is needed there.
+=item *
 
+Loading GD within a safeCompartment creates infinite recurrsion in AUTOLOAD
+(probably a bug) hence this module is loaded by translate.pl and then shared
+with the safe compartment.
 
+=item *
+
+Other modules loaded by translate.pl are C<Exporter> and C<DynaLoader>.
+
+=item *
+
+PGrandom is loaded by F<PG.pl>, since it is needed there.
+
+=back
 
 The module name spaces loaded in dangerousMacros are:
 
@@ -88,7 +88,7 @@ The module name spaces loaded in dangerousMacros are:
 	Label
 	Circle
 
-in addition the  subroutine &evaluate_units is shared from the module Units.
+in addition the subroutine &evaluate_units is shared from the module Units.
 
 =cut
 
@@ -145,37 +145,49 @@ sub _dangerousMacros_export {
 
 =head2 loadMacros
 
-C<loadMacros(macrofile1,macrofile2,...)>
+	loadMacros(@macroFiles)
 
-loadMacros takes a list of file names and evaluates the contents of each file.  This is used to load macros
-which define and augment the PG language.  The macro files are searched for in the directories specified by
-C<($macrosPath)>, which by default is the course macros directory followed by WeBWorK's pg/macros directory.
-The latter is where the default behaviour of the PG language is defined.  The default path is set in
-the C<(global.conf)> file.
+loadMacros takes a list of file names and evaluates the contents of each file. 
+This is used to load macros which define and augment the PG language. The macro
+files are searched for in the directories specified by the array referenced by
+$macrosPath, which by default is the current course's macros directory followed
+by WeBWorK's pg/macros directory. The latter is where the default behaviour of
+the PG language is defined. The default path is set in the global.conf file.
 
-An individual course can modify the PG language, B<for that course only>, by
-duplicating one of the macro files in the courseScripts directory and placing this
-file in the macro directory for the course. The new file in the course
-macro directory will now be used instead of the file in the courseScripts directory.
+Macro files named PG.pl, IO.pl, or dangerousMacros.pl will be loaded with no
+opcode restrictions, hence any code in those files will be able to execute
+privileged operations. This is true no matter which macro directory the file is
+in. For example, if $macrosPath contains the path to a problem library macros
+directory which contains a PG.pl file, this file will be loaded and allowed to
+engage in privileged behavior.
 
-The new file in the course macro directory can by modified by adding macros or modifying existing macros.
+=head3 Overloading macro files
 
-I< Modifying macros is for users with some experience.>
+An individual course can modify the PG language, for that course only, by
+duplicating one of the macro files in the system-wide macros directory and
+placing this file in the macros directory for the course. The new file in the
+course's macros directory will now be used instead of the file in the
+system-wide macros directory.
 
-Modifying existing macros might break other standard macros or problems which depend on the
-unmodified behavior of these macors so do this with great caution.
-In addition problems which use new macros defined in these files or which depend on the
-modified behavior of existing macros will not work in other courses unless the macros are also
-transferred to the new course.  It helps to document the  problems by indicating any special macros
-which the problems require.
+The new file in the course macros directory can by modified by adding macros or
+modifying existing macros.
 
-There is no facility for modifying or overloading a single macro.  The entire file containing the macro
-must be overloaded.
+=head3 Modifying existing macros
+
+I<Modifying macros is for users with some experience.>
+
+Modifying existing macros might break other standard macros or problems which
+depend on the unmodified behavior of these macors so do this with great caution.
+In addition problems which use new macros defined in these files or which depend
+on the modified behavior of existing macros will not work in other courses
+unless the macros are also transferred to the new course.  It helps to document
+the  problems by indicating any special macros which the problems require.
+
+There is no facility for modifying or overloading a single macro. The entire
+file containing the macro must be overloaded.
 
 Modifications to files in the course macros directory affect only that course,
-they will not interfere with the normal behavior of B<WeBWorK> in other courses.
-
-
+they will not interfere with the normal behavior of WeBWorK in other courses.
 
 =cut
 
@@ -373,32 +385,20 @@ sub compile_file {
 
 =head2 insertGraph
 
-	$filePath = insertGraph(graphObject);
-		  returns a path to the file containing the graph image.
+	# returns a path to the file containing the graph image.
+	$filePath = insertGraph($graphObject);
 
-insertGraph(graphObject) writes a gif file to the C<html/tmp/gif> directory of the current course.
-The file name
-is obtained from the graphObject.  Warnings are issued if errors occur while writing to
-the file.
+insertGraph writes a GIF or PNG image file to the gif subdirectory of the
+current course's HTML temp directory. The file name is obtained from the graph
+object. Warnings are issued if errors occur while writing to the file.
 
-The permissions and ownership of the file are controlled by C<$main::tmp_file_permission>
-and C<$main::numericalGroupID>.
+Returns a string containing the full path to the temporary file containing the
+image. This is most often used in the construct
 
-B<Returns:>   A string containing the full path to the temporary file containing the GIF image.
+	TEXT(alias(insertGraph($graph)));
 
-
-
-InsertGraph draws the object $graph, stores it in "${tempDirectory}gif/$gifName.gif (or .png)" where
-the $imageName is obtained from the graph object.  ConvertPath and surePathToTmpFile are used to insure
-that the correct directory separators are used for the platform and that the necessary directories
-are created if they are not already present.
-
-The directory address to the file is the result.  This is most often used in the construct
-
-	TEXT(alias(insertGraph($graph)) );
-
-where alias converts the directory address to a URL when serving HTML pages and insures that
-an eps file is generated when creating TeX code for downloading.
+where alias converts the directory address to a URL when serving HTML pages and
+insures that an EPS file is generated when creating TeX code for downloading.
 
 =cut
 
@@ -434,42 +434,33 @@ sub insertGraph {
 	$filePath;
 }
 
+=head2 [DEPRECATED] tth
 
+	# returns an HTML version of the TeX code passed to it.
+	tth($texString);
 
-=head2 tth
+This macro sends $texString to the filter program TtH, a TeX to HTML translator
+written by Ian Hutchinson. TtH is available free of change non-commerical
+use at L<http://hutchinson.belmont.ma.us/tth/>.
 
-	tth(texString)
-  		returns an HTML version of the tex code passed to it.
+The purpose of TtH is to translate text in the TeX or LaTeX markup language into
+HTML markup as best as possible.  Some symbols, such as square root symbols are
+not translated completely.  Macintosh users must use the "MacRoman" encoding
+(available in 4.0 and higher browsers) in order to view the symbols correctly. 
+WeBWorK attempts to force Macintosh browsers to use this encoding when such a
+browser is detected.
 
-This macro sends the texString to the filter program C<tth> created by Ian Hutchinson.
-The tth program was created by Ian Hutchinson and is freely available
-for B<non-commerical purposes> at the C<tth> main site: C<http://hutchinson.belmont.ma.us/tth/>.
-
-The purpose of C<tth> is to translate text in the TeX or Latex markup language into
-HTML markup as best as possible.  Some symbols, such as square root symbols are not
-translated completely.  Macintosh users must use the "MacRoman" encoding (available in 4.0 and
-higher browsers) in order to view the symbols correctly.  WeBWorK attempts to force Macintosh
-browsers to use this encoding when such a browser is detected.
-
-The contents of the file C<tthPreamble.tex> in the courses template directory are prepended
-to each string.  This allows one to define TeX macros which can be used in every problem.
-Currently there is no default C<tthPreamble.tex> file, so if the file is not present in the
-course template directory no TeX macro definitions are prepended.  C<tth> already understands most
-Latex commands, but will not, in general know I<AMS-Latex> commands.  Additional information
-on C<tth> is available at the C<tth> main site.
+The contents of the file F<tthPreamble.tex> in the courses template directory
+are prepended to each string.  This allows one to define TeX macros which can be
+used in every problem. Currently there is no default F<tthPreamble.tex> file, so
+if the file is not present in the course template directory no TeX macro
+definitions are prepended. TtH already understands most LaTeX commands, but will
+not in general know AMS-LaTeX commands.
 
 This macro contains code which is system dependent and may need to be modified
 to run on different systems.
 
-=for html
-The link to <CODE>tth</CODE> for <STRONG>non-commerical</STRONG> is
-<A HREF="http://hutchinson.belmont.ma.us/tth/">http://hutchinson.belmont.ma.us/tth/</A>.
-Binaries for many operating systems are available as well as the source code.  Links
-describing how to obtain <CODE>tth</CODE> for commerical use are also available on this page.
-
 =cut
-
-
 
 # This file allows the tth display.
 # Global variables:
@@ -576,9 +567,12 @@ sub symbolConvert {
 
 # ----- ----- ----- -----
 
-=head2 math2img
+=head2 [DEPRECATED] math2img
 
-math2img(texString) - returns an IMG tag pointing to an image version of the supplied TeX
+	# returns an IMG tag pointing to an image version of the supplied TeX
+	math2img($texString);
+
+This macro was used by the HTML_img display mode, which no longer exists.
 
 =cut
 
@@ -621,6 +615,13 @@ sub math2img {
 	}
 };
 
+=head2 [DEPRECATED] dvipng
+
+	dvipng($working_directory, $latex_path, $dvipng_path, $tex_string, $target_path)
+
+This macro was used by the HTML_img display mode, which no longer exists.
+
+=cut
 
 # copied from IO.pm for backward compatibility with WeBWorK1.8;
 sub dvipng($$$$$) {
@@ -705,105 +706,92 @@ EOF
 
 =head2  alias
 
-	alias(pathToFile);
-	  returns A string describing the URL which links to GIF or html file
-	          (in HTML and Latex2HTML modes).
-	          or a path to the appropriate eps version of a GIF file
-	           (TeX Mode)
+	# In HTML modes, returns the URL of a web-friendly version of the specified file.
+	# In TeX mode, returns the path to a TeX-friendly version of the specified file.
+	alias($pathToFile);
 
+alias allows you to refer to auxiliary files which are in a directory along with
+the problem definition. In addition alias creates an EPS version of GIF or PNG
+files when called in TeX mode.
 
+As a rule auxiliary files that are used by a number of problems in a course
+should be placed in C<html/gif> or C<html> or in a subdirectory of the C<html>
+directory, while auxiliary files which are used in only one problem should be
+placed in the same directory as the problem in order to make the problem more
+portable.
 
-C<alias> allows you to refer to auxiliary files which are in a directory along with
-the problem definition.  In addition alias creates an eps copy of GIF files when
-downloading hard copy (TeX mode).
+=head3 Specific behavior of the alias macro
 
-As a rule auxiliary files that are used by
-a number of problems in a course should be placed in C<html/gif> or C<html>
-or in a subdirectory of the C<html> directory,
-while auxiliary files which are used in only one problem should be placed in
-the same directory as the problem in order to make the problem more portable.
+=head4 Files in the html subdirectory
 
+=over
 
+=item When not in TeX mode
 
-=over 4
+If the file lies under the F<html> subdirectory, then the approriate URL for the
+file is returned. Since the F<html> subdirectory is already accessible to the
+webserver no other changes need to be made. The file path for this type of file
+should be the complete file path. The path should start with the prefix defined
+in $courseDirs{html_temp} in global.conf.
 
-=item  Files in the html subdirectory
+=item When in TeX mode
 
-B<When not in TeX mode:>
+GIF and PNG files will be translated into EPS files and placed in the directory
+F<tmp/eps>. The full path to this file is returned for use by TeX in producing
+the hard copy. The conversion is done by a system dependent commands defined in
+F<global.conf> $externalPrograms{gif2eps} (for GIF images) or
+$externalPrograms{png2eps} (for PNG images). The URLs for the other files are
+produced as in non-TeX mode but will of course not be usable to TeX.
 
-If the file lies under the C<html> subdirectory, then the approriate URL for the file is created.
-Since the C<html> subdirectory is already accessible to the webserver no other changes need to be made.
-The file path for this type of file should be the complete file path. The path should
-start with the prefix defined in $Global:htmlDirectory.
+=back
 
-B<When in TeX mode:>
+=head4 Files in the tmp subdirectory
 
+=over
 
-GIF files will be translated into an eps file (using system dependent code)
-and placed in the directory C<tmp/eps>.  The full path to this file is returned
-for use by TeX in producing the hard copy. (This should work even in a chrooted
-environment.) in producing the hard copy.   (This should work even in a chrooted
-environment.)
+=item When not in TeX mode
 
-The conversion is done by a system dependent script
-called C<gif2eps> which should be in the scripts directory
+If the file lies under the F<tmp> subdirectory, then the approriate URL for the
+file is created. Since the F<tmp> subdirectory is already accessible to the
+webserver no other changes need to be made. The file path for this type of file
+should be the complete file path. The path should start with the prefix defined
+in $courseDirs{html_temp} in global.conf.
 
-The URL's for the other files are produced as in non-tex mode
-but will of course not be active.
+=item When in TeX mode
 
-=item  Files in the tmp subdirectory
+GIF and PNG files will be translated into EPS files and placed in the directory
+F<tmp/eps>. The full path to this file is returned for use by TeX in producing
+the hard copy. The conversion is done by a system dependent commands defined in
+F<global.conf> $externalPrograms{gif2eps} (for GIF images) or
+$externalPrograms{png2eps} (for PNG images). The URLs for the other files are
+produced as in non-TeX mode but will of course not be usable to TeX.
 
-B<When not in TeX mode:>
+=back
 
-If the file lies under the C<tmp> subdirectory, then the approriate URL for the file is created.
-Since the C<tmp> subdirectory is already accessible to the webserver no other changes need to be made.
-The file path for this type of file should be the complete file path. The path should
-start with the prefix defined in $Global:tempDirectory.
+=head4 Files in the course template subdirectory
 
-B<When in TeX mode:>
+=over
 
+=item When not in TeX mode
 
-GIF files will be translated into an eps file (using system dependent code)
-and placed in the directory C<tmp/eps>.  The full path to this file is returned
-for use by TeX in producing the hard copy.  (This should work even in a chrooted
-environment.)
-
-The conversion is done by a system dependent script
-called C<gif2eps> which should be in the scripts directory
-
-The URL's for the other files are produced as in non-tex mode
-but will of course not be active.
-
-=item Files in the course template subdirectory:
-
-B<When not in TeX mode:>
-
-If the file lies under the course templates subdirectory,
-it is assumed to lie in subdirectory rooted in the directory
-containing the problem template file.
-An alias is created under the C<html/tmp/gif> or
-C<html/tmp/html> directory and linked to the original file.
-The file path for this type of file is a relative
+If the file lies under the course templates subdirectory, it is assumed to lie
+in subdirectory rooted in the directory containing the problem template file. An
+alias is created under the F<html/tmp/gif> or F<html/tmp/html> directory and
+linked to the original file. The file path for this type of file is a relative
 path rooted at the directory containing the problem template file.
 
-B<When in TeX mode:>
+=item When in TeX mode
 
-GIF files will be translated into an eps file (using system dependent code)
-and placed in the directory C<html/tmp/eps>.  The full path to this file is returned
-for use by TeX in producing the hard copy.   (This should work even in a chrooted
-environment.)
-
-The conversion is done by a system dependent script
-called C<gif2eps> which should be in the scripts directory
-
-The URL's for the other files are produced as in non-tex mode
-but will of course not be active.
+GIF and PNG files will be translated into EPS files and placed in the directory
+F<tmp/eps>. The full path to this file is returned for use by TeX in producing
+the hard copy. The conversion is done by a system dependent commands defined in
+F<global.conf> $externalPrograms{gif2eps} (for GIF images) or
+$externalPrograms{png2eps} (for PNG images). The URLs for the other files are
+produced as in non-TeX mode but will of course not be usable to TeX.
 
 =back
 
 =cut
-
-
 
 # Currently gif, html and types are supported.
 #
@@ -856,23 +844,6 @@ but will of course not be active.
 
 
 # local constants $User, $psvn $setNumber $probNum $displayMode
-
-sub sourceAlias {
-	my $path_to_file = shift;
-	my $envir        =  PG_restricted_eval(q!\%main::envir!);
-	my $user         = $envir->{inputs_ref}->{user};
-	$user            = " " unless defined($user);
-    my $out = 'source.pl?probSetKey='  . $envir->{psvn}.
-  			  '&amp;probNum='          . $envir->{probNum} .
-   			  '&amp;Mode='             . $envir->{displayMode} .
-   			  '&amp;course='           . $envir->{courseName} .
-    		  '&amp;user='             . $user .
-			  '&amp;displayPath='      . $path_to_file .
-	   		  '&amp;key='              . $envir->{sessionKey};
-
- 	 $out;
-}
-
 
 sub alias {
 	# input is a path to the original auxiliary file
@@ -1261,6 +1232,31 @@ sub alias {
 	return $adr_output;
 }
 
+=head2 sourceAlias
+
+	sourceAlias($path_to_PG_file);
+
+Returns a relative URL to the F<source.pl> script, which may be installed in a
+course's F<html> directory to allow formatted viewing of the problem source.
+
+=cut
+
+sub sourceAlias {
+	my $path_to_file = shift;
+	my $envir        =  PG_restricted_eval(q!\%main::envir!);
+	my $user         = $envir->{inputs_ref}->{user};
+	$user            = " " unless defined($user);
+    my $out = 'source.pl?probSetKey='  . $envir->{psvn}.
+  			  '&amp;probNum='          . $envir->{probNum} .
+   			  '&amp;Mode='             . $envir->{displayMode} .
+   			  '&amp;course='           . $envir->{courseName} .
+    		  '&amp;user='             . $user .
+			  '&amp;displayPath='      . $path_to_file .
+	   		  '&amp;key='              . $envir->{sessionKey};
+
+ 	 $out;
+}
+
 
 #
 #  Some constants that can be used in perl experssions
@@ -1271,16 +1267,19 @@ sub i () {
   if (!eval(q!$main::_parser_loaded!)) {return Complex::i}
   return Value->Package("Formula")->new('i')->eval;
 }
+
 sub j () {
   if (!eval(q!$main::_parser_loaded!)) {return 'j'}
   Value->Package("Formula")->new('j')->eval;
 }
+
 sub k () {
   if (!eval(q!$main::_parser_loaded!)) {return 'k'}
   Value->Package("Formula")->new('k')->eval;
 }
 
 sub pi () {Value->Package("Formula")->new('pi')->eval}
+
 sub Infinity () {Value->Package("Infinity")->new()}
 
-1;  # required to load properly
+1;
