@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: webwork2/lib/WeBWorK.pm,v 1.100 2007/08/13 22:59:53 sh002i Exp $
+# $CVSHeader: pg/macros/dangerousMacros.pl,v 1.49 2007/10/04 16:41:07 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -30,7 +30,7 @@ dangerousMacros.pl - Macros which require elevated permissions to execute.
 
 =head1 DESCRIPTION
 
-dangerousMacros.pl contains macros that use potentially dangerous functions line
+dangerousMacros.pl contains macros that use potentially dangerous functions like
 require and eval. They can reference disk files for reading and writing, create
 links, and execute commands. It may be necessary to modify certain addresses in
 this file to make the scripts run properly in different environments.
