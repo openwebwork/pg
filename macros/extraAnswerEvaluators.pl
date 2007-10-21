@@ -418,18 +418,18 @@ partialCredit, and showLengthHints, as in:
 
 sub number_list_cmp {
 	my $list = shift;
-	
+
 	my %num_params = @_;
-	
+
 	my $mode		  = $num_params{mode} || 'std';
 	my %options		  = (debug => $num_params{debug});
-	
+
 	#
 	#  Get an apppropriate context based on the mode
 	#
 	my $oldContext = Context();
 	my $context = mode2context($mode, %num_params);
-		
+
 	#$context->strings->clear;
 	if ($num_params{strings}) {
 		foreach my $string (@{$num_params{strings}}) {
@@ -439,14 +439,14 @@ sub number_list_cmp {
 				defined($context->strings->get($string));
 		}
 	}
-	
-	$options{ordered} = 1 if(defined($num_params{ordered}) and $opts{ordered});
+
+	$options{ordered} = 1 if defined($num_params{ordered});
 	# These didn't exist before in number_list_cmp so they behaved like
 	# in List()->cmp.  Now they can be optionally set
 	for my $o qw( showHints partialCredit showLengthHints ) {
 		$options{$o} = $num_params{$o} || 0;
 	}
-	
+
 	Context($context);
 	my $ans_eval = List($list)->cmp(%options);
 	Context($oldContext);
