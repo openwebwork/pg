@@ -1,13 +1,13 @@
 ################################################################################
-# WeBWorK Program Generation Language
-# Copyright ï¿½ 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PG.pl,v 1.32 2007/08/09 23:24:56 jj Exp $
-#
+# WeBWorK Online Homework Delivery System
+# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# $CVSHeader: pg/macros/displayMacros.pl,v 1.9 2007/10/04 16:41:07 sh002i Exp $
+# 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any later
 # version, or (b) the "Artistic License" which comes with this package.
-#
+# 
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
@@ -22,23 +22,23 @@ PG.pl - Provides core Program Generation Language functionality.
 
 In a PG problem:
 
- DOCUMENT();             # should be the first statment in the problem
- 
- loadMacros(.....);      # (optional) load other macro files if needed.
-                         # (loadMacros is defined in F<dangerousMacros.pl>)
-
- HEADER_TEXT(...);       # (optional) used only for inserting javaScript into problems.
- 
- TEXT(                   # insert text of problems
- 	"Problem text to be",
- 	"displayed. Enter 1 in this blank:",
- 	ANS_RULE(1,30)       # ANS_RULE() defines an answer blank 30 characters long.
- 	                     # It is defined in F<PGbasicmacros.pl>
- );
- 
- ANS(answer_evalutors);  # see F<PGanswermacros.pl> for examples of answer evaluatiors.
- 
- ENDDOCUMENT()           # must be the last statement in the problem
+	DOCUMENT();             # should be the first statment in the problem
+	
+	loadMacros(.....);      # (optional) load other macro files if needed.
+                        	# (loadMacros is defined in F<dangerousMacros.pl>)
+	
+	HEADER_TEXT(...);       # (optional) used only for inserting javaScript into problems.
+	
+	TEXT(                   # insert text of problems
+		"Problem text to be displayed. ",
+		"Enter 1 in this blank:",
+		ANS_RULE(1,30)      # ANS_RULE() defines an answer blank 30 characters long.
+ 		                	# It is defined in F<PGbasicmacros.pl>
+	);
+	
+	ANS(answer_evalutors);  # see F<PGanswermacros.pl> for examples of answer evaluatiors.
+	
+	ENDDOCUMENT()           # must be the last statement in the problem
 
 =head1 DESCRIPTION
 

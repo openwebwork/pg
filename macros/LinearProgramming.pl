@@ -1,61 +1,74 @@
+################################################################################
+# WeBWorK Online Homework Delivery System
+# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# $CVSHeader: pg/macros/displayMacros.pl,v 1.9 2007/10/04 16:41:07 sh002i Exp $
+# 
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+# 
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
 
 =head1 NAME
 
-       LinearProgramming.pl
+LinearProgramming.pl - Macros for the simplex tableau for linear programming
+problems.
 
 =head1 SYNPOSIS
 
-       Macros related to the simplex method for Linear Programming.
+Macros related to the simplex method for Linear Programming.
 
-             lp_pivot_element()  - find the pivot element from a tableau
-             lp_solve()          - pivot until done
-             lp_current_value()  - given a tableau, find the value of a
-                                   requested variable
-             lp_display()        - display a tableau
-             lp_display_mm()     - display a tableau while in math mode
-             lp_pivot()          - perform one pivot on a tableau
+	lp_pivot_element(...); # find the pivot element from a tableau
+	lp_solve(...);         # pivot until done
+	lp_current_value(...); # given a tableau, find the value of a requested variable
+	lp_display(...);       # display a tableau
+	lp_display_mm(...);    # display a tableau while in math mode
+	lp_pivot(...);         # perform one pivot on a tableau
 
-       Matrix display makes use of macros from PGmatrixmacros.pl, so it
-       must be included too.
+Matrix display makes use of macros from PGmatrixmacros.pl, so it must be
+included too.
 
 =head1 DESCRIPTION
 
-    These are macros for dealing with simplex tableau for linear
-    programming problems.  The tableau is a reference to an array
-    of arrays, which looks like, [[1,2,3], [4,5,6]].  The entries
-    can be real numbers or Fractions.
+These are macros for dealing with simplex tableau for linear programming
+problems.  The tableau is a reference to an array of arrays, which looks like,
+[[1,2,3], [4,5,6]].  The entries can be real numbers or Fractions.
 
-    Tableaus are expected to be legal for the simplex method, such as
+Tableaus are expected to be legal for the simplex method, such as
 
-    [[0,  3, -4,  5, 1, 0, 0, 28],
-     [0,  2,  0,  1, 0, 1, 0, 11],
-     [0,  1,  2,  3, 0, 0, 1,  3],
-     [1, -1,  2, -3, 0, 0, 0,  0]]
+	[[0,  3, -4,  5, 1, 0, 0, 28],
+	 [0,  2,  0,  1, 0, 1, 0, 11],
+	 [0,  1,  2,  3, 0, 0, 1,  3],
+	 [1, -1,  2, -3, 0, 0, 0,  0]]
 
-    or something similar which arises after pivoting.
+or something similar which arises after pivoting.
 
-=cut
+=head1 MACROS
 
 =head2 lp_pivot
 
-Take a tableau, the row and column number, and perform one pivot operation.
-The tableau can be any matrix in the form reference to array of arrays, such
-as [[1,2,3],[4,5,6]].  Row and column numbers start at 0.  An optional 4th
-argument can be specified to indicate that the matrix has entries of type
-Fraction (and then all entries should be of type Fraction).
+Take a tableau, the row and column number, and perform one pivot operation. The
+tableau can be any matrix in the form reference to array of arrays, such as
+[[1,2,3],[4,5,6]].  Row and column numbers start at 0.  An optional 4th argument
+can be specified to indicate that the matrix has entries of type Fraction (and
+then all entries should be of type Fraction).
 
-  $m = [[1,2,3],[4,5,6]];
-  lp_pivot($m, 0,2);
+	$m = [[1,2,3],[4,5,6]];
+	lp_pivot($m, 0,2);
 
-This function is destructive - it changes the values of its matrix rather
-than making a copy, and also returns the matrix, so
+This function is destructive - it changes the values of its matrix rather than
+making a copy, and also returns the matrix, so
 
-  $m = lp_pivot([[1,2,3],[4,5,6]], 0, 2);
+	$m = lp_pivot([[1,2,3],[4,5,6]], 0, 2);
 
 will have the same result as the example above.
 
 =cut
-
 
 # perform a pivot operation
 # lp_pivot([[1,2,3],...,[4,5,6]], row, col, fractionmode)
@@ -96,19 +109,17 @@ sub lp_pivot {
 
 =head2 lp_pivot_element
 
-Take a simplex tableau, and determine which element is the next pivot
-element based on the algorithm in Mizrahi and Sullivan's Finite
-Mathematics, section 4.2.  The tableau must represent a point in the
-region of feasibility for a LP problem.  Otherwise, it can be any
-matrix in the form reference to array of arrays, such as
-[[1,2,3],[4,5,6]].  An optional 2nd argument can be specified to
-indicate that the matrix has entries of type Fraction (and then all
-entries should be of type Fraction).
+Take a simplex tableau, and determine which element is the next pivot element
+based on the algorithm in Mizrahi and Sullivan's Finite Mathematics, section
+4.2.  The tableau must represent a point in the region of feasibility for a LP
+problem.  Otherwise, it can be any matrix in the form reference to array of
+arrays, such as [[1,2,3],[4,5,6]].  An optional 2nd argument can be specified to
+indicate that the matrix has entries of type Fraction (and then all entries
+should be of type Fraction).
 
-It returns a pair [row, col], with the count starting at 0.  If there
-is no legal pivot column (final tableau), it returns [-1,-1].  If
-there is a column, but no pivot element (unbounded problem), it returns
-[-1, col].
+It returns a pair [row, col], with the count starting at 0.  If there is no
+legal pivot column (final tableau), it returns [-1,-1].  If there is a column,
+but no pivot element (unbounded problem), it returns [-1, col].
 
 =cut
 
@@ -154,30 +165,36 @@ sub lp_pivot_element {
 
 =head2 lp_solve
 
-Take a tableau, and perform simplex method pivoting until done.
-The tableau can be any matrix in the form reference to array of arrays, such
-as [[1,2,3],[4,5,6]], which represents a linear programming tableau at a
-feasible point.  Options are specified in key/value pairs.
+Take a tableau, and perform simplex method pivoting until done. The tableau can
+be any matrix in the form reference to array of arrays, such as
+[[1,2,3],[4,5,6]], which represents a linear programming tableau at a feasible
+point.  Options are specified in key/value pairs.
 
-   pivot_limit=> 10   (limit the number of pivots to at most 10 - default is 100)
-   fraction_mode=> 1  (entries are of type Fraction - defaults to 0, i.e., false)
+=over
 
-This function is destructive - it changes the values of its matrix
-rather than making a copy.  It returns a triple of the final tableau,
-an endcode indicating the type of result, and the number of pivots
-used.  The endcodes are 1 for success, 0 for unbounded.
+=item C<S<< pivot_limit => 10 >>>
+
+limit the number of pivots to at most 10 - default is 100
+
+=item C<S<< fraction_mode => 1 >>>
+
+entries are of type Fraction - defaults to 0, i.e., false
+
+This function is destructive - it changes the values of its matrix rather than
+making a copy.  It returns a triple of the final tableau, an endcode indicating
+the type of result, and the number of pivots used.  The endcodes are 1 for
+success, 0 for unbounded.
 
 Example:
 
-$m = [[0,  3, -4,  5, 1, 0, 0, 28],
-      [0,  2,  0,  1, 0, 1, 0, 11],
-      [0,  1,  2,  3, 0, 0, 1,  3],
-      [1, -1,  2, -3, 0, 0, 0,  0]];
+	$m = [[0,  3, -4,  5, 1, 0, 0, 28],
+	      [0,  2,  0,  1, 0, 1, 0, 11],
+	      [0,  1,  2,  3, 0, 0, 1,  3],
+	      [1, -1,  2, -3, 0, 0, 0,  0]];
 
-($m, $endcode, $pivcount) = lp_solve($m, pivot_limit=>200);
+	($m, $endcode, $pivcount) = lp_solve($m, pivot_limit=>200);
 
 =cut
-
 
 # Solve a linear programming problem
 # lp_solve([[1,2,3],[4,5,6]])
@@ -223,10 +240,10 @@ sub lp_solve {
 =head2 lp_current_value
 
 Takes a simplex tableau and returns the value of a particular variable.
-Variables are associated to column numbers which are indexed starting with
-0.  So, usually this means that the objective function is 0, x_1 is 1, and
-so on.  This can be used for slack variables too (assuming you know what
-columns they are in).
+Variables are associated to column numbers which are indexed starting with 0. 
+So, usually this means that the objective function is 0, x_1 is 1, and so on. 
+This can be used for slack variables too (assuming you know what columns they
+are in).
 
 =cut
 
@@ -267,22 +284,22 @@ sub lp_current_value {
 
 Display a simplex tableau while in math mode.
 
-$m = [[0,  3, -4,  5, 1, 0, 0, 28],
-      [0,  2,  0,  1, 0, 1, 0, 11],
-      [0,  1,  2,  3, 0, 0, 1,  3],
-      [1, -1,  2, -3, 0, 0, 0,  0]];
+	$m = [[0,  3, -4,  5, 1, 0, 0, 28],
+	      [0,  2,  0,  1, 0, 1, 0, 11],
+	      [0,  1,  2,  3, 0, 0, 1,  3],
+	      [1, -1,  2, -3, 0, 0, 0,  0]];
+	
+	BEGIN_TEXT
+	\[ \{ lp_display_mm($m) \} \]
+	END_TEXT
 
-\[ \{ lp_display_mm($m) \} \]
-
-Accepts the same optional arguments as lp_display (see below), and
-produces nicer looking results.  However, it cannot have answer rules
-in the tableau (lp_display can have them for fill in the blank
-tableaus).
+Accepts the same optional arguments as lp_display (see below), and produces
+nicer looking results.  However, it cannot have answer rules in the tableau
+(lp_display can have them for fill in the blank tableaus).
 
 =cut
 
 # Display a tableau in math mode
-
 sub lp_display_mm {
   lp_display(@_, force_tex=>1);
 }
@@ -309,20 +326,20 @@ sub lp_clone {
 
 Display a simplex tableau while not in math mode.
 
-$m = [[0,  3, -4,  5, 1, 0, 0, 28],
-      [0,  2,  0,  1, 0, 1, 0, 11],
-      [0,  1,  2,  3, 0, 0, 1,  3],
-      [1, -1,  2, -3, 0, 0, 0,  0]];
+	$m = [[0,  3, -4,  5, 1, 0, 0, 28],
+	      [0,  2,  0,  1, 0, 1, 0, 11],
+	      [0,  1,  2,  3, 0, 0, 1,  3],
+	      [1, -1,  2, -3, 0, 0, 0,  0]];
+	
+	BEGIN_TEXT
+	\{ lp_display($m)\}
+	END_TEXT
 
-\{ lp_display($m)\}
-
-Takes the same optional arguments as display_matrix.  The default
-for column alignment as "augmentation line" before the last column.
-It also adds a horizontal line before the last row if it is not already
-specified.
+Takes the same optional arguments as display_matrix.  The default for column
+alignment as "augmentation line" before the last column. It also adds a
+horizontal line before the last row if it is not already specified.
 
 =cut
-
 
 # Display a tableau
 sub lp_display {
@@ -345,5 +362,4 @@ sub lp_display {
 	display_matrix($a_ref, %opts);
 }
 
-# return 1 so that this file can be included with require
-1
+1;

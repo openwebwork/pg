@@ -1,15 +1,26 @@
-
 ################################################################################
-# WeBWorK mod-perl (c) 2000-2002 WeBWorK Project
-# $Id$
+# WeBWorK Online Homework Delivery System
+# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# $CVSHeader: pg/macros/displayMacros.pl,v 1.9 2007/10/04 16:41:07 sh002i Exp $
+# 
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+# 
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
 ################################################################################
 
 =head1 NAME
 
-IO.pl - Temporary location for IO functions that need access to the problem
-environment. Formerly defined in IO.pm
+IO.pl - Input/optput macros that require access to the problem environment.
 
-See notes in Translator.pm
+=head1 DESCRIPTION
+
+See notes in L<WeBWorK::PG::Translator>.
 
 =cut
 
@@ -21,6 +32,18 @@ sub _IO_export {
 		'&surePathToTmpFile',
 	);
 }
+
+=head1 MACROS
+
+=head2 [DEPRECATED] send_mail_to
+
+	send_mail_to($address, subject=>$subject, body=>$body)
+
+Send an email message with the subject $subject and body $body to the address
+$address. This used to be used by mail_answers_to in PGbasicmacros.pl, but it no
+longer is. Don't use this, I tell yah!
+
+=cut
 
 # send_mail_to($user_address,'subject'=>$subject,'body'=>$body)
 sub send_mail_to {
@@ -80,29 +103,28 @@ sub send_mail_to {
 	return $out;
 }
 
+=head2 getCourseTempDirectory
+
+	$path = getCourseTempDirectory()
+
+Returns the path to the current course's temporary directory.
+
+=cut
+
 sub getCourseTempDirectory {
 	return $envir{tempDirectory};
 }
 
 =head2 surePathToTmpFile
 
-	surePathToTmpFile($path)
-	Returns: $path
+	$path = surePathToTmpFile($path);
 
-Defined in FILE.pl
+Creates all of the intermediate directories between the directory specified by
+getCourseTempDirectory() and file specified in $path.
 
-Creates all of the subdirectories between the directory specified
-by C<&getCourseTempDirectory> and the address of the path.
-
-Uses 
-
-	&createDirectory($path,$Global::tmp_directory_permission, $Global::numericalGroupID)
-
-The path may  begin with the correct path to the temporary
-directory.  Any other prefix causes a path relative to the temporary
-directory to be created. 
-
-The quality of the error checking could be improved. :-)
+If $path begins with the path returned by getCourseTempDirectory(), then the
+path is treated as absolute. Otherwise, the path is treated as relative the the
+course temp directory.
 
 =cut
 

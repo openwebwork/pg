@@ -1,13 +1,29 @@
+################################################################################
+# WeBWorK Online Homework Delivery System
+# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# $CVSHeader: pg/macros/displayMacros.pl,v 1.9 2007/10/04 16:41:07 sh002i Exp $
+# 
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+# 
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
 
+=head1 NAME
 
-=head1 DESCRIPTION
-
- ###########################################################################
- ##
- ##  Set up the functions needed by the Parser.
- ##
+Parser.pl - Macro-based fronted to the MathObjects system.
 
 =cut
+
+###########################################################################
+##
+##  Set up the functions needed by the Parser.
+##
 
 if (!$Parser::installed) {
   die "\n************************************************************\n" .
@@ -27,41 +43,39 @@ if (!$Value::installed) {
 loadMacros("Value.pl");
 loadMacros("PGcommonFunctions.pl");
 
-=head3 Formula("formula")
+=head1 MACROS
 
- #
- #  The main way to get a MathObject Formula object (an equation
- #  that depends on one or more variables).
- #
+=head1 Formula
+
+	Formula("formula");
+
+The main way to get a MathObject Formula object (an equation that depends on one
+or more variables).
 
 =cut
 
-
 sub Formula {Value->Package("Formula()")->new(@_)}
 
+=head2 Compute
 
+	Compute("formula"[, var=>value, ...]);
 
-=head3 Compute("formula"[,var=>value,...])
+Compute the value of a formula and return a MathObject appropriate to its
+value.  Set the object so that the correct answer will be shown exatly as in the
+given string rather than by its usual stringification.  If the value is a
+Formula and any var=>value pairs are specified, then the formula will be
+evaluated using the given variable values.  E.g.,
 
- #
- #  Compute the value of a formula and return a MathObject appropriate
- #  to its value.  Set the object so that the correct answer will be
- #  shown exatly as in the given string rather than by its usual
- #  stringification.  If the value is a Formula and any var=>value
- #  pairs are specified, then the formula will be evaluated using
- #  the given variable values.  E.g.,
- #
- #    $x = Compute("x+3",x=>2)
- #
- #  will produce the equivalent of $x = Real(5).
- #
- #  The original parsed formula will be saved in the object's
- #  original_formula field, and can be obtained by
- #
- #    $x->{original_formula};
- #
- #  if needed later in the problem.
- #
+	$x = Compute("x+3",x=>2)
+
+will produce the equivalent of $x = Real(5).
+
+The original parsed formula will be saved in the object's original_formula
+field, and can be obtained by
+
+	$x->{original_formula};
+
+if needed later in the problem.
 
 =cut
 
@@ -78,14 +92,16 @@ sub Compute {
   return $formula;
 }
 
-=head3 Context(), Context(name) or Context(context)
+=head2 Context
 
- #
- #  Set or get the current context.  When a name is given, the context
- #  with that name is selected as the current context.  When a context
- #  reference is provided, that context is set as the current one.  In
- #  all three cases, the current context (after setting) is returned.
- #
+	Context();
+	Context($name);
+	Context($context);
+
+Set or get the current context.  When a name is given, the context with that
+name is selected as the current context.  When a context reference is provided,
+that context is set as the current one.  In all three cases, the current context
+(after setting) is returned.
 
 =cut
 

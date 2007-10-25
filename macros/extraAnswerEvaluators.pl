@@ -1,32 +1,41 @@
-loadMacros('MathObjects.pl');
+################################################################################
+# WeBWorK Online Homework Delivery System
+# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# $CVSHeader: pg/macros/displayMacros.pl,v 1.9 2007/10/04 16:41:07 sh002i Exp $
+# 
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+# 
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
 
 =head1 NAME
 
-        extraAnswerEvaluators.pl
-        
+extraAnswerEvaluators.pl - Answer evaluators for intervals, lists of numbers,
+and lists of points.
+
 =head1 SYNPOSIS
 
-        Answer Evaluators for intervals, lists of numbers, lists of points,
-        and equations.
-
-	interval_cmp() -- checks answers which are unions of intervals.
-	                  It can also be used for checking an ordered pair or
-	                  list of ordered pairs.
+	interval_cmp() -- checks answers which are unions of intervals. It can also
+					  be used for checking an ordered pair or list of ordered
+					  pairs.
 
 	number_list_cmp() -- checks a comma separated list of numbers.  By use of
 	                     optional arguments, you can request that order be
-	                     important, that complex numbers be allowed, and
-	                     specify extra arguments to be sent to num_cmp (or
-											 cplx_cmp) for checking individual entries.
+	                     important, that complex numbers be allowed, and specify
+	                     extra arguments to be sent to num_cmp (or cplx_cmp) for
+	                     checking individual entries.
 
-	equation_cmp() -- provides a limited facility for checking equations.
-	                  It makes no pretense of checking to see if the real locus
-	                  of the student's equation matches the real locus of the
-                    instructor's equation.  The student's equation must be
-                    of the same general type as the instructors to get credit.
-
-
-=cut
+	equation_cmp() -- provides a limited facility for checking equations. It
+	                  makes no pretense of checking to see if the real locus of
+	                  the student's equation matches the real locus of the
+	                  instructor's equation.  The student's equation must be of
+	                  the same general type as the instructors to get credit.
 
 =head1 DESCRIPTION
 
@@ -34,6 +43,8 @@ This file adds subroutines which create "answer evaluators" for checking student
 answers of various "exotic" types.
 
 =cut
+
+loadMacros('MathObjects.pl');
 
 {
 	package Equation_eval;
@@ -217,41 +228,45 @@ sub mode2context {
 	return($context);
 }
 
-=head3 interval_cmp ()
+=head1 MACROS
+
+=head2 interval_cmp
 
 Compares an interval or union of intervals.  Typical invocations are
 
-  interval_cmp("(2, 3] U(7, 11)")
+	interval_cmp("(2, 3] U(7, 11)")
 
-The U is used for union symbol.  In fact, any garbage (or nothing at all)
-can go between intervals.  It makes sure open/closed parts of intervals
-are correct, unless you don't like that.  To have it ignore the difference
-between open and closed endpoints, use
+The U is used for union symbol.  In fact, any garbage (or nothing at all) can go
+between intervals.  It makes sure open/closed parts of intervals are correct,
+unless you don't like that.  To have it ignore the difference between open and
+closed endpoints, use
 
-  interval_cmp("(2, 3] U(7, 11)", sloppy=>'yes')
+	interval_cmp("(2, 3] U(7, 11)", sloppy=>'yes')
 
-interval_cmp uses num_cmp on the endpoints.  You can pass optional
-arguments for num_cmp, so to change the tolerance, you can use
+interval_cmp uses num_cmp on the endpoints.  You can pass optional arguments for
+num_cmp, so to change the tolerance, you can use
 
-  interval_cmp("(2, 3] U(3+4, 11)", relTol=>3)
+	interval_cmp("(2, 3] U(3+4, 11)", relTol=>3)
 
 The intervals can be listed in any order, unless you want to force a
 particular order, which is signaled as
 
-  interval_cmp("(2, 3] U(3+4, 11)", ordered=>'strict')
+	interval_cmp("(2, 3] U(3+4, 11)", ordered=>'strict')
 
 You can specify infinity as an endpoint.  It will do a case-insensitive
 string match looking for I, Infinity, Infty, or Inf.  You can prepend a +
 or -, as in
 
-  interval_cmp("(-inf, 3] U [e^10, infinity)")
+	interval_cmp("(-inf, 3] U [e^10, infinity)")
+
 or
-  interval_cmp("(-INF, 3] U [e^10, +I)")
+
+	interval_cmp("(-INF, 3] U [e^10, +I)")
 
 If the question might have an empty set as the answer, you can use
 the strings option to allow for it.  So
 
-  interval_cmp("$ans", strings=>['empty'])
+	interval_cmp("$ans", strings=>['empty'])
 
 will not generate an error message if the student enters the string
 empty.  Better still, it will mark a student answer of "empty" as correct
@@ -261,7 +276,7 @@ You can use interval_cmp for ordered pairs, or lists of ordered pairs.
 Internally, this is just a distinction of whether to put nice union symbols
 between intervals, or commas.  To get commas, use
 
-  interval_cmp("(1,2), (2,3), (4,-1)", unions=>'no')
+	interval_cmp("(1,2), (2,3), (4,-1)", unions=>'no')
 
 Note that interval_cmp makes no attempt at simplifying overlapping intervals.
 This becomes an important feature when you are really checking lists of
@@ -272,7 +287,7 @@ points if unions=>'no').  So, one can specify the Parser options
 showCoordinateHints, showHints, partialCredit, and/or showLengthHints
 as optional arguments:
 
-  interval_cmp("(1,2), (2,3), (4,-1)", unions=>'no', partialCredit=>1)
+	interval_cmp("(1,2), (2,3), (4,-1)", unions=>'no', partialCredit=>1)
 
 Also, set differences and 'R' for all real numbers now work too since they work
 for Parser Intervals and Unions.
@@ -371,24 +386,24 @@ sub interval_cmp {
 	return($ans_eval);
 }
 
-=head3 number_list_cmp ()
+=head2 number_list_cmp
 
 Checks an answer which is a comma-separated list of numbers.  The actual
 numbers are fed to num_cmp, so all of the flexibilty of num_cmp carries
 over (values can be expressions to be evaluated).  For example,
 
-  number_list_cmp("1, -2")
+	number_list_cmp("1, -2")
 
 will accept "1, -2", "-2, 1", or "-1-1,sqrt(1)".
 
-  number_list_cmp("1^2 + 1, 2^2 + 1, 3^2 + 1", ordered=>'strict')
+	number_list_cmp("1^2 + 1, 2^2 + 1, 3^2 + 1", ordered=>'strict')
 
 will accept "2, 5, 10", but not "5, 2, 10".
 
 If you want to allow complex number entries, complex=>'ok' will cause it
 to use cplx_cmp instead:
 
-  number_list_cmp("2, -2, 2i, -2i", complex=>'ok')
+	number_list_cmp("2, -2, 2i, -2i", complex=>'ok')
 
 In cases where you set complex=>'ok', be sure the problem file loads
 PGcomplexmacros.pl.
@@ -396,23 +411,23 @@ PGcomplexmacros.pl.
 Optional arguements for num_cmp (resp. cplx_cmp) can be used as well,
 such as
 
-  number_list_cmp("cos(3), sqrt(111)", relTol => 3)
+	number_list_cmp("cos(3), sqrt(111)", relTol => 3)
 
 The strings=>['hello'] argument is treated specially.  It can be used to
 replace the entire answer.  So
 
-  number_list_cmp("cos(3), sqrt(111)", strings=>['none'])
+	number_list_cmp("cos(3), sqrt(111)", strings=>['none'])
 
 will mark "none" wrong, but not generate an error.  On the other hand,
 
-  number_list_cmp("none", strings=>['none'])
+	number_list_cmp("none", strings=>['none'])
 
 will mark "none" as correct.
 
 One can also specify optionnal arguments for Parser's List checker: showHints,
 partialCredit, and showLengthHints, as in:
 
-  number_list_cmp("cos(3), sqrt(111)", partialCredit=>1)
+	number_list_cmp("cos(3), sqrt(111)", partialCredit=>1)
 
 =cut
 
@@ -454,7 +469,7 @@ sub number_list_cmp {
 }
 
 
-=head3 equation_cmp ()
+=heads equation_cmp
 
 Compares an equation.  This really piggy-backs off of fun_cmp.  It looks
 at LHS-RHS of the equations to see if they agree up to constant multiple.
@@ -466,11 +481,10 @@ be quadratic.
 
 Typical invocation would be:
 
-  equation_com("x^2+(y-1)^2 = 11", vars=>['x','y'])
+	equation_com("x^2+(y-1)^2 = 11", vars=>['x','y'])
 
 =cut
 
 sub equation_cmp {
 	Equation_eval::equation_cmp(@_);
 }
-
