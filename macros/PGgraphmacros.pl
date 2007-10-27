@@ -16,7 +16,7 @@
 
 This collection of macros provides easy access to the facilities provided by the graph
 module WWPlot and the modules for objects which can be drawn on a graph: functions (Fun.pm)
-labels (Label.pm) and images.  The only image implemented currently are open and closed circles
+labels (Label.pm) and images.  The only images implemented currently are open and closed circles
 (Circle) which can be used to mark graphs of functions defined on open and closed intervals.
 
 These macros provide an easy ability to graph simple functions.  More complicated projects
@@ -315,8 +315,8 @@ sub plot_functions {
 			} else {
 				$weight =2;
 			}
-
-			my $subRef = string_to_sub($rule,$var);
+        	my $subRef = Formula($rule)->perlFunction(undef,[$var]);
+        	# my $subRef    = string_to_sub($rule,$var);
 			my $funRef = new Fun($subRef,$graph);
 			$funRef->color($color);
 			$funRef->weight($weight);
@@ -342,6 +342,9 @@ sub plot_functions {
 	die ("Error in plot_functions: \n\t $error ") if $error;
 	@functions;   # return function references unless there is an error.
 }
+
+
+
 
 =head2 insertGraph
 
