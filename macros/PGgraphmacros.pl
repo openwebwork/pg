@@ -47,6 +47,8 @@ See F<PGbasicmacros> for definitions of C<image> and C<caption>
 #                  'axes'
 #########################################################
 
+loadMacros("MathObjects.pl");   # need this to handle problems that don't otherwise use MathObjects
+
 my %images_created = ();  # this keeps track of the base names of the images created during this session.
                      #  We tack on
                      # $imageNum  = ++$images_created{$imageName} to keep from overwriting files
