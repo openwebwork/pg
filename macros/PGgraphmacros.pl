@@ -47,7 +47,9 @@ See F<PGbasicmacros> for definitions of C<image> and C<caption>
 #                  'axes'
 #########################################################
 
-loadMacros("MathObjects.pl");   # need this to handle problems that don't otherwise use MathObjects
+#loadMacros("MathObjects.pl");   # avoid loading the entire package
+                                 # of MathObjects since that can mess up 
+                                 # problems that don't use MathObjects but use Matrices.
 
 my %images_created = ();  # this keeps track of the base names of the images created during this session.
                      #  We tack on
@@ -317,8 +319,15 @@ sub plot_functions {
 			} else {
 				$weight =2;
 			}
-        	my $subRef = Formula($rule)->perlFunction(undef,[$var]);
-        	# my $subRef    = string_to_sub($rule,$var);
+			# a workaround to call Parser code without loading MathObjects.
+			my $localContext= Parser::Context->current(\%main::context)->copy;
+			$localContext->variables->add($var=>'Real') unless $localContext->variables->get($var);
+			my $formula = Value->Package("Formula()")->new($localContext,$rule);
+        	my $subRef = sub {my $x=shift; Parser::Evaluate($formula, $var=>$x)}; 
+        	     #traps errors when 
+        	     # graph domain is larger than the function's domain.
+    
+        	#my $subRef    = string_to_sub($rule,$var);
 			my $funRef = new Fun($subRef,$graph);
 			$funRef->color($color);
 			$funRef->weight($weight);
