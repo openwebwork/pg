@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: webwork2/lib/WeBWorK.pm,v 1.100 2007/08/13 22:59:53 sh002i Exp $
+# $CVSHeader: pg/macros/contextLimitedPolynomial.pl,v 1.17 2007/10/04 16:40:48 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -139,6 +139,7 @@ package LimitedPolynomial;
 
 #
 #  Mark a variable as having power 1
+#  Mark a number as being present (when strict coefficients are used)
 #  Mark a monomial as having its given powers
 #
 sub markPowers {
@@ -148,6 +149,8 @@ sub markPowers {
     $self->{index} = $vIndex->{$self->{name}};
     $self->{exponents} = [(0) x scalar(keys %{$vIndex})];
     $self->{exponents}[$self->{index}] = 1;
+  } elsif ($self->class eq 'Number') {
+    $self->{exponents} = [] if $self->context->flag("strictCoefficients");
   }
   if ($self->{exponents}) {
     my $power = join(',',@{$self->{exponents}});
@@ -199,11 +202,6 @@ sub checkPolynomial {
   $self->checkPowers;
 }
 
-sub checkStrict {
-  my $self = shift;
-  $self->Error("You can only use addition for the terms of a polynomial",$self->{bop});
-}
-
 ##############################################
 
 package LimitedPolynomial::BOP::subtract;
@@ -214,11 +212,6 @@ sub checkPolynomial {
   my ($l,$r) = ($self->{lop},$self->{rop});
   $self->Error("Subtraction is allowed only between monomials") if $r->{isPoly};
   $self->checkPowers;
-}
-
-sub checkStrict {
-  my $self = shift;
-  $self->Error("You can only use subtraction between the terms of a polynomial",$self->{bop});
 }
 
 ##############################################
@@ -263,7 +256,7 @@ sub checkPolynomial {
 
 sub checkStrict {
   my $self = shift;
-  $self->Error("You can only use '%s' to form fractions",$self->{bop}) if $self->{lop}->class eq 'BOP';
+  $self->Error("You can only use '%s' to form numeric fractions",$self->{bop}) if $self->{lop}->class eq 'BOP';
 }
 
 ##############################################
@@ -431,7 +424,7 @@ sub Init {
   #  A context where coefficients can't include operations
   #
   $context = $main::context{"LimitedPolynomial-Strict"} = $context->copy;
-  $context->flags->set(strictCoefficients=>1, singelPowers=>1, reduceConstants=>0);
+  $context->flags->set(strictCoefficients=>1, singlePowers=>1, reduceConstants=>0);
   $context->functions->disable("All");  # can be re-enabled if needed
 
   main::Context("LimitedPolynomial");  ### FIXME:  probably should require author to set this explicitly
