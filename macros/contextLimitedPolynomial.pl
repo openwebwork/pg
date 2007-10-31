@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/contextLimitedPolynomial.pl,v 1.17 2007/10/04 16:40:48 sh002i Exp $
+# $CVSHeader: pg/macros/contextLimitedPolynomial.pl,v 1.18 2007/10/31 01:34:11 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -150,7 +150,7 @@ sub markPowers {
     $self->{exponents} = [(0) x scalar(keys %{$vIndex})];
     $self->{exponents}[$self->{index}] = 1;
   } elsif ($self->class eq 'Number') {
-    $self->{exponents} = [] if $self->context->flag("strictCoefficients");
+    $self->{exponents} = [];
   }
   if ($self->{exponents}) {
     my $power = join(',',@{$self->{exponents}});
