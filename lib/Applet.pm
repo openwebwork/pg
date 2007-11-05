@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PG.pl,v 1.34 2007/10/25 17:11:59 sh002i Exp $
+# $CVSHeader: pg/lib/Applet.pm,v 1.1 2007/10/30 15:57:04 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -96,10 +96,10 @@ use MIME::Base64 qw( encode_base64 decode_base64);
 
 use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
     <script language="javascript">AC_FL_RunContent = 0;</script>
-    <script src="http://hosted2.webwork.rochester.edu/webwork2_files/applets/AC_RunActiveContent.js" language="javascript"></script>
-
-    <script type="text/javascript" src="http://hosted2.webwork.rochester.edu/webwork2_files/js/BrowserSniffer.js">
+    <script src="http://hosted2.webwork.rochester.edu/webwork2_files/applets/AC_RunActiveContent.js" language="javascript">
     </script>
+
+ 	
 	<script language="JavaScript">
 	
 	var flash;
@@ -108,9 +108,7 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 		  return (isIE) ? window[movieName] : window.document[movieName];
 		  //return window.document[movieName];
 	 }	
-	function getBrowser() {
-	  return new BrowserSniffer();
-	}
+ 
 	
 	function initialize() {
 		  getFlashMovie("$appletId").$initializeAction("$base64_xmlString");
@@ -119,7 +117,7 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 	  document.problemMainForm.$returnFieldName.value = getFlashMovie("$appletId").$submitAction();
 	 }
 
-    </script>,
+    </script>
 	
 END_HEADER_SCRIPT
 
@@ -140,6 +138,7 @@ END_HEADER_SCRIPT
 # 		</object>
 
 use constant DEFAULT_OBJECT_TEXT =><<'END_OBJECT_TEXT';
+  <form></form>
   <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
              id="ExternalInterface" width="500" height="375"
              codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab">
