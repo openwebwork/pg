@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/Applet.pm,v 1.1 2007/10/30 15:57:04 gage Exp $
+# $CVSHeader: pg/lib/Applet.pm,v 1.2 2007/11/05 16:45:33 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -136,6 +136,22 @@ END_HEADER_SCRIPT
 # 				type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />
 # 				<param name="quality" value="high" /><param name="bgcolor" value="#ffffcc" />
 # 		</object>
+
+=pod
+
+The secret to making this applet work with IE in addition to normal browsers
+is the addition of the C(<form></form>) construct just before the object.
+
+For some reason IE has trouble locating a flash object which is contained
+within a form.  Adding this second blank form with the larger problemMainForm
+seems to solve the problem.  
+
+This follows method2 of the advice given in url(http://kb.adobe.com/selfservice/viewContent.do?externalId=kb400730&sliceId=2)
+Method1 and methods involving SWFObject(Geoff Stearns) and SWFFormFix (Steve Kamerman) have yet to be fully investigated:
+http://devel.teratechnologies.net/swfformfix/swfobject_swfformfix_source.js
+http://www.teratechnologies.net/stevekamerman/index.php?m=01&y=07&entry=entry070101-033933
+
+=cut
 
 use constant DEFAULT_OBJECT_TEXT =><<'END_OBJECT_TEXT';
   <form></form>
