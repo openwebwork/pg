@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/contextLimitedPolynomial.pl,v 1.19 2007/10/31 01:40:01 dpvc Exp $
+# $CVSHeader: pg/macros/contextLimitedPolynomial.pl,v 1.20 2007/11/06 15:49:03 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -417,9 +417,9 @@ sub Init {
     );
   }
   #
-  #  Don't convert -ax-b to -(ax+b), etc.
+  #  Don't convert -ax-b to -(ax+b), or -ax+b to b-ax, etc.
   #
-  $context->reduction->set("(-x)-y"=>0);
+  $context->reduction->set("(-x)-y"=>0,"(-x)+y"=>0);
 
   #
   #  A context where coefficients can't include operations
