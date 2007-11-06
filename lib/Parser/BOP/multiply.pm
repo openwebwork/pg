@@ -67,6 +67,13 @@ sub _reduce {
   return $self;
 }
 
+sub makeNeg {
+  my $self = shift;
+  $self = $self->SUPER::makeNeg(@_);
+  $self->{op}{noParens} = 1;
+  return $self;
+}
+
 $Parser::reduce->{'1*x'} = 1;
 $Parser::reduce->{'x*1'} = 1;
 $Parser::reduce->{'0*x'} = 1;
@@ -76,6 +83,26 @@ $Parser::reduce->{'x*(-y)'} = 1;
 $Parser::reduce->{'x*n'} = 1;
 $Parser::reduce->{'fn*x'} = 1;
 
+sub string {
+  my ($self,$precedence,$showparens,$position,$outerRight) = @_;
+  my $string; my $bop = $self->{def};
+  $position = '' unless defined($position);
+  $showparens = '' unless defined($showparens);
+  my $extraParens = $self->context->flag('showExtraParens');
+  my $addparens =
+      defined($precedence) && !$self->{noParens} &&
+      ($showparens eq 'all' || (($showparens eq 'extra' || $bop->{fullparens}) && $extraParens > 1) ||
+       $precedence > $bop->{precedence} || ($precedence == $bop->{precedence} &&
+        ($bop->{associativity} eq 'right' || ($showparens eq 'same' && $extraParens))));
+  $outerRight = !$addparens && ($outerRight || $position eq 'right');
+
+  $string = $self->{lop}->string($bop->{precedence},$bop->{leftparens},'left',$outerRight).
+            $bop->{string}.
+            $self->{rop}->string($bop->{precedence},$bop->{rightparens},'right');
+
+  $string = $self->addParens($string) if $addparens;
+  return $string;
+}
 
 sub TeX {
   my ($self,$precedence,$showparens,$position,$outerRight) = @_;
@@ -87,7 +114,7 @@ sub TeX {
   $cdot = '\cdot ' unless $cdot;
 
   my $addparens =
-      defined($precedence) &&
+      defined($precedence) && !$self->{noParens} &&
       ($showparens eq 'all' || $precedence > $bop->{precedence} ||
       ($precedence == $bop->{precedence} &&
         ($bop->{associativity} eq 'right' || $showparens eq 'same')));
