@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/displayMacros.pl,v 1.9 2007/10/04 16:41:07 sh002i Exp $
+# $CVSHeader: pg/macros/PGanswermacros.pl,v 1.64 2007/11/08 00:00:15 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -143,10 +143,10 @@ my $functVarDefault;
 my $useBaseTenLog;
 sub _PGanswermacros_init {
 	$BR                 = PG_restricted_eval(q/$BR/);
-	$functLLimitDefault = PG_restricted_eval(q/$functLLimitDefault/);
-	$functULimitDefault = PG_restricted_eval(q/$functULimitDefault/);
-	$functVarDefault    = PG_restricted_eval(q/$functVarDefault/);
-	$useBaseTenLog      = PG_restricted_eval(q/$useBaseTenLog/);
+	$functLLimitDefault = PG_restricted_eval(q/$envir{functLLimitDefault}/);
+	$functULimitDefault = PG_restricted_eval(q/$envir{functULimitDefault}/);
+	$functVarDefault    = PG_restricted_eval(q/$envir{functVarDefault}/);
+	$useBaseTenLog      = PG_restricted_eval(q/$envir{useBaseTenLog}/);
 
 }
 

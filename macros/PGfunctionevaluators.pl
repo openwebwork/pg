@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/displayMacros.pl,v 1.9 2007/10/04 16:41:07 sh002i Exp $
+# $CVSHeader: pg/macros/PGfunctionevaluators.pl,v 1.1 2007/11/08 00:00:15 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -71,17 +71,17 @@ my $inputs_ref;
 my $useOldAnswerMacros;
 my $user_context;
 sub _PGfunctionevaluators_init {
-	$functAbsTolDefault            = PG_restricted_eval(q/$functAbsTolDefault/);
-	$functLLimitDefault            = PG_restricted_eval(q/$functLLimitDefault/);
-	$functMaxConstantOfIntegration = PG_restricted_eval(q/$functMaxConstantOfIntegration/);
-	$functNumOfPoints              = PG_restricted_eval(q/$functNumOfPoints/);
-	$functRelPercentTolDefault     = PG_restricted_eval(q/$functRelPercentTolDefault/);
-	$functULimitDefault            = PG_restricted_eval(q/$functULimitDefault/);
-	$functVarDefault               = PG_restricted_eval(q/$functVarDefault/);
-	$functZeroLevelDefault         = PG_restricted_eval(q/$functZeroLevelDefault/);
-	$functZeroLevelTolDefault      = PG_restricted_eval(q/$functZeroLevelTolDefault/);
-	$inputs_ref                    = PG_restricted_eval(q/$inputs_ref/);
-	$useOldAnswerMacros            = PG_restricted_eval(q/$useOldAnswerMacros/);
+	$functAbsTolDefault            = PG_restricted_eval(q/$envir{functAbsTolDefault}/);
+	$functLLimitDefault            = PG_restricted_eval(q/$envir{functLLimitDefault}/);
+	$functMaxConstantOfIntegration = PG_restricted_eval(q/$envir{functMaxConstantOfIntegration}/);
+	$functNumOfPoints              = PG_restricted_eval(q/$envir{functNumOfPoints}/);
+	$functRelPercentTolDefault     = PG_restricted_eval(q/$envir{functRelPercentTolDefault}/);
+	$functULimitDefault            = PG_restricted_eval(q/$envir{functULimitDefault}/);
+	$functVarDefault               = PG_restricted_eval(q/$envir{functVarDefault}/);
+	$functZeroLevelDefault         = PG_restricted_eval(q/$envir{functZeroLevelDefault}/);
+	$functZeroLevelTolDefault      = PG_restricted_eval(q/$envir{functZeroLevelTolDefault}/);
+	$inputs_ref                    = PG_restricted_eval(q/$envir{inputs_ref}/);
+	$useOldAnswerMacros            = PG_restricted_eval(q/$envir{useOldAnswerMacros}/);
 	unless ($useOldAnswerMacros) {
 		$user_context = PG_restricted_eval(q/\%context/);
 		$Context = sub { Parser::Context->current($user_context, @_) };

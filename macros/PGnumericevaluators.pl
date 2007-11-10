@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/displayMacros.pl,v 1.9 2007/10/04 16:41:07 sh002i Exp $
+# $CVSHeader: pg/macros/PGnumericevaluators.pl,v 1.1 2007/11/08 00:00:15 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -78,12 +78,12 @@ my $useOldAnswerMacros;
 my $user_context;
 sub _PGnumericevaluators_init {
 	$CA                      = PG_restricted_eval(q/$CA/);
-	$numAbsTolDefault        = PG_restricted_eval(q/$numAbsTolDefault/);
-	$numFormatDefault        = PG_restricted_eval(q/$numFormatDefault/);
-	$numRelPercentTolDefault = PG_restricted_eval(q/$numRelPercentTolDefault/);
-	$numZeroLevelDefault     = PG_restricted_eval(q/$numZeroLevelDefault/);
-	$numZeroLevelTolDefault  = PG_restricted_eval(q/$numZeroLevelTolDefault/);
-	$useOldAnswerMacros      = PG_restricted_eval(q/$useOldAnswerMacros/);
+	$numAbsTolDefault        = PG_restricted_eval(q/$envir{numAbsTolDefault}/);
+	$numFormatDefault        = PG_restricted_eval(q/$envir{numFormatDefault}/);
+	$numRelPercentTolDefault = PG_restricted_eval(q/$envir{numRelPercentTolDefault}/);
+	$numZeroLevelDefault     = PG_restricted_eval(q/$envir{numZeroLevelDefault}/);
+	$numZeroLevelTolDefault  = PG_restricted_eval(q/$envir{numZeroLevelTolDefault}/);
+	$useOldAnswerMacros      = PG_restricted_eval(q/$envir{useOldAnswerMacros}/);
 	unless ($useOldAnswerMacros) {
 		$user_context = PG_restricted_eval(q/\%context/);
 		$Context = sub { Parser::Context->current($user_context, @_) };
@@ -378,7 +378,8 @@ sub num_cmp	{
 		if( defined( $out_options{'units'} ) ) {
 			$ans = "$ans $out_options{'units'}";
 
-			push( @output_list, NUM_CMP(	'correctAnswer'	    	=>	$ans,
+			push( @output_list, NUM_CMP(	
+			                'correctAnswer'	=>	$ans,
 							'tolerance'		=>	$out_options{'tolerance'},
 							'tolType'		=>	$out_options{'tolType'},
 							'format'		=>	$out_options{'format'},
@@ -392,26 +393,28 @@ sub num_cmp	{
 		} elsif( defined( $out_options{'strings'} ) ) {
 
 
-			push( @output_list, NUM_CMP( 	'correctAnswer'	=> 	$ans,
-							'tolerance'	=>	$out_options{tolerance},
-							'tolType'	=>	$out_options{tolType},
-							'format'	=>	$out_options{'format'},
-							'mode'		=>	$out_options{'mode'},
-							'zeroLevel'	=>	$out_options{'zeroLevel'},
+			push( @output_list, NUM_CMP( 	
+			                'correctAnswer'	=> 	$ans,
+							'tolerance'		=>	$out_options{tolerance},
+							'tolType'		=>	$out_options{tolType},
+							'format'		=>	$out_options{'format'},
+							'mode'			=>	$out_options{'mode'},
+							'zeroLevel'		=>	$out_options{'zeroLevel'},
 							'zeroLevelTol'	=>	$out_options{'zeroLevelTol'},
-							'debug'		=>	$out_options{'debug'},
-							'strings'	=> 	$out_options{'strings'},
+							'debug'			=>	$out_options{'debug'},
+							'strings'		=> 	$out_options{'strings'},
 				 )
 				 );
 		} else {
 			push(@output_list,
-				NUM_CMP(	'correctAnswer'	    	=>	$ans,
+				NUM_CMP(	
+				    'correctAnswer'	=>	$ans,
 					'tolerance'		=>	$out_options{tolerance},
 					'tolType'		=>	$out_options{tolType},
 					'format'		=>	$out_options{'format'},
 					'mode'			=>	$out_options{'mode'},
 					'zeroLevel'		=>	$out_options{'zeroLevel'},
-					'zeroLevelTol'	    	=>	$out_options{'zeroLevelTol'},
+					'zeroLevelTol'	=>	$out_options{'zeroLevelTol'},
 					'debug'			=>	$out_options{'debug'},
 				),
 			);
@@ -552,9 +555,9 @@ sub std_num_cmp	{						# compare numbers allowing use of elementary functions
 
 sub std_num_cmp_list {
 	my ( $relPercentTol, $format, @answerList) = @_;
-
+    #FIXME? errors if not defined?
 	my %options = ( 'relTol'	=>      $relPercentTol,
-			'format'        =>      $format,
+			        'format'    =>      $format,
 	);
 
 	set_default_options( \%options,
@@ -945,7 +948,7 @@ sub NUM_CMP {                              # low level numeric compare (now uses
 	#
 	my @keys = qw(correctAnswer tolerance tolType format mode zeroLevel zeroLevelTol debug);
 	foreach my $key (@keys) {
-	    warn "$key must be defined in options when calling NUM_CMP"
+	    warn( "$key must be defined in options when calling NUM_CMP" )
 	      unless defined($num_params{$key});
 	}
 
