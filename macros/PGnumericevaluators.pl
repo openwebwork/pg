@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PGnumericevaluators.pl,v 1.1 2007/11/08 00:00:15 sh002i Exp $
+# $CVSHeader: pg/macros/PGnumericevaluators.pl,v 1.2 2007/11/10 20:55:23 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -555,7 +555,7 @@ sub std_num_cmp	{						# compare numbers allowing use of elementary functions
 
 sub std_num_cmp_list {
 	my ( $relPercentTol, $format, @answerList) = @_;
-    #FIXME? errors if not defined?
+
 	my %options = ( 'relTol'	=>      $relPercentTol,
 			        'format'    =>      $format,
 	);

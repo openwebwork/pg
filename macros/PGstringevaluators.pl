@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/displayMacros.pl,v 1.9 2007/10/04 16:41:07 sh002i Exp $
+# $CVSHeader: pg/macros/PGstringevaluators.pl,v 1.1 2007/11/08 00:00:15 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -552,7 +552,7 @@ sub STR_CMP {
 
     );
 	# Remove blank prefilter if the correct answer is blank
-	$answer_evaluator->install_pre_filter('erase') if $answer_evaluator->{correct_ans} eq '';
+	$answer_evaluator->install_pre_filter('erase') if $answer_evaluator->ans_hash->{correct_ans} eq '';
 
 	my %known_filters = (	
 	            'remove_whitespace'		=>	\&remove_whitespace,
