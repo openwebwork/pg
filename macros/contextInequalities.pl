@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: webwork2/lib/WeBWorK.pm,v 1.100 2007/08/13 22:59:53 sh002i Exp $
+# $CVSHeader: pg/macros/contextInequalities.pl,v 1.16 2007/10/04 16:40:48 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -30,15 +30,15 @@ which allows only inequalities as a means of producing intervals.
 =head1 USAGE
 
 	loadMacros("contextInequalities.pl");
-	
+
 	Context("Inequalities");
 	$S1 = Compute("1 < x <= 4");
 	$S2 = Inequality("(1,4]");     # force interval to be inequality
-	
+
 	Context("Inequalities-Only");
 	$S1 = Compute("1 < x <= 4");
 	$S2 = Inequality("(1,4]");     # generates an error
-	
+
 	$S3 = Compute("x < -2 or x > 2");  # forms a Union
 	$S4 = Compute("x = 1");            # forms a Set
 
@@ -516,10 +516,9 @@ sub cmp_checkUnionReduce {
       "overlaps" => "Your$nth answer contains overlapping inequalities",
       "overlaps in sets" => "Your$nth answer contains equalities that are already included elsewhere",
       "uncombined intervals" => "Your$nth answer can be simplified by combining some inequalities",
-      #  shouldn't get the following ones from inequalities
-      "uncombined sets" => "",
-      "repeated elements in set" => "",
-      "repeated elements" => "",
+      "uncombined sets" => "",          #  shouldn't get this from inequalities
+      "repeated elements in set" => "Your$nth answer contains repeated values",
+      "repeated elements" => "Your$nth answer contains repeated values",
     }->{$error};
   } else {
     return unless Value::can($student,"isReduced");
