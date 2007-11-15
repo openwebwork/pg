@@ -84,10 +84,11 @@ sub promote {
 #
 
 #
-#  Addition forms additional sets
+#  Addition forms unions (or combines sets)
 #
 sub add {
   my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
+  return $self->make($l->value,$r->value) if $l->type eq 'Set' && $r->type eq 'Set';
   Value::Union::form($self->context,$l,$r);
 }
 sub dot {my $self = shift; $self->add(@_)}
