@@ -1128,8 +1128,10 @@ sub cmp_defaults {(
 #
 sub cmp_equal {
   my ($self,$ans) = @_;
-  return Value::List::cmp_equal(@_) if $ans->{student_value}->type eq 'Set';
-  $self->SUPER::cmp_equal($ans);
+  return $self->SUPER::cmp_equal($ans) unless $ans->{student_value}->type eq 'Set';
+  my $error = $self->cmp_checkUnionReduce($ans->{student_value},$ans);
+  if ($error) {$self->cmp_Error($ans,$error); return}
+  return Value::List::cmp_equal(@_);
 }
 
 #
