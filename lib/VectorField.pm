@@ -255,10 +255,10 @@ sub draw {
 	my $brush = new GD::Image($self->arrow_weight,$self->arrow_weight);
 	my $brush_color = $brush->colorAllocate($g->im->rgb($arrow_color));  # transfer color
 	$g->im->setBrush($brush);
-		my $x_steps = 10;
+		my $x_steps = $self->x_steps;
 	my $xmin = $self->xmin;
 	my $x_stepsize = ( $self->xmax - $self->xmin )/$x_steps;
-	my $y_steps = 10;
+	my $y_steps = $self->y_steps;
 	my $ymin = $self->ymin;
 	my $y_stepsize = ( $self->ymax - $self->ymin )/$y_steps;
 	my $dt = $self->dt;
