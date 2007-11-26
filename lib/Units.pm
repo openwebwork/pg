@@ -214,12 +214,17 @@ our %known_units = ('m'  => {
                            's'         => -1
                           },
 # MASS
+# mg   -- miligrams
 # g    -- grams
 # kg   -- kilograms
 #
+                  'mg'  => {
+                           'factor'    => 0.000001,
+                           'kg'        => 1
+                          },
                   'g'  => {
                            'factor'    => 0.001,
-                           'kg'         => 1
+                           'kg'        => 1
                           },
 # ENGLISH MASS
 # slug -- slug
