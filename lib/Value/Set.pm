@@ -138,7 +138,7 @@ sub subIntervalSet {
     } elsif ($x < $b) {
       my $context = $self->context;
       push(@union,$context->Package("Interval")->make($context,$I->{open},$a,$x,')'));
-      $I->{open} = '('; $I->{data}[0] = $x;
+      $I->{open} = '('; $I->{data}[0] = $a = $x;
     } else {
       $I->{close} = ')' if ($x == $b);
       last;
