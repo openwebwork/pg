@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/MathObjects.pl,v 1.8 2007/10/25 17:11:59 sh002i Exp $
+# $CVSHeader: pg/macros/AppletObjects.pl,v 1.1 2007/11/06 16:45:28 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -68,7 +68,7 @@ package FlashApplet;
 
 Inserts applet at this point in the HTML code.  (In TeX mode a message "Applet" is written.)  This method
 also adds the applets header material into the header portion of the HTML page. It effectively inserts
-the outputs of both C<$applet-E<gt>inserHeader> and C<$applet-E<gt>insertObject> (defined in L<Applet.pm> ) in the appropriate places.
+the outputs of both C<$applet-E<gt>insertHeader> and C<$applet-E<gt>insertObject> (defined in L<Applet.pm> ) in the appropriate places.
 
 =cut
 
@@ -121,7 +121,7 @@ sub insert {  ## inserts both header text and object text
 	
 	###################################
 	# Add java script functions to header section of HTML to 
-	# communicate with the applet.
+	# communicate with the "ExternalInterface" applet.
 	###################################
 	
 	$applet->header(<<'END_HEADER');
