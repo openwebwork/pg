@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/Applet.pm,v 1.2 2007/11/05 16:45:33 gage Exp $
+# $CVSHeader: pg/lib/Applet.pm,v 1.3 2007/11/06 16:47:19 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -24,7 +24,8 @@ Applet.pl - Provides code for inserting FlashApplets and JavaApplets into webwor
   # Create  link to applet 
   ###################################
   my $appletName = "LineThruPointsWW";
-  $applet = new FlashApplet(
+  $applet = new FlashApplet( 
+     # can be replaced by $applet =FlashApplet() when using AppletObjects.pl
      codebase   => findAppletCodebase("$appletName.swf"),
      appletName => $appletName,
      appletId   => $appletName,
@@ -94,6 +95,38 @@ package FlashApplet;
 
 use MIME::Base64 qw( encode_base64 decode_base64);
 
+
+=head2 Default javaScript functions placed in header
+
+These functions are automatically defined for use for 
+any javaScript placed in the text of a PG question.
+
+	getFlashMovie(appletName)  -- finds the applet path in the DOM
+	
+	submitAction()            -- calls the submit action of the applet
+	                          -- the submitAction is defined 
+
+    initialize()              -- calls the initialize action of the applet
+
+    getQE(name)               -- gets an HTML element of the question by name
+                                 or by id.  Be sure to keep all names and ids
+                                 unique within a given PG question.
+                                 
+    getQuestionElement(name)  -- long form of getQE(name)
+    
+    listQuestionElements()    -- for discovering the names of inputs in the 
+                                 PG question.  An alert dialog will list all
+                                 of the elements.
+             Usage: Place this at the END of the question, 
+             just before END_DOCUMENT():
+
+             	TEXT(qq!<script> listQuestionElements() </script>!);
+				ENDDOCUMENT();
+
+
+=cut
+
+
 use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
     <script language="javascript">AC_FL_RunContent = 0;</script>
     <script src="http://hosted2.webwork.rochester.edu/webwork2_files/applets/AC_RunActiveContent.js" language="javascript">
@@ -103,19 +136,53 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 	<script language="JavaScript">
 	
 	var flash;
-	function getFlashMovie(movieName) {
+	function getFlashMovie(appletName) {
 		  var isIE = navigator.appName.indexOf("Microsoft") != -1;
-		  return (isIE) ? window[movieName] : window.document[movieName];
-		  //return window.document[movieName];
+		  var obj = (isIE) ? window[appletName] : window.document[appletName];
+		  //return window.document[appletName];
+		  if (obj.name = appletName) {
+		  	  return( obj );
+		  } else {
+		     alert ("can't find applet " + appletName);		  
+		  }
 	 }	
  
-	
+	function submitAction() {
+	  getQE("$returnFieldName").value = getFlashMovie("$appletId").$submitAction();
+	 }
 	function initialize() {
 		  getFlashMovie("$appletId").$initializeAction("$base64_xmlString");
 	}
-	function submitAction() {
-	  document.problemMainForm.$returnFieldName.value = getFlashMovie("$appletId").$submitAction();
-	 }
+    function getQE(name1) { // get Question Element in problemMainForm by name
+        var isIE = navigator.appName.indexOf("Microsoft") != -1;
+    	var obj = (isIE) ? document.getElementById(name1)
+    	                    :document.problemMainForm[name1]; 
+    	// needed for IE -- searches id and name space so it can be unreliable if names are not unique
+    	if (obj.name = name1 ) {
+    		return( obj );
+    	} else {
+    		alert("Can't find " + name1);
+    		listQuestionElements();
+    	}
+    	
+    }
+    function getQuestionElement(name1) {
+    	return getQE(name1);
+    }
+    
+    function listQuestionElements() { // list all HTML elements in main problem form
+       var isIE = navigator.appName.indexOf("Microsoft") != -1;
+       var mainForm =  (isIE) ?  document.getElementsByTagName("input") : document.getElementsByTagName("input");
+       var str=mainForm.length +" Question Elements\n type | name = value  < id > \n";
+       for( var i=0; i< mainForm.length; i++) {
+           str = str + " "+i+" " + mainForm[i].type 
+                           + " | " + mainForm[i].name 
+                           + "= " + mainForm[i].value + 
+                           " <" + mainForm[i].id + ">\n";
+       }
+       alert(str +"\n Place listQuestionElements() at end of document in order to get all form elements!");
+   }
+
 
     </script>
 	
@@ -151,12 +218,31 @@ Method1 and methods involving SWFObject(Geoff Stearns) and SWFFormFix (Steve Kam
 http://devel.teratechnologies.net/swfformfix/swfobject_swfformfix_source.js
 http://www.teratechnologies.net/stevekamerman/index.php?m=01&y=07&entry=entry070101-033933
 
+	use constant DEFAULT_OBJECT_TEXT =><<'END_OBJECT_TEXT';
+	  <form></form>
+	  <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
+				 id="$appletName" width="500" height="375"
+				 codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab">
+			 <param name="movie" value="$codebase/$appletName.swf" />
+			 <param name="quality" value="high" />
+			 <param name="bgcolor" value="#869ca7" />
+			 <param name="allowScriptAccess" value="sameDomain" />
+			 <embed src="$codebase/$appletName.swf" quality="high" bgcolor="#869ca7"
+				 width="550" height="400" name="$appletName" align="middle" id="$appletID"
+				 play="true" loop="false" quality="high" allowScriptAccess="sameDomain"
+				 type="application/x-shockwave-flash"
+				 pluginspage="http://www.macromedia.com/go/getflashplayer">
+			 </embed>
+	
+		 </object>
+	END_OBJECT_TEXT
+
 =cut
 
 use constant DEFAULT_OBJECT_TEXT =><<'END_OBJECT_TEXT';
   <form></form>
   <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
-             id="ExternalInterface" width="500" height="375"
+             id="$appletName" width="500" height="375"
              codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab">
          <param name="movie" value="$codebase/$appletName.swf" />
          <param name="quality" value="high" />
