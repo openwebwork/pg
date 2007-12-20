@@ -313,13 +313,13 @@ sub print {
 	}
 	# positive fraction: print out in plain math mode
 	elsif ($self->scalar > 0) {
-		$out = "\\ensuremath{ \\frac{$self->{numerator}}{$self->{denominator}} }";
+		$out = " \\frac{$self->{numerator}}{$self->{denominator}} ";
 	}
 	# negative fraction: print out negative sign and then absolute value in 
 	# fraction form, avoiding parenthesis around the negative portion.
 	else {
 		my $foo = -$self->{numerator}; 
-		$out = "\\ensuremath{ -\\frac{$foo}{$self->{denominator}} }";
+		$out = "  -\\frac{$foo}{$self->{denominator}} ";
 	}
 	
 	$out;
@@ -341,8 +341,8 @@ sub print_mixed {
 		my $coeff = int($tempNum/$tempDenom);
 		$tempNum = $tempNum % $tempDenom;
 
-		$out = "\\ensuremath{ -$coeff \\frac{abs($tempNum)}{abs($tempDenom)} }" if ($self->scalar < 0);
-		$out = "\\ensuremath{ $coeff \\frac{$tempNum}{$tempDenom} }" if ($self->scalar > 0);
+		$out = " -$coeff \\frac{abs($tempNum)}{abs($tempDenom)} " if ($self->scalar < 0);
+		$out = " $coeff \\frac{$tempNum}{$tempDenom} " if ($self->scalar > 0);
 		$out = $coeff if ($tempNum == 0);
 	}
 	
