@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/AppletObjects.pl,v 1.1 2007/11/06 16:45:28 gage Exp $
+# $CVSHeader: pg/macros/AppletObjects.pl,v 1.2 2007/12/03 22:32:01 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -42,7 +42,7 @@ sub _PGapplets_init {}; # don't reload this file
 =cut
 
 sub FlashApplet {
-	return new FlashApplet();
+	return new FlashApplet(@_);
 
 }
 
