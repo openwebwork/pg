@@ -19,7 +19,7 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $x = shift; $x = [$x,@_] if scalar(@_) > 0;
-  return $x if Value::isComplex($x) || (Value::isFormula($x) && $x->{tree}->isComplex);
+  return $x->inContext($context) if Value::isComplex($x) || (Value::isFormula($x) && $x->{tree}->isComplex);
   $x = $x->data if Value::isReal($x);
   $x = [$x] unless ref($x) eq 'ARRAY'; $x->[1] = 0 unless defined($x->[1]);
   Value::Error("Can't convert ARRAY of length %d to a Complex Number",scalar(@{$x}))
