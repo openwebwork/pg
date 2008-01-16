@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: webwork2/lib/WeBWorK.pm,v 1.100 2007/08/13 22:59:53 sh002i Exp $
+# $CVSHeader: pg/macros/contextCurrency.pl,v 1.13 2007/10/04 16:40:48 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -444,19 +444,19 @@ our @ISA = ('Value::Real');
 #  produce an error message.
 #
 sub new {
-  my $self = shift;
+  my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $x = shift;
   Value::Error("Can't convert %s to a monitary value",lc(Value::showClass($x)))
       if !$self->getFlag("promoteReals",1) && Value::isRealNumber($x) && !Value::classMatch($x,"Currency");
-  $self = $self->SUPER::new($context,$x,@_);
+  $self = bless $self->SUPER::new($context,$x,@_), $class;
   $self->{isReal} = $self->{isValue} = $self->{isCurrency} = 1;
   return $self;
 }
 
 sub make {
-  my $self = shift;
-  $self = $self->SUPER::make(@_);
+  my $self = shift; my $class = ref($self) || $self;
+  $self = bless $self->SUPER::make(@_), $class;
   $self->{isReal} = $self->{isValue} = $self->{isCurrency} = 1;
   return $self;
 }
