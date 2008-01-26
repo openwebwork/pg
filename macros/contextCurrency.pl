@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/contextCurrency.pl,v 1.13 2007/10/04 16:40:48 sh002i Exp $
+# $CVSHeader: pg/macros/contextCurrency.pl,v 1.14 2008/01/16 22:56:24 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -133,6 +133,19 @@ any number of decimals by using noExtraDecimals=>0.
 If forceDecimals is set to 1 at the same time, then they must
 have 2 or more decimals, otherwise any number is OK.
 
+By default, currency values are always formatted to display using
+two decimal places, but you can request that if the decimals would be
+.00 then they should not be displayed.  This is controlled via the
+trimTrailingZeros context flag:
+
+	Context()->flags->set(trimTrailingZeros=>1);
+
+It can also be set on an individual currency value:
+
+	$m = Compute("$50")->with(trimtrailingZeros=>1);
+
+so that this $m will print as $50 rather than $50.00.
+
 =cut
 
 loadMacros("MathObjects.pl");
@@ -227,6 +240,7 @@ sub new {
     forceCommas => 0,
     forceDecimals => 0,
     noExtraDecimals => 1,
+    trimTrailingZeros => 0,
   );
   $context->{_initialized} = 1;
   $context->update;
@@ -475,8 +489,9 @@ sub format {
   $symbol = $self->context->operators->get($symbol)->{$type} || $symbol;
   $comma = "{$comma}" if $type eq 'TeX';
   my $s = main::prfmt($self->value,"%.2f");
+  $s =~ s/\.00// if $self->getFlag('trimTrailingZeros');
   $s =~ s/\./$decimal/;
-  while ($s =~ s/(\d)(\d\d\d\D)/$1$comma$2/) {}
+  while ($s =~ s/(\d)(\d\d\d(:\D|$))/$1$comma$2/) {}
   $s = ($currency->{associativity} eq "right" ? $s.$symbol : $symbol.$s);
   $s =~ s/^\s+|\s+$//g;
   return $s;
