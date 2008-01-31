@@ -536,9 +536,9 @@ sub Parser::Function::numeric::D_ln {
 }
 
 sub Parser::Function::numeric::D_log {
-  my $self = $_[0];
+  my $self = shift;
   my $base10 = $self->{equation}{context}{flags}{useBaseTenLog};
-  if ($base10) {return D_log10(@_)} else {return D_ln(@_)}
+  if ($base10) {return $self->D_log10(@_)} else {return $self->D_ln(@_)}
 }
 
 sub Parser::Function::numeric::D_log10 {
