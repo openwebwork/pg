@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PGfunctionevaluators.pl,v 1.1 2007/11/08 00:00:15 sh002i Exp $
+# $CVSHeader: pg/macros/PGfunctionevaluators.pl,v 1.2 2007/11/10 20:55:23 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -726,14 +726,7 @@ sub FUNCTION_CMP {
 	#  Add the variables and parameters to the context
 	#
 	my %variables; my $x;
-	foreach $x (@{$func_params{'var'}}) {
-	  if (length($x) > 1) {
-	    $context->{_variables}->{pattern} = $context->{_variables}->{namePattern} =
-	      $x . '|' . $context->{_variables}->{pattern};
-	    $context->update;
-	  }
-	  $variables{$x} = 'Real';
-	}
+	foreach $x (@{$func_params{'var'}})    {$variables{$x} = 'Real'}
 	foreach $x (@{$func_params{'params'}}) {$variables{$x} = 'Parameter'}
 	$context->variables->are(%variables);
 
