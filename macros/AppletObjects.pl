@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/AppletObjects.pl,v 1.3 2008/01/03 15:17:40 gage Exp $
+# $CVSHeader: pg/macros/AppletObjects.pl,v 1.4 2008/03/16 14:39:14 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -52,7 +52,7 @@ main::HEADER_TEXT(<<'END_HEADER_TEXT');
 
     
     function base64Q(str) {
-    	return !str.match(/<XML>*/i);
+    	return !str.match(/<XML/i && !str.match(/<?xml/i));
     }
     
     function submitAction()  {
@@ -223,11 +223,13 @@ sub insertAll {  ## inserts both header text and object text
 	my $decoded_answer_value         = ($answer_value =~/<XML>/i) ? $answer_value : decode_base64($answer_value);
     my $debug_input_element  = qq!\n<textarea  rows="4" cols="80" 
 	   name = "$appletStateName">$decoded_answer_value</textarea><br/>
-	        <input type="button"  value="getState" 
-	               onClick="applet_getState_list['$appletName']()">
-	        <input type="button"  value="setState" 
-	               onClick="applet_setState_list['$appletName']();
-	                 var tmp = getQE('$appletStateName').value;">
+	        <input type="button"  value="$getState" 
+	               onClick="applet_getState_list['$appletName']()"
+	        >
+	        <input type="button"  value="$setState" 
+	               onClick="var tmp = getQE('$appletStateName').value;
+	                        applet_setState_list['$appletName'](tmp);"
+	        >
 	  !;
 	my $state_input_element = ($self->debug == 1) ? $debug_input_element :
 	      qq!\n<input type="hidden" name = "$appletStateName" value ="$base_64_encoded_answer_value">!;
