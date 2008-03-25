@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/Applet.pm,v 1.4 2007/12/20 00:04:39 gage Exp $
+# $CVSHeader: pg/lib/Applet.pm,v 1.5 2008/03/16 14:39:39 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -341,21 +341,22 @@ sub base64_config {
 
 sub insertHeader {
     my $self = shift;
-    my $codebase         = $self->codebase;
-    my $appletId         = $self->appletId;
-    my $appletName       = $self->appletName;
+    my $codebase         =  $self->codebase;
+    my $appletId         =  $self->appletId;
+    my $appletName       =  $self->appletName;
     my $base64_initialState     = $self->base64_state;
-    my $initializeAction = $self->initializeActionAlias;
-    my $submitAction     = $self->submitActionAlias;
+    my $initializeAction =  $self->initializeActionAlias;
+    my $submitAction     =  $self->submitActionAlias;
     my $setState         =  $self->setStateAlias;
     my $getState         =  $self->getStateAlias;
     my $config           =  $self->configAlias;
     my $base64_config    =  $self->base64_config;
     my $debugMode        =  ($self->debug) ? "1": "0";
-    my $returnFieldName  = $self->{returnFieldName};
-#    my $encodeStateQ     = ($self->debug)?'' : "state = Base64.encode(state);";              # in debug mode base64 encoding is not used.
-#     my $decodeStateQ = "if (!state.match(/<XML>*/i) ) {state = Base64.decode(state)}";   # decode if <XML> is not present
-    my $headerText       = $self->header();
+    my $returnFieldName  =  $self->{returnFieldName};
+#    my $encodeStateQ    =  ($self->debug)?'' : "state = Base64.encode(state);";              # in debug mode base64 encoding is not used.
+#     my $decodeStateQ   =  "if (!state.match(/<XML>*/i) ) {state = Base64.decode(state)}";   # decode if <XML> is not present
+    my $headerText       =  $self->header();
+    
     $headerText =~ s/(\$\w+)/$1/gee;   # interpolate variables p17 of Cookbook
   
     return $headerText;
@@ -419,16 +420,20 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
     //
     // state can vary as the applet is manipulated.
     applet_setState_list["$appletName"] = function(state) {          
-  		  state =  state || getQE("$appletName"+"_state").value || "<xml></xml>";
-          if ( base64Q(state) ) { state=Base64.decode(state);}
-          if (debug) { alert("set state for $appletName to " + state);}
-		  try {
-		  	if (debug || !( typeof(getApplet("$appletName").$setState)  =="undefined" ) ) {
-		  		getApplet("$appletName").$setState( state );
-		  	}
-		  } catch(e) {
-		  	alert("Error in setting state of $appletName: " + e );
-		  }
+  		  state =  state || getQE("$appletName"+"_state").value 
+  		  if (state.match("\S") ) {  // if state is not all white space 
+			  if ( base64Q(state) ) { 
+				state=Base64.decode(state);
+			  }
+			  if (debug) { alert("set state for $appletName to " + state);}
+			  try {
+				if (debug || !( typeof(getApplet("$appletName").$setState)  =="undefined" ) ) {
+					getApplet("$appletName").$setState( state );
+				}
+			  } catch(e) {
+				alert("Error in setting state of $appletName using command $setState : " + e );
+			  }
+		   }
 	};
 	applet_getState_list["$appletName"] = function () {  
 		  if (debug) { alert("getState for applet $appletName");}
