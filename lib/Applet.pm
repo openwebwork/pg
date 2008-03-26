@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/Applet.pm,v 1.5 2008/03/16 14:39:39 gage Exp $
+# $CVSHeader: pg/lib/Applet.pm,v 1.6 2008/03/25 21:59:06 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -92,7 +92,7 @@ qw(Applet FlashApplet JavaApplet)
 
 package Applet;
 
-
+use URI::Escape;
 
 
 
@@ -373,13 +373,16 @@ sub insertObject {
     my $archive    = $self->{archive};
     my $width      = $self->{width};
     my $height     = $self->{height};
-    my $parameters = '';
-    my $parameters = '';
+    my $javaParameters = '';
+    my $flashParameters = '';
     my %param_hash = %{$self->params()};
     foreach my $key (keys %param_hash) {
-    	$parameters .= qq!<param name ="$key"  value = "$param_hash{$key}">\n!
+    	$javaParameters .= qq!<param name ="$key"  value = "$param_hash{$key}">\n!;
+    	$flashParameters .= uri_escape($key).'='.uri_escape($param_hash{$key}).'&';
     }
+    $flashParameters =~ s/\&$//;    # trim last &
 
+   
     $objectText = $self->{objectText};
     $objectText =~ s/(\$\w+)/$1/gee;
     return $objectText;
@@ -514,11 +517,13 @@ use constant DEFAULT_OBJECT_TEXT =><<'END_OBJECT_TEXT';
          <param name="quality" value="high" />
          <param name="bgcolor" value="#869ca7" />
          <param name="allowScriptAccess" value="sameDomain" />
+         <param name="FlashVars" value="$flashParameters"/>
          <embed src="$codebase/$appletName.swf" quality="high" bgcolor="#869ca7"
              width="$width" height="$height" name="$appletName" align="middle" id="$appletName"
              play="true" loop="false" quality="high" allowScriptAccess="sameDomain"
              type="application/x-shockwave-flash"
-             pluginspage="http://www.macromedia.com/go/getflashplayer">
+             pluginspage="http://www.macromedia.com/go/getflashplayer"
+             FlashVars="$flashParameters">
          </embed>
 
      </object>
@@ -564,7 +569,7 @@ http://www.teratechnologies.net/stevekamerman/index.php?m=01&y=07&entry=entry070
 			height   = "$height"
 			MAYSCRIPT
 		 >
-		  $parameters
+		  $javaParameters
 		 </applet>
 		END_OBJECT_TEXT
 
@@ -582,7 +587,7 @@ use constant DEFAULT_OBJECT_TEXT =><<'END_OBJECT_TEXT';
     height   = "$height"
     MAYSCRIPT
  >
-  $parameters
+  $javaParameters
  </applet>
 END_OBJECT_TEXT
 
