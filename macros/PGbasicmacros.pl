@@ -306,6 +306,41 @@ sub NAMED_ANS_RULE {
 	);
 }
 
+sub NAMED_HIDDEN_ANS_RULE { # this is used to hold information being passed into and out of applets 
+                            # -- preserves state -- identical to NAMED_ANS_RULE except input type "hidden"
+	my($name,$col) = @_;
+	my $answer_value = '';
+	$answer_value = ${$inputs_ref}{$name} if    defined(${$inputs_ref}{$name});
+    if ($answer_value =~ /\0/ ) {
+    	my @answers = split("\0", $answer_value);
+    	$answer_value = shift(@answers);  # use up the first answer
+    	$rh_sticky_answers->{$name}=\@answers;
+    	# store the rest -- beacuse this stores to a main:; variable
+    	# it must be evaluated at run time
+    	$answer_value= '' unless defined($answer_value);
+	} elsif (ref($answer_value) eq 'ARRAY') {
+		my @answers = @{ $answer_value};
+    	$answer_value = shift(@answers);  # use up the first answer
+    	$rh_sticky_answers->{$name}=\@answers;
+    	# store the rest -- beacuse this stores to a main:; variable
+    	# it must be evaluated at run time
+    	$answer_value= '' unless defined($answer_value);
+	}
+
+	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
+	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
+	$name = RECORD_ANS_NAME($name);
+
+	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
+	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
+
+	MODES(
+		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
+		Latex2HTML => qq!\\begin{rawhtml}<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\\end{rawhtml}!,
+		HTML => qq!<INPUT TYPE=HIDDEN SIZE=$col NAME="$name" VALUE="$answer_value">!.
+                        qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE="$answer_value">!
+	);
+}
 sub NAMED_ANS_RULE_OPTION {   # deprecated
 	&NAMED_ANS_RULE_EXTENSION;
 }

@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/AppletObjects.pl,v 1.4 2008/03/16 14:39:14 gage Exp $
+# $CVSHeader: pg/macros/AppletObjects.pl,v 1.5 2008/03/25 22:00:23 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -52,7 +52,7 @@ main::HEADER_TEXT(<<'END_HEADER_TEXT');
 
     
     function base64Q(str) {
-    	return !str.match(/<XML/i && !str.match(/<?xml/i));
+    	return ( !str.match(/<XML/i) && !str.match(/<?xml/i));
     }
     
     function submitAction()  {

@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/displayMacros.pl,v 1.9 2007/10/04 16:41:07 sh002i Exp $
+# $CVSHeader: pg/macros/PG.pl,v 1.34 2007/10/25 17:11:59 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -155,6 +155,7 @@ sub DOCUMENT {
 	# and Safe::Root2 (the current one)
 	# There is a good chance they won't be properly updated in one or the other of these compartments.
 	
+
 # 	@main::PG_ANSWER_ENTRY_ORDER = ();
 # 	$main::ANSWER_PREFIX = 'AnSwEr';
 # 	%main::PG_FLAGS=();  #global flags
@@ -164,6 +165,9 @@ sub DOCUMENT {
 # 	$main::hintExists =0;
 # 	%main::gifs_created = ();
 	eval(q!
+	# set perl to use capital E for scientific notation:  e.g.  5.4E-05 instead of 5.4e-05
+	$#="%G";  #FIXME  -- check that this works
+	
 	@main::PG_ANSWER_ENTRY_ORDER = ();
 	$main::ANSWER_PREFIX = 'AnSwEr';
 	%main::PG_FLAGS=();  #global flags
