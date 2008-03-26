@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/Applet.pm,v 1.6 2008/03/25 21:59:06 gage Exp $
+# $CVSHeader: pg/lib/Applet.pm,v 1.7 2008/03/26 01:25:52 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -195,7 +195,7 @@ sub new {
 		base64_state       =>  '',
 		base64_config      =>  '',
 		getStateAlias      =>  'getXML',
-		setStateAlias      =>  'setState',
+		setStateAlias      =>  'setXML',
 		configAlias        =>  'config',
 		initializeActionAlias => 'setXML',
 		submitActionAlias  =>  'getXML',
@@ -422,13 +422,14 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
     //STATE
     //
     // state can vary as the applet is manipulated.
-    applet_setState_list["$appletName"] = function(state) {          
+    applet_setState_list["$appletName"] = function(state) {   
+          if (debug) { alert("set state for $appletName to " + state);}
   		  state =  state || getQE("$appletName"+"_state").value 
-  		  if (state.match("\S") ) {  // if state is not all white space 
+  		  if (state.match(/<xml/i) || state.match(/<?xml/i) ) {  // if state is not all white space 
 			  if ( base64Q(state) ) { 
 				state=Base64.decode(state);
 			  }
-			  if (debug) { alert("set state for $appletName to " + state);}
+			  alert("set (decoded) state for $appletName to " + state);
 			  try {
 				if (debug || !( typeof(getApplet("$appletName").$setState)  =="undefined" ) ) {
 					getApplet("$appletName").$setState( state );
@@ -436,6 +437,8 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 			  } catch(e) {
 				alert("Error in setting state of $appletName using command $setState : " + e );
 			  }
+		   } else if (debug) {
+		   	 alert("new state was empty string or did not begin with <xml-- state was not reset");
 		   }
 	};
 	applet_getState_list["$appletName"] = function () {  
