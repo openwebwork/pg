@@ -1,22 +1,26 @@
 =head1 MathObjects-based Answer Checkers
 
-MathObjects is designed to be used in two ways.  First, you can use
-it within your perl code when writing problems as a means of making it
-easier to handle formulas, and in particular, to genarate be able to
-use a single object to produce numeric values, TeX output and answer
-strings.  This avoids having to type a function three different ways
-(which makes maintaining a problem much harder).  Since MathObjects
-also included vector and complex arthimatic, it is easier to work with
-these types of values as well.
+MathObjects are designed to be used in two ways. First, you can use it
+within your perl code when writing problems as a means of making it
+easier to handle formulas, and in particular, to be able to use a single
+object to produce numeric values, TeX output and answer strings from a
+single formula entry. This avoids having to type a function three
+different ways (which makes maintaining a problem much harder). Since
+MathObjects also included vector and complex arthimetic, it is easier to
+work with these types of values as well.
 
-The second reason for MathObjects is to use it to process student
-input.  This is accomplished through special answer checkers that are
-part of the Parser package (rather than the traditional WeBWorK answer
-checkers).  Checkers are available for all the types of values that
-the parser can produce (numbers, complex numbers, infinities, points,
-vectors, intervals, unions, formulas, lists of numbers, lists of
-points, lists of intervals, lists of formulas returning numbers, lists
-of formulas returning points, and so on).
+Secondly using MathObjects improves the processing of student input.
+This is accomplished through special answer checkers that are part of
+the Parser package (rather than the traditional WeBWorK answer
+checkers). Each of these checkers has error checking customized to the
+type of input expected from the student and can provide helpful feedback
+if the syntax of the student's entry is incorrect.
+
+Checkers are available for each of the types of values that the parser
+can produce (numbers, complex numbers, infinities, points, vectors,
+intervals, unions, formulas, lists of numbers, lists of points, lists of
+intervals, lists of formulas returning numbers, lists of formulas
+returning points, and so on).
 
 To use one of these checkers, simply call the ->cmp method of the
 object that represents the correct answer.  For example:
