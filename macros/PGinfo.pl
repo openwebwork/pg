@@ -8,12 +8,18 @@
 
 	PGinfo.pl
 
-=cut
 
 Provides macros for determining the values of the current context in which the problem
 is being written.
 
+=cut
+
+
 loadMacros("MathObjects.pl");
+
+
+
+
 
 =head3  listVariables
 
@@ -93,3 +99,4 @@ sub pp {
     my $hash = shift;
     "printing |". ref($hash)."|$BR". pretty_print($hash);
 }
+1;
