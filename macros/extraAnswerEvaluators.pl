@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/displayMacros.pl,v 1.9 2007/10/04 16:41:07 sh002i Exp $
+# $CVSHeader: pg/macros/extraAnswerEvaluators.pl,v 1.20 2007/10/25 17:11:59 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -55,7 +55,10 @@ loadMacros('MathObjects.pl');
 		split /=/, $instring;
 	}
 	
-
+    #FIXME  -- this could be improved so that
+    #          1. it uses an answer evaluator object instead of a sub routine
+    #          2. it provides error messages when previous answers are equivalent
+    
 	sub equation_cmp {
 		my $right_ans = shift;
 		my %opts = @_;
@@ -66,17 +69,17 @@ loadMacros('MathObjects.pl');
 
 		my $ans_eval = sub {
 			my $student = shift;
-
+			my %response_options = @_;
 			my $ans_hash = new AnswerHash(
-																		'score'=>0,
-																		'correct_ans'=>$right_ans,
-																		'student_ans'=>$student,
-																		'original_student_ans' => $student,
-																		# 'type' => undef,
-																		'ans_message'=>'',
-																		'preview_text_string'=>'',
-																		'preview_latex_string'=>'',
-																	 );
+				'score'=>0,
+				'correct_ans'=>$right_ans,
+				'student_ans'=>$student,
+				'original_student_ans' => $student,
+				'type' => 'equation_cmp',
+				'ans_message'=>'',
+				'preview_text_string'=>'',
+				'preview_latex_string'=>'',
+			);
 
 			if(! ($student =~ /\S/)) { return $ans_hash; }
 
@@ -157,7 +160,7 @@ loadMacros('MathObjects.pl');
 			# Finally, use fun_cmp to check the answers
 
 			$ae = main::fun_cmp("o*($right[0]-($right[1]))", vars=>$vars, params=>['o'], %opts);
-			$res= $ae->evaluate("$studsplit[0]-($studsplit[1])");
+			$res= $ae->evaluate("$studsplit[0]-($studsplit[1])",%response_options);
 			$ans_hash-> setKeys('score' => $res->{'score'});
 
 			return $ans_hash;
