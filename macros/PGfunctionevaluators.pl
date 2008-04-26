@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PGfunctionevaluators.pl,v 1.2 2007/11/10 20:55:23 gage Exp $
+# $CVSHeader: pg/macros/PGfunctionevaluators.pl,v 1.3 2008/02/04 21:40:58 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -745,16 +745,24 @@ sub FUNCTION_CMP {
 	#  Get previous answer from hidden field of form
 	#
 	$cmp->install_pre_filter(
-	  sub {
-	    my $rh_ans = shift;
-	    $rh_ans->{_filter_name} = "fetch_previous_answer";
-	    my $prev_ans_label = "previous_".$rh_ans->{ans_label};
-	    $rh_ans->{prev_ans} = 
-	      (defined $inputs_ref->{$prev_ans_label} and
-	       $inputs_ref->{$prev_ans_label} =~/\S/) ? $inputs_ref->{$prev_ans_label} : undef; 
-	    $rh_ans;
-	  }
+		sub {
+			my $rh_ans = shift;
+			$rh_ans->{_filter_name} = "fetch_previous_answer";
+			$rh_ans->{prev_ans} = undef;
+			if ( defined($rh_ans->{ans_label} ) ) {
+				my $prev_ans_label = "previous_".$rh_ans->{ans_label};
+				if ( defined $inputs_ref->{$prev_ans_label} and $inputs_ref->{$prev_ans_label} =~/\S/) {
+					$rh_ans->{prev_ans} = $inputs_ref->{$prev_ans_label};
+					#warn "inputs reference is ", join(" ",%$inputs_ref);
+					#warn "$prev_ans_label is ",$rh_ans->{prev_ans};
+					#FIXME  -- previous answer item is not always being updated in inputs_ref (which comes from formField)
+				}
+			}
+					  # if no ans_label or previous answer then leave undefined.
+			$rh_ans;  # prev_ans contains previous answer or "undef"
+		}
 	);
+
 
 	#
 	#  Parse the previous answer, if any
