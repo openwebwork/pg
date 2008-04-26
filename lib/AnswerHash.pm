@@ -148,6 +148,7 @@ sub new {
 					'correct_ans'			=>	'No correct answer specified',
 					'student_ans'			=>	undef,
 					'ans_message'			=>	'',
+					'ans_label'            =>   undef,
 					'type'					=>	'Undefined answer evaluator type',
 					'preview_text_string'	=>	undef,
 					'preview_latex_string'	=>	undef,
