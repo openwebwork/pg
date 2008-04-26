@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PGanswermacros.pl,v 1.64 2007/11/08 00:00:15 sh002i Exp $
+# $CVSHeader: pg/macros/PGanswermacros.pl,v 1.65 2007/11/10 20:55:23 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -142,6 +142,11 @@ my $functULimitDefault;
 my $functVarDefault;
 my $useBaseTenLog;
 sub _PGanswermacros_init {
+	loadMacros('PGnumericevaluators.pl');   # even if these files are already loaded they need to be initialized.
+	loadMacros('PGfunctionevaluators.pl');
+	loadMacros('PGstringevaluators.pl');
+	loadMacros('PGmiscevaluators.pl');
+	
 	$BR                 = PG_restricted_eval(q/$BR/);
 	$functLLimitDefault = PG_restricted_eval(q/$envir{functLLimitDefault}/);
 	$functULimitDefault = PG_restricted_eval(q/$envir{functULimitDefault}/);
@@ -1763,11 +1768,6 @@ sub pretty_print {
 		$out;
 }
 
-BEGIN {
-	loadMacros('PGnumericevaluators.pl');
-	loadMacros('PGfunctionevaluators.pl');
-	loadMacros('PGstringevaluators.pl');
-	loadMacros('PGmiscevaluators.pl');
-}
+
 
 1;
