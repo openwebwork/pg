@@ -1141,7 +1141,7 @@ sub process_answers{
  	    
 		my $rh_ans_evaluation_result;
 		if (ref($rf_fun) eq 'CODE' ) {
-			$rh_ans_evaluation_result = $self->{safe} ->reval( '&{ $rf_fun }($temp_ans)' ) ;
+			$rh_ans_evaluation_result = $self->{safe} ->reval( '&{ $rf_fun }($temp_ans, ans_label => \''.$ans_name.'\')' ) ;
 			warn "Error in Translator.pm::process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
 		} elsif (ref($rf_fun) =~ /AnswerEvaluator/)   {
 			$rh_ans_evaluation_result = $self->{safe} ->reval('$rf_fun->evaluate($temp_ans, ans_label => \''.$ans_name.'\')');
