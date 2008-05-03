@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/extraAnswerEvaluators.pl,v 1.20 2007/10/25 17:11:59 sh002i Exp $
+# $CVSHeader: pg/macros/extraAnswerEvaluators.pl,v 1.21 2008/04/26 21:13:23 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -44,11 +44,14 @@ answers of various "exotic" types.
 
 =cut
 
+# ^uses loadMacros
 loadMacros('MathObjects.pl');
 
 {
+	# ^package Equation_eval
 	package Equation_eval;
 	
+	# ^function split_eqn
 	sub split_eqn {
 		my $instring = shift;
 		
@@ -58,7 +61,11 @@ loadMacros('MathObjects.pl');
     #FIXME  -- this could be improved so that
     #          1. it uses an answer evaluator object instead of a sub routine
     #          2. it provides error messages when previous answers are equivalent
-    
+	# ^function equation_cmp
+	# ^uses AnswerHash::new
+	# ^uses split_eqn
+	# ^uses main::check_syntax
+	# ^uses main::fun_cmp
 	sub equation_cmp {
 		my $right_ans = shift;
 		my %opts = @_;
@@ -169,7 +176,15 @@ loadMacros('MathObjects.pl');
 		return $ans_eval;
 	}
 }
+# ^package main
 
+# ^function mode2context
+# ^uses Parser::Context::getCopy
+# ^uses %context
+# ^uses $numZeroLevelTolDefault
+# ^uses $numAbsTolDefault
+# ^uses $numRelPercentTolDefault
+# ^uses $numFormatDefault
 sub mode2context {
 	my $mode = shift;
 	my %options = @_;
@@ -297,6 +312,11 @@ for Parser Intervals and Unions.
 
 =cut
 
+# ^function interval_cmp
+# ^uses Context
+# ^uses mode2context
+# ^uses List
+# ^uses Union
 sub interval_cmp {
 	my $correct_ans = shift;
 
@@ -434,6 +454,10 @@ partialCredit, and showLengthHints, as in:
 
 =cut
 
+# ^function number_list_cmp
+# ^uses Context
+# ^uses mode2context
+# ^uses List
 sub number_list_cmp {
 	my $list = shift;
 
@@ -488,6 +512,8 @@ Typical invocation would be:
 
 =cut
 
+# ^function equation_cmp
+# ^uses Equation_eval::equation_cmp
 sub equation_cmp {
 	Equation_eval::equation_cmp(@_);
 }

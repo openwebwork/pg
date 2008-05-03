@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PG.pl,v 1.34 2007/10/25 17:11:59 sh002i Exp $
+# $CVSHeader: pg/macros/PG.pl,v 1.35 2008/03/26 02:43:07 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -107,8 +107,18 @@ sub _PG_init{
 
 #  Private variables for the PG.pl file.
 
-my ($STRINGforOUTPUT, $STRINGforHEADER_TEXT, @PG_ANSWERS, @PG_UNLABELED_ANSWERS);
-my %PG_ANSWERS_HASH ;
+# ^variable $STRINGforOUTPUT
+my $STRINGforOUTPUT;
+# ^variable $STRINGforHEADER_TEXT
+my $STRINGforHEADER_TEXT;
+# ^variable @PG_ANSWERS
+my @PG_ANSWERS;
+# ^variable @PG_UNLABELED_ANSWERS
+my @PG_UNLABELED_ANSWERS;
+# ^variable %PG_ANSWERS_HASH
+my %PG_ANSWERS_HASH;
+
+# ^variable $PG_STOP_FLAG
 our $PG_STOP_FLAG;
 
 # my variables are unreliable if two DOCUMENTS were to be called before an ENDDOCUMENT
@@ -143,6 +153,32 @@ See also SRAND() in the L<PGbasicmacros.pl> file.
 
 =cut
 
+# ^function DOCUMENT
+# ^uses $STRINGforOUTPUT
+# ^uses $STRINGforHEADER_TEXT
+# ^uses @PG_ANSWERS
+# ^uses $PG_STOP_FLAG
+# ^uses @PG_UNLABELED_ANSWERS
+# ^uses %PG_ANSWERS_HASH
+# ^uses @PG_ANSWER_ENTRY_ORDER
+# ^uses $ANSWER_PREFIX
+# ^uses %PG_FLAGS
+# ^uses $showPartialCorrectAnswers
+# ^uses $showHints
+# ^uses $solutionExists
+# ^uses $hintExists
+# ^uses $pgComment
+# ^uses %gifs_created
+# ^uses %envir
+# ^uses $refSubmittedAnswers
+# ^uses @submittedAnswers
+# ^uses $PG_original_problemSeed
+# ^uses $problemSeed
+# ^uses $PG_random_generator
+# ^uses $ans_rule_count
+# ^uses $QUIZ_PREFIX
+# (Also creates a package scalar named after each key in %envir containing a copy of the corresponding value.)
+# ^uses &PGrandom::new
 sub DOCUMENT {
 
 	$STRINGforOUTPUT ="";
@@ -262,6 +298,8 @@ content being appended.
 
 =cut
 
+# ^function HEADER_TEXT
+# ^uses $STRINGforHEADER_TEXT
 sub HEADER_TEXT {
 	my @in = @_;
 	$STRINGforHEADER_TEXT .= join(" ",@in);
@@ -290,6 +328,9 @@ content being appended.
 
 =cut
 
+# ^function TEXT
+# ^uses $PG_STOP_FLAG
+# ^uses $STRINGforOUTPUT
 sub TEXT {
 	return "" if $PG_STOP_FLAG;
 	my @in = @_;
@@ -313,6 +354,9 @@ macro in L<PGanswermacros.pl>.
 
 =cut
 
+# ^function ANS
+# ^uses $PG_STOP_FLAG
+# ^uses @PG_ANSWERS
 sub ANS{
   return "" if $PG_STOP_FLAG;
   my @in = @_;
@@ -336,6 +380,8 @@ may not have been entered in the same order.
 
 =cut
 
+# ^function LABELED_ANS
+# ^uses &NAMED_ANS
 sub LABELED_ANS {
 	&NAMED_ANS;
 }
@@ -346,6 +392,8 @@ Old name for LABELED_ANS(). DEPRECATED.
 
 =cut
 
+# ^function NAMED_ANS
+# ^uses $PG_STOP_FLAG
 sub NAMED_ANS{
   return "" if $PG_STOP_FLAG;
   my @in = @_;
@@ -369,6 +417,8 @@ and answer evaluators until RESUME_RENDERING() is called.
 
 =cut
 
+# ^function STOP_RENDERING
+# ^uses $PG_STOP_FLAG
 sub STOP_RENDERING {
 	$PG_STOP_FLAG=1;
 	"";
@@ -383,6 +433,8 @@ evaluators. Reverses the effect of STOP_RENDERING().
 
 =cut
 
+# ^function RESUME_RENDERING
+# ^uses $PG_STOP_FLAG
 sub RESUME_RENDERING {
 	$PG_STOP_FLAG=0;
 	"";
@@ -484,6 +536,10 @@ and the PG translator should select C<&std_problem_grader>.
 
 =cut
 
+# ^function ENDDOCUMENT
+# ^uses @PG_UNLABELED_ANSWERS
+# ^uses %PG_ANSWERS_HASH
+# ^uses @PG_ANSWERS
 sub ENDDOCUMENT {
 
     my $index=0;
@@ -579,6 +635,8 @@ when one is about to define a new answer blank, for example with NEW_ANS_NAME().
 
 =cut
 
+# ^function inc_ans_rule_count
+# ^uses $ans_rule_count
 sub inc_ans_rule_count {
 	eval(q!++$main::ans_rule_count!); # evalute at runtime to get correct main::
 }
@@ -592,6 +650,9 @@ to record the order of explicitly-labelled answer blanks.
 
 =cut
 
+# ^function RECORD_ANS_NAME
+# ^uses $PG_STOP_FLAG
+# ^uses @PG_ANSWER_ENTRY_ORDER
 sub RECORD_ANS_NAME {
     return "" if $PG_STOP_FLAG;
 	my $label = shift;
@@ -609,6 +670,11 @@ L<PGbasicmacros.pl> to generate labels for unlabeled answer blanks.
 
 =cut
 
+# ^function NEW_ANS_NAME
+# ^uses $PG_STOP_FLAG
+# ^uses $QUIZ_PREFIX
+# ^uses $ANSWER_PREFIX
+# ^uses @PG_UNLABELED_ANSWERS
 sub NEW_ANS_NAME {
         return "" if $PG_STOP_FLAG;
 		my $number=shift;
@@ -631,6 +697,9 @@ labeled answers once.)
 
 =cut
 
+# ^function ANS_NUM_TO_NAME
+# ^uses $QUIZ_PREFIX
+# ^uses $ANSWER_PREFIX
 sub ANS_NUM_TO_NAME {
 		my $number=shift;
 		my $label = eval(q!$main::QUIZ_PREFIX.$main::ANSWER_PREFIX!).$number;
@@ -648,6 +717,9 @@ keep track of answer blanks that are not associated with an answer evaluator.
 
 =cut
 
+# ^function RECORD_FORM_LABEL
+# ^uses $PG_STOP_FLAG
+# ^uses @KEPT_EXTRA_ANSWERS
 sub RECORD_FORM_LABEL  {             # this stores form data (such as sticky answers), but does nothing more
                                      # it's a bit of hack since we are storing these in the KEPT_EXTRA_ANSWERS queue even if they aren't answers per se.
 	return "" if $PG_STOP_FLAG;
@@ -665,6 +737,10 @@ list of implicitly-labeled answers.
 
 =cut
 
+# ^function NEW_ANS_ARRAY_NAME
+# ^uses $PG_STOP_FLAG
+# ^uses $QUIZ_PREFIX
+# ^uses @PG_UNLABELED_ANSWERS
 sub NEW_ANS_ARRAY_NAME {        # this keeps track of the answers which are entered implicitly,
                           # rather than with a specific label
         return "" if $PG_STOP_FLAG;
@@ -687,6 +763,8 @@ add it to the list of "extra" answers.
 
 =cut
 
+# ^function NEW_ANS_ARRAY_NAME_EXTENSION
+# ^uses $PG_STOP_FLAG
 sub NEW_ANS_ARRAY_NAME_EXTENSION {        # this keeps track of the answers which are entered implicitly,
                                           # rather than with a specific label
         return "" if $PG_STOP_FLAG;
@@ -714,6 +792,10 @@ sub NEW_ANS_ARRAY_NAME_EXTENSION {        # this keeps track of the answers whic
 
 =cut
 
+# ^function get_PG_ANSWERS_HASH
+# ^uses %PG_ANSWERS_HASH
+# ^uses @PG_UNLABELED_ANSWERS
+# ^uses @PG_ANSWERS
 sub get_PG_ANSWERS_HASH {
 	# update the PG_ANSWWERS_HASH, then report the result.  
 	# This is used in writing sequential problems
@@ -751,6 +833,10 @@ sub get_PG_ANSWERS_HASH {
 
 =cut
 
+# ^function includePGproblem
+# ^uses %envir
+# ^uses &read_whole_problem_file
+# ^uses &includePGtext
 sub includePGproblem {
     my $filePath = shift;
     my %save_envir = %main::envir;
@@ -783,4 +869,3 @@ L<PGbasicmacros.pl>, L<PGanswermacros.pl>.
 =cut
 
 1;
-

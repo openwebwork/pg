@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/displayMacros.pl,v 1.9 2007/10/04 16:41:07 sh002i Exp $
+# $CVSHeader: pg/macros/LinearProgramming.pl,v 1.2 2007/10/25 17:11:59 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -73,6 +73,7 @@ will have the same result as the example above.
 # perform a pivot operation
 # lp_pivot([[1,2,3],...,[4,5,6]], row, col, fractionmode)
 # row and col indecies start at 0
+# ^function lp_pivot
 sub lp_pivot {
 	my $a_ref = shift;
 	my $row = shift;
@@ -125,6 +126,7 @@ but no pivot element (unbounded problem), it returns [-1, col].
 
 # Find pivot column for standard part
 
+# ^function lp_pivot_element
 sub lp_pivot_element {
 	my $a_ref = shift;
 	my $fracmode = shift;
@@ -200,6 +202,10 @@ Example:
 # lp_solve([[1,2,3],[4,5,6]])
 # It returns a triple of the final tableau, a code to say if we
 #   succeeded, and the number of pivots
+# ^function lp_solve
+# ^uses set_default_options
+# ^uses lp_pivot_element
+# ^uses lp_pivot
 sub lp_solve {
 	my $a_ref_orig = shift;
 	my %opts = @_;
@@ -251,6 +257,8 @@ are in).
 # The variable is specified by column number, with 0 for P, 1 for x_1,
 #  and so on
 
+# ^function lp_current_value
+# ^uses Fraction::new
 sub lp_current_value {
   my $col = shift;
   my $aref = shift;
@@ -300,11 +308,14 @@ nicer looking results.  However, it cannot have answer rules in the tableau
 =cut
 
 # Display a tableau in math mode
+# ^function lp_display_mm
+# ^uses lp_display
 sub lp_display_mm {
   lp_display(@_, force_tex=>1);
 }
 
 # Make a copy of a tableau
+# ^function lp_clone
 sub lp_clone {
 	my $a1_ref = shift;
         my $a_ref = []; # make a copy to modify
@@ -342,6 +353,9 @@ horizontal line before the last row if it is not already specified.
 =cut
 
 # Display a tableau
+# ^function lp_display
+# ^uses lp_clone
+# ^uses display_matrix
 sub lp_display {
 	my $a1_ref = shift;
 	my %opts = @_;

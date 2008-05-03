@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PGanswermacros.pl,v 1.65 2007/11/10 20:55:23 gage Exp $
+# $CVSHeader: pg/macros/PGanswermacros.pl,v 1.66 2008/04/26 23:07:02 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -130,17 +130,33 @@ show a typeset view on the answer on the preview page. For a student answer of
 
 =cut
 
+# ^uses be_strict
 BEGIN { be_strict() }
 
 # Until we get the PG cacheing business sorted out, we need to use
 # PG_restricted_eval to get the correct values for some(?) PG environment
 # variables. We do this once here and place the values in lexicals for later
 # access.
+
+# ^variable $BR
 my $BR;
+# ^variable $functLLimitDefault
 my $functLLimitDefault;
+# ^variable $functULimitDefault
 my $functULimitDefault;
+# ^variable $functVarDefault
 my $functVarDefault;
+# ^variable $useBaseTenLog
 my $useBaseTenLog;
+
+# ^function _PGanswermacros_init
+# ^uses loadMacros
+# ^uses PG_restricted_eval
+# ^uses $BR
+# ^uses $envir{functLLimitDefault}
+# ^uses $envir{functULimitDefault}
+# ^uses $envir{functVarDefault}
+# ^uses $envir{useBaseTenLog}
 sub _PGanswermacros_init {
 	loadMacros('PGnumericevaluators.pl');   # even if these files are already loaded they need to be initialized.
 	loadMacros('PGfunctionevaluators.pl');
@@ -152,7 +168,6 @@ sub _PGanswermacros_init {
 	$functULimitDefault = PG_restricted_eval(q/$envir{functULimitDefault}/);
 	$functVarDefault    = PG_restricted_eval(q/$envir{functVarDefault}/);
 	$useBaseTenLog      = PG_restricted_eval(q/$envir{useBaseTenLog}/);
-
 }
 
 =head1 MACROS
@@ -190,6 +205,8 @@ other categories.
 ##			one or more variable names -- (var1, var2)
 ## OUT:	an array of variable names
 
+# ^function get_var_array
+# ^uses $functVarDefault
 sub get_var_array {
 	my $in = shift @_;
 	my @out;
@@ -237,6 +254,9 @@ sub get_var_array {
 ##			an array of limits -- (llim,ulim)
 ## OUT:	an array of array references -- ([llim,ulim], [llim,ulim]) or ([llim,ulim])
 
+# ^function get_limits_array
+# ^uses $functLLimitDefault
+# ^uses $functULimitDefault
 sub get_limits_array {
 	my $in = shift @_;
 	my @out;
@@ -281,6 +301,7 @@ sub get_limits_array {
 
 # simple subroutine to display an error message when
 # function compares are called with invalid parameters
+# ^function function_invalid_params
 sub function_invalid_params {
 	my $correctEqn = shift @_;
 	my $error_response = sub {
@@ -291,6 +312,7 @@ sub function_invalid_params {
 	return $error_response;
 }
 
+# ^function clean_up_error_msg
 sub clean_up_error_msg {
 	my $msg = $_[0];
 	$msg =~ s/^\[[^\]]*\][^:]*://;
@@ -306,6 +328,8 @@ sub clean_up_error_msg {
 #format must be of a form suitable for sprintf (e.g. '%0.5g'),
 #with the exception that a '#' at the end of the string
 #will cause trailing zeros in the decimal part to be removed
+# ^function prfmt
+# ^uses is_a_number
 sub prfmt {
 	my($number,$format)	= @_;  # attention,	the	order of format	and	number are reversed
 	my $out;
@@ -386,7 +410,11 @@ Here is an outline of how a filter is constructed:
 
 =cut
 
-
+# ^function compare_numbers
+# ^uses PG_answer_eval
+# ^uses clean_up_error_msg
+# ^uses prfmt
+# ^uses is_a_number
 sub compare_numbers {
 	my ($rh_ans, %options) = @_;
 	my ($inVal,$PG_eval_errors,$PG_full_error_report) = PG_answer_eval($rh_ans->{student_ans});
@@ -430,6 +458,10 @@ Replaces some constants using math_constants, then evaluates a perl expression.
 
 =cut
 
+# ^function std_num_filter
+# ^uses math_constants
+# ^uses PG_answer_eval
+# ^uses clean_up_error_msg
 sub std_num_filter {
 	my $rh_ans = shift;
 	my %options = @_;
@@ -464,6 +496,11 @@ A typical error message displayed in {studnet_ans} might be ( 56, error message,
 
 =cut
 
+# ^function std_num_array_filter
+# ^uses set_default_options
+# ^uses AnswerHash::new
+# ^uses check_syntax
+# ^uses std_num_filter
 sub std_num_array_filter {
 	my $rh_ans= shift;
 	my %options = @_;
@@ -506,6 +543,13 @@ sub std_num_array_filter {
 
 =cut
 
+# ^function function_from_string2
+# ^uses assign_option_aliases
+# ^uses set_default_options
+# ^uses math_constants
+# ^uses PG_restricted_eval
+# ^uses PG_answer_eval
+# ^uses clean_up_error_msg
 sub function_from_string2 {
     my $rh_ans = shift;
     my %options = @_;
@@ -594,7 +638,8 @@ sub function_from_string2 {
 
 =cut
 
-
+# ^function is_zero_array
+# ^uses is_a_number
 sub is_zero_array {
     my $rh_ans = shift;
     my %options = @_;
@@ -678,6 +723,11 @@ The comparison function should have $dim_of_params_space more input variables th
 # 	                )
 # 				# returns a list of coefficients
 
+# ^function best_approx_parameters
+# ^uses set_default_options
+# ^uses pretty_print
+# ^uses Matrix::new
+# ^uses is_a_number
 sub best_approx_parameters {
     my $rh_ans = shift;
     my %options = @_;
@@ -822,6 +872,9 @@ sub best_approx_parameters {
 
 =cut
 
+# ^function calculate_difference_vector
+# ^uses assign_option_aliases
+# ^uses set_default_options
 sub calculate_difference_vector {
 	my $rh_ans = shift;
 	my %options = @_;
@@ -910,6 +963,10 @@ sub calculate_difference_vector {
 
 =cut
 
+# ^function fix_answers_for_display
+# ^uses evaluatesToNumber
+# ^uses AnswerHash::new
+# ^uses check_syntax
 sub fix_answers_for_display	{
 	my ($rh_ans, %options) = @_;
 	if ( $rh_ans->{answerIsString} ==1) {
@@ -934,6 +991,10 @@ sub fix_answers_for_display	{
 
 =cut
 
+# ^function evaluatesToNumber
+# ^uses is_a_numeric_expression
+# ^uses PG_answer_eval
+# ^uses prfmt
 sub evaluatesToNumber {
 	my ($rh_ans, %options) = @_;
 	if (is_a_numeric_expression($rh_ans->{student_ans})) {
@@ -952,6 +1013,8 @@ sub evaluatesToNumber {
 
 =cut
 
+# ^function is_a_numeric_expression
+# ^uses PG_answer_eval
 sub is_a_numeric_expression {
 	my $testString = shift;
 	my $is_a_numeric_expression = 0;
@@ -968,6 +1031,7 @@ sub is_a_numeric_expression {
 
 =cut
 
+# ^function is_a_number
 sub is_a_number {
 	my ($num,%options) =	@_;
 	my $process_ans_hash = ( ref( $num ) eq 'AnswerHash' ) ? 1 : 0 ;
@@ -1005,6 +1069,7 @@ sub is_a_number {
 
 =cut
 
+# ^function is_a_fraction
 sub is_a_fraction {
 	my ($num,%options) =	@_;
 	my $process_ans_hash = ( ref( $num ) eq 'AnswerHash' ) ? 1 : 0 ;
@@ -1043,6 +1108,7 @@ sub is_a_fraction {
 	pi, which for the tangent function, were equivalent values. This method allows for this.
 =cut
 
+# ^function phase_pi
 sub phase_pi {
 	my ($num,%options) =	@_;
 	my $process_ans_hash = ( ref( $num ) eq 'AnswerHash' ) ? 1 : 0 ;
@@ -1064,6 +1130,7 @@ sub phase_pi {
 
 =cut
 
+# ^function is_an_arithmetic_expression
 sub is_an_arithmetic_expression {
 	my ($num,%options) =	@_;
 	my $process_ans_hash = ( ref( $num ) eq 'AnswerHash' ) ? 1 : 0 ;
@@ -1107,6 +1174,7 @@ if useBaseTenLog is non-zero, convert log to logten
 
 =cut
 
+# ^function math_constants
 sub math_constants {
 	my($in,%options) = @_;
 	my $rh_ans;
@@ -1141,6 +1209,7 @@ sub math_constants {
 
 =cut
 
+# ^function is_array
 sub is_array	{
 	my $rh_ans = shift;
     # return if the result is an array
@@ -1162,6 +1231,10 @@ Additional syntax error messages are stored in {ans_message} and duplicated in {
 
 =cut
 
+# ^function check_syntax
+# ^uses assign_option_aliases
+# ^uses set_default_options
+# ^uses AlgParserWithImplicitExpand::new
 sub check_syntax {
         my $rh_ans = shift;
         my %options = @_;
@@ -1212,6 +1285,9 @@ sub check_syntax {
 
 =cut
 
+# ^function check_strings
+# ^uses str_filters
+# ^uses str_cmp
 sub check_strings {
 	my ($rh_ans, %options) = @_;
 
@@ -1285,6 +1361,11 @@ sub check_strings {
 
 =cut
 
+# ^function check_units
+# ^uses str_filters
+# ^uses Units::evaluate_units
+# ^uses clean_up_error_msg
+# ^uses prfmt
 sub check_units {
 	my ($rh_ans, %options) = @_;
 	my %correct_units = %{$rh_ans-> {rh_correct_units}};
@@ -1373,7 +1454,7 @@ called with the option " option5 => 23 "
 =cut
 
 
-
+# ^function assign_option_aliases
 sub assign_option_aliases {
 	my $rh_options = shift;
 	warn "The first entry to set_default_options must be a reference to the option hash" unless ref($rh_options) eq 'HASH';
@@ -1425,6 +1506,8 @@ provided.  In this case, setting 'allow_unkown_options' to 1 prevents the error 
 
 =cut
 
+# ^function set_default_options
+# ^uses pretty_print
 sub set_default_options {
 	my $rh_options = shift;
 	warn "The first entry to set_default_options must be a reference to the option hash" unless ref($rh_options) eq 'HASH';
@@ -1451,6 +1534,9 @@ sub set_default_options {
 #####################################
 # This is a	model for plug-in problem graders
 #####################################
+# ^function install_problem_grader
+# ^uses PG_restricted_eval
+# ^uses %PG_FLAGS{PROBLEM_GRADER_TO_USE}
 sub install_problem_grader {
 	my $rf_problem_grader =	shift;
 	my $rh_flags = PG_restricted_eval(q!\\%main::PG_FLAGS!);
@@ -1469,6 +1555,7 @@ answers are correct by the grade reported by webwork.
 
 =cut
 
+# ^function std_problem_grader
 sub std_problem_grader {
 	my $rh_evaluated_answers = shift;
 	my $rh_problem_state = shift;
@@ -1568,6 +1655,7 @@ whereas std_problem_grader records it regardless.
 
 
 
+# ^function std_problem_grader2
 sub std_problem_grader2 {
 	my $rh_evaluated_answers = shift;
 	my $rh_problem_state = shift;
@@ -1665,7 +1753,7 @@ Many professors (and almost all students :-)  ) prefer this grader.
 
 =cut
 
-
+# ^function avg_problem_grader
 sub avg_problem_grader {
 		my $rh_evaluated_answers = shift;
 	my $rh_problem_state = shift;
@@ -1739,6 +1827,9 @@ This can be very useful for printing out messages about objects while debugging
 
 =cut
 
+# ^function pretty_print
+# ^uses lex_sort
+# ^uses pretty_print
 sub pretty_print {
     my $r_input = shift;
     my $out = '';
@@ -1767,7 +1858,5 @@ sub pretty_print {
 	}
 		$out;
 }
-
-
 
 1;

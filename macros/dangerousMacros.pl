@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/dangerousMacros.pl,v 1.49 2007/10/04 16:41:07 sh002i Exp $
+# $CVSHeader: pg/macros/dangerousMacros.pl,v 1.50 2007/10/04 16:57:34 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -97,19 +97,37 @@ BEGIN {
 	
 }
 
+# ^variable $debugON
 my $debugON = 0;
 
 # grab read only variables from the current safe compartment
 
+# ^variable $macrosPath
 my ($macrosPath,
+    # ^variable $pwd
     $pwd,
+    # ^variable $appletPath
     $appletPath,
+    # ^variable $server_root_url
     $server_root_url,
+	# ^variable $templateDirectory
 	$templateDirectory,
+	# ^variable $scriptDirectory
 	$scriptDirectory,
+	# ^variable $externalTTHPath
 	$externalTTHPath,
 	);
 
+# ^function _dangerousMacros_init
+# ^uses %envir
+# ^uses $macrosPath
+# ^uses $pwd
+# ^uses $appletPath
+# ^uses $server_root_url
+# ^uses $templateDirectory
+# ^uses $scriptDirectory
+# ^uses $externalTTHPath
+# ^uses $debugON
 sub _dangerousMacros_init {   #use  envir instead of local variables?
     # will allow easy addition of new directories -- is this too liberal? do some pg directories need to be protected?
     $macrosPath               = eval('$main::envir{pgDirectories}{macrosPath}'); 
@@ -128,6 +146,7 @@ sub _dangerousMacros_init {   #use  envir instead of local variables?
     warn eval(q! "dangerousmacros.pl:  The envir variable $main::{envir} is".join(" ",%main::envir)!) if $debugON; 
 }
 
+# ^function _dangerousMacros_export
 sub _dangerousMacros_export {
 	my @EXPORT= (
 	    '&_dangerousMacros_init',
@@ -205,7 +224,11 @@ they will not interfere with the normal behavior of WeBWorK in other courses.
 # A kludge using require works around this problem
 
 
-
+# ^function loadMacros
+# ^uses time_it
+# ^uses $debugON
+# ^uses $externalTTHPath
+# ^uses findMacroFile
 sub loadMacros {
     my @files = @_;
     my $fileName;
@@ -316,6 +339,10 @@ sub loadMacros {
 #
 #  Look for a macro file in the directories specified in the macros path
 #
+
+# ^function findMacroFile
+# ^uses $macrosPath
+# ^uses $pwd
 sub findMacroFile {
   my $fileName = shift;
   my $filePath;
@@ -326,6 +353,9 @@ sub findMacroFile {
   }
   return;  # no file found
 }
+
+# ^function check_url
+# ^uses %envir
 sub check_url {
 	my $url  = shift;
 	return undef if $url =~ /;/;   # make sure we can't get a second command in the url
@@ -339,8 +369,13 @@ sub check_url {
 	return ($response) ? 0 : 1; # 0 indicates success, 256 is failure possibly more checks can be made
 }
 
-
+# ^variable %appletCodebaseLocations
 our %appletCodebaseLocations = ();
+# ^function findAppletCodebase
+# ^uses %appletCodebaseLocations
+# ^uses $appletPath
+# ^uses $server_root_url
+# ^uses check_url
 sub findAppletCodebase {
 	my $fileName = shift;  # probably the name of a jar file
 	return $appletCodebaseLocations{$fileName}    #check cache first
@@ -360,6 +395,10 @@ sub findAppletCodebase {
 	return "Error: $fileName not found at ". join(",	", @{$appletPath} );	# no file found
 }
 # errors in compiling macros is not always being reported.
+# ^function compile_file
+# ^uses @__eval__
+# ^uses PG_restricted_eval
+# ^uses $__files__
 sub compile_file {
  	my $filePath = shift;
  	warn "loading $filePath" if $debugON; 
@@ -402,14 +441,14 @@ insures that an EPS file is generated when creating TeX code for downloading.
 
 =cut
 
-# Global variables used:
-#	$main::tmp_file_permission,
-#	$main::numericalGroupID
-
-#Global macros used:
-#   &convertPath
-#   &surePathToTmpFile
-
+# ^function insertGraph
+# ^uses $WWPlot::use_png
+# ^uses convertPath
+# ^uses surePathToTmpFile
+# ^uses PG_restricted_eval
+# ^uses $refreshCachedImages
+# ^uses $templateDirectory
+# ^uses %envir
 sub insertGraph {
 		    # Convert the image to GIF and print it on standard output
 	my $graph = shift;
@@ -462,20 +501,21 @@ to run on different systems.
 
 =cut
 
-# This file allows the tth display.
-# Global variables:
-#	${main::templateDirectory}tthPreamble.tex   # location of any preamble TeX commands for tth
-#   ${main::templateDirectory}
-#   ${main::scriptDirectory}tth        # path to tth application
-# Global macros:
-# 	None
-
 # the contents of this file will not change during problem compilation it
 # only needs to be read once. however, the contents of the file may change,
 # and indeed the file refered to may change, between rendering passes. thus,
 # we need to keep track of the file name and the mtime as well.
+# ^variable $tthPreambleFile
+# ^variable $tthPreambleMtime
+# ^variable $tthPreambleContents
 my ($tthPreambleFile, $tthPreambleMtime, $tthPreambleContents);
 
+# ^function tth
+# ^uses $templateDirectory
+# ^uses $envir{externalTTHPath}
+# ^uses $tthPreambleFile
+# ^uses $tthPreambleMtime
+# ^uses $tthPreambleContents
 sub tth {
 	my $inputString = shift;
 	
@@ -538,6 +578,7 @@ sub tth {
 }
 
 # possible solution to the tth font problem?  Works only for iCab.
+# ^function symbolConvert
 sub symbolConvert {
 	my	$string = shift;
 	$string =~ s/\x5C/\&#092;/g;		#\      92                       &#092;
@@ -576,8 +617,21 @@ This macro was used by the HTML_img display mode, which no longer exists.
 
 =cut
 
+# ^variable $math2imgCount
 my $math2imgCount = 0;
 
+# ^function math2img
+# ^uses $math2imgCount
+# ^uses $envir{templateDirectory}
+# ^uses $envir{fileName}
+# ^uses $envir{studentLogin}
+# ^uses $envir{setNumber}
+# ^uses $envir{probNum}
+# ^uses $envir{tempURL}
+# ^uses $envir{refreshMath2img}
+# ^uses $envir{dvipngTempDir}
+# ^uses $envir{externalLaTeXPath}
+# ^uses $envir{externalDvipngPath}
 sub math2img {
 	my $tex = shift;
 	my $mode = shift;
@@ -624,6 +678,7 @@ This macro was used by the HTML_img display mode, which no longer exists.
 =cut
 
 # copied from IO.pm for backward compatibility with WeBWorK1.8;
+# ^function dvipng
 sub dvipng($$$$$) {
 	my (
 		$wd,        # working directory, for latex and dvipng garbage
@@ -819,32 +874,28 @@ produced as in non-TeX mode but will of course not be usable to TeX.
 # Alias does not do any garbage collection, so files and alias may accumulate and
 # need to be removed manually or by a reaper daemon.
 
-
-# Global variables used:
-#  $main::fileName  # the full path to the current problem template file
-#  $main::htmlDirectory
-#  $main::htmlURL
-#  $main::tempDirectory
-#  $main::tempURL
-#  $main::studentLogin
-#  $main::psvnNumber
-#  $main::setNumber
-#  $main::probNum
-#  $main::displayMode
-
-# Global macros used
-# gif2eps   An external file called by system
-# surePathToTmpFile
-# convertPath
-# directoryFromPath
-
-
 # This subroutine  has commands which will not work on non-UNIX environments.
 # system("cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output") &&
 
-
-# local constants $User, $psvn $setNumber $probNum $displayMode
-
+# ^function alias
+# ^uses %envir
+# ^uses $envir{fileName}
+# ^uses $envir{htmlDirectory}
+# ^uses $envir{htmlURL}
+# ^uses $envir{tempDirectory}
+# ^uses $envir{tempURL}
+# ^uses $envir{studentLogin}
+# ^uses $envir{psvnNumber}
+# ^uses $envir{setNumber}
+# ^uses $envir{probNum}
+# ^uses $envir{displayMode}
+# ^uses $envir{externalGif2EpsPath}
+# ^uses $envir{externalPng2EpsPath}
+# ^uses &surePathToTmpFile
+# ^uses &convertPath
+# ^uses &directoryFromPath
+# ^uses &fileFromPath
+# ^uses $envir{texDisposition}
 sub alias {
 	# input is a path to the original auxiliary file
 	my $envir               = eval(q!\%main::envir!);  # get the current root environment
@@ -1241,6 +1292,15 @@ course's F<html> directory to allow formatted viewing of the problem source.
 
 =cut
 
+# ^function sourceAlias
+# ^uses PG_restricted_eval
+# ^uses %envir
+# ^uses $envir{inputs_ref}
+# ^uses $envir{psvn}
+# ^uses $envir{probNum}
+# ^uses $envir{displayMode}
+# ^uses $envir{courseName}
+# ^uses $envir{sessionKey}
 sub sourceAlias {
 	my $path_to_file = shift;
 	my $envir        =  PG_restricted_eval(q!\%main::envir!);
@@ -1262,24 +1322,38 @@ sub sourceAlias {
 #  Some constants that can be used in perl experssions
 #
 
+# ^function i
+# ^uses $_parser_loaded
+# ^uses &Complex::i
+# ^uses &Value::Package
 sub i () {
   #  check if Parser.pl is loaded, otherwise use Complex package
   if (!eval(q!$main::_parser_loaded!)) {return Complex::i}
   return Value->Package("Formula")->new('i')->eval;
 }
 
+# ^function j
+# ^uses $_parser_loaded
+# ^uses &Value::Package
 sub j () {
   if (!eval(q!$main::_parser_loaded!)) {return 'j'}
   Value->Package("Formula")->new('j')->eval;
 }
 
+# ^function k
+# ^uses $_parser_loaded
+# ^uses &Value::Package
 sub k () {
   if (!eval(q!$main::_parser_loaded!)) {return 'k'}
   Value->Package("Formula")->new('k')->eval;
 }
 
+# ^function pi
+# ^uses &Value::Package
 sub pi () {Value->Package("Formula")->new('pi')->eval}
 
+# ^function Infinity
+# ^uses &Value::Package
 sub Infinity () {Value->Package("Infinity")->new()}
 
 1;

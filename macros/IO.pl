@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/displayMacros.pl,v 1.9 2007/10/04 16:41:07 sh002i Exp $
+# $CVSHeader: pg/macros/IO.pl,v 1.8 2007/10/25 17:11:59 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -24,7 +24,10 @@ See notes in L<WeBWorK::PG::Translator>.
 
 =cut
 
+# ^function _IO_init
 sub _IO_init {}
+
+# ^function _IO_export
 sub _IO_export {
 	return (
 		'&send_mail_to',
@@ -46,6 +49,12 @@ longer is. Don't use this, I tell yah!
 =cut
 
 # send_mail_to($user_address,'subject'=>$subject,'body'=>$body)
+# ^function send_mail_to
+# ^uses $envir{mailSmtpServer}
+# ^uses $envir{mailSmtpSender}
+# ^uses $REMOTE_HOST
+# ^uses $REMOTE_ADDR
+# ^uses Net::SMTP::new
 sub send_mail_to {
 	my $user_address = shift; # user must be an instructor
 	my %options = @_;
@@ -111,6 +120,8 @@ Returns the path to the current course's temporary directory.
 
 =cut
 
+# ^function getCourseTempDirectory
+# ^user $envir{tempDirectory}
 sub getCourseTempDirectory {
 	return $envir{tempDirectory};
 }
@@ -130,6 +141,9 @@ course temp directory.
 
 # A very useful macro for making sure that all of the directories to a file have been constructed.
 
+# ^function surePathToTmpFile
+# ^uses getCourseTempDirectory
+# ^uses createDirectory
 sub surePathToTmpFile {
 	# constructs intermediate directories if needed beginning at ${Global::htmlDirectory}tmp/
 	# the input path must be either the full path, or the path relative to this tmp sub directory

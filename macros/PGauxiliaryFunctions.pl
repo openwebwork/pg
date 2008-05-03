@@ -11,6 +11,7 @@ sub _PGauxiliaryFunctions_init {
 
 =cut
 
+# ^uses loadMacros
 loadMacros("PGcommonFunctions.pl");
 
 =head3
@@ -34,14 +35,17 @@ loadMacros("PGcommonFunctions.pl");
 
 =cut
 
+# ^function step
 sub step {     # heavyside function (1 or x>0)
 	my $x = shift;
 	($x > 0 ) ? 1 : 0;
 }
+# ^function ceil
 sub ceil {
 	my $x = shift;
 	- floor(-$x);
 }
+# ^function floor
 sub floor {
 	my $input = shift;
 	my $out = int $input;
@@ -49,6 +53,7 @@ sub floor {
 	$out;
 }
 
+# ^function max
 sub max {
 
         my $maxVal = shift;
@@ -62,6 +67,7 @@ sub max {
 
 }
 
+# ^function min
 sub min {
 
         my $minVal = shift;
@@ -77,6 +83,8 @@ sub min {
 
 #round added 6/12/2000 by David Etlinger. Edited by AKP 3-6-03
 
+# ^function round
+# ^uses Round
 sub round {
 	my $input = shift;
 	my $out = Round($input);
@@ -90,6 +98,8 @@ sub round {
 }
 
 # Round contributed bt Mark Schmitt 3-6-03
+# ^function Round
+# ^uses Round
 sub Round {
 	if (@_ == 1) { $_[0] > 0 ? int $_[0] + 0.5 : int $_[0] - 0.5}
 	elsif (@_ == 2) { $_[0] > 0 ? Round($_[0]*10**$_[1])/10**$_[1] :Round($_[0]*10**$_[1])/10**$_[1]}
@@ -97,6 +107,7 @@ sub Round {
 
 #least common multiple
 #VS 6/29/2000
+# ^function lcm
 sub lcm {
 	my $a = shift;
 	my $b = shift;
@@ -124,7 +135,7 @@ sub lcm {
 # greatest common factor
 # takes in two scalar values and uses the Euclidean Algorithm to return the gcf
 #VS 6/29/2000
-
+# ^function gcf
 sub gcf {
         my $a = abs(shift);	# absolute values because this will yield the same gcd,
         my $b = abs(shift);	# but allows use of the mod operation
@@ -164,12 +175,15 @@ sub gcf {
 
 #greatest common factor.
 #same as gcf, but both names are sufficiently common names
+# ^function gcd
+# ^uses gcf
 sub gcd {
         return gcf($_[0], $_[1]);
 }
 
 #returns 1 for a prime number, else 0
 #VS 6/30/2000
+# ^function isPrime
 sub isPrime {
         my $num = shift;
         return 1 if ($num == 2 or $num == 3);
@@ -180,6 +194,8 @@ sub isPrime {
 
 #reduces a fraction, returning an array containing ($numerator, $denominator)
 #VS 7/10/2000
+# ^function reduce
+# ^uses gcd
 sub reduce {
 
 	my $num = shift;
@@ -203,6 +219,7 @@ sub reduce {
 # Usage: preformat($scalar, "quoted string");
 # Example: preformat(-1, "\pi") returns "-\pi"
 # VS 8/1/2000  -  slight adaption of code from T. Shemanske of Dartmouth College
+# ^function preformat
 sub preformat {
 	my $num = shift;
 	my $obj = shift;
@@ -217,7 +234,8 @@ sub preformat {
 }
 
 #factorial
-
+# ^function fact
+# ^uses P
 sub fact {
 	P($_[0], $_[0]);
 }

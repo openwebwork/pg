@@ -30,6 +30,9 @@ be displayed as the correct answer.  This helps avoid confusion.
 
 =cut
 
+# ^function auto_right
+# ^uses AnswerEvaluator::new
+# ^uses auto_right_checker
 sub auto_right {
         my $cmt = shift;
         my %params = @_;
@@ -48,6 +51,7 @@ sub auto_right {
 
 # used in auto_right above
 
+# ^function auto_right_checker
 sub auto_right_checker {
  my $ans = shift;
  $ans->score(1);
@@ -68,7 +72,10 @@ This will accept "sqrt(3)" or "3^(1/2)" as answers, but not 1.7320508
 
 =cut
 
-
+# ^function no_decs
+# ^uses must_have_filter
+# ^uses raw_student_answer_filter
+# ^uses catch_errors_filter
 sub no_decs {
 	my ($old_evaluator) = @_;
 
@@ -89,6 +96,10 @@ the answer to be marked right.
 
 =cut
 
+# ^function must_include
+# ^uses must_have_filter
+# ^uses raw_student_answer_filter
+# ^uses catch_errors_filter
 sub must_include {
 	my ($old_evaluator) = shift;
 	my $muststr = shift;
@@ -109,6 +120,10 @@ but you don't want to allow "sin(pi/4)" as the answer.
 
 =cut
 
+# ^function no_trig_fun
+# ^uses fun_cmp
+# ^uses must_have_filter
+# ^uses catch_errors_filter
 sub no_trig_fun {
 	my ($ans) = shift;
 	my $new_eval = fun_cmp($ans);
@@ -130,6 +145,10 @@ sub no_trig_fun {
 
 =cut
 
+# ^function no_trig
+# ^uses num_cmp
+# ^uses must_have_filter
+# ^uses catch_errors_filter
 sub no_trig {
 	my ($ans) = shift;
 	my $new_eval = num_cmp($ans);
@@ -151,6 +170,10 @@ sub no_trig {
 
 =cut
 
+# ^function exact_no_trig
+# ^uses num_cmp
+# ^uses no_decs
+# ^uses must_have_filter
 sub exact_no_trig {
 	my ($ans) = shift;
 	my $old_eval = num_cmp($ans);
@@ -186,6 +209,7 @@ Third argument is the error message to produce (if any).
 # First argument is the string to have, or not have
 # Second argument is optional, and tells us whether yes or no
 # Third argument is the error message to produce (if any).
+# ^function must_have_filter
 sub must_have_filter {
 	my $str = shift;
 	my $yesno = shift;
@@ -241,6 +265,7 @@ sub must_have_filter {
 
 =cut
 
+# ^function catch_errors_filter
 sub catch_errors_filter {
 	my ($rh_ans) = shift;
 	if ($rh_ans->catch_error('SYNTAX') ) {
@@ -260,7 +285,7 @@ sub catch_errors_filter {
 
 =cut
 
-
+# ^function raw_student_answer_filter
 sub raw_student_answer_filter {
 	my ($rh_ans) = shift;
 #	warn "answer was ".$rh_ans->{student_ans};
@@ -277,7 +302,8 @@ sub raw_student_answer_filter {
 
 =cut
 
-
+# ^function no_decimal_list
+# ^uses number_list_cmp
 sub no_decimal_list {
 	my ($ans) = shift;
 	my (%jopts) = @_;
@@ -311,7 +337,8 @@ sub no_decimal_list {
 
 =cut
 
-
+# ^function no_decimals
+# ^uses std_num_cmp
 sub no_decimals {
 	my ($ans) = shift;
 	my (%jopts) = @_;
@@ -347,7 +374,7 @@ sub no_decimals {
 
 # Wrapper for an answer evaluator which can also supply comments
 
-
+# ^function with_comments
 sub with_comments {
 	my ($old_evaluator, $cmt) = @_;
 
@@ -394,7 +421,7 @@ sub with_comments {
 # [answer_evaluator, partial credit factor, comment]
 # it applies evaluators from the list until it hits one with positive credit,
 # weights it by the partial credit factor, and throws in its comment
-
+# ^function pc_evaluator
 sub pc_evaluator {
         my @ev_list;
         if(ref($_[0]) ne 'ARRAY') {
@@ -451,6 +478,9 @@ This will soon be superceded by a better grader.
 
 =cut
 
+# ^function weighted_partial_grader
+# ^uses $ENV{grader_message}
+# ^uses $ENV{partial_weights}
 sub weighted_partial_grader {
     my $rh_evaluated_answers = shift;
     my $rh_problem_state = shift;
