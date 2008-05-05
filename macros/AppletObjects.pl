@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/AppletObjects.pl,v 1.6 2008/03/26 02:43:07 gage Exp $
+# $CVSHeader: pg/macros/AppletObjects.pl,v 1.7 2008/04/26 21:19:14 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -44,17 +44,35 @@ main::HEADER_TEXT(<<'END_HEADER_TEXT');
     </script>
     
 <script language="JavaScript">
-    var  applet_initializeAction_list = new Object;
-    var  applet_submitAction_list     = new Object;
-    var  applet_setState_list         = new Object;
-    var  applet_getState_list         = new Object;
-    var  applet_config_list           = new Object;
 
+//////////////////////////////////////////////////////////
+// applet lists
+//////////////////////////////////////////////////////////
+
+    var  applet_initializeAction_list = new Object;  // functions for initializing question with an applet
+    var  applet_submitAction_list     = new Object;  // functions for submitting question with applet
+    var  applet_setState_list         = new Object;  // functions for setting state (XML) from applets
+    var  applet_getState_list         = new Object;  // functions for getting state (XML) from applets
+    var  applet_config_list           = new Object;  // functions for  configuring on applets
+	var  applet_checkLoaded_list      = new Object;  // functions for probing the applet to see if it is loaded
+	var  applet_reportsLoaded_list    = new Object;  // flag set by applet
+	var  applet_isReady_list          = new Object;  // flag set by javaScript in checkLoaded 
     
-    function base64Q(str) {
-    	return ( !str.match(/<XML/i) && !str.match(/<?xml/i));
-    }
-    
+//////////////////////////////////////////////////////////
+// DEBUGGING tools
+//////////////////////////////////////////////////////////
+	var debug = $debugMode;
+	var debugText = "";
+	function debug_add(str) {
+		if (debug) {
+			debugText = debugText + "\n\n" +str;
+		}
+	}
+	
+//////////////////////////////////////////////////////////
+// INITIALIZE and SUBMIT actions
+//////////////////////////////////////////////////////////
+
     function submitAction()  {
         //alert("submit Action" );
 		for (var applet in applet_submitAction_list)  {
@@ -63,79 +81,123 @@ main::HEADER_TEXT(<<'END_HEADER_TEXT');
 		}
     	
     }
-    // Give some time delay before initializing
     function initializeAction() {
-    	//alert("ready to initialize");
-    	// give some delay to allow flash applet to load.  FIXME
-    	window.setTimeout("initializeAction1()",200);
-    	//initializeAction1();
-    }
-    function initializeAction1() {
-
-    	for (var appletName in applet_initializeAction_list)  {
-    		//alert("initialize: " + appletName);
-    		try{
-    		    applet_config_list[appletName]();
-    		} catch(e) {
-    			alert("unable to configure " + appletName + " It may have been slow to load. " +e );  
-    		}
-    		try{
-    			applet_initializeAction_list[appletName]();
-    		} catch(e) {
-    			alert("unable to initialize " + appletName + " It may have been slow to load. " +e );  
-    		}
+        var iMax = 10;
+        debugText="start intializeAction() with up to " +iMax + " attempts\n";
+    	for (var appletName in applet_initializeAction_list)  {		
+			safe_applet_initialize(appletName, iMax);
     	}
+
+    }
+   	
+   	// applet can set isReady flag by calling applet_loaded(appletName, loaded);
+    function applet_loaded(appletName,loaded) {
+        applet_reportsLoaded_list[appletName] = loaded; // 0 means not loaded
+    	debug_add("applet reporting that it has been loaded = " + loaded );
     }
     
+    // insures that applet is loaded before initializing it
+	function safe_applet_initialize(appletName, i) {
+		debug_add("Iteration " + i + " of safe_applet_initialize with applet " + appletName );
+		
+		i--;
+		var applet_loaded = applet_checkLoaded_list[appletName]();
+		debug_add("applet is ready = " + applet_loaded  );
+	
+		if ( 0 < i && !applet_loaded ) { // wait until applet is loaded
+			debug_add("applet " + appletName + "not ready try again");
+			window.setTimeout( "safe_applet_initialize(\"" + appletName + "\"," + i +  ")",1);
+		} else if( 0 < i ){  // now that applet is loaded configure it and initialize it with saved data.
+			debug_add(" Ready to initialize applet " + appletName + " with " + i +  " iterations left. "); 
+			
+			// in-line handler -- configure and initialize
+			try{
+				if (debug && typeof(getApplet(appletName).debug) == "function" ) {
+					getApplet(appletName).debug(1);
+				}					
+			} catch(e) {
+				alert("Unable to set debug mode for applet " + appletName);
+			}
+			try{
+				applet_config_list[appletName]();
+			} catch(e) {
+				alert("Unable to configure " + appletName + " \n " +e );  
+			}
+			try{
+				applet_initializeAction_list[appletName]();
+			} catch(e) {
+				alert("unable to initialize " + appletName + " \n " +e );  
+			}
+			
+		} else {
+			if (debug) {alert("Error: timed out waiting for applet " +appletName + " to load");}
+		}
+		if (debug) {alert(debugText); debugText="";};
+	}
+   
+///////////////////////////////////////////////////////
+// Utility functions
+///////////////////////////////////////////////////////   
     
-	var flash;
+
 	function getApplet(appletName) {
 		  var isIE = navigator.appName.indexOf("Microsoft") != -1;
 		  var obj = (isIE) ? window[appletName] : window.document[appletName];
 		  //return window.document[appletName];
 		  if (obj && (obj.name = appletName)) {
-		  	  return( obj );
+			  return( obj );
 		  } else {
-		     alert ("can't find applet " + appletName);		  
+			 // alert ("can't find applet " + appletName);		  
 		  }
 	 }	
-
-    function listQuestionElements() { // list all HTML input and textarea elements in main problem form
-       var isIE = navigator.appName.indexOf("Microsoft") != -1;
-       var elementList = (isIE) ?  document.getElementsByTagName("input") : document.problemMainForm.getElementsByTagName("input");
-       var str=elementList.length +" Question Elements\n type | name = value  < id > \n";
-       for( var i=0; i< elementList.length; i++) {
-           str = str + " "+i+" " + elementList[i].type 
-                           + " | " + elementList[i].name 
-                           + "= " + elementList[i].value + 
-                           " <" + elementList[i].id + ">\n";
-       }
-       elementList = (isIE) ?  document.getElementsByTagName("textarea") : document.problemMainForm.getElementsByTagName("textarea");
-       for( var i=0; i< elementList.length; i++) {
-           str = str + " "+i+" " + elementList[i].type 
-                           + " | " + elementList[i].name 
-                           + "= " + elementList[i].value + 
-                           " <" + elementList[i].id + ">\n";
-       }
-       alert(str +"\n Place listQuestionElements() at end of document in order to get all form elements!");
-   }	
-
-    function getQE(name1) { // get Question Element in problemMainForm by name
-        var isIE = navigator.appName.indexOf("Microsoft") != -1;
-    	var obj = (isIE) ? document.getElementById(name1)
-    	                    :document.problemMainForm[name1]; 
-    	// needed for IE -- searches id and name space so it can be unreliable if names are not unique
-    	if (!obj || obj.name != name1) {
-    	    alert("Can't find element " + name1);
-    		listQuestionElements();		
-    	} else {
-    		return( obj );
-    	}
-    	
-    }
-    function getQuestionElement(name1) {
-    	return getQE(name1);
-    }
+	
+	function listQuestionElements() { // list all HTML input and textarea elements in main problem form
+	   var isIE = navigator.appName.indexOf("Microsoft") != -1;
+	   var elementList = (isIE) ?  document.getElementsByTagName("input") : document.problemMainForm.getElementsByTagName("input");
+	   var str=elementList.length +" Question Elements\n type | name = value  < id > \n";
+	   for( var i=0; i< elementList.length; i++) {
+		   str = str + " "+i+" " + elementList[i].type 
+						   + " | " + elementList[i].name 
+						   + "= " + elementList[i].value + 
+						   " <" + elementList[i].id + ">\n";
+	   }
+	   elementList = (isIE) ?  document.getElementsByTagName("textarea") : document.problemMainForm.getElementsByTagName("textarea");
+	   for( var i=0; i< elementList.length; i++) {
+		   str = str + " "+i+" " + elementList[i].type 
+						   + " | " + elementList[i].name 
+						   + "= " + elementList[i].value + 
+						   " <" + elementList[i].id + ">\n";
+	   }
+	   alert(str +"\n Place listQuestionElements() at end of document in order to get all form elements!");
+	}
+	
+	function base64Q(str) {
+		return ( !str.match(/<XML/i) && !str.match(/<?xml/i));
+	}
+	function setEmptyState(appletName){
+		var newState = "<xml></xml>";
+		applet_setState_list[appletName](newState);
+		var applet = getApplet(appletName);
+		getQE(appletName+"_state").value = newState;
+		getQE("previous_" + appletName + "_state").value = newState
+	}
+	
+	function getQE(name1) { // get Question Element in problemMainForm by name
+		var isIE = navigator.appName.indexOf("Microsoft") != -1;
+		var obj = (isIE) ? document.getElementById(name1)
+							:document.problemMainForm[name1]; 
+		// needed for IE -- searches id and name space so it can be unreliable if names are not unique
+		if (!obj || obj.name != name1) {
+			alert("Can't find element " + name1);
+			listQuestionElements();		
+		} else {
+			return( obj );
+		}
+		
+	}
+	function getQuestionElement(name1) {
+		return getQE(name1);
+	}
 
  </script>
  
@@ -234,8 +296,8 @@ sub insertAll {  ## inserts both header text and object text
 	my $state_input_element = ($self->debug == 1) ? $debug_input_element :
 	      qq!\n<input type="hidden" name = "$appletStateName" value ="$base_64_encoded_answer_value">!;
     my $reset_button_str = ($reset_button) ?
-            qq!<br/><input type='button' value='set applet state empty' onClick="applet_setState_list['$appletName']('<xml></xml>')">
-                    <input type="button" value="reinitialize applet" onClick="initializeAction()"/>!
+            qq!<br/><input type='button' value='set applet state empty' onClick="setEmptyState('$appletName')">
+                    <input type="button" value="reinitialize applet" onClick="getQE('$appletStateName').value='$base64_initialState'"/>!
             : '' 
     ;
 	# always base64 encode the hidden answer value to prevent problems with quotes. 
