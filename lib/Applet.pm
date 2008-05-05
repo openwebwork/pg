@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/Applet.pm,v 1.8 2008/03/26 02:42:20 gage Exp $
+# $CVSHeader: pg/lib/Applet.pm,v 1.9 2008/05/05 16:44:11 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -406,6 +406,9 @@ sub initialize  {
 use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
   	
 	<script language="JavaScript">
+	
+	// set debug mode for this applet
+		set_debug($debugMode);
 	
 	//////////////////////////////////////////////////////////
 	//CONFIGURATIONS

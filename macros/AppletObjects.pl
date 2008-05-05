@@ -61,8 +61,13 @@ main::HEADER_TEXT(<<'END_HEADER_TEXT');
 //////////////////////////////////////////////////////////
 // DEBUGGING tools
 //////////////////////////////////////////////////////////
-	var debug = $debugMode;
+	var debug;
 	var debugText = "";
+	function set_debug(num) { // setting debug for any applet sets it for all of them
+		if (num) {
+			debug =1;
+		}
+	}
 	function debug_add(str) {
 		if (debug) {
 			debugText = debugText + "\n\n" +str;
