@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: webwork2/lib/WeBWorK.pm,v 1.100 2007/08/13 22:59:53 sh002i Exp $
+# $CVSHeader: pg/macros/contextPiecewiseFunction.pl,v 1.7 2007/10/04 16:40:48 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -659,7 +659,7 @@ sub compare {
 }
 
 #
-#  Check that the funciton domains have the same number of
+#  Check that the function domains have the same number of
 #  components, and that those components agree, interval by interval.
 #
 sub compareDomains {
