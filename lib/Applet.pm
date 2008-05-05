@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/Applet.pm,v 1.7 2008/03/26 01:25:52 gage Exp $
+# $CVSHeader: pg/lib/Applet.pm,v 1.8 2008/03/26 02:42:20 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -37,7 +37,7 @@ Applet.pl - Provides code for inserting FlashApplets and JavaApplets into webwor
   ###################################
   
   #xml data to set up the problem-rac
-  $applet->state(qq{<XML> 
+  $applet->config(qq{<XML> 
   <point xval='$xval_1' yval='$yval_1' />
   <point xval='$xval_2' yval='$yval_2' />
   </XML>});
@@ -192,8 +192,8 @@ sub new {
 		params    =>undef,
 		width     => 550,
 		height    => 400,
-		base64_state       =>  '',
-		base64_config      =>  '',
+		base64_state       =>  undef,     # this is an state to use for initializing the first occurence of the question.
+		base64_config      =>  undef,     # this is the initial (and final?) configuration
 		getStateAlias      =>  'getXML',
 		setStateAlias      =>  'setXML',
 		configAlias        =>  'config',
@@ -206,6 +206,8 @@ sub new {
 		@_,
 	};
 	bless $self, $class;
+	$self->state('<xml></xml>');
+	$self->config('<xml></xml>');
 	return $self;
 }
 
@@ -397,74 +399,121 @@ sub initialize  {
 	};
 
 }
-
+########################################################
+# HEADER material for one flash or java applet
+########################################################
 
 use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
   	
 	<script language="JavaScript">
-	var debug = $debugMode;
-	//
+	
+	//////////////////////////////////////////////////////////
 	//CONFIGURATIONS
 	//
     // configurations are "permanent"
+    //////////////////////////////////////////////////////////
+    
     applet_config_list["$appletName"]   = function() {
-        if (debug) { alert("configure $appletName . $config ( $base64_config )");}
+        debug_add("applet_config_list:\n configure $appletName . $config ( $base64_config )" 
+                   + typeof(getApplet("$appletName").$config)
+        );
     	try {  
-    	    if (debug || !( typeof(getApplet("$appletName").$config)  == "undefined" ) ) {
-    	        
+    	    if (( typeof(getApplet("$appletName").$config)  == "function" ) ) {
+    	        debug_add("configure $appletName");
     			getApplet("$appletName").$config(Base64.decode("$base64_config"));
     		}
     	} catch(e) {
-    		alert("error executing configuration command $config for $appletName: " + e );
+    		alert("Error executing configuration command $config for $appletName: " + e );
     	}
     }
+    ////////////////////////////////////////////////////////////
     //
-    //STATE
+    //STATE:
+    // state can vary as the applet is manipulated -- it is reset from the questions _state values
     //
-    // state can vary as the applet is manipulated.
-    applet_setState_list["$appletName"] = function(state) {   
-          if (debug) { alert("set state for $appletName to " + state);}
-  		  state =  state || getQE("$appletName"+"_state").value 
-  		  if (state.match(/<xml/i) || state.match(/<?xml/i) ) {  // if state is not all white space 
-			  if ( base64Q(state) ) { 
-				state=Base64.decode(state);
-			  }
-			  alert("set (decoded) state for $appletName to " + state);
-			  try {
-				if (debug || !( typeof(getApplet("$appletName").$setState)  =="undefined" ) ) {
-					getApplet("$appletName").$setState( state );
-				}
-			  } catch(e) {
-				alert("Error in setting state of $appletName using command $setState : " + e );
-			  }
-		   } else if (debug) {
-		   	 alert("new state was empty string or did not begin with <xml-- state was not reset");
-		   }
+    //////////////////////////////////////////////////////////
+    
+    applet_setState_list["$appletName"] = function(state) {  
+		debug_add("Begin setState");
+		state =  state || getQE("$appletName"+"_state").value;
+		if ( base64Q(state) ) { 
+			state=Base64.decode(state);
+		}
+		if (state.match(/<xml/i) || state.match(/<?xml/i) ) {  // if state starts with <?xml
+		
+			debug_add("applet_setState_list: \n set (decoded) state for $appletName to " + 
+					 state +"\nfunction type is " +typeof(getApplet("$appletName").$setState)
+			);
+			try {
+			if (( typeof(getApplet("$appletName").$setState)  =="function" ) ) {
+				debug_add("setState for $appletName");
+				getApplet("$appletName").$setState( state );
+			}
+			} catch(e) {
+			alert("Error in setting state of $appletName using command $setState : " + e );
+			}
+		} else if (debug) {
+			alert("new state was empty string or did not begin with <xml-- state was not reset");
+		}
 	};
 	applet_getState_list["$appletName"] = function () {  
-		  if (debug) { alert("getState for applet $appletName");}
-		  try {
-		    var applet = getApplet("$appletName");
-		    var state;
-		    if (!( typeof(getApplet("$appletName").$getState)  =="undefined" ) ) {
-		  		state  = applet.$getState();               // get state in xml format
-		  	}
-		    if (!debug) {state = Base64.encode(state) };   // replace state by encoded version
-		  	getQE("$appletName"+"_state").value = state;   //place in state htmlItem (debug: textarea, otherwise hidden)
-		  } catch (e) {
-		  	alert("Error in getting state for $appletName " + e );
-		  }
+		if (debug) { alert("getState for applet $appletName");}
+		var applet = getApplet("$appletName");
+		try {
+			if (( typeof(applet.$getState)  == "function" ) ) {  // there may be no state function
+				state  = applet.$getState();                     // get state in xml format
+			}   
+			if (debug) alert("state is " + state);
+			if (!debug) {state = Base64.encode(state) };   // replace state by encoded version unless in debug mode
+			getQE("$appletName"+"_state").value = state;   //place in state htmlItem (debug: textarea, otherwise hidden)
+		} catch (e) {
+			alert("Error in getting state for $appletName " + e );
+		}
     };
+    
+    ////////////////////////////////////////////////////////////
     //
     //INITIALIZE
     //
-    applet_initializeAction_list["$appletName"] = function () {
-          applet_setState_list["$appletName"]();
+    ////////////////////////////////////////////////////////////
+    
+
+    applet_checkLoaded_list["$appletName"] = function() { // this function returns 0 unless:
+                                                      // applet has already been flagged as ready in applet_isReady_list
+                                                      // applet.config is defined  (or alias for .config)
+                                                      // applet.setState is defined
+                                                      // applet.isActive is defined
+                                                      // applet reported that it is loaded by calling loadQ()
+    	var ready = 0;
+    	var applet = getApplet("$appletName");
+    	    if (!debug && applet_isReady_list["$appletName"]) {return(1)}; // memorize readiness in non-debug mode
+    		if ( typeof(applet.$config) == "function") {
+    		    debug_add( "applet.config is " + typeof(applet.$config) );
+    			ready = 1;
+    		}
+    		if( typeof(applet.$getState) == "function") {
+    		    debug_add( "applet.getState is " + typeof(applet.$getState) );
+    			ready =1;
+    		} 
+    		if (typeof(applet.isActive) == "function" && applet.isActive ) {
+    			debug_add( "applet.isActive is " + typeof(applet.isActive) );
+    			ready =1;
+    		} 
+    		if (typeof(applet_reportsLoaded_list["$appletName"]) !="undefined" && applet_reportsLoaded_list["$appletName"] != 0 ) {
+    			debug_add( "applet reports that it is loaded " + applet_reportsLoaded_list["$appletName"] );
+    			ready =1;
+    		}
+    	applet_isReady_list["$appletName"]=ready;
+    	return(ready);
+    }
+    	
+    applet_initializeAction_list["$appletName"] = function (state) {
+          applet_setState_list["$appletName"](state);
 	};
 	
 	applet_submitAction_list["$appletName"] = function () {  
           applet_getState_list["$appletName"]();
-		  getQE("$returnFieldName").value = getApplet("$appletName").sendData();
+		  getQE("$returnFieldName").value = getApplet("$appletName").sendData();  //FIXME -- not needed in general?
     };
     </script>
 	
