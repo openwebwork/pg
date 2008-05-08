@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PG.pl,v 1.35 2008/03/26 02:43:07 gage Exp $
+# $CVSHeader: pg/macros/PG.pl,v 1.36 2008/05/03 17:43:29 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -107,18 +107,18 @@ sub _PG_init{
 
 #  Private variables for the PG.pl file.
 
-# ^variable $STRINGforOUTPUT
+# ^variable my $STRINGforOUTPUT
 my $STRINGforOUTPUT;
-# ^variable $STRINGforHEADER_TEXT
+# ^variable my $STRINGforHEADER_TEXT
 my $STRINGforHEADER_TEXT;
-# ^variable @PG_ANSWERS
+# ^variable my @PG_ANSWERS
 my @PG_ANSWERS;
-# ^variable @PG_UNLABELED_ANSWERS
+# ^variable my @PG_UNLABELED_ANSWERS
 my @PG_UNLABELED_ANSWERS;
-# ^variable %PG_ANSWERS_HASH
+# ^variable my %PG_ANSWERS_HASH
 my %PG_ANSWERS_HASH;
 
-# ^variable $PG_STOP_FLAG
+# ^variable our $PG_STOP_FLAG
 our $PG_STOP_FLAG;
 
 # my variables are unreliable if two DOCUMENTS were to be called before an ENDDOCUMENT

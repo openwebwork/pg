@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/dangerousMacros.pl,v 1.50 2007/10/04 16:57:34 sh002i Exp $
+# $CVSHeader: pg/macros/dangerousMacros.pl,v 1.51 2008/05/03 17:43:29 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -97,24 +97,24 @@ BEGIN {
 	
 }
 
-# ^variable $debugON
+# ^variable my $debugON
 my $debugON = 0;
 
 # grab read only variables from the current safe compartment
 
-# ^variable $macrosPath
+# ^variable my $macrosPath
 my ($macrosPath,
-    # ^variable $pwd
+    # ^variable my $pwd
     $pwd,
-    # ^variable $appletPath
+    # ^variable my $appletPath
     $appletPath,
-    # ^variable $server_root_url
+    # ^variable my $server_root_url
     $server_root_url,
-	# ^variable $templateDirectory
+	# ^variable my $templateDirectory
 	$templateDirectory,
-	# ^variable $scriptDirectory
+	# ^variable my $scriptDirectory
 	$scriptDirectory,
-	# ^variable $externalTTHPath
+	# ^variable my $externalTTHPath
 	$externalTTHPath,
 	);
 
@@ -369,7 +369,7 @@ sub check_url {
 	return ($response) ? 0 : 1; # 0 indicates success, 256 is failure possibly more checks can be made
 }
 
-# ^variable %appletCodebaseLocations
+# ^variable our %appletCodebaseLocations
 our %appletCodebaseLocations = ();
 # ^function findAppletCodebase
 # ^uses %appletCodebaseLocations
@@ -505,9 +505,9 @@ to run on different systems.
 # only needs to be read once. however, the contents of the file may change,
 # and indeed the file refered to may change, between rendering passes. thus,
 # we need to keep track of the file name and the mtime as well.
-# ^variable $tthPreambleFile
-# ^variable $tthPreambleMtime
-# ^variable $tthPreambleContents
+# ^variable my $tthPreambleFile
+# ^variable my $tthPreambleMtime
+# ^variable my $tthPreambleContents
 my ($tthPreambleFile, $tthPreambleMtime, $tthPreambleContents);
 
 # ^function tth
@@ -617,7 +617,7 @@ This macro was used by the HTML_img display mode, which no longer exists.
 
 =cut
 
-# ^variable $math2imgCount
+# ^variable my $math2imgCount
 my $math2imgCount = 0;
 
 # ^function math2img

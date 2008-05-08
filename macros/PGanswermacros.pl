@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PGanswermacros.pl,v 1.66 2008/04/26 23:07:02 gage Exp $
+# $CVSHeader: pg/macros/PGanswermacros.pl,v 1.67 2008/05/03 17:43:29 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -138,15 +138,15 @@ BEGIN { be_strict() }
 # variables. We do this once here and place the values in lexicals for later
 # access.
 
-# ^variable $BR
+# ^variable my $BR
 my $BR;
-# ^variable $functLLimitDefault
+# ^variable my $functLLimitDefault
 my $functLLimitDefault;
-# ^variable $functULimitDefault
+# ^variable my $functULimitDefault
 my $functULimitDefault;
-# ^variable $functVarDefault
+# ^variable my $functVarDefault
 my $functVarDefault;
-# ^variable $useBaseTenLog
+# ^variable my $useBaseTenLog
 my $useBaseTenLog;
 
 # ^function _PGanswermacros_init
