@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/IO.pl,v 1.8 2007/10/25 17:11:59 sh002i Exp $
+# $CVSHeader: pg/macros/IO.pl,v 1.9 2008/05/03 17:43:29 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -121,7 +121,7 @@ Returns the path to the current course's temporary directory.
 =cut
 
 # ^function getCourseTempDirectory
-# ^user $envir{tempDirectory}
+# ^uses $envir{tempDirectory}
 sub getCourseTempDirectory {
 	return $envir{tempDirectory};
 }
