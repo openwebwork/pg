@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: webwork2/lib/WeBWorK.pm,v 1.100 2007/08/13 22:59:53 sh002i Exp $
+# $CVSHeader: pg/macros/parserRadioButtons.pl,v 1.10 2007/10/04 16:40:49 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -32,6 +32,22 @@ where "choices" are the strings for the items in the radio buttons,
 and options are chosen from among:
 
 =over
+
+=item C<S<< order => [choice,...] >>>
+
+Specifies the order in which choices should be presented. All choices must be
+listed. If this option is specified, the C<first> and C<last> options are
+ignored.
+
+=item C<S<< first => [choice,...] >>>
+
+Specifies choices which should appear first, in the order specified, in the list
+of choices. Ignored if the C<order> option is specified.
+
+=item C<S<< last => [choice,...] >>>
+
+Specifies choices which should appear last, in the order specified, in the list
+of choices. Ignored if the C<order> option is specified.
 
 =item C<S<< labels => [label1,...] >>>
 
@@ -129,6 +145,9 @@ sub new {
     checked => undef,
     maxLabelSize => 25,
     uncheckable => 0,
+    first => undef,
+    last => undef,
+    order => undef,
     @_,
   );
   $options{labels} = [1..scalar(@$choices)] if $options{labels} eq "123";
@@ -147,12 +166,11 @@ sub new {
   return $self;
 }
 
-#
-#  Locate the label of the correct answer
-#  The answer can be given as an index, as the full answer
-#    or as the label itself.
-#
-sub correctChoice {
+# 
+#  Given a choice, a label, or an index into the choices array,
+#    return the label.
+# 
+sub findChoice {
   my $self = shift; my $value = shift;
   my $index = $self->Index($value);
   foreach my $i (0..scalar(@{$self->{choices}})-1) {
@@ -160,6 +178,17 @@ sub correctChoice {
     $label = $self->makeLabel($choice) unless defined $label;
     return $label if $label eq $value || $index == $i || $choice eq $value;
   }
+}
+
+#
+#  Locate the label of the correct answer
+#  The answer can be given as an index, as the full answer
+#    or as the label itself.
+#
+sub correctChoice {
+  my $self = shift; my $value = shift;
+  my $choice = $self->findChoice($value);
+  return $choice if defined $choice;
   Value::Error("The correct answer should be one of the button choices");
 }
 
@@ -246,18 +275,81 @@ sub makeUncheckable {
   return @radio;
 }
 
+# 
+#  Determine the order the choices should be in.
+# 
+sub orderedChoices {
+  my $self = shift;
+  my %choiceHash = $self->choiceHash;
+  my @labels = keys %choiceHash;
+  
+  my @order = @{$self->{order}};
+  my @first = @{$self->{first}};
+  my @last  = @{$self->{last}};
+  
+  my @orderLabels;
+  
+  if (@order) {
+    my %remainingChoices = %choiceHash;
+    Value::Error("When using the 'order' option, you must list all possible choices.")
+      unless @order == @labels;
+    foreach my $i (0..$#order) {
+      my $label = $self->findChoice($order[$i]);
+      Value::Error("Item $i of the 'order' option is not a choice.")
+      	if not defined $label;
+      Value::Error("Item $i of the 'order' option was already specified.")
+      	if not exists $remainingChoices{$label};
+      push @orderLabels, $label;
+      delete $remainingChoices{$label};
+    }
+  } elsif (@first or @last) {
+    my @firstLabels;
+    my @lastLabels;
+    my %remainingChoices = %choiceHash;
+    
+    foreach my $i (0..$#first) {
+      my $label = $self->findChoice($first[$i]);
+      Value::Error("Item $i of the 'first' option is not a choice.")
+	if not defined $label;
+      Value::Error("Item $i of the 'first' option was already specified.")
+	if not exists $remainingChoices{$label};
+      push @firstLabels, $label;
+      delete $remainingChoices{$label};
+    }
+    
+    foreach my $i (0..$#last) {
+      my $label = $self->findChoice($last[$i]);
+      Value::Error("Item $i of the 'last' option is not a choice.")
+	if not defined $label;
+      Value::Error("Item $i of the 'last' option was already specified.")
+	if not exists $remainingChoices{$label};
+      push @lastLabels, $label;
+      delete $remainingChoices{$label};
+    }
+
+    @orderLabels = (@firstLabels, keys %remainingChoices, @lastLabels);
+  } else {
+    # use the order of elements in the hash
+    # this is the current behavior
+    # might we want to explicitly randomize these?
+    @orderLabels = @labels;
+  }
+  
+  return map { $_ => $choiceHash{$_} } @orderLabels;
+}
+
 #
 #  Create the radio-buttons text
 #
 sub buttons {
   my $self = shift;
-  my @radio = main::ans_radio_buttons($self->choiceHash);
+  my @radio = main::ans_radio_buttons($self->orderedChoices);
   @radio = $self->makeUncheckable(@radio) if $self->{uncheckable};
   (wantarray) ? @radio : join($self->{separator}, @radio);
 }
 sub named_buttons {
   my $self = shift; my $name = shift;
-  my @radio = NAMED_ANS_RADIO_BUTTONS($name,$self->choiceHash);
+  my @radio = NAMED_ANS_RADIO_BUTTONS($name,$self->orderedChoices);
   @radio = $self->makeUncheckable(@radio) if $self->{uncheckable};
   #
   #  Taken from PGbasicmacros.pl
