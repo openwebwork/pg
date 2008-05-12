@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/AppletObjects.pl,v 1.7 2008/04/26 21:19:14 gage Exp $
+# $CVSHeader: pg/macros/AppletObjects.pl,v 1.9 2008/05/05 17:24:46 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -32,8 +32,14 @@ L<Applets.pm>.
 
 =cut
 
+#########################################################################
+#
+# Add basic functionality to the header of the question
+#
+# don't reload this file
+#########################################################################
 
-sub _AppletObjects_init{}; # don't reload this file
+sub _AppletObjects_init  {               
 
 
 main::HEADER_TEXT(<<'END_HEADER_TEXT');
@@ -79,12 +85,14 @@ main::HEADER_TEXT(<<'END_HEADER_TEXT');
 //////////////////////////////////////////////////////////
 
     function submitAction()  {
-        //alert("submit Action" );
-		for (var applet in applet_submitAction_list)  {
-			 //alert(applet);
-			 applet_submitAction_list[applet]();
-		}
-    	
+        alert("Begin submitAction!!!!!");
+        if (debug) {debugText = "Begin looping through applet_submitAction_list\n";}
+ 		for (var applet in applet_submitAction_list)  {
+ 			 //alert(applet);
+ 			 applet_submitAction_list[applet]();
+ 		}
+		if (debug) {alert(debugText); debugText="";};
+    	return(1);
     }
     function initializeAction() {
         var iMax = 10;
@@ -118,7 +126,7 @@ main::HEADER_TEXT(<<'END_HEADER_TEXT');
 			// in-line handler -- configure and initialize
 			try{
 				if (debug && typeof(getApplet(appletName).debug) == "function" ) {
-					getApplet(appletName).debug(1);
+					getApplet(appletName).debug(1);  // turn the applet's debug functions on.
 				}					
 			} catch(e) {
 				alert("Unable to set debug mode for applet " + appletName);
@@ -208,7 +216,7 @@ main::HEADER_TEXT(<<'END_HEADER_TEXT');
  
 END_HEADER_TEXT
 
-
+};
 
 =head3
 	FlashApplet
@@ -286,8 +294,8 @@ sub insertAll {  ## inserts both header text and object text
 	#######
 	# insert a hidden variable to hold the applet's state (debug =>1 makes it visible for debugging and provides debugging buttons)
 	#######
-	my $base_64_encoded_answer_value = ($answer_value =~/<XML>/i)? encode_base64($answer_value) : $answer_value;
-	my $decoded_answer_value         = ($answer_value =~/<XML>/i) ? $answer_value : decode_base64($answer_value);
+	my $base_64_encoded_answer_value = ($answer_value =~/<XML|<?xml/i)? encode_base64($answer_value) : $answer_value;
+	my $decoded_answer_value         = ($answer_value =~/<XML|<?xml/i) ? $answer_value : decode_base64($answer_value);
     my $debug_input_element  = qq!\n<textarea  rows="4" cols="80" 
 	   name = "$appletStateName">$decoded_answer_value</textarea><br/>
 	        <input type="button"  value="$getState" 

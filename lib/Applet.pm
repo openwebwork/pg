@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/Applet.pm,v 1.9 2008/05/05 16:44:11 gage Exp $
+# $CVSHeader: pg/lib/Applet.pm,v 1.10 2008/05/05 17:24:31 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -417,12 +417,11 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
     //////////////////////////////////////////////////////////
     
     applet_config_list["$appletName"]   = function() {
-        debug_add("applet_config_list:\n configure $appletName . $config ( $base64_config )" 
-                   + typeof(getApplet("$appletName").$config)
+        debug_add("applet_config_list:\n attempt to configure $appletName . $config ( $base64_config ) if config function is defined: " 
         );
     	try {  
     	    if (( typeof(getApplet("$appletName").$config)  == "function" ) ) {
-    	        debug_add("configure $appletName");
+    	        debug_add("CONFIGURE $appletName");
     			getApplet("$appletName").$config(Base64.decode("$base64_config"));
     		}
     	} catch(e) {
@@ -437,7 +436,8 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
     //////////////////////////////////////////////////////////
     
     applet_setState_list["$appletName"] = function(state) {  
-		debug_add("Begin setState");
+		debug_add("Begin setState for applet $appletName");
+		debug_add("Obtain state from $appletName"+"_state");
 		state =  state || getQE("$appletName"+"_state").value;
 		if ( base64Q(state) ) { 
 			state=Base64.decode(state);
@@ -460,15 +460,16 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 		}
 	};
 	applet_getState_list["$appletName"] = function () {  
-		if (debug) { alert("getState for applet $appletName");}
+		debug_add("get current state for applet $appletName and store it in $appletName"+"_state");
 		var applet = getApplet("$appletName");
 		try {
 			if (( typeof(applet.$getState)  == "function" ) ) {  // there may be no state function
 				state  = applet.$getState();                     // get state in xml format
 			}   
-			if (debug) alert("state is " + state);
+			
 			if (!debug) {state = Base64.encode(state) };   // replace state by encoded version unless in debug mode
-			getQE("$appletName"+"_state").value = state;   //place in state htmlItem (debug: textarea, otherwise hidden)
+			debug_add("state is "+state);                  // this should still be in plain text
+			getQE("$appletName"+"_state").value = state;   //place state in input item (debug: textarea, otherwise: hidden)
 		} catch (e) {
 			alert("Error in getting state for $appletName " + e );
 		}
@@ -506,7 +507,7 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
     			debug_add( "applet reports that it is loaded " + applet_reportsLoaded_list["$appletName"] );
     			ready =1;
     		}
-    	applet_isReady_list["$appletName"]=ready;
+    	applet_isReady_list["$appletName"]= ready;
     	return(ready);
     }
     	
@@ -515,8 +516,11 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 	};
 	
 	applet_submitAction_list["$appletName"] = function () {  
+	      if (! applet_isReady_list["$appletName"]  ) {
+	      	alert("$appletName is not ready");
+	      }
           applet_getState_list["$appletName"]();
-		  getQE("$returnFieldName").value = getApplet("$appletName").sendData();  //FIXME -- not needed in general?
+		  //getQE("$returnFieldName").value = getApplet("$appletName").sendData();  //FIXME -- not needed in general?
     };
     </script>
 	
@@ -643,6 +647,10 @@ use constant DEFAULT_OBJECT_TEXT =><<'END_OBJECT_TEXT';
     MAYSCRIPT
  >
   $javaParameters
+  
+  Sorry, the Applet could not be started. Please make sure that
+Java 1.4.2 (or later) is installed and activated. 
+(<a href="http://java.sun.com/getjava">click here to install Java now</a>)
  </applet>
 END_OBJECT_TEXT
 
