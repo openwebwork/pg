@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: webwork2/lib/WeBWorK.pm,v 1.100 2007/08/13 22:59:53 sh002i Exp $
+# $CVSHeader: pg/macros/parserFormulaUpToConstant.pl,v 1.10 2007/10/04 16:40:48 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -175,7 +175,10 @@ sub compare {
   #
   #  Compare with adaptive parameters to see if $l + n0 C = $r for some n0.
   #
-  return -1 unless $l->{adapt} == $r;
+  $main::_cmp_ = sub {return $l->{adapt} == $r};    # a closure to access local variables
+  my $equal = main::PG_restricted_eval('&$_cmp_');  # prevents errors with large adaptive parameters
+  delete $main::{_cmp_};                            # remove temprary function
+  return -1 unless $equal;
   #
   #  Check that n0 is non-zero (i.e., there is a multiple of C in the student answer)
   #  (remember: return value of 0 is equal, and non-zero is unequal)
