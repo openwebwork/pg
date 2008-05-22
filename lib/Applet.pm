@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/Applet.pm,v 1.10 2008/05/05 17:24:31 gage Exp $
+# $CVSHeader: pg/lib/Applet.pm,v 1.11 2008/05/12 00:50:23 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -465,9 +465,15 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 		try {
 			if (( typeof(applet.$getState)  == "function" ) ) {  // there may be no state function
 				state  = applet.$getState();                     // get state in xml format
+				debug_add("state has type " + typeof(state));
+				state  = String(state);                          // geogebra returned an object type instead of a string type
+				debug_add("state converted to type " + typeof(state));
 			}   
 			
-			if (!debug) {state = Base64.encode(state) };   // replace state by encoded version unless in debug mode
+			if (!debug) {
+				state = Base64.encode(state);	
+			};   // replace state by encoded version unless in debug mode
+
 			debug_add("state is "+state);                  // this should still be in plain text
 			getQE("$appletName"+"_state").value = state;   //place state in input item (debug: textarea, otherwise: hidden)
 		} catch (e) {
