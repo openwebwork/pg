@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/AppletObjects.pl,v 1.9 2008/05/05 17:24:46 gage Exp $
+# $CVSHeader: pg/macros/AppletObjects.pl,v 1.10 2008/05/12 00:50:24 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -85,14 +85,17 @@ main::HEADER_TEXT(<<'END_HEADER_TEXT');
 //////////////////////////////////////////////////////////
 
     function submitAction()  {
-        alert("Begin submitAction!!!!!");
-        if (debug) {debugText = "Begin looping through applet_submitAction_list\n";}
+        
+        if (debug) {
+        	debugText = " Begin looping through applet_submitAction_list\n";
+        }
  		for (var applet in applet_submitAction_list)  {
- 			 //alert(applet);
+ 			
  			 applet_submitAction_list[applet]();
  		}
-		if (debug) {alert(debugText); debugText="";};
-    	return(1);
+		if (debug) {
+			alert(debugText); debugText="";
+		};
     }
     function initializeAction() {
         var iMax = 10;
@@ -295,6 +298,7 @@ sub insertAll {  ## inserts both header text and object text
 	# insert a hidden variable to hold the applet's state (debug =>1 makes it visible for debugging and provides debugging buttons)
 	#######
 	my $base_64_encoded_answer_value = ($answer_value =~/<XML|<?xml/i)? encode_base64($answer_value) : $answer_value;
+	$base_64_encoded_answer_value =~ s/\r|\n//g;    # get rid of line returns
 	my $decoded_answer_value         = ($answer_value =~/<XML|<?xml/i) ? $answer_value : decode_base64($answer_value);
     my $debug_input_element  = qq!\n<textarea  rows="4" cols="80" 
 	   name = "$appletStateName">$decoded_answer_value</textarea><br/>
