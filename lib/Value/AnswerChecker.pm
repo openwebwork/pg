@@ -117,7 +117,7 @@ sub cmp_parse {
   my $context = $ans->{correct_value}{context} || $current;
   Parser::Context->current(undef,$context); # change to correct answser's context
   my $flags = contextSet($context,$self->cmp_contextFlags($ans)); # save old context flags
-  my $inputs = $self->getPG('$inputs_ref',{action=>""});
+  my $inputs = $self->getPG('$inputs_ref');
   $ans->{isPreview} = $inputs->{previewAnswers} || ($inputs->{action} =~ m/^Preview/);
   $ans->{cmp_class} = $self->cmp_class($ans) unless $ans->{cmp_class};
   $ans->{error_message} = $ans->{ans_message} = ''; # clear any old messages
@@ -1616,8 +1616,46 @@ sub cmp {
     $cmp->ans_hash(correct_value => $f);
     Parser::Context->current(undef,$current);
   }
+  $cmp->install_pre_filter(\&Value::Formula::cmp_call_filter,"cmp_prefilter");
+  $cmp->install_post_filter(\&Value::Formula::cmp_call_filter,"cmp_postfilter");
   return $cmp;
 }
+
+sub cmp_call_filter {
+  my $ans = shift; my $method = shift;
+  return $ans->{correct_value}->$method($ans);
+}
+
+sub cmp_prefilter {
+  my $self = shift; my $ans = shift;
+  $ans->{_filter_name} = "fetch_previous_answer";
+  $ans->{prev_ans} = undef;
+  if (defined($ans->{ans_label})) {
+    my $label = "previous_".$ans->{ans_label};
+    my $inputs = $self->getPG('$inputs_ref');
+    if (defined $inputs->{$label} and $inputs->{$label} =~ /\S/) {
+      $ans->{prev_ans} = $inputs->{$label};
+      #FIXME -- previous answer item is not always being updated in inputs_ref (which comes from formField)
+    }
+  }
+  return $ans;
+}
+
+sub cmp_postfilter {
+  my $self = shift; my $ans = shift;
+  $ans->{_filter_name} = "produce_equivalence_message";
+  return $ans if $ans->{ans_message}; # don't overwrite other messages
+  $ans->{prev_formula} = Parser::Formula($self->{context},$ans->{prev_ans});
+  if (defined($ans->{prev_formula}) && defined($ans->{student_formula})) {
+    $ans->{prev_equals_current} = Value::cmp_compare($ans->{student_formula},$ans->{prev_formula},{});
+    if (   !$ans->{isPreview}                                 # not preview mode
+	and $ans->{prev_equals_current}                       # equivalent
+	and $ans->{prev_ans} ne $ans->{original_student_ans}) # but not identical
+      {$ans->{ans_message} = "This answer is equivalent to the one you just submitted."}
+  }
+  return $ans;
+}
+
 
 sub cmp_equal {
   my $self = shift; my $ans = shift;

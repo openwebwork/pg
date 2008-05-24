@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PGfunctionevaluators.pl,v 1.3 2008/02/04 21:40:58 dpvc Exp $
+# $CVSHeader: pg/macros/PGfunctionevaluators.pl,v 1.4 2008/04/26 21:14:05 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -634,7 +634,7 @@ sub FUNCTION_CMP {
 	my $zeroLevel                = $func_params{'zeroLevel'};
 	my $zeroLevelTol             = $func_params{'zeroLevelTol'};
 	my $testPoints               = $func_params{'test_points'};
-	
+
 	#
 	#  Check that everything is defined:
 	#
@@ -643,14 +643,14 @@ sub FUNCTION_CMP {
 	my @VARS   = get_var_array($var);
 	my @limits = get_limits_array($ra_limits);
 	my @PARAMS = @{$func_params{'params'} || []};
-	
+
 	if ($tolType eq 'relative') {
 	  $tol = $functRelPercentTolDefault unless defined $tol;
 	  $tol *= .01;
 	} else {
 	  $tol = $functAbsTolDefault unless defined $tol;
 	}
-	
+
 	#
 	#  Ensure that the number of limits matches number of variables
 	#
@@ -685,7 +685,7 @@ sub FUNCTION_CMP {
 	$maxConstantOfIntegration = $functMaxConstantOfIntegration unless defined $maxConstantOfIntegration;
 	$zeroLevel                = $functZeroLevelDefault         unless defined $zeroLevel;
 	$zeroLevelTol             = $functZeroLevelTolDefault      unless defined $zeroLevelTol;
-	
+
 	$func_params{'var'}                      = \@VARS;
         $func_params{'params'}                   = \@PARAMS;
 	$func_params{'limits'}                   = \@limits;
@@ -696,7 +696,7 @@ sub FUNCTION_CMP {
 	$func_params{'maxConstantOfIntegration'} = $maxConstantOfIntegration;
 	$func_params{'zeroLevel'}                = $zeroLevel;
 	$func_params{'zeroLevelTol'}             = $zeroLevelTol;
-	
+
 	########################################################
 	#   End of cleanup of calling parameters
 	########################################################
@@ -741,91 +741,16 @@ sub FUNCTION_CMP {
 	my $cmp = $f->cmp(%options);
 	&$Context($oldContext);
 
-	#
-	#  Get previous answer from hidden field of form
-	#
-	$cmp->install_pre_filter(
-		sub {
-			my $rh_ans = shift;
-			$rh_ans->{_filter_name} = "fetch_previous_answer";
-			$rh_ans->{prev_ans} = undef;
-			if ( defined($rh_ans->{ans_label} ) ) {
-				my $prev_ans_label = "previous_".$rh_ans->{ans_label};
-				if ( defined $inputs_ref->{$prev_ans_label} and $inputs_ref->{$prev_ans_label} =~/\S/) {
-					$rh_ans->{prev_ans} = $inputs_ref->{$prev_ans_label};
-					#warn "inputs reference is ", join(" ",%$inputs_ref);
-					#warn "$prev_ans_label is ",$rh_ans->{prev_ans};
-					#FIXME  -- previous answer item is not always being updated in inputs_ref (which comes from formField)
-				}
-			}
-					  # if no ans_label or previous answer then leave undefined.
-			$rh_ans;  # prev_ans contains previous answer or "undef"
-		}
-	);
-
-
-	#
-	#  Parse the previous answer, if any
-	#
-	$cmp->install_evaluator(
-	  sub {
-	    my $rh_ans = shift;
-	    $rh_ans->{_filter_name} = "parse_previous_answer";
-	    return $rh_ans unless defined $rh_ans->{prev_ans};
-	    my $oldContext = &$Context();
-	    &$Context($rh_ans->{correct_value}{context});
-	    $rh_ans->{prev_formula} = Parser::Formula($rh_ans->{prev_ans});
-	    &$Context($oldContext);
-	    $rh_ans;
-	  }
-	);
-
-	#
-	#  Check if previous answer equals this current one
-	#
-	$cmp->install_evaluator(
-	  sub {
-	    my $rh_ans = shift;
-	    $rh_ans->{_filter_name} = "compare_to_previous_answer";
-	    return $rh_ans unless defined($rh_ans->{prev_formula}) && defined($rh_ans->{student_formula});
-	    $rh_ans->{prev_equals_current} =
-	      Value::cmp_compare($rh_ans->{student_formula},$rh_ans->{prev_formula},{});
-	    $rh_ans;
-	  }
-	);
-
-	#
-	#  Show a message when the answer is equivalent to the previous answer.
-	#  
-	#  We want to show the message when we're not in preview mode AND the
-	#  answers are equivalent AND the answers are not identical. We DON'T CARE
-	#  whether the answers are correct or not, because that leaks information in
-	#  multipart questions when $showPartialCorrectAnswers is off.
-	#
-	$cmp->install_post_filter(
-		sub {
-			my $rh_ans = shift;
-			$rh_ans->{_filter_name} = "produce_equivalence_message";
-			
-			return $rh_ans unless !$rh_ans->{isPreview} # not preview mode
-				and $rh_ans->{prev_equals_current} # equivalent
-				and $rh_ans->{prev_ans} ne $rh_ans->{original_student_ans}; # not identical
-			
-			$rh_ans->{ans_message} = "This answer is equivalent to the one you just submitted.";
-			$rh_ans;
-		}
-	);
-
 	return $cmp;
 }
-	
+
 #
 #  The original version, for backward compatibility
 #  (can be removed when the Parser-based version is more fully tested.)
 #
 sub ORIGINAL_FUNCTION_CMP {
 	my %func_params = @_;
-	
+
 	my $correctEqn               = $func_params{'correctEqn'};
 	my $var                      = $func_params{'var'};
 	my $ra_limits                = $func_params{'limits'};
@@ -837,7 +762,7 @@ sub ORIGINAL_FUNCTION_CMP {
 	my $zeroLevel                = $func_params{'zeroLevel'};
 	my $zeroLevelTol             = $func_params{'zeroLevelTol'};
 	my $ra_test_points           = $func_params{'test_points'};
-	
+
     # Check that everything is defined:
     $func_params{debug} = 0 unless defined $func_params{debug};
     $mode = 'std' unless defined $mode;
@@ -845,7 +770,7 @@ sub ORIGINAL_FUNCTION_CMP {
 	my @limits = get_limits_array($ra_limits);
 	my @PARAMS = ();
 	@PARAMS = @{$func_params{'params'}} if defined $func_params{'params'};
-	
+
 	my @evaluation_points;
 	if(defined $ra_test_points) {
 		# see if this is the standard format
@@ -872,7 +797,7 @@ sub ORIGINAL_FUNCTION_CMP {
 			}
 		}
 	} # end of handling of user supplied evaluation points
-	
+
 	if ($mode eq 'antider') {
 		# doctor the equation to allow addition of a constant
 		my $CONSTANT_PARAM = 'Q'; # unfortunately parameters must be single letters.
@@ -882,14 +807,14 @@ sub ORIGINAL_FUNCTION_CMP {
 		push @PARAMS, $CONSTANT_PARAM;
 	}
     my $dim_of_param_space = @PARAMS;      # dimension of equivalence space
-	
+
 	if($tolType eq 'relative') {
 		$tol = $functRelPercentTolDefault unless defined $tol;
 		$tol *= .01;
 	} else {
 		$tol = $functAbsTolDefault unless defined $tol;
 	}
-	
+
 	#loop ensures that number of limits matches number of variables
 	for(my $i = 0; $i < scalar @VARS; $i++) {
 		$limits[$i][0] = $functLLimitDefault unless defined $limits[$i][0];
@@ -899,7 +824,7 @@ sub ORIGINAL_FUNCTION_CMP {
 	$maxConstantOfIntegration = $functMaxConstantOfIntegration unless defined $maxConstantOfIntegration;
 	$zeroLevel                = $functZeroLevelDefault         unless defined $zeroLevel;
 	$zeroLevelTol             = $functZeroLevelTolDefault      unless defined $zeroLevelTol;
-	
+
 	$func_params{'var'}	                     = $var;
 	$func_params{'limits'}                   = \@limits;
 	$func_params{'tolerance'}                = $tol;
@@ -909,19 +834,19 @@ sub ORIGINAL_FUNCTION_CMP {
 	$func_params{'maxConstantOfIntegration'} = $maxConstantOfIntegration;
 	$func_params{'zeroLevel'}                = $zeroLevel;
 	$func_params{'zeroLevelTol'}             = $zeroLevelTol;
-	
+
 	########################################################
 	#   End of cleanup of calling parameters
 	########################################################
-	
+
 	my $i; # for use with loops
 	my $PGanswerMessage	= "";
 	my $originalCorrEqn	= $correctEqn;
-	
+
 	######################################################################
 	# prepare the correct answer and check its syntax
 	######################################################################
-	
+
     my $rh_correct_ans = new AnswerHash;
 	$rh_correct_ans->input($correctEqn);
 	$rh_correct_ans = check_syntax($rh_correct_ans);
