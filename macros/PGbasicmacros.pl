@@ -1370,11 +1370,13 @@ or exponential notation depending on the size of the number.)
 
 Two additional legacy formatting constructions are also supported:
 
-C<?{$c:%0.3f} > will give a number with 3 decimal places and a negative
-sign if the number is negative, no sign if the number is positive.
+C<!{$c:%0.3f} > will give a number with 3 decimal places and a negative
+sign if the number is negative, no sign if the number is positive.  Since this is 
+identical to the behavior of C<{$c:%0.3f}> the use of this syntax is depricated. 
 
-C<!{$c:%0.3f}> determines the sign and prints it
-whether the number is positive or negative.
+C<?{$c:%0.3f}> determines the sign and prints it
+whether the number is positive or negative.  You can use this 
+to force an expression such as C<+5.456>.
 
 =head3 EV2
 
