@@ -3,7 +3,7 @@
 package Value::Complex;
 my $pkg = 'Value::Complex';
 
-use strict;
+use strict; no strict "refs";
 our @ISA = qw(Value);
 our $i; our $pi;
 

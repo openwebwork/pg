@@ -3,7 +3,7 @@
 package Value::Infinity;
 my $pkg = 'Value::Infinity';
 
-use strict;
+use strict; no strict "refs";
 our @ISA = qw(Value);
 
 #

@@ -3,7 +3,7 @@
 package Value::Set;
 my $pkg = 'Value::Set';
 
-use strict;
+use strict; no strict "refs";
 our @ISA = qw(Value);
 
 #  Convert a value to a Set.  The value can be

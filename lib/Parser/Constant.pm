@@ -3,7 +3,7 @@
 #  Implements named constants (e, pi, etc.)
 #
 package Parser::Constant;
-use strict;
+use strict; no strict "refs";
 our @ISA = qw(Parser::Item);
 
 $Parser::class->{Constant} = 'Parser::Constant';

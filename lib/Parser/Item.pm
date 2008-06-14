@@ -4,7 +4,7 @@
 #  are things like binary operator, function call, and so on.
 #
 package Parser::Item;
-use strict;
+use strict; no strict "refs";
 use UNIVERSAL;
 use Scalar::Util;
 

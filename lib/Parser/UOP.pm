@@ -3,7 +3,7 @@
 #  Implements the base Unary Operator class
 #
 package Parser::UOP;
-use strict;
+use strict; no strict "refs";
 our @ISA = qw(Parser::Item);
 
 $Parser::class->{UOP} = 'Parser::UOP';

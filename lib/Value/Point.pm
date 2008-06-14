@@ -5,7 +5,7 @@
 package Value::Point;
 my $pkg = 'Value::Point';
 
-use strict;
+use strict; no strict "refs";
 our @ISA = qw(Value);
 
 #

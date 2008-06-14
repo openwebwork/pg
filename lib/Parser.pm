@@ -1,6 +1,6 @@
 package Parser;
 my $pkg = "Parser";
-use strict;
+use strict; no strict "refs";
 
 BEGIN {
   #

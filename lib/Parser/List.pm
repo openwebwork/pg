@@ -3,7 +3,7 @@
 #  Implements base List class.
 #
 package Parser::List;
-use strict;
+use strict; no strict "refs";
 our @ISA = qw(Parser::Item);
 
 $Parser::class->{List} = 'Parser::List';

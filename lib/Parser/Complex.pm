@@ -3,7 +3,7 @@
 #  Implements the Complex class
 #
 package Parser::Complex;
-use strict;
+use strict; no strict "refs";
 our @ISA = qw(Parser::Item);
 
 $Parser::class->{Complex} = 'Parser::Complex';

@@ -3,7 +3,7 @@
 #  Implements the Number class
 #
 package Parser::Number;
-use strict;
+use strict; no strict "refs";
 our @ISA = qw(Parser::Item);
 
 $Parser::class->{Number} = 'Parser::Number';

@@ -5,7 +5,7 @@
 package Value::Formula;
 my $pkg = 'Value::Formula';
 
-use strict;
+use strict; no strict "refs";
 our @ISA = qw(Parser Value);
 
 my $UNDEF = bless {}, "UNDEF"; # used for undefined points

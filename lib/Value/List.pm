@@ -5,7 +5,7 @@
 package Value::List;
 my $pkg = 'Value::List';
 
-use strict;
+use strict; no strict "refs";
 our @ISA = qw(Value);
 
 #

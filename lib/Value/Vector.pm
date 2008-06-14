@@ -5,7 +5,7 @@
 package Value::Vector;
 my $pkg = 'Value::Vector';
 
-use strict;
+use strict; no strict "refs";
 our @ISA = qw(Value);
 
 #

@@ -2,7 +2,7 @@
 
 package Parser::Context;
 my $pkg = "Parser::Context";
-use strict;
+use strict; no strict "refs";
 our @ISA = ("Value::Context");
 
 #

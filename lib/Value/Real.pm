@@ -6,7 +6,7 @@
 package Value::Real;
 my $pkg = 'Value::Real';
 
-use strict;
+use strict; no strict "refs";
 our @ISA = qw(Value);
 
 #

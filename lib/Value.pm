@@ -2,7 +2,7 @@ package Value;
 my $pkg = 'Value';
 use vars qw($context $defaultContext %Type);
 use Scalar::Util;
-use strict;
+use strict; no strict "refs";
 
 =head1 DESCRIPTION
 

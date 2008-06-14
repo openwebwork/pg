@@ -3,7 +3,7 @@
 package Value::Union;
 my $pkg = 'Value::Union';
 
-use strict;
+use strict; no strict "refs";
 our @ISA = qw(Value);
 
 #

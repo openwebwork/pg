@@ -4,7 +4,7 @@
 #    (used to store constant Vector values, etc.)
 #
 package Parser::Value;
-use strict;
+use strict; no strict "refs";
 our @ISA = qw(Parser::Item);
 
 $Parser::class->{Value} = 'Parser::Value';

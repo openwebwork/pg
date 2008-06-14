@@ -7,7 +7,7 @@
 package Value::Matrix;
 my $pkg = 'Value::Matrix';
 
-use strict;
+use strict; no strict "refs";
 our @ISA = qw(Value);
 
 #

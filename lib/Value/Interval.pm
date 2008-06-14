@@ -5,7 +5,7 @@
 package Value::Interval;
 my $pkg = 'Value::Interval';
 
-use strict;
+use strict; no strict "refs";
 our @ISA = qw(Value);
 
 #

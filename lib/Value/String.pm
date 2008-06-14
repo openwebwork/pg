@@ -3,7 +3,7 @@
 package Value::String;
 my $pkg = 'Value::String';
 
-use strict;
+use strict; no strict "refs";
 our @ISA = qw(Value);
 
 #

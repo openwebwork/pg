@@ -4,7 +4,7 @@
 #    (Used for things like INFINITY, and so on)
 #
 package Parser::String;
-use strict;
+use strict; no strict "refs";
 our @ISA = qw(Parser::Item);
 
 $Parser::class->{String} = 'Parser::String';
