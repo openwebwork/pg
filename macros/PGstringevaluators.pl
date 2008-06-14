@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PGstringevaluators.pl,v 1.1 2007/11/08 00:00:15 sh002i Exp $
+# $CVSHeader: pg/macros/PGstringevaluators.pl,v 1.2 2007/11/10 21:48:22 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -578,10 +578,11 @@ sub STR_CMP {
 			$rh_ans;
 	});
 	$answer_evaluator->install_post_filter(sub {
-		my $rh_hash = shift;
+		my $rh_hash = shift; my $c = chr(128); ## something that won't be typed
 		$rh_hash->{_filter_name} = "clean up preview strings";
 		$rh_hash->{'preview_text_string'} = $rh_hash->{student_ans};
-		$rh_hash->{'preview_latex_string'} = "\\text{ ".$rh_hash->{student_ans}." }";
+#		$rh_hash->{'preview_latex_string'} = "\\text{ ".$rh_hash->{student_ans}." }";
+		$rh_hash->{'preview_latex_string'} = "\\verb".$c.$rh_hash->{student_ans}.$c;
 		$rh_hash;		
 	});
 	return $answer_evaluator;
