@@ -10,7 +10,7 @@ our @ISA = qw(Value);
 
 #
 #  Convert a value to a Vector.  The value can be
-#    a list of numbers, or an reference to an array of numbers
+#    a list of numbers, or a reference to an array of numbers
 #    a point or vector object (demote a vector)
 #    a matrix if it is  n x 1  or  1 x n
 #    a string that parses to a vector

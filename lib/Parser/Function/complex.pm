@@ -72,7 +72,7 @@ sub log {
 #
 #  Special power operator that promotes negative real
 #  bases to complex numbers before taking power (so that
-#  (-3)^(1/2) is define, for example).
+#  (-3)^(1/2) is defined, for example).
 #
 package Parser::Function::complex_power;
 use strict;
