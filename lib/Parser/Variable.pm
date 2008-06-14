@@ -3,7 +3,7 @@
 #  Implements named variables
 #
 package Parser::Variable;
-use strict; no stric "refs";
+use strict; no strict "refs";
 our @ISA = qw(Parser::Item);
 
 $Parser::class->{Variable} = 'Parser::Variable';
