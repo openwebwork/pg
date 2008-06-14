@@ -1647,7 +1647,8 @@ sub cmp_postfilter {
   return $ans if $ans->{ans_message}; # don't overwrite other messages
   $ans->{prev_formula} = Parser::Formula($self->{context},$ans->{prev_ans});
   if (defined($ans->{prev_formula}) && defined($ans->{student_formula})) {
-    $ans->{prev_equals_current} = Value::cmp_compare($ans->{student_formula},$ans->{prev_formula},{});
+    my $prev = eval {$self->promote($ans->{prev_formula})}; break unless defined($prev);
+    $ans->{prev_equals_current} = Value::cmp_compare($prev,$ans->{student_formula},{});
     if (   !$ans->{isPreview}                                 # not preview mode
 	and $ans->{prev_equals_current}                       # equivalent
 	and $ans->{prev_ans} ne $ans->{original_student_ans}) # but not identical
