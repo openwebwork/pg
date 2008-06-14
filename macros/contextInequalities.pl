@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/contextInequalities.pl,v 1.16 2007/10/04 16:40:48 sh002i Exp $
+# $CVSHeader: pg/macros/contextInequalities.pl,v 1.17 2007/11/15 12:29:06 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -174,7 +174,7 @@ sub _check {
   ($self->{varPos},$self->{numPos}) =
     ($self->{lop}->class eq 'Variable' || $self->{lop}{isInequality} ? ('lop','rop') : ('rop','lop'));
   my ($v,$n) = ($self->{$self->{varPos}},$self->{$self->{numPos}});
-  if (($n->isNumber || $n->{isInfinite}) && $n->{isConstant}) {
+  if (($n->isNumber || $n->{isInfinite}) && ($n->{isConstant} || scalar(keys %{$n->getVariables}) == 0)) {
     if ($v->class eq 'Variable') {
       $self->{varName} = $v->{name};
       delete $self->{equation}{variables}{$v->{name}} if $v->{isNew};
