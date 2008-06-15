@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/parserImplicitPlane.pl,v 1.19 2007/10/04 16:40:48 sh002i Exp $
+# $CVSHeader: pg/macros/parserAssignment.pl,v 1.1 2008/06/15 03:54:01 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -82,21 +82,63 @@ To produce a constant assignment, use Compute(), as in:
 examples above as well, since it returns a Formula when the value is
 one).
 
+The left-hand side of an assignment can also be a function
+declaration, as in
+
+	f(x) = 3x + 1
+
+To allow this, use
+
+	parser::Assignment->Function("f");
+
+You can supply more than one function name if you want.  E.g.,
+
+	parser::Assignment->Function("f","g");
+
+The number of variables for these functions is determined by the
+assignment itself, so after declaring f to be a function, you can use
+either
+
+	f(x) = x+1
+or
+	f(x,y) = x^2 + y^2
+
+provided the variables are defined in the current context.
+
 Type-checking between the student and correct answers is performed
 using the right-hand values of the assignment, and a warning message
 will be issued if the types are not compatible.  The type of the
-variable, however, is not checked.
+variable on the left-hand side, however, is not checked.
+
+For function declarations, the name of the function and the order
+of the variables must match the professor's answer; however, the
+names of the variables don't have to match, as long as the function
+returns the same results for the same inputs.  So
+
+	f(x) = x + 1
+and
+	f(y) = y + 1
+
+will be marked as equal.
 
 =cut
 
-sub _parserAssignment_init {
-  PG_restricted_eval('sub Assignment {parser::Assignment::List->new(@_)}');
-}
+#
+#  FIXME:  allow any variables in declaration
+#  FIXME:  Add more hints when variable name isn't right
+#          or function name or number of arguments isn't right.
+#
+
+sub _parserAssignment_init {parser::Assignment::Init()}
 
 ######################################################################
 
 package parser::Assignment;
 our @ISA = qw(Parser::BOP);
+
+sub Init {
+  main::PG_restricted_eval('sub Assignment {parser::Assignment::List->new(@_)}');
+}
 
 #
 #  Check that the left operand is a variable and not used on the right
@@ -105,11 +147,19 @@ sub _check {
   my $self = shift; my $name = $self->{def}{string} || $self->{bop};
   $self->Error("Only one assignment is allowed in an equation")
     if $self->{lop}->type eq 'Assignment' || $self->{rop}->type eq 'Assignment';
-  $self->Error("The left side of an assignment must be a variable",$name)
-    unless $self->{lop}->class eq 'Variable' || $self->context->flag("allowBadOperands");
-  $self->Error("The right side of an assignment must not include the variable being defined")
-    if $self->{rop}->getVariables->{$self->{lop}{name}};
-  delete $self->{equation}{variables}{$self->{lop}{name}};
+  $self->Error("The left side of an assignment must be a variable or function",$name)
+    unless $self->{lop}->class eq 'Variable' || $self->{lop}{isDummy} || $self->context->flag("allowBadOperands");
+  if ($self->{lop}{isDummy}) {
+    my $fvars = $self->{lop}->getVariables;
+    foreach my $x (keys(%{$self->{rop}->getVariables})) {
+      $self->Error("The formula for %s can't use the variable '%s'",$self->{lop}->string,$x)
+	unless $fvars->{$x};
+    }
+  } else {
+    $self->Error("The right side of an assignment must not include the variable being defined")
+      if $self->{rop}->getVariables->{$self->{lop}{name}};
+    delete $self->{equation}{variables}{$self->{lop}{name}};
+  }
   $self->{type} = Value::Type('Assignment',2,$self->{rop}->typeRef,list => 1);
 }
 
@@ -118,7 +168,7 @@ sub _check {
 #
 sub eval {
   my $self = shift; my $context = $self->context;
-  my ($a,$b) = ($self->Package("String")->make($context,$self->{lop}{name}),$self->{rop});
+  my ($a,$b) = ($self->Package("String")->make($context,$self->{lop}->string),$self->{rop});
   $b = Value::makeValue($b->eval,context => $context);
   return parser::Assignment::List->make($context,$a,$b);
 }
@@ -128,6 +178,7 @@ sub eval {
 #
 sub getVariables {
   my $self = shift;
+  return $self->{lop}->getVariables if $self->{lop}{isDummy};
   $self->{rop}->getVariables;
 }
 
@@ -136,7 +187,7 @@ sub getVariables {
 #
 sub perl {
   my $self = shift;
-  return "parser::Assignment::List->new('".$self->{lop}{name}."',".$self->{rop}->perl.")";
+  return "parser::Assignment::List->new('".$self->{lop}->string."',".$self->{rop}->perl.")";
 }
 
 #
@@ -163,6 +214,19 @@ sub Allow {
   return;
 }
 
+sub Function {
+  my $self = shift || "Value";
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
+  Value->Error("You must provide a function name") unless scalar(@_) > 0;
+  foreach my $f (@_) {
+    Value->Error("Function name '%s' is illegal",$f) unless $f =~ m/^[a-z][a-z0-9]*$/i;
+    my $name = $f; $name = $1.'_{'.$2.'}' if ($name =~ m/^(\D+)(\d+)$/);
+    $context->functions->add(
+      $f => {class => 'parser::Assignment::Function', TeX => $name, type => $Value::Type{number}}
+    );
+  }
+}
+
 ######################################################################
 
 #
@@ -176,7 +240,7 @@ our @ISA = ("Value::List");
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  Value::Error("Too many arguments") if scalar(@_) > 2;
+  Value->Error("Too many arguments") if scalar(@_) > 2;
   my ($x,$v) = @_;
   if (defined($v)) {
     my $context = $self->context;
@@ -184,12 +248,13 @@ sub new {
     if ($v->isFormula) {
       $x = $self->Package("Formula")->new($context,$x);
       $v->{tree} = parser::Assignment->new($v,"=",$x->{tree},$v->{tree});
+      bless $v, $self->Package("Formula");
       return $v;
     }
     return $self->make($self->Package("String")->make($context,$x),$v);
   } else {
     $v = $self->Package("Formula")->new($x);
-    Value::Error("Your formula doesn't seem to be an assignment")
+    Value->Error("Your formula doesn't seem to be an assignment")
 	unless $v->{tree}->type eq "Assignment";
     return $v;
   }
@@ -219,7 +284,8 @@ sub cmp_defaults {
 #
 sub cmp_class {
   my $self = shift;
-  "a Variable equal to ".$self->{data}[1]->showClass;
+  my $type = ($self->{data}[0] =~ m/\(/ ? 'Function' : 'Variable');
+  "a $type equal to ".$self->{data}[1]->showClass;
 }
 sub showClass {cmp_class(@_)}
 
@@ -267,8 +333,64 @@ sub cmp_class {
   } else {
     $value = $self->Package("Formula")->new($self->context,$self->{tree}{rop});
   }
-  return "a Variable equal to ".$value->showClass;
+  my $type = ($self->{tree}{lop}{isDummy} ? "Function" : "Variable");
+  return "a $type equal to ".$value->showClass;
 }
 sub showClass {cmp_class(@_)}
+
+#
+#  Convert varaible names to those used in the correct answer, if the
+#  student answer uses different ones
+#
+sub compare {
+  my ($l,$r) = @_; my $self = $l;
+  my $context = $self->context;
+  $r = $context->Package("Formula")->new($context,$r) unless Value::isFormula($r);
+  if ($l->{tree}{lop}{isDummy} && $r->type eq 'Assignment' && $r->{tree}{lop}{isDummy}) {
+    my ($F,$f) = ($l->{tree}{lop}{params},$r->{tree}{lop}{params});
+    if (scalar(@{$F}) == scalar(@{$f})) {
+      my @subs = ();
+      for (my $i = 0; $i < scalar(@{$F}); $i++) {
+	push(@subs,$f->[$i]{name} => $F->[$i]{name})
+	  unless $F->[$i]{name} eq $f->[$i]{name};
+      }
+      $r = $r->substitute(@subs) if scalar(@subs);
+      delete $r->{f};
+    }
+  }
+  $l->SUPER::compare($r,@_);
+}
+
+######################################################################
+
+#
+#  A dummy function that is used for assignments like f(x) = x^2
+#
+
+package parser::Assignment::Function;
+our @ISA = ("Parser::Function");
+
+sub _check {
+  my $self = shift; my %var;
+  foreach my $x (@{$self->{params}}) {
+    $self->Error("The arguments of '%s' must be variables",$self->{name})
+      unless $x->class eq 'Variable';
+    $self->Error("The arguments of '%s' must all be different",$self->{name})
+      if $var{$x->{name}};
+    $var{$x->{name}} = 1;
+  }
+  $self->{type} = $self->{def}{type};
+  $self->{isDummy} = 1;
+}
+
+sub eval {
+  my $self = shift;
+  $self->Error("Dummy function '%s' can not be evaluated",$self->{name});
+}
+
+sub call {
+  my $self = shift;
+  $self->Error("Dummy function '%s' can not be called",$self->{name});
+}
 
 1;
