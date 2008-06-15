@@ -638,6 +638,7 @@ sub reduce {
   $self->{tree} = $self->{tree}->reduce;
   $self->{variables} = $self->{tree}->getVariables;
   $self->{context}{reduction} = $reduce if $reduce;
+  delete $self->{f};
   return $self;
 }
 
@@ -652,6 +653,7 @@ sub substitute {
   foreach my $x (keys %{$self->{values}}) {delete $self->{variables}{$x}}
   $self->{tree} = $self->{tree}->substitute;
   $self->unsetValues;
+  delete $self->{f};
   return $self;
 }
 
