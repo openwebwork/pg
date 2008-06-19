@@ -596,7 +596,9 @@ sub hash {
 #
 sub inherit {
   my $self = shift;
-  bless {(map {%$_} @_),%$self}, ref($self);
+  $self = bless {(map {%$_} @_),%$self}, ref($self);
+  delete $self->{correct_ans};
+  return $self;
 }
 
 ######################################################################
