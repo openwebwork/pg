@@ -217,7 +217,7 @@ sub DESTROY {
 
 # *** Utility methods ***
 
-
+#internal
 #choose k random numbers out of n
 sub NchooseK {
 	my $self = shift;
@@ -235,7 +235,7 @@ sub NchooseK {
 
 	return @out;
 }
-
+#internal
 #return an array of random numbers
 sub shuffle {
 	my $self = shift;
@@ -248,7 +248,7 @@ sub shuffle {
 
 # *** Utility subroutines ***
 
-
+#internal
 #swap subscripts with their respective values
 sub invert {
 	my @array = @_;
@@ -260,7 +260,7 @@ sub invert {
 
 	return @out;
 }
-
+#internal
 #slice of the alphabet
 sub ALPHABET {
 	return ('A'..'ZZ')[@_];
@@ -296,6 +296,12 @@ sub complement {
 
 #Input answers
 #defaults to inputting 'question', 'answer', 'question', etc (should be overloaded for other types of questions)
+
+=head3  	qa
+       Usage:    $ml->qa( qw( question1 answer1 question2 answer2   ) );
+       
+=cut
+
 sub qa {
 	my $self = shift;
 	my @questANDanswer = @_;
@@ -315,6 +321,7 @@ sub extra {
 
 #Output questions
 #Doesn't do actual output, refers to method given in call to 'new' (rf_print_q)
+
 sub print_q {
 	my $self = shift;
 
@@ -334,6 +341,23 @@ sub print_a {
 sub ra_correct_ans {
 	my $self = shift;
 	return $self->{selected_a};
+}
+
+=head3 cmp
+
+	Usage    ANS($ml -> cmp);
+	
+provides a MathObject like comparison method
+returns a string of comparison methods for checking the list object
+
+=cut 
+
+sub cmp { 
+	my $self = shift;
+	my @answers = @{$self->{selected_a}};
+	@answers = map {Value::makeValue($_)} @answers; # make sure answers are all MathObjects
+	@answers = map {$_->cmp} @answers;              # replace the MathObjects by their AnswerEvaluators
+	return @answers;
 }
 
 #Match and Select return references to arrays while Multiple justs returns a string
