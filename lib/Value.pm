@@ -597,8 +597,18 @@ sub hash {
 sub inherit {
   my $self = shift;
   $self = bless {(map {%$_} @_),%$self}, ref($self);
-  delete $self->{correct_ans};
+  foreach my $id ($self->noinherit) {delete $self->{$id}};
   return $self;
+}
+
+#
+#  The list of fields NOT to inherit.
+#  Use the default list plus any specified explicitly in the object itself.
+#  Subclasses can override and return additional fields, if necessary.
+#
+sub noinherit {
+  my $self = shift;
+  ("correct_ans","original_formula","equation",@{$self->{noinherit}||[]});
 }
 
 ######################################################################
