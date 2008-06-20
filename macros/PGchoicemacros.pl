@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Program Generation Language
 # Copyright � 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PG.pl,v 1.32 2007/08/09 23:24:56 jj Exp $
+# $CVSHeader: pg/macros/PGchoicemacros.pl,v 1.9 2007/08/22 19:04:25 sh002i Exp $
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -78,15 +78,20 @@ choice question.
 
 =cut
 
+# ^uses be_strict
 BEGIN{
 	be_strict;
 }
 
 package main;
 
+
 BEGIN {
 	be_strict();
 }
+
+# ^function _PGchoicemacros_init
+
 sub _PGchoicemacros_init{
 }
 
@@ -116,6 +121,11 @@ methods can be used instead of the standard ones. An example of how to do this
 is demonstrated with pop_up_list_print_q() below.
 
 =cut
+
+# ^function new_match_list
+# ^uses Match::new
+# ^uses &std_print_q
+# ^uses &std_print_a
 
 sub new_match_list {
 	new Match(random(1,2000,1), \&std_print_q, \&std_print_a);
@@ -151,6 +161,11 @@ there is rarely a reason to print out the answers to a select list.
 
 =cut
 
+# ^function new_select_list
+# ^uses Select::new
+# ^uses &std_print_q
+# ^uses &std_print_a
+
 sub new_select_list {
 	new Select(random(1,2000,1), \&std_print_q, \&std_print_a);
 }
@@ -165,6 +180,11 @@ it will render as a popup list. It is equivalent to:
  $selectlist = new Select(random(1,2000,1), ~~&pop_up_list_print_q, ~~&std_print_a);
 
 =cut
+
+# ^function new_pop_up_select_list
+# ^uses Select::new
+# ^uses &pop_up_list_print_q
+# ^uses &std_print_a
 
 sub new_pop_up_select_list {
 	new Select(random(1,2000,1), \&pop_up_list_print_q, \&std_print_a);
@@ -194,6 +214,11 @@ constrcutor described above under new_match_list().
 
 =cut
 
+# ^function new_multiple_choice
+# ^uses Multiple::new
+# ^uses &std_print_q
+# ^uses &radio_print_a
+
 sub new_multiple_choice {
 	new Multiple(random(1,2000,1), \&std_print_q, \&radio_print_a);
 }
@@ -210,6 +235,10 @@ equivalent to:
 
 =cut
 
+# ^function new_checkbox_multiple_choice
+# ^uses Multiple::new
+# ^uses &std_print_q
+# ^uses &checkbox_print_a
 sub new_checkbox_multiple_choice {
 	new Multiple(random(1,2000,1), \&std_print_q, \&checkbox_print_a);
 }
@@ -238,7 +267,9 @@ questions from and returns the appropriately formatted string.
 
 =cut
 
-#Standard method of printing questions in a matching or select list
+
+# ^function std_print_q
+
 sub std_print_q {
     my $self = shift;
     my (@questions) = @_;
@@ -292,6 +323,9 @@ $sl->qa('blah blah', 'T');
 
 =cut
 
+
+# ^function pop_up_list_print_q
+
 sub pop_up_list_print_q {
     my $self = shift;
     my (@questions) = @_;
@@ -330,17 +364,6 @@ sub pop_up_list_print_q {
 }
 
 
-# For graphs in a matching question.
-
-#sub format_graphs {
-#	my $self = shift;
-#	my @in = @_;
-#	my $out = "";
-#	while (@in) {
-#		$out .= shift(@in). "#" ;
-#	}
-#	$out;
-#}
 
 =item quest_first_pop_up_list_print_q()
 
@@ -355,6 +378,9 @@ text in the output.
 
 # To put pop-up-list at the end of a question.
 # contributed by Mark Schmitt 3-6-03
+
+# ^function quest_first_pop_up_list_print_q
+
 sub quest_first_pop_up_list_print_q {
     my $self = shift;
     my (@questions) = @_;
@@ -408,6 +434,9 @@ middle of the text of a problem.
 
 # To put pop-up-list in the middle of a question.
 # contributed by Mark Schmitt 3-6-03
+
+# ^function ans_in_middle_pop_up_list_print_q
+
 sub ans_in_middle_pop_up_list_print_q {
     my $self = shift;
     my (@questions) = @_;
@@ -456,6 +485,9 @@ pop_up_list contents only are printed as a popup menu.
 
 # Units for physics class
 # contributed by Mark Schmitt 3-6-03
+
+# ^function units_list_print_q
+
 sub units_list_print_q {
     my $self = shift;
     my (@questions) = @_;
@@ -490,6 +522,7 @@ for matching lists.  It lists the answers vertically lettered sequentially.
 =cut
 
 #Standard method of printing answers in a matching list
+# ^function std_print_a
 sub std_print_a {
 	my $self = shift;
 	my(@array) = @_;
@@ -541,6 +574,9 @@ returns the appropriately formatted string.
 =cut
 
 #Alternate method of printing answers as a list of radio buttons for multiple choice
+#Method for naming radio buttons is no longer round about and hackish
+
+# ^function radio_print_a
 sub radio_print_a {
     my $self = shift;
     my (@answers) = @_;
@@ -596,8 +632,9 @@ returns the appropriately formatted string.
 
 =cut
 
-#Second alternate method of printing answers as a list of radio buttons for multiple choice
-#Method for naming radio buttons is no longer round about and hackish
+
+
+# ^function checkbox_print_a
 sub checkbox_print_a {
     my $self = shift;
     my (@answers) = @_;
@@ -661,6 +698,8 @@ questions and answers to add to the $questions and $answers arrays.
 
 =cut
 
+# ^function qa   [DEPRECATED]
+# 
 sub qa {
 	my($questionsRef,$answersRef,@questANDanswer) = @_;
 	while (@questANDanswer) {
@@ -679,6 +718,7 @@ C<undef,0,1,undef,2,undef,undef,undef,4>.
 
 =cut
 
+# ^function invert   [DEPRECATED]
 sub invert {
 	my @array = @_;
 	my @out = ();
@@ -696,6 +736,8 @@ sub invert {
 Selects $K random nonrepeating elements in the range 0 to $N-1.
 
 =cut
+
+# ^function NchooseK   [DEPRECATED]
 
 sub NchooseK {
 	my($n,$k)=@_;;
@@ -715,6 +757,8 @@ Returns the integers from 0 to $i-1 in random order.
 
 =cut
 
+# ^function shuffle   [DEPRECATED]
+
 sub shuffle {
 	my ($i) = @_;
 	my @out = &NchooseK($i,$i);
@@ -724,6 +768,8 @@ sub shuffle {
 =item [DEPRECATED] match_questions_list()
 
 =cut
+
+# ^function match_questions_list   [DEPRECATED]
 
 sub match_questions_list {
 	my (@questions) = @_;
@@ -760,6 +806,8 @@ sub match_questions_list {
 =item [DEPRECATED] match_questions_list_varbox()
 
 =cut
+
+# ^function match_questions_list_varbox   [DEPRECATED]
 
 sub match_questions_list_varbox {
 	my ($length, @questions) = @_;

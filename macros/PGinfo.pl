@@ -95,6 +95,17 @@ sub listContext {  # include
 		TEXT( pretty_print($context->{$key}) );
 	}
 }
+
+=head3 pp()
+
+	Usage:  pp(Hash );
+	        pp(Object);
+	        
+
+	Prints out the contents of Hash or the instance variables of Object
+
+=cut
+
 sub pp {
     my $hash = shift;
     "printing |". ref($hash)."|$BR". pretty_print($hash);

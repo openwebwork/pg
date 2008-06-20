@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/contextPiecewiseFunction.pl,v 1.7 2007/10/04 16:40:48 sh002i Exp $
+# $CVSHeader: pg/macros/contextPiecewiseFunction.pl,v 1.8 2008/05/05 16:42:17 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -27,7 +27,7 @@ can be specified by students and problem authors.  To use it, add
 
 and then use
 
-	Context("PiecewiseFuntion");
+	Context("PiecewiseFunction");
 
 to select the context for piecewise functions.  There are several
 ways to produce a piecewise function.  For example:
