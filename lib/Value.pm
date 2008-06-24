@@ -580,6 +580,8 @@ sub without {
   return $self;
 }
 
+######################################################################
+
 #
 #  Return the hash data as an array of key=>value pairs
 #
