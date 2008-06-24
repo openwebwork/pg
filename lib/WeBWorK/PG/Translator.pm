@@ -154,6 +154,8 @@ sub new {
 	my $class = shift;
 	my $safe_cmpt = new Safe; #('PG_priv');
 	my $self = {
+	    preprocess_code           =>  \&default_preprocess_code,
+	    postprocess_code           => \&default_postprocess_code,
 		envir                     => undef,
 		PG_PROBLEM_TEXT_ARRAY_REF => [],
 		PG_PROBLEM_TEXT_REF       => 0,
@@ -882,13 +884,19 @@ without warnings.
 		    ##########################################
 		    ###### PG preprocessing code #############
 		    ##########################################
-		        # BEGIN_TEXT and END_TEXT must occur on a line by themselves.
-		        $evalString =~ s/\n\s*END_TEXT[\s;]*\n/\nEND_TEXT\n/g;
-		    	$evalString =~ s/\n\s*BEGIN_TEXT[\s;]*\n/\nTEXT\(EV3\(<<'END_TEXT'\)\);\n/g;
-		    	$evalString =~ s/ENDDOCUMENT.*/ENDDOCUMENT();/s; # remove text after ENDDOCUMENT
+		    
+		        $evalString = &{$self->{preprocess_code}}($evalString);
 
-				$evalString =~ s/\\/\\\\/g;    # \ can't be used for escapes because of TeX conflict
-		        $evalString =~ s/~~/\\/g;      # use ~~ as escape instead, use # for comments
+		     
+#               # default_preprocess_code
+#		        # BEGIN_TEXT and END_TEXT must occur on a line by themselves.
+#		        $evalString =~ s/\n\s*END_TEXT[\s;]*\n/\nEND_TEXT\n/g;
+#		    	$evalString =~ s/\n\s*BEGIN_TEXT[\s;]*\n/\nTEXT\(EV3\(<<'END_TEXT'\)\);\n/g;
+#		    	$evalString =~ s/ENDDOCUMENT.*/ENDDOCUMENT();/s; # remove text after ENDDOCUMENT
+#
+#				$evalString =~ s/\\/\\\\/g;    # \ can't be used for escapes because of TeX conflict
+#		        $evalString =~ s/~~/\\/g;      # use ~~ as escape instead, use # for comments
+
 
 =pod
 
@@ -921,6 +929,12 @@ case the previously defined safe compartment is used. (See item 1.)
         #############################################################################
         ##########  end  EVALUATION code                                  ###########
         #############################################################################
+
+		    ##########################################
+		    ###### PG postprocessing code #############
+		    ##########################################
+			$PG_PROBLEM_TEXT_REF = &{$self->{postprocess_code}}($PG_PROBLEM_TEXT_REF);
+
 
 =pod
 
@@ -960,7 +974,7 @@ the errors.
                 	$self -> {errors}."\r\n" .
                 	"****************<BR>\n");
 
-                push(@PROBLEM_TEXT_OUTPUT   , "------Input Read\r\n");
+               push(@PROBLEM_TEXT_OUTPUT   , "------Input Read\r\n");
                $self->{source} =~ s/</&lt;/g;
                @input=split("\n", $self->{source});
                $lineNumber = 1;
@@ -1605,6 +1619,37 @@ sub PG_answer_eval {
     return (wantarray) ?  ($out, $errors,$full_error_report) : $out;
 
 
+}
+
+sub original_preprocess_code {
+	my $evalString = shift;
+	# BEGIN_TEXT and END_TEXT must occur on a line by themselves.
+	$evalString =~ s/\n\s*END_TEXT[\s;]*\n/\nEND_TEXT\n/g;
+	$evalString =~ s/\n\s*BEGIN_TEXT[\s;]*\n/\nTEXT\(EV3\(<<'END_TEXT'\)\);\n/g;
+	$evalString =~ s/ENDDOCUMENT.*/ENDDOCUMENT();/s; # remove text after ENDDOCUMENT
+
+	$evalString =~ s/\\/\\\\/g;    # \ can't be used for escapes because of TeX conflict
+	$evalString =~ s/~~/\\/g;      # use ~~ as escape instead, use # for comments
+	$evalString;
+}
+sub default_preprocess_code {
+	my $evalString = shift;
+	# BEGIN_TEXT and END_TEXT must occur on a line by themselves.
+	$evalString =~ s/\n\s*END_TEXT[\s;]*\n/\nEND_TEXT\n/g;
+	$evalString =~ s/\n\s*END_SOLUTION[\s;]*\n/\nEND_SOLUTION\n/g;
+	$evalString =~ s/\n\s*END_HINT[\s;]*\n/\nEND_HINT\n/g;
+	$evalString =~ s/\n\s*BEGIN_TEXT[\s;]*\n/\nTEXT\(EV3\(<<'END_TEXT'\)\);\n/g;
+	$evalString =~ s/\n\s*BEGIN_SOLUTION[\s;]*\n/\nSOLUTION\(EV3\(<<'END_SOLUTION'\)\);\n/g;
+	$evalString =~ s/\n\s*BEGIN_HINT[\s;]*\n/\nHINT\(EV3\(<<'END_HINT'\)\);\n/g;
+	$evalString =~ s/ENDDOCUMENT.*/ENDDOCUMENT();/s; # remove text after ENDDOCUMENT
+
+	$evalString =~ s/\\/\\\\/g;    # \ can't be used for escapes because of TeX conflict
+	$evalString =~ s/~~/\\/g;      # use ~~ as escape instead, use # for comments
+	$evalString;
+}
+sub default_postprocess_code {
+	my $evalString_ref = shift;
+	$evalString_ref;
 }
 
 sub dumpvar {
