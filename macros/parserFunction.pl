@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: webwork2/lib/WeBWorK.pm,v 1.100 2007/08/13 22:59:53 sh002i Exp $
+# $CVSHeader: pg/macros/parserFunction.pl,v 1.12 2007/10/04 16:40:48 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -160,9 +160,14 @@ sub D {
   return (($Df->substitute($x=>$g))*($g->D(@_)))->{tree}->reduce;
 }
 
+=head3 NameForNumber($number)
+
 #
 #  Get the name for a number
 #
+
+=cut
+
 sub NameForNumber {
   my $n = shift;
   my $name =  ('zeroth','first','second','third','fourth','fifth',

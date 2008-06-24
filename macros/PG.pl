@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PG.pl,v 1.36 2008/05/03 17:43:29 sh002i Exp $
+# $CVSHeader: pg/macros/PG.pl,v 1.37 2008/05/08 00:37:31 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -612,9 +612,6 @@ sub ENDDOCUMENT {
 	(\$STRINGforOUTPUT, \$STRINGforHEADER_TEXT,\%PG_ANSWERS_HASH,eval(q!\%main::PG_FLAGS!));
 }
 
-=back
-
-=cut
 
 ################################################################################
 
