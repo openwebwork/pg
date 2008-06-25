@@ -5,7 +5,7 @@
 
 package Value::Context;
 my $pkg = "Value::Context";
-use strict;
+use strict; no strict "refs";
 use UNIVERSAL;
 
 #
