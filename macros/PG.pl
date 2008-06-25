@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PG.pl,v 1.37 2008/05/08 00:37:31 sh002i Exp $
+# $CVSHeader: pg/macros/PG.pl,v 1.29.2.2.2.2 2008/06/25 20:05:23 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -202,7 +202,7 @@ sub DOCUMENT {
 # 	%main::gifs_created = ();
 	eval(q!
 	# set perl to use capital E for scientific notation:  e.g.  5.4E-05 instead of 5.4e-05
-	$#="%G";  #FIXME  -- check that this works
+	# $#="%G";  #FIXME  -- this causes bad warnings in perl 5.10
 	
 	@main::PG_ANSWER_ENTRY_ORDER = ();
 	$main::ANSWER_PREFIX = 'AnSwEr';
