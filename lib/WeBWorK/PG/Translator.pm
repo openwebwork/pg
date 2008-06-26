@@ -1638,9 +1638,9 @@ sub default_preprocess_code {
 	$evalString =~ s/\n\s*END_TEXT[\s;]*\n/\nEND_TEXT\n/g;
 	$evalString =~ s/\n\s*END_SOLUTION[\s;]*\n/\nEND_SOLUTION\n/g;
 	$evalString =~ s/\n\s*END_HINT[\s;]*\n/\nEND_HINT\n/g;
-	$evalString =~ s/\n\s*BEGIN_TEXT[\s;]*\n/\nTEXT\(EV3\(<<'END_TEXT'\)\);\n/g;
-	$evalString =~ s/\n\s*BEGIN_SOLUTION[\s;]*\n/\nSOLUTION\(EV3\(<<'END_SOLUTION'\)\);\n/g;
-	$evalString =~ s/\n\s*BEGIN_HINT[\s;]*\n/\nHINT\(EV3\(<<'END_HINT'\)\);\n/g;
+	$evalString =~ s/\n\s*BEGIN_TEXT[\s;]*\n/\nTEXT\(EV3P\(<<'END_TEXT'\)\);\n/g;
+	$evalString =~ s/\n\s*BEGIN_SOLUTION[\s;]*\n/\nSOLUTION\(EV3P\(<<'END_SOLUTION'\)\);\n/g;
+	$evalString =~ s/\n\s*BEGIN_HINT[\s;]*\n/\nHINT\(EV3P\(<<'END_HINT'\)\);\n/g;
 	$evalString =~ s/ENDDOCUMENT.*/ENDDOCUMENT();/s; # remove text after ENDDOCUMENT
 
 	$evalString =~ s/\\/\\\\/g;    # \ can't be used for escapes because of TeX conflict
