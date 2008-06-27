@@ -380,7 +380,7 @@ sub  NAMED_ANS_BOX {
 	my $height = .07*$row;
 	my $answer_value = '';
 	$answer_value = $inputs_ref->{$name} if defined( $inputs_ref->{$name} );
-	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
+#	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	my $out = M3(
 	     qq!\\vskip $height in \\hrulefill\\quad !,
 	     qq!\\begin{rawhtml}<TEXTAREA NAME="$name" ROWS="$row" COLS="$col"
@@ -1230,10 +1230,10 @@ sub ALPHABET  {
 # The order of arguments is TeX, Latex2HTML, HTML
 # Adopted Davide Cervone's improvements to PAR, LTS, GTS, LTE, GTE, LBRACE, RBRACE, LB, RB. 7-14-03 AKP
 sub PAR { MODES( TeX => '\\par ', Latex2HTML => '\\begin{rawhtml}<P>\\end{rawhtml}', HTML => '<P>'); };
-sub BR { MODES( TeX => '\\par\\noindent ', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR>'); };
+#sub BR { MODES( TeX => '\\par\\noindent ', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR>'); };
 # Alternate definition of BR which is slightly more flexible and gives more white space in printed output
 # which looks better but kills more trees.
-#sub BR { MODES( TeX => '\\leavevmode\\\\', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR>'); };
+sub BR { MODES( TeX => '\\leavevmode\\\\\\relax ', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR>'); };
 sub LQ { MODES( TeX => "``", Latex2HTML =>   '"',  HTML =>  '&quot;' ); };
 sub RQ { MODES( TeX => "''", Latex2HTML =>   '"',   HTML =>  '&quot;' ); };
 sub BM { MODES(TeX => '\\(', Latex2HTML => '\\(', HTML =>  ''); };  # begin math mode
@@ -1677,7 +1677,7 @@ sub EV3P {
   $string = ev_substring($string,"\\\\{","\\\\}",\&safe_ev) if $options{processCommands};
   if ($options{processVariables}) {
     my $eval_string = $string;
-    $eval_string =~ s/\$(?![a-z])/\${DOLLAR}/gi if $options{fixDollars};
+    $eval_string =~ s/\$(?![a-z\{])/\${DOLLAR}/gi if $options{fixDollars};
     my ($evaluated_string,$PG_eval_errors,$PG_full_errors) = 
       PG_restricted_eval("<<END_OF_EVALUATION_STRING\n$eval_string\nEND_OF_EVALUATION_STRING\n");
     if ($PG_eval_errors) {
@@ -1791,7 +1791,14 @@ sub beginproblem {
 	$points = 'pt' if $problemValue == 1;
 	##    Prepare header for the problem
 	grep($inlist{$_}++,@{ $envir->{'PRINT_FILE_NAMES_FOR'} });
-	if ( defined($inlist{$envir->{studentLogin}}) and ($inlist{$envir->{studentLogin}} > 0) ) {
+	my $permissionLevel = $envir->{permissionLevel};
+	my $PRINT_FILE_NAMES_PERMISSION_LEVEL = $envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'};
+	my $studentLogin = $envir->{studentLogin};
+	my $print_path_name_flag = 
+			(defined($permissionLevel) && defined($PRINT_FILE_NAMES_PERMISSION_LEVEL) && $permissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL)
+			 || ( defined($inlist{ $studentLogin }) and ( $inlist{ $studentLogin }>0 )  ) ;
+
+	if ( $print_path_name_flag ) {
 		$out = &M3("{\\bf ${probNum}. {\\footnotesize ($problemValue $points) $TeXFileName}}\\newline ",
 		" \\begin{rawhtml} ($problemValue $points) <B>$l2hFileName</B><BR>\\end{rawhtml}",
 		 "($problemValue $points) <B>$fileName</B><BR>"
