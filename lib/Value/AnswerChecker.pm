@@ -30,8 +30,8 @@ $Value::defaultContext->{cmpDefaults} = {};
 
 #  Internal use.
 #  Set default flags for the answer checker in this object
-#  	showTypeWarnings => 1
-#       showEqualErrors  => 1
+#  		showTypeWarnings =>	1
+#       showEqualErrors  =>	1
 #       ignoreStrings    => 1
 #       studentsMustReduceUnions => 1
 #       showUnionReduceWarnings  => 1
