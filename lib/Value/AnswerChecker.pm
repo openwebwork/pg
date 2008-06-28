@@ -3,7 +3,7 @@
 
  #############################################################
  #
- #  Implements the ->cmp method for Value objects. 
+ #  Implements the ->cmp method for Value objects.
  #  Otherwise known as MathObjects.  This produces
  #  an answer checker appropriate for the type of object.
  #  Additional options can be passed to the cmp method to
@@ -30,12 +30,12 @@ $Value::defaultContext->{cmpDefaults} = {};
 
 #  Internal use.
 #  Set default flags for the answer checker in this object
-#  		showTypeWarnings =>	1
-#       showEqualErrors  =>	1
+#  	showTypeWarnings => 1
+#       showEqualErrors  => 1
 #       ignoreStrings    => 1
 #       studentsMustReduceUnions => 1
-#       show UnionReduceWarnings => 1
-# 
+#       showUnionReduceWarnings  => 1
+#
 
 =cut
 
@@ -1172,9 +1172,10 @@ sub typeMatch {
 #  partial credit.  Set the various types for error
 #  messages.
 #
+my $typeMatchInterval = Value::Interval->make(0,1);
 sub cmp_defaults {(
   Value::List::cmp_defaults(@_),
-  typeMatch => 'Value::Interval',
+  typeMatch => $typeMatchInterval,
   list_type => 'an interval, set or union',
   short_type => 'a union',
   entry_type => 'an interval or set',
@@ -1431,7 +1432,7 @@ sub cmp_list_compare {
     $entry = $self->Package("Formula")->new($entry) if !Value::isValue($entry);
 
     #
-    #  Some words differ if ther eis only one entry in the student's list
+    #  Some words differ if there is only one entry in the student's list
     #
     my $nth = ''; my $answer = 'answer';
     my $class = $ans->{list_type} || $ans->{cmp_class};
