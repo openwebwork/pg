@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: webwork2/lib/WeBWorK.pm,v 1.100 2007/08/13 22:59:53 sh002i Exp $
+# $CVSHeader: pg/macros/contextIntegerFunctions.pl,v 1.11 2007/10/04 16:40:48 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -46,7 +46,7 @@ loadMacros('MathObjects.pl');
 
 sub _contextIntegerFunctions_init {context::IntegerFunctions2::Init()}; # don't reload this file
 
-package context::IntegerFunction2;
+package context::IntegerFunctions2;
 our @ISA = qw(Parser::Function::numeric2); # checks for 2 numeric inputs
 
 sub C {
@@ -69,8 +69,8 @@ sub Init {
   $context->{name} = "IntegerFunctions";
 
   $context->functions->add(
-    C => {class => 'context::IntegerFunction2'},
-    P => {class => 'context::IntegerFunction2'},
+    C => {class => 'context::IntegerFunctions2'},
+    P => {class => 'context::IntegerFunctions2'},
   );
 
   main::Context("IntegerFunctions");
