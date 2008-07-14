@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/contextCurrency.pl,v 1.14 2008/01/16 22:56:24 dpvc Exp $
+# $CVSHeader: pg/macros/contextCurrency.pl,v 1.15 2008/01/26 01:40:32 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -125,7 +125,7 @@ be provided using the forceDecimals=>1 flag.
 	ANS(Compute('$10.95')->cmp(forceDecimals=>1));
 
 By default, if the monitary value includes decimals digits, it
-must have exactly two.  You can weaken this requirement to all
+must have exactly two.  You can weaken this requirement to allow
 any number of decimals by using noExtraDecimals=>0.
 
 	ANS(Compute('$10.23372')->cmp(noExtraDecimals=>0);
@@ -142,7 +142,7 @@ trimTrailingZeros context flag:
 
 It can also be set on an individual currency value:
 
-	$m = Compute("$50")->with(trimtrailingZeros=>1);
+	$m = Compute('$50')->with(trimtrailingZeros=>1);
 
 so that this $m will print as $50 rather than $50.00.
 
