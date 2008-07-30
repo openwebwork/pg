@@ -1234,8 +1234,8 @@ sub PAR { MODES( TeX => '\\par ', Latex2HTML => '\\begin{rawhtml}<P>\\end{rawhtm
 # Alternate definition of BR which is slightly more flexible and gives more white space in printed output
 # which looks better but kills more trees.
 sub BR { MODES( TeX => '\\leavevmode\\\\\\relax ', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR>'); };
-sub LQ { MODES( TeX => "``", Latex2HTML =>   '"',  HTML =>  '&quot;' ); };
-sub RQ { MODES( TeX => "''", Latex2HTML =>   '"',   HTML =>  '&quot;' ); };
+sub LQ { MODES( TeX => "\\lq\\lq{}", Latex2HTML =>   '"',  HTML =>  '&quot;' ); };
+sub RQ { MODES( TeX => "\\rq\\rq{}", Latex2HTML =>   '"',   HTML =>  '&quot;' ); };
 sub BM { MODES(TeX => '\\(', Latex2HTML => '\\(', HTML =>  ''); };  # begin math mode
 sub EM { MODES(TeX => '\\)', Latex2HTML => '\\)', HTML => ''); };  # end math mode
 sub BDM { MODES(TeX => '\\[', Latex2HTML =>   '\\[', HTML =>   '<P ALIGN=CENTER>'); };  #begin displayMath mode
