@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: webwork2/lib/WeBWorK.pm,v 1.100 2007/08/13 22:59:53 sh002i Exp $
+# $CVSHeader: pg/macros/parserAutoStrings.pl,v 1.4 2007/10/04 16:40:48 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -16,7 +16,7 @@
 
 =head1 NAME
 
-parserAutoStrings.pl - Force String() to accpet any string.
+parserAutoStrings.pl - Force String() to accept any string.
 
 =head1 DESCRIPTION
 
@@ -24,15 +24,16 @@ This file allows you to force String() to accept ANY string as a
 legal value.  (It will add the string to the context if it isn't
 already defined.)
 
-To acocmplish this, put the lines
+To accomplish this, put the lines
 
 	loadMacros("parserAutoStrings.pl");
 	AutoStrings();
 
-(You can also pass AutoStrings a context pointer if you wish to
-alter context other than the current one.)
+at the beginning of your problem file.  (You can also pass AutoStrings
+a context pointer if you wish to alter context other than the current
+one.)
 
-There is also a routine to help making strings easier to predefine.
+There is also a routine to help make strings easier to predefine.
 For example:
 
 	loadMacros("parserAutoStrings.pl");
