@@ -169,6 +169,14 @@ sub promote {
   Value::Error("Can't convert %s to %s",Value::showClass($x),Value::showClass($self));
 }
 
+#
+#  Don't inherit ColumnVector flag
+#
+sub noinherit {
+  my $self = shift;
+  return ("ColumnVector",$self->SUPER::noinherit);
+}
+
 ############################################
 #
 #  Operations on matrices
