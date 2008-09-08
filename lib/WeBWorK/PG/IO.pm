@@ -111,7 +111,7 @@ sub read_whole_problem_file {
 sub read_whole_file {
 	my $filePath = shift;
 	local (*INPUT);
-	open(INPUT, "<$filePath") || die "$0: readWholeProblemFile subroutine: <BR>Can't read file $filePath";
+	open(INPUT, "<$filePath") || die "$0: read_whole_file subroutine: <BR>Can't read file $filePath";
 	local($/)=undef;
 	my $string = <INPUT>;  # can't append spaces because this causes trouble with <<'EOF'   \nEOF construction
 	close(INPUT);
