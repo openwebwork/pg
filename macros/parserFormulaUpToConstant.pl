@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/parserFormulaUpToConstant.pl,v 1.13 2008/09/11 17:26:57 dpvc Exp $
+# $CVSHeader: pg/macros/parserFormulaUpToConstant.pl,v 1.14 2008/09/12 21:31:43 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -149,6 +149,7 @@ sub new {
   my $n01 = $context->variables->get("n01");
   $context->variables->add(n01=>'Parameter') unless $n01 and $n01->{parameter};
   $f->{adapt} = $f + "(n00-$n)$f->{constant} + n01";
+
   return bless $f, $class;
 }
 
@@ -175,9 +176,9 @@ sub compare {
   #
   #  Compare with adaptive parameters to see if $l + n0 C = $r for some n0.
   #
-  $main::{_cmp_} = sub {return $l->{adapt} == $r};            # a closure to access local variables
-  my $equal = main::PG_restricted_eval('&{$main::{_cmp_}}');  # prevents errors with large adaptive parameters
-  delete $main::{_cmp_};                                      # remove temprary function
+  $main::{_cmp_} = sub {return ($l->{adapt}->inherit($l)) == $r};  # a closure to access local variables
+  my $equal = main::PG_restricted_eval('&{$main::{_cmp_}}');       # prevents errors with large adaptive parameters
+  delete $main::{_cmp_};                                           # remove temprary function
   return -1 unless $equal;
   #
   #  Check that n0 is non-zero (i.e., there is a multiple of C in the student answer)
@@ -237,7 +238,7 @@ sub constant {(shift)->{constant}}
 #
 sub removeConstant {
   my $self = shift;
-  main::Formula($self->substitute($self->{constant}=>0))->reduce;
+  main::Formula($self->substitute($self->{constant}=>0))->reduce->inherit($self);
 }
 
 #
