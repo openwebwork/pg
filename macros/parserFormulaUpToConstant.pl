@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/parserFormulaUpToConstant.pl,v 1.11.2.1 2008/06/24 00:44:54 gage Exp $
+# $CVSHeader: pg/macros/parserFormulaUpToConstant.pl,v 1.13 2008/09/11 17:26:57 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -214,7 +214,10 @@ sub cmp_postprocess {
     my $context = $self->context;
     $context->flags->set(no_parameters=>0);
     $context->variables->add(x00=>'Real');
-    $result = 1 if $self->removeConstant+"n01+n00x00" == $student+"x00"; # must use both parameters
+    my $correct = $self->removeConstant+"n01+n00x00";    # must use both parameters
+    $main::{_cmp_} = sub {return $correct == $student+"x00"};     # a closure to access local variables
+    $result = 1 if main::PG_restricted_eval('&{$main::{_cmp_}}'); # prevents domain errors (and other errors)
+    delete $main::{_cmp_};                                        # remove temprary function
     $context->variables->remove('x00');
     $context->flags->set(no_parameters=>1);
   }
