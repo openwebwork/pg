@@ -994,23 +994,31 @@ sub SOLUTION {
 }
 
 
-
 sub hint {
    	my @in = @_;
 	my $out = '';
-
-	PG_restricted_eval(q!$main::hintExists =1;
-                         $main::numOfAttempts = 0 unless defined($main::numOfAttempts);
-    !);
+	my $permissionLevel = PG_restricted_eval(q!$main::envir{permissionLevel}!);
+	my $PRINT_FILE_NAMES_PERMISSION_LEVEL = PG_restricted_eval(q!$envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'}!);
+    my $printHintForInstructor = $permissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL;
+    my $showHint = PG_restricted_eval(q!$main::showHint!);
+    my $displayHint = PG_restricted_eval(q!$envir->{'displayHintsQ'}!);
+	PG_restricted_eval(q!$main::hintExists =1!);
+    my $attempts = PG_restricted_eval(q!$main::numOfAttempts = 0 unless defined($main::numOfAttempts);!);
 
 	if ($displayMode eq 'TeX')   {
-		$out = '';  # do nothing since hints are not available for download
-	} elsif (($envir->{'displayHintsQ'}) and
-	        PG_restricted_eval(q!($main::numOfAttempts >= $main::showHint)!))
+	    if ($printHintForInstructor) {
+	    	$out = join(' ',@in, "$BR(Show hint after $showHint attempts. ) $BR");
+		} else 	{
+			$out = '';  # do nothing since hints are not available for download for students
+		}
+	} elsif ($printHintForInstructor) {  # always print hints for instructor types 
+		$out = join(' ',@in, "$BR(Show hint after $showHint attempts. )$BR ");
+	} elsif ( $displayHint  and ( $attempts > $showHint )) 	{
 
 	 ## the second test above prevents a hint being shown if a doctored form is submitted
 
-	{$out = join(' ',@in);}    # show hint
+		$out = join(' ',@in);
+	}    # show hint
 
   $out ;
 }
