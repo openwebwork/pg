@@ -1003,7 +1003,8 @@ sub hint {
     my $showHint = PG_restricted_eval(q!$main::showHint!);
     my $displayHint = PG_restricted_eval(q!$envir->{'displayHintsQ'}!);
 	PG_restricted_eval(q!$main::hintExists =1!);
-    my $attempts = PG_restricted_eval(q!$main::numOfAttempts = 0 unless defined($main::numOfAttempts);!);
+    PG_restricted_eval(q!$main::numOfAttempts = 0 unless defined($main::numOfAttempts);!);
+    my $attempts = PG_restricted_eval(q!$main::numOfAttempts!);
 
 	if ($displayMode eq 'TeX')   {
 	    if ($printHintForInstructor) {
