@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/parserFormulaUpToConstant.pl,v 1.14 2008/09/12 21:31:43 dpvc Exp $
+# $CVSHeader: pg/macros/parserFormulaUpToConstant.pl,v 1.15 2008/09/12 21:53:52 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -176,15 +176,64 @@ sub compare {
   #
   #  Compare with adaptive parameters to see if $l + n0 C = $r for some n0.
   #
-  $main::{_cmp_} = sub {return ($l->{adapt}->inherit($l)) == $r};  # a closure to access local variables
-  my $equal = main::PG_restricted_eval('&{$main::{_cmp_}}');       # prevents errors with large adaptive parameters
-  delete $main::{_cmp_};                                           # remove temprary function
+  $main::{_cmp_} = sub {return $l->adapt == $r};               # a closure to access local variables
+  my $equal = main::PG_restricted_eval('&{$main::{_cmp_}}');   # prevents errors with large adaptive parameters
+  delete $main::{_cmp_};                                       # remove temprary function
   return -1 unless $equal;
   #
   #  Check that n0 is non-zero (i.e., there is a multiple of C in the student answer)
   #  (remember: return value of 0 is equal, and non-zero is unequal)
   #
   return abs($context->variables->get("n00")->{value}) < $context->flag("zeroLevelTol");
+}
+
+#
+#  Return the {adapt} formula with test points adjusted
+#
+sub adapt {
+  my $self = shift;
+  my $adapt = $self->{adapt}->inherit($self); delete $adapt->{adapt};
+  return $self->adjustInherit($self->{adapt});
+}
+
+#
+#  Inherit from the main FormulaUpToConstant, but
+#  adjust the test points to include the constants
+#
+sub adjustInherit {
+  my $self = shift;
+  my $f = shift->inherit($self);
+  delete $f->{adapt}; delete $f->{constant};
+  foreach my $id ('test_points','test_at') {
+    if (defined $f->{$id}) {
+      $f->{$id} = $f->{$id}->value if Value::isValue($f->{$id});
+      $f->{$id} = [$f->{$id}] unless ref($f->{$id}) eq 'ARRAY';
+      $f->{$id} = [map {[$_]} @{$f->{$id}}] unless ref($f->{$id}[0]) eq 'ARRAY';
+      $f->{$id} = $self->addConstants($f->{$id});
+    }
+  }
+  return $f;
+}
+
+#
+#  Insert dummy values for the constants for the test points
+#  (These are supposed to be +C, so the value shouldn't matter?)
+#
+sub addConstants {
+  my $self = shift; my $points = shift;
+  my @names = $self->context->variables->variables;
+  my $variables = $self->context->{variables};
+  my $Points = [];
+  foreach my $p (@{$points}) {
+    my @P = (.1) x scalar(@names); my $j = 0;
+    foreach my $i (0..scalar(@names)-1) {
+      if (!$variables->{$names[$i]}{arbitraryConstant}) {
+	$P[$i] = $p->[$j] if defined $p->[$j]; $j++;
+      }
+    }
+    push (@{$Points}, \@P);
+  }
+  return $Points;
 }
 
 ##################################################
@@ -238,7 +287,7 @@ sub constant {(shift)->{constant}}
 #
 sub removeConstant {
   my $self = shift;
-  main::Formula($self->substitute($self->{constant}=>0))->reduce->inherit($self);
+  return $self->adjustInherit(main::Formula($self->substitute($self->{constant}=>0))->reduce);
 }
 
 #
