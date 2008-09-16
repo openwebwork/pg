@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/parserFormulaUpToConstant.pl,v 1.16 2008/09/15 15:35:34 dpvc Exp $
+# $CVSHeader: pg/macros/parserFormulaUpToConstant.pl,v 1.17 2008/09/16 03:01:17 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -118,7 +118,6 @@ sub new {
   #
   my $context = (Value::isContext($_[0]) ? shift : $self->context)->copy;
   $context->{parser}{Variable} = 'FormulaUpToConstant::Variable';
-  $context->{diagnostics}{formulas}{showGraphs} = 0;
   #
   #  Create a formula from the user's input.
   #
@@ -191,15 +190,6 @@ sub compare {
 }
 
 #
-#  Provide diagnostics based on the adapted function used to check
-#  the student's answer
-#
-sub cmp_diagnostics {
-  my $self = shift;
-  $self->inherit($self->{adapt})->SUPER::cmp_diagnostics(@_);
-}
-
-#
 #  Return the {adapt} formula with test points adjusted
 #
 sub adapt {
@@ -260,6 +250,30 @@ sub addConstants {
 #  Show hints by default
 #
 sub cmp_defaults {((shift)->SUPER::cmp_defaults,showHints => 1, showLinearityHints => 1)};
+
+#
+#  Provide diagnostics based on the adapted function used to check
+#  the student's answer
+#
+sub cmp_diagnostics {
+  my $self = shift;
+  $self->inherit($self->{adapt})->SUPER::cmp_diagnostics(@_);
+}
+
+#
+#  Make it possible to graph single-variable formulas by setting
+#  the arbitrary constants to 0 first.
+#
+sub cmp_graph {
+  my $self = shift; my $diagnostics = shift;
+  my $F1 = shift; my $F2; ($F1,$F2) = @{$F1} if (ref($F1) eq 'ARRAY');
+  my %subs; my $context = $self->context;
+  foreach my $v ($context->variables->variables)
+    {$subs{$v} = 0 if ($context->variables->get($v)->{arbitraryConstant})}
+  $F1 = $F1->inherit($F1->{adapt})->substitute(%subs)->reduce;
+  $F2 = $F2->inherit($F2->{adapt})->substitute(%subs)->reduce;
+  $self->SUPER::cmp_graph($diagnostics,[$F1,$F2]);
+}
 
 #
 #  Add useful messages, if the author requested them
