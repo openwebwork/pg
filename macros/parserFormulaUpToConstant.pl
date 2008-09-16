@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/parserFormulaUpToConstant.pl,v 1.15 2008/09/12 21:53:52 dpvc Exp $
+# $CVSHeader: pg/macros/parserFormulaUpToConstant.pl,v 1.16 2008/09/15 15:35:34 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -118,6 +118,7 @@ sub new {
   #
   my $context = (Value::isContext($_[0]) ? shift : $self->context)->copy;
   $context->{parser}{Variable} = 'FormulaUpToConstant::Variable';
+  $context->{diagnostics}{formulas}{showGraphs} = 0;
   #
   #  Create a formula from the user's input.
   #
@@ -176,15 +177,26 @@ sub compare {
   #
   #  Compare with adaptive parameters to see if $l + n0 C = $r for some n0.
   #
-  $main::{_cmp_} = sub {return $l->adapt == $r};               # a closure to access local variables
+  my $adapt = $l->adapt;
+  $main::{_cmp_} = sub {return $adapt == $r};                  # a closure to access local variables
   my $equal = main::PG_restricted_eval('&{$main::{_cmp_}}');   # prevents errors with large adaptive parameters
   delete $main::{_cmp_};                                       # remove temprary function
+  $self->{adapt} = $self->{adapt}->inherit($adapt);            # save the adapted value's flags
   return -1 unless $equal;
   #
   #  Check that n0 is non-zero (i.e., there is a multiple of C in the student answer)
   #  (remember: return value of 0 is equal, and non-zero is unequal)
   #
   return abs($context->variables->get("n00")->{value}) < $context->flag("zeroLevelTol");
+}
+
+#
+#  Provide diagnostics based on the adapted function used to check
+#  the student's answer
+#
+sub cmp_diagnostics {
+  my $self = shift;
+  $self->inherit($self->{adapt})->SUPER::cmp_diagnostics(@_);
 }
 
 #
