@@ -323,9 +323,13 @@ sub plot_functions {
 			my $localContext= Parser::Context->current(\%main::context)->copy;
 			$localContext->variables->add($var=>'Real') unless $localContext->variables->get($var);
 			my $formula = Value->Package("Formula()")->new($localContext,$rule);
-			my $subRef = sub {my $x=shift; Parser::Evaluate($formula, $var=>$x)->value};
-        	     #traps errors when 
-        	     # graph domain is larger than the function's domain.
+			my $subRef = sub {
+			  my $x = shift;
+			  my $y = Parser::Evaluate($formula, $var=>$x);
+			  $y = $y->value if defined $y;
+			  return $y
+			};
+        	     # traps errors when graph domain is larger than the function's domain.
         	#my $subRef    = string_to_sub($rule,$var);
 			my $funRef = new Fun($subRef,$graph);
 			$funRef->color($color);
