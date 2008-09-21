@@ -1624,7 +1624,7 @@ sub cmp {
 
 sub cmp_call_filter {
   my $ans = shift; my $method = shift;
-  return $ans->{correct_value}->$method($ans);
+  return $ans->{correct_value}->$method($ans,@_);
 }
 
 sub cmp_prefilter {
@@ -1681,8 +1681,10 @@ sub cmp_equal {
 
 sub cmp_postprocess {
   my $self = shift; my $ans = shift;
-  return unless $ans->{score} == 0 && !$ans->{isPreview};
-  return if $ans->{ans_message};
+  return unless $ans->{score} == 0;
+  eval {$ans->{student_formula}->reduce} if defined($ans->{student_formula}); # check for bad function calls
+  $self->cmp_error($ans) if $self->{context}{error}{flag};                    #  and report the error
+  return if $ans->{ans_message} || $ans->{isPreview};
   if ($self->{domainMismatch} && $ans->{showDomainErrors}) {
     $self->cmp_Error($ans,"The domain of your function doesn't match that of the correct answer");
     return;
