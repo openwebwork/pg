@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/parserFormulaUpToConstant.pl,v 1.17 2008/09/16 03:01:17 dpvc Exp $
+# $CVSHeader: pg/macros/parserFormulaUpToConstant.pl,v 1.18 2008/09/16 03:23:54 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -177,9 +177,7 @@ sub compare {
   #  Compare with adaptive parameters to see if $l + n0 C = $r for some n0.
   #
   my $adapt = $l->adapt;
-  $main::{_cmp_} = sub {return $adapt == $r};                  # a closure to access local variables
-  my $equal = main::PG_restricted_eval('&{$main::{_cmp_}}');   # prevents errors with large adaptive parameters
-  delete $main::{_cmp_};                                       # remove temprary function
+  my $equal = $adapt->cmp_compare($r,{});
   $self->{adapt} = $self->{adapt}->inherit($adapt);            # save the adapted value's flags
   return -1 unless $equal;
   #
@@ -208,9 +206,12 @@ sub adjustInherit {
   delete $f->{adapt}; delete $f->{constant};
   foreach my $id ('test_points','test_at') {
     if (defined $f->{$id}) {
-      $f->{$id} = $f->{$id}->value if Value::isValue($f->{$id});
+      $f->{$id} = [$f->{$id}->value] if Value::isValue($f->{$id});
       $f->{$id} = [$f->{$id}] unless ref($f->{$id}) eq 'ARRAY';
-      $f->{$id} = [map {[$_]} @{$f->{$id}}] unless ref($f->{$id}[0]) eq 'ARRAY';
+      $f->{$id} = [map {
+	(Value::isValue($_) ? [$_->value] :
+        (ref($_) eq 'ARRAY'? $_ : [$_]))
+      } @{$f->{$id}}];
       $f->{$id} = $self->addConstants($f->{$id});
     }
   }
@@ -227,13 +228,17 @@ sub addConstants {
   my $variables = $self->context->{variables};
   my $Points = [];
   foreach my $p (@{$points}) {
-    my @P = (.1) x scalar(@names); my $j = 0;
-    foreach my $i (0..scalar(@names)-1) {
-      if (!$variables->{$names[$i]}{arbitraryConstant}) {
-	$P[$i] = $p->[$j] if defined $p->[$j]; $j++;
+    if (scalar(@{$p}) == scalar(@names)) {
+      push (@{$Points},$p);
+    } else {
+      my @P = (.1) x scalar(@names); my $j = 0;
+      foreach my $i (0..scalar(@names)-1) {
+        if (!$variables->{$names[$i]}{arbitraryConstant}) {
+	  $P[$i] = $p->[$j] if defined $p->[$j]; $j++;
+	}
       }
+      push (@{$Points}, \@P);
     }
-    push (@{$Points}, \@P);
   }
   return $Points;
 }
@@ -280,20 +285,20 @@ sub cmp_graph {
 #
 sub cmp_postprocess {
   my $self = shift; my $ans = shift;
-  $self->SUPER::cmp_postprocess($ans);
+  $self->SUPER::cmp_postprocess($ans,@_);
   return unless $ans->{score} == 0 && !$ans->{isPreview};
   return if $ans->{ans_message} || !$self->getFlag("showHints");
   my $student = $ans->{student_value};
-  my $result = $ans->{correct_value} <=> $student;  # compare encodes the reason in the result
+  $main::{_cmp_} = sub {return $ans->{correct_value} <=> $student}; # compare encodes the reason in the result
+  my $result = main::PG_restricted_eval('&{$main::{_cmp_}}');
+  delete $main::{_cmp_};
   $self->cmp_Error($ans,"Note: there is always more than one posibility") if $result == 2 || $result == 3;
   if ($result == 3) {
     my $context = $self->context;
     $context->flags->set(no_parameters=>0);
     $context->variables->add(x00=>'Real');
     my $correct = $self->removeConstant+"n01+n00x00";    # must use both parameters
-    $main::{_cmp_} = sub {return $correct == $student+"x00"};     # a closure to access local variables
-    $result = 1 if main::PG_restricted_eval('&{$main::{_cmp_}}'); # prevents domain errors (and other errors)
-    delete $main::{_cmp_};                                        # remove temprary function
+    $result = 1 if $correct->cmp_compare($student+"x00",{});
     $context->variables->remove('x00');
     $context->flags->set(no_parameters=>1);
   }
