@@ -220,6 +220,16 @@ sub compare {
 }
 
 #
+#  Don't inherit test values or adapted values, or other temporary items
+#
+sub noinherit {
+  my $self = shift;
+  ($self->SUPER::noinherit(@_),"test_values","test_adapt","tree","string","variables",
+    "f","stack","ref","tokens","values","space","domainMismatch");
+}
+
+
+#
 #  Create the value list from a given set of test points
 #
 sub createPointValues {
