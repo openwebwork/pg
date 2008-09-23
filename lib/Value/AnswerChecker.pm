@@ -1646,10 +1646,14 @@ sub cmp_postfilter {
   my $self = shift; my $ans = shift;
   $ans->{_filter_name} = "produce_equivalence_message";
   return $ans if $ans->{ans_message}; # don't overwrite other messages
-  $ans->{prev_formula} = Parser::Formula($self->{context},$ans->{prev_ans});
+  my $context = $self->context;
+  $ans->{prev_formula} = Parser::Formula($context,$ans->{prev_ans});
   if (defined($ans->{prev_formula}) && defined($ans->{student_formula})) {
-    my $prev = eval {$self->promote($ans->{prev_formula})}; break unless defined($prev);
-    $ans->{prev_equals_current} = Value::cmp_compare($prev,$ans->{student_formula},{});
+    my $prev = eval {$self->promote($ans->{prev_formula})->inherit($self)}; # inherit limits, etc.
+    break unless defined($prev);
+    $context->{answerHash} = $ans; # values here can override context flags
+    $ans->{prev_equals_current} = Value::cmp_compare($prev,$ans->{student_formula},$ans);
+    $context->{answerHash} = undef;
     if (   !$ans->{isPreview}                                 # not preview mode
 	and $ans->{prev_equals_current}                       # equivalent
 	and $ans->{prev_ans} ne $ans->{original_student_ans}) # but not identical
