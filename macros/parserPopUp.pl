@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: webwork2/lib/WeBWorK.pm,v 1.100 2007/08/13 22:59:53 sh002i Exp $
+# $CVSHeader: pg/macros/parserPopUp.pl,v 1.7 2007/10/04 16:40:49 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -49,7 +49,7 @@ MultiAnswer calls to get answer rules).
 
 =cut
 
-loadMacros('MathObjects.pl','contextString.pl');
+loadMacros('MathObjects.pl');
 
 sub _parserPopUp_init {parserPopUp::Init()}; # don't reload this file
 
@@ -62,7 +62,14 @@ our @ISA = qw(Value::String);
 #
 #  Setup the main:: namespace
 #
-sub Init {main::PG_restricted_eval('sub PopUp {parserPopUp->new(@_)}')}
+sub Init {
+  ### Hack to get around context change in contextString.pl
+  ### FIXME:  when context definitions don't set context, put loadMacros with MathObject.pl above again
+  my $context = main::Context();
+  main::loadMacros('contextString.pl');
+  main::Context($context);
+  main::PG_restricted_eval('sub PopUp {parserPopUp->new(@_)}');
+}
 
 #
 #  Create a new PopUp object
