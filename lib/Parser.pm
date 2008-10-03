@@ -706,11 +706,15 @@ sub perl {
 sub perlFunction {
   my $self = shift; my $name = shift || ''; my $vars = shift;
   $vars = [sort(keys %{$self->{variables}})] unless $vars;
-  my $n = scalar(@{$vars}); my $vnames = '';
+  $vars = [$vars] unless ref($vars) eq 'ARRAY';
+  my $n = scalar(@{$vars}); my $vnames = ''; my %isArg;
   if ($n > 0) {
-    my @v = (); foreach my $x (@{$vars}) {CORE::push(@v,"\$".$x)}
+    my @v = ();
+    foreach my $x (@{$vars}) {CORE::push(@v,"\$".$x); $isArg{$x} = 1}
     $vnames = "my (".join(',',@v).") = \@_;";
   }
+  foreach my $x (keys %{$self->{variables}})
+    {$vnames .= "\n      my \$$x = main::Formula('$x');" unless $isArg{$x}}
   my $context = $self->context;
   my $fn = eval
    "package main;
