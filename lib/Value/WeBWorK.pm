@@ -32,10 +32,24 @@ sub Evaluate {
 }
 
 #
+#  Call a subtroutine with error trapping.
+#  (We need to be able to do this from custom
+#   answer checkers and other MathObject code.
+#   PG_restricted_eval is not sufficient for this
+#   since that uses a string and so can't access
+#   local variables from the calling routine.)
+#
+sub Eval {
+  my $f = shift;
+  return unless defined($f);
+  eval {&$f(@_)};
+}
+
+#
 #  Remove backtrace and line number, since these
 #  will be reported in the student message area.
 #
-sub Parser::reportEvalError {
+sub reportEvalError {
   my $error = shift; my $fullerror = $error;
   $error =~ s/ at \S+\.\S+ line \d+(\n|.)*//;
   $error =~ s/ at line \d+ of (\n|.)*//;
