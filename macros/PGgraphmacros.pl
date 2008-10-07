@@ -322,14 +322,14 @@ sub plot_functions {
 			# a workaround to call Parser code without loading MathObjects.
 			my $localContext= Parser::Context->current(\%main::context)->copy;
 			$localContext->variables->add($var=>'Real') unless $localContext->variables->get($var);
-			my $formula = Value->Package("Formula()")->new($localContext,$rule);
+			my $formula = Value->Package("Formula()")->new($localContext,$rule)->perlFunction(undef,[$var]);
 			my $subRef = sub {
 			  my $x = shift;
-			  my $y = Parser::Evaluate($formula, $var=>$x);
+			  my $y = Parser::Eval($formula,$x);  # traps errors, e.g. graph domain is larger than
+			  				      #  the function's domain.
 			  $y = $y->value if defined $y;
-			  return $y
+			  return $y;
 			};
-        	     # traps errors when graph domain is larger than the function's domain.
         	#my $subRef    = string_to_sub($rule,$var);
 			my $funRef = new Fun($subRef,$graph);
 			$funRef->color($color);
@@ -488,14 +488,6 @@ sub string_to_sub {
 	}
 	$out;
 }
-
-
-
-
-
-
-
-
 
 #########################################################
 
