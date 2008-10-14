@@ -72,6 +72,7 @@ sub Item {Parser::Item::Item(@_)}
 sub copy {
   my $self = shift;
   my $copy  = bless {%{$self}}, ref($self);
+  foreach my $id (Value::Formula::noinherit($self)) {delete $copy->{$id}}
   $copy->{tree} = $self->{tree}->copy($copy);
   foreach my $id (keys %{$self}) {
     $copy->{$id} = {%{$self->{$id}}} if ref($self->{$id}) eq 'HASH';
