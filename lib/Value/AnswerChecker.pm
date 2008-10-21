@@ -1686,6 +1686,7 @@ sub cmp_equal {
 sub cmp_postprocess {
   my $self = shift; my $ans = shift;
   return unless $ans->{score} == 0;
+  $self->{context}->clearError;
   eval {$ans->{student_formula}->reduce} if defined($ans->{student_formula}); # check for bad function calls
   $self->cmp_error($ans) if $self->{context}{error}{flag};                    #  and report the error
   return if $ans->{ans_message} || $ans->{isPreview};
