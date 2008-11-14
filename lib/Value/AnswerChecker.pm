@@ -415,12 +415,13 @@ sub format_matrix_tex {
   $self->{format_options} = [%options] unless $self->{format_options};
   my ($open,$close,$sep) = ($options{open},$options{close},$options{sep});
   my ($rows,$cols) = (scalar(@{$array}),scalar(@{$array->[0]}));
-  my $tex = "";
+  my $tex = ""; my @rows = ();
   $open = '\\'.$open if $open =~ m/[{}]/; $close = '\\'.$close if $close =~ m/[{}]/;
   $tex .= '\(\left'.$open;
   $tex .= '\setlength{\arraycolsep}{2pt}', $sep = '\,'.$sep if $sep;
   $tex .= '\begin{array}{'.('c'x$cols).'}';
-  foreach my $i (0..$rows-1) {$tex .= join($sep.'&',@{$array->[$i]}).'\cr'."\n"}
+  foreach my $i (0..$rows-1) {push(@rows,join($sep.'&',@{$array->[$i]}))}
+  $tex .= join('\cr'."\n",@rows);
   $tex .= '\end{array}\right'.$close.'\)';
   return $tex;
 }

@@ -396,6 +396,7 @@ sub TeX {
       $d = scalar(@entries); @entries = ();
     }
   }
+  $TeX =~ s/\\cr\n$/\n/;
   return '\left'.$open.'\begin{array}{'.('c'x$d).'}'."\n".$TeX.'\end{array}\right'.$close;
 }
 
