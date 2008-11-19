@@ -446,10 +446,15 @@ sub AdaptParameters {
     foreach my $i (0..$d-1) {
       my @a = (); my @p = @{$p->[$i]};
       foreach my $j (0..$d-1) {
-        $P[$j] = 1; push(@a,(&$f(@p,@P)-$v->[$i])->value);
-        $P[$j] = 0;
+	$P[$j] = 1;
+	my $y = eval {&$f(@p,@P)};
+	$l->Error(["Can't evaluate correct answer at adapted point (%s)",join(",",@$p,@P)])
+	       unless defined $y;
+	push(@a,($y-$v->[$i])->value);
+	$P[$j] = 0;
       }
-      push @A, [@a]; push @b, [(&$F(@p,@P)-$v->[$i])->value];
+      my $y = eval {&$F(@p,@P)}; return unless defined $y;
+      push @A, [@a]; push @b, [($y-$v->[$i])->value];
     }
     #
     #  Use MatrixReal1.pm to solve system of linear equations
