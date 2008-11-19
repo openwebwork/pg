@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/Applet.pm,v 1.11 2008/05/12 00:50:23 gage Exp $
+# $CVSHeader: pg/lib/Applet.pm,v 1.12 2008/05/22 19:15:59 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -101,81 +101,87 @@ use MIME::Base64 qw( encode_base64 decode_base64);
 
 =head2 Default javaScript functions placed in header
 
+=pod
+
 These functions are automatically defined for use for 
 any javaScript placed in the text of a PG question.
 
-	getApplet(appletName)  -- finds the applet path in the DOM
-	
-	submitAction()            -- calls the submit action of the applets
-	                          
+    getApplet(appletName)  -- finds the applet path in the DOM
+
+    submitAction()            -- calls the submit action of the applets
 
     initializeAction()        -- calls the initialize action of the applets
 
     getQE(name)               -- gets an HTML element of the question by name
                                  or by id.  Be sure to keep all names and ids
                                  unique within a given PG question.
-                                 
+
     getQuestionElement(name)  -- long form of getQE(name)
-    
+
     listQuestionElements()    -- for discovering the names of inputs in the 
                                  PG question.  An alert dialog will list all
                                  of the elements.
-             Usage: Place this at the END of the question, 
-             just before END_DOCUMENT():
+      Usage: Place this at the END of the question, just before END_DOCUMENT():
 
-             	TEXT(qq!<script> listQuestionElements() </script>!);
-				ENDDOCUMENT();
+                TEXT(qq!<script> listQuestionElements() </script>!);
+                ENDDOCUMENT();
+             to obtain a list of all of the HTML elements in the question
+             
+    List of  accessor methods made available by the FlashApplet class:
+        Usage:  $current_value = $applet->method(new_value or empty)
+        These can also be set when creating the class -- for exampe:
+             $applet = new FlashApplet( 
+                       # can be replaced by $applet =FlashApplet() when using AppletObjects.pl
+                       codebase   => findAppletCodebase("$appletName.swf"),
+                       appletName => $appletName,
+                       appletId   => $appletName,
+                       submitActionAlias => 'checkAnswer',
+            );
 
-    list of  accessor methods  format:  current_value = $self->method(new_value or empty)
 
-		appletId         for simplicity and reliability appletId and appletName are always the same
-		appletName
-		
-		archive      the name of the .jar file containing the applet code
-		code         the name of the applet code in the .jar archive
-		codebase     a prefix url used to find the archive and the applet itself
-		
-		height       rectangle alloted in the html page for displaying the applet
-		width
-		
-		params       an anonymous array containing name/value pairs 
-		             to configure the applet [name =>'value, ...]
-		
-		header       stores the text to be added to the header section of the html page
+        appletId         for simplicity and reliability appletId and appletName are always the same
+        appletName
+        archive      the name of the .jar file containing the applet code
+        code         the name of the applet code in the .jar archive
+        codebase     a prefix url used to find the archive and the applet itself
+
+        height       rectangle alloted in the html page for displaying the applet
+
+        params       an anonymous array containing name/value pairs 
+                     to configure the applet [name =>'value, ...]
+
+        header       stores the text to be added to the header section of the html page
         object       stores the text which places the applet on the html page
-		
-		debug        in debug mode several alerts mark progress through the procedure of calling the applet
-		
-		config       configuration are those customizable attributes of the applet which don't 
-		             change as it is used.  When stored in hidden answer fields 
-		             it is usually stored in base64 encoded format.
-		base64_config base64 encode version of the contents of config
-		
-		configAlias  (default: config ) names the applet command called with the contents of $self->config
-		             to configure the applet.  The parameters are passed to the applet in plain text using <xml>
-		             The outer tags must be   <xml> .....   </xml>
-		state        state consists of those customizable attributes of the applet which change
-		             as the applet is used.  It is stored by the calling .pg question so that 
-		             when revisiting the question the applet
-		             will be restored to the same state it was left in when the question was last 
-		             viewed.
-		             
-		getStateAlias  (default: getState) alias for command called to read the current state of the applet.
-		               The state is passed in plain text xml format with outer tags: <xml>....</xml>
-		setStateAlias  (default: setState) alias for the command called to reset the  state of the applet.
-		               The state is passed in plain text in xml format with outer tags: <xml>....</xml>
 
-		base64_state   returns the base64 encoded version of the state stored in the applet object.
-		
-		initializeActionAlias  -- (default: initializeAction) the name of the javaScript subroutine called to initialize the applet (some overlap with config/ and setState
+        debug        in debug mode several alerts mark progress through the procedure of calling the applet
+
+        config       configuration are those customizable attributes of the applet which don't 
+                     change as it is used.  When stored in hidden answer fields 
+                     it is usually stored in base64 encoded format.
+        base64_config base64 encode version of the contents of config
+
+        configAlias  (default: config ) names the applet command called with the contents of $self->config
+                     to configure the applet.  The parameters are passed to the applet in plain text using <xml>
+                     The outer tags must be   <xml> .....   </xml>
+        state        state consists of those customizable attributes of the applet which change
+                     as the applet is used.  It is stored by the calling .pg question so that 
+                     when revisiting the question the applet
+                     will be restored to the same state it was left in when the question was last 
+                     viewed.
+
+        getStateAlias  (default: getState) alias for command called to read the current state of the applet.
+                       The state is passed in plain text xml format with outer tags: <xml>....</xml>
+        setStateAlias  (default: setState) alias for the command called to reset the  state of the applet.
+                       The state is passed in plain text in xml format with outer tags: <xml>....</xml>
+
+        base64_state   returns the base64 encoded version of the state stored in the applet object.
+
+        initializeActionAlias  -- (default: initializeAction) the name of the javaScript subroutine called to initialize the applet (some overlap with config/ and setState
         submitActionAlias      -- (default: submitAction)the name of the javaScript subroutine called when the submit button of the
                                   .pg question is pressed.
 
-		returnFieldName
-		
-		
+        returnFieldName
 
-    
 
 =cut
 
@@ -536,6 +542,7 @@ package FlashApplet;
 @ISA = qw(Applet);
 
 
+=head2 Insertion HTML code for FlashApplet
 
 =pod
 
@@ -606,7 +613,7 @@ sub new {
 package JavaApplet;
 @ISA = qw(Applet);
 
-
+=head2 Insertion HTML code for JavaApplet
 
 =pod
 
