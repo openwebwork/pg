@@ -225,6 +225,9 @@ our %defaultStatus = (
   new_answers => "",        # answer labels for THIS part
   ans_rule_count => 0,      # the ans_rule count from previous parts
   new_ans_rule_count => 0,  # the ans_rule count from THIS part
+  images_created => 0,      # the image count from the precious parts
+  new_images_created => 0,  # the image count from THIS part
+  imageName => "",          # name of images_created image file
   score => 0,               # the (weighted) score on this part
   total => 0,               # the total on previous parts
   raw => 0,                 # raw score on this part
@@ -284,7 +287,7 @@ sub getStatus {
   main::RECORD_FORM_LABEL("_next");
   main::RECORD_FORM_LABEL("_status");
   $self->{status} = $self->decode;
-  $self->{isNew} = $main::inputs_ref->{_next} || ($main::inputs_ref->{submitAnswers} && 
+  $self->{isNew} = $main::inputs_ref->{_next} || ($main::inputs_ref->{submitAnswers} &&
      $main::inputs_ref->{submitAnswers} eq ($self->{nextLabel} || "Go on to Next Part"));
   if ($self->{isNew}) {
     $self->checkAnswers;
@@ -301,6 +304,8 @@ sub getStatus {
 sub initPart {
   my $self = shift;
   $main::ans_rule_count = $self->{status}{ans_rule_count};
+  $main::images_created{$self->{status}{imageName}} = $self->{status}{images_created}
+    if $self->{status}{imageName};
   main::install_problem_grader(\&compoundProblem::grader);
   $main::PG_FLAGS{compoundProblem} = $self;
   $self->initAnswers($self->{status}{answers});
@@ -360,6 +365,7 @@ sub incrementPart {
     $status->{answers} .= ';' if $status->{answers};
     $status->{answers} .= $status->{new_answers};
     $status->{ans_rule_count} = $status->{new_ans_rule_count};
+    $status->{images_created} = $status->{new_images_created};
     $status->{total} += $status->{score};
     $status->{score} = $status->{raw} = 0;
     $status->{new_answers} = '';
@@ -392,6 +398,10 @@ sub decode {
   return {%defaultStatus} unless $status;
   my @data = (); foreach my $hex (split(/(..)/,$status)) {push(@data,fromHex($hex)) if $hex ne ''}
   @data = split('\\|',join('',@data)); $status = {%defaultStatus};
+  if (scalar(@data) == 8) {
+    # insert imageName, images_created, new_images_created, if missing
+    splice(@data,2,0,"",0); splice(@data,6,0,0);
+  }
   foreach my $id (main::lex_sort(keys(%defaultStatus))) {$status->{$id} = shift(@data)}
   return $status;
 }
@@ -571,6 +581,10 @@ sub grader {
   $status->{raw}   = $result->{score};
   $status->{score} = $result->{score}*$weight;
   $status->{new_ans_rule_count} = $main::ans_rule_count;
+  if (defined(%main::images_created)) {
+    $status->{imageName} = (keys %main::images_created)[0];
+    $status->{new_images_created} = $main::images_created{$status->{imageName}};
+  }
   $status->{new_answers} = join(';',@answers);
   my $data = quoteHTML($self->encode);
 
@@ -623,3 +637,5 @@ sub grader {
 
   return ($result,$state);
 }
+
+1;
