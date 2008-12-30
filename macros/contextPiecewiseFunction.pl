@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/contextPiecewiseFunction.pl,v 1.8 2008/05/05 16:42:17 gage Exp $
+# $CVSHeader: pg/macros/contextPiecewiseFunction.pl,v 1.9 2008/06/20 14:40:35 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -64,11 +64,24 @@ For example:
 	
 	Context()->texStrings;
 	BEGIN_TEXT
-	Suppose \(f(x)=$f\).  Then \(f($a)\) = \{ans_rule(20)\}.
+	If \[f(x)=$f\] then \(f($a)\) = \{ans_rule(20)\}.
 	END_TEXT
 	Context()->normalStrings;
 	
 	ANS($f->eval(x=>$a)->cmp);
+
+Normally when you use a piecewise function at the end of a sentence,
+the period is placed at the end of the last case.  Since
+
+	\[ f(x) = $f \].
+
+would put the period centered at the right-hand side of the function,
+this is not what is desired.  To get a period at the end of the last
+case, use
+
+	\[ f(x) = \{$f->with(final_period=>1)\} \]
+
+instead.
 
 =cut
 
@@ -741,12 +754,13 @@ sub compareUnion {
 #
 sub string {
   my $self = shift; my @cases = ();
+  my $period = ($self->{final_period} ? "." : "");
   foreach my $If (@{$self->{data}}) {
     my ($I,$f) = @{$If};
     push(@cases,$f->string." if ".$I->string);
   }
   push(@cases,$self->{otherwise}->string) if defined $self->{otherwise};
-  join(" else\n",@cases);
+  join(" else\n",@cases) . $period;
 }
 
 #
@@ -754,13 +768,14 @@ sub string {
 #
 sub TeX {
   my $self = shift; my @cases = ();
+  my $period = ($self->{final_period} ? "." : "");
   foreach my $If (@{$self->{data}}) {
     my ($I,$f) = @{$If};
     push(@cases,'\displaystyle{'.$f->TeX."}&\\text{if}\\ ".$I->TeX);
   }
   if (scalar(@cases)) {
     push(@cases,'\displaystyle{'.$self->{otherwise}->TeX.'}&\text{otherwise}') if defined $self->{otherwise};
-    return '\begin{cases}'.join('\cr'."\n",@cases).'\end{cases}';
+    return '\begin{cases}'.join('\cr'."\n",@cases).$period.'\end{cases}';
   } else {
     return $self->{otherwise}->TeX;
   }
