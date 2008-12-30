@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/contextInequalities.pl,v 1.18 2008/06/14 11:52:26 dpvc Exp $
+# $CVSHeader: pg/macros/contextInequalities.pl,v 1.19 2008/12/30 08:18:24 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -619,10 +619,27 @@ sub makeData {
 sub string {
   my $self = shift;
   my $equation = shift; shift; shift; my $prec = shift;
+  return $self->display("string",$equation,$prec);
+}
+
+sub TeX {
+  my $self = shift;
+  my $equation = shift; shift; shift; my $prec = shift;
+  return $self->display("TeX",$equation,$prec);
+}
+
+sub display {
+  my $self = shift; my $method = shift; my $equation = shift; my $prec = shift;
   my $context = ($equation->{context} || $self->context);
   my $X = $self->{varName} || ($context->variables->names)[0];
-  $X = $context->{variables}{$X}{string} if defined $context->{variables}{$X}{string};
+  $X = $context->{variables}{$X}{$method} if defined $context->{variables}{$X}{$method};
+  $X =~ s/^([^_]+)_?(\d+)$/$1_{$2}/ if $method eq 'TeX';
   my $op = $context->{operators}{'or'};
+  my ($and,$or,$le,$ge,$ne,$open,$close) = @{{
+    string => [' and ',$op->{string} || ' or ',' <= ',' >= ',' != ','(',')'],
+    TeX =>    ['\hbox{ and }',$op->{TeX} || $op->{string} || '\hbox{ or }',
+               ' \le ',' \ge ',' \ne ','\left(','\right)'],
+  }->{$method}};
   my $showNE = $self->getFlag("showNotEquals",1);
   my @intervals = (); my @points = (); my $interval;
   foreach my $x (@{$self->data}) {
@@ -630,75 +647,32 @@ sub string {
     if ($x->type eq 'Interval' && $showNE) {
       if (defined($interval)) {
 	if ($interval->{data}[1] == $x->{data}[0]) {
-	  push(@points,$X . ' != ' . $x->{data}[0]->string);
+	  push(@points,$X.$ne.$x->{data}[0]->$method($equation));
 	  $interval = $interval->with(isCopy=>1, data=>[$interval->value]) unless $interval->{isCopy};
 	  $interval->{data}[1] = $x->{data}[1];
 	  $interval->{rightInfinite} = 1 if $x->{rightInfinite};
 	  next;
 	}
-	push(@intervals,$self->stringAnd($interval,$equation,@points));
+	push(@intervals,$self->joinAnd($interval,$method,$and,$equation,@points));
       }
       $interval = $x; @points = (); next;
     }
     if (defined($interval)) {
-      push(@intervals,$self->stringAnd($interval,$equation,@points));
+      push(@intervals,$self->joinAnd($interval,$method,$and,$equation,@points));
       $interval = undef; @points = ();
     }
-    push(@intervals,$x->string($equation));
+    push(@intervals,$x->$method($equation));
   }
-  push(@intervals,$self->stringAnd($interval,$equation,@points)) if defined($interval);
-  my $string = join($op->{string} || ' or ',@intervals);
-  $string = '('.$string.')' if defined($prec) && $prec > ($op->{precedence} || 1.5);
+  push(@intervals,$self->joinAnd($interval,$method,$and,$equation,@points)) if defined($interval);
+  my $string = join($or,@intervals);
+  $string = $open.$string.$close if defined($prec) && $prec > ($op->{precedence} || 1.5);
   return $string;
 }
 
-sub stringAnd {
-  my $self = shift; my $interval = shift; my $equation = shift;
-  unshift(@_,$interval->string($equation)) unless $interval->{leftInfinite} && $interval->{rightInfinite};
-  return join(" and ", @_);
-}
-
-sub TeX {
-  my $self = shift;
-  my $equation = shift; shift; shift; my $prec = shift;
-  my $context = $equation->{context} || $self->context;
-  my $X = $self->{varName} || ($context->variables->names)[0];
-  $X = $context->{variables}{$X}{TeX} if defined $context->{variables}{$X}{TeX};
-  $X =~ s/^([^_]+)_?(\d+)$/$1_{$2}/;
-  my $op = ($equation->{context} || $self->context)->{operators}{'or'};
-  my $showNE = $self->getFlag("showNotEquals",1);
-  my @intervals = (); my $interval; my @points = ();
-  foreach my $x (@{$self->data}) {
-    $x->{format} = $self->{format} if defined $self->{format};
-    if ($x->type eq 'Interval' && $showNE) {
-      if (defined($interval)) {
-	if ($interval->{data}[1] == $x->{data}[0]) {
-	  push(@points,$X . ' \ne ' . $x->{data}[0]->TeX);
-	  $interval = $interval->with(isCopy=>1, data=>[$interval->value]) unless $interval->{isCopy};
-	  $interval->{data}[1] = $x->{data}[1];
-	  $interval->{rightInfinite} = 1 if $x->{rightInfinite};
-	  next;
-	}
-	push(@intervals,$self->TeXAnd($interval,$equation,@points));
-      }
-      $interval = $x; @points = (); next;
-    }
-    if (defined($interval)) {
-      push(@intervals,$self->TeXAnd($interval,$equation,@points));
-      $interval = undef; @points = ();
-    }
-    push(@intervals,$x->TeX($equation));
-  }
-  push(@intervals,$self->TeXAnd($interval,$equation,@points)) if defined($interval);
-  my $TeX = join($op->{TeX} || $op->{string} || '\hbox{ or }',@intervals);
-  $TeX = '\left('.$TeX.'\right)' if defined($prec) && $prec > ($op->{precedence} || 1.5);
-  return $TeX;
-}
-
-sub TeXAnd {
-  my $self = shift; my $interval = shift; my $equation = shift;
-  unshift(@_,$interval->TeX($equation)) unless $interval->{leftInfinite} && $interval->{rightInfinite};
-  return join('\hbox{ and }', @_);
+sub joinAnd {
+  my $self = shift; $interval = shift; $method = shift, my $and = shift; my $equation = shift;
+  unshift(@_,$interval->$method($equation)) unless $interval->{leftInfinite} && $interval->{rightInfinite};
+  return join($and, @_);
 }
 
 ##################################################
