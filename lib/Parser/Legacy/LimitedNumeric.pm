@@ -120,7 +120,7 @@ $context->{parser}{Number} = "Parser::Legacy::LimitedNumeric::Number";
 $context = $context->copy;
 $Parser::Context::Default::context{'LimitedNumeric-StrictFraction'} = $context;
 Parser::Number::NoDecimals($context);
-$context->{name} = "LimitedNumeric-StrictFractions";
+$context->{name} = "LimitedNumeric-StrictFraction";
 
 ######################################################################
 
