@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/contextInequalities.pl,v 1.17 2007/11/15 12:29:06 dpvc Exp $
+# $CVSHeader: pg/macros/contextInequalities.pl,v 1.18 2008/06/14 11:52:26 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -114,11 +114,11 @@ sub Init {
      '+' => {class => "Inequalities::BOP::add"},
      '-' => {class => "Inequalities::BOP::subtract"},
   );
-  $context->parens->set("(" => {type => "List", formIntervla => ']'});  # trap these later
-  $context->parens->set("[" => {type => "List", formIntervla => ')'});  # trap these later
+  $context->parens->set("(" => {type => "List", formInterval => ']'});  # trap these later
+  $context->parens->set("[" => {type => "List", formInterval => ')'});  # trap these later
   $context->strings->remove("NONE");
   $context->constants->add(NONE=>Value::Set->new());
-  $context->flags->set(noneWord => 'NONE');
+  $context->flags->set(noneWord => 'NONE', showNotEquals => 1);
   $context->{parser}{Variable} = "Inequalities::Variable";
   $context->{value}{'Interval()'} = "Inequalities::MakeInterval";
   $context->{value}{Inequality} = "Inequalities::Inequality";
@@ -218,8 +218,8 @@ sub evalLessThan {
 sub evalGreaterThan {
   my ($self,$a,$b) = @_; my $context = $self->context;
   my $I = Value::Infinity->new;
-  return $self->Package("Interval")->new($context,'(',$b,$I,')') if $self->{varPos} eq 'lop';
-  return $self->Package("Interval")->new($context,'(',-$I,$a,')');
+  return $self->Package("Interval")->new($context,'(',$b,$I,')')->with(reversed=>1) if $self->{varPos} eq 'lop';
+  return $self->Package("Interval")->new($context,'(',-$I,$a,')')->with(reversed=>1);
 }
 
 sub evalLessThanOrEqualTo {
@@ -232,8 +232,8 @@ sub evalLessThanOrEqualTo {
 sub evalGreaterThanOrEqualTo {
   my ($self,$a,$b) = @_; my $context = $self->context;
   my $I = Value::Infinity->new;
-  return $self->Package("Interval")->new($context,'[',$b,$I,')') if $self->{varPos} eq 'lop';
-  return $self->Package("Interval")->new($context,'(',-$I,$a,']');
+  return $self->Package("Interval")->new($context,'[',$b,$I,')')->with(reversed=>1) if $self->{varPos} eq 'lop';
+  return $self->Package("Interval")->new($context,'(',-$I,$a,']')->with(reversed=>1);
 }
 
 sub evalEqualTo {
@@ -249,7 +249,7 @@ sub evalNotEqualTo {
   return $self->Package("Union")->new($context,
             $self->Package("Interval")->new($context,'(',-$I,$x,')'),
             $self->Package("Interval")->new($context,'(',$x,$I,')')
-         );
+         )->with(notEqual=>1);
 }
 
 #
@@ -534,19 +534,28 @@ our @ISA = ("Inequalities::common", "Value::Interval");
 
 sub type {"Interval"}
 
+sub updateParts {
+  my $self = shift;
+  $self->{leftInfinite} = 1 if $self->{data}[0]->{isInfinite};
+  $self->{rightInfinite} = 1 if $self->{data}[1]->{isInfinite};
+}
+
 sub string {
   my $self = shift;
   my ($a,$b,$open,$close) = $self->value;
   my $x = $self->{varName} || ($self->context->variables->names)[0];
   $x = $context->{variables}{$x}{string} if defined $context->{variables}{$x}{string};
-  my $left  = ($open  eq '(' ? ' < ' : ' <= ');
-  my $right = ($close eq ')' ? ' < ' : ' <= ');
-  my $inequality = "";
-  $inequality .= $a->string.$left unless $self->{leftInfinite};
-  $inequality .= $x;
-  $inequality .= $right.$b->string unless $self->{rightInfinite};
-  $inequality = "-infinity < $x < infinity" if $inequality eq $x;
-  return $inequality;
+  if ($self->{leftInfinite}) {
+    return "-infinity < $x < infinity" if $self->{rightInfinite};
+    return $b->string . ($close eq ')' ? ' > ' : ' >= ') . $x if $self->{reversed};
+    return $x . ($close eq ')' ? ' < ' : ' <= ') . $b->string;
+  } elsif ($self->{rightInfinite}) {
+    return $x . ($open eq '(' ? ' > ' : ' >= ') . $a->string if $self->{reversed};
+    return $a->string . ($open eq '(' ? ' < ' : ' <= ') . $x;
+  } else {
+    return $a->string . ($open  eq '(' ? ' < ' : ' <= ') .
+                   $x . ($close eq ')' ? ' < ' : ' <= ') . $b->string;
+  }
 }
 
 sub TeX {
@@ -556,14 +565,17 @@ sub TeX {
   my $x = $self->{varName} || ($context->variables->names)[0];
   $x = $context->{variables}{$x}{TeX} if defined $context->{variables}{$x}{TeX};
   $x =~ s/^([^_]+)_?(\d+)$/$1_{$2}/;
-  my $left  = ($open  eq '(' ? ' < ' : ' \le ');
-  my $right = ($close eq ')' ? ' < ' : ' \le ');
-  my $inequality = "";
-  $inequality .= $a->string.$left unless $self->{leftInfinite};
-  $inequality .= $x;
-  $inequality .= $right.$b->string unless $self->{rightInfinite};
-  $inequality = "-\\infty < $x < \\infty " if $inequality eq $x;
-  return $inequality;
+  if ($self->{leftInfinite}) {
+    return "-\\infty < $x < \\infty" if $self->{rightInfinite};
+    return $b->TeX . ($close eq ')' ? ' > ' : ' \ge ') . $x if $self->{reversed};
+    return $x . ($close eq ')' ? ' < ' : ' \le ') . $b->TeX;
+  } elsif ($self->{rightInfinite}) {
+    return $x . ($open eq '(' ? ' > ' : ' \ge ') . $a->TeX if $self->{reversed};
+    return $a->TeX . ($open eq '(' ? ' < ' : ' \le ') . $x;
+  } else {
+    return $a->TeX . ($open  eq '(' ? ' < ' : ' \le ') .
+                $x . ($close eq ')' ? ' < ' : ' \le ') . $b->TeX;
+  }
 }
 
 ##################################################
@@ -607,26 +619,86 @@ sub makeData {
 sub string {
   my $self = shift;
   my $equation = shift; shift; shift; my $prec = shift;
-  my $op = ($equation->{context} || $self->context)->{operators}{'or'};
-  my @intervals = ();
+  my $context = ($equation->{context} || $self->context);
+  my $X = $self->{varName} || ($context->variables->names)[0];
+  $X = $context->{variables}{$X}{string} if defined $context->{variables}{$X}{string};
+  my $op = $context->{operators}{'or'};
+  my $showNE = $self->getFlag("showNotEquals",1);
+  my @intervals = (); my @points = (); my $interval;
   foreach my $x (@{$self->data}) {
     $x->{format} = $self->{format} if defined $self->{format};
-    push(@intervals,$x->string($equation))
+    if ($x->type eq 'Interval' && $showNE) {
+      if (defined($interval)) {
+	if ($interval->{data}[1] == $x->{data}[0]) {
+	  push(@points,$X . ' != ' . $x->{data}[0]->string);
+	  $interval = $interval->with(isCopy=>1, data=>[$interval->value]) unless $interval->{isCopy};
+	  $interval->{data}[1] = $x->{data}[1];
+	  $interval->{rightInfinite} = 1 if $x->{rightInfinite};
+	  next;
+	}
+	push(@intervals,$self->stringAnd($interval,$equation,@points));
+      }
+      $interval = $x; @points = (); next;
+    }
+    if (defined($interval)) {
+      push(@intervals,$self->stringAnd($interval,$equation,@points));
+      $interval = undef; @points = ();
+    }
+    push(@intervals,$x->string($equation));
   }
+  push(@intervals,$self->stringAnd($interval,$equation,@points)) if defined($interval);
   my $string = join($op->{string} || ' or ',@intervals);
   $string = '('.$string.')' if defined($prec) && $prec > ($op->{precedence} || 1.5);
   return $string;
 }
 
+sub stringAnd {
+  my $self = shift; my $interval = shift; my $equation = shift;
+  unshift(@_,$interval->string($equation)) unless $interval->{leftInfinite} && $interval->{rightInfinite};
+  return join(" and ", @_);
+}
+
 sub TeX {
   my $self = shift;
   my $equation = shift; shift; shift; my $prec = shift;
+  my $context = $equation->{context} || $self->context;
+  my $X = $self->{varName} || ($context->variables->names)[0];
+  $X = $context->{variables}{$X}{TeX} if defined $context->{variables}{$X}{TeX};
+  $X =~ s/^([^_]+)_?(\d+)$/$1_{$2}/;
   my $op = ($equation->{context} || $self->context)->{operators}{'or'};
-  my @intervals = ();
-  foreach my $x (@{$self->data}) {push(@intervals,$x->TeX($equation))}
+  my $showNE = $self->getFlag("showNotEquals",1);
+  my @intervals = (); my $interval; my @points = ();
+  foreach my $x (@{$self->data}) {
+    $x->{format} = $self->{format} if defined $self->{format};
+    if ($x->type eq 'Interval' && $showNE) {
+      if (defined($interval)) {
+	if ($interval->{data}[1] == $x->{data}[0]) {
+	  push(@points,$X . ' \ne ' . $x->{data}[0]->TeX);
+	  $interval = $interval->with(isCopy=>1, data=>[$interval->value]) unless $interval->{isCopy};
+	  $interval->{data}[1] = $x->{data}[1];
+	  $interval->{rightInfinite} = 1 if $x->{rightInfinite};
+	  next;
+	}
+	push(@intervals,$self->TeXAnd($interval,$equation,@points));
+      }
+      $interval = $x; @points = (); next;
+    }
+    if (defined($interval)) {
+      push(@intervals,$self->TeXAnd($interval,$equation,@points));
+      $interval = undef; @points = ();
+    }
+    push(@intervals,$x->TeX($equation));
+  }
+  push(@intervals,$self->TeXAnd($interval,$equation,@points)) if defined($interval);
   my $TeX = join($op->{TeX} || $op->{string} || '\hbox{ or }',@intervals);
   $TeX = '\left('.$TeX.'\right)' if defined($prec) && $prec > ($op->{precedence} || 1.5);
   return $TeX;
+}
+
+sub TeXAnd {
+  my $self = shift; my $interval = shift; my $equation = shift;
+  unshift(@_,$interval->TeX($equation)) unless $interval->{leftInfinite} && $interval->{rightInfinite};
+  return join('\hbox{ and }', @_);
 }
 
 ##################################################
