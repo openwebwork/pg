@@ -95,6 +95,7 @@ sub Init {
    '=' => {precedence => 1.7, associativity => 'left', type => 'bin', class => 'context::Ordering::BOP'},
   );
   $context->{value}{String} = "context::Ordering::Value::String";
+  $context->{value}{Ordering} = "context::Ordering::Value::Ordering";
   $context->strings->add('='=>{hidden=>1},'>'=>{hidden=>1});
   $context->{error}{msg}{"Variable '%s' is not defined in this context"} = "'%s' is not defined in this context";
   $context->{error}{msg}{"Unexpected character '%s'"} = "Can't use '%s' in this context";
@@ -183,7 +184,7 @@ sub _check {
 
 sub _eval {
   my $self = shift;
-  return context::Ordering::Value::Ordering->new($self->context,$self->{bop},@_);
+  return $self->Package("Ordering")->new($self->context,$self->{bop},@_);
 }
 
 sub string {
