@@ -389,7 +389,9 @@ sub Close {
 	          $self->Item("List")->new($self,[$top->makeList],$top->{isConstant},$paren,
                     ($top->type eq 'Comma') ? $top->entryType : $top->typeRef,
                     ($type ne 'start') ? ($self->top->{value},$type) : () )};
-        }
+        } else {
+	  $top->{value}{hadParens} = 1;
+	}
         $self->pop; $self->push($top);
         $self->CloseFn() if ($paren->{function} && $self->prev->{type} eq 'fn');
       } elsif ($paren->{formInterval} eq $type && $self->top->{value}->length == 2) {
