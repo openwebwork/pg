@@ -63,6 +63,17 @@ B with $b.  Note also that both $a and $b use the same context, unlike
 orderings produced by calls to the Ordering() function.  Changes to
 the current context WILL affect $a and $b.
 
+If the ordering contains duplicate letters (e.g., "A > B > A"), then a
+warning message will be issued.  If not all the letters are used by
+the student, then that also produces a warning message.  The latter
+can be controlled by the showMissingLetterHints flag to the cmp()
+method.  For example:
+
+	ANS(Ordering("A > B > C")->cmp(showMissingLetterHints => 0));
+
+would prevent the message from being issued if the student submitted
+just "A > B".
+
 =cut
 
 loadMacros("MathObjects.pl");
@@ -186,7 +197,7 @@ sub _check {
   foreach my $x (keys %{$self->{rop}{letters}}) {
     if (defined($self->{letters}{$x})) {
       $self->{ref} = $self->{rop}{letters}{$x};
-      $self->Error("Letters can appear only once in an ordering");
+      $self->Error("Each letter may appear only once in an ordering");
     }
     $self->{letters}{$x} = $self->{rop}{letters}{$x};
   }
@@ -195,7 +206,9 @@ sub _check {
 
 sub _eval {
   my $self = shift;
-  return $self->Package("Ordering")->new($self->context,$self->{bop},@_);
+  my $ordering = $self->Package("Ordering")->new($self->context,$self->{bop},@_);
+  $ordering->{letters} = $self->{letters};
+  return $ordering;
 }
 
 sub string {
@@ -262,10 +275,28 @@ sub TeX {
 sub cmp_equal {
   my $self = shift; my $ans = $_[0];
   $ans->{typeMatch} = $ans->{firstElement} = $self;
+  $ans->{correct_formula} = $self->{equation};
   $self = $ans->{correct_value} = Value::List->make($self);
   $ans->{student_value} = Value::List->make($ans->{student_value})
-    if Value::classMatch($ans->{student_value},'Ordering');
+      if Value::classMatch($ans->{student_value},'Ordering');
   return $self->SUPER::cmp_equal(@_);
+}
+
+sub cmp_defaults {
+  my $self = shift;
+  return (
+    $self->SUPER::cmp_defaults(@_),
+    showMissingLetterHints => 1,
+  );
+}
+
+sub cmp_postprocess {
+  my $self = shift; my $ans = shift;
+  return if $ans->{isPreview} || $ans->{score} != 0;
+  $self->cmp_Error($ans,"Your ordering should include more letters")
+    if $ans->{showMissingLetterHints} &&
+       scalar(keys %{$ans->{correct_formula}{tree}{letters}}) !=
+       scalar(keys %{$ans->{student_formula}{tree}{letters}});
 }
 
 #
