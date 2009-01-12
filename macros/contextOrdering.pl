@@ -91,10 +91,13 @@ sub Init {
   $context->functions->clear();
   $context->strings->clear();
   $context->operators->add(
-   '>' => {precedence => 1.5, associativity => 'left', type => 'bin', class => 'context::Ordering::BOP'},
-   '=' => {precedence => 1.7, associativity => 'left', type => 'bin', class => 'context::Ordering::BOP'},
+   '>' => {precedence => 1.5, associativity => 'left', type => 'bin', class => 'context::Ordering::BOP::ordering'},
+   '=' => {precedence => 1.7, associativity => 'left', type => 'bin', class => 'context::Ordering::BOP::ordering'},
   );
-  $context->{value}{String} = "context::Ordering::Value::String";
+  $context->{parser}{String}  = "context::Ordering::Parser::String";
+  $context->{parser}{Value}   = "context::Ordering::Parser::Value";
+  $context->{parser}{BOP}     = "context::Ordering::Parser::BOP";
+  $context->{value}{String}   = "context::Ordering::Value::String";
   $context->{value}{Ordering} = "context::Ordering::Value::Ordering";
   $context->strings->add('='=>{hidden=>1},'>'=>{hidden=>1});
   $context->{error}{msg}{"Variable '%s' is not defined in this context"} = "'%s' is not defined in this context";
@@ -165,21 +168,29 @@ sub Ordering {
 #  nested List.
 #
 
-package context::Ordering::BOP;
+package context::Ordering::BOP::ordering;
 our @ISA = ('Parser::BOP');
 
 sub class {"Ordering"}
 
 sub isOrdering {
   my $self = shift; my $obj = shift; my $class = $obj->class;
-  return ($class eq 'Value' && $obj->{value}->class eq 'Ordering') ||
-         ($class eq 'Ordering') || $obj->{def}{isLetter};
+  return $class eq 'Ordering' || $obj->{def}{isLetter};
 }
 
 sub _check {
   my $self = shift;
-  return if $self->isOrdering($self->{lop}) && $self->isOrdering($self->{rop});
-  $self->Error("Operators of %s must be letters",$self->{bop});
+  $self->Error("Operators of %s must be letters",$self->{bop})
+    unless $self->isOrdering($self->{lop}) && $self->isOrdering($self->{rop});
+  $self->{letters} = $self->{lop}{letters}; # we modify {lop}{letters} this way, but that doesn't matter
+  foreach my $x (keys %{$self->{rop}{letters}}) {
+    if (defined($self->{letters}{$x})) {
+      $self->{ref} = $self->{rop}{letters}{$x};
+      $self->Error("Letters can appear only once in an ordering");
+    }
+    $self->{letters}{$x} = $self->{rop}{letters}{$x};
+  }
+  $self->{equation}{letters} = $self->{letters};  # removed by context::Ordering::Parser::BOP;
 }
 
 sub _eval {
@@ -196,6 +207,7 @@ sub TeX {
   my $self = shift;
   return $self->{lop}->TeX." ".$self->{bop}." ".$self->{rop}->TeX;
 }
+
 
 #############################################################
 #
@@ -248,7 +260,7 @@ sub TeX {
 #  the ordering)
 #
 sub cmp_equal {
-  my $self = shift;  my $ans = $_[0];
+  my $self = shift; my $ans = $_[0];
   $ans->{typeMatch} = $ans->{firstElement} = $self;
   $self = $ans->{correct_value} = Value::List->make($self);
   $ans->{student_value} = Value::List->make($ans->{student_value})
@@ -284,6 +296,71 @@ sub TeX {shift->value}
 
 #############################################################
 #
+#  Override Parser classes so that we can check for repeated letters
+#
+
+package context::Ordering::Parser::String;
+our @ISA = ('Parser::String');
+
+#
+#  Save the letters positional reference
+#
+sub new {
+  my $self = shift;
+  $self = $self->SUPER::new(@_);
+  $self->{letters}{$self->{value}} = $self->{ref} if $self->{def}{isLetter};
+  return $self;
+}
+
+#########################
+
+package context::Ordering::Parser::Value;
+our @ISA = ('Parser::Value');
+
+#
+#  Move letters to Value object
+#
+sub new {
+  my $self = shift;
+  $self = $self->SUPER::new(@_);
+  if (defined($self->{value}{letters})) {
+    $self->{letters} = $self->{value}{letters};
+    delete $self->{value}{letters};
+  }
+  return $self;
+}
+
+#
+#  Return Ordering class if the object is one
+#
+sub class {
+  my $self = shift;
+  return "Ordering" if $self->{value}->classMatch('Ordering');
+  return $self->SUPER::class;
+}
+
+#########################
+
+package context::Ordering::Parser::BOP;
+our @ISA = ('Parser::BOP');
+
+#
+#  If a BOP is constant and so reduced automatically we will lose the
+#  letters hash, so it is stored temporarily in the equation by _check(),
+#  and replaced here.  A hack, but that avoids adding letters to the
+#  Ordering object in eval() and having them remain there after parsing.
+#
+sub new {
+  my $self = shift;
+  $self = $self->SUPER::new(@_);
+  $self->{letters} = $self->{equation}{letters} unless defined $self->{letters} || $self->class ne 'Ordering';
+  delete $self->{equation}{letters};
+  return $self;
+}
+
+
+#############################################################
+#
 #  This overrides the cmp_equal method to make sure that
 #  Ordering lists are put into nested lists (since the
 #  underlying ordering is a list, we don't want the
@@ -300,3 +377,7 @@ sub cmp_equal {
     if Value::classMatch($ans->{student_value},'Ordering');
   return $self->SUPER::cmp_equal(@_);
 }
+
+#############################################################
+
+1;
