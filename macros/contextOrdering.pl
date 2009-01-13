@@ -107,7 +107,6 @@ sub Init {
   );
   $context->{parser}{String}  = "context::Ordering::Parser::String";
   $context->{parser}{Value}   = "context::Ordering::Parser::Value";
-  $context->{parser}{BOP}     = "context::Ordering::Parser::BOP";
   $context->{value}{String}   = "context::Ordering::Value::String";
   $context->{value}{Ordering} = "context::Ordering::Value::Ordering";
   $context->strings->add('='=>{hidden=>1},'>'=>{hidden=>1});
@@ -201,7 +200,6 @@ sub _check {
     }
     $self->{letters}{$x} = $self->{rop}{letters}{$x};
   }
-  $self->{equation}{letters} = $self->{letters};  # removed by context::Ordering::Parser::BOP;
 }
 
 sub _eval {
@@ -293,7 +291,7 @@ sub cmp_defaults {
 sub cmp_postprocess {
   my $self = shift; my $ans = shift;
   return if $ans->{isPreview} || $ans->{score} != 0;
-  $self->cmp_Error($ans,"Your ordering should include more letters")
+  $self->cmp_Error($ans,"Your ordering should include all the letters")
     if $ans->{showMissingLetterHints} &&
        scalar(keys %{$ans->{correct_formula}{tree}{letters}}) !=
        scalar(keys %{$ans->{student_formula}{tree}{letters}});
@@ -354,10 +352,7 @@ our @ISA = ('Parser::Value');
 sub new {
   my $self = shift;
   $self = $self->SUPER::new(@_);
-  if (defined($self->{value}{letters})) {
-    $self->{letters} = $self->{value}{letters};
-    delete $self->{value}{letters};
-  }
+  $self->{letters} = $self->{value}{letters} if defined $self->{value}{letters};
   return $self;
 }
 
@@ -369,26 +364,6 @@ sub class {
   return "Ordering" if $self->{value}->classMatch('Ordering');
   return $self->SUPER::class;
 }
-
-#########################
-
-package context::Ordering::Parser::BOP;
-our @ISA = ('Parser::BOP');
-
-#
-#  If a BOP is constant and so reduced automatically we will lose the
-#  letters hash, so it is stored temporarily in the equation by _check(),
-#  and replaced here.  A hack, but that avoids adding letters to the
-#  Ordering object in eval() and having them remain there after parsing.
-#
-sub new {
-  my $self = shift;
-  $self = $self->SUPER::new(@_);
-  $self->{letters} = $self->{equation}{letters} unless defined $self->{letters} || $self->class ne 'Ordering';
-  delete $self->{equation}{letters};
-  return $self;
-}
-
 
 #############################################################
 #
