@@ -190,7 +190,7 @@ sub isOrdering {
 
 sub _check {
   my $self = shift;
-  $self->Error("Operators of %s must be letters",$self->{bop})
+  $self->Error("Operands of %s must be letters",$self->{bop})
     unless $self->isOrdering($self->{lop}) && $self->isOrdering($self->{rop});
   $self->{letters} = $self->{lop}{letters}; # we modify {lop}{letters} this way, but that doesn't matter
   foreach my $x (keys %{$self->{rop}{letters}}) {
