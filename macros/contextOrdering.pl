@@ -116,7 +116,7 @@ sub Init {
   $context->{error}{msg}{"Missing operand after '%s'"} = "Missing letter after '%s'";
 
   $context = $main::context{'Ordering-List'} = $context->copy;
-  $context->{name} eq 'Ordering-List';
+  $context->{name} = 'Ordering-List';
   $context->operators->redefine(',',from => "Full");
   $context->{value}{List} = "context::Ordering::Value::List";
 
