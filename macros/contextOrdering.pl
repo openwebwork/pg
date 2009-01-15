@@ -32,7 +32,7 @@ or
 would both produce the same ordering.  The first form gives the
 ordering as the student must type it, and the second gives the
 ordering by specifying numeric values for the various letters that
-determine the resulting order.  Note that equality is determined using
+induce the resulting order.  Note that equality is determined using
 the default tolerances for the Ordering context.  You can change these
 using commands like the following:
 
@@ -149,8 +149,8 @@ sub Ordering {
     unless $context->{name} =~ m/Ordering/;
   if (scalar(@_) == 1) {
     $string = shift;
-    my $letters = $string; $letters =~ s/[^A-Z]//ig;
-    context::Ordering::Letters($context,split(//,$letters));
+    my $letters = $string; $letters =~ s/ //g;
+    context::Ordering::Letters($context,split(/[>=]/,$letters));
   } else {
     my %letter = @_; my @letters = keys %letter;
     context::Ordering::Letters($context,@letters);
