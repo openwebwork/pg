@@ -331,7 +331,7 @@ sub _check {
   $self->Error("The denominator of a fraction must be a (non-negative) integer")
     unless $self->{rop}->class eq 'INTEGER';
   $self->Error("The numerator must be less than the denominator in a proper fraction")
-   if $self->context->flag("requireProperFractions") && abs($self->{lop}->eval) >= abs($self->{rop}->eval);
+   if $self->context->flag("requireProperFractions") && CORE::abs($self->{lop}->eval) >= CORE::abs($self->{rop}->eval);
 }
 
 #
@@ -436,7 +436,7 @@ sub _check {
 sub reduce {
   my $self = shift;
   my $reduce = $self->{equation}{context}{reduction};
-  my ($a,($b,$c)) = (abs($self->{lop}->eval),$self->{rop}->eval->value);
+  my ($a,($b,$c)) = (CORE::abs($self->{lop}->eval),$self->{rop}->eval->value);
   if ($reduce->{'a b/c'}) {
     ($b,$c) = context::Fraction::reduce($b,$c) if $reduce->{'a/b'};
     $a += int($b/$c); $b = $b % $c;
@@ -712,8 +712,8 @@ sub string {
   my $self = shift; my $equation = shift; my $prec = shift;
   my ($a,$b) = @{$self->{data}}; my $n = "";
   return $a if $b == 1;
-  if ($self->getFlag("showProperFractions") && abs($a) > $b)
-    {$n = int($a/$b); $a = abs($a) % $b; $n .= " " unless $a == 0}
+  if ($self->getFlag("showProperFractions") && CORE::abs($a) > $b)
+    {$n = int($a/$b); $a = CORE::abs($a) % $b; $n .= " " unless $a == 0}
   $n .= "$a/$b" unless $a == 0 && $n ne '';
   $n = "($n)" if defined $prec && $prec >= 1;
   return $n;
@@ -723,8 +723,8 @@ sub TeX {
   my $self = shift; my $equation = shift; my $prec = shift;
   my ($a,$b) = @{$self->{data}}; my $n = "";
   return $a if $b == 1;
-  if ($self->getFlag("showProperFractions") && abs($a) > $b)
-    {$n = int($a/$b); $a = abs($a) % $b; $n .= " " unless $a == 0}
+  if ($self->getFlag("showProperFractions") && CORE::abs($a) > $b)
+    {$n = int($a/$b); $a = CORE::abs($a) % $b; $n .= " " unless $a == 0}
   my $s = ""; ($a,$s) = (-$a,"-") if $a < 0;
   $n .= ($self->{isHorizontal} ? "$s$a/$b" : "${s}{\\textstyle\\frac{$a}{$b}}")
     unless $a == 0 && $n ne '';
