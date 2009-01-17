@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/AppletObjects.pl,v 1.10 2008/05/12 00:50:24 gage Exp $
+# $CVSHeader: pg/macros/AppletObjects.pl,v 1.11 2008/05/22 19:17:10 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -22,7 +22,7 @@ AppletObjects.pl - Macro-based front end for the Applet.pm module.
 =head1 DESCRIPTION
 
 This subroutines in this 
-file provide mechanisms to insert Flash applets (and later Java applets)
+file provide mechanisms to insert Flash applets (and  Java applets)
 into a WeBWorK problem.
 
 
