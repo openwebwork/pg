@@ -20,7 +20,7 @@ To use these contexts, first load the contextFraction.pl file:
 and then select the appropriate context -- one of the following three:
 
 	Context("Fraction");
-	Context("Fraction-NoDecimal");
+	Context("Fraction-NoDecimals");
 	Context("LimitedFraction");
 
 The first is the most general, and allows fractions to be intermixed
@@ -88,7 +88,7 @@ or
 There are several options to the cmp() method that control how the
 answer checker will work.  The first is controls whether unreduced
 fractions are accepted as correct.  Unreduced fractions are allowed in
-the Fraction and Fraction->NoDecimals contexts, but not in the
+the Fraction and Fraction-NoDecimals contexts, but not in the
 LimitedFraction context.  You can control this using the
 studentsMustReduceFractions option:
 
@@ -139,7 +139,7 @@ This determines whether division is allowed only between integers or
 not.  If you want to prevent division from accepting non-integers,
 then set strictFractions=>1 (and also strictMinus=>1 and
 strictMultiplication=>1).  These are all three 0 by default in the
-Fraction and Fraction->NoDecimals contexts, but 1 in LimitedFraction.
+Fraction and Fraction-NoDecimals contexts, but 1 in LimitedFraction.
 
 =item S<C<< allowProperFractions >>>
 
@@ -147,7 +147,7 @@ This determines whether a space between a whole number and a fraction
 is interpretted as implicit multiplication (as it usually would be in
 WeBWorK), or as addition, allowing "4 1/2" to mean "4 and 1/2".  By
 default, it acts as multiplication in the Fraction and
-Fraction->NoDecimals contexts, and as addition in LimitedFraction.  If
+Fraction-NoDecimals contexts, and as addition in LimitedFraction.  If
 you set allowProperFractions=>1 you should also set reduceConstants=>0.
 
 =item S<C<< requireProperFractions >>>
