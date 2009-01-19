@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/contextPiecewiseFunction.pl,v 1.9 2008/06/20 14:40:35 gage Exp $
+# $CVSHeader: pg/macros/contextPiecewiseFunction.pl,v 1.10 2008/12/30 08:13:45 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -712,7 +712,7 @@ sub compareFormulas {
 #
 sub compareInterval {
   my $self = shift; my ($D,$f0,$f1) = @_;
-  my ($a,$b) = $D->value; $a = $a->value; $b = $b=>value;
+  my ($a,$b) = $D->value; $a = $a->value; $b = $b->value;
   return $f0 == $f1 if $D->{leftInfinite} && $D->{rightInfinite};
   $a = $b - 2 if $D->{leftInfinite};
   $b = $a + 2 if $D->{rightInfinite};
