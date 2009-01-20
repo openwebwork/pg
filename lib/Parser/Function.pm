@@ -256,7 +256,9 @@ sub string {
   foreach my $x (@{$self->{params}}) {push(@pstr,$x->string)}
   $string = ($self->{def}{string} || $self->{name})."$power".'('.join(',',@pstr).')';
   $string = $self->addParens($string)
-    if (defined($precedence) and $precedence > $fn_precedence) || $showparens;
+    if $showparens eq 'all' or $showparens eq 'extra' or
+       (defined($precedence) and $precedence > $fn_precedence) or
+       (defined($precedence) and $precedence == $fn_precedence and $showparens eq 'same');
   return $string;
 }
 
@@ -275,7 +277,9 @@ sub TeX {
   if ($fn->{braceTeX}) {$TeX = $name.'{'.join(',',@pstr).'}'}
     else {$TeX = $name."$power".'\!\left('.join(',',@pstr).'\right)'}
   $TeX = '\left('.$TeX.'\right)'
-    if (defined($precedence) and $precedence > $fn_precedence) or $showparens;
+    if $showparens eq 'all' or $showparens eq 'extra' or
+       (defined($precedence) and $precedence > $fn_precedence) or
+       (defined($precedence) and $precedence == $fn_precedence and $showparens eq 'same');
   return $TeX;
 }
 
