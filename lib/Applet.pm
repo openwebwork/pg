@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/Applet.pm,v 1.12 2008/05/22 19:15:59 gage Exp $
+# $CVSHeader: pg/lib/Applet.pm,v 1.13 2008/11/19 04:39:43 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -205,6 +205,7 @@ sub new {
 		configAlias        =>  'config',
 		initializeActionAlias => 'setXML',
 		submitActionAlias  =>  'getXML',
+		submitActionScript  =>  '',        # script executed on submitting the WW question
 		returnFieldName    =>  'receivedField',
 		headerText         =>  DEFAULT_HEADER_TEXT(),
 		objectText         => '',
@@ -257,6 +258,11 @@ sub submitActionAlias {
 	my $self = shift;
 	$self->{submitActionAlias} = shift ||$self->{submitActionAlias}; # replace the current contents if non-empty
     $self->{submitActionAlias};
+}
+sub submitActionScript {
+	my $self = shift;
+	$self->{submitActionScript} = shift ||$self->{submitActionScript}; # replace the current contents if non-empty
+    $self->{submitActionScript};
 }
 sub getStateAlias {
 	my $self = shift;
@@ -355,6 +361,7 @@ sub insertHeader {
     my $base64_initialState     = $self->base64_state;
     my $initializeAction =  $self->initializeActionAlias;
     my $submitAction     =  $self->submitActionAlias;
+    my $submitActionScript = $self->submitActionScript;
     my $setState         =  $self->setStateAlias;
     my $getState         =  $self->getStateAlias;
     my $config           =  $self->configAlias;
@@ -532,6 +539,7 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 	      	alert("$appletName is not ready");
 	      }
           applet_getState_list["$appletName"]();
+          $submitActionScript
 		  //getQE("$returnFieldName").value = getApplet("$appletName").sendData();  //FIXME -- not needed in general?
     };
     </script>
