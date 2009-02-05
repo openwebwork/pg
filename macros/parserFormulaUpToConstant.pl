@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/parserFormulaUpToConstant.pl,v 1.18 2008/09/16 03:23:54 dpvc Exp $
+# $CVSHeader: pg/macros/parserFormulaUpToConstant.pl,v 1.19 2008/09/21 18:06:19 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -173,12 +173,16 @@ sub compare {
   #  If constants aren't the same, substitute the professor's in the student answer.
   #
   $r = $r->substitute($r->{constant}=>$l->{constant}) unless $r->{constant} eq $l->{constant};
+
   #
   #  Compare with adaptive parameters to see if $l + n0 C = $r for some n0.
   #
   my $adapt = $l->adapt;
-  my $equal = $adapt->cmp_compare($r,{});
+  my $equal = Parser::Eval(sub {$adapt == $r});
   $self->{adapt} = $self->{adapt}->inherit($adapt);            # save the adapted value's flags
+  $self->{adapt}{test_values} = $adapt->{test_values};         #  (these two are removed by inherit)
+  $self->{adapt}{test_adapt} = $adapt->{test_adapt};
+  $_[1]->{test_values} = $r->{test_values};            # save these in student answer for diagnostics
   return -1 unless $equal;
   #
   #  Check that n0 is non-zero (i.e., there is a multiple of C in the student answer)
@@ -192,7 +196,6 @@ sub compare {
 #
 sub adapt {
   my $self = shift;
-  my $adapt = $self->{adapt}->inherit($self); delete $adapt->{adapt};
   return $self->adjustInherit($self->{adapt});
 }
 
@@ -262,7 +265,10 @@ sub cmp_defaults {((shift)->SUPER::cmp_defaults,showHints => 1, showLinearityHin
 #
 sub cmp_diagnostics {
   my $self = shift;
-  $self->inherit($self->{adapt})->SUPER::cmp_diagnostics(@_);
+  my $adapt = $self->inherit($self->{adapt});
+  $adapt->{test_values} = $self->{adapt}{test_values};  # these aren't copied by inherit
+  $adapt->{test_adapt}  = $self->{adapt}{test_adapt};
+  $adapt->SUPER::cmp_diagnostics(@_);
 }
 
 #
@@ -289,9 +295,7 @@ sub cmp_postprocess {
   return unless $ans->{score} == 0 && !$ans->{isPreview};
   return if $ans->{ans_message} || !$self->getFlag("showHints");
   my $student = $ans->{student_value};
-  $main::{_cmp_} = sub {return $ans->{correct_value} <=> $student}; # compare encodes the reason in the result
-  my $result = main::PG_restricted_eval('&{$main::{_cmp_}}');
-  delete $main::{_cmp_};
+  my $result = Parser::Eval(sub {return $ans->{correct_value} <=> $student}); # compare encodes the reason in the result
   $self->cmp_Error($ans,"Note: there is always more than one posibility") if $result == 2 || $result == 3;
   if ($result == 3) {
     my $context = $self->context;
