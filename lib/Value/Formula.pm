@@ -188,7 +188,7 @@ sub compare {
   #          situations where this is a problem.
   #
   if ($l->AdaptParameters($r,$self->{context}->variables->parameters)) {
-    my $avalues = $l->{test_adapt};
+    my $avalues      = $l->{test_adapt};
     my $tolerance    = $self->getFlag('tolerance',1E-4);
     my $isRelative   = $self->getFlag('tolType','relative') eq 'relative';
     my $zeroLevel    = $self->getFlag('zeroLevel',1E-14);
@@ -217,6 +217,17 @@ sub compare {
     return $cmp if $cmp;
   }
   $l->{domainMismatch} = $domainError;  # return this value
+}
+
+#
+#  Inherit should make sure the tree is copied
+#  (so it's nodes point to the correct equation, for one thing)
+#
+sub inherit {
+  my $self = shift;
+  $self = $self->SUPER::inherit(@_);
+  $self->{tree} = $self->{tree}->copy($self);
+  return $self;
 }
 
 #
@@ -463,27 +474,29 @@ sub AdaptParameters {
     my $B = MatrixReal1->new($d,1);  $B->[0] = \@b;
     ($M,$B) = $M->normalize($B);
     $M = $M->decompose_LR;
-    if (($D,$B,$M) = $M->solve_LR($B)) {
-      if ($D == 0) {
-        #
-        #  Get parameter values and recompute the points using them
-        #
-        my @a; my $i = 0; my $max = $l->getFlag('max_adapt',1E8);
-        foreach my $row (@{$B->[0]}) {
-	  if (abs($row->[0]) > $max) {
-	    $max = Value::makeValue($max); $row->[0] = Value::makeValue($row->[0]);
-	    $l->Error(["Constant of integration is too large: %s\n(maximum allowed is %s)",
-		      $row->[0]->string,$max->string]) if $params[$i] eq 'C0' or $params[$i] eq 'n00';
-	    $l->Error(["Adaptive constant is too large: %s = %s\n(maximum allowed is %s)",
-		      $params[$i],$row->[0]->string,$max->string]);
+    if (abs($M->det_LR) > 1E-6) {
+      if (($D,$B,$M) = $M->solve_LR($B)) {
+	if ($D == 0) {
+	  #
+	  #  Get parameter values and recompute the points using them
+	  #
+	  my @a; my $i = 0; my $max = $l->getFlag('max_adapt',1E8);
+	  foreach my $row (@{$B->[0]}) {
+	    if (abs($row->[0]) > $max) {
+	      $max = Value::makeValue($max); $row->[0] = Value::makeValue($row->[0]);
+	      $l->Error(["Constant of integration is too large: %s\n(maximum allowed is %s)",
+			 $row->[0]->string,$max->string]) if $params[$i] eq 'C0' or $params[$i] eq 'n00';
+	      $l->Error(["Adaptive constant is too large: %s = %s\n(maximum allowed is %s)",
+			 $params[$i],$row->[0]->string,$max->string]);
+	    }
+	    push @a, $row->[0]; $i++;
 	  }
-	  push @a, $row->[0]; $i++;
-        }
-        my $context = $l->context;
-        foreach my $i (0..$#a) {$context->{variables}{$params[$i]}{value} = $a[$i]}
-        $l->{parameters} = [@a];
-        $l->createAdaptedValues;
-        return 1;
+	  my $context = $l->context;
+	  foreach my $i (0..$#a) {$context->{variables}{$params[$i]}{value} = $a[$i]}
+	  $l->{parameters} = [@a];
+	  $l->createAdaptedValues;
+	  return 1;
+	}
       }
     }
   }
