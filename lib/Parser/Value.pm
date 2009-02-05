@@ -46,8 +46,7 @@ sub new {
 #  Set flags for the object
 #
 sub check {
-  my $self = shift;
-  my $type = $self->{type}; my $value = $self->{value};
+  my $self = shift; my $value = $self->{value};
   $self->{isZero} = $value->isZero;
   $self->{isOne}  = $value->isOne;
 }
