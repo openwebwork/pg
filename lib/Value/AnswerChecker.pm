@@ -30,9 +30,9 @@ $Value::defaultContext->{cmpDefaults} = {};
 
 #  Internal use.
 #  Set default flags for the answer checker in this object
-#  		showTypeWarnings =>	1
-#       showEqualErrors  =>	1
-#       ignoreStrings    => 1
+#       showTypeWarnings         => 1
+#       showEqualErrors          => 1
+#       ignoreStrings            => 1
 #       studentsMustReduceUnions => 1
 #       showUnionReduceWarnings  => 1
 #
@@ -241,6 +241,7 @@ sub cmp_compare {
   return eval {$self == $other} unless ref($ans->{checker}) eq 'CODE';
   my @equal = eval {&{$ans->{checker}}($self,$other,$ans,$nth,@_)};
   if (!defined($equal) && $@ ne '' && (!$context->{error}{flag} || $ans->{showAllErrors})) {
+    $nth = "" if ref($nth) eq 'AnswerHash';
     $context->setError(["<I>An error occurred while checking your$nth answer:</I>\n".
       '<DIV STYLE="margin-left:1em">%s</DIV>',$@],'',undef,undef,$CMP_ERROR);
     warn "Please inform your instructor that an error occurred while checking your answer";
@@ -1785,7 +1786,7 @@ sub cmp_diagnostics {
     my @P = (map {(scalar(@{$_}) == 1)? $_->[0]: $self->Package("Point")->make(@{$_})} @{$self->{test_points}});
     my @i = sort {$P[$a] <=> $P[$b]} (0..$#P);
     foreach $p (@P) {if (Value::isValue($p) && $p->length > 2) {$p = $p->string; $p =~ s|,|,<br />|g}}
-    my $zeroLevelTol = $self->getFlag('zeroLevelTol');
+    my $zeroLevelTol = $self->{context}{flags}{zeroLevelTol};
     $self->{context}{flags}{zeroLevelTol} = 0; # always show full resolution in the tables below
     my $names = join(',',@names); $names = '('.$names.')' if scalar(@names) > 1;
 
