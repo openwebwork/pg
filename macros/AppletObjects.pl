@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/AppletObjects.pl,v 1.13 2009/02/07 22:27:29 gage Exp $
+# $CVSHeader: pg/macros/AppletObjects.pl,v 1.14 2009/02/07 22:53:18 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -50,10 +50,11 @@ main::HEADER_TEXT(<<'END_HEADER_TEXT');
     </script> 	
   	<script src="/webwork2_files/js/ww_applet_support.js">
   	    //upload functions stored in /opt/webwork/webwork2/htdocs/js ...
-     </script>
-    if (!( typeof(set_debug) == "function") ) {
-    	alert("Can't find the function set_debug.  Is the file ww_applet_support.js in /webwork2/htdocs/js");
-    }
+     
+		if (!( typeof(set_debug) == "function") ) {
+			alert("Can't find the function set_debug.  Is the file ww_applet_support.js in /webwork2/htdocs/js");
+		}
+    </script>
 END_HEADER_TEXT
 
 };
