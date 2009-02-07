@@ -50,10 +50,7 @@ main::HEADER_TEXT(<<'END_HEADER_TEXT');
     </script> 	
   	<script src="/webwork2_files/js/ww_applet_support.js">
   	    //upload functions stored in /opt/webwork/webwork2/htdocs/js ...
-     
-		if (!( typeof(set_debug) == "function") ) {
-			alert("Can't find the function set_debug.  Is the file ww_applet_support.js in /webwork2/htdocs/js");
-		}
+		
     </script>
 END_HEADER_TEXT
 
