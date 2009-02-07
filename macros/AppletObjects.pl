@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/AppletObjects.pl,v 1.11 2008/05/22 19:17:10 gage Exp $
+# $CVSHeader: pg/macros/AppletObjects.pl,v 1.12 2009/01/17 03:25:31 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -47,175 +47,10 @@ main::HEADER_TEXT(<<'END_HEADER_TEXT');
     <script src="/webwork2_files/applets/AC_RunActiveContent.js" language="javascript">
     </script>
     <script src="/webwork2_files/js/Base64.js" language="javascript">
-    </script>
-    
-<script language="JavaScript">
-
-//////////////////////////////////////////////////////////
-// applet lists
-//////////////////////////////////////////////////////////
-
-    var  applet_initializeAction_list = new Object;  // functions for initializing question with an applet
-    var  applet_submitAction_list     = new Object;  // functions for submitting question with applet
-    var  applet_setState_list         = new Object;  // functions for setting state (XML) from applets
-    var  applet_getState_list         = new Object;  // functions for getting state (XML) from applets
-    var  applet_config_list           = new Object;  // functions for  configuring on applets
-	var  applet_checkLoaded_list      = new Object;  // functions for probing the applet to see if it is loaded
-	var  applet_reportsLoaded_list    = new Object;  // flag set by applet
-	var  applet_isReady_list          = new Object;  // flag set by javaScript in checkLoaded 
-    
-//////////////////////////////////////////////////////////
-// DEBUGGING tools
-//////////////////////////////////////////////////////////
-	var debug;
-	var debugText = "";
-	function set_debug(num) { // setting debug for any applet sets it for all of them
-		if (num) {
-			debug =1;
-		}
-	}
-	function debug_add(str) {
-		if (debug) {
-			debugText = debugText + "\n\n" +str;
-		}
-	}
-	
-//////////////////////////////////////////////////////////
-// INITIALIZE and SUBMIT actions
-//////////////////////////////////////////////////////////
-
-    function submitAction()  {
-        
-        if (debug) {
-        	debugText = " Begin looping through applet_submitAction_list\n";
-        }
- 		for (var applet in applet_submitAction_list)  {
- 			
- 			 applet_submitAction_list[applet]();
- 		}
-		if (debug) {
-			alert(debugText); debugText="";
-		};
-    }
-    function initializeAction() {
-        var iMax = 10;
-        debugText="start intializeAction() with up to " +iMax + " attempts\n";
-    	for (var appletName in applet_initializeAction_list)  {		
-			safe_applet_initialize(appletName, iMax);
-    	}
-
-    }
-   	
-   	// applet can set isReady flag by calling applet_loaded(appletName, loaded);
-    function applet_loaded(appletName,loaded) {
-        applet_reportsLoaded_list[appletName] = loaded; // 0 means not loaded
-    	debug_add("applet reporting that it has been loaded = " + loaded );
-    }
-    
-    // insures that applet is loaded before initializing it
-	function safe_applet_initialize(appletName, i) {
-		debug_add("Iteration " + i + " of safe_applet_initialize with applet " + appletName );
-		
-		i--;
-		var applet_loaded = applet_checkLoaded_list[appletName]();
-		debug_add("applet is ready = " + applet_loaded  );
-	
-		if ( 0 < i && !applet_loaded ) { // wait until applet is loaded
-			debug_add("applet " + appletName + "not ready try again");
-			window.setTimeout( "safe_applet_initialize(\"" + appletName + "\"," + i +  ")",1);
-		} else if( 0 < i ){  // now that applet is loaded configure it and initialize it with saved data.
-			debug_add(" Ready to initialize applet " + appletName + " with " + i +  " iterations left. "); 
-			
-			// in-line handler -- configure and initialize
-			try{
-				if (debug && typeof(getApplet(appletName).debug) == "function" ) {
-					getApplet(appletName).debug(1);  // turn the applet's debug functions on.
-				}					
-			} catch(e) {
-				alert("Unable to set debug mode for applet " + appletName);
-			}
-			try{
-				applet_config_list[appletName]();
-			} catch(e) {
-				alert("Unable to configure " + appletName + " \n " +e );  
-			}
-			try{
-				applet_initializeAction_list[appletName]();
-			} catch(e) {
-				alert("unable to initialize " + appletName + " \n " +e );  
-			}
-			
-		} else {
-			if (debug) {alert("Error: timed out waiting for applet " +appletName + " to load");}
-		}
-		if (debug) {alert(debugText); debugText="";};
-	}
-   
-///////////////////////////////////////////////////////
-// Utility functions
-///////////////////////////////////////////////////////   
-    
-
-	function getApplet(appletName) {
-		  var isIE = navigator.appName.indexOf("Microsoft") != -1;
-		  var obj = (isIE) ? window[appletName] : window.document[appletName];
-		  //return window.document[appletName];
-		  if (obj && (obj.name = appletName)) {
-			  return( obj );
-		  } else {
-			 // alert ("can't find applet " + appletName);		  
-		  }
-	 }	
-	
-	function listQuestionElements() { // list all HTML input and textarea elements in main problem form
-	   var isIE = navigator.appName.indexOf("Microsoft") != -1;
-	   var elementList = (isIE) ?  document.getElementsByTagName("input") : document.problemMainForm.getElementsByTagName("input");
-	   var str=elementList.length +" Question Elements\n type | name = value  < id > \n";
-	   for( var i=0; i< elementList.length; i++) {
-		   str = str + " "+i+" " + elementList[i].type 
-						   + " | " + elementList[i].name 
-						   + "= " + elementList[i].value + 
-						   " <" + elementList[i].id + ">\n";
-	   }
-	   elementList = (isIE) ?  document.getElementsByTagName("textarea") : document.problemMainForm.getElementsByTagName("textarea");
-	   for( var i=0; i< elementList.length; i++) {
-		   str = str + " "+i+" " + elementList[i].type 
-						   + " | " + elementList[i].name 
-						   + "= " + elementList[i].value + 
-						   " <" + elementList[i].id + ">\n";
-	   }
-	   alert(str +"\n Place listQuestionElements() at end of document in order to get all form elements!");
-	}
-	
-	function base64Q(str) {
-		return ( !str.match(/<XML/i) && !str.match(/<?xml/i));
-	}
-	function setEmptyState(appletName){
-		var newState = "<xml></xml>";
-		applet_setState_list[appletName](newState);
-		var applet = getApplet(appletName);
-		getQE(appletName+"_state").value = newState;
-		getQE("previous_" + appletName + "_state").value = newState
-	}
-	
-	function getQE(name1) { // get Question Element in problemMainForm by name
-		var isIE = navigator.appName.indexOf("Microsoft") != -1;
-		var obj = (isIE) ? document.getElementById(name1)
-							:document.problemMainForm[name1]; 
-		// needed for IE -- searches id and name space so it can be unreliable if names are not unique
-		if (!obj || obj.name != name1) {
-			alert("Can't find element " + name1);
-			listQuestionElements();		
-		} else {
-			return( obj );
-		}
-		
-	}
-	function getQuestionElement(name1) {
-		return getQE(name1);
-	}
-
- </script>
+    </script> 	
+  	<script src="/webwork2_files/js/ww_applet_support.js">
+  	    //upload functions stored in /opt/webwork/webwork2/htdocs/js ...
+     </script>
  
 END_HEADER_TEXT
 
@@ -285,29 +120,46 @@ sub insertAll {  ## inserts both header text and object text
 	main::RECORD_FORM_LABEL($appletStateName);            #this insures that they'll be saved from one invocation to the next
 	#main::RECORD_FORM_LABEL("previous_$appletStateName");
     my $answer_value = '';
-	$answer_value = ${$main::inputs_ref}{$appletStateName} if defined(${$main::inputs_ref}{$appletStateName});
-	
-	if ( defined( $main::rh_sticky_answers->{$appletStateName} ) ) {
+    
+    if ( defined( ${$main::inputs_ref}{$appletStateName} ) and ${$main::inputs_ref}{$appletStateName} =~ /\S/ ) {   
+		$answer_value = ${$main::inputs_ref}{$appletStateName};
+	} elsif ( defined( $main::rh_sticky_answers->{$appletStateName} )  ) {
+	    warn "type of sticky answers is ", ref( $main::rh_sticky_answers->{$appletStateName} );
 		$answer_value = shift( @{ $main::rh_sticky_answers->{$appletStateName} });
-		$answer_value = '' unless defined($answer_value);
 	}
 	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
-	
 	#######
 	# insert a hidden variable to hold the applet's state (debug =>1 makes it visible for debugging and provides debugging buttons)
 	#######
-	my $base_64_encoded_answer_value = ($answer_value =~/<XML|<?xml/i)? encode_base64($answer_value) : $answer_value;
+	my $base_64_encoded_answer_value;
+	my $decoded_answer_value;
+	if ( $answer_value =~/<XML|<?xml/i) {
+		$base_64_encoded_answer_value = encode_base64($answer_value);
+		$decoded_answer_value = $answer_value;
+	} else {
+		$decoded_answer_value = decode_base64($answer_value);
+		if ( $decoded_answer_value =~/<XML|<?xml/i) {  # great, we've decoded the answer to obtain an xml string
+			$base_64_encoded_answer_value = $answer_value;
+		} else {    #WTF??  apparently we don't have XML tags
+			$answer_value = "<xml>$answer_value</xml>";
+			$base_64_encoded_answer_value = encode_base64($answer_value);
+			$decoded_answer_value = $answer_value;
+		}
+	}
 	$base_64_encoded_answer_value =~ s/\r|\n//g;    # get rid of line returns
-	my $decoded_answer_value         = ($answer_value =~/<XML|<?xml/i) ? $answer_value : decode_base64($answer_value);
+    # debug version of the applet state answerBox and controls
     my $debug_input_element  = qq!\n<textarea  rows="4" cols="80" 
 	   name = "$appletStateName">$decoded_answer_value</textarea><br/>
 	        <input type="button"  value="$getState" 
-	               onClick="applet_getState_list['$appletName']()"
+	               onClick="debugText=''; 
+	                        ww_applet_list['$appletName'].getState(); 
+	                        alert(debugText);"
 	        >
 	        <input type="button"  value="$setState" 
-	               onClick="var tmp = getQE('$appletStateName').value;
-	                        applet_setState_list['$appletName'](tmp);"
+	               onClick="debugText='';
+	                        ww_applet_list['$appletName'].setState();
+	                        alert(debugText);"
 	        >
 	  !;
 	my $state_input_element = ($self->debug == 1) ? $debug_input_element :
@@ -323,6 +175,10 @@ sub insertAll {  ## inserts both header text and object text
 	                    $reset_button_str.
 	                    $state_input_element.
                         qq!<input type="hidden"  name="previous_$appletStateName" value = "$base_64_encoded_answer_value">!;
+    $state_storage_html_code = qq!<input type="hidden"  name="previous_$appletStateName" value = "$base_64_encoded_answer_value">!
+                              . $reset_button_str
+                              . $state_input_element
+                             ;
     #######
     # insert header material
     #######
