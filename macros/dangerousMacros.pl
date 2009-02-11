@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/dangerousMacros.pl,v 1.51 2008/05/03 17:43:29 sh002i Exp $
+# $CVSHeader: pg/macros/dangerousMacros.pl,v 1.52 2008/05/08 00:37:31 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -1076,6 +1076,7 @@ sub alias {
 			# .gif FILES in TeX mode
 			################################################################################
 
+		        $setNumber =~ s/\./_/g;  ## extra dots confuse latex's graphics package
 			if ($envir{texDisposition} eq "pdf") {
 				# We're going to create PDF files with our TeX (using pdflatex), so we
 				# need images in PNG format.
@@ -1208,6 +1209,7 @@ sub alias {
 			# .png FILES in TeX mode
 			################################################################################
 
+		        $setNumber =~ s/\./_/g;  ## extra dots confuse latex's graphics package
 			if ($envir{texDisposition} eq "pdf") {
 				# We're going to create PDF files with our TeX (using pdflatex), so we
 				# need images in PNG format. what luck! they're already in PDF format!
