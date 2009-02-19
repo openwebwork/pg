@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/dangerousMacros.pl,v 1.53 2009/02/11 23:06:43 dpvc Exp $
+# $CVSHeader: pg/macros/dangerousMacros.pl,v 1.54 2009/02/19 03:05:14 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -387,12 +387,10 @@ sub findAppletCodebase {
 			$appletLocation = "$server_root_url$appletLocation";
 		}
 		my $url = "$appletLocation/$fileName";
-		return $appletLocation;  # --hack workaround -- just pick the first location and use that -- no checks
-#hack to workaround conflict between lwp-request and apache2
-# 		if (check_url($url)) {
-# 				$appletCodebaseLocations{$fileName} = $appletLocation; #update cache
-# 			return $appletLocation	 # return codebase part of url
-# 		}
+		if (check_url($url)) {
+				$appletCodebaseLocations{$fileName} = $appletLocation; #update cache
+			return $appletLocation	 # return codebase part of url
+		}
 	}
 	return "Error: $fileName not found at ". join(",	", @{$appletPath} );	# no file found
 }
