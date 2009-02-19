@@ -1014,7 +1014,7 @@ sub hint {
 			$out = '';  # do nothing since hints are not available for download for students
 		}
 	} elsif ($printHintForInstructor) {  # always print hints for instructor types 
-		$out = join(' ', "$BR(Show the student hint after $showHint attempts: )$BR ", @in);
+		$out = join(' ', "$BR( Show the student hint after $showHint attempts: )$BR $BBOLD HINT: $EBOLD ", @in);
 	} elsif ( $displayHint  and ( $attempts > $showHint )) 	{
 
 	 ## the second test above prevents a hint being shown if a doctored form is submitted

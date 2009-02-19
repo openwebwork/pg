@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/AppletObjects.pl,v 1.14 2009/02/07 22:53:18 gage Exp $
+# $CVSHeader: pg/macros/AppletObjects.pl,v 1.16 2009/02/07 23:08:34 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -39,8 +39,7 @@ L<Applets.pm>.
 # don't reload this file
 #########################################################################
 
-sub _AppletObjects_init  {               
-
+sub _AppletObjects_init  { 
 
 main::HEADER_TEXT(<<'END_HEADER_TEXT');
   <script language="javascript">AC_FL_RunContent = 0;</script>
@@ -165,8 +164,8 @@ sub insertAll {  ## inserts both header text and object text
 	my $state_input_element = ($self->debug == 1) ? $debug_input_element :
 	      qq!\n<input type="hidden" name = "$appletStateName" value ="$base_64_encoded_answer_value">!;
     my $reset_button_str = ($reset_button) ?
-            qq!<br/><input type='button' value='set applet state empty' onClick="setEmptyState('$appletName')">
-                    <input type="button" value="reinitialize applet" onClick="getQE('$appletStateName').value='$base64_initialState'"/>!
+            qq!<br/><input type='button' value='set applet state to restart' onClick="setAppletStateToRestart('$appletName')">
+                    <input type="button" value="reinitialize applet" onClick="getQE('$appletStateName').value='$base64_initialState'"/><br/>!
             : '' 
     ;
 	# always base64 encode the hidden answer value to prevent problems with quotes. 
@@ -179,11 +178,16 @@ sub insertAll {  ## inserts both header text and object text
                               . $reset_button_str
                               . $state_input_element
                              ;
+    $answerBox_code = qq!<br/><input type="input" name="answerBox" value="" size =50><br/>
+                         <input type="button" value="get Answer from applet" onClick="eval(ww_applet_list['$appletName'].submitActionScript )"/>
+                         <br/>
+                        !;
+    $answerBox_code = ($self->debug == 1) ? $answerBox_code : "";
     #######
     # insert header material
     #######
 	main::HEADER_TEXT($self->insertHeader());
-    return main::MODES(TeX=>' {\bf  applet } ', HTML=>$self->insertObject.$main::BR.$state_storage_html_code);
+    return main::MODES(TeX=>' {\bf  applet } ', HTML=>$self->insertObject.$main::BR.$state_storage_html_code.$answerBox_code);
 }
 
 =head3 Example problem
