@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/Applet.pm,v 1.15 2009/02/07 22:28:34 gage Exp $
+# $CVSHeader: pg/lib/Applet.pm,v 1.16 2009/02/19 03:04:22 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -367,6 +367,7 @@ sub base64_config {
 
 sub insertHeader {
     my $self = shift;
+
     my $codebase              =  $self->codebase;
     my $appletId              =  $self->appletId;
     my $appletName            =  $self->appletName;
