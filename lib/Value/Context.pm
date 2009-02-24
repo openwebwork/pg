@@ -142,8 +142,8 @@ sub setError {
   while ($message && $error->{msg}{$message}) {$message = $error->{msg}{$message}}
   while ($more && $error->{msg}{$more}) {$more = $error->{msg}{$more}}
   $message = sprintf($message,@args) if scalar(@args) > 0;
-  $message .= sprintf($more,$pos->[0]+1) if $more;
   while ($message && $error->{msg}{$message}) {$message = $error->{msg}{$message}}
+  $message .= sprintf($more,$pos->[0]+1) if $more;
   $message = &{$error->{convert}}($message) if defined $error->{convert};
   $error->{message} = $message;
   $error->{string} = $string;
