@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2009 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/parserMultiAnswer.pl,v 1.10 2008/04/14 23:29:53 sh002i Exp $
+# $CVSHeader: pg/macros/problemPanic.pl,v 1.1 2009/03/01 15:15:35 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -99,6 +99,15 @@ attempts back to 0 as well, so this effectively resets the problem to
 its original state.  This is intended for use primarily during problem
 development, but can be used to allow a student to get full credit for
 a problem even after he or she has asked for a hint.
+
+To allow the grading penalties to work, you must include the command
+
+    Panic::GradeWithPenalty;
+
+in order to install the panic-button grader.  You should do this afer
+setting the grader that you want to use for the problem itself, as the
+panic grader will use the one that is installed at the time the
+Panic::GradWithPenalty command is issued.
 
 =cut
 
