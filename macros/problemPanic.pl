@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2009 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/problemPanic.pl,v 1.1 2009/03/01 15:15:35 dpvc Exp $
+# $CVSHeader: pg/macros/problemPanic.pl,v 1.2 2009/03/01 22:56:23 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -35,10 +35,10 @@ BEGIN_TEXT/END_TEXT block.  E.g.,
 
 When the student presses the hint button, the button will not longer
 be available, and the "panic level" will be increased.  This sets the
-variable $panic, which you can use to determine whether to include the
+variable $panicked, which you can use to determine whether to include the
 hints or not.  For example
 
-    if ($panic) {
+    if ($panicked) {
       BEGIN_TEXT
         Hint:  You should factor the numerator and cancel
         one of the factors with the denominator.
@@ -50,7 +50,7 @@ panic button in the hint received from the first button.  This will
 set $panic to 2 (panic level 2) and you can use that to include the
 second hint.
 
-    if ($panic) {
+    if ($panicked) {
       BEGIN_TEXT
         Hint:  You should factor the numerator and cancel
         one of the factors with the denominator.
@@ -59,7 +59,7 @@ second hint.
         (costing an additional 25%)
       END_TEXT
       
-      if ($panic > 1) {
+      if ($panicked > 1) {
         BEGIN_TEXT
         Additional Hint: one of the factors is \(x+$a)\).
         END_TEXT
