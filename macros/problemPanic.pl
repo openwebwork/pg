@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2009 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/problemPanic.pl,v 1.2 2009/03/01 22:56:23 dpvc Exp $
+# $CVSHeader: pg/macros/problemPanic.pl,v 1.3 2009/03/03 15:34:58 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -131,6 +131,7 @@ my $grader;            # problem's original grader
 #  Save the panic level for the next time through.
 #
 sub Init {
+  $main::permissionLevel = 0 unless defined $main::permissionLevel;
   $allowReset = $main::permissionLevel > $main::PRINT_FILE_NAMES_PERMISSION_LEVEL;
   $isTeX = ($main::displayMode eq 'TeX');
   unless ($isTeX) {
