@@ -499,10 +499,23 @@ our @ISA = ('Value::Real');
 #  Allow Real to convert Fractions to Reals
 #
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
-  my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  my $x = shift; $x = $x->eval if scalar(@_) == 0 && Value::classMatch($x,'Fraction');
+  my $self = shift; my $context = (Value::isContext($_[0]) ? shift : $self->context);
+  my $x = shift;
+  $x = $context->Package("Formula")->new($context,$x)->eval if ref($x) eq "" && $x =~ m!/!;
+  $x = $x->eval if scalar(@_) == 0 && Value::classMatch($x,'Fraction');
   $self->SUPER::new($context,$x,@_);
+}
+
+#
+#  Since the signed number pattern now include fractions, we need to make sure
+#  we handle them when a real is made and it looks like a fraction
+#
+sub make {
+  my $self = shift; my $context = (Value::isContext($_[0]) ? shift : $self->context);
+  my $x = shift;
+  $x = $context->Package("Formula")->new($context,$x)->eval if ref($x) eq "" && $x =~ m!/!;
+  $x = $x->eval if scalar(@_) == 0 && Value::classMatch($x,'Fraction');
+  $self->SUPER::make($context,$x,@_);
 }
 
 ###########################################################################
