@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/Applet.pm,v 1.17 2009/02/19 16:35:26 gage Exp $
+# $CVSHeader: pg/lib/Applet.pm,v 1.18 2009/03/10 12:10:36 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -268,13 +268,15 @@ sub new {
 		initialState       => '',         # initial state.  (I'm considering storing everything as ascii and converting on the fly to base64 when needed.)
 		getStateAlias      =>  'getXML',
 		setStateAlias      =>  'setXML',
-		configAlias        =>  '',
+		configAlias        =>  '',        # deprecated
 		getConfigAlias     =>  'getConfig',
 		setConfigAlias     =>  'setConfig',
 		initializeActionAlias => 'setXML',
 		submitActionAlias  =>  'getXML',
-		submitActionScript  =>  '',        # script executed on submitting the WW question
-		answerBox          =>  'answerBox',
+		submitActionScript  => '',        # script executed on submitting the WW question
+		answerBoxAlias     =>  'answerBox',
+		answerBox          =>  '',        # deprecated
+		returnFieldName    => '',         # deprecated
 		headerText         =>  DEFAULT_HEADER_TEXT(),
 		objectText         => '',
 		debug              => 0,
@@ -282,6 +284,11 @@ sub new {
 	};
 	bless $self, $class;
 	$self->initialState('<xml></xml>');
+	if ($self->{returnFieldName}) or $self->{answerBox} ) { # backward compatibility
+		warn "use answerBoxAlias instead of returnFieldName or answerBox";
+		$self->{answerBox}='';
+		$self->{returnFieldName}='';
+	}
 	if ($self->{configAlias}) { # backward compatibility
 		warn "use setConfigAlias instead of configAlias";
 		$self->{configAlias}='';
