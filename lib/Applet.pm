@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/Applet.pm,v 1.16 2009/02/19 03:04:22 gage Exp $
+# $CVSHeader: pg/lib/Applet.pm,v 1.17 2009/02/19 16:35:26 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -110,7 +110,7 @@ any javaScript placed in the text of a PG question.
 
     submitAction()            -- calls the submit action of the applets
 
-    initializeWWquestion()        -- calls the initialize action of the applets
+    initializeWWquestion()    -- calls the initialize action of the applets
 
     getQE(name)               -- gets an HTML element of the question by name
                                  or by id.  Be sure to keep all names and ids
@@ -126,7 +126,10 @@ any javaScript placed in the text of a PG question.
                 TEXT(qq!<script> listQuestionElements() </script>!);
                 ENDDOCUMENT();
              to obtain a list of all of the HTML elements in the question
-             
+    
+    ----------------------------------------------------------------------------
+    
+    
     List of  accessor methods made available by the FlashApplet class:
         Usage:  $current_value = $applet->method(new_value or empty)
         These can also be set when creating the class -- for exampe:
@@ -160,13 +163,17 @@ any javaScript placed in the text of a PG question.
                      it is usually stored in base64 encoded format.
         base64_config base64 encode version of the contents of config
 
-        configAlias  (default: config ) names the applet command called with the contents of $self->config
+        configAlias  (default: setConfig ) names the applet command called with the contents of $self->config
                      to configure the applet.  The parameters are passed to the applet in plain text using <xml>
                      The outer tags must be   <xml> .....   </xml>
-        state        state consists of those customizable attributes of the applet which change
-                     as the applet is used.  It is stored by the calling .pg question so that 
-                     when revisiting the question the applet
-                     will be restored to the same state it was left in when the question was last 
+        setConfigAlias (default: setConfig) -- a synonym for configAlias
+        getConfigAlias (default: getConfig) -- retrieves the configuration from the applet.  This is used
+                     mainly for debugging.  In principal the configuration remains the same for a given instance
+                     of the applet -- i.e. for the homework question for a single student.  The state however
+                     will change depending on the interactions between the student and the applet.
+        initialState  the state consists of those customizable attributes of the applet which change
+                     as the applet is used by the student.  It is stored by the calling .pg question so that 
+                     when revisiting the question the applet will be restored to the same state it was left in when the question was last 
                      viewed.
 
         getStateAlias  (default: getState) alias for command called to read the current state of the applet.
@@ -186,8 +193,63 @@ any javaScript placed in the text of a PG question.
 
 =cut
 
+=head4 More details 
+
+There are three different "images" of the applet.  The first is the java or flash applet itself.  The object that actually does the work.
+The second is a perl image of the applet -- henceforth the perlApplet -- which is configured in the .pg file and allows a WeBWorK question
+to communicate with the applet.  The third image is a javaScript image of the applet -- henceforth the jsApplet which is a mirror of the perlApplet
+but is available to the javaScript code setup and executed in the virtual HTML page defined by the .pg file of the WeBWorK question. One can think of 
+the jsApplet as a runtime version of the perlApplet since it can be accessed and modified after the virtual HTML page has been created by 
+the PG rendering process.
+
+The perlApplet is initialized by   $newApplet = new flashApplet( appletName=>'myApplet',..... ); The jsApplet is automatically defined in 
+ww_applet_list["myApplet"] by copying the instance variables of $newApplet to a corresponding javaScript object.  So  $newApplet->{appletName}
+corresponds to ww_applet_list["myApplet"].appletName.  (This paragraph is not yet fully implemented :-().
+
+Currently all messages read by the applet are xml text.  If some of the code needs to be printed in the HTML header than it is converted
+to a base64 constant and then converted back to text form when it is read by an javaScript subroutine.
+
+=cut
+
+=head4 Requirements for applets
+
+The following methods are desirable in an applet that preserves state in a WW question.  None of them are required.
+
+	setState(str)   (default: setXML)  
+	                   -- set the current state of the applet from an xml string
+	                   -- should be able to accept an empty string or a string of
+	                      the form <XML>.....</XML> without creating errors
+	                   -- can be designed to receive other forms of input if it is 
+	                      coordinated with the WW question.
+	getState()      (default: getXML)
+	     	           -- return the current state of the applet in an xml string.
+	                   -- an empty string or a string of the form <XML>.....</XML> 
+	                      are the standard responses.
+	                   -- can be designed to return other strings if it is 
+	                      coordinated with the WW question.
+	setConfig(str) (default: setConfig) 
+	                   -- If the applet allows configuration this configures the applet
+	                      from an xml string
+      	               -- should be able to accept an empty string or a string of the 
+      	                  form <XML>.....</XML> without creating errors
+	                   -- can be designed to receive other forms of input if it is 
+	                      coordinated with the WW question.
+    getConfig      (default: getConfig) 
+	                   -- This returns a string defining the configuration of the 
+	                      applet in an xml string
+  	                   -- an empty string or a string of the form <XML>.....</XML> 
+  	                      are the standard responses.
+	                   -- can be designed to return other strings if it is 
+	                      coordinated with the WW question.
+	                   -- this method is used for debugging to ensure that 
+	                      the configuration was set as expected.
+	getAnswer      (default: getAnswer)
+	                   -- Returns a string (usually NOT xml) which is the 
+	                      response that the student is submitting to answer
+	                      the WW question.
 
 
+=cut
 
 sub new {
 	 my $class = shift; 
@@ -200,11 +262,15 @@ sub new {
 		width     => 550,
 		height    => 400,
 		bgcolor   => "#869ca7",
-		base64_state       =>  undef,     # this is an state to use for initializing the first occurence of the question.
+		base64_state       =>  undef,     # this is a state to use for initializing the first occurence of the question.
 		base64_config      =>  undef,     # this is the initial (and final?) configuration
+#		configuration      => '',         # configuration defining the applet
+		initialState       => '',         # initial state.  (I'm considering storing everything as ascii and converting on the fly to base64 when needed.)
 		getStateAlias      =>  'getXML',
 		setStateAlias      =>  'setXML',
-		configAlias        =>  'config',
+		configAlias        =>  '',
+		getConfigAlias     =>  'getConfig',
+		setConfigAlias     =>  'setConfig',
 		initializeActionAlias => 'setXML',
 		submitActionAlias  =>  'getXML',
 		submitActionScript  =>  '',        # script executed on submitting the WW question
@@ -215,7 +281,11 @@ sub new {
 		@_,
 	};
 	bless $self, $class;
-	$self->state('<xml></xml>');
+	$self->initialState('<xml></xml>');
+	if ($self->{configAlias}) { # backward compatibility
+		warn "use setConfigAlias instead of configAlias";
+		$self->{configAlias}='';
+	}
 	$self->config('<xml></xml>');
 	return $self;
 }
@@ -279,15 +349,21 @@ sub setStateAlias {
 }
 sub configAlias {
 	my $self = shift;
-	$self->{configAlias} = shift ||$self->{configAlias}; # replace the current contents if non-empty
-    $self->{configAlias};
+	$self->{setConfigAlias} = shift ||$self->{setConfigAlias}; # replace the current contents if non-empty
+    $self->{setConfigAlias};
 }
-sub returnFieldName {
+sub setConfigAlias {
 	my $self = shift;
-	$self->{answerBox} = shift ||$self->{answerBox}; # replace the current contents if non-empty
-    $self->{answerBox};
+	$self->{setConfigAlias} = shift ||$self->{setConfigAlias}; # replace the current contents if non-empty
+    $self->{setConfigAlias};
 }
-sub answerBox {
+sub getConfigAlias {
+	my $self = shift;
+	$self->{getConfigAlias} = shift ||$self->{getConfigAlias}; # replace the current contents if non-empty
+    $self->{getConfigAlias};
+}
+
+sub answerBoxName {
 	my $self = shift;
 	$self->{answerBox} = shift ||$self->{answerBox}; # replace the current contents if non-empty
     $self->{answerBox};
@@ -336,19 +412,14 @@ sub debug {
 sub appletId {  
 	appletName(@_);
 }
-sub state {
+
+sub initialState {
 	my $self = shift;
 	my $str = shift;
-	$self->{base64_state} =  encode_base64($str)   ||$self->{base64_state}; # replace the current string if non-empty
-	$self->{base64_state} =~ s/\n//g;
-    decode_base64($self->{base64_state});
+	$self->{initialState} = $str   ||$self->{initialState}; # replace the current string if non-empty
+    $self->{initialState};
 }
 
-sub base64_state{
-	my $self = shift;
-	$self->{base64_state} = shift ||$self->{base64_state}; # replace the current string if non-empty
-    $self->{base64_state};
-}
 sub config {
 	my $self = shift;
 	my $str = shift;
@@ -356,12 +427,38 @@ sub config {
 	$self->{base64_config} =~ s/\n//g;
     decode_base64($self->{base64_config});
 }
+#######################
+# soon to be deprecated?
+#######################
+sub state {
+	my $self = shift;
+	my $str = shift;
+	$self->{base64_state} =  encode_base64($str)   ||$self->{base64_state}; # replace the current string if non-empty
+	$self->{base64_state} =~ s/\n//g;
+    decode_base64($self->{base64_state});
+}
+sub base64_state{
+	my $self = shift;
+	$self->{base64_state} = shift ||$self->{base64_state}; # replace the current string if non-empty
+    $self->{base64_state};
+}
+
 sub base64_config {
 	my $self = shift;
 	$self->{base64_config} = shift ||$self->{base64_config}; # replace the current string if non-empty
 	$self->{base64_config} =$self->{base64_config};
     $self->{base64_config};
 }
+
+sub returnFieldName {
+	my $self = shift;
+    warn "use  answerBoxName  instead of returnFieldName";
+}
+sub answerBox {
+	my $self = shift;
+    warn "use  answerBoxName  instead of AnswerBox";
+}
+#########################
 #FIXME
 # need to be able to adjust header material
 
@@ -377,7 +474,9 @@ sub insertHeader {
     my $submitActionScript    = $self->submitActionScript;
     my $setStateAlias         =  $self->setStateAlias;
     my $getStateAlias         =  $self->getStateAlias;
-    my $configAlias           =  $self->configAlias;
+
+    my $setConfigAlias        =  $self->setConfigAlias;
+    my $getConfigAlias        =  $self->getConfigAlias;
     my $base64_config         =  $self->base64_config;
     my $debugMode             =  ($self->debug) ? "1": "0";
     my $returnFieldName       =  $self->{returnFieldName};
@@ -441,6 +540,7 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
     </script> 	
   	<script src="/webwork2_files/js/ww_applet_support.js" language="javascript">
   	    //upload functions stored in /opt/webwork/webwork2/htdocs/js ...
+  	    
      </script>
 	<script language="JavaScript">
 	
@@ -463,7 +563,8 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 	ww_applet_list["$appletName"].base64_config = "$base64_config";
 	ww_applet_list["$appletName"].getStateAlias = "$getStateAlias";
 	ww_applet_list["$appletName"].setStateAlias = "$setStateAlias";
-	ww_applet_list["$appletName"].configAlias   = "$configAlias";
+	ww_applet_list["$appletName"].setConfigAlias   = "$setConfigAlias";
+	ww_applet_list["$appletName"].getConfigAlias   = "$getConfigAlias";
 	ww_applet_list["$appletName"].initializeActionAlias = "$initializeAction";
 	ww_applet_list["$appletName"].submitActionAlias = "$submitActionAlias";
 	ww_applet_list["$appletName"].submitActionScript = "$submitActionScript";
