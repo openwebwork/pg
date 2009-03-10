@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/AppletObjects.pl,v 1.16 2009/02/07 23:08:34 gage Exp $
+# $CVSHeader: pg/macros/AppletObjects.pl,v 1.17 2009/02/19 03:05:14 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -115,6 +115,9 @@ sub insertAll {  ## inserts both header text and object text
 	my $appletStateName = "${appletName}_state";
 	my $getState        = $self->getStateAlias;
 	my $setState        = $self->setStateAlias;
+	my $getConfig       = $self->getConfigAlias;
+	my $setConfig       = $self->setConfigAlias;
+
 	my $base64_initialState     = $self->base64_state;
 	main::RECORD_FORM_LABEL($appletStateName);            #this insures that they'll be saved from one invocation to the next
 	#main::RECORD_FORM_LABEL("previous_$appletStateName");
@@ -160,7 +163,17 @@ sub insertAll {  ## inserts both header text and object text
 	                        ww_applet_list['$appletName'].setState();
 	                        alert(debugText);"
 	        >
+	        <input type="button"  value="$getConfig" 
+	               onClick="debugText=''; 
+	                        ww_applet_list['$appletName'].getConfig()";	                       "
+	        >
+		    <input type="button"  value="$setConfig" 
+	               onClick="debugText='';
+	                        ww_applet_list['$appletName'].config();
+	                        alert(debugText);"
+            >
 	  !;
+	        
 	my $state_input_element = ($self->debug == 1) ? $debug_input_element :
 	      qq!\n<input type="hidden" name = "$appletStateName" value ="$base_64_encoded_answer_value">!;
     my $reset_button_str = ($reset_button) ?
