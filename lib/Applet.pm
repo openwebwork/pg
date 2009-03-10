@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/Applet.pm,v 1.18 2009/03/10 12:10:36 gage Exp $
+# $CVSHeader: pg/lib/Applet.pm,v 1.19 2009/03/10 20:48:51 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -284,7 +284,7 @@ sub new {
 	};
 	bless $self, $class;
 	$self->initialState('<xml></xml>');
-	if ($self->{returnFieldName}) or $self->{answerBox} ) { # backward compatibility
+	if ($self->{returnFieldName} or $self->{answerBox} ) { # backward compatibility
 		warn "use answerBoxAlias instead of returnFieldName or answerBox";
 		$self->{answerBox}='';
 		$self->{returnFieldName}='';
