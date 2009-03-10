@@ -118,6 +118,11 @@ it contains one of the six basic trig functions.
 This is useful if you want students to report the value of sin(pi/4),
 but you don't want to allow "sin(pi/4)" as the answer.
 
+A similar effect can be accomplished with Contexts() by undefining 
+the trig functions.  
+See http://webwork.maa.org/wiki/Modifying_contexts_%28advanced%29#.282.29_Functions
+
+
 =cut
 
 # ^function no_trig_fun
@@ -202,6 +207,10 @@ functions in the answer, or if the answer must include some string).
 First argument is the string to have, or not have
 Second argument is optional, and tells us whether yes or no
 Third argument is the error message to produce (if any).
+
+A similar effect can be accomplished with Contexts() by undefining 
+the trig functions.  
+See http://webwork.maa.org/wiki/Modifying_contexts_%28advanced%29
 
 =cut
 
