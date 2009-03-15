@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/AppletObjects.pl,v 1.17 2009/02/19 03:05:14 gage Exp $
+# $CVSHeader: pg/macros/AppletObjects.pl,v 1.18 2009/03/10 12:07:47 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -39,7 +39,7 @@ L<Applets.pm>.
 # don't reload this file
 #########################################################################
 
-sub _AppletObjects_init  { 
+sub _AppletObjects_init{ 
 
 main::HEADER_TEXT(<<'END_HEADER_TEXT');
   <script language="javascript">AC_FL_RunContent = 0;</script>
@@ -108,7 +108,13 @@ Note: This method is defined here rather than in Applet.pl because it
 sub insertAll {  ## inserts both header text and object text
 	my $self = shift;
 	my %options = @_;
-	$self->debug( (defined($options{debug}) and $options{debug}==1) ? 1 : 0 );
+	
+	# debugMode can be turned on by setting it to 1 in either the applet definition or at insertAll time
+	my $debugMode = (defined($options{debug}) and $options{debug}==1) ? 1 : 0;
+	$debugMode = $debugMode || $self->debugMode;
+    $self->debugMode( $debugMode);
+
+	
 	my $reset_button = $options{reset_button} || 0;
 	# prepare html code for storing state 
 	my $appletName      = $self->appletName;
@@ -169,12 +175,12 @@ sub insertAll {  ## inserts both header text and object text
 	        >
 		    <input type="button"  value="$setConfig" 
 	               onClick="debugText='';
-	                        ww_applet_list['$appletName'].config();
+	                        ww_applet_list['$appletName'].setConfig();
 	                        alert(debugText);"
             >
 	  !;
 	        
-	my $state_input_element = ($self->debug == 1) ? $debug_input_element :
+	my $state_input_element = ($debugMode) ? $debug_input_element :
 	      qq!\n<input type="hidden" name = "$appletStateName" value ="$base_64_encoded_answer_value">!;
     my $reset_button_str = ($reset_button) ?
             qq!<br/><input type='button' value='set applet state to restart' onClick="setAppletStateToRestart('$appletName')">
@@ -183,10 +189,6 @@ sub insertAll {  ## inserts both header text and object text
     ;
 	# always base64 encode the hidden answer value to prevent problems with quotes. 
     #
-	$state_storage_html_code = 
-	                    $reset_button_str.
-	                    $state_input_element.
-                        qq!<input type="hidden"  name="previous_$appletStateName" value = "$base_64_encoded_answer_value">!;
     $state_storage_html_code = qq!<input type="hidden"  name="previous_$appletStateName" value = "$base_64_encoded_answer_value">!
                               . $reset_button_str
                               . $state_input_element
@@ -195,11 +197,13 @@ sub insertAll {  ## inserts both header text and object text
                          <input type="button" value="get Answer from applet" onClick="eval(ww_applet_list['$appletName'].submitActionScript )"/>
                          <br/>
                         !;
-    $answerBox_code = ($self->debug == 1) ? $answerBox_code : "";
+    $answerBox_code = ($debugMode) ? $answerBox_code : q!<input type="hidden" name="answerBox" value="" size =50>!;
     #######
     # insert header material
     #######
 	main::HEADER_TEXT($self->insertHeader());
+	# update the debug mode for this applet.
+    main::HEADER_TEXT(qq!<script> ww_applet_list["$appletName"].debugMode = $debugMode;\n</script>!);
     return main::MODES(TeX=>' {\bf  applet } ', HTML=>$self->insertObject.$main::BR.$state_storage_html_code.$answerBox_code);
 }
 

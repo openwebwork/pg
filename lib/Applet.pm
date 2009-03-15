@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/Applet.pm,v 1.19 2009/03/10 20:48:51 gage Exp $
+# $CVSHeader: pg/lib/Applet.pm,v 1.20 2009/03/10 20:58:46 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -23,39 +23,34 @@ Applet.pl - Provides code for inserting FlashApplets and JavaApplets into webwor
   ###################################
   # Create  link to applet 
   ###################################
-  my $appletName = "LineThruPointsWW";
-  $applet = new FlashApplet( 
-     # can be replaced by $applet =FlashApplet() when using AppletObjects.pl
-     codebase   => findAppletCodebase("$appletName.swf"),
-     appletName => $appletName,
-     appletId   => $appletName,
-     submitActionAlias => 'checkAnswer',
-  );
-  
-  ###################################
-  # Configure applet
-  ###################################
-  
-  #xml data to set up the problem-rac
-  $applet->config(qq{<XML> 
-  <point xval='$xval_1' yval='$yval_1' />
-  <point xval='$xval_2' yval='$yval_2' />
-  </XML>});
-  
-  
-  ###################################
-  # insert applet header material
-  ###################################
-  HEADER_TEXT($applet->insertHeader );
-  
-  ###################################
-  # Text section
-  #
-  
-  ###################################
-  #insert applet into body
-  ###################################
-  TEXT( MODES(TeX=>'object code', HTML=>$applet->insertObject));
+ $appletName = "PointGraph";
+$applet =  FlashApplet(
+   codebase              => findAppletCodebase("$appletName.swf"),
+   appletName            => $appletName,
+   appletId              => $appletName,
+   setStateAlias         => 'setXML',
+   getStateAlias         => 'getXML',
+   setConfigAlias        => 'config',
+   answerBoxAlias        => 'receivedField',
+);
+
+###################################
+# Configure applet
+###################################
+
+#data to set up the equation
+$applet->config(qq{<XML expr='(x - $a)^3 + $b/$a * x' />});
+# initial points
+$applet->state(qq{<XML> 
+</XML>});
+###################################
+#insert applet into body
+###################################
+
+TEXT( MODES(TeX=>'object code', HTML=>$applet->insertAll(
+ debug=>0,
+ reset_button=>1,
+ )));
 
 
 =head1 DESCRIPTION
@@ -186,9 +181,9 @@ any javaScript placed in the text of a PG question.
         initializeActionAlias  -- (default: initializeAction) the name of the javaScript subroutine called to initialize the applet (some overlap with config/ and setState
         submitActionAlias      -- (default: submitAction)the name of the javaScript subroutine called when the submit button of the
                                   .pg question is pressed.
-        answerBox              -- name of answer box to return answer to: default defaultAnswerBox 
+        answerBoxAlias         -- name of answer box to return answer to: default defaultAnswerBox 
         getAnswer              -- (formerly sendData) get student answer from applet and place in answerBox
-        returnFieldName        -- (deprecated) synonmym for answerBox
+        returnFieldName        -- (deprecated) synonmym for answerBoxAlias
 
 
 =cut
@@ -207,9 +202,115 @@ ww_applet_list["myApplet"] by copying the instance variables of $newApplet to a 
 corresponds to ww_applet_list["myApplet"].appletName.  (This paragraph is not yet fully implemented :-().
 
 Currently all messages read by the applet are xml text.  If some of the code needs to be printed in the HTML header than it is converted
-to a base64 constant and then converted back to text form when it is read by an javaScript subroutine.
+to a base64 constant and then converted back to text form when it is read by a javaScript subroutine.
+
+The perlApplet has  methods that help place the jsApplet code on the HTML page and create the link to the applet itself. 
+In particular instance variables such as "setStateAlias", "getStateAlias" connect the WW default of "setState" to subroutine
+name chosen by the applet designer.  The aim is to make it easier to connect to applets previously designed to work 
+with javaScript in an HTML page or other  systems.
+
+
+The jsApplet acts as an intermediary for commands directed at the applet.  
+It is not necessary for the minimal operations of 
+configuring the applet and maintaining
+state from one viewing of the WW question to address the applet directly.  
+The methods such as "setState", "getState", "setConfig" which are part of the jsApplet 
+take care of the book keeping details.
+It is also possible to make direct calls to the applet from handcrafted javaScript subroutines, 
+but it may be convenient to store these as additional methods in the
+jsApplet. 
 
 =cut
+
+=head4 Detecting that the applet is ready
+
+Timing issues are among the pitfalls awaiting when using flash or java applets in WW questions.  It is important that the WW question
+does not issue any commands to the applet until the applet is fully loaded, including the uploading of any additional configuration
+information from XML files.  This can be tricky since the timing issues usually don't arise when initiating the applet from an HTML page.
+
+The WW API performs the following actions to determine if the applet is loaded:
+
+	check the ww_applet_list[appletName].isReady flag (1== applet is ready)
+	                    -- this caches the readiness information so that it doesn't 
+	                       have to be repeated within a given viewing of a WW question
+	                       If this is 1 then the applet is ready.
+	determine whether the applet's isActive subroutine is defined AND returns 1 when called. 
+	                    -- if the return value is 1 the applet is ready, if it is zero or no response then the applet is NOT ready
+	                    -- If the applet has an isActive() subroutine -- there is no alias for this --
+	                       then it must return 1 as soon as the applet is ready.  Otherwise
+	                       the applet will timeout.
+	determine whether the applet's setConfig subroutine is defined. 
+	                    -- applet.{setConfigAlias}.  
+	determine whether the applet's setState subroutine is defined.	
+	determine whether the  jsApplets ww_applet_list[appletName].reportsLoaded flag is set to 1
+	                    -- this can be set by the applet if it calls the javaScript function 
+	                       "applet_loaded(appletName, loaded_status).  The loaded_status is 1 or 0
+	                       
+	Logic for determining applet status: if any one of the above checks succeeds (or returns 1) then the applet is 
+	                      consdered to be ready  UNLESS the isActive() exists and the call returns a 0 or no response. In this case 
+	                      the applet is assumed to be loading additional data and is not yet ready. 
+	                      
+	                      For this reason if the isActive subroutine
+	                      is defined in the applet it must return a 1 once the applet is prepared to accept additional commands.
+	                      (Since there are some extent flashApplets with non-functioning isActive() subroutines a temporary workaround
+	                       assuems that after C<maxInitializationAttempts> -- 5 by default -- the applet is in fact ready but the 
+	                       isActive() subroutine is non functioning.  This can give rise to false "readiness" signals if the applet
+	                       takes a long time to load auxiliary files.)
+
+The applet itself can take measures to insure that the setConfig subroutine is prepared to respond immediately once the applet is loaded.
+It can include timers that delay execution of the configuring actions until all of the auxiliary files needed by the applet are loaded.
+
+
+=cut
+
+
+=head4 Initialization sequence
+
+When the WW question is loaded the C<initializeWWquestion> javaScript subroutine calls each of the applets used in the question asking them
+to initialize themselves.
+
+The applets initialization method is as follows:
+                   
+                       -- wait until the applet is loaded and the applet has loaded all of its auxiliary files.
+                       -- set the debugMode in the applet
+                       -- call the setConfig  method in the javaScript applet  -- (configuration parameters are "permanent" for the life of the applet
+                       -- call the setInitialization method in the javaScript applet -- this often calls the setState method in the applet                      
+
+=cut
+
+=head Methods defined for the javaScript applet   ww_applet_list[appletName]
+
+This is not a comprehensive list
+
+	setConfig         -- transmits the information for configuring the applet
+	
+	getConfig         -- retrieves the configuration information -- this is used mainly for debugging and may not be defined in most applets
+	
+	
+	setState          -- sets the current state (1) from the appletName_state HTML element if this contains an <xml>...</xml> string
+	                  -- if the value contains <xml>restart_applet</xml> then set the current state to ww_applet_list[appletName].initialState
+	                  -- if the value is a blank string set the current state to ww_applet_list[appletName].initialState
+	
+	
+	getState          -- retrieves the current state and stores in the appletName_state HTML element.
+	
+	
+	
+	
+	
+
+
+=head Submit sequence
+
+When the WW question submit button is pressed the form containing the WW question calles the javaScript "submitAction()" which then asks
+each of the applets on the page to perform its submit action which consists of 
+
+	-- if the applet is to be reinitialized (appletName_state contains <xml>restart_applet</xml>) then 
+	   the HTML elements appletName_state and previous_appletName_state are set to <xml>restart_applet</xml>
+	   to be interpreted by the next setState command
+	-- Otherwise getState() from the applet and save it to the  HTML input element appletName_state
+	-- Perform the javaScript commands in .submitActionScript (default: '' )
+	   a typical submitActionScript looks like getQE(this.answerBox).value = getApplet(appletName).getAnswer()  )
 
 =head4 Requirements for applets
 
@@ -245,7 +346,7 @@ The following methods are desirable in an applet that preserves state in a WW qu
 	                      the configuration was set as expected.
 	getAnswer      (default: getAnswer)
 	                   -- Returns a string (usually NOT xml) which is the 
-	                      response that the student is submitting to answer
+	                      response that the student is effectvely submitting to answer
 	                      the WW question.
 
 
@@ -272,6 +373,7 @@ sub new {
 		getConfigAlias     =>  'getConfig',
 		setConfigAlias     =>  'setConfig',
 		initializeActionAlias => 'setXML',
+		maxInitializationAttempts => 5,   # number of attempts to initialize applet
 		submitActionAlias  =>  'getXML',
 		submitActionScript  => '',        # script executed on submitting the WW question
 		answerBoxAlias     =>  'answerBox',
@@ -279,7 +381,7 @@ sub new {
 		returnFieldName    => '',         # deprecated
 		headerText         =>  DEFAULT_HEADER_TEXT(),
 		objectText         => '',
-		debug              => 0,
+		debugMode          => 0,
 		@_,
 	};
 	bless $self, $class;
@@ -410,16 +512,20 @@ sub appletName {
 	$self->{appletName} = shift ||$self->{appletName}; # replace the current appletName if non-empty
     $self->{appletName};
 }
-sub debug {
+sub debugMode {
 	my $self = shift;
 	my $new_flag = shift;
-	$self->{debug} = $new_flag if defined($new_flag);
-	$self->{debug};
+	$self->{debugMode} = $new_flag if defined($new_flag);
+	$self->{debugMode};
 }
 sub appletId {  
 	appletName(@_);
 }
-
+sub maxInitializationAttempts {
+	my $self = shift;
+	$self->{maxInitializationAttempts} = shift || $self->{maxInitializationAttempts};
+	$self->{maxInitializationAttempts};
+}	
 sub initialState {
 	my $self = shift;
 	my $str = shift;
@@ -463,7 +569,7 @@ sub returnFieldName {
 }
 sub answerBox {
 	my $self = shift;
-    warn "use  answerBoxName  instead of AnswerBox";
+    warn "use  answerBoxAlias  instead of AnswerBox";
 }
 #########################
 #FIXME
@@ -475,19 +581,19 @@ sub insertHeader {
     my $codebase              =  $self->codebase;
     my $appletId              =  $self->appletId;
     my $appletName            =  $self->appletName;
-    my $base64_initialState   = $self->base64_state;
-    my $initializeAction      =  $self->initializeActionAlias;
+    my $base64_initialState   =  $self->base64_state;
+    my $initializeActionAlias =  $self->initializeActionAlias;
     my $submitActionAlias     =  $self->submitActionAlias;
-    my $submitActionScript    = $self->submitActionScript;
+    my $submitActionScript    =  $self->submitActionScript;
     my $setStateAlias         =  $self->setStateAlias;
     my $getStateAlias         =  $self->getStateAlias;
 
     my $setConfigAlias        =  $self->setConfigAlias;
     my $getConfigAlias        =  $self->getConfigAlias;
+    my $maxInitializationAttempts = $self->maxInitializationAttempts;
     my $base64_config         =  $self->base64_config;
-    my $debugMode             =  ($self->debug) ? "1": "0";
-    my $returnFieldName       =  $self->{returnFieldName};
-    my $answerBox             =  $self->{answerBox};
+    my $debugMode             =  ($self->debugMode) ? "1": "0";
+    my $answerBoxAlias        =  $self->{answerBoxAlias};
     my $headerText            =  $self->header();
     
     
@@ -496,6 +602,8 @@ sub insertHeader {
                                          
     $submitActionScript =~ s/\n/ /g;     # replace returns with spaces -- returns in the wrong spot can cause trouble with javaScript
     $submitActionScript =~ s/\r/ /g;     # replace returns with spaces -- returns can cause trouble
+    my  $base64_submitActionScript =     encode_base64($submitActionScript);
+    $base64_submitActionScript =~s/\n//g;
     
     $headerText =~ s/(\$\w+)/$1/gee;   # interpolate variables p17 of Cookbook
   
@@ -551,8 +659,7 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
      </script>
 	<script language="JavaScript">
 	
-	// set debug mode for this applet
-		set_debug($debugMode);
+
 		
    	//////////////////////////////////////////////////////////
 	//TEST code
@@ -564,19 +671,21 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
     
     
 	ww_applet_list["$appletName"].code = "$code";
-	ww_applet_list["$appletName"].codebase = "$codebase";
-    ww_applet_list["$appletName"].appletID = "$appletID";
-	ww_applet_list["$appletName"].base64_state = "$base64_initializationState";
-	ww_applet_list["$appletName"].base64_config = "$base64_config";
-	ww_applet_list["$appletName"].getStateAlias = "$getStateAlias";
-	ww_applet_list["$appletName"].setStateAlias = "$setStateAlias";
+	ww_applet_list["$appletName"].codebase         = "$codebase";
+    ww_applet_list["$appletName"].appletID         = "$appletID";
+	ww_applet_list["$appletName"].base64_state     = "$base64_initializationState";
+	ww_applet_list["$appletName"].initialState     = Base64.decode("$base64_intialState");
+	ww_applet_list["$appletName"].base64_config    = "$base64_config";
+	ww_applet_list["$appletName"].getStateAlias    = "$getStateAlias";
+	ww_applet_list["$appletName"].setStateAlias    = "$setStateAlias";
 	ww_applet_list["$appletName"].setConfigAlias   = "$setConfigAlias";
 	ww_applet_list["$appletName"].getConfigAlias   = "$getConfigAlias";
-	ww_applet_list["$appletName"].initializeActionAlias = "$initializeAction";
+	ww_applet_list["$appletName"].initializeActionAlias = "$initializeActionAlias";
 	ww_applet_list["$appletName"].submitActionAlias = "$submitActionAlias";
-	ww_applet_list["$appletName"].submitActionScript = "$submitActionScript";
-	ww_applet_list["$appletName"].answerBox = "$answerBox";
-	ww_applet_list["$appletName"].debug = "$debugMode";	
+	ww_applet_list["$appletName"].submitActionScript = Base64.decode("$submitActionScript_base64");
+	ww_applet_list["$appletName"].answerBoxAlias = "$answerBoxAlias";
+	ww_applet_list["$appletName"].maxInitializationAttempts = $maxInitializationAttempts;
+	ww_applet_list["$appletName"].debugMode = "$debugMode";	
 
     </script>
 	
