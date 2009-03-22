@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/Applet.pm,v 1.20 2009/03/10 20:58:46 gage Exp $
+# $CVSHeader: pg/lib/Applet.pm,v 1.21 2009/03/15 19:25:03 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -31,7 +31,8 @@ $applet =  FlashApplet(
    setStateAlias         => 'setXML',
    getStateAlias         => 'getXML',
    setConfigAlias        => 'config',
-   answerBoxAlias        => 'receivedField',
+   answerBoxAlias        => 'answerBox',
+   submitActionScript    => qq{ getQE('answerBox').value = getApplet("$appletName").getAnswer() },
 );
 
 ###################################
@@ -48,8 +49,9 @@ $applet->state(qq{<XML>
 ###################################
 
 TEXT( MODES(TeX=>'object code', HTML=>$applet->insertAll(
+ includeAnswerBox => 1
  debug=>0,
- reset_button=>1,
+ reinitialize_button=>1,
  )));
 
 
@@ -151,13 +153,12 @@ any javaScript placed in the text of a PG question.
         header       stores the text to be added to the header section of the html page
         object       stores the text which places the applet on the html page
 
-        debug        in debug mode several alerts mark progress through the procedure of calling the applet
+        debugMode    in debug mode several alerts mark progress through the procedure of calling the applet
 
-        config       configuration are those customizable attributes of the applet which don't 
+        configuration  configuration contains those customizable attributes of the applet which don't 
                      change as it is used.  When stored in hidden answer fields 
                      it is usually stored in base64 encoded format.
-        base64_config base64 encode version of the contents of config
-
+   
         configAlias  (default: setConfig ) names the applet command called with the contents of $self->config
                      to configure the applet.  The parameters are passed to the applet in plain text using <xml>
                      The outer tags must be   <xml> .....   </xml>
@@ -175,8 +176,6 @@ any javaScript placed in the text of a PG question.
                        The state is passed in plain text xml format with outer tags: <xml>....</xml>
         setStateAlias  (default: setState) alias for the command called to reset the  state of the applet.
                        The state is passed in plain text in xml format with outer tags: <xml>....</xml>
-
-        base64_state   returns the base64 encoded version of the state stored in the applet object.
 
         initializeActionAlias  -- (default: initializeAction) the name of the javaScript subroutine called to initialize the applet (some overlap with config/ and setState
         submitActionAlias      -- (default: submitAction)the name of the javaScript subroutine called when the submit button of the
@@ -363,10 +362,10 @@ sub new {
 		width     => 550,
 		height    => 400,
 		bgcolor   => "#869ca7",
-		base64_state       =>  undef,     # this is a state to use for initializing the first occurence of the question.
-		base64_config      =>  undef,     # this is the initial (and final?) configuration
-#		configuration      => '',         # configuration defining the applet
-		initialState       => '',         # initial state.  (I'm considering storing everything as ascii and converting on the fly to base64 when needed.)
+#		base64_state       =>  undef,     # this is a state to use for initializing the first occurence of the question.
+#		base64_config      =>  undef,     # this is the initial (and final?) configuration
+		configuration      => '',         # configuration defining the applet
+		initialState       => '',         # initial state.  
 		getStateAlias      =>  'getXML',
 		setStateAlias      =>  'setXML',
 		configAlias        =>  '',        # deprecated
@@ -395,7 +394,7 @@ sub new {
 		warn "use setConfigAlias instead of configAlias";
 		$self->{configAlias}='';
 	}
-	$self->config('<xml></xml>');
+	$self->configuration('<xml></xml>');
 	return $self;
 }
 
@@ -532,35 +531,44 @@ sub initialState {
 	$self->{initialState} = $str   ||$self->{initialState}; # replace the current string if non-empty
     $self->{initialState};
 }
+sub configuration {
+	my $self = shift;
+	my $str = shift;
+	$self->{configuration} =  $str   || $self->{configuration}; # replace the current string if non-empty
+	$self->{configuration} =~ s/\n//g;
+    $self->{configuration};
+}
+
+#######################
+# soon to be deprecated?
+#######################
 
 sub config {
 	my $self = shift;
 	my $str = shift;
-	$self->{base64_config} =  encode_base64($str)   || $self->{base64_config}; # replace the current string if non-empty
-	$self->{base64_config} =~ s/\n//g;
-    decode_base64($self->{base64_config});
+	warn "use $self->configuration instead of $self->config.  Internally this string is ascii, not base64 encoded", join(' ', caller());
+# 	$self->{base64_config} =  encode_base64($str)   || $self->{base64_config}; # replace the current string if non-empty
+# 	$self->{base64_config} =~ s/\n//g;
+#     decode_base64($self->{base64_config});
 }
-#######################
-# soon to be deprecated?
-#######################
 sub state {
 	my $self = shift;
 	my $str = shift;
-	$self->{base64_state} =  encode_base64($str)   ||$self->{base64_state}; # replace the current string if non-empty
-	$self->{base64_state} =~ s/\n//g;
-    decode_base64($self->{base64_state});
+	warn "use $self->initialState instead of $self->state.  Internally this string is ascii, not base64 encoded", join(' ', caller());
+# 	$self->{base64_state} =  encode_base64($str)   ||$self->{base64_state}; # replace the current string if non-empty
+# 	$self->{base64_state} =~ s/\n//g;
+#     decode_base64($self->{base64_state});
 }
 sub base64_state{
 	my $self = shift;
-	$self->{base64_state} = shift ||$self->{base64_state}; # replace the current string if non-empty
-    $self->{base64_state};
+	warn "use $self->InitialState instead of $self->state.  Internally this string is ascii, not base64 encoded", join(' ', caller());
+
+
 }
 
 sub base64_config {
 	my $self = shift;
-	$self->{base64_config} = shift ||$self->{base64_config}; # replace the current string if non-empty
-	$self->{base64_config} =$self->{base64_config};
-    $self->{base64_config};
+	warn "use $self->configuration instead of $self->config.  Internally this string is ascii, not base64 encoded";
 }
 
 sub returnFieldName {
@@ -581,9 +589,7 @@ sub insertHeader {
     my $codebase              =  $self->codebase;
     my $appletId              =  $self->appletId;
     my $appletName            =  $self->appletName;
-    my $base64_initialState   =  $self->base64_state;
     my $initializeActionAlias =  $self->initializeActionAlias;
-    my $submitActionAlias     =  $self->submitActionAlias;
     my $submitActionScript    =  $self->submitActionScript;
     my $setStateAlias         =  $self->setStateAlias;
     my $getStateAlias         =  $self->getStateAlias;
@@ -591,19 +597,23 @@ sub insertHeader {
     my $setConfigAlias        =  $self->setConfigAlias;
     my $getConfigAlias        =  $self->getConfigAlias;
     my $maxInitializationAttempts = $self->maxInitializationAttempts;
-    my $base64_config         =  $self->base64_config;
     my $debugMode             =  ($self->debugMode) ? "1": "0";
     my $answerBoxAlias        =  $self->{answerBoxAlias};
     my $headerText            =  $self->header();
     
     
-    $submitActionScript =~ s/"/\\"/g;    # escape quotes for ActionScript
+    #$submitActionScript =~ s/"/\\"/g;    # escape quotes for ActionScript
                                          # other variables should not have quotes.
                                          
     $submitActionScript =~ s/\n/ /g;     # replace returns with spaces -- returns in the wrong spot can cause trouble with javaScript
     $submitActionScript =~ s/\r/ /g;     # replace returns with spaces -- returns can cause trouble
     my  $base64_submitActionScript =     encode_base64($submitActionScript);
+    my $base64_configuration  =  encode_base64($self->configuration);
+    my $base64_initialState   =  encode_base64($self->initialState);
+ 
     $base64_submitActionScript =~s/\n//g;
+    $base64_initialState  =~s/\n//g;  # base64 encoded xml
+    $base64_configuration =~s/\n//g;  # base64 encoded xml
     
     $headerText =~ s/(\$\w+)/$1/gee;   # interpolate variables p17 of Cookbook
   
@@ -674,15 +684,15 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 	ww_applet_list["$appletName"].codebase         = "$codebase";
     ww_applet_list["$appletName"].appletID         = "$appletID";
 	ww_applet_list["$appletName"].base64_state     = "$base64_initializationState";
-	ww_applet_list["$appletName"].initialState     = Base64.decode("$base64_intialState");
-	ww_applet_list["$appletName"].base64_config    = "$base64_config";
+	ww_applet_list["$appletName"].initialState     =  Base64.decode("$base64_initialState");
+	ww_applet_list["$appletName"].configuration    = Base64.decode("$base64_configuration");;
 	ww_applet_list["$appletName"].getStateAlias    = "$getStateAlias";
 	ww_applet_list["$appletName"].setStateAlias    = "$setStateAlias";
 	ww_applet_list["$appletName"].setConfigAlias   = "$setConfigAlias";
 	ww_applet_list["$appletName"].getConfigAlias   = "$getConfigAlias";
 	ww_applet_list["$appletName"].initializeActionAlias = "$initializeActionAlias";
 	ww_applet_list["$appletName"].submitActionAlias = "$submitActionAlias";
-	ww_applet_list["$appletName"].submitActionScript = Base64.decode("$submitActionScript_base64");
+	ww_applet_list["$appletName"].submitActionScript = Base64.decode("$base64_submitActionScript");
 	ww_applet_list["$appletName"].answerBoxAlias = "$answerBoxAlias";
 	ww_applet_list["$appletName"].maxInitializationAttempts = $maxInitializationAttempts;
 	ww_applet_list["$appletName"].debugMode = "$debugMode";	
