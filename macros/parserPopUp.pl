@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/parserPopUp.pl,v 1.7 2007/10/04 16:40:49 sh002i Exp $
+# $CVSHeader: pg/macros/parserPopUp.pl,v 1.8 2008/10/02 10:50:02 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -76,6 +76,7 @@ sub Init {
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
+  shift if Value::isContext($_[0]); # remove context, if given (it is not used)
   my $choices = shift; my $value = shift;
   Value::Error("A PopUp's first argument should be a list of menu items")
     unless ref($choices) eq 'ARRAY';
