@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: webwork2/lib/WeBWorK.pm,v 1.100 2007/08/13 22:59:53 sh002i Exp $
+# $CVSHeader: pg/macros/contextString.pl,v 1.14 2007/10/04 16:40:48 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -80,6 +80,7 @@ package context::String;
 sub Init {
   my $context = $main::context{String} = Parser::Context->getCopy("Numeric");
   $context->{name} = "String";
+  $context->{pattern}{number} = qr/^$/;
   $context->parens->clear();
   $context->variables->clear();
   $context->constants->clear();
