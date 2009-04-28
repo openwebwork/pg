@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/Applet.pm,v 1.21 2009/03/15 19:25:03 gage Exp $
+# $CVSHeader: pg/lib/Applet.pm,v 1.22 2009/03/22 18:33:06 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -40,18 +40,17 @@ $applet =  FlashApplet(
 ###################################
 
 #data to set up the equation
-$applet->config(qq{<XML expr='(x - $a)^3 + $b/$a * x' />});
+$applet->configuration(qq{<XML expr='(x - $a)^3 + $b/$a * x' />});
 # initial points
-$applet->state(qq{<XML> 
-</XML>});
+$applet->intialState(qq{<XML> </XML>});
 ###################################
 #insert applet into body
 ###################################
 
 TEXT( MODES(TeX=>'object code', HTML=>$applet->insertAll(
- includeAnswerBox => 1
- debug=>0,
- reinitialize_button=>1,
+  includeAnswerBox => 1
+  debug=>0,
+  reinitialize_button=>1,
  )));
 
 
@@ -103,7 +102,7 @@ use MIME::Base64 qw( encode_base64 decode_base64);
 These functions are automatically defined for use for 
 any javaScript placed in the text of a PG question.
 
-    getApplet(appletName)  -- finds the applet path in the DOM
+    getApplet(appletName)     -- finds the applet path in the DOM
 
     submitAction()            -- calls the submit action of the applets
 
@@ -118,7 +117,8 @@ any javaScript placed in the text of a PG question.
     listQuestionElements()    -- for discovering the names of inputs in the 
                                  PG question.  An alert dialog will list all
                                  of the elements.
-      Usage: Place this at the END of the question, just before END_DOCUMENT():
+                                 
+        Usage: Place this at the END of the question, just before END_DOCUMENT():
 
                 TEXT(qq!<script> listQuestionElements() </script>!);
                 ENDDOCUMENT();
@@ -139,50 +139,85 @@ any javaScript placed in the text of a PG question.
             );
 
 
-        appletId         for simplicity and reliability appletId and appletName are always the same
+        appletId     for simplicity and reliability appletId and appletName are always the same
         appletName
         archive      the name of the .jar file containing the applet code
         code         the name of the applet code in the .jar archive
         codebase     a prefix url used to find the archive and the applet itself
-
-        height       rectangle alloted in the html page for displaying the applet
-
+        
         params       an anonymous array containing name/value pairs 
                      to configure the applet [name =>'value, ...]
+                     
+        width        rectangle alloted in the html page for displaying the applet
+        height
 
+		bgcolor      background color of the applet rectangle
+		
         header       stores the text to be added to the header section of the html page
         object       stores the text which places the applet on the html page
 
-        debugMode    in debug mode several alerts mark progress through the procedure of calling the applet
 
         configuration  configuration contains those customizable attributes of the applet which don't 
                      change as it is used.  When stored in hidden answer fields 
                      it is usually stored in base64 encoded format.
-   
-        configAlias  (default: setConfig ) names the applet command called with the contents of $self->config
-                     to configure the applet.  The parameters are passed to the applet in plain text using <xml>
-                     The outer tags must be   <xml> .....   </xml>
-        setConfigAlias (default: setConfig) -- a synonym for configAlias
-        getConfigAlias (default: getConfig) -- retrieves the configuration from the applet.  This is used
-                     mainly for debugging.  In principal the configuration remains the same for a given instance
-                     of the applet -- i.e. for the homework question for a single student.  The state however
-                     will change depending on the interactions between the student and the applet.
         initialState  the state consists of those customizable attributes of the applet which change
                      as the applet is used by the student.  It is stored by the calling .pg question so that 
-                     when revisiting the question the applet will be restored to the same state it was left in when the question was last 
-                     viewed.
-
+                     when revisiting the question the applet will be restored to the same state it was 
+                     left in when the question was last viewed.
+                     
         getStateAlias  (default: getState) alias for command called to read the current state of the applet.
                        The state is passed in plain text xml format with outer tags: <xml>....</xml>
         setStateAlias  (default: setState) alias for the command called to reset the  state of the applet.
                        The state is passed in plain text in xml format with outer tags: <xml>....</xml>
 
-        initializeActionAlias  -- (default: initializeAction) the name of the javaScript subroutine called to initialize the applet (some overlap with config/ and setState
-        submitActionAlias      -- (default: submitAction)the name of the javaScript subroutine called when the submit button of the
+        configAlias   (deprecated) -- a synonym for configAlias
+        
+        getConfigAlias (default: getConfig) -- retrieves the configuration from the applet.  This is used
+                     mainly for debugging.  In principal the configuration remains the same for a given instance
+                     of the applet -- i.e. for the homework question for a single student.  The state however
+                     will change depending on the interactions between the student and the applet.
+        setConfigAlias (default: setConfig ) names the applet command called with the contents of $self->config
+                     to configure the applet.  The parameters are passed to the applet in plain text using <xml>
+                     The outer tags must be   <xml> .....   </xml>
+
+
+        initializeActionAlias  -- (default: initializeAction) the name of the javaScript subroutine called 
+                                  to initialize the applet (some overlap with config/ and setState
+        maxInitializationAttempts -- (default: 5) number attempts to test applet to see if it is installed.
+                                     If isActive() exists then the WW question waits until the return value is 1 before
+                                     calling the applet's confguration commands.
+                                     Because some applets have isActive return 0 even when they are ready, 
+                                     if isActive() exists but does not return 1 then the applet's configuration commands
+                                     are called after maxInitializationAttempts number of times.  If none of the configuration commands
+                                     of the applet can be detected then the WW question gives up after maxInitializationAttempts.
+                                     
+        submitActionAlias      -- (default: getXML) applet subroutine called when the submit button of the
                                   .pg question is pressed.
+        submitActionScript     -- (default: qq{ getQE('answerBox').value = getApplet("$appletName").getAnswer() },
+        
         answerBoxAlias         -- name of answer box to return answer to: default defaultAnswerBox 
-        getAnswer              -- (formerly sendData) get student answer from applet and place in answerBox
         returnFieldName        -- (deprecated) synonmym for answerBoxAlias
+       
+       
+        debugMode              (default: 0) for debugMode==1 the answerBox and the box preserving the applet state 
+                               between questions are made visible along with some buttons for manually getting the state of
+                               the applet and setting the state of the applet.
+                               
+                               for debugMode==2, in addition to the answerBox and stateBox there are several alerts 
+                               which mark progress through the procedures of calling the applet.  Useful for troubleshooting
+                               where in the chain of command a communication failure occurs
+
+       
+   Methods:
+       
+        insertHeader          -- inserts text in header section of HTML page 
+        insertObject          -- inserts <object></object> or <applet></applet>  tag in body of the HTML page
+        insertAll             -- (defined in AppletObjects.pl) installs applet by inserting both header text and the object text
+            Usage:    $applet->insertAll(
+                              includeAnswerBox     => 0,
+                              debugMode            => 0,
+                              reinitialize_button  =>0,
+                      );
 
 
 =cut
@@ -263,21 +298,16 @@ It can include timers that delay execution of the configuring actions until all 
 =cut
 
 
-=head4 Initialization sequence
 
-When the WW question is loaded the C<initializeWWquestion> javaScript subroutine calls each of the applets used in the question asking them
-to initialize themselves.
 
-The applets initialization method is as follows:
-                   
-                       -- wait until the applet is loaded and the applet has loaded all of its auxiliary files.
-                       -- set the debugMode in the applet
-                       -- call the setConfig  method in the javaScript applet  -- (configuration parameters are "permanent" for the life of the applet
-                       -- call the setInitialization method in the javaScript applet -- this often calls the setState method in the applet                      
+=head4 Instance variables in the javaScript applet   ww_applet_list[appletName]
 
+       Most of the instance variables in the perl version of the applet are transferred to the javaScript applet
+       
 =cut
 
-=head Methods defined for the javaScript applet   ww_applet_list[appletName]
+
+=head4 Methods defined for the javaScript applet   ww_applet_list[appletName]
 
 This is not a comprehensive list
 
@@ -294,22 +324,7 @@ This is not a comprehensive list
 	getState          -- retrieves the current state and stores in the appletName_state HTML element.
 	
 	
-	
-	
-	
-
-
-=head Submit sequence
-
-When the WW question submit button is pressed the form containing the WW question calles the javaScript "submitAction()" which then asks
-each of the applets on the page to perform its submit action which consists of 
-
-	-- if the applet is to be reinitialized (appletName_state contains <xml>restart_applet</xml>) then 
-	   the HTML elements appletName_state and previous_appletName_state are set to <xml>restart_applet</xml>
-	   to be interpreted by the next setState command
-	-- Otherwise getState() from the applet and save it to the  HTML input element appletName_state
-	-- Perform the javaScript commands in .submitActionScript (default: '' )
-	   a typical submitActionScript looks like getQE(this.answerBox).value = getApplet(appletName).getAnswer()  )
+=cut
 
 =head4 Requirements for applets
 
@@ -351,19 +366,48 @@ The following methods are desirable in an applet that preserves state in a WW qu
 
 =cut
 
+=head4 Initialization sequence
+
+When the WW question is loaded the C<initializeWWquestion> javaScript subroutine calls each of the applets used in the question asking them
+to initialize themselves.
+
+The applets initialization method is as follows:
+                   
+                       -- wait until the applet is loaded and the applet has loaded all of its auxiliary files.
+                       -- set the debugMode in the applet
+                       -- call the setConfig  method in the javaScript applet  -- (configuration parameters are "permanent" for the life of the applet
+                       -- call the setInitialization method in the javaScript applet -- this often calls the setState method in the applet                      
+
+=cut
+
+
+=head Submit sequence
+
+When the WW question submit button is pressed the form containing the WW question calles the javaScript "submitAction()" which then asks
+each of the applets on the page to perform its submit action which consists of 
+
+	-- if the applet is to be reinitialized (appletName_state contains <xml>restart_applet</xml>) then 
+	   the HTML elements appletName_state and previous_appletName_state are set to <xml>restart_applet</xml>
+	   to be interpreted by the next setState command
+	-- Otherwise getState() from the applet and save it to the  HTML input element appletName_state
+	-- Perform the javaScript commands in .submitActionScript (default: '' )
+	   a typical submitActionScript looks like getQE(this.answerBox).value = getApplet(appletName).getAnswer()  )
+
+=cut
+
+
 sub new {
 	 my $class = shift; 
 	 my $self = { 
-		appletName =>'',
-		code=>'',
-		codebase=>'',
-#		appletId  =>'',   #always use identical applet Id's and applet Names
+		appletName  => '',
+#		appletId    => '',   #always use identical applet Id's and applet Names
+        archive     => '',
+		code        => '',
+		codebase    => '',
 		params    =>undef,
 		width     => 550,
 		height    => 400,
 		bgcolor   => "#869ca7",
-#		base64_state       =>  undef,     # this is a state to use for initializing the first occurence of the question.
-#		base64_config      =>  undef,     # this is the initial (and final?) configuration
 		configuration      => '',         # configuration defining the applet
 		initialState       => '',         # initial state.  
 		getStateAlias      =>  'getXML',
@@ -397,6 +441,56 @@ sub new {
 	$self->configuration('<xml></xml>');
 	return $self;
 }
+sub appletId {  
+	appletName(@_);
+}
+sub appletName {
+	my $self = shift;
+	$self->{appletName} = shift ||$self->{appletName}; # replace the current appletName if non-empty
+    $self->{appletName};
+}
+sub archive {
+	my $self = shift;
+	$self->{archive} = shift ||$self->{archive}; # replace the current archive if non-empty
+    $self->{archive};
+}
+sub code {
+	my $self = shift;
+	$self->{code} = shift ||$self->{code}; # replace the current code if non-empty
+    $self->{code};
+}
+sub codebase {
+	my $self = shift;
+	$self->{codebase} = shift ||$self->{codebase}; # replace the current codebase if non-empty
+    $self->{codebase};
+}
+sub params {
+	my $self = shift;
+	if (ref($_[0]) =~/HASH/) {
+		$self->{params} = shift;
+	} elsif ( !defined($_[0]) or $_[0] =~ '') {
+		# do nothing (read)
+	} else {
+		warn "You must enter a reference to a hash for the parameter list";
+	}
+	$self->{params};
+}
+
+sub width {
+	my $self = shift;
+	$self->{width} = shift ||$self->{width}; # replace the current width if non-empty
+    $self->{width};
+}
+sub height {
+	my $self = shift;
+	$self->{height} = shift ||$self->{height}; # replace the current height if non-empty
+    $self->{height};
+}
+sub bgcolor {
+	my $self = shift;
+	$self->{bgcolor} = shift ||$self->{bgcolor}; # replace the current background color if non-empty
+    $self->{bgcolor};
+}
 
 sub  header {
 	my $self = shift;
@@ -416,34 +510,21 @@ sub  object {
 	}
     $self->{objectText};
 }
-sub params {
+sub configuration {
 	my $self = shift;
-	if (ref($_[0]) =~/HASH/) {
-		$self->{params} = shift;
-	} elsif ( !defined($_[0]) or $_[0] =~ '') {
-		# do nothing (read)
-	} else {
-		warn "You must enter a reference to a hash for the parameter list";
-	}
-	$self->{params};
-}
-	
-sub initializeActionAlias {
-	my $self = shift;
-	$self->{initializeActionAlias} = shift ||$self->{initializeActionAlias}; # replace the current contents if non-empty
-    $self->{initializeActionAlias};
+	my $str = shift;
+	$self->{configuration} =  $str   || $self->{configuration}; # replace the current string if non-empty
+	$self->{configuration} =~ s/\n//g;
+    $self->{configuration};
 }
 
-sub submitActionAlias {
+sub initialState {
 	my $self = shift;
-	$self->{submitActionAlias} = shift ||$self->{submitActionAlias}; # replace the current contents if non-empty
-    $self->{submitActionAlias};
+	my $str = shift;
+	$self->{initialState} = $str   ||$self->{initialState}; # replace the current string if non-empty
+    $self->{initialState};
 }
-sub submitActionScript {
-	my $self = shift;
-	$self->{submitActionScript} = shift ||$self->{submitActionScript}; # replace the current contents if non-empty
-    $self->{submitActionScript};
-}
+
 sub getStateAlias {
 	my $self = shift;
 	$self->{getStateAlias} = shift ||$self->{getStateAlias}; # replace the current contents if non-empty
@@ -455,89 +536,52 @@ sub setStateAlias {
 	$self->{setStateAlias} = shift ||$self->{setStateAlias}; # replace the current contents if non-empty
     $self->{setStateAlias};
 }
-sub configAlias {
+
+sub getConfigAlias {
 	my $self = shift;
-	$self->{setConfigAlias} = shift ||$self->{setConfigAlias}; # replace the current contents if non-empty
-    $self->{setConfigAlias};
+	$self->{getConfigAlias} = shift ||$self->{getConfigAlias}; # replace the current contents if non-empty
+    $self->{getConfigAlias};
 }
 sub setConfigAlias {
 	my $self = shift;
 	$self->{setConfigAlias} = shift ||$self->{setConfigAlias}; # replace the current contents if non-empty
     $self->{setConfigAlias};
 }
-sub getConfigAlias {
-	my $self = shift;
-	$self->{getConfigAlias} = shift ||$self->{getConfigAlias}; # replace the current contents if non-empty
-    $self->{getConfigAlias};
-}
 
-sub answerBoxName {
+sub initializeActionAlias {
 	my $self = shift;
-	$self->{answerBox} = shift ||$self->{answerBox}; # replace the current contents if non-empty
-    $self->{answerBox};
-}
-sub codebase {
-	my $self = shift;
-	$self->{codebase} = shift ||$self->{codebase}; # replace the current codebase if non-empty
-    $self->{codebase};
-}
-sub code {
-	my $self = shift;
-	$self->{code} = shift ||$self->{code}; # replace the current code if non-empty
-    $self->{code};
-}
-sub height {
-	my $self = shift;
-	$self->{height} = shift ||$self->{height}; # replace the current height if non-empty
-    $self->{height};
-}
-sub width {
-	my $self = shift;
-	$self->{width} = shift ||$self->{width}; # replace the current width if non-empty
-    $self->{width};
-}
-sub bgcolor {
-	my $self = shift;
-	$self->{bgcolor} = shift ||$self->{bgcolor}; # replace the current background color if non-empty
-    $self->{bgcolor};
-}
-sub archive {
-	my $self = shift;
-	$self->{archive} = shift ||$self->{archive}; # replace the current archive if non-empty
-    $self->{archive};
-}
-sub appletName {
-	my $self = shift;
-	$self->{appletName} = shift ||$self->{appletName}; # replace the current appletName if non-empty
-    $self->{appletName};
-}
-sub debugMode {
-	my $self = shift;
-	my $new_flag = shift;
-	$self->{debugMode} = $new_flag if defined($new_flag);
-	$self->{debugMode};
-}
-sub appletId {  
-	appletName(@_);
+	$self->{initializeActionAlias} = shift ||$self->{initializeActionAlias}; # replace the current contents if non-empty
+    $self->{initializeActionAlias};
 }
 sub maxInitializationAttempts {
 	my $self = shift;
 	$self->{maxInitializationAttempts} = shift || $self->{maxInitializationAttempts};
 	$self->{maxInitializationAttempts};
 }	
-sub initialState {
+sub submitActionAlias {
 	my $self = shift;
-	my $str = shift;
-	$self->{initialState} = $str   ||$self->{initialState}; # replace the current string if non-empty
-    $self->{initialState};
+	$self->{submitActionAlias} = shift ||$self->{submitActionAlias}; # replace the current contents if non-empty
+    $self->{submitActionAlias};
 }
-sub configuration {
+sub submitActionScript {
 	my $self = shift;
-	my $str = shift;
-	$self->{configuration} =  $str   || $self->{configuration}; # replace the current string if non-empty
-	$self->{configuration} =~ s/\n//g;
-    $self->{configuration};
+	$self->{submitActionScript} = shift ||$self->{submitActionScript}; # replace the current contents if non-empty
+    $self->{submitActionScript};
 }
+
+sub answerBoxAlias {
+	my $self = shift;
+	$self->{answerBox} = shift ||$self->{answerBox}; # replace the current contents if non-empty
+    $self->{answerBox};
+}
+
+sub debugMode {
+	my $self = shift;
+	my $new_flag = shift;
+	$self->{debugMode} = $new_flag if defined($new_flag);
+	$self->{debugMode};
+}
+
 
 #######################
 # soon to be deprecated?
@@ -578,6 +622,10 @@ sub returnFieldName {
 sub answerBox {
 	my $self = shift;
     warn "use  answerBoxAlias  instead of AnswerBox";
+}
+sub configAlias {
+	my $self = shift;
+    warn "use setConfigAlias instead of configAlias";
 }
 #########################
 #FIXME
@@ -622,40 +670,7 @@ sub insertHeader {
 
 }
 
-sub insertObject {
-    my $self       = shift;
-    my $code       = $self->{code};
-    my $codebase   = $self->{codebase};
-    my $appletId   = $self->{appletName};
-    my $appletName = $self->{appletName};
-    my $archive    = $self->{archive};
-    my $width      = $self->{width};
-    my $height     = $self->{height};
-    my $applet_bgcolor = $self->{bgcolor};
-    my $javaParameters = '';
-    my $flashParameters = '';
-    my %param_hash = %{$self->params()};
-    foreach my $key (keys %param_hash) {
-    	$javaParameters .= qq!<param name ="$key"  value = "$param_hash{$key}">\n!;
-    	$flashParameters .= uri_escape($key).'='.uri_escape($param_hash{$key}).'&';
-    }
-    $flashParameters =~ s/\&$//;    # trim last &
 
-   
-    $objectText = $self->{objectText};
-    $objectText =~ s/(\$\w+)/$1/gee;
-    return $objectText;
-}
-# sub initialize  {
-#     my $self = shift;
-# 	return q{	
-# 		<script>
-# 			initializeAllApplets();
-# 			// this should really be done in the <body> tag 
-# 		</script>
-# 	};
-# 
-# }
 ########################################################
 # HEADER material for one flash or java applet
 ########################################################
@@ -700,6 +715,33 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
     </script>
 	
 END_HEADER_SCRIPT
+
+
+
+sub insertObject {
+    my $self       = shift;
+    my $code       = $self->{code};
+    my $codebase   = $self->{codebase};
+    my $appletId   = $self->{appletName};
+    my $appletName = $self->{appletName};
+    my $archive    = $self->{archive};
+    my $width      = $self->{width};
+    my $height     = $self->{height};
+    my $applet_bgcolor = $self->{bgcolor};
+    my $javaParameters = '';
+    my $flashParameters = '';
+    my %param_hash = %{$self->params()};
+    foreach my $key (keys %param_hash) {
+    	$javaParameters .= qq!<param name ="$key"  value = "$param_hash{$key}">\n!;
+    	$flashParameters .= uri_escape($key).'='.uri_escape($param_hash{$key}).'&';
+    }
+    $flashParameters =~ s/\&$//;    # trim last &
+
+   
+    $objectText = $self->{objectText};
+    $objectText =~ s/(\$\w+)/$1/gee;
+    return $objectText;
+}
 
 package FlashApplet;
 @ISA = qw(Applet);
