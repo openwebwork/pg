@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: webwork2/lib/WeBWorK.pm,v 1.100 2007/08/13 22:59:53 sh002i Exp $
+# $CVSHeader: pg/macros/parserImplicitEquation.pl,v 1.12 2007/10/04 16:40:48 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -214,12 +214,12 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $f = shift; return $f if ref($f) eq $class;
-  $f = main::Formula($f);
+  $f = $context->Package("Formula")->new($context,$f);
   Value::Error("Your formula doesn't look like an implicit equation")
     unless $f->type eq 'Equality';
   my $F = ($context->Package("Formula")->new($context,$f->{tree}{lop}) -
 	   $context->Package("Formula")->new($context,$f->{tree}{rop}))->reduce;
-  $F = $context->Package("Formula")->new($F) unless Value::isFormula($F);
+  $F = $context->Package("Formula")->new($context,$F) unless Value::isFormula($F);
   Value::Error("Your equation must be real-valued") unless $F->isRealNumber;
   Value::Error("Your equation should not be constant") if $F->isConstant;
   Value::Error("Your equation can not contain adaptive parameters")
