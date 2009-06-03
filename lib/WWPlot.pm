@@ -142,16 +142,19 @@ Allows access to the GD image object contained in the graph object.  You can use
 to access methods defined in GD but not supported directly by WWPlot. (See the documentation
 for GD.)
 
-=item moveTo, lineTo
+=item moveTo, lineTo, arrowTo
 
 	$graph->moveTo($x,$y);
 	$graph->lineTo($x,$y,$color);
+	$graph->lineTo($x,$y,$color,$thickness);
+	$graph->arrowTo($x,$y,$color);
+	$graph->arrowTo($x,$y,$color,$thickness);
 
-Moves to the point ($x, $y) (defined in real world coordinates) or draws a line from the
-current position to the specified point ($x, $y) using the color $color.  $color is the
-name, e.g. 'white',  of the color, not an index value or RGB specification.  These are
-low level call back routines used by the function, label and stamp objects to draw themselves.
-
+Moves to the point ($x, $y) (defined in real world coordinates) or draws a line or arrow
+from the current position to the specified point ($x, $y) using the color $color.  $color 
+is the name, e.g. 'white',  of the color, not an index value or RGB specification.  
+$thickness gives the thickness of the line or arrow to draw.  These are low level call 
+back routines used by the function, label and stamp objects to draw themselves.
 
 =item ii, jj
 
@@ -363,12 +366,17 @@ sub jj {
 
 sub lineTo {
 	my $self = shift;
-	my ($x,$y,$color) = @_;
+	my ($x,$y,$color, $w) = @_;
+	$w = 1 if ! defined( $w );
+
 	$x=$self->ii($x);
 	$y=$self->jj($y);
 	$color = $self->{'colors'}{$color} if $color=~/[A-Za-z]+/ && defined($self->{'colors'}{$color}) ; # colors referenced by name works here.
 	$color = $self->{'colors'}{'default_color'} unless defined($color);
+
+	$self->im->setThickness( $w );
 	$self->im->line(@{$self->position},$x,$y,$color);
+	$self->im->setThickness( 1 );
 	 #warn "color is $color";
 	@{$self->position} = ($x,$y);
 }
@@ -382,6 +390,44 @@ sub moveTo {
 	#print "moving to $x,$y<BR>";
 	@{$self->position} = ( $x,$y );
 }
+
+sub arrowTo {
+	my $self = shift;
+	my ( $x1, $y1, $color, $w ) = @_;
+	$w = 1 if ! defined( $w );
+	my $width = ( $w == 1 ) ? 2 : $w;
+
+	$x1 = $self->ii($x1);
+	$y1 = $self->jj($y1);
+	$color = $self->{'colors'}{$color} if $color=~/[A-Za-z]+/ && defined($self->{'colors'}{$color}) ;
+	$color = $self->{'colors'}{'default_color'} unless defined($color);
+
+	## set thickness
+	$self->im->setThickness($w);
+
+	my ($x0, $y0) = @{$self->position};
+	my $dx = $x1 - $x0;
+	my $dy = $y1 - $y0;
+	my $len = sqrt($dx*$dx + $dy*$dy);
+	my $ux = $dx/$len;  ## a unit vector in the direction of the arrow
+	my $uy = $dy/$len;
+	my $px = -1*$uy;    ## a unit vector perpendicular
+	my $py = $ux;
+	my $hbx = $x1 - 5*$width*$ux;  ## the base of the arrowhead
+	my $hby = $y1 - 5*$width*$uy;
+	my $head = new GD::Polygon;
+	$head->addPt($x1,$y1);
+	$head->addPt($hbx + 2*$width*$px, $hby + 2*$width*$py);
+	$head->addPt($hbx - 2*$width*$px, $hby - 2*$width*$py);
+	$self->im->filledPolygon( $head, $color );
+	$self->im->line( $x0,$y0,$x1,$y1,$color );
+
+	@{$self->position} = ( $x1, $y1 );
+
+	## reset thickness
+	$self->im->setThickness(1);
+}
+
 
 sub v_axis {
 	my $self = shift;
