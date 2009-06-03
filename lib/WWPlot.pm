@@ -147,13 +147,16 @@ for GD.)
 	$graph->moveTo($x,$y);
 	$graph->lineTo($x,$y,$color);
 	$graph->lineTo($x,$y,$color,$thickness);
+	$graph->lineTo($x,$y,$color,$thickness,'dashed');
 	$graph->arrowTo($x,$y,$color);
 	$graph->arrowTo($x,$y,$color,$thickness);
+	$graph->arrowTo($x,$y,$color,$thickness,'dashed');
 
 Moves to the point ($x, $y) (defined in real world coordinates) or draws a line or arrow
 from the current position to the specified point ($x, $y) using the color $color.  $color 
 is the name, e.g. 'white',  of the color, not an index value or RGB specification.  
-$thickness gives the thickness of the line or arrow to draw.  These are low level call 
+$thickness gives the thickness of the line or arrow to draw.  If 'dashed' is specified,
+the line or arrow is rendered with a dashed line.  These are low level call 
 back routines used by the function, label and stamp objects to draw themselves.
 
 =item ii, jj
@@ -366,8 +369,9 @@ sub jj {
 
 sub lineTo {
 	my $self = shift;
-	my ($x,$y,$color, $w) = @_;
+	my ($x,$y,$color, $w, $d) = @_;
 	$w = 1 if ! defined( $w );
+	$d = 0 if ! defined( $d );  ## draw a dashed line?
 
 	$x=$self->ii($x);
 	$y=$self->jj($y);
@@ -375,7 +379,14 @@ sub lineTo {
 	$color = $self->{'colors'}{'default_color'} unless defined($color);
 
 	$self->im->setThickness( $w );
-	$self->im->line(@{$self->position},$x,$y,$color);
+	if ( $d ) {
+		my @dashing = ( $color )x(4*$w);
+		my @spacing = ( GD::gdTransparent )x(4*$w);
+		$self->im->setStyle( @dashing, @spacing );
+		$self->im->line(@{$self->position},$x,$y,GD::gdStyled);
+	} else {
+		$self->im->line(@{$self->position},$x,$y,$color);
+	}
 	$self->im->setThickness( 1 );
 	 #warn "color is $color";
 	@{$self->position} = ($x,$y);
@@ -393,8 +404,9 @@ sub moveTo {
 
 sub arrowTo {
 	my $self = shift;
-	my ( $x1, $y1, $color, $w ) = @_;
+	my ( $x1, $y1, $color, $w, $d ) = @_;
 	$w = 1 if ! defined( $w );
+	$d = 0 if ! defined( $d );
 	my $width = ( $w == 1 ) ? 2 : $w;
 
 	$x1 = $self->ii($x1);
@@ -420,7 +432,14 @@ sub arrowTo {
 	$head->addPt($hbx + 2*$width*$px, $hby + 2*$width*$py);
 	$head->addPt($hbx - 2*$width*$px, $hby - 2*$width*$py);
 	$self->im->filledPolygon( $head, $color );
-	$self->im->line( $x0,$y0,$x1,$y1,$color );
+	if ( $d ) {
+		my @dashing = ( $color )x(4*$w);
+		my @spacing = ( GD::gdTransparent )x(4*$w);
+		$self->im->setStyle( @dashing, @spacing );
+		$self->im->line( $x0,$y0,$x1,$y1,GD::gdStyled);
+	} else {
+		$self->im->line( $x0,$y0,$x1,$y1,$color );
+	}
 
 	@{$self->position} = ( $x1, $y1 );
 
