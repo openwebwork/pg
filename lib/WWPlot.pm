@@ -380,8 +380,8 @@ sub lineTo {
 
 	$self->im->setThickness( $w );
 	if ( $d ) {
-		my @dashing = ( $color )x(4*$w);
-		my @spacing = ( GD::gdTransparent )x(4*$w);
+		my @dashing = ( $color )x(4*$w*$w);
+		my @spacing = ( GD::gdTransparent )x(3*$w*$w);
 		$self->im->setStyle( @dashing, @spacing );
 		$self->im->line(@{$self->position},$x,$y,GD::gdStyled);
 	} else {
@@ -433,8 +433,8 @@ sub arrowTo {
 	$head->addPt($hbx - 2*$width*$px, $hby - 2*$width*$py);
 	$self->im->filledPolygon( $head, $color );
 	if ( $d ) {
-		my @dashing = ( $color )x(4*$w);
-		my @spacing = ( GD::gdTransparent )x(4*$w);
+		my @dashing = ( $color )x(4*$w*$w);
+		my @spacing = ( GD::gdTransparent )x(3*$w*$w);
 		$self->im->setStyle( @dashing, @spacing );
 		$self->im->line( $x0,$y0,$x1,$y1,GD::gdStyled);
 	} else {
