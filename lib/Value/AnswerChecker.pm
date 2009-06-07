@@ -1648,6 +1648,7 @@ sub cmp_postfilter {
   my $self = shift; my $ans = shift;
   $ans->{_filter_name} = "produce_equivalence_message";
   return $ans if $ans->{ans_message}; # don't overwrite other messages
+  return $ans unless defined($ans->{prev_ans}); # if prefilters are erased, don't do this check
   my $context = $self->context;
   $ans->{prev_formula} = Parser::Formula($context,$ans->{prev_ans});
   if (defined($ans->{prev_formula}) && defined($ans->{student_formula})) {
