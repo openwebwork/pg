@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/parserRadioButtons.pl,v 1.10 2007/10/04 16:40:49 sh002i Exp $
+# $CVSHeader: pg/macros/parserRadioButtons.pl,v 1.11 2008/05/12 20:49:49 sh002i Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -158,7 +158,7 @@ sub new {
   Value::Error("A RadioButton's second argument should be the correct button choice")
     unless defined($value) && $value ne "";
   my $context = Parser::Context->getCopy("String");
-  my %choiceHash = $self->choiceHash(1);
+  my %choiceHash = $self->choiceHash;
   $context->strings->add(map {$_=>{}} (keys %choiceHash));
   $value = $self->correctChoice($value);
   $self = bless $context->Package("String")->new($context,$value)->with(choices => $choices, %options), $class;
@@ -178,6 +178,7 @@ sub findChoice {
     $label = $self->makeLabel($choice) unless defined $label;
     return $label if $label eq $value || $index == $i || $choice eq $value;
   }
+ return undef;
 }
 
 #
@@ -197,15 +198,10 @@ sub correctChoice {
 #  ans_radio_buttons() routine
 #
 sub choiceHash {
-  my $self = shift; my $noChecked = shift;
-  my @radio = ();
-  my $index = $self->Index($self->{checked});
-  my $checked = $self->{checked}; $checked = "" unless defined $checked;
-  if ($noChecked) {$checked = ""; $index = -1}
+  my $self = shift; my @radio = ();
   foreach my $i (0..scalar(@{$self->{choices}})-1) {
     my $label = $self->{labels}[$i]; my $choice = $self->{choices}[$i];
     $label = $self->makeLabel($choice) unless defined $label;
-    $label = "%$label" if $label eq $checked || $index == $i || $choice eq $checked;
     push(@radio, $label,$choice);
   }
   return @radio;
@@ -283,9 +279,9 @@ sub orderedChoices {
   my %choiceHash = $self->choiceHash;
   my @labels = keys %choiceHash;
   
-  my @order = @{$self->{order}};
-  my @first = @{$self->{first}};
-  my @last  = @{$self->{last}};
+  my @order = @{$self->{order} || []};
+  my @first = @{$self->{first} || []};
+  my @last  = @{$self->{last}  || []};
   
   my @orderLabels;
   
@@ -335,7 +331,8 @@ sub orderedChoices {
     @orderLabels = @labels;
   }
   
-  return map { $_ => $choiceHash{$_} } @orderLabels;
+  my $label = $self->findChoice($self->{checked});
+  return map { ($_ eq $label ? "%$_" : $_) => $choiceHash{$_} } @orderLabels;
 }
 
 #
