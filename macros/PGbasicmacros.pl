@@ -1002,7 +1002,7 @@ sub hint {
 	           PG_restricted_eval(q!$main::envir{'PRINT_FILE_NAMES_PERMISSION_LEVEL'}!) : 10000; # protect against undefined values
     my $printHintForInstructor = $permissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL;
     my $showHint = PG_restricted_eval(q!$main::showHint!);
-    my $displayHint = PG_restricted_eval(q!$envir{'displayHintsQ'}!);
+    my $displayHint = PG_restricted_eval(q!$main::envir{'displayHintsQ'}!);
 	PG_restricted_eval(q!$main::hintExists =1!);
     PG_restricted_eval(q!$main::numOfAttempts = 0 unless defined($main::numOfAttempts);!);
     my $attempts = PG_restricted_eval(q!$main::numOfAttempts!);
@@ -1014,7 +1014,7 @@ sub hint {
 			$out = '';  # do nothing since hints are not available for download for students
 		}
 	} elsif ($printHintForInstructor) {  # always print hints for instructor types 
-		$out = join(' ', "$BR( Show the student hint after $showHint attempts: )$BR $BBOLD HINT: $EBOLD ", @in);
+		$out = join(' ', "$BR( Show the student hint after $showHint attempts. The current number of attempts is $attempts. )$BR $BBOLD HINT: $EBOLD ", @in);
 	} elsif ( $displayHint  and ( $attempts > $showHint )) 	{
 
 	 ## the second test above prevents a hint being shown if a doctored form is submitted
