@@ -476,27 +476,27 @@ sub AdaptParameters {
     $M = $M->decompose_LR;
     if (abs($M->det_LR) > 1E-6) {
       if (($D,$B,$M) = $M->solve_LR($B)) {
-	if ($D == 0) {
-	  #
-	  #  Get parameter values and recompute the points using them
-	  #
-	  my @a; my $i = 0; my $max = $l->getFlag('max_adapt',1E8);
-	  foreach my $row (@{$B->[0]}) {
-	    if (abs($row->[0]) > $max) {
-	      $max = Value::makeValue($max); $row->[0] = Value::makeValue($row->[0]);
-	      $l->Error(["Constant of integration is too large: %s\n(maximum allowed is %s)",
-			 $row->[0]->string,$max->string]) if $params[$i] eq 'C0' or $params[$i] eq 'n00';
-	      $l->Error(["Adaptive constant is too large: %s = %s\n(maximum allowed is %s)",
-			 $params[$i],$row->[0]->string,$max->string]);
-	    }
-	    push @a, $row->[0]; $i++;
-	  }
-	  my $context = $l->context;
-	  foreach my $i (0..$#a) {$context->{variables}{$params[$i]}{value} = $a[$i]}
-	  $l->{parameters} = [@a];
-	  $l->createAdaptedValues;
-	  return 1;
-	}
+		if ($D == 0) {
+		  #
+		  #  Get parameter values and recompute the points using them
+		  #
+		  my @a; my $i = 0; my $max = $l->getFlag('max_adapt',1E8);
+		  foreach my $row (@{$B->[0]}) {
+			if (abs($row->[0]) > $max) {
+			  $max = Value::makeValue($max); $row->[0] = Value::makeValue($row->[0]);
+			  $l->Error(["Constant of integration is too large: %s\n(maximum allowed is %s)",
+				 $row->[0]->string,$max->string]) if $params[$i] eq 'C0' or $params[$i] eq 'n00';
+			  $l->Error(["Adaptive constant is too large: %s = %s\n(maximum allowed is %s)",
+				 $params[$i],$row->[0]->string,$max->string]);
+			}
+			push @a, $row->[0]; $i++;
+		  }
+		  my $context = $l->context;
+		  foreach my $i (0..$#a) {$context->{variables}{$params[$i]}{value} = $a[$i]}
+		  $l->{parameters} = [@a];
+		  $l->createAdaptedValues;
+		  return 1;
+		}
       }
     }
   }

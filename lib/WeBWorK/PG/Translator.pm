@@ -1620,17 +1620,8 @@ sub PG_answer_eval {
 
 }
 
-#sub original_preprocess_code {
-#	my $evalString = shift;
-#	# BEGIN_TEXT and END_TEXT must occur on a line by themselves.
-#	$evalString =~ s/\n\s*END_TEXT[\s;]*\n/\nEND_TEXT\n/g;
-#	$evalString =~ s/\n\s*BEGIN_TEXT[\s;]*\n/\nTEXT\(EV3\(<<'END_TEXT'\)\);\n/g;
-#	$evalString =~ s/ENDDOCUMENT.*/ENDDOCUMENT();/s; # remove text after ENDDOCUMENT
 
-#	$evalString =~ s/\\/\\\\/g;    # \ can't be used for escapes because of TeX conflict
-#	$evalString =~ s/~~/\\/g;      # use ~~ as escape instead, use # for comments
-#	$evalString;
-#}
+
 sub default_preprocess_code {
 	my $evalString = shift;
 	# BEGIN_TEXT and END_TEXT must occur on a line by themselves.
