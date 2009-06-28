@@ -26,8 +26,8 @@ available restrictions:
 
 	No raising e to a power
 	Only allowing integer powers (positive or negative)
-	Only allowing positive interger powers
-	Only allowing positive interger powers (and 0)
+	Only allowing positive integer powers
+	Only allowing positive integer powers (and 0)
 
 You install these via one of the commands:
 
@@ -45,7 +45,7 @@ a context reference, as in
 	$context = Context("Numeric")->copy;
 	LimitedPowers::OnlyIntegers($context);
 
-For the Interger power functions, you can pass additional
+For the integer power functions, you can pass additional
 parameters that control the range of values that are allowed
 for the powers.  The oprtions include:
 

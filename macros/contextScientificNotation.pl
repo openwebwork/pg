@@ -41,7 +41,7 @@ to the top of your problem file, and then use
 
 	Context("ScientificNotation");
 
-to select the contxt and make it active.  You can create
+to select the context and make it active.  You can create
 values in scientific notation in two ways:
 
 	$n1 = Compute("1.23 x 10^3");
