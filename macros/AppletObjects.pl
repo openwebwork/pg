@@ -163,21 +163,22 @@ sub insertAll {  ## inserts both header text and object text
 	        <input type="button"  value="$getState" 
 	               onClick="debugText=''; 
 	                        ww_applet_list['$appletName'].getState(); 
-	                        alert(debugText);"
+	                        if (debugText) {alert(debugText)};"
 	        >
 	        <input type="button"  value="$setState" 
 	               onClick="debugText='';
 	                        ww_applet_list['$appletName'].setState();
-	                        alert(debugText);"
+	                        if (debugText) {alert(debugText)};"
 	        >
 	        <input type="button"  value="$getConfig" 
 	               onClick="debugText=''; 
-	                        ww_applet_list['$appletName'].getConfig()";	                       "
+	                        ww_applet_list['$appletName'].getConfig();
+	                        if (debugText) {alert(debugText)};"
 	        >
 		    <input type="button"  value="$setConfig" 
 	               onClick="debugText='';
 	                        ww_applet_list['$appletName'].setConfig();
-	                        alert(debugText);"
+	                        if (debugText) {alert(debugText)};"
             >
 	  !;
 	        
