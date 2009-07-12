@@ -311,7 +311,7 @@ sub NAMED_ANS_RULE {
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\\end{rawhtml}!,
-		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" VALUE="$answer_value">!.
+		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE="$answer_value">!.
                         qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE="$answer_value">!
 	);
 }
@@ -369,8 +369,8 @@ sub NAMED_ANS_RULE_EXTENSION {
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
-		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\n\\end{rawhtml}\n!,
-		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME = "$name" VALUE = "$answer_value">!.
+		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = " ">\n\\end{rawhtml}\n!,
+		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME = "$name" id="$name" VALUE = "$answer_value">!.
                         qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">!
 	);
 }
@@ -391,11 +391,11 @@ sub  NAMED_ANS_BOX {
 	my $answer_value = '';
 	$answer_value = $inputs_ref->{$name} if defined( $inputs_ref->{$name} );
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
-	my $out = M3(
-	     qq!\\vskip $height in \\hrulefill\\quad !,
-	     qq!\\begin{rawhtml}<TEXTAREA NAME="$name" ROWS="$row" COLS="$col"
+	my $out = MODES(
+	     TeX => qq!\\vskip $height in \\hrulefill\\quad !,
+	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
                WRAP="VIRTUAL">$answer_value</TEXTAREA>\\end{rawhtml}!,
-         qq!<TEXTAREA NAME="$name" ROWS="$row" COLS="$col"
+         HTML => qq!<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
                WRAP="VIRTUAL">$answer_value</TEXTAREA>
              <INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">
            !
@@ -430,8 +430,8 @@ sub NAMED_ANS_RADIO {
 
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
-		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<INPUT TYPE=RADIO NAME="$name" VALUE="$value" $checked>$tag!
+		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
+		HTML => qq!<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>$tag!
 	);
 
 }
@@ -462,8 +462,8 @@ sub NAMED_ANS_RADIO_EXTENSION {
 
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
-		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<INPUT TYPE=RADIO NAME="$name" VALUE="$value" $checked>$tag!
+		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
+		HTML => qq!<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>$tag!
 	);
 
 }
@@ -573,8 +573,8 @@ sub NAMED_ANS_CHECKBOX {
 
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
-		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=CHECKBOX NAME="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<INPUT TYPE=CHECKBOX NAME="$name" VALUE="$value" $checked>$tag!
+		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
+		HTML => qq!<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>$tag!
 	);
 
 }
@@ -602,8 +602,8 @@ sub NAMED_ANS_CHECKBOX_OPTION {
 
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
-		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=CHECKBOX NAME="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<INPUT TYPE=CHECKBOX NAME="$name" VALUE="$value" $checked>$tag!
+		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
+		HTML => qq!<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>$tag!
 	);
 
 }
@@ -795,7 +795,7 @@ sub NAMED_POP_UP_LIST {
 	if ($displayMode eq 'HTML' or $displayMode eq 'HTML_tth' or
             $displayMode eq 'HTML_dpng' or $displayMode eq 'HTML_img' or $displayMode eq 'HTML_jsMath' or
 	    $displayMode eq 'HTML_asciimath' or $displayMode eq 'HTML_LaTeXMathML') {
-		$out = qq!<SELECT NAME = "$name" SIZE=1> \n!;
+		$out = qq!<SELECT NAME = "$name" id="$name" SIZE=1> \n!;
 		my $i;
 		foreach ($i=0; $i< @list; $i=$i+2) {
 			my $select_flag = ($list[$i] eq $answer_value) ? "SELECTED" : "";
@@ -803,7 +803,7 @@ sub NAMED_POP_UP_LIST {
 		};
 		$out .= " </SELECT>\n";
 	} elsif ( $displayMode eq "Latex2HTML") {
-		$out = qq! \\begin{rawhtml}<SELECT NAME = "$name" SIZE=1> \\end{rawhtml} \n !;
+		$out = qq! \\begin{rawhtml}<SELECT NAME = "$name" id="$name" SIZE=1> \\end{rawhtml} \n !;
 		my $i;
 		foreach ($i=0; $i< @list; $i=$i+2) {
 			my $select_flag = ($list[$i] eq $answer_value) ? "SELECTED" : "";
@@ -887,8 +887,8 @@ sub NAMED_ANS_ARRAY_EXTENSION{
 	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{10pt}{\\hrulefill}}\\hrulefill\\quad ",
-		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\n\\end{rawhtml}\n!,
-		HTML => "<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"$answer_value\">\n"
+		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = "">\n\\end{rawhtml}\n!,
+		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = "$answer_value">\n!
 	);
 }
 
