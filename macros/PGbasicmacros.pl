@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Program Generation Language
 # Copyright  2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader$
+# $CVSHeader: pg/macros/PGbasicmacros.pl,v 1.61 2009/07/12 23:39:20 gage Exp $
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -1007,7 +1007,7 @@ sub SOLUTION {
 sub hint {
    	my @in = @_;
 	my $out = '';
-	my $permissionLevel = PG_restricted_eval(q!$main::envir{permissionLevel}!);
+	my $permissionLevel = PG_restricted_eval(q!$main::envir{permissionLevel}!); #user permission level
 	my $PRINT_FILE_NAMES_PERMISSION_LEVEL = (PG_restricted_eval(q!defined( $main::envir{'PRINT_FILE_NAMES_PERMISSION_LEVEL'} )!))?
 	           PG_restricted_eval(q!$main::envir{'PRINT_FILE_NAMES_PERMISSION_LEVEL'}!) : 10000; # protect against undefined values
     my $printHintForInstructor = $permissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL;
@@ -1811,11 +1811,11 @@ sub beginproblem {
 	$points = 'pt' if $problemValue == 1;
 	##    Prepare header for the problem
 	grep($inlist{$_}++,@{ $envir->{'PRINT_FILE_NAMES_FOR'} });
-	my $permissionLevel = $envir->{permissionLevel};
+	my $effectivePermissionLevel = $envir->{effectivePermissionLevel}; # permission level of user assigned to question
 	my $PRINT_FILE_NAMES_PERMISSION_LEVEL = $envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'};
 	my $studentLogin = $envir->{studentLogin};
 	my $print_path_name_flag = 
-			(defined($permissionLevel) && defined($PRINT_FILE_NAMES_PERMISSION_LEVEL) && $permissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL)
+			(defined($effectivePermissionLevel) && defined($PRINT_FILE_NAMES_PERMISSION_LEVEL) && $effectivePermissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL)
 			 || ( defined($inlist{ $studentLogin }) and ( $inlist{ $studentLogin }>0 )  ) ;
 
 	if ( $print_path_name_flag ) {
