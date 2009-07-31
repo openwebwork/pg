@@ -771,6 +771,12 @@ sub TeX {
   return $n;
 }
 
+sub pdot {
+  my $self = shift; my $n = $self->string;
+  $n = '('.$n.')' if $n =~ m![^0-9]!;  #  add parens if not just a number
+  return $n;
+}
+
 ###########################################################################
 #
 #  Answer Checker
