@@ -476,6 +476,15 @@ sub class {
   $self->SUPER::class;
 }
 
+#
+#  make isNeg properly handle the modified class
+#
+sub isNeg {
+  my $self = shift;
+  return ($self->class =~ /UOP|MINUS/ && $self->{uop} eq 'u-' && !$self->{op}->{isInfinite});
+
+}
+
 ###########################################################################
 
 package context::Fraction::Value;
