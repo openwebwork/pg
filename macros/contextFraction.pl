@@ -499,6 +499,23 @@ sub class {
   return $self->SUPER::class;
 }
 
+#
+#  Handle reductions of negative fractions
+#
+sub reduce {
+  my $self = shift;
+  my $reduce = $self->context->{reduction};
+  if ($self->{value}->class eq 'Fraction') {
+    $self->{value} = $self->{value}->reduce;
+    if ($reduce->{'-n'} && $self->{value}{data}[0] < 0) {
+      $self->{value}{data}[0] = -$self->{value}{data}[0];
+      return Parser::UOP::Neg($self);
+    }
+    return $self;
+  }
+  return $self->SUPER::reduce;
+}
+
 ###########################################################################
 
 package context::Fraction::Real;
