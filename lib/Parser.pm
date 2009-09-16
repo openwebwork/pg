@@ -56,8 +56,14 @@ sub new {
 #  Get the object's context, or the default one
 #
 sub context {
-  my $self = shift;
-  return $self->{context} if Value::isHash($self) && $self->{context};
+  my $self = shift; my $context = shift;
+  if (Value::isHash($self)) {
+    if ($context && $self->{context} != $context) {
+      $self->{context} = $context;
+      $self->{tree} = $self->{tree}->copy($self) if $self->{tree};
+    }
+    return $self->{context} if $self->{context};
+  }
   Parser::Context->current;
 }
 
