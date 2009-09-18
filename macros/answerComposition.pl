@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader$
+# $CVSHeader: pg/macros/answerComposition.pl,v 1.8 2009/06/25 23:28:44 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -191,7 +191,7 @@ sub composition_ans_list {
 	"Your formula my not be the composition itself";
       $error = 1; next;
     }
-    if ($student{$i} == $x{$i}) {
+    if (Parser::Formula($x{$i}) == $student{$i}) {
       $ans{$i}->{rh_ans}{ans_message} = "The identity function is not allowed"
 	unless $isPreview;
       $error = 1; next;
