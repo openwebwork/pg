@@ -116,8 +116,9 @@ sub perl {
   my $self = shift;
   my $value = $self->{equation}{values}{$self->{name}};
   return $value if defined($value);
-  return $self->{def}{perl} if defined $self->{def}{perl};
-  return '$'.$self->{name};
+  my $perl = $self->{def}{perl} || '$'.$self->{name};
+  substr($perl,1) =~ s/([^a-z0-9_])/"_".ord($1)/ge;
+  return $perl;
 }
 
 #########################################################################

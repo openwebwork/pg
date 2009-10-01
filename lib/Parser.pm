@@ -718,13 +718,24 @@ sub perlFunction {
   $vars = [sort(keys %{$self->{variables}})] unless $vars;
   $vars = [$vars] unless ref($vars) eq 'ARRAY';
   my $n = scalar(@{$vars}); my $vnames = ''; my %isArg;
+  my $variables = $self->context->variables;
   if ($n > 0) {
     my @v = ();
-    foreach my $x (@{$vars}) {CORE::push(@v,"\$".$x); $isArg{$x} = 1}
+    foreach my $x (@{$vars}) {
+      my $perl = $variables->get($x)->{perl} || "\$".$x;
+      substr($perl,1) =~ s/([^a-z0-9_])/"_".ord($1)/ge;
+      CORE::push(@v,$perl);
+      $isArg{$x} = 1;
+    }
     $vnames = "my (".join(',',@v).") = \@_;";
   }
-  foreach my $x (keys %{$self->{variables}})
-    {$vnames .= "\n      my \$$x = main::Formula('$x');" unless $isArg{$x}}
+  foreach my $x (keys %{$self->{variables}}) {
+    unless ($isArg{$x}) {
+      my $perl = $variables->get($x)->{perl} || "\$".$x;
+      substr($perl,1) =~ s/([^a-z0-9_])/"_".ord($1)/ge;
+      $vnames .= "\n      my $perl = main::Formula('$x');";
+    }
+  }
   my $context = $self->context;
   my $fn = eval
    "package main;
