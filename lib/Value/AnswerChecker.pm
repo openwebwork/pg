@@ -1330,9 +1330,9 @@ sub cmp_equal {
       $sOpen = $student->{open}; $sClose = $student->{close};
     }
   }
+  return if $ans->{split_error};
   foreach my $x (@correct) {$x->{equation} = $self};
   foreach my $x (@student) {$x->{equation} = $self};
-  return if $ans->{split_error};
   #
   #  Check for parenthesis match
   #
@@ -1510,13 +1510,9 @@ sub splitFormula {
   foreach my $entry (@entries) {
     my $v = Parser::Formula($entry);
        $v = Parser::Evaluate($v) if (defined($v) && $v->isConstant);
+    if (!defined($v)) {$ans->{split_error} = 1; $self->cmp_error($ans); return}
     $v->{equation} = $self;
     push(@formula,$v);
-    #
-    #  There shouldn't be an error evaluating the formula,
-    #    but you never know...
-    #
-    if (!defined($v)) {$ans->{split_error} = 1; $self->cmp_error; return}
   }
   return @formula;
 }
@@ -1525,7 +1521,7 @@ sub splitFormula {
 #  Return the value if it is defined, otherwise use a default
 #
 sub getOption {
-  my $ans = shift; my $name = shift; 
+  my $ans = shift; my $name = shift;
   my $value = $ans->{$name};
   return $value if defined($value);
   return $ans->{showPartialCorrectAnswers};
