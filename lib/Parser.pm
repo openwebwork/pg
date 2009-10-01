@@ -662,7 +662,8 @@ sub substitute {
   foreach my $x (keys %{$self->{values}}) {delete $self->{variables}{$x}}
   $self->{tree} = $self->{tree}->substitute;
   $self->unsetValues;
-  delete $self->{f};
+  foreach my $id ("test_values","test_adapt","string","f",
+                  "stack","ref","tokens","space","domainMismatch") {delete $self->{$id}}
   return $self;
 }
 
