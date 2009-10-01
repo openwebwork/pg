@@ -17,11 +17,12 @@ To use these contexts, first load the contextFraction.pl file:
 
 	loadMacros("contextFraction.pl");
 
-and then select the appropriate context -- one of the following three:
+and then select the appropriate context -- one of the following:
 
 	Context("Fraction");
 	Context("Fraction-NoDecimals");
 	Context("LimitedFraction");
+        Context("LimitedProperFraction");
 
 The first is the most general, and allows fractions to be intermixed
 with real numbers, so 1/2 + .5 would be allowed.  Also, 1/2.5 is
@@ -44,6 +45,9 @@ all.  Thus 1/sqrt(2) would be illegal, as would 1/2 + 2.  The student
 must enter a whole number or a fraction in this context.  It is also
 permissible to enter a whole number WITH a fraction, as in 2 1/2 for
 "two and one half", or 5/2.
+
+The fourth is the same as LimiteFraction, but students must enter proper
+fractions, and results are shown as proper fractions.
 
 You can use the Compute() function to generate fraction objects, or
 the Fraction() constructor to make one explicitly.  For example:
@@ -155,6 +159,7 @@ you set allowProperFractions=>1 you should also set reduceConstants=>0.
 This determines whether fractions MUST be entered as proper fractions.
 It is 0 by default, meaning improper fractions are allowed.  When set,
 you will not be able to enter 5/2 as a fraction, but must use "2 1/2".
+This flag is allowed only when strictFractions is in effect.
 Set it to 1 only when you also set allowProperFractions, or you will
 not be able to specify fractions bigger than one.  It is off by
 default in all three contexts.
@@ -254,6 +259,9 @@ sub Init {
   );
   $context->{cmpDefaults}{Fraction} = {studentsMustReduceFractions => 1};
 
+  $context = $main::context{LimitedProperFraction} = $context->copy;
+  $context->flags->set(requireProperFractions => 1);
+
   main::PG_restricted_eval('sub Fraction {Value->Package("Fraction()")->new(@_)};');
 }
 
@@ -331,7 +339,7 @@ sub _check {
   $self->Error("The denominator of a fraction must be a (non-negative) integer")
     unless $self->{rop}->class eq 'INTEGER';
   $self->Error("The numerator must be less than the denominator in a proper fraction")
-   if $self->context->flag("requireProperFractions") && CORE::abs($self->{lop}->eval) >= CORE::abs($self->{rop}->eval);
+    if $self->context->flag("requireProperFractions") && CORE::abs($self->{lop}->eval) >= CORE::abs($self->{rop}->eval);
 }
 
 #
@@ -692,7 +700,7 @@ sub power {
     if ($y < 0 && $d % 2 == 1) {$y = -(-$y)**(1/$d)} else {$y = $y**(1/$d)};
   }
   return $self->inherit($other)->make($x,$y) unless $x eq 'nan' || $y eq 'nan';
-  Value::Error("Can't raise a negative number to a power") if $a*$b < 0;
+  Value::Error("Can't raise a negative number to a non-integer power") if $a*$b < 0;
   Value::Error("Result of exponention is not a number");
 }
 
