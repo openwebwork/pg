@@ -96,7 +96,7 @@ sub power {
   my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
   my $x = $l->{data}[0] ** $r->{data}[0];
   return $self->inherit($other)->make($x) unless $x eq 'nan';
-  Value::Error("Can't raise a negative number to a power") if ($l->{data}[0] < 0);
+  Value::Error("Can't raise a negative number to a non-integer power") if ($l->{data}[0] < 0);
   Value::Error("Result of exponention is not a number");
 }
 
