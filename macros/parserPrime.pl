@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2009 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/parserPrime.pl,v 1.1 2009/10/02 17:44:54 dpvc Exp $
+# $CVSHeader: pg/macros/parserPrime.pl,v 1.2 2009/10/03 15:58:49 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -126,7 +126,7 @@ sub Enable {
     precedence => 8.5, associativity => "right", type => "unary", string => "'",
     class => "parser::Prime::UOP::prime", isCommand => 1
   });
-  $context->reduction->set("(f)'" => 1);
+  $context->reduction->set("(f)'" => 0);
   $context->flags->set(prime_variable => $x) if defined($x);
 }
 
