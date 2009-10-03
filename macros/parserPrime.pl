@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2009 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/parserAutoStrings.pl,v 1.6 2009/06/25 23:28:44 gage Exp $
+# $CVSHeader: pg/macros/parserPrime.pl,v 1.1 2009/10/02 17:44:54 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -122,7 +122,7 @@ sub Enable {
   my $self = shift; my $x = shift;
   my $context = main::Context();
   if (Value::isContext($x)) {$context = $x; $x = shift}
-  $context->operators->add("`"=>{
+  $context->operators->add("'"=>{
     precedence => 8.5, associativity => "right", type => "unary", string => "'",
     class => "parser::Prime::UOP::prime", isCommand => 1
   });
