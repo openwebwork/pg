@@ -628,7 +628,8 @@ sub Parser::Complex::D {
 #########################################################################
 
 sub Parser::Constant::D {
-  my $self = shift;
+  my $self = shift; my $x = shift;
+  return $self->{def}{value}{tree}->D($x) if Value::isFormula($self->{def}{value});
   $self->Item("Number")->new($self->{equation},0);
 }
 
