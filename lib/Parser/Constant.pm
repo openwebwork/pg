@@ -25,6 +25,8 @@ sub new {
   }, $class;
   $c->weaken;
   $c->{isConstant} = 1 if $const->{isConstant};
+  $equation->{variables} = {%{$equation->{variables}},%{$const->{value}{variables}}}
+    if Value::isFormula($const->{value});
   return $c;
 }
 
@@ -57,6 +59,15 @@ sub eval {
 sub canBeInUnion {
   my $self = shift;
   Value::isValue($self->{def}{value}) && $self->{def}{value}->canBeInUnion;
+}
+
+#
+#  Include variables from constant formulas
+#
+sub getVariables {
+  my $self = shift; my $data = $self->{def}{value};
+  return {} unless Value::isFormula($data);
+  return $data->{tree}->getVariables;
 }
 
 #
