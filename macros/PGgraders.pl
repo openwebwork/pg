@@ -7,7 +7,10 @@ Grader Plug-ins
 
 =head3 full_partial_grader
 
+=pod
+
 ###########################################################
+#    full_partial_grader
 #    If the final answer is correct, then the problem is given full credit
 #    and a message is generated to that effect.  Otherwise, partial credit 
 #    is given for previous parts.
@@ -66,7 +69,11 @@ sub full_partial_grader {
 
 =head3 custom_problem_grader_0_60_100(@rh_evaluated_answers,$rh_problem_state,%form_options)
 
+=pod
+
 ################################################################
+# custom_problem_grader_0_60_100
+#
 # We need a special problem grader on this problem, since we
 # want the student to get full credit for all five answers correct,
 # 60% credit for four correct, and 0% for three or fewer correct.
@@ -164,8 +171,11 @@ of 0%.',
 
 =head3 NOTE:
 
+=pod
+
 ################################################################
-# This problem grader was contributed by Prof. Zig Fiedorowicz,
+# This problem grader custom_problem_grader_fluid 
+# was contributed by Prof. Zig Fiedorowicz,
 # Dept. of Mathematics, Ohio State University on 8/25/01.
 # As written, the problem grader should be put in a separate macro file.
 # If actually inserted into a problem, you need to replace a couple
