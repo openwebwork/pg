@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader$
+# $CVSHeader: pg/macros/parserFormulaUpToConstant.pl,v 1.21 2009/06/25 23:28:44 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -46,7 +46,7 @@ and in particular, you use $f->cmp to get its answer checker.
 
 	ANS($f->cmp);
 
-Note that the FormulaUpToConstant object creates its only private
+Note that the FormulaUpToConstant object creates its own private
 copy of the current Context (so that it can add variables without
 affecting the rest of the problem).  You should not notice this
 in general, but if you need to access that context, use $f->{context}.
