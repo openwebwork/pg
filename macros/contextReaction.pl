@@ -66,19 +66,29 @@ $context::Reaction::ELEMENT instead.
 
 =cut
 
+######################################################################
+
 sub _contextReaction_init {context::Reaction::Init()}
 
 ######################################################################
-
+#
+#  The main MathObject class for reactions
+#
 package context::Reaction;
 our @ISA = ('Value::Formula');
 
+#
+#  Some type declarations for the various classes
+#
 our $ELEMENT  = {isValue => 1, type => Value::Type("Element",1)};
 our $MOLECULE = {isValue => 1, type => Value::Type("Molecule",1)};
 our $COMPOUND = {isValue => 1, type => Value::Type("Compound",1)};
 our $REACTION = {isValue => 1, type => Value::Type("Reaction",1)};
 our $CONSTANT = {isValue => 1, type => Value::Type("Constant",1)};
 
+#
+#  Set up the context and Reaction() constructor
+#
 sub Init {
   my $context = $main::context{Reaction} = Parser::Context->getCopy("Numeric");
   $context->functions->clear();
@@ -128,7 +138,6 @@ sub Init {
   );
   $context->{parser}{Number} = "context::Reaction::Number";
   $context->{parser}{Variable} = "context::Reaction::Variable";
-  $context->{parser}{List} = "context::Reaction::List";
   $context->{parser}{Formula} = "context::Reaction";
   $context->{value}{Reaction} = "context::Reaction";
   $context->{value}{Element} = "context::Reaction::Variable";
@@ -138,6 +147,9 @@ sub Init {
   main::PG_restricted_eval('sub Reaction {Value->Package("Formula")->new(@_)};');
 }
 
+#
+#  Compare by checking of the trees are equivalent
+#
 sub compare {
   my ($l,$r) = @_; my $self = $l;
   my $context = $self->context;
@@ -145,35 +157,56 @@ sub compare {
   return ($l->{tree}->equivalent($r->{tree}) ? 0 : 1);
 }
 
+#
+#  Don't allow evaluation
+#
 sub eval {
   my $self = shift;
   $self->Error("Can't evaluate ".$self->TYPE);
 }
 
+#
+#  Provide a useful name
+#
 sub TYPE {'a chemical reaction'}
 sub cmp_class {'a Chemical Reaction'}
 
+#
+#  Set up the answer checker.  Avoid the list checker in
+#    Value::Formula::cmp_equal (for when the answer is a
+#    sum of compounds) and provide a postprocessor to
+#    give warnings when a reaction is compared to a
+#    student answer that isn't a reaction.
+#
 sub cmp_defaults {(showTypeWarnings => 1)}
-
 sub cmp_equal {Value::cmp_equal(@_)};
-
 sub cmp_postprocess {
   my $self = shift; my $ans = shift;
   return unless $self->{tree}->type eq 'Reaction';
-  $self->cmp_Error($ans,"Your answer doesn't seem to be a reaction (it should contain a reaction arrow '-->')")
-    unless $ans->{student_value}{tree}->type eq 'Reaction';
+  $self->cmp_Error($ans,"Your answer doesn't seem to be a reaction\n(it should contain a reaction arrow '-->')")
+    if $ans->{showTypeWarnings} && $ans->{student_value}{tree}->type ne 'Reaction';
 }
 
+#
+#  Since the context only allows things that are comparable, we
+#  don't really have to check anything.  (But if somone added
+#  strings or constants, we would.)
+#
 sub typeMatch {
   my $self = shift; my $other = shift;
   return 1;
 }
 
 ######################################################################
-
+#
+#  The replacement for the Parser:Number class
+#
 package context::Reaction::Number;
 our @ISA = ('Parser::Number');
 
+#
+#  Equivalent is equal
+#
 sub equivalent {
   my $self = shift; my $other = shift;
   return 0 unless $other->class eq 'Number';
@@ -186,10 +219,15 @@ sub class {'Number'}
 sub TYPE {'a Number'}
 
 ######################################################################
-
+#
+#  The replacement for Parser::Variable.  We hold the elements here.
+#
 package context::Reaction::Variable;
 our @ISA = ('Parser::Variable');
 
+#
+#  Two elements are equivalent if their names are equal
+#
 sub equivalent {
   my $self = shift; my $other = shift;
   return 0 unless $other->class eq 'Variable';
@@ -200,6 +238,9 @@ sub eval {context::Reaction::eval(@_)}
 
 sub isChemical {1}
 
+#
+#  Print element names in Roman
+#
 sub TeX {
   my $self = shift;
   return "{\\rm $self->{name}}";
@@ -207,40 +248,56 @@ sub TeX {
 
 sub class {'Variable'}
 
+#
+#  For a printable name, use a constant's name,
+#  and 'an element' for an element.
+#
 sub TYPE {
   my $self = shift;
   return ($self->type eq 'Constant'? "'$self->{name}'" : 'an element');
 }
 
 ######################################################################
-
+#
+#  General binary operator (add, multiply, arrow, and underscore
+#  are subclasses of this).
+#
 package context::Reaction::BOP;
 our @ISA = ('Parser::BOP');
 
+#
+#  Binary operators produce chemcicals (unless overridden, as in arrow)
+#
 sub isChemical {1}
 
 sub eval {context::Reaction::eval(@_)}
 
+#
+#  Two nodes are equivalent if their operands are equivalent
+#  and they have the same operator
+#
 sub equivalent {
   my $self = shift; my $other = shift;
-  return 0 unless substr($other->class,0,3) eq 'BOP';
+  return 0 unless $other->class eq 'BOP';
+  return 0 unless $self->{bop} eq $other->{bop};
   return $self->{lop}->equivalent($other->{lop}) && $self->{rop}->equivalent($other->{rop});
 }
 
-sub class {
-  my $self = shift;
-  my $class = ref($self);
-  $class =~ s/.*::BOP::/BOP::/;
-  return $class;
-}
-
 ######################################################################
-
+#
+#  Implements the --> operator
+#
 package context::Reaction::BOP::arrow;
 our @ISA = ('context::Reaction::BOP');
 
+#
+#  It is a reaction, not a chemical
+#
 sub isChemical {0}
 
+#
+#  Check that the operands are correct.
+#
 sub _check {
   my $self = shift;
   $self->Error("The left-hand side of '-->' must be a (sum of) reactants, not %s",
@@ -253,10 +310,16 @@ sub _check {
 sub TYPE {'a reaction'}
 
 ######################################################################
-
+#
+#  Implements addition, which forms a list of operands, so acts like
+#  the Parser::BOP::comma operator
+#
 package context::Reaction::BOP::add;
 our @ISA = ('Parser::BOP::comma','context::Reaction::BOP');
 
+#
+#  Check that the operands are OK
+#
 sub _check {
   my $self = shift;
   $self->Error("Can't add %s and %s",$self->{lop}->TYPE,$self->{rop}->TYPE)
@@ -264,6 +327,11 @@ sub _check {
   $self->SUPER::_check(@_);
 }
 
+#
+#  Two are equivalent if they are equivalent in either order.
+#  (never really gets used, since these result in the creation
+#  of a list rather than an "add" node in the final tree.
+#
 sub equivalent {
   my $self = shift; my $other = shift;
   return 0 unless substr($other->class,0,3) eq 'BOP';
@@ -274,10 +342,16 @@ sub equivalent {
 sub TYPE {'a sum of Compounds'}
 
 ######################################################################
-
+#
+#  Implements concatenation, which produces compounds or integer
+#  multiples of elements or molecules.
+#
 package context::Reaction::BOP::multiply;
 our @ISA = ('context::Reaction::BOP');
 
+#
+#  Check that the operands are OK
+#
 sub _check {
   my $self = shift;
   $self->Error("Can't combine %s and %s",$self->{lop}->TYPE,$self->{rop}->TYPE)
@@ -291,7 +365,7 @@ sub _check {
 }
 
 #
-#  No space for implied multiplication
+#  No space in output for implied multiplication
 #
 sub string {
   my $self = shift;
@@ -305,10 +379,15 @@ sub TeX {
 sub TYPE {'a compound'}
 
 ######################################################################
-
+#
+#  Implements the underscore for creating molecules
+#
 package context::Reaction::BOP::underscore;
 our @ISA = ('context::Reaction::BOP');
 
+#
+#  Check that the operands are OK
+#
 sub _check {
   my $self = shift;
   $self->Error("The left-hand side of '_' must be an element, not %s",$self->{lop}->TYPE)
@@ -318,6 +397,9 @@ sub _check {
   $self->{type} = $MOLECULE->{type};
 }
 
+#
+#  Create proper TeX output
+#
 sub TeX {
   my $self = shift;
   return $self->{lop}->TeX."_{".$self->{rop}->TeX."}";
@@ -326,20 +408,16 @@ sub TeX {
 sub TYPE {'a molecule'}
 
 ######################################################################
-
-package context::Reaction::List;
-our @ISA = ('Parser::List::List');
-
-sub cmp_compare {
-  my $self = shift; my $other = shift; my $ans = shift;
-  return $self->{tree}->equivalent($other->{tree});
-}
-
-######################################################################
-
+#
+#  Implements sums of compounds as a list
+#
 package context::Reaction::List::List;
 our @ISA = ('Parser::List::List');
 
+#
+#  Two sums are equivalent if their terms agree in any order.
+#  (we check by stringifying them and sorting, then compare results)
+#
 sub equivalent {
   my $self = shift; my $other = shift;
   return 0 unless $self->length == $other->length;
@@ -348,6 +426,9 @@ sub equivalent {
   return join(',',@left) eq join(',',@right);
 }
 
+#
+#  Use "+" between entries in the list (with no parens)
+#
 sub TeX {
   my $self = shift; my $precedence = shift; my @coords = ();
   foreach my $x (@{$self->{coords}}) {push(@coords,$x->TeX)}
