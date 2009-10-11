@@ -9,11 +9,11 @@ Grader Plug-ins
 
 =pod
 
-###########################################################
-#    full_partial_grader
-#    If the final answer is correct, then the problem is given full credit
-#    and a message is generated to that effect.  Otherwise, partial credit 
-#    is given for previous parts.
+ ###########################################################
+ #    full_partial_grader
+ #    If the final answer is correct, then the problem is given full credit
+ #    and a message is generated to that effect.  Otherwise, partial credit 
+ #    is given for previous parts.
 
 =cut
 
@@ -71,21 +71,21 @@ sub full_partial_grader {
 
 =pod
 
-################################################################
-# custom_problem_grader_0_60_100
-#
-# We need a special problem grader on this problem, since we
-# want the student to get full credit for all five answers correct,
-# 60% credit for four correct, and 0% for three or fewer correct.
-# To change this scheme, look through the following mess of code
-# for the place where the variable $numright appears, and change
-# that part.
-# Also change the long line beginning "msg ==>", to show what will
-# appear on the screen for the student.
-#
-# To look at the problem itself, look for the boxed comment below
-# announcing the problem itself.
-################################################################
+ ################################################################
+ # custom_problem_grader_0_60_100
+ #
+ # We need a special problem grader on this problem, since we
+ # want the student to get full credit for all five answers correct,
+ # 60% credit for four correct, and 0% for three or fewer correct.
+ # To change this scheme, look through the following mess of code
+ # for the place where the variable $numright appears, and change
+ # that part.
+ # Also change the long line beginning "msg ==>", to show what will
+ # appear on the screen for the student.
+ #
+ # To look at the problem itself, look for the boxed comment below
+ # announcing the problem itself.
+ ################################################################
 
 =cut
 
@@ -173,37 +173,37 @@ of 0%.',
 
 =pod
 
-################################################################
-# This problem grader custom_problem_grader_fluid 
-# was contributed by Prof. Zig Fiedorowicz,
-# Dept. of Mathematics, Ohio State University on 8/25/01.
-# As written, the problem grader should be put in a separate macro file.
-# If actually inserted into a problem, you need to replace a couple
-# of backslashes by double tildes.
-#
-# This is a generalization of the previous custom grader.
-# This grader expects two array references to be passed to it, eg.
-# $ENV['grader_numright'] = [2,5,7,10];
-# $ENV['grader_scores'] = [0.1,0.4,0.6,1]
-# Both arrays should be of the same length, and in strictly
-# increasing order. The first array is an array of possible
-# raw scores, the number of parts of the problem the student might
-# get right. The second array is the corresponding array of scores
-# the student would be credited with for getting that many parts
-# right. The scores should be real numbers between 0 and 1.
-# The last element of the 'grader_scores' array should be 1 (perfect
-# score). The corresponding last element of 'grader_numright' would
-# be the total number of parts of the problem the student would have
-# to get right for a perfect score. Normally this would be the total
-# number of parts to the problem. In the example shown above, the
-# student would get 10% credit for getting 2-4 parts right, 40%
-# credit for getting 5-6 parts right, 60% credit for getting 7-9 parts
-# right, and 100% credit for getting 10 (or more) parts right.
-# A message to be displayed to the student about the grading policy
-# for the problems should be passed via
-# $ENV{'grader_message'} = "The grading policy for this problem is...";
-# or something similar.
-################################################################
+ ################################################################
+ # This problem grader custom_problem_grader_fluid 
+ # was contributed by Prof. Zig Fiedorowicz,
+ # Dept. of Mathematics, Ohio State University on 8/25/01.
+ # As written, the problem grader should be put in a separate macro file.
+ # If actually inserted into a problem, you need to replace a couple
+ # of backslashes by double tildes.
+ #
+ # This is a generalization of the previous custom grader.
+ # This grader expects two array references to be passed to it, eg.
+ # $ENV['grader_numright'] = [2,5,7,10];
+ # $ENV['grader_scores'] = [0.1,0.4,0.6,1]
+ # Both arrays should be of the same length, and in strictly
+ # increasing order. The first array is an array of possible
+ # raw scores, the number of parts of the problem the student might
+ # get right. The second array is the corresponding array of scores
+ # the student would be credited with for getting that many parts
+ # right. The scores should be real numbers between 0 and 1.
+ # The last element of the 'grader_scores' array should be 1 (perfect
+ # score). The corresponding last element of 'grader_numright' would
+ # be the total number of parts of the problem the student would have
+ # to get right for a perfect score. Normally this would be the total
+ # number of parts to the problem. In the example shown above, the
+ # student would get 10% credit for getting 2-4 parts right, 40%
+ # credit for getting 5-6 parts right, 60% credit for getting 7-9 parts
+ # right, and 100% credit for getting 10 (or more) parts right.
+ # A message to be displayed to the student about the grading policy
+ # for the problems should be passed via
+ # $ENV{'grader_message'} = "The grading policy for this problem is...";
+ # or something similar.
+ ################################################################
 
 =cut
 
