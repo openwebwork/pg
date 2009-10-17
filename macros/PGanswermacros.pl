@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader$
+# $CVSHeader: pg/macros/PGanswermacros.pl,v 1.69 2009/06/25 23:28:44 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -148,6 +148,12 @@ my $functULimitDefault;
 my $functVarDefault;
 # ^variable my $useBaseTenLog
 my $useBaseTenLog;
+# ^variable my $reducedScoringPeriod
+my $reducedScoringPeriod;
+# ^variable my $reducedScoringValue
+my $reducedScoringValue;
+# ^variable my $dueDate
+my $dueDate;
 
 # ^function _PGanswermacros_init
 # ^uses loadMacros
@@ -157,6 +163,10 @@ my $useBaseTenLog;
 # ^uses $envir{functULimitDefault}
 # ^uses $envir{functVarDefault}
 # ^uses $envir{useBaseTenLog}
+# ^uses $envir{reducedScoringPeriod}
+# ^uses $envir{reducedScoringValue}
+# ^uses $envir{dueDate}
+
 sub _PGanswermacros_init {
 	loadMacros('PGnumericevaluators.pl');   # even if these files are already loaded they need to be initialized.
 	loadMacros('PGfunctionevaluators.pl');
@@ -168,7 +178,12 @@ sub _PGanswermacros_init {
 	$functULimitDefault = PG_restricted_eval(q/$envir{functULimitDefault}/);
 	$functVarDefault    = PG_restricted_eval(q/$envir{functVarDefault}/);
 	$useBaseTenLog      = PG_restricted_eval(q/$envir{useBaseTenLog}/);
+	$reducedScoringPeriod= PG_restricted_eval(q/$envir{reducedScoringPeriod}/);
+	$reducedScoringValue= PG_restricted_eval(q/$envir{reducedScoringValue}/);
+	$dueDate	    = PG_restricted_eval(q/$envir{dueDate}/);
 }
+
+
 
 =head1 MACROS
 
@@ -1613,24 +1628,28 @@ sub std_problem_grader {
 	}
 	# report the results
 	$problem_result{score} = $allAnswersCorrectQ;
-
-	# I	don't like to put in this bit of code.
-	# It makes it hard to construct	error free problem graders
-	# I	would prefer to	know that the problem score	was	numeric.
-	unless (defined($problem_state{recorded_score}) and $problem_state{recorded_score} =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ ) {
-		$problem_state{recorded_score} = 0;	 # This	gets rid of non-numeric scores
-	}
-	#
-	if ($allAnswersCorrectQ	== 1 or	$problem_state{recorded_score} == 1) {
-		$problem_state{recorded_score} = 1;
-	}
-	else {
-		$problem_state{recorded_score} = 0;
-	}
-
+	
 	$problem_state{num_of_correct_ans}++ if	$allAnswersCorrectQ	== 1;
 	$problem_state{num_of_incorrect_ans}++ if $allAnswersCorrectQ == 0;
-	
+
+	# Determine if we are in the reduced scoring period and act accordingly
+
+	my $reducedScoringPeriodSec = $reducedScoringPeriod*60;   # $reducedScoringPeriod is in minutes
+	if (time() < ($dueDate - $reducedScoringPeriodSec)) {	# it is before the reduced scoring period
+		# increase recorded score if the current score is greater.
+		$problem_state{recorded_score} = $problem_result{score}	if $problem_result{score} > $problem_state{recorded_score};
+		# the sub_recored_score holds the recored_score before entering the reduced scoring period
+		$problem_state{sub_recorded_score} = $problem_state{recorded_score};
+	}
+	else {	# we are in the reduced scoring period. This doesn't get called after due date.
+ 		# student gets credit for all work done before the reduced scoring period plus a portion of work done during period
+		my $newScore = 0;
+		$newScore =   $problem_state{sub_recorded_score} + $reducedScoringValue*($problem_result{score} - $problem_state{sub_recorded_score})  if ($problem_result{score} > $problem_state{sub_recorded_score});
+		$problem_state{recorded_score} = $newScore if $newScore > $problem_state{recorded_score};
+		my $reducedScoringPerCent = int(100*$reducedScoringValue+.5);
+		$problem_result{msg} = $problem_result{msg}."<br />You are in the Reduced Scoring Period: All additional work done counts 			  $reducedScoringPerCent\% of the original."; 		
+	}
+
 	$problem_state{state_summary_msg} = '';  # an HTML formatted message printed at the bottom of the problem page
 	
 	(\%problem_result, \%problem_state);
@@ -1683,6 +1702,7 @@ sub std_problem_grader2 {
 	# syntax errors	are	not	counted.
 	my $record_problem_attempt = 1;
 	# Checks
+	# FIXME:  syntax errors are never checked for so this grader does not perform as advertised
 
 	my $ansCount = keys	%evaluated_answers;	 # get the number of answers
 	unless ($ansCount >	0 )	{
@@ -1715,18 +1735,22 @@ sub std_problem_grader2 {
 	# report the results
 	$problem_result{score} = $allAnswersCorrectQ;
 
-	# I	don't like to put in this bit of code.
-	# It makes it hard to construct	error free problem graders
-	# I	would prefer to	know that the problem score	was	numeric.
-	unless ($problem_state{recorded_score} =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ ) {
-		$problem_state{recorded_score} = 0;	 # This	gets rid of	non-numeric	scores
+	# Determine if we are in the reduced scoring period and act accordingly
+
+	my $reducedScoringPeriodSec = $reducedScoringPeriod*60;   # $reducedScoringPeriod is in minutes
+	if (time() < ($dueDate - $reducedScoringPeriodSec)) {	# it is before the reduced scoring period
+		# increase recorded score if the current score is greater.
+		$problem_state{recorded_score} = $problem_result{score}	if $problem_result{score} > $problem_state{recorded_score};
+		# the sub_recored_score holds the recored_score before entering the reduced scoring period
+		$problem_state{sub_recorded_score} = $problem_state{recorded_score};
 	}
-	#
-	if ($allAnswersCorrectQ	== 1 or	$problem_state{recorded_score} == 1) {
-		$problem_state{recorded_score} = 1;
-	}
-	else {
-		$problem_state{recorded_score} = 0;
+	else {	# we are in the reduced scoring period. This doesn't get called after due date.
+ 		# student gets credit for all work done before the reduced scoring period plus a portion of work done during period
+		my $newScore = 0;
+		$newScore =   $problem_state{sub_recorded_score} + $reducedScoringValue*($problem_result{score} - $problem_state{sub_recorded_score})  if ($problem_result{score} > $problem_state{sub_recorded_score});
+		$problem_state{recorded_score} = $newScore if $newScore > $problem_state{recorded_score};
+		my $reducedScoringPerCent = int(100*$reducedScoringValue+.5);
+		$problem_result{msg} = $problem_result{msg}."<br />You are in the Reduced Scoring Period: All additional work done counts 			  $reducedScoringPerCent\% of the original."; 		
 	}
 	# record attempt only if there have	been no	syntax errors.
 
@@ -1765,7 +1789,6 @@ sub avg_problem_grader {
 	# By default the  old problem state	is simply passed back out again.
 	my %problem_state =	%$rh_problem_state;
 
-
 	# %form_options	might include
 	# The user login name
 	# The permission level of the user
@@ -1802,15 +1825,30 @@ sub avg_problem_grader {
 	}
 	# Calculate	score rounded to three places to avoid roundoff	problems
 	$problem_result{score} = $total/$count if $count;
-	# increase recorded	score if the current score is greater.
-	$problem_state{recorded_score} = $problem_result{score}	if $problem_result{score} >	$problem_state{recorded_score};
-
 
 	$problem_state{num_of_correct_ans}++ if	$total == $count;
-	$problem_state{num_of_incorrect_ans}++ if $total < $count ;
+	$problem_state{num_of_incorrect_ans}++ if $total < $count;
+
+	# Determine if we are in the reduced scoring period and act accordingly
+
+	my $reducedScoringPeriodSec = $reducedScoringPeriod*60;   # $reducedScoringPeriod is in minutes
+	if (time() < ($dueDate - $reducedScoringPeriodSec)) {	# it is before the reduced scoring period
+		# increase recorded score if the current score is greater.
+		$problem_state{recorded_score} = $problem_result{score}	if $problem_result{score} > $problem_state{recorded_score};
+		# the sub_recored_score holds the recored_score before entering the reduced scoring period
+		$problem_state{sub_recorded_score} = $problem_state{recorded_score};
+	}
+	else {	# we are in the reduced scoring period. This doesn't get called after due date.
+ 		# student gets credit for all work done before the reduced scoring period plus a portion of work done during period
+		my $newScore = 0;
+		$newScore =   $problem_state{sub_recorded_score} + $reducedScoringValue*($problem_result{score} - $problem_state{sub_recorded_score})  if ($problem_result{score} > $problem_state{sub_recorded_score});
+		$problem_state{recorded_score} = $newScore if $newScore > $problem_state{recorded_score};
+		my $reducedScoringPerCent = int(100*$reducedScoringValue+.5);
+		$problem_result{msg} = $problem_result{msg}."<br />You are in the Reduced Scoring Period: All additional work done counts 			  $reducedScoringPerCent\% of the original."; 		
+	}
 	
 	$problem_state{state_summary_msg} = '';  # an HTML formatted message printed at the bottom of the problem page
-	
+
 	warn "Error	in grading this	problem	the	total $total is	larger than	$count"	if $total >	$count;
 	(\%problem_result, \%problem_state);
 }
