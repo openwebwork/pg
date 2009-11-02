@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PGanswermacros.pl,v 1.69 2009/06/25 23:28:44 gage Exp $
+# $CVSHeader: pg/macros/PGanswermacros.pl,v 1.70 2009/10/17 15:46:20 apizer Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -152,6 +152,8 @@ my $useBaseTenLog;
 my $reducedScoringPeriod;
 # ^variable my $reducedScoringValue
 my $reducedScoringValue;
+# ^variable my $enable_reduced_scoring
+my $enable_reduced_scoring;
 # ^variable my $dueDate
 my $dueDate;
 
@@ -165,6 +167,7 @@ my $dueDate;
 # ^uses $envir{useBaseTenLog}
 # ^uses $envir{reducedScoringPeriod}
 # ^uses $envir{reducedScoringValue}
+# ^uses $envir{enable_reduced_scoring}
 # ^uses $envir{dueDate}
 
 sub _PGanswermacros_init {
@@ -180,10 +183,9 @@ sub _PGanswermacros_init {
 	$useBaseTenLog      = PG_restricted_eval(q/$envir{useBaseTenLog}/);
 	$reducedScoringPeriod= PG_restricted_eval(q/$envir{reducedScoringPeriod}/);
 	$reducedScoringValue= PG_restricted_eval(q/$envir{reducedScoringValue}/);
+	$enable_reduced_scoring= PG_restricted_eval(q/$envir{enable_reduced_scoring}/);
 	$dueDate	    = PG_restricted_eval(q/$envir{dueDate}/);
 }
-
-
 
 =head1 MACROS
 
@@ -1635,7 +1637,7 @@ sub std_problem_grader {
 	# Determine if we are in the reduced scoring period and act accordingly
 
 	my $reducedScoringPeriodSec = $reducedScoringPeriod*60;   # $reducedScoringPeriod is in minutes
-	if (time() < ($dueDate - $reducedScoringPeriodSec)) {	# it is before the reduced scoring period
+	if (!$enable_reduced_scoring or time() < ($dueDate - $reducedScoringPeriodSec)) {	# the reduced scoring period is disabled or it is before the reduced scoring period
 		# increase recorded score if the current score is greater.
 		$problem_state{recorded_score} = $problem_result{score}	if $problem_result{score} > $problem_state{recorded_score};
 		# the sub_recored_score holds the recored_score before entering the reduced scoring period
@@ -1738,7 +1740,7 @@ sub std_problem_grader2 {
 	# Determine if we are in the reduced scoring period and act accordingly
 
 	my $reducedScoringPeriodSec = $reducedScoringPeriod*60;   # $reducedScoringPeriod is in minutes
-	if (time() < ($dueDate - $reducedScoringPeriodSec)) {	# it is before the reduced scoring period
+	if (!$enable_reduced_scoring or time() < ($dueDate - $reducedScoringPeriodSec)) {	# the reduced scoring period is disabled or it is before the reduced scoring period
 		# increase recorded score if the current score is greater.
 		$problem_state{recorded_score} = $problem_result{score}	if $problem_result{score} > $problem_state{recorded_score};
 		# the sub_recored_score holds the recored_score before entering the reduced scoring period
@@ -1829,10 +1831,11 @@ sub avg_problem_grader {
 	$problem_state{num_of_correct_ans}++ if	$total == $count;
 	$problem_state{num_of_incorrect_ans}++ if $total < $count;
 
-	# Determine if we are in the reduced scoring period and act accordingly
-
+	# Determine if we are in the reduced scoring period and if the reduced scoring period is enabled and act accordingly
+#warn("enable_reduced_scoring is $enable_reduced_scoring");
+# warn("dueDate is $dueDate");
 	my $reducedScoringPeriodSec = $reducedScoringPeriod*60;   # $reducedScoringPeriod is in minutes
-	if (time() < ($dueDate - $reducedScoringPeriodSec)) {	# it is before the reduced scoring period
+	if (!$enable_reduced_scoring or time() < ($dueDate - $reducedScoringPeriodSec)) {	# the reduced scoring period is disabled or it is before the reduced scoring period
 		# increase recorded score if the current score is greater.
 		$problem_state{recorded_score} = $problem_result{score}	if $problem_result{score} > $problem_state{recorded_score};
 		# the sub_recored_score holds the recored_score before entering the reduced scoring period
