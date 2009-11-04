@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/dangerousMacros.pl,v 1.56 2009/06/25 23:28:44 gage Exp $
+# $CVSHeader: pg/macros/dangerousMacros.pl,v 1.57 2009/11/04 17:14:45 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -1379,4 +1379,5 @@ sub sin($)  {return CORE::sin($_[0])};
 sub cos($)  {return CORE::cos($_[0])};
 sub atan2($$) {return CORE::atan2($_[0],$_[1])};
 
+sub Parser::defineLog {eval {sub log($) {CommonFunction->Call("log",@_)}}};
 1;

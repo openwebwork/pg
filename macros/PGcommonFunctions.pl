@@ -40,7 +40,6 @@ sub Call {
   return $self->$fn(@_);
 }
 
-sub log {CORE::log($_[1])}
 sub ln  {CORE::log($_[1])}
 sub logten {CORE::log($_[1])/CORE::log(10)}
 
@@ -98,7 +97,8 @@ package main;
 #  which package-specific version to call
 #
 
-sub log    {CommonFunction->Call('log',@_)}
+Parser::defineLog(); ## defined in dangerousMacros so warning about redefining log() can be avoided
+
 sub ln     {CommonFunction->Call('ln',@_)}
 sub logten {CommonFunction->Call('logten',@_)}
 
