@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader$
+# $CVSHeader: pg/macros/dangerousMacros.pl,v 1.56 2009/06/25 23:28:44 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -1357,5 +1357,26 @@ sub pi () {Value->Package("Formula")->new('pi')->eval}
 # ^function Infinity
 # ^uses &Value::Package
 sub Infinity () {Value->Package("Infinity")->new()}
+
+
+# ^function abs
+# ^function sqrt
+# ^function exp
+# ^function log
+# ^function sin
+# ^function cos
+# ^function atan2
+#
+#  Allow these functions to be overridden
+#  (needed for log() to implement $useBaseTenLog)
+#
+use subs 'abs', 'sqrt', 'exp', 'log', 'sin', 'cos', 'atan2';
+sub abs($)  {return CORE::abs($_[0])};
+sub sqrt($) {return CORE::sqrt($_[0])};
+sub exp($)  {return CORE::exp($_[0])};
+sub log($)  {return CORE::log($_[0])};
+sub sin($)  {return CORE::sin($_[0])};
+sub cos($)  {return CORE::cos($_[0])};
+sub atan2($$) {return CORE::atan2($_[0],$_[1])};
 
 1;

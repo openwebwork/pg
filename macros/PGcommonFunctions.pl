@@ -41,7 +41,7 @@ sub Call {
 }
 
 sub log {CORE::log($_[1])}
-sub ln {CORE::log($_[1])}
+sub ln  {CORE::log($_[1])}
 sub logten {CORE::log($_[1])/CORE::log(10)}
 
 sub tan {CORE::sin($_[1])/CORE::cos($_[1])}
@@ -98,7 +98,8 @@ package main;
 #  which package-specific version to call
 #
 
-sub ln {CommonFunction->Call('log',@_)}
+sub log    {CommonFunction->Call('log',@_)}
+sub ln     {CommonFunction->Call('ln',@_)}
 sub logten {CommonFunction->Call('logten',@_)}
 
 sub tan {CommonFunction->Call('tan',@_)}
