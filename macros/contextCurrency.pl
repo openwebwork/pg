@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader$
+# $CVSHeader: pg/macros/contextCurrency.pl,v 1.17 2009/06/25 23:28:44 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -76,12 +76,12 @@ For example,
 	$m = Compute("$10.99");
 
 will most likely set $m to the Real value .99 rather than the
-monitary value of $10.99, since perl thinks $10 is the name of
+monetary value of $10.99, since perl thinks $10 is the name of
 a variable, and will substitute that into the string before
 processing it.  Since that variable is most likely empty, the
 result will be the same as $m = Compute(".99");
 
-You can use monitary values within computations, as in
+You can use monetary values within computations, as in
 
 	$m1 = Compute('$10.00');
 	$m2 = 3*$m1;  $m3 = $m2 + .5;
@@ -92,7 +92,7 @@ be $12.59.  Students can perform computations within their
 answers unless you disable the operators and functions as well.
 
 The tolerance for this context is set initially to .005 and the
-tolType to 'absolute' so that monitary values will have to match
+tolType to 'absolute' so that monetary values will have to match
 to the nearest penny.  You can change that on a global basis
 using
 
@@ -102,6 +102,25 @@ for example.  You can also change the tolerance on an individual
 currency value as follows:
 
 	$m = Compute('$1,250,000.00')->with(tolerance=>.0001,tolType=>'relative');
+
+which would require students to be correct to three significant digits.
+
+The default tolerance of .005 works properly only if your original
+monetary values have no more than 2 decimal places.  If you were to do
+
+	$m = Currency(34.125);
+
+for example, then $m would print as $34.12, but neither a student
+answer of $34.12 nor of $34.13 would be marked correct.  That is
+because neither of these are less than .5 away from the correct answer
+of $34.125.  If you create currency values that have more decimal
+places than the usual two, you may want to round or truncate them.
+Currency objects have two methods for accomplishing this: round() and
+truncate(), which produce rounded or truncated copies of the original
+Currency object:
+
+	$m = Currency(34.127)->round;    # produces $34.13
+	$m = Currency(34.127)->truncate; # produces $34.12
 
 By default, the answer checker for Currency values requires
 the student to enter the currency symbol, not just a real number.
@@ -124,7 +143,7 @@ be provided using the forceDecimals=>1 flag.
 
 	ANS(Compute('$10.95')->cmp(forceDecimals=>1));
 
-By default, if the monitary value includes decimals digits, it
+By default, if the monetary value includes decimals digits, it
 must have exactly two.  You can weaken this requirement to allow
 any number of decimals by using noExtraDecimals=>0.
 
@@ -424,7 +443,7 @@ sub _check {
     if $context->flag("forceCommas") && $value =~ m/\d\d\d\d/;
   $self->Error("Monetary values must have exactly two decimal places")
    if $value && $value =~ m/$decimal\d/ && $value !~ m/$decimal\d\d$/ && $context->flag('noExtraDecimals');
-  $self->Error("Monitary values require two decimal places",shift)
+  $self->Error("Monetary values require two decimal places",shift)
     if $context->flag("forceDecimals") && $value !~ m/$decimal\d\d$/;
   $self->{type} = {%{$op->typeRef}};
   $self->{isCurrency} = 1;
@@ -461,7 +480,7 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $x = shift;
-  Value::Error("Can't convert %s to a monitary value",lc(Value::showClass($x)))
+  Value::Error("Can't convert %s to a monetary value",lc(Value::showClass($x)))
       if !$self->getFlag("promoteReals",1) && Value::isRealNumber($x) && !Value::classMatch($x,"Currency");
   $self = bless $self->SUPER::new($context,$x,@_), $class;
   $self->{isReal} = $self->{isValue} = $self->{isCurrency} = 1;
@@ -473,6 +492,18 @@ sub make {
   $self = bless $self->SUPER::make(@_), $class;
   $self->{isReal} = $self->{isValue} = $self->{isCurrency} = 1;
   return $self;
+}
+
+sub round {
+  my $self = shift;
+  my $s = ($self->value >= 0 ? "" : "-");
+  return $self->make(($s.main::prfmt(CORE::abs($self->value),"%.2f")) + 0);
+}
+
+sub truncate {
+  my $self = shift;
+  my $n = $self->value; $n =~ s/(\.\d\d).*/\1/;
+  return $self->make($n+0);
 }
 
 #
@@ -488,13 +519,14 @@ sub format {
   my ($symbol,$comma,$decimal) = ($currency->{symbol},$currency->{comma},$currency->{decimal});
   $symbol = $self->context->operators->get($symbol)->{$type} || $symbol;
   $comma = "{$comma}" if $type eq 'TeX';
-  my $s = main::prfmt($self->value,"%.2f");
-  $s =~ s/\.00// if $self->getFlag('trimTrailingZeros');
-  $s =~ s/\./$decimal/;
-  while ($s =~ s/(\d)(\d\d\d(:\D|$))/$1$comma$2/) {}
-  $s = ($currency->{associativity} eq "right" ? $s.$symbol : $symbol.$s);
-  $s =~ s/^\s+|\s+$//g;
-  return $s;
+  my $s = ($self->value >= 0 ? "" : "-");
+  my $c = main::prfmt(CORE::abs($self->value),"%.2f");
+  $c =~ s/\.00// if $self->getFlag('trimTrailingZeros');
+  $c =~ s/\./$decimal/;
+  while ($c =~ s/(\d)(\d\d\d(:\D|$))/$1$comma$2/) {}
+  $c = ($currency->{associativity} eq "right" ? $s.$c.$symbol : $s.$symbol.$c);
+  $c =~ s/^\s+|\s+$//g;
+  return $c;
 }
 
 sub string {(shift)->format("string")}
