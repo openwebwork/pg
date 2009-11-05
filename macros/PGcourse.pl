@@ -8,5 +8,7 @@
  #
 
 =cut
+sub _PGcourse_init {};
 
+#loadMacros("source.pl");
 1;
