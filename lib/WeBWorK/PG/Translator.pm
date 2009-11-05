@@ -1620,17 +1620,28 @@ sub PG_answer_eval {
 
 }
 
-
-
+# sub original_preprocess_code {
+# 	my $evalString = shift;
+# 	# BEGIN_TEXT and END_TEXT must occur on a line by themselves.
+# 	$evalString =~ s/\n\s*END_TEXT[\s;]*\n/\nEND_TEXT\n/g;
+# 	$evalString =~ s/\n\s*BEGIN_TEXT[\s;]*\n/\nTEXT\(EV3\(<<'END_TEXT'\)\);\n/g;
+# 	$evalString =~ s/ENDDOCUMENT.*/ENDDOCUMENT();/s; # remove text after ENDDOCUMENT
+# 
+# 	$evalString =~ s/\\/\\\\/g;    # \ can't be used for escapes because of TeX conflict
+# 	$evalString =~ s/~~/\\/g;      # use ~~ as escape instead, use # for comments
+# 	$evalString;
+# }
 sub default_preprocess_code {
 	my $evalString = shift;
 	# BEGIN_TEXT and END_TEXT must occur on a line by themselves.
-	$evalString =~ s/^[ \t]*END_TEXT[ \t;]*$/END_TEXT/gm;
-	$evalString =~ s/^[ \t]*END_SOLUTION[ \t;]*$/END_SOLUTION/mg;
-	$evalString =~ s/^[ \t]*END_HINT[ \t;]*$/END_HINT/mg;
-	$evalString =~ s/^[ \t]*BEGIN_TEXT[ \t;]*$/TEXT\(EV3P\(<<'END_TEXT'\)\);/mg;
-	$evalString =~ s/^[ \t]*BEGIN_SOLUTION[ \t;]*$/SOLUTION\(EV3P\(<<'END_SOLUTION'\)\);/mg;
-	$evalString =~ s/^[ \t]*BEGIN_HINT[ \t;]*$/HINT\(EV3P\(<<'END_HINT'\)\);/mg;
+	$evalString =~ s/\n\s*END_TEXT[\s;]*\n/\nEND_TEXT\n/g;
+	$evalString =~ s/\n\s*END_PGML[\s;]*\n/\nEND_PGML\n/g;
+	$evalString =~ s/\n\s*END_SOLUTION[\s;]*\n/\nEND_SOLUTION\n/g;
+	$evalString =~ s/\n\s*END_HINT[\s;]*\n/\nEND_HINT\n/g;
+	$evalString =~ s/\n\s*BEGIN_TEXT[\s;]*\n/\nTEXT\(EV3P\(<<'END_TEXT'\)\);\n/g;
+	$evalString =~ s/\n\s*BEGIN_PGML[\s;]*\n/\nTEXT\(PGML::Format2\(<<'END_PGML'\)\);\n/g;
+	$evalString =~ s/\n\s*BEGIN_SOLUTION[\s;]*\n/\nSOLUTION\(EV3P\(<<'END_SOLUTION'\)\);\n/g;
+	$evalString =~ s/\n\s*BEGIN_HINT[\s;]*\n/\nHINT\(EV3P\(<<'END_HINT'\)\);\n/g;
 	$evalString =~ s/ENDDOCUMENT.*/ENDDOCUMENT();/s; # remove text after ENDDOCUMENT
 
 	$evalString =~ s/\\/\\\\/g;    # \ can't be used for escapes because of TeX conflict
