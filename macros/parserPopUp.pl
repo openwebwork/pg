@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader$
+# $CVSHeader: pg/macros/parserPopUp.pl,v 1.10 2009/06/25 23:28:44 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -51,24 +51,36 @@ MultiAnswer calls to get answer rules).
 
 loadMacros('MathObjects.pl');
 
-sub _parserPopUp_init {parserPopUp::Init()}; # don't reload this file
+sub _parserPopUp_init {parser::PopUp::Init()}; # don't reload this file
 
 #
 #  The package that implements pop-up menus
 #
-package parserPopUp;
+package parser::PopUp;
 our @ISA = qw(Value::String);
+my $context;
 
 #
-#  Setup the main:: namespace
+#  Setup the context and the PopUp() command
 #
 sub Init {
-  ### Hack to get around context change in contextString.pl
-  ### FIXME:  when context definitions don't set context, put loadMacros with MathObject.pl above again
-  my $context = main::Context();
-  main::loadMacros('contextString.pl');
-  main::Context($context);
-  main::PG_restricted_eval('sub PopUp {parserPopUp->new(@_)}');
+  #
+  # make a context in which arbitrary strings can be entered
+  #
+  $context = Parser::Context->getCopy("Numeric");
+  $context->{name} = "PopUp";
+  $context->parens->clear();
+  $context->variables->clear();
+  $context->constants->clear();
+  $context->operators->clear();
+  $context->functions->clear();
+  $context->strings->clear();
+  $context->{pattern}{number} = "^\$";
+  $context->variables->{patterns} = {};
+  $context->strings->{patterns}{".*"} = [-20,'str'];
+  $context->{parser}{String} = "parser::PopUp::String";
+  $context->update;
+  main::PG_restricted_eval('sub PopUp {parser::PopUp->new(@_)}');
 }
 
 #
@@ -82,9 +94,10 @@ sub new {
     unless ref($choices) eq 'ARRAY';
   Value::Error("A PopUp's second argument should be the correct menu choice")
     unless defined($value) && $value ne "";
-  my $context = Parser::Context->getCopy("String");
-  $context->strings->add(map {$_=>{}} @{$choices});
-  my $self = bless $context->Package("String")->new($context,$value)->with(choices => $choices), $class;
+  my %choice; map {$choice{$_} = 1} @$choices;
+  Value::Error("The correct choice must be one of the PopUp menu items")
+    unless $choice{$value};
+  my $self = bless {data => [$value], context => $context, choices => $choices}, $class;
   return $self;
 }
 
@@ -100,5 +113,22 @@ sub menu {
 #  Answer rule is the menu list
 #
 sub ans_rule {shift->menu(@_)}
+
+##################################################
+#
+#  Replacement for Parser::String that takes the
+#  complete parse string as its value
+#
+package parser::PopUp::String;
+our @ISA = ('Parser::String');
+
+sub new {
+  my $self = shift;
+  my ($equation,$value,$ref) = @_;
+  $value = $equation->{string};
+  $self->SUPER::new($equation,$value,$ref);
+}
+
+##################################################
 
 1;
