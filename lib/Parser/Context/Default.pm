@@ -327,7 +327,10 @@ $context->constants->replace(
   i => Value::Vector->new(1,0)->with(ijk=>1),
   j => Value::Vector->new(0,1)->with(ijk=>1),
 );
-$context->constants->set(i => {TeX=>'\boldsymbol{i}', perl=>'i'});
+$context->constants->set(
+  i => {TeX=>'\boldsymbol{i}', perl=>'i'}
+  j => {TeX=>'\boldsymbol{j}', perl=>'j'}
+);
 $context->constants->remove("k");
 $context->{name} = "Vector2D";
 
