@@ -328,7 +328,7 @@ $context->constants->replace(
   j => Value::Vector->new(0,1)->with(ijk=>1),
 );
 $context->constants->set(
-  i => {TeX=>'\boldsymbol{i}', perl=>'i'}
+  i => {TeX=>'\boldsymbol{i}', perl=>'i'},
   j => {TeX=>'\boldsymbol{j}', perl=>'j'}
 );
 $context->constants->remove("k");
