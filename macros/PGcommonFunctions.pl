@@ -40,6 +40,7 @@ sub Call {
   return $self->$fn(@_);
 }
 
+sub log {CORE::log($_[1])}
 sub ln  {CORE::log($_[1])}
 sub logten {CORE::log($_[1])/CORE::log(10)}
 
