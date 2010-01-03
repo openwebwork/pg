@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader$
+# $CVSHeader: pg/macros/AppletObjects.pl,v 1.23 2009/07/12 23:38:12 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -49,7 +49,6 @@ main::HEADER_TEXT(<<'END_HEADER_TEXT');
     </script> 	
   	<script src="/webwork2_files/js/ww_applet_support.js">
   	    //upload functions stored in /opt/webwork/webwork2/htdocs/js ...
-		
     </script>
 END_HEADER_TEXT
 
@@ -110,14 +109,14 @@ sub insertAll {  ## inserts both header text and object text
 	my %options = @_;
 	
 	# debugMode can be turned on by setting it to 1 in either the applet definition or at insertAll time
-	my $debugMode = (defined($options{debug}) and $options{debug}==1) ? 1 : 0;
+	my $debugMode = (defined($options{debug}) and $options{debug}>0) ? $options{debug} : 0;
 	my $includeAnswerBox = (defined($options{includeAnswerBox}) and $options{includeAnswerBox}==1) ? 1 : 0;
 	$debugMode = $debugMode || $self->debugMode;
     $self->debugMode( $debugMode);
 
 	
 	my $reset_button = $options{reinitialize_button} || 0;
-	warn qq! please change  "reset_button=>1" to "reinitialize_button=>1" in the applet->installAll() command ! if defined($options{reset_button});
+	warn qq! please change  "reset_button=>1" to "reinitialize_button=>1" in the applet->installAll() command \n! if defined($options{reset_button});
 	# prepare html code for storing state 
 	my $appletName      = $self->appletName;
 	my $appletStateName = "${appletName}_state";
@@ -159,28 +158,39 @@ sub insertAll {  ## inserts both header text and object text
 	$base_64_encoded_answer_value =~ s/\r|\n//g;    # get rid of line returns
     # debug version of the applet state answerBox and controls
     my $debug_input_element  = qq!\n<textarea  rows="4" cols="80" 
-	   name = "$appletStateName">$decoded_answer_value</textarea><br/>
+	   name = "$appletStateName">$decoded_answer_value</textarea><br/>!;
+	if ($getState=~/\S/) {   # if getStateAlias is not an empty string
+		$debug_input_element .= qq!
 	        <input type="button"  value="$getState" 
 	               onClick="debugText=''; 
 	                        ww_applet_list['$appletName'].getState(); 
 	                        if (debugText) {alert(debugText)};"
-	        >
+	        >!;
+	}
+	if ($setState=~/\S/) {   # if setStateAlias is not an empty string
+		$debug_input_element .= qq!
 	        <input type="button"  value="$setState" 
 	               onClick="debugText='';
 	                        ww_applet_list['$appletName'].setState();
 	                        if (debugText) {alert(debugText)};"
-	        >
+	        >!;
+	}
+	if ($getConfig=~/\S/) {   # if getConfigAlias is not an empty string
+		$debug_input_element .= qq!
 	        <input type="button"  value="$getConfig" 
 	               onClick="debugText=''; 
 	                        ww_applet_list['$appletName'].getConfig();
 	                        if (debugText) {alert(debugText)};"
-	        >
+	        >!;
+	}
+	if ($setConfig=~/\S/) {   # if setConfigAlias is not an empty string
+		$debug_input_element .= qq!
 		    <input type="button"  value="$setConfig" 
 	               onClick="debugText='';
 	                        ww_applet_list['$appletName'].setConfig();
 	                        if (debugText) {alert(debugText)};"
-            >
-	  !;
+            >!;
+    }
 	        
 	my $state_input_element = ($debugMode) ? $debug_input_element :
 	      qq!\n<input type="hidden" name = "$appletStateName" value ="$base_64_encoded_answer_value">!;
