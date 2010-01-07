@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Program Generation Language
 # Copyright  2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PGbasicmacros.pl,v 1.61 2009/07/12 23:39:20 gage Exp $
+# $CVSHeader: pg/macros/PGbasicmacros.pl,v 1.62 2009/07/18 02:50:50 gage Exp $
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -61,6 +61,8 @@ my ($PAR,
 	$EBOLD,
 	$BITALIC,
 	$EITALIC,
+	$BUL,
+	$EUL,
 	$BCENTER,
 	$ECENTER,
 	$HR,
@@ -120,6 +122,8 @@ main::PG_restricted_eval( <<'EndOfFile');
 	$main::EBOLD			= EBOLD();
 	$main::BITALIC			= BITALIC();
 	$main::EITALIC          = EITALIC();
+	$main::BUL              = BUL();
+	$main::EUL              = EUL();
 	$main::BCENTER          = BCENTER();
 	$main::ECENTER          = ECENTER();
 	$main::HR				= HR();
@@ -165,6 +169,8 @@ EndOfFile
 	$EBOLD			     = EBOLD();
 	$BITALIC			 = BITALIC();
 	$EITALIC             = EITALIC();
+	$BUL                 = BUL();
+	$EUL                 = EUL();
 	$BCENTER             = BCENTER();
 	$ECENTER             = ECENTER();
 	$HR				     = HR();
@@ -1219,6 +1225,8 @@ sub MODES {
 	$EBOLD				EBOLD()				end bold typeface
 	$BITALIC    		BITALIC()  			begin italic typeface
 	$EITALIC    		EITALIC()  			end italic typeface
+	$BUL    			BUL()  				begin underlined type
+	$EUL    			EUL()  				end underlined type
 	$BCENTER    		BCENTER()   		begin centered environment
 	$ECENTER    		ECENTER()  			end centered environment
 	$HR					HR()				horizontal rule
@@ -1281,6 +1289,8 @@ sub BBOLD { MODES(TeX => '{\\bf ',  Latex2HTML => '{\\bf ', HTML => '<B>'); };
 sub EBOLD { MODES( TeX => '}', Latex2HTML =>  '}',HTML =>  '</B>'); };
 sub BITALIC { MODES(TeX => '{\\it ',  Latex2HTML => '{\\it ', HTML => '<I>'); };
 sub EITALIC { MODES(TeX => '} ',  Latex2HTML => '} ', HTML => '</I>'); };
+sub BUL { MODES(TeX => '\\underline{',  Latex2HTML => '\\underline{', HTML => '<U>'); };
+sub EUL { MODES(TeX => '}',  Latex2HTML => '}', HTML => '</U>'); };
 sub BCENTER { MODES(TeX => '\\begin{center} ',  Latex2HTML => ' \\begin{rawhtml} <div align="center"> \\end{rawhtml} ', HTML => '<div align="center">'); };
 sub ECENTER { MODES(TeX => '\\end{center} ',  Latex2HTML => ' \\begin{rawhtml} </div> \\end{rawhtml} ', HTML => '</div>'); };
 sub HR { MODES(TeX => '\\par\\hrulefill\\par ', Latex2HTML => '\\begin{rawhtml} <HR> \\end{rawhtml}', HTML =>  '<HR>'); };
