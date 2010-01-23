@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader$
+# $CVSHeader: pg/macros/contextInequalities.pl,v 1.21 2009/06/25 23:28:44 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -343,10 +343,10 @@ sub new {
 
 ##################################################
 #
-#  A special class usd for the variables in
+#  A special class used for the variables in
 #  inequalities, since they are not really
 #  variables for the formula.  (They don't need
-#  to be subtituted or given values when the
+#  to be substituted or given values when the
 #  formula is evaluated, and so on.)  These are
 #  really just placeholders, here.
 #
