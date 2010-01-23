@@ -145,14 +145,16 @@ then set strictFractions=>1 (and also strictMinus=>1 and
 strictMultiplication=>1).  These are all three 0 by default in the
 Fraction and Fraction-NoDecimals contexts, but 1 in LimitedFraction.
 
-=item S<C<< allowProperFractions >>>
+=item S<C<< allowMixedNumbers >>>
 
 This determines whether a space between a whole number and a fraction
 is interpretted as implicit multiplication (as it usually would be in
 WeBWorK), or as addition, allowing "4 1/2" to mean "4 and 1/2".  By
 default, it acts as multiplication in the Fraction and
 Fraction-NoDecimals contexts, and as addition in LimitedFraction.  If
-you set allowProperFractions=>1 you should also set reduceConstants=>0.
+you set allowMixedNumbers=>1 you should also set reduceConstants=>0.
+This parameter used to be named allowProperFractions, which is
+deprecated, but you can still use it for backward-compatibility.
 
 =item S<C<< requireProperFractions >>>
 
@@ -160,17 +162,19 @@ This determines whether fractions MUST be entered as proper fractions.
 It is 0 by default, meaning improper fractions are allowed.  When set,
 you will not be able to enter 5/2 as a fraction, but must use "2 1/2".
 This flag is allowed only when strictFractions is in effect.
-Set it to 1 only when you also set allowProperFractions, or you will
+Set it to 1 only when you also set allowMixedNumbers, or you will
 not be able to specify fractions bigger than one.  It is off by
 default in all three contexts.
 
-=item S<C<< showProperFractions >>>
+=item S<C<< showMixedNumbers >>>
 
 This controls whether fractions are displayed as proper fractions or
 not.  When set, 5/2 will be displayed as 2 1/2 in the answer preview
 area, otherwise it will be displayed as 5/2.  This flag is 0 by
 default in the Fraction and Fraction-NoDecimals contexts, and 1 in
-LimitedFraction.
+LimitedFraction.  This parameter used to be named showProperFractions,
+which is deprecated, but you can still use it for
+backward-compatibility.
 
 =back
 
@@ -230,9 +234,9 @@ sub Init {
   $context->flags->set(
     reduceFractions => 1,
     strictFractions => 0, strictMinus => 0, strictMultiplication => 0,
-    allowProperFractions => 0,  # also set reduceConstants => 0 if you change this
+    allowMixedNumbers => 0,  # also set reduceConstants => 0 if you change this
     requireProperFractions => 0,
-    showProperFractions => 0,
+    showMixedNumbers => 0,
   );
   $context->reduction->set('a/b' => 1,'a b/c' => 1, '0 a/b' => 1);
   $context->{value}{Fraction} = "context::Fraction::Fraction";
@@ -254,8 +258,8 @@ sub Init {
   $context->functions->disable('All');
   $context->flags->set(
     strictFractions => 1, strictMinus => 1, strictMultiplication => 1,
-    allowProperFractions => 1, reduceConstants => 0,
-    showProperFractions => 1,
+    allowMixedNumbers => 1, reduceConstants => 0,
+    showMixedNumbers => 1,
   );
   $context->{cmpDefaults}{Fraction} = {studentsMustReduceFractions => 1};
 
@@ -411,7 +415,10 @@ sub _check {
   my $self = shift;
   $self->SUPER::_check;
   my $isFraction = 0;
-  if ($self->context->flag("allowProperFractions")) {
+  my $allowMixedNumbers = $self->context->flag("allowProperFractions");
+  $allowMixedNumbers = $self->context->flag("allowMixedNumbers")
+    unless defined($allowMixedNumbers) && $allowMixedNumbers ne "";
+  if ($allowMixedNumbers) {
     $isFraction = ($self->{lop}->class =~ /INTEGER|MINUS/ && !$self->{lop}{hadParens} &&
                    $self->{rop}->class eq 'FRACTION' && !$self->{rop}{hadParens} &&
                    $self->{rop}->eval >= 0);
@@ -644,7 +651,7 @@ sub eval {
 }
 
 #
-#  parts are not Value objects, so don't transfer
+#  Parts are not Value objects, so don't transfer
 #
 sub transferFlags {}
 
@@ -656,6 +663,14 @@ sub isInteger {
   $n = $n->value if Value::isReal($n);
   return $n =~ m/^-?\d+$/;
 };
+
+#
+#  Get a flag that has been renamed
+#
+sub getFlagWithAlias {
+  my $self = shift; my $flag = shift; my $alias = shift;
+  return $self->getFlag($alias,$self->getFlag($flag));
+}
 
 
 ##################################################
@@ -759,7 +774,7 @@ sub string {
   my $self = shift; my $equation = shift; my $prec = shift;
   my ($a,$b) = @{$self->{data}}; my $n = "";
   return $a if $b == 1;
-  if ($self->getFlag("showProperFractions") && CORE::abs($a) > $b)
+  if ($self->getFlagWithAlias("showMixedNumbers","showProperFractions") && CORE::abs($a) > $b)
     {$n = int($a/$b); $a = CORE::abs($a) % $b; $n .= " " unless $a == 0}
   $n .= "$a/$b" unless $a == 0 && $n ne '';
   $n = "($n)" if defined $prec && $prec >= 1;
@@ -770,7 +785,7 @@ sub TeX {
   my $self = shift; my $equation = shift; my $prec = shift;
   my ($a,$b) = @{$self->{data}}; my $n = "";
   return $a if $b == 1;
-  if ($self->getFlag("showProperFractions") && CORE::abs($a) > $b)
+  if ($self->getFlagWithAlias("showMixedNumbers","showProperFractions") && CORE::abs($a) > $b)
     {$n = int($a/$b); $a = CORE::abs($a) % $b; $n .= " " unless $a == 0}
   my $s = ""; ($a,$s) = (-$a,"-") if $a < 0;
   $n .= ($self->{isHorizontal} ? "$s$a/$b" : "${s}{\\textstyle\\frac{$a}{$b}}")
