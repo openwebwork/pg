@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader$
+# $CVSHeader: pg/macros/parserImplicitEquation.pl,v 1.14 2009/06/25 23:28:44 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -106,7 +106,7 @@ the tested function is zero.
 
 the minimum tolerance allowed.
 
-=item C<S<< ImplicitAbsoluteMaxTolerance => 1E-3 >>>
+=item C<S<< ImplicitAbsoluteMaxTolerance => 1 >>>
 
 the maximum tolerance allowed.
 
