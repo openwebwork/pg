@@ -247,6 +247,8 @@ sub Init {
   $context = $main::context{'Fraction-NoDecimals'} = $context->copy;
   $context->{name} = "Fraction-NoDecimals";
   Parser::Number::NoDecimals($context);
+  $context->{error}{msg}{"You are not allowed to type decimal numbers in this problem"} =
+    "You are only allowed to enter fractions, not decimal numbers";
 
   $context = $main::context{LimitedFraction} = $context->copy;
   $context->{name} = "LimitedFraction";
