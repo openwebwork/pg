@@ -308,7 +308,7 @@ sub createAdaptedValues {
 #
 sub createRandomPoints {
   my $self = shift; my $context = $self->context;
-  my ($num_points,$include) = @_; my $cacheResults = !defined($num_points);
+  my ($num_points,$include,$noErrors) = @_; my $cacheResults = !defined($num_points);
   $num_points = int($self->getFlag('num_points',5)) unless defined($num_points);
   $num_points = 1 if $num_points < 1;
 
@@ -358,8 +358,9 @@ sub createRandomPoints {
     my $error = "Can't generate enough valid points for comparison";
     $error .= ':<div style="margin-left:1em">'.($context->{error}{message} || $@).'</div>'
       if ($self->getFlag('showTestPointErrors'));
-    $error =~ s/ (in \S+ )?at line \d+.*//s;
-    Value::Error($error);
+    $error =~ s! (in \S+ )?at line \d+.*</div>!</div>!s;
+    Value::Error($error) unless $noErrors;
+    return ($points,$values,1);
   }
 
   return ($points,$values) unless $cacheResults;
