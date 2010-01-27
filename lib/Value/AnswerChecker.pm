@@ -1579,11 +1579,22 @@ sub cmp_defaults {
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
   return 1 if $self->type eq $other->type;
-  my $typeMatch = ($self->createRandomPoints(1))[1]->[0];
-  $other = eval {($other->createRandomPoints(1))[1]->[0]} if Value::isFormula($other);
+  my $typeMatch = $self->getTypicalValue($self);
+  $other = $self->getTypicalValue($other) if Value::isFormula($other);
   return 1 unless defined($other); # can't really tell, so don't report type mismatch
   return 1 if $typeMatch->classMatch('String') && Value::isFormula($ans->{typeMatch});  # avoid infinite loop
   $typeMatch->typeMatch($other,$ans);
+}
+
+#
+#  Create a value from the formula (so we know the output type)
+#
+sub getTypicalValue {
+  my $self = shift; my $f = shift;
+  return $f->{test_values}[0] if $f->{test_values};
+  my $points = $f->{test_points} || $self->{test_points};
+  return ($f->createPointValues($points)||[])->[0] if $points;
+  return ((($f->createRandomPoints(1,undef,1))[1])||[])->[0];
 }
 
 #
