@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader$
+# $CVSHeader: pg/macros/parserParametricLine.pl,v 1.17 2009/06/25 23:28:44 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -91,7 +91,7 @@ sub new {
   } else {
     $line = $context->Package("Formula")->new($context,shift);
     Value::Error("Your formula doesn't look like a parametric line")
-      unless $line->type eq 'Vector';
+      unless $line->type eq 'Vector' || $line->type eq "Point";
     $t = shift || (keys %{$line->{variables}})[0];
     Value::Error("A line can't be just a constant vector") unless $t;
     $p = $context->Package("Point")->new($context,$line->eval($t=>0));
