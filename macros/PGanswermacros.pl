@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PGanswermacros.pl,v 1.70 2009/10/17 15:46:20 apizer Exp $
+# $CVSHeader: pg/macros/PGanswermacros.pl,v 1.71 2009/11/02 16:55:51 apizer Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -1643,13 +1643,13 @@ sub std_problem_grader {
 		# the sub_recored_score holds the recored_score before entering the reduced scoring period
 		$problem_state{sub_recorded_score} = $problem_state{recorded_score};
 	}
-	else {	# we are in the reduced scoring period. This doesn't get called after due date.
+	elsif (time() < $dueDate) {	# we are in the reduced scoring period. 
  		# student gets credit for all work done before the reduced scoring period plus a portion of work done during period
 		my $newScore = 0;
 		$newScore =   $problem_state{sub_recorded_score} + $reducedScoringValue*($problem_result{score} - $problem_state{sub_recorded_score})  if ($problem_result{score} > $problem_state{sub_recorded_score});
 		$problem_state{recorded_score} = $newScore if $newScore > $problem_state{recorded_score};
 		my $reducedScoringPerCent = int(100*$reducedScoringValue+.5);
-		$problem_result{msg} = $problem_result{msg}."<br />You are in the Reduced Scoring Period: All additional work done counts 			  $reducedScoringPerCent\% of the original."; 		
+		$problem_result{msg} = $problem_result{msg}."<br />You are in the Reduced Credit Period: All additional work done counts $reducedScoringPerCent\% of the original."; 		
 	}
 
 	$problem_state{state_summary_msg} = '';  # an HTML formatted message printed at the bottom of the problem page
@@ -1746,13 +1746,13 @@ sub std_problem_grader2 {
 		# the sub_recored_score holds the recored_score before entering the reduced scoring period
 		$problem_state{sub_recorded_score} = $problem_state{recorded_score};
 	}
-	else {	# we are in the reduced scoring period. This doesn't get called after due date.
+	elsif (time() < $dueDate) {	# we are in the reduced scoring period.
  		# student gets credit for all work done before the reduced scoring period plus a portion of work done during period
 		my $newScore = 0;
 		$newScore =   $problem_state{sub_recorded_score} + $reducedScoringValue*($problem_result{score} - $problem_state{sub_recorded_score})  if ($problem_result{score} > $problem_state{sub_recorded_score});
 		$problem_state{recorded_score} = $newScore if $newScore > $problem_state{recorded_score};
 		my $reducedScoringPerCent = int(100*$reducedScoringValue+.5);
-		$problem_result{msg} = $problem_result{msg}."<br />You are in the Reduced Scoring Period: All additional work done counts 			  $reducedScoringPerCent\% of the original."; 		
+		$problem_result{msg} = $problem_result{msg}."<br />You are in the Reduced Credit Period: All additional work done counts $reducedScoringPerCent\% of the original."; 		
 	}
 	# record attempt only if there have	been no	syntax errors.
 
@@ -1841,13 +1841,13 @@ sub avg_problem_grader {
 		# the sub_recored_score holds the recored_score before entering the reduced scoring period
 		$problem_state{sub_recorded_score} = $problem_state{recorded_score};
 	}
-	else {	# we are in the reduced scoring period. This doesn't get called after due date.
+elsif (time() < $dueDate) {	# we are in the reduced scoring period.
  		# student gets credit for all work done before the reduced scoring period plus a portion of work done during period
 		my $newScore = 0;
 		$newScore =   $problem_state{sub_recorded_score} + $reducedScoringValue*($problem_result{score} - $problem_state{sub_recorded_score})  if ($problem_result{score} > $problem_state{sub_recorded_score});
 		$problem_state{recorded_score} = $newScore if $newScore > $problem_state{recorded_score};
 		my $reducedScoringPerCent = int(100*$reducedScoringValue+.5);
-		$problem_result{msg} = $problem_result{msg}."<br />You are in the Reduced Scoring Period: All additional work done counts 			  $reducedScoringPerCent\% of the original."; 		
+		$problem_result{msg} = $problem_result{msg}."<br />You are in the Reduced Credit Period: All additional work done counts $reducedScoringPerCent\% of the original."; 		
 	}
 	
 	$problem_state{state_summary_msg} = '';  # an HTML formatted message printed at the bottom of the problem page
