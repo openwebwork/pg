@@ -404,7 +404,7 @@ our @ISA = ('Parser::BOP::multiply');
 #
 sub _eval {
   my ($self,$a,$b)= @_;
-  return ($a > 0 ? $a + $b : $a - $b);
+  return ($a >= 0 ? $a + $b : $a - $b);
 }
 
 #
