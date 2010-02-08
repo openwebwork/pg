@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/parserFormulaUpToConstant.pl,v 1.21 2009/06/25 23:28:44 gage Exp $
+# $CVSHeader: pg/macros/parserFormulaUpToConstant.pl,v 1.22 2009/10/07 14:39:19 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -139,10 +139,10 @@ sub new {
     unless $n->isConstant;
   #
   #  Make a version with adaptive parameters for use in the
-  #  comparison later on.  We could like n0*C, but already have $n
-  #  copies of C, so remove them.  That way, n0 will be 0 when there
+  #  comparison later on.  We could like n00*C, but already have $n
+  #  copies of C, so remove them.  That way, n00 will be 0 when there
   #  are no C's in the student answer during the adaptive comparison.
-  #  (Again, should really check that n0 is not in use already)
+  #  (Again, should really check that n00 is not in use already)
   #
   my $n00 = $context->variables->get("n00");
   $context->variables->add(n00=>'Parameter') unless $n00 and $n00->{parameter};
@@ -175,7 +175,7 @@ sub compare {
   $r = $r->substitute($r->{constant}=>$l->{constant}) unless $r->{constant} eq $l->{constant};
 
   #
-  #  Compare with adaptive parameters to see if $l + n0 C = $r for some n0.
+  #  Compare with adaptive parameters to see if $l + n00 C = $r for some n0.
   #
   my $adapt = $l->adapt;
   my $equal = Parser::Eval(sub {$adapt == $r});
@@ -185,7 +185,7 @@ sub compare {
   $_[1]->{test_values} = $r->{test_values};            # save these in student answer for diagnostics
   return -1 unless $equal;
   #
-  #  Check that n0 is non-zero (i.e., there is a multiple of C in the student answer)
+  #  Check that n00 is non-zero (i.e., there is a multiple of C in the student answer)
   #  (remember: return value of 0 is equal, and non-zero is unequal)
   #
   return abs($context->variables->get("n00")->{value}) < $context->flag("zeroLevelTol");
