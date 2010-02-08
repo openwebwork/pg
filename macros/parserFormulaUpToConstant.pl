@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/parserFormulaUpToConstant.pl,v 1.22 2009/10/07 14:39:19 dpvc Exp $
+# $CVSHeader: pg/macros/parserFormulaUpToConstant.pl,v 1.23 2010/02/08 13:56:09 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -163,7 +163,7 @@ sub new {
 #
 sub compare {
   my ($l,$r) = @_; my $self = $l; my $context = $self->context;
-  $r = Value::makeValue($r,context=>$context);
+  $r = Value::makeValue($r,context=>$context) unless Value::isValue($r);
   #
   #  Not equal if the student value is constant or has no + C
   #
@@ -173,6 +173,7 @@ sub compare {
   #  If constants aren't the same, substitute the professor's in the student answer.
   #
   $r = $r->substitute($r->{constant}=>$l->{constant}) unless $r->{constant} eq $l->{constant};
+  $r->context($context) unless $r->context == $context;
 
   #
   #  Compare with adaptive parameters to see if $l + n00 C = $r for some n0.
