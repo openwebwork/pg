@@ -372,9 +372,13 @@ sub classMatch {
 =cut
 
 sub makeValue {
-  my $x = shift; return $x if Value::isValue($x);
+  my $x = shift;
   my %params = (showError => 0, makeFormula => 1, context => Value->context, @_);
   my $context = $params{context};
+  if (Value::isValue($x)) {
+    return $x unless {@_}->{context};
+    return $x->copy->inContext($context);
+  }
   return $context->Package("Real")->make($context,$x) if matchNumber($x);
   if (matchInfinite($x)) {
     my $I = $context->Package("Infinity")->new($context);
