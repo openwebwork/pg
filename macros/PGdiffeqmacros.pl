@@ -780,10 +780,12 @@ sub level_curve_check {
     $check_eval->ans_hash(evaluation_points => $rh_correct_ans->{evaluation_points});
     $check_eval->evaluate($rh_correct_ans->{correct_ans});
     if( $check_eval->ans_hash->{score} == 0 or (defined($options{debug}) and $options{debug})) {
-	# write error message for professor
-	my $out1 = $check_eval->ans_hash->{evaluation_points};
-	my $rf_corrEq = $check_eval->ans_hash->{rf_student_ans};
-	my $error_string = "This equation $correctEqn is not constant on solution curves of  y'(t) = $diffEqRHS\r\n<br>
+	  # write error message for professor
+	  my $out1 = $check_eval->ans_hash->{evaluation_points};
+	  my $rf_corrEq = $check_eval->ans_hash->{rf_student_ans};
+        # if student answer is empty and go on, we get a pink screen
+        if($rf_corrEq) {
+	    my $error_string = "This equation $correctEqn is not constant on solution curves of  y'(t) = $diffEqRHS\r\n<br>
     		                    starting at ( $initial_t , $initial_y )<br>
     		                    $check_eval->ans_hash->pretty_print()".
 					"options<br>\n".pretty_print({	vars 	=> 	[@VARS], 
@@ -794,13 +796,14 @@ sub level_curve_check {
 									debug	=>	$options{debug},
 								    });
 	
-	for (my $i=0; $i<$numPoints;$i++) {
-	    my ($z, $err) = &$rf_corrEq( $out1->[$i][0], $out1->[$i][1] );
-	    $z = $err if defined $err;
-	    $error_string .= "F( ". $out1->[$i][0] . " , ". $out1->[$i][1] . " ) = $z <br>\r\n";
-	}
-	$error_string .= $rh_correct_ans->error_message();
-	warn $error_string, $check_eval->ans_hash->pretty_print;
+	    for (my $i=0; $i<$numPoints;$i++) {
+	      my ($z, $err) = &$rf_corrEq( $out1->[$i][0], $out1->[$i][1] );
+	      $z = $err if defined $err;
+	      $error_string .= "F( ". $out1->[$i][0] . " , ". $out1->[$i][1] . " ) = $z <br>\r\n";
+	    }
+	    $error_string .= $rh_correct_ans->error_message();
+	    warn $error_string, $check_eval->ans_hash->pretty_print;
+      }
     }
     
     my ($constant_eval) = fun_cmp('c', vars => [@VARS], 
