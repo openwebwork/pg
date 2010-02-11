@@ -784,7 +784,6 @@ sub level_curve_check {
 	  my $out1 = $check_eval->ans_hash->{evaluation_points};
 	  my $rf_corrEq = $check_eval->ans_hash->{rf_student_ans};
         # if student answer is empty and go on, we get a pink screen
-        if($rf_corrEq) {
 	    my $error_string = "This equation $correctEqn is not constant on solution curves of  y'(t) = $diffEqRHS\r\n<br>
     		                    starting at ( $initial_t , $initial_y )<br>
     		                    $check_eval->ans_hash->pretty_print()".
@@ -803,7 +802,6 @@ sub level_curve_check {
 	    }
 	    $error_string .= $rh_correct_ans->error_message();
 	    warn $error_string, $check_eval->ans_hash->pretty_print;
-      }
     }
     
     my ($constant_eval) = fun_cmp('c', vars => [@VARS], 
