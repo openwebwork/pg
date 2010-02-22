@@ -602,9 +602,9 @@ sub hash {
 #
 sub inherit {
   my $self = shift;
-  my %copy = (map {%$_} @_);  # copy values from given objects
+  my %copy = (map {%$_} @_,$self);  # copy values from given objects
   foreach my $id ($self->noinherit) {delete $copy{$id}}
-  $self = bless {%copy,%$self}, ref($self);
+  $self = bless {%copy}, ref($self);
   return $self;
 }
 
