@@ -218,7 +218,7 @@ package context::Fraction;
 sub Init {
   my $context = $main::context{Fraction} = Parser::Context->getCopy("Numeric");
   $context->{name} = "Fraction";
-  $context->{pattern}{signedNumber} .= '|-?\d+/\d+';
+  $context->{pattern}{signedNumber} = '(?:'.$context->{pattern}{signedNumber}.'|-?\d+/-?\d+)';
   $context->operators->set(
      "/"  => {class => "context::Fraction::BOP::divide"},
      "//" => {class => "context::Fraction::BOP::divide"},
