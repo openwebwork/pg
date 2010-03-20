@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Program Generation Language
 # Copyright  2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PGbasicmacros.pl,v 1.62 2009/07/18 02:50:50 gage Exp $
+# $CVSHeader: pg/macros/PGbasicmacros.pl,v 1.63 2010/01/07 18:02:53 jj Exp $
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -353,8 +353,8 @@ sub NAMED_HIDDEN_ANS_RULE { # this is used to hold information being passed into
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\\end{rawhtml}!,
-		HTML => qq!<INPUT TYPE=HIDDEN SIZE=$col NAME="$name" VALUE="$answer_value">!.
-                        qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE="$answer_value">!
+		HTML => qq!<INPUT TYPE=HIDDEN SIZE=$col NAME="$name" id ="$name" VALUE="$answer_value">!.
+                        qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" id = "previous_$name" VALUE="$answer_value">!
 	);
 }
 sub NAMED_ANS_RULE_OPTION {   # deprecated
@@ -377,7 +377,7 @@ sub NAMED_ANS_RULE_EXTENSION {
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = " ">\n\\end{rawhtml}\n!,
 		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME = "$name" id="$name" VALUE = "$answer_value">!.
-                        qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">!
+                        qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" id="previous_$name" VALUE = "$answer_value">!
 	);
 }
 
