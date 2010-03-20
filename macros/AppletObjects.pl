@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/AppletObjects.pl,v 1.23 2009/07/12 23:38:12 gage Exp $
+# $CVSHeader: pg/macros/AppletObjects.pl,v 1.24 2010/01/03 17:13:46 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -158,7 +158,7 @@ sub insertAll {  ## inserts both header text and object text
 	$base_64_encoded_answer_value =~ s/\r|\n//g;    # get rid of line returns
     # debug version of the applet state answerBox and controls
     my $debug_input_element  = qq!\n<textarea  rows="4" cols="80" 
-	   name = "$appletStateName">$decoded_answer_value</textarea><br/>!;
+	   name = "$appletStateName" id = "$appletStateName">$decoded_answer_value</textarea><br/>!;
 	if ($getState=~/\S/) {   # if getStateAlias is not an empty string
 		$debug_input_element .= qq!
 	        <input type="button"  value="$getState" 
@@ -193,14 +193,14 @@ sub insertAll {  ## inserts both header text and object text
     }
 	        
 	my $state_input_element = ($debugMode) ? $debug_input_element :
-	      qq!\n<input type="hidden" name = "$appletStateName" value ="$base_64_encoded_answer_value">!;
+	      qq!\n<input type="hidden" name = "$appletStateName" id = "$appletStateName"  value ="$base_64_encoded_answer_value">!;
     my $reset_button_str = ($reset_button) ?
-            qq!<input type='submit' name='previewAnswers' value='return this question to its initial state' onClick="setAppletStateToRestart('$appletName')"><br/>!
+            qq!<input type='submit' name='previewAnswers' id ='previewAnswers' value='return this question to its initial state' onClick="setAppletStateToRestart('$appletName')"><br/>!
             : ''  ;
             # <input type="button" value="reinitialize applet" onClick="getQE('$appletStateName').value='$base64_initialState'"/><br/>
 	# always base64 encode the hidden answer value to prevent problems with quotes. 
     #
-    $state_storage_html_code = qq!<input type="hidden"  name="previous_$appletStateName" value = "$base_64_encoded_answer_value">!              
+    $state_storage_html_code = qq!<input type="hidden"  name="previous_$appletStateName" id = "previous_$appletStateName"  value = "$base_64_encoded_answer_value">!              
                               . $state_input_element. $reset_button_str
                              ;
     my $answerBox_code ='';
