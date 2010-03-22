@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/contextInequalities.pl,v 1.21 2009/06/25 23:28:44 gage Exp $
+# $CVSHeader: pg/macros/contextInequalities.pl,v 1.22 2010/01/23 16:38:59 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -30,17 +30,19 @@ which allows only inequalities as a means of producing intervals.
 =head1 USAGE
 
 	loadMacros("contextInequalities.pl");
-
+	
 	Context("Inequalities");
 	$S1 = Compute("1 < x <= 4");
 	$S2 = Inequality("(1,4]");     # force interval to be inequality
-
+	
 	Context("Inequalities-Only");
 	$S1 = Compute("1 < x <= 4");
 	$S2 = Inequality("(1,4]");     # generates an error
-
-	$S3 = Compute("x < -2 or x > 2");  # forms a Union
-	$S4 = Compute("x = 1");            # forms a Set
+	
+	$S3 = Compute("x < -2 or x > 2");  # forms the Union (-inf,-2) U (2,inf)
+	$S4 = Compute("x > 2 and x <= 4"); # forms the Interval (2,4]
+	$S5 = Compute("x = 1");            # forms the Set
+	$S6 = Compute("x != 1");           # forms the Union (-inf,1) U (1,inf)
 
 You can set the "noneWord" flag to specify the string to
 use when the inequalities specify the empty set.  By default,
@@ -54,6 +56,26 @@ if you expect the student to be able to enter it.  For example
 
 creates an empty set as a named constant and uses that name.
 
+In addition to the noneWord flag, the inequality contexts accept the
+following additional flags:
+
+=over
+
+=item S<C<< showNotEquals >>>
+
+This controls whether intervals of the form (-inf,a) U (a,inf) are
+displayed as x != a or not.  The default is 1, meaning convert to
+x != a.
+
+=item S<C<< allowSloppyInequalities >>>
+
+This controls whether <= and >= can also be represented by =< and =>
+or not.  By default, both forms are allowed, to allow maximum
+flexibility in student answers, but if set to 0, only the first forms
+are allowed.
+
+=back
+
 Inequalities and interval notation both can coexist side by
 side, but you may wish to convert from one to the other.
 Use Inequality() to convert from an Interval, Set or Union
@@ -62,14 +84,27 @@ convert from an Inequality object to one in interval notation.
 For example:
 
 	$I0 = Compute("(1,2]");            # the interval (1,2]
-	$I1 = Inequality($I);              # the inequality 1 < x <= 2
-
+	$I1 = Inequality($I1);             # the inequality 1 < x <= 2
+	
 	$I0 = Compute("1 < x <= 2");       # the inequality 1 < x <= 2
 	$I1 = Interval($I0);               # the interval (1,2]
 
 Note that ineqaulities and inervals can be compared and combined
 regardless of the format, so $I0 == $I1 is true in either example
 above.
+
+Since Inequality objects are actually Interval objects, the variable
+used to create them doesn't matter.  That is,
+
+	$I0 = Compute("1 < x <= 2");
+	$I1 = Compute("1 < y <= 2");
+
+would both produce the same interval, so $I0 == $I1 would be true in
+this case.  If you need to distinguish between these two, use
+
+	$I0 == $I1 && $I0->{varName} eq $I1->{varName}
+
+instead.
 
 =cut
 
@@ -94,9 +129,15 @@ sub Init {
 
      '<=' => {precedence => .5, associativity => 'left', type => 'bin', string => ' <= ', TeX => '\le ',
               class => 'Inequalities::BOP::inequality', eval => 'evalLessThanOrEqualTo', combine => 1},
+     '=<' => {precedence => .5, associativity => 'left', type => 'bin', string => ' <= ', TeX => '\le ',
+              class => 'Inequalities::BOP::inequality', eval => 'evalLessThanOrEqualTo', combine => 1,
+              isSloppy => "<="},
 
      '>=' => {precedence => .5, associativity => 'left', type => 'bin', string => ' >= ', TeX => '\ge ',
               class => 'Inequalities::BOP::inequality', eval => 'evalGreaterThanOrEqualTo', combine => 1},
+     '=>' => {precedence => .5, associativity => 'left', type => 'bin', string => ' >= ', TeX => '\ge ',
+              class => 'Inequalities::BOP::inequality', eval => 'evalGreaterThanOrEqualTo', combine => 1,
+              isSloppy => ">="},
 
      '='  => {precedence => .5, associativity => 'left', type => 'bin', string => ' = ',
               class => 'Inequalities::BOP::inequality', eval => 'evalEqualTo'},
@@ -118,7 +159,11 @@ sub Init {
   $context->parens->set("[" => {type => "List", formInterval => ')'});  # trap these later
   $context->strings->remove("NONE");
   $context->constants->add(NONE=>Value::Set->new());
-  $context->flags->set(noneWord => 'NONE', showNotEquals => 1);
+  $context->flags->set(
+     noneWord => 'NONE',
+     showNotEquals => 1,            # display (-inf,a) U (a,inf) as x != a
+     allowSloppyInequalities => 1,  # allow =< and => as equivalent to <= and >=
+  );
   $context->{parser}{Variable} = "Inequalities::Variable";
   $context->{value}{'Interval()'} = "Inequalities::MakeInterval";
   $context->{value}{Inequality} = "Inequalities::Inequality";
@@ -145,8 +190,6 @@ sub Init {
   #  Define the Inequality() constructor
   #
   main::PG_restricted_eval('sub Inequality {Value->Package("Inequality")->new(@_)}');
-
-  return;
 }
 
 
@@ -169,6 +212,8 @@ our @ISA = ("Parser::BOP");
 #
 sub _check {
   my $self = shift;
+  $self->Error("'%s' should be written '%s'",$self->{bop},$self->{def}{isSloppy})
+    if (!$self->context->flag("allowSloppyInequalities") && $self->{def}{isSloppy});
   $self->{type} = $Value::Type{interval};
   $self->{isInequality} = 1;
   ($self->{varPos},$self->{numPos}) =
