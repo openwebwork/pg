@@ -156,16 +156,6 @@ you set allowMixedNumbers=>1 you should also set reduceConstants=>0.
 This parameter used to be named allowProperFractions, which is
 deprecated, but you can still use it for backward-compatibility.
 
-=item S<C<< requireProperFractions >>>
-
-This determines whether fractions MUST be entered as proper fractions.
-It is 0 by default, meaning improper fractions are allowed.  When set,
-you will not be able to enter 5/2 as a fraction, but must use "2 1/2".
-This flag is allowed only when strictFractions is in effect.
-Set it to 1 only when you also set allowMixedNumbers, or you will
-not be able to specify fractions bigger than one.  It is off by
-default in all three contexts.
-
 =item S<C<< showMixedNumbers >>>
 
 This controls whether fractions are displayed as proper fractions or
@@ -175,6 +165,28 @@ default in the Fraction and Fraction-NoDecimals contexts, and 1 in
 LimitedFraction.  This parameter used to be named showProperFractions,
 which is deprecated, but you can still use it for
 backward-compatibility.
+
+=item S<C<< requireProperFractions >>>
+
+This determines whether fractions MUST be entered as proper fractions.
+It is 0 by default, meaning improper fractions are allowed.  When set,
+you will not be able to enter 5/2 as a fraction, but must use "2 1/2".
+This flag is allowed only when strictFractions is in effect.  Set it
+to 1 only when you also set allowMixedNumbers, or you will not be able
+to specify fractions bigger than one.  It is off by default in all
+four contexts.  You should not set both requireProperFractions and
+requirePureFractions to 1.
+
+=item S<C<< requirePureFractions >>>
+
+This determines whether fractions MUST be entered as pure fractions
+rather than mixed numbers.  If allowMixedNumbers is also set, then
+mixed numbers will be properly interpretted, but will produce a
+warning message and be marked incorrect; that is, 2 3/4 would be
+recognized as 2+3/4 rather than 2*3/4, but would generate a message
+indicating that mixed numbers are not allowed.  This flag is off by
+default in all four contexts.  You should not set both
+requirePureFractions and requireProperFractions to 1.
 
 =back
 
@@ -236,6 +248,7 @@ sub Init {
     strictFractions => 0, strictMinus => 0, strictMultiplication => 0,
     allowMixedNumbers => 0,  # also set reduceConstants => 0 if you change this
     requireProperFractions => 0,
+    requirePureFractions => 0,
     showMixedNumbers => 0,
   );
   $context->reduction->set('a/b' => 1,'a b/c' => 1, '0 a/b' => 1);
@@ -426,6 +439,8 @@ sub _check {
                    $self->{rop}->eval >= 0);
   }
   if ($isFraction) {
+    $self->Error("Mixed numbers are not allowed; you must use a pure fraction")
+      if ($self->context->flag("requirePureFractions"));
     $self->{bop} = "  ";
     $self->{def} = $self->context->{operators}{$self->{bop}};
     if ($self->{lop}->class eq 'MINUS') {
