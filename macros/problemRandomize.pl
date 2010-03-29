@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader$
+# $CVSHeader: pg/macros/problemRandomize.pl,v 1.12 2009/06/25 23:28:44 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -180,6 +180,7 @@ sub new {
     when => "correct",
     onlyAfterDue => 1,
     style => "Button",
+    styleName => ($main::inputs_ref->{effectiveUser} ne $main::inputs_ref->{user} ? "checkAnswers" : "submitAnswers"),
     label => undef,
     buttonLabel => "Get a new version of this problem",
     checkboxLabel => "Get a new version of this problem",
@@ -219,6 +220,7 @@ sub initProblem {
   $main::PG_FLAGS{PROBLEM_GRADER_TO_USE} = \&problemRandomize::grader;
   $main::PG_FLAGS{problemRandomize} = $self;
   $self->reset if $self->{isReset};
+  $main::problemSeed = $self->{status}{seed};
   $self->{random}->srand($self->{status}{seed});
 }
 
@@ -258,7 +260,7 @@ sub randomizeButton {
   my $self = shift;
   my $label = quoteHTML(shift || $self->{buttonLabel});
   my $par = shift; $par = ($par ? $main::PAR : '');
-  $par . qq!<input type="submit" name="submitAnswers" value="$label" !
+  $par . qq!<input type="submit" name="$self->{styleName}" value="$label" !
        .  q!onclick="document.getElementById('_reseed').value=!.seed().'" />';
 }
 
@@ -269,7 +271,7 @@ sub randomizeInput {
   my $self = shift;
   my $label = quoteHTML(shift || $self->{inputLabel});
   my $par = shift; $par = ($par ? main::PAR : '');
-  $par . qq!<input type="submit" name="submitAnswers" value="$label" !
+  $par . qq!<input type="submit" name="$self->{styleName}" value="$label" !
        .  q!onclick="document.getElementById('_reseed').value=document.getElementById('_seed').value" />!
        . qq!<input name="_seed" id="_seed" value="$self->{status}{seed}" size="10">!;
 }
