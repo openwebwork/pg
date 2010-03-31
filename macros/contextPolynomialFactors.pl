@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2010 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/contextLimitedPolynomial.pl,v 1.23 2009/06/25 23:28:44 gage Exp $
+# $CVSHeader: pg/macros/contextPolynomialFactors.pl,v 1.1 2010/03/31 21:01:14 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -106,7 +106,7 @@ sub checkPolynomial {
 ##############################################
 
 package PolynomialFactors::BOP::multiply;
-our @ISA = qw(PolynomialFactors::BOP LimitedPolynomial::BOP::multiply);
+our @ISA = qw(LimitedPolynomial::BOP::multiply);
 
 sub checkPolynomial {
   my $self = shift;
