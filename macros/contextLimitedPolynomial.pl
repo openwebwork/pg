@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader$
+# $CVSHeader: pg/macros/contextLimitedPolynomial.pl,v 1.23 2009/06/25 23:28:44 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -50,6 +50,56 @@ loadMacros("MathObjects.pl");
 sub _contextLimitedPolynomial_init {LimitedPolynomial::Init()}; # don't load it again
 
 ##################################################
+
+package LimitedPolynomial;
+
+#
+#  Mark a variable as having power 1
+#  Mark a number as being present (when strict coefficients are used)
+#  Mark a monomial as having its given powers
+#
+sub markPowers {
+  my $self = shift;
+  if ($self->class eq 'Variable') {
+    my $vIndex = LimitedPolynomial::getVarIndex($self);
+    $self->{index} = $vIndex->{$self->{name}};
+    $self->{exponents} = [(0) x scalar(keys %{$vIndex})];
+    $self->{exponents}[$self->{index}] = 1;
+  } elsif ($self->class eq 'Number') {
+    my $vIndex = LimitedPolynomial::getVarIndex($self);
+    $self->{exponents} = [(0) x scalar(keys %{$vIndex})];
+  }
+  if ($self->{exponents}) {
+    my $power = join(',',@{$self->{exponents}});
+    $self->{powers}{$power} = 1;
+  }
+}
+
+#
+#  Get a hash of variable names that point to indices
+#  within the array of powers for a monomial
+#
+sub getVarIndex {
+  my $self = shift;
+  my $equation = $self->{equation};
+  if (!$equation->{varIndex}) {
+    $equation->{varIndex} = {}; my $i = 0;
+    foreach my $v ($equation->{context}->variables->names)
+      {$equation->{varIndex}{$v} = $i++}
+  }
+  return $equation->{varIndex};
+}
+
+#
+#  Check for a constant expression
+#
+sub isConstant {
+  my $self = shift;
+  return 1 if $self->{isConstant} || $self->class eq 'Constant';
+  return scalar(keys(%{$self->getVariables})) == 0;
+}
+
+##################################################
 #
 #  Handle common checking for BOPs
 #
@@ -62,7 +112,7 @@ package LimitedPolynomial::BOP;
 #
 sub _check {
   my $self = shift;
-  my $super = ref($self); $super =~ s/LimitedPolynomial/Parser/;
+  my $super = ref($self); $super =~ s/^.*?::/Parser::/;
   &{$super."::_check"}($self);
   if (LimitedPolynomial::isConstant($self->{lop}) &&
       LimitedPolynomial::isConstant($self->{rop})) {
@@ -133,62 +183,12 @@ sub checkStrict {
   $self->Error("Can't use '%s' between constants",$self->{bop});
 }
 
-##################################################
-
-package LimitedPolynomial;
-
-#
-#  Mark a variable as having power 1
-#  Mark a number as being present (when strict coefficients are used)
-#  Mark a monomial as having its given powers
-#
-sub markPowers {
-  my $self = shift;
-  if ($self->class eq 'Variable') {
-    my $vIndex = LimitedPolynomial::getVarIndex($self);
-    $self->{index} = $vIndex->{$self->{name}};
-    $self->{exponents} = [(0) x scalar(keys %{$vIndex})];
-    $self->{exponents}[$self->{index}] = 1;
-  } elsif ($self->class eq 'Number') {
-    my $vIndex = LimitedPolynomial::getVarIndex($self);
-    $self->{exponents} = [(0) x scalar(keys %{$vIndex})];
-  }
-  if ($self->{exponents}) {
-    my $power = join(',',@{$self->{exponents}});
-    $self->{powers}{$power} = 1;
-  }
-}
-
-#
-#  Get a hash of variable names that point to indices
-#  within the array of powers for a monomial
-#
-sub getVarIndex {
-  my $self = shift;
-  my $equation = $self->{equation};
-  if (!$equation->{varIndex}) {
-    $equation->{varIndex} = {}; my $i = 0;
-    foreach my $v ($equation->{context}->variables->names)
-      {$equation->{varIndex}{$v} = $i++}
-  }
-  return $equation->{varIndex};
-}
-
-#
-#  Check for a constant expression
-#
-sub isConstant {
-  my $self = shift;
-  return 1 if $self->{isConstant} || $self->class eq 'Constant';
-  return scalar(keys(%{$self->getVariables})) == 0;
-}
-
 ##############################################
 #
 #  Now we get the individual replacements for the operators
 #  that we don't want to allow.  We inherit everything from
 #  the original Parser::BOP class, and just add the
-#  polynomial checks here.  Note that checkpolynomial
+#  polynomial checks here.  Note that checkPolynomial
 #  only gets called if at least one of the terms is not
 #  a number.
 #
@@ -248,7 +248,7 @@ sub checkPolynomial {
   $self->Error("In a polynomial, you can only divide by numbers")
     unless LimitedPolynomial::isConstant($r);
   $self->Error("You can only divide a single term by a number")
-    if $l->{isPoly} && $l->{isPoly} == 1;
+    if $l->{isPoly} && $l->{isPoly} != 2;
   $self->{isPoly} = $l->{isPoly};
   $self->{powers} = $l->{powers}; delete $l->{powers};
   $self->{exponents} = $l->{exponents}; delete $l->{exponents};
@@ -299,18 +299,18 @@ package LimitedPolynomial::UOP;
 
 sub _check {
   my $self = shift;
-  my $super = ref($self); $super =~ s/LimitedPolynomial/Parser/;
+  my $super = ref($self); $super =~ s/^.*?::/Parser::/;
   &{$super."::_check"}($self);
   my $op = $self->{op};
   return if LimitedPolynomial::isConstant($op);
-  $self->Error("You can only use '%s' with monomials",$self->{def}{string})
-    if $op->{isPoly};
   $self->{isPoly} = 2;
   $self->{powers} = $op->{powers}; delete $op->{powers};
   $self->{exponents} = $op->{exponents}; delete $op->{exponents};
+  return if $self->checkPolynomial;
+  $self->Error("You can only use '%s' with monomials",$self->{def}{string});
 }
 
-sub checkPolynomial {return 0}
+sub checkPolynomial {return !(shift)->{op}{isPoly}}
 
 ##############################################
 
