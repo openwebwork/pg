@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2010 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/contextPolynomialFactors.pl,v 1.1 2010/03/31 21:01:14 dpvc Exp $
+# $CVSHeader: pg/macros/contextPolynomialFactors.pl,v 1.2 2010/03/31 21:45:42 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -55,7 +55,7 @@ strictDivision and strictPowers.  By default, strictDivisions is 0, so
 (x*(x+1))/3 is allowed, while strictPowers is 1, so (x*(x+1))^3 is not
 (it must be written x^3*(x+1)^3).
 
-Finally, there is also a strict limited context that does not allow
+Finally, there is also a strict context that does not allow
 operations even within the coefficients.  Select it using:
 
 	Context("PolynomialFactors-Strict");
@@ -109,8 +109,7 @@ package PolynomialFactors::BOP::multiply;
 our @ISA = qw(LimitedPolynomial::BOP::multiply);
 
 sub checkPolynomial {
-  my $self = shift;
-  my ($l,$r) = ($self->{lop},$self->{rop});
+  my $self = shift; my ($l,$r) = ($self->{lop},$self->{rop});
   my $lOK = (LimitedPolynomial::isConstant($l) || $l->{isPower} ||
 	     $l->class eq 'Variable' || ($l->{isPoly} && $l->{isPoly} == 2));
   my $rOK = ($r->{isPower} || $r->class eq 'Variable');
@@ -136,6 +135,7 @@ sub checkFactors {
     }
     $self->{factors}{$factor} = 1;
   }
+  delete $r->{factors};
   $self->{isPoly} = 4; # product of factors
   return 1;
 }
@@ -151,17 +151,15 @@ package PolynomialFactors::BOP::divide;
 our @ISA = qw(LimitedPolynomial::BOP::divide);
 
 sub checkPolynomial {
-  my $self = shift;
-  my ($l,$r) = ($self->{lop},$self->{rop});
+  my $self = shift; my ($l,$r) = ($self->{lop},$self->{rop});
   $self->Error("In a polynomial, you can only divide by numbers")
     unless LimitedPolynomial::isConstant($r);
   if ($l->{isPoly} && $l->{isPoly} != 2) {
     $self->Error("You can only divide a single term or factor by a number")
-      if $l->{isPoly} == 3 || ($self->context->flag("strictDivision") && $self->{isPoly} != 1);
-    PolynomialFactors::markFactor($l);
+      if $l->{isPoly} == 3 || ($self->context->flag("strictDivision") && $l->{isPoly} != 1);
+    PolynomialFactors::markOpFactor($self,$l);
     $self->Error("Only one constant multiple or fraction is allowed (combine them)")
-      if $l->{factors}{0} && $self->context->flag("singleFactors");
-    $self->{factors} = $l->{factors}; delete $l->{factors};
+      if $self->{factors}{0} && $self->context->flag("singleFactors");
     $self->{factors}{0} = 1; # mark as constant multiple;
     $self->{isPoly} = 3;  # factor over a number
   } else {
@@ -178,8 +176,7 @@ package PolynomialFactors::BOP::power;
 our @ISA = qw(LimitedPolynomial::BOP::power);
 
 sub checkPolynomial {
-  my $self = shift;
-  my ($l,$r) = ($self->{lop},$self->{rop});
+  my $self = shift; my ($l,$r) = ($self->{lop},$self->{rop});
   $self->Error("Exponents must be constant in a polynomial")
     unless LimitedPolynomial::isConstant($r);
   my $n = Parser::Evaluate($r);
@@ -190,8 +187,7 @@ sub checkPolynomial {
   if ($l->{isPoly}) {
     $self->Error("You can only raise a single term or factor to a power")
       if $l->{isPoly} > 2 && $self->context->flag("strictPowers");
-    PolynomialFactors::markFactor($l);
-    $self->{factors} = $l->{factors}; delete $l->{factors};
+    PolynomialFactors::markOpFactor($self,$l);
     $self->{isPoly} = 5; # factor to a power
   } else {
     LimitedPolynomial::markPowers($l);
@@ -216,11 +212,9 @@ sub checkPolynomial {
   my $self = shift; my $op = $self->{op};
   if ($op->{isPoly} && $self->context->flag("singleFactors")) {
     $self->Error("Double negatives are not allowed") if $op->{isPoly} == 2;
-    $self->Error("Only one factor or constant can be negated")
-      if $op->{isPoly} != 1 && $op->{isPoly} != 5;
+    $self->Error("Only one factor or constant can be negated") if $op->{isPoly} == 4;
   }
-  PolynomialFactors::markFactor($op);
-  $self->{factors} = $op->{factors}; delete $op->{factors};
+  PolynomialFactors::markOpFactor($self,$op);
   $self->{factors}{0} = 1; # mark as constant multiple
   return 1;
 }
@@ -243,6 +237,13 @@ sub markFactor {
   } elsif ($self->{isPower}) {
     $self->{factors}{$self->{lop}->string} = 1;
   }
+}
+
+sub markOpFactor {
+  my $self = shift; my $op = shift;
+  markFactor($op);
+  $self->{factors} = $op->{factors};
+  delete $op->{factors};
 }
 
 sub Init {
