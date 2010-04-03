@@ -271,7 +271,8 @@ sub draw {
     		my $dx = $dt*&{$self->dx_rule}($x,$y);
     		my $dy = $dt*&{$self->dy_rule}($x,$y);
     		$g->moveTo($x,$y);
-    		$g->stamps(new Circle($x, $y, $dot_radius,$dot_color,$dot_color) );
+    		$g->stamps(new Circle($x, $y, $dot_radius,$dot_color,$dot_color) ) if $dot_radius > 0; 
+    		    # setting the radius to zero omits the dot
     		$g->lineTo($x+$dx*&$rf_arrow_length($dx,$dy), $y+$dy*&$rf_arrow_length($dx,$dy),gdBrushed);
 
     	}
