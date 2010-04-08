@@ -224,9 +224,9 @@ sub compare {
 #  (so it's nodes point to the correct equation, for one thing)
 #
 sub inherit {
-  my $self = shift;
+  my $self = shift; my $tree = $self->{tree};
   $self = $self->SUPER::inherit(@_);
-  $self->{tree} = $self->{tree}->copy($self);
+  $self->{tree} = $tree->copy($self);
   return $self;
 }
 
