@@ -227,6 +227,7 @@ sub inherit {
   my $self = shift; my $tree = $self->{tree};
   $self = $self->SUPER::inherit(@_);
   $self->{tree} = $tree->copy($self);
+  $self->{variables} = $tree->getVariables;
   return $self;
 }
 
