@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2009 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/problemPanic.pl,v 1.5 2009/06/25 23:28:44 gage Exp $
+# $CVSHeader: pg/macros/problemPanic.pl,v 1.6 2010/04/27 02:00:37 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -156,7 +156,7 @@ sub Button {
   );
   my $label = $options{label};
   my $level = $options{level};
-  $penalty[$buttonCount] = $penalty[$buttonCount] + $options{penalty};
+  $penalty[$buttonCount] = $penalty[$buttonCount-1] + $options{penalty};
   $penalty[$buttonCount] = 1 if $penalty[$buttonCount] > 1;
   return if $isTeX || $main::panicked >= $level;
   my $time = time();
