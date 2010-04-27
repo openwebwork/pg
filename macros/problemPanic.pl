@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2009 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader$
+# $CVSHeader: pg/macros/problemPanic.pl,v 1.5 2009/06/25 23:28:44 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -102,7 +102,7 @@ a problem even after he or she has asked for a hint.
 
 To allow the grading penalties to work, you must include the command
 
-    Panic::GradeWithPenalty;
+    Panic::GradeWithPenalty();
 
 in order to install the panic-button grader.  You should do this afer
 setting the grader that you want to use for the problem itself, as the
@@ -112,7 +112,6 @@ Panic::GradWithPenalty command is issued.
 =cut
 
 sub _problemPanic_init {Panic::Init()}
-
 
 #
 #  The packge to contain the routines and data for the Panic buttons
@@ -194,7 +193,7 @@ sub GradeWithPenalty {
 
 #
 #  The grader for the panic levels.
-#  
+#
 sub grader {
   #
   #  Save the old score and call the original grader.
