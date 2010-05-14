@@ -1515,9 +1515,9 @@ evaluated before the problem template is read.  In PGbasicmacros.pl, the two sub
 #}
 
       # quicksort
-       sub PGsort {
+sub PGsort {
          my $cmp = shift;
-	 die "Must supply an ordering function with PGsort: PGsort  sub {$_[0]  <  $_[1] }, \@list\n" unless ref($cmp) eq 'CODE';
+	 die "Must supply an ordering function with PGsort: PGsort  sub {\$_[0]  < \$_[1] }, \@list\n" unless ref($cmp) eq 'CODE';
          if (@_ == 0) { return () }
          else {
            my $b_item = shift;
