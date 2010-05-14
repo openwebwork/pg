@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PGanswermacros.pl,v 1.71 2009/11/02 16:55:51 apizer Exp $
+# $CVSHeader: pg/macros/PGanswermacros.pl,v 1.72 2010/02/01 01:33:05 apizer Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -1447,100 +1447,6 @@ sub check_units {
 
 
 
-=head2 Filter utilities
-
-These two subroutines can be used in filters to set default options.  They
-help make filters perform in uniform, predictable ways, and also make it
-easy to recognize from the code which options a given filter expects.
-
-
-=head4 assign_option_aliases
-
-Use this to assign aliases for the standard options.  It must come before set_default_options
-within the subroutine.
-
-		assign_option_aliases(\%options,
-				'alias1'	=> 'option5'
-				'alias2'	=> 'option7'
-		);
-
-
-If the subroutine is called with an option  " alias1 => 23 " it will behave as if it had been
-called with the option " option5 => 23 "
-
-=cut
-
-
-# ^function assign_option_aliases
-sub assign_option_aliases {
-	my $rh_options = shift;
-	warn "The first entry to set_default_options must be a reference to the option hash" unless ref($rh_options) eq 'HASH';
-	my @option_aliases = @_;
-	while (@option_aliases) {
-		my $alias = shift @option_aliases;
-		my $option_key = shift @option_aliases;
-
-		if (defined($rh_options->{$alias} )) {                       # if the alias appears in the option list
-			if (not defined($rh_options->{$option_key}) ) {          # and the option itself is not defined,
-				$rh_options->{$option_key} = $rh_options->{$alias};  # insert the value defined by the alias into the option value
-				                                                     # the FIRST alias for a given option takes precedence
-				                                                     # (after the option itself)
-			} else {
-				warn "option $option_key is already defined as", $rh_options->{$option_key}, "<br>\n",
-				     "The attempt to override this option with the alias $alias with value ", $rh_options->{$alias},
-				     " was ignored.";
-			}
-		}
-		delete($rh_options->{$alias});                               # remove the alias from the initial list
-	}
-
-}
-
-=head4 set_default_options
-
-		set_default_options(\%options,
-				'_filter_name'	=>	'filter',
-				'option5'		=>  .0001,
-				'option7'		=>	'ascii',
-				'allow_unknown_options	=>	0,
-		}
-
-Note that the first entry is a reference to the options with which the filter was called.
-
-The option5 is set to .0001 unless the option is explicitly set when the subroutine is called.
-
-The B<'_filter_name'> option should always be set, although there is no error if it is missing.
-It is used mainly for debugging answer evaluators and allows
-you to keep track of which filter is currently processing the answer.
-
-If B<'allow_unknown_options'> is set to 0 then if the filter is called with options which do NOT appear in the
-set_default_options list an error will be signaled and a warning message will be printed out.  This provides
-error checking against misspelling an option and is generally what is desired for most filters.
-
-Occasionally one wants to write a filter which accepts a long list of options, not all of which are known in advance,
-but only uses a subset of the options
-provided.  In this case, setting 'allow_unkown_options' to 1 prevents the error from being signaled.
-
-=cut
-
-# ^function set_default_options
-# ^uses pretty_print
-sub set_default_options {
-	my $rh_options = shift;
-	warn "The first entry to set_default_options must be a reference to the option hash" unless ref($rh_options) eq 'HASH';
-	my %default_options = @_;
-	unless ( defined($default_options{allow_unknown_options}) and $default_options{allow_unknown_options} == 1 ) {
-		foreach  my $key1 (keys %$rh_options) {
-			warn "This option |$key1| is not recognized in this subroutine<br> ", pretty_print($rh_options) unless exists($default_options{$key1});
-		}
-	}
-	foreach my $key (keys %default_options) {
-		if  ( not defined($rh_options->{$key} ) and defined( $default_options{$key} )  ) {
-			$rh_options->{$key} = $default_options{$key};  #this allows     tol   => undef to allow the tol option, but doesn't define
-			                                               # this key unless tol is explicitly defined.
-		}
-	}
-}
 
 =head2 Problem Grader Subroutines
 
@@ -1875,14 +1781,20 @@ sub pretty_print {
     my $r_input = shift;
     my $out = '';
     if ( not ref($r_input) ) {
-    	$out = $r_input;    # not a reference
-    	$out =~ s/</&lt;/g;  # protect for HTML output
+    	$out = $r_input if defined $r_input;    # not a reference
+    	$out =~ s/</&lt;/g  ;  # protect for HTML output
     } elsif ("$r_input" =~/hash/i) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_iput).
 	    local($^W) = 0;
+	    
 		$out .= "$r_input " ."<TABLE border = \"2\" cellpadding = \"3\" BGCOLOR = \"#FFFFFF\">";
+		
+		
 		foreach my $key (lex_sort( keys %$r_input )) {
 			$out .= "<tr><TD> $key</TD><TD>=&gt;</td><td>&nbsp;".pretty_print($r_input->{$key}) . "</td></tr>";
 		}
+		
+		
+		
 		$out .="</table>";
 	} elsif (ref($r_input) eq 'ARRAY' ) {
 		my @array = @$r_input;
@@ -1895,7 +1807,7 @@ sub pretty_print {
 		$out = "$r_input";
 	} else {
 		$out = $r_input;
-		$out =~ s/</&lt;/g;  # protect for HTML output
+		$out =~ s/</&lt;/g ;  # protect for HTML output
 	}
 		$out;
 }

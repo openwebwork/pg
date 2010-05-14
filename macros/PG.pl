@@ -1,7 +1,560 @@
+
+#use AnswerEvaluator;
+
+
+# provided by the translator
+# initialize PGcore and PGrandom
+
+
+	$main::VERSION ="WW2";
+
+sub _PG_init{
+	$main::VERSION ="WW2.9+";
+}
+sub not_null {PGcore::not_null(@_)};
+
+
+our $PG;  
+
+sub DEBUG_MESSAGE {
+	$PG->append_debug_message(@_);
+}
+
+
+sub DOCUMENT {
+
+	# get environment
+	$rh_envir = \%envir;  #KLUDGE FIXME
+    # warn "rh_envir is ",ref($rh_envir);
+	$PG = new PGcore($rh_envir,	# can add key/value options to modify		
+	);
+    $PG->clear_internal_debug_messages;
+
+	# initialize main:: variables
+	
+	$ANSWER_PREFIX         		= $PG->{ANSWER_PREFIX};
+	$QUIZ_PREFIX           		= $PG->{QUIZ_PREFIX};
+	$showPartialCorrectAnswers 	= $PG->{PG_FLAGS}->{showPartialCorrectAnswers};
+	$showHint                   = $PG->{PG_FLAGS}->{showHint};
+	$solutionExists        		= $PG->{PG_FLAGS}->{solutionExists};
+	$hintExists            		= $PG->{PG_FLAGS}->{hintExists};
+	$pgComment                  = '';
+	%gifs_created          		= %{ $PG->{gifs_created}};
+	%external_refs         		= %{ $PG->{external_refs}};
+	
+	@KEPT_EXTRA_ANSWERS =();   #temporary hack
+	
+	my %envir              =   %$rh_envir;
+	$displayMode           = $PG->{displayMode};
+	$PG_random_generator        = $PG->{PG_random_generator};
+	# Save the file name for use in error messages
+	# Doesn't appear to be used FIXME
+#     my ($callpkg,$callfile) = caller(0);
+#     $envir{__files__}{$callfile} = $envir{templateDirectory}.$envir{fileName};
+
+ #no strict;
+    foreach  my  $var (keys %envir) {
+   		PG_restricted_eval(qq!\$main::$var = \$envir{$var}!);  #whew!! makes sure $var is interpolated but $main:: is evaluated at run time.
+        warn "Problem defining $var  while initializing the PG problem: $@" if $@;
+    }
+    #use strict;
+    #FIXME	
+    # load java script needed for displayModes
+    if ($envir{displayMode} eq 'HTML_jsMath') {
+		my $prefix = "";
+		if (!$envir{jsMath}{reportMissingFonts}) {
+			$prefix .= '<SCRIPT>noFontMessage = 1</SCRIPT>'."\n";
+		} elsif ($main::envir{jsMath}{missingFontMessage}) {
+			$prefix .= '<SCRIPT>missingFontMessage = "'.$main::envir{jsMath}{missingFontMessage}.'"</SCRIPT>'."\n";
+		}
+		$prefix .= '<SCRIPT>processDoubleClicks = '.($main::envir{jsMath}{processDoubleClicks}?'1':'0')."</SCRIPT>\n";
+		TEXT(
+		  $prefix, 
+		  '<SCRIPT SRC="'.$envir{jsMathURL}. '"></SCRIPT>' . "\n" ,
+		  '<NOSCRIPT><CENTER><FONT COLOR="#CC0000">' ,
+			  "$BBOLD", 'Warning: the mathematics on this page requires JavaScript.',  ,$BR,
+					'If your browser supports it, be sure it is enabled.',
+			  "$EBOLD",
+		  '</FONT></CENTER><p>
+		  </NOSCRIPT>' 
+		);
+		TEXT('<SCRIPT>jsMath.Setup.Script("plugins/noImageFonts.js")</SCRIPT>')
+		    if ($envir{jsMath}{noImageFonts});
+	} elsif ($envir{displayMode} eq 'HTML_asciimath') {
+		TEXT('<SCRIPT SRC="'.$main::envir{asciimathURL}.'"></SCRIPT>' . "\n" ,
+             '<SCRIPT>mathcolor = "black"</SCRIPT>' );
+    } elsif ($envir{displayMode} eq 'HTML_LaTeXMathML') {
+    	TEXT('<SCRIPT SRC="'.$envir{LaTeXMathMLURL}.'"></SCRIPT>'."\n");
+       
+    }
+
+}
+$main::displayMode = $PG->{displayMode};
+$main::PG = $PG;
+sub TEXT {
+	 $PG->TEXT(@_) ;
+}
+
+sub HEADER_TEXT {
+	$PG->HEADER_TEXT(@_);
+}
+
+sub LABELED_ANS {
+	$PG->LABELED_ANS(@_); # returns pointer to the labeled answer group
+}
+
+sub NAMED_ANS {
+	$PG->LABELED_ANS(@_); # returns pointer to the labeled answer group
+}
+
+sub ANS {
+    #warn "using PGnew for ANS";
+	$PG->ANS(@_);     # returns pointer to the labeled answer group
+}
+
+sub RECORD_ANS_NAME {
+	$PG->record_ans_name(@_);
+}
+
+sub inc_ans_rule_count {
+   #$PG->{unlabeled_answer_blank_count}++;
+   #my $num = $PG->{unlabeled_answer_blank_count};
+   DEBUG_MESSAGE( " using PG to inc_ans_rule_count = $num ", caller(2));
+   warn " using PG to inc_ans_rule_count = $num ", caller(2);
+   $PG->{unlabeled_answer_blank_count};
+}
+sub ans_rule_count {
+	$PG->{unlabeled_answer_blank_count};
+}
+sub NEW_ANS_NAME {
+     return "" if $PG_STOP_FLAG;
+	#my $number=shift;
+    # we have an internal count so the number not actually used.
+	my $name =$PG->record_unlabeled_ans_name();
+	$name;
+}
+sub NEW_ARRAY_NAME {
+     return "" if $PG_STOP_FLAG;
+	my $name =$PG->record_unlabeled_array_name();
+	$name;
+}
+
+# new subroutine
+sub NEW_ANS_BLANK {
+    return "" if $PG_STOP_FLAG;
+	$PG->record_unlabeled_ans_name(@_);
+}
+
+sub ANS_NUM_TO_NAME {
+	$PG->new_label(@_);  # behaves as in PG.pl
+}
+
+sub store_persistent_data {
+		$PG->store_persistent_data(@_); #needs testing
+}
+sub RECORD_FORM_LABEL {              # this stores form data (such as sticky answers), but does nothing more
+                                     # it's a bit of hack since we are storing these in the 
+                                     # KEPT_EXTRA_ANSWERS queue even if they aren't answers per se.
+    warn "Using RECORD_FORM_LABEL -- deprecated?";
+	RECORD_EXTRA_ANSWERS(@_);
+}
+
+sub RECORD_EXTRA_ANSWERS {                                     
+	return "" if $PG_STOP_FLAG;
+	my $label   = shift;             # the label of the input box or textarea
+    eval(q!push(@main::KEPT_EXTRA_ANSWERS, $label)!); #put the labels into the hash to be caught later for recording purposes
+    $label;
+
+}
+
+
+sub NEW_ANS_ARRAY_NAME {  # this keeps track of the answers within an array which are entered implicitly,
+                          # rather than with a specific label
+        return "" if $PG_STOP_FLAG;
+		my $number=shift;
+		$main::vecnum = -1;
+		my $row = shift;
+		my $col = shift;
+#       my $array_ans_eval_label = "ArRaY"."$number"."__"."$vecnum".":";
+		my $label = $PG->{QUIZ_PREFIX}.$PG->{ARRAY_PREFIX}."$number"."__"."$vecnum".":"."$row".":"."$col"."__";
+#		my $response_group = new PGresponsegroup($label,undef);
+#		$PG->record_ans_name($array_ans_eval_label, $response_group);
+#       What does vecnum do?
+#       The name is simply so that it won't conflict when placed on the HTML page
+#       my $array_label = shift;	
+		$PG->record_array_name($label);  # returns $array_label, $ans_label
+}
+
+sub NEW_ANS_ARRAY_NAME_EXTENSION {
+	NEW_ANS_ARRAY_ELEMENT_NAME(@_);
+}
+
+sub NEW_ANS_ARRAY_ELEMENT_NAME {   # creates a new array element answer name and records it   
+                                          
+        return "" if $PG_STOP_FLAG;
+		my $number=shift;   
+		my $row_num = shift;
+		my $col_num = shift;
+		if( $row_num == 0 && $col_num == 0 ){
+			$main::vecnum += 1;		
+		}
+#		my $ans_label = "ArRaY".sprintf("%04u", $number);
+		my $ans_label = $PG->new_array_label($number);
+		my $element_ans_label = $PG->new_array_element_label($ans_label,$row_num, $col_num,vec_num=>$vecnum);
+		my $response = new PGresponsegroup($ans_label,$element_ans_label, undef);
+		$PG->extend_ans_group($ans_label,$response);
+		$element_ans_label;
+}
+sub NEW_LABELED_ANS_ARRAY {    #not in PG_original
+		my $ans_label = shift;
+		my @response_list = @_;
+		#$PG->extend_ans_group($ans_label,@response_list);
+		$PG->{PG_ANSWERS_HASH}->{$ans_label}->insert_responses(@response_list);
+		# should this return an array of labeled answer blanks???
+}
+sub     EXTEND_ANS_ARRAY {    #not in PG_original
+		my $ans_label = shift;
+		my @response_list = @_;
+		#$PG->extend_ans_group($ans_label,@response_list);
+		$PG->{PG_ANSWERS_HASH}->{$ans_label}->append_responses(@response_list);
+}
+sub CLEAR_RESPONSES {
+	my $ans_label  = shift;
+#	my $response_label = shift;
+#	my $ans_value  = shift;
+	if (defined ($PG->{PG_ANSWERS_HASH}->{$ans_label}) ) {
+		my $responsegroup = $PG->{PG_ANSWERS_HASH}->{$ans_label}->{response};
+		if ( ref($responsegroup) ) {
+			$responsegroup->clear;
+		} else {
+			$responsegroup = $PG->{PG_ANSWERS_HASH}->{$ans_label}->{response} = new PGresponsegroup($label);	
+		}
+	}
+	'';
+}
+sub INSERT_RESPONSE { 
+	my $ans_label  = shift;
+	my $response_label = shift;
+	my $ans_value  = shift;
+	my $selected   = shift;
+	# warn "\n\nanslabel $ans_label responselabel $response_label value $ans_value";
+	if (defined ($PG->{PG_ANSWERS_HASH}->{$ans_label}) ) {
+		my $responsegroup = $PG->{PG_ANSWERS_HASH}->{$ans_label}->{response};
+		$responsegroup->append_response($response_label, $ans_value, $selected);
+		#warn "\n$responsegroup responses are now ", $responsegroup->responses;
+	}
+    '';
+}
+
+sub EXTEND_RESPONSE { # for radio buttons and checkboxes
+	my $ans_label  = shift;
+	my $response_label = shift;
+	my $ans_value  = shift;
+	my $selected   = shift;
+	# warn "\n\nanslabel $ans_label responselabel $response_label value $ans_value";
+	if (defined ($PG->{PG_ANSWERS_HASH}->{$ans_label}) ) {
+		my $responsegroup = $PG->{PG_ANSWERS_HASH}->{$ans_label}->{response};
+		$responsegroup->extend_response($response_label, $ans_value,$selected);
+		warn "\n$responsegroup responses are now ", pretty_print($response_group);
+	}
+    '';
+}
+sub ENDDOCUMENT {
+	# check that answers match
+	# gather up PG_FLAGS elements
+
+	
+	my @elements = qw(showPartialCorrectAnswers 
+					  recordSubmittedAnswers refreshCachedImages 
+					  hintExists  solutionExists  
+	);
+	while (@elements) {
+		my $var= shift @elements;
+		$PG->{PG_FLAGS}->{$var} = ${$var};
+	}
+	$PG->{PG_FLAGS}->{comment}            = $pgComment;  #KLUDGE #FIXME
+    $PG->{PG_FLAGS}->{showHintLimit}      = $showHint;   #KLUDGE #FIXME
+    
+    
+	# install problem grader
+	if (defined($PG->{PG_FLAGS}->{PROBLEM_GRADER_TO_USE})  ) {
+		# problem grader defined within problem -- no further action needed
+	} elsif ( defined( $rh_envir->{PROBLEM_GRADER_TO_USE} ) ) {
+		if (ref($rh_envir->{PROBLEM_GRADER_TO_USE}) eq 'CODE' ) {         # user defined grader
+			$PG->{PG_FLAGS}->{PROBLEM_GRADER_TO_USE} = $rh_envir->{PROBLEM_GRADER_TO_USE};
+		} elsif ($rh_envir->{PROBLEM_GRADER_TO_USE} eq 'std_problem_grader' ) {
+			if (defined(&std_problem_grader) ){
+				$PG->{PG_FLAGS}->{PROBLEM_GRADER_TO_USE} = \&std_problem_grader; # defined in PGanswermacros.pl
+			} # std_problem_grader is the default in any case so don't give a warning.
+		} elsif ($rh_envir->{PROBLEM_GRADER_TO_USE} eq 'avg_problem_grader' ) {
+			if (defined(&avg_problem_grader) ){
+				$PG->{PG_FLAGS}->{PROBLEM_GRADER_TO_USE} = \&avg_problem_grader; # defined in PGanswermacros.pl
+			}
+		} else {
+			warn "Error:  ". $PG->{PG_FLAGS}->{PROBLEM_GRADER_TO_USE} . "is not a known program grader.";
+		}
+	} elsif (defined(&std_problem_grader)) {
+		$PG->{PG_FLAGS}->{PROBLEM_GRADER_TO_USE} = \&std_problem_grader; # defined in PGanswermacros.pl
+	} else {
+		# PGtranslator will install its default problem grader
+	}
+	
+	# add javaScripts
+	if ($rh_envir->{displayMode} eq 'HTML_jsMath') {
+		TEXT('<SCRIPT> jsMath.wwProcess() </SCRIPT>');
+	} elsif ($rh_envir->{displayMode} eq 'HTML_asciimath') {
+		TEXT('<SCRIPT> translate() </SCRIPT>');
+		my $STRING = join("", @{$PG->{HEADER_ARRAY} });
+		unless ($STRING =~ m/mathplayer/) {
+			HEADER_TEXT('<object id="mathplayer" classid="clsid:32F66A20-7614-11D4-BD11-00104BD3F987">' . "\n" .
+						'</object><?import namespace="mml" implementation="#mathplayer"?>'
+			);
+		}
+	
+	}
+	TEXT( MODES(%{$rh_envir->{problemPostamble}}) );
+  
+    
+    
+	
+	
+	@PG_ANSWERS=();
+
+	#warn keys %{ $PG->{PG_ANSWERS_HASH} };
+	@PG_ANSWER_ENTRY_ORDER = ();
+	my $ans_debug = 0;
+	foreach my $key (keys %{ $PG->{PG_ANSWERS_HASH} }) {
+	        $answergroup = $PG->{PG_ANSWERS_HASH}->{$key};
+	        #warn "$key is defined =", defined($answergroup), "PG object is $PG";
+	        #################
+	        # EXTRA ANSWERS KLUDGE
+	        #################
+	        # The first response in each answer group is placed in @PG_ANSER_ENTRY_ORDER and %PG_ANSWERS_HASH
+	        # The remainder of the response keys are placed in the EXTRA ANSWERS ARRAY
+	        if (defined($answergroup)) {
+	            my @response_keys = $answergroup->{response}->response_labels;
+	            warn pretty_print($answergroup->{response}) if $ans_debug==1;
+	            my $response_key = shift @response_keys;
+	            #unshift @response_keys, $response_key unless ($response_key eq $answer_group->{ans_label});
+	            # don't save the first response key if it is the same as the ans_label
+	            # maybe we should insure that the first response key is always the same as the answer label?
+	            # even if no answer blank is printed for it? or a hidden answer blank?
+	            # this is still a KLUDGE
+	            # for compatibility the first response key is closer to the old method than the $ans_label
+	            # this is because a response key might indicate an array but an answer label won't
+	            push @PG_ANSWERS, $response_key,$answergroup->{ans_eval};
+	            push @PG_ANSWER_ENTRY_ORDER, $response_key;
+	            push @KEPT_EXTRA_ANSWERS, @response_keys;
+			} else {
+			    #warn "$key is ", join("|",%{$PG->{PG_ANSWERS_HASH}->{$key}});
+			}
+	}
+	push @KEPT_EXTRA_ANSWERS, keys %{$PG->{PERSISTENCE_HASH}};
+	my %PG_ANSWERS_HASH = @PG_ANSWERS;
+	$PG->{PG_FLAGS}->{KEPT_EXTRA_ANSWERS} = \@KEPT_EXTRA_ANSWERS;
+	$PG->{PG_FLAGS}->{ANSWER_ENTRY_ORDER} = \@PG_ANSWER_ENTRY_ORDER;
+    warn "KEPT_EXTRA_ANSWERS", join(" ", @KEPT_EXTRA_ANSWERS), $BR     if $ans_debug==1;
+    warn "PG_ANSWER_ENTRY_ORDER",join(" ",@PG_ANSWER_ENTRY_ORDER), $BR if $ans_debug==1;
+    warn "DEBUG messages", join( "$BR",@{$PG->get_debug_messages} ) if $ans_debug==1;
+    warn "INTERNAL_DEBUG messages", join( "$BR",@{$PG->get_internal_debug_messages} ) if $ans_debug==1;
+	$STRINGforOUTPUT      = join("", @{$PG->{OUTPUT_ARRAY} });
+	
+	
+	$STRINGforHEADER_TEXT = join("", @{$PG->{HEADER_ARRAY} }); 
+
+	# warn pretty_print($PG->{PG_ANSWERS_HASH});
+	#warn "printing another warning";
+
+	(\$STRINGforOUTPUT, \$STRINGforHEADER_TEXT,\%PG_ANSWERS_HASH,  $PG->{PG_FLAGS} , $PG   );
+}
+################################################################################
+#
+# macros from dangerousMacros
+#
+################################################################################
+sub alias {
+    #warn "alias called ",@_;
+    $PG->{PG_alias}->make_alias(@_)  ;
+}
+sub insertGraph {
+	$PG->insertGraph(@_);
+}
+
+sub findMacroFile {
+	$PG->{PG_alias}->findMacroFile(@_);
+}
+sub check_url {
+	$PG->{PG_alias}->check_url(@_);
+}
+sub findAppletCodebase {
+	$PG->{PG_alias}->findAppletCodebase(@_);
+}
+
+sub loadMacros {
+	$PG->{PG_loadMacros}->loadMacros(@_);
+}
+#  FIXME?  these were taken from the former dangerousMacros.pl file and might have issues when placed here.
+#
+#  Some constants that can be used in perl experssions
+#
+
+# ^function i
+# ^uses $_parser_loaded
+# ^uses &Complex::i
+# ^uses &Value::Package
+sub i () {
+  #  check if Parser.pl is loaded, otherwise use Complex package
+  if (!eval(q!$main::_parser_loaded!)) {return Complex::i}
+  return Value->Package("Formula")->new('i')->eval;
+}
+
+# ^function j
+# ^uses $_parser_loaded
+# ^uses &Value::Package
+sub j () {
+  if (!eval(q!$main::_parser_loaded!)) {return 'j'}
+  Value->Package("Formula")->new('j')->eval;
+}
+
+# ^function k
+# ^uses $_parser_loaded
+# ^uses &Value::Package
+sub k () {
+  if (!eval(q!$main::_parser_loaded!)) {return 'k'}
+  Value->Package("Formula")->new('k')->eval;
+}
+
+# ^function pi
+# ^uses &Value::Package
+sub pi () {Value->Package("Formula")->new('pi')->eval}
+
+# ^function Infinity
+# ^uses &Value::Package
+sub Infinity () {Value->Package("Infinity")->new()}
+
+
+# ^function abs
+# ^function sqrt
+# ^function exp
+# ^function log
+# ^function sin
+# ^function cos
+# ^function atan2
+#
+#  Allow these functions to be overridden
+#  (needed for log() to implement $useBaseTenLog)
+#
+use subs 'abs', 'sqrt', 'exp', 'log', 'sin', 'cos', 'atan2';
+sub abs($)  {return CORE::abs($_[0])};
+sub sqrt($) {return CORE::sqrt($_[0])};
+sub exp($)  {return CORE::exp($_[0])};
+sub log($)  {return CORE::log($_[0])};
+sub sin($)  {return CORE::sin($_[0])};
+sub cos($)  {return CORE::cos($_[0])};
+sub atan2($$) {return CORE::atan2($_[0],$_[1])};
+
+sub Parser::defineLog {eval {sub log($) {CommonFunction->Call("log",@_)}}};
+=head2 Filter utilities
+
+These two subroutines can be used in filters to set default options.  They
+help make filters perform in uniform, predictable ways, and also make it
+easy to recognize from the code which options a given filter expects.
+
+
+=head4 assign_option_aliases
+
+Use this to assign aliases for the standard options.  It must come before set_default_options
+within the subroutine.
+
+		assign_option_aliases(\%options,
+				'alias1'	=> 'option5'
+				'alias2'	=> 'option7'
+		);
+
+
+If the subroutine is called with an option  " alias1 => 23 " it will behave as if it had been
+called with the option " option5 => 23 "
+
+=cut
+
+
+# ^function assign_option_aliases
+sub assign_option_aliases {
+	my $rh_options = shift;
+	warn "The first entry to set_default_options must be a reference to the option hash" unless ref($rh_options) eq 'HASH';
+	my @option_aliases = @_;
+	while (@option_aliases) {
+		my $alias = shift @option_aliases;
+		my $option_key = shift @option_aliases;
+
+		if (defined($rh_options->{$alias} )) {                       # if the alias appears in the option list
+			if (not defined($rh_options->{$option_key}) ) {          # and the option itself is not defined,
+				$rh_options->{$option_key} = $rh_options->{$alias};  # insert the value defined by the alias into the option value
+				                                                     # the FIRST alias for a given option takes precedence
+				                                                     # (after the option itself)
+			} else {
+				warn "option $option_key is already defined as", $rh_options->{$option_key}, "<br>\n",
+				     "The attempt to override this option with the alias $alias with value ", $rh_options->{$alias},
+				     " was ignored.";
+			}
+		}
+		delete($rh_options->{$alias});                               # remove the alias from the initial list
+	}
+
+}
+
+=head4 set_default_options
+
+		set_default_options(\%options,
+				'_filter_name'	=>	'filter',
+				'option5'		=>  .0001,
+				'option7'		=>	'ascii',
+				'allow_unknown_options	=>	0,
+		}
+
+Note that the first entry is a reference to the options with which the filter was called.
+
+The option5 is set to .0001 unless the option is explicitly set when the subroutine is called.
+
+The B<'_filter_name'> option should always be set, although there is no error if it is missing.
+It is used mainly for debugging answer evaluators and allows
+you to keep track of which filter is currently processing the answer.
+
+If B<'allow_unknown_options'> is set to 0 then if the filter is called with options which do NOT appear in the
+set_default_options list an error will be signaled and a warning message will be printed out.  This provides
+error checking against misspelling an option and is generally what is desired for most filters.
+
+Occasionally one wants to write a filter which accepts a long list of options, not all of which are known in advance,
+but only uses a subset of the options
+provided.  In this case, setting 'allow_unkown_options' to 1 prevents the error from being signaled.
+
+=cut
+
+# ^function set_default_options
+# ^uses pretty_print
+sub set_default_options {
+	my $rh_options = shift;
+	warn "The first entry to set_default_options must be a reference to the option hash" unless ref($rh_options) eq 'HASH';
+	my %default_options = @_;
+	unless ( defined($default_options{allow_unknown_options}) and $default_options{allow_unknown_options} == 1 ) {
+		foreach  my $key1 (keys %$rh_options) {
+			warn "This option |$key1| is not recognized in this subroutine<br> ", pretty_print($rh_options) unless exists($default_options{$key1});
+		}
+	}
+	foreach my $key (keys %default_options) {
+		if  ( not defined($rh_options->{$key} ) and defined( $default_options{$key} )  ) {
+			$rh_options->{$key} = $default_options{$key};  #this allows     tol   => undef to allow the tol option, but doesn't define
+			                                               # this key unless tol is explicitly defined.
+		}
+	}
+}
+1;
+__END__
+
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader$
+# Copyright Â© 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# $CVSHeader: pg/macros/PG.pl,v 1.40 2009/06/25 23:28:44 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -93,194 +646,7 @@ up the results of problem processing for delivery back to WeBWorK.
 The HEADER_TEXT(), TEXT(), and ANS() macros add to the header text string,
 body text string, and answer evaluator queue, respectively.
 
-=cut
-
-BEGIN {
-	be_strict();
-}
-
-sub _PG_init{
-
-}
-
-#package PG;
-
-#  Private variables for the PG.pl file.
-
-# ^variable my $STRINGforOUTPUT
-my $STRINGforOUTPUT;
-# ^variable my $STRINGforHEADER_TEXT
-my $STRINGforHEADER_TEXT;
-# ^variable my @PG_ANSWERS
-my @PG_ANSWERS;
-# ^variable my @PG_UNLABELED_ANSWERS
-my @PG_UNLABELED_ANSWERS;
-# ^variable my %PG_ANSWERS_HASH
-my %PG_ANSWERS_HASH;
-
-# ^variable our $PG_STOP_FLAG
-our $PG_STOP_FLAG;
-
-# my variables are unreliable if two DOCUMENTS were to be called before an ENDDOCUMENT
-# there could be conflicts.  As I understand the behavior of the Apache child
-# this cannot occur -- a child finishes with one request before obtaining the next
-
-################################################################################
-
-=head1 MACROS
-
-These macros may be used from PG problem files.
-
 =over
-
-=item DOCUMENT()
-
-DOCUMENT() should be the first statement in each problem template.  It can
-only be used once in each problem.
-
-DOCUMENT() initializes some empty variables and unpacks the variables in the
-%envir hash which is implicitly passed from WeBWorK to the problem. It must be 
-the first statement in any problem. It also unpacks any answers submitted and
-places them in the @submittedAnswer list, saves the problem seed in
-$PG_original_problemSeed in case you need it later, and initializes the pseudo
-random number generator object in $PG_random_generator.
-
-You can reset the standard number generator using the command:
-
- $PG_random_generator->srand($new_seed_value);
-
-See also SRAND() in the L<PGbasicmacros.pl> file.
-
-=cut
-
-# ^function DOCUMENT
-# ^uses $STRINGforOUTPUT
-# ^uses $STRINGforHEADER_TEXT
-# ^uses @PG_ANSWERS
-# ^uses $PG_STOP_FLAG
-# ^uses @PG_UNLABELED_ANSWERS
-# ^uses %PG_ANSWERS_HASH
-# ^uses @PG_ANSWER_ENTRY_ORDER
-# ^uses $ANSWER_PREFIX
-# ^uses %PG_FLAGS
-# ^uses $showPartialCorrectAnswers
-# ^uses $showHints
-# ^uses $solutionExists
-# ^uses $hintExists
-# ^uses $pgComment
-# ^uses %gifs_created
-# ^uses %envir
-# ^uses $refSubmittedAnswers
-# ^uses @submittedAnswers
-# ^uses $PG_original_problemSeed
-# ^uses $problemSeed
-# ^uses $PG_random_generator
-# ^uses $ans_rule_count
-# ^uses $QUIZ_PREFIX
-# (Also creates a package scalar named after each key in %envir containing a copy of the corresponding value.)
-# ^uses &PGrandom::new
-sub DOCUMENT {
-
-	$STRINGforOUTPUT ="";
-    $STRINGforHEADER_TEXT ="";
-	@PG_ANSWERS=();
-	$PG_STOP_FLAG=0;
-	@PG_UNLABELED_ANSWERS = ();
-	%PG_ANSWERS_HASH = ();
-	# FIXME:  We are initializing these variables into both Safe::Root1 (the cached safe compartment) 
-	# and Safe::Root2 (the current one)
-	# There is a good chance they won't be properly updated in one or the other of these compartments.
-	
-
-# 	@main::PG_ANSWER_ENTRY_ORDER = ();
-# 	$main::ANSWER_PREFIX = 'AnSwEr';
-# 	%main::PG_FLAGS=();  #global flags
-# 	$main::showPartialCorrectAnswers = 0 unless defined($main::showPartialCorrectAnswers );
-# 	$main::showHint = 1 unless defined($main::showHint);
-# 	$main::solutionExists =0;
-# 	$main::hintExists =0;
-# 	%main::gifs_created = ();
-	eval(q!
-	# set perl to use capital E for scientific notation:  e.g.  5.4E-05 instead of 5.4e-05
-	# $#="%G";  #FIXME  -- this causes bad warnings in perl 5.10
-	
-	@main::PG_ANSWER_ENTRY_ORDER = ();
-	$main::ANSWER_PREFIX = 'AnSwEr';
-	%main::PG_FLAGS=();  #global flags
-	$main::showPartialCorrectAnswers = 0 unless defined($main::showPartialCorrectAnswers );
-	$main::showHint = 1 unless defined($main::showHint);
-	$main::solutionExists =0;
-	$main::hintExists =0;
-	$main::pgComment = '';
-	%main::gifs_created = ();
-	
-    !);
-#    warn eval(q! "PG.pl:  The envir variable $main::{envir} is".join(" ",%main::envir)!);
-    my $rh_envir = eval(q!\%main::envir!);
-    my %envir    = %$rh_envir;
-
-    # Save the file name for use in error messages
-    my ($callpkg,$callfile) = caller(0);
-    $envir{__files__}{$callfile} = $envir{templateDirectory}.$envir{fileName};
-
-    #no strict;
-    foreach  my  $var (keys %envir) {
-   		eval(q!$main::!.$var.q! = $main::envir{!.$var.q!}! );  #whew!! makes sure $var is interpolated but $main:: is evaluated at run time.
-    #    warn eval(q! "var $var is defined ". $main::!.$var);
-        warn "Problem defining ", q{\$main::}.$var, " while initializing the PG problem: $@" if $@;
-    }
-    #use strict;
-    #FIXME these strict pragmas don't seem to be needed and they cause trouble in perl 5.6.0
-
-    
-
-    eval(q!
-	@main::submittedAnswers = @{$main::refSubmittedAnswers} if defined($main::refSubmittedAnswers);
-	$main::PG_original_problemSeed = $main::problemSeed;
-	$main::PG_random_generator = new PGrandom($main::problemSeed) || die "Can't create random number generator.";
-	$main::ans_rule_count = 0;  # counts questions
-
-  	# end unpacking of environment variables.
-  	$main::QUIZ_PREFIX = '' unless defined($main::QUIZ_PREFIX)
-  
-	!);
-# 	@main::submittedAnswers = @{$main::refSubmittedAnswers} if defined($main::refSubmittedAnswers);
-# 	$main::PG_original_problemSeed = $main::problemSeed;
-# 	$main::PG_random_generator = new PGrandom($main::problemSeed) || die "Can't create random number generator.";
-# 	$main::ans_rule_count = 0;  # counts questions
-
-  	# end unpacking of environment variables.
-#  	$main::QUIZ_PREFIX = '' unless defined($main::QUIZ_PREFIX)
-
-	if ($main::envir{displayMode} eq 'HTML_jsMath') {
-		my $prefix = "";
-		if (!$main::envir{jsMath}{reportMissingFonts}) {
-			$prefix .= '<SCRIPT>noFontMessage = 1</SCRIPT>'."\n";
-		} elsif ($main::envir{jsMath}{missingFontMessage}) {
-			$prefix .= '<SCRIPT>missingFontMessage = "'.$main::envir{jsMath}{missingFontMessage}.'"</SCRIPT>'."\n";
-		}
-		$prefix .= '<SCRIPT>processDoubleClicks = '.($main::envir{jsMath}{processDoubleClicks}?'1':'0')."</SCRIPT>\n";
-		$STRINGforOUTPUT =
-		  $prefix . 
-		  '<SCRIPT SRC="'.$main::envir{jsMathURL}.'"></SCRIPT>' . "\n" .
-		  '<NOSCRIPT><CENTER><FONT COLOR="#CC0000">' .
-		  '<B>Warning: the mathematics on this page requires JavaScript.<BR>' .
-		  'If your browser supports it, be sure it is enabled.</B>'.
-		  '</FONT></CENTER><p></NOSCRIPT>' .
-		  $STRINGforOUTPUT;
-		$STRINGforOUTPUT .= 
-		  '<SCRIPT>jsMath.Setup.Script("plugins/noImageFonts.js")</SCRIPT>'
-		    if ($main::envir{jsMath}{noImageFonts});
-	}
-	
-	$STRINGforOUTPUT = '<SCRIPT SRC="'.$main::envir{asciimathURL}.'"></SCRIPT>' . "\n" .
-                           '<SCRIPT>mathcolor = "black"</SCRIPT>' . $STRINGforOUTPUT
-	  if ($main::envir{displayMode} eq 'HTML_asciimath');
-
-	$STRINGforOUTPUT = '<SCRIPT SRC="'.$main::envir{LaTeXMathMLURL}.'"></SCRIPT>'."\n" . $STRINGforOUTPUT
-	  if ($main::envir{displayMode} eq 'HTML_LaTeXMathML');
-
-}
 
 =item HEADER_TEXT()
 
@@ -296,14 +662,7 @@ Spaces are placed between the arguments during concatenation, but no spaces are
 introduced between the existing content of the header text string and the new
 content being appended.
 
-=cut
 
-# ^function HEADER_TEXT
-# ^uses $STRINGforHEADER_TEXT
-sub HEADER_TEXT {
-	my @in = @_;
-	$STRINGforHEADER_TEXT .= join(" ",@in);
-	}
 
 =item TEXT()
 
@@ -326,16 +685,7 @@ Spaces are placed between the arguments during concatenation, but no spaces are
 introduced between the existing content of the header text string and the new
 content being appended.
 
-=cut
 
-# ^function TEXT
-# ^uses $PG_STOP_FLAG
-# ^uses $STRINGforOUTPUT
-sub TEXT {
-	return "" if $PG_STOP_FLAG;
-	my @in = @_;
-	$STRINGforOUTPUT .= join(" ",@in);
-}
 
 =item ANS()
 
@@ -352,21 +702,7 @@ third. In practice, the arguments to ANS() will usually be calls to an answer
 evaluator generator such as the cmp() method of MathObjects or the num_cmp()
 macro in L<PGanswermacros.pl>.
 
-=cut
 
-# ^function ANS
-# ^uses $PG_STOP_FLAG
-# ^uses @PG_ANSWERS
-sub ANS{
-  return "" if $PG_STOP_FLAG;
-  my @in = @_;
-  while (@in ) {
-         warn("<BR><B>Error in ANS:$in[0]</B> -- inputs must be references to
-                      subroutines<BR>")
-			unless ref($in[0]);
-    	push(@PG_ANSWERS, shift @in );
-  }
-}
 
 =item LABELED_ANS()
 
@@ -378,35 +714,8 @@ They will be paired with labeled answer rules (a.k.a. answer blanks) in the
 order entered. This allows pairing of answer evaluators and answer rules that
 may not have been entered in the same order.
 
-=cut
 
-# ^function LABELED_ANS
-# ^uses &NAMED_ANS
-sub LABELED_ANS {
-	&NAMED_ANS;
-}
 
-=item NAMED_ANS()
-
-Old name for LABELED_ANS(). DEPRECATED.
-
-=cut
-
-# ^function NAMED_ANS
-# ^uses $PG_STOP_FLAG
-sub NAMED_ANS{
-  return "" if $PG_STOP_FLAG;
-  my @in = @_;
-  while (@in ) {
-  	my $label = shift @in;
-  	$label = eval(q!$main::QUIZ_PREFIX.$label!);
-  	my $ans_eval = shift @in;
-  	TEXT("<BR><B>Error in NAMED_ANS:$in[0]</B>
-  	      -- inputs must be references to subroutines<BR>")
-			unless ref($ans_eval);
-  	$PG_ANSWERS_HASH{$label}= $ans_eval;
-  }
-}
 
 =item STOP_RENDERING()
 
@@ -415,14 +724,7 @@ sub NAMED_ANS{
 Temporarily suspends accumulation of problem text and storing of answer blanks
 and answer evaluators until RESUME_RENDERING() is called.
 
-=cut
 
-# ^function STOP_RENDERING
-# ^uses $PG_STOP_FLAG
-sub STOP_RENDERING {
-	$PG_STOP_FLAG=1;
-	"";
-}
 
 =item RESUME_RENDERING()
 
@@ -431,14 +733,7 @@ sub STOP_RENDERING {
 Resumes accumulating problem text and storing answer blanks and answer
 evaluators. Reverses the effect of STOP_RENDERING().
 
-=cut
 
-# ^function RESUME_RENDERING
-# ^uses $PG_STOP_FLAG
-sub RESUME_RENDERING {
-	$PG_STOP_FLAG=0;
-	"";
-}
 
 =item ENDDOCUMENT()
 
@@ -449,7 +744,8 @@ interpreted as the return value of ENDDOCUMENT(). Therefore, ENDDOCUMENT() must
 be the last executable statement of every problem. It can only appear once. It
 returns a list consisting of:
 
-=over
+
+
 
 =item *
 
@@ -468,7 +764,7 @@ A reference to the hash mapping answer labels to answer evaluators.
 
 A reference to a hash containing various flags:
 
-=over
+
 
 =item *
 
@@ -532,85 +828,9 @@ and the PG translator should select C<&std_problem_grader>.
 
 =back
 
-=back
+
 
 =cut
-
-# ^function ENDDOCUMENT
-# ^uses @PG_UNLABELED_ANSWERS
-# ^uses %PG_ANSWERS_HASH
-# ^uses @PG_ANSWERS
-sub ENDDOCUMENT {
-
-    my $index=0;
-    foreach my $label (@PG_UNLABELED_ANSWERS) {
-        if ( defined($PG_ANSWERS[$index]) ) {
-    		$PG_ANSWERS_HASH{"$label"}= $PG_ANSWERS[$index];
- 			#warn "recording answer label = $label";
-    	} else {
-    		warn "No answer provided by instructor for answer $label";
-    	}
-    	$index++;
-    }
-
-    $STRINGforOUTPUT .="\n";
-   eval q{  #make sure that "main" points to the current safe compartment by evaluating these lines.
-		$main::PG_FLAGS{'showPartialCorrectAnswers'} = $main::showPartialCorrectAnswers;
-		$main::PG_FLAGS{'recordSubmittedAnswers'} = $main::recordSubmittedAnswers;
-		$main::PG_FLAGS{'refreshCachedImages'} = $main::refreshCachedImages;
-		$main::PG_FLAGS{'comment'} = $main::pgComment;
-		$main::PG_FLAGS{'hintExists'} = $main::hintExists;
-		$main::PG_FLAGS{'showHintLimit'} = $main::showHint;
-		$main::PG_FLAGS{'solutionExists'} = $main::solutionExists;
-		$main::PG_FLAGS{ANSWER_ENTRY_ORDER} = \@main::PG_ANSWER_ENTRY_ORDER;
-		$main::PG_FLAGS{KEPT_EXTRA_ANSWERS} = \@main::KEPT_EXTRA_ANSWERS;##need to keep array labels that don't call "RECORD_ANS_NAME"
-		$main::PG_FLAGS{ANSWER_PREFIX} = $main::ANSWER_PREFIX;
-		# install problem grader
-		if (defined($main::PG_FLAGS{PROBLEM_GRADER_TO_USE}) ) {
-			# problem grader defined within problem -- no further action needed
-		} elsif ( defined( $main::envir{PROBLEM_GRADER_TO_USE} ) ) {
-			if (ref($main::envir{PROBLEM_GRADER_TO_USE}) eq 'CODE' ) {         # user defined grader
-				$main::PG_FLAGS{PROBLEM_GRADER_TO_USE} = $main::envir{PROBLEM_GRADER_TO_USE};
-			} elsif ($main::envir{PROBLEM_GRADER_TO_USE} eq 'std_problem_grader' ) {
-				if (defined(&std_problem_grader) ){
-					$main::PG_FLAGS{PROBLEM_GRADER_TO_USE} = \&std_problem_grader; # defined in PGanswermacros.pl
-				} # std_problem_grader is the default in any case so don't give a warning.
-			} elsif ($main::envir{PROBLEM_GRADER_TO_USE} eq 'avg_problem_grader' ) {
-				if (defined(&avg_problem_grader) ){
-					$main::PG_FLAGS{PROBLEM_GRADER_TO_USE} = \&avg_problem_grader; # defined in PGanswermacros.pl
-				}
-				#else { # avg_problem_grader will be installed by PGtranslator so there is no need for a warning.
-				#	warn "The problem grader 'avg_problem_grader' has not been defined.  Has PGanswermacros.pl been loaded?";
-				#}
-			} else {
-				warn "Error:  $main::PG_FLAGS{PROBLEM_GRADER_TO_USE} is not a known program grader.";
-			}
-		} elsif (defined(&std_problem_grader)) {
-			$main::PG_FLAGS{PROBLEM_GRADER_TO_USE} = \&std_problem_grader; # defined in PGanswermacros.pl
-		} else {
-			# PGtranslator will install its default problem grader
-		}
-	
-    warn "ERROR: The problem grader is not a subroutine" unless ref( $main::PG_FLAGS{PROBLEM_GRADER_TO_USE}) eq 'CODE'
-										 or $main::PG_FLAGS{PROBLEM_GRADER_TO_USE} = 'std_problem_grader'
-										 or $main::PG_FLAGS{PROBLEM_GRADER_TO_USE} = 'avg_problem_grader';
-     # return results
-    };
-
-    $STRINGforOUTPUT .= '<SCRIPT> jsMath.wwProcess() </SCRIPT>'
-      if ($main::envir{displayMode} eq 'HTML_jsMath');
-
-    if ($main::envir{displayMode} eq 'HTML_asciimath') {
-      $STRINGforOUTPUT .= '<SCRIPT> translate() </SCRIPT>';
-      $STRINGforHEADER_TEXT .=
-        '<object id="mathplayer" classid="clsid:32F66A20-7614-11D4-BD11-00104BD3F987">' . "\n" .
-        '</object><?import namespace="mml" implementation="#mathplayer"?>'
-	unless ($STRINGforHEADER_TEXT =~ m/mathplayer/);
-    }	
-	$STRINGforOUTPUT .= MODES(%{PG_restricted_eval('$main::problemPostamble')});
-    
-	(\$STRINGforOUTPUT, \$STRINGforHEADER_TEXT,\%PG_ANSWERS_HASH,eval(q!\%main::PG_FLAGS!));
-}
 
 
 ################################################################################
@@ -624,7 +844,7 @@ used exclusively by L<PGbasicmacros.pl>.
 
 =item inc_ans_rule_count()
 
- NEW_ANS_NAME(inc_ans_rule_count());
+ NEW_ANS_NAME();
 
 Increments the internal count of the number of answer blanks that have been
 defined ($ans_rule_count) and returns the new count. This should only be used
@@ -632,54 +852,24 @@ when one is about to define a new answer blank, for example with NEW_ANS_NAME().
 
 =cut
 
-# ^function inc_ans_rule_count
-# ^uses $ans_rule_count
-sub inc_ans_rule_count {
-	eval(q!++$main::ans_rule_count!); # evalute at runtime to get correct main::
-}
-
 =item RECORD_ANS_NAME()
 
- RECORD_ANS_NAME("label");
+ RECORD_ANS_NAME("label", "VALUE");
 
 Records the label for an answer blank. Used internally by L<PGbasicmacros.pl>
 to record the order of explicitly-labelled answer blanks.
 
 =cut
 
-# ^function RECORD_ANS_NAME
-# ^uses $PG_STOP_FLAG
-# ^uses @PG_ANSWER_ENTRY_ORDER
-sub RECORD_ANS_NAME {
-    return "" if $PG_STOP_FLAG;
-	my $label = shift;
-	eval(q!push(@main::PG_ANSWER_ENTRY_ORDER, $label)!);
-	$label;
-}
-
 =item NEW_ANS_NAME()
 
- NEW_ANS_NAME($num);
+ NEW_ANS_NAME();
 
-Generates an answer label from the supplied answer number. The label is
+Generates an anonymous answer label from the internal count The label is
 added to the list of implicity-labeled answers. Used internally by
 L<PGbasicmacros.pl> to generate labels for unlabeled answer blanks.
 
 =cut
-
-# ^function NEW_ANS_NAME
-# ^uses $PG_STOP_FLAG
-# ^uses $QUIZ_PREFIX
-# ^uses $ANSWER_PREFIX
-# ^uses @PG_UNLABELED_ANSWERS
-sub NEW_ANS_NAME {
-        return "" if $PG_STOP_FLAG;
-		my $number=shift;
-		my $prefix = eval(q!$main::QUIZ_PREFIX.$main::ANSWER_PREFIX!);
-		my $label = $prefix.$number;
-		push(@PG_UNLABELED_ANSWERS,$label);
-		$label;
-}
 
 =item ANS_NUM_TO_NAME()
 
@@ -694,17 +884,6 @@ labeled answers once.)
 
 =cut
 
-# ^function ANS_NUM_TO_NAME
-# ^uses $QUIZ_PREFIX
-# ^uses $ANSWER_PREFIX
-sub ANS_NUM_TO_NAME {
-		my $number=shift;
-		my $label = eval(q!$main::QUIZ_PREFIX.$main::ANSWER_PREFIX!).$number;
-		$label;
-}
-
-my $vecnum;
-
 =item RECORD_FROM_LABEL()
 
  RECORD_FORM_LABEL("label");
@@ -713,17 +892,6 @@ Stores the label of a form field in the "extra" answers list. This is used to
 keep track of answer blanks that are not associated with an answer evaluator.
 
 =cut
-
-# ^function RECORD_FORM_LABEL
-# ^uses $PG_STOP_FLAG
-# ^uses @KEPT_EXTRA_ANSWERS
-sub RECORD_FORM_LABEL  {             # this stores form data (such as sticky answers), but does nothing more
-                                     # it's a bit of hack since we are storing these in the KEPT_EXTRA_ANSWERS queue even if they aren't answers per se.
-	return "" if $PG_STOP_FLAG;
-	my $label   = shift;             # the label of the input box or textarea
-    eval(q!push(@main::KEPT_EXTRA_ANSWERS, $label)!); #put the labels into the hash to be caught later for recording purposes
-    $label;
-}
 
 =item NEW_ANS_ARRAY_NAME()
 
@@ -734,23 +902,6 @@ list of implicitly-labeled answers.
 
 =cut
 
-# ^function NEW_ANS_ARRAY_NAME
-# ^uses $PG_STOP_FLAG
-# ^uses $QUIZ_PREFIX
-# ^uses @PG_UNLABELED_ANSWERS
-sub NEW_ANS_ARRAY_NAME {        # this keeps track of the answers which are entered implicitly,
-                          # rather than with a specific label
-        return "" if $PG_STOP_FLAG;
-		my $number=shift;
-		$vecnum = 0;
-		my $row = shift;
-		my $col = shift;
-#		my $label = "ArRaY"."$number"."["."$vecnum".","."$row".","."$col"."]";
-		my $label = eval(q!$main::QUIZ_PREFIX."ArRaY"."$number"."__"."$vecnum".":"."$row".":"."$col"."__"!);
-		push(@PG_UNLABELED_ANSWERS,$label);
-		$label;
-}
-
 =item NEW_ANS_ARRAY_NAME_EXTENSION()
 
  NEW_ANS_ARRAY_NAME_EXTENSION($num, $row, $col);
@@ -760,26 +911,6 @@ add it to the list of "extra" answers.
 
 =cut
 
-# ^function NEW_ANS_ARRAY_NAME_EXTENSION
-# ^uses $PG_STOP_FLAG
-sub NEW_ANS_ARRAY_NAME_EXTENSION {        # this keeps track of the answers which are entered implicitly,
-                                          # rather than with a specific label
-        return "" if $PG_STOP_FLAG;
-		my $number=shift;
-		my $row = shift;
-		my $col = shift;
-		if( $row == 0 && $col == 0 ){
-			$vecnum += 1;		
-		}
-		#FIXME   change made to conform to HTML 4.01 standards.  "Name" attributes can only contain
-		# alphanumeric characters,   _ : and .   
-		# Also need to make corresponding changes in PGmorematrixmacros.  grep for ArRaY.
-		#my $label = "ArRaY"."$number"."["."$vecnum".","."$row".","."$col"."]";
-		my $label = eval(q!$main::QUIZ_PREFIX."ArRaY"."$number"."__"."$vecnum".":"."$row".":"."$col"."__"!);
-		eval(q!push(@main::KEPT_EXTRA_ANSWERS, $label)!);#put the labels into the hash to be caught later for recording purposes
-		$label;
-}
-
 =item get_PG_ANSWERS_HASH()
 
  get_PG_ANSWERS_HASH();
@@ -788,37 +919,6 @@ sub NEW_ANS_ARRAY_NAME_EXTENSION {        # this keeps track of the answers whic
 
 
 =cut
-
-# ^function get_PG_ANSWERS_HASH
-# ^uses %PG_ANSWERS_HASH
-# ^uses @PG_UNLABELED_ANSWERS
-# ^uses @PG_ANSWERS
-sub get_PG_ANSWERS_HASH {
-	# update the PG_ANSWWERS_HASH, then report the result.  
-	# This is used in writing sequential problems
-	# if there is an input, use that as a key into the answer hash
-	my $key = shift;
-	my (%pg_answers_hash, @pg_unlabeled_answers);
-	%pg_answers_hash= %PG_ANSWERS_HASH;
-	#warn "order ", eval(q!@main::PG_ANSWER_ENTRY_ORDER!);
-	#warn "pg answers", %PG_ANSWERS_HASH;
-	#warn "unlabeled", @PG_UNLABELED_ANSWERS;
-    my $index=0;
-    foreach my $label (@PG_UNLABELED_ANSWERS) {
-        if ( defined($PG_ANSWERS[$index]) ) {
-    		$pg_answers_hash{"$label"}= $PG_ANSWERS[$index];
- 			#warn "recording answer label = $label";
-    	} else {
-    		warn "No answer provided by instructor for answer $label";
-    	}
-    	$index++;
-    }
-    if ($key) {
-    	return $pg_answers_hash{$key};
-    } else {
-    	return %pg_answers_hash;
-    }
-}
 
 =item includePGproblem($filePath)
 
@@ -830,33 +930,6 @@ sub get_PG_ANSWERS_HASH {
 
 =cut
 
-# ^function includePGproblem
-# ^uses %envir
-# ^uses &read_whole_problem_file
-# ^uses &includePGtext
-sub includePGproblem {
-    my $filePath = shift;
-    my %save_envir = %main::envir;
-    my $fullfilePath = $main::envir{templateDirectory}.$filePath;
-    my $r_string =  read_whole_problem_file($fullfilePath);
-    if (ref($r_string) eq 'SCALAR') {
-        $r_string = $$r_string;      
-    }
-
-	# The problem calling this should provide DOCUMENT and ENDDOCUMENT,
-	# so we remove them from the included file.
-    $r_string=~ s/^\s*(END)?DOCUMENT(\(\s*\));?//gm;
-
-	# Reset the problem path so that static images can be found via
-	# their relative paths.
-    eval('$main::envir{probFileName} = $filePath');
-    eval('$main::envir{fileName} = $filePath');
-    includePGtext($r_string);
-    # Reset the environment to what it is before.
-    %main::envir = %save_envir;
-}
-
-
 =back
 
 =head1 SEE ALSO
@@ -864,5 +937,8 @@ sub includePGproblem {
 L<PGbasicmacros.pl>, L<PGanswermacros.pl>.
 
 =cut
+
+
+
 
 1;

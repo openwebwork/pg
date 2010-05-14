@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Program Generation Language
 # Copyright  2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PGbasicmacros.pl,v 1.63 2010/01/07 18:02:53 jj Exp $
+# $CVSHeader: pg/macros/PGbasicmacros.pl,v 1.64 2010/03/20 00:53:25 gage Exp $
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -192,6 +192,28 @@ EndOfFile
    $r_ans_rule_count     = PG_restricted_eval(q!\$ans_rule_count!);
 }
 
+=head2  Utility Macros
+
+  not_null(item)  returns 1 or 0
+     
+     empty arrays, empty hashes, strings containing only whitespace are all NULL and return 0
+     all undefined quantities are null and return 0
+
+
+=cut
+
+sub not_null {        # empty arrays, empty hashes and strings containing only whitespace are all NULL
+    my $item = shift;
+	return 0 unless defined($item);
+	if (ref($item)=~/ARRAY/) {
+		return scalar(@{$item});     # return the length    
+	} elsif (ref($item)=~/HASH/) {
+	    return scalar( keys %{$item});
+	} else {   # string case return 1 if none empty	
+	  return ($item =~ /\S/)? 1:0;
+	}
+}
+
 =head2  Answer blank macros:
 
 These produce answer blanks of various sizes or pop up lists or radio answer buttons.
@@ -258,11 +280,11 @@ answer rules in the order in which they appear on the page.
 These auxiliary macros are defined in PG.pl
 
 
-	NEW_ANS_NAME( number );   # produces a new answer blank name from a number by adding a prefix (AnSwEr)
+	NEW_ANS_NAME(        );   # produces a new anonymous answer blank name  by appending a number to the prefix (AnSwEr)
 	                          # and registers this name as an implicitly labeled answer
 	                          # Its use is paired with each answer evaluator being entered using ANS()
 
-    ANS_NUM_TO_NAME(number);  # adds the prefix (AnSwEr) to the number, but does nothing else.
+    ANS_NUM_TO_NAME(number);  # prepends the prefix (AnSwEr) to the number, but does nothing else.
 
 	RECORD_ANS_NAME( name );  # records the order in which the answer blank  is rendered
 	                          # This is called by all of the constructs above, but must
@@ -271,9 +293,9 @@ These auxiliary macros are defined in PG.pl
 
 These are legacy macros:
 
-	ANS_RULE( number, width );				        	# equivalent to NAMED_ANS_RULE( NEW_ANS_NAME(number), width)
-	ANS_BOX( question_number,height, width ); 		 	# equivalent to NAMED_ANS_BOX( NEW_ANS_NAME(number), height, width)
-	ANS_RADIO( question_number, value,tag );		    # equivalent to NAMED_ANS_RADIO( NEW_ANS_NAME(number), value,tag)
+	ANS_RULE( number, width );				        	# equivalent to NAMED_ANS_RULE( NEW_ANS_NAME(  ), width)
+	ANS_BOX( question_number,height, width ); 		 	# equivalent to NAMED_ANS_BOX( NEW_ANS_NAME(  ), height, width)
+	ANS_RADIO( question_number, value,tag );		    # equivalent to NAMED_ANS_RADIO( NEW_ANS_NAME( ), value,tag)
 	ANS_RADIO_OPTION( question_number, value,tag ); 	# equivalent to NAMED_ANS_RADIO_EXTENSION( ANS_NUM_TO_NAME(number), value,tag)
 
 
@@ -283,14 +305,16 @@ These are legacy macros:
 
 sub labeled_ans_rule {   # syntactic sugar for NAMED_ANS_RULE
 	my($name,$col) = @_;
-	$col = 20 unless defined($col);
+	$col = 20 unless not_null($col);
 	NAMED_ANS_RULE($name,$col);
 }
 
 sub NAMED_ANS_RULE {
 	my($name,$col) = @_;
+	$col = 20 unless not_null($col);
 	my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if    defined(${$inputs_ref}{$name});
+	#FIXME -- code factoring needed
     if ($answer_value =~ /\0/ ) {
     	my @answers = split("\0", $answer_value);
     	$answer_value = shift(@answers);  # use up the first answer
@@ -302,15 +326,17 @@ sub NAMED_ANS_RULE {
 		my @answers = @{ $answer_value};
     	$answer_value = shift(@answers);  # use up the first answer
     	$rh_sticky_answers->{$name}=\@answers;
-    	# store the rest -- beacuse this stores to a main:; variable
+    	# store the rest -- because this stores to a main:; variable
     	# it must be evaluated at run time
     	$answer_value= '' unless defined($answer_value);
 	}
 
-	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
+	$answer_value =~ tr/\\$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
-	$name = RECORD_ANS_NAME($name);
-
+	DEBUG_MESSAGE( "RECORD_ANS_NAME($name, $answer_value)");
+	$name = RECORD_ANS_NAME($name, $answer_value);
+    #INSERT_RESPONSE($name,$name,$answer_value);  #FIXME -- why can't we do this inside RECORD_ANS_NAME?
+    
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
 
@@ -325,6 +351,7 @@ sub NAMED_ANS_RULE {
 sub NAMED_HIDDEN_ANS_RULE { # this is used to hold information being passed into and out of applets 
                             # -- preserves state -- identical to NAMED_ANS_RULE except input type "hidden"
 	my($name,$col) = @_;
+	$col = 20 unless not_null($col);
 	my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if    defined(${$inputs_ref}{$name});
     if ($answer_value =~ /\0/ ) {
@@ -345,8 +372,8 @@ sub NAMED_HIDDEN_ANS_RULE { # this is used to hold information being passed into
 
 	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
-	$name = RECORD_ANS_NAME($name);
-
+	$name = RECORD_ANS_NAME($name, $answer_value);
+    #INSERT_RESPONSE($name,$name,$answer_value);
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
 
@@ -371,6 +398,7 @@ sub NAMED_ANS_RULE_EXTENSION {
 	}
 	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
+	INSERT_RESPONSE($name,$name,$answer_value);  #hack -- this needs more work to decide how to make it work
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
 	MODES(
@@ -392,11 +420,13 @@ sub  NAMED_ANS_BOX {
 	my($name,$row,$col) = @_;
 	$row = 10 unless defined($row);
 	$col = 80 unless defined($col);
-	$name = RECORD_ANS_NAME($name);
+	
 	my $height = .07*$row;
 	my $answer_value = '';
 	$answer_value = $inputs_ref->{$name} if defined( $inputs_ref->{$name} );
+	$name = RECORD_ANS_NAME($name, $answer_value);
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
+	INSERT_RESPONSE($name,$name,$answer_value);
 	my $out = MODES(
 	     TeX => qq!\\vskip $height in \\hrulefill\\quad !,
 	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
@@ -411,7 +441,7 @@ sub  NAMED_ANS_BOX {
 
 sub  ANS_BOX { #deprecated
 	my($number,$row,$col) = @_;
-	my $name = NEW_ANS_NAME($number);
+	my $name = NEW_ANS_NAME();
     NAMED_ANS_BOX($name,$row,$col);
 }
 
@@ -419,7 +449,7 @@ sub NAMED_ANS_RADIO {
 	my $name = shift;
 	my $value = shift;
     my $tag =shift;
-    $name = RECORD_ANS_NAME($name);
+   
     my $checked = '';
     if ($value =~/^\%/) {
     	$value =~ s/^\%//;
@@ -433,7 +463,7 @@ sub NAMED_ANS_RADIO {
 		}
 
     }
-
+    $name = RECORD_ANS_NAME($name, {$value=>$checked}	);
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
@@ -465,7 +495,7 @@ sub NAMED_ANS_RADIO_EXTENSION {
 		}
 
     }
-
+    EXTEND_RESPONSE($name,$name,$value, $checked);
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
@@ -493,7 +523,7 @@ sub ANS_RADIO {
 	my $number = shift;
 	my $value = shift;
 	my $tag =shift;
-    my $name = NEW_ANS_NAME($number);
+    my $name = NEW_ANS_NAME();
 	NAMED_ANS_RADIO($name,$value,$tag);
 }
 
@@ -501,8 +531,6 @@ sub ANS_RADIO_OPTION {
 	my $number = shift;
 	my $value = shift;
 	my $tag =shift;
-
-
     my $name = ANS_NUM_TO_NAME($number);
 	NAMED_ANS_RADIO_OPTION($name,$value,$tag);
 }
@@ -559,7 +587,7 @@ sub NAMED_ANS_CHECKBOX {
 	my $name = shift;
 	my $value = shift;
     my $tag =shift;
-    $name = RECORD_ANS_NAME($name);
+    
 
     my $checked = '';
     if ($value =~/^\%/) {
@@ -576,7 +604,7 @@ sub NAMED_ANS_CHECKBOX {
 		}
 
     }
-
+    $name = RECORD_ANS_NAME($name, {$value => $checked});
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
@@ -605,7 +633,7 @@ sub NAMED_ANS_CHECKBOX_OPTION {
 		}
 
     }
-
+    EXTEND_RESPONSE($name,$name,$value, $checked);
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
@@ -635,7 +663,7 @@ sub ANS_CHECKBOX {
 	my $number = shift;
 	my $value = shift;
 	my $tag =shift;
-    my $name = NEW_ANS_NAME($number);
+    my $name = NEW_ANS_NAME();
 
 	NAMED_ANS_CHECKBOX($name,$value,$tag);
 }
@@ -671,17 +699,19 @@ sub ANS_CHECKBOX_BUTTONS {
 sub ans_rule {
 	my $len = shift;     # gives the optional length of the answer blank
 	$len    = 20 unless $len ;
-	my $name = NEW_ANS_NAME(inc_ans_rule_count());
+	#my $name = NEW_ANS_NAME();
+	my $name = NEW_ANS_NAME();  # increment is done internally
 	NAMED_ANS_RULE($name ,$len);
 }
 sub ans_rule_extension {
 	my $len = shift;
     $len    = 20 unless $len ;
+    warn "ans_rule_extension may be misnumbering the answers";
 	my $name = NEW_ANS_NAME($$r_ans_rule_count);  # don't update the answer name
 	NAMED_ANS_RULE($name ,$len);
 }
 sub ans_radio_buttons {
-	my $name  = NEW_ANS_NAME(inc_ans_rule_count());
+	my $name  = NEW_ANS_NAME();
 	my @radio_buttons = NAMED_ANS_RADIO_BUTTONS($name, @_);
 
 	if ($displayMode eq 'TeX') {
@@ -694,7 +724,7 @@ sub ans_radio_buttons {
 
 #added 6/14/2000 by David Etlinger
 sub ans_checkbox {
-	my $name = NEW_ANS_NAME( inc_ans_rule_count() );
+	my $name = NEW_ANS_NAME(  );
 	my @checkboxes = NAMED_ANS_CHECKBOX_BUTTONS( $name, @_ );
 
 	if ($displayMode eq 'TeX') {
@@ -713,7 +743,7 @@ sub ans_checkbox {
 sub tex_ans_rule {
 	my $len = shift;
 	$len    = 20 unless $len ;
-    my $name = NEW_ANS_NAME(inc_ans_rule_count());
+    my $name = NEW_ANS_NAME();
     my $answer_rule = NAMED_ANS_RULE($name ,$len);  # we don't want to create three answer rules in different modes.
     my $out = MODES(
                      'TeX' => $answer_rule,
@@ -728,6 +758,7 @@ sub tex_ans_rule {
 sub tex_ans_rule_extension {
 	my $len = shift;
 	$len    = 20 unless $len ;
+	warn "tex_ans_rule_extension may be missnumbering the answer";
     my $name = NEW_ANS_NAME($$r_ans_rule_count);
     my $answer_rule = NAMED_ANS_RULE($name ,$len);  # we don't want to create three answer rules in different modes.
     my $out = MODES(
@@ -776,7 +807,7 @@ sub ans_box {
 	my $col =shift;
 	$row = 5 unless $row;
 	$col = 80 unless $col;
-	my $name = NEW_ANS_NAME(inc_ans_rule_count());
+	my $name = NEW_ANS_NAME();
 	NAMED_ANS_BOX($name ,$row,$col);
 }
 
@@ -794,7 +825,7 @@ sub NAMED_POP_UP_LIST {
 		my @list1 = @{$list[0]};
 		@list = map { $_ => $_ } @list1;
 	}
-	$name = RECORD_ANS_NAME($name);   # record answer name
+	
 		my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
 	my $out = "";
@@ -819,12 +850,13 @@ sub NAMED_POP_UP_LIST {
 	} elsif ( $displayMode eq "TeX") {
 			$out .= "\\fbox{?}";
 	}
-
+	$name = RECORD_ANS_NAME($name,$answer_value);   # record answer name
+	$out;
 }
 
 sub pop_up_list {
 	my @list = @_;
-	my $name = NEW_ANS_NAME(inc_ans_rule_count());  # get new answer name
+	my $name = NEW_ANS_NAME();  # get new answer name
 	NAMED_POP_UP_LIST($name, @list);
 }
 
@@ -876,6 +908,7 @@ sub NAMED_ANS_ARRAY_EXTENSION{
 
 	my $name = shift;
 	my $col = shift;
+	my %options = @_;
 	$col = 20 unless $col;
 	my $answer_value = '';
 
@@ -891,6 +924,10 @@ sub NAMED_ANS_ARRAY_EXTENSION{
 	}
 
 	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
+	warn "ans_label $options{ans_label} $name $answer_value";
+	if (defined($options{ans_label}) ) {
+		INSERT_RESPONSE($options{ans_label}, $name, $answer_value);
+	}
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{10pt}{\\hrulefill}}\\hrulefill\\quad ",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = "">\n\\end{rawhtml}\n!,
@@ -903,19 +940,21 @@ sub ans_array{
 	my $n = shift;
 	my $col = shift;
 	$col = 20 unless $col;
-	my $num = inc_ans_rule_count() ;
-	my $name = NEW_ANS_ARRAY_NAME($num,0,0);
+	my $ans_label = NEW_ANS_NAME();
+	my $num = ans_rule_count(); 
 	my @options = @_;
 	my @array=();
-	my $string;
 	my $answer_value = "";
-
-	$array[0][0] =   NAMED_ANS_RULE($name,$col);
-
-	for( my $i = 1; $i < $n; $i+=1)
+    my @response_list = ();
+    my $name;
+    $main::vecnum = -1;
+    CLEAR_RESPONSES($ans_label);
+    
+    
+	for( my $i = 0; $i < $n; $i+=1)
 	{
 		$name = NEW_ANS_ARRAY_NAME_EXTENSION($num,0,$i);
-		$array[0][$i] =   NAMED_ANS_ARRAY_EXTENSION($name,$col);
+		$array[0][$i] =   NAMED_ANS_ARRAY_EXTENSION($name,$col,ans_label=>$ans_label);
 
 	}
 
@@ -924,8 +963,7 @@ sub ans_array{
 		for( my $i = 0; $i < $n; $i+=1)
 		{
 			$name = NEW_ANS_ARRAY_NAME_EXTENSION($num,$j,$i);
-		 	$array[$j][$i] =  NAMED_ANS_ARRAY_EXTENSION($name,$col);
-
+		 	$array[$j][$i] =  NAMED_ANS_ARRAY_EXTENSION($name,$col, ans_label=>$ans_label);
 		}
 
 	}
@@ -939,19 +977,18 @@ sub ans_array_extension{
 	my $n = shift;
 	my $col = shift;
 	$col = 20 unless $col;
-	my $num = PG_restricted_eval(q!$main::ans_rule_count!);
+	my $num = ans_rule_count(); #hack -- ans_rule_count is updated after being used
 	my @options = @_;
+	my @response_list = ();
 	my $name;
 	my @array=();
-	my $string;
-	my $answer_value = "";
-
+    my $ans_label = $main::PG->new_label($num);
 	for( my $j = 0; $j < $m; $j+=1 ){
 
 		for( my $i = 0; $i < $n; $i+=1)
 		{
 			$name = NEW_ANS_ARRAY_NAME_EXTENSION($num,$j,$i);
-			$array[$j][$i] =  NAMED_ANS_ARRAY_EXTENSION($name,$col);
+			$array[$j][$i] =  NAMED_ANS_ARRAY_EXTENSION($name,$col, ans_label=>$ans_label);
 
 		}
 
@@ -1069,8 +1106,7 @@ pgComment, which gets transfered to the flag 'comment' in PG_FLAGS.
 sub COMMENT {
    	my @in = @_;
 	my $out = join("$BR", @in);
-	my $out = '<div class=\"AuthorComment\">'.$out.'</div>';
-
+	$out = '<div class=\"AuthorComment\">'.$out.'</div>';
 	PG_restricted_eval(q!$main::pgComment = "!.$out.q!"!);
 	return('');
 }
@@ -1182,18 +1218,18 @@ sub MODES {
 	my %options = @_;
 	
 	# is a string supplied for the current display mode? if so, return it
-	return $options{$displayMode} if defined $options{$displayMode};
+	return $options{$main::displayMode} if defined $options{$main::displayMode};
 	
 	# otherwise, fail over to backup modes
 	my @backup_modes;
-	if (exists $DISPLAY_MODE_FAILOVER{$displayMode}) {
-		@backup_modes = @{$DISPLAY_MODE_FAILOVER{$displayMode}};
+	if (exists $DISPLAY_MODE_FAILOVER{$main::displayMode}) {
+		@backup_modes = @{$DISPLAY_MODE_FAILOVER{$main::displayMode}};
 		foreach my $mode (@backup_modes) {
 			return $options{$mode} if defined $options{$mode};
 		}
 	}
-	die "ERROR in defining MODES: neither display mode $displayMode nor",
-		" any fallback modes (", join(", ", @backup_modes), ") supplied.\n";
+	die "ERROR in defining MODES: neither display mode '$main::displayMode' nor",
+		" any fallback modes (", join(", ", @backup_modes), ") supplied.";
 }
 
 # end display macros
@@ -1261,7 +1297,7 @@ sub PAR { MODES( TeX => '\\par ', Latex2HTML => '\\begin{rawhtml}<P>\\end{rawhtm
 #sub BR { MODES( TeX => '\\par\\noindent ', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR>'); };
 # Alternate definition of BR which is slightly more flexible and gives more white space in printed output
 # which looks better but kills more trees.
-sub BR { MODES( TeX => '\\leavevmode\\\\\\relax ', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR>'); };
+sub BR { MODES( TeX => '\\leavevmode\\\\\\relax ', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR/>'); };
 sub LQ { MODES( TeX => "\\lq\\lq{}", Latex2HTML =>   '"',  HTML =>  '&quot;' ); };
 sub RQ { MODES( TeX => "\\rq\\rq{}", Latex2HTML =>   '"',   HTML =>  '&quot;' ); };
 sub BM { MODES(TeX => '\\(', Latex2HTML => '\\(', HTML =>  ''); };  # begin math mode
@@ -1469,6 +1505,7 @@ sub ev_substring {
 }
 sub  safe_ev {
     my ($out,$PG_eval_errors,$PG_full_error_report) = &old_safe_ev;   # process input by old_safe_ev first
+    $out = "" unless defined($out) and $out =~/\S/;
     $out =~s/\\/\\\\/g;   # protect any new backslashes introduced.
 	($out,$PG_eval_errors,$PG_full_error_report)
 }
@@ -1810,7 +1847,7 @@ sub EV3P_parser {
 
 sub beginproblem {
 	my $out = "";
-	my $problemValue = $envir->{problemValue};
+	my $problemValue = $envir->{problemValue} || 0;
 	my $fileName     = $envir->{fileName};
 	my $probNum      = $envir->{probNum};
     my $TeXFileName = protect_underbar($envir->{fileName});
@@ -1949,6 +1986,7 @@ sub helpLink {
 	my %typeHash = (
 		'interval notation' => 'IntervalNotation.html',
 		'units' => 'Units.html',
+		'syntax' => 'Syntax.html',
 		);
 
 	my $infoRef = $typeHash{$type};
@@ -1985,7 +2023,7 @@ sub appletLink {
  	} else {
  	   # we are set to include the applet
  	}
- 	my $appletHeader  =  qq! archive = "$archive " codebase = "$codebase" !;
+ 	$appletHeader  =  qq! archive = "$archive " codebase = "$codebase" !;
  	foreach my $key ('name', 'code','width','height', ) {
  		if ( defined($applet->{$key})   ) {
  			$appletHeader .= qq! $key = "!.$applet->{$key}.q!" ! ;
@@ -2058,10 +2096,10 @@ sub sspf {
 }
 
 sub lex_sort {
-	PGsort sub {$_[0] lt $_[1]}, @_;
+	PGsort( sub {$_[0] lt $_[1]}, @_);
 }
 sub num_sort {
-	PGsort sub {$_[0] < $_[1]}, @_;
+	PGsort( sub {$_[0] < $_[1]}. @_);
 }
 
 
@@ -2130,7 +2168,7 @@ sub endtable {
 		$out = "Error: PGbasicmacros: endtable: Unknown displayMode: $displayMode.\n";
 		}
 	$out;
-	}
+}
 
 
 sub row {
