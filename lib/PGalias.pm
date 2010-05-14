@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/PGalias.pm,v 1.1 2010/05/14 11:39:02 gage Exp $
+# $CVSHeader: pg/lib/PGalias.pm,v 1.2 2010/05/14 12:36:44 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -571,9 +571,9 @@ sub alias_for_png_in_html_mode {
 
 				# $fileName is obtained from environment for PGeval
 				# it gives the full path to the current problem
-				my $pngSourceFile = convertPath("$templateDirectory${filePath}$aux_file_path.png");
+				my $pngSourceFile = $self->convertPath("$templateDirectory${filePath}$aux_file_path.png");
 				my $link = "gif/".$self->{uniqIDstub}."-$aux_file_path.$ext";
-				my $linkPath = surePathToTmpFile($link);
+				my $linkPath = $self->surePathToTmpFile($link);
 				$adr_output = "${tempURL}$link";
 				#warn "linkPath is $linkPath";
 				#warn "adr_output is $adr_output";
