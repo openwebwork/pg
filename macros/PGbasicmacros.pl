@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Program Generation Language
 # Copyright  2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PGbasicmacros.pl,v 1.65 2010/05/14 01:14:24 gage Exp $
+# $CVSHeader: pg/macros/PGbasicmacros.pl,v 1.66 2010/05/14 11:40:46 gage Exp $
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -192,27 +192,27 @@ EndOfFile
    $r_ans_rule_count     = PG_restricted_eval(q!\$ans_rule_count!);
 }
 
-=head2  Utility Macros
-
-  not_null(item)  returns 1 or 0
-     
-     empty arrays, empty hashes, strings containing only whitespace are all NULL and return 0
-     all undefined quantities are null and return 0
-
-
-=cut
-
-sub not_null {        # empty arrays, empty hashes and strings containing only whitespace are all NULL
-    my $item = shift;
-	return 0 unless defined($item);
-	if (ref($item)=~/ARRAY/) {
-		return scalar(@{$item});     # return the length    
-	} elsif (ref($item)=~/HASH/) {
-	    return scalar( keys %{$item});
-	} else {   # string case return 1 if none empty	
-	  return ($item =~ /\S/)? 1:0;
-	}
-}
+# =head2  Utility Macros
+# 
+#   not_null(item)  returns 1 or 0
+#      
+#      empty arrays, empty hashes, strings containing only whitespace are all NULL and return 0
+#      all undefined quantities are null and return 0
+# 
+# 
+# =cut
+# 
+# sub not_null {        # empty arrays, empty hashes and strings containing only whitespace are all NULL
+#     my $item = shift;
+# 	return 0 unless defined($item);
+# 	if (ref($item)=~/ARRAY/) {
+# 		return scalar(@{$item});     # return the length    
+# 	} elsif (ref($item)=~/HASH/) {
+# 	    return scalar( keys %{$item});
+# 	} else {   # string case return 1 if none empty	
+# 	  return ($item =~ /\S/)? 1:0;
+# 	}
+# }
 
 =head2  Answer blank macros:
 
