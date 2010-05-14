@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PG.pl,v 1.40 2009/06/25 23:28:44 gage Exp $
+# $CVSHeader: pg/lib/PGalias.pm,v 1.1 2010/05/14 11:39:02 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -265,7 +265,7 @@ sub make_alias {
 sub alias_for_html {
 	my $self = shift;
 	my $aux_file_path = shift;
-    warn "aux_file for html $aux_file_path";
+    # warn "aux_file for html $aux_file_path";
 	my $envir               = $self->{envir};  	my $fileName            = $envir->{fileName};
 	my $htmlDirectory       = $envir->{htmlDirectory};
 	my $htmlURL             = $envir->{htmlURL};
