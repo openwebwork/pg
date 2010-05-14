@@ -21,6 +21,7 @@ use strict;
 # 	be_strict(); # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
 # 
 # }
+use MatrixReal1;
 package Matrix;
 @Matrix::ISA = qw(MatrixReal1);
 
