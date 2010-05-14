@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Program Generation Language
 # Copyright  2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PGbasicmacros.pl,v 1.64 2010/03/20 00:53:25 gage Exp $
+# $CVSHeader: pg/macros/PGbasicmacros.pl,v 1.65 2010/05/14 01:14:24 gage Exp $
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -2099,7 +2099,7 @@ sub lex_sort {
 	PGsort( sub {$_[0] lt $_[1]}, @_);
 }
 sub num_sort {
-	PGsort( sub {$_[0] < $_[1]}. @_);
+	PGsort( sub {$_[0] < $_[1]}, @_);
 }
 
 
