@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/PGcore.pm,v 1.1 2010/05/14 11:39:02 gage Exp $
+# $CVSHeader: pg/lib/PGcore.pm,v 1.2 2010/05/14 12:31:19 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -119,7 +119,7 @@ sub initialize {
 	$self->{PG_problem_grader}    = $self->{envir}->{PROBLEM_GRADER_TO_USE};
     $self->{PG_alias}             = new PGalias($self->{envir});
     $self->{PG_loadMacros}        = new PGloadfiles($self->{envir});
-	$self->{PG_FLAGS} = {
+	$self->{flags} = {
 		showpartialCorrectAnswers => 1,
 		showHint                  => 1,
 		hintExists 				  => 0,

@@ -34,10 +34,10 @@ sub DOCUMENT {
 	
 	$ANSWER_PREFIX         		= $PG->{ANSWER_PREFIX};
 	$QUIZ_PREFIX           		= $PG->{QUIZ_PREFIX};
-	$showPartialCorrectAnswers 	= $PG->{PG_FLAGS}->{showPartialCorrectAnswers};
-	$showHint                   = $PG->{PG_FLAGS}->{showHint};
-	$solutionExists        		= $PG->{PG_FLAGS}->{solutionExists};
-	$hintExists            		= $PG->{PG_FLAGS}->{hintExists};
+	$showPartialCorrectAnswers 	= $PG->{flags}->{showPartialCorrectAnswers};
+	$showHint                   = $PG->{flags}->{showHint};
+	$solutionExists        		= $PG->{flags}->{solutionExists};
+	$hintExists            		= $PG->{flags}->{hintExists};
 	$pgComment                  = '';
 	%gifs_created          		= %{ $PG->{gifs_created}};
 	%external_refs         		= %{ $PG->{external_refs}};
@@ -270,31 +270,31 @@ sub ENDDOCUMENT {
 	);
 	while (@elements) {
 		my $var= shift @elements;
-		$PG->{PG_FLAGS}->{$var} = ${$var};
+		$PG->{flags}->{$var} = ${$var};
 	}
-	$PG->{PG_FLAGS}->{comment}            = $pgComment;  #KLUDGE #FIXME
-    $PG->{PG_FLAGS}->{showHintLimit}      = $showHint;   #KLUDGE #FIXME
+	$PG->{flags}->{comment}            = $pgComment;  #KLUDGE #FIXME
+    $PG->{flags}->{showHintLimit}      = $showHint;   #KLUDGE #FIXME
     
     
 	# install problem grader
-	if (defined($PG->{PG_FLAGS}->{PROBLEM_GRADER_TO_USE})  ) {
+	if (defined($PG->{flags}->{PROBLEM_GRADER_TO_USE})  ) {
 		# problem grader defined within problem -- no further action needed
 	} elsif ( defined( $rh_envir->{PROBLEM_GRADER_TO_USE} ) ) {
 		if (ref($rh_envir->{PROBLEM_GRADER_TO_USE}) eq 'CODE' ) {         # user defined grader
-			$PG->{PG_FLAGS}->{PROBLEM_GRADER_TO_USE} = $rh_envir->{PROBLEM_GRADER_TO_USE};
+			$PG->{flags}->{PROBLEM_GRADER_TO_USE} = $rh_envir->{PROBLEM_GRADER_TO_USE};
 		} elsif ($rh_envir->{PROBLEM_GRADER_TO_USE} eq 'std_problem_grader' ) {
 			if (defined(&std_problem_grader) ){
-				$PG->{PG_FLAGS}->{PROBLEM_GRADER_TO_USE} = \&std_problem_grader; # defined in PGanswermacros.pl
+				$PG->{flags}->{PROBLEM_GRADER_TO_USE} = \&std_problem_grader; # defined in PGanswermacros.pl
 			} # std_problem_grader is the default in any case so don't give a warning.
 		} elsif ($rh_envir->{PROBLEM_GRADER_TO_USE} eq 'avg_problem_grader' ) {
 			if (defined(&avg_problem_grader) ){
-				$PG->{PG_FLAGS}->{PROBLEM_GRADER_TO_USE} = \&avg_problem_grader; # defined in PGanswermacros.pl
+				$PG->{flags}->{PROBLEM_GRADER_TO_USE} = \&avg_problem_grader; # defined in PGanswermacros.pl
 			}
 		} else {
-			warn "Error:  ". $PG->{PG_FLAGS}->{PROBLEM_GRADER_TO_USE} . "is not a known program grader.";
+			warn "Error:  ". $PG->{flags}->{PROBLEM_GRADER_TO_USE} . "is not a known program grader.";
 		}
 	} elsif (defined(&std_problem_grader)) {
-		$PG->{PG_FLAGS}->{PROBLEM_GRADER_TO_USE} = \&std_problem_grader; # defined in PGanswermacros.pl
+		$PG->{flags}->{PROBLEM_GRADER_TO_USE} = \&std_problem_grader; # defined in PGanswermacros.pl
 	} else {
 		# PGtranslator will install its default problem grader
 	}
@@ -351,8 +351,8 @@ sub ENDDOCUMENT {
 	}
 	push @KEPT_EXTRA_ANSWERS, keys %{$PG->{PERSISTENCE_HASH}};
 	my %PG_ANSWERS_HASH = @PG_ANSWERS;
-	$PG->{PG_FLAGS}->{KEPT_EXTRA_ANSWERS} = \@KEPT_EXTRA_ANSWERS;
-	$PG->{PG_FLAGS}->{ANSWER_ENTRY_ORDER} = \@PG_ANSWER_ENTRY_ORDER;
+	$PG->{flags}->{KEPT_EXTRA_ANSWERS} = \@KEPT_EXTRA_ANSWERS;
+	$PG->{flags}->{ANSWER_ENTRY_ORDER} = \@PG_ANSWER_ENTRY_ORDER;
     warn "KEPT_EXTRA_ANSWERS", join(" ", @KEPT_EXTRA_ANSWERS), $BR     if $ans_debug==1;
     warn "PG_ANSWER_ENTRY_ORDER",join(" ",@PG_ANSWER_ENTRY_ORDER), $BR if $ans_debug==1;
     warn "DEBUG messages", join( "$BR",@{$PG->get_debug_messages} ) if $ans_debug==1;
@@ -365,7 +365,7 @@ sub ENDDOCUMENT {
 	# warn pretty_print($PG->{PG_ANSWERS_HASH});
 	#warn "printing another warning";
 
-	(\$STRINGforOUTPUT, \$STRINGforHEADER_TEXT,\%PG_ANSWERS_HASH,  $PG->{PG_FLAGS} , $PG   );
+	(\$STRINGforOUTPUT, \$STRINGforHEADER_TEXT,\%PG_ANSWERS_HASH,  $PG->{flags} , $PG   );
 }
 ################################################################################
 #
@@ -554,7 +554,7 @@ __END__
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PG.pl,v 1.41 2010/05/14 01:13:12 gage Exp $
+# $CVSHeader: pg/macros/PG.pl,v 1.42 2010/05/14 12:31:19 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
