@@ -175,16 +175,16 @@ sub display_matrix {
                 $main::defaultDisplayMatrixStyle : "(s)";
         
         set_default_options(\%opts,
-                                                                                        '_filter_name' => 'display_matrix',
-                                                                                        'force_tex' => 0,
-                                                                                        'left' => substr($styleParams,0,1),
-                                                                                        'right' => substr($styleParams,2,1),
-                                                                                        'midrule' => substr($styleParams,1,1),
-                                                                                        'top_labels' => 0,
-                                                                                        'box'=>[-1,-1], # pair location of boxed element
-                                                                                        'allow_unknown_options'=> 1,
-											'num_format' => "%.0f",
-											);
+				'_filter_name' => 'display_matrix',
+				'force_tex' => 0,
+				'left' => substr($styleParams,0,1),
+				'right' => substr($styleParams,2,1),
+				'midrule' => substr($styleParams,1,1),
+				'top_labels' => 0,
+				'box'=>[-1,-1], # pair location of boxed element
+				'allow_unknown_options'=> 1,
+				'num_format' => "%.0f",
+		);
         
         my ($numRows, $numCols, @myRows);
 
@@ -616,10 +616,11 @@ sub mbox {
         }
 
         set_default_options(\%opts,
-                                                                                        '_filter_name' => 'mbox',
-                                                                                        'valign' => 'middle',
-                                                                                        'allowbreaks' => 'no',
-                                                                                        'allow_unknown_options'=> 0);
+			'_filter_name' => 'mbox',
+			'valign' => 'middle',
+			'allowbreaks' => 'no',
+			'allow_unknown_options'=> 0
+        );
         if(! $opts{'allowbreaks'}) { $opts{'allowbreaks'}='no';}
         my $out = "";
         my $j;
