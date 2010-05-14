@@ -255,7 +255,7 @@ sub EXTEND_RESPONSE { # for radio buttons and checkboxes
 	if (defined ($PG->{PG_ANSWERS_HASH}->{$ans_label}) ) {
 		my $responsegroup = $PG->{PG_ANSWERS_HASH}->{$ans_label}->{response};
 		$responsegroup->extend_response($response_label, $ans_value,$selected);
-		warn "\n$responsegroup responses are now ", pretty_print($response_group);
+		#warn "\n$responsegroup responses are now ", pretty_print($response_group);
 	}
     '';
 }
@@ -554,7 +554,7 @@ __END__
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PG.pl,v 1.40 2009/06/25 23:28:44 gage Exp $
+# $CVSHeader: pg/macros/PG.pl,v 1.41 2010/05/14 01:13:12 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the

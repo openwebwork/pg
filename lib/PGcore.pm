@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PG.pl,v 1.40 2009/06/25 23:28:44 gage Exp $
+# $CVSHeader: pg/lib/PGcore.pm,v 1.1 2010/05/14 11:39:02 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -33,6 +33,16 @@ use Tie::IxHash;
 ##################################
 # Utility macro 
 ##################################
+
+=head2  Utility Macros
+
+  not_null(item)  returns 1 or 0
+     
+     empty arrays, empty hashes, strings containing only whitespace are all NULL and return 0
+     all undefined quantities are null and return 0
+
+
+=cut
 
 sub not_null {        # empty arrays, empty hashes and strings containing only whitespace are all NULL
     my $item = shift;
