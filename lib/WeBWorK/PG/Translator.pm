@@ -12,6 +12,9 @@ use Safe;
 use Net::SMTP;
 use WeBWorK::PG::IO;
 
+#use PadWalker;     # used for processing error messages
+#use Data::Dumper;
+
 
 # loading GD within the Safe compartment has occasionally caused infinite recursion
 # Putting these use statements here seems to avoid this problem
@@ -389,7 +392,7 @@ sub pre_load_macro_files {
 #    All other files are loaded with restriction
 #     
 			# construct a regex that matches only these three files safely
-			my @unrestricted_files = qw/PG.pl dangerousMacros.pl IO.pl/;
+			my @unrestricted_files = (); #  no longer needed? FIXME w/PG.pl dangerousMacros.pl IO.pl/;
 			my $unrestricted_files = join("|", map { quotemeta } @unrestricted_files);
 			
 			my $store_mask; 
@@ -536,13 +539,15 @@ sub unrestricted_load {
 	my $macro_file_name = fileFromPath($filePath);
 	$macro_file_name =~s/\.pl//;  # trim off the extenstion
 	my $export_subroutine_name = "_${macro_file_name}_export";
-	my $init_subroutine_name = "_${macro_file_name}_init";
+	my $init_subroutine_name = "${safe_cmpt_package_name}::_${macro_file_name}_init";
+
 	my $local_errors = "";
 	no strict;
 	#  warn "dangerousMacros main:: contains <br>\n  ".join("<br>\n ", %main::) if $debugON;
-	my $init_subroutine  = eval { \&{"${safe_cmpt_package_name}::$init_subroutine_name"} };
+	my $init_subroutine  = eval { \&{$init_subroutine_name} };
+	warn "No init routine for $init_subroutine_name: $@" if  $debugON and $@;
 	use strict;
-    my $macro_file_loaded = defined(&$init_subroutine);
+    my $macro_file_loaded = ref($init_subroutine) =~ /CODE/;
 
 	#print STDERR "$macro_file_name   has not yet been loaded\n" unless $macro_file_loaded;	
 	unless ($macro_file_loaded) {
@@ -552,7 +557,7 @@ sub unrestricted_load {
 		my $local_errors = "";
 		if (-r $filePath ) {
 			my $rdoResult = $safe_cmpt->rdo($filePath);
-			#warn "There were problems compiling the file: $filePath: <BR>--$@" if $@;
+            #warn "unrestricted load:  $filePath\n";
 			$local_errors ="\nThere were problems compiling the file:\n $filePath\n $@\n" if $@;
 			$self ->{errors} .= $local_errors if $local_errors;
 			use strict;
@@ -564,11 +569,11 @@ sub unrestricted_load {
 		
 	}
 	# try again to define the initization subroutine
-	$init_subroutine  = eval { \&{"${safe_cmpt_package_name}::$init_subroutine_name"} };
-	$macro_file_loaded	= defined(&$init_subroutine );
+	$init_subroutine  = eval { \&{"$init_subroutine_name"} };
+	$macro_file_loaded	= ref($init_subroutine) =~ /CODE/;
 	if ( $macro_file_loaded ) {
 
-	#	    warn "unrestricted load:  initializing $macro_file_name  $init_subroutine" ;
+		    #warn "unrestricted load:  initializing $macro_file_name  $init_subroutine" ;
 		    &$init_subroutine();
 	}
 	$local_errors .= "\nUnknown error.  Unable to load $filePath\n" if ($local_errors eq '' and not $macro_file_loaded);
@@ -739,7 +744,7 @@ the PG root directory by [PG].
 =cut
 
 sub PG_errorMessage {
-  my $return = shift; my $frame = 2;
+  my $return = shift; my $frame = 2; # return can be 'message' or 'traceback'
   my $message = join("\n",@_); $message =~ s/\.?\s+$//;
   my $files = eval ('$main::__files__'); $files = {} unless $files;
   my $tmpl = $files->{tmpl} || '$';
@@ -783,6 +788,36 @@ sub PG_errorMessage {
   return join("\n",@trace,'');
 }
 
+=head2 PG_undef_var_check
+
+=pod
+
+ Produces warnings of this type in order to help you guess which local variable is undefined
+ Warning: Use of uninitialized value in concatenation (.) or string at mpu.cgi line 25.
+ Possible variables are:
+           '$GLOBAL_VARIABLE' => \'global',
+           '$t' => \undef,
+           '$s' => \'regular output'
+ 
+
+
+
+=cut
+
+sub PG_undef_var_check {
+	if($_[0] !~ /^Use of uninitialized value/) {
+		return @_;
+	} else {
+		# If there are objects, the output can be VERY large when you increase this
+		local $Data::Dumper::Maxdepth = 2;
+		# takes all lexical variables from caller-nemaspace
+		my $possibles = Data::Dumper::Dumper({ %{PadWalker::peek_my(1)}, %{PadWalker::peek_our(1)} });
+		
+		$possibles ne "\$VAR1 = {};\n" ? ($possibles =~ s/^.*?\n(.*)\n.*?\n$/$1/ms) : ($possibles = '');
+		return "Warning: " . join(', ', @_) . "Possible variables are:\n$possibles\n";
+	}
+
+}
 ############################################################################
 
 =head2  Translate
@@ -910,7 +945,7 @@ case the previously defined safe compartment is used. (See item 1.)
 
 				my ($PG_PROBLEM_TEXT_REF, $PG_HEADER_TEXT_REF, $PG_ANSWER_HASH_REF, $PG_FLAGS_REF)
 				      =$safe_cmpt->reval("   $evalString");
-
+               #warn "using safe compartment ", $safe_cmpt->root;
 # This section could use some more error messages.  In particular if a problem doesn't produce the right output, the user needs
 # information about which problem was at fault.
 #
@@ -1150,7 +1185,7 @@ sub process_answers{
 		$self->{safe}->share('$rf_fun','$temp_ans');
  	    
  	    # clear %errorTable for each problem
- 	    %errorTable = ();
+ 	    %errorTable = (); # is the error table being used? perhaps by math objects?
  	    
 		my $rh_ans_evaluation_result;
 		if (ref($rf_fun) eq 'CODE' ) {
@@ -1158,7 +1193,7 @@ sub process_answers{
 			warn "Error in Translator.pm::process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
 		} elsif (ref($rf_fun) =~ /AnswerEvaluator/)   {
 			$rh_ans_evaluation_result = $self->{safe} ->reval('$rf_fun->evaluate($temp_ans, ans_label => \''.$ans_name.'\')');
-			$@ = $errorTable{$@} if $@ && defined($errorTable{$@});
+			$@ = $errorTable{$@} if $@ && defined($errorTable{$@});  #Are we redefining error messages here?
 			warn "Error in Translator.pm::process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
 			warn "Evaluation error: Answer $ans_name:<BR>\n", 
 				$rh_ans_evaluation_result->error_flag(), " :: ",
@@ -1562,7 +1597,7 @@ sub PG_macro_file_eval {      # would like to modify this so that it requires us
 	local $SIG{__DIE__} = "DEFAULT";
 	
     no strict;
-    my $out = eval  ("package main; be_strict();" . $string );
+    my $out = eval  ("package main; be_strict();\n" . $string );
     my $errors =$@;
     my $full_error_report = "PG_macro_file_eval detected error at line $line of file $file \n"
                 . $errors .
