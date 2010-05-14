@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/PGalias.pm,v 1.2 2010/05/14 12:36:44 gage Exp $
+# $CVSHeader: pg/lib/PGalias.pm,v 1.3 2010/05/14 14:14:52 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -310,7 +310,7 @@ sub alias_for_html {
 
 			# $fileName is obtained from environment for PGeval
 			# it gives the  full path to the current problem
-			my $filePath = directoryFromPath($fileName);
+			my $filePath = $self->directoryFromPath($fileName);
 			my $htmlFileSource = convertPath("$templateDirectory${filePath}$aux_file_path.html");
 			my $link = "html/".$self->{uniqIDstub}."-$aux_file_path.$ext";
 			my $linkPath = $self->surePathToTmpFile($link);
@@ -380,7 +380,7 @@ sub alias_for_gif_in_html_mode {
 				# For a gif file the alias macro creates an alias under the html/images directory
 				# which points to the gif file in the problem directory.
 				# All of the subdirectories of html/tmp/gif which are needed are also created.
-				my $filePath = directoryFromPath($fileName);
+				my $filePath = $self->directoryFromPath($fileName);
 
 				# $fileName is obtained from environment for PGeval
 				# it gives the full path to the current problem
@@ -456,10 +456,10 @@ sub alias_for_gif_in_tex_mode {
 					$gifFilePath = "$aux_file_path.gif";
 				} else {
 					# we assume the file is in the same directory as the problem source file
-					$gifFilePath = $templateDirectory . directoryFromPath($fileName) . "$aux_file_path.gif";
+					$gifFilePath = $templateDirectory . ($self->directoryFromPath($fileName)) . "$aux_file_path.gif";
 				}
 
-				my $gifFileName = fileFromPath($gifFilePath);
+				my $gifFileName = $self->fileFromPath($gifFilePath);
 
 				$gifFileName =~ /^(.*)\.gif$/;
 #				my $pngFilePath = $self->surePathToTmpFile("${tempDirectory}png/$probNum-$1.png");
@@ -483,10 +483,10 @@ sub alias_for_gif_in_tex_mode {
 				################################################################################
 				if ($aux_file_path =~  m|^$htmlDirectory|  or $aux_file_path =~  m|^$tempDirectory|)  {
 					# To serve an eps file copy an eps version of the gif file to the subdirectory of eps/
-					my $linkPath = directoryFromPath($fileName);
+					my $linkPath = $self->directoryFromPath($fileName);
 
 					my $gifSourceFile = "$aux_file_path.gif";
-					my $gifFileName = fileFromPath($gifSourceFile);
+					my $gifFileName = $self->fileFromPath($gifSourceFile);
 					$adr_output = surePathToTmpFile("$tempDirectory/eps/$studentLogin-$psvnNumber-$gifFileName.eps") ;
 
 					if (-e $gifSourceFile) {
@@ -499,7 +499,7 @@ sub alias_for_gif_in_tex_mode {
 					}
 				} else {
 					# To serve an eps file copy an eps version of the gif file to  a subdirectory of eps/
-					my $filePath = directoryFromPath($fileName);
+					my $filePath = $self->directoryFromPath($fileName);
 					my $gifSourceFile = "${templateDirectory}${filePath}$aux_file_path.gif";
 					#print "content-type: text/plain \n\nfileName = $fileName and aux_file_path =$aux_file_path<BR>";
 					$adr_output = surePathToTmpFile("eps/$studentLogin-$psvnNumber-set$setNumber-prob$probNum-$aux_file_path.eps");
@@ -567,7 +567,7 @@ sub alias_for_png_in_html_mode {
 				# For a png file the alias macro creates an alias under the html/images directory
 				# which points to the png file in the problem directory.
 				# All of the subdirectories of html/tmp/gif which are needed are also created.
-				my $filePath = directoryFromPath($fileName);
+				my $filePath = $self->directoryFromPath($fileName);
 
 				# $fileName is obtained from environment for PGeval
 				# it gives the full path to the current problem
@@ -632,7 +632,7 @@ sub alias_for_png_in_tex_mode {
 					$pngFilePath = "$aux_file_path.png";
 				} else {
 					# we assume the file is in the same directory as the problem source file
-					$pngFilePath = $templateDirectory . directoryFromPath($fileName) . "$aux_file_path.png";
+					$pngFilePath = $templateDirectory . ($self->directoryFromPath($fileName)) . "$aux_file_path.png";
 				}
 
 				$adr_output = $pngFilePath;
@@ -649,11 +649,11 @@ sub alias_for_png_in_tex_mode {
 
 				if ($aux_file_path =~  m|^$htmlDirectory|  or $aux_file_path =~  m|^$tempDirectory|)  {
 					# To serve an eps file copy an eps version of the png file to the subdirectory of eps/
-					my $linkPath = directoryFromPath($fileName);
+					my $linkPath = $self->directoryFromPath($fileName);
 
 					my $pngSourceFile = "$aux_file_path.png";
 					my $pngFileName = fileFromPath($pngSourceFile);
-					$adr_output = surePathToTmpFile("$tempDirectory/eps/$studentLogin-$psvnNumber-$pngFileName.eps") ;
+					$adr_output = $self->surePathToTmpFile("$tempDirectory/eps/$studentLogin-$psvnNumber-$pngFileName.eps") ;
 
 					if (-e $pngSourceFile) {
 						#system("cat $pngSourceFile  | /usr/math/bin/pngtopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output")
@@ -665,10 +665,10 @@ sub alias_for_png_in_tex_mode {
 					}
 				} else {
 					# To serve an eps file copy an eps version of the png file to  a subdirectory of eps/
-					my $filePath = directoryFromPath($fileName);
+					my $filePath = $self->directoryFromPath($fileName);
 					my $pngSourceFile = "${templateDirectory}${filePath}$aux_file_path.png";
 					#print "content-type: text/plain \n\nfileName = $fileName and aux_file_path =$aux_file_path<BR>";
-					$adr_output = surePathToTmpFile("eps/$studentLogin-$psvnNumber-set$setNumber-prob$probNum-$aux_file_path.eps") ;
+					$adr_output = $self->surePathToTmpFile("eps/$studentLogin-$psvnNumber-set$setNumber-prob$probNum-$aux_file_path.eps") ;
 					if (-e $pngSourceFile) {
 						#system("cat $pngSourceFile  | /usr/math/bin/pngtopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output") &&
 						#warn "Unable to create eps file: |$adr_output|\n from file\n |$pngSourceFile|\n in problem $probNum";
