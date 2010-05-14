@@ -263,18 +263,14 @@ sub ENDDOCUMENT {
 	# check that answers match
 	# gather up PG_FLAGS elements
 
-	
-	my @elements = qw(showPartialCorrectAnswers 
-					  recordSubmittedAnswers refreshCachedImages 
-					  hintExists  solutionExists  
-	);
-	while (@elements) {
-		my $var= shift @elements;
-		$PG->{flags}->{$var} = ${$var};
-	}
-	$PG->{flags}->{comment}            = $pgComment;  #KLUDGE #FIXME
-    $PG->{flags}->{showHintLimit}      = $showHint;   #KLUDGE #FIXME
-    
+    $PG->{flags}->{showPartialCorrectAnswers}      = defined($showPartialCorrectAnswers)?  $showPartialCorrectAnswers : 1 ;
+	$PG->{flags}->{recordSubmittedAnswers}         = defined($recordSubmittedAnswers)?     $recordSubmittedAnswers    : 1 ;
+	$PG->{flags}->{refreshCachedImages}            = defined($refreshCachedImages)?        $refreshCachedImages       : 0 ;	
+	$PG->{flags}->{hintExists}                     = defined($hintExists)?                 $hintExists                : 0 ;
+	$PG->{flags}->{solutionExists}                 = defined($solutionExists)?             $solutionExists            : 0 ;
+	$PG->{flags}->{comment}                        = defined($pgComment)?                  $pgComment                 :'' ;  
+    $PG->{flags}->{showHintLimit}                  = defined($showHint)?                   $showHint                  : 0 ;  
+ 
     
 	# install problem grader
 	if (defined($PG->{flags}->{PROBLEM_GRADER_TO_USE})  ) {
@@ -554,7 +550,7 @@ __END__
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PG.pl,v 1.42 2010/05/14 12:31:19 gage Exp $
+# $CVSHeader: pg/macros/PG.pl,v 1.43 2010/05/14 16:48:45 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
