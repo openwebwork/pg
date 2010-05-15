@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/contextLimitedPolynomial.pl,v 1.23 2009/06/25 23:28:44 gage Exp $
+# $CVSHeader: pg/macros/contextLimitedPolynomial.pl,v 1.24 2010/04/01 00:21:45 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -50,6 +50,9 @@ loadMacros("MathObjects.pl");
 sub _contextLimitedPolynomial_init {LimitedPolynomial::Init()}; # don't load it again
 
 ##################################################
+#
+#  Handle common checking for BOPs
+#
 
 package LimitedPolynomial;
 
@@ -103,6 +106,8 @@ sub isConstant {
 #
 #  Handle common checking for BOPs
 #
+
+
 package LimitedPolynomial::BOP;
 
 #
@@ -110,6 +115,7 @@ package LimitedPolynomial::BOP;
 #  Otherwise, do an operator-specific check for if the polynomial is OK.
 #  Otherwise report an error.
 #
+
 sub _check {
   my $self = shift;
   my $super = ref($self); $super =~ s/^.*?::/Parser::/;
