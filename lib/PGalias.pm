@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/PGalias.pm,v 1.3 2010/05/14 14:14:52 gage Exp $
+# $CVSHeader: pg/lib/PGalias.pm,v 1.4 2010/05/14 15:44:55 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -57,9 +57,9 @@ package PGalias;
 use strict;
 use Exporter;
 use PGcore;
-use WeBWorK::PG::IO;
+#use WeBWorK::PG::IO;
 
-our @ISA = ( qw ( PGcore  ) );  # look up features in PGcore -- in this case we want the environment.
+our @ISA =  qw ( PGcore  );  # look up features in PGcore -- in this case we want the environment.
 
 # new 
 #   Create one alias object per question (and per PGcore object)
@@ -266,7 +266,8 @@ sub alias_for_html {
 	my $self = shift;
 	my $aux_file_path = shift;
     # warn "aux_file for html $aux_file_path";
-	my $envir               = $self->{envir};  	my $fileName            = $envir->{fileName};
+	my $envir               = $self->{envir};  	
+	my $fileName            = $self->{fileName};
 	my $htmlDirectory       = $envir->{htmlDirectory};
 	my $htmlURL             = $envir->{htmlURL};
 	my $tempDirectory       = $envir->{tempDirectory};
@@ -311,7 +312,7 @@ sub alias_for_html {
 			# $fileName is obtained from environment for PGeval
 			# it gives the  full path to the current problem
 			my $filePath = $self->directoryFromPath($fileName);
-			my $htmlFileSource = convertPath("$templateDirectory${filePath}$aux_file_path.html");
+			my $htmlFileSource = $self->convertPath("$templateDirectory${filePath}$aux_file_path.html");
 			my $link = "html/".$self->{uniqIDstub}."-$aux_file_path.$ext";
 			my $linkPath = $self->surePathToTmpFile($link);
 			$adr_output = "${tempURL}$link";
@@ -335,7 +336,8 @@ sub alias_for_gif_in_html_mode {
 	my $aux_file_path = shift;
 #    warn "entering alias_for_gif_in_html_mode $aux_file_path";
     
-	my $envir               = $self->{envir};  	my $fileName            = $envir->{fileName};
+	my $envir               = $self->{envir};  	
+	my $fileName            = $self->{fileName};
 	my $htmlDirectory       = $envir->{htmlDirectory};
 	my $htmlURL             = $envir->{htmlURL};
 	my $tempDirectory       = $envir->{tempDirectory};
@@ -380,12 +382,14 @@ sub alias_for_gif_in_html_mode {
 				# For a gif file the alias macro creates an alias under the html/images directory
 				# which points to the gif file in the problem directory.
 				# All of the subdirectories of html/tmp/gif which are needed are also created.
-				my $filePath = $self->directoryFromPath($fileName);
-
+		  #warn "fileName is $fileName   $self";
+				my $filePath = ( $self->directoryFromPath($fileName) );
+          #warn "filePath is $filePath";
 				# $fileName is obtained from environment for PGeval
 				# it gives the full path to the current problem
-				my $gifSourceFile = convertPath("$templateDirectory${filePath}$aux_file_path.gif");
+				my $gifSourceFile = $self->convertPath("$templateDirectory${filePath}$aux_file_path.gif");
 				#my $link = "gif/$studentLogin-$psvnNumber-set$setNumber-prob$probNum-$aux_file_path.$ext";
+		   #warn "fileName is $fileName filePath is $filePath gifSourceFile is $gifSourceFile";
 
 				#  Make file names work in Library Browser when the images in several
 				#  files have the same names.
@@ -462,7 +466,6 @@ sub alias_for_gif_in_tex_mode {
 				my $gifFileName = $self->fileFromPath($gifFilePath);
 
 				$gifFileName =~ /^(.*)\.gif$/;
-#				my $pngFilePath = $self->surePathToTmpFile("${tempDirectory}png/$probNum-$1.png");
 				my $pngFilePath = $self->surePathToTmpFile("${tempDirectory}png/$setNumber-$probNum-$1.png");
 				my $returnCode = system "cat $gifFilePath | ${$envir->{externalGif2PngPath}} > $pngFilePath";
 
