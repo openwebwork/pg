@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PG.pl,v 1.40 2009/06/25 23:28:44 gage Exp $
+# $CVSHeader: pg/lib/PGloadfiles.pm,v 1.1 2010/05/14 11:39:02 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -155,7 +155,7 @@ use PGcore;
 use WeBWorK::PG::Translator;
 use WeBWorK::PG::IO;
 
-our @ISA = ( qw ( PGcore  ) );  # look up features in PGcore -- in this case we want the environment.
+our @ISA = qw ( PGcore  ) ;  # look up features in PGcore -- in this case we want the environment.
 
 
 

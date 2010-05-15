@@ -194,15 +194,21 @@ Creates a directory with the given name, permission bits, and group ID.
 sub createDirectory {
 	my ($dirName, $permission, $numgid) = @_;
 	$permission = (defined($permission)) ? $permission : '0770';
-	# FIXME -- find out where the permission is supposed to be defined.
-	#warn "dirName is $dirName and permission is $permission";
+	# FIXME -- find out where the permission is supposed to be defined
+	my $errors = '';
 	mkdir($dirName, $permission)
-		or warn "Can't do mkdir($dirName, $permission): $!";
+		or $errors .= "Can't do mkdir($dirName, $permission): $!\n".caller(3);
 	chmod($permission, $dirName)
-		or warn "Can't do chmod($permission, $dirName): $!";
+		or $errors .= "Can't do chmod($permission, $dirName): $!\n".caller(3);
 	unless ($numgid == -1) {
 		chown(-1,$numgid,$dirName)
-			or warn "Can't do chown(-1,$numgid,$dirName): $!";
+			or $errors .= "Can't do chown(-1,$numgid,$dirName): $!\n".caller(3);
+	}
+	if ($errors) {
+		warn $errors;
+		return 0;
+	} else {
+		return 1;
 	}
 }
 

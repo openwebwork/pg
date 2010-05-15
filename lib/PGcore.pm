@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/PGcore.pm,v 1.2 2010/05/14 12:31:19 gage Exp $
+# $CVSHeader: pg/lib/PGcore.pm,v 1.3 2010/05/14 16:48:21 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -27,7 +27,7 @@ use PGresponsegroup;
 use PGrandom;
 use PGalias;
 use PGloadfiles;
-use WeBWorK::PG::IO;
+use WeBWorK::PG::IO(); # don't important any command directly
 use Tie::IxHash;
 
 ##################################
@@ -668,22 +668,25 @@ sub surePathToTmpFile {
 	my $path = shift;
 	my $delim = "/"; 
 	my $tmpDirectory = $self->tempDirectory();
+#warn "\nTMP tmpDirectory $tmpDirectory";
 	unless ( -e $tmpDirectory) {   # if by some unlucky chance the tmpDirectory hasn't been created, create it.
 	    my $parentDirectory =  $tmpDirectory;
 	    $parentDirectory =~s|/$||;  # remove a trailing /
 	    $parentDirectory =~s|/\w*$||; # remove last node
 	    my ($perms, $groupID) = (stat $parentDirectory)[2,5];
-		createDirectory($tmpDirectory, $perms, $groupID)
-				or warn "Failed to create directory at $path";
+	    #FIXME  where is the parentDirectory defined??
+#warn "Creating tmp directory at $tmpDirectory, perms $perms groupID $groupID";
+		$self->createDirectory($tmpDirectory, $perms, $groupID)
+				or warn "Failed to create parent tmp directory at $path";
 	
 	}
 	# use the permissions/group on the temp directory itself as a template
 	my ($perms, $groupID) = (stat $tmpDirectory)[2,5];
-	#warn "&urePathToTmpFile: perms=$perms groupID=$groupID\n";
+#warn "&urePathToTmpFile: directory=$tmpDirectory, perms=$perms, groupID=$groupID\n";
 	
 	# if the path starts with $tmpDirectory (which is permitted but optional) remove this initial segment
 	$path =~ s|^$tmpDirectory|| if $path =~ m|^$tmpDirectory|;
-	#$path = convertPath($path);
+	#$path = $self->convertPath($path);
 	
 	# find the nodes on the given path
         my @nodes = split("$delim",$path);
@@ -693,11 +696,13 @@ sub surePathToTmpFile {
 	
 	while (@nodes>1) {
 		$path = $path . shift (@nodes) . "/"; #convertPath($path . shift (@nodes) . "/");
+#warn "\PATH is now $path";
 		unless (-e $path) {
 			#system("mkdir $path");
 			#createDirectory($path,$Global::tmp_directory_permission, $Global::numericalGroupID)
-			createDirectory($path, $perms, $groupID)
-				or warn "Failed to create directory at $path";
+#warn "PATH $path perms $perms groupID $groupID";
+			$self->createDirectory($path, $perms, $groupID)
+				or warn "Failed to create directory at $path with permissions $perms and groupID $groupID";
 		}
 
 	}

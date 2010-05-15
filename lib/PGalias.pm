@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/PGalias.pm,v 1.4 2010/05/14 15:44:55 gage Exp $
+# $CVSHeader: pg/lib/PGalias.pm,v 1.5 2010/05/15 01:53:57 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -160,7 +160,6 @@ sub make_alias {
    	my $aux_file_path = shift @_;
    	my $resource_alias = new PGresource($aux_file_path);  # just call it alias? FIXME -- not in use yet.
    	
-   	# warn "make alias for $aux_file_path";
 	warn "Empty string used as input into the function alias" unless $aux_file_path;
 	
 	my $displayMode         = $self->{displayMode};
@@ -460,17 +459,18 @@ sub alias_for_gif_in_tex_mode {
 					$gifFilePath = "$aux_file_path.gif";
 				} else {
 					# we assume the file is in the same directory as the problem source file
-					$gifFilePath = $templateDirectory . ($self->directoryFromPath($fileName)) . "$aux_file_path.gif";
+					my $dir = $self->directoryFromPath($fileName);
+					$gifFilePath = "$templateDirectory${dir}$aux_file_path.gif";
 				}
 
 				my $gifFileName = $self->fileFromPath($gifFilePath);
-
 				$gifFileName =~ /^(.*)\.gif$/;
-				my $pngFilePath = $self->surePathToTmpFile("${tempDirectory}png/$setNumber-$probNum-$1.png");
-				my $returnCode = system "cat $gifFilePath | ${$envir->{externalGif2PngPath}} > $pngFilePath";
-
+					my $pngFilePath = $self->surePathToTmpFile("${tempDirectory}png/$setNumber-$probNum-$1.png");
+				my $command = $envir->{externalGif2PngPath};
+				my $returnCode = system "cat $gifFilePath | $command > $pngFilePath";
+			#warn "FILE path $pngFilePath  exists =", -e $pngFilePath;
 				if ($returnCode or not -e $pngFilePath) {
-					die "failed to convert $gifFilePath to $pngFilePath using gif->png with ${$envir->{externalGif2PngPath}}: $!\n";
+					warn "returnCode $returnCode: failed to convert $gifFilePath to $pngFilePath using gif->png with $command: $!";
 				}
 
 				$adr_output = $pngFilePath;
@@ -575,7 +575,8 @@ sub alias_for_png_in_html_mode {
 				# $fileName is obtained from environment for PGeval
 				# it gives the full path to the current problem
 				my $pngSourceFile = $self->convertPath("$templateDirectory${filePath}$aux_file_path.png");
-				my $link = "gif/".$self->{uniqIDstub}."-$aux_file_path.$ext";
+				my $uniqIDstub = $self->{uniqIDstub};
+				my $link = "gif/${uniqIDstub}-$aux_file_path.$ext";
 				my $linkPath = $self->surePathToTmpFile($link);
 				$adr_output = "${tempURL}$link";
 				#warn "linkPath is $linkPath";
@@ -635,7 +636,8 @@ sub alias_for_png_in_tex_mode {
 					$pngFilePath = "$aux_file_path.png";
 				} else {
 					# we assume the file is in the same directory as the problem source file
-					$pngFilePath = $templateDirectory . ($self->directoryFromPath($fileName)) . "$aux_file_path.png";
+					my $dir = $self->directoryFromPath($fileName);
+					$pngFilePath = "$templateDirectory${dir}$aux_file_path.png";
 				}
 
 				$adr_output = $pngFilePath;
