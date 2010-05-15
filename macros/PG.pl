@@ -155,7 +155,8 @@ sub store_persistent_data {
 sub RECORD_FORM_LABEL {              # this stores form data (such as sticky answers), but does nothing more
                                      # it's a bit of hack since we are storing these in the 
                                      # KEPT_EXTRA_ANSWERS queue even if they aren't answers per se.
-    warn "Using RECORD_FORM_LABEL -- deprecated?";
+    #FIXME
+    # warn "Using RECORD_FORM_LABEL -- deprecated? use $PG->store_persistent_data instead.";
 	RECORD_EXTRA_ANSWERS(@_);
 }
 
@@ -550,7 +551,7 @@ __END__
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PG.pl,v 1.43 2010/05/14 16:48:45 gage Exp $
+# $CVSHeader: pg/macros/PG.pl,v 1.44 2010/05/14 16:53:28 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
