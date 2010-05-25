@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/PGcore.pm,v 1.3 2010/05/14 16:48:21 gage Exp $
+# $CVSHeader: pg/lib/PGcore.pm,v 1.4 2010/05/15 18:41:23 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -18,10 +18,11 @@ package PGcore;
 use strict;
 BEGIN {
 	use Exporter;
-	our @EXPORT_OK = qw( not_null);
+	our @EXPORT_OK = qw(not_null);
 }
 our $internal_debug_messages = [];
 
+our @ISA = qw(Exporter);
 use PGanswergroup;
 use PGresponsegroup;
 use PGrandom;
