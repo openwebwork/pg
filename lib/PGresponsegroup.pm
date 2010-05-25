@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PG.pl,v 1.40 2009/06/25 23:28:44 gage Exp $
+# $CVSHeader: pg/lib/PGresponsegroup.pm,v 1.1 2010/05/14 11:39:02 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -17,7 +17,7 @@ package PGresponsegroup;
 
 use strict;
 use Exporter;
-use PGcore( qw( not_null ) );
+use PGcore  qw(not_null) ;
 use PGanswergroup;
 use Tie::IxHash;
 
@@ -68,7 +68,7 @@ sub append_response{
 	my $self = shift;
 	my $response_label = shift;
 	my $response_value =shift;
-	if (PGcore::not_null($response_label) ) {
+	if (not_null($response_label) ) {
 		if (not exists ($self->{responses}->{$response_label}) ) {
 			push @{ $self->{response_order}} , $response_label;
 			$self->{responses}->{$response_label} = $response_value;
