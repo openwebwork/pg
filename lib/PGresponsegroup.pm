@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/PGresponsegroup.pm,v 1.1 2010/05/14 11:39:02 gage Exp $
+# $CVSHeader: pg/lib/PGresponsegroup.pm,v 1.2 2010/05/25 22:13:52 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -159,7 +159,7 @@ sub get_answergroup_label {
 	if ( ! not_null ($self->{answergroup_label}) ) { #if $answergroup is not yet defined
 		$self->{answergroup_label} = ${$self->{response_order}}[0];
 	}
-	if ( not_null ($self->{answergroup_label}) ) { #if $answergroup is not yet defined
+	if ( not_null ($self->{answergroup_label}) ) { #if $answergroup is now defined
 		return $self->{answergroup_label};
 	} else {
 		warn "This answer group has no labeled responses.";
