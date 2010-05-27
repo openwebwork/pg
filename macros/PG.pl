@@ -105,11 +105,11 @@ sub LABELED_ANS {
   #prepend labels with the quiz and section prefixes.
   while (@in ) {
   	my $label    = shift @in;
-  	$label       = join("", $self->{QUIZ_PREFIX}, $self->{SECTION_PREFIX}, $label);
+  	$label       = join("", $PG->{QUIZ_PREFIX}, $PG->{SECTION_PREFIX}, $label);
   	$ans_eval = shift @in;
   	push @out, $label, $ans_eval;
   }
-  pus$PG->LABELED_ANS(@out); # returns pointer to the labeled answer group
+  $PG->LABELED_ANS(@out); # returns pointer to the labeled answer group
 }
 
 sub NAMED_ANS {
@@ -560,7 +560,7 @@ __END__
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PG.pl,v 1.45 2010/05/15 19:38:49 gage Exp $
+# $CVSHeader: pg/macros/PG.pl,v 1.46 2010/05/27 02:22:51 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
