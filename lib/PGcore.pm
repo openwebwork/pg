@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/PGcore.pm,v 1.5 2010/05/25 22:22:27 gage Exp $
+# $CVSHeader: pg/lib/PGcore.pm,v 1.6 2010/05/25 22:47:52 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -83,7 +83,7 @@ sub new {
 		ANSWER_PREFIX             => 'AnSwEr',
 		ARRAY_PREFIX              => 'ArRaY',
 		vec_num                   => 0,     # for distinguishing matrices
-		QUIZ_PREFIX               => '',
+		QUIZ_PREFIX               => $envir->{QUIZ_PREFIX},
 		SECTION_PREFIX            => '',  # might be used for sequential (compound) questions?
 		
 		PG_ACTIVE                 => 1,   # turn to zero to stop processing
@@ -287,7 +287,7 @@ sub LABELED_ANS{
   my @in = @_;
   while (@in ) {
   	my $label    = shift @in;
-  	$label       = join("", $self->{QUIZ_PREFIX}, $self->{SECTION_PREFIX}, $label);
+  	#$label       = join("", $self->{QUIZ_PREFIX}, $self->{SECTION_PREFIX}, $label);
   	my $ans_eval = shift @in;
   	$self->WARN("<BR><B>Error in LABELED_ANS:|$label|</B>
   	      -- inputs must be references to AnswerEvaluator objects or subroutines<BR>")

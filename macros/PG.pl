@@ -100,11 +100,20 @@ sub HEADER_TEXT {
 }
 
 sub LABELED_ANS {
-	$PG->LABELED_ANS(@_); # returns pointer to the labeled answer group
+  my @in = @_;
+  my @out = ();
+  #prepend labels with the quiz and section prefixes.
+  while (@in ) {
+  	my $label    = shift @in;
+  	$label       = join("", $self->{QUIZ_PREFIX}, $self->{SECTION_PREFIX}, $label);
+  	$ans_eval = shift @in;
+  	push @out, $label, $ans_eval;
+  }
+  pus$PG->LABELED_ANS(@out); # returns pointer to the labeled answer group
 }
 
 sub NAMED_ANS {
-	$PG->LABELED_ANS(@_); # returns pointer to the labeled answer group
+	&LABELED_ANS(@_); # returns pointer to the labeled answer group
 }
 
 sub ANS {
@@ -551,7 +560,7 @@ __END__
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PG.pl,v 1.44 2010/05/14 16:53:28 gage Exp $
+# $CVSHeader: pg/macros/PG.pl,v 1.45 2010/05/15 19:38:49 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
