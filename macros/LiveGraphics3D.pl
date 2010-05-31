@@ -65,7 +65,9 @@ sub _LiveGraphics3D_init {}; # don't reload this file
 sub LiveGraphics3D {
   my %options = (
     size => [250,250],
-    jar => findAppletCodebase("live.jar")."/live.jar",
+    jar => "live.jar", # "${htmlURL}live.jar",
+    codebase => findAppletCodebase("live.jar"),
+    # codebase => "http://hosted2.webwork.rochester.edu/webwork2_files/applets/",  # used for testing
     background => "#FFFFFF",
     scale => 1.,
     tex_size => 500,
@@ -103,7 +105,7 @@ sub LiveGraphics3D {
     #  start the applet
     #
     $out .= qq{
-      <APPLET ARCHIVE="$options{jar}" CODE="Live.class" WIDTH="$w" HEIGHT="$h">
+      <APPLET CODEBASE="$options{codebase}" ARCHIVE="$options{jar}" CODE="Live.class" WIDTH="$w" HEIGHT="$h">
       <PARAM NAME="BGCOLOR" VALUE="$options{background}">
       <PARAM NAME="MAGNIFICATION" VALUE="$options{scale}">
     };
