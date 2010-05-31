@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/PGalias.pm,v 1.5 2010/05/15 01:53:57 gage Exp $
+# $CVSHeader: pg/lib/PGalias.pm,v 1.6 2010/05/15 18:41:23 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -111,6 +111,8 @@ sub initialize {
 	$self->{displayMode}         = $envir->{displayMode};
 	$self->{externalGif2EpsPath} = $envir->{externalGif2EpsPath};
 	$self->{externalPng2EpsPath} = $envir->{externalPng2EpsPath};	
+	
+	$self->{appletPath} = $self->{envir}->{pgDirectories}->{appletPath};
 	#
 	#  Find auxiliary files even when the main file is in tempates/tmpEdit
 	#
@@ -757,22 +759,23 @@ our %appletCodebaseLocations = ();
 sub findAppletCodebase {
 	my $self     = shift;
 	my $fileName = shift;  # probably the name of a jar file
-	return $appletCodebaseLocations{$fileName}    #check cache first
+	#check cache first
+	return $appletCodebaseLocations{$fileName}   
 		if defined($appletCodebaseLocations{$fileName})
 			and $appletCodebaseLocations{$fileName} =~/\S/;
-	
+	my $appletPath = $self->{appletPath};
 	foreach my $appletLocation (@{$appletPath}) {
 		if ($appletLocation =~ m|^/|) {
 			$appletLocation = "$server_root_url$appletLocation";
 		}
 		return $appletLocation;  # --hack workaround -- just pick the first location and use that -- no checks
-#hack to workaround conflict between lwp-request and apache2
+# hack to workaround conflict between lwp-request and apache2
 # comment out the check_url block
-# 		my $url = "$appletLocation/$fileName";
-# 		if ($self->check_url($url)) {
-# 				$appletCodebaseLocations{$fileName} = $appletLocation; #update cache
-# 			return $appletLocation	 # return codebase part of url
-# 		}
+		my $url = "$appletLocation/$fileName";
+		if ($self->check_url($url)) {
+				$appletCodebaseLocations{$fileName} = $appletLocation; #update cache
+			return $appletLocation	 # return codebase part of url
+		}
  	}
  	return "Error: $fileName not found at ". join(",	", @{$appletPath} );	# no file found
 }
