@@ -759,18 +759,19 @@ our %appletCodebaseLocations = ();
 sub findAppletCodebase {
 	my $self     = shift;
 	my $fileName = shift;  # probably the name of a jar file
+	$server_root_url=$self->envir("server_root_url");
 	#check cache first
-	return $appletCodebaseLocations{$fileName}   
-		if defined($appletCodebaseLocations{$fileName})
-			and $appletCodebaseLocations{$fileName} =~/\S/;
+	if (defined($appletCodebaseLocations{$fileName})  
+	      and $appletCodebaseLocations{$fileName} =~/\S/  ){
+	   	$appletCodebaseLocations{$fileName} 
+	   	
+	
+	}
 	my $appletPath = $self->{appletPath};
 	foreach my $appletLocation (@{$appletPath}) {
 		if ($appletLocation =~ m|^/|) {
 			$appletLocation = "$server_root_url$appletLocation";
 		}
-		return $appletLocation;  # --hack workaround -- just pick the first location and use that -- no checks
-# hack to workaround conflict between lwp-request and apache2
-# comment out the check_url block
 		my $url = "$appletLocation/$fileName";
 		if ($self->check_url($url)) {
 				$appletCodebaseLocations{$fileName} = $appletLocation; #update cache

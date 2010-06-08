@@ -441,7 +441,7 @@ sub _check {
   if ($isFraction) {
     $self->Error("Mixed numbers are not allowed; you must use a pure fraction")
       if ($self->context->flag("requirePureFractions"));
-    $self->{bop} = "  ";
+    $self->{isFraction} = 1; $self->{bop} = "  ";
     $self->{def} = $self->context->{operators}{$self->{bop}};
     if ($self->{lop}->class eq 'MINUS') {
       #
@@ -460,6 +460,15 @@ sub _check {
       if $self->context->flag("strictMultiplication");
     bless $self, $ISA[0];
   }
+}
+
+#
+#  Indicate if the value is a fraction or not
+#
+sub class {
+  my $self = shift;
+  return "FRACTION" if $self->{isFraction};
+  return $self->SUPER::class;
 }
 
 #

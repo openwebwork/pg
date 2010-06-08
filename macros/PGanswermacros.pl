@@ -1777,39 +1777,39 @@ This can be very useful for printing out messages about objects while debugging
 # ^function pretty_print
 # ^uses lex_sort
 # ^uses pretty_print
-sub pretty_print {
-    my $r_input = shift;
-    my $out = '';
-    if ( not ref($r_input) ) {
-    	$out = $r_input if defined $r_input;    # not a reference
-    	$out =~ s/</&lt;/g  ;  # protect for HTML output
-    } elsif ("$r_input" =~/hash/i) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_iput).
-	    local($^W) = 0;
-	    
-		$out .= "$r_input " ."<TABLE border = \"2\" cellpadding = \"3\" BGCOLOR = \"#FFFFFF\">";
-		
-		
-		foreach my $key (lex_sort( keys %$r_input )) {
-			$out .= "<tr><TD> $key</TD><TD>=&gt;</td><td>&nbsp;".pretty_print($r_input->{$key}) . "</td></tr>";
-		}
-		
-		
-		
-		$out .="</table>";
-	} elsif (ref($r_input) eq 'ARRAY' ) {
-		my @array = @$r_input;
-		$out .= "( " ;
-		while (@array) {
-			$out .= pretty_print(shift @array) . " , ";
-		}
-		$out .= " )";
-	} elsif (ref($r_input) eq 'CODE') {
-		$out = "$r_input";
-	} else {
-		$out = $r_input;
-		$out =~ s/</&lt;/g ;  # protect for HTML output
-	}
-		$out;
-}
+# sub pretty_print {
+#     my $r_input = shift;
+#     my $out = '';
+#     if ( not ref($r_input) ) {
+#     	$out = $r_input if defined $r_input;    # not a reference
+#     	$out =~ s/</&lt;/g  ;  # protect for HTML output
+#     } elsif ("$r_input" =~/hash/i) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_iput).
+# 	    local($^W) = 0;
+# 	    
+# 		$out .= "$r_input " ."<TABLE border = \"2\" cellpadding = \"3\" BGCOLOR = \"#FFFFFF\">";
+# 		
+# 		
+# 		foreach my $key (lex_sort( keys %$r_input )) {
+# 			$out .= "<tr><TD> $key</TD><TD>=&gt;</td><td>&nbsp;".pretty_print($r_input->{$key}) . "</td></tr>";
+# 		}
+# 		
+# 		
+# 		
+# 		$out .="</table>";
+# 	} elsif (ref($r_input) eq 'ARRAY' ) {
+# 		my @array = @$r_input;
+# 		$out .= "( " ;
+# 		while (@array) {
+# 			$out .= pretty_print(shift @array) . " , ";
+# 		}
+# 		$out .= " )";
+# 	} elsif (ref($r_input) eq 'CODE') {
+# 		$out = "$r_input";
+# 	} else {
+# 		$out = $r_input;
+# 		$out =~ s/</&lt;/g ;  # protect for HTML output
+# 	}
+# 		$out;
+# }
 
 1;

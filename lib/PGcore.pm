@@ -18,7 +18,7 @@ package PGcore;
 use strict;
 BEGIN {
 	use Exporter 'import';
-	our @EXPORT_OK = qw(not_null);
+	our @EXPORT_OK = qw(not_null pretty_print);
 }
 our $internal_debug_messages = [];
 
@@ -37,6 +37,9 @@ use Tie::IxHash;
 
 =head2  Utility Macros
 
+
+=head4  not_null
+     
   not_null(item)  returns 1 or 0
      
      empty arrays, empty hashes, strings containing only whitespace are all NULL and return 0
@@ -57,6 +60,54 @@ sub not_null {        # empty arrays, empty hashes and strings containing only w
 	}
 }
 
+=head4 pretty_print
+
+	Usage: warn pretty_print( $rh_hash_input)
+		   TEXT(pretty_print($ans_hash));
+		   TEXT(pretty_print(~~%envir ));
+
+This can be very useful for printing out HTML messages about objects while debugging
+
+=cut
+
+# ^function pretty_print
+# ^uses lex_sort
+# ^uses pretty_print
+sub pretty_print {    # provides html output -- NOT a method
+    my $r_input = shift;
+    my $level = shift;
+    $level = 4 unless defined($level);
+    $level--;
+    return '' unless $level > 0;  # only print three levels of hashes (safety feature)
+    my $out = '';
+    if ( not ref($r_input) ) {
+    	$out = $r_input if defined $r_input;    # not a reference
+    	$out =~ s/</&lt;/g  ;  # protect for HTML output
+    } elsif ("$r_input" =~/hash/i) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_iput).
+	    local($^W) = 0;
+	    
+		$out .= "$r_input " ."<TABLE border = \"2\" cellpadding = \"3\" BGCOLOR = \"#FFFFFF\">";
+		
+		
+		foreach my $key ( sort ( keys %$r_input )) {
+			$out .= "<tr><TD> $key</TD><TD>=&gt;</td><td>&nbsp;".pretty_print($r_input->{$key}) . "</td></tr>";
+		}
+		$out .="</table>";
+	} elsif (ref($r_input) eq 'ARRAY' ) {
+		my @array = @$r_input;
+		$out .= "( " ;
+		while (@array) {
+			$out .= pretty_print(shift @array, $level) . " , ";
+		}
+		$out .= " )";
+	} elsif (ref($r_input) eq 'CODE') {
+		$out = "$r_input";
+	} else {
+		$out = $r_input;
+		$out =~ s/</&lt;/g; # protect for HTML output
+	}
+		$out;
+}
 ##################################
 # PGcore object
 ##################################
@@ -70,11 +121,10 @@ sub new {
 	my $self = {
 		OUTPUT_ARRAY              => [],          # holds output body text
 		HEADER_ARRAY              => [],         # holds output for the header text
-#		PG_ANSWERS                => [],  # holds answers with labels
-#		PG_UNLABELED_ANSWERS      => [],  # holds 
+#		PG_ANSWERS                => [],  # holds answers with labels # deprecated
+#		PG_UNLABELED_ANSWERS      => [],  # holds unlabeled ans. #deprecated -replaced by PG_ANSWERS_HASH
 		PG_ANSWERS_HASH           => {},  # holds label=>answer pairs
 		PERSISTENCE_HASH           => {}, # holds other data, besides answers, which persists during a session and beyond
-#		PG_persistence_hash       => {},  # stores information (other than answers) from one session to another
 		answer_eval_count         => 0,
 		answer_blank_count        => 0,
 		unlabeled_answer_blank_count =>0,
@@ -86,7 +136,7 @@ sub new {
 		QUIZ_PREFIX               => $envir->{QUIZ_PREFIX},
 		SECTION_PREFIX            => '',  # might be used for sequential (compound) questions?
 		
-		PG_ACTIVE                 => 1,   # turn to zero to stop processing
+		PG_ACTIVE                 => 1,   # toggle to zero to stop processing
 		submittedAnswers          => 0,   # have any answers been submitted? is this the first time this session?
 		PG_session_persistence_hash =>{}, # stores data from one invoction of the session to the next.
 		PG_original_problem_seed  => 0,
@@ -255,7 +305,22 @@ sub TEXT {
 	$self->{OUTPUT_ARRAY};
 }
 
+sub envir {
+	my $self = shift;
+	my $in_key = shift;
+	if ( not_null($in_key) ) {
+  		if (defined  ($self->{envir}->{$in_key} ) ) {
+  			$self->{envir}->{$in_key};
+  		} else {
+  			 warn "\$envir{$in_key} is not defined\n";
+  			return '';
+  		}
+	} else {
+ 		warn "<h3> Environment</h3>".pretty_print($self->{envir});
+ 		return '';
+	}
 
+}
 =item LABELED_ANS()
 
  TEXT(labeled_ans_rule("name1"), labeled_ans_rule("name2"));
@@ -404,7 +469,7 @@ sub record_ans_name {      # the labels in the PGanswer group and response group
 	my $self = shift;
 	my $label = shift;
 	my $value = shift;
-	$self->internal_debug_message("record_ans_name $label $value");
+	#$self->internal_debug_message("PGcore::record_ans_name: $label $value");
 	my $response_group = new PGresponsegroup($label,$label,$value);
 	if (defined($self->{PG_ANSWERS_HASH}->{$label}) ) {
 		$self->{PG_ANSWERS_HASH}->{$label}->replace(ans_label => $label, 
@@ -468,7 +533,7 @@ sub store_persistent_data {  # will store strings only (so far)
 	my $self = shift;
 	my $label = shift;
 	my @content = @_;
-	$self->internal_debug_message("storing $label in PERSISTENCE_HASH");
+	$self->internal_debug_message("PGcore::store_persistent_data: storing $label in PERSISTENCE_HASH");
 	if (defined($self->{PERSISTENCE_HASH}->{$label}) ) {
 		warn "can' overwrite $label in persistent data";
 	} else {
@@ -512,15 +577,32 @@ sub PG_restricted_eval {
 # 	}
 # }
 
-sub append_debug_message {
+
+
+sub debug_message {
     my $self = shift;
 	my @str = @_;
-	push @{$self->{DEBUG_messages}}, @str;
+	push @{$self->{flags}->{DEBUG_messages}}, @str;
 }
 sub get_debug_messages {
 	my $self = shift;
-	$self->{DEBUG_messages};
+	$self->{flags}->{DEBUG_messages};
 }
+
+sub internal_debug_message {
+    my $self = shift;
+	my @str = @_;
+	push @{$internal_debug_messages}, @str;
+}
+sub get_internal_debug_messages {
+	my $self = shift;
+	$internal_debug_messages;
+}
+sub clear_internal_debug_messages {
+	my $self = shift;
+	$internal_debug_messages=[];
+}
+
 sub DESTROY {
 	# doing nothing about destruction, hope that isn't dangerous
 }
@@ -713,18 +795,5 @@ sub surePathToTmpFile {
 	return $path;
 }
 
-sub internal_debug_message {
-    my $self = shift;
-	my @str = @_;
-	push @{$internal_debug_messages}, @str;
-}
-sub get_internal_debug_messages {
-	my $self = shift;
-	$internal_debug_messages;
-}
-sub clear_internal_debug_messages {
-	my $self = shift;
-	$internal_debug_messages=[];
-}
 
 1;

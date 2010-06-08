@@ -13,13 +13,14 @@ sub _PG_init{
 }
 sub not_null {PGcore::not_null(@_)};
 
+sub pretty_print {PGcore::pretty_print(@_)};
 
 our $PG;  
 
 sub DEBUG_MESSAGE {
-	$PG->append_debug_message(@_);
+    my @msg = @_;
+	$PG->debug_message("---- ".join(" ",caller())." ------", @msg,"__________________________");
 }
-
 
 sub DOCUMENT {
 
@@ -29,7 +30,6 @@ sub DOCUMENT {
 	$PG = new PGcore($rh_envir,	# can add key/value options to modify		
 	);
     $PG->clear_internal_debug_messages;
-
 	# initialize main:: variables
 	
 	$ANSWER_PREFIX         		= $PG->{ANSWER_PREFIX};

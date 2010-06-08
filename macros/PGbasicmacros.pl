@@ -333,7 +333,7 @@ sub NAMED_ANS_RULE {
 
 	$answer_value =~ tr/\\$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
-	DEBUG_MESSAGE( "RECORD_ANS_NAME($name, $answer_value)");
+
 	$name = RECORD_ANS_NAME($name, $answer_value);
     #INSERT_RESPONSE($name,$name,$answer_value);  #FIXME -- why can't we do this inside RECORD_ANS_NAME?
     
@@ -1050,9 +1050,9 @@ sub SOLUTION {
 sub hint {
    	my @in = @_;
 	my $out = '';
-	my $permissionLevel = PG_restricted_eval(q!$main::envir{permissionLevel}!); #user permission level
-	my $PRINT_FILE_NAMES_PERMISSION_LEVEL = (PG_restricted_eval(q!defined( $main::envir{'PRINT_FILE_NAMES_PERMISSION_LEVEL'} )!))?
-	           PG_restricted_eval(q!$main::envir{'PRINT_FILE_NAMES_PERMISSION_LEVEL'}!) : 10000; # protect against undefined values
+	my $permissionLevel = $envir->{permissionLevel}; #PG_restricted_eval(q!$main::envir{permissionLevel}!); #user permission level
+	# protect against undefined values
+	my $PRINT_FILE_NAMES_PERMISSION_LEVEL = ( defined( $envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'} ) ) ? $envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'} : 10000;
     my $printHintForInstructor = $permissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL;
     my $showHint = PG_restricted_eval(q!$main::showHint!);
     my $displayHint = PG_restricted_eval(q!$main::envir{'displayHintsQ'}!);

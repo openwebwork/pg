@@ -120,6 +120,9 @@ BEGIN {
 }
 
 package AnswerHash;
+use Exporter;
+use PGcore qw(not_null pretty_print);
+
 # initialization fields
 my %fields = (		'score'					=>	undef,
 					'correct_ans'			=>	undef,
@@ -339,39 +342,38 @@ sub error_message {
 
 =cut
 
-
-sub pretty_print {
-    my $r_input = shift;
-    my $level = shift;
-    $level = 4 unless defined($level);
-    $level--;
-    return '' unless $level > 0;  # only print three levels of hashes (safety feature)
-    my $out = '';
-    if ( not ref($r_input) ) {
-    	$out = $r_input;    # not a reference
-    	$out =~ s/</&lt;/g; # protect for HTML output
-    } elsif (ref($r_input) =~/hash/i) {
-	    local($^W) = 0;
-		$out .= "<TABLE border = \"2\" cellpadding = \"3\" BGCOLOR = \"#FFFFFF\">";
-		foreach my $key (sort keys %$r_input ) {
-			$out .= "<tr><TD> $key</TD><TD>=&gt;</td><td>&nbsp;".pretty_print($r_input->{$key}, $level) . "</td></tr>";
-		}
-		$out .="</table>";
-	} elsif (ref($r_input) eq 'ARRAY' ) {
-		my @array = @$r_input;
-		$out .= "( " ;
-		while (@array) {
-			$out .= pretty_print(shift @array, $level) . " , ";
-		}
-		$out .= " )"; 
-	} elsif (ref($r_input) eq 'CODE') {
-		$out = "$r_input";
-	} else {
-		$out = $r_input;
-		$out =~ s/</&lt;/g; # protect for HTML output
-	}
-		$out;
-}
+# sub pretty_print {
+#     my $r_input = shift;
+#     my $level = shift;
+#     $level = 4 unless defined($level);
+#     $level--;
+#     return '' unless $level > 0;  # only print three levels of hashes (safety feature)
+#     my $out = '';
+#     if ( not ref($r_input) ) {
+#     	$out = $r_input;    # not a reference
+#     	$out =~ s/</&lt;/g; # protect for HTML output
+#     } elsif (ref($r_input) =~/hash/i) {
+# 	    local($^W) = 0;
+# 		$out .= "<TABLE border = \"2\" cellpadding = \"3\" BGCOLOR = \"#FFFFFF\">";
+# 		foreach my $key (sort keys %$r_input ) {
+# 			$out .= "<tr><TD> $key</TD><TD>=&gt;</td><td>&nbsp;".pretty_print($r_input->{$key}, $level) . "</td></tr>";
+# 		}
+# 		$out .="</table>";
+# 	} elsif (ref($r_input) eq 'ARRAY' ) {
+# 		my @array = @$r_input;
+# 		$out .= "( " ;
+# 		while (@array) {
+# 			$out .= pretty_print(shift @array, $level) . " , ";
+# 		}
+# 		$out .= " )"; 
+# 	} elsif (ref($r_input) eq 'CODE') {
+# 		$out = "$r_input";
+# 	} else {
+# 		$out = $r_input;
+# 		$out =~ s/</&lt;/g; # protect for HTML output
+# 	}
+# 		$out;
+# }
 
 # action methods	
 
@@ -448,7 +450,8 @@ sub AND {
 
 
 package AnswerEvaluator;
-
+use Exporter;
+use PGcore qw(not_null pretty_print);
 
 =head3 AnswerEvaluator Methods
 

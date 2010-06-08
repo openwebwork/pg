@@ -943,7 +943,7 @@ case the previously defined safe compartment is used. (See item 1.)
 
 =cut
 
-				my ($PG_PROBLEM_TEXT_REF, $PG_HEADER_TEXT_REF, $PG_ANSWER_HASH_REF, $PG_FLAGS_REF)
+				my ($PG_PROBLEM_TEXT_REF, $PG_HEADER_TEXT_REF, $PG_ANSWER_HASH_REF, $PG_FLAGS_REF, $PGcore)
 				      =$safe_cmpt->reval("   $evalString");
                #warn "using safe compartment ", $safe_cmpt->root;
 # This section could use some more error messages.  In particular if a problem doesn't produce the right output, the user needs
@@ -1033,6 +1033,7 @@ the errors.
 			$PG_ANSWER_HASH_REF -- Reference to an array containing the answer evaluators.
 			$PG_FLAGS_REF -- Reference to a hash containing flags and other references:
 				'error_flag' is set to 1 if there were errors in rendering
+			$PGcore -- the PGcore object
 
 =cut
 
@@ -1051,7 +1052,10 @@ the errors.
 	    $self ->{ PG_HEADER_TEXT_REF 	}		= $PG_HEADER_TEXT_REF;
 	    $self ->{ rh_correct_answers	}		= $PG_ANSWER_HASH_REF;
 	    $self ->{ PG_FLAGS_REF			}		= $PG_FLAGS_REF;
-	    $self ->{errors};
+	    $self ->{ rh_pgcore             }       = $PGcore;
+	    
+	    #warn "PGcore is ", ref($PGcore), " in Translator";
+	    #$self ->{errors};
 }  # end translate
 
 

@@ -73,10 +73,10 @@ sub append_response{
 			push @{ $self->{response_order}} , $response_label;
 			$self->{responses}->{$response_label} = $response_value;
 		} else {
-			$self->internal_debug_message( "PGresponsegroup error: there is already an answer labeled $response_label", caller(2),"\n");
+			$self->internal_debug_message( "PGresponsegroup::append_response error: there is already an answer labeled $response_label", caller(2),"\n");
 		}
 	} else {
-		    $self->internal_debug_message(  "error undefined or empty response label");
+		    $self->internal_debug_message(  "PGresponsegroup::append_response error: undefined or empty response label");
 	}
 	#warn "\n content of responses  is ",join(' ',%{$self->{responses}});
 }
@@ -128,7 +128,7 @@ sub extend_response {
 		my $response_value = $self->{responses}->{$response_label};		
 		!defined($response_value) && do{ $response_value = {} };
 		ref($response_value) !~/HASH/ && do{ 
-		            $self->internal_debug_message("error in storing hash ", ref($response_value),$response_value);
+		            $self->internal_debug_message("PGresponsegroup::extend_response: error in storing hash ", ref($response_value),$response_value);
 		            $response_value = {$response_value=>$selected};
 		          }; 
 		    #should not happen this means that a non-hash entry was made into this response label
@@ -139,7 +139,7 @@ sub extend_response {
 		# a hash of key/value pairs -- the key labels the radio button or checkbox, 
 		# the value whether it is selected
 	} else {
-		$self->internal_debug_message("response label |$response_label| not defined") ;
+		$self->internal_debug_message("PGresponsegroup::extend_response: response label |$response_label| not defined") ;
 		return undef;
     }
 	
