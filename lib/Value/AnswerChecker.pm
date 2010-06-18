@@ -143,6 +143,7 @@ sub cmp_parse {
     $ans->{student_value}{isStudent} = 1;
     $ans->{preview_latex_string} = $ans->{student_formula}->TeX;
     $ans->{preview_text_string}  = preformat($ans->{student_formula}->string);
+    $ans->{correct_ans_latex_string} = Parser::Formula($ans->{correct_ans})->TeX;  #FIXME
     #
     #  Get the string for the student answer
     #
