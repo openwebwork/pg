@@ -30,7 +30,7 @@ use PGalias;
 use PGloadfiles;
 use WeBWorK::PG::IO(); # don't important any command directly
 use Tie::IxHash;
-
+use MIME::Base64;
 ##################################
 # Utility macro 
 ##################################
@@ -578,7 +578,19 @@ sub PG_restricted_eval {
 # }
 
 
+# Sometimes a question author needs to code or decode base64 directly
+sub decode_base64 ($) {
+	my $self = shift;
+	my $str = shift;
+	MIME::Base64::decode_base64($str);
+}
 
+sub encode_base64 ($;$) {
+	my $self = shift;
+	my $str  = shift;
+	my $option = shift;
+	MIME::Base64::encode_base64($str);
+}
 sub debug_message {
     my $self = shift;
 	my @str = @_;
