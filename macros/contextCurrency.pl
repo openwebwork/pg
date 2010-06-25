@@ -523,7 +523,7 @@ sub format {
   my $c = main::prfmt(CORE::abs($self->value),"%.2f");
   $c =~ s/\.00// if $self->getFlag('trimTrailingZeros');
   $c =~ s/\./$decimal/;
-  while ($c =~ s/(\d)(\d\d\d(:\D|$))/$1$comma$2/) {}
+  while ($c =~ s/(\d)(\d\d\d(?:\D|$))/$1$comma$2/) {}
   $c = ($currency->{associativity} eq "right" ? $s.$c.$symbol : $s.$symbol.$c);
   $c =~ s/^\s+|\s+$//g;
   return $c;

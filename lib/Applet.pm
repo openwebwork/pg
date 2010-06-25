@@ -400,7 +400,7 @@ sub new {
 	 my $class = shift; 
 	 my $self = { 
 		appletName  => '',
-#		appletId    => '',   #always use identical applet Id's and applet Names
+		appletId    => '',   #always use identical applet Id's and applet Names
         archive     => '',
 		code        => '',
 		codebase    => '',
@@ -684,7 +684,16 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
      </script>
 	<script language="JavaScript">
 	
-
+     function getApplet(appletName) {
+	 	  var isIE = navigator.appName.indexOf("Microsoft") != -1;
+	 	  var obj = (isIE) ? window[appletName] : window.document[appletName];
+	 	  //return window.document[appletName];
+	 	  if (obj && (obj.name == appletName)) {   //RECENT FIX to ==
+	 		  return( obj );
+	 	  } else {
+	 		  alert ("can't find applet " + appletName);		  
+	 	  }
+	  }	
 		
    	//////////////////////////////////////////////////////////
 	//TEST code
@@ -699,7 +708,7 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 	ww_applet_list["$appletName"].codebase         = "$codebase";
     ww_applet_list["$appletName"].appletID         = "$appletID";
 	ww_applet_list["$appletName"].base64_state     = "$base64_initializationState";
-	ww_applet_list["$appletName"].initialState     =  Base64.decode("$base64_initialState");
+	ww_applet_list["$appletName"].initialState     = Base64.decode("$base64_initialState");
 	ww_applet_list["$appletName"].configuration    = Base64.decode("$base64_configuration");;
 	ww_applet_list["$appletName"].getStateAlias    = "$getStateAlias";
 	ww_applet_list["$appletName"].setStateAlias    = "$setStateAlias";
@@ -742,6 +751,13 @@ sub insertObject {
     $objectText =~ s/(\$\w+)/$1/gee;
     return $objectText;
 }
+
+
+###############################################################################################################
+#
+# FLASH APPLET  PACKAGE
+#
+###############################################################################################################
 
 package FlashApplet;
 @ISA = qw(Applet);
@@ -814,6 +830,11 @@ sub new {
 
 }
 
+###############################################################################################################
+#
+# JAVA APPLET  PACKAGE
+#
+###############################################################################################################
 
 package JavaApplet;
 @ISA = qw(Applet);
@@ -881,6 +902,116 @@ sub new {
 
 }
 
+###############################################################################################################
+#
+# CANVAS APPLET  PACKAGE
+#
+###############################################################################################################
+
+package CanvasApplet;
+@ISA = qw(Applet);
+
+
+=head2 Insertion HTML code for CanvasApplet
+
+=pod
+
+The secret to making this applet work with IE in addition to normal browsers
+is the addition of the C(<form></form>) construct just before the object.
+
+For some reason IE has trouble locating a flash object which is contained
+within a form.  Adding this second blank form with the larger problemMainForm
+seems to solve the problem.  
+
+This follows method2 of the advice given in url(http://kb.adobe.com/selfservice/viewContent.do?externalId=kb400730&sliceId=2)
+Method1 and methods involving SWFObject(Geoff Stearns) and SWFFormFix (Steve Kamerman) have yet to be fully investigated:
+http://devel.teratechnologies.net/swfformfix/swfobject_swfformfix_source.js
+http://www.teratechnologies.net/stevekamerman/index.php?m=01&y=07&entry=entry070101-033933
+
+use constant CANVAS_OBJECT_TEXT =><<'END_OBJECT_TEXT';
+  <form></form>
+	<script> var width = 200; var height = 200;</script>
+	<canvas name="cv" id="cv" data-src="http://localhost/webwork2_files/js/sketchgraphhtml5b/SketchGraph.pjs" width="400" height="400"></canvas>  
+END_OBJECT_TEXT
+
+
+
+=cut
+
+
+use constant CANVAS_OBJECT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
+  	<script src="/webwork2_files/js/Base64.js" language="javascript">
+    </script> 	
+  	<script src="/webwork2_files/js/ww_applet_support.js" language="javascript">
+  	    //upload functions stored in /opt/webwork/webwork2/htdocs/js ...
+  	    
+     </script>
+	<script language="JavaScript">
+	
+
+		
+   	//////////////////////////////////////////////////////////
+	//CANVAS OBJECT HEADER CODE
+    // 
+    //////////////////////////////////////////////////////////
+   
+    ww_applet_list["$appletName"] = new ww_applet("$appletName");
+    
+    
+	ww_applet_list["$appletName"].code = "$code";
+	ww_applet_list["$appletName"].codebase         = "$codebase";
+    ww_applet_list["$appletName"].appletID         = "$appletID";
+	ww_applet_list["$appletName"].base64_state     = "$base64_initializationState";
+	ww_applet_list["$appletName"].initialState     = Base64.decode("$base64_initialState");
+	ww_applet_list["$appletName"].configuration    = Base64.decode("$base64_configuration");;
+	ww_applet_list["$appletName"].getStateAlias    = "$getStateAlias";
+	ww_applet_list["$appletName"].setStateAlias    = "$setStateAlias";
+	ww_applet_list["$appletName"].setConfigAlias   = "$setConfigAlias";
+	ww_applet_list["$appletName"].getConfigAlias   = "$getConfigAlias";
+	ww_applet_list["$appletName"].initializeActionAlias = "$initializeActionAlias";
+	ww_applet_list["$appletName"].submitActionAlias = "$submitActionAlias";
+	ww_applet_list["$appletName"].submitActionScript = Base64.decode("$base64_submitActionScript");
+	ww_applet_list["$appletName"].answerBoxAlias = "$answerBoxAlias";
+	ww_applet_list["$appletName"].maxInitializationAttempts = $maxInitializationAttempts;
+	ww_applet_list["$appletName"].debugMode = "$debugMode";	
+
+
+    ww_applet_list["$appletName"].reportsLoaded = 1;
+    ww_applet_list["$appletName"].object = $appletName;
+    
+    function getApplet(appletName) {
+	 	  //var isIE = navigator.appName.indexOf("Microsoft") != -1;
+	 	  //var obj = (isIE) ? window[appletName] : window.document[appletName];
+	 	  //return window.document[appletName];
+	 	  var obj = ww_applet_list[appletName].object;
+	 	  if (obj && (obj.name == appletName)) {   //RECENT FIX to ==
+	 	      //alert("getting fake applet " + obj.name);
+	 		  return( obj );
+	 	  } else {
+	 		  alert ("can't find fake applet " + appletName + " in object "+obj.name);		  
+	 	  }
+	  }	
+    </script>
+	
+END_HEADER_SCRIPT
+
+
+#FIXME   need to get rid of hardcoded url
+
+
+use constant CANVAS_OBJECT_TEXT =><<'END_OBJECT_TEXT';
+  <form></form>
+	<canvas name="cv" id="cv" data-src="/webwork2_files/js/sketchgraphhtml5b/SketchGraph.pjs" width="$width" height="$height"></canvas>  
+END_OBJECT_TEXT
+
+sub new {
+    my $class = shift;
+	$class -> SUPER::new(	objectText   => CANVAS_OBJECT_TEXT(),
+			                headerText   => CANVAS_OBJECT_HEADER_TEXT(),
+		        			@_
+	);
+
+}
 
 
 1;
