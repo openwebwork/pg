@@ -5,7 +5,9 @@ $canvasName = "cv";
 
 HEADER_TEXT(<<END_HEADER_TEXT);
 <script language="javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script language="javascript" src="${webworkHtmlURL}js/sketchgraphhtml5b/SketchGraph.pjs"></script>
 <script language="javascript" src="${webworkHtmlURL}js/sketchgraphhtml5b/processing-dgfix.js"></script>
+
 
 <script>
 // define your canvasObject here
@@ -38,6 +40,7 @@ var padding =3;
         yValues[i] = 0.5;
         derivatives[i] = 0;
       }
+      setPoints();
     }
     
     //toggle grid
@@ -61,53 +64,54 @@ var padding =3;
       yValues = newPoints;
     }
 
+//     //grab points from graph and print
+//     function getPoints() {
+//       var temp = "";
+//       for(var i = 0; i < points; i++){
+//         temp += xmin + i*(xmax-xmin)/(points-1) + " ";
+//         temp += ymin + yValues[i]*(ymax - ymin) + " ";
+//         var dx = 1.0/points * (xmax - xmin);
+//         if (i == 0)
+//           temp += (yValues[1] - yValues[0])*(ymax-ymin)/dx + "\\n";
+//         else if (i == points-1)
+//           temp += (yValues[points-1] - yValues[points-2])*(ymax-ymin)/dx + "\\n";
+//         else {
+//           var i = i;
+//           var left = Math.abs(yValues[i] - yValues[i-1]);
+//           var right = Math.abs(yValues[i+1] - yValues[i]);
+//           if (left < 1e-20 || right < 1e-20)
+//             temp += 0 + "\\n";
+//           else
+//             temp += ((1/right)*(yValues[i+1]-yValues[i]) - (1/left)*(yValues[i]-yValues[i-1]))/(2*dx*((1/right)+(1/left))) + "\\n";
+//         }
+//       }
+//       \$('#pointDisplay').val(temp);
+//     }
+//     
+//     //load points from y-values
+//     function setPoints() {
+//       var tempString = \$('#points1').val();
+//       var tempPoints = tempString.split(',');
+//       var vals = new Array(tempPoints.length);
+//       for(var i = 0; i < tempPoints.length; i++){
+//         vals[i] = parseInt(tempPoints[i]);
+//       }
+//       points = vals.length;
+//       yValues = new Array(points);
+//       derivatives = [points];
+//       for (var i = 0; i < points; i++)
+//         yValues[i] = 0.5;
+//       for (var i = 0; i < vals.length; i++) {
+//         if (vals[i] > ymax)
+//           yValues[i] = 1;
+//         else if (vals[i] < ymin)
+//           yValues[i] = 0;
+//         else
+//           yValues[i] = (vals[i]-ymin)/(ymax-ymin);
+//       }
+//     }
     //grab points from graph and print
-    function getPoints() {
-      var temp = "";
-      for(var i = 0; i < points; i++){
-        temp += xmin + i*(xmax-xmin)/(points-1) + " ";
-        temp += ymin + yValues[i]*(ymax - ymin) + " ";
-        var dx = 1.0/points * (xmax - xmin);
-        if (i == 0)
-          temp += (yValues[1] - yValues[0])*(ymax-ymin)/dx + "\\n";
-        else if (i == points-1)
-          temp += (yValues[points-1] - yValues[points-2])*(ymax-ymin)/dx + "\\n";
-        else {
-          var i = i;
-          var left = Math.abs(yValues[i] - yValues[i-1]);
-          var right = Math.abs(yValues[i+1] - yValues[i]);
-          if (left < 1e-20 || right < 1e-20)
-            temp += 0 + "\\n";
-          else
-            temp += ((1/right)*(yValues[i+1]-yValues[i]) - (1/left)*(yValues[i]-yValues[i-1]))/(2*dx*((1/right)+(1/left))) + "\\n";
-        }
-      }
-      \$('#pointDisplay').val(temp);
-    }
-    
-    //load points from y-values
-    function setPoints() {
-      var tempString = \$('#points1').val();
-      var tempPoints = tempString.split(',');
-      var vals = new Array(tempPoints.length);
-      for(var i = 0; i < tempPoints.length; i++){
-        vals[i] = parseInt(tempPoints[i]);
-      }
-      points = vals.length;
-      yValues = new Array(points);
-      derivatives = [points];
-      for (var i = 0; i < points; i++)
-        yValues[i] = 0.5;
-      for (var i = 0; i < vals.length; i++) {
-        if (vals[i] > ymax)
-          yValues[i] = 1;
-        else if (vals[i] < ymin)
-          yValues[i] = 0;
-        else
-          yValues[i] = (vals[i]-ymin)/(ymax-ymin);
-      }
-    }
-        //grab points from graph and print
+ 
     function getPoints1() {
       var temp = "";
       var temp2 = "";
@@ -147,7 +151,7 @@ var padding =3;
       for(var i = 0; i < tempPoints.length; i++){
         vals[i] = parseFloat(tempPoints[i]);
       }
-      points = vals.length;
+      if (vals.length>2) points = vals.length;
       yValues = new Array(points);
       derivatives = [points];
       for (var i = 0; i < points; i++)

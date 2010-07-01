@@ -47,7 +47,7 @@ main::HEADER_TEXT(<<'END_HEADER_TEXT');
     </script>
     <script src="/webwork2_files/js/Base64.js" language="javascript">
     </script> 	
-  	<script src="/webwork2_files/js/ww_applet_support.js">
+  	<script src="/webwork2_files/js/ww_applet_support.js" language="javascript">
   	    //upload functions stored in /opt/webwork/webwork2/htdocs/js ...
     </script>
 END_HEADER_TEXT
@@ -215,7 +215,7 @@ sub insertAll {  ## inserts both header text and object text
 	               onClick=" debugText=''; 
 	                         ww_applet_list['$appletName'].getState() ; 
 	                        if (debugText) {alert(debugText)};"
-	        >!;
+	        />!;
 	}
 	if ($setState=~/\S/) {   # if setStateAlias is not an empty string
 		$debug_input_element .= qq!
@@ -223,7 +223,7 @@ sub insertAll {  ## inserts both header text and object text
 	               onClick="debugText='';
 	                        ww_applet_list['$appletName'].setState();
 	                        if (debugText) {alert(debugText)};"
-	        >!;
+	        />!;
 	}
 	if ($getConfig=~/\S/) {   # if getConfigAlias is not an empty string
 		$debug_input_element .= qq!
@@ -231,7 +231,7 @@ sub insertAll {  ## inserts both header text and object text
 	               onClick="debugText=''; 
 	                        ww_applet_list['$appletName'].getConfig();
 	                        if (debugText) {alert(debugText)};"
-	        >!;
+	        />!;
 	}
 	if ($setConfig=~/\S/) {   # if setConfigAlias is not an empty string
 		$debug_input_element .= qq!
@@ -239,7 +239,7 @@ sub insertAll {  ## inserts both header text and object text
 	               onClick="debugText='';
 	                        ww_applet_list['$appletName'].setConfig();
 	                        if (debugText) {alert(debugText)};"
-            >!;
+            />!;
     }
     
 	##########################
@@ -299,7 +299,7 @@ sub insertAll {  ## inserts both header text and object text
 	##########################
 	main::HEADER_TEXT($self->insertHeader());
 	# update the debug mode for this applet.
-    main::HEADER_TEXT(qq!<script> ww_applet_list["$appletName"].debugMode = $debugMode;\n</script>!);
+    main::HEADER_TEXT(qq!<script language="javascript"> ww_applet_list["$appletName"].debugMode = $debugMode;\n</script>!);
     
 	##########################
     # Return HTML or TeX strings to be included in the body of the page
@@ -354,7 +354,7 @@ sub insertAll {  ## inserts both header text and object text
 	###################################
 	
 	$applet->header(<<'END_HEADER');
-	<script type="text/javascript" src="https://devel.webwork.rochester.edu:8002/webwork2_files/js/BrowserSniffer.js">
+	<script language="javascript" src="https://devel.webwork.rochester.edu:8002/webwork2_files/js/BrowserSniffer.js">
 	</script>
 	
 	

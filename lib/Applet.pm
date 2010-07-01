@@ -685,10 +685,11 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 	<script language="JavaScript">
 	
      function getApplet(appletName) {
-	 	  var isIE = navigator.appName.indexOf("Microsoft") != -1;
+	 	  var isIE = navigator.appName.indexOf("Microsoft") != -1;  // ie8 uses this for java and firefox uses it for flash.
 	 	  var obj = (isIE) ? window[appletName] : window.document[appletName];
 	 	  //return window.document[appletName];
-	 	  if (obj && (obj.name == appletName)) {   //RECENT FIX to ==
+	 	  if (!obj) { obj = document.getElementById(appletName) }
+	 	  if (obj ) {   //RECENT FIX to ==
 	 		  return( obj );
 	 	  } else {
 	 		  alert ("can't find applet " + appletName);		  
@@ -802,9 +803,9 @@ http://www.teratechnologies.net/stevekamerman/index.php?m=01&y=07&entry=entry070
 =cut
 
 use constant DEFAULT_OBJECT_TEXT =><<'END_OBJECT_TEXT';
-  <form></form>
-  <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
-             id="$appletName" width="500" height="375"
+
+  <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" 
+             id="$appletName"  width="500" height="375"
              codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab">
          <param name="movie" value="$codebase/$appletName.swf" />
          <param name="quality" value="high" />
@@ -812,7 +813,7 @@ use constant DEFAULT_OBJECT_TEXT =><<'END_OBJECT_TEXT';
          <param name="allowScriptAccess" value="sameDomain" />
          <param name="FlashVars" value="$flashParameters"/>
          <embed src="$codebase/$appletName.swf" quality="high" bgcolor="$applet_bgcolor"
-             width="$width" height="$height" name="$appletName" align="middle" id="$appletName"
+             width="$width" height="$height" name="$appletName"  align="middle" id="$appletName"
              play="true" loop="false" quality="high" allowScriptAccess="sameDomain"
              type="application/x-shockwave-flash"
              pluginspage="http://www.macromedia.com/go/getflashplayer"
@@ -874,7 +875,7 @@ http://www.teratechnologies.net/stevekamerman/index.php?m=01&y=07&entry=entry070
 =cut
 
 use constant DEFAULT_OBJECT_TEXT =><<'END_OBJECT_TEXT';
-  <form></form>
+
  <applet
  	code     = "$code"
  	codebase = "$codebase"
@@ -983,7 +984,7 @@ use constant CANVAS_OBJECT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 	 	  //var isIE = navigator.appName.indexOf("Microsoft") != -1;
 	 	  //var obj = (isIE) ? window[appletName] : window.document[appletName];
 	 	  //return window.document[appletName];
-	 	  var obj = ww_applet_list[appletName].object;
+	 	  var obj = ww_applet_list[appletName].object;   // define fake applet for this object
 	 	  if (obj && (obj.name == appletName)) {   //RECENT FIX to ==
 	 	      //alert("getting fake applet " + obj.name);
 	 		  return( obj );
@@ -1000,7 +1001,7 @@ END_HEADER_SCRIPT
 
 
 use constant CANVAS_OBJECT_TEXT =><<'END_OBJECT_TEXT';
-  <form></form>
+
 	<canvas name="cv" id="cv" data-src="/webwork2_files/js/sketchgraphhtml5b/SketchGraph.pjs" width="$width" height="$height"></canvas>  
 END_OBJECT_TEXT
 
