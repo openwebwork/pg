@@ -143,7 +143,17 @@ sub cmp_parse {
     $ans->{student_value}{isStudent} = 1;
     $ans->{preview_latex_string} = $ans->{student_formula}->TeX;
     $ans->{preview_text_string}  = preformat($ans->{student_formula}->string);
-    $ans->{correct_ans_latex_string} = Parser::Formula($ans->{correct_ans})->TeX;  #FIXME
+    #FIXME
+    # Kludge to calculate a latex representation of the correct answer string
+    # It would be better to calculate this when the MathObject is created.
+    # the attempt to calculate the latex version may fail because the 
+    # context has changed since the creation of the original MathObject.
+    # In that case the {correct_ans_latex_string} will be blank.
+    # We could try to reset that context temporarily, but a better fix would
+    # be to consistently create latex_string versions of the correct answer
+    # when the math object is created.
+    my $mathobject = Parser::Formula($ans->{correct_ans});
+    $ans->{correct_ans_latex_string} = ($mathobject)? $mathobject->TeX : '';  
     #
     #  Get the string for the student answer
     #
