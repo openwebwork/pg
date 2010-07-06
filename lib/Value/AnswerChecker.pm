@@ -152,8 +152,20 @@ sub cmp_parse {
     # We could try to reset that context temporarily, but a better fix would
     # be to consistently create latex_string versions of the correct answer
     # when the math object is created.
+#     if ($ans->{correct_value} ) {
+#     	$ans->{correct_ans_latex_string} = $ans->{correct_value}->TeX; # answer is a MathObject
+#     } else {  # case where there is no math object
+#     	my $mathobject = Parser::Formula($ans->{correct_ans});
+#     	$ans->{correct_ans_latex_string} = ($mathobject)? $mathobject->TeX : '';
+#     }
     my $mathobject = Parser::Formula($ans->{correct_ans});
-    $ans->{correct_ans_latex_string} = ($mathobject)? $mathobject->TeX : '';  
+    if ($mathobject) {
+    	$ans->{correct_ans_latex_string} = $mathobject->TeX;
+    } elsif( $ans->{correct_value} ) {
+    	$ans->{correct_ans_latex_string} = $ans->{correct_value}->TeX; # answer is a MathObject
+    } else {
+    	$ans->{correct_ans_latex_string}=''; 
+    }
     #
     #  Get the string for the student answer
     #
