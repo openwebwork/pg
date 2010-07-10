@@ -203,7 +203,7 @@ my %fields = (  # initialization only!!!
 	xmax   		=>  1,
 	ymin   		=>  -1,
 	ymax   		=>  1,
-	imageName		=>	undef,
+	imageName	=>	undef,
 	position	=>  undef,  #used internally in the draw routine lineTo
 );
 
@@ -603,23 +603,121 @@ sub draw {
 
 
 
-sub AUTOLOAD {
+# sub AUTOLOAD {
+# 	my $self = shift;
+# 	my $type = ref($self) || die "$self is not an object";
+# 	my $name = $WWPlot::AUTOLOAD;
+# 	$name =~ s/.*://;  # strip fully-qualified portion
+#  	unless (exists $self->{'_permitted'}->{$name} ) {
+#  		die "Can't find '$name' field in object of class $type";
+#  	}
+# 	if (@_) {
+# 		return $self->{$name} = shift;
+# 	} else {
+# 		return $self->{$name};
+# 	}
+# 
+# }
+##########################
+# Access methods
+##########################
+sub ymin {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	my $name = $WWPlot::AUTOLOAD;
-	$name =~ s/.*://;  # strip fully-qualified portion
- 	unless (exists $self->{'_permitted'}->{$name} ) {
- 		die "Can't find '$name' field in object of class $type";
- 	}
-	if (@_) {
-		return $self->{$name} = shift;
-	} else {
-		return $self->{$name};
+	unless (exists $self->{ymin} ) {
+		die "Can't find ymin field in object of class $type";
 	}
-
+	
+	if (@_) {
+		return $self->{ymin} = shift;
+	} else {
+		return $self->{ymin}
+	}
 }
 
+sub xmin {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{xmin} ) {
+		die "Can't find xmin field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{xmin} = shift;
+	} else {
+		return $self->{xmin}
+	}
+}
 
+sub xmax {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{xmax} ) {
+		die "Can't find xmax field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{xmax} = shift;
+	} else {
+		return $self->{xmax}
+	}
+}
+
+sub ymin {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{ymin} ) {
+		die "Can't find ymin field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{ymin} = shift;
+	} else {
+		return $self->{ymin}
+	}
+}
+
+sub ymax {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{ymax} ) {
+		die "Can't find ymax field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{ymax} = shift;
+	} else {
+		return $self->{ymax}
+	}
+}
+
+sub imageName {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{imageName} ) {
+		die "Can't find imageName field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{imageName} = shift;
+	} else {
+		return $self->{imageName}
+	}
+}
+
+sub position {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{position} ) {
+		die "Can't find position field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{position} = shift;
+	} else {
+		return $self->{position}
+	}
+}
 sub DESTROY {
 	# doing nothing about destruction, hope that isn't dangerous
 }

@@ -65,7 +65,6 @@ my %fields =(
 sub new {
 	my $class 				=	shift;
 	my $self 			= { 
-				_permitted	=>	\%fields,
 				%fields,
 	};
 	
@@ -118,6 +117,103 @@ sub AUTOLOAD {
 
 }	
 
+##########################
+# Access methods
+##########################
+sub x {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{x} ) {
+		die "Can't find x field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{x} = shift;
+	} else {
+		return $self->{x}
+	}
+}
+
+sub y {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{y} ) {
+		die "Can't find y field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{y} = shift;
+	} else {
+		return $self->{y}
+	}
+}
+
+sub color {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{color} ) {
+		die "Can't find color field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{color} = shift;
+	} else {
+		return $self->{color}
+	}
+}
+sub font {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{font} ) {
+		die "Can't find font field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{font} = shift;
+	} else {
+		return $self->{font}
+	}
+}
+sub str {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{str} ) {
+		die "Can't find str field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{str} = shift;
+	} else {
+		return $self->{str}
+	}
+}
+sub lr_nudge {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{lr_nudge} ) {
+		die "Can't find lr_nudge field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{lr_nudge} = shift;
+	} else {
+		return $self->{lr_nudge}
+	}
+}
+
+sub tb_nudge {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{tb_nudge} ) {
+		die "Can't find tb_nudge field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{tb_nudge} = shift;
+	} else {
+		return $self->{tb_nudge}
+	}
+}
 sub DESTROY {
 	# doing nothing about destruction, hope that isn't dangerous
 }

@@ -952,6 +952,8 @@ case the previously defined safe compartment is used. (See item 1.)
 #
 
 				$self->{errors} .= $@;
+# 				$self->{errors}.=join(CGI::br(), @{$PGcore->{flags}->{WARNING_messages}} );
+# 				$self->{errors}.=join(CGI::br(), @{$PGcore->{flags}->{DEBUG_messages  }} );
 #		    	push(@PROBLEM_TEXT_OUTPUT   ,   split(/(\n)/,$$PG_PROBLEM_TEXT_REF)  ) if  defined($$PG_PROBLEM_TEXT_REF  );
 		    	push(@PROBLEM_TEXT_OUTPUT   ,   split(/^/,$$PG_PROBLEM_TEXT_REF)  ) if  ref($PG_PROBLEM_TEXT_REF  ) eq 'SCALAR';
 		    	                                                                 ## This is better than using defined($$PG_PROBLEM_TEXT_REF)

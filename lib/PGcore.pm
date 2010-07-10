@@ -354,7 +354,7 @@ sub LABELED_ANS{
   	my $label    = shift @in;
   	#$label       = join("", $self->{QUIZ_PREFIX}, $self->{SECTION_PREFIX}, $label);
   	my $ans_eval = shift @in;
-  	$self->WARN("<BR><B>Error in LABELED_ANS:|$label|</B>
+  	$self->warning_message("<BR><B>Error in LABELED_ANS:|$label|</B>
   	      -- inputs must be references to AnswerEvaluator objects or subroutines<BR>")
 			unless ref($ans_eval) =~ /CODE/ or ref($ans_eval) =~ /AnswerEvaluator/  ;
 	if (defined($self->{PG_ANSWERS_HASH}->{$label})  ){
@@ -511,7 +511,7 @@ sub extend_ans_group {         # modifies the group type
 	if (ref($answer_group) =~/PGanswergroup/) {
     	$answer_group->append_responses(@response_list);
     } else {
-    	$self->WARN("The answer |$label| has not yet been defined, you cannot extend it.",caller() );
+    	$self->warning_message("The answer |$label| has not yet been defined, you cannot extend it.",caller() );
     
     }
     $label;
@@ -600,6 +600,15 @@ sub get_debug_messages {
 	my $self = shift;
 	$self->{flags}->{DEBUG_messages};
 }
+sub warning_message {
+    my $self = shift;
+	my @str = @_;
+	push @{$self->{flags}->{WARNING_messages}}, @str;
+}
+sub get_warning_messages {
+	my $self = shift;
+	$self->{flags}->{WARNING_messages};
+}
 
 sub internal_debug_message {
     my $self = shift;
@@ -619,9 +628,9 @@ sub DESTROY {
 	# doing nothing about destruction, hope that isn't dangerous
 }
 
-sub WARN {
-	warn(@_);
-}
+# sub WARN {
+# 	warn(@_);
+# }
 
 
 # This creates on the fly graphs

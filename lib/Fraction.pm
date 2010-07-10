@@ -105,21 +105,34 @@ sub new {
 	return $self;
 }
 
-sub AUTOLOAD {
+##########################
+# Access methods
+##########################
+sub numerator {
 	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{numerator} ) {
+		die "Can't find numerator field in object of class $type";
+	}
 	
-	my $type = ref($self) or die "$self is not an object";
-
-	# $AUTOLOAD is sent in by Perl and is the full name of the object (i.e. main::blah::blah_more)
-	my $name = $Fraction::AUTOLOAD;
-	$name =~ s/.*://; #strips fully-qualified portion
-
-	unless ( exists $self->{'_permitted'}->{$name} ) { die "Can't find '$name' field in object of class '$type'";}
-                                
 	if (@_) {
-		return $self->{$name} = shift; #set the variable to the first parameter
+		return $self->{numerator} = shift;
 	} else {
-		return $self->($name); #if no parameters just return the value
+		return $self->{numerator}
+	}
+}
+
+sub denominator {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{denominator} ) {
+		die "Can't find denominator field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{denominator} = shift;
+	} else {
+		return $self->{denominator}
 	}
 }
 

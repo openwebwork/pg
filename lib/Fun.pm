@@ -224,7 +224,7 @@ sub new {
 #	my ($rule,$graphRef)	=   @_;
 
 	my $self 			= { 
-				_permitted	=>	\%fields,
+#				_permitted	=>	\%fields,
 				%fields,
 	};
 	
@@ -328,6 +328,102 @@ sub domain {
 		[$self->tstart,$self->tstop];	
 }
 
+##########################
+# Access methods
+##########################
+sub tstart {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{tstart} ) {
+		die "Can't find tstart field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{tstart} = shift;
+	} else {
+		return $self->{tstart}
+	}
+}
+
+sub tstop {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{tstop} ) {
+		die "Can't find tstop field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{tstop} = shift;
+	} else {
+		return $self->{tstop}
+	}
+}
+sub steps {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{steps} ) {
+		die "Can't find steps field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{steps} = shift;
+	} else {
+		return $self->{steps}
+	}
+}
+sub color {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{color} ) {
+		die "Can't find color field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{color} = shift;
+	} else {
+		return $self->{color}
+	}
+}
+sub x_rule {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{x_rule} ) {
+		die "Can't find x_rule field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{x_rule} = shift;
+	} else {
+		return $self->{x_rule}
+	}
+}
+sub y_rule {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{y_rule} ) {
+		die "Can't find y_rule field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{y_rule} = shift;
+	} else {
+		return $self->{y_rule}
+	}
+}
+
+sub weight {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{weight} ) {
+		die "Can't find weight field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{weight} = shift;
+	} else {
+		return $self->{weight}
+	}
+}
 
 sub DESTROY {
 	# doing nothing about destruction, hope that isn't dangerous

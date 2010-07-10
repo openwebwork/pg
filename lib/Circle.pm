@@ -57,15 +57,14 @@ package Circle;
 #Because of the way problem modules are loaded 'use' is disabled.
 
 #use strict;
-#use vars qw($AUTOLOAD  @ISA);
 @Circle::ISA = qw(WWPlot);
 
-my %fields =(
-		colors 			=>	{},
-		border_color	=>	 0,
-		fill_color		=>	 1,
-		radius			=>	 8,
-);
+# my %fields =(
+# 		colors 			=>	{},
+# 		border_color	=>	 0,
+# 		fill_color		=>	 1,
+# 		radius			=>	 8,
+# );
 
 
 sub new {
@@ -80,7 +79,6 @@ sub new {
 	$fill_color			=	'black' unless defined($fill_color);
 
 	my $self = { im 		=> 	new GD::Image(2*$radius, 2*$radius),
-
 				 cx			=>	$cx,
 				 cy			=>	$cy,
 				 radius		=>	$radius,
@@ -124,6 +122,10 @@ sub	_initialize_colors {
 
 }
 
+
+##########################
+# Access methods  -- Get only??? should this be changed?
+##########################
 sub size {
 	my $s = shift;
 	(2*$s->{radius}, 2*$s->{radius});
@@ -152,6 +154,54 @@ sub image {
 	my $s	= shift;
 	$s->{im};
 }
+
+##########################
+# Access methods -- Get and Set
+##########################
+
+
+sub colors {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{colors} ) {
+		die "Can't find colors field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{colors} = shift;
+	} else {
+		return $self->{colors}
+	}
+}
+
+sub border_color {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{border_color} ) {
+		die "Can't find border_color field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{border_color} = shift;
+	} else {
+		return $self->{border_color}
+	}
+}
+
+sub fill_color {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{fill_color} ) {
+		die "Can't find fill_color field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{fill_color} = shift;
+	} else {
+		return $self->{fill_color}
+	}
+}
+
 
 sub draw{
 	my $self = shift;

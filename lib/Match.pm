@@ -1,11 +1,11 @@
 
 #Construct for matching list.
-#Inherits from List.pm
+#Inherits from ChoiceList.pm
 #VS 6/16/2000
 
 =head1 NAME
 
-Match.pm -- sub-class of List that implements a matching list.
+Match.pm -- sub-class of ChoiceList that implements a matching list.
 
 All items accessed by $out = $ml -> item( $in );
 
@@ -186,14 +186,14 @@ BEGIN {
 
 package Match;
 
-@Match::ISA = qw( List );
+@Match::ISA = qw( ChoiceList );
 
-# *** Subroutines which overload List.pm ***
+# *** Subroutines which overload ChoiceList.pm ***
 
 #sends letters for comparison instead of actual answers
 sub ra_correct_ans {
 	my $self = shift;
-	my @ans = &List::ALPHABET( @{$self->{inverted_shuffle}} );
+	my @ans = &ChoiceList::ALPHABET( @{$self->{inverted_shuffle}} );
 	\@ans;
 }
 

@@ -1,11 +1,11 @@
 
 #Construct for selection list.
-#Inherits from List.pm
+#Inherits from ChoiceList.pm
 #VS 6/16/2000
 
 =head1 NAME
 
-	Select.pm -- sub-class of List that implements a select list.
+	Select.pm -- sub-class of ChoiceList that implements a select list.
 
 	All items accessed by $out = $sl -> item( $in );
 
@@ -192,10 +192,10 @@ BEGIN {
 #'
 package Select;
 
-#require "${Global::mainDirectory}courseScripts/List.pm";
-@Select::ISA = qw( Exporter List );
 
-# *** Subroutines which overload List.pm ***
+@Select::ISA = qw( Exporter ChoiceList );
+
+# *** Subroutines which overload ChoiceList.pm ***
 
 #these
 sub extra { warn "Select lists do not use extra answers.\n(You can't use \$sl->extra().)" }
@@ -218,7 +218,7 @@ sub selectQA {
 
 	$self->{selected_q} = [ @{ $self->{questions} }[ @{ $self->{slice} } ] ];
 	$self->{selected_a} = [ @{ $self->{answers} }[@{ $self->{slice} } ] ];
-	$self->{inverted_shuffle} = [ &List::invert(@{ $self->{shuffle} }) ];
+	$self->{inverted_shuffle} = [ &ChoiceList::invert(@{ $self->{shuffle} }) ];
 }
 
 1;

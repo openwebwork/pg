@@ -21,7 +21,10 @@ sub DEBUG_MESSAGE {
     my @msg = @_;
 	$PG->debug_message("---- ".join(" ",caller())." ------", @msg,"__________________________");
 }
-
+sub WARN_MESSAGE{
+    my @msg = @_;
+	$PG->warning_message("---- ".join(" ",caller())." ------", @msg,"__________________________");
+}
 sub DOCUMENT {
 
 	# get environment
@@ -393,7 +396,11 @@ sub check_url {
 	$PG->{PG_alias}->check_url(@_);
 }
 sub findAppletCodebase {
-	$PG->{PG_alias}->findAppletCodebase(@_);
+    my $appletName = shift;
+	my $url = eval{$PG->{PG_alias}->findAppletCodebase($appletName)};
+	# warn is already trapped under the old system
+	$PG->warning_message("While using findAppletCodebase  to search for applet$appletName:  $@") if $@;
+	$url;
 }
 
 sub loadMacros {
@@ -401,7 +408,7 @@ sub loadMacros {
 }
 #  FIXME?  these were taken from the former dangerousMacros.pl file and might have issues when placed here.
 #
-#  Some constants that can be used in perl experssions
+#  Some constants that can be used in perl expressions
 #
 
 # ^function i

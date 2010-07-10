@@ -595,7 +595,7 @@ sub config {
 # 	$self->{base64_config} =~ s/\n//g;
 #     decode_base64($self->{base64_config});
 }
-sub state {
+sub state {    #deprecated
 	my $self = shift;
 	my $str = shift;
 	warn "use $self->initialState instead of $self->state.  Internally this string is ascii, not base64 encoded", join(' ', caller());
@@ -647,6 +647,7 @@ sub insertHeader {
     my $maxInitializationAttempts = $self->maxInitializationAttempts;
     my $debugMode             =  ($self->debugMode) ? "1": "0";
     my $answerBoxAlias        =  $self->{answerBoxAlias};
+    my $onInit                =  $self->{onInit};   # function to indicate that applet is loaded (for geogebra:   ggbOnInit
     my $headerText            =  $self->header();
     
     
@@ -702,15 +703,15 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
     // 
     //////////////////////////////////////////////////////////
    
-    ww_applet_list["$appletName"] = new ww_applet("$appletName");
+    ww_applet_list["$appletName"]                  = new ww_applet("$appletName");
     
     
-	ww_applet_list["$appletName"].code = "$code";
+	ww_applet_list["$appletName"].code             = "$code";
 	ww_applet_list["$appletName"].codebase         = "$codebase";
     ww_applet_list["$appletName"].appletID         = "$appletID";
-	ww_applet_list["$appletName"].base64_state     = "$base64_initializationState";
-	ww_applet_list["$appletName"].initialState     = Base64.decode("$base64_initialState");
-	ww_applet_list["$appletName"].configuration    = Base64.decode("$base64_configuration");;
+	ww_applet_list["$appletName"].base64_state     = "$base64_initialState";
+	ww_applet_list["$appletName"].initialState     =  Base64.decode("$base64_initialState");
+	ww_applet_list["$appletName"].configuration    =  Base64.decode("$base64_configuration");;
 	ww_applet_list["$appletName"].getStateAlias    = "$getStateAlias";
 	ww_applet_list["$appletName"].setStateAlias    = "$setStateAlias";
 	ww_applet_list["$appletName"].setConfigAlias   = "$setConfigAlias";
@@ -718,9 +719,11 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 	ww_applet_list["$appletName"].initializeActionAlias = "$initializeActionAlias";
 	ww_applet_list["$appletName"].submitActionAlias = "$submitActionAlias";
 	ww_applet_list["$appletName"].submitActionScript = Base64.decode("$base64_submitActionScript");
-	ww_applet_list["$appletName"].answerBoxAlias = "$answerBoxAlias";
+	ww_applet_list["$appletName"].answerBoxAlias     = "$answerBoxAlias";
 	ww_applet_list["$appletName"].maxInitializationAttempts = $maxInitializationAttempts;
-	ww_applet_list["$appletName"].debugMode = "$debugMode";	
+	ww_applet_list["$appletName"].debugMode          = "$debugMode";
+	ww_applet_list["$appletName"].onInit             = "$onInit";	
+
 
     </script>
 	
@@ -740,16 +743,22 @@ sub insertObject {
     my $applet_bgcolor = $self->{bgcolor};
     my $javaParameters = '';
     my $flashParameters = '';
-    my %param_hash = %{$self->params()};
-    foreach my $key (keys %param_hash) {
-    	$javaParameters .= qq!<param name ="$key"  value = "$param_hash{$key}">\n!;
-    	$flashParameters .= uri_escape($key).'='.uri_escape($param_hash{$key}).'&';
-    }
-    $flashParameters =~ s/\&$//;    # trim last &
+    if (PGcore::not_null($self->{parameter_string}) ) {
+    	$javaParameters = $self->{parameter_string};
+    	$flashParameters = $self->{parameter_string};
+    } else {
+		my %param_hash = %{$self->params()};
+		foreach my $key (keys %param_hash) {
+			$javaParameters .= qq!<param name ="$key"  value = "$param_hash{$key}">\n!;
+			$flashParameters .= uri_escape($key).'='.uri_escape($param_hash{$key}).'&';
+		}
+		$flashParameters =~ s/\&$//;    # trim last &
+	}
 
    
     $objectText = $self->{objectText};
     $objectText =~ s/(\$\w+)/$1/gee;
+    $objectText .=qq{<script language="javascript">ww_applet_list["$appletName"].visible = 1;</script>}; # don't submit things if not visible
     return $objectText;
 }
 
@@ -804,6 +813,7 @@ http://www.teratechnologies.net/stevekamerman/index.php?m=01&y=07&entry=entry070
 
 use constant DEFAULT_OBJECT_TEXT =><<'END_OBJECT_TEXT';
 
+
   <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" 
              id="$appletName"  width="500" height="375"
              codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab">
@@ -857,7 +867,6 @@ http://devel.teratechnologies.net/swfformfix/swfobject_swfformfix_source.js
 http://www.teratechnologies.net/stevekamerman/index.php?m=01&y=07&entry=entry070101-033933
 
 		use constant DEFAULT_OBJECT_TEXT =><<'END_OBJECT_TEXT';
-		  <form></form>
 		 <applet
 			code     = "$code"
 			codebase = "$codebase"
@@ -874,6 +883,9 @@ http://www.teratechnologies.net/stevekamerman/index.php?m=01&y=07&entry=entry070
 
 =cut
 
+
+=pod
+
 use constant DEFAULT_OBJECT_TEXT =><<'END_OBJECT_TEXT';
 
  <applet
@@ -885,7 +897,7 @@ use constant DEFAULT_OBJECT_TEXT =><<'END_OBJECT_TEXT';
     width    = "$width"
     height   = "$height"
     bgcolor  = "$applet_bgcolor"
-    MAYSCRIPT
+    mayscript = "true";
  >
   $javaParameters
   
@@ -894,6 +906,36 @@ Java 1.4.2 (or later) is installed and activated.
 (<a href="http://java.sun.com/getjava">click here to install Java now</a>)
  </applet>
 END_OBJECT_TEXT
+
+=cut
+
+#  classid  = "java:MyApplet.class"
+
+
+use constant DEFAULT_OBJECT_TEXT =><<'END_OBJECT_TEXT';
+
+<applet 
+     id       = "$appletName"
+     name     = "$appletName"
+    code      = "$code"
+     type     = "application/x-java-applet"
+     codebase = "$codebase"
+	 archive  = "$archive" 
+	 height   = "$height" 
+	 width    = "$width"
+	 bgcolor  = "$applet_bgcolor"
+	 mayscript = "true"
+	>
+	  <PARAM NAME="MAYSCRIPT" VALUE="true">
+	  $javaParameters
+
+	 Sorry, the Applet could not be started. Please make sure that
+	Java 1.4.2 (or later) is installed and activated. 
+	(<a href="http://java.sun.com/getjava">click here to install Java now</a>)
+</applet>
+END_OBJECT_TEXT
+
+
 
 sub new {
     my $class = shift;
@@ -959,7 +1001,7 @@ use constant CANVAS_OBJECT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
     ww_applet_list["$appletName"] = new ww_applet("$appletName");
     
     
-	ww_applet_list["$appletName"].code = "$code";
+	ww_applet_list["$appletName"].code             = "$code";
 	ww_applet_list["$appletName"].codebase         = "$codebase";
     ww_applet_list["$appletName"].appletID         = "$appletID";
 	ww_applet_list["$appletName"].base64_state     = "$base64_initializationState";

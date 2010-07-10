@@ -756,6 +756,7 @@ our %appletCodebaseLocations = ();
 # ^uses $appletPath
 # ^uses $server_root_url
 # ^uses check_url
+
 sub findAppletCodebase {
 	my $self     = shift;
 	my $fileName = shift;  # probably the name of a jar file
@@ -763,9 +764,7 @@ sub findAppletCodebase {
 	#check cache first
 	if (defined($appletCodebaseLocations{$fileName})  
 	      and $appletCodebaseLocations{$fileName} =~/\S/  ){
-	   	$appletCodebaseLocations{$fileName} 
-	   	
-	
+	   	$appletCodebaseLocations{$fileName} 	
 	}
 	my $appletPath = $self->{appletPath};
 	foreach my $appletLocation (@{$appletPath}) {
@@ -778,7 +777,8 @@ sub findAppletCodebase {
 			return $appletLocation	 # return codebase part of url
 		}
  	}
- 	return "Error: $fileName not found at ". join(",	", @{$appletPath} );	# no file found
+ 	warn "findAppletCodebase Error: $fileName not found after searching ". join(",	", @{$appletPath} );
+ 	return "";
 }
 
 

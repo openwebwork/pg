@@ -1,12 +1,12 @@
 
 #Construct for Multiple Choice.
-#Inherits from List.pm
+#Inherits from ChoiceList.pm
 #VS 6/16/2000
 
 
 =head1 NAME
 
-Multiple.pm -- sub-class of List that implements a multiple choice question.
+Multiple.pm -- sub-class of ChoiceList that implements a multiple choice question.
 
 All items accessed by $out=$mc->item($in);
 
@@ -187,10 +187,9 @@ BEGIN {
 package Multiple;
 
 @Multiple::ISA = undef;
-#require "${Global::mainDirectory}courseScripts/List.pm";
-@Multiple::ISA = qw( Exporter List );
+@Multiple::ISA = qw( Exporter ChoiceList );
 
-# *** Subroutines which overload List.pm ***
+# *** Subroutines which overload ChoiceList.pm ***
 sub choose { warn "Multiple choice does not support choosing answers.\n(You can't use \$mc->choose().)"; }
 sub choose_extra { warn "Multiple choice does not support choosing answers.\n(You can't use \$mc->choose_extra().)"; }
 sub extras { warn "Extras() is not a method of Multiple.pm.\nUse the extra() method to add extra answers."; }
@@ -212,7 +211,7 @@ sub extra {
 	push( @{ $self->{extras} }, @input);
 
 	#call as a method of $self
-	&List::choose_extra($self, scalar(@{ $self->{extras} }));
+	&ChoiceList::choose_extra($self, scalar(@{ $self->{extras} }));
 }
 
 #This means rf_print_q is not used but still exists for user customization
@@ -239,7 +238,7 @@ sub selectQA {
 
 	$self->{selected_q} = $self->{questions};
 	$self->{selected_a} = [ @{ $self->{answers} }[@{ $self->{shuffle} }] ];
-	$self->{inverted_shuffle} = [ &List::invert(@{ $self->{shuffle} }) ];
+	$self->{inverted_shuffle} = [ &ChoiceList::invert(@{ $self->{shuffle} }) ];
 }
 
 #Multiple
@@ -251,7 +250,7 @@ sub ra_correct_ans {
 #actual answers aren't used because they might contain LaTeX or HTML
 sub correct_ans {
 	my $self = shift;
-	my @ans = &List::ALPHABET( sort { $a <=> $b } @{$self->{inverted_shuffle}} );
+	my @ans = &ChoiceList::ALPHABET( sort { $a <=> $b } @{$self->{inverted_shuffle}} );
 
 	#radio_cmp and checkbox_cmp expect a string, not a reference to an array like str_cmp, etc
 	join "", @ans;

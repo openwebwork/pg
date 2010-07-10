@@ -20,6 +20,7 @@
 =cut
 
 package Value;
+use PGcore;
 
 #
 #  Context can add default values to the answer checkers by class;
@@ -158,14 +159,16 @@ sub cmp_parse {
 #     	my $mathobject = Parser::Formula($ans->{correct_ans});
 #     	$ans->{correct_ans_latex_string} = ($mathobject)? $mathobject->TeX : '';
 #     }
-    my $mathobject = Parser::Formula($ans->{correct_ans});
-    if ($mathobject) {
-    	$ans->{correct_ans_latex_string} = $mathobject->TeX;
-    } elsif( $ans->{correct_value} ) {
-    	$ans->{correct_ans_latex_string} = $ans->{correct_value}->TeX; # answer is a MathObject
-    } else {
-    	$ans->{correct_ans_latex_string}=''; 
-    }
+	unless (PGcore::not_null($ans->{correct_ans_latex_string}) ) { # don't alter the latex string if it's defined
+		my $mathobject = Parser::Formula($ans->{correct_ans});
+		if ($mathobject) {
+			$ans->{correct_ans_latex_string} = $mathobject->TeX;
+		} elsif( $ans->{correct_value} ) {
+			$ans->{correct_ans_latex_string} = $ans->{correct_value}->TeX; # answer is a MathObject
+		} else {
+			$ans->{correct_ans_latex_string}=''; 
+		}
+	}
     #
     #  Get the string for the student answer
     #
