@@ -796,8 +796,8 @@ sub best_approx_parameters {
     my @rows_of_vars = @$ra_vars_matrix;
     warn "input rows ", pretty_print(\@rows_of_vars) if defined($options{debug}) and $options{debug};
     my $rows = @rows_of_vars;
-    my $matrix =new Matrix($rows,$dim_of_param_space);
-    my $rhs_vec = new Matrix($rows, 1);
+    my $matrix = Matrix->new($rows,$dim_of_param_space);
+    my $rhs_vec =  Matrix->new($rows, 1);
     my $row_num = 1;
     my ($ra_coeff,$val2, $val1, $err1,$err2,@inputs,@vars);
     my $number_of_data_points = $dim_of_param_space +2;
