@@ -408,6 +408,8 @@ sub new {
 		width     => 550,
 		height    => 400,
 		bgcolor   => "#869ca7",
+		type      => '',
+		visible   => 0,
 		configuration      => '',         # configuration defining the applet
 		initialState       => '',         # initial state.  
 		getStateAlias      =>  'getXML',
@@ -425,6 +427,7 @@ sub new {
 		headerText         =>  DEFAULT_HEADER_TEXT(),
 		objectText         => '',
 		debugMode          => 0,
+		selfLoading        => 0,
 		@_,
 	};
 	bless $self, $class;
@@ -649,7 +652,7 @@ sub insertHeader {
     my $answerBoxAlias        =  $self->{answerBoxAlias};
     my $onInit                =  $self->{onInit};   # function to indicate that applet is loaded (for geogebra:   ggbOnInit
     my $headerText            =  $self->header();
-    
+    my $selfLoading           =  $self->{selfLoading};
     
     #$submitActionScript =~ s/"/\\"/g;    # escape quotes for ActionScript
                                          # other variables should not have quotes.
@@ -741,6 +744,7 @@ sub insertObject {
     my $width      = $self->{width};
     my $height     = $self->{height};
     my $applet_bgcolor = $self->{bgcolor};
+    my $selfLoading = $self->{selfLoading};
     my $javaParameters = '';
     my $flashParameters = '';
     if (PGcore::not_null($self->{parameter_string}) ) {
@@ -836,6 +840,7 @@ END_OBJECT_TEXT
 sub new {
     my $class = shift;
 	$class -> SUPER::new(	objectText   => DEFAULT_OBJECT_TEXT(),
+	                        type         => 'flash',
 		        			@_
 	);
 
@@ -940,6 +945,7 @@ END_OBJECT_TEXT
 sub new {
     my $class = shift;
 	$class -> SUPER::new(	objectText   => DEFAULT_OBJECT_TEXT(),
+	                        type         => 'java',
 		        			@_
 	);
 
@@ -1017,7 +1023,7 @@ use constant CANVAS_OBJECT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 	ww_applet_list["$appletName"].answerBoxAlias = "$answerBoxAlias";
 	ww_applet_list["$appletName"].maxInitializationAttempts = $maxInitializationAttempts;
 	ww_applet_list["$appletName"].debugMode = "$debugMode";	
-
+    ww_applet_list["$appletName"].debugMode = "$selfLoading";
 
     ww_applet_list["$appletName"].reportsLoaded = 1;
     ww_applet_list["$appletName"].object = $appletName;
@@ -1043,7 +1049,7 @@ END_HEADER_SCRIPT
 
 
 use constant CANVAS_OBJECT_TEXT =><<'END_OBJECT_TEXT';
-
+    <script language="javascript">ww_applet_list["$appletName"].visible = 1;</script> // don't submit things if not visible
 	<canvas name="cv" id="cv" data-src="/webwork2_files/js/sketchgraphhtml5b/SketchGraph.pjs" width="$width" height="$height"></canvas>  
 END_OBJECT_TEXT
 
@@ -1051,6 +1057,7 @@ sub new {
     my $class = shift;
 	$class -> SUPER::new(	objectText   => CANVAS_OBJECT_TEXT(),
 			                headerText   => CANVAS_OBJECT_HEADER_TEXT(),
+			                type         => 'html5canvas',
 		        			@_
 	);
 

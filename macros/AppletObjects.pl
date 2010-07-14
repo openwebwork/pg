@@ -207,8 +207,13 @@ sub insertAll {  ## inserts both header text and object text
     # $debug_input_element
 	##########################
 
+#     my $debug_input_element  = qq!\n<textarea  rows="4" cols="80" 
+# 	   name = "$appletStateName" id = "$appletStateName">$decoded_answer_value</textarea><br/>!;
+#  conversion to base64 is now being done in the setState module
+#  when submitting we want everything to be in the base64 mode for safety
     my $debug_input_element  = qq!\n<textarea  rows="4" cols="80" 
-	   name = "$appletStateName" id = "$appletStateName">$decoded_answer_value</textarea><br/>!;
+	   name = "$appletStateName" id = "$appletStateName">$base_64_encoded_answer_value</textarea><br/>!;
+
 	if ($getState=~/\S/) {   # if getStateAlias is not an empty string
 		$debug_input_element .= qq!
 	        <input type="button"  value="$getState" 
@@ -260,7 +265,7 @@ sub insertAll {  ## inserts both header text and object text
 
     my $reset_button_str = ($reset_button) ?
             qq!<input type='submit' name='previewAnswers' id ='previewAnswers' value='return this question to its initial state' 
-                 onClick="setAppletStateToRestart('$appletName')"><br/>!
+                 onClick="setHTMLAppletStateToRestart('$appletName')"><br/>!
             : ''  ;
 
 	##########################
