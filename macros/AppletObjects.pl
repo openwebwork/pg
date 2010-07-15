@@ -212,7 +212,7 @@ sub insertAll {  ## inserts both header text and object text
 #  conversion to base64 is now being done in the setState module
 #  when submitting we want everything to be in the base64 mode for safety
     my $debug_input_element  = qq!\n<textarea  rows="4" cols="80" 
-	   name = "$appletStateName" id = "$appletStateName">$base_64_encoded_answer_value</textarea><br/>!;
+	   name = "$appletStateName" id = "$appletStateName">$answer_value</textarea><br/>!;
 
 	if ($getState=~/\S/) {   # if getStateAlias is not an empty string
 		$debug_input_element .= qq!
