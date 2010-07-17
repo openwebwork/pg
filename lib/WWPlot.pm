@@ -183,8 +183,7 @@ package WWPlot;
 
 @WWPlot::ISA=undef;
 $WWPlot::AUTOLOAD = undef;
-
-@WWPlot::ISA = qw(GD);
+@WWPlot::ISA = qw(GD PGcore);
 
 
 if ( $GD::VERSION > '1.20' ) {
@@ -213,7 +212,6 @@ sub new {
 	my $class =shift;
 	my @size = @_;   # the dimensions in pixels of the image
 	my $self = { im 		=> 	new GD::Image(@size),
-				'_permitted'	=>	\%fields,
 				%fields,
 				size		=>	[@size],
 				fn			=>	[],

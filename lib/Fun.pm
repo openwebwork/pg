@@ -191,13 +191,8 @@ BEGIN {
 
 package Fun;
 
-
 #use "WWPlot.pm";
 #Because of the way problem modules are loaded 'use' is disabled.
-
-
-
-
 
 @Fun::ISA = qw(WWPlot);
 # import gdBrushed from GD.  It unclear why, but a good many global methods haven't been imported.

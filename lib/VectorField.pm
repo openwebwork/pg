@@ -195,7 +195,6 @@ sub new {
 	my $class 				=	shift;
 
 	my $self 			= {
-				_permitted	=>	\%fields,
 				%fields,
 	};
 
@@ -288,7 +287,153 @@ sub domain {
 	$self->{ymax} = $inputs[3];
 }
 
+##########################
+# Access methods
+##########################
+sub ymin {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{ymin} ) {
+		die "Can't find ymin field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{ymin} = shift;
+	} else {
+		return $self->{ymin}
+	}
+}
+sub x_steps {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{x_steps} ) {
+		die "Can't find x_steps field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{x_steps} = shift;
+	} else {
+		return $self->{x_steps}
+	}
+}
+sub y_steps {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{y_steps} ) {
+		die "Can't find y_steps field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{y_steps} = shift;
+	} else {
+		return $self->{y_steps}
+	}
+}
+sub arrow_color {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{arrow_color} ) {
+		die "Can't find arrow_color field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{arrow_color} = shift;
+	} else {
+		return $self->{arrow_color}
+	}
+}
+sub arrow_weight {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{arrow_weight} ) {
+		die "Can't find arrow_weight field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{arrow_weight} = shift;
+	} else {
+		return $self->{arrow_weight}
+	}
+}
+sub dot_color {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{dot_color} ) {
+		die "Can't find dot_color field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{dot_color} = shift;
+	} else {
+		return $self->{dot_color}
+	}
+}
+sub dot_radius {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{dot_radius} ) {
+		die "Can't find dot_radius field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{dot_radius} = shift;
+	} else {
+		return $self->{dot_radius}
+	}
+}
 
+sub dt {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{dt} ) {
+		die "Can't find dt field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{dt} = shift;
+	} else {
+		return $self->{dt}
+	}
+}
+sub dx_rule {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{dx_rule} ) {
+		die "Can't find dx_rule field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{dx_rule} = shift;
+	} else {
+		return $self->{dx_rule}
+	}
+}
+sub dy_rule {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{dy_rule} ) {
+		die "Can't find dy_rule field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{dy_rule} = shift;
+	} else {
+		return $self->{dy_rule}
+	}
+}
+sub rf_arrow_length {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{rf_arrow_length} ) {
+		die "Can't find rf_arrow_length field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{rf_arrow_length} = shift;
+	} else {
+		return $self->{rf_arrow_length}
+	}
+}
 sub DESTROY {
 	# doing nothing about destruction, hope that isn't dangerous
 }
