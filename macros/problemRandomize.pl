@@ -145,7 +145,7 @@ sub _problemRandomize_init {
   sub ProblemRandomize {new problemRandomize(@_)}
   PG_restricted_eval(<<'  end_eval');
     sub install_problem_grader {
-      return $PG_FLAGS{problemRandomize}->useGrader(@_) if $PG_FLAGS{problemRandomize};
+      return $main::PG->{flags}->{problemRandomize}->useGrader(@_) if $main::PG->{flags}->{problemRandomize};
       &{$problemRandomize::installGrader}(@_); # call cached version
     }
   end_eval
@@ -185,7 +185,7 @@ sub new {
     buttonLabel => "Get a new version of this problem",
     checkboxLabel => "Get a new version of this problem",
     inputLabel => "Set random seed to:",
-    grader => $main::PG_FLAGS{PROBLEM_GRADER_TO_USE} || \&main::avg_problem_grader,
+    grader => $main::PG->{flags}->{PROBLEM_GRADER_TO_USE}; #$main::PG_FLAGS{PROBLEM_GRADER_TO_USE} || \&main::avg_problem_grader,
     random => $main::PG_random_generator,
     status => {},
     @_
@@ -217,8 +217,8 @@ sub getStatus {
 #
 sub initProblem {
   my $self = shift;
-  $main::PG_FLAGS{PROBLEM_GRADER_TO_USE} = \&problemRandomize::grader;
-  $main::PG_FLAGS{problemRandomize} = $self;
+  $main::PG->{flags}->{PROBLEM_GRADER_TO_USE} = \&problemRandomize::grader;
+  $main::PG->{flags}->{problemRandomize} = $self;
   $self->reset if $self->{isReset};
   $main::problemSeed = $self->{status}{seed};
   $self->{random}->srand($self->{status}{seed});
@@ -347,7 +347,7 @@ sub useGrader {
 #  and saving the data.
 #
 sub grader {
-  my $self = $main::PG_FLAGS{problemRandomize};
+  my $self = $main::PG->{flags}->{problemRandomize};
 
   #
   #  Call the original grader

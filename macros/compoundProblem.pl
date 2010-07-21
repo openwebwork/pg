@@ -253,7 +253,7 @@ sub new {
     nextNoChange => 1,           # true if answer can't change for new part
     allowReset => 0,             # true to show "back to part 1" button
     resetLabel => undef,         # label for reset button
-    grader => $main::PG_FLAGS{PROBLEM_GRADER_TO_USE} || \&main::avg_problem_grader,
+    grader => $main::PG->{flags}->{PROBLEM_GRADER_TO_USE} || \&main::avg_problem_grader,
     @_,
     status => $defaultStatus,
   }, $class;
@@ -307,7 +307,7 @@ sub initPart {
   $main::images_created{$self->{status}{imageName}} = $self->{status}{images_created}
     if $self->{status}{imageName};
   main::install_problem_grader(\&compoundProblem::grader);
-  $main::PG_FLAGS{compoundProblem} = $self;
+  $main::PG->{flags}->{compoundProblem} = $self;
   $self->initAnswers($self->{status}{answers});
 }
 
@@ -552,8 +552,7 @@ sub scoreOverall {
 #  and saving the data.
 #
 sub grader {
-  my $self = $main::PG_FLAGS{compoundProblem};
-
+  my $self = $main::PG->{flags}->{compoundProblem};
   #
   #  Get the answer names and the weight for the current part.
   #

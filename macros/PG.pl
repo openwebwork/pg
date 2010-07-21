@@ -406,6 +406,32 @@ sub findAppletCodebase {
 sub loadMacros {
 	$PG->{PG_loadMacros}->loadMacros(@_);
 }
+
+
+
+=head2 Problem Grader Subroutines
+
+=cut
+
+## Problem Grader Subroutines
+
+#####################################
+# This is a	model for plug-in problem graders
+#####################################
+# ^function install_problem_grader
+# ^uses PG_restricted_eval
+# ^uses %PG_FLAGS{PROBLEM_GRADER_TO_USE}
+sub install_problem_grader {
+	my $rf_problem_grader =	shift;
+	my $rh_flags = $PG->{flags};    
+	$rh_flags->{PROBLEM_GRADER_TO_USE} = $rf_problem_grader if not_null($rf_problem_grader) ;
+	$rh_flags->{PROBLEM_GRADER_TO_USE};
+}
+
+sub current_problem_grader {
+	install_problem_grader(@_);
+}
+	
 #  FIXME?  these were taken from the former dangerousMacros.pl file and might have issues when placed here.
 #
 #  Some constants that can be used in perl expressions

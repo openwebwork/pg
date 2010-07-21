@@ -165,6 +165,7 @@ sub new {
 		PG_HEADER_TEXT_REF        => 0,
 		PG_ANSWER_HASH_REF        => {},
 		PG_FLAGS_REF              => {},
+		rh_pgcore                 => undef,    # ref to PGcore object
 		safe                      => $safe_cmpt,
 		safe_compartment_name     => $safe_cmpt->root,
 		errors                    => "",
@@ -951,9 +952,17 @@ case the previously defined safe compartment is used. (See item 1.)
 #
 #
 
+#################
+# FIXME The various warning message tracks are still being sorted out
+# WARNING and DEBUG tracks are being handled elsewhere (in Problem.pm?)
+#################
 				$self->{errors} .= $@;
+
+				
 # 				$self->{errors}.=join(CGI::br(), @{$PGcore->{flags}->{WARNING_messages}} );
 # 				$self->{errors}.=join(CGI::br(), @{$PGcore->{flags}->{DEBUG_messages  }} );
+#######################################################################
+
 #		    	push(@PROBLEM_TEXT_OUTPUT   ,   split(/(\n)/,$$PG_PROBLEM_TEXT_REF)  ) if  defined($$PG_PROBLEM_TEXT_REF  );
 		    	push(@PROBLEM_TEXT_OUTPUT   ,   split(/^/,$$PG_PROBLEM_TEXT_REF)  ) if  ref($PG_PROBLEM_TEXT_REF  ) eq 'SCALAR';
 		    	                                                                 ## This is better than using defined($$PG_PROBLEM_TEXT_REF)
@@ -1242,6 +1251,13 @@ sub grade_problem {
 	local $rh_answers = $self->{rh_evaluated_answers};
 	local $rh_state = $self->{rh_problem_state};
 	$self->{safe}->share('$rf_grader','$rh_answers','$rh_state','%rf_options');
+############################################
+#
+# FIXME
+# warning messages are not being transmitted from this evaluation
+# ??????
+############################################
+
 	($self->{rh_problem_result},$self->{rh_problem_state}) =
 		$self->{safe}->reval('&{$rf_grader}($rh_answers,$rh_state,%rf_options)');
 	use strict;

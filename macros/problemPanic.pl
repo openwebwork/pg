@@ -187,7 +187,7 @@ sub quoteHTML {
 #  Install the panic grader, saving the original one
 #
 sub GradeWithPenalty {
-  $grader = $main::PG_FLAGS{PROBLEM_GRADER_TO_USE} || \&main::avg_problem_grader;
+  $grader = $main::PG->{flags}->{PROBLEM_GRADER_TO_USE} || \&main::avg_problem_grader;
   main::install_problem_grader(\&Panic::grader);
 }
 

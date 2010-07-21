@@ -1448,24 +1448,6 @@ sub check_units {
 
 
 
-=head2 Problem Grader Subroutines
-
-=cut
-
-## Problem Grader Subroutines
-
-#####################################
-# This is a	model for plug-in problem graders
-#####################################
-# ^function install_problem_grader
-# ^uses PG_restricted_eval
-# ^uses %PG_FLAGS{PROBLEM_GRADER_TO_USE}
-sub install_problem_grader {
-	my $rf_problem_grader =	shift;
-	my $rh_flags = PG_restricted_eval(q!\\%main::PG_FLAGS!);
-	$rh_flags->{PROBLEM_GRADER_TO_USE} = $rf_problem_grader;
-}
-
 =head4 std_problem_grader
 
 This is an all-or-nothing grader.  A student must get all parts of the problem write
