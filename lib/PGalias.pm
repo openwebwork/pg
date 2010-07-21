@@ -738,6 +738,7 @@ sub findMacroFile {
 sub check_url {
 	my $self = shift;
 	my $url  = shift;
+	my $OK_CONSTANT = "200 OK";
 	return undef if $url =~ /;/;   # make sure we can't get a second command in the url
 	#FIXME -- check for other exploits of the system call
 	#FIXME -- ALARM feature so that the response cannot be held up for too long.
@@ -745,26 +746,28 @@ sub check_url {
 	#FIXME  Can we get the machine name of the server?
 
 	 my $check_url_command = $self->{envir}->{externalCheckUrl};
-	 my $response = system("$check_url_command $url"); 
-	return ($response) ? 0 : 1; # 0 indicates success, 256 is failure possibly more checks can be made
+	 my $response = `$check_url_command $url`; 
+	return ($response =~ /^$OK_CONSTANT/) ? 1 : 0; 
 }
 
 # ^variable our %appletCodebaseLocations
-our %appletCodebaseLocations = ();
+
 # ^function findAppletCodebase
 # ^uses %appletCodebaseLocations
 # ^uses $appletPath
 # ^uses $server_root_url
 # ^uses check_url
 
+our %appletCodebaseLocations = ();   # cache for found applets (lasts until the child exits
 sub findAppletCodebase {
 	my $self     = shift;
 	my $fileName = shift;  # probably the name of a jar file
 	$server_root_url=$self->envir("server_root_url");
 	#check cache first
 	if (defined($appletCodebaseLocations{$fileName})  
-	      and $appletCodebaseLocations{$fileName} =~/\S/  ){
-	   	$appletCodebaseLocations{$fileName} 	
+	      and $appletCodebaseLocations{$fileName} =~/\S/  )
+	{
+	   	return $appletCodebaseLocations{$fileName};	# return if found in cache
 	}
 	my $appletPath = $self->{appletPath};
 	foreach my $appletLocation (@{$appletPath}) {
@@ -772,10 +775,11 @@ sub findAppletCodebase {
 			$appletLocation = "$server_root_url$appletLocation";
 		}
 		my $url = "$appletLocation/$fileName";
-		if ($self->check_url($url)) {
-				$appletCodebaseLocations{$fileName} = $appletLocation; #update cache
-			return $appletLocation	 # return codebase part of url
-		}
+
+ 		if ($self->check_url($url)) {
+ 				$appletCodebaseLocations{$fileName} = $appletLocation; #update cache
+ 			return $appletLocation	 # return codebase part of url
+ 		}
  	}
  	warn "findAppletCodebase Error: $fileName not found after searching ". join(",	", @{$appletPath} );
  	return "";
