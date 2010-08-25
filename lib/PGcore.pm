@@ -484,7 +484,7 @@ sub record_ans_name {      # the labels in the PGanswer group and response group
 	$label;
 }
 
-sub record_array_name {  # currently the same as record ans group
+sub record_array_name {  # currently the same as record ans name
 	my $self = shift;
 	my $label = shift;
 	my $value = shift;

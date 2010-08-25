@@ -587,6 +587,43 @@ sub set_default_options {
 		}
 	}
 }
+
+=item includePGproblem($filePath)
+
+ includePGproblem($filePath);
+
+ Essentially runs the pg problem specified by $filePath, which is
+ a path relative to the top of the templates directory.  The output
+ of that problem appears in the given problem.
+
+=cut
+
+# ^function includePGproblem
+# ^uses %envir
+# ^uses &read_whole_problem_file
+# ^uses &includePGtext
+sub includePGproblem {
+    my $filePath = shift;
+    my %save_envir = %main::envir;
+    my $fullfilePath = $main::envir{templateDirectory}.$filePath;
+    my $r_string =  read_whole_problem_file($fullfilePath);
+    if (ref($r_string) eq 'SCALAR') {
+        $r_string = $$r_string;      
+    }
+
+	# The problem calling this should provide DOCUMENT and ENDDOCUMENT,
+	# so we remove them from the included file.
+    $r_string=~ s/^\s*(END)?DOCUMENT(\(\s*\));?//gm;
+
+	# Reset the problem path so that static images can be found via
+	# their relative paths.
+    eval('$main::envir{probFileName} = $filePath');
+    eval('$main::envir{fileName} = $filePath');
+    includePGtext($r_string);
+    # Reset the environment to what it is before.
+    %main::envir = %save_envir;
+}
+
 1;
 __END__
 
