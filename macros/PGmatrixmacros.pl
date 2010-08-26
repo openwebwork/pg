@@ -444,17 +444,12 @@ sub dm_image_delimeter {
                 $out .='\hrule width0pt height3pt depth0pt}}\vfil}\)';
                 return($out);
         }
-        if($char eq "|") {
-                $out='\(\vbox to '.($numRows*1.4).'\baselineskip ';
-                $out .='{\cleaders\vrule width0.3pt';
-                $out .='\vfil}\)';
-                return($out);
-        }
+
         if($char eq "{") {$char = '\lbrace';}
         if($char eq "}") {$char = '\rbrace';}
-        $out .= '\(\setlength{\arraycolsep}{0in}\left.\begin{array}{c}';
-        for($j=0;$j<=$numRows;$j++)  { $out .= '\! \\\\'; }
-        $out .= '\end{array}\right'.$char.'\)';
+        $out .= '\(\left.\vphantom{\begin{array}{c}';
+        for($j=0;$j<=$numRows;$j++) { $out .= '\! \\\\'; }
+        $out .= '\end{array}}\right'.$char.'\)';
         return($out);
 }
 
