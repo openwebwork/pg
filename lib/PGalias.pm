@@ -492,7 +492,7 @@ sub alias_for_gif_in_tex_mode {
 
 					my $gifSourceFile = "$aux_file_path.gif";
 					my $gifFileName = $self->fileFromPath($gifSourceFile);
-					$adr_output = surePathToTmpFile("$tempDirectory/eps/$studentLogin-$psvnNumber-$gifFileName.eps") ;
+					$adr_output = $self->surePathToTmpFile("$tempDirectory/eps/$studentLogin-$psvnNumber-$gifFileName.eps") ;
 
 					if (-e $gifSourceFile) {
 						#system("cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output")
@@ -507,7 +507,7 @@ sub alias_for_gif_in_tex_mode {
 					my $filePath = $self->directoryFromPath($fileName);
 					my $gifSourceFile = "${templateDirectory}${filePath}$aux_file_path.gif";
 					#print "content-type: text/plain \n\nfileName = $fileName and aux_file_path =$aux_file_path<BR>";
-					$adr_output = surePathToTmpFile("eps/$studentLogin-$psvnNumber-set$setNumber-prob$probNum-$aux_file_path.eps");
+					$adr_output = $self->surePathToTmpFile("eps/$studentLogin-$psvnNumber-set$setNumber-prob$probNum-$aux_file_path.eps");
 
 					if (-e $gifSourceFile) {
 						#system("cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output") &&

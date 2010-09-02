@@ -511,7 +511,10 @@ sub extend_ans_group {         # modifies the group type
 	if (ref($answer_group) =~/PGanswergroup/) {
     	$answer_group->append_responses(@response_list);
     } else {
-    	$self->warning_message("The answer |$label| has not yet been defined, you cannot extend it.",caller() );
+    	#$self->warning_message("The answer |$label| has not yet been defined, you cannot extend it.",caller() );
+    	# this error message is correct but misleading for the original way 
+    	# in which matrix blanks and their response evaluators are matched up
+    	# we should restore the warning message once the new matrix evaluation method is in place
     
     }
     $label;
