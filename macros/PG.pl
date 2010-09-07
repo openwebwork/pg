@@ -63,7 +63,9 @@ sub DOCUMENT {
     #use strict;
     #FIXME	
     # load java script needed for displayModes
-    if ($envir{displayMode} eq 'HTML_jsMath') {
+    if ($envir{displayMode} eq 'HTML_MathJax') {
+    	TEXT('<SCRIPT SRC="'.$envir{MathJaxURL}.'"></SCRIPT>' . "\n" );
+  } elsif ($envir{displayMode} eq 'HTML_jsMath') {
 		my $prefix = "";
 		if (!$envir{jsMath}{reportMissingFonts}) {
 			$prefix .= '<SCRIPT>noFontMessage = 1</SCRIPT>'."\n";
@@ -84,12 +86,11 @@ sub DOCUMENT {
 		TEXT('<SCRIPT>jsMath.Setup.Script("plugins/noImageFonts.js")</SCRIPT>')
 		    if ($envir{jsMath}{noImageFonts});
 	} elsif ($envir{displayMode} eq 'HTML_asciimath') {
-		TEXT('<SCRIPT SRC="'.$main::envir{asciimathURL}.'"></SCRIPT>' . "\n" ,
+		TEXT('<SCRIPT SRC="'.$envir{asciimathURL}.'"></SCRIPT>' . "\n" ,
              '<SCRIPT>mathcolor = "black"</SCRIPT>' );
-    } elsif ($envir{displayMode} eq 'HTML_LaTeXMathML') {
+  } elsif ($envir{displayMode} eq 'HTML_LaTeXMathML') {
     	TEXT('<SCRIPT SRC="'.$envir{LaTeXMathMLURL}.'"></SCRIPT>'."\n");
-       
-    }
+  }
 
 }
 $main::displayMode = $PG->{displayMode};

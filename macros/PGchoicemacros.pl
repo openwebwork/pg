@@ -388,10 +388,14 @@ sub quest_first_pop_up_list_print_q {
     my @list = @{$self->{ra_pop_up_list} };
     my $out = "";
 
-	if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth'
-	      || $main::displayMode eq 'HTML_jsMath'
-	      || $main::displayMode eq 'HTML_asciimath' || $main::displayMode eq 'HTML_LaTeXMathML'
-              || $main::displayMode eq 'HTML_dpng'|| $main::displayMode eq 'HTML_img') {
+	if ($main::displayMode eq 'HTML_MathJax'
+	 || $main::displayMode eq 'HTML_dpng'
+	 || $main::displayMode eq 'HTML'
+	 || $main::displayMode eq 'HTML_tth'
+	 || $main::displayMode eq 'HTML_jsMath'
+	 || $main::displayMode eq 'HTML_asciimath' 
+	 || $main::displayMode eq 'HTML_LaTeXMathML'
+	 || $main::displayMode eq 'HTML_img') {
  		my $i=1; my $quest;
  		foreach $quest (@questions) {
  			 $out.=	"\n<p>" .  "&nbsp; $quest" . pop_up_list(@list);
@@ -444,10 +448,14 @@ sub ans_in_middle_pop_up_list_print_q {
     my @list = @{$self->{ra_pop_up_list} };
     my $out = "";
 
-	if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth'
-	      || $main::displayMode eq 'HTML_jsMath'
-	      || $main::displayMode eq 'HTML_asciimath' || $main::displayMode eq 'HTML_LaTeXMathML'
-              || $main::displayMode eq 'HTML_dpng'|| $main::displayMode eq 'HTML_img') {
+	if ($main::displayMode eq 'HTML_MathJax'
+	 || $main::displayMode eq 'HTML_dpng'
+	 || $main::displayMode eq 'HTML'
+	 || $main::displayMode eq 'HTML_tth'
+	 || $main::displayMode eq 'HTML_jsMath'
+	 || $main::displayMode eq 'HTML_asciimath' 
+	 || $main::displayMode eq 'HTML_LaTeXMathML'
+	 || $main::displayMode eq 'HTML_img') {
  		my $i=1; my $quest;
  		foreach $quest (@questions) {
  			 $out.=	"" .  "&nbsp; $quest" . pop_up_list(@list);

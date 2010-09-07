@@ -829,9 +829,14 @@ sub NAMED_POP_UP_LIST {
 		my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
 	my $out = "";
-	if ($displayMode eq 'HTML' or $displayMode eq 'HTML_tth' or
-            $displayMode eq 'HTML_dpng' or $displayMode eq 'HTML_img' or $displayMode eq 'HTML_jsMath' or
-	    $displayMode eq 'HTML_asciimath' or $displayMode eq 'HTML_LaTeXMathML') {
+	if ($displayMode eq 'HTML_MathJax'
+	 || $displayMode eq 'HTML_dpng'
+	 || $displayMode eq 'HTML'
+	 || $displayMode eq 'HTML_tth'
+	 || $displayMode eq 'HTML_jsMath'
+	 || $displayMode eq 'HTML_asciimath' 
+	 || $displayMode eq 'HTML_LaTeXMathML'
+	 || $displayMode eq 'HTML_img') {
 		$out = qq!<SELECT NAME = "$name" id="$name" SIZE=1> \n!;
 		my $i;
 		foreach ($i=0; $i< @list; $i=$i+2) {
@@ -1204,6 +1209,7 @@ our %DISPLAY_MODE_FAILOVER = (
 	HTML_tth         => [ "HTML", ],
 	HTML_dpng        => [ "HTML_tth", "HTML", ],
 	HTML_jsMath      => [ "HTML_dpng", "HTML_tth", "HTML", ],
+	HTML_MathJax     => [ "HTML_dpng", "HTML_tth", "HTML", ],
 	HTML_asciimath   => [ "HTML_dpng", "HTML_tth", "HTML", ],
 	HTML_LaTeXMathML => [ "HTML_dpng", "HTML_tth", "HTML", ],
 	# legacy modes -- these are not supported, but some problems might try to
@@ -1602,20 +1608,23 @@ sub general_math_ev3 {
 		: "\\[$in\\]";
 
 	my $out;
-	if($displayMode eq "HTML_tth") {
-		$out = tth($in_delim);
-		## remove leading and trailing spaces as per Davide Cervone.
-		$out =~ s/^\s+//;
-		$out =~ s/\s+$//;
+	if($displayMode eq "HTML_MathJax") {
+     $out = '<span class="MathJax_Preview">[math]</span><script type="math/tex">'.$in.'</script>' if $mode eq "inline";
+     $out = '<span class="MathJax_Preview">[math]</span><script type="math/tex; mode=display">'.$in.'</script>' if $mode eq "display";
 	} elsif ($displayMode eq "HTML_dpng") {
 		# for jj's version of ImageGenerator
 		$out = $envir->{'imagegen'}->add($in_delim);
 		# for my version of ImageGenerator
 		#$out = $envir->{'imagegen'}->add($in, $mode);
+	} elsif ($displayMode eq "HTML_tth") {
+		$out = tth($in_delim);
+		## remove leading and trailing spaces as per Davide Cervone.
+		$out =~ s/^\s+//;
+		$out =~ s/\s+$//;
 	} elsif ($displayMode eq "HTML_img") {
 		$out = math2img($in, $mode);
 	} elsif ($displayMode eq "HTML_jsMath") {
-	  $in =~ s/</&lt;/g; $in =~ s/>/&gt;/g;
+	  $in =~ s/&/&amp;/g; $in =~ s/</&lt;/g; $in =~ s/>/&gt;/g;
 	  $out = '<SPAN CLASS="math">'.$in.'</SPAN>' if $mode eq "inline";
 	  $out = '<DIV CLASS="math">'.$in.'</DIV>' if $mode eq "display";
 	} elsif ($displayMode eq "HTML_asciimath") {
@@ -2140,9 +2149,14 @@ sub begintable {
 	elsif ($displayMode eq 'Latex2HTML') {
 		$out .= "\n\\begin{rawhtml} <TABLE , BORDER=1>\n\\end{rawhtml}";
 		}
-	elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng' ||
-               $displayMode eq 'HTML_img' || $displayMode eq 'HTML_jsMath' ||
-	       $displayMode eq 'HTML_asciimath' || $displayMode eq 'HTML_LaTeXMathML') {
+	elsif ($displayMode eq 'HTML_MathJax'
+	 || $displayMode eq 'HTML_dpng'
+	 || $displayMode eq 'HTML'
+	 || $displayMode eq 'HTML_tth'
+	 || $displayMode eq 'HTML_jsMath'
+	 || $displayMode eq 'HTML_asciimath' 
+	 || $displayMode eq 'HTML_LaTeXMathML'
+	 || $displayMode eq 'HTML_img') {
 		$out .= "<TABLE BORDER=1>\n"
 	}
 	else {
@@ -2159,9 +2173,14 @@ sub endtable {
 	elsif ($displayMode eq 'Latex2HTML') {
 		$out .= "\n\\begin{rawhtml} </TABLE >\n\\end{rawhtml}";
 		}
-	elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng' ||
-               $displayMode eq 'HTML_img' || $displayMode eq 'HTML_jsMath' ||
-	       $displayMode eq 'HTML_asciimath' || $displayMode eq 'HTML_LaTeXMathML') {
+	elsif ($displayMode eq 'HTML_MathJax'
+	 || $displayMode eq 'HTML_dpng'
+	 || $displayMode eq 'HTML'
+	 || $displayMode eq 'HTML_tth'
+	 || $displayMode eq 'HTML_jsMath'
+	 || $displayMode eq 'HTML_asciimath' 
+	 || $displayMode eq 'HTML_LaTeXMathML'
+	 || $displayMode eq 'HTML_img') {
 		$out .= "</TABLE>\n";
 		}
 	else {
@@ -2189,9 +2208,14 @@ sub row {
 			}
 		$out .= " \n\\begin{rawhtml}\n</TR> \n\\end{rawhtml}\n";
 	}
-	elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng'||
-	       $displayMode eq 'HTML_img' || $displayMode eq 'HTML_jsMath' ||
-	       $displayMode eq 'HTML_asciimath' || $displayMode eq 'HTML_LaTeXMathML') {
+	elsif ($displayMode eq 'HTML_MathJax'
+	 || $displayMode eq 'HTML_dpng'
+	 || $displayMode eq 'HTML'
+	 || $displayMode eq 'HTML_tth'
+	 || $displayMode eq 'HTML_jsMath'
+	 || $displayMode eq 'HTML_asciimath' 
+	 || $displayMode eq 'HTML_LaTeXMathML'
+	 || $displayMode eq 'HTML_img') {
 		$out .= "<TR>\n";
 		while (@elements) {
 			$out .= "<TD>" . shift(@elements) . "</TD>";
@@ -2283,9 +2307,14 @@ sub image {
 			my $wid = ($envir->{onTheFlyImageSize} || 0)+ 30;
 			$out = qq!\\begin{rawhtml}\n<A HREF= "$imageURL" TARGET="_blank" onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;"><IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height"></A>\n
 			\\end{rawhtml}\n !
- 		} elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng' ||
-			 $displayMode eq 'HTML_img' || $displayMode eq 'HTML_jsMath' ||
-			 $displayMode eq 'HTML_asciimath' || $displayMode eq 'HTML_LaTeXMathML') {
+ 		} elsif ($displayMode eq 'HTML_MathJax'
+	 || $displayMode eq 'HTML_dpng'
+	 || $displayMode eq 'HTML'
+	 || $displayMode eq 'HTML_tth'
+	 || $displayMode eq 'HTML_jsMath'
+	 || $displayMode eq 'HTML_asciimath' 
+	 || $displayMode eq 'HTML_LaTeXMathML'
+	 || $displayMode eq 'HTML_img') {
 			my $wid = ($envir->{onTheFlyImageSize} || 0) +30;
  			$out = qq!<A HREF= "$imageURL" TARGET="_blank" onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;"><IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height" $out_options{extra_html_tags} ></A>
  			!
@@ -2373,9 +2402,14 @@ sub imageRow {
 		}
 
 		$out .= "\n\\begin{rawhtml} </TR> </TABLE >\n\\end{rawhtml}";
-	} elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng' ||
-		 $displayMode eq 'HTML_img' || $displayMode eq 'HTML_jsMath' ||
-		 $displayMode eq 'HTML_asciimath' || $displayMode eq 'HTML_LaTeXMathML') {
+	} elsif ($displayMode eq 'HTML_MathJax'
+	 || $displayMode eq 'HTML_dpng'
+	 || $displayMode eq 'HTML'
+	 || $displayMode eq 'HTML_tth'
+	 || $displayMode eq 'HTML_jsMath'
+	 || $displayMode eq 'HTML_asciimath' 
+	 || $displayMode eq 'HTML_LaTeXMathML'
+	 || $displayMode eq 'HTML_img') {
 		$out .= "<P>\n <TABLE BORDER=2 CELLPADDING=3 CELLSPACING=2 ><TR ALIGN=CENTER		VALIGN=MIDDLE>\n";
 		while (@images) {
 			$out .= " \n<TD>". &image( shift(@images),%options ) ."</TD>";

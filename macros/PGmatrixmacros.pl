@@ -277,12 +277,14 @@ sub dm_begin_matrix {
                 $out .= '\displaystyle\left'.$opts{'left'}."\\begin{array}{$aligns} \n";
         }        elsif ($main::displayMode eq 'Latex2HTML') {
                 $out .= "\n\\begin{rawhtml} <TABLE  BORDER=0>\n\\end{rawhtml}";
-        }        elsif ($main::displayMode eq 'HTML' or $main::displayMode eq 'HTML_tth'
-                                         or $main::displayMode eq 'HTML_jsMath'
-                                         or $main::displayMode eq 'HTML_asciimath'
-                                         or $main::displayMode eq 'HTML_LaTeXMathML'
-                                         or $main::displayMode eq 'HTML_dpng'
-                                         or $main::displayMode eq 'HTML_img') {
+        }        elsif ( $main::displayMode eq 'HTML_MathJax'
+                      or $main::displayMode eq 'HTML_dpng'
+                      or $main::displayMode eq 'HTML_tth'
+                      or $main::displayMode eq 'HTML_jsMath'
+                      or $main::displayMode eq 'HTML_asciimath'
+                      or $main::displayMode eq 'HTML_LaTeXMathML'
+                      or $main::displayMode eq 'HTML'
+                      or $main::displayMode eq 'HTML_img') {
                 $out .= qq!<TABLE BORDER="0" Cellspacing="8">\n!;
         }
         else { 
@@ -310,13 +312,14 @@ sub dm_special_tops {
                 }
                 chop($out); # remove last &
                 $out .= '\cr\noalign{\vskip -2.5ex}'."\n"; # want skip jump up 2.5ex
-        } elsif ($main::displayMode eq 'HTML' or $main::displayMode eq 'HTML_tth'
-                                         or $main::displayMode eq 'HTML_jsMath'
-                                         or $main::displayMode eq 'HTML_asciimath'
-                                         or $main::displayMode eq 'HTML_LaTeXMathML'
-                                         or $main::displayMode eq 'HTML_dpng'
-                                         or $main::displayMode eq 'HTML_img'
-                                         or $main::displayMode eq 'Latex2HTML') {
+        } elsif ( $main::displayMode eq 'HTML_MathJax'
+                      or $main::displayMode eq 'HTML_dpng'
+                      or $main::displayMode eq 'HTML_tth'
+                      or $main::displayMode eq 'HTML_jsMath'
+                      or $main::displayMode eq 'HTML_asciimath'
+                      or $main::displayMode eq 'HTML_LaTeXMathML'
+                      or $main::displayMode eq 'HTML'
+                      or $main::displayMode eq 'HTML_img') {
                 $out .= "$brh<tr><td>$erh"; # Skip a column for the left brace
                 for $j (@top_labels) {
 			$k = shift @alignList;
@@ -347,12 +350,14 @@ sub dm_mat_left {
                 $erh = "\\end{rawhtml}";
         }
 
-        if($main::displayMode eq 'HTML_dpng'
-	         or $main::displayMode eq 'HTML_jsMath'
-                 or $main::displayMode eq 'HTML_asciimath'
-	   	 or $main::displayMode eq 'HTML_LaTeXMathML'
-                 or $main::displayMode eq 'HTML_img'
-                 or $main::displayMode eq 'Latex2HTML') {
+        if( $main::displayMode eq 'HTML_MathJax'
+                      or $main::displayMode eq 'HTML_dpng'
+                      or $main::displayMode eq 'HTML_tth'
+                      or $main::displayMode eq 'HTML_jsMath'
+                      or $main::displayMode eq 'HTML_asciimath'
+                      or $main::displayMode eq 'HTML_LaTeXMathML'
+                      or $main::displayMode eq 'HTML'
+                      or $main::displayMode eq 'HTML_img') {
                 $out .= "$brh<tr valign=\"center\"><td nowrap=\"nowrap\" align=\"left\" rowspan=\"$numrows\">$erh";
                 $out .= dm_image_delimeter($numrows, $opts{'left'});
 #               $out .= "$brh<td><table border=0  cellspacing=5>\n$erh";
@@ -382,12 +387,14 @@ sub dm_mat_right {
                 return "";
         }
 
-        if($main::displayMode eq 'HTML_dpng'
-                 or $main::displayMode eq 'HTML_jsMath'
-                 or $main::displayMode eq 'HTML_asciimath'
-	         or $main::displayMode eq 'HTML_LaTeXMathML'
-                 or $main::displayMode eq 'Latex2HTML'
-                 or $main::displayMode eq 'HTML_img') {
+        if( $main::displayMode eq 'HTML_MathJax'
+                      or $main::displayMode eq 'HTML_dpng'
+                      or $main::displayMode eq 'HTML_tth'
+                      or $main::displayMode eq 'HTML_jsMath'
+                      or $main::displayMode eq 'HTML_asciimath'
+                      or $main::displayMode eq 'HTML_LaTeXMathML'
+                      or $main::displayMode eq 'HTML'
+                      or $main::displayMode eq 'HTML_img') {
                 $out .= "$brh<td nowrap=\"nowrap\" align=\"right\" rowspan=\"$numrows\">$erh";
                 
                 $out.= dm_image_delimeter($numrows, $opts{'right'});
@@ -416,12 +423,14 @@ sub dm_end_matrix {
         elsif ($main::displayMode eq 'Latex2HTML') {
                 $out .= "\n\\begin{rawhtml} </TABLE >\n\\end{rawhtml}";
                 }
-        elsif ($main::displayMode eq 'HTML' or $main::displayMode eq 'HTML_tth'
-	                         or $main::displayMode eq 'HTML_jsMath'
-                                 or $main::displayMode eq 'HTML_asciimath'
-	       			 or $main::displayMode eq 'HTML_LaTeXMathML'
-                                 or $main::displayMode eq 'HTML_img'
-                                 or $main::displayMode eq 'HTML_dpng') {
+        elsif ( $main::displayMode eq 'HTML_MathJax'
+                      or $main::displayMode eq 'HTML_dpng'
+                      or $main::displayMode eq 'HTML_tth'
+                      or $main::displayMode eq 'HTML_jsMath'
+                      or $main::displayMode eq 'HTML_asciimath'
+                      or $main::displayMode eq 'HTML_LaTeXMathML'
+                      or $main::displayMode eq 'HTML'
+                      or $main::displayMode eq 'HTML_img') {
                 $out .= "</TABLE>\n";
                 }
         else {
@@ -531,13 +540,14 @@ sub dm_mat_row {
                 chop($out); # remove last &
                 $out .= "\\cr  \n";
                  # carriage returns must be added manually for tex
-                }         elsif ($main::displayMode eq 'HTML' or $main::displayMode eq 'HTML_tth'
-				 or $main::displayMode eq 'HTML_jsMath'
-				 or $main::displayMode eq 'HTML_asciimath'
-				 or $main::displayMode eq 'HTML_LaTeXMathML'
-                                 or $main::displayMode eq 'HTML_dpng'
-                                 or $main::displayMode eq 'HTML_img'
-                                 or $main::displayMode eq 'Latex2HTML') {
+                } elsif ( $main::displayMode eq 'HTML_MathJax'
+                      or $main::displayMode eq 'HTML_dpng'
+                      or $main::displayMode eq 'HTML_tth'
+                      or $main::displayMode eq 'HTML_jsMath'
+                      or $main::displayMode eq 'HTML_asciimath'
+                      or $main::displayMode eq 'HTML_LaTeXMathML'
+                      or $main::displayMode eq 'HTML'
+                      or $main::displayMode eq 'HTML_img') {
                         if(not $opts{'isfirst'}) {                $out .=  "$brh\n<TR>\n$erh";}
                 while (@elements) {
                         my $myalign;
