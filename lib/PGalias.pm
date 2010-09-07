@@ -213,9 +213,10 @@ sub make_alias {
 	if ($ext eq 'html') {
 	   $adr_output = $self->alias_for_html($aux_file_path)
 	} elsif ($ext eq 'gif') {
-		if ( $displayMode eq 'HTML' ||
-		     $displayMode eq 'HTML_tth'||
+		if ( $displayMode eq 'HTML_MathJax'||
 		     $displayMode eq 'HTML_dpng'||
+		     $displayMode eq 'HTML' ||
+		     $displayMode eq 'HTML_tth'||
 		     $displayMode eq 'HTML_asciimath'||
 		     $displayMode eq 'HTML_LaTeXMathML'||
 		     $displayMode eq 'HTML_jsMath'||
@@ -235,9 +236,10 @@ sub make_alias {
 			die "Error in alias: dangerousMacros.pl: unrecognizable displayMode = $displayMode";
 		}
 	} elsif ($ext eq 'png') {
-		if ( $displayMode eq 'HTML' ||
-		     $displayMode eq 'HTML_tth'||
+		if ( $displayMode eq 'HTML_MathJax'||
 		     $displayMode eq 'HTML_dpng'||
+		     $displayMode eq 'HTML' ||
+		     $displayMode eq 'HTML_tth'||
 		     $displayMode eq 'HTML_asciimath'||
 		     $displayMode eq 'HTML_LaTeXMathML'||
 		     $displayMode eq 'HTML_jsMath'||
