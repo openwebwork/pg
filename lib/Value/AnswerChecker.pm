@@ -511,6 +511,7 @@ sub format_delimiter {
   return $self->format_delimiter_tth($delim,$rows,$tth)
     if $tth || $displayMode eq 'HTML_tth' || $displayMode !~ m/^HTML_/;
   my $rule = '\vrule width 0pt height '.(.8*$rows).'em depth 0pt';
+  $rule = '\rule 0pt '.(.8*$rows).'em 0pt' if $displayMode eq 'HTML_MathJax';
   $rule = '\rule 0pt '.(.8*$rows).'em 0pt' if $displayMode eq 'HTML_jsMath';
   $delim = '\\'.$delim if $delim eq '{' || $delim eq '}';
   return '\(\left'.$delim.$rule.'\right.\)';
