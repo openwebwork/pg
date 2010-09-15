@@ -137,11 +137,11 @@ of 0%.',
     my      $numright=0;
 
 
-    $numright += ($evaluated_answers{'AnSwEr1'}->{score});
-    $numright += ($evaluated_answers{'AnSwEr2'}->{score});
-    $numright += ($evaluated_answers{'AnSwEr3'}->{score});
-    $numright += ($evaluated_answers{'AnSwEr4'}->{score});
-    $numright += ($evaluated_answers{'AnSwEr5'}->{score});
+    $numright += ($evaluated_answers{'AnSwEr0001'}->{score});
+    $numright += ($evaluated_answers{'AnSwEr0002'}->{score});
+    $numright += ($evaluated_answers{'AnSwEr0003'}->{score});
+    $numright += ($evaluated_answers{'AnSwEr0004'}->{score});
+    $numright += ($evaluated_answers{'AnSwEr0005'}->{score});
 
 
     if ($numright == 5) {
@@ -271,11 +271,17 @@ sub custom_problem_grader_fluid {
     if ($grader_scores[$#grader_scores] != 1) {
         WARN("Scoring guidelines inconsistent: best score < 1");
     }
-    $i = 1;
-    while (defined($ans_ref = $evaluated_answers{'AnSwEr'."$i"})) { 
-      $numright += $ans_ref->{score};
-      $i++;
-    }
+#    $i = 1;
+#    while (defined($ans_ref = $evaluated_answers{'AnSwEr'."$i"})) { 
+#      $numright += $ans_ref->{score};
+#      $i++;
+#    }
+
+	# Answers have been	submitted -- process them.
+	foreach my $ans_name (keys %evaluated_answers) {
+			$numright += $evaluated_answers{$ans_name}->{score};
+	}
+
     
     for($i=0;$i<=$#grader_numright;$i++) {
       if ($numright>=$grader_numright[$i]) {
@@ -283,22 +289,32 @@ sub custom_problem_grader_fluid {
       }
     }
 
-
-
-    $problem_result{score} = $total; 
-        # increase recorded score if the current score is greater.
-    $problem_state{recorded_score} = $problem_result{score} if $problem_result{score} > $problem_state{recorded_score};
-
-
-        
     $problem_state{num_of_correct_ans}++ if $total == 1;
     $problem_state{num_of_incorrect_ans}++ if $total < 1 ;
-        
-        # Since this code is in a .pg file we must use double tildes 
-    # instead of Perl's backslash on the next line.
+    
+    $problem_result{score} = $total; 
+    
+# Determine if we are in the reduced scoring period and if the reduced scoring period is enabled and act accordingly
+#warn("enable_reduced_scoring is $enable_reduced_scoring");
+#warn("dueDate is $dueDate");
+
+	my $reducedScoringPeriodSec = $reducedScoringPeriod*60;   # $reducedScoringPeriod is in minutes
+	if (!$enable_reduced_scoring or time() < ($dueDate - $reducedScoringPeriodSec)) {	# the reduced scoring period is disabled or it is before the reduced scoring period
+		# increase recorded score if the current score is greater.
+		$problem_state{recorded_score} = $problem_result{score}	if $problem_result{score} > $problem_state{recorded_score};
+		# the sub_recored_score holds the recored_score before entering the reduced scoring period
+		$problem_state{sub_recorded_score} = $problem_state{recorded_score};
+	}
+elsif (time() < $dueDate) {	# we are in the reduced scoring period.
+ 		# student gets credit for all work done before the reduced scoring period plus a portion of work done during period
+		my $newScore = 0;
+		$newScore =   $problem_state{sub_recorded_score} + $reducedScoringValue*($problem_result{score} - $problem_state{sub_recorded_score})  if ($problem_result{score} > $problem_state{sub_recorded_score});
+		$problem_state{recorded_score} = $newScore if $newScore > $problem_state{recorded_score};
+		my $reducedScoringPerCent = int(100*$reducedScoringValue+.5);
+		$problem_result{msg} = $problem_result{msg}."<br />You are in the Reduced Credit Period: All additional work done counts $reducedScoringPerCent\% of the original."; 		
+	}
+	
     (\%problem_result, \%problem_state);
-
-
 }
 
 
