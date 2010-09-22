@@ -24,16 +24,25 @@ sub full_partial_grader {
         my %original_problem_state = %$rh_orig_problem_state;
         my %form_options = @_;
         #  The hash $rh_evaluated_answers typically contains:
-        #      'AnSwEr1' => 34, 'AnSwEr2'=> 'Mozart', etc.
+        #      'AnSwEr0001' => 34, 'AnSwEr0002'=> 'Mozart', etc.
 
 
         # Evaluate these inputs using the "average problem grader"
         my ($rh_problem_result, $rh_problem_state) =
             &avg_problem_grader($rh_evaluated_answers,$rh_orig_problem_state,%form_options);
+            
+    	my @answer_labels = keys %{$rh_evaluated_answers};
+			my $count = @answer_labels;
 
-    my $count = keys %{$rh_evaluated_answers};
-    my $last_label = 'AnSwEr'.$count;
+    # Get the last label
 
+#    	my $last_label = pop sort @answer_labels; # This is what I would like to do but sort seems to be trapped by Safe.pm
+
+			my $last_label = 'AnSwEr0001';
+			
+			foreach my $answer_label (@answer_labels) {
+				if ($answer_label gt $last_label) {$last_label = $answer_label;};
+			}
 
         if (defined($rh_evaluated_answers->{$last_label}) and ${ $rh_evaluated_answers->{$last_label} }{score} == 1) {
                 $rh_problem_result->{score} = 1;
