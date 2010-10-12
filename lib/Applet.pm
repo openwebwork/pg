@@ -1049,7 +1049,8 @@ END_HEADER_SCRIPT
 
 
 use constant CANVAS_OBJECT_TEXT =><<'END_OBJECT_TEXT';
-    <script language="javascript">ww_applet_list["$appletName"].visible = 1;</script> // don't submit things if not visible
+    <script language="javascript">ww_applet_list["$appletName"].visible = 1; // don't submit things if not visible
+    </script>
 	<canvas name="cv" id="cv" data-src="/webwork2_files/js/sketchgraphhtml5b/SketchGraph.pjs" width="$width" height="$height"></canvas>  
 END_OBJECT_TEXT
 
