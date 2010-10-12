@@ -343,7 +343,7 @@ sub addSymbol {
     $operators->add(
       $symbol => {
         %{$def}, associativity => $associativity,
-        string => ($main::qisplayMode eq 'TeX' ? Currency::quoteTeX($string) : $string),
+        string => ($main::displayMode eq 'TeX' ? Currency::quoteTeX($string) : $string),
 	TeX => Currency::quoteTeX($string),
       }
     );
