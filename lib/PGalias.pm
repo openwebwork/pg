@@ -105,7 +105,7 @@ sub initialize {
 	$self->{templateDirectory}   = $envir->{templateDirectory};
 	$self->{tempURL}             = $envir->{tempURL};
 	$self->{studentLogin}        = $envir->{studentLogin};
-	$self->{psvnNumber}          = $envir->{psvnNumber};
+	$self->{psvn}          = $envir->{psvn};
 	$self->{setNumber}           = $envir->{setNumber};
 	$self->{probNum}             = $envir->{probNum};
 	$self->{displayMode}         = $envir->{displayMode};
@@ -121,13 +121,24 @@ sub initialize {
 	$self->{ext}      = "";
 	
 	# create uniqeID stub    "gif/uniqIDstub-filePath"
-	$self->{uniqIDstub} = join("-",   
+				#  Make file names work in Library Browser when the images in several
+				#  files have the same names.
+				my $libFix = "";
+				if ($self->{setNumber} eq "Undefined_Set") {
+				  $libFix = $self->{fileName};
+				  $libFix =~ s!.*/!!, $libFix =~ s!\.pg(\..*)?$!!;
+				  $libFix =~ s![^a-zA-Z0-9._-]!!g;
+				  $libFix .= '-';
+				}
+	my $uniqIDstub = join("-",   
 							   $self->{studentLogin},
-							   $self->{psvnNumber},
+							   $self->{psvn},
 							   'set'.$self->{setNumber},
-							   'prob'.$self->{probNum}
+							   'prob'.$self->{probNum},
+							   $libFix,
 	);
-				   
+	$uniqIDstub =~ tr/@.,/___/;  # replace @ . and , by _ since they don't work well in file names
+	$self->{uniqIDstub} = $uniqIDstub;		   
 
 }
 
@@ -139,7 +150,7 @@ sub check_parameters {
 	warn "The current studentLogin is not defined "                          unless $self->{studentLogin};
 	warn "The current problem set number is not defined"                     if $self->{setNumber} eq ""; # allow for sets equal to 0
 	warn "The current problem number is not defined"                         if $self->{probNum} eq "";
-	warn "The current problem set version number (psvn) is not defined"      unless defined($self->{psvnNumber});
+	warn "The current problem set version number (psvn) is not defined"      unless defined($self->{psvn});
 	warn "The displayMode is not defined"                                    unless $self->{displayMode};
 
 	# required macros
@@ -172,7 +183,7 @@ sub make_alias {
 	my $tempDirectory       = $envir->{tempDirectory};
 	my $tempURL             = $envir->{tempURL};
 	my $studentLogin        = $envir->{studentLogin};
-	my $psvnNumber          = $envir->{psvnNumber};
+	my $psvn          = $envir->{psvn};
 	my $setNumber           = $envir->{setNumber};
 	my $probNum             = $envir->{probNum};
     my $externalGif2EpsPath = $envir->{externalGif2EpsPath};
@@ -276,7 +287,7 @@ sub alias_for_html {
 	my $tempDirectory       = $envir->{tempDirectory};
 	my $tempURL             = $envir->{tempURL};
 	my $studentLogin        = $envir->{studentLogin};
-	my $psvnNumber          = $envir->{psvnNumber};
+	my $psvn          = $envir->{psvn};
 	my $setNumber           = $envir->{setNumber};
 	my $probNum             = $envir->{probNum};
 	my $displayMode         = $envir->{displayMode};
@@ -346,7 +357,7 @@ sub alias_for_gif_in_html_mode {
 	my $tempDirectory       = $envir->{tempDirectory};
 	my $tempURL             = $envir->{tempURL};
 	my $studentLogin        = $envir->{studentLogin};
-	my $psvnNumber          = $envir->{psvnNumber};
+	my $psvn          = $envir->{psvn};
 	my $setNumber           = $envir->{setNumber};
 	my $probNum             = $envir->{probNum};
 	my $displayMode         = $envir->{displayMode};
@@ -391,7 +402,7 @@ sub alias_for_gif_in_html_mode {
 				# $fileName is obtained from environment for PGeval
 				# it gives the full path to the current problem
 				my $gifSourceFile = $self->convertPath("$templateDirectory${filePath}$aux_file_path.gif");
-				#my $link = "gif/$studentLogin-$psvnNumber-set$setNumber-prob$probNum-$aux_file_path.$ext";
+				#my $link = "gif/$studentLogin-$psvn-set$setNumber-prob$probNum-$aux_file_path.$ext";
 		   #warn "fileName is $fileName filePath is $filePath gifSourceFile is $gifSourceFile";
 
 				#  Make file names work in Library Browser when the images in several
@@ -404,7 +415,10 @@ sub alias_for_gif_in_html_mode {
 				  $libFix .= '-';
 				}
 
-				my $link = "gif/$setNumber-prob$probNum-$libFix$aux_file_path.$ext";
+				# my $link = "gif/$setNumber-prob$probNum-$libFix$aux_file_path.$ext";
+			    my $uniqIDstub = $self->{uniqIDstub};
+				my $link = "gif/${uniqIDstub}-$aux_file_path.$ext";
+				my $linkPath = $self->surePathToTmpFile($link);
 
 				my $linkPath = $self->surePathToTmpFile($link);
 				$adr_output = "${tempURL}$link";
@@ -433,7 +447,7 @@ sub alias_for_gif_in_tex_mode {
 	my $tempDirectory       = $envir->{tempDirectory};
 	my $tempURL             = $envir->{tempURL};
 	my $studentLogin        = $envir->{studentLogin};
-	my $psvnNumber          = $envir->{psvnNumber};
+	my $psvn          = $envir->{psvn};
 	my $setNumber           = $envir->{setNumber};
 	my $probNum             = $envir->{probNum};
 	my $displayMode         = $envir->{displayMode};
@@ -494,7 +508,7 @@ sub alias_for_gif_in_tex_mode {
 
 					my $gifSourceFile = "$aux_file_path.gif";
 					my $gifFileName = $self->fileFromPath($gifSourceFile);
-					$adr_output = $self->surePathToTmpFile("$tempDirectory/eps/$studentLogin-$psvnNumber-$gifFileName.eps") ;
+					$adr_output = $self->surePathToTmpFile("$tempDirectory/eps/$studentLogin-$psvn-$gifFileName.eps") ;
 
 					if (-e $gifSourceFile) {
 						#system("cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output")
@@ -509,7 +523,7 @@ sub alias_for_gif_in_tex_mode {
 					my $filePath = $self->directoryFromPath($fileName);
 					my $gifSourceFile = "${templateDirectory}${filePath}$aux_file_path.gif";
 					#print "content-type: text/plain \n\nfileName = $fileName and aux_file_path =$aux_file_path<BR>";
-					$adr_output = $self->surePathToTmpFile("eps/$studentLogin-$psvnNumber-set$setNumber-prob$probNum-$aux_file_path.eps");
+					$adr_output = $self->surePathToTmpFile("eps/$studentLogin-$psvn-set$setNumber-prob$probNum-$aux_file_path.eps");
 
 					if (-e $gifSourceFile) {
 						#system("cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output") &&
@@ -536,7 +550,7 @@ sub alias_for_png_in_html_mode {
 	my $tempDirectory       = $envir->{tempDirectory};
 	my $tempURL             = $envir->{tempURL};
 	my $studentLogin        = $envir->{studentLogin};
-	my $psvnNumber          = $envir->{psvnNumber};
+	my $psvn          = $envir->{psvn};
 	my $setNumber           = $envir->{setNumber};
 	my $probNum             = $envir->{probNum};
 	my $displayMode         = $envir->{displayMode};
@@ -610,7 +624,7 @@ sub alias_for_png_in_tex_mode {
 	my $tempDirectory       = $envir->{tempDirectory};
 	my $tempURL             = $envir->{tempURL};
 	my $studentLogin        = $envir->{studentLogin};
-	my $psvnNumber          = $envir->{psvnNumber};
+	my $psvn          = $envir->{psvn};
 	my $setNumber           = $envir->{setNumber};
 	my $probNum             = $envir->{probNum};
 	my $displayMode         = $envir->{displayMode};
@@ -662,7 +676,7 @@ sub alias_for_png_in_tex_mode {
 
 					my $pngSourceFile = "$aux_file_path.png";
 					my $pngFileName = fileFromPath($pngSourceFile);
-					$adr_output = $self->surePathToTmpFile("$tempDirectory/eps/$studentLogin-$psvnNumber-$pngFileName.eps") ;
+					$adr_output = $self->surePathToTmpFile("$tempDirectory/eps/$studentLogin-$psvn-$pngFileName.eps") ;
 
 					if (-e $pngSourceFile) {
 						#system("cat $pngSourceFile  | /usr/math/bin/pngtopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output")
@@ -677,7 +691,7 @@ sub alias_for_png_in_tex_mode {
 					my $filePath = $self->directoryFromPath($fileName);
 					my $pngSourceFile = "${templateDirectory}${filePath}$aux_file_path.png";
 					#print "content-type: text/plain \n\nfileName = $fileName and aux_file_path =$aux_file_path<BR>";
-					$adr_output = $self->surePathToTmpFile("eps/$studentLogin-$psvnNumber-set$setNumber-prob$probNum-$aux_file_path.eps") ;
+					$adr_output = $self->surePathToTmpFile("eps/$studentLogin-$psvn-set$setNumber-prob$probNum-$aux_file_path.eps") ;
 					if (-e $pngSourceFile) {
 						#system("cat $pngSourceFile  | /usr/math/bin/pngtopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output") &&
 						#warn "Unable to create eps file: |$adr_output|\n from file\n |$pngSourceFile|\n in problem $probNum";
