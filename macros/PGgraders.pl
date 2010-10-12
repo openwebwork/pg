@@ -36,7 +36,9 @@ sub full_partial_grader {
 
     # Get the last label
 
-			my $last_label = $answer_labels[0];
+#    	my $last_label = pop sort @answer_labels; # This is what I would like to do but sort seems to be trapped by Safe.pm
+
+			my $last_label = ANS_NUM_TO_NAME(1); #usually AnSwEr0001
 			
 			foreach my $answer_label (@answer_labels) {
 				if ($answer_label gt $last_label) {$last_label = $answer_label;};

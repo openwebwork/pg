@@ -34,7 +34,7 @@ See F<PGbasicmacros> for definitions of C<image> and C<caption>
 
 
 #my $User = $main::studentLogin;
-#my $psvn = $main::psvnNumber; #$main::in{'probSetKey'};  #in{'probSetNumber'}; #$main::probSetNumber;
+#my $psvn = $main::psvn; #$main::in{'probSetKey'};  #in{'probSetNumber'}; #$main::probSetNumber;
 #my $setNumber     = $main::setNumber;
 #my $probNum       = $main::probNum;
 
@@ -110,12 +110,16 @@ sub init_graph {
     my $graphRef = new WWPlot(@size);
 	# select a  name for this graph based on the user, the psvn and the problem
 	my $setName = $main::setNumber;
-	# replace dots in set name to keep latex happy
+	# replace dots, commmas and @ signs in set and user names to keep latex and html happy
+	# this should be abstracted and placed in PGalias.pm or PGcore.pm or perhaps PG.pm
+	#FIXME
 	$setName =~ s/Q/QQ/g;
 	$setName =~ s/\./-Q-/g;
 	my $studentLogin = $main::studentLogin;
 	$studentLogin =~ s/Q/QQ/g;
 	$studentLogin =~ s/\./-Q-/g;
+	$studentLogin =~ s/\,/-Q-/g;
+	$studentLogin =~ s/\@/-Q-/g;
 	my $imageName = "$studentLogin-$main::problemSeed-set${setName}prob${main::probNum}";
 	# $imageNum counts the number of graphs with this name which have been created since PGgraphmacros.pl was initiated.
 	my $imageNum  = ++$main::images_created{$imageName};
@@ -196,7 +200,7 @@ sub init_graph_no_labels {
 	}
     my $graphRef = new WWPlot(@size);
 	# select a  name for this graph based on the user, the psvn and the problem
-	my $imageName = "$main::studentLogin-$main::psvnNumber-set${main::setNumber}prob${main::probNum}";
+	my $imageName = "$main::studentLogin-$main::psvn-set${main::setNumber}prob${main::probNum}";
 	# $imageNum counts the number of graphs with this name which have been created since PGgraphmacros.pl was initiated.
 	my $imageNum  = ++$main::images_created{$imageName};
 	# this provides a unique name for the graph -- it does not include an extension.

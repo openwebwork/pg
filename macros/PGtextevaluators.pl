@@ -76,7 +76,7 @@ free-response question in the variable $QUESTIONNAIRE_ANSWERS for later
 retrieval. A header is added to the answer before it is added. The header format
 is:
 
-	"\n${setNumber}_${courseName}_$psvnNumber-Problem-$probNum-Question-$num:\n"
+	"\n${setNumber}_${courseName}_$psvn-Problem-$probNum-Question-$num:\n"
 
 Where $num is the argument passed to anstext().
 
@@ -88,7 +88,7 @@ mail_answers_to2().
 sub anstext {
 	my $num	= shift;
 	my $ans_eval_template =	store_ans_at(\$QUESTIONNAIRE_ANSWERS);
-	my $psvnNumber  = PG_restricted_eval(q!$main::psvnNumber!);
+	my $psvn  = PG_restricted_eval(q!$main::psvn!);
 	my $probNum     = PG_restricted_eval(q!$main::probNum!);
 	my $courseName  = PG_restricted_eval(q!$main::courseName!);
 	my $setNumber     = PG_restricted_eval(q!$main::setNumber!);
@@ -96,7 +96,7 @@ sub anstext {
 	my $ans_eval    = sub {
 				 my	$text =	shift;
 				 $text = ''	unless defined($text);
-				 my	$new_text =	"\n${setNumber}_${courseName}_$psvnNumber-Problem-$probNum-Question-$num:\n $text "; #	modify entered text
+				 my	$new_text =	"\n${setNumber}_${courseName}_$psvn-Problem-$probNum-Question-$num:\n $text "; #	modify entered text
 				 my	$out = &$ans_eval_template($new_text);			 # standard	evaluator
 				 #warn "$QUESTIONNAIRE_ANSWERS";
 				 $out->{student_ans} = escapeHTML($text);  #	restore	original entered text
@@ -114,7 +114,7 @@ sub anstext {
 anstext_non_anonymous() works like anstext(), except that the header added to the
 student's answer includes personally identifying information:
 
-	\n$psvnNumber-Problem-$probNum-Question-$num:\n
+	\n$psvn-Problem-$probNum-Question-$num:\n
 	$studentLogin $studentID $studentName\n
 
 Where $num is the argument passed to anstext_non_anonymous().
@@ -124,7 +124,7 @@ Where $num is the argument passed to anstext_non_anonymous().
 sub anstext_non_anonymous {
 	## this emails identifying information
 	my $num	         = shift;
-    my $psvnNumber   = PG_restricted_eval(q!$main::psvnNumber!);
+    my $psvn   = PG_restricted_eval(q!$main::psvn!);
 	my $probNum      = PG_restricted_eval(q!$main::probNum!);
     my $studentLogin = PG_restricted_eval(q!$main::studentLogin!);
 	my $studentID    = PG_restricted_eval(q!$main::studentID!);
@@ -135,7 +135,7 @@ sub anstext_non_anonymous {
 	my $ans_eval = sub {
 				 my	$text =	shift;
 				 $text = ''	unless defined($text);
-				 my	$new_text =	"\n$psvnNumber-Problem-$probNum-Question-$num:\n$studentLogin $main::studentID $studentName\n$text "; #	modify entered text
+				 my	$new_text =	"\n$psvn-Problem-$probNum-Question-$num:\n$studentLogin $main::studentID $studentName\n$text "; #	modify entered text
 				 my	$out = &$ans_eval_template($new_text);			 # standard	evaluator
 				 #warn "$QUESTIONNAIRE_ANSWERS";
 				 $out->{student_ans} = escapeHTML($text);  #	restore	original entered text
@@ -155,7 +155,7 @@ multiple-choice question in the variable $QUESTIONNAIRE_ANSWERS for later
 retrieval. A header is added to the answer before it is added. The header format
 is:
 
-	"\n$psvnNumber-Problem-$probNum-RADIO-$num:\n"
+	"\n$psvn-Problem-$probNum-RADIO-$num:\n"
 
 Where $num is the question number passed to ansradio().
 
@@ -166,14 +166,14 @@ mail_answers_to2().
 
 sub ansradio {
 	my $num	= shift;
-	my $psvnNumber  = PG_restricted_eval(q!$main::psvnNumber!);
+	my $psvn  = PG_restricted_eval(q!$main::psvn!);
 	my $probNum  = PG_restricted_eval(q!$main::probNum!);
 
 	my $ans_eval_template =	store_ans_at(\$QUESTIONNAIRE_ANSWERS);
 	my $ans_eval = sub {
 				 my	$text =	shift;
 				 $text = ''	unless defined($text);
-				 my	$new_text =	"\n$psvnNumber-Problem-$probNum-RADIO-$num:\n $text	";		   # modify	entered	text
+				 my	$new_text =	"\n$psvn-Problem-$probNum-RADIO-$num:\n $text	";		   # modify	entered	text
 				 my	$out = $ans_eval_template->($new_text);			  #	standard evaluator
 				 $out->{student_ans} =escapeHTML($text);  #	restore	original entered text
 				 $out->{original_student_ans} = escapeHTML($text);

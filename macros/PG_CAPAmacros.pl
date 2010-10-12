@@ -155,7 +155,7 @@ sub problem {
 }
 
 sub pin {
-    $main::psvnNumber;
+    $main::psvn;
 }
 sub section {
     $main::sectionNumber;
