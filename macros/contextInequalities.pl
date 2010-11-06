@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/contextInequalities.pl,v 1.22 2010/01/23 16:38:59 dpvc Exp $
+# $CVSHeader: pg/macros/contextInequalities.pl,v 1.23 2010/03/22 11:01:55 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -13,6 +13,7 @@
 # FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
 # Artistic License for more details.
 ################################################################################
+
 
 =head1 NAME
 
@@ -227,8 +228,8 @@ sub _check {
       return;
     }
     if ($self->{def}{combine} && $v->{isInequality}) {
-      my $bop = substr($self->{bop},0,1); my $ebop = $bop."=";
-      if (($v->{bop} eq $bop || $v->{bop} eq $ebop) && $v->{varPos} eq $self->{numPos}) {
+      my $bop = $self->{bop}; $bop =~ s/=//; my $bope = $bop."="; my $ebop = "=".$bop;
+      if (($v->{bop} eq $bop || $v->{bop} eq $bope || $v->{bop} eq $ebop) && $v->{varPos} eq $self->{numPos}) {
 	$self->{varName} = $v->{varName};
 	return;
       }
