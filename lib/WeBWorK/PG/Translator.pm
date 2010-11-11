@@ -1411,7 +1411,7 @@ sub avg_problem_grader{
 		$total += $evaluated_answers{$ans_name}->{score};
 	}
 	# Calculate score rounded to three places to avoid roundoff problems
-	$problem_result{score} = $total/$count if $count;
+	$problem_result{score} = ($count) ? $total/$count : 0 ; # give zero if no answers have been evaluated.
 	# increase recorded score if the current score is greater.
 	$problem_state{recorded_score} = $problem_result{score} if $problem_result{score} > $problem_state{recorded_score};
 
@@ -1731,14 +1731,15 @@ sub dumpvar {
 	*alias = $globValue;
 	next if $varName=~/main/;
 	
-	if (defined($alias) ) {
+	#if (defined($alias) ) {  # get rid of defined since this is deprecated
+	if ($alias ) {
 	    emit "  \$$varName $alias \n";
 	}
 	
-	if ( defined(@alias) ) {
+	if ( @alias) {
 	    emit "  \@$varName @alias \n";
 	}
-	if (defined(%alias) ) {
+	if (%alias ) {
 	    emit "  %$varName \n";
 	    foreach $key (keys %alias) {
 	        emit "    $key => $alias{$key}\n";

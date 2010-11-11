@@ -625,6 +625,8 @@ sub includePGproblem {
     %main::envir = %save_envir;
 }
 
+sub beginproblem;  # announce that beginproblem is a macro
+
 1;
 __END__
 
