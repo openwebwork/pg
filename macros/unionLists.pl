@@ -55,6 +55,9 @@ sub _unionLists_init {}; # don't reload this file
  
 =cut
 
+our $bHTML = '\begin{rawhtml}';
+our $eHTML = '\end{rawhtml}';
+
 sub BeginList {
   my $LIST = 'OL';
   $LIST = shift if (uc($_[0]) eq "OL" or uc($_[0]) eq "UL");
