@@ -97,7 +97,7 @@ sub new {
   my %choice; map {$choice{$_} = 1} @$choices;
   Value::Error("The correct choice must be one of the PopUp menu items")
     unless $choice{$value};
-  my $self = bless {data => [$value], context => $context, choices => $choices}, $class;
+  $self = bless {data => [$value], context => $context, choices => $choices}, $class;
   return $self;
 }
 
