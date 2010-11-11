@@ -13,10 +13,7 @@
 
 =head1 SYNPOSIS
 
-    use Global;
-	use Carp;
-	use GD;
-
+ 
 	$graph = new WWPlot(400,400); # creates a graph 400 pixels by 400 pixels
 	$graph->fn($fun1, $fun2);     # installs functions $fun1 and $fun2 in $graph
 	$image_binary = $graph->draw();  # creates the gif/png image of the functions installed in the graph
