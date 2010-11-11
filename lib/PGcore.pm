@@ -179,7 +179,7 @@ sub initialize {
 		WARNING_messages          => [],
 		DEBUG_messages            => [],
 		recordSubmittedAnswers    => 1,
-		refreshCAchedImages       => 0,
+		refreshCachedImages       => 0,
 #		ANSWER_ENTRY_ORDER        => [],  # may not be needed if we ue Tie:IxHash
 		comment                   => '',  # implement as array?
 
