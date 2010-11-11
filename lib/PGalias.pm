@@ -419,8 +419,6 @@ sub alias_for_gif_in_html_mode {
 			    my $uniqIDstub = $self->{uniqIDstub};
 				my $link = "gif/${uniqIDstub}-$aux_file_path.$ext";
 				my $linkPath = $self->surePathToTmpFile($link);
-
-				my $linkPath = $self->surePathToTmpFile($link);
 				$adr_output = "${tempURL}$link";
 				#warn "linkPath is $linkPath";
 				#warn "adr_output is $adr_output";
