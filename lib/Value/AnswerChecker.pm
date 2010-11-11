@@ -1593,7 +1593,8 @@ sub cmp_defaults {
     &{$type.'cmp_defaults'}($self,@_),
     upToConstant => 0,
     showDomainErrors => 1,
-  ) if defined(%$type) && $self->type ne 'List';
+#  ) if defined(%$type) && $self->type ne 'List';
+	) if ( ref($type)=~/HASH/ ) && $self->type ne 'List';
 
   my $element;
   if ($self->{tree}->class eq 'List') {$element = $self->Package("Formula")->new($self->{tree}{coords}[0])}
