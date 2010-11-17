@@ -1413,6 +1413,7 @@ sub avg_problem_grader{
 	# Calculate score rounded to three places to avoid roundoff problems
 	$problem_result{score} = ($count) ? $total/$count : 0 ; # give zero if no answers have been evaluated.
 	# increase recorded score if the current score is greater.
+	$problem_state{recorded_score}=0 unless defined $problem_state{recorded_score};
 	$problem_state{recorded_score} = $problem_result{score} if $problem_result{score} > $problem_state{recorded_score};
 
 
