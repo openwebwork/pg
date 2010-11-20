@@ -318,27 +318,25 @@ sub loadMacros {
 		###############################################################################
 		#compile initialization subroutine. (5.6.1 version) also works with 5.6.0
 
-# 		no strict;
  		my $init_subroutine  = eval { \&{'main::'.$init_subroutine_name} };
-# 		use strict;
 
 		###############################################################################
 
         # macros are searched for in the directories listed in the $macrosPath array reference.
-        
+
         my $macro_file_loaded = defined($init_subroutine) && defined(&$init_subroutine);
-        warn "dangerousMacros: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|"  if $debugON;
+        warn "PGloadfiles: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|" if $debugON;
         unless ($macro_file_loaded) {
-        	warn "loadMacros: loading macro file $fileName\n" if $debugON;
-		my $filePath = $self->findMacroFile($fileName);
-		#### (check for renamed files here?) ####
-		if ($filePath) {
-			$self->compile_file($filePath); 
-			warn "loadMacros is compiling $filePath\n" if $debugON;
-		}
-		else {
-		  die "Can't locate macro file |$fileName| via path: |".join("|, |",@{$macrosPath})."|";
-		}
+        	warn "loadMacros: loading macro file $fileName" if $debugON;
+			my $filePath = $self->findMacroFile($fileName);
+			#### (check for renamed files here?) ####
+			if ($filePath) {
+				$self->compile_file($filePath); 
+				warn "loadMacros is compiling $filePath" if $debugON;
+			}
+			else {
+			  die "Can't locate macro file |$fileName| via path: |".join("|, |",@{$macrosPath})."|";
+			}
 		}
 		###############################################################################
 		# Try again to define the initialization subroutine. (5.6.0 version)
@@ -349,21 +347,21 @@ sub loadMacros {
 		###############################################################################
 		# Try again to define the initialization subroutine. (5.6.1 version) also works with 5.6.0	
 			
-# 		no strict;            
+           
  		$init_subroutine  = eval { \&{'main::'.$init_subroutine_name} };
-# 		use strict;
+
 		###############################################################################
 		#warn "loadMacros: defining \$temp::rf_init_subroutine ",$temp::rf_init_subroutine;
        $macro_file_loaded = defined($init_subroutine) && defined(&$init_subroutine);
-       warn "dangerousMacros: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|" if $debugON;
+       warn "PGloadfiles: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|"if $debugON;
 
-		if ( defined($init_subroutine) && defined( &{$init_subroutine} ) ) {
-		    warn "dangerousMacros:  initializing $macro_file_name" if $debugON;
+		if ( $macro_file_loaded ) {
+		    warn "PGloadfiles:  $macro_file_name loaded, initializing $macro_file_name\n" if $debugON;
 		    &$init_subroutine();
 		}
 		#warn "main:: contains <br>\n $macro_file_name ".join("<br>\n $macro_file_name ", %main::);
 	}
-	#arn "files loaded:", join(" ", keys %{ $self->{macroFileList} });
+	#warn "files loaded:", join(" ", keys %{ $self->{macroFileList} });
 	eval{main::time_it("end load macros");};
 }
 
