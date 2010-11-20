@@ -393,6 +393,146 @@ $output_str;
 
 =head2 Numerical Integration methods
 
+=head3 Integration by Left Hand Sum
+
+=pod
+
+	Usage:  lefthandsum(function_reference, start, end, steps=>30 );
+
+Implements the Left Hand sum using 30 intervals between 'start' and 'end'.
+The first three arguments are required.  The final argument (number of steps) is optional and defaults to 30.
+
+=cut
+
+sub lefthandsum {
+	my $fn_ref = shift;
+        my $x0 = shift;
+        my $x1 = shift;
+        my %options = @_;
+        assign_option_aliases(\%options,
+                              intervals		=>	'steps',
+	);
+	set_default_options(\%options,
+						steps			=>	30,
+        );
+	my $steps = $options{steps};
+	my $delta = ($x1-$x0)/$steps;
+        my $i;
+	my $sum=0;
+	foreach $i (0..($steps-1) ) {
+		$sum =$sum + &$fn_ref( $x0 + ($i)*$delta );
+	}
+	$sum*$delta;
+}
+
+=head3 Integration by Right Hand Sum
+
+=pod
+
+	Usage:  righthandsum(function_reference, start, end, steps=>30 );
+
+Implements the right hand sum using 30 intervals between 'start' and 'end'.
+The first three arguments are required.  The final argument (number of steps) is optional and defaults to 30.
+
+=cut
+
+sub righthandsum {
+	my $fn_ref = shift;
+        my $x0 = shift;
+        my $x1 = shift;
+        my %options = @_;
+        assign_option_aliases(\%options,
+                              intervals		=>	'steps',
+	);
+	set_default_options(\%options,
+						steps			=>	30,
+        );
+	my $steps = $options{steps};
+	my $delta = ($x1-$x0)/$steps;
+        my $i;
+	my $sum=0;
+	foreach $i (1..($steps) ) {
+		$sum =$sum + &$fn_ref( $x0 + ($i)*$delta );
+	}
+	$sum*$delta;
+}
+
+
+=head3 Integration by Midpoint rule
+
+=pod
+
+	Usage:  midpoint(function_reference, start, end, steps=>30 );
+
+Implements the Midpoint rule using 30 intervals between 'start' and 'end'.
+The first three arguments are required.  The final argument (number of steps) is optional and defaults to 30.
+
+=cut
+
+sub midpoint {
+	my $fn_ref = shift;
+        my $x0 = shift;
+        my $x1 = shift;
+        my %options = @_;
+        assign_option_aliases(\%options,
+                              intervals		=>	'steps',
+	);
+	set_default_options(\%options,
+						steps			=>	30,
+        );
+	my $steps = $options{steps};
+	my $delta = ($x1-$x0)/$steps;
+        my $i;
+	my $sum=0;
+	foreach $i (0..($steps-1) ) {
+		$sum =$sum + &$fn_ref( $x0 + ($i+1/2)*$delta );
+	}
+	$sum*$delta;
+}
+
+=head3 Integration by Simpson's rule
+
+=pod
+
+	Usage:  simpson(function_reference, start, end, steps=>30 );
+
+Implements Simpson's rule using 30 intervals between 'start' and 'end'.
+The first three arguments are required.  The final argument (number of steps) is optional and defaults to 30,
+but must be even.
+
+=cut
+
+
+sub simpson {
+	my $fn_ref = shift;
+        my $x0 = shift;
+        my $x1 = shift;
+        my %options = @_;
+        assign_option_aliases(\%options,
+                              intervals		=>	'steps',
+	);
+	set_default_options(\%options,
+						steps			=>	30,
+        );
+	my $steps = $options{steps};
+    	unless( $steps % 2 == 0  ) {
+    	die "Error: Simpson's rule requires an even number of steps.";
+    }
+
+	my $delta = ($x1-$x0)/$steps;
+        my $i;
+	my $sum=0;
+	for ($i=1;$i<$steps;$i=$i+2) { # look this up - loop by two.
+		$sum =$sum + 4*&$fn_ref( $x0 + $i*$delta );
+	}
+	for ($i=2;$i<$steps-1;$i=$i+2) { # ditto
+		$sum = $sum + 2*&$fn_ref( $x0 + $i*$delta);
+	}
+	$sum = $sum + &$fn_ref($x0) + &$fn_ref($x1);
+	$sum*$delta/3;
+}
+
+
 =head3 Integration by trapezoid rule
 
 =pod
