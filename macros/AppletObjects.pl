@@ -26,9 +26,7 @@ file provide mechanisms to insert Flash applets (and  Java applets)
 into a WeBWorK problem.
 
 
-=head1 SEE ALSO
-
-L<Applets.pm>.
+See also L<http://webwork.maa.org/pod/pg_TRUNK/lib/Applet.html>.
 
 =cut
 
@@ -54,8 +52,7 @@ END_HEADER_TEXT
 
 };
 
-=head3
-	FlashApplet
+=head3  FlashApplet
 
 	Useage:    $applet = FlashApplet();
 
@@ -66,10 +63,28 @@ sub FlashApplet {
 
 }
 
+=head3  JavaApplet
+
+	Useage:    $applet = JavaApplet(
+	
+	
+	);
+
+=cut
+
 sub JavaApplet {
 	return new JavaApplet(@_);
 
 }
+
+=head3  CanvasApplet
+
+	Useage:    $applet = CanvasApplet(
+	
+	
+	);
+
+=cut
 
 sub CanvasApplet {
 	return new CanvasApplet(@_);
@@ -77,8 +92,8 @@ sub CanvasApplet {
 package Applet;
 
 
- 
-=head2 Methods
+
+=head1 Methods
 
 =cut
 
