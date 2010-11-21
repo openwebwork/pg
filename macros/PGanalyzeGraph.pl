@@ -4,23 +4,35 @@ sub _PGanalyzeGraph_init {}
 # subroutines
 ################################################################
 
+=head1 NAME
+
+PGanalyzeGraph.pl
+
+=head1 DESCRIPTION
+
+These routines support the
+analysis of  graphical input from students.
+
+=cut
 
 
 =head4  detect_intervals
 
-   input: $pointDisplayString 
-          return delimited string of triplets 
-          each triplet has the form  x y yp  (space delimited)
-          giving the x, y and y'(x) values at x respectively
+
+
+   input:   $pointDisplayString 
+         
    return: (\@combined_intervals, \@values)
-          @values contains the y values of the function in order
-          @combined_intervals contains anonymous arrays of the form
+           @values contains the y values of the function in order
+           @combined_intervals contains anonymous arrays of the form
                [ $slope, $left_x, $right_x]  indicating the gradient on that segment.
                successive intervals will have different slopes.
                
-               
+
 =cut
-  
+
+
+
 sub detect_intervals {
 	my $pointDisplayString = shift;
 	my @intervals;
