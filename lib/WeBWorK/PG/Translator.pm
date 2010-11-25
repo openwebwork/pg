@@ -8,7 +8,7 @@ package WeBWorK::PG::Translator;
 use strict;
 use warnings;
 use Opcode;
-use WWSafe;
+use Safe;
 use Net::SMTP;
 use WeBWorK::PG::IO;
 
