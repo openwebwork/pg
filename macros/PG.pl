@@ -132,7 +132,7 @@ sub RECORD_ANS_NAME {
 sub inc_ans_rule_count {
    #$PG->{unlabeled_answer_blank_count}++;
    #my $num = $PG->{unlabeled_answer_blank_count};
-   DEBUG_MESSAGE( " using PG to inc_ans_rule_count = $num ", caller(2));
+   DEBUG_MESSAGE( " No increment done. Using PG to inc_ans_rule_count = $num ", caller(2));
    warn " using PG to inc_ans_rule_count = $num ", caller(2);
    $PG->{unlabeled_answer_blank_count};
 }
@@ -923,7 +923,7 @@ used exclusively by L<PGbasicmacros.pl>.
 
 =item inc_ans_rule_count()
 
- NEW_ANS_NAME();
+DEPRECATED 
 
 Increments the internal count of the number of answer blanks that have been
 defined ($ans_rule_count) and returns the new count. This should only be used
