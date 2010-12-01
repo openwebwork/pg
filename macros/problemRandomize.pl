@@ -185,7 +185,7 @@ sub new {
     buttonLabel => "Get a new version of this problem",
     checkboxLabel => "Get a new version of this problem",
     inputLabel => "Set random seed to:",
-    grader => $main::PG->{flags}->{PROBLEM_GRADER_TO_USE}; #$main::PG_FLAGS{PROBLEM_GRADER_TO_USE} || \&main::avg_problem_grader,
+    grader => $main::PG->{flags}->{PROBLEM_GRADER_TO_USE}  || \&main::avg_problem_grader,  #$main::PG_FLAGS{PROBLEM_GRADER_TO_USE}
     random => $main::PG_random_generator,
     status => {},
     @_
