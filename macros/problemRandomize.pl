@@ -232,7 +232,7 @@ sub reset {
   my $status = $self->{status};
   foreach my $id (split(/;/,$status->{answers})) {delete $main::inputs_ref->{$id}}
   foreach my $id (1..$status->{ans_rule_count})
-    {delete $main::inputs_ref->{"${main::QUIZ_PREFIX}${main::ANSWER_PREFIX}$id"}}
+    {delete $main::inputs_ref->{main::ANS_NUM_TO_NAME($id)}}
   $main::inputs_ref->{_status} = $self->encode(\%defaultStatus);
   $status->{seed} = ($main::inputs_ref->{_reseed} || seed());
 }
@@ -294,7 +294,7 @@ sub randomizeHTML {shift; shift}
 sub encode {
   my $self = shift; my $status = shift || $self->{status};
   my @data = (); my $data = "";
-  foreach my $id (main::lex_sort(keys(%defaultStatus))) {push(@data,$status->{$id})}
+  foreach my $id (main::lex_sort(keys(%defaultStatus))) {push(@data, ($status->{$id}) )}
   foreach my $c (split(//,join('|',@data))) {$data .= toHex($c)}
   return $data;
 }
@@ -360,7 +360,7 @@ sub grader {
   #  Update that state information and encode it.
   #
   my $status = $self->{status};
-  $status->{ans_rule_count} = $main::ans_rule_count;
+  $status->{ans_rule_count} = main::ans_rule_count();
   $status->{answers} = join(';',grep(!/${main::QUIZ_PREFIX}${main::ANSWER_PREFIX}/o,keys(%{$_[0]})));
   my $data = quoteHTML($self->encode);
   $result->{type} = "problemRandomize ($result->{type})";

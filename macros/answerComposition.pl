@@ -60,8 +60,9 @@ Example:
 
 sub COMPOSITION_ANS {
   my $f = shift; my $g = shift;
-  my $fID = ANS_NUM_TO_NAME($main::ans_rule_count-1);
-  my $gID = ANS_NUM_TO_NAME($main::ans_rule_count);
+  my $num_of_answers = main::ans_rule_count();
+  my $fID = ANS_NUM_TO_NAME($num_of_answers-1);
+  my $gID = ANS_NUM_TO_NAME($num_of_answers);
   my %ans = composition_ans_list($fID=>$f,$gID=>$g,@_);
   ANS($ans{$fID},$ans{$gID});
 }
