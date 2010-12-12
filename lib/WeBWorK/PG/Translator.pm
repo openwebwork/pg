@@ -155,7 +155,7 @@ sub load_extra_packages{
 
 sub new {
 	my $class = shift;
-	my $safe_cmpt = new Safe; #('PG_priv');
+	my $safe_cmpt = new WWSafe; #('PG_priv');
 	my $self = {
 	    preprocess_code           =>  \&default_preprocess_code,
 	    postprocess_code           => \&default_postprocess_code,
