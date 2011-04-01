@@ -298,13 +298,17 @@ sub render {
 	my $depths   = $self->{depths};
 	$self->{body_text} = $options{body_text};
 
+	###############################################
 	# check that the equations directory exists and create if it doesn't
+	###############################################
 	unless (-e "$dir") {
 		my $success = mkdir "$dir";
 		warn "Could not make directory $dir" unless $success;
 	}
-			
+	
+	###############################################			
 	# determine which images need to be generated
+	###############################################
 	my (@newStrings, @newNames);
 	for (my $i = 0; $i < @$strings; $i++) {
 		my $string = $strings->[$i];
@@ -318,102 +322,109 @@ sub render {
 		}
 	}
 	
-    # Outdented so that we don't change every line of this section
-    # while making lots of changes along the way
     if(@newStrings) { # Don't run latex if there are no images to generate
-	
-	# create temporary directory in which to do TeX processing
-	my $wd = makeTempDirectory($tempDir, "ImageGenerator");
-	
-	# store equations in a tex file
-	my $texFile = "$wd/equation.tex";
-	open my $tex, ">", $texFile
-		or die "failed to open file $texFile for writing: $!";
-	print $tex $TexPreamble;
-	print $tex "$_\n" foreach @newStrings;
-	print $tex $TexPostamble;
-	close $tex;
-	warn "tex file $texFile was not written" unless -e $texFile;
-	
-	# call LaTeX
-	my $latexCommand  = "cd $wd && $latex equation > latex.out 2> latex.err";
-	my $latexStatus = system $latexCommand;
-
-	if ($latexStatus and $latexStatus !=256) {
-		warn "$latexCommand returned non-zero status $latexStatus: $!";
-		warn "cd $wd failed" if system "cd $wd";
-		warn "Unable to write to directory $wd. " unless -w $wd;
-		warn "Unable to execute $latex " unless -e $latex ;
 		
-		warn `ls -l $wd`;
-		my $errorMessage = '';
-		if (-r "$wd/equation.log") {
-			$errorMessage = readFile("$wd/equation.log");
-			warn "<pre> Logfile contents:\n$errorMessage\n</pre>";
+		# create temporary directory in which to do TeX processing
+		my $wd = makeTempDirectory($tempDir, "ImageGenerator");
+		
+		# store equations in a tex file
+		my $texFile = "$wd/equation.tex";
+		open my $tex, ">", $texFile
+			or die "failed to open file $texFile for writing: $!";
+		print $tex $TexPreamble;
+		print $tex "$_\n" foreach @newStrings;
+		print $tex $TexPostamble;
+		close $tex;
+		warn "tex file $texFile was not written" unless -e $texFile;
+		
+		###############################################
+		# call LaTeX
+		###############################################
+		my $latexCommand  = "cd $wd && $latex equation > latex.out 2> latex.err";
+		my $latexStatus = system $latexCommand;
+	
+		if ($latexStatus and $latexStatus !=256) {
+			warn "$latexCommand returned non-zero status $latexStatus: $!";
+			warn "cd $wd failed" if system "cd $wd";
+			warn "Unable to write to directory $wd. " unless -w $wd;
+			warn "Unable to execute $latex " unless -e $latex ;
+			
+			warn `ls -l $wd`;
+			my $errorMessage = '';
+			if (-r "$wd/equation.log") {
+				$errorMessage = readFile("$wd/equation.log");
+				warn "<pre> Logfile contents:\n$errorMessage\n</pre>";
+			} else {
+			   warn "Unable to read logfile $wd/equation.log ";
+			}
+		}
+	
+		warn "$latexCommand failed to generate a DVI file"
+			unless -e "$wd/equation.dvi";
+		
+		############################################
+		# call dvipng
+		############################################
+		my $dvipngCommand = "cd $wd && $dvipng " . $DvipngArgs . " equation > dvipng.out 2> dvipng.err";
+		my $dvipngStatus = system $dvipngCommand;
+		warn "$dvipngCommand returned non-zero status $dvipngStatus: $!"
+			if $dvipngStatus;
+		# get depths
+		my $dvipngout = '';
+		$dvipngout = readFile("$wd/dvipng.out") if(-r "$wd/dvipng.out");
+		my @dvipngdepths = ($dvipngout =~ /depth=(\d+)/g);
+		# kill them all if something goes wrnog
+		@dvipngdepths = () if(scalar(@dvipngdepths) != scalar(@newNames));
+	
+		############################################
+		# move/rename images
+		############################################
+	
+		foreach my $image (readDirectory($wd)) {
+			# only work on equation#.png files
+			next unless $image =~ m/^equation(\d+)\.png$/;
+			
+			# get image number from above match
+			my $imageNum = $1;
+			# note, problems with solutions/hints can have empty values in newNames
+			next unless $newNames[$imageNum-1];
+	
+			# record the dvipng offset
+			my $hashkey = $newNames[$imageNum-1];
+			$hashkey =~ s|/||;
+			$hashkey =~ s|\.png$||;
+			$depths->{"$hashkey"} = $dvipngdepths[$imageNum-1] if(defined($dvipngdepths[$imageNum-1]));
+			
+			#warn "ImageGenerator: found generated image $imageNum with name $newNames[$imageNum-1]\n";
+			
+			# move/rename image
+			#my $mvCommand = "cd $wd && /bin/mv $wd/$image $dir/$basename.$imageNum.png";
+			# check to see if this requires a directory we haven't made yet
+			my $newdir = $newNames[$imageNum-1];
+			$newdir =~ s|/.*$||;
+			if($newdir and not -d "$dir/$newdir") {
+				my $success = mkdir "$dir/$newdir";
+				warn "Could not make directory $dir/$newdir" unless $success;
+			}
+			my $mvCommand = "cd $wd && /bin/mv $wd/$image $dir/" . $newNames[$imageNum-1];
+			my $mvStatus = system $mvCommand;
+			if ( $mvStatus) {
+				warn "$mvCommand returned non-zero status $mvStatus: $!";
+				warn "Can't write to tmp/equations directory $dir" unless -w $dir;
+			}
+	
+		}
+		############################################
+		# remove temporary directory (and its contents)
+		############################################
+	
+		if ($PreserveTempFiles) {
+			warn "ImageGenerator: preserved temp files in working directory '$wd'.\n";
+			chmod (0775,$wd);
+			chmod (0664,<$wd/*>);
 		} else {
-		   warn "Unable to read logfile $wd/equation.log ";
+			removeTempDirectory($wd);
 		}
-	}
-
-	warn "$latexCommand failed to generate a DVI file"
-		unless -e "$wd/equation.dvi";
-	
-	# call dvipng
-	my $dvipngCommand = "cd $wd && $dvipng " . $DvipngArgs . " equation > dvipng.out 2> dvipng.err";
-	my $dvipngStatus = system $dvipngCommand;
-	warn "$dvipngCommand returned non-zero status $dvipngStatus: $!"
-		if $dvipngStatus;
-	# get depths
-	my $dvipngout = '';
-	$dvipngout = readFile("$wd/dvipng.out") if(-r "$wd/dvipng.out");
-	my @dvipngdepths = ($dvipngout =~ /depth=(\d+)/g);
-	# kill them all if something goes wrnog
-	@dvipngdepths = () if(scalar(@dvipngdepths) != scalar(@newNames));
-
-	# move/rename images
-	foreach my $image (readDirectory($wd)) {
-		# only work on equation#.png files
-		next unless $image =~ m/^equation(\d+)\.png$/;
-		
-		# get image number from above match
-		my $imageNum = $1;
-		# note, problems with solutions/hints can have empty values in newNames
-		next unless $newNames[$imageNum-1];
-
-		# record the dvipng offset
-		my $hashkey = $newNames[$imageNum-1];
-		$hashkey =~ s|/||;
-		$hashkey =~ s|\.png$||;
-		$depths->{"$hashkey"} = $dvipngdepths[$imageNum-1] if(defined($dvipngdepths[$imageNum-1]));
-		
-		#warn "ImageGenerator: found generated image $imageNum with name $newNames[$imageNum-1]\n";
-		
-		# move/rename image
-		#my $mvCommand = "cd $wd && /bin/mv $wd/$image $dir/$basename.$imageNum.png";
-		# check to see if this requires a directory we haven't made yet
-		my $newdir = $newNames[$imageNum-1];
-		$newdir =~ s|/.*$||;
-		if($newdir and not -d "$dir/$newdir") {
-			my $success = mkdir "$dir/$newdir";
-			warn "Could not make directory $dir/$newdir" unless $success;
-		}
-		my $mvCommand = "cd $wd && /bin/mv $wd/$image $dir/" . $newNames[$imageNum-1];
-		my $mvStatus = system $mvCommand;
-		if ( $mvStatus) {
-			warn "$mvCommand returned non-zero status $mvStatus: $!";
-			warn "Can't write to tmp/equations directory $dir" unless -w $dir;
-		}
-
-	}
-	
-	# remove temporary directory (and its contents)
-	if ($PreserveTempFiles) {
-		warn "ImageGenerator: preserved temp files in working directory '$wd'.\n";
-		chmod (0775,$wd);
-		chmod (0664,<$wd/*>);
-	} else {
-		removeTempDirectory($wd);
-	}
     }
     $self->update_depth_cache() if $self->{store_depths};
     $self->fix_markers() if ($self->{useMarkers} and defined $self->{body_text});
