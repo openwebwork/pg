@@ -1055,7 +1055,7 @@ sub SOLUTION {
 sub hint {
    	my @in = @_;
 	my $out = '';
-	my $permissionLevel = $envir->{permissionLevel}; #PG_restricted_eval(q!$main::envir{permissionLevel}!); #user permission level
+	my $permissionLevel = $envir->{permissionLevel}||0; #PG_restricted_eval(q!$main::envir{permissionLevel}!); #user permission level
 	# protect against undefined values
 	my $PRINT_FILE_NAMES_PERMISSION_LEVEL = ( defined( $envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'} ) ) ? $envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'} : 10000;
     my $printHintForInstructor = $permissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL;
