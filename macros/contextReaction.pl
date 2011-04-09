@@ -129,7 +129,7 @@ sub Init {
       "Na","Mg",                                                    "Al","Si","P", "S", "Cl","Ar",
       "K", "Ca",  "Sc","Ti","V", "Cr","Mn","Fe","Co","Ni","Cu","Zn","Ga","Ge","As","Se","Br","Kr",
       "Rb","Sr",  "Y", "Zr","Nb","Mo","Tc","Ru","Rh","Pd","Ag","Cd","In","Sn","Sb","Te","I", "Xe",
-      "Cs","Ba",  "Lu","Hf","Ta","W", "Re","Os","Ir","Pt","Au","Hg","Ti","Pb"."Bi","Po","At","Rn",
+      "Cs","Ba",  "Lu","Hf","Ta","W", "Re","Os","Ir","Pt","Au","Hg","Ti","Pb","Bi","Po","At","Rn",
       "Fr","Ra",  "Lr","Rf","Db","Sg","Bh","Hs","Mt","Ds","Rg","Cn","Uut","Uuq","Uup","Uuh","Uus","Uuo",
 
                   "La","Ce","Pr","Nd","Pm","Sm","Eu","Gd","Tb","Dy","Ho","Er","Tm","Yb",
@@ -390,8 +390,8 @@ our @ISA = ('context::Reaction::BOP');
 #
 sub _check {
   my $self = shift;
-  $self->Error("The left-hand side of '_' must be an element, not %s",$self->{lop}->TYPE)
-    unless $self->{lop}->type eq 'Element';
+  $self->Error("The left-hand side of '_' must be an element or compound, not %s",$self->{lop}->TYPE)
+    unless $self->{lop}->type eq 'Element' || $self->{lop}->type eq 'Compound';
   $self->Error("The right-hand side of '_' must be a number, not %s",$self->{rop}->TYPE)
     unless $self->{rop}->class eq 'Number';
   $self->{type} = $MOLECULE->{type};
@@ -402,7 +402,19 @@ sub _check {
 #
 sub TeX {
   my $self = shift;
-  return $self->{lop}->TeX."_{".$self->{rop}->TeX."}";
+  my $left = $self->{lop}->TeX;
+  $left = "($left)" if $self->{lop}->type eq 'Compound';
+  return $left."_{".$self->{rop}->TeX."}";
+}
+
+#
+#  Create proper text output
+#
+sub string {
+  my $self = shift;
+  my $left = $self->{lop}->string;
+  $left = "($left)" if $self->{lop}->type eq 'Compound';
+  return $left."_".$self->{rop}->string;
 }
 
 sub TYPE {'a molecule'}
