@@ -458,7 +458,7 @@ sub new_array_element_label {     #creates a new label for unlabeled submissions
 	my $col_num           = shift;
 	my %options           = @_;
 	my $vec_num           = (defined $options{vec_num})?$options{vec_num}: 0 ;
-	$self->{QUIZ_PREFIX}.$ans_label.'__'.$vec_num.':'.$row_num.':'.$col_num.'__';
+	$self->{QUIZ_PREFIX}.$ans_label.'__'.$vec_num.'-'.$row_num.'-'.$col_num.'__';
 }
 sub new_answer_name  {     # bit of a legacy item
 	&new_label;

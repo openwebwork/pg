@@ -2,6 +2,8 @@
 BEGIN{
     be_strict();
 }
+# set the prefix used for arrays.
+our $ArRaY = $main::PG->{ARRAY_PREFIX};
 
 sub _PGmorematrixmacros_init{}
 
@@ -213,7 +215,7 @@ sub BASIS_CMP {
         sub{my $rh_ans      = shift; 
             my @options     = @_;
             $rh_ans->{_filter_name}  = 'mung_student_answer';
-            if( $rh_ans->{ans_label} =~ /ArRaY/ ){
+            if( $rh_ans->{ans_label} =~ /$ArRaY/ ){
                 $rh_ans           = ans_array_filter($rh_ans,@options);     
                 my @student_array = @{$rh_ans->{ra_student_ans}};
                 my @array         = ();
@@ -522,10 +524,10 @@ sub ans_array_filter{
     set_default_options(\%options,
 		_filter_name  =>  'ans_array_filter',             
     );
-#   $rh_ans->{ans_label} =~ /ArRaY(\d+)\[\d+,\d+,\d+\]/;  # CHANGE made to accomodate HTML 4.01 standards for name attribute
-    $rh_ans->{ans_label} =~ /ArRaY(\d+)\_\_\d+:\d+:\d+\_\_/;
+#   $rh_ans->{ans_label} =~ /$ArRaY(\d+)\[\d+,\d+,\d+\]/;  # CHANGE made to accomodate HTML 4.01 standards for name attribute
+    $rh_ans->{ans_label} =~ /$ArRaY(\d+)\_\_\d+\-\d+\-\d+\_\_/;
     my $ans_num = $1;
-    my @keys = grep /ArRaY$ans_num/, keys(%{$main::inputs_ref});
+    my @keys = grep /$ArRaY$ans_num/, keys(%{$main::inputs_ref});
     my $key;
     my @array = ();
     my ($i,$j,$k) = (0,0,0);
@@ -535,9 +537,9 @@ sub ans_array_filter{
 #       $key =~ /ArRaY\d+\[(\d+),(\d+),(\d+)\]/;
 #       ($i,$j,$k) = ($1,$2,$3);
 #       $array[$i][$j][$k] = ${$main::inputs_ref}{'ArRaY'.$ans_num.'['.$i.','.$j.','.$k.']'};
-        $key =~ /ArRaY\d+\_\_(\d+):(\d+):(\d+)\_\_/;
+        $key =~ /$ArRaY\d+\_\_(\d+)\-(\d+)\-(\d+)\_\_/;
         ($i,$j,$k) = ($1,$2,$3);
-        $array[$i][$j][$k] = ${$main::inputs_ref}{'ArRaY'.$ans_num.'__'.$i.':'.$j.':'.$k.'__'};     
+        $array[$i][$j][$k] = ${$main::inputs_ref}{"$ArRaY".$ans_num.'__'.$i.'-'.$j.'-'.$k.'__'};     
 
     }
     #$rh_ans->{debug_student_answer }=  \@array;

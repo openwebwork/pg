@@ -196,7 +196,7 @@ sub NEW_ANS_ARRAY_NAME {  # this keeps track of the answers within an array whic
 		my $row = shift;
 		my $col = shift;
 #       my $array_ans_eval_label = "ArRaY"."$number"."__"."$vecnum".":";
-		my $label = $PG->{QUIZ_PREFIX}.$PG->{ARRAY_PREFIX}."$number"."__"."$vecnum".":"."$row".":"."$col"."__";
+		my $label = $PG->{QUIZ_PREFIX}.$PG->{ARRAY_PREFIX}."$number"."__"."$vecnum"."-"."$row"."-"."$col"."__";
 #		my $response_group = new PGresponsegroup($label,undef);
 #		$PG->record_ans_name($array_ans_eval_label, $response_group);
 #       What does vecnum do?
