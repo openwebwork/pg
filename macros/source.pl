@@ -15,4 +15,33 @@ sub NoSourceButton {
 #  }
 }
 
+
+=head3   sourceButton
+
+########################
+# activating the source button
+########################
+
+# In order for this button to work the course needs to have a link from 
+
+#   myCourse/html/show-source.cgi   back to webwork2/htdocs/show-source.cgi
+
+#   in the directory myCourse/html
+#   execute the following command (you will need command line access to the server to do this)
+#   ln -s /opt/webwork/webwork2/htdocs/show-source.cgi    show-source.cgi
+#    
+#   You need to make sure that the file webwork2/htdocs/show-source.cgi is executable by the 
+#   apache webserver.  
+#
+#   To accomplish this you need to uncomment this line in webwork.apache2-config
+#
+#   ScriptAliasMatch /webwork2_course_files/([^/]*)/show-source.cgi/(.*) /opt/webwork/courses/$1/html/show-source.cgi/$2
+#
+#
+#   The show-source.cgi script may also have to be customized to set $root to the webwork2 directory
+
+
+
+=cut
+
 1;
