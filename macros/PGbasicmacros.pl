@@ -1426,14 +1426,26 @@ sub refreshEquations{
 Defines C<\myVec > for all the equations in the file. You can change the vector notation for an entire PG question
 by changing just this line.
 
-For consistent behavior with hardcopy place this macro before any text is generated for the question.
-This should work for short TeX macro definitions such as the one above.  It is very likely
-to break if you try to use it for complicated TeX commands.  YMMV.
 
 If you place this macro in PGcourse.pl remember to use double backslashes because it is a .pl file.
 In .pg files use single backslashes. This is in accordance with the usual rules for backslash
 in PG.
 
+For the moment this change only works in image mode.  It does not work in 
+jsMath or MathJax mode.  Stay tuned.
+
+Adding this command
+
+	\newcommand{\myVec}[1]{\vec{#1}}
+	
+to TeX(hardcopy) portion of the setHeaderCombinedFile.pg ( or to the setHeaderHardcopyFile.pg
+for each homework set will take care of the TeX hardcopy version
+
+You can also modify the TexPreamble file in   webwork2/conf/snippets to set the definition
+of \myVec for hardcopy for the entire site.
+
+There are ways you can use course.conf to allow course by course modification by choosing
+different TeXPreamble files for different courses
 
 =cut 
 
@@ -1441,9 +1453,10 @@ sub addToTeXPreamble {
         my $str = shift;
         if ($displayMode eq "HTML_dpng") {
                 $envir->{imagegen}->addToTeXPreamble($str."\n" )    ;
-        } else {
-                TEXT($str."\n");
-        }
+        } 
+#         else {
+#                 TEXT($str."\n");
+#         }
 
 }
 
