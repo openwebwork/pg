@@ -168,7 +168,7 @@ sub initialize {
 
     $self->{tempDirectory}              = $self->{envir}->{tempDirectory};
 	$self->{PG_problem_grader}    = $self->{envir}->{PROBLEM_GRADER_TO_USE};
-    $self->{PG_alias}             = new PGalias($self->{envir});
+    $self->{PG_alias}             = PGalias->new($self->{envir});
     $self->{PG_loadMacros}        = new PGloadfiles($self->{envir});
 	$self->{flags} = {
 		showpartialCorrectAnswers => 1,
@@ -580,8 +580,15 @@ sub PG_restricted_eval {
 # 	}
 # }
 
+=head2 base64 coding
+
+	$str       = decode_base64($coded_str);
+	$coded_str = encode_base64($str);
 
 # Sometimes a question author needs to code or decode base64 directly
+
+=cut
+
 sub decode_base64 ($) {
 	my $self = shift;
 	my $str = shift;
@@ -594,6 +601,33 @@ sub encode_base64 ($;$) {
 	my $option = shift;
 	MIME::Base64::encode_base64($str);
 }
+
+=head2   Message channels
+
+There are three message channels
+	$PG->debug_message()   or in PG:  DEBUG_MESSAGE() 
+	$PG->warning_message() or in PG:  WARNING_MESSAGE()
+	
+They behave the same way, it is simply convention as to how they are used.
+	
+To report the messages use:
+
+	$PG->get_debug_messages
+	$PG->get_warning_messages
+
+These are used in Problem.pm for example to report any errors.
+
+There is also
+    	
+    $PG->internal_debug_message()
+	$PG->get_internal_debug_message
+	$PG->clear_internal_debug_messages();
+	
+There were times when things were buggy enough that only the internal_debug_message which are not saved
+inside the PGcore object would report.
+
+=cut
+
 sub debug_message {
     my $self = shift;
 	my @str = @_;

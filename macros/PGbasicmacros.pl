@@ -1402,6 +1402,52 @@ C<\(  tex math mode \)> and
 C<\[ tex display math mode \] >
 constructions, in that order:
 
+
+=head3 refreshEquations 
+
+	refreshEquations(1);
+
+Prevents equations generated in "image mode" from being cached.  This can be useful for debugging.
+It has no effect in the other modes.
+
+=cut
+
+sub refreshEquations{
+        my $in = shift;
+        if ($displayMode eq "HTML_dpng") {
+                $envir->{imagegen}->refresh($in);
+        }
+}
+
+=head3 addToTeXPreamble
+
+	addToTeXPreamble("\newcommand{\myVec}[1]{\vec{#1}} ");
+	
+Defines C<\myVec > for all the equations in the file. You can change the vector notation for an entire PG question
+by changing just this line.
+
+For consistent behavior with hardcopy place this macro before any text is generated for the question.
+This should work for short TeX macro definitions such as the one above.  It is very likely
+to break if you try to use it for complicated TeX commands.  YMMV.
+
+If you place this macro in PGcourse.pl remember to use double backslashes because it is a .pl file.
+In .pg files use single backslashes. This is in accordance with the usual rules for backslash
+in PG.
+
+
+=cut 
+
+sub addToTeXPreamble {
+        my $str = shift;
+        if ($displayMode eq "HTML_dpng") {
+                $envir->{imagegen}->addToTeXPreamble($str."\n" )    ;
+        } else {
+                TEXT($str."\n");
+        }
+
+}
+
+
 =head3 FEQ
 
 	FEQ($string);   # processes and outputs the string
@@ -1554,28 +1600,6 @@ sub FEQ   {    # Format EQuations
 	$in;
 }
 
-#sub math_ev3 {
-#	my $in = shift; #print "in=$in<BR>";
-#	my ($out,$PG_eval_errors,$PG_full_error_report);
-#	$in = FEQ($in);
-#	$in =~ s/%/\\%/g;   #  % causes trouble in TeX and HTML_tth it usually (always?) indicates an error, not comment
-#	return("$BM $in $EM") unless ($displayMode eq 'HTML_tth');
-#	$in = "\\(" . $in . "\\)";
-#	$out = tth($in);
-#	($out,$PG_eval_errors,$PG_full_error_report);
-#
-#}
-#
-#sub display_math_ev3 {
-#	my $in = shift; #print "in=$in<BR>";
-#	my ($out,$PG_eval_errors,$PG_full_error_report);
-#	$in = FEQ($in);
-#	$in =~ s/%/\\%/g;
-#	return("$main::BDM $in $main::EDM") unless $displayMode eq 'HTML_tth' ;
-#	$in = "\\[" . $in . "\\]";
-#	$out =tth($in);
-#	($out,$PG_eval_errors,$PG_full_error_report);
-#}
 
 sub math_ev3 {
 	my $in = shift;
@@ -1613,9 +1637,9 @@ sub general_math_ev3 {
      $out = '<span class="MathJax_Preview">[math]</span><script type="math/tex; mode=display">'.$in.'</script>' if $mode eq "display";
 	} elsif ($displayMode eq "HTML_dpng") {
 		# for jj's version of ImageGenerator
-		$out = $envir->{'imagegen'}->add($in_delim);
+		#$out = $envir->{'imagegen'}->add($in_delim);
 		# for my version of ImageGenerator
-		#$out = $envir->{'imagegen'}->add($in, $mode);
+		$out = $envir->{'imagegen'}->add($in, $mode);
 	} elsif ($displayMode eq "HTML_tth") {
 		$out = tth($in_delim);
 		## remove leading and trailing spaces as per Davide Cervone.

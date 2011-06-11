@@ -165,6 +165,7 @@ sub new {
 	my $self = {
 		names   => [],
 		strings => [],
+		texPreambleAdditions => undef,
 		depths => {},
 		%options,
 	};
@@ -182,6 +183,41 @@ sub new {
 	}
 	
 	bless $self, $class;
+}
+
+=item addToTeXPreamble($string)
+
+Adds the string as part of the TeX preamble for all equations in the problem.
+For example
+   $rh_envir->{imagegen}->addToTeXPreamble("\newcommand{\myVec}[#1]{\vec{#1}} ");
+
+Will define a question wide style for interpreting
+   \( \myVec{v}  \)
+   
+If this statement is placed in PGcourse.pl then the backslashes must be doubled since it is a .pl file
+not a .pg file
+
+=cut
+
+sub addToTeXPreamble {
+	my $self  = shift;
+	my $str   = shift;
+	$self->{texPreambleAdditions} = $str if defined $str;
+	$self->{texPreambleAdditions};
+}
+
+=item refresh(1)
+
+Forces every equation picture to be recalculated. Useful for debugging.
+	$rh_envir->{imagegen}->refresh(1);
+
+=cut
+
+sub refresh {
+	my $self  = shift;
+	my $in   = shift;
+	$self->{refresh} = $in if defined($in);
+	$self->{refresh};
 }
 
 =item add($string, $mode)
@@ -283,6 +319,8 @@ key "refresh" in C<%options> is true, images will be regenerated regardless of
 when they were last modified. If neither option is supplied, "refresh" is
 assumed.
 
+NOTE: It's not clear to me that mtime has been implemented -- MEG - 2011/06
+
 =cut
 
 sub render {
@@ -297,6 +335,7 @@ sub render {
 	my $strings  = $self->{strings};
 	my $depths   = $self->{depths};
 	$self->{body_text} = $options{body_text};
+	my $forceRefresh = $self->{refresh} || 0;      # recreate every equation image -- default is do not refresh
 
 	###############################################
 	# check that the equations directory exists and create if it doesn't
@@ -313,7 +352,7 @@ sub render {
 	for (my $i = 0; $i < @$strings; $i++) {
 		my $string = $strings->[$i];
 		my $name = $names->[$i];
-		if (-e "$dir/$name") {
+		if (!$forceRefresh and -e "$dir/$name") {
 			#warn "ImageGenerator: found a file named $name, skipping string $string\n";
 		} else {
 			#warn "ImageGenerator: didn't find a file named $name, including string $string\n";
@@ -332,6 +371,7 @@ sub render {
 		open my $tex, ">", $texFile
 			or die "failed to open file $texFile for writing: $!";
 		print $tex $TexPreamble;
+		print $tex $self->{texPreambleAdditions} if defined($self->{texPreambleAdditions});
 		print $tex "$_\n" foreach @newStrings;
 		print $tex $TexPostamble;
 		close $tex;

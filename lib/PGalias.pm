@@ -23,12 +23,12 @@ sub new {
 	my $class = shift;	
 	my $aux_file_name = shift;  #pointer to auxiliary fle
 	my $self = {
-		type        =>  'png', # gif eps pdf html pg (macro: pl) (applets: java js fla geogebra )
-		path		=>  { content => undef,
+		type        =>  'png', # gif eps pdf html pg (macro: pl) (applets: java js fla geogebra (ggb) )
+		path		=>  { content => undef,       # file path to resource
 						  is_complete=>0,
 						  is_accessible => 0,
 						},
-		url			=>  { content => undef,
+		url			=>  { content => undef,       # url path to resource
 						  is_complete=>0,
 						  is_accessible => 0,
 						},
@@ -61,11 +61,17 @@ use PGcore;
 
 our @ISA =  qw ( PGcore  );  # look up features in PGcore -- in this case we want the environment.
 
+=head2 
+
 # new 
 #   Create one alias object per question (and per PGcore object)
 #   Check that information is intact
-#   Construct unique id stubs
+#   Construct unique id stubs -- the id stub is for this PGalias object which is 
+#        attached to all the resource files (except equations) for this question.
 #   Keep list of external links
+
+=cut
+
 sub new {
 	my $class = shift;	
 	my $envir = shift;  #pointer to environment hash
@@ -90,7 +96,7 @@ sub new {
 #     create_files  -- e.g. when printing hardcopy
 #     dispatcher -- decides what needs to be done based on displayMode and file type
 #     alias_for_html
-#     alias_for_image_in_html   image includes gif, png, jpg, swf, svg, flv?? ogg??
+#     alias_for_image_in_html   image includes gif, png, jpg, swf, svg, flv?? ogg??, js
 #     alias_for_image_in_tex 
 
 
@@ -196,10 +202,11 @@ sub make_alias {
 	my $adr_output;
 	my $ext;
 	
+#######################################################################	
 	# determine file type
 	# determine display mode
 	# dispatch	
-
+#######################################################################
 	# determine extension, if there is one
 	# if extension exists, strip and use the value for $ext
 	# files without extensions are considered to be picture files:
