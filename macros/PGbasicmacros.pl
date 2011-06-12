@@ -1453,10 +1453,15 @@ sub addToTeXPreamble {
         my $str = shift;
         if ($displayMode eq "HTML_dpng") {
                 $envir->{imagegen}->addToTeXPreamble($str."\n" )    ;
-        } 
-#         else {
-#                 TEXT($str."\n");
-#         }
+        } elsif ($displayMode eq "TeX" and $envir->{probNum}==0) {
+        	    
+                # in TeX mode we are typically creating an entire homework set 
+                # and typesetting that so w only want the TeXPreamble to 
+                # appear once -- towards the beginning.
+                # This is potentially fragile -- if one starts 
+                # typesetting problems separately this will fail.
+                TEXT( $str, "\n");
+        }
 
 }
 
