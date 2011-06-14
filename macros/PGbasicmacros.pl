@@ -1460,9 +1460,19 @@ sub addToTeXPreamble {
                 # appear once -- towards the beginning.
                 # This is potentially fragile -- if one starts 
                 # typesetting problems separately this will fail.
-                TEXT( $str, "\n");
+                # The reason for the multicols commands is baroque
+                # If they are not there then the newcommand gets printed
+                # inside a multicols environment and its scope doesn't reach the whole file
+                # It has to do with the way the multicol single col stuff was set up
+                # when printing hardcopy.  --it's weird and there must be a better way.
+                TEXT("\\end{multicols}\n", $str, "\n","\\begin{multicols}{2}\\columnwidth=\\linewidth\n");
+        } else { # for jsMath and MathJax mode
+            my $mathstr = "\\(".$str."\\)";  #add math mode.  
+            $mathstr =~ s/\\/\\\\/g;         # protect math modes ($str has a true TeX command, 
+                                             # with single backslashes.  The backslashes have not 
+                                             # been protected by the .pg problem preprocessor
+            TEXT(EV3($mathstr));
         }
-
 }
 
 
