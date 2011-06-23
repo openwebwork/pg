@@ -46,6 +46,7 @@ WeBWorK::PG::Translator - Evaluate PG code and evaluate answers safely
     $PG_PROBLEM_TEXT_ARRAY_REF = $pt->ra_text();              # output text for the body of the HTML file (in array form)
     $PG_PROBLEM_TEXT_REF = $pt->r_text();                     # output text for the body of the HTML file
     $PG_HEADER_TEXT_REF = $pt->r_header;#\$PG_HEADER_TEXT;    # text for the header of the HTML file
+    $PG_POST_HEADER_TEXT_REF = $pt->r_post_header
     $PG_ANSWER_HASH_REF = $pt->rh_correct_answers;            # a hash of answer evaluators
     $PG_FLAGS_REF = $pt ->rh_flags;                           # misc. status flags.
 
@@ -163,6 +164,7 @@ sub new {
 		PG_PROBLEM_TEXT_ARRAY_REF => [],
 		PG_PROBLEM_TEXT_REF       => 0,
 		PG_HEADER_TEXT_REF        => 0,
+		PG_POST_HEADER_TEXT_REF   => 0,
 		PG_ANSWER_HASH_REF        => {},
 		PG_FLAGS_REF              => {},
 		rh_pgcore                 => undef,    # ref to PGcore object
@@ -597,6 +599,10 @@ sub header {
 	${$self->{PG_HEADER_TEXT_REF}};
 }
 
+sub post_header {
+	my $self = shift;
+	${$self->{PG_POST_HEADER_TEXT_REF}};
+}
 sub h_flags {
 	my $self = shift;
 	%{$self->{PG_FLAGS_REF}};
@@ -625,6 +631,10 @@ sub r_text {
 sub r_header {
 	my $self = shift;
 	$self->{PG_HEADER_TEXT_REF};
+}
+sub r_post_header {
+	my $self = shift;
+	$self->{PG_POST_HEADER_TEXT_REF};
 }
 
 sub rh_directories {
@@ -944,8 +954,10 @@ case the previously defined safe compartment is used. (See item 1.)
 
 =cut
 
-				my ($PG_PROBLEM_TEXT_REF, $PG_HEADER_TEXT_REF, $PG_ANSWER_HASH_REF, $PG_FLAGS_REF, $PGcore)
+				my ($PG_PROBLEM_TEXT_REF, $PG_HEADER_TEXT_REF, $PG_POST_HEADER_TEXT_REF,$PG_ANSWER_HASH_REF, $PG_FLAGS_REF, $PGcore)
 				      =$safe_cmpt->reval("   $evalString");
+				      
+			
                #warn "using safe compartment ", $safe_cmpt->root;
 # This section could use some more error messages.  In particular if a problem doesn't produce the right output, the user needs
 # information about which problem was at fault.
@@ -1041,6 +1053,7 @@ the errors.
 	Returns:
 			$PG_PROBLEM_TEXT_ARRAY_REF -- Reference to a string containing the rendered text.
 			$PG_HEADER_TEXT_REF -- Reference to a string containing material to placed in the header (for use by JavaScript)
+			$PG_POST_HEADER_TEXT_REF -- Reference to a string containing material to placed in body above form (for use by Sage)
 			$PG_ANSWER_HASH_REF -- Reference to an array containing the answer evaluators.
 			$PG_FLAGS_REF -- Reference to a hash containing flags and other references:
 				'error_flag' is set to 1 if there were errors in rendering
@@ -1053,14 +1066,17 @@ the errors.
                 ## If the eval failed with errors, one or more of these variables won't be defined.
                 $PG_ANSWER_HASH_REF = {}      unless defined($PG_ANSWER_HASH_REF);
                 $PG_HEADER_TEXT_REF = \( "" ) unless defined($PG_HEADER_TEXT_REF);
+                $PG_POST_HEADER_TEXT_REF = \( "" ) unless defined($PG_POST_HEADER_TEXT_REF);
                 $PG_FLAGS_REF = {}            unless defined($PG_FLAGS_REF);
 
          		$PG_FLAGS_REF->{'error_flag'} = 1 	  if $self -> {errors};
         my $PG_PROBLEM_TEXT                     = join("",@PROBLEM_TEXT_OUTPUT);
 
+
         $self ->{ PG_PROBLEM_TEXT_REF	} 		= \$PG_PROBLEM_TEXT;
         $self ->{ PG_PROBLEM_TEXT_ARRAY_REF	} 	= \@PROBLEM_TEXT_OUTPUT;
 	    $self ->{ PG_HEADER_TEXT_REF 	}		= $PG_HEADER_TEXT_REF;
+	    $self ->{ PG_POST_HEADER_TEXT_REF 	}	= $PG_POST_HEADER_TEXT_REF;
 	    $self ->{ rh_correct_answers	}		= $PG_ANSWER_HASH_REF;
 	    $self ->{ PG_FLAGS_REF			}		= $PG_FLAGS_REF;
 	    $self ->{ rh_pgcore             }       = $PGcore;
@@ -1757,11 +1773,11 @@ sub dumpvar {
 use strict;
 
 #### for error checking and debugging purposes
-sub pretty_print_rh {
-	my $rh = shift;
-	foreach my $key (sort keys %{$rh})  {
-		warn "  $key => ",$rh->{$key},"\n";
-	}
-}
+# sub pretty_print_rh {
+# 	my $rh = shift;
+# 	foreach my $key (sort keys %{$rh})  {
+# 		warn "  $key => ",$rh->{$key},"\n";
+# 	}
+# }
 # end evaluation subroutines
 1;

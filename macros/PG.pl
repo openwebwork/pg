@@ -109,6 +109,10 @@ sub HEADER_TEXT {
 	$PG->HEADER_TEXT(@_);
 }
 
+sub POST_HEADER_TEXT {
+	$PG->POST_HEADER_TEXT(@_);
+}
+
 sub LABELED_ANS {
   my @in = @_;
   my @out = ();
@@ -377,11 +381,11 @@ sub ENDDOCUMENT {
 	
 	
 	$STRINGforHEADER_TEXT = join("", @{$PG->{HEADER_ARRAY} }); 
-
+    $STRINGforPOSTHEADER_TEXT = join("", @{$PG->{POST_HEADER_ARRAY} }); 
 	# warn pretty_print($PG->{PG_ANSWERS_HASH});
 	#warn "printing another warning";
 
-	(\$STRINGforOUTPUT, \$STRINGforHEADER_TEXT,\%PG_ANSWERS_HASH,  $PG->{flags} , $PG   );
+	(\$STRINGforOUTPUT, \$STRINGforHEADER_TEXT,\$STRINGforPOSTHEADER_TEXT,\%PG_ANSWERS_HASH,  $PG->{flags} , $PG   );
 }
 ################################################################################
 #

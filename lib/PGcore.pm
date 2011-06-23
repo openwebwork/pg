@@ -121,6 +121,7 @@ sub new {
 	my $self = {
 		OUTPUT_ARRAY              => [],          # holds output body text
 		HEADER_ARRAY              => [],         # holds output for the header text
+		POST_HEADER_ARRAY         => [],
 #		PG_ANSWERS                => [],  # holds answers with labels # deprecated
 #		PG_UNLABELED_ANSWERS      => [],  # holds unlabeled ans. #deprecated -replaced by PG_ANSWERS_HASH
 		PG_ANSWERS_HASH           => {},  # holds label=>answer pairs
@@ -264,6 +265,8 @@ content being appended.
 
 =cut
 
+
+
 # ^function HEADER_TEXT
 # ^uses $STRINGforHEADER_TEXT
 sub HEADER_TEXT {
@@ -271,6 +274,32 @@ sub HEADER_TEXT {
 	push @{$self->{HEADER_ARRAY}}, map { (defined($_) )?$_:'' } @_;
 	$self->{HEADER_ARRAY}  ;
 }
+
+=item POST_HEADER_TEXT()
+
+ POST_HEADER_TEXT("string1", "string2", "string3");
+
+POST_HEADER_TEXT() concatenates its arguments and appends them to the stored post_header
+text string. It can be used more than once in a file.
+
+The macro is used for material which is destined to be placed iimmediately after the HEAD of
+the page as the first item in the body, before the main problem form
+when in HTML mode, such as JavaScript code.
+
+Spaces are placed between the arguments during concatenation, but no spaces are
+introduced between the existing content of the header text string and the new
+content being appended.
+
+=cut
+
+# ^function POST_HEADER_TEXT
+# ^uses $STRINGforHEADER_TEXT
+sub POST_HEADER_TEXT {
+	my $self = shift;
+	push @{$self->{POST_HEADER_ARRAY}}, map { (defined($_) )?$_:'' } @_;
+	$self->{POST_HEADER_ARRAY}  ;
+}
+
 
 =item TEXT()
 
@@ -562,23 +591,6 @@ sub PG_restricted_eval {
 	WeBWorK::PG::Translator::PG_restricted_eval(@_);
 }		
 
-# sub AUTOLOAD {
-# 	my $self = shift;
-# 	
-# 	my $type = ref($self) or die "$self is not an object";
-# 
-# 	# $AUTOLOAD is sent in by Perl and is the full name of the object (i.e. main::blah::blah_more)
-# 	my $name = $PGcore::AUTOLOAD;
-# 	$name =~ s/.*://; #strips fully-qualified portion
-# 
-# 	unless ( exists $self->{'_permitted'}->{$name} ) { die "Can't find '$name' field in object of class '$type'";}
-#                                 
-# 	if (@_) {
-# 		return $self->{$name} = shift; #set the variable to the first parameter
-# 	} else {
-# 		return $self->($name); #if no parameters just return the value
-# 	}
-# }
 
 =head2 base64 coding
 
