@@ -457,7 +457,7 @@ sub dm_image_delimeter {
         if($char eq "{") {$char = '\lbrace';}
         if($char eq "}") {$char = '\rbrace';}
         $out .= '\(\left.\vphantom{\begin{array}{c}';
-        for($j=0;$j<=$numRows;$j++) { $out .= '\! \\\\'; }
+        for($j=0;$j<=$numRows;$j++) { $out .= '\!\strut\\\\'; }
         $out .= '\end{array}}\right'.$char.'\)';
         return($out);
 }
