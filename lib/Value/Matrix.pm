@@ -8,6 +8,7 @@ package Value::Matrix;
 my $pkg = 'Value::Matrix';
 
 use strict; no strict "refs";
+use Matrix; use Complex1;
 our @ISA = qw(Value);
 
 #
@@ -20,6 +21,7 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $M = shift; $M = [] unless defined $M; $M = [$M,@_] if scalar(@_) > 0;
+  $M = @{$M}[0] if ref($M) =~ m/^Matrix(Real1)?/;
   $M = Value::makeValue($M,context=>$context) if ref($M) ne 'ARRAY';
   return bless {data => $M->data, context=>$context}, $class
     if (Value::classMatch($M,'Point','Vector','Matrix') && scalar(@_) == 0);
@@ -330,15 +332,6 @@ sub row {
 }
 
 #
-#  Extract a given element from the matrix
-#
-sub element {
-  my $self = (ref($_[0]) ? $_[0] : shift);
-  my $M = $self->promote(shift);
-  return $M->extract(@_);
-}
-
-#
 #  Extract a given column from the matrix
 #
 sub column {
@@ -356,9 +349,204 @@ sub column {
   return $self->make(@col);
 }
 
+#
+#  Extract a given element from the matrix
+#
+sub element {
+  my $self = (ref($_[0]) ? $_[0] : shift);
+  my $M = $self->promote(shift);
+  return $M->extract(@_);
+}
+
+# @@@ assign @@@
 # @@@ removeRow, removeColumn @@@
 # @@@ Minor @@@
-# @@@ Det, inverse @@@
+
+
+##################################################
+#
+#  Convert MathObject Matrix to old-style Matrix
+#
+sub wwMatrix {
+  my $self = (ref($_[0]) ? $_[0] : shift);
+  my $M = $self->promote(shift); my $j = shift; my $wwM;
+  return $self->{wwM} if defined($self->{wwM});
+  my @d = $M->dimensions;
+  Value->Error("Matrix must be two-dimensional to convert to MatrixReal1") if scalar(@d) > 2;
+  if (scalar(@d) == 1) {
+    $wwM = new Matrix(1,$d[0]);
+    foreach my $j (0..$d[0]-1) {
+      $wwM->[0][0][$j] = $self->wwMatrixEntry($M->data->[$j]);
+    }
+  } else {
+    $wwM = new Matrix(@d);
+    foreach my $i (0..$d[0]-1) {
+      my $row = $M->data->[$i];
+      foreach my $j (0..$d[1]-1) {
+	$wwM->[0][$i][$j] = $self->wwMatrixEntry($row->data->[$j]);
+      }
+    }
+  }
+  $self->{wwM} = $wwM;
+  return $wwM;
+}
+sub wwMatrixEntry {
+  my $self = shift; my $x = shift;
+  return $x->value if $x->isReal;
+  return Complex1::cplx($x->Re->value,$x->Im->value) if $x->isComplex;
+  return $x;
+}
+sub wwMatrixLR {
+  my $self = shift;
+  return $self->{lrM} if defined($self->{lrM});
+  $self->wwMatrix;
+  $self->{lrM} = $self->{wwM}->decompose_LR;
+  return $self->{lrM};
+}
+
+
+###################################
+#
+#  From MatrixReal1.pm
+#
+
+sub det {
+  my $self = shift; $self->wwMatrixLR;
+  return $self->{lrM}->det_LR;
+}
+
+sub inverse {
+  my $self = shift; $self->wwMatrixLR;
+  return $self->new($self->{lrM}->invert_LR);
+}
+
+sub decompose_LR {
+  my $self = shift;
+  return $self->wwMatrixLR;
+}
+
+sub dim {
+  my $self = shift;
+  return $self->wwMatrix->dim();
+}
+
+sub norm_one {
+  my $self = shift;
+  return $self->wwMatrix->norm_one();
+}
+
+sub norm_max {
+  my $self = shift;
+  return $self->wwMatrix->norm_max();
+}
+
+sub kleene {
+  my $self = shift;
+  return $self->new($self->wwMatrix->kleene());
+}
+
+sub normalize {
+  my $self = shift;
+  my $v = $self->new(shift)->wwMatrix;
+  my ($M,$b) = $self->wwMatrix->normalize($v);
+  return ($self->new($M),$self->new($b));
+}
+
+sub solve_LR {
+  my $self = shift;
+  my $v = $self->new(shift)->wwMatrix;
+  my ($d,$b,$M) = $self->lrMatrix->solve_LR($v);
+  return ($d,$self->new($b),$self->new($M));
+}
+
+sub condition {
+  my $self = shift;
+  my $I = $self->new(shift)->wwMatrix;
+  return $self->new($self->wwMatrix->condition($I));
+}
+
+sub order_LR {
+  my $self = shift;
+  return $self->wwMatrixLR->order_LR;
+}
+
+sub solve_GSM {
+  my $self = shift;
+  my $x0 = $self->new(shift)->wwMatrix;
+  my $b  = $self->new(shift)->wwMatrix;
+  my $e  = shift;
+  my $v = $self->wwMatrix->solve_GSM($x0,$b,$e);
+  $v = $self->new($v) if defined($v);
+  return $v;
+}
+
+sub solve_SSM {
+  my $self = shift;
+  my $x0 = $self->new(shift)->wwMatrix;
+  my $b  = $self->new(shift)->wwMatrix;
+  my $e  = shift;
+  my $v = $self->wwMatrix->solve_SSM($x0,$b,$e);
+  $v = $self->new($v) if defined($v);
+  return $v;
+}
+
+sub solve_RM {
+  my $self = shift;
+  my $x0 = $self->new(shift)->wwMatrix;
+  my $b  = $self->new(shift)->wwMatrix;
+  my $w = shift; my $e = shift;
+  my $v = $self->wwMatrix->solve_RM($x0,$b,$w,$e);
+  $v = $self->new($v) if defined($v);
+  return $v;
+}
+
+sub is_symmetric {
+  my $self = shift;
+  return $self->wwMatrix->is_symmetric;
+}
+
+###################################
+#
+#  From Matrix.pm
+#
+
+sub trace {
+  my $self = shift;
+  return $self->wwMatrix->trace;
+}
+
+sub proj {
+  my $self = shift;
+  my $v = $self->new(shift)->wwMatrix;
+  return $self->new($self->wwMatrix->proj($v));
+}
+
+sub proj_coeff {
+  my $self = shift;
+  my $v = $self->new(shift)->wwMatrix;
+  return $self->new($self->wwMatrix->proj_coeff($v));
+}
+
+sub L {
+  my $self = shift;
+  return $self->new($self->wwMatrixLR->L);
+}
+
+sub R {
+  my $self = shift;
+  return $self->new($self->wwMatrixLR->R);
+}
+
+sub PL {
+  my $self = shift;
+  return $self->new($self->wwMatrixLR->PL);
+}
+
+sub PR {
+  my $self = shift;
+  return $self->new($self->wwMatrixLR->PR);
+}
+
 
 ############################################
 #
