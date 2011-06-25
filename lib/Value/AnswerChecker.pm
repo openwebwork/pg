@@ -511,7 +511,7 @@ sub format_delimiter {
   return $self->format_delimiter_tth($delim,$rows,$tth)
     if $tth || $displayMode eq 'HTML_tth' || $displayMode !~ m/^HTML_/;
   my $rule = '\vrule width 0pt height '.(.8*$rows).'em depth 0pt';
-  $rule = '\rule 0pt '.(.8*$rows).'em 0pt' if $displayMode eq 'HTML_MathJax';
+  $rule = '\Rule{0pt}{'.(.8*$rows).'em}{0pt}' if $displayMode eq 'HTML_MathJax';
   $rule = '\rule 0pt '.(.8*$rows).'em 0pt' if $displayMode eq 'HTML_jsMath';
   $delim = '\\'.$delim if $delim eq '{' || $delim eq '}';
   return '\(\left'.$delim.$rule.'\right.\)';
@@ -520,18 +520,19 @@ sub format_delimiter {
 #
 #  Data for tth delimiters [top,mid,bot,rep]
 #
+$tth_family = "symbol";
 my %tth_delim = (
-  '[' => ['&#xF8EE;','','&#xF8F0;','&#xF8EF;'],
-  ']' => ['&#xF8F9;','','&#xF8FB;','&#xF8FA;'],
-  '(' => ['&#xF8EB;','','&#xF8ED;','&#xF8EC;'],
-  ')' => ['&#xF8F6;','','&#xF8F8;','&#xF8F7;'],
-  '{' => ['&#xF8F1;','&#xF8F2;','&#xF8F3;','&#xF8F4;'],
-  '}' => ['&#xF8FC;','&#xF8FD;','&#xF8FE;','&#xF8F4;'],
+  '[' => ['&#x23A1;','','&#x23A3;','&#x23A2;'],
+  ']' => ['&#x23A4;','','&#x23A6;','&#x23A5;'],
+  '(' => ['&#x239B;','','&#x239D;','&#x239C;'],
+  ')' => ['&#x239E;','','&#x23A0;','&#x239F;'],
+  '{' => ['&#x23A7;','&#x23A8;','&#x23A9;','&#x23AA;'],
+  '}' => ['&#x23AB;','&#x23AC;','&#x23AD;','&#x23AA;'],
   '|' => ['|','','|','|'],
-  '<' => ['&lt;'],
-  '>' => ['&gt;'],
-  '\lgroup' => ['&#xF8F1;','','&#xF8F3;','&#xF8F4;'],
-  '\rgroup' => ['&#xF8FC;','','&#xF8FE;','&#xF8F4;'],
+  '<' => ['&#x27E8;'],
+  '>' => ['&#x27E9;'],
+  '\lgroup' => ['&#x23A7;','','&#x23A9;','&#x23AA;'],
+  '\rgroup' => ['&#x23AB;','','&#x23AD;','&#x23AA;'],
 );
 
 #
@@ -544,7 +545,7 @@ sub format_delimiter_tth {
   my $c = $delim; $delim = $tth_delim{$delim};
   $c = $delim->[0] if scalar(@{$delim}) == 1;
   my $size = ($tth? "": "font-size:175%; ");
-  return '<SPAN STYLE="'.$size.'margin:0px 2px">'.$c.'</SPAN>'
+  return '<SPAN STYLE="font-family: '.$tth_family.'; '.$size.'margin:0px 2px">'.$c.'</SPAN>'
     if $rows == 1 || scalar(@{$delim}) == 1;
   my $HTML = "";
   if ($delim->[1] eq '') {
@@ -554,7 +555,7 @@ sub format_delimiter_tth {
 		        $delim->[1],($delim->[3])x($rows-1),
 		        $delim->[2]);
   }
-  return '<DIV STYLE="line-height:90%; margin: 0px 2px">'.$HTML.'</DIV>';
+  return '<DIV STYLE="font-family: '.$tth_family.'; line-height:90%; margin: 0px 2px">'.$HTML.'</DIV>';
 }
 
 
