@@ -185,7 +185,7 @@ sub new {
 		rf_safety_filter          => \&safetyFilter,
 		# ra_included_modules is now populated independantly of @class_modules:
 		ra_included_modules       => [], # [ @class_modules ],
-		rh_directories            => {},
+		#rh_directories            => {},
 	};
 	bless $self, $class;
 }
@@ -637,12 +637,12 @@ sub r_post_header {
 	$self->{PG_POST_HEADER_TEXT_REF};
 }
 
-sub rh_directories {
-	my $self = shift;
-	my $rh_directories = shift;
-	$self->{rh_directories}=$rh_directories if ref($rh_directories) eq 'HASH';
-	$self->{rh_directories};
-}
+# sub rh_directories {
+# 	my $self = shift;
+# 	my $rh_directories = shift;
+# 	$self->{rh_directories}=$rh_directories if ref($rh_directories) eq 'HASH';
+# 	$self->{rh_directories};
+# }
 
 sub rh_correct_answers {
 	my $self = shift;

@@ -2033,12 +2033,24 @@ sub htmlLink {
 	my $options = shift;
 	$options = "" unless defined($options);
 	return "$BBOLD\[ broken link:  $text \] $EBOLD" unless defined($url);
-	M3( "{\\bf \\underline{$text}}",
-	    "\\begin{rawhtml}<A HREF=\"$url\" $options>$text</A>\\end{rawhtml}",
-	    "<A HREF=\"$url\" $options>$text</A>"
-	    );
+	MODES( TeX        => "{\\bf \\underline{$text}}",
+	       HTML       => "<A HREF=\"$url\" $options>$text</A>"
+	);
 }
 
+sub iframe {
+	my $url = shift;
+	my %options = @_;  # keys: height, width, id, name
+	my $formatted_options = join(" ",
+                         map {qq!$_ = "$options{$_}"!} (keys %options));
+    return "$BBOLD\[ broken link:  $url \] $EBOLD" unless defined($url);
+	MODES(
+		TeX       => "\\framebox{".protect_underbar($url)."}\n",
+		HTML      => qq!\n <iframe src="$url" $formatted_options>
+		                      Your browser does not support iframes.</p>
+		                   </iframe>\n!,			
+	);
+}
 
 sub helpLink {
 	my $type1 = shift;
