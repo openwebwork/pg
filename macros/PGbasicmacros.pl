@@ -1863,12 +1863,20 @@ sub EV3P_parser {
 	                # the problem for users listed in the PRINT_FILE_NAMES_FOR PG_environment
 	                # variable.
 	OL(@array)      # formats the array as an Ordered List ( <OL> </OL> ) enumerated by letters.
-
+					# See BeginList()  and EndList in unionLists.pl for a more powerful version
+					# of this macro.
 	htmlLink($url, $text)
 	                # Places a reference to the URL with the specified text in the problem.
 	                # A common usage is \{ htmlLink(alias('prob1_help.html') \}, 'for help')
 	                # where alias finds the full address of the prob1_help.html file in the same directory
 	                # as the problem file
+	iframe($url, height=>'', width=>'', id=>'', name=>'' )
+	                # insert the web page referenced by $url in a space defined by height and width
+	                # if the webpage contains a form then this must be inserted between
+	                # BEGIN_POST_HEADER_TEXT/END_POST_HEADER_TEXT  to avoid having one 
+	                # form(from the webpage) inside another (the defining form for the problem
+A wide variety of google widgets, youtube videos, and other online resources can be imbedded using this macro. In HTML mode it creates an iframe, in TeX mode it prints the url.
+
 	appletLink( { name => "xFunctions", 
 	              codebase => '',    # use this to specify the complete url
 	                                 # otherwise libraries specified in global.conf are searched
