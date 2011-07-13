@@ -1,11 +1,11 @@
                                      WeBWorK                                    
                            Program Generation Language                          
-                                   Version 2.4.9+                                
-                                   Branch: system/trunk/pg                         
+                                   Version 2.5.0                                
+                            Branch: system/tags/rel-2-5-0/pg                         
                                    
                                    
-				http://webwork.maa.org/wiki/Release_notes_for_WeBWorK_2.4.9  
+				http://webwork.maa.org/wiki/Release_notes_for_WeBWorK_2.5.0  
 				
-                    Copyright 2000-2010, The WeBWorK Project
+                    Copyright 2000-2011, The WeBWorK Project
                              http://webwork.maa.org
                               All rights reserved.                              
