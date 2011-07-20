@@ -637,13 +637,6 @@ sub r_post_header {
 	$self->{PG_POST_HEADER_TEXT_REF};
 }
 
-# sub rh_directories {
-# 	my $self = shift;
-# 	my $rh_directories = shift;
-# 	$self->{rh_directories}=$rh_directories if ref($rh_directories) eq 'HASH';
-# 	$self->{rh_directories};
-# }
-
 sub rh_correct_answers {
 	my $self = shift;
 	my @in = @_;
