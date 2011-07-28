@@ -638,6 +638,7 @@ sub new {
     coords => $coords, type => $type, open => $open, close => $close,
     paren => $paren, equation => $equation, isConstant => $constant
   }, $context->{lists}{$type->{name}}{class};
+  $list->weaken;
 
   my $zero = 1;
   foreach my $x (@{$coords}) {$zero = 0, last unless $x->{isZero}}
@@ -645,11 +646,11 @@ sub new {
 
   $list->_check;
 
-  warn ">> $list->{type}{name} of $list->{type}{entryType}{name} of length $list->{type}{length}\n";
+#  warn ">> $list->{type}{name} of $list->{type}{entryType}{name} of length $list->{type}{length}\n";
 
   if ($list->{isConstant} && $context->flag('reduceConstants')) {
     $type = $list->{type};
-    $list = $lis->Item("Value")->new($equation,[$list->eval]);
+    $list = $list->Item("Value")->new($equation,[$list->eval]);
     $list->{type} = $type; $list->{open} = $open; $list->{close} = $close;
     $list->{value}->{open} = $open, $list->{value}->{close} = $close
       if ref($list->{value});
@@ -669,6 +670,7 @@ sub _check {
   $self->{type} = {%{$self->{coords}[0]->typeRef}};
   $self->{type}{formMatrix} = 1 if $self->context->{parens}{$self->{open}}{formMatrix};
   $self->{isSingle} = 1;
+  $self->entryType->{entryType} = $self->{coords}[0]->type if scalar(@{$self->{coords}}) == 1;
 }
 
 sub TeX {
@@ -717,7 +719,7 @@ sub _check {
 
 sub canBeInUnion {1};
 
-sub TeX {
+sub string {
   my $self = shift; my $precedence = shift;
   return $self->SUPER::string(@_) if $self->{showParens} || $self->length > 1;
   my $set = $self->{coords}[0];
@@ -749,7 +751,7 @@ sub TeX {
 
 package main;
 
-$context{Typeset} = $Parser::Context::Default::fullContext->copy;
+$context{Typeset} = $Parser::Context::Default::context{Full}->copy;
 $context{Typeset}->flags->set(
   reduceConstants => 0,
   reduceConstantFunctions => 0,
@@ -764,9 +766,10 @@ $context{Typeset}->{_initialized} = 0;  # prevent updating of patterns until we'
 sub TeXOp {
   my $type = shift; my $prec = shift; my $assoc = shift;
   my $op = shift; my $string = shift; my $tex = shift;
+  $tex = "" unless defined $tex; $tex .= " " if substr($tex,0,1) eq "\\";
   my $class = 'Typeset::'.($type eq 'bin'? "BOP" : "UOP").'::TeX';
   return $op => {precedence => $prec, associativity => $assoc, type => $type,
-	  string => $string, TeX=>$tex." ", class=>$class, @_};
+	  string => $string, TeX=>$tex, class=>$class, @_};
 }
 sub TeXUnary {my $op = shift; TeXOp("unary",1,"left",$op," $op ",@_)}
 sub TeXBin {my $op = shift; TeXOp("bin",.8,"left",$op," $op ",@_)}
@@ -1181,3 +1184,4 @@ Context("Typeset");
 ######################################################################
 
 1;
+
