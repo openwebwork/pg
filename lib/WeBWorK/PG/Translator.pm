@@ -1709,8 +1709,8 @@ sub default_preprocess_code {
 	$evalString =~ s/\n\s*END_HINT[\s;]*\n/\nEND_HINT\n/g;
 	$evalString =~ s/\n\s*BEGIN_TEXT[\s;]*\n/\nTEXT\(EV3P\(<<'END_TEXT'\)\);\n/g;
 	$evalString =~ s/\n\s*BEGIN_PGML[\s;]*\n/\nTEXT\(PGML::Format2\(<<'END_PGML'\)\);\n/g;
-	$evalString =~ s/\n\s*BEGIN_PGML_SOLUTION[\s;]*\n/\nSOLUTION\(PGML::Format2\(<<'END_PGML'\)\);\n/g;
-	$evalString =~ s/\n\s*BEGIN_PGML_HINT[\s;]*\n/\nHINT\(PGML::Format2\(<<'END_PGML'\)\);\n/g;
+	$evalString =~ s/\n\s*BEGIN_PGML_SOLUTION[\s;]*\n/\nSOLUTION\(PGML::Format2\(<<'END_PGML_SOLUTION'\)\);\n/g;
+	$evalString =~ s/\n\s*BEGIN_PGML_HINT[\s;]*\n/\nHINT\(PGML::Format2\(<<'END_PGML_SOLUTION'\)\);\n/g;
 	$evalString =~ s/\n\s*BEGIN_SOLUTION[\s;]*\n/\nSOLUTION\(EV3P\(<<'END_SOLUTION'\)\);\n/g;
 	$evalString =~ s/\n\s*BEGIN_HINT[\s;]*\n/\nHINT\(EV3P\(<<'END_HINT'\)\);\n/g;
 	$evalString =~ s/ENDDOCUMENT.*/ENDDOCUMENT();/s; # remove text after ENDDOCUMENT
