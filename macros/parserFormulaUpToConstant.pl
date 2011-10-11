@@ -297,7 +297,7 @@ sub cmp_postprocess {
   return if $ans->{ans_message} || !$self->getFlag("showHints");
   my $student = $ans->{student_value};
   my $result = Parser::Eval(sub {return $ans->{correct_value} <=> $student}); # compare encodes the reason in the result
-  $self->cmp_Error($ans,"Note: there is always more than one posibility") if $result == 2 || $result == 3;
+  $self->cmp_Error($ans,"Note: there is always more than one possibility") if $result == 2 || $result == 3;
   if ($result == 3) {
     my $context = $self->context;
     $context->flags->set(no_parameters=>0);
