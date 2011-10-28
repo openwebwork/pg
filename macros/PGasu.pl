@@ -544,9 +544,11 @@ sub weighted_partial_grader {
     for $i (0..$#partial_weights) { $partial_weights[$i] /= $total_weight; }
 
     $i = 1;
-    while (defined($ans_ref = $evaluated_answers{'AnSwEr'."$i"})) { 
+    my $nextanswername = $PG->new_label($i);
+    while (defined($ans_ref = $evaluated_answers{$nextanswername})) { 
       $total += $ans_ref->{score}*$partial_weights[$i-1];
       $i++;
+      $nextanswername = $PG->new_label($i);
     }
     
     $problem_result{score} = $total; 
