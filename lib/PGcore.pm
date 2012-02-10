@@ -821,15 +821,12 @@ sub surePathToTmpFile {
 	my $path = shift;
 	my $delim = "/"; 
 	my $tmpDirectory = $self->tempDirectory();
-#warn "\nTMP tmpDirectory $tmpDirectory";
 	unless ( -e $tmpDirectory) {   # if by some unlucky chance the tmpDirectory hasn't been created, create it.
 	    my $parentDirectory =  $tmpDirectory;
 	    $parentDirectory =~s|/$||;  # remove a trailing /
-	    $parentDirectory =~s|/[^/]*$||; # remove last node
+	    # $parentDirectory =~s|/[^/]*$||; # remove last node
+	    $parentDirectory = $self->directoryFromPath($parentDirectory);
 	    my ($perms, $groupID) = (stat $parentDirectory)[2,5];
-	    #my ($mode, $groupID) = (stat $parentDirectory)[2,5];
-        #my $perms = $mode &0777; # mask off the file type before the permission in mode
-	    #FIXME  where is the parentDirectory defined??
         #warn "Creating tmp directory at $tmpDirectory, perms $perms groupID $groupID";
 		$self->createDirectory($tmpDirectory, $perms, $groupID)
 				or warn "Failed to create parent tmp directory at $path";
@@ -837,33 +834,28 @@ sub surePathToTmpFile {
 	}
 	# use the permissions/group on the temp directory itself as a template
 	my ($perms, $groupID) = (stat $tmpDirectory)[2,5];
-#warn "&urePathToTmpFile: directory=$tmpDirectory, perms=$perms, groupID=$groupID\n";
+    #warn "surePathToTmpFile: directory=$tmpDirectory, perms=$perms, groupID=$groupID\n";
 	
 	# if the path starts with $tmpDirectory (which is permitted but optional) remove this initial segment
 	$path =~ s|^$tmpDirectory|| if $path =~ m|^$tmpDirectory|;
-	#$path = $self->convertPath($path);
 	
 	# find the nodes on the given path
         my @nodes = split("$delim",$path);
 	
 	# create new path
-	$path = $tmpDirectory; #convertPath("$tmpDirectory");
+	$path = $tmpDirectory; 
 	
 	while (@nodes>1) {
 		$path = $path . shift (@nodes) . "/"; #convertPath($path . shift (@nodes) . "/");
-#warn "\PATH is now $path";
+
 		unless (-e $path) {
-			#system("mkdir $path");
-			#createDirectory($path,$Global::tmp_directory_permission, $Global::numericalGroupID)
-#warn "PATH $path perms $perms groupID $groupID";
 			$self->createDirectory($path, $perms, $groupID)
-				or warn "Failed to create directory at $path with permissions $perms and groupID $groupID";
+				or $self->warning_message( "Failed to create directory at $path with permissions $perms and groupID $groupID");
 		}
 
 	}
 	
 	$path = $path . shift(@nodes); #convertPath($path . shift(@nodes));
-	#system(qq!echo "" > $path! );
 	return $path;
 }
 
