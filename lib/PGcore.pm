@@ -825,10 +825,12 @@ sub surePathToTmpFile {
 	unless ( -e $tmpDirectory) {   # if by some unlucky chance the tmpDirectory hasn't been created, create it.
 	    my $parentDirectory =  $tmpDirectory;
 	    $parentDirectory =~s|/$||;  # remove a trailing /
-	    $parentDirectory =~s|/\w*$||; # remove last node
+	    $parentDirectory =~s|/[^/]*$||; # remove last node
 	    my ($perms, $groupID) = (stat $parentDirectory)[2,5];
+	    #my ($mode, $groupID) = (stat $parentDirectory)[2,5];
+        #my $perms = $mode &0777; # mask off the file type before the permission in mode
 	    #FIXME  where is the parentDirectory defined??
-#warn "Creating tmp directory at $tmpDirectory, perms $perms groupID $groupID";
+        #warn "Creating tmp directory at $tmpDirectory, perms $perms groupID $groupID";
 		$self->createDirectory($tmpDirectory, $perms, $groupID)
 				or warn "Failed to create parent tmp directory at $path";
 	
