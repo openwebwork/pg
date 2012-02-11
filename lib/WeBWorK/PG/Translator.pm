@@ -950,8 +950,7 @@ case the previously defined safe compartment is used. (See item 1.)
 				my ($PG_PROBLEM_TEXT_REF, $PG_HEADER_TEXT_REF, $PG_POST_HEADER_TEXT_REF,$PG_ANSWER_HASH_REF, $PG_FLAGS_REF, $PGcore)
 				      =$safe_cmpt->reval("   $evalString");
 				      
-			
-               #warn "using safe compartment ", $safe_cmpt->root;
+
 # This section could use some more error messages.  In particular if a problem doesn't produce the right output, the user needs
 # information about which problem was at fault.
 #
