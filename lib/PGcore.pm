@@ -652,6 +652,7 @@ sub get_debug_messages {
 sub warning_message {
     my $self = shift;
 	my @str = @_;
+	unshift @str, "<br/>------"; # mark start of each message
 	push @{$self->{flags}->{WARNING_messages}}, @str;
 }
 sub get_warning_messages {
