@@ -399,7 +399,7 @@ sub alias_for_html {
 				# we should delete the resource in this case.
 			}
 		}
-	$self->warning_message( "adr_output is $adr_output and linkPath is $linkPath and htmlFileSource is $htmlFileSource");
+	# $self->warning_message( "adr_output is $adr_output and linkPath is $linkPath and htmlFileSource is $htmlFileSource");
 	# warn "\n\nmessages\n\n",@{$self->{flags}->{WARNING_messages}};
 	$resource_object->{url}=$adr_output;
 	$resource_object->{path}=$htmlFileSource;
