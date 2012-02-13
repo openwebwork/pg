@@ -368,7 +368,7 @@ sub alias_for_html {
 	#######################
 	# update resource object
 	my $resource_object = $self->get_resource($aux_file_id);
-	$self->warning_message( "\nresource for $aux_file_id is ", ref($resource_object), $resource_object );
+	# $self->warning_message( "\nresource for $aux_file_id is ", ref($resource_object), $resource_object );
     $resource_object->{type}='html';
     $resource_object->{parent_file}=$fileName;
     
