@@ -146,6 +146,8 @@ sub new {
 		PG_problem_grader         => undef,
 		displayMode               => undef,
 		envir                     => $envir,
+		WARNING_messages		  => [],
+		DEBUG_messages            => [],
 		gifs_created              => {},
 		external_refs             => {},      # record of external references 
 		%options,                                   # allows overrides and initialization	
@@ -167,9 +169,13 @@ sub initialize {
 	$self->{PG_original_problem_seed}   = $self->{envir}->{problemSeed};
 	$self->{PG_random_generator}        = new PGrandom( $self->{PG_original_problem_seed});
 
-    $self->{tempDirectory}              = $self->{envir}->{tempDirectory};
+    $self->{tempDirectory}        = $self->{envir}->{tempDirectory};
 	$self->{PG_problem_grader}    = $self->{envir}->{PROBLEM_GRADER_TO_USE};
-    $self->{PG_alias}             = PGalias->new($self->{envir});
+    $self->{PG_alias}             = PGalias->new($self->{envir},
+                                        WARNING_messages => $self->{WARNING_messages},
+                                        DEBUG_messages   => $self->{WARNING_messages},
+                                                 
+	);
     $self->{PG_loadMacros}        = new PGloadfiles($self->{envir});
 	$self->{flags} = {
 		showpartialCorrectAnswers => 1,
@@ -177,8 +183,6 @@ sub initialize {
 		hintExists 				  => 0,
 		showHintLimit             => 0,
 		solutionExists            => 0,
-		WARNING_messages          => [],
-		DEBUG_messages            => [],
 		recordSubmittedAnswers    => 1,
 		refreshCachedImages       => 0,
 #		ANSWER_ENTRY_ORDER        => [],  # may not be needed if we ue Tie:IxHash
@@ -643,21 +647,21 @@ inside the PGcore object would report.
 sub debug_message {
     my $self = shift;
 	my @str = @_;
-	push @{$self->{flags}->{DEBUG_messages}}, @str;
+	push @{$self->{DEBUG_messages}}, "<br/>", @str;
 }
 sub get_debug_messages {
 	my $self = shift;
-	$self->{flags}->{DEBUG_messages};
+	$self->{DEBUG_messages};
 }
 sub warning_message {
     my $self = shift;
 	my @str = @_;
 	unshift @str, "<br/>------"; # mark start of each message
-	push @{$self->{flags}->{WARNING_messages}}, @str;
+	push @{$self->{WARNING_messages}}, @str;
 }
 sub get_warning_messages {
 	my $self = shift;
-	$self->{flags}->{WARNING_messages};
+	$self->{WARNING_messages};
 }
 
 sub internal_debug_message {
