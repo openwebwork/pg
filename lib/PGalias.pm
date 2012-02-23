@@ -87,11 +87,13 @@ our @ISA =  qw ( PGcore  );  # look up features in PGcore -- in this case we wan
 sub new {
 	my $class = shift;	
 	my $envir = shift;  #pointer to environment hash
+	my %options = @_;
 	warn "PGlias must be called with an environment" unless ref($envir) eq 'HASH';
 	my $self = {
 		envir		=>	$envir,
 		search_list  =>  [{url=>'foo',dir=>'.'}],   # for subclasses -> list of url/directories to search
 		resource_list => {},
+		%options,
 
 	};
 	bless $self, $class;
@@ -143,7 +145,8 @@ sub initialize {
 	$self->{probNum}             = $envir->{probNum};
 	$self->{displayMode}         = $envir->{displayMode};
 	$self->{externalGif2EpsPath} = $envir->{externalGif2EpsPath};
-	$self->{externalPng2EpsPath} = $envir->{externalPng2EpsPath};	
+	$self->{externalPng2EpsPath} = $envir->{externalPng2EpsPath};
+	$self->{courseID}            = $envir->{courseName};	
 	
 	$self->{appletPath} = $self->{envir}->{pgDirectories}->{appletPath};
 	#
@@ -166,6 +169,7 @@ sub initialize {
 	my $uniqIDseed = join("-",   
 							   $self->{studentLogin},
 							   $self->{psvn},
+							   $self->{courseID},
 							   'set'.$self->{setNumber},
 							   'prob'.$self->{probNum},
 	);
@@ -351,7 +355,7 @@ sub alias_for_html {
 	#   gather needed data	
 	#######################
 	my $envir               = $self->{envir}; 
-	my $fileName            = $self->{fileName};
+	my $fileName            = $self->{fileName};  #FIXME: this is really filePath to PG problem ??rename to filePath
 	my $htmlDirectory       = $self->{htmlDirectory};
 	my $htmlURL             = $self->{htmlURL};
 	my $tempDirectory       = $self->{tempDirectory};
@@ -421,7 +425,7 @@ sub alias_for_html {
 	
 		# $fileName is obtained from environment and
 		# is the path to the .pg file
-		# it gives the  full path to the current PG problem
+		# it gives the  relative path to the current PG problem from the template directory
 		my $directoryPath = $self->directoryFromPath($fileName);
 		$htmlFileSource = $self->convertPath("$templateDirectory${directoryPath}$aux_file_id.html");
 		$htmlFileSource = "$templateDirectory${directoryPath}$aux_file_id.html";
@@ -432,8 +436,12 @@ sub alias_for_html {
 	}
 
 # Create a unique id which depends on the parent fileName and path to the resource file
+# The uniqueID  also depends on the student, the course name and  the psvn through the uniqeID stub, because 
+# if the problem is recreated the specific file linked to might change.
+# You  also want students linked to the same file to NOT be aware of that fact.
 
-	my $uniqIDseed = $resource_object->path() . $resource_object->{parent_file};
+
+	my $uniqIDseed = $resource_object->path() . $resource_object->{parent_file}.$self->{psvn};
 	$resource_object->{uniqID} = $self->{uniqIDstub} .
 	      '___'. create_uuid_as_string( UUID_V3, UUID_NS_URL, $uniqIDseed );
 
