@@ -173,7 +173,7 @@ sub initialize {
 	$self->{PG_problem_grader}    = $self->{envir}->{PROBLEM_GRADER_TO_USE};
     $self->{PG_alias}             = PGalias->new($self->{envir},
                                         WARNING_messages => $self->{WARNING_messages},
-                                        DEBUG_messages   => $self->{WARNING_messages},
+                                        DEBUG_messages   => $self->{DEBUG_messages},
                                                  
 	);
     $self->{PG_loadMacros}        = new PGloadfiles($self->{envir});

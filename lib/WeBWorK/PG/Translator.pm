@@ -963,8 +963,8 @@ case the previously defined safe compartment is used. (See item 1.)
 				$self->{errors} .= $@;
 
 				
-# 				$self->{errors}.=join(CGI::br(), @{$PGcore->{flags}->{WARNING_messages}} );
-# 				$self->{errors}.=join(CGI::br(), @{$PGcore->{flags}->{DEBUG_messages  }} );
+# 				$self->{errors}.=join(CGI::br(), @{$PGcore->{WARNING_messages}} );
+# 				$self->{errors}.=join(CGI::br(), @{$PGcore->{DEBUG_messages  }} );
 #######################################################################
 
 #		    	push(@PROBLEM_TEXT_OUTPUT   ,   split(/(\n)/,$$PG_PROBLEM_TEXT_REF)  ) if  defined($$PG_PROBLEM_TEXT_REF  );

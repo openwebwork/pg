@@ -373,8 +373,12 @@ sub ENDDOCUMENT {
 	my %PG_ANSWERS_HASH = @PG_ANSWERS;
 	$PG->{flags}->{KEPT_EXTRA_ANSWERS} = \@KEPT_EXTRA_ANSWERS;
 	$PG->{flags}->{ANSWER_ENTRY_ORDER} = \@PG_ANSWER_ENTRY_ORDER;
-	push @{ $PG->{flags}->{WARNING_messages}}, @{ $PG->{PG_alias}->{flags}->{WARNING_messages}};
-	push @{ $PG->{flags}->{DEBUG_messages}}, @{ $PG->{PG_alias}->{flags}->{DEBUG_messages}};
+	
+	# these should not be needed any longer since PG_alias warning queue is attached to PGcore's
+	# $PG->warning_message( @{ $PG->{PG_alias}->{flags}->{WARNING_messages}} );
+	# $PG->debug_message( @{ $PG->{PG_alias}->{flags}->{DEBUG_messages}}   );
+	
+	
     warn "KEPT_EXTRA_ANSWERS", join(" ", @KEPT_EXTRA_ANSWERS), $BR     if $ans_debug==1;
     warn "PG_ANSWER_ENTRY_ORDER",join(" ",@PG_ANSWER_ENTRY_ORDER), $BR if $ans_debug==1;
     warn "DEBUG messages", join( "$BR",@{$PG->get_debug_messages} ) if $ans_debug==1;
