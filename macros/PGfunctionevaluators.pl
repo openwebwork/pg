@@ -619,7 +619,7 @@ sub multivar_function_cmp {
 
 sub FUNCTION_CMP {
 	return ORIGINAL_FUNCTION_CMP(@_)
-	  if $useOldAnswerMacros;
+	  if $main::useOldAnswerMacros;
 
 	my %func_params = @_;
 
@@ -750,7 +750,7 @@ sub FUNCTION_CMP {
 #
 sub ORIGINAL_FUNCTION_CMP {
 	my %func_params = @_;
-
+	# WARN_MESSAGE("Using ORIGINAL_FUNCTION_CMP subroutine");
 	my $correctEqn               = $func_params{'correctEqn'};
 	my $var                      = $func_params{'var'};
 	my $ra_limits                = $func_params{'limits'};
@@ -908,8 +908,10 @@ sub ORIGINAL_FUNCTION_CMP {
 	$answer_evaluator->install_pre_filter(
 		sub {
 			my $rh_ans = shift; 
+						
 			$rh_ans->{_filter_name} = "fetch_previous_answer";
-			my $prev_ans_label = "previous_".$rh_ans->{ans_label};
+			$rh_ans->{ans_label}='' unless defined $rh_ans->{ans_label};
+			my $prev_ans_label = "previous_". $rh_ans->{ans_label};
 			$rh_ans->{prev_ans} = (defined $inputs_ref->{$prev_ans_label} and $inputs_ref->{$prev_ans_label} =~/\S/)
 				? $inputs_ref->{$prev_ans_label}
 				: undef; 
@@ -1032,9 +1034,9 @@ sub ORIGINAL_FUNCTION_CMP {
 	#
 	$answer_evaluator->install_post_filter(
 		sub {
-			my $rh_ans = shift;
-			
-			my $isPreview = $inputs_ref->{previewAnswers} || ($inputs_ref->{action} =~ m/^Preview/);
+			my $rh_ans = shift;	
+			#WARN_MESSAGE(pretty_print($inputs_ref));
+			my $isPreview = $inputs_ref->{previewAnswers}; # || ($inputs_ref->{action} =~ m/^Preview/);
 			return $rh_ans unless !$isPreview # not preview mode
 				and $rh_ans->{ans_equals_prev_ans} # equivalent
 				and $rh_ans->{prev_ans} ne $rh_ans->{original_student_ans}; # not identical
