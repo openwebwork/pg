@@ -825,7 +825,7 @@ sub surePathToTmpFile {
 	unless ( -e $tmpDirectory) {   # if by some unlucky chance the tmpDirectory hasn't been created, create it.
 	    my $parentDirectory =  $tmpDirectory;
 	    $parentDirectory =~s|/$||;  # remove a trailing /
-	    $parentDirectory =~s|/\w*$||; # remove last node
+		  $parentDirectory =~s|/[^/]*$||; # remove last node
 	    my ($perms, $groupID) = (stat $parentDirectory)[2,5];
 	    #FIXME  where is the parentDirectory defined??
 #warn "Creating tmp directory at $tmpDirectory, perms $perms groupID $groupID";
