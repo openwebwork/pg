@@ -280,9 +280,9 @@ sub make_alias {
 	###################################################################
 	unless ( defined $self->get_resource($aux_file_id) ) {
     	$self->add_resource($aux_file_id, PGresource->new());
-    	warn "adding new resource_object $aux_file_id";
+    	#warn "adding new resource_object $aux_file_id";
     } else {
-    	warn "found existing resource_object $aux_file_id";
+    	#warn "found existing resource_object $aux_file_id";
     	return $self->get_resource($aux_file_id)->uri() ; 
     }
     # warn "next line\n\n";
