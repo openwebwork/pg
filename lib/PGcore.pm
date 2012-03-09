@@ -829,8 +829,7 @@ sub surePathToTmpFile {
 	unless ( -e $tmpDirectory) {   # if by some unlucky chance the tmpDirectory hasn't been created, create it.
 	    my $parentDirectory =  $tmpDirectory;
 	    $parentDirectory =~s|/$||;  # remove a trailing /
-	    $parentDirectory =~s|/[^/]*$||; # remove last node
-	    $parentDirectory = $self->directoryFromPath($parentDirectory);
+		$parentDirectory = $self->directoryFromPath($parentDirectory);
 	    my ($perms, $groupID) = (stat $parentDirectory)[2,5];
         #warn "Creating tmp directory at $tmpDirectory, perms $perms groupID $groupID";
 		$self->createDirectory($tmpDirectory, $perms, $groupID)
