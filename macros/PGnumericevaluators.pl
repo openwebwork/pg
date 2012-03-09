@@ -939,8 +939,7 @@ sub std_num_str_cmp {
 
 sub NUM_CMP {                              # low level numeric compare (now uses Parser)
 	return ORIGINAL_NUM_CMP(@_)
-	  if $useOldAnswerMacros;
-
+	  if $main::useOldAnswerMacros;
 	my %num_params = @_;
 
 	#
@@ -1066,7 +1065,7 @@ sub NUM_CMP {                              # low level numeric compare (now uses
 #
 sub ORIGINAL_NUM_CMP {		# low level	numeric	compare
 	my %num_params = @_;
-
+	# WARN_MESSAGE("Using old ORIGINAL_NUM_CMP function.");
 	my @keys = qw ( correctAnswer tolerance tolType format mode zeroLevel zeroLevelTol debug );
 	foreach my $key (@keys) {
 	    warn "$key must be defined in options when calling NUM_CMP" unless defined ($num_params{$key});

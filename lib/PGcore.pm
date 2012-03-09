@@ -146,6 +146,8 @@ sub new {
 		PG_problem_grader         => undef,
 		displayMode               => undef,
 		envir                     => $envir,
+		WARNING_messages		  => [],
+		DEBUG_messages            => [],
 		gifs_created              => {},
 		external_refs             => {},      # record of external references 
 		%options,                                   # allows overrides and initialization	
@@ -167,9 +169,13 @@ sub initialize {
 	$self->{PG_original_problem_seed}   = $self->{envir}->{problemSeed};
 	$self->{PG_random_generator}        = new PGrandom( $self->{PG_original_problem_seed});
 
-    $self->{tempDirectory}              = $self->{envir}->{tempDirectory};
+    $self->{tempDirectory}        = $self->{envir}->{tempDirectory};
 	$self->{PG_problem_grader}    = $self->{envir}->{PROBLEM_GRADER_TO_USE};
-    $self->{PG_alias}             = PGalias->new($self->{envir});
+    $self->{PG_alias}             = PGalias->new($self->{envir},
+                                        WARNING_messages => $self->{WARNING_messages},
+                                        DEBUG_messages   => $self->{DEBUG_messages},
+                                                 
+	);
     $self->{PG_loadMacros}        = new PGloadfiles($self->{envir});
 	$self->{flags} = {
 		showpartialCorrectAnswers => 1,
@@ -177,8 +183,6 @@ sub initialize {
 		hintExists 				  => 0,
 		showHintLimit             => 0,
 		solutionExists            => 0,
-		WARNING_messages          => [],
-		DEBUG_messages            => [],
 		recordSubmittedAnswers    => 1,
 		refreshCachedImages       => 0,
 #		ANSWER_ENTRY_ORDER        => [],  # may not be needed if we ue Tie:IxHash
@@ -643,20 +647,21 @@ inside the PGcore object would report.
 sub debug_message {
     my $self = shift;
 	my @str = @_;
-	push @{$self->{flags}->{DEBUG_messages}}, @str;
+	push @{$self->{DEBUG_messages}}, "<br/>", @str;
 }
 sub get_debug_messages {
 	my $self = shift;
-	$self->{flags}->{DEBUG_messages};
+	$self->{DEBUG_messages};
 }
 sub warning_message {
     my $self = shift;
 	my @str = @_;
-	push @{$self->{flags}->{WARNING_messages}}, @str;
+	unshift @str, "<br/>------"; # mark start of each message
+	push @{$self->{WARNING_messages}}, @str;
 }
 sub get_warning_messages {
 	my $self = shift;
-	$self->{flags}->{WARNING_messages};
+	$self->{WARNING_messages};
 }
 
 sub internal_debug_message {
@@ -821,47 +826,40 @@ sub surePathToTmpFile {
 	my $path = shift;
 	my $delim = "/"; 
 	my $tmpDirectory = $self->tempDirectory();
-#warn "\nTMP tmpDirectory $tmpDirectory";
 	unless ( -e $tmpDirectory) {   # if by some unlucky chance the tmpDirectory hasn't been created, create it.
 	    my $parentDirectory =  $tmpDirectory;
 	    $parentDirectory =~s|/$||;  # remove a trailing /
-		  $parentDirectory =~s|/[^/]*$||; # remove last node
+		$parentDirectory = $self->directoryFromPath($parentDirectory);
 	    my ($perms, $groupID) = (stat $parentDirectory)[2,5];
-	    #FIXME  where is the parentDirectory defined??
-#warn "Creating tmp directory at $tmpDirectory, perms $perms groupID $groupID";
+        #warn "Creating tmp directory at $tmpDirectory, perms $perms groupID $groupID";
 		$self->createDirectory($tmpDirectory, $perms, $groupID)
 				or warn "Failed to create parent tmp directory at $path";
 	
 	}
 	# use the permissions/group on the temp directory itself as a template
 	my ($perms, $groupID) = (stat $tmpDirectory)[2,5];
-#warn "&urePathToTmpFile: directory=$tmpDirectory, perms=$perms, groupID=$groupID\n";
+    #warn "surePathToTmpFile: directory=$tmpDirectory, perms=$perms, groupID=$groupID\n";
 	
 	# if the path starts with $tmpDirectory (which is permitted but optional) remove this initial segment
 	$path =~ s|^$tmpDirectory|| if $path =~ m|^$tmpDirectory|;
-	#$path = $self->convertPath($path);
 	
 	# find the nodes on the given path
         my @nodes = split("$delim",$path);
 	
 	# create new path
-	$path = $tmpDirectory; #convertPath("$tmpDirectory");
+	$path = $tmpDirectory; 
 	
 	while (@nodes>1) {
 		$path = $path . shift (@nodes) . "/"; #convertPath($path . shift (@nodes) . "/");
-#warn "\PATH is now $path";
+
 		unless (-e $path) {
-			#system("mkdir $path");
-			#createDirectory($path,$Global::tmp_directory_permission, $Global::numericalGroupID)
-#warn "PATH $path perms $perms groupID $groupID";
 			$self->createDirectory($path, $perms, $groupID)
-				or warn "Failed to create directory at $path with permissions $perms and groupID $groupID";
+				or $self->warning_message( "Failed to create directory at $path with permissions $perms and groupID $groupID");
 		}
 
 	}
 	
 	$path = $path . shift(@nodes); #convertPath($path . shift(@nodes));
-	#system(qq!echo "" > $path! );
 	return $path;
 }
 
