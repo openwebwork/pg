@@ -78,7 +78,7 @@ our @ISA =  qw ( PGcore  );  # look up features in PGcore -- in this case we wan
 # new 
 #   Create one alias object per question (and per PGcore object)
 #   Check that information is intact
-#   Construct unique id stubs -- the id stub is for this PGalias object which is 
+#   Construct unique id stub seeds -- the id stub seed is for this PGalias object which is 
 #        attached to all the resource files (except equations) for this question.
 #   Keep list of external links
 
@@ -155,17 +155,7 @@ sub initialize {
 	$self->{fileName} =~ s!(^|/)tmpEdit/!$1!;
 	
 	$self->{ext}      = "";
-# 	
-# 	# create uniqeID stub    "gif/uniqIDstub-filePath"
-# 				#  Make file names work in Library Browser when the images in several
-# 				#  files have the same names.
-# 				my $libFix = "";
-# 				if ($self->{setNumber} eq "Undefined_Set") {
-# 				  $libFix = $self->{fileName};
-# 				  $libFix =~ s!.*/!!, $libFix =~ s!\.pg(\..*)?$!!;
-# 				  $libFix =~ s![^a-zA-Z0-9._-]!!g;
-# 				  $libFix .= '-';
-# 				}
+
 	my $uniqIDseed = join("-",   
 							   $self->{studentLogin},
 							   $self->{psvn},
