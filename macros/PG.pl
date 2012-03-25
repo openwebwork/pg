@@ -636,9 +636,17 @@ sub includePGproblem {
 	# their relative paths.
     eval('$main::envir{probFileName} = $filePath');
     eval('$main::envir{fileName} = $filePath');
+    # now update the PGalias object
+    my $save_PGalias = $PG->{PG_alias};
+    my $temp_PGalias = PGalias ->new( \%main::envir,
+                                      WARNING_messages => $PG->{WARNING_messages},
+                                      DEBUG_messages  => $PG->{DEBUG_messages},
+    );
+    $PG->{PG_alias}=$temp_PGalias;
     includePGtext($r_string);
-    # Reset the environment to what it is before.
+    # Reset the environment to what it was before.
     %main::envir = %save_envir;
+    $PG->{PG_alias}=$save_PGalias;
 }
 
 sub beginproblem;  # announce that beginproblem is a macro

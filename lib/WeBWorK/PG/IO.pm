@@ -79,13 +79,13 @@ sub includePGtext  {
 	if (ref($evalString) eq 'SCALAR') {
 		$evalString = $$evalString;
 	}
-	$evalString =~ s/\nBEGIN_TEXT/TEXT\(EV3\(<<'END_TEXT'\)\);/g;
+	$evalString =~ s/\nBEGIN_TEXT/\nTEXT\(EV3\(<<'END_TEXT'\)\);/g;
 	$evalString =~ s/\\/\\\\/g; # \ can't be used for escapes because of TeX conflict
 	$evalString =~ s/~~/\\/g;   # use ~~ as escape instead, use # for comments
 	no strict;
 	eval("package main; $evalString") ;
 	my $errors = $@;
-	die eval(q! "ERROR in included file:\n$main::envir{probFileName}\n $errors\n"!) if $errors;
+	die eval(q! "ERROR in included file:\n$main::envir{probFileName}\n $errors\n$evalString"!) if $errors;
 	use strict;
 	return "";
 }
