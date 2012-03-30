@@ -275,8 +275,13 @@ sub make_alias {
     	#warn "found existing resource_object $aux_file_id";
     	return $self->get_resource($aux_file_id)->uri() ; 
     }
+<<<<<<< HEAD
     # warn "next line\n\n";
     # warn "resource list contains ", %{ $self->{resource_list} };
+=======
+    #warn "next line\n\n";
+    #warn "resource list contains ", %{ $self->{resource_list} };
+>>>>>>> streamline_error_messages
 	###################################################################
 	
 	if ($ext eq 'html') {
@@ -444,7 +449,7 @@ sub alias_for_html {
 
 	if ( $resource_object->{copy_link}->{type} eq 'link') {
 		my $uniqID = $resource_object->{uniqID};
-		my $link = "html/$uniqID";
+		my $link = "html/$uniqID.$ext";
 		my $resource_uri = "${tempURL}$link"; #FIXME -- insure that the slash is at the end of $tempURL
 		my $linkPath = $self->surePathToTmpFile($link);
 		
