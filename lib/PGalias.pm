@@ -275,13 +275,9 @@ sub make_alias {
     	#warn "found existing resource_object $aux_file_id";
     	return $self->get_resource($aux_file_id)->uri() ; 
     }
-<<<<<<< HEAD
-    # warn "next line\n\n";
-    # warn "resource list contains ", %{ $self->{resource_list} };
-=======
+
     #warn "next line\n\n";
     #warn "resource list contains ", %{ $self->{resource_list} };
->>>>>>> streamline_error_messages
 	###################################################################
 	
 	if ($ext eq 'html') {
