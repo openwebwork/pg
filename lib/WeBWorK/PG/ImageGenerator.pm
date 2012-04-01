@@ -420,6 +420,7 @@ sub render {
 		# move/rename images
 		############################################
 	
+	  chmod (0664,<$wd/*>);  # first make everything group writable so that a WeBWorK admin can delete images
 		foreach my $image (readDirectory($wd)) {
 			# only work on equation#.png files
 			next unless $image =~ m/^equation(\d+)\.png$/;
@@ -444,6 +445,7 @@ sub render {
 			$newdir =~ s|/.*$||;
 			if($newdir and not -d "$dir/$newdir") {
 				my $success = mkdir "$dir/$newdir";
+				chmod (0775,<$dir/$newdir>); # make the directory group writable so that a WeBWorK admin can delete images
 				warn "Could not make directory $dir/$newdir" unless $success;
 			}
 			my $mvCommand = "cd $wd && /bin/mv $wd/$image $dir/" . $newNames[$imageNum-1];
