@@ -51,9 +51,6 @@ sub DOCUMENT {
 	$displayMode           = $PG->{displayMode};
 	$PG_random_generator        = $PG->{PG_random_generator};
 	# Save the file name for use in error messages
-	# Doesn't appear to be used FIXME
-#     my ($callpkg,$callfile) = caller(0);
-#     $envir{__files__}{$callfile} = $envir{templateDirectory}.$envir{fileName};
 
  #no strict;
     foreach  my  $var (keys %envir) {
@@ -622,7 +619,7 @@ sub set_default_options {
 sub includePGproblem {
     my $filePath = shift;
     my %save_envir = %main::envir;
-    my $fullfilePath = $main::envir{templateDirectory}.$filePath;
+    my $fullfilePath = $PG->envir("templateDirectory").$filePath;
     my $r_string =  read_whole_problem_file($fullfilePath);
     if (ref($r_string) eq 'SCALAR') {
         $r_string = $$r_string;      
