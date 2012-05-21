@@ -51,9 +51,6 @@ sub DOCUMENT {
 	$displayMode           = $PG->{displayMode};
 	$PG_random_generator        = $PG->{PG_random_generator};
 	# Save the file name for use in error messages
-	# Doesn't appear to be used FIXME
-#     my ($callpkg,$callfile) = caller(0);
-#     $envir{__files__}{$callfile} = $envir{templateDirectory}.$envir{fileName};
 
  #no strict;
     foreach  my  $var (keys %envir) {
@@ -622,7 +619,7 @@ sub set_default_options {
 sub includePGproblem {
     my $filePath = shift;
     my %save_envir = %main::envir;
-    my $fullfilePath = $main::envir{templateDirectory}.$filePath;
+    my $fullfilePath = $PG->envir("templateDirectory").$filePath;
     my $r_string =  read_whole_problem_file($fullfilePath);
     if (ref($r_string) eq 'SCALAR') {
         $r_string = $$r_string;      
@@ -636,9 +633,17 @@ sub includePGproblem {
 	# their relative paths.
     eval('$main::envir{probFileName} = $filePath');
     eval('$main::envir{fileName} = $filePath');
+    # now update the PGalias object
+    my $save_PGalias = $PG->{PG_alias};
+    my $temp_PGalias = PGalias ->new( \%main::envir,
+                                      WARNING_messages => $PG->{WARNING_messages},
+                                      DEBUG_messages  => $PG->{DEBUG_messages},
+    );
+    $PG->{PG_alias}=$temp_PGalias;
     includePGtext($r_string);
-    # Reset the environment to what it is before.
+    # Reset the environment to what it was before.
     %main::envir = %save_envir;
+    $PG->{PG_alias}=$save_PGalias;
 }
 
 sub beginproblem;  # announce that beginproblem is a macro
