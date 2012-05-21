@@ -78,7 +78,7 @@ our @ISA =  qw ( PGcore  );  # look up features in PGcore -- in this case we wan
 # new 
 #   Create one alias object per question (and per PGcore object)
 #   Check that information is intact
-#   Construct unique id stubs -- the id stub is for this PGalias object which is 
+#   Construct unique id stub seeds -- the id stub seed is for this PGalias object which is 
 #        attached to all the resource files (except equations) for this question.
 #   Keep list of external links
 
@@ -155,17 +155,7 @@ sub initialize {
 	$self->{fileName} =~ s!(^|/)tmpEdit/!$1!;
 	
 	$self->{ext}      = "";
-# 	
-# 	# create uniqeID stub    "gif/uniqIDstub-filePath"
-# 				#  Make file names work in Library Browser when the images in several
-# 				#  files have the same names.
-# 				my $libFix = "";
-# 				if ($self->{setNumber} eq "Undefined_Set") {
-# 				  $libFix = $self->{fileName};
-# 				  $libFix =~ s!.*/!!, $libFix =~ s!\.pg(\..*)?$!!;
-# 				  $libFix =~ s![^a-zA-Z0-9._-]!!g;
-# 				  $libFix .= '-';
-# 				}
+
 	my $uniqIDseed = join("-",   
 							   $self->{studentLogin},
 							   $self->{psvn},
@@ -285,8 +275,9 @@ sub make_alias {
     	#warn "found existing resource_object $aux_file_id";
     	return $self->get_resource($aux_file_id)->uri() ; 
     }
-    # warn "next line\n\n";
-    # warn "resource list contains ", %{ $self->{resource_list} };
+
+    #warn "next line\n\n";
+    #warn "resource list contains ", %{ $self->{resource_list} };
 	###################################################################
 	
 	if ($ext eq 'html') {
@@ -454,7 +445,7 @@ sub alias_for_html {
 
 	if ( $resource_object->{copy_link}->{type} eq 'link') {
 		my $uniqID = $resource_object->{uniqID};
-		my $link = "html/$uniqID";
+		my $link = "html/$uniqID.$ext";
 		my $resource_uri = "${tempURL}$link"; #FIXME -- insure that the slash is at the end of $tempURL
 		my $linkPath = $self->surePathToTmpFile($link);
 		
