@@ -36,7 +36,6 @@ WeBWorK::PG::Translator - Evaluate PG code and evaluate answers safely
     $pt->source_string($source);    # provide the source string for the problem
 
     $pt -> unrestricted_load("${courseScriptsDirectory}PG.pl");
-    $pt -> unrestricted_load("${courseScriptsDirectory}dangerousMacros.pl");
                                     # load the unprotected macro files
                                     # these files are evaluated with the Safe compartment wide open
                                     # other macros are loaded from within the problem using loadMacros
@@ -309,11 +308,11 @@ sub initialize {
 #  These subroutines (but not the constants) are then explicitly exported to the current
 #  safe compartment Safe::Rootx::
 
-#  Although they are not large, it is important to import PG.pl and dangerousMacros.pl into the 
+#  Although it is not large, it is important to import PG.pl into the 
 #  cached safe compartment as well.  This is because a call in PGbasicmacros.pl to NEW_ANSWER_NAME
 #  which is defined in PG.pl would actually be a call to Safe::Root1::NEW_ANSWER_NAME since
 #  PGbasicmacros is compiled into the SAfe::Root1:: compartment.  If PG.pl has only been compiled into
-#  the current Safe compartment, this call will fail.  There are many calls between PG.pl, dangerousMacros,
+#  the current Safe compartment, this call will fail.  There are many calls between PG.pl,
 #  PGbasicmacros and PGanswermacros so it is easiest to have all of them defined in Safe::Root1::
 #  There subroutines are still available in the current safe compartment.
 #  Sharing the hash %Safe::Root1:: in the current compartment means that any references to Safe::Root1::NEW_ANSWER_NAME
@@ -325,7 +324,7 @@ sub initialize {
 #  The value of main:: has to be evaluated at runtime in order to make this work.  Hence  something like
 #  my $temp_code  = eval('\&main::display_matrix');
 #  &$temp_code($matrix_object_to_be_displayed);
-# in PGanswermacros.pl
+#  in PGanswermacros.pl
 #  would reference the run time value of main::, namely Safe::Rootx::
 #  There may be a clearer or more efficient way to obtain the runtime value of main::
 
@@ -391,11 +390,11 @@ sub pre_load_macro_files {
 #    FIXME  The following hardwired behavior should be modifiable
 #    either in the procedure call or in global.conf:
 # 
-#    PG.pl, IO.pl and dangerousMacros.pl are loaded without restriction
-#    All other files are loaded with restriction
+#    PG.pl, IO.pl are loaded without restriction;
+#    all other files are loaded with restriction
 #     
 			# construct a regex that matches only these three files safely
-			my @unrestricted_files = (); #  no longer needed? FIXME w/PG.pl dangerousMacros.pl IO.pl/;
+			my @unrestricted_files = (); #  no longer needed? FIXME w/PG.pl IO.pl/;
 			my $unrestricted_files = join("|", map { quotemeta } @unrestricted_files);
 			
 			my $store_mask; 
@@ -546,7 +545,7 @@ sub unrestricted_load {
 
 	my $local_errors = "";
 	no strict;
-	#  warn "dangerousMacros main:: contains <br>\n  ".join("<br>\n ", %main::) if $debugON;
+
 	my $init_subroutine  = eval { \&{$init_subroutine_name} };
 	warn "No init routine for $init_subroutine_name: $@" if  $debugON and $@;
 	use strict;
@@ -1532,8 +1531,7 @@ evaluated before the problem template is read.  In PGbasicmacros.pl, the two sub
 
 =cut
 
-# This sort can cause troubles because of its special use of $a and $b
-# Putting it in dangerousMacros.pl worked frequently, but not always.
+# This sort can cause troubles because of its special use of $a and $b.
 # In particular ANS( ans_eva1 ans_eval2) caused trouble.
 # One answer at a time did not --- very strange.
 # This was replaced by a quick sort routine because the original subroutine
