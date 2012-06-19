@@ -502,7 +502,7 @@ sub round {
 
 sub truncate {
   my $self = shift;
-  my $n = $self->value; $n =~ s/(\.\d\d).*/\1/;
+  my $n = $self->value; $n =~ s/(\.\d\d).*/$1/;
   return $self->make($n+0);
 }
 
