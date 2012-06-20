@@ -335,11 +335,11 @@ sub norm {Parser::Function->call('norm',@_)}
 sub unit {Parser::Function->call('unit',@_)}
 
 #
-#  These need to be in dangerousMacros.pl for some reason
+# These are defined in PG.pl (since they call eval())
 #
-#sub i () {Compute('i')}
-#sub j () {Compute('j')}
-#sub k () {Compute('k')}
+# sub i () {Compute('i')}
+# sub j () {Compute('j')}
+# sub k () {Compute('k')}
 
 ###########################################################################
 

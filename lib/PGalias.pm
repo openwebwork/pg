@@ -215,7 +215,7 @@ sub make_alias {
 	
 	my $envir               = $self->{envir}; 
 	my $displayMode         = $self->{displayMode}; 
-    my $fileName            = $self->{fileName};    # name of .pg file
+	my $fileName            = $self->{fileName};    # name of .pg file
 	my $envir               = $self->{envir};
 	my $htmlDirectory       = $self->{htmlDirectory};
 	my $htmlURL             = $self->{htmlURL};
@@ -225,9 +225,9 @@ sub make_alias {
 	my $psvn                = $self->{psvn};
 	my $setNumber           = $self->{setNumber};
 	my $probNum             = $self->{probNum};
-    my $externalGif2EpsPath = $self->{externalGif2EpsPath};
-    my $externalPng2EpsPath = $self->{externalPng2EpsPath}; 
-    my $templateDirectory   = $self->{templateDirectory};
+	my $externalGif2EpsPath = $self->{externalGif2EpsPath};
+	my $externalPng2EpsPath = $self->{externalPng2EpsPath}; 
+	my $templateDirectory   = $self->{templateDirectory};
     
 	# $adr_output is a url in HTML and Latex2HTML modes
 	# and a complete path in TEX mode.
@@ -303,7 +303,7 @@ sub make_alias {
             $adr_output=$self->alias_for_gif_in_tex_mode($aux_file_id);
 		
 		} else {
-			die "Error in alias: dangerousMacros.pl: unrecognizable displayMode = $displayMode";
+			die "Error in alias: PGalias.pm: unrecognizable displayMode = $displayMode";
 		}
 	} elsif ($ext eq 'png') {
 		if ( $displayMode eq 'HTML_MathJax'||
@@ -319,7 +319,7 @@ sub make_alias {
 			$adr_output = $self->alias_for_png_in_tex_mode($aux_file_id);
 		
 		} else {
-			warn  "Error in alias: dangerousMacros.pl","unrecognizable displayMode = $displayMode","";
+			warn  "Error in alias: PGalias.pm","unrecognizable displayMode = $displayMode","";
 		}
 	} else { # $ext is not recognized
 		################################################################################
