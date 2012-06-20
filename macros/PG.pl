@@ -70,7 +70,7 @@ sub DOCUMENT {
                      MathMenu: {showContext: true}
                   });
                   </script>
-                  <script src="'.$envir{MathJaxURL}.'"></script>'."\n"');
+                  <script src="'.$envir{MathJaxURL}.'"></script>'."\n");
         } elsif ($envir{displayMode} eq 'HTML_jsMath') {
 		my $prefix = "";
 		if (!$envir{jsMath}{reportMissingFonts}) {
