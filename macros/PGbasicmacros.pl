@@ -1024,6 +1024,8 @@ Hints are shown only after the number of attempts is greater than $:showHint
 ($main::showHint defaults to 1) and the check box named 'ShowHint' is set. The check box
 'ShowHint' is visible only after the number of attempts is greater than $main::showHint.
 
+Hints are always shown immediately to instructors to facilitate editing the hint section.
+
 $main::envir{'displayHintsQ'} is set to 1 when a hint is to be displayed.
 
 
@@ -1041,9 +1043,30 @@ $main::envir{'displayHintsQ'} is set to 1 when a hint is to be displayed.
 sub solution {
 	my @in = @_;
 	my $out = '';
+	my $permissionLevel = $envir->{permissionLevel}||0; #PG_restricted_eval(q!$main::envir{permissionLevel}!); #user permission level
+	# protect against undefined values
+	my $PRINT_FILE_NAMES_PERMISSION_LEVEL = ( defined( $envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'} ) ) ? $envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'} : 10000;
+    my $printSolutionForInstructor = $permissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL;
+	my $diplaySolutions = PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!);
 	PG_restricted_eval(q!$main::solutionExists =1!);
 	if (PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!)) {$out = join(' ',@in);}
     $out;
+    
+    if ($displayMode eq 'TeX')   {
+	    if ($printSolutionForInstructor) {
+	    	$out = join(' ', "$BR(Show the student solution after due date: ) $BR $BBOLD $SOLUTION: $EBOLD $BR",@in);
+		} else 	{
+			$out = '';  # do nothing since hints are not available for download for students
+		}
+	} elsif ($printSolutionForInstructor) {  # always print hints for instructor types 
+		$out = join(' ', "$BR( Show the student solution after due date: )$BR $BBOLD SOLUTION: $EBOLD ", @in);
+	} elsif ( $diplaySolutions ) 	{
+
+	 ## FIXME -- doctoring the form could display solutions.
+
+		$out = join(' ',@in);  # display solution
+	}    
+	$out;
 }
 
 
