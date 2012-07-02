@@ -2063,7 +2063,7 @@ sub htmlLink {
 	my $text = shift;
 	my $options = shift;
 	$options = "" unless defined($options);
-	return "$BBOLD\[ broken link:  $text \] $EBOLD" unless defined($url);
+	return "$BBOLD\[ $text  has broken link: $url \] $EBOLD" unless defined($url);
 	MODES( TeX        => "{\\bf \\underline{$text}}",
 	       HTML       => "<A HREF=\"$url\" $options>$text</A>"
 	);
