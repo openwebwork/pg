@@ -133,7 +133,7 @@ sub initialize {
 	my $self = shift;
 	my $envir = $self->{envir};
 	# warn "envir-- ", join(" ", %$envir);
-	$self->{fileName}            = $envir->{probFileName};
+	$self->{pgFileName}            = $envir->{probFileName};
 	$self->{htmlDirectory}       = $envir->{htmlDirectory};
 	$self->{htmlURL}             = $envir->{htmlURL};
 	$self->{tempDirectory}       = $envir->{tempDirectory};
@@ -184,7 +184,7 @@ sub check_parameters {
 	my $self = shift;
 
 	# problem specific data
-	warn "The path to the current problem file template is not defined."     unless $self->{fileName};
+	warn "The path to the current problem file template is not defined."     unless $self->{pgFileName};
 	warn "The current studentLogin is not defined "                          unless $self->{studentLogin};
 	warn "The current problem set number is not defined"                     if $self->{setNumber} eq ""; # allow for sets equal to 0
 	warn "The current problem number is not defined"                         if $self->{probNum} eq "";
@@ -215,7 +215,7 @@ sub make_alias {
 	
 	my $envir               = $self->{envir}; 
 	my $displayMode         = $self->{displayMode}; 
-	my $fileName            = $self->{fileName};    # name of .pg file
+	my $pgFileName            = $self->{pgFileName};    # name of .pg file
 	my $envir               = $self->{envir};
 	my $htmlDirectory       = $self->{htmlDirectory};
 	my $htmlURL             = $self->{htmlURL};
@@ -326,7 +326,7 @@ sub make_alias {
 		# FILES  with unrecognized file extensions in any display modes
 		################################################################################
 
-		warn "Error in the macro alias. Alias does not understand how to process files with extension $ext.  (Path ot problem file is  $fileName) ";
+		warn "Error in the macro alias. Alias does not understand how to process files with extension $ext.  (Path to problem file is  $pgFileName) ";
 	}
 
 	warn "The macro alias was unable to form a URL for some auxiliary file used in this problem." unless $adr_output;
@@ -347,7 +347,7 @@ sub alias_for_html {
 	#######################
 	my $htmlURL       = $self->{htmlURL};
 	my $htmlDirectory = $self->{htmlDirectory};
-	my $fileName      = $self->{fileName};
+	my $pgFileName      = $self->{pgFileName};
 	my $tempURL       = $self->{tempURL};
 	my $tempDirectory = $self->{tempDirectory};
 	my $templateDirectory = $self->{templateDirectory};
@@ -358,7 +358,7 @@ sub alias_for_html {
 	my $resource_object = $self->get_resource($aux_file_id);
 	warn( "\nresource for $aux_file_id is ", ref($resource_object), $resource_object );
     $resource_object->{type}='html';
-    $resource_object->{parent_file}=$fileName;
+    $resource_object->{parent_file}=$pgFileName;
     
    
 	# $resource_uri is a url in HTML  mode
@@ -409,10 +409,10 @@ sub alias_for_html {
 		# ---  using sure file to path.  This gives too much information away.
 		# use a uniquID instead.
 	
-		# $fileName is obtained from environment and
+		# $pgFileName is obtained from environment and
 		# is the path to the .pg file
 		# it gives the  relative path to the current PG problem from the template directory
-		my $directoryPath = $self->directoryFromPath($fileName);
+		my $directoryPath = $self->directoryFromPath($pgFileName);
 		#$htmlFileSource = $self->convertPath("$templateDirectory${directoryPath}$aux_file_id.html");
 		$htmlFileSource = "$templateDirectory${directoryPath}$aux_file_id.html";
 		$resource_object->path($htmlFileSource);
@@ -421,7 +421,7 @@ sub alias_for_html {
 		# notice the resource uri is not yet defined -- we have to make the link first
 	}
 
-# Create a unique id which depends on the parent fileName and path to the resource file
+# Create a unique id which depends on the parent pgFileName and path to the resource file
 # The uniqueID  also depends on the student, the course name and  the psvn through the uniqeID stub, because 
 # if the problem is recreated the specific file link we are linking to might change when the psvn changes.
 # You  also want students linked to the same file to NOT be aware of that fact.
@@ -470,14 +470,14 @@ sub alias_for_html {
 sub alias_for_gif_in_html_mode {
 	my $self = shift;
 	my $aux_file_id = shift;
-    $self->internal_debug_message( "entering alias_for_gif_in_html_mode $aux_file_id");
+    $self->debug_message( "entering alias_for_gif_in_html_mode $aux_file_id");
     
 	#######################
 	# gather needed data and declare it locally
 	#######################
 	my $htmlURL       = $self->{htmlURL};
     my $htmlDirectory = $self->{htmlDirectory};
-	my $fileName      = $self->{fileName};
+	my $pgFileName      = $self->{pgFileName};
 	my $tempURL       = $self->{tempURL};
 	my $tempDirectory = $self->{tempDirectory};
 	my $templateDirectory = $self->{templateDirectory};
@@ -488,7 +488,7 @@ sub alias_for_gif_in_html_mode {
 	my $resource_object = $self->get_resource($aux_file_id);
 	# $self->warning_message( "\nresource for $aux_file_id is ", ref($resource_object), $resource_object );
     $resource_object->{type}='gif';
-    $resource_object->{parent_file}=$fileName;
+    $resource_object->{parent_file}=$pgFileName;
     
 	# $resource_uri is a url in HTML  mode
 	# and a complete path in TEX mode.
@@ -540,13 +540,13 @@ sub alias_for_gif_in_html_mode {
 		# --- All of the subdirectories of html/tmp/gif which are needed are also created.
 		# use a unique_id instead
 	
-		# $fileName is obtained from environment and
+		# $pgFileName is obtained from environment and
 		# it gives the  relative path to the current PG problem from the template directory
 		
-		my $directoryPath = $self->directoryFromPath($fileName);
+		my $directoryPath = $self->directoryFromPath($pgFileName);
 		$gifFileSource = "$templateDirectory${directoryPath}$aux_file_id.gif";
 							#my $link = "gif/$studentLogin-$psvn-set$setNumber-prob$probNum-$aux_file_id.$ext";
-   							#warn "fileName is $fileName filePath is $filePath gifSourceFile is $gifSourceFile";
+   							#warn "pgFileName is $pgFileName filePath is $filePath gifSourceFile is $gifSourceFile";
 		$resource_object->path($gifFileSource);
 		$resource_object->{copy_link}->{type} = 'link';
 		$resource_object->{path}->{is_complete}=1;
@@ -563,20 +563,24 @@ sub alias_for_gif_in_html_mode {
 								# 	  $libFix =~ s![^a-zA-Z0-9._-]!!g;
 								# 	  $libFix .= '-';
 								# 	}
-##############################################
-# Create a unique id which depends on the parent fileName and path to the resource file
+#########################################################################################
+# Create and store a unique id which depends on the parent pgFileName and path to the resource file
 # The uniqueID  also depends on the student, the course name and  the psvn through the uniqeID stub, because 
 # if the problem is recreated the specific file link we are linking to might change when the psvn changes.
-# You  also want students linked to the same file to NOT be aware of that fact.
+# You  also want students linked to the same file to NOT be aware of the fact that their particular file has not changed.
+# This is the reason for making this second part of the unique ID depend on the psvn even though the first unique ID stub 
+# also depends on the psvn.
 ##############################################
 
 	my $unique_id_seed = $resource_object->path() . $resource_object->{parent_file}.$self->{psvn};
-	$resource_object->{unique_id} = $self->{unique_id_stub} .
+	$resource_object->{unique_id} = 
+	      $self->{unique_id_stub} .
 	      '___'. create_uuid_as_string( UUID_V3, UUID_NS_URL, $unique_id_seed );
 
 
 ##############################################
-# Create links, between private directories such as myCourse/template
+# Create links, 
+# between private directories such as myCourse/template
 # and public directories (such as   wwtmp/courseName or myCourse/html
 # The location of the links depends on the type and location of the file
 ##############################################
@@ -609,132 +613,256 @@ sub alias_for_gif_in_html_mode {
 	$resource_object->uri();  # return the uri of the resource
 }
 
+################################################################################
+# .gif FILES in TeX mode
+################################################################################
+
 sub alias_for_gif_in_tex_mode {
 	my $self = shift;
 	my $aux_file_id = shift;
+	$self->debug_message( "entering alias_for_gif_in_tex_mode $aux_file_id");
+ 
+#######################
+# gather needed data and declare it locally
+#######################
+	my $htmlURL           = $self->{htmlURL};
+    my $htmlDirectory     = $self->{htmlDirectory};
+	my $pgFileName        = $self->{pgFileName};
+	my $tempURL           = $self->{tempURL};
+	my $tempDirectory     = $self->{tempDirectory};
+	my $templateDirectory = $self->{templateDirectory};
 
-	my $envir               = $self->{envir};  	my $fileName            = $envir->{fileName};
-	my $htmlDirectory       = $envir->{htmlDirectory};
-	my $htmlURL             = $envir->{htmlURL};
-	my $tempDirectory       = $envir->{tempDirectory};
-	my $tempURL             = $envir->{tempURL};
-	my $studentLogin        = $envir->{studentLogin};
-	my $psvn          = $envir->{psvn};
-	my $setNumber           = $envir->{setNumber};
-	my $probNum             = $envir->{probNum};
-	my $displayMode         = $envir->{displayMode};
-    my $externalGif2EpsPath = $envir->{externalGif2EpsPath};
-    my $externalPng2EpsPath = $envir->{externalPng2EpsPath};
-    
-    my $templateDirectory   = $self->{templateDirectory};
-    
+#######################
+# update resource object
+#######################
+	my $resource_object = $self->get_resource($aux_file_id);
+	# $self->warning_message( "\nresource for $aux_file_id is ", ref($resource_object), $resource_object );
+    $resource_object->{type}='gif';
+    $resource_object->{parent_file}=$pgFileName;
+  
+	# $resource_uri is a url in HTML  mode
+	# and a complete path in TEX mode.
+   
     
 	# $adr_output is a url in HTML and Latex2HTML modes
 	# and a complete path in TEX mode.
-	my $adr_output;
-	my $ext                 = "gif";
-			################################################################################
-			# .gif FILES in TeX mode
-			################################################################################
+# 	my $adr_output;
+	
+	my ($resource_uri, $gifSourceFilePath, );
+	my $ext     =     "gif";
+################################################################################
+# Mung set name     ## extra dots confuse latex's graphics package  FIXME -- check with definition of allowable characters in set name.
+################################################################################
 
-		        $setNumber =~ s/\./_/g;  ## extra dots confuse latex's graphics package
-			if ($envir->{texDisposition} eq "pdf") {
-				# We're going to create PDF files with our TeX (using pdflatex); so we
-				# need images in PNG format.
+#	$setNumber =~ s/\./_/g;  
+		        
+################################################################################
+# Create PDF output directly -- convert .gif to .png format which pdflatex accepts natively
+################################################################################
 
-				my $gifFilePath;
+	unless ($self->{envir}->{texDisposition} eq "pdf") {
+		$self->warning_message("Support for pure latex output (as opposed to pdflatex output) is not implemented.");
+		return ""; # blank resource_uri
+	}
+	# We're going to create PDF files with our TeX (using pdflatex); so we
+	# need images in PNG format.
+	
+################################################################################
+	# Find path to .gif file
+################################################################################
 
-				if ($aux_file_id =~ m/^$htmlDirectory/ or $aux_file_id =~ m/^$tempDirectory/) {
-					# we've got a full pathname to a file
-					$gifFilePath = "$aux_file_id.gif";
-				} else {
-					# we assume the file is in the same directory as the problem source file
-					my $dir = $self->directoryFromPath($fileName);
-					$gifFilePath = "$templateDirectory${dir}$aux_file_id.gif";
-				}
+##################### Case1: we've got a full pathname to a file in either the temp directory or the htmlDirectory
+##################### Case2: we assume the file is in the same directory as the problem source file
 
-				my $gifFileName = $self->fileFromPath($gifFilePath);
-				$gifFileName =~ /^(.*)\.gif$/;
-					my $pngFilePath = $self->surePathToTmpFile("${tempDirectory}png/$setNumber-$probNum-$1.png");
-				my $command = $envir->{externalGif2PngPath};
-				my $returnCode = system "cat $gifFilePath | $command > $pngFilePath";
-			#warn "FILE path $pngFilePath  exists =", -e $pngFilePath;
-				if ($returnCode or not -e $pngFilePath) {
-					warn "returnCode $returnCode: failed to convert $gifFilePath to $pngFilePath using gif->png with $command: $!";
-				}
+# Gif files always need to be converted to png files
+# store the complete path to the original file
 
-				$adr_output = $pngFilePath;
-			} else {
-				# Since we're not creating PDF files; we're probably just using a plain
-				# vanilla latex. Hence; we need EPS images.
+	if ( $aux_file_id      =~ m|^$tempDirectory| ) { #case: file is stored in the course temporary directory
+		$resource_uri      =  $aux_file_id,
+		$gifSourceFilePath =  $aux_file_id;
+		$resource_uri      =~ s|$tempDirectory|$tempURL/|;
+		$resource_uri     .= ".$ext";
+	
+		$resource_object->path($gifSourceFilePath);
+		$resource_object->uri($resource_uri);
+		$resource_object->{convert}->{needed} = 1;
+		$resource_object->{from_path} = $gifSourceFilePath;
+		$resource_object->{from_type} = 'gif';
+		$resource_object->{to_path}   = '';  #define later
+		$resource_object->{to_type}   = "png";
+		$resource_object->{path}->{is_complete}=1;
+	} elsif ($aux_file_id =~ m|^$htmlDirectory| ) { #case: file is under the course html directory
+		$resource_uri      = $aux_file_id,
+		$gifSourceFilePath = $aux_file_id;
+		$resource_object->{from_path} = $gifSourceFilePath;
+		$resource_object->{from_type} = 'gif';
+		$resource_object->{to_path}   = '';  #define later
+		$resource_object->{to_type}   = "png";
 
-				################################################################################
-				# This is statement used below is system dependent.
-				# Notice that the range of colors is restricted when converting to postscript to keep the files small
-				# "cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmtops -noturn > $adr_output"
-				# "cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn > $adr_output"
-				################################################################################
-				if ($aux_file_id =~  m|^$htmlDirectory|  or $aux_file_id =~  m|^$tempDirectory|)  {
-					# To serve an eps file copy an eps version of the gif file to the subdirectory of eps/
-					my $linkPath = $self->directoryFromPath($fileName);
+		$resource_uri      =~ s|$htmlDirectory|$htmlURL|,
+		$resource_uri     .= ".$ext",
+		
+		$resource_object->path($gifSourceFilePath);
+		$resource_object->uri($resource_uri);
+		$resource_object->{path}->{is_complete}=1;
+	
+	} else {
+		
+		# GIF files not in the htmlDirectory or tempDirectory
+		# sub trees are assumed to live under the templateDirectory
+		# subtree in the same directory as the problem.
+	
+		# it gives the  relative path to the current PG problem from the template directory
+		
+		my $directoryPath = $self->directoryFromPath($pgFileName);
+		$gifSourceFilePath = "$templateDirectory${directoryPath}$aux_file_id.gif";
+							#my $link = "gif/$studentLogin-$psvn-set$setNumber-prob$probNum-$aux_file_id.$ext";
+							#warn "pgFileName is $pgFileName filePath is $pgFileName gifSourceFile is $gifFileSource";
+		$resource_uri = "$templateDirectory${directoryPath}$aux_file_id";
+		$resource_uri .= ".png",  #FIXME
+		$resource_object->path($gifSourceFilePath);
+		$resource_object->uri($resource_uri);
+		
+		$resource_object->{from_path} = $gifSourceFilePath;
+		$resource_object->{from_type} = 'gif';
+		$resource_object->{to_path}   = '';  #define later
+		$resource_object->{to_type}   = "png";
 
-					my $gifSourceFile = "$aux_file_id.gif";
-					my $gifFileName = $self->fileFromPath($gifSourceFile);
-					$adr_output = $self->surePathToTmpFile("$tempDirectory/eps/$studentLogin-$psvn-$gifFileName.eps") ;
+		$resource_object->{path}->{is_complete}=1;
+		# notice the resource uri is not yet defined -- we have to make the link first
+	}
 
-					if (-e $gifSourceFile) {
-						#system("cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output")
-						system("cat $gifSourceFile | ${externalGif2EpsPath} > $adr_output" )
-							&& die "Unable to create eps file:\n |$adr_output| from file\n |$gifSourceFile|\n in problem $probNum " .
-							       "using the system dependent script\n |${externalGif2EpsPath}| \n";
-					} else {
-						die "|$gifSourceFile| cannot be found.  Problem number: |$probNum|";
-					}
-				} else {
-					# To serve an eps file copy an eps version of the gif file to  a subdirectory of eps/
-					my $filePath = $self->directoryFromPath($fileName);
-					my $gifSourceFile = "${templateDirectory}${filePath}$aux_file_id.gif";
-					#print "content-type: text/plain \n\nfileName = $fileName and aux_file_id =$aux_file_id<BR>";
-					$adr_output = $self->surePathToTmpFile("eps/$studentLogin-$psvn-set$setNumber-prob$probNum-$aux_file_id.eps");
+#########################################################################################
+# Create and store a unique id which depends on the parent pgFileName and path to the resource file
+# The uniqueID  also depends on the student, the course name and  the psvn through the uniqeID stub, because 
+# if the problem is recreated the specific file link we are linking to might change when the psvn changes.
+# You  also want students linked to the same file to NOT be aware of the fact that their particular file has not changed.
+# This is the reason for making this second part of the unique ID depend on the psvn even though the first unique ID stub 
+# also depends on the psvn.
+##############################################
 
-					if (-e $gifSourceFile) {
-						#system("cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output") &&
-						#warn "Unable to create eps file: |$adr_output|\n from file\n |$gifSourceFile|\n in problem $probNum";
-						#warn "Help ${:externalGif2EpsPath}" unless -x "${main::externalGif2EpsPath}";
-						system("cat $gifSourceFile | ${externalGif2EpsPath} > $adr_output" )
-							&& die "Unable to create eps file:\n |$adr_output| from file\n |$gifSourceFile|\n in problem $probNum " .
-							       "using the system dependent commands \n |${externalGif2EpsPath}| \n ";
-					}  else {
-						die "|$gifSourceFile| cannot be found.  Problem number: |$probNum|";
-					}
-				}
-			}
-	$adr_output;
+	my $unique_id_seed = $resource_object->path() . $resource_object->{parent_file}.$self->{psvn};
+	$resource_object->{unique_id} = 
+	      $self->{unique_id_stub} .
+	      '___'. create_uuid_as_string( UUID_V3, UUID_NS_URL, $unique_id_seed );
+
+			
+################################################################################
+		# Create path to new .png file 
+################################################################################
+	my $pngTargetFilePath = $self->surePathToTmpFile($self->{resource_uri});
+	$resource_object->{to_path}   = $pngTargetFilePath;
+     # how should $resource_object->path() be defined in this case?
+################################################################################
+		# Create  new .png file 
+################################################################################	
+	my $command = $self->{externalGif2PngPath};
+	my $returnCode = system "cat $gifSourceFilePath | $command > $pngTargetFilePath";
+	#warn "FILE path $pngTargetFilePath  exists =", -e $pngTargetFilePath;
+	if ($returnCode or not -e $pngTargetFilePath) {
+		warn "returnCode $returnCode: failed to convert $gifSourceFilePath to $pngTargetFilePath using gif->png with $command: $!";
+	}
+	
+################################################################################
+		# Return full path to .png file  (resource_id)
+################################################################################
+							
+	$resource_object->uri();  # return the uri of the resource
 
 } 
+
+
+#################################################################################
+# support for pure latex output (as opposed to pdflatexoutput
+#################################################################################
+# 			
+# 				# Since we're not creating PDF files; we're probably just using a plain
+# 				# vanilla latex. Hence; we need EPS images.
+# 
+# 				################################################################################
+# 				# This  statement used below is system dependent.
+# 				# Notice that the range of colors is restricted when converting to postscript to keep the files small
+# 				# "cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmtops -noturn > $adr_output"
+# 				# "cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn > $adr_output"
+# 				################################################################################
+# ################################################################################
+# 		# Find path to .gif file
+# ################################################################################
+# ##################### Case1: we've got a full pathname to a file
+# ##################### Case2: we assume the file is in the same directory as the problem source file
+# 
+# 				if ($aux_file_id =~  m|^$htmlDirectory|  or $aux_file_id =~  m|^$tempDirectory|)  {
+# 					# To serve an eps file copy an eps version of the gif file to the subdirectory of eps/
+# 					my $linkPath = $self->directoryFromPath($pgFileName);
+# 					
+# ################################################################################
+# 		# Create path to new .EPS file
+# ################################################################################
+# 
+# 					my $gifSourceFile = "$aux_file_id.gif";
+# 					my $gifFileName = $self->fileFromPath($gifSourceFile);
+# 					$adr_output = $self->surePathToTmpFile("$tempDirectory/eps/$studentLogin-$psvn-$gifFileName.eps") ;
+# 
+# 					if (-e $gifSourceFile) {
+# 						#system("cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output")
+# 						system("cat $gifSourceFile | ${externalGif2EpsPath} > $adr_output" )
+# 							&& die "Unable to create eps file:\n |$adr_output| from file\n |$gifSourceFile|\n in problem $probNum " .
+# 							       "using the system dependent script\n |${externalGif2EpsPath}| \n";
+# 					} else {
+# 						die "|$gifSourceFile| cannot be found.  Problem number: |$probNum|";
+# 					}
+# 				} else {
+# 					# To serve an eps file copy an eps version of the gif file to  a subdirectory of eps/
+# 					my $filePath = $self->directoryFromPath($pgFileName);
+# 					my $gifSourceFile = "${templateDirectory}${filePath}$aux_file_id.gif";
+# 					#print "content-type: text/plain \n\npgFileName = $pgFileName and aux_file_id =$aux_file_id<BR>";
+# 					$adr_output = $self->surePathToTmpFile("eps/$studentLogin-$psvn-set$setNumber-prob$probNum-$aux_file_id.eps");
+# 
+# 					if (-e $gifSourceFile) {
+# 						#system("cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output") &&
+# 						#warn "Unable to create eps file: |$adr_output|\n from file\n |$gifSourceFile|\n in problem $probNum";
+# 						#warn "Help ${:externalGif2EpsPath}" unless -x "${main::externalGif2EpsPath}";
+# 						system("cat $gifSourceFile | ${externalGif2EpsPath} > $adr_output" )
+# 							&& die "Unable to create eps file:\n |$adr_output| from file\n |$gifSourceFile|\n in problem $probNum " .
+# 							       "using the system dependent commands \n |${externalGif2EpsPath}| \n ";
+# 					}  else {
+# 						die "|$gifSourceFile| cannot be found.  Problem number: |$probNum|";
+# 					}
+# 				}
+# 			}
+# 	$adr_output;
+
+
+
+
+################################################################################
+# Creating HTML output  using png file
+################################################################################
+
+
 sub alias_for_png_in_html_mode {
 	my $self = shift;
 	my $aux_file_id = shift;
-    $self->internal_debug_message( "entering alias_for_png_in_html_mode $aux_file_id");
+    $self->debug_message( "entering alias_for_png_in_html_mode $aux_file_id");
    
 
-	#######################
-	# gather needed data and declare it locally
-	#######################
-	my $htmlURL       = $self->{htmlURL};
-    my $htmlDirectory = $self->{htmlDirectory};
-	my $fileName      = $self->{fileName};
-	my $tempURL       = $self->{tempURL};
-	my $tempDirectory = $self->{tempDirectory};
-	my $templateDirectory = $self->{templateDirectory};
+#######################
+# gather needed data and declare it locally
+#######################
+	my $htmlURL            = $self->{htmlURL};
+    my $htmlDirectory      = $self->{htmlDirectory};
+	my $pgFileName         = $self->{pgFileName};
+	my $tempURL            = $self->{tempURL};
+	my $tempDirectory      = $self->{tempDirectory};
+	my $templateDirectory  = $self->{templateDirectory};
    
-	#######################
-	# update resource object
-	#######################
+#######################
+# update resource object
+#######################
 	my $resource_object = $self->get_resource($aux_file_id);
 	# $self->warning_message( "\nresource for $aux_file_id is ", ref($resource_object), $resource_object );
     $resource_object->{type}='png';
-    $resource_object->{parent_file}=$fileName;
+    $resource_object->{parent_file}=$pgFileName;
   
 	# $resource_uri is a url in HTML  mode
 	# and a complete path in TEX mode.
@@ -746,10 +874,10 @@ sub alias_for_png_in_html_mode {
 	# current implementation accepts only the course html directory, the file containing the .pg file 
 	# and the temp directory as places to look for html files
 
-	##############################################
-	# Find complete path to the original files
-	##############################################
-		my ($resource_uri, $pngFileSource, );
+##############################################
+# Find complete path to the original files
+##############################################
+		my ($resource_uri, $pngTargetFilePath, );
 		my $ext   =   "png";  #FIXME (do we need png type defined in two places )
 	
 	
@@ -759,20 +887,20 @@ sub alias_for_png_in_html_mode {
 
 	if ( $aux_file_id =~ m|^$tempDirectory| ) { #case: file is stored in the course temporary directory
 		$resource_uri = $aux_file_id,
-		$pngFileSource = $aux_file_id;
+		$pngTargetFilePath = $aux_file_id;
 		$resource_uri =~ s|$tempDirectory|$tempURL/|;
 		$resource_uri .= ".$ext";
 
-		$resource_object->path($pngFileSource);
+		$resource_object->path($pngTargetFilePath);
 		$resource_object->uri($resource_uri);
 		$resource_object->{copy_link}->{type} = 'orig';
 		$resource_object->{path}->{is_complete}=1;
 	} elsif ($aux_file_id =~ m|^$htmlDirectory| ) { #case: file is under the course html directory
 		$resource_uri = $aux_file_id,
-		$pngFileSource = $aux_file_id;
+		$pngTargetFilePath = $aux_file_id;
 		$resource_uri =~ s|$htmlDirectory|$htmlURL|,
 		$resource_uri .= ".$ext",
-		$resource_object->path($pngFileSource);
+		$resource_object->path($pngTargetFilePath);
 		$resource_object->uri($resource_uri);
 		$resource_object->{copy_link}->{type} = 'orig';
 		$resource_object->{path}->{is_complete}=1;
@@ -786,53 +914,58 @@ sub alias_for_png_in_html_mode {
 		# --- All of the subdirectories of html/tmp/gif which are needed are also created.
 		# use a unique_id instead
 	
-		# $fileName is obtained from environment and
+		# $pgFileName is obtained from environment and
 		# it gives the  relative path to the current PG problem from the template directory
 		
-		my $directoryPath = $self->directoryFromPath($fileName);
-		$pngFileSource = "$templateDirectory${directoryPath}$aux_file_id.png";
+		my $directoryPath = $self->directoryFromPath($pgFileName);
+		$pngTargetFilePath = "$templateDirectory${directoryPath}$aux_file_id.png";
 							#my $link = "gif/$studentLogin-$psvn-set$setNumber-prob$probNum-$aux_file_id.$ext";
-   							#warn "fileName is $fileName filePath is $filePath pngFileSource is $pngFileSource";
-		$resource_object->path($pngFileSource);
+   							#warn "pgFileName is $pgFileName filePath is $filePath pngTargetFilePath is $pngTargetFilePath";
+		$resource_object->path($pngTargetFilePath);
 		$resource_object->{copy_link}->{type} = 'link';
 		$resource_object->{path}->{is_complete}=1;
 		# notice the resource uri is not yet defined -- we have to make the link first
 	}
 	
-# Create a unique id which depends on the parent fileName and path to the resource file
+# Create and store a unique id 
+# which depends on the parent pgFileName and path to the resource file
 # The uniqueID  also depends on the student, the course name and  the psvn through the uniqeID stub, because 
 # if the problem is recreated the specific file link we are linking to might change when the psvn changes.
-# You  also want students linked to the same file to NOT be aware of that fact.
+# You  also want students linked to the same file to NOT be aware of the fact that their particular file has not changed.
+# This is the reason for making this second part of the unique ID depend on the psvn even though the first unique ID stub 
+# also depends on the psvn.
 
 
 	my $unique_id_seed = $resource_object->path() . $resource_object->{parent_file}.$self->{psvn};
-	$resource_object->{unique_id} = $self->{unique_id_stub} .
+	$resource_object->{unique_id} = 
+	      $self->{unique_id_stub} .
 	      '___'. create_uuid_as_string( UUID_V3, UUID_NS_URL, $unique_id_seed );
 
-##############################################
-# Create links, between private directories such as myCourse/template
+#########################################################################################
+# Create links, 
+# between private directories such as myCourse/template
 # and public directories (such as   wwtmp/courseName or myCourse/html
 # The location of the links depends on the type and location of the file
-##############################################
+#########################################################################################
 	
 	if ( $resource_object->{copy_link}->{type} eq 'link') {
 		my $unique_id = $resource_object->{unique_id};
-		my $link = "gif/$unique_id.$ext";   #Note:  .png pictures are stored in the gif subdirectory
+		my $link = "gif/$unique_id.$ext";   #Note:  .png pictures are linked to the tempDirectory/gif subdirectory
 		my $resource_uri = "${tempURL}$link"; #FIXME -- insure that the slash is at the end of $tempURL
 		my $linkPath = $self->surePathToTmpFile($link); # create gif directory if needed.
-		if (-e $pngFileSource) {
+		if (-e $pngTargetFilePath) {
 			if (-e $linkPath) {
 				unlink($linkPath) || warn "Unable to unlink old alias file at $linkPath";
 			}
-			if (symlink( $pngFileSource, $linkPath)) {
+			if (symlink( $pngTargetFilePath, $linkPath)) {
 				$resource_object->{path}->{is_accessible}=1;
 				$resource_object->{copy_link}->{link_to_path}= $linkPath;
 				$resource_object->uri($resource_uri);
 			} else {
-				$self->warning_message( "The macro alias cannot create a link from |$linkPath|  to |$pngFileSource|.<BR>") ;
+				$self->warning_message( "The macro alias cannot create a link from |$linkPath|  to |$pngTargetFilePath|.<BR>") ;
 			}
 		} else {
-			$self->warning_message("The macro alias cannot find a PNG file at: |$pngFileSource|");
+			$self->warning_message("The macro alias cannot find a PNG file at: |$pngTargetFilePath|");
 			$resource_object->{path}->{is_accessible}=0;
 			# we should delete the resource object in this case?
 		}
@@ -842,100 +975,150 @@ sub alias_for_png_in_html_mode {
 
 }
 
+################################################################################
+# .png FILES in TeX mode
+################################################################################
+
 sub alias_for_png_in_tex_mode {
 
   	my $self = shift;
 	my $aux_file_id = shift;
-
-	my $envir               = $self->{envir};  	my $fileName            = $envir->{fileName};
-	my $htmlDirectory       = $envir->{htmlDirectory};
-	my $htmlURL             = $envir->{htmlURL};
-	my $tempDirectory       = $envir->{tempDirectory};
-	my $tempURL             = $envir->{tempURL};
-	my $studentLogin        = $envir->{studentLogin};
-	my $psvn          = $envir->{psvn};
-	my $setNumber           = $envir->{setNumber};
-	my $probNum             = $envir->{probNum};
-	my $displayMode         = $envir->{displayMode};
-    my $externalGif2EpsPath = $envir->{externalGif2EpsPath};
-    my $externalPng2EpsPath = $envir->{externalPng2EpsPath};
-     
-    my $templateDirectory   = $self->{templateDirectory};
-    
    
-	# $adr_output is a url in HTML and Latex2HTML modes
+#######################
+# gather needed data and declare it locally
+#######################
+	my $htmlURL           = $self->{htmlURL};
+    my $htmlDirectory     = $self->{htmlDirectory};
+	my $pgFileName        = $self->{pgFileName};
+	my $tempURL           = $self->{tempURL};
+	my $tempDirectory     = $self->{tempDirectory};
+	my $templateDirectory = $self->{templateDirectory};
+
+#######################
+# update resource object
+#######################
+	my $resource_object = $self->get_resource($aux_file_id);
+	# $self->warning_message( "\nresource for $aux_file_id is ", ref($resource_object), $resource_object );
+    $resource_object->{type}='gif';
+    $resource_object->{parent_file}=$pgFileName;
+  
+	# $resource_uri is a url in HTML  mode
 	# and a complete path in TEX mode.
-	my $adr_output;
- 	my $ext                 = "png";          
-            ################################################################################
-			# .png FILES in TeX mode
-			################################################################################
+   
+	my ($resource_uri, $pngSourceFilePath, );
+	my $ext   =   "png";  #FIXME (do we need png type defined in two places )
+	
+###############################################################################
+# Create PDF output directly -- images are already in .png format which is supported by pdflatex
+################################################################################
 
-		        $setNumber =~ s/\./_/g;  ## extra dots confuse latex's graphics package
-			if ($envir->{texDisposition} eq "pdf") {
-				# We're going to create PDF files with our TeX (using pdflatex); so we
-				# need images in PNG format. what luck! they're already in PDF format!
+	unless ($self->{envir}->{texDisposition} eq "pdf") {
+		$self->warning_message("Support for pure latex output (as opposed to pdflatex output) is not implemented.");
+		return ""; # blank resource_uri
+	}
 
-				my $pngFilePath;
+################################################################################
+		# Find path to .png file
+################################################################################
 
-				if ($aux_file_id =~ m/^$htmlDirectory/ or $aux_file_id =~ m/^$tempDirectory/) {
-					# we've got a full pathname to a file
-					$pngFilePath = "$aux_file_id.png";
-				} else {
-					# we assume the file is in the same directory as the problem source file
-					my $dir = $self->directoryFromPath($fileName);
-					$pngFilePath = "$templateDirectory${dir}$aux_file_id.png";
-				}
+##################### Case1: we've got a full pathname to a file in either the temp directory or the htmlDirectory
+##################### Case2: we assume the file is in the same directory as the problem source file
 
-				$adr_output = $pngFilePath;
-			} else {
-				# Since we're not creating PDF files; we're probably just using a plain
-				# vanilla latex. Hence; we need EPS images.
 
-				################################################################################
-				# This is statement used below is system dependent.
-				# Notice that the range of colors is restricted when converting to postscript to keep the files small
-				# "cat $pngSourceFile  | /usr/math/bin/pngtopnm | /usr/math/bin/pnmtops -noturn > $adr_output"
-				# "cat $pngSourceFile  | /usr/math/bin/pngtopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn > $adr_output"
-				################################################################################
+# Png files do not need to be converted.
+# store the complete path to the original file
 
-				if ($aux_file_id =~  m|^$htmlDirectory|  or $aux_file_id =~  m|^$tempDirectory|)  {
-					# To serve an eps file copy an eps version of the png file to the subdirectory of eps/
-					my $linkPath = $self->directoryFromPath($fileName);
+	if ( $aux_file_id      =~ m|^$tempDirectory| ) { #case: file is stored in the course temporary directory
+		$resource_uri      =  $aux_file_id,
+		$pngSourceFilePath =  $aux_file_id;
+		$resource_uri      =~ s|$tempDirectory|$tempURL/|;
+		$resource_uri     .= ".$ext";
+	
+		$resource_object->path($pngSourceFilePath);
+		$resource_object->uri($resource_uri);
+		$resource_object->{copy_link}->{type} = 'orig';
+		$resource_object->{path}->{is_complete}=1;
+	} elsif ($aux_file_id =~ m|^$htmlDirectory| ) { #case: file is under the course html directory
+		$resource_uri      = $aux_file_id,
+		$pngSourceFilePath = $aux_file_id;
+		$resource_uri      =~ s|$htmlDirectory|$htmlURL|,
+		$resource_uri     .= ".$ext",
+		
+		$resource_object->path($pngSourceFilePath);
+		$resource_object->uri($resource_uri);
+		$resource_object->{copy_link}->{type} = 'copy';
+		$resource_object->{path}->{is_complete}=1;
+	
 
-					my $pngSourceFile = "$aux_file_id.png";
-					my $pngFileName = fileFromPath($pngSourceFile);
-					$adr_output = $self->surePathToTmpFile("$tempDirectory/eps/$studentLogin-$psvn-$pngFileName.eps") ;
+		# PNG files not in the htmlDirectory or tempDirectory
+		# sub trees are assumed to live under the templateDirectory
+		# subtree in the same directory as the problem.
+	
+		# it gives the  relative path to the current PG problem from the template directory
+		
+		my $directoryPath  = $self->directoryFromPath($pgFileName);
+		$pngSourceFilePath = "$templateDirectory${directoryPath}$aux_file_id.gif";
+							#my $link = "gif/$studentLogin-$psvn-set$setNumber-prob$probNum-$aux_file_id.$ext";
+							#warn "pgFileName is $pgFileName filePath is $pgFileName gifSourceFile is $gifFileSource";
+		$resource_uri = "$templateDirectory${directoryPath}$aux_file_id.gif";
+		$resource_uri .= ".$ext",
+		$resource_object->path($pngSourceFilePath);
+		$resource_object->uri($resource_uri);
+		$resource_object->{copy_link}->{type} = 'copy';
+		$resource_object->{path}->{is_complete}=1;
+	}
 
-					if (-e $pngSourceFile) {
-						#system("cat $pngSourceFile  | /usr/math/bin/pngtopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output")
-						system("cat $pngSourceFile | ${externalPng2EpsPath} > $adr_output" )
-							&& die "Unable to create eps file:\n |$adr_output| from file\n |$pngSourceFile|\n in problem $probNum " .
-							       "using the system dependent commands\n |${externalPng2EpsPath}| \n";
-					} else {
-						die "|$pngSourceFile| cannot be found.  Problem number: |$probNum|";
-					}
-				} else {
-					# To serve an eps file copy an eps version of the png file to  a subdirectory of eps/
-					my $filePath = $self->directoryFromPath($fileName);
-					my $pngSourceFile = "${templateDirectory}${filePath}$aux_file_id.png";
-					#print "content-type: text/plain \n\nfileName = $fileName and aux_file_id =$aux_file_id<BR>";
-					$adr_output = $self->surePathToTmpFile("eps/$studentLogin-$psvn-set$setNumber-prob$probNum-$aux_file_id.eps") ;
-					if (-e $pngSourceFile) {
-						#system("cat $pngSourceFile  | /usr/math/bin/pngtopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output") &&
-						#warn "Unable to create eps file: |$adr_output|\n from file\n |$pngSourceFile|\n in problem $probNum";
-						#warn "Help ${externalPng2EpsPath}" unless -x "${externalPng2EpsPath}";
-						system("cat $pngSourceFile | ${externalPng2EpsPath} > $adr_output" )
-							&& die "Unable to create eps file:\n |$adr_output| from file\n |$pngSourceFile|\n in problem $probNum " .
-							       "using the system dependent commands\n |${externalPng2EpsPath}| \n ";
-					} else {
-						die "|$pngSourceFile| cannot be found.  Problem number: |$probNum|";
-					}
-				}
-			}
-	$adr_output;
 
-}
+} 
+
+# 
+# 				# Since we're not creating PDF files; we're probably just using a plain
+# 				# vanilla latex. Hence; we need EPS images.
+# 
+# 				################################################################################
+# 				# This is statement used below is system dependent.
+# 				# Notice that the range of colors is restricted when converting to postscript to keep the files small
+# 				# "cat $pngSourceFile  | /usr/math/bin/pngtopnm | /usr/math/bin/pnmtops -noturn > $adr_output"
+# 				# "cat $pngSourceFile  | /usr/math/bin/pngtopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn > $adr_output"
+# 				################################################################################
+# 
+# 				if ($aux_file_id =~  m|^$htmlDirectory|  or $aux_file_id =~  m|^$tempDirectory|)  {
+# 					# To serve an eps file copy an eps version of the png file to the subdirectory of eps/
+# 					my $linkPath = $self->directoryFromPath($fileName);
+# 
+# 					my $pngSourceFile = "$aux_file_id.png";
+# 					my $pngFileName = fileFromPath($pngSourceFile);
+# 					$adr_output = $self->surePathToTmpFile("$tempDirectory/eps/$studentLogin-$psvn-$pngFileName.eps") ;
+# 
+# 					if (-e $pngSourceFile) {
+# 						#system("cat $pngSourceFile  | /usr/math/bin/pngtopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output")
+# 						system("cat $pngSourceFile | ${externalPng2EpsPath} > $adr_output" )
+# 							&& die "Unable to create eps file:\n |$adr_output| from file\n |$pngSourceFile|\n in problem $probNum " .
+# 							       "using the system dependent commands\n |${externalPng2EpsPath}| \n";
+# 					} else {
+# 						die "|$pngSourceFile| cannot be found.  Problem number: |$probNum|";
+# 					}
+# 				} else {
+# 					# To serve an eps file copy an eps version of the png file to  a subdirectory of eps/
+# 					my $filePath = $self->directoryFromPath($fileName);
+# 					my $pngSourceFile = "${templateDirectory}${filePath}$aux_file_id.png";
+# 					#print "content-type: text/plain \n\nfileName = $fileName and aux_file_id =$aux_file_id<BR>";
+# 					$adr_output = $self->surePathToTmpFile("eps/$studentLogin-$psvn-set$setNumber-prob$probNum-$aux_file_id.eps") ;
+# 					if (-e $pngSourceFile) {
+# 						#system("cat $pngSourceFile  | /usr/math/bin/pngtopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output") &&
+# 						#warn "Unable to create eps file: |$adr_output|\n from file\n |$pngSourceFile|\n in problem $probNum";
+# 						#warn "Help ${externalPng2EpsPath}" unless -x "${externalPng2EpsPath}";
+# 						system("cat $pngSourceFile | ${externalPng2EpsPath} > $adr_output" )
+# 							&& die "Unable to create eps file:\n |$adr_output| from file\n |$pngSourceFile|\n in problem $probNum " .
+# 							       "using the system dependent commands\n |${externalPng2EpsPath}| \n ";
+# 					} else {
+# 						die "|$pngSourceFile| cannot be found.  Problem number: |$probNum|";
+# 					}
+# 				}
+# 			}
+# 	$adr_output;
+# 
+# }
 
 ################################################
 
