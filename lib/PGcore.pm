@@ -92,9 +92,10 @@ sub pretty_print {
 sub pretty_print_html {    # provides html output -- NOT a method
     my $r_input = shift;
     my $level = shift;
-    $level = 4 unless defined($level);
+    $level = 5 unless defined($level);
     $level--;
-    return '' unless $level > 0;  # only print three levels of hashes (safety feature)
+    return "PGalias" if ref($r_input) eq 'PGalias';  # PGalias just has too much information
+    return 'too deep' unless $level > 0;  # only print four levels of hashes (safety feature)
     my $out = '';
     if ( not ref($r_input) ) {
     	$out = $r_input if defined $r_input;    # not a reference
@@ -106,7 +107,7 @@ sub pretty_print_html {    # provides html output -- NOT a method
 		
 		
 		foreach my $key ( sort ( keys %$r_input )) {
-			$out .= "<tr><TD> $key</TD><TD>=&gt;</td><td>&nbsp;".pretty_print_html($r_input->{$key}) . "</td></tr>";
+			$out .= "<tr><TD> $key</TD><TD>=&gt;</td><td>&nbsp;".pretty_print_html($r_input->{$key}, $level) . "</td></tr>";
 		}
 		$out .="</table>";
 	} elsif (ref($r_input) eq 'ARRAY' ) {
@@ -128,9 +129,10 @@ sub pretty_print_html {    # provides html output -- NOT a method
 sub pretty_print_tex {
 	my $r_input = shift;
 	my $level   = shift;
-    $level      = 4 unless defined($level);
+    $level      = 5 unless defined($level);
 	$level--;
-	return '' unless $level>0;  #only print three levels of hashes (safety feature)
+	return "PGalias" if ref($r_input) eq 'PGalias';  # PGalias just has too much information
+	return 'too deep' unless $level>0;  #only print four levels of hashes (safety feature)
 	
 	my $protect_tex = sub {my $str = shift; $str=~s/_/\\\_/g; $str };
 
