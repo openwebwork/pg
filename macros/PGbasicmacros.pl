@@ -2384,14 +2384,11 @@ sub image {
 				# alias should have given us the path to a PNG image. What we need
 				# to do is find out the dimmensions of this image, since pdflatex
 				# is too dumb to live.
-
-				#my ($height, $width) = getImageDimmensions($imagePath);
-				##warn "&image: $imagePath $height $width\n";
-				#unless ($height and $width) {
-				#	warn "Couldn't get the dimmensions of image $imagePath.\n"
-				#}
-				#$out = "\\includegraphics[bb=0 0 $height $width,width=$width_ratio\\linewidth]{$imagePath}\n";
-				$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
+				if ($imagePath) {
+					$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
+				} else {
+					$out = "";
+				}
 			} else {
 				# Since we're not creating PDF files, alias should have given us the
 				# path to an EPS file. latex can get its dimmensions no problem!
