@@ -217,13 +217,13 @@ sub make_alias {
 ###################################################################
 	
 	
-###################################################################
-# This section checks to see if a resource exists (in this problem) 
-#for this particular aux_file_id.
-# If so, we simply return the appropriate uri for the file.
-# The displayMode will be the same throughout the processing of the .pg file
-# This effectively cache's auxiliary files within a single PG question.
-###################################################################
+	###################################################################
+	# This section checks to see if a resource exists (in this problem) 
+	#for this particular aux_file_id.
+	# If so, we simply return the appropriate uri for the file.
+	# The displayMode will be the same throughout the processing of the .pg file
+	# This effectively cache's auxiliary files within a single PG question.
+	###################################################################
 	unless ( defined $self->get_resource($aux_file_id) ) {
     	$self->add_resource($aux_file_id, PGresource->new($self, $aux_file_id, $ext));
     	#warn "adding new resource_object $aux_file_id";
@@ -302,9 +302,9 @@ sub alias_for_html {
 	                         # case 1:  aux_file_id is complete or relative path to file
 	                         # case 2:  aux_file_id is file name alone relative to the templates directory.
     
-	#######################
-	#   gather needed data and declare it locally
-	#######################
+#######################
+#   gather needed data and declare it locally
+#######################
 	my $htmlURL       = $self->{htmlURL};
 	my $htmlDirectory = $self->{htmlDirectory};
 	my $pgFileName    = $self->{pgFileName};
@@ -312,50 +312,58 @@ sub alias_for_html {
 	my $tempDirectory = $self->{tempDirectory};
 	my $templateDirectory = $self->{templateDirectory};
 	
-	#######################
-	# update resource object
-	#######################
+#######################
+# update resource object
+#######################
 	my $resource_object = $self->get_resource($aux_file_id);
 	#$self->debug_message( "\nresource for $aux_file_id is ", ref($resource_object), $resource_object );
+	my ($resource_uri, $htmlFileSource, );
+	my $ext   =   "html";
    
    
-	# $resource_uri is a url in HTML  mode
-	# and a complete path in TEX mode.
-	
-	# Find a complete path to the auxiliary file by searching for it in the appropriate
-	# libraries.  
-	# Store the result in auxiliary_uri
 
 ##############################################
 # Find complete path to the original files
 ##############################################
-	my ($resource_uri, $htmlFileSource, );
-	my $ext   =   "html";
 
+# Find a complete path to the auxiliary file by searching for it in the appropriate
+# libraries.  
+# Store the result in auxiliary_uri  FIXME: TO BE DONE
 # not yet completely implemented
 # current implementation accepts only the course html directory, the file containing the .pg file 
 # and the temp directory as places to look for html files
 
+
+
+# $resource_uri is a url in HTML  mode
+# and a complete path in TEX mode.
+
 # No linking or copying action is needed for auxiliary files in the
 # ${Global::htmlDirectory} subtree.
 
+##################### Case1: we've got a full pathname to a file in either the temp directory or the htmlDirectory
+##################### Case2: we assume the file is in the same directory as the problem source file
+
 # store the complete path to the original file
-	if ( $aux_file_id =~ m|^$tempDirectory| ) { #case: file is stored in the course temporary directory
-		$resource_uri = $aux_file_id,
-		$htmlFileSource = $aux_file_id;
-		$resource_uri =~ s|$tempDirectory|$tempURL/|;
-		$resource_uri .= ".$ext";
+	if ( $aux_file_id     =~ m|^$tempDirectory| ) { #case: file is stored in the course temporary directory
+		$resource_uri     =  $aux_file_id,
+		$resource_uri     =~ s|$tempDirectory|$tempURL/|;
+		$resource_uri    .=  ".$ext";
+		$resource_object->uri($resource_uri);           #no unique id is needed -- public doc
+
+		$htmlFileSource   = $aux_file_id;		
 		$resource_object->path($htmlFileSource.".$ext");
-		$resource_object->uri($resource_uri);  #no unique id is needed -- public doc
-		$resource_object->{copy_link}->{type} = 'orig'; # no copying required
-		$resource_object->{path}->{is_complete}=1;
+		$resource_object->{copy_link}->{type}      = 'orig'; # no copying required
+		$resource_object->{path}->{is_complete}    =      1;
+		
 	} elsif ($aux_file_id =~ m|^$htmlDirectory| ) { #case: file is under the course html directory
-		$resource_uri = $aux_file_id,
+		$resource_uri    = $aux_file_id,
+		$resource_uri    =~ s|$htmlDirectory|$htmlURL|,
+		$resource_uri   .= ".$ext",
+		$resource_object->uri($resource_uri); #no unique id is needed -- public doc
+		
 		$htmlFileSource = $aux_file_id;
-		$resource_uri =~ s|$htmlDirectory|$htmlURL|,
-		$resource_uri .= ".$ext",
 		$resource_object->path($htmlFileSource);
-		$resource_object->uri($resource_uri.".$ext"); #no unique id is needed -- public doc
 		$resource_object->{copy_link}->{type} = 'orig';
 		$resource_object->{path}->{is_complete}=1;
 	} else {
@@ -371,9 +379,9 @@ sub alias_for_html {
 		# is the path to the .pg file
 		# it gives the  relative path to the current PG problem from the template directory
 		my $directoryPath = $self->directoryFromPath($pgFileName);
-		#$htmlFileSource = $self->convertPath("$templateDirectory${directoryPath}$aux_file_id.html");
-		$htmlFileSource = "$templateDirectory${directoryPath}$aux_file_id.$ext";
-		$resource_object->path($htmlFileSource);
+
+		$htmlFileSource = "$templateDirectory${directoryPath}$aux_file_id";
+		$resource_object->path($htmlFileSource.".$ext");
 		$resource_object->{copy_link}->{type} = 'link';
 		$resource_object->{path}->{is_complete}=0;
 		$resource_object->{uri}->{is_complete}=0;
@@ -384,30 +392,32 @@ sub alias_for_html {
 
 
 ##############################################
-# Create links, between private directories such as myCourse/template
+# Create links, 
+# between private directories such as myCourse/template
 # and public directories (such as   wwtmp/courseName or myCourse/html
 # The location of the links depends on the type and location of the file
 ##############################################
 
 	if ( $resource_object->{copy_link}->{type} eq 'link') {
-		my $unique_id = $resource_object->{unique_id};
-		my $link = "html/$unique_id.$ext";
-		my $resource_uri = "${tempURL}$link"; #FIXME -- insure that the slash is at the end of $tempURL
-		my $linkPath = $self->surePathToTmpFile($link);
+		my $unique_id      = $resource_object->{unique_id};
+		my $link           = "html/$unique_id.$ext";
+		my $resource_uri   = "${tempURL}$link"; #FIXME -- insure that the slash is at the end of $tempURL
+		my $linkPath       = $self->surePathToTmpFile($link);
 		
-		if (-e $htmlFileSource) {
-		#################
-		# destroy the old link.
-		#################
+		if (-e $resource_object->path()) {
+
+#################
+# destroy the old link.
+#################
 			if (-e $linkPath) {
 				unlink($linkPath) || $self->warning_message( "Unable to unlink alias file at |$linkPath|");
 				
 			}
-		#################
-		# create new link.
-		# create uri to this link
-		#################
-			if (symlink( $htmlFileSource, $linkPath)) {
+#################
+# create new link.
+# create uri to this link
+#################
+			if (symlink( $resource_object->path(), $linkPath)) {
 				$resource_object->{path}->{is_accessible}       =1;
 				$resource_object->{copy_link}->{link_to_path}   = $linkPath;
 				$resource_object->{path}->{is_accessible}       = (-r $linkPath);
@@ -417,10 +427,10 @@ sub alias_for_html {
 				$resource_object->{path}->{is_complete}         = 1;
 				$resource_object->{uri}->{is_complete}          = 1;
 			} else {
-				$self->warning_message( "The macro alias cannot create a link from |$linkPath|  to |$htmlFileSource|.<BR>") ;
+				$self->warning_message( "The macro alias cannot create a link from |$linkPath|  to |".$resource_object->path()."|<BR>") ;
 			}
 		} else {
-			$self->warning_message("The macro alias cannot find an HTML file at: |$htmlFileSource|");
+			$self->warning_message("The macro alias cannot find an HTML file at: |".$resource_object->path()."|");
 			$resource_object->{path}->{is_accessible}= 0;
 			$resource_object->{uri}->{is_accessible} = 0;
 			# we should delete the resource object in this case?
@@ -436,63 +446,66 @@ sub alias_for_html {
 sub alias_for_gif_in_html_mode {
 	my $self = shift;
 	my $aux_file_id = shift;
-    $self->debug_message( "entering alias_for_gif_in_html_mode $aux_file_id");
+    # $self->debug_message( "entering alias_for_gif_in_html_mode $aux_file_id");
     
-	#######################
-	# gather needed data and declare it locally
-	#######################
+#######################
+# gather needed data and declare it locally
+#######################
 	my $htmlURL       = $self->{htmlURL};
     my $htmlDirectory = $self->{htmlDirectory};
 	my $pgFileName      = $self->{pgFileName};
 	my $tempURL       = $self->{tempURL};
 	my $tempDirectory = $self->{tempDirectory};
 	my $templateDirectory = $self->{templateDirectory};
-	
-    #######################
-	# update resource object
-	#######################
+#######################
+# update resource object
+#######################
+	my ($resource_uri,  );
+	my $ext   =   "gif";
 	my $resource_object = $self->get_resource($aux_file_id);
-	# $self->warning_message( "\nresource for $aux_file_id is ", ref($resource_object), $resource_object );
-    $resource_object->{type}='gif';
-    $resource_object->{parent_file_id}=$pgFileName;
+    #$resource_object->{type}='gif';
     
-	# $resource_uri is a url in HTML  mode
-	# and a complete path in TEX mode.
-	
-	# Find a complete path to the auxiliary file by searching for it in the appropriate
-	# libraries.  
-	# Store the result in auxiliary_uri  FIXME: TO BE DONE
-	# not yet completely implemented
-	# current implementation accepts only the course html directory, the file containing the .pg file 
-	# and the temp directory as places to look for html files
-
 ##############################################
 # Find complete path to the original files
 ##############################################
-	my ($resource_uri, $gifFileSource, );
-	my $ext   =   "gif";
+
+# Find a complete path to the auxiliary file by searching for it in the appropriate
+# libraries.  
+# Store the result in auxiliary_uri  FIXME: TO BE DONE
+# not yet completely implemented
+# current implementation accepts only the course html directory, the file containing the .pg file 
+# and the temp directory as places to look for html files
+
+
+
+# $resource_uri is a url in HTML  mode
+# and a complete path in TEX mode.
+
 
 
 # No linking or copying action is needed for auxiliary files in the
 # ${Global::htmlDirectory} subtree.
+
+# $self->debug_message("find full path to file $aux_file_id");
 # store the complete path to the original file
-
-	if ( $aux_file_id =~ m|^$tempDirectory| ) { #case: file is stored in the course temporary directory
-		$resource_uri = $aux_file_id,
-		$gifFileSource = $aux_file_id;
-		$resource_uri =~ s|$tempDirectory|$tempURL/|;
-		$resource_uri .= ".$ext";
-
-		$resource_object->path($gifFileSource);
-		$resource_object->uri($resource_uri);
+	if ( $aux_file_id   =~ m|^$tempDirectory| ) { #case: file is stored in the course temporary directory
+		$resource_uri   = $aux_file_id;
+		$resource_uri   =~ s|$tempDirectory|$tempURL/|;
+		$resource_uri  .= ".$ext";
+		$resource_object->uri($resource_uri);           #no unique id is needed -- public doc
+		
+		my $gifSourceFilePath  = $aux_file_id;
+		$resource_object->path($gifSourceFilePath.".$ext");
 		$resource_object->{copy_link}->{type} = 'orig';
-		$resource_object->{path}->{is_complete}=1;
+		$resource_object->{path}->{is_complete} = 1;
+		
 	} elsif ($aux_file_id =~ m|^$htmlDirectory| ) { #case: file is under the course html directory
-		$resource_uri = $aux_file_id,
-		$gifFileSource = $aux_file_id;
-		$resource_uri =~ s|$htmlDirectory|$htmlURL|,
-		$resource_uri .= ".$ext",
-		$resource_object->path($gifFileSource);
+		$resource_uri     = $aux_file_id;
+		$resource_uri     =~ s|$htmlDirectory|$htmlURL|;
+		$resource_uri    .= ".$ext";
+		
+		my $gifFileSource    = $aux_file_id;
+		$resource_object->path($gifFileSource.".$ext");
 		$resource_object->uri($resource_uri);
 		$resource_object->{copy_link}->{type} = 'orig';
 		$resource_object->{path}->{is_complete}=1;
@@ -506,16 +519,16 @@ sub alias_for_gif_in_html_mode {
 		# --- All of the subdirectories of html/tmp/gif which are needed are also created.
 		# use a unique_id instead
 	
-		# $pgFileName is obtained from environment and
+		# $pgFileName was obtained from environment originally and
 		# it gives the  relative path to the current PG problem from the template directory
 		
 		my $directoryPath = $self->directoryFromPath($pgFileName);
-		$gifFileSource = "$templateDirectory${directoryPath}$aux_file_id.gif";
-							#my $link = "gif/$studentLogin-$psvn-set$setNumber-prob$probNum-$aux_file_id.$ext";
-   							#warn "pgFileName is $pgFileName filePath is $filePath gifSourceFile is $gifSourceFile";
-		$resource_object->path($gifFileSource);
+		my $gifSourceFilePath    = "$templateDirectory${directoryPath}$aux_file_id";
+		$resource_object->path($gifSourceFilePath.".$ext");
+		$resource_object->{path}->{is_complete}=0;
 		$resource_object->{copy_link}->{type} = 'link';
-		$resource_object->{path}->{is_complete}=1;
+		$resource_object->{uri}->{is_complete}=0;
+		$resource_object->create_unique_id();
 		# notice the resource uri is not yet defined -- we have to make the link first
 	}
 								#  Make file names work in Library Browser when the images in several
@@ -529,53 +542,55 @@ sub alias_for_gif_in_html_mode {
 								# 	  $libFix =~ s![^a-zA-Z0-9._-]!!g;
 								# 	  $libFix .= '-';
 								# 	}
-#########################################################################################
-# Create and store a unique id which depends on the parent pgFileName and path to the resource file
-# The uniqueID  also depends on the student, the course name and  the psvn through the uniqeID stub, because 
-# if the problem is recreated the specific file link we are linking to might change when the psvn changes.
-# You  also want students linked to the same file to NOT be aware of the fact that their particular file has not changed.
-# This is the reason for making this second part of the unique ID depend on the psvn even though the first unique ID stub 
-# also depends on the psvn.
-##############################################
 
-	my $unique_id_seed = $resource_object->path() . $resource_object->{parent_file_id}.$self->{psvn};
-	$resource_object->{unique_id} = 
-	      $self->{unique_id_stub} .
-	      '___'. create_uuid_as_string( UUID_V3, UUID_NS_URL, $unique_id_seed );
 
 
 ##############################################
-# Create links, 
+# Create links for objects of "link" type.
 # between private directories such as myCourse/template
 # and public directories (such as   wwtmp/courseName or myCourse/html
 # The location of the links depends on the type and location of the file
 ##############################################
-	
+
 	if ( $resource_object->{copy_link}->{type} eq 'link') {
-		my $unique_id = $resource_object->{unique_id};
-		my $link = "gif/$unique_id.$ext";
-		my $resource_uri = "${tempURL}$link"; #FIXME -- insure that the slash is at the end of $tempURL
-		my $linkPath = $self->surePathToTmpFile($link); # create gif directory if needed.
+	
+		my $unique_id     = $resource_object->{unique_id};
+		my $link          = "gif/$unique_id.$ext";
+		my $linkPath      = $self->surePathToTmpFile($link); # create gif directory if needed.
+
+		my $resource_uri  = "${tempURL}$link"; #FIXME -- insure that the slash is at the end of $tempURL
+
+#################
+# destroy the old link.
+# create new link.
+# create uri to this link
+#################
+
+		if (-e $resource_object->path()) {
 		
-		
-		if (-e $gifFileSource) {
 			if (-e $linkPath) {
 				unlink($linkPath) || warn "Unable to unlink old alias file at $linkPath";
 			}
-			if (symlink( $gifFileSource, $linkPath)) {
-				$resource_object->{path}->{is_accessible}=1;
-				$resource_object->{copy_link}->{link_to_path}= $linkPath;
+			if (symlink( $resource_object->path, $linkPath)) {
+				$resource_object->{copy_link}->{link_to_path}    = $linkPath;
+				$resource_object->{path}->{is_accessible}        = (-r $linkPath);
+				$resource_object->{path}->{is_complete}          = 1;
+				
 				$resource_object->uri($resource_uri);
+				$resource_object->{uri}->{is_accessible}         = $self->check_url($resource_object->uri());
+				$resource_object->{uri}->{is_complete}           = 1;
 			} else {
-				$self->warning_message( "The macro alias cannot create a link from |$linkPath|  to |$gifFileSource|.<BR>") ;
+				$self->warning_message( "The macro alias cannot create a link from |$linkPath|  to |".$resource_object->path."|.>") ;
 			}
 		} else {
-			$self->warning_message("The macro alias cannot find a GIF file at: |$gifFileSource|");
+			$self->warning_message("The macro alias cannot find a GIF file at: |".$resource_object->path."|");
 			$resource_object->{path}->{is_accessible}=0;
 			# we should delete the resource object in this case?
 		}
 		
 	}
+	# $self->debug_message("alias_for_html: url is ".$resource_object->uri(). " check ".$self->check_url($resource_object->uri()) );
+
 	$resource_object->uri();  # return the uri of the resource
 }
 
@@ -586,7 +601,7 @@ sub alias_for_gif_in_html_mode {
 sub alias_for_gif_in_tex_mode {
 	my $self = shift;
 	my $aux_file_id = shift;
-	$self->debug_message( "entering alias_for_gif_in_tex_mode $aux_file_id");
+	# $self->debug_message( "entering alias_for_gif_in_tex_mode $aux_file_id");
  
 #######################
 # gather needed data and declare it locally
@@ -602,9 +617,10 @@ sub alias_for_gif_in_tex_mode {
 # update resource object
 #######################
 	my $resource_object = $self->get_resource($aux_file_id);
-	# $self->warning_message( "\nresource for $aux_file_id is ", ref($resource_object), $resource_object );
-    $resource_object->{type}='gif';
-    $resource_object->{parent_file_id}=$pgFileName;
+	#$self->debug_message( "\nresource for $aux_file_id is ", ref($resource_object), $resource_object );
+	my ($resource_uri, $gifSourceFilePath, );
+	my $ext     =     "gif";
+
   
 	# $resource_uri is a url in HTML  mode
 	# and a complete path in TEX mode.
@@ -613,14 +629,7 @@ sub alias_for_gif_in_tex_mode {
 	# $adr_output is a url in HTML and Latex2HTML modes
 	# and a complete path in TEX mode.
 # 	my $adr_output;
-	
-	my ($resource_uri, $gifSourceFilePath, );
-	my $ext     =     "gif";
-################################################################################
-# Mung set name     ## extra dots confuse latex's graphics package  FIXME -- check with definition of allowable characters in set name.
-################################################################################
 
-#	$setNumber =~ s/\./_/g;  
 		        
 ################################################################################
 # Create PDF output directly -- convert .gif to .png format which pdflatex accepts natively
@@ -633,45 +642,63 @@ sub alias_for_gif_in_tex_mode {
 	# We're going to create PDF files with our TeX (using pdflatex); so we
 	# need images in PNG format.
 	
-################################################################################
-	# Find path to .gif file
-################################################################################
+##############################################
+# Find complete path to the original files
+##############################################
+
+# Find a complete path to the auxiliary file by searching for it in the appropriate
+# libraries.  
+# Store the result in auxiliary_uri  FIXME: TO BE DONE
+# not yet completely implemented
+# current implementation accepts only the course html directory, the file containing the .pg file 
+# and the temp directory as places to look for html files
+
+
+
+# $resource_uri is a url in HTML  mode
+# and a complete path in TEX mode.
+
+# No linking or copying action is needed for auxiliary files in the
+# ${Global::htmlDirectory} subtree.
 
 ##################### Case1: we've got a full pathname to a file in either the temp directory or the htmlDirectory
 ##################### Case2: we assume the file is in the same directory as the problem source file
 
-# Gif files always need to be converted to png files
+# Gif files always need to be converted to png files for inclusion in pdflatex documents.
 # store the complete path to the original file
 
 	if ( $aux_file_id      =~ m|^$tempDirectory| ) { #case: file is stored in the course temporary directory
 		$resource_uri      =  $aux_file_id,
-		$gifSourceFilePath =  $aux_file_id;
 		$resource_uri      =~ s|$tempDirectory|$tempURL/|;
 		$resource_uri     .= ".$ext";
-	
-		$resource_object->path($gifSourceFilePath);
-		$resource_object->uri($resource_uri);
-		$resource_object->{convert}->{needed} = 1;
-		$resource_object->{convert}->{from_path} = $gifSourceFilePath;
-		$resource_object->{convert}->{from_type} = 'gif';
-		$resource_object->{convert}->{to_path}   = '';  #define later
-		$resource_object->{convert}->{to_type}   = "png";
-		$resource_object->{path}->{is_complete}=1;
-	} elsif ($aux_file_id =~ m|^$htmlDirectory| ) { #case: file is under the course html directory
-		$resource_uri      = $aux_file_id,
-		$gifSourceFilePath = $aux_file_id;
-		$resource_object->{convert}->{needed} = 1;
-		$resource_object->{convert}->{from_path} = $gifSourceFilePath;
-		$resource_object->{convert}->{from_type} = 'gif';
-		$resource_object->{convert}->{to_path}   = '';  #define later
-		$resource_object->{convert}->{to_type}   = "png";
+		$resource_object->uri($resource_uri);           #no unique id is needed -- public doc
 
+		$gifSourceFilePath =  $aux_file_id;	
+		$resource_object->path($gifSourceFilePath.".$ext");
+		$resource_object->{convert}->{needed}    = 1;
+		$resource_object->{convert}->{from_path} = $gifSourceFilePath;
+		$resource_object->{convert}->{from_type} = 'gif';
+		$resource_object->{convert}->{to_path}   = '';  #define later
+		$resource_object->{convert}->{to_type}   = "png";
+		$resource_object->{path}->{is_complete}  = 1;
+	} elsif ($aux_file_id =~ m|^$htmlDirectory| ) { #case: file is under the course html directory
+		$gifSourceFilePath = $aux_file_id;
+		$resource_object->path($gifSourceFilePath);
+		$resource_object->{path}->{is_complete}=1;
+				
+		$resource_object->{convert}->{needed} = 1;
+		$resource_object->{convert}->{from_path} = $gifSourceFilePath;
+		$resource_object->{convert}->{from_type} = 'gif';
+		$resource_object->{convert}->{to_path}   = '';  #define later
+		$resource_object->{convert}->{to_type}   = "png";
+		
+		$resource_uri      = $aux_file_id,
 		$resource_uri      =~ s|$htmlDirectory|$htmlURL|,
 		$resource_uri     .= ".$ext",
 		
-		$resource_object->path($gifSourceFilePath);
+
 		$resource_object->uri($resource_uri);
-		$resource_object->{path}->{is_complete}=1;
+
 	
 	} else {
 		
@@ -826,48 +853,52 @@ sub alias_for_png_in_html_mode {
 #######################
 # update resource object
 #######################
+	my ($resource_uri, );
+	my $ext   =   "png";
 	my $resource_object = $self->get_resource($aux_file_id);
-	# $self->warning_message( "\nresource for $aux_file_id is ", ref($resource_object), $resource_object );
-    $resource_object->{type}='png';
-    $resource_object->{parent_file_id}=$pgFileName;
+    #$resource_object->{type}='png';
   
-	# $resource_uri is a url in HTML  mode
-	# and a complete path in TEX mode.
-
-	# Find a complete path to the auxiliary file by searching for it in the appropriate
-	# libraries.  
-	# Store the result in auxiliary_uri  FIXME: TO BE DONE
-	# not yet completely implemented
-	# current implementation accepts only the course html directory, the file containing the .pg file 
-	# and the temp directory as places to look for html files
-
 ##############################################
 # Find complete path to the original files
 ##############################################
-		my ($resource_uri, $pngTargetFilePath, );
-		my $ext   =   "png";  #FIXME (do we need png type defined in two places )
-	
-	
-	# No linking or copying action is needed for auxiliary files in the
-	# ${Global::htmlDirectory} subtree.
-	# store the complete path to the original file
 
+# Find a complete path to the auxiliary file by searching for it in the appropriate
+# libraries.  
+# Store the result in auxiliary_uri  FIXME: TO BE DONE
+# not yet completely implemented
+# current implementation accepts only the course html directory, the file containing the .pg file 
+# and the temp directory as places to look for html files
+
+
+
+# $resource_uri is a url in HTML  mode
+# and a complete path in TEX mode.
+
+
+
+# No linking or copying action is needed for auxiliary files in the
+# ${Global::htmlDirectory} subtree.
+
+# $self->debug_message("find full path to file $aux_file_id");
+# store the complete path to the original file
 	if ( $aux_file_id =~ m|^$tempDirectory| ) { #case: file is stored in the course temporary directory
 		$resource_uri = $aux_file_id,
-		$pngTargetFilePath = $aux_file_id;
 		$resource_uri =~ s|$tempDirectory|$tempURL/|;
 		$resource_uri .= ".$ext";
-
-		$resource_object->path($pngTargetFilePath);
-		$resource_object->uri($resource_uri);
+		$resource_object->uri($resource_uri);           #no unique id is needed -- public doc
+		
+		my $pngSourceFilePath = $aux_file_id;
+		$resource_object->path($pngSourceFilePath.".$ext");
 		$resource_object->{copy_link}->{type} = 'orig';
 		$resource_object->{path}->{is_complete}=1;
+		
 	} elsif ($aux_file_id =~ m|^$htmlDirectory| ) { #case: file is under the course html directory
-		$resource_uri = $aux_file_id,
-		$pngTargetFilePath = $aux_file_id;
-		$resource_uri =~ s|$htmlDirectory|$htmlURL|,
-		$resource_uri .= ".$ext",
-		$resource_object->path($pngTargetFilePath);
+		$resource_uri = $aux_file_id;
+		$resource_uri =~ s|$htmlDirectory|$htmlURL|;
+		$resource_uri .= ".$ext";
+				
+		my $pngSourceFilePath = $aux_file_id;
+		$resource_object->path($pngSourceFilePath.".$ext");
 		$resource_object->uri($resource_uri);
 		$resource_object->{copy_link}->{type} = 'orig';
 		$resource_object->{path}->{is_complete}=1;
@@ -885,28 +916,17 @@ sub alias_for_png_in_html_mode {
 		# it gives the  relative path to the current PG problem from the template directory
 		
 		my $directoryPath = $self->directoryFromPath($pgFileName);
-		$pngTargetFilePath = "$templateDirectory${directoryPath}$aux_file_id.png";
+		my $pngSourceFilePath = "$templateDirectory${directoryPath}$aux_file_id";
 							#my $link = "gif/$studentLogin-$psvn-set$setNumber-prob$probNum-$aux_file_id.$ext";
    							#warn "pgFileName is $pgFileName filePath is $filePath pngTargetFilePath is $pngTargetFilePath";
-		$resource_object->path($pngTargetFilePath);
+		$resource_object->path($pngSourceFilePath.".$ext");
+		$resource_object->{path}->{is_complete}=0;
 		$resource_object->{copy_link}->{type} = 'link';
-		$resource_object->{path}->{is_complete}=1;
+		$resource_object->{path}->{is_complete}=0;
+		$resource_object->create_unique_id();
 		# notice the resource uri is not yet defined -- we have to make the link first
 	}
 	
-# Create and store a unique id 
-# which depends on the parent pgFileName and path to the resource file
-# The uniqueID  also depends on the student, the course name and  the psvn through the uniqeID stub, because 
-# if the problem is recreated the specific file link we are linking to might change when the psvn changes.
-# You  also want students linked to the same file to NOT be aware of the fact that their particular file has not changed.
-# This is the reason for making this second part of the unique ID depend on the psvn even though the first unique ID stub 
-# also depends on the psvn.
-
-
-	my $unique_id_seed = $resource_object->path() . $resource_object->{parent_file_id}.$self->{psvn};
-	$resource_object->{unique_id} = 
-	      $self->{unique_id_stub} .
-	      '___'. create_uuid_as_string( UUID_V3, UUID_NS_URL, $unique_id_seed );
 
 #########################################################################################
 # Create links, 
@@ -916,28 +936,45 @@ sub alias_for_png_in_html_mode {
 #########################################################################################
 	
 	if ( $resource_object->{copy_link}->{type} eq 'link') {
+	
 		my $unique_id = $resource_object->{unique_id};
 		my $link = "gif/$unique_id.$ext";   #Note:  .png pictures are linked to the tempDirectory/gif subdirectory
-		my $resource_uri = "${tempURL}$link"; #FIXME -- insure that the slash is at the end of $tempURL
 		my $linkPath = $self->surePathToTmpFile($link); # create gif directory if needed.
-		if (-e $pngTargetFilePath) {
+
+		my $resource_uri = "${tempURL}$link"; #FIXME -- insure that the slash is at the end of $tempURL
+
+#################
+# destroy the old link.
+# create new link.
+# create uri to this link
+#################
+
+		if (-e $resource_object->path()) {
+		
 			if (-e $linkPath) {
 				unlink($linkPath) || warn "Unable to unlink old alias file at $linkPath";
 			}
-			if (symlink( $pngTargetFilePath, $linkPath)) {
-				$resource_object->{path}->{is_accessible}=1;
-				$resource_object->{copy_link}->{link_to_path}= $linkPath;
+			if (symlink( $resource_object->path(), $linkPath)) {
+				$resource_object->{copy_link}->{link_to_path}    = $linkPath;
+				$resource_object->{path}->{is_accessible}        = (-r $linkPath);
+				$resource_object->{path}->{is_complete}          = 1;
+
 				$resource_object->uri($resource_uri);
+				$resource_object->{uri}->{is_accessible}         = $self->check_url($resource_object->uri());
+				$resource_object->{uri}->{is_complete}           = 1;
+
 			} else {
-				$self->warning_message( "The macro alias cannot create a link from |$linkPath|  to |$pngTargetFilePath|.<BR>") ;
+				$self->warning_message( "The macro alias cannot create a link from |$linkPath|  to |".$resource_object->path."|.") ;
 			}
 		} else {
-			$self->warning_message("The macro alias cannot find a PNG file at: |$pngTargetFilePath|");
+			$self->warning_message("The macro alias cannot find a PNG file at: |".$resource_object->path."|");
 			$resource_object->{path}->{is_accessible}=0;
 			# we should delete the resource object in this case?
 		}
 		
 	}
+	# $self->debug_message("alias_for_html: url is ".$resource_object->uri(). " check ".$self->check_url($resource_object->uri()) );
+
 	$resource_object->uri();  # return the uri of the resource
 
 }
@@ -1148,8 +1185,8 @@ sub check_url {
 	 
 	 }
 	 my $check_url_command = $self->{envir}->{externalCheckUrl};
-	 $self->warning_message("check_url_command: $check_url_command -- externalCheckUrl is not properly defined in configuration file")
-	 	unless (-x $check_url_command );
+#	 $self->warning_message("check_url_command: $check_url_command -- externalCheckUrl is not properly defined in configuration file")
+#	 	unless (-x $check_url_command );
 	 my $response = `$check_url_command $url`; 
 	 # $self->debug_message("check_url: response for url $url is  $response");
 	 return ($response =~ /^$OK_CONSTANT/) ? 1 : 0; 
