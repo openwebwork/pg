@@ -1050,7 +1050,6 @@ sub solution {
 	my $diplaySolutions = PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!);
 	PG_restricted_eval(q!$main::solutionExists =1!);
 	if (PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!)) {$out = join(' ',@in);}
-    $out;
     
     if ($displayMode eq 'TeX')   {
 	    if ($printSolutionForInstructor) {
