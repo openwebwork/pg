@@ -26,6 +26,7 @@ sub new {
 	my $parent_alias = shift;
 	my $id           = shift;
 	my $type         = shift;
+	my %options      = @_;
 	$type =~s/^\.//; # remove initial period if included in type.
 	my $self = {
 
@@ -56,14 +57,14 @@ sub new {
 							 },
 		cache_info	 	=>  {},
 		unique_id    	=>  undef, 
+		%options,
 	};
 	bless $self, $class;
 	$self->warning_message( "PGresource must be called with an  alias object") unless ref($parent_alias) =~ /PGalias/;
 	$self->warning_message(  "PGresource must be called with a name" ) unless $id;
 	$self->warning_message(  "PGresource must be called with a type") unless $type;
-
-	# $self->initialize;
-	# $self->check_parameters;
+	# $self->warning_message( "Test warning message from resource object");
+	# Use this to check if the warning and debug channels have been hooked up to PGcore and PGalias correctly.
 	return $self;
 }
 

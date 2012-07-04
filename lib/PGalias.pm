@@ -226,8 +226,15 @@ sub make_alias {
 	# This effectively cache's auxiliary files within a single PG question.
 	###################################################################
 	unless ( defined $self->get_resource($aux_file_id) ) {
-    	$self->add_resource($aux_file_id, PGresource->new($self, $aux_file_id, $ext));
-    	#warn "adding new resource_object $aux_file_id";
+    	$self->add_resource($aux_file_id, 
+    	                    PGresource->new(
+    	                            $self,                    #parent alias of resource
+    	                            $aux_file_id,             # resource file name
+    	                            $ext,                     # resource type
+    	                            WARNING_messages => $self->{WARNING_messages},  #connect warning message channels
+                                    DEBUG_messages   => $self->{DEBUG_messages},
+    	));
+
     } else {
     	#warn "found existing resource_object $aux_file_id";
     	return $self->get_resource($aux_file_id)->uri() ; 
