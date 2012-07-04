@@ -159,10 +159,8 @@ sub check_parameters {
 
 sub make_alias {
    	my $self = shift;   	
-   	# input is a path to the original auxiliary file
-   	my $aux_file_id = shift @_;
-   	# warn "aux_file_id = $aux_file_id";
-
+   	my $aux_file_id = shift;
+	$self->debug_message("make alias for file $aux_file_id");
 	$self->warning_message( "Empty string used as input into the function alias") unless $aux_file_id;
 	
 	my $envir               = $self->{envir}; 
@@ -184,7 +182,7 @@ sub make_alias {
 	# $adr_output is a url in HTML and Latex2HTML modes
 	# and a complete path in TEX mode.
 	my $adr_output;
-	my $ext;
+	my $ext='';
 	
 #######################################################################	
 	# determine file type
@@ -193,19 +191,19 @@ sub make_alias {
 #######################################################################
 	# determine extension, if there is one
 	# if extension exists, strip and use the value for $ext
-	# files without extensions are considered to be picture files:
+	# files without extensions are flagged with errors.
 
-	#$self->debug_message("The auxiliary file id is $aux_file_id" );
+	#      								$self->debug_message("This auxiliary file id is $aux_file_id" );
 	if ($aux_file_id =~ s/\.([^\.]+)$// ) {
 		$ext = $1;
 	} else {
-		$self->warning_message( "This file name $aux_file_id did not have an extension.<BR> " .
+		$self->warning_message( "The file name $aux_file_id did not have an extension.<BR> " .
 		     "Every file name used as an argument to alias must have an extension.<BR> " .
-		     "The permissable extensions are .gif, .png, and .html .<BR>");
-		$ext  = "gif";
-		return undef;
+		     "The permissable extensions are .jpg, .pdf, .gif, .png, and .html .<BR>");
+		$ext  = undef;
+		return undef;  #quit;
 	}
-
+	#      								$self->debug_message("This auxiliary file id is $aux_file_id of type $ext" );
 
 	# in order to facilitate maintenance of this macro the routines for handling
 	# different file types are defined separately.  This involves some redundancy
@@ -248,47 +246,47 @@ sub make_alias {
 	
 	if ($ext eq 'html') {
 	   $adr_output = $self->alias_for_html($aux_file_id)
-	} elsif ($ext eq 'gif') {
-		if ( $displayMode eq 'HTML_MathJax'||
-		     $displayMode eq 'HTML_dpng'||
-		     $displayMode eq 'HTML' ||
-		     $displayMode eq 'HTML_tth'||
-		     $displayMode eq 'HTML_asciimath'||
-		     $displayMode eq 'HTML_LaTeXMathML'||
-		     $displayMode eq 'HTML_jsMath'||
-		     $displayMode eq 'HTML_img') {
+	} elsif (   $ext eq 'gif'  
+		     or $ext eq 'jpg' 
+		     or $ext eq 'png'
+		    ) {
+		if ($displayMode =~ /^HTML/ ) {
 			################################################################################
-			# .gif FILES in HTML; HTML_tth; HTML_dpng; HTML_img; and Latex2HTML modes
+			# image FILES in HTML; HTML_tth; HTML_dpng; HTML_img; HTML_asciimath; 
+			# HTML_LaTeXMathML; HTML_jsMath; HTML_img
 			################################################################################
-			#$adr_output=$self->alias_for_gif_in_html_mode($aux_file_id);
-			 $adr_output=$self->alias_for_image_in_html_mode($aux_file_id, "gif");
+			 
+			 $adr_output=$self->alias_for_image_in_html_mode($aux_file_id, $ext);
 		
 		} elsif ($displayMode eq 'TeX') {
 			################################################################################
 			# .gif FILES in TeX mode
 			################################################################################
-            $adr_output=$self->alias_for_gif_in_tex_mode($aux_file_id);
+            $adr_output=$self->alias_for_image_in_tex_mode($aux_file_id, $ext);
 		
 		} else {
 			die "Error in alias: PGalias.pm: unrecognizable displayMode = $displayMode";
 		}
-	} elsif ($ext eq 'png') {
-		if ( $displayMode eq 'HTML_MathJax'||
-		     $displayMode eq 'HTML_dpng'||
-		     $displayMode eq 'HTML' ||
-		     $displayMode eq 'HTML_tth'||
-		     $displayMode eq 'HTML_asciimath'||
-		     $displayMode eq 'HTML_LaTeXMathML'||
-		     $displayMode eq 'HTML_jsMath'||
-		     $displayMode eq 'HTML_img' )  {
-		    #$adr_output = $self->alias_for_png_in_html_mode($aux_file_id);
-		     $adr_output = $self->alias_for_image_in_html_mode($aux_file_id, "png" );
+	} elsif ($ext eq 'svg') {
+		if ($displayMode =~/HTML/) {
+			$self->warning_message("The image $aux_file_id of type $ext cannot yet be displayed in TeX mode");
+			# svg images need an embed tag not an image tag -- need to modify image for this also
+			# an alternative (not desirable) is to convert svg to png
 		} elsif ($displayMode eq 'TeX') {
-			$adr_output = $self->alias_for_png_in_tex_mode($aux_file_id);
-		
+			$self->warning_message("The image $aux_file_id of type $ext cannot yet be displayed in TeX mode");
 		} else {
-			warn  "Error in alias: PGalias.pm","unrecognizable displayMode = $displayMode","";
+			die "Error in alias: PGalias.pm: unrecognizable displayMode = $displayMode";
 		}
+	
+	} elsif ($ext eq 'pdf') {
+		if ($displayMode =~/HTML/) {
+			$self->warning_message("The image $aux_file_id of type $ext cannot yet be displayed in HTML mode");
+		} elsif ($displayMode eq 'TeX') {
+			$adr_output=$self->alias_for_image_in_tex_mode($aux_file_id, $ext);
+		} else {
+			die "Error in alias: PGalias.pm: unrecognizable displayMode = $displayMode";
+		}
+	
 	} else { # $ext is not recognized
 		################################################################################
 		# FILES  with unrecognized file extensions in any display modes
@@ -456,7 +454,7 @@ sub alias_for_image_in_html_mode {
 	my $self        = shift;
 	my $aux_file_id = shift;
 	my $ext         = shift;
-
+	$self->debug_message("entering alias_for_image_in_html_mode with file $aux_file_id of type $ext");
 #######################
 # gather needed data and declare it locally
 #######################
@@ -577,11 +575,11 @@ sub alias_for_image_in_html_mode {
 				$self->warning_message( "The macro alias cannot create a link from |$linkPath|  to |".$resource_object->path."|.") ;
 			}
 		} else {
-			$self->warning_message("The macro alias cannot find a image $ext file at: |".$resource_object->path."|");
+			$self->warning_message("The macro alias cannot find an image $ext file at: |".$resource_object->path."|");
 			$resource_object->{path}->{is_accessible}=0;
 			# we should delete the resource object in this case?
 		}
-	$self->debug_message("alias_for_html: url is ".$resource_object->uri(). " linkPath is $linkPath" );
+	$self->debug_message("alias_for_image_in_html: $aux_file_id is given url  ".$resource_object->uri(). " linkPath is $linkPath" );
 		
 	}
 	$resource_object->uri();  # return the uri of the resource
@@ -736,6 +734,183 @@ sub alias_for_gif_in_html_mode {
 		
 	}
 	$resource_object->uri();  # return the uri of the resource
+}
+
+
+################################################################################
+# alias for image in tex mode
+################################################################################
+
+
+
+
+sub alias_for_image_in_tex_mode {
+	my $self         = shift;
+	my $aux_file_id  = shift;
+	my $ext          = shift;
+
+	# $self->debug_message( "entering alias_for_gif_in_tex_mode $aux_file_id");
+ ##### other things we need #########
+ 
+    my $from_file_type       = $ext ;
+    my $to_file_type         = "png" ;           # needed for conversion cases
+    
+    my $convert_fileQ        = ($ext      eq   'png' # graphic types accepted by 
+                                  or $ext eq   'pdf'
+                                  or $ext eq   'jpg'
+                                )? 0: 1   ;      # does this file need conversion
+    
+    my $link_fileQ =0        ;      # does this file need to be linked?
+    my $targetDirectory      = "images" ;      # subdirectory of tmp directory
+    my $conversion_command   = $self->{externalGif2PngPath};
+#######################
+# gather needed data and declare it locally
+#######################
+	my $htmlURL           = $self->{htmlURL};
+    my $htmlDirectory     = $self->{htmlDirectory};
+	my $pgFileName        = $self->{pgFileName};
+	my $tempURL           = $self->{tempURL};
+	my $tempDirectory     = $self->{tempDirectory};
+	my $templateDirectory = $self->{templateDirectory};
+
+#######################
+# update resource object
+#######################
+	my ($resource_uri,  );
+	my $resource_object = $self->get_resource($aux_file_id);
+
+		        
+################################################################################
+# Create PDF output directly -- convert .gif to .png format which pdflatex accepts natively
+################################################################################
+
+	unless ($self->{envir}->{texDisposition} eq "pdf") {
+		$self->warning_message("Support for pure latex output (as opposed to pdflatex output) is not implemented.");
+		return ""; # blank resource_uri
+	}
+	# We're going to create PDF files with our TeX (using pdflatex); so we
+	# need images in PNG format.
+	# No longer support for pure latex/DVI construction
+
+
+##############################################
+# Find complete path to the original files
+##############################################
+
+# Find a complete path to the auxiliary file by searching for it in the appropriate
+# libraries.  
+# Store the result in auxiliary_uri  FIXME: TO BE DONE
+# not yet completely implemented
+# current implementation accepts only the course html directory, the file containing the .pg file 
+# and the temp directory as places to look for html files
+
+
+
+# $resource_uri is a url in HTML  mode
+# and a complete path in TEX mode.
+
+# No linking or copying action is needed for auxiliary files in the
+# ${Global::htmlDirectory} subtree.
+
+##################### Case1: we've got a full pathname to a file in either the temp directory or the htmlDirectory
+##################### Case2: we assume the file is in the same directory as the problem source file
+
+# store the complete path to the original file
+
+	if ( $aux_file_id      =~ m|^$tempDirectory| ) { #case: file is stored in the course temporary directory
+
+		my $sourceFilePath =  $aux_file_id;	
+		$resource_object->path($sourceFilePath.".$ext");
+		$resource_object->{path}->{is_complete}  = 1;
+# Gif files always need to be converted to png files for inclusion in pdflatex documents.
+		
+		$resource_object->{convert}->{needed}    = 1;
+		$resource_object->{convert}->{from_path} = $sourceFilePath.".$ext";
+		$resource_object->{convert}->{from_type} = $from_file_type;
+		$resource_object->{convert}->{to_path}   = '';  #define later
+		$resource_object->{convert}->{to_type}   = $to_file_type;
+
+	} elsif ($aux_file_id =~ m|^$htmlDirectory| ) { #case: file is under the course html directory
+
+		my $sourceFilePath = $aux_file_id;
+		$resource_object->path($sourceFilePath.".$ext");
+		$resource_object->{path}->{is_complete}=1;
+				
+		$resource_object->{convert}->{needed}    = $convert_fileQ;
+		$resource_object->{convert}->{from_path} = $sourceFilePath.".$ext";
+		$resource_object->{convert}->{from_type} = $from_file_type;
+		$resource_object->{convert}->{to_path}   = '';  #define later
+		$resource_object->{convert}->{to_type}   = $to_file_type;
+		
+	
+	} else {
+		
+		# GIF files not in the htmlDirectory sub tree are assumed to live under the templateDirectory
+		# subtree in the same directory as the problem.
+		# Create an alias file (link) in the directory html/images which
+		# points to the original gif file in the template directory and and return the URI of this alias.
+		# --- All of the subdirectories of html/tmp/gif which are needed are also created.
+		# use a unique_id instead
+	
+		# $pgFileName was obtained from environment originally and
+		# it gives the  relative path to the current PG problem from the template directory
+		
+		my $directoryPath = $self->directoryFromPath($pgFileName);
+		my $sourceFilePath = "$templateDirectory${directoryPath}$aux_file_id";
+							#my $link = "gif/$studentLogin-$psvn-set$setNumber-prob$probNum-$aux_file_id.$ext";
+							#warn "pgFileName is $pgFileName filePath is $pgFileName gifSourceFile is $gifFileSource";
+		$resource_object->path($sourceFilePath.".$ext");
+		$resource_object->{path}->{is_complete}=1;
+		
+
+		$resource_object->{convert}->{needed}     = $convert_fileQ;
+		$resource_object->{convert}->{from_path}  = $resource_object->path();
+		$resource_object->{convert}->{from_type}  = $from_file_type;
+		$resource_object->{convert}->{to_path}    = '';  #define later
+		$resource_object->{convert}->{to_type}    = $to_file_type;
+
+		# notice the resource uri is not yet defined -- we have to make the link first
+	}
+
+	if ($resource_object->{convert}->{needed} ) {	
+		################################################################################
+		# Create path to new .png file 
+		# Create  new .png file 
+		# We may not have permission to do this in the template directory
+		# so we create the file in the course temp directory.
+		################################################################################
+    	$resource_object->create_unique_id();
+    	my $unique_id                          = $resource_object->{unique_id};
+		my $link                               = "$targetDirectory/$unique_id.png";                  
+		my $targetFilePath                     = $self->surePathToTmpFile($link);
+		$self->debug_message("targetFilePath is $targetFilePath");
+		$resource_object->{convert}->{to_path} = $targetFilePath;
+		my $sourceFilePath = $resource_object->{convert}->{from_path};
+		# conversion_command is imported into this subroutine.
+		my $returnCode = system "cat $sourceFilePath | $conversion_command > $targetFilePath";
+		#$resource_object->debug_message( "FILE path $targetFilePath  created =", -e $targetFilePath );
+		#$resource_object->debug_message( "return Code $returnCode from cat $sourceFilePath | $command > $targetFilePath");
+		if ($returnCode or not -e $targetFilePath) {
+			$resource_object->warning_message( "returnCode $returnCode: failed to convert $sourceFilePath to $targetFilePath using gif->png with $conversion_command: $!");
+		}
+	
+	
+		$resource_object->uri($resource_object->{convert}->{to_path});
+		$resource_object->{uri}->{is_complete} =1;
+		$resource_object->{uri}->{is_accessible} = (-r $resource_object->uri() );
+	} else { # no conversion needed
+		$resource_object->uri($resource_object->path());
+		$resource_object->{uri}->{is_complete} =1;
+		$resource_object->{uri}->{is_accessible} = (-r $resource_object->uri() );
+	}
+	
+################################################################################
+	# Return full path to image file  (resource_id)
+################################################################################
+
+	($resource_object->{uri}->{is_accessible} == 1 ) ? $resource_object->uri() : "";
+	
+
 }
 
 ################################################################################
