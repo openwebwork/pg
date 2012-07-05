@@ -45,7 +45,7 @@ sub _call {
 #
 
 #
-#  Subclass of fumeric functions that promote negative reals
+#  Subclass of numeric functions that promote negative reals
 #  to complex before performing the function (so that sqrt(-2)
 #  is defined, for example).
 #
