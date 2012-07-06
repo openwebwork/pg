@@ -1024,6 +1024,8 @@ Hints are shown only after the number of attempts is greater than $:showHint
 ($main::showHint defaults to 1) and the check box named 'ShowHint' is set. The check box
 'ShowHint' is visible only after the number of attempts is greater than $main::showHint.
 
+Hints are always shown immediately to instructors to facilitate editing the hint section.
+
 $main::envir{'displayHintsQ'} is set to 1 when a hint is to be displayed.
 
 
@@ -1041,9 +1043,29 @@ $main::envir{'displayHintsQ'} is set to 1 when a hint is to be displayed.
 sub solution {
 	my @in = @_;
 	my $out = '';
+	my $permissionLevel = $envir->{permissionLevel}||0; #PG_restricted_eval(q!$main::envir{permissionLevel}!); #user permission level
+	# protect against undefined values
+	my $PRINT_FILE_NAMES_PERMISSION_LEVEL = ( defined( $envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'} ) ) ? $envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'} : 10000;
+    my $printSolutionForInstructor = $permissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL;
+	my $diplaySolutions = PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!);
 	PG_restricted_eval(q!$main::solutionExists =1!);
 	if (PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!)) {$out = join(' ',@in);}
-    $out;
+    
+    if ($displayMode eq 'TeX')   {
+	    if ($printSolutionForInstructor) {
+	    	$out = join(' ', "$BR(Show the student solution after due date: ) $BR $BBOLD $SOLUTION: $EBOLD $BR",@in);
+		} else 	{
+			$out = '';  # do nothing since hints are not available for download for students
+		}
+	} elsif ($printSolutionForInstructor) {  # always print hints for instructor types 
+		$out = join(' ', "$BR( Show the student solution after due date: )$BR $BBOLD SOLUTION: $EBOLD ", @in);
+	} elsif ( $diplaySolutions ) 	{
+
+	 ## FIXME -- doctoring the form could display solutions.
+
+		$out = join(' ',@in);  # display solution
+	}    
+	$out;
 }
 
 
@@ -2040,7 +2062,7 @@ sub htmlLink {
 	my $text = shift;
 	my $options = shift;
 	$options = "" unless defined($options);
-	return "$BBOLD\[ broken link:  $text \] $EBOLD" unless defined($url);
+	return "$BBOLD\[ $text  has broken link: $url \] $EBOLD" unless defined($url);
 	MODES( TeX        => "{\\bf \\underline{$text}}",
 	       HTML       => "<A HREF=\"$url\" $options>$text</A>"
 	);
@@ -2361,14 +2383,11 @@ sub image {
 				# alias should have given us the path to a PNG image. What we need
 				# to do is find out the dimmensions of this image, since pdflatex
 				# is too dumb to live.
-
-				#my ($height, $width) = getImageDimmensions($imagePath);
-				##warn "&image: $imagePath $height $width\n";
-				#unless ($height and $width) {
-				#	warn "Couldn't get the dimmensions of image $imagePath.\n"
-				#}
-				#$out = "\\includegraphics[bb=0 0 $height $width,width=$width_ratio\\linewidth]{$imagePath}\n";
-				$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
+				if ($imagePath) {
+					$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
+				} else {
+					$out = "";
+				}
 			} else {
 				# Since we're not creating PDF files, alias should have given us the
 				# path to an EPS file. latex can get its dimmensions no problem!
