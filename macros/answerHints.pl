@@ -27,7 +27,7 @@ The answer hints are given as a pair using => with the right-hand
 side being the answer message and the left-hand side being one of
 three possibilities:  1) the value that triggers the message,
 2) a reference to an array of values that trigger the message, or
-3) a code reference to a subtroutine that accepts tthe correct
+3) a code reference to a subtroutine that accepts the correct
 answer, the student's answer, and the answer hash, and returns
 1 or 0 depending on whether the message should or should not be
 displayed.  (See the examples below.)
