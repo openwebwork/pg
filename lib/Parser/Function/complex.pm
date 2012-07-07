@@ -40,7 +40,7 @@ sub _call {
 
 ##################################################
 #
-#  Sepcifal versions of sqrt, log and ^ that are used
+#  Special versions of sqrt, log and ^ that are used
 #  in the Complex context.
 #
 
