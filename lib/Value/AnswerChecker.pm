@@ -1587,16 +1587,14 @@ sub cmp_defaults {
   ) if $self->type eq 'Union';
 
   my $type = $self->type;
-  $type = ($self->isComplex)? 'Complex': 'Real' if $type eq 'Number';
+  $type = ($self->isComplex? 'Complex': 'Real') if $type eq 'Number';
   $type = $self->Package($type).'::';
 
   return (
     &{$type.'cmp_defaults'}($self,@_),
     upToConstant => 0,
     showDomainErrors => 1,
-#  ) if defined(%$type) && $self->type ne 'List'; #causes errors in newest perl
-#	) if ( ref($type)=~/HASH/ ) && $self->type ne 'List'; # does NOT work --causes FortLewis error
-   ) if %$type && $self->type ne 'List';
+  ) if %$type && $self->type ne 'List';
   my $element;
   if ($self->{tree}->class eq 'List') {$element = $self->Package("Formula")->new($self->{tree}{coords}[0])}
     else {$element = $self->Package("Formula")->new(($self->createRandomPoints(1))[1]->[0]{data}[0])}
