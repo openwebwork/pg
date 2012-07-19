@@ -1,16 +1,14 @@
 ###########################################################
 #
-#  Example showing how to use the Parser's function
+#  Example showing how to use the MathObject function
 #  answer checker.
 #
 
 DOCUMENT();        # This should be the first executable line in the problem.
 
 loadMacros(
-  "PGbasicmacros.pl",
-  "PGanswermacros.pl",
-  "Parser.pl",
-  "Differentiation.pl",
+  "PGstandard.pl",
+  "MathObjects.pl",
 );
 
 TEXT(beginproblem());

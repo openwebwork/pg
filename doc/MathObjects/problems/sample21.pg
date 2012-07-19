@@ -1,15 +1,14 @@
 ###########################################################
 #
-#  Example showing how to use the Parser's function
-#  answer checker.
+#  Example showing how to use the MathObject answer checker
+#  for a list of points with formulas as coordinates.
 #
 
 DOCUMENT();        # This should be the first executable line in the problem.
 
 loadMacros(
-  "PGbasicmacros.pl",
-  "PGanswermacros.pl",
-  "Parser.pl",
+  "PGstandard.pl",
+  "MathObects.pl",
   "parserUtils.pl",
 );
 

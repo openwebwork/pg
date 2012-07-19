@@ -1,16 +1,14 @@
 ###########################################################
 #
-#  Example showing how to use the Parser's differentiation
-#  capabilities.
+#  Example showing how to use the MathObject library's 
+#  differentiation capabilities.
 #
 
 DOCUMENT();        # This should be the first executable line in the problem.
 
 loadMacros(
-  "PGbasicmacros.pl",
-  "PGanswermacros.pl",
-  "Parser.pl",
-  "Differentiation.pl",
+  "PGstandard.pl",
+  "MathObjects.pl",
 );
 
 TEXT(beginproblem());
@@ -46,7 +44,7 @@ Then \(f'(x)=\) \{ans_rule(20)\},$BR
 and \(f'($x)=\) \{ans_rule(20)\}.
 $PAR
 (Same as previous problem, but using the formal differentiation package.
-Note that automatic differentiation does not always produce the simples form.)
+Note that automatic differentiation does not always produce the simplest form.)
 
 END_TEXT
 
@@ -54,8 +52,8 @@ END_TEXT
 #
 #  The answers
 #
-ANS(fun_cmp($df->string));
-ANS(num_cmp($df->eval(x=>$x)));
+ANS($df->cmp);
+ANS($df->eval(x=>$x)->cmp);
 $showPartialCorrectAnswers = 1;
 
 ###########################################################

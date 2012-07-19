@@ -1,7 +1,7 @@
 ###########################################################
 #
-#  Example showing how to use the Parser's function
-#  answer checker.
+#  Example showing how to add constants to the context
+#  and use them in answers.
 #
 
 DOCUMENT();        # This should be the first executable line in the problem.
@@ -22,8 +22,8 @@ TEXT(beginproblem());
 $context = Context('Vector');
 $context->variables->are(t=>'Real');
 $context->constants->add(
-  p0 => Point(pi,sqrt(2),3/exp(1)),
-  v => Vector(exp(1),log(10),-(pi**2)),
+  p0 => Point(pi,sqrt(2),3/exp(1)),      # unlikely to be guessed by student
+  v => Vector(exp(1),log(10),-(pi**2)),  # unlikely to be guessed by student
 );
 $context->constants->set(v => {TeX => '\boldsymbol{v}'}); # make it print nicer
 
