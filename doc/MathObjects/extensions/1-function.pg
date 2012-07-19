@@ -1,14 +1,14 @@
 ##########################################################
 #
-#  Example showing how to add a new single-variable function to the Parser
+#  Example showing how to add a new single-variable function
+#  to a MathObjects Context
 #
 
 DOCUMENT();        # This should be the first executable line in the problem.
 
 loadMacros(
-  "PGbasicmacros.pl",
-  "PGanswermacros.pl",
-  "Parser.pl",
+  "PGstandard.pl",
+  "MathObjects.pl",
   "parserTables.pl",
 );
 
@@ -22,11 +22,11 @@ Context('Numeric');
 
 #############################################
 #
-#  Create a 'log2' function to the Parser for log base 2
+#  Create a 'log2' function for log base 2
 #
 
 package MyFunction1;
-our @ISA = qw(Parser::Function::numeric); # this is what makes it R -> R
+our @ISA = qw(Parser::Function::numeric);   # this is what makes it R -> R
 
 sub log2 {
   shift; my $x = shift;
@@ -41,7 +41,7 @@ package main;
 sub log2 {Parser::Function->call('log2',@_)}
 
 #
-#  Add the new functions into the Parser
+#  Add the new functions into the Context
 #
 
 Context()->functions->add(

@@ -1,14 +1,14 @@
 ##########################################################
 #
-#  Example showing how to use the built-in answer checker for parsed values.
+#  Example showing how to use the built-in answer checker
+#  for Point MathObjects.
 #
 
 DOCUMENT();        # This should be the first executable line in the problem.
 
 loadMacros(
-  "PGbasicmacros.pl",
-  "PGanswermacros.pl",
-  "Parser.pl",
+  "PGstandard.pl",
+  "MathObjects.pl",
 );
 
 TEXT(beginproblem());
@@ -18,12 +18,12 @@ TEXT(beginproblem());
 #  The setup
 #
 
-Context('Vector');
+Context('Point');
 
 $P1 = Point(-2,4,2);
 $P2 = Point(2,-3,1);
 
-$M = ($P1+$P2)/2;
+$M = ($P1+$P2)/2;  # still a Point object
 
 ##########################################################
 #

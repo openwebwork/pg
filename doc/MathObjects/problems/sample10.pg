@@ -1,14 +1,14 @@
 ##########################################################
 #
-#  Example showing how to use the built-in answer checker for parsed values.
+#  Example showing how to use the built-in answer checker
+#  for Vector MathObjects, and control the display of vectors.
 #
 
 DOCUMENT();        # This should be the first executable line in the problem.
 
 loadMacros(
-  "PGbasicmacros.pl",
-  "PGanswermacros.pl",
-  "Parser.pl",
+  "PGstandard.pl",
+  "MathObjects.pl",
 );
 
 TEXT(beginproblem());
@@ -23,9 +23,9 @@ Context('Vector');
 $P1 = Point(1,random(-3,3,1),random(-3,3,1));
 $P2 = Point(random(-3,3,1),4,random(-3,3,1));
 
-$V = Vector($P2-$P1);
+$V = Vector($P2-$P1);           # convert a point to a vector
 
-Context()->flags->set(ijk=>0);
+Context()->flags->set(ijk=>0);  # vectors are shown in <,,> notation
 Context()->constants->add(a=>1,b=>1,c=>1);
 
 $ABC = Formula("<a,b,c>");

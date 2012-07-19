@@ -1,6 +1,6 @@
 ################################################################
 #
-#  Example showing how to use the Parser to create functions you
+#  Example showing how to use MathObjects to create functions you
 #  can call from perl, to substitute values into a formula, and to
 #  convert a formula to a form that can be used in graphics generated
 #  on the fly.
@@ -9,11 +9,9 @@
 DOCUMENT();        # This should be the first executable line in the problem.
 
 loadMacros(
-  "PG.pl",
-  "PGbasicmacros.pl",
-  "PGanswermacros.pl",
+  "PGstandard.pl",
   "PGgraphmacros.pl",
-  "Parser.pl",
+  "MathObjects.pl",
   "parserUtils.pl",
 );
 
