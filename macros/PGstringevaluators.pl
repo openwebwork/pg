@@ -67,11 +67,12 @@ sub str_filters {
 	$rh_ans->{correct_ans}='';
 	my @filters_to_use = @_;
 	my %known_filters = (	
-	            'remove_whitespace'		=>	\&remove_whitespace,
-				'compress_whitespace'	=>	\&compress_whitespace,
-				'trim_whitespace'		=>	\&trim_whitespace,
-				'ignore_case'			=>	\&ignore_case,
-				'ignore_order'			=>	\&ignore_order,
+	    'remove_whitespace'		=>	\&remove_whitespace,
+	    'compress_whitespace'	=>	\&compress_whitespace,
+	    'trim_whitespace'		=>	\&trim_whitespace,
+	    'ignore_case'		=>	\&ignore_case,
+	    'ignore_order'		=>	\&ignore_order,
+	    'nullify'			=>	\&nullify,
 	);
 
 	#test for unknown filters
@@ -148,6 +149,21 @@ sub trim_whitespace {
 	$rh_ans->{correct_ans} =~ s/^\s*//;		# remove initial whitespace
 	$rh_ans->{correct_ans} =~ s/\s*$//;		# remove trailing whitespace
 
+	return $rh_ans;
+}
+
+=item nullify
+
+Returns the null string.
+
+=cut
+
+sub nullify {
+	my $rh_ans = shift;
+	die "expected an answer hash" unless ref($rh_ans)=~/HASH/i;
+	$rh_ans->{_filter_name} = 'nullify';
+	$rh_ans->{student_ans} = "";		# return null string for student answer
+	$rh_ans->{correct_ans} = "";		# return null string for correct answer
 	return $rh_ans;
 }
 
@@ -555,12 +571,13 @@ sub STR_CMP {
 	$answer_evaluator->install_pre_filter('erase') if $answer_evaluator->ans_hash->{correct_ans} eq '';
 
 	my %known_filters = (	
-	            'remove_whitespace'		=>	\&remove_whitespace,
-				'compress_whitespace'	=>	\&compress_whitespace,
-				'trim_whitespace'		=>	\&trim_whitespace,
-				'ignore_case'			=>	\&ignore_case,
-				'ignore_order'			=>	\&ignore_order,
-	);
+	    'remove_whitespace'		=>	\&remove_whitespace,
+	    'compress_whitespace'	=>	\&compress_whitespace,
+	    'trim_whitespace'		=>	\&trim_whitespace,
+	    'ignore_case'		=>	\&ignore_case,
+	    'ignore_order'		=>	\&ignore_order,
+	    'nullify'			=>	\&nullify,
+	    );
 
 	foreach my $filter ( @{$str_params{filters}} ) {
 		#check that filter is known
