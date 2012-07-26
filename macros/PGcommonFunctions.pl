@@ -98,7 +98,8 @@ package main;
 #  which package-specific version to call
 #
 
-Parser::defineLog();
+
+Parser::defineLog(); ## defined in PG.pl so warning about redefining log() can be avoided
 
 sub ln     {CommonFunction->Call('ln',@_)}
 sub logten {CommonFunction->Call('logten',@_)}

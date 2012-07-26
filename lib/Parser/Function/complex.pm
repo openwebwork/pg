@@ -40,12 +40,12 @@ sub _call {
 
 ##################################################
 #
-#  Sepcifal versions of sqrt, log and ^ that are used
+#  Special versions of sqrt, log and ^ that are used
 #  in the Complex context.
 #
 
 #
-#  Subclass of fumeric functions that promote negative reals
+#  Subclass of numeric functions that promote negative reals
 #  to complex before performing the function (so that sqrt(-2)
 #  is defined, for example).
 #

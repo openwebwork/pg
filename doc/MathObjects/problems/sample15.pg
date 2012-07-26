@@ -1,14 +1,14 @@
 ##########################################################
 #
-#  Example showing how to use the built-in answer checker for parsed values.
+#  Example showing how to use the built-in answer checker
+#  for String MathObjects.
 #
 
 DOCUMENT();        # This should be the first executable line in the problem.
 
 loadMacros(
-  "PGbasicmacros.pl",
-  "PGanswermacros.pl",
-  "Parser.pl",
+  "PGstandard.pl",
+  "MathObjects.pl",
   "parserUtils.pl",
 );
 
@@ -51,7 +51,8 @@ Context()->normalStrings;
 #  The answer
 #
 
-ANS(List("NONE")->cmp);
+ANS(List("NONE")->cmp);         #  Use List to get proper error messages for a list
+                                #  The string "NONE" is predefined
 $showPartialCorrectAnswers = 1;
 
 ###########################################################

@@ -34,7 +34,7 @@ sub Parser::D {
   @x = ($x[0]) x $d if $d;
   my $f = $self->{tree};
   foreach $x (@x) {
-    return $self->new('0') unless defined $self->{variables}{$x};
+    return (0*$self)->reduce('0*x'=>1) unless defined $self->{variables}{$x};
     $f = $f->D($x);
   }
   return $self->new($f);
@@ -143,8 +143,34 @@ sub Parser::BOP::power::D {
   return $self->reduce;
 }
 
-sub Parser::BOP::cross::D      {Item::D(shift)}
-sub Parser::BOP::dot::D        {Item::D(shift)}
+sub Parser::BOP::dot::D {
+  my $self = shift; my $x = shift;
+  my $equation = $self->{equation};
+  my $BOP = $self->Item("BOP");
+  $self =
+    $BOP->new($equation,'+',
+      $BOP->new($equation,$self->{bop},
+        $self->{lop}->D($x),$self->{rop}->copy($equation)),
+      $BOP->new($equation,$self->{bop},
+        $self->{lop}->copy($equation),$self->{rop}->D($x))
+    );
+  return $self->reduce;
+}
+
+sub Parser::BOP::cross::D {
+  my $self = shift; my $x = shift;
+  my $equation = $self->{equation};
+  my $BOP = $self->Item("BOP");
+  $self =
+    $BOP->new($equation,'+',
+      $BOP->new($equation,$self->{bop},
+        $self->{lop}->D($x),$self->{rop}->copy($equation)),
+      $BOP->new($equation,$self->{bop},
+        $self->{lop}->copy($equation),$self->{rop}->D($x))
+    );
+  return $self->reduce;
+}
+
 sub Parser::BOP::underscore::D {Item::D(shift)}
 
 #########################################################################
@@ -630,7 +656,7 @@ sub Parser::Complex::D {
 sub Parser::Constant::D {
   my $self = shift; my $x = shift;
   return $self->{def}{value}{tree}->D($x) if Value::isFormula($self->{def}{value});
-  $self->Item("Number")->new($self->{equation},0);
+  $self->Item("Value")->new($self->{equation},0*$self->{def}{value});
 }
 
 #########################################################################

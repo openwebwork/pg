@@ -1,15 +1,14 @@
 ###########################################################
 #
-#  Example showing how to use the Parser to make
+#  Example showing how to use MathObjects to make
 #  a formula that you can evaluate and print in TeX form.
 #
 
 DOCUMENT();        # This should be the first executable line in the problem.
 
 loadMacros(
-  "PGbasicmacros.pl",
-  "PGanswermacros.pl",
-  "Parser.pl",
+  "PGstandard.pl",
+  "MathObjects.pl",
 );
 
 TEXT(beginproblem());
@@ -58,7 +57,7 @@ END_TEXT
 #
 #  The answer
 #
-ANS(num_cmp($f->eval(x=>$x)));
+ANS($f->eval(x=>$x)->cmp);
 $showPartialCorrectAnswers = 1;
 
 ###########################################################

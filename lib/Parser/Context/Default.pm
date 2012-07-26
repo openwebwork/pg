@@ -352,7 +352,7 @@ $context->parens->set(
   '(' => {formMatrix => 1},
   '[' => {type => 'Matrix', removable => 0},
 );
-$context->{name} = "Vector";
+$context->{name} = "Matrix";
 
 #
 #  Interval context (make intervals rather than lists)

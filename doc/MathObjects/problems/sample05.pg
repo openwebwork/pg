@@ -1,6 +1,6 @@
 ################################################################
 #
-#  A more complex example showing how to use the Parser to create
+#  A more complex example showing how to use MathObjects to create
 #  functions you can call from perl, to substitute values into a
 #  formula, and to convert a formula to a form that can be used in
 #  graphics generated on the fly.
@@ -9,15 +9,13 @@
 DOCUMENT();        # This should be the first executable line in the problem.
 
 loadMacros(
-  "PGbasicmacros.pl",
-  "PGanswermacros.pl",
+  "PGstandard.pl",
   "PGgraphmacros.pl",
-  "PGauxiliaryFunctions.pl",
-  "Parser.pl",
+  "MathObjects.pl",
   "parserUtils.pl",
 );
 
-TEXT(&beginproblem);
+TEXT(beginproblem());
 
 ##############################################
 #
@@ -82,7 +80,7 @@ $plotoptions = "using color:red and weight:2";
 #
 #  Make the traces
 #
-$fx = $f->substitute(x => x, a => $a, b => $b, y => 'x')->reduce;
+$fx = $f->substitute(x => x, a => $a, b => $b, y => 'x')->reduce;  # funciton must be of x to plot it
 $Gx = init_graph(@Goptions);
 plot_functions($Gx,
   "$fx for x in <$ym,$yv] $plotoptions",
