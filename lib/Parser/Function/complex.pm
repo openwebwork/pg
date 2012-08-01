@@ -12,6 +12,7 @@ our @ISA = qw(Parser::Function);
 #
 sub _check {
   my $self = shift;
+  return $self->checkComplexOrMatrix(@_) if $self->{def}{matrix};
   return $self->checkComplex(@_) if $self->{def}{complex};
   return $self->checkReal(@_);
 }
@@ -22,7 +23,8 @@ sub _check {
 sub _eval {
   my $self = shift; my $name = $self->{name};
   my $c = shift; my $context = (Value::isValue($c) ? $c : $self)->context;
-  $self->Package("Complex")->promote($context,$c)->$name;
+  my $type = ($self->type eq "Matrix" ? "Matrix" : "Complex");
+  $self->Package($type)->promote($context,$c)->$name;
 }
 
 #
@@ -35,7 +37,8 @@ sub _call {
   Value::Error("Function '%s' has too many inputs",$name) if scalar(@_) > 1;
   Value::Error("Function '%s' has too few inputs",$name) if scalar(@_) == 0;
   my $c = shift; my $context = (Value::isValue($c) ? $c : $self)->context;
-  $self->Package("Complex")->promote($context,$c)->$name;
+  my $type = ($c->type eq "Matrix" ? "Matrix" : "Complex");
+  $self->Package($type)->promote($context,$c)->$name;
 }
 
 ##################################################

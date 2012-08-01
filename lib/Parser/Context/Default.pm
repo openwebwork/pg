@@ -196,7 +196,7 @@ $functions = {
    'mod'   => {class => 'Parser::Function::complex'},
    'Re'    => {class => 'Parser::Function::complex', TeX => '\Re'},
    'Im'    => {class => 'Parser::Function::complex', TeX => '\Im'},
-   'conj'  => {class => 'Parser::Function::complex', complex => 1, TeX => '\overline', braceTeX => 1},
+   'conj'  => {class => 'Parser::Function::complex', complex => 1, TeX => '\overline', braceTeX => 1, matrix => 1},
 
    # Det, Inverse, Transpose, Floor, Ceil?
 
