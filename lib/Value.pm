@@ -374,7 +374,7 @@ sub classMatch {
 =cut
 
 sub makeValue {
-  my $x = shift;
+  my $x = shift; return $x unless defined $x;
   my %params = (showError => 0, makeFormula => 1, context => Value->context, @_);
   my $context = $params{context};
   if (Value::isValue($x)) {
