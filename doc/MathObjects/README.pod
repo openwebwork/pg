@@ -59,10 +59,12 @@ available on the WeBWorK wiki
 The 'problems' directory contains several examples that show how to
 use MathObjects within your problem files.
 
+=over
+
 =item problems/sample01.pg
 
 Uses MathObjects to make a string into a formula that you can
-evaluate and print in TeX form
+evaluate and print in TeX form.
 
 =item problems/sample02.pg
 
