@@ -147,9 +147,8 @@ resulting item:
                                (Default: 1)
 
     allowBlankAnswers=>0 or 1  whether to remove the blank-check prefilter
-                               from the answer checkers for the answer
-                               checkers used for type checking the student's
-                               answers.
+                               from the answer checkers used for type
+                               checking the student's answers.
                                (Default: 0)
 
     separator => string        the string to use between entries in the

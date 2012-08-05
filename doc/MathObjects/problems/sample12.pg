@@ -1,14 +1,14 @@
 ##########################################################
 #
-#  Example showing how to use the built-in answer checker for parsed values.
+#  Example showing how to use the built-in answer checker
+#  for Union MathObjects.
 #
 
 DOCUMENT();        # This should be the first executable line in the problem.
 
 loadMacros(
-  "PGbasicmacros.pl",
-  "PGanswermacros.pl",
-  "Parser.pl",
+  "PGstandard.pl",
+  "MathObjects.pl",
   "parserUtils.pl",
 );
 

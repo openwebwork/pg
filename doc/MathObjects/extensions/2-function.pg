@@ -1,14 +1,14 @@
 ##########################################################
 #
-#  Example showing how to add a new two-variable function to the Parser
+#  Example showing how to add a new two-variable function
+#  to a MathObjects Context
 #
 
 DOCUMENT();        # This should be the first executable line in the problem.
 
 loadMacros(
-  "PGbasicmacros.pl",
-  "PGanswermacros.pl",
-  "Parser.pl",
+  "PGstandard.pl",
+  "MathObjects.pl",
   "parserTables.pl",
 );
 
@@ -43,9 +43,8 @@ package main;
 sub C {Parser::Function->call('C',@_)}
 
 #
-#  Add the new functions into the Parser
+#  Add the new function into the Context
 #
-
 Context()->functions->add(C => {class => 'MyFunction2'});
 
 $x = Formula('x');

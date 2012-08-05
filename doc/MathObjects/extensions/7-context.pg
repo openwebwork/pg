@@ -1,14 +1,15 @@
 ##########################################################
 #
-#  Example showing how to switch different contexts
+#  Example showing how to switch to different contexts, and
+#  the consequences of doing so on how some expressions
+#  are interpreted.
 #
 
 DOCUMENT();        # This should be the first executable line in the problem.
 
 loadMacros(
-  "PGbasicmacros.pl",
-  "PGanswermacros.pl",
-  "Parser.pl",
+  "PGstandard.pl",
+  "MathObjects.pl",
   "parserTables.pl",
 );
 

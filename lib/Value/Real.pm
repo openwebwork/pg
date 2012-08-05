@@ -36,7 +36,7 @@ sub new {
 sub make {
   my $self = shift;
   my $n = (Value::isContext($_[0]) ? $_[1] : $_[0]);
-  return $self->SUPER::make(@_) unless $n eq "nan";
+  return $self->SUPER::make(@_) unless "$n" eq "nan";
   Value::Error("Result is not a real number");
 }
 
