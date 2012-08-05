@@ -369,7 +369,7 @@ sub plot_functions {
 	$filePath = insertGraph(graphObject);
 		  returns a path to the file containing the graph image.
 
-B<Note:> Because insertGraph involves writing to the disk, it is actually defined in dangerousMacros.pl.
+B<Note:> insertGraph is defined in PGcore.pl, because it involves writing to the disk.
 
 insertGraph(graphObject) writes a image file to the C<html/tmp/gif> directory of the current course.
 The file name is obtained from the graphObject.  Warnings are issued if errors occur while writing to
@@ -398,11 +398,12 @@ Another common usage is:
 	TEXT(htmlLink( alias(insertGraph($graph), "picture" ) ) );
 
 which inserts the URL pointing to the picture.
-alias converts the directory address to a URL when serving HTML pages and insures that
-an eps file is generated when creating TeX code for downloading. (Image, automatically applies alias to its input
+
+alias() converts the directory address to a URL when serving HTML pages and insures that
+an eps file is generated when creating TeX code for downloading. (Image, automatically applies alias to its input 
 in order to obtain the URL.)
 
-See the documentation in F<dangerousMacros.pl> for the latest details.
+See the documentation in F<PGcore.pl> for the latest details.
 
 =cut
 

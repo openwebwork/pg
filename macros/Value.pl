@@ -99,9 +99,9 @@ sub Closed {
  #  Make it possible to use  1+3*i  in perl rather than  1+3*$i or 1+3*i()
  #  as well as 3*pi instead of 3*pi()
 
- #sub i ()  {Value->Package("Complex")->i};   #  defined in Parser.pl
- #sub pi () {Value->Package("Complex")->pi};  #  defined in dangerousMacros.pl
- #sub Infinity () {Value->Package("Infinity")->new()} # defined in dangerousMacros.pl
+ #sub i ()  {Value->Package("Complex")->i};   #  defined in PG.pl
+ #sub pi () {Value->Package("Complex")->pi};  #  defined in PG.pl
+ #sub Infinity () {Value->Package("Infinity")->new()} # defined in PG.pl
 
 =cut
 
