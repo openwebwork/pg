@@ -462,6 +462,7 @@ sub normalize {
   return ($self->new($M),$self->new($b));
 }
 
+sub solve {shift->solve_LR(@_)}
 sub solve_LR {
   my $self = shift;
   my $v = $self->new(shift)->wwMatrix;
@@ -475,6 +476,7 @@ sub condition {
   return $self->new($self->wwMatrix->condition($I));
 }
 
+sub order {shift->order_LR(@_)}
 sub order_LR {
   my $self = shift;
   return $self->wwMatrixLR->order_LR;
