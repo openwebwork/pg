@@ -487,7 +487,7 @@ sub format_matrix_HTML {
           . '</TR>'."\n";
   }
   return '<TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0" CLASS="ArrayLayout"'
-          . ' STYLE="display:inline;vertical-align:-'.(1.1*$rows-.6).'em">'
+          . ' STYLE="display:inline;margin:0;vertical-align:-'.(1.1*$rows-.6).'em">'
           . $HTML
           . '</TABLE>';
 }

@@ -99,7 +99,7 @@ package main;
 #
 
 
-Parser::defineLog(); ## defined in PG.pl so warning about redefining log() can be avoided
+Parser::defineLog();
 
 sub ln     {CommonFunction->Call('ln',@_)}
 sub logten {CommonFunction->Call('logten',@_)}
