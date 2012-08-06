@@ -7,9 +7,8 @@
 DOCUMENT();        # This should be the first executable line in the problem.
 
 loadMacros(
-  "PGbasicmacros.pl",
-  "PGanswermacros.pl",
-  "Parser.pl",
+  "PGstandard.pl",
+  "MathObjets.pl",
 );
 
 TEXT(beginproblem());
@@ -47,7 +46,7 @@ Context()->normalStrings;
 #  The answer
 #
 
-ANS(num_cmp(norm($V)->value));  # easier:  ANS($V->cmp)
+ANS(norm($V)->cmp);
 $showPartialCorrectAnswers = 1;
 
 ###########################################################

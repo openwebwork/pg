@@ -259,7 +259,7 @@ sub cmp_equal {
 
 our $CMP_ERROR = 2;   # a fatal error was detected
 our $CMP_WARNING = 3; # a warning was produced
-our $CMP_MESSAGE = 4; # an message should be reported for this check
+our $CMP_MESSAGE = 4; # a message should be reported for this check
 
 sub cmp_compare {
   my $self = shift; my $other = shift; my $ans = shift; my $nth = shift || '';
@@ -487,7 +487,7 @@ sub format_matrix_HTML {
           . '</TR>'."\n";
   }
   return '<TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0" CLASS="ArrayLayout"'
-          . ' STYLE="display:inline;vertical-align:-'.(1.1*$rows-.6).'em">'
+          . ' STYLE="display:inline;margin:0;vertical-align:-'.(1.1*$rows-.6).'em">'
           . $HTML
           . '</TABLE>';
 }
@@ -732,7 +732,7 @@ sub typeMatch {
 		compareOptions and default values:
 		  showTypeWarnings => 1,
 		  showEqualErrors  => 1,
-		  ignoreStrings    => 1   # don't complain about string-valued responses
+		  ignoreStrings    => 1,  # don't complain about string-valued responses
 		  typeMatch        => 'Value::Real'
 
 	Initial and final spaces are ignored when comparing strings.
@@ -1587,16 +1587,14 @@ sub cmp_defaults {
   ) if $self->type eq 'Union';
 
   my $type = $self->type;
-  $type = ($self->isComplex)? 'Complex': 'Real' if $type eq 'Number';
+  $type = ($self->isComplex? 'Complex': 'Real') if $type eq 'Number';
   $type = $self->Package($type).'::';
 
   return (
     &{$type.'cmp_defaults'}($self,@_),
     upToConstant => 0,
     showDomainErrors => 1,
-#  ) if defined(%$type) && $self->type ne 'List'; #causes errors in newest perl
-#	) if ( ref($type)=~/HASH/ ) && $self->type ne 'List'; # does NOT work --causes FortLewis error
-   ) if %$type && $self->type ne 'List';   
+  ) if %$type && $self->type ne 'List';
   my $element;
   if ($self->{tree}->class eq 'List') {$element = $self->Package("Formula")->new($self->{tree}{coords}[0])}
     else {$element = $self->Package("Formula")->new(($self->createRandomPoints(1))[1]->[0]{data}[0])}

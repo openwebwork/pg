@@ -16,7 +16,7 @@
 
 =head1 NAME
 
-contextLimitedVector.pl - Allow vector entry but now vector operations.
+contextLimitedVector.pl - Allow vector entry but no vector operations.
 
 =head1 DESCRIPTION
 

@@ -7,9 +7,8 @@
 DOCUMENT();        # This should be the first executable line in the problem.
 
 loadMacros(
-  "PGbasicmacros.pl",
-  "PGanswermacros.pl",
-  "Parser.pl",
+  "PGstandard.pl",
+  "MathObjects.pl",
 );
 
 TEXT(beginproblem());
@@ -50,8 +49,8 @@ END_TEXT
 #
 #  The answers
 #
-ANS(fun_cmp($df->string));
-ANS(num_cmp($df->eval(x=>$x)));
+ANS(df->cmp);
+ANS($df->eval(x=>$x)->cmp);
 $showPartialCorrectAnswers = 1;
 
 ###########################################################
