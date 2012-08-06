@@ -326,6 +326,7 @@ sub NAMED_ANS_RULE {
 		my @answers = @{ $answer_value};
     	$answer_value = shift(@answers);  # use up the first answer
     	$rh_sticky_answers->{$name}=\@answers;
+
     	# store the rest -- because this stores to a main:; variable
     	# it must be evaluated at run time
     	$answer_value= '' unless defined($answer_value);
@@ -1820,6 +1821,8 @@ sub EV3P {
     $string = ev_substring($string,"\\(","\\)",\&math_ev3);
     $string = ev_substring($string,"\\[","\\]",\&display_math_ev3);
   }
+  
+
   return $string;
 }
 
