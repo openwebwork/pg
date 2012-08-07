@@ -1887,6 +1887,11 @@ sub EV3P_parser {
 	OL(@array)      # formats the array as an Ordered List ( <OL> </OL> ) enumerated by letters.
 					# See BeginList()  and EndList in unionLists.pl for a more powerful version
 					# of this macro.
+	knowlLink($url, $text)
+	                # Places a reference to a knowl for the URL with the specified text in the problem.
+	                # A common usage is \{ knowlLink(alias('prob1_help.html') \}, 'for help')
+	                # where alias finds the full address of the prob1_help.html file in the same directory
+	                # as the problem file
 	htmlLink($url, $text)
 	                # Places a reference to the URL with the specified text in the problem.
 	                # A common usage is \{ htmlLink(alias('prob1_help.html') \}, 'for help')
@@ -2068,6 +2073,17 @@ sub htmlLink {
 	);
 }
 
+sub knowlLink {
+	my $url = shift;
+	my $text = shift;
+	my $options = shift;
+	$options = "" unless defined($options);
+	return "$BBOLD\[ broken link:  $text \] $EBOLD" unless defined($url);
+	MODES( TeX        => "{\\bf \\underline{$text}}",
+	       HTML       => "<A knowl=\"$url\" $options>$text</A>"
+	);
+}
+
 sub iframe {
 	my $url = shift;
 	my %options = @_;  # keys: height, width, id, name
@@ -2083,18 +2099,44 @@ sub iframe {
 }
 
 sub helpLink {
-	my $type1 = shift;
+	my $type = shift;
+        my $customstring = shift || $type;
+        my $helpurl = shift;
 	return "" if(not defined($envir{'localHelpURL'}));
-	my $type = lc($type1);
+        if (defined $helpurl) {
+	    return knowlLink( $envir{'localHelpURL'}.$helpurl, $customstring);
+        }
 	my %typeHash = (
-		'interval notation' => 'IntervalNotation.html',
-		'units' => 'Units.html',
+		'angle' => 'Entering-Angles.html',
+		'decimal' => 'Entering-Decimals.html',
+		'equation' => 'Entering-Equations.html',
+		'exponent' => 'Entering-Exponents.html',
+		'formula' => 'Entering-Formulas.html',
+		'fraction' => 'Entering-Fractions.html',
+		'inequalit' => 'Entering-Inequalities.html',
+		'limit' => 'Entering-Limits.html',
+		'log' => 'Entering-Logarithms.html',
+		'number' => 'Entering-Numbers.html',
+		'point' => 'Entering-Points.html',
+		'vector' => 'Entering-Vectors.html',
+		'interval' => 'IntervalNotation.html',
+		'unit' => 'Units.html',
 		'syntax' => 'Syntax.html',
 		);
-
-	my $infoRef = $typeHash{$type};
-	return htmlLink( $envir{'localHelpURL'}.$infoRef, $type1,
-'target="ww_help" onclick="window.open(this.href,this.target,\'width=550,height=350,scrollbars=yes,resizable=on\'); return false;"');
+         
+	my $infoRef = '';
+        for my $ref (keys %typeHash) {
+            if ( $type =~ /$ref/i) {
+                $infoRef = $typeHash{$ref};
+                last;
+            }
+        }
+        # If infoRef is still '', we give up
+        return $customstring unless ($infoRef);
+	return knowlLink( $envir{'localHelpURL'}.$infoRef, $customstring);
+# Old way of doing this:
+#	return htmlLink( $envir{'localHelpURL'}.$infoRef, $type1,
+#'target="ww_help" onclick="window.open(this.href,this.target,\'width=550,height=350,scrollbars=yes,resizable=on\'); return false;"');
 }
 
 sub appletLink {
