@@ -42,6 +42,18 @@ sub _PGessaymacros_init {
 }
 
 
+HEADER_TEXT(<<EOT);
+
+<script type="text/javascript" src="$webworkHtmlURL/js/tinymce/tiny_mce.js"></script> 
+<script type="text/javascript">
+    tinyMCE.init({ mode : "textareas",
+		   theme : "simple",
+		   content_css : "$webworkHtmlURL/css/tinymce.css",
+	}); 
+</script>
+EOT
+
+
 sub essay_cmp {
 
     my $self = shift;
@@ -108,25 +120,27 @@ sub  NAMED_ESSAY_BOX {
 	#INSERT_RESPONSE($name,$name,$answer_value); # no longer needed?
 	my $out = MODES(
 	     TeX => qq!\\vskip $height in \\hrulefill\\quad !,
-	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
-               WRAP="VIRTUAL">$answer_value</TEXTAREA>\\end{rawhtml}!,
-         HTML => qq!<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
+	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col" >$answer_value</TEXTAREA>\\end{rawhtml}!,
+	    HTML => qq!
+         <TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
                WRAP="VIRTUAL">$answer_value</TEXTAREA>
-             <INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">
+           <INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">
            !
          );
+	
+	
+
 	$out;
 }
 
 sub essay_box {
 	my $row = shift;
 	my $col =shift;
-	$row = 5 unless $row;
-	$col = 80 unless $col;
+	$row = 12 unless $row;
+	$col = 120 unless $col;
 	my $name = NEW_ANS_NAME();
 	NAMED_ESSAY_BOX($name ,$row,$col);
 
 }
-
 
 1;
