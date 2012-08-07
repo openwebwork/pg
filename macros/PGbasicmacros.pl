@@ -425,7 +425,7 @@ sub  NAMED_ANS_BOX {
 	my $answer_value = '';
 	$answer_value = $inputs_ref->{$name} if defined( $inputs_ref->{$name} );
 	$name = RECORD_ANS_NAME($name, $answer_value);
-#	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
+	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	#INSERT_RESPONSE($name,$name,$answer_value); # no longer needed?
 	my $out = MODES(
 	     TeX => qq!\\vskip $height in \\hrulefill\\quad !,

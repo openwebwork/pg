@@ -269,7 +269,7 @@ sub make_alias {
 		}
 	} elsif ($ext eq 'svg') {
 		if ($displayMode =~/HTML/) {
-			$self->warning_message("The image $aux_file_id of type $ext cannot yet be displayed in TeX mode");
+			$self->warning_message("The image $aux_file_id of type $ext cannot yet be displayed in HTML mode");
 			# svg images need an embed tag not an image tag -- need to modify image for this also
 			# an alternative (not desirable) is to convert svg to png
 		} elsif ($displayMode eq 'TeX') {
@@ -280,7 +280,7 @@ sub make_alias {
 	
 	} elsif ($ext eq 'pdf') {
 		if ($displayMode =~/HTML/) {
-			$self->warning_message("The image $aux_file_id of type $ext cannot yet be displayed in HTML mode");
+			$self->warning_message("The image $aux_file_id of type pdf cannot yet be displayed in HTML mode");
 		} elsif ($displayMode eq 'TeX') {
 			$adr_output=$self->alias_for_image_in_tex_mode($aux_file_id, $ext);
 		} else {
@@ -292,7 +292,8 @@ sub make_alias {
 		# FILES  with unrecognized file extensions in any display modes
 		################################################################################
 
-		warn "Error in the macro alias. Alias does not understand how to process files with extension $ext.  (Path to problem file is  $pgFileName) ";
+		warn "Error in the macro alias. Alias does not understand how to process files with extension $ext.  
+		      (Path to problem file is  $pgFileName) ";
 	}
 
 	warn "The macro alias was unable to form a URL for some auxiliary file used in this problem." unless $adr_output;
