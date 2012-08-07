@@ -340,10 +340,23 @@ sub NAMED_ANS_RULE {
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
 
+        # added for dragmath formula editor
+        my $dragmath = 0;
+        $dragmath = $main::envir{DragMath};
+        $dragmath = 0 unless defined ($dragmath);
+
+        my $add_html = '';
+        if ($dragmath == 1){
+                $add_html = qq!<img src="/webwork2_files/images/editorDragMath.png" align="absbottom" onclick="dragmathedit('$name')" />!;
+        }
+
+        # end of addition for dragmath
+
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\\end{rawhtml}!,
 		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE="$answer_value">!.
+			$add_html. # added for dragmath
                         qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE="$answer_value">!
 	);
 }
