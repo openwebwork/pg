@@ -5,7 +5,6 @@
 
 package WeBWorK::PG::IO;
 use base qw(Exporter);
-use WeBWorK::PG::Translator;
 
 =head1 NAME
 
@@ -80,15 +79,12 @@ sub includePGtext  {
 	if (ref($evalString) eq 'SCALAR') {
 		$evalString = $$evalString;
 	}
-#	$evalString =~ s/\nBEGIN_TEXT/\nTEXT\(EV3\(<<'END_TEXT'\)\);/g;
-#	$evalString =~ s/\\/\\\\/g; # \ can't be used for escapes because of TeX conflict
-#	$evalString =~ s/~~/\\/g;   # use ~~ as escape instead, use # for comments
+	$evalString =~ s/\nBEGIN_TEXT/\nTEXT\(EV3\(<<'END_TEXT'\)\);/g;
+	$evalString =~ s/\\/\\\\/g; # \ can't be used for escapes because of TeX conflict
+	$evalString =~ s/~~/\\/g;   # use ~~ as escape instead, use # for comments
 	no strict;
-	$evalString = eval( q! &{$main::PREPROCESS_CODE}($evalString) !); 
-	# current preprocessing code passed from Translator (see Translator::initialization)
-	my $errors = $@;
 	eval("package main; $evalString") ;
-	$errors .= $@;
+	my $errors = $@;
 	die eval(q! "ERROR in included file:\n$main::envir{probFileName}\n $errors\n$evalString"!) if $errors;
 	use strict;
 	return "";
