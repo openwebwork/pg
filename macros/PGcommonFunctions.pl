@@ -98,6 +98,7 @@ package main;
 #  which package-specific version to call
 #
 
+
 Parser::defineLog();
 
 sub ln     {CommonFunction->Call('ln',@_)}
