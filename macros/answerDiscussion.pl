@@ -89,6 +89,7 @@ sub new {
   $discussion->{isProfessor} = $discussion->{isActing} || $discussion->isProfessor;
   $discussion->{isSuperProf} = (defined($main::SuperProf) && $main::SuperProf eq $main::inputs_ref->{user});
   $discussion->{pastDue} = (time() > $main::dueDate) && !$self->{isProfessor};
+  
   return $discussion;
 }
 
@@ -797,7 +798,7 @@ sub Read {
   my $self = shift; my $filename = shift;
   die "You must supply a problem file name" unless $filename;
   delete $self->{error};
-  $filename = main::surePathToTmpFile('gif/'.$self->dataFilePath($filename).$self->{extension});
+  $filename = $main::PG->surePathToTmpFile('gif/'.$self->dataFilePath($filename).$self->{extension});
   my ($text,$error) = main::PG_restricted_eval("read_whole_file('$filename')");
   return $$text unless $error;
   ###  FIXME:  return generic error for students
