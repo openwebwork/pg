@@ -59,6 +59,7 @@ sub add_resource {
 	my ($aux_file_id,$resource) =@_;
 	if ( ref($resource) =~/PGresource/ ) {
 		$self->{resource_list}->{$aux_file_id} = $resource;
+		#$self->debug_message("$aux_file_id resource added");
 	} else {
 		$self->warning_message("$aux_file_id does not refer to a a valid resource $resource");
 	}
@@ -68,6 +69,7 @@ sub get_resource {
 	my $aux_file_id =shift;
 	$self->{resource_list}->{$aux_file_id};
 }
+
 # methods
 #     make_alias   -- outputs url and does what needs to be done
 #     normalize paths (remove extra precursors to the path)
@@ -234,7 +236,7 @@ sub make_alias {
     	));
 
     } else {
-    	#warn "found existing resource_object $aux_file_id";
+    	#$self->debug_message( "found existing resource_object $aux_file_id");
     	return $self->get_resource($aux_file_id)->uri() ; 
     }
 ###################################################################
@@ -322,12 +324,13 @@ sub alias_for_html {
 	my $templateDirectory = $self->{templateDirectory};
 	
 #######################
-# update resource object
+# update html resource object
 #######################
-	my $resource_object = $self->get_resource($aux_file_id);
-	#$self->debug_message( "\nresource for $aux_file_id is ", ref($resource_object), $resource_object );
 	my ($resource_uri, $htmlFileSource, );
 	my $ext   =   "html";
+	my $resource_object = $self->get_resource($aux_file_id);
+	#$self->debug_message( "\nresource for $aux_file_id is ", ref($resource_object), $resource_object );
+
    
    
 
@@ -467,11 +470,12 @@ sub alias_for_image_in_html_mode {
 	my $templateDirectory  = $self->{templateDirectory};
    
 #######################
-# update resource object
+# update image resource object
 #######################
 	my ($resource_uri  );
 	my $resource_object = $self->get_resource($aux_file_id);
-    
+    #$self->debug_message( "\nresource for $aux_file_id is ", ref($resource_object), $resource_object );
+
 ##############################################
 # Find complete path to the original files
 ##############################################
@@ -675,7 +679,7 @@ sub alias_for_image_in_tex_mode {
 		$resource_object->{path}->{is_complete}  = 1;
 # Gif files always need to be converted to png files for inclusion in pdflatex documents.
 		
-		$resource_object->{convert}->{needed}    = 1;
+		$resource_object->{convert}->{needed}    = $convert_fileQ;
 		$resource_object->{convert}->{from_path} = $sourceFilePath.".$ext";
 		$resource_object->{convert}->{from_type} = $from_file_type;
 		$resource_object->{convert}->{to_path}   = '';  #define later
@@ -734,10 +738,10 @@ sub alias_for_image_in_tex_mode {
     	my $unique_id                          = $resource_object->{unique_id};
 		my $link                               = "$targetDirectory/$unique_id.png";                  
 		my $targetFilePath                     = $self->surePathToTmpFile($link);
-		# $self->debug_message("targetFilePath is $targetFilePath");
 		$resource_object->{convert}->{to_path} = $targetFilePath;
 		my $sourceFilePath = $resource_object->{convert}->{from_path};
-		# conversion_command is imported into this subroutine.
+		# conversion_command is imported into this subroutine from the config files.
+		#$self->debug_message("cat $sourceFilePath | $conversion_command > $targetFilePath");
 		my $returnCode = system "cat $sourceFilePath | $conversion_command > $targetFilePath";
 		#$resource_object->debug_message( "FILE path $targetFilePath  created =", -e $targetFilePath );
 		#$resource_object->debug_message( "return Code $returnCode from cat $sourceFilePath | $command > $targetFilePath");
