@@ -351,7 +351,7 @@ sub interval_cmp {
 		$ans_type = 'Union';
 	}
 	# Take optional arguments intended for List, or Union
-	for my $o qw( showCoordinateHints showHints partialCredit showLengthHints ) {
+	for my $o (qw( showCoordinateHints showHints partialCredit showLengthHints )) {
 		$options{$o} = $opts{$o} || 0;
 	}
 	$options{showUnionReduceWarnings} = $opts{showUnionReduceWarnings};
@@ -485,7 +485,7 @@ sub number_list_cmp {
 	$options{ordered} = 1 if defined($num_params{ordered});
 	# These didn't exist before in number_list_cmp so they behaved like
 	# in List()->cmp.  Now they can be optionally set
-	for my $o qw( showHints partialCredit showLengthHints ) {
+	for my $o (qw( showHints partialCredit showLengthHints )) {
 		$options{$o} = $num_params{$o} || 0;
 	}
 

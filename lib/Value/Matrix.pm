@@ -260,6 +260,7 @@ sub power {
   Value::Error("Can't use Matrices in exponents") if $flag;
   Value::Error("Only square matrices can be raised to a power") unless $l->isSquare;
   $r = Value::makeValue($r,context=>$context);
+  if ($r->isNumber && $r =~ m/^-\d+$/) {$l = $l->inverse; $r = -$r}
   Value::Error("Matrix powers must be non-negative integers") unless $r->isNumber && $r =~ m/^\d+$/;
   return $context->Package("Matrix")->I($l->length,$context) if $r == 0;
   my $M = $l; foreach my $i (2..$r) {$M = $M*$l}
@@ -284,6 +285,13 @@ sub compare {
 sub neg {
   my $self = promote(@_); my @coords = ();
   foreach my $x (@{$self->data}) {push(@coords,-$x)}
+  return $self->make(@coords);
+}
+
+sub conj {shift->twiddle(@_)}
+sub twiddle {
+  my $self = promote(@_); my @coords = ();
+  foreach my $x (@{$self->data}) {push(@coords,($x->can("conj") ? $x->conj : $x))}
   return $self->make(@coords);
 }
 
@@ -412,11 +420,13 @@ sub wwMatrixLR {
 
 sub det {
   my $self = shift; $self->wwMatrixLR;
-  return $self->{lrM}->det_LR;
+  Value->Error("Can't take determinant of non-square matrix") unless $self->isSquare;
+  return Value::makeValue($self->{lrM}->det_LR);
 }
 
 sub inverse {
   my $self = shift; $self->wwMatrixLR;
+  Value->Error("Can't take inverse of non-square matrix") unless $self->isSquare;
   return $self->new($self->{lrM}->invert_LR);
 }
 
@@ -432,12 +442,12 @@ sub dim {
 
 sub norm_one {
   my $self = shift;
-  return $self->wwMatrix->norm_one();
+  return Value::makeValue($self->wwMatrix->norm_one());
 }
 
 sub norm_max {
   my $self = shift;
-  return $self->wwMatrix->norm_max();
+  return Value::makeValue($self->wwMatrix->norm_max());
 }
 
 sub kleene {
@@ -452,6 +462,7 @@ sub normalize {
   return ($self->new($M),$self->new($b));
 }
 
+sub solve {shift->solve_LR(@_)}
 sub solve_LR {
   my $self = shift;
   my $v = $self->new(shift)->wwMatrix;
@@ -465,6 +476,7 @@ sub condition {
   return $self->new($self->wwMatrix->condition($I));
 }
 
+sub order {shift->order_LR(@_)}
 sub order_LR {
   my $self = shift;
   return $self->wwMatrixLR->order_LR;
@@ -512,7 +524,7 @@ sub is_symmetric {
 
 sub trace {
   my $self = shift;
-  return $self->wwMatrix->trace;
+  return Value::makeValue($self->wwMatrix->trace);
 }
 
 sub proj {

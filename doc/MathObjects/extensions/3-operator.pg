@@ -1,14 +1,14 @@
 ##########################################################
 #
-#  Example showing how to add new operators to the Parser
+#  Example showing how to add new operators to a
+#  MathObjects Context
 #
 
 DOCUMENT();        # This should be the first executable line in the problem.
 
 loadMacros(
-  "PGbasicmacros.pl",
-  "PGanswermacros.pl",
-  "Parser.pl",
+  "PGstandard.pl",
+  "MathObjects.pl",
   "parserTables.pl",
 );
 
@@ -27,7 +27,7 @@ our @ISA = qw(Parser::BOP); # subclass of Binary OPerator
 #
 sub _check {
   my $self = shift; my $name = $self->{bop};
-  return if $self->checkNumbers();
+  return if $self->checkNumbers();             # method inherited from Parser::BOP
   $self->Error("Operands of '$name' must be Numbers");
 }
 
@@ -73,7 +73,7 @@ Context()->operators->add(
      associativity => 'left',     #  computed left to right
      type => 'bin',               #  binary operator
      string => ' # ',             #  output string for it
-     TeX => '\mathop{\#}',         #  TeX version (overridden above, but just an example)
+     TeX => '\mathop{\#}',        #  TeX version (overridden above, but just an example)
   }
 );
 

@@ -340,11 +340,26 @@ sub NAMED_ANS_RULE {
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
 
+        # added for dragmath formula editor
+        my $dragmath = 0;
+        $dragmath = $main::envir{DragMath};
+        $dragmath = 0 unless defined ($dragmath);
+
+        my $add_html = '';
+        if ($dragmath == 1){
+                $add_html = qq!<img src="/webwork2_files/images/editorDragMath.png" align="absbottom" onclick="dragmathedit('$name')" />!;
+        }
+
+        # end of addition for dragmath
+
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\\end{rawhtml}!,
-		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE="$answer_value">!.
-                        qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE="$answer_value">!
+
+		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" value="$answer_value"/>\n!.
+		              $add_html. # added for dragmath
+                        qq!<input type=hidden  name="previous_$name" value="$answer_value"/>\n!
+
 	);
 }
 
@@ -425,7 +440,7 @@ sub  NAMED_ANS_BOX {
 	my $answer_value = '';
 	$answer_value = $inputs_ref->{$name} if defined( $inputs_ref->{$name} );
 	$name = RECORD_ANS_NAME($name, $answer_value);
-#	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
+	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	#INSERT_RESPONSE($name,$name,$answer_value); # no longer needed?
 	my $out = MODES(
 	     TeX => qq!\\vskip $height in \\hrulefill\\quad !,
@@ -1024,6 +1039,8 @@ Hints are shown only after the number of attempts is greater than $:showHint
 ($main::showHint defaults to 1) and the check box named 'ShowHint' is set. The check box
 'ShowHint' is visible only after the number of attempts is greater than $main::showHint.
 
+Hints are always shown immediately to instructors to facilitate editing the hint section.
+
 $main::envir{'displayHintsQ'} is set to 1 when a hint is to be displayed.
 
 
@@ -1041,9 +1058,29 @@ $main::envir{'displayHintsQ'} is set to 1 when a hint is to be displayed.
 sub solution {
 	my @in = @_;
 	my $out = '';
+	my $permissionLevel = $envir->{permissionLevel}||0; #PG_restricted_eval(q!$main::envir{permissionLevel}!); #user permission level
+	# protect against undefined values
+	my $PRINT_FILE_NAMES_PERMISSION_LEVEL = ( defined( $envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'} ) ) ? $envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'} : 10000;
+    my $printSolutionForInstructor = $permissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL;
+	my $diplaySolutions = PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!);
 	PG_restricted_eval(q!$main::solutionExists =1!);
 	if (PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!)) {$out = join(' ',@in);}
-    $out;
+    
+    if ($displayMode eq 'TeX')   {
+	    if ($printSolutionForInstructor) {
+	    	$out = join(' ', "$BR(Show the student solution after due date: ) $BR $BBOLD $SOLUTION: $EBOLD $BR",@in);
+		} else 	{
+			$out = '';  # do nothing since hints are not available for download for students
+		}
+	} elsif ($printSolutionForInstructor) {  # always print hints for instructor types 
+		$out = join(' ', "$BR( Show the student solution after due date: )$BR $BBOLD SOLUTION: $EBOLD ", @in);
+	} elsif ( $diplaySolutions ) 	{
+
+	 ## FIXME -- doctoring the form could display solutions.
+
+		$out = join(' ',@in);  # display solution
+	}    
+	$out;
 }
 
 
@@ -1865,6 +1902,11 @@ sub EV3P_parser {
 	OL(@array)      # formats the array as an Ordered List ( <OL> </OL> ) enumerated by letters.
 					# See BeginList()  and EndList in unionLists.pl for a more powerful version
 					# of this macro.
+	knowlLink($url, $text)
+	                # Places a reference to a knowl for the URL with the specified text in the problem.
+	                # A common usage is \{ knowlLink(alias('prob1_help.html') \}, 'for help')
+	                # where alias finds the full address of the prob1_help.html file in the same directory
+	                # as the problem file
 	htmlLink($url, $text)
 	                # Places a reference to the URL with the specified text in the problem.
 	                # A common usage is \{ htmlLink(alias('prob1_help.html') \}, 'for help')
@@ -2040,9 +2082,20 @@ sub htmlLink {
 	my $text = shift;
 	my $options = shift;
 	$options = "" unless defined($options);
-	return "$BBOLD\[ broken link:  $text \] $EBOLD" unless defined($url);
+	return "$BBOLD\[ $text  has broken link: $url \] $EBOLD" unless defined($url);
 	MODES( TeX        => "{\\bf \\underline{$text}}",
 	       HTML       => "<A HREF=\"$url\" $options>$text</A>"
+	);
+}
+
+sub knowlLink {
+	my $url = shift;
+	my $text = shift;
+	my $options = shift;
+	$options = "" unless defined($options);
+	return "$BBOLD\[ broken link:  $text \] $EBOLD" unless defined($url);
+	MODES( TeX        => "{\\bf \\underline{$text}}",
+	       HTML       => "<A knowl=\"$url\" $options>$text</A>"
 	);
 }
 
@@ -2061,18 +2114,44 @@ sub iframe {
 }
 
 sub helpLink {
-	my $type1 = shift;
+	my $type = shift;
+        my $customstring = shift || $type;
+        my $helpurl = shift;
 	return "" if(not defined($envir{'localHelpURL'}));
-	my $type = lc($type1);
+        if (defined $helpurl) {
+	    return knowlLink( $envir{'localHelpURL'}.$helpurl, $customstring);
+        }
 	my %typeHash = (
-		'interval notation' => 'IntervalNotation.html',
-		'units' => 'Units.html',
+		'angle' => 'Entering-Angles.html',
+		'decimal' => 'Entering-Decimals.html',
+		'equation' => 'Entering-Equations.html',
+		'exponent' => 'Entering-Exponents.html',
+		'formula' => 'Entering-Formulas.html',
+		'fraction' => 'Entering-Fractions.html',
+		'inequalit' => 'Entering-Inequalities.html',
+		'limit' => 'Entering-Limits.html',
+		'log' => 'Entering-Logarithms.html',
+		'number' => 'Entering-Numbers.html',
+		'point' => 'Entering-Points.html',
+		'vector' => 'Entering-Vectors.html',
+		'interval' => 'IntervalNotation.html',
+		'unit' => 'Units.html',
 		'syntax' => 'Syntax.html',
 		);
-
-	my $infoRef = $typeHash{$type};
-	return htmlLink( $envir{'localHelpURL'}.$infoRef, $type1,
-'target="ww_help" onclick="window.open(this.href,this.target,\'width=550,height=350,scrollbars=yes,resizable=on\'); return false;"');
+         
+	my $infoRef = '';
+        for my $ref (keys %typeHash) {
+            if ( $type =~ /$ref/i) {
+                $infoRef = $typeHash{$ref};
+                last;
+            }
+        }
+        # If infoRef is still '', we give up
+        return $customstring unless ($infoRef);
+	return knowlLink( $envir{'localHelpURL'}.$infoRef, $customstring);
+# Old way of doing this:
+#	return htmlLink( $envir{'localHelpURL'}.$infoRef, $type1,
+#'target="ww_help" onclick="window.open(this.href,this.target,\'width=550,height=350,scrollbars=yes,resizable=on\'); return false;"');
 }
 
 sub appletLink {
@@ -2361,14 +2440,11 @@ sub image {
 				# alias should have given us the path to a PNG image. What we need
 				# to do is find out the dimmensions of this image, since pdflatex
 				# is too dumb to live.
-
-				#my ($height, $width) = getImageDimmensions($imagePath);
-				##warn "&image: $imagePath $height $width\n";
-				#unless ($height and $width) {
-				#	warn "Couldn't get the dimmensions of image $imagePath.\n"
-				#}
-				#$out = "\\includegraphics[bb=0 0 $height $width,width=$width_ratio\\linewidth]{$imagePath}\n";
-				$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
+				if ($imagePath) {
+					$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
+				} else {
+					$out = "";
+				}
 			} else {
 				# Since we're not creating PDF files, alias should have given us the
 				# path to an EPS file. latex can get its dimmensions no problem!

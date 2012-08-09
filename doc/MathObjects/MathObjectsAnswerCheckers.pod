@@ -1,40 +1,40 @@
 =head1 MathObjects-based Answer Checkers
 
-MathObjects are designed to be used in two ways. First, you can use it
-within your perl code when writing problems as a means of making it
-easier to handle formulas, and in particular, to be able to use a single
-object to produce numeric values, TeX output and answer strings from a
-single formula entry. This avoids having to type a function three
-different ways (which makes maintaining a problem much harder). Since
-MathObjects also included vector and complex arthimetic, it is easier to
-work with these types of values as well.
+The MathObject library is designed to be used in two ways.  First, you
+can use it within your perl code when writing problems as a means of
+making it easier to handle formulas, and in particular, to be able to
+use a single object to produce numeric values, TeX output, and answer
+strings from a single formula entry.  This avoids having to type a
+function three different ways (which makes maintaining a problem much
+harder).  Since MathObjects also includes vector and complex
+arthimetic, it is easier to work with these types of values as well.
 
 Secondly using MathObjects improves the processing of student input.
 This is accomplished through special answer checkers that are part of
-the Parser package (rather than the traditional WeBWorK answer
-checkers). Each of these checkers has error checking customized to the
-type of input expected from the student and can provide helpful feedback
-if the syntax of the student's entry is incorrect.
+the MathObjects package (rather than the traditional WeBWorK answer
+checkers).  Each of these checkers has error checking customized to
+the type of input expected from the student and can provide helpful
+feedback if the syntax of the student's entry is incorrect.
 
 Checkers are available for each of the types of values that the parser
 can produce (numbers, complex numbers, infinities, points, vectors,
-intervals, unions, formulas, lists of numbers, lists of points, lists of
-intervals, lists of formulas returning numbers, lists of formulas
-returning points, and so on).
+intervals, sets, unions, formulas, lists of numbers, lists of points,
+lists of intervals, lists of formulas returning numbers, lists of
+formulas returning points, and so on).
 
-To use one of these checkers, simply call the ->cmp method of the
+To use one of these checkers, simply call the C<cmp> method of the
 object that represents the correct answer.  For example:
 
     $n = Real(sqrt(2));
     ANS($n->cmp);
 
 will produce an answer checker that matches the square root of two.
-Similarly, 
+Similarly,
 
     ANS(Vector(1,2,3)->cmp);
 
-matches the vector <1,2,3> (or any computation that produces it, e.g.,
-i+2j+3k, or <4,4,4>-<3,2,1>), while
+matches the vector C<< <1,2,3> >> (or any computation that produces it, e.g.,
+C<i+2j+3k>, or C<< <4,4,4>-<3,2,1> >>), while
 
     ANS(Interval("(-inf,3]")->cmp);
 
@@ -76,13 +76,19 @@ Lists of items can be checked as easily:
     ANS(List('NONE')->cmp);
 
 and so on.  The last example may seem strange, as you could have used
-ANS(String('NONE')->cmp), but there is a reason for using this type 
-of construction.  You might be asking for one or more numbers (or
-points, or whatever) or the word 'NONE' of there are no numbers (or
-points).  If you used String('NONE')->cmp, the student would get an
-error message about a type mismatch if he entered a list of numbers,
-but with List('NONE')->cmp, he will get appropriate error messages for
-the wrong entries in the list.
+C<< ANS(String('NONE')->cmp) >>, but there is a reason for using this
+type of construction.  You might be asking for one or more numbers (or
+points, or whatever) or the word C<NONE> if there are no numbers (or
+points).  If you used C<< String('NONE')->cmp >>, the student would
+get an error message about a type mismatch if he entered a list of
+numbers, but with C<< List('NONE')->cmp >>, he will get appropriate
+error messages for the wrong entries in the list.
+
+In the case of a list of points where the answer is C<NONE>, you should tell MathObject what the expected type of answer is, so that appropriate messages can be given.  E.g.,
+
+    ANS(List('NONE')->cmp(typeMatch=>Value::Point);
+
+would give appropriate messages for points rather than numbers (the default type).
 
 It is often appropriate to use the list checker in this way even when
 the correct answer is a single value, if the student might type a list
@@ -123,18 +129,19 @@ produce the same answer checker:
     $x = Formula('x');
     ANS(List($x+1,$x-1)->cmp);
 
-See the files in webwork2/doc/parser/problems for more
+See the files in F<pg/doc/MathObjects/problems> for more
 examples of using the parser's answer checkers.
+
 
 =head2 Controlling the Details of the Answer Checkers
 
 The action of the answer checkers can be modified by passing flags to
-the cmp() method.  For example:
+the C<cmp()> method.  For example:
 
     ANS(Real(pi)->cmp(showTypeWarnings=>0));
 
 will prevent the answer checker from reporting errors due to the
-student entering in the wrong type of answer (say a vector rather than
+student entering the wrong type of answer (say a vector rather than
 a number).
 
 =head3 Flags common to all answer checkers
@@ -143,40 +150,46 @@ There are a number of flags common to all the checkers:
 
 =over
 
-=item S<C<< showTypeWarnings=>1 or 0 >>>
+=item S<C<< showTypeWarnings => 1 or 0 >>>
 
-show/don't show messages about student
-answers not being of the right type.
-(default: 1)
+Show/don't show messages about student answers not being of the right
+type.  (default: 1)
 
-=item S<C<< showEqualErrors=>1 or 0 >>>
+=item S<C<< showEqualErrors => 1 or 0 >>>
 
-show/don't show messages produced by
-trying to compare the professor and
-student values for equality, e.g.,
-conversion errors between types.
-(default: 1)
+Show/don't show messages produced by trying to compare the professor
+and student values for equality, e.g., conversion errors between
+types.  (default: 1)
 
-=item S<C<< ignoreStrings=>1 or 0 >>>
+=item S<C<< ignoreStrings => 1 or 0 >>>
 
-show/don't show type mismatch errors
-produced by strings (so that 'NONE' will
-not cause a type mismatch in a checker
-looking for a list of numbers, for example).
-(default: 1)
+Show/don't show type mismatch errors produced by strings (so that
+C<NONE> will not cause a type mismatch in a checker looking for a list
+of numbers, for example).  (default: 1)
+
+=item S<C<< studentsMustReduceUnions => 1 or 0 >>>
+
+Controls whether or not students answers are allowed to include
+overlapping, redundant, or uncombined intervals. (default: 1)
+
+=item S<C<< showUnionReduceWarnings => 1 or 0 >>>
+
+Do/don't show warnings for unreduced unions.  This includes warnings
+about overlapping sets, uncombined intervals (like C<(0,1] U
+[1,infinity]>), and repeated elements in sets. (default: 1)
 
 =back
 
-In addition to these, the individual types have their own flags:
+In addition to these, the individual MathObject types have their own
+flags:
 
 =head3 Flags for Real()->cmp
 
 =over
 
-=item S<C<< ignoreInfinity=>1 or 0 >>>
+=item S<C<< ignoreInfinity => 1 or 0 >>>
 
-Don't report type mismatches if the
-student enters an infinity.
+Do/don't report type mismatches if the student enters an infinity.
 (default: 1)
 
 =back
@@ -185,12 +198,10 @@ student enters an infinity.
 
 =over
 
-=item S<C<< typeMatch=>value >>>
+=item S<C<< typeMatch => value >>>
 
-Specifies the type of object that
-the student should be allowed to enter
-(in addition the string).
-(default: 'Value::Real')
+Specifies the type of object that the student should be allowed to
+enter (in addition the string).  (default: C<'Value::Real'>)
 
 =back
 
@@ -198,17 +209,15 @@ the student should be allowed to enter
 
 =over
 
-=item S<C<< showDimensionHints=>1 or 0 >>>
+=item S<C<< showDimensionHints => 1 or 0 >>>
 
-show/don't show messages about the
-wrong number of coordinates.
+Show/don't show messages about the wrong number of coordinates.
 (default: 1)
 
-=item S<C<< showCoordinateHints=>1 or 0 >>>
+=item S<C<< showCoordinateHints => 1 or 0 >>>
 
-show/don't show message about
-which coordinates are right.
-(default: 1)
+Show/don't show message about which coordinates are right.  (default:
+1)
 
 =back
 
@@ -216,38 +225,31 @@ which coordinates are right.
 
 =over
 
-=item S<C<< showDimensionHints=>1 or 0 >>>
+=item S<C<< showDimensionHints => 1 or 0 >>>
 
-show/don't show messages about the
-wrong number of coordinates.
+Show/don't show messages about the wrong number of coordinates.
 (default: 1)
 
-=item S<C<< showCoordinateHints=>1 or 0 >>>
+=item S<C<< showCoordinateHints => 1 or 0 >>>
 
-show/don't show message about
-which coordinates are right.
+Show/don't show message about which coordinates are right.  (default:
+1)
+
+=item S<C<< promotePoints => 1 or 0 >>>
+
+Do/don't allow the student to enter a point rather than a vector.
 (default: 1)
 
-=item S<C<< promotePoints=>1 or 0 >>>
+=item S<C<< parallel => 1 or 0 >>>
 
-do/don't allow the student to
-enter a point rather than a vector.
-(default: 1)
-
-=item S<C<< parallel=>1 or 0 >>>
-
-Mark the answer as correct if it
-is parallel to the professor's answer.
-Note that a value of 1 forces
-showCoordinateHints to be 0.
+Mark the answer as correct if it is parallel to the professor's
+answer.  Note that a value of 1 forces C<showCoordinateHints> to be 0.
 (default: 0)
 
-=item S<C<< sameDirection=>1 or 0 >>>
+=item S<C<< sameDirection => 1 or 0 >>>
 
-During a parallel check, mark the
-answer as correct only if it is in
-the same (not the opposite)
-direction as the professor's answer.
+During a parallel check, mark the answer as correct only if it is in
+the same (not the opposite) direction as the professor's answer.
 (default: 0)
 
 =back
@@ -256,15 +258,14 @@ direction as the professor's answer.
 
 =over
 
-=item S<C<< showDimensionHints=>1 or 0 >>>
+=item S<C<< showDimensionHints => 1 or 0 >>>
 
-show/don't show messages about the
-wrong number of coordinates.
+Show/don't show messages about the wrong number of coordinates.
 (default: 1)
 
 =back
 
-The default for showEqualErrors is set to 0 for Matrices, since
+The default for C<showEqualErrors> is set to 0 for Matrices, since
 these errors usually are dimension errors, and that is handled
 separately (and after the equality check).
 
@@ -272,140 +273,244 @@ separately (and after the equality check).
 
 =over
 
-=item S<C<< showEndpointHints=>1 or 0 >>>
+=item S<C<< showEndpointHints => 1 or 0 >>>
 
-do/don't show messages about which
-endpoints are correct.
-(default: 1)
+Do/don't show messages about which endpoints are correct.  (default:
+1)
 
-=item S<C<< showEndTypeHints=>1 or 0 >>>
+=item S<C<< showEndTypeHints => 1 or 0 >>>
 
-do/don't show messages about
-whether the open/closed status of
-the enpoints are correct (only
-shown when the endpoints themselves
-are correct).
-(default: 1)
+Do/don't show messages about whether the open/closed status of the
+end-points are correct (only shown when the end-points themselves are
+correct).  (default: 1)
+
+=item S<C<< requireParenMatch => 1 or 0 >>>
+
+Do/don't require that the open/closed status of the end-points be correct.  (default: 1)
 
 =back
 
-=head3 Flags for Union()->cmp and List()->cmp
+=head3 Flags for Set()->cmp, Union()->cmp, and List()->cmp
 
-all the flags from the Real()->cmp, plus:
+All the flags from the C<< Real()->cmp >>, plus:
 
 =over
 
-=item S<C<< showHints=>1 or 0 >>>
+=item S<C<< showHints => 1 or 0 >>>
 
-do/don't show messages about which
-entries are incorrect.
-(default:  $showPartialCorrectAnswers)
+Do/don't show messages about which entries are incorrect.  (default:
+C<$showPartialCorrectAnswers>)
 
-=item S<C<< showLengthHints=>1 or 0 >>>
+=item S<C<< showLengthHints => 1 or 0 >>>
 
-do/don't show messages about having the
-correct number of entries (only shown
-when all the student answers are
-correct but there are more needed, or
-all the correct answsers are among the
-ones given, but some extras were given).
-(default:  $showPartialCorrectAnswers)
+Do/don't show messages about having the correct number of entries
+(only shown when all the student answers are correct but there are
+more needed, or all the correct answsers are among the ones given, but
+some extras were given).  (default: C<$showPartialCorrectAnswers>)
 
-=item S<C<< partialCredit=>1 or 0 >>>
+=item S<C<< partialCredit => 1 or 0 >>>
 
-do/don't give partial credit for when
-some answers are right, but not all.
-(default:  $showPartialCorrectAnswers)
-(currently the default is 0 since WW
-can't handle partial credit properly).
+Do/don't give partial credit for when some answers are right, but not
+all.  (default: C<$showPartialCorrectAnswers>)
 
-=item S<C<< ordered=>1 or 0 >>>
+=item S<C<< ordered => 1 or 0 >>>
 
-give credit only if the student answers
-are in the same order as the
-professor's answers.
-(default:  0)
+Give credit only if the student answers are in the same order as the
+professor's answers.  (default: 0)
 
-=item S<C<< entry_type=>'a (name)' >>>
+=item S<C<< entry_type => 'a (name)' >>>
 
-The string to use in error messages
-about type mismatches.
-(default:  dynamically determined from list)
+The string to use in error messages about type mismatches.  (default:
+dynamically determined from list)
 
-=item S<C<< list_type=>'a (name)' >>>
+=item S<C<< list_type => 'a (name)' >>>
 
-The string to use in error messages
-about numbers of entries in the list.
-(default:  dynamically determined from list)
+The string to use in error messages about numbers of entries in the
+list.  (default: dynamically determined from list)
 
-=item S<C<< typeMatch=>value >>>
+=item S<C<< extra => $object >>>
 
-Specifies the type of object that
-the student should be allowed to enter
-in the list (determines what
-constitutes a type mismatch error).
+A MathObject to use for comparison to student-provided entries that do
+not match any of the correct answers in the list.  Use in particular
+when the correct answer is a list of a single String (like C<NONE>),
+and the expected type of elements in the list are complicated and need
+special syntax checking (e.g., for size of vectors).
+
+=item S<C<< typeMatch => value >>>
+
+Specifies the type of object that the student should be allowed to
+enter in the list (determines what constitutes a type mismatch error).
 (default: dynamically determined from list)
 
-=item S<C<< requireParenMatch=>1 or 0 >>>
+=item S<C<< requireParenMatch => 1 or 0 >>>
 
-Do/don't require the parentheses in the
-student's answer to match those in the
-professor's answer exactly.
+Do/don't require the parentheses in the student's answer to match
+those in the professor's answer exactly.  (default: 1)
+
+=item S<C<< removeParens => 1 or 0 >>>
+
+Do/don't remove the parentheses from the professor's list as part of
+the correct answer string.  This is so that if you use List() to
+create the list (which doesn't allow you to control the parens
+directly), you can still get a list with no parentheses.  (default: 0
+for C<List()> and 1 for C<Formula()>)
+
+=item S<C<< implicitList => 1 or 0 >>>
+
+Force/don't force single entry answers to be lists (even if they are
+already lists).  This way, if you are asking for a list of lists, and
+the student enters a single list, it will be turned into a list of a
+single list, and will be checked properly against the correct answer.
 (default: 1)
-
-=item S<C<< removeParens=>1 or 0 >>>
-
-Do/don't remove the parentheses from the
-professor's list as part of the correct
-answer string.  This is so that if you
-use List() to create the list (which
-doesn't allow you to control the parens
-directly), you can still get a list
-with no parentheses.
-(default: 0 for List() and 1 for Formula())
 
 =back
 
 =head3 Flags for Formula()->cmp
 
-The flags for formulas are dependent on the type of the result of
-the formula.  If the result is a list or union, it gets the flags
-for that type above, otherwise it gets that flags of the Real
-type above.
+The flags for Formulas are dependent on the type of the result of the
+formula; the flags are taken from the class of the result as described
+above.  In addition, Formulas take the following flags:
 
-More flags need to be added in order to allow more control over the
-answer checkers to give the full flexibility of the traditional
-WeBWorK answer checkers.  Note that some things, like whether trig
-functions are allowed in the answer, are controlled through the
-Context() rather than the answer checker itself.  For example, 
+=over
 
-    Context()->functions->undefine('sin','cos','tan');
+=item S<C<< upToConstant => 1 or 0 >>>
 
-would remove those three functions from use.  (One would need to remove
-cot, sec, csc, arcsin, asin, etc., to do this properly; there could be
-a function call to do this.)
+For real-valued formulas, this controls whether the student's answer
+only needs to match the correct answer up to addition of a constant. (default: 0)
 
-Similarly, which arithmetic operations are available is controlled
-through Context()->operations.
+=item S<C<< showDomainErrors => 1 or 0 >>>
+
+If the test points for the function comparison reveals that the
+student answer is defined on a different domain from the correct
+answer (e.g., the student's answer is not defined at one of the test
+points), then this value determines whether or not a message is issued
+alerting the student to that fact.  (default: 1)
+
+
+=back
+
+=head2 The Context and Answer Checkers
+
+Some things, like whether trig functions are allowed in the answer,
+are controlled through the C<Context()> rather than the answer checker
+itself.  For example,
+
+    Context()->functions->disable('sin','cos','tan');
+
+would remove those three functions from use.  One would need to remove
+C<cot>, C<sec>, C<csc>, C<arcsin>, C<asin>, etc., to do this properly.
+Categories of functions can be removed all at once, e.g.
+
+    Context()->functions->disable('Trig');
+
+would disable all trig functions, while
+
+    Context()->functions->disable('All');
+    Context()->functions->enable('sqrt');
+
+would allow only the C<sqrt> function to be used in student answers.  The available categories are the following:
+
+=over
+
+=item * C<SimpleTrig>
+
+C<sin>, C<cos>, C<tan>, C<sec>, C<csc>, C<cot>
+
+=item * C<InverseTrig>
+
+C<asin>, C<acos>, C<atan>, C<asec>, C<acsc>, C<acot>,
+C<arcsin>, C<arccos>, C<arctan>, C<arcsec>, C<arccsc>, C<arccot>, C<atan2>
+
+=item * C<SimpleHyperbolic>
+
+C<sinh>, C<cosh>, C<tanh>, C<sech>, C<csch>, C<coth>
+
+=item * C<InverseHyperbolic>
+
+C<asinh>, C<acosh>, C<atanh>, C<asech>, C<acsch>, C<acoth>,
+C<arcsinh>, C<arccosh>, C<arctanh>, C<arcsech>, C<arccsch>, C<arccoth>
+
+=item * C<Numeric>
+
+C<log>, C<log10>, C<exp>, C<sqrt>, C<abs>, C<int>, C<sgn>, C<ln>, C<logten>
+
+=item * C<Vector>
+
+C<norm>, C<unit>
+
+=item * C<Complex>
+
+C<arg>, C<mod>, C<Re>, C<Im>, C<conj>
+
+=item * C<Hyperbolic>
+
+all of C<SimpleHyperbolic> and C<InverseHyperbolic>
+
+=item * C<Trig>
+
+all of C<SimpleTrig>, C<InverseTrig>, and C<Hyperbolic>
+
+=item * C<All>
+
+all of C<Trig>, C<Numeric>, C<Vector>, and C<Complex>
+
+=back
+
+Note that some functions can be obtained via operators (e.g.,
+C<abs(x)> can be obtained via C<|x|> and C<sqrt(x)> can be obtained by
+C<x^(1/2)>, so you might need to remove more than just the named
+functions to limit these operations).
+
+Which arithmetic operations are available is controlled
+through C<< Context()->operations >>.  For example,
+
+    Context()->operations->undefine('^','**');
+
+would disable the ability for students to enter powers.  Note that
+multiplication and division have several forms (in order to make a
+non-standard precedence that allows things like C<sin(2x)> to be
+entered as C<sin 2x>).  So if you want to disable them you need to
+include all of them.  E.g.,
+
+    Context()->operations->undefine('*',' *','* ');
+    Context()->operations->undefine('/',' /','/ ','//');
+
+would be required in order to make multiplication and division
+unavailable.
+
+Finally, absolute values are treated as a specialized form of
+parenthesis, so to remove them, use
+
+    Context()->parens->remove('|');
+
+The F<pg/macros> directory contains a number of predefined contexts
+that limit the operations that can be performed in a student answer.
+For example, the F<contextLimitedNumeric.pl> file defines contexts in
+which students can enter numbers, but no operations, so they would
+have to reduce their answer to a single number by hand.  There are
+limited contexts for complex numbers, points, and vectors, and there
+are also specialized contexts for entering polynomials, or where
+powers are restricted in various ways.
+
+
+=head2 Tolerances and Limits
 
 The tolerances used in comparing numbers are part of the Context as
 well.  You can set these via:
 
     Context()->flags->set(
-        tolerance    => .0001,       # the relative or absolute tolerance
-        tolType      => 'relative',  # or 'absolute'
-        zeroLevel    => 1E-14,       # when to use zeroLevelTol
-        zeroLevelTol => 1E-12,       # smaller than this matches zero
-                                     #  when one of the two is less
-                                     #  than zeroLevel
-        limits       => [-2,2],      # limits for variables in formulas
-        num_points   => 5,           # the number of test points
+      tolerance    => .0001,       # the relative or absolute tolerance
+      tolType      => 'relative',  # or 'absolute'
+      zeroLevel    => 1E-14,       # when to use zeroLevelTol
+      zeroLevelTol => 1E-12,       # smaller than this matches zero
+                                   #  when one of the two is less
+                                   #  than zeroLevel
+      limits       => [-2,2],      # limits for variables in formulas
+      num_points   => 5,           # the number of test points
     );
 
-[These need to be handled better.]
-
-Note that for testing formulas, you can override the limits and
-num_points settings by setting these fields of the formula itself:
+Note that for testing formulas, you can override these values by
+setting these fields of the formula itself:
 
     $f = Formula("sqrt(x-10)");
     $f->{limits} = [10,12];
@@ -416,12 +521,317 @@ num_points settings by setting these fields of the formula itself:
 You can also specify the test points explicitly:
 
     $f = Formula("sqrt(x-10)");
-    $f->{test_points} = [[11],[11.5],[12]];
+    $f->{test_at} = [[11],[11.5],[12]];  # use these plus random ones
 
     $f = Formula("log(xy)");
     $f->{test_points} = [[.1,.1],[.1,.5],[.1,.75],
-                         [.5,.1],[.5,.5],[.5,.75]];
+                         [.5,.1],[.5,.5],[.5,.75]];  # test only at these
 
-[There still needs to be a means of handling the tolerances similarly,
-and through the ->cmp() call itself.]
+You can specify the value at the same time you create the object, as in
 
+    $f = Formula("sqrt(x-1)")->with(limits=>[10,12]);
+
+It is also possible to set the limits of variables in the context itself,
+
+    Context()->variables->set(x => {limits => [10,12]});
+
+or when a variable is created in the Context,
+
+    Context()->variables->add(t => ['Real',limits=>[1,2]]);
+
+or even when the answer checker is specified,
+
+    ANS($f->cmp(limits=>[10,12]));
+
+
+=head2 Custom Answer Checkers
+
+While the built-in answer checkers do a good job of testing a student
+response for agreement with a given correct answer, sometimes an
+answer may require a more sophisticated or customized check.  For
+example, you might ask a student to provide a solution to a given
+implicit equation for which there are infinitely many solutions and
+would like to count any of them as correct.  You can do this by
+providing your own answer checker as a parameter to a MathObject
+answer checker.  This lets you get the advantage of the MathObject
+parsing, syntax checking, type checking, and error messages, while
+still giving you the control of deciding when the student's answer is
+correct.
+
+You do this by providing a C<checker> subroutine, as in the following example:
+
+    Context("Point");
+    $a = random(2,10,1);
+    $x = random(-5,5,1);
+    $y = $a - $x;
+    
+    BEGIN_TEXT
+    Find a point \((x,y)\) that is a solution to \(x+y=$a\).
+    $PAR
+    \((x,y)\) = \{ans_rule(15)\}
+    END_TEXT
+    
+    ANS(Point($x,$y)->cmp(
+      showCoordinateHints => 0,                # doesn't make sense to give these
+      checker => sub {
+        my ($correct,$student,$ansHash) = @_;  # get correct and student MathObjects
+        my ($sx,$sy) = $student->value;        # get coordinates of student answer
+        return ($sx + $sy == $a ? 1 : 0);      # return 1 of correct, 0 otherwise
+      }
+    ));
+
+The subroutine that is given as the value of the C<checker> parameter
+is called when the student has typed an answer that parses properly
+and is compatible with a point, so you don't have to worry about
+type-checking the student answer yourself, and are guaranteed to have
+a MathObject to work with.
+
+Note that your answer checker is tied to a given MathObject, so the
+type checking and error messages are appropriate for that type of
+object.  Also, this is what will be shown as the correct answer if the
+student requests answers after the due date, so you should be sure
+that you provide an actual correct answer, even if you don't use
+C<$correct> within your checker.
+
+Your checker subroutiune is passed three items, the correct answer (as
+a MathObject), the student's answer (as a MathObject), and a reference
+to the AnswerHash that is being used to process this answer.  In the
+example above, C<$correct> will be the C<Point($x,$y)> that was used
+to create the original MathObject for the answer checker, and
+C<$student> will be the point that the student typed.
+
+The answer hash (C<$ansHash>), holds additional data about the answer
+checker and the student's answer.  That data includes all the flags
+passed to the answer checker; e.g., in the example above,
+S<C<< $ansHash->{showCoordinateHints} >>> will be C<0>, while
+S<C<< $ansHash->{showTypeWarnings} >>> will be 1 (the default).  Other
+fields that are useful include
+
+=over
+
+=item S<C<< $ansHash->{correct_ans} >>>
+
+The correct answer string
+
+=item S<C<< $ansHash->{isPreview} >>>
+
+Whether the "Preview" button was pressed or not (you might want to
+limit error messages when this is true).
+
+=item S<C<< $ansHash->{original_student_ans} >>>
+
+The unmodified string originally typed by the student.  It has not
+been processed in any way.
+
+=item S<C<< $ansHash->{student_formula} >>>
+
+The Formula obtained from parsing the student answer.  If it is a
+constant value, then C<$student> is the result of evaluating this
+formula (i.e., it will be a Real or Point or some other MathObject
+rather than a Formula); if it is not constant, then C<$student> will
+be this Formula.
+
+=item S<C<< $ansHash->{student_value} >>>
+
+The value passed to C<$student>.
+
+=item S<C<< $ansHash->{correct_value} >>>
+
+The value passed to C<$correct>.
+
+=back
+
+The return value of your checker should be a value between 0 and 1
+that indicates how much credit the student's answer should receive.
+Use 1 for full credit, .5 for 50% credit, and so on.
+
+Error messages can be generated via the C<< Value->Error() >>
+function.  For example,
+
+    Value->Error("Your value should be positive") if $student <= 0;
+
+Note that this function will cause the checker to return with an error
+condition, so there is no need to return a score in this case.
+
+=head3 List-based Answer Checkers
+
+The built-in answer checkers for the List, Union, and Set classes are
+a bit more complicated than those for the other classes, because the
+order of elements in the List (or Intervals in a Union, or elements of
+a Set) usually doesn't matter.  If you provide a C<checker> routine
+for one of these types of MathObjects, it does not refer to the list
+as a whole, but to the individual elements in the list.  Management of
+the list and determining how many elements are matched, what the
+partial credit should be, and what error messages to produce is all
+handled by the main list answer checker.  You only provide a routine
+that determines when a student answer matches a correct answer.  Your
+checker will be called repeatedly on the various combinations of
+student and correct answers to determine if the student list matches
+the correct list (regardless of order).
+
+When the C<checker> is called from the list checker, it has two
+additional paramters:
+
+    checker => sub {
+      my ($correct,$student,$ansHash,$nth,$value) = @_;
+      ...
+    }
+
+Here C<$nth> is a word indicating which student answer is being tested
+(e.g., for the third element in the student's list, C<$nth> will be
+C<" third"> (note the leading space).  This can be used in error
+messages, for example, to help the student identify where an error
+occurred.  The C<$value> is the name of the type of object that is in
+the list, e.g., C<"point">.  So you could use C<"Your$nth $value is
+not correct"> as an error message in order to get something like
+C<"Your third point is incorrect"> as the output.
+
+As usual, you can use C<< Value->Error() >> to generate an error
+message.  The list checker will trap it and put it int he message area
+preceded by "There is a problem with your nth answer:" (where "nth" is
+replaced by the proper word for the answer that produced the error
+message.  If you want to produce a message that doesn't include this prefix, use
+
+    $correct->{context}->setError("message","",undef,undef,$Value::CMP_WARNING);
+    return 0;
+
+where "message" is the error message you want to produce.
+
+If you want to act on the List (or Union or Set) as a whole, then you
+need to use the C<list_checker> parameter instead.  This specifies a
+subtroutine that will handle checking of the entire list, overriding
+the default list checking.  That means you will be responsible for
+dealing with the possibly different order of the student answers from
+the correct answer, providing error messages about individual entries
+in the list, and so on.
+
+The C<list_checker> gets called with four parameters: a reference to
+an array containing the list of correct answers, a reference to an
+array of the student answers, a reference to the AnswerHash, and a
+string containing the name of the type of elements expected (for use
+in error messages).  So a list checker looks like
+
+    list_checker => sub {
+      my ($correct,$student,$ansHash,$value) = @_;
+      ...
+    }
+
+You can refer to the individual entries in C<$correct> or C<$student>
+as C<< $correct->[$i] >> or C<< $student->[$i] >>, where C<$i> is an
+integer representing the position within the list (the first entry is
+numbered 0 not 1).
+
+Note that in a C<list_checker> for a List object, you will have to do
+type checking yourself to check if the types of the entries are
+correct, since a list can consist of any type of elements.
+
+The C<list_checker> should return an array consisting of the nuber of
+student entries that are correct followed by any error messages that
+should be displayed (each on a separate line in the messages section).
+
+Here is an example of a list checker:
+
+    Context("Point");
+    
+    BEGIN_TEXT
+    Three distinct points \((x,y)\) that satisfy the equation \(x+y=5\) are:
+    \{ans_rule(20)\}
+    END_TEXT
+    
+    ANS(List("(0,5),(1,4),(2,3)")->cmp(list_checker => sub {
+      my ($correct,$student,$ansHash,$value) = @_;
+      my $n = scalar(@$student);  # number of student answers
+      my $score = 0;              # number of correct student answers
+      my @errors = ();            # stores error messages
+      my $i, $j;                  # loop counters
+    
+      #
+      #  Loop though the student answers
+      ##
+      for ($i = 0; $i < $n; $i++) {
+        my $ith = Value::List->NameForNumber($i+1);
+        my $p = $student->[$i];   # i-th student answer
+        #
+        #  Check that the student's answer is a point
+        #
+        if ($p->type ne "Point") {
+           push(@errors,"Your $ith entry is not a point");
+           next;
+        }
+        #
+        #  Check that the point hasn't been given before
+        #
+        for ($j = 0, $used = 0; $j < $i; $j++) {
+          if ($student->[$j]->type eq "Point" && $student->[$j] == $p) {
+            push(@errors,"Your $ith point is the same as a previous one") unless $ansHash->{isPreview};
+            $used = 1; last;
+          }
+        }
+        #
+        #  If not already used, check that it satisfies the equation
+        #    and increase the score if so.
+        #
+        if (!$used) {
+          my ($a,$b) = $p->value;
+          if ($a + $b == 5) {$score++} else {
+            push(@errors,"Your $ith point is not correct") unless $ansHash->{isPreview}
+          }
+        }
+      }
+      #
+      #  Check that there are the right number of answers
+      #
+      if (!$ansHash->{isPreview}) {
+        push(@errors,"You need to provide more points") if $i < 3;
+        push(@errors,"You have given too many points") if $score > 3 && $i != $score;
+      }
+      return ($score,@errors);
+    }));
+
+As you can see, list checkers are more complicated than checkers for
+the other types of data.  But for certain situations like the one
+above, they can be indispensible.
+
+=head3 Set and Union Answer Checkers
+
+Since Sets and Unions are unordered lists of Reals or Intervals, they
+act a lot like lists.  If you provide a C<checker> for one of these,
+it works like the List checker: it is applied to the individual
+entries in the Set or the individual intervals in a Union.  You may
+want to write a checker that works with the entire Set or Union at
+once, however.  In that case, you need to use a C<list_checker> in
+which you obtain the full Set or Union from C<$ansHash>.  For example:
+
+    Context("Interval");
+    
+    BEGIN_TEXT
+    Find a union of disjoint intervals that properly contains
+    the numbers 0 and 5:
+    \{ans_rule(20)\}
+    END_TEXT
+    
+    ANS(Union("(-1,1) U (4,infinity)")->cmp(list_checker => sub {
+      my ($correct,$student,$ansHash) = @_;
+      my $U = $ansHash->{student_value}; # complete student answer as MathObject
+      if ($U->type ne "Union") {return (0,"Your answer should be a union of intervals")}
+      my $n = scalar(@$student); # number of intervals
+      my $S = Set(0,5);
+      return ($U->contains($S) && $U != $S ? $n : 0);  # number of intervals correct
+    }));
+
+Note that the return value is the score followed by any error
+messages, and that the score is the number of intervals in the
+student's answer that are correct, which is why this checker returns
+C<$n>$ when the answer is correct.
+
+More error checking might be desired, here.  For example, since a
+Union can be of Intervals or Sets, we might want to check that all the
+student's entries in the Union are actually intervals (the current
+version allows Sets).  Note thta because the
+C<studentsMustReduceUnions> parameter is 1 by default, we don't have
+to check for disjoint intervals.  On the other hand, that flag also
+requires intervals to be merged into one if they could be, e.g.,
+C<(0,1] U (1,2)>.  We might want to work harder to allow that, since
+it I<is> a disjoint union.  We could also give more error messages to
+help the student work through a wrong answer.  For example, we could
+check which point isn't covered and report that.

@@ -60,7 +60,7 @@ sub parse {
   my $self = shift;
   foreach my $ref (@{$self->{tokens}}) {
     $self->{ref} = $ref;
-    context::String::Variable->new($self->{equation}) if ($ref->[0] eq 'error'); # display the error
+    context::String::Variable->new($self) if $ref->[0] eq 'error'; # display the error
   }
   $self->SUPER::parse(@_);
 }
