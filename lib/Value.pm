@@ -25,7 +25,7 @@ like equality are "fuzzy", meaning that two items are equal when they are "close
  #  Initialize the context-- flags set
  #
 	The following are list objects, meaning that they involve delimiters (parentheses)
-	of some type.
+	of some type.  They get overridden in lib/Parser/Context.pm
 
 	lists => {
 		'Point'  => {open => '(', close => ')'},

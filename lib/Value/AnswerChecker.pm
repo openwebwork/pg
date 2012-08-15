@@ -351,6 +351,16 @@ sub cmp_preprocess {}
 sub cmp_postprocess {}
 
 #
+#  Used to call an object's method as a pre- or post-filter.
+#  E.g.,
+#     $cmp->install_pre_filter(\&Value::cmp_call_filter,"cmp_prefilter");
+#
+sub cmp_call_filter {
+  my $ans = shift; my $method = shift;
+  return $ans->{correct_value}->$method($ans,@_);
+}
+
+#
 #  Check for unreduced reduced Unions and Sets
 #
 sub cmp_checkUnionReduce {
@@ -1552,6 +1562,7 @@ sub splitFormula {
   return @formula;
 }
 
+#
 #  Override for List ?
 #  Return the value if it is defined, otherwise use a default
 #
@@ -1660,14 +1671,9 @@ sub cmp {
     $cmp->ans_hash(correct_value => $f);
     Parser::Context->current(undef,$current);
   }
-  $cmp->install_pre_filter(\&Value::Formula::cmp_call_filter,"cmp_prefilter");
-  $cmp->install_post_filter(\&Value::Formula::cmp_call_filter,"cmp_postfilter");
+  $cmp->install_pre_filter(\&Value::cmp_call_filter,"cmp_prefilter");
+  $cmp->install_post_filter(\&Value::cmp_call_filter,"cmp_postfilter");
   return $cmp;
-}
-
-sub cmp_call_filter {
-  my $ans = shift; my $method = shift;
-  return $ans->{correct_value}->$method($ans,@_);
 }
 
 sub cmp_prefilter {
