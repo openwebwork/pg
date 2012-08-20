@@ -190,7 +190,7 @@ $functions = {
    'atan2' => {class => 'Parser::Function::numeric2'},
 
    'norm'  => {class => 'Parser::Function::vector', vectorInput => 1},
-   'unit'  => {class => 'Parser::Function::vector', vectorInput => 1},
+   'unit'  => {class => 'Parser::Function::vector', vectorInput => 1, vector => 1},
 
    'arg'   => {class => 'Parser::Function::complex'},
    'mod'   => {class => 'Parser::Function::complex'},
