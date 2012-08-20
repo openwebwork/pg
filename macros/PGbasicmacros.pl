@@ -2123,15 +2123,23 @@ sub helpLink {
 		'unit' => 'Units.html',
 		'syntax' => 'Syntax.html',
 		);
-         
+
 	my $infoRef = '';
+        my $refhold='';
         for my $ref (keys %typeHash) {
             if ( $type =~ /$ref/i) {
                 $infoRef = $typeHash{$ref};
+                $refhold=$ref;
                 last;
             }
         }
-        # If infoRef is still '', we give up
+        # We use different help files in some cases when BaseTenLog is set
+        if(PG_restricted_eval(q/$envir{useBaseTenLog}/)) {
+            $infoRef = 'Entering-Logarithms10.html' if($refhold eq 'log');
+            $infoRef = 'Entering-Formulas10.html' if($refhold eq 'formula');
+        }
+         
+        # If infoRef is still '', we give up and just print plain text
         return $customstring unless ($infoRef);
 	return knowlLink( $envir{'localHelpURL'}.$infoRef, $customstring);
 # Old way of doing this:
