@@ -81,7 +81,7 @@ sub substitute {
     {$x = $x->substitute; $constant = 0 unless $x->{isConstant}}
   return $self->Item("Value")->new($equation,[$self->eval])
     if $constant && $context->flag('reduceConstantFunctions');
-  $self->{isConstant} = 0;
+  $self->{isConstant} = $constant;
   return $self;
 }
 
@@ -165,7 +165,7 @@ sub checkVector {
   return if ($self->checkArgCount(1));
   $self->Error("Function '%s' requires a Vector input",$self->{name})
     unless $self->{params}[0]->type =~ m/Point|Vector/ || $self->context->flag("allowBadFunctionInputs");
-  $self->{type} = $Value::Type{number};
+  $self->{type} = ($self->{def}{vector} ? $self->{params}[0]->typeRef : $Value::Type{number});
 }
 
 #
@@ -181,7 +181,7 @@ sub checkReal {
 }
 
 #
-#  Error if the argument isn't a singe complex number
+#  Error if the argument isn't a single complex number
 #    and return a complex.
 #
 sub checkComplex {
