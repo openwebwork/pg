@@ -1061,20 +1061,20 @@ sub solution {
 	my $out = '';
 	my $permissionLevel = $envir->{permissionLevel}||0; #PG_restricted_eval(q!$main::envir{permissionLevel}!); #user permission level
 	# protect against undefined values
-	my $PRINT_FILE_NAMES_PERMISSION_LEVEL = ( defined( $envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'} ) ) ? $envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'} : 10000;
-    my $printSolutionForInstructor = $permissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL;
+	my $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL = ( defined( $envir->{'ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL'} ) ) ? $envir->{'ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL'} : 10000;
+    my $printSolutionForInstructor = $permissionLevel >= $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL;
 	my $diplaySolutions = PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!);
 	PG_restricted_eval(q!$main::solutionExists =1!);
 	if (PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!)) {$out = join(' ',@in);}
     
     if ($displayMode eq 'TeX')   {
 	    if ($printSolutionForInstructor) {
-	    	$out = join(' ', "$BR(Show the student solution after due date: ) $BR $BBOLD $SOLUTION: $EBOLD $BR",@in);
+	    	$out = join(' ', "$PAR $BBOLD SOLUTION: $EBOLD (Instructor solution preview: show the student solution after due date. ) $BR",@in);
 		} else 	{
 			$out = '';  # do nothing since hints are not available for download for students
 		}
 	} elsif ($printSolutionForInstructor) {  # always print hints for instructor types 
-		$out = join(' ', "$BR( Show the student solution after due date: )$BR $BBOLD SOLUTION: $EBOLD ", @in);
+		$out = join(' ', "$PAR $BBOLD SOLUTION: $EBOLD (Instructor solution preview: show the student solution after due date. )$BR", @in);
 	} elsif ( $diplaySolutions ) 	{
 
 	 ## FIXME -- doctoring the form could display solutions.
@@ -1095,8 +1095,8 @@ sub hint {
 	my $out = '';
 	my $permissionLevel = $envir->{permissionLevel}||0; #PG_restricted_eval(q!$main::envir{permissionLevel}!); #user permission level
 	# protect against undefined values
-	my $PRINT_FILE_NAMES_PERMISSION_LEVEL = ( defined( $envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'} ) ) ? $envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'} : 10000;
-    my $printHintForInstructor = $permissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL;
+	my $ALWAYS_SHOW_HINT_PERMISSION_LEVEL = ( defined( $envir->{'ALWAYS_SHOW_HINT_PERMISSION_LEVEL'} ) ) ? $envir->{'ALWAYS_SHOW_HINT_PERMISSION_LEVEL'} : 10000;
+    my $printHintForInstructor = $permissionLevel >= $ALWAYS_SHOW_HINT_PERMISSION_LEVEL;
     my $showHint = PG_restricted_eval(q!$main::showHint!);
     my $displayHint = PG_restricted_eval(q!$main::envir{'displayHintsQ'}!);
 	PG_restricted_eval(q!$main::hintExists =1!);
@@ -1105,12 +1105,12 @@ sub hint {
 
 	if ($displayMode eq 'TeX')   {
 	    if ($printHintForInstructor) {
-	    	$out = join(' ', "$BR(Show the student hint after $showHint attempts: ) $BR",@in);
+	    	$out = join(' ', "$PAR $BBOLD HINT: $EBOLD (Instructor hint preview: show the student hint after $showHint attempts: )$BR",@in);
 		} else 	{
 			$out = '';  # do nothing since hints are not available for download for students
 		}
 	} elsif ($printHintForInstructor) {  # always print hints for instructor types 
-		$out = join(' ', "$BR( Show the student hint after $showHint attempts. The current number of attempts is $attempts. )$BR $BBOLD HINT: $EBOLD ", @in);
+		$out = join(' ', "$PAR $BBOLD HINT: $EBOLD (Instructor hint preview: show the student hint after $showHint attempts. The current number of attempts is $attempts. )$BR", @in);
 	} elsif ( $displayHint  and ( $attempts > $showHint )) 	{
 
 	 ## the second test above prevents a hint being shown if a doctored form is submitted
