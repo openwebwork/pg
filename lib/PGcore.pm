@@ -94,7 +94,7 @@ sub pretty_print_html {    # provides html output -- NOT a method
     my $level = shift;
     $level = 5 unless defined($level);
     $level--;
-    return "PGalias" if ref($r_input) eq 'PGalias';  # PGalias just has too much information
+    return "PGalias has too much info. Try \$PG->{PG_alias}->{resource_list}" if ref($r_input) eq 'PGalias';  # PGalias just has too much information
     return 'too deep' unless $level > 0;  # only print four levels of hashes (safety feature)
     my $out = '';
     if ( not ref($r_input) ) {
@@ -131,7 +131,7 @@ sub pretty_print_tex {
 	my $level   = shift;
     $level      = 5 unless defined($level);
 	$level--;
-	return "PGalias" if ref($r_input) eq 'PGalias';  # PGalias just has too much information
+	return "PGalias has too much info. Try \\\$PG->{PG\\_alias}->{resource\\_list}" if ref($r_input) eq 'PGalias';  # PGalias just has too much information
 	return 'too deep' unless $level>0;  #only print four levels of hashes (safety feature)
 	
 	my $protect_tex = sub {my $str = shift; $str=~s/_/\\\_/g; $str };
@@ -141,10 +141,11 @@ sub pretty_print_tex {
 		$out = $r_input if defined $r_input;
 		$out =~ s/_/\\\_/g;   # protect tex
 		$out =~ s/&/\\\&/g;
+		$out =~ s/\$/\\\$/g;
 	} elsif ("$r_input" =~/hash/i) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_iput).
 		local($^W) = 0;
 	    
-		$out .= "\\begin{tabular}{| c | c |}\\hline\n\\multicolumn{2}{|c|}{$r_input}\\\\ \\hline\n";
+		$out .= "\\begin{tabular}{| l | l |}\\hline\n\\multicolumn{2}{|l|}{$r_input}\\\\ \\hline\n";
 		
 		
 		foreach my $key ( sort ( keys %$r_input )) {
@@ -239,6 +240,7 @@ sub initialize {
                                         DEBUG_messages   => $self->{DEBUG_messages},
                                                  
 	);
+	#$self->debug_message("PG alias created", $self->{PG_alias} );
     $self->{PG_loadMacros}        = new PGloadfiles($self->{envir});
 	$self->{flags} = {
 		showpartialCorrectAnswers => 1,
