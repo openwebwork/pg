@@ -1,0 +1,14 @@
+These files, contributed by Boyd Duffe, are an example of writing unit tests 
+for PG modules so that we can determine (a) that they work, and (b) that they continue
+to work when some seemingly innocuous change elsewhere in the system causes troubles
+in this module.  
+
+Of course this is not supposed to happen when modular programming practices are followed
+but it happens anyway. :-)
+
+We need more "unit tests" like this.  (The unit does not refer to Unit.pm but to testing
+a small piece or unit of the WeBWorK/PG code.)  I would also like to wire these
+in so that administrators can perform these tests from the admin page on the web
+to reassure themselves that the new version of PG they are using is functioning correctly.
+
+ 
