@@ -67,10 +67,11 @@ contains the function.
 
 =item includePGtext($string_ref, $envir_ref)
 
-Calls C<createPGtext> recursively with the $safeCompartment variable set to 0 so
-that the rendering continues in the current safe compartment.  The output is the
-same as the output from createPGtext. This is used in processing some of the
-sample CAPA files.
+
+This is used in processing some of the sample CAPA files and in creating aliases to redirect calls to duplicate problems so that 
+they go to the original problem instead.  It is called by includePGproblem.
+
+It reads and evaluates the string in the same way that the Translator evaluates the string in a PG file.
 
 =cut
 
