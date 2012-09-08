@@ -647,7 +647,7 @@ sub includePGproblem {
                                       DEBUG_messages  => $PG->{DEBUG_messages},
     );
     $PG->{PG_alias}=$temp_PGalias;
-    includePGtext($r_string);
+    $PG->includePGtext($r_string);
     # Reset the environment to what it was before.
     %main::envir = %save_envir;
     $PG->{PG_alias}=$save_PGalias;
