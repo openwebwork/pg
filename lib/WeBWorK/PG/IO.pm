@@ -80,6 +80,8 @@ sub includePGtext  {
 		$evalString = $$evalString;
 	}
 	$evalString =~ s/\nBEGIN_TEXT/\nTEXT\(EV3\(<<'END_TEXT'\)\);/g;
+	$evalString =~ s/\nBEGIN_SOLUTION/\nSOLUTION\(EV3\(<<'END_SOLUTION'\)\);/g;
+	$evalString =~ s/\nBEGIN_HINT/\nHINT\(EV3\(<<'END_HINT'\)\);/g;
 	$evalString =~ s/\\/\\\\/g; # \ can't be used for escapes because of TeX conflict
 	$evalString =~ s/~~/\\/g;   # use ~~ as escape instead, use # for comments
 	no strict;

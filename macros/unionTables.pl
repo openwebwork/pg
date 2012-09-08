@@ -35,17 +35,26 @@ sub _unionTables_init {}; # don't reload this file
  #      valign => type        set the vertical alignment
  #                            (default is "MIDDLE")
  #
+ #      bhtml => string       set HTML preamble for table
+ #                            (default is empty string "")
+ #
+ #      ehtml => string       set HTML postamble for table
+ #                            (default is empty string "")
+ #
  
 =cut
 
 sub ColumnTable {
   my $col1 = shift; my $col2 = shift;
-  my %options = (indent => 0, separation => 50, valign => "MIDDLE", @_);
-  my ($ind,$sep) = ($options{"indent"},$options{"separation"});
+  my %options = (
+                 indent => 0, separation => 50, valign => "MIDDLE", 
+                 bhtml=>"", ehtml=>"", @_
+                );
+  my ($ind,$sep) = ($options{"indent"}, $options{"separation"});
   my $valign = $options{"valign"};
 
   my ($bhtml,$ehtml) = ('\begin{rawhtml}','\end{rawhtml}');
-  ($bhtml,$ehtml) = ('','') unless ($displayMode eq "Latex2HTML");
+  ($bhtml,$ehtml) = ($options{"bhtml"}, $options{"bhtml"}) unless ($displayMode eq "Latex2HTML");
 
   my $HTMLtable = qq {
     $bhtml<TABLE BORDER="0"><TR VALIGN="$valign">
@@ -100,15 +109,22 @@ sub ColumnMatchTable {
  #                          (e.g, tex_spacing => 2em) (default 1em)
  #    tex_border => dimen   value for left- and right border in TeX (0pt)
  #    center => 0 or 1      center table or not (default 1)
+ #    bHTML => string       set HTML preamble for table (default is empty string "")
+ #    eHTML => string       set HTML postamble for table (default is empty string "")
+ #
  #
 
 =cut
 
 sub BeginTable {
-  my %options = (border => 0, padding => 0, spacing => 0, center => 1,
-                 tex_spacing => "1em", tex_border => "0pt", @_);
+  my %options = (
+		 border => 0, padding => 0, spacing => 0, center => 1,
+                 tex_spacing => "1em", tex_border => "0pt", 
+		 bHTML=> "", eHTML=> "", @_
+		);
   my ($bd,$pd,$sp) = ($options{border},$options{padding},$options{spacing});
   my ($tsp,$tbd) = ($options{tex_spacing},$options{tex_border});
+  my ($bHTML, $eHTML) = ($options{bHTML}, $options{eHTML});
   my ($center,$tcenter) = (' ALIGN="CENTER"','\centerline');
      ($center,$tcenter) = ('','') if (!$options{center});
   my $table = 
@@ -130,13 +146,19 @@ sub BeginTable {
  #  where options are taken from:
  #
  #     tex_border => dimen     extra vertical space in TeX mode (default 0pt)
+ #     bHTML => string         set HTML preamble for table (default is empty string "")
+ #     eHTML => string         set HTML postamble for table (default is empty string "")
  #
 
 =cut
 
 sub EndTable {
-  my %options = (tex_border => "0pt", @_);
+  my %options = (
+		 tex_border => "0pt", 
+		 bHTML=> "", eHTML=> "", @_
+		);
   my $tbd = $options{tex_border};
+  my ($bHTML, $eHTML) = ($options{bHTML}, $options{eHTML});
   MODES(
     TeX => '\cr}}\kern '.$tbd.'}\medskip'."\n",
     Latex2HTML => $bHTML.'</TABLE>'.$eHTML."\n",
@@ -169,18 +191,27 @@ sub EndTable {
  #    valign => "type"        Specified vertical alignment of row
  #                            (default:  valign => "MIDDLE")
  #
+ #    bHTML => string         set HTML preamble for table
+ #                            (default is empty string "")
+ #
+ #    eHTML => string         set HTML postamble for table
+ #                            (default is empty string "")
+
  
 =cut
 
 sub Row {
   my $rowref = shift; my @row = @{$rowref};
+
   my %options = (
-     indent => 0, separation => 30,
-     align => "LEFT", valign => "MIDDLE",
-     @_
-  );
+                 indent => 0, separation => 30,
+                 align => "LEFT", valign => "MIDDLE",
+                 bHTML => "", eHTML => "", @_
+                );
+
   my ($cind,$csep) = ($options{indent},$options{separation});
   my ($align,$valign) = ($options{align},$options{valign});
+  my ($bHTML, $eHTML) = ($options{bHTML}, $options{eHTML});
   my $sep = '<TD WIDTH="'.$csep.'">&nbsp;</TD>'; $sep = '' if ($csep < 1);
   my $ind = '<TD WIDTH="'.$cind.'">&nbsp;</TD>'; $ind = '' if ($cind < 1);
   my $fill = '';
@@ -193,8 +224,7 @@ sub Row {
     TeX => '\cr'.$vspace."\n". $fill . join('& ',@row),
     Latex2HTML =>
       $bHTML."<TR VALIGN=\"$valign\">$ind<TD ALIGN=\"$align\">".$eHTML .
-      join($bHTML."</TD>$sep<TD>".$eHTML,@row) .
-      $bHTML.'</TD></TR>'.$eHTML."\n",
+      join($bHTML."</TD>$sep<TD>".$eHTML,@row) . $bHTML.'</TD></TR>'.$eHTML."\n",
     HTML => "<TR VALIGN=\"$valign\">$ind<TD ALIGN=\"$align\">" .
       join("</TD>$sep<TD>",@row) . '</TD></TR>'."\n"
   );
@@ -221,20 +251,30 @@ sub Row {
  #    valign => "type"        Specified vertical alignment of row
  #                            (default:  valign => "MIDDLE")
  #
+ #    bHTML => string         Set HTML preamble for table
+ #                            (default is empty string "")
+ #
+ #    eHTML => string         Set HTML postamble for table
+ #                            (default is empty string "")
+
  
 =cut
 
 sub AlignedRow {
   my $rowref = shift; my @row = @{$rowref};
   my %options = (
-     indent => 0, separation => 30,
-     align => "CENTER", valign => "MIDDLE",
-     @_
-  );
+                 indent => 0, separation => 30,
+                 align => "CENTER", valign => "MIDDLE",
+                 bHTML => "", eHTML => "", @_
+                );
+
   my ($cind,$csep) = ($options{indent},$options{separation});
   my ($align,$valign) = ($options{align},$options{valign});
-  my $sep = '<TD WIDTH="'.$csep.'">&nbsp;</TD>'; $sep = '' if ($csep < 1);
-  my $ind = '<TD WIDTH="'.$cind.'">&nbsp;</TD>'; $ind = '' if ($cind < 1);
+  my ($bHTML, $eHTML) = ($options{bHTML}, $options{eHTML});
+  my $sep = '<TD WIDTH="'.$csep.'">&nbsp;</TD>'."\n";
+  $sep = '' if ($csep < 1);
+  my $ind = '<TD WIDTH="'.$cind.'">&nbsp;</TD>'."\n";
+  $ind = '' if ($cind < 1);
   my $fill = '';
   $fill = '\hfil ' if (uc($align) eq "CENTER");
   $fill = '\hfill ' if (uc($align) eq "RIGHT");
@@ -244,11 +284,10 @@ sub AlignedRow {
   MODES(
     TeX => '\cr'.$vspace."\n". $fill . join('&'.$fill,@row),
     Latex2HTML =>
-      $bHTML."<TR VALIGN=\"$valign\">$ind<TD ALIGN=\"$align\">".$eHTML .
-      join($bHTML."</TD>$sep<TD ALIGN=\"$align\">".$eHTML,@row) .
-      $bHTML.'</TD></TR>'.$eHTML."\n",
-    HTML => "<TR VALIGN=\"$valign\">$ind<TD ALIGN=\"$align\">" .
-      join("</TD>$sep<TD ALIGN=\"$align\">",@row) . '</TD></TR>'."\n"
+      $bHTML."<TR VALIGN=\"$valign\">\n$ind<TD ALIGN=\"$align\">".
+      join($bHTML."</TD>\n$sep<TD ALIGN=\"$align\">".$eHTML,@row) . $bHTML."</TD>\n</TR>\n".$eHTML."\n",
+    HTML => "<TR VALIGN=\"$valign\">\n$ind<TD ALIGN=\"$align\">\n" .
+      join("</TD>\n$sep<TD ALIGN=\"$align\">", @row) . "</TD>\n</TR>\n",
   );
 }
 
@@ -273,8 +312,8 @@ sub TableSpace {
   MODES(
     TeX => '\vadjust{\kern '.$rsep.'pt}' . "\n",
     Latex2HTML =>
-      $bHTML.'<TR><TD HEIGHT="'.$rsep.'"><!></TD></TR>'.$eHTML."\n",
-    HTML => '<TR><TD HEIGHT="'.$rsep.'"></TD></TR>'."\n",
+	"<TR>\n<TD HEIGHT=\"'.$rsep.'\"><!></TD>\n</TR>\n",
+    HTML => "<TR><TD HEIGHT=\"'.$rsep.'\"></TD>\n</TR>\n",
   );
 }
 
@@ -291,9 +330,7 @@ sub TableSpace {
 sub TableLine {
   MODES(
     TeX => '\vadjust{\kern2pt\hrule\kern2pt}',
-    Latex2HTML => $bHTML.
-      '<TR><TD COLSPAN="10"><HR NOSHADE SIZE="1"></TD></TR>'.
-      $eHTML."\n",
+    Latex2HTML => '<TR><TD COLSPAN="10"><HR NOSHADE SIZE="1"></TD></TR>'."\n",
     HTML =>'<TR><TD COLSPAN="10"><HR NOSHADE SIZE="1"></TD></TR>'."\n"
   );
 }
