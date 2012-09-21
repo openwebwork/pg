@@ -1521,7 +1521,7 @@ sub std_problem_grader {
 	
 	$problem_state{num_of_correct_ans}++ if	$allAnswersCorrectQ	== 1;
 	$problem_state{num_of_incorrect_ans}++ if $allAnswersCorrectQ == 0;
-
+	$problem_state{recorded_score} = 0 unless defined $problem_state{recorded_score};
 	# Determine if we are in the reduced scoring period and act accordingly
 
 	my $reducedScoringPeriodSec = $reducedScoringPeriod*60;   # $reducedScoringPeriod is in minutes
@@ -1624,6 +1624,7 @@ sub std_problem_grader2 {
 	}
 	# report the results
 	$problem_result{score} = $allAnswersCorrectQ;
+	$problem_state{recorded_score} = 0 unless defined $problem_state{recorded_score};
 
 	# Determine if we are in the reduced scoring period and act accordingly
 
@@ -1715,6 +1716,7 @@ sub avg_problem_grader {
 	}
 	# Calculate	score rounded to three places to avoid roundoff	problems
 	$problem_result{score} = $total/$count if $count;
+	$problem_state{recorded_score} = 0 unless defined $problem_state{recorded_score};
 
 	$problem_state{num_of_correct_ans}++ if	$total == $count;
 	$problem_state{num_of_incorrect_ans}++ if $total < $count;
