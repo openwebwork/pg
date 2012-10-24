@@ -169,9 +169,11 @@ sub compare {
   ##  FIXME: insert additional values if vars in use in formula aren't all the vars in the context
   my $points  = $l->{test_points} || $l->createRandomPoints(undef,$l->{test_at});
   my $lvalues = $l->{test_values} || $l->createPointValues($points,1,1);
-  my $rvalues = $r->createPointValues($points,0,1,$l->{checkUndefinedPoints});
+  my $rvalues = $r->createPointValues($points,0,1,$l->getFlag("checkUndefinedPoints"));
   #
   # Note: $l is bigger if $r can't be evaluated at one of the points
+  #
+  $l->{domainMismatch} = ($rvalues ? 0 : 1);
   return 1 unless $rvalues;
 
   my ($i, $cmp);
@@ -328,7 +330,7 @@ sub createRandomPoints {
   my $points = []; my $values = []; my $num_undef = 0;
   if ($include) {
     push(@{$points},@{$include});
-    push(@{$values},@{$self->createPointValues($include,1,$cacheResults,$self->{checkundefinedPoints})});
+    push(@{$values},@{$self->createPointValues($include,1,$cacheResults,$checkUndef)});
   }
   my (@P,@p,$v,$i); my $k = 0;
   while (scalar(@{$points}) < $num_points+$num_undef && $k < 10) {

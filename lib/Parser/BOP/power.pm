@@ -31,7 +31,7 @@ sub _check {
 sub _eval {
   my $self = $_[0];
   my $x = $_[1] ** $_[2];
-  return $x unless $x eq 'nan';
+  return $x unless lc($x) eq 'nan' or lc($x) eq "-nan";
   $self->Error("Can't raise a negative number to a non-integer power")
     if Value::isNumber($_[1]) && Value::makeValue($_[1],context=>$self->context)->value < 0;
   $self->Error("Result of exponentiation is not a number");

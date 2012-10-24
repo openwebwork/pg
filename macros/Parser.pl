@@ -86,14 +86,18 @@ if needed later in the problem.
 
 # ^function Compute
 # ^uses Formula
+# ^uses Value::contextSet
 sub Compute {
   my $string = shift;
   my $formula = Formula($string);
   $formula = $formula->{tree}->Compute if $formula->{tree}{canCompute};
   if (scalar(@_) || $formula->isConstant) {
-    my $f = $formula;
+    my $f = $formula; my $context = $formula->context;
     $formula = $formula->eval(@_);
-    $formula->{original_formula} = $f;
+    my $flags = Value::contextSet($context,reduceConstants => 0, reduceConstantFunctions => 0);
+    $formula->{original_formula} = $f->substitute(@_);
+    $string = $formula->{original_formula}->string;
+    Value::contextSet($context,$flags);
   }
   $formula->{correct_ans} = $string;
   return $formula;

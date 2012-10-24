@@ -24,14 +24,14 @@ Copy this file to your course templates directory and put any
 customization for the Parser that you want for your course
 here.  For example, you can make vectors display using
 ijk notation (and force students to use it for entering
-vectors) by uncommenting:
+vectors) by using:
 
 	$context{Vector} = Parser::Context->getCopy("Vector");
 	$context{Vector}->flags->set(ijk=>1);
 	$context{Vector}->parens->remove('<');
 
 To allow vectors to be entered with parens (and displayed with
-parens) rather than angle-brakets, uncomment
+parens) rather than angle-brakets, use
 
 	$context{Vector} = Parser::Context->getCopy("Vector");
 	$context{Vector}->{cmpDefaults}{Vector} = {promotePoints => 1};
@@ -39,10 +39,10 @@ parens) rather than angle-brakets, uncomment
 
 (This actually just turns points into vectors in the answer checker
 for vectors, and displays vectors using parens rather than angle
-brakets.  The student is really still entering what the Parser
-thinks is a point, but since points get promoted automatically
-in the Value package, that should work.  But if a problem checks
-if a student's value is actually a Vector, that will not be true.)
+brackets.  The student is really still entering what MathObjects
+thinks is a point, but since points get promoted automatically, that
+should work.  But if a problem checks if a student's value is actually
+a Vector, that will not be true.)
 
 =cut
 
