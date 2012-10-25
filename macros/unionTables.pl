@@ -120,7 +120,7 @@ sub BeginTable {
   my %options = (
 		 border => 0, padding => 0, spacing => 0, center => 1,
                  tex_spacing => "1em", tex_border => "0pt", 
-		 bHTML=> "", eHTML=> "", @_
+		 bHTML=> ' ', eHTML=> ' ', @_
 		);
   my ($bd,$pd,$sp) = ($options{border},$options{padding},$options{spacing});
   my ($tsp,$tbd) = ($options{tex_spacing},$options{tex_border});
@@ -155,7 +155,7 @@ sub BeginTable {
 sub EndTable {
   my %options = (
 		 tex_border => "0pt", 
-		 bHTML=> "", eHTML=> "", @_
+		 bHTML=> ' ', eHTML=> ' ', @_
 		);
   my $tbd = $options{tex_border};
   my ($bHTML, $eHTML) = ($options{bHTML}, $options{eHTML});
@@ -206,7 +206,7 @@ sub Row {
   my %options = (
                  indent => 0, separation => 30,
                  align => "LEFT", valign => "MIDDLE",
-                 bHTML => "", eHTML => "", @_
+                 bHTML => ' ', eHTML => ' ', @_
                 );
 
   my ($cind,$csep) = ($options{indent},$options{separation});
@@ -265,7 +265,7 @@ sub AlignedRow {
   my %options = (
                  indent => 0, separation => 30,
                  align => "CENTER", valign => "MIDDLE",
-                 bHTML => "", eHTML => "", @_
+                 bHTML => ' ', eHTML => ' ', @_
                 );
 
   my ($cind,$csep) = ($options{indent},$options{separation});
