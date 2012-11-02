@@ -1,6 +1,3 @@
-loadMacros("contextTypeset.pl");
-
-
 ######################################################################
 ######################################################################
 
@@ -1273,7 +1270,7 @@ our $preamble = <<'END_PREAMBLE';
 %    definitions for PGML
 %
 
-\ifx\pgmlCount\undefined  % don not redefine if multiple files load PGML.pl
+\ifx\pgmlCount\undefined  % do not redefine if multiple files load PGML.pl
   \newcount\pgmlCount
   \newdimen\pgmlPercent
   \newdimen\pgmlPixels  \pgmlPixels=.5pt
@@ -1348,12 +1345,15 @@ END_PREAMBLE
 package main;
 
 sub _PGML_init {
+  my $context = Context; # prevent Typeset context from becoming active
+  loadMacros("contextTypeset.pl");
+  Context($context);
   $problemPreamble->{TeX} .= $PGML::preamble unless $problemPreamble->{TeX} =~ m/definitions for PGML/;
   if (defined($BR)) {
     ## Avoid bad spacing at the top of the problem (need to modify hardcopyPreamble.tex)
     TEXT(MODES(HTML=>'', TeX=>'
       \ifx\pgmlMarker\undefined
-        \newdimen\pgmlMarker \pgmlMarker=0.00314159pt  % hack to lett if \newline was used
+        \newdimen\pgmlMarker \pgmlMarker=0.00314159pt  % hack to tell if \newline was used
       \fi
       \ifx\oldnewline\undefined \let\oldnewline=\newline \fi
       \def\newline{\oldnewline\hskip-\pgmlMarker\hskip\pgmlMarker\relax}%
