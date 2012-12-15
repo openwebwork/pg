@@ -1962,10 +1962,10 @@ A wide variety of google widgets, youtube videos, and other online resources can
 sub beginproblem {
 	my $out = "";
 	my $problemValue = $envir->{problemValue} || 0;
-	my $fileName     = $envir->{fileName};
+	my $fileName     = $envir->{probFileName};
 	my $probNum      = $envir->{probNum};
-    my $TeXFileName = protect_underbar($envir->{fileName});
-    my $l2hFileName = protect_underbar($envir->{fileName});
+    my $TeXFileName = protect_underbar($envir->{probFileName});
+    my $l2hFileName = protect_underbar($envir->{probFileName});
 	my %inlist;
 	my $points ='pts';
 
