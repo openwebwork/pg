@@ -105,7 +105,8 @@ package MultiAnswer;
 our @ISA = qw(Value);
 
 our $count = 0;                      # counter for unique identifier for multi-parts
-our $answerPrefix = $main::PG->{QUIZ_PREFIX}."_MuLtIaNsWeR";   # answer rule prefix
+our $answerPrefix = "_MuLtIaNsWeR";     # answer rule prefix
+$answerPrefix = $main::PG->{QUIZ_PREFIX}."_MuLtIaNsWeR" if $main::PG->{QUIZ_PREFIX};
 our $separator = ';';                # separator for singleResult previews
 
 =head1 CONSTRUCTOR

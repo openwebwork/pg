@@ -1927,13 +1927,11 @@ sub cmp_graph {
   #
   my %options = (title=>'',points=>[],@_);
   my $graphs = $diagnostics->{graphs};
-  my $limits = $graphs->{limits}; $limits = $self->getFlag('limits',[-2,2]) unless $limits;
-  $limits = $limits->[0] while ref($limits) eq 'ARRAY' && ref($limits->[0]) eq 'ARRAY';
+  my $limits = $graphs->{limits};
   my $size = $graphs->{size}; $size = [$size,$size] unless ref($size) eq 'ARRAY';
   my $steps = $graphs->{divisions};
   my $points = $options{points}; my $clip = $options{clip};
-  my ($my,$My) = (0,0); my ($mx,$Mx) = @{$limits};
-  my $dx = ($Mx-$mx)/$steps; my $f; my $y;
+  my ($my,$My) = (0,0); my ($mx,$Mx); my $dx; my $f; my $y;
 
   my @pnames = $self->{context}->variables->parameters;
   my @pvalues = ($self->{parameters} ? @{$self->{parameters}} : (0) x scalar(@pnames));
@@ -1959,10 +1957,13 @@ sub cmp_graph {
       $self->{graphWarning} = 1;
       return "";
     }
-    unless ($f->typeRef->{length} == 1) {
-      warn "Only real-valued functions can be graphed";
-      return "";
-    }
+
+    $x = ($f->{context}->variables->names)[0] unless $x;
+    $limits = [$self->getVariableLimits($x)] unless $limits;
+    $limits = $limits->[0] while ref($limits) eq 'ARRAY' && ref($limits->[0]) eq 'ARRAY';
+    ($mx,$Mx) = @{$limits};
+    $dx = ($Mx-$mx)/$steps;
+
     if ($f->isConstant) {
       $y = $f->eval;
       $my = $y if $y < $my; $My = $y if $y > $My;
