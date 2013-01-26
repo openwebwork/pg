@@ -13,7 +13,7 @@ sub new {
     context => $parent,     # parent context
     dataName => {},         # name of data storage in context hash
     tokens => {},           # hash of id => type specifications that will be made into a pattern
-    patterns => {},         # hash of pattern => [type,precedence] specification for extra patterns
+    patterns => {},         # hash of pattern => [precedence,type] specification for extra patterns
     tokenType => {},        # type of Parser token for these pattern
     namePattern => '',      # pattern for allowed names for new items
     name => '', Name => '', # lower- and upper-case names for the class of items
@@ -145,8 +145,11 @@ sub undefine {my $self = shift; $self->remove(@_)}
 #  Redefine items from the default context, or a given one
 #
 sub redefine {
-  my $self = shift; my $X = shift;
-  my %options = (using => undef, from => "Full", @_);
+  my $self = shift; 
+  my $X = shift;
+  my %options = @_; 
+  warn "error in options must be an even number of entries:  ", join(" ",%options), caller(1) if @_%2;  # require even number
+  %options =  (using => undef, from => "Full", %options) ;
   my $Y = $options{using}; my $from = $options{from};
   $from = $Parser::Context::Default::context{$from} unless ref($from);
   $Y = $X if !defined($Y) && !ref($X);

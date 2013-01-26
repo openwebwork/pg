@@ -107,6 +107,59 @@ sub normal_distr {
         $b;
 }
 
+
+=head3 Mean function
+
+=pod
+
+	Usage: stats_mean(@data);
+
+Computes the artihmetic mean of a list of numbers, data. You may also pass the numbers individually.
+
+=cut
+
+sub stats_mean {
+	my @data_list = @_;
+	
+	my $total = 0;
+	
+	foreach ( @data_list  )  {
+		$total=$total + $_;
+	}
+	
+	my $n = @data_list;
+	return( $total/$n );
+	
+}
+
+=head3 Standard Deviation function
+
+=pod
+
+	Usage: stats_sd(@data);
+
+Computes the sample standard deviation of a list of numbers, data. You may also pass the numbers individually.
+
+=cut
+
+sub stats_sd {
+	my @data_list = @_;
+	
+	my $sum_x = 0;
+	#Not using mean for computation saving.
+	my $sum_squares = 0;
+	#Using the standard computational formula for variance ( sum(x^2) - (sum(x))^2)/(n-1)
+	foreach (@data_list) {
+		$sum_x=$sum_x + $_;
+		$sum_squares = $sum_squares + ($_)*($_);
+	}
+	
+	my $n = @data_list;
+	return( sqrt( ($sum_squares - $sum_x*$sum_x/$n)/($n - 1 ) ) );
+	
+}
+
+
 ##########################################
 
 1;

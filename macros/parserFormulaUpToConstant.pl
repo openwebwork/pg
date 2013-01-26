@@ -22,11 +22,11 @@ parserFormulaUpToConstant.pl - implements formulas "plus a constant".
 
 This file implements the FormulaUpToConstant object, which is
 a formula that is only unique up to a constant (i.e., this is
-an anti-derivative). Students must include the "+C" as part of
+an anti-derivative).  Students must include the "+C" as part of
 their answers, but they can use any (single-letter) constant that
 they want, and it doesn't have to be the one the professor used.
 
-To use FormulaWithConstat objects, load this macro file at the
+To use FormulaUpToConstant objects, load this macro file at the
 top of your problem:
 
 	loadMacros("parserFormulaUpToConstant.pl");
@@ -64,7 +64,7 @@ would return a list of the variables in the private context.
 To get the name of the constant in use in the formula,
 use
 
-	$f->constant.
+	$f->constant
 
 If you combine a FormulaUpToConstant with other formulas,
 the result will be a new FormulaUpToConstant object, with
@@ -139,7 +139,7 @@ sub new {
     unless $n->isConstant;
   #
   #  Make a version with adaptive parameters for use in the
-  #  comparison later on.  We could like n00*C, but already have $n
+  #  comparison later on.  We would like n00*C, but already have $n
   #  copies of C, so remove them.  That way, n00 will be 0 when there
   #  are no C's in the student answer during the adaptive comparison.
   #  (Again, should really check that n00 is not in use already)
@@ -338,7 +338,7 @@ sub D {
 
 ######################################################################
 #
-#  This class repalces the Parser::Variable class, and its job
+#  This class replaces the Parser::Variable class, and its job
 #  is to look for new constants that aren't in the context,
 #  and add them in.  This allows students to use ANY constant
 #  they want, and a different one from the professor.  We check
