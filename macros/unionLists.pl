@@ -50,13 +50,8 @@ sub _unionLists_init {}; # don't reload this file
  #
  #  where type is the list type (and must match the BeginList type).
  #
- 
- 
- 
-=cut
 
-our $bHTML = '\begin{rawhtml}';
-our $eHTML = '\end{rawhtml}';
+=cut
 
 sub BeginList {
   my $LIST = 'OL';
@@ -74,24 +69,27 @@ sub BeginList {
 
   MODES(
     TeX => "\\par${top}{\\parskip=0pt\\begin{$enum}$type\n$tex",
-    Latex2HTML => $bHTML.$LIST.$eHTML,
-    HTML => $LIST."\n"
+    HTML => $LIST."\n",
   );
 }
+
+=pod
 
 #
 #  Usage:  EndList(type)
 #
 #  where type is the list type (and must match the BeginList type).
 #
+
+=cut
+
 sub EndList {
   my $LIST = shift; $LIST = 'OL' unless defined $LIST;
   my $enum = ($LIST eq 'OL' ? "enumerate" : "itemize");
   $LIST = "</$LIST>";
   MODES(
     TeX => "\\end{$enum}}",
-    Latex2HTML => $bHTML.$LIST.$eHTML,
-    HTML => $LIST."\n"
+    HTML => $LIST."\n",
   );
 }
 
@@ -112,8 +110,7 @@ sub EndParList {EndList(@_)};
 #
 $ITEM = MODES(
   TeX => '\item\ignorespaces ',
-  Latex2HTML => $bHTML.'<LI>'.$eHTML,
-  HTML => "<LI>"
+  HTML => "<LI>",
 );
 
 #
@@ -122,8 +119,7 @@ $ITEM = MODES(
 #
 $ITEMSEP = MODES(
   TeX => '\par\vskip-\parskip\vskip\baselineskip ',
-  Latex2HTML => $bHTML."<BR><BR>".$eHTML,
-  HTML => "<BR><BR>"
+  HTML => "<BR><BR>",
 );
 
 1;
