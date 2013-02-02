@@ -376,7 +376,7 @@ $context->{name} = "Complex";
 #  Complex-Vector context
 #
 $context = $context{"Complex-Vector"} = $context{Complex}->copy;
-$context->operators->redefine(['><','.'],from=>'Complex');
+$context->operators->redefine(['><','.'],from=>'Vector');
 $context->parens->add('<' => {close => '>', type => 'Vector'});
 $context->parens->set(
   '(' => {type => "Point", formMatrix => 0},
