@@ -278,10 +278,7 @@ sub can {UNIVERSAL::can(@_)}
 
 sub isHash {
   my $self = shift;
-  return ref($self) eq 'HASH'  if defined ref($self);
-  return  blessedType($self) eq 'HASH' if defined $self;
-  warn "Undefined first argument  |$self| ",join(" ",caller(1));
-  return undef;
+  return ref($self) eq 'HASH' || blessedType($self) eq 'HASH';
 }
 
 sub subclassed {
@@ -297,7 +294,7 @@ sub matchNumber   {my $n = shift; $n =~ m/^$$Value::context->{pattern}{signedNum
 sub matchInfinite {my $n = shift; $n =~ m/^$$Value::context->{pattern}{infinite}$/i}
 sub isReal    {classMatch(shift,'Real')}
 sub isComplex {classMatch(shift,'Complex')}
-sub isContext {my $symbol = shift ||""; class($symbol) eq 'Context'}
+sub isContext {class(shift) eq 'Context'}
 sub isFormula {classMatch(shift,'Formula')}
 sub isParser  {my $v = shift; isBlessed($v) && $v->isa('Parser::Item')}
 sub isValue {
@@ -669,11 +666,8 @@ sub typeRef {
 #
 sub class {
   my $self = shift;
-  warn( "self was undefined ", join(", ", caller(0),"\n",caller(1),"\n",caller(2)))  unless defined $self;
-  return undef unless defined $self;
   return $self->class(@_) if Value->subclassed($self,"class");
-  my $class = ref($self) || $self;  
-  $class =~ s/.*:://;
+  my $class = ref($self) || $self; $class =~ s/.*:://;
   return $class;
 }
 
