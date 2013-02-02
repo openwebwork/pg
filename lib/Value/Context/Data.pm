@@ -145,8 +145,11 @@ sub undefine {my $self = shift; $self->remove(@_)}
 #  Redefine items from the default context, or a given one
 #
 sub redefine {
-  my $self = shift; my $X = shift;
-  my %options = (using => undef, from => "Full", @_);
+  my $self = shift; 
+  my $X = shift;
+  my %options = @_; 
+  warn "error in options must be an even number of entries:  ", join(" ",%options), caller(1) if @_%2;  # require even number
+  %options =  (using => undef, from => "Full", %options) ;
   my $Y = $options{using}; my $from = $options{from};
   $from = $Parser::Context::Default::context{$from} unless ref($from);
   $Y = $X if !defined($Y) && !ref($X);

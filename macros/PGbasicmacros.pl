@@ -1905,11 +1905,18 @@ sub EV3P_parser {
 	OL(@array)      # formats the array as an Ordered List ( <OL> </OL> ) enumerated by letters.
 					# See BeginList()  and EndList in unionLists.pl for a more powerful version
 					# of this macro.
-	knowlLink($url, $text)
+	knowlLink($display_text, url => $url )
 	                # Places a reference to a knowl for the URL with the specified text in the problem.
-	                # A common usage is \{ knowlLink(alias('prob1_help.html') \}, 'for help')
+	                # A common usage is \{ 'for help', url =>knowlLink(alias('prob1_help.html') \} )
 	                # where alias finds the full address of the prob1_help.html file in the same directory
 	                # as the problem file
+	knowl($display_text,  value = <<EOF );  # this starts a here document that ends at EOF (left justified)
+	                help text goes here .....
+	EOF  
+	                # This version of the knowl reference facilitates immediate reference to a HERE document 
+	                # The function should be called either with value specified (immediate reference) or 
+	                # with url specified in which case the revealed text is taken from the URL $url.
+	                # The $display_text is always visible and is clicked to see the contents of the knowl.
 	htmlLink($url, $text)
 	                # Places a reference to the URL with the specified text in the problem.
 	                # A common usage is \{ htmlLink(alias('prob1_help.html') \}, 'for help')
@@ -1932,10 +1939,26 @@ A wide variety of google widgets, youtube videos, and other online resources can
 	              params   => { param1 =>value1, param2 => value2},
 	            }
 	          );
-	helpLink()     allows site specific help specified in global.conf or course.conf
-	               the parameter localHelpURL  must be defined in the environment
-	               currently works only for 'interval notation' and 'units'
-	               NEEDS REFINEMENT
+	helpLink($type)     allows site specific help. specified in global.conf or course.conf
+	               The parameter localHelpURL  must be defined in the environment
+	               and is set by default to webwork2/htdocs/helpFiles
+	               Standard helpFile types
+	                    'angle'  
+						'decimal' 
+						'equation' 
+						'exponent' 
+						'formula' 
+						'fraction' 
+						'inequalit'
+						'limit'  
+						'log'  
+						'number' 
+						'point'  
+						'vector' 
+						'interval' 
+						'unit'
+						'syntax' 
+
 	
 	########################
 	              deprecated coding method
@@ -1962,10 +1985,10 @@ A wide variety of google widgets, youtube videos, and other online resources can
 sub beginproblem {
 	my $out = "";
 	my $problemValue = $envir->{problemValue} || 0;
-	my $fileName     = $envir->{fileName};
+	my $fileName     = $envir->{probFileName};
 	my $probNum      = $envir->{probNum};
-    my $TeXFileName = protect_underbar($envir->{fileName});
-    my $l2hFileName = protect_underbar($envir->{fileName});
+    my $TeXFileName = protect_underbar($envir->{probFileName});
+    my $l2hFileName = protect_underbar($envir->{probFileName});
 	my %inlist;
 	my $points ='pts';
 
@@ -2091,17 +2114,45 @@ sub htmlLink {
 	);
 }
 
-sub knowlLink {
-	my $url = shift;
-	my $text = shift;
-	my $options = shift;
-	$options = "" unless defined($options);
-	return "$BBOLD\[ broken link:  $text \] $EBOLD" unless defined($url);
-	MODES( TeX        => "{\\bf \\underline{$text}}",
-	       HTML       => "<A knowl=\"$url\" $options>$text</A>"
-	);
-}
+# sub knowlLink {
+# #   I'd like to make text shift -- since this is always present
+# #   url might not be used with a here document which would be written as
+# #   value = "contents of here document" 
+# #   suggested usage   knowl(text, [url => ...,   value => ....])
+# #   used in helpLink
+# 	my $url = shift;
+# 	my $display_text = shift;
+# 	my $option_string = shift;
+# 	$option_string = "" unless defined($option_string);
+# 	return "$BBOLD\[ broken link:  $display_text \] $EBOLD" unless defined($url) or $option_string;
+# 	MODES( TeX        => "{\\bf \\underline{$display_text}}",
+# 	       HTML       => "<A knowl=\"$url\" $option_string>$display_text</A>"
+# 	);
+# }
 
+sub knowlLink { # an alternative syntax for knowlLink that facilitates a local HERE document
+                #   suggested usage   knowlLink(text, [url => ...,   value => ....])
+	my $display_text = shift;
+	my @options = @_;  # so we can check parity
+	my %options = @options;
+	WARN_MESSAGE('usage   knowl($display_text, [url => $url,   value => $helpMessage];'. 
+	              qq!after  the display_text the information requires key/value pairs. 
+	              Received @options !,scalar(@options)%2) if scalar(@options)%2; 
+	# check that options has an even number of inputs
+	my $properties = "";
+	if ($options{value} )  { #internal knowl from HERE document
+	    $options{value} =~ s/"/\\"/g; # escape quotes  #FIXME -- make escape more robust 
+		$properties = qq! knowl = "$options{url}" class = "internal" value = "$options{value} " !;
+	} else {
+		$properties = qq! knowl = "$options{url}"!;
+	}
+	my $option_string = qq!url = "$options{url}" value = "$options{value}" !;
+	MODES( TeX        => "{\\bf \\underline{$display_text}}",
+	       HTML       => "<a $properties >$display_text</a>"
+	);
+
+
+}
 sub iframe {
 	my $url = shift;
 	my %options = @_;  # keys: height, width, id, name
@@ -2118,12 +2169,12 @@ sub iframe {
 
 sub helpLink {
 	my $type = shift;
-        my $customstring = shift || $type;
-        my $helpurl = shift;
+    my $display_text = shift || $type;
+    my $helpurl = shift;
 	return "" if(not defined($envir{'localHelpURL'}));
-        if (defined $helpurl) {
-	    return knowlLink( $envir{'localHelpURL'}.$helpurl, $customstring);
-        }
+    if (defined $helpurl) {
+	    return knowlLink($display_text, url=>$envir{'localHelpURL'}.$helpurl);
+    }
 	my %typeHash = (
 		'angle' => 'Entering-Angles.html',
 		'decimal' => 'Entering-Decimals.html',
@@ -2158,8 +2209,8 @@ sub helpLink {
         }
          
         # If infoRef is still '', we give up and just print plain text
-        return $customstring unless ($infoRef);
-	return knowlLink( $envir{'localHelpURL'}.$infoRef, $customstring);
+        return $display_text unless ($infoRef);
+	return knowlLink($display_text, url=>$envir{'localHelpURL'}.$infoRef);
 # Old way of doing this:
 #	return htmlLink( $envir{'localHelpURL'}.$infoRef, $type1,
 #'target="ww_help" onclick="window.open(this.href,this.target,\'width=550,height=350,scrollbars=yes,resizable=on\'); return false;"');
