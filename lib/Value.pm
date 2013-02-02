@@ -278,16 +278,11 @@ sub can {UNIVERSAL::can(@_)}
 
 sub isHash {
   my $self = shift;
-  #return ref($self) eq 'HASH' || blessedType($self) eq 'HASH';
-  #added by MEG 
-  return ref($self) eq 'HASH'  if defined ref($self);
-  return  blessedType($self) eq 'HASH' if defined $self;
-  # warn "Undefined first argument  |$self| in Value::isHash",join(" ",caller(1));
-  return undef;
-  # attention DPVC
-  # before if $self was undefined Value->subclassed fails and 
-  # $class returns undef? or ""
-  # but warning messages were placed in the logs 
+  return ref($self) eq 'HASH' || blessedType($self) eq 'HASH';
+  #added by MEG  (attention DPVC)
+  # returning to original version
+  # double check to see whether this creates  
+  # a warning message  in the logs 
 }
 
 sub subclassed {
