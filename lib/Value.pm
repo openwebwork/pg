@@ -278,11 +278,10 @@ sub can {UNIVERSAL::can(@_)}
 
 sub isHash {
   my $self = shift;
-  return ref($self) eq 'HASH' || blessedType($self) eq 'HASH';
-  #added by MEG  (attention DPVC)
-  # returning to original version
-  # double check to see whether this creates  
-  # a warning message  in the logs 
+  return defined($self) && (  ref($self) eq 'HASH' || blessedType($self) eq 'HASH' );
+  #added by MEG  (at suggestion DPVC)
+  # prevents warning messages when $self is undefined
+
 }
 
 sub subclassed {
