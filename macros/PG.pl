@@ -83,9 +83,9 @@ sub DOCUMENT {
 		  $prefix, 
 		  '<script src="'.$envir{jsMathURL}. '"></script>' . "\n" ,
 		  '<noscript><center><font color="#CC0000">' ,
-			  BBOLD(), 'Warning: the mathematics on this page requires JavaScript.',  ,$BR,
-					'If your browser supports it, be sure it is enabled.',
-			  EBOLD(),
+			  '<strong> Warning: the mathematics on this page requires JavaScript.',  ,$BR,
+					'If your browser supports it, be sure it is enabled.
+			  </strong>'
 		  '</font></center><p>
 		  </noscript>' 
 		);
