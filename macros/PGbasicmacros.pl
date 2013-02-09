@@ -1086,7 +1086,11 @@ sub solution {
 
 
 sub SOLUTION {
-	TEXT( solution(@_)) ;
+	if ($envir->{use_knowls_for_solutions}) {
+    	TEXT( knowlLink("$PAR SOLUTION", value=>$BR . solution(@_) . $PAR ) ) if solution(@_);
+    } else {
+		TEXT( "PAR SOLUTION".$BR.solution(@_).$PAR) if solution(@_) ;
+	}
 }
 
 
@@ -1123,9 +1127,14 @@ sub hint {
 
 
 sub HINT {
-    TEXT("$BR" . hint(@_) . "$BR") if hint(@_);
-}
+	if ($envir->{use_knowls_for_hints}) {
+		TEXT( knowlLink("$PAR HINT", value=>$BR . hint(@_) . $PAR ) ) if hint(@_);
 
+	} else {
+    	TEXT("$PAR HINT: " . $BR. hint(@_) . "$PAR") if hint(@_);
+    }
+    
+}
 
 
 # End hints and solutions macros
@@ -2130,23 +2139,26 @@ sub htmlLink {
 # 	);
 # }
 
-sub knowlLink { # an alternative syntax for knowlLink that facilitates a local HERE document
+sub knowlLink { # an new syntax for knowlLink that facilitates a local HERE document
                 #   suggested usage   knowlLink(text, [url => ...,   value => ....])
 	my $display_text = shift;
 	my @options = @_;  # so we can check parity
 	my %options = @options;
-	WARN_MESSAGE('usage   knowl($display_text, [url => $url,   value => $helpMessage];'. 
+	WARN_MESSAGE('usage   knowlLink($display_text, [url => $url,   value => $helpMessage] );'. 
 	              qq!after  the display_text the information requires key/value pairs. 
 	              Received @options !,scalar(@options)%2) if scalar(@options)%2; 
 	# check that options has an even number of inputs
 	my $properties = "";
 	if ($options{value} )  { #internal knowl from HERE document
 	    $options{value} =~ s/"/\\"/g; # escape quotes  #FIXME -- make escape more robust 
-		$properties = qq! knowl = "$options{url}" class = "internal" value = "$options{value} " !;
-	} else {
+		$properties = qq! knowl = "" class = "internal" value = "$options{value} " !;
+	} elsif ($options{url}) {
 		$properties = qq! knowl = "$options{url}"!;
 	}
-	my $option_string = qq!url = "$options{url}" value = "$options{value}" !;
+		else {
+		WARN_MESSAGE('usage   knowlLink($display_text, [url => $url,   value => $helpMessage] );');
+	}
+	#my $option_string = qq!url = "$options{url}" value = "$options{value}" !;
 	MODES( TeX        => "{\\bf \\underline{$display_text}}",
 	       HTML       => "<a $properties >$display_text</a>"
 	);
