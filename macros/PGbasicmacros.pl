@@ -1063,22 +1063,12 @@ sub solution {
 	# protect against undefined values
 	my $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL = ( defined( $envir->{'ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL'} ) ) ? $envir->{'ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL'} : 10000;
     my $printSolutionForInstructor = $permissionLevel >= $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL;
-	my $diplaySolutions = PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!);
+	my $displaySolution = PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!);
 	PG_restricted_eval(q!$main::solutionExists =1!);
-	if (PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!)) {$out = join(' ',@in);}
-    
-    if ($displayMode eq 'TeX')   {
-	    if ($printSolutionForInstructor) {
-	    	$out = join(' ', "$PAR $BBOLD SOLUTION: $EBOLD (Instructor solution preview: show the student solution after due date. ) $BR",@in);
-		} else 	{
-			$out = '';  # do nothing since hints are not available for download for students
-		}
-	} elsif ($printSolutionForInstructor) {  # always print hints for instructor types 
+   
+    if ($printSolutionForInstructor) {  # always print solutions for instructor types 
 		$out = join(' ', "$PAR $BBOLD SOLUTION: $EBOLD (Instructor solution preview: show the student solution after due date. )$BR", @in);
-	} elsif ( $diplaySolutions ) 	{
-
-	 ## FIXME -- doctoring the form could display solutions.
-
+	} elsif ( $displaySolution ) 	{
 		$out = join(' ',@in);  # display solution
 	}    
 	$out;
@@ -1087,9 +1077,9 @@ sub solution {
 
 sub SOLUTION {
 	if ($envir->{use_knowls_for_solutions}) {
-    	TEXT( knowlLink("$PAR SOLUTION", value=>$BR . solution(@_) . $PAR ) ) if solution(@_);
+    	TEXT( knowlLink("$PAR SOLUTION: ", value=>$BR . solution(@_) . $PAR ) ) if solution(@_);
     } else {
-		TEXT( "PAR SOLUTION".$BR.solution(@_).$PAR) if solution(@_) ;
+		TEXT( "$PAR SOLUTION: ".$BR.solution(@_).$PAR) if solution(@_) ;
 	}
 }
 
@@ -1115,7 +1105,7 @@ sub hint {
 		}
 	} elsif ($printHintForInstructor) {  # always print hints for instructor types 
 		$out = join(' ', "$PAR $BBOLD HINT: $EBOLD (Instructor hint preview: show the student hint after $showHint attempts. The current number of attempts is $attempts. )$BR", @in);
-	} elsif ( $displayHint  and ( $attempts > $showHint )) 	{
+	} elsif ( $displayHint  and  ( $attempts > $showHint ) ) 	{  #FIXME -- this needs modifications for can{showHints} in Problem.pm
 
 	 ## the second test above prevents a hint being shown if a doctored form is submitted
 
@@ -1128,10 +1118,10 @@ sub hint {
 
 sub HINT {
 	if ($envir->{use_knowls_for_hints}) {
-		TEXT( knowlLink("$PAR HINT", value=>$BR . hint(@_) . $PAR ) ) if hint(@_);
+		TEXT( knowlLink("$PAR HINT: ", value=>$BR . hint(@_) . $PAR ) ) if hint(@_);
 
 	} else {
-    	TEXT("$PAR HINT: " . $BR. hint(@_) . "$PAR") if hint(@_);
+    	TEXT("$PAR HINT: " . $BR. hint(@_) . $PAR) if hint(@_);
     }
     
 }
