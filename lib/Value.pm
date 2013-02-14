@@ -876,7 +876,7 @@ sub pdot {shift->stringify}
 #    (list classes should replace this)
 #
 sub compare {
-  my ($l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
   return $l->value <=> $r->value;
 }
 
