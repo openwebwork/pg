@@ -342,7 +342,7 @@ sub alias_for_html {
 # libraries.  
 # Store the result in auxiliary_uri  FIXME: TO BE DONE
 # not yet completely implemented
-# current implementation accepts only the course html directory, the file containing the .pg file 
+# current implementation accepts only the course html directory, the directory containing the .pg file 
 # and the temp directory as places to look for html files
 
 

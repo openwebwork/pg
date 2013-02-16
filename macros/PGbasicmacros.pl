@@ -1063,22 +1063,12 @@ sub solution {
 	# protect against undefined values
 	my $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL = ( defined( $envir->{'ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL'} ) ) ? $envir->{'ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL'} : 10000;
     my $printSolutionForInstructor = $permissionLevel >= $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL;
-	my $diplaySolutions = PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!);
+	my $displaySolution = PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!);
 	PG_restricted_eval(q!$main::solutionExists =1!);
-	if (PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!)) {$out = join(' ',@in);}
-    
-    if ($displayMode eq 'TeX')   {
-	    if ($printSolutionForInstructor) {
-	    	$out = join(' ', "$PAR $BBOLD SOLUTION: $EBOLD (Instructor solution preview: show the student solution after due date. ) $BR",@in);
-		} else 	{
-			$out = '';  # do nothing since hints are not available for download for students
-		}
-	} elsif ($printSolutionForInstructor) {  # always print hints for instructor types 
+   
+    if ($printSolutionForInstructor) {  # always print solutions for instructor types 
 		$out = join(' ', "$PAR $BBOLD SOLUTION: $EBOLD (Instructor solution preview: show the student solution after due date. )$BR", @in);
-	} elsif ( $diplaySolutions ) 	{
-
-	 ## FIXME -- doctoring the form could display solutions.
-
+	} elsif ( $displaySolution ) 	{
 		$out = join(' ',@in);  # display solution
 	}    
 	$out;
@@ -1086,7 +1076,11 @@ sub solution {
 
 
 sub SOLUTION {
-	TEXT( solution(@_)) ;
+	if ($envir->{use_knowls_for_solutions}) {
+    	TEXT( knowlLink("$PAR SOLUTION: ", value=>$BR . solution(@_) . $PAR ) ) if solution(@_);
+    } else {
+		TEXT( "$PAR SOLUTION: ".$BR.solution(@_).$PAR) if solution(@_) ;
+	}
 }
 
 
@@ -1111,7 +1105,7 @@ sub hint {
 		}
 	} elsif ($printHintForInstructor) {  # always print hints for instructor types 
 		$out = join(' ', "$PAR $BBOLD HINT: $EBOLD (Instructor hint preview: show the student hint after $showHint attempts. The current number of attempts is $attempts. )$BR", @in);
-	} elsif ( $displayHint  and ( $attempts > $showHint )) 	{
+	} elsif ( $displayHint  and  ( $attempts > $showHint ) ) 	{  #FIXME -- this needs modifications for can{showHints} in Problem.pm
 
 	 ## the second test above prevents a hint being shown if a doctored form is submitted
 
@@ -1123,9 +1117,14 @@ sub hint {
 
 
 sub HINT {
-    TEXT("$BR" . hint(@_) . "$BR") if hint(@_);
-}
+	if ($envir->{use_knowls_for_hints}) {
+		TEXT( knowlLink("$PAR HINT: ", value=>$BR . hint(@_) . $PAR ) ) if hint(@_);
 
+	} else {
+    	TEXT("$PAR HINT: " . $BR. hint(@_) . $PAR) if hint(@_);
+    }
+    
+}
 
 
 # End hints and solutions macros
@@ -2130,23 +2129,26 @@ sub htmlLink {
 # 	);
 # }
 
-sub knowlLink { # an alternative syntax for knowlLink that facilitates a local HERE document
+sub knowlLink { # an new syntax for knowlLink that facilitates a local HERE document
                 #   suggested usage   knowlLink(text, [url => ...,   value => ....])
 	my $display_text = shift;
 	my @options = @_;  # so we can check parity
 	my %options = @options;
-	WARN_MESSAGE('usage   knowl($display_text, [url => $url,   value => $helpMessage];'. 
+	WARN_MESSAGE('usage   knowlLink($display_text, [url => $url,   value => $helpMessage] );'. 
 	              qq!after  the display_text the information requires key/value pairs. 
 	              Received @options !,scalar(@options)%2) if scalar(@options)%2; 
 	# check that options has an even number of inputs
 	my $properties = "";
 	if ($options{value} )  { #internal knowl from HERE document
 	    $options{value} =~ s/"/\\"/g; # escape quotes  #FIXME -- make escape more robust 
-		$properties = qq! knowl = "$options{url}" class = "internal" value = "$options{value} " !;
-	} else {
+		$properties = qq! knowl = "" class = "internal" value = "$options{value} " !;
+	} elsif ($options{url}) {
 		$properties = qq! knowl = "$options{url}"!;
 	}
-	my $option_string = qq!url = "$options{url}" value = "$options{value}" !;
+		else {
+		WARN_MESSAGE('usage   knowlLink($display_text, [url => $url,   value => $helpMessage] );');
+	}
+	#my $option_string = qq!url = "$options{url}" value = "$options{value}" !;
 	MODES( TeX        => "{\\bf \\underline{$display_text}}",
 	       HTML       => "<a $properties >$display_text</a>"
 	);
