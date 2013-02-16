@@ -1,4 +1,3 @@
-
 #use AnswerEvaluator;
 
 
@@ -85,7 +84,7 @@ sub DOCUMENT {
 		  '<noscript><center><font color="#CC0000">' ,
 			  '<strong> Warning: the mathematics on this page requires JavaScript.',  ,$BR,
 					'If your browser supports it, be sure it is enabled.
-			  </strong>'
+			  </strong>',
 		  '</font></center><p>
 		  </noscript>' 
 		);
