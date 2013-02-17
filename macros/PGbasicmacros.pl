@@ -1055,7 +1055,11 @@ $main::envir{'displayHintsQ'} is set to 1 when a hint is to be displayed.
 #   is passed to processProblem which displays a "show Solution" button
 #   when a solution is available for viewing
 
-
+sub escapeSolutionHTML {
+	my $str = join('',@_);
+	$str =~ s/"/'/g;
+	$str;
+}
 sub solution {
 	my @in = @_;
 	my $out = '';
@@ -1077,7 +1081,7 @@ sub solution {
 
 sub SOLUTION {
 	if ($envir->{use_knowls_for_solutions}) {
-    	TEXT( knowlLink("$PAR SOLUTION: ", value=>$BR . solution(@_) . $PAR ) ) if solution(@_);
+    	TEXT( knowlLink("$PAR SOLUTION: ", value =>  escapeSolutionHTML($BR . solution(@_) . $PAR ) ) ) if solution(@_);
     } else {
 		TEXT( "$PAR SOLUTION: ".$BR.solution(@_).$PAR) if solution(@_) ;
 	}
@@ -1118,7 +1122,7 @@ sub hint {
 
 sub HINT {
 	if ($envir->{use_knowls_for_hints}) {
-		TEXT( knowlLink("$PAR HINT: ", value=>$BR . hint(@_) . $PAR ) ) if hint(@_);
+		TEXT( knowlLink("$PAR HINT: ", value=>escapeSolutionHTML($BR . hint(@_) . $PAR )) ) if hint(@_);
 
 	} else {
     	TEXT("$PAR HINT: " . $BR. hint(@_) . $PAR) if hint(@_);
