@@ -670,18 +670,18 @@ sub PG_restricted_eval {
 # 
 # =cut
 # 
-# sub decode_base64 ($) {
-# 	my $self = shift;
-# 	my $str = shift;
-# 	MIME::Base64::decode_base64($str);
-# }
-# 
-# sub encode_base64 ($;$) {
-# 	my $self = shift;
-# 	my $str  = shift;
-# 	my $option = shift;
-# 	MIME::Base64::encode_base64($str);
-# }
+sub decode_base64 ($) {
+	my $self = shift;
+	my $str = shift;
+	MIME::Base64::decode_base64($str);
+}
+
+sub encode_base64 ($;$) {
+	my $self = shift;
+	my $str  = shift;
+	my $option = shift;
+	MIME::Base64::encode_base64($str);
+}
 
 
 =head2   Message channels
