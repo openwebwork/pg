@@ -1057,7 +1057,8 @@ $main::envir{'displayHintsQ'} is set to 1 when a hint is to be displayed.
 
 sub escapeSolutionHTML {
 	my $str = join('',@_);
-	$str =~ s/"/'/g;
+	#$str =~ s/"/'/g;
+	$str = $main::PG->encode_base64($str);
 	$str;
 }
 sub solution {
@@ -1080,8 +1081,9 @@ sub solution {
 
 
 sub SOLUTION {
-	if ($envir->{use_knowls_for_solutions}) {
-    	TEXT( knowlLink("$PAR SOLUTION: ", value =>  escapeSolutionHTML($BR . solution(@_) . $PAR ) ) ) if solution(@_);
+	if ($envir->{use_knowls_for_solutions}) {	   
+    	TEXT( knowlLink("$PAR SOLUTION: ", value =>  escapeSolutionHTML($BR . solution(@_) . $PAR ),
+    	              base64 =>1 ) ) if solution(@_);
     } else {
 		TEXT( "$PAR SOLUTION: ".$BR.solution(@_).$PAR) if solution(@_) ;
 	}
@@ -1122,7 +1124,8 @@ sub hint {
 
 sub HINT {
 	if ($envir->{use_knowls_for_hints}) {
-		TEXT( knowlLink("$PAR HINT: ", value=>escapeSolutionHTML($BR . hint(@_) . $PAR )) ) if hint(@_);
+		TEXT( knowlLink("$PAR HINT: ", value=>escapeSolutionHTML($BR . hint(@_) . $PAR ),
+		                  base64 => 1) ) if hint(@_);
 
 	} else {
     	TEXT("$PAR HINT: " . $BR. hint(@_) . $PAR) if hint(@_);
@@ -1908,12 +1911,12 @@ sub EV3P_parser {
 	OL(@array)      # formats the array as an Ordered List ( <OL> </OL> ) enumerated by letters.
 					# See BeginList()  and EndList in unionLists.pl for a more powerful version
 					# of this macro.
-	knowlLink($display_text, url => $url )
+	knowlLink($display_text, url => $url,value =>'' )
 	                # Places a reference to a knowl for the URL with the specified text in the problem.
 	                # A common usage is \{ 'for help', url =>knowlLink(alias('prob1_help.html') \} )
 	                # where alias finds the full address of the prob1_help.html file in the same directory
 	                # as the problem file
-	knowl($display_text,  value = <<EOF );  # this starts a here document that ends at EOF (left justified)
+	knowlLink($display_text,  url => '', value = <<EOF );  # this starts a here document that ends at EOF (left justified)
 	                help text goes here .....
 	EOF  
 	                # This version of the knowl reference facilitates immediate reference to a HERE document 
@@ -2144,8 +2147,9 @@ sub knowlLink { # an new syntax for knowlLink that facilitates a local HERE docu
 	# check that options has an even number of inputs
 	my $properties = "";
 	if ($options{value} )  { #internal knowl from HERE document
-	    $options{value} =~ s/"/\\"/g; # escape quotes  #FIXME -- make escape more robust 
-		$properties = qq! knowl = "" class = "internal" value = "$options{value} " !;
+	    $options{value} =~ s/"/'/g; # escape quotes  #FIXME -- make escape more robust 
+	    my $base64 = ($options{base64})?"base64 = \"1\"" :"";
+		$properties = qq! knowl = "" class = "internal" value = "$options{value} " $base64 !;
 	} elsif ($options{url}) {
 		$properties = qq! knowl = "$options{url}"!;
 	}
