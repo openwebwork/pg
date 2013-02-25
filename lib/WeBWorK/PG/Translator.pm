@@ -275,7 +275,6 @@ my %shared_subroutine_hash = (
 	'&PGsort'                  => __PACKAGE__,
 	'&dumpvar'                 => __PACKAGE__,
 	%WeBWorK::PG::IO::SHARE, # add names from WeBWorK::PG::IO and WeBWorK::PG::IO::*
-	%WeBWorK::Localize::SHARE, # add names for translating.
 );
 
 sub initialize {
