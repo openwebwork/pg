@@ -822,7 +822,10 @@ sub insertGraph {
 		createDirectory
 
 =cut
-
+sub maketext {
+    my $self = shift;
+	WeBWorK::Localize::foo(@_);
+}
 sub includePGtext { 
 	my $self = shift;
 	WeBWorK::PG::IO::includePGtext(@_); 

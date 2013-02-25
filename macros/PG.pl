@@ -399,6 +399,11 @@ sub alias {
     $PG->{PG_alias}->make_alias(@_)  ;
 }
 
+# sub maketext {
+# 	warn "calling maketext";
+# 	my $loc = WeBWorK::Localize::getLoc("tr");
+# 	&$loc(@_);
+# }
 sub insertGraph {
 	$PG->insertGraph(@_);
 }
