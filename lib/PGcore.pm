@@ -240,6 +240,8 @@ sub initialize {
                                         DEBUG_messages   => $self->{DEBUG_messages},
                                                  
 	);
+	$self->{maketext} = 
+	  WeBWorK::Localize::getLoc($self->{envir}->{language});
 	#$self->debug_message("PG alias created", $self->{PG_alias} );
     $self->{PG_loadMacros}        = new PGloadfiles($self->{envir});
 	$self->{flags} = {
@@ -824,7 +826,7 @@ sub insertGraph {
 =cut
 sub maketext {
     my $self = shift;
-	WeBWorK::Localize::foo(@_);
+	&{ $self->{maketext}}(@_);
 }
 sub includePGtext { 
 	my $self = shift;
