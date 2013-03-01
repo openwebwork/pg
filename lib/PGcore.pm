@@ -240,6 +240,8 @@ sub initialize {
                                         DEBUG_messages   => $self->{DEBUG_messages},
                                                  
 	);
+	$self->{maketext} = 
+	  WeBWorK::Localize::getLoc($self->{envir}->{language});
 	#$self->debug_message("PG alias created", $self->{PG_alias} );
     $self->{PG_loadMacros}        = new PGloadfiles($self->{envir});
 	$self->{flags} = {
@@ -670,18 +672,18 @@ sub PG_restricted_eval {
 # 
 # =cut
 # 
-# sub decode_base64 ($) {
-# 	my $self = shift;
-# 	my $str = shift;
-# 	MIME::Base64::decode_base64($str);
-# }
-# 
-# sub encode_base64 ($;$) {
-# 	my $self = shift;
-# 	my $str  = shift;
-# 	my $option = shift;
-# 	MIME::Base64::encode_base64($str);
-# }
+sub decode_base64 ($) {
+	my $self = shift;
+	my $str = shift;
+	MIME::Base64::decode_base64($str);
+}
+
+sub encode_base64 ($;$) {
+	my $self = shift;
+	my $str  = shift;
+	my $option = shift;
+	MIME::Base64::encode_base64($str);
+}
 
 
 =head2   Message channels
@@ -822,7 +824,10 @@ sub insertGraph {
 		createDirectory
 
 =cut
-
+sub maketext {
+    my $self = shift;
+	&{ $self->{maketext}}(@_);
+}
 sub includePGtext { 
 	my $self = shift;
 	WeBWorK::PG::IO::includePGtext(@_); 

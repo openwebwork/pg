@@ -399,6 +399,10 @@ sub alias {
     $PG->{PG_alias}->make_alias(@_)  ;
 }
 
+sub maketext {
+    $PG->maketext(@_);
+}
+
 sub insertGraph {
 	$PG->insertGraph(@_);
 }
