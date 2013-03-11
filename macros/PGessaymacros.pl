@@ -35,8 +35,6 @@ Answer Boxes
 
 =cut
 
-
-
 sub _PGessaymacros_init {
 	loadMacros('PGbasicmacros.pl');   
 }
@@ -69,15 +67,14 @@ sub essay_cmp {
     $ans->install_evaluator(sub { 			
 	my $student = shift;
 	my %response_options = @_;
-	#### WARNING #####
-	### $answer_value needs to be sanitized.  It could currently contain badness written 
+	### the answer needs to be sanitized.  It could currently contain badness written 
 	### into the answer by the student
-	# Ad Hoc Sanitization :( 
-	my $sanitized_ans = $student->{original_student_ans};
-	$sanitized_ans =~ s/script/ohnoyoudiint/g;
-	
+
+	my $scrubber = HTML::Scrubber->new();
+	$student->{original_student_ans} = $scrubber->scrub($student->{original_student_ans});
+
 	# always returns false but stuff should check for the essay flag and avoid the red highlighting
-	my $answer_value = EV3P({processCommands=>0,processVariables=>0},$sanitized_ans);
+	my $answer_value = EV3P({processCommands=>0,processVariables=>0},$student->{original_student_ans});
 	my $ans_hash = new AnswerHash(
 	    'score'=>"0",
 	    'correct_ans'=>"Undefined",
@@ -110,13 +107,14 @@ sub  NAMED_ESSAY_BOX {
 	$name = RECORD_ANS_NAME($name, $answer_value);
 	$answer_value =~ tr/$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 
-	#WARNING!!!!
 	#### Answer Value needs to be sanitized, it could contain badness!
-	#### Ad hoc sanatizing :(
 	$answer_value =~ s/\\/\&\#92;/g;
 	$answer_value =~ s/</\&lt;/g; 
 	$answer_value =~ s/>/\&gt;/g;
-	
+		
+	# Get rid of tabs since they mess up the past answer db
+	$answer_value =~ s/\t/\&nbsp;\&nbsp;\&nbsp;\&nbsp;\&nbsp;/;
+
 	#INSERT_RESPONSE($name,$name,$answer_value); # no longer needed?
 	my $out = MODES(
 	     TeX => qq!\\vskip $height in \\hrulefill\\quad !,
@@ -127,8 +125,6 @@ sub  NAMED_ESSAY_BOX {
            <INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">
            !
          );
-	
-	
 
 	$out;
 }

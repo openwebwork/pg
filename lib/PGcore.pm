@@ -30,7 +30,7 @@ use PGalias;
 use PGloadfiles;
 use WeBWorK::PG::IO(); # don't important any command directly
 use Tie::IxHash;
-use MIME::Base64;
+use MIME::Base64 qw( encode_base64 decode_base64);
 ##################################
 # Utility macro 
 ##################################
@@ -240,6 +240,8 @@ sub initialize {
                                         DEBUG_messages   => $self->{DEBUG_messages},
                                                  
 	);
+	$self->{maketext} = 
+	  WeBWorK::Localize::getLoc($self->{envir}->{language});
 	#$self->debug_message("PG alias created", $self->{PG_alias} );
     $self->{PG_loadMacros}        = new PGloadfiles($self->{envir});
 	$self->{flags} = {
@@ -661,15 +663,15 @@ sub PG_restricted_eval {
 }		
 
 
-=head2 base64 coding
-
-	$str       = decode_base64($coded_str);
-	$coded_str = encode_base64($str);
-
-# Sometimes a question author needs to code or decode base64 directly
-
-=cut
-
+# =head2 base64 coding
+# 
+# 	$str       = decode_base64($coded_str);
+# 	$coded_str = encode_base64($str);
+# 
+# # Sometimes a question author needs to code or decode base64 directly
+# 
+# =cut
+# 
 sub decode_base64 ($) {
 	my $self = shift;
 	my $str = shift;
@@ -682,6 +684,7 @@ sub encode_base64 ($;$) {
 	my $option = shift;
 	MIME::Base64::encode_base64($str);
 }
+
 
 =head2   Message channels
 
@@ -708,6 +711,7 @@ There were times when things were buggy enough that only the internal_debug_mess
 inside the PGcore object would report.
 
 =cut
+
 
 sub debug_message {
     my $self = shift;
@@ -793,7 +797,7 @@ sub insertGraph {
 	my $refreshCachedImages = $self->PG_restricted_eval(q!$refreshCachedImages!);
 	# Check to see if we already have this graph, or if we have to make it
 	if( not -e $filePath # does it exist?
-	  or ((stat "$templateDirectory"."$main::envir{fileName}")[9] > (stat $filePath)[9]) # source has changed
+	  or ((stat "$templateDirectory"."$main::envir{probFileName}")[9] > (stat $filePath)[9]) # source has changed
 	  or $graph->imageName =~ /Undefined_Set/ # problems from SetMaker and its ilk should always be redone
 	  or $refreshCachedImages
 	) {
@@ -820,7 +824,10 @@ sub insertGraph {
 		createDirectory
 
 =cut
-
+sub maketext {
+    my $self = shift;
+	&{ $self->{maketext}}(@_);
+}
 sub includePGtext { 
 	my $self = shift;
 	WeBWorK::PG::IO::includePGtext(@_); 
