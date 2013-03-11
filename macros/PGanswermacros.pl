@@ -1694,7 +1694,7 @@ sub avg_problem_grader {
 			       msg				=> '',
 	);
 	my $count =	keys %evaluated_answers;
-	$problem_result{msg} = 'You	can	earn partial credit	on this	problem.' if $count	>1;
+	$problem_result{msg} = maketext('You can earn partial credit on this problem.') if $count	>1;
 	# Return unless	answers	have been submitted
 	unless ($form_options{answers_submitted} ==	1) {
 		return(\%problem_result,\%problem_state);

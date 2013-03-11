@@ -722,7 +722,7 @@ sub ans_rule {
 sub ans_rule_extension {
 	my $len = shift;
     $len    = 20 unless $len ;
-    warn "ans_rule_extension may be misnumbering the answers";
+#    warn "ans_rule_extension may be misnumbering the answers";
 	my $name = NEW_ANS_NAME($$r_ans_rule_count);  # don't update the answer name
 	NAMED_ANS_RULE($name ,$len);
 }
@@ -774,7 +774,7 @@ sub tex_ans_rule {
 sub tex_ans_rule_extension {
 	my $len = shift;
 	$len    = 20 unless $len ;
-	warn "tex_ans_rule_extension may be missnumbering the answer";
+#	warn "tex_ans_rule_extension may be missnumbering the answer";
     my $name = NEW_ANS_NAME($$r_ans_rule_count);
     my $answer_rule = NAMED_ANS_RULE($name ,$len);  # we don't want to create three answer rules in different modes.
     my $out = MODES(
@@ -945,7 +945,7 @@ sub NAMED_ANS_ARRAY_EXTENSION{
 	}
 
 	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
-	warn "ans_label $options{ans_label} $name $answer_value";
+#	warn "ans_label $options{ans_label} $name $answer_value";
 	if (defined($options{ans_label}) ) {
 		INSERT_RESPONSE($options{ans_label}, $name, $answer_value);
 	}
@@ -1996,9 +1996,9 @@ sub beginproblem {
     my $TeXFileName = protect_underbar($envir->{probFileName});
     my $l2hFileName = protect_underbar($envir->{probFileName});
 	my %inlist;
-	my $points ='pts';
+	my $points = maketext('pts');
 
-	$points = 'pt' if $problemValue == 1;
+	$points = maketext('pt') if $problemValue == 1;
 	##    Prepare header for the problem
 	grep($inlist{$_}++,@{ $envir->{'PRINT_FILE_NAMES_FOR'} });
 	my $effectivePermissionLevel = $envir->{effectivePermissionLevel}; # permission level of user assigned to question
