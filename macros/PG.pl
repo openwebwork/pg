@@ -1,4 +1,3 @@
-
 #use AnswerEvaluator;
 
 
@@ -83,9 +82,9 @@ sub DOCUMENT {
 		  $prefix, 
 		  '<script src="'.$envir{jsMathURL}. '"></script>' . "\n" ,
 		  '<noscript><center><font color="#CC0000">' ,
-			  "$BBOLD", 'Warning: the mathematics on this page requires JavaScript.',  ,$BR,
-					'If your browser supports it, be sure it is enabled.',
-			  "$EBOLD",
+			  '<strong> Warning: the mathematics on this page requires JavaScript.',  ,$BR,
+					'If your browser supports it, be sure it is enabled.
+			  </strong>',
 		  '</font></center><p>
 		  </noscript>' 
 		);
@@ -400,6 +399,10 @@ sub alias {
     $PG->{PG_alias}->make_alias(@_)  ;
 }
 
+sub maketext {
+    $PG->maketext(@_);
+}
+
 sub insertGraph {
 	$PG->insertGraph(@_);
 }
@@ -504,7 +507,7 @@ use subs 'abs', 'sqrt', 'exp', 'log', 'sin', 'cos', 'atan2';
 sub abs($)  {return CORE::abs($_[0])};
 sub sqrt($) {return CORE::sqrt($_[0])};
 sub exp($)  {return CORE::exp($_[0])};
-sub log($)  {return CORE::log($_[0])};
+#sub log($)  {return CORE::log($_[0])};
 sub sin($)  {return CORE::sin($_[0])};
 sub cos($)  {return CORE::cos($_[0])};
 sub atan2($$) {return CORE::atan2($_[0],$_[1])};

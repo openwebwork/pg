@@ -106,7 +106,7 @@ sub initialize {
 	#
 	#  Find auxiliary files even when the main file is in tempates/tmpEdit
 	#
-	$self->{fileName} =~ s!(^|/)tmpEdit/!$1!;
+	$self->{pgFileName} =~ s!(^|/)tmpEdit/!$1!;
 	
 	$self->{ext}      = "";
 
@@ -138,12 +138,12 @@ sub check_parameters {
 	my $self = shift;
 
 	# problem specific data
-	warn "The path to the current problem file template is not defined."     unless $self->{pgFileName};
-	warn "The current studentLogin is not defined "                          unless $self->{studentLogin};
-	warn "The current problem set number is not defined"                     if $self->{setNumber} eq ""; # allow for sets equal to 0
-	warn "The current problem number is not defined"                         if $self->{probNum} eq "";
-	warn "The current problem set version number (psvn) is not defined"      unless defined($self->{psvn});
-	warn "The displayMode is not defined"                                    unless $self->{displayMode};
+	$self->warning_message( "The path to the current problem file template probFileName is not defined." )    unless $self->{pgFileName};
+	$self->warning_message( "The current studentLogin is not defined " )                         unless $self->{studentLogin};
+	$self->warning_message( "The current problem set number setNumber is not defined" )                    if $self->{setNumber} eq ""; # allow for sets equal to 0
+	$self->warning_message( "The current problem number probNum is not defined"  )                       if $self->{probNum} eq "";
+	$self->warning_message( "The current problem set version number (psvn) is not defined" )     unless defined($self->{psvn});
+	$self->warning_message( "The displayMode is not defined" )                                   unless $self->{displayMode};
 
 	# required macros
 #	warn "The macro &surePathToTmpFile can't be found"                    unless defined(&{$self->surePathToTmpFile()} );
@@ -342,7 +342,7 @@ sub alias_for_html {
 # libraries.  
 # Store the result in auxiliary_uri  FIXME: TO BE DONE
 # not yet completely implemented
-# current implementation accepts only the course html directory, the file containing the .pg file 
+# current implementation accepts only the course html directory, the directory containing the .pg file 
 # and the temp directory as places to look for html files
 
 

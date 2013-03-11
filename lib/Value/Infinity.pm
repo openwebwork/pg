@@ -10,7 +10,9 @@ our @ISA = qw(Value);
 #  Create an infinity object
 #
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
+  my $self = shift; 
+  warn "undefined self " unless defined $self;
+  my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   Value::Error("Infinity should have no parameters") if scalar(@_);
   bless {
