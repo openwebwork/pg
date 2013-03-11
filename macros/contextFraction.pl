@@ -643,6 +643,7 @@ sub promote {
     return (bless {data => [$x->value,1], context => $context}, $class) if Value::isReal($x);
     return (bless {data => [$x,1], context => $context}, $class) if Value::matchNumber($x);
   }
+  return $x if Value::isValue($x) && $x->classMatch("Infinity");
   return $self->new($context,$x,@_);
 }
 
