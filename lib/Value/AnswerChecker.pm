@@ -1700,7 +1700,7 @@ sub cmp_postfilter {
   $ans->{prev_formula} = Parser::Formula($context,$ans->{prev_ans});
   if (defined($ans->{prev_formula}) && defined($ans->{student_formula})) {
     my $prev = eval {$self->promote($ans->{prev_formula})->inherit($self)}; # inherit limits, etc.
-    break unless defined($prev);
+    next unless defined($prev);
     $context->{answerHash} = $ans; # values here can override context flags
     $ans->{prev_equals_current} = Value::cmp_compare($prev,$ans->{student_formula},$ans);
     $context->{answerHash} = undef;
@@ -1805,12 +1805,12 @@ sub cmp_diagnostics {
       }
       my $cutoff = $self->Package("Formula")->new($self->getFlag('tolerance'));
       if ($formulas->{graphAbsoluteErrors}) {
-	push(@G,$self->cmp_graph($diagnostics,[abs($self-$student),$cutoff],
+	push(@G,$self->cmp_graph($diagnostics,[CORE::abs($self-$student),$cutoff],
 				 clip=>$formulas->{clipAbsoluteError},
 				 title=>'Absolute Error',points=>$points));
       }
       if ($formulas->{graphRelativeErrors}) {
-	push(@G,$self->cmp_graph($diagnostics,[abs(($self-$student)/$self),$cutoff],
+	push(@G,$self->cmp_graph($diagnostics,[CORE::abs(($self-$student)/$self),$cutoff],
 				 clip=>$formulas->{clipRelativeError},
 				 title=>'Relative Error',points=>$points));
       }
@@ -1866,7 +1866,7 @@ sub cmp_diagnostics {
       my $tolType = $self->getFlag('tolType'); my $error;
       foreach my $j (0..$#P) {
 	if (Value::isNumber($sv->[$i[$j]])) {
-	  $error = abs($av->[$i[$j]] - $sv->[$i[$j]]);
+	  $error = CORE::abs($av->[$i[$j]] - $sv->[$i[$j]]);
 	  $error = '<SPAN STYLE="color:#'.($error->value<$tolerance ? '00AA00': 'AA0000').'">'.$error.'</SPAN>'
 	    if $tolType eq 'absolute';
 	} else {$error = "---"}
@@ -1885,9 +1885,9 @@ sub cmp_diagnostics {
       foreach my $j (0..$#P) {
 	if (Value::isNumber($sv->[$i[$j]])) {
 	  my $c = $av->[$i[$j]]; my $s = $sv->[$i[$j]];
-	  if (abs($cv->[$i[$j]]->value) < $zeroLevel || abs($s->value) < $zeroLevel)
-            {$error = abs($c-$s); $tol = $zeroLevelTol} else
-            {$error = abs(($c-$s)/($c||1E-10)); $tol = $tolerance}
+	  if (CORE::abs($cv->[$i[$j]]->value) < $zeroLevel || CORE::abs($s->value) < $zeroLevel)
+            {$error = CORE::abs($c-$s); $tol = $zeroLevelTol} else
+            {$error = CORE::abs(($c-$s)/($c||1E-10)); $tol = $tolerance}
 	  $error = '<SPAN STYLE="color:#'.($error < $tol ? '00AA00': 'AA0000').'">'.$error.'</SPAN>'
 	    if $tolType eq 'relative';
 	} else {$error = "---"}
@@ -1976,7 +1976,7 @@ sub cmp_graph {
       }
     }
   }
-  $My = 1 if abs($My - $my) < 1E-5;
+  $My = 1 if CORE::abs($My - $my) < 1E-5;
   $my *= 1.1; $My *= 1.1;
   if ($clip) {
     $my = -$clip if $my < -$clip;

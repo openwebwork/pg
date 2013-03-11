@@ -278,7 +278,10 @@ sub can {UNIVERSAL::can(@_)}
 
 sub isHash {
   my $self = shift;
-  return ref($self) eq 'HASH' || blessedType($self) eq 'HASH';
+  return defined($self) && (  ref($self) eq 'HASH' || blessedType($self) eq 'HASH' );
+  #added by MEG  (at suggestion DPVC)
+  # prevents warning messages when $self is undefined
+
 }
 
 sub subclassed {
@@ -294,7 +297,8 @@ sub matchNumber   {my $n = shift; $n =~ m/^$$Value::context->{pattern}{signedNum
 sub matchInfinite {my $n = shift; $n =~ m/^$$Value::context->{pattern}{infinite}$/i}
 sub isReal    {classMatch(shift,'Real')}
 sub isComplex {classMatch(shift,'Complex')}
-sub isContext {class(shift) eq 'Context'}
+# sub isContext {class(shift) eq 'Context'} # MEG
+sub isContext {my $symbol = shift ||""; class($symbol) eq 'Context'}
 sub isFormula {classMatch(shift,'Formula')}
 sub isParser  {my $v = shift; isBlessed($v) && $v->isa('Parser::Item')}
 sub isValue {
@@ -666,8 +670,15 @@ sub typeRef {
 #
 sub class {
   my $self = shift;
+  # warn( "self was undefined ", join(", ", caller(0),"\n",caller(1),"\n",caller(2)))  unless defined $self;
+  return undef unless defined $self; #added by MEG 
+  # attention DPVC
+  # before if $self was undefined Value->subclassed fails and 
+  # $class returns undef? or ""
+  # but warning messages were placed in the logs 
   return $self->class(@_) if Value->subclassed($self,"class");
-  my $class = ref($self) || $self; $class =~ s/.*:://;
+  my $class = ref($self) || $self;  
+  $class =~ s/.*:://;
   return $class;
 }
 
@@ -865,7 +876,7 @@ sub pdot {shift->stringify}
 #    (list classes should replace this)
 #
 sub compare {
-  my ($l,$r) = Value::checkOpOrder(@_);
+  my ($self,$l,$r) = Value::checkOpOrder(@_);
   return $l->value <=> $r->value;
 }
 

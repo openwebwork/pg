@@ -1,7 +1,7 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/contextLimitedPolynomial.pl,v 1.24 2010/04/01 00:21:45 dpvc Exp $
+# $CVSHeader$
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -111,6 +111,7 @@ sub isConstant {
 package LimitedPolynomial::BOP;
 our @ISA = ();
 
+
 #
 #  Do original check and then if the operands are numbers, its OK.
 #  Otherwise, do an operator-specific check for if the polynomial is OK.
@@ -120,6 +121,7 @@ our @ISA = ();
 sub _check {
   my $self = shift;
   my $super = ref($self); $super =~ s/^.*?::/Parser::/;
+
   &{$super."::_check"}($self);
   if (LimitedPolynomial::isConstant($self->{lop}) &&
       LimitedPolynomial::isConstant($self->{rop})) {
@@ -190,6 +192,7 @@ sub checkStrict {
   $self->Error("Can't use '%s' between constants",$self->{bop});
 }
 
+
 ##############################################
 #
 #  Now we get the individual replacements for the operators
@@ -255,6 +258,7 @@ sub checkPolynomial {
   $self->Error("In a polynomial, you can only divide by numbers")
     unless LimitedPolynomial::isConstant($r);
   $self->Error("You can only divide a single term by a number")
+
     if $l->{isPoly} && $l->{isPoly} != 2;
   $self->{isPoly} = $l->{isPoly};
   $self->{powers} = $l->{powers}; delete $l->{powers};
@@ -306,6 +310,7 @@ package LimitedPolynomial::UOP;
 
 sub _check {
   my $self = shift;
+
   my $super = ref($self); $super =~ s/^.*?::/Parser::/;
   &{$super."::_check"}($self);
   my $op = $self->{op};
@@ -318,6 +323,7 @@ sub _check {
 }
 
 sub checkPolynomial {return !(shift)->{op}{isPoly}}
+
 
 ##############################################
 
