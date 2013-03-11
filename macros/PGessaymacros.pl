@@ -122,7 +122,7 @@ sub  NAMED_ESSAY_BOX {
 	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col" >$answer_value</TEXTAREA>\\end{rawhtml}!,
 	    HTML => qq!
          <TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
-               WRAP="VIRTUAL" title="Enclose LaTeX expressions with &#92;[ and &#92;].">$answer_value</TEXTAREA>
+               WRAP="VIRTUAL" title="Enclose LaTeX expressions with &#92;( and &#92;).">$answer_value</TEXTAREA>
            <INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">
            !
          );
@@ -140,8 +140,7 @@ sub  essay_help {
                  it will be saved so that your instructor can grade it at a later date.  If your instructor makes 
                  any comments on your answer those comments will appear on this page after the question has been 
                  graded.  You can use LaTeX to make your math equations look pretty.   
-                 LaTeX expressions should be enclosed with &#92;[ 
-                 and &#92;] like so, &#92;[&#92;frac{1}{x+2}&#92;].
+                 LaTeX expressions should be enclosed using the parenthesis notation and not dollar signs. 
             </P> 
            !
          );
