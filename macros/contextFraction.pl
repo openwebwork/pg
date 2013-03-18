@@ -256,6 +256,7 @@ sub Init {
   $context->{value}{Real} = "context::Fraction::Real";
   $context->{parser}{Value} = "context::Fraction::Value";
   $context->{parser}{Number} = "Parser::Legacy::LimitedNumeric::Number";
+  $context->{precedence}{Fraction} = $context->{precedence}{Infinity} + .5;  # Fractions are above Infinity
 
   $context = $main::context{'Fraction-NoDecimals'} = $context->copy;
   $context->{name} = "Fraction-NoDecimals";
