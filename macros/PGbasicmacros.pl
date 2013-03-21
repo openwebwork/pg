@@ -1081,8 +1081,8 @@ sub solution {
 
 
 sub SOLUTION {
-	if ($envir->{use_knowls_for_solutions}) {	   
-    	TEXT( knowlLink("$PAR SOLUTION: ", value =>  escapeSolutionHTML($BR . solution(@_) . $PAR ),
+	if ($displayMode =~/HTML/ and $envir->{use_knowls_for_solutions}) {	   
+    	TEXT( $PAR, knowlLink("SOLUTION: ", value =>  escapeSolutionHTML($BR . solution(@_) . $PAR ),
     	              base64 =>1 ) ) if solution(@_);
     } else {
 		TEXT( "$PAR SOLUTION: ".$BR.solution(@_).$PAR) if solution(@_) ;
@@ -1123,8 +1123,8 @@ sub hint {
 
 
 sub HINT {
-	if ($envir->{use_knowls_for_hints}) {
-		TEXT( knowlLink("$PAR HINT: ", value=>escapeSolutionHTML($BR . hint(@_) . $PAR ),
+	if ($displayMode =~/HTML/ and $envir->{use_knowls_for_hints}) {
+		TEXT($PAR, knowlLink("HINT: ", value=>escapeSolutionHTML($BR . hint(@_) . $PAR ),
 		                  base64 => 1) ) if hint(@_);
 
 	} else {
