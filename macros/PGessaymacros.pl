@@ -40,18 +40,6 @@ sub _PGessaymacros_init {
 }
 
 
-HEADER_TEXT(<<EOT);
-
-<script type="text/javascript" src="$webworkHtmlURL/js/tinymce/tiny_mce.js"></script> 
-<script type="text/javascript">
-    tinyMCE.init({ mode : "textareas",
-		   theme : "simple",
-		   content_css : "$webworkHtmlURL/css/tinymce.css",
-	}); 
-</script>
-EOT
-
-
 sub essay_cmp {
 
     my $self = shift;
@@ -74,7 +62,11 @@ sub essay_cmp {
 	$student->{original_student_ans} = $scrubber->scrub($student->{original_student_ans});
 
 	# always returns false but stuff should check for the essay flag and avoid the red highlighting
+	loadMacros("contextTypeset.pl");
+	my $oldContext = Context();
+	Context("Typeset");
 	my $answer_value = EV3P({processCommands=>0,processVariables=>0},$student->{original_student_ans});
+	Context($oldContext);
 	my $ans_hash = new AnswerHash(
 	    'score'=>"0",
 	    'correct_ans'=>"Undefined",
@@ -98,19 +90,20 @@ sub essay_cmp {
 
 sub  NAMED_ESSAY_BOX {
 	my($name,$row,$col) = @_;
-	$row = 10 unless defined($row);
-	$col = 80 unless defined($col);
+	$row = 8 unless defined($row);
+	$col = 75 unless defined($col);
 
 	my $height = .07*$row;
 	my $answer_value = '';
 	$answer_value = $inputs_ref->{$name} if defined( $inputs_ref->{$name} );
 	$name = RECORD_ANS_NAME($name, $answer_value);
-	$answer_value =~ tr/$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
+	$answer_value =~ tr/$@//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 
-	#### Answer Value needs to be sanitized, it could contain badness!
+	#### Answer Value needs to have special characters replaced by the html codes
 	$answer_value =~ s/\\/\&\#92;/g;
 	$answer_value =~ s/</\&lt;/g; 
 	$answer_value =~ s/>/\&gt;/g;
+	$answer_value =~ s/`/&#96;/g;
 		
 	# Get rid of tabs since they mess up the past answer db
 	$answer_value =~ s/\t/\&nbsp;\&nbsp;\&nbsp;\&nbsp;\&nbsp;/;
@@ -121,7 +114,7 @@ sub  NAMED_ESSAY_BOX {
 	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col" >$answer_value</TEXTAREA>\\end{rawhtml}!,
 	    HTML => qq!
          <TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
-               WRAP="VIRTUAL">$answer_value</TEXTAREA>
+               WRAP="VIRTUAL" title="Enclose math expressions with backticks ` or use LaTeX.">$answer_value</TEXTAREA>
            <INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">
            !
          );
@@ -129,11 +122,30 @@ sub  NAMED_ESSAY_BOX {
 	$out;
 }
 
+sub  essay_help {
+
+	my $out = MODES(
+	     TeX => '',
+	     Latex2HTML => '',
+	    HTML => qq!
+            <P>  This is an essay answer text box.  You can type your answer in here and, after you hit submit, 
+                 it will be saved so that your instructor can grade it at a later date.  If your instructor makes 
+                 any comments on your answer those comments will appear on this page after the question has been 
+                 graded.  You can use LaTeX to make your math equations look pretty.   
+                 LaTeX expressions should be enclosed using the parenthesis notation and not dollar signs. 
+            </P> 
+           !
+         );
+
+	$out;
+}
+
+
 sub essay_box {
 	my $row = shift;
 	my $col =shift;
-	$row = 12 unless $row;
-	$col = 120 unless $col;
+	$row = 8 unless $row;
+	$col = 75 unless $col;
 	my $name = NEW_ANS_NAME();
 	NAMED_ESSAY_BOX($name ,$row,$col);
 
