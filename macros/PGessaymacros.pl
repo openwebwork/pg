@@ -40,18 +40,6 @@ sub _PGessaymacros_init {
 }
 
 
-HEADER_TEXT(<<EOT);
-
-<script type="text/javascript" src="$webworkHtmlURL/js/tinymce/tiny_mce.js"></script> 
-<script type="text/javascript">
-    tinyMCE.init({ mode : "textareas",
-		   theme : "simple",
-		   content_css : "$webworkHtmlURL/css/tinymce.css",
-	}); 
-</script>
-EOT
-
-
 sub essay_cmp {
 
     my $self = shift;
@@ -74,7 +62,11 @@ sub essay_cmp {
 	$student->{original_student_ans} = $scrubber->scrub($student->{original_student_ans});
 
 	# always returns false but stuff should check for the essay flag and avoid the red highlighting
+	loadMacros("contextTypeset.pl");
+	my $oldContext = Context();
+	Context("Typeset");
 	my $answer_value = EV3P({processCommands=>0,processVariables=>0},$student->{original_student_ans});
+	Context($oldContext);
 	my $ans_hash = new AnswerHash(
 	    'score'=>"0",
 	    'correct_ans'=>"Undefined",
@@ -122,7 +114,7 @@ sub  NAMED_ESSAY_BOX {
 	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col" >$answer_value</TEXTAREA>\\end{rawhtml}!,
 	    HTML => qq!
          <TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
-               WRAP="VIRTUAL" title="Enclose LaTeX expressions with &#92;( and &#92;).">$answer_value</TEXTAREA>
+               WRAP="VIRTUAL" title="Enclose math expressions with backticks ` or use LaTeX.">$answer_value</TEXTAREA>
            <INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">
            !
          );
