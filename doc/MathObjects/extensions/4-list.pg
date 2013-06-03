@@ -6,9 +6,8 @@
 DOCUMENT();        # This should be the first executable line in the problem.
 
 loadMacros(
-  "PGbasicmacros.pl",
-  "PGanswermacros.pl",
-  "Parser.pl",
+  "PGstandard.pl",
+  "MathObjects.pl",
   "parserTables.pl",
 );
 
@@ -27,7 +26,6 @@ our @ISA = qw(Parser::List); # subclass of List
 #
 sub _check {
   my $self = shift;
-  $self->{type}{list} = 0;  # our result is a single number, not really a list
   $self->Error("You need two numbers within '[' and ']'")
     if ($self->{type}{length} < 2);
   $self->Error("Only two numbers can appear within '[' and ']'")
@@ -35,7 +33,7 @@ sub _check {
   my ($n,$r) = @{$self->{coords}};
   $self->Error("The arguments for '[n,r]' must be numbers")
     unless ($n->type eq 'Number' && $r->type eq 'Number');
-  $self->{type} = $Value::Type{number};
+  $self->{type} = $Value::Type{number};  # our result is really a number, not a list
 }
 
 #

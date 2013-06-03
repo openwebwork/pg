@@ -11,6 +11,9 @@
 #   Vector2D => vector context where i and j are vectors in 2D rather than 3D
 #   Matrix   => numeric context with points, vectors and matrices
 #   Interval => numeric context with syntax for intervals and unions
+#   Complex-Point  => like Point but for complex numbers
+#   Complex-Vector => like Vector but with complex numbers
+#   Complex-Matrix => like Matrix but with complex numbers
 #
 # You can list the defined contexts using:
 #
@@ -187,13 +190,13 @@ $functions = {
    'atan2' => {class => 'Parser::Function::numeric2'},
 
    'norm'  => {class => 'Parser::Function::vector', vectorInput => 1},
-   'unit'  => {class => 'Parser::Function::vector', vectorInput => 1},
+   'unit'  => {class => 'Parser::Function::vector', vectorInput => 1, vector => 1},
 
    'arg'   => {class => 'Parser::Function::complex'},
    'mod'   => {class => 'Parser::Function::complex'},
    'Re'    => {class => 'Parser::Function::complex', TeX => '\Re'},
    'Im'    => {class => 'Parser::Function::complex', TeX => '\Im'},
-   'conj'  => {class => 'Parser::Function::complex', complex => 1, TeX=>'\overline', braceTeX => 1},
+   'conj'  => {class => 'Parser::Function::complex', complex => 1, TeX => '\overline', braceTeX => 1, matrix => 1},
 
    # Det, Inverse, Transpose, Floor, Ceil?
 
@@ -288,31 +291,6 @@ $context->parens->set(
 $context->{name} = "Numeric";
 
 #
-#  Complex context (no vectors or matrices)
-#
-$context = $context{Complex} = $context{Full}->copy;
-$context->variables->are(z=>'Complex');
-$context->operators->undefine('><','.');
-$context->functions->undefine('norm','unit');
-$context->constants->remove('j','k');
-$context->parens->remove('<');
-$context->parens->set(
-   '(' => {type => 'List', formMatrix => 0},
-   '[' => {type => 'List', formMatrix => 0},
-   '{' => {type => 'List'},
-);
-$context->operators->set(
-  '^'  => {class => 'Parser::Function::complex_power', negativeIsComplex => 1},
-  '**' => {class => 'Parser::Function::complex_power', negativeIsComplex => 1},
-);
-$context->functions->set(
-  'sqrt' => {class => 'Parser::Function::complex_numeric', negativeIsComplex => 1},
-  'log'  => {class => 'Parser::Function::complex_numeric', negativeIsComplex => 1},
-);
-$context->{name} = "Complex";
-
-
-#
 #  Vector context (no complex numbers)
 #
 $context = $context{Vector} = $context{Full}->copy;
@@ -352,7 +330,7 @@ $context->parens->set(
   '(' => {formMatrix => 1},
   '[' => {type => 'Matrix', removable => 0},
 );
-$context->{name} = "Vector";
+$context->{name} = "Matrix";
 
 #
 #  Interval context (make intervals rather than lists)
@@ -369,6 +347,62 @@ $context->constants->add(
 );
 $context->constants->set(R => {TeX => '{\bf R}'});
 $context->{name} = "Interval";
+
+#
+#  Complex context (no vectors or matrices)
+#
+$context = $context{Complex} = $context{Full}->copy;
+$context->variables->are(z=>'Complex');
+$context->operators->undefine('><','.');
+$context->functions->undefine('norm','unit');
+$context->constants->remove('j','k');
+$context->parens->remove('<');
+$context->parens->set(
+   '(' => {type => 'List', formMatrix => 0},
+   '[' => {type => 'List', formMatrix => 0},
+   '{' => {type => 'List'},
+);
+$context->operators->set(
+  '^'  => {class => 'Parser::Function::complex_power', negativeIsComplex => 1},
+  '**' => {class => 'Parser::Function::complex_power', negativeIsComplex => 1},
+);
+$context->functions->set(
+  'sqrt' => {class => 'Parser::Function::complex_numeric', negativeIsComplex => 1},
+  'log'  => {class => 'Parser::Function::complex_numeric', negativeIsComplex => 1},
+);
+$context->{name} = "Complex";
+
+#
+#  Complex-Vector context
+#
+$context = $context{"Complex-Vector"} = $context{Complex}->copy;
+$context->operators->redefine('><','.');
+$context->parens->add('<' => {close => '>', type => 'Vector'});
+$context->parens->set(
+  '(' => {type => "Point", formMatrix => 0},
+  '[' => {type => "Point", formMatrix => 0},
+  '{' => {type => "Point"},
+);
+$context->{name} = "Complex-Vector";
+
+#
+#  Complex-Point context
+#
+$context = $context{"Complex-Point"} = $context{"Complex-Vector"}->copy;
+$context->operators->undefine("><",".");
+$context->parens->remove("<");
+$context->{name} = "Complex-Point";
+
+#
+#  Complex-Matrix context
+#
+$context = $context{"Complex-Matrix"} = $context{"Complex-Vector"}->copy;
+$context->parens->set(
+  '(' => {formMatrix => 1},
+  '[' => {type => 'Matrix', removable => 0},
+);
+$context->{name} = "Complex-Matrix";
+
 
 #########################################################################
 

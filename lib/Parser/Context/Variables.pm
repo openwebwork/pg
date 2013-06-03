@@ -36,7 +36,7 @@ sub init {
 #sub removeToken {}
 
 #
-#  If the type is one of the names ones, use it's known type
+#  If the type is one of the named ones, use it's known type
 #  Otherwise if it is a Value object use its type,
 #  Otherwise, if it is a signed number, use the Real type
 #  Otherwise report an error

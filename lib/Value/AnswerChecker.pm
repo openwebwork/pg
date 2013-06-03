@@ -259,7 +259,7 @@ sub cmp_equal {
 
 our $CMP_ERROR = 2;   # a fatal error was detected
 our $CMP_WARNING = 3; # a warning was produced
-our $CMP_MESSAGE = 4; # an message should be reported for this check
+our $CMP_MESSAGE = 4; # a message should be reported for this check
 
 sub cmp_compare {
   my $self = shift; my $other = shift; my $ans = shift; my $nth = shift || '';
@@ -349,6 +349,16 @@ sub cmp_Message {
 #
 sub cmp_preprocess {}
 sub cmp_postprocess {}
+
+#
+#  Used to call an object's method as a pre- or post-filter.
+#  E.g.,
+#     $cmp->install_pre_filter(\&Value::cmp_call_filter,"cmp_prefilter");
+#
+sub cmp_call_filter {
+  my $ans = shift; my $method = shift;
+  return $ans->{correct_value}->$method($ans,@_);
+}
 
 #
 #  Check for unreduced reduced Unions and Sets
@@ -487,7 +497,7 @@ sub format_matrix_HTML {
           . '</TR>'."\n";
   }
   return '<TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0" CLASS="ArrayLayout"'
-          . ' STYLE="display:inline;vertical-align:-'.(1.1*$rows-.6).'em">'
+          . ' STYLE="display:inline;margin:0;vertical-align:-'.(1.1*$rows-.6).'em">'
           . $HTML
           . '</TABLE>';
 }
@@ -732,7 +742,7 @@ sub typeMatch {
 		compareOptions and default values:
 		  showTypeWarnings => 1,
 		  showEqualErrors  => 1,
-		  ignoreStrings    => 1   # don't complain about string-valued responses
+		  ignoreStrings    => 1,  # don't complain about string-valued responses
 		  typeMatch        => 'Value::Real'
 
 	Initial and final spaces are ignored when comparing strings.
@@ -1552,6 +1562,7 @@ sub splitFormula {
   return @formula;
 }
 
+#
 #  Override for List ?
 #  Return the value if it is defined, otherwise use a default
 #
@@ -1587,16 +1598,14 @@ sub cmp_defaults {
   ) if $self->type eq 'Union';
 
   my $type = $self->type;
-  $type = ($self->isComplex)? 'Complex': 'Real' if $type eq 'Number';
+  $type = ($self->isComplex? 'Complex': 'Real') if $type eq 'Number';
   $type = $self->Package($type).'::';
 
   return (
     &{$type.'cmp_defaults'}($self,@_),
     upToConstant => 0,
     showDomainErrors => 1,
-#  ) if defined(%$type) && $self->type ne 'List'; #causes errors in newest perl
-#	) if ( ref($type)=~/HASH/ ) && $self->type ne 'List'; # does NOT work --causes FortLewis error
-   ) if %$type && $self->type ne 'List';   
+  ) if %$type && $self->type ne 'List';
   my $element;
   if ($self->{tree}->class eq 'List') {$element = $self->Package("Formula")->new($self->{tree}{coords}[0])}
     else {$element = $self->Package("Formula")->new(($self->createRandomPoints(1))[1]->[0]{data}[0])}
@@ -1662,14 +1671,9 @@ sub cmp {
     $cmp->ans_hash(correct_value => $f);
     Parser::Context->current(undef,$current);
   }
-  $cmp->install_pre_filter(\&Value::Formula::cmp_call_filter,"cmp_prefilter");
-  $cmp->install_post_filter(\&Value::Formula::cmp_call_filter,"cmp_postfilter");
+  $cmp->install_pre_filter(\&Value::cmp_call_filter,"cmp_prefilter");
+  $cmp->install_post_filter(\&Value::cmp_call_filter,"cmp_postfilter");
   return $cmp;
-}
-
-sub cmp_call_filter {
-  my $ans = shift; my $method = shift;
-  return $ans->{correct_value}->$method($ans,@_);
 }
 
 sub cmp_prefilter {
@@ -1923,13 +1927,11 @@ sub cmp_graph {
   #
   my %options = (title=>'',points=>[],@_);
   my $graphs = $diagnostics->{graphs};
-  my $limits = $graphs->{limits}; $limits = $self->getFlag('limits',[-2,2]) unless $limits;
-  $limits = $limits->[0] while ref($limits) eq 'ARRAY' && ref($limits->[0]) eq 'ARRAY';
+  my $limits = $graphs->{limits};
   my $size = $graphs->{size}; $size = [$size,$size] unless ref($size) eq 'ARRAY';
   my $steps = $graphs->{divisions};
   my $points = $options{points}; my $clip = $options{clip};
-  my ($my,$My) = (0,0); my ($mx,$Mx) = @{$limits};
-  my $dx = ($Mx-$mx)/$steps; my $f; my $y;
+  my ($my,$My) = (0,0); my ($mx,$Mx); my $dx; my $f; my $y;
 
   my @pnames = $self->{context}->variables->parameters;
   my @pvalues = ($self->{parameters} ? @{$self->{parameters}} : (0) x scalar(@pnames));
@@ -1955,10 +1957,13 @@ sub cmp_graph {
       $self->{graphWarning} = 1;
       return "";
     }
-    unless ($f->typeRef->{length} == 1) {
-      warn "Only real-valued functions can be graphed";
-      return "";
-    }
+
+    $x = ($f->{context}->variables->names)[0] unless $x;
+    $limits = [$self->getVariableLimits($x)] unless $limits;
+    $limits = $limits->[0] while ref($limits) eq 'ARRAY' && ref($limits->[0]) eq 'ARRAY';
+    ($mx,$Mx) = @{$limits};
+    $dx = ($Mx-$mx)/$steps;
+
     if ($f->isConstant) {
       $y = $f->eval;
       $my = $y if $y < $my; $My = $y if $y > $My;

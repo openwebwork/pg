@@ -98,7 +98,8 @@ package main;
 #  which package-specific version to call
 #
 
-Parser::defineLog(); ## defined in dangerousMacros so warning about redefining log() can be avoided
+
+Parser::defineLog();
 
 sub ln     {CommonFunction->Call('ln',@_)}
 sub logten {CommonFunction->Call('logten',@_)}

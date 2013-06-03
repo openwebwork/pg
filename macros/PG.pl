@@ -11,6 +11,7 @@
 sub _PG_init{
 	$main::VERSION ="WW2.9+";
 }
+
 sub not_null {PGcore::not_null(@_)};
 
 sub pretty_print {PGcore::pretty_print(@_)};
@@ -21,18 +22,20 @@ sub DEBUG_MESSAGE {
     my @msg = @_;
 	$PG->debug_message("---- ".join(" ",caller())." ------", @msg,"__________________________");
 }
+
 sub WARN_MESSAGE{
     my @msg = @_;
 	$PG->warning_message("---- ".join(" ",caller())." ------", @msg,"__________________________");
 }
+
 sub DOCUMENT {
 
 	# get environment
 	$rh_envir = \%envir;  #KLUDGE FIXME
-    # warn "rh_envir is ",ref($rh_envir);
+	# warn "rh_envir is ",ref($rh_envir);
 	$PG = new PGcore($rh_envir,	# can add key/value options to modify		
 	);
-    $PG->clear_internal_debug_messages;
+	$PG->clear_internal_debug_messages;
 	# initialize main:: variables
 	
 	$ANSWER_PREFIX         		= $PG->{ANSWER_PREFIX};
@@ -52,47 +55,47 @@ sub DOCUMENT {
 	$PG_random_generator        = $PG->{PG_random_generator};
 	# Save the file name for use in error messages
 
- #no strict;
-    foreach  my  $var (keys %envir) {
+	#no strict;
+	foreach  my  $var (keys %envir) {
    		PG_restricted_eval(qq!\$main::$var = \$envir{$var}!);  #whew!! makes sure $var is interpolated but $main:: is evaluated at run time.
-        warn "Problem defining $var  while initializing the PG problem: $@" if $@;
-    }
-    #use strict;
-    #FIXME	
-    # load java script needed for displayModes
-    if ($envir{displayMode} eq 'HTML_MathJax') {
-    	TEXT(
-        '<script type="text/x-mathjax-config">
-        MathJax.Hub.Config({
-            MathMenu: {showContext: true}
-        });
-        </script>
-        <SCRIPT SRC="'.$envir{MathJaxURL}.'"></SCRIPT>'."\n");
-  } elsif ($envir{displayMode} eq 'HTML_jsMath') {
+	        warn "Problem defining $var  while initializing the PG problem: $@" if $@;
+	}
+	#use strict;
+	#FIXME
+	# load java script needed for displayModes
+	if ($envir{displayMode} eq 'HTML_MathJax') {
+	    TEXT(
+		 '<script type="text/x-mathjax-config">
+                  MathJax.Hub.Config({
+                     MathMenu: {showContext: true}
+                  });
+                  </script>
+                  <script src="'.$envir{MathJaxURL}.'"></script>'."\n");
+        } elsif ($envir{displayMode} eq 'HTML_jsMath') {
 		my $prefix = "";
 		if (!$envir{jsMath}{reportMissingFonts}) {
-			$prefix .= '<SCRIPT>noFontMessage = 1</SCRIPT>'."\n";
+			$prefix .= '<script>noFontMessage = 1</script>'."\n";
 		} elsif ($main::envir{jsMath}{missingFontMessage}) {
-			$prefix .= '<SCRIPT>missingFontMessage = "'.$main::envir{jsMath}{missingFontMessage}.'"</SCRIPT>'."\n";
+			$prefix .= '<script>missingFontMessage = "'.$main::envir{jsMath}{missingFontMessage}.'"</script>'."\n";
 		}
-		$prefix .= '<SCRIPT>processDoubleClicks = '.($main::envir{jsMath}{processDoubleClicks}?'1':'0')."</SCRIPT>\n";
+		$prefix .= '<script>processDoubleClicks = '.($main::envir{jsMath}{processDoubleClicks}?'1':'0')."</script>\n";
 		TEXT(
 		  $prefix, 
-		  '<SCRIPT SRC="'.$envir{jsMathURL}. '"></SCRIPT>' . "\n" ,
-		  '<NOSCRIPT><CENTER><FONT COLOR="#CC0000">' ,
+		  '<script src="'.$envir{jsMathURL}. '"></script>' . "\n" ,
+		  '<noscript><center><font color="#CC0000">' ,
 			  "$BBOLD", 'Warning: the mathematics on this page requires JavaScript.',  ,$BR,
 					'If your browser supports it, be sure it is enabled.',
 			  "$EBOLD",
-		  '</FONT></CENTER><p>
-		  </NOSCRIPT>' 
+		  '</font></center><p>
+		  </noscript>' 
 		);
-		TEXT('<SCRIPT>jsMath.Setup.Script("plugins/noImageFonts.js")</SCRIPT>')
+		TEXT('<script>jsMath.Setup.Script("plugins/noImageFonts.js")</script>')
 		    if ($envir{jsMath}{noImageFonts});
 	} elsif ($envir{displayMode} eq 'HTML_asciimath') {
-		TEXT('<SCRIPT SRC="'.$envir{asciimathURL}.'"></SCRIPT>' . "\n" ,
-             '<SCRIPT>mathcolor = "black"</SCRIPT>' );
+		TEXT('<script src="'.$envir{asciimathURL}.'"></script>' . "\n" ,
+             '<script>mathcolor = "black"</script>' );
   } elsif ($envir{displayMode} eq 'HTML_LaTeXMathML') {
-    	TEXT('<SCRIPT SRC="'.$envir{LaTeXMathMLURL}.'"></SCRIPT>'."\n");
+       TEXT('<script src="'.$envir{LaTeXMathMLURL}.'"></script>'."\n");
   }
 
 }
@@ -318,9 +321,9 @@ sub ENDDOCUMENT {
 	
 	# add javaScripts
 	if ($rh_envir->{displayMode} eq 'HTML_jsMath') {
-		TEXT('<SCRIPT> jsMath.wwProcess() </SCRIPT>');
+		TEXT('<script> jsMath.wwProcess() </script>');
 	} elsif ($rh_envir->{displayMode} eq 'HTML_asciimath') {
-		TEXT('<SCRIPT> translate() </SCRIPT>');
+		TEXT('<script> translate() </script>');
 		my $STRING = join("", @{$PG->{HEADER_ARRAY} });
 		unless ($STRING =~ m/mathplayer/) {
 			HEADER_TEXT('<object id="mathplayer" classid="clsid:32F66A20-7614-11D4-BD11-00104BD3F987">' . "\n" .
@@ -390,15 +393,13 @@ sub ENDDOCUMENT {
 
 	(\$STRINGforOUTPUT, \$STRINGforHEADER_TEXT,\$STRINGforPOSTHEADER_TEXT,\%PG_ANSWERS_HASH,  $PG->{flags} , $PG   );
 }
-################################################################################
-#
-# macros from dangerousMacros
-#
-################################################################################
+
+
 sub alias {
     #warn "alias called ",@_;
     $PG->{PG_alias}->make_alias(@_)  ;
 }
+
 sub insertGraph {
 	$PG->insertGraph(@_);
 }
@@ -406,9 +407,11 @@ sub insertGraph {
 sub findMacroFile {
 	$PG->{PG_alias}->findMacroFile(@_);
 }
+
 sub check_url {
 	$PG->{PG_alias}->check_url(@_);
 }
+
 sub findAppletCodebase {
     my $appletName = shift;
 	my $url = eval{$PG->{PG_alias}->findAppletCodebase($appletName)};
@@ -422,7 +425,6 @@ sub loadMacros {
 }
 
 
-
 =head2 Problem Grader Subroutines
 
 =cut
@@ -430,7 +432,7 @@ sub loadMacros {
 ## Problem Grader Subroutines
 
 #####################################
-# This is a	model for plug-in problem graders
+# This is a model for plug-in problem graders
 #####################################
 # ^function install_problem_grader
 # ^uses PG_restricted_eval
@@ -446,7 +448,8 @@ sub current_problem_grader {
 	install_problem_grader(@_);
 }
 	
-#  FIXME?  these were taken from the former dangerousMacros.pl file and might have issues when placed here.
+#  FIXME? The following functions were taken from the former
+#  dangerousMacros.pl file and might have issues when placed here.
 #
 #  Some constants that can be used in perl expressions
 #
@@ -602,6 +605,8 @@ sub set_default_options {
 	}
 }
 
+=over
+
 =item includePGproblem($filePath)
 
  includePGproblem($filePath);
@@ -609,6 +614,8 @@ sub set_default_options {
  Essentially runs the pg problem specified by $filePath, which is
  a path relative to the top of the templates directory.  The output
  of that problem appears in the given problem.
+
+=back
 
 =cut
 
@@ -640,7 +647,7 @@ sub includePGproblem {
                                       DEBUG_messages  => $PG->{DEBUG_messages},
     );
     $PG->{PG_alias}=$temp_PGalias;
-    includePGtext($r_string);
+    $PG->includePGtext($r_string);
     # Reset the environment to what it was before.
     %main::envir = %save_envir;
     $PG->{PG_alias}=$save_PGalias;
@@ -678,7 +685,6 @@ In a PG problem:
 	DOCUMENT();             # should be the first statment in the problem
 	
 	loadMacros(.....);      # (optional) load other macro files if needed.
-                        	# (loadMacros is defined in F<dangerousMacros.pl>)
 	
 	HEADER_TEXT(...);       # (optional) used only for inserting javaScript into problems.
 	

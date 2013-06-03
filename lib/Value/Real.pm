@@ -36,7 +36,7 @@ sub new {
 sub make {
   my $self = shift;
   my $n = (Value::isContext($_[0]) ? $_[1] : $_[0]);
-  return $self->SUPER::make(@_) unless $n eq "nan";
+  return $self->SUPER::make(@_) unless lc("$n") eq "nan" or lc("$n") eq "-nan";
   Value::Error("Result is not a real number");
 }
 
@@ -95,7 +95,7 @@ sub div {
 sub power {
   my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
   my $x = $l->{data}[0] ** $r->{data}[0];
-  return $self->inherit($other)->make($x) unless $x eq 'nan';
+  return $self->inherit($other)->make($x) unless lc($x) eq 'nan' or lc($x) eq '-nan';
   Value::Error("Can't raise a negative number to a non-integer power") if ($l->{data}[0] < 0);
   Value::Error("Result of exponention is not a number");
 }

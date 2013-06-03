@@ -5,6 +5,7 @@
 
 package WeBWorK::PG::IO;
 use base qw(Exporter);
+use WeBWorK::PG::Translator;
 
 =head1 NAME
 
@@ -67,10 +68,11 @@ contains the function.
 
 =item includePGtext($string_ref, $envir_ref)
 
-Calls C<createPGtext> recursively with the $safeCompartment variable set to 0 so
-that the rendering continues in the current safe compartment.  The output is the
-same as the output from createPGtext. This is used in processing some of the
-sample CAPA files.
+
+This is used in processing some of the sample CAPA files and in creating aliases to redirect calls to duplicate problems so that 
+they go to the original problem instead.  It is called by includePGproblem.
+
+It reads and evaluates the string in the same way that the Translator evaluates the string in a PG file.
 
 =cut
 
@@ -79,12 +81,15 @@ sub includePGtext  {
 	if (ref($evalString) eq 'SCALAR') {
 		$evalString = $$evalString;
 	}
-	$evalString =~ s/\nBEGIN_TEXT/\nTEXT\(EV3\(<<'END_TEXT'\)\);/g;
-	$evalString =~ s/\\/\\\\/g; # \ can't be used for escapes because of TeX conflict
-	$evalString =~ s/~~/\\/g;   # use ~~ as escape instead, use # for comments
+#	$evalString =~ s/\nBEGIN_TEXT/\nTEXT\(EV3\(<<'END_TEXT'\)\);/g;
+#	$evalString =~ s/\\/\\\\/g; # \ can't be used for escapes because of TeX conflict
+#	$evalString =~ s/~~/\\/g;   # use ~~ as escape instead, use # for comments
 	no strict;
-	eval("package main; $evalString") ;
+	$evalString = eval( q! &{$main::PREPROCESS_CODE}($evalString) !); 
+	# current preprocessing code passed from Translator (see Translator::initialization)
 	my $errors = $@;
+	eval("package main; $evalString") ;
+	$errors .= $@;
 	die eval(q! "ERROR in included file:\n$main::envir{probFileName}\n $errors\n$evalString"!) if $errors;
 	use strict;
 	return "";

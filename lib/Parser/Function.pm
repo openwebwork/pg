@@ -44,6 +44,7 @@ sub eval {
   foreach my $x (@{$self->{params}}) {push(@params,$x->eval)}
   my $result = eval {$self->_eval(@params)};
   return $result unless $@;
+  $self->Error($self->context->{error}{message}) if $self->context->{error}{message};
   $self->Error("Can't take %s of %s",$self->{name},join(',',@params));
 }
 #
@@ -80,7 +81,7 @@ sub substitute {
     {$x = $x->substitute; $constant = 0 unless $x->{isConstant}}
   return $self->Item("Value")->new($equation,[$self->eval])
     if $constant && $context->flag('reduceConstantFunctions');
-  $self->{isConstant} = 0;
+  $self->{isConstant} = $constant;
   return $self;
 }
 
@@ -162,9 +163,9 @@ sub checkNumeric {
 sub checkVector {
   my $self = shift;
   return if ($self->checkArgCount(1));
-  if ($self->{params}->[0]->type =~ m/Point|Vector/ || $self->context->flag("allowBadFunctionInputs")) {
-    $self->{type} = $Value::Type{number};
-  } else {$self->Error("Function '%s' requires a Vector input",$self->{name})}
+  $self->Error("Function '%s' requires a Vector input",$self->{name})
+    unless $self->{params}[0]->type =~ m/Point|Vector/ || $self->context->flag("allowBadFunctionInputs");
+  $self->{type} = ($self->{def}{vector} ? $self->{params}[0]->typeRef : $Value::Type{number});
 }
 
 #
@@ -174,22 +175,46 @@ sub checkVector {
 sub checkReal {
   my $self = shift;
   return if ($self->checkArgCount(1));
-  if ($self->{params}->[0]->isNumber || $self->context->flag("allowBadFunctionInputs")) {
-    $self->{type} = $Value::Type{number};
-  } else {$self->Error("Function '%s' requires a Complex input",$self->{name})}
+  $self->Error("Function '%s' requires a Complex input",$self->{name})
+    unless $self->{params}[0]->isNumber || $self->context->flag("allowBadFunctionInputs");
+  $self->{type} = $Value::Type{number};
 }
 
 #
-#  Error if the argument isn't a singe complex number
+#  Error if the argument isn't a single complex number
 #    and return a complex.
 #
 sub checkComplex {
   my $self = shift;
   return if ($self->checkArgCount(1));
-  if ($self->{params}->[0]->isNumber || $self->context->flag("allowBadFunctionInputs")) {
-    $self->{type} = $Value::Type{complex};
-  } else {$self->Error("Function '%s' requires a Complex input",$self->{name})}
+  $self->Error("Function '%s' requires a Complex input",$self->{name})
+    unless $self->{params}[0]->isNumber || $self->context->flag("allowBadFunctionInputs");
+  $self->{type} = $Value::Type{complex};
 }
+
+#
+#  Error if the argument isn't a singe complex number or matrix
+#    and return the same type as the input
+#
+sub checkComplexOrMatrix {
+  my $self = shift; my $op = $self->{params}[0];
+  return if ($self->checkArgCount(1));
+  $self->Error("Function '%s' requires a Complex or Matrixinput",$self->{name})
+    unless $op->isNumber || $op->type eq "Matrix" || $self->context->flag("allowBadFunctionInputs");
+  $self->{type} = $op->typeRef;
+}
+
+#
+#  Error if the argument is not a single Matrix
+#
+sub checkMatrix {
+  my $self = shift; my $type = shift || "number";
+  return if ($self->checkArgCount(1));
+  $self->Error("Function '%s' requires a Matrix input",$self->{name}) unless
+    $self->{params}->[0]->type eq "Matrix" || $self->context->flag("allowBadFunctionInputs");
+  $self->{type} = $Value::Type{$type};
+}
+
 
 ##################################################
 #

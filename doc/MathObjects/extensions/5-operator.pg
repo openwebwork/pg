@@ -1,14 +1,16 @@
 ##########################################################
 #
-#  Example of how to implement equalities in the Parser
+#  Example of how to implement equalities (this is now
+#  built into MathObjects and can be enabled via
+#  Parser::BOP::equailty->Allow() but is given here
+#  as an example of how an extension works).
 #
 
 DOCUMENT();        # This should be the first executable line in the problem.
 
 loadMacros(
-  "PGbasicmacros.pl",
-  "PGanswermacros.pl",
-  "Parser.pl",
+  "PGstandard.pl",
+  "MathObjects.pl",
   "parserTables.pl",
 );
 

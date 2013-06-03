@@ -1,11 +1,10 @@
-# This file     is PGcomplexmacros.pl
+# This file is PGcomplexmacros.pl
 # This includes the subroutines for the ANS macros, that
 # is, macros allowing a more flexible answer checking
 ####################################################################
-# Copyright @ 1995-2002 The WeBWorK Team
+# Copyright @ 1995-2012 The OpenWeBWorK project (http://openwebwork.org)
 # All Rights Reserved
 ####################################################################
-#$Id$
 
 
 =head1 NAME
@@ -53,16 +52,16 @@ foreach my $f (@Complex1::EXPORT) {
 
 
 # You need to add 
-# sub i();  # to your problem or else to dangerousMacros.pl
-# in order to use expressions such as 1 +3*i;
+#
+#     sub i();
+#
+# to your problem in order to use expressions such as 1 +3*i;
 # Without this prototype you would have to write 1+3*i();
-# The prototype has to be defined at compile time, but dangerousMacros.pl is complied first.
-#Complex1::display_format('cartesian');
+# The prototype has to be defined at compile time.
+# Complex1::display_format('cartesian');
 
 # number format used frequently in strict prefilters
 my $number = '([+-]?)(?=\d|\.\d)\d*(\.\d*)?(E([+-]?\d+))?';
-
-
 
 
 =head3 cplx_cmp

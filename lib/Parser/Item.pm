@@ -39,7 +39,7 @@ sub Item {
   my $self = shift; my $class = shift;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   return $context->{parser}{$class} if defined $context->{parser}{$class};
-  return "Parser::$class" if defined @{"Parser::${class}::ISA"};
+  return "Parser::$class" if @{"Parser::${class}::ISA"};
   Value::Error("No such package 'Parser::%s'",$class);
 }
 

@@ -73,12 +73,29 @@ This can be very useful for printing out HTML messages about objects while debug
 # ^function pretty_print
 # ^uses lex_sort
 # ^uses pretty_print
-sub pretty_print {    # provides html output -- NOT a method
+
+
+sub pretty_print {
+	my $r_input        = shift;
+	my $displayMode    = shift;
+	my $out = '';
+	if ($displayMode eq 'TeX' ) {
+	    $out .="{\\tiny";
+		$out .= pretty_print_tex($r_input);	
+		$out .="}";
+	} else {
+		$out =pretty_print_html($r_input);  #default
+	}
+	$out;
+}
+
+sub pretty_print_html {    # provides html output -- NOT a method
     my $r_input = shift;
     my $level = shift;
-    $level = 4 unless defined($level);
+    $level = 5 unless defined($level);
     $level--;
-    return '' unless $level > 0;  # only print three levels of hashes (safety feature)
+    return "PGalias has too much info. Try \$PG->{PG_alias}->{resource_list}" if ref($r_input) eq 'PGalias';  # PGalias just has too much information
+    return 'too deep' unless $level > 0;  # only print four levels of hashes (safety feature)
     my $out = '';
     if ( not ref($r_input) ) {
     	$out = $r_input if defined $r_input;    # not a reference
@@ -90,14 +107,14 @@ sub pretty_print {    # provides html output -- NOT a method
 		
 		
 		foreach my $key ( sort ( keys %$r_input )) {
-			$out .= "<tr><TD> $key</TD><TD>=&gt;</td><td>&nbsp;".pretty_print($r_input->{$key}) . "</td></tr>";
+			$out .= "<tr><TD> $key</TD><TD>=&gt;</td><td>&nbsp;".pretty_print_html($r_input->{$key}, $level) . "</td></tr>";
 		}
 		$out .="</table>";
 	} elsif (ref($r_input) eq 'ARRAY' ) {
 		my @array = @$r_input;
 		$out .= "( " ;
 		while (@array) {
-			$out .= pretty_print(shift @array, $level) . " , ";
+			$out .= pretty_print_html(shift @array, $level) . " , ";
 		}
 		$out .= " )";
 	} elsif (ref($r_input) eq 'CODE') {
@@ -108,6 +125,53 @@ sub pretty_print {    # provides html output -- NOT a method
 	}
 		$out;
 }
+
+sub pretty_print_tex {
+	my $r_input = shift;
+	my $level   = shift;
+    $level      = 5 unless defined($level);
+	$level--;
+	return "PGalias has too much info. Try \\\$PG->{PG\\_alias}->{resource\\_list}" if ref($r_input) eq 'PGalias';  # PGalias just has too much information
+	return 'too deep' unless $level>0;  #only print four levels of hashes (safety feature)
+	
+	my $protect_tex = sub {my $str = shift; $str=~s/_/\\\_/g; $str };
+
+	my $out = '';
+	if ( not  ref($r_input) ) {
+		$out = $r_input if defined $r_input;
+		$out =~ s/_/\\\_/g;   # protect tex
+		$out =~ s/&/\\\&/g;
+		$out =~ s/\$/\\\$/g;
+	} elsif ("$r_input" =~/hash/i) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_iput).
+		local($^W) = 0;
+	    
+		$out .= "\\begin{tabular}{| l | l |}\\hline\n\\multicolumn{2}{|l|}{$r_input}\\\\ \\hline\n";
+		
+		
+		foreach my $key ( sort ( keys %$r_input )) {
+			$out .= &$protect_tex(  $key ). " & ".pretty_print_tex($r_input->{$key}, $level) . "\\\\ \\hline\n";
+		}
+		$out .="\\end{tabular}\n";
+	} elsif (ref($r_input) eq 'ARRAY' ) {
+		my @array = @$r_input;
+		$out .= "( " ;
+		while (@array) {
+			$out .= pretty_print_tex(shift @array, $level) . " , ";
+		}
+		$out .= " )";
+	} elsif (ref($r_input) eq 'CODE') {
+		$out = "$r_input";
+	} else {
+		$out = $r_input if defined $r_input;
+		$out =~ s/_/\\\_/g;   # protect tex
+		$out =~ s/&/\\\&/g;
+	}
+		$out;
+}
+
+
+
+
 ##################################
 # PGcore object
 ##################################
@@ -176,6 +240,7 @@ sub initialize {
                                         DEBUG_messages   => $self->{DEBUG_messages},
                                                  
 	);
+	#$self->debug_message("PG alias created", $self->{PG_alias} );
     $self->{PG_loadMacros}        = new PGloadfiles($self->{envir});
 	$self->{flags} = {
 		showpartialCorrectAnswers => 1,

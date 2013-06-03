@@ -25,7 +25,7 @@ like equality are "fuzzy", meaning that two items are equal when they are "close
  #  Initialize the context-- flags set
  #
 	The following are list objects, meaning that they involve delimiters (parentheses)
-	of some type.
+	of some type.  They get overridden in lib/Parser/Context.pm
 
 	lists => {
 		'Point'  => {open => '(', close => ')'},
@@ -207,9 +207,11 @@ sub copy {
 =head3 getFlag
 
 #
-#  Get the value of a flag from the object itself,
-#  or from the context, or from the default context
-#  or from the given default, whichever is found first.
+#  Get the value of a flag from the object itself, or from the
+#  equation that created the object (if any), or from the AnswerHash
+#  for the object (if it is being used as the source for an answer
+#  checker), or from the object's context, or from the current
+#  context, or use the given default, whichever is found first.
 #
 
 	Usage:   $mathObj->getFlag("showTypeWarnings");
@@ -372,7 +374,7 @@ sub classMatch {
 =cut
 
 sub makeValue {
-  my $x = shift;
+  my $x = shift; return $x unless defined $x;
   my %params = (showError => 0, makeFormula => 1, context => Value->context, @_);
   my $context = $params{context};
   if (Value::isValue($x)) {
@@ -385,6 +387,7 @@ sub makeValue {
     $I = $I->neg if $x =~ m/^$context->{pattern}{-infinity}$/;
     return $I;
   }
+  return $context->Package("Complex")->make($context,$x->Re,$x->Im) if ref($x) eq "Complex1";
   return $context->Package("String")->make($context,$x)
     if !$Parser::installed || $context->{strings}{$x} ||
        ($x eq '' && $context->{flags}{allowEmptyStrings});

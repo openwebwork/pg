@@ -13,7 +13,7 @@ sub new {
     context => $parent,     # parent context
     dataName => {},         # name of data storage in context hash
     tokens => {},           # hash of id => type specifications that will be made into a pattern
-    patterns => {},         # hash of pattern => [type,precedence] specification for extra patterns
+    patterns => {},         # hash of pattern => [precedence,type] specification for extra patterns
     tokenType => {},        # type of Parser token for these pattern
     namePattern => '',      # pattern for allowed names for new items
     name => '', Name => '', # lower- and upper-case names for the class of items

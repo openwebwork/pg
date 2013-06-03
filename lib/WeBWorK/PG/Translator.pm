@@ -1,5 +1,5 @@
 ################################################################################
-# WeBWorK mod_perl (c) 2000-2002 WeBWorK Project
+# WeBWorK mod_perl (c) 2000-2012 The Open WeBWorK Project (openwebwork.org)
 # $Id$
 ################################################################################
 
@@ -36,7 +36,6 @@ WeBWorK::PG::Translator - Evaluate PG code and evaluate answers safely
     $pt->source_string($source);    # provide the source string for the problem
 
     $pt -> unrestricted_load("${courseScriptsDirectory}PG.pl");
-    $pt -> unrestricted_load("${courseScriptsDirectory}dangerousMacros.pl");
                                     # load the unprotected macro files
                                     # these files are evaluated with the Safe compartment wide open
                                     # other macros are loaded from within the problem using loadMacros
@@ -289,6 +288,8 @@ sub initialize {
 	$safe_cmpt -> share('%envir');
 	#local($rf_answer_eval) = sub { $self->PG_answer_eval(@_); };
 	#local($rf_restricted_eval) = sub { $self->PG_restricted_eval(@_); };
+	local($PREPROCESS_CODE) = sub {&{$self->{preprocess_code}} ( @_ ) };
+	$safe_cmpt -> share ('$PREPROCESS_CODE'); # for the benefit of IO::includePGtext()
 	#$safe_cmpt -> share('$rf_answer_eval');
 	#$safe_cmpt -> share('$rf_restricted_eval');
 	use strict;
@@ -309,11 +310,11 @@ sub initialize {
 #  These subroutines (but not the constants) are then explicitly exported to the current
 #  safe compartment Safe::Rootx::
 
-#  Although they are not large, it is important to import PG.pl and dangerousMacros.pl into the 
+#  Although it is not large, it is important to import PG.pl into the 
 #  cached safe compartment as well.  This is because a call in PGbasicmacros.pl to NEW_ANSWER_NAME
 #  which is defined in PG.pl would actually be a call to Safe::Root1::NEW_ANSWER_NAME since
 #  PGbasicmacros is compiled into the SAfe::Root1:: compartment.  If PG.pl has only been compiled into
-#  the current Safe compartment, this call will fail.  There are many calls between PG.pl, dangerousMacros,
+#  the current Safe compartment, this call will fail.  There are many calls between PG.pl,
 #  PGbasicmacros and PGanswermacros so it is easiest to have all of them defined in Safe::Root1::
 #  There subroutines are still available in the current safe compartment.
 #  Sharing the hash %Safe::Root1:: in the current compartment means that any references to Safe::Root1::NEW_ANSWER_NAME
@@ -325,7 +326,7 @@ sub initialize {
 #  The value of main:: has to be evaluated at runtime in order to make this work.  Hence  something like
 #  my $temp_code  = eval('\&main::display_matrix');
 #  &$temp_code($matrix_object_to_be_displayed);
-# in PGanswermacros.pl
+#  in PGanswermacros.pl
 #  would reference the run time value of main::, namely Safe::Rootx::
 #  There may be a clearer or more efficient way to obtain the runtime value of main::
 
@@ -391,11 +392,11 @@ sub pre_load_macro_files {
 #    FIXME  The following hardwired behavior should be modifiable
 #    either in the procedure call or in global.conf:
 # 
-#    PG.pl, IO.pl and dangerousMacros.pl are loaded without restriction
-#    All other files are loaded with restriction
+#    PG.pl, IO.pl are loaded without restriction;
+#    all other files are loaded with restriction
 #     
 			# construct a regex that matches only these three files safely
-			my @unrestricted_files = (); #  no longer needed? FIXME w/PG.pl dangerousMacros.pl IO.pl/;
+			my @unrestricted_files = (); #  no longer needed? FIXME w/PG.pl IO.pl/;
 			my $unrestricted_files = join("|", map { quotemeta } @unrestricted_files);
 			
 			my $store_mask; 
@@ -404,7 +405,7 @@ sub pre_load_macro_files {
 				$cached_safe_cmpt ->mask(Opcode::empty_opset());
 	        } 			
 			$cached_safe_cmpt -> reval('BEGIN{push @main::__eval__,__FILE__}; package main; ' .$string);
-			warn "preload Macros: errors in compiling $macro_file_name:<br> $@" if $@;
+			warn "preload Macros: errors in compiling $macro_file_name:<br/> $@" if $@;
 			$self->{envir}{__files__}{$cached_safe_cmpt->reval('pop @main::__eval__')} = $filePath;
 			if ($fileName =~ /^($unrestricted_files)$/) {
 	        	$cached_safe_cmpt ->mask($store_mask);
@@ -433,7 +434,7 @@ sub pre_load_macro_files {
 		}	   
 	}
 	
-	warn "Loading symbols into active safe compartment:<br> ", join(" ",sort @subroutine_names) if $debugON;
+	warn "Loading symbols into active safe compartment:<br/> ", join(" ",sort @subroutine_names) if $debugON;
 	$self->{safe} -> share_from($cached_safe_cmpt->root,[@subroutine_names]);
 	
 	# Also need to share the cached safe compartment symbol hash in the current safe compartment. 
@@ -546,7 +547,7 @@ sub unrestricted_load {
 
 	my $local_errors = "";
 	no strict;
-	#  warn "dangerousMacros main:: contains <br>\n  ".join("<br>\n ", %main::) if $debugON;
+
 	my $init_subroutine  = eval { \&{$init_subroutine_name} };
 	warn "No init routine for $init_subroutine_name: $@" if  $debugON and $@;
 	use strict;
@@ -999,29 +1000,28 @@ the errors.
 =cut
 
 
-
         ##########################################
-		###### PG error processing code ##########
-		##########################################
+	###### PG error processing code ##########
+	##########################################
         my (@input,$lineNumber,$line);
         if ($self -> {errors}) {
                 #($self -> {errors}) =~ s/</&lt/g;
                 #($self -> {errors}) =~ s/>/&gt/g;
-           #try to clean up errors so they will look ok
+	        #try to clean up errors so they will look ok
                 $self ->{errors} =~ s/\[[^\]]+?\] [^ ]+?\.pl://gm;   #erase [Fri Dec 31 12:58:30 1999] processProblem7.pl:
                 #$self -> {errors} =~ s/eval\s+'(.|[\n|r])*$//;
-            #end trying to clean up errors so they will look ok
+		#end trying to clean up errors so they will look ok
 
 
                 push(@PROBLEM_TEXT_OUTPUT   ,  qq!\n<A NAME="problem! .
                     $self->{envir} ->{'probNum'} .
-                    qq!"><PRE>        Problem!.
+                    qq!"><pre>        Problem!.
                     $self->{envir} ->{'probNum'}.
                     qq!\nERROR caught by Translator while processing problem file:! .
                 	$self->{envir}->{'probFileName'}.
                 	"\n****************\r\n" .
                 	$self -> {errors}."\r\n" .
-                	"****************<BR>\n");
+		        "****************<br/>\n");
 
                push(@PROBLEM_TEXT_OUTPUT   , "------Input Read\r\n");
                $self->{source} =~ s/</&lt;/g;
@@ -1032,7 +1032,7 @@ the errors.
                     push(@PROBLEM_TEXT_OUTPUT, "$lineNumber\t\t$line\r\n");
                     $lineNumber ++;
                 }
-                push(@PROBLEM_TEXT_OUTPUT  ,"\n-----<BR></PRE>\r\n");
+                push(@PROBLEM_TEXT_OUTPUT  ,"\n-----<br/></pre>\r\n");
 
 
 
@@ -1180,7 +1180,7 @@ sub process_answers{
 		# this chunk taken from dpvc's original handler
 		my $fullerror = PG_errorMessage('traceback', @_);
 		my ($error,$traceback) = split /\n/, $fullerror, 2;
-		$fullerror =~ s/\n	 /<BR>&nbsp;&nbsp;&nbsp;/g; $fullerror =~ s/\n/<BR>/g;
+		$fullerror =~ s/\n	 /<br\/>&nbsp;&nbsp;&nbsp;/g; $fullerror =~ s/\n/<br\/>/g;
 		$error .= "\n";
 		$errorTable{$error} = $fullerror;
 		# end of dpvc's original code
@@ -1218,18 +1218,18 @@ sub process_answers{
 			$rh_ans_evaluation_result = $self->{safe} ->reval('$rf_fun->evaluate($temp_ans, ans_label => \''.$ans_name.'\')');
 			$@ = $errorTable{$@} if $@ && defined($errorTable{$@});  #Are we redefining error messages here?
 			warn "Error in Translator.pm::process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
-			warn "Evaluation error: Answer $ans_name:<BR>\n", 
+			warn "Evaluation error: Answer $ans_name:<br/>\n",
 				$rh_ans_evaluation_result->error_flag(), " :: ",
-				$rh_ans_evaluation_result->error_message(),"<BR>\n" 
+				$rh_ans_evaluation_result->error_message(),"<br/>\n"
 					if defined($rh_ans_evaluation_result)  
 						and defined($rh_ans_evaluation_result->error_flag());
 		} else {
-			warn "Error in Translator.pm::process_answers: Answer $ans_name:<BR>\n Unrecognized evaluator type |", ref($rf_fun), "|";
+			warn "Error in Translator.pm::process_answers: Answer $ans_name:<br/>\n Unrecognized evaluator type |", ref($rf_fun), "|";
 		}	
   	    
 		use strict;
 		unless ( ( ref($rh_ans_evaluation_result) eq 'HASH') or ( ref($rh_ans_evaluation_result) eq 'AnswerHash') ) {
-			warn "Error in Translator.pm::process_answers: Answer $ans_name:<BR>\n
+			warn "Error in Translator.pm::process_answers: Answer $ans_name:<br/>\n
 				Answer evaluators must return a hash or an AnswerHash type, not type |", 
 				ref($rh_ans_evaluation_result), "|";
 		}
@@ -1378,10 +1378,12 @@ sub std_problem_grader{
 	$problem_state{num_of_incorrect_ans}++ if $allAnswersCorrectQ == 0;
 	(\%problem_result, \%problem_state);
 }
+
 sub rf_avg_problem_grader {
     my $self = shift;
 	return \&avg_problem_grader;
 }
+
 sub avg_problem_grader{
 	my $rh_evaluated_answers = shift;
 	my $rh_problem_state = shift;
@@ -1460,6 +1462,7 @@ sub filter_answer {
 	}
 	
 }
+
 sub rf_safety_filter {
 	my $self = shift;
 	my $rf_filter = shift;
@@ -1467,45 +1470,44 @@ sub rf_safety_filter {
 	warn "The safety_filter must be a reference to a subroutine" unless ref($rf_filter) eq 'CODE' ;
 	$self->{rf_safety_filter}
 }
+
 sub safetyFilter {
-	    my $answer = shift;  # accepts one answer and checks it
-	    my $submittedAnswer = $answer;
-		$answer = '' unless defined $answer;
-		my ($errorno);
-		$answer =~ tr/\000-\037/ /;
-   #### Return if answer field is empty ########
-		unless ($answer =~ /\S/) {
-#			$errorno = "<BR>No answer was submitted.";
-            $errorno = 0;  ## don't report blank answer as error
+        my $answer = shift;  # accepts one answer and checks it
+	my $submittedAnswer = $answer;
+	$answer = '' unless defined $answer;
+	my ($errorno);
+	$answer =~ tr/\000-\037/ /;
+	#### Return if answer field is empty ########
+	unless ($answer =~ /\S/) {
+	     # $errorno = "<br/>No answer was submitted.";
+   	     $errorno = 0;  ## don't report blank answer as error
+	     return ($answer,$errorno);
+	}
+	######### replace ^ with **    (for exponentiation)
+	# 	$answer =~ s/\^/**/g;
+	######### Return if  forbidden characters are found
+	unless ($answer =~ /^[a-zA-Z0-9_\-\+ \t\/@%\*\.\n^\(\)]+$/ )  {
+	      $answer =~ tr/a-zA-Z0-9_\-\+ \t\/@%\*\.\n^\(\)/#/c;
+	      $errorno = "<br/>There are forbidden characters in your answer: $submittedAnswer<br/>";
+	      return ($answer,$errorno);
+	}
 
-			return ($answer,$errorno);
-			}
-   ######### replace ^ with **    (for exponentiation)
-   # 	$answer =~ s/\^/**/g;
-   ######### Return if  forbidden characters are found
-		unless ($answer =~ /^[a-zA-Z0-9_\-\+ \t\/@%\*\.\n^\(\)]+$/ )  {
-			$answer =~ tr/a-zA-Z0-9_\-\+ \t\/@%\*\.\n^\(\)/#/c;
-			$errorno = "<BR>There are forbidden characters in your answer: $submittedAnswer<BR>";
-
-			return ($answer,$errorno);
-			}
-
-		$errorno = 0;
-		return($answer, $errorno);
+	$errorno = 0;
+	return($answer, $errorno);
 }
 
 ##   Check submittedAnswer for forbidden characters, etc.
 #     ($submittedAnswer,$errorno) = safetyFilter($submittedAnswer);
-#     	$errors .= "No answer was submitted.<BR>" if $errorno == 1;
-#     	$errors .= "There are forbidden characters in your answer: $submittedAnswer<BR>" if $errorno ==2;
+#     	$errors .= "No answer was submitted.<br/>" if $errorno == 1;
+#     	$errors .= "There are forbidden characters in your answer: $submittedAnswer<br/>" if $errorno ==2;
 #
 ##   Check correctAnswer for forbidden characters, etc.
 #     unless (ref($correctAnswer) ) {  #skip check if $correctAnswer is a function
 #     	($correctAnswer,$errorno) = safetyFilter($correctAnswer);
 #     	$errors .= "No correct answer is given in the statement of the problem.
-#     	            Please report this to your instructor.<BR>" if $errorno == 1;
+#     	            Please report this to your instructor.<br/>" if $errorno == 1;
 #     	$errors .= "There are forbidden characters in the problems answer.
-#     	            Please report this to your instructor.<BR>" if $errorno == 2;
+#     	            Please report this to your instructor.<br/>" if $errorno == 2;
 #     }
 
 
@@ -1532,8 +1534,7 @@ evaluated before the problem template is read.  In PGbasicmacros.pl, the two sub
 
 =cut
 
-# This sort can cause troubles because of its special use of $a and $b
-# Putting it in dangerousMacros.pl worked frequently, but not always.
+# This sort can cause troubles because of its special use of $a and $b.
 # In particular ANS( ans_eva1 ans_eval2) caused trouble.
 # One answer at a time did not --- very strange.
 # This was replaced by a quick sort routine because the original subroutine
@@ -1545,7 +1546,7 @@ evaluated before the problem template is read.  In PGbasicmacros.pl, the two sub
 #	sort {&$sort_order($a,$b)} @_;
 #}
 
-      # quicksort
+# quicksort
 sub PGsort {
          my $cmp = shift;
 	 die "Must supply an ordering function with PGsort: PGsort  sub {\$_[0]  < \$_[1] }, \@list\n" unless ref($cmp) eq 'CODE';
@@ -1562,31 +1563,8 @@ sub PGsort {
        }
 
 
-=head2 includePGtext
 
-	includePGtext($string_ref, $envir_ref)
-
-Calls C<createPGtext> recursively with the $safeCompartment variable set to 0
-so that the rendering continues in the current safe compartment.  The output
-is the same as the output from createPGtext. This is used in processing
-some of the sample CAPA files.
-
-=cut
-
-#this is a method for importing additional PG files from within one PG file.
-# sub includePGtext {
-#     my $self = shift;
-#     my $string_ref =shift;
-#     my $envir_ref = shift;
-#     $self->environment($envir_ref);
-# 	$self->createPGtext($string_ref);
-# }
-# evaluation macros
-
-
-
-no strict;   # this is important -- I guess because eval operates on code which is not written with strict in mind.
-
+# no strict;   # this is important -- I guess because eval operates on code which is not written with strict in mind.
 
 
 =head2 PG_restricted_eval
@@ -1655,7 +1633,7 @@ since at some point one might like to make the answer evaluations more stringent
 
 
 sub PG_answer_eval {
-   local($string) = shift;   # I made this local just in case -- see PG_restricted_eval
+   my($string) = shift;   # I made this local just in case -- see PG_restricted_eval
    my $errors = '';
    my $full_error_report = '';
    my ($pck,$file,$line) = caller; 
@@ -1669,7 +1647,7 @@ sub PG_answer_eval {
     # We seem to need PG_priv instead of main when PG_answer_eval is called within a completion
     # 'package PG_priv; '
     
-        local $SIG{__WARN__} = sub {die(@_)};  # make warn die, so all errors are reported.
+    local $SIG{__WARN__} = sub {die(@_)};  # make warn die, so all errors are reported.
 	local $SIG{__DIE__} = "DEFAULT";
 	
     no strict;
@@ -1723,6 +1701,7 @@ sub default_postprocess_code {
 	$evalString_ref;
 }
 
+no strict;   
 sub dumpvar {
     my ($packageName) = @_;
 
@@ -1735,7 +1714,7 @@ sub dumpvar {
     *stash = *{"${packageName}::"};
     $, = "  ";
     
-    emit "Content-type: text/html\n\n<PRE>\n";
+    emit "Content-type: text/html\n\n<pre>\n";
     
     
     while ( ($varName, $globValue) = each %stash) {
@@ -1757,12 +1736,9 @@ sub dumpvar {
 	    foreach $key (keys %alias) {
 	        emit "    $key => $alias{$key}\n";
 	    }
-
-
-
 	}
     }
-    emit "</PRE></PRE>";
+    emit "</pre></pre>";
 
 
 }
