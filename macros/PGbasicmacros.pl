@@ -29,7 +29,7 @@
 
 =cut
 
-#sub _PGbasicmacros_init {use HTML::Entities::encode_entities;}
+sub _PGbasicmacros_init { }
 
 # this is equivalent to use strict, but can be used within the Safe compartmen
 
