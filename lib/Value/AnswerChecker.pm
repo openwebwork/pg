@@ -1719,7 +1719,7 @@ sub cmp_equal {
   #  Get the problem's seed
   #
   $self->{context}->flags->set(
-    random_seed => $self->getPG('$PG_original_problemSeed')
+    random_seed => $self->getPG('$problemSeed')
   );
 
   #
