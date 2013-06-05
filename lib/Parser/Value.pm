@@ -33,6 +33,7 @@ sub new {
   $type = $context->Package($type), $value = $type->new($context,@{$value}) unless $type eq 'value';
   $type = $value->typeRef;
 
+  $value->inContext($context);  # force context to be the equation's context
   my $c = bless {
     value => $value, type => $type, isConstant => 1,
     ref => $ref, equation => $equation,
