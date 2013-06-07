@@ -178,7 +178,7 @@ package WWPlot;
 #use DynaLoader;
 #use GD;
 
-@WWPlot::ISA=undef;
+#@WWPlot::ISA=undef;
 $WWPlot::AUTOLOAD = undef;
 @WWPlot::ISA = qw(GD PGcore);
 
@@ -616,19 +616,6 @@ sub draw {
 ##########################
 # Access methods
 ##########################
-sub ymin {
-	my $self = shift;
-	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{ymin} ) {
-		die "Can't find ymin field in object of class $type";
-	}
-	
-	if (@_) {
-		return $self->{ymin} = shift;
-	} else {
-		return $self->{ymin}
-	}
-}
 
 sub xmin {
 	my $self = shift;
