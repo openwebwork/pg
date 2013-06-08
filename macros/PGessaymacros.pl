@@ -65,7 +65,7 @@ sub essay_cmp {
 	    );
 	
 	$student->{original_student_ans} = $scrubber->scrub(
-		(defined $student->{original_student_ans})? $student->{original_student_ans} :'';
+		(defined $student->{original_student_ans})? $student->{original_student_ans} :''
 	);
 
 	# always returns false but stuff should check for the essay flag and avoid the red highlighting
