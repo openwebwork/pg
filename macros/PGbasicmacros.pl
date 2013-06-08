@@ -29,7 +29,9 @@
 
 =cut
 
-sub _PGbasicmacros_init { }
+#####sub _PGbasicmacros_init { }
+### In this file the _init subroutine is defined further down
+### It actually initializes something!
 
 # this is equivalent to use strict, but can be used within the Safe compartmen
 
