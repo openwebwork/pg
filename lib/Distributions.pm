@@ -17,7 +17,7 @@ require Exporter;
 # Items to export into callers namespace by default. Note: do not export
 # names by default without a very good reason. Use EXPORT_OK instead.
 # Do not simply export all your public functions/methods/constants.
-@EXPORT_OK = qw(chisqrdistr tdistr fdistr udistr uprob chisqrprob tprob fprob urand);
+@EXPORT_OK = qw(chisqrdistr tdistr fdistr udistr uprob chisqrprob tprob fprob urand expdistr expprob exprand);
 $VERSION = '0.07';
 
 # Preloaded methods go here.
@@ -86,6 +86,23 @@ sub fdistr { # Percentage points  F(x,n1,n2)
 	return precision_string(_subf($n, $m, $p));
 }
 
+sub expdistr { # Percentage points  Exp(x,lambda)
+# expdistr(p,lambda)
+# Returns the right sided quantile associated with the exponential distribution
+# with parameter lambda. That is, it returns the value of X so
+# that the area to the RIGHT of X with parameter lambda is equal
+# to p.
+	my ($p, $lambda) = @_;
+	if ($lambda<=0) {
+		die "Invalid parameter lambda: $lambda\n"; # must be a positive number
+	}
+	if (($p<=0) || ($p>1)) {
+		die "Invalid p: $p\n";
+	}
+	return precision_string(-log($p)/$lambda);
+}
+
+
 sub uprob { # Upper probability   N(0,1^2)
 # uprob(z)
 # This is the probability that a standard normal is greater than z. 
@@ -133,6 +150,23 @@ sub fprob { # Upper probability   F(x,n1,n2)
 	return precision_string(_subfprob($n, $m, $x));
 }
 
+sub expprob { # Upper probability  Exp(x,lambda)
+# expprob(x,lambda)
+# This is the probability that an exponential distribution with 
+# parameter lambda is bigger than x. It is one minus the 
+# cumulative distribution of the exponential distribution with
+# parameter lambda
+	my ($x, $lambda) = @_;
+	if ($lambda<=0) {
+		die "Invalid parameter lambda: $lambda\n"; # must be a positive number
+	}
+	if ($x<=0){
+		die "Invalid x: $x\n";
+	}
+	return precision_string(exp(-$x*$lambda));
+}
+
+
 sub urand { # generate normally dist. random numbers 
 # urand(mean,sd,N,digits)
 # Generates N random numbers. The distribution is set by 
@@ -168,6 +202,32 @@ sub urand { # generate normally dist. random numbers
 	}
 	
 	return @numbers;
+}
+
+
+sub exprand { # generate exponentially dist. numbers  Exp(x,lambda)
+# exprand(lambda,N,digits)
+# Generates N random numbers. The distribution is exponetially
+# distributed with parameter lambda.  The value of 'digits' gives the
+# number of decimal places to return.
+	my ($lambda,$N,$digits) = @_;
+	if ($lambda<=0) {
+		die "Invalid parameter lambda: $lambda\n"; # must be a positive number
+	}
+	if ($N<=0) {
+		die "Invalid N: $N\n"; # Cannot generate negative or zero numbers.
+	}
+
+	my @numbers = ();
+	while($N > 0)
+	{
+			# Generate an exponentially dist. random number.
+			$N -= 1;
+			push(@numbers,significant_decimals(-log(rand(1.0))/$lambda,$digits));
+	}
+	
+	return @numbers;
+
 }
 
 
