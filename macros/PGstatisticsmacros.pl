@@ -164,20 +164,23 @@ sub stats_sd {
 =pod
 
 	Usage: five_point_summary(@data);
+  or:    five_point_summary(@data,{method=>'proper'});
 
 Computes the five point summary of a list of numbers, data. You may also pass the numbers individually.
+The optional parameter can be used to specify that the proper proportions be used to calculate the 
+quartiles.
 
 =cut
 
 sub five_point_summary {
-	# Get the data that is passed to me.
+	# Get the data that is passed to me and put it all in one array.
 	my (@data_list) = @_;
 
-  # Need to check to see if a hash of options was passed in the last number.
+  # Need to check to see if an hash of options was passed in the last argument.
 	my $args = $data_list[$#data_list];
 	if(ref($args) eq HASH)
 	{
-			# An hash was passed that presumably has some options.
+			# An hash was passed that presumably has some options. Remove it from the array.
 			pop(@data_list);
 	}
 	else
@@ -190,12 +193,12 @@ sub five_point_summary {
 	# Sort the data and get the number of data points.
 	@data_list = sort{$a <=> $b}(@data_list);
 	my $number = 1+$#data_list;
-	print($number,"\n",@data_list,"\n");
 	if($number == 0)
 	{
 			die "Cannot find five point summary of empty data set.";
 	}
-	# First allocate the variables and set the min and the max values
+
+	# Allocate the variables and set the min and the max values
 	my $min = $data_list[0];
 	my $q1;
 	my $med;
@@ -209,7 +212,7 @@ sub five_point_summary {
 			if($number%2 == 0)
 			{
 					# There is an even number of points. Take the sample mean of the
-					#two central points for the median.
+					# two central points for the median.
 					$med = 0.5*($data_list[$number/2-1]+$data_list[$number/2]);
 					if($number%4 == 0)
 					{
@@ -226,25 +229,31 @@ sub five_point_summary {
 			}
 			else
 			{
-					#There is an odd number of points. Just use the middle number
-					#for the median.
+					# There is an odd number of points. Just use the middle number
+					# for the median.
 					$med = $data_list[$number/2];
 					if(($number-1)%4 == 0)
 					{
+							# The lower and upper halves have an even number of points in them.
 							$q1 = $data_list[($number-1)/4];
 							$q3 = $data_list[3*($number-1)/4];
 					}
 					else
 					{
+              # The lower and upper halves have an off number of points in them.
 							$q1 = 0.5*$data_list[($number-1)/4]  +0.5*$data_list[($number-1)/4+1];
 							$q3 = 0.5*$data_list[3*($number-1)/4]+0.5*$data_list[3*($number-1)/4+1];
 					}
 
 			}
-	}
+	} # if($args->{method} eq 'proper')
+
+
 	else 
 	{
-			# Find the five point summary using the simplest  rules.
+			# Find the five point summary using the simplest rules. Here we
+			# do not use the median when calculating the quartiles.
+
 			# The calculation for the quartiles depends on the number of items in the list.
 			if($number%2 == 0)
 			{
@@ -271,15 +280,17 @@ sub five_point_summary {
 					$med = $data_list[$number/2];
 					if(($number-1)%4 == 0)
 					{
+              # The lower and upper halves have an even number of points in them.
 							$q1 = 0.5*$data_list[($number-1)/4-1]  +0.5*$data_list[($number-1)/4];
 							$q3 = 0.5*$data_list[3*($number-1)/4]+0.5*$data_list[3*($number-1)/4+1];
 					}
 					else
 					{
+							# The lower and upper halves have an off number of points in them.
 							$q1 = $data_list[($number-1)/4];
 							$q3 = $data_list[3*($number-1)/4+1];
 					}
-			} # else
+			}
 
 	} # else
 
