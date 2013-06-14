@@ -1113,6 +1113,8 @@ sub hint {
 	PG_restricted_eval(q!$main::hintExists =1!);
     PG_restricted_eval(q!$main::numOfAttempts = 0 unless defined($main::numOfAttempts);!);
     my $attempts = PG_restricted_eval(q!$main::numOfAttempts!);
+    $attempts++ if PG_restricted_eval(q!$main::inputs_ref->{submitAnswers}!); # numbOfAttempts is off by one when resubmitting
+    #FIXME -- in the current version where PGbasicmacros is reloaded do all of these values need to be recomputed?
 
 	if ($displayMode eq 'TeX')   {
 	    if ($printHintForInstructor) {
