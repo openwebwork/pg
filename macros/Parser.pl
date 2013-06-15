@@ -91,15 +91,21 @@ sub Compute {
   my $string = shift;
   my $formula = Formula($string);
   $formula = $formula->{tree}->Compute if $formula->{tree}{canCompute};
-  if (scalar(@_) || $formula->isConstant) {
-    my $f = $formula; my $context = $formula->context;
-    $formula = $formula->eval(@_);
-    my $flags = Value::contextSet($context,reduceConstants => 0, reduceConstantFunctions => 0);
-    $formula->{original_formula} = $f->substitute(@_);
-    $string = $formula->{original_formula}->string;
-    Value::contextSet($context,$flags);
+  my $context = $formula->context;
+  my $flags = Value::contextSet($context,reduceConstants=>0,reduceConstantFunctions=>0);
+  if (scalar(@_)) {
+    $formula = $formula->substitute(@_)->with(original_formula => $formula);
+    $string = $formula->string;
+  }
+  if ($formula->isConstant) {
+    $formula = $formula->eval()->with
+      (original_formula => $formula->{original_formula} || $formula);
   }
   $formula->{correct_ans} = $string;
+  $formula->{correct_ans_latex_string} =
+    (($formula->{original_formula} || $flags{reduceConstants} ||
+      $flags{reduceConstantFunctions}) ?  Formula($string) : $formula)->TeX;
+  Value::contextSet($context,$flags);
   return $formula;
 }
 
