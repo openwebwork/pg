@@ -81,10 +81,13 @@ sub cmp {
   my $ans = new AnswerEvaluator;
   my $correct = preformat($self->{correct_ans});
   $correct = $self->correct_ans unless defined($correct);
+  my $correct_latex = $self->{correct_ans_latex_string};
+  $correct_latex = $self->correct_ans_latex unless defined($correct_latex);
   $self->{context} = Value->context unless defined($self->{context});
   $ans->ans_hash(
     type => "Value (".$self->class.")",
     correct_ans => $correct,
+    correct_ans_latex_string => $correct_latex,
     correct_value => $self,
     $self->cmp_defaults(@_),
     %{$self->{context}{cmpDefaults}{$self->class} || {}},  # context-specified defaults
@@ -102,6 +105,7 @@ sub cmp {
 }
 
 sub correct_ans {preformat(shift->string)}
+sub correct_ans_latex {shift->TeX}
 sub cmp_diagnostics {}
 
 #
@@ -144,31 +148,6 @@ sub cmp_parse {
     $ans->{student_value}{isStudent} = 1;
     $ans->{preview_latex_string} = $ans->{student_formula}->TeX;
     $ans->{preview_text_string}  = preformat($ans->{student_formula}->string);
-    #FIXME
-    # Kludge to calculate a latex representation of the correct answer string
-    # It would be better to calculate this when the MathObject is created.
-    # the attempt to calculate the latex version may fail because the 
-    # context has changed since the creation of the original MathObject.
-    # In that case the {correct_ans_latex_string} will be blank.
-    # We could try to reset that context temporarily, but a better fix would
-    # be to consistently create latex_string versions of the correct answer
-    # when the math object is created.
-#     if ($ans->{correct_value} ) {
-#     	$ans->{correct_ans_latex_string} = $ans->{correct_value}->TeX; # answer is a MathObject
-#     } else {  # case where there is no math object
-#     	my $mathobject = Parser::Formula($ans->{correct_ans});
-#     	$ans->{correct_ans_latex_string} = ($mathobject)? $mathobject->TeX : '';
-#     }
-	unless (PGcore::not_null($ans->{correct_ans_latex_string}) ) { # don't alter the latex string if it's defined
-		my $mathobject = Parser::Formula($ans->{correct_ans});
-		if ($mathobject) {
-			$ans->{correct_ans_latex_string} = $mathobject->TeX;
-		} elsif( $ans->{correct_value} ) {
-			$ans->{correct_ans_latex_string} = $ans->{correct_value}->TeX; # answer is a MathObject
-		} else {
-			$ans->{correct_ans_latex_string}=''; 
-		}
-	}
     #
     #  Get the string for the student answer
     #
@@ -213,7 +192,10 @@ sub cmp_collect {
   if ($self->{ColumnVector}) {
     my @V = (); foreach my $x (@{$array}) {push(@V,$x->[0])}
     $array = [@V];
-  } elsif (scalar(@{$array}) == 1) {$array = $array->[0]}
+  } elsif (scalar(@{$array}) == 1) {
+    my @d = ($self->classMatch("Matrix") ? $self->dimensions : (1));
+    $array = $array->[0] if scalar(@d) == 1;
+  }
   my $type = $self;
   $type = $self->Package($self->{tree}->type) if $self->isFormula;
   $ans->{student_formula} = eval {$type->new($array)->with(ColumnVector=>$self->{ColumnVector})};
@@ -1700,7 +1682,7 @@ sub cmp_postfilter {
   $ans->{prev_formula} = Parser::Formula($context,$ans->{prev_ans});
   if (defined($ans->{prev_formula}) && defined($ans->{student_formula})) {
     my $prev = eval {$self->promote($ans->{prev_formula})->inherit($self)}; # inherit limits, etc.
-    break unless defined($prev);
+    next unless defined($prev);
     $context->{answerHash} = $ans; # values here can override context flags
     $ans->{prev_equals_current} = Value::cmp_compare($prev,$ans->{student_formula},$ans);
     $context->{answerHash} = undef;
@@ -1719,7 +1701,7 @@ sub cmp_equal {
   #  Get the problem's seed
   #
   $self->{context}->flags->set(
-    random_seed => $self->getPG('$PG_original_problemSeed')
+    random_seed => $self->getPG('$problemSeed')
   );
 
   #
@@ -1805,12 +1787,12 @@ sub cmp_diagnostics {
       }
       my $cutoff = $self->Package("Formula")->new($self->getFlag('tolerance'));
       if ($formulas->{graphAbsoluteErrors}) {
-	push(@G,$self->cmp_graph($diagnostics,[abs($self-$student),$cutoff],
+	push(@G,$self->cmp_graph($diagnostics,[CORE::abs($self-$student),$cutoff],
 				 clip=>$formulas->{clipAbsoluteError},
 				 title=>'Absolute Error',points=>$points));
       }
       if ($formulas->{graphRelativeErrors}) {
-	push(@G,$self->cmp_graph($diagnostics,[abs(($self-$student)/$self),$cutoff],
+	push(@G,$self->cmp_graph($diagnostics,[CORE::abs(($self-$student)/$self),$cutoff],
 				 clip=>$formulas->{clipRelativeError},
 				 title=>'Relative Error',points=>$points));
       }
@@ -1866,7 +1848,7 @@ sub cmp_diagnostics {
       my $tolType = $self->getFlag('tolType'); my $error;
       foreach my $j (0..$#P) {
 	if (Value::isNumber($sv->[$i[$j]])) {
-	  $error = abs($av->[$i[$j]] - $sv->[$i[$j]]);
+	  $error = CORE::abs($av->[$i[$j]] - $sv->[$i[$j]]);
 	  $error = '<SPAN STYLE="color:#'.($error->value<$tolerance ? '00AA00': 'AA0000').'">'.$error.'</SPAN>'
 	    if $tolType eq 'absolute';
 	} else {$error = "---"}
@@ -1885,9 +1867,9 @@ sub cmp_diagnostics {
       foreach my $j (0..$#P) {
 	if (Value::isNumber($sv->[$i[$j]])) {
 	  my $c = $av->[$i[$j]]; my $s = $sv->[$i[$j]];
-	  if (abs($cv->[$i[$j]]->value) < $zeroLevel || abs($s->value) < $zeroLevel)
-            {$error = abs($c-$s); $tol = $zeroLevelTol} else
-            {$error = abs(($c-$s)/($c||1E-10)); $tol = $tolerance}
+	  if (CORE::abs($cv->[$i[$j]]->value) < $zeroLevel || CORE::abs($s->value) < $zeroLevel)
+            {$error = CORE::abs($c-$s); $tol = $zeroLevelTol} else
+            {$error = CORE::abs(($c-$s)/($c||1E-10)); $tol = $tolerance}
 	  $error = '<SPAN STYLE="color:#'.($error < $tol ? '00AA00': 'AA0000').'">'.$error.'</SPAN>'
 	    if $tolType eq 'relative';
 	} else {$error = "---"}
@@ -1976,7 +1958,7 @@ sub cmp_graph {
       }
     }
   }
-  $My = 1 if abs($My - $my) < 1E-5;
+  $My = 1 if CORE::abs($My - $my) < 1E-5;
   $my *= 1.1; $My *= 1.1;
   if ($clip) {
     $my = -$clip if $my < -$clip;

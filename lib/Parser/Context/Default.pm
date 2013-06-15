@@ -133,10 +133,11 @@ $lists = {
 
 $constants = {
    'e'  => exp(1),
-   'pi' => 4*atan2(1,1),
-   'i'  => Value::Complex->new(0,1),
-   'j'  => Value::Vector->new(0,1,0)->with(ijk=>1),
-   'k'  => Value::Vector->new(0,0,1)->with(ijk=>1),
+   'pi' => {value => 4*atan2(1,1), TeX => '\pi ', perl => "pi"},
+   'i'  => {value => Value::Complex->new(0,1), isConstant => 1,                        string => "i", perl => "i"},
+   'j'  => {value => Value::Vector->new(0,1,0)->with(ijk=>1), TeX => '\boldsymbol{j}', string => "j", perl => "j"},
+   'k'  => {value => Value::Vector->new(0,0,1)->with(ijk=>1), TeX => '\boldsymbol{k}', string => "k", perl => "k"},
+   '_0' => {value => Value::Vector->new(0,0,0), hidden => 1,  TeX => '\boldsymbol{0}', string => "0"},
    '_blank_' => {value => 0, hidden => 1, string => "", TeX => ""},
 };
 
@@ -264,13 +265,6 @@ $context = $context{Full} = new Parser::Context(
   reduction => $Parser::reduce,
 );
 
-$context->constants->set(
-  pi => {TeX => '\pi ', perl => 'pi'},
-  i => {isConstant => 1, perl => 'i'},
-  j => {TeX => '\boldsymbol{j}', perl => 'j'},
-  k => {TeX => '\boldsymbol{k}', perl => 'k'},
-);
-
 $context->usePrecedence('Standard');
 $context->{name} = "Full";
 
@@ -296,18 +290,16 @@ $context->{name} = "Numeric";
 $context = $context{Vector} = $context{Full}->copy;
 $context->variables->are(x=>'Real',y=>'Real',z=>'Real');
 $context->functions->undefine('arg','mod','Re','Im','conj');
-$context->constants->replace(i=>Value::Vector->new(1,0,0)->with(ijk=>1));
-$context->constants->set(i=>{TeX=>'\boldsymbol{i}', perl=>'i'});
+$context->constants->set(
+  i => {value => Value::Vector->new(1,0,0)->with(ijk=>1), TeX => '\boldsymbol{i}'},
+);
 $context->parens->set('(' => {formMatrix => 0});
 
 $context = $context{Vector2D} = $context{Vector}->copy;
-$context->constants->replace(
-  i => Value::Vector->new(1,0)->with(ijk=>1),
-  j => Value::Vector->new(0,1)->with(ijk=>1),
-);
 $context->constants->set(
-  i => {TeX=>'\boldsymbol{i}', perl=>'i'},
-  j => {TeX=>'\boldsymbol{j}', perl=>'j'}
+  i => {value => Value::Vector->new(1,0)->with(ijk=>1)},
+  j => {value => Value::Vector->new(0,1)->with(ijk=>1)},
+  '_0' => {value => Value::Vector->new(0,0)},
 );
 $context->constants->remove("k");
 $context->{name} = "Vector2D";
@@ -318,7 +310,7 @@ $context->{name} = "Vector2D";
 $context = $context{Point} = $context{Vector}->copy;
 $context->operators->undefine("><",".");
 $context->functions->undefine('norm','unit');
-$context->constants->remove('i','j','k');
+$context->constants->remove('i','j','k','_0');
 $context->parens->remove("<");
 $context->{name} = "Point";
 
@@ -376,7 +368,7 @@ $context->{name} = "Complex";
 #  Complex-Vector context
 #
 $context = $context{"Complex-Vector"} = $context{Complex}->copy;
-$context->operators->redefine('><','.');
+$context->operators->redefine(['><','.'],from=>'Vector');
 $context->parens->add('<' => {close => '>', type => 'Vector'});
 $context->parens->set(
   '(' => {type => "Point", formMatrix => 0},

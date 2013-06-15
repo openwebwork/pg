@@ -104,7 +104,7 @@ sub new {
 sub initialize {
 	my $self = shift;
 	my $templateDirectory = $self->{envir}->{templateDirectory};
-	my $pwd = $self->{envir}->{fileName};
+	my $pwd = $self->{envir}->{probFileName};
 	$pwd =~ s!/[^/]*$!!;
     $pwd = $templateDirectory.$pwd unless substr($pwd,0,1) eq '/';
     $pwd =~ s!/tmpEdit/!/!;
@@ -161,12 +161,13 @@ sub loadMacros {
 	    warn "loadMacros: loading macro file $fileName" if $debugON;
 	    my $filePath = $self->findMacroFile($fileName);
 	    #### (check for renamed files here?) ####
+	    warn "loadMacros:  look for $fileName at |$filePath|" if $debugON;
 	    if ($filePath) {
 	        $self->compile_file($filePath); 
-		warn "loadMacros is compiling $filePath" if $debugON;
+			warn "loadMacros is compiling $filePath" if $debugON;
 	    }
 	    else {
-	        die "Can't locate macro file |$fileName| via path: |".join("|, |",@{$macrosPath})."|";
+	        warn "Can't locate macro file |$fileName| via path: |".join("|, |",@{$macrosPath})."|";
 	    }
 	}
            
@@ -196,7 +197,12 @@ sub findMacroFile {
   my $macroFileName = shift;
   my $macroFilePath;
   my $pwd = $self->{pwd};
-  foreach my $dir (@{$self->{macrosPath} } ) {
+ my @macrosPath = @{$self->{envir}->{macrosPath}};
+  warn "in findMacroFile" if $debugON;
+
+#  foreach my $dir (@{$self->{macrosPath} } ) {   # why did this ever work?
+  foreach my $dir (@macrosPath ) {
+
       $macroFilePath = "$dir/$macroFileName";
       $macroFilePath =~ s!^\.\.?/!$pwd/!;
       return $macroFilePath if (-r $macroFilePath);

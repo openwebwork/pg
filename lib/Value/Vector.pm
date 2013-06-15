@@ -236,21 +236,18 @@ sub areParallel {(shift)->isParallel(@_)}
 #  Generate the various output formats
 #
 
-my $ijk_string = ['i','j','k','0'];
-my $ijk_TeX = ['\boldsymbol{i}','\boldsymbol{j}','\boldsymbol{k}','\boldsymbol{0}'];
-
-sub string {
-  my $self = shift; my $equation = shift;
-  return $self->ijk($ijk_string) if $self->getFlag("ijk") && !$self->{ColumnVector};
-  return $self->SUPER::string($equation,@_);
-}
-
 sub pdot {
   my $self = shift;
   my $string = $self->string;
   $string = '('.$string.')'
     if $string =~ m/[-+]/ && $self->getFlag("ijk") && !$self->{ColumnVector};
   return $string;
+}
+
+sub string {
+  my $self = shift; my $equation = shift;
+  return $self->ijk("string") if $self->getFlag("ijk") && !$self->{ColumnVector};
+  return $self->SUPER::string($equation,@_);
 }
 
 sub TeX {
@@ -270,21 +267,20 @@ sub TeX {
     }
     return $open.'\begin{array}{c}'.join('\\\\',@coords).'\\\\\end{array}'.$close;
   }
-  return $self->ijk if $self->getFlag("ijk");
+  return $self->ijk("TeX") if $self->getFlag("ijk");
   return $self->SUPER::TeX($equation,@_);
 }
 
 sub ijk {
-  my $self = shift; my $ijk = shift;
-  if (!$ijk) {
-    my $context = $self->context;
-    $ijk = []; $ijk->[3] = $ijk_TeX->[3];
-    foreach my $i (0,1,2)
-      {$ijk->[$i] = $context->{constants}{$ijk_string->[$i]}{TeX} || $ijk_TeX->[$i]}
-  }
+  my $self = shift; my $type = shift || "string";
   my @coords = @{$self->data};
   Value::Error("Method 'ijk' can only be used on Vectors in 3-space")
     unless (scalar(@coords) <= 3);
+  my @ijk = (); my $constants = $self->context->{constants};
+  foreach my $x ('i','j','k','_0') {
+    my $v = (split(//,$x))[-1];
+    push(@ijk,($constants->{$x}||{string=>$v,TeX=>"\\boldsymbol{$v}"})->{$type});
+  }
   my $string = ''; my $n; my $term;
   foreach $n (0..scalar(@coords)-1) {
     $term = $coords[$n]; $term = (Value::isValue($term))? $term->string : "$term";
@@ -292,10 +288,10 @@ sub ijk {
       $term = '' if $term eq '1'; $term = '-' if $term eq '-1';
       $term = '('.$term.')' if $term =~ m/e/i;
       $term = '+' . $term unless $string eq '' or $term =~ m/^-/;
-      $string .= $term . $ijk->[$n];
+      $string .= $term . $ijk[$n];
     }
   }
-  $string = $ijk->[3] if $string eq '';
+  $string = $ijk[3] if $string eq '';
   return $string;
 }
 
