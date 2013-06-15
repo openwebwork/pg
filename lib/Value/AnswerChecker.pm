@@ -192,7 +192,10 @@ sub cmp_collect {
   if ($self->{ColumnVector}) {
     my @V = (); foreach my $x (@{$array}) {push(@V,$x->[0])}
     $array = [@V];
-  } elsif (scalar(@{$array}) == 1) {$array = $array->[0]}
+  } elsif (scalar(@{$array}) == 1) {
+    my @d = ($self->classMatch("Matrix") ? $self->dimensions : (1));
+    $array = $array->[0] if scalar(@d) == 1;
+  }
   my $type = $self;
   $type = $self->Package($self->{tree}->type) if $self->isFormula;
   $ans->{student_formula} = eval {$type->new($array)->with(ColumnVector=>$self->{ColumnVector})};
