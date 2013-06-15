@@ -1563,8 +1563,28 @@ sub PGsort {
        }
 
 
+=head2 includePGtext
 
-# no strict;   # this is important -- I guess because eval operates on code which is not written with strict in mind.
+	includePGtext($string_ref, $envir_ref)
+
+Calls C<createPGtext> recursively with the $safeCompartment variable set to 0
+so that the rendering continues in the current safe compartment.  The output
+is the same as the output from createPGtext. This is used in processing
+some of the sample CAPA files.
+
+=cut
+
+#this is a method for importing additional PG files from within one PG file.
+# sub includePGtext {
+#     my $self = shift;
+#     my $string_ref =shift;
+#     my $envir_ref = shift;
+#     $self->environment($envir_ref);
+# 	$self->createPGtext($string_ref);
+# }
+# evaluation macros
+
+no strict;   # this is important -- I guess because eval operates on code which is not written with strict in mind.
 
 
 =head2 PG_restricted_eval
