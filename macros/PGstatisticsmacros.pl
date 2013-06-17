@@ -164,11 +164,14 @@ sub stats_sd {
 =pod
 
 	Usage: five_point_summary(@data);
+  or:    five_point_summary(@data,{method=>'includeMedian'});
   or:    five_point_summary(@data,{method=>'proper'});
 
-Computes the five point summary of a list of numbers, data. You may also pass the numbers individually.
-The optional parameter can be used to specify that the proper proportions be used to calculate the 
-quartiles.
+Computes the five point summary of a list of numbers, data. You may
+also pass the numbers individually.  The optional parameter can be
+used to specify that the median be included in the calculation of the
+quartiles if it is in the data set or whether proper proportions
+should be used to calculate the quartiles.
 
 =cut
 
@@ -247,6 +250,52 @@ sub five_point_summary {
 
 			}
 	} # if($args->{method} eq 'proper')
+
+
+	elsif ($args->{method} eq 'includeMedian') 
+	{
+			# Find the five point summary using the simplest rules. Here we
+			# do use the median when calculating the quartiles.
+
+			# The calculation for the quartiles depends on the number of items in the list.
+			if($number%2 == 0)
+			{
+					# There is an even number of points. Take the sample mean of the
+					#two central points for the median.
+					$med = 0.5*($data_list[$number/2-1]+$data_list[$number/2]);
+					if($number%4 == 0)
+					{
+							# The lower and upper halves have an even number of points in them.
+							$q1 = 0.5*$data_list[$number/4-1]   + 0.5*$data_list[$number/4];
+							$q3 = 0.5*$data_list[3*$number/4-1] + 0.5*$data_list[3*$number/4];
+					}
+					else
+					{
+							# The lower and upper halves have an off number of points in them.
+							$q1 = $data_list[$number/4];
+							$q3 = $data_list[3*$number/4];
+					}
+			}
+			else
+			{
+					#There is an odd number of points. Just use the middle number
+					#for the median.
+					$med = $data_list[$number/2];
+					if(($number-1)%4 == 0)
+					{
+              # The lower and upper halves have an even number of points in them.
+							$q1 = $data_list[($number-1)/4];
+							$q3 = $data_list[3*($number-1)/4];
+					}
+					else
+					{
+							# The lower and upper halves have an off number of points in them.
+							$q1 = 0.5*$data_list[($number-1)/4]  +0.5*$data_list[($number-1)/4+1];
+							$q3 = 0.5*$data_list[3*($number-1)/4]+0.5*$data_list[3*($number-1)/4+1];
+					}
+			}
+
+	} # 
 
 
 	else 
