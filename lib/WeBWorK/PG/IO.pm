@@ -6,6 +6,7 @@
 package WeBWorK::PG::IO;
 use base qw(Exporter);
 use WeBWorK::PG::Translator;
+use JSON qw(decode_json);
 
 =head1 NAME
 
@@ -27,6 +28,7 @@ BEGIN {
 		directoryFromPath
 		createFile
 		createDirectory
+		AskSage
 	);
 
 	our %SHARE = map { $_ => __PACKAGE__ } @EXPORT;
@@ -215,6 +217,14 @@ sub createDirectory {
 	} else {
 		return 1;
 	}
+}
+
+sub AskSage {
+  my ($python,$url) = @_;
+  $url = $url || 'https://sagecell.sagemath.org/service';
+  my $output = `curl -k -f -sS -L --data-urlencode "code=print $python" $url`;
+  my $decoded = decode_json($output);
+  return $decoded->{stdout};
 }
 
 =back
