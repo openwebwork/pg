@@ -220,11 +220,15 @@ sub createDirectory {
 }
 
 sub AskSage {
-  my ($python,$url) = @_;
-  $url = $url || 'https://sagecell.sagemath.org/service';
-  my $output = `curl -k -f -sS -L --data-urlencode "code=print $python" $url`;
+  chomp(my $python = shift);
+  my ($args) = @_;
+  my $url = $args->{url} || 'https://sagecell.sagemath.org/service';
+  my $seed = $args->{seed};
+  my $setSeed = $seed?"set_random_seed($seed)\n":'';
+  my $output = `curl -k -f -sS -L --data-urlencode "code=${setSeed}$python" $url`;
   my $decoded = decode_json($output);
-  return $decoded->{stdout};
+  chomp(my $value = $decoded->{stdout});
+  return $value;
 }
 
 =back
