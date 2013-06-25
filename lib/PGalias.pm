@@ -225,8 +225,8 @@ sub make_alias {
 	# The displayMode will be the same throughout the processing of the .pg file
 	# This effectively cache's auxiliary files within a single PG question.
 	###################################################################
-	unless ( defined $self->get_resource($aux_file_id) ) {
-    	$self->add_resource($aux_file_id, 
+	unless ( defined $self->get_resource($aux_file_id.".$ext") ) {
+    	$self->add_resource($aux_file_id.".$ext", 
     	                    PGresource->new(
     	                            $self,                    #parent alias of resource
     	                            $aux_file_id,             # resource file name
@@ -237,7 +237,7 @@ sub make_alias {
 
     } else {
     	#$self->debug_message( "found existing resource_object $aux_file_id");
-    	return $self->get_resource($aux_file_id)->uri() ; 
+    	return $self->get_resource($aux_file_id.".$ext")->uri() ; 
     }
 ###################################################################
 # Create resource object if it has not already been defined
@@ -328,7 +328,7 @@ sub alias_for_html {
 #######################
 	my ($resource_uri, $htmlFileSource, );
 	my $ext   =   "html";
-	my $resource_object = $self->get_resource($aux_file_id);
+	my $resource_object = $self->get_resource($aux_file_id.".$ext");
 	#$self->debug_message( "\nresource for $aux_file_id is ", ref($resource_object), $resource_object );
 
    
@@ -473,7 +473,7 @@ sub alias_for_image_in_html_mode {
 # update image resource object
 #######################
 	my ($resource_uri  );
-	my $resource_object = $self->get_resource($aux_file_id);
+	my $resource_object = $self->get_resource($aux_file_id.".$ext");
     #$self->debug_message( "\nresource for $aux_file_id is ", ref($resource_object), $resource_object );
 
 ##############################################
@@ -632,7 +632,7 @@ sub alias_for_image_in_tex_mode {
 # update resource object
 #######################
 	my ($resource_uri,  );
-	my $resource_object = $self->get_resource($aux_file_id);
+	my $resource_object = $self->get_resource($aux_file_id.".$ext");
 
 		        
 ################################################################################

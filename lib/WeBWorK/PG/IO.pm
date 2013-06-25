@@ -6,6 +6,7 @@
 package WeBWorK::PG::IO;
 use base qw(Exporter);
 use WeBWorK::PG::Translator;
+use JSON qw(decode_json);
 
 =head1 NAME
 
@@ -27,13 +28,14 @@ BEGIN {
 		directoryFromPath
 		createFile
 		createDirectory
+		AskSage
 	);
 
 	our %SHARE = map { $_ => __PACKAGE__ } @EXPORT;
-	
-	if (defined $main::VERSION) {
+	my $ww_version = "2.x";  # hack -- only WW2 versions are supported.
+	if (defined $ww_version) {
 		my $mod;
-		for ($main::VERSION) {
+		for ($ww_version) {
 			/^1\./          and $mod = "WeBWorK::PG::IO::WW1";
 			/^2\./          and $mod = "WeBWorK::PG::IO::WW2";
 			/^Daemon\s*2\./ and $mod = "WeBWorK::PG::IO::Daemon2";
@@ -215,6 +217,18 @@ sub createDirectory {
 	} else {
 		return 1;
 	}
+}
+
+sub AskSage {
+  chomp(my $python = shift);
+  my ($args) = @_;
+  my $url = $args->{url} || 'https://sagecell.sagemath.org/service';
+  my $seed = $args->{seed};
+  my $setSeed = $seed?"set_random_seed($seed)\n":'';
+  my $output = `curl -k -f -sS -L --data-urlencode "code=${setSeed}$python" $url`;
+  my $decoded = decode_json($output);
+  chomp(my $value = $decoded->{stdout});
+  return $value;
 }
 
 =back

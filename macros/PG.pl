@@ -112,6 +112,10 @@ sub POST_HEADER_TEXT {
 	$PG->POST_HEADER_TEXT(@_);
 }
 
+sub AskSage {
+	$PG->AskSage(@_);
+}
+
 sub LABELED_ANS {
   my @in = @_;
   my @out = ();
