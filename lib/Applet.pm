@@ -680,9 +680,9 @@ sub insertHeader {
 ########################################################
 
 use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
-  	<script src="/webwork2_files/js/Base64.js" language="javascript">
+  	<script src="/webwork2_files/js/legacy/Base64.js" language="javascript">
     </script> 	
-  	<script src="/webwork2_files/js/ww_applet_support.js" language="javascript">
+  	<script src="/webwork2_files/js/legacy/ww_applet_support.js" language="javascript">
   	    //upload functions stored in /opt/webwork/webwork2/htdocs/js ...
   	    
      </script>
