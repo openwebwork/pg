@@ -864,6 +864,10 @@ sub createDirectory {
 	my $self = shift;
 	WeBWorK::PG::IO::createDirectory(@_); 
  };
+sub AskSage {
+	my $self = shift;
+	WeBWorK::PG::IO::AskSage(@_);
+}
  
 sub tempDirectory {
 	my $self = shift;
