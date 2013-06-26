@@ -1037,7 +1037,7 @@ use constant CANVAS_OBJECT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 	 	      //alert("getting fake applet " + obj.name);
 	 		  return( obj );
 	 	  } else {
-	 		  alert ("can't find fake applet " + appletName + " in object "+obj.name);		  
+	 		  //alert ("can't find fake applet " + appletName + " in object "+obj.name);		  
 	 	  }
 	  }	
     </script>
@@ -1102,7 +1102,7 @@ use constant GEOGEBRAWEB_OBJECT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 
 		
    	//////////////////////////////////////////////////////////
-	//CANVAS OBJECT HEADER CODE
+	//GEOGEBRAWEB OBJECT HEADER CODE
     // 
     //////////////////////////////////////////////////////////
    
@@ -1128,19 +1128,20 @@ use constant GEOGEBRAWEB_OBJECT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
     ww_applet_list["$appletName"].debugMode = "$selfLoading";
 
     ww_applet_list["$appletName"].reportsLoaded = 1;
-    ww_applet_list["$appletName"].object = document.ggbfoo;
+    ww_applet_list["$appletName"].object = document.$appletName;
     
     function getApplet(appletName) {
-          alert("Running getApplet");
-          alert("document.ggbfoo " + document.ggbfoo);
-          alert(" ww_applet_list.object " + ww_applet_list["$appletName"].object );
+          //alert("Running getApplet");
+          //alert("document.ggbfoo " + document.ggbfoo);
+          //alert(" ww_applet_list.object " + ww_applet_list["$appletName"].object );
 	 	  var obj = ww_applet_list[appletName].object;   // define fake applet for this object
-	 	  if (obj && (obj.name == appletName)) {   //RECENT FIX to ==
+	 	  //if (obj && (obj.name == appletName)) {   //RECENT FIX to ==
 	 	      //alert("getting fake applet " + obj.name);
 	 		  return( obj );
-	 	  } else {
-	 		  alert ("can't find fake applet " + appletName);		  
-	 	  }
+	 	  //} else {
+	 		  //alert ("can't find fake applet " + appletName);		  
+	 	  //}
+	 	   return(obj);
 	  }	
     </script>
 	
