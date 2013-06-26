@@ -1137,7 +1137,7 @@ use constant GEOGEBRAWEB_OBJECT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 	 	  var obj = ww_applet_list[appletName].object;   // define fake applet for this object
 	 	  //if (obj && (obj.name == appletName)) {   //RECENT FIX to ==
 	 	      //alert("getting fake applet " + obj.name);
-	 		  return( obj );
+	 		  //return( obj );
 	 	  //} else {
 	 		  //alert ("can't find fake applet " + appletName);		  
 	 	  //}
