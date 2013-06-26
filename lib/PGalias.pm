@@ -604,7 +604,7 @@ sub alias_for_image_in_tex_mode {
 	my $aux_file_id  = shift;
 	my $ext          = shift;
 
-	# $self->debug_message( "entering alias_for_gif_in_tex_mode $aux_file_id");
+	# $self->debug_message( "entering alias_for_gif_in_tex_mode $aux_file_id, ext=$ext");
  ##### other things we need #########
  
     my $from_file_type       = $ext ;
