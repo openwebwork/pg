@@ -2478,6 +2478,7 @@ sub row {
 =cut
 
 #   More advanced macros
+my $imageNumber=0;
 sub image {
 	my $image_ref  = shift;
 	my @opt = @_;
@@ -2488,7 +2489,8 @@ sub image {
 	my %known_options = (
 		width    => 100,
 		height   => 100,
-		tex_size => 800,
+#		tex_size => 800,
+		tex_size => 500,
 		extra_html_tags => '',
 	);
 	# handle options
@@ -2498,7 +2500,7 @@ sub image {
 			$out_options{$opt_name} = $in_options{$opt_name} if exists( $in_options{$opt_name} ) ;
 		} else {
 			die "Option $opt_name not defined for image. " .
-			    "Default options are:<BR> ", display_options2(%known_options);
+			    "Default options are:<br /> ", display_options2(%known_options);
 		}
 	}
 	my $width       = $out_options{width};
@@ -2514,46 +2516,76 @@ sub image {
  	}
 
  	my @output_list = ();
-  	while(@image_list) {
- 		my $imageURL = alias(shift @image_list);
- 		my $out="";
+  	while (@image_list) {
+		my $img_ref = shift @image_list ;
+		my ($path_or_text, $type);
+		if (ref($img_ref) =~ /HASH/ ) {
+#		if (ref($img_ref) =~ /HASH/ or ref($img_ref) =~ /ARRAY/) {
+			$path_or_text = $img_ref -> {path};
+			$type = $img_ref -> {type};
+			$imageNumber = $img_ref -> {imageNumber} // ++$imageNumber;
+		}
+		else {
+			$path_or_text = $img_ref;
+			$type = '';
+			++$imageNumber;
+		}
 
-		if ($displayMode eq 'TeX') {
-			my $imagePath = $imageURL; # in TeX mode, alias gives us a path, not a URL
-			if (defined $envir->{texDisposition} and $envir->{texDisposition} eq "pdf") {
-				# We're going to create PDF files with our TeX (using pdflatex), so
-				# alias should have given us the path to a PNG image. What we need
-				# to do is find out the dimmensions of this image, since pdflatex
-				# is too dumb to live.
-				if ($imagePath) {
+ 		my $out="";
+		if ($type eq '') {$type = 'file';}
+		if ($type eq 'file') {
+	 		my $imageURL = alias($path_or_text);
+	
+			if ($displayMode eq 'TeX') {
+				my $imagePath = $imageURL; # in TeX mode, alias gives us a path, not a URL
+				if (defined $envir->{texDisposition} and $envir->{texDisposition} eq "pdf") {
+					# We're going to create PDF files with our TeX (using pdflatex), so
+					# alias should have given us the path to a PNG image. What we need
+					# to do is find out the dimmensions of this image, since pdflatex
+					# is too dumb to live.
+		
+					#my ($height, $width) = getImageDimmensions($imagePath);
+					##warn "&image: $imagePath $height $width\n";
+					#unless ($height and $width) {
+					#	warn "Couldn't get the dimmensions of image $imagePath.\n"
+					#}
+					#$out = "\\includegraphics[bb=0 0 $height $width,width=$width_ratio\\linewidth]{$imagePath}\n";
 					$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
 				} else {
-					$out = "";
+					# Since we're not creating PDF files, alias should have given us the
+					# path to an EPS file. latex can get its dimmensions no problem!
+	
+					$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
 				}
-			} else {
-				# Since we're not creating PDF files, alias should have given us the
-				# path to an EPS file. latex can get its dimmensions no problem!
+			} elsif ($displayMode eq 'Latex2HTML') {
+				my $wid = ($envir->{onTheFlyImageSize} || 0)+ 30;
+				$out = qq!\\begin{rawhtml}\n<a href= "$imageURL" target="_blank" onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;"><img src="$imageURL"  width="$width" height="$height"></a>\n \\end{rawhtml}\n !
+	 		} elsif ($displayMode eq 'HTML' || $displayMode eq 'HTML_tth' || $displayMode eq 'HTML_dpng' || $displayMode eq 'HTML_img' || $displayMode eq 'HTML_jsMath' || $displayMode eq 'HTML_asciimath' || $displayMode eq 'XHTML_mathML') {
+				my $wid = ($envir->{onTheFlyImageSize} || 0) +30;
+				if ($wid > 400) {$wid=400;}
+#	 			$out = qq!<a href= "$imageURL" target="_blank" onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;"><img src="$imageURL"  width="$width" height="$height" $out_options{extra_html_tags} /></a> !
+				$out = qq!<span> <script>\n var png_url${imageNumber}="$imageURL"; var width="$wid"; var height="$wid"; </script> \n !
+						. qq!<img src="$imageURL" width="$width" height="$height" $out_options{extra_html_tags} /> \n <br />\n !
+						. qq!<input type="button" name="png_url_button" value="Get Larger Graph" onclick="writePNGFullSize(png_url${imageNumber},width,height)" />\n!
+						. qq!</span> !  ;
+	 		} else {
+	 			$out = "Error: PGbasicmacros: image: Unknown displayMode: $displayMode.\n";
+	 		}
+		} elsif ($type eq 'svgInteractive') {
+			#Insert thumbnail-Size and Full-Size graphs
+			my $fullSizedCode = $path_or_text -> {'fullSized'};
+			$out= qq!<span><script>\n svg_source$imageNumber=$fullSizedCode; \n </script>\n!
+				. $path_or_text -> {'thumbnailSized'}
+				. "\n<br />\n"
+				. qq!<input type="button" name="svg_code" value="Get Larger Graph" onclick="writeSVGFullSize(svg_source$imageNumber)" /> </span>\n! 
+			;
+		} elsif ($type eq 'svgNonInteractive') {
 
-				$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
-			}
-		} elsif ($displayMode eq 'Latex2HTML') {
-			my $wid = ($envir->{onTheFlyImageSize} || 0)+ 30;
-			$out = qq!\\begin{rawhtml}\n<A HREF= "$imageURL" TARGET="_blank" onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;"><IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height"></A>\n
-			\\end{rawhtml}\n !
- 		} elsif ($displayMode eq 'HTML_MathJax'
-	 || $displayMode eq 'HTML_dpng'
-	 || $displayMode eq 'HTML'
-	 || $displayMode eq 'HTML_tth'
-	 || $displayMode eq 'HTML_jsMath'
-	 || $displayMode eq 'HTML_asciimath' 
-	 || $displayMode eq 'HTML_LaTeXMathML'
-	 || $displayMode eq 'HTML_img') {
-			my $wid = ($envir->{onTheFlyImageSize} || 0) +30;
- 			$out = qq!<A HREF= "$imageURL" TARGET="_blank" onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;"><IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height" $out_options{extra_html_tags} ></A>
- 			!
- 		} else {
- 			$out = "Error: PGbasicmacros: image: Unknown displayMode: $displayMode.\n";
- 		}
+			$out=$path_or_text -> {'thumbnailSized'};
+		} else {
+			$out = "Error:  PGbasicmacros: image:  Unknown graphicsMode: | $type |\n<p /> main::graphicsMode = | ". $main::envir{graphicsMode} ." |.\n";
+		}
+
  		push(@output_list, $out);
  	}
 	return wantarray ? @output_list : $output_list[0];

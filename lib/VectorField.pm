@@ -162,12 +162,14 @@ package VectorField;
 
 @VectorField::ISA = qw(WWPlot);
 # import gdBrushed from GD.  It unclear why, but a good many global methods haven't been imported.
-sub gdBrushed {
+sub gdBrushed {		# This subroutine only applies to "file" graphics, not SVG graphics
 	&GD::gdBrushed();
 }
 
 my $GRAPH_REFERENCE = "WWPlot";
 my $VECTORFIELD_REFERENCE = "VectorField";
+
+my $vf_counter = -1;
 
 my %fields =(
 		xmin			=>	-4,
@@ -177,6 +179,7 @@ my %fields =(
 		x_steps  		=>  10,
 		y_steps			=> 	10,
 		arrow_color		=>  'blue',
+		color			=>  'blue',
 		arrow_weight    =>  1,  #line thickness
 		dot_color       =>  'red',
 		dot_radius      =>  1.5,
@@ -187,7 +190,7 @@ my %fields =(
 		                           return(0) if sqrt($dx**2 + $dy**2) ==0;
 		                           0.5*1/sqrt($dx**2 + $dy**2);
 		                      },
-
+		name 			=>   "vectorField_v",
 );
 
 
@@ -195,6 +198,7 @@ sub new {
 	my $class 				=	shift;
 
 	my $self 			= {
+#				_permitted	=>	\%fields,
 				%fields,
 	};
 
@@ -212,9 +216,11 @@ sub _initialize {
 	my	$self 	= 	shift;
 	my  ($xrule,$yrule, $rule,$graphRef);
 	my @input = @_;
+	$vf_counter ++;
+	$self -> name("vectorfield_${vf_counter}");
 	if (ref($input[$#input]) eq $GRAPH_REFERENCE ) {
 		$graphRef = pop @input;  # get the last argument if it refers to a graph.
-		$graphRef->fn($self);    # Install this vector field in the graph.
+		$graphRef->vectorFields($self);    # Install this vector field in the graph.
 		$self->{xmin} = $graphRef->{xmin};
 		$self->{xmax} = $graphRef->{xmax};
 		$self->{ymin} = $graphRef->{ymin};
@@ -239,43 +245,81 @@ sub _initialize {
 		die "VectorField.pm:_initialize: Can't call VectorField with more than two arguments";
 	}
 }
+
 sub draw {
     my $self = shift;  # this function
 	my $g = shift;   # the graph containing the function.
+	my $color = shift;   # get color definition from graph
+	my $dot_color = shift;   # get color definition from graph
+	my $parent = shift;  # get the parent for SVG option
+	my $name = $self->name();
+	my $arrow_weight = $self -> arrow_weight();
+
 	warn "This vector field is not being called from an enclosing graph" unless defined($g);
-	my $arrow_color;   # get color scheme from graph
-	if ( defined( $g->{'colors'}{$self->arrow_color} )  ) {
-		$arrow_color = $g->{'colors'}{$self->arrow_color};
-	} else {
-		$arrow_color = $g->{'colors'}{'blue'};  # what you do if the color isn't there
-	}
-	my $dot_color = $self ->dot_color;  # colors are defined differently for Circles, then for lines.
-	my $dot_radius  = $self->dot_radius;
-	my $brush = new GD::Image($self->arrow_weight,$self->arrow_weight);
-	my $brush_color = $brush->colorAllocate($g->im->rgb($arrow_color));  # transfer color
-	$g->im->setBrush($brush);
+
+ 	if ($g -> type eq 'file' ) {
+#		my $arrow_color;   # get color scheme from graph
+#		if ( defined( $g->{'colors'}{$self->arrow_color} )  ) {
+#			$arrow_color = $g->{'colors'}{$self->arrow_color};
+#		} else {
+#			$arrow_color = $g->{'colors'}{'blue'};  # what you do if the color isn't there
+#		}
+# 		my $dot_color = $self ->dot_color;  # colors are defined differently for Circles, then for lines.
+ 		my $dot_radius  = $self->dot_radius;
+#		my $brush = new GD::Image($self->arrow_weight,$self->arrow_weight);
+#		my $brush_color = $brush->colorAllocate($g->im->rgb($arrow_color));  # transfer color
+#		$g->im->setBrush($brush);
+ 
+ 		my $x_steps = $self->x_steps;
+ 		my $xmin = $self->xmin;
+ 		my $x_stepsize = ( $self->xmax - $self->xmin )/$x_steps;
+ 		my $y_steps = $self->y_steps;
+ 		my $ymin = $self->ymin;
+ 		my $y_stepsize = ( $self->ymax - $self->ymin )/$y_steps;
+ 		my $dt = $self->dt;
+ 		my $rf_arrow_length = $self->rf_arrow_length;
+ 	
+ 	    foreach my $i (0..$x_steps) {
+ 	    	my $x = $xmin + $i*$x_stepsize;
+ 	    	foreach my $j (0..$y_steps) {
+ 	    		my $y = $ymin + $j*$y_stepsize;
+ 	    		my $dx = $dt*&{$self->dx_rule}($x,$y);
+ 	    		my $dy = $dt*&{$self->dy_rule}($x,$y);
+ 	    		$g->moveTo($x,$y);
+ 	    		$g->stamps(new Circle($x, $y, $dot_radius,$dot_color,$dot_color) );
+#	    		$g->lineTo($x+$dx*&$rf_arrow_length($dx,$dy), $y+$dy*&$rf_arrow_length($dx,$dy),gdBrushed);
+# 	    		$g->lineTo($x+$dx*&$rf_arrow_length($dx,$dy), $y+$dy*&$rf_arrow_length($dx,$dy),$color);
+ 	    		$g->arrowTo($x+$dx*&$rf_arrow_length($dx,$dy), $y+$dy*&$rf_arrow_length($dx,$dy),$color,$arrow_weight,0,$parent,$name);
+ 	
+ 	    	}
+ 	    }
+ 		$g -> im ->setThickness(1);
+ 	}
+ 	elsif ($g -> type =~/svg/ ) {
 		my $x_steps = $self->x_steps;
-	my $xmin = $self->xmin;
-	my $x_stepsize = ( $self->xmax - $self->xmin )/$x_steps;
-	my $y_steps = $self->y_steps;
-	my $ymin = $self->ymin;
-	my $y_stepsize = ( $self->ymax - $self->ymin )/$y_steps;
-	my $dt = $self->dt;
-	my $rf_arrow_length = $self->rf_arrow_length;
-
-    foreach my $i (0..$x_steps) {
-    	my $x = $xmin + $i*$x_stepsize;
-    	foreach my $j (0..$y_steps) {
-    		my $y = $ymin + $j*$y_stepsize;
-    		my $dx = $dt*&{$self->dx_rule}($x,$y);
-    		my $dy = $dt*&{$self->dy_rule}($x,$y);
-    		$g->moveTo($x,$y);
-    		$g->stamps(new Circle($x, $y, $dot_radius,$dot_color,$dot_color) ) if $dot_radius > 0; 
-    		    # setting the radius to zero omits the dot
-    		$g->lineTo($x+$dx*&$rf_arrow_length($dx,$dy), $y+$dy*&$rf_arrow_length($dx,$dy),gdBrushed);
-
-    	}
-    }
+		my $xmin = $self->xmin;
+		my $x_stepsize = ( $self->xmax - $self->xmin )/$x_steps;
+		my $y_steps = $self->y_steps;
+		my $ymin = $self->ymin;
+		my $y_stepsize = ( $self->ymax - $self->ymin )/$y_steps;
+		my $dt = $self->dt;
+		my $rf_arrow_length = $self->rf_arrow_length;
+		my $dot_color = $self ->dot_color;  # colors are defined differently for Circles, than for lines.
+		my $dot_radius  = $self->dot_radius;
+ 	
+	    foreach my $i (0..$x_steps) {
+	    	my $x = $xmin + $i*$x_stepsize;
+	    	foreach my $j (0..$y_steps) {
+	    		my $y = $ymin + $j*$y_stepsize;
+	    		my $dx = $dt*&{$self->dx_rule}($x,$y);
+	    		my $dy = $dt*&{$self->dy_rule}($x,$y);
+	    		$g->moveTo($x,$y);
+	    		$g->stamps(new Circle($x, $y, $dot_radius,$dot_color,$dot_color) );
+	    		$g->arrowTo($x+$dx*&$rf_arrow_length($dx,$dy), $y+$dy*&$rf_arrow_length($dx,$dy),$color,$arrow_weight,0,
+					$parent, $name);
+	    	}
+	    }
+ 	}
 }
 
 sub domain {
@@ -434,8 +478,23 @@ sub rf_arrow_length {
 		return $self->{rf_arrow_length}
 	}
 }
-sub DESTROY {
-	# doing nothing about destruction, hope that isn't dangerous
+
+sub name {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{name} ) {
+		die "Can't find name field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{name} = shift;
+	} else {
+		return $self->{name}
+	}
 }
+
+#sub DESTROY {
+#	# doing nothing about destruction, hope that isn't dangerous
+#}
 
 1;

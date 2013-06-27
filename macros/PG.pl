@@ -146,7 +146,7 @@ sub inc_ans_rule_count {
    #$PG->{unlabeled_answer_blank_count}++;
    #my $num = $PG->{unlabeled_answer_blank_count};
    DEBUG_MESSAGE( " No increment done. Using PG to inc_ans_rule_count = $num ", caller(2));
-   warn " using PG to inc_ans_rule_count = $num ", caller(2);
+   #warn " using PG to inc_ans_rule_count = $num ", caller(2);
    $PG->{unlabeled_answer_blank_count};
 }
 sub ans_rule_count {
