@@ -16,7 +16,7 @@
 
 This collection of macros provides easy access to the facilities provided by the graph
 module WWPlot and the modules for objects which can be drawn on a graph: functions (Fun.pm)
-labels (Label.pm) and images.  The only images implemented currently are open and closed circles
+labels (Label.pm), bars (Bar.pm) and images.  The only images implemented currently are open and closed circles
 (Circle) which can be used to mark graphs of functions defined on open and closed intervals.
 
 These macros provide an easy ability to graph simple functions.  More complicated projects
@@ -34,7 +34,7 @@ See F<PGbasicmacros> for definitions of C<image> and C<caption>
 
 
 #my $User = $main::studentLogin;
-#my $psvn = $main::psvn; #$main::in{'probSetKey'};  #in{'probSetNumber'}; #$main::probSetNumber;
+#my $psvn = $main::psvnNumber; #$main::in{'probSetKey'};  #in{'probSetNumber'}; #$main::probSetNumber;
 #my $setNumber     = $main::setNumber;
 #my $probNum       = $main::probNum;
 
@@ -46,7 +46,6 @@ See F<PGbasicmacros> for definitions of C<image> and C<caption>
 #				   'ticks'=>[8,8] and/or
 #                  'axes'
 #########################################################
-
 #loadMacros("MathObjects.pl");   # avoid loading the entire package
                                  # of MathObjects since that can mess up 
                                  # problems that don't use MathObjects but use Matrices.
@@ -107,7 +106,8 @@ sub init_graph {
 		my $defaultSize = $main::envir{onTheFlyImageSize} || 200;
 		@size=($defaultSize,  $defaultSize);
 	}
-    my $graphRef = new WWPlot(@size);
+
+    my $graphRef = new WWPlot(@size, $main::envir{graphicsMode});
 	# select a  name for this graph based on the user, the psvn and the problem
 	my $setName = $main::setNumber;
 	# replace dots, commmas and @ signs in set and user names to keep latex and html happy
@@ -125,6 +125,7 @@ sub init_graph {
 	my $imageNum  = ++$main::images_created{$imageName};
 	# this provides a unique name for the graph -- it does not include an extension.
 	$graphRef->imageName("${imageName}image${imageNum}");
+	$graphRef->imageNumber($imageNum);
 
 	$graphRef->xmin($xmin) if defined($xmin);
 	$graphRef->xmax($xmax) if defined($xmax);
@@ -146,13 +147,21 @@ sub init_graph {
 	    }
 		$graphRef->v_grid('gray',@x_values);
 		$graphRef->h_grid('gray',@y_values);
-		$graphRef->lb(new Label($x_delta,0,sprintf("%1.1f",$x_delta),'black','center','middle'));
-		$graphRef->lb(new Label(0,$y_delta,sprintf("%1.1f",$y_delta),'black','center','middle'));
-
-		$graphRef->lb(new Label($xmax,0,$xmax,'black','right'));
-		$graphRef->lb(new Label($xmin,0,$xmin,'black','left'));
-		$graphRef->lb(new Label(0,$ymax,$ymax,'black','top'));
-		$graphRef->lb(new Label(0,$ymin,$ymin,'black','bottom','right'));
+		if ($main::envir{graphicsMode} =~ /svg/) {
+			$graphRef->lb(new Label($x_delta,0,sprintf("%1.1f",$x_delta),'black','top','center'));
+			$graphRef->lb(new Label(0,$y_delta,sprintf("%1.1f",$y_delta),'black','middle','right'));
+			$graphRef->lb(new Label($xmax,0,$xmax,'black','top', 'right'));
+			$graphRef->lb(new Label($xmin,0,$xmin,'black','top','left'));
+			$graphRef->lb(new Label(0,$ymax,$ymax,'black','top', 'right'));
+			$graphRef->lb(new Label(0,$ymin,$ymin,'black','bottom','right'));
+		} else {
+			$graphRef->lb(new Label($x_delta,0,sprintf("%1.1f",$x_delta),'black','center','middle'));
+			$graphRef->lb(new Label(0,$y_delta,sprintf("%1.1f",$y_delta),'black','center','middle'));
+			$graphRef->lb(new Label($xmax,0,$xmax,'black','right'));
+			$graphRef->lb(new Label($xmin,0,$xmin,'black','left'));
+			$graphRef->lb(new Label(0,$ymax,$ymax,'black','top'));
+			$graphRef->lb(new Label(0,$ymin,$ymin,'black','bottom','right'));
+		}
 
 	} elsif ($options{ticks}) {   #   draw ticks -- grid over rides ticks
 		my $xdiv = ${$options{ticks}}[0]? ${$options{ticks}}[0] : 8; # number of ticks (8 is default)
@@ -168,13 +177,23 @@ sub init_graph {
 	    }
 		$graphRef->h_ticks(0,'black',@x_values);
 		$graphRef->v_ticks(0,'black',@y_values);
-		$graphRef->lb(new Label($x_delta,0,$x_delta,'black','right'));
-		$graphRef->lb(new Label(0,$y_delta,$y_delta,'black','top'));
+		if ($main::envir{graphicsMode} =~ /svg/) {
+			$graphRef->lb(new Label($x_delta,0,sprintf("%1.1f",$x_delta),'black','top','center'));
+			$graphRef->lb(new Label(0,$y_delta,sprintf("%1.1f",$y_delta),'black','middle','right'));
 
-		$graphRef->lb(new Label($xmax,0,$xmax,'black','right'));
-		$graphRef->lb(new Label($xmin,0,$xmin,'black','left'));
-		$graphRef->lb(new Label(0,$ymax,$ymax,'black','top'));
-		$graphRef->lb(new Label(0,$ymin,$ymin,'black','bottom','right'));
+			$graphRef->lb(new Label($xmax,0,$xmax,'black','top', 'right'));
+			$graphRef->lb(new Label($xmin,0,$xmin,'black','top','left'));
+			$graphRef->lb(new Label(0,$ymax,$ymax,'black','top', 'right'));
+			$graphRef->lb(new Label(0,$ymin,$ymin,'black','bottom','right'));
+		} else {
+			$graphRef->lb(new Label($x_delta,0,$x_delta,'black','right'));
+			$graphRef->lb(new Label(0,$y_delta,$y_delta,'black','top'));
+
+			$graphRef->lb(new Label($xmax,0,$xmax,'black','right'));
+			$graphRef->lb(new Label($xmin,0,$xmin,'black','left'));
+			$graphRef->lb(new Label(0,$ymax,$ymax,'black','top'));
+			$graphRef->lb(new Label(0,$ymin,$ymin,'black','bottom','right'));
+		}
 	}
 
 	if ($options{axes}) {   #   draw axis
@@ -198,13 +217,14 @@ sub init_graph_no_labels {
 		my $defaultSize = $main::envir{onTheFlyImageSize} || 200;
 		@size=($defaultSize,  $defaultSize);
 	}
-    my $graphRef = new WWPlot(@size);
+    my $graphRef = new WWPlot(@size, $main::envir{graphicsMode});
 	# select a  name for this graph based on the user, the psvn and the problem
 	my $imageName = "$main::studentLogin-$main::psvn-set${main::setNumber}prob${main::probNum}";
 	# $imageNum counts the number of graphs with this name which have been created since PGgraphmacros.pl was initiated.
 	my $imageNum  = ++$main::images_created{$imageName};
 	# this provides a unique name for the graph -- it does not include an extension.
 	$graphRef->imageName("${imageName}image${imageNum}");
+	$graphRef->imageNumber($imageNum);
 
 	$graphRef->xmin($xmin) if defined($xmin);
 	$graphRef->xmax($xmax) if defined($xmax);
@@ -231,12 +251,17 @@ sub init_graph_no_labels {
 		#$graphRef->lb(new Label(0,$y_delta,sprintf("%1.1f ",$y_delta),'black','right','middle'));
 		#$graphRef->lb(new Label(0,$y_delta,"-",'black','center','middle'));
 
-
-		$graphRef->lb(new Label($xmax,0,$xmax,'black','right'));
-		$graphRef->lb(new Label($xmin,0,$xmin,'black','left'));
-		$graphRef->lb(new Label(0,$ymax,$ymax,'black','top','right'));
-		$graphRef->lb(new Label(0,$ymin,$ymin,'black','bottom','right'));
-
+		if ($main::envir{graphicsMode} =~ /svg/) {
+			$graphRef->lb(new Label($xmax,0,$xmax,'black','top', 'right'));
+			$graphRef->lb(new Label($xmin,0,$xmin,'black','top','left'));
+			$graphRef->lb(new Label(0,$ymax,$ymax,'black','top', 'right'));
+			$graphRef->lb(new Label(0,$ymin,$ymin,'black','bottom','right'));
+		} else {
+			$graphRef->lb(new Label($xmax,0,$xmax,'black','right'));
+			$graphRef->lb(new Label($xmin,0,$xmin,'black','left'));
+			$graphRef->lb(new Label(0,$ymax,$ymax,'black','top','right'));
+			$graphRef->lb(new Label(0,$ymin,$ymin,'black','bottom','right'));
+		}
 	} elsif ($options{ticks}) {   #   draw ticks -- grid over rides ticks
 		my $xdiv = ${$options{ticks}}[0]? ${$options{ticks}}[0] : 8; # number of ticks (8 is default)
 	        my $ydiv = ${$options{ticks}}[1]? ${$options{ticks}}[1] : 8;
@@ -251,13 +276,23 @@ sub init_graph_no_labels {
 	    }
 		$graphRef->v_ticks(0,'black',@x_values);
 		$graphRef->h_ticks(0,'black',@y_values);
-		$graphRef->lb(new Label($x_delta,0,$x_delta,'black','right'));
-		$graphRef->lb(new Label(0,$y_delta,$y_delta,'black','top'));
+		if ($main::envir{graphicsMode} =~ /svg/) {
+			$graphRef->lb(new Label($x_delta,0,sprintf("%1.1f",$x_delta),'black','top','center'));
+			$graphRef->lb(new Label(0,$y_delta,sprintf("%1.1f",$y_delta),'black','middle','right'));
 
-		$graphRef->lb(new Label($xmax,0,$xmax,'black','right'));
-		$graphRef->lb(new Label($xmin,0,$xmin,'black','left'));
-		$graphRef->lb(new Label(0,$ymax,$ymax,'black','top'));
-		$graphRef->lb(new Label(0,$ymin,$ymin,'black','bottom','right'));
+			$graphRef->lb(new Label($xmax,0,$xmax,'black','top', 'right'));
+			$graphRef->lb(new Label($xmin,0,$xmin,'black','top','left'));
+			$graphRef->lb(new Label(0,$ymax,$ymax,'black','top', 'right'));
+			$graphRef->lb(new Label(0,$ymin,$ymin,'black','bottom','right'));
+		} else {
+			$graphRef->lb(new Label($x_delta,0,$x_delta,'black','right'));
+			$graphRef->lb(new Label(0,$y_delta,$y_delta,'black','top'));
+
+			$graphRef->lb(new Label($xmax,0,$xmax,'black','right'));
+			$graphRef->lb(new Label($xmin,0,$xmin,'black','left'));
+			$graphRef->lb(new Label(0,$ymax,$ymax,'black','top'));
+			$graphRef->lb(new Label(0,$ymin,$ymin,'black','bottom','right'));
+		}
 	}
 
 	if ($options{axes}) {   #   draw axis
@@ -304,6 +339,9 @@ sub plot_functions {
 	my $error = "";
 	$error .= "The first argument to plot_functions must be a graph object" unless ref($graph) =~/WWPlot/;
 	my $fn;
+	my $counter = -1;
+	my $start_time=Time::HiRes::time();
+	
 	my @functions=();
 	foreach $fn (@function_list) {
 
@@ -312,7 +350,7 @@ sub plot_functions {
 			my ($rule,$var, $left_br, $left_end, $right_end, $right_br, $options)=  ($1, $2, $3, $4, $5, $6, $7);
 
 			my %options = split( /\s*and\s*|\s*:\s*|\s*,\s*|\s*=\s*|\s+/,$options);
-			my ($color, $weight);
+			my ($color, $weight, $name);
 			if ( defined($options{'color'})  ){
 				$color = $options{'color'}; #set pen color
 			}	else {
@@ -323,6 +361,13 @@ sub plot_functions {
 			} else {
 				$weight =2;
 			}
+			if ( defined($options{'name'}) ) {
+				$name = $options{'name'}; # set function name
+			} else {
+				$counter++;
+				$name ="function_f_" . $start_time . "_" . $counter ;
+			}
+
 			# a workaround to call Parser code without loading MathObjects.
 			my $localContext= Parser::Context->current(\%main::context)->copy;
 			$localContext->variables->add($var=>'Real') unless $localContext->variables->get($var);
@@ -334,11 +379,13 @@ sub plot_functions {
 			  $y = $y->value if defined $y;
 			  return $y;
 			};
-        	#my $subRef    = string_to_sub($rule,$var);
+        	#my $subRef = string_to_sub($rule,$var);
+
 			my $funRef = new Fun($subRef,$graph);
 			$funRef->color($color);
 			$funRef->weight($weight);
 			$funRef->domain($left_end , $right_end);
+			$funRef->name($name);
 			push(@functions,$funRef);
 		    # place open (1,3) or closed (1,3) circle at the endpoints or do nothing <1,3>
 		    if ($left_br eq '[' ) {
@@ -360,9 +407,6 @@ sub plot_functions {
 	die ("Error in plot_functions: \n\t $error ") if $error;
 	@functions;   # return function references unless there is an error.
 }
-
-
-
 
 =head2 insertGraph
 
@@ -398,16 +442,15 @@ Another common usage is:
 	TEXT(htmlLink( alias(insertGraph($graph), "picture" ) ) );
 
 which inserts the URL pointing to the picture.
-
 alias() converts the directory address to a URL when serving HTML pages and insures that
-an eps file is generated when creating TeX code for downloading. (Image, automatically applies alias to its input 
+an eps file is generated when creating TeX code for downloading. (Image, automatically applies alias to its input
 in order to obtain the URL.)
 
 See the documentation in F<PGcore.pl> for the latest details.
 
 =cut
 
-=head2  'Circle' lables
+=head2  'Circle' labels
 
 	Usage: $circle_object = open_circle( $x_position, $y_position, $color );
 	        $circle_object2 = closed_circle( $x_position, $y_position, $color );
@@ -422,13 +465,13 @@ For example
 #########################################################
 sub open_circle {
     my ($cx,$cy,$color) = @_;
-	new Circle ($cx, $cy, 4,$color,'nearwhite');
+	new Circle ($cx, $cy, 4,$color,'nearwhite', 'FALSE');
 }
 
 sub closed_circle {
     my ($cx,$cy, $color) = @_;
     $color = 'black' unless defined $color;
-	new Circle ($cx, $cy, 4,$color, $color);
+	new Circle ($cx, $cy, 4,$color, $color, 'TRUE');
 }
 
 
@@ -465,6 +508,7 @@ sub my_math_constants {
 sub string_to_sub {
 	my $str_in = shift;
 	my $var    = shift;
+	if (!defined($var)) {$var = 'x';}
 	my $out = undef;
 	if ( defined(&check_syntax)  ) {
 		#prepare the correct answer and check it's syntax
@@ -473,7 +517,8 @@ sub string_to_sub {
 		$rh_correct_ans = check_syntax($rh_correct_ans);
  		warn  $rh_correct_ans->{error_message} if $rh_correct_ans->{error_flag};
  		$rh_correct_ans->clear_error();
- 		$rh_correct_ans = function_from_string2($rh_correct_ans, ra_vars => ['x'], store_in =>'rf_correct_ans');
+# 		$rh_correct_ans = function_from_string2($rh_correct_ans, ra_vars => ['x'], store_in =>'rf_correct_ans');
+ 		$rh_correct_ans = function_from_string2($rh_correct_ans, ra_vars => [$var], store_in =>'rf_correct_ans');
  		my $correct_eqn_sub = $rh_correct_ans->{rf_correct_ans};
  		warn $rh_correct_ans->{error_message} if $rh_correct_ans->{error_flag};
 		$out = sub{ scalar( &$correct_eqn_sub(@_) ) };  #ignore the error messages from the function.
@@ -493,6 +538,14 @@ sub string_to_sub {
 	}
 	$out;
 }
+
+
+
+
+
+
+
+
 
 #########################################################
 

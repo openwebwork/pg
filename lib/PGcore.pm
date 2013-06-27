@@ -789,26 +789,41 @@ sub insertGraph {
 	# Convert the image to GIF and print it on standard output
 	my $self     = shift;
 	my $graph    = shift;
-	my $extension = ($WWPlot::use_png) ? '.png' : '.gif';
-	my $fileName = $graph->imageName  . $extension;
-	my $filePath = $self->convertPath("gif/$fileName");
-	my $templateDirectory = $self->{envir}->{templateDirectory};
-	$filePath = $self->surePathToTmpFile( $filePath );
-	my $refreshCachedImages = $self->PG_restricted_eval(q!$refreshCachedImages!);
-	# Check to see if we already have this graph, or if we have to make it
-	if( not -e $filePath # does it exist?
-	  or ((stat "$templateDirectory"."$main::envir{probFileName}")[9] > (stat $filePath)[9]) # source has changed
-	  or $graph->imageName =~ /Undefined_Set/ # problems from SetMaker and its ilk should always be redone
-	  or $refreshCachedImages
-	) {
- 		#createFile($filePath, $main::tmp_file_permission, $main::numericalGroupID);
-		local(*OUTPUT);  # create local file handle so it won't overwrite other open files.
- 		open(OUTPUT, ">$filePath")||warn ("$0","Can't open $filePath<BR>","");
- 		chmod( 0777, $filePath);
- 		print OUTPUT $graph->draw|| warn("$0","Can't print graph to $filePath<BR>","");
- 		close(OUTPUT)||warn("$0","Can't close $filePath<BR>","");
+	if ($graph -> type() eq 'file') {
+#	if ($graph -> type() eq 'file' or $graph -> type() eq '') {#}
+		my $extension = ($WWPlot::use_png) ? '.png' : '.gif';
+		my $fileName = $graph->imageName  . $extension;
+		my $filePath = $self->convertPath("gif/$fileName");
+		my $templateDirectory = $self->{envir}->{templateDirectory};
+		$filePath = $self->surePathToTmpFile( $filePath );
+		my $refreshCachedImages = $self->PG_restricted_eval(q!$refreshCachedImages!);
+		# Check to see if we already have this graph, or if we have to make it
+		if( not -e $filePath # does it exist?
+		  or ((stat "$templateDirectory"."$main::envir{probFileName}")[9] > (stat $filePath)[9]) # source has changed
+		  or $graph->imageName =~ /Undefined_Set/ # problems from SetMaker and its ilk should always be redone
+		  or $refreshCachedImages
+		) {
+	 		#createFile($filePath, $main::tmp_file_permission, $main::numericalGroupID);
+			local(*OUTPUT);  # create local file handle so it won't overwrite other open files.
+	 		open(OUTPUT, ">$filePath")||warn ("$0","Can't open $filePath<br />","");
+	 		chmod( 0777, $filePath);
+	 		print OUTPUT $graph->draw|| warn("$0","Can't print graph to $filePath<br />","");
+	 		close(OUTPUT)||warn("$0","Can't close $filePath<br />","");
+		}
+		return({path => $filePath, type => $graph -> type(), imageNumber => $graph -> imageNumber()});
+	} elsif ($graph -> type() eq 'svgInteractive') {
+		$graph -> draw;
+		return( {path => {fullSized => $graph -> {fullSized} ,
+			thumbnailSized => $graph -> {'thumbnailSized'} },
+			type => $graph -> type(),
+			imageNumber => $graph -> imageNumber(), } ) ;
+	} elsif ($graph -> type() eq 'svgNonInteractive') {
+		return( {path => {fullSized => $graph -> {fullSized} },
+			type => $graph -> type(),
+			imageNumber => $graph -> imageNumber() } ) ;
+	} else {
+		return ( {-path => '', -type => 'Unknown type'} ); 
 	}
-	$filePath;
 }
 
 =head1 Macros from IO.pm

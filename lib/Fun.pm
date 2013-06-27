@@ -15,6 +15,7 @@
 # 		steps						  the number of steps in drawing 	-- initially 20
 # 		color						  the pen color to draw with		-- initially 'red'
 #		weight						  the width of the pen in pixels	--	initially 2
+#		name						  internal name (for SVG graphics)  -- initially "function_f"
 # 		rule						  reference to a subroutine
 # 									  	which calculates the function	-- initially null
 # 		graph						  reference to the enclosing graph  -- initially $ref or else null
@@ -29,7 +30,7 @@
 # 		color
 # 		rule
 #		weight
-;
+#		name
 
 =head1 NAME
 
@@ -121,6 +122,10 @@ A reference to the subroutine used to calculate the y value of the graph.
 
 The width in pixels of the pen used to draw the graph. The pen is square.
 
+=item name
+
+The function's name (for internal reference)
+
 =back
 
 =head2 Actions which affect more than one property.
@@ -191,12 +196,17 @@ BEGIN {
 
 package Fun;
 
+
 #use "WWPlot.pm";
 #Because of the way problem modules are loaded 'use' is disabled.
 
+
+
+
+
 @Fun::ISA = qw(WWPlot);
 # import gdBrushed from GD.  It unclear why, but a good many global methods haven't been imported.
-sub gdBrushed {
+sub gdBrushed {		# This subroutine only applies to "file" graphics, not SVG graphics
 	&GD::gdBrushed();
 }
 
@@ -211,6 +221,7 @@ my %fields =(
 		x_rule      => \&identity,
 		y_rule      => \&identity,
 		weight		=>	2,  # line thickness
+		name 		=>	"function_f",
 );
 
 
@@ -280,47 +291,69 @@ sub _initialize {
 sub draw {
     my $self = shift;  # this function 
 	my $g = shift;   # the graph containing the function.
-	my $color;   # get color scheme from graph
-	if ( defined( $g->{'colors'}{$self->color} )  ) {
-		$color = $g->{'colors'}{$self->color}; 
-	} else {
-		$color = $g->{'colors'}{'default_color'};  # what you do if the color isn't there
-	}
-	my $brush = new GD::Image($self->weight,$self->weight);
-	my $brush_color = $brush->colorAllocate($g->im->rgb($color));  # transfer color
-	$g->im->setBrush($brush);
- 	my $stepsize = ( $self->tstop - $self->tstart )/$self->steps;
+  	my $color = shift;   # get color scheme from graph
+  	my $parent = shift;  # get the parent for SVG option
+  	my $name = $self->name();
+	my $weight = $self -> weight();
+
+
+	if ($g -> type eq 'file') {
+#		if ( defined( $g->{'colors'}{$self->color} )  ) {
+#			$color = $g->{'colors'}{$self->color}; 
+#		} else {
+#			$color = $g->{'colors'}{'default_color'};  # what you do if the color isn't there
+#		}
+#		my $brush = new GD::Image($self->weight,$self->weight);
+#		my $brush_color = $brush->colorAllocate($g->im->rgb($color));  # transfer color
+#		$g->im->setBrush($brush);
+#		$g -> im -> setThickness($self->weight);
+	 	my $stepsize = ( $self->tstop - $self->tstart )/$self->steps;
   	
-    my ($t,$x,$i,$y);
-    my $x_prev = undef;
-    my $y_prev = undef;	
-    foreach $i (0..$self->steps) {
+	    my ($t,$x,$i,$y);
+	    my $x_prev = undef;
+	    my $y_prev = undef;	
+	    foreach $i (0..$self->steps) {
     		$t=$stepsize*$i + $self->tstart;
     		$x=&{$self->x_rule}( $t );;
     		$y=&{$self->y_rule}( $t );
 # Points where the function were not defined were not being handled
 # gracefully.  They would come as blank y values, which would ultimately
 # trigger errors downstream unless y was undefined.
-		if(defined($y) and $y eq "") { $y = undef; }
-    		if (defined($x) && defined($x_prev) && defined($y) && defined($y_prev) ) {
-    			$g->lineTo($x, $y, gdBrushed);
+			if(defined($y) and $y eq "") { $y = undef; }
+   	 		if (defined($x) && defined($x_prev) && defined($y) && defined($y_prev) ) {
+#    			$g->lineTo($x, $y, gdBrushed);
+    			$g->lineTo($x, $y, $color, $weight, 0, $parent, $name);
     		} else {
     			$g->moveTo($x, $y) if defined($x) && defined($y);
     		}
-    		$x_prev = $x;
+   	 		$x_prev = $x;
     		$y_prev = $y;
 		}
-}
-
-sub domain {
-	my $self =shift;
-	my $tstart = shift;
-	my $tstop  = shift;
-	if (defined($tstart) && defined($tstop) ) {
-		$self->tstart($tstart);
-		$self->tstop($tstop);
+		$g -> im ->setThickness(1);
 	}
-		[$self->tstart,$self->tstop];	
+	elsif ($g -> type =~ /svg/ ) {
+ 		my $stepsize = ( $self->tstop - $self->tstart )/$self->steps;
+  	
+		 my ($t,$x,$i,$y);
+		 my $x_prev = undef;
+		 my $y_prev = undef;	
+		 foreach $i (0..$self->steps) {
+    			$t=$stepsize*$i + $self->tstart;
+    			$x=&{$self->x_rule}( $t );;
+    			$y=&{$self->y_rule}( $t );
+# Points where the function were not defined were not being handled
+# gracefully.  They would come as blank y values, which would ultimately
+# trigger errors downstream unless y was undefined.
+			if(defined($y) and $y eq "") { $y = undef; }
+   			if (defined($x) && defined($x_prev) && defined($y) && defined($y_prev) ) {
+   				$g->lineTo($x, $y, $color, $weight, 0, $parent, $name);
+   			} else {
+   				$g->moveTo($x, $y) if defined($x) && defined($y);
+   			}
+   			$x_prev = $x;
+   			$y_prev = $y;
+		}
+	}
 }
 
 ##########################
@@ -338,6 +371,17 @@ sub tstart {
 	} else {
 		return $self->{tstart}
 	}
+}
+
+sub domain {
+	my $self =shift;
+	my $tstart = shift;
+	my $tstop  = shift;
+	if (defined($tstart) && defined($tstop) ) {
+		$self->tstart($tstart);
+		$self->tstop($tstop);
+	}
+		[$self->tstart,$self->tstop];	
 }
 
 sub tstop {
@@ -420,8 +464,22 @@ sub weight {
 	}
 }
 
-sub DESTROY {
-	# doing nothing about destruction, hope that isn't dangerous
+sub name {
+	my $self = shift;
+	my $type = ref($self) || die "$self is not an object";
+	unless (exists $self->{name} ) {
+		die "Can't find name field in object of class $type";
+	}
+	
+	if (@_) {
+		return $self->{name} = shift;
+	} else {
+		return $self->{name}
+	}
 }
+
+#sub DESTROY {
+#	# doing nothing about destruction, hope that isn't dangerous
+#}
 
 1;
