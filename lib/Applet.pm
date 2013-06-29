@@ -1023,9 +1023,8 @@ use constant CANVAS_OBJECT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 	ww_applet_list["$appletName"].answerBoxAlias = "$answerBoxAlias";
 	ww_applet_list["$appletName"].maxInitializationAttempts = $maxInitializationAttempts;
 	ww_applet_list["$appletName"].debugMode = "$debugMode";	
-    ww_applet_list["$appletName"].debugMode = "$selfLoading";
-
-    ww_applet_list["$appletName"].reportsLoaded = 1;
+    ww_applet_list["$appletName"].reportsLoaded = "$selfLoading";
+    ww_applet_list["$appletName"].onInit             = "$onInit";	
     ww_applet_list["$appletName"].object = $appletName;
     
     function getApplet(appletName) {
@@ -1125,23 +1124,23 @@ use constant GEOGEBRAWEB_OBJECT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 	ww_applet_list["$appletName"].answerBoxAlias = "$answerBoxAlias";
 	ww_applet_list["$appletName"].maxInitializationAttempts = $maxInitializationAttempts;
 	ww_applet_list["$appletName"].debugMode = "$debugMode";	
-    ww_applet_list["$appletName"].debugMode = "$selfLoading";
-
-    ww_applet_list["$appletName"].reportsLoaded = 1;
-    ww_applet_list["$appletName"].object = document.$appletName;
+    ww_applet_list["$appletName"].reportsLoaded = "$selfLoading";
+    ww_applet_list["$appletName"].onInit             = "$onInit";	
+    ww_applet_list["$appletName"].object = $appletName;
     
     function getApplet(appletName) {
           //alert("Running getApplet");
           //alert("document.ggbfoo " + document.ggbfoo);
           //alert(" ww_applet_list.object " + ww_applet_list["$appletName"].object );
-	 	  var obj = ww_applet_list[appletName].object;   // define fake applet for this object
+	 	  var obj = document.$appletName;
+	 	  ww_applet_list[appletName].object = obj ;   // define fake applet for this object
 	 	  //if (obj && (obj.name == appletName)) {   //RECENT FIX to ==
 	 	      //alert("getting fake applet " + obj.name);
 	 		  //return( obj );
 	 	  //} else {
 	 		  //alert ("can't find fake applet " + appletName);		  
 	 	  //}
-	 	   return(obj);
+	 	  return(obj);
 	  }	
     </script>
 	
