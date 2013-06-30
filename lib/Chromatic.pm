@@ -8,12 +8,19 @@ our $seed_ce = new WeBWorK::CourseEnvironment({ webwork_dir => $webwork_director
 die "Can't create seed course environment for webwork in $webwork_directory" unless ref($seed_ce);
 our $PGdirectory = $seed_ce->{pg_dir};
 our $command = "$PGdirectory/lib/chromatic/color";
+our $compileCommand = "/usr/bin/gcc -O3 -o $PGdirectory/lib/chromatic/color $PGdirectory/lib/chromatic/color.c";
 unless (-x $command) {
-	if (-w "$PGdirectory/lib/chromatic" and -r "$PGdirectory/lib/chromatic/color.c") {
+	if (-w "$PGdirectory/lib/chromatic" and -r "$PGdirectory/lib/chromatic/color.c" and -x "/usr/bin/gcc") {
     # compile color if it is not there
-     system "/usr/bin/gcc -O3 -o $PGdirectory/lib/chromatic/color $PGdirectory/lib/chromatic/color.c";
+     system $compileCommand;
   	} else {
-    	warn "ERROR: Unable to compile $PGdirectory/lib/chromatic/color.c. Chromatic.pm and a compiled version of color.c are required for this problem";
+    	warn "ERROR: Unable to compile $PGdirectory/lib/chromatic/color.c.";
+    	warn "The command $compileCommand failed";
+    	warn "Chromatic.pm and a compiled version of color.c are required for this problem";
+    	warn "The file color.c will need to be compiled by a systems administrator.";
+    	warn "Can't find compiler at /usr/bin/gcc" unless -x '/usr/bin/gcc';
+    	warn "Can't write into directory $PGdirecotry/lib/chromatic" unless  -w "$PGdirectory/lib/chromatic";
+    	warn "Can't read C file $PGdirectory/lib/chromatic/color.c" unless -r "$PGdirectory/lib/chromatic/color.c";
     }
 }
 our $tempDirectory = $seed_ce->{webworkDirs}->{DATA};
