@@ -19,7 +19,7 @@ unless (-x $command) {
     	warn "Chromatic.pm and a compiled version of color.c are required for this problem";
     	warn "The file color.c will need to be compiled by a systems administrator.";
     	warn "Can't find compiler at /usr/bin/gcc" unless -x '/usr/bin/gcc';
-    	warn "Can't write into directory $PGdirecotry/lib/chromatic" unless  -w "$PGdirectory/lib/chromatic";
+    	warn "Can't write into directory $PGdirectory/lib/chromatic" unless  -w "$PGdirectory/lib/chromatic";
     	warn "Can't read C file $PGdirectory/lib/chromatic/color.c" unless -r "$PGdirectory/lib/chromatic/color.c";
     }
 }
