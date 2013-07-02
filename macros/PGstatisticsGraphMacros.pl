@@ -1,3 +1,4 @@
+#require 'PGstatisticsmacros.pl';
 
 =head1 NAME
 
@@ -51,9 +52,6 @@ See F<PGbasicmacros> for definitions of C<image> and C<caption>
                                  # of MathObjects since that can mess up 
                                  # problems that don't use MathObjects but use Matrices.
 
-my @dataSets = (); # The list of data sets to be used in the graphs.
-
-
 
 =head2 init_graph
 
@@ -76,25 +74,28 @@ If you want axes or grids you need to specify them in options. But the default v
 
 
 =cut
+
+our @accumulatedDataSets = (); # The list of data sets to be used in the graphs.
+
 BEGIN {
 	be_strict();
 }
 sub _PGstatisticGraphMacros_init {
-
-
+		clear_stat_graph_data();
 }
 
 sub clear_stat_graph_data {
-		@dataSets = ();
+		@accumulatedDataSets = ();
 }
 
 sub push_stat_data_set {
-		push(@dataSets,@_);
+		my $data = shift;
+		push(@accumulatedDataSets,$data);
 }
 
 sub init_statistics_graph {
 	my (%options) = @_;
-	my $numberDataSets = 1+$#dataSets;
+	my $numberDataSets = 1+$#accumulatedDataSets;
 
 	if($numberDataSets == 0)
 	{
@@ -109,21 +110,22 @@ sub init_statistics_graph {
 	# For each data set get the five point summary (use the default formula)
 	# From that value determine the min and max x values.
 	# First get all of the five point summaries.
-	foreach my $dataSet (@dataSets)
+	foreach my $dataSet (@accumulatedDataSets)
 	{
+			# Get the five point summary for each set.
 			my @summary = five_point_summary(@{$dataSet});
-			#print("$summary[0]/$summary[1]/$summary[2]/$summary[3]/$summary[4]\n");
 			push(@fivePointSummary,\@summary);
 	}
 
 	# Now get the min and max for the graphs.
-	my $xmin = $fivePointSummary[0][0];
+	# First initialize the values.
+	my $xmin = $fivePointSummary[0][0]; 
 	my $xmax = $fivePointSummary[0][4];
 	my $ymin = 0.0;
-	my $ymax = $numberDataSets+1;
+	my $ymax = $numberDataSets;
 	foreach my $dataSet (@fivePointSummary)
 	{
-			#print("$dataSet->[0]/$dataSet->[1]/$dataSet->[2]/$dataSet->[3]/$dataSet->[4]\n");
+			# check each give point summary to see if it is a max or min.
 			if($dataSet->[0] < $xmin) { $xmin = $dataSet->[0]; }
 			if($dataSet->[4] > $xmax) { $xmax = $dataSet->[4]; }
 	}
@@ -132,9 +134,68 @@ sub init_statistics_graph {
 	# Get the graph object.
 	# Create a graph object with the given size.
 	my $graphRef = init_graph($xmin,$ymin,$xmax,$ymax,%options);
-
+	$graphRef->lb('reset');
 
 	$graphRef;
+}
+
+
+sub add_boxplot {
+	my $graphRef = shift;
+	my $numberDataSets = 1+$#accumulatedDataSets;
+
+	if($numberDataSets == 0)
+	{
+			die "No data sets are defined.";
+	}
+
+	# Get the necessary graph properties for making the plot.
+	$black = $graphRef->im->colorAllocate(0,0,0);
+
+	# Get the five point summaries for each of the defined data sets.
+	# initialize the set of five point summaries
+	my @fivePointSummary = ();
+
+	# For each data set get the five point summary (use the default formula)
+	# Then add the result to the graph.
+	my $currentPlot = 0;
+	my $bounds = '';
+	foreach my $dataSet (@accumulatedDataSets)
+	{
+			# Get the five point summary for each set.
+			my @summary = five_point_summary(@{$dataSet});
+			$bounds .= "$summary[0],$summary[1],$summary[2],$summary[3],$summary[4]\n";
+
+			# Make the big box marking the quartiles.
+			$graphRef->moveTo($summary[1],$currentPlot+0.25);
+			$graphRef->lineTo($summary[1],$currentPlot+0.75,$black,2);
+			$graphRef->lineTo($summary[3],$currentPlot+0.75,$black,2);
+			$graphRef->lineTo($summary[3],$currentPlot+0.25,$black,2);
+			$graphRef->lineTo($summary[1],$currentPlot+0.25,$black,2);
+			$graphRef->lineTo($summary[1],$currentPlot+0.75,$black,2);
+
+			# Mark the median
+			$graphRef->moveTo($summary[2],$currentPlot+0.25);
+			$graphRef->lineTo($summary[2],$currentPlot+0.75,$black,2);
+
+			# Mark the minimum
+			$graphRef->moveTo($summary[0],$currentPlot+0.25);
+			$graphRef->lineTo($summary[0],$currentPlot+0.75,$black,2);
+			$graphRef->moveTo($summary[0],$currentPlot+0.5);
+			$graphRef->lineTo($summary[1],$currentPlot+0.5,$black,2);
+
+			# Mark the maximum
+			$graphRef->moveTo($summary[4],$currentPlot+0.25);
+			$graphRef->lineTo($summary[4],$currentPlot+0.75,$black,2);
+			$graphRef->moveTo($summary[4],$currentPlot+0.5);
+			$graphRef->lineTo($summary[3],$currentPlot+0.5,$black,2);
+
+
+			$currentPlot++;
+	}
+
+
+	$bounds;
 }
 
 

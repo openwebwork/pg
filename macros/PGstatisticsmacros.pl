@@ -330,7 +330,7 @@ sub five_point_summary {
 					if(($number-1)%4 == 0)
 					{
               # The lower and upper halves have an even number of points in them.
-							$q1 = 0.5*$data_list[($number-1)/4-1]  +0.5*$data_list[($number-1)/4];
+							$q1 = 0.5*$data_list[($number-1)/4-1]+0.5*$data_list[($number-1)/4];
 							$q3 = 0.5*$data_list[3*($number-1)/4]+0.5*$data_list[3*($number-1)/4+1];
 					}
 					else
