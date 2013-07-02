@@ -103,33 +103,25 @@ sub init_statistics_graph {
 	}
 
 
-	# Get the five point summaries for each of the defined data sets.
-	# initialize the set of five point summaries
-	my @fivePointSummary = ();
-
 	# For each data set get the five point summary (use the default formula)
 	# From that value determine the min and max x values.
-	# First get all of the five point summaries.
+	my $xmin = 'nd'; 
+	my $xmax = 'nd';
+	my $ymin = 0.0;
+	my $ymax = $numberDataSets;
 	foreach my $dataSet (@accumulatedDataSets)
 	{
 			# Get the five point summary for each set.
 			my @summary = five_point_summary(@{$dataSet});
-			push(@fivePointSummary,\@summary);
-	}
-
-	# Now get the min and max for the graphs.
-	# First initialize the values.
-	my $xmin = $fivePointSummary[0][0]; 
-	my $xmax = $fivePointSummary[0][4];
-	my $ymin = 0.0;
-	my $ymax = $numberDataSets;
-	foreach my $dataSet (@fivePointSummary)
-	{
 			# check each give point summary to see if it is a max or min.
-			if($dataSet->[0] < $xmin) { $xmin = $dataSet->[0]; }
-			if($dataSet->[4] > $xmax) { $xmax = $dataSet->[4]; }
+			if(($xmin eq 'nd') || ($summary[0] < $xmin)) { $xmin = $summary[0]; }
+			if(($xmax eq 'nd') || ($summary[4] > $xmax)) { $xmax = $summary[4]; }
 	}
 
+
+	# Add a little buffer to the left and right.
+	$xmin -= ($xmax-$xmin)*0.15;
+	$xmax += ($xmax-$xmin)*0.05;
 
 	# Get the graph object.
 	# Create a graph object with the given size.
@@ -160,10 +152,14 @@ sub add_boxplot {
 	# Then add the result to the graph.
 	my $currentPlot = 0;
 	my $bounds = '';
+	my $xmin = 'nd'; 
+	my $xmax = 'nd';
 	foreach my $dataSet (@accumulatedDataSets)
 	{
 			# Get the five point summary for each set.
 			my @summary = five_point_summary(@{$dataSet});
+			if(($xmin eq 'nd') || ($summary[0] < $xmin)) { $xmin = $summary[0]; }
+			if(($xmax eq 'nd') || ($summary[4] > $xmax)) { $xmax = $summary[4]; }
 			$bounds .= "$summary[0],$summary[1],$summary[2],$summary[3],$summary[4]\n";
 
 			# Make the big box marking the quartiles.
@@ -193,7 +189,16 @@ sub add_boxplot {
 
 			$currentPlot++;
 	}
+	$xmin -= ($xmax-$xmin)*0.075;
 
+	# No go through and add the labels.
+	while($currentPlot>0)
+	{
+			my $label = new Label($xmin,$currentPlot-0.5,$currentPlot,'black','left');
+			$label->font(GD::gdGiantFont);
+			$graphRef->lb($label);
+			$currentPlot--;
+	}
 
 	$bounds;
 }
