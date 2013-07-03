@@ -103,10 +103,10 @@ sub init_statistics_graph {
 	foreach my $dataSet (@accumulatedDataSets)
 	{
 			# Get the five point summary for each set.
-			my @summary = five_point_summary(@{$dataSet});
+			my @summary = getMinMax(@{$dataSet});
 			# check each give point summary to see if it is a max or min.
 			if(($xmin eq 'nd') || ($summary[0] < $xmin)) { $xmin = $summary[0]; }
-			if(($xmax eq 'nd') || ($summary[4] > $xmax)) { $xmax = $summary[4]; }
+			if(($xmax eq 'nd') || ($summary[1] > $xmax)) { $xmax = $summary[1]; }
 	}
 
 
@@ -120,6 +120,21 @@ sub init_statistics_graph {
 	$graphRef->lb('reset');
 
 	$graphRef;
+}
+
+
+sub getMinMax {
+		# Routine to return the smallest and largest value in the list of
+		# numbers given for the arguments to the function.
+			@data_list = (@_);
+			my $xmin = 'nd'; 
+			my $xmax = 'nd';
+			for my $value (@data_list)
+			{
+					if(($xmin eq 'nd') || ($value < $xmin)) { $xmin = $value; }
+					if(($xmax eq 'nd') || ($value > $xmax)) { $xmax = $value; }
+			}
+			($xmin,$xmax);
 }
 
 
