@@ -155,32 +155,48 @@ sub init_graph {
 		$graphRef->lb(new Label(0,$ymin,$ymin,'black','bottom','right'));
 
 	} elsif ($options{ticks}) {   #   draw ticks -- grid over rides ticks
-		my $xdiv = ${$options{ticks}}[0]? ${$options{ticks}}[0] : 8; # number of ticks (8 is default)
-	        my $ydiv = ${$options{ticks}}[1]? ${$options{ticks}}[1] : 8;
-		my $x_delta = ($graphRef->xmax -  $graphRef->xmin)/$xdiv;
-	        my $y_delta = ($graphRef->ymax -  $graphRef->ymin)/$ydiv;
-	        my $i; my @x_values=(); my @y_values=();
-	    foreach $i (1..($xdiv-1) ) {
-	    	push( @x_values, $i*$x_delta+$graphRef->{xmin});
-	    }
-	    foreach $i (1..($ydiv-1) ) {
-	    	push( @y_values, $i*$y_delta+$graphRef->{ymin});
-	    }
-		$graphRef->h_ticks(0,'black',@x_values);
-		$graphRef->v_ticks(0,'black',@y_values);
-		$graphRef->lb(new Label($x_delta,0,$x_delta,'black','right'));
-		$graphRef->lb(new Label(0,$y_delta,$y_delta,'black','top'));
 
-		$graphRef->lb(new Label($xmax,0,$xmax,'black','right'));
-		$graphRef->lb(new Label($xmin,0,$xmin,'black','left'));
-		$graphRef->lb(new Label(0,$ymax,$ymax,'black','top'));
-		$graphRef->lb(new Label(0,$ymin,$ymin,'black','bottom','right'));
+			# Determien where the axis will be.
+			my $horizontalAxisLevel = 0.0;
+			my $verticalAxisLevel = 0.0;
+			if ($options{axes}) {   # the crossing point for the axes is defined.
+					my $ra_axes = $options{axes};
+					$horizontalAxisLevel = $ra_axes->[1];
+					$verticalAxisLevel   = $ra_axes->[0];
+					$graphRef->h_axis($ra_axes->[1],'black');
+					$graphRef->v_axis($ra_axes->[0],'black');
+			}
+
+			my $xdiv = ${$options{ticks}}[0]? ${$options{ticks}}[0] : 8; # number of ticks (8 is default)
+			my $ydiv = ${$options{ticks}}[1]? ${$options{ticks}}[1] : 8;
+			my $x_delta = ($graphRef->xmax -  $graphRef->xmin)/$xdiv;
+			my $y_delta = ($graphRef->ymax -  $graphRef->ymin)/$ydiv;
+			my $i; 
+			my @x_values=();
+			my @y_values=();
+			foreach $i (1..($xdiv-1) ) {
+					push( @x_values, $i*$x_delta+$graphRef->{xmin});
+			}
+			foreach $i (1..($ydiv-1) ) {
+					push( @y_values, $i*$y_delta+$graphRef->{ymin});
+			}
+			$graphRef->h_ticks($horizontalAxisLevel,'black',@x_values);
+			$graphRef->v_ticks($verticalAxisLevel  ,'black',@y_values);
+
+
+			$graphRef->lb(new Label($x_delta,$horizontalAxisLevel,$x_delta,'black','right'));
+			$graphRef->lb(new Label($verticalAxisLevel,$y_delta,"goober".$y_delta,'black','top'));
+
+			$graphRef->lb(new Label($xmax,$horizontalAxisLevel,$xmax,'black','right'));
+			$graphRef->lb(new Label($xmin,$horizontalAxisLevel,$xmin,'black','left'));
+			$graphRef->lb(new Label($verticalAxisLevel,$ymax,$ymax,'black','top'));
+			$graphRef->lb(new Label($verticalAxisLevel,$ymin,$ymin,'black','bottom','right'));
 	}
 
-	if ($options{axes}) {   #   draw axis
+	elsif ($options{axes}) {   #   draw axis
 	    my $ra_axes = $options{axes};
-		$graphRef->h_axis($ra_axes->[1],'black');
-		$graphRef->v_axis($ra_axes->[0],'black');
+			$graphRef->h_axis($ra_axes->[1],'black');
+			$graphRef->v_axis($ra_axes->[0],'black');
 	}
 
 
