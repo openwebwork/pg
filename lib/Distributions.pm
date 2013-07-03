@@ -17,7 +17,7 @@ require Exporter;
 # Items to export into callers namespace by default. Note: do not export
 # names by default without a very good reason. Use EXPORT_OK instead.
 # Do not simply export all your public functions/methods/constants.
-@EXPORT_OK = qw(chisqrdistr tdistr fdistr udistr uprob chisqrprob tprob fprob urand expdistr expprob exprand);
+@EXPORT_OK = qw(chisqrdistr tdistr fdistr udistr uprob chisqrprob tprob fprob expdistr expprob );
 $VERSION = '0.07';
 
 # Preloaded methods go here.
@@ -166,69 +166,6 @@ sub expprob { # Upper probability  Exp(x,lambda)
 	return precision_string(exp(-$x*$lambda));
 }
 
-
-sub urand { # generate normally dist. random numbers 
-# urand(mean,sd,N,digits)
-# Generates N random numbers. The distribution is set by 
-# mean equal to "mean" and the standard deviation given by 
-# "sd." The value of 'digits' gives the number of decimal 
-# places to return.
-	my ($mean, $sd, $N, $digits) = @_;
-	if ($N<=0) {
-		die "Invalid N: $N\n"; # Cannot generate negative or zero numbers.
-	}
-
-	my @numbers = ();
-	while($N > 0)
-	{
-			# Generate a new set of normally dist. random numbers.
-			# Use the Box–Muller transform which gives two normally dist. numbers.
-			my $radius = sqrt(-2.0*log(rand(1.0)));
-			my $angle  = 2.0*PI*rand(1.0);
-			my @r = (significant_decimals($mean+$sd*$radius*sin($angle),$digits),
-							 significant_decimals($mean+$sd*$radius*cos($angle),$digits));
-			if($N > 1)
-			{
-					# Add both numbers to the list.
-					$N -= 2;
-					push(@numbers,@r);
-			}
-			else
-			{
-					# Only add one of the numbers to the list.
-					$N -= 1;
-					push(@numbers,$r[0]);
-			}
-	}
-	
-	return @numbers;
-}
-
-
-sub exprand { # generate exponentially dist. numbers  Exp(x,lambda)
-# exprand(lambda,N,digits)
-# Generates N random numbers. The distribution is exponetially
-# distributed with parameter lambda.  The value of 'digits' gives the
-# number of decimal places to return.
-	my ($lambda,$N,$digits) = @_;
-	if ($lambda<=0) {
-		die "Invalid parameter lambda: $lambda\n"; # must be a positive number
-	}
-	if ($N<=0) {
-		die "Invalid N: $N\n"; # Cannot generate negative or zero numbers.
-	}
-
-	my @numbers = ();
-	while($N > 0)
-	{
-			# Generate an exponentially dist. random number.
-			$N -= 1;
-			push(@numbers,significant_decimals(-log(rand(1.0))/$lambda,$digits));
-	}
-	
-	return @numbers;
-
-}
 
 
 sub _subfprob {
@@ -571,25 +508,6 @@ sub precision_string {
 }
 
 
-sub significant_decimals {
-# significant_decimals(x,n)
-# Return the value of x but with the decimal digits rounded
-# to n places.
-#
-# ex: significant_decimals(0.12345678,4) = 0.1235
-		my ($x,$n) = @_;
-		if($n < 0)
-		{
-				die "Invalid digits: $n\n"; # number of decimal places
-		}
-		elsif ($n > 10)
-		{
-				# Too many decimal digits to worry about.
-				return($x);
-		}
-		my $power = 10**$n;
-		return(int($x*$power + 0.5)/$power);
-}
 
 # Autoload methods go after =cut, and are processed by the autosplit program.
 

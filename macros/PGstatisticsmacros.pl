@@ -159,6 +159,128 @@ sub stats_sd {
 	
 }
 
+
+=head3 Function to trim the decimal numbers in a floating point number.
+
+=pod
+
+	Usage: significant_decimals(x,n)
+
+Trims the number x to have n decimal digit. ex: significant_decimals(0.12345678,4) = 0.1235
+
+=cut
+
+sub significant_decimals {
+# significant_decimals(x,n)
+# Return the value of x but with the decimal digits rounded
+# to n places.
+#
+# ex: significant_decimals(0.12345678,4) = 0.1235
+		my ($x,$n) = @_;
+		if($n < 0)
+		{
+				die "Invalid digits: $n\n"; # number of decimal places
+		}
+		elsif ($n > 10)
+		{
+				# Too many decimal digits to worry about.
+				return($x);
+		}
+		my $power = 10**$n;
+		return(int($x*$power + 0.5)/$power);
+}
+
+
+
+
+=head3 Function to generate normally distributed random numbers
+
+=pod
+
+	Usage: urand(mean,sd,N,digits)
+
+Generates N normally distributed random numbers with the given mean and standard deviation. The digits is the number of decimal digits to use.
+
+=cut
+
+sub urand { # generate normally dist. random numbers 
+# urand(mean,sd,N,digits)
+# Generates N random numbers. The distribution is set by 
+# mean equal to "mean" and the standard deviation given by 
+# "sd." The value of 'digits' gives the number of decimal 
+# places to return.
+	my ($mean, $sd, $N, $digits) = @_;
+	if ($N<=0) {
+		die "Invalid N: $N\n"; # Cannot generate negative or zero numbers.
+	}
+
+	$random = new PGrandom;
+	$pi = 4.0*atan(1.0);
+	my @numbers = ();
+	while($N > 0)
+	{
+			# Generate a new set of normally dist. random numbers.
+			# Use the Box–Muller transform which gives two normally dist. numbers.
+			my $radius = sqrt(-2.0*log($main::PG_random_generator->random(0.0,1.0,0.0))); #sqrt(-2.0*log(rand(1.0)));
+			my $angle  = 2.0*$pi*$main::PG_random_generator->random(0.0,1.0,0.0); #2.0*PI*rand(1.0);
+			my @r = (significant_decimals($mean+$sd*$radius*CORE::sin($angle),$digits),
+							 significant_decimals($mean+$sd*$radius*CORE::cos($angle),$digits));
+
+			if($N > 1)
+			{
+					# Add both numbers to the list.
+					$N -= 2;
+					push(@numbers,@r);
+			}
+			else
+			{
+					# Only add one of the numbers to the list.
+					$N -= 1;
+					push(@numbers,$r[0]);
+			}
+	}
+	
+	return @numbers;
+}
+
+
+=head3 Function to generate exponentially distributed random numbers
+
+=pod
+
+	Usage: exprand(lambda,N,digits)
+
+Generates N normally exponentially distributed random numbers with the given parameter, lambda. The digits is the number of decimal digits to use.
+
+=cut
+
+sub exprand { # generate exponentially dist. numbers  Exp(x,lambda)
+# exprand(lambda,N,digits)
+# Generates N random numbers. The distribution is exponetially
+# distributed with parameter lambda.  The value of 'digits' gives the
+# number of decimal places to return.
+	my ($lambda,$N,$digits) = @_;
+	if ($lambda<=0) {
+		die "Invalid parameter lambda: $lambda\n"; # must be a positive number
+	}
+	if ($N<=0) {
+		die "Invalid N: $N\n"; # Cannot generate negative or zero numbers.
+	}
+
+	my @numbers = ();
+	while($N > 0)
+	{
+			# Generate an exponentially dist. random number.
+			$N -= 1;
+			push(@numbers,significant_decimals(-log($main::PG_random_generator->random(0.0,1.0,0.0))/$lambda,$digits));
+	}
+	
+	return @numbers;
+
+}
+
+
+
 =head3 Five Point Summary function
 
 =pod
@@ -194,7 +316,7 @@ sub five_point_summary {
 
 
 	# Sort the data and get the number of data points.
-	@data_list = sort{$a <=> $b}(@data_list);
+	@data_list = num_sort(@data_list);
 	my $number = 1+$#data_list;
 	if($number == 0)
 	{
