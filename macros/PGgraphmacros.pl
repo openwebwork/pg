@@ -193,7 +193,7 @@ sub init_graph {
 			$graphRef->lb(new Label($verticalAxisLevel,$ymin,$ymin,'black','bottom','right'));
 	}
 
-	elsif ($options{axes}) {   #   draw axis
+	if ($options{axes}) {   #   draw axis
 	    my $ra_axes = $options{axes};
 			$graphRef->h_axis($ra_axes->[1],'black');
 			$graphRef->v_axis($ra_axes->[0],'black');
