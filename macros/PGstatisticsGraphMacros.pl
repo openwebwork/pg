@@ -117,7 +117,6 @@ sub init_statistics_graph {
 	# Get the graph object.
 	# Create a graph object with the given size.
 	my $graphRef = init_graph($xmin,$ymin,$xmax,$ymax,%options);
-	$graphRef->lb('reset');
 
 	$graphRef;
 }
