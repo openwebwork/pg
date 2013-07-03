@@ -185,7 +185,7 @@ sub init_graph {
 
 
 			$graphRef->lb(new Label($x_delta,$horizontalAxisLevel,$x_delta,'black','right'));
-			$graphRef->lb(new Label($verticalAxisLevel,$y_delta,"goober".$y_delta,'black','top'));
+			$graphRef->lb(new Label($verticalAxisLevel,$y_delta,$y_delta,'black','top'));
 
 			$graphRef->lb(new Label($xmax,$horizontalAxisLevel,$xmax,'black','right'));
 			$graphRef->lb(new Label($xmin,$horizontalAxisLevel,$xmin,'black','left'));
