@@ -184,13 +184,13 @@ sub init_graph {
 			$graphRef->v_ticks($verticalAxisLevel  ,'black',@y_values);
 
 
-			$graphRef->lb(new Label($x_delta,$horizontalAxisLevel,$x_delta,'black','right'));
-			$graphRef->lb(new Label($verticalAxisLevel,$y_delta,$y_delta,'black','top'));
+			$graphRef->lb(new Label($verticalAxisLevel+$x_delta,$horizontalAxisLevel,$x_delta,'black','right'));
+			$graphRef->lb(new Label($verticalAxisLevel,$horizontalAxisLevel+$y_delta,$y_delta,'black','top'));
 
-			$graphRef->lb(new Label($xmax,$horizontalAxisLevel,$xmax,'black','right'));
-			$graphRef->lb(new Label($xmin,$horizontalAxisLevel,$xmin,'black','left'));
-			$graphRef->lb(new Label($verticalAxisLevel,$ymax,$ymax,'black','top'));
-			$graphRef->lb(new Label($verticalAxisLevel,$ymin,$ymin,'black','bottom','right'));
+			$graphRef->lb(new Label($verticalAxisLevel+$xmax,$horizontalAxisLevel,$xmax,'black','right'));
+			$graphRef->lb(new Label($verticalAxisLevel+$xmin,$horizontalAxisLevel,$xmin,'black','left'));
+			$graphRef->lb(new Label($verticalAxisLevel,$ymax,$horizontalAxisLevel+$ymax,'black','top'));
+			$graphRef->lb(new Label($verticalAxisLevel,$ymin,$horizontalAxisLevel+$ymin,'black','bottom','right'));
 	}
 
 	if ($options{axes}) {   #   draw axis
