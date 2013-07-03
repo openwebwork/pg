@@ -39,41 +39,32 @@ See F<PGbasicmacros> for definitions of C<image> and C<caption>
 #my $setNumber     = $main::setNumber;
 #my $probNum       = $main::probNum;
 
-#########################################################
-# this initializes a graph object
-#########################################################
-# graphObject = init_graph(xmin,ymin,xmax,ymax,options)
-# options include  'grid' =>[8,8] or
-#				   'ticks'=>[8,8] and/or
-#                  'axes'
-#########################################################
+##############################################################################################
+# this accomplishes the following:
+#   a) clears the accumulated statistical data,
+#   b) Create three random, normally distributed, and one exponentially dist. data sets.
+#   c) Add the data set to the collection of data
+#   d) initializes a statistical graph object
+#   e) adds the relevant box plots.
+##############################################################################################
+#   clear_stat_graph_data();         # (a)
+#
+#   @data1 = urand(10.0,2.0,10,2);   # (b) - mean=10, sd=2.0, N=10, 2 dec places
+#   @data2 = urand(12.0,2.0,10,2);   # (b) - mean=12, sd=2.0
+#   @data3 = urand(14.0,4.0,10,2);   # (b) - mean=14, sd=4.0
+#   @data4 = exprand(0.1,10,2);      # (b) - lambda=0.1, N=10, and 2 dec places (exp)
+#
+#   push_stat_data_set(~~@data1);    # (c)
+#   push_stat_data_set(~~@data2);    # (c)
+#   push_stat_data_set(~~@data3);    # (c)
+#   push_stat_data_set(~~@data4);    # (c)
+#
+#   # Now initialize the graph (d) and add the box plots (e)
+#   $graph = init_statistics_graph(axes=>[0,0.0],ticks=>[10]);
+#   $bounds = add_boxplot($graph);
+#
+###############################################################################################
 
-#loadMacros("MathObjects.pl");   # avoid loading the entire package
-                                 # of MathObjects since that can mess up 
-                                 # problems that don't use MathObjects but use Matrices.
-
-
-=head2 init_graph
-
-=pod
-
-		$graphObject = init_graph(xmin,ymin,xmax,ymax,'ticks'=>[4,4],'axes'=>[0,0])
-		options are
-			'grid' =>[8,8] or
-			# there are 8 evenly spaced lines intersecting the horizontal axis
-			'ticks'=>[8,8] and/or
-			# there are 8 ticks on the horizontal axis, 8 on the vertical
-			'axes' => [0,0]
-			# axes pass through the point (0,0) in real coordinates
-			'size' => [200,200]
-			# dimensions of the graph in pixels.
-			'pixels' =>[200,200]  # synonym for size
-
-Creates a graph object with the default size 200 by 200 pixels.
-If you want axes or grids you need to specify them in options. But the default values can be selected for you.
-
-
-=cut
 
 our @accumulatedDataSets = (); # The list of data sets to be used in the graphs.
 
@@ -107,7 +98,7 @@ sub init_statistics_graph {
 	# From that value determine the min and max x values.
 	my $xmin = 'nd'; 
 	my $xmax = 'nd';
-	my $ymin = 0.0;
+	my $ymin = -0.25;
 	my $ymax = $numberDataSets;
 	foreach my $dataSet (@accumulatedDataSets)
 	{
@@ -162,30 +153,24 @@ sub add_boxplot {
 			if(($xmax eq 'nd') || ($summary[4] > $xmax)) { $xmax = $summary[4]; }
 			$bounds .= "$summary[0],$summary[1],$summary[2],$summary[3],$summary[4]\n";
 
-			# Make the big box marking the quartiles.
+			# Mark the vertical bars
+			foreach my $bound (@summary)
+			{
+					$graphRef->moveTo($bound,$currentPlot+0.25);
+					$graphRef->lineTo($bound,$currentPlot+0.75,$black,2);
+			}
+
+			# Mark the two horizontal bars in the quartile box
 			$graphRef->moveTo($summary[1],$currentPlot+0.25);
-			$graphRef->lineTo($summary[1],$currentPlot+0.75,$black,2);
-			$graphRef->lineTo($summary[3],$currentPlot+0.75,$black,2);
 			$graphRef->lineTo($summary[3],$currentPlot+0.25,$black,2);
-			$graphRef->lineTo($summary[1],$currentPlot+0.25,$black,2);
-			$graphRef->lineTo($summary[1],$currentPlot+0.75,$black,2);
+			$graphRef->moveTo($summary[1],$currentPlot+0.75);
+			$graphRef->lineTo($summary[3],$currentPlot+0.75,$black,2);
 
-			# Mark the median
-			$graphRef->moveTo($summary[2],$currentPlot+0.25);
-			$graphRef->lineTo($summary[2],$currentPlot+0.75,$black,2);
-
-			# Mark the minimum
-			$graphRef->moveTo($summary[0],$currentPlot+0.25);
-			$graphRef->lineTo($summary[0],$currentPlot+0.75,$black,2);
+			# Add the whiskers
 			$graphRef->moveTo($summary[0],$currentPlot+0.5);
 			$graphRef->lineTo($summary[1],$currentPlot+0.5,$black,2);
-
-			# Mark the maximum
-			$graphRef->moveTo($summary[4],$currentPlot+0.25);
-			$graphRef->lineTo($summary[4],$currentPlot+0.75,$black,2);
-			$graphRef->moveTo($summary[4],$currentPlot+0.5);
-			$graphRef->lineTo($summary[3],$currentPlot+0.5,$black,2);
-
+			$graphRef->moveTo($summary[3],$currentPlot+0.5);
+			$graphRef->lineTo($summary[4],$currentPlot+0.5,$black,2);
 
 			$currentPlot++;
 	}

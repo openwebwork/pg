@@ -214,15 +214,14 @@ sub urand { # generate normally dist. random numbers
 		die "Invalid N: $N\n"; # Cannot generate negative or zero numbers.
 	}
 
-	$random = new PGrandom;
 	$pi = 4.0*atan(1.0);
 	my @numbers = ();
 	while($N > 0)
 	{
 			# Generate a new set of normally dist. random numbers.
 			# Use the Box–Muller transform which gives two normally dist. numbers.
-			my $radius = sqrt(-2.0*log($main::PG_random_generator->random(0.0,1.0,0.0))); #sqrt(-2.0*log(rand(1.0)));
-			my $angle  = 2.0*$pi*$main::PG_random_generator->random(0.0,1.0,0.0); #2.0*PI*rand(1.0);
+			my $radius = sqrt(-2.0*log($main::PG_random_generator->random(0.0,1.0,0.0)));
+			my $angle  = 2.0*$pi*$main::PG_random_generator->random(0.0,1.0,0.0);
 			my @r = (significant_decimals($mean+$sd*$radius*CORE::sin($angle),$digits),
 							 significant_decimals($mean+$sd*$radius*CORE::cos($angle),$digits));
 
@@ -250,7 +249,7 @@ sub urand { # generate normally dist. random numbers
 
 	Usage: exprand(lambda,N,digits)
 
-Generates N normally exponentially distributed random numbers with the given parameter, lambda. The digits is the number of decimal digits to use.
+Generates N  exponentially distributed random numbers with the given parameter, lambda. The digits is the number of decimal digits to use.
 
 =cut
 
@@ -417,7 +416,7 @@ sub five_point_summary {
 					}
 			}
 
-	} # 
+	} # if ($args->{method} eq 'includeMedian') 
 
 
 	else 
