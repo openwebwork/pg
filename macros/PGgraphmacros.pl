@@ -126,12 +126,25 @@ sub init_graph {
 	# this provides a unique name for the graph -- it does not include an extension.
 	$graphRef->imageName("${imageName}image${imageNum}");
 
+	# Set the initial/default bounds for the graph.
 	$graphRef->xmin($xmin) if defined($xmin);
 	$graphRef->xmax($xmax) if defined($xmax);
 	$graphRef->ymin($ymin) if defined($ymin);
 	$graphRef->ymax($ymax) if defined($ymax);
 	my $x_delta = ($graphRef->xmax -  $graphRef->xmin)/8;
 	my $y_delta = ($graphRef->ymax -  $graphRef->ymin)/8;
+
+	# Set the initial/default bounds for the placement of the axes
+	my $horizontalAxisLevel = 0.0;
+	my $verticalAxisLevel = 0.0;
+	if ($options{axes}) {   #   draw axis
+	    my $ra_axes = $options{axes};
+			$graphRef->h_axis($ra_axes->[1],'black');
+			$graphRef->v_axis($ra_axes->[0],'black');
+			$horizontalAxisLevel = $ra_axes->[1];
+			$verticalAxisLevel   = $ra_axes->[0];
+	}
+
 	if (defined($options{grid})) {   #   draw grid
 	    my $xdiv = ( ${$options{'grid'}}[0]) ? ${$options{'grid'}}[0] : 8; # number of ticks (8 is default)
 	    my $ydiv = ( ${$options{'grid'}}[1] )  ? ${$options{'grid'}}[1] : 8;
@@ -146,26 +159,17 @@ sub init_graph {
 	    }
 		$graphRef->v_grid('gray',@x_values);
 		$graphRef->h_grid('gray',@y_values);
-		$graphRef->lb(new Label($x_delta,0,sprintf("%1.1f",$x_delta),'black','center','middle'));
-		$graphRef->lb(new Label(0,$y_delta,sprintf("%1.1f",$y_delta),'black','center','middle'));
+		$graphRef->lb(new Label($x_delta,$horizontalAxisLevel,
+														sprintf("%1.1f",$x_delta),'black','center','middle'));
+		$graphRef->lb(new Label($verticalAxisLevel,$y_delta,
+														sprintf("%1.1f",$y_delta),'black','center','middle'));
 
-		$graphRef->lb(new Label($xmax,0,$xmax,'black','right'));
-		$graphRef->lb(new Label($xmin,0,$xmin,'black','left'));
-		$graphRef->lb(new Label(0,$ymax,$ymax,'black','top'));
-		$graphRef->lb(new Label(0,$ymin,$ymin,'black','bottom','right'));
+		$graphRef->lb(new Label($xmax,$horizontalAxisLevel,$xmax,'black','right'));
+		$graphRef->lb(new Label($xmin,$horizontalAxisLevel,$xmin,'black','left'));
+		$graphRef->lb(new Label($verticalAxisLevel,$ymax,$ymax,'black','top'));
+		$graphRef->lb(new Label($verticalAxisLevel,$ymin,$ymin,'black','bottom','right'));
 
 	} elsif ($options{ticks}) {   #   draw ticks -- grid over rides ticks
-
-			# Determien where the axis will be.
-			my $horizontalAxisLevel = 0.0;
-			my $verticalAxisLevel = 0.0;
-			if ($options{axes}) {   # the crossing point for the axes is defined.
-					my $ra_axes = $options{axes};
-					$horizontalAxisLevel = $ra_axes->[1];
-					$verticalAxisLevel   = $ra_axes->[0];
-					$graphRef->h_axis($ra_axes->[1],'black');
-					$graphRef->v_axis($ra_axes->[0],'black');
-			}
 
 			my $xdiv = ${$options{ticks}}[0]? ${$options{ticks}}[0] : 8; # number of ticks (8 is default)
 			my $ydiv = ${$options{ticks}}[1]? ${$options{ticks}}[1] : 8;
@@ -184,20 +188,15 @@ sub init_graph {
 			$graphRef->v_ticks($verticalAxisLevel  ,'black',@y_values);
 
 
-			$graphRef->lb(new Label($verticalAxisLevel+$x_delta,$horizontalAxisLevel,$x_delta,'black','right'));
-			$graphRef->lb(new Label($verticalAxisLevel,$horizontalAxisLevel+$y_delta,$y_delta,'black','top'));
+			$graphRef->lb(new Label($x_delta,$horizontalAxisLevel,$x_delta,'black','right'));
+			$graphRef->lb(new Label($verticalAxisLevel,$y_delta,$y_delta,'black','top'));
 
-			$graphRef->lb(new Label($verticalAxisLevel+$xmax,$horizontalAxisLevel,$xmax,'black','right'));
-			$graphRef->lb(new Label($verticalAxisLevel+$xmin,$horizontalAxisLevel,$xmin,'black','left'));
-			$graphRef->lb(new Label($verticalAxisLevel,$ymax,$horizontalAxisLevel+$ymax,'black','top'));
-			$graphRef->lb(new Label($verticalAxisLevel,$ymin,$horizontalAxisLevel+$ymin,'black','bottom','right'));
+			$graphRef->lb(new Label($xmax,$horizontalAxisLevel,$xmax,'black','right'));
+			$graphRef->lb(new Label($xmin,$horizontalAxisLevel,$xmin,'black','left'));
+			$graphRef->lb(new Label($verticalAxisLevel,$ymax,$ymax,'black','top'));
+			$graphRef->lb(new Label($verticalAxisLevel,$ymin,$ymin,'black','bottom','right'));
 	}
 
-	if ($options{axes}) {   #   draw axis
-	    my $ra_axes = $options{axes};
-			$graphRef->h_axis($ra_axes->[1],'black');
-			$graphRef->v_axis($ra_axes->[0],'black');
-	}
 
 
 	$graphRef;
