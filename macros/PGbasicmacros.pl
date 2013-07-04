@@ -29,7 +29,9 @@
 
 =cut
 
-sub _PGbasicmacros_init { }
+#####sub _PGbasicmacros_init { }
+### In this file the _init subroutine is defined further down
+### It actually initializes something!
 
 # this is equivalent to use strict, but can be used within the Safe compartmen
 
@@ -1111,6 +1113,8 @@ sub hint {
 	PG_restricted_eval(q!$main::hintExists =1!);
     PG_restricted_eval(q!$main::numOfAttempts = 0 unless defined($main::numOfAttempts);!);
     my $attempts = PG_restricted_eval(q!$main::numOfAttempts!);
+    #$attempts++ if PG_restricted_eval(q!$main::inputs_ref->{submitAnswers}!); # numbOfAttempts is off by one when resubmitting
+    #FIXME -- in the current version where PGbasicmacros is reloaded do all of these values need to be recomputed?
 
 	if ($displayMode eq 'TeX')   {
 	    if ($printHintForInstructor) {
