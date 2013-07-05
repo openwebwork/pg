@@ -229,7 +229,7 @@ sub add_histogram {
 			my @frequencies   = ();
 			my @extrema       = getMinMax(@{$dataSet});
 			my $width         = ($extrema[1]-$extrema[0])/($numberBins-1);
-			$bounds .= "$extrema[0],$extrema[1]\n";
+			#$bounds .= "$extrema[0],$extrema[1]\n";
 			if(($xmin eq 'nd') || ($extrema[0] < $xmin)) { $xmin = $extrema[0]; }
 
 			# Next set the boundaries for each bin and initialize the
@@ -240,6 +240,8 @@ sub add_histogram {
 					push(@binBoundaries,$extrema[0]+$width*($lupe-0.5));
 					push(@frequencies,0);
 			}
+			# Add the far right boundary
+			push(@binBoundaries,$extrema[1]+$width*0.5);
 
 			# Now go through all of the data points and figure out which bin
 			# they belong to.
@@ -247,7 +249,26 @@ sub add_histogram {
 			{
 					my $bin = int(($point-$extrema[0]+$width*0.5)/$width);
 					$frequencies[$bin]++;
+					$bounds .= "$point,";
 			}
+			$bounds .= "$BR";
+
+			# Draw all of the boxes for the histogram.
+			my $totalDataPoints = 1+$#frequencies;
+			$lupe = 0;
+			foreach my $count (@frequencies)
+			{
+					# Mark out the rectangle.
+					$graphRef->moveTo($binBoundaries[$lupe],$currentPlot+0.25);
+					$graphRef->lineTo($binBoundaries[$lupe],$currentPlot+0.25+$count/$totalDataPoints,$black,2);
+					$graphRef->lineTo($binBoundaries[$lupe+1],$currentPlot+0.25+$count/$totalDataPoints,$black,2);
+					$graphRef->lineTo($binBoundaries[$lupe+1],$currentPlot+0.25,$black,2);
+					$graphRef->lineTo($binBoundaries[$lupe],$currentPlot+0.25,$black,2);
+					$lupe++;
+			}
+
+
+			$currentPlot++;
 	}
 
 
