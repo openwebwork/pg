@@ -204,6 +204,56 @@ sub add_boxplot {
 
 
 
+sub add_histogram {
+	my $graphRef   = shift;
+	my $numberBins = shift;
+	my $numberDataSets = 1+$#accumulatedDataSets;
+
+	if($numberDataSets == 0)
+	{
+			die "No data sets are defined.";
+	}
+
+	# Get the necessary graph properties for making the plot.
+	$black = $graphRef->im->colorAllocate(0,0,0);
+
+	# For each data set get the frequencies
+	# Then add the result to the graph.
+	my $currentPlot = 0;
+	my $xmin = 'nd';
+	my $bounds = '';
+	foreach my $dataSet (@accumulatedDataSets)
+	{
+			# Initialize the lists of frequencies and the bin end points
+			my @binBoundaries = ();
+			my @frequencies   = ();
+			my @extrema       = getMinMax(@{$dataSet});
+			my $width         = ($extrema[1]-$extrema[0])/($numberBins-1);
+			$bounds .= "$extrema[0],$extrema[1]\n";
+			if(($xmin eq 'nd') || ($extrema[0] < $xmin)) { $xmin = $extrema[0]; }
+
+			# Next set the boundaries for each bin and initialize the
+			# frequencies.
+			my $lupe;
+			for($lupe=0;$lupe<$numberBins;++$lupe)
+			{
+					push(@binBoundaries,$extrema[0]+$width*($lupe-0.5));
+					push(@frequencies,0);
+			}
+
+			# Now go through all of the data points and figure out which bin
+			# they belong to.
+			foreach my $point(@{$dataSet})
+			{
+					my $bin = int(($point-$extrema[0]+$width*0.5)/$width);
+					$frequencies[$bin]++;
+			}
+	}
+
+
+	$bounds
+}
+
 
 
 #########################################################
