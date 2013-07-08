@@ -224,8 +224,10 @@ sub AskSage {
   my ($args) = @_;
   my $url = $args->{url} || 'https://sagecell.sagemath.org/service';
   my $seed = $args->{seed};
+  my $debug = $args->{debug} || 0;
   my $setSeed = $seed?"set_random_seed($seed)\n":'';
   my $output = `curl -k -f -sS -L --data-urlencode "code=${setSeed}$python" $url`;
+  warn "sage call", qq{curl -k -f -sS -L --data-urlencode "code=${setSeed}  $python" $url} if $debug;
   my $decoded = decode_json($output);
   chomp(my $value = $decoded->{stdout});
   return $value;
