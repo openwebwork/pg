@@ -76,7 +76,7 @@ sub LiveGraphics3D {
     background => "#FFFFFF",
     scale => 1.,
     tex_size => 500,
-    tex_cener => 0,
+    tex_center => 0,
     @_
   );
   my $out = ""; my $p; my %pval;

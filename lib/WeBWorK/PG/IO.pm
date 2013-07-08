@@ -32,10 +32,10 @@ BEGIN {
 	);
 
 	our %SHARE = map { $_ => __PACKAGE__ } @EXPORT;
-	
-	if (defined $main::VERSION) {
+	my $ww_version = "2.x";  # hack -- only WW2 versions are supported.
+	if (defined $ww_version) {
 		my $mod;
-		for ($main::VERSION) {
+		for ($ww_version) {
 			/^1\./          and $mod = "WeBWorK::PG::IO::WW1";
 			/^2\./          and $mod = "WeBWorK::PG::IO::WW2";
 			/^Daemon\s*2\./ and $mod = "WeBWorK::PG::IO::Daemon2";
