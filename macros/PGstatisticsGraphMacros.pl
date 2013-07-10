@@ -226,6 +226,7 @@ sub add_histogram {
 
 	# Get the necessary graph properties for making the plot.
 	$black = $graphRef->im->colorAllocate(0,0,0);
+	$red   = $graphRef->im->colorAllocate(255,0,0);
 
 	# For each data set get the frequencies
 	# Then add the result to the graph.
@@ -261,15 +262,17 @@ sub add_histogram {
 			{
 					my $bin = int(($point-$extrema[0]+$width*0.5)/$width);
 					$frequencies[$bin]++;
-					#$bounds .= "$point,";
 			}
-			#$bounds .= "$BR";
 
 			# Draw all of the boxes for the histogram.
+			my $maxFrequency = 'nd';
 			my $totalDataPoints = 1+$#frequencies;
 			$lupe = 0;
 			foreach my $count (@frequencies)
 			{
+					# Figure out if this is the largest frequency in this batch.
+					if(($maxFrequency eq 'nd') || ($count > $maxFrequency)) { $maxFrequency = $count; }
+
 					# Mark out the rectangle.
 					$graphRef->moveTo($binBoundaries[$lupe],$currentPlot+0.25);
 					$graphRef->lineTo($binBoundaries[$lupe],
@@ -279,6 +282,20 @@ sub add_histogram {
 					$graphRef->lineTo($binBoundaries[$lupe+1],$currentPlot+0.25,$black,2);
 					$graphRef->lineTo($binBoundaries[$lupe],$currentPlot+0.25,$black,2);
 					$lupe++;
+			}
+
+			# Add a vertical frequency scale.
+			$graphRef->moveTo($extrema[0]-$width*1.1,$currentPlot+0.25);
+			$graphRef->lineTo($extrema[0]-$width*1.1,
+												$currentPlot+0.25+$multiplier*$maxFrequency/$totalDataPoints,$red,1);
+
+			# Add ticks for the frequency marks
+			for($lupe=0;$lupe<=$maxFrequency;++$lupe)
+			{
+					$graphRef->moveTo($extrema[0]-$width*1.1,
+														$currentPlot+0.25+$multiplier*$lupe/$totalDataPoints);
+					$graphRef->lineTo($extrema[0]-$width*1.3,
+														$currentPlot+0.25+$multiplier*$lupe/$totalDataPoints,$red,2);
 			}
 
 
