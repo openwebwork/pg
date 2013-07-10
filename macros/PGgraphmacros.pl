@@ -205,14 +205,16 @@ sub init_graph {
 			{
 					# Add the labels associated with the vertical axis
 					$graphRef->v_ticks($verticalAxisLevel  ,'black',@y_values);
-					$graphRef->lb(new Label($verticalAxisLevel,$y_delta,$y_delta,'black','top'));
+					$graphRef->lb(new Label($verticalAxisLevel,$ymin+($ydiv/2)*$y_delta,
+																	$ymin+($ydiv/2)*$y_delta,'black','top'));
 					$graphRef->lb(new Label($verticalAxisLevel,$ymax,$ymax,'black','top'));
 					$graphRef->lb(new Label($verticalAxisLevel,$ymin,$ymin,'black','bottom','right'));
 			}
 
 			# Add the labels for the horizontal axis
 			$graphRef->h_ticks($horizontalAxisLevel,'black',@x_values);
-			$graphRef->lb(new Label($x_delta,$horizontalAxisLevel,$x_delta,'black','right'));
+			$graphRef->lb(new Label($xmin+($xdiv/2)*$x_delta,$horizontalAxisLevel,
+															$xmin+($xdiv/2)*$x_delta,'black','center'));
 			$graphRef->lb(new Label($xmax,$horizontalAxisLevel,$xmax,'black','right'));
 			$graphRef->lb(new Label($xmin,$horizontalAxisLevel,$xmin,'black','left'));
 	}
