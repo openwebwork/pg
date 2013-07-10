@@ -112,7 +112,7 @@ sub init_statistics_graph {
 
 	# Add a little buffer to the left and right.
 	$xmin -= ($xmax-$xmin)*0.15;
-	$xmax += ($xmax-$xmin)*0.05;
+	$xmax += ($xmax-$xmin)*0.10;
 
 	# Get the graph object.
 	# Create a graph object with the given size.
@@ -221,6 +221,7 @@ sub add_histogram {
 	# Then add the result to the graph.
 	my $currentPlot = 0;
 	my $xmin = 'nd';
+	my $xmax = 'nd';
 	my $bounds = '';
 	foreach my $dataSet (@accumulatedDataSets)
 	{
@@ -231,6 +232,7 @@ sub add_histogram {
 			my $width         = ($extrema[1]-$extrema[0])/($numberBins-1);
 			$bounds .= "$extrema[0],$extrema[1]\n";
 			if(($xmin eq 'nd') || ($extrema[0] < $xmin)) { $xmin = $extrema[0]; }
+			if(($xmax eq 'nd') || ($extrema[1] > $xmax)) { $xmax = $extrema[1]; }
 
 			# Next set the boundaries for each bin and initialize the
 			# frequencies.
@@ -270,6 +272,18 @@ sub add_histogram {
 
 			$currentPlot++;
 	}
+	$xmin -= ($xmax-$xmin)*0.1;
+
+	# Go through and add the labels on the left part of the graph
+	# No go through and add the labels.
+	while($currentPlot>0)
+	{
+			my $label = new Label($xmin,$currentPlot-0.5,$currentPlot,'black','left');
+			$label->font(GD::gdGiantFont);
+			$graphRef->lb($label);
+			$currentPlot--;
+	}
+
 
 
 	$bounds
