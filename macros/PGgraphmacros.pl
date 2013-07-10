@@ -107,6 +107,12 @@ sub init_graph {
 		my $defaultSize = $main::envir{onTheFlyImageSize} || 200;
 		@size=($defaultSize,  $defaultSize);
 	}
+
+	if(!(defined($options{'plotVerticalAxis'})) ) {
+			# Set the default value of whether or not to plot the y axis.
+			$options{'plotVerticalAxis'} = 1;
+	}
+
     my $graphRef = new WWPlot(@size);
 	# select a  name for this graph based on the user, the psvn and the problem
 	my $setName = $main::setNumber;
@@ -140,9 +146,13 @@ sub init_graph {
 	if ($options{axes}) {   #   draw axis
 	    my $ra_axes = $options{axes};
 			$graphRef->h_axis($ra_axes->[1],'black');
-			$graphRef->v_axis($ra_axes->[0],'black');
+			if($options{'plotVerticalAxis'})
+			{
+					# It is okay to plot the y axis. Set the location of the vertical axis.
+					$graphRef->v_axis($ra_axes->[0],'black');
+					$verticalAxisLevel   = $ra_axes->[0];
+			}
 			$horizontalAxisLevel = $ra_axes->[1];
-			$verticalAxisLevel   = $ra_axes->[0];
 	}
 
 	if (defined($options{grid})) {   #   draw grid
@@ -159,15 +169,21 @@ sub init_graph {
 	    }
 		$graphRef->v_grid('gray',@x_values);
 		$graphRef->h_grid('gray',@y_values);
-		$graphRef->lb(new Label($x_delta,$horizontalAxisLevel,
-														sprintf("%1.1f",$x_delta),'black','center','middle'));
-		$graphRef->lb(new Label($verticalAxisLevel,$y_delta,
-														sprintf("%1.1f",$y_delta),'black','center','middle'));
 
-		$graphRef->lb(new Label($xmax,$horizontalAxisLevel,$xmax,'black','right'));
-		$graphRef->lb(new Label($xmin,$horizontalAxisLevel,$xmin,'black','left'));
-		$graphRef->lb(new Label($verticalAxisLevel,$ymax,$ymax,'black','top'));
-		$graphRef->lb(new Label($verticalAxisLevel,$ymin,$ymin,'black','bottom','right'));
+			if($options{'plotVerticalAxis'})
+			{
+					# Set the labels associated with the vertical axis
+					$graphRef->lb(new Label($verticalAxisLevel,$y_delta,
+																	sprintf("%1.1f",$y_delta),'black','center','middle'));
+					$graphRef->lb(new Label($verticalAxisLevel,$ymax,$ymax,'black','top'));
+					$graphRef->lb(new Label($verticalAxisLevel,$ymin,$ymin,'black','bottom','right'));
+			}
+
+			# Add the labels for the horizontal axis
+			$graphRef->lb(new Label($x_delta,$horizontalAxisLevel,
+															sprintf("%1.1f",$x_delta),'black','center','middle'));
+			$graphRef->lb(new Label($xmax,$horizontalAxisLevel,$xmax,'black','right'));
+			$graphRef->lb(new Label($xmin,$horizontalAxisLevel,$xmin,'black','left'));
 
 	} elsif ($options{ticks}) {   #   draw ticks -- grid over rides ticks
 
@@ -184,17 +200,21 @@ sub init_graph {
 			foreach $i (1..($ydiv-1) ) {
 					push( @y_values, $i*$y_delta+$graphRef->{ymin});
 			}
+
+			if($options{'plotVerticalAxis'})
+			{
+					# Add the labels associated with the vertical axis
+					$graphRef->v_ticks($verticalAxisLevel  ,'black',@y_values);
+					$graphRef->lb(new Label($verticalAxisLevel,$y_delta,$y_delta,'black','top'));
+					$graphRef->lb(new Label($verticalAxisLevel,$ymax,$ymax,'black','top'));
+					$graphRef->lb(new Label($verticalAxisLevel,$ymin,$ymin,'black','bottom','right'));
+			}
+
+			# Add the labels for the horizontal axis
 			$graphRef->h_ticks($horizontalAxisLevel,'black',@x_values);
-			$graphRef->v_ticks($verticalAxisLevel  ,'black',@y_values);
-
-
 			$graphRef->lb(new Label($x_delta,$horizontalAxisLevel,$x_delta,'black','right'));
-			$graphRef->lb(new Label($verticalAxisLevel,$y_delta,$y_delta,'black','top'));
-
 			$graphRef->lb(new Label($xmax,$horizontalAxisLevel,$xmax,'black','right'));
 			$graphRef->lb(new Label($xmin,$horizontalAxisLevel,$xmin,'black','left'));
-			$graphRef->lb(new Label($verticalAxisLevel,$ymax,$ymax,'black','top'));
-			$graphRef->lb(new Label($verticalAxisLevel,$ymin,$ymin,'black','bottom','right'));
 	}
 
 

@@ -116,7 +116,7 @@ sub init_statistics_graph {
 
 	# Get the graph object.
 	# Create a graph object with the given size.
-	my $graphRef = init_graph($xmin,$ymin,$xmax,$ymax,%options);
+	my $graphRef = init_graph($xmin,$ymin,$xmax,$ymax,plotVerticalAxis=>0,%options);
 
 	$graphRef;
 }
@@ -229,7 +229,7 @@ sub add_histogram {
 			my @frequencies   = ();
 			my @extrema       = getMinMax(@{$dataSet});
 			my $width         = ($extrema[1]-$extrema[0])/($numberBins-1);
-			#$bounds .= "$extrema[0],$extrema[1]\n";
+			$bounds .= "$extrema[0],$extrema[1]\n";
 			if(($xmin eq 'nd') || ($extrema[0] < $xmin)) { $xmin = $extrema[0]; }
 
 			# Next set the boundaries for each bin and initialize the
@@ -249,9 +249,9 @@ sub add_histogram {
 			{
 					my $bin = int(($point-$extrema[0]+$width*0.5)/$width);
 					$frequencies[$bin]++;
-					$bounds .= "$point,";
+					#$bounds .= "$point,";
 			}
-			$bounds .= "$BR";
+			#$bounds .= "$BR";
 
 			# Draw all of the boxes for the histogram.
 			my $totalDataPoints = 1+$#frequencies;
