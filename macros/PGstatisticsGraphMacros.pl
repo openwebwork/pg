@@ -62,6 +62,10 @@ See F<PGbasicmacros> for definitions of C<image> and C<caption>
 #   # Now initialize the graph (d) and add the box plots (e)
 #   $graph = init_statistics_graph(axes=>[0,0.0],ticks=>[10]);
 #   $bounds = add_boxplot($graph);
+#   # or #
+#   $bounds = add_histogram($graph,10,1);  # add a histogram with 10 bins and a multipler of 1.
+#                                          # The multiplier is for the height of the frequencies.
+#                                          # ex: if the multiplier is 2 the graph is twice as tall
 #
 ###############################################################################################
 
@@ -207,11 +211,17 @@ sub add_boxplot {
 sub add_histogram {
 	my $graphRef   = shift;
 	my $numberBins = shift;
+	my $multiplier = shift;
 	my $numberDataSets = 1+$#accumulatedDataSets;
 
 	if($numberDataSets == 0)
 	{
 			die "No data sets are defined.";
+	}
+
+	if(!defined($multiplier))
+	{
+			$multiplier = 1.0;
 	}
 
 	# Get the necessary graph properties for making the plot.
@@ -262,8 +272,10 @@ sub add_histogram {
 			{
 					# Mark out the rectangle.
 					$graphRef->moveTo($binBoundaries[$lupe],$currentPlot+0.25);
-					$graphRef->lineTo($binBoundaries[$lupe],$currentPlot+0.25+$count/$totalDataPoints,$black,2);
-					$graphRef->lineTo($binBoundaries[$lupe+1],$currentPlot+0.25+$count/$totalDataPoints,$black,2);
+					$graphRef->lineTo($binBoundaries[$lupe],
+														$currentPlot+0.25+$multiplier*$count/$totalDataPoints,$black,2);
+					$graphRef->lineTo($binBoundaries[$lupe+1],
+														$currentPlot+0.25+$multiplier*$count/$totalDataPoints,$black,2);
 					$graphRef->lineTo($binBoundaries[$lupe+1],$currentPlot+0.25,$black,2);
 					$graphRef->lineTo($binBoundaries[$lupe],$currentPlot+0.25,$black,2);
 					$lupe++;
