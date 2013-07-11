@@ -469,6 +469,40 @@ sub five_point_summary {
 }
 
 
+=head3 Function to calculate the frequencies for the factors in a given data set.
+
+=pod
+
+	Usage:  %freq = frequencies(@theData)
+
+Finds the factors in the data set and calculates the frequency of occurance for each factor. Returns a hash whose keys ar the factors and the associated values are the frequencies.
+
+=cut
+
+sub frequencies {
+#   %freq = frequencies(@theData)
+#   returns a hash whos keys are the factors and the associated values are the frequencies.
+
+	# Get the data that is passed to me and put it all in one array.
+	my (@data_list) = @_;
+	my %frequency;
+
+	foreach my $value (@data_list)
+	{
+			if(defined($frequency{$value}))
+			{
+					$frequency{$value} += 1;
+			}
+			else
+			{
+					$frequency{$value} = 1;
+			}
+	}
+
+	%frequency;
+}
+
+
 ##########################################
 
 1;
