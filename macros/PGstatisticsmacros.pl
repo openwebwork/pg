@@ -216,7 +216,7 @@ sub urand { # generate normally dist. random numbers
 
 	$pi = 4.0*atan(1.0);
 	my @numbers = ();
-	while($N > 0)
+	while($N >= 0)
 	{
 			# Generate a new set of normally dist. random numbers.
 			# Use the Box–Muller transform which gives two normally dist. numbers.
@@ -267,11 +267,61 @@ sub exprand { # generate exponentially dist. numbers  Exp(x,lambda)
 	}
 
 	my @numbers = ();
-	while($N > 0)
+	while($N >= 0)
 	{
 			# Generate an exponentially dist. random number.
 			$N -= 1;
 			push(@numbers,significant_decimals(-log($main::PG_random_generator->random(0.0,1.0,0.0))/$lambda,$digits));
+	}
+	
+	return @numbers;
+
+}
+
+
+=head3 Function to generate Poisson distributed random numbers
+
+=pod
+
+	Usage: poissonrand(lambda,N)
+
+Generates N Poisson distributed random numbers with the given parameter, lambda. 
+
+=cut
+
+sub poissonrand { # generate random, Poisson dist. numbers  Pois(lambda)
+# poissonrand(lambda,N)
+# Generates N random numbers. The distribution is Poisson with  parameter lambda.  
+
+	my ($lambda,$N) = @_;
+	if ($lambda<=0) {
+		die "Invalid parameter lambda: $lambda\n"; # must be a positive number
+	}
+	if ($N<=0) {
+		die "Invalid N: $N\n"; # Cannot generate negative or zero numbers.
+	}
+
+	#Initialize the array of numbers to return.
+	my @numbers = ();
+	my $poisFactor = exp(-$lambda);
+	while($N >= 0)
+	{
+			# Generate an exponentially dist. random number.
+			$N -= 1;
+			my $cumProb = $main::PG_random_generator->random(0.0,1.0,0.0)/$poisFactor;  # The cumulative prob. 
+			                                                                            # Need to find k to match this.
+			my $k = 0;                         # The new, random number.
+			my $currentProb = 1.0;             # P(x=k|lambda)
+			my $trialCumProb = 1.0;            # The cumulative prob, P(x<=k|lambda)
+			while($trialCumProb < $cumProb)
+			{
+					# Find the prob and update the cumulative prob. for the next value of k.
+					# Stop when we exceed the target cumulative prob.
+					$k++;
+					$currentProb *= $lambda/$k;
+					$trialCumProb += $currentProb;
+			}
+			push(@numbers,$k); # Add this number to the list!
 	}
 	
 	return @numbers;
