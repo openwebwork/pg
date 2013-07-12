@@ -813,6 +813,40 @@ sub sample_correlation {
 }
 
 
+sub linear_regression {
+		my @xdata = @{shift @_};
+		my @ydata = @{shift @_};
+
+		# Decide if there is any data
+		my $N = 1+$#xdata;
+		if($N <= 0) {die "No data has been passed to the linear regression subroutine.";}
+		if($N != 1+$#ydata) {die "The number of x data points is not the same as the number of y data points.";}
+
+		# Determine the correlation.
+		# First figure out the basic calculations (sums) required for the data.
+		my $sumX = 0.0;
+		my $sumX2 = 0.0;
+		my $sumY = 0.0;
+		my $sumY2 = 0.0;
+		my $sumXY = 0.0;
+		my $lupe;
+		for($lupe=0;$lupe<$N;++$lupe)
+		{
+				$sumX  += $xdata[$lupe];
+				$sumX2 += $xdata[$lupe]*$xdata[$lupe];
+				$sumY  += $ydata[$lupe];
+				$sumY2 += $ydata[$lupe]*$ydata[$lupe];
+				$sumXY += $xdata[$lupe]*$ydata[$lupe];
+		}
+		my $SXX       = ($sumX2-$sumX*$sumX/$N);
+		my $slope     = ($sumXY-$sumX*$sumY/$N)/$SXX;
+		my $intercept = ($sumY-$slope*$sumX)/$N;
+		my $var = ($sumY2-$intercept*$sumY-$slope*$sumXY)/($N-2);
+		($slope,$intercept,$var,$SXX);
+}
+
+
+
 =head3 Function to calculate the frequencies for the factors in a given data set.
 
 =pod
