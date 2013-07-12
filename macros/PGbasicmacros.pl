@@ -29,7 +29,12 @@
 
 =cut
 
-# this is equivalent to use strict, but can be used within the Safe compartment.
+#####sub _PGbasicmacros_init { }
+### In this file the _init subroutine is defined further down
+### It actually initializes something!
+
+# this is equivalent to use strict, but can be used within the Safe compartmen
+
 BEGIN{
 	be_strict;
 }
@@ -353,6 +358,9 @@ sub NAMED_ANS_RULE {
 
         # end of addition for dragmath
 
+	# try to escape HTML entities to deal with xss stuff
+	$answer_value = HTML::Entities::encode_entities($answer_value);
+
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\\end{rawhtml}!,
@@ -443,6 +451,8 @@ sub  NAMED_ANS_BOX {
 	$name = RECORD_ANS_NAME($name, $answer_value);
 	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	#INSERT_RESPONSE($name,$name,$answer_value); # no longer needed?
+	# try to escape HTML entities to deal with xss stuff
+	$answer_value = HTML::Entities::encode_entities($answer_value);
 	my $out = MODES(
 	     TeX => qq!\\vskip $height in \\hrulefill\\quad !,
 	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
@@ -946,6 +956,7 @@ sub NAMED_ANS_ARRAY_EXTENSION{
 
 	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 #	warn "ans_label $options{ans_label} $name $answer_value";
+	$answer_value = HTML::Entities::encode_entities($answer_value);
 	if (defined($options{ans_label}) ) {
 		INSERT_RESPONSE($options{ans_label}, $name, $answer_value);
 	}
@@ -1102,6 +1113,8 @@ sub hint {
 	PG_restricted_eval(q!$main::hintExists =1!);
     PG_restricted_eval(q!$main::numOfAttempts = 0 unless defined($main::numOfAttempts);!);
     my $attempts = PG_restricted_eval(q!$main::numOfAttempts!);
+    #$attempts++ if PG_restricted_eval(q!$main::inputs_ref->{submitAnswers}!); # numbOfAttempts is off by one when resubmitting
+    #FIXME -- in the current version where PGbasicmacros is reloaded do all of these values need to be recomputed?
 
 	if ($displayMode eq 'TeX')   {
 	    if ($printHintForInstructor) {
