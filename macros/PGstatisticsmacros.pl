@@ -491,7 +491,33 @@ sub chisqrTable { # Given a two-way frequency table calculates the chi-squared t
 }
 
 
+=head3 Calc the results of a t-test.
+
+=pod
+
+	Usage: ($t,$df,$p) = t_test(t_test(mu,@data);                       # Perform a two-sided t-test.
+  or:    ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'right'});     # Perform a right sided t-test 
+  or:    ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'left'});      # Perform a left sided t-test 
+  or:    ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'two-sided'}); # Perform a left sided t-test 
+
+Computes the t-statistic, the number of degrees of freedom, and the
+p-value after performing a t-test on the given data. the value of mu
+is the assumed mean for the null hypothesis. The optional argument can
+set whether or not a left, right, or two-sided test will be conducted.
+
+=cut
+
 sub t_test {
+#	 Usage: ($t,$df,$p) = t_test(t_test(mu,@data);                       # Perform a two-sided t-test.
+#  or:    ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'right'});     # Perform a right sided t-test 
+#  or:    ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'left'});      # Perform a left sided t-test 
+#  or:    ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'two-sided'}); # Perform a left sided t-test 
+#
+# example:
+#
+# @data = (1,2,3,4,5,6,7);
+# ($t,$df,$p) = t_test(2.5,@data,{'test'=>'right'});
+#
 		my $assumedMean = shift;
 		my @data = @_;
 
@@ -501,12 +527,19 @@ sub t_test {
 		{
 				# An hash was passed that presumably has some options. Remove it from the array.
 				pop(@data);
+				if(!defined($args->{'test'}))
+				{
+						# The type of test was not defined.
+						$args->{'test'} = 'two-sided';
+				}
+
 		}
 		else
 		{
 				# Set the $args to a pointer to the default hash.
 				$args = {'test' => 'two-sided'};
 		}
+
 
 		# Decide if there is any data
 		my $N = 1+$#data;
