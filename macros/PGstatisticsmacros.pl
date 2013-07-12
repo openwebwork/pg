@@ -794,9 +794,9 @@ sub sample_correlation {
 
 		# Determine the correlation.
 		# First figure out the basic calculations (sums) required for the data.
-		my $sumX = 0.0;
+		my $sumX  = 0.0;
 		my $sumX2 = 0.0;
-		my $sumY = 0.0;
+		my $sumY  = 0.0;
 		my $sumY2 = 0.0;
 		my $sumXY = 0.0;
 		my $lupe;
@@ -813,6 +813,27 @@ sub sample_correlation {
 }
 
 
+=head3 Function to calculate the linear least squares estimate for the linear relationship between two data sets
+
+=pod
+
+	Usage:  ($slope,$intercept,$var,$SXX) = linear_regression(~~@xdata,~~@ydata);
+
+Give the x data in @xdata and the t data in @ydata the least squares
+regression line is calculated. It also returns the variance in the
+residuals as well as SXX, the sum of the squares of the deviations for
+the x values. This is done to make it easier to perform calculations
+on the slope parameter such as the confidence interval or perform
+inference procedures.
+
+Example:
+ @xdata = (-1,2,3,4,5,6,7);
+ @ydata = (6,5,6,7,8,9,11);
+ ($slope,$intercept,$var,$SXX) = linear_regression(~~@xdata,~~@ydata);
+
+
+=cut
+
 sub linear_regression {
 		my @xdata = @{shift @_};
 		my @ydata = @{shift @_};
@@ -824,9 +845,9 @@ sub linear_regression {
 
 		# Determine the correlation.
 		# First figure out the basic calculations (sums) required for the data.
-		my $sumX = 0.0;
+		my $sumX  = 0.0;
 		my $sumX2 = 0.0;
-		my $sumY = 0.0;
+		my $sumY  = 0.0;
 		my $sumY2 = 0.0;
 		my $sumXY = 0.0;
 		my $lupe;
@@ -838,10 +859,12 @@ sub linear_regression {
 				$sumY2 += $ydata[$lupe]*$ydata[$lupe];
 				$sumXY += $xdata[$lupe]*$ydata[$lupe];
 		}
+
+		# Now calculate the required quantities based on the sums.
 		my $SXX       = ($sumX2-$sumX*$sumX/$N);
 		my $slope     = ($sumXY-$sumX*$sumY/$N)/$SXX;
 		my $intercept = ($sumY-$slope*$sumX)/$N;
-		my $var = ($sumY2-$intercept*$sumY-$slope*$sumXY)/($N-2);
+		my $var       = ($sumY2-$intercept*$sumY-$slope*$sumXY)/($N-2);
 		($slope,$intercept,$var,$SXX);
 }
 
