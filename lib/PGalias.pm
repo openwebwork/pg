@@ -298,7 +298,7 @@ sub make_alias {
 		      (Path to problem file is  $pgFileName) ";
 	}
 
-	warn "The macro alias was unable to form a URL for some auxiliary file used in this problem." unless $adr_output;
+	$self->warning_message( "The macro alias was unable to form a URL for some auxiliary file used in this problem.") unless $adr_output;
 
 	# $adr_output is a url in HTML  modes
 	# and a complete path in TEX mode.
