@@ -479,13 +479,11 @@ sub chisqrTable { # Given a two-way frequency table calculates the chi-squared t
 	for($lupe=0;$lupe<$rows;++$lupe)
 	{
 			# Get the ideal row.
-			my @idealRow = ();
 			my @currentRow = @{$table[$lupe]};
 			for($innerLupe=0;$innerLupe<$columns;++$innerLupe)
 			{
 					my $expected = $columnTotals[$innerLupe]*$rowTotals[$lupe]/$totalSum;
 					$chiSquared += ($currentRow[$innerLupe]-$expected)*(($currentRow[$innerLupe]-$expected))/$expected;
-					push(@idealRow,$expected);
 			}
 	}
 
