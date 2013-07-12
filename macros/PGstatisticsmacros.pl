@@ -475,7 +475,6 @@ sub chisqrTable { # Given a two-way frequency table calculates the chi-squared t
 	}
 
 	# calculate the idealized frequency table assuming independence.
-	my @idealTable = ();
 	my $chiSquared = 0.0;   # The Chi Squared test statistic
 	for($lupe=0;$lupe<$rows;++$lupe)
 	{
@@ -488,7 +487,6 @@ sub chisqrTable { # Given a two-way frequency table calculates the chi-squared t
 					$chiSquared += ($currentRow[$innerLupe]-$expected)*(($currentRow[$innerLupe]-$expected))/$expected;
 					push(@idealRow,$expected);
 			}
-			push(@idealTable,\@idealRow);
 	}
 
 	($chiSquared,($rows-1)*($columns-1));
