@@ -390,6 +390,111 @@ sub binomrand { # generate random, binomial dist. numbers  Bin(n,p)
 }
 
 
+
+=head3 Chi Squared statistic for a two way table
+
+=pod
+
+	Usage: chisqrTable(@frequencies)
+
+  Example:
+		@row1 = (1,2,2,2);
+    @row2 = (3,1,2,4);
+    @row3 = (1,4,2,1);
+    @row4 = (3,1,4,3);
+    @row5 = (5,2,2,4);
+    push(@table,~~@row1);
+    push(@table,~~@row2);
+    push(@table,~~@row3);
+    push(@table,~~@row4);
+    push(@table,~~@row5);
+    ($chiSquared,$df) = chisqrTable(@table);
+
+Computes the Chi Squared test statistic for a two way frequency table. Returns the test statistic and the number of degrees of freedom. The array used in the argument is a list of references to arrays that have the frequencies for each row. If one of the rows has a different number of entries than the others the routine will throw an error.
+
+=cut
+
+sub chisqrTable { # Given a two-way frequency table calculates the chi-squared test statistic
+# chisqrTable(@frequencies)
+# @frequencies is an array of pointers to arrays. Each array must have the same dimension.
+#
+# Returns an array: (chi square test statistic , number degrees of freedom)
+#
+# Example:
+# my @row1 = (1,2,2,2);
+# my @row2 = (3,1,2,4);
+# my @row3 = (1,4,2,1);
+# my @row4 = (3,1,4,3);
+# my @row5 = (5,2,2,4);
+# push(@table,~~@row1);
+# push(@table,~~@row2);
+# push(@table,~~@row3);
+# push(@table,~~@row4);
+# push(@table,~~@row5);
+
+
+	my @table = @_;
+
+	# Get the row and column totals
+	my $columns = 'nd';
+	my $rows;
+	my @rowTotals = ();
+	my @columnTotals = ();
+	my $innerLupe;
+	my $lupe;
+	my $totalSum = 0;
+	foreach $lupe (@table)
+	{
+			++$rows;
+			my @row = @{$lupe};
+			if($columns eq 'nd') 
+			{ 
+					# This is the first time through. Set the number of columns
+					# and initialize the column totals with zeros.
+					$columns = 1+$#row;
+					for($innerLupe=0;$innerLupe<$columns;++$innerLupe)
+					{
+							push(@columnTotals,0);
+					}
+			}
+			elsif ($columns != (1+$#row))
+			{
+					# This is not a rectangular array. Cannot proceed with this.
+					die "The number of columns in row $rows is different from the previous rows.";
+			}
+
+			# Add up the totals for this row and each column.
+			my $sum = 0;
+			for($innerLupe=0;$innerLupe<$columns;++$innerLupe)
+			{ 
+					$sum += $row[$innerLupe];
+					$columnTotals[$innerLupe] += $row[$innerLupe];
+					$totalSum += $row[$innerLupe];
+			}
+			push(@rowTotals,$sum);
+	}
+
+	# calculate the idealized frequency table assuming independence.
+	my @idealTable = ();
+	my $chiSquared = 0.0;   # The Chi Squared test statistic
+	for($lupe=0;$lupe<$rows;++$lupe)
+	{
+			# Get the ideal row.
+			my @idealRow = ();
+			my @currentRow = @{$table[$lupe]};
+			for($innerLupe=0;$innerLupe<$columns;++$innerLupe)
+			{
+					my $expected = $columnTotals[$innerLupe]*$rowTotals[$lupe]/$totalSum;
+					$chiSquared += ($currentRow[$innerLupe]-$expected)*(($currentRow[$innerLupe]-$expected))/$expected;
+					push(@idealRow,$expected);
+			}
+			push(@idealTable,\@idealRow);
+	}
+
+	($chiSquared,($rows-1)*($columns-1));
+}
+
+
 =head3 Five Point Summary function
 
 =pod
