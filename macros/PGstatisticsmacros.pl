@@ -770,6 +770,49 @@ sub five_point_summary {
 }
 
 
+
+=head3 Function to calculate the Pearson's sample correlation
+
+=pod
+
+	Usage:  $cor = sample_correlation(~~@xData,~~@yData);
+
+Calculates the Pearson's sample correlation for the given data. The
+arguments are references to two arrays where each array contains the
+associated data.
+
+=cut
+
+sub sample_correlation {
+		my @xdata = @{shift @_};
+		my @ydata = @{shift @_};
+
+		# Decide if there is any data
+		my $N = 1+$#xdata;
+		if($N <= 0) {die "No data has been passed to the sample_correlation subroutine.";}
+		if($N != 1+$#ydata) {die "The number of x data points is not the same as the number of y data points.";}
+
+		# Determine the correlation.
+		# First figure out the basic calculations (sums) required for the data.
+		my $sumX = 0.0;
+		my $sumX2 = 0.0;
+		my $sumY = 0.0;
+		my $sumY2 = 0.0;
+		my $sumXY = 0.0;
+		my $lupe;
+		for($lupe=0;$lupe<$N;++$lupe)
+		{
+				$sumX  += $xdata[$lupe];
+				$sumX2 += $xdata[$lupe]*$xdata[$lupe];
+				$sumY  += $ydata[$lupe];
+				$sumY2 += $ydata[$lupe]*$ydata[$lupe];
+				$sumXY += $xdata[$lupe]*$ydata[$lupe];
+		}
+		# Pass back the Pearson's sample data
+		(($N*$sumXY-$sumX*$sumY)/sqrt(($N*$sumX2-$sumX*$sumX)*($N*$sumY2-$sumY*$sumY)));
+}
+
+
 =head3 Function to calculate the frequencies for the factors in a given data set.
 
 =pod
