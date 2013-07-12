@@ -529,19 +529,19 @@ sub t_test {
 		if($args->{test} eq 'left')
 		{
 				# This is a left sided test. Find the area to the left.
-				$p = 1.0 - 0.0;
+				$p = 1.0 - tprob($N-1,$t);
 		}
 
 		elsif($args->{test} eq 'right')
 		{
 				# This is a right sided test. Find the area to the left.
-				$p = 0.0;
+				$p = tprob($N-1,$t);
 		}
 
 		else
 		{
 				# This is a two sided test. Find the area to the left.
-				$p = 2.0*0.0;
+				$p = 2.0*tprob($N-1,abs($t));
 		}
 
 		($t,$N-1,$p);
