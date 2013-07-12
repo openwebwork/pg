@@ -491,6 +491,63 @@ sub chisqrTable { # Given a two-way frequency table calculates the chi-squared t
 }
 
 
+sub t_test {
+		my $assumedMean = shift;
+		my @data = @_;
+
+		# Need to check to see if an hash of options was passed in the last argument.
+		my $args = $data[$#data];
+		if(ref($args) eq "HASH")
+		{
+				# An hash was passed that presumably has some options. Remove it from the array.
+				pop(@data);
+		}
+		else
+		{
+				# Set the $args to a pointer to the default hash.
+				$args = {'test' => 'two-sided'};
+		}
+
+		# Decide if there is any data
+		my $N = 1+$#data;
+		if($N <= 0) {die "No data has been passed to the t_test subroutine.";}
+
+		# Determine the t-statistic.
+		# First figure out the basic calcs required for the data.
+		my $sumX = 0.0;
+		my $sumX2 = 0.0;
+		foreach my $x (@data)
+		{
+				$sumX  += $x;
+				$sumX2 += $x*$x;
+		}
+
+		# Determine the t statistic and then calculate the p value.
+		my $t = ($sumX-$assumedMean*$N)/sqrt(($sumX2*$N-$sumX*$sumX)/($N-1));
+		my $p = 0.0;
+
+		if($args->{test} eq 'left')
+		{
+				# This is a left sided test. Find the area to the left.
+				$p = 1.0 - 0.0;
+		}
+
+		elsif($args->{test} eq 'right')
+		{
+				# This is a right sided test. Find the area to the left.
+				$p = 0.0;
+		}
+
+		else
+		{
+				# This is a two sided test. Find the area to the left.
+				$p = 2.0*0.0;
+		}
+
+		($t,$N-1,$p);
+}
+
+
 =head3 Five Point Summary function
 
 =pod
@@ -513,7 +570,7 @@ sub five_point_summary {
 
   # Need to check to see if an hash of options was passed in the last argument.
 	my $args = $data_list[$#data_list];
-	if(ref($args) eq HASH)
+	if(ref($args) eq "HASH")
 	{
 			# An hash was passed that presumably has some options. Remove it from the array.
 			pop(@data_list);
