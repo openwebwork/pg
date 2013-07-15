@@ -61,7 +61,7 @@ See F<PGbasicmacros> for definitions of C<image> and C<caption>
 #
 #   # Now initialize the graph (d) and add the box plots (e)
 #   $graph = init_statistics_graph(axes=>[0,0.0],ticks=>[10]);
-#   $bounds = add_boxplot($graph);
+#   $bounds = add_boxplot($graph,{"outliers"=>1});
 #   # or #
 #   $bounds = add_histogram($graph,10,1);  # add a histogram with 10 bins and a multipler of 1.
 #                                          # The multiplier is for the height of the frequencies.
@@ -142,12 +142,23 @@ sub getMinMax {
 
 
 sub add_boxplot {
+# add_boxplot($graphRef,{"outliers"=>1});
+#
+#Routine to place boxplots for each data set.
+# The $graphref is a ref. to a graph created using the init graph routines.
+# The optional hash is to specify whether or not to use the 1.5 rule to decide if a point is an outlier.
+#
 	my $graphRef = shift;
+ 	my %options=@_;
 	my $numberDataSets = 1+$#accumulatedDataSets;
 
 	if($numberDataSets == 0)
 	{
 			die "No data sets are defined.";
+	}
+
+	if (!defined($options{'outliers'}))
+	{
 	}
 
 	# Get the necessary graph properties for making the plot.
@@ -171,8 +182,33 @@ sub add_boxplot {
 			if(($xmax eq 'nd') || ($summary[4] > $xmax)) { $xmax = $summary[4]; }
 			$bounds .= "$summary[0],$summary[1],$summary[2],$summary[3],$summary[4]\n";
 
+			# Decide if there are any outliers. Get the IQR and use the 1.5 rule.
+			my $bound;
+			my $upperBound = $summary[3];
+			my $lowerBound = $summary[1];
+			my $IQR = $summary[3]-$summary[1];
+			foreach $bound (@{$dataSet})
+			{
+					if(($bound < $summary[1]-1.5*$IQR)||($bound > $summary[3]+1.5*$IQR))
+					{
+							# This is an outlier
+							$graphRef->stamps(open_circle($bound,$currentPlot+0.5,'black'));
+					}
+					elsif($bound < $lowerBound)
+					{
+							# This is a candidate for the new lower bound for the whiskers
+							$summary[0] = $bound;
+					}
+					elsif($bound > $upperBound)
+					{
+              # This is a candidate for the new upper bound for the whiskers
+							$summary[4] = $bound;
+					}
+
+			}
+
 			# Mark the vertical bars
-			foreach my $bound (@summary)
+			foreach $bound (@summary)
 			{
 					$graphRef->moveTo($bound,$currentPlot+0.25);
 					$graphRef->lineTo($bound,$currentPlot+0.75,$black,2);
