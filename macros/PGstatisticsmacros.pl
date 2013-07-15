@@ -581,6 +581,45 @@ sub t_test {
 }
 
 
+=head3 Create a data file and make a link to it.
+
+=pod
+
+	Usage: insertDataLink($PG->{envir},headerTitle,@data)
+
+Writes the given data to a file and creates a link to the data file.
+
+=cut
+
+sub insertDataLink {
+		my $PG          = shift;
+		my $headerTitle = shift;
+		my @data        = @_;
+
+		my $studentLogin = $main::studentLogin;
+		$studentLogin =~ s/Q/QQ/g;
+		$studentLogin =~ s/\./-Q-/g;
+		$studentLogin =~ s/\,/-Q-/g;
+		$studentLogin =~ s/\@/-Q-/g;
+		my $filePath = "$studentLogin-$main::problemSeed-set${setName}prob${main::probNum}.html";
+		$filePath = $PG->convertPath($filePath);
+
+#	if( not -e $filePath # does it exist?
+#	  or ((stat "$templateDirectory"."$main::envir{probFileName}")[9] > (stat $filePath)[9]) # source has changed
+#	  or $refreshCachedImages
+#	) {
+ 		#createFile($filePath, $main::tmp_file_permission, $main::numericalGroupID);
+#		local(*OUTPUT);  # create local file handle so it won't overwrite other open files.
+# 		open(OUTPUT, ">$filePath")||warn ("$0","Can't open $filePath<BR>","");
+# 		chmod( 0777, $filePath);
+# 		print OUTPUT $graph->draw|| warn("$0","Can't print graph to $filePath<BR>","");
+# 		close(OUTPUT)||warn("$0","Can't close $filePath<BR>","");
+#	}
+		#$filePath . " **** " . $PG->{PG_alias}->make_alias($filePath);
+		$filePath;
+		$PG->{PG_alias}->make_alias($filePath);
+}
+
 =head3 Five Point Summary function
 
 =pod
