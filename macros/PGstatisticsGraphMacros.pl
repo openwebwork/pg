@@ -149,7 +149,7 @@ sub add_boxplot {
 # The optional hash is to specify whether or not to use the 1.5 rule to decide if a point is an outlier.
 #
 	my $graphRef = shift;
- 	my %options=@_;
+ 	my $options  = shift;
 	my $numberDataSets = 1+$#accumulatedDataSets;
 
 	if($numberDataSets == 0)
@@ -157,8 +157,14 @@ sub add_boxplot {
 			die "No data sets are defined.";
 	}
 
-	if (!defined($options{'outliers'}))
+	# Check and clean the options if necessary
+	if (!defined($options))
 	{
+			$options = {'outliers' => 1};
+	}		
+	elsif (!defined($options->{'outliers'}))
+	{
+			$options->{'outliers'} = 1;
 	}
 
 	# Get the necessary graph properties for making the plot.
@@ -181,30 +187,39 @@ sub add_boxplot {
 			if(($xmin eq 'nd') || ($summary[0] < $xmin)) { $xmin = $summary[0]; }
 			if(($xmax eq 'nd') || ($summary[4] > $xmax)) { $xmax = $summary[4]; }
 			$bounds .= "$summary[0],$summary[1],$summary[2],$summary[3],$summary[4]\n";
-
-			# Decide if there are any outliers. Get the IQR and use the 1.5 rule.
 			my $bound;
-			my $upperBound = $summary[3];
-			my $lowerBound = $summary[1];
-			my $IQR = $summary[3]-$summary[1];
-			foreach $bound (@{$dataSet})
-			{
-					if(($bound < $summary[1]-1.5*$IQR)||($bound > $summary[3]+1.5*$IQR))
-					{
-							# This is an outlier
-							$graphRef->stamps(open_circle($bound,$currentPlot+0.5,'black'));
-					}
-					elsif($bound < $lowerBound)
-					{
-							# This is a candidate for the new lower bound for the whiskers
-							$summary[0] = $bound;
-					}
-					elsif($bound > $upperBound)
-					{
-              # This is a candidate for the new upper bound for the whiskers
-							$summary[4] = $bound;
-					}
 
+			# Decide if there are any outliers. Get the IQR and use the 1.5 rule if necessary.
+			if($options->{'outliers'})
+			{
+					my $upperBound = $summary[3];
+					my $lowerBound = $summary[1];
+					my $IQR = $summary[3]-$summary[1];
+
+					# Set the new lower and upper bounds
+					$summary[0] = $summary[1];
+					$summary[4] = $summary[3];
+
+					# Go through all the data and test to see if any are outliers.
+					foreach $bound (@{$dataSet})
+					{
+							if(($bound < $summary[1]-1.5*$IQR)||($bound > $summary[3]+1.5*$IQR))
+							{
+									# This is an outlier
+									$graphRef->stamps(open_circle($bound,$currentPlot+0.5,'black'));
+							}
+							elsif($bound < $lowerBound)
+							{
+									# This is a candidate for the new lower bound for the whiskers
+									$summary[0] = $bound;
+							}
+							elsif($bound > $upperBound)
+							{
+									# This is a candidate for the new upper bound for the whiskers
+									$summary[4] = $bound;
+							}
+
+					}
 			}
 
 			# Mark the vertical bars
