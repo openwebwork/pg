@@ -33,6 +33,7 @@ PGtranslator -> evaluate_modules(qw( Exporter
                                      MatrixReal1
                                      Matrix
                                      Distributions
+				     PGstatistics
 				     Regression
                                       ) );
 

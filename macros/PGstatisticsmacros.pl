@@ -1,12 +1,15 @@
 
 
 sub _PGstatisticsmacros_init {
-	foreach my $t (@Distributions::EXPORT_OK) {
-        	*{$t} = *{"Distributions::$t"}
-        	}
-        foreach my $t (@Regression::EXPORT_OK) {
-                *{$t} = *{"Regression::$t"}
-                }
+		foreach my $t (@Distributions::EXPORT_OK) {
+				*{$t} = *{"Distributions::$t"}
+		}
+		foreach my $t (@Regression::EXPORT_OK) {
+				*{$t} = *{"Regression::$t"}
+		}
+		foreach my $t (@PGstatistics::EXPORT_OK) {
+				*{$t} = *{"PGstatistics::$t"}
+		}
 }
 
 =head1 Statistics Macros
@@ -595,6 +598,8 @@ sub insertDataLink {
 		my $PG          = shift;
 		my $headerTitle = shift;
 		my @data        = @_;
+		my $stat = PGstatistics->new(''); #make_csv_alias();#new PGstatistics(''); #$PG);
+
 
 		my $studentLogin = $main::studentLogin;
 		$studentLogin =~ s/Q/QQ/g;
@@ -618,6 +623,7 @@ sub insertDataLink {
 		#$filePath . " **** " . $PG->{PG_alias}->make_alias($filePath);
 		$filePath;
 		$PG->{PG_alias}->make_alias($filePath);
+		$stat;
 }
 
 =head3 Five Point Summary function

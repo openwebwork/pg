@@ -1,3 +1,4 @@
+
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright © 2013 The WeBWorK Project, http://openwebwork.sf.net/
@@ -16,14 +17,16 @@
 ################################################################################
 
 
-package PGstatistics;
-use strict;
-#use Exporter;
-#use UUID::Tiny  ':std';
-use PGcore;
-use PGresource;
 
-our @ISA =  qw ( PGcore  );  # look up features in PGcore -- in this case we want the environment.
+package PGstatistics;
+
+use strict;
+use vars qw($VERSION @ISA @EXPORT @EXPORT_OK);
+require Exporter;
+@ISA = qw(Exporter);
+@EXPORT_OK = qw( make_csv_alias write_array_to_CSV );
+@EXPORT    = qw( );
+$VERSION = '0.01';
 
 
 # ##########################################
@@ -47,7 +50,7 @@ sub new {
 #
 sub make_csv_alias {
 
-
+		10;
 }
 
 # ##########################################
@@ -62,3 +65,4 @@ sub write_array_to_CSV {
 }
 
 
+1;
