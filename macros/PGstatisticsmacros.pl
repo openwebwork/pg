@@ -7,8 +7,8 @@ sub _PGstatisticsmacros_init {
 		foreach my $t (@Regression::EXPORT_OK) {
 				*{$t} = *{"Regression::$t"}
 		}
-		foreach my $t (@PGstatistics::EXPORT_OK) {
-				*{$t} = *{"PGstatistics::$t"}
+		foreach my $t (@Statistics::EXPORT_OK) {
+				*{$t} = *{"Statistics::$t"}
 		}
 }
 
@@ -588,42 +588,28 @@ sub t_test {
 
 =pod
 
-	Usage: insertDataLink($PG->{envir},headerTitle,@data)
+	Usage: insertDataLink($PG,linkText,headerTitle,@data)
 
-Writes the given data to a file and creates a link to the data file.
+Writes the given data to a file and creates a link to the data file. The string headerTitle is the label used in the anchor link.
 
 =cut
 
 sub insertDataLink {
 		my $PG          = shift;
+		my $linkText    = shift;
 		my $headerTitle = shift;
 		my @data        = @_;
-		my $stat = PGstatistics->new(''); #make_csv_alias();#new PGstatistics(''); #$PG);
+		my $stat = Statistics->new($PG);
 
 
-		my $studentLogin = $main::studentLogin;
-		$studentLogin =~ s/Q/QQ/g;
-		$studentLogin =~ s/\./-Q-/g;
-		$studentLogin =~ s/\,/-Q-/g;
-		$studentLogin =~ s/\@/-Q-/g;
-		my $filePath = "$studentLogin-$main::problemSeed-set${setName}prob${main::probNum}.html";
-		$filePath = $PG->convertPath($filePath);
+		# Create a file name and get the url as well.
+		my ($fileName,$url) = $stat->make_csv_alias(
+				$main::studentLogin,$main::problemSeed,$setName,$main::probNum);
 
-#	if( not -e $filePath # does it exist?
-#	  or ((stat "$templateDirectory"."$main::envir{probFileName}")[9] > (stat $filePath)[9]) # source has changed
-#	  or $refreshCachedImages
-#	) {
- 		#createFile($filePath, $main::tmp_file_permission, $main::numericalGroupID);
-#		local(*OUTPUT);  # create local file handle so it won't overwrite other open files.
-# 		open(OUTPUT, ">$filePath")||warn ("$0","Can't open $filePath<BR>","");
-# 		chmod( 0777, $filePath);
-# 		print OUTPUT $graph->draw|| warn("$0","Can't print graph to $filePath<BR>","");
-# 		close(OUTPUT)||warn("$0","Can't close $filePath<BR>","");
-#	}
-		#$filePath . " **** " . $PG->{PG_alias}->make_alias($filePath);
-		$filePath;
-		$PG->{PG_alias}->make_alias($filePath);
-		$stat;
+		# Now write the data
+		$stat->write_array_to_CSV($headerTitle,@data);
+
+		"<a href=\"$url\">$linkText</a>";
 }
 
 =head3 Five Point Summary function

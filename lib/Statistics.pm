@@ -18,13 +18,13 @@
 
 
 
-package PGstatistics;
+package Statistics;
 
-use strict;
+#use strict;
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK);
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw( make_csv_alias write_array_to_CSV );
+@EXPORT_OK = qw( );
 @EXPORT    = qw( );
 $VERSION = '0.01';
 
@@ -50,7 +50,22 @@ sub new {
 #
 sub make_csv_alias {
 
-		10;
+		my $self         = shift;
+		my $studentLogin = shift;
+		my $problemSeed  = shift;
+		my $setname      = shift;
+		my $prob         = shift;
+
+		$studentLogin =~ s/Q/QQ/g;
+		$studentLogin =~ s/\./-Q-/g;
+		$studentLogin =~ s/\,/-Q-/g;
+		$studentLogin =~ s/\@/-Q-/g;
+		my $filePath = "$studentLogin-$problemSeed-set" . $setName . "prob$prob.html";
+		$filePath = $self->{PG}->convertPath($filePath);
+		$filePath = $self->{PG}->surePathToTmpFile("data")."/".$filePath;
+		my $url = $self->{PG}->{PG_alias}->make_alias($filePath);
+
+		($filePath,$url);
 }
 
 # ##########################################
@@ -59,8 +74,23 @@ sub make_csv_alias {
 # an empty string otherwise
 #
 sub write_array_to_CSV {
+		my $self         = shift;
+		my $headerTitle = shift;
 		my $filePath = shift;
 		my @data = @_;
+
+#	if( not -e $filePath # does it exist?
+#	  or ((stat "$templateDirectory"."$main::envir{probFileName}")[9] > (stat $filePath)[9]) # source has changed
+#	  or $refreshCachedImages
+#	) {
+ 		#createFile($filePath, $main::tmp_file_permission, $main::numericalGroupID);
+#		local(*OUTPUT);  # create local file handle so it won't overwrite other open files.
+# 		open(OUTPUT, ">$filePath")||warn ("$0","Can't open $filePath<BR>","");
+# 		chmod( 0777, $filePath);
+# 		print OUTPUT $graph->draw|| warn("$0","Can't print graph to $filePath<BR>","");
+# 		close(OUTPUT)||warn("$0","Can't close $filePath<BR>","");
+#	}
+
 
 }
 
