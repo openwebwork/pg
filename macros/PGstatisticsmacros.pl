@@ -219,7 +219,7 @@ sub urand { # generate normally dist. random numbers
 
 	$pi = 4.0*atan(1.0);
 	my @numbers = ();
-	while($N >= 0)
+	while($N > 0)
 	{
 			# Generate a new set of normally dist. random numbers.
 			# Use the Box–Muller transform which gives two normally dist. numbers.
@@ -270,7 +270,7 @@ sub exprand { # generate exponentially dist. numbers  Exp(x,lambda)
 	}
 
 	my @numbers = ();
-	while($N >= 0)
+	while($N > 0)
 	{
 			# Generate an exponentially dist. random number.
 			$N -= 1;
@@ -307,7 +307,7 @@ sub poissonrand { # generate random, Poisson dist. numbers  Pois(lambda)
 	#Initialize the array of numbers to return.
 	my @numbers = ();
 	my $poisFactor = exp(-$lambda);
-	while($N >= 0)
+	while($N > 0)
 	{
 			# Generate an exponentially dist. random number.
 			$N -= 1;
