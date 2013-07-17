@@ -97,7 +97,7 @@ sub write_array_to_CSV {
 				}
 				elsif ($numberDataPoints != $#dataArray)
 				{
-						warn("$0","The number of elements in the data sets are not all the same. No data set written to file.");
+						die("$0","The number of elements in the data sets are not all the same. No data set written to file.");
 						return;
 				}
 		}
