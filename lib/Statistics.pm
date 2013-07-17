@@ -83,21 +83,51 @@ sub make_csv_alias {
 sub write_array_to_CSV {
 		my $self        = shift;
 		my $fileName    = shift;
-		my $headerTitle = shift;
-		my $filePath = shift;
-		my @data = @_;
+		my @dataRefs    = @_;
 
-		# Open the file and write the header to the first row.
+		# Make sure all of the data sets have the same number of elements
+		my $numberDataPoints = "nd";
+		my $data;
+		foreach $data (@dataRefs)
+		{
+				my @dataArray = @{$data};
+				if($numberDataPoints eq "nd")
+				{
+						$numberDataPoints = $#dataArray;
+				}
+				elsif ($numberDataPoints != $#dataArray)
+				{
+						warn("$0","The number of elements in the data sets are not all the same. No data set written to file.");
+						return;
+				}
+		}
+
+		# Open the file
 		local(*OUTPUT);  # create local file handle so it won't overwrite other open files.
  		open(OUTPUT, ">$fileName")||warn ("$0","Can't open $fileName<BR>","");
  		chmod( 0777, $filePath);
- 		print OUTPUT ($headerTitle."\n") || warn("$0","Can't print data file to $fileName<BR>","");
+
+		#  write the header to the first row.
+		my $header = "";
+		foreach $data (@dataRefs)
+		{
+				$header .= pop(@{$data}) . ",";
+		}
+		$header =~ s/,$//;
+		print OUTPUT ($header."\n") || warn("$0","Can't print data file to $fileName<BR>","");
 
 		# Go through each data point and write it out.
 		my $lupe;
-		for($lupe=0;$lupe<=$#data;++$lupe)
+		for($lupe=0;$lupe<$numberDataPoints;++$lupe)
 		{
-				print OUTPUT ($data[$lupe],"\n");
+				my $line = "";
+				foreach $data (@dataRefs)
+				{
+						my @dataSet = @{$data};
+						$line .= $dataSet[$lupe] . ",";
+				}
+				$line =~ s/,$//;
+				print OUTPUT ($line,"\n");
 		}
 
 		# Close it up and move on.

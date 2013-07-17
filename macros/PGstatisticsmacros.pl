@@ -597,8 +597,7 @@ Writes the given data to a file and creates a link to the data file. The string 
 sub insertDataLink {
 		my $PG          = shift;
 		my $linkText    = shift;
-		my $headerTitle = shift;
-		my @data        = @_;
+		my @dataRefs    = @_;
 		my $stat = Statistics->new($PG);
 
 
@@ -607,7 +606,7 @@ sub insertDataLink {
 				$main::studentLogin,$main::problemSeed,$setName,$main::probNum);
 
 		# Now write the data
-		$stat->write_array_to_CSV($fileName,$headerTitle,@data);
+		$stat->write_array_to_CSV($fileName,@dataRefs);
 
 		"<a href=\"$url\">$linkText</a>";
 }
