@@ -588,9 +588,34 @@ sub t_test {
 
 =pod
 
-	Usage: insertDataLink($PG,linkText,headerTitle,@data)
+	Usage: insertDataLink($PG,linkText,@dataRefs)
 
-Writes the given data to a file and creates a link to the data file. The string headerTitle is the label used in the anchor link.
+Writes the given data to a file and creates a link to the data file. The string headerTitle is the label used in the anchor link. 
+		$PG is a ref to an instance of a PGcore object. (Generally just use $PG in a problem)
+    linkText is the text to appear in the anchor/link.
+    @dataRefs is a list of references. Each reference is assumed to be ref to an array.
+          All of the arrays must have the same length.
+          The last entry in the array is assumed to be the label to use in the first row of the csv file.
+
+Usage:
+    # Generate random data
+    @data1 = urand(10.0,2.0,10,2);
+    @data2 = urand(12.0,2.0,10,2);
+    @data3 = urand(14.0,4.0,10,2);
+    @data4 = exprand(0.1,10,2);
+
+    # Append the labels for each data set
+    push(@data1,"w");
+    push(@data2,"x");
+    push(@data3,"y");
+    push(@data4,"z");
+
+    BEGIN_TEXT
+
+    blah blah
+
+    $BR Data: \{ insertDataLink($PG,"the data",(~~@data1,~~@data2,~~@data3,~~@data4)); \} $BR
+
 
 =cut
 
