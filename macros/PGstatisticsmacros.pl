@@ -607,7 +607,7 @@ sub insertDataLink {
 				$main::studentLogin,$main::problemSeed,$setName,$main::probNum);
 
 		# Now write the data
-		$stat->write_array_to_CSV($headerTitle,@data);
+		$stat->write_array_to_CSV($fileName,$headerTitle,@data);
 
 		"<a href=\"$url\">$linkText</a>";
 }

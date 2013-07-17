@@ -56,14 +56,21 @@ sub make_csv_alias {
 		my $setname      = shift;
 		my $prob         = shift;
 
+		# Clean the student login string to make it appropriate for a file name.
 		$studentLogin =~ s/Q/QQ/g;
 		$studentLogin =~ s/\./-Q-/g;
 		$studentLogin =~ s/\,/-Q-/g;
 		$studentLogin =~ s/\@/-Q-/g;
+
+		# Define the file name, clean it up and convert to a url.
 		my $filePath = "$studentLogin-$problemSeed-set" . $setName . "prob$prob.html";
 		$filePath = $self->{PG}->convertPath($filePath);
 		$filePath = $self->{PG}->surePathToTmpFile("data")."/".$filePath;
 		my $url = $self->{PG}->{PG_alias}->make_alias($filePath);
+
+		# Remove the .html off the end and replace it with a .csv
+		$filePath =~ s/\.html$/.csv/;
+		$url      =~ s/\.html$/.csv/;
 
 		($filePath,$url);
 }
@@ -74,23 +81,27 @@ sub make_csv_alias {
 # an empty string otherwise
 #
 sub write_array_to_CSV {
-		my $self         = shift;
+		my $self        = shift;
+		my $fileName    = shift;
 		my $headerTitle = shift;
 		my $filePath = shift;
 		my @data = @_;
 
-#	if( not -e $filePath # does it exist?
-#	  or ((stat "$templateDirectory"."$main::envir{probFileName}")[9] > (stat $filePath)[9]) # source has changed
-#	  or $refreshCachedImages
-#	) {
- 		#createFile($filePath, $main::tmp_file_permission, $main::numericalGroupID);
-#		local(*OUTPUT);  # create local file handle so it won't overwrite other open files.
-# 		open(OUTPUT, ">$filePath")||warn ("$0","Can't open $filePath<BR>","");
-# 		chmod( 0777, $filePath);
-# 		print OUTPUT $graph->draw|| warn("$0","Can't print graph to $filePath<BR>","");
-# 		close(OUTPUT)||warn("$0","Can't close $filePath<BR>","");
-#	}
+		# Open the file and write the header to the first row.
+		local(*OUTPUT);  # create local file handle so it won't overwrite other open files.
+ 		open(OUTPUT, ">$fileName")||warn ("$0","Can't open $fileName<BR>","");
+ 		chmod( 0777, $filePath);
+ 		print OUTPUT ($headerTitle."\n") || warn("$0","Can't print data file to $fileName<BR>","");
 
+		# Go through each data point and write it out.
+		my $lupe;
+		for($lupe=0;$lupe<=$#data;++$lupe)
+		{
+				print OUTPUT ($data[$lupe],"\n");
+		}
+
+		# Close it up and move on.
+ 		close(OUTPUT)||warn("$0","Can't close $filePath<BR>","");
 
 }
 
