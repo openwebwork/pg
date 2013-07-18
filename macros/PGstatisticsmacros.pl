@@ -584,6 +584,96 @@ sub t_test {
 }
 
 
+=head3 Calc the results of a two sample t-test.
+
+=pod
+
+	Usage: ($t,$df,$p) = two_sample_t_test(\@data1,\@data2);                       # Perform a two-sided t-test.
+  or:    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'right'});     # Perform a right sided t-test 
+  or:    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'left'});      # Perform a left sided t-test 
+  or:    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'two-sided'}); # Perform a left sided t-test 
+
+Computes the t-statistic, the number of degrees of freedom, and the
+p-value after performing a two sample t-test on the given data.  The
+test is whether or not the means are the same. The optional argument
+can set whether or not a left, right, or two-sided test will be
+conducted.
+
+=cut
+
+sub two_sample_t_test {
+#	 Usage: ($t,$df,$p) = two_sample_t_test(\@data1,\@data2);                       # Perform a two-sided t-test.
+#  or:    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'right'});     # Perform a right sided t-test 
+#  or:    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'left'});      # Perform a left sided t-test 
+#  or:    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'two-sided'}); # Perform a left sided t-test 
+#
+# example:
+#
+# @data1 = (1,2,3,4,5,6,7);
+# @data2 = (2,3,4,5,6,7,9);
+# ($t,$df,$p) = two_sample_t_test(2.5,\@data1,\@data2,{'test'=>'right'});
+#
+		my @data1 = @{shift};
+		my @data2 = @{shift};
+
+		# Need to check to see if an hash of options was passed in the last argument.
+		my %args = shift;
+		if(defined %args)
+		{
+				if(!defined($args{'test'}))
+				{
+						# The type of test was not defined.
+						$args{'test'} = 'two-sided';
+				}
+
+		}
+		else
+		{
+				# Set the $args to a pointer to the default hash.
+				%args = {'test' => 'two-sided'};
+		}
+
+
+		# Decide if there is any data
+		my $N = 1+$#data;
+		if($N <= 0) {die "No data has been passed to the t_test subroutine.";}
+
+		# Determine the t-statistic.
+		# First figure out the basic calcs required for the data.
+		my $sumX = 0.0;
+		my $sumX2 = 0.0;
+		foreach my $x (@data)
+		{
+				$sumX  += $x;
+				$sumX2 += $x*$x;
+		}
+
+		# Determine the t statistic and then calculate the p value.
+		my $t = ($sumX-$assumedMean*$N)/sqrt(($sumX2*$N-$sumX*$sumX)/($N-1));
+		my $p = 0.0;
+
+		if($args{test} eq 'left')
+		{
+				# This is a left sided test. Find the area to the left.
+				$p = 1.0 - tprob($N-1,$t);
+		}
+
+		elsif($args{test} eq 'right')
+		{
+				# This is a right sided test. Find the area to the left.
+				$p = tprob($N-1,$t);
+		}
+
+		else
+		{
+				# This is a two sided test. Find the area to the left.
+				$p = 2.0*tprob($N-1,abs($t));
+		}
+
+		($t,$N-1,$p);
+}
+
+
 =head3 Create a data file and make a link to it.
 
 =pod
