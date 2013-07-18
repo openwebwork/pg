@@ -511,10 +511,10 @@ set whether or not a left, right, or two-sided test will be conducted.
 =cut
 
 sub t_test {
-#	 Usage: ($t,$df,$p) = t_test(t_test(mu,@data);                       # Perform a two-sided t-test.
-#  or:    ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'right'});     # Perform a right sided t-test 
-#  or:    ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'left'});      # Perform a left sided t-test 
-#  or:    ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'two-sided'}); # Perform a left sided t-test 
+#	 Usage: ($t,$df,$p) = t_test(mu,@data);                       # Perform a two-sided t-test.
+#  or:    ($t,$df,$p) = t_test(mu,@data,{'test'=>'right'});     # Perform a right sided t-test 
+#  or:    ($t,$df,$p) = t_test(mu,@data,{'test'=>'left'});      # Perform a left sided t-test 
+#  or:    ($t,$df,$p) = t_test(mu,@data,{'test'=>'two-sided'}); # Perform a left sided t-test 
 #
 # example:
 #
