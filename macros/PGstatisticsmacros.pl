@@ -622,16 +622,16 @@ conducted.
 =cut
 
 sub two_sample_t_test {
-#	 Usage: ($t,$df,$p) = two_sample_t_test(\@data1,\@data2);                       # Perform a two-sided t-test.
-#  or:    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'right'});     # Perform a right sided t-test 
-#  or:    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'left'});      # Perform a left sided t-test 
-#  or:    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'two-sided'}); # Perform a left sided t-test 
+#	 Usage: ($t,$df,$p) = two_sample_t_test(\@data1,\@data2);                       # Perform a two-sided t-test using a pooled variance.
+#  or:    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'right','variance'=>'pooled});     # Perform a right sided t-test using a pooled variance
+#  or:    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'left','variance'=>'separate'});      # Perform a left sided t-test using a separate variance
+#  or:    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'two-sided','variance'=>'pooled}); # Perform a left sided t-test using a pooled variance
 #
 # example:
 #
 # @data1 = (1,2,3,4,5,6,7);
 # @data2 = (2,3,4,5,6,7,9);
-# ($t,$df,$p) = two_sample_t_test(2.5,\@data1,\@data2,{'test'=>'right'});
+# ($t,$df,$p) = two_sample_t_test(2.5,\@data1,\@data2,{'test'=>'right','variance'=>'pooled});
 #
 		my @data1 = @{shift @_};
 		my @data2 = @{shift @_};
@@ -660,7 +660,6 @@ sub two_sample_t_test {
 				$args{'test'} = 'two-sided';
 				$args{'variance'} = 'pooled';
 		}
-		print($args{'test'},"/",$args{'variance'},"\n");
 
 
 		# Get the sums of the values and squares for both data sets.
@@ -683,14 +682,12 @@ sub two_sample_t_test {
 		if($args{'variance'} eq "separate")
 		{
 				# Use the separate variance formula to calculate the t statistic
-				print("separate\n");
 				$t = ($sum_x/$nx - $sum_y/$ny)/sqrt( ($sum_squares_x-$sum_x*$sum_x/$nx)/($nx*($nx-1.0)) + 
 																						 ($sum_squares_y-$sum_y*$sum_y/$ny)/($ny*($ny-1.0)));
 		}
 		else
 		{
 				# Use the pooled variance formula to calculate the t statistic
-				print("pooled\n");
 				$t = ($sum_x/$nx - $sum_y/$ny)/sqrt( ($sum_squares_x-$sum_x*$sum_x/$nx + 
 																							$sum_squares_y-$sum_y*$sum_y/$ny)/
 																						 ($nx+$ny-2.0)*(1.0/$nx+1.0/$ny));
