@@ -637,9 +637,10 @@ sub two_sample_t_test {
 		my @data2 = @{shift @_};
 
 		# Need to check to see if an hash of options was passed in the last argument.
-		my %args = shift @_;
-		if(%args)
+		my %args;
+		if(@_)
 		{
+				%args = %{shift @_};
 				if(!defined($args{'test'}))
 				{
 						# The type of test was not defined.
@@ -649,55 +650,73 @@ sub two_sample_t_test {
 				if(!defined($args{'variance'}))
 				{
 						# The type of test was not defined.
-						$args{'test'} = 'pooled';
+						$args{'variance'} = 'pooled';
 				}
 
 		}
 		else
 		{
 				# Set the $args to a pointer to the default hash.
-				%args = {'test'     => 'two-sided',
-				         'variance' => 'pooled'};
+				$args{'test'} = 'two-sided';
+				$args{'variance'} = 'pooled';
 		}
+		print($args{'test'},"/",$args{'variance'},"\n");
 
 
-		# Decide if there is any data
-		my $N = 1+$#data;
-		if($N <= 0) {die "No data has been passed to the t_test subroutine.";}
+		# Get the sums of the values and squares for both data sets.
+		my ($sum_x,$sum_squares_x) = stats_SX_SXX(@data1);
+		my ($sum_y,$sum_squares_y) = stats_SX_SXX(@data2);
+		my $nx = 1+$#data1;
+		my $ny = 1+$#data2;
+		my $df = $nx+$ny-2;
 
-		# Determine the t-statistic.
-		# First figure out the basic calcs required for the data.
-		my $sumX = 0.0;
-		my $sumX2 = 0.0;
-		foreach my $x (@data)
-		{
-				$sumX  += $x;
-				$sumX2 += $x*$x;
-		}
+
+		# Make a quick sanity check to see if there is any data
+		if(($nx <= 0)||($ny <= 0)) {die "No data has been passed to the two_sample_t_test subroutine.";}
+
 
 		# Determine the t statistic and then calculate the p value.
-		my $t = ($sumX-$assumedMean*$N)/sqrt(($sumX2*$N-$sumX*$sumX)/($N-1));
+		my $t;
 		my $p = 0.0;
+
+
+		if($args{'variance'} eq "separate")
+		{
+				# Use the separate variance formula to calculate the t statistic
+				print("separate\n");
+				$t = ($sum_x/$nx - $sum_y/$ny)/sqrt( ($sum_squares_x-$sum_x*$sum_x/$nx)/($nx*($nx-1.0)) + 
+																						 ($sum_squares_y-$sum_y*$sum_y/$ny)/($ny*($ny-1.0)));
+		}
+		else
+		{
+				# Use the pooled variance formula to calculate the t statistic
+				print("pooled\n");
+				$t = ($sum_x/$nx - $sum_y/$ny)/sqrt( ($sum_squares_x-$sum_x*$sum_x/$nx + 
+																							$sum_squares_y-$sum_y*$sum_y/$ny)/
+																						 ($nx+$ny-2.0)*(1.0/$nx+1.0/$ny));
+		}
+
+
 
 		if($args{test} eq 'left')
 		{
 				# This is a left sided test. Find the area to the left.
-				$p = 1.0 - tprob($N-1,$t);
+				$p = 1.0 - tprob($df,$t);
 		}
 
 		elsif($args{test} eq 'right')
 		{
 				# This is a right sided test. Find the area to the left.
-				$p = tprob($N-1,$t);
+				$p = tprob($df,$t);
 		}
 
 		else
 		{
 				# This is a two sided test. Find the area to the left.
-				$p = 2.0*tprob($N-1,abs($t));
+				$p = 2.0*tprob($df,abs($t));
 		}
 
-		($t,$N-1,$p);
+		($t,$df,$p);
 }
 
 
