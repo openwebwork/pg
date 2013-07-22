@@ -147,21 +147,41 @@ Computes the sample standard deviation of a list of numbers, data. You may also 
 
 sub stats_sd {
 	my @data_list = @_;
-	
-	my $sum_x = 0;
+
+
 	#Not using mean for computation saving.
-	my $sum_squares = 0;
 	#Using the standard computational formula for variance ( sum(x^2) - (sum(x))^2)/(n-1)
-	foreach (@data_list) {
-		$sum_x=$sum_x + $_;
-		$sum_squares = $sum_squares + ($_)*($_);
-	}
 	
+	my ($sum_x,$sum_squares) = stats_SX_SXX(@data_list);
 	my $n = @data_list;
 	return( sqrt( ($sum_squares - $sum_x*$sum_x/$n)/($n - 1 ) ) );
 	
 }
 
+
+=head3 Sum and Sum of Squares
+
+=pod
+
+	Usage: stats_SX_SXX(@data);
+
+Computes the sum of the numbers and the sum of the numbers squared.
+
+=cut
+
+sub stats_SX_SXX {
+		my @data_list = @_;
+
+		# Initialize the two sums.
+		my $sum_x       = 0;
+		my $sum_squares = 0;
+		foreach my $x (@data_list) {
+				# Add the values for each number in the list.
+				$sum_x       = $sum_x + $x;
+				$sum_squares = $sum_squares + $x*$x;
+		}
+		($sum_x,$sum_squares);
+}
 
 =head3 Function to trim the decimal numbers in a floating point number.
 
@@ -613,12 +633,12 @@ sub two_sample_t_test {
 # @data2 = (2,3,4,5,6,7,9);
 # ($t,$df,$p) = two_sample_t_test(2.5,\@data1,\@data2,{'test'=>'right'});
 #
-		my @data1 = @{shift};
-		my @data2 = @{shift};
+		my @data1 = @{shift @_};
+		my @data2 = @{shift @_};
 
 		# Need to check to see if an hash of options was passed in the last argument.
-		my %args = shift;
-		if(defined %args)
+		my %args = shift @_;
+		if(%args)
 		{
 				if(!defined($args{'test'}))
 				{
@@ -626,11 +646,18 @@ sub two_sample_t_test {
 						$args{'test'} = 'two-sided';
 				}
 
+				if(!defined($args{'variance'}))
+				{
+						# The type of test was not defined.
+						$args{'test'} = 'pooled';
+				}
+
 		}
 		else
 		{
 				# Set the $args to a pointer to the default hash.
-				%args = {'test' => 'two-sided'};
+				%args = {'test'     => 'two-sided',
+				         'variance' => 'pooled'};
 		}
 
 
