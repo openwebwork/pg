@@ -61,9 +61,10 @@ sub essay_cmp {
 	    default=> 1,
 	    script => 0,
 	    process => 0,
-	    comment => 0
+	    comment => 0,
+	    allow => [ qw[ br ] ]
 	    );
-	
+		
 	$student->{original_student_ans} = $scrubber->scrub(
 		(defined $student->{original_student_ans})? $student->{original_student_ans} :''
 	);
@@ -73,6 +74,8 @@ sub essay_cmp {
 	my $oldContext = Context();
 	Context("Typeset");
 	my $answer_value = EV3P({processCommands=>0,processVariables=>0},$student->{original_student_ans});
+	$answer_value =~ s/\n/<br>/g;
+
 	Context($oldContext);
 	my $ans_hash = new AnswerHash(
 	    'score'=>"0",
@@ -111,7 +114,7 @@ sub  NAMED_ESSAY_BOX {
 	$answer_value =~ s/</\&lt;/g; 
 	$answer_value =~ s/>/\&gt;/g;
 	$answer_value =~ s/`/&#96;/g;
-		
+
 	# Get rid of tabs since they mess up the past answer db
 	$answer_value =~ s/\t/\&nbsp;\&nbsp;\&nbsp;\&nbsp;\&nbsp;/;
 

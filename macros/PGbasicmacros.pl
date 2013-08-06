@@ -1,3 +1,4 @@
+
 ################################################################################
 # WeBWorK Program Generation Language
 # Copyright  2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
@@ -365,6 +366,8 @@ sub NAMED_ANS_RULE {
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\\end{rawhtml}!,
 
+	    # Note: codeshard is used in the css to identify input elements 
+	    # that come from pg
 		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" value="$answer_value"/>\n!.
 		              $add_html. # added for dragmath
                         qq!<input type=hidden  name="previous_$name" value="$answer_value"/>\n!
