@@ -132,13 +132,13 @@ sub compare {
     my $tolerance = $self->getFlag('tolerance');
     if ($self->getFlag('tolType') eq 'relative') {
       my $zeroLevel = $self->getFlag('zeroLevel');
-      if (abs($a) < $zeroLevel || abs($b) < $zeroLevel) {
+      if (CORE::abs($a) < $zeroLevel || CORE::abs($b) < $zeroLevel) {
 	$tolerance = $self->getFlag('zeroLevelTol');
       } else {
-	$tolerance = $tolerance * abs($a);
+	$tolerance = $tolerance * CORE::abs($a);
       }
     }
-    return 0 if abs($a-$b) < $tolerance;
+    return 0 if CORE::abs($a-$b) < $tolerance;
   }
   return $a <=> $b;
 }
@@ -179,7 +179,7 @@ sub string {
     if ($format =~ m/#\s*$/) {$n =~ s/(\.\d*?)0*#$/$1/; $n =~ s/\.$//}
   }
   $n = uc($n); # force e notation to E
-  $n = 0 if abs($n) < $self->getFlag('zeroLevelTol');
+  $n = 0 if CORE::abs($n) < $self->getFlag('zeroLevelTol');
   $n = "(".$n.")" if ($n < 0 || $n =~ m/E/i) && defined($prec) && $prec >= 1;
   return $n;
 }
