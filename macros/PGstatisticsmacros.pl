@@ -329,7 +329,7 @@ sub poissonrand { # generate random, Poisson dist. numbers  Pois(lambda)
 	my $poisFactor = exp(-$lambda);
 	while($N > 0)
 	{
-			# Generate an exponentially dist. random number.
+			# Generate an Poisson dist. random number.
 			$N -= 1;
 			my $cumProb = $main::PG_random_generator->random(0.0,1.0,0.0)/$poisFactor;  # The cumulative prob. 
 			                                                                            # Need to find k to match this.
@@ -382,7 +382,7 @@ sub binomrand { # generate random, binomial dist. numbers  Bin(n,p)
 	my @numbers = ();
 	while($num > 0)
 	{
-			# Generate an exponentially dist. random number.
+			# Generate an binomially dist. random number.
 			$num -= 1;
 			my $cumProb = $main::PG_random_generator->random(0.0,1.0,0.0);  # The cumulative prob. 
 			                                                                # Need to find k to match this.
@@ -406,6 +406,52 @@ sub binomrand { # generate random, binomial dist. numbers  Bin(n,p)
 					$k++;
 			}
 			push(@numbers,$k);
+	}
+	
+	return @numbers;
+
+}
+
+
+=head3 Function to generate Bernoulli distributed random numbers
+
+=pod
+
+	Usage: bernoullirand(p,num)
+
+Generates num Bernoulli distributed random numbers with  parameter p.
+
+=cut
+
+sub bernoullirand { # generate random, Bernoulli dist. numbers  B(p)
+# bernoullirand(p,num)
+# Generates num random numbers. The distribution is Bernoulli with parameter p.
+
+	my ($p,$num) = @_;
+	if (($p<=0) || ($p>=1)) {
+		die "Invalid parameter p: $p\n"; # must be a positive number strictly between zero and one
+	}
+	if ($num<=0) {
+		die "Invalid number: $num\n"; # Cannot generate negative or zero numbers.
+	}
+
+
+	my @numbers = ();
+	while($num > 0)
+	{
+			# Generate a Bernoulli dist. random number.
+			$num -= 1;
+			if($main::PG_random_generator->random(0.0,1.0,0.0) <= $p)
+			{
+					# This is a success!
+					push(@numbers,1);
+			}
+			else
+			{
+					# This is a failure. :-(
+					push(@numbers,0);
+			}
+
 	}
 	
 	return @numbers;
