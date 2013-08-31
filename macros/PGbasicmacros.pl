@@ -337,9 +337,10 @@ sub NAMED_ANS_RULE {
     	$answer_value= '' unless defined($answer_value);
 	}
 
-	$answer_value =~ tr/\\$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
+	
+#	$answer_value =~ tr/\\$@`//d;   ## unnecessary since we encode HTML now
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
-
+	$answer_value = HTML::Entities::encode_entities($answer_value);
 	$name = RECORD_ANS_NAME($name, $answer_value);
     #INSERT_RESPONSE($name,$name,$answer_value);  #FIXME -- why can't we do this inside RECORD_ANS_NAME?
     
@@ -357,9 +358,6 @@ sub NAMED_ANS_RULE {
         }
 
         # end of addition for dragmath
-
-	# try to escape HTML entities to deal with xss stuff
-	$answer_value = HTML::Entities::encode_entities($answer_value);
 
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
@@ -394,8 +392,10 @@ sub NAMED_HIDDEN_ANS_RULE { # this is used to hold information being passed into
     	$answer_value= '' unless defined($answer_value);
 	}
 
-	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
+#	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
+	$answer_value = HTML::Entities::encode_entities($answer_value);
+
 	$name = RECORD_ANS_NAME($name, $answer_value);
     #INSERT_RESPONSE($name,$name,$answer_value);
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
@@ -420,8 +420,9 @@ sub NAMED_ANS_RULE_EXTENSION {
 		$answer_value = shift( @{ $rh_sticky_answers->{$name} });
 		$answer_value = '' unless defined($answer_value);
 	}
-	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
+#	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
+	$answer_value = HTML::Entities::encode_entities($answer_value);
 	INSERT_RESPONSE($name,$name,$answer_value);  #hack -- this needs more work to decide how to make it work
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
@@ -449,7 +450,7 @@ sub  NAMED_ANS_BOX {
 	my $answer_value = '';
 	$answer_value = $inputs_ref->{$name} if defined( $inputs_ref->{$name} );
 	$name = RECORD_ANS_NAME($name, $answer_value);
-	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
+#	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	#INSERT_RESPONSE($name,$name,$answer_value); # no longer needed?
 	# try to escape HTML entities to deal with xss stuff
 	$answer_value = HTML::Entities::encode_entities($answer_value);
@@ -954,7 +955,7 @@ sub NAMED_ANS_ARRAY_EXTENSION{
     		$answer_value= '' unless defined($answer_value);
 	}
 
-	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
+#	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 #	warn "ans_label $options{ans_label} $name $answer_value";
 	$answer_value = HTML::Entities::encode_entities($answer_value);
 	if (defined($options{ans_label}) ) {

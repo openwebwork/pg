@@ -63,15 +63,18 @@ sub Init {
 #  PGbasicmacros.pl needs to be fixed to allow this without
 #  having to do this terrible hack.
 #
+#  Update:  PG now encodes HTML entities which fixes a lot of these isuses
+#  TODO:  Actually clean this up so there aren't useless function calls
+
 sub EscapeAnswers {
-  my $original = $main::inputs_ref_orig = {%{$main::inputs_ref}};
-  my $inputs   = $main::inputs_ref;
-  foreach my $id (keys %{$original}) {
-    my $value = $original->{$id};
-    next if !defined($value) || ref($value);
-    $value =~ s/([\\\$@\`"&<>])/EscapeHTMLchar($1)/ge;
-    $inputs->{$id} = $value;
-  }
+#  my $original = $main::inputs_ref_orig = {%{$main::inputs_ref}};
+#  my $inputs   = $main::inputs_ref;
+#  foreach my $id (keys %{$original}) {
+#    my $value = $original->{$id};
+#    next if !defined($value) || ref($value);
+#    $value =~ s/([\\\$@\`"&<>])/EscapeHTMLchar($1)/ge;
+#    $inputs->{$id} = $value;
+#  }
 }
 
 sub EscapeHTMLchar {main::spf(ord(shift),"&#x%02X;")}
