@@ -17,12 +17,18 @@ require Exporter;
 # Items to export into callers namespace by default. Note: do not export
 # names by default without a very good reason. Use EXPORT_OK instead.
 # Do not simply export all your public functions/methods/constants.
-@EXPORT_OK = qw(chisqrdistr tdistr fdistr udistr uprob chisqrprob tprob fprob);
+@EXPORT_OK = qw(chisqrdistr tdistr fdistr udistr uprob chisqrprob tprob fprob expdistr expprob );
 $VERSION = '0.07';
 
 # Preloaded methods go here.
    
 sub chisqrdistr { # Percentage points  X^2(x^2,n)
+# chisqrdistr(n,p)
+# Returns the right sided quantile associated with the 
+# chi squared distribution of df=n and prob. p
+# i.e. If the value returned is $x then the area 
+# to the right of the dist. with df=n is p.
+
 	my ($n, $p) = @_;
 	if ($n <= 0 || abs($n) - abs(int($n)) != 0) {
 		die "Invalid n: $n\n"; # degree of freedom
@@ -34,6 +40,10 @@ sub chisqrdistr { # Percentage points  X^2(x^2,n)
 }
 
 sub udistr { # Percentage points   N(0,1^2)
+# udistr(p)
+# Returns the right sided quantile associated with the normal
+# distribution. That is, it returns the value of Z so that the area to
+# the RIGHT of Z is equal to p.
 	my ($p) = (@_);
 	if ($p > 1 || $p <= 0) {
 		die "Invalid p: $p\n";
@@ -42,6 +52,11 @@ sub udistr { # Percentage points   N(0,1^2)
 }
 
 sub tdistr { # Percentage points   t(x,n)
+# tdistr(n,p)
+# Returns the right sided quantile associated with the t distribution
+# with n degrees of freedom. That is, it returns the value of t so
+# that the area to the RIGHT of t with N degrees of freedom is equal
+# to p.
 	my ($n, $p) = @_;
 	if ($n <= 0 || abs($n) - abs(int($n)) != 0) {
 		die "Invalid n: $n\n";
@@ -53,6 +68,11 @@ sub tdistr { # Percentage points   t(x,n)
 }
 
 sub fdistr { # Percentage points  F(x,n1,n2)
+# fdistr(n1,n2,x)
+# Returns the right sided quantile associated with the F distribution
+# with n1 and n2 degrees of freedom. That is, it returns the value of F so
+# that the area to the RIGHT of F with n1 and n2 degrees of freedom is equal
+# to p.
 	my ($n, $m, $p) = @_;
 	if (($n<=0) || ((abs($n)-(abs(int($n))))!=0)) {
 		die "Invalid n: $n\n"; # first degree of freedom
@@ -66,12 +86,36 @@ sub fdistr { # Percentage points  F(x,n1,n2)
 	return precision_string(_subf($n, $m, $p));
 }
 
+sub expdistr { # Percentage points  Exp(x,lambda)
+# expdistr(p,lambda)
+# Returns the right sided quantile associated with the exponential distribution
+# with parameter lambda. That is, it returns the value of X so
+# that the area to the RIGHT of X with parameter lambda is equal
+# to p.
+	my ($p, $lambda) = @_;
+	if ($lambda<=0) {
+		die "Invalid parameter lambda: $lambda\n"; # must be a positive number
+	}
+	if (($p<=0) || ($p>1)) {
+		die "Invalid p: $p\n";
+	}
+	return precision_string(-log($p)/$lambda);
+}
+
+
 sub uprob { # Upper probability   N(0,1^2)
+# uprob(z)
+# This is the probability that a standard normal is greater than z. 
+# It is one minus the cumulative distribution for a standard normal.
 	my ($x) = @_;
 	return precision_string(_subuprob($x));
 }
 
 sub chisqrprob { # Upper probability   X^2(x^2,n)
+# chisqrprob(N,x)
+# This is the probability that a chi-squared distribution with N
+# degrees of freedom is bigger than x. It is one minus the cumulative
+# distribution of the chi-squared dist. w/ df=N.
 	my ($n,$x) = @_;
 	if (($n <= 0) || ((abs($n) - (abs(int($n)))) != 0)) {
 		die "Invalid n: $n\n"; # degree of freedom
@@ -80,6 +124,10 @@ sub chisqrprob { # Upper probability   X^2(x^2,n)
 }
 
 sub tprob { # Upper probability   t(x,n)
+# tprob(N,t)
+# This is the probability that a t distribution with N degrees of 
+# freedom is bigger than t. It is one minus the cumulative 
+# distribution of the t distribution w/ df=N.
 	my ($n, $x) = @_;
 	if (($n <= 0) || ((abs($n) - abs(int($n))) !=0)) {
 		die "Invalid n: $n\n"; # degree of freedom
@@ -88,6 +136,10 @@ sub tprob { # Upper probability   t(x,n)
 }
 
 sub fprob { # Upper probability   F(x,n1,n2)
+# fprob(n,m,f)
+# This is the probability that an F distribution with n and m 
+# degrees of freedom is bigger than f. It is one minus the 
+# cumulative distribution of the F distribution w/ df1=n and df2=m.
 	my ($n, $m, $x) = @_;
 	if (($n<=0) || ((abs($n)-(abs(int($n))))!=0)) {
 		die "Invalid n: $n\n"; # first degree of freedom
@@ -97,6 +149,23 @@ sub fprob { # Upper probability   F(x,n1,n2)
 	} 
 	return precision_string(_subfprob($n, $m, $x));
 }
+
+sub expprob { # Upper probability  Exp(x,lambda)
+# expprob(x,lambda)
+# This is the probability that an exponential distribution with 
+# parameter lambda is bigger than x. It is one minus the 
+# cumulative distribution of the exponential distribution with
+# parameter lambda
+	my ($x, $lambda) = @_;
+	if ($lambda<=0) {
+		die "Invalid parameter lambda: $lambda\n"; # must be a positive number
+	}
+	if ($x<=0){
+		die "Invalid x: $x\n";
+	}
+	return precision_string(exp(-$x*$lambda));
+}
+
 
 
 sub _subfprob {
@@ -437,6 +506,7 @@ sub precision_string {
 		return "0";
 	}
 }
+
 
 
 # Autoload methods go after =cut, and are processed by the autosplit program.
