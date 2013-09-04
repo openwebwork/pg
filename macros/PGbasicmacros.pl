@@ -337,9 +337,10 @@ sub NAMED_ANS_RULE {
     	$answer_value= '' unless defined($answer_value);
 	}
 
-	$answer_value =~ tr/\\$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
+	
+#	$answer_value =~ tr/\\$@`//d;   ## unnecessary since we encode HTML now
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
-
+	$answer_value = HTML::Entities::encode_entities($answer_value);
 	$name = RECORD_ANS_NAME($name, $answer_value);
     #INSERT_RESPONSE($name,$name,$answer_value);  #FIXME -- why can't we do this inside RECORD_ANS_NAME?
     
@@ -357,9 +358,6 @@ sub NAMED_ANS_RULE {
         }
 
         # end of addition for dragmath
-
-	# try to escape HTML entities to deal with xss stuff
-	$answer_value = HTML::Entities::encode_entities($answer_value);
 
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
@@ -394,8 +392,10 @@ sub NAMED_HIDDEN_ANS_RULE { # this is used to hold information being passed into
     	$answer_value= '' unless defined($answer_value);
 	}
 
-	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
+#	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
+	$answer_value = HTML::Entities::encode_entities($answer_value);
+
 	$name = RECORD_ANS_NAME($name, $answer_value);
     #INSERT_RESPONSE($name,$name,$answer_value);
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
@@ -420,8 +420,9 @@ sub NAMED_ANS_RULE_EXTENSION {
 		$answer_value = shift( @{ $rh_sticky_answers->{$name} });
 		$answer_value = '' unless defined($answer_value);
 	}
-	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
+#	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
+	$answer_value = HTML::Entities::encode_entities($answer_value);
 	INSERT_RESPONSE($name,$name,$answer_value);  #hack -- this needs more work to decide how to make it work
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
@@ -449,7 +450,7 @@ sub  NAMED_ANS_BOX {
 	my $answer_value = '';
 	$answer_value = $inputs_ref->{$name} if defined( $inputs_ref->{$name} );
 	$name = RECORD_ANS_NAME($name, $answer_value);
-	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
+#	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	#INSERT_RESPONSE($name,$name,$answer_value); # no longer needed?
 	# try to escape HTML entities to deal with xss stuff
 	$answer_value = HTML::Entities::encode_entities($answer_value);
@@ -954,7 +955,7 @@ sub NAMED_ANS_ARRAY_EXTENSION{
     		$answer_value= '' unless defined($answer_value);
 	}
 
-	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
+#	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 #	warn "ans_label $options{ans_label} $name $answer_value";
 	$answer_value = HTML::Entities::encode_entities($answer_value);
 	if (defined($options{ans_label}) ) {
@@ -1078,7 +1079,7 @@ sub solution {
 	my $permissionLevel = $envir->{permissionLevel}||0; #PG_restricted_eval(q!$main::envir{permissionLevel}!); #user permission level
 	# protect against undefined values
 	my $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL = ( defined( $envir->{'ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL'} ) ) ? $envir->{'ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL'} : 10000;
-    my $printSolutionForInstructor = $permissionLevel >= $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL;
+    my $printSolutionForInstructor = $permissionLevel >= $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL && $displayMode ne 'TeX';
 	my $displaySolution = PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!);
 	PG_restricted_eval(q!$main::solutionExists =1!);
    
@@ -1096,7 +1097,7 @@ sub SOLUTION {
     	TEXT( $PAR, knowlLink("SOLUTION: ", value =>  escapeSolutionHTML($BR . solution(@_) . $PAR ),
     	              base64 =>1 ) ) if solution(@_);
     } else {
-		TEXT( "$PAR SOLUTION: ".$BR.solution(@_).$PAR) if solution(@_) ;
+		TEXT( $PAR.solution(@_).$PAR) if solution(@_) ;
 	}
 }
 
@@ -1107,7 +1108,7 @@ sub hint {
 	my $permissionLevel = $envir->{permissionLevel}||0; #PG_restricted_eval(q!$main::envir{permissionLevel}!); #user permission level
 	# protect against undefined values
 	my $ALWAYS_SHOW_HINT_PERMISSION_LEVEL = ( defined( $envir->{'ALWAYS_SHOW_HINT_PERMISSION_LEVEL'} ) ) ? $envir->{'ALWAYS_SHOW_HINT_PERMISSION_LEVEL'} : 10000;
-    my $printHintForInstructor = $permissionLevel >= $ALWAYS_SHOW_HINT_PERMISSION_LEVEL;
+    my $printHintForInstructor = $permissionLevel >= $ALWAYS_SHOW_HINT_PERMISSION_LEVEL && $displayMode ne 'TeX';
     my $showHint = PG_restricted_eval(q!$main::showHint!);
     my $displayHint = PG_restricted_eval(q!$main::envir{'displayHintsQ'}!);
 	PG_restricted_eval(q!$main::hintExists =1!);
@@ -1117,11 +1118,9 @@ sub hint {
     #FIXME -- in the current version where PGbasicmacros is reloaded do all of these values need to be recomputed?
 
 	if ($displayMode eq 'TeX')   {
-	    if ($printHintForInstructor) {
-	    	$out = join(' ', "$PAR $BBOLD HINT: $EBOLD (Instructor hint preview: show the student hint after $showHint attempts: )$BR",@in);
-		} else 	{
-			$out = '';  # do nothing since hints are not available for download for students
-		}
+	    $out = '';  
+            # do nothing since hints are not available for download for students and
+	    # since ALWAYS_SHOW_HINT is not for download either.  
 	} elsif ($printHintForInstructor) {  # always print hints for instructor types 
 		$out = join(' ', "$PAR $BBOLD HINT: $EBOLD (Instructor hint preview: show the student hint after $showHint attempts. The current number of attempts is $attempts. )$BR", @in);
 	} elsif ( $displayHint  and  ( $attempts > $showHint ) ) 	{  #FIXME -- this needs modifications for can{showHints} in Problem.pm
