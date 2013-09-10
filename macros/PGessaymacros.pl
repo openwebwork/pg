@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright ï¿½ 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: pg/macros/PGanswermacros.pl,v 1.72 2010/02/01 01:33:05 apizer Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
@@ -61,7 +61,7 @@ sub essay_cmp {
 	    default=> 1,
 	    script => 0,
 	    process => 0,
-	    comment => 0
+	    comment => 1
 	    );
 	
 	$student->{original_student_ans} = $scrubber->scrub(
