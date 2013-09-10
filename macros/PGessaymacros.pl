@@ -55,19 +55,7 @@ sub essay_cmp {
     $ans->install_evaluator(sub { 			
 	my $student = shift;
 	my %response_options = @_;
-	### the answer needs to be sanitized.  It could currently contain badness written 
-	### into the answer by the student
-	my $scrubber = HTML::Scrubber->new(
-	    default=> 1,
-	    script => 0,
-	    process => 0,
-	    comment => 0
-	    );
 	
-	$student->{original_student_ans} = $scrubber->scrub(
-		(defined $student->{original_student_ans})? $student->{original_student_ans} :''
-	);
-
 	# always returns false but stuff should check for the essay flag and avoid the red highlighting
 	loadMacros("contextTypeset.pl");
 	my $oldContext = Context();
