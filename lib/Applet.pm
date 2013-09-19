@@ -87,13 +87,10 @@ qw(Applet FlashApplet JavaApplet)
 
 
 package Applet;
-
 use URI::Escape;
-
-
-
 use MIME::Base64 qw( encode_base64 decode_base64);
-
+use PGcore;
+@ISA = qw(PGcore);
 
 =head2 Default javaScript functions placed in header
 
@@ -747,21 +744,32 @@ sub insertObject {
     my $selfLoading = $self->{selfLoading};
     my $javaParameters = '';
     my $flashParameters = '';
+    my $webgeogebraParameters = '';
     if (PGcore::not_null($self->{parameter_string}) ) {
     	$javaParameters = $self->{parameter_string};
     	$flashParameters = $self->{parameter_string};
+    	$webgeogebraParameters = $self->{parameter_string};
     } else {
 		my %param_hash = %{$self->params()};
+
 		foreach my $key (keys %param_hash) {
 			$javaParameters .= qq!<param name ="$key"  value = "$param_hash{$key}">\n!;
 			$flashParameters .= uri_escape($key).'='.uri_escape($param_hash{$key}).'&';
+			$webgeogebraParameters .= qq!data-param-$key = "$param_hash{$key}"\n!;
 		}
 		$flashParameters =~ s/\&$//;    # trim last &
+		$webgeogebraParameters = qq!<article class="geogebraweb"
+		 data-param-id     = "$appletName"
+		 data-param-width  = "$width"
+		 data-param-height = "$height"
+		 !. $webgeogebraParameters . 
+		 qq!\n
+		> </article> !;
 	}
-
+  
    
     $objectText = $self->{objectText};
-    $objectText =~ s/(\$\w+)/$1/gee;
+    $objectText =~ s/(\$\w+)/$1/gee;  # interpolate values into object text 
     $objectText .=qq{<script language="javascript">ww_applet_list["$appletName"].visible = 1;</script>}; # don't submit things if not visible
     return $objectText;
 }
@@ -1028,9 +1036,6 @@ use constant CANVAS_OBJECT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
     ww_applet_list["$appletName"].object = $appletName;
     
     function getApplet(appletName) {
-	 	  //var isIE = navigator.appName.indexOf("Microsoft") != -1;
-	 	  //var obj = (isIE) ? window[appletName] : window.document[appletName];
-	 	  //return window.document[appletName];
 	 	  var obj = ww_applet_list[appletName].object;   // define fake applet for this object
 	 	  if (obj && (obj.name == appletName)) {   //RECENT FIX to ==
 	 	      //alert("getting fake applet " + obj.name);
@@ -1123,23 +1128,13 @@ use constant GEOGEBRAWEB_OBJECT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 	ww_applet_list["$appletName"].submitActionScript = Base64.decode("$base64_submitActionScript");
 	ww_applet_list["$appletName"].answerBoxAlias = "$answerBoxAlias";
 	ww_applet_list["$appletName"].maxInitializationAttempts = $maxInitializationAttempts;
-	ww_applet_list["$appletName"].debugMode = "$debugMode";	
-    ww_applet_list["$appletName"].reportsLoaded = "$selfLoading";
-    ww_applet_list["$appletName"].onInit             = "$onInit";	
-    //ww_applet_list["$appletName"].object = $appletName;
+	ww_applet_list["$appletName"].debugMode           = "$debugMode";	
+    ww_applet_list["$appletName"].reportsLoaded       = "$selfLoading";
+    ww_applet_list["$appletName"].onInit              = "$onInit";	
     
     function getApplet(appletName) {
-          //alert("Running getApplet");
-          //alert("document.ggbfoo " + document.ggbfoo);
-          //alert(" ww_applet_list.object " + ww_applet_list["$appletName"].object );
 	 	  var obj = document.$appletName;
 	 	  ww_applet_list[appletName].object = obj ;   // define fake applet for this object
-	 	  //if (obj && (obj.name == appletName)) {   //RECENT FIX to ==
-	 	      //alert("getting fake applet " + obj.name);
-	 		  //return( obj );
-	 	  //} else {
-	 		  //alert ("can't find fake applet " + appletName);		  
-	 	  //}
 	 	  return(obj);
 	  }	
     </script>
@@ -1152,21 +1147,8 @@ use constant GEOGEBRAWEB_OBJECT_TEXT =><<'END_OBJECT_TEXT';
     </script>
 <script type="text/javascript" language="javascript" src="https://www.geogebra.org/web/4.2/web/web.nocache.js"></script>
 
-<article  class="geogebraweb" 
-data-param-id="$appletName"
-data-param-width="526" 
-data-param-height="552" 
-data-param-showResetIcon="false" 
-data-param-enableRightClick="false" 
-data-param-enableLabelDrags="false" 
-data-param-showMenuBar="false" 
-data-param-showToolBar="false" 
-data-param-showAlgebraInput="false" 
-data-param-useBrowserForJS="true" 
-data-param-ggbbase64="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"
->
+$webgeogebraParameters
 
-</article>
 END_OBJECT_TEXT
 
 sub new {
