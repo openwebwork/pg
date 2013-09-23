@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright ï¿½ 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: pg/macros/PGanswermacros.pl,v 1.72 2010/02/01 01:33:05 apizer Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
@@ -56,6 +56,8 @@ sub essay_cmp {
 	my $student = shift;
 	my %response_options = @_;
 	
+	$student->{original_student_ans} = (defined $student->{original_student_ans})? $student->{original_student_ans} :'';
+
 	# always returns false but stuff should check for the essay flag and avoid the red highlighting
 	loadMacros("contextTypeset.pl");
 	my $oldContext = Context();
