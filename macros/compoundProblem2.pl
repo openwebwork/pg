@@ -1,3 +1,6 @@
+#! /usr/bin/perl -w
+
+
 sub _compoundProblem2_init {};   # don't reload this file
 $width =700; #457
 HEADER_TEXT(<<'END_HEADER_TEXT');
@@ -88,33 +91,37 @@ sub DISPLAY_SECTION {
     } else {
             $iscorrect = 'color:#999;';
     }
-
+    
     # determine whether the segment can be shown
     my $canshow = (defined($options{canshow}) and $options{canshow}==1 ) ?  " ": "display:none;";
     my $canshow_bg_color = (defined($options{canshow}) and $options{canshow}==1 ) ?  " ": "background-color:#333;";
     #my $this_part_bg_color = (defined($options{part}) and $options{part}==$part ) ?  " ": "background-color:#00f;";
      my $this_part_bg_color=""; 
-      TEXT(   qq!<li>
+      TEXT( MODES(HTML=> qq!<li>
           <h3  class="" style= "$iscorrect $canshow_bg_color " >Part: $name:</h3>
          <div class="acc-section" style="height: 0px; opacity: 0.004347826086956522;">
          <div class="acc-content"  style="$canshow">
-      !);
+      !, TeX=>"\\par{\\bf Part: $name }\\par"));
      my $rendered_text_string = EV3($text_string);
      TEXT( $rendered_text_string ) if $options{canshow}==1;
-     TEXT( "</p></div></div></li>" );
+     TEXT( MODES(HTML=>"</p></div></div></li>", TeX=>'\\par' ) );
+     
+     
 }
 
+   
 # FIXME   we will make a $cp object that keeps track of the part 
 
-sub BEGIN_SECTIONS {TEXT(q!<ul class="acc" id="acc"> !); }
+sub BEGIN_SECTIONS {TEXT(MODES(HTML=>q!<ul class="acc" id="acc"> !,TeX=>'')); warn "start sections\n\n"; }
 sub END_SECTIONS {
 	my $part = shift;
-	TEXT(q!</ul  !);
-	TEXT($PAR, qq!
+	TEXT(MODES( HTML=>q!</ul  !,TeX=>''));
+	TEXT(MODES(HTML =>$PAR .qq!
 	<script language="javascript">
 	var parentAccordion=new TINY.accordion.slider("parentAccordion");
 	parentAccordion.init("acc","h3",0,-1);
 	parentAccordion.pr(0,$part)
 	</script>
-	!, "part=",$part+1);
+	! , TeX=>''));
 }
+1;
