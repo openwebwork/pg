@@ -89,6 +89,20 @@ sub JavaApplet {
 sub CanvasApplet {
 	return new CanvasApplet(@_);
 }
+
+=head3  GeogebraWebApplet
+
+	Useage:    $applet = GeogebraWebApplet(
+	
+	
+	);
+
+=cut
+
+sub GeogebraWebApplet {
+	return new GeogebraWebApplet(@_);
+}
+
 package Applet;
 
 

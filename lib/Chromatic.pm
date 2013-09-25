@@ -3,6 +3,7 @@ BEGIN {
 }
 
 package Chromatic;
+
 our $webwork_directory = $WeBWorK::Constants::WEBWORK_DIRECTORY; #'/opt/webwork/webwork2';
 our $seed_ce = new WeBWorK::CourseEnvironment({ webwork_dir => $webwork_directory });
 die "Can't create seed course environment for webwork in $webwork_directory" unless ref($seed_ce);
@@ -42,6 +43,7 @@ sub matrix_graph {
       }
     }
     @matrix;
+
 }
 sub ChromNum {
   my ($graph) = @_;
@@ -57,6 +59,7 @@ unless (-x $command) {
     
 	die "Can't execute $command to calculate chromatic color";
 } 
+
 
   @adj = matrix_graph($graph);
   $count = 0;
@@ -87,7 +90,9 @@ unless (-x $command) {
 #  unless (-e '/opt/webwork/pg/lib/chromatic/color') {
 #    `cd /opt/webwork/pg/lib/chromatic; gcc color.c -o color`;
 #  }
+
   $val = qx[$command $fileout];
+
   $val =~  /value (\d+)/g;
   qx[rm $fileout];
   $1;
