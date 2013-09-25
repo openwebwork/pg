@@ -111,7 +111,7 @@ sub  NAMED_ESSAY_BOX {
 	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col" >$answer_value</TEXTAREA>\\end{rawhtml}!,
 	    HTML => qq!
          <TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
-               WRAP="VIRTUAL" title="Enclose math expressions with backticks ` or use LaTeX.">$answer_value</TEXTAREA>
+               WRAP="VIRTUAL" title="Enclose math expressions with backticks or use LaTeX.">$answer_value</TEXTAREA>
            <INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">
            !
          );
