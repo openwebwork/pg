@@ -65,7 +65,7 @@ sub essay_cmp {
 	loadMacros("contextTypeset.pl");
 	my $oldContext = Context();
 	Context("Typeset");
-	$answer_value = EV3P({processCommands=>0,processVariables=>0},text2PG($answer_value,'doubleSlashes',0));
+	$answer_value = EV3P({processCommands=>0,processVariables=>0},text2PG($answer_value));
 
 	Context($oldContext);
 	my $ans_hash = new AnswerHash(
