@@ -56,6 +56,8 @@ sub essay_cmp {
     $ans->install_evaluator(sub { 			
 	my $student = shift;
 	my %response_options = @_;
+	
+	$student->{original_student_ans} = (defined $student->{original_student_ans})? $student->{original_student_ans} :'';
 
 	my $answer_value = $student->{original_student_ans};
 
