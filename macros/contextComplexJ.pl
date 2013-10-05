@@ -1,3 +1,4 @@
+
 =head1   contextComplexJ.pl
 
 # use this technique to write problems that can switch 
@@ -67,8 +68,6 @@ from i to using j for the square root of minus one
   # 
 
 =cut
-
-
 
 
 
