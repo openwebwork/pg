@@ -282,7 +282,7 @@ sub lp_current_value {
     }
   }
   if($cnt != 1) {
-    return ($fractionmode ? new Fraction(0) : 0);
+    return ($fractionmode ?  Fraction(0) : 0);
   }
   $cnt = scalar(@{$save});
   return $save->[$cnt-1];
