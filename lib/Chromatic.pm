@@ -5,14 +5,30 @@ BEGIN {
 package Chromatic;
 
 
-  
-sub ChromNum {
-  my ($graph) = @_;
-  my ($i, $j, @adj, $val, $size, $count, @edges, $fileout, $ctime, $fh, $fname);
-  $ctime = time;
-  $fileout = "/opt/webwork/webwork2/tmp/graph.$ctime.txt";
+our $webwork_directory = $WeBWorK::Constants::WEBWORK_DIRECTORY; #'/opt/webwork/webwork2';
+our $seed_ce = new WeBWorK::CourseEnvironment({ webwork_dir => $webwork_directory });
+die "Can't create seed course environment for webwork in $webwork_directory" unless ref($seed_ce);
+our $PGdirectory = $seed_ce->{pg_dir};
+our $command = "$PGdirectory/lib/chromatic/color";
+our $compileCommand = "/usr/bin/gcc -O3 -o $PGdirectory/lib/chromatic/color $PGdirectory/lib/chromatic/color.c";
+unless (-x $command) {
+	if (-w "$PGdirectory/lib/chromatic" and -r "$PGdirectory/lib/chromatic/color.c" and -x "/usr/bin/gcc") {
+    # compile color if it is not there
+     system $compileCommand;
+  	} else {
+    	warn "ERROR: Unable to compile $PGdirectory/lib/chromatic/color.c.";
+    	warn "The command $compileCommand failed";
+    	warn "Chromatic.pm and a compiled version of color.c are required for this problem";
+    	warn "The file color.c will need to be compiled by a systems administrator.";
+    	warn "Can't find compiler at /usr/bin/gcc" unless -x '/usr/bin/gcc';
+    	warn "Can't write into directory $PGdirectory/lib/chromatic" unless  -w "$PGdirectory/lib/chromatic";
+    	warn "Can't read C file $PGdirectory/lib/chromatic/color.c" unless -r "$PGdirectory/lib/chromatic/color.c";
+    }
+}
+our $tempDirectory = $seed_ce->{webworkDirs}->{DATA};
+use UUID::Tiny  ':std';
 
-  sub matrix_graph {
+sub matrix_graph {
     my ($graph) = @_;
     $graph =~ s/\A\s*//;
     $graph =~ s/;\s*\Z//;
@@ -28,7 +44,19 @@ sub ChromNum {
       }
     }
     @matrix;
-  }
+
+}
+sub ChromNum {
+  my ($graph) = @_;
+  my ($i, $j, @adj, $val, $size, $count, @edges,  $ctime, $fh, $fname);
+  my $unique_id_seed = time;
+  my $unique_id_stub = create_uuid_as_string(UUID_V3, UUID_NS_URL, $unique_id_seed);
+  my $fileout = "$tempDirectory/$unique_id_stub";
+	unless (-x $command) {
+	
+		die "Can't execute $command to calculate chromatic color";
+	} 
+
 
   @adj = matrix_graph($graph);
   $count = 0;
@@ -59,7 +87,9 @@ sub ChromNum {
 #  unless (-e '/opt/webwork/pg/lib/chromatic/color') {
 #    `cd /opt/webwork/pg/lib/chromatic; gcc color.c -o color`;
 #  }
-  $val = qx[/opt/webwork/pg/lib/chromatic/color $fileout];
+
+  $val = qx[$command $fileout];
+
   $val =~  /value (\d+)/g;
   qx[rm $fileout];
   $1;
