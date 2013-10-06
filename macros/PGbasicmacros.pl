@@ -1874,7 +1874,10 @@ sub EV3P {
       $evaluated_string = $BBOLD."(Error: $error in '$string')".$EBOLD;
     }
     $string = $evaluated_string;
+  } else {
+      $string =~ s/\\\\/\\/g;
   }
+  
   if ($options{processMath}) {
     $string = EV3P_parser($string) if $options{processParser};
     $string = ev_substring($string,"\\(","\\)",\&math_ev3);

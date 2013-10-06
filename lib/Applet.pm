@@ -1130,6 +1130,7 @@ use constant GEOGEBRAWEB_OBJECT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 	ww_applet_list["$appletName"].maxInitializationAttempts = $maxInitializationAttempts;
 	ww_applet_list["$appletName"].debugMode           = "$debugMode";	
     ww_applet_list["$appletName"].reportsLoaded       = "$selfLoading";
+    ww_applet_list["$appletName"].isReady             = "$selfLoading";
     ww_applet_list["$appletName"].onInit              = "$onInit";	
     
     function getApplet(appletName) {

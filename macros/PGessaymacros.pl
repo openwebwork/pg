@@ -36,7 +36,8 @@ Answer Boxes
 =cut
 
 sub _PGessaymacros_init {
-	loadMacros('PGbasicmacros.pl');   
+    loadMacros('PGbasicmacros.pl',
+	       'text2PG.pl');   
 }
 
 
@@ -58,12 +59,13 @@ sub essay_cmp {
 	
 	$student->{original_student_ans} = (defined $student->{original_student_ans})? $student->{original_student_ans} :'';
 
+	my $answer_value = $student->{original_student_ans};
+
 	# always returns false but stuff should check for the essay flag and avoid the red highlighting
 	loadMacros("contextTypeset.pl");
 	my $oldContext = Context();
 	Context("Typeset");
-	my $answer_value = EV3P({processCommands=>0,processVariables=>0},$student->{original_student_ans});
-	$answer_value =~ s/\n/<br>/g;
+	$answer_value = EV3P({processCommands=>0,processVariables=>0},text2PG($answer_value));
 
 	Context($oldContext);
 	my $ans_hash = new AnswerHash(
