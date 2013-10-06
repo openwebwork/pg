@@ -43,6 +43,7 @@ sub matrix_graph {
       }
     }
     @matrix;
+<<<<<<< HEAD
 
 }
 sub ChromNum {
@@ -60,6 +61,9 @@ unless (-x $command) {
 	die "Can't execute $command to calculate chromatic color";
 } 
 
+=======
+  }
+>>>>>>> 00aa457434df25795976f3f82e0c29a2fdede54f
 
   @adj = matrix_graph($graph);
   $count = 0;
