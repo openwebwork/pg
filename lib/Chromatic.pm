@@ -4,6 +4,7 @@ BEGIN {
 
 package Chromatic;
 
+
 our $webwork_directory = $WeBWorK::Constants::WEBWORK_DIRECTORY; #'/opt/webwork/webwork2';
 our $seed_ce = new WeBWorK::CourseEnvironment({ webwork_dir => $webwork_directory });
 die "Can't create seed course environment for webwork in $webwork_directory" unless ref($seed_ce);
@@ -50,15 +51,11 @@ sub ChromNum {
   my ($i, $j, @adj, $val, $size, $count, @edges,  $ctime, $fh, $fname);
   my $unique_id_seed = time;
   my $unique_id_stub = create_uuid_as_string(UUID_V3, UUID_NS_URL, $unique_id_seed);
-#  warn "course in ChromNum ".  WeBWorK::PG::Translator::PG_restricted_eval('$main::courseName');
-#  warn "course data ", $seed_ce->{courseDirs}->{html_tmp};
   my $fileout = "$tempDirectory/$unique_id_stub";
-#  warn "command $command";
-#  warn "fileout $fileout";
-unless (-x $command) {
-    
-	die "Can't execute $command to calculate chromatic color";
-} 
+	unless (-x $command) {
+	
+		die "Can't execute $command to calculate chromatic color";
+	} 
 
 
   @adj = matrix_graph($graph);
