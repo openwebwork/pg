@@ -179,7 +179,7 @@ sub compare {
   #  Compare with adaptive parameters to see if $l + n00 C = $r for some n0.
   #
   my $adapt = $l->adapt;
-  my $equal = Parser::Eval(sub {$adapt == $r});
+  my $equal = ($adapt == $r);
   $self->{adapt} = $self->{adapt}->inherit($adapt);            # save the adapted value's flags
   $self->{adapt}{test_values} = $adapt->{test_values};         #  (these two are removed by inherit)
   $self->{adapt}{test_adapt} = $adapt->{test_adapt};
@@ -189,7 +189,7 @@ sub compare {
   #  Check that n00 is non-zero (i.e., there is a multiple of C in the student answer)
   #  (remember: return value of 0 is equal, and non-zero is unequal)
   #
-  return abs($context->variables->get("n00")->{value}) < $context->flag("zeroLevelTol");
+  return (abs($context->variables->get("n00")->{value}) < $context->flag("zeroLevelTol") ? 1 : 0);
 }
 
 #

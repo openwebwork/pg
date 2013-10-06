@@ -200,7 +200,7 @@ sub compare {
       my ($lv,$rv,$av) = ($lvalues->[$i]->value,$rvalues->[$i]->value,$avalues->[$i]->value);
       if ($isRelative) {
 	if (CORE::abs($lv) <= $zeroLevel) {$tol = $zeroLevelTol}
-	                       else {$tol *= CORE::abs($lv)}
+                                     else {$tol *= CORE::abs($av)}
       }
       return $rv <=> $av unless CORE::abs($rv - $av) < $tol;
     }
