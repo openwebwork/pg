@@ -43,27 +43,17 @@ sub matrix_graph {
       }
     }
     @matrix;
-<<<<<<< HEAD
-
 }
 sub ChromNum {
   my ($graph) = @_;
   my ($i, $j, @adj, $val, $size, $count, @edges,  $ctime, $fh, $fname);
   my $unique_id_seed = time;
   my $unique_id_stub = create_uuid_as_string(UUID_V3, UUID_NS_URL, $unique_id_seed);
-#  warn "course in ChromNum ".  WeBWorK::PG::Translator::PG_restricted_eval('$main::courseName');
-#  warn "course data ", $seed_ce->{courseDirs}->{html_tmp};
   my $fileout = "$tempDirectory/$unique_id_stub";
-#  warn "command $command";
-#  warn "fileout $fileout";
-unless (-x $command) {
-    
-	die "Can't execute $command to calculate chromatic color";
-} 
-
-=======
-  }
->>>>>>> 00aa457434df25795976f3f82e0c29a2fdede54f
+	unless (-x $command) {
+	
+		die "Can't execute $command to calculate chromatic color";
+	} 
 
   @adj = matrix_graph($graph);
   $count = 0;
