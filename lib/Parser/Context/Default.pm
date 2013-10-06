@@ -11,6 +11,9 @@
 #   Vector2D => vector context where i and j are vectors in 2D rather than 3D
 #   Matrix   => numeric context with points, vectors and matrices
 #   Interval => numeric context with syntax for intervals and unions
+#   Complex-Point  => like Point but for complex numbers
+#   Complex-Vector => like Vector but with complex numbers
+#   Complex-Matrix => like Matrix but with complex numbers
 #
 # You can list the defined contexts using:
 #
@@ -130,10 +133,11 @@ $lists = {
 
 $constants = {
    'e'  => exp(1),
-   'pi' => 4*atan2(1,1),
-   'i'  => Value::Complex->new(0,1),
-   'j'  => Value::Vector->new(0,1,0)->with(ijk=>1),
-   'k'  => Value::Vector->new(0,0,1)->with(ijk=>1),
+   'pi' => {value => 4*atan2(1,1), TeX => '\pi ', perl => "pi"},
+   'i'  => {value => Value::Complex->new(0,1), isConstant => 1,                        string => "i", perl => "i"},
+   'j'  => {value => Value::Vector->new(0,1,0)->with(ijk=>1), TeX => '\boldsymbol{j}', string => "j", perl => "j"},
+   'k'  => {value => Value::Vector->new(0,0,1)->with(ijk=>1), TeX => '\boldsymbol{k}', string => "k", perl => "k"},
+   '_0' => {value => Value::Vector->new(0,0,0), hidden => 1,  TeX => '\boldsymbol{0}', string => "0"},
    '_blank_' => {value => 0, hidden => 1, string => "", TeX => ""},
 };
 
@@ -187,13 +191,13 @@ $functions = {
    'atan2' => {class => 'Parser::Function::numeric2'},
 
    'norm'  => {class => 'Parser::Function::vector', vectorInput => 1},
-   'unit'  => {class => 'Parser::Function::vector', vectorInput => 1},
+   'unit'  => {class => 'Parser::Function::vector', vectorInput => 1, vector => 1},
 
    'arg'   => {class => 'Parser::Function::complex'},
    'mod'   => {class => 'Parser::Function::complex'},
    'Re'    => {class => 'Parser::Function::complex', TeX => '\Re'},
    'Im'    => {class => 'Parser::Function::complex', TeX => '\Im'},
-   'conj'  => {class => 'Parser::Function::complex', complex => 1, TeX=>'\overline', braceTeX => 1},
+   'conj'  => {class => 'Parser::Function::complex', complex => 1, TeX => '\overline', braceTeX => 1, matrix => 1},
 
    # Det, Inverse, Transpose, Floor, Ceil?
 
@@ -261,13 +265,6 @@ $context = $context{Full} = new Parser::Context(
   reduction => $Parser::reduce,
 );
 
-$context->constants->set(
-  pi => {TeX => '\pi ', perl => 'pi'},
-  i => {isConstant => 1, perl => 'i'},
-  j => {TeX => '\boldsymbol{j}', perl => 'j'},
-  k => {TeX => '\boldsymbol{k}', perl => 'k'},
-);
-
 $context->usePrecedence('Standard');
 $context->{name} = "Full";
 
@@ -286,6 +283,62 @@ $context->parens->set(
    '{' => {type => 'List'},
 );
 $context->{name} = "Numeric";
+
+#
+#  Vector context (no complex numbers)
+#
+$context = $context{Vector} = $context{Full}->copy;
+$context->variables->are(x=>'Real',y=>'Real',z=>'Real');
+$context->functions->undefine('arg','mod','Re','Im','conj');
+$context->constants->set(
+  i => {value => Value::Vector->new(1,0,0)->with(ijk=>1), TeX => '\boldsymbol{i}'},
+);
+$context->parens->set('(' => {formMatrix => 0});
+
+$context = $context{Vector2D} = $context{Vector}->copy;
+$context->constants->set(
+  i => {value => Value::Vector->new(1,0)->with(ijk=>1)},
+  j => {value => Value::Vector->new(0,1)->with(ijk=>1)},
+  '_0' => {value => Value::Vector->new(0,0)},
+);
+$context->constants->remove("k");
+$context->{name} = "Vector2D";
+
+#
+#  Point context (for symmetry)
+#
+$context = $context{Point} = $context{Vector}->copy;
+$context->operators->undefine("><",".");
+$context->functions->undefine('norm','unit');
+$context->constants->remove('i','j','k','_0');
+$context->parens->remove("<");
+$context->{name} = "Point";
+
+#
+#  Matrix context (square brackets make matrices in preference to points or intervals)
+#
+$context = $context{Matrix} = $context{Vector}->copy;
+$context->parens->set(
+  '(' => {formMatrix => 1},
+  '[' => {type => 'Matrix', removable => 0},
+);
+$context->{name} = "Matrix";
+
+#
+#  Interval context (make intervals rather than lists)
+#
+$context = $context{Interval} = $context{Numeric}->copy;
+$context->parens->set(
+   '(' => {type => 'Interval'},
+   '[' => {type => 'Interval'},
+   '{' => {type => 'Set', removable => 0, emptyOK => 1},
+);
+my $infinity = Value::Infinity->new();
+$context->constants->add(
+  R => Value::Interval->new('(',-$infinity,$infinity,')'),
+);
+$context->constants->set(R => {TeX => '{\bf R}'});
+$context->{name} = "Interval";
 
 #
 #  Complex context (no vectors or matrices)
@@ -311,64 +364,37 @@ $context->functions->set(
 );
 $context->{name} = "Complex";
 
-
 #
-#  Vector context (no complex numbers)
+#  Complex-Vector context
 #
-$context = $context{Vector} = $context{Full}->copy;
-$context->variables->are(x=>'Real',y=>'Real',z=>'Real');
-$context->functions->undefine('arg','mod','Re','Im','conj');
-$context->constants->replace(i=>Value::Vector->new(1,0,0)->with(ijk=>1));
-$context->constants->set(i=>{TeX=>'\boldsymbol{i}', perl=>'i'});
-$context->parens->set('(' => {formMatrix => 0});
-
-$context = $context{Vector2D} = $context{Vector}->copy;
-$context->constants->replace(
-  i => Value::Vector->new(1,0)->with(ijk=>1),
-  j => Value::Vector->new(0,1)->with(ijk=>1),
+$context = $context{"Complex-Vector"} = $context{Complex}->copy;
+$context->operators->redefine(['><','.'],from=>'Vector');
+$context->parens->add('<' => {close => '>', type => 'Vector'});
+$context->parens->set(
+  '(' => {type => "Point", formMatrix => 0},
+  '[' => {type => "Point", formMatrix => 0},
+  '{' => {type => "Point"},
 );
-$context->constants->set(
-  i => {TeX=>'\boldsymbol{i}', perl=>'i'},
-  j => {TeX=>'\boldsymbol{j}', perl=>'j'}
-);
-$context->constants->remove("k");
-$context->{name} = "Vector2D";
+$context->{name} = "Complex-Vector";
 
 #
-#  Point context (for symmetry)
+#  Complex-Point context
 #
-$context = $context{Point} = $context{Vector}->copy;
+$context = $context{"Complex-Point"} = $context{"Complex-Vector"}->copy;
 $context->operators->undefine("><",".");
-$context->functions->undefine('norm','unit');
-$context->constants->remove('i','j','k');
 $context->parens->remove("<");
-$context->{name} = "Point";
+$context->{name} = "Complex-Point";
 
 #
-#  Matrix context (square brackets make matrices in preference to points or intervals)
+#  Complex-Matrix context
 #
-$context = $context{Matrix} = $context{Vector}->copy;
+$context = $context{"Complex-Matrix"} = $context{"Complex-Vector"}->copy;
 $context->parens->set(
   '(' => {formMatrix => 1},
   '[' => {type => 'Matrix', removable => 0},
 );
-$context->{name} = "Vector";
+$context->{name} = "Complex-Matrix";
 
-#
-#  Interval context (make intervals rather than lists)
-#
-$context = $context{Interval} = $context{Numeric}->copy;
-$context->parens->set(
-   '(' => {type => 'Interval'},
-   '[' => {type => 'Interval'},
-   '{' => {type => 'Set', removable => 0, emptyOK => 1},
-);
-my $infinity = Value::Infinity->new();
-$context->constants->add(
-  R => Value::Interval->new('(',-$infinity,$infinity,')'),
-);
-$context->constants->set(R => {TeX => '{\bf R}'});
-$context->{name} = "Interval";
 
 #########################################################################
 

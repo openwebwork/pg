@@ -29,7 +29,12 @@
 
 =cut
 
-# this is equivalent to use strict, but can be used within the Safe compartment.
+#####sub _PGbasicmacros_init { }
+### In this file the _init subroutine is defined further down
+### It actually initializes something!
+
+# this is equivalent to use strict, but can be used within the Safe compartmen
+
 BEGIN{
 	be_strict;
 }
@@ -332,20 +337,36 @@ sub NAMED_ANS_RULE {
     	$answer_value= '' unless defined($answer_value);
 	}
 
-	$answer_value =~ tr/\\$@`//d;   ## make sure student answers can not be interpolated by e.g. EV3
+	
+#	$answer_value =~ tr/\\$@`//d;   ## unnecessary since we encode HTML now
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
-
+	$answer_value = HTML::Entities::encode_entities($answer_value);
 	$name = RECORD_ANS_NAME($name, $answer_value);
     #INSERT_RESPONSE($name,$name,$answer_value);  #FIXME -- why can't we do this inside RECORD_ANS_NAME?
     
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
 
+        # added for dragmath formula editor
+        my $dragmath = 0;
+        $dragmath = $main::envir{DragMath};
+        $dragmath = 0 unless defined ($dragmath);
+
+        my $add_html = '';
+        if ($dragmath == 1){
+                $add_html = qq!<img src="/webwork2_files/images/editorDragMath.png" align="absbottom" onclick="dragmathedit('$name')" />!;
+        }
+
+        # end of addition for dragmath
+
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\\end{rawhtml}!,
-		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE="$answer_value">!.
-                        qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE="$answer_value">!
+
+		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" value="$answer_value"/>\n!.
+		              $add_html. # added for dragmath
+                        qq!<input type=hidden  name="previous_$name" value="$answer_value"/>\n!
+
 	);
 }
 
@@ -371,8 +392,10 @@ sub NAMED_HIDDEN_ANS_RULE { # this is used to hold information being passed into
     	$answer_value= '' unless defined($answer_value);
 	}
 
-	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
+#	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
+	$answer_value = HTML::Entities::encode_entities($answer_value);
+
 	$name = RECORD_ANS_NAME($name, $answer_value);
     #INSERT_RESPONSE($name,$name,$answer_value);
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
@@ -397,8 +420,9 @@ sub NAMED_ANS_RULE_EXTENSION {
 		$answer_value = shift( @{ $rh_sticky_answers->{$name} });
 		$answer_value = '' unless defined($answer_value);
 	}
-	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
+#	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
+	$answer_value = HTML::Entities::encode_entities($answer_value);
 	INSERT_RESPONSE($name,$name,$answer_value);  #hack -- this needs more work to decide how to make it work
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
@@ -428,6 +452,8 @@ sub  NAMED_ANS_BOX {
 	$name = RECORD_ANS_NAME($name, $answer_value);
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	#INSERT_RESPONSE($name,$name,$answer_value); # no longer needed?
+	# try to escape HTML entities to deal with xss stuff
+	$answer_value = HTML::Entities::encode_entities($answer_value);
 	my $out = MODES(
 	     TeX => qq!\\vskip $height in \\hrulefill\\quad !,
 	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
@@ -707,7 +733,7 @@ sub ans_rule {
 sub ans_rule_extension {
 	my $len = shift;
     $len    = 20 unless $len ;
-    warn "ans_rule_extension may be misnumbering the answers";
+#    warn "ans_rule_extension may be misnumbering the answers";
 	my $name = NEW_ANS_NAME($$r_ans_rule_count);  # don't update the answer name
 	NAMED_ANS_RULE($name ,$len);
 }
@@ -759,7 +785,7 @@ sub tex_ans_rule {
 sub tex_ans_rule_extension {
 	my $len = shift;
 	$len    = 20 unless $len ;
-	warn "tex_ans_rule_extension may be missnumbering the answer";
+#	warn "tex_ans_rule_extension may be missnumbering the answer";
     my $name = NEW_ANS_NAME($$r_ans_rule_count);
     my $answer_rule = NAMED_ANS_RULE($name ,$len);  # we don't want to create three answer rules in different modes.
     my $out = MODES(
@@ -929,8 +955,9 @@ sub NAMED_ANS_ARRAY_EXTENSION{
     		$answer_value= '' unless defined($answer_value);
 	}
 
-	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
-	warn "ans_label $options{ans_label} $name $answer_value";
+#	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
+#	warn "ans_label $options{ans_label} $name $answer_value";
+	$answer_value = HTML::Entities::encode_entities($answer_value);
 	if (defined($options{ans_label}) ) {
 		INSERT_RESPONSE($options{ans_label}, $name, $answer_value);
 	}
@@ -1025,6 +1052,8 @@ Hints are shown only after the number of attempts is greater than $:showHint
 ($main::showHint defaults to 1) and the check box named 'ShowHint' is set. The check box
 'ShowHint' is visible only after the number of attempts is greater than $main::showHint.
 
+Hints are always shown immediately to instructors to facilitate editing the hint section.
+
 $main::envir{'displayHintsQ'} is set to 1 when a hint is to be displayed.
 
 
@@ -1038,18 +1067,38 @@ $main::envir{'displayHintsQ'} is set to 1 when a hint is to be displayed.
 #   is passed to processProblem which displays a "show Solution" button
 #   when a solution is available for viewing
 
-
+sub escapeSolutionHTML {
+	my $str = join('',@_);
+	#$str =~ s/"/'/g;
+	$str = $main::PG->encode_base64($str);
+	$str;
+}
 sub solution {
 	my @in = @_;
 	my $out = '';
+	my $permissionLevel = $envir->{permissionLevel}||0; #PG_restricted_eval(q!$main::envir{permissionLevel}!); #user permission level
+	# protect against undefined values
+	my $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL = ( defined( $envir->{'ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL'} ) ) ? $envir->{'ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL'} : 10000;
+    my $printSolutionForInstructor = $permissionLevel >= $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL && $displayMode ne 'TeX';
+	my $displaySolution = PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!);
 	PG_restricted_eval(q!$main::solutionExists =1!);
-	if (PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!)) {$out = join(' ',@in);}
-    $out;
+   
+    if ($printSolutionForInstructor) {  # always print solutions for instructor types 
+		$out = join(' ', "$PAR $BBOLD SOLUTION: $EBOLD (Instructor solution preview: show the student solution after due date. )$BR", @in);
+	} elsif ( $displaySolution ) 	{
+		$out = join(' ',@in);  # display solution
+	}    
+	$out;
 }
 
 
 sub SOLUTION {
-	TEXT( solution(@_)) ;
+	if ($displayMode =~/HTML/ and $envir->{use_knowls_for_solutions}) {	   
+    	TEXT( $PAR, knowlLink("SOLUTION: ", value =>  escapeSolutionHTML($BR . solution(@_) . $PAR ),
+    	              base64 =>1 ) ) if solution(@_);
+    } else {
+		TEXT( $PAR.solution(@_).$PAR) if solution(@_) ;
+	}
 }
 
 
@@ -1058,23 +1107,23 @@ sub hint {
 	my $out = '';
 	my $permissionLevel = $envir->{permissionLevel}||0; #PG_restricted_eval(q!$main::envir{permissionLevel}!); #user permission level
 	# protect against undefined values
-	my $PRINT_FILE_NAMES_PERMISSION_LEVEL = ( defined( $envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'} ) ) ? $envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'} : 10000;
-    my $printHintForInstructor = $permissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL;
+	my $ALWAYS_SHOW_HINT_PERMISSION_LEVEL = ( defined( $envir->{'ALWAYS_SHOW_HINT_PERMISSION_LEVEL'} ) ) ? $envir->{'ALWAYS_SHOW_HINT_PERMISSION_LEVEL'} : 10000;
+    my $printHintForInstructor = $permissionLevel >= $ALWAYS_SHOW_HINT_PERMISSION_LEVEL && $displayMode ne 'TeX';
     my $showHint = PG_restricted_eval(q!$main::showHint!);
     my $displayHint = PG_restricted_eval(q!$main::envir{'displayHintsQ'}!);
 	PG_restricted_eval(q!$main::hintExists =1!);
     PG_restricted_eval(q!$main::numOfAttempts = 0 unless defined($main::numOfAttempts);!);
     my $attempts = PG_restricted_eval(q!$main::numOfAttempts!);
+    #$attempts++ if PG_restricted_eval(q!$main::inputs_ref->{submitAnswers}!); # numbOfAttempts is off by one when resubmitting
+    #FIXME -- in the current version where PGbasicmacros is reloaded do all of these values need to be recomputed?
 
 	if ($displayMode eq 'TeX')   {
-	    if ($printHintForInstructor) {
-	    	$out = join(' ', "$BR(Show the student hint after $showHint attempts: ) $BR",@in);
-		} else 	{
-			$out = '';  # do nothing since hints are not available for download for students
-		}
+	    $out = '';  
+            # do nothing since hints are not available for download for students and
+	    # since ALWAYS_SHOW_HINT is not for download either.  
 	} elsif ($printHintForInstructor) {  # always print hints for instructor types 
-		$out = join(' ', "$BR( Show the student hint after $showHint attempts. The current number of attempts is $attempts. )$BR $BBOLD HINT: $EBOLD ", @in);
-	} elsif ( $displayHint  and ( $attempts > $showHint )) 	{
+		$out = join(' ', "$PAR $BBOLD HINT: $EBOLD (Instructor hint preview: show the student hint after $showHint attempts. The current number of attempts is $attempts. )$BR", @in);
+	} elsif ( $displayHint  and  ( $attempts > $showHint ) ) 	{  #FIXME -- this needs modifications for can{showHints} in Problem.pm
 
 	 ## the second test above prevents a hint being shown if a doctored form is submitted
 
@@ -1086,9 +1135,15 @@ sub hint {
 
 
 sub HINT {
-    TEXT("$BR" . hint(@_) . "$BR") if hint(@_);
-}
+	if ($displayMode =~/HTML/ and $envir->{use_knowls_for_hints}) {
+		TEXT($PAR, knowlLink("HINT: ", value=>escapeSolutionHTML($BR . hint(@_) . $PAR ),
+		                  base64 => 1) ) if hint(@_);
 
+	} else {
+    	TEXT("$PAR HINT: " . $BR. hint(@_) . $PAR) if hint(@_);
+    }
+    
+}
 
 
 # End hints and solutions macros
@@ -1868,6 +1923,18 @@ sub EV3P_parser {
 	OL(@array)      # formats the array as an Ordered List ( <OL> </OL> ) enumerated by letters.
 					# See BeginList()  and EndList in unionLists.pl for a more powerful version
 					# of this macro.
+	knowlLink($display_text, url => $url,value =>'' )
+	                # Places a reference to a knowl for the URL with the specified text in the problem.
+	                # A common usage is \{ 'for help', url =>knowlLink(alias('prob1_help.html') \} )
+	                # where alias finds the full address of the prob1_help.html file in the same directory
+	                # as the problem file
+	knowlLink($display_text,  url => '', value = <<EOF );  # this starts a here document that ends at EOF (left justified)
+	                help text goes here .....
+	EOF  
+	                # This version of the knowl reference facilitates immediate reference to a HERE document 
+	                # The function should be called either with value specified (immediate reference) or 
+	                # with url specified in which case the revealed text is taken from the URL $url.
+	                # The $display_text is always visible and is clicked to see the contents of the knowl.
 	htmlLink($url, $text)
 	                # Places a reference to the URL with the specified text in the problem.
 	                # A common usage is \{ htmlLink(alias('prob1_help.html') \}, 'for help')
@@ -1890,10 +1957,26 @@ A wide variety of google widgets, youtube videos, and other online resources can
 	              params   => { param1 =>value1, param2 => value2},
 	            }
 	          );
-	helpLink()     allows site specific help specified in global.conf or course.conf
-	               the parameter localHelpURL  must be defined in the environment
-	               currently works only for 'interval notation' and 'units'
-	               NEEDS REFINEMENT
+	helpLink($type)     allows site specific help. specified in global.conf or course.conf
+	               The parameter localHelpURL  must be defined in the environment
+	               and is set by default to webwork2/htdocs/helpFiles
+	               Standard helpFile types
+	                    'angle'  
+						'decimal' 
+						'equation' 
+						'exponent' 
+						'formula' 
+						'fraction' 
+						'inequalit'
+						'limit'  
+						'log'  
+						'number' 
+						'point'  
+						'vector' 
+						'interval' 
+						'unit'
+						'syntax' 
+
 	
 	########################
 	              deprecated coding method
@@ -1920,14 +2003,14 @@ A wide variety of google widgets, youtube videos, and other online resources can
 sub beginproblem {
 	my $out = "";
 	my $problemValue = $envir->{problemValue} || 0;
-	my $fileName     = $envir->{fileName};
+	my $fileName     = $envir->{probFileName};
 	my $probNum      = $envir->{probNum};
-    my $TeXFileName = protect_underbar($envir->{fileName});
-    my $l2hFileName = protect_underbar($envir->{fileName});
+    my $TeXFileName = protect_underbar($envir->{probFileName});
+    my $l2hFileName = protect_underbar($envir->{probFileName});
 	my %inlist;
-	my $points ='pts';
+	my $points = maketext('pts');
 
-	$points = 'pt' if $problemValue == 1;
+	$points = maketext('pt') if $problemValue == 1;
 	##    Prepare header for the problem
 	grep($inlist{$_}++,@{ $envir->{'PRINT_FILE_NAMES_FOR'} });
 	my $effectivePermissionLevel = $envir->{effectivePermissionLevel}; # permission level of user assigned to question
@@ -2043,12 +2126,55 @@ sub htmlLink {
 	my $text = shift;
 	my $options = shift;
 	$options = "" unless defined($options);
-	return "$BBOLD\[ broken link:  $text \] $EBOLD" unless defined($url);
+	return "$BBOLD\[ $text  has broken link: $url \] $EBOLD" unless defined($url);
 	MODES( TeX        => "{\\bf \\underline{$text}}",
 	       HTML       => "<A HREF=\"$url\" $options>$text</A>"
 	);
 }
 
+# sub knowlLink {
+# #   I'd like to make text shift -- since this is always present
+# #   url might not be used with a here document which would be written as
+# #   value = "contents of here document" 
+# #   suggested usage   knowl(text, [url => ...,   value => ....])
+# #   used in helpLink
+# 	my $url = shift;
+# 	my $display_text = shift;
+# 	my $option_string = shift;
+# 	$option_string = "" unless defined($option_string);
+# 	return "$BBOLD\[ broken link:  $display_text \] $EBOLD" unless defined($url) or $option_string;
+# 	MODES( TeX        => "{\\bf \\underline{$display_text}}",
+# 	       HTML       => "<A knowl=\"$url\" $option_string>$display_text</A>"
+# 	);
+# }
+
+sub knowlLink { # an new syntax for knowlLink that facilitates a local HERE document
+                #   suggested usage   knowlLink(text, [url => ...,   value => ....])
+	my $display_text = shift;
+	my @options = @_;  # so we can check parity
+	my %options = @options;
+	WARN_MESSAGE('usage   knowlLink($display_text, [url => $url,   value => $helpMessage] );'. 
+	              qq!after  the display_text the information requires key/value pairs. 
+	              Received @options !,scalar(@options)%2) if scalar(@options)%2; 
+	# check that options has an even number of inputs
+	my $properties = "";
+	if ($options{value} )  { #internal knowl from HERE document
+	    $options{value} =~ s/"/'/g; # escape quotes  #FIXME -- make escape more robust 
+	    my $base64 = ($options{base64})?"base64 = \"1\"" :"";
+		$properties = qq! knowl = "" class = "internal" value = "$options{value} " $base64 !;
+	} elsif ($options{url}) {
+		$properties = qq! knowl = "$options{url}"!;
+	}
+		else {
+		WARN_MESSAGE('usage   knowlLink($display_text, [url => $url,   value => $helpMessage] );');
+	}
+	#my $option_string = qq!url = "$options{url}" value = "$options{value}" !;
+	MODES( TeX        => "{\\bf \\underline{$display_text}}",
+	       HTML       => "<a $properties >$display_text</a>"
+	);
+
+
+}
 sub iframe {
 	my $url = shift;
 	my %options = @_;  # keys: height, width, id, name
@@ -2064,18 +2190,52 @@ sub iframe {
 }
 
 sub helpLink {
-	my $type1 = shift;
+	my $type = shift;
+    my $display_text = shift || $type;
+    my $helpurl = shift;
 	return "" if(not defined($envir{'localHelpURL'}));
-	my $type = lc($type1);
+    if (defined $helpurl) {
+	    return knowlLink($display_text, url=>$envir{'localHelpURL'}.$helpurl);
+    }
 	my %typeHash = (
-		'interval notation' => 'IntervalNotation.html',
-		'units' => 'Units.html',
+		'angle' => 'Entering-Angles.html',
+		'decimal' => 'Entering-Decimals.html',
+		'equation' => 'Entering-Equations.html',
+		'exponent' => 'Entering-Exponents.html',
+		'formula' => 'Entering-Formulas.html',
+		'fraction' => 'Entering-Fractions.html',
+		'inequalit' => 'Entering-Inequalities.html',
+		'limit' => 'Entering-Limits.html',
+		'log' => 'Entering-Logarithms.html',
+		'number' => 'Entering-Numbers.html',
+		'point' => 'Entering-Points.html',
+		'vector' => 'Entering-Vectors.html',
+		'interval' => 'IntervalNotation.html',
+		'unit' => 'Units.html',
 		'syntax' => 'Syntax.html',
 		);
 
-	my $infoRef = $typeHash{$type};
-	return htmlLink( $envir{'localHelpURL'}.$infoRef, $type1,
-'target="ww_help" onclick="window.open(this.href,this.target,\'width=550,height=350,scrollbars=yes,resizable=on\'); return false;"');
+	my $infoRef = '';
+        my $refhold='';
+        for my $ref (keys %typeHash) {
+            if ( $type =~ /$ref/i) {
+                $infoRef = $typeHash{$ref};
+                $refhold=$ref;
+                last;
+            }
+        }
+        # We use different help files in some cases when BaseTenLog is set
+        if(PG_restricted_eval(q/$envir{useBaseTenLog}/)) {
+            $infoRef = 'Entering-Logarithms10.html' if($refhold eq 'log');
+            $infoRef = 'Entering-Formulas10.html' if($refhold eq 'formula');
+        }
+         
+        # If infoRef is still '', we give up and just print plain text
+        return $display_text unless ($infoRef);
+	return knowlLink($display_text, url=>$envir{'localHelpURL'}.$infoRef);
+# Old way of doing this:
+#	return htmlLink( $envir{'localHelpURL'}.$infoRef, $type1,
+#'target="ww_help" onclick="window.open(this.href,this.target,\'width=550,height=350,scrollbars=yes,resizable=on\'); return false;"');
 }
 
 sub appletLink {
@@ -2364,14 +2524,11 @@ sub image {
 				# alias should have given us the path to a PNG image. What we need
 				# to do is find out the dimmensions of this image, since pdflatex
 				# is too dumb to live.
-
-				#my ($height, $width) = getImageDimmensions($imagePath);
-				##warn "&image: $imagePath $height $width\n";
-				#unless ($height and $width) {
-				#	warn "Couldn't get the dimmensions of image $imagePath.\n"
-				#}
-				#$out = "\\includegraphics[bb=0 0 $height $width,width=$width_ratio\\linewidth]{$imagePath}\n";
-				$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
+				if ($imagePath) {
+					$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
+				} else {
+					$out = "";
+				}
 			} else {
 				# Since we're not creating PDF files, alias should have given us the
 				# path to an EPS file. latex can get its dimmensions no problem!

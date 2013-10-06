@@ -86,16 +86,26 @@ if needed later in the problem.
 
 # ^function Compute
 # ^uses Formula
+# ^uses Value::contextSet
 sub Compute {
   my $string = shift;
   my $formula = Formula($string);
   $formula = $formula->{tree}->Compute if $formula->{tree}{canCompute};
-  if (scalar(@_) || $formula->isConstant) {
-    my $f = $formula;
-    $formula = $formula->eval(@_);
-    $formula->{original_formula} = $f;
+  my $context = $formula->context;
+  my $flags = Value::contextSet($context,reduceConstants=>0,reduceConstantFunctions=>0);
+  if (scalar(@_)) {
+    $formula = $formula->substitute(@_)->with(original_formula => $formula);
+    $string = $formula->string;
+  }
+  if ($formula->isConstant) {
+    $formula = $formula->eval()->with
+      (original_formula => $formula->{original_formula} || $formula);
   }
   $formula->{correct_ans} = $string;
+  $formula->{correct_ans_latex_string} =
+    (($formula->{original_formula} || $flags{reduceConstants} ||
+      $flags{reduceConstantFunctions}) ?  Formula($string) : $formula)->TeX;
+  Value::contextSet($context,$flags);
   return $formula;
 }
 
@@ -335,11 +345,11 @@ sub norm {Parser::Function->call('norm',@_)}
 sub unit {Parser::Function->call('unit',@_)}
 
 #
-#  These need to be in dangerousMacros.pl for some reason
+# These are defined in PG.pl (since they call eval())
 #
-#sub i () {Compute('i')}
-#sub j () {Compute('j')}
-#sub k () {Compute('k')}
+# sub i () {Compute('i')}
+# sub j () {Compute('j')}
+# sub k () {Compute('k')}
 
 ###########################################################################
 

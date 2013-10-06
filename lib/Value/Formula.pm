@@ -169,9 +169,11 @@ sub compare {
   ##  FIXME: insert additional values if vars in use in formula aren't all the vars in the context
   my $points  = $l->{test_points} || $l->createRandomPoints(undef,$l->{test_at});
   my $lvalues = $l->{test_values} || $l->createPointValues($points,1,1);
-  my $rvalues = $r->createPointValues($points,0,1,$l->{checkUndefinedPoints});
+  my $rvalues = $r->createPointValues($points,0,1,$l->getFlag("checkUndefinedPoints"));
   #
   # Note: $l is bigger if $r can't be evaluated at one of the points
+  #
+  $l->{domainMismatch} = ($rvalues ? 0 : 1);
   return 1 unless $rvalues;
 
   my ($i, $cmp);
@@ -197,10 +199,10 @@ sub compare {
       my $tol = $tolerance;
       my ($lv,$rv,$av) = ($lvalues->[$i]->value,$rvalues->[$i]->value,$avalues->[$i]->value);
       if ($isRelative) {
-	if (abs($lv) <= $zeroLevel) {$tol = $zeroLevelTol}
-	                       else {$tol *= abs($lv)}
+	if (CORE::abs($lv) <= $zeroLevel) {$tol = $zeroLevelTol}
+	                       else {$tol *= CORE::abs($lv)}
       }
-      return $rv <=> $av unless abs($rv - $av) < $tol;
+      return $rv <=> $av unless CORE::abs($rv - $av) < $tol;
     }
     return 0;
   }
@@ -328,7 +330,7 @@ sub createRandomPoints {
   my $points = []; my $values = []; my $num_undef = 0;
   if ($include) {
     push(@{$points},@{$include});
-    push(@{$values},@{$self->createPointValues($include,1,$cacheResults,$self->{checkundefinedPoints})});
+    push(@{$values},@{$self->createPointValues($include,1,$cacheResults,$checkUndef)});
   }
   my (@P,@p,$v,$i); my $k = 0;
   while (scalar(@{$points}) < $num_points+$num_undef && $k < 10) {
@@ -408,7 +410,7 @@ sub addGranularity {
   $resolution = $def->{resolution} || $resolution;
   foreach my $I (@{$limit}) {
     my ($a,$b,$n) = @{$I}; $b = -$a unless defined $b;
-    $I = [$a,$b,($n || $resolution || abs($b-$a)/$granularity)];
+    $I = [$a,$b,($n || $resolution || CORE::abs($b-$a)/$granularity)];
   }
   return $limit;
 }
@@ -476,7 +478,7 @@ sub AdaptParameters {
     my $B = MatrixReal1->new($d,1);  $B->[0] = \@b;
     ($M,$B) = $M->normalize($B);
     $M = $M->decompose_LR;
-    if (abs($M->det_LR) > 1E-6) {
+    if (CORE::abs($M->det_LR) > 1E-6) {
       if (($D,$B,$M) = $M->solve_LR($B)) {
 		if ($D == 0) {
 		  #
@@ -484,7 +486,7 @@ sub AdaptParameters {
 		  #
 		  my @a; my $i = 0; my $max = $l->getFlag('max_adapt',1E8);
 		  foreach my $row (@{$B->[0]}) {
-			if (abs($row->[0]) > $max) {
+			if (CORE::abs($row->[0]) > $max) {
 			  $max = Value::makeValue($max); $row->[0] = Value::makeValue($row->[0]);
 			  $l->Error(["Constant of integration is too large: %s\n(maximum allowed is %s)",
 				 $row->[0]->string,$max->string]) if $params[$i] eq 'C0' or $params[$i] eq 'n00';

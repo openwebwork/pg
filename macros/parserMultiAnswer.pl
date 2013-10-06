@@ -105,7 +105,8 @@ package MultiAnswer;
 our @ISA = qw(Value);
 
 our $count = 0;                      # counter for unique identifier for multi-parts
-our $answerPrefix = $main::PG->{QUIZ_PREFIX}."_MuLtIaNsWeR";   # answer rule prefix
+our $answerPrefix = "_MuLtIaNsWeR";     # answer rule prefix
+$answerPrefix = $main::PG->{QUIZ_PREFIX}."_MuLtIaNsWeR" if $main::PG->{QUIZ_PREFIX};
 our $separator = ';';                # separator for singleResult previews
 
 =head1 CONSTRUCTOR
@@ -147,9 +148,8 @@ resulting item:
                                (Default: 1)
 
     allowBlankAnswers=>0 or 1  whether to remove the blank-check prefilter
-                               from the answer checkers for the answer
-                               checkers used for type checking the student's
-                               answers.
+                               from the answer checkers used for type
+                               checking the student's answers.
                                (Default: 0)
 
     separator => string        the string to use between entries in the

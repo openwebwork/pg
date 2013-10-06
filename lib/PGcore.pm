@@ -30,7 +30,7 @@ use PGalias;
 use PGloadfiles;
 use WeBWorK::PG::IO(); # don't important any command directly
 use Tie::IxHash;
-use MIME::Base64;
+use MIME::Base64 qw( encode_base64 decode_base64);
 ##################################
 # Utility macro 
 ##################################
@@ -73,12 +73,29 @@ This can be very useful for printing out HTML messages about objects while debug
 # ^function pretty_print
 # ^uses lex_sort
 # ^uses pretty_print
-sub pretty_print {    # provides html output -- NOT a method
+
+
+sub pretty_print {
+	my $r_input        = shift;
+	my $displayMode    = shift;
+	my $out = '';
+	if ($displayMode eq 'TeX' ) {
+	    $out .="{\\tiny";
+		$out .= pretty_print_tex($r_input);	
+		$out .="}";
+	} else {
+		$out =pretty_print_html($r_input);  #default
+	}
+	$out;
+}
+
+sub pretty_print_html {    # provides html output -- NOT a method
     my $r_input = shift;
     my $level = shift;
-    $level = 4 unless defined($level);
+    $level = 5 unless defined($level);
     $level--;
-    return '' unless $level > 0;  # only print three levels of hashes (safety feature)
+    return "PGalias has too much info. Try \$PG->{PG_alias}->{resource_list}" if ref($r_input) eq 'PGalias';  # PGalias just has too much information
+    return 'too deep' unless $level > 0;  # only print four levels of hashes (safety feature)
     my $out = '';
     if ( not ref($r_input) ) {
     	$out = $r_input if defined $r_input;    # not a reference
@@ -90,14 +107,14 @@ sub pretty_print {    # provides html output -- NOT a method
 		
 		
 		foreach my $key ( sort ( keys %$r_input )) {
-			$out .= "<tr><TD> $key</TD><TD>=&gt;</td><td>&nbsp;".pretty_print($r_input->{$key}) . "</td></tr>";
+			$out .= "<tr><TD> $key</TD><TD>=&gt;</td><td>&nbsp;".pretty_print_html($r_input->{$key}, $level) . "</td></tr>";
 		}
 		$out .="</table>";
 	} elsif (ref($r_input) eq 'ARRAY' ) {
 		my @array = @$r_input;
 		$out .= "( " ;
 		while (@array) {
-			$out .= pretty_print(shift @array, $level) . " , ";
+			$out .= pretty_print_html(shift @array, $level) . " , ";
 		}
 		$out .= " )";
 	} elsif (ref($r_input) eq 'CODE') {
@@ -108,6 +125,53 @@ sub pretty_print {    # provides html output -- NOT a method
 	}
 		$out;
 }
+
+sub pretty_print_tex {
+	my $r_input = shift;
+	my $level   = shift;
+    $level      = 5 unless defined($level);
+	$level--;
+	return "PGalias has too much info. Try \\\$PG->{PG\\_alias}->{resource\\_list}" if ref($r_input) eq 'PGalias';  # PGalias just has too much information
+	return 'too deep' unless $level>0;  #only print four levels of hashes (safety feature)
+	
+	my $protect_tex = sub {my $str = shift; $str=~s/_/\\\_/g; $str };
+
+	my $out = '';
+	if ( not  ref($r_input) ) {
+		$out = $r_input if defined $r_input;
+		$out =~ s/_/\\\_/g;   # protect tex
+		$out =~ s/&/\\\&/g;
+		$out =~ s/\$/\\\$/g;
+	} elsif ("$r_input" =~/hash/i) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_iput).
+		local($^W) = 0;
+	    
+		$out .= "\\begin{tabular}{| l | l |}\\hline\n\\multicolumn{2}{|l|}{$r_input}\\\\ \\hline\n";
+		
+		
+		foreach my $key ( sort ( keys %$r_input )) {
+			$out .= &$protect_tex(  $key ). " & ".pretty_print_tex($r_input->{$key}, $level) . "\\\\ \\hline\n";
+		}
+		$out .="\\end{tabular}\n";
+	} elsif (ref($r_input) eq 'ARRAY' ) {
+		my @array = @$r_input;
+		$out .= "( " ;
+		while (@array) {
+			$out .= pretty_print_tex(shift @array, $level) . " , ";
+		}
+		$out .= " )";
+	} elsif (ref($r_input) eq 'CODE') {
+		$out = "$r_input";
+	} else {
+		$out = $r_input if defined $r_input;
+		$out =~ s/_/\\\_/g;   # protect tex
+		$out =~ s/&/\\\&/g;
+	}
+		$out;
+}
+
+
+
+
 ##################################
 # PGcore object
 ##################################
@@ -176,6 +240,9 @@ sub initialize {
                                         DEBUG_messages   => $self->{DEBUG_messages},
                                                  
 	);
+	$self->{maketext} = 
+	  WeBWorK::Localize::getLoc($self->{envir}->{language});
+	#$self->debug_message("PG alias created", $self->{PG_alias} );
     $self->{PG_loadMacros}        = new PGloadfiles($self->{envir});
 	$self->{flags} = {
 		showpartialCorrectAnswers => 1,
@@ -596,15 +663,15 @@ sub PG_restricted_eval {
 }		
 
 
-=head2 base64 coding
-
-	$str       = decode_base64($coded_str);
-	$coded_str = encode_base64($str);
-
-# Sometimes a question author needs to code or decode base64 directly
-
-=cut
-
+# =head2 base64 coding
+# 
+# 	$str       = decode_base64($coded_str);
+# 	$coded_str = encode_base64($str);
+# 
+# # Sometimes a question author needs to code or decode base64 directly
+# 
+# =cut
+# 
 sub decode_base64 ($) {
 	my $self = shift;
 	my $str = shift;
@@ -617,6 +684,7 @@ sub encode_base64 ($;$) {
 	my $option = shift;
 	MIME::Base64::encode_base64($str);
 }
+
 
 =head2   Message channels
 
@@ -643,6 +711,7 @@ There were times when things were buggy enough that only the internal_debug_mess
 inside the PGcore object would report.
 
 =cut
+
 
 sub debug_message {
     my $self = shift;
@@ -728,7 +797,7 @@ sub insertGraph {
 	my $refreshCachedImages = $self->PG_restricted_eval(q!$refreshCachedImages!);
 	# Check to see if we already have this graph, or if we have to make it
 	if( not -e $filePath # does it exist?
-	  or ((stat "$templateDirectory"."$main::envir{fileName}")[9] > (stat $filePath)[9]) # source has changed
+	  or ((stat "$templateDirectory"."$main::envir{probFileName}")[9] > (stat $filePath)[9]) # source has changed
 	  or $graph->imageName =~ /Undefined_Set/ # problems from SetMaker and its ilk should always be redone
 	  or $refreshCachedImages
 	) {
@@ -755,7 +824,10 @@ sub insertGraph {
 		createDirectory
 
 =cut
-
+sub maketext {
+    my $self = shift;
+	&{ $self->{maketext}}(@_);
+}
 sub includePGtext { 
 	my $self = shift;
 	WeBWorK::PG::IO::includePGtext(@_); 

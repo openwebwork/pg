@@ -382,15 +382,19 @@ sub print_inline {
 
 # these methods are simply so that in a problem, the user may access the variables without 
 # worrying about braces, that is, use $frac->denominator instead of $frac->{denominator}
-sub numerator {
-	my $self = shift;
-	return $self->{numerator};
-}
 
-sub denominator {
-	my $self = shift;
-	return $self->{denominator};
-}
+# defined at the top of this file
+
+
+# sub numerator {
+# 	my $self = shift;
+# 	return $self->{numerator};
+# }
+# 
+# sub denominator {
+# 	my $self = shift;
+# 	return $self->{denominator};
+# }
 
 ########################################################################
 # Internal Methods

@@ -36,7 +36,7 @@ sub new {
 sub make {
   my $self = shift;
   my $n = (Value::isContext($_[0]) ? $_[1] : $_[0]);
-  return $self->SUPER::make(@_) unless $n eq "nan";
+  return $self->SUPER::make(@_) unless lc("$n") eq "nan" or lc("$n") eq "-nan";
   Value::Error("Result is not a real number");
 }
 
@@ -95,7 +95,7 @@ sub div {
 sub power {
   my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
   my $x = $l->{data}[0] ** $r->{data}[0];
-  return $self->inherit($other)->make($x) unless $x eq 'nan';
+  return $self->inherit($other)->make($x) unless lc($x) eq 'nan' or lc($x) eq '-nan';
   Value::Error("Can't raise a negative number to a non-integer power") if ($l->{data}[0] < 0);
   Value::Error("Result of exponention is not a number");
 }
@@ -132,13 +132,13 @@ sub compare {
     my $tolerance = $self->getFlag('tolerance');
     if ($self->getFlag('tolType') eq 'relative') {
       my $zeroLevel = $self->getFlag('zeroLevel');
-      if (abs($a) < $zeroLevel || abs($b) < $zeroLevel) {
+      if (CORE::abs($a) < $zeroLevel || CORE::abs($b) < $zeroLevel) {
 	$tolerance = $self->getFlag('zeroLevelTol');
       } else {
-	$tolerance = $tolerance * abs($a);
+	$tolerance = $tolerance * CORE::abs($a);
       }
     }
-    return 0 if abs($a-$b) < $tolerance;
+    return 0 if CORE::abs($a-$b) < $tolerance;
   }
   return $a <=> $b;
 }
@@ -179,7 +179,7 @@ sub string {
     if ($format =~ m/#\s*$/) {$n =~ s/(\.\d*?)0*#$/$1/; $n =~ s/\.$//}
   }
   $n = uc($n); # force e notation to E
-  $n = 0 if abs($n) < $self->getFlag('zeroLevelTol');
+  $n = 0 if CORE::abs($n) < $self->getFlag('zeroLevelTol');
   $n = "(".$n.")" if ($n < 0 || $n =~ m/E/i) && defined($prec) && $prec >= 1;
   return $n;
 }

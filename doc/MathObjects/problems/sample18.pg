@@ -1,16 +1,14 @@
 ###########################################################
 #
-#  Example showing how to use the Parser's function
-#  answer checker.
+#  Example showing how to use the MathObject function
+#  answer checker for vector values.
 #
 
 DOCUMENT();        # This should be the first executable line in the problem.
 
 loadMacros(
-  "PGbasicmacros.pl",
-  "PGanswermacros.pl",
-  "Parser.pl",
-  "Differentiation.pl",
+  "PGstandard.pl",
+  "MathObjects.pl",
 );
 
 TEXT(beginproblem());

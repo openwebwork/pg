@@ -221,9 +221,11 @@ sub makeZero {
   my $self = shift; my $op = shift; my $zero = shift;
   return $zero if ($op->isNumber);
   if ($zero->isNumber && $op->type =~ m/Point|Vector/) {
-    $op->{coords} = []; $op->{isZero} = 1;
-    foreach my $i (0..($op->length-1)) {push(@{$op->{coords}},$zero)}
-    return $op
+    my $context = $op->{equation}{context};
+    my $value = $context->Package($op->type)->new($context,($zero->{value})x$op->length);
+    $value = $self->Item("Value")->new($op->{equation},$value);
+    $value->{value}{ijk} = 1 if $op->class eq "Constant" && $op->{def}{value}{ijk};
+    return $value;
   }
   return $self;
 }

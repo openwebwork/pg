@@ -81,10 +81,13 @@ sub cmp {
   my $ans = new AnswerEvaluator;
   my $correct = preformat($self->{correct_ans});
   $correct = $self->correct_ans unless defined($correct);
+  my $correct_latex = $self->{correct_ans_latex_string};
+  $correct_latex = $self->correct_ans_latex unless defined($correct_latex);
   $self->{context} = Value->context unless defined($self->{context});
   $ans->ans_hash(
     type => "Value (".$self->class.")",
     correct_ans => $correct,
+    correct_ans_latex_string => $correct_latex,
     correct_value => $self,
     $self->cmp_defaults(@_),
     %{$self->{context}{cmpDefaults}{$self->class} || {}},  # context-specified defaults
@@ -102,6 +105,7 @@ sub cmp {
 }
 
 sub correct_ans {preformat(shift->string)}
+sub correct_ans_latex {shift->TeX}
 sub cmp_diagnostics {}
 
 #
@@ -144,31 +148,6 @@ sub cmp_parse {
     $ans->{student_value}{isStudent} = 1;
     $ans->{preview_latex_string} = $ans->{student_formula}->TeX;
     $ans->{preview_text_string}  = preformat($ans->{student_formula}->string);
-    #FIXME
-    # Kludge to calculate a latex representation of the correct answer string
-    # It would be better to calculate this when the MathObject is created.
-    # the attempt to calculate the latex version may fail because the 
-    # context has changed since the creation of the original MathObject.
-    # In that case the {correct_ans_latex_string} will be blank.
-    # We could try to reset that context temporarily, but a better fix would
-    # be to consistently create latex_string versions of the correct answer
-    # when the math object is created.
-#     if ($ans->{correct_value} ) {
-#     	$ans->{correct_ans_latex_string} = $ans->{correct_value}->TeX; # answer is a MathObject
-#     } else {  # case where there is no math object
-#     	my $mathobject = Parser::Formula($ans->{correct_ans});
-#     	$ans->{correct_ans_latex_string} = ($mathobject)? $mathobject->TeX : '';
-#     }
-	unless (PGcore::not_null($ans->{correct_ans_latex_string}) ) { # don't alter the latex string if it's defined
-		my $mathobject = Parser::Formula($ans->{correct_ans});
-		if ($mathobject) {
-			$ans->{correct_ans_latex_string} = $mathobject->TeX;
-		} elsif( $ans->{correct_value} ) {
-			$ans->{correct_ans_latex_string} = $ans->{correct_value}->TeX; # answer is a MathObject
-		} else {
-			$ans->{correct_ans_latex_string}=''; 
-		}
-	}
     #
     #  Get the string for the student answer
     #
@@ -213,7 +192,10 @@ sub cmp_collect {
   if ($self->{ColumnVector}) {
     my @V = (); foreach my $x (@{$array}) {push(@V,$x->[0])}
     $array = [@V];
-  } elsif (scalar(@{$array}) == 1) {$array = $array->[0]}
+  } elsif (scalar(@{$array}) == 1) {
+    my @d = ($self->classMatch("Matrix") ? $self->dimensions : (1));
+    $array = $array->[0] if scalar(@d) == 1;
+  }
   my $type = $self;
   $type = $self->Package($self->{tree}->type) if $self->isFormula;
   $ans->{student_formula} = eval {$type->new($array)->with(ColumnVector=>$self->{ColumnVector})};
@@ -259,7 +241,7 @@ sub cmp_equal {
 
 our $CMP_ERROR = 2;   # a fatal error was detected
 our $CMP_WARNING = 3; # a warning was produced
-our $CMP_MESSAGE = 4; # an message should be reported for this check
+our $CMP_MESSAGE = 4; # a message should be reported for this check
 
 sub cmp_compare {
   my $self = shift; my $other = shift; my $ans = shift; my $nth = shift || '';
@@ -349,6 +331,16 @@ sub cmp_Message {
 #
 sub cmp_preprocess {}
 sub cmp_postprocess {}
+
+#
+#  Used to call an object's method as a pre- or post-filter.
+#  E.g.,
+#     $cmp->install_pre_filter(\&Value::cmp_call_filter,"cmp_prefilter");
+#
+sub cmp_call_filter {
+  my $ans = shift; my $method = shift;
+  return $ans->{correct_value}->$method($ans,@_);
+}
 
 #
 #  Check for unreduced reduced Unions and Sets
@@ -487,7 +479,7 @@ sub format_matrix_HTML {
           . '</TR>'."\n";
   }
   return '<TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0" CLASS="ArrayLayout"'
-          . ' STYLE="display:inline;vertical-align:-'.(1.1*$rows-.6).'em">'
+          . ' STYLE="display:inline;margin:0;vertical-align:-'.(1.1*$rows-.6).'em">'
           . $HTML
           . '</TABLE>';
 }
@@ -732,7 +724,7 @@ sub typeMatch {
 		compareOptions and default values:
 		  showTypeWarnings => 1,
 		  showEqualErrors  => 1,
-		  ignoreStrings    => 1   # don't complain about string-valued responses
+		  ignoreStrings    => 1,  # don't complain about string-valued responses
 		  typeMatch        => 'Value::Real'
 
 	Initial and final spaces are ignored when comparing strings.
@@ -1552,6 +1544,7 @@ sub splitFormula {
   return @formula;
 }
 
+#
 #  Override for List ?
 #  Return the value if it is defined, otherwise use a default
 #
@@ -1587,16 +1580,14 @@ sub cmp_defaults {
   ) if $self->type eq 'Union';
 
   my $type = $self->type;
-  $type = ($self->isComplex)? 'Complex': 'Real' if $type eq 'Number';
+  $type = ($self->isComplex? 'Complex': 'Real') if $type eq 'Number';
   $type = $self->Package($type).'::';
 
   return (
     &{$type.'cmp_defaults'}($self,@_),
     upToConstant => 0,
     showDomainErrors => 1,
-#  ) if defined(%$type) && $self->type ne 'List'; #causes errors in newest perl
-#	) if ( ref($type)=~/HASH/ ) && $self->type ne 'List'; # does NOT work --causes FortLewis error
-   ) if %$type && $self->type ne 'List';   
+  ) if %$type && $self->type ne 'List';
   my $element;
   if ($self->{tree}->class eq 'List') {$element = $self->Package("Formula")->new($self->{tree}{coords}[0])}
     else {$element = $self->Package("Formula")->new(($self->createRandomPoints(1))[1]->[0]{data}[0])}
@@ -1662,14 +1653,9 @@ sub cmp {
     $cmp->ans_hash(correct_value => $f);
     Parser::Context->current(undef,$current);
   }
-  $cmp->install_pre_filter(\&Value::Formula::cmp_call_filter,"cmp_prefilter");
-  $cmp->install_post_filter(\&Value::Formula::cmp_call_filter,"cmp_postfilter");
+  $cmp->install_pre_filter(\&Value::cmp_call_filter,"cmp_prefilter");
+  $cmp->install_post_filter(\&Value::cmp_call_filter,"cmp_postfilter");
   return $cmp;
-}
-
-sub cmp_call_filter {
-  my $ans = shift; my $method = shift;
-  return $ans->{correct_value}->$method($ans,@_);
 }
 
 sub cmp_prefilter {
@@ -1696,7 +1682,7 @@ sub cmp_postfilter {
   $ans->{prev_formula} = Parser::Formula($context,$ans->{prev_ans});
   if (defined($ans->{prev_formula}) && defined($ans->{student_formula})) {
     my $prev = eval {$self->promote($ans->{prev_formula})->inherit($self)}; # inherit limits, etc.
-    break unless defined($prev);
+    next unless defined($prev);
     $context->{answerHash} = $ans; # values here can override context flags
     $ans->{prev_equals_current} = Value::cmp_compare($prev,$ans->{student_formula},$ans);
     $context->{answerHash} = undef;
@@ -1715,7 +1701,7 @@ sub cmp_equal {
   #  Get the problem's seed
   #
   $self->{context}->flags->set(
-    random_seed => $self->getPG('$PG_original_problemSeed')
+    random_seed => $self->getPG('$problemSeed')
   );
 
   #
@@ -1801,12 +1787,12 @@ sub cmp_diagnostics {
       }
       my $cutoff = $self->Package("Formula")->new($self->getFlag('tolerance'));
       if ($formulas->{graphAbsoluteErrors}) {
-	push(@G,$self->cmp_graph($diagnostics,[abs($self-$student),$cutoff],
+	push(@G,$self->cmp_graph($diagnostics,[CORE::abs($self-$student),$cutoff],
 				 clip=>$formulas->{clipAbsoluteError},
 				 title=>'Absolute Error',points=>$points));
       }
       if ($formulas->{graphRelativeErrors}) {
-	push(@G,$self->cmp_graph($diagnostics,[abs(($self-$student)/$self),$cutoff],
+	push(@G,$self->cmp_graph($diagnostics,[CORE::abs(($self-$student)/$self),$cutoff],
 				 clip=>$formulas->{clipRelativeError},
 				 title=>'Relative Error',points=>$points));
       }
@@ -1862,7 +1848,7 @@ sub cmp_diagnostics {
       my $tolType = $self->getFlag('tolType'); my $error;
       foreach my $j (0..$#P) {
 	if (Value::isNumber($sv->[$i[$j]])) {
-	  $error = abs($av->[$i[$j]] - $sv->[$i[$j]]);
+	  $error = CORE::abs($av->[$i[$j]] - $sv->[$i[$j]]);
 	  $error = '<SPAN STYLE="color:#'.($error->value<$tolerance ? '00AA00': 'AA0000').'">'.$error.'</SPAN>'
 	    if $tolType eq 'absolute';
 	} else {$error = "---"}
@@ -1881,9 +1867,9 @@ sub cmp_diagnostics {
       foreach my $j (0..$#P) {
 	if (Value::isNumber($sv->[$i[$j]])) {
 	  my $c = $av->[$i[$j]]; my $s = $sv->[$i[$j]];
-	  if (abs($cv->[$i[$j]]->value) < $zeroLevel || abs($s->value) < $zeroLevel)
-            {$error = abs($c-$s); $tol = $zeroLevelTol} else
-            {$error = abs(($c-$s)/($c||1E-10)); $tol = $tolerance}
+	  if (CORE::abs($cv->[$i[$j]]->value) < $zeroLevel || CORE::abs($s->value) < $zeroLevel)
+            {$error = CORE::abs($c-$s); $tol = $zeroLevelTol} else
+            {$error = CORE::abs(($c-$s)/($c||1E-10)); $tol = $tolerance}
 	  $error = '<SPAN STYLE="color:#'.($error < $tol ? '00AA00': 'AA0000').'">'.$error.'</SPAN>'
 	    if $tolType eq 'relative';
 	} else {$error = "---"}
@@ -1923,13 +1909,11 @@ sub cmp_graph {
   #
   my %options = (title=>'',points=>[],@_);
   my $graphs = $diagnostics->{graphs};
-  my $limits = $graphs->{limits}; $limits = $self->getFlag('limits',[-2,2]) unless $limits;
-  $limits = $limits->[0] while ref($limits) eq 'ARRAY' && ref($limits->[0]) eq 'ARRAY';
+  my $limits = $graphs->{limits};
   my $size = $graphs->{size}; $size = [$size,$size] unless ref($size) eq 'ARRAY';
   my $steps = $graphs->{divisions};
   my $points = $options{points}; my $clip = $options{clip};
-  my ($my,$My) = (0,0); my ($mx,$Mx) = @{$limits};
-  my $dx = ($Mx-$mx)/$steps; my $f; my $y;
+  my ($my,$My) = (0,0); my ($mx,$Mx); my $dx; my $f; my $y;
 
   my @pnames = $self->{context}->variables->parameters;
   my @pvalues = ($self->{parameters} ? @{$self->{parameters}} : (0) x scalar(@pnames));
@@ -1955,10 +1939,13 @@ sub cmp_graph {
       $self->{graphWarning} = 1;
       return "";
     }
-    unless ($f->typeRef->{length} == 1) {
-      warn "Only real-valued functions can be graphed";
-      return "";
-    }
+
+    $x = ($f->{context}->variables->names)[0] unless $x;
+    $limits = [$self->getVariableLimits($x)] unless $limits;
+    $limits = $limits->[0] while ref($limits) eq 'ARRAY' && ref($limits->[0]) eq 'ARRAY';
+    ($mx,$Mx) = @{$limits};
+    $dx = ($Mx-$mx)/$steps;
+
     if ($f->isConstant) {
       $y = $f->eval;
       $my = $y if $y < $my; $My = $y if $y > $My;
@@ -1971,7 +1958,7 @@ sub cmp_graph {
       }
     }
   }
-  $My = 1 if abs($My - $my) < 1E-5;
+  $My = 1 if CORE::abs($My - $my) < 1E-5;
   $my *= 1.1; $My *= 1.1;
   if ($clip) {
     $my = -$clip if $my < -$clip;

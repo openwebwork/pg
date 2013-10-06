@@ -186,7 +186,7 @@ BEGIN {
 #use strict;
 package Multiple;
 
-@Multiple::ISA = undef;
+@Multiple::ISA = ();
 @Multiple::ISA = qw( Exporter ChoiceList );
 
 # *** Subroutines which overload ChoiceList.pm ***
