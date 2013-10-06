@@ -431,8 +431,9 @@ sub inverse {
 }
 
 sub decompose_LR {
-  my $self = shift;
-  return $self->wwMatrixLR;
+  my $self = (shift)->copy;
+  my $LR = $self->wwMatrixLR;
+  return $self->new($LR)->with(lrM => $LR);
 }
 
 sub dim {
@@ -466,7 +467,7 @@ sub solve {shift->solve_LR(@_)}
 sub solve_LR {
   my $self = shift;
   my $v = $self->new(shift)->wwMatrix;
-  my ($d,$b,$M) = $self->lrMatrix->solve_LR($v);
+  my ($d,$b,$M) = $self->wwMatrixLR->solve_LR($v);
   return ($d,$self->new($b),$self->new($M));
 }
 
