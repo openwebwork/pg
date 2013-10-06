@@ -36,7 +36,8 @@ Answer Boxes
 =cut
 
 sub _PGessaymacros_init {
-	loadMacros('PGbasicmacros.pl');   
+    loadMacros('PGbasicmacros.pl',
+	       'text2PG.pl');   
 }
 
 
@@ -55,24 +56,17 @@ sub essay_cmp {
     $ans->install_evaluator(sub { 			
 	my $student = shift;
 	my %response_options = @_;
-	### the answer needs to be sanitized.  It could currently contain badness written 
-	### into the answer by the student
-	my $scrubber = HTML::Scrubber->new(
-	    default=> 1,
-	    script => 0,
-	    process => 0,
-	    comment => 1
-	    );
 	
-	$student->{original_student_ans} = $scrubber->scrub(
-		(defined $student->{original_student_ans})? $student->{original_student_ans} :''
-	);
+	$student->{original_student_ans} = (defined $student->{original_student_ans})? $student->{original_student_ans} :'';
+
+	my $answer_value = $student->{original_student_ans};
 
 	# always returns false but stuff should check for the essay flag and avoid the red highlighting
 	loadMacros("contextTypeset.pl");
 	my $oldContext = Context();
 	Context("Typeset");
-	my $answer_value = EV3P({processCommands=>0,processVariables=>0},$student->{original_student_ans});
+	$answer_value = EV3P({processCommands=>0,processVariables=>0},text2PG($answer_value));
+
 	Context($oldContext);
 	my $ans_hash = new AnswerHash(
 	    'score'=>"0",
@@ -111,7 +105,7 @@ sub  NAMED_ESSAY_BOX {
 	$answer_value =~ s/</\&lt;/g; 
 	$answer_value =~ s/>/\&gt;/g;
 	$answer_value =~ s/`/&#96;/g;
-		
+
 	# Get rid of tabs since they mess up the past answer db
 	$answer_value =~ s/\t/\&nbsp;\&nbsp;\&nbsp;\&nbsp;\&nbsp;/;
 
@@ -121,7 +115,7 @@ sub  NAMED_ESSAY_BOX {
 	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col" >$answer_value</TEXTAREA>\\end{rawhtml}!,
 	    HTML => qq!
          <TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
-               WRAP="VIRTUAL" title="Enclose math expressions with backticks ` or use LaTeX.">$answer_value</TEXTAREA>
+               WRAP="VIRTUAL" title="Enclose math expressions with backticks or use LaTeX.">$answer_value</TEXTAREA>
            <INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">
            !
          );
