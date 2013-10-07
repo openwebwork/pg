@@ -25,16 +25,17 @@ sub _check {
 }
 
 sub ijk {
-  my $self = shift; my $method = shift || 'string';
+  my $self = shift; my $context = $self->context;
+  my $method = shift || ($context->flag("StringifyAsTeX") ? 'TeX': 'string');
   my @coords = @{$self->{coords}};
   $self->Error("Method 'ijk' can only be used on vectors in three-space")
     unless (scalar(@coords) <= 3);
-  my @ijk = (); my $constants = $self->context->{constants};
+  my @ijk = (); my $constants = $context->{constants};
   foreach my $x ('i','j','k','_0') {
     my $v = (split(//,$x))[-1];
     push(@ijk,($constants->{$x}||{string=>$v,TeX=>"\\boldsymbol{$v}"})->{$method});
   }
-  my $prec = $self->{equation}{context}->operators->get('*')->{precedence};
+  my $prec = $context->operators->get('*')->{precedence};
   my $string = ''; my $n; my $term;
   foreach $n (0..scalar(@coords)-1) {
     $term = $coords[$n]->$method($prec);
