@@ -1225,7 +1225,7 @@ sub Verbatim {
 
 sub Math {
   my $self = shift;
-  return "\$".$self->SUPER::Math(@_)."\$";
+  return main::math_ev3($self->SUPER::Math(@_));
 }
 
 ######################################################################
