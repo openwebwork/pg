@@ -28,13 +28,6 @@
 #  letters as quivalent, then you will need to provide your own
 #  checker that does that.
 #
-#  If you want students to be able to include characters like $ or @ in their answers,
-#  then you should also add
-#
-#	loadMacros("problemPreserveAnswers.pl");
-#
-#  at the beginning of your problem.
-#
 #  This context handles multi-line answers properly.  If your answers
 #  are particularly long, the results listed in the results table when
 #  a student submits the answer may be too long, and you might want to
