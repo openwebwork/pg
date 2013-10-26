@@ -622,7 +622,8 @@ sub inherit {
 #
 sub noinherit {
   my $self = shift;
-  ("correct_ans","original_formula","equation",@{$self->{noinherit}||[]});
+  ("correct_ans","correct_ans_latex_string",
+   "original_formula","equation",@{$self->{noinherit}||[]});
 }
 
 ######################################################################
