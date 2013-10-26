@@ -58,7 +58,6 @@ sub essay_cmp {
 	my %response_options = @_;
 	
 	$student->{original_student_ans} = (defined $student->{original_student_ans})? $student->{original_student_ans} :'';
-
 	my $answer_value = $student->{original_student_ans};
 
 	# always returns false but stuff should check for the essay flag and avoid the red highlighting

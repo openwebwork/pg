@@ -168,7 +168,7 @@ so that this $m will print as $50 rather than $50.00.
 =cut
 
 loadMacros("MathObjects.pl");
-loadMacros("problemPreserveAnswers.pl");  # needed to preserve $ in answers
+#loadMacros("problemPreserveAnswers.pl");  # obsolete
 
 sub _contextCurrency_init {Currency::Init()}
 
