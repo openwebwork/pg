@@ -1083,9 +1083,11 @@ sub solution {
 	# protect against undefined values
 	my $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL = ( defined( $envir->{'ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL'} ) ) ? $envir->{'ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL'} : 10000;
 	my $displaySolution = PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!);
-	my $printSolutionForInstructor = $permissionLevel >= $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL && $displayMode ne 'TeX'
-		 or ($displayMode eq 'TeX' and $displaySolution and $permissionLevel >= $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL);
-	PG_restricted_eval(q!$main::solutionExists =1!);
+	my $printSolutionForInstructor = (
+		($displayMode ne 'TeX' && ( $permissionLevel >= $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL ) ) 
+		|| ($displayMode eq 'TeX' && $displaySolution && ($permissionLevel >= $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL) )
+	);
+	PG_restricted_eval(q!$main::solutionExists = 1!);  # set solution exists variable.--don't need PGeval??
    
     if ($printSolutionForInstructor) {  # always print solutions for instructor types 
 		$out = join(' ', $BITALIC, "(Instructor solution preview: show the student solution after due date. )$BR",$EITALIC, @in);
@@ -1116,20 +1118,19 @@ sub hint {
 	my $ALWAYS_SHOW_HINT_PERMISSION_LEVEL = ( defined( $envir->{'ALWAYS_SHOW_HINT_PERMISSION_LEVEL'} ) ) ? $envir->{'ALWAYS_SHOW_HINT_PERMISSION_LEVEL'} : 10000;
     my $showHint = PG_restricted_eval(q!$main::showHint!);
     my $displayHint = PG_restricted_eval(q!$main::envir{'displayHintsQ'}!);
-    my $displaySolution = PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!);
-    my $printHintForInstructor = 
-         ( $permissionLevel >= $ALWAYS_SHOW_HINT_PERMISSION_LEVEL && $displayMode ne 'TeX' ) 
-         || ($displayMode eq 'TeX' and $displayHint and $permissionLevel >= $ALWAYS_SHOW_HINT_PERMISSION_LEVEL);
+    my $printHintForInstructor = (
+         ( ( $displayMode ne 'TeX' ) && ( $permissionLevel >= $ALWAYS_SHOW_HINT_PERMISSION_LEVEL )  ) 
+         || ( ($displayMode eq 'TeX')  && $displayHint && ( $permissionLevel >= $ALWAYS_SHOW_HINT_PERMISSION_LEVEL ))
+    );
 	PG_restricted_eval(q!$main::hintExists =1!);
     PG_restricted_eval(q!$main::numOfAttempts = 0 unless defined($main::numOfAttempts);!);
     my $attempts = PG_restricted_eval(q!$main::numOfAttempts!);
-    #$attempts++ if PG_restricted_eval(q!$main::inputs_ref->{submitAnswers}!); # numbOfAttempts is off by one when resubmitting
-    #FIXME -- in the current version where PGbasicmacros is reloaded do all of these values need to be recomputed?
-    
+   
     if ($displayMode =~ /TeX/) {
+        my $afterAnswerDate = ( time() > $envir{answerDate} );
     	if ($printHintForInstructor) {
     		$out = join(' ', $BITALIC," (Instructor hint preview: show the student hint after $showHint attempts. The current number of attempts is $attempts. )$BR", $EITALIC, @in);	
-    	} elsif ( $displayHint  and  $displaySolution) { # only display hints if solutions can also be displayed.
+    	} elsif ( $displayHint and $afterAnswerDate ) { # only display hints after the answer date.
     		$out = join(' ',@in);
     	}
     	    
@@ -1137,7 +1138,6 @@ sub hint {
     	if ($printHintForInstructor) {  # always print hints for instructor types in HTML mode
 			$out = join(' ', $BITALIC," (Instructor hint preview: show the student hint after $showHint attempts. The current number of attempts is $attempts. )$BR", $EITALIC, @in);    	
     	} elsif ( $displayHint  and  ( $attempts > $showHint ) ) 	{  
-	 	    #FIXME -- this needs modifications for can{showHints} in Problem.pm
 	 	    ## the second test above prevents a hint being shown if a doctored form is submitted
 		    $out = join(' ',@in);
 		}
@@ -1152,7 +1152,7 @@ sub HINT {
 		TEXT($PAR, knowlLink(HINT_HEADING(), value=>escapeSolutionHTML($BR . hint(@_) . $PAR ),
 		                  base64 => 1) ) if hint(@_);
     } elsif ($displayMode=~/TeX/) {
-    	TEXT($PAR,HINT_HEADING(), solution(@_).$PAR) if hint(@_) ;
+    	TEXT($PAR,HINT_HEADING(), hint(@_).$PAR) if hint(@_) ;
 	} else {
     	TEXT($PAR, HINT_HEADING(), $BR. hint(@_) . $PAR) if hint(@_);
     } 
