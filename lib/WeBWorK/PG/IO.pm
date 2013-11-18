@@ -220,18 +220,59 @@ sub createDirectory {
 }
 
 sub AskSage {
+# to send values back in a hash, add them to the python WEBWORK dictionary
   chomp(my $python = shift);
   my ($args) = @_;
   my $url = $args->{url} || 'https://sagecell.sagemath.org/service';
   my $seed = $args->{seed};
+  my $accepted_tos = $args->{accepted_tos} || 'false';
   my $debug = $args->{debug} || 0;
   my $setSeed = $seed?"set_random_seed($seed)\n":'';
-  my $output = `curl -k -f -sS -L --data-urlencode "code=${setSeed}$python" $url`;
-  warn "sage call", qq{curl -k -f -sS -L --data-urlencode "code=${setSeed}  $python" $url} if $debug;
-  my $decoded = decode_json($output);
-  chomp(my $value = $decoded->{stdout});
-  return $value;
+  my $output = `curl -k -sS -L --data-urlencode "accepted_tos=${accepted_tos}" --data-urlencode "user_variables=WEBWORK" --data-urlencode "code=${setSeed}${webworkfunc}$python" $url`;
+  warn "sage call", qq{curl -k -sS -L --data-urlencode "accepted_tos=${accepted_tos}" --data-urlencode "user_variables=WEBWORK" --data-urlencode "code=${setSeed}${webworkfunc}$python" $url} if $debug;
+
+  my $webworkfunc = <<END;
+WEBWORK={}
+def _webwork_safe_json(o):
+    import json
+    def default(o):
+        try:
+            if isinstance(o,sage.rings.integer.Integer):
+                json_obj = int(o)
+            elif isinstance(o,(sage.rings.real_mpfr.RealLiteral, sage.rings.real_mpfr.RealNumber)):
+                json_obj = float(o)
+            elif sage.modules.free_module_element.is_FreeModuleElement(o):
+                json_obj = list(o)
+            elif sage.matrix.matrix.is_Matrix(o):
+                json_obj = [list(i) for i in o.rows()]
+            elif isinstance(o, SageObject):
+                json_obj = repr(o)
+            else:
+                raise TypeError
+        except TypeError:
+            pass
+        else:
+            return json_obj
+        # Let the base class default method raise the TypeError
+        return json.JSONEncoder.default(self, o)
+    return json.dumps(o, default=default)
+get_ipython().display_formatter.formatters['application/json'].for_type(dict,_webwork_safe_json)
+END
+  eval {
+    my $decoded = decode_json($output);
+    if ($decoded->{success}) {
+        if (exists $decoded->{user_variables}{WEBWORK}{data}{'application/json'}) {
+            my $ret = decode_json($decoded->{user_variables}{WEBWORK}{data}{'application/json'});
+            return $ret;
+        } else {
+            warn "Error getting json back: $output";
+        }
+     }
+  } or do {
+    warn "Error in asking Sage to do something: $output \n $@";
+  }
 }
+
 
 =back
 
