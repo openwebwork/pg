@@ -228,9 +228,6 @@ sub AskSage {
   my $accepted_tos = $args->{accepted_tos} || 'false';
   my $debug = $args->{debug} || 0;
   my $setSeed = $seed?"set_random_seed($seed)\n":'';
-  my $output = `curl -k -sS -L --data-urlencode "accepted_tos=${accepted_tos}" --data-urlencode "user_variables=WEBWORK" --data-urlencode "code=${setSeed}${webworkfunc}$python" $url`;
-  warn "sage call", qq{curl -k -sS -L --data-urlencode "accepted_tos=${accepted_tos}" --data-urlencode "user_variables=WEBWORK" --data-urlencode "code=${setSeed}${webworkfunc}$python" $url} if $debug;
-
   my $webworkfunc = <<END;
 WEBWORK={}
 def _webwork_safe_json(o):
@@ -258,6 +255,11 @@ def _webwork_safe_json(o):
     return json.dumps(o, default=default)
 get_ipython().display_formatter.formatters['application/json'].for_type(dict,_webwork_safe_json)
 END
+
+my $output = `curl -k -sS -L --data-urlencode "accepted_tos=${accepted_tos}" --data-urlencode "user_variables=WEBWORK" --data-urlencode "code=${setSeed}${webworkfunc}$python" $url`;
+warn "sage call", qq{curl -k -sS -L --data-urlencode "accepted_tos=${accepted_tos}" --data-urlencode "user_variables=WEBWORK" --data-urlencode "code=${setSeed}${webworkfunc}$python" $url} if $debug;
+
+
   eval {
     my $decoded = decode_json($output);
     if ($decoded->{success}) {
