@@ -961,7 +961,7 @@ case the previously defined safe compartment is used. (See item 1.)
 # FIXME The various warning message tracks are still being sorted out
 # WARNING and DEBUG tracks are being handled elsewhere (in Problem.pm?)
 #################
-				$self->{errors} .= $@;
+				$self->{errors} .= "ERRORS from evaluating PG file: <br/>begin|||$@|||end<br/>\n" if $@;
 
 				
 # 				$self->{errors}.=join(CGI::br(), @{$PGcore->{WARNING_messages}} );
@@ -1008,7 +1008,7 @@ the errors.
                 #($self -> {errors}) =~ s/</&lt/g;
                 #($self -> {errors}) =~ s/>/&gt/g;
 	        #try to clean up errors so they will look ok
-                $self ->{errors} =~ s/\[[^\]]+?\] [^ ]+?\.pl://gm;   #erase [Fri Dec 31 12:58:30 1999] processProblem7.pl:
+                #$self ->{errors} =~ s/\[[^\]]+?\] [^ ]+?\.pl://gm;   #erase [Fri Dec 31 12:58:30 1999] processProblem7.pl:
                 #$self -> {errors} =~ s/eval\s+'(.|[\n|r])*$//;
 		#end trying to clean up errors so they will look ok
 

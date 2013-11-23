@@ -7,6 +7,9 @@ package WeBWorK::PG::IO;
 use base qw(Exporter);
 use WeBWorK::PG::Translator;
 use JSON qw(decode_json);
+use PGcore qw(not_null);
+our @ISA = qw(PGcore);
+
 
 =head1 NAME
 
@@ -225,7 +228,7 @@ sub AskSage {
   my ($args) = @_;
   my $url = $args->{url} || 'https://sagecell.sagemath.org/service';
   my $seed = $args->{seed};
-  my $accepted_tos = $args->{accepted_tos} || 'false';
+  my $accepted_tos = $args->{accepted_tos} || 'true';   # is there a reason to make this "false"??
   my $debug = $args->{debug} || 0;
   my $setSeed = $seed?"set_random_seed($seed)\n":'';
   my $webworkfunc = <<END;
@@ -256,25 +259,58 @@ def _webwork_safe_json(o):
 get_ipython().display_formatter.formatters['application/json'].for_type(dict,_webwork_safe_json)
 END
 
-my $output = `curl -k -sS -L --data-urlencode "accepted_tos=${accepted_tos}" --data-urlencode "user_variables=WEBWORK" --data-urlencode "code=${setSeed}${webworkfunc}$python" $url`;
-warn "sage call", qq{curl -k -sS -L --data-urlencode "accepted_tos=${accepted_tos}" --data-urlencode "user_variables=WEBWORK" --data-urlencode "code=${setSeed}${webworkfunc}$python" $url} if $debug;
 
 
-  eval {
-    my $decoded = decode_json($output);
-    if ($decoded->{success}) {
-        if (exists $decoded->{user_variables}{WEBWORK}{data}{'application/json'}) {
-            my $ret = decode_json($decoded->{user_variables}{WEBWORK}{data}{'application/json'});
-            return $ret;
-        } else {
-            warn "Error getting json back: $output";
-        }
-     }
-  } or do {
-    warn "Error in asking Sage to do something: $output \n $@";
-  }
+	my $ret={success=>0};   # we want to export more than one piece of information
+	eval {
+		my $output = `curl -k -sS -L --data-urlencode "accepted_tos=${accepted_tos}" --data-urlencode "user_variables=WEBWORK" --data-urlencode "code=${setSeed}${webworkfunc}$python" $url`;
+		my $sagecall = 	qq{
+			curl -k -sS -L --data-urlencode "accepted_tos=${accepted_tos}" 
+			--data-urlencode "user_variables=WEBWORK" --data-urlencode 
+			"code=${setSeed}${webworkfunc}$python" $url
+		};
+		if ($debug) {
+			warn "\n\nSAGE CALL: ", $sagecall, "\n\n";
+			warn "\n\nRETURN from sage call \n", $output, "\n\n";	
+		}
+		# has something been returned?
+		not_null($output) or die "Nothing was returned from sage call to $url."; 
+		#warn "We have some kind of value |$output| returned from sage" if $output; #remove this
+		
+		my $decoded = decode_json($output);
+		# was there a Sage/python syntax Error
+		# is the returned something text from stdout (deprecated)
+		# have objects been returned in a WEBWORK variable?
+		if ($decoded->{success} eq 'true') {
+			if ( not_null( $decoded->{stdout}) )  {  # old style text output via stdout (deprecated)
+				$ret = $decoded->{stdout};                 # only standard out is returned
+				# warn "returning stdout ", $decoded->{stdout};			
+			} elsif (not_null( $decoded->{user_variables}{WEBWORK}{data}{'application/json'} ) ) { 
+				# have specific WEBWORK variables been defined?
+				$ret->{webwork} = decode_json($decoded->{user_variables}{WEBWORK}{data}{'application/json'});
+				$ret->{success}=1;
+				# warn "returning objects in {webwork}", $ret->{webwork}, "null? ", not_null($ret->{webwork}) , %{$ret->{webwork}} ;
+			} else {
+				die "Error receiving JSON output from sage: \n$output\n ";
+			}
+		} elsif ($decoded->{success} eq 'false' )  { # this might be a syntax error
+			$ret->{error_message} = $decoded->{execute_reply}; # this is a hash.
+			warn "Perhaps there was syntax error.", join(" ",%{ $decoded->{execute_reply}});
+		} else {
+			die "Unknown error in asking Sage to do something: \n$output\n";
+		}
+		
+	}; # end eval{} for trapping errors in sage call
+	if ($@) {
+		warn "ERROR trapped by eval from JSON call to sage: $@ ";
+		if ( ref($ret)=~/HASH/ ) {
+			$ret->{success}=0;
+		} else {
+
+		}
+	}
+	return $ret;
 }
-
 
 =back
 
