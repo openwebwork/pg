@@ -221,14 +221,55 @@ sub createDirectory {
 		return 1;
 	}
 }
+#
+# isolate the call to the sage server in case we have to jazz it up
+#
+sub query_sage_server {
+	my ($python, $url, $accepted_tos, $setSeed, $webworkfunc, $debug)=@_;
+	my $output = `curl -i -k -sS -L --data-urlencode "accepted_tos=${accepted_tos}" --data-urlencode "user_variables=WEBWORK" --data-urlencode "code=${setSeed}${webworkfunc}$python" $url`;
+	my $sagecall = 	qq{
+		curl -k -sS -L --data-urlencode "accepted_tos=${accepted_tos}" 
+		--data-urlencode "user_variables=WEBWORK" --data-urlencode 
+		"code=${setSeed}${webworkfunc}$python" $url
+	};
+	if ($debug) {
+		warn "\n\nSAGE CALL: ", $sagecall, "\n\n";
+		warn "\n\nRETURN from sage call \n", $output, "\n\n";	
+	}
+		# has something been returned?
+		# $continue: 	HTTP/1.1 100 (Continue)
+		# $header: 		HTTP/1.1 200 OK
+		# 				Content-Length: 1625
+		# 				Server: TornadoServer/3.1
+		# 				Access-Control-Allow-Credentials: true
+		# 				Date: Sun, 24 Nov 2013 11:44:33 GMT
+		# 				Access-Control-Allow-Origin: *
+		# 				Content-Type: application/json; charset=UTF-8
+		# $content: Either error message about terms of service or output from sage
+	my ($continue, $header, @content) = split("\r\n\r\n",$output);
+	my $content = join("\r\n\r\n",@content); # handle case where there were blank lines in the content
+	# warn "output list is ", join("|||\n|||",($continue, $header, @content));
+	# warn "header is $header    =" , $header =~/200 OK\r\n/;
+	my $result;
+	if ($header =~/200 OK\r\n/)  { #success 
+		$result = $content;
+	} else {
+		warn "ERROR in contacting sage server. Did you accept the terms of service by 
+		      setting {accepted_tos=>'true'} in the askSage options?\n $content\n";
+		$result = undef;
+	}
+	$result;	
+}
 
 sub AskSage {
+#
 # to send values back in a hash, add them to the python WEBWORK dictionary
+#
   chomp(my $python = shift);
   my ($args) = @_;
   my $url = $args->{url} || 'https://sagecell.sagemath.org/service';
   my $seed = $args->{seed};
-  my $accepted_tos = $args->{accepted_tos} || 'true';   # is there a reason to make this "false"??
+  my $accepted_tos = $args->{accepted_tos} || 'false';  # force author to accept terms of service explicitly :-)
   my $debug = $args->{debug} || 0;
   my $setSeed = $seed?"set_random_seed($seed)\n":'';
   my $webworkfunc = <<END;
@@ -263,33 +304,31 @@ END
 
 	my $ret={success=>0};   # we want to export more than one piece of information
 	eval {
-		my $output = `curl -k -sS -L --data-urlencode "accepted_tos=${accepted_tos}" --data-urlencode "user_variables=WEBWORK" --data-urlencode "code=${setSeed}${webworkfunc}$python" $url`;
-		my $sagecall = 	qq{
-			curl -k -sS -L --data-urlencode "accepted_tos=${accepted_tos}" 
-			--data-urlencode "user_variables=WEBWORK" --data-urlencode 
-			"code=${setSeed}${webworkfunc}$python" $url
-		};
-		if ($debug) {
-			warn "\n\nSAGE CALL: ", $sagecall, "\n\n";
-			warn "\n\nRETURN from sage call \n", $output, "\n\n";	
-		}
+	    my $output = query_sage_server($python, $url, $accepted_tos, $setSeed, $webworkfunc, $debug );
+
 		# has something been returned?
-		not_null($output) or die "Nothing was returned from sage call to $url."; 
-		#warn "We have some kind of value |$output| returned from sage" if $output; #remove this
+		not_null($output) or die "Unable to make a sage call to $url."; 
+		# warn "We have some kind of value |$output| returned from sage" if $output; #remove this
 		
 		my $decoded = decode_json($output);
 		# was there a Sage/python syntax Error
 		# is the returned something text from stdout (deprecated)
 		# have objects been returned in a WEBWORK variable?
+		# warn "test condition = ", $decoded->{user_variables}{WEBWORK}{data}{'application/json'} ne "{}";
 		if ($decoded->{success} eq 'true') {
-			if ( not_null( $decoded->{stdout}) )  {  # old style text output via stdout (deprecated)
-				$ret = $decoded->{stdout};                 # only standard out is returned
-				# warn "returning stdout ", $decoded->{stdout};			
-			} elsif (not_null( $decoded->{user_variables}{WEBWORK}{data}{'application/json'} ) ) { 
+		    my $WEBWORK_variable_non_empty=0;
+			if (not_null($decoded->{user_variables}{WEBWORK}{data}{'application/json'}) ) {
+				$WEBWORK_variable_non_empty = $decoded->{user_variables}{WEBWORK}{data}{'application/json'} ne "{}";
+			}  # {} indicates that WEBWORK was not used to pass or return a variable from sage.
+
+			if ( $WEBWORK_variable_non_empty )  { 
 				# have specific WEBWORK variables been defined?
 				$ret->{webwork} = decode_json($decoded->{user_variables}{WEBWORK}{data}{'application/json'});
 				$ret->{success}=1;
-				# warn "returning objects in {webwork}", $ret->{webwork}, "null? ", not_null($ret->{webwork}) , %{$ret->{webwork}} ;
+				$ret->{stdout} = $decoded->{stdout};		
+			} elsif (not_null( $decoded->{stdout} ) ) { # no WEBWORK content, but stdout exists
+                                                           # old style text output via stdout (deprecated)
+				$ret = $decoded->{stdout};                 # only standard out is returned
 			} else {
 				die "Error receiving JSON output from sage: \n$output\n ";
 			}
@@ -302,7 +341,7 @@ END
 		
 	}; # end eval{} for trapping errors in sage call
 	if ($@) {
-		warn "ERROR trapped by eval from JSON call to sage: $@ ";
+		warn "IO.pm: ERROR trapped during JSON call to sage:\n $@ ";
 		if ( ref($ret)=~/HASH/ ) {
 			$ret->{success}=0;
 		} else {
