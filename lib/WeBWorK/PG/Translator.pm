@@ -1004,13 +1004,16 @@ the errors.
 	###### PG error processing code ##########
 	##########################################
         my (@input,$lineNumber,$line);
-        if ($self -> {errors}) {
+	my $permissionLevel = $self->{envir}->{permissionLevel}||0; #user permission level
+        # Only show the problem text to users with permission
+        if ($self -> {errors} && $self->{envir}->{VIEW_PROBLEM_DEBUGGING_INFO} <= $permissionLevel) {
                 #($self -> {errors}) =~ s/</&lt/g;
                 #($self -> {errors}) =~ s/>/&gt/g;
 	        #try to clean up errors so they will look ok
                 $self ->{errors} =~ s/\[[^\]]+?\] [^ ]+?\.pl://gm;   #erase [Fri Dec 31 12:58:30 1999] processProblem7.pl:
                 #$self -> {errors} =~ s/eval\s+'(.|[\n|r])*$//;
 		#end trying to clean up errors so they will look ok
+
 
 
                 push(@PROBLEM_TEXT_OUTPUT   ,  qq!\n<A NAME="problem! .
@@ -1036,8 +1039,13 @@ the errors.
 
 
 
+        } elsif ($self -> {errors}) {
+                push(@PROBLEM_TEXT_OUTPUT   ,  qq!\n<A NAME="problem! .
+                    $self->{envir} ->{'probNum'} .
+                    qq!"><pre>        Problem !.
+                    $self->{envir} ->{'probNum'}.
+                    qq!\nERROR caught by Translator while processing this problem <br/></pre>\r\n!);
         }
-
 =pod
 
 (6) B<Prepare return values>
