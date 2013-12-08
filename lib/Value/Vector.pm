@@ -272,7 +272,7 @@ sub TeX {
 }
 
 sub ijk {
-  my $self = shift; my $type = shift || "string";
+  my $self = shift; my $type = shift || ($self->context->flag("StringifyAsTeX") ? "TeX" : "string");
   my @coords = @{$self->data};
   Value::Error("Method 'ijk' can only be used on Vectors in 3-space")
     unless (scalar(@coords) <= 3);

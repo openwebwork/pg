@@ -47,8 +47,13 @@ use MIME::Base64 qw( encode_base64 decode_base64);
 
 
 =cut
-
+our @EXPORT = qw(
+	not_null 
+	pretty_print
+);
 sub not_null {        # empty arrays, empty hashes and strings containing only whitespace are all NULL
+                      # in modern perl // would be a reasonable and more robust substitute
+                      # a function, not a method
     my $item = shift;
 	return 0 unless defined($item);
 	if (ref($item)=~/ARRAY/) {
@@ -864,6 +869,10 @@ sub createDirectory {
 	my $self = shift;
 	WeBWorK::PG::IO::createDirectory(@_); 
  };
+sub AskSage {
+	my $self = shift;
+	WeBWorK::PG::IO::AskSage(@_);
+}
  
 sub tempDirectory {
 	my $self = shift;
