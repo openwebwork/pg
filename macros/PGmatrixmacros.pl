@@ -593,6 +593,31 @@ sub dm_mat_row {
         $out;
 }
 
+=head4 side_labels
+
+Produces an array that can be used to add labels outside a matrix.  useful
+for presenting tableaus. Entries are set in mathmode
+
+	side_labels( @array );
+	
+	\( \{lp_display_mm([$matrix3->value], 
+	      top_labels=>[qw(x_1 x_2 x_3 x_4 obj b)] )
+	   \}
+        \{side_labels(  qw(\text{cash} \text{hours} \text{profits} ) ) 
+        \} 
+    \)
+
+=cut 
+
+sub side_labels {
+	my @labels = @_;
+	my $outputstring = "\\begin{array}{c}"; 
+	foreach my $label (@labels) {
+		$outputstring .= "\\ensuremath{$label} \\\\ \n";
+	}	
+	$outputstring .= "\\end{array}";
+}
+
 =head4  mbox
 
                 Usage        \{ mbox(thing1, thing2, thing3) \}
@@ -722,7 +747,57 @@ sub make_matrix{
         $ra_out;
 }
 
+=head4 create2d_matrix
 
+This can be a useful method for quickly entering small matrices by hand. 
+
+	create2d_matrix("1 2 4, 5 6 8");
+	produces the anonymous array
+	[[1,2,4],[5,6,8] ]
+	
+	Matrix(create2d_matrix($string));
+
+=cut	
+
+sub create2d_matrix {
+	my $string = shift;
+	my @rows = split("\\s*,\\s*",$string);
+	@rows = map {[split("\\s", $_ )]} @rows;
+	[@rows];
+}
+
+=head4 check_matrix_from_ans_box_cmp
+
+An answer checker factory build on create2d_matrix.  This still needs
+work.  It is not feature complete, particularly with regard to error messages
+for incorrect input.
+
+	$matrix = Matrix("[[1,4],[2,3]");
+	ANS( check_matrix_from_ans_box($matrix) );
+
+=cut
+
+sub check_matrix_from_ans_box_cmp{
+	my $correctMatrix = shift;
+	my $string_matrix_cmp =  sub  {
+      $string = shift @_;
+      my $studentMatrix;
+      eval { $studentMatrix = Matrix(create2d_matrix($string)); die "I give up";};
+      # main::DEBUG_MESSAGE(ref($studentMatrix). "$studentMatrix with error ");
+      # errors are returned as warnings.  Can't seem to trap them. 
+      my $rh_answer = new AnswerHash( 
+         score  => ($correctMatrix <=> $studentMatrix)?0:1, #fuzzy equals is zero for correct
+	     correct_ans  	=> 	$correctMatrix,
+	     student_ans  	=> 	$string,
+	     preview_text_string => $string,
+	     preview_latex_string => $studentMatrix->TeX,
+	     ans_message  => 	"",
+	     type		   	=> 	'matrix_from_ans_box', 
+      );
+      $rh_answer;
+	};
+	$string_matrix_cmp;
+}
 # sub format_answer{
 #       my $ra_eigenvalues = shift;
 #       my $ra_eigenvectors = shift;
