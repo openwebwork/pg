@@ -305,6 +305,17 @@ Accepts the same optional arguments as lp_display (see below), and produces
 nicer looking results.  However, it cannot have answer rules in the tableau
 (lp_display can have them for fill in the blank tableaus).
 
+To use with a MathObject matrix use
+
+    \[ \{lp_display_mm([$matrix->value]) \} \]
+    
+$matrix->value outputs an array (usually an array of array references) so placing it inside
+square bracket produces and array reference (of array references) which is what lp_display_mm() is
+seeking.
+
+$matrix, by itself, produces a string representing a matrix. (This will be in TeX if the context has
+enabled texStrings.
+
 =cut
 
 # Display a tableau in math mode
