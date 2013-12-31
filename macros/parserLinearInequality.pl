@@ -106,7 +106,8 @@ sub new {
   $_[0] = $context->Package("Point")->new($context,$_[0]) if ref($_[0]) eq 'ARRAY';
   $_[1] = $context->Package("Vector")->new($context,$_[1]) if ref($_[1]) eq 'ARRAY';
 
-  my ($p,$N,$plane,$vars,$d,$type); $type = 'plane';
+  my ($p,$N,$plane,$vars,$d,$type); 
+  $type = 'plane';
   if (scalar(@_) >= 2 && Value::classMatch($_[0],'Point','Vector') &&
       Value::classMatch($_[1],'Vector') || Value::isRealNumber($_[1])) {
     #
@@ -163,11 +164,10 @@ sub new {
     Value::Error("Your formula isn't a linear one") unless ($formula->new($test_plane->{tree}{lop}) -
               $formula->new($test_plane->{tree}{rop})) == $f;
               
-
-    
+    # we use the original equation instead of the test_plane since the original equation has the original formula
     # determine type of equation and record
     if ($implicit_type eq '=') {
-    	$plane->{implicit_type}= "equal"
+    	$plane->{implicit_type}= "equal";
     } elsif ($implicit_type eq "<=" or $implicit_type eq "=<" ) {
     	$plane->{implicit_type}= "lessthanorequal"
     } elsif (($implicit_type eq ">=" or $implicit_type eq "=>" )) {
@@ -198,9 +198,12 @@ sub new {
 sub compare {
   my ($self,$l,$r) = Value::checkOpOrder(@_);
   $r = new LinearInequality($r);# if ref($r) ne ref($self);
+  $l = new LinearInequality($self) unless ref($l);# if ref($r) ne ref($self); #FIXME is this needed?
   my ($lN,$ld, $ltype) = ($l->{N},$l->{d},$l->{implicit_type});
   my ($rN,$rd, $rtype) = ($r->{N},$r->{d},$r->{implicit_type});
-  # main::DEBUG_MESSAGE("comparision $ltype, $rtype, $lN, $ld, $rN$, $rd");
+  
+  # main::DEBUG_MESSAGE("comparison1 ltype $ltype, rtype $rtype, lN $lN, ld $ld, rN $rN, rd $rd");
+  
   # normalize inequalities for checking
   if ($ltype eq "greaterthanorequal") {
   	  $ltype = "lessthanorequal";
@@ -212,17 +215,18 @@ sub compare {
   	  $rN = -$rN;
   	  $rd = -$rd;
   }
-  # main::DEBUG_MESSAGE("comparision $ltype, $rtype, $lN, $ld, $rN, $rd");
+  # main::DEBUG_MESSAGE("comparison2 ltype $ltype, rtype $rtype, lN $lN, ld $ld, rN $rN, rd $rd");
   my $does_not_match = 0<=>1; 
   return $does_not_match unless ($ltype eq $rtype); #equality and lessthanorequal  types cannot be made to match
   # main::DEBUG_MESSAGE('types are the same '. $rd*$ld);
-  if (( $rd*$ld ) < 0 ) {
+  if ($ltype ne 'equal' and ( $rd*$ld ) < 0 ) { # inequalities must have the same sign on the rhs.
     # main::DEBUG_MESSAGE("first case");
   	return $does_not_match;
   } elsif ($rd*$ld == 0 ) {
     # main::DEBUG_MESSAGE("second case");
     return $rd <=> $ld unless $rd == $ld; # will match if they are both fuzzy zero, otherwise no
-    return $lN <=> $rN unless (areParallel $lN, $rN) and $lN->dot($rN) >=0;
+    my $sameDirection = ($ltype eq 'equal') ? 0: 1;
+    return $lN <=> $rN unless $lN->isParallel($rN, $sameDirection) ; # directions must match for inequality but not equalities
     return 0;           # they do  match -- the normals are parallel.
   } else {
     # main::DEBUG_MESSAGE("last case");
@@ -230,7 +234,7 @@ sub compare {
   }
 }
 
-sub cmp_class {'an Implicit '.(shift->{implicit})};
+sub cmp_class {'a LinearInequality '.(shift->{implicit})};
 sub showClass {shift->cmp_class};
 
 sub cmp_defaults{(
