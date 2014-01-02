@@ -249,8 +249,9 @@ sub cmp_compare {
   my $context = (Value::isValue($self) ? $self->context : Value->context);
   
   # hack to correctly evaluate ImplicitPlane and LinearInequalities within lists
-  #my $context_name = $context->{name};
-  my $tree_name = $self->{tree};
+  # warn "self is $self ", ref($self);
+  my $tree_name='';
+  $tree_name = $self->{tree} unless ref($self)=~/ARRAY/;
   #warn "context is $context_name tree_name is $tree_name"; 
   if ($tree_name =~/LinearInequality/) {
   	my $str1 ="$self"; my $str2 = "$other";
@@ -1453,7 +1454,7 @@ sub cmp_equal {
 }
 
 #
-#  Compare the contents of the list to see of they are equal
+#  Compare the contents of the list to see if they are equal
 #
 sub cmp_list_compare {
   my $self = shift; my $context = $self->context;
