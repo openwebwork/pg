@@ -749,7 +749,7 @@ sub make_matrix{
 
 =head4 create2d_matrix
 
-This can be a useful method for quickly entering small matrices by hand. 
+This can be a useful method for quickly entering small matrices by hand. --MEG
 
 	create2d_matrix("1 2 4, 5 6 8");
 	produces the anonymous array
@@ -770,7 +770,7 @@ sub create2d_matrix {
 
 An answer checker factory build on create2d_matrix.  This still needs
 work.  It is not feature complete, particularly with regard to error messages
-for incorrect input.
+for incorrect input. --MEG
 
 	$matrix = Matrix("[[1,4],[2,3]");
 	ANS( check_matrix_from_ans_box($matrix) );
