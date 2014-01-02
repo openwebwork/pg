@@ -244,31 +244,8 @@ our $CMP_MESSAGE = 4; # a message should be reported for this check
 
 sub cmp_compare {
   my $self = shift; my $other = shift; my $ans = shift; my $nth = shift || '';
-  my $value = shift;
   my $context = (Value::isValue($self) ? $self->context : Value->context);
-  
-  # hack to correctly evaluate ImplicitPlane and LinearInequalities within lists
-  # warn "self is $self ", ref($self);
-  my $tree_name='';
-  $tree_name = $self->{tree} unless ref($self)=~/ARRAY/;
-  #warn "context is $context_name tree_name is $tree_name"; 
-  if ($tree_name =~/LinearInequality/) {
-  	my $str1 ="$self"; my $str2 = "$other";
-  	# warn "str1 $str1 str2 $str2";
-  	my $temp1 = eval('main::LinearInequality($str1)');
-  	my $temp2 = eval('main::LinearInequality($str2)');
-  	return eval {$temp1 == $temp2} unless ref($ans->{checker}) eq 'CODE';
-  } elsif ($tree_name =~/ImplicitPlane/) {
-  	my $str1 ="$self"; my $str2 = "$other";
-  	# warn "str1 $str1 str2 $str2";
-  	my $temp1 = eval('main::ImplicitPlane($str1)');
-  	my $temp2 = eval('main::ImplicitPlane($str2)');
-  	return eval {$temp1 == $temp2} unless ref($ans->{checker}) eq 'CODE';
-  } else {
-    # warn "standard cmp_compare $self $other";
-  	return eval {$self == $other} unless ref($ans->{checker}) eq 'CODE';
-  }
-  # end hack -- return to regularly scheduled program
+  return eval {$self == $other} unless ref($ans->{checker}) eq 'CODE';
   my @equal = eval {&{$ans->{checker}}($self,$other,$ans,$nth,@_)};
   if (!defined($equal) && $@ ne '' && (!$context->{error}{flag} || $ans->{showAllErrors})) {
     $nth = "" if ref($nth) eq 'AnswerHash';
@@ -1453,7 +1430,7 @@ sub cmp_equal {
 }
 
 #
-#  Compare the contents of the list to see if they are equal
+#  Compare the contents of the list to see of they are equal
 #
 sub cmp_list_compare {
   my $self = shift; my $context = $self->context;
@@ -1499,25 +1476,20 @@ sub cmp_list_compare {
     #
     if ($ordered) {
       if (scalar(@correct)) {
-      	my $correct = shift @correct;
-      	$cmp_result = ($correct->cmp_compare($entry,$ans,$nth,$value))?1:0;
-      	# warn "result of $correct $entry cmp $cmp_result";
-		if ($cmp_result) {$score++; next ENTRY}
+	if (shift(@correct)->cmp_compare($entry,$ans,$nth,$value)) {$score++; next ENTRY}
       } else {
-		# do syntax check
-		if (ref($extra) eq 'CODE') {
-			&$extra($entry,$ans,$nth,$value)
-		} else {$extra->cmp_compare($entry,$ans,$nth,$value)
-		}
-	  }
+	# do syntax check
+	if (ref($extra) eq 'CODE') {&$extra($entry,$ans,$nth,$value)}
+	  else {$extra->cmp_compare($entry,$ans,$nth,$value)}
+      }
       if ($error->{flag} == $CMP_ERROR) {$self->cmp_error($ans); return}
     } else {
       foreach my $k (0..$#correct) {
-		if ($correct[$k]->cmp_compare($entry,$ans,$nth,$value)) {
-		  splice(@correct,$k,1);
-		  $score++; next ENTRY;
-		}
-		if ($error->{flag} == $CMP_ERROR) {$self->cmp_error($ans); return}
+	if ($correct[$k]->cmp_compare($entry,$ans,$nth,$value)) {
+	  splice(@correct,$k,1);
+	  $score++; next ENTRY;
+	}
+	if ($error->{flag} == $CMP_ERROR) {$self->cmp_error($ans); return}
       }
       $context->clearError;
       # do syntax check
@@ -1538,9 +1510,7 @@ sub cmp_list_compare {
       if ($m > 1 && $error->{flag} != $CMP_WARNING) {
         push(@errors,"<SMALL>There is a problem with your$nth $value:</SMALL>",
 	             '<DIV STYLE="margin-left:1em">'.$message.'</DIV>');
-      } else {
-      	push(@errors,$message)
-      }
+      } else {push(@errors,$message)}
     } elsif ($showHints && $m > 1) {
       push(@errors,"Your$nth $value is incorrect");
     }
