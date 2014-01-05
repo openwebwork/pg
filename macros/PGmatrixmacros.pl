@@ -171,6 +171,7 @@ sub display_matrix_math_mode {
 sub display_matrix {
         my $ra_matrix = shift;
         my %opts = @_;
+        $ra_matrix = convert_to_array_ref($ra_matrix);
         my $styleParams = defined($main::defaultDisplayMatrixStyle) ?
                 $main::defaultDisplayMatrixStyle : "(s)";
         
@@ -187,8 +188,11 @@ sub display_matrix {
 		);
         
         my ($numRows, $numCols, @myRows);
-
-        if (ref($ra_matrix) eq 'Matrix' )  {
+        my $original_matrix = $ra_matrix;
+        if (ref($ra_matrix) eq 'Value::Matrix') {
+        	$ra_matrix = $ra_matrix->wwMatrix->array_ref; # translate     
+        }
+        if (ref($ra_matrix) eq 'Matrix' )  { #handle Real::Matrix1 type matrices: #FIXME deprectated
                 ($numRows, $numCols) = $ra_matrix->dim();
                 for( my $i=0; $i<$numRows; $i++) {
                         $myRows[$i] = [];
@@ -798,6 +802,38 @@ sub check_matrix_from_ans_box_cmp{
 	};
 	$string_matrix_cmp;
 }
+
+
+=head2 convert_to_array_ref {
+
+	$output_matrix = convert_to_array_ref($input_matrix)
+	
+Converts a MathObject matrix (ref($input_matrix eq 'Value::Matrix') 
+or a MatrixReal1 matrix (ref($input_matrix eq 'Matrix')to 
+a reference to an array (e.g [[4,6],[3,2]]).
+This adaptor allows all of the Linear Programming subroutines to be used with 
+MathObject arrays.
+
+$mathobject_matrix->value outputs an array (usually an array of array references) so placing it inside
+square bracket produces and array reference (of array references) which is what lp_display_mm() is
+seeking.
+
+=cut 
+
+sub convert_to_array_ref {
+	my $input = shift;
+	if (ref($input) eq 'Value::Matrix' ) {
+		$input = [$input->value];
+	} elsif (ref($input) eq 'Matrix' ) {
+		$input = $input->array_ref;
+	} elsif (ref($input) =~/ARRAY/) {
+		# no change to input value
+	} else {
+	WARN_MESSAGE("This does not appear to be a matrix ");
+	}
+	$input;
+}
+
 # sub format_answer{
 #       my $ra_eigenvalues = shift;
 #       my $ra_eigenvectors = shift;

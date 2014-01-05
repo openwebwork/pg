@@ -157,16 +157,22 @@ sub process_section {
 sub PROCESS_ANSWERS {
 	my $self = shift;
 	my $ans_hash;
+	my @debug_messages=();
+	%options = @_;   #allow debug options for example.
+	my $DEBUG_ON = 1 if defined $options{debug} and $options{debug}==1;
 	my @scores=(-1000);  # the zeroth position must be a dummy because answers count from 1.
 	my @ans_evaluators = @{$self->ans_evaluators()};
-#	main::DEBUG_MESSAGE("compoundProblem5 evaluators ", join(" ", @ans_evaluators));
-#	main::DEBUG_MESSAGE("test ", $ans_evaluators[1]->evaluate(2)->{score} );
+	# main::DEBUG_MESSAGE("compoundProblem5 evaluators ", join(" ", @ans_evaluators));
+	# main::DEBUG_MESSAGE("test ", $ans_evaluators[1]->evaluate(2)->{score} );
 	foreach my $j (1..($#ans_evaluators)) {
 	  # main::DEBUG_MESSAGE("compoundProblem5 answer $j = ",  $main::inputs_ref->{main::ANS_NUM_TO_NAME($j)});
-	  $ans_hash = $ans_evaluators[$j]->evaluate($main::inputs_ref->{main::ANS_NUM_TO_NAME($j)});
+	  eval {$ans_hash = $ans_evaluators[$j]->evaluate($main::inputs_ref->{main::ANS_NUM_TO_NAME($j)})};
+	  DEBUG_MESSAGE("Error answerEvaluator $j ", $@) if $@ ;
 	  $scores[$j]   = $ans_hash->{score};
-	  # main::DEBUG_MESSAGE("compoundProblem5  scores $j = $scores[$j]");
+	  push ( @debug_messages, "compoundProblem5  scores $j = $scores[$j]" ) if $DEBUG_ON;
+
 	}
+	main::DEBUG_MESSAGE( join("<br/>",@debug_messages)  ) if $DEBUG_ON;
 	$self->scores(@scores);
 }
 sub PROCESS_SECTIONS {
@@ -224,7 +230,7 @@ sub ANS {
 	main::ANS(   @answer_evaluators );
 }
 
-#nice try --doesn't work yet
+
 sub requireCorrect {
    # require correct answers for these questions
     my $self = shift;
@@ -242,4 +248,32 @@ package main;
 sub Scaffold {
 	return Scaffold->new();
 }
+sub INITIALIZE_SCAFFOLD {
+	my $string = shift;
+	if (ref($string) ) {
+		WARN_MESSAGE("Enter the name of a scaffold object: 
+		INITIALIZE_SCAFFOLD('\$scaffold'), not INITIALIZE_SCAFFOLD(\$scaffold)");
+		$string = "Scaffold";
+	}
+	PG_restricted_eval ( <<END_TEXT);
+	sub DISPLAY_SECTION {
+		$string->DISPLAY_SECTION(\@_);
+	}
+	sub SECTION_SOLUTION{
+		$string->SECTION_SOLUTION(\@_);
+	}
+	sub SECTION_ANS {
+		$string->ANS(\@_);
+	}
+	sub PROCESS_ANSWERS {
+		$string->PROCESS_ANSWERS(\@_);
+	}
+	sub PROCESS_SECTIONS {
+		$string->PROCESS_SECTIONS(\@_)
+	}
+END_TEXT
+
+	"";   # return nothing
+}
+
 1;
