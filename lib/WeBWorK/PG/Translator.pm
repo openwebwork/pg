@@ -960,12 +960,9 @@ case the previously defined safe compartment is used. (See item 1.)
 #################
 # FIXME The various warning message tracks are still being sorted out
 # WARNING and DEBUG tracks are being handled elsewhere (in Problem.pm?)
-#################
-				$self->{errors} .= "ERRORS from evaluating PG file: <br/>begin|||$@|||end<br/>\n" if $@;
+#######################################################################
+				$self->{errors} .= "ERRORS from evaluating PG file: <br/> $@<br/>\n" if $@;
 
-				
-# 				$self->{errors}.=join(CGI::br(), @{$PGcore->{WARNING_messages}} );
-# 				$self->{errors}.=join(CGI::br(), @{$PGcore->{DEBUG_messages  }} );
 #######################################################################
 
 #		    	push(@PROBLEM_TEXT_OUTPUT   ,   split(/(\n)/,$$PG_PROBLEM_TEXT_REF)  ) if  defined($$PG_PROBLEM_TEXT_REF  );
