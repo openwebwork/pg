@@ -796,7 +796,8 @@ sub check_matrix_from_ans_box_cmp{
 	my $string_matrix_cmp =  sub  {
       $string = shift @_;
       my $studentMatrix;
-      eval { $studentMatrix = Matrix(create2d_matrix($string)); die "I give up";};
+      # eval { $studentMatrix = Matrix(create2d_matrix($string)); die "I give up";}; #caught by op_mask
+      $studentMatrix = Matrix(create2d_matrix($string)); die "I give up"; 
       # main::DEBUG_MESSAGE(ref($studentMatrix). "$studentMatrix with error ");
       # errors are returned as warnings.  Can't seem to trap them. 
       my $rh_answer = new AnswerHash( 
