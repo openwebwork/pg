@@ -116,12 +116,12 @@ sub vec_cmp{    #check to see that the submitted vector is a non-zero multiple o
 
     display_matrix produces a matrix for display purposes.  It checks whether
           it is producing LaTeX output, or if it is displaying on a web page in one
-          of the various modes.  The input can either be of type Matrix, or a
-          reference to an array.
+          of the various modes.  The input can either be of type Matrix, Value::Matrix (mathobject)
+          or a reference to an array.
 
           Entries can be numbers, Fraction objects, bits of math mode, or answer
-    boxes.  An entire row can be replaced by the string 'hline' to produce
-    a horizontal line in the matrix.
+    	  boxes.  An entire row can be replaced by the string 'hline' to produce
+          a horizontal line in the matrix.
 
           display_matrix_mm functions similarly, except that it should be inside
           math mode.  display_matrix_mm cannot contain answer boxes in its entries.
@@ -140,7 +140,7 @@ sub vec_cmp{    #check to see that the submitted vector is a non-zero multiple o
 
           The matrix has left and right delimiters also specified by
           $defaultDisplayMatrixStyle.  They can be parentheses, square brackets,
-        braces, vertical bars, or none.  The default can be overridden in
+          braces, vertical bars, or none.  The default can be overridden in
           an individual problem with optional arguments such as left=>"|", or
           right=>"]".
 
@@ -275,13 +275,13 @@ sub dm_begin_matrix {
                         $aligns .= ($j eq "d") ? '|' : $j;
                 }
                 $out .= $opts{'force_tex'} ? '' : '\(';
-                if($opts{'top_labels'}) {
+                if ($opts{'top_labels'} and $main::displayMode ne 'HTML_MathJax') {
                         $out .= '\begingroup\setbox3=\hbox{\ensuremath{';
                 }
                 $out .= '\displaystyle\left'.$opts{'left'}."\\begin{array}{$aligns} \n";
-        }        elsif ($main::displayMode eq 'Latex2HTML') {
+        }  elsif ($main::displayMode eq 'Latex2HTML') {
                 $out .= "\n\\begin{rawhtml} <TABLE  BORDER=0>\n\\end{rawhtml}";
-        }        elsif ( $main::displayMode eq 'HTML_MathJax'
+        }  elsif ( $main::displayMode eq 'HTML_MathJax'
                       or $main::displayMode eq 'HTML_dpng'
                       or $main::displayMode eq 'HTML_tth'
                       or $main::displayMode eq 'HTML_jsMath'
@@ -289,7 +289,7 @@ sub dm_begin_matrix {
                       or $main::displayMode eq 'HTML_LaTeXMathML'
                       or $main::displayMode eq 'HTML'
                       or $main::displayMode eq 'HTML_img') {
-                $out .= qq!<TABLE BORDER="0" Cellspacing="8">\n!;
+                $out .= qq!<TABLE class="matrix" BORDER="0" Cellspacing="8">\n!;
         }
         else { 
                 $out = "Error: dm_begin_matrix: Unknown displayMode: $main::displayMode.\n";
@@ -311,11 +311,16 @@ sub dm_special_tops {
         
         if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
                 for $j (@top_labels) {
-                        $out .= '\smash{\raisebox{2.9ex}{\ensuremath{'.
+                	if ($main::displayMode ne 'HTML_MathJax') {
+                       $out .= '\smash{\raisebox{2.9ex}{\ensuremath{'.
                                 $j . '}}} &';
+                    } else {
+                         $out .= $j.'&';  #for compatibility with MathJax
+                    }
                 }
                 chop($out); # remove last &
-                $out .= '\cr\noalign{\vskip -2.5ex}'."\n"; # want skip jump up 2.5ex
+                #$out .= '\cr\noalign{\vskip -2.5ex}'."\n"; # want skip jump up 2.5ex
+                $out.='\cr'; # mathjax compatibility
         } elsif ( $main::displayMode eq 'HTML_MathJax'
                       or $main::displayMode eq 'HTML_dpng'
                       or $main::displayMode eq 'HTML_tth'
@@ -418,7 +423,7 @@ sub dm_end_matrix {
         my $out = "";
         if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
                 $out .= "\\end{array}\\right$opts{right}";
-                if($opts{'top_labels'}) {
+                if($opts{'top_labels'} and $main::displayMode ne 'HTML_MathJax') {
                         $out .= '}} \dimen3=\ht3 \advance\dimen3 by 3ex \ht3=\dimen3'."\n".
                         '\box3\endgroup';
                 }
@@ -614,10 +619,15 @@ for presenting tableaus. Entries are set in mathmode
 =cut 
 
 sub side_labels {
-	my @labels = @_;
+	my @labels;
+	if (ref($_[0])=~/ARRAY/) { # accept either an array or a reference to an array
+		@labels = @{$_[0]};
+	} else {
+		@labels = @_;
+	}
 	my $outputstring = "\\begin{array}{c}"; 
 	foreach my $label (@labels) {
-		$outputstring .= "\\ensuremath{$label} \\\\ \n";
+		$outputstring .= "$label \\\\ \n";
 	}	
 	$outputstring .= "\\end{array}";
 }
@@ -772,7 +782,7 @@ sub create2d_matrix {
 
 =head4 check_matrix_from_ans_box_cmp
 
-An answer checker factory build on create2d_matrix.  This still needs
+An answer checker factory built on create2d_matrix.  This still needs
 work.  It is not feature complete, particularly with regard to error messages
 for incorrect input. --MEG
 
