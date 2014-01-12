@@ -171,7 +171,7 @@ sub string {
 }
 
 #
-#  Produce the string version by making a comma separated list with " or " for the last comma
+#  Produce the TeX version by making a comma separated list with " or " for the last comma
 #
 sub TeX {
   my $self = shift;
