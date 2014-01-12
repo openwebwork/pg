@@ -166,8 +166,9 @@ sub PROCESS_ANSWERS {
 	# main::DEBUG_MESSAGE("test ", $ans_evaluators[1]->evaluate(2)->{score} );
 	foreach my $j (1..($#ans_evaluators)) {
 	  # main::DEBUG_MESSAGE("compoundProblem5 answer $j = ",  $main::inputs_ref->{main::ANS_NUM_TO_NAME($j)});
-	  eval {$ans_hash = $ans_evaluators[$j]->evaluate($main::inputs_ref->{main::ANS_NUM_TO_NAME($j)})};
-	  DEBUG_MESSAGE("Error answerEvaluator $j ", $@) if $@ ;
+	  # eval {$ans_hash = $ans_evaluators[$j]->evaluate($main::inputs_ref->{main::ANS_NUM_TO_NAME($j)})};
+	  # DEBUG_MESSAGE("Error answerEvaluator $j ", $@) if $@ ;
+	  $ans_hash = $ans_evaluators[$j]->evaluate($main::inputs_ref->{main::ANS_NUM_TO_NAME($j)});
 	  $scores[$j]   = $ans_hash->{score};
 	  push ( @debug_messages, "compoundProblem5  scores $j = $scores[$j]" ) if $DEBUG_ON;
 
@@ -208,7 +209,7 @@ sub SECTION_SOLUTION {
     } elsif ($main::displayMode=~/TeX/) {
     	$output = join($main::PAR,main::SOLUTION_HEADING(), $formatted_solution,$main::PAR) if $formatted_solution;
     } else {
-		$output = ( "$main::PAR mySOLUTION: " . $main::BR . $formatted_solution.$main::PAR) if $formatted_solution ;
+		$output = ( "$main::PAR SOLUTION: " . $main::BR . $formatted_solution.$main::PAR) if $formatted_solution ;
 	}
 	if (main::not_null($sectionID)) {
 		$self->{sections}->{$sectionID}->{solution}=$output;
