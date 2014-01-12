@@ -200,12 +200,15 @@ sub SECTION_SOLUTION {
 	my $sectionID = $options->{section};
 	main::WARN_MESSAGE("A 'section' number is required for each solution") if main::not_null($options) and not $sectionID;
 	my $output='';
-    my $formatted_solution =   main::EV3(main::solution(@_)) ;
+    my $formatted_solution =   main::solution(main::EV3(@_));
 	if ($main::displayMode =~/HTML/ and $main::envir{use_knowls_for_solutions}) {	   
-    	$output =( $main::PAR . main::knowlLink("SOLUTION: ", value =>  main::escapeSolutionHTML($main::BR .  $formatted_solution. $main::PAR ),
-    	              base64 =>1 ) ) if $formatted_solution
+    	$output =join ( $main::PAR, main::knowlLink(main::SOLUTION_HEADING(),
+    	                value =>  main::escapeSolutionHTML($main::BR .  $formatted_solution. $main::PAR ),
+    	                base64 =>1 ) ) if $formatted_solution
+    } elsif ($main::displayMode=~/TeX/) {
+    	$output = join($main::PAR,main::SOLUTION_HEADING(), $formatted_solution,$main::PAR) if $formatted_solution;
     } else {
-		$output = ( "$main::PAR SOLUTION: " . $main::BR . $formatted_solution.$main::PAR) if $formatted_solution ;
+		$output = ( "$main::PAR mySOLUTION: " . $main::BR . $formatted_solution.$main::PAR) if $formatted_solution ;
 	}
 	if (main::not_null($sectionID)) {
 		$self->{sections}->{$sectionID}->{solution}=$output;
@@ -213,6 +216,8 @@ sub SECTION_SOLUTION {
 		return $output;
 	}
 }
+
+
 sub openSections {
 	my $self = shift;
 	my @array = @_;    #sections to leave open
