@@ -87,13 +87,10 @@ qw(Applet FlashApplet JavaApplet)
 
 
 package Applet;
-
 use URI::Escape;
-
-
-
 use MIME::Base64 qw( encode_base64 decode_base64);
-
+use PGcore;
+@ISA = qw(PGcore);
 
 =head2 Default javaScript functions placed in header
 
@@ -747,21 +744,32 @@ sub insertObject {
     my $selfLoading = $self->{selfLoading};
     my $javaParameters = '';
     my $flashParameters = '';
+    my $webgeogebraParameters = '';
     if (PGcore::not_null($self->{parameter_string}) ) {
     	$javaParameters = $self->{parameter_string};
     	$flashParameters = $self->{parameter_string};
+    	$webgeogebraParameters = $self->{parameter_string};
     } else {
 		my %param_hash = %{$self->params()};
+
 		foreach my $key (keys %param_hash) {
 			$javaParameters .= qq!<param name ="$key"  value = "$param_hash{$key}">\n!;
 			$flashParameters .= uri_escape($key).'='.uri_escape($param_hash{$key}).'&';
+			$webgeogebraParameters .= qq!data-param-$key = "$param_hash{$key}"\n!;
 		}
 		$flashParameters =~ s/\&$//;    # trim last &
+		$webgeogebraParameters = qq!<article class="geogebraweb"
+		 data-param-id     = "$appletName"
+		 data-param-width  = "$width"
+		 data-param-height = "$height"
+		 !. $webgeogebraParameters . 
+		 qq!\n
+		> </article> !;
 	}
-
+  
    
     $objectText = $self->{objectText};
-    $objectText =~ s/(\$\w+)/$1/gee;
+    $objectText =~ s/(\$\w+)/$1/gee;  # interpolate values into object text 
     $objectText .=qq{<script language="javascript">ww_applet_list["$appletName"].visible = 1;</script>}; # don't submit things if not visible
     return $objectText;
 }
@@ -922,7 +930,7 @@ use constant DEFAULT_OBJECT_TEXT =><<'END_OBJECT_TEXT';
 <applet 
      id       = "$appletName"
      name     = "$appletName"
-    code      = "$code"
+     code      = "$code"
      type     = "application/x-java-applet"
      codebase = "$codebase"
 	 archive  = "$archive" 
@@ -989,7 +997,7 @@ END_OBJECT_TEXT
 
 
 use constant CANVAS_OBJECT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
-  	<script src="/webwork2_files/js/Base64.js" language="javascript">
+  	<script src="/webwork2_files/js/legacy/Base64.js" language="javascript">
     </script> 	
   	<script src="/webwork2_files/js/legacy/ww_applet_support.js" language="javascript">
   	    //upload functions stored in /opt/webwork/webwork2/htdocs/js ...
@@ -1023,21 +1031,17 @@ use constant CANVAS_OBJECT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 	ww_applet_list["$appletName"].answerBoxAlias = "$answerBoxAlias";
 	ww_applet_list["$appletName"].maxInitializationAttempts = $maxInitializationAttempts;
 	ww_applet_list["$appletName"].debugMode = "$debugMode";	
-    ww_applet_list["$appletName"].debugMode = "$selfLoading";
-
-    ww_applet_list["$appletName"].reportsLoaded = 1;
+    ww_applet_list["$appletName"].reportsLoaded = "$selfLoading";
+    ww_applet_list["$appletName"].onInit             = "$onInit";	
     ww_applet_list["$appletName"].object = $appletName;
     
     function getApplet(appletName) {
-	 	  //var isIE = navigator.appName.indexOf("Microsoft") != -1;
-	 	  //var obj = (isIE) ? window[appletName] : window.document[appletName];
-	 	  //return window.document[appletName];
 	 	  var obj = ww_applet_list[appletName].object;   // define fake applet for this object
 	 	  if (obj && (obj.name == appletName)) {   //RECENT FIX to ==
 	 	      //alert("getting fake applet " + obj.name);
 	 		  return( obj );
 	 	  } else {
-	 		  alert ("can't find fake applet " + appletName + " in object "+obj.name);		  
+	 		  //alert ("can't find fake applet " + appletName + " in object "+obj.name);		  
 	 	  }
 	  }	
     </script>
@@ -1064,5 +1068,98 @@ sub new {
 
 }
 
+###############################################################################################################
+#
+# GeogebraWeb APPLET  PACKAGE
+#
+###############################################################################################################
+
+package GeogebraWebApplet;
+@ISA = qw(Applet);
+
+
+=head2 Insertion HTML code for GeogebraWebApplet
+
+=pod
+
+
+use constant CANVAS_OBJECT_TEXT =><<'END_OBJECT_TEXT';
+  <form></form>
+	<script> var width = 200; var height = 200;</script>
+	<canvas name="cv" id="cv" data-src="http://localhost/webwork2_files/js/sketchgraphhtml5b/SketchGraph.pjs" width="400" height="400"></canvas>  
+END_OBJECT_TEXT
+
+
+
+=cut
+
+
+use constant GEOGEBRAWEB_OBJECT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
+  	<script src="/webwork2_files/js/legacy/Base64.js" language="javascript">
+    </script> 	
+  	<script src="/webwork2_files/js/legacy/ww_applet_support.js" language="javascript">
+  	    //upload functions stored in /opt/webwork/webwork2/htdocs/js ...
+  	    
+     </script>
+	<script language="JavaScript">
+	
+
+		
+   	//////////////////////////////////////////////////////////
+	//GEOGEBRAWEB OBJECT HEADER CODE
+    // 
+    //////////////////////////////////////////////////////////
+   
+    ww_applet_list["$appletName"] = new ww_applet("$appletName");
+    
+    
+	ww_applet_list["$appletName"].code             = "$code";
+	ww_applet_list["$appletName"].codebase         = "$codebase";
+    ww_applet_list["$appletName"].appletID         = "$appletID";
+	ww_applet_list["$appletName"].base64_state     = "$base64_initializationState";
+	ww_applet_list["$appletName"].initialState     = Base64.decode("$base64_initialState");
+	ww_applet_list["$appletName"].configuration    = Base64.decode("$base64_configuration");;
+	ww_applet_list["$appletName"].getStateAlias    = "$getStateAlias";
+	ww_applet_list["$appletName"].setStateAlias    = "$setStateAlias";
+	ww_applet_list["$appletName"].setConfigAlias   = "$setConfigAlias";
+	ww_applet_list["$appletName"].getConfigAlias   = "$getConfigAlias";
+	ww_applet_list["$appletName"].initializeActionAlias = "$initializeActionAlias";
+	ww_applet_list["$appletName"].submitActionAlias = "$submitActionAlias";
+	ww_applet_list["$appletName"].submitActionScript = Base64.decode("$base64_submitActionScript");
+	ww_applet_list["$appletName"].answerBoxAlias = "$answerBoxAlias";
+	ww_applet_list["$appletName"].maxInitializationAttempts = $maxInitializationAttempts;
+	ww_applet_list["$appletName"].debugMode           = "$debugMode";	
+    ww_applet_list["$appletName"].reportsLoaded       = "$selfLoading";
+    ww_applet_list["$appletName"].isReady             = "$selfLoading";
+    ww_applet_list["$appletName"].onInit              = "$onInit";	
+    
+    function getApplet(appletName) {
+	 	  var obj = document.$appletName;
+	 	  ww_applet_list[appletName].object = obj ;   // define fake applet for this object
+	 	  return(obj);
+	  }	
+    </script>
+	
+END_HEADER_SCRIPT
+
+
+use constant GEOGEBRAWEB_OBJECT_TEXT =><<'END_OBJECT_TEXT';
+    <script language="javascript">ww_applet_list["$appletName"].visible = 1; // don't submit things if not visible
+    </script>
+<script type="text/javascript" language="javascript" src="https://www.geogebra.org/web/4.2/web/web.nocache.js"></script>
+
+$webgeogebraParameters
+
+END_OBJECT_TEXT
+
+sub new {
+    my $class = shift;
+	$class -> SUPER::new(	objectText   => GEOGEBRAWEB_OBJECT_TEXT(),
+			                headerText   => GEOGEBRAWEB_OBJECT_HEADER_TEXT(),
+			                type         => 'geogebraweb',
+		        			@_
+	);
+
+}
 
 1;

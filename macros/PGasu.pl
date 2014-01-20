@@ -208,6 +208,9 @@ First argument is the string to have, or not have
 Second argument is optional, and tells us whether yes or no
 Third argument is the error message to produce (if any).
 
+When using this filter directly, you also need to install catch_errors_filter
+as a post filter.
+
 A similar effect can be accomplished with Contexts() by undefining 
 the trig functions.  
 See http://webwork.maa.org/wiki/Modifying_contexts_%28advanced%29

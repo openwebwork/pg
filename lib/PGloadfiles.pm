@@ -222,16 +222,32 @@ sub compile_file {
  	local($/);
  	$/ = undef;   # allows us to treat the file as a single line
  	open(MACROFILE, "<$filePath") || die "Cannot open file: $filePath";
- 	my $string = <MACROFILE>;
+ 	my $string = 'BEGIN {push @__eval__, __FILE__};' . "\n" . <MACROFILE>;
  	#warn "compiling $string";
  	my ($result,$error,$fullerror) = $self->PG_macro_file_eval($string);
-	#eval ('$main::__files__->{pop @main::__eval__} = $filePath');
+	eval ('$main::__files__->{pop @main::__eval__} = $filePath');  #used to keep track of which file is being evaluated.
  	if ($error) {    # the $fullerror report has formatting and is never empty
                 # this is now handled by PG_errorMessage() in the PG translator
  		#$fullerror =~ s/\(eval \d+\)/ $filePath\n/;   # attempt to insert file name instead of eval number
  		die "Error detected while loading $filePath:\n$fullerror";
  	}
-	$self->{macroFileList}->{$filePath} =1;
+ 	
+#  	local(*MACROFILE);
+#  	local($/);
+#  	$/ = undef;   # allows us to treat the file as a single line
+#  	open(MACROFILE, "<$filePath") || die "Cannot open file: $filePath";
+#  	my $string = 'BEGIN {push @__eval__, __FILE__};' . "\n" . <MACROFILE>;
+#  	my ($result,$error,$fullerror) = &PG_restricted_eval($string);
+# 	eval ('$main::__files__->{pop @main::__eval__} = $filePath');
+#  	if ($error) {    # the $fullerror report has formatting and is never empty
+#                 # this is now handled by PG_errorMessage() in the PG translator
+#  		#$fullerror =~ s/\(eval \d+\)/ $filePath\n/;   # attempt to insert file name instead of eval number
+#  		die "Error detected while loading $filePath:\n$fullerror";
+# 
+#  	}
+# 
+#  	close(MACROFILE);
+	$self->{macroFileList}->{$filePath} = 1;
  	close(MACROFILE);
 
 }

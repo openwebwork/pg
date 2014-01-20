@@ -1,5 +1,5 @@
 loadMacros("Parser.pl");
-
+sub _contextTypeset_init {};
 package Typeset;
 
 sub addVariables {
