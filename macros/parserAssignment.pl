@@ -268,7 +268,7 @@ sub string {
 sub TeX {
   my $self = shift; my ($x,$v) = $self->value;
   $x = $self->Package("Formula")->new($x->{data}[0]);
-  $x->TeX . ' = ' . $v->string;
+  $x->TeX . ' = ' . $v->TeX;
 }
 
 #

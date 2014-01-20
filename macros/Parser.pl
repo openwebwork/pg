@@ -105,7 +105,7 @@ sub Compute {
   $formula->{correct_ans_latex_string} =
     (($formula->{original_formula} || $flags{reduceConstants} ||
       $flags{reduceConstantFunctions}) ?  Formula($string) : $formula)->TeX;
-  Value::contextSet($context,$flags);
+  Value::contextSet($context,%{$flags});
   return $formula;
 }
 
