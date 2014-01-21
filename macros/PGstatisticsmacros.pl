@@ -417,17 +417,22 @@ sub binomrand { # generate random, binomial dist. numbers  Bin(n,p)
 
 =pod
 
-	Usage: bernoullirand(p,num)
+	Usage: bernoullirand(p,num,{"success"=>"1","failure"=>"0"})
 
-Generates num Bernoulli distributed random numbers with  parameter p.
+Generates num Bernoulli distributed random numbers with  parameter p. The 
+value for a success is given by the optional "success" parameter. The 
+value for a failure is given by the optional "failure" parameter.
 
 =cut
 
 sub bernoullirand { # generate random, Bernoulli dist. numbers  B(p)
-# bernoullirand(p,num)
+# bernoullirand(p,num,{"success"=>"1","failure"=>"0"})
 # Generates num random numbers. The distribution is Bernoulli with parameter p.
 
-	my ($p,$num) = @_;
+        $p = shift;
+        $num = shift;
+        $options = shift;
+
 	if (($p<=0) || ($p>=1)) {
 		die "Invalid parameter p: $p\n"; # must be a positive number strictly between zero and one
 	}
@@ -435,6 +440,24 @@ sub bernoullirand { # generate random, Bernoulli dist. numbers  B(p)
 		die "Invalid number: $num\n"; # Cannot generate negative or zero numbers.
 	}
 
+        if(!defined($options))
+        {
+            # Define the default value for the options
+            $options = {"success"=>"1","failure"=>"0"}
+        }
+        else
+        {
+            if (!defined($options->{'success'})) 
+                {
+                    # Define the default value for a success
+                    $options->{'success'} = 1;
+                }
+            if (!defined($options->{'failure'}))
+                {
+                    # Define the default value for a failure
+                    $options->{'failure'} = 0;
+                }
+        }
 
 	my @numbers = ();
 	while($num > 0)
@@ -444,12 +467,12 @@ sub bernoullirand { # generate random, Bernoulli dist. numbers  B(p)
 			if($main::PG_random_generator->random(0.0,1.0,0.0) <= $p)
 			{
 					# This is a success!
-					push(@numbers,1);
+					push(@numbers,$options->{'success'});
 			}
 			else
 			{
 					# This is a failure. :-(
-					push(@numbers,0);
+					push(@numbers,$options->{'failure'});
 			}
 
 	}
