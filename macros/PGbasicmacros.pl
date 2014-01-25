@@ -967,7 +967,7 @@ sub NAMED_ANS_ARRAY_EXTENSION{
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{10pt}{\\hrulefill}}\\hrulefill\\quad ",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = "">\n\\end{rawhtml}\n!,
-		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = "$answer_value">\n!
+		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" class="codeshard" VALUE = "$answer_value">\n!
 	);
 }
 
@@ -1082,12 +1082,15 @@ sub solution {
 	my $permissionLevel = $envir->{permissionLevel}||0; #PG_restricted_eval(q!$main::envir{permissionLevel}!); #user permission level
 	# protect against undefined values
 	my $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL = ( defined( $envir->{'ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL'} ) ) ? $envir->{'ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL'} : 10000;
-    my $printSolutionForInstructor = $permissionLevel >= $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL && $displayMode ne 'TeX';
 	my $displaySolution = PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!);
-	PG_restricted_eval(q!$main::solutionExists =1!);
+	my $printSolutionForInstructor = (
+		($displayMode ne 'TeX' && ( $permissionLevel >= $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL ) ) 
+		|| ($displayMode eq 'TeX' && $displaySolution && ($permissionLevel >= $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL) )
+	);
+	PG_restricted_eval(q!$main::solutionExists = 1!);  # set solution exists variable.--don't need PGeval??
    
     if ($printSolutionForInstructor) {  # always print solutions for instructor types 
-		$out = join(' ', "$PAR $BBOLD SOLUTION: $EBOLD (Instructor solution preview: show the student solution after due date. )$BR", @in);
+		$out = join(' ', $BITALIC, "(Instructor solution preview: show the student solution after due date. )$BR",$EITALIC, @in);
 	} elsif ( $displaySolution ) 	{
 		$out = join(' ',@in);  # display solution
 	}    
@@ -1097,8 +1100,10 @@ sub solution {
 
 sub SOLUTION {
 	if ($displayMode =~/HTML/ and $envir->{use_knowls_for_solutions}) {	   
-    	TEXT( $PAR, knowlLink("SOLUTION: ", value =>  escapeSolutionHTML($BR . solution(@_) . $PAR ),
+    	TEXT( $PAR, knowlLink(SOLUTION_HEADING(), value =>  escapeSolutionHTML($BR . solution(@_) . $PAR ),
     	              base64 =>1 ) ) if solution(@_);
+    } elsif ($displayMode=~/TeX/) {
+    	TEXT($PAR,SOLUTION_HEADING(), solution(@_).$PAR) if solution(@_) ;
     } else {
 		TEXT( $PAR.solution(@_).$PAR) if solution(@_) ;
 	}
@@ -1111,41 +1116,46 @@ sub hint {
 	my $permissionLevel = $envir->{permissionLevel}||0; #PG_restricted_eval(q!$main::envir{permissionLevel}!); #user permission level
 	# protect against undefined values
 	my $ALWAYS_SHOW_HINT_PERMISSION_LEVEL = ( defined( $envir->{'ALWAYS_SHOW_HINT_PERMISSION_LEVEL'} ) ) ? $envir->{'ALWAYS_SHOW_HINT_PERMISSION_LEVEL'} : 10000;
-    my $printHintForInstructor = $permissionLevel >= $ALWAYS_SHOW_HINT_PERMISSION_LEVEL && $displayMode ne 'TeX';
     my $showHint = PG_restricted_eval(q!$main::showHint!);
     my $displayHint = PG_restricted_eval(q!$main::envir{'displayHintsQ'}!);
+    my $printHintForInstructor = (
+         ( ( $displayMode ne 'TeX' ) && ( $permissionLevel >= $ALWAYS_SHOW_HINT_PERMISSION_LEVEL )  ) 
+         || ( ($displayMode eq 'TeX')  && $displayHint && ( $permissionLevel >= $ALWAYS_SHOW_HINT_PERMISSION_LEVEL ))
+    );
 	PG_restricted_eval(q!$main::hintExists =1!);
     PG_restricted_eval(q!$main::numOfAttempts = 0 unless defined($main::numOfAttempts);!);
     my $attempts = PG_restricted_eval(q!$main::numOfAttempts!);
-    #$attempts++ if PG_restricted_eval(q!$main::inputs_ref->{submitAnswers}!); # numbOfAttempts is off by one when resubmitting
-    #FIXME -- in the current version where PGbasicmacros is reloaded do all of these values need to be recomputed?
-
-	if ($displayMode eq 'TeX')   {
-	    $out = '';  
-            # do nothing since hints are not available for download for students and
-	    # since ALWAYS_SHOW_HINT is not for download either.  
-	} elsif ($printHintForInstructor) {  # always print hints for instructor types 
-		$out = join(' ', "$PAR $BBOLD HINT: $EBOLD (Instructor hint preview: show the student hint after $showHint attempts. The current number of attempts is $attempts. )$BR", @in);
-	} elsif ( $displayHint  and  ( $attempts > $showHint ) ) 	{  #FIXME -- this needs modifications for can{showHints} in Problem.pm
-
-	 ## the second test above prevents a hint being shown if a doctored form is submitted
-
-		$out = join(' ',@in);
-	}    # show hint
-
+   
+    if ($displayMode =~ /TeX/) {
+        my $afterAnswerDate = ( time() > $envir{answerDate} );
+    	if ($printHintForInstructor) {
+    		$out = join(' ', $BITALIC," (Instructor hint preview: show the student hint after $showHint attempts. The current number of attempts is $attempts. )$BR", $EITALIC, @in);	
+    	} elsif ( $displayHint and $afterAnswerDate ) { # only display hints after the answer date.
+    		$out = join(' ',@in);
+    	}
+    	    
+    } elsif ($displayMode =~/HTML/) {
+    	if ($printHintForInstructor) {  # always print hints for instructor types in HTML mode
+			$out = join(' ', $BITALIC," (Instructor hint preview: show the student hint after $showHint attempts. The current number of attempts is $attempts. )$BR", $EITALIC, @in);    	
+    	} elsif ( $displayHint  and  ( $attempts > $showHint ) ) 	{  
+	 	    ## the second test above prevents a hint being shown if a doctored form is submitted
+		    $out = join(' ',@in);
+		}
+	}    
+	
   $out ;
 }
 
 
 sub HINT {
 	if ($displayMode =~/HTML/ and $envir->{use_knowls_for_hints}) {
-		TEXT($PAR, knowlLink("HINT: ", value=>escapeSolutionHTML($BR . hint(@_) . $PAR ),
+		TEXT($PAR, knowlLink(HINT_HEADING(), value=>escapeSolutionHTML($BR . hint(@_) . $PAR ),
 		                  base64 => 1) ) if hint(@_);
-
+    } elsif ($displayMode=~/TeX/) {
+    	TEXT($PAR,HINT_HEADING(), hint(@_).$PAR) if hint(@_) ;
 	} else {
-    	TEXT("$PAR HINT: " . $BR. hint(@_) . $PAR) if hint(@_);
-    }
-    
+    	TEXT($PAR, HINT_HEADING(), $BR. hint(@_) . $PAR) if hint(@_);
+    } 
 }
 
 
@@ -1379,11 +1389,11 @@ sub END_ONE_COLUMN { MODES(TeX =>
                             Latex2HTML => ' ', HTML => ' ');
 
 };
-sub SOLUTION_HEADING { MODES( TeX => '\\par {\\bf Solution:}',
-                 Latex2HTML => '\\par {\\bf Solution:}',
-          		 HTML =>  '<P><B>Solution:</B>');
-          		};
-sub HINT_HEADING { MODES( TeX => "\\par {\\bf Hint:}", Latex2HTML => "\\par {\\bf Hint:}", HTML => "<P><B>Hint:</B>"); };
+sub SOLUTION_HEADING { MODES( TeX => '\\par {\\bf Solution: }',
+                 Latex2HTML => '\\par {\\bf Solution: }',
+          		 HTML =>  '<P><B>Solution:</B> ');
+};
+sub HINT_HEADING { MODES( TeX => "\\par {\\bf Hint: }", Latex2HTML => "\\par {\\bf Hint: }", HTML => "<P><B>Hint:</B> "); };
 sub US { MODES(TeX => '\\_', Latex2HTML => '\\_', HTML => '_');};  # underscore, e.g. file${US}name
 sub SPACE { MODES(TeX => '\\ ',  Latex2HTML => '\\ ', HTML => '&nbsp;');};  # force a space in latex, doesn't force extra space in html
 sub BBOLD { MODES(TeX => '{\\bf ',  Latex2HTML => '{\\bf ', HTML => '<B>'); };

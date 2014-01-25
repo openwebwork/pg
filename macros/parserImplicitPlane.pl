@@ -88,7 +88,11 @@ sub Init {
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  return shift if scalar(@_) == 1 && ref($_[0]) eq 'ImplicitPlane';
+  if (scalar(@_) == 1 && ref($_[0]) eq 'ImplicitPlane') {
+  	my $obj = shift;
+  	$obj->{implict}='foobar';  # some planes are being created without all of the data
+  	return $obj;
+  }
   $_[0] = $context->Package("Point")->new($context,$_[0]) if ref($_[0]) eq 'ARRAY';
   $_[1] = $context->Package("Vector")->new($context,$_[1]) if ref($_[1]) eq 'ARRAY';
 
@@ -167,7 +171,7 @@ sub compare {
   return $rd*$lN <=> $ld*$rN;
 }
 
-sub cmp_class {'an Implicit '.(shift->{implicit})};
+sub cmp_class {'an Implicit '.(shift->{implicit}||'whatsis')};
 sub showClass {shift->cmp_class};
 
 sub cmp_defaults{(

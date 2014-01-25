@@ -1,4 +1,3 @@
-
 =head1 DESCRIPTION
 
  #############################################################
@@ -383,7 +382,7 @@ our $answerPrefix = "MaTrIx";
 #
 sub ans_matrix {
   my $self = shift;
-  my ($extend,$name,$rows,$cols,$size,$open,$close,$sep) = @_;
+  my ($extend,$name,$rows,$cols,$size,$open,$close,$sep,$toplabels) = @_;
   #my $named_extension = pgRef('NAMED_ANS_RULE_EXTENSION');
   my $named_extension = pgRef('NAMED_ANS_ARRAY_EXTENSION');
   my $new_name = sub {@_}; # pgRef('RECORD_EXTRA_ANSWERS');
@@ -415,7 +414,7 @@ sub ans_matrix {
     }
     push(@array,[@row]);
   }
-  $self->format_matrix([@array],open=>$open,close=>$close,sep=>$sep);
+  $self->format_matrix([@array],open=>$open,close=>$close,sep=>$sep,top_labels=>$toplabels);
 }
 
 sub ANS_NAME {
@@ -446,6 +445,9 @@ sub format_matrix_tex {
   $tex .= '\(\left'.$open;
   $tex .= '\setlength{\arraycolsep}{2pt}', $sep = '\,'.$sep if $sep;
   $tex .= '\begin{array}{'.('c'x$cols).'}';
+  if ($options{top_labels}) {
+  	push @rows, join($sep.'&',@{$options{top_labels}});
+  }
   foreach my $i (0..$rows-1) {push(@rows,join($sep.'&',@{$array->[$i]}))}
   $tex .= join('\cr'."\n",@rows);
   $tex .= '\end{array}\right'.$close.'\)';
@@ -459,8 +461,13 @@ sub format_matrix_HTML {
   my ($open,$close,$sep) = ($options{open},$options{close},$options{sep});
   my ($rows,$cols) = (scalar(@{$array}),scalar(@{$array->[0]}));
   my $HTML = "";
-  if ($sep) {$sep = '</TD><TD STYLE="padding: 0px 1px">'.$sep.'</TD><TD>'}
-       else {$sep = '</TD><TD WIDTH="8px"></TD><TD>'}
+  if ($sep) {$sep = '</TD><TD STYLE="padding: 0px 1px">'.$sep.'</TD><TD>'
+  } else {
+  	$sep = '</TD><TD WIDTH="8px"></TD><TD>'
+  }
+  if ($options{top_labels} ) {
+  	$HTML.='<TR ALIGN="MIDDLE"><TD>'.join($sep,@{$options{top_labels}}).'</TD></TR>'."\n"
+  }
   foreach my $i (0..$rows-1) {
     $HTML .= '<TR><TD HEIGHT="6px"></TD></TR>' if $i;
     $HTML .= '<TR ALIGN="MIDDLE"><TD>'.join($sep,EVALUATE(@{$array->[$i]})).'</TD></TR>'."\n";
@@ -479,7 +486,7 @@ sub format_matrix_HTML {
           . '</TR>'."\n";
   }
   return '<TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0" CLASS="ArrayLayout"'
-          . ' STYLE="display:inline;margin:0;vertical-align:-'.(1.1*$rows-.6).'em">'
+          . ' STYLE="display:inline-table;margin:0;vertical-align:-'.(1.1*$rows-.6).'em">'
           . $HTML
           . '</TABLE>';
 }
@@ -1032,13 +1039,16 @@ sub ANS_MATRIX {
   my $self = shift;
   my $extend = shift; my $name = shift;
   my $size = shift || 5;
+  my %options = @_;
   my $def = $self->context->lists->get('Matrix');
   my $open = $self->{open} || $def->{open}; my $close = $self->{close} || $def->{close};
+  my $sep = '';
+  my $toplabels = ($self->{top_labels})?$self->{top_labels}:'';
   my @d = $self->dimensions;
   Value::Error("Can't create ans_array for %d-dimensional matrix",scalar(@d))
     if (scalar(@d) > 2);
   @d = (1,@d) if (scalar(@d) == 1);
-  $self->ans_matrix($extend,$name,@d,$size,$open,$close,'');
+  $self->ans_matrix($extend,$name,@d,$size,$open,$close,$sep,$toplabels);
 }
 
 sub ans_array {my $self = shift; $self->ANS_MATRIX(0,'',@_)}
