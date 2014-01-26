@@ -76,6 +76,7 @@ will have the same result as the example above.
 # ^function lp_pivot
 sub lp_pivot {
 	my $a_ref = shift;
+	$a_ref = convert_to_array_ref($a_ref);
 	my $row = shift;
 	my $col = shift;
 	my $fracmode = shift;
@@ -129,6 +130,7 @@ but no pivot element (unbounded problem), it returns [-1, col].
 # ^function lp_pivot_element
 sub lp_pivot_element {
 	my $a_ref = shift;
+	$a_ref = convert_to_array_ref($a_ref);
 	my $fracmode = shift;
 	$fracmode = 0 unless defined($fracmode);
 	my @m = @{$a_ref};
@@ -208,6 +210,7 @@ Example:
 # ^uses lp_pivot
 sub lp_solve {
 	my $a_ref_orig = shift;
+	$a_ref_orig = convert_to_array_ref($a_ref_orig);
 	my %opts = @_;
 
 	set_default_options(\%opts,
@@ -262,6 +265,7 @@ are in).
 sub lp_current_value {
   my $col = shift;
   my $aref = shift;
+  $aref = convert_to_array_ref($aref);
   my $fractionmode = 0;
   $fractionmode =1 if(ref($aref->[0][0]) eq 'Fraction');
 
@@ -305,6 +309,19 @@ Accepts the same optional arguments as lp_display (see below), and produces
 nicer looking results.  However, it cannot have answer rules in the tableau
 (lp_display can have them for fill in the blank tableaus).
 
+To use with a MathObject matrix use
+
+    \[ \{lp_display_mm([$matrix->value]) \} \]
+    
+    FIXME?  I've added an adaptor that allows you to use $matrix directly -- MEG 
+    
+$matrix->value outputs an array (usually an array of array references) so placing it inside
+square bracket produces and array reference (of array references) which is what lp_display_mm() is
+seeking.
+
+$matrix, by itself, produces a string representing a matrix. (This will be in TeX if the context has
+enabled texStrings.
+
 =cut
 
 # Display a tableau in math mode
@@ -318,6 +335,7 @@ sub lp_display_mm {
 # ^function lp_clone
 sub lp_clone {
 	my $a1_ref = shift;
+	$a1_ref = convert_to_array_ref($a1_ref);
         my $a_ref = []; # make a copy to modify
         my $nrows = scalar(@{$a1_ref})-1; # really 1 less
 	my ($j, $k);
@@ -359,6 +377,7 @@ horizontal line before the last row if it is not already specified.
 sub lp_display {
 	my $a1_ref = shift;
 	my %opts = @_;
+	$a1_ref = convert_to_array_ref($a1_ref);
 	my $nrows = scalar(@{$a1_ref})-1; # really 1 less
 	my $ncols = scalar(@{$a1_ref->[0]}) -1;  # really 1 less
 	
@@ -375,5 +394,8 @@ sub lp_display {
 	}
 	display_matrix($a_ref, %opts);
 }
+
+
+
 
 1;

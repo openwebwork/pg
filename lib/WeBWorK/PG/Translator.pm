@@ -960,12 +960,9 @@ case the previously defined safe compartment is used. (See item 1.)
 #################
 # FIXME The various warning message tracks are still being sorted out
 # WARNING and DEBUG tracks are being handled elsewhere (in Problem.pm?)
-#################
-				$self->{errors} .= "ERRORS from evaluating PG file: <br/>begin|||$@|||end<br/>\n" if $@;
+#######################################################################
+				$self->{errors} .= "ERRORS from evaluating PG file: <br/> $@<br/>\n" if $@;
 
-				
-# 				$self->{errors}.=join(CGI::br(), @{$PGcore->{WARNING_messages}} );
-# 				$self->{errors}.=join(CGI::br(), @{$PGcore->{DEBUG_messages  }} );
 #######################################################################
 
 #		    	push(@PROBLEM_TEXT_OUTPUT   ,   split(/(\n)/,$$PG_PROBLEM_TEXT_REF)  ) if  defined($$PG_PROBLEM_TEXT_REF  );
@@ -1715,7 +1712,7 @@ sub default_preprocess_code {
 	$evalString =~ s/\n\s*BEGIN_TEXT[\s;]*\n/\nTEXT\(EV3P\(<<'END_TEXT'\)\);\n/g;
 	$evalString =~ s/\n\s*BEGIN_PGML[\s;]*\n/\nTEXT\(PGML::Format2\(<<'END_PGML'\)\);\n/g;
 	$evalString =~ s/\n\s*BEGIN_PGML_SOLUTION[\s;]*\n/\nSOLUTION\(PGML::Format2\(<<'END_PGML_SOLUTION'\)\);\n/g;
-	$evalString =~ s/\n\s*BEGIN_PGML_HINT[\s;]*\n/\nHINT\(PGML::Format2\(<<'END_PGML_SOLUTION'\)\);\n/g;
+	$evalString =~ s/\n\s*BEGIN_PGML_HINT[\s;]*\n/\nHINT\(PGML::Format2\(<<'END_PGML_HINT'\)\);\n/g;
 	$evalString =~ s/\n\s*BEGIN_SOLUTION[\s;]*\n/\nSOLUTION\(EV3P\(<<'END_SOLUTION'\)\);\n/g;
 	$evalString =~ s/\n\s*BEGIN_HINT[\s;]*\n/\nHINT\(EV3P\(<<'END_HINT'\)\);\n/g;
 	$evalString =~ s/ENDDOCUMENT.*/ENDDOCUMENT();/s; # remove text after ENDDOCUMENT

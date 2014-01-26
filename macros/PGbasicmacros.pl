@@ -2040,12 +2040,12 @@ sub beginproblem {
 		$out = &M3("{\\bf ${probNum}. {\\footnotesize ($problemValue $points) $TeXFileName}}\\newline ",
 		" \\begin{rawhtml} ($problemValue $points) <B>$l2hFileName</B><BR>\\end{rawhtml}",
 		 "($problemValue $points) <B>$fileName</B><BR>"
-	 	   ) if ($problemValue ne "");
+	 	   ) if ($problemValue >=0 );
 	} else {
 		$out = &M3("{\\bf ${probNum}.} ($problemValue $points) ",
 		"($problemValue $points) ",
 		 "($problemValue $points) "
-	 	   ) if ($problemValue ne "");
+	 	   ) if ($problemValue  >= 0);
 	}
 	$out .= MODES(%{main::PG_restricted_eval(q!$main::problemPreamble!)});
 	$out;

@@ -116,12 +116,12 @@ sub vec_cmp{    #check to see that the submitted vector is a non-zero multiple o
 
     display_matrix produces a matrix for display purposes.  It checks whether
           it is producing LaTeX output, or if it is displaying on a web page in one
-          of the various modes.  The input can either be of type Matrix, or a
-          reference to an array.
+          of the various modes.  The input can either be of type Matrix, Value::Matrix (mathobject)
+          or a reference to an array.
 
           Entries can be numbers, Fraction objects, bits of math mode, or answer
-    boxes.  An entire row can be replaced by the string 'hline' to produce
-    a horizontal line in the matrix.
+    	  boxes.  An entire row can be replaced by the string 'hline' to produce
+          a horizontal line in the matrix.
 
           display_matrix_mm functions similarly, except that it should be inside
           math mode.  display_matrix_mm cannot contain answer boxes in its entries.
@@ -140,7 +140,7 @@ sub vec_cmp{    #check to see that the submitted vector is a non-zero multiple o
 
           The matrix has left and right delimiters also specified by
           $defaultDisplayMatrixStyle.  They can be parentheses, square brackets,
-        braces, vertical bars, or none.  The default can be overridden in
+          braces, vertical bars, or none.  The default can be overridden in
           an individual problem with optional arguments such as left=>"|", or
           right=>"]".
 
@@ -171,6 +171,7 @@ sub display_matrix_math_mode {
 sub display_matrix {
         my $ra_matrix = shift;
         my %opts = @_;
+        $ra_matrix = convert_to_array_ref($ra_matrix);
         my $styleParams = defined($main::defaultDisplayMatrixStyle) ?
                 $main::defaultDisplayMatrixStyle : "(s)";
         
@@ -187,8 +188,11 @@ sub display_matrix {
 		);
         
         my ($numRows, $numCols, @myRows);
-
-        if (ref($ra_matrix) eq 'Matrix' )  {
+        my $original_matrix = $ra_matrix;
+        if (ref($ra_matrix) eq 'Value::Matrix') {
+        	$ra_matrix = $ra_matrix->wwMatrix->array_ref; # translate     
+        }
+        if (ref($ra_matrix) eq 'Matrix' )  { #handle Real::Matrix1 type matrices: #FIXME deprectated
                 ($numRows, $numCols) = $ra_matrix->dim();
                 for( my $i=0; $i<$numRows; $i++) {
                         $myRows[$i] = [];
@@ -271,13 +275,13 @@ sub dm_begin_matrix {
                         $aligns .= ($j eq "d") ? '|' : $j;
                 }
                 $out .= $opts{'force_tex'} ? '' : '\(';
-                if($opts{'top_labels'}) {
+                if ($opts{'top_labels'} and $main::displayMode ne 'HTML_MathJax') {
                         $out .= '\begingroup\setbox3=\hbox{\ensuremath{';
                 }
                 $out .= '\displaystyle\left'.$opts{'left'}."\\begin{array}{$aligns} \n";
-        }        elsif ($main::displayMode eq 'Latex2HTML') {
+        }  elsif ($main::displayMode eq 'Latex2HTML') {
                 $out .= "\n\\begin{rawhtml} <TABLE  BORDER=0>\n\\end{rawhtml}";
-        }        elsif ( $main::displayMode eq 'HTML_MathJax'
+        }  elsif ( $main::displayMode eq 'HTML_MathJax'
                       or $main::displayMode eq 'HTML_dpng'
                       or $main::displayMode eq 'HTML_tth'
                       or $main::displayMode eq 'HTML_jsMath'
@@ -285,7 +289,7 @@ sub dm_begin_matrix {
                       or $main::displayMode eq 'HTML_LaTeXMathML'
                       or $main::displayMode eq 'HTML'
                       or $main::displayMode eq 'HTML_img') {
-                $out .= qq!<TABLE BORDER="0" Cellspacing="8">\n!;
+                $out .= qq!<TABLE class="matrix" BORDER="0" Cellspacing="8">\n!;
         }
         else { 
                 $out = "Error: dm_begin_matrix: Unknown displayMode: $main::displayMode.\n";
@@ -307,11 +311,16 @@ sub dm_special_tops {
         
         if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
                 for $j (@top_labels) {
-                        $out .= '\smash{\raisebox{2.9ex}{\ensuremath{'.
+                	if ($main::displayMode ne 'HTML_MathJax') {
+                       $out .= '\smash{\raisebox{2.9ex}{\ensuremath{'.
                                 $j . '}}} &';
+                    } else {
+                         $out .= $j.'&';  #for compatibility with MathJax
+                    }
                 }
                 chop($out); # remove last &
-                $out .= '\cr\noalign{\vskip -2.5ex}'."\n"; # want skip jump up 2.5ex
+                #$out .= '\cr\noalign{\vskip -2.5ex}'."\n"; # want skip jump up 2.5ex
+                $out.='\cr'; # mathjax compatibility
         } elsif ( $main::displayMode eq 'HTML_MathJax'
                       or $main::displayMode eq 'HTML_dpng'
                       or $main::displayMode eq 'HTML_tth'
@@ -414,7 +423,7 @@ sub dm_end_matrix {
         my $out = "";
         if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
                 $out .= "\\end{array}\\right$opts{right}";
-                if($opts{'top_labels'}) {
+                if($opts{'top_labels'} and $main::displayMode ne 'HTML_MathJax') {
                         $out .= '}} \dimen3=\ht3 \advance\dimen3 by 3ex \ht3=\dimen3'."\n".
                         '\box3\endgroup';
                 }
@@ -593,6 +602,36 @@ sub dm_mat_row {
         $out;
 }
 
+=head4 side_labels
+
+Produces an array that can be used to add labels outside a matrix.  useful
+for presenting tableaus. Entries are set in mathmode
+
+	side_labels( @array );
+	
+	\( \{lp_display_mm([$matrix3->value], 
+	      top_labels=>[qw(x_1 x_2 x_3 x_4 obj b)] )
+	   \}
+        \{side_labels(  qw(\text{cash} \text{hours} \text{profits} ) ) 
+        \} 
+    \)
+
+=cut 
+
+sub side_labels {
+	my @labels;
+	if (ref($_[0])=~/ARRAY/) { # accept either an array or a reference to an array
+		@labels = @{$_[0]};
+	} else {
+		@labels = @_;
+	}
+	my $outputstring = "\\begin{array}{c}"; 
+	foreach my $label (@labels) {
+		$outputstring .= "$label \\\\ \n";
+	}	
+	$outputstring .= "\\end{array}";
+}
+
 =head4  mbox
 
                 Usage        \{ mbox(thing1, thing2, thing3) \}
@@ -722,6 +761,89 @@ sub make_matrix{
         $ra_out;
 }
 
+=head4 create2d_matrix
+
+This can be a useful method for quickly entering small matrices by hand. --MEG
+
+	create2d_matrix("1 2 4, 5 6 8");
+	produces the anonymous array
+	[[1,2,4],[5,6,8] ]
+	
+	Matrix(create2d_matrix($string));
+
+=cut	
+
+sub create2d_matrix {
+	my $string = shift;
+	my @rows = split("\\s*,\\s*",$string);
+	@rows = map {[split("\\s", $_ )]} @rows;
+	[@rows];
+}
+
+=head4 check_matrix_from_ans_box_cmp
+
+An answer checker factory built on create2d_matrix.  This still needs
+work.  It is not feature complete, particularly with regard to error messages
+for incorrect input. --MEG
+
+	$matrix = Matrix("[[1,4],[2,3]");
+	ANS( check_matrix_from_ans_box($matrix) );
+
+=cut
+
+sub check_matrix_from_ans_box_cmp{
+	my $correctMatrix = shift;
+	my $string_matrix_cmp =  sub  {
+      $string = shift @_;
+      my $studentMatrix;
+      # eval { $studentMatrix = Matrix(create2d_matrix($string)); die "I give up";}; #caught by op_mask
+      $studentMatrix = Matrix(create2d_matrix($string)); die "I give up"; 
+      # main::DEBUG_MESSAGE(ref($studentMatrix). "$studentMatrix with error ");
+      # errors are returned as warnings.  Can't seem to trap them. 
+      my $rh_answer = new AnswerHash( 
+         score  => ($correctMatrix <=> $studentMatrix)?0:1, #fuzzy equals is zero for correct
+	     correct_ans  	=> 	$correctMatrix,
+	     student_ans  	=> 	$string,
+	     preview_text_string => $string,
+	     preview_latex_string => $studentMatrix->TeX,
+	     ans_message  => 	"",
+	     type		   	=> 	'matrix_from_ans_box', 
+      );
+      $rh_answer;
+	};
+	$string_matrix_cmp;
+}
+
+
+=head2 convert_to_array_ref {
+
+	$output_matrix = convert_to_array_ref($input_matrix)
+	
+Converts a MathObject matrix (ref($input_matrix eq 'Value::Matrix') 
+or a MatrixReal1 matrix (ref($input_matrix eq 'Matrix')to 
+a reference to an array (e.g [[4,6],[3,2]]).
+This adaptor allows all of the Linear Programming subroutines to be used with 
+MathObject arrays.
+
+$mathobject_matrix->value outputs an array (usually an array of array references) so placing it inside
+square bracket produces and array reference (of array references) which is what lp_display_mm() is
+seeking.
+
+=cut 
+
+sub convert_to_array_ref {
+	my $input = shift;
+	if (ref($input) eq 'Value::Matrix' ) {
+		$input = [$input->value];
+	} elsif (ref($input) eq 'Matrix' ) {
+		$input = $input->array_ref;
+	} elsif (ref($input) =~/ARRAY/) {
+		# no change to input value
+	} else {
+	WARN_MESSAGE("This does not appear to be a matrix ");
+	}
+	$input;
+}
 
 # sub format_answer{
 #       my $ra_eigenvalues = shift;
