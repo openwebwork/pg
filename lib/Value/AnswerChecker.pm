@@ -1901,11 +1901,11 @@ sub cmp_diagnostics {
   #  Put all the diagnostic output into a frame
   #
   return unless $output;
-  $output 
-    = '<TABLE BORDER="1" CELLSPACING="2" CELLPADDING="20" BGCOLOR="#F0F0F0">'
+  $output
+    = '<TABLE BORDER="1" CELLSPACING="2" CELLPADDING="20" STYLE="background:#F0F0F0; color:black">'
     . '<TR><TD ALIGN="LEFT"><B>Diagnostics for '.$self->string .':</B>'
     . '<P><CENTER>' . $output . '</CENTER></TD></TR></TABLE><P>';
-  warn $output;
+  $self->getPG('$PG')->debug_message($output);
 }
 
 #
