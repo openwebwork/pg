@@ -429,9 +429,9 @@ sub bernoullirand { # generate random, Bernoulli dist. numbers  B(p)
 # bernoullirand(p,num,{"success"=>"1","failure"=>"0"})
 # Generates num random numbers. The distribution is Bernoulli with parameter p.
 
-        $p = shift;
-        $num = shift;
-        $options = shift;
+        my $p = shift;
+        my $num = shift;
+        my $options = shift;
 
 	if (($p<=0) || ($p>=1)) {
 		die "Invalid parameter p: $p\n"; # must be a positive number strictly between zero and one
@@ -481,6 +481,86 @@ sub bernoullirand { # generate random, Bernoulli dist. numbers  B(p)
 
 }
 
+
+=head3 Generate random values from a discrete distribution.
+
+=pod
+
+	Usage: discreterand($n,@tableOfProbabilities)
+
+
+  Example:
+
+my $total = 10;
+my @probabilities = ( [0.1,"A"],
+                      [0.4,"B"],
+                      [0.3,"C"],
+                      [0.2,"D"]);
+
+@result = discreterand($total,@probabilities);
+$data = '';
+foreach $lupe (@result)
+{
+    $data .= $lupe . ", ";
+}
+$data =~ s/,$//;
+
+This routine will generate num random results. The distribution is in
+the given array.  Each element in the array is itself an array.  The
+first value in the array is the probability.  The second value in the
+array is the value assocated with the probability.
+
+
+=cut
+
+
+sub discreterand { # generate random, values based on a given table
+# discreterand($n,@tableOfProbabilities)
+# Generates num random results. The distribution is in the given array.
+# Each element in the array is itself an array. 
+# The first value in the array is the probability. 
+# The second value in the array is the value assocated with the probability.
+
+    my $num = shift;  # Number of values to generate
+    my @table = @_;   # Table of arrays with the probabilities and values.
+
+    my @result = ();  # Values to return.
+    my $lupe;
+    while($num > 0)
+    {
+        # For each value generate a random variable.
+
+        my $p = $main::PG_random_generator->random(0.0,1.0,0.0);
+        my $accum = 0.0;
+        foreach $lupe (@table)
+        {
+            # Find the cumulative dist. and stop when the prob. goes
+            # over the cumulative dist.
+            $accum += $$lupe[0];
+            if($accum > $p)
+            {
+                # This one matches. Add it to the list to return.
+                push(@result,$$lupe[1]);
+                $p = -1.0;
+                last;
+            }
+        }
+
+        if($p > 0.0)
+        {
+            # Something bad happened. Most likely is that the table
+            # that was passed was not a valid prob. dist. Just return
+            # the last value in the list.
+            push(@result,$table[-1][1]);
+        }
+
+
+        $num -= 1;
+    }
+
+    #print(@result);
+    @result;
+}
 
 
 =head3 Chi Squared statistic for a two way table
