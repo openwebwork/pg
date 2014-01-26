@@ -64,18 +64,20 @@ $Parser::reduce->{'-a-bi'} = 1;
 #    than addition (and there IS an addition or subtraction).
 #
 sub string {
-  my $self = shift; my $precedence = shift;
+  my $self = shift; my $precedence = shift; my $show = shift;
   my $context = $self->context; my $plus = $context->{operators}{'+'}{precedence};
   my $z = $self->Package("Complex")->make($context,@{$self->{value}})->string($self->{equation});
-  $z = "(".$z.")" if defined($precedence) && $precedence > $plus && $z =~ m/[-+]/;
+  $z = "(".$z.")" if defined($precedence) &&
+    ($precedence > $plus || $precedence == $plus && $show eq "same") && $z =~ m/[-+]/;
   return $z;
 }
 
 sub TeX {
-  my $self = shift; my $precedence = shift;
+  my $self = shift; my $precedence = shift; my $show = shift;
   my $context = $self->context; my $plus = $context->{operators}{'+'}{precedence};
   my $z = $self->Package("Complex")->make($context,@{$self->{value}})->TeX($self->{equation});
-  $z = '\left('.$z.'\right)' if defined($precedence) && $precedence > $plus && $z =~ m/[-+]/;
+  $z = '\left('.$z.'\right)' if defined($precedence) &&
+    ($precedence > $plus || $precedence == $plus && $show eq "same") && $z =~ m/[-+]/;
   return $z;
 }
 
