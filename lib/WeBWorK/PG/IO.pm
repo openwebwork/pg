@@ -7,6 +7,9 @@ package WeBWorK::PG::IO;
 use base qw(Exporter);
 use WeBWorK::PG::Translator;
 use JSON qw(decode_json);
+use PGcore qw(not_null);
+our @ISA = qw(PGcore);
+
 
 =head1 NAME
 
@@ -218,19 +221,134 @@ sub createDirectory {
 		return 1;
 	}
 }
+#
+# isolate the call to the sage server in case we have to jazz it up
+#
+sub query_sage_server {
+	my ($python, $url, $accepted_tos, $setSeed, $webworkfunc, $debug)=@_;
+	my $output = `curl -i -k -sS -L --data-urlencode "accepted_tos=${accepted_tos}" --data-urlencode "user_variables=WEBWORK" --data-urlencode "code=${setSeed}${webworkfunc}$python" $url`;
+	my $sagecall = 	qq{
+		curl -k -sS -L --data-urlencode "accepted_tos=${accepted_tos}" 
+		--data-urlencode "user_variables=WEBWORK" --data-urlencode 
+		"code=${setSeed}${webworkfunc}$python" $url
+	};
+	if ($debug) {
+		warn "\n\nSAGE CALL: ", $sagecall, "\n\n";
+		warn "\n\nRETURN from sage call \n", $output, "\n\n";	
+	}
+		# has something been returned?
+		# $continue: 	HTTP/1.1 100 (Continue)
+		# $header: 		HTTP/1.1 200 OK
+		# 				Content-Length: 1625
+		# 				Server: TornadoServer/3.1
+		# 				Access-Control-Allow-Credentials: true
+		# 				Date: Sun, 24 Nov 2013 11:44:33 GMT
+		# 				Access-Control-Allow-Origin: *
+		# 				Content-Type: application/json; charset=UTF-8
+		# $content: Either error message about terms of service or output from sage
+	my ($continue, $header, @content) = split("\r\n\r\n",$output);
+	my $content = join("\r\n\r\n",@content); # handle case where there were blank lines in the content
+	# warn "output list is ", join("|||\n|||",($continue, $header, @content));
+	# warn "header is $header    =" , $header =~/200 OK\r\n/;
+	my $result;
+	if ($header =~/200 OK\r\n/)  { #success 
+		$result = $content;
+	} else {
+		warn "ERROR in contacting sage server. Did you accept the terms of service by 
+		      setting {accepted_tos=>'true'} in the askSage options?\n $content\n";
+		$result = undef;
+	}
+	$result;	
+}
 
 sub AskSage {
+#
+# to send values back in a hash, add them to the python WEBWORK dictionary
+#
   chomp(my $python = shift);
   my ($args) = @_;
   my $url = $args->{url} || 'https://sagecell.sagemath.org/service';
   my $seed = $args->{seed};
+  my $accepted_tos = $args->{accepted_tos} || 'false';  # force author to accept terms of service explicitly :-)
   my $debug = $args->{debug} || 0;
   my $setSeed = $seed?"set_random_seed($seed)\n":'';
-  my $output = `curl -k -f -sS -L --data-urlencode "code=${setSeed}$python" $url`;
-  warn "sage call", qq{curl -k -f -sS -L --data-urlencode "code=${setSeed}  $python" $url} if $debug;
-  my $decoded = decode_json($output);
-  chomp(my $value = $decoded->{stdout});
-  return $value;
+  my $webworkfunc = <<END;
+WEBWORK={}
+def _webwork_safe_json(o):
+    import json
+    def default(o):
+        try:
+            if isinstance(o,sage.rings.integer.Integer):
+                json_obj = int(o)
+            elif isinstance(o,(sage.rings.real_mpfr.RealLiteral, sage.rings.real_mpfr.RealNumber)):
+                json_obj = float(o)
+            elif sage.modules.free_module_element.is_FreeModuleElement(o):
+                json_obj = list(o)
+            elif sage.matrix.matrix.is_Matrix(o):
+                json_obj = [list(i) for i in o.rows()]
+            elif isinstance(o, SageObject):
+                json_obj = repr(o)
+            else:
+                raise TypeError
+        except TypeError:
+            pass
+        else:
+            return json_obj
+        # Let the base class default method raise the TypeError
+        return json.JSONEncoder.default(self, o)
+    return json.dumps(o, default=default)
+get_ipython().display_formatter.formatters['application/json'].for_type(dict,_webwork_safe_json)
+END
+
+
+
+	my $ret={success=>0};   # we want to export more than one piece of information
+	eval {
+	    my $output = query_sage_server($python, $url, $accepted_tos, $setSeed, $webworkfunc, $debug );
+
+		# has something been returned?
+		not_null($output) or die "Unable to make a sage call to $url."; 
+		# warn "We have some kind of value |$output| returned from sage" if $output; #remove this
+		
+		my $decoded = decode_json($output);
+		# was there a Sage/python syntax Error
+		# is the returned something text from stdout (deprecated)
+		# have objects been returned in a WEBWORK variable?
+		# warn "test condition = ", $decoded->{user_variables}{WEBWORK}{data}{'application/json'} ne "{}";
+		if ($decoded->{success} eq 'true') {
+		    my $WEBWORK_variable_non_empty=0;
+			if (not_null($decoded->{user_variables}{WEBWORK}{data}{'application/json'}) ) {
+				$WEBWORK_variable_non_empty = $decoded->{user_variables}{WEBWORK}{data}{'application/json'} ne "{}";
+			}  # {} indicates that WEBWORK was not used to pass or return a variable from sage.
+
+			if ( $WEBWORK_variable_non_empty )  { 
+				# have specific WEBWORK variables been defined?
+				$ret->{webwork} = decode_json($decoded->{user_variables}{WEBWORK}{data}{'application/json'});
+				$ret->{success}=1;
+				$ret->{stdout} = $decoded->{stdout};		
+			} elsif (not_null( $decoded->{stdout} ) ) { # no WEBWORK content, but stdout exists
+                                                           # old style text output via stdout (deprecated)
+				$ret = $decoded->{stdout};                 # only standard out is returned
+			} else {
+				die "Error receiving JSON output from sage: \n$output\n ";
+			}
+		} elsif ($decoded->{success} eq 'false' )  { # this might be a syntax error
+			$ret->{error_message} = $decoded->{execute_reply}; # this is a hash.
+			warn "Perhaps there was syntax error.", join(" ",%{ $decoded->{execute_reply}});
+		} else {
+			die "Unknown error in asking Sage to do something: \n$output\n";
+		}
+		
+	}; # end eval{} for trapping errors in sage call
+	if ($@) {
+		warn "IO.pm: ERROR trapped during JSON call to sage:\n $@ ";
+		if ( ref($ret)=~/HASH/ ) {
+			$ret->{success}=0;
+		} else {
+
+		}
+	}
+	return $ret;
 }
 
 =back
