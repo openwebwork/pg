@@ -76,9 +76,10 @@ sub Init {
   my $context = $main::context{ImplicitPlane} = Parser::Context->getCopy("Vector");
   $context->{name} = "ImplicitPlane";
   $context->{precedence}{ImplicitPlane} = $context->{precedence}{special};
+  $context->{value}{Formula} = "ImplicitPlane::formula";
   #$context->{value}{Equality} = "ImplicitPlane::equality";
   Parser::BOP::equality->Allow($context);
-  $context->operators->set('=' => {class => 'ImplicitPlane::equality'});
+  $context->operators->set('=' => {class => 'ImplicitPlane::equality', formulaClass=>'ImplicitPlane'});
 
   main::Context("ImplicitPlane");  ### FIXME:  probably should require authors to set this explicitly
 
@@ -95,6 +96,7 @@ sub new {
   }
   $_[0] = $context->Package("Point")->new($context,$_[0]) if ref($_[0]) eq 'ARRAY';
   $_[1] = $context->Package("Vector")->new($context,$_[1]) if ref($_[1]) eq 'ARRAY';
+  my $formula = 'Value::Formula';  # since Package("Formula") is overloaded, use raw formula
 
   my ($p,$N,$plane,$vars,$d,$type); $type = 'plane';
   if (scalar(@_) >= 2 && Value::classMatch($_[0],'Point','Vector') &&
@@ -115,9 +117,8 @@ sub new {
     $type = 'line' if scalar(@{$vars}) == 2;
     my @terms = (); my $i = 0;
     foreach my $x (@{$vars}) {push @terms, $N->{data}[$i++]->string.$x}
-    $plane = $context->Package("Formula")->new(join(' + ',@terms).' = '.$d->string)->reduce(@_);
+    $plane = $formula->new(join(' + ',@terms).' = '.$d->string)->reduce(@_);
   } else {
-    $formula = $context->Package("Formula");
     #
     #  Determine the normal vector and d value from the equation
     #
@@ -200,6 +201,15 @@ sub _check {
   $self->SUPER::_check;
   $self->Error("An implicit equation can't be constant on both sides")
     if $self->{lop}{isConstant} && $self->{rop}{isConstant};
+}
+
+package ImplicitPlane::formula;
+
+sub new {
+  my $self = shift;
+  my $f = Value::Formula->new(@_);
+  return $f unless $f->{tree}{def}{formulaClass};
+  return $f->{tree}{def}{formulaClass}->new($f);
 }
 
 1;
