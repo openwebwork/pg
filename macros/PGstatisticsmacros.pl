@@ -237,7 +237,7 @@ sub urand { # generate normally dist. random numbers
 		die "Invalid N: $N\n"; # Cannot generate negative or zero numbers.
 	}
 
-	$pi = 4.0*atan(1.0);
+	my $pi = 4.0*atan(1.0);
 	my @numbers = ();
 	while($N > 0)
 	{
