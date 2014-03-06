@@ -937,6 +937,7 @@ sub Answer {
       } else {
         $rule = $ans->$method(@options);
       }
+      main::ANS($ans->cmp) unless ref($ans) eq 'MultiAnswer' && $ans->{part} > 1;
     }
   } else {
     if (defined($item->{name})) {
@@ -945,7 +946,6 @@ sub Answer {
       $rule = main::ans_rule($item->{width});
     }
   }
-  main::ANS($ans->cmp) unless ref($ans) eq 'MultiAnswer' && $ans->{part} > 1;
   return $rule;
 }
 
