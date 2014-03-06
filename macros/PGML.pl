@@ -1352,7 +1352,8 @@ END_PREAMBLE
 package main;
 
 sub _PGML_init {
-  my $context = Context; # prevent Typeset context from becoming active
+  loadMacros("MathObjects.pl");
+  my $context = Context(); # prevent Typeset context from becoming active
   loadMacros("contextTypeset.pl");
   Context($context);
   $problemPreamble->{TeX} .= $PGML::preamble unless $problemPreamble->{TeX} =~ m/definitions for PGML/;
