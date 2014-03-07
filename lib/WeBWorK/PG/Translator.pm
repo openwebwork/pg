@@ -960,12 +960,9 @@ case the previously defined safe compartment is used. (See item 1.)
 #################
 # FIXME The various warning message tracks are still being sorted out
 # WARNING and DEBUG tracks are being handled elsewhere (in Problem.pm?)
-#################
-				$self->{errors} .= $@;
+#######################################################################
+				$self->{errors} .= "ERRORS from evaluating PG file: <br/> $@<br/>\n" if $@;
 
-				
-# 				$self->{errors}.=join(CGI::br(), @{$PGcore->{WARNING_messages}} );
-# 				$self->{errors}.=join(CGI::br(), @{$PGcore->{DEBUG_messages  }} );
 #######################################################################
 
 #		    	push(@PROBLEM_TEXT_OUTPUT   ,   split(/(\n)/,$$PG_PROBLEM_TEXT_REF)  ) if  defined($$PG_PROBLEM_TEXT_REF  );
@@ -1004,13 +1001,16 @@ the errors.
 	###### PG error processing code ##########
 	##########################################
         my (@input,$lineNumber,$line);
-        if ($self -> {errors}) {
+	my $permissionLevel = $self->{envir}->{permissionLevel}||0; #user permission level
+        # Only show the problem text to users with permission
+        if ($self -> {errors} && $self->{envir}->{VIEW_PROBLEM_DEBUGGING_INFO} <= $permissionLevel) {
                 #($self -> {errors}) =~ s/</&lt/g;
                 #($self -> {errors}) =~ s/>/&gt/g;
 	        #try to clean up errors so they will look ok
-                $self ->{errors} =~ s/\[[^\]]+?\] [^ ]+?\.pl://gm;   #erase [Fri Dec 31 12:58:30 1999] processProblem7.pl:
+                #$self ->{errors} =~ s/\[[^\]]+?\] [^ ]+?\.pl://gm;   #erase [Fri Dec 31 12:58:30 1999] processProblem7.pl:
                 #$self -> {errors} =~ s/eval\s+'(.|[\n|r])*$//;
 		#end trying to clean up errors so they will look ok
+
 
 
                 push(@PROBLEM_TEXT_OUTPUT   ,  qq!\n<A NAME="problem! .
@@ -1036,8 +1036,13 @@ the errors.
 
 
 
+        } elsif ($self -> {errors}) {
+                push(@PROBLEM_TEXT_OUTPUT   ,  qq!\n<A NAME="problem! .
+                    $self->{envir} ->{'probNum'} .
+                    qq!"><pre>        Problem !.
+                    $self->{envir} ->{'probNum'}.
+                    qq!\nERROR caught by Translator while processing this problem <br/></pre>\r\n!);
         }
-
 =pod
 
 (6) B<Prepare return values>
@@ -1707,7 +1712,7 @@ sub default_preprocess_code {
 	$evalString =~ s/\n\s*BEGIN_TEXT[\s;]*\n/\nTEXT\(EV3P\(<<'END_TEXT'\)\);\n/g;
 	$evalString =~ s/\n\s*BEGIN_PGML[\s;]*\n/\nTEXT\(PGML::Format2\(<<'END_PGML'\)\);\n/g;
 	$evalString =~ s/\n\s*BEGIN_PGML_SOLUTION[\s;]*\n/\nSOLUTION\(PGML::Format2\(<<'END_PGML_SOLUTION'\)\);\n/g;
-	$evalString =~ s/\n\s*BEGIN_PGML_HINT[\s;]*\n/\nHINT\(PGML::Format2\(<<'END_PGML_SOLUTION'\)\);\n/g;
+	$evalString =~ s/\n\s*BEGIN_PGML_HINT[\s;]*\n/\nHINT\(PGML::Format2\(<<'END_PGML_HINT'\)\);\n/g;
 	$evalString =~ s/\n\s*BEGIN_SOLUTION[\s;]*\n/\nSOLUTION\(EV3P\(<<'END_SOLUTION'\)\);\n/g;
 	$evalString =~ s/\n\s*BEGIN_HINT[\s;]*\n/\nHINT\(EV3P\(<<'END_HINT'\)\);\n/g;
 	$evalString =~ s/ENDDOCUMENT.*/ENDDOCUMENT();/s; # remove text after ENDDOCUMENT
