@@ -4,7 +4,7 @@
 package PGML;
 
 sub show {
-  ClearWarnings;
+  ClearWarnings();
   my $parser = PGML::Parse->new(shift);
   warn join("\n","==================","Errors parsing PGML:",@warnings,"==================\n") if scalar(@warnings);
   return $parser->{root}->show;
@@ -307,7 +307,7 @@ sub Brace {
 sub Verbatim {
   my $self = shift; my $token = shift;
   my $bars = $token; $bars =~ s/[^|]//g;
-  my $bars = "\\".join("\\",split('',$bars));
+  $bars = "\\".join("\\",split('',$bars));
   $self->Begin($token,' [|',{terminator => qr/ ?$bars\]/});
 }
 
@@ -901,45 +901,52 @@ sub Math {
 
 sub Answer {
   my $self = shift; my $item = shift;
-  my $ans = $item->{answer};
+  my $ans = $item->{answer}; my $rule;
   $item->{width} = length($item->{token})-2 if (!defined($item->{width}));
   if (defined($ans)) {
     if (ref($ans) =~ /CODE|AnswerEvaluator/) {
       if (defined($item->{name})) {
+	$rule = main::NAMED_ANS_RULE($item->{name},$item->{width});
 	main::NAMED_ANS($item->{name} => $ans);
-	return main::NAMED_ANS_RULE($item->{name},$item->{width});
       } else {
+	$rule = main::ans_rule($item->{width});
 	main::ANS($ans);
-	return main::ans_rule($item->{width});
       }
-    }
-    unless (Value::isValue($ans)) {
-      $ans = Parser::Formula($item->{answer});
-      if (defined($ans)) {
-	$ans = $ans->eval if $ans->isConstant;
-	$ans->{correct_ans} = "$item->{answer}";
-	$item->{answer} = $ans;
+    } else {
+      unless (Value::isValue($ans)) {
+        $ans = Parser::Formula($item->{answer});
+        if (defined($ans)) {
+	  $ans = $ans->eval if $ans->isConstant;
+	  $ans->{correct_ans} = "$item->{answer}";
+	  $item->{answer} = $ans;
+        } else {
+	  PGML::Warning "Error parsing answer: ".Value->context->{error}{message};
+	  $ans = main::String("");  ### use something else?
+        }
+      }
+      my @options = ($item->{width});
+      my $method = ($item->{hasStar} ? "ans_array" : "ans_rule");
+      if ($item->{name}) {
+        unshift(@options,$item->{name});
+        $method = "named_".$method;
+      }
+      if ($item->{hasStar}) {
+        my $output = $ans->$method(@options);
+        $output =~ s!\\!\\\\!g;
+        $rule = main::EV3($output);
       } else {
-	PGML::Warning "Error parsing answer: ".Value->context->{error}{message};
-	$ans = main::String("");  ### use something else?
+        $rule = $ans->$method(@options);
       }
+      main::ANS($ans->cmp) unless ref($ans) eq 'MultiAnswer' && $ans->{part} > 1;
     }
-    my @options = ($item->{width});
-    my $method = ($item->{hasStar} ? "ans_array" : "ans_rule");
-    if ($item->{name}) {
-      unshift(@options,$item->{name});
-      $method = "named_".$method;
-    }
-    main::ANS($ans->cmp) unless ref($ans) eq 'MultiAnswer' && $ans->{part} > 1;
-    if ($item->{hasStar}) {
-      my $output = $ans->$method(@options);
-      $output =~ s!\\!\\\\!g;
-      return main::EV3($output);
-    } else {return $ans->$method(@options)}
   } else {
-    return main::NAMED_ANS_RULE($item->{name},$item->{width}) if defined $item->{name};
-    return main::ans_rule($item->{width});
+    if (defined($item->{name})) {
+      $rule = main::NAMED_ANS_RULE($item->{name},$item->{width});
+    } else {
+      $rule = main::ans_rule($item->{width});
+    }
   }
+  return $rule;
 }
 
 sub Command {
@@ -1061,8 +1068,8 @@ sub Italic {
   return '<i>'.$self->string($item).'</i>';
 }
 
-my %openQuote = ('"' => "&#x201C;", "'" => "&#x2018;");
-my %closeQuote = ('"' => "&#x201D;", "'" => "&#x2019;");
+our %openQuote = ('"' => "&#x201C;", "'" => "&#x2018;");
+our %closeQuote = ('"' => "&#x201D;", "'" => "&#x2019;");
 sub Quote {
   my $self = shift; my $item = shift; my $string = shift;
   return $openQuote{$item->{token}} if $string eq "" || $string =~ m/(^|[ ({\[\s])$/;
@@ -1197,8 +1204,8 @@ sub Italic {
   return "{\\itshape{}".$self->string($item)."}";
 }
 
-my %openQuote = ('"' => "``", "'" => "`");
-my %closeQuote = ('"' => "''", "'" => "'");
+our %openQuote = ('"' => "``", "'" => "`");
+our %closeQuote = ('"' => "''", "'" => "'");
 sub Quote {
   my $self = shift; my $item = shift; my $string = shift;
   return $openQuote{$item->{token}} if $string eq "" || $string =~ m/(^|[ ({\[\s])$/;
@@ -1345,7 +1352,8 @@ END_PREAMBLE
 package main;
 
 sub _PGML_init {
-  my $context = Context; # prevent Typeset context from becoming active
+  loadMacros("MathObjects.pl");
+  my $context = Context(); # prevent Typeset context from becoming active
   loadMacros("contextTypeset.pl");
   Context($context);
   $problemPreamble->{TeX} .= $PGML::preamble unless $problemPreamble->{TeX} =~ m/definitions for PGML/;

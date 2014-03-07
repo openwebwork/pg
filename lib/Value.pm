@@ -671,9 +671,8 @@ sub typeRef {
 #
 sub class {
   my $self = shift;
-  # warn( "self was undefined ", join(", ", caller(0),"\n",caller(1),"\n",caller(2)))  unless defined $self;
   return undef unless defined $self; #added by MEG 
-  # attention DPVC
+  # attention DPVC  FIXME
   # before if $self was undefined Value->subclassed fails and 
   # $class returns undef? or ""
   # but warning messages were placed in the logs 
