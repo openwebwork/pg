@@ -148,8 +148,8 @@ my $functULimitDefault;
 my $functVarDefault;
 # ^variable my $useBaseTenLog
 my $useBaseTenLog;
-# ^variable my $reducedScoringPeriod
-my $reducedScoringPeriod;
+# ^variable my $reducedCreditDate
+my $reducedCreditDate;
 # ^variable my $reducedScoringValue
 my $reducedScoringValue;
 # ^variable my $enable_reduced_scoring
@@ -165,7 +165,7 @@ my $dueDate;
 # ^uses $envir{functULimitDefault}
 # ^uses $envir{functVarDefault}
 # ^uses $envir{useBaseTenLog}
-# ^uses $envir{reducedScoringPeriod}
+# ^uses $envir{reducedCreditDate}
 # ^uses $envir{reducedScoringValue}
 # ^uses $envir{enable_reduced_scoring}
 # ^uses $envir{dueDate}
@@ -181,9 +181,9 @@ sub _PGanswermacros_init {
 	$functULimitDefault = PG_restricted_eval(q/$envir{functULimitDefault}/);
 	$functVarDefault    = PG_restricted_eval(q/$envir{functVarDefault}/);
 	$useBaseTenLog      = PG_restricted_eval(q/$envir{useBaseTenLog}/);
-	$reducedScoringPeriod= PG_restricted_eval(q/$envir{reducedScoringPeriod}/);
+	$reducedCreditDate = PG_restricted_eval(q/$envir{reducedCreditDate}/);
 	$reducedScoringValue= PG_restricted_eval(q/$envir{reducedScoringValue}/);
-	$enable_reduced_scoring= PG_restricted_eval(q/$envir{enable_reduced_scoring}/);
+	$enable_reduced_scoring = $reducedCreditDate ? PG_restricted_eval(q/$envir{enable_reduced_scoring}/) : 0;
 	$dueDate	    = PG_restricted_eval(q/$envir{dueDate}/);
 }
 
@@ -1523,9 +1523,7 @@ sub std_problem_grader {
 	$problem_state{num_of_incorrect_ans}++ if $allAnswersCorrectQ == 0;
 	$problem_state{recorded_score} = 0 unless defined $problem_state{recorded_score};
 	# Determine if we are in the reduced scoring period and act accordingly
-
-	my $reducedScoringPeriodSec = $reducedScoringPeriod*60;   # $reducedScoringPeriod is in minutes
-	if (!$enable_reduced_scoring or time() < ($dueDate - $reducedScoringPeriodSec)) {	# the reduced scoring period is disabled or it is before the reduced scoring period
+	if (!$enable_reduced_scoring or time() < $reducedCreditDate) {	# the reduced scoring period is disabled or it is before the reduced scoring period
 		# increase recorded score if the current score is greater.
 		$problem_state{recorded_score} = $problem_result{score}	if $problem_result{score} > $problem_state{recorded_score};
 		# the sub_recored_score holds the recored_score before entering the reduced scoring period
@@ -1627,9 +1625,7 @@ sub std_problem_grader2 {
 	$problem_state{recorded_score} = 0 unless defined $problem_state{recorded_score};
 
 	# Determine if we are in the reduced scoring period and act accordingly
-
-	my $reducedScoringPeriodSec = $reducedScoringPeriod*60;   # $reducedScoringPeriod is in minutes
-	if (!$enable_reduced_scoring or time() < ($dueDate - $reducedScoringPeriodSec)) {	# the reduced scoring period is disabled or it is before the reduced scoring period
+	if (!$enable_reduced_scoring or time() < $reducedCreditDate) {	# the reduced scoring period is disabled or it is before the reduced scoring period
 		# increase recorded score if the current score is greater.
 		$problem_state{recorded_score} = $problem_result{score}	if $problem_result{score} > $problem_state{recorded_score};
 		# the sub_recored_score holds the recored_score before entering the reduced scoring period
@@ -1724,8 +1720,7 @@ sub avg_problem_grader {
 	# Determine if we are in the reduced scoring period and if the reduced scoring period is enabled and act accordingly
 #warn("enable_reduced_scoring is $enable_reduced_scoring");
 # warn("dueDate is $dueDate");
-	my $reducedScoringPeriodSec = $reducedScoringPeriod*60;   # $reducedScoringPeriod is in minutes
-	if (!$enable_reduced_scoring or time() < ($dueDate - $reducedScoringPeriodSec)) {	# the reduced scoring period is disabled or it is before the reduced scoring period
+	if (!$enable_reduced_scoring or time() < $reducedCreditDate) {	# the reduced scoring period is disabled or it is before the reduced scoring period
 		# increase recorded score if the current score is greater.
 		$problem_state{recorded_score} = $problem_result{score}	if $problem_result{score} > $problem_state{recorded_score};
 		# the sub_recored_score holds the recored_score before entering the reduced scoring period
