@@ -7,7 +7,7 @@ contextFraction.pl - Implements a MathObject class for Fractions.
 This context implements a Fraction object that works like a Real, but
 keeps the numerator and denominator separate.  It provides methods for
 reducing the fractions, and for allowing fractions with a whole-number
-preceeding it, as in 4 1/2 for "four and one half".  The answer
+preceding it, as in 4 1/2 for "four and one half".  The answer
 checker can require that students reduce their results, and there are
 contexts that don't allow entery of decimal values (only fractions),
 and that don't allow any operators or functions (other than division
@@ -286,15 +286,29 @@ sub Init {
 }
 
 #
-#  Convert a real to a reduced fraction approximation
+# Recursive subroutine that converts real input x to a very good fraction approximation
+#
+sub contFrac {
+  my $input = shift;
+  my $counter = shift; # recursive depth countdown
+  my $intpart = int($input->[0]);
+  my $partial;
+  if (($input->[0] - $intpart > 1/10**8) and ($counter>0))
+    {$partial = contFrac([1/($input->[0] - $intpart),1], $counter-1);}
+  else {return [$intpart,1]};
+  return [$partial->[1] + ($partial->[0])*$intpart,$partial->[0]] ;
+};
+
+#
+# Convert a real to a reduced fraction approximation
+# Uses continued fractions to convert .333333... into 1/3 rather 
+#   than 333333/1000000, etc.
 #
 sub toFraction {
   my $context = shift; my $x = shift;
   my $Real = $context->Package("Real");
-  my $d = 1000000;
-  my ($a,$b) = reduce(int($x*$d),$d);
+  my ($a,$b) = @ { contFrac([$x,1],30) }; # 30 => for any b<10^6, contFrac([a/b,1],n) will return (a,b) 
   return [$Real->make($a),$Real->make($b)];
-}
 
 #
 #  Greatest Common Divisor
