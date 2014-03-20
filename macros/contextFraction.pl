@@ -250,6 +250,8 @@ sub Init {
     requireProperFractions => 0,
     requirePureFractions => 0,
     showMixedNumbers => 0,
+    contFracDepth => 30,
+    contFracTolerance => 10**-8,
   );
   $context->reduction->set('a/b' => 1,'a b/c' => 1, '0 a/b' => 1);
   $context->{value}{Fraction} = "context::Fraction::Fraction";
@@ -289,12 +291,13 @@ sub Init {
 # Recursive subroutine that converts real input x to a very good fraction approximation
 #
 sub contFrac {
+  my $context = shift;
   my $input = shift;
   my $counter = shift; # recursive depth countdown
   my $intpart = int($input->[0]);
   my $partial;
-  if (($input->[0] - $intpart > 1/10**8) and ($counter>0))
-    {$partial = contFrac([1/($input->[0] - $intpart),1], $counter-1);}
+  if (($input->[0] - $intpart > $context->flag("contFracTolerance")) and ($counter>0))
+    {$partial = contFrac($context,[1/($input->[0] - $intpart),1], $counter-1);}
   else {return [$intpart,1]};
   return [$partial->[1] + ($partial->[0])*$intpart,$partial->[0]] ;
 }
@@ -307,7 +310,7 @@ sub contFrac {
 sub toFraction {
   my $context = shift; my $x = shift;
   my $Real = $context->Package("Real");
-  my ($a,$b) = @ { contFrac([$x,1],30) }; # 30 => for any b<10^6, contFrac([a/b,1],n) will return (a,b) 
+  my ($a,$b) = @ { contFrac($context,[$x,1],$context->flag("contFracDepth")) }; 
   return [$Real->make($a),$Real->make($b)];
 }
 
