@@ -297,7 +297,7 @@ sub contFrac {
     {$partial = contFrac([1/($input->[0] - $intpart),1], $counter-1);}
   else {return [$intpart,1]};
   return [$partial->[1] + ($partial->[0])*$intpart,$partial->[0]] ;
-};
+}
 
 #
 # Convert a real to a reduced fraction approximation
@@ -309,6 +309,7 @@ sub toFraction {
   my $Real = $context->Package("Real");
   my ($a,$b) = @ { contFrac([$x,1],30) }; # 30 => for any b<10^6, contFrac([a/b,1],n) will return (a,b) 
   return [$Real->make($a),$Real->make($b)];
+}
 
 #
 #  Greatest Common Divisor
