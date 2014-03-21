@@ -307,7 +307,7 @@ sub custom_problem_grader_fluid {
 #warn("enable_reduced_scoring is $enable_reduced_scoring");
 #warn("dueDate is $dueDate");
 
-	if (!$enable_reduced_scoring or time() < $reducedCreditDate) {	# the reduced scoring period is disabled or it is before the reduced scoring period
+	if (!$enable_reduced_scoring or time() < $reducedScoringDate) {	# the reduced scoring period is disabled or it is before the reduced scoring period
 		# increase recorded score if the current score is greater.
 		$problem_state{recorded_score} = $problem_result{score}	if $problem_result{score} > $problem_state{recorded_score};
 		# the sub_recored_score holds the recored_score before entering the reduced scoring period
@@ -319,7 +319,7 @@ elsif (time() < $dueDate) {	# we are in the reduced scoring period.
 		$newScore =   $problem_state{sub_recorded_score} + $reducedScoringValue*($problem_result{score} - $problem_state{sub_recorded_score})  if ($problem_result{score} > $problem_state{sub_recorded_score});
 		$problem_state{recorded_score} = $newScore if $newScore > $problem_state{recorded_score};
 		my $reducedScoringPerCent = int(100*$reducedScoringValue+.5);
-		$problem_result{msg} = $problem_result{msg}."<br />You are in the Reduced Credit Period: All additional work done counts $reducedScoringPerCent\% of the original."; 		
+		$problem_result{msg} = $problem_result{msg}."<br />You are in the Reduced Scoring Period: All additional work done counts $reducedScoringPerCent\% of the original."; 		
 	}
 	
     (\%problem_result, \%problem_state);
