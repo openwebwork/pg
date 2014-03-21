@@ -7,7 +7,7 @@ contextFraction.pl - Implements a MathObject class for Fractions.
 This context implements a Fraction object that works like a Real, but
 keeps the numerator and denominator separate.  It provides methods for
 reducing the fractions, and for allowing fractions with a whole-number
-preceeding it, as in 4 1/2 for "four and one half".  The answer
+preceding it, as in 4 1/2 for "four and one half".  The answer
 checker can require that students reduce their results, and there are
 contexts that don't allow entery of decimal values (only fractions),
 and that don't allow any operators or functions (other than division
@@ -250,6 +250,7 @@ sub Init {
     requireProperFractions => 0,
     requirePureFractions => 0,
     showMixedNumbers => 0,
+    contFracMaxDen => 10**8,
   );
   $context->reduction->set('a/b' => 1,'a b/c' => 1, '0 a/b' => 1);
   $context->{value}{Fraction} = "context::Fraction::Fraction";
@@ -285,14 +286,68 @@ sub Init {
   main::PG_restricted_eval('sub Fraction {Value->Package("Fraction()")->new(@_)};');
 }
 
+ #
+ # contFrac($x, $maxdenominator)
+ #
+ # Recursive subroutine that takes positive real input $x and outputs
+ # an array (a,b) where a/b is a very good fraction approximation with 
+ # b no larger than maxdenominator
+ #
+
+sub contFrac {
+  my $x = shift;
+  my $maxdenominator = shift;
+  my %sequences = @_; # an => continued fraction sequence (reference)
+                      # hn => sequence of numerators (reference)
+                      # kn => sequence of denominators (reference)
+
+  # dereference sequences
+  my @an = (int($x));
+  @an = @ { $sequences{"an"} } if defined ($sequences{"an"});
+  my @hn = (int($x));
+  @hn = @ { $sequences{"hn"} } if defined ($sequences{"hn"});
+  my @kn = (1);
+  @kn = @ { $sequences{"kn"} } if defined ($sequences{"kn"});
+  
+  # calculate what real the continued fraciton process leaves at this level
+  my $step = $x;
+  for my $i (0..$#an-1)
+    {$step = ($step - $an[$i])**(-1);};
+  # if this is an integer, stop
+  if ($step == int($step)) {return ($hn[-1],$kn[-1]);};
+
+  $step = ($step - $an[-1])**(-1); 
+
+  # next integer from continued fraction sequence
+  # next numerator and denominator, according to continued fraction formulas
+  my $newa = int($step);
+  my $newh; my $newk;
+  if ($#an > 0) {$newh = $newa*$hn[-1] + $hn[-2];} else {$newh = $newa*$an[0] + 1;};
+  if ($#an > 0) {$newk = $newa*$kn[-1] + $kn[-2];} else {$newk = $newa;};
+
+  # machine rounding error may begin to make denominators skyrocket out of control
+  if ($newk > $maxdenominator) {return ($hn[-1],$kn[-1]);};
+
+  #otherwise, create sequence references and pass one level deeper
+  @an = (@an,$newa);  @hn = (@hn,$newh);  @kn = (@kn,$newk);
+  my $anref = \@an;  my $hnref = \@hn;  my $knref = \@kn;
+  return contFrac($x, $maxdenominator, an=>$anref,hn=>$hnref,kn=>$knref);
+
+}
+
 #
-#  Convert a real to a reduced fraction approximation
+# Convert a real to a reduced fraction approximation
+# Uses contFrac() to convert .333333... into 1/3 rather 
+#   than 333333/1000000, etc.
 #
 sub toFraction {
   my $context = shift; my $x = shift;
   my $Real = $context->Package("Real");
-  my $d = 1000000;
-  my ($a,$b) = reduce(int($x*$d),$d);
+  my ($a,$b);
+  if ($x == 0) {($a,$b) = (0,1);}
+  else {my $sign = $x/abs($x);
+    ($a,$b) = contFrac(abs($x),$context->flag("contFracMaxDen"));
+    $a = $sign*$a}; 
   return [$Real->make($a),$Real->make($b)];
 }
 
