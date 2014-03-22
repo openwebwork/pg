@@ -67,10 +67,10 @@ ANS($ans -> cmp(
       return 0 unless ($correct == $student);
       Context()->flags->set(bizarroDiv=>1);
       delete $correct->{test_values}, $student->{test_values};
-      Value->Error("Your answer is correct, but please simplify it further") 
-        unless (($correct == $student) or ($student == $correct));
+      my $OK = (($correct == $student) or ($student == $correct));
       Context()->flags->set(bizarroDiv=>0);
-      return 1;
+      Value::Error("Your answer is correct, but please simplify it further") unless $OK;
+      return $OK;
 })); 
 
 =cut
