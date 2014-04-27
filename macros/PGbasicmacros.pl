@@ -1076,6 +1076,7 @@ sub escapeSolutionHTML {
 	$str = $main::PG->encode_base64($str);
 	$str;
 }
+
 sub solution {
 	my @in = @_;
 	my $out = '';
@@ -1093,22 +1094,24 @@ sub solution {
 		$out = join(' ', $BITALIC, "(Instructor solution preview: show the student solution after due date. )$BR",$EITALIC, @in);
 	} elsif ( $displaySolution ) 	{
 		$out = join(' ',@in);  # display solution
-	}    
+	}
+
 	$out;
 }
 
-
 sub SOLUTION {
-	if ($displayMode =~/HTML/ and $envir->{use_knowls_for_solutions}) {	   
-    	TEXT( $PAR, knowlLink(SOLUTION_HEADING(), value =>  escapeSolutionHTML($BR . solution(@_) . $PAR ),
-    	              base64 =>1 ) ) if solution(@_);
-    } elsif ($displayMode=~/TeX/) {
-    	TEXT($PAR,SOLUTION_HEADING(), solution(@_).$PAR) if solution(@_) ;
-    } else {
-		TEXT( $PAR.solution(@_).$PAR) if solution(@_) ;
+	my $solution = solution(@_);
+
+	if ($solution) {
+		if ($displayMode =~/HTML/ and $envir->{use_knowls_for_solutions}) {	   
+    		TEXT($PAR, knowlLink(SOLUTION_HEADING(), value => escapeSolutionHTML(apply_text_filter('solution', $BR . $solution . $PAR)), base64 =>1));
+    	} elsif ($displayMode=~/TeX/) {
+    		TEXT(apply_text_filter('solution', $PAR . SOLUTION_HEADING() . $solution . $PAR));
+    	} else {
+			TEXT(apply_text_filter('solution', $PAR . $solution . $PAR));
+		}
 	}
 }
-
 
 sub hint {
    	my @in = @_;
@@ -1143,19 +1146,27 @@ sub hint {
 		}
 	}    
 	
-  $out ;
+  	$out;
 }
 
-
 sub HINT {
-	if ($displayMode =~/HTML/ and $envir->{use_knowls_for_hints}) {
-		TEXT($PAR, knowlLink(HINT_HEADING(), value=>escapeSolutionHTML($BR . hint(@_) . $PAR ),
-		                  base64 => 1) ) if hint(@_);
-    } elsif ($displayMode=~/TeX/) {
-    	TEXT($PAR,HINT_HEADING(), hint(@_).$PAR) if hint(@_) ;
-	} else {
-    	TEXT($PAR, HINT_HEADING(), $BR. hint(@_) . $PAR) if hint(@_);
-    } 
+	my $hint = hint(@_);
+
+	if ($hint) {
+		if ($displayMode =~/HTML/ and $envir->{use_knowls_for_hints}) {
+			TEXT($PAR, knowlLink(HINT_HEADING(), value=>escapeSolutionHTML(apply_text_filter('hint', $BR . $hint . $PAR)), base64 => 1) );
+	    } elsif ($displayMode=~/TeX/) {
+	    	TEXT(apply_text_filter('hint', $PAR . HINT_HEADING() . $hint . $PAR));
+		} else {
+	    	TEXT(apply_text_filter('hint', $PAR . HINT_HEADING() . $BR . $hint . $PAR));
+	    }
+	}
+}
+
+sub apply_text_filter {
+	my $filter = shift;
+	my $str = shift;
+	defined($envir->{text_filters}->{$filter}) ? $envir->{text_filters}->{$filter}($str, $displayMode) : $str;
 }
 
 
