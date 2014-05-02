@@ -98,7 +98,7 @@ sub DataTable {
   my ($tablecss, $captioncss, $datacss, $headercss, $allcellcss, $texalignment) = 
     ($options{tablecss},$options{captioncss},$options{datacss},$options{headercss},$options{allcellcss},$options{texalignment},);
   my $center = $options{center};
-    if ($center !=0) {$tablecss .= 'textalign:center;margin:0 auto;'};
+    if ($center !=0) {$tablecss .= 'text-align:center;margin:0 auto;'};
 
   # for each row, store rowcss
   my @rowcss = ();
@@ -190,7 +190,7 @@ sub LayoutTable {
   my ($tablecss, $texalignment, $allcellcss) = 
     ($options{tablecss},$options{texalignment},$options{allcellcss},);
   my $center = $options{center};
-    if ($center !=0) {$tablecss .= 'textalign:center;margin:0 auto;'};
+    if ($center !=0) {$tablecss .= 'text-align:center;margin:0 auto;'};
 
   # for each row, store rowcss
   my @rowcss = ();
