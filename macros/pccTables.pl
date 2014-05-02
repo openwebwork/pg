@@ -41,6 +41,7 @@ sub _pccTables_init {}; # don't reload this file
  #    tablecss => string           css styling commands for the table element
  #    datacss => string           css styling commands for all the td elements
  #    headercss => string           css styling commands for the th elements
+ #    allcellcss => string         css styling commands for all the cells
  #    caption => string            a caption for the table
  #    captioncss => string           css styling commands for the caption element
  #
@@ -90,12 +91,12 @@ sub DataTable {
   # define options
   my %options = (
     center => 1, caption => '', tablecss => '', captioncss => '', datacss => '',
-    headercss => '', texalignment => '', 
+    headercss => '', allcellcss => '', texalignment => '', 
     @_
   );
   my $caption = $options{caption};
-  my ($tablecss, $captioncss, $datacss, $headercss, $texalignment) = 
-    ($options{tablecss},$options{captioncss},$options{datacss},$options{headercss},$options{texalignment},);
+  my ($tablecss, $captioncss, $datacss, $headercss, $allcellcss, $texalignment) = 
+    ($options{tablecss},$options{captioncss},$options{datacss},$options{headercss},$options{allcellcss},$options{texalignment},);
   my $center = $options{center};
     if ($center !=0) {$tablecss .= 'textalign:center;margin:0 auto;'};
 
@@ -110,17 +111,18 @@ sub DataTable {
 
   # build html string for the table
   my $table =
-    '<TABLE style = "'.$tablecss.'"><CAPTION style = "'.$captioncss.'">'.$caption.'</CAPTION>';
+    '<TABLE style = "'.$tablecss.'">';
+  if ($caption ne '') {$table .= '<CAPTION style = "'.$captioncss.'">'.$caption.'</CAPTION>';}
   for my $i (0..$#{$dataref})
     {$table .= '<TR style = "'.$rowcss[$i].'">';
     for my $j (0..$numcols[$i])
       {if (uc(${$dataref->[$i][$j]}{header}) eq 'TH')
-        {$table .= '<TH style = "'.$headerscss.${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TH>';}
+        {$table .= '<TH style = "'.$allcellcss.$headercss.${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TH>';}
         elsif (uc(${$dataref->[$i][$j]}{header}) eq 'CH') 
-        {$table .= '<TH scope = "col" style = "'.$headerscss.${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TH>';}
+        {$table .= '<TH scope = "col" style = "'.$allcellcss.$headercss.${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TH>';}
         elsif (uc(${$dataref->[$i][$j]}{header}) eq 'RH') 
-        {$table .= '<TH scope = "row" style = "'.$headerscss.${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TH>';}
-        else {$table .= '<TD style = "'.$datacss.${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TD>';}
+        {$table .= '<TH scope = "row" style = "'.$allcellcss.$headercss.${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TH>';}
+        else {$table .= '<TD style = "'.$allcellcss.$datacss.${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TD>';}
       }
     $table .= "</TR>";
     };
@@ -157,7 +159,7 @@ sub DataTable {
  #    See usage for DataTable. The main difference is that the HTML output
  #    will use div boxes instead of HTML tables. Header tags and caption tags 
  #    no longer make sense, nor do css styling for headers, captions, and data cells.
- #    Instead, there is an allcellcss option.
+
 
 
 =cut
