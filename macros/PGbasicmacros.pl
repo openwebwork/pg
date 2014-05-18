@@ -2408,7 +2408,7 @@ sub begintable {
 	 || $displayMode eq 'HTML_asciimath' 
 	 || $displayMode eq 'HTML_LaTeXMathML'
 	 || $displayMode eq 'HTML_img') {
-		$out .= "<TABLE BORDER=1>\n"
+		$out .= "<TABLE BORDER='1' STYLE='text-align:center;'>\n"
 	}
 	else {
 		$out = "Error: PGbasicmacros: begintable: Unknown displayMode: $displayMode.\n";
