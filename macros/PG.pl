@@ -68,17 +68,21 @@ sub DOCUMENT {
 		#
 		# If there are any errors replace the line starting "window.MathJax" with the string in $loadScript.
 		#
-
-		my $loadScript = "<script type='text/javascript' src='". $envir{MathJax} . "'> </script>";
 	    TEXT(
-		 '<script type="text/x-mathjax-config">
+		 qq?<script type="text/x-mathjax-config">
                   MathJax.Hub.Config({
                      MathMenu: {showContext: true}
                   });
                   </script>
-				  <script type="text/javascript">  
-                  window.MathJax||document.write("'. $loadScript . '");
-                  </script>'."\n");
+				  <script type="text/javascript"> 
+				  if(!window.MathJax) 
+				  (function () {
+  					var script = document.createElement("script");
+  					script.type = "text/javascript";
+  					script.src  = "$envir{MathJaxURL}";
+  					document.getElementsByTagName("head")[0].appendChild(script);
+					})();                
+                  </script>?."\n");
         } elsif ($envir{displayMode} eq 'HTML_jsMath') {
 		my $prefix = "";
 		if (!$envir{jsMath}{reportMissingFonts}) {
