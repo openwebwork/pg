@@ -63,7 +63,13 @@ sub DOCUMENT {
 	#FIXME
 	# load java script needed for displayModes
 	if ($envir{displayMode} eq 'HTML_MathJax') {
-		my $loadScript = "<script type='text/javascript' src='". $envir{MathJax} . "'>";
+		##
+		# The following is used to prevent MathJax from being loaded more than one on a page. (Happened in WW3 library browser)
+		#
+		# If there are any errors replace the line starting "window.MathJax" with the string in $loadScript.
+		#
+
+		my $loadScript = "<script type='text/javascript' src='". $envir{MathJax} . "'> </script>";
 	    TEXT(
 		 '<script type="text/x-mathjax-config">
                   MathJax.Hub.Config({
