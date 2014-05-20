@@ -63,13 +63,16 @@ sub DOCUMENT {
 	#FIXME
 	# load java script needed for displayModes
 	if ($envir{displayMode} eq 'HTML_MathJax') {
+		my $loadScript = "<script type='text/javascript' src='". $envir{MathJax} . "'>";
 	    TEXT(
 		 '<script type="text/x-mathjax-config">
                   MathJax.Hub.Config({
                      MathMenu: {showContext: true}
                   });
                   </script>
-                  <script src="'.$envir{MathJaxURL}.'"></script>'."\n");
+				  <script type="text/javascript">  
+                  window.MathJax||document.write("'. $loadScript . '");
+                  </script>'."\n");
         } elsif ($envir{displayMode} eq 'HTML_jsMath') {
 		my $prefix = "";
 		if (!$envir{jsMath}{reportMissingFonts}) {
