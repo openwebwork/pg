@@ -5,8 +5,8 @@ $canvasName = "cv";
 
 HEADER_TEXT(<<END_HEADER_TEXT);
 <script language="javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-<script language="javascript" src="${webworkHtmlURL}js/sketchgraphhtml5b/SketchGraph.pjs"></script>
-<script language="javascript" src="${webworkHtmlURL}js/sketchgraphhtml5b/processing-dgfix.js"></script>
+<script language="javascript" src="${webworkHtmlURL}js/legacy/sketchgraphhtml5b/SketchGraph.pjs"></script>
+<script language="javascript" src="${webworkHtmlURL}js/legacy/sketchgraphhtml5b/processing-dgfix.js"></script>
 
 
 <script>
