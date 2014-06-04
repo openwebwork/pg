@@ -551,7 +551,8 @@ sub unrestricted_load {
 	my $init_subroutine  = eval { \&{$init_subroutine_name} };
 	warn "No init routine for $init_subroutine_name: $@" if  $debugON and $@;
 	use strict;
-    my $macro_file_loaded = ref($init_subroutine) =~ /CODE/;
+	my $macro_file_loaded = ref($init_subroutine) =~ /CODE/ &&
+	    defined(&$init_subroutine);
 
 	#print STDERR "$macro_file_name   has not yet been loaded\n" unless $macro_file_loaded;	
 	unless ($macro_file_loaded) {
