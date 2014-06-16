@@ -307,7 +307,8 @@ sub custom_problem_grader_fluid {
 #warn("enable_reduced_scoring is $enable_reduced_scoring");
 #warn("dueDate is $dueDate");
 
-	if (!$enable_reduced_scoring or time() < $reducedCreditDate) {	# the reduced scoring period is disabled or it is before the reduced scoring period
+	my $reducedScoringPeriodSec = $reducedScoringPeriod*60;   # $reducedScoringPeriod is in minutes
+	if (!$enable_reduced_scoring or time() < ($dueDate - $reducedScoringPeriodSec)) {	# the reduced scoring period is disabled or it is before the reduced scoring period
 		# increase recorded score if the current score is greater.
 		$problem_state{recorded_score} = $problem_result{score}	if $problem_result{score} > $problem_state{recorded_score};
 		# the sub_recored_score holds the recored_score before entering the reduced scoring period
