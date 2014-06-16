@@ -254,7 +254,7 @@ sub AlignedRow {
   for my $c (0..$#row)
     {$html = $html."<".$headers[$c]." ALIGN=\"$align\">\n" .
      $row[$c]."</".$headers[$c].">\n";
-      $html = $html.$sep unless ($r == $#row)};
+      $html = $html.$sep unless (defined($r) && $r == $#row)};
   $html = $html."</TR>\n";  
   MODES(
     TeX => '\cr'.$vspace."\n". $fill . join('&'.$fill,@row),
