@@ -55,7 +55,7 @@ sub ColumnTable {
 
   MODES(
     TeX => '\par\medskip\hbox{\qquad\vtop{'.
-          '\advance\hsize by -3em '.$col1.'}}'.
+	   '\advance\hsize by -3em '.$col1.'}}'.
            '\medskip\hbox{\qquad\vtop{'.
            '\advance\hsize by -3em '.$col2.'}}\medskip',
     HTML => $HTMLtable,
@@ -81,7 +81,7 @@ sub ColumnMatchTable {
   ColumnTable($ml->print_q,$ml->print_a,@_);
 }
 
-=pod
+=pod 
 
  #
  #  Command for tables with no borders.
@@ -111,7 +111,7 @@ sub BeginTable {
   my ($tsp,$tbd) = ($options{tex_spacing},$options{tex_border});
   my ($center,$tcenter) = (' ALIGN="CENTER"','\centerline');
      ($center,$tcenter) = ('','') if (!$options{center});
-  my $table =
+  my $table = 
     qq{<TABLE BORDER="$bd" CELLPADDING="$pd" CELLSPACING="$sp"$center>};
 
   MODES(
@@ -157,7 +157,7 @@ sub EndTable {
  #                            (default:  indent => 0)
  #
  #    separation => num       Specifies separation of columns
- #                            (default:  separation => 30)
+ #                            (default:  spearation => 30)
  #
  #    tex_vspace => "dimen"   Specifies additional vertical spacing for TeX
  #
@@ -207,7 +207,7 @@ sub Row {
  #                            (default:  indent => 0)
  #
  #    separation => num       Specifies separation of columns
- #                            (default:  separation => 30)
+ #                            (default:  spearation => 30)
  #
  #    tex_vspace => "dimen"   Specifies additional vertical spacing for TeX
  #
@@ -217,11 +217,6 @@ sub Row {
  #    valign => "type"        Specified vertical alignment of row
  #                            (default:  valign => "MIDDLE")
  #
- #    headers => array reference, "ALL", or "NONE"        
- #                            Specifies which columns are table headers in HTML
- #                            (default:  headers => "NONE")
- #      For example in a row with three columns, headers=>[1,1,1] is equivalent to headers=>'ALL'
- #      And in a row with three columns, headers=>[1] or headers=>[1,0,0] give the first column the header attribute
 
 =cut
 
@@ -230,17 +225,11 @@ sub AlignedRow {
   my %options = (
     indent => 0, separation => 30,
     align => "CENTER", valign => "MIDDLE",
-    headers => "NONE",
     @_
   );
 
   my ($cind,$csep) = ($options{indent},$options{separation});
   my ($align,$valign) = ($options{align},$options{valign});
-  my @headers = ('TD') x @row;
-  @headers = ('TH') x @row if (uc($options{headers}) eq "ALL");
-  for my $i (0..@{$options{headers}})
-    {$headers[$i] = 'TH' if ($options{headers}->[$i]);
-    };
   my $sep = '<TD WIDTH="'.$csep.'">&nbsp;</TD>'."\n";
   $sep = '' if ($csep < 1);
   my $ind = '<TD WIDTH="'.$cind.'">&nbsp;</TD>'."\n";
@@ -250,20 +239,15 @@ sub AlignedRow {
   $fill = '\hfill ' if (uc($align) eq "RIGHT");
   my $vspace = '';
   $vspace = '\noalign{\vskip '.$options{tex_vspace}.'}' if $options{tex_vspace};
-  my $html = "<TR VALIGN=\"$valign\">\n$ind";
-  for my $c (0..$#row)
-    {$html = $html."<".$headers[$c]." ALIGN=\"$align\">\n" .
-     $row[$c]."</".$headers[$c].">\n";
-      $html = $html.$sep unless (defined($r) && $r == $#row)};
-  $html = $html."</TR>\n";  
+
   MODES(
     TeX => '\cr'.$vspace."\n". $fill . join('&'.$fill,@row),
-    HTML => $html,
+    HTML => "<TR VALIGN=\"$valign\">\n$ind<TD ALIGN=\"$align\">\n" .
+      join("</TD>\n$sep<TD ALIGN=\"$align\">", @row) . "</TD>\n</TR>\n",
   );
 }
 
 =pod
-
 
  #
  #  Add extra space between rows of a table
@@ -290,7 +274,7 @@ sub TableSpace {
 =pod
 
  #
- #  A horizontal rule within a table. (Could have been a variable,
+ #  A horizontal rule within a table.  (Could have been a variable,
  #  but all the other table commands are subroutines, so kept it
  #  one to be consistent.)
  #
