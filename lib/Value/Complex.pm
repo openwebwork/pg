@@ -347,7 +347,7 @@ sub format {
 sub perl {
   my $self = shift; my $parens = shift;
   my $s = Value::Complex::format($self->{format},$self->value,"string",$self->{equation});
-  $s =~ s/(\d)i$/\1*i/; $s = "(".$s.")" if $parens;
+  $s =~ s/(\d)i$/\1*i/; $s =~ s/-i/ - i/; $s = "(".$s.")" if $parens;
   return $s;
 }
 

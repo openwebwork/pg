@@ -286,7 +286,16 @@ sub lp_current_value {
     }
   }
   if($cnt != 1) {
-    return ($fractionmode ?  Fraction(0) : 0);
+  	if ($fractionmode ) {
+  		if (defined &Fraction) {
+  			return Fraction(0);   # MathObjects version
+  		} else {
+  			return new Fraction(0);	# old style Function module version
+  		}
+  	} else {
+  		return 0;
+  	}
+ 
   }
   $cnt = scalar(@{$save});
   return $save->[$cnt-1];

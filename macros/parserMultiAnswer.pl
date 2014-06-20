@@ -349,6 +349,7 @@ sub entry_check {
   $self->{ans}[$i] = $self->{cmp}[$i]->evaluate($ans->{student_ans});
   $self->{ans}[$i]->score(0);
   $self->perform_check($ans) if ($i == $self->length - 1);
+  foreach my $id (keys %{$ans}) {$self->{ans}[$i]{$id} = $ans->{$id} unless defined($self->{ans}[$i]{$id})}
   return $self->{ans}[$i];
 }
 
