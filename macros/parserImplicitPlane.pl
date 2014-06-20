@@ -204,6 +204,7 @@ sub _check {
 }
 
 package ImplicitPlane::formula;
+our @ISA = ('Value::Formula');
 
 sub new {
   my $self = shift;
