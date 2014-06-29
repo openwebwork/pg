@@ -2,7 +2,7 @@
 
 
 
-sub _compoundProblem4_init {};   # don't reload this file
+sub _compoundProblem5_init {};   # don't reload this file
 
 HEADER_TEXT(<<'END_HEADER_TEXT');
 
