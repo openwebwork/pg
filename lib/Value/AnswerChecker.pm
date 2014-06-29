@@ -1309,6 +1309,8 @@ sub cmp {
     $self->{open} = $self->{close} = '';
     $cmp->ans_hash(correct_ans => $self->stringify)
       unless defined($self->{correct_ans}) || defined($params{correct_ans});
+    $cmp->ans_hash(correct_ans_latex_string => $self->TeX)
+      unless defined($self->{correct_ans_latex_string}) || defined($params{correct_ans_latex_string});
   }
   return $cmp;
 }
