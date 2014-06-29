@@ -69,7 +69,7 @@ sub _parserFunctionPrime_init {}; # don't reload this file
 #  The package that will manage function primes
 #
 package parser::FunctionPrime;
-our @ISA = qw(Parser::Function);
+our @ISA = ('parserFunction');
 
 
 =head2 parser::FunctionPrime->Enable($context)
@@ -102,7 +102,7 @@ context (or if no context is given, in the current context).
 sub Disable {
   my $self = shift;
   my $context = shift || main::Context();
-  delete $context->{_functions}{patterns}{qr/[a-z][a-z0-9]*'+/i};
+  delete $context->{_functions}{patterns}{qr/[a-z][a-z0-9]*+/i};
   $context->{_functions}->update;
   $context->{parser}{Function} = "Parser::Function";
 }
@@ -146,9 +146,23 @@ sub new {
   }
   #
   #  Make the function node as usual, now that the data is
-  #  in place for the derivative.
+  #  in place for the derivative, but make sure it is the
+  #  proper class, so that the perl function can be overridden.
   #
-  $self->SUPER::new($equation,$name,@_);
+  bless $self->SUPER::new($equation,$name,@_), ref($self)||$self;
+}
+
+#
+#  Override the perl output in order to use q{...} rather than '...'
+#  for the function name, since that will include one or more primes.
+#
+sub perl {
+  my $self = shift;
+  return $self->SUPER::perl(@_) unless $self->{name} =~ m/'/;
+  my $parens = shift;
+  my $perl = "Parser::Function->call(q{$self->{name}},".$self->{params}[0]->perl.")";
+  $perl = '('.$perl.')' if $parens == 1;
+  return $perl;
 }
 
 1;
