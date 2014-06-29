@@ -194,7 +194,9 @@ sub makeMatrix {
 sub string {
   my $self = shift; my $precedence = shift; my @coords = ();
   foreach my $x (@{$self->{coords}}) {push(@coords,$x->string)}
-  return $self->{open}.join(',',@coords).$self->{close};
+  my $comma = $self->{equation}{context}{lists}{$self->{type}{name}}{separator};
+  $comma = "," unless defined $comma;
+  return $self->{open}.join($comma,@coords).$self->{close};
 }
 
 #
@@ -209,7 +211,9 @@ sub TeX {
   $open  = '\left' .$open  if $open  ne '';
   $close = '\right'.$close if $close ne '';
   foreach my $x (@{$self->{coords}}) {push(@coords,$x->TeX)}
-  return $open.join(',',@coords).$close unless $self->{ColumnVector};
+  my $comma = $self->{equation}{context}{lists}{$self->{type}{name}}{separator};
+  $comma = "," unless defined $comma;
+  return $open.join($comma,@coords).$close unless $self->{ColumnVector};
   '\left[\begin{array}{c}'.join('\cr'."\n",@coords).'\cr\end{array}\right]';
 }
 
