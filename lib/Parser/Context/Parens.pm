@@ -31,7 +31,7 @@ sub removeToken {
 }
 
 #
-#  Always retain 'start' since it si crucial to the parser
+#  Always retain 'start' since it is crucial to the parser
 #
 sub clear {
   my $self = shift;
