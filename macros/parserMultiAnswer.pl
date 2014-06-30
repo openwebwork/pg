@@ -246,11 +246,16 @@ sub cmp {
 #  as a single result.
 #
 sub single_cmp {
-  my $self = shift; my @correct;
-  foreach my $cmp (@{$self->{cmp}}) {push(@correct,$cmp->{rh_ans}{correct_ans})}
+  my $self = shift; my @correct; my @correct_tex;
+  foreach my $cmp (@{$self->{cmp}}) {
+    push(@correct,$cmp->{rh_ans}{correct_ans});
+    push(@correct_tex,$cmp->{rh_ans}{correct_ans_latex_string}||$cmp->{rh_ans}{correct_value}->TeX);
+  }
   my $ans = new AnswerEvaluator;
   $ans->ans_hash(
-    correct_ans => join($self->{separator},@correct),
+    correct_ans => (defined($self->{format}) ? sprintf($self->{format},@correct) : join($self->{separator},@correct)),
+    correct_ans_latex_string => (defined($self->{tex_format}) ?
+        sprintf($self->{tex_format},@correct_tex) : join($self->{tex_separator},@correct_tex)),
     type        => "MultiAnswer",
     @_,
   );
