@@ -1305,10 +1305,12 @@ sub cmp {
   my $self = shift;
   my %params = @_;
   my $cmp = $self->SUPER::cmp(@_);
-  if ($cmp->{rh_ans}{removeParens}) {
+  if ($cmp->{rh_ans}{removeParens} && ($self->{open} || $self->{close})) {
     $self->{open} = $self->{close} = '';
     $cmp->ans_hash(correct_ans => $self->stringify)
       unless defined($self->{correct_ans}) || defined($params{correct_ans});
+    $cmp->ans_hash(correct_ans_latex_string => $self->TeX)
+      unless defined($self->{correct_ans_latex_string}) || defined($params{correct_ans_latex_string});
   }
   return $cmp;
 }
@@ -1641,11 +1643,14 @@ sub getTypicalValue {
 #
 sub cmp {
   my $self = shift;
+  my %params = @_;
   my $cmp = $self->SUPER::cmp(@_);
-  if ($cmp->{rh_ans}{removeParens} && $self->type eq 'List') {
+  if ($cmp->{rh_ans}{removeParens} && $self->type eq 'List' && ($self->{tree}{open} || $self->{tree}{close})) {
     $self->{tree}{open} = $self->{tree}{close} = '';
     $cmp->ans_hash(correct_ans => $self->stringify)
-      unless defined($self->{correct_ans});
+      unless defined($self->{correct_ans}) || defined($params{correct_ans});
+    $cmp->ans_hash(correct_ans_latex_string => $self->stringify)
+      unless defined($self->{correct_ans_latex_string}) || defined($params{correct_ans_latex_string});
   }
   if ($cmp->{rh_ans}{eval} && $self->isConstant) {
     $cmp->ans_hash(correct_value => $self->eval);
