@@ -148,7 +148,7 @@ sub new {
   #  Make the function node as usual, now that the data is
   #  in place for the derivative.
   #
-  $self->SUPER::new($equation,$name,@_)
+  $self->SUPER::new($equation,$name,@_);
 }
 
 1;
