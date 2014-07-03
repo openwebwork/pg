@@ -158,6 +158,8 @@ sub _contextAlternateIntervals_init {
   $context->{value}{Interval} = "context::AlternateIntervals::Interval";
   $context->{value}{Formula}  = "context::AlternateIntervals::Formula";
   $context->{parser}{Formula} = "context::AlternateIntervals::Formula";
+  $context->{parser}{List} = "context::AlternateIntervals::Parser::List";
+  $context->lists->set("Interval" => {class=>"context::AlternateIntervals::Parser::Interval"});
 
   $context = $main::context{"AlternateIntervals-Only"} = $context->copy;
   $context->{name} = "AlternativeIntervals-Only";
@@ -279,27 +281,112 @@ sub new {
 #  For alternative form, switch back to the alternative brackets for printing,
 #  or force standard or alternative form based on the context flags.
 #
-sub string {
-  my $self = shift; my @args = @_;
+sub formatOutput {
+  my $self = shift; my $method = shift; my @args = @_;
   my $format = $self->getFlag("displayIntervals");
   my $alternate = ($self->{alternateForm} || $format eq "alternate") && $format ne "standard";
   $args[1] = "]" if $alternate && ($args[1]||$self->{open}) eq "(";
   $args[2] = "[" if $alternate && ($args[2]||$self->{close}) eq ")";
-  $self->SUPER::string(@args);
+  $method = "SUPER::$method";
+  $self->$method(@args);
+}
+
+sub string {
+  my $self = shift;
+  $self->formatOutput("string",@_);
+}
+
+sub TeX {
+  my $self = shift;
+  $self->formatOutput("TeX",@_);
 }
 
 #
-#  For alternative form, switch back to the alternative brackets for printing,
-#  or force standard or alternative form based on the context flags.
+#  This gets called directly, so pass it up the line
 #
-sub TeX {
-  my $self = shift; my @args = @_;
-  my $format = $self->getFlag("displayIntervals");
-  my $alternate = ($self->{alternateForm} || $format eq "alternate") && $format ne "standard";
-  $args[1] = "]" if $alternate && ($args[1]||$self->{open}) eq "(";
-  $args[2] = "[" if $alternate && ($args[2]||$self->{close}) eq ")";
-  $self->SUPER::TeX(@args);
+sub cmp_defaults {shift->SUPER::cmp_defaults(@_)}
+
+##########################################################################
+
+package context::AlternateIntervals::Parser::List;
+our @ISA = ('Parser::List');
+
+#
+#  Make sure that the standard open and close delimiters are
+#  used so that comparisons and so on will work properly.
+#
+sub new {
+  my $self = shift;
+  my $alternate = ($_[5] eq "]" || $_[6] eq "[");
+  my $list = $self->SUPER::new(@_);
+  return $list unless $alternate && $list->type eq "Interval";
+  my $L = ($list->class eq "Value" ? $list->{value} : $list);
+  $L->{open} = "(" if $L->{open} eq "]";
+  $L->{close} = ")" if $L->{close} eq "[";
+  $L->{alternateForm} = 1;
+  return $list
 }
+
+sub class {"List"}
+
+##########################################################################
+
+package context::AlternateIntervals::Parser::Interval;
+our @ISA = ('Parser::List::Interval');
+
+#
+#  Report errors when invalid form is specified
+#
+sub _check {
+  my $self = shift;
+  my $format = $self->{equation}{context}->flag("enterIntervals");
+  $self->Error("You must use parentheses to form open intervals")
+    if $format eq "standard"  && ($self->{open} eq "]" || $self->{close} eq "[");
+  $self->Error("You must use reversed brackets to form open intervals")
+    if $format eq "alternate" && ($self->{open} eq "(" || $self->{close} eq ")");
+  $self->SUPER::_check(@_);
+}
+
+#
+#  Make a copy with the alternate delimiters, if needed.
+#
+sub fixDelimiters {
+  my $self = shift; my $alternate = shift;
+  if ($alternate) {
+    $self = $self->copy;
+    $self->{open} = "]" if $self->{open} eq "(";
+    $self->{close} = "[" if $self->{close} eq ")";
+  }
+  $self;
+}
+
+#
+#  Override the output methods to replace the alternate delimiters,
+#  when needed.
+#
+
+sub _eval {
+  my $self = shift;
+  return $self->fixDelimiters($self->{alternateForm})->SUPER::_eval(@_);
+}
+
+sub string {
+  my $self = shift;
+  my $format = $self->{equation}{context}->flag("displayIntervals");
+  my $alternate = $self->type eq "Interval" &&
+       ($self->{alternateForm} || $format eq "alternate") && $format ne "standard";
+  $self->fixDelimiters($alternate)->SUPER::string(@_);
+}
+
+sub TeX {
+  my $self = shift;
+  my $format = $self->{equation}{context}->flag("displayIntervals");
+  my $alternate = $self->type eq "Interval" &&
+       ($self->{alternateForm} || $format eq "alternate") && $format ne "standard";
+  $self->fixDelimiters($alternate)->SUPER::TeX(@_);
+}
+
+sub class {"Interval"}
 
 ##########################################################################
 
