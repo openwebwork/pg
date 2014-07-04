@@ -100,14 +100,14 @@ the form that was used to enter them.
 You could also do
 
 	loadMacros("contextComplexJ.pl");
-        context::AlternateDecimal->Default("i","i");
+        context::ComplexJ->Default("i","i");
 
 to cause a warning message to appear when students enter the j format.
 
 If you want to force students to enter the alternate format, use
 
 	loadMacros("contextComplexJ.pl");
-        context::AlternateDecimal->Default("j","j");
+        context::ComplexJ->Default("j","j");
 
 This will force the display of all numbers into the alternate form (so
 even the ones created in the problem using standard form will show
@@ -153,8 +153,10 @@ sub Enable {
   $context->{parser}{Value} = "context::ComplexJ::Parser::Value";
   $context->{parser}{Complex} = "context::ComplexJ::Parser::Complex";
   $context->{parser}{Constant} = "context::ComplexJ::Parser::Constant";
-  $context->constants->add(j => $context->Package("Complex")->new($context,0,1)->with(isJ=>1));
-  $context->constants->set(j => {isConstant => 1, perl=>"j"});
+  $context->constants->set(
+    j => {value => $context->Package("Complex")->new($context,0,1)->with(isJ=>1), isConstant => 1, perl => "j"},
+    i => {value => $context->Package("Complex")->new($context,0,1), isConstant => 1, perl => "i"},
+  );
 }
 
 #
@@ -248,6 +250,9 @@ sub class {'Complex'}
 #  Produce error messages when the wrong notation
 #  is used for complex numbers.
 #
+#  Swap i and j when required by the displayComplex flag
+#  in the output of constants.
+#
 
 package context::ComplexJ::Parser::Constant;
 our @ISA = ('Parser::Constant');
@@ -256,7 +261,8 @@ sub new {
   my $self = shift;
   my $z = $self->SUPER::new(@_);
   if ($z->isComplex) {
-    my $enter = $_[0]->{context}->flag("enterComplex");
+    my $context = $z->{equation}{context};
+    my $enter = ($context->{answerHash}||{})->{enterComplex} || $context->flag("enterComplex");
     $self->Error("Complex numbers must be entered using 'j'")
       if $enter eq 'j' && !$z->{def}{value}{isJ};
     $self->Error("Complex numbers must be entered using 'i'")
@@ -265,15 +271,22 @@ sub new {
   return $z;
 }
 
-sub string {
-  my $self = shift;
-  my $z = $self->SUPER::string(@_);
+sub swapIJ {
+  my $self = shift; my $z = shift;
   if ($self->isComplex) {
     my $display = $self->{equation}{context}->flag("displayComplex");
     $z =~ s/i/j/ if ($self->{def}{value}{isJ} || $display eq "j") && $display ne "i";
     $z =~ s/j/i/ if ($self->{def}{value}{isJ} && $display eq "i");
   }
   return $z;
+}
+sub string {
+  my $self = shift;
+  $self->swapIJ($self->SUPER::string(@_));
+}
+sub TeX {
+  my $self = shift;
+  $self->swapIJ($self->SUPER::TeX(@_));
 }
 
 sub class {'Constant'}
