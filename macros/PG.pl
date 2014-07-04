@@ -126,9 +126,20 @@ sub POST_HEADER_TEXT {
 }
 
 sub AskSage {
-	$PG->AskSage(@_);
+    my $python = shift;
+    my $options = shift;
+    WARN_MESSAGE("the second argument to AskSage should be a hash of options") unless $options =~/HASH/;
+	$PG->AskSage($python, $options);
 }
 
+# sageReturnedFail checks to see if the return from Sage indicates some kind of failure
+# undefined means old style return (a simple string) failed
+# $obj->{success} defined but equal to zero means that the failed return and error 
+# messages are encoded in the $obj hash.
+sub sageReturnedFail {
+        my $obj = shift;
+       return ( not defined($obj) or ( defined($obj->{success}) and $obj->{success}==0 ));
+}
 sub LABELED_ANS {
   my @in = @_;
   my @out = ();

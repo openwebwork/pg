@@ -871,7 +871,10 @@ sub createDirectory {
  };
 sub AskSage {
 	my $self = shift;
-	WeBWorK::PG::IO::AskSage(@_);
+	my $python = shift;
+	my $options = shift;
+	$options->{curlCommand} = $self->{envir}->{externalCurlCommand};
+	WeBWorK::PG::IO::AskSage($python, $options);
 }
  
 sub tempDirectory {
