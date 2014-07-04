@@ -157,6 +157,7 @@ sub Enable {
     j => {value => $context->Package("Complex")->new($context,0,1)->with(isJ=>1), isConstant => 1, perl => "j"},
     i => {value => $context->Package("Complex")->new($context,0,1), isConstant => 1, perl => "i"},
   );
+  $context->update;
 }
 
 #
