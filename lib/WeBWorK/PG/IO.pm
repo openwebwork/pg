@@ -4,6 +4,8 @@
 ################################################################################
 
 package WeBWorK::PG::IO;
+use strict;
+use warnings;
 #use base qw(Exporter);
 use WeBWorK::PG::Translator;
 use JSON qw(decode_json);
@@ -18,8 +20,8 @@ WeBWorK::PG::IO - Private functions used by WeBWorK::PG::Translator for file IO.
 
 =cut
 
-use strict;
-use warnings;
+#use strict;
+#use warnings;
 
 our @EXPORT_OK = qw(
 		includePGtext
