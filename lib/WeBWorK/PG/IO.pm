@@ -4,11 +4,12 @@
 ################################################################################
 
 package WeBWorK::PG::IO;
-use base qw(Exporter);
+#use base qw(Exporter);
 use WeBWorK::PG::Translator;
 use JSON qw(decode_json);
 use PGcore qw(not_null);
-our @ISA = qw(PGcore);
+use Exporter 'import';
+#our @ISA = qw(PGcore);
 
 
 =head1 NAME
@@ -20,8 +21,7 @@ WeBWorK::PG::IO - Private functions used by WeBWorK::PG::Translator for file IO.
 use strict;
 use warnings;
 
-BEGIN {
-	our @EXPORT = qw(
+our @EXPORT_OK = qw(
 		includePGtext
 		read_whole_problem_file
 		read_whole_file
@@ -34,7 +34,21 @@ BEGIN {
 		AskSage
 	);
 
-	our %SHARE = map { $_ => __PACKAGE__ } @EXPORT;
+BEGIN {
+	# our @EXPORT = qw(
+	# 	includePGtext
+	# 	read_whole_problem_file
+	# 	read_whole_file
+	# 	convertPath
+	# 	getDirDelim
+	# 	fileFromPath
+	# 	directoryFromPath
+	# 	createFile
+	# 	createDirectory
+	# 	AskSage
+	# );
+
+	our %SHARE = map { $_ => __PACKAGE__ } @EXPORT_OK;
 	my $ww_version = "2.x";  # hack -- only WW2 versions are supported.
 	if (defined $ww_version) {
 		my $mod;

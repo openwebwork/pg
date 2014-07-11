@@ -10,7 +10,18 @@ use warnings;
 use Opcode;
 use WWSafe;
 use Net::SMTP;
-use WeBWorK::PG::IO;
+use WeBWorK::PG::IO qw(
+		includePGtext
+		read_whole_problem_file
+		read_whole_file
+		convertPath
+		getDirDelim
+		fileFromPath
+		directoryFromPath
+		createFile
+		createDirectory
+		AskSage
+	);
 
 #use PadWalker;     # used for processing error messages
 #use Data::Dumper;
