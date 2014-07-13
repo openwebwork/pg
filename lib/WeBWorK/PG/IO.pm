@@ -4,11 +4,14 @@
 ################################################################################
 
 package WeBWorK::PG::IO;
-use base qw(Exporter);
+use strict;
+use warnings;
+
 use WeBWorK::PG::Translator;
 use JSON qw(decode_json);
-use PGcore qw(not_null);
-our @ISA = qw(PGcore);
+use PGcore qw(not_null);  # should this be use parent PGcore qw(not_null) ? 
+use Exporter 'import';
+
 
 
 =head1 NAME
@@ -17,11 +20,7 @@ WeBWorK::PG::IO - Private functions used by WeBWorK::PG::Translator for file IO.
 
 =cut
 
-use strict;
-use warnings;
-
-BEGIN {
-	our @EXPORT = qw(
+our @EXPORT = qw(
 		includePGtext
 		read_whole_problem_file
 		read_whole_file
@@ -33,6 +32,8 @@ BEGIN {
 		createDirectory
 		AskSage
 	);
+
+BEGIN {
 
 	our %SHARE = map { $_ => __PACKAGE__ } @EXPORT;
 	my $ww_version = "2.x";  # hack -- only WW2 versions are supported.
