@@ -20,7 +20,7 @@ WeBWorK::PG::IO - Private functions used by WeBWorK::PG::Translator for file IO.
 
 =cut
 
-our @EXPORT_OK = qw(
+our @EXPORT = qw(
 		includePGtext
 		read_whole_problem_file
 		read_whole_file
@@ -35,7 +35,7 @@ our @EXPORT_OK = qw(
 
 BEGIN {
 
-	our %SHARE = map { $_ => __PACKAGE__ } @EXPORT_OK;
+	our %SHARE = map { $_ => __PACKAGE__ } @EXPORT;
 	my $ww_version = "2.x";  # hack -- only WW2 versions are supported.
 	if (defined $ww_version) {
 		my $mod;
