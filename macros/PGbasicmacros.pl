@@ -2186,7 +2186,7 @@ sub knowlLink { # an new syntax for knowlLink that facilitates a local HERE docu
 	}
 	#my $option_string = qq!url = "$options{url}" value = "$options{value}" !;
 	MODES( TeX        => "{\\bf \\underline{$display_text}}",
-	       HTML       => "<a $properties >$display_text</a>"
+	       HTML       => "<a href='#' $properties >$display_text</a>"
 	);
 
 
