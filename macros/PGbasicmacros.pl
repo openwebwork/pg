@@ -1418,6 +1418,8 @@ sub US { MODES(TeX => '\\_', Latex2HTML => '\\_', HTML => '_');};  # underscore,
 sub SPACE { MODES(TeX => '\\ ',  Latex2HTML => '\\ ', HTML => '&nbsp;');};  # force a space in latex, doesn't force extra space in html
 sub BBOLD { MODES(TeX => '{\\bf ',  Latex2HTML => '{\\bf ', HTML => '<B>'); };
 sub EBOLD { MODES( TeX => '}', Latex2HTML =>  '}',HTML =>  '</B>'); };
+sub BLABEL { MODES(TeX => '', Latex2HTML => '', HTML => '<LABEL>'); };
+sub BLABEL { MODES(TeX => '', Latex2HTML => '', HTML => '</LABEL>'); };
 sub BITALIC { MODES(TeX => '{\\it ',  Latex2HTML => '{\\it ', HTML => '<I>'); };
 sub EITALIC { MODES(TeX => '} ',  Latex2HTML => '} ', HTML => '</I>'); };
 sub BUL { MODES(TeX => '\\underline{',  Latex2HTML => '\\underline{', HTML => '<U>'); };
