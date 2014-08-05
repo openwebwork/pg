@@ -405,7 +405,8 @@ sub ans_matrix {
 	     	push(@row,&$named_extension(&$new_name($name),$size,ans_label=>$name));
 	     	#push(@row,&$named_extension(&$new_name($name),$size))
 	     }else {
-	     	push(@row,pgCall('NAMED_ANS_RULE',$name,$size))
+		 my $label = pgCall('generate_aria_label',ANS_NAME($ename,$i,$j));
+	     	push(@row,pgCall('NAMED_ANS_RULE',$name,$size,aria_label=>$label))
 	     }
       } else {
 		push(@row,&$named_extension(&$new_name(ANS_NAME($ename,$i,$j)),$size,ans_label=>$name));

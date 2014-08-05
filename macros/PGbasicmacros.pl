@@ -607,15 +607,23 @@ sub ANS_RADIO_BUTTONS {
 sub generate_aria_label {
     my $name = shift;
 
+    # basic answer name
     if ($name =~ /^AnSwEr/) {
 	$name =~ s/^AnSwEr0*//;
-	return maketext('This is the input field for answer ').$name;
+	return maketext('answer ').$name;
+	# strip of prefix of gatewy quizzes
     } elsif ($name =~ /^Q\d+_AnSwEr0*/) {
 	$name =~ s/^Q\d+_AnSwEr0*//;
-	maketext('This is the input field for answer ').$name;
+	return maketext('answer ').$name;
+    } elsif ($name =~ /^MaTrIx_AnSwEr/) {
+	$name =~ s/^MaTrIx_AnSwEr0*//;
+	$name =~ /^(\d+)__?(\d+)_(\d+)/;
+	return maketext('answer ').$1
+	    .maketext(' row ').($2+1)
+	    .maketext(' column ').($3+1);
     } else {
 	# in this case we do our best with what we have
-	return maketext('This is the input field for answer ').$name;
+	return maketext('answer').' '.$name;
     }    
 }
 
@@ -998,6 +1006,13 @@ sub NAMED_ANS_ARRAY_EXTENSION{
     		$answer_value= '' unless defined($answer_value);
 	}
 
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
+
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 #	warn "ans_label $options{ans_label} $name $answer_value";
 	$answer_value = HTML::Entities::encode_entities($answer_value);
@@ -1007,7 +1022,7 @@ sub NAMED_ANS_ARRAY_EXTENSION{
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{10pt}{\\hrulefill}}\\hrulefill\\quad ",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = "">\n\\end{rawhtml}\n!,
-		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" class="codeshard" VALUE = "$answer_value">\n!
+		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" class="codeshard" aria-label="$label" VALUE = "$answer_value">\n!
 	);
 }
 
