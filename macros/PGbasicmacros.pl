@@ -2024,9 +2024,9 @@ sub beginproblem {
     my $TeXFileName = protect_underbar($envir->{probFileName});
     my $l2hFileName = protect_underbar($envir->{probFileName});
 	my %inlist;
-	my $points = maketext('pts');
+	my $points = maketext('points');
 
-	$points = maketext('pt') if $problemValue == 1;
+	$points = maketext('point') if $problemValue == 1;
 	##    Prepare header for the problem
 	grep($inlist{$_}++,@{ $envir->{'PRINT_FILE_NAMES_FOR'} });
 	my $effectivePermissionLevel = $envir->{effectivePermissionLevel}; # permission level of user assigned to question
