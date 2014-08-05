@@ -337,14 +337,14 @@ sub NAMED_ANS_RULE {
     	# it must be evaluated at run time
     	$answer_value= '' unless defined($answer_value);
 	}
-
 	
 #	$answer_value =~ tr/\\$@`//d;   ## unnecessary since we encode HTML now
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
 	$answer_value = HTML::Entities::encode_entities($answer_value);
 	$name = RECORD_ANS_NAME($name, $answer_value);
     #INSERT_RESPONSE($name,$name,$answer_value);  #FIXME -- why can't we do this inside RECORD_ANS_NAME?
-    
+	my $label = generate_aria_label($name);
+
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
 
@@ -366,7 +366,7 @@ sub NAMED_ANS_RULE {
 
 	    # Note: codeshard is used in the css to identify input elements 
 	    # that come from pg
-		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" value="$answer_value"/>\n!.
+		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" aria-label="$label" value="$answer_value"/>\n!.
 		              $add_html. # added for dragmath
                         qq!<input type=hidden  name="previous_$name" value="$answer_value"/>\n!
 
@@ -453,13 +453,14 @@ sub  NAMED_ANS_BOX {
 	my $answer_value = '';
 	$answer_value = $inputs_ref->{$name} if defined( $inputs_ref->{$name} );
 	$name = RECORD_ANS_NAME($name, $answer_value);
+	my $label = generate_aria_label($name);
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	#INSERT_RESPONSE($name,$name,$answer_value); # no longer needed?
 	# try to escape HTML entities to deal with xss stuff
 	$answer_value = HTML::Entities::encode_entities($answer_value);
 	my $out = MODES(
 	     TeX => qq!\\vskip $height in \\hrulefill\\quad !,
-	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
+	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" aria-label="$label" ROWS="$row" COLS="$col"
                WRAP="VIRTUAL">$answer_value</TEXTAREA>\\end{rawhtml}!,
          HTML => qq!<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
                WRAP="VIRTUAL">$answer_value</TEXTAREA>
@@ -579,6 +580,25 @@ sub ANS_RADIO_BUTTONS {
 	}
 	(wantarray) ? @out : join(" ",@out);
 }
+
+##############################################
+#   generate_aria_label( $name )
+#   takes the name of an ANS_RULE or ANS_BOX and generates an appropriate
+#   aria label for screen readers
+##############################################
+
+sub generate_aria_label {
+    my $name = shift;
+
+    if ($name =~ /AnSwEr/) {
+	$name =~ s/^AnSwEr0*//;
+	return maketext('This is the input field for answer ').$name;	
+    } else {
+	# in this case we do our best with what we have
+	return maketext('This is the input field for answer ').$name;
+    }    
+}
+
 ##############################################
 #   contained_in( $elem, $array_reference or null separated string);
 #   determine whether element is equal 
