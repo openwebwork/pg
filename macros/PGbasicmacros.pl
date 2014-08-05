@@ -316,10 +316,13 @@ sub labeled_ans_rule {   # syntactic sugar for NAMED_ANS_RULE
 }
 
 sub NAMED_ANS_RULE {
-	my($name,$col) = @_;
+	my $name = shift;
+	my $col = shift;
+	my %options = @_;
 	$col = 20 unless not_null($col);
 	my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if    defined(${$inputs_ref}{$name});
+
 	#FIXME -- code factoring needed
     if ($answer_value =~ /\0/ ) {
     	my @answers = split("\0", $answer_value);
@@ -343,7 +346,12 @@ sub NAMED_ANS_RULE {
 	$answer_value = HTML::Entities::encode_entities($answer_value);
 	$name = RECORD_ANS_NAME($name, $answer_value);
     #INSERT_RESPONSE($name,$name,$answer_value);  #FIXME -- why can't we do this inside RECORD_ANS_NAME?
-	my $label = generate_aria_label($name);
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
 
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
@@ -445,7 +453,11 @@ sub ANS_RULE {  #deprecated
 
 
 sub  NAMED_ANS_BOX {
-	my($name,$row,$col) = @_;
+	my $name = shift;
+	my $row = shift;
+	my $col = shift;
+	my %options = @_;
+
 	$row = 10 unless defined($row);
 	$col = 80 unless defined($col);
 	
@@ -453,7 +465,12 @@ sub  NAMED_ANS_BOX {
 	my $answer_value = '';
 	$answer_value = $inputs_ref->{$name} if defined( $inputs_ref->{$name} );
 	$name = RECORD_ANS_NAME($name, $answer_value);
-	my $label = generate_aria_label($name);
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	#INSERT_RESPONSE($name,$name,$answer_value); # no longer needed?
 	# try to escape HTML entities to deal with xss stuff
@@ -590,9 +607,12 @@ sub ANS_RADIO_BUTTONS {
 sub generate_aria_label {
     my $name = shift;
 
-    if ($name =~ /AnSwEr/) {
+    if ($name =~ /^AnSwEr/) {
 	$name =~ s/^AnSwEr0*//;
-	return maketext('This is the input field for answer ').$name;	
+	return maketext('This is the input field for answer ').$name;
+    } elsif ($name =~ /^Q\d+_AnSwEr0*/) {
+	$name =~ s/^Q\d+_AnSwEr0*//;
+	maketext('This is the input field for answer ').$name;
     } else {
 	# in this case we do our best with what we have
 	return maketext('This is the input field for answer ').$name;
