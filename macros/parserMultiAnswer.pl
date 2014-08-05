@@ -104,9 +104,8 @@ sub _parserMultiAnswer_init {
 package MultiAnswer;
 our @ISA = qw(Value);
 
-our $count = 0;                      # counter for unique identifier for multi-parts
-our $answerPrefix = "_MuLtIaNsWeR";     # answer rule prefix
-$answerPrefix = $main::PG->{QUIZ_PREFIX}."_MuLtIaNsWeR" if $main::PG->{QUIZ_PREFIX};
+our $answerPrefix = "MuLtIaNsWeR_";  # answer rule prefix
+$answerPrefix = $main::PG->{QUIZ_PREFIX}.$answerPrefix if $main::PG->{QUIZ_PREFIX};
 our $separator = ';';                # separator for singleResult previews
 
 =head1 CONSTRUCTOR
@@ -197,7 +196,7 @@ sub new {
     checkTypes => 1, allowBlankAnswers => 0,
     tex_separator => $separator.'\,', separator => $separator.' ',
     tex_format => undef, format => undef,
-    context => $context, id => $answerPrefix.($count++),
+    context => $context,
   }, $class;
 }
 
@@ -414,10 +413,21 @@ sub setMessage {
 
 #
 #  Produce the name for a named answer blank
+#  (Use the standard name for the first one, and
+#   create the prefixed names for the rest.)
 #
 sub ANS_NAME {
-  my $self = shift; my $i = shift;
-  $self->{id}.'_'.$i;
+  my $self = shift; my $i = shift; my $name;
+  if ($self->{singleResult}) {
+    if (!$self->{id}) {
+      $name = $self->{answerName} = main::NEW_ANS_NAME();
+      $self->{id} = $answerPrefix.$name;
+    }
+    $name = $self->{id}."_".$i unless $i == 0;
+  } else {
+    $name = main::NEW_ANS_NAME();
+  }
+  return $name;
 }
 
 #
@@ -439,7 +449,6 @@ sub ans_rule {
   my $name = $self->ANS_NAME($self->{part}++);
   return $data->named_ans_rule_extension($self->NEW_NAME($name),$size,@_)
     if ($self->{singleResult} && $self->{part} > 1);
-  return $data->ans_rule($size,@_) unless $self->{namedRules};
   return $data->named_ans_rule($name,$size,@_);
 }
 
@@ -454,8 +463,6 @@ sub ans_array {
   my $name = $self->ANS_NAME($self->{part}++);
   if ($self->{singleResult} && $self->{part} > 1) {
     $HTML = $data->named_ans_array_extension($self->NEW_NAME($name),$size,@_);
-  } elsif (!$self->{namedRules}) {
-    $HTML = $data->ans_array($size,@_);
   } else {
     $HTML = $data->named_ans_array($name,$size,@_);
   }
