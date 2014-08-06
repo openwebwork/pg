@@ -745,7 +745,7 @@ sub insertObject {
     my $javaParameters = '';
     my $flashParameters = '';
     my $webgeogebraParameters = '';
-    if (PGcore::not_null($self->{parameter_string}) ) {
+    if (PGUtil::not_null($self->{parameter_string}) ) {
     	$javaParameters = $self->{parameter_string};
     	$flashParameters = $self->{parameter_string};
     	$webgeogebraParameters = $self->{parameter_string};

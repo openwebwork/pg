@@ -11,9 +11,9 @@ sub _PG_init{
 	$main::VERSION ="WW2.9+";
 }
 
-sub not_null {PGcore::not_null(@_)};
+sub not_null {PGcore->not_null(@_)};
 
-sub pretty_print {PGcore::pretty_print(@_)};
+sub pretty_print {PGcore->pretty_print(@_)};
 
 our $PG;  
 
