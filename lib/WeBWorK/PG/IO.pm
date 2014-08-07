@@ -4,7 +4,7 @@
 ################################################################################
 
 package WeBWorK::PG::IO;
-use parent qw(Exporter);
+use Exporter 'import';
 use JSON qw(decode_json);
 use PGUtil qw(not_null);
 =head1 NAME
