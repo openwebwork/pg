@@ -63,6 +63,8 @@ my ($PAR,
 	$COMMENT,
 	$US,
 	$SPACE,
+	$BLABEL,
+	$ELABEL,
 	$BBOLD,
 	$EBOLD,
 	$BITALIC,
@@ -124,6 +126,8 @@ main::PG_restricted_eval( <<'EndOfFile');
 	$main::HINT				= HINT_HEADING();
 	$main::US				= US();
 	$main::SPACE			= SPACE();
+	$main::BLABEL			= BLABEL();
+	$main::ELABEL			= ELABEL();
 	$main::BBOLD			= BBOLD();
 	$main::EBOLD			= EBOLD();
 	$main::BITALIC			= BITALIC();
@@ -171,6 +175,8 @@ EndOfFile
 	$HINT				 = HINT_HEADING();
 	$US				     = US();
 	$SPACE			     = SPACE();
+	$BLABEL			     = BLABEL();
+	$ELABEL			     = ELABEL();
 	$BBOLD			     = BBOLD();
 	$EBOLD			     = EBOLD();
 	$BITALIC			 = BITALIC();
@@ -1412,6 +1418,8 @@ sub MODES {
 	$HINT				HINT_HEADING()		hint headline
 	$US					US()				underscore character
 	$SPACE				SPACE()				space character (tex and latex only)
+	$BLABEL				BLABEL()			begin label (for input)
+	$ELABEL				ELABEL()			end label (for input)
 	$BBOLD				BBOLD()				begin bold typeface
 	$EBOLD				EBOLD()				end bold typeface
 	$BITALIC    		BITALIC()  			begin italic typeface
@@ -1479,7 +1487,7 @@ sub SPACE { MODES(TeX => '\\ ',  Latex2HTML => '\\ ', HTML => '&nbsp;');};  # fo
 sub BBOLD { MODES(TeX => '{\\bf ',  Latex2HTML => '{\\bf ', HTML => '<B>'); };
 sub EBOLD { MODES( TeX => '}', Latex2HTML =>  '}',HTML =>  '</B>'); };
 sub BLABEL { MODES(TeX => '', Latex2HTML => '', HTML => '<LABEL>'); };
-sub BLABEL { MODES(TeX => '', Latex2HTML => '', HTML => '</LABEL>'); };
+sub ELABEL { MODES(TeX => '', Latex2HTML => '', HTML => '</LABEL>'); };
 sub BITALIC { MODES(TeX => '{\\it ',  Latex2HTML => '{\\it ', HTML => '<I>'); };
 sub EITALIC { MODES(TeX => '} ',  Latex2HTML => '} ', HTML => '</I>'); };
 sub BUL { MODES(TeX => '\\underline{',  Latex2HTML => '\\underline{', HTML => '<U>'); };
