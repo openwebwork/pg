@@ -424,7 +424,17 @@ sub NAMED_ANS_RULE_OPTION {   # deprecated
 }
 
 sub NAMED_ANS_RULE_EXTENSION {
-	my($name,$col) = @_;
+	my $name = shift;
+	my $col = shift;
+	my %options = @_;
+
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
+
 	my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
 	if ( defined( $rh_sticky_answers->{$name} ) ) {
@@ -440,7 +450,7 @@ sub NAMED_ANS_RULE_EXTENSION {
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = " ">\n\\end{rawhtml}\n!,
-		HTML => qq!<INPUT TYPE=TEXT CLASS="codeshard" SIZE=$col NAME = "$name" id="$name" VALUE = "$answer_value">!.
+		HTML => qq!<INPUT TYPE=TEXT CLASS="codeshard" SIZE=$col NAME = "$name" id="$name" aria-label="$label" VALUE = "$answer_value">!.
                         qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" id="previous_$name" VALUE = "$answer_value">!
 	);
 }
@@ -606,25 +616,40 @@ sub ANS_RADIO_BUTTONS {
 
 sub generate_aria_label {
     my $name = shift;
+    my $label = '';
 
-    # basic answer name
-    if ($name =~ /^AnSwEr/) {
-	$name =~ s/^AnSwEr0*//;
-	return maketext('answer ').$name;
-	# strip of prefix of gatewy quizzes
-    } elsif ($name =~ /^Q\d+_AnSwEr0*/) {
-	$name =~ s/^Q\d+_AnSwEr0*//;
-	return maketext('answer ').$name;
-    } elsif ($name =~ /^MaTrIx_AnSwEr/) {
+    # if we dont have an AnSwEr type name then we do the best we can
+    if ($name !~ /AnSwEr/ ) {
+	return maketext('answer').' '.$name;
+    }
+
+    # check for quiz prefix 
+    if ($name =~ /^Q\d+/ || $name =~ /^MaTrIx_Q\d+/) {
+	$name =~ s/Q0*(\d+)_//;
+	$label .= maketext('problem ').$1.' ';
+    }
+
+    # get answer number 
+    $name =~ /AnSwEr0*(\d+)/;
+    $label .= maketext('answer ').$1.' ';
+    
+    # check for Multianswer
+    if ($name =~ /^MuLtIaNsWeR_/) {
+	$name =~ s/^MuLtIaNsWeR_//;
+	$name =~ s/_(\d+)$//;
+	$label .= maketext('part ').($1+1).' ';
+    }
+    
+    # check for Matrix 
+    if ($name =~ /^MaTrIx_AnSwEr/) {
 	$name =~ s/^MaTrIx_AnSwEr0*//;
 	$name =~ /^(\d+)__?(\d+)_(\d+)/;
-	return maketext('answer ').$1
-	    .maketext(' row ').($2+1)
-	    .maketext(' column ').($3+1);
-    } else {
-	# in this case we do our best with what we have
-	return maketext('answer').' '.$name;
-    }    
+	$label .= maketext('row ').($2+1)
+	    .maketext(' column ').($3+1).' ';
+    }
+
+    return $label;
+
 }
 
 ##############################################

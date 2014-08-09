@@ -397,16 +397,17 @@ sub ans_matrix {
   foreach my $i (0..$rows-1) {
     my @row = ();
     foreach my $j (0..$cols-1) {
-      if ($i == 0 && $j == 0) {
-	if ($extend) {
-	  push(@row,&$named_extension($name,$size,ans_label=>$name));
-	} else {
+	if ($i == 0 && $j == 0) {
 	    my $label = pgCall('generate_aria_label',ANS_NAME($ename,$i,$j));
-	    push(@row,&$named_ans_rule($name,$size,aria_label=>$label));
+	    if ($extend) {
+		push(@row,&$named_extension($name,$size,ans_label=>$name, aria_label=>$label));
+	    } else {
+		
+		push(@row,&$named_ans_rule($name,$size,aria_label=>$label));
+	    }
+	} else {
+	    push(@row,&$named_extension(ANS_NAME($ename,$i,$j),$size,ans_label=>$name));
 	}
-      } else {
-	push(@row,&$named_extension(ANS_NAME($ename,$i,$j),$size,ans_label=>$name));
-      }
     }
     push(@array,[@row]);
   }
