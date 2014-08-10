@@ -386,8 +386,10 @@ sub ans_matrix {
   my $rows = shift; my $cols = shift; 
   my $size = shift; my $open = shift;
   my $close = shift; my $sep = shift;
-  my %options = @_;
+  my $toplabels = shift;
 
+  my %options = @_;
+  #die(join(';',map {"$_ and $options{$_}"} keys %options));
   my $named_extension = pgRef('NAMED_ANS_ARRAY_EXTENSION');
   my $named_ans_rule  = pgRef('NAMED_ANS_RULE');
   my $HTML = ""; my $ename = $name;
@@ -422,7 +424,6 @@ sub ans_matrix {
     }
     push(@array,[@row]);
   }
-  warn($open);
   $self->format_matrix([@array],open=>$open,close=>$close,sep=>$sep,top_labels=>$toplabels);
 }
 
@@ -853,7 +854,7 @@ sub ANS_MATRIX {
   my %options = @_;
   my $def = $self->context->lists->get('Point');
   my $open = $self->{open} || $def->{open}; my $close = $self->{close} || $def->{close};
-  $self->ans_matrix($extend,$name,1,$self->length,$size,$open,$close,',',%options);
+  $self->ans_matrix($extend,$name,1,$self->length,$size,$open,$close,',','',%options);
 }
 
 sub ans_array {my $self = shift; $self->ANS_MATRIX(0,'',@_)}
@@ -965,11 +966,11 @@ sub ANS_MATRIX {
   my ($def,$open,$close);
   $def = $self->context->lists->get('Matrix');
   $open = $self->{open} || $def->{open}; $close = $self->{close} || $def->{close};
-  return $self->ans_matrix($extend,$name,$self->length,1,$size,$open,$close,%options)
+  return $self->ans_matrix($extend,$name,$self->length,1,$size,$open,$close,'',,'',%options)
     if ($self->{ColumnVector});
   $def = $self->context->lists->get('Vector');
   $open = $self->{open} || $def->{open}; $close = $self->{close} || $def->{close};
-  $self->ans_matrix($extend,$name,1,$self->length,$size,$open,$close,',',%options);
+  $self->ans_matrix($extend,$name,1,$self->length,$size,$open,$close,',','',%options);
 }
 
 sub ans_array {my $self = shift; $self->ANS_MATRIX(0,'',@_)}
@@ -2090,7 +2091,7 @@ sub ANS_MATRIX {
   my $def = $self->context->lists->get($type);
   my $open = $self->{open} || $self->{tree}{open} || $def->{open};
   my $close = $self->{close} || $self->{tree}{close} || $def->{close};
-  $self->ans_matrix($extend,$name,$rows,$cols,$size,$open,$close,$sep,%options);
+  $self->ans_matrix($extend,$name,$rows,$cols,$size,$open,$close,$sep,'',%options);
 }
 
 sub ans_array {
