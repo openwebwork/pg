@@ -382,14 +382,19 @@ our $answerPrefix = "MaTrIx";
 #
 sub ans_matrix {
   my $self = shift;
-  my ($extend,$name,$rows,$cols,$size,$open,$close,$sep,$toplabels) = @_;
+  my $extend = shift; my $name = shift;
+  my $rows = shift; my $cols = shift; 
+  my $size = shift; my $open = shift;
+  my $close = shift; my $sep = shift;
+  my %options = @_;
+
   my $named_extension = pgRef('NAMED_ANS_ARRAY_EXTENSION');
   my $named_ans_rule  = pgRef('NAMED_ANS_RULE');
   my $HTML = ""; my $ename = $name;
   if ($name eq '') {
     $name = pgCall('NEW_ANS_NAME');
-    $ename = "${answerPrefix}_${name}";
   }
+  $ename = "${answerPrefix}_${name}";
   $self->{ans_name} = $ename;
   $self->{ans_rows} = $rows;
   $self->{ans_cols} = $cols;
@@ -397,8 +402,14 @@ sub ans_matrix {
   foreach my $i (0..$rows-1) {
     my @row = ();
     foreach my $j (0..$cols-1) {
+	my $label;
+	if ($options{aria_label}) {		
+	    $label = $options{aria_label}.'row '.($i+1).' col '.($j+1);
+	} else {
+	    $label = pgCall('generate_aria_label',ANS_NAME($ename,$i,$j));
+	    
+	}
 	if ($i == 0 && $j == 0) {
-	    my $label = pgCall('generate_aria_label',ANS_NAME($ename,$i,$j));
 	    if ($extend) {
 		push(@row,&$named_extension($name,$size,ans_label=>$name, aria_label=>$label));
 	    } else {
@@ -406,11 +417,12 @@ sub ans_matrix {
 		push(@row,&$named_ans_rule($name,$size,aria_label=>$label));
 	    }
 	} else {
-	    push(@row,&$named_extension(ANS_NAME($ename,$i,$j),$size,ans_label=>$name));
+	    push(@row,&$named_extension(ANS_NAME($ename,$i,$j),$size,ans_label=>$name, aria_label=>$label));
 	}
     }
     push(@array,[@row]);
   }
+  warn($open);
   $self->format_matrix([@array],open=>$open,close=>$close,sep=>$sep,top_labels=>$toplabels);
 }
 
@@ -838,9 +850,10 @@ sub ANS_MATRIX {
   my $self = shift;
   my $extend = shift; my $name = shift;
   my $size = shift || 5;
+  my %options = @_;
   my $def = $self->context->lists->get('Point');
   my $open = $self->{open} || $def->{open}; my $close = $self->{close} || $def->{close};
-  $self->ans_matrix($extend,$name,1,$self->length,$size,$open,$close,',');
+  $self->ans_matrix($extend,$name,1,$self->length,$size,$open,$close,',',%options);
 }
 
 sub ans_array {my $self = shift; $self->ANS_MATRIX(0,'',@_)}
@@ -947,14 +960,16 @@ sub correct_ans {
 sub ANS_MATRIX {
   my $self = shift;
   my $extend = shift; my $name = shift;
-  my $size = shift || 5; my ($def,$open,$close);
+  my $size = shift || 5; 
+  my %options = @_;
+  my ($def,$open,$close);
   $def = $self->context->lists->get('Matrix');
   $open = $self->{open} || $def->{open}; $close = $self->{close} || $def->{close};
-  return $self->ans_matrix($extend,$name,$self->length,1,$size,$open,$close)
+  return $self->ans_matrix($extend,$name,$self->length,1,$size,$open,$close,%options)
     if ($self->{ColumnVector});
   $def = $self->context->lists->get('Vector');
   $open = $self->{open} || $def->{open}; $close = $self->{close} || $def->{close};
-  $self->ans_matrix($extend,$name,1,$self->length,$size,$open,$close,',');
+  $self->ans_matrix($extend,$name,1,$self->length,$size,$open,$close,',',%options);
 }
 
 sub ans_array {my $self = shift; $self->ANS_MATRIX(0,'',@_)}
@@ -1045,7 +1060,7 @@ sub ANS_MATRIX {
   Value::Error("Can't create ans_array for %d-dimensional matrix",scalar(@d))
     if (scalar(@d) > 2);
   @d = (1,@d) if (scalar(@d) == 1);
-  $self->ans_matrix($extend,$name,@d,$size,$open,$close,$sep,$toplabels);
+  $self->ans_matrix($extend,$name,@d,$size,$open,$close,$sep,$toplabels,%options);
 }
 
 sub ans_array {my $self = shift; $self->ANS_MATRIX(0,'',@_)}
@@ -2060,7 +2075,9 @@ sub correct_ans {
 sub ANS_MATRIX {
   my $self = shift;
   my $extend = shift; my $name = shift;
-  my $size = shift || 5; my $type = $self->type; 
+  my $size = shift || 5; 
+  my %options = @_;
+  my $type = $self->type; 
   my $cols = $self->length; my $rows = 1; my $sep = ',';
   if ($type eq 'Matrix') {
     $sep = ''; $rows = $cols; $cols = $self->{tree}->typeRef->{entryType}{length};
@@ -2073,7 +2090,7 @@ sub ANS_MATRIX {
   my $def = $self->context->lists->get($type);
   my $open = $self->{open} || $self->{tree}{open} || $def->{open};
   my $close = $self->{close} || $self->{tree}{close} || $def->{close};
-  $self->ans_matrix($extend,$name,$rows,$cols,$size,$open,$close,$sep);
+  $self->ans_matrix($extend,$name,$rows,$cols,$size,$open,$close,$sep,%options);
 }
 
 sub ans_array {

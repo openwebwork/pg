@@ -447,7 +447,7 @@ sub ans_rule {
   my $self = shift; my $size = shift || 20;
   my $data = $self->{data}[$self->{part}];
   my $name = $self->ANS_NAME($self->{part}++);
-  if ($self->{singleResult} && $self->{part} == 1) {
+  if ($self->{singleResult} && $self->{part} == 1) {      
       my $label = main::generate_aria_label($answerPrefix.$name."_0");
       return $data->named_ans_rule($name,$size,@_,aria_label=>$label);
   }

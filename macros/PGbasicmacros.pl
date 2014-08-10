@@ -640,18 +640,17 @@ sub generate_aria_label {
     $label .= maketext('answer ').$1.' ';
     
     # check for Multianswer
-    if ($name =~ /^MuLtIaNsWeR_/) {
-	$name =~ s/^MuLtIaNsWeR_//;
-	$name =~ s/_(\d+)$//;
-	$label .= maketext('part ').($1+1).' ';
+    if ($name =~ /MuLtIaNsWeR_/) {
+	$name =~ s/MuLtIaNsWeR_//;
+	$name =~ /AnSwEr(\d+)_(\d+)/;
+	$label .= maketext('part ').($2+1).' ';
     }
     
     # check for Matrix 
-    if ($name =~ /^MaTrIx_AnSwEr/) {
-	$name =~ s/^MaTrIx_AnSwEr0*//;
-	$name =~ /^(\d+)__?(\d+)_(\d+)/;
-	$label .= maketext('row ').($2+1)
-	    .maketext(' column ').($3+1).' ';
+    if ($name =~ /^MaTrIx_/) {
+	$name =~ /_(\d+)_(\d+)$/;
+	$label .= maketext('row ').($1+1)
+	    .maketext(' column ').($2+1).' ';
     }
 
     return $label;
