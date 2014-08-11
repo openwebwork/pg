@@ -105,7 +105,6 @@ package MultiAnswer;
 our @ISA = qw(Value);
 
 our $answerPrefix = "MuLtIaNsWeR_";  # answer rule prefix
-$answerPrefix = $main::PG->{QUIZ_PREFIX}.$answerPrefix if $main::PG->{QUIZ_PREFIX};
 our $separator = ';';                # separator for singleResult previews
 
 =head1 CONSTRUCTOR
@@ -350,11 +349,11 @@ sub entry_cmp {
 sub entry_check {
   my $self = shift; my $ans = shift; $ans->{_filter_name} = "MultiAnswer Entry Check";
   my $i = $ans->{part};
-  $self->{ans}[$i] = $self->{cmp}[$i]->evaluate($ans->{student_ans});
-  $self->{ans}[$i]->score(0);
-  $self->perform_check($ans) if ($i == $self->length - 1);
-  foreach my $id (keys %{$ans}) {$self->{ans}[$i]{$id} = $ans->{$id} unless defined($self->{ans}[$i]{$id})}
-  return $self->{ans}[$i];
+  my $ANS = $self->{cmp}[$i]->evaluate($ans->{student_ans});
+  $self->{ans}[$i] = $ANS; $ANS->{type} = $ans->{type}; $ANS->score(0);
+  foreach my $id (keys %{$ans}) {$ANS->{$id} = $ans->{$id} unless defined($ANS->{$id})} # copy missing original fields
+  $self->perform_check($ANS) if ($i == $self->length - 1);
+  return $ANS;
 }
 
 ######################################################################
