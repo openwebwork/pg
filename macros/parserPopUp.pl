@@ -108,6 +108,7 @@ sub menu {shift->MENU(0,@_)}
 sub MENU {
   my $self = shift; my $extend = shift; my $name = shift;
   my $list = $self->{choices}; my $menu = "";
+  $name = main::NEW_ANS_NAME() unless $name;
   my $answer_value = (defined($main::inputs_ref->{$name}) ? $main::inputs_ref->{$name} : '');
   if ($main::displayMode =~ m/^HTML/) {
     $menu = qq!<SELECT NAME="$name" id="$name" SIZE=1>\n!;
