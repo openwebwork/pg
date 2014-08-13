@@ -104,15 +104,32 @@ sub new {
 #
 #  Create the menu list
 #
-sub menu {
-  my $self = shift;
-  main::pop_up_list($self->{choices});
+sub menu {shift->MENU(0,@_)}
+sub MENU {
+  my $self = shift; my $extend = shift; my $name = shift;
+  my $list = $self->{choices}; my $menu = "";
+  $name = main::NEW_ANS_NAME() unless $name;
+  my $answer_value = (defined($main::inputs_ref->{$name}) ? $main::inputs_ref->{$name} : '');
+  if ($main::displayMode =~ m/^HTML/) {
+    $menu = qq!<SELECT NAME="$name" id="$name" SIZE=1>\n!;
+    foreach my $option (@$list) {
+      my $selected = ($option eq $answer_value) ? " SELECTED" : "";
+      $menu .= qq!<OPTION$selected VALUE="$option">$option</OPTION>\n!;
+    };
+    $menu .= "</SELECT>";
+  } elsif ($main::displayMode eq "TeX") {
+    $menu = "\\fbox{?}";
+  }
+  main::RECORD_ANS_NAME($name,$answer_value) unless $extend;   # record answer name
+  $menu;
 }
 
 #
 #  Answer rule is the menu list
 #
-sub ans_rule {shift->menu(@_)}
+sub ans_rule {shift->MENU(0,'',@_)}
+sub named_ans_rule {shift->MENU(0,@_)}
+sub named_ans_rule_extension {shift->MENU(1,@_)}
 
 ##################################################
 #
