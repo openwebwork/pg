@@ -1181,7 +1181,7 @@ sub COMMENT {
    	my @in = @_;
 	my $out = join("$BR", @in);
 	$out = '<div class=\"AuthorComment\">'.$out.'</div>';
-	PG_restricted_eval(q!$main::pgComment = "!.$out.q!"!);
+	PG_restricted_eval(q!$main::pgComment .= "!.$out.q!"!);
 	return('');
 }
 
