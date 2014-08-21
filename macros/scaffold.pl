@@ -62,8 +62,10 @@ that appear within the section.  For example:
 You can include whatever code you need to between the C<Section::Begin()> 
 and C<Section::End()> calls, so you can create variables, set the Context, 
 perform computations, generate text sections, and so on.  Whatever answer 
-checkers are assigned within a seciton are the ones that are used to 
-decide when that section can be opened by the student.  
+checkers are assigned within a section are the ones that are used to 
+decide when that section can be opened by the student.  Any solutions
+created within a section become part of that section, and will be made
+available from within that section, when applicable.
 
 A section is considered to be "correct" when all the answers contained in
 it are correct.  Note that essay answers are treated specially, and are
