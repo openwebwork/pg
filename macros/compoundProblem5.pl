@@ -199,7 +199,7 @@ so that the contents of the scaffold will be properly displayed.
 
 =cut
 
-sub _scaffold_init {};   # don't reload this file
+sub _compoundProblem5_init {};   # don't reload this file
 
 #
 #  Set up some styles and the jQuery calls for opening and closing the scaffolds.
