@@ -432,7 +432,7 @@ sub NAMED_ANS_RULE_EXTENSION {
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = " ">\n\\end{rawhtml}\n!,
-		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME = "$name" id="$name" VALUE = "$answer_value">!.
+		HTML => qq!<INPUT TYPE=TEXT CLASS="codeshard" SIZE=$col NAME = "$name" id="$name" VALUE = "$answer_value">!.
                         qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" id="previous_$name" VALUE = "$answer_value">!
 	);
 }
@@ -2408,7 +2408,7 @@ sub begintable {
 	 || $displayMode eq 'HTML_asciimath' 
 	 || $displayMode eq 'HTML_LaTeXMathML'
 	 || $displayMode eq 'HTML_img') {
-		$out .= "<TABLE BORDER=1>\n"
+		$out .= "<TABLE BORDER='1' STYLE='text-align:center;'>\n"
 	}
 	else {
 		$out = "Error: PGbasicmacros: begintable: Unknown displayMode: $displayMode.\n";

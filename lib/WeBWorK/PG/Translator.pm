@@ -10,7 +10,7 @@ use warnings;
 use Opcode;
 use WWSafe;
 use Net::SMTP;
-use WeBWorK::PG::IO;
+use WeBWorK::PG::IO; # qw(fileFromPath) -- inconsistent exporting from IO.pm with perl 5.18???? FIXME
 
 #use PadWalker;     # used for processing error messages
 #use Data::Dumper;
@@ -540,7 +540,8 @@ sub unrestricted_load {
 	$safe_cmpt->mask(Opcode::empty_opset());
 	my $safe_cmpt_package_name = $safe_cmpt->root();
 	
-	my $macro_file_name = fileFromPath($filePath);
+	my $macro_file_name = WeBWorK::PG::IO::fileFromPath($filePath);
+	     #FIXME -- above is a work around if fileFromPath is not properly imported (seen with perl 5.18.0)
 	$macro_file_name =~s/\.pl//;  # trim off the extenstion
 	my $export_subroutine_name = "_${macro_file_name}_export";
 	my $init_subroutine_name = "${safe_cmpt_package_name}::_${macro_file_name}_init";
@@ -551,7 +552,8 @@ sub unrestricted_load {
 	my $init_subroutine  = eval { \&{$init_subroutine_name} };
 	warn "No init routine for $init_subroutine_name: $@" if  $debugON and $@;
 	use strict;
-    my $macro_file_loaded = ref($init_subroutine) =~ /CODE/;
+	my $macro_file_loaded = ref($init_subroutine) =~ /CODE/ &&
+	    defined(&$init_subroutine);
 
 	#print STDERR "$macro_file_name   has not yet been loaded\n" unless $macro_file_loaded;	
 	unless ($macro_file_loaded) {

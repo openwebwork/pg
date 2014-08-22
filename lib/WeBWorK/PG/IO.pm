@@ -4,11 +4,10 @@
 ################################################################################
 
 package WeBWorK::PG::IO;
-use base qw(Exporter);
+use parent qw(Exporter);
 use WeBWorK::PG::Translator;
 use JSON qw(decode_json);
 use PGcore qw(not_null);
-our @ISA = qw(PGcore);
 
 
 =head1 NAME
