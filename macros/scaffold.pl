@@ -22,24 +22,25 @@ scaffold.pl - Provides support for multi-part problems where
 
 =head1 DESCRIPTION
 
-Scaffolding macros provide the ability to make a single problem file 
-contain multiple parts, where the later parts aren't visible to the 
-student until the earlier ones are completed.  The author has control over 
-which parts are allowed to be opened, and which are showing, but does not 
-have to keep track of what answer blanks go with which sections (as was 
-the case in the earlier compoundProblem macros). It is even possible to 
-have nested scaffolds within a single problem.
+Scaffolding macros provide the ability to make a single problem file
+contain multiple parts, where the later parts aren't visible to the
+student until the earlier ones are completed.  The author has control
+over which parts are allowed to be opened, and which are showing, but
+does not have to keep track of what answer blanks go with which
+sections (as was the case in the earlier compoundProblem macros). It
+is even possible to have nested scaffolds within a single problem.
 
 To use the scaffolding macros, include the macros into your problem
 
     loadMacros("scaffold.pl");
 
-and then use C<Scaffold::Begin()> to start a scaffold problem and 
-C<Scaffold::End()> to end it.  In between, use C<Section::Begin(title)> and 
-C<Section::End()> around the sections of your problem.  Within a section, 
-use C<BEGIN_TEXT/END_TEXT> or C<BEGIN_PGML/END_PGML> to create the text of 
-the section as usual, and C<ANS()> to assign answer checkers to the blanks 
-that appear within the section.  For example:
+and then use C<Scaffold::Begin()> to start a scaffold problem and
+C<Scaffold::End()> to end it.  In between, use
+C<Section::Begin(title)> and C<Section::End()> around the sections of
+your problem.  Within a section, use C<BEGIN_TEXT/END_TEXT> or
+C<BEGIN_PGML/END_PGML> to create the text of the section as usual, and
+C<ANS()> to assign answer checkers to the blanks that appear within
+the section.  For example:
 
     Scaffold::Begin();
     
@@ -59,37 +60,39 @@ that appear within the section.  For example:
     
     Scaffold::End();
 
-You can include whatever code you need to between the C<Section::Begin()> 
-and C<Section::End()> calls, so you can create variables, set the Context, 
-perform computations, generate text sections, and so on.  Whatever answer 
-checkers are assigned within a section are the ones that are used to 
-decide when that section can be opened by the student.  Any solutions
-created within a section become part of that section, and will be made
-available from within that section, when applicable.
+You can include whatever code you need to between the
+C<Section::Begin()> and C<Section::End()> calls, so you can create
+variables, set the Context, perform computations, generate text
+sections, and so on.  Whatever answer checkers are assigned within a
+section are the ones that are used to decide when that section can be
+opened by the student.  Any solutions created within a section become
+part of that section, and will be made available from within that
+section, when applicable.
 
-A section is considered to be "correct" when all the answers contained in
-it are correct.  Note that essay answers are treated specially, and are
-always considered correct (when non-empty) for purposes of determining when
-a section is correct.  You can also force a non-empty answer blank to be
-considered correct by using the C<scaffold_force> option on the answer
-checker.  For example:
+A section is considered to be "correct" when all the answers contained
+in it are correct.  Note that essay answers are treated specially, and
+are always considered correct (when non-empty) for purposes of
+determining when a section is correct.  You can also force a non-empty
+answer blank to be considered correct by using the C<scaffold_force>
+option on the answer checker.  For example:
 
     ANS(Real(123)->cmp(scaffold_force => 1));
 
-would mean that this answer would not have to be correct for the section 
-to be considered correct.
+would mean that this answer would not have to be correct for the
+section to be considered correct.
 
-Note that you can also create text (or even answer blanks and checkers) 
-between the sections, or before the first one, or after the last one, if 
-you wish.  That material would always be showing, regardless of which 
-sections are open. So, for example, you could put a data table in the area 
-before the first section, so that it would be visible throughtout the 
-problem, no matter which section the student is working on.
+Note that you can also create text (or even answer blanks and
+checkers) between the sections, or before the first one, or after the
+last one, if you wish.  That material would always be showing,
+regardless of which sections are open. So, for example, you could put
+a data table in the area before the first section, so that it would be
+visible throughtout the problem, no matter which section the student
+is working on.
 
-The C<Scaffold::Begin()> function accepts optional parameters that control 
-the functioning of the scaffold as a whole.  The primary use it to control 
-when the sections can be opened by the student, and which is currently 
-open.  The following options are provided:
+The C<Scaffold::Begin()> function accepts optional parameters that
+control the functioning of the scaffold as a whole.  The primary use
+it to control when the sections can be opened by the student, and
+which is currently open.  The following options are provided:
 
 =over
 
@@ -118,49 +121,52 @@ C<instructor_can_open> option (described below) is used instead.
 
 =item C<S<< is_open => condition >>>
 
-This is similar to the C<can_open> option above, but determines whether the
-section will be open when the problem is displayed.  The possible values
-are C<"always">, C<"incorrect">, C<"first_incorrect">,
-C<"correct_or_first_incorrect">, C<"never">, or a reference to a subroutine
-that returns 0 or 1 depending on whether the section should be open or not
-(the subroutine is passed a reference to the section object).  Note that a
-section will only open if the C<can_open> condition is also met, so you do
-need to coordinate these two values.  The default is C<"first_incorrect">,
-which means that only the first section with incorrect answers will be open
-when the problem is displayed after answers are submitted (though the
-student may be abe to open other sections afterward, depending the value if
-C<can_open>.  The value C<"incorrect"> would mean that all incorrect or
-incomplete sections are open (the student can see all future work that he
-or she must complete) but correct sections are closed, while
-C<"correct_or_first_incorrect"> would be the opposite:  all correct 
-sections and the first incorrect one are opened while the later sections 
-are closed (the student can see the completed work, but not the future 
-sections).  As expected, C<"always"> would mean every section that can be 
-opened will be open, and C<"never"> means no section is opened.
+This is similar to the C<can_open> option above, but determines
+whether the section will be open when the problem is displayed.  The
+possible values are C<"always">, C<"incorrect">, C<"first_incorrect">,
+C<"correct_or_first_incorrect">, C<"never">, or a reference to a
+subroutine that returns 0 or 1 depending on whether the section should
+be open or not (the subroutine is passed a reference to the section
+object).  Note that a section will only open if the C<can_open>
+condition is also met, so you do need to coordinate these two values.
+The default is C<"first_incorrect">, which means that only the first
+section with incorrect answers will be open when the problem is
+displayed after answers are submitted (though the student may be abe
+to open other sections afterward, depending the value if C<can_open>.
+The value C<"incorrect"> would mean that all incorrect or incomplete
+sections are open (the student can see all future work that he or she
+must complete) but correct sections are closed, while
+C<"correct_or_first_incorrect"> would be the opposite: all correct
+sections and the first incorrect one are opened while the later
+sections are closed (the student can see the completed work, but not
+the future sections).  As expected, C<"always"> would mean every
+section that can be opened will be open, and C<"never"> means no
+section is opened.
 
 Hardcopy versions of the problem use the C<hardcopy_is_open> option
 (described below).
 
 =item C<S<< instructor_can_open => condition >>> 
 
-This provides the condition for when an instructor (as opposed to a 
-student) can open a section.  By default, this is set to C<"always">, so 
-that instructors can look at any section of the problem, but you can set 
-it to any value for C<can_open> above.  If you are an instructor and want 
-to test how a problem looks for a student, you can set
+This provides the condition for when an instructor (as opposed to a
+student) can open a section.  By default, this is set to C<"always">,
+so that instructors can look at any section of the problem, but you
+can set it to any value for C<can_open> above.  If you are an
+instructor and want to test how a problem looks for a student, you can
+set
 
     $Scaffold::isInstructor = 0;
 
-temporarily while testing the problem.  Remember to remove that when you 
-are done, however.
+temporarily while testing the problem.  Remember to remove that when
+you are done, however.
 
 =item C<S<< after_AnswerDate_can_open => condition >>>
 
 This is similar to the C<can_open> option (described above), and is
 used in place of it when the answers are available.  The default is
 C<"always">.  That means that after the answer date, the student will
-be able to open all the sections regardless of whether the answers
-are correct or not.
+be able to open all the sections regardless of whether the answers are
+correct or not.
 
 =item C<S<< hardcopy_is_open => condition >>>
 
@@ -173,13 +179,13 @@ open when viewed on line.
 
 =item C<S<< open_first_section => 0 or 1 >>>
 
-This determines whether the initial section is open (when it can be).  
-With the default C<can_open> and C<is_open> settings, the first section 
-will be open automatically when the problem is first viewed, but if you 
-have material to read (or even answers to give) prior to the first 
-section, you might want the first section to be closed, and have the 
-student open it by hand before anwering the questions.  In this case, set 
-this value to 0 (it is 1 by default).
+This determines whether the initial section is open (when it can be).
+With the default C<can_open> and C<is_open> settings, the first
+section will be open automatically when the problem is first viewed,
+but if you have material to read (or even answers to give) prior to
+the first section, you might want the first section to be closed, and
+have the student open it by hand before anwering the questions.  In
+this case, set this value to 0 (it is 1 by default).
 
 =back
 
@@ -242,17 +248,18 @@ Some useful configurations are:
       is_open  => "incorrect"
     );
 
-The C<Section::Begin()> macro also accepts the option C<can_open>, 
-C<is_open>, and C<instructor_can_open> described above.  This allows you 
-to override the defaults for a particular section.  In particular, you can 
-provide a subroutine that determines when the section can or should be open.
+The C<Section::Begin()> macro also accepts the option C<can_open>,
+C<is_open>, and C<instructor_can_open> described above.  This allows
+you to override the defaults for a particular section.  In particular,
+you can provide a subroutine that determines when the section can or
+should be open.
 
-Note that values like C<$showPartialCorrectAnswers> and the 
-isntalled grader are global to the whole problem, so can't be set 
-individually on a per section basis.  Also note that the answers aren't 
-checked until the end of the problem, so any changes you make to the 
-C<Context()> after a section is ended will still affect the context within 
-that section.
+Note that values like C<$showPartialCorrectAnswers> and the isntalled
+grader are global to the whole problem, so can't be set individually
+on a per section basis.  Also note that the answers aren't checked
+until the end of the problem, so any changes you make to the
+C<Context()> after a section is ended will still affect the context
+within that section.
 
 =cut
 
