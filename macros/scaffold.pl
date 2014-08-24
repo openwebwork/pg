@@ -98,17 +98,23 @@ open.  The following options are provided:
 This specifies when a section can be opened by the student.  The
 C<condition> is either one of the strings C<"always">,
 C<"when_previous_correct">, C<"first_incorrect">, C<"incorrect"> or
-C<"never">, or is a reference to a subroutine that returns 0 or 1 depending
-on whether the section can be opened or not (the subroutine is passed a
-reference to the section object).  The default value is
-C<"when_previous_correct">, which means that all the correct sections and
-the first section incorrect or empty blanks would be able to be opened by
-the student.  The value C<"first_correct"> would mean that correct sections
-can not be reopened, and only the first one that is not fully correct can
-be, while C<"incorrect"> means that only incorrect sections can be opened
-(so once a section is correct, it can't be reopened).  The value
-C<"always"> means the student can always open the section, and C<"never">
-means that the section can never be opened.
+C<"never">, or is a reference to a subroutine that returns 0 or 1
+depending on whether the section can be opened or not (the subroutine
+is passed a reference to the section object).  The default value is
+C<"when_previous_correct">, which means that all the correct sections
+and the first section incorrect or empty blanks would be able to be
+opened by the student.  The value C<"first_correct"> would mean that
+correct sections can not be reopened, and only the first one that is
+not fully correct can be, while C<"incorrect"> means that only
+incorrect sections can be opened (so once a section is correct, it
+can't be reopened).  The value C<"always"> means the student can
+always open the section, and C<"never"> means that the section can
+never be opened.
+
+If answers are available (i.e., it is afer the answer date), then the
+C<after_AnswerDate_can_open> option (described below) is used instead
+of this option.  If not and the user is a professor, then the
+C<instructor_can_open> option (described below) is used instead.
 
 =item C<S<< is_open => condition >>>
 
@@ -132,6 +138,9 @@ are closed (the student can see the completed work, but not the future
 sections).  As expected, C<"always"> would mean every section that can be 
 opened will be open, and C<"never"> means no section is opened.
 
+Hardcopy versions of the problem use the C<hardcopy_is_open> option
+(described below).
+
 =item C<S<< instructor_can_open => condition >>> 
 
 This provides the condition for when an instructor (as opposed to a 
@@ -141,11 +150,28 @@ it to any value for C<can_open> above.  If you are an instructor and want
 to test how a problem looks for a student, you can set
 
     $Scaffold::isInstructor = 0;
- 
+
 temporarily while testing the problem.  Remember to remove that when you 
 are done, however.
 
-=item C<S<< open_first_section => 0 or 1 >>> 
+=item C<S<< after_AnswerDate_can_open => condition >>>
+
+This is similar to the C<can_open> option (described above), and is
+used in place of it when the answers are available.  The default is
+C<"always">.  That means that after the answer date, the student will
+be able to open all the sections regardless of whether the answers
+are correct or not.
+
+=item C<S<< hardcopy_is_open => condition >>>
+
+This is similar to the C<is_open> option (described above), and is
+used in place of it when the problem appears in hardcopy output.  The
+default is C<"always">, which means that any sections that can be open
+will be open in hardcopy output.  This allows the student to see the
+parts of the problem that are already complete, even if they don't
+open when viewed on line.
+
+=item C<S<< open_first_section => 0 or 1 >>>
 
 This determines whether the initial section is open (when it can be).  
 With the default C<can_open> and C<is_open> settings, the first section 
@@ -237,7 +263,12 @@ sub _scaffold_init {};   # don't reload this file
 #
 package Scaffold;
 
-our $isInstructor = ($main::envir{effectivePermissionLevel} >= $main::envir{ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL});
+our $isLibrary = ($main::envir{effectivePermissionLevel} eq "");  # Library and problem set detail pages don't set this
+our $isInstructor = (
+  $isLibrary || $main::envir{effectivePermissionLevel} >= $main::envir{ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL}
+);
+our $isHardcopy = ($main::displayMode eq "TeX");
+our $afterAnswerDate = (time() > $main::envir{answerDate});
 
 our $scaffold;           # the active scaffold (set by Begin() below)
 my  @scaffolds = ();     # array of nested scaffolds
@@ -245,6 +276,8 @@ my  $scaffold_no = 0;    # each scaffold gets a unique number
 
 our $PG_ANSWERS_HASH = $main::PG->{PG_ANSWERS_HASH};  # where PG stores answer evaluators
 our $PG_OUTPUT = $main::PG->{OUTPUT_ARRAY};           # where PG stores the TEXT() output
+
+our $PREFIX = "$main::envir{QUIZ_PREFIX}Prob-$main::envir{questionNumber}";
 
 #
 #  Scaffold::Begin() is used to start a new scaffold section, passing
@@ -305,8 +338,10 @@ sub new {
   my $class = shift; $class = ref($class) if ref($class);
   my $self = bless {
     can_open => "when_previous_correct",
-    is_open => "first_incorrect",
     instructor_can_open => "always",
+    after_AnswerDate_can_open => "always",        # all sections can be opened after answer date
+    is_open => "first_incorrect",
+    hardcopy_is_open => "always",                 # open all possible sections in hardcopy
     open_first_section => 1,                      # 0 means don't open any sections initially
     @_,
     number => ++$scaffold_no,                     # the number for this section
@@ -330,7 +365,7 @@ sub start_section {
   $self->{sections}{++$self->{section_no}} = $section;
   $self->{current_section} = $section;
   $section->{number} = $self->{section_no};
-  $section->{label} = "scaffold-".$self->{number}."_section-".$section->{number};
+  $section->{label} = "${PREFIX}_SC-$self->{number}_SECT-$section->{number}";
   return $section;
 }
 
@@ -460,6 +495,7 @@ sub Begin {
   Scaffold->Error("Sections must appear within a Scaffold") unless $scaffold;
   Scaffold->Error("Section::Begin() while a section is already open") if $scaffold->{current_section};
   my $self = $scaffold->start_section(Section->new(@_));
+  $self->{name} = "Part $self->{number}:" unless $self->{name};
   $self->{previous_ans} = [@{$scaffold->{ans_names}}],      # copy of current list of answers in the scaffold
   $self->{assigned_ans} = [$self->assigned_ans],            # array indicating which answers have evaluators
   return $self;
@@ -497,8 +533,10 @@ sub new {
   my $self = bless {
     name => $name,
     can_open => $scaffold->{can_open},
-    is_open => $scaffold->{is_open},
     instructor_can_open => $scaffold->{instructor_can_open},
+    after_AnswerDate_can_open => $scaffold->{after_AnswerDate_can_open},
+    is_open => $scaffold->{is_open},
+    hardcopy_is_open => $scaffold->{hardcopy_is_open},
     @_,
   }, $class;
   return $self;
@@ -555,7 +593,10 @@ sub is_correct {
 #    If the author supplied code, use it, otherwise use the routine from Section::can_open.
 #
 sub can_open {
-  my $self = shift; my $method = ($Scaffold::isInstructor ? $self->{instructor_can_open} : $self->{can_open});
+  my $self = shift;
+  return 1 if $Scaffold::isLibrary;          # always open in library browser and problem set details
+  my $method = ($Scaffold::isInstructor ? $self->{instructor_can_open} : $self->{can_open});
+  $method = $self->{after_AnswerDate_can_open} if $Scaffold::afterAnswerDate;
   $method = "Section::can_open::".$method unless ref($method) eq 'CODE';
   return &{$method}($self);
 }
@@ -565,8 +606,11 @@ sub can_open {
 #    If the author supplied code, use it, otherwise use the routine from Section::is_open.
 #
 sub is_open {
-  my $self = shift; my $method = $self->{is_open};
-  return 0 unless $self->{can_open};                    # only open ones that are allowed to be open
+  my $self = shift;
+  return 1 if $Scaffold::isLibrary;          # always open in library browser and problem set details
+  return 0 unless $self->{can_open};         # only open ones that are allowed to be open
+  my $method = $self->{is_open};
+  $method = $self->{hardcopy_is_open} if $Scaffold::isHardcopy;
   $method = "Section::is_open::".$method unless ref($method) eq 'CODE';
   return &{$method}($self);
 }
@@ -671,8 +715,7 @@ sub incorrect {
 #
 sub first_incorrect {
   my $section = shift;
-  return 0 if @{$Scaffold::scaffold->{open}};
-  return Section::is_open::incorrect($section);
+  return Section::is_open::incorrect($section) && Section::can_open::when_previous_correct($section);
 }
 #
 #  All correct sections and the first incorrect section
@@ -694,7 +737,7 @@ package main;
 #
 #  Set up some styles and the jQuery calls for opening and closing the scaffolds.
 #
-HEADER_TEXT(<<'END_HEADER_TEXT');
+TEXT(<<'END_HEADER_TEXT') if !$Scaffold::isHardcopy;  # should be HEADER_TEXT, but that gets lost in library browser
 
 <style type="text/css">
 .section-div > div {padding:0 .5em;}    /* move the contents away from the edges */
@@ -703,12 +746,27 @@ HEADER_TEXT(<<'END_HEADER_TEXT');
   margin: 3px 1px;                      /* adjust its position slightly */
   vertical-align: -5px;
 }
+.section-div > h3 {
+  color: #212121!important;
+  border-color: #AAAAAA!important;
+  font-weight: normal!important;
+  font-style: normal!important;
+}
+.section-div > h3.ui-state-default {
+  color: #555555!important;
+}
+.section-div > div.ui-accordion-content {
+  background: #FAFAFA!important;
+}
 .canopen    {background:yellow!important;}
 .iscorrect  {background:lightgreen!important;}
-.cannotopen {padding-left: 16px}        /* leave space that would have been triangle */
+.cannotopen {
+  background:#EEEEEE!important;
+  padding: 3px 0px 3px 16px;        /* leave space that would have been triangle */
+}
 </style>
 
-<script language="javascript">
+<script type="text/javascript">
 $.fn.canopen = function() {
    $(this).addClass("canopen ui-accordion-header ui-helper-reset ui-state-default ui-corner-top ui-corner-bottom")
    .hover(function() { $(this).toggleClass("ui-state-hover"); })
