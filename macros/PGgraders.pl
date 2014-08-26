@@ -267,18 +267,18 @@ sub custom_problem_grader_fluid {
 
 
     if ($#grader_numright != $#grader_scores) {
-        WARN("Scoring guidelines inconsistent: unequal arrays!");
+        WARN_MESSAGE("Scoring guidelines inconsistent: unequal arrays!");
     }
     for ($i=0;$i<$#grader_numright;$i++) {
       if($grader_numright[$i]>=$grader_numright[$i+1]) {
-        WARN("Scoring guidelines inconsistent: raw scores not increasing!");
+        WARN_MESSAGE("Scoring guidelines inconsistent: raw scores not increasing!");
       }
       if($grader_scores[$i]>=$grader_scores[$i+1]) {
-        WARN("Scoring guidelines inconsistent: scores not increasing!");
+        WARN_MESSAGE("Scoring guidelines inconsistent: scores not increasing!");
       }
     }
     if ($grader_scores[$#grader_scores] != 1) {
-        WARN("Scoring guidelines inconsistent: best score < 1");
+        WARN_MESSAGE("Scoring guidelines inconsistent: best score < 1");
     }
 #    $i = 1;
 #    while (defined($ans_ref = $evaluated_answers{'AnSwEr'."$i"})) { 
