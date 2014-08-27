@@ -11,11 +11,11 @@ sub _PG_init{
 	$main::VERSION ="WW2.9+";
 }
 
-sub not_null {PGcore->not_null(@_)};
-
-sub pretty_print {PGcore->pretty_print(shift,$main::displayMode)};
-
 our $PG;  
+
+sub not_null {$PG->not_null(@_)};
+
+sub pretty_print {$PG->pretty_print(shift,$main::displayMode)};
 
 sub DEBUG_MESSAGE {
     my @msg = @_;

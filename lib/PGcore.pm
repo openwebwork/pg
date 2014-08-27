@@ -39,7 +39,14 @@ sub not_null {
 
 sub pretty_print {
     my $self = shift;
-    PGUtil::pretty_print(@_); 
+    my $input = shift;
+    my $displayMode = shift;
+
+    if (!PGUtil::not_null($displayMode) && ref($self) eq 'PGcore') {
+	$displayMode = $self->{displayMode};
+    }
+    warn "displayMode not defined" unless $displayMode;
+    PGUtil::pretty_print($input, $displayMode); 
 }
 
 sub new {
@@ -274,7 +281,7 @@ sub TEXT {
 sub envir {
 	my $self = shift;
 	my $in_key = shift;
-	if ( PGcore->not_null($in_key) ) {
+	if ( $self->not_null($in_key) ) {
   		if (defined  ($self->{envir}->{$in_key} ) ) {
   			$self->{envir}->{$in_key};
   		} else {
@@ -282,7 +289,7 @@ sub envir {
   			return '';
   		}
 	} else {
- 		warn "<h3> Environment</h3>".PGcore->pretty_print($self->{envir});
+ 		warn "<h3> Environment</h3>".$self->pretty_print($self->{envir});
  		return '';
 	}
 
