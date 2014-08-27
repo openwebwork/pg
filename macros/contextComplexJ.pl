@@ -76,7 +76,7 @@ different values.  For example.
 
 	Context()->flags->set(
 	  enterComplex => "either",
-	  displayComplex => ".",
+	  displayComplex => "i",
 	);
 
 would allow students to enter complex numbers in either format, but
@@ -108,11 +108,6 @@ If you want to force students to enter the alternate format, use
 
 	loadMacros("contextComplexJ.pl");
         context::ComplexJ->Default("j","j");
-
-This will force the display of all numbers into the alternate form (so
-even the ones created in the problem using standard form will show
-using j's), and will force students to enter their results using
-js as well.  Professor's answers will still be allowed to 
 
 This will force the display of all complex numbers to use j notation
 (so even the ones created in the problem using standard form will show
