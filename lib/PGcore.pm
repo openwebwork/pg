@@ -274,7 +274,7 @@ sub TEXT {
 sub envir {
 	my $self = shift;
 	my $in_key = shift;
-	if ( PGUtil::not_null($in_key) ) {
+	if ( PGcore->not_null($in_key) ) {
   		if (defined  ($self->{envir}->{$in_key} ) ) {
   			$self->{envir}->{$in_key};
   		} else {
@@ -282,7 +282,7 @@ sub envir {
   			return '';
   		}
 	} else {
- 		warn "<h3> Environment</h3>".PGUtil::pretty_print($self->{envir});
+ 		warn "<h3> Environment</h3>".PGcore->pretty_print($self->{envir});
  		return '';
 	}
 

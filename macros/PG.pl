@@ -13,7 +13,7 @@ sub _PG_init{
 
 sub not_null {PGcore->not_null(@_)};
 
-sub pretty_print {PGcore->pretty_print(@_)};
+sub pretty_print {PGcore->pretty_print(shift,$main::displayMode)};
 
 our $PG;  
 
