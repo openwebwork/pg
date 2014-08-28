@@ -695,7 +695,7 @@ sub encode_base64 ($;$) {
 
 There are three message channels
 	$PG->debug_message()   or in PG:  DEBUG_MESSAGE() 
-	$PG->warning_message() or in PG:  WARNING_MESSAGE()
+	$PG->warning_message() or in PG:  WARN_MESSAGE()
 	
 They behave the same way, it is simply convention as to how they are used.
 	
