@@ -226,6 +226,7 @@ sub DataTable {
     {$options{allcellcss} = 'padding-left:6pt; padding-right:6pt; '.$options{allcellcss}}
     else {$options{allcellcss} = 'padding:12pt; '.$options{allcellcss}};
   $options{captioncss} = 'padding:6pt; '.$options{captioncss};
+  $options{tablecss} = 'border-collapse:collapse; '.$options{tablecss};
   
   my $caption = $options{caption};
   my ($tablecss, $captioncss, $datacss, $headercss, $allcellcss, $texalignment, $midrules, $columnscss, $Xratio, $encase) = 
@@ -350,7 +351,8 @@ sub DataTable {
         {my $j = $i; while (!defined($alignmentcolumns[$j]) && $j < $#htmlalignment) {$j += 1;};
           if ($j < $#htmlalignment) {$columnscss->[$alignmentcolumns[$j]] = "border-left:solid 1px; ".$columnscss->[$alignmentcolumns[$j]];};
           if ($alignmentcolumns[$j] != 0) {$columnscss->[$alignmentcolumns[$j]-1] = "border-right:solid 1px; ".$columnscss->[$alignmentcolumns[$j]-1];}
-          if ($j == $#htmlalignment) {$columnscss->[-1] = "border-right:solid 1px; ".$columnscss->[-1];}
+          if ($j == $#htmlalignment) 
+            {if ($j == $i) {$columnscss->[-1] = "border-right:solid 1px; ".$columnscss->[-1];} else {$columnscss->[-1] = "border-left:solid 1px; ".$columnscss->[-1];}}
         };
 
     };
