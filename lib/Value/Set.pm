@@ -44,7 +44,7 @@ sub new {
 }
 
 #
-#  Set the canBeInterval flag
+#  Make a set (might not be reduced)
 #
 sub make {
   my $self = shift;
@@ -52,7 +52,13 @@ sub make {
   my $def = $context->lists->get('Set');
   $self = $self->SUPER::make($context,@_);
   $self->{open} = $def->{open}; $self->{close} = $def->{close};
+  delete $self->{isReduced};
   return $self;
+}
+
+sub noinherit {
+  my $self = shift;
+  ($self->SUPER::noinherit,"isReduced");
 }
 
 sub isOne {0}
@@ -88,8 +94,10 @@ sub promote {
 #
 sub add {
   my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
-  return $self->make($l->value,$r->value) if $l->type eq 'Set' && $r->type eq 'Set';
-  Value::Union::form($self->context,$l,$r);
+  return Value::Union::form($self->context,$l,$r) unless $l->type eq 'Set' && $r->type eq 'Set';
+  my $sum = $self->make($l->value,$r->value);
+  $sum = $sum->reduce if $self->getFlag("reduceSets");
+  return $sum;
 }
 sub dot {my $self = shift; $self->add(@_)}
 

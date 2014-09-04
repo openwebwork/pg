@@ -52,6 +52,24 @@ sub new {
 }
 
 #
+#  Make a set (it might not be reduced)
+#
+sub make {
+  my $self = shift;
+  my $union = $self->SUPER::make(@_);
+  delete $union->{isReduced};
+  return $union;
+}
+
+#
+#  Don't inherit the reduced flags
+#
+sub noinherit {
+  my $self = shift;
+  ($self->SUPER::noinherit,"isReduced");
+}
+
+#
 #  Make a union or interval or set, depending on how
 #  many there are in the union.
 #
@@ -233,7 +251,7 @@ sub reduce {
 #  True if a union is reduced.
 #
 #  (In array context, is a pair whose first entry is true or
-#   false, and when true the second value is the reason the
+#   false, and when false the second value is the reason the
 #   set is not reduced.)
 #
 sub isReduced {
