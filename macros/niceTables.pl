@@ -20,7 +20,7 @@
 ##  And if you have a WeBWorK version earlier than 2.10, you need to add calls to these packages to hardcopyPreamble.tex
 ##    in webwork2/conf/snippets/
 
-sub _pccTables_init {}; # don't reload this file
+sub _niceTables_init {}; # don't reload this file
 
 =head2 pccTables.pl
 
