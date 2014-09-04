@@ -90,14 +90,11 @@ sub promote {
 #
 
 #
-#  Addition forms unions (or combines sets)
+#  Addition forms unions
 #
 sub add {
   my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
-  return Value::Union::form($self->context,$l,$r) unless $l->type eq 'Set' && $r->type eq 'Set';
-  my $sum = $self->make($l->value,$r->value);
-  $sum = $sum->reduce if $self->getFlag("reduceSets");
-  return $sum;
+  $self->Package("Union")->new($l,$r);
 }
 sub dot {my $self = shift; $self->add(@_)}
 
