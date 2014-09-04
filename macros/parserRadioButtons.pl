@@ -356,7 +356,7 @@ sub BUTTONS {
   #  It is wrong to have \item in the radio buttons and to add itemize here,
   #    but that is the way PGbasicmacros.pl does it.
   #
-  if ($displayMode eq 'TeX') {
+  if ($main::displayMode eq 'TeX') {
     $radio[0] = "\n\\begin{itemize}\n" . $radio[0];
     $radio[$#radio_buttons] .= "\n\\end{itemize}\n";
   }
