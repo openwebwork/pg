@@ -16,9 +16,9 @@
 
 =head1 NAME
 
-scaffold.pl - Provides support for multi-part problems where
-              later parts are not visible until earlier parts
-              are completed correctly.
+compoundProblem5.pl - Provides support for multi-part problems where
+                      later parts are not visible until earlier parts
+                      are completed correctly.
 
 =head1 DESCRIPTION
 
@@ -36,7 +36,7 @@ C<PROCESS_SECTIONS()> to finalize all the sections.
 
 Here is a sample:
 
-	loadMacros("scaffold.pl");
+	loadMacros("compoundProblem5.pl");
 	
 	$scaffold = Scaffold();   # create the scaffold
 	Context("Numeric");
