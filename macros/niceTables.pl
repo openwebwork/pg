@@ -412,7 +412,7 @@ sub DataTable {
   $table .= '</colgroup>';
   my $bodystarted = 0;
   for my $i (0..$#{$dataref})
-    {my $midrulecss = (${$dataref->[$i][$j]}{midrule} == 1) ? 'border-bottom:solid 1px; ' : '';
+    {my $midrulecss = ($midrule[$i] == 1) ? 'border-bottom:solid 1px; ' : '';
      if ($i == $#{$dataref} and ($midrules == 1)) {$midrulescss .= 'border-bottom:solid 1px; ';}
      if ($headerrow[$i] == 1) {$table .= '<THEAD>'; } 
      elsif (!$bodystarted) {$table .= '<TBODY>'; $bodystarted = 1};
@@ -442,7 +442,7 @@ sub DataTable {
      $table = '<SECTION style = "display:table;'.$tablecss.'">';
      for my $i (0..$#{$dataref})
      {if ($i == $#{$dataref} and ($midrules == 1)) {$midrulescss .= "border-bottom:solid 1px;";}
-      my $midrulecss = (${$dataref->[$i][$j]}{midrule} == 1) ? 'border-bottom:solid 1px; ' : '';
+      my $midrulecss = ($midrule[$i] == 1) ? 'border-bottom:solid 1px; ' : '';
       $table .= '<DIV style = "display:table-row;">';
        for my $j (0..$numcols[$i])
          {$table .= '<DIV style = "display:table-cell;'.$allcellcss.$columnscss->[$j].$midrulecss.$midrulescss.$rowcss[$i].${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</DIV>';}
