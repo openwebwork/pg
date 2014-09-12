@@ -19,6 +19,7 @@ sub new {
   $p = Value::makeValue($p,context=>$context) if defined($p) && !ref($p);
   return $p if Value::isFormula($p) && Value::classMatch($self,$p->type);
   my $isFormula = 0; my @d; @d = $p->dimensions if Value::classMatch($p,'Matrix');
+  $p = $p->reduce if Value::classMatch($p,'Union');
   if (Value::classMatch($p,'List') && $p->typeRef->{entryType}{name} eq 'Number') {$p = $p->data}
   elsif (Value::classMatch($p,'Point','Vector','Set')) {$p = $p->data}
   elsif (scalar(@d) == 1) {$p = [$p->value]}
