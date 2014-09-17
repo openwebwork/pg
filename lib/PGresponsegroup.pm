@@ -17,7 +17,7 @@ package PGresponsegroup;
 
 use strict;
 use Exporter;
-use PGcore  qw(not_null) ;
+use PGUtil  qw(not_null) ;
 use PGanswergroup;
 use Tie::IxHash;
 
