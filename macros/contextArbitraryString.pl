@@ -115,7 +115,7 @@ sub quoteTeX {
 #
 sub quoteHTML {
   my $s = shift;
-  $s = encode_pg_and_html();
+  $s = main::encode_pg_and_html($s);
   $s = "<pre style=\"text-align:left; padding-left:.2em\">$s</pre>"
     unless $main::displayMode eq "TeX";
   return $s;

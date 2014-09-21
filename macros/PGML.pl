@@ -979,7 +979,7 @@ our @ISA = ('PGML::Format');
 sub Escape {
   my $self = shift;
   my $string = shift; return "" unless defined $string;
-  return encode_pg_and_html($string);
+  return main::encode_pg_and_html($string);
 }
 
 sub Indent {

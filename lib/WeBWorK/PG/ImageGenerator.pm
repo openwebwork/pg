@@ -27,6 +27,7 @@ FIXME: add this
 use strict;
 use warnings;
 use DBI;
+use PGcore;
 use WeBWorK::Constants;
 use WeBWorK::EquationCache;
 
@@ -293,9 +294,11 @@ sub add {
 	# ... and the full URL.
 	my $imageURL = "$url/$imageName";
 	
+	my $safeString = PGcore::encode_pg_and_html($string);
+
 	my $imageTag  = ($mode eq "display")
-		? "<div align=\"center\"><img src=\"$imageURL\" $aligntag alt=\"$string\"></div>"
-		: "<img src=\"$imageURL\" $aligntag alt=\"$string\">";
+		? "<div align=\"center\"><img src=\"$imageURL\" $aligntag alt=\"$safeString\"></div>"
+		: "<img src=\"$imageURL\" $aligntag alt=\"$safeString\">";
 
 	return $imageTag;
 }
