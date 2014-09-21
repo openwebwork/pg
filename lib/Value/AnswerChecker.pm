@@ -641,7 +641,7 @@ sub protectHTML {
   my $string = shift;
   return unless defined($string);
   return $string if eval ('$main::displayMode') eq 'TeX';
-  encode_pg_and_html($string);
+  return PGcore::encode_pg_and_html($string);
 }
 
 #

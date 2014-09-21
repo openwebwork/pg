@@ -327,7 +327,7 @@ sub fromHex {main::spf(hex(shift)+10,"%c")}
 #
 sub quoteHTML {
   my $string = shift;
-  return encode_pg_and_html($string);
+  return main::encode_pg_and_html($string);
 }
 
 ##################################################
