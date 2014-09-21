@@ -15,6 +15,8 @@ sub not_null {PGcore::not_null(@_)};
 
 sub pretty_print {PGcore::pretty_print(@_)};
 
+sub encode_pg_and_html {PGcore::encode_pg_and_html(@_)};
+
 our $PG;  
 
 sub DEBUG_MESSAGE {
@@ -63,26 +65,13 @@ sub DOCUMENT {
 	#FIXME
 	# load java script needed for displayModes
 	if ($envir{displayMode} eq 'HTML_MathJax') {
-		##
-		# The following is used to prevent MathJax from being loaded more than one on a page. (Happened in WW3 library browser)
-		#
-		# If there are any errors replace the line starting "window.MathJax" with the string in $loadScript.
-		#
 	    TEXT(
-		 qq?<script type="text/x-mathjax-config">
+		 '<script type="text/x-mathjax-config">
                   MathJax.Hub.Config({
                      MathMenu: {showContext: true}
                   });
                   </script>
-				  <script type="text/javascript"> 
-				  if(!window.MathJax) 
-				  (function () {
-  					var script = document.createElement("script");
-  					script.type = "text/javascript";
-  					script.src  = "$envir{MathJaxURL}";
-  					document.getElementsByTagName("head")[0].appendChild(script);
-					})();                
-                  </script>?."\n");
+                  <script src="'.$envir{MathJaxURL}.'"></script>'."\n");
         } elsif ($envir{displayMode} eq 'HTML_jsMath') {
 		my $prefix = "";
 		if (!$envir{jsMath}{reportMissingFonts}) {

@@ -341,7 +341,7 @@ sub NAMED_ANS_RULE {
 	
 #	$answer_value =~ tr/\\$@`//d;   ## unnecessary since we encode HTML now
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
-	$answer_value = HTML::Entities::encode_entities($answer_value);
+	$answer_value = encode_pg_and_html($answer_value);
 	$name = RECORD_ANS_NAME($name, $answer_value);
     #INSERT_RESPONSE($name,$name,$answer_value);  #FIXME -- why can't we do this inside RECORD_ANS_NAME?
     
@@ -397,7 +397,7 @@ sub NAMED_HIDDEN_ANS_RULE { # this is used to hold information being passed into
 
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
-	$answer_value = HTML::Entities::encode_entities($answer_value);
+	$answer_value = encode_pg_and_html($answer_value);
 
 	$name = RECORD_ANS_NAME($name, $answer_value);
     #INSERT_RESPONSE($name,$name,$answer_value);
@@ -416,7 +416,7 @@ sub NAMED_ANS_RULE_OPTION {   # deprecated
 }
 
 sub NAMED_ANS_RULE_EXTENSION {
-	my($name,$col) = @_;
+	my($name,$col) = @_; 
 	my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
 	if ( defined( $rh_sticky_answers->{$name} ) ) {
@@ -425,14 +425,14 @@ sub NAMED_ANS_RULE_EXTENSION {
 	}
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
-	$answer_value = HTML::Entities::encode_entities($answer_value);
+	$answer_value = encode_pg_and_html($answer_value);
 	INSERT_RESPONSE($name,$name,$answer_value);  #hack -- this needs more work to decide how to make it work
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = " ">\n\\end{rawhtml}\n!,
-		HTML => qq!<INPUT TYPE=TEXT CLASS="codeshard" SIZE=$col NAME = "$name" id="$name" VALUE = "$answer_value">!.
+		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME = "$name" id="$name" VALUE = "$answer_value">!.
                         qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" id="previous_$name" VALUE = "$answer_value">!
 	);
 }
@@ -456,7 +456,7 @@ sub  NAMED_ANS_BOX {
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	#INSERT_RESPONSE($name,$name,$answer_value); # no longer needed?
 	# try to escape HTML entities to deal with xss stuff
-	$answer_value = HTML::Entities::encode_entities($answer_value);
+	$answer_value = encode_pg_and_html($answer_value);
 	my $out = MODES(
 	     TeX => qq!\\vskip $height in \\hrulefill\\quad !,
 	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
@@ -960,7 +960,7 @@ sub NAMED_ANS_ARRAY_EXTENSION{
 
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 #	warn "ans_label $options{ans_label} $name $answer_value";
-	$answer_value = HTML::Entities::encode_entities($answer_value);
+	$answer_value = encode_pg_and_html($answer_value);
 	if (defined($options{ans_label}) ) {
 		INSERT_RESPONSE($options{ans_label}, $name, $answer_value);
 	}
@@ -2408,7 +2408,7 @@ sub begintable {
 	 || $displayMode eq 'HTML_asciimath' 
 	 || $displayMode eq 'HTML_LaTeXMathML'
 	 || $displayMode eq 'HTML_img') {
-		$out .= "<TABLE BORDER='1' STYLE='text-align:center;'>\n"
+		$out .= "<TABLE BORDER=1>\n"
 	}
 	else {
 		$out = "Error: PGbasicmacros: begintable: Unknown displayMode: $displayMode.\n";
@@ -2687,6 +2687,5 @@ sub display_options2{
 	}
 	$out_string;
 }
-
 
 1;

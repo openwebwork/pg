@@ -389,9 +389,7 @@ sub ComposeEntry {
   ) if (defined($entry) && ($self->{action} eq 'Preview' || $self->{inputs}{preview}));
 
   $entry = "" unless defined($entry);
-  $entry =~ s/&/&amp;/g;
-  $entry =~ s/</&lt;/g;
-  $entry =~ s/>/&gt;/g;
+  $entry = encode_pg_and_html($entry);
 
   my ($compose,$make) = 
     ($self->{inputs}{editing} ? ("Update","Update") : ("Compose","Make"));
@@ -419,7 +417,7 @@ sub ComposeEntry {
       '</table>'
   );
     
-  TEXT('<input type="hidden" name="editing" value="'.$self->{inputs}{editing}.'" />')
+  TEXT('<input type="hidden" name="editing" value="'.encode_pg_and_html($self->{inputs}{editing}).'" />')
     if $self->{inputs}{editing};
 
 }
@@ -463,10 +461,10 @@ sub EntryPanel {
   $COMPOSE = " disabled" if $self->{pastDue};
 
   my $nextprev = "";
-  $nextprev .= '<input type="hidden" name="next" value="'.$self->{entries}[$si-1].'" />' if $si > 0;
-  $nextprev .= '<input type="hidden" name="prev" value="'.$self->{entries}[$si+1].'" />' if $si < $#rows && $si >= 0;
+  $nextprev .= '<input type="hidden" name="next" value="'.encode_pg_and_html($self->{entries}[$si-1]).'" />' if $si > 0;
+  $nextprev .= '<input type="hidden" name="prev" value="'.encode_pg_and_html($self->{entries}[$si+1]).'" />' if $si < $#rows && $si >= 0;
 
-  TEXT('<input type="hidden" name="selected" value="'.$selected.'" />') if $si >= 0;
+  TEXT('<input type="hidden" name="selected" value="'.encode_pg_and_html($selected).'" />') if $si >= 0;
 
   $self->Panel(
     id => 'Entries',
