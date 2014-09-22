@@ -1757,6 +1757,11 @@ sub general_math_ev3 {
 	  $in =~ s/\{\s*(\\(display|text|script|scriptscript)style)/$1\{/g;
 	  $out = '$$'.$in.'$$' if $mode eq "inline";
 	  $out = '<DIV ALIGN="CENTER">$$\displaystyle{'.$in.'}$$</DIV>' if $mode eq "display";
+	} elsif ($displayMode eq "HTML") {
+	    $out = "<span class='tex2jax_ignore'>\\($in\\)</span>" if 
+		$mode eq "inline";
+	    $out = "<span class='tex2jax_ignore'>\\[$in\\]</span>" if 
+		$mode eq "display";
 	} else {
 		$out = "\\($in\\)" if $mode eq "inline";
 		$out = "\\[$in\\]" if $mode eq "display";
@@ -1793,7 +1798,7 @@ sub EV3{
 	}
 	$string = $evaluated_string;
 	$string = ev_substring($string,"\\(","\\)",\&math_ev3);
-    $string = ev_substring($string,"\\[","\\]",\&display_math_ev3);
+	$string = ev_substring($string,"\\[","\\]",\&display_math_ev3);
 	$string;
 }
 
