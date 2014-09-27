@@ -1266,7 +1266,7 @@ sub COMMENT {
    	my @in = @_;
 	my $out = join("$BR", @in);
 	$out = '<div class=\"AuthorComment\">'.$out.'</div>';
-	PG_restricted_eval(q!$main::pgComment = "!.$out.q!"!);
+	PG_restricted_eval(q!$main::pgComment .= "!.$out.q!"!);
 	return('');
 }
 
@@ -2110,7 +2110,6 @@ sub beginproblem {
 	my $problemValue = $envir->{problemValue} || 0;
 	my $fileName     = $envir->{probFileName};
 	my $probNum      = $envir->{probNum};
-    my $TeXFileName = protect_underbar($envir->{probFileName});
     my $l2hFileName = protect_underbar($envir->{probFileName});
 	my %inlist;
 	my $points = maketext('points');
@@ -2126,7 +2125,7 @@ sub beginproblem {
 			 || ( defined($inlist{ $studentLogin }) and ( $inlist{ $studentLogin }>0 )  ) ;
 
 	if ( $print_path_name_flag ) {
-		$out = &M3("{\\bf ${probNum}. {\\footnotesize ($problemValue $points) $TeXFileName}}\\newline ",
+		$out = &M3("{\\bf ${probNum}. {\\footnotesize ($problemValue $points) \\path|$fileName|}}\\newline ",
 		" \\begin{rawhtml} ($problemValue $points) <B>$l2hFileName</B><BR>\\end{rawhtml}",
 		 "($problemValue $points) <B>$fileName</B><BR>"
 	 	   ) if ($problemValue >=0 );

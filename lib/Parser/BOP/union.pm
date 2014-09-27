@@ -38,7 +38,7 @@ sub canBeInUnion {(shift)->type eq 'Union'}
 #
 #  Make a union of the two operands.
 #
-sub _eval {$_[1] + $_[2]}
+sub _eval {shift->Package("Union")->new(@_)}
 
 #
 #  Make a union of intervals or sets.
