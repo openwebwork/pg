@@ -174,7 +174,7 @@ sub new {
   }
   $x = ($context->variables->names)[0] unless $x;
   $S = bless $S->inContext($context), $context->Package("InequalitySetBuilder".$S->type);
-  $S->{varName} = $x; $S->{reduceSets} = $S->{"is".$S->Type} = 1;
+  $S->{varName} = $x; $S->{reduceSets} = $S->{isInequality} = $S->{"is".$S->Type} = 1;
   $S->updateParts;
   return $S;
 }
@@ -302,13 +302,14 @@ sub _updateParts {
 
 sub _apply {
   my $self = shift; my $I = shift;
-  $I->{isSetBuilder} = 1;
+  $I->{isSetBuilder} = $I->{isInequality} = 1;
   bless $I, $self->Package("InequalitySetBuilder".$I->type);
   return $I;
 }
 
 sub _string {
   my $self = shift; my $string = shift;
+  return '{}' if $string eq $self->context->flag("noneWord");
   my $bop = $self->context->operators->get("_suchthat") || {};
   while ($bop->{alias}) {$bop = $self->context->operators->get($bop->{alias})}
   return '{ '.$self->{varName}.($bop->{string}||' : ').$string.' }';
@@ -316,6 +317,7 @@ sub _string {
 
 sub _TeX {
   my $self = shift; my $string = shift;
+  return '\{\}' if $string eq $self->context->flag("noneWord");
   my $bop = $self->context->operators->get("_suchthat") || {};
   while ($bop->{alias}) {$bop = $self->context->operators->get($bop->{alias})}
   return '\{ '.$self->{varName}.($bop->{TeX}||$bop->{string}||' : ').$string.' \}';
