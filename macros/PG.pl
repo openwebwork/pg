@@ -17,6 +17,8 @@ sub not_null {$PG->not_null(@_)};
 
 sub pretty_print {$PG->pretty_print(shift,$main::displayMode)};
 
+sub encode_pg_and_html {PGcore::encode_pg_and_html(@_)};
+
 sub DEBUG_MESSAGE {
     my @msg = @_;
 	$PG->debug_message("---- ".join(" ",caller())." ------", @msg,"__________________________");
