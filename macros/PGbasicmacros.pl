@@ -1749,17 +1749,17 @@ sub general_math_ev3 {
 	  $out = '<SPAN CLASS="math">'.$in.'</SPAN>' if $mode eq "inline";
 	  $out = '<DIV CLASS="math">'.$in.'</DIV>' if $mode eq "display";
 	} elsif ($displayMode eq "HTML_asciimath") {
+          $in = HTML::Entities::encode_entities($in);
 	  $out = "`$in`" if $mode eq "inline";
 	  $out = '<DIV ALIGN="CENTER">`'.$in.'`</DIV>' if $mode eq "display";
 	} elsif ($displayMode eq "HTML_LaTeXMathML") {
+          $in = HTML::Entities::encode_entities($in);
 	  $in = '{'.$in.'}';
-	  $in =~ s/</\\lt/g; $in =~ s/>/\\gt/g;
 	  $in =~ s/\{\s*(\\(display|text|script|scriptscript)style)/$1\{/g;
 	  $out = '$$'.$in.'$$' if $mode eq "inline";
 	  $out = '<DIV ALIGN="CENTER">$$\displaystyle{'.$in.'}$$</DIV>' if $mode eq "display";
 	} elsif ($displayMode eq "HTML") {
-	    $in_delim =~ s/&/&amp;/g; $in_delim =~ s/</&lt;/g; 
-	    $in_delim =~ s/>/&gt;/g;
+	    $in_delim = HTML::Entities::encode_entities($in_delim);
 	    $out = "<span class='tex2jax_ignore'>$in_delim</span>";
 	} else {
 		$out = $in_delim;
