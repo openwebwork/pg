@@ -1758,13 +1758,11 @@ sub general_math_ev3 {
 	  $out = '$$'.$in.'$$' if $mode eq "inline";
 	  $out = '<DIV ALIGN="CENTER">$$\displaystyle{'.$in.'}$$</DIV>' if $mode eq "display";
 	} elsif ($displayMode eq "HTML") {
-	    $out = "<span class='tex2jax_ignore'>\\($in\\)</span>" if 
-		$mode eq "inline";
-	    $out = "<span class='tex2jax_ignore'>\\[$in\\]</span>" if 
-		$mode eq "display";
+	    $in_delim =~ s/&/&amp;/g; $in_delim =~ s/</&lt;/g; 
+	    $in_delim =~ s/>/&gt;/g;
+	    $out = "<span class='tex2jax_ignore'>$in_delim</span>";
 	} else {
-		$out = "\\($in\\)" if $mode eq "inline";
-		$out = "\\[$in\\]" if $mode eq "display";
+		$out = $in_delim;
 	}
 	return $out;
 }
