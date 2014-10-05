@@ -558,6 +558,17 @@ sub encode_base64 ($;$) {
 	MIME::Base64::encode_base64($str);
 }
 
+#####
+#  This macro encodes HTML, EV3, and PGML special caracters using html codes
+#  This should be done for any variable which contains student input and is
+#  printed to a screen or interpreted by EV3.  
+
+sub encode_pg_and_html {
+    my $input = shift;
+    $input = HTML::Entities::encode_entities($input,
+		   '<>"&\'\$\@\\\\`\\[*_\x00-\x1F\x7F-\xFF');
+    return $input;
+}
 
 =head2   Message channels
 
