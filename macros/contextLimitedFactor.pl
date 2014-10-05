@@ -28,6 +28,9 @@ sub _contextLimitedFactor_init {
      '+'  => {class => 'bizarro::BOP::add', isCommand => 1},
      '-'  => {class => 'bizarro::BOP::subtract', isCommand => 1},
      '/'  => {class => 'bizarro::BOP::divide', isCommand => 1},
+     ' /'  => {class => 'bizarro::BOP::divide', isCommand => 1},
+     '/ '  => {class => 'bizarro::BOP::divide', isCommand => 1},
+     '//'  => {class => 'bizarro::BOP::divide', isCommand => 1},
   );
 
   $context->flags->set(factorableObject => 'polynomial');
