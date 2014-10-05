@@ -1713,7 +1713,7 @@ sub general_math_ev3 {
 	my $mode = shift || "inline";
 
 	$in = FEQ($in); # Format EQuations
-	$in =~ s/%/\\%/g; # avoid % becoming TeX comments
+	$in =~ s/((^|[^\\])(\\\\)*)%/\1\\%/g; # avoid % becoming TeX comments (unless already escaped)
 
 	## remove leading and trailing spaces so that HTML mode will
 	## not include unwanted spaces as per Davide Cervone.
@@ -1721,7 +1721,7 @@ sub general_math_ev3 {
 	$in =~ s/\s+$//;
 	## If it ends with a backslash, there should be another space
 	## at the end
-	if($in =~ /\\$/) { $in .= ' ';} 
+	if ($in =~ /(^|[^\\])(\\\\)*\\$/) {$in .= ' '}
 
 	# some modes want the delimiters, some don't
 	my $in_delim = $mode eq "inline"
