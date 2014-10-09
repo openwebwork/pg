@@ -178,9 +178,7 @@ sub ResetButton {
 #
 sub quoteHTML {
   my $string = shift;
-  $string =~ s/&/\&amp;/g; $string =~ s/"/\&quot;/g;
-  $string =~ s/>/\&gt;/g;  $string =~ s/</\&lt;/g;
-  return $string;
+  return main::encode_pg_and_html($string);
 }
 
 #

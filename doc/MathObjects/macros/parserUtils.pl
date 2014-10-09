@@ -49,10 +49,7 @@ $RQ = MODES(TeX => "''", Latex2HTML => '"', HTML => '"');
 #
 sub protectHTML {
     my $string = shift;
-    $string =~ s/&/\&amp;/g;
-    $string =~ s/</\&lt;/g;
-    $string =~ s/>/\&gt;/g;
-    $string;
+    return encode_pg_and_html($string);
 }
 
 sub _parserUtils_init {}
