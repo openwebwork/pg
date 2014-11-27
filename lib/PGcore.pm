@@ -16,12 +16,7 @@
 package PGcore;
 
 use strict;
-BEGIN {
-	use Exporter 'import';
-	our @EXPORT_OK = qw(not_null pretty_print);
-}
 our $internal_debug_messages = [];
-
 
 use PGanswergroup;
 use PGresponsegroup;
@@ -31,155 +26,28 @@ use PGloadfiles;
 use WeBWorK::PG::IO(); # don't important any command directly
 use Tie::IxHash;
 use MIME::Base64 qw( encode_base64 decode_base64);
-##################################
-# Utility macro 
-##################################
-
-=head2  Utility Macros
-
-
-=head4  not_null
-     
-  not_null(item)  returns 1 or 0
-     
-     empty arrays, empty hashes, strings containing only whitespace are all NULL and return 0
-     all undefined quantities are null and return 0
-
-
-=cut
-our @EXPORT = qw(
-	not_null 
-	pretty_print
-);
-sub not_null {        # empty arrays, empty hashes and strings containing only whitespace are all NULL
-                      # in modern perl // would be a reasonable and more robust substitute
-                      # a function, not a method
-    my $item = shift;
-	return 0 unless defined($item);
-	if (ref($item)=~/ARRAY/) {
-		return scalar(@{$item});     # return the length    
-	} elsif (ref($item)=~/HASH/) {
-	    return scalar( keys %{$item});
-	} else {   # string case return 1 if none empty	
-	  return ($item =~ /\S/)? 1:0;
-	}
-}
-
-=head4 pretty_print
-
-	Usage: warn pretty_print( $rh_hash_input)
-		   TEXT(pretty_print($ans_hash));
-		   TEXT(pretty_print(~~%envir ));
-
-This can be very useful for printing out HTML messages about objects while debugging
-
-=cut
-
-# ^function pretty_print
-# ^uses lex_sort
-# ^uses pretty_print
-
-
-sub pretty_print {
-	my $r_input        = shift;
-	my $displayMode    = shift;
-	my $out = '';
-	if ($displayMode eq 'TeX' ) {
-	    $out .="{\\tiny";
-		$out .= pretty_print_tex($r_input);	
-		$out .="}";
-	} else {
-		$out =pretty_print_html($r_input);  #default
-	}
-	$out;
-}
-
-sub pretty_print_html {    # provides html output -- NOT a method
-    my $r_input = shift;
-    my $level = shift;
-    $level = 5 unless defined($level);
-    $level--;
-    return "PGalias has too much info. Try \$PG->{PG_alias}->{resource_list}" if ref($r_input) eq 'PGalias';  # PGalias just has too much information
-    return 'too deep' unless $level > 0;  # only print four levels of hashes (safety feature)
-    my $out = '';
-    if ( not ref($r_input) ) {
-    	$out = $r_input if defined $r_input;    # not a reference
-    	$out =~ s/</&lt;/g  ;  # protect for HTML output
-    } elsif ("$r_input" =~/hash/i) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_iput).
-	    local($^W) = 0;
-	    
-		$out .= "$r_input " ."<TABLE border = \"2\" cellpadding = \"3\" BGCOLOR = \"#FFFFFF\">";
-		
-		
-		foreach my $key ( sort ( keys %$r_input )) {
-			$out .= "<tr><TD> $key</TD><TD>=&gt;</td><td>&nbsp;".pretty_print_html($r_input->{$key}, $level) . "</td></tr>";
-		}
-		$out .="</table>";
-	} elsif (ref($r_input) eq 'ARRAY' ) {
-		my @array = @$r_input;
-		$out .= "( " ;
-		while (@array) {
-			$out .= pretty_print_html(shift @array, $level) . " , ";
-		}
-		$out .= " )";
-	} elsif (ref($r_input) eq 'CODE') {
-		$out = "$r_input";
-	} else {
-		$out = $r_input;
-		$out =~ s/</&lt;/g; # protect for HTML output
-	}
-		$out;
-}
-
-sub pretty_print_tex {
-	my $r_input = shift;
-	my $level   = shift;
-    $level      = 5 unless defined($level);
-	$level--;
-	return "PGalias has too much info. Try \\\$PG->{PG\\_alias}->{resource\\_list}" if ref($r_input) eq 'PGalias';  # PGalias just has too much information
-	return 'too deep' unless $level>0;  #only print four levels of hashes (safety feature)
-	
-	my $protect_tex = sub {my $str = shift; $str=~s/_/\\\_/g; $str };
-
-	my $out = '';
-	if ( not  ref($r_input) ) {
-		$out = $r_input if defined $r_input;
-		$out =~ s/_/\\\_/g;   # protect tex
-		$out =~ s/&/\\\&/g;
-		$out =~ s/\$/\\\$/g;
-	} elsif ("$r_input" =~/hash/i) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_iput).
-		local($^W) = 0;
-	    
-		$out .= "\\begin{tabular}{| l | l |}\\hline\n\\multicolumn{2}{|l|}{$r_input}\\\\ \\hline\n";
-		
-		
-		foreach my $key ( sort ( keys %$r_input )) {
-			$out .= &$protect_tex(  $key ). " & ".pretty_print_tex($r_input->{$key}, $level) . "\\\\ \\hline\n";
-		}
-		$out .="\\end{tabular}\n";
-	} elsif (ref($r_input) eq 'ARRAY' ) {
-		my @array = @$r_input;
-		$out .= "( " ;
-		while (@array) {
-			$out .= pretty_print_tex(shift @array, $level) . " , ";
-		}
-		$out .= " )";
-	} elsif (ref($r_input) eq 'CODE') {
-		$out = "$r_input";
-	} else {
-		$out = $r_input if defined $r_input;
-		$out =~ s/_/\\\_/g;   # protect tex
-		$out =~ s/&/\\\&/g;
-	}
-		$out;
-}
-
-
-
+use PGUtil;
 
 ##################################
 # PGcore object
 ##################################
+
+sub not_null {
+    my $self = shift;
+    PGUtil::not_null(@_);  
+}
+
+sub pretty_print {
+    my $self = shift;
+    my $input = shift;
+    my $displayMode = shift;
+
+    if (!PGUtil::not_null($displayMode) && ref($self) eq 'PGcore') {
+	$displayMode = $self->{displayMode};
+    }
+    warn "displayMode not defined" unless $displayMode;
+    PGUtil::pretty_print($input, $displayMode); 
+}
 
 sub new {
 	my $class = shift;	
@@ -413,7 +281,7 @@ sub TEXT {
 sub envir {
 	my $self = shift;
 	my $in_key = shift;
-	if ( not_null($in_key) ) {
+	if ( $self->not_null($in_key) ) {
   		if (defined  ($self->{envir}->{$in_key} ) ) {
   			$self->{envir}->{$in_key};
   		} else {
@@ -421,7 +289,7 @@ sub envir {
   			return '';
   		}
 	} else {
- 		warn "<h3> Environment</h3>".pretty_print($self->{envir});
+ 		warn "<h3> Environment</h3>".$self->pretty_print($self->{envir});
  		return '';
 	}
 
@@ -690,6 +558,17 @@ sub encode_base64 ($;$) {
 	MIME::Base64::encode_base64($str);
 }
 
+#####
+#  This macro encodes HTML, EV3, and PGML special caracters using html codes
+#  This should be done for any variable which contains student input and is
+#  printed to a screen or interpreted by EV3.  
+
+sub encode_pg_and_html {
+    my $input = shift;
+    $input = HTML::Entities::encode_entities($input,
+		   '<>"&\'\$\@\\\\`\\[*_\x00-\x1F\x7F-\xFF');
+    return $input;
+}
 
 =head2   Message channels
 

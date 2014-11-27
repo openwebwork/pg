@@ -10,7 +10,7 @@ use warnings;
 use Opcode;
 use WWSafe;
 use Net::SMTP;
-use WeBWorK::PG::IO; # qw(fileFromPath) -- inconsistent exporting from IO.pm with perl 5.18???? FIXME
+use WeBWorK::PG::IO  qw(fileFromPath);
 
 #use PadWalker;     # used for processing error messages
 #use Data::Dumper;
@@ -266,7 +266,8 @@ sub time_it {
 	$WeBWorK::timer->continue("PG macro:". $msg) if defined($WeBWorK::timer);
 }
 
-my %shared_subroutine_hash = (
+# functions shared from WeBWorK::PG::Translator
+my %Translator_shared_subroutine_hash = (
 	'time_it'                  => __PACKAGE__,
 	'&PG_answer_eval'          => __PACKAGE__,
 	'&PG_restricted_eval'      => __PACKAGE__,
@@ -274,15 +275,20 @@ my %shared_subroutine_hash = (
 	'&be_strict'               => __PACKAGE__,
 	'&PGsort'                  => __PACKAGE__,
 	'&dumpvar'                 => __PACKAGE__,
-	%WeBWorK::PG::IO::SHARE, # add names from WeBWorK::PG::IO and WeBWorK::PG::IO::*
 );
+
+# add names from WeBWorK::PG::IO and WeBWorK::PG::IO::*
+my %IO_shared_subroutine_hash = %WeBWorK::PG::IO::SHARE; 
 
 sub initialize {
     my $self = shift;
     my $safe_cmpt = $self->{safe};
     #print "initializing safeCompartment",$safe_cmpt -> root(), "\n";
 
-    $safe_cmpt -> share(keys %shared_subroutine_hash);
+    $safe_cmpt -> share_from('WeBWorK::PG::Translator',
+			     [keys %Translator_shared_subroutine_hash]);
+    $safe_cmpt -> share_from('WeBWorK::PG::IO',
+			     [keys %IO_shared_subroutine_hash]);
     no strict;
     local(%envir) = %{ $self ->{envir} };
 	$safe_cmpt -> share('%envir');
@@ -342,7 +348,10 @@ sub pre_load_macro_files {
 ################################################################
 #    prepare safe_cache
 ################################################################
-	$cached_safe_cmpt -> share(keys %shared_subroutine_hash);
+    $cached_safe_cmpt -> share_from('WeBWorK::PG::Translator',
+				    [keys %Translator_shared_subroutine_hash]);
+    $cached_safe_cmpt -> share_from('WeBWorK::PG::IO',
+				    [keys %IO_shared_subroutine_hash]);	
     no strict;
     local(%envir) = %{ $self ->{envir} };
 	$cached_safe_cmpt -> share('%envir');
@@ -540,8 +549,7 @@ sub unrestricted_load {
 	$safe_cmpt->mask(Opcode::empty_opset());
 	my $safe_cmpt_package_name = $safe_cmpt->root();
 	
-	my $macro_file_name = WeBWorK::PG::IO::fileFromPath($filePath);
-	     #FIXME -- above is a work around if fileFromPath is not properly imported (seen with perl 5.18.0)
+	my $macro_file_name = fileFromPath($filePath);
 	$macro_file_name =~s/\.pl//;  # trim off the extenstion
 	my $export_subroutine_name = "_${macro_file_name}_export";
 	my $init_subroutine_name = "${safe_cmpt_package_name}::_${macro_file_name}_init";

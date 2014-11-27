@@ -15,7 +15,7 @@
 ################################################################################
 package PGanswergroup;
 use Exporter;
-use PGcore qw(not_null);
+use PGUtil qw(not_null);
 use PGresponsegroup;
 
 our @ISA=qw(PGcore);

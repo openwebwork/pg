@@ -121,7 +121,7 @@ BEGIN {
 
 package AnswerHash;
 use Exporter;
-use PGcore qw(not_null pretty_print);
+use PGUtil qw(not_null pretty_print);
 
 # initialization fields
 my %fields = (		'score'					=>	undef,
@@ -451,7 +451,7 @@ sub AND {
 
 package AnswerEvaluator;
 use Exporter;
-use PGcore qw(not_null pretty_print);
+use PGUtil qw(not_null pretty_print);
 
 =head3 AnswerEvaluator Methods
 
