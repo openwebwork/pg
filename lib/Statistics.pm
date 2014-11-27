@@ -63,9 +63,9 @@ sub make_csv_alias {
 		$studentLogin =~ s/\@/-Q-/g;
 
 		# Define the file name, clean it up and convert to a url.
-		my $filePath = "$studentLogin-$problemSeed-set" . $setName . "prob$prob.html";
+		my $filePath = "data/$studentLogin-$problemSeed-set" . $setName . "prob$prob.html";
 		$filePath = $self->{PG}->convertPath($filePath);
-		$filePath = $self->{PG}->surePathToTmpFile("data")."/".$filePath;
+		$filePath = $self->{PG}->surePathToTmpFile($filePath);
 		my $url = $self->{PG}->{PG_alias}->make_alias($filePath);
 
 		# Remove the .html off the end and replace it with a .csv

@@ -383,15 +383,12 @@ our $answerPrefix = "MaTrIx";
 sub ans_matrix {
   my $self = shift;
   my ($extend,$name,$rows,$cols,$size,$open,$close,$sep,$toplabels) = @_;
-  #my $named_extension = pgRef('NAMED_ANS_RULE_EXTENSION');
   my $named_extension = pgRef('NAMED_ANS_ARRAY_EXTENSION');
-  my $new_name = sub {@_}; # pgRef('RECORD_EXTRA_ANSWERS');
+  my $named_ans_rule  = pgRef('NAMED_ANS_RULE');
   my $HTML = ""; my $ename = $name;
   if ($name eq '') {
-    #my $n = pgCall('inc_ans_rule_count');
-    $name = pgCall('NEW_ANS_NAME',$n);
-    #$name = pgCall('NEW_ARRAY_NAME',$n);
-    $ename = "${answerPrefix}_${name}_";
+    $name = pgCall('NEW_ANS_NAME');
+    $ename = "${answerPrefix}_${name}";
   }
   $self->{ans_name} = $ename;
   $self->{ans_rows} = $rows;
@@ -401,15 +398,13 @@ sub ans_matrix {
     my @row = ();
     foreach my $j (0..$cols-1) {
       if ($i == 0 && $j == 0) {
-	     if ($extend) {
-	     	push(@row,&$named_extension(&$new_name($name),$size,ans_label=>$name));
-	     	#push(@row,&$named_extension(&$new_name($name),$size))
-	     }else {
-	     	push(@row,pgCall('NAMED_ANS_RULE',$name,$size))
-	     }
+	if ($extend) {
+	  push(@row,&$named_extension($name,$size,ans_label=>$name));
+	} else {
+	  push(@row,&$named_ans_rule($name,$size));
+	}
       } else {
-		push(@row,&$named_extension(&$new_name(ANS_NAME($ename,$i,$j)),$size,ans_label=>$name));
-		#push(@row,&$named_extension(&$new_name(ANS_NAME($ename,$i,$j)),$size,ans_label=>$name));
+	push(@row,&$named_extension(ANS_NAME($ename,$i,$j),$size,ans_label=>$name));
       }
     }
     push(@array,[@row]);
@@ -1305,10 +1300,12 @@ sub cmp {
   my $self = shift;
   my %params = @_;
   my $cmp = $self->SUPER::cmp(@_);
-  if ($cmp->{rh_ans}{removeParens}) {
+  if ($cmp->{rh_ans}{removeParens} && ($self->{open} || $self->{close})) {
     $self->{open} = $self->{close} = '';
     $cmp->ans_hash(correct_ans => $self->stringify)
       unless defined($self->{correct_ans}) || defined($params{correct_ans});
+    $cmp->ans_hash(correct_ans_latex_string => $self->TeX)
+      unless defined($self->{correct_ans_latex_string}) || defined($params{correct_ans_latex_string});
   }
   return $cmp;
 }
@@ -1641,11 +1638,14 @@ sub getTypicalValue {
 #
 sub cmp {
   my $self = shift;
+  my %params = @_;
   my $cmp = $self->SUPER::cmp(@_);
-  if ($cmp->{rh_ans}{removeParens} && $self->type eq 'List') {
+  if ($cmp->{rh_ans}{removeParens} && $self->type eq 'List' && ($self->{tree}{open} || $self->{tree}{close})) {
     $self->{tree}{open} = $self->{tree}{close} = '';
     $cmp->ans_hash(correct_ans => $self->stringify)
-      unless defined($self->{correct_ans});
+      unless defined($self->{correct_ans}) || defined($params{correct_ans});
+    $cmp->ans_hash(correct_ans_latex_string => $self->stringify)
+      unless defined($self->{correct_ans_latex_string}) || defined($params{correct_ans_latex_string});
   }
   if ($cmp->{rh_ans}{eval} && $self->isConstant) {
     $cmp->ans_hash(correct_value => $self->eval);

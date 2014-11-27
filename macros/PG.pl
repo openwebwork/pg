@@ -11,11 +11,13 @@ sub _PG_init{
 	$main::VERSION ="WW2.9+";
 }
 
-sub not_null {PGcore::not_null(@_)};
-
-sub pretty_print {PGcore::pretty_print(@_)};
-
 our $PG;  
+
+sub not_null {$PG->not_null(@_)};
+
+sub pretty_print {$PG->pretty_print(shift,$main::displayMode)};
+
+sub encode_pg_and_html {PGcore::encode_pg_and_html(@_)};
 
 sub DEBUG_MESSAGE {
     my @msg = @_;
@@ -63,13 +65,26 @@ sub DOCUMENT {
 	#FIXME
 	# load java script needed for displayModes
 	if ($envir{displayMode} eq 'HTML_MathJax') {
+		##
+		# The following is used to prevent MathJax from being loaded more than one on a page. (Happened in WW3 library browser)
+		#
+		# If there are any errors replace the line starting "window.MathJax" with the string in $loadScript.
+		#
 	    TEXT(
-		 '<script type="text/x-mathjax-config">
+		 qq?<script type="text/x-mathjax-config">
                   MathJax.Hub.Config({
                      MathMenu: {showContext: true}
                   });
                   </script>
-                  <script src="'.$envir{MathJaxURL}.'"></script>'."\n");
+				  <script type="text/javascript"> 
+				  if(!window.MathJax) 
+				  (function () {
+  					var script = document.createElement("script");
+  					script.type = "text/javascript";
+  					script.src  = "$envir{MathJaxURL}";
+  					document.getElementsByTagName("head")[0].appendChild(script);
+					})();                
+                  </script>?."\n");
         } elsif ($envir{displayMode} eq 'HTML_jsMath') {
 		my $prefix = "";
 		if (!$envir{jsMath}{reportMissingFonts}) {
@@ -113,9 +128,20 @@ sub POST_HEADER_TEXT {
 }
 
 sub AskSage {
-	$PG->AskSage(@_);
+    my $python = shift;
+    my $options = shift;
+    WARN_MESSAGE("the second argument to AskSage should be a hash of options") unless $options =~/HASH/;
+	$PG->AskSage($python, $options);
 }
 
+# sageReturnedFail checks to see if the return from Sage indicates some kind of failure
+# undefined means old style return (a simple string) failed
+# $obj->{success} defined but equal to zero means that the failed return and error 
+# messages are encoded in the $obj hash.
+sub sageReturnedFail {
+        my $obj = shift;
+       return ( not defined($obj) or ( defined($obj->{success}) and $obj->{success}==0 ));
+}
 sub LABELED_ANS {
   my @in = @_;
   my @out = ();

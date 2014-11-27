@@ -10,7 +10,7 @@ use warnings;
 use Opcode;
 use WWSafe;
 use Net::SMTP;
-use WeBWorK::PG::IO;
+use WeBWorK::PG::IO  qw(fileFromPath);
 
 #use PadWalker;     # used for processing error messages
 #use Data::Dumper;
@@ -266,7 +266,8 @@ sub time_it {
 	$WeBWorK::timer->continue("PG macro:". $msg) if defined($WeBWorK::timer);
 }
 
-my %shared_subroutine_hash = (
+# functions shared from WeBWorK::PG::Translator
+my %Translator_shared_subroutine_hash = (
 	'time_it'                  => __PACKAGE__,
 	'&PG_answer_eval'          => __PACKAGE__,
 	'&PG_restricted_eval'      => __PACKAGE__,
@@ -274,15 +275,20 @@ my %shared_subroutine_hash = (
 	'&be_strict'               => __PACKAGE__,
 	'&PGsort'                  => __PACKAGE__,
 	'&dumpvar'                 => __PACKAGE__,
-	%WeBWorK::PG::IO::SHARE, # add names from WeBWorK::PG::IO and WeBWorK::PG::IO::*
 );
+
+# add names from WeBWorK::PG::IO and WeBWorK::PG::IO::*
+my %IO_shared_subroutine_hash = %WeBWorK::PG::IO::SHARE; 
 
 sub initialize {
     my $self = shift;
     my $safe_cmpt = $self->{safe};
     #print "initializing safeCompartment",$safe_cmpt -> root(), "\n";
 
-    $safe_cmpt -> share(keys %shared_subroutine_hash);
+    $safe_cmpt -> share_from('WeBWorK::PG::Translator',
+			     [keys %Translator_shared_subroutine_hash]);
+    $safe_cmpt -> share_from('WeBWorK::PG::IO',
+			     [keys %IO_shared_subroutine_hash]);
     no strict;
     local(%envir) = %{ $self ->{envir} };
 	$safe_cmpt -> share('%envir');
@@ -342,7 +348,10 @@ sub pre_load_macro_files {
 ################################################################
 #    prepare safe_cache
 ################################################################
-	$cached_safe_cmpt -> share(keys %shared_subroutine_hash);
+    $cached_safe_cmpt -> share_from('WeBWorK::PG::Translator',
+				    [keys %Translator_shared_subroutine_hash]);
+    $cached_safe_cmpt -> share_from('WeBWorK::PG::IO',
+				    [keys %IO_shared_subroutine_hash]);	
     no strict;
     local(%envir) = %{ $self ->{envir} };
 	$cached_safe_cmpt -> share('%envir');
@@ -551,7 +560,8 @@ sub unrestricted_load {
 	my $init_subroutine  = eval { \&{$init_subroutine_name} };
 	warn "No init routine for $init_subroutine_name: $@" if  $debugON and $@;
 	use strict;
-    my $macro_file_loaded = ref($init_subroutine) =~ /CODE/;
+	my $macro_file_loaded = ref($init_subroutine) =~ /CODE/ &&
+	    defined(&$init_subroutine);
 
 	#print STDERR "$macro_file_name   has not yet been loaded\n" unless $macro_file_loaded;	
 	unless ($macro_file_loaded) {
