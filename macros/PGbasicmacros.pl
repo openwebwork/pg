@@ -63,6 +63,8 @@ my ($PAR,
 	$COMMENT,
 	$US,
 	$SPACE,
+	$BLABEL,
+	$ELABEL,
 	$BBOLD,
 	$EBOLD,
 	$BITALIC,
@@ -124,6 +126,8 @@ main::PG_restricted_eval( <<'EndOfFile');
 	$main::HINT				= HINT_HEADING();
 	$main::US				= US();
 	$main::SPACE			= SPACE();
+	$main::BLABEL			= BLABEL();
+	$main::ELABEL			= ELABEL();
 	$main::BBOLD			= BBOLD();
 	$main::EBOLD			= EBOLD();
 	$main::BITALIC			= BITALIC();
@@ -171,6 +175,8 @@ EndOfFile
 	$HINT				 = HINT_HEADING();
 	$US				     = US();
 	$SPACE			     = SPACE();
+	$BLABEL			     = BLABEL();
+	$ELABEL			     = ELABEL();
 	$BBOLD			     = BBOLD();
 	$EBOLD			     = EBOLD();
 	$BITALIC			 = BITALIC();
@@ -316,10 +322,13 @@ sub labeled_ans_rule {   # syntactic sugar for NAMED_ANS_RULE
 }
 
 sub NAMED_ANS_RULE {
-	my($name,$col) = @_;
+	my $name = shift;
+	my $col = shift;
+	my %options = @_;
 	$col = 20 unless not_null($col);
 	my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if    defined(${$inputs_ref}{$name});
+
 	#FIXME -- code factoring needed
     if ($answer_value =~ /\0/ ) {
     	my @answers = split("\0", $answer_value);
@@ -337,14 +346,19 @@ sub NAMED_ANS_RULE {
     	# it must be evaluated at run time
     	$answer_value= '' unless defined($answer_value);
 	}
-
 	
 #	$answer_value =~ tr/\\$@`//d;   ## unnecessary since we encode HTML now
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
 	$answer_value = encode_pg_and_html($answer_value);
 	$name = RECORD_ANS_NAME($name, $answer_value);
     #INSERT_RESPONSE($name,$name,$answer_value);  #FIXME -- why can't we do this inside RECORD_ANS_NAME?
-    
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
+
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
 
@@ -366,7 +380,7 @@ sub NAMED_ANS_RULE {
 
 	    # Note: codeshard is used in the css to identify input elements 
 	    # that come from pg
-		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" value="$answer_value"/>\n!.
+		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" aria-label="$label" value="$answer_value"/>\n!.
 		              $add_html. # added for dragmath
                         qq!<input type=hidden  name="previous_$name" value="$answer_value"/>\n!
 
@@ -416,7 +430,17 @@ sub NAMED_ANS_RULE_OPTION {   # deprecated
 }
 
 sub NAMED_ANS_RULE_EXTENSION {
-	my($name,$col) = @_;
+	my $name = shift;
+	my $col = shift;
+	my %options = @_;
+
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
+
 	my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
 	if ( defined( $rh_sticky_answers->{$name} ) ) {
@@ -432,7 +456,7 @@ sub NAMED_ANS_RULE_EXTENSION {
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = " ">\n\\end{rawhtml}\n!,
-		HTML => qq!<INPUT TYPE=TEXT CLASS="codeshard" SIZE=$col NAME = "$name" id="$name" VALUE = "$answer_value">!.
+		HTML => qq!<INPUT TYPE=TEXT CLASS="codeshard" SIZE=$col NAME = "$name" id="$name" aria-label="$label" VALUE = "$answer_value">!.
                         qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" id="previous_$name" VALUE = "$answer_value">!
 	);
 }
@@ -445,7 +469,11 @@ sub ANS_RULE {  #deprecated
 
 
 sub  NAMED_ANS_BOX {
-	my($name,$row,$col) = @_;
+	my $name = shift;
+	my $row = shift;
+	my $col = shift;
+	my %options = @_;
+
 	$row = 10 unless defined($row);
 	$col = 80 unless defined($col);
 	
@@ -453,13 +481,19 @@ sub  NAMED_ANS_BOX {
 	my $answer_value = '';
 	$answer_value = $inputs_ref->{$name} if defined( $inputs_ref->{$name} );
 	$name = RECORD_ANS_NAME($name, $answer_value);
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	#INSERT_RESPONSE($name,$name,$answer_value); # no longer needed?
 	# try to escape HTML entities to deal with xss stuff
 	$answer_value = encode_pg_and_html($answer_value);
 	my $out = MODES(
 	     TeX => qq!\\vskip $height in \\hrulefill\\quad !,
-	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
+	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" aria-label="$label" ROWS="$row" COLS="$col"
                WRAP="VIRTUAL">$answer_value</TEXTAREA>\\end{rawhtml}!,
          HTML => qq!<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
                WRAP="VIRTUAL">$answer_value</TEXTAREA>
@@ -579,6 +613,50 @@ sub ANS_RADIO_BUTTONS {
 	}
 	(wantarray) ? @out : join(" ",@out);
 }
+
+##############################################
+#   generate_aria_label( $name )
+#   takes the name of an ANS_RULE or ANS_BOX and generates an appropriate
+#   aria label for screen readers
+##############################################
+
+sub generate_aria_label {
+    my $name = shift;
+    my $label = '';
+
+    # if we dont have an AnSwEr type name then we do the best we can
+    if ($name !~ /AnSwEr/ ) {
+	return maketext('answer').' '.$name;
+    }
+
+    # check for quiz prefix 
+    if ($name =~ /^Q\d+/ || $name =~ /^MaTrIx_Q\d+/) {
+	$name =~ s/Q0*(\d+)_//;
+	$label .= maketext('problem ').$1.' ';
+    }
+
+    # get answer number 
+    $name =~ /AnSwEr0*(\d+)/;
+    $label .= maketext('answer ').$1.' ';
+    
+    # check for Multianswer
+    if ($name =~ /MuLtIaNsWeR_/) {
+	$name =~ s/MuLtIaNsWeR_//;
+	$name =~ /AnSwEr(\d+)_(\d+)/;
+	$label .= maketext('part ').($2+1).' ';
+    }
+    
+    # check for Matrix 
+    if ($name =~ /^MaTrIx_/) {
+	$name =~ /_(\d+)_(\d+)$/;
+	$label .= maketext('row ').($1+1)
+	    .maketext(' column ').($2+1).' ';
+    }
+
+    return $label;
+
+}
+
 ##############################################
 #   contained_in( $elem, $array_reference or null separated string);
 #   determine whether element is equal 
@@ -958,6 +1036,13 @@ sub NAMED_ANS_ARRAY_EXTENSION{
     		$answer_value= '' unless defined($answer_value);
 	}
 
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
+
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 #	warn "ans_label $options{ans_label} $name $answer_value";
 	$answer_value = encode_pg_and_html($answer_value);
@@ -967,7 +1052,7 @@ sub NAMED_ANS_ARRAY_EXTENSION{
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{10pt}{\\hrulefill}}\\hrulefill\\quad ",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = "">\n\\end{rawhtml}\n!,
-		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" class="codeshard" VALUE = "$answer_value">\n!
+		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" class="codeshard" aria-label="$label" VALUE = "$answer_value">\n!
 	);
 }
 
@@ -1332,6 +1417,8 @@ sub MODES {
 	$HINT				HINT_HEADING()		hint headline
 	$US					US()				underscore character
 	$SPACE				SPACE()				space character (tex and latex only)
+	$BLABEL				BLABEL()			begin label (for input)
+	$ELABEL				ELABEL()			end label (for input)
 	$BBOLD				BBOLD()				begin bold typeface
 	$EBOLD				EBOLD()				end bold typeface
 	$BITALIC    		BITALIC()  			begin italic typeface
@@ -1398,6 +1485,8 @@ sub US { MODES(TeX => '\\_', Latex2HTML => '\\_', HTML => '_');};  # underscore,
 sub SPACE { MODES(TeX => '\\ ',  Latex2HTML => '\\ ', HTML => '&nbsp;');};  # force a space in latex, doesn't force extra space in html
 sub BBOLD { MODES(TeX => '{\\bf ',  Latex2HTML => '{\\bf ', HTML => '<B>'); };
 sub EBOLD { MODES( TeX => '}', Latex2HTML =>  '}',HTML =>  '</B>'); };
+sub BLABEL { MODES(TeX => '', Latex2HTML => '', HTML => '<LABEL>'); };
+sub ELABEL { MODES(TeX => '', Latex2HTML => '', HTML => '</LABEL>'); };
 sub BITALIC { MODES(TeX => '{\\it ',  Latex2HTML => '{\\it ', HTML => '<I>'); };
 sub EITALIC { MODES(TeX => '} ',  Latex2HTML => '} ', HTML => '</I>'); };
 sub BUL { MODES(TeX => '\\underline{',  Latex2HTML => '\\underline{', HTML => '<U>'); };
@@ -2026,9 +2115,9 @@ sub beginproblem {
 	my $probNum      = $envir->{probNum};
     my $l2hFileName = protect_underbar($envir->{probFileName});
 	my %inlist;
-	my $points = maketext('pts');
+	my $points = maketext('points');
 
-	$points = maketext('pt') if $problemValue == 1;
+	$points = maketext('point') if $problemValue == 1;
 	##    Prepare header for the problem
 	grep($inlist{$_}++,@{ $envir->{'PRINT_FILE_NAMES_FOR'} });
 	my $effectivePermissionLevel = $envir->{effectivePermissionLevel}; # permission level of user assigned to question
@@ -2188,7 +2277,7 @@ sub knowlLink { # an new syntax for knowlLink that facilitates a local HERE docu
 	}
 	#my $option_string = qq!url = "$options{url}" value = "$options{value}" !;
 	MODES( TeX        => "{\\bf \\underline{$display_text}}",
-	       HTML       => "<a $properties >$display_text</a>"
+	       HTML       => "<a href='#' $properties >$display_text</a>"
 	);
 
 
