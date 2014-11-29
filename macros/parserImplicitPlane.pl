@@ -160,8 +160,8 @@ sub new {
 #  if the equations are multiples of each other.
 #
 sub compare {
-  my ($self,$l,$r) = Value::checkOpOrder(@_);
-  $r = new ImplicitPlane($r);# if ref($r) ne ref($self);
+  return 1 if Value::classMatch($_[1],"String");
+  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
   my ($lN,$ld) = ($l->{N},$l->{d});
   my ($rN,$rd) = ($r->{N},$r->{d});
   if ($rd == 0 || $ld == 0) {

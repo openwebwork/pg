@@ -4,13 +4,9 @@
 ################################################################################
 
 package WeBWorK::PG::IO;
-use base qw(Exporter);
-use WeBWorK::PG::Translator;
+use parent qw(Exporter);
 use JSON qw(decode_json);
-use PGcore qw(not_null);
-our @ISA = qw(PGcore);
-
-
+use PGUtil qw(not_null);
 =head1 NAME
 
 WeBWorK::PG::IO - Private functions used by WeBWorK::PG::Translator for file IO.
