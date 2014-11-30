@@ -176,7 +176,7 @@ sub _eval {
   my $context = $self->context;
   my ($a,$b) = @_;
   if ($context->flag("bizarroDiv")) {
-    if ($a == 1) {return bizarro::f(1 * bizarro::g(1/$b));}
+    if (($a == 1) or ($a == -1)) {return $a/$b;}
     else {return bizarro::f(bizarro::g($a) * bizarro::g(1/$b));}
   } else {
     return $a / $b;
