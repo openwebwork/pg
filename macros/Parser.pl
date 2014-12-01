@@ -108,7 +108,7 @@ sub Compute {
   }
   my $F = $formula;
   $F = Formula($string)
-    if $formula->{original_formula} || $flags{reduceConstants} ||  $flags{reduceConstantFunctions};
+    if $formula->{original_formula} || $flags->{reduceConstants} ||  $flags->{reduceConstantFunctions};
   $formula->{correct_ans} = $F->string;
   $formula->{correct_ans_latex_string} = $F->TeX;
   Value::contextSet($context,%{$flags});
