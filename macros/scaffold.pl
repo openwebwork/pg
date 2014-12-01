@@ -106,7 +106,7 @@ depending on whether the section can be opened or not (the subroutine
 is passed a reference to the section object).  The default value is
 C<"when_previous_correct">, which means that all the correct sections
 and the first section incorrect or empty blanks would be able to be
-opened by the student.  The value C<"first_correct"> would mean that
+opened by the student.  The value C<"first_incorrect"> would mean that
 correct sections can not be reopened, and only the first one that is
 not fully correct can be, while C<"incorrect"> means that only
 incorrect sections can be opened (so once a section is correct, it
@@ -114,7 +114,7 @@ can't be reopened).  The value C<"always"> means the student can
 always open the section, and C<"never"> means that the section can
 never be opened.
 
-If answers are available (i.e., it is afer the answer date), then the
+If answers are available (i.e., it is after the answer date), then the
 C<after_AnswerDate_can_open> option (described below) is used instead
 of this option.  If not and the user is a professor, then the
 C<instructor_can_open> option (described below) is used instead.
@@ -132,7 +132,7 @@ condition is also met, so you do need to coordinate these two values.
 The default is C<"first_incorrect">, which means that only the first
 section with incorrect answers will be open when the problem is
 displayed after answers are submitted (though the student may be abe
-to open other sections afterward, depending the value if C<can_open>.
+to open other sections afterward, depending on the value if C<can_open>.
 The value C<"incorrect"> would mean that all incorrect or incomplete
 sections are open (the student can see all future work that he or she
 must complete) but correct sections are closed, while
@@ -146,7 +146,7 @@ section is opened.
 Hardcopy versions of the problem use the C<hardcopy_is_open> option
 (described below).
 
-=item C<S<< instructor_can_open => condition >>> 
+=item C<S<< instructor_can_open => condition >>>
 
 This provides the condition for when an instructor (as opposed to a
 student) can open a section.  By default, this is set to C<"always">,
@@ -248,7 +248,7 @@ Some useful configurations are:
       is_open  => "incorrect"
     );
 
-The C<Section::Begin()> macro also accepts the option C<can_open>,
+The C<Section::Begin()> macro also accepts the options C<can_open>,
 C<is_open>, and C<instructor_can_open> described above.  This allows
 you to override the defaults for a particular section.  In particular,
 you can provide a subroutine that determines when the section can or
@@ -405,7 +405,7 @@ sub section_answers {
   foreach my $name (@_) {
     my $input = $main::inputs_ref->{$name};
     my $evaluator = $PG_ANSWERS_HASH->{$name}->ans_eval;
-    eval {$answers{$name} = $evaluator->evaluate($input)} if defined($input) && $input ne "";
+    Parser::Eval(sub {$answers{$name} = $evaluator->evaluate($input)}) if defined($input) && $input ne "";
     $answers{$name}{score} = 1
       if $answers{$name} && (($answers{$name}{type}||"") eq "essay" || $answers{$name}{"scaffold_force"});
     $evaluator->{rh_ans}{ans_message} = ""; delete $evaluator->{rh_ans}{error_message};
