@@ -405,7 +405,7 @@ sub section_answers {
   foreach my $name (@_) {
     my $input = $main::inputs_ref->{$name};
     my $evaluator = $PG_ANSWERS_HASH->{$name}->ans_eval;
-    eval {$answers{$name} = $evaluator->evaluate($input)} if defined($input) && $input ne "";
+    Parser::Eval(sub {$answers{$name} = $evaluator->evaluate($input)}) if defined($input) && $input ne "";
     $answers{$name}{score} = 1
       if $answers{$name} && (($answers{$name}{type}||"") eq "essay" || $answers{$name}{"scaffold_force"});
     $evaluator->{rh_ans}{ans_message} = ""; delete $evaluator->{rh_ans}{error_message};
