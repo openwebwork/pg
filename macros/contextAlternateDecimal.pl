@@ -306,8 +306,7 @@ sub swapDecimal {
   my $self = shift; my $n = shift;
   my $context = $self->{equation}{context};
   my $format = (($context->{answerHash}||{})->{displayDecimals} || $context->flag("displayDecimals"));
-  $n =~ s/\./,/ if $format eq ",";
-  $n =~ s/,/./  if $format eq ".";
+  $n =~ s/\./,/ if ($self->{alternateForm} || $format eq ",") && $format ne ".";
   return $n;
 }
 sub string {
@@ -316,7 +315,9 @@ sub string {
 }
 sub TeX {
   my $self = shift;
-  $self->swapDecimal($self->SUPER::TeX(@_));
+  my $n = $self->swapDecimal($self->SUPER::TeX(@_));
+  $n =~ s/,/{,}/;
+  return $n;
 }
 
 #
