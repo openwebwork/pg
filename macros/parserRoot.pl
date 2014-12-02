@@ -16,13 +16,13 @@
 
 =head1 NAME
 
-parserRoot.pl - defines a root(n,x) function for n-th root of x.
+parserRoot.pl - defines a C<root(n,x)> function for n-th root of x.
 
 =head1 DESCRIPTION
 
 This file defines the code necessary to add to any context a
-root(n,x) function that performs the n-th root of x.  For example,
-Compute("root(3,27)") would return the equivalent of Real(3).
+C<root(n,x)> function that performs the n-th root of x.  For example,
+C<Compute("root(3,27)")> would return the equivalent of C<Real(3)>.
 
 To accomplish this, put the line
 
@@ -37,42 +37,143 @@ you wish to use in the problem.  Then use the command:
 wish to alter a context other than the current one.)
 
 Once that is done, you (and students) can enter roots by using the
-root() function.  You can use root() both within Formula() and
-Compute() calls, and in Perl expressions, such as
+C<root()> function.  You can use C<root()> both within C<Formula()> and
+C<Compute()> calls, and in Perl expressions, such as
 
         $n = root(3,27);
 
-to obtain n-th roots.
+to obtain n-th roots.  Note that C<root()> will properly handle odd
+roots of negative numbers, so
+
+        $n = root(3,-8);
+
+will produce the equivalent of C<$n = Real(-2)>, but even roots of
+negative numbers will produce an error message.
+
+If you enable C<root()> in a context that allows complex numbers, you
+may want to allow even roots of negative numbers.  To do this, use
+
+        parser::Root->EnableComplex;
+
+(again, you can pass a context to be altered, if you wish).  This will
+force negative values to be promoted to complex numbers before an even
+root is taken.  So
+
+        parser::Root->EnableComplex;
+        $z = root(2,-9);
+
+would produce the equivalent of C<$z = 3*i;>
 
 =cut
+
+########################################################################
 
 sub _parserRoot_init {
   main::PG_restricted_eval('sub root {Parser::Function->call("root",@_)}');
 }
 
+########################################################################
+
 package parser::Root;
 
 sub Enable {
-  my $self = shift;
-  my $context = shift;
+  my $self = shift; my $context = shift; my $complex = shift;
   $context = main::Context() unless Value::isContext($context);
   $context->functions->add(
     root => {class => 'parser::Root::Function::numeric2'},
   );
+  $context->functions->set(root => {negativeIsComplex=>1}) if $complex;
 }
 
-package parser::Root::Function::numeric2;
-our @ISA = ('Parser::Function::numeric2');
+sub EnableComplex {
+  my $self = shift; my $context = shift;
+  $self->Enable($context,1);
+}
 
+########################################################################
+
+package parser::Root::Function::numeric2;
+our @ISA = qw(Parser::Function);
+
+#
+#  Check for arguments that are an integer and a number
+#
+sub _check {
+  my $self = shift; my $context = $self->context;
+  return if ($self->checkArgCount(2));
+  $self->{type} = $Value::Type{number};
+  return if $context->flag("allowBadFunctionInputs");
+  my ($n,$x) = @{$self->{params}};
+  $self->Error("Function '%s' must have numeric inputs",$self->{name})
+    unless $n->isNumber && $x->isNumber;
+  $self->Error("The first operand to '%s' must be an integer",$self->{name}) unless $n->length == 1;
+  $x = $self->Package("Complex")->promote($context,$x)
+    if $x->length == 1 && $x->{value} < 0 && $self->{def}{negativeIsComplex};
+  $self->{type} = $Value::Type{complex} if $x->isComplex;
+}
+
+#
+#  Check that the inputs are OK and call the named routine
+#
+sub _call {
+  my $self = shift; my $name = shift;
+  $self->Error("Function '%s' has too many inputs",$name) if scalar(@_) > 2;
+  $self->Error("Function '%s' has too few inputs",$name) if scalar(@_) < 2;
+  return $self->$name($self->checkArguments($name,@_));
+}
+
+#
+#  Call the appropriate routine
+#
+sub _eval {
+  my $self = shift; my $name = $self->{name};
+  $self->$name($self->checkArguments($name,@_));
+}
+
+#
+#  Check that the parameters are OK
+#
+sub checkArguments {
+  my $self = shift; my $name = shift; my $context = $self->context;
+  my ($n,$x) = (map {Value::makeValue($_,$context)} @_);
+  $self->Error("Function '%s' must have numeric inputs",$name)
+      unless $n->isNumber && $x->isNumber;
+  $self->Error("The first argument to '%s' must be an integer",$name)
+    unless $n->isReal && CORE::int($n->value) == $n->value;
+  return ($n,$x);
+}
+
+
+#
+#  Compute root using x**(1/n)
+#  If x < 0 and n is even, either promote x to a complex
+#   or throw an error.
+#  If x < 0 and n is odd, use -(abs(x))**(1/n)
+#
 sub root {
-  shift; my $n = shift; my $x = shift;
+  my $self = shift; my ($n,$x) = @_;
+  if ($x->isReal && $x->value < 0) {
+    if ($n->value % 2 == 0) {
+      my $context = $x->context;
+      $self->Error("Can't take even root of %s",$x)
+	unless $context->functions->get("root")->{negativeIsComplex};
+      $x = $self->Package("Complex")->promote($context,$x);
+    } else {
+      return -((-$x)**(1/$n));
+    }
+  }
   return $x**(1/$n);
 }
 
+#
+#  Output TeX using \sqrt[n]{x}
+#
 sub TeX {
   my $self = shift;
-  my ($n,$x) = ($self->{params}[0],$self->{params}[1]);
+  my ($n,$x) = @{$self->{params}};
   return '\sqrt['.$n->TeX."]{".$x->TeX."}";
 }
+
+########################################################################
 
 1;
