@@ -143,23 +143,21 @@ though it were written using C<AlternateIntervals->Only>.
 
 loadMacros("MathObjects.pl");
 
-sub _contextAlternateIntervals_init {
+sub _contextAlternateIntervals_init {context::AlternateIntervals->Init}
+
+
+##########################################################################
+
+package context::AlternateIntervals;
+
+#
+#  Create the AlternateIntervals contexts
+#
+sub Init {
+  my $self = shift;
   my $context = $main::context{AlternateIntervals} = Parser::Context->getCopy("Interval");
   $context->{name} = "AlternateIntervals";
-  $context->flags->set(
-    enterIntervals   => "either",    # or "standard" or "alternate"
-    displayIntervals => "either",    # or "standard" or "alternate"
-  );
-  $context->parens->set(
-    "[" => {close => "[", type => "Interval", formInterval => ["]",")"], removable => 0},
-    "]" => {close => "]", type => "Interval", formInterval => "["},
-  );
-  $context->update;
-  $context->{value}{Interval} = "context::AlternateIntervals::Interval";
-  $context->{value}{Formula}  = "context::AlternateIntervals::Formula";
-  $context->{parser}{Formula} = "context::AlternateIntervals::Formula";
-  $context->{parser}{List} = "context::AlternateIntervals::Parser::List";
-  $context->lists->set("Interval" => {class=>"context::AlternateIntervals::Parser::Interval"});
+  $self->Enable($context);
 
   $context = $main::context{"AlternateIntervals-Only"} = $context->copy;
   $context->{name} = "AlternativeIntervals-Only";
@@ -174,6 +172,50 @@ sub _contextAlternateIntervals_init {
     enterIntervals   => "standard",
     displayIntervals => "standard",
   );
+}
+
+#
+#  Enables alternate intervals in the given context
+#
+sub Enable {
+  my $self = shift; my $context = shift || main::Context();
+  $context->flags->set(
+    enterIntervals   => "either",    # or "standard" or "alternate"
+    displayIntervals => "either",    # or "standard" or "alternate"
+  );
+  $context->parens->set(
+    "[" => {close => "[", type => "Interval", formInterval => ["]",")"], removable => 0},
+    "]" => {close => "]", type => "Interval", formInterval => "["},
+  );
+  $context->update;
+  $context->{value}{Interval} = "context::AlternateIntervals::Interval";
+  $context->{value}{Formula}  = "context::AlternateIntervals::Formula";
+  $context->{parser}{Formula} = "context::AlternateIntervals::Formula";
+  $context->{parser}{List} = "context::AlternateIntervals::Parser::List";
+  $context->lists->set("Interval" => {class=>"context::AlternateIntervals::Parser::Interval"});
+}
+
+#
+#  Sets the default Interval context to use alternate decimals.  The
+#  two arguments determine the values for the enterIntervals and
+#  displayIntervals flags.  If enterIntervals is "alternate", then
+#  student answers must use the alternate format for entering
+#  intervals (though professors can use either).
+#
+sub Default {
+  my $self = shift; my $enter = shift || "either";  my $display = shift || "either";
+  my $cmp = ($enter eq "alternate"); $enter = "either" if $cmp;
+  foreach my $name ("Interval","Full") {
+    my $context = $main::context{$name} = Parser::Context->getCopy($name);
+    $self->Enable($context);
+    $context->flags->set(enterIntervals => $enter, displayIntervals => $display);
+    if ($cmp) {
+      foreach my $class (grep {/::/} (keys %Value::)) {
+        $context->{cmpDefaults}{substr($class,0,-2)}{enterIntervals} = "alternate";
+      }
+    }
+  }
+  main::Context(main::Context()->{name});
 }
 
 ##########################################################################

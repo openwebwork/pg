@@ -171,7 +171,17 @@ rewrite them.
 
 loadMacros("MathObjects.pl");
 
-sub _contextAlternateDecimal_init {
+sub _contextAlternateDecimal_init {context::AlternateDecimal->Init}
+
+
+###########################################################
+
+package context::AlternateDecimal;
+
+#
+#  Create the AlternateDecimal contexts
+#
+sub Init {
   my $context = $main::context{AlternateDecimal} = Parser::Context->getCopy("Numeric");
   $context->{name} = "AlternateDecimal";
   context::AlternateDecimal->Enable($context);
@@ -195,10 +205,6 @@ sub _contextAlternateDecimal_init {
     $context->lists->set($list,{separator => "; "}) if $sep eq ", ";
   }
 }
-
-###########################################################
-
-package context::AlternateDecimal;
 
 #
 #  Enables alternate decimals in the given context
