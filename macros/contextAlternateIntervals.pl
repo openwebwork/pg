@@ -106,36 +106,34 @@ C<parserCustomization.pl> in your course's C<templates/macros>
 directory, and enter the following in it:
 
 	loadMacros("contextAlternateIntervals.pl");
-	$context{Interval} = $context{"AlternateIntervals"};
+	context::AlternateIntervals->Default("either","either");
 
-This will replace the C<Interval> context with the
-C<AlternateIntervals> context so that any problem that sets
-C<Context("Interval")> will get the C<AlternateInervals> context
-instead, so students can enter intervals in either format.
+This will alter the C<Interval> context so that students can
+enter intervals in either format (and they will be shown in whatever
+format that was used to enter them).
 
 You could also do
 
 	loadMacros("contextAlternateIntervals.pl");
-	$context{Interval} = $context{"AlternateIntervals-Warning"};
+	context::AlternateIntervals->Default("standard","standard");
 
 to cause a warning message to appear when students enter the alternate
 format.
 
-If you want to force students to enter the alternate format, you can't
-use C<AlternateIntervals-Only> because the original problem code
-probably involves the creation of intervals using the standard
-notation.  Instead, use
+If you want to force students to enter the alternate format, use
 
 	loadMacros("contextAlternateIntervals.pl");
-	$context{Interval} = $context{"AlternateIntervals"};
-	$context{Interval}->flags->set(displayIntervals => "alternate");
-	$context{Interval}->{cmpDefaults}{Interval}{enterIntervals} = "alternate";
+	context::AlternateIntervals->Default("alternate","alternate");
 
 This will force the display of all intervals into the alternate form
 (so even the ones created in the problem using standard form will show
-using reverse brackets), and will force students to enter their
-results using the alternate format. So this makes the problem work as
-though it were written using C<AlternateIntervals->Only>.
+using the alternate format), and will force students to enter their
+results using the alternate format, though professor's answers will
+still be allowed to be entered in either format (the C<Default()>
+function converts the first C<"alternate"> to C<"either">, but
+arranges that the default flags for the answer checker are set to only
+allow students to enter the alternative format).  This allows you to
+force alternate notation in problems without having to rewrite them.
 
 =cut
 
