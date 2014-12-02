@@ -205,12 +205,23 @@ sub Enable {
 sub Default {
   my $self = shift; my $enter = shift || "either";  my $display = shift || "either";
   my $cmp = ($enter eq "alternate"); $enter = "either" if $cmp;
+  #
+  #  This adds the names from InequalitySetBuilder, but we need a better way to
+  #  link into contexts as they are created and copied.
+  #
+  my @InequalitySetBuilder = (
+    "SetBuilder::",
+    "InequalitySetBuilder::",
+    "InequalitySetBuilderInterval::",
+    "InequalitySetBuilderUnion::",
+    "InequalitySetBuilderSet::",
+  );
   foreach my $name ("Interval","Full") {
     my $context = $main::context{$name} = Parser::Context->getCopy($name);
     $self->Enable($context);
     $context->flags->set(enterIntervals => $enter, displayIntervals => $display);
     if ($cmp) {
-      foreach my $class (grep {/::/} (keys %Value::)) {
+      foreach my $class ((grep {/::/} (keys %Value::)),@InequalitySetBuilder) {
         $context->{cmpDefaults}{substr($class,0,-2)}{enterIntervals} = "alternate";
       }
     }
@@ -380,8 +391,8 @@ our @ISA = ('Parser::List::Interval');
 #  Report errors when invalid form is specified
 #
 sub _check {
-  my $self = shift;
-  my $format = $self->{equation}{context}->flag("enterIntervals");
+  my $self = shift; my $context = $self->context;
+  my $format = (($context->{answerHash}||{})->{enterIntervals} || $context->flag("enterIntervals"));
   $self->Error("You must use parentheses to form open intervals")
     if $format eq "standard"  && ($self->{open} eq "]" || $self->{close} eq "[");
   $self->Error("You must use reversed brackets to form open intervals")
