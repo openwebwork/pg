@@ -143,7 +143,7 @@ sub _contextPermutation_init {
   $context->strings->clear();
   $context->functions->disable("All");
 
-  $context->{pattern}{number} = $context->{pattern}{signedNumber};
+  $context->{pattern}{number} = '(?:^|(?<=[( ]))-?(?:\d+(?:\.\d*)?|\.\d+)(?:E[-+]?\d+)?',
 
   $context->operators->add(
     ',' => {precedence => 0, associativity => 'left', type => 'bin', string => ',',
@@ -176,7 +176,7 @@ sub _contextPermutation_init {
 
   $context->flags->set(
     requireDisjoint => 0,    # require disjoint cycles as answers?
-    requireCanonical => 0,  # require canonical form?
+    requireCanonical => 0,   # require canonical form?
     noPowers => 0,           # allow powers of cycles and permutations?
     noInverses => 0,         # allow negative powers to mean inverse?
     noGroups => 0,           # allow parens for grouping (for powers)?
@@ -529,6 +529,7 @@ sub _check {
   $equation->Error(["Powers of are not allowed"]) if $equation->{context}->flag("noPowers");
   $equation->Error(["You can only take powers of Cycles or Permutations"])
     unless $self->{lop}->type eq "Cycle";
+  $self->{rop} = $self->{rop}{coords}[0] if $self->{rop}->type eq "Cycle" && $self->{rop}->length == 1;
   $equation->Error(["Powers of Cycles and Permutations must be Numbers"])
     unless $self->{rop}->type eq "Number";
   $self->{type} = Value::Type("Permutation",1,$self->{lop}->typeRef);
