@@ -86,7 +86,7 @@ already in use for absolute values.  If you wish to use "C<|>" rather
 than "C<:>", you can do that, but must then use C<abs()> to obtain
 absolute values.  To enable the vertical line as "such that", use
 
-        InequalititySetBuilder::UseVerticalSuchThat();
+        InequalitySetBuilder::UseVerticalSuchThat();
 
 prior to setting the context to one of the set-builder contexts.  This
 will disable "C<:>" and enable "C<|>" as such-that rather than absolute-value.
