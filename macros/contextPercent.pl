@@ -469,11 +469,6 @@ our @ISA = qw(LimitedPercent::BOP Parser::BOP::divide);
 
 ##############################################
 
-package LimitedPercent::BOP::divide;
-our @ISA = qw(LimitedPercent::BOP Parser::BOP::divide);
-
-##############################################
-
 package LimitedPercent::BOP::power;
 our @ISA = qw(LimitedPercent::BOP Parser::BOP::power);
 
