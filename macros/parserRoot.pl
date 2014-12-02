@@ -107,8 +107,6 @@ sub _check {
   $self->Error("Function '%s' must have numeric inputs",$self->{name})
     unless $n->isNumber && $x->isNumber;
   $self->Error("The first operand to '%s' must be an integer",$self->{name}) unless $n->length == 1;
-  $x = $self->Package("Complex")->promote($context,$x)
-    if $x->length == 1 && $x->{value} < 0 && $self->{def}{negativeIsComplex};
   $self->{type} = $Value::Type{complex} if $x->isComplex;
 }
 
