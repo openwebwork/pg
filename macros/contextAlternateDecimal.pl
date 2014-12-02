@@ -98,6 +98,7 @@ different values.  For example.
 would allow students to enter decimals in either format, but all
 numebrs would be displayed in standard form.
 
+
 =head1 LISTS IN ALTERNATE FORMAT
 
 Because the alternate format allows numbers to be entered using commas
@@ -213,6 +214,7 @@ sub Enable {
   $context->operators->add(';' => {%{$context->operators->get(',')}, string => ";"})
     if $context->{operators}{','};
   $context->update;
+  $context->{parser}{Value} = "context::AlternateDecimal::Value";
   $context->{parser}{Number} = "context::AlternateDecimal::Number";
   $context->{value}{Real} = "context::AlternateDecimal::Real";
 }
@@ -255,25 +257,31 @@ package context::AlternateDecimal::Number;
 our @ISA = ('Parser::Number');
 
 #
-#  Handle numbers with commas as decimal indicators, and produce
-#  an error if the format is not what is allowed.  Mark the
-#  number if it in the alternate form, so we can display it
-#  correctly later, if needed.
+#  Handle numbers with commas as decimal indicators, and produce an
+#  error if the format is not what is allowed.  Mark the number if it
+#  is in the alternate form, so we can display it correctly later.  If
+#  needed, save the original string, swap the comma for a dot, save
+#  THAT, and correct the number's numeric value.
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my $equation = shift; my $format = $equation->{context}->flag("enterDecimals");
-  my $value = shift;
-  my $alternate = (Value::isHash($value) ? $value->{alternateForm} : ref($value) ? 0 : ($value =~ s/,/./));
+  my $equation = shift; my $value = shift;
+  my $context = $equation->{context};
+  my $format = (($context->{answerHash}||{})->{enterDecimals} || $context->flag("enterDecimals"));
+  my $alternate = (Value::isHash($value) ? $value->{alternateForm} : ref($value) ? 0 : $value =~ m/,/);
   my $num = $self->SUPER::new($equation,$value,@_);
-  $num->Error("Decimal numbers should be entered using a comma not a period")
-    if !$alternate && $format eq ",";
-  $num->Error("Decimal numbers should be entered using a period not a comma")
-    if $alternate && $format eq ".";
+  if (!$context->flag("skipDecimalCheck")) {
+    $num->Error("Decimal numbers should be entered using a comma not a period")
+      if !$alternate && $value =~ m/\./ && $format eq ",";
+    $num->Error("Decimal numbers should be entered using a period not a comma")
+      if $alternate && $format eq ".";
+  }
   if ($alternate) {
     $num->{alternateForm} = 1;
-    $num->{value_original_string} = $num->{value_string};
-    $num->{value_string} = $num->{value};
+    $num->{value_original_string} = $value;
+    $value =~ s/,/./;
+    $num->{value_string} = $value;
+    $num->{value} = $value + 0;
   }
   return $num;
 }
@@ -287,31 +295,92 @@ sub new {
 sub eval {
   my $self = shift;
   my $n = $self->{value};
-  $n = $self->Package("Real")->new($n)->with(alternateForm => 1) if $self->{alternateForm};
+  if ($self->{alternateForm}) {$n =~ s/\./,/; $n = $self->Package("Real")->make($n)}
   return $n;
 }
 
-sub class {
-  my $self = shift;
-  ($self->isComplex ? "Complex" : "Number");
+#
+#  Fix the decimal separators depending on the display format.
+#
+sub swapDecimal {
+  my $self = shift; my $n = shift;
+  my $context = $self->{equation}{context};
+  my $format = (($context->{answerHash}||{})->{displayDecimals} || $context->flag("displayDecimals"));
+  $n =~ s/\./,/ if $format eq ",";
+  $n =~ s/,/./  if $format eq ".";
+  return $n;
 }
+sub string {
+  my $self = shift;
+  $self->swapDecimal($self->SUPER::string(@_));
+}
+sub TeX {
+  my $self = shift;
+  $self->swapDecimal($self->SUPER::TeX(@_));
+}
+
+#
+#  Return the proper class
+#
+sub class {(shift->isComplex ? "Complex" : "Number")}
+
 
 ###########################################################
 
 package context::AlternateDecimal::Real;
 our @ISA = ('Value::Real');
 
+#
+#  Make the number and issue a warning if the wrong format is used.
+#  Save the decimal in standard notation, but mark it as alternate
+#  form so that it can be displayed in its original form, if needed.
+#
+sub new {shift->checkDecimal("new",@_)}
+sub make {shift->checkDecimal("make",@_)}
+
+sub checkDecimal {
+  my $self = shift; my $method = "SUPER::".shift;
+  my $context = (Value::isContext($_[0]) ? shift : $self->context);
+  my $x = shift; my $alternate;
+  if (Value::matchNumber($x) && scalar(@_) == 0 && $x =~ m/,/) {$x =~ s/,/./; $alternate = 1}
+  $x = $self->$method($context,$x,@_); $x->{alternateForm} = 1 if $alternate;
+  return $x;
+}
+
+sub cmp_defaults {shift->SUPER::cmp_defaults(@_)}
+
+#
+#  Display the number in the correct form depending on the displayDecimals flag.
+#
 sub string {
   my $self = shift; my $n = $self->SUPER::string(@_);
   my $format = $self->getFlag("displayDecimals");
   $n =~ s/\./,/ if ($self->{alternateForm} || $format eq ",") && $format ne ".";
   return $n;
 }
-
 sub TeX {
   my $self = shift; my $n = $self->SUPER::TeX(@_);
   $n =~ s/,/{,}/;  # original TeX calls string(), which already has put in the comma
   return $n;
+}
+
+###########################################################
+
+package context::AlternateDecimal::Value;
+our @ISA = ('Parser::Value');
+
+#
+#  Allow Parser::Value to create Parser::Number objects
+#  from decimals without checking for commas (since these
+#  are the results of computations, not values entered
+#  directly by students).
+#
+sub new {
+  my $self = shift; my $context = $self->context;
+  $context->flags->set(skipDecimalCheck => 1);
+  my $result = $self->SUPER::new(@_);
+  $context->flags->remove("skipDecimalCheck");
+  return $result;
 }
 
 ###########################################################
