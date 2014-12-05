@@ -143,7 +143,7 @@ sub _contextPermutation_init {
   $context->strings->clear();
   $context->functions->disable("All");
 
-  $context->{pattern}{number} = '(?:^|(?<=[( ]))-?(?:\d+(?:\.\d*)?|\.\d+)(?:E[-+]?\d+)?',
+  $context->{pattern}{number} = '(?:(?:^|(?<=[( ^*]))-)?(?:\d+(?:\.\d*)?|\.\d+)(?:E[-+]?\d+)?',
 
   $context->operators->add(
     ',' => {precedence => 0, associativity => 'left', type => 'bin', string => ',',
@@ -173,6 +173,7 @@ sub _contextPermutation_init {
   $context->parens->set(
     '(' => {close => ')', type => 'Cycle', formList => 0, removable => 0, emptyOK => 0, function => 1},
   );
+  $context->flags->set(reduceConstants => 0);
 
   $context->flags->set(
     requireDisjoint => 0,    # require disjoint cycles as answers?
@@ -526,7 +527,7 @@ our @ISA = ("Parser::BOP::power");
 #
 sub _check {
   my $self = shift; my $equation = $self->{equation};
-  $equation->Error(["Powers of are not allowed"]) if $equation->{context}->flag("noPowers");
+  $equation->Error(["Powers are not allowed"]) if $equation->{context}->flag("noPowers");
   $equation->Error(["You can only take powers of Cycles or Permutations"])
     unless $self->{lop}->type eq "Cycle";
   $self->{rop} = $self->{rop}{coords}[0] if $self->{rop}->type eq "Cycle" && $self->{rop}->length == 1;
