@@ -342,14 +342,18 @@ sub BUTTONS {
   my @choices = $self->orderedChoices;
   my @radio = ();
   $name = main::NEW_ANS_NAME() unless $name;
+  my $label = main::generate_aria_label($name);
+  my $count = 1;
   while (@choices) {
     my $value = shift(@choices); my $tag = shift(@choices);
     if ($extend) {
-      push(@radio,main::NAMED_ANS_RADIO_EXTENSION($name,$value,$tag));
+      push(@radio,main::NAMED_ANS_RADIO_EXTENSION($name,$value,$tag,
+	   aria_label=>$label."option $count "));
     } else {
       push(@radio,main::NAMED_ANS_RADIO($name,$value,$tag));
       $extend = true;
     }
+    $count++;
   }
   #
   #  Taken from PGbasicmacros.pl
