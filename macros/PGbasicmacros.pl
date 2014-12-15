@@ -528,10 +528,12 @@ sub NAMED_ANS_RADIO {
 
     }
     $name = RECORD_ANS_NAME($name, {$value=>$checked}	);
+    my $label = generate_aria_label($name);
+    $label .= "option 1 ";
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>$tag!
+		HTML => qq!<INPUT TYPE=RADIO NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag!
 	);
 
 }
@@ -544,7 +546,7 @@ sub NAMED_ANS_RADIO_EXTENSION {
 	my $name = shift;
 	my $value = shift;
 	my $tag =shift;
-
+	my %options = @_;
 
     my $checked = '';
     if ($value =~/^\%/) {
@@ -560,10 +562,17 @@ sub NAMED_ANS_RADIO_EXTENSION {
 
     }
     EXTEND_RESPONSE($name,$name,$value, $checked);
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
+
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>$tag!
+		HTML => qq!<INPUT TYPE=RADIO NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag!
 	);
 
 }
@@ -573,21 +582,25 @@ sub NAMED_ANS_RADIO_BUTTONS {
     my $value = shift;
     my $tag = shift;
 
-
-	my @out = ();
-	push(@out, NAMED_ANS_RADIO($name, $value,$tag));
-	my @buttons = @_;
-	while (@buttons) {
-		$value = shift @buttons;  $tag = shift @buttons;
-		push(@out, NAMED_ANS_RADIO_OPTION($name, $value,$tag));
-	}
-	(wantarray) ? @out : join(" ",@out);
+    my @out = ();
+    push(@out, NAMED_ANS_RADIO($name, $value,$tag));
+    my @buttons = @_;
+    my $label = generate_aria_label($name);
+    my $count = 2;
+    while (@buttons) {
+	$value = shift @buttons;  $tag = shift @buttons;
+	push(@out, NAMED_ANS_RADIO_OPTION($name, $value,$tag,
+					  aria_label=>$label."option $count "));
+	$count++;
+    }
+    (wantarray) ? @out : join(" ",@out);
 }
+
 sub ANS_RADIO {
 	my $number = shift;
 	my $value = shift;
 	my $tag =shift;
-    my $name = NEW_ANS_NAME();
+	my $name = NEW_ANS_NAME();
 	NAMED_ANS_RADIO($name,$value,$tag);
 }
 
@@ -595,9 +608,10 @@ sub ANS_RADIO_OPTION {
 	my $number = shift;
 	my $value = shift;
 	my $tag =shift;
-    my $name = ANS_NUM_TO_NAME($number);
+	my $name = ANS_NUM_TO_NAME($number);
 	NAMED_ANS_RADIO_OPTION($name,$value,$tag);
 }
+
 sub ANS_RADIO_BUTTONS {
     my $number  =shift;
     my $value = shift;
@@ -713,10 +727,13 @@ sub NAMED_ANS_CHECKBOX {
 
     }
     $name = RECORD_ANS_NAME($name, {$value => $checked});
+    my $label = generate_aria_label($name);
+    $label .= "option 1 ";
+
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>$tag!
+		HTML => qq!<INPUT TYPE=CHECKBOX NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag!
 	);
 
 }
@@ -725,6 +742,7 @@ sub NAMED_ANS_CHECKBOX_OPTION {
 	my $name = shift;
 	my $value = shift;
 	my $tag =shift;
+	my %options = @_;
 
     my $checked = '';
     if ($value =~/^\%/) {
@@ -742,10 +760,17 @@ sub NAMED_ANS_CHECKBOX_OPTION {
 
     }
     EXTEND_RESPONSE($name,$name,$value, $checked);
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
+
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>$tag!
+		HTML => qq!<INPUT TYPE=CHECKBOX NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag!
 	);
 
 }
@@ -757,11 +782,14 @@ sub NAMED_ANS_CHECKBOX_BUTTONS {
 
 	my @out = ();
 	push(@out, NAMED_ANS_CHECKBOX($name, $value,$tag));
-
+    	my $label = generate_aria_label($name);
+        my $count = 2;
 	my @buttons = @_;
 	while (@buttons) {
 		$value = shift @buttons;  $tag = shift @buttons;
-		push(@out, NAMED_ANS_CHECKBOX_OPTION($name, $value,$tag));
+		push(@out, NAMED_ANS_CHECKBOX_OPTION($name, $value,$tag,
+		     aria_label=>$label."option $count "));
+		$count++;
 	}
 
 	(wantarray) ? @out : join(" ",@out);
