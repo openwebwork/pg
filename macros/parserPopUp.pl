@@ -112,7 +112,7 @@ sub MENU {
   my $answer_value = (defined($main::inputs_ref->{$name}) ? $main::inputs_ref->{$name} : '');
   my $label = main::generate_aria_label($name);
   if ($main::displayMode =~ m/^HTML/) {
-    $menu = qq!<SELECT NAME="$name" id="$name" aria-label="$label" SIZE=1>\n!;
+    $menu = qq!<SELECT class="pg-select" NAME="$name" id="$name" aria-label="$label" SIZE=1>\n!;
     foreach my $option (@$list) {
       my $selected = ($option eq $answer_value) ? " SELECTED" : "";
       $menu .= qq!<OPTION$selected VALUE="$option">$option</OPTION>\n!;
