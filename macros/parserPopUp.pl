@@ -119,7 +119,11 @@ sub MENU {
     };
     $menu .= "</SELECT>";
   } elsif ($main::displayMode eq "TeX") {
-    $menu = "\\fbox{?}";
+    $menu = "\n\\begin{itemize}\n";
+    foreach my $option (@$list) {
+	$menu .= "\\item $option";
+    }
+    $menu .= "\\end{itemize}\n";
   }
   main::RECORD_ANS_NAME($name,$answer_value) unless $extend;   # record answer name
   $menu;
