@@ -533,7 +533,7 @@ sub NAMED_ANS_RADIO {
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<INPUT TYPE=RADIO NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag!
+		HTML => qq!<label><INPUT TYPE=RADIO NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!
 	);
 
 }
@@ -572,7 +572,7 @@ sub NAMED_ANS_RADIO_EXTENSION {
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<INPUT TYPE=RADIO NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag!
+		HTML => qq!<label><INPUT TYPE=RADIO NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!
 	);
 
 }
@@ -733,7 +733,7 @@ sub NAMED_ANS_CHECKBOX {
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<INPUT TYPE=CHECKBOX NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag!
+		HTML => qq!<label><INPUT TYPE=CHECKBOX NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!
 	);
 
 }
@@ -770,7 +770,7 @@ sub NAMED_ANS_CHECKBOX_OPTION {
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<INPUT TYPE=CHECKBOX NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag!
+		HTML => qq!<label><INPUT TYPE=CHECKBOX NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!
 	);
 
 }
@@ -973,7 +973,7 @@ sub NAMED_POP_UP_LIST {
 	 || $displayMode eq 'HTML_asciimath' 
 	 || $displayMode eq 'HTML_LaTeXMathML'
 	 || $displayMode eq 'HTML_img') {
-		$out = qq!<SELECT NAME = "$name" id="$name" SIZE=1> \n!;
+		$out = qq!<SELECT class="pg-select" NAME = "$name" id="$name" SIZE=1> \n!;
 		my $i;
 		foreach ($i=0; $i< @list; $i=$i+2) {
 			my $select_flag = ($list[$i] eq $answer_value) ? "SELECTED" : "";
@@ -1217,6 +1217,8 @@ sub SOLUTION {
     	              base64 =>1 ) ) if solution(@_);
     } elsif ($displayMode=~/TeX/) {
     	TEXT($PAR,SOLUTION_HEADING(), solution(@_).$PAR) if solution(@_) ;
+    } elsif ($displayMode=~/HTML/) {
+		TEXT( $PAR.SOLUTION_HEADING().$BR.solution(@_).$PAR) if solution(@_) ;
     } else {
 		TEXT( $PAR.solution(@_).$PAR) if solution(@_) ;
 	}
@@ -1266,7 +1268,7 @@ sub HINT {
 		                  base64 => 1) ) if hint(@_);
     } elsif ($displayMode=~/TeX/) {
     	TEXT($PAR,HINT_HEADING(), hint(@_).$PAR) if hint(@_) ;
-	} else {
+    } else {
     	TEXT($PAR, HINT_HEADING(), $BR. hint(@_) . $PAR) if hint(@_);
     } 
 }
@@ -1506,9 +1508,9 @@ sub END_ONE_COLUMN { MODES(TeX =>
 };
 sub SOLUTION_HEADING { MODES( TeX => '\\par {\\bf Solution: }',
                  Latex2HTML => '\\par {\\bf Solution: }',
-          		 HTML =>  '<P><B>Solution:</B> ');
+          		 HTML =>  '<B>Solution:</B> ');
 };
-sub HINT_HEADING { MODES( TeX => "\\par {\\bf Hint: }", Latex2HTML => "\\par {\\bf Hint: }", HTML => "<P><B>Hint:</B> "); };
+sub HINT_HEADING { MODES( TeX => "\\par {\\bf Hint: }", Latex2HTML => "\\par {\\bf Hint: }", HTML => "<B>Hint:</B> "); };
 sub US { MODES(TeX => '\\_', Latex2HTML => '\\_', HTML => '_');};  # underscore, e.g. file${US}name
 sub SPACE { MODES(TeX => '\\ ',  Latex2HTML => '\\ ', HTML => '&nbsp;');};  # force a space in latex, doesn't force extra space in html
 sub BBOLD { MODES(TeX => '{\\bf ',  Latex2HTML => '{\\bf ', HTML => '<B>'); };
@@ -2296,7 +2298,7 @@ sub knowlLink { # an new syntax for knowlLink that facilitates a local HERE docu
 	if ($options{value} )  { #internal knowl from HERE document
 	    $options{value} =~ s/"/'/g; # escape quotes  #FIXME -- make escape more robust 
 	    my $base64 = ($options{base64})?"base64 = \"1\"" :"";
-		$properties = qq! knowl = "" class = "internal" value = "$options{value} " $base64 !;
+		$properties = qq! href="#" knowl = "" class = "internal" value = "$options{value} " $base64 !;
 	} elsif ($options{url}) {
 		$properties = qq! knowl = "$options{url}"!;
 	}
@@ -2305,7 +2307,7 @@ sub knowlLink { # an new syntax for knowlLink that facilitates a local HERE docu
 	}
 	#my $option_string = qq!url = "$options{url}" value = "$options{value}" !;
 	MODES( TeX        => "{\\bf \\underline{$display_text}}",
-	       HTML       => "<a href='#' $properties >$display_text</a>"
+	       HTML       => "<a $properties >$display_text</a>"
 	);
 
 
