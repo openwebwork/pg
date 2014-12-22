@@ -1,4 +1,3 @@
-
 =head1 DESCRIPTION
 
  #############################################################
@@ -383,17 +382,21 @@ our $answerPrefix = "MaTrIx";
 #
 sub ans_matrix {
   my $self = shift;
-  my ($extend,$name,$rows,$cols,$size,$open,$close,$sep) = @_;
-  #my $named_extension = pgRef('NAMED_ANS_RULE_EXTENSION');
+  my $extend = shift; my $name = shift;
+  my $rows = shift; my $cols = shift; 
+  my $size = shift; my $open = shift;
+  my $close = shift; my $sep = shift;
+  my $toplabels = shift;
+
+  my %options = @_;
+  #die(join(';',map {"$_ and $options{$_}"} keys %options));
   my $named_extension = pgRef('NAMED_ANS_ARRAY_EXTENSION');
-  my $new_name = sub {@_}; # pgRef('RECORD_EXTRA_ANSWERS');
+  my $named_ans_rule  = pgRef('NAMED_ANS_RULE');
   my $HTML = ""; my $ename = $name;
   if ($name eq '') {
-    #my $n = pgCall('inc_ans_rule_count');
-    $name = pgCall('NEW_ANS_NAME',$n);
-    #$name = pgCall('NEW_ARRAY_NAME',$n);
-    $ename = "${answerPrefix}_${name}_";
+    $name = pgCall('NEW_ANS_NAME');
   }
+  $ename = "${answerPrefix}_${name}";
   $self->{ans_name} = $ename;
   $self->{ans_rows} = $rows;
   $self->{ans_cols} = $cols;
@@ -401,21 +404,27 @@ sub ans_matrix {
   foreach my $i (0..$rows-1) {
     my @row = ();
     foreach my $j (0..$cols-1) {
-      if ($i == 0 && $j == 0) {
-	     if ($extend) {
-	     	push(@row,&$named_extension(&$new_name($name),$size,ans_label=>$name));
-	     	#push(@row,&$named_extension(&$new_name($name),$size))
-	     }else {
-	     	push(@row,pgCall('NAMED_ANS_RULE',$name,$size))
-	     }
-      } else {
-		push(@row,&$named_extension(&$new_name(ANS_NAME($ename,$i,$j)),$size,ans_label=>$name));
-		#push(@row,&$named_extension(&$new_name(ANS_NAME($ename,$i,$j)),$size,ans_label=>$name));
-      }
+	my $label;
+	if ($options{aria_label}) {		
+	    $label = $options{aria_label}.'row '.($i+1).' col '.($j+1);
+	} else {
+	    $label = pgCall('generate_aria_label',ANS_NAME($ename,$i,$j));
+	    
+	}
+	if ($i == 0 && $j == 0) {
+	    if ($extend) {
+		push(@row,&$named_extension($name,$size,ans_label=>$name, aria_label=>$label));
+	    } else {
+		
+		push(@row,&$named_ans_rule($name,$size,aria_label=>$label));
+	    }
+	} else {
+	    push(@row,&$named_extension(ANS_NAME($ename,$i,$j),$size,ans_label=>$name, aria_label=>$label));
+	}
     }
     push(@array,[@row]);
   }
-  $self->format_matrix([@array],open=>$open,close=>$close,sep=>$sep);
+  $self->format_matrix([@array],open=>$open,close=>$close,sep=>$sep,top_labels=>$toplabels);
 }
 
 sub ANS_NAME {
@@ -446,6 +455,9 @@ sub format_matrix_tex {
   $tex .= '\(\left'.$open;
   $tex .= '\setlength{\arraycolsep}{2pt}', $sep = '\,'.$sep if $sep;
   $tex .= '\begin{array}{'.('c'x$cols).'}';
+  if ($options{top_labels}) {
+  	push @rows, join($sep.'&',@{$options{top_labels}});
+  }
   foreach my $i (0..$rows-1) {push(@rows,join($sep.'&',@{$array->[$i]}))}
   $tex .= join('\cr'."\n",@rows);
   $tex .= '\end{array}\right'.$close.'\)';
@@ -459,8 +471,13 @@ sub format_matrix_HTML {
   my ($open,$close,$sep) = ($options{open},$options{close},$options{sep});
   my ($rows,$cols) = (scalar(@{$array}),scalar(@{$array->[0]}));
   my $HTML = "";
-  if ($sep) {$sep = '</TD><TD STYLE="padding: 0px 1px">'.$sep.'</TD><TD>'}
-       else {$sep = '</TD><TD WIDTH="8px"></TD><TD>'}
+  if ($sep) {$sep = '</TD><TD STYLE="padding: 0px 1px">'.$sep.'</TD><TD>'
+  } else {
+  	$sep = '</TD><TD WIDTH="8px"></TD><TD>'
+  }
+  if ($options{top_labels} ) {
+  	$HTML.='<TR ALIGN="MIDDLE"><TD>'.join($sep,@{$options{top_labels}}).'</TD></TR>'."\n"
+  }
   foreach my $i (0..$rows-1) {
     $HTML .= '<TR><TD HEIGHT="6px"></TD></TR>' if $i;
     $HTML .= '<TR ALIGN="MIDDLE"><TD>'.join($sep,EVALUATE(@{$array->[$i]})).'</TD></TR>'."\n";
@@ -479,7 +496,7 @@ sub format_matrix_HTML {
           . '</TR>'."\n";
   }
   return '<TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0" CLASS="ArrayLayout"'
-          . ' STYLE="display:inline;margin:0;vertical-align:-'.(1.1*$rows-.6).'em">'
+          . ' STYLE="display:inline-table;margin:0;vertical-align:-'.(1.1*$rows-.6).'em">'
           . $HTML
           . '</TABLE>';
 }
@@ -834,9 +851,10 @@ sub ANS_MATRIX {
   my $self = shift;
   my $extend = shift; my $name = shift;
   my $size = shift || 5;
+  my %options = @_;
   my $def = $self->context->lists->get('Point');
   my $open = $self->{open} || $def->{open}; my $close = $self->{close} || $def->{close};
-  $self->ans_matrix($extend,$name,1,$self->length,$size,$open,$close,',');
+  $self->ans_matrix($extend,$name,1,$self->length,$size,$open,$close,',','',%options);
 }
 
 sub ans_array {my $self = shift; $self->ANS_MATRIX(0,'',@_)}
@@ -943,14 +961,16 @@ sub correct_ans {
 sub ANS_MATRIX {
   my $self = shift;
   my $extend = shift; my $name = shift;
-  my $size = shift || 5; my ($def,$open,$close);
+  my $size = shift || 5; 
+  my %options = @_;
+  my ($def,$open,$close);
   $def = $self->context->lists->get('Matrix');
   $open = $self->{open} || $def->{open}; $close = $self->{close} || $def->{close};
-  return $self->ans_matrix($extend,$name,$self->length,1,$size,$open,$close)
+  return $self->ans_matrix($extend,$name,$self->length,1,$size,$open,$close,'',,'',%options)
     if ($self->{ColumnVector});
   $def = $self->context->lists->get('Vector');
   $open = $self->{open} || $def->{open}; $close = $self->{close} || $def->{close};
-  $self->ans_matrix($extend,$name,1,$self->length,$size,$open,$close,',');
+  $self->ans_matrix($extend,$name,1,$self->length,$size,$open,$close,',','',%options);
 }
 
 sub ans_array {my $self = shift; $self->ANS_MATRIX(0,'',@_)}
@@ -1032,13 +1052,16 @@ sub ANS_MATRIX {
   my $self = shift;
   my $extend = shift; my $name = shift;
   my $size = shift || 5;
+  my %options = @_;
   my $def = $self->context->lists->get('Matrix');
   my $open = $self->{open} || $def->{open}; my $close = $self->{close} || $def->{close};
+  my $sep = '';
+  my $toplabels = ($self->{top_labels})?$self->{top_labels}:'';
   my @d = $self->dimensions;
   Value::Error("Can't create ans_array for %d-dimensional matrix",scalar(@d))
     if (scalar(@d) > 2);
   @d = (1,@d) if (scalar(@d) == 1);
-  $self->ans_matrix($extend,$name,@d,$size,$open,$close,'');
+  $self->ans_matrix($extend,$name,@d,$size,$open,$close,$sep,$toplabels,%options);
 }
 
 sub ans_array {my $self = shift; $self->ANS_MATRIX(0,'',@_)}
@@ -1295,10 +1318,12 @@ sub cmp {
   my $self = shift;
   my %params = @_;
   my $cmp = $self->SUPER::cmp(@_);
-  if ($cmp->{rh_ans}{removeParens}) {
+  if ($cmp->{rh_ans}{removeParens} && ($self->{open} || $self->{close})) {
     $self->{open} = $self->{close} = '';
     $cmp->ans_hash(correct_ans => $self->stringify)
       unless defined($self->{correct_ans}) || defined($params{correct_ans});
+    $cmp->ans_hash(correct_ans_latex_string => $self->TeX)
+      unless defined($self->{correct_ans_latex_string}) || defined($params{correct_ans_latex_string});
   }
   return $cmp;
 }
@@ -1631,11 +1656,14 @@ sub getTypicalValue {
 #
 sub cmp {
   my $self = shift;
+  my %params = @_;
   my $cmp = $self->SUPER::cmp(@_);
-  if ($cmp->{rh_ans}{removeParens} && $self->type eq 'List') {
+  if ($cmp->{rh_ans}{removeParens} && $self->type eq 'List' && ($self->{tree}{open} || $self->{tree}{close})) {
     $self->{tree}{open} = $self->{tree}{close} = '';
     $cmp->ans_hash(correct_ans => $self->stringify)
-      unless defined($self->{correct_ans});
+      unless defined($self->{correct_ans}) || defined($params{correct_ans});
+    $cmp->ans_hash(correct_ans_latex_string => $self->stringify)
+      unless defined($self->{correct_ans_latex_string}) || defined($params{correct_ans_latex_string});
   }
   if ($cmp->{rh_ans}{eval} && $self->isConstant) {
     $cmp->ans_hash(correct_value => $self->eval);
@@ -1891,11 +1919,11 @@ sub cmp_diagnostics {
   #  Put all the diagnostic output into a frame
   #
   return unless $output;
-  $output 
-    = '<TABLE BORDER="1" CELLSPACING="2" CELLPADDING="20" BGCOLOR="#F0F0F0">'
+  $output
+    = '<TABLE BORDER="1" CELLSPACING="2" CELLPADDING="20" STYLE="background:#F0F0F0; color:black">'
     . '<TR><TD ALIGN="LEFT"><B>Diagnostics for '.$self->string .':</B>'
     . '<P><CENTER>' . $output . '</CENTER></TD></TR></TABLE><P>';
-  warn $output;
+  $self->getPG('$PG')->debug_message($output);
 }
 
 #
@@ -2048,7 +2076,9 @@ sub correct_ans {
 sub ANS_MATRIX {
   my $self = shift;
   my $extend = shift; my $name = shift;
-  my $size = shift || 5; my $type = $self->type; 
+  my $size = shift || 5; 
+  my %options = @_;
+  my $type = $self->type; 
   my $cols = $self->length; my $rows = 1; my $sep = ',';
   if ($type eq 'Matrix') {
     $sep = ''; $rows = $cols; $cols = $self->{tree}->typeRef->{entryType}{length};
@@ -2061,7 +2091,7 @@ sub ANS_MATRIX {
   my $def = $self->context->lists->get($type);
   my $open = $self->{open} || $self->{tree}{open} || $def->{open};
   my $close = $self->{close} || $self->{tree}{close} || $def->{close};
-  $self->ans_matrix($extend,$name,$rows,$cols,$size,$open,$close,$sep);
+  $self->ans_matrix($extend,$name,$rows,$cols,$size,$open,$close,$sep,'',%options);
 }
 
 sub ans_array {

@@ -1,0 +1,9 @@
+##### README
+
+
+Currently (version 1.25) Maketext has a "use strict" line as part of its string parser.  This "use strict" interacts badly with WWSafe and fails.  Unfortunately the use strict cannot be turned off in Maketext.  This means that you can use maketex in PG, but you cannot use any of its features, including simple ones like maketext('Hello [_1] World','Cruel');
+
+If it becomes necessary to use the more advance versions of maketext in PG we will need to fork Maketext. 
+
+
+  

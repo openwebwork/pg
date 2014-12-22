@@ -176,7 +176,7 @@ sub promote {
 #
 sub noinherit {
   my $self = shift;
-  return ("ColumnVector",$self->SUPER::noinherit);
+  return ("ColumnVector","wwM","lrM",$self->SUPER::noinherit);
 }
 
 ############################################

@@ -622,7 +622,8 @@ sub inherit {
 #
 sub noinherit {
   my $self = shift;
-  ("correct_ans","original_formula","equation",@{$self->{noinherit}||[]});
+  ("correct_ans","correct_ans_latex_string",
+   "original_formula","equation",@{$self->{noinherit}||[]});
 }
 
 ######################################################################
@@ -670,9 +671,8 @@ sub typeRef {
 #
 sub class {
   my $self = shift;
-  # warn( "self was undefined ", join(", ", caller(0),"\n",caller(1),"\n",caller(2)))  unless defined $self;
   return undef unless defined $self; #added by MEG 
-  # attention DPVC
+  # attention DPVC  FIXME
   # before if $self was undefined Value->subclassed fails and 
   # $class returns undef? or ""
   # but warning messages were placed in the logs 
@@ -966,7 +966,8 @@ sub string {
       push(@coords,$x);
     }
   }
-  return $open.join($def->{separator},@coords).$close;
+  my $comma = $def->{separator}; $comma = "," unless defined $comma;
+  return $open.join($comma,@coords).$close;
 }
 
 =head4 ->TeX
@@ -997,7 +998,8 @@ sub TeX {
     } elsif (defined($str->{$x}) && $str->{$x}{TeX}) {push(@coords,$str->{$x}{TeX})}
     else {push(@coords,$x)}
   }
-  return $open.join(',',@coords).$close;
+  my $comma = $def->{separator}; $comma = "," unless defined $comma;
+  return $open.join($comma,@coords).$close;
 }
 
 #

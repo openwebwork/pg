@@ -797,7 +797,7 @@ sub unsetValues {
 #
 sub ijk {
   my $self = shift;
-  $self->{tree}->ijk;
+  $self->{tree}->ijk(@_);
 }
 
 #########################################################################

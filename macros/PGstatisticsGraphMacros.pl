@@ -129,7 +129,7 @@ sub init_statistics_graph {
 sub getMinMax {
 		# Routine to return the smallest and largest value in the list of
 		# numbers given for the arguments to the function.
-			@data_list = (@_);
+			my @data_list = (@_);
 			my $xmin = 'nd'; 
 			my $xmax = 'nd';
 			for my $value (@data_list)
@@ -168,7 +168,7 @@ sub add_boxplot {
 	}
 
 	# Get the necessary graph properties for making the plot.
-	$black = $graphRef->im->colorAllocate(0,0,0);
+	my $black = $graphRef->im->colorAllocate(0,0,0);
 
 	# Get the five point summaries for each of the defined data sets.
 	# initialize the set of five point summaries
@@ -276,8 +276,8 @@ sub add_histogram {
 	}
 
 	# Get the necessary graph properties for making the plot.
-	$black = $graphRef->im->colorAllocate(0,0,0);
-	$red   = $graphRef->im->colorAllocate(255,0,0);
+	my $black = $graphRef->im->colorAllocate(0,0,0);
+	my $red   = $graphRef->im->colorAllocate(255,0,0);
 
 	# For each data set get the frequencies
 	# Then add the result to the graph.

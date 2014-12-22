@@ -56,10 +56,11 @@ sub _parserFunction_init {parserFunction::Init()}; # don't reload this file
 #  The package that will manage user-defined functions
 #
 package parserFunction;
-our @ISA = qw(Parser::Function);
+our @ISA = ('Parser::Function');
 
 sub Init {
-  main::PG_restricted_eval('sub parserFunction {parserFunction->Create(@_)}');
+  main::PG_restricted_eval('sub parserFunction {parserFunction->Create(@_)}')
+    unless defined &main::parserFunction;
 }
 
 sub Create {
@@ -103,7 +104,7 @@ sub Create {
       formula => $formula, type => $formula->typeRef,
     }
   );
-  main::PG_restricted_eval("sub main::$name {Parser::Function->call('$name',\@_)}");
+  main::PG_restricted_eval("sub main::$name {Parser::Function->call(q{$name},\@_)}");
   $context->variables->remove(@newVars) if scalar(@newVars);
 }
 

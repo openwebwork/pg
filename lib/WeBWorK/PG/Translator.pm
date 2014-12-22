@@ -10,7 +10,7 @@ use warnings;
 use Opcode;
 use WWSafe;
 use Net::SMTP;
-use WeBWorK::PG::IO;
+use WeBWorK::PG::IO  qw(fileFromPath);
 
 #use PadWalker;     # used for processing error messages
 #use Data::Dumper;
@@ -266,7 +266,8 @@ sub time_it {
 	$WeBWorK::timer->continue("PG macro:". $msg) if defined($WeBWorK::timer);
 }
 
-my %shared_subroutine_hash = (
+# functions shared from WeBWorK::PG::Translator
+my %Translator_shared_subroutine_hash = (
 	'time_it'                  => __PACKAGE__,
 	'&PG_answer_eval'          => __PACKAGE__,
 	'&PG_restricted_eval'      => __PACKAGE__,
@@ -274,15 +275,20 @@ my %shared_subroutine_hash = (
 	'&be_strict'               => __PACKAGE__,
 	'&PGsort'                  => __PACKAGE__,
 	'&dumpvar'                 => __PACKAGE__,
-	%WeBWorK::PG::IO::SHARE, # add names from WeBWorK::PG::IO and WeBWorK::PG::IO::*
 );
+
+# add names from WeBWorK::PG::IO and WeBWorK::PG::IO::*
+my %IO_shared_subroutine_hash = %WeBWorK::PG::IO::SHARE; 
 
 sub initialize {
     my $self = shift;
     my $safe_cmpt = $self->{safe};
     #print "initializing safeCompartment",$safe_cmpt -> root(), "\n";
 
-    $safe_cmpt -> share(keys %shared_subroutine_hash);
+    $safe_cmpt -> share_from('WeBWorK::PG::Translator',
+			     [keys %Translator_shared_subroutine_hash]);
+    $safe_cmpt -> share_from('WeBWorK::PG::IO',
+			     [keys %IO_shared_subroutine_hash]);
     no strict;
     local(%envir) = %{ $self ->{envir} };
 	$safe_cmpt -> share('%envir');
@@ -342,7 +348,10 @@ sub pre_load_macro_files {
 ################################################################
 #    prepare safe_cache
 ################################################################
-	$cached_safe_cmpt -> share(keys %shared_subroutine_hash);
+    $cached_safe_cmpt -> share_from('WeBWorK::PG::Translator',
+				    [keys %Translator_shared_subroutine_hash]);
+    $cached_safe_cmpt -> share_from('WeBWorK::PG::IO',
+				    [keys %IO_shared_subroutine_hash]);	
     no strict;
     local(%envir) = %{ $self ->{envir} };
 	$cached_safe_cmpt -> share('%envir');
@@ -551,7 +560,8 @@ sub unrestricted_load {
 	my $init_subroutine  = eval { \&{$init_subroutine_name} };
 	warn "No init routine for $init_subroutine_name: $@" if  $debugON and $@;
 	use strict;
-    my $macro_file_loaded = ref($init_subroutine) =~ /CODE/;
+	my $macro_file_loaded = ref($init_subroutine) =~ /CODE/ &&
+	    defined(&$init_subroutine);
 
 	#print STDERR "$macro_file_name   has not yet been loaded\n" unless $macro_file_loaded;	
 	unless ($macro_file_loaded) {
@@ -960,12 +970,9 @@ case the previously defined safe compartment is used. (See item 1.)
 #################
 # FIXME The various warning message tracks are still being sorted out
 # WARNING and DEBUG tracks are being handled elsewhere (in Problem.pm?)
-#################
-				$self->{errors} .= $@;
+#######################################################################
+				$self->{errors} .= "ERRORS from evaluating PG file: <br/> $@<br/>\n" if $@;
 
-				
-# 				$self->{errors}.=join(CGI::br(), @{$PGcore->{WARNING_messages}} );
-# 				$self->{errors}.=join(CGI::br(), @{$PGcore->{DEBUG_messages  }} );
 #######################################################################
 
 #		    	push(@PROBLEM_TEXT_OUTPUT   ,   split(/(\n)/,$$PG_PROBLEM_TEXT_REF)  ) if  defined($$PG_PROBLEM_TEXT_REF  );
@@ -1004,13 +1011,16 @@ the errors.
 	###### PG error processing code ##########
 	##########################################
         my (@input,$lineNumber,$line);
-        if ($self -> {errors}) {
+	my $permissionLevel = $self->{envir}->{permissionLevel}||0; #user permission level
+        # Only show the problem text to users with permission
+        if ($self -> {errors} && $self->{envir}->{VIEW_PROBLEM_DEBUGGING_INFO} <= $permissionLevel) {
                 #($self -> {errors}) =~ s/</&lt/g;
                 #($self -> {errors}) =~ s/>/&gt/g;
 	        #try to clean up errors so they will look ok
-                $self ->{errors} =~ s/\[[^\]]+?\] [^ ]+?\.pl://gm;   #erase [Fri Dec 31 12:58:30 1999] processProblem7.pl:
+                #$self ->{errors} =~ s/\[[^\]]+?\] [^ ]+?\.pl://gm;   #erase [Fri Dec 31 12:58:30 1999] processProblem7.pl:
                 #$self -> {errors} =~ s/eval\s+'(.|[\n|r])*$//;
 		#end trying to clean up errors so they will look ok
+
 
 
                 push(@PROBLEM_TEXT_OUTPUT   ,  qq!\n<A NAME="problem! .
@@ -1036,8 +1046,13 @@ the errors.
 
 
 
+        } elsif ($self -> {errors}) {
+                push(@PROBLEM_TEXT_OUTPUT   ,  qq!\n<A NAME="problem! .
+                    $self->{envir} ->{'probNum'} .
+                    qq!"><pre>        Problem !.
+                    $self->{envir} ->{'probNum'}.
+                    qq!\nERROR caught by Translator while processing this problem <br/></pre>\r\n!);
         }
-
 =pod
 
 (6) B<Prepare return values>
@@ -1707,7 +1722,7 @@ sub default_preprocess_code {
 	$evalString =~ s/\n\s*BEGIN_TEXT[\s;]*\n/\nTEXT\(EV3P\(<<'END_TEXT'\)\);\n/g;
 	$evalString =~ s/\n\s*BEGIN_PGML[\s;]*\n/\nTEXT\(PGML::Format2\(<<'END_PGML'\)\);\n/g;
 	$evalString =~ s/\n\s*BEGIN_PGML_SOLUTION[\s;]*\n/\nSOLUTION\(PGML::Format2\(<<'END_PGML_SOLUTION'\)\);\n/g;
-	$evalString =~ s/\n\s*BEGIN_PGML_HINT[\s;]*\n/\nHINT\(PGML::Format2\(<<'END_PGML_SOLUTION'\)\);\n/g;
+	$evalString =~ s/\n\s*BEGIN_PGML_HINT[\s;]*\n/\nHINT\(PGML::Format2\(<<'END_PGML_HINT'\)\);\n/g;
 	$evalString =~ s/\n\s*BEGIN_SOLUTION[\s;]*\n/\nSOLUTION\(EV3P\(<<'END_SOLUTION'\)\);\n/g;
 	$evalString =~ s/\n\s*BEGIN_HINT[\s;]*\n/\nHINT\(EV3P\(<<'END_HINT'\)\);\n/g;
 	$evalString =~ s/ENDDOCUMENT.*/ENDDOCUMENT();/s; # remove text after ENDDOCUMENT

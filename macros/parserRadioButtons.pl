@@ -336,30 +336,40 @@ sub orderedChoices {
 #
 #  Create the radio-buttons text
 #
-sub buttons {
+sub BUTTONS {
   my $self = shift;
-  my @radio = main::ans_radio_buttons($self->orderedChoices);
-  @radio = $self->makeUncheckable(@radio) if $self->{uncheckable};
-  (wantarray) ? @radio : join($self->{separator}, @radio);
-}
-sub named_buttons {
-  my $self = shift; my $name = shift;
-  my @radio = NAMED_ANS_RADIO_BUTTONS($name,$self->orderedChoices);
-  @radio = $self->makeUncheckable(@radio) if $self->{uncheckable};
+  my $extend = shift; my $name = shift;
+  my @choices = $self->orderedChoices;
+  my @radio = ();
+  $name = main::NEW_ANS_NAME() unless $name;
+  while (@choices) {
+    my $value = shift(@choices); my $tag = shift(@choices);
+    if ($extend) {
+      push(@radio,main::NAMED_ANS_RADIO_EXTENSION($name,$value,$tag));
+    } else {
+      push(@radio,main::NAMED_ANS_RADIO($name,$value,$tag));
+      $extend = true;
+    }
+  }
   #
   #  Taken from PGbasicmacros.pl
   #  It is wrong to have \item in the radio buttons and to add itemize here,
   #    but that is the way PGbasicmacros.pl does it.
   #
-  if ($displayMode eq 'TeX') {
+  if ($main::displayMode eq 'TeX') {
     $radio[0] = "\n\\begin{itemize}\n" . $radio[0];
     $radio[$#radio_buttons] .= "\n\\end{itemize}\n";
   }
-  (wantarray) ? @radio: join($self->{separator}, @radio);
+  @radio = $self->makeUncheckable(@radio) if $self->{uncheckable};
+  (wantarray) ? @radio : join($self->{separator}, @radio);
 }
 
-sub ans_rule {shift->buttons(@_)}
-sub named_ans_rule {shift->named_buttons(@_)}
+sub buttons {shift->BUTTONS(0,'',@_)}
+sub named_buttons {shift->BUTTONS(0,@_)}
+
+sub ans_rule {shift->BUTTONS(0,'',@_)}
+sub named_ans_rule {shift->BUTTONS(0,@_)}
+sub named_ans_rule_extension {shift->BUTTONS(1,@_)}
 
 sub cmp_postprocess {
   my $self = shift; my $ans = shift;
