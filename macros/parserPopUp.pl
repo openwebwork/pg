@@ -122,7 +122,7 @@ sub MENU {
       # if the total number of characters is not more than 
       # 30 and not containing / or ] then we print out
       # the select as a string: [A/B/C]
-      if (length(join('',@$list)) < 30 &&
+      if (length(join('',@$list)) < 25 &&
 	  !grep(/(\/|\[|\])/,@$list)) {
 	  
 	  $menu = '['.join('/',@$list).']';
