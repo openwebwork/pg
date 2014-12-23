@@ -119,11 +119,22 @@ sub MENU {
     };
     $menu .= "</SELECT>";
   } elsif ($main::displayMode eq "TeX") {
-    $menu = "\n\\begin{itemize}\n";
-    foreach my $option (@$list) {
-	$menu .= "\\item $option";
-    }
-    $menu .= "\\end{itemize}\n";
+      # if there are 3 or less items with a total number of characters
+      # not more than 30 and not containing / or ] then we print out
+      # the select as a string: [A/B/C]
+      if ($#$list < 3 &&
+	  length(join('',@$list)) < 30 &&
+	  !grep(/(\/|\[|\])/,@$list)) {
+	  
+	  $menu = '['.join('/',@$list).']';
+      } else {
+	  #otherwise we print a bulleted list
+	  $menu = "\n\\begin{itemize}\n";
+	  foreach my $option (@$list) {
+	      $menu .= "\\item{$option}\n";
+	  }
+	  $menu .= "\\end{itemize}\n";
+      }
   }
   main::RECORD_ANS_NAME($name,$answer_value) unless $extend;   # record answer name
   $menu;
