@@ -482,6 +482,7 @@ sub new {
   my $x = shift;
   Value::Error("Can't convert %s to a monetary value",lc(Value::showClass($x)))
       if !$self->getFlag("promoteReals",1) && Value::isRealNumber($x) && !Value::classMatch($x,"Currency");
+  $x = $x->value if Value::isReal($x);
   $self = bless $self->SUPER::new($context,$x,@_), $class;
   $self->{isReal} = $self->{isValue} = $self->{isCurrency} = 1;
   return $self;

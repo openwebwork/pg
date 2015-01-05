@@ -221,16 +221,15 @@ sub createDirectory {
 # isolate the call to the sage server in case we have to jazz it up
 #
 sub query_sage_server {
-	my ($python, $url, $accepted_tos, $setSeed, $webworkfunc, $debug)=@_;
-	my $output = `curl -i -k -sS -L --data-urlencode "accepted_tos=${accepted_tos}" --data-urlencode "user_variables=WEBWORK" --data-urlencode "code=${setSeed}${webworkfunc}$python" $url`;
-	my $sagecall = 	qq{
-		curl -k -sS -L --data-urlencode "accepted_tos=${accepted_tos}" 
-		--data-urlencode "user_variables=WEBWORK" --data-urlencode 
-		"code=${setSeed}${webworkfunc}$python" $url
-	};
+	my ($python, $url, $accepted_tos, $setSeed, $webworkfunc, $debug, $curlCommand)=@_;
+	my $sagecall = 	qq{$curlCommand -i -k -sS -L --data-urlencode "accepted_tos=${accepted_tos}"}.
+	                qq{ --data-urlencode "user_variables=WEBWORK" --data-urlencode "code=${setSeed}${webworkfunc}$python" $url};
+    my $output  =`$sagecall`;
 	if ($debug) {
-		warn "\n\nSAGE CALL: ", $sagecall, "\n\n";
-		warn "\n\nRETURN from sage call \n", $output, "\n\n";	
+	    warn "debug is turned on in IO.pm. ";
+		warn "\n\nIO::query_sage_server(): SAGE CALL: ", $sagecall, "\n\n";
+		warn "\n\nRETURN from sage call \n", $output, "\n\n";
+		warn "\n\n END SAGE CALL";	
 	}
 		# has something been returned?
 		# $continue: 	HTTP/1.1 100 (Continue)
@@ -262,12 +261,13 @@ sub AskSage {
 # to send values back in a hash, add them to the python WEBWORK dictionary
 #
   chomp(my $python = shift);
-  my ($args) = @_;
+  my $args = shift @_;
   my $url = $args->{url} || 'https://sagecell.sagemath.org/service';
   my $seed = $args->{seed};
   my $accepted_tos = $args->{accepted_tos} || 'false';  # force author to accept terms of service explicitly :-)
   my $debug = $args->{debug} || 0;
   my $setSeed = $seed?"set_random_seed($seed)\n":'';
+  my $curlCommand = $args->{curlCommand};
   my $webworkfunc = <<END;
 WEBWORK={}
 def _webwork_safe_json(o):
@@ -300,39 +300,53 @@ END
 
 	my $ret={success=>0};   # we want to export more than one piece of information
 	eval {
-	    my $output = query_sage_server($python, $url, $accepted_tos, $setSeed, $webworkfunc, $debug );
+	    my $output = query_sage_server($python, $url, $accepted_tos, $setSeed, $webworkfunc, $debug , $curlCommand);
 
 		# has something been returned?
 		not_null($output) or die "Unable to make a sage call to $url."; 
-		# warn "We have some kind of value |$output| returned from sage" if $output; #remove this
-		
+		warn "IO::askSage: We have some kind of value |$output| returned from sage" if $output and $debug; 
 		my $decoded = decode_json($output);
+		not_null($decoded) or die "Unable to decode sage output";
+		if ($debug and defined $decoded ) {
+			my $warning_string = "decoded contents\n ";
+			foreach my $key (keys %$decoded) {$warning_string .= "$key=".$decoded->{$key}.", ";}
+			$warning_string .= ' end decoded contents';
+			warn "\n$warning_string" if $debug;
+		}
 		# was there a Sage/python syntax Error
 		# is the returned something text from stdout (deprecated)
 		# have objects been returned in a WEBWORK variable?
-		# warn "test condition = ", $decoded->{user_variables}{WEBWORK}{data}{'application/json'} ne "{}";
-		if ($decoded->{success} eq 'true') {
-		    my $WEBWORK_variable_non_empty=0;
-			if (not_null($decoded->{user_variables}{WEBWORK}{data}{'application/json'}) ) {
-				$WEBWORK_variable_non_empty = $decoded->{user_variables}{WEBWORK}{data}{'application/json'} ne "{}";
+		my $success = $decoded->{success} if defined $decoded;
+		warn "success  is $success"  if $debug;
+		# the decoding process seems to change the string "true" to "1" sometimes -- we could enforce this
+		$success = 1 if defined $success and $success eq 'true';
+		if ($decoded->{success}==1) {
+			my $WEBWORK_variable_non_empty=0;
+			my $sage_WEBWORK_data = $decoded->{execute_reply}{user_variables}{WEBWORK}{data}{'application/json'};
+			if (not_null($sage_WEBWORK_data) ) {
+				$WEBWORK_variable_non_empty = ($sage_WEBWORK_data ne "{}") ? 1:0;
 			}  # {} indicates that WEBWORK was not used to pass or return a variable from sage.
+			
+			warn "WEBWORK variable has content"  if $debug and $WEBWORK_variable_non_empty;
+			warn "sage_WEBWORK_data ", join(" ", %$sage_WEBWORK_data) if $debug and $WEBWORK_variable_non_empty;
 
 			if ( $WEBWORK_variable_non_empty )  { 
 				# have specific WEBWORK variables been defined?
-				$ret->{webwork} = decode_json($decoded->{user_variables}{WEBWORK}{data}{'application/json'});
+				$ret->{webwork} = decode_json($decoded->{execute_reply}->{user_variables}{WEBWORK}{data}{'application/json'});
 				$ret->{success}=1;
 				$ret->{stdout} = $decoded->{stdout};		
 			} elsif (not_null( $decoded->{stdout} ) ) { # no WEBWORK content, but stdout exists
-                                                           # old style text output via stdout (deprecated)
-				$ret = $decoded->{stdout};                 # only standard out is returned
+				                         				# old style text output via stdout (deprecated)
+				$ret = $decoded->{stdout};				# only standard out is returned
+				warn "no content in WEBWORK variable. Returning stdout", $ret if $debug;
 			} else {
 				die "Error receiving JSON output from sage: \n$output\n ";
 			}
-		} elsif ($decoded->{success} eq 'false' )  { # this might be a syntax error
-			$ret->{error_message} = $decoded->{execute_reply}; # this is a hash.
-			warn "Perhaps there was syntax error.", join(" ",%{ $decoded->{execute_reply}});
+		} elsif ($decoded->{success} == 0 )  { # this might be a syntax error
+			$ret->{error_message} = $decoded->{execute_reply}; # this is a hash.  # need a better pretty print method
+			warn ( "IO.pm: Perhaps there was syntax error.", join(" ",%{ $decoded->{execute_reply}}));
 		} else {
-			die "Unknown error in asking Sage to do something: \n$output\n";
+			die "IO.pm: Unknown error in asking Sage to do something: success = $success output = \n$output\n";
 		}
 		
 	}; # end eval{} for trapping errors in sage call
@@ -341,7 +355,7 @@ END
 		if ( ref($ret)=~/HASH/ ) {
 			$ret->{success}=0;
 		} else {
-
+			$ret = undef;
 		}
 	}
 	return $ret;

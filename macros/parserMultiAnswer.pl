@@ -104,9 +104,7 @@ sub _parserMultiAnswer_init {
 package MultiAnswer;
 our @ISA = qw(Value);
 
-our $count = 0;                      # counter for unique identifier for multi-parts
-our $answerPrefix = "_MuLtIaNsWeR";     # answer rule prefix
-$answerPrefix = $main::PG->{QUIZ_PREFIX}."_MuLtIaNsWeR" if $main::PG->{QUIZ_PREFIX};
+our $answerPrefix = "MuLtIaNsWeR_";  # answer rule prefix
 our $separator = ';';                # separator for singleResult previews
 
 =head1 CONSTRUCTOR
@@ -197,7 +195,7 @@ sub new {
     checkTypes => 1, allowBlankAnswers => 0,
     tex_separator => $separator.'\,', separator => $separator.' ',
     tex_format => undef, format => undef,
-    context => $context, id => $answerPrefix.($count++),
+    context => $context,
   }, $class;
 }
 
@@ -246,11 +244,16 @@ sub cmp {
 #  as a single result.
 #
 sub single_cmp {
-  my $self = shift; my @correct;
-  foreach my $cmp (@{$self->{cmp}}) {push(@correct,$cmp->{rh_ans}{correct_ans})}
+  my $self = shift; my @correct; my @correct_tex;
+  foreach my $cmp (@{$self->{cmp}}) {
+    push(@correct,$cmp->{rh_ans}{correct_ans});
+    push(@correct_tex,$cmp->{rh_ans}{correct_ans_latex_string}||$cmp->{rh_ans}{correct_value}->TeX);
+  }
   my $ans = new AnswerEvaluator;
   $ans->ans_hash(
-    correct_ans => join($self->{separator},@correct),
+    correct_ans => (defined($self->{format}) ? sprintf($self->{format},@correct) : join($self->{separator},@correct)),
+    correct_ans_latex_string => (defined($self->{tex_format}) ?
+        sprintf($self->{tex_format},@correct_tex) : join($self->{tex_separator},@correct_tex)),
     type        => "MultiAnswer",
     @_,
   );
@@ -346,11 +349,11 @@ sub entry_cmp {
 sub entry_check {
   my $self = shift; my $ans = shift; $ans->{_filter_name} = "MultiAnswer Entry Check";
   my $i = $ans->{part};
-  $self->{ans}[$i] = $self->{cmp}[$i]->evaluate($ans->{student_ans});
-  $self->{ans}[$i]->score(0);
-  $self->perform_check($ans) if ($i == $self->length - 1);
-  foreach my $id (keys %{$ans}) {$self->{ans}[$i]{$id} = $ans->{$id} unless defined($self->{ans}[$i]{$id})}
-  return $self->{ans}[$i];
+  my $ANS = $self->{cmp}[$i]->evaluate($ans->{student_ans});
+  $self->{ans}[$i] = $ANS; $ANS->{type} = $ans->{type}; $ANS->score(0);
+  foreach my $id (keys %{$ans}) {$ANS->{$id} = $ans->{$id} unless defined($ANS->{$id})} # copy missing original fields
+  $self->perform_check($ANS) if ($i == $self->length - 1);
+  return $ANS;
 }
 
 ######################################################################
@@ -409,10 +412,21 @@ sub setMessage {
 
 #
 #  Produce the name for a named answer blank
+#  (Use the standard name for the first one, and
+#   create the prefixed names for the rest.)
 #
 sub ANS_NAME {
-  my $self = shift; my $i = shift;
-  $self->{id}.'_'.$i;
+  my $self = shift; my $i = shift; my $name;
+  if ($self->{singleResult}) {
+    if (!$self->{id}) {
+      $name = $self->{answerName} = main::NEW_ANS_NAME();
+      $self->{id} = $answerPrefix.$name;
+    }
+    $name = $self->{id}."_".$i unless $i == 0;
+  } else {
+    $name = main::NEW_ANS_NAME();
+  }
+  return $name;
 }
 
 #
@@ -432,9 +446,12 @@ sub ans_rule {
   my $self = shift; my $size = shift || 20;
   my $data = $self->{data}[$self->{part}];
   my $name = $self->ANS_NAME($self->{part}++);
+  if ($self->{singleResult} && $self->{part} == 1) {      
+      my $label = main::generate_aria_label($answerPrefix.$name."_0");
+      return $data->named_ans_rule($name,$size,@_,aria_label=>$label);
+  }
   return $data->named_ans_rule_extension($self->NEW_NAME($name),$size,@_)
     if ($self->{singleResult} && $self->{part} > 1);
-  return $data->ans_rule($size,@_) unless $self->{namedRules};
   return $data->named_ans_rule($name,$size,@_);
 }
 
@@ -447,10 +464,12 @@ sub ans_array {
   my $self = shift; my $size = shift || 5; my $HTML;
   my $data = $self->{data}[$self->{part}];
   my $name = $self->ANS_NAME($self->{part}++);
+  if ($self->{singleResult} && $self->{part} == 1) {
+      my $label = main::generate_aria_label($answerPrefix.$name."_0");
+      return $data->named_ans_array($name,$size,@_,aria_label=>$label);
+  }
   if ($self->{singleResult} && $self->{part} > 1) {
     $HTML = $data->named_ans_array_extension($self->NEW_NAME($name),$size,@_);
-  } elsif (!$self->{namedRules}) {
-    $HTML = $data->ans_array($size,@_);
   } else {
     $HTML = $data->named_ans_array($name,$size,@_);
   }

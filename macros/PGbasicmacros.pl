@@ -63,6 +63,8 @@ my ($PAR,
 	$COMMENT,
 	$US,
 	$SPACE,
+	$BLABEL,
+	$ELABEL,
 	$BBOLD,
 	$EBOLD,
 	$BITALIC,
@@ -124,6 +126,8 @@ main::PG_restricted_eval( <<'EndOfFile');
 	$main::HINT				= HINT_HEADING();
 	$main::US				= US();
 	$main::SPACE			= SPACE();
+	$main::BLABEL			= BLABEL();
+	$main::ELABEL			= ELABEL();
 	$main::BBOLD			= BBOLD();
 	$main::EBOLD			= EBOLD();
 	$main::BITALIC			= BITALIC();
@@ -171,6 +175,8 @@ EndOfFile
 	$HINT				 = HINT_HEADING();
 	$US				     = US();
 	$SPACE			     = SPACE();
+	$BLABEL			     = BLABEL();
+	$ELABEL			     = ELABEL();
 	$BBOLD			     = BBOLD();
 	$EBOLD			     = EBOLD();
 	$BITALIC			 = BITALIC();
@@ -316,10 +322,13 @@ sub labeled_ans_rule {   # syntactic sugar for NAMED_ANS_RULE
 }
 
 sub NAMED_ANS_RULE {
-	my($name,$col) = @_;
+	my $name = shift;
+	my $col = shift;
+	my %options = @_;
 	$col = 20 unless not_null($col);
 	my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if    defined(${$inputs_ref}{$name});
+
 	#FIXME -- code factoring needed
     if ($answer_value =~ /\0/ ) {
     	my @answers = split("\0", $answer_value);
@@ -337,14 +346,19 @@ sub NAMED_ANS_RULE {
     	# it must be evaluated at run time
     	$answer_value= '' unless defined($answer_value);
 	}
-
 	
 #	$answer_value =~ tr/\\$@`//d;   ## unnecessary since we encode HTML now
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
 	$answer_value = encode_pg_and_html($answer_value);
 	$name = RECORD_ANS_NAME($name, $answer_value);
     #INSERT_RESPONSE($name,$name,$answer_value);  #FIXME -- why can't we do this inside RECORD_ANS_NAME?
-    
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
+
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
 
@@ -366,7 +380,7 @@ sub NAMED_ANS_RULE {
 
 	    # Note: codeshard is used in the css to identify input elements 
 	    # that come from pg
-		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" value="$answer_value"/>\n!.
+		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" aria-label="$label" value="$answer_value"/>\n!.
 		              $add_html. # added for dragmath
                         qq!<input type=hidden  name="previous_$name" value="$answer_value"/>\n!
 
@@ -416,7 +430,17 @@ sub NAMED_ANS_RULE_OPTION {   # deprecated
 }
 
 sub NAMED_ANS_RULE_EXTENSION {
-	my($name,$col) = @_;
+	my $name = shift;
+	my $col = shift;
+	my %options = @_;
+
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
+
 	my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
 	if ( defined( $rh_sticky_answers->{$name} ) ) {
@@ -432,7 +456,7 @@ sub NAMED_ANS_RULE_EXTENSION {
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = " ">\n\\end{rawhtml}\n!,
-		HTML => qq!<INPUT TYPE=TEXT CLASS="codeshard" SIZE=$col NAME = "$name" id="$name" VALUE = "$answer_value">!.
+		HTML => qq!<INPUT TYPE=TEXT CLASS="codeshard" SIZE=$col NAME = "$name" id="$name" aria-label="$label" VALUE = "$answer_value">!.
                         qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" id="previous_$name" VALUE = "$answer_value">!
 	);
 }
@@ -445,7 +469,11 @@ sub ANS_RULE {  #deprecated
 
 
 sub  NAMED_ANS_BOX {
-	my($name,$row,$col) = @_;
+	my $name = shift;
+	my $row = shift;
+	my $col = shift;
+	my %options = @_;
+
 	$row = 10 unless defined($row);
 	$col = 80 unless defined($col);
 	
@@ -453,13 +481,19 @@ sub  NAMED_ANS_BOX {
 	my $answer_value = '';
 	$answer_value = $inputs_ref->{$name} if defined( $inputs_ref->{$name} );
 	$name = RECORD_ANS_NAME($name, $answer_value);
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	#INSERT_RESPONSE($name,$name,$answer_value); # no longer needed?
 	# try to escape HTML entities to deal with xss stuff
 	$answer_value = encode_pg_and_html($answer_value);
 	my $out = MODES(
 	     TeX => qq!\\vskip $height in \\hrulefill\\quad !,
-	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
+	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" aria-label="$label" ROWS="$row" COLS="$col"
                WRAP="VIRTUAL">$answer_value</TEXTAREA>\\end{rawhtml}!,
          HTML => qq!<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
                WRAP="VIRTUAL">$answer_value</TEXTAREA>
@@ -494,10 +528,12 @@ sub NAMED_ANS_RADIO {
 
     }
     $name = RECORD_ANS_NAME($name, {$value=>$checked}	);
+    my $label = generate_aria_label($name);
+    $label .= "option 1 ";
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>$tag!
+		HTML => qq!<label><INPUT TYPE=RADIO NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!
 	);
 
 }
@@ -510,7 +546,7 @@ sub NAMED_ANS_RADIO_EXTENSION {
 	my $name = shift;
 	my $value = shift;
 	my $tag =shift;
-
+	my %options = @_;
 
     my $checked = '';
     if ($value =~/^\%/) {
@@ -526,10 +562,17 @@ sub NAMED_ANS_RADIO_EXTENSION {
 
     }
     EXTEND_RESPONSE($name,$name,$value, $checked);
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
+
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>$tag!
+		HTML => qq!<label><INPUT TYPE=RADIO NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!
 	);
 
 }
@@ -539,21 +582,25 @@ sub NAMED_ANS_RADIO_BUTTONS {
     my $value = shift;
     my $tag = shift;
 
-
-	my @out = ();
-	push(@out, NAMED_ANS_RADIO($name, $value,$tag));
-	my @buttons = @_;
-	while (@buttons) {
-		$value = shift @buttons;  $tag = shift @buttons;
-		push(@out, NAMED_ANS_RADIO_OPTION($name, $value,$tag));
-	}
-	(wantarray) ? @out : join(" ",@out);
+    my @out = ();
+    push(@out, NAMED_ANS_RADIO($name, $value,$tag));
+    my @buttons = @_;
+    my $label = generate_aria_label($name);
+    my $count = 2;
+    while (@buttons) {
+	$value = shift @buttons;  $tag = shift @buttons;
+	push(@out, NAMED_ANS_RADIO_OPTION($name, $value,$tag,
+					  aria_label=>$label."option $count "));
+	$count++;
+    }
+    (wantarray) ? @out : join(" ",@out);
 }
+
 sub ANS_RADIO {
 	my $number = shift;
 	my $value = shift;
 	my $tag =shift;
-    my $name = NEW_ANS_NAME();
+	my $name = NEW_ANS_NAME();
 	NAMED_ANS_RADIO($name,$value,$tag);
 }
 
@@ -561,9 +608,10 @@ sub ANS_RADIO_OPTION {
 	my $number = shift;
 	my $value = shift;
 	my $tag =shift;
-    my $name = ANS_NUM_TO_NAME($number);
+	my $name = ANS_NUM_TO_NAME($number);
 	NAMED_ANS_RADIO_OPTION($name,$value,$tag);
 }
+
 sub ANS_RADIO_BUTTONS {
     my $number  =shift;
     my $value = shift;
@@ -579,6 +627,50 @@ sub ANS_RADIO_BUTTONS {
 	}
 	(wantarray) ? @out : join(" ",@out);
 }
+
+##############################################
+#   generate_aria_label( $name )
+#   takes the name of an ANS_RULE or ANS_BOX and generates an appropriate
+#   aria label for screen readers
+##############################################
+
+sub generate_aria_label {
+    my $name = shift;
+    my $label = '';
+
+    # if we dont have an AnSwEr type name then we do the best we can
+    if ($name !~ /AnSwEr/ ) {
+	return maketext('answer').' '.$name;
+    }
+
+    # check for quiz prefix 
+    if ($name =~ /^Q\d+/ || $name =~ /^MaTrIx_Q\d+/) {
+	$name =~ s/Q0*(\d+)_//;
+	$label .= maketext('problem ').$1.' ';
+    }
+
+    # get answer number 
+    $name =~ /AnSwEr0*(\d+)/;
+    $label .= maketext('answer ').$1.' ';
+    
+    # check for Multianswer
+    if ($name =~ /MuLtIaNsWeR_/) {
+	$name =~ s/MuLtIaNsWeR_//;
+	$name =~ /AnSwEr(\d+)_(\d+)/;
+	$label .= maketext('part ').($2+1).' ';
+    }
+    
+    # check for Matrix 
+    if ($name =~ /^MaTrIx_/) {
+	$name =~ /_(\d+)_(\d+)$/;
+	$label .= maketext('row ').($1+1)
+	    .maketext(' column ').($2+1).' ';
+    }
+
+    return $label;
+
+}
+
 ##############################################
 #   contained_in( $elem, $array_reference or null separated string);
 #   determine whether element is equal 
@@ -635,10 +727,13 @@ sub NAMED_ANS_CHECKBOX {
 
     }
     $name = RECORD_ANS_NAME($name, {$value => $checked});
+    my $label = generate_aria_label($name);
+    $label .= "option 1 ";
+
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>$tag!
+		HTML => qq!<label><INPUT TYPE=CHECKBOX NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!
 	);
 
 }
@@ -647,6 +742,7 @@ sub NAMED_ANS_CHECKBOX_OPTION {
 	my $name = shift;
 	my $value = shift;
 	my $tag =shift;
+	my %options = @_;
 
     my $checked = '';
     if ($value =~/^\%/) {
@@ -664,10 +760,17 @@ sub NAMED_ANS_CHECKBOX_OPTION {
 
     }
     EXTEND_RESPONSE($name,$name,$value, $checked);
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
+
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>$tag!
+		HTML => qq!<label><INPUT TYPE=CHECKBOX NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!
 	);
 
 }
@@ -679,11 +782,14 @@ sub NAMED_ANS_CHECKBOX_BUTTONS {
 
 	my @out = ();
 	push(@out, NAMED_ANS_CHECKBOX($name, $value,$tag));
-
+    	my $label = generate_aria_label($name);
+        my $count = 2;
 	my @buttons = @_;
 	while (@buttons) {
 		$value = shift @buttons;  $tag = shift @buttons;
-		push(@out, NAMED_ANS_CHECKBOX_OPTION($name, $value,$tag));
+		push(@out, NAMED_ANS_CHECKBOX_OPTION($name, $value,$tag,
+		     aria_label=>$label."option $count "));
+		$count++;
 	}
 
 	(wantarray) ? @out : join(" ",@out);
@@ -867,7 +973,7 @@ sub NAMED_POP_UP_LIST {
 	 || $displayMode eq 'HTML_asciimath' 
 	 || $displayMode eq 'HTML_LaTeXMathML'
 	 || $displayMode eq 'HTML_img') {
-		$out = qq!<SELECT NAME = "$name" id="$name" SIZE=1> \n!;
+		$out = qq!<SELECT class="pg-select" NAME = "$name" id="$name" SIZE=1> \n!;
 		my $i;
 		foreach ($i=0; $i< @list; $i=$i+2) {
 			my $select_flag = ($list[$i] eq $answer_value) ? "SELECTED" : "";
@@ -958,6 +1064,13 @@ sub NAMED_ANS_ARRAY_EXTENSION{
     		$answer_value= '' unless defined($answer_value);
 	}
 
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
+
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 #	warn "ans_label $options{ans_label} $name $answer_value";
 	$answer_value = encode_pg_and_html($answer_value);
@@ -967,7 +1080,7 @@ sub NAMED_ANS_ARRAY_EXTENSION{
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{10pt}{\\hrulefill}}\\hrulefill\\quad ",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = "">\n\\end{rawhtml}\n!,
-		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" class="codeshard" VALUE = "$answer_value">\n!
+		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" class="codeshard" aria-label="$label" VALUE = "$answer_value">\n!
 	);
 }
 
@@ -1104,6 +1217,8 @@ sub SOLUTION {
     	              base64 =>1 ) ) if solution(@_);
     } elsif ($displayMode=~/TeX/) {
     	TEXT($PAR,SOLUTION_HEADING(), solution(@_).$PAR) if solution(@_) ;
+    } elsif ($displayMode=~/HTML/) {
+		TEXT( $PAR.SOLUTION_HEADING().$BR.solution(@_).$PAR) if solution(@_) ;
     } else {
 		TEXT( $PAR.solution(@_).$PAR) if solution(@_) ;
 	}
@@ -1153,7 +1268,7 @@ sub HINT {
 		                  base64 => 1) ) if hint(@_);
     } elsif ($displayMode=~/TeX/) {
     	TEXT($PAR,HINT_HEADING(), hint(@_).$PAR) if hint(@_) ;
-	} else {
+    } else {
     	TEXT($PAR, HINT_HEADING(), $BR. hint(@_) . $PAR) if hint(@_);
     } 
 }
@@ -1181,7 +1296,7 @@ sub COMMENT {
    	my @in = @_;
 	my $out = join("$BR", @in);
 	$out = '<div class=\"AuthorComment\">'.$out.'</div>';
-	PG_restricted_eval(q!$main::pgComment = "!.$out.q!"!);
+	PG_restricted_eval(q!$main::pgComment .= "!.$out.q!"!);
 	return('');
 }
 
@@ -1332,6 +1447,8 @@ sub MODES {
 	$HINT				HINT_HEADING()		hint headline
 	$US					US()				underscore character
 	$SPACE				SPACE()				space character (tex and latex only)
+	$BLABEL				BLABEL()			begin label (for input)
+	$ELABEL				ELABEL()			end label (for input)
 	$BBOLD				BBOLD()				begin bold typeface
 	$EBOLD				EBOLD()				end bold typeface
 	$BITALIC    		BITALIC()  			begin italic typeface
@@ -1391,13 +1508,15 @@ sub END_ONE_COLUMN { MODES(TeX =>
 };
 sub SOLUTION_HEADING { MODES( TeX => '\\par {\\bf Solution: }',
                  Latex2HTML => '\\par {\\bf Solution: }',
-          		 HTML =>  '<P><B>Solution:</B> ');
+          		 HTML =>  '<B>Solution:</B> ');
 };
-sub HINT_HEADING { MODES( TeX => "\\par {\\bf Hint: }", Latex2HTML => "\\par {\\bf Hint: }", HTML => "<P><B>Hint:</B> "); };
+sub HINT_HEADING { MODES( TeX => "\\par {\\bf Hint: }", Latex2HTML => "\\par {\\bf Hint: }", HTML => "<B>Hint:</B> "); };
 sub US { MODES(TeX => '\\_', Latex2HTML => '\\_', HTML => '_');};  # underscore, e.g. file${US}name
 sub SPACE { MODES(TeX => '\\ ',  Latex2HTML => '\\ ', HTML => '&nbsp;');};  # force a space in latex, doesn't force extra space in html
 sub BBOLD { MODES(TeX => '{\\bf ',  Latex2HTML => '{\\bf ', HTML => '<B>'); };
 sub EBOLD { MODES( TeX => '}', Latex2HTML =>  '}',HTML =>  '</B>'); };
+sub BLABEL { MODES(TeX => '', Latex2HTML => '', HTML => '<LABEL>'); };
+sub ELABEL { MODES(TeX => '', Latex2HTML => '', HTML => '</LABEL>'); };
 sub BITALIC { MODES(TeX => '{\\it ',  Latex2HTML => '{\\it ', HTML => '<I>'); };
 sub EITALIC { MODES(TeX => '} ',  Latex2HTML => '} ', HTML => '</I>'); };
 sub BUL { MODES(TeX => '\\underline{',  Latex2HTML => '\\underline{', HTML => '<U>'); };
@@ -1713,7 +1832,7 @@ sub general_math_ev3 {
 	my $mode = shift || "inline";
 
 	$in = FEQ($in); # Format EQuations
-	$in =~ s/%/\\%/g; # avoid % becoming TeX comments
+	$in =~ s/((^|[^\\])(\\\\)*)%/\1\\%/g; # avoid % becoming TeX comments (unless already escaped)
 
 	## remove leading and trailing spaces so that HTML mode will
 	## not include unwanted spaces as per Davide Cervone.
@@ -1721,7 +1840,7 @@ sub general_math_ev3 {
 	$in =~ s/\s+$//;
 	## If it ends with a backslash, there should be another space
 	## at the end
-	if($in =~ /\\$/) { $in .= ' ';} 
+	if ($in =~ /(^|[^\\])(\\\\)*\\$/) {$in .= ' '}
 
 	# some modes want the delimiters, some don't
 	my $in_delim = $mode eq "inline"
@@ -1749,17 +1868,20 @@ sub general_math_ev3 {
 	  $out = '<SPAN CLASS="math">'.$in.'</SPAN>' if $mode eq "inline";
 	  $out = '<DIV CLASS="math">'.$in.'</DIV>' if $mode eq "display";
 	} elsif ($displayMode eq "HTML_asciimath") {
+          $in = HTML::Entities::encode_entities($in);
 	  $out = "`$in`" if $mode eq "inline";
 	  $out = '<DIV ALIGN="CENTER">`'.$in.'`</DIV>' if $mode eq "display";
 	} elsif ($displayMode eq "HTML_LaTeXMathML") {
+          $in = HTML::Entities::encode_entities($in);
 	  $in = '{'.$in.'}';
-	  $in =~ s/</\\lt/g; $in =~ s/>/\\gt/g;
 	  $in =~ s/\{\s*(\\(display|text|script|scriptscript)style)/$1\{/g;
 	  $out = '$$'.$in.'$$' if $mode eq "inline";
 	  $out = '<DIV ALIGN="CENTER">$$\displaystyle{'.$in.'}$$</DIV>' if $mode eq "display";
+	} elsif ($displayMode eq "HTML") {
+	    $in_delim = HTML::Entities::encode_entities($in_delim);
+	    $out = "<span class='tex2jax_ignore'>$in_delim</span>";
 	} else {
-		$out = "\\($in\\)" if $mode eq "inline";
-		$out = "\\[$in\\]" if $mode eq "display";
+		$out = $in_delim;
 	}
 	return $out;
 }
@@ -1793,7 +1915,7 @@ sub EV3{
 	}
 	$string = $evaluated_string;
 	$string = ev_substring($string,"\\(","\\)",\&math_ev3);
-    $string = ev_substring($string,"\\[","\\]",\&display_math_ev3);
+	$string = ev_substring($string,"\\[","\\]",\&display_math_ev3);
 	$string;
 }
 
@@ -2021,12 +2143,11 @@ sub beginproblem {
 	my $problemValue = $envir->{problemValue} || 0;
 	my $fileName     = $envir->{probFileName};
 	my $probNum      = $envir->{probNum};
-    my $TeXFileName = protect_underbar($envir->{probFileName});
     my $l2hFileName = protect_underbar($envir->{probFileName});
 	my %inlist;
-	my $points = maketext('pts');
+	my $points = maketext('points');
 
-	$points = maketext('pt') if $problemValue == 1;
+	$points = maketext('point') if $problemValue == 1;
 	##    Prepare header for the problem
 	grep($inlist{$_}++,@{ $envir->{'PRINT_FILE_NAMES_FOR'} });
 	my $effectivePermissionLevel = $envir->{effectivePermissionLevel}; # permission level of user assigned to question
@@ -2037,7 +2158,7 @@ sub beginproblem {
 			 || ( defined($inlist{ $studentLogin }) and ( $inlist{ $studentLogin }>0 )  ) ;
 
 	if ( $print_path_name_flag ) {
-		$out = &M3("{\\bf ${probNum}. {\\footnotesize ($problemValue $points) $TeXFileName}}\\newline ",
+		$out = &M3("{\\bf ${probNum}. {\\footnotesize ($problemValue $points) \\path|$fileName|}}\\newline ",
 		" \\begin{rawhtml} ($problemValue $points) <B>$l2hFileName</B><BR>\\end{rawhtml}",
 		 "($problemValue $points) <B>$fileName</B><BR>"
 	 	   ) if ($problemValue >=0 );
@@ -2177,7 +2298,7 @@ sub knowlLink { # an new syntax for knowlLink that facilitates a local HERE docu
 	if ($options{value} )  { #internal knowl from HERE document
 	    $options{value} =~ s/"/'/g; # escape quotes  #FIXME -- make escape more robust 
 	    my $base64 = ($options{base64})?"base64 = \"1\"" :"";
-		$properties = qq! knowl = "" class = "internal" value = "$options{value} " $base64 !;
+		$properties = qq! href="#" knowl = "" class = "internal" value = "$options{value} " $base64 !;
 	} elsif ($options{url}) {
 		$properties = qq! knowl = "$options{url}"!;
 	}

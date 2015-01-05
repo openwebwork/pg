@@ -966,7 +966,8 @@ sub string {
       push(@coords,$x);
     }
   }
-  return $open.join($def->{separator},@coords).$close;
+  my $comma = $def->{separator}; $comma = "," unless defined $comma;
+  return $open.join($comma,@coords).$close;
 }
 
 =head4 ->TeX
@@ -997,7 +998,8 @@ sub TeX {
     } elsif (defined($str->{$x}) && $str->{$x}{TeX}) {push(@coords,$str->{$x}{TeX})}
     else {push(@coords,$x)}
   }
-  return $open.join(',',@coords).$close;
+  my $comma = $def->{separator}; $comma = "," unless defined $comma;
+  return $open.join($comma,@coords).$close;
 }
 
 #
