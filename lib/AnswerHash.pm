@@ -115,7 +115,7 @@ The answer hash class is guaranteed to contain the following instance variables:
 =cut
 
 BEGIN {
-	be_strict(); # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
+#	main::be_strict(); # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
     
 }
 
@@ -576,7 +576,7 @@ sub evaluate {
 	}
 	$rh_ans = $self->dereference_array_ans($rh_ans);
 	# make sure that the student answer is not an array so that it is reported correctly in answer section.
-	warn "<h4>final result: </h4>", $rh_ans->pretty_print() if defined($self->{debug}) and $self->{debug}>0;
+	warn "<h4>final result: </h4>", pretty_print($rh_ans,'html') if defined($self->{debug}) and $self->{debug}>0;
 	# re-refrence $rh_ans;
 	$self ->{rh_ans} = $rh_ans;
 	$rh_ans;
@@ -586,10 +586,15 @@ sub print_result_if_debug {
 	my $queue = shift;    # the name of the queue we are in
 	my $rh_ans= shift;
 	my %options = @_;
+	unless ( ref($rh_ans) eq 'AnswerHash' ) {
+		warn "$rh_ans is not an answerHash in queue $queue\n";
+		return;
+	}
+	;
 	if (defined($self->{debug}) and $self->{debug}>0) {
 	    	$rh_ans->{rh_options} = \%options;  #include the options in the debug information
 	    	my $name = (defined($rh_ans->{_filter_name})) ? $rh_ans->{_filter_name}: 'unnamed';
-	    	warn "$count. Result from \"$name\" $queue:", $rh_ans->pretty_print();
+	    	warn "\n $count. Result from queue $queue:  name: \"$name\"n", $rh_ans->pretty_print();
 	    	++$count; 	
 	 }
 	$rh_ans->{_filter_name} = undef;
