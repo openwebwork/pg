@@ -1,4 +1,16 @@
-sub _LiveGraphics3D_init {}; # don't reload this file
+sub _LiveGraphics3D_init {
+
+    if ($main::envir{use_javascript_for_live3d}) {
+
+	main::HEADER_TEXT(<<'END_HEADER_TEXT');
+	<script src="/webwork2_files/js/vendor/d3/d3.js" language="javascript">
+	    </script>
+	<script src="/webwork2_files/js/vendor/d3/liveGraphicsd3.js" language="javascript">
+	    </script>
+END_HEADER_TEXT
+    }
+    
+}; 
 
 =head2 LiveGraphics3D.pl
 
@@ -98,6 +110,33 @@ sub LiveGraphics3D {
          \\hbox{you must view it on line ]}
       }";
     }
+    # In html mode check to see if we use javascript or not
+  } elsif ($main::envir{use_javascript_for_live3d}) {
+    my ($w,$h) = @{$options{size}};
+    $out .= $bHTML if ($main::displayMode eq "Latex2HTML");
+    #
+    #  Put the js in a table
+    #
+    $out .= qq{\n<TABLE BORDER="1" CELLSPACING="2" CELLPADDING="0">\n<TR>};
+    $out .= qq{<TD WIDTH="$w" HEIGHT="$h" ALIGN="CENTER">};
+
+    $out .= <<EOS;
+    <script>
+    var thisTD = jQuery('script:last').parent();
+    var options = { width : $w,
+		    height : $h,
+		    file : '$options{file}',
+    };
+
+    var graph = new Live3D(thisTD[0],options);
+    </script>
+EOS
+
+
+
+    $out .= "</TD></TD>\n</TABLE>\n";
+    $out .= $eHTML if ($main::displayMode eq "Latex2HTML");
+    # otherwise use the applet
   } else {
     my ($w,$h) = @{$options{size}};
     $out .= $bHTML if ($main::displayMode eq "Latex2HTML");
@@ -160,7 +199,9 @@ sub LiveGraphics3D {
     $out .= "</APPLET>";
     $out .= "</TD></TD>\n</TABLE>\n";
     $out .= $eHTML if ($main::displayMode eq "Latex2HTML");
+    
   }
+
 
   return $out;
 }
