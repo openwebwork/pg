@@ -133,7 +133,7 @@ sub MENU {
 	  foreach my $option (@$list) {
 	      $menu .= "\\item{$option}\n";
 	  }
-	  $menu .= "}\n";
+	  $menu .= '\vskip3pt}'."\n";
       }
   }
   main::RECORD_ANS_NAME($name,$answer_value) unless $extend;   # record answer name
