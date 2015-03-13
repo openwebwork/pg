@@ -128,11 +128,12 @@ sub MENU {
 	  $menu = '['.join('/',@$list).']';
       } else {
 	  #otherwise we print a bulleted list
-	  $menu = "\n\\begin{itemize}\n";
+	  $menu = '\par\vtop{\def\item#1{\hbox{\indent\strut\textbullet\ #1}}';
+	  $menu = "\n".$menu."\n";
 	  foreach my $option (@$list) {
 	      $menu .= "\\item{$option}\n";
 	  }
-	  $menu .= "\\end{itemize}\n";
+	  $menu .= '\vskip3pt}'."\n";
       }
   }
   main::RECORD_ANS_NAME($name,$answer_value) unless $extend;   # record answer name
