@@ -693,7 +693,9 @@ use constant DEFAULT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 	 	  if (obj ) {   //RECENT FIX to ==
 	 		  return( obj );
 	 	  } else {
-	 		  alert ("can't find applet " + appletName);		  
+		      // Commented out because if the applet is in a hint
+		      // this might be run with no applet
+		      // alert ("can't find applet " + appletName);		  
 	 	  }
 	  }	
 		
