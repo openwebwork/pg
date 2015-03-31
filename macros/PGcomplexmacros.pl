@@ -175,7 +175,7 @@ sub cplx_cmp {
     						correct_ans 			=> 	$correctVal,
     					 	type					=>	"cplx_cmp",
     					 	tolerance				=>	$cplx_params{tolerance},
-					 		tolType					=> 	'absolute', #	$cplx_params{tolType},
+					 		tolType					=> 	$cplx_params{tolType},
 					 		original_correct_ans	=>	$formattedCorrectAnswer,
      					 	answerIsString			=>	$corrAnswerIsString,
 							answer_form				=>	'cartesian',
