@@ -566,7 +566,7 @@ sub encode_base64 ($;$) {
 sub encode_pg_and_html {
     my $input = shift;
     $input = HTML::Entities::encode_entities($input,
-		   '<>"&\'\$\@\\\\`\\[*_\x00-\x1F\x7F-\xFF');
+		   '<>"&\'\$\@\\\\`\\[*_\x00-\x1F\x7F');
     return $input;
 }
 
