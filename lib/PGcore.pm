@@ -63,7 +63,7 @@ sub new {
 #		PG_ANSWERS                => [],  # holds answers with labels # deprecated
 #		PG_UNLABELED_ANSWERS      => [],  # holds unlabeled ans. #deprecated -replaced by PG_ANSWERS_HASH
 		PG_ANSWERS_HASH           => {},  # holds label=>answer pairs
-		PERSISTENCE_HASH           => {}, # holds other data, besides answers, which persists during a session and beyond
+		PERSISTENCE_HASH          => {}, # holds other data, besides answers, which persists during a session and beyond
 		answer_eval_count         => 0,
 		answer_blank_count        => 0,
 		unlabeled_answer_blank_count =>0,
@@ -567,7 +567,7 @@ sub encode_base64 ($;$) {
 sub encode_pg_and_html {
     my $input = shift;
     $input = HTML::Entities::encode_entities($input,
-		   '<>"&\'\$\@\\\\`\\[*_\x00-\x1F\x7F-\xFF');
+		   '<>"&\'\$\@\\\\`\\[*_\x00-\x1F\x7F');
     return $input;
 }
 
