@@ -40,7 +40,7 @@ sub ijk {
   foreach $n (0..scalar(@coords)-1) {
     $term = $coords[$n]->$method($prec);
     if ($term ne '0') {
-      $term =~ s/\((-(\d+(\.\d*)?|\.\d+))\)/\1/;
+      $term =~ s/\((-(\d+(\.\d*)?|\.\d+))\)/$1/;
       $term = '' if $term eq '1'; $term = '-' if $term eq '-1';
       $term = '+' . $term unless $string eq '' or $term =~ m/^-/;
       $string .= $term . $ijk[$n];
