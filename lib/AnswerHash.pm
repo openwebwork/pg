@@ -594,7 +594,7 @@ sub print_result_if_debug {
 	if (defined($self->{debug}) and $self->{debug}>0) {
 	    	$rh_ans->{rh_options} = \%options;  #include the options in the debug information
 	    	my $name = (defined($rh_ans->{_filter_name})) ? $rh_ans->{_filter_name}: 'unnamed';
-	    	warn "\n $count. Result from queue $queue:  name: \"$name\"n", $rh_ans->pretty_print();
+	    	warn "\n $count. Result from queue $queue:  name: \"$name\"n", pretty_print($rh_ans,'html');
 	    	++$count; 	
 	 }
 	$rh_ans->{_filter_name} = undef;
