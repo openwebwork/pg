@@ -2032,7 +2032,7 @@ sub EV3P_parser {
   my $start = ''; my %end = ('\('=>'\)','\['=>'\]');
   my @parts = split(/(``.*?``\*?|`.+?`\*?|(?:\\[()\[\]]))/s,$string);
   foreach my $part (@parts) {
-    if ($part =~ m/^(``?)(.*)$1(\*?)$/s) {
+    if ($part =~ m/^(``?)(.*)\1(\*?)$/s) {
       my ($delim,$math,$star) = ($1,$2,$3);
       my $f = Parser::Formula($math);
       if (defined($f)) {
