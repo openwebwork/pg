@@ -332,16 +332,16 @@ sub error_message {
 
 # error print out method
 
-=head4 pretty_print
-
-
-	Useage:     $rh_ans -> pretty_print();
-	
-	
-	Returns a string containing a representation of the AnswerHash as an HTML table.
-
-=cut
-
+# =head4 pretty_print
+# 
+# 
+# 	Useage:     $rh_ans -> pretty_print();
+# 	
+# 	
+# 	Returns a string containing a representation of the AnswerHash as an HTML table.
+# 
+# =cut
+# 
 # sub pretty_print {
 #     my $r_input = shift;
 #     my $level = shift;
@@ -503,7 +503,7 @@ sub get_student_answer {
 	my %answer_options = @_;
 	my $display_input  = $input;
 	$display_input =~ s/\0/\\0/g;  # make null spacings visible
-	warn "Raw student answer is |$display_input|" if $self->{debug};
+	eval (q!main::DEBUG_MESSAGE(  "Raw student answer is |$display_input|")!) if $self->{debug};
 	$input = '' unless defined($input); 
 	if (ref($input) =~/AnswerHash/) {
 		# in this case nothing needs to be done, since the student's answer is already in an answerhash.
@@ -544,7 +544,7 @@ sub evaluate {
 	$rh_ans->{error_flag}=undef;  #reset the error flags in case 
 	$rh_ans->{done}=undef;        #the answer evaluator is called twice
 	
-    warn "<H3> Answer evaluator information: </H3>\n" if defined($self->{debug}) and $self->{debug}>0;
+    eval (q!main::DEBUG_MESSAGE( "<H3> Answer evaluator information: </H3>")!) if defined($self->{debug}) and $self->{debug}>0;
     $self->print_result_if_debug('pre_filter',$rh_ans);
     
 	my @prefilters	= @{$self -> {pre_filters}};
@@ -576,7 +576,8 @@ sub evaluate {
 	}
 	$rh_ans = $self->dereference_array_ans($rh_ans);
 	# make sure that the student answer is not an array so that it is reported correctly in answer section.
-	warn "<h4>final result: </h4>", pretty_print($rh_ans,'html') if defined($self->{debug}) and $self->{debug}>0;
+	eval (q!main::DEBUG_MESSAGE( `<h4>final result: </h4>`, pretty_print($rh_ans,'html'))!)
+	   if defined($self->{debug}) and $self->{debug}>0;
 	# re-refrence $rh_ans;
 	$self ->{rh_ans} = $rh_ans;
 	$rh_ans;
@@ -594,7 +595,8 @@ sub print_result_if_debug {
 	if (defined($self->{debug}) and $self->{debug}>0) {
 	    	$rh_ans->{rh_options} = \%options;  #include the options in the debug information
 	    	my $name = (defined($rh_ans->{_filter_name})) ? $rh_ans->{_filter_name}: 'unnamed';
-	    	warn "\n $count. Result from queue $queue:  name: \"$name\"n", pretty_print($rh_ans,'html');
+	    	eval (q! main::DEBUG_MESSAGE( "\n $count. Result from queue $queue:  name: \"$name\"n", pretty_print($rh_ans,'html',4))
+	    	!);
 	    	++$count; 	
 	 }
 	$rh_ans->{_filter_name} = undef;
