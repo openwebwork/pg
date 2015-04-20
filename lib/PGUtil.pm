@@ -167,7 +167,7 @@ sub pretty_print_tex {
 sub pretty_print_text { 
 	my $r_input = shift;
 	my $level   = shift;
-	my $indent = 4;   #FIXME -- should we allow this to be modified somehow?
+	my $level = 4;   #FIXME -- should we allow this to be modified somehow?
 	
 	$level--;
 	return "PGalias has too much info. Try \\\$PG->{PG\\_alias}->{resource\\_list}" if ref($r_input) eq 'PGalias';  # PGalias just has too much information
@@ -185,17 +185,17 @@ sub pretty_print_text {
 	
 	if ( ref($r_input) =~/HASH/ or "$r_input" =~/HASH/ ) {
 	    $out .= "{\n";
-	    $indent++;
+	    $level++;
  		foreach my $key (sort keys %{$r_input})  {
- 			$out .= "  "x$indent."$key => " . pretty_print_text( $r_input->{$key}, $indent ) . "\n";
+ 			$out .= "  "x$level."$key => " . pretty_print_text( $r_input->{$key}, $level ) . "\n";
  		}
- 		$indent--;
- 		$out .= "\n"."  "x$indent."}\n";
+ 		$level--;
+ 		$out .= "\n"."  "x$level."}\n";
 
  	} elsif (ref($r_input)  =~  /ARRAY/ or "$r_input" =~/ARRAY/) {
  	    $out .= " ( ";
  		foreach my $elem ( @{$r_input} )  {
- 		 	$out .= pretty_print_text($elem, $indent);
+ 		 	$out .= pretty_print_text($elem, $level);
  		
  		}
  		$out .=  " ) \n";
