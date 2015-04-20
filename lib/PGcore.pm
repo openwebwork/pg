@@ -601,7 +601,7 @@ inside the PGcore object would report.
 sub debug_message {
     my $self = shift;
 	my @str = @_;
-	push @{$self->{DEBUG_messages}}, "<br/>", @str;
+	push @{$self->{DEBUG_messages}}, "<br/>\n", @str;
 }
 sub get_debug_messages {
 	my $self = shift;
