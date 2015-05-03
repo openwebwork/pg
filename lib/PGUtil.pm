@@ -167,7 +167,6 @@ sub pretty_print_tex {
 sub pretty_print_text { 
 	my $r_input = shift;
 	my $level   = shift;
-	my $level = 4;   #FIXME -- should we allow this to be modified somehow?
 	
 	$level--;
 	return "PGalias has too much info. Try \\\$PG->{PG\\_alias}->{resource\\_list}" if ref($r_input) eq 'PGalias';  # PGalias just has too much information
