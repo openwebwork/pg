@@ -41,12 +41,13 @@ sub pretty_print {
     my $self = shift;
     my $input = shift;
     my $displayMode = shift;
+    my $level       = shift;
 
     if (!PGUtil::not_null($displayMode) && ref($self) eq 'PGcore') {
-	$displayMode = $self->{displayMode};
+		$displayMode = $self->{displayMode};
     }
     warn "displayMode not defined" unless $displayMode;
-    PGUtil::pretty_print($input, $displayMode); 
+    PGUtil::pretty_print($input, $displayMode, $level);  
 }
 
 sub new {
@@ -600,7 +601,7 @@ inside the PGcore object would report.
 sub debug_message {
     my $self = shift;
 	my @str = @_;
-	push @{$self->{DEBUG_messages}}, "<br/>", @str;
+	push @{$self->{DEBUG_messages}}, "<br/>\n", @str;
 }
 sub get_debug_messages {
 	my $self = shift;
