@@ -278,7 +278,7 @@ sub can {UNIVERSAL::can(@_)}
 
 sub isHash {
   my $self = shift;
-  return defined($self) && (  ref($self) eq 'HASH' || blessedType($self) eq 'HASH' );
+  return defined($self) && (ref($self) || blessedType($self) ) && (  ref($self) eq 'HASH' || blessedType($self) eq 'HASH' );
   #added by MEG  (at suggestion DPVC)
   # prevents warning messages when $self is undefined
 
