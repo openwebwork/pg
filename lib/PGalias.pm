@@ -168,7 +168,6 @@ sub make_alias {
 	my $envir               = $self->{envir}; 
 	my $displayMode         = $self->{displayMode}; 
 	my $pgFileName          = $self->{pgFileName};    # name of .pg file
-	my $envir               = $self->{envir};
 	my $htmlDirectory       = $self->{htmlDirectory};
 	my $htmlURL             = $self->{htmlURL};
 	my $tempDirectory       = $self->{tempDirectory};
