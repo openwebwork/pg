@@ -195,7 +195,7 @@ sub format {
   return $c[0] unless scalar(@c) > 1;
   return join($or,@c) if scalar(@c) == 2;
   my $last = pop(@c); $or = "$sep$or";
-  $or =~ s/(\\hbox\{.+?)\}\\hbox\{/\1/; $or =~ s/  +/ /g; # clear up some extra spacing
+  $or =~ s/(\\hbox\{.+?)\}\\hbox\{/$1/; $or =~ s/  +/ /g; # clear up some extra spacing
   return join($sep,@c).$or.$last;
 }
 

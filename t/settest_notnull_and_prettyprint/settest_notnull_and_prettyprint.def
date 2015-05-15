@@ -1,0 +1,14 @@
+
+openDate          = 09/03/2014 at 10:34am EDT
+dueDate           = 09/10/2014 at 10:34am EDT
+answerDate        = 09/10/2014 at 10:34am EDT
+paperHeaderFile   = defaultHeader
+screenHeaderFile  = defaultHeader
+description       = Test the notnull() function.  This returns 0 for an undefined variable, an empty string, a blank string, an empty array and an empty hash.<n><n>--------<n>Test the $PG-> pretty_print(object, html/text/TeX, level) function for pretty printing objects.  When called directly as a subroutine (without $PG->) it uses level=5 and the current displayMode to print the object.
+problemList       = 
+settest_notnull_and_prettyprint/listVariables.pg, 1, -1 
+settest_notnull_and_prettyprint/test_not_nullpg.pg, 1, -1 
+settest_notnull_and_prettyprint/pretty_print_html.pg, 1, -1 
+settest_notnull_and_prettyprint/pretty_print_text.pg, 1, -1 
+settest_notnull_and_prettyprint/pretty_print_tex.pg, 1, -1 
+
