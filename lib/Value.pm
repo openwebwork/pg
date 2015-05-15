@@ -269,7 +269,7 @@ sub inContext {my $self = shift; $self->context(@_); $self}
 #
 sub address {oct(sprintf("0x%p",shift))}
 
-sub isBlessed {Scalar::Util::blessed(shift) ne ""}
+sub isBlessed {(Scalar::Util::blessed(shift)//'') ne ""}
 sub blessedClass {Scalar::Util::blessed(shift)}
 sub blessedType {Scalar::Util::reftype(shift)}
 
