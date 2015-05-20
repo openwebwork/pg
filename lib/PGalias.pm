@@ -168,7 +168,6 @@ sub make_alias {
 	my $envir               = $self->{envir}; 
 	my $displayMode         = $self->{displayMode}; 
 	my $pgFileName          = $self->{pgFileName};    # name of .pg file
-	my $envir               = $self->{envir};
 	my $htmlDirectory       = $self->{htmlDirectory};
 	my $htmlURL             = $self->{htmlURL};
 	my $tempDirectory       = $self->{tempDirectory};
@@ -909,7 +908,7 @@ sub check_url {
 #	 	unless (-x $check_url_command );
 	 my $response = `$check_url_command $url`; 
 	 # $self->debug_message("check_url: response for url $url is  $response");
-	 return ($response =~ /^$OK_CONSTANT/) ? 1 : 0; 
+	 return ($response =~ /$OK_CONSTANT/) ? 1 : 0; 
 }
 
 # ^variable our %appletCodebaseLocations

@@ -351,6 +351,10 @@ sub NAMED_ANS_RULE {
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
 	$answer_value = encode_pg_and_html($answer_value);
 	$name = RECORD_ANS_NAME($name, $answer_value);
+	my $previous_name = "previous_$name";
+	$name = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%$name":$name;
+	$previous_name = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%$previous_name": $previous_name;
+	
     #INSERT_RESPONSE($name,$name,$answer_value);  #FIXME -- why can't we do this inside RECORD_ANS_NAME?
 	my $label;
 	if (defined ($options{aria_label})) {
@@ -373,7 +377,7 @@ sub NAMED_ANS_RULE {
         }
 
         # end of addition for dragmath
-
+	
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\\end{rawhtml}!,
@@ -382,8 +386,8 @@ sub NAMED_ANS_RULE {
 	    # that come from pg
 		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" aria-label="$label" value="$answer_value"/>\n!.
 		              $add_html. # added for dragmath
-                        qq!<input type=hidden  name="previous_$name" value="$answer_value"/>\n!
-
+                        qq!<input type=hidden  name="$previous_name" value="$answer_value"/>\n!,
+		
 	);
 }
 
@@ -1832,7 +1836,7 @@ sub general_math_ev3 {
 	my $mode = shift || "inline";
 
 	$in = FEQ($in); # Format EQuations
-	$in =~ s/((^|[^\\])(\\\\)*)%/\1\\%/g; # avoid % becoming TeX comments (unless already escaped)
+	$in =~ s/((^|[^\\])(\\\\)*)%/$1\\%/g; # avoid % becoming TeX comments (unless already escaped)
 
 	## remove leading and trailing spaces so that HTML mode will
 	## not include unwanted spaces as per Davide Cervone.
@@ -1851,7 +1855,7 @@ sub general_math_ev3 {
 	if($displayMode eq "HTML_MathJax") {
      $out = '<span class="MathJax_Preview">[math]</span><script type="math/tex">'.$in.'</script>' if $mode eq "inline";
      $out = '<span class="MathJax_Preview">[math]</span><script type="math/tex; mode=display">'.$in.'</script>' if $mode eq "display";
-	} elsif ($displayMode eq "HTML_dpng") {
+	} elsif ($displayMode eq "HTML_dpng" ) {
 		# for jj's version of ImageGenerator
 		#$out = $envir->{'imagegen'}->add($in_delim);
 		# for my version of ImageGenerator
@@ -2652,6 +2656,7 @@ sub image {
  	my @output_list = ();
   	while(@image_list) {
  		my $imageURL = alias(shift @image_list);
+ 		$imageURL = ($envir{use_site_prefix})? $envir{use_site_prefix}.$imageURL : $imageURL;
  		my $out="";
 
 		if ($displayMode eq 'TeX') {

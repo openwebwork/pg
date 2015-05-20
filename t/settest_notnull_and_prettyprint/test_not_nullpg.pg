@@ -1,0 +1,106 @@
+##DESCRIPTION
+##  Algebra problem: true or false for inequality 
+##ENDDESCRIPTION
+
+##KEYWORDS('algebra', 'inequality', 'fraction')
+
+## DBsubject('Algebra')
+## DBchapter('Fundamentals')
+## DBsection('Real Numbers')
+## Date('6/3/2002')
+## Author('')
+## Institution('')
+## TitleText1('Precalculus')
+## EditionText1('3')
+## AuthorText1('Stewart, Redlin, Watson')
+## Section1('1.1')
+## Problem1('22')
+
+########################################################################
+
+DOCUMENT();      
+
+loadMacros(
+   "PGstandard.pl",     # Standard macros for PG language
+   "MathObjects.pl",
+   "unionTables.pl",
+   #"source.pl",        # allows code to be displayed on certain sites.
+   #"PGcourse.pl",      # Customization file for the course
+);
+
+# Print problem number and point value (weight) for the problem
+TEXT(beginproblem());
+
+# Show which answers are correct and which ones are incorrect
+$showPartialCorrectAnswers = 1;
+
+##############################################################
+#
+#  Setup
+#
+#
+Context("Numeric");
+
+$undefined = undef;
+$zero = 0;
+$nullstring = "";
+$oneblankstring = " ";
+$tabstring = "~~t";
+$returnstring = "~~n";
+$threeblankstring = "   ";
+$zerostring = "0";
+@emptyarray = ();
+%emptyhash =();
+$emptyhashref = {};
+$emptyarrayref = [];
+@arraywithzero = ( 0 );
+$null = null;   # defines a string "null"; 
+@header = ("notnull( arg )", "expected value", "arg", "description");
+@undefined = ( not_null($undefined), "null", $undefined, "undefined value");
+@null = ( not_null($null), "not null", $null, "bare word null defines a string :-)");
+@zero = (not_null($zero), "not null", $zero, "zero value");
+@nullstring = (not_null($nullstring), "not null", $nullstring, "null string" );
+@oneblankstring = (not_null($oneblankstring), "null", $oneblankstring, "string with single blank" );
+@tabstring = (not_null($tabstring), "null", $tabstring, "string with single tab" );
+@returnstring = (not_null($returnstring), "null", $returnstring, "string with single return" );
+@threeblankstring = (not_null($threeblankstring), "null", $threeblankstring, "string with three blanks");
+@zerostring = (not_null($zerostring), "not null", $zerostring, "string with 0");
+@emptyarray = (not_null(@emptyarray), "null", " ", "empty array"); #fake an entry into array
+@emptyhash = (not_null(%emptyhash), "null", " ", "empty hash");
+@emptyarrayref = (not_null($emptyarrayref), "null", $emptyarrayref, "reference to an empty array");
+@emptyhashref = (not_null($emptyhashref), "null", $emptyhashref, "reference to an empty hash");
+@arraywithzero = (not_null(@arraywithzero), "not null", @arraywithzero, "array with single entry of 0");
+
+
+####################################################
+#
+#  Text
+#
+#
+
+Context()->texStrings;
+BEGIN_TEXT
+Testing notnull.  Each line should have a 1 when "not null" or a zero for "null".
+$PAR
+\{begintable(4)\}
+\{row(@header)\}
+\{  row(@undefined)  \}
+\{ row(@null)   \}
+\{  row(@zero)  \}
+\{  row(@oneblankstring)  \}
+\{  row(@tabstring)  \}
+\{  row(@returnstring)  \}
+\{  row(@threeblankstring)  \}
+\{ row(@zerostring) \}
+\{  row(@emptyarray)  \}
+\{  row(@emptyhash)  \}
+
+\{  row(@emptyarrayref)  \}
+\{  row(@emptyhashref)  \}
+\{  row(@arraywithzero)  \}
+\{endtable()\}
+END_TEXT
+Context()->normalStrings;
+
+
+ENDDOCUMENT();        

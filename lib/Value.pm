@@ -269,7 +269,7 @@ sub inContext {my $self = shift; $self->context(@_); $self}
 #
 sub address {oct(sprintf("0x%p",shift))}
 
-sub isBlessed {Scalar::Util::blessed(shift) ne ""}
+sub isBlessed {(Scalar::Util::blessed(shift)//'') ne ""}
 sub blessedClass {Scalar::Util::blessed(shift)}
 sub blessedType {Scalar::Util::reftype(shift)}
 
@@ -278,7 +278,7 @@ sub can {UNIVERSAL::can(@_)}
 
 sub isHash {
   my $self = shift;
-  return defined($self) && (  ref($self) eq 'HASH' || blessedType($self) eq 'HASH' );
+  return defined($self) && (ref($self) || blessedType($self) ) && (  ref($self) eq 'HASH' || blessedType($self) eq 'HASH' );
   #added by MEG  (at suggestion DPVC)
   # prevents warning messages when $self is undefined
 

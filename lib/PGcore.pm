@@ -25,8 +25,8 @@ use PGalias;
 use PGloadfiles;
 use WeBWorK::PG::IO(); # don't important any command directly
 use Tie::IxHash;
-use MIME::Base64 qw( encode_base64 decode_base64);
-use PGUtil;
+use MIME::Base64();
+use PGUtil();
 
 ##################################
 # PGcore object
@@ -41,12 +41,13 @@ sub pretty_print {
     my $self = shift;
     my $input = shift;
     my $displayMode = shift;
+    my $level       = shift;
 
     if (!PGUtil::not_null($displayMode) && ref($self) eq 'PGcore') {
-	$displayMode = $self->{displayMode};
+		$displayMode = $self->{displayMode};
     }
     warn "displayMode not defined" unless $displayMode;
-    PGUtil::pretty_print($input, $displayMode); 
+    PGUtil::pretty_print($input, $displayMode, $level);  
 }
 
 sub new {
@@ -62,7 +63,7 @@ sub new {
 #		PG_ANSWERS                => [],  # holds answers with labels # deprecated
 #		PG_UNLABELED_ANSWERS      => [],  # holds unlabeled ans. #deprecated -replaced by PG_ANSWERS_HASH
 		PG_ANSWERS_HASH           => {},  # holds label=>answer pairs
-		PERSISTENCE_HASH           => {}, # holds other data, besides answers, which persists during a session and beyond
+		PERSISTENCE_HASH          => {}, # holds other data, besides answers, which persists during a session and beyond
 		answer_eval_count         => 0,
 		answer_blank_count        => 0,
 		unlabeled_answer_blank_count =>0,
@@ -566,7 +567,7 @@ sub encode_base64 ($;$) {
 sub encode_pg_and_html {
     my $input = shift;
     $input = HTML::Entities::encode_entities($input,
-		   '<>"&\'\$\@\\\\`\\[*_\x00-\x1F\x7F-\xFF');
+		   '<>"&\'\$\@\\\\`\\[*_\x00-\x1F\x7F');
     return $input;
 }
 
@@ -600,7 +601,7 @@ inside the PGcore object would report.
 sub debug_message {
     my $self = shift;
 	my @str = @_;
-	push @{$self->{DEBUG_messages}}, "<br/>", @str;
+	push @{$self->{DEBUG_messages}}, "<br/>\n", @str;
 }
 sub get_debug_messages {
 	my $self = shift;
