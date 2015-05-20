@@ -27,7 +27,6 @@ BEGIN {
 		directoryFromPath
 		createFile
 		createDirectory
-		AskSage
 	);
 
 	our %SHARE = map { $_ => __PACKAGE__ } @EXPORT;

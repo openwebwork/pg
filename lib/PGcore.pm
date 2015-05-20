@@ -25,8 +25,8 @@ use PGalias;
 use PGloadfiles;
 use WeBWorK::PG::IO(); # don't important any command directly
 use Tie::IxHash;
-use MIME::Base64 qw( encode_base64 decode_base64);
-use PGUtil;
+use MIME::Base64();
+use PGUtil();
 
 ##################################
 # PGcore object
