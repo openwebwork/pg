@@ -3,10 +3,10 @@ sub _LiveGraphics3D_init {
     if ($main::envir{use_javascript_for_live3d}) {
 
 	main::HEADER_TEXT(<<'END_HEADER_TEXT');
-	<script src="/webwork2_files/js/vendor/d3/d3.js" language="javascript">
-	    </script>
-	<script src="/webwork2_files/js/vendor/d3/liveGraphicsd3.js" language="javascript">
-	    </script>
+	<script src="/webwork2_files/js/vendor/x3dom/x3dom.js" language="javascript"></script>
+	<script src="/webwork2_files/js/vendor/d3/d3.js" language="javascript"></script>
+	<script src="/webwork2_files/js/apps/LiveGraphics/liveGraphicsd3.js" language="javascript"></script>
+	<link rel="stylesheet" href="/webwork2_files/js/vendor/x3dom/x3dom.css">
 END_HEADER_TEXT
     }
     
@@ -120,15 +120,26 @@ sub LiveGraphics3D {
     $out .= qq{\n<TABLE BORDER="1" CELLSPACING="2" CELLPADDING="0">\n<TR>};
     $out .= qq{<TD WIDTH="$w" HEIGHT="$h" ALIGN="CENTER">};
 
+    $archive_input = $options{archive} // '';
+    $file_input = $options{file} // '';
+    $direct_input = $options{input} // '';
+
+    $direct_input =~ s/\n//g;
+
     $out .= <<EOS;
+
     <script>
     var thisTD = jQuery('script:last').parent();
     var options = { width : $w,
 		    height : $h,
-		    file : '$options{file}',
+		    file : '$file_input',
+		    input : '$direct_input',
+		    archive : '$archive_input',
+		    
     };
 
-    var graph = new Live3D(thisTD[0],options);
+
+    var graph = new LiveGraphics3D(thisTD[0],options);
     </script>
 EOS
 
