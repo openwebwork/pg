@@ -3,9 +3,8 @@ sub _LiveGraphics3D_init {
     if ($main::envir{use_javascript_for_live3d}) {
 
 	main::HEADER_TEXT(<<'END_HEADER_TEXT');
-	<script src="/webwork2_files/js/vendor/x3dom/x3dom.js" language="javascript"></script>
-	<script src="/webwork2_files/js/vendor/d3/d3.js" language="javascript"></script>
-	<script src="/webwork2_files/js/apps/LiveGraphics/liveGraphicsd3.js" language="javascript"></script>
+	<script src="/webwork2_files/js/vendor/x3dom/x3dom-full.js" language="javascript"></script>
+	<script src="/webwork2_files/js/apps/LiveGraphics/liveGraphics.js" language="javascript"></script>
 	<link rel="stylesheet" href="/webwork2_files/js/vendor/x3dom/x3dom.css">
 END_HEADER_TEXT
     }
