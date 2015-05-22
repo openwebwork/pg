@@ -4,6 +4,7 @@ sub _LiveGraphics3D_init {
 
 	main::HEADER_TEXT(<<'END_HEADER_TEXT');
 	<script src="/webwork2_files/js/vendor/x3dom/x3dom-full.js" language="javascript"></script>
+
 	<script src="/webwork2_files/js/apps/LiveGraphics/liveGraphics.js" language="javascript"></script>
 	<link rel="stylesheet" href="/webwork2_files/js/vendor/x3dom/x3dom.css">
 END_HEADER_TEXT
