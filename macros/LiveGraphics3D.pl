@@ -1,13 +1,16 @@
 sub _LiveGraphics3D_init {
 
-    if ($main::envir{use_javascript_for_live3d}) {
-
+    if ($main::envir{use_javascript_for_live3d} &&
+	!$main::LiveGraphics3DHeaderSet) {
 	main::HEADER_TEXT(<<'END_HEADER_TEXT');
 	<script src="/webwork2_files/js/vendor/x3dom/x3dom-full.js" language="javascript"></script>
-
+	<script src="/webwork2_files/js/vendor/jszip/jszip.min.js" language="javascript"></script>
+	<script src="/webwork2_files/js/vendor/jszip/jszip-utils.min.js" language="javascript"></script>
 	<script src="/webwork2_files/js/apps/LiveGraphics/liveGraphics.js" language="javascript"></script>
 	<link rel="stylesheet" href="/webwork2_files/js/vendor/x3dom/x3dom.css">
 END_HEADER_TEXT
+
+	$main::LiveGraphics3DHeaderSet = 1;
     }
     
 }; 
@@ -126,8 +129,23 @@ sub LiveGraphics3D {
 
     $direct_input =~ s/\n//g;
 
-    $out .= <<EOS;
+    #
+    #  include any independent variables
+    #
+    $ind_vars = '{}';
+    
+    if ($options{vars}) {
+	$ind_vars = "{";
+	%vars = @{$options{vars}};
 
+	foreach $var (keys %vars ) {
+	    $ind_vars .= "\"$var\":\"".$vars{$var}."\",";
+	}
+	
+	$ind_vars .= "}";
+    }
+    
+    $out .= <<EOS;
     <script>
     var thisTD = jQuery('script:last').parent();
     var options = { width : $w,
@@ -135,7 +153,7 @@ sub LiveGraphics3D {
 		    file : '$file_input',
 		    input : '$direct_input',
 		    archive : '$archive_input',
-		    
+		    vars : $ind_vars,
     };
 
 
