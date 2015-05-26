@@ -18,11 +18,12 @@ sub new {
    my %options = ( 
       SageCode => 'print 1+2',
       ButtonText => 'Start/Restart the Interactive Cell',
-      CellServer => 'http://sagecell.sagemath.org',
+      CellServer => 'https://sagecell.sagemath.org',
       SageAnswerName => 'sageAnswer',   #  not used yet
       SageAnswerValue => 'ansList',             #  not used yet
       AutoEvaluateCell => 'true',
       ShowAnswerBlank => 'hidden',
+      accepted_tos =>'false',  # force author to accept terms of service explicitly
      @_
    );
 
