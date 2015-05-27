@@ -326,7 +326,9 @@ END
 			my $sage_WEBWORK_data = $decoded->{execute_reply}{user_expressions}{WEBWORK}{data}{'text/plain'};
 			warn "sage_WEBWORK_data $sage_WEBWORK_data" if $debug;
 			if (not_null($sage_WEBWORK_data) ) {
-				$WEBWORK_variable_non_empty = ($sage_WEBWORK_data ne "{}") ? 1:0;
+				$WEBWORK_variable_non_empty =  #another hack because '{}' is sometimes returned
+				      ($sage_WEBWORK_data ne "{}" and $sage_WEBWORK_data ne "'{}'") ? 
+				      1:0;
 			}  # {} indicates that WEBWORK was not used to pass or return a variable from sage.
 			
 			warn "WEBWORK variable has content"  if $debug and $WEBWORK_variable_non_empty;
