@@ -965,8 +965,9 @@ sub NAMED_POP_UP_LIST {
 		my @list1 = @{$list[0]};
 		@list = map { $_ => $_ } @list1;
 	}
-	
-		my $answer_value = '';
+	my $moodle_prefix = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%":'';
+
+	my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
 	my $out = "";
 	if ($displayMode eq 'HTML_MathJax'
@@ -977,7 +978,7 @@ sub NAMED_POP_UP_LIST {
 	 || $displayMode eq 'HTML_asciimath' 
 	 || $displayMode eq 'HTML_LaTeXMathML'
 	 || $displayMode eq 'HTML_img') {
-		$out = qq!<SELECT class="pg-select" NAME = "$name" id="$name" SIZE=1> \n!;
+		$out = qq!<SELECT class="pg-select" NAME = "$moodle_prefix$name" id="$moodle_prefix$name" SIZE=1> \n!;
 		my $i;
 		foreach ($i=0; $i< @list; $i=$i+2) {
 			my $select_flag = ($list[$i] eq $answer_value) ? "SELECTED" : "";
@@ -2655,7 +2656,7 @@ sub image {
 
  	my @output_list = ();
   	while(@image_list) {
- 		my $imageURL = alias(shift @image_list);
+ 		my $imageURL = alias(shift @image_list)//'';
  		$imageURL = ($envir{use_site_prefix})? $envir{use_site_prefix}.$imageURL : $imageURL;
  		my $out="";
 
