@@ -178,7 +178,7 @@ sub findChoice {
     $label = $choice unless defined $label;
     return $label if $label eq $value || $index == $i || $choice eq $value;
   }
- return undef;
+  return undef;
 }
 
 #
@@ -329,7 +329,7 @@ sub orderedChoices {
     @orderLabels = @labels;
   }
 
-  my $label = $self->findChoice($self->{checked});
+  my $label = ($self->{checked} ? $self->findChoice($self->{checked}) : "");
   return map { ($_ eq $label ? "%$_" : $_) => $choiceHash{$_} } @orderLabels;
 }
 
