@@ -774,10 +774,16 @@ sub typeMatch {
 #
 #  Remove the blank-check prefilter when the string is empty,
 #  and add a filter that removes leading and trailing whitespace.
+#  Also, properly quote the correct answer string
 #
 sub cmp {
   my $self = shift;
-  my $cmp = $self->SUPER::cmp(@_);
+  my $correct = ($self->{correct_ans}||$self->string);
+  my $cmp = $self->SUPER::cmp(
+    correct_ans => quoteHTML($correct),
+    correct_ans_latex_string => quoteTeX($correct),
+    @_
+  );
   if ($self->value =~ m/^\s*$/) {
     $cmp->install_pre_filter('erase');
     $cmp->install_pre_filter(sub {
@@ -788,6 +794,17 @@ sub cmp {
     });
   }
   return $cmp;
+}
+
+#
+#  Adjust student preview and anser strings so they display properly
+#
+sub cmp_preprocess {
+  my $self = shift; my $ans = shift;
+  if (defined $ans->{student_value}) {
+    $ans->{preview_latex_string} = $ans->{student_value}->TeX;
+    $ans->{student_ans} = quoteHTML($ans->{student_value}->string);
+  }
 }
 
 #############################################################
