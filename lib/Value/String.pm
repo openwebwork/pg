@@ -72,14 +72,14 @@ sub compare {
 #
 #  Mark a string to be display verbatim
 #
-sub verb {return "\\verb".chr(0x85).(shift).chr(0x85)}
+sub verb {shift; return "\\verb".chr(0x85).(shift).chr(0x85)}
 
 #
 #  Put normal strings into \text{} and others into \verb
 #
 sub quoteTeX {
-  my $s = shift;
-  return verb($s) unless $s =~ m/^[-a-z0-9 ,.;:+=?()\[\]]*$/i;
+  my $self = shift; my $s = shift;
+  return $self->verb($s) unless $s =~ m/^[-a-z0-9 ,.;:+=?()\[\]]*$/i;
   "\\text{$s}";
 }
 
@@ -87,10 +87,11 @@ sub quoteTeX {
 #  Quote HTML special characters
 #
 sub quoteHTML {
-  my $s = shift;
+  shift; my $s = shift;
   $s =~ s/&/\&amp;/g;
   $s =~ s/</\&lt;/g;
   $s =~ s/>/\&gt;/g;
+  $s =~ s/"/\&quot;/g;
   return $s;
 }
 
@@ -99,7 +100,7 @@ sub quoteHTML {
 #
 sub TeX {
   my $self = shift;
-  quoteTeX($self->value);
+  $self->quoteTeX($self->value);
 }
 
 sub perl {

@@ -780,8 +780,8 @@ sub cmp {
   my $self = shift;
   my $correct = ($self->{correct_ans}||$self->string);
   my $cmp = $self->SUPER::cmp(
-    correct_ans => quoteHTML($correct),
-    correct_ans_latex_string => quoteTeX($correct),
+    correct_ans => $self->quoteHTML($correct),
+    correct_ans_latex_string => $self->quoteTeX($correct),
     @_
   );
   if ($self->value =~ m/^\s*$/) {
@@ -803,7 +803,7 @@ sub cmp_preprocess {
   my $self = shift; my $ans = shift;
   if (defined $ans->{student_value}) {
     $ans->{preview_latex_string} = $ans->{student_value}->TeX;
-    $ans->{student_ans} = quoteHTML($ans->{student_value}->string);
+    $ans->{student_ans} = $self->quoteHTML($ans->{student_value}->string);
   }
 }
 
