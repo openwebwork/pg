@@ -92,7 +92,7 @@ sub quoteHTML {
   $s =~ s/</\&lt;/g;
   $s =~ s/>/\&gt;/g;
   $s =~ s/"/\&quot;/g;
-  return $s;
+  return '<span class="tex2jax_ignore">'.$s.'</span>';
 }
 
 #
