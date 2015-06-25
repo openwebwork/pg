@@ -2162,13 +2162,14 @@ sub beginproblem {
 			(defined($effectivePermissionLevel) && defined($PRINT_FILE_NAMES_PERMISSION_LEVEL) && $effectivePermissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL)
 			 || ( defined($inlist{ $studentLogin }) and ( $inlist{ $studentLogin }>0 )  ) ;
 
+	$out .= MODES( TeX => '', HTML => '<P style="margin: 0">');
 	if ( $print_path_name_flag ) {
-		$out = &M3("{\\bf ${probNum}. {\\footnotesize ($problemValue $points) \\path|$fileName|}}\\newline ",
+		$out .= &M3("{\\bf ${probNum}. {\\footnotesize ($problemValue $points) \\path|$fileName|}}\\newline ",
 		" \\begin{rawhtml} ($problemValue $points) <B>$l2hFileName</B><BR>\\end{rawhtml}",
 		 "($problemValue $points) <B>$fileName</B><BR>"
 	 	   ) if ($problemValue >=0 );
 	} else {
-		$out = &M3("{\\bf ${probNum}.} ($problemValue $points) ",
+		$out .= &M3("{\\bf ${probNum}.} ($problemValue $points) ",
 		"($problemValue $points) ",
 		 "($problemValue $points) "
 	 	   ) if ($problemValue  >= 0);
