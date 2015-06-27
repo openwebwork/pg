@@ -199,13 +199,9 @@ sub new {
 	&surePathToTmpFile
 	&fileFromPath
 	&directoryFromPath
-	&createFile
-
 	&includePGtext
-
 	&PG_answer_eval
 	&PG_restricted_eval
-
 	&send_mail_to
 	&PGsort
 
@@ -232,7 +228,6 @@ The macros shared with the safe compartment are
 	'&surePathToTmpFile'
 	'&fileFromPath'
 	'&directoryFromPath'
-	'&createFile'
 	'&PG_answer_eval'
 	'&PG_restricted_eval'
 	'&be_strict'

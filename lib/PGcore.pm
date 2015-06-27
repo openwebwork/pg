@@ -686,7 +686,6 @@ sub insertGraph {
 	  or $graph->imageName =~ /Undefined_Set/ # problems from SetMaker and its ilk should always be redone
 	  or $refreshCachedImages
 	) {
- 		#createFile($filePath, $main::tmp_file_permission, $main::numericalGroupID);
 		local(*OUTPUT);  # create local file handle so it won't overwrite other open files.
  		open(OUTPUT, ">$filePath")||warn ("$0","Can't open $filePath<BR>","");
  		chmod( 0777, $filePath);
@@ -700,12 +699,10 @@ sub insertGraph {
 
 		includePGtext
 		read_whole_problem_file
-		read_whole_file
 		convertPath
 		getDirDelim
 		fileFromPath
 		directoryFromPath
-		createFile
 		createDirectory
 
 =cut
@@ -720,10 +717,6 @@ sub includePGtext {
 sub read_whole_problem_file { 
 	my $self = shift;
 	WeBWorK::PG::IO::read_whole_problem_file(@_); 
- };
-sub read_whole_file { 
-	my $self = shift;
-	WeBWorK::PG::IO::read_whole_file(@_); 
  };
 sub convertPath { 
 	my $self = shift;
@@ -740,10 +733,6 @@ sub fileFromPath {
 sub directoryFromPath { 
 	my $self = shift;
 	WeBWorK::PG::IO::directoryFromPath(@_); 
- };
-sub createFile { 
-	my $self = shift;
-	WeBWorK::PG::IO::createFile(@_); 
  };
 sub createDirectory { 
 	my $self = shift;
