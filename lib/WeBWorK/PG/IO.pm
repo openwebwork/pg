@@ -29,7 +29,16 @@ BEGIN {
 		createDirectory
 	);
 
-	our %SHARE = map { $_ => __PACKAGE__ } @EXPORT;
+	our @SHARED_FUNCTIONS = qw(
+                includePGtext
+                read_whole_problem_file
+                convertPath
+                fileFromPath
+                directoryFromPath
+                createFile
+        );
+
+	our %SHARE = map { $_ => __PACKAGE__ } @SHARED_FUNCTIONS;
 	my $ww_version = "2.x";  # hack -- only WW2 versions are supported.
 	if (defined $ww_version) {
 		my $mod;
