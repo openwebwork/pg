@@ -28,7 +28,6 @@ require Exporter;
 @EXPORT    = qw( );
 $VERSION = '0.01';
 
-use WeBWorK::PG::IO qw(path_is_course_subdir);
 
 # ##########################################
 # Initialize the class
@@ -104,7 +103,6 @@ sub write_array_to_CSV {
 		}
 
 		# Open the file
-
 		local(*OUTPUT);  # create local file handle so it won't overwrite other open files.
  		open(OUTPUT, ">$fileName")||warn ("$0","Can't open $fileName<BR>","");
  		chmod( 0777, $filePath);
