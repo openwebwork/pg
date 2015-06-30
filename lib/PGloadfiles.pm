@@ -141,6 +141,8 @@ sub loadMacros {
    
     while (@files) {
         $fileName = shift @files;
+        $fileName = WeBWorK::PG::IO::fileFromPath($fileName);
+
         next  if ($fileName =~ /^PG.pl$/) ;    # the PG.pl macro package is already loaded.
 
         my $macro_file_name = $fileName;
@@ -217,10 +219,12 @@ sub findMacroFile {
 sub compile_file {
     my $self     = shift;
  	my $filePath = shift;
+    
  	warn "loading $filePath" if $debugON; 
  	local(*MACROFILE);
  	local($/);
  	$/ = undef;   # allows us to treat the file as a single line
+    
  	open(MACROFILE, "<$filePath") || die "Cannot open file: $filePath";
  	my $string = 'BEGIN {push @__eval__, __FILE__};' . "\n" . <MACROFILE>;
  	#warn "compiling $string";
