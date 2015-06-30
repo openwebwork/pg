@@ -45,6 +45,7 @@ my $displayMode;
 
 my ($PAR,
 	$BR,
+	$BRBR,
 	$LQ,
 	$RQ,
 	$BM,
@@ -109,6 +110,7 @@ main::PG_restricted_eval( <<'EndOfFile');
 
 	$main::PAR				= PAR();
 	$main::BR				= BR();
+	$main::BRBR				= BRBR();
 	$main::LQ				= LQ();
 	$main::RQ				= RQ();
 	$main::BM				= BM();
@@ -158,6 +160,7 @@ EndOfFile
 
    	$PAR				 = PAR();
 	$BR				     = BR();
+	$BRBR				 = BRBR();
 	$LQ				     = LQ();
 	$RQ				     = RQ();
 	$BM				     = BM();
@@ -1435,6 +1438,7 @@ sub MODES {
 	@ALPHABET   		ALPHABET()			capital letter alphabet -- ALPHABET[0] = 'A'
 	$PAR				PAR()				paragraph character (\par or <p>)
 	$BR         		BR()				line break character
+	$BRBR         		BRBR()				line break character
 	$LQ					LQ()				left double quote
 	$RQ					RQ()				right double quote
 	$BM					BM()				begin math
@@ -1495,6 +1499,7 @@ sub PAR { MODES( TeX => '\\par ', Latex2HTML => '\\begin{rawhtml}<P>\\end{rawhtm
 # Alternate definition of BR which is slightly more flexible and gives more white space in printed output
 # which looks better but kills more trees.
 sub BR { MODES( TeX => '\\leavevmode\\\\\\relax ', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR/>'); };
+sub BRBR { MODES( TeX => '\\leavevmode\\\\\\relax \\leavevmode\\\\\\relax ', Latex2HTML => '\\begin{rawhtml}<BR><BR>\\end{rawhtml}', HTML => '<P>'); };
 sub LQ { MODES( TeX => "\\lq\\lq{}", Latex2HTML =>   '"',  HTML =>  '&quot;' ); };
 sub RQ { MODES( TeX => "\\rq\\rq{}", Latex2HTML =>   '"',   HTML =>  '&quot;' ); };
 sub BM { MODES(TeX => '\\(', Latex2HTML => '\\(', HTML =>  ''); };  # begin math mode
