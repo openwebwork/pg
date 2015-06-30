@@ -222,8 +222,6 @@ Creates a directory with the given name, permission bits, and group ID.
 sub createDirectory {
 	my ($dirName, $permission, $numgid) = @_;
 
-	die 'Directory is unsafe' unless path_is_course_subdir($dirName);
-
 	$permission = (defined($permission)) ? $permission : '0770';
 	# FIXME -- find out where the permission is supposed to be defined
 	my $errors = '';
