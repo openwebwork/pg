@@ -1255,6 +1255,14 @@ sub process_answers{
 }
 
 
+sub stringify_answers {
+  my $self = shift;
+  no strict;
+  local $rh_answers = $self->{rh_evaluated_answers};
+  $self->{safe}->share('$rh_answers');
+  $self->{safe}->reval('(sub {foreach my $label (keys %$rh_answers) {$rh_answers->{$label}->stringify_hash}})->();');
+  die $@ if $@;
+}
 
 =head3 grade_problem
 
@@ -1284,6 +1292,7 @@ sub grade_problem {
 		$self->{safe}->reval('&{$rf_grader}($rh_answers,$rh_state,%rf_options)');
 	use strict;
 	die $@ if $@;
+	$self->stringify_answers;
 	($self->{rh_problem_result}, $self->{rh_problem_state});
 }
 
