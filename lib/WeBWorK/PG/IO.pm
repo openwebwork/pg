@@ -11,7 +11,7 @@ use WeBWorK::Utils qw(path_is_subdir);
 use WeBWorK::CourseEnvironment;
 
 my $CE = new WeBWorK::CourseEnvironment({
-    webwork_dir => File::Spec->canonpath($ENV{WEBWORK_ROOT}),
+    webwork_dir => $ENV{WEBWORK_ROOT},
 					});
 =head1 NAME
 
