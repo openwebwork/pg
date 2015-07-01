@@ -16,13 +16,14 @@
 
 =head1 NAME
 
-parserRadioButtons.pl - Radio buttons compatible with MathObject,
+parserRadioButtons.pl - Radio buttons compatible with MathObjects,
                         specifically MultiAnswer objects.
 
 =head1 DESCRIPTION
 
 This file implements a radio button group object that is compatible
-with Value objects, and in particular, with the MultiAnswer object.
+with MathObjects, and in particular, with the MultiAnswer object, and
+with PGML.
 
 To create a RadioButtons object, use
 
@@ -281,7 +282,7 @@ sub getCorrectChoice {
   $value = ($self->flattenChoices)[$value] if $value =~ m/^\d+$/;
   my @choices = @{$self->{orderedChoices}};
   foreach my $i (0..$#choices) {
-    if ($value eq $choices[$i] || $value eq $self->{labels}[$i]) {
+    if ($value eq $choices[$i] || $value eq ($self->{labels}[$i]||"")) {
       $self->{data} = ["B$i"];
       return;
     }
@@ -481,6 +482,7 @@ sub BUTTONS {
   foreach my $i (0..$#choices) {
     my $value = "B$i"; my $tag = $choices[$i];
     $tag = $self->labelFormat($self->{labels}[$i]).$tag if $self->{displayLabels};
+    $tag = $self->protect($tag);
     if ($extend) {
       push(@radio,main::NAMED_ANS_RADIO_EXTENSION($name,$value,$tag,
 	   aria_label=>$label."option $i "));
@@ -500,6 +502,11 @@ sub BUTTONS {
   }
   @radio = $self->makeUncheckable(@radio) if $self->{uncheckable};
   (wantarray) ? @radio : join($self->{separator}, @radio);
+}
+
+sub protect {
+  my $self = shift; my $s = shift;
+  main::MODES(TeX => $self->quoteTeX($s), HTML => $self->quoteHTML($s));
 }
 
 sub buttons {shift->BUTTONS(0,'',@_)}
