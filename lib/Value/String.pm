@@ -83,15 +83,17 @@ sub quoteTeX {
   "\\text{$s}";
 }
 
+
 #
 #  Quote HTML special characters
 #
 sub quoteHTML {
-  shift; my $s = shift;
+  shift; my $s = shift; my $nospan = shift;
   $s =~ s/&/\&amp;/g;
   $s =~ s/</\&lt;/g;
   $s =~ s/>/\&gt;/g;
   $s =~ s/"/\&quot;/g;
+  return $s if $nospan;
   return '<span class="tex2jax_ignore">'.$s.'</span>';
 }
 
