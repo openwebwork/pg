@@ -1260,7 +1260,13 @@ sub stringify_answers {
   no strict;
   local $rh_answers = $self->{rh_evaluated_answers};
   $self->{safe}->share('$rh_answers');
-  $self->{safe}->reval('(sub {foreach my $label (keys %$rh_answers) {$rh_answers->{$label}->stringify_hash}})->();');
+  $self->{safe}->reval(<<'  END_EVAL;');
+    (sub {
+      foreach my $label (keys %$rh_answers) {
+        $rh_answers->{$label}->stringify_hash if ref($rh_answers->{$label}) =~ m/AnswerHash/;
+      }
+    })->();
+  END_EVAL;
   die $@ if $@;
 }
 
