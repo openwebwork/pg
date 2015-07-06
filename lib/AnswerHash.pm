@@ -245,6 +245,22 @@ sub score {
 	$self->{score}
 }
 
+=head4  stringify_hash
+
+        Usage:      $rh_ans->stringify_hash;
+
+        Turns all values in the hash into strings (so they won't cause trouble outside
+        the safe compartment).
+
+=cut
+
+sub stringify_hash {
+  my $self = shift;
+  foreach my $key (keys %$self) {
+    $self->{$key} = "$self->{$key}" if ref($self->{$key});
+  }
+}
+
 # error methods
 
 =head4 throw_error

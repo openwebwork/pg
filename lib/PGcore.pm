@@ -23,6 +23,7 @@ use PGresponsegroup;
 use PGrandom;
 use PGalias;
 use PGloadfiles;
+use AnswerHash;
 use WeBWorK::PG::IO(); # don't important any command directly
 use Tie::IxHash;
 use MIME::Base64();
@@ -331,6 +332,20 @@ sub LABELED_ANS{
   	$self->warning_message("<BR><B>Error in LABELED_ANS:|$label|</B>
   	      -- inputs must be references to AnswerEvaluator objects or subroutines<BR>")
 			unless ref($ans_eval) =~ /CODE/ or ref($ans_eval) =~ /AnswerEvaluator/  ;
+	if (ref($ans_eval) =~ /CODE/) {
+	  #
+	  #  Create an AnswerEvaluator that calls the given CODE reference and use that for $ans_eval.
+	  #  So we always have an AnswerEvaluator from here on.
+	  #
+	  my $cmp = new AnswerEvaluator;
+	  $cmp->install_evaluator(sub {
+	    my $ans = shift; my $checker = shift;
+	    my @args = ($ans->{student_ans});
+	    push(@args,ans_label=>$ans->{ans_label}) if defined($ans->{ans_label});
+	    $checker->(@args); # Call the original checker with the arguments that PG::Translator would have used
+	  },$ans_eval);
+	  $ans_eval = $cmp;
+	}
 	if (defined($self->{PG_ANSWERS_HASH}->{$label})  ){
 		$self->{PG_ANSWERS_HASH}->{$label}->insert(ans_label => $label, ans_eval => $ans_eval, active=>$self->{PG_ACTIVE});
 	} else {
