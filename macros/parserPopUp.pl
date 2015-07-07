@@ -125,15 +125,14 @@ sub new {
     unless ref($choices) eq 'ARRAY';
   Value->Error("A PopUp's second argument should be the correct menu choice")
     unless defined($value) && $value ne "";
-  if ($value =~ m/^\d+$/) {
-    my @order = map {ref($_) eq "ARRAY" ? @$_ : $_} @$choices;
-    $value = $order[$value];
-  }
   $self = bless {data => [$value], context => $context, choices => $choices}, $class;
   $self->getChoiceOrder;
   my %choice; map {$choice{$_} = 1} @{$self->{choices}};
-  Value::Error("The correct choice must be one of the PopUp menu items")
-    unless defined($value) && $choice{$value};
+  if (!$choice{$value}) {
+    my @order = map {ref($_) eq "ARRAY" ? @$_ : $_} @$choices;
+    if ($value =~ m/^\d+$/ && $order[$value]) {$self->{data}[0] = $order[$value]}
+      else {Value->Error("The correct choice must be one of the PopUp menu items")}
+  }
   return $self;
 }
 
