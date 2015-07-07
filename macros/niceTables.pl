@@ -203,11 +203,29 @@ sub DataTable {
   for my $i (0..$#{$dataref})
     {$numcols[$i] = $#{$dataref->[$i]};
     for my $j (0..$numcols[$i])
-      {
+      {# if cell was simply entered as data value, make the hash
         $dataref->[$i][$j] = {data => $dataref->[$i][$j]} unless (ref($dataref->[$i][$j]) eq "HASH" or ref($dataref->[$i][$j]) eq "ARRAY" );
+        # and if it was entered as an array reference, make the hash
         if (ref($dataref->[$i][$j]) eq "ARRAY" )
           {my $temp = $dataref->[$i][$j]; $dataref->[$i][$j] = {data, @$temp};};
-        ${$dataref->[$i][$j]}{data} = ${$dataref->[$i][$j]}{d} if (defined ${$dataref->[$i][$j]}{d});#before [a, options] was an option, {d=>a,options} was a shortcut for {data=>a,options} 
+        #before [a, options] was an option, {d=>a,options} was a shortcut for {data=>a,options} 
+        ${$dataref->[$i][$j]}{data} = ${$dataref->[$i][$j]}{d} if (defined ${$dataref->[$i][$j]}{d});
+        # set default values for cell
+        ${$dataref->[$i][$j]}{header} = '' unless (defined ${$dataref->[$i][$j]}{header});
+        ${$dataref->[$i][$j]}{tex} = '' unless (defined ${$dataref->[$i][$j]}{tex});
+        ${$dataref->[$i][$j]}{b} = 0 unless (defined ${$dataref->[$i][$j]}{b});
+        ${$dataref->[$i][$j]}{i} = 0 unless (defined ${$dataref->[$i][$j]}{i});
+        ${$dataref->[$i][$j]}{m} = 0 unless (defined ${$dataref->[$i][$j]}{m});
+        ${$dataref->[$i][$j]}{noencase} = 0 unless (defined ${$dataref->[$i][$j]}{noencase});
+        ${$dataref->[$i][$j]}{colspan} = 1 unless (defined ${$dataref->[$i][$j]}{colspan});
+        ${$dataref->[$i][$j]}{cellcss} = '' unless (defined ${$dataref->[$i][$j]}{cellcss});
+        ${$dataref->[$i][$j]}{rowcss} = '' unless (defined ${$dataref->[$i][$j]}{rowcss});
+        ${$dataref->[$i][$j]}{rowcolor} = '' unless (defined ${$dataref->[$i][$j]}{rowcolor});
+        ${$dataref->[$i][$j]}{midrule} = 0 unless (defined ${$dataref->[$i][$j]}{midrule});
+        ${$dataref->[$i][$j]}{headerrow} = 0 unless (defined ${$dataref->[$i][$j]}{headerrow});
+        ${$dataref->[$i][$j]}{texencase} = ['',''] unless (defined ${$dataref->[$i][$j]}{texencase});
+        ${$dataref->[$i][$j]}{texpre} = ${$dataref->[$i][$j]}{texencase}->[0] unless (defined ${$dataref->[$i][$j]}{texpre});
+        ${$dataref->[$i][$j]}{texpost} = ${$dataref->[$i][$j]}{texencase}->[1] unless (defined ${$dataref->[$i][$j]}{texpost});
       };
     };
 
@@ -237,7 +255,7 @@ sub DataTable {
 
   # shortcuts introduced late
   if (defined $options{align}) {$texalignment = $options{align}}; 
-  if ($options{rowheaders} == 1)  {for my $i (0..$#{$dataref}) {${$dataref->[$i][$j]}{header} = 'RH' unless (defined ${$dataref->[$i][$j]}{header}) }};
+  if ($options{rowheaders} == 1)  {for my $i (0..$#{$dataref}) {${$dataref->[$i][0]}{header} = 'RH' if (uc(${$dataref->[$i][0]}{header}) eq '') }};
  
 
   # apply contents of encase; cell shortcuts
@@ -245,7 +263,6 @@ sub DataTable {
     {for my $j (0..$numcols[$i])
       {
         ${$dataref->[$i][$j]}{data} = $encase->[0].${$dataref->[$i][$j]}{data}.$encase->[1] unless (${$dataref->[$i][$j]}{noencase} == 1);
-        ${$dataref->[$i][$j]}{tex} = '' unless (defined ${$dataref->[$i][$j]}{tex});
         if (${$dataref->[$i][$j]}{b} == 1) {${$dataref->[$i][$j]}{tex} .= '\bfseries ';};
         if (${$dataref->[$i][$j]}{i} == 1) {${$dataref->[$i][$j]}{tex} .= '\itshape ';};
         if (${$dataref->[$i][$j]}{m} == 1) {${$dataref->[$i][$j]}{tex} .= '\ttfamily ';};
@@ -263,21 +280,20 @@ sub DataTable {
      $midrule[$i] = 0;
      $headerrow[$i] = 0;
     for my $j (0..$numcols[$i])
-      {$rowcss[$i] = ${$dataref->[$i][$j]}{rowcss} if (defined ${$dataref->[$i][$j]}{rowcss} );
-       $rowcolor[$i] = ${$dataref->[$i][$j]}{rowcolor} if (defined ${$dataref->[$i][$j]}{rowcolor} );
-          if ($rowcolor[$i] =~ /\{\s*(\w*)[}!]/)
-            {
-              $rowcss[$i] = 'background-color:'.$1.'; '.$rowcss[$i];
-            };
-          if ($rowcolor[$i] =~ /\[\s*HTML\s*\]\s*\{\s*(\w*)[}!]/)
-            {
-              $rowcss[$i] = 'background-color:#'.$1.'; '.$rowcss[$i];
-            };
-       $midrule[$i] = ${$dataref->[$i][$j]}{midrule} if (defined ${$dataref->[$i][$j]}{midrule} ); 
-       $headerrow[$i] = ${$dataref->[$i][$j]}{headerrow} if (defined ${$dataref->[$i][$j]}{headerrow} );
+      {$rowcss[$i] = ${$dataref->[$i][$j]}{rowcss} if ($rowcss[$i] eq '');
+       $rowcolor[$i] = ${$dataref->[$i][$j]}{rowcolor} if ($rowcolor[$i] eq '');
+       $midrule[$i] = ${$dataref->[$i][$j]}{midrule} if ($midrule[$i] == 0); 
+       $headerrow[$i] = ${$dataref->[$i][$j]}{headerrow} if ($headerrow[$i] == 0);
+      };
+    if ($rowcolor[$i] =~ /\{\s*(\w*)[}!]/)
+      {
+        $rowcss[$i] = 'background-color:'.$1.'; '.$rowcss[$i];
+      };
+    if ($rowcolor[$i] =~ /\[\s*HTML\s*\]\s*\{\s*(\w*)[}!]/)
+      {
+        $rowcss[$i] = 'background-color:#'.$1.'; '.$rowcss[$i];
       };
     };
-
   
   # parse tex alignment for duplicate use in html
   my $bracesregex = qr/(\{(?>[^{}]|(?R))*\})/x; 
@@ -364,7 +380,6 @@ sub DataTable {
     {
       for my $j (0..$numcols[$i])
         {
-          ${$dataref->[$i][$j]}{tex} = '' unless (defined ${$dataref->[$i][$j]}{tex});
           if (${$dataref->[$i][$j]}{tex} =~ /\\color\s*\{\s*(\w*)[}!]/)
             {
               ${$dataref->[$i][$j]}{cellcss} = 'color:'.$1.'; '.${$dataref->[$i][$j]}{cellcss};
@@ -418,9 +433,7 @@ sub DataTable {
      elsif (!$bodystarted) {$table .= '<TBODY>'; $bodystarted = 1};
     $table .= '<TR>';
     for my $j (0..$numcols[$i])
-      {${$dataref->[$i][$j]}{header} = '' unless (defined ${$dataref->[$i][$j]}{header});
-       ${$dataref->[$i][$j]}{cellcss} = '' unless (defined ${$dataref->[$i][$j]}{cellcss});
-        if (uc(${$dataref->[$i][$j]}{header}) eq 'TH')
+      {if (uc(${$dataref->[$i][$j]}{header}) eq 'TH')
         {$table .= '<TH style = "'.$allcellcss.$headercss.$columnscss->[$j].$midrulecss.$midrulescss.$rowcss[$i].${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TH>';}
         elsif (uc(${$dataref->[$i][$j]}{header}) ~~ ['CH','COLUMN','COL']) 
         {$table .= '<TH scope = "col" style = "'.$allcellcss.$headercss.$columnscss->[$j].$midrulecss.$midrulescss.$rowcss[$i].${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TH>';}
@@ -465,11 +478,6 @@ sub DataTable {
        if ($rowcolor[$i] ne '') {$textable .= '\rowcolor'.$rowcolor[$i];};
        for my $j (0..$numcols[$i])
         {if (uc(${$dataref->[$i][$j]}{header}) ~~ ['TH','CH','COLUMN','COL','RH','ROW']) {${$dataref->[$i][$j]}{tex} = '\bfseries '.${$dataref->[$i][$j]}{tex}};
-         ${$dataref->[$i][$j]}{texencase} = ['',''] unless (defined ${$dataref->[$i][$j]}{texencase});
-         ${$dataref->[$i][$j]}{texpre} = ${$dataref->[$i][$j]}{texencase}->[0] unless (defined ${$dataref->[$i][$j]}{texpre});
-         ${$dataref->[$i][$j]}{texpost} = ${$dataref->[$i][$j]}{texencase}->[1] unless (defined ${$dataref->[$i][$j]}{texpost});
-         ${$dataref->[$i][$j]}{texpre} = '' unless (defined ${$dataref->[$i][$j]}{texpre});
-         ${$dataref->[$i][$j]}{texpost} = '' unless (defined ${$dataref->[$i][$j]}{texpost});
         if ($headerrow[$i] == 1) {$textable .= '\bfseries '};
         $textable .= ${$dataref->[$i][$j]}{tex}.' '.${$dataref->[$i][$j]}{texpre}.' '.${$dataref->[$i][$j]}{data}.' '.${$dataref->[$i][$j]}{texpost};
         $textable .= '&' unless ($j == $numcols[$i]);
@@ -492,11 +500,6 @@ sub DataTable {
         {if ($rowcolor[$i] ne '') {$textable .= '\rowcolor'.$rowcolor[$i];};
          for my $j (0..$numcols[$i])
          {
-           ${$dataref->[$i][$j]}{texencase} = ['',''] unless (defined ${$dataref->[$i][$j]}{texencase});
-           ${$dataref->[$i][$j]}{texpre} = ${$dataref->[$i][$j]}{texencase}->[0] unless (defined ${$dataref->[$i][$j]}{texpre});
-           ${$dataref->[$i][$j]}{texpost} = ${$dataref->[$i][$j]}{texencase}->[1] unless (defined ${$dataref->[$i][$j]}{texpost});
-           ${$dataref->[$i][$j]}{texpre} = '' unless (defined ${$dataref->[$i][$j]}{texpre});
-           ${$dataref->[$i][$j]}{texpost} = '' unless (defined ${$dataref->[$i][$j]}{texpost});
            $textable .= ${$dataref->[$i][$j]}{tex}.' '.${$dataref->[$i][$j]}{texpre}.' '.${$dataref->[$i][$j]}{data}.' '.${$dataref->[$i][$j]}{texpost};
            $textable .= '&' unless ($j == $numcols[$i]);
          };
