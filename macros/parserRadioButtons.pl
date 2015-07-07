@@ -38,7 +38,12 @@ The entries in the choices array can either be strings that are the
 text to use for the choice buttons, or C<{label=>text}> where C<label>
 is a label to use for the choice when showing the student or correct
 answers, and C<text> is the text to use for the choice.  See below for
-options controlling how the labels will be used.
+options controlling how the labels will be used.  If a choice includes
+mathematics, you should use labels as above or through the C<labels>
+option below in order to have the student and correct answers display
+properly in the results table when an answer is submitted.  Use the
+C<displayLabels> option to make the labels be part of the choice as it
+is displayed following the radio button.
 
 By default, the choices are left in the order that you provide them,
 but you can cause some or all of them to be ordered randomly by
@@ -94,7 +99,7 @@ and the label used as an answer more explicit.
 Specifies a format string to use when displaying labels before the
 choice text.  It is an C<sprintf()> string that contains C<%s> where
 the label should go.  By default, it is C<${BBOLD}%s. ${EBOLD}>, which
-produces the label in bold foloowed by a period and a space.
+produces the label in bold followed by a period and a space.
 
 =item C<S<< forceLabel => 0 or 1 >>>
 
@@ -262,9 +267,9 @@ sub randomOrder {
 #
 sub addLabels {
   my $self = shift; my $choices = $self->{orderedChoices};
-  my $labels; my $n = $self->{n};
-  $labels = [1..$n] if $self->{labels} eq "123";
-  $labels = [@main::ALPHABET[0..$n-1]] if $self->{labels} eq "ABC";
+  my $labels = $self->{labels}; my $n = $self->{n};
+  $labels = [1..$n] if $labels eq "123";
+  $labels = [@main::ALPHABET[0..$n-1]] if uc($labels) eq "ABC";
   foreach my $i (0..$n-1) {
     if (ref($choices->[$i]) eq "HASH") {
       my $key = (keys %{$choices->[$i]})[0];
@@ -308,7 +313,7 @@ sub labelFormat {
   my $self = shift; my $label = shift;
   return "" unless $label || $self->{forceLabels};
   $label = "" unless defined $label;
-  sprintf($self->{labelFormat},$label);
+  sprintf($self->{labelFormat},$self->protect($label));
 }
 
 #
@@ -481,8 +486,8 @@ sub BUTTONS {
   my $label = main::generate_aria_label($name);
   foreach my $i (0..$#choices) {
     my $value = "B$i"; my $tag = $choices[$i];
-    $tag = $self->labelFormat($self->{labels}[$i]).$tag if $self->{displayLabels};
     $tag = $self->protect($tag);
+    $tag = $self->labelFormat($self->{labels}[$i]).$tag if $self->{displayLabels};
     if ($extend) {
       push(@radio,main::NAMED_ANS_RADIO_EXTENSION($name,$value,$tag,
 	   aria_label=>$label."option $i "));
@@ -505,7 +510,7 @@ sub BUTTONS {
 }
 
 sub protect {
-  my $self = shift; my $s = shift;
+  my $self = shift; my $s = shift; return $s if !defined($s) || $s eq "";
   main::MODES(TeX => $self->quoteTeX($s), HTML => $self->quoteHTML($s));
 }
 
