@@ -51,7 +51,7 @@ See F<PGbasicmacros> for definitions of C<image> and C<caption>
                                  # of MathObjects since that can mess up 
                                  # problems that don't use MathObjects but use Matrices.
 
-my %images_created = ();  # this keeps track of the base names of the images created during this session.
+our %images_created = ();  # this keeps track of the base names of the images created during this session.
                      #  We tack on
                      # $imageNum  = ++$images_created{$imageName} to keep from overwriting files
                      # when we don't want to.
@@ -128,7 +128,7 @@ sub init_graph {
 	$studentLogin =~ s/\@/-Q-/g;
 	my $imageName = "$main::studentLogin-$main::problemSeed-set${main::setNumber}prob${main::probNum}";
 	# $imageNum counts the number of graphs with this name which have been created since PGgraphmacros.pl was initiated.
-	my $imageNum  = ++$main::images_created{$imageName};
+	my $imageNum  = ++$images_created{$imageName};
 	# this provides a unique name for the graph -- it does not include an extension.
 	# PG_alias->make_resource_object(fileName, type) --> returns a UUID
 	my $resource = $main::PG->{PG_alias}->make_resource_object("image$imageNum","png");
@@ -243,7 +243,7 @@ sub init_graph_no_labels {
 	# select a  name for this graph based on the user, the psvn and the problem
 	my $imageName = "$main::studentLogin-$main::problemSeed-set${main::setNumber}prob${main::probNum}";
 	# $imageNum counts the number of graphs with this name which have been created since PGgraphmacros.pl was initiated.
-	my $imageNum  = ++$main::images_created{$imageName};
+	my $imageNum  = ++$images_created{$imageName};
 	# this provides a unique name for the graph -- it does not include an extension.
 	# PG_alias->make_resource_object(fileName, type) --> returns a UUID
 	my $resource = $main::PG->{PG_alias}->make_resource_object("image$imageNum","png");

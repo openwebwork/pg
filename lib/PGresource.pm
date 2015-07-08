@@ -91,7 +91,7 @@ sub create_unique_id {
 	$self->warning_message( "missing pg file name"  ) unless $self->{parent_file_id};
 	$self->warning_message( "missing problem psvn"  ) unless $self->{parent_alias}->{psvn}; 
 	$self->warning_message( "missing unique_id_stub") unless $self->{parent_alias}->{unique_id_stub};
-	my $unique_id_seed = $self->path() . $self->{parent_file_id}.$self->{parent_alias}->{psvn}; 
+	my $unique_id_seed = $self->path() . $self->{parent_file_id}.$self->{id}; 
 	$self->{unique_id} = $self->{parent_alias}->{unique_id_stub} .
 	      '___'. create_uuid_as_string( UUID_V3, UUID_NS_URL, $unique_id_seed );
 	$self->{unique_id};
