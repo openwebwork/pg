@@ -1707,8 +1707,9 @@ sub cmp_postfilter {
   $ans->{_filter_name} = "produce_equivalence_message";
   return $ans if $ans->{ans_message}; # don't overwrite other messages
   return $ans unless defined($ans->{prev_ans}); # if prefilters are erased, don't do this check
-  my $context = $self->context;
-  $ans->{prev_formula} = Parser::Formula($context,$ans->{prev_ans});
+  my $current = Parser::Context->current(); my $context = $self->context;
+  Parser::Context->current(undef,$context);
+  $ans->{prev_formula} = Parser::Formula($ans->{prev_ans});
   if (defined($ans->{prev_formula}) && defined($ans->{student_formula})) {
     my $prev = eval {$self->promote($ans->{prev_formula})->inherit($self)}; # inherit limits, etc.
     next unless defined($prev);
@@ -1720,6 +1721,7 @@ sub cmp_postfilter {
 	and $ans->{prev_ans} ne $ans->{original_student_ans}) # but not identical
       {$ans->{ans_message} = "This answer is equivalent to the one you just submitted."}
   }
+  Parser::Context->current($current);
   return $ans;
 }
 
