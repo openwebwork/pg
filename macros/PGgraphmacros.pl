@@ -130,7 +130,9 @@ sub init_graph {
 	# $imageNum counts the number of graphs with this name which have been created since PGgraphmacros.pl was initiated.
 	my $imageNum  = ++$main::images_created{$imageName};
 	# this provides a unique name for the graph -- it does not include an extension.
-	$graphRef->imageName("${imageName}image${imageNum}");
+	my $resource = $main::PG->{PG_alias}->make_resource_object("image$imageNum","png");
+	$resource->path("__");
+	$graphRef->imageName($resource->create_unique_id);
 
 	# Set the initial/default bounds for the graph.
 	$graphRef->xmin($xmin) if defined($xmin);

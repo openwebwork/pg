@@ -158,7 +158,19 @@ sub check_parameters {
 	warn "htmlURL is not defined." unless $self->{htmlURL};
 	warn "tempURL is not defined." unless $self->{tempURL};
 }
-
+sub make_resource_object {
+	my $self = shift;
+	my $aux_file_id =shift;
+	my $ext = shift;
+	my $resource = PGresource->new(
+		$self,                    #parent alias of resource
+		$aux_file_id,             # resource file name
+		$ext,                     # resource type
+		WARNING_messages => $self->{WARNING_messages},  #connect warning message channels
+		DEBUG_messages   => $self->{DEBUG_messages},
+	);	
+	return $resource;
+}
 sub make_alias {
    	my $self = shift;   	
    	my $aux_file_id = shift;
@@ -226,13 +238,12 @@ sub make_alias {
 	###################################################################
 	unless ( defined $self->get_resource($aux_file_id.".$ext") ) {
     	$self->add_resource($aux_file_id.".$ext", 
-    	                    PGresource->new(
-    	                            $self,                    #parent alias of resource
-    	                            $aux_file_id,             # resource file name
-    	                            $ext,                     # resource type
-    	                            WARNING_messages => $self->{WARNING_messages},  #connect warning message channels
-                                    DEBUG_messages   => $self->{DEBUG_messages},
-    	));
+    						$self->make_resource_object(
+    							$aux_file_id,  # resource file name
+    							$ext           # resource type
+    						)
+    	                   
+    	);
 
     } else {
     	#$self->debug_message( "found existing resource_object $aux_file_id");
