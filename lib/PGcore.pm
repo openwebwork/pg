@@ -692,13 +692,13 @@ sub insertGraph {
 	my $extension = ($WWPlot::use_png) ? '.png' : '.gif';
 	my $fileName = $graph->imageName  . $extension;
 	my $filePath = $self->convertPath("gif/$fileName");
-	my $templateDirectory = $self->{envir}->{templateDirectory};
+	my $templateDirectory = $self->{envir}{templateDirectory};
 	$filePath = $self->surePathToTmpFile( $filePath );
 	my $refreshCachedImages = $self->PG_restricted_eval(q!$refreshCachedImages!);
 	# Check to see if we already have this graph, or if we have to make it
 	if( not -e $filePath # does it exist?
-	  or ((stat "$templateDirectory"."$main::envir{probFileName}")[9] > (stat $filePath)[9]) # source has changed
-	  or $graph->imageName =~ /Undefined_Set/ # problems from SetMaker and its ilk should always be redone
+	  or ((stat "$templateDirectory".$self->{envir}{probFileName})[9] > (stat $filePath)[9]) # source has changed
+	  or $self->{envir}{setNumber} =~ /Undefined_Set/ # problems from SetMaker and its ilk should always be redone
 	  or $refreshCachedImages
 	) {
  		#createFile($filePath, $main::tmp_file_permission, $main::numericalGroupID);

@@ -51,7 +51,7 @@ See F<PGbasicmacros> for definitions of C<image> and C<caption>
                                  # of MathObjects since that can mess up 
                                  # problems that don't use MathObjects but use Matrices.
 
-my %images_created = ();  # this keeps track of the base names of the images created during this session.
+our %images_created = ();  # this keeps track of the base names of the images created during this session.
                      #  We tack on
                      # $imageNum  = ++$images_created{$imageName} to keep from overwriting files
                      # when we don't want to.
@@ -126,11 +126,15 @@ sub init_graph {
 	$studentLogin =~ s/\./-Q-/g;
 	$studentLogin =~ s/\,/-Q-/g;
 	$studentLogin =~ s/\@/-Q-/g;
-	my $imageName = "$studentLogin-$main::problemSeed-set${setName}prob${main::probNum}";
+	my $imageName = "$main::studentLogin-$main::problemSeed-set${main::setNumber}prob${main::probNum}";
 	# $imageNum counts the number of graphs with this name which have been created since PGgraphmacros.pl was initiated.
-	my $imageNum  = ++$main::images_created{$imageName};
+	my $imageNum  = ++$images_created{$imageName};
 	# this provides a unique name for the graph -- it does not include an extension.
-	$graphRef->imageName("${imageName}image${imageNum}");
+	# PG_alias->make_resource_object(fileName, type) --> returns a UUID
+	my $resource = $main::PG->{PG_alias}->make_resource_object("image$imageNum","png");
+	$resource->path("__");  # some kind of path is required in order for create_unique_id to work
+	# the only role of the resource object is to create the UUID -- the object is then discarded.
+	$graphRef->imageName($resource->create_unique_id);
 
 	# Set the initial/default bounds for the graph.
 	$graphRef->xmin($xmin) if defined($xmin);
@@ -237,11 +241,15 @@ sub init_graph_no_labels {
 	}
     my $graphRef = new WWPlot(@size);
 	# select a  name for this graph based on the user, the psvn and the problem
-	my $imageName = "$main::studentLogin-$main::psvn-set${main::setNumber}prob${main::probNum}";
+	my $imageName = "$main::studentLogin-$main::problemSeed-set${main::setNumber}prob${main::probNum}";
 	# $imageNum counts the number of graphs with this name which have been created since PGgraphmacros.pl was initiated.
-	my $imageNum  = ++$main::images_created{$imageName};
+	my $imageNum  = ++$images_created{$imageName};
 	# this provides a unique name for the graph -- it does not include an extension.
-	$graphRef->imageName("${imageName}image${imageNum}");
+	# PG_alias->make_resource_object(fileName, type) --> returns a UUID
+	my $resource = $main::PG->{PG_alias}->make_resource_object("image$imageNum","png");
+	$resource->path("__");  # some kind of path is required in order for create_unique_id to work
+	# the only role of the resource object is to create the UUID -- the object is then discarded.
+	$graphRef->imageName($resource->create_unique_id);
 
 	$graphRef->xmin($xmin) if defined($xmin);
 	$graphRef->xmax($xmax) if defined($xmax);
