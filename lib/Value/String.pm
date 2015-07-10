@@ -89,11 +89,13 @@ sub quoteTeX {
 #
 sub quoteHTML {
   shift; my $s = shift; my $nospan = shift;
+  return unless defined $s;
+  return $s if eval ('$main::displayMode') eq 'TeX';
   $s =~ s/&/\&amp;/g;
   $s =~ s/</\&lt;/g;
   $s =~ s/>/\&gt;/g;
   $s =~ s/"/\&quot;/g;
-  return $s if $nospan;
+  return $s if $nospan || $s !~ m/(\$|\\\(|\\\[)/;
   return '<span class="tex2jax_ignore">'.$s.'</span>';
 }
 

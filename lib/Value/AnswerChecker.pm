@@ -774,7 +774,7 @@ sub typeMatch {
 #
 #  Remove the blank-check prefilter when the string is empty,
 #  and add a filter that removes leading and trailing whitespace.
-#  Also, properly quote the correct answer string
+#  Also, properly quote the correct answer string.
 #
 sub cmp {
   my $self = shift;

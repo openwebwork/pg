@@ -87,12 +87,13 @@ C<{label=>text}>), those labels will be used instead of the automatic
 numberof letter (and the number of letter will be skipped).  The third
 form allows you to specify labels for each of the choices in their
 original order (though the C<{label=>text}> form is preferred).
+Default:  No labels
 
 =item C<S<< displayLabels => 0 or 1 >>>
 
 Specifies whether labels should be displayed after the radio butten
 and before its text.  This makes the association between the choices
-and the label used as an answer more explicit.
+and the label used as an answer more explicit.  Default: 1
 
 =item C<S<< labelFormat => string >>>
 
@@ -101,10 +102,13 @@ choice text.  It is an C<sprintf()> string that contains C<%s> where
 the label should go.  By default, it is C<${BBOLD}%s. ${EBOLD}>, which
 produces the label in bold followed by a period and a space.
 
-=item C<S<< forceLabel => 0 or 1 >>>
+=item C<S<< forceLabelFormat => 0 or 1 >>>
 
-This causes the labelFormat to be used even if there is no label text
-(in which case, an empty string is used).  Default: 0.
+When C<displayLabels> is set, this controls how blank labels are
+handled.  When set to C<0>, no label is inserted before the choice
+text for blank labels, and when C<1>, the C<labelFormat> is applied ot
+the empty string and the result is inserted before the choice text.
+Default: 0.
 
 =item C<S<< separator => string >>>
 
@@ -183,7 +187,7 @@ what MultiAnswer calls to get answer rules).
 
 =cut
 
-loadMacros('MathObjects.pl','contextString.pl');
+loadMacros('MathObjects.pl');
 
 sub _parserRadioButtons_init {parserRadioButtons::Init()}; # don't reload this file
 
@@ -214,9 +218,9 @@ sub new {
   my %options;
   main::set_default_options(\%options,
     labels => [],
-    displayLabels => 0,
+    displayLabels => 1,
     labelFormat => "${main::BBOLD}%s${main::EBOLD}. ",
-    forceLabels => 0,
+    forceLabelFormat => 0,
     separator => $main::BR,
     checked => undef,
     maxLabelSize => 25,
@@ -226,17 +230,19 @@ sub new {
     last => undef,
     order => undef,
     @_,
+    checkedI => -1,
   );
   Value::Error("A RadioButton's first argument should be a list of button values")
     unless ref($choices) eq 'ARRAY';
   Value::Error("A RadioButton's second argument should be the correct button choice")
     unless defined($value) && $value ne "";
-  my $context = Parser::Context->getCopy("String");
+  my $context = Parser::Context->getCopy("Numeric");
   my $self = bless {%options, choices => $choices, context => $context}, $class;
   $self->compatibility if $self->{order} || $self->{last} || $self->{first} || $self->{randomize};
   $self->getChoiceOrder;
   $self->addLabels;
   $self->getCorrectChoice($value);
+  $self->getCheckedChoice($self->{checked});
   $self->JavaScript if $self->{uncheckable};
   $context->strings->are(map {"B".$_ => {}} (0..($self->{n}-1)));
   return $self;
@@ -294,6 +300,19 @@ sub getCorrectChoice {
   }
   Value::Error("The correct choice must be one of the button values");
 }
+sub getCheckedChoice {
+  my $self = shift; my $value = shift;
+  return unless defined $value;
+  $value = ($self->flattenChoices)[$value] if $value =~ m/^\d+$/;
+  my @choices = @{$self->{orderedChoices}};
+  foreach my $i (0..$#choices) {
+    if ($value eq $choices[$i] || $value eq ($self->{labels}[$i]||"")) {
+      $self->{checkedI} = $i;
+      return;
+    }
+  }
+  Value::Error("The checked choice must be one of the button values");
+}
 sub flattenChoices {
   my $self = shift;
   my @choices = map {ref($_) eq "ARRAY" ? @$_ : $_} @{$self->{choices}};
@@ -311,7 +330,7 @@ sub flattenChoices {
 #
 sub labelFormat {
   my $self = shift; my $label = shift;
-  return "" unless $label || $self->{forceLabels};
+  return "" unless $label || $self->{forceLabelFormat};
   $label = "" unless defined $label;
   sprintf($self->{labelFormat},$self->protect($label));
 }
@@ -325,8 +344,9 @@ sub labelText {
   my $choice = $self->{labels}[$index];
   $choice = $self->{orderedChoices}[$index] unless defined $choice;
   return $choice if length($choice) < $self->{maxLabelSize};
-  my @words = split(/\b/,$choice); my ($s,$e) = ('','');
-  do {$s .= shift(@words); $e = pop(@words) . $e}
+  my @words = split(/( |\b)/,$choice); my ($s,$e) = ('','');
+  return $choice if scalar(@words) < 3;
+  do {$s .= shift(@words); $e = pop(@words) . $e if @words}
     while length($s) + length($e) + 10 < $self->{maxLabelSize} && scalar(@words);
   return $s . " ... " . $e;
 }
@@ -349,6 +369,7 @@ sub cmp_preprocess {
     my $label = $self->labelText($ans->{student_value}->value);
     $ans->{preview_latex_string} = $self->quoteTeX($label);
     $ans->{student_ans} = $self->quoteHTML($label);
+    $ans->{original_student_ans} = $label;
   }
 }
 
@@ -486,6 +507,7 @@ sub BUTTONS {
   my $label = main::generate_aria_label($name);
   foreach my $i (0..$#choices) {
     my $value = "B$i"; my $tag = $choices[$i];
+    $value = "%".$value if $i == $self->{checkedI};
     $tag = $self->protect($tag);
     $tag = $self->labelFormat($self->{labels}[$i]).$tag if $self->{displayLabels};
     if ($extend) {
