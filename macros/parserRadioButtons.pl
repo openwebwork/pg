@@ -74,7 +74,7 @@ The C<options> are taken from the following list:
 
 =over
 
-=item C<S<< labels => "123" or "ABC" or [label1,...] >>>
+=item C<S<< labels => "123", "ABC", "text", or [label1,...] >>>
 
 Labels are used to replace the text of the choice in the student and
 correct answers, and can also be shown just before the choice text (if
@@ -82,12 +82,19 @@ C<displayLabels> is set).  If the value is C<"123"> then the choices
 will be labeled with numbers (the choices will be numbered
 sequentially after they have been randomized).  If the value is
 C<"ABC"> then the choices will be labeled with capital letters after
-they have been randomized.  If any choiced have explicit labels (via
+they have been randomized.  If the value is C<"text"> then the button
+text is used (note, however, that if the text contains things like
+math or formatting or special characters, these may not display well
+in the student and correct answer columns of the results table).
+
+If any choiced have explicit labels (via
 C<{label=>text}>), those labels will be used instead of the automatic
 numberof letter (and the number of letter will be skipped).  The third
 form allows you to specify labels for each of the choices in their
 original order (though the C<{label=>text}> form is preferred).
-Default:  No labels
+
+Default: labels are the text of the choice when they don't include any
+special characters, and "Button 1", "Button 2", etc. otherwise.
 
 =item C<S<< displayLabels => 0 or 1 >>>
 
@@ -217,8 +224,8 @@ sub new {
   my $choices = shift; my $value = shift;
   my %options;
   main::set_default_options(\%options,
-    labels => [],
-    displayLabels => 1,
+    labels => "auto",
+    displayLabels => "auto",
     labelFormat => "${main::BBOLD}%s${main::EBOLD}. ",
     forceLabelFormat => 0,
     separator => $main::BR,
@@ -276,6 +283,14 @@ sub addLabels {
   my $labels = $self->{labels}; my $n = $self->{n};
   $labels = [1..$n] if $labels eq "123";
   $labels = [@main::ALPHABET[0..$n-1]] if uc($labels) eq "ABC";
+  $labels = [] if $labels eq "text";
+  if (ref($labels) ne "ARRAY") {
+    my $replace = ($labels ne "auto");
+    if (!$replace) {foreach (@$choices) {$replace = 1 if $_ =~ m/[^-+.,;:()!\[\]a-z0-9 ]/i}}
+    $labels = [map {"Choice $_"} (1..$n)] if $replace;
+    $self->{displayLabels} = 0 if $self->{displayLabels} eq "auto";
+  }
+  $labels = [] unless ref($labels) eq "ARRAY";
   foreach my $i (0..$n-1) {
     if (ref($choices->[$i]) eq "HASH") {
       my $key = (keys %{$choices->[$i]})[0];
@@ -283,6 +298,7 @@ sub addLabels {
     }
   }
   $self->{labels} = $labels;
+  $self->{displayLabels} = 1 if $self->{displayLabels} eq "auto";
 }
 
 #
@@ -508,7 +524,6 @@ sub BUTTONS {
   foreach my $i (0..$#choices) {
     my $value = "B$i"; my $tag = $choices[$i];
     $value = "%".$value if $i == $self->{checkedI};
-    $tag = $self->protect($tag);
     $tag = $self->labelFormat($self->{labels}[$i]).$tag if $self->{displayLabels};
     if ($extend) {
       push(@radio,main::NAMED_ANS_RADIO_EXTENSION($name,$value,$tag,
