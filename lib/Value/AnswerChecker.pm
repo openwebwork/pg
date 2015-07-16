@@ -383,7 +383,7 @@ our $answerPrefix = "MaTrIx";
 sub ans_matrix {
   my $self = shift;
   my $extend = shift; my $name = shift;
-  my $rows = shift; my $cols = shift; 
+  my $rows = shift; my $cols = shift;
   my $size = shift; my $open = shift;
   my $close = shift; my $sep = shift;
   my $toplabels = shift;
@@ -393,9 +393,7 @@ sub ans_matrix {
   my $named_extension = pgRef('NAMED_ANS_ARRAY_EXTENSION');
   my $named_ans_rule  = pgRef('NAMED_ANS_RULE');
   my $HTML = ""; my $ename = $name;
-  if ($name eq '') {
-    $name = pgCall('NEW_ANS_NAME');
-  }
+  $name = pgCall('NEW_ANS_NAME') if ($name eq '');
   $ename = "${answerPrefix}_${name}";
   $self->{ans_name} = $ename;
   $self->{ans_rows} = $rows;
@@ -404,23 +402,21 @@ sub ans_matrix {
   foreach my $i (0..$rows-1) {
     my @row = ();
     foreach my $j (0..$cols-1) {
-	my $label;
-	if ($options{aria_label}) {		
-	    $label = $options{aria_label}.'row '.($i+1).' col '.($j+1);
+      my $label;
+      if ($options{aria_label}) {
+	$label = $options{aria_label}.'row '.($i+1).' col '.($j+1);
+      } else {
+	$label = pgCall('generate_aria_label',ANS_NAME($ename,$i,$j));
+      }
+      if ($i == 0 && $j == 0) {
+	if ($extend) {
+	  push(@row,&$named_extension($name,$size,ans_label=>$name,aria_label=>$label));
 	} else {
-	    $label = pgCall('generate_aria_label',ANS_NAME($ename,$i,$j));
-	    
+	  push(@row,&$named_ans_rule($name,$size,aria_label=>$label));
 	}
-	if ($i == 0 && $j == 0) {
-	    if ($extend) {
-		push(@row,&$named_extension($name,$size,ans_label=>$name, aria_label=>$label));
-	    } else {
-		
-		push(@row,&$named_ans_rule($name,$size,aria_label=>$label));
-	    }
-	} else {
-	    push(@row,&$named_extension(ANS_NAME($ename,$i,$j),$size,ans_label=>$name, aria_label=>$label));
-	}
+      } else {
+	push(@row,&$named_extension(ANS_NAME($ename,$i,$j),$size,ans_label=>$name,aria_label=>$label));
+      }
     }
     push(@array,[@row]);
   }
