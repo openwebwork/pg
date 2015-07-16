@@ -452,7 +452,7 @@ sub format_matrix_tex {
   my ($rows,$cols) = (scalar(@{$array}),scalar(@{$array->[0]}));
   my $tex = ""; my @rows = ();
   $open = '\\'.$open if $open =~ m/[{}]/; $close = '\\'.$close if $close =~ m/[{}]/;
-  $tex .= '\(\left'.$open;
+  $tex .= '\(\left'.$open.'\let\quad=\relax';  # WHY is there a \quad in the answer rule extension?
   $tex .= '\setlength{\arraycolsep}{2pt}', $sep = '\,'.$sep if $sep;
   $tex .= '\begin{array}{'.('c'x$cols).'}';
   if ($options{top_labels}) {
@@ -470,35 +470,31 @@ sub format_matrix_HTML {
   $self->{format_options} = [%options] unless $self->{format_options};
   my ($open,$close,$sep) = ($options{open},$options{close},$options{sep});
   my ($rows,$cols) = (scalar(@{$array}),scalar(@{$array->[0]}));
-  my $HTML = "";
-  if ($sep) {$sep = '</TD><TD STYLE="padding: 0px 1px">'.$sep.'</TD><TD>'
-  } else {
-  	$sep = '</TD><TD WIDTH="8px"></TD><TD>'
-  }
+  my $HTML = ""; my $class = 'class="ans_array_cell"';
+  my $cell = "display:table-cell;vertical-align:middle;"; my $pad = "padding:4px 0;";
+  if ($sep) {$sep = '<span class="ans_array_sep" style="'.$cell.'padding:0 2px">'.$sep.'</span>'}
+       else {$sep = '<span class="ans_array_sep" style="'.$cell.'width:8px"></span>'}
+  $sep = '</span>'.$sep.'<span '.$class.' style="'.$cell.$pad.'">';
   if ($options{top_labels} ) {
-  	$HTML.='<TR ALIGN="MIDDLE"><TD>'.join($sep,@{$options{top_labels}}).'</TD></TR>'."\n"
+    $HTML .= '<span style="display:table-row"><span '.$class.' style="'.$cell.$pad.'">'
+          .  join($sep,@{$options{top_labels}})
+          .  '</span></span>';
   }
   foreach my $i (0..$rows-1) {
-    $HTML .= '<TR><TD HEIGHT="6px"></TD></TR>' if $i;
-    $HTML .= '<TR ALIGN="MIDDLE"><TD>'.join($sep,EVALUATE(@{$array->[$i]})).'</TD></TR>'."\n";
+    $HTML .= '<span style="display:table-row"><span '.$class.' style="'.$cell.$pad.'">'
+          .   join($sep,EVALUATE(@{$array->[$i]}))
+          .  '</span></span>';
   }
+  $HTML = '<span class="ans_array_table" style="display:inline-table; vertical-align:middle">'.$HTML.'</span>';
   $open = $self->format_delimiter($open,$rows,$options{tth_delims});
   $close = $self->format_delimiter($close,$rows,$options{tth_delims});
   if ($open ne '' || $close ne '') {
-    $HTML = '<TR ALIGN="MIDDLE">'
-          . '<TD>'.$open.'</TD>'
-          . '<TD WIDTH="2"></TD>'
-          . '<TD><TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0" CLASS="ArrayLayout">'
+    my $delim = "display:inline-block; vertical-align:middle;";
+    $HTML = '<span class="ans_array_open" style="'.$delim.' margin-right:4px">'.$open.'</span>'
           .   $HTML
-          . '</TABLE></TD>'
-          . '<TD WIDTH="4"></TD>'
-          . '<TD>'.$close.'</TD>'
-          . '</TR>'."\n";
+	  . '<span class="ans_array_close" style="'.$delim.' margin-left:4px">'.$close.'</span>'
   }
-  return '<TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0" CLASS="ArrayLayout"'
-          . ' STYLE="display:inline-table;margin:0;vertical-align:-'.(1.1*$rows-.6).'em">'
-          . $HTML
-          . '</TABLE>';
+   return '<span class="ans_array" style="display:inline-block;vertical-align:.5ex">'.$HTML.'</span>';
 }
 
 sub EVALUATE {map {(Value::isFormula($_) && $_->isConstant? $_->eval: $_)} @_}
@@ -519,9 +515,9 @@ sub format_delimiter {
   my $displayMode = $self->getPG('$displayMode');
   return $self->format_delimiter_tth($delim,$rows,$tth)
     if $tth || $displayMode eq 'HTML_tth' || $displayMode !~ m/^HTML_/;
-  my $rule = '\vrule width 0pt height '.(.8*$rows).'em depth 0pt';
-  $rule = '\Rule{0pt}{'.(.8*$rows).'em}{0pt}' if $displayMode eq 'HTML_MathJax';
-  $rule = '\rule 0pt '.(.8*$rows).'em 0pt' if $displayMode eq 'HTML_jsMath';
+  my $rule = '\vrule width 0pt height '.$rows.'em depth 0pt';
+  $rule = '\Rule{0pt}{'.(1.2*$rows).'em}{0pt}' if $displayMode eq 'HTML_MathJax';
+  $rule = '\rule 0pt '.(1.2*$rows).'em 0pt' if $displayMode eq 'HTML_jsMath';
   $delim = '\\'.$delim if $delim eq '{' || $delim eq '}';
   return '\(\left'.$delim.$rule.'\right.\)';
 }
