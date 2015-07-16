@@ -95,18 +95,13 @@ package context::ArbitraryString::Value::String;
 our @ISA = ("Value::String");
 
 #
-#  Mark a string to be display verbatim
-#
-sub verb {return "\\verb".chr(0x85).(shift).chr(0x85)}
-
-#
 #  Mark a multi-line string to be displayed verbatim in TeX
 #
 sub quoteTeX {
-  my $s = shift;
-  return verb($s) unless $s =~ m/\n/;
+  my $self = shift; my $s = shift;
+  return $self->verb($s) unless $s =~ m/\n/;
   my @tex = split(/\n/,$s);
-  foreach (@tex) {$_ = verb($_) if $_ =~ m/\S/}
+  foreach (@tex) {$_ = $self->verb($_) if $_ =~ m/\S/}
   "\\begin{array}{l}".join("\\\\ ",@tex)."\\end{array}";
 }
 
@@ -114,35 +109,11 @@ sub quoteTeX {
 #  Quote HTML special characters
 #
 sub quoteHTML {
-  my $s = shift;
-  $s =~ s/&/\&amp;/g;
-  $s =~ s/</\&lt;/g;
-  $s =~ s/>/\&gt;/g;
+  my $self = shift;
+  my $s = $self->SUPER::quoteHTML(shift);
   $s = "<pre style=\"text-align:left; padding-left:.2em\">$s</pre>"
     unless $main::displayMode eq "TeX";
   return $s;
-}
-
-#
-#  Render the value verbatim
-#
-sub TeX {
-  my $self = shift;
-  quoteTeX($self->value);
-}
-
-#
-#  Include the correct_ans_latex_string as the properly-displayed
-#  verbatim correct answer (or string value)
-#
-sub cmp {
-  my $self = shift;
-  my $correct = ($self->{correct_ans}||$self->string);
-  $self->SUPER::cmp(
-    correct_ans => quoteHTML($correct),
-    correct_ans_latex_string => quoteTeX($correct),
-    @_
-  );
 }
 
 #
@@ -158,7 +129,7 @@ sub cmp_preprocess {
     $ans->{preview_latex_string} = $ans->{student_value}->TeX
       if defined $ans->{student_value};
   }
-  $ans->{student_ans} = quoteHTML($ans->{student_value}->string)
+  $ans->{student_ans} = $self->quoteHTML($ans->{student_value}->string)
     if defined $ans->{student_value};
 }
 
