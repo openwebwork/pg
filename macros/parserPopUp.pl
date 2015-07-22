@@ -165,7 +165,7 @@ sub MENU {
   my $answer_value = (defined($main::inputs_ref->{$name}) ? $main::inputs_ref->{$name} : '');
   my $label = main::generate_aria_label($name);
   if ($main::displayMode =~ m/^HTML/) {
-    $menu = qq!<select class="pg-select" name="$name" id="$name" aria-label="$label" size="1">\n!;
+    $menu = qq!<select class="pg-select" name="$name" id="$name" aria-label="$label" size="1" style="max-width:100%">\n!;
     foreach my $item (@list) {
       my $selected = ($item eq $answer_value) ? " selected" : "";
       my $option = $self->quoteHTML($item,true);
