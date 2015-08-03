@@ -52,7 +52,7 @@ sub new {
 }
 
 #
-#  Make a set (it might not be reduced)
+#  Make a union (it might not be reduced)
 #
 sub make {
   my $self = shift;
