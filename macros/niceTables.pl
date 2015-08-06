@@ -1,5 +1,5 @@
 ######################################################################
-##
+#
 ##  Subroutines for creating tables that
 ##      * conform to accessibility standards
 ##      * allow a lot of CSS flexibility for on-screen styling
@@ -23,7 +23,6 @@
 sub _niceTables_init {}; # don't reload this file
 
 =head2 pccTables.pl
-
  ######################################################################
  #
  #  Command for tables displaying data. In a data table the xy-position of a cell is somehow 
@@ -127,6 +126,12 @@ sub _niceTables_init {}; # don't reload this file
  #                                      #   in turn affect he on-screen too.
  #        noencase => 1                 # If you have global encase strings (see section on modifying the whole table) then 
  #                                      #   you can opt to not apply them on a cell by cell basis
+ #        halign => string              # same format as align at the table level (discussed above) but for one cell only 
+ #        colspan => pos integer        # for cells that span more than one column; when using this, you must set halign for 
+ #                                      #   the cell too, or else the tex output will just use {c} alignment; this feature may
+ #                                      #   not behave as expected for certain layouts, like a two-row table, with 3 columns,
+ #                                      #   but the first row has colspans 2 and 1 with the second row having colspans 1 and 2
+ #
  #
  #      Applies to on-screen:
  #        cellcss => string,            # String with cell-specific CSS styling; see below for CSS syntax
@@ -190,7 +195,6 @@ sub _niceTables_init {}; # don't reload this file
  #                      [4,5,[6, rowcss => 'padding-top:10pt; padding-bottom:10pt; ']]], 
  #                       tablecss => "border:solid 1px; border-spacing:5px; border-radius: 5px; border-collapse:separate;");
  #
-
 =cut
 
 sub DataTable {
@@ -217,7 +221,8 @@ sub DataTable {
         ${$dataref->[$i][$j]}{i} = 0 unless (defined ${$dataref->[$i][$j]}{i});
         ${$dataref->[$i][$j]}{m} = 0 unless (defined ${$dataref->[$i][$j]}{m});
         ${$dataref->[$i][$j]}{noencase} = 0 unless (defined ${$dataref->[$i][$j]}{noencase});
-        ${$dataref->[$i][$j]}{colspan} = 1 unless (defined ${$dataref->[$i][$j]}{colspan});
+        ${$dataref->[$i][$j]}{halign} = '' unless (defined ${$dataref->[$i][$j]}{halign});
+        ${$dataref->[$i][$j]}{colspan} = '' unless (defined ${$dataref->[$i][$j]}{colspan});
         ${$dataref->[$i][$j]}{cellcss} = '' unless (defined ${$dataref->[$i][$j]}{cellcss});
         ${$dataref->[$i][$j]}{rowcss} = '' unless (defined ${$dataref->[$i][$j]}{rowcss});
         ${$dataref->[$i][$j]}{rowcolor} = '' unless (defined ${$dataref->[$i][$j]}{rowcolor});
@@ -294,6 +299,7 @@ sub DataTable {
         $rowcss[$i] = 'background-color:#'.$1.'; '.$rowcss[$i];
       };
     };
+
   
   # parse tex alignment for duplicate use in html
   my $bracesregex = qr/(\{(?>[^{}]|(?R))*\})/x; 
@@ -308,31 +314,21 @@ sub DataTable {
     }
   };        
   @htmlalignment = @temp;
+    # @htmlalignment is now an array, where the entries are the parsed pieces of $texalignment; entries parsed by
+    # >{commands}, pipes (for vertical rules), p{width}, r, c, l, or X
 
   my @columnalignments = grep { $htmlalignment[$_] =~ /^p\s*(??{$bracesregex})\s*|^[rclX]\s*/ } 0 .. $#htmlalignment;
+    # @columnalignments is an array, where the entries are the indices form @htmlalignment that actually deal with 
+    # alignment: p{width}, r, c, l, or X
   my @alignmentcolumns;
     for my $i (0..$#columnalignments) {$alignmentcolumns[$columnalignments[$i]] = $i};
+    # @alignmentcolumns is an array with one element per column, where the elements are each one of p{width}, r, c, l, or X
 
+  # append css to author's columnscss->[$i] that corresponds to the alignemnts in @alignmentcolumns
   for my $i (0..$#columnalignments) {
-    my $texcolumncss = '';
-    if ($htmlalignment[$columnalignments[$i]] =~ /r\s*/)
-      {$texcolumncss .= "text-align:right; white-space:nowrap; ";
-      }
-    elsif ($htmlalignment[$columnalignments[$i]] =~ /c\s*/)
-      {$texcolumncss .= "text-align:center; white-space:nowrap; ";
-      }  
-    elsif ($htmlalignment[$columnalignments[$i]] =~ /l\s*/)
-      {$texcolumncss .= "text-align:left; white-space:nowrap; ";
-      } 
-    elsif ($htmlalignment[$columnalignments[$i]] =~ /X\s*/)
-      {$texcolumncss .= "text-align:justify; white-space:normal; ";
-      }
-    elsif ($htmlalignment[$columnalignments[$i]] =~ /p\s*\{((??{$bracecontentsregex}))\}\s*/)
-      {
-        $texcolumncss .= "text-align:justify; white-space:normal; width:".$1."; ";
-      };   
-  $columnscss->[$i] = $texcolumncss.$columnscss->[$i];
+  $columnscss->[$i] = TeX_Alignment_to_CSS($htmlalignment[$columnalignments[$i]]).$columnscss->[$i];
   }
+  # append css to author's columnscss->[$i] that corresponds to other formatting that is in @htmlalignment
   for my $i (0..$#htmlalignment) 
     {
       if ($htmlalignment[$i] =~ /\\color\s*\{\s*(\w*)[}!]/)
@@ -410,7 +406,86 @@ sub DataTable {
             };
         };
     };
- 
+
+  my @alignmentcolumns;
+    for my $i (0..$#columnalignments) {$alignmentcolumns[$columnalignments[$i]] = $i};
+    # @alignmentcolumns is an array with one element per column, where the elements are each one of p{width}, r, c, l, or X
+
+  # append css to author's columnscss->[$i] that corresponds to the alignemnts in @alignmentcolumns
+
+
+  # parse tex alignment for individual cells to duplicate use in html
+  for my $i (0..$#{$dataref})
+    {
+      for my $j (0..$numcols[$i])
+        {
+          if (${$dataref->[$i][$j]}{halign} ne '')
+            {
+            my @htmlalignment = split(/(>\s*(??{$bracesregex})\s*|\|\s*|p\s*(??{$bracesregex})\s*|[rclX]\s*)/,${$dataref->[$i][$j]}{halign});
+            my @temp = ();
+            foreach(@htmlalignment){
+              if( ( defined $_) and ($_ ne '')){
+                push(@temp, $_);
+              }
+            };        
+            @htmlalignment = @temp;
+              # @htmlalignment is now an array, where the entries are the parsed pieces of ${$dataref->[$i][$j]}{halign}; entries parsed by
+              # >{commands}, pipes (for vertical rules), p{width}, r, c, l, or X. There should only be one of the actual alignment characters
+
+            my @columnalignments = grep { $htmlalignment[$_] =~ /^p\s*(??{$bracesregex})\s*|^[rclX]\s*/ } 0 .. $#htmlalignment;
+              # @columnalignments is an array, where the entries are the indices form @htmlalignment that actually deal with 
+              # alignment: p{width}, r, c, l, or X. This array should only have one entry (but structure of this whole section has been copied from above)
+
+            my @alignmentcolumns;
+              for my $k (0..$#columnalignments) {$alignmentcolumns[$columnalignments[$k]] = $k};
+              # @alignmentcolumns is an array with one element per column, where the elements are each one of p{width}, r, c, l, or X
+              # Again, this should only have one entry.
+
+            for my $k (0..$#columnalignments) {
+              ${$dataref->[$i][$j]}{cellcss} = TeX_Alignment_to_CSS($htmlalignment[$columnalignments[$k]]).${$dataref->[$i][$j]}{cellcss};
+            }
+            for my $k (0..$#htmlalignment) 
+              {
+                if ($htmlalignment[$k] =~ /\\color\s*\{\s*(\w*)[}!]/)
+                  {my $m = $k; while (!defined($alignmentcolumns[$m]) && $m < $#htmlalignment) {$m += 1;};
+                    ${$dataref->[$i][$j]}{cellcss} = 'color:'.$1.'; '.${$dataref->[$i][$j]}{cellcss};
+                  };
+                if ($htmlalignment[$k] =~ /\\color\s*\[\s*HTML\s*\]\s*\{\s*(\w*)[}!]/)
+                  {my $m = $k; while (!defined($alignmentcolumns[$m]) && $m < $#htmlalignment) {$m += 1;};
+                    ${$dataref->[$i][$j]}{cellcss} = 'color:#'.$1.'; '.${$dataref->[$i][$j]}{cellcss};
+                  };
+                if ($htmlalignment[$k] =~ /\\cellcolor\s*\{\s*(\w*)[}!]/)
+                  {my $m = $k; while (!defined($alignmentcolumns[$m]) && $m < $#htmlalignment) {$m += 1;};
+                    ${$dataref->[$i][$j]}{cellcss} = 'background-color:'.$1.'; '.${$dataref->[$i][$j]}{cellcss};
+                  };
+                if ($htmlalignment[$k] =~ /\\cellcolor\s*\[\s*HTML\s*\]\s*\{\s*(\w*)[}!]/)
+                  {my $m = $k; while (!defined($alignmentcolumns[$m]) && $m < $#htmlalignment) {$m += 1;};
+                    ${$dataref->[$i][$j]}{cellcss} = 'background-color:#'.$1.'; '.${$dataref->[$i][$j]}{cellcss};
+                  };
+                if ($htmlalignment[$k] =~ /\\bfseries$|\\bfseries\W/)
+                  {my $m = $k; while (!defined($alignmentcolumns[$m]) && $m < $#htmlalignment) {$m += 1;};
+                    ${$dataref->[$i][$j]}{cellcss} = 'font-weight:bold; '.${$dataref->[$i][$j]}{cellcss};
+                  };
+                if ($htmlalignment[$k] =~ /\\itshape$|\\itshape\W/)
+                  {my $m = $k; while (!defined($alignmentcolumns[$m]) && $m < $#htmlalignment) {$m += 1;};
+                    ${$dataref->[$i][$j]}{cellcss} = 'font-style:italic; '.${$dataref->[$i][$j]}{cellcss};
+                  };
+                if ($htmlalignment[$k] =~ /\\ttfamily$|\\ttfamily\W/)
+                  {my $m = $k; while (!defined($alignmentcolumns[$m]) && $m < $#htmlalignment) {$m += 1;};
+                    ${$dataref->[$i][$j]}{cellcss} = 'font-family:monospace; '.${$dataref->[$i][$j]}{cellcss};
+                  };
+                if ($htmlalignment[$k] =~ /\|\s*/)
+                  {my $m = $k; while (!defined($alignmentcolumns[$m]) && $m < $#htmlalignment) {$m += 1;};
+                    if ($m < $#htmlalignment) {${$dataref->[$i][$j]}{cellcss} = "border-left:solid 1px; ".${$dataref->[$i][$j]}{cellcss};};
+                    if ($alignmentcolumns[$m] != 0) {${$dataref->[$i][$j]}{cellcss} = "border-right:solid 1px; ".${$dataref->[$i][$j]}{cellcss};}
+                    if ($m == $#htmlalignment) 
+                      {if ($m == $k) {${$dataref->[$i][$j]}{cellcss} = "border-right:solid 1px; ".${$dataref->[$i][$j]}{cellcss};} else {${$dataref->[$i][$j]}{cellcss} = "border-left:solid 1px; ".${$dataref->[$i][$j]}{cellcss};}}
+                  };
+
+              };
+            };
+         };
+    };
 
   my $midrulescss = '';
   if ($midrules == 1) {$midrulescss = 'border-top:solid 1px; '};
@@ -433,17 +508,18 @@ sub DataTable {
      elsif (!$bodystarted) {$table .= '<TBODY>'; $bodystarted = 1};
     $table .= '<TR>';
     for my $j (0..$numcols[$i])
-      {if (uc(${$dataref->[$i][$j]}{header}) eq 'TH')
-        {$table .= '<TH style = "'.$allcellcss.$headercss.$columnscss->[$j].$midrulecss.$midrulescss.$rowcss[$i].${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TH>';}
+      {my $colspan = (${$dataref->[$i][$j]}{colspan} eq '') ? '' : 'colspan = "'.${$dataref->[$i][$j]}{colspan}.'" ';
+      if (uc(${$dataref->[$i][$j]}{header}) eq 'TH')
+        {$table .= '<TH '.$colspan.'style = "'.$allcellcss.$headercss.$columnscss->[$j].$midrulecss.$midrulescss.$rowcss[$i].${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TH>';}
         elsif (uc(${$dataref->[$i][$j]}{header}) ~~ ['CH','COLUMN','COL']) 
-        {$table .= '<TH scope = "col" style = "'.$allcellcss.$headercss.$columnscss->[$j].$midrulecss.$midrulescss.$rowcss[$i].${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TH>';}
+        {$table .= '<TH '.$colspan.'scope = "col" style = "'.$allcellcss.$headercss.$columnscss->[$j].$midrulecss.$midrulescss.$rowcss[$i].${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TH>';}
         elsif (uc(${$dataref->[$i][$j]}{header}) ~~ ['RH','ROW']) 
-        {$table .= '<TH scope = "row" style = "'.$allcellcss.$headercss.$columnscss->[$j].$midrulecss.$midrulescss.$rowcss[$i].${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TH>';}
+        {$table .= '<TH '.$colspan.'scope = "row" style = "'.$allcellcss.$headercss.$columnscss->[$j].$midrulecss.$midrulescss.$rowcss[$i].${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TH>';}
         elsif (uc(${$dataref->[$i][$j]}{header}) eq 'TD')
-        {$table .= '<TD style = "'.$allcellcss.$datacss.$columnscss->[$j].$midrulecss.$midrulescss.$rowcss[$i].${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TD>';}
+        {$table .= '<TD '.$colspan.'style = "'.$allcellcss.$datacss.$columnscss->[$j].$midrulecss.$midrulescss.$rowcss[$i].${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TD>';}
         elsif (uc($headerrow[$i]) == 1)
-        {$table .= '<TH scope = "col" style = "'.$allcellcss.$headercss.$columnscss->[$j].$midrulecss.$midrulescss.$rowcss[$i].${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TH>';}
-        else {$table .= '<TD style = "'.$allcellcss.$datacss.$columnscss->[$j].$midrulecss.$midrulescss.$rowcss[$i].${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TD>';}
+        {$table .= '<TH '.$colspan.'scope = "col" style = "'.$allcellcss.$headercss.$columnscss->[$j].$midrulecss.$midrulescss.$rowcss[$i].${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TH>';}
+        else {$table .= '<TD '.$colspan.'style = "'.$allcellcss.$datacss.$columnscss->[$j].$midrulecss.$midrulescss.$rowcss[$i].${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TD>';}
       }
     $table .= "</TR>";
     if ($headerrow[$i] == 1) {$table .= '</THEAD>';} 
@@ -464,6 +540,24 @@ sub DataTable {
      $table .= "</SECTION>";
    };
 
+  #when \multicolumn{}{}{} is needed...
+  for my $i (0..$#{$dataref})
+    {
+      for my $j (0..$numcols[$i])
+        {
+          if ((${$dataref->[$i][$j]}{halign} ne '') or (${$dataref->[$i][$j]}{colspan} ne ''))
+            {
+              ${$dataref->[$i][$j]}{multicolumn} = '\multicolumn{';
+              if (${$dataref->[$i][$j]}{colspan} ne '') {${$dataref->[$i][$j]}{multicolumn} .= ${$dataref->[$i][$j]}{colspan}}
+              else {${$dataref->[$i][$j]}{multicolumn} .= '1'};
+              ${$dataref->[$i][$j]}{multicolumn} .= '}{';
+              if (${$dataref->[$i][$j]}{halign} ne '') {${$dataref->[$i][$j]}{multicolumn} .= ${$dataref->[$i][$j]}{halign}}
+              else {${$dataref->[$i][$j]}{multicolumn} .= 'c'};
+              ${$dataref->[$i][$j]}{multicolumn} .= '}{';
+            };
+         };
+    };  
+
    my $textable = '';
    # build tex string for the table 
     if ($options{LaYoUt} != 1)
@@ -478,8 +572,10 @@ sub DataTable {
        if ($rowcolor[$i] ne '') {$textable .= '\rowcolor'.$rowcolor[$i];};
        for my $j (0..$numcols[$i])
         {if (uc(${$dataref->[$i][$j]}{header}) ~~ ['TH','CH','COLUMN','COL','RH','ROW']) {${$dataref->[$i][$j]}{tex} = '\bfseries '.${$dataref->[$i][$j]}{tex}};
-        if ($headerrow[$i] == 1) {$textable .= '\bfseries '};
+        if (${$dataref->[$i][$j]}{multicolumn} ne '') {$textable .= ${$dataref->[$i][$j]}{multicolumn}};
+        if (($headerrow[$i] == 1) and !(uc(${$dataref->[$i][$j]}{header}) ~~ ['TD'])) {$textable .= '\bfseries '};
         $textable .= ${$dataref->[$i][$j]}{tex}.' '.${$dataref->[$i][$j]}{texpre}.' '.${$dataref->[$i][$j]}{data}.' '.${$dataref->[$i][$j]}{texpost};
+        if (${$dataref->[$i][$j]}{multicolumn} ne '') {$textable .= '}'};
         $textable .= '&' unless ($j == $numcols[$i]);
         };
       $textable .= '\\\\';
@@ -519,7 +615,6 @@ sub DataTable {
 }
 
 =pod
-
  #
  #  Command for table to control layout
  #
@@ -528,13 +623,41 @@ sub DataTable {
  #    Anything having to do with headers, captions, and data cells no longer make sense (although 'data' is still
  #    used as the key for cell contents).
  #
-
-
 =cut
 
 sub LayoutTable {
   my $dataref = shift;
   DataTable($dataref,LaYoUt=>1,@_);
 }
+
+
+sub TeX_Alignment_to_CSS {
+   my $alignmentstring = shift;
+   my $bracesregex = qr/(\{(?>[^{}]|(?R))*\})/x;
+     # grabs outer level braces and their contents, including inner brace pairs
+   my $bracecontentsregex = qr/((?>[^{}]|(??{$bracesregex}))*)/x;
+     # grabs contents of an outer level brace pair, including inner brace pairs
+
+   my $css = '';
+    if ($alignmentstring =~ /r\s*/)
+      {$css .= "text-align:right; white-space:nowrap; ";
+      }
+    elsif ($alignmentstring =~ /c\s*/)
+      {$css .= "text-align:center; white-space:nowrap; ";
+      }
+    elsif ($alignmentstring =~ /l\s*/)
+      {$css .= "text-align:left; white-space:nowrap; ";
+      }
+    elsif ($alignmentstring =~ /X\s*/)
+      {$css .= "text-align:justify; white-space:normal; ";
+      }
+    elsif ($alignmentstring =~ /p\s*\{((??{$bracecontentsregex}))\}\s*/)
+      {
+        $css .= "text-align:justify; white-space:normal; width:".$1."; ";
+      };
+   return $css;
+}
+
+
 
 1;
