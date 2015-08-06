@@ -985,7 +985,13 @@ sub Answer {
       }
       $rule = $ans->$method(@options);
       $rule = PGML::LaTeX($rule) if $item->{hasStar};
-      main::ANS($ans->cmp) unless ref($ans) eq 'MultiAnswer' && $ans->{part} > 1;
+      if (!(ref($ans) eq 'MultiAnswer' && $ans->{part} > 1)) {
+        if (defined($item->{name})) {
+          main::NAMED_ANS($item->{name} => $ans->cmp);
+        } else {
+          main::ANS($ans->cmp);
+        }
+      }
     }
   } else {
     if (defined($item->{name})) {
