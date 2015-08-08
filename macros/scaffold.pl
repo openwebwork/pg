@@ -556,7 +556,7 @@ sub new {
 #    Then check if the section is to be openned, and if so, add it
 #    to the open list of the scaffold.
 #
-#    The P$G_OUTPUT variable holds just the contents of this section,
+#    The $PG_OUTPUT variable holds just the contents of this section,
 #    so we unshift the openning tags onto the front, and push
 #    the closing tags onto the back.  (This is added to the scaffold
 #    output when $scaffold->end_section() is called.)
@@ -564,13 +564,14 @@ sub new {
 sub add_container {
   my $self = shift; my $scaffold = $Scaffold::scaffold;
   my $label = $self->{label};
-  my ($iscorrect,$canopen);
+  my ($iscorrect,$canopen,$isopen);
 
   $iscorrect = $self->{is_correct} = $self->is_correct;
   $canopen   = $self->{can_open}   = $self->can_open;
-  $scaffold->is_open($self) if $self->is_open;
+  $isopen    = $self->is_open;
 
-  splice(@$PG_OUTPUT,0,scalar(@$PG_OUTPUT)) unless $canopen || $iscorrect;
+  $scaffold->is_open($self) if $isopen;
+  splice(@$PG_OUTPUT,0,scalar(@$PG_OUTPUT)) if !($canopen || $iscorrect) || (!$isopen && $Scaffold::isHardcopy);
   unshift(@$PG_OUTPUT,@{main::MODES(
     HTML => [
       '<div class="section-div">',
