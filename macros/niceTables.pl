@@ -129,7 +129,7 @@ sub _niceTables_init {}; # don't reload this file
  #                                      #   you can opt to not apply them on a cell by cell basis
  #        colspan => pos integer        # for cells that span more than one column; when using this, you must set halign for
  #                                      #   the cell too, or else the tex output will just use {c} alignment; this feature may
- #                                      #   not behave as expected for tables tructures, like a two-row table, with 3 columns,
+ #                                      #   not behave as expected for certain structures, like a two-row table, with 3 columns,
  #                                      #   but the first row has colspans 2 and 1 with the second row having colspans 1 and 2
  #                                      # **colspan is supported for DataTable only, not LayoutTable. LayoutTable uses css
  #                                      #   like display:table-cell; to achieve its output, and there is no counterpart to
