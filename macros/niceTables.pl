@@ -547,6 +547,7 @@ sub DataTable {
     {
       for my $j (0..$numcols[$i])
         {
+          ${$dataref->[$i][$j]}{multicolumn} = '';
           if ((${$dataref->[$i][$j]}{halign} ne '') or (${$dataref->[$i][$j]}{colspan} ne ''))
             {
               ${$dataref->[$i][$j]}{multicolumn} = '\multicolumn{';
@@ -598,7 +599,9 @@ sub DataTable {
         {if ($rowcolor[$i] ne '') {$textable .= '\rowcolor'.$rowcolor[$i];};
          for my $j (0..$numcols[$i])
          {
+           if (${$dataref->[$i][$j]}{halign} ne '') {$textable .= '\multicolumn{1}{'.${$dataref->[$i][$j]}{halign}.'}{'};
            $textable .= ${$dataref->[$i][$j]}{tex}.' '.${$dataref->[$i][$j]}{texpre}.' '.${$dataref->[$i][$j]}{data}.' '.${$dataref->[$i][$j]}{texpost};
+           if (${$dataref->[$i][$j]}{halign} ne '') {$textable .= '}'};
            $textable .= '&' unless ($j == $numcols[$i]);
          };
        $textable .= '\\\\';
