@@ -261,6 +261,7 @@ sub make_alias {
 	} elsif (   $ext eq 'gif'  
 		     or $ext eq 'jpg' 
 		     or $ext eq 'png'
+		     or $ext eq 'pdf'
 		    ) {
 		if ($displayMode =~ /^HTML/ ) {
 			################################################################################
@@ -290,14 +291,14 @@ sub make_alias {
 			die "Error in alias: PGalias.pm: unrecognizable displayMode = $displayMode";
 		}
 	
-	} elsif ($ext eq 'pdf') {
-		if ($displayMode =~/HTML/) {
-			$self->warning_message("The image $aux_file_id of type pdf cannot yet be displayed in HTML mode");
-		} elsif ($displayMode eq 'TeX') {
-			$adr_output=$self->alias_for_image_in_tex_mode($aux_file_id, $ext);
-		} else {
-			die "Error in alias: PGalias.pm: unrecognizable displayMode = $displayMode";
-		}
+	#} elsif ($ext eq 'pdf') {
+	#	if ($displayMode =~/HTML/) {
+	#		$self->warning_message("The image $aux_file_id of type pdf cannot yet be displayed in HTML mode");
+	#	} elsif ($displayMode eq 'TeX') {
+	#		$adr_output=$self->alias_for_image_in_tex_mode($aux_file_id, $ext);
+	#	} else {
+	#		die "Error in alias: PGalias.pm: unrecognizable displayMode = $displayMode";
+	#	}
 	
 	} else { # $ext is not recognized
 		################################################################################
