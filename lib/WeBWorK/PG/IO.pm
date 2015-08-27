@@ -7,6 +7,12 @@ package WeBWorK::PG::IO;
 use parent qw(Exporter);
 use JSON qw(decode_json);
 use PGUtil qw(not_null);
+use WeBWorK::Utils qw(path_is_subdir);
+use WeBWorK::CourseEnvironment;
+
+my $CE = new WeBWorK::CourseEnvironment({
+    webwork_dir => $ENV{WEBWORK_ROOT},
+					});
 =head1 NAME
 
 WeBWorK::PG::IO - Private functions used by WeBWorK::PG::Translator for file IO.
@@ -27,9 +33,19 @@ BEGIN {
 		directoryFromPath
 		createFile
 		createDirectory
+                path_is_course_subdir
 	);
 
-	our %SHARE = map { $_ => __PACKAGE__ } @EXPORT;
+	our @SHARED_FUNCTIONS = qw(
+                includePGtext
+                read_whole_problem_file
+                convertPath
+                fileFromPath
+                directoryFromPath
+                createDirectory
+        );
+
+	our %SHARE = map { $_ => __PACKAGE__ } @SHARED_FUNCTIONS;
 	my $ww_version = "2.x";  # hack -- only WW2 versions are supported.
 	if (defined $ww_version) {
 		my $mod;
@@ -115,6 +131,10 @@ sub read_whole_problem_file {
 
 sub read_whole_file {
 	my $filePath = shift;
+
+	die "File path $filePath is unsafe." 
+	    unless path_is_course_subdir($filePath);
+	
 	local (*INPUT);
 	open(INPUT, "<$filePath") || die "$0: read_whole_file subroutine: <BR>Can't read file $filePath";
 	local($/)=undef;
@@ -175,6 +195,9 @@ Creates a file with the given name, permission bits, and group ID.
 
 sub createFile {
 	my ($fileName, $permission, $numgid) = @_;
+
+	die 'Path is unsafe' unless path_is_course_subdir($fileName);
+
 	open(TEMPCREATEFILE, ">$fileName")
 		or die "Can't open $fileName: $!";
 	my @stat = stat TEMPCREATEFILE;
@@ -198,6 +221,7 @@ Creates a directory with the given name, permission bits, and group ID.
 
 sub createDirectory {
 	my ($dirName, $permission, $numgid) = @_;
+
 	$permission = (defined($permission)) ? $permission : '0770';
 	# FIXME -- find out where the permission is supposed to be defined
 	my $errors = '';
@@ -216,6 +240,18 @@ sub createDirectory {
 		return 1;
 	}
 }
+
+=item path_is_course_subdir($path)
+
+Checks to see if the given path is a sub directory of the courses directory
+
+=cut
+
+sub path_is_course_subdir {
+    
+    return path_is_subdir(shift,$CE->{webwork_courses_dir},1);
+}
+
 #
 # isolate the call to the sage server in case we have to jazz it up
 #
