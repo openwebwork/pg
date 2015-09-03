@@ -141,7 +141,6 @@ sub loadMacros {
    
     while (@files) {
         $fileName = shift @files;
-        $fileName = WeBWorK::PG::IO::fileFromPath($fileName);
 
         next  if ($fileName =~ /^PG.pl$/) ;    # the PG.pl macro package is already loaded.
 
