@@ -141,9 +141,10 @@ sub loadMacros {
    
     while (@files) {
         $fileName = shift @files;
-        $fileName = WeBWorK::PG::IO::fileFromPath($fileName);
 
-        next  if ($fileName =~ /^PG.pl$/) ;    # the PG.pl macro package is already loaded.
+        next  if ($fileName =~ /^PG\.pl$/) ;    # the PG.pl macro package is already loaded.
+
+	next unless ($fileName =~ /\.(pl|pg)$/); # dont try to parse files without macro extensions
 
         my $macro_file_name = $fileName;
 	$macro_file_name =~s/\.pl//;  # trim off the extension
