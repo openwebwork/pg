@@ -221,7 +221,7 @@ sub cmp_equal {
     $self->context->clearError();
     my $equal = $correct->cmp_compare($student,$ans);
     if ($self->context->{error}{flag} != $CMP_MESSAGE &&
-        (defined($equal) || !$ans->{showEqualErrors})) {$ans->score(1) if $equal; return}
+        (defined($equal) || !$ans->{showEqualErrors})) {$ans->score(0+$equal) if $equal; return}
     $self->cmp_error($ans);
   } else {
     return if $ans->{ignoreStrings} && (!Value::isValue($student) || $student->type eq 'String');
