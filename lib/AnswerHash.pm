@@ -256,6 +256,7 @@ sub score {
 
 sub stringify_hash {
   my $self = shift;
+  Parser::Context->current(undef,$self->{correct_value}->context) if $self->{correct_value};
   foreach my $key (keys %$self) {
     $self->{$key} = "$self->{$key}" if ref($self->{$key});
   }
