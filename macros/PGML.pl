@@ -504,7 +504,9 @@ sub terminateGetString {
 
 sub terminateBalance {
   my $self = shift; my $token = shift;
-  my $block = $self->{block}; my $stackString = $self->stackString;
+  my $block = $self->{block};
+  if (!$block->{stack} || scalar(@{$block->{stack}}) == 0) {$self->Text("",1)}
+  my $stackString = $self->stackString;
   $self->{block} = $block->{prev}; $self->{block}->popItem;
   if ($block->{token} eq '"' || $block->{token} eq "'") {
     $self->Item("quote",$block->{token});
@@ -726,7 +728,7 @@ sub popItem {
 sub combineTopItems {
   my $self = shift; my $i = shift; $i = -1 unless defined $i;
   my $top = $self->topItem($i); my $prev = $self->topItem($i-1); my $par;
-  if ($prev->{type} eq 'par' && $top->{combine}{par}) {$par = $prev; $prev = $self->topItem($i-2)}
+  for (my $j = $i-1; $prev->{type} eq 'par' && $top->{combine}{par}; $j--) {$par = $prev; $prev = $self->topItem($j)}
   my $id = $top->{combine}{$prev->{type}}; my $value; my $inside = 0;
   if ($id) {
     if (ref($id) eq 'HASH') {($id,$value) = %$id; $inside = 1} else {$value = $prev->{$id}}
@@ -1323,7 +1325,7 @@ sub Format {
   } else {
     $format = '<div class="PGML">'."\n".PGML::Format::html->new($parser)->format.'</div>'."\n";
   }
-  warn join("\n","==================","Errors parsing PGML:",@warnings,"==================\n") if scalar(@warnings);
+  main::WARN_MESSAGE("==================","Errors parsing PGML:",@warnings,"==================") if scalar(@warnings);
   return $format;
 }
 
