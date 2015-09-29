@@ -1730,7 +1730,7 @@ sub cmp_postfilter {
 	and $ans->{prev_ans} ne $ans->{original_student_ans}) # but not identical
       {$ans->{ans_message} = "This answer is equivalent to the one you just submitted."}
   }
-  Parser::Context->current($current);
+  Parser::Context->current(undef,$current);
   return $ans;
 }
 
