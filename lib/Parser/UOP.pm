@@ -201,7 +201,7 @@ sub TeX {
   my $fracparens = ($uop->{nofractionparens}) ? "nofractions" : "";
   my $extraParens = $self->context->flag('showExtraParens');
   my $addparens = ((defined($precedence) && $precedence >= $uop->{precedence}) ||
-                    $position eq 'right' || $outerRight) && $extraParens;
+                    $position eq 'right' || $outerRight) && ($extraParens || $showparens eq "UOP");
   $TeX = (defined($uop->{TeX}) ? $uop->{TeX} : $uop->{string});
   if ($uop->{associativity} eq "right") {
     $TeX = $self->{op}->TeX($uop->{precedence},$fracparens) . $TeX;
