@@ -117,7 +117,6 @@ sub cmp_parse {
   #
   #  Do some setup
   #
-  my $current = Value->context; # save it for later
   my $context = $ans->{correct_value}{context} || $current;
   Parser::Context->current(undef,$context); # change to correct answser's context
   my $flags = contextSet($context,$self->cmp_contextFlags($ans)); # save old context flags
@@ -172,7 +171,6 @@ sub cmp_parse {
   }
   $context->{answerHash} = undef;
   contextSet($context,%{$flags});            # restore context values
-  Parser::Context->current(undef,$current);  # put back the old context
   return $ans;
 }
 
@@ -1716,7 +1714,7 @@ sub cmp_postfilter {
   $ans->{_filter_name} = "produce_equivalence_message";
   return $ans if $ans->{ans_message}; # don't overwrite other messages
   return $ans unless defined($ans->{prev_ans}); # if prefilters are erased, don't do this check
-  my $current = Parser::Context->current(); my $context = $self->context;
+  my $context = $self->context;
   Parser::Context->current(undef,$context);
   $ans->{prev_formula} = Parser::Formula($ans->{prev_ans});
   if (defined($ans->{prev_formula}) && defined($ans->{student_formula})) {
@@ -1730,7 +1728,6 @@ sub cmp_postfilter {
 	and $ans->{prev_ans} ne $ans->{original_student_ans}) # but not identical
       {$ans->{ans_message} = "This answer is equivalent to the one you just submitted."}
   }
-  Parser::Context->current(undef,$current);
   return $ans;
 }
 
