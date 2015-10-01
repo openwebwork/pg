@@ -100,7 +100,8 @@ sub initialize {
 	$self->{externalGif2EpsPath} = $envir->{externalGif2EpsPath};
 	$self->{externalPng2EpsPath} = $envir->{externalPng2EpsPath};
 	$self->{externalGif2PngPath} = $envir->{externalGif2PngPath};
-	$self->{courseID}            = $envir->{courseName};	
+	$self->{courseID}            = $envir->{courseName};
+	$self->{problemSeed}         = $envir->{problemSeed};
 	
 	$self->{appletPath} = $self->{envir}->{pgDirectories}->{appletPath};
 	#
@@ -110,13 +111,14 @@ sub initialize {
 	
 	$self->{ext}      = "";
 
-	my $unique_id_seed = join("-",   
-							   $self->{studentLogin},
-							   $self->{psvn},
-							   $self->{courseID},
-							   'set'.$self->{setNumber},
-							   'prob'.$self->{probNum},
-	);
+	my $unique_id_seed = join("-",
+				  $self->{studentLogin},
+				  $self->{psvn},
+				  $self->{courseID},
+				  'set'.$self->{setNumber},
+				  'prob'.$self->{probNum},
+				  $self->{problemSeed}
+				 );
 
 ##################################
 # Cached vs. uncached uuid's -- or should the uuid be unique to each file/psvn/login, but always the same?
