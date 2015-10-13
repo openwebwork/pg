@@ -199,7 +199,7 @@ sub new {
 	&surePathToTmpFile
 	&fileFromPath
 	&directoryFromPath
-	&includePGtext
+	#&includePGtext
 	&PG_answer_eval
 	&PG_restricted_eval
 	&send_mail_to
@@ -234,7 +234,7 @@ The macros shared with the safe compartment are
 	'&send_mail_to'
 	'&PGsort'
 	'&dumpvar'
-	'&includePGtext'
+	#'&includePGtext'
 
 =cut
 
@@ -1591,10 +1591,7 @@ sub PGsort {
 
 	includePGtext($string_ref, $envir_ref)
 
-Calls C<createPGtext> recursively with the $safeCompartment variable set to 0
-so that the rendering continues in the current safe compartment.  The output
-is the same as the output from createPGtext. This is used in processing
-some of the sample CAPA files.
+This is now defined in PG::IO.pm
 
 =cut
 

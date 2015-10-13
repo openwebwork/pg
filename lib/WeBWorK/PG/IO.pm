@@ -85,7 +85,8 @@ contains the function.
 =item includePGtext($string_ref, $envir_ref)
 
 
-This is used in processing some of the sample CAPA files and in creating aliases to redirect calls to duplicate problems so that 
+This is used in processing some of the sample CAPA files and 
+in creating aliases to redirect calls to duplicate problems so that 
 they go to the original problem instead.  It is called by includePGproblem.
 
 It reads and evaluates the string in the same way that the Translator evaluates the string in a PG file.
