@@ -65,7 +65,7 @@ sub CAPA_import {
 
 	$main::envir{'probFileName'} = $filePath;
 	$main::envir{'fileName'} = $filePath;
-	includePGtext($r_string); # the 0 prevents  a new Safe compartment from being used
+	includePGtext($r_string); 
 	%main::envir = %save_envir;
 }
 
