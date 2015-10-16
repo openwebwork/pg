@@ -102,6 +102,7 @@ sub includePGtext  {
 #	$evalString =~ s/~~/\\/g;   # use ~~ as escape instead, use # for comments
 	no strict;
 	$evalString = eval( q! &{$main::PREPROCESS_CODE}($evalString) !); 
+	$evalString = $evalString||'';
 	# current preprocessing code passed from Translator (see Translator::initialization)
 	my $errors = $@;
 	eval("package main; $evalString") ;
@@ -131,7 +132,8 @@ sub read_whole_problem_file {
 
 sub read_whole_file {
 	my $filePath = shift;
-
+	warn "Can't read file $filePath<br/>" unless -r $filePath;
+	return "" unless -r $filePath;
 	die "File path $filePath is unsafe." 
 	    unless path_is_course_subdir($filePath);
 	
