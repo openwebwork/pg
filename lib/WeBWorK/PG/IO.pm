@@ -133,7 +133,7 @@ sub read_whole_problem_file {
 
 sub read_whole_file {
 	my $filePath = shift;
-	warn "<br/>Can't read file $filePath<br/>" unless -r $filePath;
+	warn "Can't read file $filePath<br/>" unless -r $filePath;
 	return "" unless -r $filePath;
 	die "File path $filePath is unsafe." 
 	    unless path_is_course_subdir($filePath);
