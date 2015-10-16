@@ -275,6 +275,8 @@ sub getVariables {
 #
 sub string {
   my ($self,$precedence,$showparens,$position,$outerRight,$power) = @_;
+  $showparens = $showparens//'';
+  $power = $power//'';
   my $string; my $fn = $self->{equation}{context}{operators}{'fn'};
   my @pstr = (); my $fn_precedence = $fn->{precedence};
   $fn_precedence = $fn->{parenPrecedence} if $fn->{parenPrecedence};
@@ -292,6 +294,8 @@ sub string {
 #
 sub TeX {
   my ($self,$precedence,$showparens,$position,$outerRight,$power) = @_;
+  $showparens = $showparens//''; 
+  $power      = $power//''; 
   my $TeX; my $fn = $self->{equation}{context}{operators}{'fn'};
   my @pstr = (); my $fn_precedence = $fn->{precedence};
   $fn_precedence = $fn->{parenPrecedence} if $fn->{parenPrecedence};
@@ -313,6 +317,7 @@ sub TeX {
 #
 sub perl {
   my $self = shift; my $parens = shift;
+  $parens = $parens//0;
   my $fn = $self->{def}; my @p = (); my $perl;
   foreach my $x (@{$self->{params}}) {push(@p,$x->perl)}
   if ($fn->{perl}) {$perl = $fn->{perl}.'('.join(',',@p).')'}

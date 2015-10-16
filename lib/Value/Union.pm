@@ -326,7 +326,7 @@ sub pdot {
 }
 
 sub string {
-  my $self = shift; my $equation = shift; shift; shift; my $prec = shift;
+  my $self = shift; my $equation = shift; shift; shift; my $prec = shift//0;
   my $op = ($equation->{context} || $self->context)->{operators}{'U'};
   my @intervals = ();
   foreach my $x (@{$self->data}) {

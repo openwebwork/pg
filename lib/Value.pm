@@ -302,7 +302,7 @@ sub isContext {my $symbol = shift ||""; class($symbol) eq 'Context'}
 sub isFormula {classMatch(shift,'Formula')}
 sub isParser  {my $v = shift; isBlessed($v) && $v->isa('Parser::Item')}
 sub isValue {
-  my $v = shift;
+  my $v = shift//''; 
   return (ref($v) || $v) =~ m/^Value::/ || (isHash($v) && $v->{isValue}) || isa($v,'Value');
 }
 
@@ -352,7 +352,7 @@ sub Package {(shift)->context->Package(@_)}
 sub classMatch {
   my $self = shift;
   return $self->classMatch(@_) if Value->subclassed($self,"classMatch");
-  my $class = class($self); my $ref = ref($self);
+  my $class = class($self)//''; my $ref = ref($self);
   my $isHash = ($ref && $ref ne 'ARRAY' && $ref ne 'CODE');
   my $context = ($isHash ? $self->{context} || Value->context : Value->context);
   foreach my $name (@_) {
@@ -887,6 +887,7 @@ sub compare_string {
   my ($l,$r,$flag) = @_;
   $l = $l->string; $r = $r->string if Value::isValue($r);
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
+  return undef unless defined $l; 
   return $l cmp $r;
 }
 
@@ -898,7 +899,7 @@ sub transferFlags {
   foreach my $flag (@_) {
     next unless defined $self->{$flag};
     foreach my $x (@{$self->{data}}) {
-      if ($x->{$flag} ne $self->{$flag}) {
+      if (defined($self->{$flag}) && ( ($x->{$flag}//'') ne $self->{$flag} )) {
 	$x->{$flag} = $self->{$flag};
 	$x->transferFlags($flag);
       }
@@ -1006,7 +1007,7 @@ sub TeX {
 #  For perl, call the appropriate constructor around the object's data
 #
 sub perl {
-  my $self = shift; my $parens = shift; my $matrix = shift;
+  my $self = shift; my $parens = shift//0; my $matrix = shift;
   my $mtype = $self->classMatch('Matrix'); $mtype = -1 if $mtype & !$matrix;
   my $perl; my @p = ();
   foreach my $x (@{$self->data}) {

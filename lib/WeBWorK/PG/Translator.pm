@@ -1040,7 +1040,7 @@ the errors.
                 push(@PROBLEM_TEXT_OUTPUT  ,"\n-----<br/></pre>\r\n");
 
         } elsif ($self -> {errors}) {
-        		warn "ERRORS in rendering problem: ". $self->{envir} ->{'probNum'}. " ". $self -> {errors};
+        		warn "ERRORS in rendering problem: ". $self->{envir} ->{'probNum'}. " |".($self->{envir}->{'probFileName'})."| ". $self -> {errors};
                 push(@PROBLEM_TEXT_OUTPUT   ,  qq!\n<A NAME="problem! .
                     $self->{envir} ->{'probNum'} .
                     qq!"><pre>        Problem !.
@@ -1717,7 +1717,7 @@ sub PG_answer_eval {
 # 	$evalString;
 # }
 sub default_preprocess_code {
-	my $evalString = shift;
+	my $evalString = shift//'';
 	# BEGIN_TEXT and END_TEXT must occur on a line by themselves.
 	$evalString =~ s/\n\s*END_TEXT[\s;]*\n/\nEND_TEXT\n/g;
 	$evalString =~ s/\n\s*END_PGML[\s;]*\n/\nEND_PGML\n/g;
