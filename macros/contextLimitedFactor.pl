@@ -26,15 +26,11 @@ sub _contextLimitedFactor_init {
   my $context = $main::context{LimitedFactor} = Parser::Context->getCopy("Numeric");
   $context->operators->set(
      '+'  => {class => 'bizarro::BOP::add', isCommand => 1},
-     ' +' => {class => 'bizarro::BOP::add', isCommand => 1},
-     '+ ' => {class => 'bizarro::BOP::add', isCommand => 1},
      '-'  => {class => 'bizarro::BOP::subtract', isCommand => 1},
-     ' -' => {class => 'bizarro::BOP::subtract', isCommand => 1},
-     '- ' => {class => 'bizarro::BOP::subtract', isCommand => 1},
      '/'  => {class => 'bizarro::BOP::divide', isCommand => 1},
-     ' /' => {class => 'bizarro::BOP::divide', isCommand => 1},
-     '/ ' => {class => 'bizarro::BOP::divide', isCommand => 1},
-     '//' => {class => 'bizarro::BOP::divide', isCommand => 1},
+     ' /'  => {class => 'bizarro::BOP::divide', isCommand => 1},
+     '/ '  => {class => 'bizarro::BOP::divide', isCommand => 1},
+     '//'  => {class => 'bizarro::BOP::divide', isCommand => 1},
   );
 
   $context->flags->set(factorableObject => 'polynomial');

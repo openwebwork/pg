@@ -104,15 +104,48 @@ sub new {
 #
 #  Create the menu list
 #
-sub menu {
-  my $self = shift;
-  main::pop_up_list($self->{choices});
+sub menu {shift->MENU(0,@_)}
+sub MENU {
+  my $self = shift; my $extend = shift; my $name = shift;
+  my $list = $self->{choices}; my $menu = "";
+  $name = main::NEW_ANS_NAME() unless $name;
+  my $answer_value = (defined($main::inputs_ref->{$name}) ? $main::inputs_ref->{$name} : '');
+  my $label = main::generate_aria_label($name);
+  if ($main::displayMode =~ m/^HTML/) {
+    $menu = qq!<SELECT class="pg-select" NAME="$name" id="$name" aria-label="$label" SIZE=1>\n!;
+    foreach my $option (@$list) {
+      my $selected = ($option eq $answer_value) ? " SELECTED" : "";
+      $menu .= qq!<OPTION$selected VALUE="$option">$option</OPTION>\n!;
+    };
+    $menu .= "</SELECT>";
+  } elsif ($main::displayMode eq "TeX") {
+      # if the total number of characters is not more than 
+      # 30 and not containing / or ] then we print out
+      # the select as a string: [A/B/C]
+      if (length(join('',@$list)) < 25 &&
+	  !grep(/(\/|\[|\])/,@$list)) {
+	  
+	  $menu = '['.join('/',@$list).']';
+      } else {
+	  #otherwise we print a bulleted list
+	  $menu = '\par\vtop{\def\item#1{\hbox{\indent\strut\textbullet\ #1}}';
+	  $menu = "\n".$menu."\n";
+	  foreach my $option (@$list) {
+	      $menu .= "\\item{$option}\n";
+	  }
+	  $menu .= '\vskip3pt}'."\n";
+      }
+  }
+  main::RECORD_ANS_NAME($name,$answer_value) unless $extend;   # record answer name
+  $menu;
 }
 
 #
 #  Answer rule is the menu list
 #
-sub ans_rule {shift->menu(@_)}
+sub ans_rule {shift->MENU(0,'',@_)}
+sub named_ans_rule {shift->MENU(0,@_)}
+sub named_ans_rule_extension {shift->MENU(1,@_)}
 
 ##################################################
 #

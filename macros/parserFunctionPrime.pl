@@ -69,7 +69,7 @@ sub _parserFunctionPrime_init {}; # don't reload this file
 #  The package that will manage function primes
 #
 package parser::FunctionPrime;
-our @ISA = qw(Parser::Function);
+our @ISA = ('parserFunction');
 
 
 =head2 parser::FunctionPrime->Enable($context)
@@ -102,7 +102,7 @@ context (or if no context is given, in the current context).
 sub Disable {
   my $self = shift;
   my $context = shift || main::Context();
-  delete $context->{_functions}{patterns}{qr/[a-z][a-z0-9]*'+/i};
+  delete $context->{_functions}{patterns}{qr/[a-z][a-z0-9]*+/i};
   $context->{_functions}->update;
   $context->{parser}{Function} = "Parser::Function";
 }

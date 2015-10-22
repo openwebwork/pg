@@ -98,6 +98,8 @@ sub  NAMED_ESSAY_BOX {
 	my $answer_value = '';
 	$answer_value = $inputs_ref->{$name} if defined( $inputs_ref->{$name} );
 	$name = RECORD_ANS_NAME($name, $answer_value);
+
+	my $label = generate_aria_label($name);
 #	$answer_value =~ tr/$@//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 
 	#### Answer Value needs to have special characters replaced by the html codes
@@ -111,7 +113,7 @@ sub  NAMED_ESSAY_BOX {
 	     TeX => qq!\\vskip $height in \\hrulefill\\quad !,
 	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col" >$answer_value</TEXTAREA>\\end{rawhtml}!,
 	    HTML => qq!
-         <TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col" class="latexentryfield"
+         <TEXTAREA NAME="$name" id="$name" aria-label="$label" ROWS="$row" COLS="$col" class="latexentryfield"
                WRAP="VIRTUAL" title="Enclose math expressions with backticks or use LaTeX.">$answer_value</TEXTAREA>
            <INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">
            !

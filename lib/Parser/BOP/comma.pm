@@ -40,7 +40,7 @@ sub _eval {($_[1],$_[2])}
 #
 sub makeList {
   my $self = shift;
-  return $self unless ($self->{def}{isComma});
+  return $self unless $self->{def}{isComma};
   return ($self->{lop}->makeList,$self->{rop}->makeList);
 }
 

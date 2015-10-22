@@ -566,7 +566,7 @@ sub encode_base64 ($;$) {
 sub encode_pg_and_html {
     my $input = shift;
     $input = HTML::Entities::encode_entities($input,
-		   '<>"&\'\$\@\\\\`\\[*_\x00-\x1F\x7F-\xFF');
+		   '<>"&\'\$\@\\\\`\\[*_\x00-\x1F\x7F');
     return $input;
 }
 
@@ -574,7 +574,7 @@ sub encode_pg_and_html {
 
 There are three message channels
 	$PG->debug_message()   or in PG:  DEBUG_MESSAGE() 
-	$PG->warning_message() or in PG:  WARNING_MESSAGE()
+	$PG->warning_message() or in PG:  WARN_MESSAGE()
 	
 They behave the same way, it is simply convention as to how they are used.
 	
@@ -750,7 +750,10 @@ sub createDirectory {
  };
 sub AskSage {
 	my $self = shift;
-	WeBWorK::PG::IO::AskSage(@_);
+	my $python = shift;
+	my $options = shift;
+	$options->{curlCommand} = $self->{envir}->{externalCurlCommand};
+	WeBWorK::PG::IO::AskSage($python, $options);
 }
  
 sub tempDirectory {
