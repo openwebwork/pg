@@ -44,7 +44,7 @@ sub new {
 	my $self = {
 	    ans_label => $label,
 		ans_eval  => undef,                         # usually an AnswerEvaluator, sometimes a CODE
-		response  => new PGresponsegroup($label),    # A PGresponse object which holds the responses 
+		response  => new PGresponsegroup($label),   # A PGresponse object which holds the responses 
 		                                            # which make up the answer
 		active    => 1,                             # whether this answer group is currently active (for multistate problems)
 
