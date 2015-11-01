@@ -367,8 +367,9 @@ sub ENDDOCUMENT {
     
 	
 	
-	@PG_ANSWERS=();
-
+	#@PG_ANSWERS=();
+	%PG_ANSWERS_HASH=();
+	
 	#warn keys %{ $PG->{PG_ANSWERS_HASH} };
 	@PG_ANSWER_ENTRY_ORDER = ();
 	my $ans_debug = 0;
@@ -391,7 +392,8 @@ sub ENDDOCUMENT {
 	            # this is still a KLUDGE
 	            # for compatibility the first response key is closer to the old method than the $ans_label
 	            # this is because a response key might indicate an array but an answer label won't
-	            push @PG_ANSWERS, $response_key,$answergroup->{ans_eval};
+	            #push @PG_ANSWERS, $response_key,$answergroup->{ans_eval};
+	            $PG_ANSWERS_HASH{$response_key} = $answergroup->{ans_eval};
 	            push @PG_ANSWER_ENTRY_ORDER, $response_key;
 	            push @KEPT_EXTRA_ANSWERS, @response_keys;
 			} else {
@@ -399,7 +401,7 @@ sub ENDDOCUMENT {
 			}
 	}
 	push @KEPT_EXTRA_ANSWERS, keys %{$PG->{PERSISTENCE_HASH}};
-	my %PG_ANSWERS_HASH = @PG_ANSWERS;
+	#%PG_ANSWERS_HASH = @PG_ANSWERS;
 	$PG->{flags}->{KEPT_EXTRA_ANSWERS} = \@KEPT_EXTRA_ANSWERS;
 	$PG->{flags}->{ANSWER_ENTRY_ORDER} = \@PG_ANSWER_ENTRY_ORDER;
 	
