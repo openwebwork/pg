@@ -461,7 +461,6 @@ sub record_ans_name {      # the labels in the PGanswer group and response group
 	my $value = shift;
 	#$self->internal_debug_message("PGcore::record_ans_name: $label $value");
 	my $response_group = new PGresponsegroup($label,$label,$value);
-	#warn "recording $label $value";
 	#$self->debug_message("adding a response group $response_group");
 	if (ref($self->{PG_ANSWERS_HASH}->{$label})=~/PGanswergroup/ ) {
 		$self->{PG_ANSWERS_HASH}->{$label}->replace(ans_label => $label, 

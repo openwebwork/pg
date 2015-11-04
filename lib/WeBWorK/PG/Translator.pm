@@ -1282,6 +1282,16 @@ sub process_answers{
   	   			$rh_ans_evaluation_result->{$key}." new: ".$new_rh_ans_evaluation_result->{$key}
   	   			unless $rh_ans_evaluation_result->{$key} eq $new_rh_ans_evaluation_result->{$key};
   	   	}
+
+        $self->{safe}->share('$new_rf_fun','$new_temp_ans');
+ 	    my $new_rh_ans_evaluation_result = $self->{safe} ->reval( '$new_rf_fun->evaluate($new_temp_ans, ans_label => \''.$ans_name.'\')' ) ;
+			
+#########################################################	
+ 	    $PG->debug_message("old $ans_name: $temp_ans $rf_fun");
+        $PG->debug_message("new $ans_name: $new_temp_ans $new_rf_fun");
+        
+  	   $PG->debug_message("old",pretty_print($rh_ans_evaluation_result));
+  	   $PG->debug_message("new",pretty_print($new_rh_ans_evaluation_result));
 #########################################################	
 		use strict;
 		unless ( ( ref($rh_ans_evaluation_result) eq 'HASH') or ( ref($rh_ans_evaluation_result) eq 'AnswerHash') ) {
