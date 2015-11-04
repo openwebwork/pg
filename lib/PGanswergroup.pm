@@ -72,6 +72,12 @@ sub ans_eval {
 	$self->{ans_eval}= $ans_eval if ref($ans_eval);
 	$self->{ans_eval};
 }
+sub response_obj {  #this may not be desirable -- perhaps you should always access response object indirectly
+	my $self = shift;
+	my $response_obj = shift;
+	$self->{response}= $response_obj if ref($response_obj);
+	$self->{response};
+}
 sub append_responses { #add or modify a response to the PGresponsegroup object
 	my $self = shift;
 	my @response_list = @_;  # ordered list of label/ value pairs

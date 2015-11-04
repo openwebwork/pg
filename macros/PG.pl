@@ -53,7 +53,7 @@ sub DOCUMENT {
 	
 	my %envir              =   %$rh_envir;
 	$displayMode           = $PG->{displayMode};
-	$PG_random_generator        = $PG->{PG_random_generator};
+	$PG_random_generator   = $PG->{PG_random_generator};
 	# Save the file name for use in error messages
 
 	#no strict;

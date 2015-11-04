@@ -3,13 +3,17 @@
 # $Id$
 ################################################################################
 
+
 package WeBWorK::PG::Translator;
+use parent qw(PGcore);
 
 use strict;
 use warnings;
 use Opcode;
 use WWSafe;
 use Net::SMTP;
+use PGcore;
+use PGUtil qw(pretty_print);
 use WeBWorK::PG::IO  qw(fileFromPath);
 
 #use PadWalker;     # used for processing error messages
@@ -1002,7 +1006,7 @@ the errors.
 =cut
 
 
-        ##########################################
+    ##########################################
 	###### PG error processing code ##########
 	##########################################
         my (@input,$lineNumber,$line);
@@ -1056,6 +1060,7 @@ the errors.
 			$PG_HEADER_TEXT_REF -- Reference to a string containing material to placed in the header (for use by JavaScript)
 			$PG_POST_HEADER_TEXT_REF -- Reference to a string containing material to placed in body above form (for use by Sage)
 			$PG_ANSWER_HASH_REF -- Reference to an array containing the answer evaluators.
+			       constructed from keys of $PGcore->{PG_ANSWERS_HASH}
 			$PG_FLAGS_REF -- Reference to a hash containing flags and other references:
 				'error_flag' is set to 1 if there were errors in rendering
 			$PGcore -- the PGcore object
@@ -1198,7 +1203,8 @@ sub process_answers{
 			? &$outer_sig_die($error)
 			: die $error;
 	};
-	
+ 	my $PG = $self->{rh_pgcore};
+	$PG->debug_message("PG_ANSWERS_HASH keys: ",join(" ", keys %{ $PG->{PG_ANSWERS_HASH} }));
  	# apply each instructors answer to the corresponding student answer
 	
  	foreach my $ans_name ( @answer_entry_order ) {
@@ -1211,10 +1217,22 @@ sub process_answers{
 		} else {
 			warn "There is no answer evaluator for the question labeled $ans_name";
 		}
-		$temp_ans  = $ans;
-		$temp_ans = '' unless defined($temp_ans); #make sure that answer is always defined
+		$temp_ans  = $ans//'';					 # make sure that answer is always defined
 		                                          # in case the answer evaluator forgets to check
 		$self->{safe}->share('$rf_fun','$temp_ans');
+ 	    
+ 	    #HERE is where we can check whether we can use PGcore PGanswergroup and PGresponsegroup 
+ 	    #to evaluate answers 
+ 	    #$PG->{PG_ANSWERS_HASH} has the answers in the answer_entry_order
+ 	    my $answergrp = $PG->{PG_ANSWERS_HASH}->{$ans_name};
+ 	    my $responsegrp = $answergrp->response_obj;
+ 	    #warn("answergrp: ", ref($answergrp), "responsegrp: ", ref($responsegrp),"\n" );
+ 	    PGcore->internal_debug_message("---".($self->{envir}->{'probFileName'})." $ans_name: $temp_ans $rf_fun");
+ 	    PGcore->internal_debug_message("---responsegrp response order: ". join(" ", @{$responsegrp->{response_order}}));
+ 	    PGcore->internal_debug_message ("---$ans_name: ". join(" ", $responsegrp->values)." ".$answergrp->ans_eval);
+ 	    PGcore->internal_debug_message("---$ans_name: response labels: ". join(" ", $responsegrp->response_labels));
+ 	    PGcore->internal_debug_message("---$ans_name: response values: ". join(" ", $responsegrp->values));
+ 	    PGcore->internal_debug_message( "---" );
  	    
  	    # clear %errorTable for each problem
  	    %errorTable = (); # is the error table being used? perhaps by math objects?
@@ -1234,8 +1252,21 @@ sub process_answers{
 						and defined($rh_ans_evaluation_result->error_flag());
 		} else {
 			warn "Error in Translator.pm::process_answers: Answer $ans_name:<br/>\n Unrecognized evaluator type |", ref($rf_fun), "|";
-		}	
-  	    
+		}
+#########################################################	
+		local($new_rf_fun,$new_temp_ans) = (undef,undef);
+        $new_rf_fun = $answergrp->ans_eval;
+        $new_temp_ans = $responsegrp->get_response($ans_name);
+        $self->{safe}->share('$new_rf_fun','$new_temp_ans');
+ 	    my $new_rh_ans_evaluation_result = $self->{safe} ->reval( '$new_rf_fun->evaluate($new_temp_ans, ans_label => \''.$ans_name.'\')' ) ;
+			
+#########################################################	
+ 	    $PG->debug_message("old $ans_name: $temp_ans $rf_fun");
+        $PG->debug_message("new $ans_name: $new_temp_ans $new_rf_fun");
+        
+  	   $PG->debug_message("old",pretty_print($rh_ans_evaluation_result));
+  	   $PG->debug_message("new",pretty_print($new_rh_ans_evaluation_result));
+#########################################################	
 		use strict;
 		unless ( ( ref($rh_ans_evaluation_result) eq 'HASH') or ( ref($rh_ans_evaluation_result) eq 'AnswerHash') ) {
 			warn "Error in Translator.pm::process_answers: Answer $ans_name:<br/>\n

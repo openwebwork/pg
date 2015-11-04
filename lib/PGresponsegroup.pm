@@ -206,7 +206,7 @@ sub values {
 	}
 	@out;
 }
-# synonym for values
+# synonym for values #FIXME?  should this be the content of {responses}?
 sub responses {
     my $self = shift;
 	$self->values(@_);
