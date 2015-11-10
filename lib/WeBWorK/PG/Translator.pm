@@ -1270,8 +1270,8 @@ sub process_answers{
  	    #$PG->debug_message("old $ans_name: $temp_ans $rf_fun");
         #$PG->debug_message("new $ans_name: $new_temp_ans $new_rf_fun");
         
-  	   #$PG->debug_message("old",pretty_print($rh_ans_evaluation_result));
-  	   #$PG->debug_message("new",pretty_print($new_rh_ans_evaluation_result));
+  	   $PG->debug_message("old",pretty_print($rh_ans_evaluation_result));
+  	   $PG->debug_message("new",pretty_print($new_rh_ans_evaluation_result));
   	   foreach my $key (%$rh_ans_evaluation_result) {
   	   		next unless defined $key;
   	   		next unless defined($rh_ans_evaluation_result->{$key});
@@ -1288,7 +1288,7 @@ sub process_answers{
 		}
 		$rh_ans_evaluation_result ->{ans_message} .= "$errors \n" if $errors;
 		$rh_ans_evaluation_result ->{ans_name} = $ans_name;
-		$self->{rh_evaluated_answers}->{$ans_name} = $rh_ans_evaluation_result;
+		$self->{rh_evaluated_answers}->{$ans_name} = $new_rh_ans_evaluation_result;
 	}
 	$self->rh_evaluated_answers;
 }
