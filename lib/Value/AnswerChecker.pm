@@ -652,7 +652,7 @@ sub protectHTML {
 #
 sub preformat {
   my $string = protectHTML(shift);
-  $string = $string//'';
+  return unless defined $string;
   $string =~ s!\n!<br />!g unless eval('$main::displayMode') eq 'TeX';
   $string;
 }
