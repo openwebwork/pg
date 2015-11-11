@@ -199,7 +199,7 @@ sub new {
 	&surePathToTmpFile
 	&fileFromPath
 	&directoryFromPath
-	&includePGtext
+	#&includePGtext
 	&PG_answer_eval
 	&PG_restricted_eval
 	&send_mail_to
@@ -234,7 +234,7 @@ The macros shared with the safe compartment are
 	'&send_mail_to'
 	'&PGsort'
 	'&dumpvar'
-	'&includePGtext'
+	#'&includePGtext'
 
 =cut
 
@@ -1040,7 +1040,7 @@ the errors.
                 push(@PROBLEM_TEXT_OUTPUT  ,"\n-----<br/></pre>\r\n");
 
         } elsif ($self -> {errors}) {
-        		warn "ERRORS in rendering problem: ". $self->{envir} ->{'probNum'}. " ". $self -> {errors};
+        		warn "ERRORS in rendering problem: ". $self->{envir} ->{'probNum'}. " |".($self->{envir}->{'probFileName'})."| ". $self -> {errors};
                 push(@PROBLEM_TEXT_OUTPUT   ,  qq!\n<A NAME="problem! .
                     $self->{envir} ->{'probNum'} .
                     qq!"><pre>        Problem !.
@@ -1591,10 +1591,7 @@ sub PGsort {
 
 	includePGtext($string_ref, $envir_ref)
 
-Calls C<createPGtext> recursively with the $safeCompartment variable set to 0
-so that the rendering continues in the current safe compartment.  The output
-is the same as the output from createPGtext. This is used in processing
-some of the sample CAPA files.
+This is now defined in PG::IO.pm
 
 =cut
 
@@ -1720,7 +1717,7 @@ sub PG_answer_eval {
 # 	$evalString;
 # }
 sub default_preprocess_code {
-	my $evalString = shift;
+	my $evalString = shift//'';
 	# BEGIN_TEXT and END_TEXT must occur on a line by themselves.
 	$evalString =~ s/\n\s*END_TEXT[\s;]*\n/\nEND_TEXT\n/g;
 	$evalString =~ s/\n\s*END_PGML[\s;]*\n/\nEND_PGML\n/g;
