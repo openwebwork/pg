@@ -1256,9 +1256,12 @@ sub process_answers{
 		local($new_rf_fun,$new_temp_ans) = (undef,undef);
         $new_rf_fun = $answergrp->ans_eval;
         $new_temp_ans = $responsegrp->get_response($ans_name);
-        #FIXME -- hack to allow answers such as <4,6,7>
-        $new_temp_ans =~ s/\&lt\;/</g;
-        $new_temp_ans =~ s/\&gt\;/>/g;
+        #FIXME -- hack to allow answers such as <4,6,7>  -- < and > have been escaped. 
+        $new_temp_ans =~ s/\&lt\;/</g; # <
+        $new_temp_ans =~ s/\&gt\;/>/g; # >
+        $new_temp_ans =~ s/\&\#91\;/\[/g; # [
+        $new_temp_ans =~ s/\&\#42\;/\*/g; # *
+        
         #warn "new_temp_ans ", $new_temp_ans ;
         #warn "temp_ans  ", $temp_ans;
         warn $self->{envir}->{'probFileName'}  ." new_temp_ans and temp_ans don't agree: $new_temp_ans  $temp_ans" unless $new_temp_ans eq $temp_ans;
@@ -1270,8 +1273,8 @@ sub process_answers{
  	    #$PG->debug_message("old $ans_name: $temp_ans $rf_fun");
         #$PG->debug_message("new $ans_name: $new_temp_ans $new_rf_fun");
         
-  	   $PG->debug_message("old",pretty_print($rh_ans_evaluation_result));
-  	   $PG->debug_message("new",pretty_print($new_rh_ans_evaluation_result));
+  	   $PG->debug_message("old $temp_ans",pretty_print($rh_ans_evaluation_result));
+  	   $PG->debug_message("new $new_temp_ans",pretty_print($new_rh_ans_evaluation_result));
   	   foreach my $key (%$rh_ans_evaluation_result) {
   	   		next unless defined $key;
   	   		next unless defined($rh_ans_evaluation_result->{$key});
