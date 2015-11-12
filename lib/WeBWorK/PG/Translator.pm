@@ -1203,11 +1203,14 @@ sub process_answers{
 			: die $error;
 	};
  	my $PG = $self->{rh_pgcore};
-	#$PG->debug_message("PG_ANSWERS_HASH keys: ",join(" ", keys %{ $PG->{PG_ANSWERS_HASH} }));
+
  	# apply each instructors answer to the corresponding student answer
+	my $printAnsHash = 1; # this turns on error printing of the answer hashes
 	
+	$PG->debug_message("Student answers are: ", join(" ", %h_student_answers) ) if $printAnsHash==1;
  	foreach my $ans_name ( @answer_entry_order ) {
 		my ($ans, $errors) = $self->filter_answer( $h_student_answers{$ans_name} );
+		$ans = $h_student_answers{$ans_name};
 		no strict;
 		# evaluate the answers inside the safe compartment.
 		local($rf_fun,$temp_ans) = (undef,undef);
@@ -1225,14 +1228,7 @@ sub process_answers{
  	    #$PG->{PG_ANSWERS_HASH} has the answers in the answer_entry_order
  	    my $answergrp = $PG->{PG_ANSWERS_HASH}->{$ans_name};
  	    my $responsegrp = $answergrp->response_obj;
- 	    #warn("answergrp: ", ref($answergrp), "responsegrp: ", ref($responsegrp),"\n" );
- 	    #$PG->debug_message("---".($self->{envir}->{'probFileName'})." $ans_name: $temp_ans $rf_fun");
- 	    #$PG->debug_message("---responsegrp response order: ". join(" ", @{$responsegrp->{response_order}}));
- 	    #$PG->debug_message ("---$ans_name: ". join(" ", $responsegrp->values)." ".$answergrp->ans_eval);
- 	    #$PG->debug_message("---$ans_name: response labels: ". join(" ", $responsegrp->response_labels));
- 	    #$PG->debug_message("---$ans_name: response values: ". join(" ", $responsegrp->values));
- 	    #$PG->debug_message( "---" );
- 	    
+  	    
  	    # clear %errorTable for each problem
  	    %errorTable = (); # is the error table being used? perhaps by math objects?
  	    
@@ -1255,45 +1251,38 @@ sub process_answers{
 #########################################################	
 		local($new_rf_fun,$new_temp_ans) = (undef,undef);
         $new_rf_fun = $answergrp->ans_eval;
+        
         $new_temp_ans = $responsegrp->get_response($ans_name);
+        
         #FIXME -- hack to allow answers such as <4,6,7>  -- < and > have been escaped. 
         $new_temp_ans =~ s/\&lt\;/</g; # <
         $new_temp_ans =~ s/\&gt\;/>/g; # >
         $new_temp_ans =~ s/\&\#91\;/\[/g; # [
         $new_temp_ans =~ s/\&\#42\;/\*/g; # *
-        
-        #warn "new_temp_ans ", $new_temp_ans ;
-        #warn "temp_ans  ", $temp_ans;
-        warn $self->{envir}->{'probFileName'}  ." new_temp_ans and temp_ans don't agree: $new_temp_ans  $temp_ans" unless $new_temp_ans eq $temp_ans;
+ 
+        $PG->debug_message( $self->{envir}->{'probFileName'}  ." new_temp_ans and temp_ans don't agree: $new_temp_ans  $temp_ans") unless $new_temp_ans eq $temp_ans;
         
         $self->{safe}->share('$new_rf_fun','$new_temp_ans');
  	    my $new_rh_ans_evaluation_result = $self->{safe} ->reval( '$new_rf_fun->evaluate($new_temp_ans, ans_label => \''.$ans_name.'\')' ) ;
 
 #########################################################	
- 	    #$PG->debug_message("old $ans_name: $temp_ans $rf_fun");
-        #$PG->debug_message("new $ans_name: $new_temp_ans $new_rf_fun");
-        
-  	   $PG->debug_message("old $temp_ans",pretty_print($rh_ans_evaluation_result));
-  	   $PG->debug_message("new $new_temp_ans",pretty_print($new_rh_ans_evaluation_result));
-  	   foreach my $key (%$rh_ans_evaluation_result) {
+# check that old and new answers are the same
+   	   foreach my $key (%$rh_ans_evaluation_result) {
   	   		next unless defined $key;
   	   		next unless defined($rh_ans_evaluation_result->{$key});
-  	   		warn $self->{envir}->{'probFileName'}  ." '$key' are not the same.  old: ".
-  	   			$rh_ans_evaluation_result->{$key}." new: ".$new_rh_ans_evaluation_result->{$key}
+  	   		$PG->debug_message($self->{envir}->{'probFileName'}  ." '$key' are not the same.  old: ".
+  	   			$rh_ans_evaluation_result->{$key}." new: ".$new_rh_ans_evaluation_result->{$key})
   	   			unless $rh_ans_evaluation_result->{$key} eq $new_rh_ans_evaluation_result->{$key};
   	   	}
-
-        $self->{safe}->share('$new_rf_fun','$new_temp_ans');
- 	    my $new_rh_ans_evaluation_result = $self->{safe} ->reval( '$new_rf_fun->evaluate($new_temp_ans, ans_label => \''.$ans_name.'\')' ) ;
-			
-#########################################################	
- 	    $PG->debug_message("old $ans_name: $temp_ans $rf_fun");
-        $PG->debug_message("new $ans_name: $new_temp_ans $new_rf_fun");
-        
-  	   $PG->debug_message("old",pretty_print($rh_ans_evaluation_result));
-  	   $PG->debug_message("new",pretty_print($new_rh_ans_evaluation_result));
+	
+#########################################################	       
+  	   $PG->debug_message("old $ans_name: $rf_fun -- ans: $temp_ans",pretty_print($rh_ans_evaluation_result)) if $printAnsHash==1;
+  	   $PG->debug_message("new $ans_name: $new_rf_fun -- ans: $new_temp_ans",pretty_print($new_rh_ans_evaluation_result)) if $printAnsHash==1;
 #########################################################	
 		use strict;
+# decide whether to return the new or old answer evaluator hash
+		#$rh_ans_evaluation_result = $new_ans_evaluation_result;
+
 		unless ( ( ref($rh_ans_evaluation_result) eq 'HASH') or ( ref($rh_ans_evaluation_result) eq 'AnswerHash') ) {
 			warn "Error in Translator.pm::process_answers: Answer $ans_name:<br/>\n
 				Answer evaluators must return a hash or an AnswerHash type, not type |", 
@@ -1301,7 +1290,7 @@ sub process_answers{
 		}
 		$rh_ans_evaluation_result ->{ans_message} .= "$errors \n" if $errors;
 		$rh_ans_evaluation_result ->{ans_name} = $ans_name;
-		$self->{rh_evaluated_answers}->{$ans_name} = $new_rh_ans_evaluation_result;
+		$self->{rh_evaluated_answers}->{$ans_name} = $rh_ans_evaluation_result;
 	}
 	$self->rh_evaluated_answers;
 }
