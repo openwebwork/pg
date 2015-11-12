@@ -547,7 +547,7 @@ sub get_student_answer {
 
 =head4  evaluate
 
-	$answer_evaluator->evaluate($student_answer_string
+	$answer_evaluator->evaluate($student_answer_string)
 
 
 =cut
