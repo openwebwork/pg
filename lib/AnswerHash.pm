@@ -502,6 +502,11 @@ sub new {
 	$self->rh_ans(@_);    #initialize answer hash	
 	return $self;
 }
+sub clone {
+    my $self = shift;
+    my $copy = bless { %$self }, ref $self;
+    return $copy;
+}
 
 # dereference_array_ans pretty prints an answer which is stored as an anonymous array.
 sub dereference_array_ans {
