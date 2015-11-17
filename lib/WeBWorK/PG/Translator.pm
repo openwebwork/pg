@@ -1318,7 +1318,10 @@ sub process_answers{
 	
 #########################################################	       
   	   #$PG->debug_message("old $ans_name: $rf_fun -- ans: $temp_ans",pretty_print($rh_ans_evaluation_result)) if $printAnsHash==1;
-  	   $PG->debug_message("new $ans_name: $new_rf_fun -- ans: $new_temp_ans",pretty_print($new_rh_ans_evaluation_result)) if $printAnsHash==1;
+  	   my $envir = $PG->{envir};
+  	   $PG->debug_message("new $ans_name: $new_rf_fun -- ans: 
+  	                      $new_temp_ans",pretty_print($new_rh_ans_evaluation_result)) 
+  	                      if ($envir->{inputs_ref}->{print_answer_hash})//'' and ($envir->{permissionLevel})//0 >=10;
 #########################################################	
 
 # decide whether to return the new or old answer evaluator hash

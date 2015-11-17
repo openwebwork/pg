@@ -383,25 +383,31 @@ sub ENDDOCUMENT {
 	        # The remainder of the response keys are placed in the EXTRA ANSWERS ARRAY
 	        if (defined($answergroup)) {
 	            my @response_keys = $answergroup->{response}->response_labels;
-	            warn pretty_print($answergroup->{response}) if $ans_debug==1;
-	            my $response_key = shift @response_keys;
+	            $PG->debug_message("PG.pl 770: ", pretty_print($answergroup) ) 
+	               if ($inputs_ref->{print_answer_group})//'' and ($rh_envir->{permissionLevel})>= 10;
+	            my $response_key = $response_keys[0];
+	            my $answer_key = $answergroup->{ans_label};
 	            #unshift @response_keys, $response_key unless ($response_key eq $answer_group->{ans_label});
 	            # don't save the first response key if it is the same as the ans_label
 	            # maybe we should insure that the first response key is always the same as the answer label?
+	            warn "first response key label and answer key label don't agree" 
+	                   unless ($response_key eq $answer_key);
+
 	            # even if no answer blank is printed for it? or a hidden answer blank?
 	            # this is still a KLUDGE
 	            # for compatibility the first response key is closer to the old method than the $ans_label
 	            # this is because a response key might indicate an array but an answer label won't
 	            #push @PG_ANSWERS, $response_key,$answergroup->{ans_eval};
-	            $PG_ANSWERS_HASH{$response_key} = $answergroup->{ans_eval};
-	            push @PG_ANSWER_ENTRY_ORDER, $response_key;
+	            $PG_ANSWERS_HASH{$answer_key} = $answergroup->{ans_eval};
+	            push @PG_ANSWER_ENTRY_ORDER, $answer_key;
+	            # @KEPT_EXTRA_ANSWERS could be replaced by saving all of the responses for this answergroup 
 	            push @KEPT_EXTRA_ANSWERS, @response_keys;
 			} else {
-			    #warn "$key is ", join("|",%{$PG->{PG_ANSWERS_HASH}->{$key}});
+			    warn "$key is ", join("|",%{$PG->{PG_ANSWERS_HASH}->{$key}});
 			}
 	}
 	push @KEPT_EXTRA_ANSWERS, keys %{$PG->{PERSISTENCE_HASH}};
-	#%PG_ANSWERS_HASH = @PG_ANSWERS;
+	#Hackish way to store other persistence data
 	$PG->{flags}->{KEPT_EXTRA_ANSWERS} = \@KEPT_EXTRA_ANSWERS;
 	$PG->{flags}->{ANSWER_ENTRY_ORDER} = \@PG_ANSWER_ENTRY_ORDER;
 	
@@ -412,11 +418,10 @@ sub ENDDOCUMENT {
 	
     warn "KEPT_EXTRA_ANSWERS", join(" ", @KEPT_EXTRA_ANSWERS), $BR     if $ans_debug==1;
     warn "PG_ANSWER_ENTRY_ORDER",join(" ",@PG_ANSWER_ENTRY_ORDER), $BR if $ans_debug==1;
-    warn "DEBUG messages", join( "$BR",@{$PG->get_debug_messages} ) if $ans_debug==1;
+    # not needed for the moment:
+    # warn "DEBUG messages", join( "$BR",@{$PG->get_debug_messages} ) if $ans_debug==1;
     warn "INTERNAL_DEBUG messages", join( "$BR",@{$PG->get_internal_debug_messages} ) if $ans_debug==1;
 	$STRINGforOUTPUT      = join("", @{$PG->{OUTPUT_ARRAY} });
-	
-	
 	$STRINGforHEADER_TEXT = join("", @{$PG->{HEADER_ARRAY} }); 
     $STRINGforPOSTHEADER_TEXT = join("", @{$PG->{POST_HEADER_ARRAY} }); 
 	# warn pretty_print($PG->{PG_ANSWERS_HASH});
