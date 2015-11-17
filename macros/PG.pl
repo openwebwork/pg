@@ -372,7 +372,7 @@ sub ENDDOCUMENT {
 	
 	#warn keys %{ $PG->{PG_ANSWERS_HASH} };
 	@PG_ANSWER_ENTRY_ORDER = ();
-	my $ans_debug = 1;
+	my $ans_debug = 0;
 	foreach my $key (keys %{ $PG->{PG_ANSWERS_HASH} }) {
 	        $answergroup = $PG->{PG_ANSWERS_HASH}->{$key};
 	        #warn "$key is defined =", defined($answergroup), "PG object is $PG";
