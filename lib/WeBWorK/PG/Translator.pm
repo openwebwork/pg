@@ -1308,8 +1308,10 @@ sub process_answers{
        
 #########################################################	
 # check that old and new answers are the same
-   	   foreach my $key (%$rh_ans_evaluation_result) {
+   	   foreach my $key (keys %$rh_ans_evaluation_result) {
   	   		next unless defined $key;
+  	   		#warn ref($rh_ans_evaluation_result->{$key}) if $key eq 'student_formula';
+  	   		next if $key eq 'student_formula';  #FIXME hack -- problem evaluating student_formula for fractions
   	   		next unless defined($rh_ans_evaluation_result->{$key});
   	   		$PG->debug_message($self->{envir}->{'probFileName'}  ." '$key' are not the same.  old: ".
   	   			$rh_ans_evaluation_result->{$key}." new: ".$new_rh_ans_evaluation_result->{$key})
