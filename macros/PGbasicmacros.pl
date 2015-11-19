@@ -2170,6 +2170,13 @@ sub beginproblem {
 	my $probNum      = $envir->{probNum};
     my $l2hFileName = protect_underbar($envir->{probFileName});
 	my %inlist;
+	my $permissionLevel = $envir->{permissionLevel};
+ 	if ( $inputs_ref->{showPGInfo} and 
+ 	     ($permissionLevel >=10) and
+ 	     defined(&listVariables ) ) {
+ 	     	listVariables();   #TEXT is called internally  		
+ 	}
+
 	my $points = maketext('points');
 
 	$points = maketext('point') if $problemValue == 1;

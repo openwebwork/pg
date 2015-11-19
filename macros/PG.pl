@@ -363,6 +363,7 @@ sub ENDDOCUMENT {
 	}
 	TEXT( MODES(%{$rh_envir->{problemPostamble}}) );
   
+
     
     
 	
@@ -383,8 +384,11 @@ sub ENDDOCUMENT {
 	        # The remainder of the response keys are placed in the EXTRA ANSWERS ARRAY
 	        if (defined($answergroup)) {
 	            my @response_keys = $answergroup->{response}->response_labels;
-	            $PG->debug_message("PG.pl 770: ", pretty_print($answergroup) ) 
-	               if ($inputs_ref->{print_answer_group})//'' and ($rh_envir->{permissionLevel})>= 10;
+	            if ( 0 or # allow one to force debug output  manually
+	               ($inputs_ref->{showAnsGroupInfo})//'' and ($rh_envir->{permissionLevel})>= 5) {
+	            	$PG->debug_message("PG.pl 388: ", pretty_print($answergroup) ) ;
+	            	$PG->debug_message("PG.pl 389: ", pretty_print($answergroup->{response}));
+	            }
 	            my $response_key = $response_keys[0];
 	            my $answer_key = $answergroup->{ans_label};
 	            #unshift @response_keys, $response_key unless ($response_key eq $answer_group->{ans_label});

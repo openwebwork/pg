@@ -1321,7 +1321,7 @@ sub process_answers{
   	   my $envir = $PG->{envir};
   	   $PG->debug_message("new $ans_name: $new_rf_fun -- ans: 
   	                      $new_temp_ans",pretty_print($new_rh_ans_evaluation_result)) 
-  	                      if ($envir->{inputs_ref}->{print_answer_hash})//'' and ($envir->{permissionLevel})//0 >=10;
+  	                      if ($envir->{inputs_ref}->{showAnsHashInfo})//'' and ($envir->{permissionLevel})//0 >=10;
 #########################################################	
 
 # decide whether to return the new or old answer evaluator hash
