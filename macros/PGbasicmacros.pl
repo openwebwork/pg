@@ -1203,7 +1203,7 @@ sub solution {
 	PG_restricted_eval(q!$main::solutionExists = 1!);  # set solution exists variable.--don't need PGeval??
    
     if ($printSolutionForInstructor) {  # always print solutions for instructor types 
-		$out = join(' ', $BITALIC, "(Instructor solution preview: show the student solution after due date. )$BR",$EITALIC, @in);
+		$out = join(' ', $BITALIC, "(", maketext("Instructor solution preview: show the student solution after due date.")," )$BR",$EITALIC, @in);
 	} elsif ( $displaySolution ) 	{
 		$out = join(' ',@in);  # display solution
 	}    
@@ -1506,9 +1506,9 @@ sub END_ONE_COLUMN { MODES(TeX =>
                             Latex2HTML => ' ', HTML => ' ');
 
 };
-sub SOLUTION_HEADING { MODES( TeX => '\\par {\\bf Solution: }',
-                 Latex2HTML => '\\par {\\bf Solution: }',
-          		 HTML =>  '<B>Solution:</B> ');
+sub SOLUTION_HEADING { MODES( TeX => '\\par {\\bf '.maketext('Solution:').' }',
+                 Latex2HTML => '\\par {\\bf '.maketext('Solution:').' }',
+          		 HTML =>  '<B>'.maketext('Solution:').'</B> ');
 };
 sub HINT_HEADING { MODES( TeX => "\\par {\\bf Hint: }", Latex2HTML => "\\par {\\bf Hint: }", HTML => "<B>Hint:</B> "); };
 sub US { MODES(TeX => '\\_', Latex2HTML => '\\_', HTML => '_');};  # underscore, e.g. file${US}name
