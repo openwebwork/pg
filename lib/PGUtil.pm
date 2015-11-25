@@ -137,7 +137,8 @@ sub pretty_print_tex {
 		$out =~ s/_/\\\_/g;   # protect tex
 		$out =~ s/&/\\\&/g;
 		$out =~ s/\$/\\\$/g;
-	} elsif ("$r_input" =~/hash/i) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_iput).
+		#FIXME -- how should mathobjects be handled??
+	} elsif (ref($r_input) =~/hash/i) {  # "$r_input" will pick up objects whose '$self' is hash and so works better than ref($r_iput).
 		local($^W) = 0;
 	    
 		$out .= "\\begin{tabular}{| l | l |}\\hline\n\\multicolumn{2}{|l|}{$r_input}\\\\ \\hline\n";
