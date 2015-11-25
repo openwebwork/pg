@@ -26,12 +26,12 @@ our @ISA =  qw ( PGcore  );  # look up features in PGcore -- in this case we wan
 
 =head2 
 
-# new 
-#   Create one alias object per question (and per PGcore object)
-#   Check that information is intact
-#   Construct unique id stub seeds -- the id stub seed is for this PGalias object which is 
-#        attached to all the resource files (except equations) for this question.
-#   Keep list of external links
+new 
+  Create one alias object per question (and per PGcore object since there is a unique PGcore per question.)
+  Check that information is intact
+  Construct unique id stub seeds -- the id stub seed is for this PGalias object which is 
+       attached to all the resource files (except equations) for this question.
+  Maintain list of links to external resources
 
 =cut
 
@@ -173,6 +173,20 @@ sub make_resource_object {
 	);	
 	return $resource;
 }
+
+
+=head2 make_alias
+
+This is the workhorse of the PGalias module.  It's front end is alias() in PG.pl.
+ 
+make_alias magically takes a name of an external resource ( html file, png file, etc.)
+and creates full directory addresses and uri's appropriate to the current displayMode.
+It also does any necessary conversions behind the scenes. 
+
+Returns the uri of the resource.
+
+=cut
+
 sub make_alias {
    	my $self = shift;   	
    	my $aux_file_id = shift;
@@ -218,7 +232,7 @@ sub make_alias {
 		$ext  = undef;
 		return undef;  #quit;
 	}
-	#      								$self->debug_message("This auxiliary file id is $aux_file_id of type $ext" );
+	# $self->debug_message("This auxiliary file id is $aux_file_id of type $ext" );
 
 	# in order to facilitate maintenance of this macro the routines for handling
 	# different file types are defined separately.  This involves some redundancy
@@ -233,7 +247,7 @@ sub make_alias {
 	
 	###################################################################
 	# This section checks to see if a resource exists (in this problem) 
-	#for this particular aux_file_id.
+	# for this particular aux_file_id.
 	# If so, we simply return the appropriate uri for the file.
 	# The displayMode will be the same throughout the processing of the .pg file
 	# This effectively cache's auxiliary files within a single PG question.
@@ -257,7 +271,9 @@ sub make_alias {
     #warn "next line\n\n";
     #warn "resource list contains ", %{ $self->{resource_list} };
 	###################################################################
-	
+	# html types only create external links
+	# image types create links which become embedded in the browser and/or tex document
+	# this distinction is determined by the image()/htmlLink/iframe type macros -- not alias
 	if ($ext eq 'html') {
 	   $adr_output = $self->alias_for_html($aux_file_id)
 	} elsif (   $ext eq 'gif'  
@@ -422,6 +438,9 @@ sub alias_for_html {
 # and public directories (such as   wwtmp/courseName or myCourse/html
 # The location of the links depends on the type and location of the file
 ##############################################
+# create_link_to_tmp_file()
+#input: unique_id, ext, (html) (tempURL), 
+#return: uri
 
 	if ( $resource_object->{copy_link}->{type} eq 'link') {
 		my $unique_id      = $resource_object->{unique_id};
@@ -512,6 +531,8 @@ sub alias_for_image_in_html_mode {
 
 # $self->debug_message("find full path to file $aux_file_id");
 # store the complete path to the original file
+# determine path information depending on whether the directory containing the file is public
+# create links if the directory is not public
 	if ( $aux_file_id   =~ m|^$tempDirectory| ) { #case: file is stored in the course temporary directory
 		$resource_uri   = $aux_file_id;
 		$resource_uri   =~ s|$tempDirectory|$tempURL/|;
@@ -561,7 +582,9 @@ sub alias_for_image_in_html_mode {
 # and public directories (such as   wwtmp/courseName or myCourse/html
 # The location of the links depends on the type and location of the file
 ##############################################
-
+# create_link_to_tmp_file()
+#input: unique_id, ext, (img) (tempURL), 
+#return: uri
 	if ( $resource_object->{copy_link}->{type} eq 'link') {
 	
 		my $unique_id     = $resource_object->{unique_id};
@@ -570,11 +593,11 @@ sub alias_for_image_in_html_mode {
 
 		my $resource_uri  = "${tempURL}$link"; #FIXME -- insure that the slash is at the end of $tempURL
 
-#################
+##################################
 # destroy the old link.
 # create new link.
 # create uri to this link
-#################
+##################################
 
 		if (-e $resource_object->path()) {
 		
@@ -781,73 +804,6 @@ sub alias_for_image_in_tex_mode {
 
 }
 
-################################################################################
-# .gif FILES in TeX mode
-################################################################################
-
-
-
-#################################################################################
-# support for pure latex output (as opposed to pdflatexoutput
-#################################################################################
-# 			
-# 				# Since we're not creating PDF files; we're probably just using a plain
-# 				# vanilla latex. Hence; we need EPS images.
-# 
-# 				################################################################################
-# 				# This  statement used below is system dependent.
-# 				# Notice that the range of colors is restricted when converting to postscript to keep the files small
-# 				# "cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmtops -noturn > $adr_output"
-# 				# "cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn > $adr_output"
-# 				################################################################################
-# ################################################################################
-# 		# Find path to .gif file
-# ################################################################################
-# ##################### Case1: we've got a full pathname to a file
-# ##################### Case2: we assume the file is in the same directory as the problem source file
-# 
-# 				if ($aux_file_id =~  m|^$htmlDirectory|  or $aux_file_id =~  m|^$tempDirectory|)  {
-# 					# To serve an eps file copy an eps version of the gif file to the subdirectory of eps/
-# 					my $linkPath = $self->directoryFromPath($pgFileName);
-# 					
-# ################################################################################
-# 		# Create path to new .EPS file
-# ################################################################################
-# 
-# 					my $gifSourceFile = "$aux_file_id.gif";
-# 					my $gifFileName = $self->fileFromPath($gifSourceFile);
-# 					$adr_output = $self->surePathToTmpFile("$tempDirectory/eps/$studentLogin-$psvn-$gifFileName.eps") ;
-# 
-# 					if (-e $gifSourceFile) {
-# 						#system("cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output")
-# 						system("cat $gifSourceFile | ${externalGif2EpsPath} > $adr_output" )
-# 							&& die "Unable to create eps file:\n |$adr_output| from file\n |$gifSourceFile|\n in problem $probNum " .
-# 							       "using the system dependent script\n |${externalGif2EpsPath}| \n";
-# 					} else {
-# 						die "|$gifSourceFile| cannot be found.  Problem number: |$probNum|";
-# 					}
-# 				} else {
-# 					# To serve an eps file copy an eps version of the gif file to  a subdirectory of eps/
-# 					my $filePath = $self->directoryFromPath($pgFileName);
-# 					my $gifSourceFile = "${templateDirectory}${filePath}$aux_file_id.gif";
-# 					#print "content-type: text/plain \n\npgFileName = $pgFileName and aux_file_id =$aux_file_id<BR>";
-# 					$adr_output = $self->surePathToTmpFile("eps/$studentLogin-$psvn-set$setNumber-prob$probNum-$aux_file_id.eps");
-# 
-# 					if (-e $gifSourceFile) {
-# 						#system("cat $gifSourceFile  | /usr/math/bin/giftopnm | /usr/math/bin/pnmdepth 1 | /usr/math/bin/pnmtops -noturn>$adr_output") &&
-# 						#warn "Unable to create eps file: |$adr_output|\n from file\n |$gifSourceFile|\n in problem $probNum";
-# 						#warn "Help ${:externalGif2EpsPath}" unless -x "${main::externalGif2EpsPath}";
-# 						system("cat $gifSourceFile | ${externalGif2EpsPath} > $adr_output" )
-# 							&& die "Unable to create eps file:\n |$adr_output| from file\n |$gifSourceFile|\n in problem $probNum " .
-# 							       "using the system dependent commands \n |${externalGif2EpsPath}| \n ";
-# 					}  else {
-# 						die "|$gifSourceFile| cannot be found.  Problem number: |$probNum|";
-# 					}
-# 				}
-# 			}
-# 	$adr_output;
-
-
 
 
 ################################################################################
@@ -887,12 +843,13 @@ our ($macrosPath,
 # ^uses $macrosPath
 # ^uses $pwd
 sub findMacroFile {
-	my $self   = shift;
+  my $self   = shift;
   my $fileName = shift;
   my $filePath;
   foreach my $dir (@{$macrosPath}) {
     $filePath = "$dir/$fileName";
-    $filePath =~ s!^\.\.?/!$pwd/!;
+    $filePath =~ s!^\.\.?/!$pwd/!;  
+    #FIXME? where is $pwd defined? why did it want to replace ../ with current directory
     return $filePath if (-r $filePath);
   }
   return;  # no file found
@@ -906,8 +863,10 @@ sub check_url {
 	my $OK_CONSTANT = "200 OK";
 	return undef if $url =~ /;/;   # make sure we can't get a second command in the url
 	return undef unless $url =~/\S/;
-	#FIXME -- check for other exploits of the system call
-	#FIXME -- ALARM feature so that the response cannot be held up for too long.
+	#FIXME -- check for other exploits of the system call	#FIXME -- ALARM feature so that the response cannot be held up for too long.
+	#ALARM: /opt/local/bin/lwp-request -d -t 40 -mHEAD ";  
+	# the -t 40 means the call times out after 40 seconds.  
+	# Set this alarm in site.conf
 	#FIXME doesn't seem to work with relative addresses.
 	#FIXME  Can we get the machine name of the server?
 	 $server_root_url=$self->envir("server_root_url");

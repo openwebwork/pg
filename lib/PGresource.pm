@@ -32,7 +32,7 @@ sub new {
 
 		id           	=>  $id,
 		parent_alias 	=>  $parent_alias,
-		type         	=>  $type, # gif eps pdf html pg (macro: pl) (applets: java js fla geogebra (ggb) )
+		type         	=>  $type, # gif eps pdf html pg (macro: pl) (applets: java js fla geogebra (ggb) swf )
 		parent_file_id  =>  $parent_alias->{pgFileName},  # file id for the file requesting the resource
 		
 		path		 	=>  { content => undef,       # file path to resource
