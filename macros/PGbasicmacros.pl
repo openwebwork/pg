@@ -1220,7 +1220,7 @@ sub solution {
 	PG_restricted_eval(q!$main::solutionExists = 1!);  # set solution exists variable.--don't need PGeval??
    
     if ($printSolutionForInstructor) {  # always print solutions for instructor types 
-		$out = join(' ', $BITALIC, "(", maketext("Instructor solution preview: show the student solution after due date. ",")$BR",$EITALIC, @in);
+		$out = join(' ', $BITALIC, "(", maketext("Instructor solution preview: show the student solution after due date. "),"$BR",$EITALIC, @in);
 	} elsif ( $displaySolution ) 	{
 		$out = join(' ',@in);  # display solution
 	}    
