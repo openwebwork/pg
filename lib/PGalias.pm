@@ -292,7 +292,9 @@ sub make_alias {
 
 	# $adr_output is a url in HTML  modes
 	# and a complete path in TEX mode.
-	return $adr_output;
+	my $resource_object = $self->get_resource($aux_file_id);
+	return unless defined wantarray;
+	return wantarray ? ($adr_output, $resource_object): $adr_output;
 }
 
 
