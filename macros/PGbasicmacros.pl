@@ -1435,7 +1435,7 @@ sub MODES {
 			return $options{$mode} if defined $options{$mode};
 		}
 	}
-	die "ERROR in defining MODES: neither display mode '$main::displayMode' nor",
+	warn "ERROR in defining MODES: neither display mode '$main::displayMode' nor",
 		" any fallback modes (", join(", ", @backup_modes), ") supplied.";
 }
 
@@ -2719,7 +2719,10 @@ sub image {
 	 || $displayMode eq 'HTML_LaTeXMathML'
 	 || $displayMode eq 'HTML_img') {
 			my $wid = ($envir->{onTheFlyImageSize} || 0) +30;
- 			$out = qq!<A HREF= "$imageURL" TARGET="_blank" onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;"><IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height" $out_options{extra_html_tags} ></A>
+ 			$out = qq!<A HREF= "$imageURL" TARGET="_blank" 
+ 			         onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;">
+ 			         <IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height" $out_options{extra_html_tags} >
+ 			         </A>
  			!
  		} else {
  			$out = "Error: PGbasicmacros: image: Unknown displayMode: $displayMode.\n";
@@ -2728,7 +2731,35 @@ sub image {
  	}
 	return wantarray ? @output_list : $output_list[0];
 }
+#This is bare bones code for embedding svg 
 
+sub embedSVG {
+	my $file_name = shift;   # just input the file name of the svg image
+	my $backup_file_name = shift//'';  # a png version
+	my $str='';
+	if ($backup_file_name) {
+		$str = q!" oneerror="this.src='! . alias($backup_file_name). q!'!;
+	}
+	return MODES( HTML => q!
+   			<img src="! . alias($file_name).$str.q!">!,
+
+   			TeX => "\includegraphics[width=6in]{" . alias( $file_name ) . "}" 
+	); 
+}
+
+# This is bare bones code for embedding png files -- what else should be added? (there are .js scripts for example)
+
+sub embedPDF {
+	my $file_name = shift;   # just input the file name of the svg image
+	#my $backup_file_name = shift//'';  # a png version
+	return MODES( HTML => q!
+		   <object data=! . alias($file_name) .
+		   q!  type="application/pdf" 
+		   width="100%" 
+		   height="100%"></object>!, 
+		   TeX => "\includegraphics[width=6in]{" . alias( $file_name ) . "}" 
+		   ) ; 
+}
 # This is legacy code.
 sub images {
 	my @in = @_;
