@@ -52,8 +52,6 @@ sub DOCUMENT {
 	@KEPT_EXTRA_ANSWERS =();   #temporary hack
 	
 	my %envir              =   %$rh_envir;
-	$displayMode           = $PG->{displayMode};
-	$PG_random_generator   = $PG->{PG_random_generator};
 	# Save the file name for use in error messages
 
 	#no strict;
@@ -61,6 +59,16 @@ sub DOCUMENT {
    		PG_restricted_eval(qq!\$main::$var = \$envir{$var}!);  #whew!! makes sure $var is interpolated but $main:: is evaluated at run time.
 	        warn "Problem defining $var  while initializing the PG problem: $@" if $@;
 	}
+	
+	$displayMode           = $PG->{displayMode};
+	$problemSeed           = $PG->{problemSeed};
+	$PG_random_generator   = $PG->{PG_random_generator};
+	#warn "{inputs_ref}->{problemSeed} =",$inputs_ref->{problemSeed} if $inputs_ref->{problemSeed};
+	#warn "{inputs_ref}->{displayMode} =",$inputs_ref->{displayMode} if $inputs_ref->{displayMode};
+	#warn "displayMode $displayMode";
+	#warn "problemSeed $problemSeed";
+	$inputs_ref->{problemSeed}='';   #this version of the problemSeed is tainted. It can be set by a student
+	$inputs_ref->{displayMode}='';   # not sure whether this should ever by used or not.
 	#use strict;
 	#FIXME
 	# load java script needed for displayModes

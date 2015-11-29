@@ -101,23 +101,18 @@ sub new {
 sub initialize {
 	my $self = shift;
 	warn "environment is not defined in PGcore" unless ref($self->{envir}) eq 'HASH';
-	
-	
-	
-	
-	$self->{displayMode}                = $self->{envir}->{inputs_ref}->{displayMode};
-	$self->{PG_original_problem_seed}   = $self->{envir}->{inputs_ref}->{problemSeed};
-	$self->{PG_random_generator}        = new PGrandom( $self->{PG_original_problem_seed});
 
-    $self->{tempDirectory}        = $self->{envir}->{tempDirectory};
-	$self->{PG_problem_grader}    = $self->{envir}->{PROBLEM_GRADER_TO_USE};
-    $self->{PG_alias}             = PGalias->new($self->{envir},
-                                        WARNING_messages => $self->{WARNING_messages},
-                                        DEBUG_messages   => $self->{DEBUG_messages},
-                                                 
-	);
-	$self->{maketext} = 
-	  WeBWorK::Localize::getLoc($self->{envir}->{language});
+	$self->{displayMode}                = $self->{envir}->{displayMode};
+	$self->{PG_original_problem_seed}   = $self->{envir}->{problemSeed};
+	$self->{PG_random_generator}        = new PGrandom( $self->{PG_original_problem_seed});
+	$self->{problemSeed}                = $self->{PG_original_problem_seed};
+    $self->{tempDirectory}        		= $self->{envir}->{tempDirectory};
+	$self->{PG_problem_grader}    		= $self->{envir}->{PROBLEM_GRADER_TO_USE};
+    $self->{PG_alias}             		= PGalias->new($self->{envir},
+												WARNING_messages => $self->{WARNING_messages},
+												DEBUG_messages   => $self->{DEBUG_messages},                                           
+										);
+	$self->{maketext} =  WeBWorK::Localize::getLoc($self->{envir}->{language});
 	#$self->debug_message("PG alias created", $self->{PG_alias} );
     $self->{PG_loadMacros}        = new PGloadfiles($self->{envir});
 	$self->{flags} = {
