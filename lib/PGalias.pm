@@ -586,10 +586,9 @@ sub alias_for_tex {
 ################################################################################
 	# Return full path to image file  (resource_id)
 ################################################################################
-	$self->debug_message("final   filePath ",$resource_object->{uri}, "\n");
+	# $self->debug_message("final   filePath ",$resource_object->{uri}, "\n");
 	# returns a file path 
 	($resource_object->{uri}->{is_accessible} == 1 ) ? $resource_object->uri() : "";
-#resource_object->{uri} is set. 
 
 }
 

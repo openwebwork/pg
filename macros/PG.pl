@@ -57,7 +57,7 @@ sub DOCUMENT {
 	#no strict;
 	foreach  my  $var (keys %envir) {
    		PG_restricted_eval(qq!\$main::$var = \$envir{$var}!);  #whew!! makes sure $var is interpolated but $main:: is evaluated at run time.
-	        warn "Problem defining $var  while initializing the PG problem: $@" if $@;
+	    warn "Problem defining $var  while initializing the PG problem: $@" if $@;
 	}
 	
 	$displayMode           = $PG->{displayMode};
