@@ -1205,7 +1205,7 @@ sub process_answers{
  	my $PG = $self->{rh_pgcore};
 
  	# apply each instructors answer to the corresponding student answer
-	my $printAnsHash = 1; # this turns on error printing of the answer hashes
+	# my $printAnsHash = 1; # this turns on error printing of the answer hashes
 	
 	#$PG->debug_message("Student answers are: ", join(" ", %h_student_answers) ) if $printAnsHash==1;
  	# we will want to redefine the entry order in terms of the answer evaluators
@@ -1221,23 +1221,23 @@ sub process_answers{
  	    # gather answers (old method)
  	    ####################################
 
-		local($rf_fun,$temp_ans)= (undef,undef);
-		
-		my ($ans, $errors) = $self->filter_answer( $h_student_answers{$ans_name} );
-		$temp_ans  = $ans;
-		$temp_ans = '' unless defined($temp_ans); #make sure that answer is always defined
-		                                          # in case the answer evaluator forgets to check
-		####################################
- 	    # get answer evaluator (old method)
- 	    ####################################
-		
-		if ( defined($rh_correct_answers ->{$ans_name} ) ) {
-			$rf_fun  = $rh_correct_answers->{$ans_name};
-		} else {
-			warn "There is no answer evaluator for the question labeled $ans_name";
-		}
-		$self->{safe}->share('$rf_fun','$temp_ans');
-
+# 		local($rf_fun,$temp_ans)= (undef,undef);
+# 		
+# 		my ($ans, $errors) = $self->filter_answer( $h_student_answers{$ans_name} );
+# 		$temp_ans  = $ans;
+# 		$temp_ans = '' unless defined($temp_ans); #make sure that answer is always defined
+# 		                                          # in case the answer evaluator forgets to check
+# 		####################################
+#  	    # get answer evaluator (old method)
+#  	    ####################################
+# 		
+# 		if ( defined($rh_correct_answers ->{$ans_name} ) ) {
+# 			$rf_fun  = $rh_correct_answers->{$ans_name};
+# 		} else {
+# 			warn "There is no answer evaluator for the question labeled $ans_name";
+# 		}
+# 		$self->{safe}->share('$rf_fun','$temp_ans');
+# 
 	    ####################################
  	    # gather answers and answer evaluator (new method)
  	    ####################################
@@ -1245,8 +1245,12 @@ sub process_answers{
 		local($new_rf_fun,$new_temp_ans) = (undef,undef);
 		my $answergrp = $PG->{PG_ANSWERS_HASH}->{$ans_name};
  	    my $responsegrp = $answergrp->response_obj;
-        $new_rf_fun = $answergrp->ans_eval;        
-        $new_temp_ans = $responsegrp->get_response($ans_name);
+#################
+# refactor to answer group?
+##################
+        $new_rf_fun = $answergrp->ans_eval;   
+        my ($ans, $errors) = $self->filter_answer( $responsegrp->get_response($ans_name) );     
+        $new_temp_ans = $ans;
 
         #FIXME -- hack to allow answers such as <4,6,7>  -- < and > have been escaped. 
         if (ref( $new_temp_ans) =~/HASH/) {
@@ -1268,62 +1272,64 @@ sub process_answers{
  	    %errorTable = (); # is the error table being used? perhaps by math objects?
  	    
 		my ($rh_ans_evaluation_result, $new_rh_ans_evaluation_result);
-		if (ref($rf_fun) eq 'CODE' ) {
+		if (ref($new_rf_fun) eq 'CODE' ) {
 #			$rh_ans_evaluation_result = $self->{safe} ->reval( '&{ $rf_fun }($temp_ans, ans_label => \''.$ans_name.'\')' ) ;
 #			warn "Error in Translator.pm::process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
 			warn "Can no longer used CODE objects directly as answer evaluators.  Use AnswerEvaluator";
-		} elsif (ref($rf_fun) =~ /AnswerEvaluator/)   {
-			$rh_ans_evaluation_result = $self->{safe} ->reval('$rf_fun->evaluate($temp_ans, ans_label => \''.$ans_name.'\')');
-			$@ = $errorTable{$@} if $@ && defined($errorTable{$@});  #Are we redefining error messages here?
-			warn "Error in Translator.pm::process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
-			# The following needs more work for the new rh_ans_evaluation
-			warn "Evaluation error: Answer $ans_name:<br/>\n",
-				$rh_ans_evaluation_result->error_flag(), " :: ",
-				$rh_ans_evaluation_result->error_message(),"<br/>\n"
-					if defined($rh_ans_evaluation_result)  
-						and defined($rh_ans_evaluation_result->error_flag());
-
-			$rh_ans_evaluation_result = {%$rh_ans_evaluation_result};  #needed to protect result
+		} elsif (ref($new_rf_fun) =~ /AnswerEvaluator/)   {
+# 			$rh_ans_evaluation_result = $self->{safe} ->reval('$rf_fun->evaluate($temp_ans, ans_label => \''.$ans_name.'\')');
+# 			$@ = $errorTable{$@} if $@ && defined($errorTable{$@});  #Are we redefining error messages here?
+# 			warn "Error in Translator.pm::process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
+# 			# The following needs more work for the new rh_ans_evaluation
+# 			warn "Evaluation error: Answer $ans_name:<br/>\n",
+# 				$rh_ans_evaluation_result->error_flag(), " :: ",
+# 				$rh_ans_evaluation_result->error_message(),"<br/>\n"
+# 					if defined($rh_ans_evaluation_result)  
+# 						and defined($rh_ans_evaluation_result->error_flag());
+# 
+# 			$rh_ans_evaluation_result = {%$rh_ans_evaluation_result};  #needed to protect result
+# 			                                                           # from next evaluation apparently
 			
 			#FIXME  -- need to check for errors here as well
 			$new_rh_ans_evaluation_result = $self->{safe} ->reval('$new_rf_fun->evaluate($new_temp_ans, ans_label => \''.$ans_name.'\')');
 			$@ = $errorTable{$@} if $@ && defined($errorTable{$@});  #Are we redefining error messages here?
-			warn "Error in Translator.pm:: (new) process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
+			# warn "Error in Translator.pm:: (new) process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
 			# The following needs more work for the new rh_ans_evaluation
 			warn "Evaluation error in new process: Answer $ans_name:<br/>\n",
 				$new_rh_ans_evaluation_result->error_flag(), " :: ",
 				$new_rh_ans_evaluation_result->error_message(),"<br/>\n"
-					if defined($new_rh_ans_evaluation_result)  
-						and defined($new_rh_ans_evaluation_result->error_flag());
+					if defined($new_rh_ans_evaluation_result) && ref($new_rh_ans_evaluation_result) 
+						&& defined($new_rh_ans_evaluation_result->error_flag());
 
 						
-			$PG->debug_message( $self->{envir}->{'probFileName'}  ." new_temp_ans and temp_ans don't agree: ".
-                      ref($new_temp_ans)." $new_temp_ans ". ref($temp_ans). "  $temp_ans".length($new_temp_ans).length($temp_ans)) 
-                      unless $new_temp_ans eq $temp_ans;
+# 			$PG->debug_message( $self->{envir}->{'probFileName'}  ." new_temp_ans and temp_ans don't agree: ".
+#                       ref($new_temp_ans)." $new_temp_ans ". ref($temp_ans). "  $temp_ans".length($new_temp_ans).length($temp_ans)) 
+#                       unless $new_temp_ans eq $temp_ans;
 		} else {
 			warn "Error in Translator.pm::process_answers: Answer $ans_name:<br/>\n Unrecognized evaluator type |", ref($rf_fun), "|";
 		}
 #########################################################	
-  
+# End refactor to answer group ?
+#############################################
        
 #########################################################	
 # check that old and new answers are the same
-   	   foreach my $key (keys %$rh_ans_evaluation_result) {
-  	   		next unless defined $key;
-  	   		#warn ref($rh_ans_evaluation_result->{$key}) if $key eq 'student_formula';
-  	   		next if $key eq 'student_formula';  #FIXME hack -- problem evaluating student_formula for fractions
-  	   		next unless defined($rh_ans_evaluation_result->{$key});
-  	   		$PG->debug_message($self->{envir}->{'probFileName'}  ." '$key' are not the same.  old: ".
-  	   			$rh_ans_evaluation_result->{$key}." new: ".$new_rh_ans_evaluation_result->{$key})
-  	   			unless $rh_ans_evaluation_result->{$key} eq $new_rh_ans_evaluation_result->{$key};
-   	   	}
+#    	   foreach my $key (keys %$rh_ans_evaluation_result) {
+#   	   		next unless defined $key;
+#   	   		#warn ref($rh_ans_evaluation_result->{$key}) if $key eq 'student_formula';
+#   	   		next if $key eq 'student_formula';  #FIXME hack -- problem evaluating student_formula for fractions
+#   	   		next unless defined($rh_ans_evaluation_result->{$key});
+#   	   		$PG->debug_message($self->{envir}->{'probFileName'}  ." '$key' are not the same.  old: ".
+#   	   			$rh_ans_evaluation_result->{$key}." new: ".$new_rh_ans_evaluation_result->{$key})
+#   	   			unless $rh_ans_evaluation_result->{$key} eq $new_rh_ans_evaluation_result->{$key};
+#    	   	}
 	
 #########################################################	       
   	   #$PG->debug_message("old $ans_name: $rf_fun -- ans: $temp_ans",pretty_print($rh_ans_evaluation_result)) if $printAnsHash==1;
-  	   my $envir = $PG->{envir};
   	   $PG->debug_message("new $ans_name: $new_rf_fun -- ans: 
-  	                      $new_temp_ans",pretty_print($new_rh_ans_evaluation_result)) 
-  	                      if ($envir->{inputs_ref}->{showAnsHashInfo})//'' and ($envir->{permissionLevel})//0 >=10;
+  	          	$new_temp_ans",pretty_print($new_rh_ans_evaluation_result)) 
+  	            if ($PG->{envir}->{inputs_ref}->{showAnsHashInfo})//'' 
+  	              and ($PG->{envir}->{permissionLevel})//0 >=10;
 #########################################################	
 
 # decide whether to return the new or old answer evaluator hash
