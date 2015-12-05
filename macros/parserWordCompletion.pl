@@ -193,10 +193,12 @@ sub choices_list {
 ##################################################
 #
 #  Answer rule is the menu list (for compatibility with parserMultiAnswer)
-#
-sub ans_rule {shift->menu(@_)}
-sub named_ans_rule {shift->menu(@_)}
-sub named_ans_rule_extension {shift->menu(@_)}
+# Use alternates given below with older parserMultiAnswer.pl versions
+
+sub ans_rule {shift->menu(0,'',@_)}  # sub ans_rule {shift->menu(@_)} 
+sub named_ans_rule {shift->menu(0,@_)} # sub named_ans_rule {shift->menu(@_)}
+sub named_ans_rule_extension {shift->menu(1,@_)} # sub named_ans_rule_extension {shift->menu(@_)}
+
 
 ##################################################
 #
