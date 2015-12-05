@@ -2743,7 +2743,7 @@ sub embedSVG {
 	return MODES( HTML => q!
    			<img src="! . alias($file_name).$str.q!">!,
 
-   			TeX => "\includegraphics[width=6in]{" . alias( $file_name ) . "}" 
+   			TeX => "\\includegraphics[width=6in]{" . alias( $file_name ) . "}" 
 	); 
 }
 
@@ -2757,7 +2757,7 @@ sub embedPDF {
 		   q!  type="application/pdf" 
 		   width="100%" 
 		   height="100%"></object>!, 
-		   TeX => "\includegraphics[width=6in]{" . alias( $file_name ) . "}" 
+		   TeX => "\\includegraphics[width=6in]{" . alias( $file_name ) . "}" 
 		   ) ; 
 }
 # This is legacy code.
