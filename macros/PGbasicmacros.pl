@@ -2171,10 +2171,12 @@ sub beginproblem {
     my $l2hFileName = protect_underbar($envir->{probFileName});
 	my %inlist;
 	my $permissionLevel = $envir->{permissionLevel};
- 	if ( $inputs_ref->{showPGInfo} and 
- 	     ($permissionLevel >=10) and
- 	     defined(&listVariables ) ) {
- 	     	listVariables();   #TEXT is called internally  		
+ 	if ( $inputs_ref->{showPGInfo} and ($permissionLevel >=10)) {
+ 	     if ( defined(&listVariables ) ) {
+ 	     	listVariables();   #TEXT is called internally 
+ 	     } else {
+ 	     	WARN_MESSAGE("You must load PGinfo.pl into the problem in order to see the PG environment table");
+ 	     } 		
  	}
 
 	my $points = maketext('points');
