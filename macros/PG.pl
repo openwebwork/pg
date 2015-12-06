@@ -410,8 +410,8 @@ sub ENDDOCUMENT {
 	            #unshift @response_keys, $response_key unless ($response_key eq $answer_group->{ans_label});
 	            # don't save the first response key if it is the same as the ans_label
 	            # maybe we should insure that the first response key is always the same as the answer label?
-	            warn "first response key label and answer key label don't agree" 
-	                   unless ($response_key eq $answer_key);
+	  #          warn "first response key label and answer key label don't agree" 
+	  #                 unless ($response_key eq $answer_key);
 
 	            # even if no answer blank is printed for it? or a hidden answer blank?
 	            # this is still a KLUDGE
