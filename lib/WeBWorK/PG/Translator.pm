@@ -1217,6 +1217,8 @@ sub process_answers{
 	our ($rf_fun, $temp_ans);
 	our($new_rf_fun, $new_temp_ans);
  	foreach my $ans_name (keys %{ $PG->{PG_ANSWERS_HASH} }) {
+ 		my $local_debug = 0;  #enables reporting of each $ans_name evaluator and responses
+ 		$PG->debug_message("Executing answer evaluator $ans_name ") if $local_debug;
  	    ####################################
  	    # gather answers (old method)
  	    ####################################
@@ -1243,27 +1245,44 @@ sub process_answers{
  	    ####################################
 
 		local($new_rf_fun,$new_temp_ans) = (undef,undef);
-		my $answergrp = $PG->{PG_ANSWERS_HASH}->{$ans_name};
+		my $answergrp = $PG->{PG_ANSWERS_HASH}->{$ans_name};  #this has all answer evaluators AND answer blanks (just to be sure ) 
  	    my $responsegrp = $answergrp->response_obj;
 #################
 # refactor to answer group?
 ##################
         $new_rf_fun = $answergrp->ans_eval;   
         my ($ans, $errors) = $self->filter_answer( $responsegrp->get_response($ans_name) );     
-        $new_temp_ans = $ans;
-
-        #FIXME -- hack to allow answers such as <4,6,7>  -- < and > have been escaped. 
-        if (ref( $new_temp_ans) =~/HASH/) {
+        $new_temp_ans = $ans; # avoid undefined errors in translator
+        my $skip_evaluation=0;
+        if (not defined($new_rf_fun) ) {
+        	$PG->warning_message( "No answer evaluator for the question labeled: $ans_name ");
+        	$skip_evaluation=1;
+        } elsif (not ref($new_rf_fun) =~ /AnswerEvaluator/ ) {
+				$PG->warning_message( "Error in Translator.pm::process_answers: Answer $ans_name: 
+				                    Unrecognized evaluator type |". ref($rf_fun). "|");
+				$skip_evaluation=1;
+		}
+		if (not defined($new_temp_ans) ) {
+				$PG->warning_message( "No answer blank provided for answer evaluator $ans_name ");
+				$skip_evaluation=1;
+		}
+		$PG->debug_message("Answers associated with $ans_name are $new_temp_ans ref=". ref($new_temp_ans) ) if defined $new_temp_ans and $local_debug;
+       #FIXME -- this is a hack for handling check boxes. 
+        if (ref( $new_temp_ans) =~/HASH/i) {
         	my @tmp = ();
         	foreach my $key (sort keys %$new_temp_ans) {
         		push @tmp, $key if $new_temp_ans->{$key} eq 'CHECKED';
         	}
         	$new_temp_ans = join("\0",@tmp);
+        	$PG->debug_message("Hash answer associated with $ans_name is $new_temp_ans. ref=". ref($new_temp_ans)."<br/>".pretty_print($new_temp_ans) ) if $local_debug;
         }
-        $new_temp_ans =~ s/\&lt\;/</g; # <
-        $new_temp_ans =~ s/\&gt\;/>/g; # >
-        $new_temp_ans =~ s/\&\#91\;/\[/g; # [
-        $new_temp_ans =~ s/\&\#42\;/\*/g; # *
+        #FIXME -- hack to allow answers such as <4,6,7>  -- < and > have been escaped.
+        unless( $skip_evaluation) { 
+			$new_temp_ans =~ s/\&lt\;/</g; # <
+			$new_temp_ans =~ s/\&gt\;/>/g; # >
+			$new_temp_ans =~ s/\&\#91\;/\[/g; # [
+			$new_temp_ans =~ s/\&\#42\;/\*/g; # *
+        }
 		$self->{safe}->share('$new_rf_fun','$new_temp_ans');
 
 
@@ -1272,11 +1291,12 @@ sub process_answers{
  	    %errorTable = (); # is the error table being used? perhaps by math objects?
  	    
 		my ($rh_ans_evaluation_result, $new_rh_ans_evaluation_result);
+		
 		if (ref($new_rf_fun) eq 'CODE' ) {
 #			$rh_ans_evaluation_result = $self->{safe} ->reval( '&{ $rf_fun }($temp_ans, ans_label => \''.$ans_name.'\')' ) ;
 #			warn "Error in Translator.pm::process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
-			warn "Can no longer used CODE objects directly as answer evaluators.  Use AnswerEvaluator";
-		} elsif (ref($new_rf_fun) =~ /AnswerEvaluator/)   {
+			$PG->warning_message( "Can no longer used CODE objects directly as answer evaluators.  Use AnswerEvaluator");
+		} elsif (not $skip_evaluation )   {
 # 			$rh_ans_evaluation_result = $self->{safe} ->reval('$rf_fun->evaluate($temp_ans, ans_label => \''.$ans_name.'\')');
 # 			$@ = $errorTable{$@} if $@ && defined($errorTable{$@});  #Are we redefining error messages here?
 # 			warn "Error in Translator.pm::process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
@@ -1290,23 +1310,27 @@ sub process_answers{
 # 			$rh_ans_evaluation_result = {%$rh_ans_evaluation_result};  #needed to protect result
 # 			                                                           # from next evaluation apparently
 			
-			#FIXME  -- need to check for errors here as well
+
 			$new_rh_ans_evaluation_result = $self->{safe} ->reval('$new_rf_fun->evaluate($new_temp_ans, ans_label => \''.$ans_name.'\')');
 			$@ = $errorTable{$@} if $@ && defined($errorTable{$@});  #Are we redefining error messages here?
 			# warn "Error in Translator.pm:: (new) process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
 			# The following needs more work for the new rh_ans_evaluation
-			warn "Evaluation error in new process: Answer $ans_name:<br/>\n",
-				$new_rh_ans_evaluation_result->error_flag(), " :: ",
-				$new_rh_ans_evaluation_result->error_message(),"<br/>\n"
-					if defined($new_rh_ans_evaluation_result) && ref($new_rh_ans_evaluation_result) 
-						&& defined($new_rh_ans_evaluation_result->error_flag());
+			if ( ref( $new_rh_ans_evaluation_result) =~ /AnswerHash/i ) {
+				$PG->warning_message( "Evaluation error in new process: Answer $ans_name:<br/>\n",
+					$new_rh_ans_evaluation_result->error_flag(), " :: ",
+					$new_rh_ans_evaluation_result->error_message(),"<br/>\n")
+						if defined($new_rh_ans_evaluation_result) && ref($new_rh_ans_evaluation_result) 
+							&& defined($new_rh_ans_evaluation_result->error_flag());
+			} else {
+				$PG->warning_message(" The evaluated answer is not an answer hash $new_rh_ans_evaluation_result: |".ref($new_rh_ans_evaluation_result)."|.");
+			}
 
 						
 # 			$PG->debug_message( $self->{envir}->{'probFileName'}  ." new_temp_ans and temp_ans don't agree: ".
 #                       ref($new_temp_ans)." $new_temp_ans ". ref($temp_ans). "  $temp_ans".length($new_temp_ans).length($temp_ans)) 
 #                       unless $new_temp_ans eq $temp_ans;
 		} else {
-			warn "Error in Translator.pm::process_answers: Answer $ans_name:<br/>\n Unrecognized evaluator type |", ref($rf_fun), "|";
+			$PG->warning_message( "Answer evaluator $ans_name was not executed due to errors. ", "========");
 		}
 #########################################################	
 # End refactor to answer group ?
@@ -1335,11 +1359,12 @@ sub process_answers{
 # decide whether to return the new or old answer evaluator hash
 		$rh_ans_evaluation_result = $new_rh_ans_evaluation_result;
 
-		unless ( ( ref($rh_ans_evaluation_result) eq 'HASH') or ( ref($rh_ans_evaluation_result) eq 'AnswerHash') ) {
-			warn "Error in Translator.pm::process_answers: Answer $ans_name:<br/>\n
-				Answer evaluators must return a hash or an AnswerHash type, not type |", 
-				ref($rh_ans_evaluation_result), "|";
-		}
+#    This warning may not be needed.
+# 		unless ( ( ref($rh_ans_evaluation_result) eq 'HASH') or ( ref($rh_ans_evaluation_result) eq 'AnswerHash') ) {
+# 			warn "Error in Translator.pm::process_answers: Answer $ans_name:<br/>\n
+# 				Answer evaluators must return a hash or an AnswerHash type, not type |", 
+# 				ref($rh_ans_evaluation_result), "|";
+# 		}
 		$rh_ans_evaluation_result ->{ans_message} .= "$errors \n" if $errors;
 		$rh_ans_evaluation_result ->{ans_name} = $ans_name;
 		$self->{rh_evaluated_answers}->{$ans_name} = $rh_ans_evaluation_result;
