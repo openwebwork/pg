@@ -2857,7 +2857,7 @@ sub imageRow {
 		$out .= "\n</TR></TABLE></P>\n"
 	}
 	else {
-		$out = "Error: PGbasicmacros: imageRow: Unknown languageMode: $displayMode.\n";
+		$out = "Error: PGbasicmacros: imageRow: Unknown displayMode: $displayMode.\n";
 		warn $out;
 	}
 	$out;
