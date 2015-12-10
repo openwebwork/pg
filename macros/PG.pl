@@ -379,12 +379,18 @@ sub ENDDOCUMENT {
 	if ( 0 or # allow one to force debug output  manually
 		($inputs_ref->{showResourceInfo})//'' and ($rh_envir->{permissionLevel})>= 5) {
 		my %resources = %{$PG->{PG_alias}->{resource_list}};
-		my $str = 'Resources:<br/>';
+		my $str = '';
+		my @resource_names=();
 		foreach my $key (keys %resources) {
-		$str .= knowlLink("$key<br/>", value=>"$key<br/>".pretty_print($resources{$key}), base64=>0);
+			$str .= knowlLink("$key<br/>", value=>"$key<br/>".pretty_print($resources{$key}), base64=>0);
+			push @resource_names, $key;
 		}
-		$str = "No auxiliary resources" if $str eq '';
-		$PG->debug_message($str) ;
+		if ($str eq '') {
+			$str = "No auxiliary resources<br/>";
+		} else { 
+			my $summary = "## RESOURCES('".join("','", @resource_names)."')<br/>\n";	 
+			$PG->debug_message($summary.$str) ;
+		}
 	}
 
 	#warn keys %{ $PG->{PG_ANSWERS_HASH} };

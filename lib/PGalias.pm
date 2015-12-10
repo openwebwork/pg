@@ -739,6 +739,7 @@ sub find_file_in_directories {
 	my $directories = shift; 
 	my $file_path;
 	foreach my $dir (@$directories) {
+		$dir =~ s|/$||; # remove final / if present
 		$file_path = "$dir/$file_name";
 		return $file_path if (-r $file_path);
 	}
