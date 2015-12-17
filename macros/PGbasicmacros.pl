@@ -2376,6 +2376,7 @@ sub helpLink {
 		'interval' => 'IntervalNotation.html',
 		'unit' => 'Units.html',
 		'syntax' => 'Syntax.html',
+		'pde' => 'PDE-notation.html',
 		);
 
 	my $infoRef = '';
