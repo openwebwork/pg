@@ -568,7 +568,7 @@ sub formula {
 sub make {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  bless {$self->hash, data => [@_], context => $context}, $class;
+  bless {$self->hashNoInherit, data => [@_], context => $context}, $class;
 }
 
 #
@@ -600,6 +600,13 @@ sub hash {
   my $self = shift;
   return %$self if isHash($self);
   return ();
+}
+
+sub hashNoInherit {
+  my $self = shift;
+  my %hash = $self->hash;
+  foreach my $id ($self->noinherit) {delete $hash{$id}}
+  return %hash;
 }
 
 #
