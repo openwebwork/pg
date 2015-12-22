@@ -45,6 +45,7 @@ my $displayMode;
 
 my ($PAR,
 	$BR,
+	$BRBR,
 	$LQ,
 	$RQ,
 	$BM,
@@ -63,6 +64,9 @@ my ($PAR,
 	$COMMENT,
 	$US,
 	$SPACE,
+        $NBSP,
+        $NDASH,
+        $MDASH,
 	$BLABEL,
 	$ELABEL,
 	$BBOLD,
@@ -109,6 +113,7 @@ main::PG_restricted_eval( <<'EndOfFile');
 
 	$main::PAR				= PAR();
 	$main::BR				= BR();
+	$main::BRBR				= BRBR();
 	$main::LQ				= LQ();
 	$main::RQ				= RQ();
 	$main::BM				= BM();
@@ -126,6 +131,9 @@ main::PG_restricted_eval( <<'EndOfFile');
 	$main::HINT				= HINT_HEADING();
 	$main::US				= US();
 	$main::SPACE			= SPACE();
+	$main::NBSP			= NBSP();
+	$main::NDASH			= NDASH();
+	$main::MDASH			= MDASH();
 	$main::BLABEL			= BLABEL();
 	$main::ELABEL			= ELABEL();
 	$main::BBOLD			= BBOLD();
@@ -158,6 +166,7 @@ EndOfFile
 
    	$PAR				 = PAR();
 	$BR				     = BR();
+	$BRBR				 = BRBR();
 	$LQ				     = LQ();
 	$RQ				     = RQ();
 	$BM				     = BM();
@@ -175,6 +184,9 @@ EndOfFile
 	$HINT				 = HINT_HEADING();
 	$US				     = US();
 	$SPACE			     = SPACE();
+	$NBSP			     = NBSP();
+	$NDASH			     = NDASH();
+	$MDASH			     = MDASH();
 	$BLABEL			     = BLABEL();
 	$ELABEL			     = ELABEL();
 	$BBOLD			     = BBOLD();
@@ -351,6 +363,10 @@ sub NAMED_ANS_RULE {
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
 	$answer_value = encode_pg_and_html($answer_value);
 	$name = RECORD_ANS_NAME($name, $answer_value);
+	my $previous_name = "previous_$name";
+	$name = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%$name":$name;
+	$previous_name = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%$previous_name": $previous_name;
+	
     #INSERT_RESPONSE($name,$name,$answer_value);  #FIXME -- why can't we do this inside RECORD_ANS_NAME?
 	my $label;
 	if (defined ($options{aria_label})) {
@@ -373,7 +389,7 @@ sub NAMED_ANS_RULE {
         }
 
         # end of addition for dragmath
-
+	
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\\end{rawhtml}!,
@@ -382,8 +398,8 @@ sub NAMED_ANS_RULE {
 	    # that come from pg
 		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" aria-label="$label" value="$answer_value"/>\n!.
 		              $add_html. # added for dragmath
-                        qq!<input type=hidden  name="previous_$name" value="$answer_value"/>\n!
-
+                        qq!<input type=hidden  name="$previous_name" value="$answer_value"/>\n!,
+		
 	);
 }
 
@@ -961,8 +977,9 @@ sub NAMED_POP_UP_LIST {
 		my @list1 = @{$list[0]};
 		@list = map { $_ => $_ } @list1;
 	}
-	
-		my $answer_value = '';
+	my $moodle_prefix = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%":'';
+
+	my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
 	my $out = "";
 	if ($displayMode eq 'HTML_MathJax'
@@ -973,7 +990,7 @@ sub NAMED_POP_UP_LIST {
 	 || $displayMode eq 'HTML_asciimath' 
 	 || $displayMode eq 'HTML_LaTeXMathML'
 	 || $displayMode eq 'HTML_img') {
-		$out = qq!<SELECT class="pg-select" NAME = "$name" id="$name" SIZE=1> \n!;
+		$out = qq!<SELECT class="pg-select" NAME = "$moodle_prefix$name" id="$moodle_prefix$name" SIZE=1> \n!;
 		my $i;
 		foreach ($i=0; $i< @list; $i=$i+2) {
 			my $select_flag = ($list[$i] eq $answer_value) ? "SELECTED" : "";
@@ -1430,6 +1447,7 @@ sub MODES {
 	@ALPHABET   		ALPHABET()			capital letter alphabet -- ALPHABET[0] = 'A'
 	$PAR				PAR()				paragraph character (\par or <p>)
 	$BR         		BR()				line break character
+	$BRBR         		BRBR()				line break character
 	$LQ					LQ()				left double quote
 	$RQ					RQ()				right double quote
 	$BM					BM()				begin math
@@ -1447,6 +1465,9 @@ sub MODES {
 	$HINT				HINT_HEADING()		hint headline
 	$US					US()				underscore character
 	$SPACE				SPACE()				space character (tex and latex only)
+	$NBSP				NBSP()				non breaking space character
+	$NDASH				NDASH()				en dash character
+	$MDASH				MDASH()				em dash character
 	$BLABEL				BLABEL()			begin label (for input)
 	$ELABEL				ELABEL()			end label (for input)
 	$BBOLD				BBOLD()				begin bold typeface
@@ -1490,6 +1511,7 @@ sub PAR { MODES( TeX => '\\par ', Latex2HTML => '\\begin{rawhtml}<P>\\end{rawhtm
 # Alternate definition of BR which is slightly more flexible and gives more white space in printed output
 # which looks better but kills more trees.
 sub BR { MODES( TeX => '\\leavevmode\\\\\\relax ', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR/>'); };
+sub BRBR { MODES( TeX => '\\leavevmode\\\\\\relax \\leavevmode\\\\\\relax ', Latex2HTML => '\\begin{rawhtml}<BR><BR>\\end{rawhtml}', HTML => '<P>'); };
 sub LQ { MODES( TeX => "\\lq\\lq{}", Latex2HTML =>   '"',  HTML =>  '&quot;' ); };
 sub RQ { MODES( TeX => "\\rq\\rq{}", Latex2HTML =>   '"',   HTML =>  '&quot;' ); };
 sub BM { MODES(TeX => '\\(', Latex2HTML => '\\(', HTML =>  ''); };  # begin math mode
@@ -1513,6 +1535,9 @@ sub SOLUTION_HEADING { MODES( TeX => '\\par {\\bf '.maketext('Solution:').' }',
 sub HINT_HEADING { MODES( TeX => "\\par {\\bf Hint: }", Latex2HTML => "\\par {\\bf Hint: }", HTML => "<B>Hint:</B> "); };
 sub US { MODES(TeX => '\\_', Latex2HTML => '\\_', HTML => '_');};  # underscore, e.g. file${US}name
 sub SPACE { MODES(TeX => '\\ ',  Latex2HTML => '\\ ', HTML => '&nbsp;');};  # force a space in latex, doesn't force extra space in html
+sub NBSP { MODES(TeX => '~',  Latex2HTML => '~', HTML => '&nbsp;');}; 
+sub NDASH { MODES(TeX => '--',  Latex2HTML => '--', HTML => '&ndash;');}; 
+sub MDASH { MODES(TeX => '---',  Latex2HTML => '---', HTML => '&mdash;');};
 sub BBOLD { MODES(TeX => '{\\bf ',  Latex2HTML => '{\\bf ', HTML => '<B>'); };
 sub EBOLD { MODES( TeX => '}', Latex2HTML =>  '}',HTML =>  '</B>'); };
 sub BLABEL { MODES(TeX => '', Latex2HTML => '', HTML => '<LABEL>'); };
@@ -1832,7 +1857,7 @@ sub general_math_ev3 {
 	my $mode = shift || "inline";
 
 	$in = FEQ($in); # Format EQuations
-	$in =~ s/((^|[^\\])(\\\\)*)%/\1\\%/g; # avoid % becoming TeX comments (unless already escaped)
+	$in =~ s/((^|[^\\])(\\\\)*)%/$1\\%/g; # avoid % becoming TeX comments (unless already escaped)
 
 	## remove leading and trailing spaces so that HTML mode will
 	## not include unwanted spaces as per Davide Cervone.
@@ -1851,7 +1876,7 @@ sub general_math_ev3 {
 	if($displayMode eq "HTML_MathJax") {
      $out = '<span class="MathJax_Preview">[math]</span><script type="math/tex">'.$in.'</script>' if $mode eq "inline";
      $out = '<span class="MathJax_Preview">[math]</span><script type="math/tex; mode=display">'.$in.'</script>' if $mode eq "display";
-	} elsif ($displayMode eq "HTML_dpng") {
+	} elsif ($displayMode eq "HTML_dpng" ) {
 		# for jj's version of ImageGenerator
 		#$out = $envir->{'imagegen'}->add($in_delim);
 		# for my version of ImageGenerator
@@ -2157,13 +2182,14 @@ sub beginproblem {
 			(defined($effectivePermissionLevel) && defined($PRINT_FILE_NAMES_PERMISSION_LEVEL) && $effectivePermissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL)
 			 || ( defined($inlist{ $studentLogin }) and ( $inlist{ $studentLogin }>0 )  ) ;
 
+	$out .= MODES( TeX => '', HTML => '<P style="margin: 0">');
 	if ( $print_path_name_flag ) {
-		$out = &M3("{\\bf ${probNum}. {\\footnotesize ($problemValue $points) \\path|$fileName|}}\\newline ",
+		$out .= &M3("{\\bf ${probNum}. {\\footnotesize ($problemValue $points) \\path|$fileName|}}\\newline ",
 		" \\begin{rawhtml} ($problemValue $points) <B>$l2hFileName</B><BR>\\end{rawhtml}",
 		 "($problemValue $points) <B>$fileName</B><BR>"
 	 	   ) if ($problemValue >=0 );
 	} else {
-		$out = &M3("{\\bf ${probNum}.} ($problemValue $points) ",
+		$out .= &M3("{\\bf ${probNum}.} ($problemValue $points) ",
 		"($problemValue $points) ",
 		 "($problemValue $points) "
 	 	   ) if ($problemValue  >= 0);
@@ -2651,7 +2677,8 @@ sub image {
 
  	my @output_list = ();
   	while(@image_list) {
- 		my $imageURL = alias(shift @image_list);
+ 		my $imageURL = alias(shift @image_list)//'';
+ 		$imageURL = ($envir{use_site_prefix})? $envir{use_site_prefix}.$imageURL : $imageURL;
  		my $out="";
 
 		if ($displayMode eq 'TeX') {

@@ -199,13 +199,9 @@ sub new {
 	&surePathToTmpFile
 	&fileFromPath
 	&directoryFromPath
-	&createFile
-
 	&includePGtext
-
 	&PG_answer_eval
 	&PG_restricted_eval
-
 	&send_mail_to
 	&PGsort
 
@@ -232,7 +228,6 @@ The macros shared with the safe compartment are
 	'&surePathToTmpFile'
 	'&fileFromPath'
 	'&directoryFromPath'
-	'&createFile'
 	'&PG_answer_eval'
 	'&PG_restricted_eval'
 	'&be_strict'
@@ -1011,7 +1006,7 @@ the errors.
 	###### PG error processing code ##########
 	##########################################
         my (@input,$lineNumber,$line);
-	my $permissionLevel = $self->{envir}->{permissionLevel}||0; #user permission level
+		my $permissionLevel = $self->{envir}->{permissionLevel}||0; #user permission level
         # Only show the problem text to users with permission
         if ($self -> {errors} && $self->{envir}->{VIEW_PROBLEM_DEBUGGING_INFO} <= $permissionLevel) {
                 #($self -> {errors}) =~ s/</&lt/g;
@@ -1027,7 +1022,7 @@ the errors.
                     $self->{envir} ->{'probNum'} .
                     qq!"><pre>        Problem!.
                     $self->{envir} ->{'probNum'}.
-                    qq!\nERROR caught by Translator while processing problem file:! .
+                    qq!\n1. ERROR caught by Translator while processing problem file:! .
                 	$self->{envir}->{'probFileName'}.
                 	"\n****************\r\n" .
                 	$self -> {errors}."\r\n" .
@@ -1044,14 +1039,13 @@ the errors.
                 }
                 push(@PROBLEM_TEXT_OUTPUT  ,"\n-----<br/></pre>\r\n");
 
-
-
         } elsif ($self -> {errors}) {
+        		warn "ERRORS in rendering problem: ". $self->{envir} ->{'probNum'}. " ". $self -> {errors};
                 push(@PROBLEM_TEXT_OUTPUT   ,  qq!\n<A NAME="problem! .
                     $self->{envir} ->{'probNum'} .
                     qq!"><pre>        Problem !.
                     $self->{envir} ->{'probNum'}.
-                    qq!\nERROR caught by Translator while processing this problem <br/></pre>\r\n!);
+                    qq!\n2. ERROR caught by Translator while processing this problem <br/></pre>\r\n!);
         }
 =pod
 
@@ -1256,6 +1250,20 @@ sub process_answers{
 }
 
 
+sub stringify_answers {
+  my $self = shift;
+  no strict;
+  local $rh_answers = $self->{rh_evaluated_answers};
+  $self->{safe}->share('$rh_answers');
+  $self->{safe}->reval(<<'  END_EVAL;');
+    (sub {
+      foreach my $label (keys %$rh_answers) {
+        $rh_answers->{$label}->stringify_hash if ref($rh_answers->{$label}) =~ m/AnswerHash/;
+      }
+    })->();
+  END_EVAL;
+  die $@ if $@;
+}
 
 =head3 grade_problem
 
@@ -1285,6 +1293,7 @@ sub grade_problem {
 		$self->{safe}->reval('&{$rf_grader}($rh_answers,$rh_state,%rf_options)');
 	use strict;
 	die $@ if $@;
+	$self->stringify_answers;
 	($self->{rh_problem_result}, $self->{rh_problem_state});
 }
 

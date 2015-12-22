@@ -39,7 +39,7 @@ sub make {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   while (scalar(@_) < 2) {push(@_,0)}
-  my $c = bless {$self->hash, data => [@_[0,1]], context => $context}, $class;
+  my $c = bless {$self->hashNoInherit, data => [@_[0,1]], context => $context}, $class;
   foreach my $x (@{$c->{data}}) {$x = $context->Package("Real")->make($context,$x) unless Value::isValue($x)}
   return $c;
 }
@@ -347,7 +347,7 @@ sub format {
 sub perl {
   my $self = shift; my $parens = shift;
   my $s = Value::Complex::format($self->{format},$self->value,"string",$self->{equation});
-  $s =~ s/(\d)i$/\1*i/; $s =~ s/-i/ - i/; $s = "(".$s.")" if $parens;
+  $s =~ s/(\d)i$/$1*i/; $s =~ s/-i/ - i/; $s = "(".$s.")" if $parens;
   return $s;
 }
 

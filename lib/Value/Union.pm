@@ -52,7 +52,7 @@ sub new {
 }
 
 #
-#  Make a set (it might not be reduced)
+#  Make a union (it might not be reduced)
 #
 sub make {
   my $self = shift;
@@ -339,7 +339,7 @@ sub string {
 }
 
 sub TeX {
-  my $self = shift; my $equation = shift; shift; shift; my $prec = shift;
+  my $self = shift; my $equation = shift; shift; shift; my $prec = shift//0; #FIXME find out about precedece
   my $op = ($equation->{context} || $self->context)->{operators}{'U'};
   my @intervals = ();
   foreach my $x (@{$self->data}) {push(@intervals,$x->TeX($equation))}

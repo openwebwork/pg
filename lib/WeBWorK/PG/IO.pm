@@ -7,6 +7,12 @@ package WeBWorK::PG::IO;
 use parent qw(Exporter);
 use JSON qw(decode_json);
 use PGUtil qw(not_null);
+use WeBWorK::Utils qw(path_is_subdir);
+use WeBWorK::CourseEnvironment;
+
+my $CE = new WeBWorK::CourseEnvironment({
+    webwork_dir => $ENV{WEBWORK_ROOT},
+					});
 =head1 NAME
 
 WeBWorK::PG::IO - Private functions used by WeBWorK::PG::Translator for file IO.
@@ -27,10 +33,19 @@ BEGIN {
 		directoryFromPath
 		createFile
 		createDirectory
-		AskSage
+                path_is_course_subdir
 	);
 
-	our %SHARE = map { $_ => __PACKAGE__ } @EXPORT;
+	our @SHARED_FUNCTIONS = qw(
+                includePGtext
+                read_whole_problem_file
+                convertPath
+                fileFromPath
+                directoryFromPath
+                createDirectory
+        );
+
+	our %SHARE = map { $_ => __PACKAGE__ } @SHARED_FUNCTIONS;
 	my $ww_version = "2.x";  # hack -- only WW2 versions are supported.
 	if (defined $ww_version) {
 		my $mod;
@@ -116,6 +131,10 @@ sub read_whole_problem_file {
 
 sub read_whole_file {
 	my $filePath = shift;
+
+	die "File path $filePath is unsafe." 
+	    unless path_is_course_subdir($filePath);
+	
 	local (*INPUT);
 	open(INPUT, "<$filePath") || die "$0: read_whole_file subroutine: <BR>Can't read file $filePath";
 	local($/)=undef;
@@ -176,6 +195,9 @@ Creates a file with the given name, permission bits, and group ID.
 
 sub createFile {
 	my ($fileName, $permission, $numgid) = @_;
+
+	die 'Path is unsafe' unless path_is_course_subdir($fileName);
+
 	open(TEMPCREATEFILE, ">$fileName")
 		or die "Can't open $fileName: $!";
 	my @stat = stat TEMPCREATEFILE;
@@ -199,6 +221,7 @@ Creates a directory with the given name, permission bits, and group ID.
 
 sub createDirectory {
 	my ($dirName, $permission, $numgid) = @_;
+
 	$permission = (defined($permission)) ? $permission : '0770';
 	# FIXME -- find out where the permission is supposed to be defined
 	my $errors = '';
@@ -217,13 +240,25 @@ sub createDirectory {
 		return 1;
 	}
 }
+
+=item path_is_course_subdir($path)
+
+Checks to see if the given path is a sub directory of the courses directory
+
+=cut
+
+sub path_is_course_subdir {
+    
+    return path_is_subdir(shift,$CE->{webwork_courses_dir},1);
+}
+
 #
 # isolate the call to the sage server in case we have to jazz it up
 #
 sub query_sage_server {
 	my ($python, $url, $accepted_tos, $setSeed, $webworkfunc, $debug, $curlCommand)=@_;
 	my $sagecall = 	qq{$curlCommand -i -k -sS -L --data-urlencode "accepted_tos=${accepted_tos}"}.
-	                qq{ --data-urlencode "user_variables=WEBWORK" --data-urlencode "code=${setSeed}${webworkfunc}$python" $url};
+	                qq{ --data-urlencode 'user_expressions={"WEBWORK":"_webwork_safe_json(WEBWORK)"}' --data-urlencode "code=${setSeed}${webworkfunc}$python" $url};
     my $output  =`$sagecall`;
 	if ($debug) {
 	    warn "debug is turned on in IO.pm. ";
@@ -270,6 +305,7 @@ sub AskSage {
   my $curlCommand = $args->{curlCommand};
   my $webworkfunc = <<END;
 WEBWORK={}
+
 def _webwork_safe_json(o):
     import json
     def default(o):
@@ -293,7 +329,6 @@ def _webwork_safe_json(o):
         # Let the base class default method raise the TypeError
         return json.JSONEncoder.default(self, o)
     return json.dumps(o, default=default)
-get_ipython().display_formatter.formatters['application/json'].for_type(dict,_webwork_safe_json)
 END
 
 
@@ -305,13 +340,15 @@ END
 		# has something been returned?
 		not_null($output) or die "Unable to make a sage call to $url."; 
 		warn "IO::askSage: We have some kind of value |$output| returned from sage" if $output and $debug; 
+ 
 		my $decoded = decode_json($output);
 		not_null($decoded) or die "Unable to decode sage output";
 		if ($debug and defined $decoded ) {
 			my $warning_string = "decoded contents\n ";
 			foreach my $key (keys %$decoded) {$warning_string .= "$key=".$decoded->{$key}.", ";}
 			$warning_string .= ' end decoded contents';
-			warn "\n$warning_string" if $debug;
+			#warn "\n$warning_string" if $debug;
+			warn " decoded contents \n", PGUtil::pretty_print($decoded, 'text'), "end decoded contents";
 		}
 		# was there a Sage/python syntax Error
 		# is the returned something text from stdout (deprecated)
@@ -322,17 +359,22 @@ END
 		$success = 1 if defined $success and $success eq 'true';
 		if ($decoded->{success}==1) {
 			my $WEBWORK_variable_non_empty=0;
-			my $sage_WEBWORK_data = $decoded->{execute_reply}{user_variables}{WEBWORK}{data}{'application/json'};
+			my $sage_WEBWORK_data = $decoded->{execute_reply}{user_expressions}{WEBWORK}{data}{'text/plain'};
+			warn "sage_WEBWORK_data $sage_WEBWORK_data" if $debug;
 			if (not_null($sage_WEBWORK_data) ) {
-				$WEBWORK_variable_non_empty = ($sage_WEBWORK_data ne "{}") ? 1:0;
+				$WEBWORK_variable_non_empty =  #another hack because '{}' is sometimes returned
+				      ($sage_WEBWORK_data ne "{}" and $sage_WEBWORK_data ne "'{}'") ? 
+				      1:0;
 			}  # {} indicates that WEBWORK was not used to pass or return a variable from sage.
 			
 			warn "WEBWORK variable has content"  if $debug and $WEBWORK_variable_non_empty;
-			warn "sage_WEBWORK_data ", join(" ", %$sage_WEBWORK_data) if $debug and $WEBWORK_variable_non_empty;
+			$sage_WEBWORK_data =~s/^'//;  #FIXME -- for now strip off the surrounding single quotes '.
+			$sage_WEBWORK_data =~s/'$//;
+			warn "sage_WEBWORK_data: ", PGUtil::pretty_print($sage_WEBWORK_data) if $debug and $WEBWORK_variable_non_empty;
 
 			if ( $WEBWORK_variable_non_empty )  { 
 				# have specific WEBWORK variables been defined?
-				$ret->{webwork} = decode_json($decoded->{execute_reply}->{user_variables}{WEBWORK}{data}{'application/json'});
+				$ret->{webwork} = decode_json($sage_WEBWORK_data);
 				$ret->{success}=1;
 				$ret->{stdout} = $decoded->{stdout};		
 			} elsif (not_null( $decoded->{stdout} ) ) { # no WEBWORK content, but stdout exists

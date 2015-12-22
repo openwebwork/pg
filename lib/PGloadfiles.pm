@@ -141,7 +141,10 @@ sub loadMacros {
    
     while (@files) {
         $fileName = shift @files;
-        next  if ($fileName =~ /^PG.pl$/) ;    # the PG.pl macro package is already loaded.
+
+        next  if ($fileName =~ /^PG\.pl$/) ;    # the PG.pl macro package is already loaded.
+
+	next unless ($fileName =~ /\.(pl|pg)$/); # dont try to parse files without macro extensions
 
         my $macro_file_name = $fileName;
 	$macro_file_name =~s/\.pl//;  # trim off the extension
@@ -217,10 +220,12 @@ sub findMacroFile {
 sub compile_file {
     my $self     = shift;
  	my $filePath = shift;
+    
  	warn "loading $filePath" if $debugON; 
  	local(*MACROFILE);
  	local($/);
  	$/ = undef;   # allows us to treat the file as a single line
+    
  	open(MACROFILE, "<$filePath") || die "Cannot open file: $filePath";
  	my $string = 'BEGIN {push @__eval__, __FILE__};' . "\n" . <MACROFILE>;
  	#warn "compiling $string";

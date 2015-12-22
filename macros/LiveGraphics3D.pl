@@ -1,4 +1,19 @@
-sub _LiveGraphics3D_init {}; # don't reload this file
+sub _LiveGraphics3D_init {
+
+    if ($main::envir{use_javascript_for_live3d} &&
+	!$main::LiveGraphics3DHeaderSet) {
+	main::HEADER_TEXT(<<'END_HEADER_TEXT');
+	<script src="/webwork2_files/js/vendor/x3dom/x3dom-full.js" language="javascript"></script>
+	<script src="/webwork2_files/js/vendor/jszip/jszip.min.js" language="javascript"></script>
+	<script src="/webwork2_files/js/vendor/jszip/jszip-utils.min.js" language="javascript"></script>
+	<script src="/webwork2_files/js/apps/LiveGraphics/liveGraphics.js" language="javascript"></script>
+	<link rel="stylesheet" href="/webwork2_files/js/vendor/x3dom/x3dom.css">
+END_HEADER_TEXT
+
+	$main::LiveGraphics3DHeaderSet = 1;
+    }
+    
+}; 
 
 =head2 LiveGraphics3D.pl
 
@@ -98,6 +113,59 @@ sub LiveGraphics3D {
          \\hbox{you must view it on line ]}
       }";
     }
+    # In html mode check to see if we use javascript or not
+  } elsif ($main::envir{use_javascript_for_live3d}) {
+    my ($w,$h) = @{$options{size}};
+    $out .= $bHTML if ($main::displayMode eq "Latex2HTML");
+    #
+    #  Put the js in a table
+    #
+    $out .= qq{\n<TABLE BORDER="1" CELLSPACING="2" CELLPADDING="0">\n<TR>};
+    $out .= qq{<TD WIDTH="$w" HEIGHT="$h" ALIGN="CENTER">};
+
+    $archive_input = $options{archive} // '';
+    $file_input = $options{file} // '';
+    $direct_input = $options{input} // '';
+
+    $direct_input =~ s/\n//g;
+
+    #
+    #  include any independent variables
+    #
+    $ind_vars = '{}';
+    
+    if ($options{vars}) {
+	$ind_vars = "{";
+	%vars = @{$options{vars}};
+
+	foreach $var (keys %vars ) {
+	    $ind_vars .= "\"$var\":\"".$vars{$var}."\",";
+	}
+	
+	$ind_vars .= "}";
+    }
+    
+    $out .= <<EOS;
+    <script>
+    var thisTD = jQuery('script:last').parent();
+    var options = { width : $w,
+		    height : $h,
+		    file : '$file_input',
+		    input : '$direct_input',
+		    archive : '$archive_input',
+		    vars : $ind_vars,
+    };
+
+
+    var graph = new LiveGraphics3D(thisTD[0],options);
+    </script>
+EOS
+
+
+
+    $out .= "</TD></TD>\n</TABLE>\n";
+    $out .= $eHTML if ($main::displayMode eq "Latex2HTML");
+    # otherwise use the applet
   } else {
     my ($w,$h) = @{$options{size}};
     $out .= $bHTML if ($main::displayMode eq "Latex2HTML");
@@ -160,7 +228,9 @@ sub LiveGraphics3D {
     $out .= "</APPLET>";
     $out .= "</TD></TD>\n</TABLE>\n";
     $out .= $eHTML if ($main::displayMode eq "Latex2HTML");
+    
   }
+
 
   return $out;
 }

@@ -39,6 +39,7 @@ my $heading = '#+';
 my $rule = '(?:---+|===+)';
 my $list = '(?:^|(?<=[\t ]))(?:[-+o*]|(?:\d|[ivx]+|[IVX]+|[a-zA-Z])[.)]) +';
 my $align = '>> *| *<<';
+my $code = '```';
 my $pre = ':   ';
 my $emphasis = '\*+|_+';
 my $chars = '\\\\.|[{}[\]\'"]';
@@ -48,7 +49,7 @@ my $close = '(?:[!>%@$]|::?|``?| ?\|+)\]';
 my $noop = '\[\]';
 
 my $splitPattern =
-  qr/($indent|$open|$ansrule|$close|$linebreak|$lineend|$heading|$rule|$list|$align|$pre|$emphasis|$noop|$chars)/m;
+  qr/($indent|$open|$ansrule|$close|$linebreak|$lineend|$heading|$rule|$list|$align|$code|$pre|$emphasis|$noop|$chars)/m;
 
 my %BlockDefs;
 
@@ -171,6 +172,7 @@ sub All {
     /-|=/         && do {return $self->Rule($token)};
     /<</          && do {return $self->Center($token)};
     />>/          && do {return $self->Align($token)};
+    /```/         && do {return $self->Code($token)};
     /:   /        && do {return $self->Preformatted($token)};
     $self->Text($token);
   }
@@ -331,7 +333,7 @@ sub Emphasis {
     }
     $block = $block->{prev};
   }
-  if ($self->nextChar(' ') !~ m/\s/ && $self->prevChar(' ') !~ m/[a-z0-9]/)
+  if ($self->nextChar(' ') !~ m/\s/ && $self->prevChar(' ') !~ m/[a-z0-9]/i)
     {$self->Begin($token,substr($token,0,1))} else {$self->Text($token)}
 }
 
@@ -396,7 +398,7 @@ sub Center {
   while (!$block->{align} || $block->{align} ne 'right') {
     return $self->Text($token) if $block->{type} eq 'root';
     $block = $block->{prev};
-}
+  }
   if ($self->isLineEnd($block)) {
     $block->{align} = 'center';
     $block->{terminator} = $token;
@@ -414,10 +416,19 @@ sub Align {
   $self->{atLineStart} = $self->{ignoreNL} = 1;
 }
 
-sub Preformatted {
-  my $self = shift;  my $token = shift; my $action = shift; my $id = shift || $token;
+sub Code {
+  my $self = shift; my $token = shift;
   return $self->Text($token) if !$self->{atLineStart} ||
-    ($self->{block}{type} eq 'align' && $self->{atBlockStart});
+    ($self->{block}{type} eq 'code' && $self->{atBlockStart});
+  $self->End("start of preformatted code");
+  $self->{indent} = $self->{actualIndent};
+  $self->Begin($token,"```");
+}
+
+sub Preformatted {
+  my $self = shift; my $token = shift;
+  return $self->Text($token) if !$self->{atLineStart} ||
+    ($self->{block}{type} eq 'pre' && $self->{atBlockStart});
   $self->End("start of preformatted text");
   $self->{indent} = $self->{actualIndent};
   $self->Begin($token,':   ');
@@ -440,10 +451,10 @@ my $balanceAll = qr/[\{\[\'\"]/;
 %BlockDefs = (
   "[:"   => {type=>'math', parseComments=>1, parseSubstitutions=>1,
                terminator=>qr/:\]/, terminateMethod=>'terminateGetString',
-	       parsed=>1, allowStar=>1, options=>["context","reduced"]},
+	       parsed=>1, allowStar=>1, allowDblStar=>1, allowTriStar=>1, options=>["context","reduced"]},
   "[::"  => {type=>'math', parseComments=>1, parseSubstitutions=>1,
                terminator=>qr/::\]/, terminateMethod=>'terminateGetString',
-	       parsed=>1, allowStar=>1, display=>1, options=>["context","reduced"]},
+	       parsed=>1, allowStar=>1, allowDblStar=>1, allowTriStar=>1, display=>1, options=>["context","reduced"]},
   "[`"   => {type=>'math', parseComments=>1, parseSubstitutions=>1,
                terminator=>qr/\`\]/, terminateMethod=>'terminateGetString',},
   "[``"  => {type=>'math', parseComments=>1, parseSubstitutions=>1,
@@ -457,12 +468,12 @@ my $balanceAll = qr/[\{\[\'\"]/;
   "[%"   => {type=>'comment', parseComments=>1, terminator=>qr/%\]/},
   "[\@"  => {type=>'command', parseComments=>1, parseSubstitutions=>1,
                terminator=>qr/@\]/, terminateMethod=>'terminateGetString',
-               balance=>qr/[\'\"]/, allowStar=>1, allowDblStar=>1},
-  "[\$"  => {type=>'variable', parseComments=>1, parseSubstitutions=>1,
+               balance=>qr/[\'\"]/, allowStar=>1, allowDblStar=>1, allowTriStar=>1},
+  "[\$"  => {type=>'variable', parseComments=>1, parseSubstitutions=>0,
                terminator=>qr/\$?\]/, terminateMethod=>'terminateGetString',
-	       balance=>$balanceAll, cancelUnbalanced=>1, cancelNL=>1, allowStar=>1, allowDblStar=>1},
+	       balance=>$balanceAll, cancelUnbalanced=>1, cancelNL=>1, allowStar=>1, allowDblStar=>1, allowTriStar=>1},
   ' [|'  => {type=>'verbatim', cancelNL=>1, allowStar=>1, terminateMethod=>'terminateGetString'},
-  " {"   => {type=>'options', parseComments=>1, parseSubstitutions=>1, terminator=>qr/\}/,
+  " {"   => {type=>'options', parseComments=>1, parseSubstitutions=>0, terminator=>qr/\}/,
 	       balance=>$balanceAll, cancelUnbalanced=>1, terminateMethod => 'terminateOptions'},
   "{"    => {type=>'balance', parseComments=>1, parseSubstitutions=>1, terminator=>qr/\}/,
 	       balance=>$balanceAll, cancelUnbalanced=>1},
@@ -470,6 +481,7 @@ my $balanceAll = qr/[\{\[\'\"]/;
 	       balance=>$balanceAll, cancelUnbalanced=>1},
   "'"    => {type=>'balance', terminator=>qr/\'/, terminateMethod=>'terminateBalance'},
   '"'    => {type=>'balance', terminator=>qr/\"/, terminateMethod=>'terminateBalance'},
+  "```"  => {type=>'code', terminator=>qr/```/, terminateMethod=>'terminateCode'},
   ":   " => {type=>'pre', parseAll=>1, terminator=>qr/\n+/, terminateMethod=>'terminatePre',
                combine=>{pre=>"type"}, noIndent=>-1},
   ">>"   => {type=>'align', parseAll=>1, align=>"right", breakInside=>1,
@@ -492,7 +504,9 @@ sub terminateGetString {
 
 sub terminateBalance {
   my $self = shift; my $token = shift;
-  my $block = $self->{block}; my $stackString = $self->stackString;
+  my $block = $self->{block};
+  if (!$block->{stack} || scalar(@{$block->{stack}}) == 0) {$self->Text("",1)}
+  my $stackString = $self->stackString;
   $self->{block} = $block->{prev}; $self->{block}->popItem;
   if ($block->{token} eq '"' || $block->{token} eq "'") {
     $self->Item("quote",$block->{token});
@@ -503,17 +517,28 @@ sub terminateBalance {
   }
 }
 
+sub terminateCode {
+  my $self = shift; my $token = shift;
+  my $top = $self->{block}->topItem;
+  if ($top->{type} eq "text") {
+    if (($top->{stack}[0]||"") =~ m/^ *[a-z0-9]+$/ && ($top->{stack}[1]||"") =~ m/^\n+$/) {
+      $self->{block}{class} = $top->{stack}[0]; $self->{block}{class} =~ s/^ +//;
+      shift(@{$top->{stack}});
+    }
+  }
+}
+
 sub terminatePre {
   my $self = shift; my $token = shift;
   $self->{block}{terminator} = ''; # we add the ending token to the text below
   if ($token =~ m/\n\n/) {
-    $self->{block} = $self->{block}{prev};
     $self->Par($token);
+    $self->{block} = $self->{block}{prev};
   } else {
     $self->Text($token);
     $self->{atLineStart} = 1;
     $self->{actualIndent} = 0;
-}
+  }
 }
 
 sub terminateOptions {
@@ -547,39 +572,55 @@ sub terminateOptions {
 sub StarOption {
   my $self = shift; my $token = shift;
   my $top = $self->{block}->topItem;
+  if ($token eq '*' && $top->{allowStar}) {
+    $top->{hasStar} = 1;
+    return 1;
+  }
+  if ($token eq '***' && $top->{allowTriStar}) {
+    $top->{hasStar} = 3;
+    return 1;
+  }
   if ($token eq '**' && $top->{allowDblStar}) {
+    if ($top->{type} eq "math") {$top->{hasDblStar} = 1; return 1}
     $self->{block}->popItem;
     my $string;
     for ($top->{type}) {
       /variable/ && do {$string = $self->replaceVariable($top); last;};
       /command/  && do {$string = $self->replaceCommand($top); last;};
-      PGML::Warning "Unexpected type '$top->{type}' in ".ref($self)."->Star";
+      PGML::Warning "Unexpected type '$top->{type}' in ".ref($self)."->StarOption";
     }
     my @split = $self->Split($string);
     push(@split,undef) if scalar(@split) % 2 == 1;
     splice(@{$self->{split}},$self->{i},0,@split);
     return 1;
   }
-  if ($token eq '*' && $top->{allowStar}) {
-    $top->{hasStar} = 1;
-    return 1;
-}
   return 0;
 }
 
-sub stackString {
-  my $self = shift; my $block = $self->{block};
+sub stackText {
+  my $self = shift; my $stack = shift;
   my @strings = ();
-  foreach my $item (@{$block->{stack}}) {
+  foreach my $item (@{$stack}) {
     for ($item->{type}) {
       /text/     && do {push(@strings,$self->replaceText($item)); last};
       /quote/    && do {push(@strings,$self->replaceQuote($item)); last};
       /variable/ && do {push(@strings,$self->replaceVariable($item)); last};
       /command/  && do {push(@strings,$self->replaceCommand($item)); last};
-      PGML::Warning "Warning: unexpected type '$item->{type}' in stackString\n";
+      /balance/  && do {push(@strings,$self->replaceBalance($item)); last};
+      PGML::Warning "Warning: unexpected type '$item->{type}' in stackText\n";
     }
   }
   return join('',@strings);
+}
+
+sub stackString {
+  my $self = shift; my $block = $self->{block};
+  return $self->stackText($block->{stack});
+}
+
+sub replaceBalance {
+  my $self = shift; my $item = shift;
+  return $item->{token}.$self->stackText($item->{stack}).$item->{terminator};
 }
 
 sub replaceText {
@@ -687,7 +728,7 @@ sub popItem {
 sub combineTopItems {
   my $self = shift; my $i = shift; $i = -1 unless defined $i;
   my $top = $self->topItem($i); my $prev = $self->topItem($i-1); my $par;
-  if ($prev->{type} eq 'par' && $top->{combine}{par}) {$par = $prev; $prev = $self->topItem($i-2)}
+  for (my $j = $i-1; $prev->{type} eq 'par' && $top->{combine}{par}; $j--) {$par = $prev; $prev = $self->topItem($j)}
   my $id = $top->{combine}{$prev->{type}}; my $value; my $inside = 0;
   if ($id) {
     if (ref($id) eq 'HASH') {($id,$value) = %$id; $inside = 1} else {$value = $prev->{$id}}
@@ -782,12 +823,17 @@ our @ISA = ('PGML::Item');
 sub new {
   my $self = shift;
   $self->SUPER::new("text",{stack=>[@_], combine => {text => "type"}});
-    }
+}
 
 sub pushText {
   my $self = shift;
-  foreach my $text (@_) {push(@{$self->{stack}},$text) if $text ne ""}
+  foreach my $text (@_) {
+    if ($text ne "") {
+      $text =~ s/\t/    /g;
+      push(@{$self->{stack}},$text);
+    }
   }
+}
 
 sub pushItem {
   my $self = shift;
@@ -799,7 +845,7 @@ sub show {
   my @strings = ($self->SUPER::show($indent));
   push(@strings,$indent."stack: ['".join("','",map {$self->quote($_)} @{$self->{stack}})."']");
   return join("\n",@strings);
-  }
+}
 
 ######################################################################
 ######################################################################
@@ -810,7 +856,7 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $parser = shift;
   bless {parser => $parser}, $class;
-  }
+}
 
 sub format {
   my $self = shift;
@@ -840,6 +886,7 @@ sub string {
       /heading/  && do {$string = $self->Heading($item); last};
       /quote/    && do {$string = $self->Quote($item,$strings[-1] || ''); last};
       /rule/     && do {$string = $self->Rule($item); last};
+      /code/     && do {$string = $self->Code($item); last};
       /pre/      && do {$string = $self->Pre($item); last};
       /verbatim/ && do {$string = $self->Verbatim($item); last};
       /break/    && do {$string = $self->Break($item); last};
@@ -872,6 +919,7 @@ sub Italic   {return ""}
 sub Heading  {return ""}
 sub Quote    {return ""}
 sub Rule     {return ""}
+sub Code     {return ""}
 sub Pre      {return ""}
 sub Verbatim {return ""}
 sub Break    {return ""}
@@ -883,6 +931,7 @@ sub Math {
   if ($item->{parsed}) {
     my $context = $main::context{Typeset};
     $context = $main::context{current} if $item->{hasStar};
+    $item->{reduced} = 1 if $item->{hasDblStar} || ($item->{hasStar}||0) == 3;
     if ($item->{context}) {
       if (Value::isContext($item->{context})) {$context = $item->{context}}
       else {$context = Parser::Context->getCopy(undef,$item->{context})}
@@ -891,8 +940,9 @@ sub Math {
     my $obj = Parser::Formula($context,$math);
     if ($context->{error}{flag}) {
       PGML::Warning "Error parsing mathematics: $context->{error}{message}";
-      return "(math error)";
+      return "\\text{math error}";
     }
+    $obj = $obj->reduce if $item->{reduced};
     $math = $obj->TeX;
   }
   $math = "\\displaystyle{$math}" if $item->{display};
@@ -916,8 +966,13 @@ sub Answer {
       unless (Value::isValue($ans)) {
         $ans = Parser::Formula($item->{answer});
         if (defined($ans)) {
+	  my $context = $ans->context;
+	  my $flags = Value::contextSet($context,reduceConstants=>0,reduceConstantFunctions=>0);
+	  my $f = Parser::Formula($item->{answer});
+	  Value::contextSet($context,%{$flags});
 	  $ans = $ans->eval if $ans->isConstant;
-	  $ans->{correct_ans} = "$item->{answer}";
+	  $ans->{correct_ans} = $f->string;
+          $ans->{correct_ans_latex_string} = $f->TeX;
 	  $item->{answer} = $ans;
         } else {
 	  PGML::Warning "Error parsing answer: ".Value->context->{error}{message};
@@ -930,14 +985,15 @@ sub Answer {
         unshift(@options,$item->{name});
         $method = "named_".$method;
       }
-      if ($item->{hasStar}) {
-        my $output = $ans->$method(@options);
-        $output =~ s!\\!\\\\!g;
-        $rule = main::EV3($output);
-      } else {
-        $rule = $ans->$method(@options);
+      $rule = $ans->$method(@options);
+      $rule = PGML::LaTeX($rule) if $item->{hasStar};
+      if (!(ref($ans) eq 'MultiAnswer' && $ans->{part} > 1)) {
+        if (defined($item->{name})) {
+          main::NAMED_ANS($item->{name} => $ans->cmp);
+        } else {
+          main::ANS($ans->cmp);
+        }
       }
-      main::ANS($ans->cmp) unless ref($ans) eq 'MultiAnswer' && $ans->{part} > 1;
     }
   } else {
     if (defined($item->{name})) {
@@ -952,6 +1008,7 @@ sub Answer {
 sub Command {
   my $self = shift; my $item = shift;
   my $text = $self->{parser}->replaceCommand($item);
+  $text = PGML::LaTeX($text) if ($item->{hasStar}||0) == 3;
   $text = $self->Escape($text) unless $item->{hasStar};
   return $text;
 }
@@ -959,6 +1016,7 @@ sub Command {
 sub Variable {
   my $self = shift; my $item = shift; my $cur = shift;
   my $text = $self->{parser}->replaceVariable($item,$cur);
+  $text = PGML::LaTeX($text) if ($item->{hasStar}||0) == 3;
   $text = $self->Escape($text) unless $item->{hasStar};
   return $text;
 }
@@ -1034,6 +1092,15 @@ sub Bullet {
   return $self->nl.'<li>'.$self->string($item)."</li>\n";
 }
 
+sub Code {
+  my $self = shift; my $item = shift;
+  my $class = ($item->{class} ? ' class="'.$item->{class}.'"' : "");
+  return $self->nl .
+    '<pre style="margin:0"><code'.$class.'>' .
+    $self->string($item) .
+    "</code></pre>\n";
+}
+
 sub Pre {
   my $self = shift; my $item = shift;
   return
@@ -1053,7 +1120,7 @@ sub Heading {
 
 sub Par {
   my $self = shift; my $item = shift;
-  return $self->nl.'<p style="margin-bottom:0">'."\n"
+  return $self->nl.'<div style="margin-top:1em"></div>'."\n";
 }
 
 sub Break {"<br />\n"}
@@ -1170,6 +1237,15 @@ sub Bullet {
   return $self->nl."\\pgmlItem{}".$self->string($item)."\n";
 }
 
+sub Code {
+  my $self = shift; my $item = shift;
+  return
+    $self->nl .
+    "{\\pgmlPreformatted\\ttfamily%\n" .
+    $self->string($item) .
+    "\\par}%\n";
+}
+
 sub Pre {
   my $self = shift; my $item = shift;
   return
@@ -1249,7 +1325,7 @@ sub Format {
   } else {
     $format = '<div class="PGML">'."\n".PGML::Format::html->new($parser)->format.'</div>'."\n";
   }
-  warn join("\n","==================","Errors parsing PGML:",@warnings,"==================\n") if scalar(@warnings);
+  main::WARN_MESSAGE("==================","Errors parsing PGML:",@warnings,"==================") if scalar(@warnings);
   return $format;
 }
 
@@ -1257,6 +1333,18 @@ sub Format2 {
   my $string = shift;
   $string =~ s/\\\\/\\/g;
   PGML::Format($string);
+}
+
+sub LaTeX {
+  my $text = shift;
+  $text =~ s/\\/\\\\/g;
+  main::EV3P({
+    processCommands => 0,
+    processVariables => 0,
+    processParser => 0,
+    processMath => 1,
+    fixDollars => 0,
+  },$text);
 }
 
 ######################################################################
@@ -1357,21 +1445,18 @@ sub _PGML_init {
   loadMacros("contextTypeset.pl");
   Context($context);
   $problemPreamble->{TeX} .= $PGML::preamble unless $problemPreamble->{TeX} =~ m/definitions for PGML/;
-  if (defined($BR)) {
-    ## Avoid bad spacing at the top of the problem (need to modify hardcopyPreamble.tex)
-    TEXT(MODES(HTML=>'', TeX=>'
-      \ifx\pgmlMarker\undefined
-        \newdimen\pgmlMarker \pgmlMarker=0.00314159pt  % hack to tell if \newline was used
-      \fi
-      \ifx\oldnewline\undefined \let\oldnewline=\newline \fi
-      \def\newline{\oldnewline\hskip-\pgmlMarker\hskip\pgmlMarker\relax}%
-      \parindent=0pt
-      \catcode`\^^M=\active
-      \def^^M{\ifmmode\else\fi\ignorespaces}%  skip paragraph breaks in the preamble
-      \def\par{\ifmmode\else\endgraf\fi\ignorespaces}%
-    '));
-  }
-  if (!defined($BR)) {PGML::Eval("sub lex_sort {return sort(\@_)}")}  # hack to be able to run this on the command line
+  ## Avoid bad spacing at the top of the problem (need to modify hardcopyPreamble.tex)
+  TEXT(MODES(HTML=>'', TeX=>'
+    \ifx\pgmlMarker\undefined
+      \newdimen\pgmlMarker \pgmlMarker=0.00314159pt  % hack to tell if \newline was used
+    \fi
+    \ifx\oldnewline\undefined \let\oldnewline=\newline \fi
+    \def\newline{\oldnewline\hskip-\pgmlMarker\hskip\pgmlMarker\relax}%
+    \parindent=0pt
+    \catcode`\^^M=\active
+    \def^^M{\ifmmode\else\fi\ignorespaces}%  skip paragraph breaks in the preamble
+    \def\par{\ifmmode\else\endgraf\fi\ignorespaces}%
+  '));
 }
 
 ######################################################################

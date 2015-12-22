@@ -69,8 +69,49 @@ sub compare {
 #  Generate the various output formats
 #
 
-sub TeX {'{\rm '.shift->value.'}'}
-sub perl {"'".shift->value."'"}
+#
+#  Mark a string to be display verbatim
+#
+sub verb {shift; return "\\verb".chr(0x85).(shift).chr(0x85)}
+
+#
+#  Put normal strings into \text{} and others into \verb
+#
+sub quoteTeX {
+  my $self = shift; my $s = shift;
+  return $self->verb($s) unless $s =~ m/^[-a-z0-9 ,.;:+=?()\[\]]*$/i;
+  "\\text{$s}";
+}
+
+
+#
+#  Quote HTML special characters
+#
+sub quoteHTML {
+  shift; my $s = shift; my $nospan = shift;
+  return unless defined $s;
+  return $s if eval ('$main::displayMode') eq 'TeX';
+  $s =~ s/&/\&amp;/g;
+  $s =~ s/</\&lt;/g;
+  $s =~ s/>/\&gt;/g;
+  $s =~ s/"/\&quot;/g;
+  return $s if $nospan || $s !~ m/(\$|\\\(|\\\[)/;
+  return '<span class="tex2jax_ignore">'.$s.'</span>';
+}
+
+#
+#  Render the value verbatim
+#
+sub TeX {
+  my $self = shift;
+  $self->quoteTeX($self->value);
+}
+
+sub perl {
+ my $s = shift->value;
+ $s =~ s/'/\\'/g;
+ "'$s'";
+}
 
 ###########################################################################
 

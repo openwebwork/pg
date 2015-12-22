@@ -285,7 +285,7 @@ sub new {
   if ($alternate) {
     $num->{alternateForm} = 1;
     $num->{value_original_string} = $value;
-    $value =~ s/,/./;
+    $value =~ s/\{?,\}?/./;
     $num->{value_string} = $value;
     $num->{value} = $value + 0;
   }
@@ -322,7 +322,7 @@ sub string {
 sub TeX {
   my $self = shift;
   my $n = $self->swapDecimal($self->SUPER::TeX(@_));
-  $n =~ s/,/{,}/;
+  $n =~ s/\{?,\}?/{,}/;
   return $n;
 }
 

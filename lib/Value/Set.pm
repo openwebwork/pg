@@ -214,7 +214,7 @@ sub reduce {
 }
 
 #
-#  True if a union is reduced.
+#  True if a set is reduced.
 #
 #  (In scalar context, is a pair whose first entry is true or
 #   false, and when true the second value is the reason the

@@ -53,7 +53,7 @@ sub new {
     if $a == $b && ($open ne '[' || $close ne ']');
   return $context->Package("Set")->new($context,$a) if $a == $b;
   bless {
-    $self->hash,
+    $self->hashNoInherit,
     data => [$a,$b], open => $open, close => $close,
     leftInfinite => $nia, rightInfinite => $ib,
     context => $context,

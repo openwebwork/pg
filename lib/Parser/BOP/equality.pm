@@ -63,7 +63,7 @@ sub string {
   my $addparens =
       defined($precedence) &&
       ($precedence > $bop->{precedence} || ($precedence == $bop->{precedence} &&
-        ($bop->{associativity} eq 'right' || ($showparens eq 'same' && $extraParens))));
+        ($bop->{associativity} eq 'right' || $showparens eq 'same')));
   $outerRight = !$addparens && ($outerRight || $position eq 'right');
 
   $string = $self->{lop}->string($bop->{precedence}).
@@ -83,7 +83,7 @@ sub TeX {
   my $addparens =
       defined($precedence) &&
       ($precedence > $bop->{precedence} || ($precedence == $bop->{precedence} &&
-        ($bop->{associativity} eq 'right' || ($showparens eq 'same' && $extraParens))));
+        ($bop->{associativity} eq 'right' || $showparens eq 'same')));
   $outerRight = !$addparens && ($outerRight || $position eq 'right');
 
   $TeX = $self->{lop}->TeX($bop->{precedence}).
