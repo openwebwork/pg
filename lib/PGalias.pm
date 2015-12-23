@@ -214,7 +214,7 @@ sub make_alias {
 	} else {
 		$self->warning_message( "The file name $aux_file_id did not have an extension.<BR> " .
 		     "Every file name used as an argument to alias must have an extension.<BR> " .
-		     "The permissable extensions are .jpg, .pdf, .gif, .png, and .html .<BR>");
+		     "The permissable extensions are .jpg, .pdf, .gif, .png, .mpg, .mp4, .ogg, .webm and .html .<BR>");
 		$ext  = undef;
 		return undef;  #quit;
 	}
@@ -258,12 +258,17 @@ sub make_alias {
     #warn "resource list contains ", %{ $self->{resource_list} };
 	###################################################################
 	
-	if ($ext eq 'html') {
+	if ($ext eq 'html' 		    
+) {
 	   $adr_output = $self->alias_for_html($aux_file_id)
 	} elsif (   $ext eq 'gif'  
 		     or $ext eq 'jpg' 
 		     or $ext eq 'png'
-		     or $ext eq 'pdf'
+		    or $ext eq 'pdf'
+		    or $ext eq 'mp4'
+		    or $ext eq 'mpg'
+		    or $ext eq 'ogg'
+		    or $ext eq 'webm'
 		    ) {
 		if ($displayMode =~ /^HTML/ ) {
 			################################################################################
