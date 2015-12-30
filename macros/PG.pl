@@ -407,7 +407,7 @@ sub ENDDOCUMENT {
 	        if (defined($answergroup)) {
 	            my @response_keys = $answergroup->{response}->response_labels;
 	            if ( 0 or # allow one to force debug output  manually
-	               ($inputs_ref->{showAnsGroupInfo})//'' and ($rh_envir->{permissionLevel})>= 5) {
+	               ($inputs_ref->{showAnsGroupInfo})//0 and ($rh_envir->{permissionLevel})>= 5) {
 	            	$PG->debug_message("PG.pl 388: ", pretty_print($answergroup) ) ;
 	            	$PG->debug_message("PG.pl 389: ", pretty_print($answergroup->{response}));
 	            }
@@ -563,10 +563,10 @@ sub Infinity () {Value->Package("Infinity")->new()}
 # ^function cos
 # ^function atan2
 #
-#  Allow these functions to be overridden
+#  Allow these functions to be overridden without complaint.
 #  (needed for log() to implement $useBaseTenLog)
 #
-use subs 'abs', 'sqrt', 'exp', 'log', 'sin', 'cos', 'atan2';
+use subs 'abs', 'sqrt', 'exp', 'log', 'sin', 'cos', 'atan2', 'ParserDefineLog';
 sub abs($)  {return CORE::abs($_[0])};
 sub sqrt($) {return CORE::sqrt($_[0])};
 sub exp($)  {return CORE::exp($_[0])};
@@ -575,7 +575,9 @@ sub sin($)  {return CORE::sin($_[0])};
 sub cos($)  {return CORE::cos($_[0])};
 sub atan2($$) {return CORE::atan2($_[0],$_[1])};
 
-sub Parser::defineLog {eval {sub log($) {CommonFunction->Call("log",@_)}}};
+# used to be Parser::defineLog -- but that generated redefined notices
+sub ParserDefineLog {eval {sub log($) {CommonFunction->Call("log",@_)}}};
+
 =head2 Filter utilities
 
 These two subroutines can be used in filters to set default options.  They
