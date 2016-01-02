@@ -1280,8 +1280,11 @@ sub process_answers{
         unless( $skip_evaluation) { 
 			$new_temp_ans =~ s/\&lt\;/</g; # <
 			$new_temp_ans =~ s/\&gt\;/>/g; # >
-			$new_temp_ans =~ s/\&\#91\;/\[/g; # [
+			$new_temp_ans =~ s/\&\#91\;/\[/g; # <
 			$new_temp_ans =~ s/\&\#42\;/\*/g; # *
+			$new_temp_ans =~ s/\&\#36\;/\$/g;  # $
+			$new_temp_ans =~ s/\&\#39\;/'/g;  # '
+			$new_temp_ans =~ s/\&\#95\;/\_/g;  # _
         }
 		$self->{safe}->share('$new_rf_fun','$new_temp_ans');
 
