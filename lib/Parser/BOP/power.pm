@@ -75,7 +75,7 @@ sub TeX {
       defined($precedence) &&
       (($showparens eq 'all' && $extraParens > 1) || $precedence > $bop->{precedence} ||
       ($precedence == $bop->{precedence} &&
-        ($bop->{associativity} eq 'right' || ($showparens eq 'same' && $extraParens))));
+        ($bop->{associativity} eq 'right' || $showparens eq 'same')));
   $outerRight = !$addparens && ($outerRight || $position eq 'right');
 
   my $symbol = (defined($bop->{TeX}) ? $bop->{TeX} : $bop->{string});

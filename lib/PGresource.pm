@@ -32,7 +32,7 @@ sub new {
 
 		id           	=>  $id,
 		parent_alias 	=>  $parent_alias,
-		type         	=>  $type, # gif eps pdf html pg (macro: pl) (applets: java js fla geogebra (ggb) )
+		type         	=>  $type, # gif eps pdf html pg (macro: pl) (applets: java js fla geogebra (ggb) swf )
 		parent_file_id  =>  $parent_alias->{pgFileName},  # file id for the file requesting the resource
 		
 		path		 	=>  { content => undef,       # file path to resource
@@ -83,6 +83,7 @@ sub path {
 
 sub create_unique_id {
 	my $self = shift;
+	my $ext  = shift;
 	if ($self->{unique_id} ) {
 		$self->warning_message( "unique id already exists for ". $self->{id} );
 		return $self->{unique_id};
@@ -94,7 +95,9 @@ sub create_unique_id {
 	my $unique_id_seed = $self->path() . $self->{parent_file_id}.$self->{id}; 
 	$self->{unique_id} = $self->{parent_alias}->{unique_id_stub} .
 	      '___'. create_uuid_as_string( UUID_V3, UUID_NS_URL, $unique_id_seed );
+	$self->{unique_id} .=".$ext" if $ext;
 	$self->{unique_id};
+	
 }
 
 sub unique_id {

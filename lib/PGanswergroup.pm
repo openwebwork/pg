@@ -44,7 +44,7 @@ sub new {
 	my $self = {
 	    ans_label => $label,
 		ans_eval  => undef,                         # usually an AnswerEvaluator, sometimes a CODE
-		response  => new PGresponsegroup($label),    # A PGresponse object which holds the responses 
+		response  => new PGresponsegroup($label),   # A PGresponse object which holds the responses 
 		                                            # which make up the answer
 		active    => 1,                             # whether this answer group is currently active (for multistate problems)
 
@@ -71,6 +71,12 @@ sub ans_eval {
 	my $ans_eval = shift;
 	$self->{ans_eval}= $ans_eval if ref($ans_eval);
 	$self->{ans_eval};
+}
+sub response_obj {  #this may not be desirable -- perhaps you should always access response object indirectly
+	my $self = shift;
+	my $response_obj = shift;
+	$self->{response}= $response_obj if ref($response_obj);
+	$self->{response};
 }
 sub append_responses { #add or modify a response to the PGresponsegroup object
 	my $self = shift;

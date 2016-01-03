@@ -121,7 +121,7 @@ sub cmp_parse {
   Parser::Context->current(undef,$context); # change to correct answser's context
   my $flags = contextSet($context,$self->cmp_contextFlags($ans)); # save old context flags
   my $inputs = $self->getPG('$inputs_ref');
-  $ans->{isPreview} = $inputs->{previewAnswers} || ($inputs->{action} =~ m/^Preview/);
+  $ans->{isPreview} = $inputs->{previewAnswers} || (($inputs->{action}//'') =~ m/^Preview/);
   $ans->{cmp_class} = $self->cmp_class($ans) unless $ans->{cmp_class};
   $ans->{error_message} = $ans->{ans_message} = ''; # clear any old messages
   $ans->{preview_latex_string} = $ans->{preview_text_string} = '';
@@ -652,7 +652,7 @@ sub protectHTML {
 #
 sub preformat {
   my $string = protectHTML(shift);
-  $string = $string//'';
+  return unless defined $string;
   $string =~ s!\n!<br />!g unless eval('$main::displayMode') eq 'TeX';
   $string;
 }
