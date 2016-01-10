@@ -296,8 +296,11 @@ sub make_alias {
 	# $adr_output is a url in HTML  modes
 	# and a complete path in TEX mode.
 	my $resource_object = $self->get_resource($aux_file_id);
-	return unless defined wantarray;
-	return wantarray ? ($adr_output, $resource_object): $adr_output;
+	# TEXT(alias() ) occurs -- and is expecting only a single item not an array
+	# code below is a bad idea.
+	#return (wantarray) ? ($adr_output, $resource_object): $adr_output;
+	# in what circumstances did we want an array output?
+	return($adr_output);
 }
 
 
