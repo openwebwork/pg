@@ -2765,16 +2765,17 @@ sub video {
 	        $video =~ /.*\.(\w*)/;
 	        my $type = $1;
 		my $out;
-
+	        my $htmlmessage = maketext("Your browser does not support the video tag.");
+	  
 		if ($displayMode eq 'TeX') {
 
 		  $videoURL = ($envir{use_site_prefix})? $envir{use_site_prefix}.$videoURL : $videoURL;
-		  $out="\\begin{center} {\\bf This problem contains a video which must be viewed online.} \\end{center}";
+		  $out="\\begin{center} {\\bf ".maketext("This problem contains a video which must be viewed online.")."} \\end{center}";
 
 		} elsif ($displayMode eq 'Latex2HTML') {
-			$out = qq!\\begin{rawhtml}<VIDEO WIDTH="$width" HEIGHT="$height" CONTROLS>\n
+		        $out = qq!\\begin{rawhtml}<VIDEO WIDTH="$width" HEIGHT="$height" CONTROLS>\n
                         <SOURCE SRC="$videoURL" TYPE="video/$type">\n
-                        Your browser does not support the video tag.\n
+                        ${htmlmessage}\n
                         </VIDEO>\n
 			\\end{rawhtml}\n !
  		} elsif ($displayMode eq 'HTML_MathJax'
@@ -2787,7 +2788,7 @@ sub video {
 	 || $displayMode eq 'HTML_img') {
 		        $out = qq!<VIDEO WIDTH="$width" HEIGHT="$height" CONTROLS>\n
                         <SOURCE SRC="$videoURL" TYPE="video/$type">\n
-                        Your browser does not support the video tag.\n
+                        ${htmlmessage}\n
                         </VIDEO>\n
  			!
  		} else {
