@@ -164,12 +164,44 @@ sub root {
 }
 
 #
+#  Implement differentiation: (u^(1/n))' -> (1/n)(u^(1/n))^(1-n) * u'
+#  (We use (u^(1/n))^(1-n) rather than u^(1/n-1) so that we have the
+#  same domain as u^(1/n) does originally).
+#
+sub D {
+  my $self = shift; my $x = shift;
+  my $equation = $self->{equation};
+  my $BOP = $self->Item("BOP");
+  my $NUM = $self->Item("Number");
+  my $n = $self->{params}[0];
+  return
+    $BOP->new($equation,'*',
+      $BOP->new($equation,'*',
+        $BOP->new($equation,'/',$NUM->new($equation,1),$n->copy($equation)),
+        $BOP->new($equation,'^',
+          $self->copy($equation),
+	  $BOP->new($equation,'-',$NUM->new($equation,1),$n->copy($equation))
+        )
+      ),
+      $self->{params}[1]->D($x)
+    )->reduce;
+}
+
+#
 #  Output TeX using \sqrt[n]{x}
 #
 sub TeX {
-  my $self = shift;
+  my ($self,$precedence,$showparens,$position,$outerRight,$power) = @_;
+  $showparens = '' unless defined $showparens;
+  my $fn = $self->{equation}{context}{operators}{'fn'};
+  my $fn_precedence = $fn->{parenPrecedence} || $fn->{precedence};
   my ($n,$x) = @{$self->{params}};
-  return '\sqrt['.$n->TeX."]{".$x->TeX."}";
+  my $TeX = '\sqrt['.$n->TeX."]{".$x->TeX."}";
+  $TeX = '\left('.$TeX.'\right)'
+    if $showparens eq 'all' or $showparens eq 'extra' or
+       (defined($precedence) and $precedence > $fn_precedence) or
+       (defined($precedence) and $precedence == $fn_precedence and $showparens eq 'same');
+  return $TeX;
 }
 
 ########################################################################
