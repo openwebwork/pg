@@ -251,7 +251,7 @@ sub make_alias {
 
 	
 	if ($ext eq 'html' 		    ) {
-	   $adr_output = $self->alias_for_html($aux_file_id)
+	   $adr_output = $self->alias_for_html($aux_file_id,$ext)
 	} elsif (   $ext eq 'gif'  
 		     or $ext eq 'jpg' 
 		     or $ext eq 'png'
@@ -311,7 +311,7 @@ sub alias_for_html {
 	                         # case 1:  aux_file_id is complete or relative path to file
 	                         # case 2:  aux_file_id is file name alone relative to the templates directory.
 	my $ext = shift;
-    
+    #$self->debug_message("handling $aux_file_id of type $ext");
 #######################
 # gather needed data and declare it locally
 #######################
