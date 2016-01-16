@@ -1278,13 +1278,13 @@ sub process_answers{
         }
         #FIXME -- hack to allow answers such as <4,6,7>  -- < and > have been escaped.
         unless( $skip_evaluation) { 
-			$new_temp_ans =~ s/\&lt\;/</g; # <
-			$new_temp_ans =~ s/\&gt\;/>/g; # >
-			$new_temp_ans =~ s/\&\#91\;/\[/g; # <
-			$new_temp_ans =~ s/\&\#42\;/\*/g; # *
-			$new_temp_ans =~ s/\&\#36\;/\$/g;  # $
-			$new_temp_ans =~ s/\&\#39\;/'/g;  # '
-			$new_temp_ans =~ s/\&\#95\;/\_/g;  # _
+# 			$new_temp_ans =~ s/\&lt\;/</g; # <
+# 			$new_temp_ans =~ s/\&gt\;/>/g; # >
+# 			$new_temp_ans =~ s/\&\#91\;/\[/g; # <
+# 			$new_temp_ans =~ s/\&\#42\;/\*/g; # *
+# 			$new_temp_ans =~ s/\&\#36\;/\$/g;  # $
+# 			$new_temp_ans =~ s/\&\#39\;/'/g;  # '
+# 			$new_temp_ans =~ s/\&\#95\;/\_/g;  # _
         }
 		$self->{safe}->share('$new_rf_fun','$new_temp_ans');
 

@@ -361,8 +361,8 @@ sub NAMED_ANS_RULE {
 	
 #	$answer_value =~ tr/\\$@`//d;   ## unnecessary since we encode HTML now
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
-	$answer_value = encode_pg_and_html($answer_value);
 	$name = RECORD_ANS_NAME($name, $answer_value);
+	$answer_value = encode_pg_and_html($answer_value);
 	my $previous_name = "previous_$name";
 	$name = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%$name":$name;
 	$previous_name = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%$previous_name": $previous_name;
@@ -427,9 +427,10 @@ sub NAMED_HIDDEN_ANS_RULE { # this is used to hold information being passed into
 
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
-	$answer_value = encode_pg_and_html($answer_value);
 
 	$name = RECORD_ANS_NAME($name, $answer_value);
+	$answer_value = encode_pg_and_html($answer_value);
+
     #INSERT_RESPONSE($name,$name,$answer_value);
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
@@ -465,8 +466,9 @@ sub NAMED_ANS_RULE_EXTENSION {
 	}
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
+	INSERT_RESPONSE($name,$name,$answer_value);  #FIXME hack -- this needs more work to decide how to make it work
 	$answer_value = encode_pg_and_html($answer_value);
-	INSERT_RESPONSE($name,$name,$answer_value);  #hack -- this needs more work to decide how to make it work
+
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
 	MODES(
@@ -1090,10 +1092,11 @@ sub NAMED_ANS_ARRAY_EXTENSION{
 
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 #	warn "ans_label $options{ans_label} $name $answer_value";
-	$answer_value = encode_pg_and_html($answer_value);
 	if (defined($options{ans_label}) ) {
 		INSERT_RESPONSE($options{ans_label}, $name, $answer_value);
 	}
+	$answer_value = encode_pg_and_html($answer_value);
+
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{10pt}{\\hrulefill}}\\hrulefill\\quad ",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = "">\n\\end{rawhtml}\n!,
