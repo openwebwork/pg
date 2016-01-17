@@ -879,4 +879,29 @@ sub evaluate_units {
 }
 #################
 
+sub add_fundamental_unit {
+  my $unit = shift;
+  $fundamental_units{$unit} = 0;
+}
+
+sub add_unit {
+  my $unit = shift;
+  my $hash = shift;
+  
+  unless (ref($hash) eq 'HASH') {
+    $hash = {'factor'    => 1,
+	     "$unit"     => 1 };
+  }
+
+  # make sure that if this unit is defined in terms of any other units
+  # then those units are fundamental units.  
+  foreach my $subUnit (keys %$hash) {
+    if (!defined($fundamental_units{$subUnit})) {
+      add_fundamental_unit($subUnit);
+    }
+  }
+
+  $known_units{$unit} = $hash;
+}
+
 1;

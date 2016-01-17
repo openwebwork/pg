@@ -37,6 +37,25 @@ Usage examples:
 We now call on the Legacy version, which is used by
 num_cmp to handle numbers with units.
 
+New units can be added at run time by using the newUnit option
+
+       $a = NumberWithUnits("3 apples",{newUnit=>'apples'});
+
+A new unit can either be a string, in which case the string is added as a
+new unit with no relation to other units, or as a hashreference
+
+       $newUnit = {name => 'apple',
+                   pluralize => 1,
+                   conversion => {factor =>3, pear=>1}};
+       $a = NumberWithUnits("3 apples", {newUnit=>$newUnit});
+
+The pluralize parameter controls if the plural version of the word is 
+added as an equivalent unit.  You can also define your own conversion hash.
+(See Units.pm for examples). 
+
+Finally, the newUnit option can also be an array ref containing any number of
+new units to add.  
+
 =cut
 
 loadMacros('MathObjects.pl');

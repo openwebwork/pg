@@ -18,7 +18,42 @@ sub makeValue {
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  my $num = shift; my $units = shift;
+  my $num = shift;
+  # we need to check if units is the options hash
+  my $units = shift;
+  my $options;
+
+  if (ref($units) eq 'HASH') {
+    $options = $units;
+    $units = '';
+  } else {
+    $options = shift;
+  }
+
+  # register a new unit/s if needed
+  if (defined($options->{newUnit})) {
+    my @newUnits;
+    if (ref($options->{newUnit}) eq 'ARRAY') {
+      @newUnits = @{$options->{newUnit}};
+    } else {
+      @newUnits = ($options->{newUnit});
+    }
+
+    foreach my $newUnit (@newUnits) {
+      if (ref($newUnit) eq 'HASH') {
+	if ($newUnit->{pluralize}) {
+	  my $plural = $newUnit->{name}.'s';
+	  push @newUnits, {name=>$plural,conversion=>{factor=>1,$newUnit->{name}=>1}};
+	}
+	Units::add_unit($newUnit->{name}, $newUnit->{conversion});
+      } else {
+	Units::add_unit($newUnit);
+      }
+    }
+  }
+
+  
+  
   Value::Error("You must provide a ".$self->name) unless defined($num);
   ($num,$units) = splitUnits($num) unless $units;
   Value::Error("You must provide units for your ".$self->name) unless $units;
@@ -37,17 +72,18 @@ sub new {
 #
 #  Find the units for the formula and split that off
 #
-my $aUnit = '(?:'.getUnitNames().')(?:\s*(?:\^|\*\*)\s*[-+]?\d+)?';
-my $unitPattern = $aUnit.'(?:\s*[/* ]\s*'.$aUnit.')*';
-my $unitSpace = "($aUnit) +($aUnit)";
 sub splitUnits {
+  my $aUnit = '(?:'.getUnitNames().')(?:\s*(?:\^|\*\*)\s*[-+]?\d+)?';
+  my $unitPattern = $aUnit.'(?:\s*[/* ]\s*'.$aUnit.')*';
+  my $unitSpace = "($aUnit) +($aUnit)";
   my $string = shift;
-  my ($num,$units) = $string =~ m!^(.*?(?:[)}\]0-9a-z]|\d\.))\s*($unitPattern)\s*$!o;
+  my ($num,$units) = $string =~ m!^(.*?(?:[)}\]0-9a-z]|\d\.))\s*($unitPattern)\s*$!;
   if ($units) {
     while ($units =~ s/$unitSpace/$1*$2/) {};
     $units =~ s/ //g;
     $units =~ s/\*\*/^/g;
   }
+
   return ($num,$units);
 }
 
@@ -104,6 +140,7 @@ sub cmp_parse {
   #
   #  Check that the units are defined and legal
   #
+
   my ($num,$units) = splitUnits($ans->{student_ans});
   unless (defined($num) && defined($units) && $units ne '') {
     $self->cmp_Error($ans,"Your answer doesn't look like ".lc($self->cmp_class));
