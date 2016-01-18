@@ -44,17 +44,22 @@ New units can be added at run time by using the newUnit option
 A new unit can either be a string, in which case the string is added as a
 new unit with no relation to other units, or as a hashreference
 
-       $newUnit = {name => 'apple',
-                   pluralize => 1,
-                   conversion => {factor =>3, pear=>1}};
-       $a = NumberWithUnits("3 apples", {newUnit=>$newUnit});
+       $newUnit = {name => 'bear',
+                   conversion => {factor =>3, m=>1}};
+       $a = NumberWithUnits("3 bear", {newUnit=>$newUnit});
 
-The pluralize parameter controls if the plural version of the word is 
-added as an equivalent unit.  You can also define your own conversion hash.
-(See Units.pm for examples). 
+You can also define your own conversion hash.  In the above example one bear
+is three meters.  (See Units.pm for examples). 
 
 Finally, the newUnit option can also be an array ref containing any number of
-new units to add.  
+new units to add.  A common reason for doing this would be to add the plural
+version of the unit as an equilvalent unit.  E.G.
+
+      $newUnits = ['apple',{name=>'apples',conversion=>{factor=>1,apple=>1}}];
+      $a = NumberWithUnits("3 apples",{newUnit=>$newUnits});
+
+Note:  English pluralization is suprisingly hard, so WeBWorK will make no 
+attempt to display a grammerically correct result.  
 
 =cut
 

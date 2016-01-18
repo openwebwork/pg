@@ -41,10 +41,6 @@ sub new {
 
     foreach my $newUnit (@newUnits) {
       if (ref($newUnit) eq 'HASH') {
-	if ($newUnit->{pluralize}) {
-	  my $plural = $newUnit->{name}.'s';
-	  push @newUnits, {name=>$plural,conversion=>{factor=>1,$newUnit->{name}=>1}};
-	}
 	Units::add_unit($newUnit->{name}, $newUnit->{conversion});
       } else {
 	Units::add_unit($newUnit);
