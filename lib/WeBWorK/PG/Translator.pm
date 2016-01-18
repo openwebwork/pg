@@ -1300,6 +1300,9 @@ sub process_answers{
 #			warn "Error in Translator.pm::process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
 			$PG->warning_message( "Can no longer used CODE objects directly as answer evaluators.  Use AnswerEvaluator");
 		} elsif (not $skip_evaluation )   {
+######################################
+# old answer evaluator process
+######################################
 # 			$rh_ans_evaluation_result = $self->{safe} ->reval('$rf_fun->evaluate($temp_ans, ans_label => \''.$ans_name.'\')');
 # 			$@ = $errorTable{$@} if $@ && defined($errorTable{$@});  #Are we redefining error messages here?
 # 			warn "Error in Translator.pm::process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
@@ -1312,7 +1315,13 @@ sub process_answers{
 # 
 # 			$rh_ans_evaluation_result = {%$rh_ans_evaluation_result};  #needed to protect result
 # 			                                                           # from next evaluation apparently
+#########################################
 			
+		  #  Get full traceback, but save it in local variable $errorTable so that
+		  #  we can add it later.  This is because some evaluators use
+		  #  eval to trap errors and then report them in the message
+		  #  column of the results table, and we don't want to include
+		  #  the traceback there.
 
 			$new_rh_ans_evaluation_result = $self->{safe} ->reval('$new_rf_fun->evaluate($new_temp_ans, ans_label => \''.$ans_name.'\')');
 			$@ = $errorTable{$@} if $@ && defined($errorTable{$@});  #Are we redefining error messages here?
@@ -1326,9 +1335,7 @@ sub process_answers{
 							&& defined($new_rh_ans_evaluation_result->error_flag());
 			} else {
 				$PG->warning_message(" The evaluated answer is not an answer hash $new_rh_ans_evaluation_result: |".ref($new_rh_ans_evaluation_result)."|.");
-			}
-
-						
+			}						
 # 			$PG->debug_message( $self->{envir}->{'probFileName'}  ." new_temp_ans and temp_ans don't agree: ".
 #                       ref($new_temp_ans)." $new_temp_ans ". ref($temp_ans). "  $temp_ans".length($new_temp_ans).length($temp_ans)) 
 #                       unless $new_temp_ans eq $temp_ans;
