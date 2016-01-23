@@ -79,11 +79,12 @@ SAGE_PRINT
 
 #### Experimental stuff.
 
+package main;
 sub sageCalculatorHeader {
-	my $self = shift;
+$CellServer = 'https://sagecell.sagemath.org';
 main::HEADER_TEXT(main::MODES(TeX=>"", HTML=><<"END_OF_FILE"));
-<script src="$self->{CellServer}/static/jquery.min.js"></script>
-    <script src="$self->{CellServer}/static/embedded_sagecell.js"></script>
+<script src="$CellServer}/static/jquery.min.js"></script>
+    <script src="$CellServer/static/embedded_sagecell.js"></script>
     <script>\$(function () {
     // Make the div with id 'mycell' a Sage cell
     sagecell.makeSagecell({inputLocation:  '#mycell',
@@ -100,7 +101,6 @@ END_OF_FILE
 }
 
 sub sageCalculatorPad {
-	my $self = shift;
 	my $top_test = shift;
 	my $initial_contents = shift;
 main::TEXT(main::MODES(TeX=>"", HTML=><<"EOF"));
