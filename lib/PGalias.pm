@@ -474,7 +474,7 @@ sub alias_for_tex {
 #######################
 	my ($resource_uri  );
 	my $resource_object = $self->get_resource($aux_file_id);
-   # $self->debug_message( "\nresource for $aux_file_id is ", ref($resource_object), $resource_object );
+    #warn ( "\nresource for $aux_file_id is ", ref($resource_object), $resource_object );
 
 				        
 ################################################################################
@@ -521,7 +521,7 @@ sub alias_for_tex {
 	} else {
 		$file_path = $self->find_file_in_directories($aux_file_id,\@aux_files_directories);
 	}
-	# $self->debug_message("file path is $file_path");
+	#warn ("file path is $file_path");
 
 ##################### Case1: we've got a full pathname to a file in either the temp directory or the htmlDirectory
 ##################### Case2: we assume the file is in the same directory as the problem source file
@@ -539,7 +539,7 @@ sub alias_for_tex {
 		my $sourceFilePath =  $file_path;	
 		$resource_object->path($sourceFilePath);
 		$resource_object->{path}->{is_complete}  = 1;
-		$self->debug_message("tempDir   filePath ",$resource_object->path, "\n");
+		#warn("tempDir   filePath ",$resource_object->path, "\n");
 # Gif files always need to be converted to png files for inclusion in pdflatex documents.
 		
 		$resource_object->{convert}->{needed}    = $convert_fileQ;
@@ -558,7 +558,7 @@ sub alias_for_tex {
 		$resource_object->{convert}->{from_type} = $from_file_type;
 		$resource_object->{convert}->{to_path}   = '';  #define later
 		$resource_object->{convert}->{to_type}   = $to_file_type;
-		$self->debug_message("htmlDir   filePath ",$resource_object->path, "\n");
+		#warn ("htmlDir   filePath ",$resource_object->path, "\n");
 	
 	} else {
 		
@@ -571,7 +571,7 @@ sub alias_for_tex {
 		$resource_object->{convert}->{from_type}  = $from_file_type;
 		$resource_object->{convert}->{to_path}    = '';  #define later
 		$resource_object->{convert}->{to_type}    = $to_file_type;
-		$self->debug_message("templateDir   filePath ",$resource_object->path, "\n");
+		#warn ("templateDir   filePath ",$resource_object->path, "\n");
 		# notice the resource uri is not yet defined -- we have to make the link first
 	}
 ################################################################################
@@ -587,13 +587,15 @@ sub alias_for_tex {
 	} else { # no conversion needed
 		$resource_object->uri($resource_object->path());  #path and uri are the same in this case.
 		$resource_object->{uri}->{is_complete} =1;
+		$resource_object->{uri}->{is_accessible} = (-r $resource_object->uri() );
 	}
 ################################################################################
 # Don't need to create aliases in this case because nothing is being served over the web
 ################################################################################
 	# Return full path to image file  (resource_id)
 ################################################################################
-	# $self->debug_message("final   filePath ",$resource_object->{uri}, "\n");
+	#warn ("final   filePath ", $resource_object->uri(), "\n");
+	#warn "file is a accessible ", $resource_object->{uri}->{is_accessible},"\n";
 	# returns a file path 
 	($resource_object->{uri}->{is_accessible} == 1 ) ? $resource_object->uri() : "";
 
