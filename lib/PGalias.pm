@@ -650,8 +650,8 @@ sub create_link_to_tmp_file {
 	# if the resource file doesn't exist
 		my $message = ($resource_object->path())? " at ".$resource_object->path() : " anywhere";
 		$self->warning_message("The macro alias cannot find the HTML file: |".
-		         ($resource_object->fileName).'|'.$message);
-		(($resource_object->path()     )."|");
+		         ($resource_object->fileName).'|'.$message.
+		         ($resource_object->path()     )."|");
 		$resource_object->{path}->{is_accessible}= 0;
 		$resource_object->{uri}->{is_accessible} = 0;
 		# we should delete the resource object in this case?
