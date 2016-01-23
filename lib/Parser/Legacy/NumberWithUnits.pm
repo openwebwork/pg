@@ -7,12 +7,23 @@
 
 package Parser::Legacy::ObjectWithUnits;
 
+# Refrences to problem specific copies of %Units::fundamental_units
+# and %Units::known_units.  These should be passed to any Units function call.
+# They are set by the initializeUnits sub
+my $fundamental_units = '';
+my $known_units = '';
+
 sub name {'object'};
 sub cmp_class {'an Object with Units'};
 sub makeValue {
   my $self = shift; my $value = shift;
   my %options = (context=>$self->context,@_);
   Value::makeValue($value,%options);
+}
+
+sub initializeUnits {
+  $fundamental_units = shift;
+  $known_units = shift;
 }
 
 sub new {
@@ -41,9 +52,9 @@ sub new {
 
     foreach my $newUnit (@newUnits) {
       if (ref($newUnit) eq 'HASH') {
-	Units::add_unit($newUnit->{name}, $newUnit->{conversion});
+	add_unit($newUnit->{name}, $newUnit->{conversion});
       } else {
-	Units::add_unit($newUnit);
+	add_unit($newUnit);
       }
     }
   }
@@ -89,10 +100,14 @@ sub splitUnits {
 #
 sub getUnitNames {
   local ($a,$b);
+  my $units = \%Units::known_units;
+  if ($known_units) {
+    $units = $known_units;
+  }
   join('|',sort {
     return length($b) <=> length($a) if length($a) != length($b);
     return $a cmp $b;
-  } keys(%Units::known_units));
+  } keys(%$units));
 }
 
 #
@@ -100,7 +115,14 @@ sub getUnitNames {
 #
 sub getUnits {
   my $units = shift;
-  my %Units = Units::evaluate_units($units);
+  my $options = {};
+  if ($fundamental_units) {
+    $options->{fundamental_units} = $fundamental_units;
+  }
+  if ($known_units) {
+    $options->{known_units} = $known_units;
+  }
+  my %Units = Units::evaluate_units($units,{fundamental_units => $fundamental_units, known_units => $known_units});
   if ($Units{ERROR}) {
     $Units{ERROR} =~ s/ at ([^ ]+) line \d+(\n|.)*//;
     $Units{ERROR} =~ s/^UNIT ERROR:? *//;
@@ -189,6 +211,31 @@ sub adjustCorrectValue {
 }
 
 sub cmp_reparse {Value::cmp_parse(@_)}
+
+sub add_fundamental_unit {
+  my $unit = shift;
+  $fundamental_units->{$unit} = 0;
+}
+
+sub add_unit {
+  my $unit = shift;
+  my $hash = shift;
+  
+  unless (ref($hash) eq 'HASH') {
+    $hash = {'factor'    => 1,
+	     "$unit"     => 1 };
+  }
+
+  # make sure that if this unit is defined in terms of any other units
+  # then those units are fundamental units.  
+  foreach my $subUnit (keys %$hash) {
+    if (!defined($fundamental_units->{$subUnit})) {
+      add_fundamental_unit($subUnit);
+    }
+  }
+
+  $known_units->{$unit} = $hash;
+}
 
 ######################################################################
 
