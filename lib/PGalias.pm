@@ -255,6 +255,7 @@ sub make_alias {
 	} elsif (   $ext eq 'gif'  
 		     or $ext eq 'jpg' 
 		     or $ext eq 'png'
+		     or $ext eq 'svg'
 		    or $ext eq 'pdf'
 		    or $ext eq 'mp4'
 		    or $ext eq 'mpg'
@@ -271,16 +272,16 @@ sub make_alias {
 		} else {
 			die "Error in alias: PGalias.pm: unrecognizable displayMode = $displayMode";
 		}
-	} elsif ($ext eq 'svg') {
-		if ($displayMode =~/HTML/) {
-			$self->warning_message("The image $aux_file_id of type $ext cannot yet be displayed in HTML mode");
-			# svg images need an embed tag not an image tag -- need to modify image for this also
-			# an alternative (not desirable) is to convert svg to png
-		} elsif ($displayMode eq 'TeX') {
-			$self->warning_message("The image $aux_file_id of type $ext cannot yet be displayed in TeX mode");
-		} else {
-			die "Error in alias: PGalias.pm: unrecognizable displayMode = $displayMode";
-		}
+# 	} elsif ($ext eq 'svg') {
+# 		if ($displayMode =~/HTML/) {
+# 			$self->warning_message("The image $aux_file_id of type $ext cannot yet be displayed in HTML mode");
+# 			# svg images need an embed tag not an image tag -- need to modify image for this also
+# 			# an alternative (not desirable) is to convert svg to png
+# 		} elsif ($displayMode eq 'TeX') {
+# 			$self->warning_message("The image $aux_file_id of type $ext cannot yet be displayed in TeX mode");
+# 		} else {
+# 			die "Error in alias: PGalias.pm: unrecognizable displayMode = $displayMode";
+# 		}
 	
 	} else { # $ext is not recognized
 		################################################################################
@@ -291,15 +292,15 @@ sub make_alias {
 		      (Path to problem file is  ". $self->{envir}->{pgFileName}. ") ";
 	}
 
-	$self->warning_message( "The macro alias was unable to form a URL for some auxiliary file used in this problem.") unless $adr_output;
+	$self->warning_message( "The macro alias was unable to form a URL for the auxiliary file |$aux_file_id| used in this problem.") unless $adr_output;
 
 	# $adr_output is a url in HTML  modes
 	# and a complete path in TEX mode.
 	my $resource_object = $self->get_resource($aux_file_id);
-	# TEXT(alias() ) occurs -- and is expecting only a single item not an array
-	# code below is a bad idea.
+	# TEXT(alias() ) is expecting only a single item not an array
+	# so the code immediately below for adding extra information to alias is a bad idea.
 	#return (wantarray) ? ($adr_output, $resource_object): $adr_output;
-	# in what circumstances did we want an array output?
+	# Instead we'll implement a get_resource() command in PGcore and PG
 	return($adr_output);
 }
 
@@ -647,7 +648,10 @@ sub create_link_to_tmp_file {
 		}
 	} else { 
 	# if the resource file doesn't exist
-		$self->warning_message("The macro alias cannot find an HTML file at: |".$resource_object->path()."|");
+		my $message = ($resource_object->path())? " at ".$resource_object->path() : " anywhere";
+		$self->warning_message("The macro alias cannot find the HTML file: |".
+		         ($resource_object->fileName).'|'.$message);
+		(($resource_object->path()     )."|");
 		$resource_object->{path}->{is_accessible}= 0;
 		$resource_object->{uri}->{is_accessible} = 0;
 		# we should delete the resource object in this case?
