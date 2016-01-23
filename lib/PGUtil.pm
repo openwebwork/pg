@@ -94,8 +94,7 @@ sub pretty_print_html {    # provides html output -- NOT a method
     return 'too deep' unless $level > 0;  # only print four levels of hashes (safety feature)
 	my $out = '';
 	    # protect against modules defined in Safe which can't find their stringify procedure.
-		$r_input = $r_input//'';
-		eval { "$r_input" };
+		my $dummy = eval { "$r_input" };
 		if ($@ ) {
 			$out = "Unable to determine stringify for this item\n";
 			$out .= $@. "\n";
@@ -142,6 +141,13 @@ sub pretty_print_tex {
 	my $protect_tex = sub {my $str = shift; $str=~s/_/\\\_/g; $str };
 
 	my $out = '';
+	my $dummy = eval { "$r_input" };
+		if ($@ ) {
+			$out = "Unable to determine stringify for this item\n";
+			$out .= $@. "\n";
+			return ($out);
+		}
+
 	if ( not  ref($r_input) ) {
 		$out = $r_input if defined $r_input;
 		$out =~ s/_/\\\_/g;   # protect tex
@@ -184,6 +190,13 @@ sub pretty_print_text {
 	return 'too deep' unless $level>0;  #only print four levels of hashes (safety feature)
 
 	my $out = "";
+	my $dummy = eval { "$r_input" };
+		if ($@ ) {
+			$out = "Unable to determine stringify for this item\n";
+			$out .= $@. "\n";
+			return ($out);
+		}
+
 	my $type = ref($r_input);
 
 	if (defined($type) and $type) {
