@@ -97,7 +97,7 @@ sub pretty_print_html {    # provides html output -- NOT a method
 		$r_input = $r_input//'';
 		eval { "$r_input" };
 		if ($@ ) {
-			$out = "Unable to determine stringify this item\n";
+			$out = "Unable to determine stringify for this item\n";
 			$out .= $@. "\n";
 			return ($out);
 		}
