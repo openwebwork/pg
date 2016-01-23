@@ -462,6 +462,10 @@ sub alias {
     $PG->{PG_alias}->make_alias(@_)  ;
 }
 
+sub get_resource {
+	$PG->{PG_alias}->get_resource(@_);
+}
+
 sub maketext {
     $PG->maketext(@_);
 }
