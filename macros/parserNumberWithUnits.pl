@@ -58,6 +58,8 @@ version of the unit as an equilvalent unit.  E.G.
       $newUnits = ['apple',{name=>'apples',conversion=>{factor=>1,apple=>1}}];
       $a = NumberWithUnits("3 apples",{newUnit=>$newUnits});
 
+In this case both 3 apple and 3 apples would be considered correct.  
+
 Note:  English pluralization is suprisingly hard, so WeBWorK will make no 
 attempt to display a grammerically correct result.  
 

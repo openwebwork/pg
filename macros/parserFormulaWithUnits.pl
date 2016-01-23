@@ -36,6 +36,35 @@ to get an answer checker for your formula with units.
 	$x = Formula("x");
 	ANS(FormulaWithUnits($a*$x+1,"ft")->cmp);
 
+We now call on the Legacy version, which is used by
+num_cmp to handle numbers with units.
+
+New units can be added at run time by using the newUnit option
+
+       $a = FormulaWithUnits("3x apples",{newUnit=>'apples'});
+
+A new unit can either be a string, in which case the string is added as a
+new unit with no relation to other units, or as a hashreference
+
+       $newUnit = {name => 'bear',
+                   conversion => {factor =>3, m=>1}};
+       $a = FormulaWithUnits("3x bear", {newUnit=>$newUnit});
+
+You can also define your own conversion hash.  In the above example one bear
+is three meters.  (See Units.pm for examples). 
+
+Finally, the newUnit option can also be an array ref containing any number of
+new units to add.  A common reason for doing this would be to add the plural
+version of the unit as an equilvalent unit.  E.G.
+
+      $newUnits = ['apple',{name=>'apples',conversion=>{factor=>1,apple=>1}}];
+      $a = FormulaWithUnits("3x apples",{newUnit=>$newUnits});
+
+In this case both 3x apple and 3x apples would be accepted as answers. 
+
+Note:  English pluralization is suprisingly hard, so WeBWorK will make no 
+attempt to display a grammerically correct result.  
+
 =cut
 
 loadMacros('MathObjects.pl');
