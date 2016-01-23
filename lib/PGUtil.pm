@@ -92,7 +92,17 @@ sub pretty_print_html {    # provides html output -- NOT a method
     $level--;
     return "PGalias has too much info. Try \$PG->{PG_alias}->{resource_list}" if ref($r_input) eq 'PGalias';  # PGalias just has too much information
     return 'too deep' unless $level > 0;  # only print four levels of hashes (safety feature)
-    my $out = '';
+	my $out = '';
+	    # protect against modules defined in Safe which can't find their stringify procedure.
+		$r_input = $r_input//'';
+		eval { "$r_input" };
+		if ($@ ) {
+			$out = "Unable to determine stringify this item\n";
+			$out .= $@. "\n";
+			return ($out);
+		}
+
+
     if ( not ref($r_input) ) {
     	$out = $r_input if defined $r_input;    # not a reference
     	$out =~ s/</&lt;/g  ;  # protect for HTML output
