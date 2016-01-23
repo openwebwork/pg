@@ -115,7 +115,14 @@ sub getUnitNames {
 #
 sub getUnits {
   my $units = shift;
-  my %Units = Units::evaluate_units($units,{fundamental_units => $fundamental_units, known_units => $known_units});
+  my $options = {};
+  if ($fundamental_units) {
+    $options->{fundamental_units} = $fundamental_units;
+  }
+  if ($known_units) {
+    $options->{known_units} = $known_units;
+  }
+  my %Units = Units::evaluate_units($units,$options);
   if ($Units{ERROR}) {
     $Units{ERROR} =~ s/ at ([^ ]+) line \d+(\n|.)*//;
     $Units{ERROR} =~ s/^UNIT ERROR:? *//;
