@@ -514,11 +514,11 @@ sub alias_for_tex {
 
 	# Find complete path to the original file
 	my $file_path;
-	if ( $aux_file_id =~ /https?:/ ) { external link_file
+	if ( $aux_file_id =~ /https?:/ ) { # external link_file
 		$resource_object->uri($aux_file_id);           #no unique id is needed -- external link doc		
 		$resource_object->{copy_link}->{type} = 'external';
 		$resource_object->{uri}->{is_accessible} = $self->check_url($resource_object->uri());
-		return $resource_object->{uri}; # external links need no further processing
+		return $resource_object->uri; # external links need no further processing
 	} elsif ( $aux_file_id =~ m|^/|) {
 		$file_path = $aux_file_id;
 	} else {
