@@ -1700,7 +1700,7 @@ sub avg_problem_grader {
 	foreach	my $ans_name (keys %evaluated_answers) {
 		# I'm not sure if this check is	really useful.
 		if ( ( ref($evaluated_answers{$ans_name} ) eq 'HASH' ) or ( ref($evaluated_answers{$ans_name}) eq 'AnswerHash' ) )	{
-			$total += $evaluated_answers{$ans_name}->{score};
+			$total += ($evaluated_answers{$ans_name}->{score}//0);
 		}
 		else {
 			die	"Error:	Answer |$ans_name| is not a	hash reference\n".
