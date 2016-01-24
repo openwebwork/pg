@@ -261,6 +261,9 @@ sub make_alias {
 		    or $ext eq 'mpg'
 		    or $ext eq 'ogg'
 		    or $ext eq 'webm'
+		    or $ext eq 'css'
+		    or $ext eq 'js'
+		    or $ext eq 'nb'
 		    ) {
 		if ($displayMode =~ /^HTML/ ) {			 
 			 $adr_output=$self->alias_for_html($aux_file_id, $ext);
