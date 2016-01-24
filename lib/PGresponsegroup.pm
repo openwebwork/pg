@@ -49,7 +49,7 @@ sub new {
 	    answergroup_label  => $answergroup_label,    # enclosing answergroup that created this responsegroup
 		response_order     => [],         # response labels
 		responses          => {},         # response label/response value pair, 
-		                             # value could be an arrayref in the case of radio or checkbox groups        
+		                             	  # value could be an arrayref in the case of radio or checkbox groups        
 	};
 	bless $self, $class;
 	$self->append_responses(@_);
@@ -206,7 +206,7 @@ sub values {
 	}
 	@out;
 }
-# synonym for values
+# synonym for values #FIXME?  should this be the content of {responses}?
 sub responses {
     my $self = shift;
 	$self->values(@_);

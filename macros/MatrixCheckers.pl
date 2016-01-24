@@ -19,20 +19,20 @@ more than one vector, also load C<parserMultiAnswer.pl>.
 
 =over 12
 
-=item C<loadMacros("PGstandard.pl","MathObjects.pl","parserMultiAnswer.pl","MatrixCheckers.pl");>
+=item loadMacros("PGstandard.pl","MathObjects.pl","parserMultiAnswer.pl","MatrixCheckers.pl");
 
-= back
+=back
 
 For a matrix that has a single column or row, the way to use the
 answer checkers is the same as using a custom answer checker
-inside of C<cmp(checker=<gt>~~&name_of_answer_checker_subroutine)>
+inside of C<cmp(checker=>~~&name_of_answer_checker_subroutine)>
 such as
 
 =over 12
 
-=item C<ANS( Matrix([[1],[2],[3]])-<gt>cmp( checker=<gt>~~&basis_checker_one_column ) );>
+=item C<ANS( Matrix([[1],[2],[3]])->cmp( checker=>~~&basis_checker_one_column ) );>
 
-=item C<ANS( Matrix([[1],[2],[3]])-<gt>cmp( checker=<gt>~~&unit_basis_checker_one_column ) );>
+=item C<ANS( Matrix([[1],[2],[3]])->cmp( checker=>~~&unit_basis_checker_one_column ) );>
 
 =back
 

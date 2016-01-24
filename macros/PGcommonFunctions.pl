@@ -99,7 +99,7 @@ package main;
 #
 
 
-Parser::defineLog();
+ParserDefineLog();
 
 sub ln     {CommonFunction->Call('ln',@_)}
 sub logten {CommonFunction->Call('logten',@_)}
