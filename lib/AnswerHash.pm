@@ -502,6 +502,11 @@ sub new {
 	$self->rh_ans(@_);    #initialize answer hash	
 	return $self;
 }
+sub clone {
+    my $self = shift;
+    my $copy = bless { %$self }, ref $self;
+    return $copy;
+}
 
 # dereference_array_ans pretty prints an answer which is stored as an anonymous array.
 sub dereference_array_ans {
@@ -547,7 +552,7 @@ sub get_student_answer {
 
 =head4  evaluate
 
-	$answer_evaluator->evaluate($student_answer_string
+	$answer_evaluator->evaluate($student_answer_string)
 
 
 =cut
@@ -569,6 +574,8 @@ sub evaluate {
 	foreach my $i	(@prefilters) {
 	    last if defined( $rh_ans->{error_flag} );
 	    my @array = @$i;
+	    # sanity check filter
+	    #$self->debug_message("prefilter is ", join(" ", @array));
 	    my $filter = shift(@array);      # the array now contains the options for the filter
 	    $rh_ans = &$filter($rh_ans,@array);
 	    $self->print_result_if_debug('pre_filter',$rh_ans,@array);
@@ -603,14 +610,14 @@ sub print_result_if_debug {
 	my $self = shift;
 	my $queue = shift;    # the name of the queue we are in
 	my $rh_ans= shift;
-	my %options = @_;
+	my @options = @_;   # this may not be even FIXME
 	unless ( ref($rh_ans) eq 'AnswerHash' ) {
 		warn "$rh_ans is not an answerHash in queue $queue\n";
 		return;
 	}
 	;
 	if (defined($self->{debug}) and $self->{debug}>0) {
-	    	$rh_ans->{rh_options} = \%options;  #include the options in the debug information
+	    	$rh_ans->{rh_options} = \@options;  #include the options in the debug information -- change to ra_options??
 	    	my $name = (defined($rh_ans->{_filter_name})) ? $rh_ans->{_filter_name}: 'unnamed';
 	    	eval (q! main::DEBUG_MESSAGE( "\n $count. Result from queue $queue:  name: \"$name\"n", pretty_print($rh_ans,'html',4))
 	    	!);
