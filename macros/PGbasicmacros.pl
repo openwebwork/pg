@@ -2735,8 +2735,8 @@ sub image {
  	}
 	return wantarray ? @output_list : $output_list[0];
 }
-#This is bare bones code for embedding svg 
 
+#This is bare bones code for embedding svg 
 sub embedSVG {
 	my $file_name = shift;   # just input the file name of the svg image
 	my $backup_file_name = shift//'';  # a png version
@@ -2746,13 +2746,11 @@ sub embedSVG {
 	}
 	return MODES( HTML => q!
    			<img src="! . alias($file_name).$str.q!">!,
-
    			TeX => "Can't process svg in tex mode yet \\includegraphics[width=6in]{" . alias( $file_name ) . "}" 
 	); 
 }
 
 # This is bare bones code for embedding png files -- what else should be added? (there are .js scripts for example)
-
 sub embedPDF {
 	my $file_name = shift;   # just input the file name of the svg image
 	#my $backup_file_name = shift//'';  # a png version
@@ -2764,6 +2762,82 @@ sub embedPDF {
 		   TeX => "\\includegraphics[width=6in]{" . alias( $file_name ) . "}" 
 		   ) ; 
 }
+
+sub video {
+	my $video_ref  = shift;
+	my @opt = @_;
+	unless (scalar(@opt) % 2 == 0 ) {
+		warn "ERROR in video macro.  A list of macros must be inclosed in square brackets.";
+	}
+	my %in_options = @opt;
+	my %known_options = (
+		width    => 400,
+		height   => 400,
+		extra_html_tags => '',
+	);
+	# handle options
+	my %out_options = %known_options;
+	foreach my $opt_name (keys %in_options) {
+		if ( exists( $known_options{$opt_name} ) ) {
+			$out_options{$opt_name} = $in_options{$opt_name} if exists( $in_options{$opt_name} ) ;
+		} else {
+			die "Option $opt_name not defined for video. " .
+			    "Default options are:<BR> ", display_options2(%known_options);
+		}
+	}
+	my $width       = $out_options{width};
+	my $height      = $out_options{height};
+
+	my @video_list  = ();
+
+ 	if (ref($video_ref) =~ /ARRAY/ ) {
+		@video_list = @{$video_ref};
+ 	} else {
+		push(@video_list,$video_ref);
+ 	}
+
+ 	my @output_list = ();
+  	while(@video_list) {
+
+	  my $video = shift @video_list //'';
+ 		my $videoURL = alias($video)//'';
+	        $video =~ /.*\.(\w*)/;
+	        my $type = $1;
+		my $out;
+	        my $htmlmessage = maketext("Your browser does not support the video tag.");
+	  
+		if ($displayMode eq 'TeX') {
+
+		  $videoURL = ($envir{use_site_prefix})? $envir{use_site_prefix}.$videoURL : $videoURL;
+		  $out="\\begin{center} {\\bf ".maketext("This problem contains a video which must be viewed online.")."} \\end{center}";
+
+		} elsif ($displayMode eq 'Latex2HTML') {
+		        $out = qq!\\begin{rawhtml}<VIDEO WIDTH="$width" HEIGHT="$height" CONTROLS>\n
+                        <SOURCE SRC="$videoURL" TYPE="video/$type">\n
+                        ${htmlmessage}\n
+                        </VIDEO>\n
+			\\end{rawhtml}\n !
+ 		} elsif ($displayMode eq 'HTML_MathJax'
+	 || $displayMode eq 'HTML_dpng'
+	 || $displayMode eq 'HTML'
+	 || $displayMode eq 'HTML_tth'
+	 || $displayMode eq 'HTML_jsMath'
+	 || $displayMode eq 'HTML_asciimath' 
+	 || $displayMode eq 'HTML_LaTeXMathML'
+	 || $displayMode eq 'HTML_img') {
+		        $out = qq!<VIDEO WIDTH="$width" HEIGHT="$height" CONTROLS>\n
+                        <SOURCE SRC="$videoURL" TYPE="video/$type">\n
+                        ${htmlmessage}\n
+                        </VIDEO>\n
+ 			!
+ 		} else {
+ 			$out = "Error: PGbasicmacros: video: Unknown displayMode: $displayMode.\n";
+ 		}
+ 		push(@output_list, $out);
+ 	}
+	return wantarray ? @output_list : $output_list[0];
+}
+
 # This is legacy code.
 sub images {
 	my @in = @_;
