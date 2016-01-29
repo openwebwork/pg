@@ -92,7 +92,16 @@ sub pretty_print_html {    # provides html output -- NOT a method
     $level--;
     return "PGalias has too much info. Try \$PG->{PG_alias}->{resource_list}" if ref($r_input) eq 'PGalias';  # PGalias just has too much information
     return 'too deep' unless $level > 0;  # only print four levels of hashes (safety feature)
-    my $out = '';
+	my $out = '';
+	    # protect against modules defined in Safe which can't find their stringify procedure.
+		my $dummy = eval { "$r_input" };
+		if ($@ ) {
+			$out = "Unable to determine stringify for this item\n";
+			$out .= $@. "\n";
+			return ($out);
+		}
+
+
     if ( not ref($r_input) ) {
     	$out = $r_input if defined $r_input;    # not a reference
     	$out =~ s/</&lt;/g  ;  # protect for HTML output
@@ -132,12 +141,20 @@ sub pretty_print_tex {
 	my $protect_tex = sub {my $str = shift; $str=~s/_/\\\_/g; $str };
 
 	my $out = '';
+	my $dummy = eval { "$r_input" };
+		if ($@ ) {
+			$out = "Unable to determine stringify for this item\n";
+			$out .= $@. "\n";
+			return ($out);
+		}
+
 	if ( not  ref($r_input) ) {
 		$out = $r_input if defined $r_input;
 		$out =~ s/_/\\\_/g;   # protect tex
 		$out =~ s/&/\\\&/g;
 		$out =~ s/\$/\\\$/g;
-	} elsif ("$r_input" =~/hash/i) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_iput).
+		#FIXME -- how should mathobjects be handled??
+	} elsif ("$r_input" =~/hash/i) {  # ref($r_input) or "$r_input" will pick up objects whose '$self' is hash and so works better than ref($r_iput).
 		local($^W) = 0;
 	    
 		$out .= "\\begin{tabular}{| l | l |}\\hline\n\\multicolumn{2}{|l|}{$r_input}\\\\ \\hline\n";
@@ -173,6 +190,13 @@ sub pretty_print_text {
 	return 'too deep' unless $level>0;  #only print four levels of hashes (safety feature)
 
 	my $out = "";
+	my $dummy = eval { "$r_input" };
+		if ($@ ) {
+			$out = "Unable to determine stringify for this item\n";
+			$out .= $@. "\n";
+			return ($out);
+		}
+
 	my $type = ref($r_input);
 
 	if (defined($type) and $type) {
