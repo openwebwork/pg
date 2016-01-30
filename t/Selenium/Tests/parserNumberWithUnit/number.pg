@@ -1,0 +1,29 @@
+DOCUMENT();
+loadMacros(
+   "PGstandard.pl",
+   "MathObjects.pl",
+   "parserNumberWithUnits.pl",
+);
+TEXT(beginproblem());
+Context("Numeric");
+$newUnit = {name => 'bear',
+            conversion => {factor =>3, m=>1}};
+$pi = NumberWithUnits("3 bear", {newUnit=>$newUnit});
+$pi2 = NumberWithUnits("pi", "Spoon",{newUnit=>"Spoon"});
+$newUnits = ['apple',{name=>'apples',conversion=>{factor=>1,apple=>1}}];
+$pi3 = NumberWithUnits("3 apples",{newUnit=>$newUnits});
+$pi4 = NumberWithUnits("pi ft");
+
+Context()->texStrings;
+BEGIN_TEXT
+\($pi\) and \{$pi->ans_rule\} $BR
+\($pi2\) and \{$pi2->ans_rule\} $BR
+\($pi3\) and \{$pi3->ans_rule\} $BR
+\($pi4\) and \{$pi4->ans_rule\} $BR
+END_TEXT
+Context()->normalStrings;
+ANS($pi->with(tolerance=>.0001)->cmp);
+ANS($pi2->cmp);
+ANS($pi3->cmp);
+ANS($pi4->cmp);
+ENDDOCUMENT();
