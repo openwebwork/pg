@@ -18,9 +18,9 @@
 
 # This runs all of the test files passed via the command line.  If nothing is
 # passed via the command line it runs all of the files in
-# pg/t/Selenium/Tests
+# webwork2/t/Selenium/Tests
 
-# All tests in this test stuite should be run on a fresh webwork install
+# All tests in this test suite should be run on a fresh webwork install
 # with no courses (besides the admin course) and an admin course user with
 # user name admin and password admin.  (Basically the setup you get from
 # running the webwork installer).
@@ -33,18 +33,19 @@ BEGIN{ die('You need to set the WEBWORK_ROOT environment variable.\n')
 	   unless($ENV{WEBWORK_ROOT});}
 use lib "$ENV{WEBWORK_ROOT}/t";
 
-use File::Find;
-use Test::Harness;
-
 BEGIN{ 
     my $ce = new WeBWorK::CourseEnvironment({
 	webwork_dir => $ENV{WEBWORK_ROOT},
 					 });
     
     my $pg_dir = $ce->{pg_dir};
-  }
+}
 
-use constant TESTING_DIRECTORY => "$pg_dir/t/Selenium/Tests";
+
+use File::Find;
+use Test::Harness;
+
+use constant TESTING_DIRECTORY => "${pg_dir}/t/Selenium/Tests";
 
 my @files;
 

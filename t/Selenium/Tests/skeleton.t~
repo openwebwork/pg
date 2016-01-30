@@ -34,13 +34,13 @@ use Selenium::Utilities;
 
 
 my $sel = Test::WWW::Selenium->new( host => "localhost", 
-                                    port => 4444, 
-                                    browser => "*firefox", 
+                                    port => 80, 
+                                    browser => "*chrome", 
                                     browser_url => "http://localhost/" );
 
 
-# Create a test course and a problem 
-edit_problem($sel,createCourse=>1, createProblem=>1);
+# Create a test course
+create_course($sel);
 
 # Put Selenium tests here.  The easiest way to generate these tests is to
 # use the Selenium IDE for Firefox with the additional plugin which
@@ -55,19 +55,6 @@ edit_problem($sel,createCourse=>1, createProblem=>1);
 # Selenium IDE: http://www.seleniumhq.org/projects/ide/
 # Selenium IDE Plugin: https://addons.mozilla.org/en-US/firefox/addon/selenium-ide/
 # Selenium IDE Perl Plugin: https://addons.mozilla.org/en-US/firefox/addon/selenium-ide-perl-formatter/
-#
-
-#
-#  NOTE:  Because multiple windows confuses selenium its best to have problem
-#  tests which look like the following
 # 
-#  my $PG_FILE;
-#  open($PG_FILE, ">", "pgfilename.pg") or die $!;
-#  my @pglines = <$PG_FILE>;
-#  $sel->type('name=problemContents',join('',@pglines));
-#  $sel->click('id=submit_button_id');
-#  $sel->wait_for_page_to_load(30000);
-#
-#  Now perform tests on pg problem ...
 
 delete_course($sel);

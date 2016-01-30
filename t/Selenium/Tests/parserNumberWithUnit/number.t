@@ -40,34 +40,28 @@ my $sel = Test::WWW::Selenium->new( host => "localhost",
 
 
 # Create a test course and a problem 
-edit_problem($sel,createCourse=>1, createProblem=>1);
+edit_problem($sel,createCourse=>1, createProblem=>1, seed=>1234);
 
-# Put Selenium tests here.  The easiest way to generate these tests is to
-# use the Selenium IDE for Firefox with the additional plugin which
-# allows you to export scripts from Selenium IDE to Perl.  The basic method is
-#
-# 1. Use the Selenium IDE to record your actions performing some test.
-# 2. Export the test as Perl and copy the results here.
-#
-# Working with Selenium and making tests takes some practice.  Here are some
-# links that were good at the time of writing
-#
-# Selenium IDE: http://www.seleniumhq.org/projects/ide/
-# Selenium IDE Plugin: https://addons.mozilla.org/en-US/firefox/addon/selenium-ide/
-# Selenium IDE Perl Plugin: https://addons.mozilla.org/en-US/firefox/addon/selenium-ide-perl-formatter/
-#
-
-#
-#  NOTE:  Because multiple windows confuses selenium its best to have problem
-#  tests which look like the following
-# 
-#  my $PG_FILE;
-#  open($PG_FILE, ">", "pgfilename.pg") or die $!;
-#  my @pglines = <$PG_FILE>;
-#  $sel->type('name=problemContents',join('',@pglines));
-#  $sel->click('id=submit_button_id');
-#  $sel->wait_for_page_to_load(30000);
-#
-#  Now perform tests on pg problem ...
+my $PG_FILE;
+open($PG_FILE, ">", "number.pg") or die $!;
+my @pglines = <$PG_FILE>;
+$sel->type('name=problemContents',join('',@pglines));
+$sel->click('id=submit_button_id');
+$sel->wait_for_page_to_load(30000);
+$sel->type_ok("id=AnSwEr0001", "9 m");
+$sel->type_ok("id=AnSwEr0002", "pi Spoon");
+$sel->type_ok("id=AnSwEr0003", "3 apple");
+$sel->type_ok("id=AnSwEr0004", "0.319185 bear");
+$sel->click_ok("id=checkAnswers_id");
+$sel->wait_for_page_to_load_ok("30000");
+$sel->click_ok("id=showCorrectAnswers_id");
+$sel->table_is("//div[\@id='output_summary']/table.1.2", "correct");
+$sel->table_is("//div[\@id='output_summary']/table.2.2", "correct");
+$sel->table_is("//div[\@id='output_summary']/table.3.2", "correct");
+$sel->table_is("//div[\@id='output_summary']/table.4.2", "correct");
+$sel->table_is("//div[\@id='output_summary']/table.1.3", "3 bear");
+$sel->table_is("//div[\@id='output_summary']/table.2.3", "3.14159 Spoon");
+$sel->table_is("//div[\@id='output_summary']/table.3.3", "3 apples");
+$sel->table_is("//div[\@id='output_summary']/table.4.3", "3.14159 ft");
 
 delete_course($sel);
