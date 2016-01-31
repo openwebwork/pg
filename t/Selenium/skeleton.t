@@ -62,7 +62,7 @@ edit_problem($sel,createCourse=>1, createProblem=>1);
 #  tests which look like the following
 # 
 #  my $PG_FILE;
-#  open($PG_FILE, ">", "pgfilename.pg") or die $!;
+#  open($PG_FILE, "<", "pgfilename.pg") or die $!;
 #  my @pglines = <$PG_FILE>;
 #  $sel->type('name=problemContents',join('',@pglines));
 #  $sel->click('id=submit_button_id');

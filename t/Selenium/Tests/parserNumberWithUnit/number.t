@@ -19,9 +19,25 @@
 use strict;
 use warnings;
 
+
 BEGIN{ die('You need to set the WEBWORK_ROOT environment variable.\n')
 	   unless($ENV{WEBWORK_ROOT});}
+use lib "$ENV{WEBWORK_ROOT}/lib";
 use lib "$ENV{WEBWORK_ROOT}/t";
+
+use WeBWorK::CourseEnvironment;
+
+my $pg_dir;
+
+BEGIN{ 
+    my $ce = new WeBWorK::CourseEnvironment({
+	webwork_dir => $ENV{WEBWORK_ROOT},
+					 });
+ 
+    $pg_dir = $ce->{pg_dir};
+}
+
+use constant TESTING_DIR => "${pg_dir}/t/Selenium/Tests";
 
 # After you write your test you should add the number of tests here like
 # use Test::More tests => 23
@@ -43,18 +59,20 @@ my $sel = Test::WWW::Selenium->new( host => "localhost",
 edit_problem($sel,createCourse=>1, createProblem=>1, seed=>1234);
 
 my $PG_FILE;
-open($PG_FILE, ">", "number.pg") or die $!;
+open($PG_FILE, "<", TESTING_DIR."/parserNumberWithUnit/number.pg") or die $!;
 my @pglines = <$PG_FILE>;
+close($PG_FILE);
 $sel->type('name=problemContents',join('',@pglines));
+warn($sel->get_value('name=problemContents'));
 $sel->click('id=submit_button_id');
 $sel->wait_for_page_to_load(30000);
 $sel->type_ok("id=AnSwEr0001", "9 m");
 $sel->type_ok("id=AnSwEr0002", "pi Spoon");
 $sel->type_ok("id=AnSwEr0003", "3 apple");
 $sel->type_ok("id=AnSwEr0004", "0.319185 bear");
+$sel->click_ok("id=showCorrectAnswers_id");
 $sel->click_ok("id=checkAnswers_id");
 $sel->wait_for_page_to_load_ok("30000");
-$sel->click_ok("id=showCorrectAnswers_id");
 $sel->table_is("//div[\@id='output_summary']/table.1.2", "correct");
 $sel->table_is("//div[\@id='output_summary']/table.2.2", "correct");
 $sel->table_is("//div[\@id='output_summary']/table.3.2", "correct");

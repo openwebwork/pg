@@ -71,8 +71,8 @@ sub _parserNumberWithUnits_init {
   # We make copies of these hashes here because these copies will be unique to  # the problem.  The hashes in Units are shared between problems.  We pass
   # the hashes for these local copies to the NumberWithUnits package to use
   # for all of its stuff.  
-  %fundamental_units = %Units::fundamental_units;
-  %known_units = %Units::known_units;
+  my %fundamental_units = %Units::fundamental_units;
+  my %known_units = %Units::known_units;
 
   
   Parser::Legacy::ObjectWithUnits::initializeUnits(\%fundamental_units,\%known_units);
