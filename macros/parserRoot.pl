@@ -106,7 +106,6 @@ sub _check {
   my ($n,$x) = @{$self->{params}};
   $self->Error("Function '%s' must have numeric inputs",$self->{name})
     unless $n->isNumber && $x->isNumber;
-  $self->Error("The first operand to '%s' must be an integer",$self->{name}) unless $n->length == 1;
   $self->{type} = $Value::Type{complex} if $x->isComplex;
 }
 
@@ -136,8 +135,6 @@ sub checkArguments {
   my ($n,$x) = (map {Value::makeValue($_,$context)} @_);
   $self->Error("Function '%s' must have numeric inputs",$name)
       unless $n->isNumber && $x->isNumber;
-  $self->Error("The first argument to '%s' must be an integer",$name)
-    unless $n->isReal && CORE::int($n->value) == $n->value;
   return ($n,$x);
 }
 
@@ -150,7 +147,7 @@ sub checkArguments {
 #
 sub root {
   my $self = shift; my ($n,$x) = @_;
-  if ($x->isReal && $x->value < 0) {
+  if ($x->isReal && $x->value < 0 && CORE::int($n->value) == $n->value) {
     if ($n->value % 2 == 0) {
       my $context = $x->context;
       $self->Error("Can't take even root of %s",$x)
@@ -164,7 +161,7 @@ sub root {
 }
 
 #
-#  Implement differentiation: (u^(1/n))' -> (1/n)(u^(1/n))^(1-n) * u'
+#  Implement differentiation: (u^(1/n))' -> (1/n)(u^(1/n))^(1-n) * u' - u^(1/n)ln(u)/n^2 * n'
 #  (We use (u^(1/n))^(1-n) rather than u^(1/n-1) so that we have the
 #  same domain as u^(1/n) does originally).
 #
@@ -173,18 +170,31 @@ sub D {
   my $equation = $self->{equation};
   my $BOP = $self->Item("BOP");
   my $NUM = $self->Item("Number");
-  my $n = $self->{params}[0];
-  return
-    $BOP->new($equation,'*',
-      $BOP->new($equation,'*',
-        $BOP->new($equation,'/',$NUM->new($equation,1),$n->copy($equation)),
-        $BOP->new($equation,'^',
-          $self->copy($equation),
-	  $BOP->new($equation,'-',$NUM->new($equation,1),$n->copy($equation))
-        )
-      ),
-      $self->{params}[1]->D($x)
-    )->reduce;
+  my ($n,$u) = @{$self->{params}};
+  my $D = $BOP->new($equation,'*',
+            $BOP->new($equation,'*',
+              $BOP->new($equation,'/',$NUM->new($equation,1),$n->copy($equation)),
+              $BOP->new($equation,'^',
+                $self->copy($equation),
+	        $BOP->new($equation,'-',$NUM->new($equation,1),$n->copy($equation))
+              )
+            ),
+            $u->D($x)
+          );
+  $D = $BOP->new($equation,'-',
+    $D,
+    $BOP->new($equation,"*",
+      $self->copy($equation),
+      $BOP->new($equation,"*",
+        $BOP->new($equation,"/",
+          $self->Item("Function")->new($equation,"ln",[$u->copy($equation)],$u->{isConstant}),
+          $BOP->new($equation,"^",$n->copy($equation),$NUM->new($equation,2))
+        ),
+        $n->D($x)
+      )
+    )
+  ) if $n->getVariables->{$x};
+  return $D->reduce;
 }
 
 #
