@@ -31,14 +31,19 @@ use warnings;
 
 BEGIN{ die('You need to set the WEBWORK_ROOT environment variable.\n')
 	   unless($ENV{WEBWORK_ROOT});}
+use lib "$ENV{WEBWORK_ROOT}/lib";
 use lib "$ENV{WEBWORK_ROOT}/t";
+
+use WeBWorK::CourseEnvironment;
+
+my $pg_dir;
 
 BEGIN{ 
     my $ce = new WeBWorK::CourseEnvironment({
 	webwork_dir => $ENV{WEBWORK_ROOT},
 					 });
     
-    my $pg_dir = $ce->{pg_dir};
+    $pg_dir = $ce->{pg_dir};
 }
 
 
@@ -47,16 +52,15 @@ use Test::Harness;
 
 use constant TESTING_DIRECTORY => "${pg_dir}/t/Selenium/Tests";
 
+
 my @files;
 
-if (length(@ARGV)) {
-  
+if (scalar(@ARGV)) {
   @files = @ARGV;
-  
 } else {
-  
-  @files = find(sub {/*.t/;}, TESTING_DIRECTORY);
+    find(sub {/\.t$/ && push @files, $File::Find::name;}, TESTING_DIRECTORY);
 }
 
-runtests( @test_Files);
-  
+if (scalar(@files)) {
+    runtests( @files);
+}
