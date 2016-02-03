@@ -1525,9 +1525,9 @@ sub LTS { MODES(TeX => '<', Latex2HTML => '\\lt ', HTML => '&lt;', HTML_tth => '
 sub GTS { MODES(TeX => '>', Latex2HTML => '\\gt ', HTML => '&gt;', HTML_tth => '>' ); };
 sub LTE { MODES(TeX => '\\le ', Latex2HTML => '\\le ', HTML => '<U>&lt;</U>', HTML_tth => '\\le ' ); };
 sub GTE { MODES(TeX => '\\ge ', Latex2HTML => '\\ge ', HTML => '<U>&gt;</U>', HTML_tth => '\\ge ' ); };
-sub BEGIN_ONE_COLUMN { MODES(TeX => "\\ifx\\\@currenvir\\\@multicols(\\end{multicols}\n)\\fi",  Latex2HTML => " ", HTML =>   " "); };
+sub BEGIN_ONE_COLUMN { MODES(TeX => "\\ifdefined\\nocolumns\\else \\end{multicols}\\fi\n",  Latex2HTML => " ", HTML =>   " "); };
 sub END_ONE_COLUMN { MODES(TeX =>
-              " \\ifx\\\@currenvir\\\@multicols(\\begin{multicols}{2}\n\\columnwidth=\\linewidth\n)\\fi",
+              " \\ifdefined\\nocolumns\\else \\begin{multicols}{2}\n\\columnwidth=\\linewidth \\fi\n",
                             Latex2HTML => ' ', HTML => ' ');
 
 };
@@ -1681,7 +1681,7 @@ sub addToTeXPreamble {
                 # inside a multicols environment and its scope doesn't reach the whole file
                 # It has to do with the way the multicol single col stuff was set up
                 # when printing hardcopy.  --it's weird and there must be a better way.
-                TEXT("\\ifx\\\@currenvir\\\@multicols(\\end{multicols}\n)\\fi", $str, "\n","\\ifx\\\@currenvir\\\@multicols(\\begin{multicols}{2}\\columnwidth=\\linewidth\n)\\fi");
+                TEXT("\\ifdefined\\nocolumns\\else \\end{multicols} \\fi\n", $str, "\n","\\ifdefined\\nocolumns\\else \\begin{multicols}{2}\\columnwidth=\\linewidth \\fi\n");
         } else { # for jsMath and MathJax mode
             my $mathstr = "\\(".$str."\\)";  #add math mode.  
             $mathstr =~ s/\\/\\\\/g;         # protect math modes ($str has a true TeX command, 
