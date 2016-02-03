@@ -1531,11 +1531,11 @@ sub END_ONE_COLUMN { MODES(TeX =>
                             Latex2HTML => ' ', HTML => ' ');
 
 };
-sub SOLUTION_HEADING { MODES( TeX => '\\par {\\bf'.maketext('Solution:').' }',
-                 Latex2HTML => '\\par {\\bf'.maketext('Solution:').' }',
+sub SOLUTION_HEADING { MODES( TeX => '\\par {\\bf '.maketext('Solution:').' }',
+                 Latex2HTML => '\\par {\\bf '.maketext('Solution:').' }',
           		 HTML =>  '<B>'.maketext('Solution:').'</B> ');
 };
-sub HINT_HEADING { MODES( TeX => "\\par {\\bf Hint: }", Latex2HTML => "\\par {\\bf Hint: }", HTML => "<B>Hint:</B> "); };
+sub HINT_HEADING { MODES( TeX => "\\par {\\bf ".maketext('Hint:')." }", Latex2HTML => "\\par {\\bf ".maketext('Hint:')." }", HTML => "<B>".maketext('Hint:')."</B> "); };
 sub US { MODES(TeX => '\\_', Latex2HTML => '\\_', HTML => '_');};  # underscore, e.g. file${US}name
 sub SPACE { MODES(TeX => '\\ ',  Latex2HTML => '\\ ', HTML => '&nbsp;');};  # force a space in latex, doesn't force extra space in html
 sub NBSP { MODES(TeX => '~',  Latex2HTML => '~', HTML => '&nbsp;');}; 
