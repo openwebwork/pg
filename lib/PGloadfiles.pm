@@ -174,7 +174,7 @@ sub loadMacros {
 	    	my $pgDirectory       = $self->{envir}->{pgDirectories}->{macros};
 	    	my $templateDirectory = $self->{envir}->{templateDirectory};
 		my @shortenedPaths = @{$macrosPath};
-	    	my @shortenedPaths = map {$_ =~ s|^$templateDirectory|[TMPL]/|; $_ } @shortenedPaths;
+	    	@shortenedPaths = map {$_ =~ s|^$templateDirectory|[TMPL]/|; $_ } @shortenedPaths;
 	    	@shortenedPaths = map {$_ =~ s|^$pgDirectory|[PG]/macros/|; $_ } @shortenedPaths;
 	        warn "Can't locate macro file |$fileName| via path: |".join("|,<br/> |",@shortenedPaths)."|\n";
 	    }
