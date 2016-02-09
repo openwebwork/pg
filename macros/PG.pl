@@ -562,7 +562,7 @@ sub pi () {
 # ^uses $_parser_loaded
 # ^uses &Value::Package
 sub Infinity () {
-  if (!eval(q!$main::_parser_loaded!)) {return 'infinity'}
+  if (!eval(q!$main::_parser_loaded!)) {return 'Infinity'}
   Value->Package("Infinity")->new();
 }
 
