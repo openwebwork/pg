@@ -10,7 +10,7 @@ $main::VERSION ="WW2";
 sub _PG_init{
   $main::VERSION ="WW2.9+";
   #
-  #  Set up MathObejct context for use in problems
+  #  Set up MathObject context for use in problems
   #  that don't load MathObjects.pl
   #
   %main::context = {};
