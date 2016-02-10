@@ -5,10 +5,17 @@
 # initialize PGcore and PGrandom
 
 
-	$main::VERSION ="WW2";
+$main::VERSION ="WW2";
 
 sub _PG_init{
-	$main::VERSION ="WW2.9+";
+  $main::VERSION ="WW2.9+";
+  #
+  #  Set up MathObject context for use in problems
+  #  that don't load MathObjects.pl
+  #
+  %main::context = {};
+  Parser::Context->current(\%main::context);
+
 }
 
 our $PG;  
@@ -551,12 +558,20 @@ sub k () {
 }
 
 # ^function pi
+# ^uses $_parser_loaded
 # ^uses &Value::Package
-sub pi () {Value->Package("Formula")->new('pi')->eval}
+sub pi () {
+  if (!eval(q!$main::_parser_loaded!)) {return 4*atan2(1,1)}
+  Value->Package("Formula")->new('pi')->eval;
+}
 
 # ^function Infinity
+# ^uses $_parser_loaded
 # ^uses &Value::Package
-sub Infinity () {Value->Package("Infinity")->new()}
+sub Infinity () {
+  if (!eval(q!$main::_parser_loaded!)) {return 'Infinity'}
+  Value->Package("Infinity")->new();
+}
 
 
 # ^function abs
