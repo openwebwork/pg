@@ -1,0 +1,147 @@
+## DESCRIPTION
+##   The Chain Rule
+## ENDDESCRIPTION
+
+## Tagged by nhamblet
+
+## DBsubject(Calculus - single variable)
+## DBchapter(Differentiation)
+## DBsection(Chain rule (without trigonometric functions))
+## Institution(Rochester)
+## Level(2)
+## MO(1)
+## KEYWORDS('Derivative', 'Polynomial', 'Chain')
+## Library/Rochester/setDerivatives2Formulas/c2s5p3
+
+DOCUMENT();        # This should be the first executable line in the problem.
+
+loadMacros("PG.pl",
+           "PGbasicmacros.pl",
+           "PGchoicemacros.pl",
+           "PGanswermacros.pl",
+           "PGauxiliaryFunctions.pl",
+           "MathObjects.pl"
+            );
+
+TEXT(beginproblem());
+$showPartialCorrectAnswers = 1;
+
+Context("Numeric");
+$denom= 0;
+while ($denom <= 0 ) {
+	do{
+		$t1 = non_zero_random(-4,4,1);
+		$aa=   non_zero_random(-4,4,1);
+		$a2 = $aa*2;
+		$bb=   non_zero_random(-4,4,1);
+		$gcd = ($a2,$bb);
+		$a3 = $a2/$gcd;
+		$b3 = $bb/$gcd;
+		$gc8 = $gcd*(-8);
+		$at3 = $a3*$t1;
+		$tsq = $t1*$t1;
+		$bt1 = $bb*$t1;
+		$abt3 = $at3+$b3;
+		$atsq = $aa*$tsq;
+		$c=   non_zero_random(-4,4,1);
+		$btc = $bt1 + $c;
+		$num =$gc8*$abt3;
+		$den1 = $atsq+$btc;
+		$den2 = $den1**9;
+	} until (($den1 != 0) and ($num != 0) and ($abt3 !=0));
+	$gcd1 = gcd($num,$den2);
+	#$gcd2 = gcd(-64,19683);
+	#$gcd1 = 1;                            ## omit and uncomment gcd1 when fixed??
+	$num3 =$num/$gcd1;          ## Why is this considered division by zero???
+	$den3 =$den2/$gcd1;
+	$ans = $num/$den3;           ## Why is this considered division by zero???
+	$ans1 = -64/19683;                  ##  division by zero???
+	$ans2 = -0.00325153;
+	$d =  random(-4,4,1);
+	$denom = $aa*$t1**2 +$bb*$t1 +$c;
+	TEXT("denom is now $denom", $PAR);
+}
+$fpp= Formula("-8*$denom**(-9)*(2*$aa*$t1 + $bb)");
+$fp= $fpp;
+
+# Present the text.
+BEGIN_TEXT
+Calculate \( f'($t1) \) to 3 significant figures where
+\[ f(t) = ($aa t^2 + $bb t + $c )^{-8} \]
+
+\( f'( $t1 ) = \)\{ ans_rule(20) \}
+
+$PAR
+Tip: You can enter an answer such as 3.14E-1 for 0.314. $PAR
+END_TEXT
+
+ANS($fp->cmp);
+
+BEGIN_SOLUTION
+$PAR SOLUTION $PAR
+
+Use the chain rule to find the derivative of composed functions. $BR   
+The function of  \( f(t) = ($aa t^2 + $bb t + $c )^{-8}   \)  is a composed function because the outer function of the negative exponent is "holding" the inner function of a quadratic equation. The chain rule applies the derivative on the outermost function first and then works inward applying the derivative to each successive inner function in a series of products. With each application of the derivative on the outer function the inner contents are left alone. In this way a "chain" of derivative products are formed. The chain rule can be expressed with notation as shown below: $BR
+ $BR
+Given that `p(x) = f(g(x))`, $BR
+$BR
+The derivative is applied by the chain rule: $BR
+$BR
+\( p'(x) = f'(g(x)) \cdot g'(x) \)   $BR
+$BR
+Apply the derivative to `f(t)`: $BR
+$BR
+\( f(t) = ($aa t^2 + $bb t + $c )^{-8}\) $BR
+$BR
+Apply the prime tics for the chain rule:$BR
+$BR
+\( f'(t) = \left(($aa t^2 + $bb t + $c )^{-8}\right)' \left($aa t^2 + $bb t + $c \right)'\) $BR
+$BR
+Apply the derivative: $BR
+$BR
+\( f'(t) = -8($aa t^2 + $bb t + $c )^{-9} \left($a2 t + $bb \right)\) $BR
+$BR
+Push the quantity of the negative exponent down to the denominator: $BR
+$BR
+\( \displaystyle{f'(t) = \frac{-8($a2 t + $bb) }{($aa t^2 + $bb t + $c )^{9}} } \) $BR
+$BR
+Pull any common factors from the numerator: $BR
+$BR
+\( \displaystyle{f'(t) = \frac{-8 \cdot $gcd($a3 t + $b3) }{($a t^2 + $bb t + $c )^{9}} } \) $BR
+$BR
+Combine factors for the reduced derivative: $BR
+$BR
+\( \displaystyle{f'(t) = \frac{$gc8($a3 t + $b3) }{($aa t^2 + $bb t + $c )^{9}}}  \) $BR
+$BR
+Evaluate the derivative at `t = $t1`: $BR
+$BR
+\( \displaystyle{f'($t1) = \frac{$gc8($a3 \cdot ($t1) + $b3) }{($aa \cdot ($t1)^2 + $bb \cdot ($t1) + $c )^{9}}}  \) $BR
+$BR
+Combine factors and squared values:$BR
+$BR
+\( \displaystyle{f'($t1) = \frac{$gc8($at3 + $b3) }{($aa \cdot $tsq + $bt1 + $c )^{9}}}  \) $BR
+$BR
+Combine factors and terms:$BR
+$BR
+\( \displaystyle{f'($t1) = \frac{$gc8($abt3) }{($atsq + $btc )^{9}}}  \) $BR
+$BR
+Combine factors and terms:$BR
+$BR
+\( \displaystyle{f'($t1) = \frac{$num }{($den1 )^{9}} =\frac{$num }{$den2} }  \) $BR
+$BR
+An exact value:
+$BR
+\( \displaystyle{f'($t1) = \frac{$num3 }{$den3} }  \) $BR
+$BR
+A decimal approximation: $BR
+$BR
+\( \displaystyle{f'($t1) \approx $ans}  \) $BR
+$BR
+Note that scientific notation in webwork is sometimes written in this form:$BR
+$BR
+\[3.1456E-4 = 3.1456 \times 10^{-4} = 0.00031456 \]$BR
+$BR
+
+END_SOLUTION
+
+ENDDOCUMENT();        # This should be the last executable line in the problem.
