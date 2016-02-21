@@ -389,13 +389,13 @@ sub ENDDOCUMENT {
 		my $str = '';
 		my @resource_names=();
 		foreach my $key (keys %resources) {
-			$str .= knowlLink("$key<br/>", value=>"$key<br/>".pretty_print($resources{$key}), base64=>0);
+			$str .= knowlLink("$key$BR", value=>"$key$BR".pretty_print($resources{$key})."$BR$BR", base64=>0);
 			push @resource_names, $key;
 		}
 		if ($str eq '') {
 			$str = "No auxiliary resources<br/>";
 		} else { 
-			my $summary = "## RESOURCES('".join("','", @resource_names)."')<br/>\n";	 
+			my $summary = "## RESOURCES('".join("','", @resource_names)."')$BR\n";	 
 			$PG->debug_message($summary.$str) ;
 		}
 	}
