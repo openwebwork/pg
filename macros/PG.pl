@@ -399,6 +399,19 @@ sub ENDDOCUMENT {
 			$PG->debug_message($summary.$str) ;
 		}
 	}
+	if ( 0 or # allow one to force debug output  manually
+	    ($inputs_ref->{showPGInfo} and ($permissionLevel >=10)) ){
+ 	     my $context = $$Value::context->{flags};
+ 	     $PG->debug_message("PGbasicmacros.pl 2184: ", 
+ 	   			$HR,"Form variables",$BR,
+ 	   			pretty_print($inputs_ref),
+				$HR,"Environment variables", $BR,
+				pretty_print(\%envir),
+                $HR,"Context flags",$BR,
+				pretty_print($context),
+		  ) ;	
+ 	}
+
 
 	#warn keys %{ $PG->{PG_ANSWERS_HASH} };
 	@PG_ANSWER_ENTRY_ORDER = ();
@@ -415,7 +428,7 @@ sub ENDDOCUMENT {
 	            my @response_keys = $answergroup->{response}->response_labels;
 	            if ( 0 or # allow one to force debug output  manually
 	               ($inputs_ref->{showAnsGroupInfo})//0 and ($rh_envir->{permissionLevel})>= 5) {
-	            	$PG->debug_message("PG.pl 388: ", pretty_print($answergroup) ) ;
+	            	$PG->debug_message("PG.pl 418: ", pretty_print($answergroup) ) ;
 	            	$PG->debug_message("PG.pl 389: ", pretty_print($answergroup->{response}));
 	            }
 	            my $response_key = $response_keys[0];

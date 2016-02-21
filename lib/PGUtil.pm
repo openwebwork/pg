@@ -88,6 +88,7 @@ sub pretty_print {
 
 sub pretty_print_html {    # provides html output -- NOT a method
     my $r_input = shift;
+    return '' unless defined $r_input;
     my $level = shift;
     $level--;
     return "PGalias has too much info. Try \$PG->{PG_alias}->{resource_list}" if ref($r_input) eq 'PGalias';  # PGalias just has too much information
@@ -184,7 +185,7 @@ sub pretty_print_tex {
 sub pretty_print_text { 
 	my $r_input = shift;
 	my $level   = shift;
-	
+	return '' unless defined $r_input;
 	$level--;
 	return "PGalias has too much info. Try \\\$PG->{PG\\_alias}->{resource\\_list}" if ref($r_input) eq 'PGalias';  # PGalias just has too much information
 	return 'too deep' unless $level>0;  #only print four levels of hashes (safety feature)
