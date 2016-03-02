@@ -1,0 +1,46 @@
+# You will need to remove the initial number and edit the initial segment of the path 
+# before feeding this file to sendXMLRPC.pl
+
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable2Limits/UR_VC_5_3.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable2Limits/UR_VC_5_4.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable2Limits/UR_VC_5_5.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable2Limits/UR_VC_5_6.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable2Limits/UR_VC_5_7.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable2Limits/UR_VC_5_8.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable3ParDer/UR_VC_5_10.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable3ParDer/UR_VC_5_11.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable3ParDer/UR_VC_5_12.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable3ParDer/UR_VC_5_13.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable3ParDer/UR_VC_5_14.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable4Linearization/ur_vc_6_1.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable4Linearization/ur_vc_6_2.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable4Linearization/ur_vc_6_3.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable4Linearization/ur_vc_6_4.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable4Linearization/ur_vc_6_5.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable4Linearization/ur_vc_6_6.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable5ChainRule/ur_vc_6_10.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable5ChainRule/ur_vc_6_7.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable5ChainRule/ur_vc_6_8.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable5ChainRule/ur_vc_6_9.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable6Gradient/ur_vc_6_11.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable6Gradient/ur_vc_6_12.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable6Gradient/ur_vc_6_13.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable6Gradient/ur_vc_6_14.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable6Gradient/ur_vc_6_15.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable6Gradient/ur_vc_6_16.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable6Gradient/ur_vc_6_17.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable6Gradient/ur_vc_7_14.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable7MaxMin/ur_vc_7_1.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable7MaxMin/ur_vc_7_10.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable7MaxMin/ur_vc_7_11.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable7MaxMin/ur_vc_7_12.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable7MaxMin/ur_vc_7_13.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable7MaxMin/ur_vc_7_14.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable7MaxMin/ur_vc_7_2.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable7MaxMin/ur_vc_7_3.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable7MaxMin/ur_vc_7_4.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable7MaxMin/ur_vc_7_5.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable7MaxMin/ur_vc_7_6.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable7MaxMin/ur_vc_7_7.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable7MaxMin/ur_vc_7_8.pg
+1 /Volumes/WW_test/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary/Rochester/setVmultivariable7MaxMin/ur_vc_7_9.pg

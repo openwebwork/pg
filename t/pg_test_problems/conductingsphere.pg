@@ -1,0 +1,99 @@
+#DESCRIPTION
+#ENDDESCRIPTION
+
+##KEYWORDS('module 4','electric fields')
+
+DOCUMENT();        # This should be the first executable line in the problem.
+
+loadMacros(
+"PG.pl",
+"StdConst.pg",
+"PGbasicmacros.pl",
+"PGchoicemacros.pl",
+"PGanswermacros.pl",
+"PGauxiliaryFunctions.pl"
+);
+
+TEXT(&beginproblem);
+# Use 0 if it is true or false
+#     1 if it is a numerical answer
+#
+$showPartialCorrectAnswers = 0;
+
+$image_name1 = "./sphereplate.gif";
+$image_width1 = 140;
+$image_height1 = 200;
+
+$image_name2 = "./twospheres.gif";
+$image_width2 = 170;
+$image_height2 = 200;
+
+$q = random(1.0, 3.0, 0.1);
+$charge = $q * 1E-9;
+$w = random(1.0, 4.0, 0.2);
+$weight = $w * 1E-5;
+
+$epsilon = 8.85E-12;
+$k = 1/(4*$pi*$epsilon);
+
+$angle = 20*$pi/180;
+$Eforce = tan($angle) * $weight;
+
+$Efield = $Eforce / $charge;
+
+$r = sqrt($k* ($charge**2) / $Eforce);
+
+$ans_a = $Eforce;
+ANS(num_cmp($ans_a, units => 'N'));
+
+$ans_a = $Efield;
+ANS(num_cmp($ans_a, units => 'N/C'));
+
+$ans_a = $r;
+ANS(num_cmp($ans_a, units => 'm'));
+
+
+BEGIN_TEXT
+$BR
+\{ image($image_name1, width => $image_width1, height => $image_height1) \}
+$PAR
+$PAR
+A very small negatively-charged conducting sphere is suspended 
+by an insulating thread from support S. 
+It is placed close to a vertical metal plate carrying a positive charge. 
+The sphere is attracted towards the plate and hangs with the thread at an 
+angle of 20\(^{\circ}\) to the vertical as shown in the figure.
+
+$PAR 
+(a) The sphere of weight $w \(\times 10^{-5}\) N carries a charge of -$q \(\times 10^{-9}\) C. 
+Find the magnitude of the attractive force between the sphere and the plate.
+
+$PAR
+\( F = \) \{ ans_rule(20) \}
+
+$PAR
+(b) Determine the magnitude of the electric field strength at the sphere, 
+treated as a point charge.
+
+$PAR
+\( E = \) \{ ans_rule(20) \}
+
+$PAR
+
+$PAR
+(c) The plate is removed. The diagram below shows an identical sphere 
+carrying a charge of +$q \(\times 10^{-9}\) C, mounted on an insulating stand.
+It is placed so that the hanging sphere remains at 20\(^{\circ}\) to the vertical. 
+Treating the spheres as point charges, calculate the distance r between their centres.
+
+$BR
+\{ image($image_name2, width => $image_width2, height => $image_height2) \}
+$PAR
+\( r = \) \{ ans_rule(20) \}
+
+
+
+END_TEXT
+
+
+ENDDOCUMENT();        # This should be the last executable line in the problem.
