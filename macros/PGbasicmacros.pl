@@ -664,25 +664,25 @@ sub generate_aria_label {
     # check for quiz prefix 
     if ($name =~ /^Q\d+/ || $name =~ /^MaTrIx_Q\d+/) {
 	$name =~ s/Q0*(\d+)_//;
-	$label .= maketext('problem ').$1.' ';
+	$label .= maketext('problem').' '.$1.' ';
     }
 
     # get answer number 
     $name =~ /AnSwEr0*(\d+)/;
-    $label .= maketext('answer ').$1.' ';
+    $label .= maketext('answer').' '.$1.' ';
     
     # check for Multianswer
     if ($name =~ /MuLtIaNsWeR_/) {
 	$name =~ s/MuLtIaNsWeR_//;
 	$name =~ /AnSwEr(\d+)_(\d+)/;
-	$label .= maketext('part ').($2+1).' ';
+	$label .= maketext('part').' '.($2+1).' ';
     }
     
     # check for Matrix 
     if ($name =~ /^MaTrIx_/) {
 	$name =~ /_(\d+)_(\d+)$/;
-	$label .= maketext('row ').($1+1)
-	    .maketext(' column ').($2+1).' ';
+	$label .= maketext('row').' '.($1+1)
+	    .' '.maketext('column').' '.($2+1).' ';
     }
 
     return $label;
