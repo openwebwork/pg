@@ -723,7 +723,7 @@ sub maketext {
   my $self = shift;
   # uncomment this to check to see if strings are run through
   # maketext.  
-  return '_'.  &{ $self->{maketext}}(@_).'_';
+  return 'xXx'.  &{ $self->{maketext}}(@_).'xXx';
   &{ $self->{maketext}}(@_);
 }
 sub includePGtext { 
