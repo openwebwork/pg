@@ -1264,14 +1264,14 @@ sub hint {
     if ($displayMode =~ /TeX/) {
         my $afterAnswerDate = ( time() > $envir{answerDate} );
     	if ($printHintForInstructor) {
-    		$out = join(' ', $BITALIC," (Instructor hint preview: show the student hint after $showHint attempts. The current number of attempts is $attempts. )$BR", $EITALIC, @in);	
+    		$out = join(' ', $BITALIC,maketext("(Instructor hint preview: show the student hint after the following number of attempts:"), $showHint,$BR, $EITALIC, @in);	
     	} elsif ( $displayHint and $afterAnswerDate ) { # only display hints after the answer date.
     		$out = join(' ',@in);
     	}
     	    
     } elsif ($displayMode =~/HTML/) {
     	if ($printHintForInstructor) {  # always print hints for instructor types in HTML mode
-			$out = join(' ', $BITALIC," (Instructor hint preview: show the student hint after $showHint attempts. The current number of attempts is $attempts. )$BR", $EITALIC, @in);    	
+			$out = join(' ', $BITALIC,maketext("(Instructor hint preview: show the student hint after the following number of attempts:"), $showHint,"$BR", $EITALIC, @in);    	
     	} elsif ( $displayHint  and  ( $attempts > $showHint ) ) 	{  
 	 	    ## the second test above prevents a hint being shown if a doctored form is submitted
 		    $out = join(' ',@in);
