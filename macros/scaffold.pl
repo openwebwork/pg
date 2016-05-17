@@ -760,6 +760,13 @@ TEXT(<<'END_HEADER_TEXT') if !$Scaffold::isHardcopy;  # should be HEADER_TEXT, b
   font-weight: normal!important;
   font-style: normal!important;
 }
+
+.section-div > h3:focus {
+    outline-style:solid;
+    outline-color:#aaaa00;
+    outline-width:2px;
+}
+
 .section-div > h3.ui-state-default {
   color: #555555!important;
 }
