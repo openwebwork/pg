@@ -575,7 +575,7 @@ sub add_container {
   unshift(@$PG_OUTPUT,@{main::MODES(
     HTML => [
       '<div class="section-div">',
-      '<h3 id="'.$label.'" class="'.($iscorrect?"iscorrect":"iswrong").'">'.$self->{name}.'</h3>',
+      '<h3 tabindex=0 id="'.$label.'" class="'.($iscorrect?"iscorrect":"iswrong").'">'.$self->{name}.'</h3>',
       '<div><p>',
       '<script>$("#'.$label.'").can'.($canopen?"":"not").'open()</script>',
     ],
@@ -760,6 +760,13 @@ TEXT(<<'END_HEADER_TEXT') if !$Scaffold::isHardcopy;  # should be HEADER_TEXT, b
   font-weight: normal!important;
   font-style: normal!important;
 }
+
+.section-div > h3:focus {
+    outline-style:solid;
+    outline-color:#aaaa00;
+    outline-width:2px;
+}
+
 .section-div > h3.ui-state-default {
   color: #555555!important;
 }
@@ -779,7 +786,10 @@ $.fn.canopen = function() {
    $(this).addClass("canopen ui-accordion-header ui-helper-reset ui-state-default ui-corner-top ui-corner-bottom")
    .hover(function() { $(this).toggleClass("ui-state-hover"); })
    .prepend('<span class="ui-icon ui-icon-triangle-1-e"></span>')
-   .click(function() {
+   .on('keypress click', function(e) {
+     if (e.type != 'click' && e.which != 13) {
+       return true;
+     }
      if ($(this).hasClass("ui-accordion-header-active")) {
        var THIS = this;
        $(this)
