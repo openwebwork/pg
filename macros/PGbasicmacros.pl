@@ -361,8 +361,8 @@ sub NAMED_ANS_RULE {
 	
 #	$answer_value =~ tr/\\$@`//d;   ## unnecessary since we encode HTML now
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
-	$answer_value = encode_pg_and_html($answer_value);
 	$name = RECORD_ANS_NAME($name, $answer_value);
+	$answer_value = encode_pg_and_html($answer_value);
 	my $previous_name = "previous_$name";
 	$name = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%$name":$name;
 	$previous_name = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%$previous_name": $previous_name;
@@ -427,9 +427,10 @@ sub NAMED_HIDDEN_ANS_RULE { # this is used to hold information being passed into
 
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
-	$answer_value = encode_pg_and_html($answer_value);
 
 	$name = RECORD_ANS_NAME($name, $answer_value);
+	$answer_value = encode_pg_and_html($answer_value);
+
     #INSERT_RESPONSE($name,$name,$answer_value);
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
@@ -465,8 +466,9 @@ sub NAMED_ANS_RULE_EXTENSION {
 	}
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
+	INSERT_RESPONSE($name,$name,$answer_value);  #FIXME hack -- this needs more work to decide how to make it work
 	$answer_value = encode_pg_and_html($answer_value);
-	INSERT_RESPONSE($name,$name,$answer_value);  #hack -- this needs more work to decide how to make it work
+
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
 	MODES(
@@ -1090,10 +1092,11 @@ sub NAMED_ANS_ARRAY_EXTENSION{
 
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 #	warn "ans_label $options{ans_label} $name $answer_value";
-	$answer_value = encode_pg_and_html($answer_value);
 	if (defined($options{ans_label}) ) {
 		INSERT_RESPONSE($options{ans_label}, $name, $answer_value);
 	}
+	$answer_value = encode_pg_and_html($answer_value);
+
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{10pt}{\\hrulefill}}\\hrulefill\\quad ",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = "">\n\\end{rawhtml}\n!,
@@ -1435,7 +1438,7 @@ sub MODES {
 			return $options{$mode} if defined $options{$mode};
 		}
 	}
-	die "ERROR in defining MODES: neither display mode '$main::displayMode' nor",
+	warn "ERROR in defining MODES: neither display mode '$main::displayMode' nor",
 		" any fallback modes (", join(", ", @backup_modes), ") supplied.";
 }
 
@@ -1522,9 +1525,9 @@ sub LTS { MODES(TeX => '<', Latex2HTML => '\\lt ', HTML => '&lt;', HTML_tth => '
 sub GTS { MODES(TeX => '>', Latex2HTML => '\\gt ', HTML => '&gt;', HTML_tth => '>' ); };
 sub LTE { MODES(TeX => '\\le ', Latex2HTML => '\\le ', HTML => '<U>&lt;</U>', HTML_tth => '\\le ' ); };
 sub GTE { MODES(TeX => '\\ge ', Latex2HTML => '\\ge ', HTML => '<U>&gt;</U>', HTML_tth => '\\ge ' ); };
-sub BEGIN_ONE_COLUMN { MODES(TeX => " \\end{multicols}\n",  Latex2HTML => " ", HTML =>   " "); };
+sub BEGIN_ONE_COLUMN { MODES(TeX => "\\ifdefined\\nocolumns\\else \\end{multicols}\\fi\n",  Latex2HTML => " ", HTML =>   " "); };
 sub END_ONE_COLUMN { MODES(TeX =>
-              " \\begin{multicols}{2}\n\\columnwidth=\\linewidth\n",
+              " \\ifdefined\\nocolumns\\else \\begin{multicols}{2}\n\\columnwidth=\\linewidth \\fi\n",
                             Latex2HTML => ' ', HTML => ' ');
 
 };
@@ -1532,7 +1535,7 @@ sub SOLUTION_HEADING { MODES( TeX => '\\par {\\bf '.maketext('Solution:').' }',
                  Latex2HTML => '\\par {\\bf '.maketext('Solution:').' }',
           		 HTML =>  '<B>'.maketext('Solution:').'</B> ');
 };
-sub HINT_HEADING { MODES( TeX => "\\par {\\bf Hint: }", Latex2HTML => "\\par {\\bf Hint: }", HTML => "<B>Hint:</B> "); };
+sub HINT_HEADING { MODES( TeX => "\\par {\\bf ".maketext('Hint:')." }", Latex2HTML => "\\par {\\bf ".maketext('Hint:')." }", HTML => "<B>".maketext('Hint:')."</B> "); };
 sub US { MODES(TeX => '\\_', Latex2HTML => '\\_', HTML => '_');};  # underscore, e.g. file${US}name
 sub SPACE { MODES(TeX => '\\ ',  Latex2HTML => '\\ ', HTML => '&nbsp;');};  # force a space in latex, doesn't force extra space in html
 sub NBSP { MODES(TeX => '~',  Latex2HTML => '~', HTML => '&nbsp;');}; 
@@ -1678,7 +1681,7 @@ sub addToTeXPreamble {
                 # inside a multicols environment and its scope doesn't reach the whole file
                 # It has to do with the way the multicol single col stuff was set up
                 # when printing hardcopy.  --it's weird and there must be a better way.
-                TEXT("\\end{multicols}\n", $str, "\n","\\begin{multicols}{2}\\columnwidth=\\linewidth\n");
+                TEXT("\\ifdefined\\nocolumns\\else \\end{multicols} \\fi\n", $str, "\n","\\ifdefined\\nocolumns\\else \\begin{multicols}{2}\\columnwidth=\\linewidth \\fi\n");
         } else { # for jsMath and MathJax mode
             my $mathstr = "\\(".$str."\\)";  #add math mode.  
             $mathstr =~ s/\\/\\\\/g;         # protect math modes ($str has a true TeX command, 
@@ -2170,7 +2173,9 @@ sub beginproblem {
 	my $probNum      = $envir->{probNum};
     my $l2hFileName = protect_underbar($envir->{probFileName});
 	my %inlist;
+	my $permissionLevel = $envir->{permissionLevel};
 	my $points = maketext('points');
+
 
 	$points = maketext('point') if $problemValue == 1;
 	##    Prepare header for the problem
@@ -2180,19 +2185,18 @@ sub beginproblem {
 	my $studentLogin = $envir->{studentLogin};
 	my $print_path_name_flag = 
 			(defined($effectivePermissionLevel) && defined($PRINT_FILE_NAMES_PERMISSION_LEVEL) && $effectivePermissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL)
-			 || ( defined($inlist{ $studentLogin }) and ( $inlist{ $studentLogin }>0 )  ) ;
-
+			 || ( defined($inlist{ $studentLogin }) and ( $inlist{ $studentLogin }>0 )  )?1:0 ;
 	$out .= MODES( TeX => '', HTML => '<P style="margin: 0">');
 	if ( $print_path_name_flag ) {
 		$out .= &M3("{\\bf ${probNum}. {\\footnotesize ($problemValue $points) \\path|$fileName|}}\\newline ",
 		" \\begin{rawhtml} ($problemValue $points) <B>$l2hFileName</B><BR>\\end{rawhtml}",
 		 "($problemValue $points) <B>$fileName</B><BR>"
-	 	   ) if ($problemValue >=0 );
+	 	   ) if ($problemValue >=0 and ($envir->{setNumber})=~/\S/ and ($envir->{setNumber}) ne 'Undefined_Set' );
 	} else {
 		$out .= &M3("{\\bf ${probNum}.} ($problemValue $points) ",
 		"($problemValue $points) ",
 		 "($problemValue $points) "
-	 	   ) if ($problemValue  >= 0);
+	 	   ) if ($problemValue  >= 0 and ($envir->{setNumber})=~/\S/ and ($envir->{setNumber}) ne 'Undefined_Set');
 	}
 	$out .= MODES(%{main::PG_restricted_eval(q!$main::problemPreamble!)});
 	$out;
@@ -2289,7 +2293,7 @@ sub htmlLink {
 	my $text = shift;
 	my $options = shift;
 	$options = "" unless defined($options);
-	return "$BBOLD\[ $text  has broken link: $url \] $EBOLD" unless defined($url);
+	return "$BBOLD [ the link to '$text'  is broken ] $EBOLD" unless defined($url) and $url;
 	MODES( TeX        => "{\\bf \\underline{$text}}",
 	       HTML       => "<A HREF=\"$url\" $options>$text</A>"
 	);
@@ -2712,10 +2716,115 @@ sub image {
 	 || $displayMode eq 'HTML_LaTeXMathML'
 	 || $displayMode eq 'HTML_img') {
 			my $wid = ($envir->{onTheFlyImageSize} || 0) +30;
- 			$out = qq!<A HREF= "$imageURL" TARGET="_blank" onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;"><IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height" $out_options{extra_html_tags} ></A>
+ 			$out = qq!<A HREF= "$imageURL" TARGET="_blank" 
+ 			         onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;">
+ 			         <IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height" $out_options{extra_html_tags} >
+ 			         </A>
  			!
  		} else {
  			$out = "Error: PGbasicmacros: image: Unknown displayMode: $displayMode.\n";
+ 		}
+ 		push(@output_list, $out);
+ 	}
+	return wantarray ? @output_list : $output_list[0];
+}
+
+#This is bare bones code for embedding svg 
+sub embedSVG {
+	my $file_name = shift;   # just input the file name of the svg image
+	my $backup_file_name = shift//'';  # a png version
+	my $str='';
+	if ($backup_file_name) {
+		$str = q!" oneerror="this.src='! . alias($backup_file_name). q!'!;
+	}
+	return MODES( HTML => q!
+   			<img src="! . alias($file_name).$str.q!">!,
+   			TeX => "Can't process svg in tex mode yet \\includegraphics[width=6in]{" . alias( $file_name ) . "}" 
+	); 
+}
+
+# This is bare bones code for embedding png files -- what else should be added? (there are .js scripts for example)
+sub embedPDF {
+	my $file_name = shift;   # just input the file name of the svg image
+	#my $backup_file_name = shift//'';  # a png version
+	return MODES( HTML => q!
+		   <object data=! . alias($file_name) .
+		   q!  type="application/pdf" 
+		   width="100%" 
+		   height="100%"></object>!, 
+		   TeX => "\\includegraphics[width=6in]{" . alias( $file_name ) . "}" 
+		   ) ; 
+}
+
+sub video {
+	my $video_ref  = shift;
+	my @opt = @_;
+	unless (scalar(@opt) % 2 == 0 ) {
+		warn "ERROR in video macro.  A list of macros must be inclosed in square brackets.";
+	}
+	my %in_options = @opt;
+	my %known_options = (
+		width    => 400,
+		height   => 400,
+		extra_html_tags => '',
+	);
+	# handle options
+	my %out_options = %known_options;
+	foreach my $opt_name (keys %in_options) {
+		if ( exists( $known_options{$opt_name} ) ) {
+			$out_options{$opt_name} = $in_options{$opt_name} if exists( $in_options{$opt_name} ) ;
+		} else {
+			die "Option $opt_name not defined for video. " .
+			    "Default options are:<BR> ", display_options2(%known_options);
+		}
+	}
+	my $width       = $out_options{width};
+	my $height      = $out_options{height};
+
+	my @video_list  = ();
+
+ 	if (ref($video_ref) =~ /ARRAY/ ) {
+		@video_list = @{$video_ref};
+ 	} else {
+		push(@video_list,$video_ref);
+ 	}
+
+ 	my @output_list = ();
+  	while(@video_list) {
+
+	  my $video = shift @video_list //'';
+ 		my $videoURL = alias($video)//'';
+	        $video =~ /.*\.(\w*)/;
+	        my $type = $1;
+		my $out;
+	        my $htmlmessage = maketext("Your browser does not support the video tag.");
+	  
+		if ($displayMode eq 'TeX') {
+
+		  $videoURL = ($envir{use_site_prefix})? $envir{use_site_prefix}.$videoURL : $videoURL;
+		  $out="\\begin{center} {\\bf ".maketext("This problem contains a video which must be viewed online.")."} \\end{center}";
+
+		} elsif ($displayMode eq 'Latex2HTML') {
+		        $out = qq!\\begin{rawhtml}<VIDEO WIDTH="$width" HEIGHT="$height" CONTROLS>\n
+                        <SOURCE SRC="$videoURL" TYPE="video/$type">\n
+                        ${htmlmessage}\n
+                        </VIDEO>\n
+			\\end{rawhtml}\n !
+ 		} elsif ($displayMode eq 'HTML_MathJax'
+	 || $displayMode eq 'HTML_dpng'
+	 || $displayMode eq 'HTML'
+	 || $displayMode eq 'HTML_tth'
+	 || $displayMode eq 'HTML_jsMath'
+	 || $displayMode eq 'HTML_asciimath' 
+	 || $displayMode eq 'HTML_LaTeXMathML'
+	 || $displayMode eq 'HTML_img') {
+		        $out = qq!<VIDEO WIDTH="$width" HEIGHT="$height" CONTROLS>\n
+                        <SOURCE SRC="$videoURL" TYPE="video/$type">\n
+                        ${htmlmessage}\n
+                        </VIDEO>\n
+ 			!
+ 		} else {
+ 			$out = "Error: PGbasicmacros: video: Unknown displayMode: $displayMode.\n";
  		}
  		push(@output_list, $out);
  	}
@@ -2817,7 +2926,7 @@ sub imageRow {
 		$out .= "\n</TR></TABLE></P>\n"
 	}
 	else {
-		$out = "Error: PGbasicmacros: imageRow: Unknown languageMode: $displayMode.\n";
+		$out = "Error: PGbasicmacros: imageRow: Unknown displayMode: $displayMode.\n";
 		warn $out;
 	}
 	$out;

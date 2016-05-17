@@ -41,7 +41,7 @@ sub new {
     $math->{variables} = $math->{tree}->getVariables;
   } elsif (Value::isValue($string)) {
     $math->{tree} = $math->Item("Value")->new($math,$string);
-  } elsif ($string eq '' && $context->{flags}{allowEmptyStrings}) {
+  } elsif (($string//'') eq '' && $context->{flags}{allowEmptyStrings}) {
     $math->{string} = "";
     $math->{tree} = $math->Item("Value")->new($math,"");
   } else {
@@ -279,7 +279,7 @@ sub Op {
           $self->pushOperand($self->Item("UOP")->new($self,$name,$top->{value},$ref));
         } else {
           $name = $context->{operators}{' '}{string}
-            if $name eq ' ' or $name eq $context->{operators}{' '}{space};
+            if ($name//'') eq ' ' or ($name//'') eq $context->{operators}{' '}{space};
           $self->pushOperator($name,$op->{precedence});
         }
       } elsif (($ref && $name ne ' ') || $self->state ne 'fn') {$self->Op($name,$ref)}

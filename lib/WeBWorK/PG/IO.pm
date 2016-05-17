@@ -85,7 +85,8 @@ contains the function.
 =item includePGtext($string_ref, $envir_ref)
 
 
-This is used in processing some of the sample CAPA files and in creating aliases to redirect calls to duplicate problems so that 
+This is used in processing some of the sample CAPA files and 
+in creating aliases to redirect calls to duplicate problems so that 
 they go to the original problem instead.  It is called by includePGproblem.
 
 It reads and evaluates the string in the same way that the Translator evaluates the string in a PG file.
@@ -102,6 +103,7 @@ sub includePGtext  {
 #	$evalString =~ s/~~/\\/g;   # use ~~ as escape instead, use # for comments
 	no strict;
 	$evalString = eval( q! &{$main::PREPROCESS_CODE}($evalString) !); 
+	$evalString = $evalString||'';
 	# current preprocessing code passed from Translator (see Translator::initialization)
 	my $errors = $@;
 	eval("package main; $evalString") ;
@@ -131,7 +133,8 @@ sub read_whole_problem_file {
 
 sub read_whole_file {
 	my $filePath = shift;
-
+	warn "Can't read file $filePath<br/>" unless -r $filePath;
+	return "" unless -r $filePath;
 	die "File path $filePath is unsafe." 
 	    unless path_is_course_subdir($filePath);
 	

@@ -5,10 +5,17 @@
 # initialize PGcore and PGrandom
 
 
-	$main::VERSION ="WW2";
+$main::VERSION ="WW2";
 
 sub _PG_init{
-	$main::VERSION ="WW2.9+";
+  $main::VERSION ="WW2.9+";
+  #
+  #  Set up MathObject context for use in problems
+  #  that don't load MathObjects.pl
+  #
+  %main::context = {};
+  Parser::Context->current(\%main::context);
+
 }
 
 our $PG;  
@@ -52,15 +59,23 @@ sub DOCUMENT {
 	@KEPT_EXTRA_ANSWERS =();   #temporary hack
 	
 	my %envir              =   %$rh_envir;
-	$displayMode           = $PG->{displayMode};
-	$PG_random_generator        = $PG->{PG_random_generator};
 	# Save the file name for use in error messages
 
 	#no strict;
 	foreach  my  $var (keys %envir) {
    		PG_restricted_eval(qq!\$main::$var = \$envir{$var}!);  #whew!! makes sure $var is interpolated but $main:: is evaluated at run time.
-	        warn "Problem defining $var  while initializing the PG problem: $@" if $@;
+	    warn "Problem defining $var  while initializing the PG problem: $@" if $@;
 	}
+	
+	$displayMode           = $PG->{displayMode};
+	$problemSeed           = $PG->{problemSeed};
+	$PG_random_generator   = $PG->{PG_random_generator};
+	#warn "{inputs_ref}->{problemSeed} =",$inputs_ref->{problemSeed} if $inputs_ref->{problemSeed};
+	#warn "{inputs_ref}->{displayMode} =",$inputs_ref->{displayMode} if $inputs_ref->{displayMode};
+	#warn "displayMode $displayMode";
+	#warn "problemSeed $problemSeed";
+	$inputs_ref->{problemSeed}='';   #this version of the problemSeed is tainted. It can be set by a student
+	$inputs_ref->{displayMode}='';   # not sure whether this should ever by used or not.
 	#use strict;
 	#FIXME
 	# load java script needed for displayModes
@@ -368,6 +383,35 @@ sub ENDDOCUMENT {
 	
 	
 	@PG_ANSWERS=();
+	if ( 0 or # allow one to force debug output  manually
+		($inputs_ref->{showResourceInfo})//'' and ($rh_envir->{permissionLevel})>= 5) {
+		my %resources = %{$PG->{PG_alias}->{resource_list}};
+		my $str = '';
+		my @resource_names=();
+		foreach my $key (keys %resources) {
+			$str .= knowlLink("$key$BR", value=>"$key$BR".pretty_print($resources{$key})."$BR$BR", base64=>0);
+			push @resource_names, $key;
+		}
+		if ($str eq '') {
+			$str = "No auxiliary resources<br/>";
+		} else { 
+			my $summary = "## RESOURCES('".join("','", @resource_names)."')$BR\n";	 
+			$PG->debug_message($summary.$str) ;
+		}
+	}
+	if ( 0 or # allow one to force debug output  manually
+	    ($inputs_ref->{showPGInfo} and ($permissionLevel >=10)) ){
+ 	     my $context = $$Value::context->{flags};
+ 	     $PG->debug_message("PGbasicmacros.pl 2184: ", 
+ 	   			$HR,"Form variables",$BR,
+ 	   			pretty_print($inputs_ref),
+				$HR,"Environment variables", $BR,
+				pretty_print(\%envir),
+                $HR,"Context flags",$BR,
+				pretty_print($context),
+		  ) ;	
+ 	}
+
 
 	#warn keys %{ $PG->{PG_ANSWERS_HASH} };
 	@PG_ANSWER_ENTRY_ORDER = ();
@@ -382,24 +426,34 @@ sub ENDDOCUMENT {
 	        # The remainder of the response keys are placed in the EXTRA ANSWERS ARRAY
 	        if (defined($answergroup)) {
 	            my @response_keys = $answergroup->{response}->response_labels;
-	            warn pretty_print($answergroup->{response}) if $ans_debug==1;
-	            my $response_key = shift @response_keys;
+	            if ( 0 or # allow one to force debug output  manually
+	               ($inputs_ref->{showAnsGroupInfo})//0 and ($rh_envir->{permissionLevel})>= 5) {
+	            	$PG->debug_message("PG.pl 418: ", pretty_print($answergroup) ) ;
+	            	$PG->debug_message("PG.pl 389: ", pretty_print($answergroup->{response}));
+	            }
+	            my $response_key = $response_keys[0];
+	            my $answer_key = $answergroup->{ans_label};
 	            #unshift @response_keys, $response_key unless ($response_key eq $answer_group->{ans_label});
 	            # don't save the first response key if it is the same as the ans_label
 	            # maybe we should insure that the first response key is always the same as the answer label?
+	  #          warn "first response key label and answer key label don't agree" 
+	  #                 unless ($response_key eq $answer_key);
+
 	            # even if no answer blank is printed for it? or a hidden answer blank?
 	            # this is still a KLUDGE
 	            # for compatibility the first response key is closer to the old method than the $ans_label
 	            # this is because a response key might indicate an array but an answer label won't
-	            push @PG_ANSWERS, $response_key,$answergroup->{ans_eval};
-	            push @PG_ANSWER_ENTRY_ORDER, $response_key;
+	            #push @PG_ANSWERS, $response_key,$answergroup->{ans_eval};
+	            $PG_ANSWERS_HASH{$answer_key} = $answergroup->{ans_eval};
+	            push @PG_ANSWER_ENTRY_ORDER, $answer_key;
+	            # @KEPT_EXTRA_ANSWERS could be replaced by saving all of the responses for this answergroup 
 	            push @KEPT_EXTRA_ANSWERS, @response_keys;
 			} else {
-			    #warn "$key is ", join("|",%{$PG->{PG_ANSWERS_HASH}->{$key}});
+			    warn "$key is ", join("|",%{$PG->{PG_ANSWERS_HASH}->{$key}});
 			}
 	}
 	push @KEPT_EXTRA_ANSWERS, keys %{$PG->{PERSISTENCE_HASH}};
-	my %PG_ANSWERS_HASH = @PG_ANSWERS;
+	#Hackish way to store other persistence data
 	$PG->{flags}->{KEPT_EXTRA_ANSWERS} = \@KEPT_EXTRA_ANSWERS;
 	$PG->{flags}->{ANSWER_ENTRY_ORDER} = \@PG_ANSWER_ENTRY_ORDER;
 	
@@ -410,11 +464,10 @@ sub ENDDOCUMENT {
 	
     warn "KEPT_EXTRA_ANSWERS", join(" ", @KEPT_EXTRA_ANSWERS), $BR     if $ans_debug==1;
     warn "PG_ANSWER_ENTRY_ORDER",join(" ",@PG_ANSWER_ENTRY_ORDER), $BR if $ans_debug==1;
-    warn "DEBUG messages", join( "$BR",@{$PG->get_debug_messages} ) if $ans_debug==1;
+    # not needed for the moment:
+    # warn "DEBUG messages", join( "$BR",@{$PG->get_debug_messages} ) if $ans_debug==1;
     warn "INTERNAL_DEBUG messages", join( "$BR",@{$PG->get_internal_debug_messages} ) if $ans_debug==1;
 	$STRINGforOUTPUT      = join("", @{$PG->{OUTPUT_ARRAY} });
-	
-	
 	$STRINGforHEADER_TEXT = join("", @{$PG->{HEADER_ARRAY} }); 
     $STRINGforPOSTHEADER_TEXT = join("", @{$PG->{POST_HEADER_ARRAY} }); 
 	# warn pretty_print($PG->{PG_ANSWERS_HASH});
@@ -427,6 +480,10 @@ sub ENDDOCUMENT {
 sub alias {
     #warn "alias called ",@_;
     $PG->{PG_alias}->make_alias(@_)  ;
+}
+
+sub get_resource {
+	$PG->{PG_alias}->get_resource(@_);
 }
 
 sub maketext {
@@ -514,12 +571,20 @@ sub k () {
 }
 
 # ^function pi
+# ^uses $_parser_loaded
 # ^uses &Value::Package
-sub pi () {Value->Package("Formula")->new('pi')->eval}
+sub pi () {
+  if (!eval(q!$main::_parser_loaded!)) {return 4*atan2(1,1)}
+  Value->Package("Formula")->new('pi')->eval;
+}
 
 # ^function Infinity
+# ^uses $_parser_loaded
 # ^uses &Value::Package
-sub Infinity () {Value->Package("Infinity")->new()}
+sub Infinity () {
+  if (!eval(q!$main::_parser_loaded!)) {return 'Infinity'}
+  Value->Package("Infinity")->new();
+}
 
 
 # ^function abs
@@ -530,10 +595,10 @@ sub Infinity () {Value->Package("Infinity")->new()}
 # ^function cos
 # ^function atan2
 #
-#  Allow these functions to be overridden
+#  Allow these functions to be overridden without complaint.
 #  (needed for log() to implement $useBaseTenLog)
 #
-use subs 'abs', 'sqrt', 'exp', 'log', 'sin', 'cos', 'atan2';
+use subs 'abs', 'sqrt', 'exp', 'log', 'sin', 'cos', 'atan2', 'ParserDefineLog';
 sub abs($)  {return CORE::abs($_[0])};
 sub sqrt($) {return CORE::sqrt($_[0])};
 sub exp($)  {return CORE::exp($_[0])};
@@ -542,7 +607,9 @@ sub sin($)  {return CORE::sin($_[0])};
 sub cos($)  {return CORE::cos($_[0])};
 sub atan2($$) {return CORE::atan2($_[0],$_[1])};
 
-sub Parser::defineLog {eval {sub log($) {CommonFunction->Call("log",@_)}}};
+# used to be Parser::defineLog -- but that generated redefined notices
+sub ParserDefineLog {eval {sub log($) {CommonFunction->Call("log",@_)}}};
+
 =head2 Filter utilities
 
 These two subroutines can be used in filters to set default options.  They

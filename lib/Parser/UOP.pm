@@ -197,6 +197,7 @@ sub string {
 #
 sub TeX {
   my ($self,$precedence,$showparens,$position,$outerRight) = @_;
+  $showparens = $showparens//'';
   my $TeX; my $uop = $self->{def}; $position = '' unless defined($position);
   my $fracparens = ($uop->{nofractionparens}) ? "nofractions" : "";
   my $extraParens = $self->context->flag('showExtraParens');
