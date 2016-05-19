@@ -67,17 +67,30 @@ attempt to display a grammerically correct result.
 
 loadMacros('MathObjects.pl');
 
+our %fundamental_units = %Units::fundamental_units;
+our %known_units = %Units::known_units;
+
 sub _parserNumberWithUnits_init {
   # We make copies of these hashes here because these copies will be unique to  # the problem.  The hashes in Units are shared between problems.  We pass
   # the hashes for these local copies to the NumberWithUnits package to use
   # for all of its stuff.  
-  my %fundamental_units = %Units::fundamental_units;
-  my %known_units = %Units::known_units;
 
   
   Parser::Legacy::ObjectWithUnits::initializeUnits(\%fundamental_units,\%known_units);
+  # main::PG_restricted_eval('sub NumberWithUnits {Parser::Legacy::NumberWithUnits->new(@_)}');
   
-  main::PG_restricted_eval('sub NumberWithUnits {Parser::Legacy::NumberWithUnits->new(@_)}');
+}
+sub NumberWithUnits {Parser::Legacy::NumberWithUnits->new(@_)};
+sub parserNumberWithUnits::fundamental_units {
+	return \%fundamental_units;
+}
+sub parserNumberWithUnits::known_units {
+	return \%known_units;
+}
+sub parserNumberWithUnits::add_unit {
+    my $newUnit = shift;
+	my $Units= Parser::Legacy::ObjectWithUnits::add_unit($newUnit->{name}, $newUnit->{conversion});
+    return %$Units;
 }
 
 1;

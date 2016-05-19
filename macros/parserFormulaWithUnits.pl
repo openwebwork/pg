@@ -73,13 +73,13 @@ loadMacros('MathObjects.pl');
  #  Now uses the version in Parser::Legacy::NumberWithUnits
  #  to avoid duplication of common code.
  #
+our %fundamental_units = %Units::fundamental_units;
+our %known_units = %Units::known_units;
 
 sub _parserFormulaWithUnits_init {
     # We make copies of these hashes here because these copies will be unique to  # the problem.  The hashes in Units are shared between problems.  We pass
   # the hashes for these local copies to the NumberWithUnits package to use
   # for all of its stuff.  
-  my %fundamental_units = %Units::fundamental_units;
-  my %known_units = %Units::known_units;
 
   
   Parser::Legacy::ObjectWithUnits::initializeUnits(\%fundamental_units,\%known_units);
@@ -87,4 +87,10 @@ sub _parserFormulaWithUnits_init {
   main::PG_restricted_eval('sub FormulaWithUnits {Parser::Legacy::FormulaWithUnits->new(@_)}');
 }
 
+sub parserFormulaWithUnits::fundamental_units {
+	return \%fundamental_units;
+}
+sub parserFormulaWithUnits::known_units {
+	return \%known_units;
+}
 1;
