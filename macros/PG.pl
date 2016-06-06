@@ -13,7 +13,7 @@ sub _PG_init{
   #  Set up MathObject context for use in problems
   #  that don't load MathObjects.pl
   #
-  %main::context = {};
+  %main::context = ();
   Parser::Context->current(\%main::context);
 
 }
