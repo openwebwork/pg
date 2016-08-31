@@ -32,7 +32,9 @@ To create a RadioButtons object, use
 where "choices" are the strings for the items in the radio buttons,
 "correct" is the choice that is the correct answer for the group (or
 its index, with 0 being the first one), and options are chosen from
-among those listed below.
+among those listed below.  If the correct answer is a number, it is
+interpretted as an index, even if the array of choices are also
+numbers.  (See the C<noindex> below for more details.)
 
 The entries in the choices array can either be strings that are the
 text to use for the choice buttons, or C<{label=>text}> where C<label>
@@ -138,6 +140,13 @@ Determines whether the radio buttons can be unchecked (requires
 JavaScript).  To uncheck, click a second time; when set to "shift",
 unchecking requires the shift key to be pressed.  Default: 0
 
+=item C<S<< noindex => 0 or 1 >>>
+
+Determines whether a numeric value for the correct answer is
+interpretted as an index into the choice array or not.  If set to 1,
+then the number is treated as the literal correct answer, not an index
+to it.  Default: 0
+
 =back
 
 The following options are deprecated, but are available for backward
@@ -236,6 +245,7 @@ sub new {
     first => undef,
     last => undef,
     order => undef,
+    noindex => 0,
     @_,
     checkedI => -1,
   );
@@ -306,7 +316,11 @@ sub addLabels {
 #
 sub getCorrectChoice {
   my $self = shift; my $value = shift;
-  $value = ($self->flattenChoices)[$value] if $value =~ m/^\d+$/;
+  if ($value =~ m/^\d+$/ && !$self->{noindex}) {
+    $value = ($self->flattenChoices)[$value];
+    Value::Error("The correct anser index is outside the range of choices provided")
+      if !defined($value);
+  }
   my @choices = @{$self->{orderedChoices}};
   foreach my $i (0..$#choices) {
     if ($value eq $choices[$i] || $value eq ($self->{labels}[$i]||"")) {
