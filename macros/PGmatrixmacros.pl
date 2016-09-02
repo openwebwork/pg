@@ -289,7 +289,7 @@ sub dm_begin_matrix {
                       or $main::displayMode eq 'HTML_LaTeXMathML'
                       or $main::displayMode eq 'HTML'
                       or $main::displayMode eq 'HTML_img') {
-                $out .= qq!<TABLE class="matrix" BORDER="0" Cellspacing="8">\n!;
+                $out .= qq!<TABLE class="matrix" BORDER="0" style="border-collapse: separate; border-spacing:10px;">\n!;
         }
         else { 
                 $out = "Error: dm_begin_matrix: Unknown displayMode: $main::displayMode.\n";
