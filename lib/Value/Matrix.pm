@@ -186,7 +186,7 @@ sub numberMatrix {  #internal
   my @M = (); my $isFormula = 0;
   foreach my $x (@_) {
     $x = Value::makeValue($x,context=>$context);
-    Value::Error("Matrix row entries must be numbers") unless Value::isNumber($x);
+    Value::Error("Matrix row entries must be numbers: $x") unless Value::isNumber($x);
     push(@M,$x); $isFormula = 1 if Value::isFormula($x);
   }
   return $self->formula([@M]) if $isFormula;
