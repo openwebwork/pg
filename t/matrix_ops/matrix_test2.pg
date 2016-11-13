@@ -1,0 +1,70 @@
+
+
+##############################################
+DOCUMENT();
+
+loadMacros(
+   "PGstandard.pl",     # Standard macros for PG language
+   "MathObjects.pl",
+   "parserLinearInequality.pl",
+   "PGML.pl",
+   "tableau.pl",
+   "PGmatrixmacros.pl",
+   "LinearProgramming.pl",
+    #"source.pl",        # allows code to be displayed on certain sites.
+   "PGcourse.pl",
+);
+
+##############################################
+
+Context("Matrix");  # need Matrix context to allow string input into Matrix. 
+
+$m = Matrix("[[3,6,7],[2,1,8],[4,6,21],[-6,7,9]]");
+
+$v = ColumnVector(1,1,1);
+
+$m2 = $m*$v;
+
+$v2 = Vector($m2);
+
+$m2flat = Matrix( Vector($m*$v) );
+$v2c = ColumnVector($m2);
+
+$w = Vector(1,1,1,1);
+$m3 = $w*$m;
+
+TEXT("#################",$BR);
+@test_rows = map {" ".ref($_)." "} @{$m->extract_rows} ;
+TEXT("extracted rows ", scalar(@test_rows), " | ",@test_rows,"|",$BR );
+@test_columns = map {" ".ref($_)." "}  @{$m->extract_columns} ;
+TEXT("extracted columns ", scalar(@test_columns), "|",join("|", @test_columns),"|",$BR );
+
+TEXT($BR,"#################",$BR);
+$rows = List($m->extract_rows);
+$columns = List( map {ColumnVector($_)} @{$m->extract_columns});
+$columns2 = List( map {$_->transpose} @{$m->extract_columns}); # both of these work
+
+BEGIN_PGML
+matrix [`[$m]`]
+
+vector [`[$v]`] 
+  
+result [`[$m]`]*[`[$v]`] is [$m2] and  tex version: [`[$m2]`]
+
+Convert the result to a vector [`[$v2]`] or to a column vector [`[$v2c]`]
+
+and then convert to a matrix again [$m2flat] [`[$m2flat]`]
+
+Multiplication on the left of [`[$w]`] * [`[$m]`] is [$m3], 
+
+the first row of which is [$m3->row(1)] and the tex version:[`[$m3]`]
+
+Extract rows [@ List($m->extract_rows) @] with tex version [` [$rows] `]
+
+Extract columns [@ List($m->extract_columns) @] with tex version 
+
+[`[$columns]`] or [`[$columns2]`]
+
+END_PGML
+
+ENDDOCUMENT();
