@@ -11,6 +11,7 @@ loadMacros(
    "PGstandard.pl",     # Standard macros for PG language
    "MathObjects.pl",
    "PGinfo.pl",
+   "PGML.pl",
    #"source.pl",         # used to display problem source button
    "PGcourse.pl",      # Customization file for the course
 );
@@ -30,23 +31,23 @@ $file_name    = "potato4";
 $destination_path = "$envir{templateDirectory}set$setNumber/$file_name";
 # this destination_path is still a little fragile.
 
-my( $pdflatex_command, $copy_command, $copy_command);
+ ($pdflatex_command, $copy_command, $copy_command);
 sub tikz_graph{
-	my $drawing = TikZ_Image2->new();
+	my $drawing = TikZ_Image2->new(~~%envir);
 	# initialize
 		$drawing->{working_dir}=$working_dir;
 		$drawing->{file_name}=$file_name;
 		$drawing->{destination_path}= $destination_path;
-		$drawing->set_commandline_mode("wwtest"); # "wwtest" or "macbook" or "hosted2"
+		$drawing->set_commandline_mode("hosted2"); # "wwtest" or "macbook" or "hosted2"
 	# end initialize
 	# debugging /development
-	$copy_command=$drawing->{copy_command};
+	$copy_command = $drawing->{copy_command};
 	$pdflatex_command =$drawing->{pdflatex_command};
 	$convert_command = $drawing->{convert_command};
 	# end debugging
 	$drawing->addTex(shift);
 	$drawing->render();
-	return $drawing->{destination_path};
+	return $drawing->{final_destination_path};
 }
  
 $path = tikz_graph("
@@ -61,7 +62,7 @@ $path = tikz_graph("
 \draw (0,-2) -- (0,2);
 \draw (0,0) circle (1.5);
 \draw (0, 1.5) node[anchor=south]{N} -- (2.5,0)node [above]{y};
-\draw (1.2,0.9) node[right]{$(\vec x, \x n)$};
+\draw (1.2,0.9) node[right]{\( ( x, x_n)\)};
 \end{tikzpicture}
 "
 );
@@ -75,26 +76,30 @@ Context("Numeric");
 #
 #
 
+
 Context()->texStrings;
-BEGIN_TEXT
-	Print hi 
-	$BR working_dir = $working_dir;
-	$BR file_name = $file_name
-	$BR destination_path = $destination_path.pdf;
-	$BR path = $path.png;
-	$BR alias = \{alias("$path.png")\}
-	$PAR image = \{image("$path.png")\}
-	$PAR
+BEGIN_PGML
+	Print hi   
+	working_dir =[$working_dir]     
+	file_name = [$file_name]   
+    destination_path = [$destination_path]      
+	path = [$path.png]    
+	alias = [@ alias("$path") @]*         
+    
+    image = [@ image("$path") @]*  
+
 	More stuff
-	$BR pdflatex\{$pdflatex_command\}
-	$BR convert \{$convert_command\}
-	$BR copy    \{$copy_command\}
-	$BR 
-	envir  \{pretty_print(~~%envir)\}
+	pdflatex = [$pdflatex_command]      
+	convert [$convert_command]      
+	copy    [$copy_command]      
+ 
 	
 	
-	$PAR end this
-END_TEXT
+	
+end this
+END_PGML
+
+
 Context()->normalStrings;
 
 #tempDirectory	=>	 /Volumes/WW_test/opt/webwork/webwork2/htdocs/tmp/daemon_course/

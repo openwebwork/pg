@@ -30,9 +30,9 @@ $file_name    = "potato2";
 $destination_path = "$envir{templateDirectory}set$setNumber/$file_name";
 # this destination_path is still a little fragile.
 
-my( $pdflatex_command, $copy_command, $copy_command);
+( $pdflatex_command, $copy_command, $copy_command, $displayMode);
 sub tikz_graph{
-	my $drawing = TikZ_Image2->new();
+	my $drawing = TikZ_Image2->new(~~%envir);
 	# initialize
 		$drawing->{working_dir}=$working_dir;
 		$drawing->{file_name}=$file_name;
@@ -43,10 +43,11 @@ sub tikz_graph{
 	$copy_command=$drawing->{copy_command};
 	$pdflatex_command =$drawing->{pdflatex_command};
 	$convert_command = $drawing->{convert_command};
+    $display_mode = $drawing->{displayMode};
 	# end debugging
-	$drawing->addTex(shift);
+	$drawing->addTex(join(" ",@_));
 	$drawing->render();
-	return $drawing->{destination_path};
+	return $drawing->{final_destination_path};
 }
  
 $path = tikz_graph(<<END_TIKZ);
@@ -68,26 +69,25 @@ Context("Numeric");
 #
 #
 
+$pdflatex_command=~s/~~&/~~~~&/g;
 Context()->texStrings;
 BEGIN_TEXT
 	Print hi 
-	$BR working_dir = $working_dir;
-	$BR file_name = $file_name
-	$BR destination_path = $destination_path.pdf;
-	$BR path = $path.png;
-	$BR alias = \{alias("$path.png")\}
-	$PAR image = \{image("$path.png", width=>227, height=>114)\}
+	$BR \{protect_underbar("working_dir = $working_dir")\}
+	$BR \{protect_underbar("file_name = $file_name")\}
+	$BR \{protect_underbar("destination_path = $destination_path")\}
+	$BR \{protect_underbar("path = $path")\};
+	$BR alias = \{protect_underbar(alias("$path"))\}
+	$PAR image = \{image("$path", width=>227, height=>114)\}
 	$PAR
-	More stuff
-	$BR pdflatex\{$pdflatex_command\}
-	$BR convert \{$convert_command\}
-	$BR copy    \{$copy_command\}
-	$BR 
-	envir  \{pretty_print(~~%envir)\}
+	$BR pdflatex \{protect_underbar("$pdflatex_command")\}
+	$BR convert \{protect_underbar("$convert_command")\}
+	$BR copy    \{protect_underbar("$copy_command")\}
 	
 	
 	$PAR end this
 END_TEXT
+
 Context()->normalStrings;
 
 #tempDirectory	=>	 /Volumes/WW_test/opt/webwork/webwork2/htdocs/tmp/daemon_course/
