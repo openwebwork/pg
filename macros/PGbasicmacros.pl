@@ -1236,7 +1236,11 @@ sub SOLUTION {
     	TEXT( $PAR, knowlLink(SOLUTION_HEADING(), value =>  escapeSolutionHTML($BR . solution(@_) . $PAR ),
     	              base64 =>1 ) ) if solution(@_);
     } elsif ($displayMode=~/TeX/) {
-    	TEXT($PAR,SOLUTION_HEADING(), solution(@_).$PAR) if solution(@_) ;
+        TEXT(
+            "\n%%% BEGIN SOLUTION\n",                   #Marker used in MathBook XML extraction; contact alex.jordan@pcc.edu before modifying
+            $PAR,SOLUTION_HEADING(), solution(@_).$PAR,
+            "\n%%% END SOLUTION\n"                      #Marker used in MathBook XML extraction; contact alex.jordan@pcc.edu before modifying
+        ) if solution(@_) ;
     } elsif ($displayMode=~/HTML/) {
 		TEXT( $PAR.SOLUTION_HEADING().$BR.solution(@_).$PAR) if solution(@_) ;
     } else {
@@ -1287,7 +1291,11 @@ sub HINT {
 		TEXT($PAR, knowlLink(HINT_HEADING(), value=>escapeSolutionHTML($BR . hint(@_) . $PAR ),
 		                  base64 => 1) ) if hint(@_);
     } elsif ($displayMode=~/TeX/) {
-    	TEXT($PAR,HINT_HEADING(), hint(@_).$PAR) if hint(@_) ;
+        TEXT(
+            "\n%%% BEGIN HINT\n",                #Marker used in MathBook XML extraction; contact alex.jordan@pcc.edu before modifying
+            $PAR,HINT_HEADING(), hint(@_).$PAR,
+            "\n%%% END HINT\n"                   #Marker used in MathBook XML extraction; contact alex.jordan@pcc.edu before modifying
+        ) if hint(@_) ;
     } else {
     	TEXT($PAR, HINT_HEADING(), $BR. hint(@_) . $PAR) if hint(@_);
     } 
@@ -2186,19 +2194,24 @@ sub beginproblem {
 	my $print_path_name_flag = 
 			(defined($effectivePermissionLevel) && defined($PRINT_FILE_NAMES_PERMISSION_LEVEL) && $effectivePermissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL)
 			 || ( defined($inlist{ $studentLogin }) and ( $inlist{ $studentLogin }>0 )  )?1:0 ;
-	$out .= MODES( TeX => '', HTML => '<P style="margin: 0">');
+	$out .= MODES( TeX =>
+		"\n%%% BEGIN PROBLEM PREAMBLE\n",         #Marker used in MathBook XML extraction; contact alex.jordan@pcc.edu before modifying
+		HTML => '<P style="margin: 0">');
 	if ( $print_path_name_flag ) {
 		$out .= &M3("{\\bf ${probNum}. {\\footnotesize ($problemValue $points) \\path|$fileName|}}\\newline ",
 		" \\begin{rawhtml} ($problemValue $points) <B>$l2hFileName</B><BR>\\end{rawhtml}",
 		 "($problemValue $points) <B>$fileName</B><BR>"
-	 	   ) if ($problemValue >=0 and ($envir->{setNumber})=~/\S/ and ($envir->{setNumber}) ne 'Undefined_Set' );
+		   ) if ($problemValue >=0 and ($envir->{setNumber})=~/\S/ and ($envir->{setNumber}) ne 'Undefined_Set' and ($envir->{setNumber}) ne 'not defined');
 	} else {
 		$out .= &M3("{\\bf ${probNum}.} ($problemValue $points) ",
 		"($problemValue $points) ",
 		 "($problemValue $points) "
-	 	   ) if ($problemValue  >= 0 and ($envir->{setNumber})=~/\S/ and ($envir->{setNumber}) ne 'Undefined_Set');
+		   ) if ($problemValue  >= 0 and ($envir->{setNumber})=~/\S/ and ($envir->{setNumber}) ne 'Undefined_Set' and ($envir->{setNumber}) ne 'not defined');
 	}
 	$out .= MODES(%{main::PG_restricted_eval(q!$main::problemPreamble!)});
+        $out .= MODES( TeX =>
+                "\n%%% END PROBLEM PREAMBLE\n",          #Marker used in MathBook XML extraction; contact alex.jordan@pcc.edu before modifying
+                HTML => "");
 	$out;
 
 }
