@@ -13,6 +13,7 @@ package TikZ_Image2;
 #The constructor is meant to be called with no parameters
 sub new {
 	my $class = shift;
+	my $rh_envir = shift;
 	my $tex=();
 	my $tikz_options = shift;
 	my $self = {
@@ -21,9 +22,11 @@ sub new {
 			working_dir      => '',
 			file_name 		 => '',
 			destination_path => '',
-			pdflatex_command => '',
-			convert_command  => '',
-			copy_command     => '',
+			pdflatex_command => $rh_envir->{externalPrograms}->{pdflatex},
+			convert_command  => $rh_envir->{externalPrograms}->{convert},
+			copy_command     => $rh_envir->{externalPrograms}->{cp},
+			rh_envir         => $rh_envir,   # pointer to the environment
+			displayMode      => $rh_envir->{displayMode},
 	};
 	return bless $self, $class;
 }
@@ -67,9 +70,13 @@ sub set_commandline_mode {
 		$extern_pdflatex ="/Library/TeX/texbin/pdflatex --shell-escape";
 		$self->{convert_command}  = "/usr/local/bin/convert $working_dir/hardcopy.pdf ";
 		$self->{copy_command}     = "cp ";
+	} elsif ( $commandline_mode eq 'hosted2') {
+		$extern_pdflatex="/usr/local/bin/pdflatex --shell-escape";
+		$self->{convert_command}  = "/usr/local/bin/convert $working_dir/hardcopy.pdf "; #add destination file later
+		$self->{copy_command}     = "cp ";
 	}
 	$self->{pdflatex_command} =  "cd " . $working_dir . " && "
-		. $extern_pdflatex. " >pdflatex.stdout 2>pdflatex.stderr hardcopy";
+		. $extern_pdflatex. " >pdflatex.stdout 2>pdflatex.stderr hardcopy.tex";
 }
 # Insert your TikZ image code, not including begin and end tags, as a single
 # string parameter for this method. Works best single quoted.
@@ -169,9 +176,17 @@ sub copy {
 	my $file_path = "$working_dir/$file_name";
 	my $destination_path = $self->{destination_path};
 	my $copy_command = $self->{copy_command};
-	warn "copy: $copy_command $working_dir/$file_name.png $destination_path.png\n";	
-	system "$copy_command $working_dir/$file_name.png $destination_path.png";
-	return -r "$destination_path.png";
+	if ($self->{displayMode} ne 'TeX') {
+		warn "copy: $copy_command $working_dir/$file_name.png $destination_path.png\n";	
+		system "$copy_command $working_dir/$file_name.png $destination_path.png";
+		$self->{final_destination_path}= "$destination_path.png";
+		return -r "$destination_path.png";
+	} else {
+		warn "copy: $copy_command $working_dir/hardcopy.pdf $destination_path.pdf\n";	
+		system "$copy_command $working_dir/hardcopy.pdf $destination_path.pdf";
+		$self->{final_destination_path}= "$destination_path.pdf";
+		return -r "$destination_path.pdf";
+	}
 }
 
 #Separating out the html so as not to get confused
