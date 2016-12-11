@@ -142,7 +142,7 @@ sub _niceTables_init {}; # don't reload this file
  #        texpre => tex code,           # For more fussy cell-by-cell alteration of the tex version of the table
  #                                      # TeX code here will precede the cell entry...
  #        texpost => tex code           # and code here will follow the cell entry
- #                                      # The ordering will be: tex texpre data texpost
+ #                                      # The ordering will be: texpre tex data texpost
  #        texencase => array ref        # This is just a shortcut for entering [texpre,texpost] at once.
  #
  #    The "a" in a cell can also be replaced directly with a hash reference {data=>a,options} if somehow that is of use. If you
@@ -364,7 +364,9 @@ sub DataTable {
       if ($htmlalignment[$i] =~ /\|\s*/)
         {my $j = $i; while (!defined($alignmentcolumns[$j]) && $j < $#htmlalignment) {$j += 1;};
           if ($j < $#htmlalignment) {$columnscss->[$alignmentcolumns[$j]] = "border-left:solid 1px; ".$columnscss->[$alignmentcolumns[$j]];};
-          if ($alignmentcolumns[$j] != 0) {$columnscss->[$alignmentcolumns[$j]-1] = "border-right:solid 1px; ".$columnscss->[$alignmentcolumns[$j]-1];}
+	  if (defined $alignmentcolumns[$j]) {
+            if ($alignmentcolumns[$j] != 0) {$columnscss->[$alignmentcolumns[$j]-1] = "border-right:solid 1px; ".$columnscss->[$alignmentcolumns[$j]-1];}
+	  };
           if ($j == $#htmlalignment)
             {if ($j == $i) {$columnscss->[-1] = "border-right:solid 1px; ".$columnscss->[-1];} else {$columnscss->[-1] = "border-left:solid 1px; ".$columnscss->[-1];}}
         };
@@ -574,16 +576,15 @@ sub DataTable {
       {
        if ($rowcolor[$i] ne '') {$textable .= '\rowcolor'.$rowcolor[$i];};
        for my $j (0..$numcols[$i])
-        {if (uc(${$dataref->[$i][$j]}{header}) ~~ ['TH','CH','COLUMN','COL','RH','ROW']) {${$dataref->[$i][$j]}{tex} = '\bfseries '.${$dataref->[$i][$j]}{tex}};
+        {if (uc(${$dataref->[$i][$j]}{header}) ~~ ['TH','CH','COLUMN','COL','RH','ROW'] or ($headerrow[$i] == 1) and !(uc(${$dataref->[$i][$j]}{header}) ~~ ['TD'])) {${$dataref->[$i][$j]}{tex} = '\bfseries '.${$dataref->[$i][$j]}{tex}};
         if (${$dataref->[$i][$j]}{multicolumn} ne '') {$textable .= ${$dataref->[$i][$j]}{multicolumn}};
-        if (($headerrow[$i] == 1) and !(uc(${$dataref->[$i][$j]}{header}) ~~ ['TD'])) {$textable .= '\bfseries '};
-        $textable .= ${$dataref->[$i][$j]}{tex}.' '.${$dataref->[$i][$j]}{texpre}.' '.${$dataref->[$i][$j]}{data}.' '.${$dataref->[$i][$j]}{texpost};
+        $textable .= ${$dataref->[$i][$j]}{texpre}.' '.${$dataref->[$i][$j]}{tex}.' '.${$dataref->[$i][$j]}{data}.' '.${$dataref->[$i][$j]}{texpost};
         if (${$dataref->[$i][$j]}{multicolumn} ne '') {$textable .= '}'};
         $textable .= '&' unless ($j == $numcols[$i]);
         };
       $textable .= '\\\\';
       if ($midrule[$i] == 1) {$textable .= '\midrule '};
-      if ((($midrules == 1) or ($headerrow[$i] == 1)) and (($i != $#{$dataref}) or ($footerline ne ''))) {$textable .= '\midrule '};
+      if ((($midrules == 1) or ($headerrow[$i] == 1)) and ($i != $#{$dataref})) {$textable .= '\midrule '};
       };
     $textable .= '\bottomrule'.$endtabular;
     $textable .= '\end{minipage}\par  \vspace{1pc}';
