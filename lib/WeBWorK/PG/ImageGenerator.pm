@@ -238,7 +238,7 @@ sub add {
 	my $url      = $self->{url};
 	my $basename = $self->{basename};
 	my $useCache = $self->{useCache};
-	my $depths  = $self->{depths};
+	my $depths   = $self->{depths};
 	
 	# if the string came in with delimiters, chop them off and set the mode
 	# based on whether they were \[ .. \] or \( ... \). this means that if
