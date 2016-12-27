@@ -13,6 +13,8 @@ use WeBWorK::CourseEnvironment;
 my $CE = new WeBWorK::CourseEnvironment({
     webwork_dir => $ENV{WEBWORK_ROOT},
 					});
+
+
 =head1 NAME
 
 WeBWorK::PG::IO - Private functions used by WeBWorK::PG::Translator for file IO.
@@ -250,10 +252,55 @@ Checks to see if the given path is a sub directory of the courses directory
 
 =cut
 
-sub path_is_course_subdir {
-    
+sub path_is_course_subdir {  
     return path_is_subdir(shift,$CE->{webwork_courses_dir},1);
 }
+
+
+
+
+=item curlCommand 
+
+	curl -- path to curl defined in site.conf
+
+=cut
+
+#FIXME change {curlCommand} to {curl}, here, and site.conf 
+
+sub WeBWorK::PG::IO::curlCommand {
+	# $CE->{externalPrograms}->{curlCommand};
+	$CE->{externalPrograms}->{curl};
+}
+=item convertCommand
+
+	convert -- path to convert defined in site.conf
+
+=cut
+
+sub WeBWorK::PG::IO::convertCommand {
+	$CE->{externalPrograms}->{convert};
+}
+
+=item pdflatexCommand
+
+	pdflatex -- path to pdflatex defined in site.conf
+
+=cut
+
+sub WeBWorK::PG::IO::pdflatexCommand {
+	$CE->{externalPrograms}->{pdflatex};
+}
+
+=item copyCommand
+
+	copyCommand -- path to cp defined in site.conf
+	
+=cut
+
+sub WeBWorK::PG::IO::copyCommand {
+	$CE->{externalPrograms}->{cp};
+}
+
 
 #
 # isolate the call to the sage server in case we have to jazz it up
