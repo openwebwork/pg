@@ -10,6 +10,7 @@ use Carp;
 
 package TikZ_Image2;
 
+use WeBWorK::PG::IO;
 #The constructor is meant to be called with no parameters
 sub new {
 	my $class = shift;
@@ -22,10 +23,10 @@ sub new {
 			working_dir      => '',
 			file_name 		 => '',
 			destination_path => '',
-			pdflatex_command => $rh_envir->{externalPrograms}->{pdflatex},
-			convert_command  => $rh_envir->{externalPrograms}->{convert},
-			copy_command     => $rh_envir->{externalPrograms}->{cp},
-			rh_envir         => $rh_envir,   # pointer to the environment
+			pdflatex_command => WeBWorK::PG::IO::pdflatexCommand(),
+			convert_command  => WeBWorK::PG::IO::convertCommand(),
+			copy_command     => WeBWorK::PG::IO::copyCommand(),
+			# rh_envir       => $rh_envir,   # pointer to the environment
 			displayMode      => $rh_envir->{displayMode},
 	};
 	return bless $self, $class;
@@ -91,6 +92,7 @@ sub header {
 	my @output=();
 	push @output, "\\documentclass{standalone}\n";
 	push @output, "\\usepackage{tikz}\n";
+	push @output, "\\usepackage{comment}\n"; # often used in tikz graphs
 	push @output, "\\begin{document}\n";
 #	push @output, "\\begin{tikzpicture}[".$self->{tikz_options}."]\n";
 	@output;

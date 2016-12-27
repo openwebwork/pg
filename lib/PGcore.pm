@@ -759,7 +759,7 @@ sub AskSage {
 	my $self = shift;
 	my $python = shift;
 	my $options = shift;
-	$options->{curlCommand} = $self->{envir}->{externalCurlCommand};
+	$options->{curlCommand} = WeBWorK::PG::IO::curlCommand();  #FIXME just changed from alternate source
 	WeBWorK::PG::IO::AskSage($python, $options);
 }
  
