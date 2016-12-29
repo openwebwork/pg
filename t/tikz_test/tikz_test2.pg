@@ -38,7 +38,7 @@ sub tikz_graph{
 		$drawing->{working_dir}=$working_dir;
 		$drawing->{file_name}=$file_name;
 		$drawing->{destination_path}= $destination_path;
-		$drawing->set_commandline_mode("hosted2"); # "wwtest" or "macbook" or "hosted2"
+		#$drawing->set_commandline_mode("hosted2"); # "wwtest" or "macbook" or "hosted2"
 	# end initialize
 	# debugging /development
 	$copy_command = $drawing->{copy_command};

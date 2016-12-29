@@ -37,7 +37,8 @@ sub tikz_graph{
 		$drawing->{working_dir}=$working_dir;
 		$drawing->{file_name}=$file_name;
 		$drawing->{destination_path}= $destination_path;
-		$drawing->set_commandline_mode("wwtest"); # "wwtest" or "macbook" or "hosted2"
+        $drawing->ext('png');
+		#$drawing->set_commandline_mode("wwtest"); # "wwtest" or "macbook" or "hosted2"
 	# end initialize
 	# debugging /development
 	$copy_command=$drawing->{copy_command};
@@ -79,6 +80,7 @@ BEGIN_TEXT
 	$BR \{protect_underbar("path = $path")\};
 	$BR alias = \{protect_underbar(alias("$path"))\}
 	$PAR image = \{image("$path", width=>227, height=>114)\}
+    $PAR svg   = \{embedSVG($path)\}
 	$PAR
 	$BR pdflatex \{protect_underbar("$pdflatex_command")\}
 	$BR convert \{protect_underbar("$convert_command")\}
