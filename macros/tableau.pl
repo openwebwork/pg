@@ -2,6 +2,8 @@
 
 # this file needs documentation and unit testing.
 # where is it used?
+
+##### From gage_matrix_ops
 # 2014_HKUST_demo/templates/setSequentialWordProblem/bill_and_steve.pg:"gage_matrix_ops.pl",
 
 =head3   Matrix extraction mechanisms
@@ -20,9 +22,10 @@
 	
 	matrix_rows_to_List
 	
-	
+Many of these duplicate methods of Value::Matrix  -- refactor. 
 =cut 
 
+package main;
 
 sub matrix_column_slice{
 	matrix_from_matrix_cols(@_);
@@ -30,7 +33,7 @@ sub matrix_column_slice{
 sub matrix_from_matrix_cols {
 	my $M = shift;   # a MathObject matrix_columns
 	my($n,$m) = $M->dimensions;
-	my @slice = @_;
+	my @slice = @_||(1..$m);
 	if (ref($slice[0]) =~ /ARRAY/) { # handle array reference
 		@slice = @{$slice[0]};
 	}
@@ -46,7 +49,7 @@ sub matrix_row_slice{
 sub matrix_from_matrix_rows {
 	my $M = shift;   # a MathObject matrix_columns
 	my($n,$m) = $M->dimensions;
-	my @slice = @_;
+	my @slice = @_||(1..$n);
 	if (ref($slice[0]) =~ /ARRAY/) { # handle array reference
 		@slice = @{$slice[0]};
 	}
@@ -173,9 +176,9 @@ sub linebreak_at_commas {
 	return sub {
 		my $ans=shift;
 		my $foo = $ans->{correct_ans_latex_string};
-		$foo =~ s/,/,~~~~~~~~/g;
-		($ans->{correct_ans_latex_string})=~ s/,/,~~~~~~~~/g;
-		($ans->{preview_latex_string})=~ s/,/,~~~~~~~~/g;
+		$foo =~ s/,/,\\\\/g;
+		($ans->{correct_ans_latex_string})=~ s/,/,\\\\/g;
+		($ans->{preview_latex_string})=~ s/,/,\\\\/g;
 		#DEBUG_MESSAGE("foo", $foo);
 		#DEBUG_MESSAGE( "correct", $ans->{correct_ans_latex_string} );
 		#DEBUG_MESSAGE( "preview",  $ans->{preview_latex_string} );
@@ -208,6 +211,9 @@ sub linebreak_at_commas {
 # create the method for printing the tableau with all its decorations 
 # possibly with switches to turn the decorations on and off. 
 
+
+### End gage_matrix_ops include 
+##################################################
 package Tableau;
 our @ISA = qw(Value::Matrix Value);
 
@@ -263,7 +269,7 @@ sub initialize {
 	return();	
 }
 		
-sub assemble_matrix {
+sub assemble_tableau {
 	my $self = shift;
 	my @rows =();
 	my $m = $self->{m};
@@ -333,31 +339,13 @@ sub current_state {
 }
 
 
-=head3   Matrix extraction mechanisms
-
-	matrix_column_slice   (was matrix_from_matrix_cols)
-	
-	matrix_row_slice      (was matrix_from_matrix_rows)
-
-	matrix_extract_submatrix (was matrix_from_submatrix)
-	
-	matrix_extract_rows
-	
-	matrix_extract_columns
-	
-	matrix_columns_to_List
-	
-	matrix_rows_to_List
-	
-	
-=cut 
 
 package Value::Matrix;
 
 sub _Matrix {   
 	Value::Matrix->new(@_);
 }
-sub extract_rows {
+sub extract_rows { # preferable to use row slicke
 	$self = shift;
 	my @slice = @_;
 	if (ref($slice[0]) =~ /ARRAY/) { # handle array reference
@@ -368,7 +356,7 @@ sub extract_rows {
 	return [map {$self->row($_)} @slice ]; #prefer to pass references when possible
 }
 
-sub extract_columns {
+sub extract_columns { # preferable to use row slice 
 	$self = shift;
 	my @slice = @_;
 	if (ref($slice[0]) =~ /ARRAY/) { # handle array reference
