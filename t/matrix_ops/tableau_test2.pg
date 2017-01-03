@@ -1,0 +1,79 @@
+# $b = Matrix([1, 2, 3, 4]);
+# TEXT($BR, "vector", $b->data->[1]);
+# $c = Matrix([5, 6, 7]);
+# $t = Tableau->new(A=>$m,b=>$b, c=>$c);
+# @tab = $t->assemble_matrix;
+# warn($BR, "rows", join(' ', @{$tab[0]},"|",@{$tab[1]},"|", @{$tab[2]},"|", @{$tab[3]},"|", @{$tab[4]}));
+# 
+# 
+# 
+# my @slice = ( 1..(($t->{M}->dimensions)[0]) );
+# DEBUG_MESSAGE("slice is ", @slice);
+# 
+# 
+# my @matrix_rows = $t->{M}->extract_rows();
+# push @matrix_rows, $t->{obj_row};
+# $m4 = Matrix(@matrix_rows);
+# 
+# $mod_obj_row = $t->{obj_row} ;
+# 
+
+# Find the column slice of columns 3,2,1  of the matrix [`[$m2]`]
+# 
+# Output rows 2 and 3 of the matrix as a list [` [$list] `]
+# 
+# Output the complete Tableau (A |S |b):  [`[$t->{M}]`]
+# 
+# Output the last row (the objective row): [`[@ Matrix($t->{obj_row}) @]`]
+# 
+# Include the last row [` [$m4] `]
+# 
+# Output the initial basis  [`[@ List($t->{basis}) @]`] and the basis columns B: [` [$t->{B}] `]
+# 
+# END_PGML
+# TEXT("#############");
+# $basis2 = $t->basis(1,3,5,6);
+# $obj_function_basis_coeff = List( matrix_extract_columns($t->{obj_row}, $t->{basis} ) ) ;
+# 
+# @r1 = matrix_extract_columns($t->{obj_row}, $t->{basis});
+# $rtest = List(@r1);
+# $r2 =   Vector( Vector(@r1)*($t->{M}) ) ;
+# TEXT("#############");
+# BEGIN_PGML
+# set a new basis [`[$basis2]`] and print the new columns B [` [$t->{B}] `]
+# 
+# the new basis is [$t->basis] and the basis coefficients using $t->current_state are [$t->current_state].
+# This  [$obj_function_basis_coeff] should be the same as above.
+# 
+# and this should be identical [@ List(@r1) @]
+# 
+# 
+# final row   [`[$t->{obj_row}]`]
+# modifications for final row [` [$r2] `]
+# modified final row [` [@ ($t->{obj_row}) - $r2 @] `]
+# 
+# END_PGML
+# 
+# TEXT("*********************");
+# 
+# 
+# TEXT("*********************");
+# 
+# 
+# BEGIN_PGML
+# original tableau = [`[$t->{M}]`]
+# 
+# original object row     [`[$t->{obj_row}]`]
+# 
+# here are the two together  [`[$m4]`]
+# 
+# 
+# change basis to [`[$t->basis]`]
+# 
+# print new basis [`[$t->{B}]`]
+# 
+# new tableau is [`[$t->current_state]`]
+# 
+# new obj_row is [`[$t->{current_coeff}]`]
+# 
+# END_PGML
