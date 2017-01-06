@@ -33,7 +33,8 @@ sub matrix_column_slice{
 sub matrix_from_matrix_cols {
 	my $M = shift;   # a MathObject matrix_columns
 	my($n,$m) = $M->dimensions;
-	my @slice = @_||(1..$m);
+	my @slice = @_ ;
+	@slice = (1..$m) unless @slice;
 	if (ref($slice[0]) =~ /ARRAY/) { # handle array reference
 		@slice = @{$slice[0]};
 	}
@@ -49,10 +50,12 @@ sub matrix_row_slice{
 sub matrix_from_matrix_rows {
 	my $M = shift;   # a MathObject matrix_columns
 	my($n,$m) = $M->dimensions;
-	my @slice = @_||(1..$n);
+	my @slice = @_ ;
+	@slice = (1..$n) unless @slice;
 	if (ref($slice[0]) =~ /ARRAY/) { # handle array reference
 		@slice = @{$slice[0]};
 	}
+	#DEBUG_MESSAGE("slice is ", join(" ", @slice));
 	my @rows = map {[$M->row($_)->value]} @slice;   
 	 #create the chosen columns as rows
 	 # then transform to array_refs.
@@ -261,7 +264,7 @@ sub initialize {
 	# main::DEBUG_MESSAGE("m $m, n $n");
 	$self->{S} = Value::Matrix->I(4);
 	$self->{basis} = [($n+1)...($n+$m)] unless ref($self->{basis})=~/ARRAY/;
-	my @rows = $self->assemble_matrix;
+	my @rows = $self->assemble_tableau;
 	#main::DEBUG_MESSAGE("rows", @rows);
 	$self->{M} = _Matrix([@rows]);
 	$self->{B} = $self->{M}->submatrix(rows=>[1..($self->{m})],columns=>$self->{basis});
@@ -345,7 +348,10 @@ package Value::Matrix;
 sub _Matrix {   
 	Value::Matrix->new(@_);
 }
-sub extract_rows { # preferable to use row slicke
+
+#FIXME -- I think these need default values for slice
+
+sub extract_rows { # preferable to use row slice
 	$self = shift;
 	my @slice = @_;
 	if (ref($slice[0]) =~ /ARRAY/) { # handle array reference
