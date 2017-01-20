@@ -15,8 +15,11 @@
 ################################################################################
 
 =head1 NAME
+
 parserDifferenceQuotient.pl - An answer checker for difference quotients.
+
 =head1 DESCRIPTION
+
 This is a Parser class that implements an answer checker for
 difference quotients as a subclass of the Formula class.  The
 standard ->cmp routine will work for this.  The difference quotient
@@ -24,6 +27,7 @@ is just a special type of formula with a special variable
 for 'dx'.  The checker will give an error message if the
 student's result contains a dx in the denominator, meaning it
 is not fully reduced.
+
 Use DifferenceQuotient(formula) to create a difference equation
 object.  If the context has more than one variable, the last one
 alphabetically is used to form the dx.  Otherwise, you can specify
@@ -35,6 +39,7 @@ zero is substituted in for dx (or h), then the third argument is a
 number to be substituted into the variable named in the second 
 argument.  The third argument is optional and the default value
 0 is used when the third argument is omitted.
+
 =head1 USAGE
 	$df = DifferenceQuotient("2x+dx");
 	ANS($df->cmp);
