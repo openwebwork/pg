@@ -544,7 +544,7 @@ sub BUTTONS {
 	   aria_label=>$label."option $i "));
     } else {
       push(@radio,main::NAMED_ANS_RADIO($name,$value,$tag));
-      $extend = "true";
+      $extend = 1;
     }
   }
   #
