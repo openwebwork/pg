@@ -41,18 +41,26 @@ argument.  The third argument is optional and the default value
 0 is used when the third argument is omitted.
 
 =head1 USAGE
+
+        # simplify (f(x+dx)-f(x)) / dx for f(x)=x^2
 	$df = DifferenceQuotient("2x+dx");
 	ANS($df->cmp);
 
+        # simplify (f(x+h)-f(x)) / h for f(x) = x^2
 	$df = DifferenceQuotient("2x+h","h");
 	ANS($df->cmp);
-
+	
+        # simplify (f(t+dt)-f(t)) / dt for f(t)=a/t
 	Context()->variables->are(t=>'Real',a=>'Real');
 	ANS(DifferenceQuotient("-a/[t(t+dt)]","dt")->cmp);
+
+        # simplify (f(x)-f(c)) / (x-c) for f(x)=x^2 at c=3
+	$df = DifferenceQuotient("x+3","x",3);
 
         # simplify (x^2 - 4) / (x-2)
         $df = DifferenceQuotient("x+2","x",2);
 	ANS($df->cmp);
+
 =cut
 
 loadMacros('MathObjects.pl');
