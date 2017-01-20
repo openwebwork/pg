@@ -1683,7 +1683,7 @@ sub cmp {
     Parser::Context->current(undef,$context);
     $context->variables->add('C0' => 'Parameter');
     my $f = $self->Package("Formula")->new('C0')+$self;
-    for ('limits','test_points','test_values','num_points','granularity','resolution',
+    for ('limits','test_points','test_values','test_at','num_points','granularity','resolution',
 	 'checkUndefinedPoints','max_undefined')
       {$f->{$_} = $self->{$_} if defined($self->{$_})}
     $cmp->ans_hash(correct_value => $f);
