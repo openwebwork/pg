@@ -57,7 +57,7 @@ sub asec {acos($_[0],1.0/$_[1])}
 sub acsc {asin($_[0],1.0/$_[1])}
 
 sub sinh {(CORE::exp($_[1])-CORE::exp(-$_[1]))/2}
-sub cosh {(CORE::CORE::exp($_[1])+CORE::CORE::exp(-$_[1]))/2}
+sub cosh {(CORE::exp($_[1])+CORE::exp(-$_[1]))/2}
 sub tanh {(CORE::exp($_[1])-CORE::exp(-$_[1]))/(CORE::exp($_[1])+CORE::exp(-$_[1]))}
 sub sech {2/(CORE::exp($_[1])+CORE::exp(-$_[1]))}
 sub csch {2.0/(CORE::exp($_[1])-CORE::exp(-$_[1]))}
@@ -99,7 +99,7 @@ package main;
 #
 
 
-Parser::defineLog();
+ParserDefineLog();
 
 sub ln     {CommonFunction->Call('ln',@_)}
 sub logten {CommonFunction->Call('logten',@_)}

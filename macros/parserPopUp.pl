@@ -20,8 +20,9 @@ parserPopUp.pl - Pop-up menus compatible with Value objects.
 
 =head1 DESCRIPTION
 
-This file implements a pop-up menu object that is compatible
-with Value objects, and in particular, with the MultiAnswer object.
+This file implements a pop-up menu object that is compatible with
+MathObjects, and in particular, with the MultiAnswer object, and with
+PGML.
 
 To create a PopUp object, use
 
@@ -29,9 +30,39 @@ To create a PopUp object, use
 
 where "choices" are the strings for the items in the popup menu,
 and "correct" is the choice that is the correct answer for the
-popup.
+popup (or its index, with 0 being the first one).
 
-To insert the popup menu into the problem text, use
+By default, the choices are left in the order that you provide them,
+but you can cause some or all of them to be ordered randomly by
+enclosing those that should be randomized within a second set of
+brackets.  For example
+
+        $radio = PopUp(
+                   [
+                     "First Item",
+                     ["Random 1","Random 2","Random 3"],
+                     "Last Item"
+                   ],
+                   "Random 3"
+                 );
+
+will make a pop-up menu that has the first item always on top, the
+next three ordered randomly, and the last item always on the bottom.
+In this example
+
+        $radio = PopUp([["Random 1","Random 2","Random 3"]],2);
+
+all the entries are randomized, and the correct answer is "Random 3"
+(the one with index 2 in the original, unrandomized list).  You can
+have as many randomized groups, with as many static items in between,
+as you want.
+
+Note that pop-up menus can not contain mathematical notation, only
+plain text.  This is because the PopUp object uses the browser's
+native menus, and these can contain only text, not mathematics or
+graphics.
+
+To insert the pop-up menu into the problem text, use
 
 	BEGIN_TEXT
 	\{$popup->menu\}
@@ -57,7 +88,7 @@ sub _parserPopUp_init {parser::PopUp::Init()}; # don't reload this file
 #  The package that implements pop-up menus
 #
 package parser::PopUp;
-our @ISA = qw(Value::String);
+our @ISA = ('Value::String');
 my $context;
 
 #
@@ -90,29 +121,84 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   shift if Value::isContext($_[0]); # remove context, if given (it is not used)
   my $choices = shift; my $value = shift;
-  Value::Error("A PopUp's first argument should be a list of menu items")
+  Value->Error("A PopUp's first argument should be a list of menu items")
     unless ref($choices) eq 'ARRAY';
-  Value::Error("A PopUp's second argument should be the correct menu choice")
+  Value->Error("A PopUp's second argument should be the correct menu choice")
     unless defined($value) && $value ne "";
-  my %choice; map {$choice{$_} = 1} @$choices;
-  Value::Error("The correct choice must be one of the PopUp menu items")
-    unless $choice{$value};
   $self = bless {data => [$value], context => $context, choices => $choices}, $class;
+  $self->getChoiceOrder;
+  my %choice; map {$choice{$_} = 1} @{$self->{choices}};
+  if (!$choice{$value}) {
+    my @order = map {ref($_) eq "ARRAY" ? @$_ : $_} @$choices;
+    if ($value =~ m/^\d+$/ && $order[$value]) {$self->{data}[0] = $order[$value]}
+      else {Value->Error("The correct choice must be one of the PopUp menu items")}
+  }
   return $self;
+}
+
+#
+#  Get the choices into the correct order (randomizing where requested)
+#
+sub getChoiceOrder {
+  my $self = shift;
+  my @choices = ();
+  foreach my $choice (@{$self->{choices}}) {
+    if (ref($choice) eq "ARRAY") {push(@choices,$self->randomOrder($choice))}
+      else {push(@choices,$choice)}
+  }
+  $self->{choices} = \@choices;
+}
+sub randomOrder {
+  my $self = shift; my $choices = shift;
+  my %index = (map {$main::PG_random_generator->rand => $_} (0..scalar(@$choices)-1));
+  return (map {$choices->[$index{$_}]} main::PGsort(sub {$_[0] lt $_[1]},keys %index));
 }
 
 #
 #  Create the menu list
 #
-sub menu {
-  my $self = shift;
-  main::pop_up_list($self->{choices});
+sub menu {shift->MENU(0,@_)}
+sub MENU {
+  my $self = shift; my $extend = shift; my $name = shift;
+  my @list = @{$self->{choices}}; my $menu = "";
+  $name = main::NEW_ANS_NAME() unless $name;
+  my $answer_value = (defined($main::inputs_ref->{$name}) ? $main::inputs_ref->{$name} : '');
+  my $label = main::generate_aria_label($name);
+  if ($main::displayMode =~ m/^HTML/) {
+    $menu = qq!<select class="pg-select" name="$name" id="$name" aria-label="$label" size="1">\n!;
+    foreach my $item (@list) {
+      my $selected = ($item eq $answer_value) ? " selected" : "";
+      my $option = $self->quoteHTML($item,true);
+      $menu .= qq!<option$selected value="$option" class="tex2jax_ignore">$option</option>\n!;
+    };
+    $menu .= "</select>";
+  } elsif ($main::displayMode eq "TeX") {
+    # if the total number of characters is not more than
+    # 30 and not containing / or ] then we print out
+    # the select as a string: [A/B/C]
+    if (length(join('',@list)) < 25 &&
+	!grep(/(\/|\[|\])/,@list)) {
+      $menu = '['.join('/',map {$self->quoteTeX($_)} @list).']';
+    } else {
+      #otherwise we print a bulleted list
+      $menu = '\par\vtop{\def\bitem{\hbox\bgroup\indent\strut\textbullet\ \ignorespaces}\let\eitem=\egroup';
+      $menu = "\n".$menu."\n";
+      foreach my $option (@list) {
+	$menu .= '\bitem '.$self->quoteTeX($option)."\\eitem\n";
+      }
+      $menu .= '\vskip3pt}'."\n";
+    }
+  }
+  main::RECORD_ANS_NAME($name,$answer_value) unless $extend;   # record answer name
+  $menu;
 }
 
 #
 #  Answer rule is the menu list
 #
-sub ans_rule {shift->menu(@_)}
+sub ans_rule {shift->MENU(0,'',@_)}
+sub named_ans_rule {shift->MENU(0,@_)}
+sub named_ans_rule_extension {shift->MENU(1,@_)}
 
 ##################################################
 #

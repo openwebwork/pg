@@ -141,15 +141,20 @@ sub loadMacros {
    
     while (@files) {
         $fileName = shift @files;
-        next  if ($fileName =~ /^PG.pl$/) ;    # the PG.pl macro package is already loaded.
 
+        next  if ($fileName =~ /^PG\.pl$/) ;    # the PG.pl macro package is already loaded.
+
+		unless ($fileName =~ /\.(pl|pg)$/) { # dont try to parse files without macro extensions
+			warn "Can't load file |$fileName|. Can't load a macro file unless it has a .pl or .pg extension";
+			next;
+		}
         my $macro_file_name = $fileName;
-	$macro_file_name =~s/\.pl//;  # trim off the extension
-	$macro_file_name =~s/\.pg//;  # sometimes the extension is .pg (e.g. CAPA files)
-	my $init_subroutine_name = "_${macro_file_name}_init";
-	$init_subroutine_name =~ s![^a-zA-Z0-9_]!_!g;  # remove dangerous chars
+		$macro_file_name =~s/\.pl//;  # trim off the extension
+		$macro_file_name =~s/\.pg//;  # sometimes the extension is .pg (e.g. CAPA files)
+		my $init_subroutine_name = "_${macro_file_name}_init";
+		$init_subroutine_name =~ s![^a-zA-Z0-9_]!_!g;  # remove dangerous chars
 	
-	my $init_subroutine  = eval { \&{'main::'.$init_subroutine_name} };
+		my $init_subroutine  = eval { \&{'main::'.$init_subroutine_name} };
 
 	###############################################################################
 
@@ -165,9 +170,13 @@ sub loadMacros {
 	    if ($filePath) {
 	        $self->compile_file($filePath); 
 			warn "loadMacros is compiling $filePath" if $debugON;
-	    }
-	    else {
-	        warn "Can't locate macro file |$fileName| via path: |".join("|, |",@{$macrosPath})."|";
+	    } else {
+	    	my $pgDirectory       = $self->{envir}->{pgDirectories}->{macros};
+	    	my $templateDirectory = $self->{envir}->{templateDirectory};
+		my @shortenedPaths = @{$macrosPath};
+	    	@shortenedPaths = map {$_ =~ s|^$templateDirectory|[TMPL]/|; $_ } @shortenedPaths;
+	    	@shortenedPaths = map {$_ =~ s|^$pgDirectory|[PG]/macros/|; $_ } @shortenedPaths;
+	        warn "Can't locate macro file |$fileName| via path: |".join("|,<br/> |",@shortenedPaths)."|\n";
 	    }
 	}
            
@@ -207,7 +216,7 @@ sub findMacroFile {
       $macroFilePath =~ s!^\.\.?/!$pwd/!;
       return $macroFilePath if (-r $macroFilePath);
   }
-  return;  # no file found
+  return 0;  # no file found
 }
 # errors in compiling macros is not always being reported.
 # ^function compile_file
@@ -217,10 +226,12 @@ sub findMacroFile {
 sub compile_file {
     my $self     = shift;
  	my $filePath = shift;
+    
  	warn "loading $filePath" if $debugON; 
  	local(*MACROFILE);
  	local($/);
  	$/ = undef;   # allows us to treat the file as a single line
+    
  	open(MACROFILE, "<$filePath") || die "Cannot open file: $filePath";
  	my $string = 'BEGIN {push @__eval__, __FILE__};' . "\n" . <MACROFILE>;
  	#warn "compiling $string";

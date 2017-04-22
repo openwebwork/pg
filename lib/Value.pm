@@ -269,7 +269,7 @@ sub inContext {my $self = shift; $self->context(@_); $self}
 #
 sub address {oct(sprintf("0x%p",shift))}
 
-sub isBlessed {Scalar::Util::blessed(shift) ne ""}
+sub isBlessed {(Scalar::Util::blessed(shift)//'') ne ""}
 sub blessedClass {Scalar::Util::blessed(shift)}
 sub blessedType {Scalar::Util::reftype(shift)}
 
@@ -278,7 +278,7 @@ sub can {UNIVERSAL::can(@_)}
 
 sub isHash {
   my $self = shift;
-  return defined($self) && (  ref($self) eq 'HASH' || blessedType($self) eq 'HASH' );
+  return defined($self) && (ref($self) || blessedType($self) ) && (  ref($self) eq 'HASH' || blessedType($self) eq 'HASH' );
   #added by MEG  (at suggestion DPVC)
   # prevents warning messages when $self is undefined
 
@@ -302,7 +302,7 @@ sub isContext {my $symbol = shift ||""; class($symbol) eq 'Context'}
 sub isFormula {classMatch(shift,'Formula')}
 sub isParser  {my $v = shift; isBlessed($v) && $v->isa('Parser::Item')}
 sub isValue {
-  my $v = shift;
+  my $v = shift//''; 
   return (ref($v) || $v) =~ m/^Value::/ || (isHash($v) && $v->{isValue}) || isa($v,'Value');
 }
 
@@ -352,7 +352,7 @@ sub Package {(shift)->context->Package(@_)}
 sub classMatch {
   my $self = shift;
   return $self->classMatch(@_) if Value->subclassed($self,"classMatch");
-  my $class = class($self); my $ref = ref($self);
+  my $class = class($self)//''; my $ref = ref($self);
   my $isHash = ($ref && $ref ne 'ARRAY' && $ref ne 'CODE');
   my $context = ($isHash ? $self->{context} || Value->context : Value->context);
   foreach my $name (@_) {
@@ -568,7 +568,7 @@ sub formula {
 sub make {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  bless {$self->hash, data => [@_], context => $context}, $class;
+  bless {$self->hashNoInherit, data => [@_], context => $context}, $class;
 }
 
 #
@@ -600,6 +600,13 @@ sub hash {
   my $self = shift;
   return %$self if isHash($self);
   return ();
+}
+
+sub hashNoInherit {
+  my $self = shift;
+  my %hash = $self->hash;
+  foreach my $id ($self->noinherit) {delete $hash{$id}}
+  return %hash;
 }
 
 #
@@ -887,6 +894,7 @@ sub compare_string {
   my ($l,$r,$flag) = @_;
   $l = $l->string; $r = $r->string if Value::isValue($r);
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
+  return undef unless defined $l; 
   return $l cmp $r;
 }
 
@@ -898,7 +906,7 @@ sub transferFlags {
   foreach my $flag (@_) {
     next unless defined $self->{$flag};
     foreach my $x (@{$self->{data}}) {
-      if ($x->{$flag} ne $self->{$flag}) {
+      if (defined($self->{$flag}) && ( ($x->{$flag}//'') ne $self->{$flag} )) {
 	$x->{$flag} = $self->{$flag};
 	$x->transferFlags($flag);
       }
@@ -966,7 +974,8 @@ sub string {
       push(@coords,$x);
     }
   }
-  return $open.join($def->{separator},@coords).$close;
+  my $comma = $def->{separator}; $comma = "," unless defined $comma;
+  return $open.join($comma,@coords).$close;
 }
 
 =head4 ->TeX
@@ -997,14 +1006,15 @@ sub TeX {
     } elsif (defined($str->{$x}) && $str->{$x}{TeX}) {push(@coords,$str->{$x}{TeX})}
     else {push(@coords,$x)}
   }
-  return $open.join(',',@coords).$close;
+  my $comma = $def->{separator}; $comma = "," unless defined $comma;
+  return $open.join($comma,@coords).$close;
 }
 
 #
 #  For perl, call the appropriate constructor around the object's data
 #
 sub perl {
-  my $self = shift; my $parens = shift; my $matrix = shift;
+  my $self = shift; my $parens = shift//0; my $matrix = shift;
   my $mtype = $self->classMatch('Matrix'); $mtype = -1 if $mtype & !$matrix;
   my $perl; my @p = ();
   foreach my $x (@{$self->data}) {

@@ -4,13 +4,16 @@
 ################################################################################
 
 package WeBWorK::PG::Translator;
+use parent qw(PGcore);
 
 use strict;
 use warnings;
 use Opcode;
 use WWSafe;
 use Net::SMTP;
-use WeBWorK::PG::IO;
+use PGcore;
+use PGUtil qw(pretty_print);
+use WeBWorK::PG::IO  qw(fileFromPath);
 
 #use PadWalker;     # used for processing error messages
 #use Data::Dumper;
@@ -199,13 +202,9 @@ sub new {
 	&surePathToTmpFile
 	&fileFromPath
 	&directoryFromPath
-	&createFile
-
-	&includePGtext
-
+	#&includePGtext
 	&PG_answer_eval
 	&PG_restricted_eval
-
 	&send_mail_to
 	&PGsort
 
@@ -232,14 +231,13 @@ The macros shared with the safe compartment are
 	'&surePathToTmpFile'
 	'&fileFromPath'
 	'&directoryFromPath'
-	'&createFile'
 	'&PG_answer_eval'
 	'&PG_restricted_eval'
 	'&be_strict'
 	'&send_mail_to'
 	'&PGsort'
 	'&dumpvar'
-	'&includePGtext'
+	#'&includePGtext'
 
 =cut
 
@@ -266,7 +264,8 @@ sub time_it {
 	$WeBWorK::timer->continue("PG macro:". $msg) if defined($WeBWorK::timer);
 }
 
-my %shared_subroutine_hash = (
+# functions shared from WeBWorK::PG::Translator
+my %Translator_shared_subroutine_hash = (
 	'time_it'                  => __PACKAGE__,
 	'&PG_answer_eval'          => __PACKAGE__,
 	'&PG_restricted_eval'      => __PACKAGE__,
@@ -274,15 +273,20 @@ my %shared_subroutine_hash = (
 	'&be_strict'               => __PACKAGE__,
 	'&PGsort'                  => __PACKAGE__,
 	'&dumpvar'                 => __PACKAGE__,
-	%WeBWorK::PG::IO::SHARE, # add names from WeBWorK::PG::IO and WeBWorK::PG::IO::*
 );
+
+# add names from WeBWorK::PG::IO and WeBWorK::PG::IO::*
+my %IO_shared_subroutine_hash = %WeBWorK::PG::IO::SHARE; 
 
 sub initialize {
     my $self = shift;
     my $safe_cmpt = $self->{safe};
     #print "initializing safeCompartment",$safe_cmpt -> root(), "\n";
 
-    $safe_cmpt -> share(keys %shared_subroutine_hash);
+    $safe_cmpt -> share_from('WeBWorK::PG::Translator',
+			     [keys %Translator_shared_subroutine_hash]);
+    $safe_cmpt -> share_from('WeBWorK::PG::IO',
+			     [keys %IO_shared_subroutine_hash]);
     no strict;
     local(%envir) = %{ $self ->{envir} };
 	$safe_cmpt -> share('%envir');
@@ -342,7 +346,10 @@ sub pre_load_macro_files {
 ################################################################
 #    prepare safe_cache
 ################################################################
-	$cached_safe_cmpt -> share(keys %shared_subroutine_hash);
+    $cached_safe_cmpt -> share_from('WeBWorK::PG::Translator',
+				    [keys %Translator_shared_subroutine_hash]);
+    $cached_safe_cmpt -> share_from('WeBWorK::PG::IO',
+				    [keys %IO_shared_subroutine_hash]);	
     no strict;
     local(%envir) = %{ $self ->{envir} };
 	$cached_safe_cmpt -> share('%envir');
@@ -551,7 +558,8 @@ sub unrestricted_load {
 	my $init_subroutine  = eval { \&{$init_subroutine_name} };
 	warn "No init routine for $init_subroutine_name: $@" if  $debugON and $@;
 	use strict;
-    my $macro_file_loaded = ref($init_subroutine) =~ /CODE/;
+	my $macro_file_loaded = ref($init_subroutine) =~ /CODE/ &&
+	    defined(&$init_subroutine);
 
 	#print STDERR "$macro_file_name   has not yet been loaded\n" unless $macro_file_loaded;	
 	unless ($macro_file_loaded) {
@@ -997,11 +1005,11 @@ the errors.
 =cut
 
 
-        ##########################################
+    ##########################################
 	###### PG error processing code ##########
 	##########################################
         my (@input,$lineNumber,$line);
-	my $permissionLevel = $self->{envir}->{permissionLevel}||0; #user permission level
+		my $permissionLevel = $self->{envir}->{permissionLevel}||0; #user permission level
         # Only show the problem text to users with permission
         if ($self -> {errors} && $self->{envir}->{VIEW_PROBLEM_DEBUGGING_INFO} <= $permissionLevel) {
                 #($self -> {errors}) =~ s/</&lt/g;
@@ -1017,7 +1025,7 @@ the errors.
                     $self->{envir} ->{'probNum'} .
                     qq!"><pre>        Problem!.
                     $self->{envir} ->{'probNum'}.
-                    qq!\nERROR caught by Translator while processing problem file:! .
+                    qq!\n1. ERROR caught by Translator while processing problem file:! .
                 	$self->{envir}->{'probFileName'}.
                 	"\n****************\r\n" .
                 	$self -> {errors}."\r\n" .
@@ -1034,14 +1042,13 @@ the errors.
                 }
                 push(@PROBLEM_TEXT_OUTPUT  ,"\n-----<br/></pre>\r\n");
 
-
-
         } elsif ($self -> {errors}) {
+        		warn "ERRORS in rendering problem: ". $self->{envir} ->{'probNum'}. " |".($self->{envir}->{'probFileName'})."| ". $self -> {errors};
                 push(@PROBLEM_TEXT_OUTPUT   ,  qq!\n<A NAME="problem! .
                     $self->{envir} ->{'probNum'} .
                     qq!"><pre>        Problem !.
                     $self->{envir} ->{'probNum'}.
-                    qq!\nERROR caught by Translator while processing this problem <br/></pre>\r\n!);
+                    qq!\n2. ERROR caught by Translator while processing this problem <br/></pre>\r\n!);
         }
 =pod
 
@@ -1052,6 +1059,7 @@ the errors.
 			$PG_HEADER_TEXT_REF -- Reference to a string containing material to placed in the header (for use by JavaScript)
 			$PG_POST_HEADER_TEXT_REF -- Reference to a string containing material to placed in body above form (for use by Sage)
 			$PG_ANSWER_HASH_REF -- Reference to an array containing the answer evaluators.
+			       constructed from keys of $PGcore->{PG_ANSWERS_HASH}
 			$PG_FLAGS_REF -- Reference to a hash containing flags and other references:
 				'error_flag' is set to 1 if there were errors in rendering
 			$PGcore -- the PGcore object
@@ -1194,50 +1202,179 @@ sub process_answers{
 			? &$outer_sig_die($error)
 			: die $error;
 	};
-	
+ 	my $PG = $self->{rh_pgcore};
+
  	# apply each instructors answer to the corresponding student answer
+	# my $printAnsHash = 1; # this turns on error printing of the answer hashes
 	
- 	foreach my $ans_name ( @answer_entry_order ) {
-		my ($ans, $errors) = $self->filter_answer( $h_student_answers{$ans_name} );
-		no strict;
-		# evaluate the answers inside the safe compartment.
-		local($rf_fun,$temp_ans) = (undef,undef);
-		if ( defined($rh_correct_answers ->{$ans_name} ) ) {
-			$rf_fun  = $rh_correct_answers->{$ans_name};
-		} else {
-			warn "There is no answer evaluator for the question labeled $ans_name";
+	#$PG->debug_message("Student answers are: ", join(" ", %h_student_answers) ) if $printAnsHash==1;
+ 	# we will want to redefine the entry order in terms of the answer evaluators
+ 	
+ 	#### foreach my $ans_name ( @answer_entry_order ) { 
+ 	#### @answer_entry_order was created from PG_ANSWERS_HASH which maintains the
+ 	#### order of its keys
+
+	our ($rf_fun, $temp_ans);
+	our($new_rf_fun, $new_temp_ans);
+ 	foreach my $ans_name (keys %{ $PG->{PG_ANSWERS_HASH} }) {
+ 		my $local_debug = 0;  #enables reporting of each $ans_name evaluator and responses
+ 		$PG->debug_message("Executing answer evaluator $ans_name ") if $local_debug;
+ 	    ####################################
+ 	    # gather answers (old method)
+ 	    ####################################
+
+# 		local($rf_fun,$temp_ans)= (undef,undef);
+# 		
+# 		my ($ans, $errors) = $self->filter_answer( $h_student_answers{$ans_name} );
+# 		$temp_ans  = $ans;
+# 		$temp_ans = '' unless defined($temp_ans); #make sure that answer is always defined
+# 		                                          # in case the answer evaluator forgets to check
+# 		####################################
+#  	    # get answer evaluator (old method)
+#  	    ####################################
+# 		
+# 		if ( defined($rh_correct_answers ->{$ans_name} ) ) {
+# 			$rf_fun  = $rh_correct_answers->{$ans_name};
+# 		} else {
+# 			warn "There is no answer evaluator for the question labeled $ans_name";
+# 		}
+# 		$self->{safe}->share('$rf_fun','$temp_ans');
+# 
+	    ####################################
+ 	    # gather answers and answer evaluator (new method)
+ 	    ####################################
+
+		local($new_rf_fun,$new_temp_ans) = (undef,undef);
+		my $answergrp = $PG->{PG_ANSWERS_HASH}->{$ans_name};  #this has all answer evaluators AND answer blanks (just to be sure ) 
+ 	    my $responsegrp = $answergrp->response_obj;
+#################
+# refactor to answer group?
+##################
+        $new_rf_fun = $answergrp->ans_eval;   
+        my ($ans, $errors) = $self->filter_answer( $responsegrp->get_response($ans_name) );     
+        $new_temp_ans = $ans; # avoid undefined errors in translator
+        my $skip_evaluation=0;
+        if (not defined($new_rf_fun) ) {
+        	$PG->warning_message( "No answer evaluator for the question labeled: $ans_name ");
+        	$skip_evaluation=1;
+        } elsif (not ref($new_rf_fun) =~ /AnswerEvaluator/ ) {
+				$PG->warning_message( "Error in Translator.pm::process_answers: Answer $ans_name: 
+				                    Unrecognized evaluator type |". ref($rf_fun). "|");
+				$skip_evaluation=1;
 		}
-		$temp_ans  = $ans;
-		$temp_ans = '' unless defined($temp_ans); #make sure that answer is always defined
-		                                          # in case the answer evaluator forgets to check
-		$self->{safe}->share('$rf_fun','$temp_ans');
- 	    
+		if (not defined($new_temp_ans) ) {
+				$PG->warning_message( "No answer blank provided for answer evaluator $ans_name ");
+				$skip_evaluation=1;
+		}
+		$PG->debug_message("Answers associated with $ans_name are $new_temp_ans ref=". ref($new_temp_ans) ) if defined $new_temp_ans and $local_debug;
+       #FIXME -- this is a hack for handling check boxes. 
+        if (ref( $new_temp_ans) =~/HASH/i) {
+        	my @tmp = ();
+        	foreach my $key (sort keys %$new_temp_ans) {
+        		push @tmp, $key if $new_temp_ans->{$key} eq 'CHECKED';
+        	}
+        	$new_temp_ans = join("\0",@tmp);
+        	$PG->debug_message("Hash answer associated with $ans_name is $new_temp_ans. ref=". ref($new_temp_ans)."<br/>".pretty_print($new_temp_ans) ) if $local_debug;
+        }
+        #FIXME -- hack to allow answers such as <4,6,7>  -- < and > have been escaped.
+        unless( $skip_evaluation) { 
+# 			$new_temp_ans =~ s/\&lt\;/</g; # <
+# 			$new_temp_ans =~ s/\&gt\;/>/g; # >
+# 			$new_temp_ans =~ s/\&\#91\;/\[/g; # <
+# 			$new_temp_ans =~ s/\&\#42\;/\*/g; # *
+# 			$new_temp_ans =~ s/\&\#36\;/\$/g;  # $
+# 			$new_temp_ans =~ s/\&\#39\;/'/g;  # '
+# 			$new_temp_ans =~ s/\&\#95\;/\_/g;  # _
+        }
+		$self->{safe}->share('$new_rf_fun','$new_temp_ans');
+
+
+ 	     	    
  	    # clear %errorTable for each problem
  	    %errorTable = (); # is the error table being used? perhaps by math objects?
  	    
-		my $rh_ans_evaluation_result;
-		if (ref($rf_fun) eq 'CODE' ) {
-			$rh_ans_evaluation_result = $self->{safe} ->reval( '&{ $rf_fun }($temp_ans, ans_label => \''.$ans_name.'\')' ) ;
-			warn "Error in Translator.pm::process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
-		} elsif (ref($rf_fun) =~ /AnswerEvaluator/)   {
-			$rh_ans_evaluation_result = $self->{safe} ->reval('$rf_fun->evaluate($temp_ans, ans_label => \''.$ans_name.'\')');
+		my ($rh_ans_evaluation_result, $new_rh_ans_evaluation_result);
+		
+		if (ref($new_rf_fun) eq 'CODE' ) {
+#			$rh_ans_evaluation_result = $self->{safe} ->reval( '&{ $rf_fun }($temp_ans, ans_label => \''.$ans_name.'\')' ) ;
+#			warn "Error in Translator.pm::process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
+			$PG->warning_message( "Can no longer used CODE objects directly as answer evaluators.  Use AnswerEvaluator");
+		} elsif (not $skip_evaluation )   {
+######################################
+# old answer evaluator process
+######################################
+# 			$rh_ans_evaluation_result = $self->{safe} ->reval('$rf_fun->evaluate($temp_ans, ans_label => \''.$ans_name.'\')');
+# 			$@ = $errorTable{$@} if $@ && defined($errorTable{$@});  #Are we redefining error messages here?
+# 			warn "Error in Translator.pm::process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
+# 			# The following needs more work for the new rh_ans_evaluation
+# 			warn "Evaluation error: Answer $ans_name:<br/>\n",
+# 				$rh_ans_evaluation_result->error_flag(), " :: ",
+# 				$rh_ans_evaluation_result->error_message(),"<br/>\n"
+# 					if defined($rh_ans_evaluation_result)  
+# 						and defined($rh_ans_evaluation_result->error_flag());
+# 
+# 			$rh_ans_evaluation_result = {%$rh_ans_evaluation_result};  #needed to protect result
+# 			                                                           # from next evaluation apparently
+#########################################
+			
+		  #  Get full traceback, but save it in local variable $errorTable so that
+		  #  we can add it later.  This is because some evaluators use
+		  #  eval to trap errors and then report them in the message
+		  #  column of the results table, and we don't want to include
+		  #  the traceback there.
+
+			$new_rh_ans_evaluation_result = $self->{safe} ->reval('$new_rf_fun->evaluate($new_temp_ans, ans_label => \''.$ans_name.'\')');
 			$@ = $errorTable{$@} if $@ && defined($errorTable{$@});  #Are we redefining error messages here?
-			warn "Error in Translator.pm::process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
-			warn "Evaluation error: Answer $ans_name:<br/>\n",
-				$rh_ans_evaluation_result->error_flag(), " :: ",
-				$rh_ans_evaluation_result->error_message(),"<br/>\n"
-					if defined($rh_ans_evaluation_result)  
-						and defined($rh_ans_evaluation_result->error_flag());
+			# warn "Error in Translator.pm:: (new) process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
+			# The following needs more work for the new rh_ans_evaluation
+			if ( ref( $new_rh_ans_evaluation_result) =~ /AnswerHash/i ) {
+				$PG->warning_message( "Evaluation error in new process: Answer $ans_name:<br/>\n",
+					$new_rh_ans_evaluation_result->error_flag(), " :: ",
+					$new_rh_ans_evaluation_result->error_message(),"<br/>\n")
+						if defined($new_rh_ans_evaluation_result) && ref($new_rh_ans_evaluation_result) 
+							&& defined($new_rh_ans_evaluation_result->error_flag());
+			} else {
+				$PG->warning_message(" The evaluated answer is not an answer hash $new_rh_ans_evaluation_result: |".ref($new_rh_ans_evaluation_result)."|.");
+			}						
+# 			$PG->debug_message( $self->{envir}->{'probFileName'}  ." new_temp_ans and temp_ans don't agree: ".
+#                       ref($new_temp_ans)." $new_temp_ans ". ref($temp_ans). "  $temp_ans".length($new_temp_ans).length($temp_ans)) 
+#                       unless $new_temp_ans eq $temp_ans;
 		} else {
-			warn "Error in Translator.pm::process_answers: Answer $ans_name:<br/>\n Unrecognized evaluator type |", ref($rf_fun), "|";
-		}	
-  	    
-		use strict;
-		unless ( ( ref($rh_ans_evaluation_result) eq 'HASH') or ( ref($rh_ans_evaluation_result) eq 'AnswerHash') ) {
-			warn "Error in Translator.pm::process_answers: Answer $ans_name:<br/>\n
-				Answer evaluators must return a hash or an AnswerHash type, not type |", 
-				ref($rh_ans_evaluation_result), "|";
+			$PG->warning_message( "Answer evaluator $ans_name was not executed due to errors. ", "========");
 		}
+#########################################################	
+# End refactor to answer group ?
+#############################################
+       
+#########################################################	
+# check that old and new answers are the same
+#    	   foreach my $key (keys %$rh_ans_evaluation_result) {
+#   	   		next unless defined $key;
+#   	   		#warn ref($rh_ans_evaluation_result->{$key}) if $key eq 'student_formula';
+#   	   		next if $key eq 'student_formula';  #FIXME hack -- problem evaluating student_formula for fractions
+#   	   		next unless defined($rh_ans_evaluation_result->{$key});
+#   	   		$PG->debug_message($self->{envir}->{'probFileName'}  ." '$key' are not the same.  old: ".
+#   	   			$rh_ans_evaluation_result->{$key}." new: ".$new_rh_ans_evaluation_result->{$key})
+#   	   			unless $rh_ans_evaluation_result->{$key} eq $new_rh_ans_evaluation_result->{$key};
+#    	   	}
+	
+#########################################################	       
+  	   #$PG->debug_message("old $ans_name: $rf_fun -- ans: $temp_ans",pretty_print($rh_ans_evaluation_result)) if $printAnsHash==1;
+  	   $PG->debug_message("new $ans_name: $new_rf_fun -- ans: 
+  	          	$new_temp_ans",pretty_print($new_rh_ans_evaluation_result)) 
+  	            if ($PG->{envir}->{inputs_ref}->{showAnsHashInfo})//'' 
+  	              and ($PG->{envir}->{permissionLevel})//0 >=10;
+#########################################################	
+
+# decide whether to return the new or old answer evaluator hash
+		$rh_ans_evaluation_result = $new_rh_ans_evaluation_result;
+
+#    This warning may not be needed.
+# 		unless ( ( ref($rh_ans_evaluation_result) eq 'HASH') or ( ref($rh_ans_evaluation_result) eq 'AnswerHash') ) {
+# 			warn "Error in Translator.pm::process_answers: Answer $ans_name:<br/>\n
+# 				Answer evaluators must return a hash or an AnswerHash type, not type |", 
+# 				ref($rh_ans_evaluation_result), "|";
+# 		}
 		$rh_ans_evaluation_result ->{ans_message} .= "$errors \n" if $errors;
 		$rh_ans_evaluation_result ->{ans_name} = $ans_name;
 		$self->{rh_evaluated_answers}->{$ans_name} = $rh_ans_evaluation_result;
@@ -1246,6 +1383,20 @@ sub process_answers{
 }
 
 
+sub stringify_answers {
+  my $self = shift;
+  no strict;
+  local $rh_answers = $self->{rh_evaluated_answers};
+  $self->{safe}->share('$rh_answers');
+  $self->{safe}->reval(<<'  END_EVAL;');
+    (sub {
+      foreach my $label (keys %$rh_answers) {
+        $rh_answers->{$label}->stringify_hash if ref($rh_answers->{$label}) =~ m/AnswerHash/;
+      }
+    })->();
+  END_EVAL;
+  die $@ if $@;
+}
 
 =head3 grade_problem
 
@@ -1275,6 +1426,7 @@ sub grade_problem {
 		$self->{safe}->reval('&{$rf_grader}($rh_answers,$rh_state,%rf_options)');
 	use strict;
 	die $@ if $@;
+	$self->stringify_answers;
 	($self->{rh_problem_result}, $self->{rh_problem_state});
 }
 
@@ -1572,10 +1724,7 @@ sub PGsort {
 
 	includePGtext($string_ref, $envir_ref)
 
-Calls C<createPGtext> recursively with the $safeCompartment variable set to 0
-so that the rendering continues in the current safe compartment.  The output
-is the same as the output from createPGtext. This is used in processing
-some of the sample CAPA files.
+This is now defined in PG::IO.pm
 
 =cut
 
@@ -1701,7 +1850,7 @@ sub PG_answer_eval {
 # 	$evalString;
 # }
 sub default_preprocess_code {
-	my $evalString = shift;
+	my $evalString = shift//'';
 	# BEGIN_TEXT and END_TEXT must occur on a line by themselves.
 	$evalString =~ s/\n\s*END_TEXT[\s;]*\n/\nEND_TEXT\n/g;
 	$evalString =~ s/\n\s*END_PGML[\s;]*\n/\nEND_PGML\n/g;

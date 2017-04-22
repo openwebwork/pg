@@ -52,6 +52,24 @@ sub new {
 }
 
 #
+#  Make a union (it might not be reduced)
+#
+sub make {
+  my $self = shift;
+  my $union = $self->SUPER::make(@_);
+  delete $union->{isReduced};
+  return $union;
+}
+
+#
+#  Don't inherit the reduced flags
+#
+sub noinherit {
+  my $self = shift;
+  ($self->SUPER::noinherit,"isReduced");
+}
+
+#
 #  Make a union or interval or set, depending on how
 #  many there are in the union.
 #
@@ -233,7 +251,7 @@ sub reduce {
 #  True if a union is reduced.
 #
 #  (In array context, is a pair whose first entry is true or
-#   false, and when true the second value is the reason the
+#   false, and when false the second value is the reason the
 #   set is not reduced.)
 #
 sub isReduced {
@@ -308,7 +326,7 @@ sub pdot {
 }
 
 sub string {
-  my $self = shift; my $equation = shift; shift; shift; my $prec = shift;
+  my $self = shift; my $equation = shift; shift; shift; my $prec = shift//0;
   my $op = ($equation->{context} || $self->context)->{operators}{'U'};
   my @intervals = ();
   foreach my $x (@{$self->data}) {
@@ -321,7 +339,7 @@ sub string {
 }
 
 sub TeX {
-  my $self = shift; my $equation = shift; shift; shift; my $prec = shift;
+  my $self = shift; my $equation = shift; shift; shift; my $prec = shift//0; #FIXME find out about precedece
   my $op = ($equation->{context} || $self->context)->{operators}{'U'};
   my @intervals = ();
   foreach my $x (@{$self->data}) {push(@intervals,$x->TeX($equation))}

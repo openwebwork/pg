@@ -65,22 +65,28 @@ sub Formula {Value->Package("Formula()")->new(@_)}
 
 	Compute("formula"[, var=>value, ...]);
 
-Compute the value of a formula and return a MathObject appropriate to its
-value.  Set the object so that the correct answer will be shown exatly as in the
-given string rather than by its usual stringification.  If the value is a
-Formula and any var=>value pairs are specified, then the formula will be
-evaluated using the given variable values.  E.g.,
+Compute the value of a formula and return a MathObject appropriate to
+its value.  Set the object so that the correct answer will be shown as
+in the given string rather than by its usual stringification.  (I.e.,
+the stringified version of the formula when C<reduceConstants>,
+C<reduceConstantFunctions>, and C<showExtraParens> are set to 0 is used.)
+
+If the value is a Formula and any var=>value pairs are specified, then
+the formula will be evaluated using the given variable values.  E.g.,
 
 	$x = Compute("x+3",x=>2)
 
-will produce the equivalent of $x = Real(5).
-
-The original parsed formula will be saved in the object's original_formula
-field, and can be obtained by
+will produce the equivalent of C<$x = Real(5)>.  In this case, the
+original parsed formula will be saved in the object's
+C<original_formula> field, and can be obtained by
 
 	$x->{original_formula};
 
 if needed later in the problem.
+
+If the formula is contstant-valued, C<Compute()> will return the value
+of the formula rather than the formula itself.  Again, in this case, the
+original can be obtained from the C<original_formula> property.
 
 =cut
 
@@ -92,19 +98,19 @@ sub Compute {
   my $formula = Formula($string);
   $formula = $formula->{tree}->Compute if $formula->{tree}{canCompute};
   my $context = $formula->context;
-  my $flags = Value::contextSet($context,reduceConstants=>0,reduceConstantFunctions=>0);
+  my $flags = Value::contextSet($context,reduceConstants=>0,reduceConstantFunctions=>0,showExtraParens=>0);
   if (scalar(@_)) {
     $formula = $formula->substitute(@_)->with(original_formula => $formula);
     $string = $formula->string;
   }
   if ($formula->isConstant) {
-    $formula = $formula->eval()->with
-      (original_formula => $formula->{original_formula} || $formula);
+    $formula = $formula->eval()->with(original_formula => $formula->{original_formula} || $formula);
   }
-  $formula->{correct_ans} = $string;
-  $formula->{correct_ans_latex_string} =
-    (($formula->{original_formula} || $flags{reduceConstants} ||
-      $flags{reduceConstantFunctions}) ?  Formula($string) : $formula)->TeX;
+  my $F = $formula;
+  $F = Formula($string)
+    if $formula->{original_formula} || $flags->{reduceConstants} ||  $flags->{reduceConstantFunctions};
+  $formula->{correct_ans} = $F->string;
+  $formula->{correct_ans_latex_string} = $F->TeX;
   Value::contextSet($context,%{$flags});
   return $formula;
 }
@@ -126,10 +132,12 @@ that context is set as the current one.  In all three cases, the current context
 # ^uses Parser::Context::current
 # ^uses %context
 sub Context {Parser::Context->current(\%context,@_)}
-# ^variable our %context
-%context = ();  # Locally defined contexts, including 'current' context
-# ^uses Context
-Context();      # Initialize context (for persistent mod_perl)
+unless (%context && $context{current}) {
+  # ^variable our %context
+  %context = ();  # Locally defined contexts, including 'current' context
+  # ^uses Context
+  Context();      # Initialize context (for persistent mod_perl)
+}
 
 ###########################################################################
 #

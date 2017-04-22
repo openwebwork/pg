@@ -19,6 +19,7 @@ sub new {
   $p = Value::makeValue($p,context=>$context) if defined($p) && !ref($p);
   return $p if Value::isFormula($p) && Value::classMatch($self,$p->type);
   my $isFormula = 0; my @d; @d = $p->dimensions if Value::classMatch($p,'Matrix');
+  $p = $p->reduce if Value::classMatch($p,'Union');
   if (Value::classMatch($p,'List') && $p->typeRef->{entryType}{name} eq 'Number') {$p = $p->data}
   elsif (Value::classMatch($p,'Point','Vector','Set')) {$p = $p->data}
   elsif (scalar(@d) == 1) {$p = [$p->value]}
@@ -44,7 +45,7 @@ sub new {
 }
 
 #
-#  Set the canBeInterval flag
+#  Make a set (might not be reduced)
 #
 sub make {
   my $self = shift;
@@ -52,7 +53,13 @@ sub make {
   my $def = $context->lists->get('Set');
   $self = $self->SUPER::make($context,@_);
   $self->{open} = $def->{open}; $self->{close} = $def->{close};
+  delete $self->{isReduced};
   return $self;
+}
+
+sub noinherit {
+  my $self = shift;
+  ($self->SUPER::noinherit,"isReduced");
 }
 
 sub isOne {0}
@@ -84,12 +91,11 @@ sub promote {
 #
 
 #
-#  Addition forms unions (or combines sets)
+#  Addition forms unions
 #
 sub add {
   my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
-  return $self->make($l->value,$r->value) if $l->type eq 'Set' && $r->type eq 'Set';
-  Value::Union::form($self->context,$l,$r);
+  $self->Package("Union")->new($l,$r);
 }
 sub dot {my $self = shift; $self->add(@_)}
 
@@ -208,7 +214,7 @@ sub reduce {
 }
 
 #
-#  True if a union is reduced.
+#  True if a set is reduced.
 #
 #  (In scalar context, is a pair whose first entry is true or
 #   false, and when true the second value is the reason the

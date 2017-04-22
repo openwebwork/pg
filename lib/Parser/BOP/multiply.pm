@@ -121,7 +121,7 @@ sub TeX {
   $outerRight = !$addparens && ($outerRight || $position eq 'right');
 
   my $left  = $self->{lop}->TeX($bop->{precedence},$bop->{leftparens},'left',$outerRight);
-  my $right = $self->{rop}->TeX($bop->{precedence},$bop->{rightparens},'right');
+  my $right = $self->{rop}->TeX($bop->{precedence},$bop->{rightparens}||($mult eq "" ? "UOP": undef),'right');
   $mult = $cdot if $right =~ m/^\d/ ||
      ($left =~ m/\d+$/ && $self->{rop}{isConstant} &&
       $self->{rop}->type eq 'Number' && $self->{rop}->class ne 'Constant');

@@ -196,7 +196,7 @@ sub BASIS_CMP {
 
     $answer_evaluator->{debug} = $mat_params{debug};
     $answer_evaluator->ans_hash(    
-        correct_ans         =>  display_correct_vecs($mat_params{correct_ans}),
+        correct_ans         =>  Value::VERBATIM(display_correct_vecs($mat_params{correct_ans})),
         rm_correct_ans      =>  $matrix,
         zeroLevelTol        =>  $mat_params{zeroLevelTol},
         debug               =>  $mat_params{debug},
@@ -813,7 +813,7 @@ sub vec_solution_cmp{
 
     $answer_evaluator->{debug}           = $opt{debug};
     $answer_evaluator->ans_hash(    
-                    correct_ans         =>  display_correct_vecs($correctAnswer),
+                    correct_ans         =>  Value::VERBATIM(display_correct_vecs($correctAnswer)),
                     old_correct_ans     =>  $correctAnswer,
                     rm_correct_ans      =>  $matrix,
                     zeroLevelTol        =>  $opt{zeroLevelTol},

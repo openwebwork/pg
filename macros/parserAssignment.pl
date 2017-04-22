@@ -260,6 +260,20 @@ sub new {
   }
 }
 
+#
+#  Mark assignments so that they are not treated as lists by classMatch()
+#
+sub make {
+  my $self = shift;
+  $self = $self->SUPER::make(@_);
+  $self->{isList} = 0;
+  return $self;
+}
+sub class {"Assignment"}
+
+#
+#  Produce proper output
+#
 sub string {
   my $self = shift; my ($x,$v) = $self->value;
   $x->string . ' = ' . $v->string;
@@ -296,6 +310,7 @@ sub typeRef {
   my $self = shift;
   Value::Type('Assignment',2,$self->{data}[1]->typeRef,list=>1);
 }
+
 
 ######################################################################
 

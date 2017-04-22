@@ -5,9 +5,16 @@ BEGIN {
 package Chromatic;
 
 our $webwork_directory = $WeBWorK::Constants::WEBWORK_DIRECTORY; #'/opt/webwork/webwork2';
-our $seed_ce = new WeBWorK::CourseEnvironment({ webwork_dir => $webwork_directory });
+# fake course name 'foobar' prevents undefined courseName warnings
+# FIXME is there a more efficient way to find the location of the PG directory?  Perhaps an ENV variable?
+# or a WEBWORK_PG_DIRECTORY variable?  -- perhaps not since all of those are in the defaults.config file
+# we would have to read that at compile time.
+
+our $seed_ce = new WeBWorK::CourseEnvironment({ webwork_dir => $webwork_directory, courseName =>'foobar'});
 die "Can't create seed course environment for webwork in $webwork_directory" unless ref($seed_ce);
 our $PGdirectory = $seed_ce->{pg_dir};
+
+# now that we have the PGdirectory we can get to work compiling color
 our $command = "$PGdirectory/lib/chromatic/color";
 our $compileCommand = "/usr/bin/gcc -O3 -o $PGdirectory/lib/chromatic/color $PGdirectory/lib/chromatic/color.c";
 unless (-x $command) {

@@ -16,170 +16,41 @@
 package PGcore;
 
 use strict;
-BEGIN {
-	use Exporter 'import';
-	our @EXPORT_OK = qw(not_null pretty_print);
-}
 our $internal_debug_messages = [];
-
 
 use PGanswergroup;
 use PGresponsegroup;
 use PGrandom;
 use PGalias;
 use PGloadfiles;
+use AnswerHash;
 use WeBWorK::PG::IO(); # don't important any command directly
 use Tie::IxHash;
-use MIME::Base64 qw( encode_base64 decode_base64);
-##################################
-# Utility macro 
-##################################
-
-=head2  Utility Macros
-
-
-=head4  not_null
-     
-  not_null(item)  returns 1 or 0
-     
-     empty arrays, empty hashes, strings containing only whitespace are all NULL and return 0
-     all undefined quantities are null and return 0
-
-
-=cut
-our @EXPORT = qw(
-	not_null 
-	pretty_print
-);
-sub not_null {        # empty arrays, empty hashes and strings containing only whitespace are all NULL
-                      # in modern perl // would be a reasonable and more robust substitute
-                      # a function, not a method
-    my $item = shift;
-	return 0 unless defined($item);
-	if (ref($item)=~/ARRAY/) {
-		return scalar(@{$item});     # return the length    
-	} elsif (ref($item)=~/HASH/) {
-	    return scalar( keys %{$item});
-	} else {   # string case return 1 if none empty	
-	  return ($item =~ /\S/)? 1:0;
-	}
-}
-
-=head4 pretty_print
-
-	Usage: warn pretty_print( $rh_hash_input)
-		   TEXT(pretty_print($ans_hash));
-		   TEXT(pretty_print(~~%envir ));
-
-This can be very useful for printing out HTML messages about objects while debugging
-
-=cut
-
-# ^function pretty_print
-# ^uses lex_sort
-# ^uses pretty_print
-
-
-sub pretty_print {
-	my $r_input        = shift;
-	my $displayMode    = shift;
-	my $out = '';
-	if ($displayMode eq 'TeX' ) {
-	    $out .="{\\tiny";
-		$out .= pretty_print_tex($r_input);	
-		$out .="}";
-	} else {
-		$out =pretty_print_html($r_input);  #default
-	}
-	$out;
-}
-
-sub pretty_print_html {    # provides html output -- NOT a method
-    my $r_input = shift;
-    my $level = shift;
-    $level = 5 unless defined($level);
-    $level--;
-    return "PGalias has too much info. Try \$PG->{PG_alias}->{resource_list}" if ref($r_input) eq 'PGalias';  # PGalias just has too much information
-    return 'too deep' unless $level > 0;  # only print four levels of hashes (safety feature)
-    my $out = '';
-    if ( not ref($r_input) ) {
-    	$out = $r_input if defined $r_input;    # not a reference
-    	$out =~ s/</&lt;/g  ;  # protect for HTML output
-    } elsif ("$r_input" =~/hash/i) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_iput).
-	    local($^W) = 0;
-	    
-		$out .= "$r_input " ."<TABLE border = \"2\" cellpadding = \"3\" BGCOLOR = \"#FFFFFF\">";
-		
-		
-		foreach my $key ( sort ( keys %$r_input )) {
-			$out .= "<tr><TD> $key</TD><TD>=&gt;</td><td>&nbsp;".pretty_print_html($r_input->{$key}, $level) . "</td></tr>";
-		}
-		$out .="</table>";
-	} elsif (ref($r_input) eq 'ARRAY' ) {
-		my @array = @$r_input;
-		$out .= "( " ;
-		while (@array) {
-			$out .= pretty_print_html(shift @array, $level) . " , ";
-		}
-		$out .= " )";
-	} elsif (ref($r_input) eq 'CODE') {
-		$out = "$r_input";
-	} else {
-		$out = $r_input;
-		$out =~ s/</&lt;/g; # protect for HTML output
-	}
-		$out;
-}
-
-sub pretty_print_tex {
-	my $r_input = shift;
-	my $level   = shift;
-    $level      = 5 unless defined($level);
-	$level--;
-	return "PGalias has too much info. Try \\\$PG->{PG\\_alias}->{resource\\_list}" if ref($r_input) eq 'PGalias';  # PGalias just has too much information
-	return 'too deep' unless $level>0;  #only print four levels of hashes (safety feature)
-	
-	my $protect_tex = sub {my $str = shift; $str=~s/_/\\\_/g; $str };
-
-	my $out = '';
-	if ( not  ref($r_input) ) {
-		$out = $r_input if defined $r_input;
-		$out =~ s/_/\\\_/g;   # protect tex
-		$out =~ s/&/\\\&/g;
-		$out =~ s/\$/\\\$/g;
-	} elsif ("$r_input" =~/hash/i) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_iput).
-		local($^W) = 0;
-	    
-		$out .= "\\begin{tabular}{| l | l |}\\hline\n\\multicolumn{2}{|l|}{$r_input}\\\\ \\hline\n";
-		
-		
-		foreach my $key ( sort ( keys %$r_input )) {
-			$out .= &$protect_tex(  $key ). " & ".pretty_print_tex($r_input->{$key}, $level) . "\\\\ \\hline\n";
-		}
-		$out .="\\end{tabular}\n";
-	} elsif (ref($r_input) eq 'ARRAY' ) {
-		my @array = @$r_input;
-		$out .= "( " ;
-		while (@array) {
-			$out .= pretty_print_tex(shift @array, $level) . " , ";
-		}
-		$out .= " )";
-	} elsif (ref($r_input) eq 'CODE') {
-		$out = "$r_input";
-	} else {
-		$out = $r_input if defined $r_input;
-		$out =~ s/_/\\\_/g;   # protect tex
-		$out =~ s/&/\\\&/g;
-	}
-		$out;
-}
-
-
-
+use WeBWorK::Debug;
+use MIME::Base64();
+use PGUtil();
 
 ##################################
 # PGcore object
 ##################################
+
+sub not_null {
+    my $self = shift;
+    PGUtil::not_null(@_);  
+}
+
+sub pretty_print {
+    my $self = shift;
+    my $input = shift;
+    my $displayMode = shift;
+    my $level       = shift;
+
+    if (!PGUtil::not_null($displayMode) && ref($self) eq 'PGcore') {
+		$displayMode = $self->{displayMode};
+    }
+    warn "displayMode not defined" unless $displayMode;
+    PGUtil::pretty_print($input, $displayMode, $level);  
+}
 
 sub new {
 	my $class = shift;	
@@ -194,7 +65,7 @@ sub new {
 #		PG_ANSWERS                => [],  # holds answers with labels # deprecated
 #		PG_UNLABELED_ANSWERS      => [],  # holds unlabeled ans. #deprecated -replaced by PG_ANSWERS_HASH
 		PG_ANSWERS_HASH           => {},  # holds label=>answer pairs
-		PERSISTENCE_HASH           => {}, # holds other data, besides answers, which persists during a session and beyond
+		PERSISTENCE_HASH          => {}, # holds other data, besides answers, which persists during a session and beyond
 		answer_eval_count         => 0,
 		answer_blank_count        => 0,
 		unlabeled_answer_blank_count =>0,
@@ -230,23 +101,18 @@ sub new {
 sub initialize {
 	my $self = shift;
 	warn "environment is not defined in PGcore" unless ref($self->{envir}) eq 'HASH';
-	
-	
-	
-	
+
 	$self->{displayMode}                = $self->{envir}->{displayMode};
 	$self->{PG_original_problem_seed}   = $self->{envir}->{problemSeed};
 	$self->{PG_random_generator}        = new PGrandom( $self->{PG_original_problem_seed});
-
-    $self->{tempDirectory}        = $self->{envir}->{tempDirectory};
-	$self->{PG_problem_grader}    = $self->{envir}->{PROBLEM_GRADER_TO_USE};
-    $self->{PG_alias}             = PGalias->new($self->{envir},
-                                        WARNING_messages => $self->{WARNING_messages},
-                                        DEBUG_messages   => $self->{DEBUG_messages},
-                                                 
-	);
-	$self->{maketext} = 
-	  WeBWorK::Localize::getLoc($self->{envir}->{language});
+	$self->{problemSeed}                = $self->{PG_original_problem_seed};
+    $self->{tempDirectory}        		= $self->{envir}->{tempDirectory};
+	$self->{PG_problem_grader}    		= $self->{envir}->{PROBLEM_GRADER_TO_USE};
+    $self->{PG_alias}             		= PGalias->new($self->{envir},
+												WARNING_messages => $self->{WARNING_messages},
+												DEBUG_messages   => $self->{DEBUG_messages},                                           
+										);
+	$self->{maketext} =  WeBWorK::Localize::getLoc($self->{envir}->{language});
 	#$self->debug_message("PG alias created", $self->{PG_alias} );
     $self->{PG_loadMacros}        = new PGloadfiles($self->{envir});
 	$self->{flags} = {
@@ -413,7 +279,7 @@ sub TEXT {
 sub envir {
 	my $self = shift;
 	my $in_key = shift;
-	if ( not_null($in_key) ) {
+	if ( $self->not_null($in_key) ) {
   		if (defined  ($self->{envir}->{$in_key} ) ) {
   			$self->{envir}->{$in_key};
   		} else {
@@ -421,7 +287,7 @@ sub envir {
   			return '';
   		}
 	} else {
- 		warn "<h3> Environment</h3>".pretty_print($self->{envir});
+ 		warn "<h3> Environment</h3>".$self->pretty_print($self->{envir});
  		return '';
 	}
 
@@ -462,6 +328,20 @@ sub LABELED_ANS{
   	$self->warning_message("<BR><B>Error in LABELED_ANS:|$label|</B>
   	      -- inputs must be references to AnswerEvaluator objects or subroutines<BR>")
 			unless ref($ans_eval) =~ /CODE/ or ref($ans_eval) =~ /AnswerEvaluator/  ;
+	if (ref($ans_eval) =~ /CODE/) {
+	  #
+	  #  Create an AnswerEvaluator that calls the given CODE reference and use that for $ans_eval.
+	  #  So we always have an AnswerEvaluator from here on.
+	  #
+	  my $cmp = new AnswerEvaluator;
+	  $cmp->install_evaluator(sub {
+	    my $ans = shift; my $checker = shift;
+	    my @args = ($ans->{student_ans});
+	    push(@args,ans_label=>$ans->{ans_label}) if defined($ans->{ans_label});
+	    $checker->(@args); # Call the original checker with the arguments that PG::Translator would have used
+	  },$ans_eval);
+	  $ans_eval = $cmp;
+	}
 	if (defined($self->{PG_ANSWERS_HASH}->{$label})  ){
 		$self->{PG_ANSWERS_HASH}->{$label}->insert(ans_label => $label, ans_eval => $ans_eval, active=>$self->{PG_ACTIVE});
 	} else {
@@ -576,7 +456,8 @@ sub record_ans_name {      # the labels in the PGanswer group and response group
 	my $value = shift;
 	#$self->internal_debug_message("PGcore::record_ans_name: $label $value");
 	my $response_group = new PGresponsegroup($label,$label,$value);
-	if (defined($self->{PG_ANSWERS_HASH}->{$label}) ) {
+	#$self->debug_message("adding a response group $response_group");
+	if (ref($self->{PG_ANSWERS_HASH}->{$label})=~/PGanswergroup/ ) {
 		$self->{PG_ANSWERS_HASH}->{$label}->replace(ans_label => $label, 
 		                                           response  => $response_group, 
 		                                           active    => $self->{PG_ACTIVE});
@@ -593,8 +474,9 @@ sub record_array_name {  # currently the same as record ans name
 	my $self = shift;
 	my $label = shift;
 	my $value = shift;
-	my $response_group = new PGresponsegroup($label,$label,$value);  
-	if (defined($self->{PG_ANSWERS_HASH}->{$label}) ) {
+	my $response_group = new PGresponsegroup($label,$label,$value); 
+	#$self->debug_message("adding a response group $response_group");
+	if (ref($self->{PG_ANSWERS_HASH}->{$label})=~/PGanswergroup/ ) {
 		$self->{PG_ANSWERS_HASH}->{$label}->replace(ans_label => $label, 
 		                                           response   => $response_group, 
 		                                           active     => $self->{PG_ACTIVE});
@@ -690,12 +572,23 @@ sub encode_base64 ($;$) {
 	MIME::Base64::encode_base64($str);
 }
 
+#####
+#  This macro encodes HTML, EV3, and PGML special caracters using html codes
+#  This should be done for any variable which contains student input and is
+#  printed to a screen or interpreted by EV3.  
+
+sub encode_pg_and_html {
+    my $input = shift;
+    $input = HTML::Entities::encode_entities($input,
+		   '<>"&\'\$\@\\\\`\\[*_\x00-\x1F\x7F');
+    return $input;
+}
 
 =head2   Message channels
 
 There are three message channels
 	$PG->debug_message()   or in PG:  DEBUG_MESSAGE() 
-	$PG->warning_message() or in PG:  WARNING_MESSAGE()
+	$PG->warning_message() or in PG:  WARN_MESSAGE()
 	
 They behave the same way, it is simply convention as to how they are used.
 	
@@ -721,7 +614,7 @@ inside the PGcore object would report.
 sub debug_message {
     my $self = shift;
 	my @str = @_;
-	push @{$self->{DEBUG_messages}}, "<br/>", @str;
+	push @{$self->{DEBUG_messages}}, "<br/>\n", @str;
 }
 sub get_debug_messages {
 	my $self = shift;
@@ -797,16 +690,15 @@ sub insertGraph {
 	my $extension = ($WWPlot::use_png) ? '.png' : '.gif';
 	my $fileName = $graph->imageName  . $extension;
 	my $filePath = $self->convertPath("gif/$fileName");
-	my $templateDirectory = $self->{envir}->{templateDirectory};
+	my $templateDirectory = $self->{envir}{templateDirectory};
 	$filePath = $self->surePathToTmpFile( $filePath );
 	my $refreshCachedImages = $self->PG_restricted_eval(q!$refreshCachedImages!);
 	# Check to see if we already have this graph, or if we have to make it
 	if( not -e $filePath # does it exist?
-	  or ((stat "$templateDirectory"."$main::envir{probFileName}")[9] > (stat $filePath)[9]) # source has changed
-	  or $graph->imageName =~ /Undefined_Set/ # problems from SetMaker and its ilk should always be redone
+	  or ((stat "$templateDirectory".$self->{envir}{probFileName})[9] > (stat $filePath)[9]) # source has changed
+	  or $self->{envir}{setNumber} =~ /Undefined_Set/ # problems from SetMaker and its ilk should always be redone
 	  or $refreshCachedImages
 	) {
- 		#createFile($filePath, $main::tmp_file_permission, $main::numericalGroupID);
 		local(*OUTPUT);  # create local file handle so it won't overwrite other open files.
  		open(OUTPUT, ">$filePath")||warn ("$0","Can't open $filePath<BR>","");
  		chmod( 0777, $filePath);
@@ -820,12 +712,10 @@ sub insertGraph {
 
 		includePGtext
 		read_whole_problem_file
-		read_whole_file
 		convertPath
 		getDirDelim
 		fileFromPath
 		directoryFromPath
-		createFile
 		createDirectory
 
 =cut
@@ -840,10 +730,6 @@ sub includePGtext {
 sub read_whole_problem_file { 
 	my $self = shift;
 	WeBWorK::PG::IO::read_whole_problem_file(@_); 
- };
-sub read_whole_file { 
-	my $self = shift;
-	WeBWorK::PG::IO::read_whole_file(@_); 
  };
 sub convertPath { 
 	my $self = shift;
@@ -861,17 +747,16 @@ sub directoryFromPath {
 	my $self = shift;
 	WeBWorK::PG::IO::directoryFromPath(@_); 
  };
-sub createFile { 
-	my $self = shift;
-	WeBWorK::PG::IO::createFile(@_); 
- };
 sub createDirectory { 
 	my $self = shift;
 	WeBWorK::PG::IO::createDirectory(@_); 
  };
 sub AskSage {
 	my $self = shift;
-	WeBWorK::PG::IO::AskSage(@_);
+	my $python = shift;
+	my $options = shift;
+	$options->{curlCommand} = $self->{envir}->{externalCurlCommand};
+	WeBWorK::PG::IO::AskSage($python, $options);
 }
  
 sub tempDirectory {

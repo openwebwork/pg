@@ -45,6 +45,7 @@ my $displayMode;
 
 my ($PAR,
 	$BR,
+	$BRBR,
 	$LQ,
 	$RQ,
 	$BM,
@@ -63,6 +64,11 @@ my ($PAR,
 	$COMMENT,
 	$US,
 	$SPACE,
+        $NBSP,
+        $NDASH,
+        $MDASH,
+	$BLABEL,
+	$ELABEL,
 	$BBOLD,
 	$EBOLD,
 	$BITALIC,
@@ -107,6 +113,7 @@ main::PG_restricted_eval( <<'EndOfFile');
 
 	$main::PAR				= PAR();
 	$main::BR				= BR();
+	$main::BRBR				= BRBR();
 	$main::LQ				= LQ();
 	$main::RQ				= RQ();
 	$main::BM				= BM();
@@ -124,6 +131,11 @@ main::PG_restricted_eval( <<'EndOfFile');
 	$main::HINT				= HINT_HEADING();
 	$main::US				= US();
 	$main::SPACE			= SPACE();
+	$main::NBSP			= NBSP();
+	$main::NDASH			= NDASH();
+	$main::MDASH			= MDASH();
+	$main::BLABEL			= BLABEL();
+	$main::ELABEL			= ELABEL();
 	$main::BBOLD			= BBOLD();
 	$main::EBOLD			= EBOLD();
 	$main::BITALIC			= BITALIC();
@@ -154,6 +166,7 @@ EndOfFile
 
    	$PAR				 = PAR();
 	$BR				     = BR();
+	$BRBR				 = BRBR();
 	$LQ				     = LQ();
 	$RQ				     = RQ();
 	$BM				     = BM();
@@ -171,6 +184,11 @@ EndOfFile
 	$HINT				 = HINT_HEADING();
 	$US				     = US();
 	$SPACE			     = SPACE();
+	$NBSP			     = NBSP();
+	$NDASH			     = NDASH();
+	$MDASH			     = MDASH();
+	$BLABEL			     = BLABEL();
+	$ELABEL			     = ELABEL();
 	$BBOLD			     = BBOLD();
 	$EBOLD			     = EBOLD();
 	$BITALIC			 = BITALIC();
@@ -199,23 +217,23 @@ EndOfFile
 }
 
 # =head2  Utility Macros
-# 
+#
 #   not_null(item)  returns 1 or 0
-#      
+#
 #      empty arrays, empty hashes, strings containing only whitespace are all NULL and return 0
 #      all undefined quantities are null and return 0
-# 
-# 
+#
+#
 # =cut
-# 
+#
 # sub not_null {        # empty arrays, empty hashes and strings containing only whitespace are all NULL
 #     my $item = shift;
 # 	return 0 unless defined($item);
 # 	if (ref($item)=~/ARRAY/) {
-# 		return scalar(@{$item});     # return the length    
+# 		return scalar(@{$item});     # return the length
 # 	} elsif (ref($item)=~/HASH/) {
 # 	    return scalar( keys %{$item});
-# 	} else {   # string case return 1 if none empty	
+# 	} else {   # string case return 1 if none empty
 # 	  return ($item =~ /\S/)? 1:0;
 # 	}
 # }
@@ -316,10 +334,13 @@ sub labeled_ans_rule {   # syntactic sugar for NAMED_ANS_RULE
 }
 
 sub NAMED_ANS_RULE {
-	my($name,$col) = @_;
+	my $name = shift;
+	my $col = shift;
+	my %options = @_;
 	$col = 20 unless not_null($col);
 	my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if    defined(${$inputs_ref}{$name});
+
 	#FIXME -- code factoring needed
     if ($answer_value =~ /\0/ ) {
     	my @answers = split("\0", $answer_value);
@@ -338,13 +359,22 @@ sub NAMED_ANS_RULE {
     	$answer_value= '' unless defined($answer_value);
 	}
 
-	
 #	$answer_value =~ tr/\\$@`//d;   ## unnecessary since we encode HTML now
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
-	$answer_value = HTML::Entities::encode_entities($answer_value);
 	$name = RECORD_ANS_NAME($name, $answer_value);
+	$answer_value = encode_pg_and_html($answer_value);
+	my $previous_name = "previous_$name";
+	$name = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%$name":$name;
+	$previous_name = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%$previous_name": $previous_name;
+
     #INSERT_RESPONSE($name,$name,$answer_value);  #FIXME -- why can't we do this inside RECORD_ANS_NAME?
-    
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
+
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
 
@@ -364,16 +394,16 @@ sub NAMED_ANS_RULE {
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\\end{rawhtml}!,
 
-	    # Note: codeshard is used in the css to identify input elements 
+	    # Note: codeshard is used in the css to identify input elements
 	    # that come from pg
-		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" value="$answer_value"/>\n!.
+		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" aria-label="$label" value="$answer_value"/>\n!.
 		              $add_html. # added for dragmath
-                        qq!<input type=hidden  name="previous_$name" value="$answer_value"/>\n!
+                        qq!<input type=hidden  name="$previous_name" value="$answer_value"/>\n!,
 
 	);
 }
 
-sub NAMED_HIDDEN_ANS_RULE { # this is used to hold information being passed into and out of applets 
+sub NAMED_HIDDEN_ANS_RULE { # this is used to hold information being passed into and out of applets
                             # -- preserves state -- identical to NAMED_ANS_RULE except input type "hidden"
 	my($name,$col) = @_;
 	$col = 20 unless not_null($col);
@@ -397,9 +427,10 @@ sub NAMED_HIDDEN_ANS_RULE { # this is used to hold information being passed into
 
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
-	$answer_value = HTML::Entities::encode_entities($answer_value);
 
 	$name = RECORD_ANS_NAME($name, $answer_value);
+	$answer_value = encode_pg_and_html($answer_value);
+
     #INSERT_RESPONSE($name,$name,$answer_value);
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
@@ -416,7 +447,17 @@ sub NAMED_ANS_RULE_OPTION {   # deprecated
 }
 
 sub NAMED_ANS_RULE_EXTENSION {
-	my($name,$col) = @_;
+	my $name = shift;
+	my $col = shift;
+	my %options = @_;
+
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
+
 	my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
 	if ( defined( $rh_sticky_answers->{$name} ) ) {
@@ -425,14 +466,15 @@ sub NAMED_ANS_RULE_EXTENSION {
 	}
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
-	$answer_value = HTML::Entities::encode_entities($answer_value);
-	INSERT_RESPONSE($name,$name,$answer_value);  #hack -- this needs more work to decide how to make it work
+	INSERT_RESPONSE($name,$name,$answer_value);  #FIXME hack -- this needs more work to decide how to make it work
+	$answer_value = encode_pg_and_html($answer_value);
+
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = " ">\n\\end{rawhtml}\n!,
-		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME = "$name" id="$name" VALUE = "$answer_value">!.
+		HTML => qq!<INPUT TYPE=TEXT CLASS="codeshard" SIZE=$col NAME = "$name" id="$name" aria-label="$label" VALUE = "$answer_value">!.
                         qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" id="previous_$name" VALUE = "$answer_value">!
 	);
 }
@@ -445,21 +487,31 @@ sub ANS_RULE {  #deprecated
 
 
 sub  NAMED_ANS_BOX {
-	my($name,$row,$col) = @_;
+	my $name = shift;
+	my $row = shift;
+	my $col = shift;
+	my %options = @_;
+
 	$row = 10 unless defined($row);
 	$col = 80 unless defined($col);
-	
+
 	my $height = .07*$row;
 	my $answer_value = '';
 	$answer_value = $inputs_ref->{$name} if defined( $inputs_ref->{$name} );
 	$name = RECORD_ANS_NAME($name, $answer_value);
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	#INSERT_RESPONSE($name,$name,$answer_value); # no longer needed?
 	# try to escape HTML entities to deal with xss stuff
-	$answer_value = HTML::Entities::encode_entities($answer_value);
+	$answer_value = encode_pg_and_html($answer_value);
 	my $out = MODES(
 	     TeX => qq!\\vskip $height in \\hrulefill\\quad !,
-	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
+	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" aria-label="$label" ROWS="$row" COLS="$col"
                WRAP="VIRTUAL">$answer_value</TEXTAREA>\\end{rawhtml}!,
          HTML => qq!<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
                WRAP="VIRTUAL">$answer_value</TEXTAREA>
@@ -479,7 +531,7 @@ sub NAMED_ANS_RADIO {
 	my $name = shift;
 	my $value = shift;
     my $tag =shift;
-   
+
     my $checked = '';
     if ($value =~/^\%/) {
     	$value =~ s/^\%//;
@@ -494,10 +546,12 @@ sub NAMED_ANS_RADIO {
 
     }
     $name = RECORD_ANS_NAME($name, {$value=>$checked}	);
+    my $label = generate_aria_label($name);
+    $label .= "option 1 ";
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>$tag!
+		HTML => qq!<label><INPUT TYPE=RADIO NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!
 	);
 
 }
@@ -510,7 +564,7 @@ sub NAMED_ANS_RADIO_EXTENSION {
 	my $name = shift;
 	my $value = shift;
 	my $tag =shift;
-
+	my %options = @_;
 
     my $checked = '';
     if ($value =~/^\%/) {
@@ -526,10 +580,17 @@ sub NAMED_ANS_RADIO_EXTENSION {
 
     }
     EXTEND_RESPONSE($name,$name,$value, $checked);
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
+
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>$tag!
+		HTML => qq!<label><INPUT TYPE=RADIO NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!
 	);
 
 }
@@ -539,21 +600,25 @@ sub NAMED_ANS_RADIO_BUTTONS {
     my $value = shift;
     my $tag = shift;
 
-
-	my @out = ();
-	push(@out, NAMED_ANS_RADIO($name, $value,$tag));
-	my @buttons = @_;
-	while (@buttons) {
-		$value = shift @buttons;  $tag = shift @buttons;
-		push(@out, NAMED_ANS_RADIO_OPTION($name, $value,$tag));
-	}
-	(wantarray) ? @out : join(" ",@out);
+    my @out = ();
+    push(@out, NAMED_ANS_RADIO($name, $value,$tag));
+    my @buttons = @_;
+    my $label = generate_aria_label($name);
+    my $count = 2;
+    while (@buttons) {
+	$value = shift @buttons;  $tag = shift @buttons;
+	push(@out, NAMED_ANS_RADIO_OPTION($name, $value,$tag,
+					  aria_label=>$label."option $count "));
+	$count++;
+    }
+    (wantarray) ? @out : join(" ",@out);
 }
+
 sub ANS_RADIO {
 	my $number = shift;
 	my $value = shift;
 	my $tag =shift;
-    my $name = NEW_ANS_NAME();
+	my $name = NEW_ANS_NAME();
 	NAMED_ANS_RADIO($name,$value,$tag);
 }
 
@@ -561,9 +626,10 @@ sub ANS_RADIO_OPTION {
 	my $number = shift;
 	my $value = shift;
 	my $tag =shift;
-    my $name = ANS_NUM_TO_NAME($number);
+	my $name = ANS_NUM_TO_NAME($number);
 	NAMED_ANS_RADIO_OPTION($name,$value,$tag);
 }
+
 sub ANS_RADIO_BUTTONS {
     my $number  =shift;
     my $value = shift;
@@ -579,9 +645,53 @@ sub ANS_RADIO_BUTTONS {
 	}
 	(wantarray) ? @out : join(" ",@out);
 }
+
+##############################################
+#   generate_aria_label( $name )
+#   takes the name of an ANS_RULE or ANS_BOX and generates an appropriate
+#   aria label for screen readers
+##############################################
+
+sub generate_aria_label {
+    my $name = shift;
+    my $label = '';
+
+    # if we dont have an AnSwEr type name then we do the best we can
+    if ($name !~ /AnSwEr/ ) {
+	return maketext('answer').' '.$name;
+    }
+
+    # check for quiz prefix
+    if ($name =~ /^Q\d+/ || $name =~ /^MaTrIx_Q\d+/) {
+	$name =~ s/Q0*(\d+)_//;
+	$label .= maketext('problem ').$1.' ';
+    }
+
+    # get answer number
+    $name =~ /AnSwEr0*(\d+)/;
+    $label .= maketext('answer ').$1.' ';
+
+    # check for Multianswer
+    if ($name =~ /MuLtIaNsWeR_/) {
+	$name =~ s/MuLtIaNsWeR_//;
+	$name =~ /AnSwEr(\d+)_(\d+)/;
+	$label .= maketext('part ').($2+1).' ';
+    }
+
+    # check for Matrix
+    if ($name =~ /^MaTrIx_/) {
+	$name =~ /_(\d+)_(\d+)$/;
+	$label .= maketext('row ').($1+1)
+	    .maketext(' column ').($2+1).' ';
+    }
+
+    return $label;
+
+}
+
 ##############################################
 #   contained_in( $elem, $array_reference or null separated string);
-#   determine whether element is equal 
+#   determine whether element is equal
 #   ( in the sense of eq,  not ==, ) to an element in the array.
 ##############################################
 sub contained_in {
@@ -599,7 +709,7 @@ sub contained_in {
 		 	push @output_list, $item;
 		 }
 	}
-	
+
 	my @match_list = grep {$element eq $_ } @output_list;
 	if ( @match_list ) {
 		return 1;
@@ -617,7 +727,7 @@ sub NAMED_ANS_CHECKBOX {
 	my $name = shift;
 	my $value = shift;
     my $tag =shift;
-    
+
 
     my $checked = '';
     if ($value =~/^\%/) {
@@ -635,10 +745,13 @@ sub NAMED_ANS_CHECKBOX {
 
     }
     $name = RECORD_ANS_NAME($name, {$value => $checked});
+    my $label = generate_aria_label($name);
+    $label .= "option 1 ";
+
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>$tag!
+		HTML => qq!<label><INPUT TYPE=CHECKBOX NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!
 	);
 
 }
@@ -647,6 +760,7 @@ sub NAMED_ANS_CHECKBOX_OPTION {
 	my $name = shift;
 	my $value = shift;
 	my $tag =shift;
+	my %options = @_;
 
     my $checked = '';
     if ($value =~/^\%/) {
@@ -664,10 +778,17 @@ sub NAMED_ANS_CHECKBOX_OPTION {
 
     }
     EXTEND_RESPONSE($name,$name,$value, $checked);
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
+
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>$tag!
+		HTML => qq!<label><INPUT TYPE=CHECKBOX NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!
 	);
 
 }
@@ -679,11 +800,14 @@ sub NAMED_ANS_CHECKBOX_BUTTONS {
 
 	my @out = ();
 	push(@out, NAMED_ANS_CHECKBOX($name, $value,$tag));
-
+    	my $label = generate_aria_label($name);
+        my $count = 2;
 	my @buttons = @_;
 	while (@buttons) {
 		$value = shift @buttons;  $tag = shift @buttons;
-		push(@out, NAMED_ANS_CHECKBOX_OPTION($name, $value,$tag));
+		push(@out, NAMED_ANS_CHECKBOX_OPTION($name, $value,$tag,
+		     aria_label=>$label."option $count "));
+		$count++;
 	}
 
 	(wantarray) ? @out : join(" ",@out);
@@ -855,8 +979,9 @@ sub NAMED_POP_UP_LIST {
 		my @list1 = @{$list[0]};
 		@list = map { $_ => $_ } @list1;
 	}
-	
-		my $answer_value = '';
+	my $moodle_prefix = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%":'';
+
+	my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
 	my $out = "";
 	if ($displayMode eq 'HTML_MathJax'
@@ -864,10 +989,10 @@ sub NAMED_POP_UP_LIST {
 	 || $displayMode eq 'HTML'
 	 || $displayMode eq 'HTML_tth'
 	 || $displayMode eq 'HTML_jsMath'
-	 || $displayMode eq 'HTML_asciimath' 
+	 || $displayMode eq 'HTML_asciimath'
 	 || $displayMode eq 'HTML_LaTeXMathML'
 	 || $displayMode eq 'HTML_img') {
-		$out = qq!<SELECT NAME = "$name" id="$name" SIZE=1> \n!;
+		$out = qq!<SELECT class="pg-select" NAME = "$moodle_prefix$name" id="$moodle_prefix$name" SIZE=1> \n!;
 		my $i;
 		foreach ($i=0; $i< @list; $i=$i+2) {
 			my $select_flag = ($list[$i] eq $answer_value) ? "SELECTED" : "";
@@ -958,16 +1083,24 @@ sub NAMED_ANS_ARRAY_EXTENSION{
     		$answer_value= '' unless defined($answer_value);
 	}
 
+	my $label;
+	if (defined ($options{aria_label})) {
+	    $label = $options{aria_label};
+	} else {
+	    $label = generate_aria_label($name);
+	}
+
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 #	warn "ans_label $options{ans_label} $name $answer_value";
-	$answer_value = HTML::Entities::encode_entities($answer_value);
 	if (defined($options{ans_label}) ) {
 		INSERT_RESPONSE($options{ans_label}, $name, $answer_value);
 	}
+	$answer_value = encode_pg_and_html($answer_value);
+
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{10pt}{\\hrulefill}}\\hrulefill\\quad ",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = "">\n\\end{rawhtml}\n!,
-		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" class="codeshard" VALUE = "$answer_value">\n!
+		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" class="codeshard" aria-label="$label" VALUE = "$answer_value">\n!
 	);
 }
 
@@ -977,7 +1110,7 @@ sub ans_array{
 	my $col = shift;
 	$col = 20 unless $col;
 	my $ans_label = NEW_ANS_NAME();
-	my $num = ans_rule_count(); 
+	my $num = ans_rule_count();
 	my @options = @_;
 	my @array=();
 	my $answer_value = "";
@@ -985,8 +1118,8 @@ sub ans_array{
     my $name;
     $main::vecnum = -1;
     CLEAR_RESPONSES($ans_label);
-    
-    
+
+
 	for( my $i = 0; $i < $n; $i+=1)
 	{
 		$name = NEW_ANS_ARRAY_NAME_EXTENSION($num,0,$i);
@@ -1085,13 +1218,13 @@ sub solution {
 	my $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL = ( defined( $envir->{'ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL'} ) ) ? $envir->{'ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL'} : 10000;
 	my $displaySolution = PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!);
 	my $printSolutionForInstructor = (
-		($displayMode ne 'TeX' && ( $permissionLevel >= $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL ) ) 
+		($displayMode ne 'TeX' && ( $permissionLevel >= $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL ) )
 		|| ($displayMode eq 'TeX' && $displaySolution && ($permissionLevel >= $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL) )
 	);
 	PG_restricted_eval(q!$main::solutionExists = 1!);  # set solution exists variable.--don't need PGeval??
-   
-    if ($printSolutionForInstructor) {  # always print solutions for instructor types 
-		$out = join(' ', $BITALIC, "(Instructor solution preview: show the student solution after due date. )$BR",$EITALIC, @in);
+
+    if ($printSolutionForInstructor) {  # always print solutions for instructor types
+		$out = join(' ', $BITALIC, "(", maketext("Instructor solution preview: show the student solution after due date.")," )$BR",$EITALIC, @in);
 	} elsif ( $displaySolution ) 	{
 		$out = join(' ',@in);  # display solution
 	}
@@ -1100,16 +1233,19 @@ sub solution {
 }
 
 sub SOLUTION {
-	my $solution = solution(@_);
-
-	if ($solution) {
-		if ($displayMode =~/HTML/ and $envir->{use_knowls_for_solutions}) {	   
-    		TEXT($PAR, knowlLink(SOLUTION_HEADING(), value => escapeSolutionHTML(apply_text_filter('solution', $BR . $solution . $PAR)), base64 =>1));
-    	} elsif ($displayMode=~/TeX/) {
-    		TEXT(apply_text_filter('solution', $PAR . SOLUTION_HEADING() . $solution . $PAR));
-    	} else {
-			TEXT(apply_text_filter('solution', $PAR . $solution . $PAR));
-		}
+	if ($displayMode =~/HTML/ and $envir->{use_knowls_for_solutions}) {
+    	TEXT( $PAR, knowlLink(SOLUTION_HEADING(), value =>  escapeSolutionHTML($BR . solution(@_) . $PAR ),
+    	              base64 =>1 ) ) if solution(@_);
+    } elsif ($displayMode=~/TeX/) {
+        TEXT(
+            "\n%%% BEGIN SOLUTION\n",                   #Marker used in MathBook XML extraction; contact alex.jordan@pcc.edu before modifying
+            $PAR,SOLUTION_HEADING(), solution(@_).$PAR,
+            "\n%%% END SOLUTION\n"                      #Marker used in MathBook XML extraction; contact alex.jordan@pcc.edu before modifying
+        ) if solution(@_) ;
+    } elsif ($displayMode=~/HTML/) {
+		TEXT(apply_text_filter('solution', $PAR.SOLUTION_HEADING().$BR.solution(@_).$PAR)) if solution(@_) ;
+    } else {
+		TEXT(apply_text_filter('solution', $PAR.solution(@_).$PAR)) if solution(@_) ;
 	}
 }
 
@@ -1122,45 +1258,46 @@ sub hint {
     my $showHint = PG_restricted_eval(q!$main::showHint!);
     my $displayHint = PG_restricted_eval(q!$main::envir{'displayHintsQ'}!);
     my $printHintForInstructor = (
-         ( ( $displayMode ne 'TeX' ) && ( $permissionLevel >= $ALWAYS_SHOW_HINT_PERMISSION_LEVEL )  ) 
+         ( ( $displayMode ne 'TeX' ) && ( $permissionLevel >= $ALWAYS_SHOW_HINT_PERMISSION_LEVEL )  )
          || ( ($displayMode eq 'TeX')  && $displayHint && ( $permissionLevel >= $ALWAYS_SHOW_HINT_PERMISSION_LEVEL ))
     );
 	PG_restricted_eval(q!$main::hintExists =1!);
     PG_restricted_eval(q!$main::numOfAttempts = 0 unless defined($main::numOfAttempts);!);
     my $attempts = PG_restricted_eval(q!$main::numOfAttempts!);
-   
+
     if ($displayMode =~ /TeX/) {
         my $afterAnswerDate = ( time() > $envir{answerDate} );
     	if ($printHintForInstructor) {
-    		$out = join(' ', $BITALIC," (Instructor hint preview: show the student hint after $showHint attempts. The current number of attempts is $attempts. )$BR", $EITALIC, @in);	
+    		$out = join(' ', $BITALIC," (Instructor hint preview: show the student hint after $showHint attempts. The current number of attempts is $attempts. )$BR", $EITALIC, @in);
     	} elsif ( $displayHint and $afterAnswerDate ) { # only display hints after the answer date.
     		$out = join(' ',@in);
     	}
-    	    
+
     } elsif ($displayMode =~/HTML/) {
     	if ($printHintForInstructor) {  # always print hints for instructor types in HTML mode
-			$out = join(' ', $BITALIC," (Instructor hint preview: show the student hint after $showHint attempts. The current number of attempts is $attempts. )$BR", $EITALIC, @in);    	
-    	} elsif ( $displayHint  and  ( $attempts > $showHint ) ) 	{  
+			$out = join(' ', $BITALIC," (Instructor hint preview: show the student hint after $showHint attempts. The current number of attempts is $attempts. )$BR", $EITALIC, @in);
+    	} elsif ( $displayHint  and  ( $attempts > $showHint ) ) 	{
 	 	    ## the second test above prevents a hint being shown if a doctored form is submitted
 		    $out = join(' ',@in);
 		}
-	}    
-	
+	}
+
   	$out;
 }
 
 sub HINT {
-	my $hint = hint(@_);
-
-	if ($hint) {
-		if ($displayMode =~/HTML/ and $envir->{use_knowls_for_hints}) {
-			TEXT($PAR, knowlLink(HINT_HEADING(), value=>escapeSolutionHTML(apply_text_filter('hint', $BR . $hint . $PAR)), base64 => 1) );
-	    } elsif ($displayMode=~/TeX/) {
-	    	TEXT(apply_text_filter('hint', $PAR . HINT_HEADING() . $hint . $PAR));
-		} else {
-	    	TEXT(apply_text_filter('hint', $PAR . HINT_HEADING() . $BR . $hint . $PAR));
-	    }
-	}
+	if ($displayMode =~/HTML/ and $envir->{use_knowls_for_hints}) {
+		TEXT($PAR, knowlLink(HINT_HEADING(), value=>escapeSolutionHTML($BR . hint(@_) . $PAR ),
+		                  base64 => 1) ) if hint(@_);
+  } elsif ($displayMode=~/TeX/) {
+      TEXT(
+          "\n%%% BEGIN HINT\n",                #Marker used in MathBook XML extraction; contact alex.jordan@pcc.edu before modifying
+          $PAR,HINT_HEADING(), hint(@_).$PAR,
+          "\n%%% END HINT\n"                   #Marker used in MathBook XML extraction; contact alex.jordan@pcc.edu before modifying
+      ) if hint(@_) ;
+  } else {
+  	TEXT(apply_text_filter('hint', $PAR . HINT_HEADING() . $BR . hint(@_) . $PAR)) if hint(@_);
+  }
 }
 
 sub apply_text_filter {
@@ -1177,7 +1314,7 @@ sub apply_text_filter {
 
 	COMMENT('text','text2',...);
 
-Takes the text to be lines of a comment to be shown only 
+Takes the text to be lines of a comment to be shown only
 in the Library Browser below the rendered problem.
 
 The function COMMENT stores the needed html in the variable
@@ -1192,7 +1329,7 @@ sub COMMENT {
    	my @in = @_;
 	my $out = join("$BR", @in);
 	$out = '<div class=\"AuthorComment\">'.$out.'</div>';
-	PG_restricted_eval(q!$main::pgComment = "!.$out.q!"!);
+	PG_restricted_eval(q!$main::pgComment .= "!.$out.q!"!);
 	return('');
 }
 
@@ -1302,10 +1439,10 @@ our %DISPLAY_MODE_FAILOVER = (
 # This replaces M3.  You can add new modes at will to this one.
 sub MODES {
 	my %options = @_;
-	
+
 	# is a string supplied for the current display mode? if so, return it
 	return $options{$main::displayMode} if defined $options{$main::displayMode};
-	
+
 	# otherwise, fail over to backup modes
 	my @backup_modes;
 	if (exists $DISPLAY_MODE_FAILOVER{$main::displayMode}) {
@@ -1314,7 +1451,7 @@ sub MODES {
 			return $options{$mode} if defined $options{$mode};
 		}
 	}
-	die "ERROR in defining MODES: neither display mode '$main::displayMode' nor",
+	warn "ERROR in defining MODES: neither display mode '$main::displayMode' nor",
 		" any fallback modes (", join(", ", @backup_modes), ") supplied.";
 }
 
@@ -1326,6 +1463,7 @@ sub MODES {
 	@ALPHABET   		ALPHABET()			capital letter alphabet -- ALPHABET[0] = 'A'
 	$PAR				PAR()				paragraph character (\par or <p>)
 	$BR         		BR()				line break character
+	$BRBR         		BRBR()				line break character
 	$LQ					LQ()				left double quote
 	$RQ					RQ()				right double quote
 	$BM					BM()				begin math
@@ -1343,6 +1481,11 @@ sub MODES {
 	$HINT				HINT_HEADING()		hint headline
 	$US					US()				underscore character
 	$SPACE				SPACE()				space character (tex and latex only)
+	$NBSP				NBSP()				non breaking space character
+	$NDASH				NDASH()				en dash character
+	$MDASH				MDASH()				em dash character
+	$BLABEL				BLABEL()			begin label (for input)
+	$ELABEL				ELABEL()			end label (for input)
 	$BBOLD				BBOLD()				begin bold typeface
 	$EBOLD				EBOLD()				end bold typeface
 	$BITALIC    		BITALIC()  			begin italic typeface
@@ -1384,6 +1527,7 @@ sub PAR { MODES( TeX => '\\par ', Latex2HTML => '\\begin{rawhtml}<P>\\end{rawhtm
 # Alternate definition of BR which is slightly more flexible and gives more white space in printed output
 # which looks better but kills more trees.
 sub BR { MODES( TeX => '\\leavevmode\\\\\\relax ', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR/>'); };
+sub BRBR { MODES( TeX => '\\leavevmode\\\\\\relax \\leavevmode\\\\\\relax ', Latex2HTML => '\\begin{rawhtml}<BR><BR>\\end{rawhtml}', HTML => '<P>'); };
 sub LQ { MODES( TeX => "\\lq\\lq{}", Latex2HTML =>   '"',  HTML =>  '&quot;' ); };
 sub RQ { MODES( TeX => "\\rq\\rq{}", Latex2HTML =>   '"',   HTML =>  '&quot;' ); };
 sub BM { MODES(TeX => '\\(', Latex2HTML => '\\(', HTML =>  ''); };  # begin math mode
@@ -1394,21 +1538,26 @@ sub LTS { MODES(TeX => '<', Latex2HTML => '\\lt ', HTML => '&lt;', HTML_tth => '
 sub GTS { MODES(TeX => '>', Latex2HTML => '\\gt ', HTML => '&gt;', HTML_tth => '>' ); };
 sub LTE { MODES(TeX => '\\le ', Latex2HTML => '\\le ', HTML => '<U>&lt;</U>', HTML_tth => '\\le ' ); };
 sub GTE { MODES(TeX => '\\ge ', Latex2HTML => '\\ge ', HTML => '<U>&gt;</U>', HTML_tth => '\\ge ' ); };
-sub BEGIN_ONE_COLUMN { MODES(TeX => " \\end{multicols}\n",  Latex2HTML => " ", HTML =>   " "); };
+sub BEGIN_ONE_COLUMN { MODES(TeX => "\\ifdefined\\nocolumns\\else \\end{multicols}\\fi\n",  Latex2HTML => " ", HTML =>   " "); };
 sub END_ONE_COLUMN { MODES(TeX =>
-              " \\begin{multicols}{2}\n\\columnwidth=\\linewidth\n",
+              " \\ifdefined\\nocolumns\\else \\begin{multicols}{2}\n\\columnwidth=\\linewidth \\fi\n",
                             Latex2HTML => ' ', HTML => ' ');
 
 };
-sub SOLUTION_HEADING { MODES( TeX => '\\par {\\bf Solution: }',
-                 Latex2HTML => '\\par {\\bf Solution: }',
-          		 HTML =>  '<P><B>Solution:</B> ');
+sub SOLUTION_HEADING { MODES( TeX => '\\par {\\bf '.maketext('Solution:').' }',
+                 Latex2HTML => '\\par {\\bf '.maketext('Solution:').' }',
+          		 HTML =>  '<B>'.maketext('Solution:').'</B> ');
 };
-sub HINT_HEADING { MODES( TeX => "\\par {\\bf Hint: }", Latex2HTML => "\\par {\\bf Hint: }", HTML => "<P><B>Hint:</B> "); };
+sub HINT_HEADING { MODES( TeX => "\\par {\\bf ".maketext('Hint:')." }", Latex2HTML => "\\par {\\bf ".maketext('Hint:')." }", HTML => "<B>".maketext('Hint:')."</B> "); };
 sub US { MODES(TeX => '\\_', Latex2HTML => '\\_', HTML => '_');};  # underscore, e.g. file${US}name
 sub SPACE { MODES(TeX => '\\ ',  Latex2HTML => '\\ ', HTML => '&nbsp;');};  # force a space in latex, doesn't force extra space in html
+sub NBSP { MODES(TeX => '~',  Latex2HTML => '~', HTML => '&nbsp;');};
+sub NDASH { MODES(TeX => '--',  Latex2HTML => '--', HTML => '&ndash;');};
+sub MDASH { MODES(TeX => '---',  Latex2HTML => '---', HTML => '&mdash;');};
 sub BBOLD { MODES(TeX => '{\\bf ',  Latex2HTML => '{\\bf ', HTML => '<B>'); };
 sub EBOLD { MODES( TeX => '}', Latex2HTML =>  '}',HTML =>  '</B>'); };
+sub BLABEL { MODES(TeX => '', Latex2HTML => '', HTML => '<LABEL>'); };
+sub ELABEL { MODES(TeX => '', Latex2HTML => '', HTML => '</LABEL>'); };
 sub BITALIC { MODES(TeX => '{\\it ',  Latex2HTML => '{\\it ', HTML => '<I>'); };
 sub EITALIC { MODES(TeX => '} ',  Latex2HTML => '} ', HTML => '</I>'); };
 sub BUL { MODES(TeX => '\\underline{',  Latex2HTML => '\\underline{', HTML => '<U>'); };
@@ -1483,7 +1632,7 @@ C<\[ tex display math mode \] >
 constructions, in that order:
 
 
-=head3 refreshEquations 
+=head3 refreshEquations
 
 	refreshEquations(1);
 
@@ -1502,7 +1651,7 @@ sub refreshEquations{
 =head3 addToTeXPreamble
 
 	addToTeXPreamble("\newcommand{\myVec}[1]{\vec{#1}} ");
-	
+
 Defines C<\myVec > for all the equations in the file. You can change the vector notation for an entire PG question
 by changing just this line.
 
@@ -1511,13 +1660,13 @@ If you place this macro in PGcourse.pl remember to use double backslashes becaus
 In .pg files use single backslashes. This is in accordance with the usual rules for backslash
 in PG.
 
-For the moment this change only works in image mode.  It does not work in 
+For the moment this change only works in image mode.  It does not work in
 jsMath or MathJax mode.  Stay tuned.
 
 Adding this command
 
 	\newcommand{\myVec}[1]{\vec{#1}}
-	
+
 to TeX(hardcopy) portion of the setHeaderCombinedFile.pg ( or to the setHeaderHardcopyFile.pg
 for each homework set will take care of the TeX hardcopy version
 
@@ -1527,29 +1676,29 @@ of \myVec for hardcopy for the entire site.
 There are ways you can use course.conf to allow course by course modification by choosing
 different TeXPreamble files for different courses
 
-=cut 
+=cut
 
 sub addToTeXPreamble {
         my $str = shift;
         if ($displayMode eq "HTML_dpng") {
                 $envir->{imagegen}->addToTeXPreamble($str."\n" )    ;
         } elsif ($displayMode eq "TeX" and $envir->{probNum}==0) {
-        	    
-                # in TeX mode we are typically creating an entire homework set 
-                # and typesetting that so w only want the TeXPreamble to 
+
+                # in TeX mode we are typically creating an entire homework set
+                # and typesetting that so w only want the TeXPreamble to
                 # appear once -- towards the beginning.
-                # This is potentially fragile -- if one starts 
+                # This is potentially fragile -- if one starts
                 # typesetting problems separately this will fail.
                 # The reason for the multicols commands is baroque
                 # If they are not there then the newcommand gets printed
                 # inside a multicols environment and its scope doesn't reach the whole file
                 # It has to do with the way the multicol single col stuff was set up
                 # when printing hardcopy.  --it's weird and there must be a better way.
-                TEXT("\\end{multicols}\n", $str, "\n","\\begin{multicols}{2}\\columnwidth=\\linewidth\n");
+                TEXT("\\ifdefined\\nocolumns\\else \\end{multicols} \\fi\n", $str, "\n","\\ifdefined\\nocolumns\\else \\begin{multicols}{2}\\columnwidth=\\linewidth \\fi\n");
         } else { # for jsMath and MathJax mode
-            my $mathstr = "\\(".$str."\\)";  #add math mode.  
-            $mathstr =~ s/\\/\\\\/g;         # protect math modes ($str has a true TeX command, 
-                                             # with single backslashes.  The backslashes have not 
+            my $mathstr = "\\(".$str."\\)";  #add math mode.
+            $mathstr =~ s/\\/\\\\/g;         # protect math modes ($str has a true TeX command,
+                                             # with single backslashes.  The backslashes have not
                                              # been protected by the .pg problem preprocessor
             TEXT(EV3($mathstr));
         }
@@ -1597,11 +1746,11 @@ or exponential notation depending on the size of the number.)
 Two additional legacy formatting constructions are also supported:
 
 C<!{$c:%0.3f} > will give a number with 3 decimal places and a negative
-sign if the number is negative, no sign if the number is positive.  Since this is 
-identical to the behavior of C<{$c:%0.3f}> the use of this syntax is depricated. 
+sign if the number is negative, no sign if the number is positive.  Since this is
+identical to the behavior of C<{$c:%0.3f}> the use of this syntax is depricated.
 
 C<?{$c:%0.3f}> determines the sign and prints it
-whether the number is positive or negative.  You can use this 
+whether the number is positive or negative.  You can use this
 to force an expression such as C<+5.456>.
 
 =head3 EV2
@@ -1724,7 +1873,7 @@ sub general_math_ev3 {
 	my $mode = shift || "inline";
 
 	$in = FEQ($in); # Format EQuations
-	$in =~ s/%/\\%/g; # avoid % becoming TeX comments
+	$in =~ s/((^|[^\\])(\\\\)*)%/$1\\%/g; # avoid % becoming TeX comments (unless already escaped)
 
 	## remove leading and trailing spaces so that HTML mode will
 	## not include unwanted spaces as per Davide Cervone.
@@ -1732,7 +1881,7 @@ sub general_math_ev3 {
 	$in =~ s/\s+$//;
 	## If it ends with a backslash, there should be another space
 	## at the end
-	if($in =~ /\\$/) { $in .= ' ';} 
+	if ($in =~ /(^|[^\\])(\\\\)*\\$/) {$in .= ' '}
 
 	# some modes want the delimiters, some don't
 	my $in_delim = $mode eq "inline"
@@ -1743,7 +1892,7 @@ sub general_math_ev3 {
 	if($displayMode eq "HTML_MathJax") {
      $out = '<span class="MathJax_Preview">[math]</span><script type="math/tex">'.$in.'</script>' if $mode eq "inline";
      $out = '<span class="MathJax_Preview">[math]</span><script type="math/tex; mode=display">'.$in.'</script>' if $mode eq "display";
-	} elsif ($displayMode eq "HTML_dpng") {
+	} elsif ($displayMode eq "HTML_dpng" ) {
 		# for jj's version of ImageGenerator
 		#$out = $envir->{'imagegen'}->add($in_delim);
 		# for my version of ImageGenerator
@@ -1760,17 +1909,20 @@ sub general_math_ev3 {
 	  $out = '<SPAN CLASS="math">'.$in.'</SPAN>' if $mode eq "inline";
 	  $out = '<DIV CLASS="math">'.$in.'</DIV>' if $mode eq "display";
 	} elsif ($displayMode eq "HTML_asciimath") {
+          $in = HTML::Entities::encode_entities($in);
 	  $out = "`$in`" if $mode eq "inline";
 	  $out = '<DIV ALIGN="CENTER">`'.$in.'`</DIV>' if $mode eq "display";
 	} elsif ($displayMode eq "HTML_LaTeXMathML") {
+          $in = HTML::Entities::encode_entities($in);
 	  $in = '{'.$in.'}';
-	  $in =~ s/</\\lt/g; $in =~ s/>/\\gt/g;
 	  $in =~ s/\{\s*(\\(display|text|script|scriptscript)style)/$1\{/g;
 	  $out = '$$'.$in.'$$' if $mode eq "inline";
 	  $out = '<DIV ALIGN="CENTER">$$\displaystyle{'.$in.'}$$</DIV>' if $mode eq "display";
+	} elsif ($displayMode eq "HTML") {
+	    $in_delim = HTML::Entities::encode_entities($in_delim);
+	    $out = "<span class='tex2jax_ignore'>$in_delim</span>";
 	} else {
-		$out = "\\($in\\)" if $mode eq "inline";
-		$out = "\\[$in\\]" if $mode eq "display";
+		$out = $in_delim;
 	}
 	return $out;
 }
@@ -1804,7 +1956,7 @@ sub EV3{
 	}
 	$string = $evaluated_string;
 	$string = ev_substring($string,"\\(","\\)",\&math_ev3);
-    $string = ev_substring($string,"\\[","\\]",\&display_math_ev3);
+	$string = ev_substring($string,"\\[","\\]",\&display_math_ev3);
 	$string;
 }
 
@@ -1886,7 +2038,7 @@ sub EV3P {
   if ($options{processVariables}) {
     my $eval_string = $string;
     $eval_string =~ s/\$(?![a-z\{])/\${DOLLAR}/gi if $options{fixDollars};
-    my ($evaluated_string,$PG_eval_errors,$PG_full_errors) = 
+    my ($evaluated_string,$PG_eval_errors,$PG_full_errors) =
       PG_restricted_eval("<<END_OF_EVALUATION_STRING\n$eval_string\nEND_OF_EVALUATION_STRING\n");
     if ($PG_eval_errors) {
       my $error = (split("\n",$PG_eval_errors))[0]; $error =~ s/at \(eval.*//gs;
@@ -1897,13 +2049,13 @@ sub EV3P {
   } else {
       $string =~ s/\\\\/\\/g;
   }
-  
+
   if ($options{processMath}) {
     $string = EV3P_parser($string) if $options{processParser};
     $string = ev_substring($string,"\\(","\\)",\&math_ev3);
     $string = ev_substring($string,"\\[","\\]",\&display_math_ev3);
   }
-  
+
 
   return $string;
 }
@@ -1957,9 +2109,9 @@ sub EV3P_parser {
 	                # as the problem file
 	knowlLink($display_text,  url => '', value = <<EOF );  # this starts a here document that ends at EOF (left justified)
 	                help text goes here .....
-	EOF  
-	                # This version of the knowl reference facilitates immediate reference to a HERE document 
-	                # The function should be called either with value specified (immediate reference) or 
+	EOF
+	                # This version of the knowl reference facilitates immediate reference to a HERE document
+	                # The function should be called either with value specified (immediate reference) or
 	                # with url specified in which case the revealed text is taken from the URL $url.
 	                # The $display_text is always visible and is clicked to see the contents of the knowl.
 	htmlLink($url, $text)
@@ -1970,15 +2122,15 @@ sub EV3P_parser {
 	iframe($url, height=>'', width=>'', id=>'', name=>'' )
 	                # insert the web page referenced by $url in a space defined by height and width
 	                # if the webpage contains a form then this must be inserted between
-	                # BEGIN_POST_HEADER_TEXT/END_POST_HEADER_TEXT  to avoid having one 
+	                # BEGIN_POST_HEADER_TEXT/END_POST_HEADER_TEXT  to avoid having one
 	                # form(from the webpage) inside another (the defining form for the problem
 A wide variety of google widgets, youtube videos, and other online resources can be imbedded using this macro. In HTML mode it creates an iframe, in TeX mode it prints the url.
 
-	appletLink( { name => "xFunctions", 
+	appletLink( { name => "xFunctions",
 	              codebase => '',    # use this to specify the complete url
 	                                 # otherwise libraries specified in global.conf are searched
 	              archive  => 'xFunctions.zip', # name the archive containing code (.jar files go here also)
-	              code     => 'xFunctionsLauncher.class',  
+	              code     => 'xFunctionsLauncher.class',
 	              width    => 100,
 	              height   => 14,
 	              params   => { param1 =>value1, param2 => value2},
@@ -1988,23 +2140,23 @@ A wide variety of google widgets, youtube videos, and other online resources can
 	               The parameter localHelpURL  must be defined in the environment
 	               and is set by default to webwork2/htdocs/helpFiles
 	               Standard helpFile types
-	                    'angle'  
-						'decimal' 
-						'equation' 
-						'exponent' 
-						'formula' 
-						'fraction' 
+	                    'angle'
+						'decimal'
+						'equation'
+						'exponent'
+						'formula'
+						'fraction'
 						'inequalit'
-						'limit'  
-						'log'  
-						'number' 
-						'point'  
-						'vector' 
-						'interval' 
+						'limit'
+						'log'
+						'number'
+						'point'
+						'vector'
+						'interval'
 						'unit'
-						'syntax' 
+						'syntax'
 
-	
+
 	########################
 	              deprecated coding method
 					appletLink	($url, $parameters)
@@ -2032,33 +2184,39 @@ sub beginproblem {
 	my $problemValue = $envir->{problemValue} || 0;
 	my $fileName     = $envir->{probFileName};
 	my $probNum      = $envir->{probNum};
-    my $TeXFileName = protect_underbar($envir->{probFileName});
     my $l2hFileName = protect_underbar($envir->{probFileName});
 	my %inlist;
-	my $points = maketext('pts');
+	my $permissionLevel = $envir->{permissionLevel};
+	my $points = maketext('points');
 
-	$points = maketext('pt') if $problemValue == 1;
+
+	$points = maketext('point') if $problemValue == 1;
 	##    Prepare header for the problem
 	grep($inlist{$_}++,@{ $envir->{'PRINT_FILE_NAMES_FOR'} });
 	my $effectivePermissionLevel = $envir->{effectivePermissionLevel}; # permission level of user assigned to question
 	my $PRINT_FILE_NAMES_PERMISSION_LEVEL = $envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'};
 	my $studentLogin = $envir->{studentLogin};
-	my $print_path_name_flag = 
+	my $print_path_name_flag =
 			(defined($effectivePermissionLevel) && defined($PRINT_FILE_NAMES_PERMISSION_LEVEL) && $effectivePermissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL)
-			 || ( defined($inlist{ $studentLogin }) and ( $inlist{ $studentLogin }>0 )  ) ;
-
+			 || ( defined($inlist{ $studentLogin }) and ( $inlist{ $studentLogin }>0 )  )?1:0 ;
+	$out .= MODES( TeX =>
+		"\n%%% BEGIN PROBLEM PREAMBLE\n",         #Marker used in MathBook XML extraction; contact alex.jordan@pcc.edu before modifying
+		HTML => '<P style="margin: 0">');
 	if ( $print_path_name_flag ) {
-		$out = &M3("{\\bf ${probNum}. {\\footnotesize ($problemValue $points) $TeXFileName}}\\newline ",
+		$out .= &M3("{\\bf ${probNum}. {\\footnotesize ($problemValue $points) \\path|$fileName|}}\\newline ",
 		" \\begin{rawhtml} ($problemValue $points) <B>$l2hFileName</B><BR>\\end{rawhtml}",
 		 "($problemValue $points) <B>$fileName</B><BR>"
-	 	   ) if ($problemValue >=0 );
+		   ) if ($problemValue >=0 and ($envir->{setNumber})=~/\S/ and ($envir->{setNumber}) ne 'Undefined_Set' and ($envir->{setNumber}) ne 'not defined');
 	} else {
-		$out = &M3("{\\bf ${probNum}.} ($problemValue $points) ",
+		$out .= &M3("{\\bf ${probNum}.} ($problemValue $points) ",
 		"($problemValue $points) ",
 		 "($problemValue $points) "
-	 	   ) if ($problemValue  >= 0);
+		   ) if ($problemValue  >= 0 and ($envir->{setNumber})=~/\S/ and ($envir->{setNumber}) ne 'Undefined_Set' and ($envir->{setNumber}) ne 'not defined');
 	}
 	$out .= MODES(%{main::PG_restricted_eval(q!$main::problemPreamble!)});
+        $out .= MODES( TeX =>
+                "\n%%% END PROBLEM PREAMBLE\n",          #Marker used in MathBook XML extraction; contact alex.jordan@pcc.edu before modifying
+                HTML => "");
 	$out;
 
 }
@@ -2153,7 +2311,7 @@ sub htmlLink {
 	my $text = shift;
 	my $options = shift;
 	$options = "" unless defined($options);
-	return "$BBOLD\[ $text  has broken link: $url \] $EBOLD" unless defined($url);
+	return "$BBOLD [ the link to '$text'  is broken ] $EBOLD" unless defined($url) and $url;
 	MODES( TeX        => "{\\bf \\underline{$text}}",
 	       HTML       => "<A HREF=\"$url\" $options>$text</A>"
 	);
@@ -2162,7 +2320,7 @@ sub htmlLink {
 # sub knowlLink {
 # #   I'd like to make text shift -- since this is always present
 # #   url might not be used with a here document which would be written as
-# #   value = "contents of here document" 
+# #   value = "contents of here document"
 # #   suggested usage   knowl(text, [url => ...,   value => ....])
 # #   used in helpLink
 # 	my $url = shift;
@@ -2180,15 +2338,15 @@ sub knowlLink { # an new syntax for knowlLink that facilitates a local HERE docu
 	my $display_text = shift;
 	my @options = @_;  # so we can check parity
 	my %options = @options;
-	WARN_MESSAGE('usage   knowlLink($display_text, [url => $url,   value => $helpMessage] );'. 
-	              qq!after  the display_text the information requires key/value pairs. 
-	              Received @options !,scalar(@options)%2) if scalar(@options)%2; 
+	WARN_MESSAGE('usage   knowlLink($display_text, [url => $url,   value => $helpMessage] );'.
+	              qq!after  the display_text the information requires key/value pairs.
+	              Received @options !,scalar(@options)%2) if scalar(@options)%2;
 	# check that options has an even number of inputs
 	my $properties = "";
 	if ($options{value} )  { #internal knowl from HERE document
-	    $options{value} =~ s/"/'/g; # escape quotes  #FIXME -- make escape more robust 
+	    $options{value} =~ s/"/'/g; # escape quotes  #FIXME -- make escape more robust
 	    my $base64 = ($options{base64})?"base64 = \"1\"" :"";
-		$properties = qq! knowl = "" class = "internal" value = "$options{value} " $base64 !;
+		$properties = qq! href="#" knowl = "" class = "internal" value = "$options{value} " $base64 !;
 	} elsif ($options{url}) {
 		$properties = qq! knowl = "$options{url}"!;
 	}
@@ -2212,7 +2370,7 @@ sub iframe {
 		TeX       => "\\framebox{".protect_underbar($url)."}\n",
 		HTML      => qq!\n <iframe src="$url" $formatted_options>
 		                      Your browser does not support iframes.</p>
-		                   </iframe>\n!,			
+		                   </iframe>\n!,
 	);
 }
 
@@ -2256,7 +2414,7 @@ sub helpLink {
             $infoRef = 'Entering-Logarithms10.html' if($refhold eq 'log');
             $infoRef = 'Entering-Formulas10.html' if($refhold eq 'formula');
         }
-         
+
         # If infoRef is still '', we give up and just print plain text
         return $display_text unless ($infoRef);
 	return knowlLink($display_text, url=>$envir{'localHelpURL'}.$infoRef);
@@ -2287,7 +2445,7 @@ sub appletLink {
     	warn "Must define the achive (.jar file) or code (.class file) where the applet code is to be found";
     	return;
     }
-    	
+
  	if ( $codebase =~/^Error/) {
  		warn $codebase;
  		return;
@@ -2309,8 +2467,8 @@ sub appletLink {
  			my $value = $applet->{params}->{$key};
  			$options .=  qq{<PARAM NAME = "$key" VALUE = "$value" >\n};
  		}
- 	
- 	
+
+
  	}
  	MODES( TeX        => "{\\bf \\underline{APPLET}  }".$applet->{name},
  	       Latex2HTML => "\\begin{rawhtml} <APPLET $appletHeader> $options </APPLET>\\end{rawhtml}",
@@ -2416,10 +2574,10 @@ sub begintable {
 	 || $displayMode eq 'HTML'
 	 || $displayMode eq 'HTML_tth'
 	 || $displayMode eq 'HTML_jsMath'
-	 || $displayMode eq 'HTML_asciimath' 
+	 || $displayMode eq 'HTML_asciimath'
 	 || $displayMode eq 'HTML_LaTeXMathML'
 	 || $displayMode eq 'HTML_img') {
-		$out .= "<TABLE BORDER=1>\n"
+		$out .= "<TABLE BORDER='1' STYLE='text-align:center;'>\n"
 	}
 	else {
 		$out = "Error: PGbasicmacros: begintable: Unknown displayMode: $displayMode.\n";
@@ -2440,7 +2598,7 @@ sub endtable {
 	 || $displayMode eq 'HTML'
 	 || $displayMode eq 'HTML_tth'
 	 || $displayMode eq 'HTML_jsMath'
-	 || $displayMode eq 'HTML_asciimath' 
+	 || $displayMode eq 'HTML_asciimath'
 	 || $displayMode eq 'HTML_LaTeXMathML'
 	 || $displayMode eq 'HTML_img') {
 		$out .= "</TABLE>\n";
@@ -2475,7 +2633,7 @@ sub row {
 	 || $displayMode eq 'HTML'
 	 || $displayMode eq 'HTML_tth'
 	 || $displayMode eq 'HTML_jsMath'
-	 || $displayMode eq 'HTML_asciimath' 
+	 || $displayMode eq 'HTML_asciimath'
 	 || $displayMode eq 'HTML_LaTeXMathML'
 	 || $displayMode eq 'HTML_img') {
 		$out .= "<TR>\n";
@@ -2541,7 +2699,8 @@ sub image {
 
  	my @output_list = ();
   	while(@image_list) {
- 		my $imageURL = alias(shift @image_list);
+ 		my $imageURL = alias(shift @image_list)//'';
+ 		$imageURL = ($envir{use_site_prefix})? $envir{use_site_prefix}.$imageURL : $imageURL;
  		my $out="";
 
 		if ($displayMode eq 'TeX') {
@@ -2571,14 +2730,119 @@ sub image {
 	 || $displayMode eq 'HTML'
 	 || $displayMode eq 'HTML_tth'
 	 || $displayMode eq 'HTML_jsMath'
-	 || $displayMode eq 'HTML_asciimath' 
+	 || $displayMode eq 'HTML_asciimath'
 	 || $displayMode eq 'HTML_LaTeXMathML'
 	 || $displayMode eq 'HTML_img') {
 			my $wid = ($envir->{onTheFlyImageSize} || 0) +30;
- 			$out = qq!<A HREF= "$imageURL" TARGET="_blank" onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;"><IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height" $out_options{extra_html_tags} ></A>
+ 			$out = qq!<A HREF= "$imageURL" TARGET="_blank"
+ 			         onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;">
+ 			         <IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height" $out_options{extra_html_tags} >
+ 			         </A>
  			!
  		} else {
  			$out = "Error: PGbasicmacros: image: Unknown displayMode: $displayMode.\n";
+ 		}
+ 		push(@output_list, $out);
+ 	}
+	return wantarray ? @output_list : $output_list[0];
+}
+
+#This is bare bones code for embedding svg
+sub embedSVG {
+	my $file_name = shift;   # just input the file name of the svg image
+	my $backup_file_name = shift//'';  # a png version
+	my $str='';
+	if ($backup_file_name) {
+		$str = q!" oneerror="this.src='! . alias($backup_file_name). q!'!;
+	}
+	return MODES( HTML => q!
+   			<img src="! . alias($file_name).$str.q!">!,
+   			TeX => "Can't process svg in tex mode yet \\includegraphics[width=6in]{" . alias( $file_name ) . "}"
+	);
+}
+
+# This is bare bones code for embedding png files -- what else should be added? (there are .js scripts for example)
+sub embedPDF {
+	my $file_name = shift;   # just input the file name of the svg image
+	#my $backup_file_name = shift//'';  # a png version
+	return MODES( HTML => q!
+		   <object data=! . alias($file_name) .
+		   q!  type="application/pdf"
+		   width="100%"
+		   height="100%"></object>!,
+		   TeX => "\\includegraphics[width=6in]{" . alias( $file_name ) . "}"
+		   ) ;
+}
+
+sub video {
+	my $video_ref  = shift;
+	my @opt = @_;
+	unless (scalar(@opt) % 2 == 0 ) {
+		warn "ERROR in video macro.  A list of macros must be inclosed in square brackets.";
+	}
+	my %in_options = @opt;
+	my %known_options = (
+		width    => 400,
+		height   => 400,
+		extra_html_tags => '',
+	);
+	# handle options
+	my %out_options = %known_options;
+	foreach my $opt_name (keys %in_options) {
+		if ( exists( $known_options{$opt_name} ) ) {
+			$out_options{$opt_name} = $in_options{$opt_name} if exists( $in_options{$opt_name} ) ;
+		} else {
+			die "Option $opt_name not defined for video. " .
+			    "Default options are:<BR> ", display_options2(%known_options);
+		}
+	}
+	my $width       = $out_options{width};
+	my $height      = $out_options{height};
+
+	my @video_list  = ();
+
+ 	if (ref($video_ref) =~ /ARRAY/ ) {
+		@video_list = @{$video_ref};
+ 	} else {
+		push(@video_list,$video_ref);
+ 	}
+
+ 	my @output_list = ();
+  	while(@video_list) {
+
+	  my $video = shift @video_list //'';
+ 		my $videoURL = alias($video)//'';
+	        $video =~ /.*\.(\w*)/;
+	        my $type = $1;
+		my $out;
+	        my $htmlmessage = maketext("Your browser does not support the video tag.");
+
+		if ($displayMode eq 'TeX') {
+
+		  $videoURL = ($envir{use_site_prefix})? $envir{use_site_prefix}.$videoURL : $videoURL;
+		  $out="\\begin{center} {\\bf ".maketext("This problem contains a video which must be viewed online.")."} \\end{center}";
+
+		} elsif ($displayMode eq 'Latex2HTML') {
+		        $out = qq!\\begin{rawhtml}<VIDEO WIDTH="$width" HEIGHT="$height" CONTROLS>\n
+                        <SOURCE SRC="$videoURL" TYPE="video/$type">\n
+                        ${htmlmessage}\n
+                        </VIDEO>\n
+			\\end{rawhtml}\n !
+ 		} elsif ($displayMode eq 'HTML_MathJax'
+	 || $displayMode eq 'HTML_dpng'
+	 || $displayMode eq 'HTML'
+	 || $displayMode eq 'HTML_tth'
+	 || $displayMode eq 'HTML_jsMath'
+	 || $displayMode eq 'HTML_asciimath'
+	 || $displayMode eq 'HTML_LaTeXMathML'
+	 || $displayMode eq 'HTML_img') {
+		        $out = qq!<VIDEO WIDTH="$width" HEIGHT="$height" CONTROLS>\n
+                        <SOURCE SRC="$videoURL" TYPE="video/$type">\n
+                        ${htmlmessage}\n
+                        </VIDEO>\n
+ 			!
+ 		} else {
+ 			$out = "Error: PGbasicmacros: video: Unknown displayMode: $displayMode.\n";
  		}
  		push(@output_list, $out);
  	}
@@ -2666,7 +2930,7 @@ sub imageRow {
 	 || $displayMode eq 'HTML'
 	 || $displayMode eq 'HTML_tth'
 	 || $displayMode eq 'HTML_jsMath'
-	 || $displayMode eq 'HTML_asciimath' 
+	 || $displayMode eq 'HTML_asciimath'
 	 || $displayMode eq 'HTML_LaTeXMathML'
 	 || $displayMode eq 'HTML_img') {
 		$out .= "<P>\n <TABLE BORDER=2 CELLPADDING=3 CELLSPACING=2 ><TR ALIGN=CENTER		VALIGN=MIDDLE>\n";
@@ -2680,7 +2944,7 @@ sub imageRow {
 		$out .= "\n</TR></TABLE></P>\n"
 	}
 	else {
-		$out = "Error: PGbasicmacros: imageRow: Unknown languageMode: $displayMode.\n";
+		$out = "Error: PGbasicmacros: imageRow: Unknown displayMode: $displayMode.\n";
 		warn $out;
 	}
 	$out;

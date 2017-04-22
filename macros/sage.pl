@@ -18,11 +18,12 @@ sub new {
    my %options = ( 
       SageCode => 'print 1+2',
       ButtonText => 'Start/Restart the Interactive Cell',
-      CellServer => 'http://sagecell.sagemath.org',
+      CellServer => 'https://sagecell.sagemath.org',
       SageAnswerName => 'sageAnswer',   #  not used yet
       SageAnswerValue => 'ansList',             #  not used yet
       AutoEvaluateCell => 'true',
       ShowAnswerBlank => 'hidden',
+      accepted_tos =>'false',  # force author to accept terms of service explicitly
      @_
    );
 
@@ -76,4 +77,48 @@ SAGE_PRINT
 }
 
 
+#### Experimental stuff.
+
+package main;
+sub sageCalculatorHeader {
+$CellServer = 'https://sagecell.sagemath.org';
+main::HEADER_TEXT(main::MODES(TeX=>"", HTML=><<"END_OF_FILE"));
+<script src="$CellServer}/static/jquery.min.js"></script>
+    <script src="$CellServer/static/embedded_sagecell.js"></script>
+    <script>\$(function () {
+    // Make the div with id 'mycell' a Sage cell
+    sagecell.makeSagecell({inputLocation:  '#mycell',
+                           template:       sagecell.templates.minimal,
+                           evalButtonText: 'Activate'});
+    // Make *any* div with class 'compute' a Sage cell
+    sagecell.makeSagecell({inputLocation: 'div.compute',
+                           autoeval: 1,
+                           evalButtonText: 'Evaluate'});
+    });
+    </script>
+END_OF_FILE
+
+}
+
+sub sageCalculatorPad {
+	my $top_test = shift;
+	my $initial_contents = shift;
+main::TEXT(main::MODES(TeX=>"", HTML=><<"EOF"));
+
+<p>
+$top_text
+<p>
+<div class="compute">
+<script type="text/x-sage">
+
+$initial_contents
+
+</script></div>
+
+EOF
+	
+return $out;	
+	
+	
+}
 1;    #required at end of file - a perl thing

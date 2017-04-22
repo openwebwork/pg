@@ -4,6 +4,7 @@
 
 #use Test::More tests => 5;
 use Test::More qw( no_plan );
+use lib "../lib";   # location of Units.pm module
 
 BEGIN { 
 	use_ok('Units'); 
