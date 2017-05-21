@@ -450,9 +450,16 @@ sub ans_rule {
       my $label = main::generate_aria_label($answerPrefix.$name."_0");
       return $data->named_ans_rule($name,$size,@_,aria_label=>$label);
   }
-  return $data->named_ans_rule_extension($self->NEW_NAME($name),$size,@_)
-    if ($self->{singleResult} && $self->{part} > 1);
-  return $data->named_ans_rule($name,$size,@_);
+  if ($self->{singleResult} && $self->{part} > 1) {
+  	 my $extension_ans_rule = 
+  	 	$data->named_ans_rule_extension(
+  	 	$name,$size, answer_group_name => $self->{answerName}, 
+  	 	@_);
+  	 # warn "extension rule created: $extension_ans_rule";
+  	 return $extension_ans_rule; 
+  } else {
+  	 return $data->named_ans_rule($name,$size,@_);
+  }
 }
 
 #

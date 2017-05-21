@@ -447,7 +447,7 @@ sub NAMED_ANS_RULE_OPTION {   # deprecated
 }
 
 sub NAMED_ANS_RULE_EXTENSION {
-	my $name = shift;
+	my $name = shift;   # this is the name of the response item
 	my $col = shift;
 	my %options = @_;
 
@@ -457,7 +457,9 @@ sub NAMED_ANS_RULE_EXTENSION {
 	} else {
 	    $label = generate_aria_label($name);
 	}
-
+	# this is the name of the parent answer group
+	my $answer_group_name = $options{answer_group_name}//''; 
+    # warn "from named answer rule extension in PGbasic answer_group_name: |$answer_group_name|";
 	my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
 	if ( defined( $rh_sticky_answers->{$name} ) ) {
@@ -466,7 +468,8 @@ sub NAMED_ANS_RULE_EXTENSION {
 	}
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
-	INSERT_RESPONSE($name,$name,$answer_value);  #FIXME hack -- this needs more work to decide how to make it work
+	# warn "from named answer rule extension in PGbasic: name: |$name| answer value: |$answer_value|";
+	INSERT_RESPONSE($answer_group_name,$name,$answer_value);  #FIXME hack -- this needs more work to decide how to make it work
 	$answer_value = encode_pg_and_html($answer_value);
 
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
