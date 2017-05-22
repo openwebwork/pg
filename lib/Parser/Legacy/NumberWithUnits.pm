@@ -7,6 +7,12 @@
 
 package Parser::Legacy::ObjectWithUnits;
 
+# Refrences to problem specific copies of %Units::fundamental_units
+# and %Units::known_units.  These should be passed to any Units function call.
+# They are set by the initializeUnits sub
+my $fundamental_units = '';
+my $known_units = '';
+
 sub name {'object'};
 sub cmp_class {'an Object with Units'};
 sub makeValue {
@@ -15,10 +21,46 @@ sub makeValue {
   Value::makeValue($value,%options);
 }
 
+sub initializeUnits {
+  $fundamental_units = shift;
+  $known_units = shift;
+}
+
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  my $num = shift; my $units = shift;
+  my $num = shift;
+  # we need to check if units is the options hash
+  my $units = shift;
+  my $options;
+
+  if (ref($units) eq 'HASH') {
+    $options = $units;
+    $units = '';
+  } else {
+    $options = shift;
+  }
+
+  # register a new unit/s if needed
+  if (defined($options->{newUnit})) {
+    my @newUnits;
+    if (ref($options->{newUnit}) eq 'ARRAY') {
+      @newUnits = @{$options->{newUnit}};
+    } else {
+      @newUnits = ($options->{newUnit});
+    }
+
+    foreach my $newUnit (@newUnits) {
+      if (ref($newUnit) eq 'HASH') {
+	add_unit($newUnit->{name}, $newUnit->{conversion});
+      } else {
+	add_unit($newUnit);
+      }
+    }
+  }
+
+  
+  
   Value::Error("You must provide a ".$self->name) unless defined($num);
   ($num,$units) = splitUnits($num) unless $units;
   Value::Error("You must provide units for your ".$self->name) unless $units;
@@ -37,17 +79,18 @@ sub new {
 #
 #  Find the units for the formula and split that off
 #
-my $aUnit = '(?:'.getUnitNames().')(?:\s*(?:\^|\*\*)\s*[-+]?\d+)?';
-my $unitPattern = $aUnit.'(?:\s*[/* ]\s*'.$aUnit.')*';
-my $unitSpace = "($aUnit) +($aUnit)";
 sub splitUnits {
+  my $aUnit = '(?:'.getUnitNames().')(?:\s*(?:\^|\*\*)\s*[-+]?\d+)?';
+  my $unitPattern = $aUnit.'(?:\s*[/* ]\s*'.$aUnit.')*';
+  my $unitSpace = "($aUnit) +($aUnit)";
   my $string = shift;
-  my ($num,$units) = $string =~ m!^(.*?(?:[)}\]0-9a-z]|\d\.))\s*($unitPattern)\s*$!o;
+  my ($num,$units) = $string =~ m!^(.*?(?:[)}\]0-9a-z]|\d\.))\s*($unitPattern)\s*$!;
   if ($units) {
     while ($units =~ s/$unitSpace/$1*$2/) {};
     $units =~ s/ //g;
     $units =~ s/\*\*/^/g;
   }
+
   return ($num,$units);
 }
 
@@ -57,10 +100,14 @@ sub splitUnits {
 #
 sub getUnitNames {
   local ($a,$b);
+  my $units = \%Units::known_units;
+  if ($known_units) {
+    $units = $known_units;
+  }
   join('|',sort {
     return length($b) <=> length($a) if length($a) != length($b);
     return $a cmp $b;
-  } keys(%Units::known_units));
+  } keys(%$units));
 }
 
 #
@@ -68,7 +115,14 @@ sub getUnitNames {
 #
 sub getUnits {
   my $units = shift;
-  my %Units = Units::evaluate_units($units);
+  my $options = {};
+  if ($fundamental_units) {
+    $options->{fundamental_units} = $fundamental_units;
+  }
+  if ($known_units) {
+    $options->{known_units} = $known_units;
+  }
+  my %Units = Units::evaluate_units($units,$options);
   if ($Units{ERROR}) {
     $Units{ERROR} =~ s/ at ([^ ]+) line \d+(\n|.)*//;
     $Units{ERROR} =~ s/^UNIT ERROR:? *//;
@@ -104,6 +158,7 @@ sub cmp_parse {
   #
   #  Check that the units are defined and legal
   #
+
   my ($num,$units) = splitUnits($ans->{student_ans});
   unless (defined($num) && defined($units) && $units ne '') {
     $self->cmp_Error($ans,"Your answer doesn't look like ".lc($self->cmp_class));
@@ -156,6 +211,31 @@ sub adjustCorrectValue {
 }
 
 sub cmp_reparse {Value::cmp_parse(@_)}
+
+sub add_fundamental_unit {
+  my $unit = shift;
+  $fundamental_units->{$unit} = 0;
+}
+
+sub add_unit {
+  my $unit = shift;
+  my $hash = shift;
+  
+  unless (ref($hash) eq 'HASH') {
+    $hash = {'factor'    => 1,
+	     "$unit"     => 1 };
+  }
+
+  # make sure that if this unit is defined in terms of any other units
+  # then those units are fundamental units.  
+  foreach my $subUnit (keys %$hash) {
+    if (!defined($fundamental_units->{$subUnit})) {
+      add_fundamental_unit($subUnit);
+    }
+  }
+
+  $known_units->{$unit} = $hash;
+}
 
 ######################################################################
 

@@ -787,19 +787,34 @@ our %known_units = ('m'  => {
 
 sub process_unit {
 
-	my $string = shift;
+    my $string = shift;
+
+    my $options = shift;
+
+    my $fundamental_units = \%fundamental_units;
+    my $known_units = \%known_units;
+	
+    if (defined($options->{fundamental_units})) {
+      $fundamental_units = $options->{fundamental_units};
+    }
+
+    if (defined($options->{known_units})) {
+      $known_units = $options->{known_units};
+    }
+
+    
     die ("UNIT ERROR: No units were defined.") unless defined($string);  #
 	#split the string into numerator and denominator --- the separator is /
     my ($numerator,$denominator) = split( m{/}, $string );
 
 
 
-	$denominator = "" unless defined($denominator);
-	my %numerator_hash = process_term($numerator);
-	my %denominator_hash =  process_term($denominator);
+    $denominator = "" unless defined($denominator);
+    my %numerator_hash = process_term($numerator,{fundamental_units => $fundamental_units, known_units => $known_units});
+    my %denominator_hash =  process_term($denominator,{fundamental_units => $fundamental_units, known_units => $known_units});
 
 
-    my %unit_hash = %fundamental_units;
+    my %unit_hash = %$fundamental_units;
 	my $u;
 	foreach $u (keys %unit_hash) {
 		if ( $u eq 'factor' ) {
@@ -815,7 +830,20 @@ sub process_unit {
 
 sub process_term {
 	my $string = shift;
-	my %unit_hash = %fundamental_units;
+	my $options = shift;
+
+	my $fundamental_units = \%fundamental_units;
+	my $known_units = \%known_units;
+	
+	if (defined($options->{fundamental_units})) {
+	  $fundamental_units = $options->{fundamental_units};
+	}
+
+	if (defined($options->{known_units})) {
+	  $known_units = $options->{known_units};
+	}
+	
+	my %unit_hash = %$fundamental_units;
 	if ($string) {
 
 		#split the numerator or denominator into factors -- the separators are *
@@ -824,7 +852,7 @@ sub process_term {
 
 		my $f;
 		foreach $f (@factors) {
-			my %factor_hash = process_factor($f);
+			my %factor_hash = process_factor($f,{fundamental_units => $fundamental_units, known_units => $known_units});
 
 			my $u;
 			foreach $u (keys %unit_hash) {
@@ -847,12 +875,24 @@ sub process_factor {
 	my $string = shift;
 	#split the factor into unit and powers
 
-    my ($unit_name,$power) = split(/\^/, $string);
-	$power = 1 unless defined($power);
-	my %unit_hash = %fundamental_units;
+	my $options = shift;
 
-	if ( defined( $known_units{$unit_name} )  ) {
-		my %unit_name_hash = %{$known_units{$unit_name}};   # $reference_units contains all of the known units.
+	my $fundamental_units = \%fundamental_units;
+	my $known_units = \%known_units;
+	
+	if (defined($options->{fundamental_units})) {
+	  $fundamental_units = $options->{fundamental_units};
+	}
+
+	if (defined($options->{known_units})) {
+	  $known_units = $options->{known_units};
+	}
+
+	my ($unit_name,$power) = split(/\^/, $string);
+	$power = 1 unless defined($power);
+	my %unit_hash = %$fundamental_units;
+	if ( defined( $known_units->{$unit_name} )  ) {
+		my %unit_name_hash = %{$known_units->{$unit_name}};   # $reference_units contains all of the known units.
 		my $u;
 		foreach $u (keys %unit_hash) {
 			if ( $u eq 'factor' ) {
@@ -871,9 +911,22 @@ sub process_factor {
 
 # This is the "exported" subroutine.  Use this to evaluate the units given in an answer.
 sub evaluate_units {
-	my $unit = shift;
-	my %output =  eval(q{process_unit( $unit)});
-	%output = %fundamental_units if $@;  # this is what you get if there is an error.
+        my $unit = shift;
+	my $options = shift;
+
+	my $fundamental_units = \%fundamental_units;
+	my $known_units = \%known_units;
+	
+	if (defined($options->{fundamental_units}) && $options->{fundamental_units}) {
+	  $fundamental_units = $options->{fundamental_units};
+	}
+
+	if (defined($options->{known_units}) && $options->{fundamental_units}) {
+	  $known_units = $options->{known_units};
+	}
+	
+	my %output =  eval(q{process_unit( $unit, {fundamental_units => $fundamental_units, known_units => $known_units})});
+	%output = %$fundamental_units if $@;  # this is what you get if there is an error.
 	$output{'ERROR'}=$@ if $@;
 	%output;
 }

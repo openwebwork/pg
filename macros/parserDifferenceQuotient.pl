@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright Â© 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader$
 # 
 # This program is free software; you can redistribute it and/or modify it under
@@ -33,18 +33,33 @@ object.  If the context has more than one variable, the last one
 alphabetically is used to form the dx.  Otherwise, you can specify
 the variable used for dx as the second argument to
 DifferenceQuotient().  You could use a variable like h instead of
-dx if you prefer.
+dx if you prefer.  This is specified in the second argument.
+If you want to identify division by zero when a value other than
+zero is substituted in for dx (or h), then the third argument is a 
+number to be substituted into the variable named in the second 
+argument.  The third argument is optional and the default value
+0 is used when the third argument is omitted.
 
 =head1 USAGE
 
+        # simplify (f(x+dx)-f(x)) / dx for f(x)=x^2
 	$df = DifferenceQuotient("2x+dx");
 	ANS($df->cmp);
 
+        # simplify (f(x+h)-f(x)) / h for f(x) = x^2
 	$df = DifferenceQuotient("2x+h","h");
 	ANS($df->cmp);
-
+	
+        # simplify (f(t+dt)-f(t)) / dt for f(t)=a/t
 	Context()->variables->are(t=>'Real',a=>'Real');
 	ANS(DifferenceQuotient("-a/[t(t+dt)]","dt")->cmp);
+
+        # simplify (f(x)-f(c)) / (x-c) for f(x)=x^2 at c=3
+	$df = DifferenceQuotient("x+3","x",3);
+
+        # simplify (x^2 - 4) / (x-2)
+        $df = DifferenceQuotient("x+2","x",2);
+	ANS($df->cmp);
 
 =cut
 
@@ -65,6 +80,7 @@ sub new {
   my $current = (Value::isContext($_[0]) ? shift : $self->context);
   my $formula = shift;
   my $dx = shift || $current->flag('diffQuotientVar') || 'd'.($current->variables->names)[-1];
+  my $zp = shift || 0; # division by zero point
   #
   #  Make a copy of the context to which we add a variable for 'dx'
   #
@@ -72,6 +88,7 @@ sub new {
   $context->variables->add($dx=>'Real') unless ($context->variables->get($dx));
   $q = bless $context->Package("Formula")->new($context,$formula), $class;
   $q->{'dx'} = $dx;
+  $q->{'zp'} = $zp; # the division by zero point
   return $q;
 }
 
@@ -83,10 +100,10 @@ sub cmp_defaults{(
 )}
 
 sub cmp_postprocess {
-  my $self = shift; my $ans = shift; my $dx = $self->{'dx'};
+  my $self = shift; my $ans = shift; my $dx = $self->{'dx'}; my $zp = $self->{'zp'};
   return if $ans->{score} == 0 || $ans->{isPreview};
   $main::__student_value__ = $ans->{student_value};
-  my ($value,$err) = main::PG_restricted_eval('$__student_value__->substitute(\''.$dx.'\'=>0)->reduce');
+  my ($value,$err) = main::PG_restricted_eval('$__student_value__->substitute(\''.$dx.'\'=>\''.$zp.'\')->reduce');
   $self->cmp_Error($ans,"It looks like you didn't finish simplifying your answer")
     if $err && $err =~ m/division by zero/i;
 }
