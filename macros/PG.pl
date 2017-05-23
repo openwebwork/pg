@@ -301,7 +301,7 @@ sub CLEAR_RESPONSES {
 	'';
 }
 
-#FIXME -- explain the difference between insert_response and extend_response
+#FIXME -- examine the difference between insert_response and extend_response
 sub INSERT_RESPONSE { 
 	my $ans_label  = shift;
 	my $response_label = shift;
