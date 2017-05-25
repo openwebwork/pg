@@ -20,13 +20,13 @@ sub new {
     my $x = Value::makeValue($_[0],context=>$context);
     if (Value::isFormula($x)) {
       return $x if $x->type eq 'Interval';
-      Value::Error(Value::maketext("Formula does not return an Interval"));
+      Value::Error("Formula does not return an Interval");
     }
     return $self->promote($context,$x);
   }
   my @params = @_;
-  Value::Error(Value::maketext("Interval can't be empty")) unless scalar(@params) > 0;
-  Value::Error(Value::maketext("Too many arguments for Interval")) if scalar(@params) > 4;
+  Value::Error("Interval can't be empty") unless scalar(@params) > 0;
+  Value::Error("Too many arguments for Interval") if scalar(@params) > 4;
   return $context->Package("Set")->new($context,@params) if scalar(@params) == 1;
   @params = ('(',@params,')') if (scalar(@params) == 2);
   my ($open,$a,$b,$close) = @params;
@@ -34,22 +34,22 @@ sub new {
   ($a,$b,$open) = ($open,$a,$b) if !ref($b) && ($b eq '(' || $b eq '[');
   $a = Value::makeValue($a,context=>$context); $b = Value::makeValue($b,context=>$context);
   return $self->formula($open,$a,$b,$close) if Value::isFormula($a) || Value::isFormula($b);
-  Value::Error(Value::maketext("Endpoints of intervals must be numbers or infinities")) unless
+  Value::Error("Endpoints of intervals must be numbers or infinities") unless
     isNumOrInfinity($a) && isNumOrInfinity($b);
   my ($ia,$ib) = (isInfinity($a),isInfinity($b));
   my ($nia,$nib) = (isNegativeInfinity($a),isNegativeInfinity($b));
-  Value::Error(Value::maketext("Can't make an interval only out of Infinity")) if ($ia && $ib) || ($nia && $nib);
-  Value::Error(Value::maketext("Left endpoint must be less than right endpoint"))
+  Value::Error("Can't make an interval only out of Infinity") if ($ia && $ib) || ($nia && $nib);
+  Value::Error("Left endpoint must be less than right endpoint")
     unless $nia || $ib || ($a <= $b && !$ia && !$nib);
   $open  = '(' if $open  eq '[' && $nia; # should be error ?
   $close = ')' if $close eq ']' && $ib;  # ditto?
-  Value::Error(Value::maketext("Open parenthesis of interval must be '(' or '~['"))
+  Value::Error("Open parenthesis of interval must be '(' or '['")
     unless $open eq '(' || $open eq '[';
-  Value::Error(Value::maketext("Close parenthesis of interval must be ')' or '~]'"))
+  Value::Error("Close parenthesis of interval must be ')' or ']'")
     unless $close eq ')' || $close eq ']';
   return $self->formula($open,$a,$b,$close)
     if Value::isFormula($a) || Value::isFormula($b);
-  Value::Error(Value::maketext("Single point intervals must use '~[' and '~]'"))
+  Value::Error("Single point intervals must use '[' and ']'")
     if $a == $b && ($open ne '[' || $close ne ']');
   return $context->Package("Set")->new($context,$a) if $a == $b;
   bless {
