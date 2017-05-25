@@ -73,6 +73,11 @@ sub Value::Formula::PGseedRandom {
 }
 sub Value::Formula::PGgetRandom {shift->{PGrandom}->random(@_)}
 
+sub Value::maketext {
+	my $envir =eval('$main::rh_envir');
+	my $loc = $envir->{language_subroutine};
+	&{$loc}(@_);
+}
 #####################################################
 #
 #  Initialize contexts with WW default data
