@@ -459,6 +459,10 @@ sub NAMED_ANS_RULE_EXTENSION {
 	}
 	# this is the name of the parent answer group
 	my $answer_group_name = $options{answer_group_name}//''; 
+	unless ($answer_group_name) {
+		WARN_MESSAGE("Error in NAMED_ANSWER_RULE_EXTENSION: every call to this subroutine needs
+		to have \$options{answer_group_name} defined. Answer blank name: $name");
+	}
     # warn "from named answer rule extension in PGbasic answer_group_name: |$answer_group_name|";
 	my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
@@ -468,7 +472,8 @@ sub NAMED_ANS_RULE_EXTENSION {
 	}
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
-	# warn "from named answer rule extension in PGbasic: name: |$name| answer value: |$answer_value|";
+	# warn "from NAMED_ANSWER_RULE_EXTENSION in PGbasic: 
+	# 	answer_group_name: |$answer_group_name| name: |$name| answer value: |$answer_value|";
 	INSERT_RESPONSE($answer_group_name,$name,$answer_value);  #FIXME hack -- this needs more work to decide how to make it work
 	$answer_value = encode_pg_and_html($answer_value);
 
@@ -1095,8 +1100,23 @@ sub NAMED_ANS_ARRAY_EXTENSION{
 
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 #	warn "ans_label $options{ans_label} $name $answer_value";
-	if (defined($options{ans_label}) ) {
-		INSERT_RESPONSE($options{ans_label}, $name, $answer_value);
+    my $answer_group_name; # the name of the answer evaluator controlling this collection of responses.
+    # catch deprecated use of ans_label to pass answer_group_name
+    if (defined($options{ans_label})) {
+    	WARN_MESSAGE("Error in NAMED_ANS_ARRAY_EXTENSION: the answer group name should be passed in ",
+    		"\%options using answer_group_name=>\$answer_group_name",
+    		"The use of ans_label=>\$answer_group_name is deprecated.",
+    		"Answer blank name: $name"
+    		);
+    	$answer_group_name = $options{ans_label};
+    }
+	if (defined($options{answer_group_name}) ) {
+		$answer_group_name = $options{answer_group_name};
+	}
+	if ($answer_group_name) {
+		INSERT_RESPONSE($options{answer_group_name}, $name, $answer_value);
+	} else {
+		WARN_MESSAGE("Error: answer_group_name must be defined for $name");
 	}
 	$answer_value = encode_pg_and_html($answer_value);
 
