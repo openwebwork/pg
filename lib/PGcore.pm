@@ -491,6 +491,8 @@ sub record_array_name {  # currently the same as record ans name
 	$label;
 
 }
+
+
 sub extend_ans_group {         # modifies the group type
 	my $self = shift;
 	my $label = shift;
@@ -507,6 +509,7 @@ sub extend_ans_group {         # modifies the group type
     }
     $label;
 }
+
 sub record_unlabeled_ans_name {
 	my $self = shift;
     $self->{unlabeled_answer_blank_count}++;
