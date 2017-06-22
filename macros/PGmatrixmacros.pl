@@ -481,13 +481,13 @@ sub dm_tth_delimeter {
         my ($top, $mid, $bot, $extra);
         my ($j, $out);
 
-        if($char eq "(") { ($top, $mid, $bot, $extra) = ('�','�','�','�');}
-        elsif($char eq ")") { ($top, $mid, $bot, $extra) = ('�','�','�','�');}
-        elsif($char eq "|") { ($top, $mid, $bot, $extra) = ('�','�','�','�');}
-        elsif($char eq "[") { ($top, $mid, $bot, $extra) = ('�','�','�','�');}
-        elsif($char eq "]") { ($top, $mid, $bot, $extra) = ('�','�','�','�');}
-        elsif($char eq "{") { ($top, $mid, $bot, $extra) = ('�','�','�','�');}
-        elsif($char eq "}") { ($top, $mid, $bot, $extra) = ('�','�','�','�');}
+        if($char eq "(") { ($top, $mid, $bot, $extra) = ('æ','ç','è','ç');}
+        elsif($char eq ")") { ($top, $mid, $bot, $extra) = ('ö','÷','ø','÷');}
+        elsif($char eq "|") { ($top, $mid, $bot, $extra) = ('ê','ê','ê','ê');}
+        elsif($char eq "[") { ($top, $mid, $bot, $extra) = ('é','ê','ë','ê');}
+        elsif($char eq "]") { ($top, $mid, $bot, $extra) = ('ù','ú','û','ú');}
+        elsif($char eq "{") { ($top, $mid, $bot, $extra) = ('ì','ï','î','í');}
+        elsif($char eq "}") { ($top, $mid, $bot, $extra) = ('ü','ï','þ','ý');}
         else { warn "Unknown delimiter in dm_tth_delimeter";}
 
         # old version
