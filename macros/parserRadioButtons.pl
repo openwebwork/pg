@@ -253,8 +253,8 @@ sub new {
     unless ref($choices) eq 'ARRAY';
   Value::Error("A RadioButton's second argument should be the correct button choice")
     unless defined($value) && $value ne "";
-  my $context = Parser::Context->getCopy("Numeric");
-  my $self = bless {%options, choices => $choices, context => $context}, $class;
+  $context = Parser::Context->getCopy("Numeric");
+  $self = bless {%options, choices => $choices, context => $context}, $class;
   $self->compatibility if $self->{order} || $self->{last} || $self->{first} || $self->{randomize};
   $self->getChoiceOrder;
   $self->addLabels;
@@ -544,7 +544,7 @@ sub BUTTONS {
 	   aria_label=>$label."option $i "));
     } else {
       push(@radio,main::NAMED_ANS_RADIO($name,$value,$tag));
-      $extend = true;
+      $extend = 1;
     }
   }
   #
