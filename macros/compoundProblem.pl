@@ -580,7 +580,7 @@ sub grader {
   $status->{raw}   = $result->{score};
   $status->{score} = $result->{score}*$weight;
   $status->{new_ans_rule_count} = $main::ans_rule_count;
-  if (defined(%main::images_created)) {
+  if (%main::images_created) {
     $status->{imageName} = (keys %main::images_created)[0];
     $status->{new_images_created} = $main::images_created{$status->{imageName}};
   }
@@ -599,9 +599,9 @@ sub grader {
   #
   $result->{type} = "compoundProblem ($result->{type})";
   $result->{msg} .= '</i><p><b>Note:</b> <i>' if $result->{msg};
-  $result->{msg} .= 'This problem has more than one part.'
-                 .  '<br/>'.$space.'<small>Your score for this attempt is for this part only;</small>'
-		 .  '<br/>'.$space.'<small>your overall score is for all the parts combined.</small>'
+  $result->{msg} .= $main::PG->maketext("This problem has more than one part.")
+                 .  '<br/>'.$space.'<small>'.$main::PG->maketext("Your score for this attempt is for this part only;").'</small>'
+		 .  '<br/>'.$space.'<small>'.$main::PG->maketext("your overall score is for all the parts combined.").'</small>'
                  .  qq!<input type="hidden" name="_status" value="$data" />!;
 
   #
