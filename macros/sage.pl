@@ -22,7 +22,7 @@ sub new {
       SageAnswerName => 'sageAnswer',   #  not used yet
       SageAnswerValue => 'ansList',             #  not used yet
       AutoEvaluateCell => 'true',
-      ShowAnswerBlank => 'hidden',
+      ShowAnswerBlank => 'hidden', #'hidden',
       accepted_tos =>'false',  # force author to accept terms of service explicitly
      @_
    );
@@ -31,8 +31,34 @@ sub new {
      %options
    }, $class;
 
-    main::RECORD_ANS_NAME($self->{SageAnswerName}, 345);
+   # main::RECORD_ANS_NAME($self->{SageAnswerName}, 345);
+   	my $recordAnswerBlank='';
+   	if ($options{ShowAnswerBlank} eq 'visible') {
+   		$recordAnswerBlank= main::NAMED_ANS_RULE($self->{SageAnswerName},15);
+   	} elsif ($options{ShowAnswerBlank} eq 'hidden') {
+ 		$recordAnswerBlank= main::NAMED_HIDDEN_ANS_RULE($self->{SageAnswerName},15);
+   	} else {
+   		main::WARN_MESSAGE("Option $option{ShowAnswerBlank} is not valid for displaying sage answer rule. ");
+   	}	
+    # you could add an option to print an ANSWER BOX instead of an ANSWER RULE
+	$sage::recordAnswerString = <<EndOfString;
+def record_answer(ansVals):
+    pretty_print(  HtmlFragment('$recordAnswerBlank'%(ansVals,)   ) )
+EndOfString
 
+
+  $sage::recordAnswerString =~ s/value="[^"]*"/value="%s"/i;
+  $sage::recordAnswerString =~ s/\n/ /g;
+#    my $recordAnswerString2 = $sage::recordAnswerString;
+#    $recordAnswerString2 =~ s/</&lt/g;
+#    main::TEXT("answer string, $recordAnswerString2");
+#    $recordAnswerBlank =~s/</&lt/g;
+#    main::TEXT("answer blank, $recordAnswerBlank");
+# #  old version
+# #    def record_answer($self->{SageAnswerValue}):
+# #     pretty_print(  HtmlFragment('<input type=$self->{ShowAnswerBlank} size=15 name="$self->{SageAnswerName}" id="$self->{SageAnswerName}" value="%s">'%($self->{SageAnswerValue},)   ) )
+
+   
    $self->sageCode();
    $self->sagePrint();
    return $self;
@@ -42,13 +68,15 @@ sub new {
 sub sageCode{
   my $self = shift;
   main::TEXT(main::MODES(TeX=>"", HTML=><<"SAGE_CODE"));
+  
 
 <div id="sagecell">
-<script type="text/code">
+	<script type="text/code">
 
-def record_answer($self->{SageAnswerValue}):
-    html('<input type=$self->{ShowAnswerBlank} size=15 name="$self->{SageAnswerName}" id="$self->{SageAnswerName}" value="%s">'%($self->{SageAnswerValue},)   )
+from sage.misc.html import HtmlFragment
 
+$sage::recordAnswerString
+ 
 $self->{SageCode}
 
     </script>
