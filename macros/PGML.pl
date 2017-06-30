@@ -153,27 +153,27 @@ sub All {
   my $self = shift; my $token = shift;
   return $self->Begin($token) if substr($token,0,1) eq "[" && $BlockDefs{$token};
   for ($token) {
-    /\t/          && do {return $self->Indent($token)};
-    /\d+\. /      && do {return $self->Bullet($token,"numeric")};
-    /[ivx]+[.)] / && do {return $self->Bullet($token,"roman")};
-    /[a-z][.)] /  && do {return $self->Bullet($token,"alpha")};
-    /[IVX]+[.)] / && do {return $self->Bullet($token,"Roman")};
-    /[A-Z][.)] /  && do {return $self->Bullet($token,"Alpha")};
-    /[-+o*] /     && do {return $self->Bullet($token,"bullet")};
-    /\{/          && do {return $self->Brace($token)};
-    /\[]/         && do {return $self->NOOP($token)};
-    /\[\|/        && do {return $self->Verbatim($token)};
-    /\[./         && do {return $self->Answer($token)};
-    /_/           && do {return $self->Emphasis($token)};
-    /\*/          && do {return $self->Star($token)};
-    /[\"\']/      && do {return $self->Quote($token)};
-    /^   ?$/      && do {return $self->ForceBreak($token)};
-    /#/           && do {return $self->Heading($token)};
-    /-|=/         && do {return $self->Rule($token)};
-    /<</          && do {return $self->Center($token)};
-    />>/          && do {return $self->Align($token)};
-    /```/         && do {return $self->Code($token)};
-    /:   /        && do {return $self->Preformatted($token)};
+    /\t/           && do {return $self->Indent($token)};
+    /\d+\. /       && do {return $self->Bullet($token,"numeric")};
+    /[ivxl]+[.)] / && do {return $self->Bullet($token,"roman")};
+    /[a-z][.)] /   && do {return $self->Bullet($token,"alpha")};
+    /[IVXL]+[.)] / && do {return $self->Bullet($token,"Roman")};
+    /[A-Z][.)] /   && do {return $self->Bullet($token,"Alpha")};
+    /[-+o*] /      && do {return $self->Bullet($token,"bullet")};
+    /\{/           && do {return $self->Brace($token)};
+    /\[]/          && do {return $self->NOOP($token)};
+    /\[\|/         && do {return $self->Verbatim($token)};
+    /\[./          && do {return $self->Answer($token)};
+    /_/            && do {return $self->Emphasis($token)};
+    /\*/           && do {return $self->Star($token)};
+    /[\"\']/       && do {return $self->Quote($token)};
+    /^   ?$/       && do {return $self->ForceBreak($token)};
+    /#/            && do {return $self->Heading($token)};
+    /-|=/          && do {return $self->Rule($token)};
+    /<</           && do {return $self->Center($token)};
+    />>/           && do {return $self->Align($token)};
+    /```/          && do {return $self->Code($token)};
+    /:   /         && do {return $self->Preformatted($token)};
     $self->Text($token);
   }
 }
