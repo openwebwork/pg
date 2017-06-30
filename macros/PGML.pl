@@ -754,6 +754,15 @@ sub combineTopItems {
       $prev->pushItem($top);
       $prev->combineTopItems;
       return;
+    } elsif ($id eq 'indent' && $top->{type} eq 'indent' && $prev->{type} eq 'list') {
+      $prev = $prev->topItem;
+      if ($top->{indent} > $value && $value > 0) {
+        splice(@{$self->{stack}},$i,1);
+        if ($par) {splice(@{$self->{stack}},$i,1); $prev->pushItem($par)}
+        $top->{indent} -= $value;
+        $prev->pushItem($top);
+        $prev->combineTopItems;
+      }
     }
   }
 return;
@@ -1067,8 +1076,8 @@ sub Align {
 }
 
 my %bullet = (
-  bullet  => 'ul',
-  numeric => 'ol',
+  bullet  => 'ul type="disc"',
+  numeric => 'ol type="1"',
   alpha   => 'ol type="a"',
   Alpha   => 'ol type="A"',
   roman   => 'ol type="i"',
