@@ -37,7 +37,7 @@ my $lineend = '\n+';
 my $linebreak = '   ?(?=\n)';
 my $heading = '#+';
 my $rule = '(?:---+|===+)';
-my $list = '(?:^|(?<=[\t ]))(?:[-+o*]|(?:\d|[ivx]+|[IVX]+|[a-zA-Z])[.)]) +';
+my $list = '(?:^|(?<=[\t ]))(?:[-+o*]|(?:\d|[ivxl]+|[IVXL]+|[a-zA-Z])[.)]) +';
 my $align = '>> *| *<<';
 my $code = '```';
 my $pre = ':   ';
@@ -732,7 +732,19 @@ sub combineTopItems {
   my $id = $top->{combine}{$prev->{type}}; my $value; my $inside = 0;
   if ($id) {
     if (ref($id) eq 'HASH') {($id,$value) = %$id; $inside = 1} else {$value = $prev->{$id}}
-    if ($top->{$id} eq $value) {
+    my $topList = substr(($top->topItem || {})->{token} || '',0,2);
+    my $prevList = substr(($prev->topItem || {})->{token} || '',0,2);
+    if (
+        $top->{$id} eq $value ||
+        ($top->{type} eq 'list' && $top->{bullet} eq 'roman' &&
+         $prev->{type} eq 'list' && $prev->{bullet} eq 'alpha' &&
+         (($topList eq 'i.' && $prevList eq 'h.') || ($topList eq 'v.' && $prevList eq 'u.') ||
+          ($topList eq 'x.' && $prevList eq 'w.') || ($topList eq 'l.' && $prevList eq 'k.'))) ||
+        ($top->{type} eq 'list' && $top->{bullet} eq 'Roman' &&
+         $prev->{type} eq 'list' && $prev->{bullet} eq 'Alpha' &&
+         (($topList eq 'I.' && $prevList eq 'H.') || ($topList eq 'V.' && $prevList eq 'U.') ||
+          ($topList eq 'X.' && $prevList eq 'W.') || ($topList eq 'L.' && $prevList eq 'K.')))
+       ) {
       #
       #  Combine identical blocks
       #
@@ -743,7 +755,7 @@ sub combineTopItems {
       $prev->pushItem(@{$top->{stack}});
       $prev->combineTopItems($i) if $prev->{type} ne 'text' && $prev->topItem($i)->{combine};
       return;
-    } elsif ($top->{type} eq 'indent' & $prev->{type} eq 'indent' &&
+    } elsif ($top->{type} eq 'indent' && $prev->{type} eq 'indent' &&
 	     $top->{indent} > $prev->{indent} && $prev->{indent} > 0) {
       #
       #  Move larger indentations into smaller ones
