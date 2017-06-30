@@ -1461,6 +1461,7 @@ END_PREAMBLE
 package main;
 
 sub _PGML_init {
+  PG_restricted_eval('sub PGML {PGML::Format2(@_)}');
   loadMacros("MathObjects.pl");
   my $context = Context(); # prevent Typeset context from becoming active
   loadMacros("contextTypeset.pl");
