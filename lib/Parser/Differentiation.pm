@@ -100,7 +100,8 @@ sub Parser::BOP::divide::D {
         $BOP->new($equation,'*',
           $self->{lop}->copy($equation),$self->{rop}->D($x))
       ),
-      $BOP->new($equation,'^',$self->{rop},$self->Item("Number")->new($equation,2))
+      $BOP->new($equation,'^',$self->{rop}->copy($equation),
+        $self->Item("Number")->new($equation,2))
     );
   return $self->reduce;
 }
