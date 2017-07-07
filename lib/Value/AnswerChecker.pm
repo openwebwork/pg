@@ -157,7 +157,7 @@ sub cmp_parse {
 	$ans->{student_ans} = preformat($ans->{student_formula}->substitute()->string);
 	contextSet($context,%{$oldFags}); last;
       };
-      warn "Unkown student answer format |$ans->{formatStudentAnswer}|";
+      warn "Unknown student answer format |$ans->{formatStudentAnswer}|";
     }
     if ($self->cmp_collect($ans)) {
       $self->cmp_preprocess($ans);
@@ -1023,7 +1023,7 @@ sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
   return 0 unless ref($other) && !$other->isFormula;
   return $other->type eq 'Matrix' ||
-    ($other->type =~ m/^(Point|list)$/ &&
+    ($other->type =~ m/^(Point|List)$/ &&
      $other->{open}.$other->{close} eq $self->{open}.$self->{close});
 }
 
