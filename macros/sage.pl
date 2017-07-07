@@ -23,6 +23,7 @@ sub new {
       SageAnswerValue => 'ansList',             #  not used yet
       AutoEvaluateCell => 'true',
       ShowAnswerBlank => 'hidden', #'hidden',
+      AnswerReturn => 1,   # 0 means no answer blank is registered
       accepted_tos =>'false',  # force author to accept terms of service explicitly
      @_
    );
@@ -30,13 +31,17 @@ sub new {
    $self = bless {
      %options
    }, $class;
-
-   # main::RECORD_ANS_NAME($self->{SageAnswerName}, 345);
+   $options{ShowAnswerBlank} = 'none' if $options{AnswerReturn} == 0;
+   # main::RECORD_ANS_NAME($self->{SageAnswerName}, 345); -- old version of code
+   # the following options register a named answer blank 
+   # and produce the HTML text for embedding it.
    	my $recordAnswerBlank='';
    	if ($options{ShowAnswerBlank} eq 'visible') {
    		$recordAnswerBlank= main::NAMED_ANS_RULE($self->{SageAnswerName},15);
    	} elsif ($options{ShowAnswerBlank} eq 'hidden') {
  		$recordAnswerBlank= main::NAMED_HIDDEN_ANS_RULE($self->{SageAnswerName},15);
+ 	} elsif ($options{ShowAnswerBlank} eq 'none') {
+ 		$recordAnswerBlank=''; # don't register an answer blank
    	} else {
    		main::WARN_MESSAGE("Option $option{ShowAnswerBlank} is not valid for displaying sage answer rule. ");
    	}	
