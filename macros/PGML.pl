@@ -732,8 +732,8 @@ sub combineTopItems {
   my $id = $top->{combine}{$prev->{type}}; my $value; my $inside = 0;
   if ($id) {
     if (ref($id) eq 'HASH') {($id,$value) = %$id; $inside = 1} else {$value = $prev->{$id}}
-    my $topList = substr(($top->topItem || {})->{token} || '',0,2);
-    my $prevList = substr(($prev->topItem || {})->{token} || '',0,2);
+    my $topList = (Value::isa($top,'PGML::Block') ? substr(($top->topItem || {})->{token} || '',0,2) : '');
+    my $prevList = (Value::isa($prev,'PGML::Block') ? substr(($prev->topItem || {})->{token} || '',0,2) : '');
     if (
         $top->{$id} eq $value ||
         ($top->{type} eq 'list' && $top->{bullet} eq 'roman' &&
