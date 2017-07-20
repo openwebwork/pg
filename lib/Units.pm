@@ -255,6 +255,11 @@ our %known_units = ('m'  => {
                            'm'         => 1,
                            's'         => -1
                           },
+              'mph'  => {
+                           'factor'    =>  0.44704,
+                           'm'         => 1,
+                           's'         => -1
+                          },
 # MASS
 # mg   -- miligrams
 # g    -- grams
