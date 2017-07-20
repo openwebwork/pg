@@ -268,10 +268,13 @@ sub isReduced {
     if ($x->intersects($y)) {$error = "overlaps"; last}
     if (($x + $y)->reduce->type ne 'Union') {$error = "uncombined intervals"; last}
   }
-  if ($S.length) {
+  if ($S->length) {
     foreach my $x (@{$sU->{data}}) {
       my $y = ($x + $S)->reduce;
-      if ($y->type ne 'Union' || $y->length != $S->length) {$error = "uncombined sets"; last}
+      if ($y->type ne 'Union' && ($y->type ne 'Set' || $y->length == $S->length)) {
+        $error = "uncombined sets";
+        last;
+      }
     }
   }
   $error = "overlaps in sets" if !$error && $S->intersects($U);
