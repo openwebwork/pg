@@ -112,7 +112,7 @@ our %known_units = ('m'  => {
              'degrees' => {
                            'factor'    => 0.0174532925,
                            'rad'       => 1
-                          },1
+                          },
               'radian' => {
                            'factor'    => 1,
                            'rad'       => 1
