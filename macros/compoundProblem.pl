@@ -288,7 +288,7 @@ sub getStatus {
   main::RECORD_FORM_LABEL("_status");
   $self->{status} = $self->decode;
   $self->{isNew} = $main::inputs_ref->{_next} || ($main::inputs_ref->{submitAnswers} &&
-     $main::inputs_ref->{submitAnswers} eq ($self->{nextLabel} || "Go on to Next Part"));
+     $main::inputs_ref->{submitAnswers} eq ($self->{nextLabel} || $main::PG->maketext("Go on to next part")));
   if ($self->{isNew}) {
     $self->checkAnswers;
     $self->incrementPart unless $self->{nextNoChange} && $self->{answersChanged};
@@ -467,7 +467,7 @@ sub reset {
 #
 sub resetCheckbox {
   my $self = shift;
-  my $label = shift || " <b>Go back to Part 1</b> (when you submit your answers).";
+  my $label = shift || " <b>".$main::PG->maketext("Go back to Part 1")."</b> (".$main::PG->maketext("when you submit your answers").").";
   my $par = shift; $par = ($par ? $main::PAR : '');
   qq'$par<input type="checkbox" name="_reset" value="1" />$label';
 }
@@ -477,7 +477,7 @@ sub resetCheckbox {
 #
 sub nextCheckbox {
   my $self = shift;
-  my $label = shift || " <b>Go on to next part</b> (when you submit your answers).";
+  my $label = shift || " <b>".$main::PG->maketext("Go on to next part")."</b> (".$main::PG->maketext("when you submit your answers").").";
   my $par = shift; $par = ($par ? $main::PAR : '');
   $self->{nextInserted} = 1;
   qq!$par<input type="checkbox" name="_next" value="next" />$label!;
@@ -488,7 +488,7 @@ sub nextCheckbox {
 #
 sub nextButton {
   my $self = shift;
-  my $label = quoteHTML(shift || "Go on to Next Part");
+  my $label = quoteHTML(shift || $main::PG->maketext("Go on to next part"));
   my $par = shift; $par = ($par ? $main::PAR : '');
   $par . qq!<input type="submit" name="submitAnswers" value="$label" !
        .      q!onclick="document.getElementById('_next').value=1" />!;
@@ -499,7 +499,7 @@ sub nextButton {
 #
 sub nextForced {
   my $self = shift;
-  my $label = shift || "<b>Submit your answers again to go on to the next part.</b>";
+  my $label = shift || "<b>".$main::PG->maketext("Submit your answers again to go on to the next part.")."</b>";
   $label = $main::PAR . $label if shift;
   $self->{nextInserted} = 1;
   qq!$label<input type="hidden" name="_next" id="_next" value="Next" />!;
@@ -580,7 +580,7 @@ sub grader {
   $status->{raw}   = $result->{score};
   $status->{score} = $result->{score}*$weight;
   $status->{new_ans_rule_count} = $main::ans_rule_count;
-  if (defined(%main::images_created)) {
+  if (%main::images_created) {
     $status->{imageName} = (keys %main::images_created)[0];
     $status->{new_images_created} = $main::images_created{$status->{imageName}};
   }
@@ -599,15 +599,15 @@ sub grader {
   #
   $result->{type} = "compoundProblem ($result->{type})";
   $result->{msg} .= '</i><p><b>Note:</b> <i>' if $result->{msg};
-  $result->{msg} .= 'This problem has more than one part.'
-                 .  '<br/>'.$space.'<small>Your score for this attempt is for this part only;</small>'
-		 .  '<br/>'.$space.'<small>your overall score is for all the parts combined.</small>'
+  $result->{msg} .= $main::PG->maketext("This problem has more than one part.")
+                 .  '<br/>'.$space.'<small>'.$main::PG->maketext("Your score for this attempt is for this part only;").'</small>'
+		 .  '<br/>'.$space.'<small>'.$main::PG->maketext("your overall score is for all the parts combined.").'</small>'
                  .  qq!<input type="hidden" name="_status" value="$data" />!;
 
   #
   #  Warn if the answers changed when they shouldn't have
   #
-  $result->{msg} .= '<p><b>You may not change your answers when going on to the next part!</b>'
+  $result->{msg} .= '<p><b>'.$main::PG->maketext("You may not change your answers when going on to the next part!").'</b>'
     if $self->{nextNoChange} && $self->{answersChanged};
 
   #

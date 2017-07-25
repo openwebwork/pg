@@ -168,7 +168,7 @@ sub MENU {
     $menu = qq!<select class="pg-select" name="$name" id="$name" aria-label="$label" size="1">\n!;
     foreach my $item (@list) {
       my $selected = ($item eq $answer_value) ? " selected" : "";
-      my $option = $self->quoteHTML($item,true);
+      my $option = $self->quoteHTML($item,1);
       $menu .= qq!<option$selected value="$option" class="tex2jax_ignore">$option</option>\n!;
     };
     $menu .= "</select>";

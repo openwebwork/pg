@@ -217,7 +217,7 @@ sub GL4Z_perl {
   foreach my $i (1..4) {
 	$a[$i][3] = $c * $a[$i][1] + $d * $a[$i][2];
   }
-  my $n = random(-1,1,2);
+  $n = random(-1,1,2);
   $a[1][3] = $a[1][3] + $n;
 
   my $f = random(-1,1,2);
@@ -269,7 +269,7 @@ sub SL4Z_perl {
   foreach my $i (1..4) {
 	$a[$i][3] = $c * $a[$i][1] + $d * $a[$i][2];
   }
-  my $n = random(-1,1,2);
+  $n = random(-1,1,2);
   $a[1][3] = $a[1][3] + $n;
 
   my $f = random(-1,1,2);

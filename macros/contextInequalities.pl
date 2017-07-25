@@ -146,10 +146,10 @@ sub Init {
      '!=' => {precedence => .5, associativity => 'left', type => 'bin', string => ' != ', TeX => '\ne ',
               class => 'Inequalities::BOP::inequality', eval => 'evalNotEqualTo'},
 
-     'and' => {precedence => .45, associateivity => 'left', type => 'bin', string => " and ",
+     'and' => {precedence => .45, associativity => 'left', type => 'bin', string => " and ",
 	       TeX => '\hbox{ and }', class => 'Inequalities::BOP::and'},
 
-     'or' => {precedence => .4, associateivity => 'left', type => 'bin', string => " or ",
+     'or' => {precedence => .4, associativity => 'left', type => 'bin', string => " or ",
 	      TeX => '\hbox{ or }', class => 'Inequalities::BOP::or'},
   );
   $context->operators->set(

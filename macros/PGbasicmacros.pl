@@ -447,7 +447,7 @@ sub NAMED_ANS_RULE_OPTION {   # deprecated
 }
 
 sub NAMED_ANS_RULE_EXTENSION {
-	my $name = shift;
+	my $name = shift;   # this is the name of the response item
 	my $col = shift;
 	my %options = @_;
 
@@ -457,7 +457,13 @@ sub NAMED_ANS_RULE_EXTENSION {
 	} else {
 	    $label = generate_aria_label($name);
 	}
-
+	# this is the name of the parent answer group
+	my $answer_group_name = $options{answer_group_name}//''; 
+	unless ($answer_group_name) {
+		WARN_MESSAGE("Error in NAMED_ANSWER_RULE_EXTENSION: every call to this subroutine needs
+		to have \$options{answer_group_name} defined. Answer blank name: $name");
+	}
+    # warn "from named answer rule extension in PGbasic answer_group_name: |$answer_group_name|";
 	my $answer_value = '';
 	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
 	if ( defined( $rh_sticky_answers->{$name} ) ) {
@@ -466,7 +472,9 @@ sub NAMED_ANS_RULE_EXTENSION {
 	}
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
-	INSERT_RESPONSE($name,$name,$answer_value);  #FIXME hack -- this needs more work to decide how to make it work
+	# warn "from NAMED_ANSWER_RULE_EXTENSION in PGbasic: 
+	# 	answer_group_name: |$answer_group_name| name: |$name| answer value: |$answer_value|";
+	INSERT_RESPONSE($answer_group_name,$name,$answer_value);  #FIXME hack -- this needs more work to decide how to make it work
 	$answer_value = encode_pg_and_html($answer_value);
 
 	my $tcol = $col/2 > 3 ? $col/2 : 3;  ## get max
@@ -664,25 +672,25 @@ sub generate_aria_label {
     # check for quiz prefix 
     if ($name =~ /^Q\d+/ || $name =~ /^MaTrIx_Q\d+/) {
 	$name =~ s/Q0*(\d+)_//;
-	$label .= maketext('problem ').$1.' ';
+	$label .= maketext('problem').' '.$1.' ';
     }
 
     # get answer number 
     $name =~ /AnSwEr0*(\d+)/;
-    $label .= maketext('answer ').$1.' ';
+    $label .= maketext('answer').' '.$1.' ';
     
     # check for Multianswer
     if ($name =~ /MuLtIaNsWeR_/) {
 	$name =~ s/MuLtIaNsWeR_//;
 	$name =~ /AnSwEr(\d+)_(\d+)/;
-	$label .= maketext('part ').($2+1).' ';
+	$label .= maketext('part').' '.($2+1).' ';
     }
     
     # check for Matrix 
     if ($name =~ /^MaTrIx_/) {
 	$name =~ /_(\d+)_(\d+)$/;
-	$label .= maketext('row ').($1+1)
-	    .maketext(' column ').($2+1).' ';
+	$label .= maketext('row').' '.($1+1)
+	    .' '.maketext('column').' '.($2+1).' ';
     }
 
     return $label;
@@ -1092,8 +1100,23 @@ sub NAMED_ANS_ARRAY_EXTENSION{
 
 #	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 #	warn "ans_label $options{ans_label} $name $answer_value";
-	if (defined($options{ans_label}) ) {
-		INSERT_RESPONSE($options{ans_label}, $name, $answer_value);
+    my $answer_group_name; # the name of the answer evaluator controlling this collection of responses.
+    # catch deprecated use of ans_label to pass answer_group_name
+    if (defined($options{ans_label})) {
+    	WARN_MESSAGE("Error in NAMED_ANS_ARRAY_EXTENSION: the answer group name should be passed in ",
+    		"\%options using answer_group_name=>\$answer_group_name",
+    		"The use of ans_label=>\$answer_group_name is deprecated.",
+    		"Answer blank name: $name"
+    		);
+    	$answer_group_name = $options{ans_label};
+    }
+	if (defined($options{answer_group_name}) ) {
+		$answer_group_name = $options{answer_group_name};
+	}
+	if ($answer_group_name) {
+		INSERT_RESPONSE($options{answer_group_name}, $name, $answer_value);
+	} else {
+		WARN_MESSAGE("Error: answer_group_name must be defined for $name");
 	}
 	$answer_value = encode_pg_and_html($answer_value);
 
@@ -1268,14 +1291,14 @@ sub hint {
     if ($displayMode =~ /TeX/) {
         my $afterAnswerDate = ( time() > $envir{answerDate} );
     	if ($printHintForInstructor) {
-    		$out = join(' ', $BITALIC," (Instructor hint preview: show the student hint after $showHint attempts. The current number of attempts is $attempts. )$BR", $EITALIC, @in);	
+    		$out = join(' ', $BITALIC,maketext("(Instructor hint preview: show the student hint after the following number of attempts:"), $showHint,$BR, $EITALIC, @in);	
     	} elsif ( $displayHint and $afterAnswerDate ) { # only display hints after the answer date.
     		$out = join(' ',@in);
     	}
     	    
     } elsif ($displayMode =~/HTML/) {
     	if ($printHintForInstructor) {  # always print hints for instructor types in HTML mode
-			$out = join(' ', $BITALIC," (Instructor hint preview: show the student hint after $showHint attempts. The current number of attempts is $attempts. )$BR", $EITALIC, @in);    	
+			$out = join(' ', $BITALIC,maketext("(Instructor hint preview: show the student hint after the following number of attempts:"), $showHint,"$BR", $EITALIC, @in);    	
     	} elsif ( $displayHint  and  ( $attempts > $showHint ) ) 	{  
 	 	    ## the second test above prevents a hint being shown if a doctored form is submitted
 		    $out = join(' ',@in);

@@ -112,7 +112,8 @@ sub initialize {
 												WARNING_messages => $self->{WARNING_messages},
 												DEBUG_messages   => $self->{DEBUG_messages},                                           
 										);
-	$self->{maketext} =  WeBWorK::Localize::getLoc($self->{envir}->{language});
+	#$self->{maketext} =  WeBWorK::Localize::getLoc($self->{envir}->{language});
+	$self->{maketext} = $self->{envir}->{language_subroutine};
 	#$self->debug_message("PG alias created", $self->{PG_alias} );
     $self->{PG_loadMacros}        = new PGloadfiles($self->{envir});
 	$self->{flags} = {
@@ -490,6 +491,8 @@ sub record_array_name {  # currently the same as record ans name
 	$label;
 
 }
+
+
 sub extend_ans_group {         # modifies the group type
 	my $self = shift;
 	my $label = shift;
@@ -506,6 +509,7 @@ sub extend_ans_group {         # modifies the group type
     }
     $label;
 }
+
 sub record_unlabeled_ans_name {
 	my $self = shift;
     $self->{unlabeled_answer_blank_count}++;
@@ -720,8 +724,11 @@ sub insertGraph {
 
 =cut
 sub maketext {
-    my $self = shift;
-	&{ $self->{maketext}}(@_);
+  my $self = shift;
+  # uncomment this to check to see if strings are run through
+  # maketext.  
+  # return 'xXx'.  &{ $self->{maketext}}(@_).'xXx';
+  &{ $self->{maketext}}(@_);
 }
 sub includePGtext { 
 	my $self = shift;

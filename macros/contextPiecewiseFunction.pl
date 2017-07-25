@@ -771,10 +771,10 @@ sub TeX {
   my $period = ($self->{final_period} ? "." : "");
   foreach my $If (@{$self->{data}}) {
     my ($I,$f) = @{$If};
-    push(@cases,'\displaystyle{'.$f->TeX."}&\\text{if}\\ ".$I->TeX);
+    push(@cases,'\displaystyle{'.$f->TeX."}&\\text{".$main::PG->maketext("if")."}\\ ".$I->TeX);
   }
   if (scalar(@cases)) {
-    push(@cases,'\displaystyle{'.$self->{otherwise}->TeX.'}&\text{otherwise}') if defined $self->{otherwise};
+    push(@cases,'\displaystyle{'.$self->{otherwise}->TeX.'}&\text{'.$main::PG->maketext("otherwise").'}') if defined $self->{otherwise};
     return '\begin{cases}'.join('\cr'."\n",@cases).$period.'\end{cases}';
   } else {
     return $self->{otherwise}->TeX;

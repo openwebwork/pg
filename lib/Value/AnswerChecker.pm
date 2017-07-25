@@ -157,7 +157,7 @@ sub cmp_parse {
 	$ans->{student_ans} = preformat($ans->{student_formula}->substitute()->string);
 	contextSet($context,%{$oldFags}); last;
       };
-      warn "Unkown student answer format |$ans->{formatStudentAnswer}|";
+      warn "Unknown student answer format |$ans->{formatStudentAnswer}|";
     }
     if ($self->cmp_collect($ans)) {
       $self->cmp_preprocess($ans);
@@ -396,24 +396,31 @@ sub ans_matrix {
   $self->{ans_name} = $ename;
   $self->{ans_rows} = $rows;
   $self->{ans_cols} = $cols;
+  # warn "ans_matrix: ename=$ename answer_group_name=$options{answer_group_name}";
   my @array = ();
   foreach my $i (0..$rows-1) {
     my @row = ();
     foreach my $j (0..$cols-1) {
       my $label;
       if ($options{aria_label}) {
-	$label = $options{aria_label}.'row '.($i+1).' col '.($j+1);
+		$label = $options{aria_label}.'row '.($i+1).' col '.($j+1);
       } else {
-	$label = pgCall('generate_aria_label',ANS_NAME($ename,$i,$j));
+		$label = pgCall('generate_aria_label',ANS_NAME($ename,$i,$j));
       }
+      my $answer_group_name = $options{answer_group_name}//$name;
       if ($i == 0 && $j == 0) {
-	if ($extend) {
-	  push(@row,&$named_extension($name,$size,ans_label=>$name,aria_label=>$label));
-	} else {
-	  push(@row,&$named_ans_rule($name,$size,aria_label=>$label));
-	}
-      } else {
-	push(@row,&$named_extension(ANS_NAME($ename,$i,$j),$size,ans_label=>$name,aria_label=>$label));
+		if ($extend) {  
+		  push(@row,&$named_extension($name,$size,
+				answer_group_name=> $answer_group_name,
+				aria_label=>$label)
+		  );
+		} else {
+		  push(@row,&$named_ans_rule($name,$size,aria_label=>$label));
+		}
+      } else { 
+		push(@row,&$named_extension(ANS_NAME($ename,$i,$j),$size,
+			 answer_group_name => $answer_group_name,
+			 aria_label=>$label));
       }
     }
     push(@array,[@row]);
@@ -1016,7 +1023,7 @@ sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
   return 0 unless ref($other) && !$other->isFormula;
   return $other->type eq 'Matrix' ||
-    ($other->type =~ m/^(Point|list)$/ &&
+    ($other->type =~ m/^(Point|List)$/ &&
      $other->{open}.$other->{close} eq $self->{open}.$self->{close});
 }
 

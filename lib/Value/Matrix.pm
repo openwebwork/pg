@@ -412,6 +412,14 @@ sub wwMatrixLR {
   return $self->{lrM};
 }
 
+sub wwColumnVector {
+  my $self = shift;
+  my $v = shift;
+  my $V = $self->new($v);
+  $V = $V->transpose if Value::classMatch($v,'Vector');
+  return $V->wwMatrix;
+}
+
 
 ###################################
 #
@@ -458,7 +466,7 @@ sub kleene {
 
 sub normalize {
   my $self = shift;
-  my $v = $self->new(shift)->wwMatrix;
+  my $v = $self->wwColumnVector(shift);
   my ($M,$b) = $self->wwMatrix->normalize($v);
   return ($self->new($M),$self->new($b));
 }
@@ -466,7 +474,7 @@ sub normalize {
 sub solve {shift->solve_LR(@_)}
 sub solve_LR {
   my $self = shift;
-  my $v = $self->new(shift)->wwMatrix;
+  my $v = $self->wwColumnVector(shift);
   my ($d,$b,$M) = $self->wwMatrixLR->solve_LR($v);
   return ($d,$self->new($b),$self->new($M));
 }
@@ -485,8 +493,8 @@ sub order_LR {
 
 sub solve_GSM {
   my $self = shift;
-  my $x0 = $self->new(shift)->wwMatrix;
-  my $b  = $self->new(shift)->wwMatrix;
+  my $x0 = $self->wwColumnVector(shift);
+  my $b  = $self->wwColumnVector(shift);
   my $e  = shift;
   my $v = $self->wwMatrix->solve_GSM($x0,$b,$e);
   $v = $self->new($v) if defined($v);
@@ -495,8 +503,8 @@ sub solve_GSM {
 
 sub solve_SSM {
   my $self = shift;
-  my $x0 = $self->new(shift)->wwMatrix;
-  my $b  = $self->new(shift)->wwMatrix;
+  my $x0 = $self->wwColumnVector(shift);
+  my $b  = $self->wwColumnVector(shift);
   my $e  = shift;
   my $v = $self->wwMatrix->solve_SSM($x0,$b,$e);
   $v = $self->new($v) if defined($v);
@@ -505,8 +513,8 @@ sub solve_SSM {
 
 sub solve_RM {
   my $self = shift;
-  my $x0 = $self->new(shift)->wwMatrix;
-  my $b  = $self->new(shift)->wwMatrix;
+  my $x0 = $self->wwColumnVector(shift);
+  my $b  = $self->wwColumnVector(shift);
   my $w = shift; my $e = shift;
   my $v = $self->wwMatrix->solve_RM($x0,$b,$w,$e);
   $v = $self->new($v) if defined($v);

@@ -37,7 +37,7 @@ my $lineend = '\n+';
 my $linebreak = '   ?(?=\n)';
 my $heading = '#+';
 my $rule = '(?:---+|===+)';
-my $list = '(?:^|(?<=[\t ]))(?:[-+o*]|(?:\d|[ivx]+|[IVX]+|[a-zA-Z])[.)]) +';
+my $list = '(?:^|(?<=[\t ]))(?:[-+o*]|(?:\d|[ivxl]+|[IVXL]+|[a-zA-Z])[.)]) +';
 my $align = '>> *| *<<';
 my $code = '```';
 my $pre = ':   ';
@@ -153,27 +153,27 @@ sub All {
   my $self = shift; my $token = shift;
   return $self->Begin($token) if substr($token,0,1) eq "[" && $BlockDefs{$token};
   for ($token) {
-    /\t/          && do {return $self->Indent($token)};
-    /\d+\. /      && do {return $self->Bullet($token,"numeric")};
-    /[ivx]+[.)] / && do {return $self->Bullet($token,"roman")};
-    /[a-z][.)] /  && do {return $self->Bullet($token,"alpha")};
-    /[IVX]+[.)] / && do {return $self->Bullet($token,"Roman")};
-    /[A-Z][.)] /  && do {return $self->Bullet($token,"Alpha")};
-    /[-+o*] /     && do {return $self->Bullet($token,"bullet")};
-    /\{/          && do {return $self->Brace($token)};
-    /\[]/         && do {return $self->NOOP($token)};
-    /\[\|/        && do {return $self->Verbatim($token)};
-    /\[./         && do {return $self->Answer($token)};
-    /_/           && do {return $self->Emphasis($token)};
-    /\*/          && do {return $self->Star($token)};
-    /[\"\']/      && do {return $self->Quote($token)};
-    /^   ?$/      && do {return $self->ForceBreak($token)};
-    /#/           && do {return $self->Heading($token)};
-    /-|=/         && do {return $self->Rule($token)};
-    /<</          && do {return $self->Center($token)};
-    />>/          && do {return $self->Align($token)};
-    /```/         && do {return $self->Code($token)};
-    /:   /        && do {return $self->Preformatted($token)};
+    /\t/           && do {return $self->Indent($token)};
+    /\d+\. /       && do {return $self->Bullet($token,"numeric")};
+    /[ivxl]+[.)] / && do {return $self->Bullet($token,"roman")};
+    /[a-z][.)] /   && do {return $self->Bullet($token,"alpha")};
+    /[IVXL]+[.)] / && do {return $self->Bullet($token,"Roman")};
+    /[A-Z][.)] /   && do {return $self->Bullet($token,"Alpha")};
+    /[-+o*] /      && do {return $self->Bullet($token,"bullet")};
+    /\{/           && do {return $self->Brace($token)};
+    /\[]/          && do {return $self->NOOP($token)};
+    /\[\|/         && do {return $self->Verbatim($token)};
+    /\[./          && do {return $self->Answer($token)};
+    /_/            && do {return $self->Emphasis($token)};
+    /\*/           && do {return $self->Star($token)};
+    /[\"\']/       && do {return $self->Quote($token)};
+    /^   ?$/       && do {return $self->ForceBreak($token)};
+    /#/            && do {return $self->Heading($token)};
+    /-|=/          && do {return $self->Rule($token)};
+    /<</           && do {return $self->Center($token)};
+    />>/           && do {return $self->Align($token)};
+    /```/          && do {return $self->Code($token)};
+    /:   /         && do {return $self->Preformatted($token)};
     $self->Text($token);
   }
 }
@@ -732,7 +732,19 @@ sub combineTopItems {
   my $id = $top->{combine}{$prev->{type}}; my $value; my $inside = 0;
   if ($id) {
     if (ref($id) eq 'HASH') {($id,$value) = %$id; $inside = 1} else {$value = $prev->{$id}}
-    if ($top->{$id} eq $value) {
+    my $topList = (Value::isa($top,'PGML::Block') ? substr(($top->topItem || {})->{token} || '',0,2) : '');
+    my $prevList = (Value::isa($prev,'PGML::Block') ? substr(($prev->topItem || {})->{token} || '',0,2) : '');
+    if (
+        $top->{$id} eq $value ||
+        ($top->{type} eq 'list' && $top->{bullet} eq 'roman' &&
+         $prev->{type} eq 'list' && $prev->{bullet} eq 'alpha' &&
+         (($topList eq 'i.' && $prevList eq 'h.') || ($topList eq 'v.' && $prevList eq 'u.') ||
+          ($topList eq 'x.' && $prevList eq 'w.') || ($topList eq 'l.' && $prevList eq 'k.'))) ||
+        ($top->{type} eq 'list' && $top->{bullet} eq 'Roman' &&
+         $prev->{type} eq 'list' && $prev->{bullet} eq 'Alpha' &&
+         (($topList eq 'I.' && $prevList eq 'H.') || ($topList eq 'V.' && $prevList eq 'U.') ||
+          ($topList eq 'X.' && $prevList eq 'W.') || ($topList eq 'L.' && $prevList eq 'K.')))
+       ) {
       #
       #  Combine identical blocks
       #
@@ -743,7 +755,7 @@ sub combineTopItems {
       $prev->pushItem(@{$top->{stack}});
       $prev->combineTopItems($i) if $prev->{type} ne 'text' && $prev->topItem($i)->{combine};
       return;
-    } elsif ($top->{type} eq 'indent' & $prev->{type} eq 'indent' &&
+    } elsif ($top->{type} eq 'indent' && $prev->{type} eq 'indent' &&
 	     $top->{indent} > $prev->{indent} && $prev->{indent} > 0) {
       #
       #  Move larger indentations into smaller ones
@@ -754,6 +766,15 @@ sub combineTopItems {
       $prev->pushItem($top);
       $prev->combineTopItems;
       return;
+    } elsif ($id eq 'indent' && $top->{type} eq 'indent' && $prev->{type} eq 'list') {
+      $prev = $prev->topItem;
+      if ($top->{indent} > $value && $value > 0) {
+        splice(@{$self->{stack}},$i,1);
+        if ($par) {splice(@{$self->{stack}},$i,1); $prev->pushItem($par)}
+        $top->{indent} -= $value;
+        $prev->pushItem($top);
+        $prev->combineTopItems;
+      }
     }
   }
 return;
@@ -1067,8 +1088,8 @@ sub Align {
 }
 
 my %bullet = (
-  bullet  => 'ul',
-  numeric => 'ol',
+  bullet  => 'ul type="disc"',
+  numeric => 'ol type="1"',
   alpha   => 'ol type="a"',
   Alpha   => 'ol type="A"',
   roman   => 'ol type="i"',
@@ -1440,6 +1461,7 @@ END_PREAMBLE
 package main;
 
 sub _PGML_init {
+  PG_restricted_eval('sub PGML {PGML::Format2(@_)}');
   loadMacros("MathObjects.pl");
   my $context = Context(); # prevent Typeset context from becoming active
   loadMacros("contextTypeset.pl");
