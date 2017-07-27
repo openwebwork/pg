@@ -575,7 +575,9 @@ sub DataTable {
       {
        if ($rowcolor[$i] ne '') {$textable .= '\rowcolor'.$rowcolor[$i];};
        for my $j (0..$numcols[$i])
+
         {if (grep { uc(${$dataref->[$i][$j]}{header}) eq $_ } ('TH','CH','COLUMN','COL','RH','ROW') or ($headerrow[$i] == 1) and !(uc(${$dataref->[$i][$j]}{header}) eq 'TD')) {${$dataref->[$i][$j]}{tex} = '\bfseries '.${$dataref->[$i][$j]}{tex}};
+
         if (${$dataref->[$i][$j]}{multicolumn} ne '') {$textable .= ${$dataref->[$i][$j]}{multicolumn}};
         $textable .= ${$dataref->[$i][$j]}{texpre}.' '.${$dataref->[$i][$j]}{tex}.' '.${$dataref->[$i][$j]}{data}.' '.${$dataref->[$i][$j]}{texpost};
         if (${$dataref->[$i][$j]}{multicolumn} ne '') {$textable .= '}'};
