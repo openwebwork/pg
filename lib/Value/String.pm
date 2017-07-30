@@ -72,7 +72,7 @@ sub compare {
 #
 #  Mark a string to be display verbatim
 #
-sub verb {shift; return "\\verb".chr(0x85).(shift).chr(0x85)}
+sub verb {shift; return "\\verb".chr(0x1F).(shift).chr(0x1F)}
 
 #
 #  Put normal strings into \text{} and others into \verb

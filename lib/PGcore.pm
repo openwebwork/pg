@@ -29,6 +29,7 @@ use Tie::IxHash;
 use WeBWorK::Debug;
 use MIME::Base64();
 use PGUtil();
+use Encode qw(encode_utf8 decode_utf8);
 
 ##################################
 # PGcore object
@@ -566,13 +567,15 @@ sub PG_restricted_eval {
 sub decode_base64 ($) {
 	my $self = shift;
 	my $str = shift;
-	MIME::Base64::decode_base64($str);
+	$str = MIME::Base64::decode_base64($str);
+	decode_utf8($str);
 }
 
 sub encode_base64 ($;$) {
 	my $self = shift;
 	my $str  = shift;
 	my $option = shift;
+	$str = encode_utf8($str);
 	MIME::Base64::encode_base64($str);
 }
 
