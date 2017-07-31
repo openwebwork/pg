@@ -30,7 +30,8 @@ use WeBWorK::Debug;
 use MIME::Base64();
 use PGUtil();
 use Encode qw(encode_utf8 decode_utf8);
-
+use utf8;
+binmode(STDOUT, ":uft8");
 ##################################
 # PGcore object
 ##################################
