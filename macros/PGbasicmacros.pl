@@ -2689,7 +2689,7 @@ sub image {
 	my %in_options = @opt;
 	my %known_options = (
 		width    => 100,
-		height   => 100,
+		height   => '',
 		tex_size => 800,
 		extra_html_tags => '',
 	);
@@ -2708,6 +2708,11 @@ sub image {
 	my $tex_size    = $out_options{tex_size};
 	my $width_ratio = $tex_size*(.001);
 	my @image_list  = ();
+
+    # if height was explicitly given, create string for height attribute to be used in HTML, LaTeX2HTML
+    # otherwise omit a height attribute and allow the browser to use aspect ratio preservation
+    my $height_attrib = '';
+    $height_attrib = qq{height = "$height"} if ($height);
 
  	if (ref($image_ref) =~ /ARRAY/ ) {
 		@image_list = @{$image_ref};
@@ -2741,7 +2746,7 @@ sub image {
 			}
 		} elsif ($displayMode eq 'Latex2HTML') {
 			my $wid = ($envir->{onTheFlyImageSize} || 0)+ 30;
-			$out = qq!\\begin{rawhtml}\n<A HREF= "$imageURL" TARGET="_blank" onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;"><IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height"></A>\n
+			$out = qq!\\begin{rawhtml}\n<A HREF= "$imageURL" TARGET="_blank" onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;"><IMG SRC="$imageURL"  WIDTH="$width" $height_attrib></A>\n
 			\\end{rawhtml}\n !
  		} elsif ($displayMode eq 'HTML_MathJax'
 	 || $displayMode eq 'HTML_dpng'
@@ -2754,7 +2759,7 @@ sub image {
 			my $wid = ($envir->{onTheFlyImageSize} || 0) +30;
  			$out = qq!<A HREF= "$imageURL" TARGET="_blank" 
  			         onclick="window.open(this.href,this.target, 'width=$wid,height=$wid,scrollbars=yes,resizable=on'); return false;">
- 			         <IMG SRC="$imageURL"  WIDTH="$width" HEIGHT="$height" $out_options{extra_html_tags} >
+ 			         <IMG SRC="$imageURL"  WIDTH="$width" $height_attrib $out_options{extra_html_tags} >
  			         </A>
  			!
  		} else {
