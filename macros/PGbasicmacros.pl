@@ -77,6 +77,8 @@ my ($PAR,
 	$EUL,
 	$BCENTER,
 	$ECENTER,
+	$BLTR,
+	$ELTR,
 	$HR,
 	$LBRACE,
 	$RBRACE,
@@ -144,6 +146,8 @@ main::PG_restricted_eval( <<'EndOfFile');
 	$main::EUL              = EUL();
 	$main::BCENTER          = BCENTER();
 	$main::ECENTER          = ECENTER();
+	$main::BLTR          = BLTR();
+	$main::ELTR          = ELTR();
 	$main::HR				= HR();
 	$main::LBRACE			= LBRACE();
 	$main::RBRACE			= RBRACE();
@@ -197,6 +201,8 @@ EndOfFile
 	$EUL                 = EUL();
 	$BCENTER             = BCENTER();
 	$ECENTER             = ECENTER();
+	$BLTR             = BLTR();
+	$ELTR             = ELTR();
 	$HR				     = HR();
 	$LBRACE			     = LBRACE();
 	$RBRACE			     = RBRACE();
@@ -1512,6 +1518,8 @@ sub MODES {
 	$EUL    			EUL()  				end underlined type
 	$BCENTER    		BCENTER()   		begin centered environment
 	$ECENTER    		ECENTER()  			end centered environment
+	$BLTR    		BLTR()   		begin left to right environment
+	$ELTR    		ELTR()  			end left to right environment
 	$HR					HR()				horizontal rule
 	$LBRACE				LBRACE()			left brace
 	$LB					LB ()				left brace
@@ -1580,8 +1588,10 @@ sub BITALIC { MODES(TeX => '{\\it ',  Latex2HTML => '{\\it ', HTML => '<I>'); };
 sub EITALIC { MODES(TeX => '} ',  Latex2HTML => '} ', HTML => '</I>'); };
 sub BUL { MODES(TeX => '\\underline{',  Latex2HTML => '\\underline{', HTML => '<U>'); };
 sub EUL { MODES(TeX => '}',  Latex2HTML => '}', HTML => '</U>'); };
-sub BCENTER { MODES(TeX => '\\begin{center} ',  Latex2HTML => ' \\begin{rawhtml} <div align="center"> \\end{rawhtml} ', HTML => '<div align="center">'); };
+sub BCENTER { MODES(TeX => '\\begin{center} ',  Latex2HTML => ' \\begin{rawhtml} <div align="center"> \\end{rawhtml} ', HTML => '<div align="center" dir="ltr">'); };
 sub ECENTER { MODES(TeX => '\\end{center} ',  Latex2HTML => ' \\begin{rawhtml} </div> \\end{rawhtml} ', HTML => '</div>'); };
+sub BLTR { MODES(TeX => ' ',  Latex2HTML => ' \\begin{rawhtml} <div dir="ltr"> \\end{rawhtml} ', HTML => '<span dir="ltr">'); };
+sub ELTR { MODES(TeX => ' ',  Latex2HTML => ' \\begin{rawhtml} </div> \\end{rawhtml} ', HTML => '</span>'); };
 sub HR { MODES(TeX => '\\par\\hrulefill\\par ', Latex2HTML => '\\begin{rawhtml} <HR> \\end{rawhtml}', HTML =>  '<HR>'); };
 sub LBRACE { MODES( TeX => '\{', Latex2HTML =>   '\\lbrace',  HTML =>  '{' , HTML_tth=> '\\lbrace' ); };
 sub RBRACE { MODES( TeX => '\}', Latex2HTML =>   '\\rbrace',  HTML =>  '}' , HTML_tth=> '\\rbrace',); };
