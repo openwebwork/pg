@@ -457,11 +457,17 @@ sub NAMED_ANS_RULE_EXTENSION {
 	} else {
 	    $label = generate_aria_label($name);
 	}
-	# this is the name of the parent answer group
+	# $answer_group_name is the name of the parent answer group
+	# the group name is usually the same as the answer blank name             
+	# when there is only one answer blank. 
+	
+	
+	
 	my $answer_group_name = $options{answer_group_name}//''; 
 	unless ($answer_group_name) {
 		WARN_MESSAGE("Error in NAMED_ANSWER_RULE_EXTENSION: every call to this subroutine needs
-		to have \$options{answer_group_name} defined. Answer blank name: $name");
+		to have \$options{answer_group_name} defined. For a single answer blank this is 
+		usually the same as the answer blank name. Answer blank name: $name");
 	}
     # warn "from named answer rule extension in PGbasic answer_group_name: |$answer_group_name|";
 	my $answer_value = '';

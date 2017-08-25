@@ -527,7 +527,7 @@ sub store_persistent_data {  # will store strings only (so far)
 	my $self = shift;
 	my $label = shift;
 	my @content = @_;
-	$self->internal_debug_message("PGcore::store_persistent_data: storing $label in PERSISTENCE_HASH");
+	# $self->internal_debug_message("PGcore::store_persistent_data: storing $label in PERSISTENCE_HASH");
 	if (defined($self->{PERSISTENCE_HASH}->{$label}) ) {
 		warn "can' overwrite $label in persistent data";
 	} else {
