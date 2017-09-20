@@ -33,8 +33,8 @@ sub matrix_column_slice{
 sub matrix_from_matrix_cols {
 	my $M = shift;   # a MathObject matrix_columns
 	my($n,$m) = $M->dimensions;
-	my @slice = @_ ;
-	@slice = (1..$m) unless @slice;
+
+	my @slice = @_//1..$m;
 	if (ref($slice[0]) =~ /ARRAY/) { # handle array reference
 		@slice = @{$slice[0]};
 	}
@@ -50,12 +50,10 @@ sub matrix_row_slice{
 sub matrix_from_matrix_rows {
 	my $M = shift;   # a MathObject matrix_columns
 	my($n,$m) = $M->dimensions;
-	my @slice = @_ ;
-	@slice = (1..$n) unless @slice;
+	my @slice = @_//1..$n;
 	if (ref($slice[0]) =~ /ARRAY/) { # handle array reference
 		@slice = @{$slice[0]};
 	}
-	#DEBUG_MESSAGE("slice is ", join(" ", @slice));
 	my @rows = map {[$M->row($_)->value]} @slice;   
 	 #create the chosen columns as rows
 	 # then transform to array_refs.
@@ -110,7 +108,12 @@ sub matrix_extract_columns {
 ##############
 # get_tableau_variable_values
 #
+<<<<<<< HEAD
 # Calculates the values of the basis variables of the tableau, assuming the parameter variables are 0.
+=======
+# Calculates the values of the basis variables of the tableau, 
+# assuming the parameter variables are 0.
+>>>>>>> Add tableau.pl
 #
 # Usage:   get_tableau_variable_values($MathObjectMatrix_tableau, $MathObjectSet_basis)
 # 
@@ -179,9 +182,15 @@ sub linebreak_at_commas {
 	return sub {
 		my $ans=shift;
 		my $foo = $ans->{correct_ans_latex_string};
+<<<<<<< HEAD
 		$foo =~ s/,/,\\\\/g;
 		($ans->{correct_ans_latex_string})=~ s/,/,\\\\/g;
 		($ans->{preview_latex_string})=~ s/,/,\\\\/g;
+=======
+		$foo =~ s/,/,\\\\\\\\/g;
+		($ans->{correct_ans_latex_string})=~ s/,/,\\\\\\\\/g;
+		($ans->{preview_latex_string})=~ s/,/,\\\\\\\\/g;
+>>>>>>> Add tableau.pl
 		#DEBUG_MESSAGE("foo", $foo);
 		#DEBUG_MESSAGE( "correct", $ans->{correct_ans_latex_string} );
 		#DEBUG_MESSAGE( "preview",  $ans->{preview_latex_string} );
@@ -264,7 +273,11 @@ sub initialize {
 	# main::DEBUG_MESSAGE("m $m, n $n");
 	$self->{S} = Value::Matrix->I(4);
 	$self->{basis} = [($n+1)...($n+$m)] unless ref($self->{basis})=~/ARRAY/;
+<<<<<<< HEAD
 	my @rows = $self->assemble_tableau;
+=======
+	my @rows = $self->assemble_matrix;
+>>>>>>> Add tableau.pl
 	#main::DEBUG_MESSAGE("rows", @rows);
 	$self->{M} = _Matrix([@rows]);
 	$self->{B} = $self->{M}->submatrix(rows=>[1..($self->{m})],columns=>$self->{basis});
@@ -272,7 +285,11 @@ sub initialize {
 	return();	
 }
 		
+<<<<<<< HEAD
 sub assemble_tableau {
+=======
+sub assemble_matrix {
+>>>>>>> Add tableau.pl
 	my $self = shift;
 	my @rows =();
 	my $m = $self->{m};
@@ -348,10 +365,14 @@ package Value::Matrix;
 sub _Matrix {   
 	Value::Matrix->new(@_);
 }
+<<<<<<< HEAD
 
 #FIXME -- I think these need default values for slice
 
 sub extract_rows { # preferable to use row slice
+=======
+sub extract_rows {
+>>>>>>> Add tableau.pl
 	$self = shift;
 	my @slice = @_;
 	if (ref($slice[0]) =~ /ARRAY/) { # handle array reference
@@ -362,7 +383,11 @@ sub extract_rows { # preferable to use row slice
 	return [map {$self->row($_)} @slice ]; #prefer to pass references when possible
 }
 
+<<<<<<< HEAD
 sub extract_columns { # preferable to use row slice 
+=======
+sub extract_columns {
+>>>>>>> Add tableau.pl
 	$self = shift;
 	my @slice = @_;
 	if (ref($slice[0]) =~ /ARRAY/) { # handle array reference
