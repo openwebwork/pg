@@ -33,11 +33,12 @@ sub matrix_column_slice{
 sub matrix_from_matrix_cols {
 	my $M = shift;   # a MathObject matrix_columns
 	my($n,$m) = $M->dimensions;
-
-	my @slice = @_//1..$m;
+	my @slice = @_;
+    # Fixed error in defining row and column slices.
 	if (ref($slice[0]) =~ /ARRAY/) { # handle array reference
 		@slice = @{$slice[0]};
 	}
+	@slice = @slice?@slice : (1..$m);
 	my @columns = map {$M->column($_)->transpose->value} @slice;   
 	 #create the chosen columns as rows
 	 # then transform to array_refs.
@@ -50,10 +51,12 @@ sub matrix_row_slice{
 sub matrix_from_matrix_rows {
 	my $M = shift;   # a MathObject matrix_columns
 	my($n,$m) = $M->dimensions;
-	my @slice = @_//1..$n;
+	my @slice = @_;
 	if (ref($slice[0]) =~ /ARRAY/) { # handle array reference
 		@slice = @{$slice[0]};
 	}
+	@slice = @slice? @slice : (1..$n); # the default is the whole matrix.
+	# DEBUG_MESSAGE("row slice in matrix from rows is @slice");
 	my @rows = map {[$M->row($_)->value]} @slice;   
 	 #create the chosen columns as rows
 	 # then transform to array_refs.
@@ -70,8 +73,10 @@ sub matrix_from_submatrix {
 	my($n,$m) = $M->dimensions;
 	my $row_slice = ($options{rows})?$options{rows}:[1..$m];
 	my $col_slice = ($options{columns})?$options{columns}:[1..$n];
-	#DEBUG_MESSAGE("ROW SLICE", join(" ", @$row_slice));
+	# DEBUG_MESSAGE("ROW SLICE", join(" ", @$row_slice));
+	# DEBUG_MESSAGE("COL SLICE", join(" ", @$col_slice));
 	my $M1 = matrix_from_matrix_rows($M,@$row_slice);
+	# DEBUG_MESSAGE("M1 - matrix from rows) $M1");
 	return matrix_from_matrix_cols($M1, @$col_slice);
 }
 sub matrix_extract_rows {
@@ -108,12 +113,9 @@ sub matrix_extract_columns {
 ##############
 # get_tableau_variable_values
 #
-<<<<<<< HEAD
-# Calculates the values of the basis variables of the tableau, assuming the parameter variables are 0.
-=======
+
 # Calculates the values of the basis variables of the tableau, 
 # assuming the parameter variables are 0.
->>>>>>> Add tableau.pl
 #
 # Usage:   get_tableau_variable_values($MathObjectMatrix_tableau, $MathObjectSet_basis)
 # 
