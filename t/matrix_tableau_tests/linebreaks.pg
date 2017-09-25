@@ -97,21 +97,20 @@ $rhs = Vector($kansas, $mexico, $newyork, $california);
 #######################
 # scaffold
 
-# use linebreak_at_commas from tableau
-# sub linebreak_at_commas {
-# 	return sub {
-# 		my $ans=shift;
-# 		my $foo = $ans->{correct_ans_latex_string};
-# 		$foo =~ s/,/,~~~~~~~~/g;
-# 		($ans->{correct_ans_latex_string})=~ s/,/,~~~~~~~~/g;
-# 		($ans->{preview_latex_string})=~ s/,/,~~~~~~~~/g;
-# 		#DEBUG_MESSAGE("foo", $foo);
-# 		#DEBUG_MESSAGE( "correct", $ans->{correct_ans_latex_string} );
-# 		#DEBUG_MESSAGE( "preview",  $ans->{preview_latex_string} );
-# 		#DEBUG_MESSAGE("section4ans1 ", pretty_print($ans, $displayMode));
-# 		$ans;
-# 	};
-# }
+#sub linebreak_at_commas {
+#	return sub {
+#		my $ans=shift;
+#		my $foo = $ans->{correct_ans_latex_string};
+#		$foo =~ s/,/,~~~~~~~~/g;
+#		($ans->{correct_ans_latex_string})=~ s/,/,~~~~~~~~/g;
+#		($ans->{preview_latex_string})=~ s/,/,~~~~~~~~/g;
+#		#DEBUG_MESSAGE("foo", $foo);
+#		#DEBUG_MESSAGE( "correct", $ans->{correct_ans_latex_string} );
+#		#DEBUG_MESSAGE( "preview",  $ans->{preview_latex_string} );
+#		#DEBUG_MESSAGE("section4ans1 ", pretty_print($ans, $displayMode));
+#		$ans;
+#	};
+#}
 
 $foochecker =  $constraints->cmp()->withPostFilter(
 linebreak_at_commas()
