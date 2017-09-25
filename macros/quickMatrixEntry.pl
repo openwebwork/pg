@@ -51,7 +51,7 @@ $(function() {
          // enter something that indicates how many columns to fill
          entry = '';
          for(i=1;i<=columns;i++) {entry = entry + i+' ';}
-         //console.log("entry " + entry);
+         //console.log("entry " + entry); # prefill the entry area
          $("textarea#matrix_input").val(entry);
          $( "#quick_entry_form" ).dialog( "open" );
       

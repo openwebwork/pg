@@ -260,8 +260,12 @@ sub path_is_course_subdir {
 #
 sub query_sage_server {
 	my ($python, $url, $accepted_tos, $setSeed, $webworkfunc, $debug, $curlCommand)=@_;
-	my $sagecall = 	qq{$curlCommand -i -k -sS -L --data-urlencode "accepted_tos=${accepted_tos}"}.
+#	my $sagecall = 	qq{$curlCommand -i -k -sS -L --http1.1 --data-urlencode "accepted_tos=${accepted_tos}"}.
 	                qq{ --data-urlencode 'user_expressions={"WEBWORK":"_webwork_safe_json(WEBWORK)"}' --data-urlencode "code=${setSeed}${webworkfunc}$python" $url};
+	my $sagecall = 	qq{$curlCommand -i -k -sS -L  --data-urlencode "accepted_tos=${accepted_tos}"}.
+	                qq{ --data-urlencode 'user_expressions={"WEBWORK":"_webwork_safe_json(WEBWORK)"}' --data-urlencode "code=${setSeed}${webworkfunc}$python" $url};
+
+
     my $output  =`$sagecall`;
 	if ($debug) {
 	    warn "debug is turned on in IO.pm. ";
@@ -279,13 +283,44 @@ sub query_sage_server {
 		# 				Access-Control-Allow-Origin: *
 		# 				Content-Type: application/json; charset=UTF-8
 		# $content: Either error message about terms of service or output from sage
-	my ($continue, $header, @content) = split("\r\n\r\n",$output);
-	my $content = join("\r\n\r\n",@content); # handle case where there were blank lines in the content
-	# warn "output list is ", join("|||\n|||",($continue, $header, @content));
-	# warn "header is $header    =" , $header =~/200 OK\r\n/;
+	# find the header 
+	# expecting something like
+	# 	HTTP/1.1 100 Continue
+	
+	#	HTTP/1.1 200 OK
+	#	Date: Wed, 20 Sep 2017 14:54:03 GMT
+    #   ......
+    #   two blank lines 
+    #   content
+          
+	# or   (notice that here there is no continue response)
+	#   HTTP/2 200
+    #   date: Wed, 20 Sep 2017 16:06:03 GMT
+    #   ......
+    #   two blank lines 
+    #   content
+
+	 my ($continue, $header, @content) = split("\r\n\r\n",$output);
+	#my $content = join("\r\n\r\n",@content); # handle case where there were blank lines in the content
+	 my @lines = split("\r\n\r\n", $output);
+	 $continue=0;  
+	 my $header_ok =0;
+	 while (@lines) {
+	 	my $header_block = shift(@lines);
+	 	warn "checking for header:  $header_block" if $debug;
+	 	next unless $header_block=~/\S/; #skip empty lines;
+	 	next if $header_block=~/HTTP/ and $header_block=~/100/; # skip continue line
+	 	if ($header_block=~/200/) { # 200 return is ok
+	 		$header_ok=1;
+	 		last;
+	 	}
+	 }
+	 my $content = join("|||\n|||",@lines) ;  #headers have been removed. 
+	 #warn "output list is ", $content; # join("|||\n|||",($continue, $header, $content));
+	 #warn "header_ok is $header_ok";  
 	my $result;
-	if ($header =~/200 OK\r\n/)  { #success 
-		$result = $content;
+	if ($header_ok)  { #success put any extraneous splits back together
+		$result = join("\r\n\r\n",@lines);
 	} else {
 		warn "ERROR in contacting sage server. Did you accept the terms of service by 
 		      setting {accepted_tos=>'true'} in the askSage options?\n $content\n";
@@ -343,7 +378,9 @@ END
 		# has something been returned?
 		not_null($output) or die "Unable to make a sage call to $url."; 
 		warn "IO::askSage: We have some kind of value |$output| returned from sage" if $output and $debug; 
- 
+        if ($output =~ /"success":\s*true/ and $debug){
+        	warn '"success": true is present in the output';
+        }
 		my $decoded = decode_json($output);
 		not_null($decoded) or die "Unable to decode sage output";
 		if ($debug and defined $decoded ) {
@@ -351,16 +388,19 @@ END
 			foreach my $key (keys %$decoded) {$warning_string .= "$key=".$decoded->{$key}.", ";}
 			$warning_string .= ' end decoded contents';
 			#warn "\n$warning_string" if $debug;
-			warn " decoded contents \n", PGUtil::pretty_print($decoded, 'text'), "end decoded contents";
+			warn " decoded contents \n", PGUtil::pretty_print($decoded, 'text'), "end decoded contents" if $debug;
 		}
 		# was there a Sage/python syntax Error
 		# is the returned something text from stdout (deprecated)
 		# have objects been returned in a WEBWORK variable?
-		my $success = $decoded->{success} if defined $decoded;
+		my $success = 0;
+		$success = $decoded->{success} if defined $decoded and $decoded->{success};
 		warn "success  is $success"  if $debug;
 		# the decoding process seems to change the string "true" to "1" sometimes -- we could enforce this
 		$success = 1 if defined $success and $success eq 'true';
-		if ($decoded->{success}==1) {
+		$success = 1 if $decoded->{execute_reply}->{status} eq 'ok';
+		warn "now success  is $success because status was ok"  if $debug;
+		if ($success) {
 			my $WEBWORK_variable_non_empty=0;
 			my $sage_WEBWORK_data = $decoded->{execute_reply}{user_expressions}{WEBWORK}{data}{'text/plain'};
 			warn "sage_WEBWORK_data $sage_WEBWORK_data" if $debug;
@@ -387,7 +427,7 @@ END
 			} else {
 				die "Error receiving JSON output from sage: \n$output\n ";
 			}
-		} elsif ($decoded->{success} == 0 )  { # this might be a syntax error
+		} elsif ($success == 0 )  { # this might be a syntax error
 			$ret->{error_message} = $decoded->{execute_reply}; # this is a hash.  # need a better pretty print method
 			warn ( "IO.pm: Perhaps there was syntax error.", join(" ",%{ $decoded->{execute_reply}}));
 		} else {
