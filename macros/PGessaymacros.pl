@@ -112,11 +112,12 @@ sub  NAMED_ESSAY_BOX {
 	my $out = MODES(
 	     TeX => qq!\\vskip $height in \\hrulefill\\quad !,
 	     Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col" >$answer_value</TEXTAREA>\\end{rawhtml}!,
-	    HTML => qq!
+	     HTML => qq!
          <TEXTAREA NAME="$name" id="$name" aria-label="$label" ROWS="$row" COLS="$col" class="latexentryfield"
                WRAP="VIRTUAL" title="Enclose math expressions with backticks or use LaTeX.">$answer_value</TEXTAREA>
            <INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">
-           !
+            !,
+         PTX => '<var form="essay" width="'.$col.'" height="'.$row.'" />',
          );
 
 	$out;
@@ -127,14 +128,15 @@ sub  essay_help {
 	my $out = MODES(
 	     TeX => '',
 	     Latex2HTML => '',
-	    HTML => qq!
+	     HTML => qq!
             <P>  This is an essay answer text box.  You can type your answer in here and, after you hit submit, 
                  it will be saved so that your instructor can grade it at a later date.  If your instructor makes 
                  any comments on your answer those comments will appear on this page after the question has been 
                  graded.  You can use LaTeX to make your math equations look pretty.   
                  LaTeX expressions should be enclosed using the parenthesis notation and not dollar signs. 
             </P> 
-           !
+           !,
+         PTX => '',
          );
 
 	$out;

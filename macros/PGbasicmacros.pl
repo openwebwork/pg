@@ -405,6 +405,7 @@ sub NAMED_ANS_RULE {
 		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" aria-label="$label" dir="auto" value="$answer_value"/>\n!.
 		              $add_html. # added for dragmath
                         qq!<input type=hidden  name="$previous_name" value="$answer_value"/>\n!,
+        PTX => '<fillin name="'."$name".'" characters="'."$col".'" />',
 		
 	);
 }
@@ -445,7 +446,8 @@ sub NAMED_HIDDEN_ANS_RULE { # this is used to hold information being passed into
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\\end{rawhtml}!,
 		HTML => qq!<INPUT TYPE=HIDDEN SIZE=$col NAME="$name" id ="$name" VALUE="$answer_value">!.
-                        qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" id = "previous_$name" VALUE="$answer_value">!
+                        qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" id = "previous_$name" VALUE="$answer_value">!,
+        PTX => '',
 	);
 }
 sub NAMED_ANS_RULE_OPTION {   # deprecated
@@ -495,7 +497,8 @@ sub NAMED_ANS_RULE_EXTENSION {
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = " ">\n\\end{rawhtml}\n!,
 		HTML => qq!<INPUT TYPE=TEXT CLASS="codeshard" SIZE=$col NAME = "$name" id="$name" aria-label="$label" dir="auto" VALUE = "$answer_value">!.
-                        qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" id="previous_$name" VALUE = "$answer_value">!
+                        qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" id="previous_$name" VALUE = "$answer_value">!,
+		PTX => '<fillin name="'."$name".'" characters="'."$col".'" />',
 	);
 }
 
@@ -536,7 +539,8 @@ sub  NAMED_ANS_BOX {
          HTML => qq!<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
                WRAP="VIRTUAL">$answer_value</TEXTAREA>
              <INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">
-           !
+            !,
+         PTX => '<var name="'."$name".'" height="'."$row".'" width="'."$col".'" />',
          );
 	$out;
 }
@@ -571,7 +575,8 @@ sub NAMED_ANS_RADIO {
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<label><INPUT TYPE=RADIO NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!
+        HTML => qq!<label><INPUT TYPE=RADIO NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!,
+        PTX => '<li>'."$tag".'</li>'."\n",
 	);
 
 }
@@ -610,7 +615,8 @@ sub NAMED_ANS_RADIO_EXTENSION {
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<label><INPUT TYPE=RADIO NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!
+        HTML => qq!<label><INPUT TYPE=RADIO NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!,
+        PTX => '<li>'."$tag".'</li>'."\n",
 	);
 
 }
@@ -771,7 +777,8 @@ sub NAMED_ANS_CHECKBOX {
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<label><INPUT TYPE=CHECKBOX NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!
+        HTML => qq!<label><INPUT TYPE=CHECKBOX NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!,
+        PTX => '<li>'."$tag".'</li>'."\n",
 	);
 
 }
@@ -808,7 +815,8 @@ sub NAMED_ANS_CHECKBOX_OPTION {
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<label><INPUT TYPE=CHECKBOX NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!
+        HTML => qq!<label><INPUT TYPE=CHECKBOX NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!,
+        PTX => '<li>'."$tag".'</li>'."\n",
 	);
 
 }
@@ -891,6 +899,9 @@ sub ans_radio_buttons {
 	if ($displayMode eq 'TeX') {
 		$radio_buttons[0] = "\n\\begin{itemize}\n" . $radio_buttons[0];
 		$radio_buttons[$#radio_buttons] .= "\n\\end{itemize}\n";
+    } elsif ($displayMode eq 'PTX') {
+        $radio_buttons[0] = '<var form="buttons">' . "\n" . $radio_buttons[0];
+                 $radio_buttons[$#radio_buttons] .= '</var>';
 	}
 
 	(wantarray) ? @radio_buttons: join(" ", @radio_buttons);
@@ -904,6 +915,9 @@ sub ans_checkbox {
 	if ($displayMode eq 'TeX') {
 		$checkboxes[0] = "\n\\begin{itemize}\n" . $checkboxes[0];
 		$checkboxes[$#checkboxes] .= "\n\\end{itemize}\n";
+    } elsif ($displayMode eq 'PTX') {
+        $checkboxes[0] = '<var form="checkboxes">' . "\n" . $checkboxes[0];
+                 $checkboxes[$#checkboxes] .= '</var>'
 	}
 
 	(wantarray) ? @checkboxes: join(" ", @checkboxes);
@@ -924,7 +938,8 @@ sub tex_ans_rule {
                      'Latex2HTML' => '\\fbox{Answer boxes cannot be placed inside typeset equations}',
                      'HTML_tth' => '\\begin{rawhtml} '. $answer_rule.'\\end{rawhtml}',
                      'HTML_dpng' => '\\fbox{Answer boxes cannot be placed inside typeset equations}',
-                     'HTML'     => $answer_rule
+                     'HTML'     => $answer_rule,
+                     'PTX'      => 'Answer boxes cannot be placed inside typeset equations',
                    );
 
     $out;
@@ -940,7 +955,8 @@ sub tex_ans_rule_extension {
                      'Latex2HTML' => '\fbox{Answer boxes cannot be placed inside typeset equations}',
                      'HTML_tth' => '\\begin{rawhtml} '. $answer_rule.'\\end{rawhtml}',
                      'HTML_dpng' => '\fbox{Answer boxes cannot be placed inside typeset equations}',
-                     'HTML'     => $answer_rule
+                     'HTML'     => $answer_rule,
+                     'PTX'      => 'Answer boxes cannot be placed inside typeset equations',
                    );
 
     $out;
@@ -956,7 +972,8 @@ sub NAMED_TEX_ANS_RULE {
                      'Latex2HTML' => '\\fbox{Answer boxes cannot be placed inside typeset equations}',
                      'HTML_tth' => '\\begin{rawhtml} '. $answer_rule.'\\end{rawhtml}',
                      'HTML_dpng' => '\\fbox{Answer boxes cannot be placed inside typeset equations}',
-                     'HTML'     => $answer_rule
+                     'HTML'     => $answer_rule,
+                     'PTX'      => 'Answer boxes cannot be placed inside typeset equations',
                    );
 
     $out;
@@ -971,7 +988,8 @@ sub NAMED_TEX_ANS_RULE_EXTENSION {
                      'Latex2HTML' => '\fbox{Answer boxes cannot be placed inside typeset equations}',
                      'HTML_tth' => '\\begin{rawhtml} '. $answer_rule.'\\end{rawhtml}',
                      'HTML_dpng' => '\fbox{Answer boxes cannot be placed inside typeset equations}',
-                     'HTML'     => $answer_rule
+                     'HTML'     => $answer_rule,
+                     'PTX'      => 'Answer boxes cannot be placed inside typeset equations',
                    );
 
     $out;
@@ -1029,6 +1047,13 @@ sub NAMED_POP_UP_LIST {
 		$out .= " \\begin{rawhtml}</SELECT>\\end{rawhtml}\n";
 	} elsif ( $displayMode eq "TeX") {
 			$out .= "\\fbox{?}";
+    } elsif ( $displayMode eq "PTX") {
+        $out = '<var form="popup">' . "\n";
+        my $i;
+        foreach ($i=0; $i< @list; $i=$i+2) {
+            $out .= '<li>'.$list[$i+1].'</li>'."\n";
+        };
+        $out .= '</var>';
 	}
 	$name = RECORD_ANS_NAME($name,$answer_value);   # record answer name
 	$out;
@@ -1054,6 +1079,9 @@ sub pop_up_list {
 		and then at the end moving down one row, just as you would read them.)
 
 		The options are passed on to display_matrix.
+
+        Note (7/21/2107) The above usage does not work. Omitting the \[ \] works, but also must
+        load PGmatrixmacros.pl to get display_matrix used below
 
 
 =cut
@@ -1135,7 +1163,8 @@ sub NAMED_ANS_ARRAY_EXTENSION{
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{10pt}{\\hrulefill}}\\hrulefill\\quad ",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = "">\n\\end{rawhtml}\n!,
-		HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" class="codeshard" aria-label="$label" VALUE = "$answer_value">\n!
+        HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" class="codeshard" aria-label="$label" VALUE = "$answer_value">\n!,
+        PTX => qq!<fillin name="$name" characters="$col" />!,
 	);
 }
 
@@ -1205,13 +1234,19 @@ sub ans_array_extension{
 
 # end answer blank macros
 
-=head2 Hints and solutions macros
+=head2 Hints, solutions, and statement macros
 
 	solution('text','text2',...);
 	SOLUTION('text','text2',...);   # equivalent to TEXT(solution(...));
 
 	hint('text', 'text2', ...);
 	HINT('text', 'text2',...);      # equivalent to TEXT("$BR$HINT" . hint(@_) . "$BR") if hint(@_);
+
+    statement('text');
+    STATEMENT('text');          # equivalent to TEXT(statement(...));
+
+statement takes a string, probably from EV3P, and possibly wraps opening and closing
+content, paralleling one feature of solution and hint.
 
 Solution prints its concatenated input when the check box named 'ShowSol' is set and
 the time is after the answer date.  The check box 'ShowSol' is visible only after the
@@ -1272,12 +1307,14 @@ sub SOLUTION {
     	              base64 =>1 ) ) if solution(@_);
     } elsif ($displayMode=~/TeX/) {
         TEXT(
-            "\n%%% BEGIN SOLUTION\n",                   #Marker used in MathBook XML extraction; contact alex.jordan@pcc.edu before modifying
+            "\n%%% BEGIN SOLUTION\n",                   #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
             $PAR,SOLUTION_HEADING(), solution(@_).$PAR,
-            "\n%%% END SOLUTION\n"                      #Marker used in MathBook XML extraction; contact alex.jordan@pcc.edu before modifying
+            "\n%%% END SOLUTION\n"                      #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
         ) if solution(@_) ;
     } elsif ($displayMode=~/HTML/) {
 		TEXT( $PAR.SOLUTION_HEADING().$BR.solution(@_).$PAR) if solution(@_) ;
+    } elsif ($displayMode=~/PTX/) {
+       TEXT( '<solution>',"\n",solution(@_),"\n",'</solution>',"\n\n") if solution(@_) ;
     } else {
 		TEXT( $PAR.solution(@_).$PAR) if solution(@_) ;
 	}
@@ -1315,7 +1352,9 @@ sub hint {
 	 	    ## the second test above prevents a hint being shown if a doctored form is submitted
 		    $out = join(' ',@in);
 		}
-	}    
+    } elsif ($displayMode=~/PTX/) {
+        $out = join(' ',@in);
+    }
 	
   $out ;
 }
@@ -1327,17 +1366,31 @@ sub HINT {
 		                  base64 => 1) ) if hint(@_);
     } elsif ($displayMode=~/TeX/) {
         TEXT(
-            "\n%%% BEGIN HINT\n",                #Marker used in MathBook XML extraction; contact alex.jordan@pcc.edu before modifying
+            "\n%%% BEGIN HINT\n",                #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
             $PAR,HINT_HEADING(), hint(@_).$PAR,
-            "\n%%% END HINT\n"                   #Marker used in MathBook XML extraction; contact alex.jordan@pcc.edu before modifying
+            "\n%%% END HINT\n"                   #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
         ) if hint(@_) ;
+    } elsif ($displayMode=~/PTX/) {
+        TEXT( '<hint>',"\n",hint(@_),"\n",'</hint>',"\n\n") if hint(@_);
     } else {
     	TEXT($PAR, HINT_HEADING(), $BR. hint(@_) . $PAR) if hint(@_);
     } 
 }
 
 
-# End hints and solutions macros
+sub statement {
+        my @in = @_;
+        my $out = join(' ',@in);
+   $out;
+}
+
+sub STATEMENT {
+if ($displayMode eq 'PTX') { TEXT('<statement>',"\n", statement(@_), "\n", '</statement>',"\n\n"); }
+        else { TEXT( statement(@_) ) };
+}
+
+
+# End hints and solutions and statement macros
 #################################
 
 =head2 Comments to instructors
@@ -1453,6 +1506,7 @@ sub M3 {
 our %DISPLAY_MODE_FAILOVER = (
 	TeX              => [],
 	HTML             => [],
+    PTX              => [ "HTML" ],
 	HTML_tth         => [ "HTML", ],
 	HTML_dpng        => [ "HTML_tth", "HTML", ],
 	HTML_jsMath      => [ "HTML_dpng", "HTML_tth", "HTML", ],
@@ -1554,22 +1608,22 @@ sub ALPHABET  {
 # Some constants which are different in tex and in HTML
 # The order of arguments is TeX, Latex2HTML, HTML
 # Adopted Davide Cervone's improvements to PAR, LTS, GTS, LTE, GTE, LBRACE, RBRACE, LB, RB. 7-14-03 AKP
-sub PAR { MODES( TeX => '\\par ', Latex2HTML => '\\begin{rawhtml}<P>\\end{rawhtml}', HTML => '<P>'); };
+sub PAR { MODES( TeX => '\\par ', Latex2HTML => '\\begin{rawhtml}<P>\\end{rawhtml}', HTML => '<P>', PTX => "\n\n"); };
 #sub BR { MODES( TeX => '\\par\\noindent ', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR>'); };
 # Alternate definition of BR which is slightly more flexible and gives more white space in printed output
 # which looks better but kills more trees.
-sub BR { MODES( TeX => '\\leavevmode\\\\\\relax ', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR/>'); };
-sub BRBR { MODES( TeX => '\\leavevmode\\\\\\relax \\leavevmode\\\\\\relax ', Latex2HTML => '\\begin{rawhtml}<BR><BR>\\end{rawhtml}', HTML => '<P>'); };
-sub LQ { MODES( TeX => "\\lq\\lq{}", Latex2HTML =>   '"',  HTML =>  '&quot;' ); };
-sub RQ { MODES( TeX => "\\rq\\rq{}", Latex2HTML =>   '"',   HTML =>  '&quot;' ); };
-sub BM { MODES(TeX => '\\(', Latex2HTML => '\\(', HTML =>  ''); };  # begin math mode
-sub EM { MODES(TeX => '\\)', Latex2HTML => '\\)', HTML => ''); };  # end math mode
-sub BDM { MODES(TeX => '\\[', Latex2HTML =>   '\\[', HTML =>   '<P ALIGN=CENTER>'); };  #begin displayMath mode
-sub EDM { MODES(TeX => '\\]',  Latex2HTML =>  '\\]', HTML => '</P>'); };              #end displayMath mode
-sub LTS { MODES(TeX => '<', Latex2HTML => '\\lt ', HTML => '&lt;', HTML_tth => '<' ); };
-sub GTS { MODES(TeX => '>', Latex2HTML => '\\gt ', HTML => '&gt;', HTML_tth => '>' ); };
-sub LTE { MODES(TeX => '\\le ', Latex2HTML => '\\le ', HTML => '<U>&lt;</U>', HTML_tth => '\\le ' ); };
-sub GTE { MODES(TeX => '\\ge ', Latex2HTML => '\\ge ', HTML => '<U>&gt;</U>', HTML_tth => '\\ge ' ); };
+sub BR { MODES( TeX => '\\leavevmode\\\\\\relax ', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR/>', PTX => "\n\n"); };
+sub BRBR { MODES( TeX => '\\leavevmode\\\\\\relax \\leavevmode\\\\\\relax ', Latex2HTML => '\\begin{rawhtml}<BR><BR>\\end{rawhtml}', HTML => '<P>', PTX => "\n"); };
+sub LQ { MODES( TeX => "\\lq\\lq{}", Latex2HTML =>   '"',  HTML =>  '&quot;', PTX => '<lq />' ); };
+sub RQ { MODES( TeX => "\\rq\\rq{}", Latex2HTML =>   '"',   HTML =>  '&quot;', PTX => '<rq />' ); };
+sub BM { MODES(TeX => '\\(', Latex2HTML => '\\(', HTML =>  '', PTX => '<m>'); };  # begin math mode
+sub EM { MODES(TeX => '\\)', Latex2HTML => '\\)', HTML => '', PTX => '</m>'); };  # end math mode
+sub BDM { MODES(TeX => '\\[', Latex2HTML =>   '\\[', HTML =>   '<P ALIGN=CENTER>', PTX => '<me>'); };  #begin displayMath mode
+sub EDM { MODES(TeX => '\\]',  Latex2HTML =>  '\\]', HTML => '</P>', PTX => '</me>'); };              #end displayMath mode
+sub LTS { MODES(TeX => '<', Latex2HTML => '\\lt ', HTML => '&lt;', HTML_tth => '<', PTX => '\lt' ); };  #only for use in math mode
+sub GTS { MODES(TeX => '>', Latex2HTML => '\\gt ', HTML => '&gt;', HTML_tth => '>', PTX => '\gt' ); };  #only for use in math mode
+sub LTE { MODES(TeX => '\\le ', Latex2HTML => '\\le ', HTML => '<U>&lt;</U>', HTML_tth => '\\le ', PTX => '\leq' ); };  #only for use in math mode
+sub GTE { MODES(TeX => '\\ge ', Latex2HTML => '\\ge ', HTML => '<U>&gt;</U>', HTML_tth => '\\ge ', PTX => '\geq' ); };  #only for use in math mode
 sub BEGIN_ONE_COLUMN { MODES(TeX => "\\ifdefined\\nocolumns\\else \\end{multicols}\\fi\n",  Latex2HTML => " ", HTML =>   " "); };
 sub END_ONE_COLUMN { MODES(TeX =>
               " \\ifdefined\\nocolumns\\else \\begin{multicols}{2}\n\\columnwidth=\\linewidth \\fi\n",
@@ -1578,34 +1632,35 @@ sub END_ONE_COLUMN { MODES(TeX =>
 };
 sub SOLUTION_HEADING { MODES( TeX => '\\par {\\bf '.maketext('Solution:').' }',
                  Latex2HTML => '\\par {\\bf '.maketext('Solution:').' }',
-          		 HTML =>  '<B>'.maketext('Solution:').'</B> ');
+                 HTML =>  '<B>'.maketext('Solution:').'</B> ',
+                 PTX => '');
 };
-sub HINT_HEADING { MODES( TeX => "\\par {\\bf ".maketext('Hint:')." }", Latex2HTML => "\\par {\\bf ".maketext('Hint:')." }", HTML => "<B>".maketext('Hint:')."</B> "); };
-sub US { MODES(TeX => '\\_', Latex2HTML => '\\_', HTML => '_');};  # underscore, e.g. file${US}name
-sub SPACE { MODES(TeX => '\\ ',  Latex2HTML => '\\ ', HTML => '&nbsp;');};  # force a space in latex, doesn't force extra space in html
-sub NBSP { MODES(TeX => '~',  Latex2HTML => '~', HTML => '&nbsp;');}; 
-sub NDASH { MODES(TeX => '--',  Latex2HTML => '--', HTML => '&ndash;');}; 
-sub MDASH { MODES(TeX => '---',  Latex2HTML => '---', HTML => '&mdash;');};
-sub BBOLD { MODES(TeX => '{\\bf ',  Latex2HTML => '{\\bf ', HTML => '<B>'); };
-sub EBOLD { MODES( TeX => '}', Latex2HTML =>  '}',HTML =>  '</B>'); };
-sub BLABEL { MODES(TeX => '', Latex2HTML => '', HTML => '<LABEL>'); };
-sub ELABEL { MODES(TeX => '', Latex2HTML => '', HTML => '</LABEL>'); };
-sub BITALIC { MODES(TeX => '{\\it ',  Latex2HTML => '{\\it ', HTML => '<I>'); };
-sub EITALIC { MODES(TeX => '} ',  Latex2HTML => '} ', HTML => '</I>'); };
-sub BUL { MODES(TeX => '\\underline{',  Latex2HTML => '\\underline{', HTML => '<U>'); };
-sub EUL { MODES(TeX => '}',  Latex2HTML => '}', HTML => '</U>'); };
-sub BCENTER { MODES(TeX => '\\begin{center} ',  Latex2HTML => ' \\begin{rawhtml} <div align="center"> \\end{rawhtml} ', HTML => '<div align="center" dir="ltr">'); };
-sub ECENTER { MODES(TeX => '\\end{center} ',  Latex2HTML => ' \\begin{rawhtml} </div> \\end{rawhtml} ', HTML => '</div>'); };
-sub BLTR { MODES(TeX => ' ',  Latex2HTML => ' \\begin{rawhtml} <div dir="ltr"> \\end{rawhtml} ', HTML => '<span dir="ltr">'); };
-sub ELTR { MODES(TeX => ' ',  Latex2HTML => ' \\begin{rawhtml} </div> \\end{rawhtml} ', HTML => '</span>'); };
-sub HR { MODES(TeX => '\\par\\hrulefill\\par ', Latex2HTML => '\\begin{rawhtml} <HR> \\end{rawhtml}', HTML =>  '<HR>'); };
-sub LBRACE { MODES( TeX => '\{', Latex2HTML =>   '\\lbrace',  HTML =>  '{' , HTML_tth=> '\\lbrace' ); };
-sub RBRACE { MODES( TeX => '\}', Latex2HTML =>   '\\rbrace',  HTML =>  '}' , HTML_tth=> '\\rbrace',); };
-sub LB { MODES( TeX => '\{', Latex2HTML =>   '\\lbrace',  HTML =>  '{' , HTML_tth=> '\\lbrace' ); };
-sub RB { MODES( TeX => '\}', Latex2HTML =>   '\\rbrace',  HTML =>  '}' , HTML_tth=> '\\rbrace',); };
-sub DOLLAR { MODES( TeX => '\\$', Latex2HTML => '&#36;', HTML => '&#36;' ); };
-sub PERCENT { MODES( TeX => '\\%', Latex2HTML => '\\%', HTML => '%' ); };
-sub CARET { MODES( TeX => '\\verb+^+', Latex2HTML => '\\verb+^+', HTML => '^' ); };
+sub HINT_HEADING { MODES( TeX => "\\par {\\bf ".maketext('Hint:')." }", Latex2HTML => "\\par {\\bf ".maketext('Hint:')." }", HTML => "<B>".maketext('Hint:')."</B> ", PTX => ''); };
+sub US { MODES(TeX => '\\_', Latex2HTML => '\\_', HTML => '_', PTX => '<underscore />');};  # underscore, e.g. file${US}name
+sub SPACE { MODES(TeX => '\\ ',  Latex2HTML => '\\ ', HTML => '&nbsp;', PTX => ' ');};  # force a space in latex, doesn't force extra space in html
+sub NBSP { MODES(TeX => '~',  Latex2HTML => '~', HTML => '&nbsp;', PTX => '<nbsp />');};
+sub NDASH { MODES(TeX => '--',  Latex2HTML => '--', HTML => '&ndash;', PTX => '<ndash />');};
+sub MDASH { MODES(TeX => '---',  Latex2HTML => '---', HTML => '&mdash;', PTX => '<mdash />');};
+sub BBOLD { MODES(TeX => '{\\bf ',  Latex2HTML => '{\\bf ', HTML => '<B>', PTX => '<em>'); };
+sub EBOLD { MODES( TeX => '}', Latex2HTML =>  '}',HTML =>  '</B>', PTX => '</em>'); };
+sub BLABEL { MODES(TeX => '', Latex2HTML => '', HTML => '<LABEL>', PTX => ''); };
+sub ELABEL { MODES(TeX => '', Latex2HTML => '', HTML => '</LABEL>', PTX => ''); };
+sub BITALIC { MODES(TeX => '{\\it ',  Latex2HTML => '{\\it ', HTML => '<I>', PTX => '<em>'); };
+sub EITALIC { MODES(TeX => '} ',  Latex2HTML => '} ', HTML => '</I>', PTX => '</em>'); };
+sub BUL { MODES(TeX => '\\underline{',  Latex2HTML => '\\underline{', HTML => '<U>', PTX => '<em>'); };
+sub EUL { MODES(TeX => '}',  Latex2HTML => '}', HTML => '</U>', PTX => '</em>'); };
+sub BCENTER { MODES(TeX => '\\begin{center} ',  Latex2HTML => ' \\begin{rawhtml} <div align="center"> \\end{rawhtml} ', HTML => '<div align="center">', PTX => ''); };
+sub ECENTER { MODES(TeX => '\\end{center} ',  Latex2HTML => ' \\begin{rawhtml} </div> \\end{rawhtml} ', HTML => '</div>', PTX => ''); };
+sub BLTR { MODES(TeX => ' ',  Latex2HTML => ' \\begin{rawhtml} <div dir="ltr"> \\end{rawhtml} ', HTML => '<span dir="ltr">', PTX => ''); };
+sub ELTR { MODES(TeX => ' ',  Latex2HTML => ' \\begin{rawhtml} </div> \\end{rawhtml} ', HTML => '</span>', PTX => ''); };
+sub HR { MODES(TeX => '\\par\\hrulefill\\par ', Latex2HTML => '\\begin{rawhtml} <HR> \\end{rawhtml}', HTML =>  '<HR>', PTX => ''); };
+sub LBRACE { MODES( TeX => '\{', Latex2HTML =>   '\\lbrace',  HTML =>  '{' , HTML_tth=> '\\lbrace', PTX => '<lbrace />' ); };  #not for use in math mode
+sub RBRACE { MODES( TeX => '\}', Latex2HTML =>   '\\rbrace',  HTML =>  '}' , HTML_tth=> '\\rbrace', PTX => '<rbrace />' ); };  #not for use in math mode
+sub LB { MODES( TeX => '\{', Latex2HTML =>   '\\lbrace',  HTML =>  '{' , HTML_tth=> '\\lbrace', PTX => '<lbrace />' ); };  #not for use in math mode
+sub RB { MODES( TeX => '\}', Latex2HTML =>   '\\rbrace',  HTML =>  '}' , HTML_tth=> '\\rbrace', PTX => '<rbrace />' ); };  #not for use in math mode
+sub DOLLAR { MODES( TeX => '\\$', Latex2HTML => '&#36;', HTML => '&#36;', PTX => '<dollar />' ); };
+sub PERCENT { MODES( TeX => '\\%', Latex2HTML => '\\%', HTML => '%', PTX => '<percent />' ); };
+sub CARET { MODES( TeX => '\\verb+^+', Latex2HTML => '\\verb+^+', HTML => '^', PTX => '<circumflex />' ); };
 sub PI {4*atan2(1,1);};
 sub E {exp(1);};
 
@@ -1946,6 +2001,10 @@ sub general_math_ev3 {
           $in = HTML::Entities::encode_entities($in);
 	  $out = "`$in`" if $mode eq "inline";
 	  $out = '<DIV ALIGN="CENTER">`'.$in.'`</DIV>' if $mode eq "display";
+    } elsif ($displayMode eq "PTX") {
+          $in = HTML::Entities::encode_entities($in);
+      $out = '<m>'."$in".'</m>' if $mode eq "inline";
+      $out = '<me>'."$in".'</me>' if $mode eq "display";
 	} elsif ($displayMode eq "HTML_LaTeXMathML") {
           $in = HTML::Entities::encode_entities($in);
 	  $in = '{'.$in.'}';
@@ -2089,7 +2148,8 @@ sub EV3P {
     $string = ev_substring($string,"\\(","\\)",\&math_ev3);
     $string = ev_substring($string,"\\[","\\]",\&display_math_ev3);
   }
-  
+
+  if ($displayMode eq 'PTX') {$string = PTX_cleanup($string)};
 
   return $string;
 }
@@ -2124,6 +2184,87 @@ sub EV3P_parser {
     elsif ($end{$part}) {$start = $part}
   }
   return join('',@parts);
+}
+
+
+sub PTX_cleanup {
+  my $string = shift;
+  # Wrap <p> tags where necessary, and other cleanup
+  # Nothing else should be creating p tags, so assume all p tags created here
+  # The only supported top-level elements within a statement, hint, or solution in a problem
+  # are p, blockquote, pre, sidebyside
+  if ($displayMode eq 'PTX') {
+    #encase entire string in <p>
+    $string = "<p>".$string."</p>";
+
+    #a <sidebyside> may have been created within a <cell> of a <tabular> as a container of an <image>
+    #so here we clean that up
+    $string =~ s/(?s)(<cell>((?!<\/cell>).)*?)<sidebyside[^>]*>(.*?)<\/sidebyside>(.*?<\/cell>)/$1$3$4/g;
+
+    #inside a sidebyside, the only permissible children are p, image, video, and tabular
+    #insert opening and closing p, to be removed later if they enclose an image, video or tabular
+    $string =~ s/(<sidebyside[^>]*(?<!\/)>)/$1\n<p>/g;
+    $string =~ s/(<\/sidebyside>)/<\/p>\n$1/g;
+    $string =~ s/(<sidebyside[^>]*(?<=\/)>)/<\p>\n$1\n<p>/g;
+    #ditto for li
+    $string =~ s/(<li[^>]*(?<!\/)>)/$1\n<p>/g;
+    $string =~ s/(<\/li>)/<\/p>\n$1/g;
+    $string =~ s/(<li[^>]*(?<=\/)>)/<\p>\n$1\n<p>/g;
+
+    #close p right before any sidebyside, blockquote, or pre, image, video, or tabular
+    #and open p immediately following. Later any potential side effects are cleaned up.
+    $string =~ s/(<(sidebyside|blockquote|pre|image|video|tabular)[^>]*(?<!\/)>)/<\/p>\n$1/g;
+    $string =~ s/(<\/(sidebyside|blockquote|pre|image|video|tabular)>)/$1\n<p>/g;
+    $string =~ s/(<(sidebyside|blockquote|pre|image|video|tabular)[^>]*(?<=\/)>)/<\/p>\n$1\n<p>/g;
+
+    #within a <cell>, we may have an issue if there was an image that had '<\p>' and '<p>' wrapped around
+    #it from the above block. If the '</p>' has a preceding '<p>' within the cell, no problem. Otherwise,
+    #the '</p>' must go. Likewise at the other end.
+    $string =~ s/(?s)(<cell>.*?)<\/p>\n(<image[^>]*(?<=\/)>)\n<p>(.*?<\/cell>)/$1$2$3/g;
+
+    #remove blank lines; assume the intent was to end a p and start a new one
+    #but don't put closing and opening p replacing the blank lines if they precede or follow a <row>
+    #or an <li>
+    $string =~ s/(\r\n?|\n)(\r\n?|\n)+(?!(<row>|<\/tabular>|<li>|\r\n?|\n))/<\/p>\n<p>/g;
+    $string =~ s/(\r\n?|\n)(\r\n?|\n)+(?=(<row>|<\/tabular>|<li>|\r\n?|\n))/\n/g;
+
+    #remove whitespace following <p>
+    $string =~ s/(?s)(<p>)\s*/$1/g;
+
+    #remove whitespace preceding </p>
+    $string =~ s/(?s)\s*(<\/p>)/$1/g;
+
+    #remove empty p
+    $string =~ s/(\r\n?|\n)?<p><\/p>//g;
+
+    #a tabular cell may have <p> and </p> but no corresponding width specification in a col.
+    #if so, remove all <p> and </p> from all cells.
+    my $previous;
+    do {
+    $previous = $string;
+    $string =~ s/(?s)(<tabular>(?:\s|<col (?:(?!width=").)*?>)((?!<\/tabular>).)*?<cell>((?!<\/tabular>).)*?)<p>(((?!<\/tabular>).)*?)<\/p>(((?!<\/tabular>).)*?<\/tabular>)/$1$4$6/g;
+    } until ($previous eq $string);
+
+  };
+  $string;
+}
+
+sub PTX_special_character_cleanup {
+  my $string = shift;
+  $string =~ s/</<less \/>/g;
+  $string =~ s/(?<!\/)>/<greater \/>/g;
+  $string =~ s/&/<ampersand \/>/g;
+  $string =~ s/"/&quot;/g;
+  $string =~ s/\^/<circumflex \/>/g;
+  $string =~ s/#/<hash \/>/g;
+  $string =~ s/\$/<dollar \/>/g;
+  $string =~ s/\%/<percent \/>/g;
+  $string =~ s/\\/<backslash \/>/g;
+  $string =~ s/_/<underscore \/>/g;
+  $string =~ s/{/<lbrace \/>/g;
+  $string =~ s/}/<rbrace \/>/g;
+  $string =~ s/~/<tilde \/>/g;
+  $string;
 }
 
 
@@ -2234,7 +2375,7 @@ sub beginproblem {
 			(defined($effectivePermissionLevel) && defined($PRINT_FILE_NAMES_PERMISSION_LEVEL) && $effectivePermissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL)
 			 || ( defined($inlist{ $studentLogin }) and ( $inlist{ $studentLogin }>0 )  )?1:0 ;
 	$out .= MODES( TeX =>
-		"\n%%% BEGIN PROBLEM PREAMBLE\n",         #Marker used in MathBook XML extraction; contact alex.jordan@pcc.edu before modifying
+        "\n%%% BEGIN PROBLEM PREAMBLE\n",         #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
 		HTML => '<P style="margin: 0">');
 	if ( $print_path_name_flag ) {
 		$out .= &M3("{\\bf ${probNum}. {\\footnotesize ($problemValue $points) \\path|$fileName|}}\\newline ",
@@ -2249,8 +2390,9 @@ sub beginproblem {
 	}
 	$out .= MODES(%{main::PG_restricted_eval(q!$main::problemPreamble!)});
         $out .= MODES( TeX =>
-                "\n%%% END PROBLEM PREAMBLE\n",          #Marker used in MathBook XML extraction; contact alex.jordan@pcc.edu before modifying
+                "\n%%% END PROBLEM PREAMBLE\n",          #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
                 HTML => "");
+    if ($displayMode eq 'PTX') {$out = ''};
 	$out;
 
 }
@@ -2312,12 +2454,12 @@ sub OL {
 	my $i = 0;
 	my @alpha = ('A'..'Z', 'AA'..'ZZ');
 	my $letter;
-	my	$out= 	&M3(
-					"\\begin{enumerate}\n",
-					" \\begin{rawhtml} <OL TYPE=\"A\" VALUE=\"1\"> \\end{rawhtml} ",
+    my $out = MODES(TeX=> "\\begin{enumerate}\n",
+                         Latex2HTML=> " \\begin{rawhtml} <OL TYPE=\"A\" VALUE=\"1\"> \\end{rawhtml} ",
 					# kludge to fix IE/CSS problem
 					#"<OL TYPE=\"A\" VALUE=\"1\">\n"
-					"<BLOCKQUOTE>\n"
+                         HTML=> "<BLOCKQUOTE>\n",
+                         PTX=> '<ol label="A.">'."\n",
 				 	) ;
 	my $elem;
 	foreach $elem (@array) {
@@ -2328,15 +2470,17 @@ sub OL {
                         #HTML=>  "<LI> $elem\n",
                         HTML=>  "<br /> <b>$letter.</b> $elem\n",
                         #HTML_dpng=>     "<LI> $elem <br /> <br /> \n"
-                        HTML_dpng=>     "<br /> <b>$letter.</b> $elem \n"
+                        HTML_dpng=>     "<br /> <b>$letter.</b> $elem \n",
+                        PTX=> "<li><p>$elem</p></li>\n",
                                         );
 		$i++;
 	}
-	$out .= &M3(
-				"\\end{enumerate}\n",
-				" \\begin{rawhtml} </OL>\n \\end{rawhtml} ",
+    $out .= MODES(
+                TeX=> "\\end{enumerate}\n",
+                Latex2HTML=> " \\begin{rawhtml} </OL>\n \\end{rawhtml} ",
 				#"</OL>\n"
-				"</BLOCKQUOTE>\n"
+                HTML=> "</BLOCKQUOTE>\n",
+                PTX=> '</ol>'."\n",
 				) ;
 }
 
@@ -2344,10 +2488,13 @@ sub htmlLink {
 	my $url = shift;
 	my $text = shift;
 	my $options = shift;
+    my $sanitized_url = $url;
+    $sanitized_url =~ s/&/&amp;/g;
 	$options = "" unless defined($options);
 	return "$BBOLD [ the link to '$text'  is broken ] $EBOLD" unless defined($url) and $url;
 	MODES( TeX        => "{\\bf \\underline{$text}}",
-	       HTML       => "<A HREF=\"$url\" $options>$text</A>"
+           HTML       => "<A HREF=\"$url\" $options>$text</A>",
+           PTX    => "<url href=\"$sanitized_url\">$text</url>",
 	);
 }
 
@@ -2389,7 +2536,8 @@ sub knowlLink { # an new syntax for knowlLink that facilitates a local HERE docu
 	}
 	#my $option_string = qq!url = "$options{url}" value = "$options{value}" !;
 	MODES( TeX        => "{\\bf \\underline{$display_text}}",
-	       HTML       => "<a $properties >$display_text</a>"
+           HTML       => "<a $properties >$display_text</a>",
+           PTX        => '<url '. (($options{url})? 'href="'."$options{url}".'"':'')  .' >'.$display_text.'</url>',
 	);
 
 
@@ -2405,6 +2553,7 @@ sub iframe {
 		HTML      => qq!\n <iframe src="$url" $formatted_options>
 		                      Your browser does not support iframes.</p>
 		                   </iframe>\n!,			
+        PTX   => '<url href="'.$url.'" />',
 	);
 }
 
@@ -2508,6 +2657,7 @@ sub appletLink {
  	       Latex2HTML => "\\begin{rawhtml} <APPLET $appletHeader> $options </APPLET>\\end{rawhtml}",
  	       HTML       => "<APPLET\n $appletHeader> \n $options \n </APPLET>",
  	       #HTML       => qq!<OBJECT $appletHeader codetype="application/java"> $options </OBJECT>!
+           PTX        => 'PreTeXt does not support appletLink',
  	);
 }
 
@@ -2517,7 +2667,8 @@ sub oldAppletLink {
 	$options = "" unless defined($options);
 	MODES( TeX        => "{\\bf \\underline{APPLET}  }",
 	       Latex2HTML => "\\begin{rawhtml} <APPLET $url> $options </APPLET>\\end{rawhtml}",
-	       HTML       => "<APPLET $url> $options </APPLET>"
+	       HTML       => "<APPLET $url> $options </APPLET>",
+           PTX        => 'PreTeXt does not support appletLink',
 	    );
 }
 sub spf {
@@ -2600,6 +2751,9 @@ sub begintable {
 	if ($displayMode eq 'TeX') {
 		$out .= "\n\\par\\smallskip\\begin{center}\\begin{tabular}{"  .  "|c" x $number .  "|} \\hline\n";
 		}
+    elsif ($displayMode eq 'PTX') {
+        $out .= "\n".'<sidebyside><tabular top="medium" bottom="medium" left="medium" right="medium">'."\n";
+        }
 	elsif ($displayMode eq 'Latex2HTML') {
 		$out .= "\n\\begin{rawhtml} <TABLE , BORDER=1>\n\\end{rawhtml}";
 		}
@@ -2624,6 +2778,9 @@ sub endtable {
 	if ($displayMode eq 'TeX') {
 		$out .= "\n\\end {tabular}\\end{center}\\par\\smallskip\n";
 		}
+    elsif ($displayMode eq 'PTX') {
+        $out .= "\n".'</tabular></sidebyside>'."\n";
+        }
 	elsif ($displayMode eq 'Latex2HTML') {
 		$out .= "\n\\begin{rawhtml} </TABLE >\n\\end{rawhtml}";
 		}
@@ -2655,6 +2812,13 @@ sub row {
 		 $out .= "\\\\ \\hline \n";
 		 # carriage returns must be added manually for tex
 		}
+    elsif ($displayMode eq 'PTX') {
+        $out .= '<row>'."\n";
+        while (@elements) {
+            $out .= '<cell>'.shift(@elements).'</cell>'."\n";
+            }
+        $out .= '</row>'."\n";
+        }
 	elsif ($displayMode eq 'Latex2HTML') {
 		$out .= "\n\\begin{rawhtml}\n<TR>\n\\end{rawhtml}\n";
 		while (@elements) {
@@ -2778,7 +2942,10 @@ sub image {
  			         <IMG SRC="$imageURL"  WIDTH="$width" $height_attrib $out_options{extra_html_tags} >
  			         </A>
  			!
- 		} else {
+        } elsif ($displayMode eq 'PTX') {
+            my $ptxwidth = 100*$width/600;
+            $out = qq!<sidebyside widths="$ptxwidth%">\n<image source="$imageURL" />\n<\/sidebyside>!
+        } else {
  			$out = "Error: PGbasicmacros: image: Unknown displayMode: $displayMode.\n";
  		}
  		push(@output_list, $out);
@@ -2796,7 +2963,8 @@ sub embedSVG {
 	}
 	return MODES( HTML => q!
    			<img src="! . alias($file_name).$str.q!">!,
-   			TeX => "Can't process svg in tex mode yet \\includegraphics[width=6in]{" . alias( $file_name ) . "}" 
+            TeX => "Can't process svg in tex mode yet \\includegraphics[width=6in]{" . alias( $file_name ) . "}",
+            PTX => '<sidebyside><image source="' . alias($file_name) . '" /></sidebyside>',
 	); 
 }
 
@@ -2809,7 +2977,8 @@ sub embedPDF {
 		   q!  type="application/pdf" 
 		   width="100%" 
 		   height="100%"></object>!, 
-		   TeX => "\\includegraphics[width=6in]{" . alias( $file_name ) . "}" 
+           TeX => "\\includegraphics[width=6in]{" . alias( $file_name ) . "}",
+           PTX => '<sidebyside><image source="'.alias($file_name).'" /></sidebyside>',
 		   ) ; 
 }
 
@@ -2880,6 +3049,9 @@ sub video {
                         ${htmlmessage}\n
                         </VIDEO>\n
  			!
+        } elsif ($displayMode eq 'PTX') {
+            my $ptxwidth = 100*$width/600;
+            $out = qq!<sidebyside><video source="$videoURL" width="$ptxwidth%" /></sidebyside>!
  		} else {
  			$out = "Error: PGbasicmacros: video: Unknown displayMode: $displayMode.\n";
  		}
