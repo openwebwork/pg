@@ -121,7 +121,7 @@ our %known_units = ('m'  => {
                            'factor'    => 1,
                            'rad'       => 1
                           },
-                 'sr'  => {
+                'sr'  => {
                            'factor'    => 1,
                            'rad'       => 2
                           },
@@ -134,6 +134,18 @@ our %known_units = ('m'  => {
 # yr    -- years  -- 365 days in a year
 # fortnight	-- (FFF system) 2 weeks
 #
+                  'sec'  => {
+                           'factor'    => 1,
+                           's'         => 1
+                          },
+                  'second'  => {
+                           'factor'    => 1,
+                           's'         => 1
+                          },
+                  'seconds'  => {
+                           'factor'    => 1,
+                           's'         => 1
+                          },
                   'ms'  => {
                            'factor'    => 0.001,
                            's'         => 1
