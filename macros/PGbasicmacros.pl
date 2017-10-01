@@ -402,7 +402,7 @@ sub NAMED_ANS_RULE {
 
 	    # Note: codeshard is used in the css to identify input elements 
 	    # that come from pg
-		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" aria-label="$label" value="$answer_value"/>\n!.
+		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" aria-label="$label" dir="auto" value="$answer_value"/>\n!.
 		              $add_html. # added for dragmath
                         qq!<input type=hidden  name="$previous_name" value="$answer_value"/>\n!,
 		
@@ -488,7 +488,7 @@ sub NAMED_ANS_RULE_EXTENSION {
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = " ">\n\\end{rawhtml}\n!,
-		HTML => qq!<INPUT TYPE=TEXT CLASS="codeshard" SIZE=$col NAME = "$name" id="$name" aria-label="$label" VALUE = "$answer_value">!.
+		HTML => qq!<INPUT TYPE=TEXT CLASS="codeshard" SIZE=$col NAME = "$name" id="$name" aria-label="$label" dir="auto" VALUE = "$answer_value">!.
                         qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" id="previous_$name" VALUE = "$answer_value">!
 	);
 }
