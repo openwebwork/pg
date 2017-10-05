@@ -14,7 +14,16 @@ sub INITIALIZE_QUICK_MATRIX_ENTRY {
 # <input class="opener" type='button' name="AnSwEr0002" value="Quick Entry"
 #  rows=5 columns=9>
 sub MATRIX_ENTRY_BUTTON {
-	my ($answer_number,$rows,$columns) = @_;
+	my $answer_number = shift;
+	## warn(" input reference is ". ref($answer_number));
+	my ($rows,$columns) = @_;
+	if (ref($answer_number)=~/Matrix/i) { # (handed a MathObject matrix)
+		my $matrix = $answer_number;
+	    ($rows,$columns) = $matrix->dimensions();
+	    $answer_number = $main::PG->{unlabeled_answer_blank_count} +1; 
+	    warn("answer number $answer_number rows $rows columns $columns");
+	    # the +1 assumes that the quick entry button comes before (above) the matrix answer blanks.
+	}
 	$rows=$rows//1;
 	$columns=$columns//5;
 	my $answer_name = "AnSwEr".sprintf('%04d',$answer_number);
@@ -42,6 +51,14 @@ $(function() {
 			//console.log($(pos).val());
 			$(pos).val(entry); //instead of 4000
 		}
+		var extract_value = function(name, i,j) {
+			var pos = "#MaTrIx_"+name+"_"+i+"_"+j;
+			if (i==0 && j==0 ) {
+				pos= "#"+name;
+			}  //MaTrIx_AnSwEr0007_0_3
+			console.log($(pos).val());
+			return $(pos).val() ; //instead of 4000
+		}
     $( ".opener" ).click(function() {
          //console.log(this.name );
          name = this.name;
@@ -50,7 +67,12 @@ $(function() {
          //console.log("cols = " + columns);
          // enter something that indicates how many columns to fill
          entry = '';
-         for(i=1;i<=columns;i++) {entry = entry + i+' ';}
+         for(i=0;i<=rows-1;i++) {
+            for(j=0;j<=columns-1; j++) {
+         		entry = entry + extract_value(name,i,j)+' ';
+         	}
+         	entry = entry + '\n';
+         }
          //console.log("entry " + entry); # prefill the entry area
          $("textarea#matrix_input").val(entry);
          $( "#quick_entry_form" ).dialog( "open" );
