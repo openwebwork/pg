@@ -4,6 +4,7 @@
 # quick matrix entry package
 ###################################
 
+sub _quickMatrixEntry_init {};   # don't reload this file
 
 sub INITIALIZE_QUICK_MATRIX_ENTRY {
 	main::HEADER_TEXT($quick_entry_javascript);
@@ -15,18 +16,18 @@ sub INITIALIZE_QUICK_MATRIX_ENTRY {
 #  rows=5 columns=9>
 sub MATRIX_ENTRY_BUTTON {
 	my $answer_number = shift;
-	## warn(" input reference is ". ref($answer_number));
+	# warn(" input reference is ". ref($answer_number));
 	my ($rows,$columns) = @_;
 	if (ref($answer_number)=~/Matrix/i) { # (handed a MathObject matrix)
 		my $matrix = $answer_number;
 	    ($rows,$columns) = $matrix->dimensions();
 	    $answer_number = $main::PG->{unlabeled_answer_blank_count} +1; 
-	    warn("answer number $answer_number rows $rows columns $columns");
 	    # the +1 assumes that the quick entry button comes before (above) the matrix answer blanks.
 	}
 	$rows=$rows//1;
 	$columns=$columns//5;
 	my $answer_name = "AnSwEr".sprintf('%04d',$answer_number);
+	# warn("answer number $answer_name rows $rows columns $columns");
 	return qq!
 	$PAR
 		<input class="opener" type='button' name="$answer_name" value="Quick Entry" 
@@ -104,3 +105,6 @@ our $quick_entry_form = <<'END_TEXT';
   <button id="closer">enter</button>
 </div>
 END_TEXT
+
+INITIALIZE_QUICK_MATRIX_ENTRY(); # only need the javascript to be entered once.
+1;

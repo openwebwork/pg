@@ -25,6 +25,8 @@
 Many of these duplicate methods of Value::Matrix  -- refactor. 
 =cut 
 
+
+sub _tableau_init {};   # don't reload this file
 package main;
 
 sub matrix_column_slice{
@@ -200,7 +202,7 @@ sub linebreak_at_commas {
 		$ans;
 	};
 }
-
+# Useage
 # $foochecker =  $constraints->cmp()->withPostFilter(
 # 	linebreak_at_commas()
 # );
