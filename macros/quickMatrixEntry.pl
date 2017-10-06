@@ -57,8 +57,8 @@ $(function() {
 			if (i==0 && j==0 ) {
 				pos= "#"+name;
 			}  //MaTrIx_AnSwEr0007_0_3
-			console.log($(pos).val());
-			return $(pos).val() ; //instead of 4000
+			//console.log($(pos).val());
+			return $(pos).val() ; 
 		}
     $( ".opener" ).click(function() {
          //console.log(this.name );
@@ -81,11 +81,21 @@ $(function() {
     });
     $( "#closer" ).click(function() {
         //var name="AnSwEr0007";
-        var mat2=$("textarea#matrix_input").val().split(/\n/);
-        //var mat2=mat.split(/\n/);
+        var entry1 = $("textarea#matrix_input").val().replace(/^\s*/,'');
+        //remove initial white space
+        var entry2=entry1; 
+        // replace commas with a space
+        // replace ] with a return
+        // replace [ with nothing
+        if (entry1.match(/\[/) ) {
+        	entry2 = entry1.replace(/,/g,' ').replace(/\]/g,'\n').replace(/\[/g,'');
+        }
+        var mat2=entry2.split(/\n\s*/);
+        //var mat2=mat.split(/\n\s*/);
         var mat3=[];
         for (i=0; i<mat2.length; i++) {
-            mat3.push( mat2[i].split(/\s+/) );
+        	var mat_tmp = mat2[i].replace(/^\s*/,''); // remove initial white space
+            mat3.push( mat_tmp.split(/\s+/) );
         }
         for (i=0; i<mat3.length; i++) {
             for(j=0; j<mat3[i].length; j++){
