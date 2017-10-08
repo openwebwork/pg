@@ -21,15 +21,15 @@ Context("Matrix");  # need Matrix context to allow string input into Matrix.
 $m = Matrix("[[3,6,7],[2,1,8],[4,6,21],[-6,7,9]]");
 
 
- $m1 = $m->extract_rows([4,1]);  #outputs an array reference 
- $m2 = $m->extract_columns([3,2,1]); #outputs the columns as rows
- $m1list = List($m1);
- $m2list = List($m2);
+ $m_rows = $m->extract_rows([4,1]);  #outputs an array reference 
+ $m_cols = $m->extract_columns([3,2,1]); #outputs the columns as rows
+ $m1list = List($m_rows);
+ $m2list = List($m_cols);
  $list_cols = $m->extract_columns_to_list(1,2);
  $list_rows = $m->extract_rows_to_list(2,3);
   
- $m1matrix = Matrix($m1);
- $m2matrix = Matrix($m2)->transpose;  #matrix is built with rows and then needs to be transposed
+ $m1matrix = Matrix($m_rows);
+ $m2matrix = Matrix($m_cols)->transpose;  #matrix is built with rows and then needs to be transposed
  
  
  $m3 = $m->row_slice([4,1]);
@@ -40,43 +40,56 @@ $m = Matrix("[[3,6,7],[2,1,8],[4,6,21],[-6,7,9]]");
  $submatrix3 = $m->submatrix(columns=>[1,2]);
  $submatrix4 = $m->submatrix();
  
- 
-TEXT("the array of extracted rows ", @$m1, $BR);
-
-TEXT("the array of extracted columns ", @$m2, $BR);
 
 BEGIN_PGML
  
-Create a matrix:   matrix  [`[$m]`]
+Create a matrix:   matrix m = [`[$m]`]
 
-Extracting rows and columns from a matrix.  These are best displayed in PGML within a list.
-It is better to place them in a list outside of PGML and then display. You can also 
-group the extracted rows into a matrix and display. Notice that this does not
-do exactly what you expect when you extract columns
+Matrix indices start at 1.
 
-List rows 4,1 of the matrix [` [@ List($m1) @] `], 
+Extracting rows and columns from a matrix.  
+These are best displayed in PGML within a list.
+It is best to place them in the list outside of PGML and then display. 
+
+You can also  group the extracted rows into a matrix and display. 
+
+Matrix m = [`[$m]`]
+
+List rows 4,1 of the matrix m :[` [@ List($m_rows) @] `], 
 
 or create the list before hand [`[$m1list]`] 
 
 or matrix version [`[$m1matrix]`]
 
-List  columns 3,2,1 of the matrix [@ List($m2) @]
+You can do the same for columns. Notice that this does not
+do exactly what you expect when you extract columns
+
+matrix m = [`[$m]`]
+
+List  columns 3,2,1 of the matrix m: [@ List($m_cols) @]
 
 create the list before hand [`[$m2list]`]
 
 or create matrix version [`[$m2matrix]`]
 
-The two  entries below show what happens if you extract rows or columns into lists using 
-the method $m->extract_rows_to_list(). It is the same as applying List() to the method 
-$m->extract_rows outside of PGML.  Using the \[@ ...  @\] escape to apply List doesn't always do the best job 
+
+Using the \[@ ...  @\] escape to apply List doesn't 
+always do the best job 
 of interacting with TeX output as you can see in the first entries for List above.  
 
+The two  entries below show what happens if you extract rows or 
+columns into lists using 
+the method $m->extract_rows_to_list(). 
+It is the same as applying List() to the method 
+$m->extract_rows outside of PGML.  
+
+matrix:  [`[$m]`]
 
 Find the list of columns 1,2 of the matrix [`[$list_cols]`]
 
 Find the list of rows 2,3 of the matrix [`[$list_rows]`]
 
-These two entries illustrate the $m->row_slice, $m->column_slice methods for shuffling or 
+The next two entries illustrate the $m->row_slice, $m->column_slice methods for shuffling or 
 selecting rows or columns from a matrix. The return type is Value::Matrix.  The column
 selection is done by doing row selection on the transpose -- this does what you expect
 when selecting columns.
