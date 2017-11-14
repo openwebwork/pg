@@ -2002,7 +2002,9 @@ sub general_math_ev3 {
 	  $out = "`$in`" if $mode eq "inline";
 	  $out = '<DIV ALIGN="CENTER">`'.$in.'`</DIV>' if $mode eq "display";
     } elsif ($displayMode eq "PTX") {
-          $in = HTML::Entities::encode_entities($in);
+          #protect XML control characters
+          $in =~ s/\&(?!([\w#]+;))/\\amp /g;
+          $in =~ s/</\\lt /g;
       $out = '<m>'."$in".'</m>' if $mode eq "inline";
       $out = '<me>'."$in".'</me>' if $mode eq "display";
 	} elsif ($displayMode eq "HTML_LaTeXMathML") {
