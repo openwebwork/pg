@@ -225,7 +225,7 @@ sub mult {
   if (scalar(@dl) == 1) {@dl = (1,@dl); $l = $self->make($l)}
   if (scalar(@dr) == 1) {@dr = (@dr,1); $r = $self->make($r)->transpose}
   Value::Error("Can only multiply 2-dimensional matrices") if scalar(@dl) > 2 || scalar(@dr) > 2;
-  Value::Error("Matices of dimensions %dx%d and %dx%d can't be multiplied",@dl,@dr)
+  Value::Error("Matrices of dimensions %dx%d and %dx%d can't be multiplied",@dl,@dr)
     unless ($dl[1] == $dr[0]);
   #
   #  Do matrix multiplication
