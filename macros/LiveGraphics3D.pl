@@ -12,8 +12,8 @@ END_HEADER_TEXT
 
 	$main::LiveGraphics3DHeaderSet = 1;
     }
-    
-}; 
+
+};
 
 =head2 LiveGraphics3D.pl
 
@@ -35,7 +35,7 @@ END_HEADER_TEXT
  #      Live3Ddata          load raw Graphics3D data
  #      LiveGraphics3D      access to all parameters
  #
- 
+
  #
  #  LiveGraphics3D(options)
  #
@@ -69,7 +69,7 @@ END_HEADER_TEXT
  #                            or when Java is disabled
  #
  #     tex_size => ratio      a scaling factor for the TeX image (as a portion
- #                            of the line width).  
+ #                            of the line width).
  #                                1000 is 100%, 500 is 50%, etc.
  #
  #     tex_center => 0 or 1   center the image in TeX mode or not
@@ -116,24 +116,25 @@ sub LiveGraphics3D {
     # In html mode check to see if we use javascript or not
   } elsif ($main::envir{use_javascript_for_live3d}) {
     my ($w,$h) = @{$options{size}};
+    $archive_input = $options{archive} // '';
+    $file_input = $options{file} // '';
+    $direct_input = $options{input} // '';
+    $direct_input =~ s/\n//g;
+    $dom_id = $file_input // 'LG3D';
+    $dom_id =~ s/\./_/g;
+
     $out .= $bHTML if ($main::displayMode eq "Latex2HTML");
     #
     #  Put the js in a table
     #
     $out .= qq{\n<TABLE BORDER="1" CELLSPACING="2" CELLPADDING="0">\n<TR>};
-    $out .= qq{<TD WIDTH="$w" HEIGHT="$h" ALIGN="CENTER">};
-
-    $archive_input = $options{archive} // '';
-    $file_input = $options{file} // '';
-    $direct_input = $options{input} // '';
-
-    $direct_input =~ s/\n//g;
+    $out .= qq{<TD WIDTH="$w" HEIGHT="$h" ALIGN="CENTER" ID="$dom_id">};
 
     #
     #  include any independent variables
     #
     $ind_vars = '{}';
-    
+
     if ($options{vars}) {
 	$ind_vars = "{";
 	%vars = @{$options{vars}};
@@ -141,13 +142,12 @@ sub LiveGraphics3D {
 	foreach $var (keys %vars ) {
 	    $ind_vars .= "\"$var\":\"".$vars{$var}."\",";
 	}
-	
+
 	$ind_vars .= "}";
     }
-    
+
     $out .= <<EOS;
     <script>
-    var thisTD = jQuery('script:last').parent();
     var options = { width : $w,
 		    height : $h,
 		    file : '$file_input',
@@ -156,8 +156,8 @@ sub LiveGraphics3D {
 		    vars : $ind_vars,
     };
 
-
-    var graph = new LiveGraphics3D(thisTD[0],options);
+    var graph = new LiveGraphics3D(jQuery('#$dom_id').get(0), options);
+    x3dom.reload();
     </script>
 EOS
 
@@ -185,11 +185,11 @@ EOS
     #
     #  include the file or data
     #
-    $out .= qq{<PARAM NAME="INPUT_ARCHIVE" VALUE="$options{archive}">\n} 
+    $out .= qq{<PARAM NAME="INPUT_ARCHIVE" VALUE="$options{archive}">\n}
       if ($options{archive});
-    $out .= qq{<PARAM NAME="INPUT_FILE" VALUE="$options{file}">\n} 
+    $out .= qq{<PARAM NAME="INPUT_FILE" VALUE="$options{file}">\n}
       if ($options{file});
-    $out .= qq{<PARAM NAME="INPUT" VALUE="$options{input}">\n} 
+    $out .= qq{<PARAM NAME="INPUT" VALUE="$options{input}">\n}
       if ($options{input});
     #
     #  include any independent variables
@@ -228,7 +228,7 @@ EOS
     $out .= "</APPLET>";
     $out .= "</TD></TD>\n</TABLE>\n";
     $out .= $eHTML if ($main::displayMode eq "Latex2HTML");
-    
+
   }
 
 
