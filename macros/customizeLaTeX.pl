@@ -17,12 +17,13 @@ sub set_minus{
 
 #####  Logic macros
 sub negate { 
-	return "\\sim";
+	return "\\mathbin{\\sim}";
 	#return "\\lnot";
 };
 
 sub implies {
-	return "\\Rightarrow";
+	return "\\implies";
+	#return "\\Rightarrow";
 }
 
 ##### Algebra macros
@@ -34,7 +35,7 @@ sub cyclic {
         # leave one of the following return commands uncommented, depending on what notation you want to use for finite cyclic groups (e.g., Z/nZ)
         
         # display order n cyclic group as Z_n
-        return "\\mathbb{Z}_{$n}",
+        return "\\mathbb{Z}_{$n}";
         
         # display order n cyclic group as C_n
         # return "C_{$n}";
