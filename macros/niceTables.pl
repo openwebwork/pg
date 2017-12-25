@@ -654,7 +654,9 @@ sub DataTable {
 
 sub LayoutTable {
   my $dataref = shift;
-  DataTable($dataref,LaYoUt=>1,@_);
+  if ($main::displayMode eq 'PTX')
+    {DataTable($dataref,@_);}
+    else {DataTable($dataref,LaYoUt=>1,@_);};
 }
 
 
