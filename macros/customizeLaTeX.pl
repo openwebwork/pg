@@ -9,6 +9,10 @@ The functions are loaded by default.  Any/all can be overridden
 in your course's PGcourse.pl
 =cut
 
+sub _customizeLaTeX_init {
+
+} #prevents this file from being loaded twice.
+
 ##### Set theory macros
 sub set_minus{ 
 	#return "\\setminus";
@@ -17,7 +21,7 @@ sub set_minus{
 
 #####  Logic macros
 sub negate { 
-	return "\\mathbin{\\sim}";
+	return "{\\sim}";
 	#return "\\lnot";
 };
 
