@@ -21,13 +21,21 @@ sub set_minus{
 
 #####  Logic macros
 sub negate { 
-	return "{\\sim}";
+	return "\\mathbin{\\sim}";
 	#return "\\lnot";
 };
 
 sub implies {
 	return "\\implies";
 	#return "\\Rightarrow";
+}
+
+##### Linear algebra macros
+
+sub vectorstyle {
+	my $v = shift;
+	#return "\\vec\{$v\}"
+	return "$v";
 }
 
 ##### Algebra macros
@@ -48,6 +56,12 @@ sub cyclic {
         # return "\\mathbb{Z}/{$n}\\mathbb{Z}";
 
 };
+
+# Macro to display the ring Z/nZ
+sub ZmodnZ {
+	my $n = shift;
+	return "\\mathbb{Z} / $n \\mathbb{Z}";
+}
 
 sub dihedral { 
 
