@@ -157,7 +157,6 @@ sub LiveGraphics3D {
     };
 
     var graph = new LiveGraphics3D(jQuery('#$dom_id').get(0), options);
-    x3dom.reload();
     </script>
 EOS
 
