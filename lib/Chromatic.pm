@@ -58,9 +58,9 @@ sub ChromNum {
   my $unique_id_stub = create_uuid_as_string(UUID_V3, UUID_NS_URL, $unique_id_seed);
   my $fileout = "$tempDirectory/$unique_id_stub";
 	unless (-x $command) {
-	
+
 		die "Can't execute $command to calculate chromatic color";
-	} 
+	}
 
   @adj = matrix_graph($graph);
   $count = 0;

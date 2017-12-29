@@ -120,8 +120,8 @@ sub LiveGraphics3D {
     $file_input = $options{file} // '';
     $direct_input = $options{input} // '';
     $direct_input =~ s/\n//g;
-    $dom_id = $file_input // 'LG3D';
-    $dom_id =~ s/\./_/g;
+    $dom_id = UUID::Tiny::create_uuid_as_string();
+    $dom_id =~ s/-/_/g;
 
     $out .= $bHTML if ($main::displayMode eq "Latex2HTML");
     #
