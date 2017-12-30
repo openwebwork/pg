@@ -105,6 +105,22 @@ our %known_units = ('m'  => {
                            'factor'    => 0.0174532925,
                            'rad'       => 1
                           },
+              'degree' => {
+                           'factor'    => 0.0174532925,
+                           'rad'       => 1
+                          },
+             'degrees' => {
+                           'factor'    => 0.0174532925,
+                           'rad'       => 1
+                          },
+              'radian' => {
+                           'factor'    => 1,
+                           'rad'       => 1
+                          },
+             'radians' => {
+                           'factor'    => 1,
+                           'rad'       => 1
+                          },
                 'sr'  => {
                            'factor'    => 1,
                            'rad'       => 2
@@ -118,6 +134,18 @@ our %known_units = ('m'  => {
 # yr    -- years  -- 365 days in a year
 # fortnight	-- (FFF system) 2 weeks
 #
+                  'sec'  => {
+                           'factor'    => 1,
+                           's'         => 1
+                          },
+                  'second'  => {
+                           'factor'    => 1,
+                           's'         => 1
+                          },
+                  'seconds'  => {
+                           'factor'    => 1,
+                           's'         => 1
+                          },
                   'ms'  => {
                            'factor'    => 0.001,
                            's'         => 1
@@ -126,7 +154,27 @@ our %known_units = ('m'  => {
                            'factor'    => 60,
                            's'         => 1
                           },
+                  'minute'  => {
+                           'factor'    => 60,
+                           's'         => 1
+                          },
+                  'minutes'  => {
+                           'factor'    => 60,
+                           's'         => 1
+                          },
                   'hr'  => {
+                           'factor'    => 3600,
+                           's'         => 1
+                          },
+                  'hour'  => {
+                           'factor'    => 3600,
+                           's'         => 1
+                          },
+                  'hours'  => {
+                           'factor'    => 3600,
+                           's'         => 1
+                          },
+                  'h'  => {
                            'factor'    => 3600,
                            's'         => 1
                           },
@@ -194,7 +242,23 @@ our %known_units = ('m'  => {
                            'factor'    => 0.0254,
                            'm'         => 1
                           },
+                 'inch'  => {
+                           'factor'    => 0.0254,
+                           'm'         => 1
+                          },
+                 'inches'  => {
+                           'factor'    => 0.0254,
+                           'm'         => 1
+                          },
                  'ft'  => {
+                           'factor'    => 0.3048,
+                           'm'         => 1
+                          },
+                 'feet'  => {
+                           'factor'    => 0.3048,
+                           'm'         => 1
+                          },
+                 'foot'  => {
                            'factor'    => 0.3048,
                            'm'         => 1
                           },
@@ -237,8 +301,16 @@ our %known_units = ('m'  => {
                            'factor'    => 1E-6,
                            'm'         => 3,
                           },
-                  'dL'  => {
+                 'dL'  => {
                            'factor'    => 0.0001,
+                           'm'         => 3
+                          },
+                'cup'  => {
+                         'factor'    => 0.000236588,
+                           'm'         => 3
+                          },
+               'cups'  => {
+                           'factor'    => 0.000236588,
                            'm'         => 3
                           },
 # VELOCITY
