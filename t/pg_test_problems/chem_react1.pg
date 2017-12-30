@@ -1,0 +1,57 @@
+DOCUMENT();
+loadMacros(
+"PGstandard.pl",
+"MathObjects.pl",
+"contextReaction.pl"
+);
+#
+#
+TEXT(&beginproblem);
+#
+$showPartialCorrectAnswers = 1;
+Context("Reaction");
+#
+$named_reactants ="Silver nitrate + Sodium chloride";
+$named_products = "Silver chloride + Sodium nitrate";
+#
+# ID react, prod for complete molecular, total ionic, and net ionic equations.
+#
+$COMPLETE_REACTION=Formula("AgNO_{3} (aq) + NaCl (aq) --> AgCl (s) + NaNO_{3} (aq)");
+#
+$TOTAL_IONIC = Formula("Ag^{+1}(aq) + NO_{3}^{-1}(aq) + Na^{+1}(aq) + Cl^{-1}(aq) --> AgCl(s)+Na^{+1}(aq) + NO_{3}^{-1}(aq)");
+#
+$NET_IONIC=Formula("Ag^{+1}(aq) + Cl^{-1}(aq) --> AgCl(s)");
+#
+COMMENT("Reaction arrow is --> NOTE: two dashes and >. Charges for ions should be entered +1, +2, -1, -2, etc. Note the order and the 1 for the + and - cases");
+Context()->texStrings;
+BEGIN_TEXT
+$BBOLD Answers should be entered using guidlines discussed in lecture. $EBOLD $BR
+Consider the reaction shown below.$BR
+$named_reactants \(\longrightarrow\) $named_products $BR
+Write the complete molecular reaction equation.$BR
+\{ans_rule(60)\}$BR
+Write the total ionic equation.$BR
+\{ans_rule(60)\}$BR
+Write the net ionic equation for the reaction.$BR
+\{ans_rule(60)\}
+END_TEXT
+
+BEGIN_TEXT
+
+Solutions:  
+\($COMPLETE_REACTION\)
+$PAR
+\($TOTAL_IONIC\) 
+$PAR
+\($NET_IONIC\)
+
+END_TEXT
+
+Context()->normalStrings;
+
+#
+ANS($COMPLETE_REACTION->cmp);
+ANS($TOTAL_IONIC->cmp);
+ANS($NET_IONIC->cmp);
+#
+ENDDOCUMENT();
