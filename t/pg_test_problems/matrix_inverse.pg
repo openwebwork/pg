@@ -56,9 +56,10 @@ Note that this does change the name of the reduction rule from x^(-1) to x^(-a).
 checked the macro files and the OPL and don't see any uses of reduction rule x^(-1), so I
 think this should not be a problem (though some Wiki pages may need to be updated).
 
-
+------------
 END_PGML
-##############################################################
+
+#############################################################
 ###############################################################
 #  Answers
 # #
