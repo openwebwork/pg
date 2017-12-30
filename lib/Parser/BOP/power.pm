@@ -17,7 +17,9 @@ sub _check {
   return if $self->checkNumbers();
   my ($ltype,$rtype) = $self->promotePoints('Matrix');
   if ($rtype->{name} eq 'Number') {
-    if ($ltype->{name} eq 'Matrix') {$self->checkMatrixSize($ltype,$ltype)}
+    if ($ltype->{name} eq 'Matrix') {
+      $self->Error("Only square matrices can be raised to a power") if !$self->checkMatrixSquare($ltype);
+    }
     elsif ($self->context->flag("allowBadOperands")) {$self->{type} = $Value::Type{number}}
     else {$self->Error("You can only raise a Number to a power")}
   }
