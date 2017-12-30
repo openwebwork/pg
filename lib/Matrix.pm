@@ -3,6 +3,12 @@
 Matrix - Matrix of Reals
 
 Implements overrides for MatrixReal.pm for WeBWorK
+In general it is better to use MathObjects Matrices (Value::Matrix)
+in writing PG problem.  The answer checking is much superior with better
+error messages for syntax errors in student entries.  Some of the 
+subroutines in this file are still used behind the scenes 
+by Value::Matrix to perform calculations,
+such as decompose_LR(). 
 
 =head1 DESCRIPTION
 
@@ -68,6 +74,17 @@ sub _stringify {
     return($s);
 }
 
+=head3 Accessor functions
+	
+	(these are deprecated for direct use.  Use the covering Methods
+	 provided by MathObject Matrices instead.)
+	 
+	L($matrix) - return matrix L of the LR decomposition
+	R($matrix) - return matrix R of the LR decomposition
+	PL($matrix) return 
+	PR($matrix 
+
+Original matrix is  P_L * L * R *P_R
 # obtain the Left Right matrices of the decomposition and the two pivot permutation matrices
 # the original is M = PL*L*R*PR
 sub L {
@@ -119,9 +136,13 @@ sub PR { # use this permuation on the right PL*L*R*PR =M
 }
 # obtain the Left Right matrices of the decomposition and the two pivot permutation matrices
 # the original is M = PL*L*R*PR
+
+
 =head4
 
 	Method $matrix->rh_options
+
+Meant for internal use when dealing with MatrixReal1
 
 =cut
 
@@ -137,8 +158,12 @@ sub rh_options {
 	Method $matrix->trace
 	
 	Returns: scalar which is the trace of the matrix.
+	
+	Used by MathObject Matrices for calculating the trace. 
+	Deprecated for direct use in PG questions.
 
 =cut
+
 
 sub trace {
 	my $self = shift;
@@ -152,9 +177,12 @@ sub trace {
 	$sum;
 }
 
+
 =head4
 
-	Method $matrix->new_from_array_ref
+	Method    $new_matrix = $matrix->new_from_array_ref ([[a,b,c],[d,e,f]])
+	
+	Deprecated in favor of using creation tools for MathObject Matrices 
 
 =cut
 
@@ -172,6 +200,8 @@ sub new_from_array_ref {  # this will build a matrix or a row vector from  [a, b
 
 	Method $matrix->array_ref
 
+Converts Matrix from an ARRAY to an ARRAY reference.
+
 =cut
 
 sub array_ref {
@@ -182,6 +212,8 @@ sub array_ref {
 =head4
 
 	Method $matrix->list
+
+Converts a Matrix column vector to an ARRAY (list).
 
 =cut
 
@@ -196,29 +228,14 @@ sub list {           # this is used only for column vectors
 	@list;
 }
 
-=head4
-
-	Method $matrix->new_from_list
-
-=cut
-
-sub new_from_list {   # this builds a row vector from an array
-	my $class = shift;
-	my @list = @_;
-	my $cols = @list;
-	my $rows = 1;
-	my $matrix = new Matrix($rows, $cols);
-	my $i=1;
-	while(@list) {
-	    my $elem = shift(@list);
-		$matrix->assign($i++,1, $elem);
-	}
-	$matrix;
-}
 
 =head4
 
 	Method $matrix->new_row_matrix
+	
+	Deprecated -- there are better tools for MathObject Matrices.
+
+Create a row 1 by n matrix from a list.  This subroutine appears to be broken
 
 =cut
 
@@ -239,7 +256,9 @@ sub new_row_matrix {   # this builds a row vector from an array
 =head4
 
 	Method $matrix->proj
-
+	Provides behind the scenes calculations for MathObject Matrix->proj
+	Deprecated for direct use in favor of methods of MathObject matrix
+	
 =cut
 
 sub proj{
@@ -251,6 +270,8 @@ sub proj{
 =head4
 
 	Method $matrix->proj_coeff
+	Provides behind the scenes calculations for MathObject Matrix->proj_coeff
+	Deprecated for direct use in favor of methods of MathObject matrix
 
 =cut
 
@@ -271,6 +292,8 @@ sub proj_coeff{
 
 	Method $matrix->new_column_matrix
 
+	Create column matrix from an ARRAY reference (list reference)
+	
 =cut
 
 sub new_column_matrix {
@@ -293,6 +316,8 @@ sub new_column_matrix {
 	vectors.
 	
 	Method $matrix->new_from_col_vecs
+	
+	Deprecated: The tools for creating MathObjects Matrices are simpler
 
 =cut
 
@@ -343,8 +368,8 @@ sub new_from_col_vecs
 
 =head4
 
-	Method $matrix->new_from_col_vecs
-
+	Function: cp()
+	Provides ability to use complex numbers.
 =cut
 
 sub cp  { # MEG  makes new copies of complex number
@@ -462,6 +487,8 @@ sub transpose
 
 	Method $matrix->decompose_LR
 
+	Used by MathObjects Matrix for LR decomposition
+	Deprecated for direct use in PG problems. 
 =cut
 
 sub decompose_LR
