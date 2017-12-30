@@ -650,7 +650,8 @@ sub ra_flatten_matrix{
         \@array;
 }
 
-= head4 apl_matrix_mult() 
+
+=head4 apl_matrix_mult() 
 
 	# This subroutine is probably obsolete and not generally useful.  
 	# It was patterned after the APL
