@@ -97,6 +97,9 @@ our %known_units = ('m'  => {
                            'factor'    => 1,
                            'cd'        => 1,
                          },
+                 '%'  => {
+                           'factor'    => 0.01,
+                         },
 # ANGLES
 # deg  -- degrees
 # sr   -- steradian, a mesure of solid angle
@@ -324,6 +327,11 @@ our %known_units = ('m'  => {
                           },
               'c'  => {
                            'factor'    =>  299792458,	# exact
+                           'm'         => 1,
+                           's'         => -1
+                          },
+              'mph'  => {
+                           'factor'    =>  0.44704,
                            'm'         => 1,
                            's'         => -1
                           },
