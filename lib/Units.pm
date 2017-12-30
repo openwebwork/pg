@@ -283,7 +283,7 @@ our %known_units = ('m'  => {
                            'm'         => 1
                           },
          'parsec'  => {
-                           'factor'    => 30.857E15,
+                           'factor'    => 3.08567758149137E16, #30.857E15,
                            'm'         => 1
                           },
 # VOLUME

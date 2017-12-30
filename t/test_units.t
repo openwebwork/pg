@@ -5,6 +5,7 @@
 #use Test::More tests => 5;
 use Test::More qw( no_plan );
 use lib "../lib";   # location of Units.pm module
+use lib "lib";   # location of Units.pm module we run  perl t/test_units.t
 
 BEGIN { 
 	use_ok('Units'); 
@@ -67,7 +68,7 @@ is_deeply( {evaluate_units('c*yr')}, {evaluate_units('light-year')}, 'light year
 
 is_deeply( multiply_by((180/$Units::PI)**2, evaluate_units('deg^2')), {evaluate_units('sr')}, 'solid angle conversion');
 
-is_deeply( multiply_by(0.01), {evaluate_units('%')}, 'percent conversion');
+is_deeply( multiply_by(0.01,evaluate_units('rad/rad')), {evaluate_units('%')}, 'percent conversion');
 
 
 }
