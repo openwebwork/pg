@@ -312,7 +312,7 @@ sub mult {
   #
   #  Constant multiplication
   #
-  if (Value::matchNumber($r) || Value::isComplex($r)) {
+  if (Value::isNumber($r)) {
     my @coords = ();
     foreach my $x (@{$l->data}) {push(@coords,$x*$r)}
     return $self->make(@coords);
@@ -328,7 +328,7 @@ sub mult {
   if (scalar(@dl) == 1) {@dl = (1,@dl); $l = $self->make($l)}
   if (scalar(@dr) == 1) {@dr = (@dr,1); $r = $self->make($r)->transpose}
   Value::Error("Can only multiply 2-dimensional matrices") if scalar(@dl) > 2 || scalar(@dr) > 2;
-  Value::Error("Matices of dimensions %dx%d and %dx%d can't be multiplied",@dl,@dr)
+  Value::Error("Matrices of dimensions %dx%d and %dx%d can't be multiplied",@dl,@dr)
     unless ($dl[1] == $dr[0]);
   #
   #  Do matrix multiplication
@@ -350,8 +350,7 @@ sub mult {
 sub div {
   my ($l,$r,$flag) = @_; my $self = $l;
   Value::Error("Can't divide by a Matrix") if $flag;
-  Value::Error("Matrices can only be divided by Numbers")
-    unless (Value::matchNumber($r) || Value::isComplex($r));
+  Value::Error("Matrices can only be divided by Numbers") unless Value::isNumber($r);
   Value::Error("Division by zero") if $r == 0;
   my @coords = ();
   foreach my $x (@{$l->data}) {push(@coords,$x/$r)}
@@ -363,7 +362,10 @@ sub power {
   Value::Error("Can't use Matrices in exponents") if $flag;
   Value::Error("Only square matrices can be raised to a power") unless $l->isSquare;
   $r = Value::makeValue($r,context=>$context);
-  if ($r->isNumber && $r =~ m/^-\d+$/) {$l = $l->inverse; $r = -$r}
+  if ($r->isNumber && $r =~ m/^-\d+$/) {
+    $l = $l->inverse; $r = -$r;
+    $self->Error("Matrix is not invertible") unless defined($l);
+  }
   Value::Error("Matrix powers must be non-negative integers") unless $r->isNumber && $r =~ m/^\d+$/;
   return $context->Package("Matrix")->I($l->length,$context) if $r == 0;
   my $M = $l; foreach my $i (2..$r) {$M = $M*$l}
@@ -539,7 +541,8 @@ sub det {
 sub inverse {
   my $self = shift; $self->wwMatrixLR;
   Value->Error("Can't take inverse of non-square matrix") unless $self->isSquare;
-  return $self->new($self->{lrM}->invert_LR);
+  my $I = $self->{lrM}->invert_LR;
+  return (defined($I) ? $self->new($I) : $I);
 }
 
 sub decompose_LR {
@@ -580,7 +583,9 @@ sub solve_LR {
   my $self = shift;
   my $v = $self->wwColumnVector(shift);
   my ($d,$b,$M) = $self->wwMatrixLR->solve_LR($v);
-  return ($d,$self->new($b),$self->new($M));
+  $b = $self->new($b) if defined($b);
+  $M = $self->new($M) if defined($M);
+  return ($d,$b,$M);
 }
 
 sub condition {
