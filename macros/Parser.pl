@@ -132,12 +132,10 @@ that context is set as the current one.  In all three cases, the current context
 # ^uses Parser::Context::current
 # ^uses %context
 sub Context {Parser::Context->current(\%context,@_)}
-unless (%context && $context{current}) {
-  # ^variable our %context
-  %context = ();  # Locally defined contexts, including 'current' context
-  # ^uses Context
-  Context();      # Initialize context (for persistent mod_perl)
-}
+#  # ^variable our %context
+%context = () unless %context;  # Locally defined contexts, including 'current' context
+# ^uses Context
+Context("Numeric");  # Set initial context
 
 ###########################################################################
 #
