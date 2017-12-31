@@ -744,7 +744,7 @@ seeking.
 
 sub convert_to_array_ref {
 	my $input = shift;
-	if (ref($input) eq 'Value::Matrix' ) {
+	if (Value::classMatch($input,"Matrix") {
 		$input = [$input->value];
 	} elsif (ref($input) eq 'Matrix' ) {
 		$input = $input->array_ref;

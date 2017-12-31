@@ -28,7 +28,9 @@ After selecting the Fraction context using Context('Fraction')->parens->set("[" 
 
 changes the [2,3] entry to the value 50.
 
-=item Construct an n x n identity matrix: C<$E = identity_matrix(5);>
+=item Construct an n x n identity matrix: C<$E = identity_matrix(5);> 
+
+(This is an alias for Value::Matrix->I(5);)
 
 =item Construct an n x n elementary matrix that will permute rows i and j: 
 

@@ -81,12 +81,16 @@ sub _stringify {
 	 
 	L($matrix) - return matrix L of the LR decomposition
 	R($matrix) - return matrix R of the LR decomposition
-	PL($matrix) return 
-	PR($matrix 
+	PL($matrix) - return permutation matrix
+	PR($matrix) - return permutation matrix
+	Original matrix is  PL * L * R *PR = M 
+	
+Obtain the Left Right matrices of the decomposition 
+and the two pivot permutation matrices
+the original is M = PL*L*R*PR
 
-Original matrix is  P_L * L * R *P_R
-# obtain the Left Right matrices of the decomposition and the two pivot permutation matrices
-# the original is M = PL*L*R*PR
+=cut
+
 sub L {
 	my $matrix = shift;
 	my $rows = $matrix->[1];
@@ -100,6 +104,7 @@ sub L {
 	}
 	$L_matrix;
 }
+
 sub R {
 	my $matrix = shift;
 	my $rows = $matrix->[1];
@@ -134,8 +139,6 @@ sub PR { # use this permuation on the right PL*L*R*PR =M
 	$PR_matrix;
 
 }
-# obtain the Left Right matrices of the decomposition and the two pivot permutation matrices
-# the original is M = PL*L*R*PR
 
 
 =head4
