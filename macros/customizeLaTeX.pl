@@ -38,6 +38,33 @@ sub vectorstyle {
 	#return "$v";
 }
 
+sub polynomials_of_degree_up_to_degree_over_ring_in_variable {
+	my ($n, $R, $variable) = @_;
+	return $R."[".$variable."]_{\\mathrm{Grad} \\leq ".$n."}";
+}
+
+sub matrix_of_homomorphism_with_respect_to_bases {
+	my ($homomorphism, $basis_source, $basis_target) = @_;
+	return "{}^{$basis_target}{".$homomorphism."}^{$basis_source}";
+}
+
+sub coordinates_of_vector_with_respect_to_basis {
+	my ($vector, $basis) = @_;
+	return "{}^{$basis}{(".$vector.")}";
+}
+
+sub span {
+	my ($set) = @_;
+	return "\\langle $set \\rangle";
+}
+
+sub matrices_over_ring {
+	my ($rows, $columns, $ring) = @_;
+	return "{$ring}^{$rows \\times $columns}";
+	# return "M_{$rows \\times $columns}($ring)";
+	# return "M_{$rows, $columns}($ring)";
+}
+
 ##### Algebra macros
 
 sub cyclic { 
