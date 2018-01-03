@@ -36,6 +36,11 @@ sub _niceTables_init {}; # don't reload this file
  #  Generally, you give settings for the hard copy tex version first. Many common such settings are automatically
  #  translated into CSS styling for the on-screen. You can then override or augment the CSS for the on-screen version.
  #
+ #  With PTX output, not all features below are supported. Perhaps they can be added upon request.
+ #  Contact Alex Jordan with questions.
+ #  This version supports the center, caption, midrules, encase, and noencase options in PTX. It also honors the
+ #  horizontal alignment portions of the align option (but not vertical rules or anything found in @{}).
+ #
  #  Options for the WHOLE TABLE
  #
  #      Applies to on-screen *and* hard copy:
@@ -324,7 +329,9 @@ sub DataTable {
     # alignment: p{width}, r, c, l, or X
   my @alignmentcolumns;
     for my $i (0..$#columnalignments) {$alignmentcolumns[$columnalignments[$i]] = $i};
-    # @alignmentcolumns is an array with one element per column, where the elements are each one of p{width}, r, c, l, or X
+    # @alignmentcolumns is an array whose ith element is undefined unless the ith element of @htmlalignment was one
+    # of p{width}, r, c, l, or X. Otherwise it is the index of the entry in @columnalignments that corresponds to
+    # that alignment
 
   # append css to author's columnscss->[$i] that corresponds to the alignemnts in @alignmentcolumns
   for my $i (0..$#columnalignments) {
@@ -441,7 +448,9 @@ sub DataTable {
 
             my @alignmentcolumns;
               for my $k (0..$#columnalignments) {$alignmentcolumns[$columnalignments[$k]] = $k};
-              # @alignmentcolumns is an array with one element per column, where the elements are each one of p{width}, r, c, l, or X
+              # @alignmentcolumns is an array whose ith element is undefined unless the ith element of @htmlalignment was one
+              # of p{width}, r, c, l, or X. Otherwise it is the index of the entry in @columnalignments that corresponds to
+              # that alignment
               # Again, this should only have one entry.
 
             for my $k (0..$#columnalignments) {
@@ -494,15 +503,23 @@ sub DataTable {
   if ($midrules == 1) {$midrulescss = 'border-top:solid 1px; '};
 
   my $table = '';
-  # build html string for the table
+  my $ptxtable = '';
+  # build html and ptx strings for the table (which have structural similarities that distinguish them from tex)
   if ($options{LaYoUt} != 1) {
   $table = '<TABLE style = "'.$tablecss.'">';
-  if ($caption ne '') {$table .= '<CAPTION style = "'.$captioncss.'">'.$caption.'</CAPTION>';}
+  $ptxtable = "<sidebyside" . (($center)?' margins="auto"':'') . ">\n<tabular" . (($midrules)?' top="minor" bottom="minor"':'') . ">\n";
   $table .= '<colgroup>';
   for my $i (0..$#{$columnscss})
     {$columnscss->[$i] = '' unless (defined($columnscss->[$i]));
-     $table .= '<col style = "'.$columnscss->[$i].'">';};
+     $table .= '<col style = "'.$columnscss->[$i].'">';
+    };
   $table .= '</colgroup>';
+  if ($caption ne '') {
+     $table .= '<CAPTION style = "'.$captioncss.'">'.$caption.'</CAPTION>';
+     # Needs to be a better way to incorporate the caption into PTX output
+     # This way makes "captions" that extend past the table
+     #$ptxtable .= "<row>\n".'<cell colspan="'.$numcol.'">'.$caption.'</cell>'."\n</row>\n";
+  }
   my $bodystarted = 0;
   for my $i (0..$#{$dataref})
     {my $midrulecss = ($midrule[$i] == 1) ? 'border-bottom:solid 1px; ' : '';
@@ -510,6 +527,7 @@ sub DataTable {
      if ($headerrow[$i] == 1) {$table .= '<THEAD>'; }
      elsif (!$bodystarted) {$table .= '<TBODY>'; $bodystarted = 1};
     $table .= '<TR>';
+    $ptxtable .= "<row>\n";
     for my $j (0..$numcols[$i])
       {my $colspan = (${$dataref->[$i][$j]}{colspan} eq '') ? '' : 'colspan = "'.${$dataref->[$i][$j]}{colspan}.'" ';
       if (uc(${$dataref->[$i][$j]}{header}) eq 'TH')
@@ -523,12 +541,15 @@ sub DataTable {
         elsif (uc($headerrow[$i]) == 1)
         {$table .= '<TH '.$colspan.'scope = "col" style = "'.$allcellcss.$headercss.$columnscss->[$j].$midrulecss.$midrulescss.$rowcss[$i].${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TH>';}
         else {$table .= '<TD '.$colspan.'style = "'.$allcellcss.$datacss.$columnscss->[$j].$midrulecss.$midrulescss.$rowcss[$i].${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TD>';}
+        $ptxtable .= '<cell>' . ${$dataref->[$i][$j]}{data} . '</cell>' . "\n";
       }
     $table .= "</TR>";
+    $ptxtable .= "</row>\n";
     if ($headerrow[$i] == 1) {$table .= '</THEAD>';}
       elsif ($bodystarted and ($i == $#{$dataref})) {$table .= '</TBODY>';};
     };
     $table .= "</TABLE>";
+    $ptxtable .= "</tabular>\n</sidebyside>";
    }# now if it is a Layout Table...
    else {
      $table = '<SECTION style = "display:table;'.$tablecss.'">';
@@ -616,6 +637,7 @@ sub DataTable {
   MODES(
     TeX => $textable,
     HTML => $table,
+    PTX => $ptxtable,
   );
 }
 
@@ -632,7 +654,9 @@ sub DataTable {
 
 sub LayoutTable {
   my $dataref = shift;
-  DataTable($dataref,LaYoUt=>1,@_);
+  if ($main::displayMode eq 'PTX')
+    {DataTable($dataref,@_);}
+    else {DataTable($dataref,LaYoUt=>1,@_);};
 }
 
 
@@ -662,7 +686,5 @@ sub TeX_Alignment_to_CSS {
       };
    return $css;
 }
-
-
 
 1;

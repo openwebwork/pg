@@ -556,8 +556,12 @@ sub BUTTONS {
     $radio[0] = "\n\\begin{itemize}\n" . $radio[0];
     $radio[$#radio_buttons] .= "\n\\end{itemize}\n";
   }
+  if ($main::displayMode eq 'PTX') {
+    $radio[0] = '<var form="buttons">' . "\n" . $radio[0];
+    $radio[$#radio_buttons] .= '</var>';
+  };
   @radio = $self->makeUncheckable(@radio) if $self->{uncheckable};
-  (wantarray) ? @radio : join($self->{separator}, @radio);
+  (wantarray) ? @radio : join(($main::displayMode eq 'PTX')?'':$self->{separator}, @radio);
 }
 
 sub protect {

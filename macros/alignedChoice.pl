@@ -62,6 +62,17 @@ sub aligned_print_q {
       $out .= "\\ ". ans_rule($length) . $rest . "\\\\ \\noalign{\\kern $tsep}\n";
     }
     $out .= "\\end{tabular}\n";
+  } elsif ($main::displayMode eq "PTX") {
+    $out = "<sidebyside>\n<tabular>\n";
+    foreach $quest (@questions) {
+      if (ref($quest) eq 'ARRAY') {($quest,$rest) = @{$quest}} else {$rest = ''}
+      $out .= "<row>\n";
+      $out .= "<cell>" . $i++ . ".</cell>\n" if ($numbered);
+      $out .= "<cell>$quest</cell>\n";
+      $out .= "<cell><m>=</m></cell>\n" if ($equals);
+      $out .= "<cell>" . ans_rule($length) . $rest . "</cell>\n</row>\n";
+    }
+    $out .= "</tabular>\n</sidebyside>\n";
   } else {
     $out = "Error: std_aligned_print_q: Unknown displayMode: ".
       $main::displayMode;
