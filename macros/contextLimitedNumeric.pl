@@ -30,7 +30,7 @@ one of the following commands:
 	Context("LimitedNumeric-List");
 	Context("LimiteNumeric");
 
-(Now uses Parcer::Legacy::LimitedNumeric to implement
+(Now uses Parser::Legacy::LimitedNumeric to implement
 these contexts.)
 
 =cut
