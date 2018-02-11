@@ -134,14 +134,14 @@ sub rref {
   my $M = shift;
   my @m = $M->value;
   my @m_reduced = rref_perl_array(@m);
-  return Matrix(@m_reduced);
+  return Matrix(\@m_reduced);
 }
 
 sub rcef {
   my $M = shift;
   my @m = $M->transpose->value;
   my @m_reduced = rref_perl_array(@m);
-  return Matrix(@m_reduced)->transpose;
+  return Matrix(\@m_reduced)->transpose;
 }
 
 sub rref_perl_array {
@@ -212,7 +212,7 @@ sub elem_matrix_row_switch {
 	my $M = Value::Matrix->I($n); # construct identity matrix
 	my @m = $M->value;
 	@m[$i - 1, $j - 1] = @m[$j - 1, $i - 1]; # switch rows
-	return Matrix(@m);
+	return Matrix(\@m);
 
 }
 
@@ -234,7 +234,7 @@ sub elem_matrix_row_mult {
 	my $M = Value::Matrix->I($n); # construct identity matrix
 	my @m = $M->value;
 	foreach my $rowval ( @{$m[$i - 1]} ) { $rowval *= $s; }
-	return Matrix(@m);
+	return Matrix(\@m);
 
 }
 
@@ -256,7 +256,7 @@ sub elem_matrix_row_add {
 	my $M = Value::Matrix->I($n); # construct identity matrix
 	my @m = $M->value;
 	$m[$i - 1][$j - 1] = $s;
-	return Matrix(@m);
+	return Matrix(\@m);
 
 }
 
@@ -290,7 +290,7 @@ sub row_add {
 	foreach my $k (0..$c-1) {
 		$m[$i - 1][$k] += $s * $m[$j - 1][$k];
 	}
-	return Matrix(@m);
+	return Matrix(\@m);
 
 }
 
@@ -308,7 +308,7 @@ sub row_switch {
 	}
 	my @m = $M->value;
 	@m[$i1 - 1,$i2 - 1] = @m[$i2 - 1,$i1 - 1];
-	return Matrix(@m);
+	return Matrix(\@m);
 
 }
 
@@ -327,7 +327,7 @@ sub row_mult {
 	if ($s == 0 and $permissionLevel >= 10) { warn "Scaling a row by zero is not a valid row operation.  (This warning is only shown to professors.)"; }
 	my @m = $M->value;
 	foreach my $rowval ( @{$m[$i - 1]} ) { $rowval *= $s; } # row multiplication
-	return Matrix(@m);
+	return Matrix(\@m);
 
 }
 
@@ -341,7 +341,7 @@ sub apply_fraction_to_matrix_entries {
 	foreach my $i (0..$r-1) {
 		foreach my $rowval ( @{$m[$i]} ) { $rowval = Fraction("$rowval"); }
 	}
-	return Matrix(@m);
+	return Matrix(\@m);
 
 }
 
