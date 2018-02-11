@@ -26,9 +26,9 @@ computations using MathObjects matrices.
 
 =item Construct an n x n elementary matrix that will permute rows i and j: C<$E = elem_matrix_row_switch(5,2,4);> creates a 5 x 5 identity matrix and swaps rows 2 and 4.
 
-=item Construct an n x n elementary matrix that will multiply row i by s: C<$E = elem_matrix_row_mult(5,2,4);> creates a 5 x 5 identity matrix and swaps puts 4 in the second spot on the diagonal.
+=item Construct an n x n elementary matrix that will multiply row i by s: C<$E = elem_matrix_row_mult(5,2,4);> creates a 5 x 5 identity matrix and puts 4 in the second spot on the diagonal.
 
-=item Construct an n x n elementary matrix that will multiply row i by s: C<$E3 = elem_matrix_row_add(5,3,1,35);> creates a 5 x 5 identity matrix and swaps puts 35 in the (3,1) position.
+=item Construct an n x n elementary matrix that will add s times row j to row i: C<$E3 = elem_matrix_row_add(5,3,1,35);> creates a 5 x 5 identity matrix and puts 35 in the (3,1) position.
 
 =item Perform the row switch transform that swaps (row i) with (row j): C<$Areduced = row_switch($A,2,4);> swaps rows 2 and 4 in matrix $A.
 
