@@ -2,12 +2,12 @@
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: pg/lib/PGalias.pm,v 1.6 2010/05/15 18:41:23 gage Exp $
-# 
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any later
 # version, or (b) the "Artistic License" which comes with this package.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
@@ -24,19 +24,19 @@ use PGresource;
 
 our @ISA =  qw ( PGcore  );  # look up features in PGcore -- in this case we want the environment.
 
-=head2 
+=head2
 
-new 
+new
   Create one alias object per question (and per PGcore object since there is a unique PGcore per question.)
   Check that information is intact
-  Construct unique id stub seeds -- the id stub seed is for this PGalias object which is 
+  Construct unique id stub seeds -- the id stub seed is for this PGalias object which is
        attached to all the resource files (except equations) for this question.
   Maintain list of links to external resources
 
 =cut
 
 sub new {
-	my $class = shift;	
+	my $class = shift;
 	my $envir = shift;  #pointer to environment hash
 	my %options = @_;
 	warn "PGlias must be called with an environment" unless ref($envir) =~ /HASH/;
@@ -79,7 +79,7 @@ sub get_resource {
 #     dispatcher -- decides what needs to be done based on displayMode and file type
 #     alias_for_html
 #     alias_for_image_in_html   image includes gif, png, jpg, swf, svg, flv?? ogg??, js
-#     alias_for_image_in_tex 
+#     alias_for_image_in_tex
 
 
 sub initialize {
@@ -102,13 +102,13 @@ sub initialize {
 	$self->{externalGif2PngPath} = $envir->{externalGif2PngPath};
 	$self->{courseID}            = $envir->{courseName};
 	$self->{problemSeed}         = $envir->{problemSeed};
-	
+
 	$self->{appletPath} = $self->{envir}->{pgDirectories}->{appletPath};
 	#
 	#  Find auxiliary files even when the main file is in tempates/tmpEdit
 	#
 	$self->{pgFileName} =~ s!(^|/)tmpEdit/!$1!;
-	
+
 	$self->{ext}      = "";
 
 	my $unique_id_seed = join("-",
@@ -125,14 +125,14 @@ sub initialize {
 # If every uuid is uniqu then the same file will be linked to multiple times and it will be important
 # to use asynchronous garbage cleanup to remove all links that won't be used again
 # If one tries to reuse links then one can get duplicates, for example if many files using the same name
-# (prob3.pg) appear in a list of library problems. 
+# (prob3.pg) appear in a list of library problems.
 ###################################
 
 ##########################
 # create an ID which is unique to the student and context for the problem
 ##########################
 	my $unique_id_stub = create_uuid_as_string(UUID_V3, UUID_NS_URL, $unique_id_seed);
-	$self->{unique_id_stub} = $unique_id_stub;		   
+	$self->{unique_id_stub} = $unique_id_stub;
 
 }
 
@@ -170,7 +170,7 @@ sub make_resource_object {
 		$ext,                     # resource type
 		WARNING_messages => $self->{WARNING_messages},  #connect warning message channels
 		DEBUG_messages   => $self->{DEBUG_messages},
-	);	
+	);
 	return $resource;
 }
 
@@ -178,38 +178,38 @@ sub make_resource_object {
 =head2 make_alias
 
 This is the workhorse of the PGalias module.  It's front end is alias() in PG.pl.
- 
+
 make_alias magically takes a name of an external resource ( html file, png file, etc.)
 and creates full directory addresses and uri's appropriate to the current displayMode.
-It also does any necessary conversions behind the scenes. 
+It also does any necessary conversions behind the scenes.
 
 Returns the uri of the resource.
 
 =cut
 
 sub make_alias {
-   	my $self = shift;   	
+   	my $self = shift;
    	my $aux_file_id = shift;
 	#$self->debug_message("make alias for file $aux_file_id");
 	$self->warning_message( "Empty string used as input into the function alias") unless $aux_file_id;
-	
-	my $displayMode         = $self->{displayMode}; 
-    
+
+	my $displayMode         = $self->{displayMode};
+
 	# $adr_output is a url in HTML  mode
 	# and a complete directory path in TEX mode.
 	my $adr_output;
 	my $ext='';
-	
-#######################################################################	
+
+#######################################################################
 	# determine file type
 	# determine display mode
-	# dispatch	
+	# dispatch
 #######################################################################
 	# determine extension, if there is one
 	# if extension exists use the value for $ext
 	# files without extensions are flagged with errors.
-	# The extension is retained as part of  aux_file_id 
-	
+	# The extension is retained as part of  aux_file_id
+
 	#$self->debug_message("This auxiliary file id is $aux_file_id" );
 	if ($aux_file_id =~ m/\.([^\.]+)$/ ) {
 		$ext = $1;
@@ -221,39 +221,39 @@ sub make_alias {
 		return undef;  #quit;
 	}
 	# $self->debug_message("This auxiliary file id is $aux_file_id of type $ext" );
-	
+
 ###################################################################
 # Create resource object
 ###################################################################
 	#$self->debug_message("creating resource with id $aux_file_id");
-	
+
 	###################################################################
-	# This section checks to see if a resource exists (in this question) 
+	# This section checks to see if a resource exists (in this question)
 	# for this particular aux_file_id.
 	# If so, we simply return the appropriate uri for the file.
 	# The displayMode will be the same throughout the processing of the .pg file
 	# This effectively cache's auxiliary files within a single PG question.
 	###################################################################
 	unless ( defined $self->get_resource($aux_file_id) ) {
-    	$self->add_resource($aux_file_id, 
+    	$self->add_resource($aux_file_id,
     						$self->make_resource_object(
     							$aux_file_id,  # resource file name
     							$ext           # resource type
     						)
-    	                   
+
     	);
 
     } else {
     	#$self->debug_message( "found existing resource_object $aux_file_id");
-    	return $self->get_resource($aux_file_id)->uri() ; 
+    	return $self->get_resource($aux_file_id)->uri() ;
     }
 	###################################################################
 
-	
+
 	if ($ext eq 'html' 		    ) {
 	   $adr_output = $self->alias_for_html($aux_file_id,$ext)
-	} elsif (   $ext eq 'gif'  
-		     or $ext eq 'jpg' 
+	} elsif (   $ext eq 'gif'
+		     or $ext eq 'jpg'
 		     or $ext eq 'png'
 		     or $ext eq 'svg'
 		    or $ext eq 'pdf'
@@ -265,13 +265,13 @@ sub make_alias {
 		    or $ext eq 'js'
 		    or $ext eq 'nb'
 		    ) {
-		if ($displayMode =~ /^HTML/ ) {			 
+		if ($displayMode =~ /^HTML/ ) {
 			 $adr_output=$self->alias_for_html($aux_file_id, $ext);
 		} elsif ($displayMode eq 'TeX') {
 			################################################################################
 			# .gif FILES in TeX mode
 			################################################################################
-            $adr_output=$self->alias_for_tex($aux_file_id, $ext);		
+            $adr_output=$self->alias_for_tex($aux_file_id, $ext);
 		} else {
 			die "Error in alias: PGalias.pm: unrecognizable displayMode = $displayMode";
 		}
@@ -285,13 +285,13 @@ sub make_alias {
 # 		} else {
 # 			die "Error in alias: PGalias.pm: unrecognizable displayMode = $displayMode";
 # 		}
-	
+
 	} else { # $ext is not recognized
 		################################################################################
 		# FILES  with unrecognized file extensions in any display modes
 		################################################################################
 
-		warn "Error in the macro alias. Alias does not understand how to process files with extension $ext.  
+		warn "Error in the macro alias. Alias does not understand how to process files with extension $ext.
 		      (Path to problem file is  ". $self->{envir}->{pgFileName}. ") ";
 	}
 
@@ -325,7 +325,7 @@ sub alias_for_html {
 	my $tempURL            = $self->{tempURL};
 	my $tempDirectory      = $self->{tempDirectory};
 	my $templateDirectory  = $self->{templateDirectory};
-   
+
 #######################
 # retrieve PGresponse resource object
 #######################
@@ -355,7 +355,7 @@ sub alias_for_html {
 	# Find complete path to the original file
 	my $file_path;
 	if ( $aux_file_id =~ /https?:/ ) { #external link_file
-		$resource_object->uri($aux_file_id);           #no unique id is needed -- external link doc		
+		$resource_object->uri($aux_file_id);           #no unique id is needed -- external link doc
 		$resource_object->{copy_link}->{type} = 'external';
 		$resource_object->{uri}->{is_accessible} = $self->check_url($resource_object->uri());
 		return $resource_object->uri; # external links need no further processing
@@ -364,7 +364,7 @@ sub alias_for_html {
 	} else {
 		$file_path = $self->find_file_in_directories($aux_file_id,\@aux_files_directories);
 	}
-	# $self->debug_message("file path is $file_path");
+	$self->debug_message("file path is $file_path");
 
 ##################### Case1: we've got a full pathname to a file in either the temp directory or the htmlDirectory
 ##################### Case2: we assume the file is in the same directory as the problem source file
@@ -372,7 +372,7 @@ sub alias_for_html {
 
 ##############################################
 # store the complete path to the original file
-# calculate the uri (which is a url suitable for the browser relative to the current site) 
+# calculate the uri (which is a url suitable for the browser relative to the current site)
 # store the uri.
 # record status of the resource
 ##############################################
@@ -380,13 +380,13 @@ sub alias_for_html {
 		$resource_uri   = $file_path;
 		$resource_uri   =~ s|$tempDirectory|$tempURL/|;
 		$resource_object->uri($resource_uri);           #no unique id is needed -- public doc
-		$resource_object->path($file_path);		
+		$resource_object->path($file_path);
 		$resource_object->{copy_link}->{type} = 'orig';
-		$resource_object->{path}->{is_complete} = (-r $resource_object->path);		
+		$resource_object->{path}->{is_complete} = (-r $resource_object->path);
 	} elsif ($file_path =~ m|^$htmlDirectory| ) { #case: file is under the course html directory
 		$resource_uri     = $file_path;
 		$resource_uri     =~ s|$htmlDirectory|$htmlURL|;
-		$resource_object->uri($resource_uri);			
+		$resource_object->uri($resource_uri);
 		$resource_object->path($file_path);
 		$resource_object->{copy_link}->{type} = 'orig';
 		$resource_object->{path}->{is_complete}= (-r $resource_object->path);
@@ -395,7 +395,7 @@ sub alias_for_html {
 	####################################################
 	} else {#case: resource is in a  directory which is not public
 			 #      most often this is the directory containing the .pg file
-			 #      these files require a link to the temp Directory	
+			 #      these files require a link to the temp Directory
 		# $self->debug_message("source file path ", $sourceFilePath);
 		$resource_object->path($file_path);
 		$resource_object->{copy_link}->{type} = 'link';
@@ -405,7 +405,7 @@ sub alias_for_html {
 		$resource_object->create_unique_id($ext);
 		# notice the resource uri is not yet defined -- we have to make the link first
 	}
-		
+
 ##############################################
 # Create links for objects of "link" type.
 # between private directories such as myCourse/template
@@ -413,7 +413,7 @@ sub alias_for_html {
 # The location of the links depends on the type and location of the file
 ##############################################
 	# create_link_to_tmp_file()
-	#input: resource object, ext, (html) (tempURL), 
+	#input: resource object, ext, (html) (tempURL),
 	#return: uri
 	if ( $resource_object->{copy_link}->{type} eq 'link') {
 	    # this creates a link from the original file to an alias in the tmp/html directory
@@ -421,7 +421,7 @@ sub alias_for_html {
 	    my $subdir ='';
 	    if ($ext eq 'html') {
 	    	$subdir = 'html';
-	    } else { 
+	    } else {
 	    	$subdir = 'images';
 	    }
 		$self->create_link_to_tmp_file(resource=>$resource_object, subdir=>$subdir);
@@ -433,7 +433,7 @@ sub alias_for_html {
 	# $self->debug_message("link created --alias_for_image_html: url is ".$resource_object->uri(). " check =".$self->check_url($resource_object->uri()) );
 	$resource_object->uri();  # return the uri of the resource -- in this case the URL for the file in the temp directory
 }
-	
+
 
 ################################################################################
 # alias for image in tex mode
@@ -448,20 +448,20 @@ sub alias_for_tex {
 	                         # case 1:  aux_file_id is complete or relative path to file
 	                         # case 2:  aux_file_id is file name alone relative to the templates directory.
 	my $ext = shift;
-	
+
     my $from_file_type       = $ext ;
     my $to_file_type         = "png" ;           # needed for conversion cases
-    
+
     my $convert_fileQ        = ($ext   eq   'gif' # gif files need to be converted
 #                                   or $ext eq   'pdf' # other image types for tex
 #                                   or $ext eq   'jpg'
 #                                   or $ext eq   'svg'
 #                                   or $ext eq   'html'
                                 )? 1: 0   ;      # does this file need conversion
-    
+
     my $link_fileQ =0;                                            # does this file need to be linked?
     my $targetDirectory      = ($ext eq 'html')?'html':'images' ; # subdirectory of tmp directory
-        
+
 #######################
 # gather needed data and declare it locally
 #######################
@@ -471,7 +471,7 @@ sub alias_for_tex {
 	my $tempURL            = $self->{tempURL};
 	my $tempDirectory      = $self->{tempDirectory};
 	my $templateDirectory  = $self->{templateDirectory};
-   
+
 #######################
 # retrieve PGresponse resource object
 #######################
@@ -479,7 +479,7 @@ sub alias_for_tex {
 	my $resource_object = $self->get_resource($aux_file_id);
     #warn ( "\nresource for $aux_file_id is ", ref($resource_object), $resource_object );
 
-				        
+
 ################################################################################
 # Create PDF output directly -- convert .gif to .png format which pdflatex accepts natively
 ################################################################################
@@ -515,7 +515,7 @@ sub alias_for_tex {
 	# Find complete path to the original file
 	my $file_path;
 	if ( $aux_file_id =~ /https?:/ ) { # external link_file
-		$resource_object->uri($aux_file_id);           #no unique id is needed -- external link doc		
+		$resource_object->uri($aux_file_id);           #no unique id is needed -- external link doc
 		$resource_object->{copy_link}->{type} = 'external';
 		$resource_object->{uri}->{is_accessible} = $self->check_url($resource_object->uri());
 		return $resource_object->uri; # external links need no further processing
@@ -532,19 +532,19 @@ sub alias_for_tex {
 
 ##############################################
 # store the complete path to the original file
-# calculate the uri (which is a url suitable for the browser relative to the current site) 
+# calculate the uri (which is a url suitable for the browser relative to the current site)
 # store the uri.
 # record status of the resource
 ##############################################
 
 	if ( $file_path      =~ m|^$tempDirectory| ) { #case: file is stored in the course temporary directory
 
-		my $sourceFilePath =  $file_path;	
+		my $sourceFilePath =  $file_path;
 		$resource_object->path($sourceFilePath);
 		$resource_object->{path}->{is_complete}  = 1;
 		#warn("tempDir   filePath ",$resource_object->path, "\n");
 # Gif files always need to be converted to png files for inclusion in pdflatex documents.
-		
+
 		$resource_object->{convert}->{needed}    = $convert_fileQ;
 		$resource_object->{convert}->{from_path} = $sourceFilePath;
 		$resource_object->{convert}->{from_type} = $from_file_type;
@@ -555,19 +555,19 @@ sub alias_for_tex {
 		my $sourceFilePath = $aux_file_id;
 		$resource_object->path($sourceFilePath);
 		$resource_object->{path}->{is_complete}=1;
-				
+
 		$resource_object->{convert}->{needed}    = $convert_fileQ;
 		$resource_object->{convert}->{from_path} = $sourceFilePath;
 		$resource_object->{convert}->{from_type} = $from_file_type;
 		$resource_object->{convert}->{to_path}   = '';  #define later
 		$resource_object->{convert}->{to_type}   = $to_file_type;
 		#warn ("htmlDir   filePath ",$resource_object->path, "\n");
-	
+
 	} else {
-		
+
 		$resource_object->path($file_path);
 		$resource_object->{path}->{is_complete}=(-r $resource_object->path);
-		
+
 
 		$resource_object->{convert}->{needed}     = $convert_fileQ;
 		$resource_object->{convert}->{from_path}  = $resource_object->path();
@@ -580,13 +580,13 @@ sub alias_for_tex {
 ################################################################################
 # Convert images to .png files if needed
 ################################################################################
-    
+
 	if ($resource_object->{convert}->{needed} ) {	#convert .gif to .png
-	
+
 		$self -> convert_file_to_png_for_tex(
 	         resource => $resource_object,
 	         targetDirectory => $targetDirectory
-	    );	
+	    );
 	} else { # no conversion needed
 		$resource_object->uri($resource_object->path());  #path and uri are the same in this case.
 		$resource_object->{uri}->{is_complete} =1;
@@ -599,7 +599,7 @@ sub alias_for_tex {
 ################################################################################
 	#warn ("final   filePath ", $resource_object->uri(), "\n");
 	#warn "file is a accessible ", $resource_object->{uri}->{is_accessible},"\n";
-	# returns a file path 
+	# returns a file path
 	($resource_object->{uri}->{is_accessible} == 1 ) ? $resource_object->uri() : "";
 
 }
@@ -619,21 +619,21 @@ sub create_link_to_tmp_file {
 	#################
 	# construct resource uri
 	#################
-		my $resource_uri   = $self->{tempURL}; 
+		my $resource_uri   = $self->{tempURL};
 		$resource_uri      =~  s|/$||; #remove trailing slash, if any
-		$resource_uri      = "$resource_uri/$link"; 
-	################# 
+		$resource_uri      = "$resource_uri/$link";
+	#################
 	# insure that linkPath exists and all intermediate directories have been created
 	#################
 	my $linkPath       = $self->surePathToTmpFile($link);
-	
-	if (-e $resource_object->path( )) { 
+
+	if (-e $resource_object->path( )) {
 	# if resource file exists
 		#################
 		# destroy the old link.
 		#################
 		if (-e $linkPath) {
-			unlink($linkPath) || $self->warning_message( "Unable to unlink alias file at |$linkPath|");			
+			unlink($linkPath) || $self->warning_message( "Unable to unlink alias file at |$linkPath|");
 		}
 		#################
 		# create new link.
@@ -643,7 +643,7 @@ sub create_link_to_tmp_file {
 			$resource_object->{path}->{is_accessible}       =1;
 			$resource_object->{copy_link}->{link_to_path}   = $linkPath;
 			$resource_object->{path}->{is_accessible}       = (-r $linkPath);
-			
+
 			$resource_object->uri($resource_uri);
 			$resource_object->{uri}->{is_accessible}        = $self->check_url($resource_object->uri());
 			$resource_object->{path}->{is_complete}         = 1;
@@ -651,7 +651,7 @@ sub create_link_to_tmp_file {
 		} else {
 			$self->warning_message( "The macro alias cannot create a link from |$linkPath|  to |".$resource_object->path()."|<BR>") ;
 		}
-	} else { 
+	} else {
 	# if the resource file doesn't exist
 		my $message = ($resource_object->path())? " at |".$resource_object->path()."|" : " anywhere";
 		$self->warning_message("The macro alias cannot find the file: |".
@@ -660,7 +660,7 @@ sub create_link_to_tmp_file {
 		$resource_object->{uri}->{is_accessible} = 0;
 		# we should delete the resource object in this case?
 	}
-	
+
 }
 
 
@@ -676,8 +676,8 @@ sub convert_file_to_png_for_tex {
 	my $targetDirectory = $args{targetDirectory};
 	my $conversion_command   = $self->{externalGif2PngPath};
 		################################################################################
-		# Create path to new .png file 
-		# Create  new .png file 
+		# Create path to new .png file
+		# Create  new .png file
 		# We may not have permission to do this in the template directory
 		# so we create the file in the course temp directory.
 		################################################################################
@@ -685,7 +685,7 @@ sub convert_file_to_png_for_tex {
     	$resource_object->create_unique_id($ext);
     	my $unique_id                          = $resource_object->{unique_id};
     	$unique_id =~ s|\.[^/\.]*$|.png|;
-		my $link                               = "$targetDirectory/$unique_id";                  
+		my $link                               = "$targetDirectory/$unique_id";
 		my $targetFilePath                     = $self->surePathToTmpFile($link);
 		$resource_object->{convert}->{to_path} = $targetFilePath;
 		$self->debug_message("target  filePath ",$targetFilePath, "\n");
@@ -699,8 +699,8 @@ sub convert_file_to_png_for_tex {
 		if ($returnCode or not -e $targetFilePath) {
 			$resource_object->warning_message( "returnCode $returnCode: failed to convert $sourceFilePath to $targetFilePath using gif->png with $conversion_command: $!");
 		}
-	
-	
+
+
 		$resource_object->uri($resource_object->{convert}->{to_path});
 		$resource_object->{uri}->{is_complete} =1;
 		$resource_object->{uri}->{is_accessible} = (-r $resource_object->uri() );
@@ -750,7 +750,7 @@ sub findMacroFile {
 sub find_file_in_directories {
 	my $self = shift;
 	my $file_name = shift;
-	my $directories = shift; 
+	my $directories = shift;
 	my $file_path;
 	foreach my $dir (@$directories) {
 		$dir =~ s|/$||; # remove final / if present
@@ -770,8 +770,8 @@ sub check_url {
 	return undef if $url =~ /;/;   # make sure we can't get a second command in the url
 	return undef unless $url =~/\S/;
 	#FIXME -- check for other exploits of the system call	#FIXME -- ALARM feature so that the response cannot be held up for too long.
-	#ALARM: /opt/local/bin/lwp-request -d -t 40 -mHEAD ";  
-	# the -t 40 means the call times out after 40 seconds.  
+	#ALARM: /opt/local/bin/lwp-request -d -t 40 -mHEAD ";
+	# the -t 40 means the call times out after 40 seconds.
 	# Set this alarm in site.conf
 	#FIXME doesn't seem to work with relative addresses.
 	#FIXME  Can we get the machine name of the server?
@@ -780,14 +780,14 @@ sub check_url {
 	 unless ($url =~ /^http/ ) {
 	 	# $self->debug_message("check_url: augmenting url $url");
 	 	$url = "$server_root_url/$url";
-	 
+
 	 }
 	 my $check_url_command = $self->{envir}->{externalCheckUrl};
 #	 $self->warning_message("check_url_command: $check_url_command -- externalCheckUrl is not properly defined in configuration file")
 #	 	unless (-x $check_url_command );
-	 my $response = `$check_url_command $url`; 
+	 my $response = `$check_url_command $url`;
 	 # $self->debug_message("check_url: response for url $url is  $response");
-	 return ($response =~ /$OK_CONSTANT/) ? 1 : 0; 
+	 return ($response =~ /$OK_CONSTANT/) ? 1 : 0;
 }
 
 # ^variable our %appletCodebaseLocations
@@ -804,7 +804,7 @@ sub findAppletCodebase {
 	my $fileName = shift;  # probably the name of a jar file
 	$server_root_url=$self->envir("server_root_url");
 	#check cache first
-	if (defined($appletCodebaseLocations{$fileName})  
+	if (defined($appletCodebaseLocations{$fileName})
 	      and $appletCodebaseLocations{$fileName} =~/\S/  )
 	{
 	   	return $appletCodebaseLocations{$fileName};	# return if found in cache

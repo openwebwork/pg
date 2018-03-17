@@ -580,7 +580,7 @@ sub grader {
   $status->{raw}   = $result->{score};
   $status->{score} = $result->{score}*$weight;
   $status->{new_ans_rule_count} = $main::ans_rule_count;
-  if (defined(%main::images_created)) {
+  if (%main::images_created) {
     $status->{imageName} = (keys %main::images_created)[0];
     $status->{new_images_created} = $main::images_created{$status->{imageName}};
   }
