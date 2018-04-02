@@ -52,6 +52,16 @@ sub log   {
   CORE::log($_[0]);
 }
 
+sub _reduce {
+  my $self = shift;
+  return $self unless $self->context->flag('reduceConstantFunctions');
+  my $base10 = $self->context->flag('useBaseTenLog');
+  my $s = $self->string;
+  return $self->Item('Value')->new($self->{equation}, [$self->eval])
+    if $s eq 'ln(e)' || $s eq 'log10(10)' || $s eq ($base10 ? 'log(10)' : 'log(e)');
+  return $self;
+}
+
 #
 #  Handle absolute values as a special case
 #
