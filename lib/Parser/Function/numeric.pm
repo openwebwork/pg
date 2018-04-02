@@ -58,7 +58,7 @@ sub _reduce {
   my $base10 = $self->context->flag('useBaseTenLog');
   my $s = $self->string;
   return $self->Item('Value')->new($self->{equation}, [$self->eval])
-    if $s eq 'ln(e)' || $s eq 'log10(10)' || $s eq ($base10 ? 'log(10)' : 'log(e)');
+    if $s eq 'ln(e)' || ($s eq 'log(e)' && $base10);
   return $self;
 }
 
