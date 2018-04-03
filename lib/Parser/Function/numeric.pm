@@ -52,15 +52,27 @@ sub log   {
   CORE::log($_[0]);
 }
 
+#
+#  Handle reduction of ln(e) and ln(e^x)
+#
 sub _reduce {
   my $self = shift;
-  return $self unless $self->context->flag('reduceConstantFunctions');
-  my $base10 = $self->context->flag('useBaseTenLog');
-  my $s = $self->string;
-  return $self->Item('Value')->new($self->{equation}, [$self->eval])
-    if $s eq 'ln(e)' || ($s eq 'log(e)' && $base10);
+  my $context = $self->context;
+  my $base10 = $context->flag('useBaseTenLog');
+  my $reduce = $context->{reduction};
+  if ($self->{name} eq 'ln' || ($self->{name} eq 'log' && !$base10)) {
+    my $arg = $self->{params}[0];
+    if ($reduce->{'ln(e^x)'}) {
+      return $arg->{rop} if $arg->isa('Parser::BOP::power') && $arg->{lop}->string eq 'e';
+      return $arg->{params}[0] if $arg->isa('Parser::Function') && $arg->{name} eq 'exp';
+    }
+    return $self->Item('Value')->new($self->{equation}, [$self->eval])
+      if $context->flag('reduceConstantFunctions') && $arg->string eq 'e';
+  }
   return $self;
 }
+
+$Parser::reduce->{'ln(e^x)'} = 1;
 
 #
 #  Handle absolute values as a special case
