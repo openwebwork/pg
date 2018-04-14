@@ -28,7 +28,7 @@ and one for a single number.  Select them using
 one of the following commands:
 
 	Context("LimitedNumeric-List");
-	Context("LimiteNumeric");
+	Context("LimitedNumeric");
 
 (Now uses Parser::Legacy::LimitedNumeric to implement
 these contexts.)
