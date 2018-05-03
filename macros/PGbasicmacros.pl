@@ -2247,6 +2247,9 @@ sub PTX_cleanup {
     $string =~ s/(?s)(<tabular>(?:\s|<col (?:(?!width=").)*?>)((?!<\/tabular>).)*?<cell>((?!<\/tabular>).)*?)<p>(((?!<\/tabular>).)*?)<\/p>(((?!<\/tabular>).)*?<\/tabular>)/$1$4$6/g;
     } until ($previous eq $string);
 
+    #two sidebysides may come in immediate sequence. We assume here that they should be in a single sidebyside.
+    $string =~ s/(?s)<sidebyside widths="(.*?)" ?>\n(.*?)<\/sidebyside>\n<sidebyside widths="(.*?)">\n/<sidebyside widths="\1 \3">\n\2/g;
+
   };
   $string;
 }
