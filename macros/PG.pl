@@ -189,7 +189,7 @@ sub SET_PROBLEM_TEXTDIRECTION {
   if ( $requested_dir =~ /^ltr$/i ) {
     $PG->{flags}->{"textdirection"} = "ltr";
   } elsif ( $requested_dir =~ /^rtl$/i ) {
-    $PG->{flags}->{"textdirection"} = "trl";
+    $PG->{flags}->{"textdirection"} = "rtl";
   } elsif ( $requested_dir =~ /^auto$/i ) {
     $PG->{flags}->{"textdirection"} = "auto"; # NOT RECOMMENDED
   } else {
