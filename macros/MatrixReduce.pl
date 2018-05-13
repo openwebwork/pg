@@ -204,7 +204,7 @@ sub elem_matrix_row_switch {
 
 	# $n = number of rows (and columns) in matrix
 	# $i and $j are indices of rows to be switched (index starting at 1, not 0)
-	($n,$i,$j) = @_;
+	my ($n,$i,$j) = @_;
 	if ($i < 1 or $j < 1 or $i > $n or $j > $n) {
 		warn "Index out of bounds in Elem_row_switch().  Returning identity matrix.";
 		return Value::Matrix->I($n);
@@ -222,7 +222,7 @@ sub elem_matrix_row_mult {
 
 	# $n = number of rows (and columns) in matrix
 	# $i and $j are indices of rows to be switched (index starting at 1, not 0)
-	($n,$i,$s) = @_;
+	my ($n,$i,$s) = @_;
 	if ($i < 1 or $i > $n) {
 		warn "Index out of bounds in elem_row_mult().  Returning identity matrix.";
 		return Value::Matrix->I($n);
@@ -244,7 +244,7 @@ sub elem_matrix_row_add {
 
 	# $n = number of rows (and columns) in matrix
 	# $i and $j are indices of rows to be switched (index starting at 1, not 0)
-	($n,$i,$j,$s) = @_;
+	my ($n,$i,$j,$s) = @_;
 	if ($i < 1 or $j < 1 or $i > $n or $j > $n) {
 		warn "Index out of bounds in elem_matrix_row_add().  Returning identity matrix.";
 		return Value::Matrix->I($n);
