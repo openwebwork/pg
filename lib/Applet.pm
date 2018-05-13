@@ -1144,14 +1144,27 @@ use constant GEOGEBRAWEB_OBJECT_HEADER_TEXT =><<'END_HEADER_SCRIPT';
 	
 END_HEADER_SCRIPT
 
+# Some changes in the way geogebra javaScript works make it important
+# That the object and the script that calls it are contained in some <div>
+# (otherwise geogebra adds height and width values to the second enclosing <div> 
+# (i.e. the div enclosing the enclosing div) and 
+# if the div contains more than just the geogebra applet this size will be incorrect. )
+# (This behavior is probably a bug in geogebra -- 
+# but I don't have a precise statement of the API.)
+# The <div class="enclose_geogebra_object> and <div class="geogebra_object" do nothing for now
+# but perhaps they might have a use later. style="height:306 ptx,width: 486 ptx" is inserted in 
+# the class="enclose_geogebra_object" div by the geogebra applet. 
 
 use constant GEOGEBRAWEB_OBJECT_TEXT =><<'END_OBJECT_TEXT';
+    <div class="enclose_geogebra_object">
+    <div class="geogebra_object">
     <script language="javascript">ww_applet_list["$appletName"].visible = 1; // don't submit things if not visible
     </script>
 <script type="text/javascript" language="javascript" src="//web.geogebra.org/4.4/web/web.nocache.js"></script>
 
 $webgeogebraParameters
-
+	</div>
+	</div>
 END_OBJECT_TEXT
 
 sub new {
