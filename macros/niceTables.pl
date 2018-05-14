@@ -15,7 +15,7 @@
 ##
 ##  NOTE: In order to reduce separate setting of on-screen and hard copy settings as much as possible, Perl 5.10+
 ##  tools are used. These macros may behave unexpectedly or not work at all with older versions of Perl.
-##  These macros use LaTeX packages inthe hard copy that wer not formerly part of a WeBWorK hard copy preamble.
+##  These macros use LaTeX packages in the hard copy that wer not formerly part of a WeBWorK hard copy preamble.
 ##  Your LaTeX distribution needs to have the packages: booktabs, tabularx, colortbl, caption, xcolor
 ##  And if you have a WeBWorK version earlier than 2.10, you need to add calls to these packages to hardcopyPreamble.tex
 ##    in webwork2/conf/snippets/
