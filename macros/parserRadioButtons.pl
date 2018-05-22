@@ -318,7 +318,7 @@ sub getCorrectChoice {
   my $self = shift; my $value = shift;
   if ($value =~ m/^\d+$/ && !$self->{noindex}) {
     $value = ($self->flattenChoices)[$value];
-    Value::Error("The correct anser index is outside the range of choices provided")
+    Value::Error("The correct answer index is outside the range of choices provided")
       if !defined($value);
   }
   my @choices = @{$self->{orderedChoices}};
