@@ -133,12 +133,14 @@ sub getUnits {
 #
 #  Convert units to TeX format
 #  (fix superscripts, put terms in \rm,
+#   escape percent,
 #   and make a \frac out of fractions)
 #
 sub TeXunits {
   my $units = shift;
   $units =~ s/\^\(?([-+]?\d+)\)?/^{$1}/g;
   $units =~ s/\*/\\,/g;
+  $units =~ s/%/\\%/g;
   return '{\rm '.$units.'}' unless $units =~ m!^(.*)/(.*)$!;
   my $displayMode = WeBWorK::PG::Translator::PG_restricted_eval(q!$main::displayMode!);
   return '{\textstyle\frac{'.$1.'}{'.$2.'}}' if ($displayMode eq 'HTML_tth');

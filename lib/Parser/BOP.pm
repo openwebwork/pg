@@ -176,6 +176,23 @@ sub checkMatrixSize {
 }
 
 #
+#  Check if a matrix is square
+#
+sub checkMatrixSquare {
+  my $self = shift;
+  my $m = shift; my $type = $m->{entryType};
+  if ($type->{entryType}{name} eq 'Number') {
+    my ($r,$c) = ($m->{length},$type->{length});
+    if ($r == $c) {
+      my $rowType = Value::Type('Matrix',$r,$Value::Type{number},formMatrix=>1);
+      $self->{type} = Value::Type('Matrix',$r,$rowType,formMatrix=>1);
+      return 1;
+    }
+  }
+  return 0;
+}
+
+#
 #  Promote point operands to vectors or matrices.
 #
 sub promotePoints {

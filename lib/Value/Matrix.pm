@@ -209,7 +209,7 @@ sub mult {
   #
   #  Constant multiplication
   #
-  if (Value::matchNumber($r) || Value::isComplex($r)) {
+  if (Value::isNumber($r)) {
     my @coords = ();
     foreach my $x (@{$l->data}) {push(@coords,$x*$r)}
     return $self->make(@coords);
@@ -225,7 +225,7 @@ sub mult {
   if (scalar(@dl) == 1) {@dl = (1,@dl); $l = $self->make($l)}
   if (scalar(@dr) == 1) {@dr = (@dr,1); $r = $self->make($r)->transpose}
   Value::Error("Can only multiply 2-dimensional matrices") if scalar(@dl) > 2 || scalar(@dr) > 2;
-  Value::Error("Matices of dimensions %dx%d and %dx%d can't be multiplied",@dl,@dr)
+  Value::Error("Matrices of dimensions %dx%d and %dx%d can't be multiplied",@dl,@dr)
     unless ($dl[1] == $dr[0]);
   #
   #  Do matrix multiplication
@@ -247,8 +247,7 @@ sub mult {
 sub div {
   my ($l,$r,$flag) = @_; my $self = $l;
   Value::Error("Can't divide by a Matrix") if $flag;
-  Value::Error("Matrices can only be divided by Numbers")
-    unless (Value::matchNumber($r) || Value::isComplex($r));
+  Value::Error("Matrices can only be divided by Numbers") unless Value::isNumber($r);
   Value::Error("Division by zero") if $r == 0;
   my @coords = ();
   foreach my $x (@{$l->data}) {push(@coords,$x/$r)}
@@ -260,7 +259,10 @@ sub power {
   Value::Error("Can't use Matrices in exponents") if $flag;
   Value::Error("Only square matrices can be raised to a power") unless $l->isSquare;
   $r = Value::makeValue($r,context=>$context);
-  if ($r->isNumber && $r =~ m/^-\d+$/) {$l = $l->inverse; $r = -$r}
+  if ($r->isNumber && $r =~ m/^-\d+$/) {
+    $l = $l->inverse; $r = -$r;
+    $self->Error("Matrix is not invertible") unless defined($l);
+  }
   Value::Error("Matrix powers must be non-negative integers") unless $r->isNumber && $r =~ m/^\d+$/;
   return $context->Package("Matrix")->I($l->length,$context) if $r == 0;
   my $M = $l; foreach my $i (2..$r) {$M = $M*$l}
@@ -321,9 +323,10 @@ sub I {
   Value::Error("You must provide a dimension for the Identity matrix") unless defined $d;
   Value::Error("Dimension must be a positive integer") unless $d =~ m/^[1-9]\d*$/;
   my @M = (); my @Z = split('',0 x $d);
+  my $REAL = $context->Package('Real');
   foreach my $i (0..$d-1) {
     my @row = @Z; $row[$i] = 1;
-    push(@M,$self->make($context,@row));
+    push(@M,$self->make($context, map {$REAL->new($_)} @row));
   }
   return $self->make($context,@M);
 }
@@ -412,6 +415,14 @@ sub wwMatrixLR {
   return $self->{lrM};
 }
 
+sub wwColumnVector {
+  my $self = shift;
+  my $v = shift;
+  my $V = $self->new($v);
+  $V = $V->transpose if Value::classMatch($v,'Vector');
+  return $V->wwMatrix;
+}
+
 
 ###################################
 #
@@ -427,7 +438,8 @@ sub det {
 sub inverse {
   my $self = shift; $self->wwMatrixLR;
   Value->Error("Can't take inverse of non-square matrix") unless $self->isSquare;
-  return $self->new($self->{lrM}->invert_LR);
+  my $I = $self->{lrM}->invert_LR;
+  return (defined($I) ? $self->new($I) : $I);
 }
 
 sub decompose_LR {
@@ -458,7 +470,7 @@ sub kleene {
 
 sub normalize {
   my $self = shift;
-  my $v = $self->new(shift)->wwMatrix;
+  my $v = $self->wwColumnVector(shift);
   my ($M,$b) = $self->wwMatrix->normalize($v);
   return ($self->new($M),$self->new($b));
 }
@@ -466,9 +478,11 @@ sub normalize {
 sub solve {shift->solve_LR(@_)}
 sub solve_LR {
   my $self = shift;
-  my $v = $self->new(shift)->wwMatrix;
+  my $v = $self->wwColumnVector(shift);
   my ($d,$b,$M) = $self->wwMatrixLR->solve_LR($v);
-  return ($d,$self->new($b),$self->new($M));
+  $b = $self->new($b) if defined($b);
+  $M = $self->new($M) if defined($M);
+  return ($d,$b,$M);
 }
 
 sub condition {
@@ -485,8 +499,8 @@ sub order_LR {
 
 sub solve_GSM {
   my $self = shift;
-  my $x0 = $self->new(shift)->wwMatrix;
-  my $b  = $self->new(shift)->wwMatrix;
+  my $x0 = $self->wwColumnVector(shift);
+  my $b  = $self->wwColumnVector(shift);
   my $e  = shift;
   my $v = $self->wwMatrix->solve_GSM($x0,$b,$e);
   $v = $self->new($v) if defined($v);
@@ -495,8 +509,8 @@ sub solve_GSM {
 
 sub solve_SSM {
   my $self = shift;
-  my $x0 = $self->new(shift)->wwMatrix;
-  my $b  = $self->new(shift)->wwMatrix;
+  my $x0 = $self->wwColumnVector(shift);
+  my $b  = $self->wwColumnVector(shift);
   my $e  = shift;
   my $v = $self->wwMatrix->solve_SSM($x0,$b,$e);
   $v = $self->new($v) if defined($v);
@@ -505,8 +519,8 @@ sub solve_SSM {
 
 sub solve_RM {
   my $self = shift;
-  my $x0 = $self->new(shift)->wwMatrix;
-  my $b  = $self->new(shift)->wwMatrix;
+  my $x0 = $self->wwColumnVector(shift);
+  my $b  = $self->wwColumnVector(shift);
   my $w = shift; my $e = shift;
   my $v = $self->wwMatrix->solve_RM($x0,$b,$w,$e);
   $v = $self->new($v) if defined($v);

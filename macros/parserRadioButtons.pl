@@ -318,7 +318,7 @@ sub getCorrectChoice {
   my $self = shift; my $value = shift;
   if ($value =~ m/^\d+$/ && !$self->{noindex}) {
     $value = ($self->flattenChoices)[$value];
-    Value::Error("The correct anser index is outside the range of choices provided")
+    Value::Error("The correct answer index is outside the range of choices provided")
       if !defined($value);
   }
   my @choices = @{$self->{orderedChoices}};
@@ -556,8 +556,12 @@ sub BUTTONS {
     $radio[0] = "\n\\begin{itemize}\n" . $radio[0];
     $radio[$#radio_buttons] .= "\n\\end{itemize}\n";
   }
+  if ($main::displayMode eq 'PTX') {
+    $radio[0] = '<var form="buttons">' . "\n" . $radio[0];
+    $radio[$#radio_buttons] .= '</var>';
+  };
   @radio = $self->makeUncheckable(@radio) if $self->{uncheckable};
-  (wantarray) ? @radio : join($self->{separator}, @radio);
+  (wantarray) ? @radio : join(($main::displayMode eq 'PTX')?'':$self->{separator}, @radio);
 }
 
 sub protect {

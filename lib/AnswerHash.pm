@@ -20,7 +20,7 @@
 
 	AnswerHash  -- this class stores information related to the student's
 		       answer.  It is little more than a standard perl hash with
-		       a special name, butit does have some access and 
+		       a special name, but it does have some access and 
 		       manipulation methods.  More of these may be added as it
 		       becomes necessary.
 		       

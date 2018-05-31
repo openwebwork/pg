@@ -28,7 +28,7 @@ The entries in a cycle are separated by spaces and enclosed in
 parentheses.  Cycles are multiplied by juxtaposition.  A permutation
 can be multiplied on the left by a number in order to obtain the
 result of that number under the action of the permutation.
-Exponentiation is alos allowed (as described below).
+Exponentiation is also allowed (as described below).
 
 There are three contexts included here: C<Context("Permutation")>, which
 allows permutations in any form, C<Context("Permutation-Strict")>, which

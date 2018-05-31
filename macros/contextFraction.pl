@@ -618,6 +618,8 @@ sub reduce {
 package context::Fraction::Real;
 our @ISA = ('Value::Real');
 
+sub cmp_defaults {Value::Real::cmp_defaults(@_)}
+
 #
 #  Allow Real to convert Fractions to Reals
 #
@@ -829,6 +831,16 @@ sub cos {my $self = shift; $self->make(CORE::cos($self->eval))}
 sub atan2 {
   my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
   return $self->inherit($other)->make(CORE::atan2($l->eval,$r->eval));
+}
+
+##################################################
+#
+#  Differentiation
+#
+
+sub D {
+  my $self = shift;
+  return $self->make(0,1);
 }
 
 ##################################################
