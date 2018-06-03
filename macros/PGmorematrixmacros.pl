@@ -5,9 +5,24 @@ BEGIN{
 # set the prefix used for arrays.
 our $ArRaY = $main::PG->{ARRAY_PREFIX};
 
+=head2 NAME
+
+	macros/PGmorematrixmacros.pl
+	
+=cut
+
+
 sub _PGmorematrixmacros_init{}
 
-sub random_inv_matrix { ## Builds and returns a random invertible \$row by \$col matrix.
+=head4 random_inv_matrix
+
+## Builds and returns a random invertible \$row by \$col matrix.
+
+=cut
+
+
+sub random_inv_matrix { 
+## Builds and returns a random invertible \$row by \$col matrix.
 
     warn "Usage: \$new_matrix = random_inv_matrix(\$rows,\$cols)"
       if (@_ != 2);
@@ -54,16 +69,29 @@ sub random_diag_matrix{ ## Builds and returns a random diagonal \$n by \$n matri
     return $D;
 }
 
+=head4 swap_rows ($matrix, $row1, $row2) 
+
+	(deprecated use MathObject Matrix instead)
+
+$matrix is assumed to be a RealMatrix1 object. 
+It is better to use MathObject Matrices and row swap mechanisms 
+from MatrixReduce.pl instead.
+
+=cut
+
+
 sub swap_rows{
 
     warn "Usage: \$new_matrix = swap_rows(\$matrix,\$row1,\$row2);"
       if (@_ != 3);
     my $matrix = $_[0];
     my ($i,$j) = ($_[1],$_[2]);
+    
     warn "Error:  Rows to be swapped must exist!" 
       if ($i>@$matrix or $j >@$matrix);
     warn "Warning:  Swapping the same row is pointless"
-      if ($i==$j);    
+      if ($i==$j);   
+     
     my $cols = @{$matrix->[0]};
     my $B = new Matrix(@$matrix,$cols);
     foreach my $k (1..$cols){
@@ -72,6 +100,16 @@ sub swap_rows{
     }
     return $B;
 }
+
+=head4  row_mult ($matrix, $scaler, $row) 
+
+	(deprecated use MathObject Matrix instead)
+
+$matrix is assumed to be a RealMatrix1 object. 
+It is better to use MathObject Matrices and row swap mechanisms 
+from MatrixReduce.pl instead.
+
+=cut
 
 sub row_mult{
 
@@ -87,6 +125,16 @@ sub row_mult{
     }
     return $B;
 }
+
+sub linear_combo($matrix, $scalar, $row1, $row2)
+
+	(deprecated use MathObject Matrix instead)
+
+Adds a multiple of row1 to row2.
+
+$matrix is assumed to be a RealMatrix1 object. 
+It is better to use MathObject Matrices and subroutines
+from MatrixReduce.pl instead.
 
 sub linear_combo{
 
@@ -105,6 +153,15 @@ sub linear_combo{
     }
     return $B;
 }
+
+
+=head2 
+
+These should be compared to similar subroutines made later in 
+MatrixCheckers.pl
+
+
+=cut
 
 =head3 basis_cmp()
 
@@ -378,6 +435,8 @@ sub compare_basis {
 
 =head2 vec_list_string
 
+(this is mostly obsolete.  One should use MathObject Vectors instead. )
+
 This is a check_syntax type method (in fact I borrowed some of that method's code) for vector input.
 The student needs to enter vectors like:        [1,0,0],[1,2,3],[0,9/sqrt(10),1/sqrt(10)]
 Each entry can contain functions and operations and the usual math constants (pi and e).
@@ -503,8 +562,14 @@ sub vec_list_string{
     $rh_ans;
 }
 
+
+
+
 =head5 ans_array_filter
 
+	(this filter is not necessary when using MathObjects.  It may someday be useful
+	again if the AnswerEvaluator pipeline is used to its fullest extent. )
+	
     This filter was created to get, format, and evaluate each entry of the ans_array and ans_array_extension
     answer entry methods. Running this filter is necessary to get all the entries out of the answer
     hash. Each entry is evaluated and the resulting number is put in the display for student answer
@@ -616,6 +681,20 @@ sub ans_array_filter{
 
 }
 
+=head3 
+
+The following subroutines, meant to be used with MatrixReal1 type matrices, are 
+deprecated.  In general you should use the MathObject Matrix type and the 
+checking methods in MatrixCheckers.pl 
+
+	are_orthogonal_vecs($vec_ref, %opts)
+	is_diagonal($matrix, %opts)
+	are_unit_vecs($vec_ref, %opts)
+	display_correct_vecs($vec_ref, %opts)
+	vec_solution_cmp($vec,%opts)
+		filter: compare_vec_solution($rh_ans,%opts);
+	
+=cut
 
 sub are_orthogonal_vecs{
     my ($vec_ref , %opts) = @_;

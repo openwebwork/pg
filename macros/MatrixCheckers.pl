@@ -87,23 +87,23 @@ brackets around them to look like a matrix.  The braces around the vectors, whic
 are produced by C<\(\Bigg\lbrace\)> and C<\(\Bigg\rbrace\)>, are a matter of personal
 preference (since a basis is an ordered set, I like to include braces).
 
-=over 12
 
-Context()->texStrings;
-BEGIN_TEXT
-Find an orthonormal basis for...
-$BR
-$BR
-$BCENTER
-\(\Bigg\lbrace\) 
-\{ $multians->ans_array(15) \}, 
-\{ $multians->ans_array(15) \} 
-\(\Bigg\rbrace.\)
-$ECENTER
-END_TEXT
-Context()->normalStrings;
 
-=back
+	Context()->texStrings;
+	BEGIN_TEXT
+	Find an orthonormal basis for...
+	$BR
+	$BR
+	$BCENTER
+	\(\Bigg\lbrace\) 
+	\{ $multians->ans_array(15) \}, 
+	\{ $multians->ans_array(15) \} 
+	\(\Bigg\rbrace.\)
+	$ECENTER
+	END_TEXT
+	Context()->normalStrings;
+
+
 
 The answer evaluation section of the PG file is totally standard.
 
