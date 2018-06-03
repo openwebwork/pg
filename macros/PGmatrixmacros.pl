@@ -225,6 +225,9 @@ sub dm_begin_matrix {
                       or $main::displayMode eq 'HTML_img') {
                 $out .= qq!<TABLE class="matrix" BORDER="0" style="border-collapse: separate; border-spacing:10px 0px;">\n!;
         }
+        elsif ( $main::displayMode eq 'PTX' ) {
+                $out .= qq!<sidebyside>\n<tabular>\n!;
+        }
         else {
                 $out = "Error: dm_begin_matrix: Unknown displayMode: $main::displayMode.\n";
                 }
@@ -273,6 +276,8 @@ sub dm_special_tops {
                         $out .= "$brh<td align=\"center\">$erh". ' \('.$j.'\)'."$brh</td>$erh";
                 }
 		$out .= "<td></td>";
+        }
+        elsif ( $main::displayMode eq 'PTX' ) {
         } else {
                 $out = "Error: dm_begin_matrix: Unknown displayMode: $main::displayMode.\n";
         }
@@ -282,7 +287,7 @@ sub dm_special_tops {
 sub dm_mat_left {
         my $numrows = shift;
         my %opts = @_;
-        if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
+        if ($main::displayMode eq 'TeX' or $opts{'force_tex'} or $main::displayMode eq 'PTX') {
                 return ""; # left delim is built into begin matrix
         }
         my $out='';
@@ -326,7 +331,7 @@ sub dm_mat_right {
         }
 
 
-        if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
+        if ($main::displayMode eq 'TeX' or $opts{'force_tex'} or $main::displayMode eq 'PTX') {
                 return "";
         }
 
@@ -375,6 +380,9 @@ sub dm_end_matrix {
                       or $main::displayMode eq 'HTML'
                       or $main::displayMode eq 'HTML_img') {
                 $out .= "</TABLE>\n";
+                }
+        elsif ( $main::displayMode eq 'PTX') {
+                $out .= qq!</tabular>\n</sidebyside>\n!;
                 }
         else {
                 $out = "Error: PGmatrixmacros: dm_end_matrix: Unknown displayMode: $main::displayMode.\n";
@@ -530,6 +538,16 @@ sub dm_mat_row {
                 }
                         if(not $opts{'isfirst'}) {$out .="$brh</TR>$erh\n";}
         }
+        elsif ($main::displayMode eq 'PTX') {
+                $out .= "<row>\n";
+                while (@elements) {
+                    $colcount++;
+                    $out .= '<cell>';
+                    $out .= shift(@elements);
+                    $out .= "</cell>\n";
+                    }
+                $out .= "</row>\n";
+                }
         else {
                 $out = "Error: dm_mat_row: Unknown displayMode: $main::displayMode.\n";
                 }

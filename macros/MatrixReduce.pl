@@ -40,9 +40,11 @@ C<$E = elem_matrix_row_switch(5,2,4);> creates a 5 x 5 identity matrix and swaps
 
 creates a 5 x 5 identity matrix and swaps puts 4 in the second spot on the diagonal.
 
-=item Construct an n x n elementary matrix that will multiply row i by s: C<$E3 = elem_matrix_row_add(5,3,1,35);> 
 
-creates a 5 x 5 identity matrix and swaps puts 35 in the (3,1) position.
+=item Construct an n x n elementary matrix that will multiply row i by s: C<$E = elem_matrix_row_mult(5,2,4);> creates a 5 x 5 identity matrix and puts 4 in the second spot on the diagonal.
+
+=item Construct an n x n elementary matrix that will add s times row j to row i: C<$E3 = elem_matrix_row_add(5,3,1,35);> creates a 5 x 5 identity matrix and puts 35 in the (3,1) position.
+
 
 =item Perform the row switch transform that swaps (row i) with (row j): C<$Areduced = row_switch($A,2,4);> 
 
@@ -152,14 +154,14 @@ sub rref {
   my $M = shift;
   my @m = $M->value;
   my @m_reduced = rref_perl_array(@m);
-  return Matrix(@m_reduced);
+  return Matrix(\@m_reduced);
 }
 
 sub rcef {
   my $M = shift;
   my @m = $M->transpose->value;
   my @m_reduced = rref_perl_array(@m);
-  return Matrix(@m_reduced)->transpose;
+  return Matrix(\@m_reduced)->transpose;
 }
 
 sub rref_perl_array {
@@ -222,7 +224,7 @@ sub elem_matrix_row_switch {
 
 	# $n = number of rows (and columns) in matrix
 	# $i and $j are indices of rows to be switched (index starting at 1, not 0)
-	($n,$i,$j) = @_;
+	my ($n,$i,$j) = @_;
 	if ($i < 1 or $j < 1 or $i > $n or $j > $n) {
 		warn "Index out of bounds in Elem_row_switch().  Returning identity matrix.";
 		return Value::Matrix->I($n);
@@ -230,7 +232,7 @@ sub elem_matrix_row_switch {
 	my $M = Value::Matrix->I($n); # construct identity matrix
 	my @m = $M->value;
 	@m[$i - 1, $j - 1] = @m[$j - 1, $i - 1]; # switch rows
-	return Matrix(@m);
+	return Matrix(\@m);
 
 }
 
@@ -240,7 +242,7 @@ sub elem_matrix_row_mult {
 
 	# $n = number of rows (and columns) in matrix
 	# $i and $j are indices of rows to be switched (index starting at 1, not 0)
-	($n,$i,$s) = @_;
+	my ($n,$i,$s) = @_;
 	if ($i < 1 or $i > $n) {
 		warn "Index out of bounds in elem_row_mult().  Returning identity matrix.";
 		return Value::Matrix->I($n);
@@ -252,7 +254,7 @@ sub elem_matrix_row_mult {
 	my $M = Value::Matrix->I($n); # construct identity matrix
 	my @m = $M->value;
 	foreach my $rowval ( @{$m[$i - 1]} ) { $rowval *= $s; }
-	return Matrix(@m);
+	return Matrix(\@m);
 
 }
 
@@ -262,7 +264,7 @@ sub elem_matrix_row_add {
 
 	# $n = number of rows (and columns) in matrix
 	# $i and $j are indices of rows to be switched (index starting at 1, not 0)
-	($n,$i,$j,$s) = @_;
+	my ($n,$i,$j,$s) = @_;
 	if ($i < 1 or $j < 1 or $i > $n or $j > $n) {
 		warn "Index out of bounds in elem_matrix_row_add().  Returning identity matrix.";
 		return Value::Matrix->I($n);
@@ -274,7 +276,7 @@ sub elem_matrix_row_add {
 	my $M = Value::Matrix->I($n); # construct identity matrix
 	my @m = $M->value;
 	$m[$i - 1][$j - 1] = $s;
-	return Matrix(@m);
+	return Matrix(\@m);
 
 }
 
@@ -308,7 +310,7 @@ sub row_add {
 	foreach my $k (0..$c-1) {
 		$m[$i - 1][$k] += $s * $m[$j - 1][$k];
 	}
-	return Matrix(@m);
+	return Matrix(\@m);
 
 }
 
@@ -326,7 +328,7 @@ sub row_switch {
 	}
 	my @m = $M->value;
 	@m[$i1 - 1,$i2 - 1] = @m[$i2 - 1,$i1 - 1];
-	return Matrix(@m);
+	return Matrix(\@m);
 
 }
 
@@ -345,7 +347,7 @@ sub row_mult {
 	if ($s == 0 and $permissionLevel >= 10) { warn "Scaling a row by zero is not a valid row operation.  (This warning is only shown to professors.)"; }
 	my @m = $M->value;
 	foreach my $rowval ( @{$m[$i - 1]} ) { $rowval *= $s; } # row multiplication
-	return Matrix(@m);
+	return Matrix(\@m);
 
 }
 
@@ -359,7 +361,7 @@ sub apply_fraction_to_matrix_entries {
 	foreach my $i (0..$r-1) {
 		foreach my $rowval ( @{$m[$i]} ) { $rowval = Fraction("$rowval"); }
 	}
-	return Matrix(@m);
+	return Matrix(\@m);
 
 }
 

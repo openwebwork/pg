@@ -265,7 +265,7 @@ sub make_alias {
 		    or $ext eq 'js'
 		    or $ext eq 'nb'
 		    ) {
-		if ($displayMode =~ /^HTML/ ) {			 
+		if ($displayMode =~ /^HTML/ or $displayMode eq 'PTX') {
 			 $adr_output=$self->alias_for_html($aux_file_id, $ext);
 		} elsif ($displayMode eq 'TeX') {
 			################################################################################

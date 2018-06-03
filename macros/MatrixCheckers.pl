@@ -144,7 +144,7 @@ sub concatenate_columns_into_matrix {
   for my $column (@c) {
     push(@temp,Matrix($column)->transpose->row(1));    
   }
-  return Matrix(@temp)->transpose;
+  return Matrix(\@temp)->transpose;
 
 }
 
@@ -314,8 +314,8 @@ sub basis_checker_rows {
       return 0 if scalar(@s) < scalar(@c);  # count the number of vector inputs
 
       # These two lines are what is different from basis_checker_columns
-      my $C = Matrix(@c)->transpose; # put the rows of @c into columns of $C.
-      my $S = Matrix(@s)->transpose; # put the rows of @s into columns of $S.
+      my $C = Matrix(\@c)->transpose; # put the rows of @c into columns of $C.
+      my $S = Matrix(\@s)->transpose; # put the rows of @s into columns of $S.
 
       # Put $C and $S into the local context so that
       # all of the computations that follow will also be in
@@ -362,8 +362,8 @@ sub orthonormal_basis_checker_rows {
       return 0 if scalar(@s) < scalar(@c);  # count the number of vector inputs
 
       # These two lines are what is different from basis_checker_columns
-      my $C = Matrix(@c)->transpose; # put the rows of @c into columns of $C.
-      my $S = Matrix(@s)->transpose; # put the rows of @s into columns of $S.
+      my $C = Matrix(\@c)->transpose; # put the rows of @c into columns of $C.
+      my $S = Matrix(\@s)->transpose; # put the rows of @s into columns of $S.
 
       # Put $C and $S into the local context so that
       # all of the computations that follow will also be in

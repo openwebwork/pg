@@ -441,7 +441,7 @@ sub process_section {
     #  Get the script to open or prevent the section from opening
     #
     my $action = $canshow ? "canshow()" : "cannotshow()";
-    my $scriptpreamble = main::MODES(TeX=>'', HTML=>qq!<script>\$("#section$sectionNo").$action</script>!);
+    my $scriptpreamble = main::MODES(TeX=>'', PTX=>'', HTML=>qq!<script>\$("#section$sectionNo").$action</script>!);
     my $renderedtext = $canshow ? $section->{renderedtext} : '' ;
     $renderedtext = $scriptpreamble . "\n" . $renderedtext;
     $renderedtext .= $section->{solution} if main::not_null($section->{solution});
@@ -453,7 +453,8 @@ sub process_section {
       HTML=> qq!<li class="section-li">
          <h3 id="section$sectionNo" class="$iscorrect_class">Section: $name:</h3>
          <div><p>$renderedtext</p></div></li>
-      !, TeX=>"\\par{\\bf Section: $name}\\par $renderedtext\\par"
+      !, TeX=>"\\par{\\bf Section: $name}\\par $renderedtext\\par",
+      PTX=>"<stage>\n$renderedtext</stage>\n",
     );
     ($iscorrect,$canshow);
 }
@@ -675,7 +676,7 @@ sub openSections {
     my $self = shift; my $script = '';
     $self->HIDE_OTHER_RESULTS(@_);
     foreach my $s (@_) {$script .= qq!\$("#section$s").openSection()\n!;}
-    main::TEXT(main::MODES(TeX=>'', HTML=>qq!<script>\n$script</script>!));
+    main::TEXT(main::MODES(TeX=>'', PTX=>'', HTML=>qq!<script>\n$script</script>!));
 }
 
 
