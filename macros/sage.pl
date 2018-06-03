@@ -87,8 +87,14 @@ sub new {
    
      
    # main::RECORD_ANS_NAME($self->{SageAnswerName}, 345); -- old version of code
-   
-   # $recordAnswerBlank wil hold the code defining 'record_answer' which, when called from 
+
+
+   # Create python/sage function "record_answer()" 
+   # to print a WeBWorK answer blank from within
+   # the sage interact.  The function is different depending on  whether the answer blank exists
+   # and whether it is visible.
+     
+   # (1) $recordAnswerBlank will hold the code defining 'record_answer' which, when called from 
    # within Sage prints a WeBWorK (HIDDEN)_NAMED_ANS_RULE and inserts the answers values.
    # This is the mechanism for returning an answer created by the sage interact. 
    # By default this answer blank is hidden, but it is visible if ShowAnswerBlank is set to 
@@ -109,9 +115,13 @@ sub new {
    	}	
     # you could add an option to print an ANSWER BOX instead of an ANSWER RULE
     
+
     #FIXME  -- for some reason the answer blank, printed with pretty_print 
     # floats to the top of the printed Sage block  above print statements.
-    # ???? This is intermittent, which is even more surprising. 
+    # ???? This can be intermittent, which is even more surprising. 
+    
+    # (2) now determine whether the record_answer() prints an answer blank
+    # or is a noop - a dummy operation.
     
     if ($recordAnswerBlank eq 'none') {
 		$sage::recordAnswerString = <<EndOfString;
