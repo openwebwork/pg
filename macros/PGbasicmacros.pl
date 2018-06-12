@@ -2207,11 +2207,11 @@ sub PTX_cleanup {
     #insert opening and closing p, to be removed later if they enclose an image, video or tabular
     $string =~ s/(<sidebyside[^>]*(?<!\/)>)/$1\n<p>/g;
     $string =~ s/(<\/sidebyside>)/<\/p>\n$1/g;
-    $string =~ s/(<sidebyside[^>]*(?<=\/)>)/</p>\n$1\n<p>/g;
+    $string =~ s/(<sidebyside[^>]*(?<=\/)>)/<\/p>\n$1\n<p>/g;
     #ditto for li
     $string =~ s/(<li[^>]*(?<!\/)>)/$1\n<p>/g;
     $string =~ s/(<\/li>)/<\/p>\n$1/g;
-    $string =~ s/(<li[^>]*(?<=\/)>)/</p>\n$1\n<p>/g;
+    $string =~ s/(<li[^>]*(?<=\/)>)/<\/p>\n$1\n<p>/g;
 
     #close p right before any sidebyside, blockquote, or pre, image, video, or tabular
     #and open p immediately following. Later any potential side effects are cleaned up.
