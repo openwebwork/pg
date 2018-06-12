@@ -18,14 +18,18 @@ This module defines labels for the graph objects (WWPlot).
 
 =head2 Usage
 
-	$label1 = new Label($x_value, $y_value, $label_string, $label_color, @justification)
-	$justification   =   one of ('left', 'center', 'right) and ('bottom', 'center', 'top')
-	                     describes the position of the ($x_value, $y_value) within the string.
-	                     The default is 'left', 'top'
+	$label1 = new Label($x_value, $y_value, $label_string, $label_color, @options)
+	$options is an array with (*'d defaults)
+        - one of 'left'*, 'center', 'right' (horizontal alignment)
+        - one of 'bottom', 'center', 'top'* (verical alignment)
+        - one of 'horizontal'*, 'vertical' (orientation)
+        - one of 'small', 'large', 'mediumbold'*, 'tiny', 'giant' (which gd font to use)
+    Note the alignment specifications are relative to the English reading of the string,
+    even when the orientation is vertical.
 
 
 
-=head2  Example
+=head2  Example:
 
 	$new_label = new Label ( 0,0, 'origin','red','left', 'top')
 	@labels    = $graph->lb($new_label);
@@ -51,14 +55,15 @@ use strict;
 @Label::ISA = qw(WWPlot);
 
 my %fields =(
-		'x'		=>	0,  
-		'y'		=>	0,
-		color	=>  'black',
-		font	=>	GD::gdMediumBoldFont,    #gdLargeFont
-		# constants from GD need to be addressed fully, they have not been imported.
-		str		=>	"",
-		lr_nudge => 0, #justification parameters
-		tb_nudge =>	0,
+        'x'         => 0,
+        'y'         => 0,
+        color       => 'black',
+        font        => GD::gdMediumBoldFont,    #gdLargeFont
+        # constants from GD need to be addressed fully, they have not been imported.
+        str         => "",
+        lr_nudge    => 0, #justification parameters
+        tb_nudge    => 0,
+        orientation => 'horizontal',
 );
 
 
@@ -74,31 +79,46 @@ sub new {
 }
 
 sub _initialize {
-	my $self 				=	shift;
-	my ($x,$y,$str,$color,@justification)	=   @_;
-	$self -> x($x);
-	$self -> y($y);
-	$self -> str($str);
-	$self -> color($color) if defined($color);
-	my $j;
-	foreach $j (@justification)  {
-		$self->lr_nudge( - length($self->str) ) 	if $j eq 'right';
-		$self->tb_nudge( - 1 			      )		if $j eq 'bottom';
-		$self->lr_nudge( - ( length($self->str) )/2)if $j eq 'center';
-		$self->tb_nudge(-0.5)                   	if $j eq 'middle';
-#		print "\njustification=$j",$self->lr_nudge,$self->tb_nudge,"\n";
-	}
+    my $self = shift;
+    my ($x,$y,$str,$color,@justification) = @_;
+    $self -> x($x);
+    $self -> y($y);
+    $self -> str($str);
+    $self -> color($color) if defined($color);
+    my $j;
+    foreach $j (@justification)  {
+        if    ($j eq 'right')            {$self->lr_nudge( - length($self->str) );      }
+        elsif ($j eq 'bottom')           {$self->tb_nudge( - 1 );                       }
+        elsif ($j eq 'center')           {$self->lr_nudge( - ( length($self->str) )/2); }
+        elsif ($j eq 'middle')           {$self->tb_nudge(-0.5);                        }
+        elsif ($j eq 'vertical')         {$self->orientation($j);                       }
+        #there are only five avialble fonts: http://search.cpan.org/~rurban/GD-2.68/lib/GD.pm#Font_Utilities
+        elsif ($j eq 'small')            {$self->font(GD::gdSmallFont);                 }
+        elsif ($j eq 'large')            {$self->font(GD::gdLargeFont);                 }
+        elsif ($j eq 'tiny')             {$self->font(GD::gdTinyFont);                  }
+        elsif ($j eq 'giant')            {$self->font(GD::gdGiantFont);                 }
+    }
 }
 sub draw {
-	my $self = shift;
-	my $g = shift;   #the containing graph
-  	$g->im->string( $self->font,
-  					$g->ii($self->x)+int( $self->lr_nudge*($self->font->width) ),
-  					$g->jj($self->y)+int( $self->tb_nudge*($self->font->height) ),
-  					$self->str,
-  					${$g->colors}{$self->color}
-  				);
- 
+    my $self = shift;
+    my $g = shift;   #the containing graph
+    if ($self->orientation eq 'horizontal') {
+    $g->im->string( $self->font,
+                    $g->ii($self->x)+int( $self->lr_nudge*($self->font->width) ),
+                    $g->jj($self->y)+int( $self->tb_nudge*($self->font->height) ),
+                    $self->str,
+                    ${$g->colors}{$self->color}
+                  );
+    }
+    elsif ($self->orientation eq 'vertical') {
+       $g->im->stringUp( $self->font,
+                    $g->ii($self->x)+int( $self->tb_nudge*($self->font->height) ),
+                    $g->jj($self->y)-int( $self->lr_nudge*($self->font->width) ),
+                    $self->str,
+                    ${$g->colors}{$self->color}
+                );
+
+    }
 }
 
 sub AUTOLOAD {
@@ -214,6 +234,22 @@ sub tb_nudge {
 		return $self->{tb_nudge}
 	}
 }
+
+sub orientation {
+       my $self = shift;
+       my $type = ref($self) || die "$self is not an object";
+       unless (exists $self->{orientation} ) {
+               die "Can't find orientation field in object of class $type";
+       }
+
+       if (@_) {
+               return $self->{orientation} = shift;
+       } else {
+               return $self->{orientation}
+       }
+}
+
+
 sub DESTROY {
 	# doing nothing about destruction, hope that isn't dangerous
 }
