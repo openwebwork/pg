@@ -748,8 +748,8 @@ sub create2d_matrix {
 
 	$output_matrix = convert_to_array_ref($input_matrix)
 
-Converts a MathObject matrix (ref($input_matrix eq 'Value::Matrix')
-or a MatrixReal1 matrix (ref($input_matrix eq 'Matrix')to
+Converts a MathObject matrix (ref($input_matrix) eq 'Value::Matrix')
+or a MatrixReal1 matrix (ref($input_matrix) eq 'Matrix') to
 a reference to an array (e.g [[4,6],[3,2]]).
 This adaptor allows all of the LinearProgramming.pl subroutines to be used with
 MathObject arrays.
@@ -762,7 +762,7 @@ seeking.
 
 sub convert_to_array_ref {
 	my $input = shift;
-	if (Value::classMatch($input,"Matrix") {
+	if (Value::isParser($input) and Value::classMatch($input,"Matrix")) {
 		$input = [$input->value];
 	} elsif (ref($input) eq 'Matrix' ) {
 		$input = $input->array_ref;
