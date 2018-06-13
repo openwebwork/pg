@@ -126,7 +126,7 @@ sub row_mult{
     return $B;
 }
 
-sub linear_combo($matrix, $scalar, $row1, $row2)
+=head4 linear_combo($matrix, $scalar, $row1, $row2)
 
 	(deprecated use MathObject Matrix instead)
 
@@ -135,6 +135,8 @@ Adds a multiple of row1 to row2.
 $matrix is assumed to be a RealMatrix1 object. 
 It is better to use MathObject Matrices and subroutines
 from MatrixReduce.pl instead.
+
+=cut
 
 sub linear_combo{
 
