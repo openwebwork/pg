@@ -172,6 +172,14 @@ sub MENU {
       $menu .= qq!<option$selected value="$option" class="tex2jax_ignore">$option</option>\n!;
     };
     $menu .= "</select>";
+  } elsif ($main::displayMode eq 'PTX') {
+    $menu = '<var form="popup">' . "\n";
+    foreach my $item (@list) {
+      $menu .= '<li>';
+      my $cleaned_item = main::PTX_special_character_cleanup($item);
+      $menu .= $cleaned_item . '</li>'. "\n";
+    }
+    $menu .= '</var>';
   } elsif ($main::displayMode eq "TeX") {
     # if the total number of characters is not more than
     # 30 and not containing / or ] then we print out

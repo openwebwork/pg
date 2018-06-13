@@ -334,7 +334,7 @@ sub insertAll {  ## inserts both header text and object text
     # Return HTML or TeX strings to be included in the body of the page
 	##########################
         
-    return main::MODES(TeX=>' {\bf  applet } ', HTML=>$self->insertObject.$main::BR.$state_storage_html_code.$answerBox_code);
+    return main::MODES(TeX=>' {\bf  applet } ', HTML=>$self->insertObject.$main::BR.$state_storage_html_code.$answerBox_code, PTX=>' applet ');
 }
 
 =head3 Example problem

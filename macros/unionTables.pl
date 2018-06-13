@@ -59,6 +59,8 @@ sub ColumnTable {
            '\medskip\hbox{\qquad\vtop{'.
            '\advance\hsize by -3em '.$col2.'}}\medskip',
     HTML => $HTMLtable,
+    PTX => qq!\n<sidebyside>\n<tabular valign="! . lc($valign) . qq!">\n<row>\n<cell>$col1</cell>\n<cell>$col2</cell>\n</row>\n</tabular>\n</sidebyside>\n!,
+
   );
 }
 
@@ -113,11 +115,13 @@ sub BeginTable {
      ($center,$tcenter) = ('','') if (!$options{center});
   my $table = 
     qq{<TABLE BORDER="$bd" CELLPADDING="$pd" CELLSPACING="$sp"$center>};
+  my $ptxborder=0; if($bd==1){$ptxborder="minor"}elsif($bd==2){$ptxborder="medium"}elsif($bd>=3){$ptxborder="major"};
 
   MODES(
     TeX => '\par\medskip'.$tcenter.'{\kern '.$tbd.
            '\vbox{\halign{#\hfil&&\kern '.$tsp.' #\hfil',
     HTML => $table."\n",
+    PTX => qq!\n<sidebyside>\n<tabular top="$ptxborder" bottom="$ptxborder" left="$ptxborder" right="$ptxborder">\n!,
   );
 }
 
@@ -139,6 +143,7 @@ sub EndTable {
   MODES(
     TeX => '\cr}}\kern '.$tbd.'}\medskip'."\n",
     HTML => '</TABLE>'."\n",
+    PTX => "\n</tabular>\n</sidebyside>\n",
   );
 }
 
@@ -193,6 +198,7 @@ sub Row {
     TeX => '\cr'.$vspace."\n". $fill . join('& ',@row),
     HTML => "<TR VALIGN=\"$valign\">$ind<TD ALIGN=\"$align\">" .
       join("</TD>$sep<TD>",@row) . '</TD></TR>'."\n",
+    PTX => qq!<row halign="! . lc($align) . qq!" valign="! . lc($valign) . qq!">\n<cell>! . join("</cell>\n<cell>",@row) . "</cell>\n</row>\n",
   );
 }
 
@@ -244,6 +250,7 @@ sub AlignedRow {
     TeX => '\cr'.$vspace."\n". $fill . join('&'.$fill,@row),
     HTML => "<TR VALIGN=\"$valign\">\n$ind<TD ALIGN=\"$align\">\n" .
       join("</TD>\n$sep<TD ALIGN=\"$align\">", @row) . "</TD>\n</TR>\n",
+    PTX => qq!<row halign="! . lc($align) . qq!" valign="! . lc($valign) . qq!">\n<cell>! . join("</cell>\n<cell>",@row) . "</cell>\n</row>\n",
   );
 }
 
@@ -268,6 +275,7 @@ sub TableSpace {
   MODES(
     TeX => '\vadjust{\kern '.$rsep.'pt}' . "\n",
     HTML => "<TR><TD HEIGHT=\"$rsep\"></TD>\n</TR>\n",
+    PTX => '',
   );
 }
 
@@ -285,6 +293,7 @@ sub TableLine {
   MODES(
     TeX => '\vadjust{\kern2pt\hrule\kern2pt}',
     HTML =>'<TR><TD COLSPAN="10"><HR NOSHADE SIZE="1"></TD></TR>'."\n",
+    PTX => ''
   );
 }
 

@@ -172,7 +172,7 @@ END_HEADER_TEXT
 sub insertCanvas {
     my $myWidth = shift() || 200;
     my $myHeight = shift() ||200;
-	$canvasObject = MODES(TeX=>"canvasObject",HTML=><<END_CANVAS);
+	$canvasObject = MODES(TeX=>"canvasObject", PTX=>" canvas object ", HTML=><<END_CANVAS);
 	<script> var canvasWidth = $myWidth; var canvasHeight = $myHeight;</script>
 	<canvas id="cv" data-src="${webworkHtmlURL}js/sketchgraphhtml5b/SketchGraph.pjs" width="$myWidth" height="$myHeight"></canvas>  
 END_CANVAS
@@ -181,7 +181,7 @@ END_CANVAS
 }
 
 sub insertYvaluesInputBox {
-	$yValuesInput = MODES(TeX=>"yVAluesInput",HTML=><<EOF);
+	$yValuesInput = MODES(TeX=>"yValuesInput", PTX=>" <m>y</m>-values input ", HTML=><<EOF);
 	<p>
 	Y-values: 
 	<input type="text" id="points1" size=50></input>
@@ -193,7 +193,7 @@ EOF
 }
 
 sub insertGridButtons {
-	$gridButtons = MODES(TeX=>"gridButtons",HTML=><<EOF);
+	$gridButtons = MODES(TeX=>"gridButtons", PTX=>" grid buttons ", HTML=><<EOF);
 	<button type="button" id="hideGrid" onClick="toggleGrid();">Toggle Grid</button>
 	<button type="button" id="reset1" onClick="my_reset();">Reset to Zero</button>
 	<button type="button" id="smooth1" onClick="smooth();">Smooth</button>
@@ -406,7 +406,7 @@ EOF
 #  }
 
 sub insertPointsArea {
-	$pointsArea = MODES(TeX=>"pointsArea",HTML=><<EOF);
+	$pointsArea = MODES(TeX=>"pointsArea", PTX=>" points area ", HTML=><<EOF);
 	<button type="button" id="getPts" onClick="getPoints();">Get Points</button><br/>
 	<textarea id="pointDisplay" rows=10 cols=60></textarea>	
 EOF

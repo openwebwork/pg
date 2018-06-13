@@ -129,7 +129,7 @@ sub _check {
     return;
   }
   return if $self->checkPolynomial;
-  $self->Error("Your answer doesn't look like a polynomial");
+  $self->Error("Your answer doesn't look like a simplified polynomial");
 }
 
 #
@@ -151,7 +151,7 @@ sub checkExponents {
   if ($l->{exponents}) {
     my $single = $self->context->flag('singlePowers');
     foreach my $i (0..scalar(@{$exponents})-1) {
-      $self->Error("A variable can appear only once in each term of a polynomial")
+      $self->Error("A variable can appear only once in each term of a simplified polynomial")
 	if $exponents->[$i] && $l->{exponents}[$i] && $single;
       $exponents->[$i] += $l->{exponents}[$i];
     }
@@ -244,7 +244,7 @@ sub checkPolynomial {
 
 sub checkStrict {
   my $self = shift;
-  $self->Error("You can only use '%s' between coefficents and variables in a polynomial",$self->{bop});
+  $self->Error("You can only use '%s' between coefficents and variables in a simplified polynomial",$self->{bop});
 }
 
 ##############################################
@@ -257,7 +257,7 @@ sub checkPolynomial {
   my ($l,$r) = ($self->{lop},$self->{rop});
   $self->Error("In a polynomial, you can only divide by numbers")
     unless LimitedPolynomial::isConstant($r);
-  $self->Error("You can only divide a single term by a number")
+  $self->Error("You can only divide a single term by a number in a simplified polynomial")
 
     if $l->{isPoly} && $l->{isPoly} != 2;
   $self->{isPoly} = $l->{isPoly};
@@ -279,7 +279,7 @@ our @ISA = qw(LimitedPolynomial::BOP Parser::BOP::power);
 sub checkPolynomial {
   my $self = shift;
   my ($l,$r) = ($self->{lop},$self->{rop});
-  $self->Error("You can only raise a variable to a power in a polynomial")
+  $self->Error("You can only raise a variable to a power in a simplifiedpolynomial")
     unless $l->class eq 'Variable';
   $self->Error("Exponents must be constant in a polynomial")
     unless LimitedPolynomial::isConstant($r);
@@ -297,7 +297,7 @@ sub checkPolynomial {
 
 sub checkStrict {
   my $self = shift;
-  $self->Error("You can only use powers of a variable in a polynomial");
+  $self->Error("You can only use powers of a variable in a simplified polynomial");
 }
 
 ##############################################
