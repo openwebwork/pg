@@ -2207,11 +2207,9 @@ sub PTX_cleanup {
     #insert opening and closing p, to be removed later if they enclose an image, video or tabular
     $string =~ s/(<sidebyside[^>]*(?<!\/)>)/$1\n<p>/g;
     $string =~ s/(<\/sidebyside>)/<\/p>\n$1/g;
-    $string =~ s/(<sidebyside[^>]*(?<=\/)>)/<\/p>\n$1\n<p>/g;
     #ditto for li
     $string =~ s/(<li[^>]*(?<!\/)>)/$1\n<p>/g;
     $string =~ s/(<\/li>)/<\/p>\n$1/g;
-    $string =~ s/(<li[^>]*(?<=\/)>)/<\/p>\n$1\n<p>/g;
 
     #close p right before any sidebyside, blockquote, or pre, image, video, or tabular
     #and open p immediately following. Later any potential side effects are cleaned up.
@@ -2246,9 +2244,6 @@ sub PTX_cleanup {
     $previous = $string;
     $string =~ s/(?s)(<tabular>(?:\s|<col (?:(?!width=").)*?>)((?!<\/tabular>).)*?<cell>((?!<\/tabular>).)*?)<p>(((?!<\/tabular>).)*?)<\/p>(((?!<\/tabular>).)*?<\/tabular>)/$1$4$6/g;
     } until ($previous eq $string);
-
-    #two sidebysides may come in immediate sequence. We assume here that they should be in a single sidebyside.
-    $string =~ s/(?s)<sidebyside widths="(.*?)" ?>\n(.*?)<\/sidebyside>\n<sidebyside widths="(.*?)">\n/<sidebyside widths="$1 $3">\n$2/g;
 
   };
   $string;
