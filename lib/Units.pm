@@ -539,6 +539,7 @@ our %known_units = ('m'  => {
                           },
 # ELECTRICAL UNITS
 # C      -- Coulomb
+# uC     -- microCoulomb
 # V      -- volt
 # mV     -- milivolt
 # kV     -- kilovolt
@@ -556,6 +557,11 @@ our %known_units = ('m'  => {
                            'amp'       => 1,
                            's'         => 1,
                          },
+							 'uC'    => {
+  												 'factor'    => 1E-6,
+	  											 'amp'       => 1,
+		  										 's'         => 1,
+                        },
                 'V'    => {			# also J/C
                            'factor'    => 1,
                            'kg'        => 1,
