@@ -276,7 +276,7 @@ sub ForceBreak {
 
 sub Par {
   my $self = shift; my $token = shift;
-  $self->End;
+  $self->End(null, shift);
   $self->Item("par",$token,{noIndent => 1});
   $self->{atLineStart} = $self->{ignoreNL} = 1;
   $self->{indent} = $self->{actualIndent} = 0;
@@ -537,7 +537,7 @@ sub terminatePre {
   my $self = shift; my $token = shift;
   $self->{block}{terminator} = ''; # we add the ending token to the text below
   if ($token =~ m/\n\n/) {
-    $self->Par($token);
+    $self->Par($token, $self->{block});
     $self->{block} = $self->{block}{prev};
   } else {
     $self->Text($token);
