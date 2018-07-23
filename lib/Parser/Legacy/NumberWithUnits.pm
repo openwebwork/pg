@@ -59,8 +59,6 @@ sub new {
     }
   }
 
-  
-  
   Value::Error("You must provide a ".$self->name) unless defined($num);
   ($num,$units) = splitUnits($num) unless $units;
   Value::Error("You must provide units for your ".$self->name) unless $units;
@@ -71,6 +69,8 @@ sub new {
   $num->{units} = $units;
   $num->{units_ref} = \%Units;
   $num->{isValue} = 1;
+  $num->{correct_ans} .= ' '.$units if defined $num->{correct_ans};
+  $num->{correct_ans_latex_string} .= ' '.TeXunits($units) if defined $num->{correct_ans_latex_string};
   bless $num, $class;
 }
 
