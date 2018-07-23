@@ -520,7 +520,7 @@ sub nextHTML {shift; shift}
 sub part {
   my $self = shift; my $status = $self->{status};
   my $part = shift;
-  return $status->{part} unless defined $part && $main::displayMode ne 'TeX';
+  return $status->{part} unless defined $part && $main::displayMode ne 'TeX' && $main::displayMode ne 'PTX';
   $part = 1 if $part < 1; $part = $self->{parts} if $part > $self->{parts};
   if ($part > $status->{part} && !$main::inputs_ref->{_noadvance}) {
     unless ((lc($self->{nextVisible}) eq 'ifcorrect' && $status->{raw} < 1) ||

@@ -67,6 +67,8 @@ is_deeply( {evaluate_units('c*yr')}, {evaluate_units('light-year')}, 'light year
 
 is_deeply( multiply_by((180/$Units::PI)**2, evaluate_units('deg^2')), {evaluate_units('sr')}, 'solid angle conversion');
 
+is_deeply( multiply_by(0.01), {evaluate_units('%')}, 'percent conversion');
+
 
 }
 ok( units_well_defined(), "checking unit definitions: $error_message");

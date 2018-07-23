@@ -5,10 +5,9 @@
 # initialize PGcore and PGrandom
 
 
-$main::VERSION ="WW2";
 
 sub _PG_init{
-  $main::VERSION ="WW2.13";
+  $main::VERSION ="PG-2.14+";
   #
   #  Set up MathObject context for use in problems
   #  that don't load MathObjects.pl

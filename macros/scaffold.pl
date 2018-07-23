@@ -275,6 +275,7 @@ our $isInstructor = (
   $isLibrary || $main::envir{effectivePermissionLevel} >= $main::envir{ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL}
 );
 our $isHardcopy = ($main::displayMode eq "TeX");
+our $isPTX = ($main::displayMode eq "PTX");
 our $afterAnswerDate = (time() > $main::envir{answerDate});
 
 our $scaffold;           # the active scaffold (set by Begin() below)
@@ -430,7 +431,7 @@ sub is_open {
 sub open_sections {
   my $self = shift;
   my @script = map {'$("#'.$self->{sections}{$_}{label}.'").opensection();'} @_;
-  push(@{$self->{output}},main::MODES(TeX=>'', HTML=>"<script>\n".join("\n",@script)."\n</script>"));
+  push(@{$self->{output}},main::MODES(TeX=>'', HTML=>"<script>\n".join("\n",@script)."\n</script>",PTX=>''));
   $self->hide_other_results(@_);
 }
 
@@ -571,7 +572,7 @@ sub add_container {
   $isopen    = $self->is_open;
 
   $scaffold->is_open($self) if $isopen;
-  splice(@$PG_OUTPUT,0,scalar(@$PG_OUTPUT)) if !($canopen || $iscorrect) || (!$isopen && $Scaffold::isHardcopy);
+  splice(@$PG_OUTPUT,0,scalar(@$PG_OUTPUT)) if !($canopen || $iscorrect || $Scaffold::isPTX) || (!$isopen && $Scaffold::isHardcopy);
   unshift(@$PG_OUTPUT,@{main::MODES(
     HTML => [
       '<div class="section-div">',
@@ -580,10 +581,12 @@ sub add_container {
       '<script>$("#'.$label.'").can'.($canopen?"":"not").'open()</script>',
     ],
     TeX => ["\\par{\\bf $self->{name}}\\par "],
+    PTX => ["<stage>\n"],
   )});
   push(@$PG_OUTPUT,main::MODES(
     HTML => '</p></div></div>',
-    TeX  => "\\par "
+    TeX  => "\\par ",
+    PTX => "<\/stage>\n",
   ));
 }
 
@@ -745,7 +748,7 @@ package main;
 #
 #  Set up some styles and the jQuery calls for opening and closing the scaffolds.
 #
-TEXT(<<'END_HEADER_TEXT') if !$Scaffold::isHardcopy;  # should be HEADER_TEXT, but that gets lost in library browser
+TEXT(<<'END_HEADER_TEXT') if !($Scaffold::isHardcopy or $Scaffold::isPTX);  # should be HEADER_TEXT, but that gets lost in library browser
 
 <style type="text/css">
 .section-div > div {padding:0 .5em;}    /* move the contents away from the edges */

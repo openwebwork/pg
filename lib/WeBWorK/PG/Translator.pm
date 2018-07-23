@@ -1860,8 +1860,8 @@ sub default_preprocess_code {
 	$evalString =~ s/\n\h*END_PGML_HINT[\h;]*\n/\nEND_PGML_HINT\n/g;
 	$evalString =~ s/\n\h*END_SOLUTION[\h;]*\n/\nEND_SOLUTION\n/g;
 	$evalString =~ s/\n\h*END_HINT[\h;]*\n/\nEND_HINT\n/g;
-	$evalString =~ s/\n\h*BEGIN_TEXT[\h;]*\n/\nTEXT\(EV3P\(<<'END_TEXT'\)\);\n/g;
-	$evalString =~ s/\n\h*BEGIN_PGML[\h;]*\n/\nTEXT\(PGML::Format2\(<<'END_PGML'\)\);\n/g;
+	$evalString =~ s/\n\h*BEGIN_TEXT[\h;]*\n/\nSTATEMENT\(EV3P\(<<'END_TEXT'\)\);\n/g;
+	$evalString =~ s/\n\h*BEGIN_PGML[\h;]*\n/\nSTATEMENT\(PGML::Format2\(<<'END_PGML'\)\);\n/g;
 	$evalString =~ s/\n\h*BEGIN_PGML_SOLUTION[\h;]*\n/\nSOLUTION\(PGML::Format2\(<<'END_PGML_SOLUTION'\)\);\n/g;
 	$evalString =~ s/\n\h*BEGIN_PGML_HINT[\h;]*\n/\nHINT\(PGML::Format2\(<<'END_PGML_HINT'\)\);\n/g;
 	$evalString =~ s/\n\h*BEGIN_SOLUTION[\h;]*\n/\nSOLUTION\(EV3P\(<<'END_SOLUTION'\)\);\n/g;
