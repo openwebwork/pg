@@ -1852,18 +1852,18 @@ sub PG_answer_eval {
 sub default_preprocess_code {
 	my $evalString = shift//'';
 	# BEGIN_TEXT and END_TEXT must occur on a line by themselves.
-	$evalString =~ s/\n\s*END_TEXT[\s;]*\n/\nEND_TEXT\n/g;
-	$evalString =~ s/\n\s*END_PGML[\s;]*\n/\nEND_PGML\n/g;
-	$evalString =~ s/\n\s*END_PGML_SOLUTION[\s;]*\n/\nEND_PGML_SOLUTION\n/g;
-	$evalString =~ s/\n\s*END_PGML_HINT[\s;]*\n/\nEND_PGML_HINT\n/g;
-	$evalString =~ s/\n\s*END_SOLUTION[\s;]*\n/\nEND_SOLUTION\n/g;
-	$evalString =~ s/\n\s*END_HINT[\s;]*\n/\nEND_HINT\n/g;
-	$evalString =~ s/\n\s*BEGIN_TEXT[\s;]*\n/\nTEXT\(EV3P\(<<'END_TEXT'\)\);\n/g;
-	$evalString =~ s/\n\s*BEGIN_PGML[\s;]*\n/\nTEXT\(PGML::Format2\(<<'END_PGML'\)\);\n/g;
-	$evalString =~ s/\n\s*BEGIN_PGML_SOLUTION[\s;]*\n/\nSOLUTION\(PGML::Format2\(<<'END_PGML_SOLUTION'\)\);\n/g;
-	$evalString =~ s/\n\s*BEGIN_PGML_HINT[\s;]*\n/\nHINT\(PGML::Format2\(<<'END_PGML_HINT'\)\);\n/g;
-	$evalString =~ s/\n\s*BEGIN_SOLUTION[\s;]*\n/\nSOLUTION\(EV3P\(<<'END_SOLUTION'\)\);\n/g;
-	$evalString =~ s/\n\s*BEGIN_HINT[\s;]*\n/\nHINT\(EV3P\(<<'END_HINT'\)\);\n/g;
+	$evalString =~ s/\n\h*END_TEXT[\h;]*\n/\nEND_TEXT\n/g;
+	$evalString =~ s/\n\h*END_PGML[\h;]*\n/\nEND_PGML\n/g;
+	$evalString =~ s/\n\h*END_PGML_SOLUTION[\h;]*\n/\nEND_PGML_SOLUTION\n/g;
+	$evalString =~ s/\n\h*END_PGML_HINT[\h;]*\n/\nEND_PGML_HINT\n/g;
+	$evalString =~ s/\n\h*END_SOLUTION[\h;]*\n/\nEND_SOLUTION\n/g;
+	$evalString =~ s/\n\h*END_HINT[\h;]*\n/\nEND_HINT\n/g;
+	$evalString =~ s/\n\h*BEGIN_TEXT[\h;]*\n/\nTEXT\(EV3P\(<<'END_TEXT'\)\);\n/g;
+	$evalString =~ s/\n\h*BEGIN_PGML[\h;]*\n/\nTEXT\(PGML::Format2\(<<'END_PGML'\)\);\n/g;
+	$evalString =~ s/\n\h*BEGIN_PGML_SOLUTION[\h;]*\n/\nSOLUTION\(PGML::Format2\(<<'END_PGML_SOLUTION'\)\);\n/g;
+	$evalString =~ s/\n\h*BEGIN_PGML_HINT[\h;]*\n/\nHINT\(PGML::Format2\(<<'END_PGML_HINT'\)\);\n/g;
+	$evalString =~ s/\n\h*BEGIN_SOLUTION[\h;]*\n/\nSOLUTION\(EV3P\(<<'END_SOLUTION'\)\);\n/g;
+	$evalString =~ s/\n\h*BEGIN_HINT[\h;]*\n/\nHINT\(EV3P\(<<'END_HINT'\)\);\n/g;
 	$evalString =~ s/ENDDOCUMENT.*/ENDDOCUMENT();/s; # remove text after ENDDOCUMENT
 
 	$evalString =~ s/\\/\\\\/g;    # \ can't be used for escapes because of TeX conflict

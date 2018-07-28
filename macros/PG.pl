@@ -5,15 +5,15 @@
 # initialize PGcore and PGrandom
 
 
-$main::VERSION ="WW2";
+$main::VERSION ="PG-2.13+";
 
 sub _PG_init{
-  $main::VERSION ="WW2.9+";
+  $main::VERSION ="PG-2.13+";
   #
   #  Set up MathObject context for use in problems
   #  that don't load MathObjects.pl
   #
-  %main::context = {};
+  %main::context = ();
   Parser::Context->current(\%main::context);
 
 }
@@ -300,16 +300,18 @@ sub CLEAR_RESPONSES {
 	}
 	'';
 }
+
+#FIXME -- examine the difference between insert_response and extend_response
 sub INSERT_RESPONSE { 
 	my $ans_label  = shift;
 	my $response_label = shift;
 	my $ans_value  = shift;
 	my $selected   = shift;
-	# warn "\n\nanslabel $ans_label responselabel $response_label value $ans_value";
+	# warn "\n\nin PG.pl\nanslabel $ans_label responselabel $response_label value $ans_value";
 	if (defined ($PG->{PG_ANSWERS_HASH}->{$ans_label}) ) {
 		my $responsegroup = $PG->{PG_ANSWERS_HASH}->{$ans_label}->{response};
 		$responsegroup->append_response($response_label, $ans_value, $selected);
-		#warn "\n$responsegroup responses are now ", $responsegroup->responses;
+		# warn "There are  ", scalar($responsegroup->responses), " $responsegroup responses." ;
 	}
     '';
 }
@@ -319,14 +321,15 @@ sub EXTEND_RESPONSE { # for radio buttons and checkboxes
 	my $response_label = shift;
 	my $ans_value  = shift;
 	my $selected   = shift;
-	# warn "\n\nanslabel $ans_label responselabel $response_label value $ans_value";
+	# warn "\n\nin PG.pl \nanslabel $ans_label responselabel $response_label value $ans_value";
 	if (defined ($PG->{PG_ANSWERS_HASH}->{$ans_label}) ) {
 		my $responsegroup = $PG->{PG_ANSWERS_HASH}->{$ans_label}->{response};
 		$responsegroup->extend_response($response_label, $ans_value,$selected);
-		#warn "\n$responsegroup responses are now ", pretty_print($response_group);
+		# warn "\n$responsegroup responses are now ", pretty_print($response_group);
 	}
     '';
 }
+
 sub ENDDOCUMENT {
 	# check that answers match
 	# gather up PG_FLAGS elements

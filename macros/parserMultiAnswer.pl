@@ -450,9 +450,16 @@ sub ans_rule {
       my $label = main::generate_aria_label($answerPrefix.$name."_0");
       return $data->named_ans_rule($name,$size,@_,aria_label=>$label);
   }
-  return $data->named_ans_rule_extension($self->NEW_NAME($name),$size,@_)
-    if ($self->{singleResult} && $self->{part} > 1);
-  return $data->named_ans_rule($name,$size,@_);
+  if ($self->{singleResult} && $self->{part} > 1) {
+  	 my $extension_ans_rule = 
+  	 	$data->named_ans_rule_extension(
+  	 	$name,$size, answer_group_name => $self->{answerName}, 
+  	 	@_);
+  	 # warn "extension rule created: $extension_ans_rule for ", ref($data);
+  	 return $extension_ans_rule; 
+  } else {
+  	 return $data->named_ans_rule($name,$size,@_);
+  }
 }
 
 #
@@ -466,10 +473,14 @@ sub ans_array {
   my $name = $self->ANS_NAME($self->{part}++);
   if ($self->{singleResult} && $self->{part} == 1) {
       my $label = main::generate_aria_label($answerPrefix.$name."_0");
-      return $data->named_ans_array($name,$size,@_,aria_label=>$label);
+      return $data->named_ans_array($name,$size,
+             answer_group_name => $self->{answerName},
+             @_,aria_label=>$label);
   }
   if ($self->{singleResult} && $self->{part} > 1) {
-    $HTML = $data->named_ans_array_extension($self->NEW_NAME($name),$size,@_);
+    $HTML = $data->named_ans_array_extension($self->NEW_NAME($name),$size,
+      answer_group_name => $self->{answerName}, @_);
+    # warn "array extension rule created: $HTML for ", ref($data);
   } else {
     $HTML = $data->named_ans_array($name,$size,@_);
   }

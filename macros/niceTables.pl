@@ -213,7 +213,7 @@ sub DataTable {
         $dataref->[$i][$j] = {data => $dataref->[$i][$j]} unless (ref($dataref->[$i][$j]) eq "HASH" or ref($dataref->[$i][$j]) eq "ARRAY" );
         # and if it was entered as an array reference, make the hash
         if (ref($dataref->[$i][$j]) eq "ARRAY" )
-          {my $temp = $dataref->[$i][$j]; $dataref->[$i][$j] = {data, @$temp};};
+          {my $temp = $dataref->[$i][$j]; $dataref->[$i][$j] = {"data", @$temp};};
         #before [a, options] was an option, {d=>a,options} was a shortcut for {data=>a,options}
         ${$dataref->[$i][$j]}{data} = ${$dataref->[$i][$j]}{d} if (defined ${$dataref->[$i][$j]}{d});
         # set default values for cell
@@ -411,7 +411,6 @@ sub DataTable {
         };
     };
 
-  my @alignmentcolumns;
     for my $i (0..$#columnalignments) {$alignmentcolumns[$columnalignments[$i]] = $i};
     # @alignmentcolumns is an array with one element per column, where the elements are each one of p{width}, r, c, l, or X
 
@@ -515,9 +514,9 @@ sub DataTable {
       {my $colspan = (${$dataref->[$i][$j]}{colspan} eq '') ? '' : 'colspan = "'.${$dataref->[$i][$j]}{colspan}.'" ';
       if (uc(${$dataref->[$i][$j]}{header}) eq 'TH')
         {$table .= '<TH '.$colspan.'style = "'.$allcellcss.$headercss.$columnscss->[$j].$midrulecss.$midrulescss.$rowcss[$i].${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TH>';}
-        elsif (uc(${$dataref->[$i][$j]}{header}) ~~ ['CH','COLUMN','COL'])
+        elsif (grep { uc(${$dataref->[$i][$j]}{header}) eq $_ } ('CH','COLUMN','COL'))
         {$table .= '<TH '.$colspan.'scope = "col" style = "'.$allcellcss.$headercss.$columnscss->[$j].$midrulecss.$midrulescss.$rowcss[$i].${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TH>';}
-        elsif (uc(${$dataref->[$i][$j]}{header}) ~~ ['RH','ROW'])
+        elsif (grep { uc(${$dataref->[$i][$j]}{header}) eq $_ } ('RH','ROW'))
         {$table .= '<TH '.$colspan.'scope = "row" style = "'.$allcellcss.$headercss.$columnscss->[$j].$midrulecss.$midrulescss.$rowcss[$i].${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TH>';}
         elsif (uc(${$dataref->[$i][$j]}{header}) eq 'TD')
         {$table .= '<TD '.$colspan.'style = "'.$allcellcss.$datacss.$columnscss->[$j].$midrulecss.$midrulescss.$rowcss[$i].${$dataref->[$i][$j]}{cellcss}.'">'.${$dataref->[$i][$j]}{data}.'</TD>';}
@@ -576,7 +575,9 @@ sub DataTable {
       {
        if ($rowcolor[$i] ne '') {$textable .= '\rowcolor'.$rowcolor[$i];};
        for my $j (0..$numcols[$i])
-        {if (uc(${$dataref->[$i][$j]}{header}) ~~ ['TH','CH','COLUMN','COL','RH','ROW'] or ($headerrow[$i] == 1) and !(uc(${$dataref->[$i][$j]}{header}) ~~ ['TD'])) {${$dataref->[$i][$j]}{tex} = '\bfseries '.${$dataref->[$i][$j]}{tex}};
+
+        {if (grep { uc(${$dataref->[$i][$j]}{header}) eq $_ } ('TH','CH','COLUMN','COL','RH','ROW') or ($headerrow[$i] == 1) and !(uc(${$dataref->[$i][$j]}{header}) eq 'TD')) {${$dataref->[$i][$j]}{tex} = '\bfseries '.${$dataref->[$i][$j]}{tex}};
+
         if (${$dataref->[$i][$j]}{multicolumn} ne '') {$textable .= ${$dataref->[$i][$j]}{multicolumn}};
         $textable .= ${$dataref->[$i][$j]}{texpre}.' '.${$dataref->[$i][$j]}{tex}.' '.${$dataref->[$i][$j]}{data}.' '.${$dataref->[$i][$j]}{texpost};
         if (${$dataref->[$i][$j]}{multicolumn} ne '') {$textable .= '}'};

@@ -95,7 +95,7 @@ sub promote {
 #
 sub add {
   my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
-  $self->Package("Union")->new($l,$r);
+  return Value::Union::form($self->context,$l,$r);
 }
 sub dot {my $self = shift; $self->add(@_)}
 
