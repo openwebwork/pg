@@ -101,10 +101,11 @@ sub DISPLAY_SECTION {
           <h3  class="" style= "$iscorrect $canshow_bg_color " >Part: $name:</h3>
          <div class="acc-section" style="height: 0px; opacity: 0.004347826086956522;">
          <div class="acc-content"  style="$canshow">
-      !, TeX=>"\\par{\\bf Part: $name }\\par"));
+      !, TeX=>"\\par{\\bf Part: $name }\\par",
+         PTX=>"<stage>\n"));
      my $rendered_text_string = EV3($text_string);
      TEXT( $rendered_text_string ) if $options{canshow}==1;
-     TEXT( MODES(HTML=>"</p></div></div></li>", TeX=>'\\par' ) );
+     TEXT( MODES(HTML=>"</p></div></div></li>", TeX=>'\\par', PTX=>"</stage>\n" ) );
      
      
 }
@@ -112,16 +113,16 @@ sub DISPLAY_SECTION {
    
 # FIXME   we will make a $cp object that keeps track of the part 
 
-sub BEGIN_SECTIONS {TEXT(MODES(HTML=>q!<ul class="acc" id="acc"> !,TeX=>'')); warn "start sections\n\n"; }
+sub BEGIN_SECTIONS {TEXT(MODES(HTML=>q!<ul class="acc" id="acc"> !,TeX=>'',PTX=>'')); warn "start sections\n\n"; }
 sub END_SECTIONS {
 	my $part = shift;
-	TEXT(MODES( HTML=>q!</ul  !,TeX=>''));
+	TEXT(MODES( HTML=>q!</ul  !,TeX=>'',PTX=>''));
 	TEXT(MODES(HTML =>$PAR .qq!
 	<script language="javascript">
 	var parentAccordion=new TINY.accordion.slider("parentAccordion");
 	parentAccordion.init("acc","h3",0,-1);
 	parentAccordion.pr(0,$part)
 	</script>
-	! , TeX=>''));
+	! , TeX=>'',PTX=>''));
 }
 1;

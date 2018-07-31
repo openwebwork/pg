@@ -23,6 +23,19 @@ reactions.  For example:
 
 	$R = Formula("4P + 5O_2 --> 2P_2O_5");
 
+Ions can be specified using ^ to produce superscripts, as in Na^+1 or
+Na^{+1}.  Note that the charge must be listed with prefix notation
+(+1), not postfix notation (1+), and that a number is required (so you
+can't use just Na^+).
+
+States can be appended to compounds, as in AgCl(s).  So you can
+make reactions like the following:
+
+        Ag^{+1}(aq) + Cl^{-1}(aq) --> AgCl(s)
+
+Note that a state can be given by itself, e.g., (l), so you can ask
+for a student to supply just a state.
+
 Reactions know how to create their own TeX versions (via $R->TeX), and
 know how to check student answers (via $R->cmp), just like any other
 MathObject.
@@ -53,16 +66,27 @@ Formula("O + O") and Formula("2O") and Formula("O_2") are all
 different and unequal in this context.
 
 All the elements of the periodic table are available within the
-Reaction Context.  If you need additional terms, like "Heat" for
-example, you can add them as variables:
+Reaction Context, as are the states (aq), (s), (l), (g), and (ppt).
+If you need additional terms, like "Heat" for example, you can add
+them as variables:
 
 	Context()->variables->add(Heat => $context::Reaction::CONSTANT);
 
 Then you can make formulas that include Heat as a term.  These
-"constants" are not allowed to have coefficients or subscripts, and
-can not be combined with compounds except by addition.  If you want a
-term that can be combined in those ways, use
-$context::Reaction::ELEMENT instead.
+"constants" are not allowed to have coefficients or sub- or
+superscripts, and can not be combined with compounds except by
+addition.  If you want a term that can be combined in those ways, use
+$context::Reaction::ELEMENT instead, as in
+
+	Context()->variables->add(e => $context::Reaction::ELEMENT);
+
+to allow "e" for electrons, for example.
+
+If you need to add more states, use $context::Reaction::STATE, as in
+
+	Context()->variables->add('(x)' => $context::Reaction::STATE);
+
+to allow a state of (x) for a compound.
 
 =cut
 
@@ -82,15 +106,18 @@ our @ISA = ('Value::Formula');
 #
 our $ELEMENT  = {isValue => 1, type => Value::Type("Element",1)};
 our $MOLECULE = {isValue => 1, type => Value::Type("Molecule",1)};
+our $ION      = {isValue => 1, type => Value::Type("Ion",1)};
 our $COMPOUND = {isValue => 1, type => Value::Type("Compound",1)};
 our $REACTION = {isValue => 1, type => Value::Type("Reaction",1)};
 our $CONSTANT = {isValue => 1, type => Value::Type("Constant",1)};
+our $STATE    = {isValue => 1, type => Value::Type("State",1)};
 
 #
 #  Set up the context and Reaction() constructor
 #
 sub Init {
   my $context = $main::context{Reaction} = Parser::Context->getCopy("Numeric");
+  $context->{name} = "Reaction";
   $context->functions->clear();
   $context->strings->clear();
   $context->constants->clear();
@@ -108,7 +135,7 @@ sub Init {
    '-->' => {precedence => 1, associativity => 'left', type => 'bin', string => ' --> ',
            class => 'context::Reaction::BOP::arrow', TeX => " \\longrightarrow "},
 
-   '+' => {precedence => 2, associativity => 'left', type => 'bin', string => ' + ',
+   '+' => {precedence => 2, associativity => 'left', type => 'both', string => ' + ',
            class => 'context::Reaction::BOP::add', isComma => 1},
 
    ' ' => {precedence => 3, associativity => 'left', type => 'bin', string => ' ',
@@ -117,11 +144,17 @@ sub Init {
    '_' => {precedence => 4, associativity => 'left', type => 'bin', string => '_',
            class => 'context::Reaction::BOP::underscore'},
 
-   '-' => {precedence => 5, associativity => 'left', type => 'both', string => ' - ',
+   '^' => {precedence => 4, associativity => 'left', type => 'bin', string => '^',
+           class => 'context::Reaction::BOP::superscript'},
+
+   '-' => {precedence => 5, associativity => 'left', type => 'both', string => '-',
            class => 'Parser::BOP::undefined'},
    'u-'=> {precedence => 6, associativity => 'left', type => 'unary', string => '-',
-           class => 'Parser::UOP::undefined', hidden => 1},
+           class => 'context::Reaction::UOP::minus', hidden => 1},
+   'u+'=> {precedence => 6, associativity => 'left', type => 'unary', string => '+',
+           class => 'context::Reaction::UOP::plus', hidden => 1},
   );
+  $context->variables->{namePattern} = qr/\(?[a-zA-Z][a-zA-Z0-9]*\)?/;
   $context->variables->are(
     map {$_ => $ELEMENT} (
       "H",                                                                                   "He",
@@ -130,18 +163,26 @@ sub Init {
       "K", "Ca",  "Sc","Ti","V", "Cr","Mn","Fe","Co","Ni","Cu","Zn","Ga","Ge","As","Se","Br","Kr",
       "Rb","Sr",  "Y", "Zr","Nb","Mo","Tc","Ru","Rh","Pd","Ag","Cd","In","Sn","Sb","Te","I", "Xe",
       "Cs","Ba",  "Lu","Hf","Ta","W", "Re","Os","Ir","Pt","Au","Hg","Ti","Pb","Bi","Po","At","Rn",
-      "Fr","Ra",  "Lr","Rf","Db","Sg","Bh","Hs","Mt","Ds","Rg","Cn","Uut","Uuq","Uup","Uuh","Uus","Uuo",
+      "Fr","Ra",  "Lr","Rf","Db","Sg","Bh","Hs","Mt","Ds","Rg","Cn","Nh","Fl","Mc","Lv","Ts","Og",
 
                   "La","Ce","Pr","Nd","Pm","Sm","Eu","Gd","Tb","Dy","Ho","Er","Tm","Yb",
                   "Ac","Th","Pa","U", "Np","Pu","Am","Cm","Bk","Cf","Es","Fm","Md","No",
     )
   );
+  $context->variables->add(
+    map {$_ => $STATE} (
+      "(aq)", "(s)", "(l)", "(g)", "(ppt)",
+    )
+  );
+  $context->reductions->clear();
+  $context->flags->set(reduceConstants => 0);
   $context->{parser}{Number} = "context::Reaction::Number";
   $context->{parser}{Variable} = "context::Reaction::Variable";
   $context->{parser}{Formula} = "context::Reaction";
   $context->{value}{Reaction} = "context::Reaction";
   $context->{value}{Element} = "context::Reaction::Variable";
   $context->{value}{Constant} = "context::Reaction::Variable";
+  $context->{value}{State} = "context::Reaction::Variable";
   Parser::Number::NoDecimals($context);
 
   main::PG_restricted_eval('sub Reaction {Value->Package("Formula")->new(@_)};');
@@ -254,7 +295,7 @@ sub class {'Variable'}
 #
 sub TYPE {
   my $self = shift;
-  return ($self->type eq 'Constant'? "'$self->{name}'" : 'an element');
+  return ($self->type eq 'Constant' || $self->type eq 'State' ? 'a state' : 'an element');
 }
 
 ######################################################################
@@ -357,11 +398,14 @@ sub _check {
   $self->Error("Can't combine %s and %s",$self->{lop}->TYPE,$self->{rop}->TYPE)
     unless ($self->{lop}->class eq 'Number' || $self->{lop}->isChemical) &&
             $self->{rop}->isChemical;
+  $self->Error("Compound already has a state")
+    if $self->{lop}{hasState} && $self->{rop}->type eq 'State';
   $self->Error("Can't combine %s with %s",$self->{lop}{name},$self->{rop}->TYPE)
     if $self->{lop}->type eq 'Constant';
   $self->Error("Can't combine %s with %s",$self->{lop}->TYPE,$self->{rop}{name})
     if $self->{rop}->type eq 'Constant';
   $self->{type} = $COMPOUND->{type};
+  $self->{hasState} = 1 if $self->{rop}->type eq 'State';
 }
 
 #
@@ -418,6 +462,93 @@ sub string {
 }
 
 sub TYPE {'a molecule'}
+
+######################################################################
+#
+#  Implements the superscript for creating ions
+#
+package context::Reaction::BOP::superscript;
+our @ISA = ('context::Reaction::BOP');
+
+#
+#  Check that the operands are OK
+#
+sub _check {
+  my $self = shift;
+  $self->Error("The left-hand side of '^' must be an element or molecule, not %s",$self->{lop}->TYPE)
+    unless $self->{lop}->type eq 'Element' || $self->{lop}->type eq 'Molecule';
+  $self->Error("The right-hand side of '^' must be a signed number, not %s",$self->{rop}->TYPE)
+    unless $self->{rop}->class eq 'UOP';
+  $self->{type} = $ION->{type};
+}
+
+#
+#  Create proper TeX output
+#
+sub TeX {
+  my $self = shift;
+  my $left = $self->{lop}->TeX;
+  return $left."^{".$self->{rop}->TeX."}";
+}
+
+#
+#  Create proper text output
+#
+sub string {
+  my $self = shift;
+  my $left = $self->{lop}->string;
+  return $left."^".$self->{rop}->string;
+}
+
+sub TYPE {'an ion'}
+
+######################################################################
+#
+#  General unary operator (minus and plus are subclasses of this).
+#
+package context::Reaction::UOP;
+our @ISA = ('Parser::UOP');
+
+sub _check {
+  my $self = shift;
+  return if ($self->checkNumber);
+  $self->{type} = $Value::Type{number};
+}
+
+#
+#  Unary operators produce numbers
+#
+sub isChemical {0}
+
+sub eval {context::Reaction::eval(@_)}
+
+#
+#  Two nodes are equivalent if their operands are equivalent
+#  and they have the same operator
+#
+sub equivalent {
+  my $self = shift; my $other = shift;
+  return 0 unless $other->class eq 'UOP';
+  return 0 unless $self->{uop} eq $other->{uop};
+  return $self->{op}->equivalent($other->{op});
+}
+
+sub TYPE {'a signed number'};
+
+######################################################################
+#
+#  Negative numbers (for ion exponents)
+#
+package context::Reaction::UOP::minus;
+our @ISA = ('context::Reaction::UOP');
+
+######################################################################
+#
+#  Positive numbers (for ion exponents)
+#
+package context::Reaction::UOP::plus;
+our @ISA = ('context::Reaction::UOP');
+
 
 ######################################################################
 #

@@ -81,8 +81,7 @@ sub sub {
 
 sub mult {
   my ($l,$r) = @_; my $self = $l;
-  Value::Error("Points can only be multiplied by Numbers")
-    unless (Value::matchNumber($r) || Value::isComplex($r));
+  Value::Error("Points can only be multiplied by Numbers") unless Value::isNumber($r);
   my @coords = ();
   foreach my $x ($l->value) {push(@coords,$x*$r)}
   return $self->make(@coords);
@@ -91,8 +90,7 @@ sub mult {
 sub div {
   my ($l,$r,$flag) = @_; my $self = $l;
   Value::Error("Can't divide by a Point") if $flag;
-  Value::Error("Points can only be divided by Numbers")
-    unless (Value::matchNumber($r) || Value::isComplex($r));
+  Value::Error("Points can only be divided by Numbers") unless Value::isNumber($r);
   Value::Error("Division by zero") if $r == 0;
   my @coords = ();
   foreach my $x ($l->value) {push(@coords,$x/$r)}

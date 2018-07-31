@@ -87,23 +87,23 @@ brackets around them to look like a matrix.  The braces around the vectors, whic
 are produced by C<\(\Bigg\lbrace\)> and C<\(\Bigg\rbrace\)>, are a matter of personal
 preference (since a basis is an ordered set, I like to include braces).
 
-=over 12
 
-Context()->texStrings;
-BEGIN_TEXT
-Find an orthonormal basis for...
-$BR
-$BR
-$BCENTER
-\(\Bigg\lbrace\) 
-\{ $multians->ans_array(15) \}, 
-\{ $multians->ans_array(15) \} 
-\(\Bigg\rbrace.\)
-$ECENTER
-END_TEXT
-Context()->normalStrings;
 
-=back
+	Context()->texStrings;
+	BEGIN_TEXT
+	Find an orthonormal basis for...
+	$BR
+	$BR
+	$BCENTER
+	\(\Bigg\lbrace\) 
+	\{ $multians->ans_array(15) \}, 
+	\{ $multians->ans_array(15) \} 
+	\(\Bigg\rbrace.\)
+	$ECENTER
+	END_TEXT
+	Context()->normalStrings;
+
+
 
 The answer evaluation section of the PG file is totally standard.
 
@@ -144,7 +144,7 @@ sub concatenate_columns_into_matrix {
   for my $column (@c) {
     push(@temp,Matrix($column)->transpose->row(1));    
   }
-  return Matrix(@temp)->transpose;
+  return Matrix(\@temp)->transpose;
 
 }
 
@@ -314,8 +314,8 @@ sub basis_checker_rows {
       return 0 if scalar(@s) < scalar(@c);  # count the number of vector inputs
 
       # These two lines are what is different from basis_checker_columns
-      my $C = Matrix(@c)->transpose; # put the rows of @c into columns of $C.
-      my $S = Matrix(@s)->transpose; # put the rows of @s into columns of $S.
+      my $C = Matrix(\@c)->transpose; # put the rows of @c into columns of $C.
+      my $S = Matrix(\@s)->transpose; # put the rows of @s into columns of $S.
 
       # Put $C and $S into the local context so that
       # all of the computations that follow will also be in
@@ -362,8 +362,8 @@ sub orthonormal_basis_checker_rows {
       return 0 if scalar(@s) < scalar(@c);  # count the number of vector inputs
 
       # These two lines are what is different from basis_checker_columns
-      my $C = Matrix(@c)->transpose; # put the rows of @c into columns of $C.
-      my $S = Matrix(@s)->transpose; # put the rows of @s into columns of $S.
+      my $C = Matrix(\@c)->transpose; # put the rows of @c into columns of $C.
+      my $S = Matrix(\@s)->transpose; # put the rows of @s into columns of $S.
 
       # Put $C and $S into the local context so that
       # all of the computations that follow will also be in

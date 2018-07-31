@@ -296,6 +296,10 @@ sub std_print_q {
 	 		$i++;
 	 	}
 	 	$out .= "\\end{enumerate}\n";
+    }  elsif ($main::displayMode eq 'PTX') {
+        $out = "<ol>\n<li>";
+        $out .= join("</li>\n<li>",@questions);
+        $out .= "</li>\n</ol>";
 	} else {
 		$out = "Error: PGchoicemacros: std_print_q: Unknown displayMode: $main::displayMode.\n";
 	}
@@ -356,6 +360,10 @@ sub pop_up_list_print_q {
 	 		$i++;
 	 	}
 	 	$out .= "\\end{enumerate}\n";
+    }  elsif ($main::displayMode eq 'PTX') {
+        $out = "<ol>\n<li>";
+        $out .= join("</li>\n<li>",@questions);
+        $out .= "</li>\n</ol>";
 	} else {
 		$out = "Error: PGchoicemacros: pop_up_list_print_q: Unknown displayMode: $main::displayMode.\n";
 	}
@@ -417,8 +425,12 @@ sub quest_first_pop_up_list_print_q {
 	 		$i++;
 	 	}
 	 	$out .= "\\end{enumerate}\n";
+    }  elsif ($main::displayMode eq 'PTX') {
+        $out = "<ol>\n<li>";
+        $out .= join("</li>\n<li>",@questions);
+        $out .= "</li>\n</ol>";
 	} else {
-		$out = "Error: PGchoicemacros: pop_up_list_print_q: Unknown displayMode: $main::displayMode.\n";
+		$out = "Error: PGchoicemacros: quest_first_pop_up_list_print_q : Unknown displayMode: $main::displayMode.\n";
 	}
 	$out;
 
@@ -477,8 +489,12 @@ sub ans_in_middle_pop_up_list_print_q {
 	 		$i++;
 	 	}
 	 	$out .= "\\end{enumerate}\n";
+    }  elsif ($main::displayMode eq 'PTX') {
+        $out = "<ol>\n<li>";
+        $out .= join("</li>\n<li>",@questions);
+        $out .= "</li>\n</ol>";
 	} else {
-		$out = "Error: PGchoicemacros: pop_up_list_print_q: Unknown displayMode: $main::displayMode.\n";
+		$out = "Error: PGchoicemacros: ans_in_middle_pop_up_list_print_q: Unknown displayMode: $main::displayMode.\n";
 	}
 	$out;
 
@@ -537,29 +553,32 @@ sub std_print_a {
 	my $i = 0;
 	my @alpha = ('A'..'Z', 'AA'..'ZZ');
 	my $letter;
-	my	$out= 	&main::M3(
-					"\\begin{enumerate}\n",
-					" \\begin{rawhtml} <OL TYPE=\"A\" VALUE=\"1\"> \\end{rawhtml} ",
+    my  $out=   &main::MODES(
+            TeX=> "\\begin{enumerate}\n",
+            Latex2HTML=> " \\begin{rawhtml} <OL TYPE=\"A\" VALUE=\"1\"> \\end{rawhtml} ",
 					# kludge to fix IE/CSS problem
 					#"<OL COMPACT TYPE=\"A\" START=\"1\">\n"
-					"<BLOCKQUOTE>\n"
+            HTML=> "<BLOCKQUOTE>\n",
+            PTX=> '<ol label="A.">'."\n",
 	) ;
 	my $elem;
 	foreach $elem (@array) {
 		$letter = shift @alpha;
-		$out .= &main::M3(
-					"\\item[$main::ALPHABET[$i].] $elem\n",
-					" \\begin{rawhtml} <LI> \\end{rawhtml} $elem  ",
+        $out .= &main::MODES(
+            TeX=>   "\\item[$main::ALPHABET[$i].] $elem\n",
+            Latex2HTML=> " \\begin{rawhtml} <LI> \\end{rawhtml} $elem  ",
 					#"<LI> $elem</LI>\n"
-					"<br /> <b>$letter.</b> $elem\n"
+            HTML=>"<br /> <b>$letter.</b> $elem\n",
+            PTX=>"<li>$elem</li>\n",
 		) ;
 		$i++;
 	}
-	$out .= &main::M3(
-				"\\end{enumerate}\n",
-				" \\begin{rawhtml} </OL>\n \\end{rawhtml} ",
+    $out .= &main::MODES(
+            TeX=>   "\\end{enumerate}\n",
+            Latex2HTML=>" \\begin{rawhtml} </OL>\n \\end{rawhtml} ",
 				#"</OL>\n"
-				"</BLOCKQUOTE>\n"
+            HTML=> "</BLOCKQUOTE>\n",
+            PTX=> "</ol>",
 	) ;
 	$out;
 
@@ -617,6 +636,10 @@ sub radio_print_a {
 		#$out = "\n\\par\\begin{itemize}\n";
 		$out .= join '', @radio_buttons;
 		#$out .= "\\end{itemize}\n";
+    }  elsif ($main::displayMode eq 'PTX') {
+        $out = '<var form="buttons">'."\n".'<li>';
+        $out .= join("</li>\n<li>", @answers);
+        $out .= "</li>\n</var>\n";
 	} else {
 		$out = "Error: PGchoicemacros: radio_print_a: Unknown displayMode: $main::displayMode.\n";
 	}
@@ -675,6 +698,10 @@ sub checkbox_print_a {
 		#$out = "\n\\par\\begin{itemize}\n";
 		$out .= join '', @radio_buttons ;
 		#$out .= "\\end{itemize}\n";
+    }  elsif ($main::displayMode eq 'PTX') {
+        $out = '<var form="checkboxes">'."\n".'<li>';
+        $out .= join("</li>\n<li>", @answers);
+        $out .= "</li>\n</var>\n";
 	} else {
 		$out = "Error: PGchoicemacros: checkbox_print_a: Unknown displayMode: $main::displayMode.\n";
 	}

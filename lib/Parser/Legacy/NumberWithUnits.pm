@@ -59,8 +59,6 @@ sub new {
     }
   }
 
-  
-  
   Value::Error("You must provide a ".$self->name) unless defined($num);
   ($num,$units) = splitUnits($num) unless $units;
   Value::Error("You must provide units for your ".$self->name) unless $units;
@@ -71,6 +69,8 @@ sub new {
   $num->{units} = $units;
   $num->{units_ref} = \%Units;
   $num->{isValue} = 1;
+  $num->{correct_ans} .= ' '.$units if defined $num->{correct_ans};
+  $num->{correct_ans_latex_string} .= ' '.TeXunits($units) if defined $num->{correct_ans_latex_string};
   bless $num, $class;
 }
 
@@ -133,12 +133,14 @@ sub getUnits {
 #
 #  Convert units to TeX format
 #  (fix superscripts, put terms in \rm,
+#   escape percent,
 #   and make a \frac out of fractions)
 #
 sub TeXunits {
   my $units = shift;
   $units =~ s/\^\(?([-+]?\d+)\)?/^{$1}/g;
   $units =~ s/\*/\\,/g;
+  $units =~ s/%/\\%/g;
   return '{\rm '.$units.'}' unless $units =~ m!^(.*)/(.*)$!;
   my $displayMode = WeBWorK::PG::Translator::PG_restricted_eval(q!$main::displayMode!);
   return '{\textstyle\frac{'.$1.'}{'.$2.'}}' if ($displayMode eq 'HTML_tth');

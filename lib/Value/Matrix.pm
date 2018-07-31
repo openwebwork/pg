@@ -3,6 +3,124 @@
 #  Implements the Matrix class.
 #
 #    @@@ Still needs lots of work @@@
+
+=head1 Value::Matrix class
+
+
+References:
+
+MathObject Matrix methods: L<http://webwork.maa.org/wiki/Matrix_(MathObject_Class)>
+MathObject Contexts: L<http://webwork.maa.org/wiki/Common_Contexts>
+CPAN RealMatrix docs: L<http://search.cpan.org/~leto/Math-MatrixReal-2.09/lib/Math/MatrixReal.pm>
+
+Allowing Matrices in Fractions: 
+L<http://webwork.maa.org/moodle/mod/forum/discuss.php?d=2978>	
+
+     Context()->parens->set("[" => {formMatrix => 1});
+
+Files interacting with Matrices:
+
+L<lib/MatrixReal1.pm> L<http://webwork.maa.org/pod/pg_TRUNK/macros/MatrixReduce.pl.html>
+
+L<lib/Matrix.pm> 
+
+L<macros/MatrixCheckers.pl> -- checking whether vectors form a basis
+
+L<macros/MatrixReduce.pl>  -- tools for  row reduction via elementary matrices
+
+L<macros/MatrixUnits.pl>   -- Generates unimodular matrices with real entries
+
+L<macros/PGmatrixmacros.pl>
+
+L<macros/PGmorematrixmacros.pl>
+
+L<macros/PGnumericalmacros.pl>
+
+L<macros/tableau.pl>
+
+L<macros/quickMatrixEntry.pl>
+
+L<macros/LinearProgramming.pl>	
+
+Contexts
+
+	Matrix -- allows students to enter [[3,4],[3,6]] 
+	       -- formMatrix =>1 also allows this?
+	Complex-Matrix -- allows complex entries
+
+Creation methods
+
+		 $M1 = Matrix([1,2],[3,4]);
+   		 $M2 = Matrix([5,6],[7,8]);
+    	  $v = Vector(9,10);
+    	  $w = ColumnVector(9,10); # differs in how it is printed
+  
+Commands added in Value::matrix
+
+	Conversion
+		$matrix->values produces [[3,4,5],[1,3,4]] recursive array references of numbers (not MathObjects)
+		$matrix->wwMatrix   produces CPAN MatrixReal1 matrix, used for computation subroutines
+
+	Information
+		$matrix->dimension:  ARRAY
+
+	Access values
+
+		row : MathObjectMatrix
+		column : MathObjectMatrix
+		element : Real or Complex value
+
+	Assign values
+
+		these need to be added:
+		
+see C<change_matrix_entry()> in MatrixReduce and L<http://webwork.maa.org/moodle/mod/forum/discuss.php?d=2970>
+	
+	Advanced
+		$matrix->data:  ARRAY reference (internal data) of MathObjects (Real,Complex, Fractions)
+		                stored at each location.
+
+
+Passthrough methods covering subroutines in Matrix.pm which overrides or 
+augment CPAN's MatrixReal1.pm.  Matrix is a specialized subclass of MatrixReal1.pm
+
+The actual calculations for these methods are done in C<pg/lib/Matrix.pm>
+
+	trace 
+	proj 
+	proj_coeff 
+	L 
+	R 
+	PL 
+	PR
+
+Passthrough methods covering subroutines in C<pg/lib/MatrixReal1.pm> 
+(this has been modified to handle complex numbers)
+The actual calculations are done in C<MatrixReal1.pm> subroutines
+The commands below are Value::Matrix B<methods> unless otherwise noted.
+
+
+
+	condition
+	det 
+	inverse 
+	is_symmetric
+	decompose_LR 
+	dim 
+	norm_one 
+	norm_max 
+	kleene 
+	normalize 
+	solve_LR($v)    - LR decomposition
+	solve($M,$v)    - function version of solve_LR
+	order_LR        - order of LR decomposition matrix (number of non-zero equations)(also order() )
+	order($M)       - function version of order_LR
+	solve_GSM 
+	solve_SSM 
+	solve_RM 
+ 
+=cut
+
 #
 package Value::Matrix;
 my $pkg = 'Value::Matrix';
@@ -17,7 +135,7 @@ our @ISA = qw(Value);
 #     a point, vector or matrix object, a matrix-valued formula, or a string
 #     that evaluates to a matrix
 #
-sub new {
+sub new { #internal
   my $self = shift; my $class = ref($self) || $self;
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   my $M = shift; $M = [] unless defined $M; $M = [$M,@_] if scalar(@_) > 0;
@@ -38,7 +156,7 @@ sub new {
 #  (Recursively) make a matrix from a list of array refs
 #  and report errors about the entry types
 #
-sub matrixMatrix {
+sub matrixMatrix { #internal
   my $self = shift; my $class = ref($self) || $self;
   my $context = shift;
   my ($x,$m); my @M = (); my $isFormula = 0;
@@ -62,7 +180,7 @@ sub matrixMatrix {
 #  Form a 1 x n matrix from a list of numbers
 #  (could become a row of an  m x n  matrix)
 #
-sub numberMatrix {
+sub numberMatrix {  #internal
   my $self = shift; my $class = ref($self) || $self;
   my $context = shift;
   my @M = (); my $isFormula = 0;
@@ -209,7 +327,7 @@ sub mult {
   #
   #  Constant multiplication
   #
-  if (Value::matchNumber($r) || Value::isComplex($r)) {
+  if (Value::isNumber($r)) {
     my @coords = ();
     foreach my $x (@{$l->data}) {push(@coords,$x*$r)}
     return $self->make(@coords);
@@ -225,7 +343,7 @@ sub mult {
   if (scalar(@dl) == 1) {@dl = (1,@dl); $l = $self->make($l)}
   if (scalar(@dr) == 1) {@dr = (@dr,1); $r = $self->make($r)->transpose}
   Value::Error("Can only multiply 2-dimensional matrices") if scalar(@dl) > 2 || scalar(@dr) > 2;
-  Value::Error("Matices of dimensions %dx%d and %dx%d can't be multiplied",@dl,@dr)
+  Value::Error("Matrices of dimensions %dx%d and %dx%d can't be multiplied",@dl,@dr)
     unless ($dl[1] == $dr[0]);
   #
   #  Do matrix multiplication
@@ -247,8 +365,7 @@ sub mult {
 sub div {
   my ($l,$r,$flag) = @_; my $self = $l;
   Value::Error("Can't divide by a Matrix") if $flag;
-  Value::Error("Matrices can only be divided by Numbers")
-    unless (Value::matchNumber($r) || Value::isComplex($r));
+  Value::Error("Matrices can only be divided by Numbers") unless Value::isNumber($r);
   Value::Error("Division by zero") if $r == 0;
   my @coords = ();
   foreach my $x (@{$l->data}) {push(@coords,$x/$r)}
@@ -260,7 +377,10 @@ sub power {
   Value::Error("Can't use Matrices in exponents") if $flag;
   Value::Error("Only square matrices can be raised to a power") unless $l->isSquare;
   $r = Value::makeValue($r,context=>$context);
-  if ($r->isNumber && $r =~ m/^-\d+$/) {$l = $l->inverse; $r = -$r}
+  if ($r->isNumber && $r =~ m/^-\d+$/) {
+    $l = $l->inverse; $r = -$r;
+    $self->Error("Matrix is not invertible") unless defined($l);
+  }
   Value::Error("Matrix powers must be non-negative integers") unless $r->isNumber && $r =~ m/^\d+$/;
   return $context->Package("Matrix")->I($l->length,$context) if $r == 0;
   my $M = $l; foreach my $i (2..$r) {$M = $M*$l}
@@ -321,9 +441,10 @@ sub I {
   Value::Error("You must provide a dimension for the Identity matrix") unless defined $d;
   Value::Error("Dimension must be a positive integer") unless $d =~ m/^[1-9]\d*$/;
   my @M = (); my @Z = split('',0 x $d);
+  my $REAL = $context->Package('Real');
   foreach my $i (0..$d-1) {
     my @row = @Z; $row[$i] = 1;
-    push(@M,$self->make($context,@row));
+    push(@M,$self->make($context, map {$REAL->new($_)} @row));
   }
   return $self->make($context,@M);
 }
@@ -435,7 +556,8 @@ sub det {
 sub inverse {
   my $self = shift; $self->wwMatrixLR;
   Value->Error("Can't take inverse of non-square matrix") unless $self->isSquare;
-  return $self->new($self->{lrM}->invert_LR);
+  my $I = $self->{lrM}->invert_LR;
+  return (defined($I) ? $self->new($I) : $I);
 }
 
 sub decompose_LR {
@@ -476,7 +598,9 @@ sub solve_LR {
   my $self = shift;
   my $v = $self->wwColumnVector(shift);
   my ($d,$b,$M) = $self->wwMatrixLR->solve_LR($v);
-  return ($d,$self->new($b),$self->new($M));
+  $b = $self->new($b) if defined($b);
+  $M = $self->new($M) if defined($M);
+  return ($d,$b,$M);
 }
 
 sub condition {
@@ -486,7 +610,7 @@ sub condition {
 }
 
 sub order {shift->order_LR(@_)}
-sub order_LR {
+sub order_LR {  #  order of LR decomposition matrix (number of non-zero equations)
   my $self = shift;
   return $self->wwMatrixLR->order_LR;
 }

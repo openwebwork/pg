@@ -696,6 +696,7 @@ sub display {
 	  push(@points,$X.$ne.$x->{data}[0]->$method($equation));
 	  $interval = $interval->with(isCopy=>1, data=>[$interval->value]) unless $interval->{isCopy};
 	  $interval->{data}[1] = $x->{data}[1];
+          $interval->{close} = $x->{close};
 	  $interval->{rightInfinite} = 1 if $x->{rightInfinite};
 	  next;
 	}

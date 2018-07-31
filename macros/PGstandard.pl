@@ -21,6 +21,8 @@ PGstandard.pl loads the following macro files:
 
 =item * PGauxiliaryFunctions.pl
 
+=item * customizeLaTeX.pl
+
 =back
 
 =cut
@@ -30,6 +32,7 @@ loadMacros(
 	"PGbasicmacros.pl",
 	"PGanswermacros.pl",
 	"PGauxiliaryFunctions.pl",
+	"customizeLaTeX.pl",
 );
 
 1;

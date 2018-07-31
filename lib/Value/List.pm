@@ -38,7 +38,7 @@ sub new {
   return $self->formula($p) if $isFormula;
   my $list = bless {data => $p, type => $type, context=>$context}, $class;
   $list->{correct_ans} = $p->[0]{correct_ans}
-    if $isSingleton && defined scalar(@{$p}) && defined $p->[0]{correct_ans};
+    if $isSingleton && scalar(@{$p}) && defined $p->[0]{correct_ans};
   if (scalar(@{$p}) == 0) {
     $list->{open}  = $def->{nestedOpen};
     $list->{close} = $def->{nestedClose};
