@@ -14,7 +14,9 @@ use Net::SMTP;
 use PGcore;
 use PGUtil qw(pretty_print);
 use WeBWorK::PG::IO  qw(fileFromPath);
-
+use utf8;
+use v5.12;
+binmode(STDOUT,":utf8");
 #use PadWalker;     # used for processing error messages
 #use Data::Dumper;
 
@@ -388,7 +390,7 @@ sub pre_load_macro_files {
 			local(*MACROFILE);
 			local($/);
 			$/ = undef;   # allows us to treat the file as a single line
-			open(MACROFILE, "<$filePath") || die "Cannot open file: $filePath";
+			open(MACROFILE, "<:encoding(utf8)", $filePath) || die "Cannot open file: $filePath";
 			my $string = <MACROFILE>;
 			close(MACROFILE);
 			
@@ -524,7 +526,7 @@ sub source_file {
  	local($/);
  	$/ = undef;   # allows us to treat the file as a single line
  	my $err = "";
- 	if ( open(SOURCEFILE, "<$filePath") ) {
+ 	if ( open(SOURCEFILE, "<:encoding(utf8)", $filePath) ) {
  		$self -> {source} = <SOURCEFILE>;
  		close(SOURCEFILE);
  	} else {

@@ -139,7 +139,7 @@ sub read_whole_file {
 	    unless path_is_course_subdir($filePath);
 	
 	local (*INPUT);
-	open(INPUT, "<$filePath") || die "$0: read_whole_file subroutine: <BR>Can't read file $filePath";
+	open(INPUT, "<:encoding(utf8)", $filePath) || die "$0: read_whole_file subroutine: <BR>Can't read file $filePath";
 	local($/)=undef;
 	my $string = <INPUT>;  # can't append spaces because this causes trouble with <<'EOF'   \nEOF construction
 	close(INPUT);
@@ -201,7 +201,7 @@ sub createFile {
 
 	die 'Path is unsafe' unless path_is_course_subdir($fileName);
 
-	open(TEMPCREATEFILE, ">$fileName")
+	open(TEMPCREATEFILE, ">:encoding(UTF-8)",$fileName)
 		or die "Can't open $fileName: $!";
 	my @stat = stat TEMPCREATEFILE;
 	close(TEMPCREATEFILE);

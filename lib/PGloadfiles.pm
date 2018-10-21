@@ -232,7 +232,7 @@ sub compile_file {
  	local($/);
  	$/ = undef;   # allows us to treat the file as a single line
     
- 	open(MACROFILE, "<$filePath") || die "Cannot open file: $filePath";
+ 	open(MACROFILE, "<:utf8", $filePath) || die "Cannot open file: $filePath";
  	my $string = 'BEGIN {push @__eval__, __FILE__};' . "\n" . <MACROFILE>;
  	#warn "compiling $string";
  	my ($result,$error,$fullerror) = $self->PG_macro_file_eval($string);
