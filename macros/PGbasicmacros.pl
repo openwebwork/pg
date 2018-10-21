@@ -1221,10 +1221,9 @@ sub ans_array_extension{
 		for( my $i = 0; $i < $n; $i+=1)
 		{
 			$name = NEW_ANS_ARRAY_NAME_EXTENSION($num,$j,$i);
-			$array[$j][$i] =  NAMED_ANS_ARRAY_EXTENSION($name,$col, ans_label=>$ans_label);
+			$array[$j][$i] =  NAMED_ANS_ARRAY_EXTENSION($name,$col, answer_group_name=>$ans_label,@options);
 
 		}
-
 	}
 	my $ra_local_display_matrix=PG_restricted_eval(q!\&main::display_matrix!);
 	&$ra_local_display_matrix( \@array, @options );
