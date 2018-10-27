@@ -1,0 +1,83 @@
+## Translator(Kamal Saleh)
+## DESCRIPTION
+## Linear Algebra
+## ENDDESCRIPTION
+
+## Tagged by tda2d
+
+## DBsubject(Lineare Algebra)
+## DBchapter(Lineare Gleichungssysteme)
+## DBsection(Matrix-Vektor-Form)
+## Date(July 2013)
+## Institution(TCNJ and Hope College)
+## Author(Paul Pearson)
+## Level(4)
+## MO(1)
+## KEYWORDS('matrix' 'equation')
+
+
+## Comments from Mike Gage
+## This problem won't render correctly until all of the utf8 changes are in place
+## It's a good test for utf8.
+
+## This problem should be rendered using the math4-ar template as a test of whether
+## the right to left format is working properly for rendering arabic (or hebrew).  
+ 
+DOCUMENT();        # This should be the first executable line in the problem.
+
+loadMacros(
+"PGstandard.pl",
+"MathObjects.pl",
+"PGcourse.pl",
+);
+
+TEXT(beginproblem());
+$showPartialCorrectAnswers = 1;
+
+Context('Matrix');
+
+foreach $i (1..2) { 
+	$u[$i] = non_zero_random(-5,5,1);
+	$v[$i] = non_zero_random(-5,5,1);
+}
+$m = random(-1,1,2) * random(2,5,1);
+$n = random(-1,1,2) * random(2,5,1);
+
+$U = Matrix([[$u[1]], [$u[2]]]);
+$V = Matrix([[$v[1]], [$v[2]]]);
+
+$answer = Matrix([ $m*$u[1]+$n*$v[1], $m*$u[2]+$n*$v[2] ])->transpose;
+
+Context()->texStrings;
+BEGIN_TEXT
+لتكن
+\( A \) 
+ مصفوفة تطبيق خطي أبعادها
+\( 3 \times 2 \) 
+و أعمدتها مستقلة خطياًًًََُ ً
+.
+ليكن
+\( \vec{u} = $U \) 
+و
+\( \vec{v} = $V \)
+شعاعين يحققان المعادلتين
+\( A\vec{u} = \vec{a} \)
+و
+\( A\vec{v} = \vec{b} \) 
+. 
+أوجد حل 
+\( \vec{x} \) 
+للمعادلة
+\( A\vec{x} = $m \vec{a} + $n \vec{b} \).
+$BR 
+$BR
+$BLTR
+\(\vec{x} = \) \{ $answer->ans_array(20) \}
+$ELTR
+.
+END_TEXT
+Context()->normalStrings;
+
+ANS($answer->cmp);
+;
+ENDDOCUMENT();

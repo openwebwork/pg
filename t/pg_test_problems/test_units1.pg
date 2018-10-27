@@ -1,0 +1,96 @@
+## DESCRIPTION
+## Functions: Input and Output
+
+
+## DBsubject(WeBWorK)
+## DBchapter(TEST)
+## DBsection(Units)
+## Date(01/01/10)
+## Institution(U of R)
+## Author(Gage)
+## Level()
+## MO(1)
+
+## KEYWORDS('test','units',)
+
+DOCUMENT();
+
+loadMacros(
+"PGstandard.pl",
+"MathObjects.pl",
+"AnswerFormatHelp.pl",
+"PGML.pl",
+"parserNumberWithUnits.pl",
+"parserFormulaWithUnits.pl",
+"PGcourse.pl",
+);
+
+TEXT(beginproblem());
+
+##################################
+#  Setup
+
+Context("Numeric");
+
+
+$one_mph = NumberWithUnits(1,"mph");
+$x2_mph  = FormulaWithUnits("x^2", "mph");
+
+$hz_0_05 = NumberWithUnits(.05, "Hz");
+$five_percent_per_second = NumberWithUnits(5, "%/s");
+$five_percent = NumberWithUnits(5, "%");
+$one_degree = NumberWithUnits(1, "deg");
+$one_radian = NumberWithUnits(1, "rad");
+$one_hour = NumberWithUnits(1,"hours");
+$one_inch = NumberWithUnits(1,"inches");
+$one_foot = NumberWithUnits(1,"feet");
+$one_minute = NumberWithUnits(1,"minute");
+$one_second = NumberWithUnits(1,"s"); #only s works
+$one_cup = NumberWithUnits(.236588 ,"L");
+$one_footpersecond = NumberWithUnits(1,"feet/s");
+$x2_footpersecond = FormulaWithUnits("x^2","feet/s");
+
+
+#####################################
+#  Main text
+
+Context()->texStrings;
+BEGIN_PGML
+These units are equivalent: 
+* deg, degree, degrees
+* rad, radian, radians,
+* in, inch, inches
+* ft, feet, foot
+* min, minute, minutes
+* h, hr, hour, hours
+* s, sec,??
+* cup, cups,  0.000236588 m^3 or .236588 L
+
+
+* sr       ( steradian or square radian a measure of solid angle.  1 sr = rad^2 ?) The actual definition is the central solid angle of a patch on a sphere of radius r whose area is r^2.  A full sphere measures 4pi steradian's.
+
+The definition here is  1 sr = 1 rad^2   --- is that really right?
+
+TESTS:
+
+These should be equivalent:   
+* Enter .05 Hz in %/s [_________]{$hz_0_05} as [`5*2\pi %*rad/s`]  
+* Enter 5 %/s as Hz [__________]{$five_percent_per_second} as[`.05/(2pi) Hz/rad`]   
+* Enter 5 % as  [__________]{$five_percent}  as [`.05 rad/rad`] 
+* Enter 1 mph [__________]{$one_mph} as 5280 ft/hr  
+* Enter x^2 mph [__________]{$x2_mph}
+
+* Enter one degree: [__________]{$one_degree}   
+* Enter one radian: [__________]{$one_radian} as [`(2\pi)^-1 cycles`]  
+* Enter one hour:   [__________]{$one_hour}   
+* Enter one inch:   [__________]{$one_inch}   
+* Enter one foot:   [__________]{$one_foot}   
+* Enter one minute: [__________]{$one_minute}   
+* Enter one second: [__________]{$one_second}   
+* Enter one cup:    [__________]{$one_cup}   
+* Enter one ft/sec  [__________]{$one_footpersecond}   
+* [`x^2`] ft/sec    [__________]{$x2_footpersecond}   
+END_PGML
+
+
+ENDDOCUMENT();
