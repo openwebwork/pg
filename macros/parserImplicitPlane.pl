@@ -116,8 +116,8 @@ sub new {
     $vars = [$vars] unless ref($vars) eq 'ARRAY';
     $type = 'line' if scalar(@{$vars}) == 2;
     my @terms = (); my $i = 0;
-    foreach my $x (@{$vars}) {push @terms, $N->{data}[$i++]->string.$x}
-    $plane = $formula->new(join(' + ',@terms).' = '.$d->string)->reduce(@_);
+    foreach my $x (@{$vars}) {push @terms, $N->{data}[$i++]->value.$x}
+    $plane = $formula->new(join(' + ',@terms).' = '.$d->value)->reduce(@_);
   } else {
     #
     #  Determine the normal vector and d value from the equation
