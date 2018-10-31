@@ -377,9 +377,8 @@ sub new_from_col_vecs
 
 sub cp  { # MEG  makes new copies of complex number
 	my $z = shift;
-	return $z unless ref($z);
-	my $w = Complex1::cplx($z->Re,$z->Im);
-	return $w;
+	return $z unless ref($z) eq 'Complex1';
+	Complex1::cplx($z->Re,$z->Im);
 }
 
 =head4
