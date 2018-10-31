@@ -35,6 +35,14 @@ sub make {
   return $s;
 }
 
+sub make {
+  my $self = shift;
+  my $s = $self->SUPER::make(@_);
+  my $def = $self->context->strings->get($s->{data}[0]);
+  $s->{caseSensitive} = 1 if $def->{caseSensitive};
+  return $s;
+}
+
 #
 #  Return the appropriate data.
 #
