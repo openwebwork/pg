@@ -193,6 +193,18 @@ our %known_units = ('m'  => {
                            'factor'    => 1209600,
                            's'         => 1
                           },
+									'month'  => {
+                           'factor'    => 60*60*24*30,
+                           's'         => 1
+                          },
+                  'months'  => {
+                           'factor'    => 60*60*24*30,
+                           's'         => 1
+                          },
+                  'mo'  => {
+                           'factor'    => 60*60*24*30,
+                           's'         => 1
+                          },
 
 # LENGTHS
 # m    -- meters
@@ -879,7 +891,7 @@ sub process_unit {
 
     my $fundamental_units = \%fundamental_units;
     my $known_units = \%known_units;
-	
+
     if (defined($options->{fundamental_units})) {
       $fundamental_units = $options->{fundamental_units};
     }
@@ -888,7 +900,7 @@ sub process_unit {
       $known_units = $options->{known_units};
     }
 
-    
+
     die ("UNIT ERROR: No units were defined.") unless defined($string);  #
 	#split the string into numerator and denominator --- the separator is /
     my ($numerator,$denominator) = split( m{/}, $string );
@@ -920,7 +932,7 @@ sub process_term {
 
 	my $fundamental_units = \%fundamental_units;
 	my $known_units = \%known_units;
-	
+
 	if (defined($options->{fundamental_units})) {
 	  $fundamental_units = $options->{fundamental_units};
 	}
@@ -928,7 +940,7 @@ sub process_term {
 	if (defined($options->{known_units})) {
 	  $known_units = $options->{known_units};
 	}
-	
+
 	my %unit_hash = %$fundamental_units;
 	if ($string) {
 
@@ -965,7 +977,7 @@ sub process_factor {
 
 	my $fundamental_units = \%fundamental_units;
 	my $known_units = \%known_units;
-	
+
 	if (defined($options->{fundamental_units})) {
 	  $fundamental_units = $options->{fundamental_units};
 	}
@@ -1002,7 +1014,7 @@ sub evaluate_units {
 
 	my $fundamental_units = \%fundamental_units;
 	my $known_units = \%known_units;
-	
+
 	if (defined($options->{fundamental_units}) && $options->{fundamental_units}) {
 	  $fundamental_units = $options->{fundamental_units};
 	}
@@ -1010,7 +1022,7 @@ sub evaluate_units {
 	if (defined($options->{known_units}) && $options->{fundamental_units}) {
 	  $known_units = $options->{known_units};
 	}
-	
+
 	my %output =  eval(q{process_unit( $unit, {fundamental_units => $fundamental_units, known_units => $known_units})});
 	%output = %$fundamental_units if $@;  # this is what you get if there is an error.
 	$output{'ERROR'}=$@ if $@;
