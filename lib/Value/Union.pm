@@ -212,7 +212,7 @@ sub reduce {
   foreach my $x ($self->value) {
     if ($x->type eq 'Set') {push(@singletons,$x->value)}
     elsif ($x->{data}[0] == $x->{data}[1]) {push(@singletons,$x->{data}[0])}
-    else {push(@intervals,$x->copy)}
+    else {push(@intervals,$x->inherit)}
   }
   my @union = (); my @set = (); my $prevX;
   @intervals = (CORE::sort {$a <=> $b} @intervals);
