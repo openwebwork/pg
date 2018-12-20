@@ -1484,6 +1484,7 @@ sub Format {
   } else {
     $format = '<div class="PGML">'."\n".PGML::Format::html->new($parser)->format.'</div>'."\n";
   }
+  $format =~ s/\t/    /g;
   main::WARN_MESSAGE("==================","Errors parsing PGML:",@warnings,"==================") if scalar(@warnings);
   return $format;
 }
