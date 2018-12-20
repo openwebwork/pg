@@ -20,6 +20,8 @@ sub _PG_init{
 
 our $PG;  
 
+%internalBalancing;
+
 sub not_null {$PG->not_null(@_)};
 
 sub pretty_print {$PG->pretty_print(shift,$main::displayMode)};
@@ -55,7 +57,25 @@ sub DOCUMENT {
 	$pgComment                  = '';
 	%gifs_created          		= %{ $PG->{gifs_created}};
 	%external_refs         		= %{ $PG->{external_refs}};
-	
+	$warn_on_internalBalancing_errors = $PG->{flags}->{warn_on_internalBalancing_errors};
+
+
+	# Should not nest, so should stay 0/1 and end at 0.
+	#    inInlineMath inDisplayMath inOneColumnMode inInputLabel inInputLabel
+
+	# Can nest, but should not become negative, and should end at 0.
+	#    openBold openItalic openUnderline openCenter openSpan openDiv
+
+	my $item;
+	my @internalBalancingItems = qw (
+		inInlineMath inDisplayMath inOneColumnMode inInputLabel inInputLabel
+		openBold openItalic openUnderline openCenter openSpan openDiv
+		);
+	foreach $item ( @internalBalancingItems ) {
+	    #$self->{internalBalancing}{$item} = 0;
+	    $internalBalancing{$item} = 0;
+	}
+
 	@KEPT_EXTRA_ANSWERS =();   #temporary hack
 	
 	my %envir              =   %$rh_envir;
@@ -140,6 +160,80 @@ sub HEADER_TEXT {
 
 sub POST_HEADER_TEXT {
 	$PG->POST_HEADER_TEXT(@_);
+}
+
+# Increase/decrease set/unset counter/status in internalBalancing hash where needed
+
+sub internalBalancingTurnOn {
+  my $type = shift;
+  if ( $type =~ /^in[A-Z]/ ) {
+    if( defined( $internalBalancing{ $type } ) ) {
+      if ( ! ( $internalBalancing{ $type } == 0 ) ) {
+        WARN_MESSAGE(" received a request to turn ON the internalBalancing counter called $type when it was not currently set to 0.") if ($warn_on_internalBalancing_errors );
+      } else {
+        $internalBalancing{ $type } = 1;
+	DEBUG_MESSAGE(" received a request to turn ON the internalBalancing counter called $type value is now $internalBalancing{$type} ") if ($warn_on_internalBalancing_errors > 2);
+      }
+    } else {
+      WARN_MESSAGE(" received a request to turn ON an INVALID internalBalancing counter called $type") if ($warn_on_internalBalancing_errors );
+    }
+  } else {
+    WARN_MESSAGE(" received a request to turn ON an INVALID internalBalancing counter called $type") if ($warn_on_internalBalancing_errors );
+  }
+  '';
+}
+
+sub internalBalancingTurnOff {
+  my $type = shift;
+  if ( $type =~ /^in[A-Z]/ ) {
+    if( defined( $internalBalancing{ $type } ) ) {
+      if ( ! ( $internalBalancing{ $type } == 1 ) ) {
+        WARN_MESSAGE(" received a request to turn OFF the internalBalancing counter called $type when it was not currently set to 1.") if ($warn_on_internalBalancing_errors );
+      } else {
+        $internalBalancing{ $type } = 0;
+	DEBUG_MESSAGE(" received a request to turn OFF the internalBalancing counter called $type  value is now $internalBalancing{$type} ") if ($warn_on_internalBalancing_errors > 2);
+      }
+    } else {
+      WARN_MESSAGE(" received a request to turn OFF an INVALID internalBalancing counter called $type") if ($warn_on_internalBalancing_errors );
+    }
+  } else {
+    WARN_MESSAGE(" received a request to turn OFF an INVALID internalBalancing counter called $type") if ($warn_on_internalBalancing_errors );
+  }
+  '';
+}
+
+sub internalBalancingIncrement {
+  my $type = shift;
+  if ( $type =~ /^open[A-Z]/ ) {
+    if( defined( $internalBalancing{ $type } ) ) {
+        $internalBalancing{ $type }++;
+	DEBUG_MESSAGE(" received a request to INCREMENT the internalBalancing counter called $type  value is now $internalBalancing{$type} ")if ($warn_on_internalBalancing_errors > 2) ;
+    } else {
+      WARN_MESSAGE(" received a request to INCREMENT an INVALID internalBalancing counter called $type") if ($warn_on_internalBalancing_errors );
+    }
+  } else {
+    WARN_MESSAGE(" received a request to INCREMENT an INVALID internalBalancing counter called $type") if ($warn_on_internalBalancing_errors );
+  }
+  '';
+}
+
+sub internalBalancingDecrement {
+  my $type = shift;
+  if ( $type =~ /^open[A-Z]/ ) {
+    if( defined( $internalBalancing{ $type } ) ) {
+      if ( $internalBalancing{ $type } > 0 ) {
+	$internalBalancing{ $type }--;
+	DEBUG_MESSAGE(" received a request to DECREMENT the internalBalancing counter called $type  value is now $internalBalancing{$type} ") if ($warn_on_internalBalancing_errors > 2);
+      } else {
+        WARN_MESSAGE(" received a request to DECREMENT the internalBalancing counter called $type when it did not have a POSITIVE value.") if ($warn_on_internalBalancing_errors );
+      }
+    } else {
+      WARN_MESSAGE(" received a request to DECREMENT an INVALID internalBalancing counter called $type") if ($warn_on_internalBalancing_errors );
+    }
+  } else {
+    WARN_MESSAGE(" received a request to DECREMENT an INVALID internalBalancing counter called $type") if ($warn_on_internalBalancing_errors );
+  }
+  '';
 }
 
 sub AskSage {
@@ -340,8 +434,22 @@ sub ENDDOCUMENT {
 	$PG->{flags}->{hintExists}                     = defined($hintExists)?                 $hintExists                : 0 ;
 	$PG->{flags}->{solutionExists}                 = defined($solutionExists)?             $solutionExists            : 0 ;
 	$PG->{flags}->{comment}                        = defined($pgComment)?                  $pgComment                 :'' ;  
-    $PG->{flags}->{showHintLimit}                  = defined($showHint)?                   $showHint                  : 0 ;  
- 
+	$PG->{flags}->{showHintLimit}                  = defined($showHint)?                   $showHint                  : 0 ;
+
+        # Check the status/counters on tracked begin/end constructs which should balance;
+	{
+	    my $sawError = 0;
+	    my $type;
+	    foreach $type ( sort( keys %internalBalancing ) ) {
+		if ( ! ( $internalBalancing{ $type } == 0 ) ) {
+		    $sawError++;
+		    warn " The internalBalancing counter called $type is not 0 when ENDDOCUMENT() was called, so there is some INBALANCE in the use of the relevant commands in this PG file. The current value is $internalBalancing{$type} " if ($warn_on_internalBalancing_errors );
+		} else {
+		    DEBUG_MESSAGE( " $type now set to $internalBalancing{$type} ") if ($warn_on_internalBalancing_errors > 1);
+		}
+	    }
+	    warn " Note: These internalBalancing warnings may be false positives if the relevant pairings were added outside of BEGIN_TEXT/END_TEXT BEGIN_HINT/END_HINT BEGIN_SOLUTION/END_SOLUTION blocks, ex. by direct use of TEXT()." if ( $sawError );
+	}
     
 	# install problem grader
 	if (defined($PG->{flags}->{PROBLEM_GRADER_TO_USE})  ) {

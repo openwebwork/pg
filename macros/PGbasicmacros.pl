@@ -1590,6 +1590,19 @@ sub MODES {
 	$PI					PI()				the number pi
 	$E					E()					the number e
 
+	Note: The begin/end constants are preprocessed at the start of EV3P() below
+	to add calls to functions which modify tracking variables inside the
+	%internalBalancing hash defined in macros/PG.pl, which are used to detect
+	imbalances in their use. Warnings are issued ONLY when the flag
+	warn_on_internalBalancing_errors is set to 1 or higher in lib/PGcore.pm.
+	When the flag is set to 2 or higher DEBUG_MESSAGE is used to report the
+	final values of the tracking variables at ENDDOCUMENT(). When the flag is set
+	to 3 or higher, DEBUG_MESSAGE will also be issued whenever the tracking
+	variables are modified. Since the sanity check code can only see the
+	parity changes which occur INSIDE blocks processed by EV3P(), there may
+	be false positives and/or false negatives.
+
+
 =cut
 
 
@@ -2128,6 +2141,45 @@ sub EV3P {
     %{$option_ref},
   );
   my $string = join(" ",@_);
+
+  # Preprocessing code to track internal balance (parity) of certain begin/end formatting
+  # variables by putting in calls to the Perl functions which track the status/counts for
+  # the internalBalancing sanity checks in a preprocess phase
+  # Note: This is being done after default_preprocess_code() from lib/WeBWorK/PG/Translator.pm
+  #       replaced "\\" by "\\\\" so we need 4 backslashes before the start/end braces below.
+
+    $string =~ s/\$BBOLD(\W)/\$BBOLD \\\\{ internalBalancingIncrement("openBold"); \\\\}\1/g;
+    $string =~ s/\$EBOLD(\W)/\$EBOLD \\\\{ internalBalancingDecrement("openBold"); \\\\}\1/g;
+
+    $string =~ s/\$BITALIC(\W)/\$BITALIC \\\\{ internalBalancingIncrement("openItalic"); \\\\}\1/g;
+    $string =~ s/\$EITALIC(\W)/\$EITALIC \\\\{ internalBalancingDecrement("openItalic"); \\\\}\1/g;
+
+    $string =~ s/\$BUL(\W)/\$BUL \\\\{ internalBalancingIncrement("openUnderline"); \\\\}\1/g;
+    $string =~ s/\$EUL(\W)/\$EUL \\\\{ internalBalancingDecrement("openUnderline"); \\\\}\1/g;
+
+    $string =~ s/\$BCENTER(\W)/\$BCENTER \\\\{ internalBalancingIncrement("openCenter"); \\\\}\1/g;
+    $string =~ s/\$ECENTER(\W)/\$ECENTER \\\\{ internalBalancingDecrement("openCenter"); \\\\}\1/g;
+
+    $string =~ s/\$BM(\W)/\$BM \\\\{ internalBalancingTurnOn("inInlineMath"); \\\\}\1/g;
+    $string =~ s/\$EM(\W)/\$EM \\\\{ internalBalancingTurnOff("inInlineMath"); \\\\}\1/g;
+
+    $string =~ s/\$BDM(\W)/\$BDM \\\\{ internalBalancingTurnOn("inDisplayMath"); \\\\}\1/g;
+    $string =~ s/\$EDM(\W)/\$EDM \\\\{ internalBalancingTurnOff("inDisplayMath"); \\\\}\1/g;
+
+    $string =~ s/\$BEGIN_ONE_COLUMN(\W)/\$BEGIN_ONE_COLUMN \\\\{ internalBalancingTurnOn("inOneColumnMode"); \\\\}\1/g;
+    $string =~ s/\$END_ONE_COLUMN(\W)/\$END_ONE_COLUMN \\\\{ internalBalancingTurnOff("inOneColumnMode"); \\\\}\1/g;
+
+    $string =~ s/\$BLABEL(\W)/\$BLABEL \\\\{ internalBalancingTurnOn("inInputLabel"); \\\\}\1/g;
+    $string =~ s/\$ELABEL(\W)/\$ELABEL \\\\{ internalBalancingTurnOff("inInputLabel"); \\\\}\1/g;
+
+    # The following two lines are related to new formatting variables added to development
+    # versions of PG by https://github.com/openwebwork/pg/pull/323 which use an HTML span to
+    # allow LTR text inside an RTL context.
+    $string =~ s/\$BLTR(\W)/\$BLTR \\\\{ internalBalancingIncrement("openSpan"); \\\\}\1/g;
+    $string =~ s/\$ELTR(\W)/\$ELTR \\\\{ internalBalancingDecrement("openSpan"); \\\\}\1/g;
+
+  # End preprocessing for internalBalancing sanity checks
+
   $string = ev_substring($string,"\\\\{","\\\\}",\&safe_ev) if $options{processCommands};
   if ($options{processVariables}) {
     my $eval_string = $string;

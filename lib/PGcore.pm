@@ -126,7 +126,7 @@ sub initialize {
 		refreshCachedImages       => 0,
 #		ANSWER_ENTRY_ORDER        => [],  # may not be needed if we ue Tie:IxHash
 		comment                   => '',  # implement as array?
-
+		warn_on_internalBalancing_errors => 1,
 	
 	
 	};
