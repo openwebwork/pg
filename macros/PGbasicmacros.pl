@@ -1590,6 +1590,17 @@ sub MODES {
 	$PI					PI()				the number pi
 	$E					E()					the number e
 
+	Note: The begin/end constants are preprocessed in lib/WeBWorK/PG/Translator.pm
+	to add calls to functions which modify tracking variables inside the
+	%internalBalancing hash defined in macros/PG.pl, which are used to detect
+	imbalances in their use. Warnings are issued ONLY when the flag
+	warn_on_internalBalancing_errors is set to 1 or higher in lib/PGcore.pm.
+	When the flag is set to 2 or higher DEBUG_MESSAGE is used to report the
+	final values of the tracking variables at ENDDOCUMENT(). When the flag is set
+	to 3 or higher, DEBUG_MESSAGE will also be issued whenever the tracking
+	variables are modified.
+
+
 =cut
 
 

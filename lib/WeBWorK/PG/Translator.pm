@@ -1851,6 +1851,35 @@ sub PG_answer_eval {
 # }
 sub default_preprocess_code {
 	my $evalString = shift//'';
+
+	# Put in calls to do the internalBalancing calls in the preprocess phase
+	$evalString =~ s/\$BBOLD\W/\$BBOLD \\{ internalBalancingIncrement("openBold"); \\}/g;
+	$evalString =~ s/\$EBOLD\W/\$EBOLD \\{ internalBalancingDecrement("openBold"); \\}/g;
+
+	$evalString =~ s/\$BITALIC\W/\$BITALIC \\{ internalBalancingIncrement("openItalic"); \\}/g;
+	$evalString =~ s/\$EITALIC\W/\$EITALIC \\{ internalBalancingDecrement("openItalic"); \\}/g;
+
+	$evalString =~ s/\$BUL\W/\$BUL \\{ internalBalancingIncrement("openUnderline"); \\}/g;
+	$evalString =~ s/\$EUL\W/\$EUL \\{ internalBalancingDecrement("openUnderline"); \\}/g;
+
+	$evalString =~ s/\$BCENTER\W/\$BCENTER \\{ internalBalancingIncrement("openCenter"); \\}/g;
+	$evalString =~ s/\$ECENTER\W/\$ECENTER \\{ internalBalancingDecrement("openCenter"); \\}/g;
+
+	$evalString =~ s/\$BLTR\W/\$BLTR \\{ internalBalancingIncrement("openSpan"); \\}/g;
+	$evalString =~ s/\$ELTR\W/\$ELTR \\{ internalBalancingDecrement("openSpan"); \\}/g;
+
+	$evalString =~ s/\$BM\W/\$BM \\{ internalBalancingTurnOn("inInlineMath"); \\}/g;
+	$evalString =~ s/\$EM\W/\$EM \\{ internalBalancingTurnOff("inInlineMath"); \\}/g;
+
+	$evalString =~ s/\$BDM\W/\$BDM \\{ internalBalancingTurnOn("inDisplayMath"); \\}/g;
+	$evalString =~ s/\$EDM\W/\$EDM \\{ internalBalancingTurnOff("inDisplayMath"); \\}/g;
+
+	$evalString =~ s/\$BEGIN_ONE_COLUMN\W/\$BEGIN_ONE_COLUMN \\{ internalBalancingTurnOn("inOneColumnMode"); \\}/g;
+	$evalString =~ s/\$END_ONE_COLUMN\W/\$END_ONE_COLUMN \\{ internalBalancingTurnOff("inOneColumnMode"); \\}/g;
+
+	$evalString =~ s/\$BLABEL\W/\$BLABEL \\{ internalBalancingTurnOn("inInputLabel"); \\}/g;
+	$evalString =~ s/\$ELABEL\W/\$ELABEL \\{ internalBalancingTurnOff("inInputLabel"); \\}/g;
+
 	# BEGIN_TEXT and END_TEXT must occur on a line by themselves.
 	$evalString =~ s/\n\h*END_TEXT[\h;]*\n/\nEND_TEXT\n/g;
 	$evalString =~ s/\n\h*END_PGML[\h;]*\n/\nEND_PGML\n/g;
