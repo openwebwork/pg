@@ -176,7 +176,10 @@ sub MENU {
     $menu = '<var form="popup">' . "\n";
     foreach my $item (@list) {
       $menu .= '<li>';
-      my $cleaned_item = main::PTX_special_character_cleanup($item);
+      my $escaped_item;
+      $escaped_item =~ s/</<less \/>/g;
+      $escaped_item =~ s/(?<!\/)>/<greater \/>/g;
+      $escaped_item =~ s/&/<ampersand \/>/g;
       $menu .= $cleaned_item . '</li>'. "\n";
     }
     $menu .= '</var>';

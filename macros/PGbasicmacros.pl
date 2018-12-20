@@ -89,6 +89,9 @@ my ($PAR,
 	$CARET,
 	$PI,
 	$E,
+	$LATEX,
+	$TEX,
+	$APOS,
 	@ALPHABET,
 	$envir,
 	$PG_random_generator,
@@ -158,6 +161,9 @@ main::PG_restricted_eval( <<'EndOfFile');
 	$main::CARET			= CARET();
 	$main::PI				= PI();
 	$main::E				= E();
+	$main::LATEX			= LATEX();
+	$main::TEX			= TEX();
+	$main::APOS			= APOS();
 	@main::ALPHABET			= ('A'..'ZZ');
 	%main::STICKY_ANSWERS   = ();
 
@@ -213,6 +219,9 @@ EndOfFile
 	$CARET			     = CARET();
 	$PI				     = PI();
 	$E				     = E();
+	$LATEX				= LATEX();
+	$TEX				= TEX();
+	$APOS				= APOS();
 	@ALPHABET			 = ('A'..'ZZ');
 
    $envir               = PG_restricted_eval(q!\%main::envir!);
@@ -1589,6 +1598,9 @@ sub MODES {
 	$CARET				CARET()				a caret sign
 	$PI					PI()				the number pi
 	$E					E()					the number e
+	$LATEX				LATEX()				the LaTeX logo
+	$TEX				TEX()				the TeX logo
+	$APOS				APOS()				an apostrophe
 
 =cut
 
@@ -1613,8 +1625,8 @@ sub PAR { MODES( TeX => '\\par ', Latex2HTML => '\\begin{rawhtml}<P>\\end{rawhtm
 # which looks better but kills more trees.
 sub BR { MODES( TeX => '\\leavevmode\\\\\\relax ', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR/>', PTX => "\n\n"); };
 sub BRBR { MODES( TeX => '\\leavevmode\\\\\\relax \\leavevmode\\\\\\relax ', Latex2HTML => '\\begin{rawhtml}<BR><BR>\\end{rawhtml}', HTML => '<P>', PTX => "\n"); };
-sub LQ { MODES( TeX => "\\lq\\lq{}", Latex2HTML =>   '"',  HTML =>  '&quot;', PTX => '<lq />' ); };
-sub RQ { MODES( TeX => "\\rq\\rq{}", Latex2HTML =>   '"',   HTML =>  '&quot;', PTX => '<rq />' ); };
+sub LQ { MODES( TeX => "\\lq\\lq{}", Latex2HTML =>   '"',  HTML =>  '&quot;', PTX => '<lq/>' ); };
+sub RQ { MODES( TeX => "\\rq\\rq{}", Latex2HTML =>   '"',   HTML =>  '&quot;', PTX => '<rq/>' ); };
 sub BM { MODES(TeX => '\\(', Latex2HTML => '\\(', HTML =>  '', PTX => '<m>'); };  # begin math mode
 sub EM { MODES(TeX => '\\)', Latex2HTML => '\\)', HTML => '', PTX => '</m>'); };  # end math mode
 sub BDM { MODES(TeX => '\\[', Latex2HTML =>   '\\[', HTML =>   '<P ALIGN=CENTER>', PTX => '<me>'); };  #begin displayMath mode
@@ -1635,13 +1647,13 @@ sub SOLUTION_HEADING { MODES( TeX => '\\par {\\bf '.maketext('Solution:').' }',
                  PTX => '');
 };
 sub HINT_HEADING { MODES( TeX => "\\par {\\bf ".maketext('Hint:')." }", Latex2HTML => "\\par {\\bf ".maketext('Hint:')." }", HTML => "<B>".maketext('Hint:')."</B> ", PTX => ''); };
-sub US { MODES(TeX => '\\_', Latex2HTML => '\\_', HTML => '_', PTX => '<underscore />');};  # underscore, e.g. file${US}name
+sub US { MODES(TeX => '\\_', Latex2HTML => '\\_', HTML => '_', PTX => '_');};  # underscore, e.g. file${US}name
 sub SPACE { MODES(TeX => '\\ ',  Latex2HTML => '\\ ', HTML => '&nbsp;', PTX => ' ');};  # force a space in latex, doesn't force extra space in html
-sub NBSP { MODES(TeX => '~',  Latex2HTML => '~', HTML => '&nbsp;', PTX => '<nbsp />');};
-sub NDASH { MODES(TeX => '--',  Latex2HTML => '--', HTML => '&ndash;', PTX => '<ndash />');};
-sub MDASH { MODES(TeX => '---',  Latex2HTML => '---', HTML => '&mdash;', PTX => '<mdash />');};
-sub BBOLD { MODES(TeX => '{\\bf ',  Latex2HTML => '{\\bf ', HTML => '<B>', PTX => '<em>'); };
-sub EBOLD { MODES( TeX => '}', Latex2HTML =>  '}',HTML =>  '</B>', PTX => '</em>'); };
+sub NBSP { MODES(TeX => '~',  Latex2HTML => '~', HTML => '&nbsp;', PTX => '<nbsp/>');};
+sub NDASH { MODES(TeX => '--',  Latex2HTML => '--', HTML => '&ndash;', PTX => '<ndash/>');};
+sub MDASH { MODES(TeX => '---',  Latex2HTML => '---', HTML => '&mdash;', PTX => '<mdash/>');};
+sub BBOLD { MODES(TeX => '{\\bf ',  Latex2HTML => '{\\bf ', HTML => '<B>', PTX => '<alert>'); };
+sub EBOLD { MODES( TeX => '}', Latex2HTML =>  '}',HTML =>  '</B>', PTX => '</alert>'); };
 sub BLABEL { MODES(TeX => '', Latex2HTML => '', HTML => '<LABEL>', PTX => ''); };
 sub ELABEL { MODES(TeX => '', Latex2HTML => '', HTML => '</LABEL>', PTX => ''); };
 sub BITALIC { MODES(TeX => '{\\it ',  Latex2HTML => '{\\it ', HTML => '<I>', PTX => '<em>'); };
@@ -1653,15 +1665,18 @@ sub ECENTER { MODES(TeX => '\\end{center} ',  Latex2HTML => ' \\begin{rawhtml} <
 sub BLTR { MODES(TeX => ' ',  Latex2HTML => ' \\begin{rawhtml} <div dir="ltr"> \\end{rawhtml} ', HTML => '<span dir="ltr">', PTX => ''); };
 sub ELTR { MODES(TeX => ' ',  Latex2HTML => ' \\begin{rawhtml} </div> \\end{rawhtml} ', HTML => '</span>', PTX => ''); };
 sub HR { MODES(TeX => '\\par\\hrulefill\\par ', Latex2HTML => '\\begin{rawhtml} <HR> \\end{rawhtml}', HTML =>  '<HR>', PTX => ''); };
-sub LBRACE { MODES( TeX => '\{', Latex2HTML =>   '\\lbrace',  HTML =>  '{' , HTML_tth=> '\\lbrace', PTX => '<lbrace />' ); };  #not for use in math mode
-sub RBRACE { MODES( TeX => '\}', Latex2HTML =>   '\\rbrace',  HTML =>  '}' , HTML_tth=> '\\rbrace', PTX => '<rbrace />' ); };  #not for use in math mode
-sub LB { MODES( TeX => '\{', Latex2HTML =>   '\\lbrace',  HTML =>  '{' , HTML_tth=> '\\lbrace', PTX => '<lbrace />' ); };  #not for use in math mode
-sub RB { MODES( TeX => '\}', Latex2HTML =>   '\\rbrace',  HTML =>  '}' , HTML_tth=> '\\rbrace', PTX => '<rbrace />' ); };  #not for use in math mode
-sub DOLLAR { MODES( TeX => '\\$', Latex2HTML => '&#36;', HTML => '&#36;', PTX => '<dollar />' ); };
-sub PERCENT { MODES( TeX => '\\%', Latex2HTML => '\\%', HTML => '%', PTX => '<percent />' ); };
-sub CARET { MODES( TeX => '\\verb+^+', Latex2HTML => '\\verb+^+', HTML => '^', PTX => '<circumflex />' ); };
+sub LBRACE { MODES( TeX => '\{', Latex2HTML =>   '\\lbrace',  HTML =>  '{' , HTML_tth=> '\\lbrace', PTX => '{' ); };  #not for use in math mode
+sub RBRACE { MODES( TeX => '\}', Latex2HTML =>   '\\rbrace',  HTML =>  '}' , HTML_tth=> '\\rbrace', PTX => '}' ); };  #not for use in math mode
+sub LB { MODES( TeX => '\{', Latex2HTML =>   '\\lbrace',  HTML =>  '{' , HTML_tth=> '\\lbrace', PTX => '{' ); };  #not for use in math mode
+sub RB { MODES( TeX => '\}', Latex2HTML =>   '\\rbrace',  HTML =>  '}' , HTML_tth=> '\\rbrace', PTX => '}' ); };  #not for use in math mode
+sub DOLLAR { MODES( TeX => '\\$', Latex2HTML => '&#36;', HTML => '&#36;', PTX => '$' ); };
+sub PERCENT { MODES( TeX => '\\%', Latex2HTML => '\\%', HTML => '%', PTX => '%' ); };
+sub CARET { MODES( TeX => '\\verb+^+', Latex2HTML => '\\verb+^+', HTML => '^', PTX => '^' ); };
 sub PI {4*atan2(1,1);};
 sub E {exp(1);};
+sub LATEX { MODES( TeX => '\\LaTeX', HTML => '\\(\\mathrm\\LaTeX\\)', PTX => '<latex/>' ); };
+sub TEX { MODES( TeX => '\\TeX', HTML => '\\(\\mathrm\\TeX\\)', PTX => '<tex/>' ); };
+sub APOS { MODES( TeX => "'", HTML => "'", PTX => "\\'" ); };
 
 ###############################################################
 ## Evaluation macros
@@ -2245,24 +2260,6 @@ sub PTX_cleanup {
     } until ($previous eq $string);
 
   };
-  $string;
-}
-
-sub PTX_special_character_cleanup {
-  my $string = shift;
-  $string =~ s/</<less \/>/g;
-  $string =~ s/(?<!\/)>/<greater \/>/g;
-  $string =~ s/&/<ampersand \/>/g;
-  $string =~ s/"/&quot;/g;
-  $string =~ s/\^/<circumflex \/>/g;
-  $string =~ s/#/<hash \/>/g;
-  $string =~ s/\$/<dollar \/>/g;
-  $string =~ s/\%/<percent \/>/g;
-  $string =~ s/\\/<backslash \/>/g;
-  $string =~ s/_/<underscore \/>/g;
-  $string =~ s/{/<lbrace \/>/g;
-  $string =~ s/}/<rbrace \/>/g;
-  $string =~ s/~/<tilde \/>/g;
   $string;
 }
 
