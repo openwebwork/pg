@@ -2150,35 +2150,35 @@ sub EV3P {
   my $warn_on_internalBalancing_errors = PG_restricted_eval(q!$main::warn_on_internalBalancing_errors!);
 
   if ( $warn_on_internalBalancing_errors ) {
-    $string =~ s/\$BBOLD(\W)/\$BBOLD \\\\{ internalBalancingIncrement("openBold"); \\\\}\1/g;
-    $string =~ s/\$EBOLD(\W)/\$EBOLD \\\\{ internalBalancingDecrement("openBold"); \\\\}\1/g;
+    $string =~ s/\$BBOLD(?=\W)/\$BBOLD \\\\{ internalBalancingIncrement("openBold"); \\\\}/g;
+    $string =~ s/\$EBOLD(?=\W)/\$EBOLD \\\\{ internalBalancingDecrement("openBold"); \\\\}/g;
 
-    $string =~ s/\$BITALIC(\W)/\$BITALIC \\\\{ internalBalancingIncrement("openItalic"); \\\\}\1/g;
-    $string =~ s/\$EITALIC(\W)/\$EITALIC \\\\{ internalBalancingDecrement("openItalic"); \\\\}\1/g;
+    $string =~ s/\$BITALIC(?=\W)/\$BITALIC \\\\{ internalBalancingIncrement("openItalic"); \\\\}/g;
+    $string =~ s/\$EITALIC(?=\W)/\$EITALIC \\\\{ internalBalancingDecrement("openItalic"); \\\\}/g;
 
-    $string =~ s/\$BUL(\W)/\$BUL \\\\{ internalBalancingIncrement("openUnderline"); \\\\}\1/g;
-    $string =~ s/\$EUL(\W)/\$EUL \\\\{ internalBalancingDecrement("openUnderline"); \\\\}\1/g;
+    $string =~ s/\$BUL(?=\W)/\$BUL \\\\{ internalBalancingIncrement("openUnderline"); \\\\}/g;
+    $string =~ s/\$EUL(?=\W)/\$EUL \\\\{ internalBalancingDecrement("openUnderline"); \\\\}/g;
 
-    $string =~ s/\$BCENTER(\W)/\$BCENTER \\\\{ internalBalancingIncrement("openCenter"); \\\\}\1/g;
-    $string =~ s/\$ECENTER(\W)/\$ECENTER \\\\{ internalBalancingDecrement("openCenter"); \\\\}\1/g;
+    $string =~ s/\$BCENTER(?=\W)/\$BCENTER \\\\{ internalBalancingIncrement("openCenter"); \\\\}/g;
+    $string =~ s/\$ECENTER(?=\W)/\$ECENTER \\\\{ internalBalancingDecrement("openCenter"); \\\\}/g;
 
-    $string =~ s/\$BM(\W)/\$BM \\\\{ internalBalancingTurnOn("inInlineMath"); \\\\}\1/g;
-    $string =~ s/\$EM(\W)/\$EM \\\\{ internalBalancingTurnOff("inInlineMath"); \\\\}\1/g;
+    $string =~ s/\$BM(?=\W)/\$BM \\\\{ internalBalancingTurnOn("inInlineMath"); \\\\}/g;
+    $string =~ s/\$EM(?=\W)/\$EM \\\\{ internalBalancingTurnOff("inInlineMath"); \\\\}/g;
 
-    $string =~ s/\$BDM(\W)/\$BDM \\\\{ internalBalancingTurnOn("inDisplayMath"); \\\\}\1/g;
-    $string =~ s/\$EDM(\W)/\$EDM \\\\{ internalBalancingTurnOff("inDisplayMath"); \\\\}\1/g;
+    $string =~ s/\$BDM(?=\W)/\$BDM \\\\{ internalBalancingTurnOn("inDisplayMath"); \\\\}/g;
+    $string =~ s/\$EDM(?=\W)/\$EDM \\\\{ internalBalancingTurnOff("inDisplayMath"); \\\\}/g;
 
-    $string =~ s/\$BEGIN_ONE_COLUMN(\W)/\$BEGIN_ONE_COLUMN \\\\{ internalBalancingTurnOn("inOneColumnMode"); \\\\}\1/g;
-    $string =~ s/\$END_ONE_COLUMN(\W)/\$END_ONE_COLUMN \\\\{ internalBalancingTurnOff("inOneColumnMode"); \\\\}\1/g;
+    $string =~ s/\$BEGIN_ONE_COLUMN(?=\W)/\$BEGIN_ONE_COLUMN \\\\{ internalBalancingTurnOn("inOneColumnMode"); \\\\}/g;
+    $string =~ s/\$END_ONE_COLUMN(?=\W)/\$END_ONE_COLUMN \\\\{ internalBalancingTurnOff("inOneColumnMode"); \\\\}/g;
 
-    $string =~ s/\$BLABEL(\W)/\$BLABEL \\\\{ internalBalancingTurnOn("inInputLabel"); \\\\}\1/g;
-    $string =~ s/\$ELABEL(\W)/\$ELABEL \\\\{ internalBalancingTurnOff("inInputLabel"); \\\\}\1/g;
+    $string =~ s/\$BLABEL(?=\W)/\$BLABEL \\\\{ internalBalancingTurnOn("inInputLabel"); \\\\}/g;
+    $string =~ s/\$ELABEL(?=\W)/\$ELABEL \\\\{ internalBalancingTurnOff("inInputLabel"); \\\\}/g;
 
     # The following two lines are related to new formatting variables added to development
     # versions of PG by https://github.com/openwebwork/pg/pull/323 which use an HTML span to
     # allow LTR text inside an RTL context.
-    $string =~ s/\$BLTR(\W)/\$BLTR \\\\{ internalBalancingIncrement("openSpan"); \\\\}\1/g;
-    $string =~ s/\$ELTR(\W)/\$ELTR \\\\{ internalBalancingDecrement("openSpan"); \\\\}\1/g;
+    $string =~ s/\$BLTR(?=\W)/\$BLTR \\\\{ internalBalancingIncrement("openSpan"); \\\\}/g;
+    $string =~ s/\$ELTR(?=\W)/\$ELTR \\\\{ internalBalancingDecrement("openSpan"); \\\\}/g;
   }
   # End preprocessing for internalBalancing sanity checks
 
