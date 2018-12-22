@@ -437,7 +437,7 @@ sub ENDDOCUMENT {
 	$PG->{flags}->{showHintLimit}                  = defined($showHint)?                   $showHint                  : 0 ;
 
         # Check the status/counters on tracked begin/end constructs which should balance;
-	{
+	if ( $warn_on_internalBalancing_errors ) {
 	    my $sawError = 0;
 	    my $type;
 	    foreach $type ( sort( keys %internalBalancing ) ) {

@@ -2147,7 +2147,9 @@ sub EV3P {
   # the internalBalancing sanity checks in a preprocess phase
   # Note: This is being done after default_preprocess_code() from lib/WeBWorK/PG/Translator.pm
   #       replaced "\\" by "\\\\" so we need 4 backslashes before the start/end braces below.
+  my $warn_on_internalBalancing_errors = PG_restricted_eval(q!$main::warn_on_internalBalancing_errors!);
 
+  if ( $warn_on_internalBalancing_errors ) {
     $string =~ s/\$BBOLD(\W)/\$BBOLD \\\\{ internalBalancingIncrement("openBold"); \\\\}\1/g;
     $string =~ s/\$EBOLD(\W)/\$EBOLD \\\\{ internalBalancingDecrement("openBold"); \\\\}\1/g;
 
@@ -2177,7 +2179,7 @@ sub EV3P {
     # allow LTR text inside an RTL context.
     $string =~ s/\$BLTR(\W)/\$BLTR \\\\{ internalBalancingIncrement("openSpan"); \\\\}\1/g;
     $string =~ s/\$ELTR(\W)/\$ELTR \\\\{ internalBalancingDecrement("openSpan"); \\\\}\1/g;
-
+  }
   # End preprocessing for internalBalancing sanity checks
 
   $string = ev_substring($string,"\\\\{","\\\\}",\&safe_ev) if $options{processCommands};
