@@ -21,6 +21,7 @@ sub _PG_init{
 our $PG;  
 
 %internalBalancing;
+my @internalBalancingStack;
 
 sub not_null {$PG->not_null(@_)};
 
@@ -72,9 +73,9 @@ sub DOCUMENT {
 		openBold openItalic openUnderline openCenter openSpan openDiv
 		);
 	foreach $item ( @internalBalancingItems ) {
-	    #$self->{internalBalancing}{$item} = 0;
 	    $internalBalancing{$item} = 0;
 	}
+	@internalBalancingStack = (); # Make sure it is initialized and empty here.
 
 	@KEPT_EXTRA_ANSWERS =();   #temporary hack
 	
@@ -172,6 +173,7 @@ sub internalBalancingTurnOn {
         WARN_MESSAGE(" received a request to turn ON the internalBalancing counter called $type when it was not currently set to 0.") if ($warn_on_internalBalancing_errors );
       } else {
         $internalBalancing{ $type } = 1;
+	push( @internalBalancingStack, $type );
 	DEBUG_MESSAGE(" received a request to turn ON the internalBalancing counter called $type value is now $internalBalancing{$type} ") if ($warn_on_internalBalancing_errors > 2);
       }
     } else {
@@ -192,6 +194,13 @@ sub internalBalancingTurnOff {
       } else {
         $internalBalancing{ $type } = 0;
 	DEBUG_MESSAGE(" received a request to turn OFF the internalBalancing counter called $type  value is now $internalBalancing{$type} ") if ($warn_on_internalBalancing_errors > 2);
+	my $topItem = pop( @internalBalancingStack );
+	if ( $topItem ne $type ) {
+	    # There was an order error, put the item back on the stack, so we don't lose it
+	    push( @internalBalancingStack, $topItem );
+	    push( @internalBalancingStack, "WantedToClose_$type" );
+	    WARN_MESSAGE(" received a request to turn OFF the internalBalancing counter called $type when this type was not currently at the top of the internalBalancingStack. There is an out-of-order error somewhere. ") if ($warn_on_internalBalancing_errors );
+	}
       }
     } else {
       WARN_MESSAGE(" received a request to turn OFF an INVALID internalBalancing counter called $type") if ($warn_on_internalBalancing_errors );
@@ -207,6 +216,7 @@ sub internalBalancingIncrement {
   if ( $type =~ /^open[A-Z]/ ) {
     if( defined( $internalBalancing{ $type } ) ) {
         $internalBalancing{ $type }++;
+	push( @internalBalancingStack, $type );
 	DEBUG_MESSAGE(" received a request to INCREMENT the internalBalancing counter called $type  value is now $internalBalancing{$type} ")if ($warn_on_internalBalancing_errors > 2) ;
     } else {
       WARN_MESSAGE(" received a request to INCREMENT an INVALID internalBalancing counter called $type") if ($warn_on_internalBalancing_errors );
@@ -224,6 +234,13 @@ sub internalBalancingDecrement {
       if ( $internalBalancing{ $type } > 0 ) {
 	$internalBalancing{ $type }--;
 	DEBUG_MESSAGE(" received a request to DECREMENT the internalBalancing counter called $type  value is now $internalBalancing{$type} ") if ($warn_on_internalBalancing_errors > 2);
+	my $topItem = pop( @internalBalancingStack );
+	if ( $topItem ne $type ) {
+	    # There was an order error, put the item back on the stack, so we don't lose it
+	    push( @internalBalancingStack, $topItem );
+	    push( @internalBalancingStack, "WantedToClose_$type" );
+	    WARN_MESSAGE(" received a request to DECREMENT the internalBalancing counter called $type when this type was not currently at the top of the internalBalancingStack. There is an out-of-order error somewhere. ") if ($warn_on_internalBalancing_errors );
+	}
       } else {
         WARN_MESSAGE(" received a request to DECREMENT the internalBalancing counter called $type when it did not have a POSITIVE value.") if ($warn_on_internalBalancing_errors );
       }
@@ -438,6 +455,11 @@ sub ENDDOCUMENT {
 
         # Check the status/counters on tracked begin/end constructs which should balance;
 	if ( $warn_on_internalBalancing_errors ) {
+
+	    if ( scalar( @internalBalancingStack ) > 0 ) {
+		my $ib_stack = join( ", ", @internalBalancingStack );
+		warn " The internalBalancing stack is currently $ib_stack ";
+	    }
 	    my $sawError = 0;
 	    my $type;
 	    foreach $type ( sort( keys %internalBalancing ) ) {
