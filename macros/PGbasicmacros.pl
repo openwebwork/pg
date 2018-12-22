@@ -2132,55 +2132,21 @@ sub EV4{
 
 sub EV3P {
   my $option_ref = {}; $option_ref = shift if ref($_[0]) eq 'HASH';
+  my $warn_on_internalBalancing_errors = PG_restricted_eval(q!$main::warn_on_internalBalancing_errors!);
   my %options = (
     processCommands => 1,
     processVariables => 1,
     processParser => 1,
     processMath => 1,
     fixDollars => 1,
+    run_parity_preprocessor => $warn_on_internalBalancing_errors,
     %{$option_ref},
   );
   my $string = join(" ",@_);
 
-  # Preprocessing code to track internal balance (parity) of certain begin/end formatting
-  # variables by putting in calls to the Perl functions which track the status/counts for
-  # the internalBalancing sanity checks in a preprocess phase
-  # Note: This is being done after default_preprocess_code() from lib/WeBWorK/PG/Translator.pm
-  #       replaced "\\" by "\\\\" so we need 4 backslashes before the start/end braces below.
-  my $warn_on_internalBalancing_errors = PG_restricted_eval(q!$main::warn_on_internalBalancing_errors!);
-
-  if ( $warn_on_internalBalancing_errors ) {
-    $string =~ s/\$BBOLD(?=\W)/\$BBOLD \\\\{ internalBalancingIncrement("openBold"); \\\\}/g;
-    $string =~ s/\$EBOLD(?=\W)/\$EBOLD \\\\{ internalBalancingDecrement("openBold"); \\\\}/g;
-
-    $string =~ s/\$BITALIC(?=\W)/\$BITALIC \\\\{ internalBalancingIncrement("openItalic"); \\\\}/g;
-    $string =~ s/\$EITALIC(?=\W)/\$EITALIC \\\\{ internalBalancingDecrement("openItalic"); \\\\}/g;
-
-    $string =~ s/\$BUL(?=\W)/\$BUL \\\\{ internalBalancingIncrement("openUnderline"); \\\\}/g;
-    $string =~ s/\$EUL(?=\W)/\$EUL \\\\{ internalBalancingDecrement("openUnderline"); \\\\}/g;
-
-    $string =~ s/\$BCENTER(?=\W)/\$BCENTER \\\\{ internalBalancingIncrement("openCenter"); \\\\}/g;
-    $string =~ s/\$ECENTER(?=\W)/\$ECENTER \\\\{ internalBalancingDecrement("openCenter"); \\\\}/g;
-
-    $string =~ s/\$BM(?=\W)/\$BM \\\\{ internalBalancingTurnOn("inInlineMath"); \\\\}/g;
-    $string =~ s/\$EM(?=\W)/\$EM \\\\{ internalBalancingTurnOff("inInlineMath"); \\\\}/g;
-
-    $string =~ s/\$BDM(?=\W)/\$BDM \\\\{ internalBalancingTurnOn("inDisplayMath"); \\\\}/g;
-    $string =~ s/\$EDM(?=\W)/\$EDM \\\\{ internalBalancingTurnOff("inDisplayMath"); \\\\}/g;
-
-    $string =~ s/\$BEGIN_ONE_COLUMN(?=\W)/\$BEGIN_ONE_COLUMN \\\\{ internalBalancingTurnOn("inOneColumnMode"); \\\\}/g;
-    $string =~ s/\$END_ONE_COLUMN(?=\W)/\$END_ONE_COLUMN \\\\{ internalBalancingTurnOff("inOneColumnMode"); \\\\}/g;
-
-    $string =~ s/\$BLABEL(?=\W)/\$BLABEL \\\\{ internalBalancingTurnOn("inInputLabel"); \\\\}/g;
-    $string =~ s/\$ELABEL(?=\W)/\$ELABEL \\\\{ internalBalancingTurnOff("inInputLabel"); \\\\}/g;
-
-    # The following two lines are related to new formatting variables added to development
-    # versions of PG by https://github.com/openwebwork/pg/pull/323 which use an HTML span to
-    # allow LTR text inside an RTL context.
-    $string =~ s/\$BLTR(?=\W)/\$BLTR \\\\{ internalBalancingIncrement("openSpan"); \\\\}/g;
-    $string =~ s/\$ELTR(?=\W)/\$ELTR \\\\{ internalBalancingDecrement("openSpan"); \\\\}/g;
+  if ( $options{run_parity_preprocessor} ) {
+    $string = EV3P_parity_preprocessor( $string );
   }
-  # End preprocessing for internalBalancing sanity checks
 
   $string = ev_substring($string,"\\\\{","\\\\}",\&safe_ev) if $options{processCommands};
   if ($options{processVariables}) {
@@ -2241,6 +2207,50 @@ sub EV3P_parser {
   return join('',@parts);
 }
 
+
+sub EV3P_parity_preprocessor {
+
+  my $string = shift;
+
+  # Preprocessing code to track internal balance (parity) of certain begin/end formatting
+  # variables by putting in calls to the Perl functions which track the status/counts for
+  # the internalBalancing sanity checks in a preprocess phase
+  # Note: This is being done after default_preprocess_code() from lib/WeBWorK/PG/Translator.pm
+  #       replaced "\\" by "\\\\" so we need 4 backslashes before the start/end braces below.
+  $string =~ s/\$BBOLD(?=\W)/\$BBOLD \\\\{ internalBalancingIncrement("openBold"); \\\\}/g;
+  $string =~ s/\$EBOLD(?=\W)/\$EBOLD \\\\{ internalBalancingDecrement("openBold"); \\\\}/g;
+
+  $string =~ s/\$BITALIC(?=\W)/\$BITALIC \\\\{ internalBalancingIncrement("openItalic"); \\\\}/g;
+  $string =~ s/\$EITALIC(?=\W)/\$EITALIC \\\\{ internalBalancingDecrement("openItalic"); \\\\}/g;
+
+  $string =~ s/\$BUL(?=\W)/\$BUL \\\\{ internalBalancingIncrement("openUnderline"); \\\\}/g;
+  $string =~ s/\$EUL(?=\W)/\$EUL \\\\{ internalBalancingDecrement("openUnderline"); \\\\}/g;
+
+  $string =~ s/\$BCENTER(?=\W)/\$BCENTER \\\\{ internalBalancingIncrement("openCenter"); \\\\}/g;
+  $string =~ s/\$ECENTER(?=\W)/\$ECENTER \\\\{ internalBalancingDecrement("openCenter"); \\\\}/g;
+
+  $string =~ s/\$BM(?=\W)/\$BM \\\\{ internalBalancingTurnOn("inInlineMath"); \\\\}/g;
+  $string =~ s/\$EM(?=\W)/\$EM \\\\{ internalBalancingTurnOff("inInlineMath"); \\\\}/g;
+
+  $string =~ s/\$BDM(?=\W)/\$BDM \\\\{ internalBalancingTurnOn("inDisplayMath"); \\\\}/g;
+  $string =~ s/\$EDM(?=\W)/\$EDM \\\\{ internalBalancingTurnOff("inDisplayMath"); \\\\}/g;
+
+  $string =~ s/\$BEGIN_ONE_COLUMN(?=\W)/\$BEGIN_ONE_COLUMN \\\\{ internalBalancingTurnOn("inOneColumnMode"); \\\\}/g;
+  $string =~ s/\$END_ONE_COLUMN(?=\W)/\$END_ONE_COLUMN \\\\{ internalBalancingTurnOff("inOneColumnMode"); \\\\}/g;
+
+  $string =~ s/\$BLABEL(?=\W)/\$BLABEL \\\\{ internalBalancingTurnOn("inInputLabel"); \\\\}/g;
+  $string =~ s/\$ELABEL(?=\W)/\$ELABEL \\\\{ internalBalancingTurnOff("inInputLabel"); \\\\}/g;
+
+  # The following two lines are related to new formatting variables added to development
+  # versions of PG by https://github.com/openwebwork/pg/pull/323 which use an HTML span to
+  # allow LTR text inside an RTL context.
+  $string =~ s/\$BLTR(?=\W)/\$BLTR \\\\{ internalBalancingIncrement("openSpan"); \\\\}/g;
+  $string =~ s/\$ELTR(?=\W)/\$ELTR \\\\{ internalBalancingDecrement("openSpan"); \\\\}/g;
+
+  # End preprocessing for internalBalancing sanity checks
+
+  return( $string ); # Send the adjusted string back to EV3P for the rest of the processing
+}
 
 sub PTX_cleanup {
   my $string = shift;
