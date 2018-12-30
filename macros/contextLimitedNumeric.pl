@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader$
 # 
 # This program is free software; you can redistribute it and/or modify it under
@@ -28,9 +28,9 @@ and one for a single number.  Select them using
 one of the following commands:
 
 	Context("LimitedNumeric-List");
-	Context("LimiteNumeric");
+	Context("LimitedNumeric");
 
-(Now uses Parcer::Legacy::LimitedNumeric to implement
+(Now uses Parser::Legacy::LimitedNumeric to implement
 these contexts.)
 
 =cut

@@ -38,7 +38,7 @@ than by multiplication of elementary matrices).
 Note that the indexing on MathObject matrices starts at 1, while the indexing 
 on perl arrays starts at 0, so that C<$A-<gt>element(1,1);> corresponds to
 C<$a[0][0];>.  The perl arrays can be made into MathObject matrices by
-C<$A = Matrix(@a);>, and this is, in fact, what the C<GLnZ()> and C<SLnZ()>
+C<$A = Matrix(\@a);>, and this is, in fact, what the C<GLnZ()> and C<SLnZ()>
 subroutines do for you.  The perl versions C<@a = GLnZ_perl()> and 
 C<@a = SLnZ_perl()> are useful if you want to have quick access to the matrix 
 values (as perl reals stored in C<@a>) without having to pull them out of a 
@@ -65,7 +65,7 @@ loadMacros("MathObjects.pl",);
 
 sub GL2Z {
   my @a = GL2Z_perl();
-  return Matrix(@a);
+  return Matrix(\@a);
 }
 
 sub GL2Z_perl {
@@ -88,7 +88,7 @@ sub GL2Z_perl {
 
 sub SL2Z {
   my @a = SL2Z_perl();
-  return Matrix(@a);
+  return Matrix(\@a);
 }
 
 sub SL2Z_perl {
@@ -116,7 +116,7 @@ sub SL2Z_perl {
 
 sub GL3Z {
   my @a = GL3Z_perl();
-  return Matrix(@a);
+  return Matrix(\@a);
 }
 
 sub GL3Z_perl {
@@ -151,7 +151,7 @@ sub GL3Z_perl {
 
 sub SL3Z {
   my @a = SL3Z_perl();
-  return Matrix(@a);
+  return Matrix(\@a);
 }
 
 sub SL3Z_perl {
@@ -190,7 +190,7 @@ sub SL3Z_perl {
 
 sub GL4Z {
   my @a = GL4Z_perl();
-  return Matrix(@a);
+  return Matrix(\@a);
 }
 
 
@@ -243,7 +243,7 @@ sub GL4Z_perl {
 
 sub SL4Z {
   my @a = SL4Z_perl();
-  return Matrix(@a);
+  return Matrix(\@a);
 }
 
 sub SL4Z_perl {

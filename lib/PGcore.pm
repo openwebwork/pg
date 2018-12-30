@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: pg/lib/PGcore.pm,v 1.6 2010/05/25 22:47:52 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
@@ -527,7 +527,6 @@ sub store_persistent_data {  # will store strings only (so far)
 	my $self = shift;
 	my $label = shift;
 	my @content = @_;
-	$self->internal_debug_message("PGcore::store_persistent_data: storing $label in PERSISTENCE_HASH");
 	if (defined($self->{PERSISTENCE_HASH}->{$label}) ) {
 		warn "can' overwrite $label in persistent data";
 	} else {

@@ -44,8 +44,8 @@ my $pre = ':   ';
 my $emphasis = '\*+|_+';
 my $chars = '\\\\.|[{}[\]\'"]';
 my $ansrule = '\[(?:_+|[ox^])\]\*?';
-my $open = '\[(?:[!<%@$]|::?|``?|\|+ ?)';
-my $close = '(?:[!>%@$]|::?|``?| ?\|+)\]';
+my $open = '\[(?:[!<%@$]|::?:?|``?`?|\|+ ?)';
+my $close = '(?:[!>%@$]|::?:?|``?`?| ?\|+)\]';
 my $noop = '\[\]';
 
 my $splitPattern =
@@ -276,7 +276,7 @@ sub ForceBreak {
 
 sub Par {
   my $self = shift; my $token = shift;
-  $self->End;
+  $self->End(null, shift);
   $self->Item("par",$token,{noIndent => 1});
   $self->{atLineStart} = $self->{ignoreNL} = 1;
   $self->{indent} = $self->{actualIndent} = 0;
@@ -357,7 +357,7 @@ sub Rule {
 sub Bullet {
   my $self = shift; my $token = shift; my $bullet = shift;
   return $self->Text($token) unless $self->{atLineStart};
-  $bullet = {'*'=>'bullet', '+'=>'square', 'o'=>'circle', '-'=>'bullet'}->{substr($token,0,1)} if $bullet eq 'bullet';
+  $bullet = {'*'=>'disc', '+'=>'square', 'o'=>'circle', '-'=>'bullet'}->{substr($token,0,1)} if $bullet eq 'bullet';
   my $block = $self->{block};
   if ($block->{type} ne 'root' && !$block->{align}) {
     while ($block->{type} ne 'root' && !$block->{prev}{align}) {$block = $block->{prev}}
@@ -454,11 +454,16 @@ my $balanceAll = qr/[\{\[\'\"]/;
 	       parsed=>1, allowStar=>1, allowDblStar=>1, allowTriStar=>1, options=>["context","reduced"]},
   "[::"  => {type=>'math', parseComments=>1, parseSubstitutions=>1,
                terminator=>qr/::\]/, terminateMethod=>'terminateGetString',
+	       parsed=>1, allowStar=>1, allowDblStar=>1, allowTriStar=>1, displaystyle=>1, options=>["context","reduced"]},
+  "[:::"  => {type=>'math', parseComments=>1, parseSubstitutions=>1,
+               terminator=>qr/:::\]/, terminateMethod=>'terminateGetString',
 	       parsed=>1, allowStar=>1, allowDblStar=>1, allowTriStar=>1, display=>1, options=>["context","reduced"]},
   "[`"   => {type=>'math', parseComments=>1, parseSubstitutions=>1,
                terminator=>qr/\`\]/, terminateMethod=>'terminateGetString',},
   "[``"  => {type=>'math', parseComments=>1, parseSubstitutions=>1,
-               terminator=>qr/\`\`\]/, terminateMethod=>'terminateGetString', display=>1},
+               terminator=>qr/\`\`\]/, terminateMethod=>'terminateGetString', displaystyle=>1},
+  "[```"  => {type=>'math', parseComments=>1, parseSubstitutions=>1,
+               terminator=>qr/\`\`\`\]/, terminateMethod=>'terminateGetString', display=>1},
   "[!"   => {type=>'image', parseComments=>1, parseSubstitutions=>1,
                terminator=>qr/!\]/, terminateMethod=>'terminateGetString',
                cancelNL=>1, options=>["title"]},
@@ -532,7 +537,7 @@ sub terminatePre {
   my $self = shift; my $token = shift;
   $self->{block}{terminator} = ''; # we add the ending token to the text below
   if ($token =~ m/\n\n/) {
-    $self->Par($token);
+    $self->Par($token, $self->{block});
     $self->{block} = $self->{block}{prev};
   } else {
     $self->Text($token);
@@ -966,8 +971,9 @@ sub Math {
     $obj = $obj->reduce if $item->{reduced};
     $math = $obj->TeX;
   }
-  $math = "\\displaystyle{$math}" if $item->{display};
-  return $math;
+  $math = "\\displaystyle{$math}" if $item->{displaystyle};
+  my $mathmode = ($item->{display}) ? 'display' : 'inline' ;
+  return ($math,$mathmode);
 }
 
 sub Answer {
@@ -1094,6 +1100,7 @@ my %bullet = (
   Alpha   => 'ol type="A"',
   roman   => 'ol type="i"',
   Roman   => 'ol type="I"',
+  disc    => 'ul type="disc"',
   circle  => 'ul type="circle"',
   square  => 'ul type="square"',
 );
@@ -1187,7 +1194,7 @@ sub Verbatim {
 
 sub Math {
   my $self = shift;
-  return main::math_ev3($self->SUPER::Math(@_));
+  return main::general_math_ev3($self->SUPER::Math(@_));
 }
 
 ######################################################################
@@ -1327,10 +1334,138 @@ sub Verbatim {
   return $text;
 }
 
+
 sub Math {
   my $self = shift;
-  return main::math_ev3($self->SUPER::Math(@_));
+  return main::general_math_ev3($self->SUPER::Math(@_));
 }
+
+######################################################################
+######################################################################
+
+package PGML::Format::ptx;
+our @ISA = ('PGML::Format');
+
+sub Escape {
+  my $self = shift;
+  my $string = shift; return "" unless defined $string;
+  $string = main::PTX_special_character_cleanup($string);
+  return $string;
+}
+
+# No indentation for PTX
+sub Indent {
+  my $self = shift; my $item = shift;
+  return $self->string($item);
+}
+
+# No align for PTX
+sub Align {
+  my $self = shift; my $item = shift;
+  return $self->string($item);
+}
+
+my %bullet = (
+  bullet  => 'ul',
+  numeric => 'ol label="1."',
+  alpha   => 'ol label="a."',
+  Alpha   => 'ol label="A."',
+  roman   => 'ol label="i."',
+  Roman   => 'ol label="I."',
+  disc    => 'ul label="disc"',
+  circle  => 'ul label="circle"',
+  square  => 'ul label="square"',
+);
+sub List {
+  my $self = shift; my $item = shift;
+  my $list = $bullet{$item->{bullet}};
+  return
+    $self->nl .
+    '<'.$list.'>'."\n" .
+    $self->string($item) .
+    $self->nl .
+    "</".substr($list,0,2).">\n";
+}
+
+sub Bullet {
+  my $self = shift; my $item = shift;
+  return $self->nl.'<li>'.$self->string($item).'</li>';
+}
+
+sub Code {
+  my $self = shift; my $item = shift;
+  my $class = ($item->{class} ? ' class="'.$item->{class}.'"' : "");
+  return $self->nl .
+    "<cd>\n<cline>" .
+    join("<\/cline>\n<cline>", split(/\n/,$self->string($item))) .
+    "<\/cline>\n<\/cd>\n";
+}
+
+sub Pre {
+  my $self = shift; my $item = shift;
+  return
+    $self->nl .
+    '<pre>' .
+    $self->string($item) .
+    "</pre>\n";
+}
+
+# PreTeXt can't use headings.
+sub Heading {
+  my $self = shift; my $item = shift;
+  my $n = $item->{n};
+  my $text = $self->string($item);
+  $text =~ s/^ +| +$//gm; $text =~ s! +(<br />)!$1!g;
+  return $text."\n";
+}
+
+sub Par {
+  my $self = shift; my $item = shift;
+  return $self->nl."\n";
+}
+
+sub Break {"\n\n"}
+
+sub Bold {
+  my $self = shift; my $item = shift;
+  return '<em>'.$self->string($item).'</em>';
+}
+
+sub Italic {
+  my $self = shift; my $item = shift;
+  return '<em>'.$self->string($item).'</em>';
+}
+
+our %openQuote = ('"' => "<lq />", "'" => "<lsq />");
+our %closeQuote = ('"' => "<rq />", "'" => "<rsq />");
+sub Quote {
+  my $self = shift; my $item = shift; my $string = shift;
+  return $openQuote{$item->{token}} if $string eq "" || $string =~ m/(^|[ ({\[\s])$/;
+  return $closeQuote{$item->{token}};
+}
+
+# No rule for PTX
+sub Rule {
+  my $self = shift; my $item = shift;
+  return $self->nl;
+}
+
+sub Verbatim {
+  my $self = shift; my $item = shift;
+  #Don't escape most content. Just < and &
+  #my $text = $self->Escape($item->{text});
+  my $text = $item->{text};
+  $text =~ s/</&lt;/g;
+  $text =~ s/&/&amp;/g;
+  $text = "<c>$text</c>";
+  return $text;
+}
+
+sub Math {
+  my $self = shift;
+  return main::general_math_ev3($self->SUPER::Math(@_));
+}
+
 
 ######################################################################
 ######################################################################
@@ -1343,6 +1478,9 @@ sub Format {
   my $format;
   if ($main::displayMode eq 'TeX') {
     $format = "{\\pgmlSetup\n".PGML::Format::tex->new($parser)->format."\\par}%\n";
+  } elsif ($main::displayMode eq 'PTX') {
+    $format = PGML::Format::ptx->new($parser)->format."\n";
+    $format = main::PTX_cleanup($format);
   } else {
     $format = '<div class="PGML">'."\n".PGML::Format::html->new($parser)->format.'</div>'."\n";
   }
@@ -1401,6 +1539,7 @@ our $preamble = <<'END_PREAMBLE';
 
 \def\pgmlIndent{\par\advance\leftskip by 2em \advance\pgmlPercent by .02em \pgmlCount=0}%
 \def\pgmlbulletItem{\par\indent\llap{$\bullet$ }\ignorespaces}%
+\def\pgmldiscItem{\par\indent\llap{$\bullet$ }\ignorespaces}%
 \def\pgmlcircleItem{\par\indent\llap{$\circ$ }\ignorespaces}%
 \def\pgmlsquareItem{\par\indent\llap{\vrule height 1ex width .75ex depth -.25ex\ }\ignorespaces}%
 \def\pgmlnumericItem{\par\indent\advance\pgmlCount by 1 \llap{\the\pgmlCount. }\ignorespaces}%

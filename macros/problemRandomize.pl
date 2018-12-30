@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: pg/macros/problemRandomize.pl,v 1.12 2009/06/25 23:28:44 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
@@ -182,9 +182,9 @@ sub new {
     style => "Button",
     styleName => ($main::inputs_ref->{effectiveUser} ne $main::inputs_ref->{user} ? "checkAnswers" : "submitAnswers"),
     label => undef,
-    buttonLabel => "Get a new version of this problem",
-    checkboxLabel => "Get a new version of this problem",
-    inputLabel => "Set random seed to:",
+    buttonLabel => $main::PG->maketext("Get a new version of this problem"),
+    checkboxLabel => $main::PG->maketext("Get a new version of this problem"),
+    inputLabel => $main::PG->maketext("Set random seed to:"),
     grader => $main::PG->{flags}->{PROBLEM_GRADER_TO_USE}  || \&main::avg_problem_grader,  #$main::PG_FLAGS{PROBLEM_GRADER_TO_USE}
     random => $main::PG_random_generator,
     status => {},
@@ -379,8 +379,8 @@ sub grader {
   #  Add the problemRandomize message and data
   #
   if ($isWhen && !$okDate) {
-    $result->{msg} .= "</i><br /><b>Note:</b> <i>" if $result->{msg};
-    $result->{msg} .= "You can get a new version of this problem after the due date.";
+    $result->{msg} .= "</i><br /><b>".$main::PG->maketext("Note:")."</b> <i>" if $result->{msg};
+    $result->{msg} .= $main::PG->maketext("You can get a new version of this problem after the due date.");
   }
   if (!$result->{msg}) {
     # hack to remove unwanted "<b>Note: </b>" from the problem
@@ -404,9 +404,9 @@ sub grader {
   if ($self->{isReset} && $isSubmit) {
     $result->{msg} .= "<style>.problemHeader {display:none}</style>";
     $state->{state_summary_msg} =
-       "<b>Note:</b> This is a new (re-randomized) version of the problem.".$main::BR.
-       "If you come back to it later, it may revert to its original version.".$main::BR.
-       "Hardcopy will always print the original version of the problem.";
+       "<b>".$main::PG->maketext("Note:")."</b>"." ".$main::PG->maketext("This is a new (re-randomized) version of the problem.").$main::BR.
+       $main::PG->maketext("If you come back to it later, it may revert to its original version.").$main::BR.
+       $main::PG->maketext("Hardcopy will always print the original version of the problem.");
   }
 
   #

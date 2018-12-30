@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: pg/macros/contextInequalities.pl,v 1.23 2010/03/22 11:01:55 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
@@ -696,6 +696,7 @@ sub display {
 	  push(@points,$X.$ne.$x->{data}[0]->$method($equation));
 	  $interval = $interval->with(isCopy=>1, data=>[$interval->value]) unless $interval->{isCopy};
 	  $interval->{data}[1] = $x->{data}[1];
+          $interval->{close} = $x->{close};
 	  $interval->{rightInfinite} = 1 if $x->{rightInfinite};
 	  next;
 	}
