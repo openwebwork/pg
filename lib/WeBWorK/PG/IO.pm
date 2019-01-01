@@ -5,6 +5,7 @@
 
 package WeBWorK::PG::IO;
 use parent qw(Exporter);
+use Encode qw( encode decode);
 use JSON qw(decode_json);
 use PGUtil qw(not_null);
 use WeBWorK::Utils qw(path_is_subdir);
@@ -139,7 +140,7 @@ sub read_whole_file {
 	    unless path_is_course_subdir($filePath);
 	
 	local (*INPUT);
-	open(INPUT, "<:encoding(utf8)", $filePath) || die "$0: read_whole_file subroutine: <BR>Can't read file $filePath";
+	open(INPUT, "<:utf8", $filePath) || die "$0: read_whole_file subroutine: <BR>Can't read file $filePath";
 	local($/)=undef;
 	my $string = <INPUT>;  # can't append spaces because this causes trouble with <<'EOF'   \nEOF construction
 	close(INPUT);
