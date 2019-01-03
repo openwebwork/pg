@@ -32,7 +32,7 @@ package PGML::Parse;
 
 my $wordStart = qr/[^a-z0-9]/;
 
-my $indent = '^\t+';
+my $indent = '^(?:\t|    )+';
 my $lineend = '\n+';
 my $linebreak = '   ?(?=\n)';
 my $heading = '#+';
@@ -67,8 +67,6 @@ sub new {
 
 sub Split {
   my $self = shift; my $string = shift;
-  $string =~ s/\t/    /g;                             # turn tabs into spaces
-  $string =~ s!^((?:    )+)!"\t"x(length($1)/4)!gme;  # make initial indent into tabs
   $string =~ s!^(?:\t* +|\t+ *)$!!gm;                 # make blank lines blank
   return split($splitPattern,$string);
 }
@@ -153,7 +151,7 @@ sub All {
   my $self = shift; my $token = shift;
   return $self->Begin($token) if substr($token,0,1) eq "[" && $BlockDefs{$token};
   for ($token) {
-    /\t/           && do {return $self->Indent($token)};
+    /^(?:\t|    )/ && do {return $self->Indent($token)};
     /\d+\. /       && do {return $self->Bullet($token,"numeric")};
     /[ivxl]+[.)] / && do {return $self->Bullet($token,"roman")};
     /[a-z][.)] /   && do {return $self->Bullet($token,"alpha")};
@@ -285,7 +283,9 @@ sub Par {
 sub Indent {
   my $self = shift; my $token = shift;
   if ($self->{atLineStart}) {
-    my $indent = $self->{actualIndent} = length($token);
+    my $tabs = $token;
+    $tabs =~ s/    /\t/g;  # turn spaces into tabs
+    my $indent = $self->{actualIndent} = length($tabs);
     if ($indent != $self->{indent}) {
       $self->End("indentation change");
       $self->{indent} = $indent;
@@ -855,7 +855,6 @@ sub pushText {
   my $self = shift;
   foreach my $text (@_) {
     if ($text ne "") {
-      $text =~ s/\t/    /g;
       push(@{$self->{stack}},$text);
     }
   }
