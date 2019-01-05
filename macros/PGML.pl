@@ -1012,8 +1012,7 @@ sub Answer {
         unshift(@options,$item->{name});
         $method = "named_".$method;
       }
-      $rule = $ans->$method(@options);
-      $rule = PGML::LaTeX($rule) if $item->{hasStar};
+      $rule = PGML::LaTeX($ans->$method(@options));
       if (!(ref($ans) eq 'MultiAnswer' && $ans->{part} > 1)) {
         if (defined($item->{name})) {
           main::NAMED_ANS($item->{name} => $ans->cmp);
