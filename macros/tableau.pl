@@ -29,6 +29,7 @@ Many of these duplicate methods of Value::Matrix  -- refactor.
 sub _tableau_init {};   # don't reload this file
 package main;
 
+
 sub matrix_column_slice{
 	matrix_from_matrix_cols(@_);
 }
@@ -231,6 +232,7 @@ sub linebreak_at_commas {
 ### End gage_matrix_ops include 
 ##################################################
 package Tableau;
+my  $pkg = "Tableau";
 our @ISA = qw(Value::Matrix Value);
 
 sub _Matrix {    # can we just import this?
