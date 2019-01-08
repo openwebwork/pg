@@ -33,7 +33,7 @@ BEGIN {
 		directoryFromPath
 		createFile
 		createDirectory
-                path_is_course_subdir
+        path_is_course_subdir
 	);
 
 	our @SHARED_FUNCTIONS = qw(
@@ -261,7 +261,7 @@ sub path_is_course_subdir {
 sub query_sage_server {
 	my ($python, $url, $accepted_tos, $setSeed, $webworkfunc, $debug, $curlCommand)=@_;
 #	my $sagecall = 	qq{$curlCommand -i -k -sS -L --http1.1 --data-urlencode "accepted_tos=${accepted_tos}"}.
-	                qq{ --data-urlencode 'user_expressions={"WEBWORK":"_webwork_safe_json(WEBWORK)"}' --data-urlencode "code=${setSeed}${webworkfunc}$python" $url};
+#	                qq{ --data-urlencode 'user_expressions={"WEBWORK":"_webwork_safe_json(WEBWORK)"}' --data-urlencode "code=${setSeed}${webworkfunc}$python" $url};
 	my $sagecall = 	qq{$curlCommand -i -k -sS -L  --data-urlencode "accepted_tos=${accepted_tos}"}.
 	                qq{ --data-urlencode 'user_expressions={"WEBWORK":"_webwork_safe_json(WEBWORK)"}' --data-urlencode "code=${setSeed}${webworkfunc}$python" $url};
 
