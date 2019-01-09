@@ -12,17 +12,19 @@
 	
 =head2 TODO
 	
-	change find_next_basis_from_pivot  to next_basis_from_pivot
-	add phase2  to some match phase1 for some of the pivots
-	add a generic _solve  that solves tableau once it has a filled basis
+	DONE: change find_next_basis_from_pivot  to next_basis_from_pivot
+	DONE: add phase2  to some match phase1 for some of the pivots -- added as main:: subroutine
+	DONE: add a generic _solve  that solves tableau once it has a filled basis  -- needs to be tested
 	add something that will fill the basis.
 	
 	regularize the use of m and n -- should they be the number of 
 	constraints and the number of decision(problem) variables or should
 	they be the size of the complete tableau. 
+	we probably need both -- need names for everything
 	
 	current tableau returns the complete tableau minus the objective function
-	row. (do we need a second objective function row?)
+	row. 
+	(do we need a second objective function row? -- think we can skip this for now.)
 	
 =cut	
 
@@ -57,10 +59,17 @@ The structure of the tableau is:
 	----------------------------------------------
 	|        -c          |     0       | 1  | 0  |
 	----------------------------------------------
-	Matrix A, the constraint matrix is n=num_problem_vars by m=num_slack_vars
-	Matrix S, the slack variables is m by m
-	Matrix b, the constraint constants is n by 1 (Matrix or ColumnVector)
+	Matrix A, the initial constraint matrix is n=num_problem_vars by m=num_slack_vars
+	Matrix S, the initial slack variables is m by m
+	Matrix b, the initial constraint constants is n by 1 (Matrix or ColumnVector)
 	Matrix c, the objective function coefficients matrix is 1 by n
+	
+	Matrix which changes with state:
+	Matrix upper_tableau: m by n+2 (A|S|0|b)
+	Matrix tableau   m+1 by n+2  (A/(-c)) | S/0 | 0/1 |b/z 
+	Matrix current_obj_coeff = 1 by n+m matrix (negative of current coeff for obj_function)
+	Matrix current_last_row  = 1 by n+m+2 matrix  tableau is upper_tableau over current_last_row
+	
 	The next to the last column holds z or objective value
 	z(...x^i...) = c_i* x^i  (Einstein summation convention)
 	FIXME: ?? allow c to be a 2 by n matrix so that you can do phase1 calculations easily 
@@ -78,16 +87,19 @@ The structure of the tableau is:
 	
  # Note: it is important to include the () at the end of tableauEquivalence
  
- # tableauEquivalence is meant to compare two matrices up to
+ # tableauEquivalence compares two matrices up to
  # reshuffling the rows and multiplying each row by a constant.
- # E.g. equivalent up to multiplying on the left by a permuation matrix 
- # or a (non-uniformly constant) diagonal matrix
+ # It is equivalent up to multiplying on the left by a permuation matrix 
+ # or a (non-uniformly constant) diagonal matrix.
+ # It is appropriate for comparing augmented matrices representing a system of equations
+ # since the order of the equations is unimportant.  This applies to tableaus for 
+ # Linear Optimization Problems being solved using the simplex method.
  
 =cut
 
 
 =item  get_tableau_variable_values
- 
+ 	(DEPRECATED -- use Tableau->statevars method )
 	Parameters: ($MathObjectMatrix_tableau, $MathObjectSet_basis)
 	Returns: ARRAY or ARRAY_ref 
 	
@@ -98,19 +110,20 @@ array context and a reference to
 an array in scalar context. 
 
 =item  lp_basis_pivot
-	
+	(DEPRECATED -- preserved for legacy problems. Use Tableau->basis method)
 	Parameters: ($old_tableau,$old_basis,$pivot)
 	Returns: ($new_tableau, Set($new_basis),\@statevars)
-	
+
+
 =item linebreak_at_commas
 
 	Parameters: ()
 	Return:
 	
 	Useage: 
-	$foochecker =  $constraints->cmp()->withPostFilter(
+	ANS($constraints->cmp()->withPostFilter(
 		linebreak_at_commas()
-    );
+    ));
 
 Replaces commas with line breaks in the latex presentations of the answer checker.
 Used most often when $constraints is a LinearInequality math object.
@@ -138,23 +151,23 @@ More references: L<lib/Matrix.pm>
   Tableau->new(A=>Matrix, b=>Vector or Matrix, c=>Vector or Matrix)
 
 	A => undef, # original constraint matrix  MathObjectMatrix
-	b => undef, # constraint constants ColumnVector or MathObjectMatrix 1 by n
+	b => undef, # constraint constants ColumnVector or MathObjectMatrix n by 1
 	c => undef, # coefficients for objective function Vector or MathObjectMatrix 1 by n
 	obj_row => undef, # contains the negative of the coefficients of the objective function.
-	z => undef, # value for objective function
-	n => undef, # dimension of problem variables (columns in A)
+	z => undef, # value for objective function Real
+	n => undef, # dimension of problem variables (columns in A) 
 	m => undef, # dimension of slack variables (rows in A)
-	S => undef, # square m by m matrix for slack variables
+	S => undef, # square m by m MathObjectMatrix for slack variables. default is the identity
 	M => undef,  # matrix (m by m+n+1+1) consisting of all original columns and all 
 		rows except for the objective function row. The m+n+1 column and 
 		is the objective_value column. It is all zero with a pivot in the objective row. 
-		
-	obj_col_num => undef,  # have obj_col on the left or on the right?
-	basis => List, # list describing the current basis columns corresponding 
-		to determined variables.
-	current_basis_matrix => undef,  # square invertible matrix 
-		corresponding to the current basis columns
- 
+		The current version of this accessed by Tableau->upper_tableau (A | S |0 | b)
+	#FIXME	
+	obj_col_num => undef,  # have obj_col on the left or on the right? FIXME? obj_column_position
+	                       # perhaps not store this column at all and add it when items are printed?
+	
+	basis => List | Set, # unordered list describing the current basis columns corresponding 
+		to determined variables.  With a basis argument this sets a new state defined by that basis.  
 	current_constraint_matrix=>(m by n matrix),  # the current version of [A | S]
 	current_b=> (1 by m matrix or Column vector) # the current version of the constraint constants b
  	current_basis_matrix  => (m by m invertible matrix) a square invertible matrix 
@@ -796,7 +809,7 @@ sub basis {
 	$self->{data} = $current_constraint_matrix->data;
 	$self->{current_constraint_matrix} = $current_constraint_matrix; 
 	$self->{current_objective_coeffs}= $current_objective_coeffs; 
-	$self->{current_b} = $current_constraint_matrix->column($col_dim);
+	$self->current_b( $current_constraint_matrix->column($col_dim)  );
 	
 	# the A | S | obj | b
 	# main::DEBUG_MESSAGE( "basis: current_constraint_matrix $current_constraint_matrix ".

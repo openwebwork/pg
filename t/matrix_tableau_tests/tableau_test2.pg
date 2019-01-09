@@ -1,3 +1,6 @@
+#  not ready for prime time.
+
+
 # $b = Matrix([1, 2, 3, 4]);
 # TEXT($BR, "vector", $b->data->[1]);
 # $c = Matrix([5, 6, 7]);
