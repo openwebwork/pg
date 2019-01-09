@@ -33,6 +33,7 @@ Context()->operators->set(
 '//' => {class => 'bizarro::BOP::divide', isCommand => 1},
 '**' => {class => 'bizarro::BOP::power', isCommand => 1, perl=>undef},
 '^' => {class => 'bizarro::BOP::power', isCommand => 1, perl=>undef},
+'u-' => {class => 'bizarro::UOP::minus', isCommand => 1},
 );
 
 At this point the arithmetic operators will still be behaving as normal.
@@ -43,6 +44,7 @@ Context()->flags->set(bizarroSub=>1);
 Context()->flags->set(bizarroMul=>1);
 Context()->flags->set(bizarroDiv=>1);
 Context()->flags->set(bizarroPow=>1);
+Context()->flags->set(bizarroNeg=>1);
 
 
 Sample usage 
@@ -207,6 +209,25 @@ sub _eval {
 
 sub call {(shift)->_eval(@_)}
 
+###########################
+#
+#  Subclass the negation
+#
+package bizarro::UOP::minus;
+our @ISA = ('Parser::UOP::minus');
+
+sub _eval {
+  my $self = shift;
+  my $context = $self->context;
+  my $a = shift;
+  if ($context->flag("bizarroNeg")) {
+    return bizarro::f(bizarro::g(-1) * bizarro::g($a));
+  } else {
+    return -$a;
+  }
+};
+
+sub call {(shift)->_eval(@_)};
 
 
 
