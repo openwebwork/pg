@@ -17,6 +17,7 @@ The bizarro arithmetic is basically defined as:
 
 where f and g are inverse functions defined on all of R, and are odd functions. There is 
 also bizarro-, bizarro*, bizarro/, and bizarro^. f(x) = x^3+3x is a good choice for f.
+This has been extended below to a choice for f that works with complex numbers too.
   
 To enable the bizarro arithmetic operators, load this file with the macros, and then use 
 any subset of:
@@ -88,21 +89,24 @@ ANS($ans -> cmp(
 
 package bizarro;
 
+#This f just stretches complex numbers by a positve real that 
+#depends in a nontrivial away on the magnitude of z
 sub f {
-  my $x = shift;
-  return ($x**3 + 3*$x);
+  my $z = shift;
+  my $r = abs($z);
+  return 0 if ($r == 0);
+  return $z * ($r**2 + 3);
 }
 
+#The inverse of f.
 sub g {
-  my $x = shift;
-  return (cuberoot(($x+sqrt(($x)**2+4))/2) + cuberoot(($x-sqrt(($x)**2+4))/2));
+  my $z = shift;
+  my $r = abs($z);
+  return 0 if ($r == 0);
+  #Note that in what follows, base of (1/3) exponent is always a positive real
+  return $z/$r * ((($r+sqrt(($r)**2+4))/2)**(1/3) - ((sqrt(($r)**2+4)-$r)/2)**(1/3));
 }
 
-sub cuberoot {
-  my $x = shift;
-  return 0 if ($x == 0);
-  return abs($x)/$x*(abs($x))**(1/3);
-};
 
 ###########################
 #
