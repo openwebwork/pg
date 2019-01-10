@@ -100,8 +100,10 @@ sub g {
   my $z = shift;
   my $r = abs($z);
   return 0 if ($r == 0);
+  my $k = sqrt(($r)**2+4);
   #Note that in what follows, base of (1/3) exponent is always a positive real
-  return $z/$r * ((($r+sqrt(($r)**2+4))/2)**(1/3) - ((sqrt(($r)**2+4)-$r)/2)**(1/3));
+  #because $k > $r > 0 
+  return $z/$r * ((($k+$r)/2)**(1/3) - (($k-$r)/2)**(1/3));
 }
 
 
