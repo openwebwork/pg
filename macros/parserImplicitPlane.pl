@@ -91,7 +91,7 @@ sub new {
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   if (scalar(@_) == 1 && ref($_[0]) eq 'ImplicitPlane') {
   	my $obj = shift;
-  	$obj->{implict}='foobar';  # some planes are being created without all of the data
+  	$obj->{implicit}='foobar';  # some planes are being created without all of the data
   	return $obj;
   }
   $_[0] = $context->Package("Point")->new($context,$_[0]) if ref($_[0]) eq 'ARRAY';
