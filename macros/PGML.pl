@@ -1358,7 +1358,7 @@ sub Escape {
 # No indentation for PTX
 sub Indent {
   my $self = shift; my $item = shift;
-  return "<!-- PTX:WARNING: PGML wanted to indent here. -->\n" . $self->string($item);
+  return $self->string($item);
 }
 
 # No align for PTX

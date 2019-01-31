@@ -2248,6 +2248,9 @@ sub PTX_cleanup {
     #remove whitespace preceding </p>
     $string =~ s/(?s)\s*(<\/p>)/$1/g;
 
+    #move PTX warnings from the beginning of inside a p to just before the p.
+    $string =~ s/<p>(<!\-\- PTX:WARNING.*?-->)/$1\n<p>/g;
+
     #remove empty p
     $string =~ s/(\r\n?|\n)?<p><\/p>//g;
 
