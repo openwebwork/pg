@@ -221,6 +221,13 @@ sub checkPolynomial {
 
 ##############################################
 
+package PolynomialFactors::Formula;
+our @ISA = ('Value::Formula');
+
+sub cmp_postprocess {}
+
+##############################################
+
 package PolynomialFactors;
 our @ISA = ('LimitedPolynomal');
 
@@ -269,6 +276,9 @@ sub Init {
     'u-' => {class => 'PolynomialFactors::UOP::minus'},
   );
   $context->flags->set(strictPowers => 1);
+  $context->{value}{'Formula()'} = "PolynomialFactors::Formula";
+  $context->{value}{'Formula'} = "PolynomialFactors::Formula";
+  $context->{parser}{'Formula'} = "PolynomialFactors::Formula";
 
   #
   #  A context where coefficients can't include operations
