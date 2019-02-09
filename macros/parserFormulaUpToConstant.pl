@@ -312,6 +312,14 @@ sub cmp_postprocess {
     if $result == -1 && $self->getFlag("showLinearityHints") && !$student->D($student->{constant})->isConstant;
 }
 
+#
+#  Don't perform equivalence check
+#
+sub cmp_postfilter {
+  my $self = shift;
+  return shift;
+}
+
 ##################################################
 #
 #  Get the name of the constant
