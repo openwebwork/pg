@@ -417,15 +417,14 @@ sub setMessage {
 #
 sub ANS_NAME {
   my $self = shift; my $i = shift;
-  $self->{answerNames} = {} if !defined($self->{answerNames});
-  return $self->{answerNames}->{$i} if defined($self->{answerNames}->{$i});
+  return $self->{answerNames}{$i} if defined($self->{answerNames}{$i});
   if ($self->{singleResult}) {
-    $self->{answerNames}->{0} = main::NEW_ANS_NAME() if (!$self->{answerNames}->{0});
-    $self->{answerNames}->{$i} = $answerPrefix.$self->{answerNames}->{0}."_".$i unless $i == 0;
+    $self->{answerNames}{0} = main::NEW_ANS_NAME() unless defined($self->{answerNames}{0});
+    $self->{answerNames}{$i} = $answerPrefix.$self->{answerNames}{0}."_".$i unless $i == 0;
   } else {
-    $self->{answerNames}->{$i} = main::NEW_ANS_NAME();
+    $self->{answerNames}{$i} = main::NEW_ANS_NAME();
   }
-  return $self->{answerNames}->{$i};
+  return $self->{answerNames}{$i};
 }
 
 #
@@ -452,7 +451,7 @@ sub ans_rule {
   if ($self->{singleResult} && $self->{part} > 1) {
   	 my $extension_ans_rule = 
   	 	$data->named_ans_rule_extension(
-  	 	$name,$size, answer_group_name => $self->{answerNames}->{0},
+  	 	$name,$size, answer_group_name => $self->{answerNames}{0},
   	 	@_);
   	 # warn "extension rule created: $extension_ans_rule for ", ref($data);
   	 return $extension_ans_rule; 
@@ -473,12 +472,12 @@ sub ans_array {
   if ($self->{singleResult} && $self->{part} == 1) {
       my $label = main::generate_aria_label($answerPrefix.$name."_0");
       return $data->named_ans_array($name,$size,
-             answer_group_name => $self->{answerNames}->{0},
+             answer_group_name => $self->{answerNames}{0},
              @_,aria_label=>$label);
   }
   if ($self->{singleResult} && $self->{part} > 1) {
     $HTML = $data->named_ans_array_extension($self->NEW_NAME($name),$size,
-      answer_group_name => $self->{answerNames}->{0}, @_);
+      answer_group_name => $self->{answerNames}{0}, @_);
     # warn "array extension rule created: $HTML for ", ref($data);
   } else {
     $HTML = $data->named_ans_array($name,$size,@_);
