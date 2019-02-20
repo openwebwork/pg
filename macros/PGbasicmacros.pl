@@ -2211,7 +2211,7 @@ sub PTX_cleanup {
   # are p, blockquote, pre, sidebyside
   if ($displayMode eq 'PTX') {
     #encase entire string in <p>
-    $string = "<p>".$string."</p>";
+    $string = "<p>".$string."</p>" unless $string =~ /^<fillin[^>]*\/>$/;
 
     #a <sidebyside> may have been created within a <cell> of a <tabular> as a container of an <image>
     #so here we clean that up
