@@ -2211,7 +2211,8 @@ sub PTX_cleanup {
   # are p, blockquote, pre, sidebyside
   if ($displayMode eq 'PTX') {
     #encase entire string in <p>
-    $string = "<p>".$string."</p>" unless $string =~ /^<fillin[^>]*\/>$/;
+    #except not for certain "sub" structures that are also passed through EV3
+    $string = "<p>".$string."</p>" unless (($string =~ /^<fillin[^>]*\/>$/) or ($string =~ /^<var.*<\/var>$/s));
 
     #a <sidebyside> may have been created within a <cell> of a <tabular> as a container of an <image>
     #so here we clean that up
@@ -2221,7 +2222,7 @@ sub PTX_cleanup {
     #insert opening and closing p, to be removed later if they enclose an image, video or tabular
     $string =~ s/(<sidebyside[^>]*(?<!\/)>)/$1\n<p>/g;
     $string =~ s/(<\/sidebyside>)/<\/p>\n$1/g;
-    #ditto for li
+    #ditto for li, since we are not going to look to see if there is a nested list in there
     $string =~ s/(<li[^>]*(?<!\/)>)/$1\n<p>/g;
     $string =~ s/(<\/li>)/<\/p>\n$1/g;
 
@@ -2250,6 +2251,10 @@ sub PTX_cleanup {
 
     #move PTX warnings from the beginning of inside a p to just before the p.
     $string =~ s/<p>(<!\-\- PTX:WARNING.*?-->)/$1\n<p>/g;
+
+    #remove doulbe p's we may have created
+    $string =~ s/<p><p>/<p>/g;
+    $string =~ s/<\/p><\/p>/<\/p>/g;
 
     #remove empty p
     $string =~ s/(\r\n?|\n)?<p><\/p>//g;
