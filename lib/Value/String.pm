@@ -35,8 +35,6 @@ sub make {
   return $s;
 }
 
-
-
 #
 #  Return the appropriate data.
 #
