@@ -174,8 +174,8 @@ $functions = {
    'asinh'  => {class => 'Parser::Function::hyperbolic', TeX => '\sinh^{-1}'},
    'acosh'  => {class => 'Parser::Function::hyperbolic', TeX => '\cosh^{-1}'},
    'atanh'  => {class => 'Parser::Function::hyperbolic', TeX => '\tanh^{-1}'},
-   'asech'  => {class => 'Parser::Function::hyperbolic', TeX => '\mathop{\rm sech}^{-1}'},
-   'acsch'  => {class => 'Parser::Function::hyperbolic', TeX => '\mathop{\rm csch}^{-1}'},
+   'asech'  => {class => 'Parser::Function::hyperbolic', TeX => '\mathop{\rm sech}\nolimits^{-1}'},
+   'acsch'  => {class => 'Parser::Function::hyperbolic', TeX => '\mathop{\rm csch}\nolimits^{-1}'},
    'acoth'  => {class => 'Parser::Function::hyperbolic', TeX => '\coth^{-1}'},
 
    'ln'    => {class => 'Parser::Function::numeric', inverse => 'exp',

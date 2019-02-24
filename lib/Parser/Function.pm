@@ -300,7 +300,7 @@ sub TeX {
   my @pstr = (); my $fn_precedence = $fn->{precedence};
   $fn_precedence = $fn->{parenPrecedence} if $fn->{parenPrecedence};
   $fn = $self->{def};
-  my $name = '\mathop{\rm '.$self->{name}.'}';
+  my $name = '\mathop{\rm '.$self->{name}.'}\nolimits';
   $name = $fn->{TeX} if defined($fn->{TeX});
   foreach my $x (@{$self->{params}}) {push(@pstr,$x->TeX)}
   if ($fn->{braceTeX}) {$TeX = $name.'{'.join(',',@pstr).'}'}
