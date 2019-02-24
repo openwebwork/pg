@@ -559,6 +559,9 @@ sub BUTTONS {
   if ($main::displayMode eq 'PTX') {
     $radio[0] = '<var form="buttons">' . "\n" . $radio[0];
     $radio[$#radio_buttons] .= '</var>';
+    #turn any math delimiters
+    @radio = map {$_ =~ s/\\\(/<m>/g; $_} (@radio);
+    @radio = map {$_ =~ s/\\\)/<\/m>/g; $_} (@radio);
   };
   @radio = $self->makeUncheckable(@radio) if $self->{uncheckable};
   (wantarray) ? @radio : join(($main::displayMode eq 'PTX')?'':$self->{separator}, @radio);
