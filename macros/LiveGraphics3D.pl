@@ -156,8 +156,10 @@ sub LiveGraphics3D {
 		    vars : $ind_vars,
     };
 
+    if (typeof LiveGraphics3D !== 'undefined') {
+        var graph = new LiveGraphics3D(thisTD[0],options);
+    }
 
-    var graph = new LiveGraphics3D(thisTD[0],options);
     </script>
 EOS
 
