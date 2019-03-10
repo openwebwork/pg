@@ -186,7 +186,7 @@ sub numberMatrix {  #internal
   my @M = (); my $isFormula = 0;
   foreach my $x (@_) {
     $x = Value::makeValue($x,context=>$context);
-    Value::Error("Matrix row entries must be numbers") unless _isNumber($x);
+    Value::Error("Matrix row entries must be numbers: $x ") unless _isNumber($x);
     push(@M,$x); $isFormula = 1 if Value::isFormula($x);
   }
   return $self->formula([@M]) if $isFormula;
@@ -249,7 +249,7 @@ sub isRow {
 }
 
 #
-#  See if the matrix is an Indenity matrix
+#  See if the matrix is an Identity matrix
 #
 sub isOne {
   my $self = shift;

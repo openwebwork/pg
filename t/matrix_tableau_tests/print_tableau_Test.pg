@@ -1,0 +1,69 @@
+
+
+
+##############################################
+DOCUMENT();
+
+loadMacros(
+   "PGstandard.pl",     # Standard macros for PG language
+   "MathObjects.pl",
+   "parserLinearInequality.pl",
+   "PGML.pl",
+   "tableau.pl",
+   "PGmatrixmacros.pl",
+   "LinearProgramming.pl",
+    #"source.pl",        # allows code to be displayed on certain sites.
+   "PGcourse.pl",
+);
+
+##############################################
+
+Context("Matrix");  # need Matrix context to allow string input into Matrix. 
+
+$m = Matrix("[[3,6,7],[2,1,8],[4,6,21],[-6,7,9]]");
+$constraint_matrix = Matrix("
+[[ 0, 0, -1, -1],
+ [-1, -1, 0, 0 ],
+ [1, 0 , 1 , 0],
+ [0, 1, 0, 1]]
+");
+
+#TEXT ("created ". ref($m));
+#what are the best ways to display a matrix?
+
+$m1 = matrix_from_matrix_rows($m, [1,3,2]);
+$m2 = matrix_from_matrix_cols($m, [3,2,1]);
+$m3 = matrix_from_submatrix($m, rows=>[1,4], columns=>[1,2]);
+
+$list = matrix_rows_to_list($m, 2,3);
+
+$b = Matrix([1, 2, 3, 4]);
+TEXT($BR, "vector", $b->data->[1]);
+$c = Matrix([5, 6, 7]);
+$t = Tableau->new(A=>$m,b=>$b, c=>$c);
+
+$basis2 = $t->basis(1,3,5,6);
+
+BEGIN_PGML
+
+[` [$m] `]
+
+Extract rows (1, 4 ) from Matrix
+
+[` [$m1] `]
+
+ Extract the submatrix of rows (1,4) and columns (1, 2, 3)
+ 
+ new submatrix is 
+ [` [$m3] `]
+
+a list of rows 2 and 3 [`[$list]`]
+
+A matrix from rows (1,3,2) [`[$m1]`]
+A matrix from cols (3,2,1) [`[$m2]`]
+
+A new matrix [`[$b]`]
+END_PGML
+
+ENDDOCUMENT();
+

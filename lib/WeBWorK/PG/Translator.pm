@@ -1334,7 +1334,7 @@ sub process_answers{
 						if defined($new_rh_ans_evaluation_result) && ref($new_rh_ans_evaluation_result) 
 							&& defined($new_rh_ans_evaluation_result->error_flag());
 			} else {
-				$PG->warning_message(" The evaluated answer is not an answer hash $new_rh_ans_evaluation_result: |".ref($new_rh_ans_evaluation_result)."|.");
+				$PG->warning_message(" The evaluated answer is not an answer hash ".($new_rh_ans_evaluation_result//'').': |'.ref($new_rh_ans_evaluation_result)."|.");
 			}						
 # 			$PG->debug_message( $self->{envir}->{'probFileName'}  ." new_temp_ans and temp_ans don't agree: ".
 #                       ref($new_temp_ans)." $new_temp_ans ". ref($temp_ans). "  $temp_ans".length($new_temp_ans).length($temp_ans)) 

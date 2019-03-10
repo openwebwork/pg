@@ -484,8 +484,8 @@ package Section;
 #
 #  Shortcuts for Scaffold data
 #
-my $PG_ANSWERS_HASH = $Scaffold::PG_ANSWERS_HASH;
-my $PG_OUTPUT = $Scaffold::PG_OUTPUT;
+$PG_ANSWERS_HASH = $Scaffold::PG_ANSWERS_HASH;
+$PG_OUTPUT = $Scaffold::PG_OUTPUT;
 
 
 #
