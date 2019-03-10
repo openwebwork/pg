@@ -186,7 +186,7 @@ sub numberMatrix {  #internal
   my @M = (); my $isFormula = 0;
   foreach my $x (@_) {
     $x = Value::makeValue($x,context=>$context);
-    Value::Error("Matrix row entries must be numbers: $x") unless Value::isNumber($x);
+    Value::Error("Matrix row entries must be numbers: $x ") unless _isNumber($x);
     push(@M,$x); $isFormula = 1 if Value::isFormula($x);
   }
   return $self->formula([@M]) if $isFormula;
@@ -275,6 +275,11 @@ sub isZero {
   return 1;
 }
 
+sub _isNumber {
+  my $n = shift;
+  return Value::isNumber($n) || Value::classMatch($n, 'Fraction');
+}
+
 #
 #  Make arbitrary data into a matrix, if possible
 #
@@ -327,7 +332,7 @@ sub mult {
   #
   #  Constant multiplication
   #
-  if (Value::isNumber($r)) {
+  if (_isNumber($r)) {
     my @coords = ();
     foreach my $x (@{$l->data}) {push(@coords,$x*$r)}
     return $self->make(@coords);
@@ -365,7 +370,7 @@ sub mult {
 sub div {
   my ($l,$r,$flag) = @_; my $self = $l;
   Value::Error("Can't divide by a Matrix") if $flag;
-  Value::Error("Matrices can only be divided by Numbers") unless Value::isNumber($r);
+  Value::Error("Matrices can only be divided by Numbers") unless _isNumber($r);
   Value::Error("Division by zero") if $r == 0;
   my @coords = ();
   foreach my $x (@{$l->data}) {push(@coords,$x/$r)}
@@ -377,11 +382,11 @@ sub power {
   Value::Error("Can't use Matrices in exponents") if $flag;
   Value::Error("Only square matrices can be raised to a power") unless $l->isSquare;
   $r = Value::makeValue($r,context=>$context);
-  if ($r->isNumber && $r =~ m/^-\d+$/) {
+  if (_isNumber($r) && $r =~ m/^-\d+$/) {
     $l = $l->inverse; $r = -$r;
     $self->Error("Matrix is not invertible") unless defined($l);
   }
-  Value::Error("Matrix powers must be non-negative integers") unless $r->isNumber && $r =~ m/^\d+$/;
+  Value::Error("Matrix powers must be non-negative integers") unless _isNumber($r) && $r =~ m/^\d+$/;
   return $context->Package("Matrix")->I($l->length,$context) if $r == 0;
   my $M = $l; foreach my $i (2..$r) {$M = $M*$l}
   return $M;
