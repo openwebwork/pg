@@ -785,7 +785,7 @@ sub includePGproblem {
     my $filePath = shift;
     my %save_envir = %main::envir;
     my $fullfilePath = $PG->envir("templateDirectory").$filePath;
-    my $r_string =  read_whole_problem_file($fullfilePath);
+    my $r_string    =  $PG->read_whole_problem_file($fullfilePath);
     if (ref($r_string) eq 'SCALAR') {
         $r_string = $$r_string;      
     }
