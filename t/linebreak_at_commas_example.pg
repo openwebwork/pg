@@ -1,0 +1,169 @@
+##DESCRIPTION
+##  Linear programming problem
+##ENDDESCRIPTION
+
+
+## DBsubject(Operations research)
+## DBchapter(Linear programming)
+## DBsection(Simplex method)
+## Date(9/11/2013)
+## Institution(U. of Rochester)
+## Author(M. Gage)
+## Level(1)
+## KEYWORDS('algebra', 'inequality', 'fraction')
+
+########################################################################
+
+DOCUMENT();      
+
+loadMacros(
+   "PGstandard.pl",     # Standard macros for PG language
+   "MathObjects.pl",
+   "parserLinearInequality.pl",
+   "parserPopUp.pl",
+   "scaffold.pl",
+   "tableau.pl",
+   #"source.pl",        # allows code to be displayed on certain sites.
+   "PGcourse.pl",      # Customization file for the course
+);
+
+# Print problem number and point value (weight) for the problem
+
+loadMacros(   "PGML.pl",); # need to load after changing columns.
+
+TEXT(beginproblem());
+
+
+# Show which answers are correct and which ones are incorrect
+$showPartialCorrectAnswers = 1;
+Context("LinearInequality");
+Context()->variables->add( m2ny=>'Real', m2cal=>'Real',k2ny=>'Real',k2cal=>'Real');
+##############################################################
+#
+#  Setup
+#
+#
+#data
+
+
+#data duckwheat problem
+$kansas = 15; # schnupells produced
+$mexico = 8; # schnupells produced
+$newyork = 10; # schnupells consumed
+$california = 13;    
+$mexico2newyork = 4;    # transportation cost per shnupell
+$mexico2california = 1;       # transportation cost per shnupell
+$kansas2newyork  = 2;      # transportation cost per shnupell
+$kansas2california = 3; # transportation cost per shnupell
+
+# objective function
+$popup = PopUp([qw(? Maximize Minimize)], 'Minimize');
+$objfunction = Compute("$mexico2newyork*m2ny + 
+$mexico2california*m2cal + $kansas2newyork*k2ny + 
+$kansas2california*k2cal ")->reduce;
+$objfunction->{limits}=[[0,1],[2,5],[8,10],[11,12]];
+$objfunction->{checkUndefinedPoints}=1;
+$objfunction2 = Formula("5*m2cal")->reduce;
+$objfunction2->{checkUndefinedPoints}=1;
+#constraints
+$constraint0 = Compute(" k2ny +  k2cal 
+<=$kansas");
+$constraint1 = Compute(" m2ny +  m2cal 
+<=$mexico");
+$constraint2 = Compute(" m2ny +  k2ny 
+>=$newyork");
+$constraint3 = Compute(" m2cal +  k2cal 
+>=$california");
+
+$constraints = List($constraint0, $constraint1,$constraint2, $constraint3);
+
+
+#variable order: (m2ny, m2cal, k2ny, k2cal)
+#matrix for normal form
+$constraint_matrix = Matrix("[[ 0, 0, -1, -1],
+ [-1, -1, 0, 0 ],
+ [1, 0 , 1 , 0],
+ [0, 1, 0, 1]]
+");
+$m = Matrix([['3',6,7],[2,1,8],[4,6,21],[-6,7,9]]);
+
+$rhs = Vector($kansas, $mexico, $newyork, $california);
+##############################################################
+#
+#  Text
+#
+#
+
+#######################
+# scaffold
+
+# use linebreak_at_commas from tableau
+# sub linebreak_at_commas {
+# 	return sub {
+# 		my $ans=shift;
+# 		my $foo = $ans->{correct_ans_latex_string};
+# 		$foo =~ s/,/,~~~~~~~~/g;
+# 		($ans->{correct_ans_latex_string})=~ s/,/,~~~~~~~~/g;
+# 		($ans->{preview_latex_string})=~ s/,/,~~~~~~~~/g;
+# 		#DEBUG_MESSAGE("foo", $foo);
+# 		#DEBUG_MESSAGE( "correct", $ans->{correct_ans_latex_string} );
+# 		#DEBUG_MESSAGE( "preview",  $ans->{preview_latex_string} );
+# 		#DEBUG_MESSAGE("section4ans1 ", pretty_print($ans, $displayMode));
+# 		$ans;
+# 	};
+# }
+
+$foochecker =  $constraints->cmp()->withPostFilter(
+linebreak_at_commas()
+);
+BEGIN_PGML
+Another word problem. Write out the equations for the LOP and the dual LOP.
+
+Duckwheat is produced in Kansas and Mexico and consumed in New York
+and California.
+Kansas produces [$kansas] shnupells of duckwheat and [$mexico]. 
+Meanwhile, New York consumes
+[$newyork] shnupells and California [$california].
+The transportation costs per shnupell are [$mexico2newyork]
+from Mexico to New York, [$mexico2california] from Mexico to California,
+[$kansas2newyork] from Kansas to New York, and 
+[$kansas2california] and from Kansas to California.
+
+Write a linear program that decides the amounts of duckwheat 
+(in shnupells and fractions
+of a shnupell) to be transported from each producer to each 
+consumer, so as to minimize
+the overall transportation cost.
+ (In other words express this problem in a mathematical normal form.)
+ 
+* Write the objective function for the problem in terms of the 
+variables [`m2ny, m2cal, k2ny,k2cal`] which are
+the volumes in shnupells for shipped from Mexico to New York, 
+Mexico to California, Kansas to New York and
+Kansas to California in order to obtain the optimum 
+transportation cost. 
+
+[@ ANS($popup->cmp), $popup->menu @]*
+[`transportation cost = `] [@ ANS($objfunction->cmp()), ans_box(2,60) @]*
+
+* Now write the constraints for the mathematical linear 
+optimization problem (LOP) in standard form. 
+Separate each
+of the constraint equations by a comma. The order of the constraint equations does not matter.
+
+[@ ANS($constraints->cmp()->withPostFilter(
+linebreak_at_commas() )
+), ans_box(8, 80) @]*
+
+The variables must be non-negative: [`m2ny, m2cal, k2ny,k2cal\ge 0`] 
+but you don't need to include these conditions.
+
+
+
+END_PGML
+
+
+# Comments used: ($ans->{correct_ans_latex_string})=~ s/,/,\\\\/g; inside PGML
+# Used ($ans->{correct_ans_latex_string})=~ s/,/,~~~~~~~~/g; outside PGML
+
+ENDDOCUMENT();        

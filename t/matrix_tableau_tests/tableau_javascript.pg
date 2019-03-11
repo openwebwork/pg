@@ -1,0 +1,133 @@
+##DESCRIPTION
+
+
+
+##ENDDESCRIPTION
+
+
+DOCUMENT();        # This should be the first executable line in the problem.
+
+loadMacros(
+   "PGstandard.pl",     # Standard macros for PG language
+   "MathObjects.pl",
+   "AppletObjects.pl",
+   "PGML.pl",
+   "PGmatrixmacros.pl",
+   "LinearProgramming.pl",
+   "parserLinearInequality.pl",
+   #"gage_matrix_ops.pl",
+   "tableau.pl",
+   "quickMatrixEntry.pl",
+   #"source.pl",         # used to display problem source button
+   "PGcourse.pl",      # Customization file for the course
+);
+
+TEXT(beginproblem());
+$showPartialCorrectAnswers = 1;
+
+
+
+#BEGIN_TEXT
+#<script type="text/javascript" 
+#src="/webwork2_course_files/demo_linear_optimization/matrix_entry.js">
+#</script>
+
+#<div id="quick_entry_form" name="quick entry" title="Enter matrix">
+#  <textarea id="matrix_input" rows="5" columns = "10"> 
+#  </textarea>
+#  <button id="closer">enter</button>
+#</div>
+#END_TEXT
+
+INITIALIZE_QUICK_MATRIX_ENTRY();
+
+##############################################################
+#
+#  Setup
+#
+#
+Context("Numeric");
+# Your resources:
+$money_total = 6000;
+$time_total  = 600;
+
+# Bill
+$bill_money_commitment = 5000; #dollars
+$bill_time_commitment  = 400;  # hours
+$bill_profit = 4500;
+# Steve
+$steve_money_commitment = 4000;
+$steve_time_commitment  = 500;
+$steve_profit = 4500;
+
+Context()->variables->add(p1=>'Real',p2=>'Real');
+$objfun1 = Formula("${bill_profit}p1 + ${steve_profit}p2");
+#Hack to prevent domain conflict in answer.
+# why can't the formula be defined within context "linearInequality"?
+
+Context("LinearInequality");
+Context()->variables->add(p1=>'Real',p2=>'Real');
+Context()->strings->add("Essay Answer" =>{});
+Context()->strings->add('Minimize'=>{},'Maximize'=>{}, "?"=>{});
+Context()->strings->add('Yes'=>{},'No'=>{});
+our $context=Context();
+
+$original_matrix = Matrix([
+[$bill_money_commitment, $steve_money_commitment, 1, 0, 0,0,0, $money_total],
+[$bill_time_commitment,$steve_time_commitment, 0, 1, 0,0,0, $time_total],
+[1,0,0,0,1,0,0,1],
+[0,1,0,0,0,1,0,1],
+[-$bill_profit, -$steve_profit, 0, 0, 0,0,1, 0]
+]);
+$toplabels = [qw(p1 p2 x3 x4 x5 x6 P b)];
+$sidelabels = [' ', qw(cash hours p_1bound p_2obund objfunc) ];
+$matrix1 = $original_matrix;
+
+
+
+##############################################################################
+# get information on current state
+$tableau1 = $matrix1->wwMatrix->array_ref; # translate to the array reference
+$basis1 = Set(3,4,5,6);
+@statevars1 = get_tableau_variable_values($matrix1, $basis1);
+# get z value
+$statevars1 = ~~@statevars1;
+$state1 = Matrix([[@statevars1]]);
+
+$matrix1->{top_labels}=$toplabels;
+Context()->texStrings;
+
+BEGIN_TEXT
+
+Write the matrix/tableau representing the linear optimization problem above.  Use 
+the convention that the objective function is listed on the bottom row and the coefficient in
+front of the profit \(P\) is \(1\) or equivalently in the form \( -ax_1 -bx_2 +z = 0 \)
+$PAR
+We'll use x3 for the slack variable for the money constraint, x4 for  the time constraint 
+slack variable and x5 and x6 for the slack variables for the contraints on  p1 and p2.
+\{MATRIX_ENTRY_BUTTON(1,5,9)\}
+\{ANS($matrix1->cmp()), $matrix1->ans_array()\}
+
+\{MATRIX_ENTRY_BUTTON(2,5,7)\}
+\{ANS($matrix1->cmp()), $matrix1->ans_array()\}
+$PAR
+END_TEXT
+
+BEGIN_SOLUTION
+displayMode $displayMode $PAR
+\[   \{lp_display_mm($matrix1, top_labels=>$toplabels).side_labels($sidelabels)\} \] 
+   
+END_SOLUTION
+Context()->normalStrings;
+
+
+
+##############################################################
+#
+#  Answers
+#
+#
+
+
+
+ENDDOCUMENT();        # This should be the last executable line in the problem.

@@ -24,7 +24,7 @@
 		       manipulation methods.  More of these may be added as it
 		       becomes necessary.
 		       
-	Useage:    $rh_ans = new AnswerHash;
+	Usage:     $rh_ans = new AnswerHash;
 		       
 	AnswerEvaluator -- this class organizes the construction of
 			   answer evaluator subroutines which check the 
@@ -37,7 +37,7 @@
 			   thus greatly reducing the programming and maintenance
 			   required for constructing answer evaluators.
 			   
-	Useage: 	$ans_eval  = new AnswerEvaluator;
+	Usage:  	$ans_eval  = new AnswerEvaluator;
 
 =cut
 
@@ -203,14 +203,14 @@ sub setKeys {
 
 =head4 data
 
-	Useage:     $rh_ans->data('foo');               set $rh_ans->{student_ans} = 'foo';
+	Usage:      $rh_ans->data('foo');               set $rh_ans->{student_ans} = 'foo';
 	            $student_input = $rh_ans->data();   retrieve value of $rh_ans->{student_ans}
 	
 	synonym for input
 
 =head4  input	
 
-	Useage:     $rh_ans->input('foo')    sets $rh_ans->{student_ans} = 'foo';
+	Usage:      $rh_ans->input('foo')    sets $rh_ans->{student_ans} = 'foo';
 				$student_input = $rh_ans->input();
 	
 	synonym for data
@@ -231,7 +231,7 @@ sub input {     #$rh_ans->input('foo') is a synonym for $rh_ans->{student_ans}='
 
 =head4  input	
 
-	Useage:     $rh_ans->score(1)    
+	Usage:      $rh_ans->score(1)    
 				$score = $rh_ans->score();
 	
 	Retrieve or set $rh_ans->{score}, the student's score on the problem.
@@ -266,7 +266,7 @@ sub stringify_hash {
 
 =head4 throw_error
 
-	Useage:	$rh_ans->throw_error("FLAG", "message");
+	Usage: 	$rh_ans->throw_error("FLAG", "message");
 	
 	FLAG is a distinctive word that describes the type of error.  
 	Examples are EVAL for an evaluation error or "SYNTAX" for a syntax error.
@@ -279,7 +279,7 @@ sub stringify_hash {
 
 =head4 catch_error
 
-	Useage: $rh_ans->catch_error("FLAG2");
+	Usage:  $rh_ans->catch_error("FLAG2");
 	
 	Returns true (1) if  $rh_ans->{error_flag} equals "FLAG2", otherwise it returns
 	false (empty string).
@@ -288,7 +288,7 @@ sub stringify_hash {
 
 =head4 clear_error
 
-	Useage:  $rh_ans->clear_error("FLAG2");
+	Usage:   $rh_ans->clear_error("FLAG2");
 	
 	If $rh_ans->{error_flag} equals "FLAG2" then the {error_flag} entry is set to 
 	the empty string as is the entry {error_message}
@@ -297,7 +297,7 @@ sub stringify_hash {
 
 =head4 error_message
 
-	Useage:   $flag = $rh_ans -> error_flag();
+	Usage:    $flag = $rh_ans -> error_flag();
 			
 			  $message = $rh_ans -> error_message();
 
@@ -352,7 +352,7 @@ sub error_message {
 # =head4 pretty_print
 # 
 # 
-# 	Useage:     $rh_ans -> pretty_print();
+# 	Usage:      $rh_ans -> pretty_print();
 # 	
 # 	
 # 	Returns a string containing a representation of the AnswerHash as an HTML table.
@@ -396,7 +396,7 @@ sub error_message {
 
 =head4 OR
 
-	Useage:    $rh_ans->OR($rh_ans2);
+	Usage:     $rh_ans->OR($rh_ans2);
 	
 	Returns a new AnswerHash whose score is the maximum of the scores in $rh_ans and $rh_ans2.
 	The correct answers for the two hashes are combined with "OR".  
@@ -408,7 +408,7 @@ sub error_message {
 =head4 AND
 
 
-	Useage:    $rh_ans->AND($rh_ans2);
+	Usage:     $rh_ans->AND($rh_ans2);
 	
 	Returns a new AnswerHash whose score is the minimum of the scores in $rh_ans and $rh_ans2.
 	The correct answers for the two hashes are combined with "AND". 
@@ -817,7 +817,7 @@ sub rh_ans {
 A filter is a subroutine which takes one AnswerHash as an input, followed by 
 a hash of options.
 
-		Useage:  filter($ans_hash, option1 =>value1, option2=> value2 );
+		Usage:   filter($ans_hash, option1 =>value1, option2=> value2 );
 		
 
 The filter performs some operations on the input AnswerHash and returns an
