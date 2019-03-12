@@ -70,6 +70,7 @@ our $debugON =0;
 
 package PGloadfiles;
 use strict;
+#use Encode(qw(encode decode));
 use Exporter;
 use PGcore;
 use WeBWorK::PG::Translator;
@@ -232,8 +233,9 @@ sub compile_file {
  	local($/);
  	$/ = undef;   # allows us to treat the file as a single line
     
- 	open(MACROFILE, "encoding(UTF-8)", $filePath) || die "Cannot open file: $filePath";
+ 	open(MACROFILE, "<:raw", $filePath) || die "Cannot open file: $filePath";
  	my $string = 'BEGIN {push @__eval__, __FILE__};' . "\n" . <MACROFILE>;
+ 	utf8::decode($string);   # can't yet use :encoding(UTF-8)
  	#warn "compiling $string";
  	my ($result,$error,$fullerror) = $self->PG_macro_file_eval($string);
 	eval ('$main::__files__->{pop @main::__eval__} = $filePath');  #used to keep track of which file is being evaluated.
