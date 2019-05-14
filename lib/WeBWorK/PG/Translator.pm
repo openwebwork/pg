@@ -1894,7 +1894,7 @@ sub dumpvar {
     *stash = *{"${packageName}::"};
     $, = "  ";
     
-    emit "Content-type: text/html\n\n<pre>\n";
+    emit "Content-type: text/html; charset=UTF-8\n\n<pre>\n";
     
     
     while ( ($varName, $globValue) = each %stash) {
