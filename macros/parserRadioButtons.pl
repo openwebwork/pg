@@ -395,7 +395,7 @@ sub string {
 #
 sub cmp_preprocess {
   my $self = shift; my $ans = shift;
-  if (defined $ans->{student_value}) {
+  if (defined $ans->{student_value} && $ans->{student_value} ne '') {
     my $label = $self->labelText($ans->{student_value}->value);
     $ans->{preview_latex_string} = $self->quoteTeX($label);
     $ans->{student_ans} = $self->quoteHTML($label);
