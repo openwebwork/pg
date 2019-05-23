@@ -370,7 +370,12 @@ sub labelFormat {
 #  to be displayed in the results table.
 #
 sub labelText {
-  my $self = shift; my $index = substr(shift,1);
+  my $self = shift;
+  my $index = shift;
+  #warn "index = |$index|";
+  return "Bn" if ( !defined($index) || $index eq "" || length($index) < 2 );
+  $index = substr($index,1);
+#  my $self = shift; my $index = substr(shift,1);
   my $choice = $self->{labels}[$index];
   $choice = $self->{orderedChoices}[$index] unless defined $choice;
   return $choice if length($choice) < $self->{maxLabelSize};
