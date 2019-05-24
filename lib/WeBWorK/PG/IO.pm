@@ -4,12 +4,17 @@
 ################################################################################
 
 package WeBWorK::PG::IO;
+use warnings qw(FATAL utf8);
 use parent qw(Exporter);
+use Encode qw( encode decode);
 use JSON qw(decode_json);
 use PGUtil qw(not_null);
 use WeBWorK::Utils qw(path_is_subdir);
 use WeBWorK::CourseEnvironment;
-
+use utf8;
+#binmode(STDOUT,":encoding(UTF-8)");
+#binmode(STDIN,":encoding(UTF-8)");
+#binmode(INPUT,":encoding(UTF-8)");
 my $CE = new WeBWorK::CourseEnvironment({
     webwork_dir => $ENV{WEBWORK_ROOT},
 					});
@@ -39,6 +44,7 @@ BEGIN {
 	our @SHARED_FUNCTIONS = qw(
                 includePGtext
                 read_whole_problem_file
+                read_whole_file
                 convertPath
                 fileFromPath
                 directoryFromPath
@@ -139,13 +145,24 @@ sub read_whole_file {
 	    unless path_is_course_subdir($filePath);
 	
 	local (*INPUT);
-	open(INPUT, "<$filePath") || die "$0: read_whole_file subroutine: <BR>Can't read file $filePath";
+	open(INPUT, "<:raw", $filePath) || die "$0: read_whole_file subroutine: <BR>Can't read file $filePath";
 	local($/)=undef;
-	my $string = <INPUT>;  # can't append spaces because this causes trouble with <<'EOF'   \nEOF construction
+	my $string = <INPUT>;
+	my $backup_string = $string;
+	# can't append spaces because this causes trouble with <<'EOF'   \nEOF construction
+	my $success = utf8::decode($string);
+	unless ($success) {
+		warn "There was an error decoding $filePath as UTF-8, will try to upgrade";
+		utf8:upgrade($backup_string);
+		$string = $backup_string;
+	}
 	close(INPUT);
 	\$string;
 }
-
+# <:utf8 is more relaxed on input, <:encoding(UTF-8) would be better, but 
+# perhaps it's not so horrible to have lax input. encoding(UTF-8) tries to use require
+# to import Encode, Encode::Alias::find_encoding and Safe raises an exception.
+# haven't figured a way around this yet. 
 =item convertPath($path)
 
 Currently a no-op. Returns $path unmodified.
@@ -201,7 +218,7 @@ sub createFile {
 
 	die 'Path is unsafe' unless path_is_course_subdir($fileName);
 
-	open(TEMPCREATEFILE, ">$fileName")
+	open(TEMPCREATEFILE, ">:encoding(UTF-8)",$fileName)
 		or die "Can't open $fileName: $!";
 	my @stat = stat TEMPCREATEFILE;
 	close(TEMPCREATEFILE);

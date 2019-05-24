@@ -1679,6 +1679,238 @@ sub TEX { MODES( TeX => '\\TeX', HTML => '\\(\\mathrm\\TeX\\)', PTX => '<tex/>' 
 sub APOS { MODES( TeX => "'", HTML => "'", PTX => "\\'" ); };
 
 ###############################################################
+
+=head2 SPAN and DIV macros
+        These are functions primarly meant to add
+            HTML block level DIV or inline SPAN
+        tags and the relevant closing tags for HTML output.
+
+        At present, these macros require the user to provide TeX and
+        preTeXt strings which will be used in those modes instead of the
+        HTML block level DIV or inline SPAN tag.
+
+        If they are missing, they will default to the empty string.
+        If only one string is given, it will be assumed to be the TeX string.
+
+        At present only the following 4 HTML attributes can be set:
+                         lang, dir, class, style.
+        Using the style option requires creating valid CSS text.
+        For safety some parsing/cleanup is done and various sorts of
+        (apparently) invalid values may be dropped. See the code for
+        details of what input sanitation is done.
+
+        Since the use of style is particularly dangerous, in order to
+        enable its use you must set allowStyle to 1 in the hash. It is
+        possible to prevent the use of some of the other options by
+        setting certain control like allowLang to 0.
+
+	Usage:
+          openSpan( options_hash,  "tex code", "ptx code" );
+          closeSpan("tex code","ptx code");
+
+        Usage where TeX and PTX output will be empty by default.
+          openSpan( options_hash );
+          closeSpan();
+
+        Sample options hashes
+
+            { "lang" => "he",
+              "dir" => "rtl",
+              "class" => "largeText class123" }
+
+            { "lang" => "he",
+              "allowStyle" => 1,
+               "style" => "background-color: \"#afafaf; float: left;\t height: 12px;" }
+
+=cut
+
+sub processDivSpanOptions {
+    my $option_ref = {}; $option_ref = shift if ref($_[0]) eq 'HASH';
+
+    my %options = (
+	allowLang   => 1,    # Setting the lang  tag is allowed by default
+	allowDir    => 1,    # Setting the dir   tag is allowed by default
+	allowClass  => 1,    # Setting the class tag is allowed by default
+	allowStyle  => 0,    # Setting the style tag is FORBIDDEN by default, use with care!
+	%{$option_ref},
+	);
+
+    my $LangVal = "";
+    if ( $options{allowLang} && defined( $options{lang} ) ) {
+	# The standard for how the lang tag should be set is explained in
+	# https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang
+	# based on the BCP47 standard from https://www.ietf.org/rfc/bcp/bcp47.txt
+
+	# We are going to do only minimal cleanup to the value provided
+	# making sure that all the characters are in the valid range A-Za-z0-9\-
+	# but not checking the inner structure
+	$LangVal = $options{lang};
+	if ( $LangVal =~ /[^\w\-]/ ) {
+	    # Clean it up
+	    $LangVal =~ s/[^\w\-]//g; # Drop invalid characters
+	    WARN_MESSAGE("processDivSpanOptions received an HTML LANG attribute setting with invalid characters which were removed. The value after cleanup is $LangVal which may not be what was intended. See https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang for information on how this value should be set");
+	}
+    }
+
+    my $DirVal = "";
+    if ( $options{allowDir} && defined( $options{dir} ) ) {
+	# the ONLY allowed values are: ltr rtl auto
+	if ( ( $options{dir} eq "ltr"  ) ||
+	     ( $options{dir} eq "rtl"  ) ||
+	     ( $options{dir} eq "auto" )    ) {
+	    $DirVal =  $options{dir};
+	} else {
+	    WARN_MESSAGE("processDivSpanOptions received an invalid value for the HTML DIR attribute. Only ltr rtl auto are allowed. As a result the DIR attribute has not been set.");
+	}
+    }
+
+    my $ClassVal = "";
+    if ( $options{allowClass} && defined( $options{class} ) ) {
+	# Class names which are permitted here must start with a letter [A-Za-z]
+        # and the rest of the class name can be characters in [A-Za-z0-9\-\_].
+
+        # A space is used to separate class names
+
+	# The offical W3C documentation allows class names to follow a far more general
+	# grammar, but this is not being permitted here at present.
+	# See: https://www.w3.org/TR/css-syntax-3/#token-diagrams
+
+	my $hadBadClassNames = 0;
+	my @rawList = split( ' ',  $options{class} );
+	my @okList; # Will collect valid class names
+	my $cl;
+	while ( @rawList ) {
+	    $cl = shift( @rawList );
+	    if ( $cl =~ /^[A-Za-z][\w\-\_]*$/ ) {
+		push( @okList, $cl );
+	    } else {
+		$hadBadClassNames = 1;
+		# print "Invalid classname $cl dropped\n";
+	    }
+	}
+	if ( @okList ) {
+	    $ClassVal = join(' ', @okList);
+	    WARN_MESSAGE("processDivSpanOptions received some CSS class names which are not permitted by PG for the HTML CLASS attribute. Any invalid names were dropped.") if ($hadBadClassNames);
+	} else {
+	    # No good values arrived
+	    WARN_MESSAGE("processDivSpanOptions received ONLY CSS class names which are not permitted by PG for the HTML CLASS attribute. As a result the CLASS attribute has not been set.") if ($hadBadClassNames);
+	}
+    }
+
+
+    my $StyleVal = "";
+    if ( $options{allowStyle} && defined( $options{style} ) ) {
+	# The value is validated in a very minimal sense only - use with great care
+
+	# Replace tab with space
+	$options{style} =~ s/\t/ /g;
+
+	$StyleVal = $options{style};
+
+	# Mininal cleanup for safety
+	$StyleVal =~ s/["']//g;    # Drop quotes
+	if ( $StyleVal eq $options{style} ) {
+	    # no quotes, so now drop other characters we consider invalid
+	    # ONLY A-Za-z-_ #:; are currently allowed.
+	    $StyleVal =~ s/[^\w\-\_ #:;]//g;
+	}
+
+	if ( $StyleVal ne $options{style} ) {
+	    # Did not seem safe
+	    $StyleVal = "";
+	    WARN_MESSAGE("processDivSpanOptions received some characters in the STYLE string which are are not permitted by PG. As a result the entire STYLE string was dropped");
+	}
+    }
+
+    # Construct the desired HTML attributes
+    my $html_attribs = "";
+    $html_attribs .=  "lang=\"$LangVal\" "  if ( $LangVal ne "" );
+    $html_attribs .=   "dir=\"$DirVal\" "   if ( $DirVal ne "" );
+    $html_attribs .= "class=\"$ClassVal\" " if ( $ClassVal ne "" );
+    $html_attribs .= "style=\"$StyleVal\" " if ( $StyleVal ne "" );
+    return( $html_attribs );
+}
+
+sub openDivSpan {
+    my $type = shift; # "Span" or "Div";
+    if ( $type eq "Span" || $type eq "Div" ) {
+	# OK
+    } else {
+	WARN_MESSAGE("openDivSpan called with an invalid first argument. The entire call was discarded.");
+	return();
+    }
+    my $option_ref = {};
+    my $html_attribs;
+    if ( ref($_[0]) eq 'HASH' ) {
+	$option_ref = shift ;
+	$html_attribs = processDivSpanOptions( $option_ref );
+    }
+
+    my $tex_code = shift; # TeX     code to be used for this - currently needs to be set by hand
+    my $ptx_code = shift; # preTeXt code to be used for this - currently needs to be set by hand
+
+    # Fall back to empty TeX / preTeXt code if none was provided.
+    $tex_code = defined($tex_code)?$tex_code:"";
+    $ptx_code = defined($ptx_code)?$ptx_code:"";
+
+    # Make a call to track this as opening a "object" which needs to be closed
+    # ON HOLD - as the internal balancing support is still work in progress
+    # internalBalancingIncrement("open${type}");
+
+    MODES(
+	TeX => "$tex_code",
+	Latex2HTML => qq!\\begin{rawhtml}<$type $html_attribs>\\end{rawhtml}!,
+	HTML => qq!<$type $html_attribs>\n! ,
+	PTX => "$ptx_code",
+	);
+}
+
+sub closeDivSpan {
+    my $type = shift; # "Span" or "Div";
+    if ( $type eq "Span" || $type eq "Div" ) {
+	# OK
+    } else {
+	WARN_MESSAGE("closeDivSpan called with an invalid first argument. The entire call was discarded.");
+	return();
+    }
+
+    my $tex_code = shift; # TeX     code to be used for this - currently needs to be set by hand
+    my $ptx_code = shift; # preTeXt code to be used for this - currently needs to be set by hand
+
+    # Fall back to empty TeX / preTeXt code if none was provided.
+    $tex_code = defined($tex_code)?$tex_code:"";
+    $ptx_code = defined($ptx_code)?$ptx_code:"";
+
+    # Make a call to track this as closing a tracked "object" which was reported as opened
+    # ON HOLD - as the internal balancing support is still work in progress
+    # internalBalancingDecrement("open${type}");
+
+    MODES(
+	TeX => "$tex_code",
+	Latex2HTML => qq!\\begin{rawhtml}</$type>\\end{rawhtml}!,
+	HTML => qq!</$type>\n! ,
+	PTX => "$ptx_code",
+	);
+}
+
+sub openSpan {
+    openDivSpan( ( "Span", @_ ) );
+}
+
+sub openDiv {
+    openDivSpan( ( "Div", @_ ) );
+}
+
+sub closeSpan {
+    closeDivSpan( ( "Span", @_ ) );
+}
+
+sub closeDiv {
+    closeDivSpan( ( "Div", @_ ) );
+}
+
+
+###############################################################
 ## Evaluation macros
 
 
