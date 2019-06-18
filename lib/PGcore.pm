@@ -31,7 +31,7 @@ use MIME::Base64();
 use PGUtil();
 use Encode qw(encode_utf8 decode_utf8);
 use utf8;
-binmode(STDOUT, ":uft8");
+binmode(STDOUT, ":utf8");
 ##################################
 # PGcore object
 ##################################
