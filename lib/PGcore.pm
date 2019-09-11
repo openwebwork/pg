@@ -668,7 +668,7 @@ sub DESTROY {
 	# returns a path to the file containing the graph image.
 	$filePath = insertGraph($graphObject);
 
-insertGraph writes a GIF or PNG image file to the gif subdirectory of the
+insertGraph writes a GIF or PNG image file to the images subdirectory of the
 current course's HTML temp directory. The file name is obtained from the graph
 object. Warnings are issued if errors occur while writing to the file.
 
@@ -694,25 +694,50 @@ sub insertGraph {
 	# Convert the image to GIF and print it on standard output
 	my $self     = shift;
 	my $graph    = shift;
-	my $extension = ($WWPlot::use_png) ? '.png' : '.gif';
-	my $fileName = $graph->imageName  . $extension;
-	my $filePath = $self->convertPath("gif/$fileName");
+	my $fileName = $graph->imageName . "." . $graph->ext;
+	my $filePath = $self->convertPath("images/$fileName");
 	my $templateDirectory = $self->{envir}{templateDirectory};
 	$filePath = $self->surePathToTmpFile( $filePath );
 	my $refreshCachedImages = $self->PG_restricted_eval(q!$refreshCachedImages!);
 	# Check to see if we already have this graph, or if we have to make it
-	if( not -e $filePath # does it exist?
-	  or ((stat "$templateDirectory".$self->{envir}{probFileName})[9] > (stat $filePath)[9]) # source has changed
-	  or $self->{envir}{setNumber} =~ /Undefined_Set/ # problems from SetMaker and its ilk should always be redone
-	  or $refreshCachedImages
+	if (not -e $filePath # does it exist?
+			or ((stat "$templateDirectory".$self->{envir}{probFileName})[9] > (stat $filePath)[9]) # source has changed
+			or $self->{envir}{setNumber} =~ /Undefined_Set/ # problems from SetMaker and its ilk should always be redone
+			or $refreshCachedImages
 	) {
-		local(*OUTPUT);  # create local file handle so it won't overwrite other open files.
- 		open(OUTPUT, ">$filePath")||warn ("$0","Can't open $filePath<BR>","");
- 		chmod( 0777, $filePath);
- 		print OUTPUT $graph->draw|| warn("$0","Can't print graph to $filePath<BR>","");
- 		close(OUTPUT)||warn("$0","Can't close $filePath<BR>","");
+		open(my $fh, ">", $filePath) || warn ("$0", "Can't open $filePath<BR>","");
+		chmod(0777, $filePath);
+		print $fh $graph->draw || warn("$0","Can't print graph to $filePath<BR>","");
+		close($fh) || warn("$0","Can't close $filePath<BR>","");
 	}
 	$filePath;
+}
+
+=head2 getUniqueName
+
+	# Returns a unique file name for use in the problem
+	$name = getUniqueName('png');
+
+getUniqueName generates a unique file name for use in a problem.  Its single
+argument is the file type.  This is used internally by PGgraphmacros.pl and
+PGtikz.pl.
+
+=cut
+
+# Keep track of the names created during this session.
+our %names_created;
+
+# Generate a unique file name in a problem based on the user, seed, set
+# number, and problem number.
+sub getUniqueName {
+	my $self = shift;
+	my $ext = shift;
+	my $prob_name = "$self->{envir}{studentLogin}-$self->{envir}{problemSeed}" .
+		"-set$self->{envir}{setNumber}prob$self->{envir}{probNum}";
+	my $num  = ++$names_created{$prob_name};
+	my $resource = $self->{PG_alias}->make_resource_object($prob_name, $ext);
+	$resource->path("__");
+	return $resource->create_unique_id;
 }
 
 =head1 Macros from IO.pm
@@ -765,7 +790,7 @@ sub AskSage {
 	my $self = shift;
 	my $python = shift;
 	my $options = shift;
-	$options->{curlCommand} = $self->{envir}->{externalCurlCommand};
+	$options->{curlCommand} = WeBWorK::PG::IO::curlCommand();
 	WeBWorK::PG::IO::AskSage($python, $options);
 }
  

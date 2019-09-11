@@ -798,7 +798,7 @@ sub Read {
   my $self = shift; my $filename = shift;
   die "You must supply a problem file name" unless $filename;
   delete $self->{error};
-  $filename = $main::PG->surePathToTmpFile('gif/'.$self->dataFilePath($filename).$self->{extension});
+  $filename = $main::PG->surePathToTmpFile('images/'.$self->dataFilePath($filename).$self->{extension});
   my ($text,$error) = main::PG_restricted_eval("read_whole_file('$filename')");
   return $$text unless $error;
   ###  FIXME:  return generic error for students
@@ -813,7 +813,7 @@ sub Read {
 #
 #  Perform the actual writing of the file, using a hack that
 #  takes advantage of the fact that insertGraph() can write files
-#  in the html/tmp/gif directory.
+#  in the html/tmp/images directory.
 #
 sub Write {
   my $self = shift; $self->{file} = shift; $self->{data} = shift;
@@ -838,12 +838,13 @@ sub Write {
 }
 
 #
-#  The answerDiscussion object mimics the WWPlot object by defining draw() and
-#  imageName() methods.  These are used by insertGraph() to write image
-#  files, and we can use that to write the data files that we need.
+#  The answerDiscussion object mimics the WWPlot object by defining draw(),
+#  imageName(), and ext() methods.  These are used by insertGraph() to write
+#  image files, and we can use that to write the data files that we need.
 #
 sub draw {shift->{data}}
 sub imageName {shift->{file}}
+sub ext { return $WWPlot::use_png ? 'png' : 'ext'; }
 
 ######################################################################
 #
