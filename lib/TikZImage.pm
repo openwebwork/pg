@@ -150,6 +150,13 @@ sub draw {
 		}
 	} else {
 		warn "File $working_dir/image.pdf was not created.";
+		if (open(my $err_fh, "<", "$working_dir/pdflatex.stdout"))
+		{
+			while (my $error = <$err_fh>) {
+				warn $error;
+			}
+			close($err_fh);
+		}
 	}
 
 	# Delete the files used to generate the image.
