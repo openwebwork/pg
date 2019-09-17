@@ -404,18 +404,17 @@ sub NAMED_ANS_RULE {
         }
 
         # end of addition for dragmath
-	
+
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
-		Latex2HTML => qq!\\begin{rawhtml}<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\\end{rawhtml}!,
+		Latex2HTML => qq!\\begin{rawhtml}<input type=text size=$col name="$name" value="">\\end{rawhtml}!,
 
-	    # Note: codeshard is used in the css to identify input elements 
-	    # that come from pg
-		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" aria-label="$label" dir="auto" value="$answer_value"/>\n!.
-		              $add_html. # added for dragmath
-                        qq!<input type=hidden  name="$previous_name" value="$answer_value"/>\n!,
-        PTX => '<fillin name="'."$name".'" characters="'."$col".'" />',
-		
+		# Note: codeshard is used in the css to identify input elements that come from pg
+		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" aria-label="$label" ! .
+			qq!dir="auto" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" ! .
+			qq!value="$answer_value">\n! . $add_html . # added for dragmath
+			qq!<input type=hidden name="$previous_name" value="$answer_value">\n!,
+		PTX => qq!<fillin name="$name" characters="$col" />!
 	);
 }
 
@@ -453,9 +452,9 @@ sub NAMED_HIDDEN_ANS_RULE { # this is used to hold information being passed into
 
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
-		Latex2HTML => qq!\\begin{rawhtml}<INPUT TYPE=TEXT SIZE=$col NAME=\"$name\" VALUE = \"\">\\end{rawhtml}!,
-		HTML => qq!<INPUT TYPE=HIDDEN SIZE=$col NAME="$name" id ="$name" VALUE="$answer_value">!.
-                        qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" id = "previous_$name" VALUE="$answer_value">!,
+		Latex2HTML => qq!\\begin{rawhtml}<input type=text size=$col name="$name" value="">\\end{rawhtml}!,
+		HTML => qq!<input type=hidden size=$col name="$name" id ="$name" value="$answer_value">!.
+			qq!<input type=hidden  name="previous_$name" id = "previous_$name" value="$answer_value">!,
         PTX => '',
 	);
 }
@@ -504,10 +503,12 @@ sub NAMED_ANS_RULE_EXTENSION {
 	$tcol = $tcol < 40 ? $tcol : 40;     ## get min
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
-		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = " ">\n\\end{rawhtml}\n!,
-		HTML => qq!<INPUT TYPE=TEXT CLASS="codeshard" SIZE=$col NAME = "$name" id="$name" aria-label="$label" dir="auto" VALUE = "$answer_value">!.
-                        qq!<INPUT TYPE=HIDDEN  NAME="previous_$name" id="previous_$name" VALUE = "$answer_value">!,
-		PTX => '<fillin name="'."$name".'" characters="'."$col".'" />',
+		Latex2HTML => qq!\\begin{rawhtml}\n<input type=text size=$col name="$name" id="$name" value="">\n\\end{rawhtml}\n!,
+		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" aria-label="$label" ! .
+			qq!dir="auto" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" ! .
+			qq!value="$answer_value">! .
+			qq!<input type=hidden  name="previous_$name" id="previous_$name" value="$answer_value">!,
+		PTX => qq!<fillin name="$name" characters="$col" />!,
 	);
 }
 
@@ -1171,9 +1172,10 @@ sub NAMED_ANS_ARRAY_EXTENSION{
 
 	MODES(
 		TeX => "\\mbox{\\parbox[t]{10pt}{\\hrulefill}}\\hrulefill\\quad ",
-		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" VALUE = "">\n\\end{rawhtml}\n!,
-        HTML => qq!<INPUT TYPE=TEXT SIZE=$col NAME="$name" id="$name" class="codeshard" aria-label="$label" VALUE = "$answer_value">\n!,
-        PTX => qq!<fillin name="$name" characters="$col" />!,
+		Latex2HTML => qq!\\begin{rawhtml}\n<input type=text size=$col name="$name" id="$name" value="">\n\\end{rawhtml}\n!,
+		HTML => qq!<input type=text size=$col name="$name" id="$name" class="codeshard" aria-label="$label" ! .
+			qq!autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value="$answer_value">\n!,
+		PTX => qq!<fillin name="$name" characters="$col" />!,
 	);
 }
 
