@@ -80,7 +80,16 @@ sub compare {
 #
 #  Mark a string to be display verbatim
 #
-sub verb {shift; return "\\verb".chr(0x1F).(shift).chr(0x1F)}
+sub verb {
+  shift;
+  my $s = shift;
+  $s =~ s/\r/ /g;
+  return "{\\verb\r$s\r}";
+  # Note this does not handle \n in the input string
+  # A future effort to address that should concurrently
+  # handle it similarly for HTML output.
+  # And something similar should be done for the ArbitraryString context
+}
 
 #
 #  Put normal strings into \text{} and others into \verb
