@@ -102,6 +102,7 @@ sub initialize {
 	$self->{externalGif2PngPath} = $envir->{externalGif2PngPath};
 	$self->{courseID}            = $envir->{courseName};
 	$self->{problemSeed}         = $envir->{problemSeed};
+	$self->{problemUUID}         = $envir->{problemUUID}//0;
 	
 	$self->{appletPath} = $self->{envir}->{pgDirectories}->{appletPath};
 	#
@@ -117,7 +118,8 @@ sub initialize {
 				  $self->{courseID},
 				  'set'.$self->{setNumber},
 				  'prob'.$self->{probNum},
-				  $self->{problemSeed}
+				  $self->{problemSeed},
+				  $self->{problemUUID},
 				 );
 
 ##################################
