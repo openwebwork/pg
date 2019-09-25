@@ -79,6 +79,8 @@ my ($PAR,
 	$ECENTER,
 	$BLTR,
 	$ELTR,
+	$BKBD,
+	$EKBD,
 	$HR,
 	$LBRACE,
 	$RBRACE,
@@ -151,6 +153,8 @@ main::PG_restricted_eval( <<'EndOfFile');
 	$main::ECENTER          = ECENTER();
 	$main::BLTR          = BLTR();
 	$main::ELTR          = ELTR();
+	$main::BKBD                     = BKBD();
+	$main::EKBD                     = EKBD();
 	$main::HR				= HR();
 	$main::LBRACE			= LBRACE();
 	$main::RBRACE			= RBRACE();
@@ -209,6 +213,8 @@ EndOfFile
 	$ECENTER             = ECENTER();
 	$BLTR             = BLTR();
 	$ELTR             = ELTR();
+	$BKBD                           = BKBD();
+	$EKBD                           = EKBD();
 	$HR				     = HR();
 	$LBRACE			     = LBRACE();
 	$RBRACE			     = RBRACE();
@@ -1590,6 +1596,8 @@ sub MODES {
 	$ECENTER    		ECENTER()  			end centered environment
 	$BLTR    		BLTR()   		begin left to right environment
 	$ELTR    		ELTR()  			end left to right environment
+	$BKBD                   BKBD()                  begin "keyboard" input text
+	$EKBD                   EKBD()                  end "keyboard" input text
 	$HR					HR()				horizontal rule
 	$LBRACE				LBRACE()			left brace
 	$LB					LB ()				left brace
@@ -1666,6 +1674,8 @@ sub BCENTER { MODES(TeX => '\\begin{center} ',  Latex2HTML => ' \\begin{rawhtml}
 sub ECENTER { MODES(TeX => '\\end{center} ',  Latex2HTML => ' \\begin{rawhtml} </div> \\end{rawhtml} ', HTML => '</div>', PTX => ''); };
 sub BLTR { MODES(TeX => ' ',  Latex2HTML => ' \\begin{rawhtml} <div dir="ltr"> \\end{rawhtml} ', HTML => '<span dir="ltr">', PTX => ''); };
 sub ELTR { MODES(TeX => ' ',  Latex2HTML => ' \\begin{rawhtml} </div> \\end{rawhtml} ', HTML => '</span>', PTX => ''); };
+sub BKBD { MODES(TeX => '\\texttt{' , Latex2HTML => '', HTML => '<KBD>', PTX => ''); };
+sub EKBD { MODES(TeX => '}', Latex2HTML => '', HTML => '</KBD>', PTX => ''); };
 sub HR { MODES(TeX => '\\par\\hrulefill\\par ', Latex2HTML => '\\begin{rawhtml} <HR> \\end{rawhtml}', HTML =>  '<HR>', PTX => ''); };
 sub LBRACE { MODES( TeX => '\{', Latex2HTML =>   '\\lbrace',  HTML =>  '{' , HTML_tth=> '\\lbrace', PTX => '{' ); };  #not for use in math mode
 sub RBRACE { MODES( TeX => '\}', Latex2HTML =>   '\\rbrace',  HTML =>  '}' , HTML_tth=> '\\rbrace', PTX => '}' ); };  #not for use in math mode
