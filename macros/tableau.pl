@@ -356,27 +356,22 @@ sub phase1_solve {
 	[complementary_basis_set] = $self->primal_basis_to_dual(primal_basis_set)
 	[complementary_basis_set] = $self->dual_basis_to_primal(dual_basis_set)
 
-<<<<<<< HEAD
+
 ########################
 ##############
 # get_tableau_variable_values
 #
-
+# deprecated for tableaus - use $tableau->statevars instead
+#
 # Calculates the values of the basis variables of the tableau, 
 # assuming the parameter variables are 0.
 #
 # Usage:   get_tableau_variable_values($MathObjectMatrix_tableau, $MathObjectSet_basis)
 # 
 # feature request -- for tableau object -- allow specification of non-zero parameter variables
+
+
 sub get_tableau_variable_values {
-=======
-=cut
-
-
-		
-# deprecated for tableaus - use $tableau->statevars instead
-sub get_tableau_variable_values { 
->>>>>>> Pull updated tableau.pl from fall17mth208/templates/macro/tableau.pl
    my $mat = shift;  # a MathObject matrix
    my $basis =shift; # a MathObject set
    # FIXME
@@ -429,34 +424,6 @@ Tableau->mk_accessors(qw(
 
 ));
 
-<<<<<<< HEAD
- 
- 
-sub linebreak_at_commas {
-	return sub {
-		my $ans=shift;
-		my $foo = $ans->{correct_ans_latex_string};
-<<<<<<< HEAD
-		$foo =~ s/,/,\\\\/g;
-		($ans->{correct_ans_latex_string})=~ s/,/,\\\\/g;
-		($ans->{preview_latex_string})=~ s/,/,\\\\/g;
-=======
-		$foo =~ s/,/,\\\\\\\\/g;
-		($ans->{correct_ans_latex_string})=~ s/,/,\\\\\\\\/g;
-		($ans->{preview_latex_string})=~ s/,/,\\\\\\\\/g;
->>>>>>> Add tableau.pl
-		#DEBUG_MESSAGE("foo", $foo);
-		#DEBUG_MESSAGE( "correct", $ans->{correct_ans_latex_string} );
-		#DEBUG_MESSAGE( "preview",  $ans->{preview_latex_string} );
-		#DEBUG_MESSAGE("section4ans1 ", pretty_print($ans, $displayMode));
-		$ans;
-	};
-}
-# Useage
-# $foochecker =  $constraints->cmp()->withPostFilter(
-# 	linebreak_at_commas()
-# );
-
 
 # We're going to have several types
 # MathObject Matrices  Value::Matrix
@@ -476,10 +443,11 @@ sub linebreak_at_commas {
 # create the methods for updating the various containers
 # create the method for printing the tableau with all its decorations 
 # possibly with switches to turn the decorations on and off. 
-=======
+
+
+
 our $tableauZeroLevel = Value::Real->new(1E-10); 
 # consider entries zero if they are less than $tableauZeroLevel times the current_basis_coeff.
->>>>>>> Pull updated tableau.pl from fall17mth208/templates/macro/tableau.pl
 
 
 sub close_enough_to_zero {
@@ -545,23 +513,6 @@ sub initialize {
 		"|");
 	}
 	my ($m, $n)=($self->{A}->dimensions);
-<<<<<<< HEAD
-	$self->{n}=$self->{n}//$n;
-	$self->{m}=$self->{m}//$m;
-	# main::DEBUG_MESSAGE("m $m, n $n");
-	$self->{S} = Value::Matrix->I(4);
-	$self->{basis} = [($n+1)...($n+$m)] unless ref($self->{basis})=~/ARRAY/;
-<<<<<<< HEAD
-	my @rows = $self->assemble_tableau;
-=======
-	my @rows = $self->assemble_matrix;
->>>>>>> Add tableau.pl
-	#main::DEBUG_MESSAGE("rows", @rows);
-	$self->{M} = _Matrix([@rows]);
-	$self->{B} = $self->{M}->submatrix(rows=>[1..($self->{m})],columns=>$self->{basis});
-	$self->{obj_row} = _Matrix($self->objective_row());
-	return();	
-=======
 	$self->n(  ($self->n) //$n  );
 	$self->m( ($self->m) //$m  );
 	my $myAlignString = "c" x $n . "|" . "c" x $m ."|"."c|c"; # usual alignment for tableau.
@@ -583,14 +534,9 @@ sub initialize {
  	$self->basis($self->basis->value);
  	
  	return();	
->>>>>>> Pull updated tableau.pl from fall17mth208/templates/macro/tableau.pl
 }
-		
-<<<<<<< HEAD
+
 sub assemble_tableau {
-=======
-sub assemble_matrix {
->>>>>>> Add tableau.pl
 	my $self = shift;
 	my @rows =();
 	my $m = $self->m;
@@ -1416,17 +1362,6 @@ package Value::Matrix;
 sub _Matrix {
 	Value::Matrix->new(@_);
 }
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-#FIXME -- I think these need default values for slice
-
-sub extract_rows { # preferable to use row slice
-=======
-sub extract_rows {
->>>>>>> Add tableau.pl
-	$self = shift;
-=======
 
 =item row_slice
 
@@ -1462,7 +1397,6 @@ sub row_slice {
 
 sub extract_rows {
 	my $self = shift;
->>>>>>> Pull updated tableau.pl from fall17mth208/templates/macro/tableau.pl
 	my @slice = @_;
 	if (ref($slice[0]) =~ /ARRAY/) { # handle array reference
 		@slice = @{$slice[0]};
@@ -1472,14 +1406,6 @@ sub extract_rows {
 	return [map {$self->row($_)} @slice ]; #prefer to pass references when possible
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-sub extract_columns { # preferable to use row slice 
-=======
-sub extract_columns {
->>>>>>> Add tableau.pl
-	$self = shift;
-=======
 =item column_slice
 
 	$self->column_slice()
@@ -1511,7 +1437,6 @@ sub column_slice {
 
 sub extract_columns { 
 	my $self = shift;
->>>>>>> Pull updated tableau.pl from fall17mth208/templates/macro/tableau.pl
 	my @slice = @_;
 	if (ref($slice[0]) =~ /ARRAY/) { # handle array reference
 		@slice = @{$slice[0]};
