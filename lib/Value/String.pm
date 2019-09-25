@@ -84,7 +84,12 @@ sub verb {
   shift;
   my $s = shift;
   $s =~ s/\r/ /g;
-  return "{\\verb\r$s\r}";
+  # different verbatim delimiters because in general 0xD would be nicest,
+  # but browsers want to change that to 0xA
+  # eval() needed because this .pm file loaded outside the safe compartment,
+  # and eval() runs it inside the safe compartment, where problem context is in place.
+  my $d = eval ('main::MODES(HTML => chr(0x1F), TeX => chr(0xD), PTX=> chr(0xD))');
+  return "{\\verb$d$s$d}";
   # Note this does not handle \n in the input string
   # A future effort to address that should concurrently
   # handle it similarly for HTML output.
