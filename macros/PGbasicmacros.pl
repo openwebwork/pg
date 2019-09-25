@@ -1654,8 +1654,8 @@ sub SPACE { MODES(TeX => '\\ ',  Latex2HTML => '\\ ', HTML => '&nbsp;', PTX => '
 sub NBSP { MODES(TeX => '~',  Latex2HTML => '~', HTML => '&nbsp;', PTX => '<nbsp/>');};
 sub NDASH { MODES(TeX => '--',  Latex2HTML => '--', HTML => '&ndash;', PTX => '<ndash/>');};
 sub MDASH { MODES(TeX => '---',  Latex2HTML => '---', HTML => '&mdash;', PTX => '<mdash/>');};
-sub BBOLD { MODES(TeX => '{\\bf ',  Latex2HTML => '{\\bf ', HTML => '<B>', PTX => '<alert>'); };
-sub EBOLD { MODES( TeX => '}', Latex2HTML =>  '}',HTML =>  '</B>', PTX => '</alert>'); };
+sub BBOLD { MODES(TeX => '{\\bf ',  Latex2HTML => '{\\bf ', HTML => '<STRONG>', PTX => '<alert>'); };
+sub EBOLD { MODES( TeX => '}', Latex2HTML =>  '}',HTML =>  '</STRONG>', PTX => '</alert>'); };
 sub BLABEL { MODES(TeX => '', Latex2HTML => '', HTML => '<LABEL>', PTX => ''); };
 sub ELABEL { MODES(TeX => '', Latex2HTML => '', HTML => '</LABEL>', PTX => ''); };
 sub BITALIC { MODES(TeX => '{\\it ',  Latex2HTML => '{\\it ', HTML => '<I>', PTX => '<em>'); };
