@@ -356,14 +356,15 @@ sub phase1_solve {
 	[complementary_basis_set] = $self->primal_basis_to_dual(primal_basis_set)
 	[complementary_basis_set] = $self->dual_basis_to_primal(dual_basis_set)
 
+=cut 
+
 
 ########################
 ##############
-# get_tableau_variable_values
-#
+# get_tableau_variable_values is
 # deprecated for tableaus - use $tableau->statevars instead
 #
-# Calculates the values of the basis variables of the tableau, 
+# It calculates the values of the basis variables of the tableau, 
 # assuming the parameter variables are 0.
 #
 # Usage:   get_tableau_variable_values($MathObjectMatrix_tableau, $MathObjectSet_basis)
@@ -402,6 +403,7 @@ sub get_tableau_variable_values {
 
      @var;
 }
+
 #### Test -- assume matrix is this 
 #    	1	2	1	0	0 |	0 |	3
 #		4	5	0	1	0 |	0 |	6
