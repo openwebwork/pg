@@ -698,8 +698,8 @@ sub promote {
   my $x = (scalar(@_) ? shift : $self);
   if (scalar(@_) == 0) {
     return $x->inContext($context) if ref($x) eq $class;
-    return (bless {data => [$x->value,1], context => $context}, $class) if Value::isReal($x) && isInteger($x);
-    return (bless {data => [$x,1], context => $context}, $class) if Value::isReal($x) || Value::matchNumber($x);
+    return (bless {data => [$x->value,1], context => $context}, $class) if Value::isReal($x);
+    return (bless {data => [$x,1], context => $context}, $class) if Value::matchNumber($x);
   }
   return $x if Value::isValue($x) && $x->classMatch("Infinity");
   return $self->new($context,$x,@_);
