@@ -467,23 +467,19 @@ sub cmp_preprocess {
 		$self->constructJSGraphOptions;
 		my $graphObjs = @{$self->{staticObjects}} ?
 			join(",", @{$self->{staticObjects}}, $ans->{student_ans}) : $ans->{student_ans};
-		$ans->{preview_latex_string} = "${ans_name}_student_ans_placeholder";
-		$ans->{student_ans} .= <<"END_ANS";
+
+		# This first ends the attempts table MathJax_Preview script.  Note that the script
+		# started here is ended by the original script end tag for the MathJax_Preview.
+		$ans->{preview_latex_string} = <<"END_ANS";
+</script>
+<div id="${ans_name}_student_ans_placeholder"></div>
 <script>
 jQuery(function() {
-	var resultsTableRows = jQuery("table." + ("$main::PG->{QUIZ_PREFIX}".length ? "gwA" : "a") +
-		"ttemptResults tr:not(:first-child)");
-	resultsTableRows.each(function() {
-			// Replace the "Preview" with the student's graph.
-			var preview = jQuery(this).find("td:nth-child(2)");
-			if (preview.length && preview.html().indexOf("${ans_name}_student_ans_placeholder") != -1) {
-				preview.html("<div id='${ans_name}_student_ans_graphbox' class='graphtool-answer-container'></div>");
-				graphTool("${ans_name}_student_ans_graphbox", "", "$graphObjs", true, $self->{graphOptions});
-			}
-		}
-	);
+	// Replace the "Preview" with the student's graph.
+	jQuery("#${ans_name}_student_ans_placeholder").parent()
+		.html("<div id='${ans_name}_student_ans_graphbox' class='graphtool-answer-container'></div>");
+	graphTool("${ans_name}_student_ans_graphbox", "", "$graphObjs", true, $self->{graphOptions});
 });
-</script>
 END_ANS
 	}
 }
@@ -501,6 +497,9 @@ sub cmp {
 		$self->constructJSGraphOptions;
 		my $graphObjs = @{$self->{staticObjects}} ?
 			join(",", @{$self->{staticObjects}}, $cmp->{rh_ans}{correct_ans}) : $cmp->{rh_ans}{correct_ans};
+
+		# The correct_ans is used and the correct_ans_latex_string is undefined as Gateway
+		# quizzes don't use the latex version of the correct answer.
 		$cmp->{rh_ans}{correct_ans} = << "END_ANS";
 <div id="${ans_name}_correct_ans_graphbox" class="graphtool-answer-container"></div>
 <script>
