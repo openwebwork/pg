@@ -4,8 +4,10 @@
 # provided by the translator
 # initialize PGcore and PGrandom
 
+
 sub _PG_init{
   $main::VERSION ="PG-2.15";
+
   #
   #  Set up MathObject context for use in problems
   #  that don't load MathObjects.pl
