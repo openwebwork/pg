@@ -1348,9 +1348,9 @@ our @ISA = ('PGML::Format');
 sub Escape {
   my $self = shift;
   my $string = shift; return "" unless defined $string;
-  $string =~ s/</<less\/>/g;
-  $string =~ s/(?<!\/)>/<greater\/>/g;
-  $string =~ s/&/<ampersand\/>/g;
+  $string =~ s/&/&amp;/g;
+  $string =~ s/</&lt;/g;
+  $string =~ s/>/&gt;/g;
   return $string;
 }
 

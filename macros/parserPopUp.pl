@@ -177,9 +177,9 @@ sub MENU {
     foreach my $item (@list) {
       $menu .= '<li>';
       my $escaped_item = $item;
-      $escaped_item =~ s/</<less \/>/g;
-      $escaped_item =~ s/(?<!\/)>/<greater \/>/g;
-      $escaped_item =~ s/&/<ampersand \/>/g;
+      $escaped_item =~ s/&/&amp;/g;
+      $escaped_item =~ s/</&lt;/g;
+      $escaped_item =~ s/>/&gt;/g;
       $menu .= $escaped_item . '</li>'. "\n";
     }
     $menu .= '</var>';

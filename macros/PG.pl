@@ -5,16 +5,15 @@
 # initialize PGcore and PGrandom
 
 
-
 sub _PG_init{
-  $main::VERSION ="PG-2.14+";
+  $main::VERSION ="PG-2.15";
+
   #
   #  Set up MathObject context for use in problems
   #  that don't load MathObjects.pl
   #
   %main::context = ();
   Parser::Context->current(\%main::context);
-
 }
 
 our $PG;  
@@ -196,6 +195,16 @@ sub SET_PROBLEM_TEXTDIRECTION {
   }
 }
 
+# Request that the problem HTML page also include additional CSS files
+# from the webwork2/htdocs/css/ directory.
+sub ADD_CSS_FILE {
+  my $file = shift ;
+  if ( !defined( $PG->{flags}{extra_css_files} ) ) {
+    $PG->{flags}{extra_css_files} = [ "$file" ];
+  } else {
+    push( @{$PG->{flags}{extra_css_files}}, $file );
+  }
+}
 
 sub AskSage {
     my $python = shift;
