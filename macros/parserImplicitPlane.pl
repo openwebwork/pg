@@ -91,7 +91,7 @@ sub new {
   my $context = (Value::isContext($_[0]) ? shift : $self->context);
   if (scalar(@_) == 1 && ref($_[0]) eq 'ImplicitPlane') {
   	my $obj = shift;
-  	$obj->{implict}='foobar';  # some planes are being created without all of the data
+  	$obj->{implicit}='foobar';  # some planes are being created without all of the data
   	return $obj;
   }
   $_[0] = $context->Package("Point")->new($context,$_[0]) if ref($_[0]) eq 'ARRAY';
@@ -116,8 +116,8 @@ sub new {
     $vars = [$vars] unless ref($vars) eq 'ARRAY';
     $type = 'line' if scalar(@{$vars}) == 2;
     my @terms = (); my $i = 0;
-    foreach my $x (@{$vars}) {push @terms, $N->{data}[$i++]->string.$x}
-    $plane = $formula->new(join(' + ',@terms).' = '.$d->string)->reduce(@_);
+    foreach my $x (@{$vars}) {push @terms, $N->{data}[$i++]->value.$x}
+    $plane = $formula->new(join(' + ',@terms).' = '.$d->value)->reduce(@_);
   } else {
     #
     #  Determine the normal vector and d value from the equation

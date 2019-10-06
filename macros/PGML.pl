@@ -32,7 +32,7 @@ package PGML::Parse;
 
 my $wordStart = qr/[^a-z0-9]/;
 
-my $indent = '^\t+';
+my $indent = '^(?:\t|    )+';
 my $lineend = '\n+';
 my $linebreak = '   ?(?=\n)';
 my $heading = '#+';
@@ -67,8 +67,6 @@ sub new {
 
 sub Split {
   my $self = shift; my $string = shift;
-  $string =~ s/\t/    /g;                             # turn tabs into spaces
-  $string =~ s!^((?:    )+)!"\t"x(length($1)/4)!gme;  # make initial indent into tabs
   $string =~ s!^(?:\t* +|\t+ *)$!!gm;                 # make blank lines blank
   return split($splitPattern,$string);
 }
@@ -153,7 +151,7 @@ sub All {
   my $self = shift; my $token = shift;
   return $self->Begin($token) if substr($token,0,1) eq "[" && $BlockDefs{$token};
   for ($token) {
-    /\t/           && do {return $self->Indent($token)};
+    /^(?:\t|    )/ && do {return $self->Indent($token)};
     /\d+\. /       && do {return $self->Bullet($token,"numeric")};
     /[ivxl]+[.)] / && do {return $self->Bullet($token,"roman")};
     /[a-z][.)] /   && do {return $self->Bullet($token,"alpha")};
@@ -285,7 +283,9 @@ sub Par {
 sub Indent {
   my $self = shift; my $token = shift;
   if ($self->{atLineStart}) {
-    my $indent = $self->{actualIndent} = length($token);
+    my $tabs = $token;
+    $tabs =~ s/    /\t/g;  # turn spaces into tabs
+    my $indent = $self->{actualIndent} = length($tabs);
     if ($indent != $self->{indent}) {
       $self->End("indentation change");
       $self->{indent} = $indent;
@@ -855,7 +855,6 @@ sub pushText {
   my $self = shift;
   foreach my $text (@_) {
     if ($text ne "") {
-      $text =~ s/\t/    /g;
       push(@{$self->{stack}},$text);
     }
   }
@@ -1013,7 +1012,7 @@ sub Answer {
         $method = "named_".$method;
       }
       $rule = $ans->$method(@options);
-      $rule = PGML::LaTeX($rule) if $item->{hasStar};
+      $rule = PGML::LaTeX($rule);
       if (!(ref($ans) eq 'MultiAnswer' && $ans->{part} > 1)) {
         if (defined($item->{name})) {
           main::NAMED_ANS($item->{name} => $ans->cmp);
@@ -1349,7 +1348,9 @@ our @ISA = ('PGML::Format');
 sub Escape {
   my $self = shift;
   my $string = shift; return "" unless defined $string;
-  $string = main::PTX_special_character_cleanup($string);
+  $string =~ s/&/&amp;/g;
+  $string =~ s/</&lt;/g;
+  $string =~ s/>/&gt;/g;
   return $string;
 }
 
@@ -1362,7 +1363,7 @@ sub Indent {
 # No align for PTX
 sub Align {
   my $self = shift; my $item = shift;
-  return $self->string($item);
+  return "<!-- PTX:WARNING: PGML wanted to " . $item->{align} . " align here. -->\n" . $self->string($item);
 }
 
 my %bullet = (
@@ -1394,29 +1395,33 @@ sub Bullet {
 
 sub Code {
   my $self = shift; my $item = shift;
-  my $class = ($item->{class} ? ' class="'.$item->{class}.'"' : "");
-  return $self->nl .
-    "<cd>\n<cline>" .
-    join("<\/cline>\n<cline>", split(/\n/,$self->string($item))) .
-    "<\/cline>\n<\/cd>\n";
+  my $code = ($self->string($item) =~ /\n/)
+    ?
+      $self->nl .
+      "<pre>\n<cline>" .
+      join("<\/cline>\n<cline>", split(/\n/,$self->string($item))) .
+      "<\/cline>\n<\/pre>\n"
+    :
+      $self->nl .
+      "<pre>" . $self->string($item) . "<\/pre>\n";
+  ## Restore escaped characters
+  $code =~ s/<ampersand\/>/&amp;/g;
+  $code =~ s/<less\/>/&lt;/g;
+  $code =~ s/<greater\/>/>/g;
+  return $code;
 }
 
 sub Pre {
   my $self = shift; my $item = shift;
-  return
-    $self->nl .
-    '<pre>' .
-    $self->string($item) .
-    "</pre>\n";
+  ## PGML pre can have stylized contents like bold,
+  ## and PTX pre cannot have element children
+  return "<!-- PTX:WARNING: PGML wanted to make preformatted text here. -->\n";
 }
 
 # PreTeXt can't use headings.
 sub Heading {
   my $self = shift; my $item = shift;
-  my $n = $item->{n};
-  my $text = $self->string($item);
-  $text =~ s/^ +| +$//gm; $text =~ s! +(<br />)!$1!g;
-  return $text."\n";
+  return "<!-- PTX:WARNING: PGML wanted to make this a level " . $item->{n} . " header. -->\n" . $self->string($item);
 }
 
 sub Par {
@@ -1428,7 +1433,7 @@ sub Break {"\n\n"}
 
 sub Bold {
   my $self = shift; my $item = shift;
-  return '<em>'.$self->string($item).'</em>';
+  return '<alert>'.$self->string($item).'</alert>';
 }
 
 sub Italic {
@@ -1436,8 +1441,8 @@ sub Italic {
   return '<em>'.$self->string($item).'</em>';
 }
 
-our %openQuote = ('"' => "<lq />", "'" => "<lsq />");
-our %closeQuote = ('"' => "<rq />", "'" => "<rsq />");
+our %openQuote = ('"' => "<lq/>", "'" => "<lsq/>");
+our %closeQuote = ('"' => "<rq/>", "'" => "<rsq/>");
 sub Quote {
   my $self = shift; my $item = shift; my $string = shift;
   return $openQuote{$item->{token}} if $string eq "" || $string =~ m/(^|[ ({\[\s])$/;
@@ -1447,17 +1452,23 @@ sub Quote {
 # No rule for PTX
 sub Rule {
   my $self = shift; my $item = shift;
-  return $self->nl;
+  return "<!-- PTX:WARNING: PGML wanted to place a horizontal rule here. -->\n";
 }
 
 sub Verbatim {
   my $self = shift; my $item = shift;
-  #Don't escape most content. Just < and &
-  #my $text = $self->Escape($item->{text});
   my $text = $item->{text};
-  $text =~ s/</&lt;/g;
-  $text =~ s/&/&amp;/g;
-  $text = "<c>$text</c>";
+  if ($item->{hasStar}) {
+    #Don't escape most content. Just < and &
+    $text =~ s/&/&amp;/g;
+    $text =~ s/</&lt;/g;
+    $text = "<c>$text</c>";
+  }
+  else {
+    $text =~ s/</<less\/>/g;
+    $text =~ s/(?<!<less\\)>/<greater\/>/g;
+    $text =~ s/&/<ampersand\/>/g;
+  }
   return $text;
 }
 

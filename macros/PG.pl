@@ -5,17 +5,15 @@
 # initialize PGcore and PGrandom
 
 
-$main::VERSION ="PG-2.14";
-
 sub _PG_init{
-  $main::VERSION ="PG-2.14";
+  $main::VERSION ="PG-2.15";
+
   #
   #  Set up MathObject context for use in problems
   #  that don't load MathObjects.pl
   #
   %main::context = ();
   Parser::Context->current(\%main::context);
-
 }
 
 our $PG;  
@@ -140,6 +138,72 @@ sub HEADER_TEXT {
 
 sub POST_HEADER_TEXT {
 	$PG->POST_HEADER_TEXT(@_);
+}
+
+# We expect valid HTML language codes, but there can also include a region code, or other
+# settings.
+#    See https://www.w3.org/International/questions/qa-choosing-language-tags
+# Example settings: en-US, en-UK, he-IL
+# Some special language codes (zh-Hans) are longer
+#    http://www.rfc-editor.org/rfc/bcp/bcp47.txt
+#    https://www.w3.org/International/articles/language-tags/
+#    https://www.w3.org/International/questions/qa-lang-2or3.en.html
+#    http://www.iana.org/assignments/language-subtag-registry/language-subtag-registry
+#    https://www.w3schools.com/tags/ref_language_codes.asp
+#    https://www.w3schools.com/tags/ref_country_codes.asp
+# Tester at https://r12a.github.io/app-subtags/
+
+sub SET_PROBLEM_LANGUAGE {
+  my $requested_lang = shift;
+
+  # Clean it up for safety
+  my $selected_lang = $requested_lang;
+  $selected_lang =~ s/[^a-zA-Z0-9-]//g ; # Drop any characters not permitted.
+
+  if ( $selected_lang ne $requested_lang ) {
+    warn "PROBLEM_LANGUAGE was edited. Requested: $requested_lang which was replaced by $selected_lang";
+  }
+  $PG->{flags}->{"language"} = $selected_lang;
+}
+
+# SET_PROBLEM_TEXTDIRECTION to set the HTML DIRection attribute to be applied
+# to the DIV element containing this problem.
+
+# We only permit valid settings for the HTML direction attribute:
+#      dir="ltr|rtl|auto"
+# https://www.w3schools.com/tags/att_global_dir.asp
+
+# It is likely that only problems written in RTL scripts
+# will need to call the following function to set the base text direction
+# for the problem.
+
+# Note the flag may not be set, and then webwork2 will use default behavior.
+
+sub SET_PROBLEM_TEXTDIRECTION {
+  my $requested_dir = shift;
+
+  # Only allow valid values:
+
+  if ( $requested_dir =~ /^ltr$/i ) {
+    $PG->{flags}->{"textdirection"} = "ltr";
+  } elsif ( $requested_dir =~ /^rtl$/i ) {
+    $PG->{flags}->{"textdirection"} = "rtl";
+  } elsif ( $requested_dir =~ /^auto$/i ) {
+    $PG->{flags}->{"textdirection"} = "auto"; # NOT RECOMMENDED
+  } else {
+    warn " INVALID setting for PROBLEM_TEXTDIRECTION: $requested_dir was DROPPED.";
+  }
+}
+
+# Request that the problem HTML page also include additional CSS files
+# from the webwork2/htdocs/css/ directory.
+sub ADD_CSS_FILE {
+  my $file = shift ;
+  if ( !defined( $PG->{flags}{extra_css_files} ) ) {
+    $PG->{flags}{extra_css_files} = [ "$file" ];
+  } else {
+    push( @{$PG->{flags}{extra_css_files}}, $file );
+  }
 }
 
 sub AskSage {
@@ -730,7 +794,7 @@ sub includePGproblem {
     my $filePath = shift;
     my %save_envir = %main::envir;
     my $fullfilePath = $PG->envir("templateDirectory").$filePath;
-    my $r_string =  read_whole_problem_file($fullfilePath);
+    my $r_string    =  $PG->read_whole_problem_file($fullfilePath);
     if (ref($r_string) eq 'SCALAR') {
         $r_string = $$r_string;      
     }

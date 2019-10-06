@@ -290,7 +290,7 @@ sub lp_current_value {
   		if (defined &Fraction) {
   			return Fraction(0);   # MathObjects version
   		} else {
-  			return new Fraction(0);	# old style Function module version
+  			return Fraction->new(0);	# old style Function module version
   		}
   	} else {
   		return 0;

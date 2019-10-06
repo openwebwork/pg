@@ -8,11 +8,11 @@
 	use Carp;
 	use GD;
 	use WWPlot;
-	use Fun;
-	$fn = new Fun( rule_reference);
-	$fn = new Fun( rule_reference , graph_reference);
-	$fn = new Fun ( x_rule_ref, y_rule_ref );
-	$fn = new Fun ( x_rule_ref, y_rule_ref, graph_ref );
+	use VectorField;
+	$vf = new VectorField( dy_rule_ref);
+	$vf = new VectorField( dy_rule_ref , graph_reference);
+	$vf = new VectorField( x_rule_ref, y_rule_ref );
+	$vf = new VectorField( x_rule_ref, y_rule_ref, graph_ref );
 
 =head1 DESCRIPTION
 
@@ -25,19 +25,14 @@ The following functions are provided:
 
 =over 4
 
-=item	$fn = new VectorField( dy_rule_ref);
+=item	$vf = new VectorField( dy_rule_ref);
 
 rule_reference is a reference to a subroutine which accepts a pair of numerical values
 and returns a numerical value.
-The Fun object will draw the direction field associated with this subroutine.
-
-The new method returns a reference to the vector field object.
-
-=item	$fn = new Fun( rule_reference , graph_reference);
-
 The vector field is also placed into the printing queue of the graph
  object pointed to by graph_reference and the
 domain of the vector field object is set to the domain of the graph.
+The graph_ref must come last.
 
 =back
 
@@ -45,22 +40,22 @@ domain of the vector field object is set to the domain of the graph.
 
 =over 4
 
-=item	$fn = new VectorField ( dx_rule_ref, dy_rule_ref );
+=item	$vf = new VectorField ( dx_rule_ref, dy_rule_ref );
 
 A vector field object is created where the subroutines refered to by dx_rule_ref and dy_rule_ref define
 the x and y components of the vector field at (x,y).  Both subroutines must be functions of two variables.
 
-=item	$fn = new VectorField ( x_rule_ref, y_rule_ref, graph_ref );
+=item	$vf = new VectorField ( x_rule_ref, y_rule_ref, graph_ref );
 
 This variant inserts the vector field object into the graph object referred to by graph_ref.  The domain
-of the vector field object is set to the domain of the graph.
+of the vector field object is set to the domain of the graph. The graph_ref must come last. 
 
 =back
 
 =head2 Properites
 
-	All of the properties are set using the construction $new_value = $fn->property($new_value)
-	and read using $current_value = $fn->property()
+	All of the properties are set using the construction $new_value = $vf->property($new_value)
+	and read using $current_value = $vf->property()
 
 =over 4
 
@@ -105,12 +100,12 @@ The width in pixels of the pen used to draw the arrow (respectively the dot).
 
 =item domain
 
-$array_ref = $fn->domain(-1,-2,1,2) sets xmin to -1, ymin to -2, xmax to 1, and ymax to 2.
+$array_ref = $vf->domain(-1,-2,1,2) sets xmin to -1, ymin to -2, xmax to 1, and ymax to 2.
 
 
 =item draw
 
-$fn->draw($graph_ref) draws the vector field in the graph object pointed to by $graph_ref.
+$vf->draw($graph_ref) draws the vector field in the graph object pointed to by $graph_ref.
 
 The graph object must
 respond to the methods below.  The draw call is mainly for internal

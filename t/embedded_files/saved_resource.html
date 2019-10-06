@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)https://fiddle.jshell.net/mgage/r2tsdfgt/show/light/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="googlebot" content="noindex, nofollow">
+
+  
+  
+
+  
+  
+  
+
+  
+
+  <script type="text/javascript" src="./jquery-1.9.1.js"></script>
+
+  
+
+  
+
+  
+    
+      <script type="text/javascript" src="./jquery-ui.js"></script>
+    
+    
+      <link rel="stylesheet" type="text/css" href="./jquery-ui.css">
+    
+  
+
+  
+    <link rel="stylesheet" type="text/css" href="./result-light.css">
+  
+
+  
+
+  <style type="text/css">
+    
+  </style>
+
+  <title>enter matrix2 by mgage</title>
+
+  
+    
+
+
+
+
+<script type="text/javascript">//<![CDATA[
+$(window).load(function(){
+         $(function() {
+            $( "#dialog-1" ).dialog({
+               autoOpen: false,  
+            });
+
+            var name = $("#dialog-1").attr("name");
+            //console.log("name is " + name );
+            //console.log("rows="+$("#dialog-1").attr("rows")+ " columns= "+$("#dialog-1").attr("columns"));
+            var insert_value = function(name, i,j,entry) {
+            	 var pos = "#MaTrIx_"+name+"_"+i+"_"+j;
+               if (i==0 && j==0 ) {
+               	pos= "#"+name;
+               }  //MaTrIx_AnSwEr0007_0_3
+								 //console.log($(pos).val());
+	     				$(pos).val(entry); //instead of 4000
+  					}
+            $( ".opener" ).click(function() {
+               console.log(this.id );
+               $( "#dialog-1" ).dialog( "open" );
+            });
+            $( "#closer" ).click(function() {
+               //var name="AnSwEr0007";
+               var mat=$("textarea#matrix_input").val();
+               var mat2=mat.split(/\n/);
+               var mat3=[];
+               for (i=0; i<mat2.length; i++) {
+               		mat3.push( mat2[i].split(/\s+/) );
+               }
+               for (i=0; i<mat3.length; i++) {
+               	  for(j=0; j<mat3[i].length; j++){
+                  	insert_value(name,i,j,mat3[i][j]);
+                  }		
+               }
+               $( "#dialog-1" ).dialog( "close" );
+            });
+         });
+// dialog is attached to div with id="dialog-1"
+// it is opened when button with id #opener is clicked
+// now to add the entry mechanism
+});//]]> 
+
+</script>
+
+  
+</head>
+
+<body>
+   
+<button class="opener" id="007">Quick matrix entry</button>
+<div>
+
+<button class="opener" id="008">Quick matrix entry</button>
+<div>
+<span class="ans_array" style="display:inline-block;vertical-align:.5ex">
+ <span class="ans_array_open" style="display:inline-block; vertical-align:middle; margin-right:4px"><span class="MathJax_Preview" style="color: inherit;"></span><span class="MathJax" id="MathJax-Element-10-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;mrow&gt;&lt;mo&gt;[&lt;/mo&gt;&lt;mpadded width=&quot;0pt&quot; height=&quot;6em&quot; depth=&quot;0pt&quot;&gt;&lt;mrow /&gt;&lt;/mpadded&gt;&lt;mo fence=&quot;true&quot; stretchy=&quot;true&quot;&gt;&lt;/mo&gt;&lt;/mrow&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-89" role="math" style="width: 0.598em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0.479em; height: 0px; font-size: 120%;"><span style="position: absolute; clip: rect(2.027em 1000.48em 15.36em -999.997em); top: -8.926em; left: 0.003em;"><span class="mrow" id="MathJax-Span-90"><span class="mrow" id="MathJax-Span-91"><span class="mo" id="MathJax-Span-92" style="vertical-align: 6.729em;"><span style="display: inline-block; position: relative; width: 0.479em; height: 0px;"><span style="position: absolute; font-family: STIXSizeOneSym; top: -3.33em; left: 0.003em;">⎡<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="position: absolute; font-family: STIXSizeOneSym; top: 8.693em; left: 0.003em;">⎣<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: -2.378em; left: 0.003em;">⎢<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: -1.485em; left: 0.003em;">⎢<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: -0.533em; left: 0.003em;">⎢<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: 0.36em; left: 0.003em;">⎢<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: 1.313em; left: 0.003em;">⎢<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: 2.265em; left: 0.003em;">⎢<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: 3.158em; left: 0.003em;">⎢<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: 4.11em; left: 0.003em;">⎢<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: 5.003em; left: 0.003em;">⎢<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: 5.955em; left: 0.003em;">⎢<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: 6.848em; left: 0.003em;">⎢<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: 7.801em; left: 0.003em;">⎢<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span></span></span><span class="mpadded" id="MathJax-Span-93"><span style="display: inline-block; position: relative; width: 0.003em; height: 0px;"><span style="position: absolute; clip: rect(3.812em 1000em 4.17em -999.997em); top: -3.985em; left: 0.003em;"><span class="mrow" id="MathJax-Span-94"><span class="mrow" id="MathJax-Span-95"></span></span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span></span></span><span class="mo" id="MathJax-Span-96"></span></span></span><span style="display: inline-block; width: 0px; height: 8.932em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -7.568em; border-left: 0px solid; width: 0px; height: 15.718em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mo>[</mo><mpadded width="0pt" height="6em" depth="0pt"><mrow></mrow></mpadded><mo fence="true" stretchy="true"></mo></mrow></math></span></span><script type="math/tex" id="MathJax-Element-10">\left[\Rule{0pt}{6em}{0pt}\right.</script></span><span class="ans_array_table" style="display:inline-table; vertical-align:middle"><span style="display:table-row"><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;">p1</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;">p2</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;">x3</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;">x4</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;">x5</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;">x6</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;">P</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;">b</span></span><span style="display:table-row"><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="text" class="codeshard" size="6" name="AnSwEr0007" id="AnSwEr0007" aria-label="answer 7 row 1 column 1 " value="0">
+<input type="hidden" name="previous_AnSwEr0007" value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_0_1" id="MaTrIx_AnSwEr0007_0_1" class="codeshard" aria-label="answer 7 row 1 column 2 " value="4000">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_0_2" id="MaTrIx_AnSwEr0007_0_2" class="codeshard" aria-label="answer 7 row 1 column 3 " value="1">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_0_3" id="MaTrIx_AnSwEr0007_0_3" class="codeshard" aria-label="answer 7 row 1 column 4 " value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_0_4" id="MaTrIx_AnSwEr0007_0_4" class="codeshard" aria-label="answer 7 row 1 column 5 " value="-5000">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_0_5" id="MaTrIx_AnSwEr0007_0_5" class="codeshard" aria-label="answer 7 row 1 column 6 " value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_0_6" id="MaTrIx_AnSwEr0007_0_6" class="codeshard" aria-label="answer 7 row 1 column 7 " value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_0_7" id="MaTrIx_AnSwEr0007_0_7" class="codeshard" aria-label="answer 7 row 1 column 8 " value="1000">
+</span></span><span style="display:table-row"><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_1_0" id="MaTrIx_AnSwEr0007_1_0" class="codeshard" aria-label="answer 7 row 2 column 1 " value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_1_1" id="MaTrIx_AnSwEr0007_1_1" class="codeshard" aria-label="answer 7 row 2 column 2 " value="500">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_1_2" id="MaTrIx_AnSwEr0007_1_2" class="codeshard" aria-label="answer 7 row 2 column 3 " value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_1_3" id="MaTrIx_AnSwEr0007_1_3" class="codeshard" aria-label="answer 7 row 2 column 4 " value="1">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_1_4" id="MaTrIx_AnSwEr0007_1_4" class="codeshard" aria-label="answer 7 row 2 column 5 " value="-400">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_1_5" id="MaTrIx_AnSwEr0007_1_5" class="codeshard" aria-label="answer 7 row 2 column 6 " value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_1_6" id="MaTrIx_AnSwEr0007_1_6" class="codeshard" aria-label="answer 7 row 2 column 7 " value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_1_7" id="MaTrIx_AnSwEr0007_1_7" class="codeshard" aria-label="answer 7 row 2 column 8 " value="200">
+</span></span><span style="display:table-row"><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_2_0" id="MaTrIx_AnSwEr0007_2_0" class="codeshard" aria-label="answer 7 row 3 column 1 " value="1">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_2_1" id="MaTrIx_AnSwEr0007_2_1" class="codeshard" aria-label="answer 7 row 3 column 2 " value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_2_2" id="MaTrIx_AnSwEr0007_2_2" class="codeshard" aria-label="answer 7 row 3 column 3 " value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_2_3" id="MaTrIx_AnSwEr0007_2_3" class="codeshard" aria-label="answer 7 row 3 column 4 " value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_2_4" id="MaTrIx_AnSwEr0007_2_4" class="codeshard" aria-label="answer 7 row 3 column 5 " value="1">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_2_5" id="MaTrIx_AnSwEr0007_2_5" class="codeshard" aria-label="answer 7 row 3 column 6 " value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_2_6" id="MaTrIx_AnSwEr0007_2_6" class="codeshard" aria-label="answer 7 row 3 column 7 " value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_2_7" id="MaTrIx_AnSwEr0007_2_7" class="codeshard" aria-label="answer 7 row 3 column 8 " value="1">
+</span></span><span style="display:table-row"><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_3_0" id="MaTrIx_AnSwEr0007_3_0" class="codeshard" aria-label="answer 7 row 4 column 1 " value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_3_1" id="MaTrIx_AnSwEr0007_3_1" class="codeshard" aria-label="answer 7 row 4 column 2 " value="1">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_3_2" id="MaTrIx_AnSwEr0007_3_2" class="codeshard" aria-label="answer 7 row 4 column 3 " value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_3_3" id="MaTrIx_AnSwEr0007_3_3" class="codeshard" aria-label="answer 7 row 4 column 4 " value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_3_4" id="MaTrIx_AnSwEr0007_3_4" class="codeshard" aria-label="answer 7 row 4 column 5 " value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_3_5" id="MaTrIx_AnSwEr0007_3_5" class="codeshard" aria-label="answer 7 row 4 column 6 " value="1">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_3_6" id="MaTrIx_AnSwEr0007_3_6" class="codeshard" aria-label="answer 7 row 4 column 7 " value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_3_7" id="MaTrIx_AnSwEr0007_3_7" class="codeshard" aria-label="answer 7 row 4 column 8 " value="1">
+</span></span><span style="display:table-row"><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_4_0" id="MaTrIx_AnSwEr0007_4_0" class="codeshard" aria-label="answer 7 row 5 column 1 " value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_4_1" id="MaTrIx_AnSwEr0007_4_1" class="codeshard" aria-label="answer 7 row 5 column 2 " value="-4500">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_4_2" id="MaTrIx_AnSwEr0007_4_2" class="codeshard" aria-label="answer 7 row 5 column 3 " value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_4_3" id="MaTrIx_AnSwEr0007_4_3" class="codeshard" aria-label="answer 7 row 5 column 4 " value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_4_4" id="MaTrIx_AnSwEr0007_4_4" class="codeshard" aria-label="answer 7 row 5 column 5 " value="4500">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_4_5" id="MaTrIx_AnSwEr0007_4_5" class="codeshard" aria-label="answer 7 row 5 column 6 " value="0">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_4_6" id="MaTrIx_AnSwEr0007_4_6" class="codeshard" aria-label="answer 7 row 5 column 7 " value="1">
+</span><span class="ans_array_sep" style="display:table-cell;vertical-align:middle;width:8px"></span><span class="ans_array_cell" style="display:table-cell;vertical-align:middle;padding:4px 0;"><input type="TEXT" size="6" name="MaTrIx_AnSwEr0007_4_7" id="MaTrIx_AnSwEr0007_4_7" class="codeshard" aria-label="answer 7 row 5 column 8 " value="4500">
+</span></span></span><span class="ans_array_close" style="display:inline-block; vertical-align:middle; margin-left:4px"><span class="MathJax_Preview" style="color: inherit;"></span><span class="MathJax" id="MathJax-Element-11-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;mrow&gt;&lt;mo&gt;]&lt;/mo&gt;&lt;mpadded width=&quot;0pt&quot; height=&quot;6em&quot; depth=&quot;0pt&quot;&gt;&lt;mrow /&gt;&lt;/mpadded&gt;&lt;mo fence=&quot;true&quot; stretchy=&quot;true&quot;&gt;&lt;/mo&gt;&lt;/mrow&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-97" role="math" style="width: 0.598em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0.479em; height: 0px; font-size: 120%;"><span style="position: absolute; clip: rect(2.027em 1000.48em 15.36em -999.997em); top: -8.926em; left: 0.003em;"><span class="mrow" id="MathJax-Span-98"><span class="mrow" id="MathJax-Span-99"><span class="mo" id="MathJax-Span-100" style="vertical-align: 6.729em;"><span style="display: inline-block; position: relative; width: 0.479em; height: 0px;"><span style="position: absolute; font-family: STIXSizeOneSym; top: -3.33em; left: 0.003em;">⎤<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="position: absolute; font-family: STIXSizeOneSym; top: 8.693em; left: 0.003em;">⎦<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: -2.378em; left: 0.003em;">⎥<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: -1.485em; left: 0.003em;">⎥<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: -0.533em; left: 0.003em;">⎥<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: 0.36em; left: 0.003em;">⎥<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: 1.313em; left: 0.003em;">⎥<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: 2.265em; left: 0.003em;">⎥<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: 3.158em; left: 0.003em;">⎥<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: 4.11em; left: 0.003em;">⎥<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: 5.003em; left: 0.003em;">⎥<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: 5.955em; left: 0.003em;">⎥<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: 6.848em; left: 0.003em;">⎥<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="font-family: STIXSizeOneSym; position: absolute; top: 7.801em; left: 0.003em;">⎥<span style="display: inline-block; width: 0px; height: 3.991em;"></span></span></span></span><span class="mpadded" id="MathJax-Span-101"><span style="display: inline-block; position: relative; width: 0.003em; height: 0px;"><span style="position: absolute; clip: rect(3.812em 1000em 4.17em -999.997em); top: -3.985em; left: 0.003em;"><span class="mrow" id="MathJax-Span-102"><span class="mrow" id="MathJax-Span-103"></span></span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span></span></span><span class="mo" id="MathJax-Span-104"></span></span></span><span style="display: inline-block; width: 0px; height: 8.932em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -7.568em; border-left: 0px solid; width: 0px; height: 15.718em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mo>]</mo><mpadded width="0pt" height="6em" depth="0pt"><mrow></mrow></mpadded><mo fence="true" stretchy="true"></mo></mrow></math></span></span><script type="math/tex" id="MathJax-Element-11">\left]\Rule{0pt}{6em}{0pt}\right.</script></span></span>
+
+</div>
+  
+  <script>
+  // tell the embed parent frame the height of the content
+  if (window.parent && window.parent.parent){
+    window.parent.parent.postMessage(["resultsFrame", {
+      height: document.body.getBoundingClientRect().height,
+      slug: "r2tsdfgt"
+    }], "*")
+  }
+</script>
+
+
+
+
+
+</div><div class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-draggable ui-resizable" tabindex="-1" role="dialog" aria-labelledby="ui-id-1" style="display: none; outline: 0px; z-index: 1000; position: absolute;"><div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix"><span id="ui-id-1" class="ui-dialog-title">Enter 5 by 10 matrix</span><a href="https://fiddle.jshell.net/mgage/r2tsdfgt/show/light/#" class="ui-dialog-titlebar-close ui-corner-all" role="button"><span class="ui-icon ui-icon-closethick">close</span></a></div><div id="dialog-1" name="AnSwEr0007" rows="5" columns="10" class="ui-dialog-content ui-widget-content">
+  <textarea id="matrix_input" rows="5" columns="10"> 
+  </textarea>
+  <button id="closer">enter
+  </button>
+ </div><div class="ui-resizable-handle ui-resizable-n" style="z-index: 1000;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 1000;"></div><div class="ui-resizable-handle ui-resizable-s" style="z-index: 1000;"></div><div class="ui-resizable-handle ui-resizable-w" style="z-index: 1000;"></div><div class="ui-resizable-handle ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se ui-icon-grip-diagonal-se" style="z-index: 1000;"></div><div class="ui-resizable-handle ui-resizable-sw" style="z-index: 1000;"></div><div class="ui-resizable-handle ui-resizable-ne" style="z-index: 1000;"></div><div class="ui-resizable-handle ui-resizable-nw" style="z-index: 1000;"></div></div></body></html>
