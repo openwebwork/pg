@@ -244,7 +244,7 @@ package main;
 sub sageCalculatorHeader {
 $CellServer = 'https://sagecell.sagemath.org';
 main::HEADER_TEXT(main::MODES(TeX=>"", HTML=><<"END_OF_FILE"));
-<script src="$CellServer}/static/jquery.min.js"></script>
+<script src="$CellServer/static/jquery.min.js"></script>
     <script src="$CellServer/static/embedded_sagecell.js"></script>
     <script>\$(function () {
     // Make *any* div with class 'sage-compute' a Sage cell
