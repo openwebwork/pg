@@ -1,4 +1,6 @@
 
+# Some subroutines here use the romberg() funciton from PGnumericalmacros.pl
+loadMacros('PGnumericalmacros.pl');
 
 sub _PGstatisticsmacros_init {
 		foreach my $t (@Distributions::EXPORT_OK) {
