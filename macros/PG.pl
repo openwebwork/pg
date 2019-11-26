@@ -77,27 +77,38 @@ sub DOCUMENT {
 	#FIXME
 	# load java script needed for displayModes
 	if ($envir{displayMode} eq 'HTML_MathJax') {
-		##
-		# The following is used to prevent MathJax from being loaded more than one on a page. (Happened in WW3 library browser)
-		#
-		# If there are any errors replace the line starting "window.MathJax" with the string in $loadScript.
-		#
-	    TEXT(
-		 qq?<script type="text/x-mathjax-config">
-                  MathJax.Hub.Config({
-                     MathMenu: {showContext: true}
-                  });
-                  </script>
-				  <script type="text/javascript"> 
-				  if(!window.MathJax) 
-				  (function () {
-  					var script = document.createElement("script");
-  					script.type = "text/javascript";
-  					script.src  = "$envir{MathJaxURL}";
-  					document.getElementsByTagName("head")[0].appendChild(script);
-					})();                
-                  </script>?."\n");
-        } elsif ($envir{displayMode} eq 'HTML_jsMath') {
+		TEXT(
+			qq?<script type="text/javascript">
+				if (!window.MathJax) 
+				{
+					window.MathJax = {
+						tex: {
+							autoload: {
+								color: [],
+								colorV2: ['color']
+							},
+							packages: {'[+]': ['noerrors']}
+						},
+						loader: {
+							load: ['input/asciimath', '[tex]/noerrors']
+						},
+						startup: {
+							ready: function() {
+								var AM = MathJax.InputJax.AsciiMath.AM;
+								for (var i = 0; i < AM.symbols.length; i++) {
+									if (AM.symbols[i].input == '**') {
+										AM.symbols[i] = {
+											input: "**", tag: "msup", output: "^", tex: null, ttype: AM.TOKEN.INFIX
+										};
+									}
+								}
+								return MathJax.startup.defaultReady()
+							}
+						}
+					};
+				}
+				</script>?."\n");
+	} elsif ($envir{displayMode} eq 'HTML_jsMath') {
 		my $prefix = "";
 		if (!$envir{jsMath}{reportMissingFonts}) {
 			$prefix .= '<script>noFontMessage = 1</script>'."\n";
