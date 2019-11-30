@@ -138,16 +138,18 @@ sub compare {
       # make sure nonsensical tolerances are converted to a natural number
       $tolerance = (1 > int($tolerance)) ? 1 : int($tolerance);
       my $order = int(log(abs($a))/log(10)); $order-- if (abs($a) < 1 ); # act as floor
-      for my $tol ($tolerance..$self->getFlag('tolDigits')) {
-        # compare $a to $b at deeper tolerances than just $tolerance
-        # for example to detect that 3.1419926 is not pi, even when $tolerance is 3
-        my $rnda = ($a > 0) ? int($a*10**($tol-$order-1) + 0.5)*10**($order-$tol+1) : int($a*10**($tol-$order-1) - 0.5)*10**($order-$tol+1);
-        my $rndb = ($b > 0) ? int($b*10**($tol-$order-1) + 0.5)*10**($order-$tol+1) : int($b*10**($tol-$order-1) - 0.5)*10**($order-$tol+1);
-        my $trunca = ($a > 0) ? int($a*10**($tol-$order-1))*10**($order-$tol+1) : int($a*10**($tol-$order-1))*10**($order-$tol+1);
-        my $truncb = ($b > 0) ? int($b*10**($tol-$order-1))*10**($order-$tol+1) : int($b*10**($tol-$order-1))*10**($order-$tol+1);
-        return 1 if ($rnda ne $rndb and (!$self->getFlag('tolTruncation') or $trunca ne $truncb));
+      # compare $a to $b at deeper tolerances than just $tolerance
+      # for example to detect that 3.1419926 is not pi, even when $tolerance is 3
+      my $digitsDepth = ($tolerance < $self->getFlag('tolDigits')) ? $self->getFlag('tolDigits') : $tolerance;
+      for my $tol ($tolerance..$digitsDepth) {
+        my $shift = $tol-$order-1;
+        my $rounda = ($a > 0) ? int($a*10**$shift + 0.5)/10**$shift : int($a*10**$shift - 0.5)/10**$shift;
+        my $roundb = ($b > 0) ? int($b*10**$shift + 0.5)/10**$shift : int($b*10**$shift - 0.5)/10**$shift;
+        my $trunca = ($a > 0) ? int($a*10**$shift      )/10**$shift : int($a*10**$shift      )/10**$shift;
+        my $truncb = ($b > 0) ? int($b*10**$shift      )/10**$shift : int($b*10**$shift      )/10**$shift;
+        return 1 if ($rounda ne $roundb and (!$self->getFlag('tolTruncation') or $trunca ne $truncb));
         #don't continue if we've reached the last digit of one of them
-        last if ($a == $rnda or $b == $rndb);
+        last if ($a == $rounda or $b == $roundb);
       }
       return 0;
     }
