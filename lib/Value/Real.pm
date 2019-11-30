@@ -130,6 +130,27 @@ sub compare {
   my ($a,$b) = ($l->{data}[0],$r->{data}[0]);
   if ($self->getFlag('useFuzzyReals')) {
     my $tolerance = $self->getFlag('tolerance');
+    if ($self->getFlag('tolType') eq 'digits') {
+      return 0 if ($a == 0 and $b == 0);
+      return 1 if ($a == 0 or $b == 0);
+      # convert tolerance values meant for relative to a digits tolerance
+      $tolerance = -log($tolerance)/log(10) if ($tolerance > 0 and $tolerance < 1);
+      # make sure nonsensical tolerances are converted to a natural number
+      $tolerance = (1 > int($tolerance)) ? 1 : int($tolerance);
+      my $order = int(log(abs($a))/log(10)); $order-- if (abs($a) < 1 ); # act as floor
+      for my $tol ($tolerance..$self->getFlag('tolDigits')) {
+        # compare $a to $b at deeper tolerances than just $tolerance
+        # for example to detect that 3.1419926 is not pi, even when $tolerance is 3
+        my $rnda = ($a > 0) ? int($a*10**($tol-$order-1) + 0.5)*10**($order-$tol+1) : int($a*10**($tol-$order-1) - 0.5)*10**($order-$tol+1);
+        my $rndb = ($b > 0) ? int($b*10**($tol-$order-1) + 0.5)*10**($order-$tol+1) : int($b*10**($tol-$order-1) - 0.5)*10**($order-$tol+1);
+        my $trunca = ($a > 0) ? int($a*10**($tol-$order-1))*10**($order-$tol+1) : int($a*10**($tol-$order-1))*10**($order-$tol+1);
+        my $truncb = ($b > 0) ? int($b*10**($tol-$order-1))*10**($order-$tol+1) : int($b*10**($tol-$order-1))*10**($order-$tol+1);
+        return 1 if ($rnda ne $rndb and (!$self->getFlag('tolTruncation') or $trunca ne $truncb));
+        #don't continue if we've reached the last digit of one of them
+        last if ($a == $rnda or $b == $rndb);
+      }
+      return 0;
+    }
     if ($self->getFlag('tolType') eq 'relative') {
       my $zeroLevel = $self->getFlag('zeroLevel');
       if (CORE::abs($a) < $zeroLevel || CORE::abs($b) < $zeroLevel) {

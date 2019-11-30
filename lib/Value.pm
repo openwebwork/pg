@@ -61,6 +61,8 @@ like equality are "fuzzy", meaning that two items are equal when they are "close
     tolType      => 'relative',
     zeroLevel    => 1E-14,
     zeroLevelTol => 1E-12,
+    tolTruncation => 1,
+    tolDigits    => 6,
     #
     #  For Formulas:
     #
@@ -114,6 +116,8 @@ $defaultContext = Value::Context->new(
     tolType      => 'relative',
     zeroLevel    => 1E-14,
     zeroLevelTol => 1E-12,
+    tolTruncation => 1,
+    tolDigits    => 6,
     #
     #  For Formulas:
     #
