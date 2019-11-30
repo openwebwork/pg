@@ -143,10 +143,10 @@ sub compare {
       my $digitsDepth = ($tolerance < $self->getFlag('tolDigits')) ? $self->getFlag('tolDigits') : $tolerance;
       for my $tol ($tolerance..$digitsDepth) {
         my $shift = $tol-$order-1;
-        my $rounda = ($a > 0) ? int($a*10**$shift + 0.5)/10**$shift : int($a*10**$shift - 0.5)/10**$shift;
-        my $roundb = ($b > 0) ? int($b*10**$shift + 0.5)/10**$shift : int($b*10**$shift - 0.5)/10**$shift;
-        my $trunca = ($a > 0) ? int($a*10**$shift      )/10**$shift : int($a*10**$shift      )/10**$shift;
-        my $truncb = ($b > 0) ? int($b*10**$shift      )/10**$shift : int($b*10**$shift      )/10**$shift;
+        my $rounda = int($a*10**$shift + 0.5*($a <=> 0))/10**$shift;
+        my $roundb = int($b*10**$shift + 0.5*($b <=> 0))/10**$shift;
+        my $trunca = int($a*10**$shift)/10**$shift;
+        my $truncb = int($b*10**$shift)/10**$shift;
         return 1 if ($rounda ne $roundb and (!$self->getFlag('tolTruncation') or $trunca ne $truncb));
         #don't continue if we've reached the last digit of one of them
         last if ($a == $rounda or $b == $roundb);
