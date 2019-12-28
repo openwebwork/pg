@@ -36,9 +36,9 @@ Context("Numeric");
 ##############################################################
 
 BEGIN_PGML
-path = [$path]
+path = [@ protect_underbar($path) @]
 [@ $BR @]*
-alias = [@ alias($path) @]*
+alias = [@ protect_underbar(alias($path)) @]*
 
 image = [@ image($path, width => 100, tex_size => 400) @]*
 
