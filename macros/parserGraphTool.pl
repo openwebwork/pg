@@ -475,7 +475,6 @@ sub cmp_preprocess {
 <div id="${ans_name}_student_ans_placeholder"></div>
 <script>
 jQuery(function() {
-	// Replace the "Preview" with the student's graph.
 	jQuery("#${ans_name}_student_ans_placeholder").parent()
 		.html("<div id='${ans_name}_student_ans_graphbox' class='graphtool-answer-container'></div>");
 	graphTool("${ans_name}_student_ans_graphbox", "", "$graphObjs", true, $self->{graphOptions});
@@ -498,22 +497,21 @@ sub cmp {
 		my $graphObjs = @{$self->{staticObjects}} ?
 			join(",", @{$self->{staticObjects}}, $cmp->{rh_ans}{correct_ans}) : $cmp->{rh_ans}{correct_ans};
 
-		# The correct_ans is used and the correct_ans_latex_string is undefined as Gateway
-		# quizzes don't use the latex version of the correct answer.
-		$cmp->{rh_ans}{correct_ans} = << "END_ANS";
-<div id="${ans_name}_correct_ans_graphbox" class="graphtool-answer-container"></div>
+		# This first ends the attempts table MathJax_Preview script.  Note that the script
+		# started here is ended by the original script end tag for the MathJax_Preview.
+		$cmp->{rh_ans}{correct_ans_latex_string} = << "END_ANS";
+</script>
+<div id="${ans_name}_correct_ans_placeholder"></div>
 <script>
 jQuery(function() {
+	jQuery("#${ans_name}_correct_ans_placeholder").parent()
+		.html("<div id='${ans_name}_correct_ans_graphbox' class='graphtool-answer-container'></div>");
 	graphTool("${ans_name}_correct_ans_graphbox", "", "$graphObjs", true, $self->{graphOptions});
 });
-</script>
 END_ANS
 	}
 
 	return $cmp;
 }
-
-# There is no tex form of the answer.
-sub TeX { }
 
 1;
