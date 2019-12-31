@@ -3201,7 +3201,7 @@ sub embedSVG {
 	}
 	return MODES( HTML => q!
 			<img src="! . alias($file_name).$str.q!">!,
-            TeX => "Can't process svg in tex mode yet \\includegraphics[width=6in]{" . alias( $file_name ) . "}",
+            TeX => "\\includegraphics[width=6in]{" . alias( $file_name ) . "}",
             PTX => '<sidebyside><image source="' . alias($file_name) . '" /></sidebyside>',
 	);
 }
