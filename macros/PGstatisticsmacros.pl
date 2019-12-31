@@ -1,5 +1,5 @@
 
-# Some subroutines here use the romberg() funciton from PGnumericalmacros.pl
+# Some subroutines here use the romberg() function from PGnumericalmacros.pl
 loadMacros('PGnumericalmacros.pl');
 
 sub _PGstatisticsmacros_init {
