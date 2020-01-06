@@ -472,11 +472,11 @@ sub cmp_preprocess {
 		# started here is ended by the original script end tag for the MathJax_Preview.
 		$ans->{preview_latex_string} = <<"END_ANS";
 </script>
-<div id="${ans_name}_student_ans_placeholder"></div>
+<div id='${ans_name}_student_ans_graphbox' class='graphtool-answer-container'></div>
 <script>
+jQuery("#${ans_name}_student_ans_graphbox").parent().find('span').remove();
+jQuery("#${ans_name}_student_ans_graphbox").parent().find('script[type^="math/tex"]').remove();
 jQuery(function() {
-	jQuery("#${ans_name}_student_ans_placeholder").parent()
-		.html("<div id='${ans_name}_student_ans_graphbox' class='graphtool-answer-container'></div>");
 	graphTool("${ans_name}_student_ans_graphbox", "", "$graphObjs", true, $self->{graphOptions});
 });
 END_ANS
@@ -501,11 +501,11 @@ sub cmp {
 		# started here is ended by the original script end tag for the MathJax_Preview.
 		$cmp->{rh_ans}{correct_ans_latex_string} = << "END_ANS";
 </script>
-<div id="${ans_name}_correct_ans_placeholder"></div>
+<div id='${ans_name}_correct_ans_graphbox' class='graphtool-answer-container'></div>
 <script>
+jQuery("#${ans_name}_correct_ans_graphbox").parent().find('span').remove();
+jQuery("#${ans_name}_correct_ans_graphbox").parent().find('script[type^="math/tex"]').remove();
 jQuery(function() {
-	jQuery("#${ans_name}_correct_ans_placeholder").parent()
-		.html("<div id='${ans_name}_correct_ans_graphbox' class='graphtool-answer-container'></div>");
 	graphTool("${ans_name}_correct_ans_graphbox", "", "$graphObjs", true, $self->{graphOptions});
 });
 END_ANS
