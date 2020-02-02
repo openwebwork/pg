@@ -735,7 +735,7 @@ sub getUniqueName {
 	my $prob_name = "$self->{envir}{studentLogin}-$self->{envir}{problemSeed}" .
 		"-set$self->{envir}{setNumber}prob$self->{envir}{probNum}";
 	my $num  = ++$names_created{$prob_name};
-	my $resource = $self->{PG_alias}->make_resource_object($prob_name, $ext);
+	my $resource = $self->{PG_alias}->make_resource_object("$prob_name$num", $ext);
 	$resource->path("__");
 	return $resource->create_unique_id;
 }
