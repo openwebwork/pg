@@ -183,7 +183,7 @@ sub _parserGraphTool_init {
 	main::PG_restricted_eval('sub GraphTool { GraphTool->new(@_) }');
 }
 
-loadMacros("MathObjects.pl", "PGgraphmacros.pl");
+loadMacros("MathObjects.pl", "PGtikz.pl");
 
 package GraphTool;
 our @ISA = qw(Value::List);
@@ -252,81 +252,94 @@ sub ans_rule {
 	my $out = main::NAMED_HIDDEN_ANS_RULE($self->ANS_NAME);
 
 	if ($main::displayMode eq 'TeX') {
-		$main::refreshCachedImages = 1;
-
 		return &{$self->{printGraph}}
 		if defined($self->{printGraph}) && ref($self->{printGraph}) eq 'CODE';
 
-		my @size = (400, 400);
+		my @size = (500, 500);
 
-		my $graph = main::init_graph($self->{bBox}[0], $self->{bBox}[3],
-			$self->{bBox}[2], $self->{bBox}[1],
-			axes => [0, 0],
-			grid => [
-				($self->{bBox}[2] - $self->{bBox}[0]) / $self->{gridX},
-				($self->{bBox}[1] - $self->{bBox}[3]) / $self->{gridY}
-			],
-			size => [@size]);
-		$graph->lb('reset');
+		my $graph = main::createTikZImage();
+		$graph->tikzLibraries("arrows.meta");
+		$graph->tikzOptions("x=" . ($size[0] / 96 / ($self->{bBox}[2] - $self->{bBox}[0])) . "in," .
+			"y=" . ($size[1] / 96 / ($self->{bBox}[1] - $self->{bBox}[3])) . "in");
 
-		# Create a separate image for the fills.  This image is enlarged so that any circle
-		# whose center and point are in the visible graph image will fit entirely into the fill
-		# image.  This is so that a flood fill will go all the way around the circle.
-		my $fill = new WWPlot(3 * $size[0] + 2, 3 * $size[1] + 2);
-		my @fillBounds = (
-			$self->{bBox}[0] - ($size[0] + 1) * ($self->{bBox}[2] - $self->{bBox}[0]) / $size[0],
-			$self->{bBox}[2] + ($size[0] + 1) * ($self->{bBox}[2] - $self->{bBox}[0]) / $size[0],
-			$self->{bBox}[3] - ($size[1] + 1) * ($self->{bBox}[1] - $self->{bBox}[3]) / $size[1],
-			$self->{bBox}[1] + ($size[1] + 1) * ($self->{bBox}[1] - $self->{bBox}[3]) / $size[1]
-		);
-		$fill->xmin($fillBounds[0]); $fill->xmax($fillBounds[1]);
-		$fill->ymin($fillBounds[2]); $fill->ymax($fillBounds[3]);
-		$fill->lb('reset');
+		my $tikz = <<END_TIKZ;
+\n\\tikzset{
+	>={Stealth[scale=1.8]},
+	clip even odd rule/.code={\\pgfseteorule},
+	inverse clip/.style={ clip,insert path=[clip even odd rule]{
+		($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]) }
+	}
+}
+\\pgfdeclarelayer{background layer}
+\\pgfdeclarelayer{foreground layer}
+\\pgfsetlayers{background layer,main,foreground layer}
+\\begin{pgfonlayer}{background layer}
+	\\fill[white,rounded corners=14pt]
+	($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);
+\\end{pgfonlayer}
+END_TIKZ
 
-		# Tick labels
-		my $x = $self->{ticksDistanceX};
-		while ($x < $self->{bBox}[2])
-		{
-			$graph->lb(new Label($x, -5 * ($self->{bBox}[1] - $self->{bBox}[3]) / $size[1],
-					$x, 'black', 'center', 'top'));
-			$x += $self->{ticksDistanceX};
-		}
-		$x = -$self->{ticksDistanceX};
-		while ($x > $self->{bBox}[0])
-		{
-			$graph->lb(new Label($x, -5 * ($self->{bBox}[1] - $self->{bBox}[3]) / $size[1],
-					$x, 'black', 'center', 'top'));
-			$x -= $self->{ticksDistanceX};
-		}
-		my $y = $self->{ticksDistanceY};
-		while ($y < $self->{bBox}[1])
-		{
-			$graph->lb(new Label(-5 * ($self->{bBox}[2] - $self->{bBox}[0]) / $size[0],
-					$y, $y, 'black', 'right', 'middle'));
-			$y += $self->{ticksDistanceY};
-		}
-		$y = -$self->{ticksDistanceY};
-		while ($y > $self->{bBox}[3])
-		{
-			$graph->lb(new Label(-5 * ($self->{bBox}[2] - $self->{bBox}[0]) / $size[0],
-					$y, $y, 'black', 'right', 'middle'));
-			$y -= $self->{ticksDistanceY};
-		}
+		# Vertical grid lines
+		my @xGridLines = grep { $_ < $self->{bBox}[2] } map { $_ * $self->{gridX} }
+			(1 .. $self->{bBox}[2] / $self->{gridX});
+		push(@xGridLines, grep { $_ > $self->{bBox}[0] } map { -$_ * $self->{gridX} }
+			(1 .. -$self->{bBox}[0] / $self->{gridX}));
+		$tikz .= "\\foreach \\x in {" . join(",", @xGridLines) .
+			"}{\\draw[line width=0.2pt,color=lightgray] (\\x,$self->{bBox}[3]) -- (\\x,$self->{bBox}[1]);}\n"
+		if (@xGridLines);
 
-		# Axes labels
-		$graph->lb(new Label($self->{bBox}[2] - 4 * ($self->{bBox}[2] - $self->{bBox}[0]) / $size[0],
-				4 * ($self->{bBox}[1] - $self->{bBox}[3]) / $size[1],
-				'x', 'black', 'bottom', 'right'));
-		$graph->lb(new Label(7 * ($self->{bBox}[2] - $self->{bBox}[0]) / $size[0],
-				$self->{bBox}[1] - ($self->{bBox}[1] - $self->{bBox}[3]) / $size[1],
-				'y', 'black', 'top', 'left'));
+		# Horizontal grid lines
+		my @yGridLines = grep { $_ < $self->{bBox}[1] } map { $_ * $self->{gridY} }
+			(1 .. $self->{bBox}[1] / $self->{gridY});
+		push(@yGridLines, grep { $_ > $self->{bBox}[3] } map { -$_ * $self->{gridY} }
+			(1 .. -$self->{bBox}[3] / $self->{gridY}));
+		$tikz .= "\\foreach \\y in {" . join(",", @yGridLines) .
+			"}{\\draw[line width=0.2pt,color=lightgray] ($self->{bBox}[0],\\y) -- ($self->{bBox}[2],\\y);}\n"
+		if (@yGridLines);
 
-		# Graph all the lines, circles, and parabolas.  The objects are all graphed solid in the
-		# fill image, so that the flood fill doesn't pass through them.
+		# Axis and labels.
+		$tikz .= <<END_TIKZ;
+\\huge
+\\draw[<->,thick] ($self->{bBox}[0],0) -- ($self->{bBox}[2],0) node[above left,outer sep=2pt]{\$x\$};
+\\draw[<->,thick] (0,$self->{bBox}[3]) -- (0,$self->{bBox}[1]) node[below right,outer sep=2pt]{\$y\$};
+END_TIKZ
+
+		# Horizontal axis ticks and labels
+		my @xTicks = grep { $_ < $self->{bBox}[2] } map { $_ * $self->{ticksDistanceX} }
+			(1 .. $self->{bBox}[2] / $self->{ticksDistanceX});
+		push(@xTicks, grep { $_ > $self->{bBox}[0] } map { -$_ * $self->{ticksDistanceX} }
+			(1 .. -$self->{bBox}[0] / $self->{ticksDistanceX}));
+		$tikz .= "\\foreach \\x in {" . join(",", @xTicks) .
+			"}{\\draw[thin] (\\x,5pt) -- (\\x,-5pt) node[below]{\$\\x\$};}\n"
+		if (@xTicks);
+
+		# Vertical axis ticks and labels
+		my @yTicks = grep { $_ < $self->{bBox}[1] } map { $_ * $self->{ticksDistanceY} }
+			(1 .. $self->{bBox}[1] / $self->{ticksDistanceY});
+		push(@yTicks, grep { $_ > $self->{bBox}[3] } map { -$_ * $self->{ticksDistanceY} }
+			(1 .. -$self->{bBox}[3] / $self->{ticksDistanceY}));
+		$tikz .= "\\foreach \\y in {" . join(",", @yTicks) .
+			"}{\\draw[thin] (5pt,\\y) -- (-5pt,\\y) node[left]{\$\\y\$};}\n"
+		if (@yTicks);
+
+		# Border box
+		$tikz .= "\\draw[blue,rounded corners=14pt,thick] " .
+			"($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n";
+
+
+		# Graph the lines, circles, and parabolas.
 		if (@{$self->{staticObjects}}) {
 			my $obj = $self->SUPER::new($self->{context}, @{$self->{staticObjects}});
 
-			# First graph lines, parabolas, and circles.
+			# Switch to the foreground layer and clipping box for the objects.
+			$tikz .= "\\begin{pgfonlayer}{foreground layer}\n";
+			$tikz .= "\\clip[rounded corners=14pt] " .
+				"($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n";
+
+			my @obj_data;
+
+			# First graph lines, parabolas, and circles.  Cache the clipping path and a function
+			# for determining which side of the object to shade for filling later.
 			for (@{$obj->{data}}) {
 				if ($_->{data}[0] eq 'line') {
 					# Lines
@@ -334,112 +347,80 @@ sub ans_rule {
 					my ($p2x, $p2y) = @{$_->{data}[3]{data}};
 					if ($p1x == $p2x) {
 						# Vertical line
-						$graph->moveTo($p1x, $self->{bBox}[3]);
-						$graph->lineTo($p1x, $self->{bBox}[1], "blue", 2,
-							$_->{data}[1] eq "dashed" ? "dashed" : 0);
-						$fill->moveTo($p1x, $fillBounds[2]);
-						$fill->lineTo($p1x, $fillBounds[3], "blue", 2);
+						my $line = "($p1x,$self->{bBox}[3]) -- ($p1x,$self->{bBox}[1])";
+						push(@obj_data, [$line .
+								"-- ($self->{bBox}[2],$self->{bBox}[1]) -- ($self->{bBox}[2],$self->{bBox}[3]) -- cycle",
+								sub { return $_[0] - $p1x; }]);
+						$tikz .= "\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $line;\n";
 					} else {
 						# Non-vertical line
-						my $y = sub {
-							my $x = shift;
-							return ($p2y - $p1y) / ($p2x - $p1x) * ($x - $p1x) + $p1y;
-						};
-						$graph->moveTo($self->{bBox}[0], &$y($self->{bBox}[0]));
-						$graph->lineTo($self->{bBox}[2], &$y($self->{bBox}[2]), "blue", 2,
-							$_->{data}[1] eq "dashed" ? "dashed" : 0);
-						$fill->moveTo($fillBounds[0], &$y($fillBounds[0]));
-						$fill->lineTo($fillBounds[1], &$y($fillBounds[1]), "blue", 2);
+						my $m = ($p2y - $p1y) / ($p2x - $p1x);
+						my $y = sub { return $m * ($_[0] - $p1x) + $p1y; };
+						my $line = "($self->{bBox}[0]," . &$y($self->{bBox}[0]) . ") -- " .
+							"($self->{bBox}[2]," . &$y($self->{bBox}[2]) . ")";
+						push(@obj_data, [$line .
+								"-- ($self->{bBox}[2],$self->{bBox}[1]) -- ($self->{bBox}[0],$self->{bBox}[1]) -- cycle",
+								sub { return $_[1] - &$y($_[0]); }]);
+						$tikz .= "\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $line;\n";
 					}
 				} elsif ($_->{data}[0] eq 'parabola') {
 					# Parabolas
 					my ($h, $k) = @{$_->{data}[3]{data}};
 					my ($px, $py) = @{$_->{data}[4]{data}};
-					my ($x_rule, $y_rule, $dmin, $dmax);
 
 					if ($_->{data}[2] eq 'vertical') {
-						# Vertical parabola parameters
+						# Vertical parabola
 						my $a = ($py - $k) / ($px - $h) ** 2;
-						$x_rule = sub { return shift; };
-						$y_rule = sub { my $x = shift; return $a * ($x - $h) ** 2 + $k; };
-						$dmin = $self->{bBox}[0];
-						$dmax = $self->{bBox}[2];
-						$fill_dmin = $fillBounds[0];
-						$fill_dmax = $fillBounds[1];
-
+						my $diff = sqrt((($a >= 0 ? $self->{bBox}[1] : $self->{bBox}[3]) - $k) / $a);
+						my $dmin = $h - $diff;
+						my $dmax = $h + $diff;
+						push(@obj_data, ["plot[domain=$dmin:$dmax,smooth](\\x,{$a*(\\x-($h))^2+($k)})",
+								sub { return $_[1] - $a * ($_[0] - $h) ** 2 - $k; }]);
+						$tikz .= "\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $obj_data[$#obj_data][0];\n";
 					} else {
-						# Horizontal parabola parameters
+						# Horizontal parabola
 						my $a = ($px - $h) / ($py - $k) ** 2;
-						$x_rule = sub { my $y = shift; return $a * ($y - $k) ** 2 + $h; };
-						$y_rule = sub { return shift; };
-						$dmin = $self->{bBox}[3];
-						$dmax = $self->{bBox}[1];
-						$fill_dmin = $fillBounds[2];
-						$fill_dmax = $fillBounds[3];
-					}
-
-					my $stepsize = ($dmax - $dmin) / 50;
-					$graph->im->setStyle($_->{data}[1] eq "dashed"
-						? (($graph->{colors}{blue}) x 16, (GD::gdTransparent) x 16)
-						: $graph->{colors}{blue});
-					$graph->moveTo(&$x_rule($dmin), &$y_rule($dmax));
-					my $fill_stepsize = ($fill_dmax - $fill_dmin) / 50;
-					$fill->moveTo(&$x_rule($fill_dmin), &$y_rule($fill_dmax));
-					for my $i (0 .. 50) {
-						my $t = $stepsize * $i + $dmin;
-						$graph->lineTo(&$x_rule($t), &$y_rule($t), GD::gdStyled, 2);
-						my $fill_t = $fill_stepsize * $i + $fill_dmin;
-						$fill->lineTo(&$x_rule($fill_t), &$y_rule($fill_t), "blue", 2);
+						my $diff = sqrt((($a >= 0 ? $self->{bBox}[2] : $self->{bBox}[0]) - $h) / $a);
+						my $dmin = $k - $diff;
+						my $dmax = $k + $diff;
+						push(@obj_data, ["plot[domain=$dmin:$dmax,smooth]({$a*(\\x-($k))^2+($h)},\\x)",
+								sub { return $_[0] - $a * ($_[1] - $k) ** 2 - $h; }]);
+						$tikz .= "\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $obj_data[$#obj_data][0];\n";
 					}
 				} elsif ($_->{data}[0] eq 'circle') {
 					# Circles
 					my ($cx, $cy) = @{$_->{data}[2]{data}};
 					my ($px, $py) = @{$_->{data}[3]{data}};
 					my $r = sqrt(($cx - $px) ** 2 + ($cy - $py) ** 2);
-					$graph->im->setThickness(2);
-					$graph->im->setStyle($_->{data}[1] eq "dashed"
-						? (($graph->{colors}{blue}) x 16, (GD::gdTransparent) x 16)
-						: $graph->{colors}{blue});
-					$graph->im->ellipse($graph->ii($cx), $graph->jj($cy),
-						$graph->ii($cx + $r) - $graph->ii($cx - $r), $graph->jj($cy + $r) - $graph->jj($cy - $r),
-						GD::gdStyled);
-					$graph->im->setThickness(1);
-					$fill->im->ellipse($fill->ii($cx), $fill->jj($cy),
-						$fill->ii($cx + $r) - $fill->ii($cx - $r), $fill->jj($cy + $r) - $fill->jj($cy - $r),
-						$fill->{colors}{blue});
+					push(@obj_data, ["($cx, $cy) circle[radius=$r]",
+							sub { return $r - sqrt(($cx - $_[0]) ** 2 + ($cy - $_[1]) ** 2); }]);
+					$tikz .= "\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $obj_data[$#obj_data][0];\n";
 				}
 			}
 
-			# Now graph the fills in the fill image.
-			for (@{$obj->{data}}) {
-				if ($_->{data}[0] eq 'fill') {
-					$fill->im->fillToBorder(
-						$fill->ii($_->{data}[1]{data}[0]), $fill->jj($_->{data}[1]{data}[1]),
-						$fill->{colors}{blue}, $fill->{colors}{yellow});
+			# Switch from the foreground layer to the background layer for the fills.
+			$tikz .= "\\end{pgfonlayer}\n\\begin{pgfonlayer}{background layer}\n";
+
+			# Now shade the fill regions.
+			FILL: for (@{$obj->{data}}) {
+				next if $_->{data}[0] ne 'fill';
+				my ($fx, $fy) = @{$_->{data}[1]{data}};
+				my $clip_code = "";
+				for (@obj_data) {
+					my $clip_dir = &{$_->[1]}($fx, $fy);
+					next FILL if $clip_dir == 0;
+					$clip_code .= "\\clip " . ($clip_dir < 0 ? "[inverse clip]" : "") . $_->[0] . ";\n";
 				}
+				$tikz .= "\\begin{scope}\n\\clip[rounded corners=14pt] " .
+					"($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n" .
+					$clip_code . "\\fill[yellow!40] (-3,-3) rectangle (27,27);\n\\end{scope}";
 			}
-			# Finally, copy the fill data into the graph image, being careful not to overwrite
-			# the graphed objects.
-			for my $ii (0 .. $size[0] - 1)
-			{
-				for my $jj (0 .. $size[1] - 1)
-				{
-					my $fill_index = $fill->im->getPixel($ii + $size[0] + 1, $jj + $size[1] + 1);
-					my $graph_index = $graph->im->getPixel($ii, $jj);
-					$graph->im->setPixel($ii, $jj, $graph->{colors}{yellow})
-					if ($fill_index == $fill->{colors}{yellow} &&
-						$graph_index == $graph->{colors}{background_color});
-				}
-			}
+
+			# End the background layer.
+			$tikz .= "\\end{pgfonlayer}";
 		}
 
-		# Add arrows at the end of the axes.
-		$graph->moveTo(0, 0);
-		$graph->arrowTo($self->{bBox}[0], 0);
-		$graph->arrowTo($self->{bBox}[2], 0);
-		$graph->moveTo(0, 0);
-		$graph->arrowTo(0, $self->{bBox}[3]);
-		$graph->arrowTo(0, $self->{bBox}[1]);
+		$graph->tex($tikz);
 
 		$out = main::image(main::insertGraph($graph),
 			width => $size[0], height => $size[1], tex_size => $self->{texSize});
