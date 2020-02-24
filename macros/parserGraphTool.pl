@@ -375,7 +375,7 @@ END_TIKZ
 						my $dmin = $h - $diff;
 						my $dmax = $h + $diff;
 						push(@obj_data, ["plot[domain=$dmin:$dmax,smooth](\\x,{$a*(\\x-($h))^2+($k)})",
-								sub { return $_[1] - $a * ($_[0] - $h) ** 2 - $k; }]);
+								sub { return $a * ($_[1] - $a * ($_[0] - $h) ** 2 - $k); }]);
 						$tikz .= "\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $obj_data[$#obj_data][0];\n";
 					} else {
 						# Horizontal parabola
@@ -384,7 +384,7 @@ END_TIKZ
 						my $dmin = $k - $diff;
 						my $dmax = $k + $diff;
 						push(@obj_data, ["plot[domain=$dmin:$dmax,smooth]({$a*(\\x-($k))^2+($h)},\\x)",
-								sub { return $_[0] - $a * ($_[1] - $k) ** 2 - $h; }]);
+								sub { return $a * ($_[0] - $a * ($_[1] - $k) ** 2 - $h); }]);
 						$tikz .= "\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $obj_data[$#obj_data][0];\n";
 					}
 				} elsif ($_->{data}[0] eq 'circle') {
