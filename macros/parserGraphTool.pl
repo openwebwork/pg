@@ -270,6 +270,7 @@ sub ans_rule {
 		($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]) }
 	}
 }
+\\definecolor{borderblue}{HTML}{356AA0}
 \\pgfdeclarelayer{background layer}
 \\pgfdeclarelayer{foreground layer}
 \\pgfsetlayers{background layer,main,foreground layer}
@@ -323,7 +324,7 @@ END_TIKZ
 		if (@yTicks);
 
 		# Border box
-		$tikz .= "\\draw[blue,rounded corners=14pt,thick] " .
+		$tikz .= "\\draw[borderblue,rounded corners=14pt,thick] " .
 			"($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n";
 
 
