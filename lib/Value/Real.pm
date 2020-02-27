@@ -149,7 +149,7 @@ sub compare {
         my $truncb = int($b*10**$shift)/10**$shift;
         return $a <=> $b if ($rounda ne $roundb and (!$self->getFlag('tolTruncation') or $trunca ne $truncb));
         #don't continue if we've reached the last digit of one of them
-        last if ($a == $rounda or $b == $roundb);
+        last if ($a eq $rounda or $b eq $roundb);
       }
       return 0;
     }
