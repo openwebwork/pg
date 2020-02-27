@@ -132,7 +132,7 @@ sub compare {
     my $tolerance = $self->getFlag('tolerance');
     if ($self->getFlag('tolType') eq 'digits') {
       return 0 if ($a == 0 and $b == 0);
-      return 1 if ($a == 0 or $b == 0);
+      return $a <=> $b if ($a == 0 or $b == 0);
       # convert tolerance values meant for relative to a digits tolerance
       $tolerance = -log($tolerance)/log(10) if ($tolerance > 0 and $tolerance < 1);
       # make sure nonsensical tolerances are converted to a natural number
@@ -147,7 +147,7 @@ sub compare {
         my $roundb = int($b*10**$shift + 0.5*($b <=> 0))/10**$shift;
         my $trunca = int($a*10**$shift)/10**$shift;
         my $truncb = int($b*10**$shift)/10**$shift;
-        return 1 if ($rounda ne $roundb and (!$self->getFlag('tolTruncation') or $trunca ne $truncb));
+        return $a <=> $b if ($rounda ne $roundb and (!$self->getFlag('tolTruncation') or $trunca ne $truncb));
         #don't continue if we've reached the last digit of one of them
         last if ($a == $rounda or $b == $roundb);
       }
