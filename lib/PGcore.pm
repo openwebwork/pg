@@ -725,7 +725,7 @@ PGtikz.pl.
 =cut
 
 # Keep track of the names created during this session.
-our %names_created;
+our %names_created = ();
 
 # Generate a unique file name in a problem based on the user, seed, set
 # number, and problem number.
