@@ -774,7 +774,6 @@ sub convert_to_array_ref {
 	} elsif (ref($input) eq 'Matrix' ) {
         # handles wwMatrix objects (old style)
 		$input = $input->array_ref;
-		warn "assuming wwMatrix";
 	} elsif (ref($input) =~/ARRAY/) {
 		# no change to input value
 		# handles raw perl array_ref types

@@ -284,6 +284,10 @@ sub isHash {
 
 }
 
+
+# example: return Boolean:  Value->subclassed($self,"classMatch")
+# if $self has the method 'classMath' and 'Value' has the method 'classMatch'
+# and  the reference to these methods don't agree then the method 'classMatch' has been subclassed. 
 sub subclassed {
   my $self = shift; my $obj = shift; my $method = shift;
   my $code = UNIVERSAL::can($obj,$method);
@@ -352,9 +356,7 @@ sub Package {(shift)->context->Package(@_)}
 sub classMatch {
   my $self = shift;
   return $self->classMatch(@_) if Value->subclassed($self,"classMatch");
-  my $class = class($self)//''; my $ref = ref($self);
-  #my $isHash = ($ref && $ref ne 'ARRAY' && $ref ne 'CODE');
-  #warn "hash $isHash $ref";
+  my $class = Value::class($self)//''; my $ref = ref($self);
   my $isHash = Value::isHash($self);
   my $context = ($isHash ? $self->{context} || Value->context : Value->context);
   foreach my $name (@_) {
