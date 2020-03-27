@@ -769,11 +769,9 @@ seeking.
 sub convert_to_array_ref {
 	my $input = shift;
 	if (Value::isValue($input) && Value::classMatch($input,"Matrix")) {
-		$input = [$input->value];
-		warn "assuming a Value object";
+		$input = [$input->value];		
 	} elsif (ref($input) eq 'Matrix' ) {
 		$input = $input->array_ref;
-		warn "assuming wwMatrix";
 	} elsif (ref($input) =~/ARRAY/) {
 		# no change to input value
 	} else {
