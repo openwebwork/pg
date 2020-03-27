@@ -355,7 +355,7 @@ sub classMatch {
   my $class = class($self)//''; my $ref = ref($self);
   #my $isHash = ($ref && $ref ne 'ARRAY' && $ref ne 'CODE');
   #warn "hash $isHash $ref";
-  my $isHash = isHash($self);
+  my $isHash = Value::isHash($self);
   my $context = ($isHash ? $self->{context} || Value->context : Value->context);
   foreach my $name (@_) {
     my $isName = "is".$name;
