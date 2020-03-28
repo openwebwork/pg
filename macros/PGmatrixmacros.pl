@@ -768,8 +768,8 @@ seeking.
 
 sub convert_to_array_ref {
 	my $input = shift;
-	if (Value::classMatch($input,"Matrix")) {
-		$input = [$input->value];
+	if (Value::isValue($input) && Value::classMatch($input,"Matrix")) {
+		$input = [$input->value];		
 	} elsif (ref($input) eq 'Matrix' ) {
 		$input = $input->array_ref;
 	} elsif (ref($input) =~/ARRAY/) {
