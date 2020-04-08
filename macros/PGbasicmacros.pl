@@ -1018,7 +1018,7 @@ sub pop_up_list {
 	NAMED_POP_UP_LIST($name, @list);
 }
 
-=head5  answer_matrix
+=head2  answer_matrix
 
     Usage   \[ \{ answer_matrix(rows, columns, width_of_ans_rule, @options) \} \]
 
