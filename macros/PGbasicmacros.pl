@@ -569,6 +569,8 @@ sub NAMED_ANS_RADIO {
 	my $name = shift;
 	my $value = shift;
     my $tag =shift;
+	my $extend = shift;
+	my %options = @_;
 
     my $checked = '';
     if ($value =~/^\%/) {
@@ -583,8 +585,9 @@ sub NAMED_ANS_RADIO {
 		}
 
     }
-    $name = RECORD_ANS_NAME($name, {$value=>$checked}	);
-    my $label = generate_aria_label($name);
+    $name = RECORD_ANS_NAME($name, { $value => $checked }) unless $extend;
+	INSERT_RESPONSE($options{answer_group_name}, $name, { $value => $checked }) if $extend;
+	my $label = generate_aria_label($name);
     $label .= "option 1 ";
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
@@ -618,7 +621,7 @@ sub NAMED_ANS_RADIO_EXTENSION {
 		}
 
     }
-    EXTEND_RESPONSE($name,$name,$value, $checked);
+    EXTEND_RESPONSE($options{answer_group_name} // $name, $name, $value, $checked);
 	my $label;
 	if (defined ($options{aria_label})) {
 		$label = $options{aria_label};
@@ -629,7 +632,7 @@ sub NAMED_ANS_RADIO_EXTENSION {
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-        HTML => qq!<label><INPUT TYPE=RADIO NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!,
+        HTML => qq!<label><INPUT TYPE=RADIO NAME="$name" id="${name}_$value" aria-label="$label" VALUE="$value" $checked>$tag</label>!,
         PTX => '<li>'."$tag".'</li>'."\n",
 	);
 

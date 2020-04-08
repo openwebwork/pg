@@ -530,7 +530,7 @@ sub makeUncheckable {
 #  Create the radio-buttons text
 #
 sub BUTTONS {
-  my $self = shift; my $extend = shift; my $name = shift;
+  my $self = shift; my $extend = shift; my $name = shift; my $size = shift;
   my @choices = @{$self->{orderedChoices}};
   my @radio = ();
   $name = main::NEW_ANS_NAME() unless $name;
@@ -539,12 +539,11 @@ sub BUTTONS {
     my $value = "B$i"; my $tag = $choices[$i];
     $value = "%".$value if $i == $self->{checkedI};
     $tag = $self->labelFormat($self->{labels}[$i]).$tag if $self->{displayLabels};
-    if ($extend) {
-      push(@radio,main::NAMED_ANS_RADIO_EXTENSION($name,$value,$tag,
-	   aria_label=>$label."option $i "));
+    if ($i > 0) {
+		push(@radio,main::NAMED_ANS_RADIO_EXTENSION($name, $value, $tag,
+				aria_label => $label."option $i ", @_));
     } else {
-      push(@radio,main::NAMED_ANS_RADIO($name,$value,$tag));
-      $extend = 1;
+		push(@radio, main::NAMED_ANS_RADIO($name, $value, $tag, $extend, @_));
     }
   }
   #
