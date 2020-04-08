@@ -540,10 +540,10 @@ sub BUTTONS {
     $value = "%".$value if $i == $self->{checkedI};
     $tag = $self->labelFormat($self->{labels}[$i]).$tag if $self->{displayLabels};
     if ($i > 0) {
-		push(@radio,main::NAMED_ANS_RADIO_EXTENSION($name, $value, $tag,
-				aria_label => $label."option $i ", @_));
+      push(@radio,main::NAMED_ANS_RADIO_EXTENSION($name, $value, $tag,
+           aria_label => $label."option $i ", @_));
     } else {
-		push(@radio, main::NAMED_ANS_RADIO($name, $value, $tag, $extend, @_));
+      push(@radio, main::NAMED_ANS_RADIO($name, $value, $tag, $extend, @_));
     }
   }
   #
