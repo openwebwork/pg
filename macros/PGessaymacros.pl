@@ -33,6 +33,9 @@ Answer Boxes
 
     To use essay answers just put an essay_box() into your problem file wherever you want the input box to go and then use essay_cmp() for the corresponding checker.  You will then need grade the problem manually.  The grader can be found in the "Detail Set List".
 
+        explanation_box()
+
+    Like an essay_box(), except can be turned off at a configuration level. Intended for two-part questions where the first answer is automatically assessible, and the second part is an explanation or "showing your work". An instructor may want to turn these off to use the problem but without the manual grading component. These necessarily supply their own essay_cmp().
 =cut
 
 sub _PGessaymacros_init {
@@ -152,5 +155,36 @@ sub essay_box {
 	NAMED_ESSAY_BOX($name ,$row,$col);
 
 }
+
+
+# Makes an essay box and calls essay_cmp()
+# Can be turned off using $pg{specialPGEnvironmentVars}{waiveExplanations}
+# Takes options:
+#   row (or height): height of essay box; defaults to 8
+#   col (or width):  width of essay box;  defaults to 75
+#   message: a message preceding the essay box; default is 'Explain.'
+#   help: boolean for whether to display the essay help message; default is true
+sub explanation_box {
+        my %options = @_;
+        my $row = 8;
+        my $col = 75;
+        $row = $options{height} if defined $options{height};
+        $col = $options{width} if defined $options{width};
+        $row = $options{row} if defined $options{row};
+        $col = $options{col} if defined $options{col};
+        my $message = 'Explain.';
+        if (defined $options{message})
+          {$message = $options{message}};
+        my $help = 1;
+        $help = $options{help} if defined $options{help};
+        if ($envir{waiveExplanations}) {}
+        else {
+          ANS(essay_cmp());
+          return $message.$PAR.
+          essay_box($row,$col).
+          ($help ? essay_help() : '');
+        }
+}
+
 
 1;
