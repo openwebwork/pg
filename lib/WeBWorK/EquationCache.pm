@@ -87,7 +87,7 @@ sub lookup {
 	# Option 2 (the old default): remove all whitespace
 	# $tex =~ s/\s+//g;
 
-	my $md5 = md5_hex(encode_utf8($tex));
+	my $md5 = md5_hex(utf8::is_utf8($tex) ? encode_utf8($tex) : $tex);
 	
 	my $db = $self->{cacheDB};
 	unless($db) { return($md5 ."1"); }
