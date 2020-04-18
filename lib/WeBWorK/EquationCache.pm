@@ -37,7 +37,7 @@ extending to the end of the line is also ignored.
 use strict;
 use warnings;
 use Digest::MD5 qw(md5_hex);
-use Encode qw(encode_utf8 decode_utf8 decode);
+use Encode qw(encode_utf8 );
 use Fcntl qw(:DEFAULT :flock);
 BEGIN { my @_junk = (O_RDWR,O_CREAT,LOCK_EX) } # get rid of "subroutine redefined" warnings
 
