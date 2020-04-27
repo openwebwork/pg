@@ -139,7 +139,10 @@ sub rserve_eval {
     
     my $query = shift;
     
-    rserve_start unless $rserve;
+    if (! $rserve) {
+        # no existing r session. redirect to single-use call
+        return rserve_query($query);
+    }
     
     my $result = Rserve::try_eval($rserve, $query);
     Rserve::unref_rexp($result)
