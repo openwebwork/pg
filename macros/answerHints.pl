@@ -111,6 +111,11 @@ sub AnswerHints {
     my $student = $ans->{student_value};
     Value::Error("AnswerHints can only be used with MathObjects answer checkers") unless ref($correct);
     return $ans unless ref($student);
+    my $isPreview = $ans->{isPreview};
+    if ( defined($isPreview) && ( ($isPreview) || ( $isPreview ne "") ) ) {
+      # In preview mode - we do not want to run this post filter, as it would leak feedback messages.
+      return $ans;
+    }
 
     while (@_) {
       my $wrongList = shift; my $message = shift; my @options;
