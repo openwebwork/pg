@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2000-2012 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2000-2012 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: pg/macros/contextMatrixExtras.pl,v 1.0 2012/08/01 11:21:45 dpvc Exp $
 #
 # This program is free software; you can redistribute it and/or modify it under
