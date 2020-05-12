@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2000-2009 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2000-2009 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: pg/macros/parserPrime.pl,v 1.2 2009/10/03 15:58:49 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
