@@ -26,12 +26,17 @@ loadMacros("PGcommonFunctions.pl");
 #  min(@listNumbers)
 #  round($number)
 #  lcm($number1,$number2)
-#  gfc($number1,$number2)
+#  gcf($number1,$number2)
 #  gcd($number1,$number2)  
 #  isPrime($number)
 #  reduce($numerator,$denominator)
 #  preformat($scalar, "QuotedString")
 #
+
+# Generate random relatively prime tuple
+# (uses gcf(), so it's here, even though this isn't a "function")
+# random_rel_prime($ar1, $ar2, ... )
+
 
 =cut
 
@@ -179,6 +184,49 @@ sub gcf {
 # ^uses gcf
 sub gcd {
         return gcf($_[0], $_[1]);
+}
+
+# Arguments should be array refernces to arrays of integers.
+# Returns an n-tuple of relatively prime integers,
+# each coming from the corresponding array.
+# Random selection is uniform among all possible tuples
+# that are relatively prime and from the argument arrays
+# In array context, returns an array. Otherwise, an array ref.
+# Use like:
+# random_rel_prime([1..9],[1..9])
+# to output maybe (2,9) or (1,1) but not (6,8)
+# random_rel_prime([-9..-1,1..9],[1..9],[1..9])
+# to output maybe (-3,7,4) or (-1,1,1) but not (-2,2,3)
+
+sub random_rel_prime {
+  my $arg1 = shift;
+  my @arg1 = @{$arg1};
+  if (ref $arg1[0] eq '') {
+    my @newarg1;
+    for my $i (@arg1) {push @newarg1,[$i];}
+    do {warn "Unable to find a coprime tuple from input"; return;} unless (@newarg1);
+    return random_rel_prime([@newarg1],@_);
+  } elsif (ref $arg1[0] eq 'ARRAY') {
+    my $next = shift;
+    my @next = @{$next};
+    if (@next) {
+      my @newarg1;
+      for my $i (@arg1) {
+        for my $j (@next) {
+          my $jOK = 1;
+          for my $k (@{$i}) {
+            if (gcd($j,$k) != 1) {$jOK = 0; last;}
+          }
+          push @newarg1, [@{$i}, $j] if ($jOK);
+        }
+      }
+      do {warn "Unable to find a coprime tuple from input"; return;} unless (@newarg1);
+      return random_rel_prime([@newarg1 ],@_);
+    } else {
+      $return = list_random(@arg1);
+      return wantarray ? @{$return} : $return;
+    };
+  }
 }
 
 #returns 1 for a prime number, else 0
