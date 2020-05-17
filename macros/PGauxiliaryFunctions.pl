@@ -25,9 +25,9 @@ loadMacros("PGcommonFunctions.pl");
 #  max(@listNumbers)
 #  min(@listNumbers)
 #  round($number)
-#  lcm($number1,$number2)
-#  gfc($number1,$number2)
-#  gcd($number1,$number2)  
+#  lcm(@listNumbers)
+#  gcf(@listNumbers)
+#  gcd(@listNumbers)
 #  isPrime($number)
 #  reduce($numerator,$denominator)
 #  preformat($scalar, "QuotedString")
@@ -107,71 +107,37 @@ sub Round {
 
 #least common multiple
 #VS 6/29/2000
+# made recursive to handle the gcf of any number of inputs 5/16/2020
 # ^function lcm
 sub lcm {
-	my $a = shift;
-	my $b = shift;
-
-	#reorder such that $a is the smaller number
-	if ($a > $b) {
-		my $temp = $a;
-		$a = $b;
-		$b = $temp;
-	}
-
-	my $lcm = 0;
-	my $curr = $b;;
-
-	while($lcm == 0) {
-		$lcm = $curr if ($curr % $a == 0);
-		$curr += $b;
-	}
-
-	$lcm;
-
+        if (scalar @_ == 0) {warn 'Cannot take lcm of the empty set'; return;}
+        my $a = abs(shift);
+        if ($a == 0) {return 0;}
+        if (scalar @_ == 0) {return $a;}
+        my $b = abs(shift);
+        if ($b == 0) {return 0;}
+        return lcm($a*$b/gcf($a,$b),@_);
 }
 
 
 # greatest common factor
-# takes in two scalar values and uses the Euclidean Algorithm to return the gcf
-#VS 6/29/2000
+# takes in scalar values and uses the Euclidean Algorithm to return the gcf
+# VS 6/29/2000
+# made recursive to handle the gcf of any number of inputs 5/16/2020
 # ^function gcf
 sub gcf {
-        my $a = abs(shift);	# absolute values because this will yield the same gcd,
-        my $b = abs(shift);	# but allows use of the mod operation
-
-	# reorder such that b is the smaller number
-	if ($a < $b) {
-		my $temp = $a;
-		$a = $b;
-		$b = $temp;
-	}
-
-	return $a if $b == 0;
-
-	my $q = int($a/$b);	# quotient
-	my $r = $a % $b;	# remainder
-
-	return $b if $r == 0;
-
-	my $tempR = $r;
-
-	while ($r != 0) {
-
-		#keep track of what $r was in the last loop, as this is the value
-		#we will want when $r is set to 0
-		$tempR = $r;
-
-		$a = $b;
-		$b = $r;
-		$q = $a/$b;
-		$r = $a % $b;
-
-	}
-
-	$tempR;
+        if (scalar @_ == 0) {warn 'Cannot take gcf of the empty set or an all-zero set'; return;}
+        my $a = abs(shift);
+        if ($a == 0) {return gcf(@_);}
+        if (scalar @_ == 0) {return $a;}
+        my $b = abs(shift);
+        if ($b == 0) {return gcf($a,@_);}
+        ($a,$b) = ($b,$a) if $a > $b;
+        while ($a) {
+          ($a, $b) = ($b % $a, $a);
+        }
+        return gcf($b,@_);
 }
-
 
 #greatest common factor.
 #same as gcf, but both names are sufficiently common names
