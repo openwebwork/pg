@@ -106,8 +106,6 @@ sub Round {
 }
 
 #least common multiple
-#VS 6/29/2000
-# made recursive to handle the gcf of any number of inputs 5/16/2020
 # ^function lcm
 sub lcm {
         if (scalar @_ == 0) {warn 'Cannot take lcm of the empty set'; return;}
@@ -122,8 +120,6 @@ sub lcm {
 
 # greatest common factor
 # takes in scalar values and uses the Euclidean Algorithm to return the gcf
-# VS 6/29/2000
-# made recursive to handle the gcf of any number of inputs 5/16/2020
 # ^function gcf
 sub gcf {
         if (scalar @_ == 0) {warn 'Cannot take gcf of the empty set or an all-zero set'; return;}
