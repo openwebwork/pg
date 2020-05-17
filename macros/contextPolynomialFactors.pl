@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2000-2010 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2000-2010 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: pg/macros/contextPolynomialFactors.pl,v 1.2 2010/03/31 21:45:42 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under

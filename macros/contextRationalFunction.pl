@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2000-2010 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2000-2010 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: pg/macros/contextRationalFunction.pl,v 1.1 2010/03/31 21:01:14 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under

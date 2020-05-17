@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2009 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2009 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: pg/macros/problemPanic.pl,v 1.6 2010/04/27 02:00:37 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
