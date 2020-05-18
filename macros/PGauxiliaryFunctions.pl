@@ -33,6 +33,12 @@ loadMacros("PGcommonFunctions.pl");
 #  preformat($scalar, "QuotedString")
 #
 
+# Generate random relatively prime tuple
+# (uses gcf(), so it's here, even though this isn't a "function")
+# random_pairwise_coprime($ar1, $ar2, ... )
+# random_coprime($ar1, $ar2, ... )
+
+
 =cut
 
 # ^function step
@@ -148,6 +154,92 @@ sub gcf {
 # ^uses gcf
 sub gcd {
         return gcf(@_);
+}
+
+# Generate relatively prime integers
+# Arguments should be array refernces to arrays of integers.
+# Returns an n-tuple of relatively prime integers,
+# each one coming from the corresponding array.
+# Random selection is uniform among all possible tuples
+# that are relatively prime.
+# In array context, returns an array. Otherwise, an array ref.
+# Use like:
+# random_coprime([1..9],[1..9]) to output maybe (2,9) or (1,1) but not (6,8)
+# random_coprime([-9..-1,1..9],[1..9],[1..9]) to output maybe (-3,7,4), (-1,1,1), or (-2,2,3) but not (-2,2,4)
+# random_pairwise_coprime([-9..-1,1..9],[1..9],[1..9]) to output maybe (-3,7,4) or (-1,1,1) but not (-2,2,3)
+
+# ^ function random_coprime
+# ^uses gcd
+sub random_coprime {
+  # Expect first argument to be an array reference
+  my $arg1 = shift;
+  my @arg1 = @{$arg1};
+  # It could have numbers (first iteration) or array references to tuples (subsequent iterations)
+  if (ref $arg1[0] eq '') {
+    my @newarg1;
+    for my $i (@arg1) {push @newarg1,[$i];}
+    do {warn "Unable to find a coprime tuple from input"; return;} unless (@newarg1);
+    return random_coprime([@newarg1],@_);
+  } elsif (ref $arg1[0] eq 'ARRAY') {
+    # Expect second argument to be an array reference to an array of integers, if present
+    my $next = shift;
+    my @next = @{$next};
+    if (@next) {
+      # Cross @arg1 with @next to make @newarg1
+      my @newarg1;
+      for my $i (@arg1) {
+        for my $j (@next) {
+          push @newarg1, [@{$i}, $j];
+        }
+      }
+      return random_coprime([@newarg1],@_);
+    } else {
+      # Go through all the tuples in @arg1 and keep coprime tuples
+      my @coprime_tuples;
+      for my $i (@arg1) {
+         push @coprime_tuples, $i if (gcf(@{$i}) == 1);
+      }
+      $return = list_random(@coprime_tuples);
+      return wantarray ? @{$return} : $return;
+    };
+  }
+}
+
+# ^ function random_pairwise_coprime
+# ^uses gcd
+sub random_pairwise_coprime {
+  # Expect first argument to be an array reference
+  my $arg1 = shift;
+  my @arg1 = @{$arg1};
+  # It could have numbers (first iteration) or array references to tuples (subsequent iterations)
+  if (ref $arg1[0] eq '') {
+    my @newarg1;
+    for my $i (@arg1) {push @newarg1,[$i];}
+    do {warn "Unable to find a coprime tuple from input"; return;} unless (@newarg1);
+    return random_pairwise_coprime([@newarg1],@_);
+  } elsif (ref $arg1[0] eq 'ARRAY') {
+    # Expect second argument to be an array reference to an array of integers, if present
+    my $next = shift;
+    my @next = @{$next};
+    if (@next) {
+      # Build @newarg1 by combining tuples from @arg1 with numbers from @next, only when pairwise coprime
+      my @newarg1;
+      for my $i (@arg1) {
+        for my $j (@next) {
+          my $jOK = 1;
+          for my $k (@{$i}) {
+            if (gcf($j,$k) != 1) {$jOK = 0; last;}
+          }
+          push @newarg1, [@{$i}, $j] if ($jOK);
+        }
+      }
+      do {warn "Unable to find a coprime tuple from input"; return;} unless (@newarg1);
+      return random_pairwise_coprime([@newarg1 ],@_);
+    } else {
+      my $return = list_random(@arg1);
+      return wantarray ? @{$return} : $return;
+    };
+  }
 }
 
 #returns 1 for a prime number, else 0
