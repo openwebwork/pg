@@ -108,13 +108,13 @@ sub Round {
 #least common multiple
 # ^function lcm
 sub lcm {
-        if (scalar @_ == 0) {warn 'Cannot take lcm of the empty set'; return;}
+        do {warn 'Cannot take lcm of the empty set'; return;} unless (@_);
         my $a = abs(shift);
         if ($a == 0) {return 0;}
-        if (scalar @_ == 0) {return $a;}
+        return $a unless (@_);
         my $b = abs(shift);
         if ($b == 0) {return 0;}
-        return lcm($a*$b/gcf($a,$b),@_);
+        else {return lcm($a*$b/gcf($a,$b),@_);};
 }
 
 
@@ -122,10 +122,10 @@ sub lcm {
 # takes in scalar values and uses the Euclidean Algorithm to return the gcf
 # ^function gcf
 sub gcf {
-        if (scalar @_ == 0) {warn 'Cannot take gcf of the empty set or an all-zero set'; return;}
+        do {warn 'Cannot take gcf of the empty set or an all-zero set'; return;} unless (@_);
         my $a = abs(shift);
         if ($a == 0) {return gcf(@_);}
-        if (scalar @_ == 0) {return $a;}
+        return $a unless (@_);
         my $b = abs(shift);
         if ($b == 0) {return gcf($a,@_);}
         ($a,$b) = ($b,$a) if $a > $b;
