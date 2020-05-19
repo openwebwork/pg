@@ -63,9 +63,9 @@ Default: 1
 
 1 means process student answers even
 during answer previews.  Usually, no
-hints are given durring previews, and
+hints are given durring previews, but
 only when answers are checked or submitted.
-The defaultcan be controlled on an individual
+The default can be controlled on an individual
 message basis, or by adding
 C<answerHintsProcessPreview> to the C<cmp()>
 arguments, or in the context's flags.
