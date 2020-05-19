@@ -1,4 +1,3 @@
-loadMacros('unionUtils.pl');
 
 sub _weightedGrader_init {}; # don't reload this file
 
@@ -287,7 +286,7 @@ sub weighted_grader {
 	defined($answers{$ans_name}->{credit})) {
       foreach $credit_name (@{$answers{$ans_name}->{credit}}) {
 	$credit{$credit_name} = 1 
-	  if (trimString($answers{$credit_name}->{student_ans}) eq "");
+	  if ( $answers{$credit_name}->{student_ans} =~ m/^\s*$/ );
       }
     }
   }
@@ -307,7 +306,7 @@ sub weighted_grader {
   # This gets rid of non-numeric scores
   $problem_state{recorded_score} = 0
     unless (defined($problem_state{recorded_score}) &&
-	    isNumber($problem_state{recorded_score}));
+	    $problem_state{recorded_score} =~ m/^[+-]?(\d+(\.\d*)?|\.\d+)([Ee][-+]?\d+)?$/ );
 
   $problem_state{recorded_score} = $problem_result{score}
     if ($problem_result{score} > $problem_state{recorded_score});
