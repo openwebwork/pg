@@ -90,7 +90,7 @@ sub new {
 		envir                     => $envir,
 		WARNING_messages		  => [],
 		DEBUG_messages            => [],
-		gifs_created              => {},
+		names_created              => 0,
 		external_refs             => {},      # record of external references 
 		%options,                                   # allows overrides and initialization	
 	};
@@ -724,18 +724,13 @@ PGtikz.pl.
 
 =cut
 
-# Keep track of the names created during this session.
-our %names_created;
-
 # Generate a unique file name in a problem based on the user, seed, set
 # number, and problem number.
 sub getUniqueName {
 	my $self = shift;
 	my $ext = shift;
-	my $prob_name = "$self->{envir}{studentLogin}-$self->{envir}{problemSeed}" .
-		"-set$self->{envir}{setNumber}prob$self->{envir}{probNum}";
-	my $num  = ++$names_created{$prob_name};
-	my $resource = $self->{PG_alias}->make_resource_object("$prob_name$num", $ext);
+	my $num  = ++$self->{names_created};
+	my $resource = $self->{PG_alias}->make_resource_object("name$num", $ext);
 	$resource->path("__");
 	return $resource->create_unique_id;
 }

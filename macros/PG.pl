@@ -51,7 +51,6 @@ sub DOCUMENT {
 	$solutionExists        		= $PG->{flags}->{solutionExists};
 	$hintExists            		= $PG->{flags}->{hintExists};
 	$pgComment                  = '';
-	%gifs_created          		= %{ $PG->{gifs_created}};
 	%external_refs         		= %{ $PG->{external_refs}};
 	
 	@KEPT_EXTRA_ANSWERS =();   #temporary hack
