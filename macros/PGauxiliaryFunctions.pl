@@ -106,28 +106,35 @@ sub Round {
 }
 
 #least common multiple
+# should be passed a nonempty array of integers
+# checks if passed an empty array, but otherwise does not validate input
+# returns their least common multiple
 # ^function lcm
 sub lcm {
         do {warn 'Cannot take lcm of the empty set'; return;} unless (@_);
         my $a = abs(shift);
-        if ($a == 0) {return 0;}
+        return 0 unless $a;
         return $a unless (@_);
         my $b = abs(shift);
-        if ($b == 0) {return 0;}
-        else {return lcm($a*$b/gcf($a,$b),@_);};
+        return 0 unless $b;
+        return lcm($a*$b/gcf($a,$b),@_);
 }
 
 
 # greatest common factor
-# takes in scalar values and uses the Euclidean Algorithm to return the gcf
+# should be passed a nonempty array of integers
+# checks if passed an empty array, but otherwise does not validate input
+# returns their greatest common factor
 # ^function gcf
 sub gcf {
+        # An empty argument array is either from the user or has been filtered down
+        # from previous iterations where the user submitted an all-zero array
         do {warn 'Cannot take gcf of the empty set or an all-zero set'; return;} unless (@_);
         my $a = abs(shift);
-        if ($a == 0) {return gcf(@_);}
+        return gcf(@_) unless $a;
         return $a unless (@_);
         my $b = abs(shift);
-        if ($b == 0) {return gcf($a,@_);}
+        # Swap if needed to make sure $a is smaller
         ($a,$b) = ($b,$a) if $a > $b;
         while ($a) {
           ($a, $b) = ($b % $a, $a);
