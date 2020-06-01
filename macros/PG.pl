@@ -1156,7 +1156,7 @@ labeled answers once.)
 
 =cut
 
-=item RECORD_FROM_LABEL()
+=item RECORD_FORM_LABEL()
 
  RECORD_FORM_LABEL("label");
 

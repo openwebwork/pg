@@ -109,16 +109,31 @@ sub _UploadImages_init {}; # don't reload this file
 # note: the name of the hidden input is what gets used as the key in $inputs_ref
 sub get_stored_data {
     my $hidden_input_id = shift;
-    my $previous_input = $inputs_ref->{$hidden_input_id};
-    main::TEXT(main::MODES(TeX=>'', HTML=>qq!<input type='hidden' name="$hidden_input_id" id="$hidden_input_id" value="$previous_input" />!));
+
+    ##########################
+	# implement the sticky answer mechanism for maintaining the applet state when the question page is refreshed
+	# This is important for guest users for whom no permanent record of answers is recorded.
+	##########################
+	my $answer_value = '';
+    if ( defined( ${$main::inputs_ref}{$hidden_input_id} ) and ${$main::inputs_ref}{$hidden_input_id} =~ /\S/ ) { 
+    	main::DEBUG_MESSAGE( "entry found for $hidden_input_id in form data");  
+		$answer_value = ${$main::inputs_ref}{$hidden_input_id};
+	} elsif ( defined( $main::rh_sticky_answers->{$hidden_input_id} )  ) {
+	    warn "type of sticky answers is ", ref( $main::rh_sticky_answers->{$hidden_input_id} );
+	    main::DEBUG_MESSAGE( "entry found for $hidden_input_id in sticky answers");
+		$answer_value = shift( @{ $main::rh_sticky_answers->{$hidden_input_id} });
+	} else {
+		main::DEBUG_MESSAGE( "no entry found for $hidden_input_id");
+	}
+
+	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
+	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
+
+    
+    main::TEXT(main::MODES(TeX=>'', HTML=>qq!<input type='text' name="$hidden_input_id" id="$hidden_input_id" value="$answer_value" />!));
     main::RECORD_FORM_LABEL($hidden_input_id);    
 }
 
-foreach my $i (0..20) {
-    get_stored_data("hidden_file_input_id_" . $i);
-}
-
-get_stored_data('number_of_files_attached');
 
 
 
@@ -225,6 +240,7 @@ END_HEADER_TEXT
 
 ###########################################
 
+
 sub UploadImages {
 
 # For the sake of saving time, I'm not going to implement unique id's right now, but here's a start.
@@ -236,9 +252,16 @@ sub UploadImages {
 # my $uid = $main::PG->encode_base64( $envir{probFileName} . $options{unique_id} );
 
 
+foreach my $i (0..20) {
+    get_stored_data("hidden_file_input_id_" . $i);
+}
+
+get_stored_data('number_of_files_attached');
+
+
 my $html = qq(
     $PAR$HR
-    <h2 style="margin:0">Attach image files</h2>
+    <h4 style="margin:0">Attach image files</h4>
     $PAR
     <input id="browse" name="browse" type="file" onchange="previewFiles()" multiple>
     <div id="preview"></div>

@@ -179,8 +179,9 @@ sub insertAll {  ## inserts both header text and object text
 	# implement the sticky answer mechanism for maintaining the applet state when the question page is refreshed
 	# This is important for guest users for whom no permanent record of answers is recorded.
 	##########################
-	
+	warn "retrieving state for $appletStateName";
     if ( defined( ${$main::inputs_ref}{$appletStateName} ) and ${$main::inputs_ref}{$appletStateName} =~ /\S/ ) {   
+		warn "retrieving from form data";
 		$answer_value = ${$main::inputs_ref}{$appletStateName};
 	} elsif ( defined( $main::rh_sticky_answers->{$appletStateName} )  ) {
 	    warn "type of sticky answers is ", ref( $main::rh_sticky_answers->{$appletStateName} );
