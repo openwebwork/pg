@@ -73,6 +73,16 @@ the permutation, while a larger negative number is the inverse
 multiplied by itself that many times (the absolute value of the
 power).
 
+The order in which permutations are multiplied is left-to-right by
+default (e.g., (1 2 3)(1 2) = (2 3) using left-to-right multiplication). 
+But, right-to-left multiplication (e.g., (1 2 3)(1 2) = (1 3) using right-
+to-left multiplication) can be used instead by setting
+
+	Context()->flags->set(multiplyRightToLeft => 1);
+
+Note: Right-to-left multiplication is consistent with viewing permutations 
+as functions that are composed from right-to-left.
+
 There are times when you might not want to allow inverses to be
 computed automatically.  In this case, set
 
@@ -181,6 +191,7 @@ sub _contextPermutation_init {
     noPowers => 0,           # allow powers of cycles and permutations?
     noInverses => 0,         # allow negative powers to mean inverse?
     noGroups => 0,           # allow parens for grouping (for powers)?
+    multiplyRightToLeft => 0,   # default is left to right multiplication
   );
 
   $context->{error}{msg}{"Entries in a Cycle must be of the same type"} =
@@ -249,7 +260,8 @@ sub mult {
   } else {
     Value->Error("Can't multiply %s by %s",$l->showType,$r->showType)
       unless $r->classMatch("Cycle","Permutation");
-    return $self->Package("Permutation")->new($l,$r);
+    return $self->getFlag("multiplyRightToLeft") ? 
+      $self->Package("Permutation")->new($r,$l) : $self->Package("Permutation")->new($l,$r);
   }
 }
 
@@ -592,4 +604,3 @@ sub TeX {
 ###########################################################
 
 1;
-
