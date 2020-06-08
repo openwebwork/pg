@@ -116,16 +116,8 @@ sub get_stored_data {
 	##########################
 	my $answer_value = '';
     if ( defined( ${$main::inputs_ref}{$hidden_input_id} ) and ${$main::inputs_ref}{$hidden_input_id} =~ /\S/ ) { 
-    	main::DEBUG_MESSAGE( "entry found for $hidden_input_id in form data");  
 		$answer_value = ${$main::inputs_ref}{$hidden_input_id};
-	} elsif ( defined( $main::rh_sticky_answers->{$hidden_input_id} )  ) {
-	    warn "type of sticky answers is ", ref( $main::rh_sticky_answers->{$hidden_input_id} );
-	    main::DEBUG_MESSAGE( "entry found for $hidden_input_id in sticky answers");
-		$answer_value = shift( @{ $main::rh_sticky_answers->{$hidden_input_id} });
-	} else {
-		main::DEBUG_MESSAGE( "no entry found for $hidden_input_id");
-	}
-
+	} 
 	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
 
