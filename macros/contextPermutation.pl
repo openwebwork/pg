@@ -251,17 +251,30 @@ sub make {
 #
 sub mult {
   my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
-  if ($l->isReal) {
-    $l = $l->value;
-    Value->Error("Can't multiply %s by a non-integer value",$self->showType) unless $l == int($l);
-    Value->Error("Can't multiply %s by a negative value",$self->showType) if $l < 0;
-    my $n = $self->{P}{$l}; $n = $l unless defined $n;
-    return $self->Package("Real")->make($n);
+  if (!$self->getFlag('multiplyRightToLeft')) {
+    if ($l->isReal) {
+      $l = $l->value;
+      Value->Error("Can't multiply %s by a non-integer value",$self->showType) unless $l == int($l);
+      Value->Error("Can't multiply %s by a negative value",$self->showType) if $l < 0;
+      my $n = $self->{P}{$l}; $n = $l unless defined $n;
+      return $self->Package("Real")->make($n);
+    } else {
+      Value->Error("Can't multiply %s by %s",$l->showType,$r->showType)
+        unless $r->classMatch("Cycle","Permutation");
+      return $self->Package("Permutation")->new($l,$r);
+    }
   } else {
-    Value->Error("Can't multiply %s by %s",$l->showType,$r->showType)
-      unless $r->classMatch("Cycle","Permutation");
-    return $self->getFlag("multiplyRightToLeft") ? 
-      $self->Package("Permutation")->new($r,$l) : $self->Package("Permutation")->new($l,$r);
+    if ($r->isReal) {
+      $r = $r->value;
+      Value->Error("Can't multiply %s by a non-integer value",$self->showType) unless $r == int($r);
+      Value->Error("Can't multiply %s by a negative value",$self->showType) if $r < 0;
+      my $n = $self->{P}{$r}; $n = $r unless defined $n;
+      return $self->Package("Real")->make($n);
+    } else {
+      Value->Error("Can't multiply %s by %s",$l->showType,$r->showType)
+        unless $l->classMatch("Cycle","Permutation");
+      return $self->Package("Permutation")->new($l,$r);
+    }
   }
 }
 
@@ -387,7 +400,7 @@ sub new {
 }
 
 #
-#  Find the internal representation of the permutation
+#  Find the internal representation of the cycle
 #  (a hash representing where each element goes)
 #
 sub makeP {
@@ -443,6 +456,7 @@ sub new {
 sub makeP {
   my $self = shift; my $p = $self->{data};
   my $P = {}; my %N;
+  $p = [reverse(@$p)] if $self->getFlag('multiplyRightToLeft');
   foreach my $x (@$p) {map {$N{$_} = 1} (keys %{$x->{P}})}  # get all elements used
   foreach my $i (keys %N) {
     my $j = $i;
