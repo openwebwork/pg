@@ -23,8 +23,8 @@ GroupTableAnswer.pl
 Provides a way to collect and grade multiplication (group or ring) tables.
 An html table with editable table cells is used for answer entry.  When the
 problem is submitted, JavaScript reads the table cells and assembles them
-into the form of a MathObject matrix which written to a hidden html input, 
-passed to the server, and graded as a MathObject matrix.  When the problem 
+into the form of a comma separated list which written to a hidden html input, 
+passed to the server, and graded as a MathObject ordered List.  When the problem 
 reloads, JavaScript reads the previous answer from a hidden html input and fills
 the html table cells.
 
@@ -39,20 +39,16 @@ are strings that get interpreted properly by the C<Matrix()> constructor.
         Context("Matrix");
         Context()->variables->are(e=>'Real',a=>'Real');
 
-        $grouptable = Matrix([
-        ["e","a","a^2"],
-        ["a","a^2","e"],
-        ["a^2","e","a"]
-        ]);
+        $ans = List("e,a,a^2,  a,a^2,e,  a^2,e,a");
 
 Next, insert the group table into the text of the problem.
 
         BEGIN_PGML
-        [@ GroupTable('grouptable_1', 'Group Table', '\circ', ['e','a','a^2'],['e','a','a^2'], $grouptable); @]*
+        [@ GroupTable('grouptable_1', 'Group Table', '\circ', ['e','a','a^2'],['e','a','a^2'], $ans); @]*
         END_PGML
 
         BEGIN_TEXT
-        \{ GroupTable('grouptable_1', 'Group Table', '\circ', ['e','a','a^2'],['e','a','a^2'], $grouptable); \}
+        \{ GroupTable('grouptable_1', 'Group Table', '\circ', ['e','a','a^2'],['e','a','a^2'], $ans); \}
         END_TEXT
 
 The first argument C<'grouptable_1'> is a unique identifier that gets used in the
@@ -67,14 +63,13 @@ If this string contains a backslash, be sure to enclose it in single quotes.
 
 The fourth and fifth arguments C<['e','a','a^2']> are the row and column headers.
 
-The sixth argument C<$grouptable> is a MathObject matrix of answers.
+The sixth argument C<$ans> is a MathObject List of answers.
 
 =head1 AUTHOR
 
 Paul Pearson (Hope College Mathematics and Statistics Department)
 
 =cut
-
 
 
 
@@ -168,24 +163,21 @@ sub GroupTable {
         });
         
         document.querySelector("#problemMainForm").addEventListener("submit", function(){ // run on submit
-        var i, j;
-        var answers_string = '[';
-        for (i = 1; i <= $num_rows; i++) {
-        	var row = [];
-        	answers_string += '[';
-        	for (j = 1; j <= $num_cols; j++) {
-        		var cell = document.getElementById("$id").rows[i].cells[j].innerHTML;
-        		if (cell.length > 0) {
-        			row.push(cell);
-        		} else {
-        			 row.push("none"); // placeholder for empty entries that is already in the Matrix context
-        		}
-        	}
-        	answers_string += row.toString();
-        	if (i < $num_rows) { answers_string += '],'; } else { answers_string += ']]'; }
-        }
-        
-        document.getElementById('AnSwEr_$id').setAttribute('value', answers_string);
+
+            var i, j;
+            var answers_array = [];
+            for (i = 1; i < 4; i++) {
+                for (j = 1; j < 4; j++) {
+                    var cell = document.getElementById("$id").rows[i].cells[j].innerHTML;
+      		    if (cell.length > 0) {
+       			answers_array.push(cell);
+       		    } else {
+       			answers_array.push("none"); // placeholder for empty
+       		    }
+                }
+            }
+            var answers_string = answers_array.join();        
+            document.getElementById('AnSwEr_$id').setAttribute('value', answers_string);
         
         }, false);
         
@@ -195,9 +187,7 @@ sub GroupTable {
         # insert the html hidden input and check the answer
         my $ans_id = 'AnSwEr_' . $id;
         TEXT( NAMED_HIDDEN_ANS_RULE($ans_id) );
-
-        #main::NAMED_HIDDEN_ANS_RULE($ans_id);
-        NAMED_ANS( $ans_id, $ans->cmp );
+        NAMED_ANS( $ans_id, $ans->cmp(ordered=>1) ); 
 
         return $table_html . $js;
 
