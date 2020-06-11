@@ -166,8 +166,8 @@ sub GroupTable {
 
             var i, j;
             var answers_array = [];
-            for (i = 1; i < 4; i++) {
-                for (j = 1; j < 4; j++) {
+            for (i = 1; i <= $num_rows; i++) {
+                for (j = 1; j <= $num_cols; j++) {
                     var cell = document.getElementById("$id").rows[i].cells[j].innerHTML;
       		    if (cell.length > 0) {
        			answers_array.push(cell);
