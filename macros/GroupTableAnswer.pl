@@ -187,9 +187,13 @@ sub GroupTable {
        		    }
                 }
             }
-            var answers_string = answers_array.join();        
+
+            //  create a string by joining elements of the array by commas, and then replacing any html tags using regex match and replace
+            //  https://stackoverflow.com/questions/1499889/remove-html-tags-in-javascript-with-regex
+            var answers_string = answers_array.join(",").replace(/(<([^>]+)>)/ig, '');
             document.getElementById('AnSwEr_$id').setAttribute('value', answers_string);
 
+            //  mainly for debugging
             //sessionStorage.setItem("group",document.getElementById("div_$id").innerHTML);
         
         }, false);
