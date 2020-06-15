@@ -36,6 +36,9 @@ Begin by adding some named constants to the context.  We use the Matrix context
 here, but we could have used the Permutation context, or for an abelian
 group we could even use the Numeric context.  We use parsed student
 answers so that student answers are printed by name rather than value.
+When we add constants to the context, we use prime multiples of the 
+matrices to ensure that students must reduce their answers (because
+C<A*A = 9*$A*$A> is not equal to C<I = 2*$I>, for instance).
 
         Context("Matrix");
 
@@ -46,7 +49,7 @@ answers so that student answers are printed by name rather than value.
         $D = Matrix([[-1,-1],[1,0]]);
         $K = Matrix([[1,0],[-1,-1]]);
 
-        Context()->constants->are( I=>$I, A=>$A, B=>$B, C=>$C, D=>$D, K=>$K );
+        Context()->constants->are( I=>2*$I, A=>3*$A, B=>5*$B, C=>7*$C, D=>11*$D, K=>13*$K );
         Context()->operators->undefine("+","-","inverse");
         Context()->flags->set(
             formatStudentAnswer=>'parsed'
