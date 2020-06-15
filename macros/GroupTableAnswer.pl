@@ -32,24 +32,35 @@ the html table cells.
 
 Load the macro file via C<loadMacros("GroupTableAnswer.pl")>.
 
-Begin by adding some named variables to the context and enter the group table 
-into a matrix, being sure to use quotes around entries in the matrix so that they 
-are strings that get interpreted properly by the C<Matrix()> constructor.
+Begin by adding some named constants to the context.  We use the Matrix context
+here, but we could have used the Permutation context, or for an abelian
+group we could even use the Numeric context.  We use parsed student
+answers so that student answers are printed by name rather than value.
 
         Context("Matrix");
-        Context()->variables->are(e=>'Real',a=>'Real');
 
-        $ans = Compute("e,a,a^2,  a,a^2,e,  a^2,e,a");
+        $I = Matrix([[1,0],[0,1]]);
+        $A = Matrix([[0,1],[1,0]]);
+        $B = Matrix([[0,1],[-1,-1]]);
+        $C = Matrix([[-1,-1],[0,1]]);
+        $D = Matrix([[-1,-1],[1,0]]);
+        $K = Matrix([[1,0],[-1,-1]]);
 
-Next, insert the group table into the text of the problem.
+        Context()->constants->are( I=>$I, A=>$A, B=>$B, C=>$C, D=>$D, K=>$K );
+        Context()->operators->undefine("+","-","inverse");
+        Context()->flags->set(
+            formatStudentAnswer=>'parsed'
+        );
+
+        $grouptable = Compute("I,A,B,C,D,K,  A,I,C,B,K,D,   B,K,D,A,I,C,   C,D,K,I,A,B,   D,C,I,K,B,A,   K,B,A,D,C,I");
 
         BEGIN_PGML
-        [@ GroupTable('grouptable_1', 'Group Table', '\circ', ['e','a','a^2'],['e','a','a^2'], $ans); @]*
-        END_PGML
+        # Group table input
 
-        BEGIN_TEXT
-        \{ GroupTable('grouptable_1', 'Group Table', '\circ', ['e','a','a^2'],['e','a','a^2'], $ans); \}
-        END_TEXT
+        Suppose [``I=[$I]``], [``A=[$A]``], [``B=[$B]``], [``C=[$C]``], [``D=[$D]``], [``K=[$K]``].  Complete the group table for the group defined by these six elements.
+
+        [@ GroupTable('grouptable_1', 'Group table', '\circ', ['I','A','B','C','D','K'], ['I','A','B','C','D','K'], $grouptable) @]*
+        END_PGML
 
 The first argument C<'grouptable_1'> is a unique identifier that gets used in the
 html source code.  If you have more than one group table in a problem, their
@@ -61,9 +72,9 @@ by people with visual impairments who use screen readers.
 The third argument C<'\circ'> is a TeX-formatted string for the operation in the group.
 If this string contains a backslash, be sure to enclose it in single quotes.
 
-The fourth and fifth arguments C<['e','a','a^2']> are the row and column headers.
+The fourth and fifth arguments C<['I','A','B','C','D','K']> are the row and column headers.
 
-The sixth argument C<$ans> is a MathObject List of answers.
+The sixth argument C<$grouptable> is a MathObject list of answers in row major format.
 
 =head1 AUTHOR
 
