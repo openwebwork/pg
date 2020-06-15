@@ -39,7 +39,7 @@ are strings that get interpreted properly by the C<Matrix()> constructor.
         Context("Matrix");
         Context()->variables->are(e=>'Real',a=>'Real');
 
-        $ans = List("e,a,a^2,  a,a^2,e,  a^2,e,a");
+        $ans = Compute("e,a,a^2,  a,a^2,e,  a^2,e,a");
 
 Next, insert the group table into the text of the problem.
 
@@ -178,6 +178,8 @@ sub GroupTable {
             }
             var answers_string = answers_array.join();        
             document.getElementById('AnSwEr_$id').setAttribute('value', answers_string);
+
+            //sessionStorage.setItem("group",document.getElementById("div_$id").innerHTML);
         
         }, false);
         
@@ -187,13 +189,86 @@ sub GroupTable {
         # insert the html hidden input and check the answer
         my $ans_id = 'AnSwEr_' . $id;
         TEXT( NAMED_HIDDEN_ANS_RULE($ans_id) );
-        NAMED_ANS( $ans_id, $ans->cmp(ordered=>1) ); 
+        NAMED_ANS( $ans_id, $ans->cmp(ordered=>1, 'num_rows'=>$num_rows, 'num_cols'=>$num_cols)->withPostFilter(\&group_table_post_filter) ); 
 
         return $table_html . $js;
 
     }    # end HTML mode
 
 }    # end GroupTable
+
+
+
+sub group_table_post_filter {
+    # for answer checking, we use lists; however, we want the answer preview 
+    # and correct answer to be displayed as a table, which is what this post filter does.
+
+    my $ans_hash = shift;
+
+    my $nr = $ans_hash->{num_rows};
+    my $nc = $ans_hash->{num_cols};
+
+    #########################################
+    my $stu = $ans_hash->{student_ans};
+    my @stu_array = split(',' , $stu);
+    #warn scalar(@stu_array);
+
+    my $str = '';
+    foreach my $i (0..($nr-1)) {
+        $str .= join(','  , @stu_array[($i*$nc)..(($i+1)*$nc - 1)]) . '<br>';
+    }
+    $ans_hash->{student_ans} = $str;
+
+    #########################################
+    my $stu = $ans_hash->{preview_latex_string};
+    my @stu_array = split(',' , $stu);
+
+    my $str = '\begin{array}{';
+    $str .= "c" x $nc . '} ';
+    foreach my $i (0..($nr-1)) {
+        $str .= join(' & '  , @stu_array[($i*$nc)..(($i+1)*$nc - 1)]) . ' \cr ';
+    }
+    $str .= ' \end{array}';
+    $ans_hash->{preview_latex_string} = $str;
+
+    ######################################## 
+    my $stu = $ans_hash->{preview_text_string};
+    my @stu_array = split(',' , $stu);
+
+    my $str = '';
+    foreach my $i (0..($nr-1)) {
+        $str .= join(','  , @stu_array[($i*$nc)..(($i+1)*$nc - 1)]) . '<br>';
+    }
+    $ans_hash->{preview_text_string} = $str;
+
+    ########################################
+    my $cor = $ans_hash->{correct_ans_latex_string};
+    my @cor_array = split(',' , $cor);
+    
+    my $str = '\begin{array}{';
+    $str .= "c" x $nc . '} ';
+    foreach my $i (0..($nr-1)) {
+        $str .= join(' & '  , @cor_array[($i*$nc)..(($i+1)*$nc - 1)]) . ' \cr ';
+    }
+    $str .= ' \end{array}';
+    $ans_hash->{correct_ans_latex_string} = $str;
+
+    ######################################## 
+    my $cor = $ans_hash->{correct_ans};
+    my @cor_array = split(',' , $cor);
+
+    my $str = '';
+    foreach my $i (0..($nr-1)) {
+        $str .= join(','  , @cor_array[($i*$nc)..(($i+1)*$nc - 1)]) . '<br>';
+    }
+    $ans_hash->{correct_ans} = $str;
+
+    ########################################
+    # for debugging
+    #warn pretty_print($ans_hash);
+
+    return $ans_hash;
+}
 
 
 1;
