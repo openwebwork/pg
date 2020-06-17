@@ -147,7 +147,7 @@ sub gcf {
 # ^function gcd
 # ^uses gcf
 sub gcd {
-        return gcf($_[0], $_[1]);
+        return gcf(@_);
 }
 
 #returns 1 for a prime number, else 0
