@@ -157,7 +157,7 @@ sub gcd {
 }
 
 # Generate relatively prime integers
-# Arguments should be array refernces to arrays of integers.
+# Arguments should be array references to arrays of integers.
 # Returns an n-tuple of relatively prime integers,
 # each one coming from the corresponding array.
 # Random selection is uniform among all possible tuples
@@ -172,34 +172,39 @@ sub gcd {
 # ^uses gcd
 sub random_coprime {
   # Expect first argument to be an array reference
-  my $arg1 = shift;
-  my @arg1 = @{$arg1};
-  # It could have numbers (first iteration) or array references to tuples (subsequent iterations)
-  if (ref $arg1[0] eq '') {
-    my @newarg1;
-    for my $i (@arg1) {push @newarg1,[$i];}
-    do {warn "Unable to find a coprime tuple from input"; return;} unless (@newarg1);
-    return random_coprime([@newarg1],@_);
-  } elsif (ref $arg1[0] eq 'ARRAY') {
+  my $c = shift;
+  my @candidates = @$c if $c;
+  # The array may have numbers (first iteration)
+  # or array references to tuples (subsequent iterations)
+  # If it has numbers, convert to an array reference of references to 1-element arrays
+  # and start over
+  if (ref $candidates[0] eq '') {
+    my @refcandidates;
+    for my $i (@candidates) {push @refcandidates,[$i];}
+    do {warn "Unable to find a coprime tuple from input"; return;} unless (@refcandidates);
+    return random_coprime([@refcandidates],@_);
+  } elsif (ref $candidates[0] eq 'ARRAY') {
     # Expect second argument to be an array reference to an array of integers, if present
-    my $next = shift;
-    my @next = @{$next};
-    if (@next) {
-      # Cross @arg1 with @next to make @newarg1
-      my @newarg1;
-      for my $i (@arg1) {
-        for my $j (@next) {
-          push @newarg1, [@{$i}, $j];
+    my $n = shift;
+    my @newcomers = @$n if ($n);
+    if (@newcomers) {
+      # Cross @candidates with @newcomers to make @newcandidates
+      my @newcandidates;
+      for my $i (@candidates) {
+        for my $j (@newcomers) {
+          push @newcandidates, [@{$i}, $j];
         }
       }
-      return random_coprime([@newarg1],@_);
+      do {warn "Unable to find a coprime tuple from input"; return;} unless (@newcandidates);
+      return random_coprime([@newcandidates],@_);
     } else {
-      # Go through all the tuples in @arg1 and keep coprime tuples
+      # Go through all the tuples in @candidates and keep coprime tuples
       my @coprime_tuples;
-      for my $i (@arg1) {
-         push @coprime_tuples, $i if (gcf(@{$i}) == 1);
+      for my $i (@candidates) {
+         push @coprime_tuples, $i if (gcf(@{$i}) == 1 or @{$i} == 1);
       }
-      $return = list_random(@coprime_tuples);
+      do {warn "Unable to find a coprime tuple from input"; return;} unless (@coprime_tuples);
+      my $return = list_random(@coprime_tuples);
       return wantarray ? @{$return} : $return;
     };
   }
@@ -209,34 +214,38 @@ sub random_coprime {
 # ^uses gcd
 sub random_pairwise_coprime {
   # Expect first argument to be an array reference
-  my $arg1 = shift;
-  my @arg1 = @{$arg1};
-  # It could have numbers (first iteration) or array references to tuples (subsequent iterations)
-  if (ref $arg1[0] eq '') {
-    my @newarg1;
-    for my $i (@arg1) {push @newarg1,[$i];}
-    do {warn "Unable to find a coprime tuple from input"; return;} unless (@newarg1);
-    return random_pairwise_coprime([@newarg1],@_);
-  } elsif (ref $arg1[0] eq 'ARRAY') {
+  my $c = shift;
+  my @candidates = @$c if $c;
+  # The array may have numbers (first iteration)
+  # or array references to tuples (subsequent iterations)
+  # If it has numbers, convert to an array reference of references to 1-element arrays
+  # and start over
+  if (ref $candidates[0] eq '') {
+    my @refcandidates;
+    for my $i (@candidates) {push @refcandidates,[$i];}
+    do {warn "Unable to find a coprime tuple from input"; return;} unless (@refcandidates);
+    return random_pairwise_coprime([@refcandidates],@_);
+  } elsif (ref $candidates[0] eq 'ARRAY') {
     # Expect second argument to be an array reference to an array of integers, if present
-    my $next = shift;
-    my @next = @{$next};
-    if (@next) {
-      # Build @newarg1 by combining tuples from @arg1 with numbers from @next, only when pairwise coprime
-      my @newarg1;
-      for my $i (@arg1) {
-        for my $j (@next) {
+    my $n = shift;
+    my @newcomers = @$n if ($n);
+    if (@newcomers) {
+      # Build @newcandidates by combining tuples from @candidates with numbers from @newcomers, only when pairwise coprime
+      my @newcandidates;
+      for my $i (@candidates) {
+        for my $j (@newcomers) {
           my $jOK = 1;
           for my $k (@{$i}) {
             if (gcf($j,$k) != 1) {$jOK = 0; last;}
           }
-          push @newarg1, [@{$i}, $j] if ($jOK);
+          push @newcandidates, [@{$i}, $j] if ($jOK);
         }
       }
-      do {warn "Unable to find a coprime tuple from input"; return;} unless (@newarg1);
-      return random_pairwise_coprime([@newarg1 ],@_);
+      do {warn "Unable to find a coprime tuple from input"; return;} unless (@newcandidates);
+      return random_pairwise_coprime([@newcandidates],@_);
     } else {
-      my $return = list_random(@arg1);
+      # We know all candidate tuples are pairwise coprime already
+      my $return = list_random(@candidates);
       return wantarray ? @{$return} : $return;
     };
   }
