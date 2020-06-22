@@ -119,6 +119,25 @@ respectively.
 These are the number of minor (unlabeled) ticks between major ticks on the x and y axes,
 respectively.
 
+=item JSXGraphOptions (Default: undefined)
+
+This is an advanced option that you usually do not want to use.  It is usually constructed by
+the macro internally using the above options.  If defined it should be a single string that is
+formatted in javascript object notation, and will override all of the above options.  It will be
+passed to the JavaScript graphTool method which will pass it on to the JSX graph board when it
+is initialized.  It may consist of any of the valid attributes documented for
+JXG.JSXGraph.initBoard at L<https://jsxgraph.org/docs/symbols/JXG.JSXGraph.html#.initBoard>.
+For example the following value for JSXGraphOptions will give the same result for the JavaScript
+graph as the default values for the options above:
+
+	JSXGraphOptions => "{ boundingBox: [-10, 10, 10, -10]," .
+		"defaultAxes: {" .
+			"x: { ticks: { ticksDistance: 2, minorTicks: 1} }," .
+			"y: { ticks: { ticksDistance: 2, minorTicks: 1} }" .
+		"}," .
+		"grid: { gridX: 1, gridY: 1 }" .
+	"}"
+
 =item snapSizeX, snapSizeY (Default: snapSizeX => 1, snapSizeY => 1)
 
 These restrict the x coordinate and y coordinate of points that can be graphed to being
@@ -130,30 +149,9 @@ This is an array of fixed objects that will be displayed on the graph.  These ob
 be able to be moved around.  The format for these objects is the same as those that are passed
 to the GraphTool constructor as the correct answers.
 
-=item graphOptions (Default: undefined)
-
-This is an advanced option that you usually do not want to use.  It is usually constructed by
-the macro internally using the above options.  If defined it should be a single string
-containing three comma separated arguments, and will override all of the above options.  It will
-be passed directly to the JavaScript graphTool method as its final three parameters.  The first
-argument in the string is JavaScript object notation that will be passed directly to the JSX
-graph board when it is initialized.  It may consist of any of the valid attributes documented
-for JXG.JSXGraph.initBoard at L<https://jsxgraph.org/docs/symbols/JXG.JSXGraph.html#.initBoard>.
-The second and third arguments are the snapSizeX and snapSizeY options discussed above.  For
-example the following value for graphOptions will give the same result for the JavaScript graph
-as the default values for the options above:
-
-	graphOptions => "{ boundingBox: [-10, 10, 10, -10]," .
-		"defaultAxes: {" .
-			"x: { ticks: { ticksDistance: 2, minorTicks: 1} }," .
-			"y: { ticks: { ticksDistance: 2, minorTicks: 1} }" .
-		"}," .
-		"grid: { gridX: 1, gridY: 1 }" .
-	"}, 1, 1"
-
 =item printGraph (Default: undefined)
 
-If the graphOptions option is set directly, then you will also need to provide a function that
+If the JSXGraphOptions option is set directly, then you will also need to provide a function that
 will generate the corresponding hard copy graph.  Otherwise the hard copy graph will still be
 generated using the above options, and will not look the same as the java script graph.
 
@@ -227,11 +225,11 @@ sub type { return "List"; }
 
 # Convert the GraphTool object's options into JSON that can be passed to the JavaScript
 # graphTool method.
-sub constructJSGraphOptions
+sub constructJSXGraphOptions
 {
 	my $self = shift;
-	return if defined($self->{graphOptions});
-	$self->{graphOptions} = <<END_OPTS;
+	return if defined($self->{JSXGraphOptions});
+	$self->{JSXGraphOptions} = <<END_OPTS;
 {
 	boundingBox: [${\join(",", @{$self->{bBox}})}],
 	defaultAxes: {
@@ -239,7 +237,7 @@ sub constructJSGraphOptions
 		y: { ticks: { ticksDistance: $self->{ticksDistanceY}, minorTicks: $self->{minorTicksY}} }
 	},
 	grid: { gridX: $self->{gridX}, gridY: $self->{gridY} }
-}, $self->{snapSizeX}, $self->{snapSizeY}
+}
 END_OPTS
 }
 
@@ -427,13 +425,17 @@ END_TIKZ
 			width => $size[0], height => $size[1], tex_size => $self->{texSize});
 	}
 	else {
-		$self->constructJSGraphOptions;
+		$self->constructJSXGraphOptions;
 		my $ans_name = $self->ANS_NAME;
 		my $prefix = ($main::setNumber =~ tr/./_/r) . "_" . $main::probNum;
 		$out .= "<div id='${prefix}_${ans_name}_graphbox' class='graphtool-container'></div>" .
-			"<script>graphTool('${prefix}_${ans_name}_graphbox', '${ans_name}', '" .
-			join(',', @{$self->{staticObjects}}) .
-			"', false, $self->{graphOptions});</script>";
+			"<script>graphTool('${prefix}_${ans_name}_graphbox', { " .
+			"htmlInputId: '${ans_name}', " .
+			"staticObjects: '" . join(',', @{$self->{staticObjects}}) . "'," .
+			"snapSizeX: $self->{snapSizeX}," .
+			"snapSizeY: $self->{snapSizeY}," .
+			"JSXGraphOptions: $self->{JSXGraphOptions}," .
+			"});</script>";
 	}
 
 	return $out;
@@ -446,7 +448,7 @@ sub cmp_preprocess {
 	my $self = shift; my $ans = shift;
 	if (defined($ans->{student_value})) {
 		my $ans_name = $self->ANS_NAME;
-		$self->constructJSGraphOptions;
+		$self->constructJSXGraphOptions;
 		my $graphObjs = @{$self->{staticObjects}} ?
 			join(",", @{$self->{staticObjects}}, $ans->{student_ans}) : $ans->{student_ans};
 
@@ -459,7 +461,13 @@ sub cmp_preprocess {
 jQuery("#${ans_name}_student_ans_graphbox").parent().find('span').remove();
 jQuery("#${ans_name}_student_ans_graphbox").parent().find('script[type^="math/tex"]').remove();
 jQuery(function() {
-	graphTool("${ans_name}_student_ans_graphbox", "", "$graphObjs", true, $self->{graphOptions});
+	graphTool("${ans_name}_student_ans_graphbox", {
+		staticObjects: "$graphObjs",
+		isStatic: true,
+		snapSizeX: $self->{snapSizeX},
+		snapSizeY: $self->{snapSizeY},
+		JSXGraphOptions: $self->{JSXGraphOptions}
+	});
 });
 END_ANS
 	}
@@ -475,7 +483,7 @@ sub cmp {
 
 	if ($main::displayMode ne 'TeX') {
 		my $ans_name = $self->ANS_NAME;
-		$self->constructJSGraphOptions;
+		$self->constructJSXGraphOptions;
 		my $graphObjs = @{$self->{staticObjects}} ?
 			join(",", @{$self->{staticObjects}}, $cmp->{rh_ans}{correct_ans}) : $cmp->{rh_ans}{correct_ans};
 
@@ -488,7 +496,13 @@ sub cmp {
 jQuery("#${ans_name}_correct_ans_graphbox").parent().find('span').remove();
 jQuery("#${ans_name}_correct_ans_graphbox").parent().find('script[type^="math/tex"]').remove();
 jQuery(function() {
-	graphTool("${ans_name}_correct_ans_graphbox", "", "$graphObjs", true, $self->{graphOptions});
+	graphTool("${ans_name}_correct_ans_graphbox", {
+		staticObjects: "$graphObjs",
+		isStatic: true,
+		snapSizeX: $self->{snapSizeX},
+		snapSizeY: $self->{snapSizeY},
+		JSXGraphOptions: $self->{JSXGraphOptions}
+	});
 });
 END_ANS
 	}
