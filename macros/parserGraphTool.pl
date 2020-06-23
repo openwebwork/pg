@@ -143,6 +143,13 @@ graph as the default values for the options above:
 These restrict the x coordinate and y coordinate of points that can be graphed to being
 multiples of the respective parameter.  These values must be greater than zero.
 
+=item availableTools (Default: availableTools => [ "LineTool", "CircleTool",
+	"VerticalParabolaTool", "HorizontalParabolaTool", "FillTool", "SolidDashTool" ])
+
+This is an array of tools that will be made available for students to use in the graph tool.
+All of the tools that may be included are listed in the default options above.  Note that the
+case of the tool names must match what is shown.
+
 =item staticObjects (Default: staticObjects => [])
 
 This is an array of fixed objects that will be displayed on the graph.  These objects will not
@@ -210,6 +217,14 @@ sub new {
 		gridX => 1, gridY => 1, snapSizeX => 1, snapSizeY => 1,
 		ticksDistanceX => 2, ticksDistanceY => 2,
 		minorTicksX => 1, minorTicksY => 1,
+		availableTools => [
+			"LineTool",
+			"CircleTool",
+			"VerticalParabolaTool",
+			"HorizontalParabolaTool",
+			"FillTool",
+			"SolidDashTool"
+		],
 		texSize => 400
 	}, $class;
 }
@@ -434,6 +449,7 @@ END_TIKZ
 			"staticObjects: '" . join(',', @{$self->{staticObjects}}) . "'," .
 			"snapSizeX: $self->{snapSizeX}," .
 			"snapSizeY: $self->{snapSizeY}," .
+			"availableTools: ['" . join("','", @{$self->{availableTools}}) . "']," .
 			"JSXGraphOptions: $self->{JSXGraphOptions}," .
 			"});</script>";
 	}
