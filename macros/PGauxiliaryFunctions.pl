@@ -160,8 +160,8 @@ sub gcd {
 # Arguments should be array references to arrays of integers.
 # Returns an n-tuple of relatively prime integers,
 # each one coming from the corresponding array.
-# Random selection is uniform among all possible tuples
-# that are relatively prime.
+# Random selection is uniform among all possible tuples that are relatively prime.
+# Does not consider (0,0) to be relatively prime.
 # In array context, returns an array. Otherwise, an array ref.
 # Use like:
 # random_coprime([1..9],[1..9]) to output maybe (2,9) or (1,1) but not (6,8)
@@ -201,7 +201,11 @@ sub random_coprime {
       # Go through all the tuples in @candidates and keep coprime tuples
       my @coprime_tuples;
       for my $i (@candidates) {
-         push @coprime_tuples, $i if (gcf(@{$i}) == 1 or @{$i} == 1);
+        # next three lines are to exclude [0,0,...,0]
+        my $hasnonzero = 0;
+        for my $j (@{$i}) {do {$hasnonzero = 1; last;} if ($j != 0)};
+        next unless ($hasnonzero);
+        push @coprime_tuples, $i if (gcf(@{$i}) == 1 or @{$i} == 1);
       }
       do {warn "Unable to find a coprime tuple from input"; return;} unless (@coprime_tuples);
       my $return = list_random(@coprime_tuples);
@@ -236,6 +240,9 @@ sub random_pairwise_coprime {
         for my $j (@newcomers) {
           my $jOK = 1;
           for my $k (@{$i}) {
+            # $j=0 is not OK if @{$i} already contains a 0
+            if ($j == 0 and $k == 0) {$jOK = 0; last;}
+            # in general, $j are not OK if there is something in @{$i} with which they have gcf > 1
             if (gcf($j,$k) != 1) {$jOK = 0; last;}
           }
           push @newcandidates, [@{$i}, $j] if ($jOK);
