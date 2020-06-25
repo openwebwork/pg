@@ -168,6 +168,11 @@ sub gcd {
 # random_coprime([1..9],[1..9]) to output maybe (2,9) or (1,1) but not (6,8)
 # random_coprime([-9..-1,1..9],[1..9],[1..9]) to output maybe (-3,7,4), (-1,1,1), or (-2,2,3) but not (-2,2,4)
 # random_pairwise_coprime([-9..-1,1..9],[1..9],[1..9]) to output maybe (-3,7,4) or (-1,1,1) but not (-2,2,3)
+# WARNING: random_coprime() will use a lot of memory and CPU resources if used with too many/too large arguments.
+# For example, random_coprime([-20..20],[-20..20],[-20..20],[-20..20],[-20..20]) involves processing 41^5 arrays.
+# Consider using random_pairwise_coprime() instead. Or breaking things up like:
+# random_coprime([-20..20],[-20..20]),random_coprime([-20..20],[-20..20],[-20..20])
+
 
 # ^ function random_coprime
 # ^uses gcd
