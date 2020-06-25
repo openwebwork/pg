@@ -139,6 +139,7 @@ sub gcf {
         my $a = abs(shift);
         return gcf(@_) unless $a;
         return $a unless (@_);
+        return 1 unless ($a > 1);
         my $b = abs(shift);
         # Swap if needed to make sure $a is smaller
         ($a,$b) = ($b,$a) if $a > $b;
