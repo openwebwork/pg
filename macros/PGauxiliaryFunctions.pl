@@ -175,14 +175,21 @@ sub random_coprime {
   # Expect first argument to be an array reference
   my $c = shift;
   my @candidates = @$c if $c;
-  # The array may have numbers (first iteration)
-  # or array references to tuples (subsequent iterations)
-  # If it has numbers, convert to an array reference of references to 1-element arrays
-  # and start over
+  # @candidates has numbers on the first iteration
+  # On subsequent iterations it has two array references
+  # The first of these is full of array references to tuples where we already know the gcf is 1
+  # The second is full of array references to tuples where the gcf is not 1, but these may become usable on later iterations
+  # If it has numbers, initialize the two array refs
   if (ref $candidates[0] eq '') {
-    my @refcandidates;
-    for my $i (@candidates) {push @refcandidates,[$i];}
-    do {warn "Unable to find a coprime tuple from input"; return;} unless (@refcandidates);
+    do {warn "Unable to find a coprime tuple from input"; return;} unless (@candidates);
+    my @refcandidates = ([],[]);
+    for my $i (@candidates) {
+      if (abs($i) == 1) {
+        push @{$refcandidates[0]},[$i];
+      } else {
+        push @{$refcandidates[1]},[$i];
+      }
+    }
     return random_coprime([@refcandidates],@_);
   } elsif (ref $candidates[0] eq 'ARRAY') {
     # Expect second argument to be an array reference to an array of integers, if present
@@ -190,24 +197,29 @@ sub random_coprime {
     my @newcomers = @$n if ($n);
     if (@newcomers) {
       # Cross @candidates with @newcomers to make @newcandidates
-      my @newcandidates;
-      for my $i (@candidates) {
+      my @newcandidates = ([],[]);
+      for my $i (@{$candidates[0]}) {
         for my $j (@newcomers) {
-          push @newcandidates, [@{$i}, $j];
+          push @{$newcandidates[0]}, [@{$i}, $j];
         }
       }
-      do {warn "Unable to find a coprime tuple from input"; return;} unless (@newcandidates);
+      for my $i (@{$candidates[1]}) {
+        for my $j (@newcomers) {
+          # next three lines are to avoid asking for gcf of all-zero set
+          my $hasnonzero = 0;
+          for my $k (@{$i}) {do {$hasnonzero = 1; last;} if ($k != 0)};
+          do {push @{$newcandidates[1]}, [@{$i}, $j]; next} unless ($hasnonzero or $j != 0);
+          if (gcf($j,@{$i}) == 1) {
+            push @{$newcandidates[0]}, [@{$i}, $j];
+          } else {
+            push @{$newcandidates[1]}, [@{$i}, $j];
+          }
+        }
+      }
+      do {warn "Unable to find a coprime tuple from input"; return;} unless (@{$newcandidates[0]},@{$newcandidates[1]});
       return random_coprime([@newcandidates],@_);
     } else {
-      # Go through all the tuples in @candidates and keep coprime tuples
-      my @coprime_tuples;
-      for my $i (@candidates) {
-        # next three lines are to exclude [0,0,...,0]
-        my $hasnonzero = 0;
-        for my $j (@{$i}) {do {$hasnonzero = 1; last;} if ($j != 0)};
-        next unless ($hasnonzero);
-        push @coprime_tuples, $i if (gcf(@{$i}) == 1 or @{$i} == 1);
-      }
+      my @coprime_tuples = @{$candidates[0]};
       do {warn "Unable to find a coprime tuple from input"; return;} unless (@coprime_tuples);
       my $return = list_random(@coprime_tuples);
       return wantarray ? @{$return} : $return;
