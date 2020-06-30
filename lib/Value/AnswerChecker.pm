@@ -88,6 +88,7 @@ sub cmp {
     correct_ans => $correct,
     correct_ans_latex_string => $correct_latex,
     correct_value => $self,
+    correct_data => $self->{data} || $self,
     $self->cmp_defaults(@_),
     %{$self->{context}{cmpDefaults}{$self->class} || {}},  # context-specified defaults
     @_,

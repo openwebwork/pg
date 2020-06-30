@@ -257,9 +257,18 @@ sub score {
 sub stringify_hash {
   my $self = shift;
   Parser::Context->current(undef,$self->{correct_value}->context) if $self->{correct_value};
+  # special treatment for correct_data array
+  my $correct_data;
+  if (ref($self->{correct_data}) eq 'ARRAY') {
+    $correct_data = $self->{correct_data};
+    for my $i (0..$#$correct_data) {
+      $correct_data->[$i] = "$correct_data->[$i]" if ref($correct_data->[$i]);
+    }
+  }
   foreach my $key (keys %$self) {
     $self->{$key} = "$self->{$key}" if ref($self->{$key});
   }
+  $self->{correct_data} = $correct_data if ($correct_data);
 }
 
 # error methods
