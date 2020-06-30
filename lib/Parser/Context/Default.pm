@@ -82,7 +82,7 @@ $operators = {
            class => 'Parser::BOP::multiply', TeX => ''},
 
    'fn'=> {precedence => 2.9, associativity => 'left', type => 'unary', string => '',
-           parenPrecedence => 5, hidden => 1},
+           parenPrecedence => 6.5, hidden => 1},
 
    ' ' => {precedence => 3.1, associativity => 'left', type => 'bin', string => '*',
            class => 'Parser::BOP::multiply', space => ' *', hidden => 1},
