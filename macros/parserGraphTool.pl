@@ -147,8 +147,9 @@ multiples of the respective parameter.  These values must be greater than zero.
 	"VerticalParabolaTool", "HorizontalParabolaTool", "FillTool", "SolidDashTool" ])
 
 This is an array of tools that will be made available for students to use in the graph tool.
-All of the tools that may be included are listed in the default options above.  Note that the
-case of the tool names must match what is shown.
+The order the tools are listed here will also be the order the tools are presented in the graph
+tool button box.  All of the tools that may be included are listed in the default options above.
+Note that the case of the tool names must match what is shown.
 
 =item staticObjects (Default: staticObjects => [])
 
@@ -193,22 +194,24 @@ loadMacros("MathObjects.pl", "PGtikz.pl");
 package GraphTool;
 our @ISA = qw(Value::List);
 
+our %contextStrings = (
+	line => {},
+	circle => {},
+	parabola => {},
+	vertical => {},
+	horizontal => {},
+	fill => {},
+	solid => {},
+	dashed => {}
+);
+
 sub new {
 	my $self = shift; my $class = ref($self) || $self;
 	my $context = Parser::Context->getCopy("Point");
 	$context->parens->set('{' => {close => '}', type => 'List', formList => 1, formMatrix => 0, removable => 0});
 	$context->lists->set('GraphTool' => {class =>'Parser::List::List', open => '',  close => '',  separator => ', ',
 			nestedOpen => '{', nestedClose => ')'});
-	$context->strings->add(
-		'line' => {},
-		'circle' => {},
-		'parabola' => {},
-		'vertical' => {},
-		'horizontal' => {},
-		'fill' => {},
-		'solid' => {},
-		'dashed' => {}
-	);
+	$context->strings->add(%contextStrings);
 	my $obj = $self->SUPER::new($context, @_);
 	return bless {
 		data => $obj->{data}, type => $obj->{type}, context => $context,
@@ -227,6 +230,115 @@ sub new {
 		],
 		texSize => 400
 	}, $class;
+}
+
+our %graphObjectTikz = (
+	line => {
+		code => sub {
+			my $self = shift;
+
+			my ($p1x, $p1y) = @{$_->{data}[2]{data}};
+			my ($p2x, $p2y) = @{$_->{data}[3]{data}};
+
+			if ($p1x == $p2x) {
+				# Vertical line
+				my $line = "($p1x,$self->{bBox}[3]) -- ($p1x,$self->{bBox}[1])";
+				return ("\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $line;\n", [
+						$line . "-- ($self->{bBox}[2],$self->{bBox}[1]) -- ($self->{bBox}[2],$self->{bBox}[3]) -- cycle",
+						sub { return $_[0] - $p1x; }
+					]);
+			} else {
+				# Non-vertical line
+				my $m = ($p2y - $p1y) / ($p2x - $p1x);
+				my $y = sub { return $m * ($_[0] - $p1x) + $p1y; };
+				my $line = "($self->{bBox}[0]," . &$y($self->{bBox}[0]) . ") -- " .
+				"($self->{bBox}[2]," . &$y($self->{bBox}[2]) . ")";
+				return ("\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $line;\n", [
+						$line .  "-- ($self->{bBox}[2],$self->{bBox}[1]) -- ($self->{bBox}[0],$self->{bBox}[1]) -- cycle",
+						sub { return $_[1] - &$y($_[0]); }
+					]);
+			}
+		}
+	},
+	circle => {
+		code => sub {
+			my $self = shift;
+			my ($cx, $cy) = @{$_->{data}[2]{data}};
+			my ($px, $py) = @{$_->{data}[3]{data}};
+			my $r = sqrt(($cx - $px) ** 2 + ($cy - $py) ** 2);
+			my $circle = "($cx, $cy) circle[radius=$r]";
+			return ("\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $circle;\n",
+				[ $circle, sub { return $r - sqrt(($cx - $_[0]) ** 2 + ($cy - $_[1]) ** 2); } ]);
+		}
+	},
+	parabola => {
+		code => sub {
+			my $self = shift;
+			my ($h, $k) = @{$_->{data}[3]{data}};
+			my ($px, $py) = @{$_->{data}[4]{data}};
+
+			if ($_->{data}[2] eq 'vertical') {
+				# Vertical parabola
+				my $a = ($py - $k) / ($px - $h) ** 2;
+				my $diff = sqrt((($a >= 0 ? $self->{bBox}[1] : $self->{bBox}[3]) - $k) / $a);
+				my $dmin = $h - $diff;
+				my $dmax = $h + $diff;
+				my $parabola = "plot[domain=$dmin:$dmax,smooth](\\x,{$a*(\\x-($h))^2+($k)})";
+				return ("\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $parabola;\n",
+					[ $parabola, sub { return $a * ($_[1] - $a * ($_[0] - $h) ** 2 - $k); } ]);
+			} else {
+				# Horizontal parabola
+				my $a = ($px - $h) / ($py - $k) ** 2;
+				my $diff = sqrt((($a >= 0 ? $self->{bBox}[2] : $self->{bBox}[0]) - $h) / $a);
+				my $dmin = $k - $diff;
+				my $dmax = $k + $diff;
+				my $parabola = "plot[domain=$dmin:$dmax,smooth]({$a*(\\x-($k))^2+($h)},\\x)";
+				return ("\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $parabola;\n",
+					[ $parabola, sub { return $a * ($_[0] - $a * ($_[1] - $k) ** 2 - $h); } ]);
+			}
+		}
+	},
+	fill => {
+		code => sub {
+			my ($self, $fill, $obj_data) = @_;
+			my ($fx, $fy) = @{$fill->{data}[1]{data}};
+			my $clip_code = "";
+			for (@$obj_data) {
+				my $clip_dir = &{$_->[1]}($fx, $fy);
+				return "" if $clip_dir == 0;
+				$clip_code .= "\\clip " . ($clip_dir < 0 ? "[inverse clip]" : "") . $_->[0] . ";\n";
+			}
+			return "\\begin{scope}\n\\clip[rounded corners=14pt] " .
+			"($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n" .
+			$clip_code .
+			"\\fill[yellow!40] ($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n" .
+			"\\end{scope}";
+		},
+		fillType => 1
+	}
+);
+
+our $customGraphObjects = "";
+our $customTools = "";
+
+sub addGraphObjects {
+	my $self = shift;
+	my %objects = @_;
+	$customGraphObjects .= join(",", map { "$_: $objects{$_}{js}" } keys %objects) . ",";
+
+	# Add the object's name and any other custom strings to the context strings, and add the
+	# code for generating the object in print to the %graphObjectTikz hash.
+	for (keys %objects) {
+		$contextStrings{$_} = {};
+		$contextStrings{$_} = {} for (@{$objects{$_}{strings}});
+		$graphObjectTikz{$_} = $objects{$_}{tikz} if defined $objects{$_}{tikz};
+	}
+}
+
+sub addTools {
+	my $self = shift;
+	my %tools = @_;
+	$customTools .= join(",", map { "$_: $tools{$_}" } keys %tools) . ",";
 }
 
 sub ANS_NAME
@@ -284,10 +396,10 @@ sub ans_rule {
 	}
 }
 \\definecolor{borderblue}{HTML}{356AA0}
-\\pgfdeclarelayer{background layer}
-\\pgfdeclarelayer{foreground layer}
-\\pgfsetlayers{background layer,main,foreground layer}
-\\begin{pgfonlayer}{background layer}
+\\pgfdeclarelayer{background}
+\\pgfdeclarelayer{foreground}
+\\pgfsetlayers{background,main,foreground}
+\\begin{pgfonlayer}{background}
 	\\fill[white,rounded corners=14pt]
 	($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);
 \\end{pgfonlayer}
@@ -346,7 +458,7 @@ END_TIKZ
 			my $obj = $self->SUPER::new($self->{context}, @{$self->{staticObjects}});
 
 			# Switch to the foreground layer and clipping box for the objects.
-			$tikz .= "\\begin{pgfonlayer}{foreground layer}\n";
+			$tikz .= "\\begin{pgfonlayer}{foreground}\n";
 			$tikz .= "\\clip[rounded corners=14pt] " .
 				"($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n";
 
@@ -355,79 +467,23 @@ END_TIKZ
 			# First graph lines, parabolas, and circles.  Cache the clipping path and a function
 			# for determining which side of the object to shade for filling later.
 			for (@{$obj->{data}}) {
-				if ($_->{data}[0] eq 'line') {
-					# Lines
-					my ($p1x, $p1y) = @{$_->{data}[2]{data}};
-					my ($p2x, $p2y) = @{$_->{data}[3]{data}};
-					if ($p1x == $p2x) {
-						# Vertical line
-						my $line = "($p1x,$self->{bBox}[3]) -- ($p1x,$self->{bBox}[1])";
-						push(@obj_data, [$line .
-								"-- ($self->{bBox}[2],$self->{bBox}[1]) -- ($self->{bBox}[2],$self->{bBox}[3]) -- cycle",
-								sub { return $_[0] - $p1x; }]);
-						$tikz .= "\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $line;\n";
-					} else {
-						# Non-vertical line
-						my $m = ($p2y - $p1y) / ($p2x - $p1x);
-						my $y = sub { return $m * ($_[0] - $p1x) + $p1y; };
-						my $line = "($self->{bBox}[0]," . &$y($self->{bBox}[0]) . ") -- " .
-							"($self->{bBox}[2]," . &$y($self->{bBox}[2]) . ")";
-						push(@obj_data, [$line .
-								"-- ($self->{bBox}[2],$self->{bBox}[1]) -- ($self->{bBox}[0],$self->{bBox}[1]) -- cycle",
-								sub { return $_[1] - &$y($_[0]); }]);
-						$tikz .= "\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $line;\n";
-					}
-				} elsif ($_->{data}[0] eq 'parabola') {
-					# Parabolas
-					my ($h, $k) = @{$_->{data}[3]{data}};
-					my ($px, $py) = @{$_->{data}[4]{data}};
-
-					if ($_->{data}[2] eq 'vertical') {
-						# Vertical parabola
-						my $a = ($py - $k) / ($px - $h) ** 2;
-						my $diff = sqrt((($a >= 0 ? $self->{bBox}[1] : $self->{bBox}[3]) - $k) / $a);
-						my $dmin = $h - $diff;
-						my $dmax = $h + $diff;
-						push(@obj_data, ["plot[domain=$dmin:$dmax,smooth](\\x,{$a*(\\x-($h))^2+($k)})",
-								sub { return $a * ($_[1] - $a * ($_[0] - $h) ** 2 - $k); }]);
-						$tikz .= "\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $obj_data[$#obj_data][0];\n";
-					} else {
-						# Horizontal parabola
-						my $a = ($px - $h) / ($py - $k) ** 2;
-						my $diff = sqrt((($a >= 0 ? $self->{bBox}[2] : $self->{bBox}[0]) - $h) / $a);
-						my $dmin = $k - $diff;
-						my $dmax = $k + $diff;
-						push(@obj_data, ["plot[domain=$dmin:$dmax,smooth]({$a*(\\x-($k))^2+($h)},\\x)",
-								sub { return $a * ($_[0] - $a * ($_[1] - $k) ** 2 - $h); }]);
-						$tikz .= "\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $obj_data[$#obj_data][0];\n";
-					}
-				} elsif ($_->{data}[0] eq 'circle') {
-					# Circles
-					my ($cx, $cy) = @{$_->{data}[2]{data}};
-					my ($px, $py) = @{$_->{data}[3]{data}};
-					my $r = sqrt(($cx - $px) ** 2 + ($cy - $py) ** 2);
-					push(@obj_data, ["($cx, $cy) circle[radius=$r]",
-							sub { return $r - sqrt(($cx - $_[0]) ** 2 + ($cy - $_[1]) ** 2); }]);
-					$tikz .= "\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $obj_data[$#obj_data][0];\n";
-				}
+				next unless (ref($graphObjectTikz{$_->{data}[0]}) eq 'HASH' &&
+					ref($graphObjectTikz{$_->{data}[0]}{code}) eq 'CODE' &&
+					!$graphObjectTikz{$_->{data}[0]}{fillType});
+				my ($object_tikz, $object_data) = $graphObjectTikz{$_->{data}[0]}{code}->($self, $_);
+				$tikz .= $object_tikz;
+				push(@obj_data, $object_data);
 			}
 
 			# Switch from the foreground layer to the background layer for the fills.
-			$tikz .= "\\end{pgfonlayer}\n\\begin{pgfonlayer}{background layer}\n";
+			$tikz .= "\\end{pgfonlayer}\n\\begin{pgfonlayer}{background}\n";
 
 			# Now shade the fill regions.
-			FILL: for (@{$obj->{data}}) {
-				next if $_->{data}[0] ne 'fill';
-				my ($fx, $fy) = @{$_->{data}[1]{data}};
-				my $clip_code = "";
-				for (@obj_data) {
-					my $clip_dir = &{$_->[1]}($fx, $fy);
-					next FILL if $clip_dir == 0;
-					$clip_code .= "\\clip " . ($clip_dir < 0 ? "[inverse clip]" : "") . $_->[0] . ";\n";
-				}
-				$tikz .= "\\begin{scope}\n\\clip[rounded corners=14pt] " .
-					"($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n" .
-					$clip_code . "\\fill[yellow!40] (-3,-3) rectangle (27,27);\n\\end{scope}";
+			for (@{$obj->{data}}) {
+				next unless (ref($graphObjectTikz{$_->{data}[0]}) eq 'HASH' &&
+					ref($graphObjectTikz{$_->{data}[0]}{code}) eq 'CODE' &&
+					$graphObjectTikz{$_->{data}[0]}{fillType});
+				$tikz .= $graphObjectTikz{fill}{code}->($self, $_, [@obj_data], $obj);
 			}
 
 			# End the background layer.
@@ -438,8 +494,7 @@ END_TIKZ
 
 		$out = main::image(main::insertGraph($graph),
 			width => $size[0], height => $size[1], tex_size => $self->{texSize});
-	}
-	else {
+	} else {
 		$self->constructJSXGraphOptions;
 		my $ans_name = $self->ANS_NAME;
 		my $prefix = ($main::setNumber =~ tr/./_/r) . "_" . $main::probNum;
@@ -449,6 +504,8 @@ END_TIKZ
 			"staticObjects: '" . join(',', @{$self->{staticObjects}}) . "'," .
 			"snapSizeX: $self->{snapSizeX}," .
 			"snapSizeY: $self->{snapSizeY}," .
+			"customGraphObjects: {$customGraphObjects}," .
+			"customTools: {$customTools}," .
 			"availableTools: ['" . join("','", @{$self->{availableTools}}) . "']," .
 			"JSXGraphOptions: $self->{JSXGraphOptions}," .
 			"});</script>";
@@ -482,6 +539,7 @@ jQuery(function() {
 		isStatic: true,
 		snapSizeX: $self->{snapSizeX},
 		snapSizeY: $self->{snapSizeY},
+		customGraphObjects: {$customGraphObjects},
 		JSXGraphOptions: $self->{JSXGraphOptions}
 	});
 });
@@ -517,6 +575,7 @@ jQuery(function() {
 		isStatic: true,
 		snapSizeX: $self->{snapSizeX},
 		snapSizeY: $self->{snapSizeY},
+		customGraphObjects: {$customGraphObjects},
 		JSXGraphOptions: $self->{JSXGraphOptions}
 	});
 });
