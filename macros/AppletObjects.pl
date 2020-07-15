@@ -19,8 +19,8 @@ AppletObjects.pl - Macro-based front end for the Applet.pm module.
 
 =head1 DESCRIPTION
 
-This subroutines in this file provide mechanisms to insert Flash applets (and Java applets) into
-a WeBWorK problem.
+The subroutines in this file provide mechanisms to insert Flash applets, Java applets, HTML 5
+Canvas applets, and Geogebra web applets into a WeBWorK problem.
 
 See also L<http://webwork.maa.org/pod/pg_TRUNK/lib/Applet.html>.
 
@@ -28,10 +28,8 @@ See also L<http://webwork.maa.org/pod/pg_TRUNK/lib/Applet.html>.
 
 # Add basic functionality to the header of the question
 sub _AppletObjects_init{
-main::HEADER_TEXT(<<'END_HEADER_TEXT');
-<script language="javascript">AC_FL_RunContent = 0;</script>
-<script src="/webwork2_files/applets/AC_RunActiveContent.js" language="javascript"></script>
-END_HEADER_TEXT
+	ADD_JS_FILE("apps/Base64/Base64.js", 1);
+	ADD_JS_FILE("apps/AppletSupport/ww_applet_support.js", 1);
 };
 
 =head3  FlashApplet
@@ -41,6 +39,7 @@ END_HEADER_TEXT
 =cut
 
 sub FlashApplet {
+	ADD_JS_FILE("apps/AppletSupport/AC_RunActiveContent.js", 1);
 	return new FlashApplet(@_);
 }
 
@@ -71,6 +70,7 @@ sub CanvasApplet {
 =cut
 
 sub GeogebraWebApplet {
+	ADD_JS_FILE("//web.geogebra.org/4.4/web/web.nocache.js", 0);
 	return new GeogebraWebApplet(@_);
 }
 
@@ -80,13 +80,13 @@ package Applet;
 
 =cut
 
-# This method is defined in this file because the main subroutines HEADER_TEXT and MODES are not
-# available to the module FlashApplet when that file is compiled (at the time the apache child
-# process is first initialized).
+# This method is defined in this file because it uses methods in PG.pl and PGbasicmacros.pl that
+# are not available to Applet.pm when it is compiled (at the time the apache child process is
+# first initialized).
 
 =head3  insertAll
 
-    Useage:  TEXT( $applet->insertAll() );
+    Useage:  TEXT($applet->insertAll());
              \{ $applet->insertAll() \}  (used within BEGIN_TEXT/END_TEXT blocks)
 
 =cut
@@ -96,14 +96,9 @@ package Applet;
 Inserts applet at this point in the HTML code.  (In TeX mode a message "Applet" is written.)
 This method also adds the applets header material into the header portion of the HTML page. It
 effectively inserts the outputs of both C<$applet-E<gt>insertHeader> and
-C<$applet-E<gt>insertObject> (defined in L<Applet.pm> ) in the appropriate places. In addition
-it creates a hidden answer blank for storing the state of the applet and provides mechanisms for
+C<$applet-E<gt>insertObject> (defined in L<Applet.pm>) in the appropriate places. In addition it
+creates a hidden answer blank for storing the state of the applet and provides mechanisms for
 revealing the state while debugging the applet.
-
-Note: This method is defined here rather than in Applet.pl because it requires access to the
-      RECORD_FORM_LABEL subroutine and to the routine accessing the stored values of the
-      answers.  These are defined in main::.
-      FIXME -- with the creation of the PGcore object this can now be rewritten
 
 =cut
 
@@ -117,7 +112,7 @@ sub insertAll {
 	my $debugMode = (defined($options{debug}) && $options{debug} > 0) ? $options{debug} : 0;
 	my $includeAnswerBox = (defined($options{includeAnswerBox}) && $options{includeAnswerBox} == 1) ? 1 : 0;
 	$debugMode = $debugMode || $self->debugMode;
-	$self->debugMode( $debugMode);
+	$self->debugMode($debugMode);
 
 	my $reset_button = $options{reinitialize_button} || 0;
 	warn qq! please change  "reset_button => 1" to "reinitialize_button => 1" in the applet->installAll() command \n!
@@ -132,7 +127,8 @@ sub insertAll {
 	# Prepare html code for storing state.
 	my $appletName = $self->appletName;
 	# The name of the hidden "answer" blank storing state.
-	my $appletStateName = "${appletName}_state";
+	$self->{stateInput} = "$main::PG->{QUIZ_PREFIX}${appletName}_state";
+	my $appletStateName = $self->{stateInput};
 
 	# Names of routines for this applet
 	my $getState = $self->getStateAlias;
@@ -221,40 +217,41 @@ sub insertAll {
 
 	# Construct the reset button string (this is blank if the button is not to be displayed).
 	my $reset_button_str = ($reset_button) ?
-		qq!<input type='submit' name='previewAnswers' id='previewAnswers' value='return this question to its initial state'
-		onClick="setHTMLAppletStateToRestart('$appletName')"><br/>!
+		qq!<button type='button' id='resetAppletState' class='btn btn-primary'
+		onClick="setHTMLAppletState('$appletName');document.getElementsByName('previewAnswers')[0].click();">
+		return this question to its initial state</button><br/>!
 		: '';
 
 	# Combine the state_input_button and the reset button into one string.
-	$state_storage_html_code = qq!<input type="hidden" name="previous_$appletStateName"
+	my $state_storage_html_code = qq!<input type="hidden" name="previous_$appletStateName"
 		id="previous_$appletStateName" value = "$base_64_encoded_answer_value">!
 		. $state_input_element . $reset_button_str;
 
 	# Construct the answerBox (if it is requested).  This is a default input box for interacting
 	# with the applet.  It is separate from maintaining state but it often contains similar
 	# data.  Additional answer boxes or buttons can be defined but they must be explicitly
-	# connected to the applet with additional javaScript commands.
+	# connected to the applet with additional JavaScript commands.
 	my $answerBox_code = '';
 	if ($includeAnswerBox) {
 		if ($debugMode) {
-			$answerBox_code = $main::BR . main::NAMED_ANS_RULE('answerBox', 50);
+			$answerBox_code = $main::BR . main::NAMED_ANS_RULE($self->{answerBoxAlias}, 50);
 			$answerBox_code .= qq!<br/><input type="button" value="get Answer from applet"
 				onClick="eval(ww_applet_list['$appletName'].submitActionScript )"/><br/>!;
 		} else {
-			$answerBox_code = main::NAMED_HIDDEN_ANS_RULE('answerBox', 50);
+			$answerBox_code = main::NAMED_HIDDEN_ANS_RULE($self->{answerBoxAlias}, 50);
 		}
 	}
 
 	# Insert header material
 	main::HEADER_TEXT($self->insertHeader());
 	# Update the debug mode for this applet.
-	main::HEADER_TEXT(qq!<script language="javascript">ww_applet_list["$appletName"].debugMode = $debugMode;\n</script>!);
+	main::HEADER_TEXT(qq!<script>ww_applet_list["$appletName"].debugMode = $debugMode;\n</script>!);
 
 	# Return HTML or TeX strings to be included in the body of the page
 	return main::MODES(
-		TeX =>' {\bf applet } ',
-		HTML => $self->insertObject.$main::BR.$state_storage_html_code.$answerBox_code,
-		PTX =>' applet '
+		TeX => ' {\bf ' . $self->{type} . ' applet } ',
+		HTML => $self->insertObject . $main::BR . $state_storage_html_code . $answerBox_code,
+		PTX => ' applet '
 	);
 }
 
@@ -268,53 +265,81 @@ sub insertAll {
 
     # Load whatever macros you need for the problem
     loadMacros(
-        "PG.pl",
-        "PGbasicmacros.pl",
-        "PGchoicemacros.pl",
-        "PGanswermacros.pl",
-        "AppletObjects.pl",
+        "PGstandard.pl",
         "MathObjects.pl",
-        "source.pl"
+		"AppletObjects.pl",
+        "PGcourse.pl",
     );
 
-    # Do NOT show partial correct answers
-    $showPartialCorrectAnswers = 0;
+    TEXT(beginproblem());
 
     ###################################
-    # Create link to applet
+    # Standard PG problem setup. Random parameters, answers, and such.
     ###################################
 
-    $applet = FlashApplet();
-    my $appletName = "ExternalInterface";
-    $applet->codebase(findAppletCodebase("$appletName.swf"));
-    $applet->appletName($appletName);
-    $applet->appletId($appletName);
-
-    # findAppletCodebase looks for the applet in a list
-    # of locations specified in global.conf
+    $ans = Compute("0");
 
     ###################################
-    # Add additional javaScript functions to header section of HTML to
-    # communicate with the "ExternalInterface" applet.
+    # $appletName can be anything reasonable, but should try to choose a name that will not be
+    # used by other problems.  If multiple problems appear on the same page in a gateway quiz
+    # that use the same name, one of the applets will not work.
+    ###################################
+
+    $appletName = "myUniqueAppletName";
+
+    ###################################
+    # Generate the answer box name to use.  This is only needed if the applet returns an answer
+    # that will be checked by WeBWorK.  The approach of using NEW_ANS_NAME guarantees that you
+    # will get an answer name that will work in any problem, including a gateway quiz.  If there
+    # are other answers in the problem, this may cause issues with the order of the answers in
+    # the results table as NEW_ANS_NAME records the answer now.  If that is the case you may use
+    # any name you want, but make sure that you prefix it with $PG->{QUIZ_PREFIX}.
+    # (Eg: $answerBox = $PG->{QUIZ_PREFIX} . 'answerBox';)
+    ###################################
+
+    $answerBox = NEW_ANS_NAME();
+
+    ###################################
+    # Create the perlApplet object
+    ###################################
+
+    $applet = GeogebraWebApplet(
+        appletName => $appletName,
+        onInit => 'myUniqueAppletOnInit',
+        answerBoxAlias => $answerBox,
+        submitActionScript => qq{ getQE('$answerBox').value = getAppletValues() },
+        selfLoading => 1,
+        params => {
+            ggbBase64 => "...", // The long base 64 encoded string for your applet.
+            enableShiftDragZoom => "false",
+            enableRightClick => "false" ,
+            enableLabelDrags => "false",
+            showMenuBar => "false" ,
+            showToolBar => "false",
+            showAlgebraInput => "false",
+            useBrowserForJS => "true", // Required or the onInit handler will not be called.
+        },
+    );
+
+    ###################################
+    # Add additional JavaScript functions to header section of HTML.
     ###################################
 
     $applet->header(<<'END_HEADER');
-    <script language="javascript"
-            src="https://devel.webwork.rochester.edu:8002/webwork2_files/js/BrowserSniffer.js">
-    </script>
-
-    <script language="JavaScript">
-        function getBrowser() {
-            var sniffer = new BrowserSniffer();
-            return sniffer;
+    <script>
+        // The applet name is passed to this function, although it is not really neccessary to
+        // check it, as the method will only be called for this applet.  The applet name is only
+        // provided for backwards compatibility.
+        function myUniqueAppletOnInit(appletName) {
+            applet_loaded(param,1);  // report that applet is ready. 
+            ww_applet_list[param].safe_applet_initialize(2);
         }
-
-        function updateStatus(sMessage) {
-            getQE("playbackStatus").value = sMessage;
-        }
-
-        function newColor() {
-            getApplet("ExternalInterface").updateColor(Math.round(Math.random() * 0xFFFFFF));
+        function getAppletValues() {
+            var applet = getApplet("$appletName");
+            ...
+            JavaScript code to extract answer from applet
+            ...
+            return answer;
         }
     </script>
     END_HEADER
@@ -323,22 +348,19 @@ sub insertAll {
     # Write the text for the problem
     ###################################
 
-    TEXT(beginproblem());
-
     BEGIN_TEXT
-    \{ $applet->insertAll() \}
+
+    The applet will appear below.  You can put other problem text here.
+
+    $PAR
+    \{ $applet->insertAll(debug => 0, reinitialize_button => 0, includeAnswerBox => 1) \}
     $PAR
 
-    The Flash object operates above this line.  The box and button below this line are part of
-    the WeBWorK problem.  They communicate with the Flash object.
-    $HR
-    Status <input type="text" id="playbackStatus" value="started"><br>
-    Color <input type="button" value="new color" name="newColorButton" onClick="newColor()">
-    $PAR
-    $HR
-    This flash applet was created by Barbara Kaskosz.
+    More problem text.
 
     END_TEXT
+
+    LABELED_ANS($answerBox, $ans->cmp);
 
     ENDDOCUMENT();
 

@@ -21,13 +21,12 @@ GeogebraWebApplets into webwork problems
 =head1 SYNPOSIS
 
     ###################################
-    # Create link to applet
+    # Create the applet object
     ###################################
     $appletName = "PointGraph";
     $applet = FlashApplet(
         codebase           => findAppletCodebase("$appletName.swf"),
         appletName         => $appletName,
-        appletId           => $appletName,
         setStateAlias      => 'setXML',
         getStateAlias      => 'getXML',
         setConfigAlias     => 'config',
@@ -48,35 +47,30 @@ GeogebraWebApplets into webwork problems
     # Insert applet into body
     ###################################
 
-    TEXT(MODES(TeX => 'object code', HTML => $applet->insertAll(
-        includeAnswerBox => 1
-        debug => 0,
-        reinitialize_button => 1
-    )));
+    BEGIN_TEXT
+    \{ $applet->insertAll(includeAnswerBox => 1, debug => 0, reinitialize_button => 1) \}
+    END_TEXT
 
 =head1 DESCRIPTION
 
 This file provides an object to store in one place all of the information needed to call an
 applet.
 
-The object FlashApplet has defaults for inserting flash applets.
+The module FlashApplet has defaults for inserting flash applets.
 
 The module JavaApplet has defaults for inserting java applets.
 
-The module Applet stores common code for the two types of applet.
+The module CanvasApplet has defaults for inserting HTML 5 canvas applets.
 
-=head1 USAGE
+The module GeogebraWebApplet has defaults for inserting Geogebra web applets.
 
-These modules are activate by listing it in the modules section of global.conf and rebooting the
-server.  The companion file to this one is macros/AppletObjects.pl
-
-qw(Applet FlashApplet JavaApplet)
+The module Applet stores common code for the different types of applets.
 
 =cut
 
 package Applet;
 use URI::Escape;
-use MIME::Base64 qw( encode_base64 decode_base64);
+use MIME::Base64 qw(encode_base64 decode_base64);
 use PGcore;
 @ISA = qw(PGcore);
 
@@ -84,14 +78,10 @@ use PGcore;
 
 =pod
 
-These functions are automatically defined for use for any JavaScript placed in the text of a PG
+These JavaScript functions are defined for use by any JavaScript placed in the text of a PG
 question.
 
     getApplet(appletName)    -- finds the applet path in the DOM
-
-    submitAction()           -- calls the submit action of the applets
-
-    initializeWWquestion()   -- calls the initialize action of the applets
 
     getQE(name)              -- gets an HTML element of the question by name or by id.  Be sure
                                 to keep all names and ids unique within a given PG question.
@@ -108,120 +98,142 @@ question.
 
         to obtain a list of all of the HTML elements in the question
 
-    ----------------------------------------------------------------------------
+=head2 List of options for the Applet class:
 
-    List of accessor methods made available by the Applet class:
+    These options can be set using the accessor methods defined in the class.
 
-        Usage:  $current_value = $applet->method(new_value or empty)
+    Usage:  $current_value = $applet->method(new_value or empty)
 
-        These can also be set when creating the class.  For example:
-            $applet = new FlashApplet(
-                codebase          => findAppletCodebase("$appletName.swf"),
-                appletName        => $appletName,
-                appletId          => $appletName,
-                submitActionAlias => 'checkAnswer'
-            );
+    These can also be set when creating the class.  For example:
+        $applet = new FlashApplet(
+            codebase          => findAppletCodebase("$appletName.swf"),
+            appletName        => $appletName,
+            submitActionAlias => 'checkAnswer'
+        );
 
-        When using AppletObjects.pl this can be replaced by $applet = FlashApplet(...).
+    When using AppletObjects.pl this can be replaced by $applet = FlashApplet(...).
 
-        appletId     For simplicity and reliability appletId and appletName should always be the
-                     same
-        appletName
-        archive      The name of the .jar file containing the applet code
-        code         The name of the applet code in the .jar archive
-        codebase     A prefix url used to find the archive and the applet itself
+    appletName   The name of the applet
 
-        params       A reference to a hash containing name/value pairs to configure the applet
-                     { name => 'value', ... }
+    archive      The name of the .jar file containing the applet code
+                 (only used for java applets)
 
-        width        Rectangle alloted in the html page for displaying the applet
-        height
+    code         The name of the applet code in the .jar archive
+                 (only used for java applets)
 
-        bgcolor      Background color of the applet rectangle
+    codebase     A prefix url used to find the archive and the applet itself.
+                 (only used for flash or java applets)
 
-        header       Stores the text to be added to the header section of the html page
-        object       Stores the text which places the applet on the html page
+    params       A reference to a hash containing name/value pairs to configure the applet.
+                 For example: { name => 'value', ... }
 
-        configuration  Configuration contains those customizable attributes of the applet which
-                       don't change as it is used.  When stored in hidden answer fields it is
-                       usually stored in base64 encoded format.
+    width        (default: 550) Width of the html element that will contain the applet.
+    height       (default: 400) Height of the html element that will contain the applet.
 
-        initialState   The state consists of those customizable attributes of the applet which
-                       change as the applet is used by the student.  It is stored by the calling
-                       pg question so that when revisiting the question the applet will be
-                       restored to the same state it was left in when the question was last
-                       viewed.
+    bgcolor      (default: "#869ca7") Background color of the applet rectangle.
+                 (only used for flash or java applets)
 
-        getStateAlias  (default: getState) Alias for command called to read the current state of
-                       the applet.  The state is passed in plain text xml format with outer
-                       tags: <xml>...</xml>
+    type         The type of the applet (must be one of 'flash', 'java', 'html5canvas', or
+                 'geogebraweb')
 
-        setStateAlias  (default: setState) Alias for the command called to reset the state of
-                       the applet.  The state is passed in plain text in xml format with outer
-                       tags: <xml>...</xml>
+    header       Stores the text to be added to the header section of the html page.  Calling
+                 $applet->header('reset') sets the header to '', and calling
+                 $applet->header('text to add', 'more text', ...) appends the arguments to the
+                 current value of header.
 
-        getConfigAlias (default: getConfig) Retrieves the configuration from the applet.
-                       This is used mainly for debugging.  In principal the configuration
-                       remains the same for a given instance of the applet -- i.e. for the
-                       homework question for a single student.  The state however will change
-                       depending on the interactions between the student and the applet.
+    objectText   Stores the text which places the applet on the html page.  The accessor function
+                 is named 'object'.  Calling $applet->object('reset') sets the objectText to '',
+                 and calling $applet->object('text to add', 'more text', ...) appends the
+                 arguments to the current value of objectText.
 
-        setConfigAlias (default: setConfig ) Names the applet command called with the contents
-                       of $self->config to configure the applet.  The parameters are passed to
-                       the applet in plain text using <xml>.  The outer tags must be
-                       <xml>...</xml>.
+    configuration  Configuration contains those customizable attributes of the applet which
+                   don't change as it is used.  When stored in hidden answer fields it is
+                   usually stored in base64 encoded format.
 
-        initializeActionAlias  (default: initializeAction) The name of the JavaScript subroutine
-                               called to initialize the applet (some overlap with config/ and
-                               setState).
+    initialState   The state consists of those customizable attributes of the applet which
+                   change as the applet is used by the student.  It is stored by the calling
+                   pg question so that when revisiting the question the applet will be
+                   restored to the same state it was left in when the question was last
+                   viewed.
 
-        maxInitializationAttempts  (default: 5) Number attempts to test applet to see if it is
-                                   installed.  If isActive() exists then the WW question waits
-                                   until the return value is 1 before calling the applet's
-                                   confguration commands.  Because some applets have isActive
-                                   return 0 even when they are ready, if isActive() exists but
-                                   does not return 1 then the applet's configuration commands
-                                   are called after maxInitializationAttempts number of times.
-                                   If none of the configuration commands of the applet can be
-                                   detected then the WW question gives up after
-                                   maxInitializationAttempts.
+    getStateAlias  (default: 'getXML') Alias for command called to read the current state of
+                   the applet.  The state is passed in plain text xml format with outer
+                   tags: <xml>...</xml>
 
-        submitActionAlias  (default: getXML) Applet subroutine called when the submit button of
-                           the pg question is pressed.
+    setStateAlias  (default: 'setXML') Alias for the command called to reset the state of
+                   the applet.  The state is passed in plain text in xml format with outer
+                   tags: <xml>...</xml>
 
-        submitActionScript (default: '') Javascript code to be execute when problem answers are
-                           submitted.  For example:
-                               qq{ getQE('answerBox').value = getApplet("$appletName").getAnswer() }
+    getConfigAlias (default: 'getConfig') Retrieves the configuration from the applet.
+                   This is used mainly for debugging.  In principal the configuration
+                   remains the same for a given instance of the applet -- i.e. for the
+                   homework question for a single student.  The state however will change
+                   depending on the interactions between the student and the applet.
 
-        answerBoxAlias    (default: 'answerBox') Name of answer box to return answer to.
+    setConfigAlias (default: 'setConfig') Names the applet command called with the contents
+                   of $self->setConfig to configure the applet.  The parameters are passed
+                   to the applet in plain text using <xml>.  The outer tags must be
+                   <xml>...</xml>.
 
-        debugMode         (default: 0)
-                          For debugMode == 1 the answerBox and the box preserving the applet
-                          state between questions are made visible along with some buttons for
-                          manually getting the state of the applet and setting the state of the
-                          applet.
+    initializeActionAlias  (default: 'setXML') The name of the JavaScript subroutine
+                           called to initialize the applet (some overlap with config/ and
+                           setState).
 
-                          For debugMode==2, in addition to the answerBox and stateBox there are
-                          several alerts which mark progress through the procedures of calling
-                          the applet.  Useful for troubleshooting where in the chain of command
-                          a communication failure occurs
+    maxInitializationAttempts  (default: 5) Number attempts to test applet to see if it is
+                               installed.  If isActive() exists then the WW question waits
+                               until the return value is 1 before calling the applet's
+                               confguration commands.  Because some applets have isActive
+                               return 0 even when they are ready, if isActive() exists but
+                               does not return 1 then the applet's configuration commands
+                               are called after maxInitializationAttempts number of times.
+                               If none of the configuration commands of the applet can be
+                               detected then the WW question gives up after
+                               maxInitializationAttempts.
 
-    Methods:
+    submitActionAlias  (default: 'getXML') Applet subroutine called when the submit button of
+                       the pg question is pressed.
 
-        insertHeader    Inserts text in header section of HTML page
-        insertObject    Inserts <article></article> tag in body of the HTML page
-        insertAll       (defined in GeogebraAppletObject.pl) Installs applet by inserting both
-                        header text and the object text
+    submitActionScript (default: '') Javascript code to be execute when problem answers are
+                       submitted.  For example:
+                           qq{ getQE('answerBox').value = getApplet("$appletName").getAnswer() }
 
-            Usage:    $applet->insertAll(
-                              includeAnswerBox     => 0,
-                              debugMode            => 0,
-                              reinitialize_button  => 0
-                      );
+    answerBoxAlias    (default: 'answerBox') Name of answer box to return answer to.
+
+    onInit            (default: '') This can either be the name of a global JavaScript function
+                      that will be called to initialize the applet, or JavaScript code that will
+                      be executed to initialize the applet.  For Geogebra web applets if this is
+                      the name of a global JavaScript function defined in the problem, it should
+                      NOT be named ggbOnInit.  (For WeBWorK versions 2.15 and before the global
+                      JavaScript function had to be named ggbOnInit, and this parameter was
+                      boolean in usage.)
+
+    debugMode         (default: 0)
+                      For debugMode == 1 the answerBox and the box preserving the applet
+                      state between questions are made visible along with some buttons for
+                      manually getting the state of the applet and setting the state of the
+                      applet.
+
+                      For debugMode==2, in addition to the answerBox and stateBox there are
+                      several alerts which mark progress through the procedures of calling
+                      the applet.  Useful for troubleshooting where in the chain of command
+                      a communication failure occurs
+
+=head2 List of methods made available by the Applet class:
+
+    insertHeader    Inserts text in header section of HTML page
+    insertObject    Inserts <article></article> tag in body of the HTML page
+    insertAll       (defined in AppletObject.pl) Installs applet by inserting both header
+                    text and the object text
+
+        Usage:    $applet->insertAll(
+                          includeAnswerBox     => 0,
+                          debugMode            => 0,
+                          reinitialize_button  => 0
+                  );
 
 =cut
 
-=head4 More details
+=head2 More details
 
 There are three different "images" of the applet.  The first is the applet itself.  The object
 that actually does the work.  The second is a perl image of the applet (henceforth the
@@ -233,7 +245,7 @@ as a runtime version of the perlApplet since it can be accessed and modified aft
 HTML page has been created by the PG rendering process.
 
 The perlApplet is initialized by
-    $newApplet = new flashApplet( appletName=>'myApplet',... );
+    $newApplet = new flashApplet(appletName => 'myApplet', ...);
 The jsApplet is automatically defined in ww_applet_list["myApplet"] by copying the instance
 variables of $newApplet to a corresponding JavaScript object.  So $newApplet->{appletName}
 corresponds to ww_applet_list["myApplet"].appletName.  (This paragraph is not yet fully
@@ -258,7 +270,7 @@ be convenient to store these as additional methods in the jsApplet.
 
 =cut
 
-=head4 Detecting that the applet is ready
+=head3 Detecting that the applet is ready
 
 Timing issues are among the pitfalls awaiting when using flash or java applets in WW questions.
 It is important that the WW question does not issue any commands to the applet until the applet
@@ -307,14 +319,14 @@ the configuring actions until all of the auxiliary files needed by the applet ar
 
 =cut
 
-=head4 Instance variables in the JavaScript applet ww_applet_list[appletName]
+=head3 Instance variables in the JavaScript applet ww_applet_list[appletName]
 
     Most of the instance variables in the perl version of the applet are transferred to the
     JavaScript applet
 
 =cut
 
-=head4 Methods defined for the JavaScript applet ww_applet_list[appletName]
+=head3 Methods defined for the JavaScript applet ww_applet_list[appletName]
 
 This is not a comprehensive list
 
@@ -334,7 +346,7 @@ This is not a comprehensive list
 
 =cut
 
-=head4 Requirements for applets
+=head3 Requirements for applets
 
 The following methods are desirable in an applet that preserves state in a WW question.  None of
 them are required.
@@ -377,10 +389,10 @@ them are required.
 
 =cut
 
-=head4 Initialization sequence
+=head3 Initialization sequence
 
-When the WW question is loaded the C<initializeWWquestion> JavaScript subroutine calls each of
-the applets used in the question asking them to initialize themselves.
+When the WW question is loaded a JavaScript load event handler calls each of the applets used in
+the question asking them to initialize themselves.
 
 The applets initialization method is as follows:
 
@@ -393,7 +405,7 @@ The applets initialization method is as follows:
 
 =cut
 
-=head4 Submit sequence
+=head3 Submit sequence
 
 When the WW question submit button is pressed the form containing the WW question calles the
 JavaScript "submitAction()" which then asks each of the applets on the page to perform its
@@ -415,7 +427,6 @@ sub new {
 	my $class = shift;
 	my $self = {
 		appletName                => '',
-		appletId                  => '', # Always use identical applet Id's and applet Names
 		archive                   => '',
 		code                      => '',
 		codebase                  => '',
@@ -437,6 +448,7 @@ sub new {
 		submitActionAlias         => 'getXML',
 		submitActionScript        => '', # script executed on submitting the WW question
 		answerBoxAlias            => 'answerBox',
+		onInit                    => '',
 		answerBox                 => '', # deprecated
 		returnFieldName           => '', # deprecated
 		headerText                => DEFAULT_HEADER_TEXT(),
@@ -462,10 +474,6 @@ sub new {
 }
 
 # Accessor methods
-
-sub appletId {
-	appletName(@_);
-}
 
 sub appletName {
 	my $self = shift;
@@ -543,16 +551,14 @@ sub  object {
 
 sub configuration {
 	my $self = shift;
-	my $str = shift;
-	$self->{configuration} =  $str || $self->{configuration};
+	$self->{configuration} =  shift || $self->{configuration};
 	$self->{configuration} =~ s/\n//g;
 	$self->{configuration};
 }
 
 sub initialState {
 	my $self = shift;
-	my $str = shift;
-	$self->{initialState} = $str || $self->{initialState};
+	$self->{initialState} = shift || $self->{initialState};
 	$self->{initialState};
 }
 
@@ -564,7 +570,7 @@ sub getStateAlias {
 
 sub setStateAlias {
 	my $self = shift;
-	$self->{setStateAlias} = shift ||$self->{setStateAlias};
+	$self->{setStateAlias} = shift || $self->{setStateAlias};
 	$self->{setStateAlias};
 }
 
@@ -606,47 +612,25 @@ sub submitActionScript {
 
 sub answerBoxAlias {
 	my $self = shift;
-	$self->{answerBox} = shift || $self->{answerBox};
-	$self->{answerBox};
+	$self->{answerBoxAlias} = shift || $self->{answerBoxAlias};
+	$self->{answerBoxAlias};
+}
+
+sub onInit {
+	my $self = shift;
+	$self->{onInit} = shift || $self->{onInit};
+	$self->{onInit};
 }
 
 sub debugMode {
 	my $self = shift;
-	my $new_flag = shift;
-	$self->{debugMode} = $new_flag if defined($new_flag);
+	$self->{debugMode} = $_[0] if defined($_[0]);
 	$self->{debugMode};
 }
 
 #######################
-# soon to be deprecated?
+# Soon to be deprecated?
 #######################
-
-sub config {
-	my $self = shift;
-	my $str = shift;
-	warn "use $self->configuration instead of $self->config.  " .
-		"Internally this string is ascii, not base64 encoded", join(' ', caller());
-}
-
-# deprecated
-sub state {
-	my $self = shift;
-	my $str = shift;
-	warn "use $self->initialState instead of $self->state.  " .
-		"Internally this string is ascii, not base64 encoded", join(' ', caller());
-}
-
-sub base64_state{
-	my $self = shift;
-	warn "use $self->InitialState instead of $self->state.  " .
-		"Internally this string is ascii, not base64 encoded", join(' ', caller());
-}
-
-sub base64_config {
-	my $self = shift;
-	warn "use $self->configuration instead of $self->config.  " .
-		"Internally this string is ascii, not base64 encoded";
-}
 
 sub returnFieldName {
 	my $self = shift;
@@ -663,14 +647,14 @@ sub configAlias {
 	warn "use setConfigAlias instead of configAlias";
 }
 
-#FIXME
-# need to be able to adjust header material
+# FIXME
+# Need to be able to adjust header material.
 
 sub insertHeader {
 	my $self = shift;
 
+	my $type                  = $self->{type};
 	my $codebase              = $self->codebase;
-	my $appletId              = $self->appletId;
 	my $appletName            = $self->appletName;
 	my $initializeActionAlias = $self->initializeActionAlias;
 	# Replace newlines and returns with spaces. These can cause trouble in the JavaScript.
@@ -683,9 +667,9 @@ sub insertHeader {
 	my $maxInitializationAttempts = $self->maxInitializationAttempts;
 	my $debugMode             = ($self->debugMode) ? "1": "0";
 	my $answerBoxAlias        = $self->{answerBoxAlias};
-	# Function to indicate that applet is loaded (for geogebra:  ggbOnInit)
-	my $onInit                = $self->{onInit};
-	my $headerText            = $self->header();
+	my $stateInput            = $self->{stateInput};
+	# Function to call or code to execute to initialize the applet.
+	my $onInit                = encode_base64($self->{onInit} =~ s/\n|\r/ /gr) =~ s/\n//gr;
 	my $selfLoading           = $self->{selfLoading};
 
 	my $base64_submitActionScript = encode_base64($submitActionScript) =~ s/\n//gr;
@@ -693,38 +677,24 @@ sub insertHeader {
 	my $base64_configuration = encode_base64($self->configuration) =~ s/\n//gr;
 	my $base64_initialState = encode_base64($self->initialState) =~ s/\n//gr;
 
+	my $headerText = $self->header();
 	$headerText =~ s/(\$\w+)/$1/gee;
-
 	return $headerText;
 }
 
 ########################################################
-# HEADER material for a flash or java applet
+# HEADER material for the jsApplet
 ########################################################
 
 use constant DEFAULT_HEADER_TEXT => <<'END_HEADER_SCRIPT';
-<script src="/webwork2_files/js/apps/Base64/Base64.js" language="javascript"></script>
-<script src="/webwork2_files/js/apps/AppletSupport/ww_applet_support.js" language="javascript"></script>
-<script language="JavaScript">
-function getApplet(appletName) {
-	var obj = window.document[appletName];
-	if (!obj) { obj = document.getElementById(appletName) }
-	if (obj) {
-		return( obj );
-	} else {
-		// Commented out because if the applet is in a hint
-		// this might be run with no applet
-		// alert ("can't find applet " + appletName);
-	}
-}
-
-// TEST code
+<script>
+// JS OBJECT CODE
 
 ww_applet_list["$appletName"] = new ww_applet("$appletName");
 
+ww_applet_list["$appletName"].type                      = "$type";
 ww_applet_list["$appletName"].code                      = "$code";
 ww_applet_list["$appletName"].codebase                  = "$codebase";
-ww_applet_list["$appletName"].appletID                  = "$appletID";
 ww_applet_list["$appletName"].base64_state              = "$base64_initialState";
 ww_applet_list["$appletName"].initialState              = Base64.decode("$base64_initialState");
 ww_applet_list["$appletName"].configuration             = Base64.decode("$base64_configuration");;
@@ -736,9 +706,12 @@ ww_applet_list["$appletName"].initializeActionAlias     = "$initializeActionAlia
 ww_applet_list["$appletName"].submitActionAlias         = "$submitActionAlias";
 ww_applet_list["$appletName"].submitActionScript        = Base64.decode("$base64_submitActionScript");
 ww_applet_list["$appletName"].answerBoxAlias            = "$answerBoxAlias";
+ww_applet_list["$appletName"].stateInput                = "$stateInput";
 ww_applet_list["$appletName"].maxInitializationAttempts = $maxInitializationAttempts;
-ww_applet_list["$appletName"].debugMode                 = "$debugMode";
-ww_applet_list["$appletName"].onInit                    = "$onInit";
+ww_applet_list["$appletName"].debugMode                 = $debugMode;
+ww_applet_list["$appletName"].reportsLoaded             = $selfLoading;
+ww_applet_list["$appletName"].isReady                   = $selfLoading;
+ww_applet_list["$appletName"].onInit                    = Base64.decode("$onInit");
 </script>
 END_HEADER_SCRIPT
 
@@ -747,7 +720,6 @@ sub insertObject {
 
 	my $code           = $self->{code};
 	my $codebase       = $self->{codebase};
-	my $appletId       = $self->{appletName};
 	my $appletName     = $self->{appletName};
 	my $archive        = $self->{archive};
 	my $width          = $self->{width};
@@ -779,10 +751,10 @@ sub insertObject {
 			!. $webgeogebraParameters . qq!\n></article>!;
 	}
 
-	$objectText = $self->{objectText};
+	my $objectText = $self->{objectText};
 	$objectText =~ s/(\$\w+)/$1/gee;
 	# Don't submit things if not visible
-	$objectText .= qq{<script language="javascript">ww_applet_list["$appletName"].visible = 1;</script>};
+	$objectText .= qq{<script>ww_applet_list["$appletName"].visible = 1;</script>};
 	return $objectText;
 }
 
@@ -931,44 +903,7 @@ package CanvasApplet;
 
 =cut
 
-use constant CANVAS_OBJECT_HEADER_TEXT => <<'END_HEADER_SCRIPT';
-<script src="/webwork2_files/js/apps/Base64/Base64.js" language="javascript"></script>
-<script src="/webwork2_files/js/apps/AppletSupport/ww_applet_support.js" language="javascript"></script>
-<script language="JavaScript">
-//CANVAS OBJECT HEADER CODE
-
-ww_applet_list["$appletName"] = new ww_applet("$appletName");
-
-ww_applet_list["$appletName"].code                      = "$code";
-ww_applet_list["$appletName"].codebase                  = "$codebase";
-ww_applet_list["$appletName"].appletID                  = "$appletID";
-ww_applet_list["$appletName"].base64_state              = "$base64_initializationState";
-ww_applet_list["$appletName"].initialState              = Base64.decode("$base64_initialState");
-ww_applet_list["$appletName"].configuration             = Base64.decode("$base64_configuration");;
-ww_applet_list["$appletName"].getStateAlias             = "$getStateAlias";
-ww_applet_list["$appletName"].setStateAlias             = "$setStateAlias";
-ww_applet_list["$appletName"].setConfigAlias            = "$setConfigAlias";
-ww_applet_list["$appletName"].getConfigAlias            = "$getConfigAlias";
-ww_applet_list["$appletName"].initializeActionAlias     = "$initializeActionAlias";
-ww_applet_list["$appletName"].submitActionAlias         = "$submitActionAlias";
-ww_applet_list["$appletName"].submitActionScript        = Base64.decode("$base64_submitActionScript");
-ww_applet_list["$appletName"].answerBoxAlias            = "$answerBoxAlias";
-ww_applet_list["$appletName"].maxInitializationAttempts = $maxInitializationAttempts;
-ww_applet_list["$appletName"].debugMode                 = "$debugMode";
-ww_applet_list["$appletName"].reportsLoaded             = "$selfLoading";
-ww_applet_list["$appletName"].onInit                    = "$onInit";
-ww_applet_list["$appletName"].object                    = $appletName;
-
-function getApplet(appletName) {
-	var obj = ww_applet_list[appletName].object; // Define fake applet for this object
-	if (obj && obj.name == appletName) {
-		return obj;
-	}
-}
-</script>
-END_HEADER_SCRIPT
-
-#FIXME   need to get rid of hardcoded url
+# FIXME need to get rid of hardcoded url
 use constant CANVAS_OBJECT_TEXT => <<'END_OBJECT_TEXT';
 <canvas name="cv" id="cv"
         data-src="/webwork2_files/js/legacy/sketchgraphhtml5b/SketchGraph.pjs"
@@ -980,7 +915,6 @@ sub new {
 	my $class = shift;
 	$class->SUPER::new(
 		objectText => CANVAS_OBJECT_TEXT(),
-		headerText => CANVAS_OBJECT_HEADER_TEXT(),
 		type       => 'html5canvas',
 		@_
 	);
@@ -1000,50 +934,12 @@ package GeogebraWebApplet;
     use constant GEOGEBRAWEB_OBJECT_TEXT => <<'END_OBJECT_TEXT';
     <div class="enclose_geogebra_object">
     <div class="geogebra_object">
-    <script type="text/javascript" language="javascript"
-            src="//web.geogebra.org/4.4/web/web.nocache.js"></script>
     $webgeogebraParameters
     </div>
     </div>
     END_OBJECT_TEXT
 
 =cut
-
-use constant GEOGEBRAWEB_OBJECT_HEADER_TEXT => <<'END_HEADER_SCRIPT';
-<script src="/webwork2_files/js/apps/Base64/Base64.js" language="javascript"></script>
-<script src="/webwork2_files/js/apps/AppletSupport/ww_applet_support.js" language="javascript"></script>
-<script language="JavaScript">
-// GEOGEBRAWEB OBJECT HEADER CODE
-
-ww_applet_list["$appletName"] = new ww_applet("$appletName");
-
-ww_applet_list["$appletName"].code                      = "$code";
-ww_applet_list["$appletName"].codebase                  = "$codebase";
-ww_applet_list["$appletName"].appletID                  = "$appletID";
-ww_applet_list["$appletName"].base64_state              = "$base64_initializationState";
-ww_applet_list["$appletName"].initialState              = Base64.decode("$base64_initialState");
-ww_applet_list["$appletName"].configuration             = Base64.decode("$base64_configuration");;
-ww_applet_list["$appletName"].getStateAlias             = "$getStateAlias";
-ww_applet_list["$appletName"].setStateAlias             = "$setStateAlias";
-ww_applet_list["$appletName"].setConfigAlias            = "$setConfigAlias";
-ww_applet_list["$appletName"].getConfigAlias            = "$getConfigAlias";
-ww_applet_list["$appletName"].initializeActionAlias     = "$initializeActionAlias";
-ww_applet_list["$appletName"].submitActionAlias         = "$submitActionAlias";
-ww_applet_list["$appletName"].submitActionScript        = Base64.decode("$base64_submitActionScript");
-ww_applet_list["$appletName"].answerBoxAlias            = "$answerBoxAlias";
-ww_applet_list["$appletName"].maxInitializationAttempts = $maxInitializationAttempts;
-ww_applet_list["$appletName"].debugMode                 = "$debugMode";
-ww_applet_list["$appletName"].reportsLoaded             = "$selfLoading";
-ww_applet_list["$appletName"].isReady                   = "$selfLoading";
-ww_applet_list["$appletName"].onInit                    = "$onInit";
-
-function getApplet(appletName) {
-	var obj = document.$appletName;
-	ww_applet_list[appletName].object = obj;
-	return(obj);
-}
-</script>
-END_HEADER_SCRIPT
 
 # Some changes in the way geogebra JavaScript works make it important That the object and the
 # script that calls it are contained in some <div> (otherwise geogebra adds height and width
@@ -1057,7 +953,6 @@ END_HEADER_SCRIPT
 use constant GEOGEBRAWEB_OBJECT_TEXT => <<'END_OBJECT_TEXT';
 <div class="enclose_geogebra_object">
 <div class="geogebra_object">
-<script type="text/javascript" language="javascript" src="//web.geogebra.org/4.4/web/web.nocache.js"></script>
 $webgeogebraParameters
 </div>
 </div>
@@ -1067,7 +962,6 @@ sub new {
 	my $class = shift;
 	$class->SUPER::new(
 		objectText => GEOGEBRAWEB_OBJECT_TEXT(),
-		headerText => GEOGEBRAWEB_OBJECT_HEADER_TEXT(),
 		type       => 'geogebraweb',
 		@_
 	);
