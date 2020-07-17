@@ -372,8 +372,8 @@ sub query_sage_server {
 	 	my $header_block = shift(@lines);
 	 	warn "checking for header:  $header_block" if $debug;
 	 	next unless $header_block=~/\S/; #skip empty lines;
-	 	next if $header_block=~/HTTP/ and $header_block=~/100/; # skip continue line
-	 	if ($header_block=~/200/) { # 200 return is ok
+	 	next if ($header_block =~ m!HTTP[ 12/.]+100!); # skip continue line
+	 	if ($header_block=~ m!HTTP[ 12/.]+200!) { # 200 return is ok
 	 		$header_ok=1;
 	 		last;
 	 	}
