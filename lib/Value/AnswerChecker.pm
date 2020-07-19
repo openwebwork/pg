@@ -1252,7 +1252,11 @@ sub cmp_equal {
   my $self = shift; my $ans = shift;
   my $error = $self->cmp_checkUnionReduce($ans->{student_value},$ans);
   if ($error) {$self->cmp_Error($ans,$error); return}
-  Value::List::cmp_equal($self,$ans);
+  if ($self->typeMatch($ans->{student_value})) {
+    Value::List::cmp_equal($self,$ans);
+  } else {
+    $self->SUPER::cmp_equal($ans);
+  }
 }
 
 #
