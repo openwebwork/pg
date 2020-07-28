@@ -403,6 +403,19 @@ sub cmp_preprocess {
   }
 }
 
+#
+#  Include the "Bn" string for the correct choice
+#  in the answer hash
+#
+sub cmp {
+  my $self = shift;
+  my $cmp = $self->SUPER::cmp(
+    correct_choice => $self->value,
+    @_
+  );
+  return $cmp;
+}
+
 ##################################################################
 #
 #  Handle old-style options (order, first, last, randomize)
