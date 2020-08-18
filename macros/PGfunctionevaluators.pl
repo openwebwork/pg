@@ -1037,10 +1037,11 @@ sub ORIGINAL_FUNCTION_CMP {
 			my $rh_ans = shift;	
 			#WARN_MESSAGE(pretty_print($inputs_ref));
 			my $isPreview = $inputs_ref->{previewAnswers}; # || ($inputs_ref->{action} =~ m/^Preview/);
+			return $rh_ans if ($rh_ans->{bypass_equivalence_test});
 			return $rh_ans unless !$isPreview # not preview mode
 				and $rh_ans->{ans_equals_prev_ans} # equivalent
 				and $rh_ans->{prev_ans} ne $rh_ans->{original_student_ans}; # not identical
-			
+
 			$rh_ans->{ans_message} = "This answer is equivalent to the one you just submitted.";
 			return $rh_ans;
 		}
