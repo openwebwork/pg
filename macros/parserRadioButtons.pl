@@ -199,7 +199,18 @@ to get the answer checker for the radion buttons.
 
 You can use the RadioButtons object in MultiAnswer objects.  This is
 the reason for the RadioButton's C<ans_rule()> method (since that is
-what MultiAnswer calls to get answer rules).
+what MultiAnswer calls to get answer rules).  Just pass a RadioButtons
+object as one of the arguments of the MultiAnswer constructor.
+
+When writing a custom answer checker involving a RadioButtons object
+(e.g. if it is part of a MultiAnswer and its answer depends on, or
+affects, the answers given to other parts), note that the actual
+answer strings associated to a RadioButtons object (which are those
+appearing in the "student answer" argument passed to a custom answer
+checker) are neither the supplied choice strings nor the supplied
+labels, but are an internal implementation detail whose format should
+not be depended on.  You can convert one of these answer strings to a
+choice string or a label with the methods answerChoice or answerLabel.
 
 =cut
 
@@ -401,6 +412,18 @@ sub cmp_preprocess {
     $ans->{student_ans} = $self->quoteHTML($label);
     $ans->{original_student_ans} = $label;
   }
+}
+
+#
+#  Allow users to convert a "Bn" string into a choice or label
+#
+sub answerChoice {
+  my $self = shift; my $index = substr(shift,1);
+  return $self->{orderedChoices}[$index];
+}
+sub answerLabel {
+  my $self = shift; my $index = substr(shift,1);
+  return $self->{labels}[$index];
 }
 
 ##################################################################
