@@ -1,7 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/parserMultiAnswer.pl,v 1.11 2009/06/25 23:28:44 gage Exp $
+# Copyright &copy; 2000-2020 The WeBWorK Project, http://openwebwork.sf.net/
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -186,12 +185,12 @@ sub _parserGraphTool_init {
 		);
 		$main::GraphToolHeaderSet = 1;
 	}
-	main::PG_restricted_eval('sub GraphTool { GraphTool->new(@_) }');
+	main::PG_restricted_eval('sub GraphTool { parser::GraphTool->new(@_) }');
 }
 
 loadMacros("MathObjects.pl", "PGtikz.pl");
 
-package GraphTool;
+package parser::GraphTool;
 our @ISA = qw(Value::List);
 
 our %contextStrings = (
