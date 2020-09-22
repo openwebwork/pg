@@ -905,7 +905,7 @@ sub string {
 sub TeX {
   my $self = shift; my $equation = shift; my $prec = shift;
   my ($a,$b) = @{$self->{data}}; my $n = "";
-  return $a if $b == 1;
+  return "$a" if $b == 1;
   if ($self->getFlagWithAlias("showMixedNumbers","showProperFractions") && CORE::abs($a) > $b)
     {$n = int($a/$b); $a = CORE::abs($a) % $b; $n .= " " unless $a == 0}
   my $s = ""; ($a,$s) = (-$a,"-") if $a < 0;
