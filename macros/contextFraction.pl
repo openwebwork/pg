@@ -56,11 +56,11 @@ the Fraction() constructor to make one explicitly.  For example:
 	$a = Compute("1/2");
 	$b = Compute("4 - 1/6");
 	$c = Compute("(4/9)^(1/2)");
-	
+
 	Context("LimitedFraction");
 	$d = Compute("4 2/3");
 	$e = Compute("-1 1/2");
-	
+
 	$f = Fraction(-2,5);
 
 Note that $c will be 2/3, $d will be 14/3, $e will be -3/2, and $f
@@ -290,7 +290,7 @@ sub Init {
  # contFrac($x, $maxdenominator)
  #
  # Recursive subroutine that takes positive real input $x and outputs
- # an array (a,b) where a/b is a very good fraction approximation with 
+ # an array (a,b) where a/b is a very good fraction approximation with
  # b no larger than maxdenominator
  #
 
@@ -308,7 +308,7 @@ sub contFrac {
   @hn = @ { $sequences{"hn"} } if defined ($sequences{"hn"});
   my @kn = (1);
   @kn = @ { $sequences{"kn"} } if defined ($sequences{"kn"});
-  
+
   # calculate what real the continued fraciton process leaves at this level
   my $step = $x;
   for my $i (0..$#an-1)
@@ -316,7 +316,7 @@ sub contFrac {
   # if this is an integer, stop
   if ($step == int($step)) {return ($hn[-1],$kn[-1]);};
 
-  $step = ($step - $an[-1])**(-1); 
+  $step = ($step - $an[-1])**(-1);
 
   # next integer from continued fraction sequence
   # next numerator and denominator, according to continued fraction formulas
@@ -337,7 +337,7 @@ sub contFrac {
 
 #
 # Convert a real to a reduced fraction approximation
-# Uses contFrac() to convert .333333... into 1/3 rather 
+# Uses contFrac() to convert .333333... into 1/3 rather
 #   than 333333/1000000, etc.
 #
 sub toFraction {
@@ -347,7 +347,7 @@ sub toFraction {
   if ($x == 0) {($a,$b) = (0,1);}
   else {my $sign = $x/abs($x);
     ($a,$b) = contFrac(abs($x),$context->flag("contFracMaxDen"));
-    $a = $sign*$a}; 
+    $a = $sign*$a};
   return [$Real->make($a),$Real->make($b)];
 }
 

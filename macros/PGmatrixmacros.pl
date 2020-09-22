@@ -768,15 +768,12 @@ seeking.
 
 sub convert_to_array_ref {
 	my $input = shift;
-	if (Value::isValue($input) and Value::classMatch($input,"Matrix")) {
-	    # handles Value::Matrix (MathObject matrices)
-		$input = [$input->value]; # convert an array to an array_ref (see POD comment above)
+	if (Value::isValue($input) && Value::classMatch($input,"Matrix")) {
+		$input = [$input->value];		
 	} elsif (ref($input) eq 'Matrix' ) {
-        # handles wwMatrix objects (old style)
 		$input = $input->array_ref;
 	} elsif (ref($input) =~/ARRAY/) {
 		# no change to input value
-		# handles raw perl array_ref types
 	} else {
 	WARN_MESSAGE("This does not appear to be a matrix ");
 	}

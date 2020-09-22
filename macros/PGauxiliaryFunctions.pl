@@ -25,9 +25,9 @@ loadMacros("PGcommonFunctions.pl");
 #  max(@listNumbers)
 #  min(@listNumbers)
 #  round($number)
-#  lcm($number1,$number2)
-#  gfc($number1,$number2)
-#  gcd($number1,$number2)  
+#  lcm(@listNumbers)
+#  gcf(@listNumbers)
+#  gcd(@listNumbers)
 #  isPrime($number)
 #  reduce($numerator,$denominator)
 #  preformat($scalar, "QuotedString")
@@ -106,79 +106,48 @@ sub Round {
 }
 
 #least common multiple
-#VS 6/29/2000
+# should be passed a nonempty array of integers
+# checks if passed an empty array, but otherwise does not validate input
+# returns their least common multiple
 # ^function lcm
 sub lcm {
-	my $a = shift;
-	my $b = shift;
-
-	#reorder such that $a is the smaller number
-	if ($a > $b) {
-		my $temp = $a;
-		$a = $b;
-		$b = $temp;
-	}
-
-	my $lcm = 0;
-	my $curr = $b;;
-
-	while($lcm == 0) {
-		$lcm = $curr if ($curr % $a == 0);
-		$curr += $b;
-	}
-
-	$lcm;
-
+        do {warn 'Cannot take lcm of the empty set'; return;} unless (@_);
+        my $a = abs(shift);
+        return 0 unless $a;
+        return $a unless (@_);
+        my $b = abs(shift);
+        return 0 unless $b;
+        return lcm($a*$b/gcf($a,$b),@_);
 }
 
 
 # greatest common factor
-# takes in two scalar values and uses the Euclidean Algorithm to return the gcf
-#VS 6/29/2000
+# should be passed a nonempty array of integers
+# checks if passed an empty array, but otherwise does not validate input
+# returns their greatest common factor
 # ^function gcf
 sub gcf {
-        my $a = abs(shift);	# absolute values because this will yield the same gcd,
-        my $b = abs(shift);	# but allows use of the mod operation
-
-	# reorder such that b is the smaller number
-	if ($a < $b) {
-		my $temp = $a;
-		$a = $b;
-		$b = $temp;
-	}
-
-	return $a if $b == 0;
-
-	my $q = int($a/$b);	# quotient
-	my $r = $a % $b;	# remainder
-
-	return $b if $r == 0;
-
-	my $tempR = $r;
-
-	while ($r != 0) {
-
-		#keep track of what $r was in the last loop, as this is the value
-		#we will want when $r is set to 0
-		$tempR = $r;
-
-		$a = $b;
-		$b = $r;
-		$q = $a/$b;
-		$r = $a % $b;
-
-	}
-
-	$tempR;
+        # An empty argument array is either from the user or has been filtered down
+        # from previous iterations where the user submitted an all-zero array
+        do {warn 'Cannot take gcf of the empty set or an all-zero set'; return;} unless (@_);
+        my $a = abs(shift);
+        return gcf(@_) unless $a;
+        return $a unless (@_);
+        my $b = abs(shift);
+        # Swap if needed to make sure $a is smaller
+        ($a,$b) = ($b,$a) if $a > $b;
+        while ($a) {
+          ($a, $b) = ($b % $a, $a);
+        }
+        return gcf($b,@_);
 }
-
 
 #greatest common factor.
 #same as gcf, but both names are sufficiently common names
 # ^function gcd
 # ^uses gcf
 sub gcd {
-        return gcf($_[0], $_[1]);
+        return gcf(@_);
 }
 
 #returns 1 for a prime number, else 0

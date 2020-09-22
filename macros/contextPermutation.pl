@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2000-2014 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2000-2014 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader:$
 # 
 # This program is free software; you can redistribute it and/or modify it under
@@ -72,6 +72,16 @@ multiplied by itself that many times.  A power of -1 is the inverse of
 the permutation, while a larger negative number is the inverse
 multiplied by itself that many times (the absolute value of the
 power).
+
+The order in which permutations are multiplied is left-to-right by
+default (e.g., (1 2 3)(1 2) = (2 3) using left-to-right multiplication). 
+But, right-to-left multiplication (e.g., (1 2 3)(1 2) = (1 3) using right-
+to-left multiplication) can be used instead by setting
+
+	Context()->flags->set(multiplyRightToLeft => 1);
+
+Note: Right-to-left multiplication is consistent with viewing permutations 
+as functions that are composed from right-to-left.
 
 There are times when you might not want to allow inverses to be
 computed automatically.  In this case, set
@@ -181,6 +191,7 @@ sub _contextPermutation_init {
     noPowers => 0,           # allow powers of cycles and permutations?
     noInverses => 0,         # allow negative powers to mean inverse?
     noGroups => 0,           # allow parens for grouping (for powers)?
+    multiplyRightToLeft => 0,   # default is left to right multiplication
   );
 
   $context->{error}{msg}{"Entries in a Cycle must be of the same type"} =
@@ -240,16 +251,30 @@ sub make {
 #
 sub mult {
   my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
-  if ($l->isReal) {
-    $l = $l->value;
-    Value->Error("Can't multiply %s by a non-integer value",$self->showType) unless $l == int($l);
-    Value->Error("Can't multiply %s by a negative value",$self->showType) if $l < 0;
-    my $n = $self->{P}{$l}; $n = $l unless defined $n;
-    return $self->Package("Real")->make($n);
+  if (!$self->getFlag('multiplyRightToLeft')) {
+    if ($l->isReal) {
+      $l = $l->value;
+      Value->Error("Can't multiply %s by a non-integer value",$self->showType) unless $l == int($l);
+      Value->Error("Can't multiply %s by a negative value",$self->showType) if $l < 0;
+      my $n = $self->{P}{$l}; $n = $l unless defined $n;
+      return $self->Package("Real")->make($n);
+    } else {
+      Value->Error("Can't multiply %s by %s",$l->showType,$r->showType)
+        unless $r->classMatch("Cycle","Permutation");
+      return $self->Package("Permutation")->new($l,$r);
+    }
   } else {
-    Value->Error("Can't multiply %s by %s",$l->showType,$r->showType)
-      unless $r->classMatch("Cycle","Permutation");
-    return $self->Package("Permutation")->new($l,$r);
+    if ($r->isReal) {
+      $r = $r->value;
+      Value->Error("Can't multiply %s by a non-integer value",$self->showType) unless $r == int($r);
+      Value->Error("Can't multiply %s by a negative value",$self->showType) if $r < 0;
+      my $n = $self->{P}{$r}; $n = $r unless defined $n;
+      return $self->Package("Real")->make($n);
+    } else {
+      Value->Error("Can't multiply %s by %s",$l->showType,$r->showType)
+        unless $l->classMatch("Cycle","Permutation");
+      return $self->Package("Permutation")->new($l,$r);
+    }
   }
 }
 
@@ -375,7 +400,7 @@ sub new {
 }
 
 #
-#  Find the internal representation of the permutation
+#  Find the internal representation of the cycle
 #  (a hash representing where each element goes)
 #
 sub makeP {
@@ -431,6 +456,7 @@ sub new {
 sub makeP {
   my $self = shift; my $p = $self->{data};
   my $P = {}; my %N;
+  $p = [reverse(@$p)] if $self->getFlag('multiplyRightToLeft');
   foreach my $x (@$p) {map {$N{$_} = 1} (keys %{$x->{P}})}  # get all elements used
   foreach my $i (keys %N) {
     my $j = $i;
@@ -592,4 +618,3 @@ sub TeX {
 ###########################################################
 
 1;
-

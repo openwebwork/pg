@@ -284,6 +284,10 @@ sub isHash {
 
 }
 
+
+# example: return Boolean:  Value->subclassed($self,"classMatch")
+# if $self has the method 'classMath' and 'Value' has the method 'classMatch'
+# and  the reference to these methods don't agree then the method 'classMatch' has been subclassed.
 sub subclassed {
   my $self = shift; my $obj = shift; my $method = shift;
   my $code = UNIVERSAL::can($obj,$method);
@@ -302,7 +306,7 @@ sub isContext {my $symbol = shift ||""; class($symbol) eq 'Context'}
 sub isFormula {classMatch(shift,'Formula')}
 sub isParser  {my $v = shift; isBlessed($v) && $v->isa('Parser::Item')}
 sub isValue {
-  my $v = shift//''; 
+  my $v = shift//'';
   return (ref($v) || $v) =~ m/^Value::/ || (isHash($v) && $v->{isValue}) || isa($v,'Value');
 }
 
@@ -352,8 +356,8 @@ sub Package {(shift)->context->Package(@_)}
 sub classMatch {
   my $self = shift;
   return $self->classMatch(@_) if Value->subclassed($self,"classMatch");
-  my $class = class($self)//''; my $ref = ref($self);
-  my $isHash = ($ref && $ref ne 'ARRAY' && $ref ne 'CODE');
+  my $class = Value::class($self)//''; my $ref = ref($self);
+  my $isHash = Value::isHash($self);
   my $context = ($isHash ? $self->{context} || Value->context : Value->context);
   foreach my $name (@_) {
     my $isName = "is".$name;
@@ -678,13 +682,13 @@ sub typeRef {
 #
 sub class {
   my $self = shift;
-  return undef unless defined $self; #added by MEG 
+  return undef unless defined $self; #added by MEG
   # attention DPVC  FIXME
-  # before if $self was undefined Value->subclassed fails and 
+  # before if $self was undefined Value->subclassed fails and
   # $class returns undef? or ""
-  # but warning messages were placed in the logs 
+  # but warning messages were placed in the logs
   return $self->class(@_) if Value->subclassed($self,"class");
-  my $class = ref($self) || $self;  
+  my $class = ref($self) || $self;
   $class =~ s/.*:://;
   return $class;
 }
@@ -894,7 +898,7 @@ sub compare_string {
   my ($l,$r,$flag) = @_;
   $l = $l->string; $r = $r->string if Value::isValue($r);
   if ($flag) {my $tmp = $l; $l = $r; $r = $tmp}
-  return undef unless defined $l; 
+  return undef unless defined $l;
   return $l cmp $r;
 }
 

@@ -1,13 +1,13 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 20014 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 20014 The WeBWorK Project, http://openwebwork.sf.net/
 # $$
-# 
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any later
 # version, or (b) the "Artistic License" which comes with this package.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
@@ -43,21 +43,21 @@ C<ANS()> to assign answer checkers to the blanks that appear within
 the section.  For example:
 
     Scaffold::Begin();
-    
+
     Section::Begin("Part 1: The first part");
     BEGIN_TEXT
     This is the text for part 1.  \(1+1\) = \{ans_rule\}
     END_TEXT
     ANS(Real(2)->cmp);
     Section::End();
-    
+
     Section::Begin("Part 2: The second part");
     BEGIN_TEXT
     This is text for the second part.  \(2*2\) = \{ans_rule\}
     END_TEXT
     ANS(Real(4)->cmp);
     Section::End();
-    
+
     Scaffold::End();
 
 You can include whatever code you need to between the
@@ -96,7 +96,7 @@ which is currently open.  The following options are provided:
 
 =over
 
-=item C<S<< can_open => condition >>> 
+=item C<S<< can_open => condition >>>
 
 This specifies when a section can be opened by the student.  The
 C<condition> is either one of the strings C<"always">,
@@ -200,7 +200,7 @@ Some useful configurations are:
       can_open => "when_previous_correct",
       is_open  => "first_incorrect"
     );
-    
+
     #
     #  Sections stay open as the student works through
     #  the problem.
@@ -209,7 +209,7 @@ Some useful configurations are:
       can_open => "when_previous_correct",
       is_open  => "correct_or_first_incorrect"
     );
-    
+
     #
     #  Students work through the problem seeing only
     #  one section at a time, and can't go back to
@@ -219,7 +219,7 @@ Some useful configurations are:
       can_open => "first_incorrect",
       is_open  => "first_incorrect"
     );
-    
+
     #
     #  Students can view and work on any section,
     #  but only the first incorrect one is shown initially.
@@ -228,7 +228,7 @@ Some useful configurations are:
       can_open => "always",
       is_open  => "first_incorrect"
     );
-    
+
     #
     #  Students see all the parts initially, but the
     #  sections close as the student gets them correct.
@@ -237,7 +237,7 @@ Some useful configurations are:
       can_open => "always",
       is_open  => "incorrect"
     );
-    
+
     #
     #  Students see all the parts initially, but the
     #  sections close as the student gets them correct,
@@ -836,4 +836,3 @@ END_HEADER_TEXT
 
 
 1;
-

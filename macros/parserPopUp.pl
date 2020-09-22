@@ -159,7 +159,7 @@ sub randomOrder {
 #
 sub menu {shift->MENU(0,@_)}
 sub MENU {
-  my $self = shift; my $extend = shift; my $name = shift;
+  my $self = shift; my $extend = shift; my $name = shift; my $size = shift; my %options = @_;
   my @list = @{$self->{choices}}; my $menu = "";
   $name = main::NEW_ANS_NAME() unless $name;
   my $answer_value = (defined($main::inputs_ref->{$name}) ? $main::inputs_ref->{$name} : '');
@@ -201,6 +201,7 @@ sub MENU {
     }
   }
   main::RECORD_ANS_NAME($name,$answer_value) unless $extend;   # record answer name
+  main::INSERT_RESPONSE($options{answer_group_name}, $name, $answer_value) if $extend;
   $menu;
 }
 

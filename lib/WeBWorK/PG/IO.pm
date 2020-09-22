@@ -18,6 +18,7 @@ use utf8;
 my $CE = new WeBWorK::CourseEnvironment({
     webwork_dir => $ENV{WEBWORK_ROOT},
 					});
+
 =head1 NAME
 
 WeBWorK::PG::IO - Private functions used by WeBWorK::PG::Translator for file IO.
@@ -60,7 +61,7 @@ BEGIN {
 			/^2\./          and $mod = "WeBWorK::PG::IO::WW2";
 			/^Daemon\s*2\./ and $mod = "WeBWorK::PG::IO::Daemon2";
 		}
-		
+
 		eval "package Main; require $mod; import $mod"; # this is runtime_use
 		die $@ if $@;
 	} else {
@@ -91,8 +92,8 @@ contains the function.
 =item includePGtext($string_ref, $envir_ref)
 
 
-This is used in processing some of the sample CAPA files and 
-in creating aliases to redirect calls to duplicate problems so that 
+This is used in processing some of the sample CAPA files and
+in creating aliases to redirect calls to duplicate problems so that
 they go to the original problem instead.  It is called by includePGproblem.
 
 It reads and evaluates the string in the same way that the Translator evaluates the string in a PG file.
@@ -108,7 +109,7 @@ sub includePGtext  {
 #	$evalString =~ s/\\/\\\\/g; # \ can't be used for escapes because of TeX conflict
 #	$evalString =~ s/~~/\\/g;   # use ~~ as escape instead, use # for comments
 	no strict;
-	$evalString = eval( q! &{$main::PREPROCESS_CODE}($evalString) !); 
+	$evalString = eval( q! &{$main::PREPROCESS_CODE}($evalString) !);
 	$evalString = $evalString||'';
 	# current preprocessing code passed from Translator (see Translator::initialization)
 	my $errors = $@;
@@ -141,9 +142,9 @@ sub read_whole_file {
 	my $filePath = shift;
 	warn "Can't read file $filePath<br/>" unless -r $filePath;
 	return "" unless -r $filePath;
-	die "File path $filePath is unsafe." 
+	die "File path $filePath is unsafe."
 	    unless path_is_course_subdir($filePath);
-	
+
 	local (*INPUT);
 	open(INPUT, "<:raw", $filePath) || die "$0: read_whole_file subroutine: <BR>Can't read file $filePath";
 	local($/)=undef;
@@ -159,10 +160,10 @@ sub read_whole_file {
 	close(INPUT);
 	\$string;
 }
-# <:utf8 is more relaxed on input, <:encoding(UTF-8) would be better, but 
+# <:utf8 is more relaxed on input, <:encoding(UTF-8) would be better, but
 # perhaps it's not so horrible to have lax input. encoding(UTF-8) tries to use require
 # to import Encode, Encode::Alias::find_encoding and Safe raises an exception.
-# haven't figured a way around this yet. 
+# haven't figured a way around this yet.
 =item convertPath($path)
 
 Currently a no-op. Returns $path unmodified.
@@ -198,7 +199,7 @@ Uses C<&getDirDelim> to determine the path delimiter.  Returns the initial
 segments of the of the path (i.e. the text up to the last delimiter).
 
 =cut
-   
+
 sub directoryFromPath {
 	my $path = shift;
 	my $delim = &getDirDelim();
@@ -222,7 +223,7 @@ sub createFile {
 		or die "Can't open $fileName: $!";
 	my @stat = stat TEMPCREATEFILE;
 	close(TEMPCREATEFILE);
-	
+
 	# if the owner of the file is running this script (e.g. when the file is
 	# first created) set the permissions and group correctly
 	if ($< == $stat[4]) {
@@ -268,9 +269,54 @@ Checks to see if the given path is a sub directory of the courses directory
 =cut
 
 sub path_is_course_subdir {
-    
     return path_is_subdir(shift,$CE->{webwork_courses_dir},1);
 }
+
+sub ww_tmp_dir {
+	return $CE->{webworkDirs}{tmp};
+}
+
+
+=item curlCommand
+
+	curl -- path to curl defined in site.conf
+
+=cut
+
+sub curlCommand {
+	return $CE->{externalPrograms}{curl};
+}
+
+=item convertCommand
+
+	convert -- path to convert defined in site.conf
+
+=cut
+
+sub convertCommand {
+	return $CE->{externalPrograms}{convert};
+}
+
+=item pdflatexCommand
+
+	pdflatex -- path to pdflatex defined in site.conf
+
+=cut
+
+sub pdflatexCommand {
+	return $CE->{externalPrograms}{pdflatex};
+}
+
+=item copyCommand
+
+	copyCommand -- path to cp defined in site.conf
+
+=cut
+
+sub copyCommand {
+	return $CE->{externalPrograms}{cp};
+}
+
 
 #
 # isolate the call to the sage server in case we have to jazz it up
@@ -288,7 +334,7 @@ sub query_sage_server {
 	    warn "debug is turned on in IO.pm. ";
 		warn "\n\nIO::query_sage_server(): SAGE CALL: ", $sagecall, "\n\n";
 		warn "\n\nRETURN from sage call \n", $output, "\n\n";
-		warn "\n\n END SAGE CALL";	
+		warn "\n\n END SAGE CALL";
 	}
 		# has something been returned?
 		# $continue: 	HTTP/1.1 100 (Continue)
@@ -300,50 +346,50 @@ sub query_sage_server {
 		# 				Access-Control-Allow-Origin: *
 		# 				Content-Type: application/json; charset=UTF-8
 		# $content: Either error message about terms of service or output from sage
-	# find the header 
+	# find the header
 	# expecting something like
 	# 	HTTP/1.1 100 Continue
-	
+
 	#	HTTP/1.1 200 OK
 	#	Date: Wed, 20 Sep 2017 14:54:03 GMT
     #   ......
-    #   two blank lines 
+    #   two blank lines
     #   content
-          
+
 	# or   (notice that here there is no continue response)
 	#   HTTP/2 200
     #   date: Wed, 20 Sep 2017 16:06:03 GMT
     #   ......
-    #   two blank lines 
+    #   two blank lines
     #   content
 
 	 my ($continue, $header, @content) = split("\r\n\r\n",$output);
 	#my $content = join("\r\n\r\n",@content); # handle case where there were blank lines in the content
 	 my @lines = split("\r\n\r\n", $output);
-	 $continue=0;  
+	 $continue=0;
 	 my $header_ok =0;
 	 while (@lines) {
 	 	my $header_block = shift(@lines);
 	 	warn "checking for header:  $header_block" if $debug;
 	 	next unless $header_block=~/\S/; #skip empty lines;
-	 	next if $header_block=~/HTTP/ and $header_block=~/100/; # skip continue line
-	 	if ($header_block=~/200/) { # 200 return is ok
+	 	next if ($header_block =~ m!HTTP[ 12/.]+100!); # skip continue line
+	 	if ($header_block=~ m!HTTP[ 12/.]+200!) { # 200 return is ok
 	 		$header_ok=1;
 	 		last;
 	 	}
 	 }
-	 my $content = join("|||\n|||",@lines) ;  #headers have been removed. 
+	 my $content = join("|||\n|||",@lines) ;  #headers have been removed.
 	 #warn "output list is ", $content; # join("|||\n|||",($continue, $header, $content));
-	 #warn "header_ok is $header_ok";  
+	 #warn "header_ok is $header_ok";
 	my $result;
 	if ($header_ok)  { #success put any extraneous splits back together
 		$result = join("\r\n\r\n",@lines);
 	} else {
-		warn "ERROR in contacting sage server. Did you accept the terms of service by 
+		warn "ERROR in contacting sage server. Did you accept the terms of service by
 		      setting {accepted_tos=>'true'} in the askSage options?\n $content\n";
 		$result = undef;
 	}
-	$result;	
+	$result;
 }
 
 sub AskSage {
@@ -393,8 +439,8 @@ END
 	    my $output = query_sage_server($python, $url, $accepted_tos, $setSeed, $webworkfunc, $debug , $curlCommand);
 
 		# has something been returned?
-		not_null($output) or die "Unable to make a sage call to $url."; 
-		warn "IO::askSage: We have some kind of value |$output| returned from sage" if $output and $debug; 
+		not_null($output) or die "Unable to make a sage call to $url.";
+		warn "IO::askSage: We have some kind of value |$output| returned from sage" if $output and $debug;
         if ($output =~ /"success":\s*true/ and $debug){
         	warn '"success": true is present in the output';
         }
@@ -423,20 +469,20 @@ END
 			warn "sage_WEBWORK_data $sage_WEBWORK_data" if $debug;
 			if (not_null($sage_WEBWORK_data) ) {
 				$WEBWORK_variable_non_empty =  #another hack because '{}' is sometimes returned
-				      ($sage_WEBWORK_data ne "{}" and $sage_WEBWORK_data ne "'{}'") ? 
+				      ($sage_WEBWORK_data ne "{}" and $sage_WEBWORK_data ne "'{}'") ?
 				      1:0;
 			}  # {} indicates that WEBWORK was not used to pass or return a variable from sage.
-			
+
 			warn "WEBWORK variable has content"  if $debug and $WEBWORK_variable_non_empty;
 			$sage_WEBWORK_data =~s/^'//;  #FIXME -- for now strip off the surrounding single quotes '.
 			$sage_WEBWORK_data =~s/'$//;
 			warn "sage_WEBWORK_data: ", PGUtil::pretty_print($sage_WEBWORK_data) if $debug and $WEBWORK_variable_non_empty;
 
-			if ( $WEBWORK_variable_non_empty )  { 
+			if ( $WEBWORK_variable_non_empty )  {
 				# have specific WEBWORK variables been defined?
 				$ret->{webwork} = decode_json($sage_WEBWORK_data);
 				$ret->{success}=1;
-				$ret->{stdout} = $decoded->{stdout};		
+				$ret->{stdout} = $decoded->{stdout};
 			} elsif (not_null( $decoded->{stdout} ) ) { # no WEBWORK content, but stdout exists
 				                         				# old style text output via stdout (deprecated)
 				$ret = $decoded->{stdout};				# only standard out is returned
@@ -450,7 +496,7 @@ END
 		} else {
 			die "IO.pm: Unknown error in asking Sage to do something: success = $success output = \n$output\n";
 		}
-		
+
 	}; # end eval{} for trapping errors in sage call
 	if ($@) {
 		warn "IO.pm: ERROR trapped during JSON call to sage:\n $@ ";

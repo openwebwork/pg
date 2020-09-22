@@ -1,13 +1,13 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2009 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2009 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: pg/macros/problemPanic.pl,v 1.6 2010/04/27 02:00:37 dpvc Exp $
-# 
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any later
 # version, or (b) the "Artistic License" which comes with this package.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
@@ -58,7 +58,7 @@ second hint.
         \{Panic::Button(label => "Another Hint", penalty => .25)\}
         (costing an additional 25%)
       END_TEXT
-      
+
       if ($panicked > 1) {
         BEGIN_TEXT
         Additional Hint: one of the factors is \(x+$a)\).

@@ -409,7 +409,7 @@ sub ans_matrix {
       }
       my $answer_group_name = $options{answer_group_name}//$name;
       if ($i == 0 && $j == 0) {
-		if ($extend) {  
+		if ($extend) {
 		  push(@row,&$named_extension($name,$size,
 				answer_group_name=> $answer_group_name,
 				aria_label=>$label)
@@ -417,7 +417,7 @@ sub ans_matrix {
 		} else {
 		  push(@row,&$named_ans_rule($name,$size,aria_label=>$label));
 		}
-      } else { 
+      } else {
 		push(@row,&$named_extension(ANS_NAME($ename,$i,$j),$size,
 			 answer_group_name => $answer_group_name,
 			 aria_label=>$label));
@@ -600,7 +600,7 @@ sub ans_collect {
   $ans->{student_formula} = [@array];
   $ans->{ans_message} = $ans->{error_message} = "";
   if (scalar(@{$errors})) {
-    $ans->{ans_message} = $ans->{error_message} = 
+    $ans->{ans_message} = $ans->{error_message} =
       '<TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0" CLASS="ArrayLayout">'.
       join('<TR><TD HEIGHT="4"></TD></TR>',@{$errors}).
       '</TABLE>';
@@ -976,7 +976,7 @@ sub correct_ans {
 sub ANS_MATRIX {
   my $self = shift;
   my $extend = shift; my $name = shift;
-  my $size = shift || 5; 
+  my $size = shift || 5;
   my %options = @_;
   my ($def,$open,$close);
   $def = $self->context->lists->get('Matrix');
@@ -1252,7 +1252,11 @@ sub cmp_equal {
   my $self = shift; my $ans = shift;
   my $error = $self->cmp_checkUnionReduce($ans->{student_value},$ans);
   if ($error) {$self->cmp_Error($ans,$error); return}
-  Value::List::cmp_equal($self,$ans);
+  if ($self->typeMatch($ans->{student_value})) {
+    Value::List::cmp_equal($self,$ans);
+  } else {
+    $self->SUPER::cmp_equal($ans);
+  }
 }
 
 #
@@ -2092,9 +2096,9 @@ sub correct_ans {
 sub ANS_MATRIX {
   my $self = shift;
   my $extend = shift; my $name = shift;
-  my $size = shift || 5; 
+  my $size = shift || 5;
   my %options = @_;
-  my $type = $self->type; 
+  my $type = $self->type;
   my $cols = $self->length; my $rows = 1; my $sep = ',';
   if ($type eq 'Matrix') {
     $sep = ''; $rows = $cols; $cols = $self->{tree}->typeRef->{entryType}{length};

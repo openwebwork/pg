@@ -37,6 +37,7 @@ extending to the end of the line is also ignored.
 use strict;
 use warnings;
 use Digest::MD5 qw(md5_hex);
+use Encode qw(encode_utf8 );
 use Fcntl qw(:DEFAULT :flock);
 BEGIN { my @_junk = (O_RDWR,O_CREAT,LOCK_EX) } # get rid of "subroutine redefined" warnings
 
@@ -62,7 +63,7 @@ sub new {
 	my $self = {
 		%options,
 	};
-	
+
 	bless $self, $class;
 }
 
@@ -86,15 +87,15 @@ sub lookup {
 	# Option 2 (the old default): remove all whitespace
 	# $tex =~ s/\s+//g;
 
-	my $md5 = md5_hex($tex);
-	
+	my $md5 = md5_hex(encode_utf8($tex));
+
 	my $db = $self->{cacheDB};
 	unless($db) { return($md5 ."1"); }
 	sysopen(DB, $db, O_RDWR|O_CREAT)
 		or die "failed to create/open cacheDB $db: $!";
 	flock(DB, LOCK_EX)
 		or die "failed to write-lock cacheDB $db: $!";
-	
+
 	my $line = 0;
 	my $max = 0;
 	my $match = 0;
@@ -111,14 +112,14 @@ sub lookup {
 			$max = $1 if $1 > $max;
 		}
 	}
-	
+
 	unless ($match) {
 		# no match: invent a new instance number and add TeX string to DB
 		$match = $max + 1;
 		seek(DB, 0, 2); # we should already be at EOF, but what the hell.
 		print DB "$md5\t$match\t$tex\n";
 	}
-	
+
 	close(DB);
 	return "$md5$match";
 }

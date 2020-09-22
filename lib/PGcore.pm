@@ -2,12 +2,12 @@
 # WeBWorK Online Homework Delivery System
 # Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: pg/lib/PGcore.pm,v 1.6 2010/05/25 22:47:52 gage Exp $
-# 
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any later
 # version, or (b) the "Artistic License" which comes with this package.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
@@ -38,7 +38,7 @@ binmode(STDOUT, ":utf8");
 
 sub not_null {
     my $self = shift;
-    PGUtil::not_null(@_);  
+    PGUtil::not_null(@_);
 }
 
 sub pretty_print {
@@ -51,11 +51,11 @@ sub pretty_print {
 		$displayMode = $self->{displayMode};
     }
     warn "displayMode not defined" unless $displayMode;
-    PGUtil::pretty_print($input, $displayMode, $level);  
+    PGUtil::pretty_print($input, $displayMode, $level);
 }
 
 sub new {
-	my $class = shift;	
+	my $class = shift;
 	my $envir = shift;  #pointer to environment hash
 	warn "PGcore must be called with an environment" unless ref($envir) eq 'HASH';
 	#warn "creating a new PGcore object";
@@ -78,7 +78,7 @@ sub new {
 		vec_num                   => 0,     # for distinguishing matrices
 		QUIZ_PREFIX               => $envir->{QUIZ_PREFIX},
 		SECTION_PREFIX            => '',  # might be used for sequential (compound) questions?
-		
+
 		PG_ACTIVE                 => 1,   # toggle to zero to stop processing
 		submittedAnswers          => 0,   # have any answers been submitted? is this the first time this session?
 		PG_session_persistence_hash =>{}, # stores data from one invoction of the session to the next.
@@ -90,9 +90,9 @@ sub new {
 		envir                     => $envir,
 		WARNING_messages		  => [],
 		DEBUG_messages            => [],
-		gifs_created              => {},
-		external_refs             => {},      # record of external references 
-		%options,                                   # allows overrides and initialization	
+		names_created              => 0,
+		external_refs             => {},      # record of external references
+		%options,                                   # allows overrides and initialization
 	};
 	bless $self, $class;
 	tie %{$self->{PG_ANSWERS_HASH}}, "Tie::IxHash";  # creates a Hash with order
@@ -112,7 +112,7 @@ sub initialize {
 	$self->{PG_problem_grader}    		= $self->{envir}->{PROBLEM_GRADER_TO_USE};
     $self->{PG_alias}             		= PGalias->new($self->{envir},
 												WARNING_messages => $self->{WARNING_messages},
-												DEBUG_messages   => $self->{DEBUG_messages},                                           
+												DEBUG_messages   => $self->{DEBUG_messages},
 										);
 	#$self->{maketext} =  WeBWorK::Localize::getLoc($self->{envir}->{language});
 	$self->{maketext} = $self->{envir}->{language_subroutine};
@@ -129,8 +129,8 @@ sub initialize {
 #		ANSWER_ENTRY_ORDER        => [],  # may not be needed if we ue Tie:IxHash
 		comment                   => '',  # implement as array?
 
-	
-	
+
+
 	};
 
 }
@@ -321,7 +321,7 @@ Old name for LABELED_ANS(). DEPRECATED.
 
 # ^function NAMED_ANS
 # ^uses $PG_STOP_FLAG
-sub LABELED_ANS{ 
+sub LABELED_ANS{
   my $self = shift;
   my @in = @_;
   while (@in ) {
@@ -461,12 +461,12 @@ sub record_ans_name {      # the labels in the PGanswer group and response group
 	my $response_group = new PGresponsegroup($label,$label,$value);
 	#$self->debug_message("adding a response group $response_group");
 	if (ref($self->{PG_ANSWERS_HASH}->{$label})=~/PGanswergroup/ ) {
-		$self->{PG_ANSWERS_HASH}->{$label}->replace(ans_label => $label, 
-		                                           response  => $response_group, 
+		$self->{PG_ANSWERS_HASH}->{$label}->replace(ans_label => $label,
+		                                           response  => $response_group,
 		                                           active    => $self->{PG_ACTIVE});
 	} else {
-  		$self->{PG_ANSWERS_HASH}->{$label} = PGanswergroup->new($label, 
-  		                                           response  => $response_group, 
+  		$self->{PG_ANSWERS_HASH}->{$label} = PGanswergroup->new($label,
+  		                                           response  => $response_group,
   		                                           active    => $self->{PG_ACTIVE});
   	}
   	$self->{answer_blank_count}++;
@@ -477,15 +477,15 @@ sub record_array_name {  # currently the same as record ans name
 	my $self = shift;
 	my $label = shift;
 	my $value = shift;
-	my $response_group = new PGresponsegroup($label,$label,$value); 
+	my $response_group = new PGresponsegroup($label,$label,$value);
 	#$self->debug_message("adding a response group $response_group");
 	if (ref($self->{PG_ANSWERS_HASH}->{$label})=~/PGanswergroup/ ) {
-		$self->{PG_ANSWERS_HASH}->{$label}->replace(ans_label => $label, 
-		                                           response   => $response_group, 
+		$self->{PG_ANSWERS_HASH}->{$label}->replace(ans_label => $label,
+		                                           response   => $response_group,
 		                                           active     => $self->{PG_ACTIVE});
 	} else {
-  		$self->{PG_ANSWERS_HASH}->{$label} = PGanswergroup->new($label, 
-  		                                           response   => $response_group, 
+  		$self->{PG_ANSWERS_HASH}->{$label} = PGanswergroup->new($label,
+  		                                           response   => $response_group,
   		                                           active     => $self->{PG_ACTIVE});
   	}
   	$self->{answer_blank_count}++;
@@ -504,10 +504,10 @@ sub extend_ans_group {         # modifies the group type
     	$answer_group->append_responses(@response_list);
     } else {
     	#$self->warning_message("The answer |$label| has not yet been defined, you cannot extend it.",caller() );
-    	# this error message is correct but misleading for the original way 
+    	# this error message is correct but misleading for the original way
     	# in which matrix blanks and their response evaluators are matched up
     	# we should restore the warning message once the new matrix evaluation method is in place
-    
+
     }
     $label;
 }
@@ -523,7 +523,7 @@ sub record_unlabeled_array_name {
 	my $self = shift;
     $self->{unlabeled_answer_blank_count}++;
     my $ans_label = $self->new_array_label($self->{unlabeled_answer_blank_count});
-    $self->record_array_name($ans_label);                          
+    $self->record_array_name($ans_label);
 }
 sub store_persistent_data {  # will store strings only (so far)
 	my $self = shift;
@@ -552,18 +552,18 @@ sub check_answer_hash {
 sub PG_restricted_eval {
 	my $self = shift;
 	WeBWorK::PG::Translator::PG_restricted_eval(@_);
-}		
+}
 
 
 # =head2 base64 coding
-# 
+#
 # 	$str       = decode_base64($coded_str);
 # 	$coded_str = encode_base64($str);
-# 
+#
 # # Sometimes a question author needs to code or decode base64 directly
-# 
+#
 # =cut
-# 
+#
 sub decode_base64 ($) {
 	my $self = shift;
 	my $str = shift;
@@ -582,7 +582,7 @@ sub encode_base64 ($;$) {
 #####
 #  This macro encodes HTML, EV3, and PGML special caracters using html codes
 #  This should be done for any variable which contains student input and is
-#  printed to a screen or interpreted by EV3.  
+#  printed to a screen or interpreted by EV3.
 
 sub encode_pg_and_html {
     my $input = shift;
@@ -594,11 +594,11 @@ sub encode_pg_and_html {
 =head2   Message channels
 
 There are three message channels
-	$PG->debug_message()   or in PG:  DEBUG_MESSAGE() 
+	$PG->debug_message()   or in PG:  DEBUG_MESSAGE()
 	$PG->warning_message() or in PG:  WARN_MESSAGE()
-	
+
 They behave the same way, it is simply convention as to how they are used.
-	
+
 To report the messages use:
 
 	$PG->get_debug_messages
@@ -607,11 +607,11 @@ To report the messages use:
 These are used in Problem.pm for example to report any errors.
 
 There is also
-    	
+
     $PG->internal_debug_message()
 	$PG->get_internal_debug_message
 	$PG->clear_internal_debug_messages();
-	
+
 There were times when things were buggy enough that only the internal_debug_message which are not saved
 inside the PGcore object would report.
 
@@ -668,7 +668,7 @@ sub DESTROY {
 	# returns a path to the file containing the graph image.
 	$filePath = insertGraph($graphObject);
 
-insertGraph writes a GIF or PNG image file to the gif subdirectory of the
+insertGraph writes a GIF or PNG image file to the images subdirectory of the
 current course's HTML temp directory. The file name is obtained from the graph
 object. Warnings are issued if errors occur while writing to the file.
 
@@ -694,25 +694,45 @@ sub insertGraph {
 	# Convert the image to GIF and print it on standard output
 	my $self     = shift;
 	my $graph    = shift;
-	my $extension = ($WWPlot::use_png) ? '.png' : '.gif';
-	my $fileName = $graph->imageName  . $extension;
-	my $filePath = $self->convertPath("gif/$fileName");
+	my $fileName = $graph->imageName . "." . $graph->ext;
+	my $filePath = $self->convertPath("images/$fileName");
 	my $templateDirectory = $self->{envir}{templateDirectory};
 	$filePath = $self->surePathToTmpFile( $filePath );
 	my $refreshCachedImages = $self->PG_restricted_eval(q!$refreshCachedImages!);
 	# Check to see if we already have this graph, or if we have to make it
-	if( not -e $filePath # does it exist?
-	  or ((stat "$templateDirectory".$self->{envir}{probFileName})[9] > (stat $filePath)[9]) # source has changed
-	  or $self->{envir}{setNumber} =~ /Undefined_Set/ # problems from SetMaker and its ilk should always be redone
-	  or $refreshCachedImages
+	if (not -e $filePath # does it exist?
+			or ((stat "$templateDirectory".$self->{envir}{probFileName})[9] > (stat $filePath)[9]) # source has changed
+			or $self->{envir}{setNumber} =~ /Undefined_Set/ # problems from SetMaker and its ilk should always be redone
+			or $refreshCachedImages
 	) {
-		local(*OUTPUT);  # create local file handle so it won't overwrite other open files.
- 		open(OUTPUT, ">$filePath")||warn ("$0","Can't open $filePath<BR>","");
- 		chmod( 0777, $filePath);
- 		print OUTPUT $graph->draw|| warn("$0","Can't print graph to $filePath<BR>","");
- 		close(OUTPUT)||warn("$0","Can't close $filePath<BR>","");
+		open(my $fh, ">", $filePath) || warn ("$0", "Can't open $filePath<BR>","");
+		chmod(0777, $filePath);
+		print $fh $graph->draw || warn("$0","Can't print graph to $filePath<BR>","");
+		close($fh) || warn("$0","Can't close $filePath<BR>","");
 	}
 	$filePath;
+}
+
+=head2 getUniqueName
+
+	# Returns a unique file name for use in the problem
+	$name = getUniqueName('png');
+
+getUniqueName generates a unique file name for use in a problem.  Its single
+argument is the file type.  This is used internally by PGgraphmacros.pl and
+PGtikz.pl.
+
+=cut
+
+# Generate a unique file name in a problem based on the user, seed, set
+# number, and problem number.
+sub getUniqueName {
+	my $self = shift;
+	my $ext = shift;
+	my $num  = ++$self->{names_created};
+	my $resource = $self->{PG_alias}->make_resource_object("name$num", $ext);
+	$resource->path("__");
+	return $resource->create_unique_id;
 }
 
 =head1 Macros from IO.pm
@@ -729,46 +749,46 @@ sub insertGraph {
 sub maketext {
   my $self = shift;
   # uncomment this to check to see if strings are run through
-  # maketext.  
+  # maketext.
   # return 'xXx'.  &{ $self->{maketext}}(@_).'xXx';
   &{ $self->{maketext}}(@_);
 }
-sub includePGtext { 
+sub includePGtext {
 	my $self = shift;
-	WeBWorK::PG::IO::includePGtext(@_); 
+	WeBWorK::PG::IO::includePGtext(@_);
  };
-sub read_whole_problem_file { 
+sub read_whole_problem_file {
 	my $self = shift;
-	WeBWorK::PG::IO::read_whole_problem_file(@_); 
+	WeBWorK::PG::IO::read_whole_problem_file(@_);
  };
-sub convertPath { 
+sub convertPath {
 	my $self = shift;
-	WeBWorK::PG::IO::convertPath(@_); 
+	WeBWorK::PG::IO::convertPath(@_);
  };
-sub getDirDelim { 
+sub getDirDelim {
 	my $self = shift;
-	WeBWorK::PG::IO::getDirDelim(@_); 
+	WeBWorK::PG::IO::getDirDelim(@_);
  };
-sub fileFromPath { 
+sub fileFromPath {
 	my $self = shift;
-	WeBWorK::PG::IO::fileFromPath(@_); 
+	WeBWorK::PG::IO::fileFromPath(@_);
  };
-sub directoryFromPath { 
+sub directoryFromPath {
 	my $self = shift;
-	WeBWorK::PG::IO::directoryFromPath(@_); 
+	WeBWorK::PG::IO::directoryFromPath(@_);
  };
-sub createDirectory { 
+sub createDirectory {
 	my $self = shift;
-	WeBWorK::PG::IO::createDirectory(@_); 
+	WeBWorK::PG::IO::createDirectory(@_);
  };
 sub AskSage {
 	my $self = shift;
 	my $python = shift;
 	my $options = shift;
-	$options->{curlCommand} = $self->{envir}->{externalCurlCommand};
+	$options->{curlCommand} = WeBWorK::PG::IO::curlCommand();
 	WeBWorK::PG::IO::AskSage($python, $options);
 }
- 
+
 sub tempDirectory {
 	my $self = shift;
 	return $self->{tempDirectory};
@@ -779,7 +799,7 @@ sub tempDirectory {
 
 	$path = surePathToTmpFile($path);
 
-Creates all of the intermediate directories between the tempDirectory 
+Creates all of the intermediate directories between the tempDirectory
 
 If $path begins with the tempDirectory path, then the
 path is treated as absolute. Otherwise, the path is treated as relative the the
@@ -797,10 +817,10 @@ course temp directory.
 sub surePathToTmpFile {
 	# constructs intermediate directories if needed beginning at ${Global::htmlDirectory}tmp/
 	# the input path must be either the full path, or the path relative to this tmp sub directory
-	
+
 	my $self = shift;
 	my $path = shift;
-	my $delim = "/"; 
+	my $delim = "/";
 	my $tmpDirectory = $self->tempDirectory();
 	unless ( -e $tmpDirectory) {   # if by some unlucky chance the tmpDirectory hasn't been created, create it.
 	    my $parentDirectory =  $tmpDirectory;
@@ -810,21 +830,21 @@ sub surePathToTmpFile {
         #warn "Creating tmp directory at $tmpDirectory, perms $perms groupID $groupID";
 		$self->createDirectory($tmpDirectory, $perms, $groupID)
 				or warn "Failed to create parent tmp directory at $path";
-	
+
 	}
 	# use the permissions/group on the temp directory itself as a template
 	my ($perms, $groupID) = (stat $tmpDirectory)[2,5];
     #warn "surePathToTmpFile: directory=$tmpDirectory, perms=$perms, groupID=$groupID\n";
-	
+
 	# if the path starts with $tmpDirectory (which is permitted but optional) remove this initial segment
 	$path =~ s|^$tmpDirectory|| if $path =~ m|^$tmpDirectory|;
-	
+
 	# find the nodes on the given path
         my @nodes = split("$delim",$path);
-	
+
 	# create new path
-	$path = $tmpDirectory; 
-	
+	$path = $tmpDirectory;
+
 	while (@nodes>1) {
 		$path = $path . shift (@nodes) . "/"; #convertPath($path . shift (@nodes) . "/");
 
@@ -834,7 +854,7 @@ sub surePathToTmpFile {
 		}
 
 	}
-	
+
 	$path = $path . shift(@nodes); #convertPath($path . shift(@nodes));
 	return $path;
 }
