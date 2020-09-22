@@ -1416,10 +1416,10 @@ a hard copy output.
 
 =cut
 
-sub TEX {
-	my ($tex, $html ) = @_;
-	MODES(TeX => $tex, HTML => $html, HTML_tth => $html, HTML_dpng => $html);
-}
+# sub TEX {
+# 	my ($tex, $html ) = @_;
+# 	MODES(TeX => $tex, HTML => $html, HTML_tth => $html, HTML_dpng => $html);
+# }
 
 sub M3 {
 	my($tex, $l2h, $html) = @_;
