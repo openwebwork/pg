@@ -284,7 +284,7 @@ sub ww_tmp_dir {
 =cut
 
 sub curlCommand {
-	return $CE->{externalPrograms}{curlCommand};
+	return $CE->{externalPrograms}{curl};
 }
 
 =item convertCommand
