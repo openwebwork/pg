@@ -1013,7 +1013,7 @@ sub Answer {
       }
       $rule = $ans->$method(@options);
       $rule = PGML::LaTeX($rule);
-      if (!(ref($ans) eq 'MultiAnswer' && $ans->{part} > 1)) {
+      if (!(ref($ans) eq 'parser::MultiAnswer' && $ans->{part} > 1)) {
         if (defined($item->{name})) {
           main::NAMED_ANS($item->{name} => $ans->cmp);
         } else {

@@ -96,12 +96,12 @@ or
 loadMacros("MathObjects.pl");
 
 sub _parserMultiAnswer_init {
-  main::PG_restricted_eval('sub MultiAnswer {MultiAnswer->new(@_)}');
+  main::PG_restricted_eval('sub MultiAnswer {parser::MultiAnswer->new(@_)}');
 }
 
 ##################################################
 
-package MultiAnswer;
+package parser::MultiAnswer;
 our @ISA = qw(Value);
 
 our $answerPrefix = "MuLtIaNsWeR_";  # answer rule prefix
