@@ -613,6 +613,32 @@ sub reduce {
   return $self->SUPER::reduce;
 }
 
+#
+#  Add parentheses if they were there originally, or are needed by precedence
+#
+sub string {
+  my $self = shift;
+  my $string = $self->SUPER::string($self, @_);
+  return $string unless $self->{value}->classMatch('Fraction');
+  my $precedence = shift;
+  my $frac = $self->context->operators->get('/')->{precedence};
+  $string = '(' . $string . ')' if $self->{hadParens} || (defined $precedence && $precedence > $frac);
+  return $string;
+}
+
+#
+#  Add parentheses if they are needed by precedence
+#
+sub TeX {
+  my $self = shift;
+  my $string = $self->SUPER::TeX($self, @_);
+  return $string unless $self->{value}->classMatch('Fraction');
+  my $precedence = shift;
+  my $frac = $self->context->operators->get('/')->{precedence};
+  $string = '\left(' . $string . '\right)' if defined $precedence && $precedence > $frac;
+  return $string;
+}
+
 ###########################################################################
 
 package context::Fraction::Real;
