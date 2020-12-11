@@ -37,22 +37,22 @@ sub normal_prob {
 	my $mean = $options{'mean'} // 0;
 	my $deviation = $options{'deviation'} // 1;
 
-	if ($deviation <= 0) {
+	if ( $deviation <= 0 ) {
 		warn 'Deviation must be a positive number.';
 		return;
 	}
 
 	my $prob;
 	if ( $a eq '-infty' ) {
-		if ( $b eq 'infty' or '-infty') {
-			$prob = 1; # did you really need us to tell you that?
+		if ( $b eq 'infty' or $b eq '-infty' ) {
+			$prob = ($b eq 'infty') ? 1 : 0; # did you really need us to tell you that?
 		} else {
-			my $z_score_of_b = ($b - $mean)/$deviation;
+			my $z_score_of_b = ( $b - $mean ) / $deviation;
 			$prob = 1 - uprob($z_score_of_b);
 		}
 	} else {
-		my $z_score_of_a = ($a - $mean)/$deviation;
-		if ( $b eq 'infty' or '-infty') {
+		my $z_score_of_a = ( $a - $mean ) / $deviation;
+		if ( $b eq 'infty' or $b eq '-infty' ) {
 			$prob = uprob($z_score_of_a);
 		} else {
             my $z_score_of_b = ( $b - $mean ) / $deviation;
