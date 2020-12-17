@@ -31,7 +31,7 @@ sub _parserMultiPart_init {}
 loadMacros("parserMultiAnswer.pl");
 sub MultiPart {
   warn "The MultiPart object has been deprecated.${BR}You should use MultiAnswer object instead";
-  MultiAnswer->new(@_);
+  parser::MultiAnswer->new(@_);
 }
 
 
