@@ -1725,6 +1725,7 @@ sub cmp_postfilter {
   $ans->{_filter_name} = "produce_equivalence_message";
   return $ans if $ans->{ans_message}; # don't overwrite other messages
   return $ans unless defined($ans->{prev_ans}); # if prefilters are erased, don't do this check
+  return $ans if ($ans->{bypass_equivalence_test});
   my $context = $self->context;
   Parser::Context->current(undef,$context);
   $ans->{prev_formula} = Parser::Formula($ans->{prev_ans});
