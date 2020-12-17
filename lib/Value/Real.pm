@@ -136,7 +136,7 @@ sub compare {
       # convert tolerance values meant for relative to a digits tolerance
       $tolerance = -log($tolerance)/log(10) if ($tolerance > 0 and $tolerance < 1);
       # make sure nonsensical tolerances are converted to a natural number
-      $tolerance = (1 > int($tolerance)) ? 1 : int($tolerance);
+      $tolerance = (1 > int($tolerance)) ? 1 : int($tolerance + 0.5);
       my $order = int(log(abs($a))/log(10)); $order-- if (abs($a) < 1 ); # act as floor
       # compare $a to $b at deeper tolerances than just $tolerance
       # for example to detect that 3.1419926 is not pi, even when $tolerance is 3
