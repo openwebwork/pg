@@ -1415,10 +1415,10 @@ a hard copy output.
 =cut
 
 
-#sub M3 {
-#	my($tex,$l2h,$html) = @_;
-#	MODES(TeX => $tex, Latex2HTML => $l2h, HTML => $html, HTML_tth => $html, HTML_dpng => $html);
-#}
+sub M3 {
+	my($tex,$l2h,$html) = @_;
+	MODES(TeX => $tex, Latex2HTML => $l2h, HTML => $html, HTML_tth => $html, HTML_dpng => $html);
+}
 
 # MODES() is now table driven
 our %DISPLAY_MODE_FAILOVER = (
