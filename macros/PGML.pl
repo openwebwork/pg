@@ -274,7 +274,7 @@ sub ForceBreak {
 
 sub Par {
   my $self = shift; my $token = shift;
-  $self->End("null", shift);
+  $self->End(undef, shift);
   $self->Item("par",$token,{noIndent => 1});
   $self->{atLineStart} = $self->{ignoreNL} = 1;
   $self->{indent} = $self->{actualIndent} = 0;
