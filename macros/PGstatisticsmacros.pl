@@ -45,17 +45,27 @@ sub normal_prob {
 	}
 
 	my $prob;
-	if ( $a eq '-infty' ) {
-		if ( $b eq 'infty' or $b eq '-infty' ) {
-			$prob = ($b eq 'infty') ? 1 : 0; # did you really need us to tell you that?
+	if ( $a =~ /^-(?:inf|infty|infinity)$/i ) {
+		if ( $b =~ /^[+-]?(?:inf|infty|infinity)$/i ) {
+			$prob = ($b =~ /-/) ? 0 : 1; # did you really need us to tell you that?
 		} else {
 			my $z_score_of_b = ( $b - $mean ) / $deviation;
 			$prob = 1 - uprob($z_score_of_b);
 		}
+	} elsif ( $a =~ /^\+?(?:inf|infty|infinity)$/i ) {
+		if ( $b =~ /^\+?(?:inf|infty|infinity)$/i ) {
+			$prob = 0;
+		} else {
+			warn 'normal_prob requires a <= b, please check your inputs.';
+			return;
+		}
 	} else {
 		my $z_score_of_a = ( $a - $mean ) / $deviation;
-		if ( $b eq 'infty' or $b eq '-infty' ) {
+		if ( $b =~ /^\+?(?:inf|infty|infinity)$/i ) {
 			$prob = uprob($z_score_of_a);
+		} elsif ( $b =~ /^-(?:inf|infty|infinity)$/i || $a >= $b ) {
+			warn 'normal_prob requires a <= b, please check your inputs.';
+			return;
 		} else {
             my $z_score_of_b = ( $b - $mean ) / $deviation;
 			$prob = uprob($z_score_of_a) - uprob($z_score_of_b);
@@ -93,8 +103,8 @@ sub normal_distr {
 		warn 'Deviation must be a positive number.';
 		return;
 	}
-	if ($mean < 0 || $mean > 0.5) {
-		warn 'Probability must be between 0 and 0.5.';
+	if ($prob < 0 || $prob >= 0.5) {
+		warn 'Probability must be non-negative and strictly less than 0.5';
 		return;
 	}
 
