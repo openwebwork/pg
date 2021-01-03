@@ -254,44 +254,82 @@ sub _eval {
   return $I;
 }
 
+sub Infinity {
+  my $self = shift;
+  $self->Package("Infinity")->new($self->context);
+}
+
+sub checkInfinity {
+  my ($self, $x, $a, $I, $msg) = @_;
+  $self->Error("%s can't be $msg %s", $x->{name}, $I) if $a == $I;
+}
+
 sub evalLessThan {
   my ($self,$a,$b) = @_; my $context = $self->context;
-  my $I = Value::Infinity->new($context);
-  return $self->Package("Interval")->new($context,'(',-$I,$b,')') if $self->{varPos} eq 'lop';
-  return $self->Package("Interval")->new($context,'(',$a,$I,')');
+  my $I = $self->Infinity;
+  if ($self->{varPos} eq 'lop') {
+    $self->checkInfinity($a, $b, -$I, "less than");
+    return $self->Package("Interval")->new($context,'(',-$I,$b,')');
+  } else {
+    $self->checkInfinity($b, $a, $I, "greater than");
+    return $self->Package("Interval")->new($context,'(',$a,$I,')');
+  }
 }
 
 sub evalGreaterThan {
   my ($self,$a,$b) = @_; my $context = $self->context;
-  my $I = Value::Infinity->new;
-  return $self->Package("Interval")->new($context,'(',$b,$I,')')->with(reversed=>1) if $self->{varPos} eq 'lop';
-  return $self->Package("Interval")->new($context,'(',-$I,$a,')')->with(reversed=>1);
+  my $I = $self->Infinity;
+  if ($self->{varPos} eq 'lop') {
+    $self->checkInfinity($a, $b, $I, "greater than");
+    return $self->Package("Interval")->new($context,'(',$b,$I,')')->with(reversed=>1);
+  } else {
+    $self->checkInfinity($b, $a, -$I, "less than");
+    return $self->Package("Interval")->new($context,'(',-$I,$a,')')->with(reversed=>1);
+  }
 }
 
 sub evalLessThanOrEqualTo {
   my ($self,$a,$b) = @_; my $context = $self->context;
-  my $I = Value::Infinity->new;
-  return $self->Package("Interval")->new($context,'(',-$I,$b,']') if $self->{varPos} eq 'lop';
-  return $self->Package("Interval")->new($context,'[',$a,$I,')');
+  my $I = $self->Infinity;
+  if ($self->{varPos} eq 'lop') {
+    $self->checkInfinity($a, $b, $I, "equal to");
+    $self->checkInfinity($a, $b, -$I, "less than or equal to");
+    return $self->Package("Interval")->new($context,'(',-$I,$b,']');
+  } else {
+    $self->checkInfinity($b, $a, -$I, "equal to");
+    $self->checkInfinity($b, $a, $I, "greater than or equal to");
+    return $self->Package("Interval")->new($context,'[',$a,$I,')');
+  }
 }
 
 sub evalGreaterThanOrEqualTo {
   my ($self,$a,$b) = @_; my $context = $self->context;
-  my $I = Value::Infinity->new;
-  return $self->Package("Interval")->new($context,'[',$b,$I,')')->with(reversed=>1) if $self->{varPos} eq 'lop';
-  return $self->Package("Interval")->new($context,'(',-$I,$a,']')->with(reversed=>1);
+  my $I = $self->Infinity;
+  if ($self->{varPos} eq 'lop') {
+    $self->checkInfinity($a, $b, -$I, "equal to");
+    $self->checkInfinity($a, $b, $I, "greater than or equal to");
+    return $self->Package("Interval")->new($context,'[',$b,$I,')')->with(reversed=>1);
+  } else {
+    $self->checkInfinity($b, $a, $I, "equal to");
+    $self->checkInfinity($b, $a, -$I, "less than or equal to");
+    return $self->Package("Interval")->new($context,'(',-$I,$a,']')->with(reversed=>1);
+  }
 }
 
 sub evalEqualTo {
   my ($self,$a,$b) = @_; my $context = $self->context;
-  my $x = ($self->{varPos} eq 'lop' ? $b : $a);
-  return $self->Package("Set")->new($context,$x);
+  my ($x,$v) = ($self->{varPos} eq 'lop' ? ($a, $b) : ($bm, $a));
+  my $I = $self->Infinity;
+  $self->checkInfinity($x, $v, $I, "equal to");
+  $self->checkInfinity($x, $v, -$I, "equal to");
+  return $self->Package("Set")->new($context,$v);
 }
 
 sub evalNotEqualTo {
   my ($self,$a,$b) = @_; my $context = $self->context;
   my $x = ($self->{varPos} eq 'lop' ? $b : $a);
-  my $I = Value::Infinity->new;
+  my $I = $self->Infinity;
+  return $self->Package("Interval")->new($context,'(',-$I,$I,')') if $x == $I || $x == -$I;
   return $self->Package("Union")->new($context,
             $self->Package("Interval")->new($context,'(',-$I,$x,')'),
             $self->Package("Interval")->new($context,'(',$x,$I,')')
