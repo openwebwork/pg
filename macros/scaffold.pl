@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 20014 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 20014 The WeBWorK Project, http://openwebwork.sf.net/
 # $$
 # 
 # This program is free software; you can redistribute it and/or modify it under
@@ -804,6 +804,12 @@ $.fn.canopen = function() {
          .toggleClass("ui-accordion-header-active ui-state-active ui-state-default ui-corner-bottom")
          .find("> .ui-icon").toggleClass("ui-icon-triangle-1-e ui-icon-triangle-1-s").end()
          .next().slideToggle();
+       // Reflow MathQuill answer boxes so that their contents are rendered correctly
+       if ('answerQuills' in window) {
+           Object.keys(answerQuills).forEach(
+               function(key, index) { answerQuills[key].mathField.reflow(); }
+           );
+       }
      }
      return false;
    })
