@@ -1,7 +1,4 @@
 
-# Some subroutines here use the romberg() function from PGnumericalmacros.pl
-loadMacros('PGnumericalmacros.pl');
-
 sub _PGstatisticsmacros_init {
 		foreach my $t (@Distributions::EXPORT_OK) {
 				*{$t} = *{"Distributions::$t"}
@@ -25,15 +22,12 @@ sub _PGstatisticsmacros_init {
 Computes the probability of x being in the interval (a,b) for normal distribution.
 The first two arguments are required. Use '-infty' for negative infinity, and 'infty' or '+infty' for positive infinity.
 The mean and deviation are optional, and are 0 and 1 respectively by default.
-Load PGnumericalmacros.pl in your problem if you use this method.
 
 =cut
 
 sub normal_prob {
-        warn 'You must also load PGnumericalmacros to use PGstatisticsmacros' unless defined(&_PGnumericalmacros_init);
-
 	my $a = shift;
-    my $b = shift;
+	my $b = shift;
  	my %options=@_;
 
 	my $mean = $options{'mean'} // 0;
@@ -72,7 +66,7 @@ sub normal_prob {
 		}
 	}
 
-    return $prob;
+	return $prob;
 }
 
 =head3 "Inverse" of normal distribution
@@ -86,12 +80,10 @@ is equal to the given probability (first argument). The mean and deviation are
 optional, and are 0 and 1 respectively by default.
 Caution: since students may use tables, they may only be able to provide the answer correct to 2 or 3
 decimal places. Use tolerance when evaluating answers.
-Load PGnumericalmacros.pl if you use this method.
 
 =cut
 
 sub normal_distr {
-	warn 'You must also load PGnumericalmacros to use PGstatisticsmacros' unless defined(&_PGnumericalmacros_init);
 
 	my $prob = shift;
 	my %options=@_;
