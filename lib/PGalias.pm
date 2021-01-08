@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: pg/lib/PGalias.pm,v 1.6 2010/05/15 18:41:23 gage Exp $
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -102,7 +102,8 @@ sub initialize {
 	$self->{externalGif2PngPath} = $envir->{externalGif2PngPath};
 	$self->{courseID}            = $envir->{courseName};
 	$self->{problemSeed}         = $envir->{problemSeed};
-
+	$self->{problemUUID}         = $envir->{problemUUID}//0;
+	
 	$self->{appletPath} = $self->{envir}->{pgDirectories}->{appletPath};
 	#
 	#  Find auxiliary files even when the main file is in tempates/tmpEdit
@@ -117,7 +118,8 @@ sub initialize {
 				  $self->{courseID},
 				  'set'.$self->{setNumber},
 				  'prob'.$self->{probNum},
-				  $self->{problemSeed}
+				  $self->{problemSeed},
+				  $self->{problemUUID},
 				 );
 
 ##################################

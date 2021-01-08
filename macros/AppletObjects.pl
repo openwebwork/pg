@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: pg/macros/AppletObjects.pl,v 1.24 2010/01/03 17:13:46 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under

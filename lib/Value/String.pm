@@ -27,6 +27,14 @@ sub new {
   return $s;
 }
 
+sub make {
+  my $self = shift;
+  my $s = $self->SUPER::make(@_);
+  my $def = $self->context->strings->get($s->{data}[0]);
+  $s->{caseSensitive} = 1 if $def->{caseSensitive};
+  return $s;
+}
+
 #
 #  Return the appropriate data.
 #
@@ -72,7 +80,21 @@ sub compare {
 #
 #  Mark a string to be display verbatim
 #
-sub verb {shift; return "\\verb".chr(0x85).(shift).chr(0x85)}
+sub verb {
+  shift;
+  my $s = shift;
+  $s =~ s/\r/ /g;
+  # different verbatim delimiters because in general 0xD would be nicest,
+  # but browsers want to change that to 0xA
+  # eval() needed because this .pm file loaded outside the safe compartment,
+  # and eval() runs it inside the safe compartment, where problem context is in place.
+  my $d = eval ('main::MODES(HTML => chr(0x1F), TeX => chr(0xD), PTX=> chr(0xD))');
+  return "{\\verb$d$s$d}";
+  # Note this does not handle \n in the input string
+  # A future effort to address that should concurrently
+  # handle it similarly for HTML output.
+  # And something similar should be done for the ArbitraryString context
+}
 
 #
 #  Put normal strings into \text{} and others into \verb

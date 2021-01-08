@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader$
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -395,7 +395,7 @@ sub string {
 #
 sub cmp_preprocess {
   my $self = shift; my $ans = shift;
-  if (defined $ans->{student_value}) {
+  if (defined $ans->{student_value} && $ans->{student_value} ne '') {
     my $label = $self->labelText($ans->{student_value}->value);
     $ans->{preview_latex_string} = $self->quoteTeX($label);
     $ans->{student_ans} = $self->quoteHTML($label);
@@ -559,6 +559,9 @@ sub BUTTONS {
   if ($main::displayMode eq 'PTX') {
     $radio[0] = '<var form="buttons">' . "\n" . $radio[0];
     $radio[$#radio_buttons] .= '</var>';
+    #turn any math delimiters
+    @radio = map {$_ =~ s/\\\(/<m>/g; $_} (@radio);
+    @radio = map {$_ =~ s/\\\)/<\/m>/g; $_} (@radio);
   };
   @radio = $self->makeUncheckable(@radio) if $self->{uncheckable};
   (wantarray) ? @radio : join(($main::displayMode eq 'PTX')?'':$self->{separator}, @radio);

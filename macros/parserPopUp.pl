@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: pg/macros/parserPopUp.pl,v 1.10 2009/06/25 23:28:44 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
@@ -176,8 +176,11 @@ sub MENU {
     $menu = '<var form="popup">' . "\n";
     foreach my $item (@list) {
       $menu .= '<li>';
-      my $cleaned_item = main::PTX_special_character_cleanup($item);
-      $menu .= $cleaned_item . '</li>'. "\n";
+      my $escaped_item = $item;
+      $escaped_item =~ s/&/&amp;/g;
+      $escaped_item =~ s/</&lt;/g;
+      $escaped_item =~ s/>/&gt;/g;
+      $menu .= $escaped_item . '</li>'. "\n";
     }
     $menu .= '</var>';
   } elsif ($main::displayMode eq "TeX") {

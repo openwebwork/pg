@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: pg/macros/parserMultiAnswer.pl,v 1.11 2009/06/25 23:28:44 gage Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
@@ -411,22 +411,20 @@ sub setMessage {
 ######################################################################
 
 #
-#  Produce the name for a named answer blank
-#  (Use the standard name for the first one, and
-#   create the prefixed names for the rest.)
+#  Produce the name for a named answer blank.
+#  (When the singleResult option is true, use the standard name for the first
+#  one, and create the prefixed names for the rest.)
 #
 sub ANS_NAME {
-  my $self = shift; my $i = shift; my $name;
+  my $self = shift; my $i = shift;
+  return $self->{answerNames}{$i} if defined($self->{answerNames}{$i});
   if ($self->{singleResult}) {
-    if (!$self->{id}) {
-      $name = $self->{answerName} = main::NEW_ANS_NAME();
-      $self->{id} = $answerPrefix.$name;
-    }
-    $name = $self->{id}."_".$i unless $i == 0;
+    $self->{answerNames}{0} = main::NEW_ANS_NAME() unless defined($self->{answerNames}{0});
+    $self->{answerNames}{$i} = $answerPrefix.$self->{answerNames}{0}."_".$i unless $i == 0;
   } else {
-    $name = main::NEW_ANS_NAME();
+    $self->{answerNames}{$i} = main::NEW_ANS_NAME();
   }
-  return $name;
+  return $self->{answerNames}{$i};
 }
 
 #
@@ -453,7 +451,7 @@ sub ans_rule {
   if ($self->{singleResult} && $self->{part} > 1) {
   	 my $extension_ans_rule = 
   	 	$data->named_ans_rule_extension(
-  	 	$name,$size, answer_group_name => $self->{answerName}, 
+  	 	$name,$size, answer_group_name => $self->{answerNames}{0},
   	 	@_);
   	 # warn "extension rule created: $extension_ans_rule for ", ref($data);
   	 return $extension_ans_rule; 
@@ -474,12 +472,12 @@ sub ans_array {
   if ($self->{singleResult} && $self->{part} == 1) {
       my $label = main::generate_aria_label($answerPrefix.$name."_0");
       return $data->named_ans_array($name,$size,
-             answer_group_name => $self->{answerName},
+             answer_group_name => $self->{answerNames}{0},
              @_,aria_label=>$label);
   }
   if ($self->{singleResult} && $self->{part} > 1) {
     $HTML = $data->named_ans_array_extension($self->NEW_NAME($name),$size,
-      answer_group_name => $self->{answerName}, @_);
+      answer_group_name => $self->{answerNames}{0}, @_);
     # warn "array extension rule created: $HTML for ", ref($data);
   } else {
     $HTML = $data->named_ans_array($name,$size,@_);

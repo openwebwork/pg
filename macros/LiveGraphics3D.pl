@@ -87,7 +87,7 @@ sub LiveGraphics3D {
     size => [250,250],
     jar => "live.jar", # "${htmlURL}live.jar",
     codebase => findAppletCodebase("live.jar"),
-    # codebase => "http://hosted2.webwork.rochester.edu/webwork2_files/applets/",  # used for testing
+    # codebase => "https://demo.webwork.rochester.edu/webwork2_files/applets/",  # used for testing
     background => "#FFFFFF",
     scale => 1.,
     tex_size => 500,
@@ -156,7 +156,10 @@ sub LiveGraphics3D {
 		    vars : $ind_vars,
     };
 
-    var graph = new LiveGraphics3D(jQuery('#$dom_id').get(0), options);
+    if (typeof LiveGraphics3D !== 'undefined') {
+      var graph = new LiveGraphics3D(jQuery('#$dom_id').get(0), options);
+    }
+
     </script>
 EOS
 

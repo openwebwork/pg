@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader$
 # 
 # This program is free software; you can redistribute it and/or modify it under
@@ -290,7 +290,7 @@ sub lp_current_value {
   		if (defined &Fraction) {
   			return Fraction(0);   # MathObjects version
   		} else {
-  			return new Fraction(0);	# old style Function module version
+  			return Fraction->new(0);	# old style Function module version
   		}
   	} else {
   		return 0;

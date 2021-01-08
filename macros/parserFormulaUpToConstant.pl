@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright © 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: pg/macros/parserFormulaUpToConstant.pl,v 1.23 2010/02/08 13:56:09 dpvc Exp $
 # 
 # This program is free software; you can redistribute it and/or modify it under
@@ -310,6 +310,14 @@ sub cmp_postprocess {
   $self->cmp_Error($ans,"Your answer is not the most general solution") if $result == 1;
   $self->cmp_Error($ans,"Your formula should be linear in the constant '$student->{constant}'")
     if $result == -1 && $self->getFlag("showLinearityHints") && !$student->D($student->{constant})->isConstant;
+}
+
+#
+#  Don't perform equivalence check
+#
+sub cmp_postfilter {
+  my $self = shift;
+  return shift;
 }
 
 ##################################################
