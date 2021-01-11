@@ -22,39 +22,58 @@ PGtikz.pl - Insert images into problems that are generated using LaTeX and TikZ.
 This is a convenience macro for utilizing the TikZImage object to insert TikZ
 images into problems.  Create a TikZ image as follows:
 
-	$image = createTikZImage();
-	$image->tex(<<END_TIKZ);
-	\draw (-2,0) -- (2,0);
-	\draw (0,-2) -- (0,2);
-	\draw (0,0) circle[radius=1.5];
-	END_TIKZ
+    $image = createTikZImage();
+    $image->tex(<<END_TIKZ);
+    \draw (-2,0) -- (2,0);
+    \draw (0,-2) -- (0,2);
+    \draw (0,0) circle[radius=1.5];
+    END_TIKZ
 
 Then insert the image into the problem with
 
-	image(insertGraph($image));
+    image(insertGraph($image));
 
 =head1 DETAILED USAGE
 
 There are several TikZImage parameters that may need to be set for the
 TikZImage object return by createTikZImage to generate the desired image.
 
-	$image->tex()              Add the tikz commands that define the image.
-							   This takes a single string parameter.  It is
-							   generally best to use single quotes around the
-							   string.  Escaping of special characters may be
+    $image->tex()              Add the tikz commands that define the image.
+                               This takes a single string parameter.  It is
+                               generally best to use single quotes around the
+                               string.  Escaping of special characters may be
                                needed in some cases.
 
-	$image->tikzOptions()      Add options that will be passed to
-							   \begin{tikzpicture}.  This takes a single
+    $image->tikzOptions()      Add options that will be passed to
+                               \begin{tikzpicture}.  This takes a single
                                string parameter.
+                               For example:
+                               $image->tikzOptions(
+                                   "x=.5cm,y=.5cm,declare function={f(\x)=sqrt(\x);}"
+                               );
 
-	$image->tikzLibraries()    Add additional tikz libraries to load.  This
+    $image->tikzLibraries()    Add additional tikz libraries to load.  This
                                takes a single string parameter.
+                               For example:
+                               $image->tikzLibraries("arrows.meta,calc");
 
-	$image->ext()              Set the file type to be used for the image.
-							   The valid image types are 'png', 'gif', 'svg',
-							   and 'pdf'.  The default is a 'png' image.  This
-							   macro sets this to 'pdf' when a hardcopy is
+    $image->texPackages()      Add tex packages to load.  This takes a hash for
+                               its parameter.  The keys of this hash are the
+                               package names, and the corresponding values a
+                               string consisting of options for the package.
+                               For example:
+                               $image->texPackages({
+                                   "pgfplots" => "",
+                                   "hf-tikz" => "customcolors"
+                               });
+
+    $image->addToPreamble()    Additional commands to add to the TeX preamble.
+                               This takes a single string parameter.
+
+    $image->ext()              Set the file type to be used for the image.
+                               The valid image types are 'png', 'gif', 'svg',
+                               and 'pdf'.  The default is a 'png' image.  This
+                               macro sets this to 'pdf' when a hardcopy is
                                generated.
 
 =cut
