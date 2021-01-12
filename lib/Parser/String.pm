@@ -21,7 +21,7 @@ sub new {
     $def = $strings->{uc($value)};
     $def = {} if $def->{caseSensitive} && $value ne uc($value);
   }
-  $value = $def->{alias}, $def = $strings->{$value} while defined($def->{alias});
+  ($value, $def) = $equation->{context}->strings->resolve($value);
   my $str = bless {
     value => $value, type => $Value::Type{string}, isConstant => 1,
     def => $def, ref => $ref, equation => $equation,

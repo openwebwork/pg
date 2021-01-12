@@ -31,7 +31,7 @@ sub uncreate {shift; (shift)->{value}}
 #
 sub value {
   my $self = shift; my $x = shift;
-  return $self->{context}{constants}{$x}{value};
+  return $self->{context}->constants->resolveDef($x)->{value};
 }
 
 #########################################################################

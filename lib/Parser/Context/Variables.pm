@@ -64,7 +64,7 @@ sub uncreate {shift; (shift)->{type}};
 #
 sub type {
   my $self = shift; my $x = shift;
-  return $self->{context}{variables}{$x}{type};
+  return $self->{context}->variables->resolveDef($x)->{type};
 }
 
 #
@@ -72,7 +72,7 @@ sub type {
 #
 sub value {
   my $self = shift; my $x = shift;
-  return $self->{context}{variables}{$x}{value};
+  return $self->{context}->variables->resolveDef($x)->{value};
 }
 
 #
@@ -80,8 +80,10 @@ sub value {
 #
 sub variables {
   my $self = shift; my @names;
-  foreach my $x ($self->SUPER::names)
-    {push(@names,$x) unless $self->{context}{variables}{$x}{parameter}}
+  my $vars = $self->{context}{variables};
+  foreach my $x ($self->SUPER::names) {
+    push(@names,$x) unless $vars->{$x}{parameter} || $vars->{$x}{alias};
+  }
   return @names;
 }
 
@@ -90,8 +92,10 @@ sub variables {
 #
 sub parameters {
   my $self = shift; my @names;
-  foreach my $x ($self->SUPER::names)
-    {push(@names,$x) if $self->{context}{variables}{$x}{parameter}}
+  my $vars = $self->{context}{variables};
+  foreach my $x ($self->SUPER::names) {
+    push(@names,$x) if $vars->{$x}{parameter} && !$vars->{$x}{alias};
+  }
   return @names;
 }
 

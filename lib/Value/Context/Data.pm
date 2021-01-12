@@ -17,6 +17,7 @@ sub new {
     tokenType => {},        # type of Parser token for these pattern
     namePattern => '',      # pattern for allowed names for new items
     name => '', Name => '', # lower- and upper-case names for the class of items
+    allowAlias => 1,        # allow entries to use alias property to point to another
   }, $class;
   $data->weaken;
   $data->init();
@@ -89,6 +90,12 @@ sub add {
     warn "$self->{Name} '$x' already exists" if defined($data->{$x});
     $data->{$x} = $self->create($D{$x});
     $self->addToken($x);
+    if (ref($data->{$x}) eq 'HASH' && $data->{$x}{alias}) {
+      Value::Error("Alias not allowed with %s objects",$self->{name}) unless $self->{allowAlias};
+      my $alias = $data->{$x}{alias};
+      Value::Error("Alias '%s' doesn't exist for %s '%s'",$alias,$self->{name},$x)
+          if !(defined($data->{$alias}) || defined($D{$alias}));
+    }
   }
   $self->update;
 }
@@ -190,6 +197,25 @@ sub set {
       $self->addToken($x);
     }
   };
+}
+
+#
+#  Follow aliases to get final definition
+#
+sub resolveDef {
+  my $self = shift;
+  ($self->resolve(@_))[1];
+}
+
+#
+#  Follow aliases to get final name and definition
+#
+sub resolve {
+  my $self = shift; my $name = shift;
+  my $data = $self->{context}{$self->{dataName}};
+  my $def = $data->{$name};
+  $name = $def->{alias}, $def = $data->{$name} if defined($def) && $def->{alias};
+  return ($name, $def);
 }
 
 #

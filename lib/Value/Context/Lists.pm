@@ -12,6 +12,7 @@ sub init {
   $self->{name} = 'list';
   $self->{Name} = 'List';
   $self->{namePattern} = qr/[^\s]+/;
+  $self->{allowAlias} = 0;
 }
 
 sub update {} # no pattern or tokens needed

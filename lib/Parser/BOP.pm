@@ -18,8 +18,8 @@ $Parser::class->{BOP} = 'Parser::BOP';
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $equation = shift; my $context = $equation->{context};
-  my ($bop,$lop,$rop,$ref) = @_;
-  my $def = $context->{operators}{$bop};
+  my ($bop,$lop,$rop,$ref) = @_; my $def;
+  ($bop, $def) = $context->operators->resolve($bop);
   if (!$def->{isComma}) {
     $lop = $self->Item("List",$context)->new($equation,[$lop->makeList],
        $lop->{isConstant},$context->{parens}{start}) if ($lop->type eq 'Comma');
