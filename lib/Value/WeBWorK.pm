@@ -92,6 +92,7 @@ my @wwEvalFields = qw(
   numZeroLevelTolDefault
   useBaseTenLog
   parseAlternatives
+  convertFullWidthCharacters
 );
 
 sub Parser::Context::copy {
@@ -105,13 +106,14 @@ sub Parser::Context::copy {
   return $context if $Value::_no_WeBWorK_; # hack for command-line debugging
   foreach my $x (@wwEvalFields) {$context->{WW}{$x} = $envir->{$x}}
   $context->flags->set(
-     tolerance         => $ww->{numRelPercentTolDefault} / 100,
-     zeroLevel         => $ww->{numZeroLevelDefault},
-     zeroLevelTol      => $ww->{numZeroLevelTolDefault},
-     num_points        => $ww->{functNumOfPoints} + 2,
-     max_adapt         => $ww->{functMaxConstantOfIntegration},
-     useBaseTenLog     => $ww->{useBaseTenLog},
-     parseAlternatives => $ww->{parseAlternatives},
+     tolerance                  => $ww->{numRelPercentTolDefault} / 100,
+     zeroLevel                  => $ww->{numZeroLevelDefault},
+     zeroLevelTol               => $ww->{numZeroLevelTolDefault},
+     num_points                 => $ww->{functNumOfPoints} + 2,
+     max_adapt                  => $ww->{functMaxConstantOfIntegration},
+     useBaseTenLog              => $ww->{useBaseTenLog},
+     parseAlternatives          => $ww->{parseAlternatives},
+     convertFullWidthCharacters => $ww->{convertFullWidthCharacters},
   );
   $context->{format}{number} = $ww->{numFormatDefault} if $ww->{numFormatDefault} ne '';
   $context->update if $context->flag('parseAlternatives',0) != $self->flag('parseAlternatives',0);

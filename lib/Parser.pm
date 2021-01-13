@@ -98,6 +98,7 @@ sub tokenize {
   my $tokenPattern = $self->{context}{pattern}{token};
   my $tokenType = $self->{context}{pattern}{tokenType};
   my @patternType = @{$self->{context}{pattern}{type}};
+  $string =~ tr/\N{U+FF01}-\N{U+FF5E}/\x21-\x7E/ if $self->{context}->flag('convertFullWidthCharacters');
   @{$tokens} = (); $self->{error} = 0;
   $string =~ m/^\s*/gc; my $p0; my $p1;
   while (pos($string) < length($string)) {
