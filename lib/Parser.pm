@@ -106,7 +106,9 @@ sub tokenize {
       foreach my $i (0..$#patternType) {
 	if (defined($match[$i])) {
 	  $p1 = pos($string) = pos($string) + length($match[$i]);
-	  push(@{$tokens},[($patternType[$i]||$tokenType->{$match[$i]}),$match[$i],$p0,$p1,$space]);
+	  my ($class, $id) = ($patternType[$i] || $tokenType->{$match[$i]}, $match[$i]);
+	  ($class,$id) = @$class if ref($class) eq 'ARRAY';
+	  push(@{$tokens},[$class,$id,$p0,$p1,$space]);
 	  last;
 	}
       }
@@ -536,7 +538,7 @@ sub CloseFn {
   my $top = $self->pop->{value}; my $fn = $self->pop;
   my $constant = $top->{isConstant};
   if ($top->{open} && $context->parens->resolveDef($top->{open})->{function} &&
-      $context->parens->resolveDef($top->{open})->{close} eq $top->{close} &&
+      $context->parens->match($top->{open},$top->{close}) &&
       !$context->functions->resolveDef($fn->{name})->{vectorInput})
          {$top = $top->coords} else {$top = [$top]}
   $self->pushOperand($self->Item("Function")->new($self,$fn->{name},$top,$constant,$fn->{ref}));

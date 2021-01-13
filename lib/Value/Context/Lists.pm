@@ -11,7 +11,7 @@ sub init {
   $self->{dataName} = 'lists';
   $self->{name} = 'list';
   $self->{Name} = 'List';
-  $self->{namePattern} = qr/[^\s]+/;
+  $self->{namePattern} = qr/\S+/;
   $self->{allowAlias} = 0;
 }
 

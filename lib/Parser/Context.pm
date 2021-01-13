@@ -36,6 +36,7 @@ sub new {
   $context->{_reduction} = new Parser::Context::Reduction($context,%{$data{reduction}});
   $context->lists->set(%{$data{lists}});
   $context->flags->set(%{$data{flags}});
+  $context->{pattern}{numberPrecedence} = 5;
   $context->{_initialized} = 1;
   $context->update;
   return $context;
@@ -46,7 +47,7 @@ sub new {
 #
 sub update {
   my $self = shift; return unless $self->{_initialized};
-  my @patterns = ([$self->{pattern}{number},-10,'num']);
+  my @patterns = ($self->numberPattern);
   my @tokens;
   foreach my $name (@{$self->{data}{objects}}) {
     my $data = $self->{$name};
@@ -67,6 +68,11 @@ sub update {
   }
   my $pattern = '('.join(')|(',@patterns).')';
   $self->{pattern}{token} = qr/$pattern/;
+}
+
+sub numberPattern {
+  my $self = shift;
+  return [$self->{pattern}{number},$self->{pattern}{numberPrecedence},'num'];
 }
 
 #

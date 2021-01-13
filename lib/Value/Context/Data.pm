@@ -14,7 +14,7 @@ sub new {
     dataName => {},         # name of data storage in context hash
     tokens => {},           # hash of id => type specifications that will be made into a pattern
     patterns => {},         # hash of pattern => [precedence,type] specification for extra patterns
-    tokenType => {},        # type of Parser token for these pattern
+    tokenType => {},        # type of Parser token for these patterns
     namePattern => '',      # pattern for allowed names for new items
     name => '', Name => '', # lower- and upper-case names for the class of items
     allowAlias => 1,        # allow entries to use alias property to point to another
@@ -67,17 +67,37 @@ sub weaken {Scalar::Util::weaken((shift)->{context})}
 #
 sub update {(shift)->{context}->update}
 
+#
+#  Add the token to the tokens list, and add any alternative forms
+#
 sub addToken {
   my $self = shift; my $token = shift;
-  $self->{tokens}{$token} = $self->{tokenType}
-    unless $self->{context}{$self->{dataName}}{$token}{hidden};
+  my $def = $self->{context}{$self->{dataName}}{$token};
+  unless ($def->{hidden}) {
+    $self->{tokens}{$token} = $self->{tokenType};
+    $self->addAlternatives($token,$def->{alternatives});
+  }
+}
+sub addAlternatives {
+  my $self = shift; my $token = shift; my $alternatives = shift || [];
+  foreach my $alt (@$alternatives) {
+    Value::Error("Illegal %s name '%s'",$self->{name},$alt) unless $alt =~ m/^$self->{namePattern}$/;
+    $self->{tokens}{$alt} = [$self->{tokenType},$token];
+  }
 }
 
+#
+#  Remove the token from the tokens list, and any alternative forms
+#
 sub removeToken {
   my $self = shift; my $token = shift;
   delete $self->{tokens}{$token};
+  $self->removeAlternatives($token,$self->{context}{$self->{dataName}}{$token}{alternatives});
 }
-
+sub removeAlternatives {
+  my $self = shift; my $token = shift; my $alternatives = shift || [];
+  foreach my $alt (@$alternatives) {delete  $self->{tokens}{$alt}}
+}
 
 #
 #  Add one or more new items to the list
@@ -188,15 +208,24 @@ sub get {
 sub set {
   my $self = shift; my %D = (@_);
   my $data = $self->{context}{$self->{dataName}};
+  my $update = 0;
   foreach my $x (keys(%D)) {
     my $xref = $data->{$x};
     if (defined($xref) && ref($xref) eq 'HASH') {
-      foreach my $id (keys %{$D{$x}}) {$xref->{$id} = $D{$x}{$id}}
+      foreach my $id (keys %{$D{$x}}) {
+        $xref->{$id} = $D{$x}{$id};
+        if ($id eq 'alternatives' && !$D{$x}{hidden}) {
+          $self->addAlternatives($x, $D{$x}{$id});
+          $update = 1;
+        }
+      }
     } else {
       $data->{$x} = $self->create($D{$x});
       $self->addToken($x);
+      $update = 1;
     }
   };
+  $self->update if $update;
 }
 
 #

@@ -11,7 +11,7 @@ sub init {
   $self->{dataName} = 'functions';
   $self->{name} = 'function';
   $self->{Name} = 'Function';
-  $self->{namePattern} = qr/[a-zA-Z][a-zA-Z0-9]*/;
+  $self->{namePattern} = qr/\w+|\x{221A}/;
   $self->{tokenType} = 'fn';
 }
 

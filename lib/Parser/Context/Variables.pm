@@ -26,14 +26,11 @@ sub init {
   $self->{dataName} = 'variables';
   $self->{name} = 'variable';
   $self->{Name} = 'Variable';
-  $self->{namePattern} = qr/[a-zA-Z][a-zA-Z0-9]*/;
+  $self->{namePattern} = qr/\w+/;
   $self->{tokenType} = 'var';
-  $self->{precedence} = 5;
+  $self->{precedence} = 10;
   $self->{patterns}{$self->{namePattern}} = [$self->{precedence},$self->{tokenType}];
 }
-
-#sub addToken {}    # no tokens needed
-#sub removeToken {}
 
 #
 #  If the type is one of the named ones, use it's known type
