@@ -47,6 +47,7 @@ sub new {
 #
 sub update {
   my $self = shift; return unless $self->{_initialized};
+  my $alternatives = $self->flag('parseAlternatives');
   my @patterns = ($self->numberPattern);
   my @tokens;
   foreach my $name (@{$self->{data}{objects}}) {
@@ -54,9 +55,16 @@ sub update {
     foreach my $pattern (keys %{$data->{patterns}}) {
       my $def = $data->{patterns}{$pattern};
       $def = [$def,$data->{tokenType}] unless ref($def) eq 'ARRAY';
-      push @patterns,[$pattern,@{$def}];
+      push @patterns,[$pattern,@{$def}] if $alternatives || ref($def->[1]) ne 'ARRAY';
     }
-    push @tokens,%{$data->{tokens}};
+    if ($alternatives) {
+      push @tokens,%{$data->{tokens}};
+    } else {
+      foreach my $token (keys %{$data->{tokens}}) {
+        my $value = $data->{tokens}{$token};
+        push @tokens,($token => $value) unless ref($value) eq 'ARRAY';
+      }
+    }
   }
   $self->{pattern}{type} = [];
   $self->{pattern}{tokenType} = {@tokens};
@@ -153,19 +161,16 @@ my $userContext;
 sub current {
   my $self = shift; my $contextTable = shift; my $context = shift;
   if ($contextTable) {$userContext = $contextTable} else {$contextTable = $userContext}
-  if (defined($context)) {
-    if (!ref($context)) {
-      my $name = $context;
-      $context = Parser::Context->getCopy($contextTable,$context);
-      Value::Error("Unknown context '%s'",$name) unless defined($context);
-    }
-    $contextTable->{current} = $context;
-    $Value::context = \$contextTable->{current};
-  } elsif (!defined($contextTable->{current})) {
-    $contextTable->{current} = $Parser::Context::Default::context{Numeric}->copy;
-    $Value::context = \$contextTable->{current};
+  $context = $contextTable->{current} unless defined($context);
+  $context = $Parser::Context::Default::context{Numeric}->copy unless defined($context);
+  if (!ref($context)) {
+    my $name = $context;
+    $context = Parser::Context->getCopy($contextTable,$context);
+    Value::Error("Unknown context '%s'",$name) unless defined($context);
   }
-  return $contextTable->{current};
+  $contextTable->{current} = $context;
+  $Value::context = \$contextTable->{current};
+  return $context;
 }
 
 #
