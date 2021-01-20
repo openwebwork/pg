@@ -318,7 +318,7 @@ sub evalGreaterThanOrEqualTo {
 
 sub evalEqualTo {
   my ($self,$a,$b) = @_; my $context = $self->context;
-  my ($x,$v) = ($self->{varPos} eq 'lop' ? ($a, $b) : ($bm, $a));
+  my ($x,$v) = ($self->{varPos} eq 'lop' ? ($a, $b) : ($b, $a));
   my $I = $self->Infinity;
   $self->checkInfinity($x, $v, $I, "equal to");
   $self->checkInfinity($x, $v, -$I, "equal to");
