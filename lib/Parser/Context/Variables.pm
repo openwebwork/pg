@@ -28,7 +28,7 @@ sub init {
   $self->{Name} = 'Variable';
   $self->{namePattern} = qr/\w+/;
   $self->{tokenType} = 'var';
-  $self->{precedence} = 10;
+  $self->{precedence} = 10;   # generic variable name pattern comes last (after specific names and after numbers)
   $self->{patterns}{$self->{namePattern}} = [$self->{precedence},$self->{tokenType}];
 }
 

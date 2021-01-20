@@ -36,7 +36,7 @@ sub new {
   $context->{_reduction} = new Parser::Context::Reduction($context,%{$data{reduction}});
   $context->lists->set(%{$data{lists}});
   $context->flags->set(%{$data{flags}});
-  $context->{pattern}{numberPrecedence} = 5;
+  $context->{pattern}{numberPrecedence} = 5;  # comes after all specific tokens, and before generic variable pattern
   $context->{_initialized} = 1;
   $context->update;
   return $context;
