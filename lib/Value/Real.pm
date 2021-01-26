@@ -130,9 +130,10 @@ sub compare {
   my ($a,$b) = ($l->{data}[0],$r->{data}[0]);
   if ($self->getFlag('useFuzzyReals')) {
     my $tolerance = $self->getFlag('tolerance');
+    my $zeroLevel = $self->getFlag('zeroLevel');
     if ($self->getFlag('tolType') eq 'digits') {
-      return 0 if ($a == 0 and $b == 0);
-      return $a <=> $b if ($a == 0 or $b == 0);
+      return 0 if (abs($a) < $zeroLevel and abs($b) < $zeroLevel);
+      return $a <=> $b if (abs($a) < $zeroLevel or abs($b) < $zeroLevel);
       # convert tolerance values meant for relative to a digits tolerance
       $tolerance = -log($tolerance)/log(10) if ($tolerance > 0 and $tolerance < 1);
       # make sure nonsensical tolerances are converted to a natural number
