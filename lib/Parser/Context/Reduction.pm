@@ -12,6 +12,7 @@ sub init {
   $self->{name} = 'reduction';
   $self->{Name} = 'Reduction';
   $self->{namePattern} = qr/\S+/;
+  $self->{allowAlias} = 0;
 }
 
 sub update {} # no pattern or tokens needed

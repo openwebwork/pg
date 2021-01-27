@@ -113,7 +113,7 @@ sub Allow {
   my $self = shift || "Value"; my $context = shift || $self->context;
   my $allow = shift; $allow = 1 unless defined($allow);
   if ($allow) {
-    my $prec = $context->{operators}{','}{precedence};
+    my $prec = $context->operators->resolveDef(',')->{precedence};
     $prec = 1 unless defined($prec);
     $context->operators->add(
       '=' => {
