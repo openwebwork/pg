@@ -409,7 +409,7 @@ sub Close {
         my $top = $self->pop->{value}; $self->pop;
         $self->pushOperand(
            $self->Item("List")->new($self,[$top->makeList],$top->{isConstant},
-				     $paren,$top->entryType,$open,$paren->{close}));
+				     $paren,$top->entryType,$open,$type));
       } else {
         my $prev = $self->prev;
         if    ($type eq "start") {$self->Error(["Missing close parenthesis for '%s'",$prev->{value}],$prev->{ref})}
