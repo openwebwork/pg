@@ -73,7 +73,7 @@ sub new {
 
      
 # handle legacy case where AnswerReturn was used
-   unless ($options{ShowAnswerBlank} =~ \S){
+   unless ($options{ShowAnswerBlank} =~ /\S/){
    		if ($options{AnswerReturn} == 0) {
    			$options{ShowAnswerBlank} = 'none';
    		} else {
@@ -126,7 +126,7 @@ sub new {
     if ($recordAnswerBlank eq 'none') {
 		$sage::recordAnswerString = <<EndOfString;
 def record_answer(ansVals):
-    print '';
+    print('');
 EndOfString
 	} else {
 		$sage::recordAnswerString = <<EndOfString;
@@ -186,10 +186,10 @@ SAGE_CODE
 sub sagePrint{ 
   my $self = shift;
   main::TEXT(main::MODES(TeX=>"", HTML=><<"SAGE_PRINT"));
-    <script src="$self->{CellServer}/static/jquery.min.js"></script>
+    <script>var jqSave = \$.noConflict(true);</script>
     <script src="$self->{CellServer}/embedded_sagecell.js"> </script>
     <script>
-      \$(function () {
+      jqSave(function () {
         sagecell.makeSagecell({
            inputLocation:     '#sagecell',
            template:              sagecell.templates.minimal,
@@ -198,6 +198,7 @@ sub sagePrint{
            evalButtonText:    '$self->{ButtonText}'
          });
        });
+       \$ = jQuery = jqSave;
     </script>
 SAGE_PRINT
 }
@@ -244,14 +245,15 @@ package main;
 sub sageCalculatorHeader {
 $CellServer = 'https://sagecell.sagemath.org';
 main::HEADER_TEXT(main::MODES(TeX=>"", HTML=><<"END_OF_FILE"));
-<script src="$CellServer/static/jquery.min.js"></script>
+    <script>var jqSave = \$.noConflict(true);</script>
     <script src="$CellServer/static/embedded_sagecell.js"></script>
-    <script>\$(function () {
+    <script>jqSave(function () {
     // Make *any* div with class 'sage-compute' a Sage cell
     sagecell.makeSagecell({inputLocation: 'div.sage-compute',
                            autoeval: 1,
                            hide: ["permalink"],
                            evalButtonText: 'Evaluate'});
+    \$ = jQuery = jqSave;
     });
     </script>
 END_OF_FILE
