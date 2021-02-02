@@ -1447,9 +1447,11 @@ sub cmp_equal {
   #
   if ($showLengthHints) {
     $value =~ s/( or|,) /s$1 /g; # fix "interval or union"
-    push(@errors,"There should be more ${value}s in your $stype")
+    $value .= "s";
+    $value =~ s/fraction of integerss/fractions of integers/g; # fix "fraction of integerss"
+    push(@errors,"There should be more ${value} in your $stype")
       if ($score < $maxscore && $score == $m);
-    push(@errors,"There should be fewer ${value}s in your $stype")
+    push(@errors,"There should be fewer ${value} in your $stype")
       if ($score < $maxscore && $score == $M && !$showHints);
   }
 
