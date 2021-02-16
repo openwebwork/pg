@@ -54,7 +54,7 @@ $operators = {
            string => ' >< ', TeX => '\times ', perl => 'x', fullparens => 1,
            class => 'Parser::BOP::cross', alternatives => ["\x{00D7}"]},
 
-   '.' => {precedence => 2, associativity => 'left', type => 'bin',
+   '.' => {precedence => 2, associativity => 'left', type => 'bin', patternPrecedence => 8, # after number patter
            string => '.', TeX => '\cdot ', class => 'Parser::BOP::dot', alternatives => ["\x{2219}", "\x{2022}"]},
 
    '*' => {precedence => 3, associativity => 'left', type => 'bin', space => ' *',
