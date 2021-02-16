@@ -74,7 +74,11 @@ sub addToken {
   my $self = shift; my $token = shift;
   my $def = $self->{context}{$self->{dataName}}{$token};
   unless ($def->{hidden}) {
-    $self->{tokens}{$token} = $self->{tokenType};
+    if (defined $def->{patternPrecedence}) {
+      $self->{patterns}{Parser::Context::protectRegexp($token)} = [$def->{patternPrecedence}, $self->{tokenType}];
+    } else {
+      $self->{tokens}{$token} = $self->{tokenType};
+    }
     $self->addAlternatives($token,$def->{alternatives});
   }
 }
@@ -108,6 +112,10 @@ sub add {
   foreach my $x (keys %D) {
     Value::Error("Illegal %s name '%s'",$self->{name},$x) unless $x =~ m/^$self->{namePattern}$/;
     warn "$self->{Name} '$x' already exists" if defined($data->{$x});
+    if ($data->{$x}) {
+      delete $self->{tokens}{$x};
+      delete $self->{patterns}{Parser::Context::protectRegexp($x)};
+    }
     $data->{$x} = $self->create($D{$x});
     $self->addToken($x);
     if (ref($data->{$x}) eq 'HASH' && $data->{$x}{alias}) {
@@ -216,6 +224,11 @@ sub set {
         $xref->{$id} = $D{$x}{$id};
         if ($id eq 'alternatives' && !$D{$x}{hidden}) {
           $self->addAlternatives($x, $D{$x}{$id});
+          $update = 1;
+        }
+        if ($id eq 'patternPrecedence') {
+          delete $self->{tokens}{$x};
+          $self->addToken($x);
           $update = 1;
         }
       }
