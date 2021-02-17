@@ -291,7 +291,8 @@ sub single_check {
       push(@errors,'<TR VALIGN="TOP"><TD STYLE="text-align:right; border:0px" NOWRAP>' .
                    "<I>In answer $i</I>:&nbsp;</TD>".
                    '<TD STYLE="text-align:left; border:0px">'.$result->{ans_message}.'</TD></TR>');
-    } else {$score += $result->{score}}
+    }
+    $score += $result->{score};
   }
   $ans->score($score/$self->length);
   $ans->{ans_message} = $ans->{error_message} = "";
