@@ -1410,19 +1410,13 @@ a hard copy output.
               Latex2HTML => "output this in Latex2HTML mode",
              )
 
-    TEX     (tex_version, html_version) #obsolete
-
     M3      (tex_version, latex2html_version, html_version) #obsolete
 
 =cut
 
-sub TEX {
-	my ($tex, $html ) = @_;
-	MODES(TeX => $tex, HTML => $html, HTML_tth => $html, HTML_dpng => $html);
-}
 
 sub M3 {
-	my($tex, $l2h, $html) = @_;
+	my($tex,$l2h,$html) = @_;
 	MODES(TeX => $tex, Latex2HTML => $l2h, HTML => $html, HTML_tth => $html, HTML_dpng => $html);
 }
 
