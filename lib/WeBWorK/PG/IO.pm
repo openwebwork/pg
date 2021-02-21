@@ -50,6 +50,7 @@ BEGIN {
                 fileFromPath
                 directoryFromPath
                 createDirectory
+				pgVersion
         );
 
 	our %SHARE = map { $_ => __PACKAGE__ } @SHARED_FUNCTIONS;
@@ -507,6 +508,10 @@ END
 		}
 	}
 	return $ret;
+}
+
+sub pgVersion {
+	return $CE->{PG_VERSION};
 }
 
 =back
