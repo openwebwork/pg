@@ -14,8 +14,17 @@
 # Artistic License for more details.
 ################################################################################
 package PGcore;
-
 use strict;
+
+BEGIN {
+    use File::Basename qw(dirname);
+    my $dir = dirname(__FILE__);
+    do "${dir}/../VERSION";
+    warn "Error loading PG VERSION file: $!"    if $!;
+    warn "Error processing PG VERSION file: $@" if $@;
+    $ENV{PG_VERSION} = $PGcore::PG_VERSION || 'unknown';
+}
+
 our $internal_debug_messages = [];
 
 use PGanswergroup;
@@ -78,7 +87,7 @@ sub new {
 		vec_num                   => 0,     # for distinguishing matrices
 		QUIZ_PREFIX               => $envir->{QUIZ_PREFIX},
 		SECTION_PREFIX            => '',  # might be used for sequential (compound) questions?
-		
+		PG_VERSION                => $ENV{PG_VERSION},
 		PG_ACTIVE                 => 1,   # toggle to zero to stop processing
 		submittedAnswers          => 0,   # have any answers been submitted? is this the first time this session?
 		PG_session_persistence_hash =>{}, # stores data from one invoction of the session to the next.
