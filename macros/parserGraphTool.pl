@@ -524,14 +524,14 @@ sub cmp_preprocess {
 		my $graphObjs = @{$self->{staticObjects}} ?
 			join(",", @{$self->{staticObjects}}, $ans->{student_ans}) : $ans->{student_ans};
 
-		# This first ends the attempts table MathJax_Preview script.  Note that the script
-		# started here is ended by the original script end tag for the MathJax_Preview.
+		# This first ends the attempts table MathJax math mode, then injects the jsxgraph div and javascript, and then
+		# starts another MathJax math mode that is ended by the atttempts table.  Both of the MathJax elements are
+		# removed by the injected javascript.
 		$ans->{preview_latex_string} = <<"END_ANS";
-</script>
+\\]
 <div id='${ans_name}_student_ans_graphbox' class='graphtool-answer-container'></div>
 <script>
-jQuery("#${ans_name}_student_ans_graphbox").parent().find('span').remove();
-jQuery("#${ans_name}_student_ans_graphbox").parent().find('script[type^="math/tex"]').remove();
+jQuery("#${ans_name}_student_ans_graphbox").parent().find('mjx-container').remove();
 jQuery(function() {
 	graphTool("${ans_name}_student_ans_graphbox", {
 		staticObjects: "$graphObjs",
@@ -542,6 +542,8 @@ jQuery(function() {
 		JSXGraphOptions: $self->{JSXGraphOptions}
 	});
 });
+</script>
+\\[
 END_ANS
 	}
 }
@@ -560,14 +562,14 @@ sub cmp {
 		my $graphObjs = @{$self->{staticObjects}} ?
 			join(",", @{$self->{staticObjects}}, $cmp->{rh_ans}{correct_ans}) : $cmp->{rh_ans}{correct_ans};
 
-		# This first ends the attempts table MathJax_Preview script.  Note that the script
-		# started here is ended by the original script end tag for the MathJax_Preview.
+		# This first ends the attempts table MathJax math mode, then injects the jsxgraph div and javascript, and then
+		# starts another MathJax math mode that is ended by the atttempts table.  Both of the MathJax elements are
+		# removed by the injected javascript.
 		$cmp->{rh_ans}{correct_ans_latex_string} = << "END_ANS";
-</script>
+\\]
 <div id='${ans_name}_correct_ans_graphbox' class='graphtool-answer-container'></div>
 <script>
-jQuery("#${ans_name}_correct_ans_graphbox").parent().find('span').remove();
-jQuery("#${ans_name}_correct_ans_graphbox").parent().find('script[type^="math/tex"]').remove();
+jQuery("#${ans_name}_correct_ans_graphbox").parent().find('mjx-container').remove();
 jQuery(function() {
 	graphTool("${ans_name}_correct_ans_graphbox", {
 		staticObjects: "$graphObjs",
@@ -578,6 +580,8 @@ jQuery(function() {
 		JSXGraphOptions: $self->{JSXGraphOptions}
 	});
 });
+</script>
+\\[
 END_ANS
 	}
 
