@@ -566,6 +566,12 @@ sub sub {(shift)->apply("sub",@_)}
 sub reduce {(shift)->apply("reduce",@_)}
 sub intersect {(shift)->apply("intersect",@_)}
 
+sub compare {
+  my $self = shift; my $other = shift; my $flag = shift;
+  my $context = $self->context;
+  return Value::_compare($self->demote,$self->demote($other),$flag);
+}
+
 #
 #  The name to use for error messages in answer checkers
 #
