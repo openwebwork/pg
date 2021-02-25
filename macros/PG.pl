@@ -76,39 +76,7 @@ sub DOCUMENT {
 	#use strict;
 	#FIXME
 	# load java script needed for displayModes
-	if ($envir{displayMode} eq 'HTML_MathJax') {
-		TEXT(
-			qq?<script type="text/javascript">
-				if (!window.MathJax) 
-				{
-					window.MathJax = {
-						tex: {
-							autoload: {
-								color: [],
-								colorV2: ['color']
-							},
-							packages: {'[+]': ['noerrors']}
-						},
-						loader: {
-							load: ['input/asciimath', '[tex]/noerrors']
-						},
-						startup: {
-							ready: function() {
-								var AM = MathJax.InputJax.AsciiMath.AM;
-								for (var i = 0; i < AM.symbols.length; i++) {
-									if (AM.symbols[i].input == '**') {
-										AM.symbols[i] = {
-											input: "**", tag: "msup", output: "^", tex: null, ttype: AM.TOKEN.INFIX
-										};
-									}
-								}
-								return MathJax.startup.defaultReady()
-							}
-						}
-					};
-				}
-				</script>?."\n");
-	} elsif ($envir{displayMode} eq 'HTML_jsMath') {
+	if ($envir{displayMode} eq 'HTML_jsMath') {
 		my $prefix = "";
 		if (!$envir{jsMath}{reportMissingFonts}) {
 			$prefix .= '<script>noFontMessage = 1</script>'."\n";
