@@ -18,7 +18,7 @@ sub new {
   my ($value, $ref) = @_;
   my $def = $strings->{$value};
   my $VALUE = uc($value); my $DEF = $strings->{$VALUE};
-  ($value, $def) = ($VALUE, $DEF)  if !$def && $DEF && (!$DEF->{caseSensitive} || $value eq $VALUE);
+  ($value, $def) = ($VALUE, $DEF) if !$def && $DEF && !$DEF->{caseSensitive};
   ($value, $def) = $equation->{context}->strings->resolve($value);
   my $str = bless {
     value => $value, type => $Value::Type{string}, isConstant => 1,
