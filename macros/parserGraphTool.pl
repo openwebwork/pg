@@ -524,14 +524,9 @@ sub cmp_preprocess {
 		my $graphObjs = @{$self->{staticObjects}} ?
 			join(",", @{$self->{staticObjects}}, $ans->{student_ans}) : $ans->{student_ans};
 
-		# This first ends the attempts table MathJax math mode, then injects the jsxgraph div and javascript, and then
-		# starts another MathJax math mode that is ended by the atttempts table.  Both of the MathJax elements are
-		# removed by the injected javascript.
 		$ans->{preview_latex_string} = <<"END_ANS";
-\\]
 <div id='${ans_name}_student_ans_graphbox' class='graphtool-answer-container'></div>
 <script>
-jQuery("#${ans_name}_student_ans_graphbox").parent().find('mjx-container').remove();
 jQuery(function() {
 	graphTool("${ans_name}_student_ans_graphbox", {
 		staticObjects: "$graphObjs",
@@ -543,7 +538,6 @@ jQuery(function() {
 	});
 });
 </script>
-\\[
 END_ANS
 	}
 }
@@ -554,7 +548,7 @@ END_ANS
 # displayed in the "Correct Answer" box of the results table.
 sub cmp {
 	my $self = shift;
-	my $cmp = $self->SUPER::cmp(%{$self->{cmpOptions}}, @_);
+	my $cmp = $self->SUPER::cmp(non_tex_preview => 1, %{$self->{cmpOptions}}, @_);
 
 	if ($main::displayMode ne 'TeX') {
 		my $ans_name = $self->ANS_NAME;
@@ -562,14 +556,9 @@ sub cmp {
 		my $graphObjs = @{$self->{staticObjects}} ?
 			join(",", @{$self->{staticObjects}}, $cmp->{rh_ans}{correct_ans}) : $cmp->{rh_ans}{correct_ans};
 
-		# This first ends the attempts table MathJax math mode, then injects the jsxgraph div and javascript, and then
-		# starts another MathJax math mode that is ended by the atttempts table.  Both of the MathJax elements are
-		# removed by the injected javascript.
 		$cmp->{rh_ans}{correct_ans_latex_string} = << "END_ANS";
-\\]
 <div id='${ans_name}_correct_ans_graphbox' class='graphtool-answer-container'></div>
 <script>
-jQuery("#${ans_name}_correct_ans_graphbox").parent().find('mjx-container').remove();
 jQuery(function() {
 	graphTool("${ans_name}_correct_ans_graphbox", {
 		staticObjects: "$graphObjs",
@@ -581,7 +570,6 @@ jQuery(function() {
 	});
 });
 </script>
-\\[
 END_ANS
 	}
 
