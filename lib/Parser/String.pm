@@ -17,12 +17,9 @@ sub new {
   my $equation = shift; my $strings = $equation->{context}{strings};
   my ($value, $ref) = @_;
   my $def = $strings->{$value};
-  my $VALUE = uc($value);
-  unless ($def) {
-    $def = $strings->{$VALUE};
-    $def = {}, $VALUE = $value if $def->{caseSensitive} && $value ne $VALUE;
-  }
-  ($value, $def) = $equation->{context}->strings->resolve($VALUE);
+  my $VALUE = uc($value); my $DEF = $strings->{$VALUE};
+  ($value, $def) = ($VALUE, $DEF)  if !$def && $DEF && (!$DEF->{caseSensitive} || $value eq $VALUE);
+  ($value, $def) = $equation->{context}->strings->resolve($value);
   my $str = bless {
     value => $value, type => $Value::Type{string}, isConstant => 1,
     def => $def, ref => $ref, equation => $equation,
