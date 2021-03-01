@@ -1733,7 +1733,8 @@ sub cmp_postfilter {
     my $prev = eval {$self->promote($ans->{prev_formula})->inherit($self)}; # inherit limits, etc.
     next unless defined($prev);
     $context->{answerHash} = $ans; # values here can override context flags
-    $ans->{prev_equals_current} = Value::cmp_compare($prev,$ans->{student_formula},$ans);
+    $ans->{prev_equals_current} = $prev->typeMatch($ans->{student_formula})
+      && Value::cmp_compare($prev,$ans->{student_formula},$ans);
     $context->{answerHash} = undef;
     if (   !$ans->{isPreview}                                 # not preview mode
 	and $ans->{prev_equals_current}                       # equivalent
