@@ -115,7 +115,7 @@ sub Init {
      },
 
      "in " => {
-        precedence => .35, asscoiativity => 'right', type => 'binary',
+        precedence => .35, associativity => 'right', type => 'binary',
         string => ' in ', TeX => '\in ', class => 'PiecewiseFunction::BOP::in',
      },
   );
