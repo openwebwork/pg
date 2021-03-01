@@ -1521,7 +1521,10 @@ sub cmp_list_compare {
     #
     if ($ordered) {
       if (scalar(@correct)) {
-	if (shift(@correct)->cmp_compare($entry,$ans,$nth,$value)) {$score++; next ENTRY}
+	my $correct = shift(@correct);
+	if ($correct->typeMatch($entry) && $correct->cmp_compare($entry,$ans,$nth,$value)) {
+          $score++; next ENTRY;
+        }
       } else {
 	# do syntax check
 	if (ref($extra) eq 'CODE') {&$extra($entry,$ans,$nth,$value)}
@@ -1530,7 +1533,7 @@ sub cmp_list_compare {
       if ($error->{flag} == $CMP_ERROR) {$self->cmp_error($ans); return}
     } else {
       foreach my $k (0..$#correct) {
-	if ($correct[$k]->cmp_compare($entry,$ans,$nth,$value)) {
+	if ($correct[$k]->typeMatch($entry) && $correct[$k]->cmp_compare($entry,$ans,$nth,$value)) {
 	  splice(@correct,$k,1);
 	  $score++; next ENTRY;
 	}
