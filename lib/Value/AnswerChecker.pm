@@ -1734,7 +1734,7 @@ sub cmp_postfilter {
     next unless defined($prev);
     $context->{answerHash} = $ans; # values here can override context flags
     $ans->{prev_equals_current} = $prev->typeMatch($ans->{student_formula})
-      && Value::cmp_compare($prev,$ans->{student_formula},$ans);
+      && $prev->cmp_compare($ans->{student_formula},$ans);
     $context->{answerHash} = undef;
     if (   !$ans->{isPreview}                                 # not preview mode
 	and $ans->{prev_equals_current}                       # equivalent
