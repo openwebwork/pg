@@ -256,7 +256,7 @@ sub resolve {
   my $self = shift; my $name = shift;
   my $data = $self->{context}{$self->{dataName}};
   my $def = $data->{$name};
-  $name = $def->{alias}, $def = $data->{$name} if defined($def) && $def->{alias};
+  $name = $def->{alias}, $def = $data->{$name} while defined($def) && $def->{alias};
   return ($name, $def);
 }
 
