@@ -51,9 +51,9 @@ sub DOCUMENT {
 	$solutionExists        		= $PG->{flags}->{solutionExists};
 	$hintExists            		= $PG->{flags}->{hintExists};
 	$pgComment                  = '';
-	%external_refs         		= %{ $PG->{external_refs}};
+	# %external_refs         		= %{ $PG->{external_refs}};
 	
-	@KEPT_EXTRA_ANSWERS =();   #temporary hack
+	$PG->{flags}{KEPT_EXTRA_ANSWERS} = [];
 	
 	my %envir              =   %$rh_envir;
 	# Save the file name for use in error messages
@@ -105,7 +105,8 @@ sub DOCUMENT {
 
 }
 $main::displayMode = $PG->{displayMode};
-$main::PG = $PG;
+# TODO: check what happens in ww2 if this is removed...
+$main::PG = $PG; # unnecessary? this macro is loaded in safe, so this is redundant
 sub TEXT {
 	 $PG->TEXT(@_) ;
 }
@@ -272,7 +273,7 @@ sub RECORD_FORM_LABEL {              # this stores form data (such as sticky ans
 sub RECORD_EXTRA_ANSWERS {                                     
 	return "" if $PG_STOP_FLAG;
 	my $label   = shift;             # the label of the input box or textarea
-    eval(q!push(@main::KEPT_EXTRA_ANSWERS, $label)!); #put the labels into the hash to be caught later for recording purposes
+    push( @{ $PG->{flags}{KEPT_EXTRA_ANSWERS} }, $label ); #put the labels into the hash to be caught later for recording purposes
     $label;
 
 }
@@ -427,7 +428,6 @@ sub ENDDOCUMENT {
     
 	
 	
-	@PG_ANSWERS=();
 	if ( 0 or # allow one to force debug output  manually
 		($inputs_ref->{showResourceInfo})//'' and ($rh_envir->{permissionLevel})>= 5) {
 		my %resources = %{$PG->{PG_alias}->{resource_list}};
@@ -459,10 +459,10 @@ sub ENDDOCUMENT {
 
 
 	#warn keys %{ $PG->{PG_ANSWERS_HASH} };
-	@PG_ANSWER_ENTRY_ORDER = ();
+	$PG->{flags}{ANSWER_ENTRY_ORDER} = [];
 	my $ans_debug = 0;
 	foreach my $key (keys %{ $PG->{PG_ANSWERS_HASH} }) {
-	        $answergroup = $PG->{PG_ANSWERS_HASH}->{$key};
+	        my $answergroup = $PG->{PG_ANSWERS_HASH}->{$key};
 	        #warn "$key is defined =", defined($answergroup), "PG object is $PG";
 	        #################
 	        # EXTRA ANSWERS KLUDGE
@@ -490,25 +490,22 @@ sub ENDDOCUMENT {
 	            # this is because a response key might indicate an array but an answer label won't
 	            #push @PG_ANSWERS, $response_key,$answergroup->{ans_eval};
 	            $PG_ANSWERS_HASH{$answer_key} = $answergroup->{ans_eval};
-	            push @PG_ANSWER_ENTRY_ORDER, $answer_key;
+	            push @{$PG->{flags}{ANSWER_ENTRY_ORDER}}, $answer_key;
 	            # @KEPT_EXTRA_ANSWERS could be replaced by saving all of the responses for this answergroup 
-	            push @KEPT_EXTRA_ANSWERS, @response_keys;
+	            push @{$PG->{flags}{KEPT_EXTRA_ANSWERS}}, @response_keys;
 			} else {
 			    warn "$key is ", join("|",%{$PG->{PG_ANSWERS_HASH}->{$key}});
 			}
 	}
-	push @KEPT_EXTRA_ANSWERS, keys %{$PG->{PERSISTENCE_HASH}};
-	#Hackish way to store other persistence data
-	$PG->{flags}->{KEPT_EXTRA_ANSWERS} = \@KEPT_EXTRA_ANSWERS;
-	$PG->{flags}->{ANSWER_ENTRY_ORDER} = \@PG_ANSWER_ENTRY_ORDER;
+	push @{$PG->{flags}{KEPT_EXTRA_ANSWERS}}, keys %{$PG->{PERSISTENCE_HASH}};
 	
 	# these should not be needed any longer since PG_alias warning queue is attached to PGcore's
 	# $PG->warning_message( @{ $PG->{PG_alias}->{flags}->{WARNING_messages}} );
 	# $PG->debug_message( @{ $PG->{PG_alias}->{flags}->{DEBUG_messages}}   );
 	
 	
-    warn "KEPT_EXTRA_ANSWERS", join(" ", @KEPT_EXTRA_ANSWERS), $BR     if $ans_debug==1;
-    warn "PG_ANSWER_ENTRY_ORDER",join(" ",@PG_ANSWER_ENTRY_ORDER), $BR if $ans_debug==1;
+    warn "KEPT_EXTRA_ANSWERS", join(" ", @{$PG->{flags}{KEPT_EXTRA_ANSWERS}}), $BR    if $ans_debug==1;
+    warn "PG_ANSWER_ENTRY_ORDER",join(" ",@{$PG->{flags}{ANSWER_ENTRY_ORDER}}), $BR   if $ans_debug==1;
     # not needed for the moment:
     # warn "DEBUG messages", join( "$BR",@{$PG->get_debug_messages} ) if $ans_debug==1;
     warn "INTERNAL_DEBUG messages", join( "$BR",@{$PG->get_internal_debug_messages} ) if $ans_debug==1;
