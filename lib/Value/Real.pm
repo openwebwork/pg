@@ -155,7 +155,6 @@ sub compare {
       return 0;
     }
     if ($self->getFlag('tolType') eq 'relative') {
-      my $zeroLevel = $self->getFlag('zeroLevel');
       if (CORE::abs($a) < $zeroLevel || CORE::abs($b) < $zeroLevel) {
 	$tolerance = $self->getFlag('zeroLevelTol');
       } else {
