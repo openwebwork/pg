@@ -1410,19 +1410,13 @@ a hard copy output.
               Latex2HTML => "output this in Latex2HTML mode",
              )
 
-    TEX     (tex_version, html_version) #obsolete
-
     M3      (tex_version, latex2html_version, html_version) #obsolete
 
 =cut
 
-sub TEX {
-	my ($tex, $html ) = @_;
-	MODES(TeX => $tex, HTML => $html, HTML_tth => $html, HTML_dpng => $html);
-}
 
 sub M3 {
-	my($tex, $l2h, $html) = @_;
+	my($tex,$l2h,$html) = @_;
 	MODES(TeX => $tex, Latex2HTML => $l2h, HTML => $html, HTML_tth => $html, HTML_dpng => $html);
 }
 
@@ -1540,10 +1534,10 @@ sub BR { MODES( TeX => '\\leavevmode\\\\\\relax ', Latex2HTML => '\\begin{rawhtm
 sub BRBR { MODES( TeX => '\\leavevmode\\\\\\relax \\leavevmode\\\\\\relax ', Latex2HTML => '\\begin{rawhtml}<BR><BR>\\end{rawhtml}', HTML => '<P>', PTX => "\n"); };
 sub LQ { MODES( TeX => "\\lq\\lq{}", Latex2HTML =>   '"',  HTML =>  '&quot;', PTX => '<lq/>' ); };
 sub RQ { MODES( TeX => "\\rq\\rq{}", Latex2HTML =>   '"',   HTML =>  '&quot;', PTX => '<rq/>' ); };
-sub BM { MODES(TeX => '\\(', Latex2HTML => '\\(', HTML =>  '', PTX => '<m>'); };  # begin math mode
-sub EM { MODES(TeX => '\\)', Latex2HTML => '\\)', HTML => '', PTX => '</m>'); };  # end math mode
-sub BDM { MODES(TeX => '\\[', Latex2HTML =>   '\\[', HTML =>   '<P ALIGN=CENTER>', PTX => '<me>'); };  #begin displayMath mode
-sub EDM { MODES(TeX => '\\]',  Latex2HTML =>  '\\]', HTML => '</P>', PTX => '</me>'); };              #end displayMath mode
+sub BM { MODES(TeX => '\\(', Latex2HTML => '\\(', HTML_MathJax => '\\(', HTML =>  '', PTX => '<m>'); };  # begin math mode
+sub EM { MODES(TeX => '\\)', Latex2HTML => '\\)', HTML_MathJax => '\\)', HTML => '', PTX => '</m>'); };  # end math mode
+sub BDM { MODES(TeX => '\\[', Latex2HTML =>   '\\[', HTML_MathJax => '\\[', HTML =>   '<P ALIGN=CENTER>', PTX => '<me>'); };  #begin displayMath mode
+sub EDM { MODES(TeX => '\\]',  Latex2HTML =>  '\\]', HTML_MathJax => '\\]', HTML => '</P>', PTX => '</me>'); };              #end displayMath mode
 sub LTS { MODES(TeX => '<', Latex2HTML => '\\lt ', HTML => '&lt;', HTML_tth => '<', PTX => '\lt' ); };  #only for use in math mode
 sub GTS { MODES(TeX => '>', Latex2HTML => '\\gt ', HTML => '&gt;', HTML_tth => '>', PTX => '\gt' ); };  #only for use in math mode
 sub LTE { MODES(TeX => '\\le ', Latex2HTML => '\\le ', HTML => '<U>&lt;</U>', HTML_tth => '\\le ', PTX => '\leq' ); };  #only for use in math mode
@@ -2116,8 +2110,7 @@ sub general_math_ev3 {
 
 	my $out;
 	if($displayMode eq "HTML_MathJax") {
-		$out = '<span class="MathJax_Preview">[math]</span><script type="math/tex">'.$in.'</script>' if $mode eq "inline";
-		$out = '<span class="MathJax_Preview">[math]</span><script type="math/tex; mode=display">'.$in.'</script>' if $mode eq "display";
+		$out = '<span>'.$in_delim.'</span>';
 	} elsif ($displayMode eq "HTML_dpng" ) {
 		# for jj's version of ImageGenerator
 		#$out = $envir->{'imagegen'}->add($in_delim);
