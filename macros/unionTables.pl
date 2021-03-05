@@ -59,7 +59,7 @@ sub ColumnTable {
            '\medskip\hbox{\qquad\vtop{'.
            '\advance\hsize by -3em '.$col2.'}}\medskip',
     HTML => $HTMLtable,
-    PTX => qq!\n<sidebyside>\n<tabular valign="! . lc($valign) . qq!">\n<row>\n<cell>$col1</cell>\n<cell>$col2</cell>\n</row>\n</tabular>\n</sidebyside>\n!,
+    PTX => qq!\n<tabular valign="! . lc($valign) . qq!">\n<row>\n<cell>$col1</cell>\n<cell>$col2</cell>\n</row>\n</tabular>\n!,
 
   );
 }
@@ -121,7 +121,7 @@ sub BeginTable {
     TeX => '\par\medskip'.$tcenter.'{\kern '.$tbd.
            '\vbox{\halign{#\hfil&&\kern '.$tsp.' #\hfil',
     HTML => $table."\n",
-    PTX => qq!\n<sidebyside>\n<tabular top="$ptxborder" bottom="$ptxborder" left="$ptxborder" right="$ptxborder">\n!,
+    PTX => qq!\n<tabular top="$ptxborder" bottom="$ptxborder" left="$ptxborder" right="$ptxborder">\n!,
   );
 }
 
@@ -143,7 +143,7 @@ sub EndTable {
   MODES(
     TeX => '\cr}}\kern '.$tbd.'}\medskip'."\n",
     HTML => '</TABLE>'."\n",
-    PTX => "\n</tabular>\n</sidebyside>\n",
+    PTX => "\n</tabular>\n",
   );
 }
 
