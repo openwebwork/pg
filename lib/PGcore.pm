@@ -86,7 +86,6 @@ sub new {
 		ARRAY_PREFIX              => 'ArRaY',
 		vec_num                   => 0,     # for distinguishing matrices
 		QUIZ_PREFIX               => $envir->{QUIZ_PREFIX},
-		SECTION_PREFIX            => '',  # might be used for sequential (compound) questions?
 		PG_VERSION                => $ENV{PG_VERSION},
 		PG_ACTIVE                 => 1,   # toggle to zero to stop processing
 		submittedAnswers          => 0,   # have any answers been submitted? is this the first time this session?
@@ -335,7 +334,6 @@ sub LABELED_ANS{
   my @in = @_;
   while (@in ) {
   	my $label    = shift @in;
-  	#$label       = join("", $self->{QUIZ_PREFIX}, $self->{SECTION_PREFIX}, $label);
   	my $ans_eval = shift @in;
   	$self->warning_message("<BR><B>Error in LABELED_ANS:|$label|</B>
   	      -- inputs must be references to AnswerEvaluator objects or subroutines<BR>")

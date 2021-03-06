@@ -176,12 +176,16 @@ sub SET_PROBLEM_TEXTDIRECTION {
 # Request that the problem HTML page also include additional CSS files
 # from the webwork2/htdocs/css/ directory.
 sub ADD_CSS_FILE {
-  my $file = shift ;
-  if ( !defined( $PG->{flags}{extra_css_files} ) ) {
-    $PG->{flags}{extra_css_files} = [ "$file" ];
-  } else {
-    push( @{$PG->{flags}{extra_css_files}}, $file );
-  }
+  my $file = shift;
+  push(@{$PG->{flags}{extra_css_files}}, $file);
+}
+
+# Request that the problem HTML page also include additional JS files.
+# If local is 1 the given file name will be prefixed with the webwork2/htdocs/js/ directory,
+# otherwise it is assumed the full url is provided.
+sub ADD_JS_FILE {
+	my ($file, $local) = @_;
+	push(@{$PG->{flags}{extra_js_files}}, { file => $file, local => $local });
 }
 
 sub AskSage {
@@ -202,10 +206,8 @@ sub sageReturnedFail {
 sub LABELED_ANS {
   my @in = @_;
   my @out = ();
-  #prepend labels with the quiz and section prefixes.
   while (@in ) {
   	my $label    = shift @in;
-  	$label       = join("", $PG->{QUIZ_PREFIX}, $PG->{SECTION_PREFIX}, $label);
   	$ans_eval = shift @in;
   	push @out, $label, $ans_eval;
   }
