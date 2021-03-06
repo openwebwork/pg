@@ -1222,9 +1222,9 @@ sub solution {
 	PG_restricted_eval(q!$main::solutionExists = 1!); # set solution exists variable.--don't need PGeval??
 
 	if ($printSolutionForInstructor) { # always print solutions for instructor types
-		$out = join(' ', $BITALIC, "(",
+		$out = join('', $BITALIC, "(",
 			maketext("Instructor solution preview: show the student solution after due date."),
-			" )$BR", $EITALIC, @in);
+			")", $EITALIC, $displayMode =~ /TeX/ ? "\\par\\medskip" : $BR, @in);
 	} elsif ($displaySolution) {
 		$out = join(' ', @in); # display solution
 	}
@@ -1232,21 +1232,24 @@ sub solution {
 }
 
 sub SOLUTION {
+	my $solution_body = solution(@_);
+	return "" if $solution_body eq "";
+
 	if ($displayMode =~/HTML/ and $envir->{use_knowls_for_solutions}) {
-		TEXT($PAR, knowlLink(SOLUTION_HEADING(), value => escapeSolutionHTML($BR . solution(@_) . $PAR ),
-				base64 => 1)) if solution(@_);
+		TEXT($PAR, knowlLink(SOLUTION_HEADING(), value => escapeSolutionHTML("$BR$solution_body$PAR"),
+				base64 => 1));
 	} elsif ($displayMode =~ /TeX/) {
 		TEXT(
 			"\n%%% BEGIN SOLUTION\n", #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
-			$PAR, SOLUTION_HEADING(), solution(@_).$PAR,
+			$PAR, "\\medskip", SOLUTION_HEADING(), $solution_body, $PAR,
 			"\n%%% END SOLUTION\n"    #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
-		) if solution(@_) ;
+		);
 	} elsif ($displayMode =~ /HTML/) {
-		TEXT($PAR.SOLUTION_HEADING().$BR.solution(@_).$PAR) if solution(@_) ;
+		TEXT($PAR, SOLUTION_HEADING(), $BR, $solution_body, $PAR);
 	} elsif ($displayMode =~ /PTX/) {
-		TEXT('<solution>', "\n", solution(@_), "\n", '</solution>', "\n\n") if solution(@_) ;
+		TEXT('<solution>', "\n", $solution_body, "\n", '</solution>', "\n\n");
 	} else {
-		TEXT($PAR.solution(@_).$PAR) if solution(@_) ;
+		TEXT($PAR, $solution_body, $PAR);
 	}
 }
 
@@ -1270,18 +1273,18 @@ sub hint {
 	if ($displayMode =~ /TeX/) {
 		my $afterAnswerDate = (time() > $envir{answerDate});
 		if ($printHintForInstructor) {
-			$out = join(' ', $BITALIC,
+			$out = join('', $BITALIC,
 				maketext("(Instructor hint preview: show the student hint after the following number of attempts:"),
-				$showHint, $BR, $EITALIC, @in);
+				" ", $showHint + 1, ")\\par\\medskip", $EITALIC, @in);
 		} elsif ($displayHint and $afterAnswerDate) { # only display hints after the answer date.
 			$out = join(' ', @in);
 		}
 
 	} elsif ($displayMode =~ /HTML/) {
 		if ($printHintForInstructor) {  # always print hints for instructor types in HTML mode
-			$out = join(' ', $BITALIC,
+			$out = join('', $BITALIC,
 				maketext("(Instructor hint preview: show the student hint after the following number of attempts:"),
-				$showHint, "$BR", $EITALIC, @in);
+				" ", $showHint + 1, ")$BR", $EITALIC, @in);
 		} elsif ($displayHint and ($attempts > $showHint)) {
 			## the second test above prevents a hint being shown if a doctored form is submitted
 			$out = join(' ', @in);
@@ -1300,7 +1303,7 @@ sub HINT {
 	} elsif ($displayMode =~ /TeX/) {
 		TEXT(
 			"\n%%% BEGIN HINT\n", #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
-			$PAR, HINT_HEADING(), hint(@_) . $PAR,
+			"\\par\\medskip", HINT_HEADING(), hint(@_) . $PAR,
 			"\n%%% END HINT\n"    #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
 		) if hint(@_) ;
 	} elsif ($displayMode =~ /PTX/) {
@@ -1548,12 +1551,12 @@ sub END_ONE_COLUMN { MODES(TeX =>
 		Latex2HTML => ' ', HTML => ' ');
 
 };
-sub SOLUTION_HEADING { MODES( TeX => '\\par {\\bf '.maketext('Solution:').' }',
+sub SOLUTION_HEADING { MODES( TeX => '{\\bf '.maketext('Solution: ').' }',
 		Latex2HTML => '\\par {\\bf '.maketext('Solution:').' }',
 		HTML =>  '<B>'.maketext('Solution:').'</B> ',
 		PTX => '');
 };
-sub HINT_HEADING { MODES( TeX => "\\par {\\bf ".maketext('Hint:')." }", Latex2HTML => "\\par {\\bf ".maketext('Hint:')." }", HTML => "<B>".maketext('Hint:')."</B> ", PTX => ''); };
+sub HINT_HEADING { MODES( TeX => "{\\bf ".maketext('Hint: ')."}", Latex2HTML => "\\par {\\bf ".maketext('Hint:')." }", HTML => "<B>".maketext('Hint:')."</B> ", PTX => ''); };
 sub US { MODES(TeX => '\\_', Latex2HTML => '\\_', HTML => '_', PTX => '_');};  # underscore, e.g. file${US}name
 sub SPACE { MODES(TeX => '\\ ',  Latex2HTML => '\\ ', HTML => '&nbsp;', PTX => ' ');};  # force a space in latex, doesn't force extra space in html
 sub NBSP { MODES(TeX => '~',  Latex2HTML => '~', HTML => '&nbsp;', PTX => '<nbsp/>');};
@@ -2490,12 +2493,12 @@ sub beginproblem {
 		HTML => '<P style="margin: 0">'
 	);
 	if ($print_path_name_flag) {
-		$out .= &M3("{\\bf ${probNum}. {\\footnotesize ($problemValue $points) \\path|$fileName|}}\\newline ",
+		$out .= &M3("{\\bf\\footnotesize ($problemValue $points) \\path|$fileName|}\\smallskip\n",
 			" \\begin{rawhtml} ($problemValue $points) <B>$l2hFileName</B><BR>\\end{rawhtml}",
 			"($problemValue $points) <B>$fileName</B><BR>"
 		) if ($problemValue >= 0 and ($envir->{setNumber} =~ /\S/) and ($envir->{setNumber} ne 'Undefined_Set') and ($envir->{setNumber} ne 'not defined'));
 	} else {
-		$out .= &M3("{\\bf ${probNum}.} ($problemValue $points) ",
+		$out .= &M3("($problemValue $points)\\smallskip\n",
 			"($problemValue $points) ",
 			"($problemValue $points) "
 		) if ($problemValue >= 0 and ($envir->{setNumber} =~ /\S/) and ($envir->{setNumber} ne 'Undefined_Set') and ($envir->{setNumber} ne 'not defined'));
