@@ -3021,12 +3021,7 @@ sub image {
 			|| $displayMode eq 'HTML_asciimath'
 			|| $displayMode eq 'HTML_LaTeXMathML'
 			|| $displayMode eq 'HTML_img') {
-			my $wid = ($envir->{onTheFlyImageSize} || 0) +30;
-			$out = qq!<A HREF="$imageURL" TARGET="_blank"
-			onclick="window.open(this.href, this.target, 'width=$wid, height=$wid, scrollbars=yes, resizable=on'); return false;">
-			<IMG SRC="$imageURL" WIDTH="$width" $height_attrib $out_options{extra_html_tags}>
-			</A>
-			!
+			$out = qq!<IMG SRC="$imageURL" class="image-view-elt" tabindex="0" role="button" WIDTH="$width" $height_attrib $out_options{extra_html_tags}>!
 		} elsif ($displayMode eq 'PTX') {
 			my $ptxwidth = 100*$width/600;
 			$out = qq!<image width="$ptxwidth%" source="$imageURL" />!
