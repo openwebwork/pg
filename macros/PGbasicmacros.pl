@@ -1534,10 +1534,10 @@ sub BR { MODES( TeX => '\\leavevmode\\\\\\relax ', Latex2HTML => '\\begin{rawhtm
 sub BRBR { MODES( TeX => '\\leavevmode\\\\\\relax \\leavevmode\\\\\\relax ', Latex2HTML => '\\begin{rawhtml}<BR><BR>\\end{rawhtml}', HTML => '<P>', PTX => "\n"); };
 sub LQ { MODES( TeX => "\\lq\\lq{}", Latex2HTML =>   '"',  HTML =>  '&quot;', PTX => '<lq/>' ); };
 sub RQ { MODES( TeX => "\\rq\\rq{}", Latex2HTML =>   '"',   HTML =>  '&quot;', PTX => '<rq/>' ); };
-sub BM { MODES(TeX => '\\(', Latex2HTML => '\\(', HTML =>  '', PTX => '<m>'); };  # begin math mode
-sub EM { MODES(TeX => '\\)', Latex2HTML => '\\)', HTML => '', PTX => '</m>'); };  # end math mode
-sub BDM { MODES(TeX => '\\[', Latex2HTML =>   '\\[', HTML =>   '<P ALIGN=CENTER>', PTX => '<me>'); };  #begin displayMath mode
-sub EDM { MODES(TeX => '\\]',  Latex2HTML =>  '\\]', HTML => '</P>', PTX => '</me>'); };              #end displayMath mode
+sub BM { MODES(TeX => '\\(', Latex2HTML => '\\(', HTML_MathJax => '\\(', HTML =>  '', PTX => '<m>'); };  # begin math mode
+sub EM { MODES(TeX => '\\)', Latex2HTML => '\\)', HTML_MathJax => '\\)', HTML => '', PTX => '</m>'); };  # end math mode
+sub BDM { MODES(TeX => '\\[', Latex2HTML =>   '\\[', HTML_MathJax => '\\[', HTML =>   '<P ALIGN=CENTER>', PTX => '<me>'); };  #begin displayMath mode
+sub EDM { MODES(TeX => '\\]',  Latex2HTML =>  '\\]', HTML_MathJax => '\\]', HTML => '</P>', PTX => '</me>'); };              #end displayMath mode
 sub LTS { MODES(TeX => '<', Latex2HTML => '\\lt ', HTML => '&lt;', HTML_tth => '<', PTX => '\lt' ); };  #only for use in math mode
 sub GTS { MODES(TeX => '>', Latex2HTML => '\\gt ', HTML => '&gt;', HTML_tth => '>', PTX => '\gt' ); };  #only for use in math mode
 sub LTE { MODES(TeX => '\\le ', Latex2HTML => '\\le ', HTML => '<U>&lt;</U>', HTML_tth => '\\le ', PTX => '\leq' ); };  #only for use in math mode
@@ -2110,8 +2110,7 @@ sub general_math_ev3 {
 
 	my $out;
 	if($displayMode eq "HTML_MathJax") {
-		$out = '<span class="MathJax_Preview">[math]</span><script type="math/tex">'.$in.'</script>' if $mode eq "inline";
-		$out = '<span class="MathJax_Preview">[math]</span><script type="math/tex; mode=display">'.$in.'</script>' if $mode eq "display";
+		$out = '<span>'.$in_delim.'</span>';
 	} elsif ($displayMode eq "HTML_dpng" ) {
 		# for jj's version of ImageGenerator
 		#$out = $envir->{'imagegen'}->add($in_delim);
@@ -2324,29 +2323,23 @@ sub PTX_cleanup {
 	# Wrap <p> tags where necessary, and other cleanup
 	# Nothing else should be creating p tags, so assume all p tags created here
 	# The only supported top-level elements within a statement, hint, or solution in a problem
-	# are p, blockquote, pre, sidebyside
+	# are p, blockquote, pre, tabular, image, video
 	if ($displayMode eq 'PTX') {
 		#encase entire string in <p>
 		#except not for certain "sub" structures that are also passed through EV3
 		$string = "<p>".$string."</p>" unless (($string =~ /^<fillin[^>]*\/>$/) or ($string =~ /^<var.*<\/var>$/s));
 
-		#a <sidebyside> may have been created within a <cell> of a <tabular> as a container of an <image>
-		#so here we clean that up
-		$string =~ s/(?s)(<cell>((?!<\/cell>).)*?)<sidebyside[^>]*>(.*?)<\/sidebyside>(.*?<\/cell>)/$1$3$4/g;
-
-		#inside a sidebyside, the only permissible children are p, image, video, and tabular
+		#inside a li, the only permissible children are p, image, video, and tabular
 		#insert opening and closing p, to be removed later if they enclose an image, video or tabular
-		$string =~ s/(<sidebyside[^>]*(?<!\/)>)/$1\n<p>/g;
-		$string =~ s/(<\/sidebyside>)/<\/p>\n$1/g;
-		#ditto for li, since we are not going to look to see if there is a nested list in there
+		#we are not going to look to see if there is a nested list in there
 		$string =~ s/(<li[^>]*(?<!\/)>)/$1\n<p>/g;
 		$string =~ s/(<\/li>)/<\/p>\n$1/g;
 
-		#close p right before any sidebyside, blockquote, or pre, image, video, or tabular
+		#close p right before any blockquote, pre, image, video, or tabular
 		#and open p immediately following. Later any potential side effects are cleaned up.
-		$string =~ s/(<(sidebyside|blockquote|pre|image|video|tabular)[^>]*(?<!\/)>)/<\/p>\n$1/g;
-		$string =~ s/(<\/(sidebyside|blockquote|pre|image|video|tabular)>)/$1\n<p>/g;
-		$string =~ s/(<(sidebyside|blockquote|pre|image|video|tabular)[^>]*(?<=\/)>)/<\/p>\n$1\n<p>/g;
+		$string =~ s/(<(blockquote|pre|image|video|tabular)[^>]*(?<!\/)>)/<\/p>\n$1/g;
+		$string =~ s/(<\/(blockquote|pre|image|video|tabular)>)/$1\n<p>/g;
+		$string =~ s/(<(blockquote|pre|image|video|tabular)[^>]*(?<=\/)>)/<\/p>\n$1\n<p>/g;
 
 		#within a <cell>, we may have an issue if there was an image that had '<\p>' and '<p>' wrapped around
 		#it from the above block. If the '</p>' has a preceding '<p>' within the cell, no problem. Otherwise,
@@ -2846,7 +2839,7 @@ sub begintable {
 		$out .= "\n\\par\\smallskip\\begin{center}\\begin{tabular}{"  .  "|c" x $number .  "|} \\hline\n";
 	}
 	elsif ($displayMode eq 'PTX') {
-		$out .= "\n".'<sidebyside><tabular top="medium" bottom="medium" left="medium" right="medium">'."\n";
+		$out .= "\n".'<tabular top="medium" bottom="medium" left="medium" right="medium">'."\n";
 	}
 	elsif ($displayMode eq 'Latex2HTML') {
 		$out .= "\n\\begin{rawhtml} <TABLE, BORDER=1>\n\\end{rawhtml}";
@@ -2873,7 +2866,7 @@ sub endtable {
 		$out .= "\n\\end {tabular}\\end{center}\\par\\smallskip\n";
 	}
 	elsif ($displayMode eq 'PTX') {
-		$out .= "\n".'</tabular></sidebyside>'."\n";
+		$out .= "\n".'</tabular>'."\n";
 	}
 	elsif ($displayMode eq 'Latex2HTML') {
 		$out .= "\n\\begin{rawhtml} </TABLE >\n\\end{rawhtml}";
@@ -3028,15 +3021,10 @@ sub image {
 			|| $displayMode eq 'HTML_asciimath'
 			|| $displayMode eq 'HTML_LaTeXMathML'
 			|| $displayMode eq 'HTML_img') {
-			my $wid = ($envir->{onTheFlyImageSize} || 0) +30;
-			$out = qq!<A HREF="$imageURL" TARGET="_blank"
-			onclick="window.open(this.href, this.target, 'width=$wid, height=$wid, scrollbars=yes, resizable=on'); return false;">
-			<IMG SRC="$imageURL" WIDTH="$width" $height_attrib $out_options{extra_html_tags}>
-			</A>
-			!
+			$out = qq!<IMG SRC="$imageURL" class="image-view-elt" tabindex="0" role="button" WIDTH="$width" $height_attrib $out_options{extra_html_tags}>!
 		} elsif ($displayMode eq 'PTX') {
 			my $ptxwidth = 100*$width/600;
-			$out = qq!<sidebyside widths="$ptxwidth%">\n<image source="$imageURL" />\n<\/sidebyside>!
+			$out = qq!<image width="$ptxwidth%" source="$imageURL" />!
 		} else {
 			$out = "Error: PGbasicmacros: image: Unknown displayMode: $displayMode.\n";
 		}
@@ -3056,7 +3044,7 @@ sub embedSVG {
 	return MODES( HTML => q!
 		<img src="! . alias($file_name).$str.q!">!,
 		TeX => "\\includegraphics[width=6in]{" . alias( $file_name ) . "}",
-		PTX => '<sidebyside><image source="' . alias($file_name) . '" /></sidebyside>',
+		PTX => '<image source="' . alias($file_name) . '" />',
 	);
 }
 
@@ -3070,7 +3058,7 @@ sub embedPDF {
 		width="100%"
 		height="100%"></object>!,
 		TeX => "\\includegraphics[width=6in]{" . alias( $file_name ) . "}",
-		PTX => '<sidebyside><image source="'.alias($file_name).'" /></sidebyside>',
+		PTX => '<image source="'.alias($file_name).'" />',
 	) ;
 }
 
@@ -3143,7 +3131,7 @@ sub video {
 			!
 		} elsif ($displayMode eq 'PTX') {
 			my $ptxwidth = 100*$width/600;
-			$out = qq!<sidebyside><video source="$videoURL" width="$ptxwidth%" /></sidebyside>!
+			$out = qq!<video source="$videoURL" width="$ptxwidth%" />!
 		} else {
 			$out = "Error: PGbasicmacros: video: Unknown displayMode: $displayMode.\n";
 		}

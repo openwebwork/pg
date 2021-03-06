@@ -524,14 +524,9 @@ sub cmp_preprocess {
 		my $graphObjs = @{$self->{staticObjects}} ?
 			join(",", @{$self->{staticObjects}}, $ans->{student_ans}) : $ans->{student_ans};
 
-		# This first ends the attempts table MathJax_Preview script.  Note that the script
-		# started here is ended by the original script end tag for the MathJax_Preview.
 		$ans->{preview_latex_string} = <<"END_ANS";
-</script>
 <div id='${ans_name}_student_ans_graphbox' class='graphtool-answer-container'></div>
 <script>
-jQuery("#${ans_name}_student_ans_graphbox").parent().find('span').remove();
-jQuery("#${ans_name}_student_ans_graphbox").parent().find('script[type^="math/tex"]').remove();
 jQuery(function() {
 	graphTool("${ans_name}_student_ans_graphbox", {
 		staticObjects: "$graphObjs",
@@ -542,6 +537,7 @@ jQuery(function() {
 		JSXGraphOptions: $self->{JSXGraphOptions}
 	});
 });
+</script>
 END_ANS
 	}
 }
@@ -552,7 +548,7 @@ END_ANS
 # displayed in the "Correct Answer" box of the results table.
 sub cmp {
 	my $self = shift;
-	my $cmp = $self->SUPER::cmp(%{$self->{cmpOptions}}, @_);
+	my $cmp = $self->SUPER::cmp(non_tex_preview => 1, %{$self->{cmpOptions}}, @_);
 
 	if ($main::displayMode ne 'TeX') {
 		my $ans_name = $self->ANS_NAME;
@@ -560,14 +556,9 @@ sub cmp {
 		my $graphObjs = @{$self->{staticObjects}} ?
 			join(",", @{$self->{staticObjects}}, $cmp->{rh_ans}{correct_ans}) : $cmp->{rh_ans}{correct_ans};
 
-		# This first ends the attempts table MathJax_Preview script.  Note that the script
-		# started here is ended by the original script end tag for the MathJax_Preview.
 		$cmp->{rh_ans}{correct_ans_latex_string} = << "END_ANS";
-</script>
 <div id='${ans_name}_correct_ans_graphbox' class='graphtool-answer-container'></div>
 <script>
-jQuery("#${ans_name}_correct_ans_graphbox").parent().find('span').remove();
-jQuery("#${ans_name}_correct_ans_graphbox").parent().find('script[type^="math/tex"]').remove();
 jQuery(function() {
 	graphTool("${ans_name}_correct_ans_graphbox", {
 		staticObjects: "$graphObjs",
@@ -578,6 +569,7 @@ jQuery(function() {
 		JSXGraphOptions: $self->{JSXGraphOptions}
 	});
 });
+</script>
 END_ANS
 	}
 

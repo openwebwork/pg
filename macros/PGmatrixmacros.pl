@@ -228,7 +228,7 @@ sub dm_begin_matrix {
                 $out .= qq!<TABLE class="matrix" BORDER="0" style="border-collapse: separate; border-spacing:10px 0px;">\n!;
         }
         elsif ( $main::displayMode eq 'PTX' ) {
-                $out .= qq!<sidebyside>\n<tabular>\n!;
+                $out .= qq!<tabular>\n!;
         }
         else {
                 $out = "Error: dm_begin_matrix: Unknown displayMode: $main::displayMode.\n";
@@ -384,7 +384,7 @@ sub dm_end_matrix {
                 $out .= "</TABLE>\n";
                 }
         elsif ( $main::displayMode eq 'PTX') {
-                $out .= qq!</tabular>\n</sidebyside>\n!;
+                $out .= qq!</tabular>\n!;
                 }
         else {
                 $out = "Error: PGmatrixmacros: dm_end_matrix: Unknown displayMode: $main::displayMode.\n";
