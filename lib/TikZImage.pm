@@ -33,6 +33,8 @@ sub new {
 		tex           => '',
 		tikzOptions   => '',
 		tikzLibraries => '',
+		texPackages   => {},
+		addToPreamble => '',
 		ext           => 'png',
         imageName     => ''
 	};
@@ -76,6 +78,19 @@ sub tikzLibraries {
 	return &$self('tikzLibraries', @_);
 }
 
+# Set additional TeX packages to load.  This accepts a single hash parameter.
+sub texPackages {
+	my $self = shift;
+	return &$self('texPackages', $_[0]) if ref($_[0]) eq "HASH";
+	return &$self('texPackages');
+}
+
+# Additional TeX commands to add to the TeX preamble
+sub addToPreamble {
+	my $self = shift;
+	return &$self('addToPreamble', @_);
+}
+
 # Set the image type.  The valid types are 'png', 'gif', 'svg', and 'pdf'.
 # The 'pdf' option should be set for print.
 sub ext {
@@ -93,8 +108,13 @@ sub header {
 	my $self = shift;
 	my @output = ();
 	push(@output, "\\documentclass{standalone}\n");
+	push(@output, "\\usepackage[svgnames]{xcolor}\n");
 	push(@output, "\\usepackage{tikz}\n");
+	push(@output, map {
+			"\\usepackage" . ($self->texPackages->{$_} ne "" ? "[$self->texPackages->{$_}]" : "") . "{$_}\n"
+		} keys %{$self->texPackages});
 	push(@output, "\\usetikzlibrary{" . $self->tikzLibraries . "}") if ($self->tikzLibraries ne "");
+	push(@output, $self->addToPreamble);
 	push(@output, "\\begin{document}\n");
 	push(@output, "\\begin{tikzpicture}");
 	push(@output, "[" . $self->tikzOptions . "]") if ($self->tikzOptions ne "");
