@@ -253,6 +253,8 @@ sub makeZero {
 sub makeNeg {
   my $self = shift;
   $self->{lop} = shift; $self->{rop} = shift;
+  delete $self->{lop}{noParens};
+  delete $self->{rop}{noParens};
   return Parser::UOP::Neg($self);
 }
 
