@@ -136,34 +136,13 @@ sub compare {
       return $a <=> $b if (abs($a) < $zeroLevel or abs($b) < $zeroLevel);
       # convert tolerance values meant for relative to a digits tolerance
       $tolerance = -log($tolerance)/log(10) if ($tolerance > 0 and $tolerance < 1);
-      # make sure nonsensical tolerances are converted to a natural number
-      $tolerance = (1 > int($tolerance)) ? 1 : int($tolerance + 0.5);
-      my $order = int(log(abs($a))/log(10)); $order-- if (abs($a) < 1 ); # act as floor
-      # compare $a to $b at deeper tolerances than just $tolerance
-      # for example to detect that 3.1419926 is not pi, even when $tolerance is 3
-      my $digitsDepth = ($tolerance < $self->getFlag('tolDigits')) ? $self->getFlag('tolDigits') : $tolerance;
-      for my $tol ($tolerance..$digitsDepth) {
-        my $shift = $tol-$order-1;
-        my $rounda = int($a*10**$shift + 0.5*($a <=> 0))/10**$shift;
-        my $roundb = int($b*10**$shift + 0.5*($b <=> 0))/10**$shift;
-        my $trunca = int($a*10**$shift)/10**$shift;
-        my $truncb = int($b*10**$shift)/10**$shift;
-        return $a <=> $b if ($rounda ne $roundb and (!$self->getFlag('tolTruncation') or $trunca ne $truncb));
-        #don't continue if we've reached the last digit of one of them
-        last if ($a eq $rounda or $b eq $roundb);
-      }
-      return 0;
-    }
-    if ($self->getFlag('tolType') eq 'digits-2') {
-      return 0 if (abs($a) < $zeroLevel and abs($b) < $zeroLevel);
-      return $a <=> $b if (abs($a) < $zeroLevel or abs($b) < $zeroLevel);
-      $tolerance = -log($tolerance)/log(10) if ($tolerance > 0 and $tolerance < 1);
       my $digits = (1 > int($tolerance) ? 1 : int($tolerance + 0.5)) - 1;
-      my $tdigits = ($digits + 1 < $self->getFlag('tolDigits') ? $self->getFlag('tolDigits') - 1 : $digits);
+      my $extraDigits =  int($self->getFlag('tolExtraDigits'));
+      my $tdigits = (0 < $extraDigits ? $extraDigits + $digits : $digits);
       my $exp = substr(sprintf("%E", $b), -3) - 15;      # Adjust $a by an amount in the round-off error
       $a += ($a <=> 0) * "1E$exp";                       #   range so that it rounds better in sprintf
       $b += ($b <=> 0) * "1E$exp";                       # Same for $b
-      my $bd = sprintf("%.${tdigits}E", $b);             # Round $b to the number of tolDigits
+      my $bd = sprintf("%.${tdigits}E", $b);             # Round $b to the number of tdigits
       $bd =~ s/^.*\.(.*?)0*E.*$/$1/;                     # Get the decimal part without trailing zeros
       my $bn = length($bd);                              # Number of those decimal digits
       $bn = $digits if ($bn < $digits);                  #  (with a minimum of $digits);
