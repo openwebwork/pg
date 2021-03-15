@@ -110,11 +110,11 @@ $operators = {
 $parens = {
    '(' => {close => ')', type => 'Point', formMatrix => 1, formInterval => ']',
            formList => 1, removable => 1, emptyOK => 1, function => 1},
-   '[' => {close => ']', type => 'Point', formMatrix => 1, formInterval => ')', removable => 1},
+   '[' => {close => ']', type => 'List', formMatrix => 1, formInterval => ')', removable => 1},
    '<' => {close => '>', type => 'Vector',
            alternatives => ["\x{2329}","\x{3008}","\x{27E8}"],
            alternativeClose => ["\x{232A}","\x{3009}","\x{27E9}"]},
-   '{' => {close => '}', type => 'Point', removable => 1},
+   '{' => {close => '}', type => 'Set', removable => 1},
    '|' => {close => '|', type => 'AbsoluteValue'},
    'start' => {close => 'start', type => 'List', formList => 1,
                removable => 1, emptyOK => 1, hidden => 1},
@@ -284,8 +284,7 @@ $context->constants->remove('i','j','k');
 $context->parens->remove('<');
 $context->parens->set(
    '(' => {type => 'List', formMatrix => 0},
-   '[' => {type => 'List', formMatrix => 0},
-   '{' => {type => 'List'},
+   '[' => {formMatrix => 0}
 );
 $context->{name} = "Numeric";
 
@@ -356,8 +355,7 @@ $context->constants->remove('j','k');
 $context->parens->remove('<');
 $context->parens->set(
    '(' => {type => 'List', formMatrix => 0},
-   '[' => {type => 'List', formMatrix => 0},
-   '{' => {type => 'List'},
+   '[' => {formMatrix => 0}
 );
 $context->operators->set(
   '^'  => {class => 'Parser::Function::complex_power', negativeIsComplex => 1},
@@ -375,11 +373,7 @@ $context->{name} = "Complex";
 $context = $context{"Complex-Vector"} = $context{Complex}->copy;
 $context->operators->redefine(['><','.'],from=>'Vector');
 $context->parens->redefine('<',from=>'Vector');
-$context->parens->set(
-  '(' => {type => "Point", formMatrix => 0},
-  '[' => {type => "Point", formMatrix => 0},
-  '{' => {type => "Point"},
-);
+$context->parens->set('(' => {type => "Point"});
 $context->{name} = "Complex-Vector";
 
 #
