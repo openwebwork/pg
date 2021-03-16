@@ -1545,11 +1545,10 @@ sub LTS { MODES(TeX => '<', Latex2HTML => '\\lt ', HTML => '&lt;', HTML_tth => '
 sub GTS { MODES(TeX => '>', Latex2HTML => '\\gt ', HTML => '&gt;', HTML_tth => '>', PTX => '\gt' ); };  #only for use in math mode
 sub LTE { MODES(TeX => '\\le ', Latex2HTML => '\\le ', HTML => '<U>&lt;</U>', HTML_tth => '\\le ', PTX => '\leq' ); };  #only for use in math mode
 sub GTE { MODES(TeX => '\\ge ', Latex2HTML => '\\ge ', HTML => '<U>&gt;</U>', HTML_tth => '\\ge ', PTX => '\geq' ); };  #only for use in math mode
-sub BEGIN_ONE_COLUMN { MODES(TeX => "\\ifdefined\\nocolumns\\else \\end{multicols}\\fi\n",  Latex2HTML => " ", HTML =>   " "); };
+sub BEGIN_ONE_COLUMN { MODES(TeX => "\\ifdefined\\nocolumns\\else\\end{multicols}\\fi\n",  Latex2HTML => " ", HTML =>   " "); };
 sub END_ONE_COLUMN { MODES(TeX =>
-		" \\ifdefined\\nocolumns\\else \\begin{multicols}{2}\n\\columnwidth=\\linewidth \\fi\n",
+		"\\ifdefined\\nocolumns\\else\\begin{multicols}{2}\n\\columnwidth=\\linewidth\\fi\n",
 		Latex2HTML => ' ', HTML => ' ');
-
 };
 sub SOLUTION_HEADING { MODES( TeX => '{\\bf '.maketext('Solution: ').' }',
 		Latex2HTML => '\\par {\\bf '.maketext('Solution:').' }',
@@ -2470,39 +2469,10 @@ A wide variety of google widgets, youtube videos, and other online resources can
 
 sub beginproblem {
 	my $out = "";
-	my $problemValue = $envir->{problemValue} || 0;
-	my $fileName     = $envir->{probFileName};
-	my $probNum      = $envir->{probNum};
-	my $l2hFileName  = protect_underbar($envir->{probFileName});
-	my %inlist;
-	my $permissionLevel = $envir->{permissionLevel};
-	my $points = maketext('points');
-
-	$points = maketext('point') if $problemValue == 1;
-	## Prepare header for the problem
-	grep($inlist{$_}++, @{$envir->{'PRINT_FILE_NAMES_FOR'}});
-	my $effectivePermissionLevel = $envir->{effectivePermissionLevel}; # permission level of user assigned to question
-	my $PRINT_FILE_NAMES_PERMISSION_LEVEL = $envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'};
-	my $studentLogin = $envir->{studentLogin};
-	my $print_path_name_flag = (defined($effectivePermissionLevel) &&
-		defined($PRINT_FILE_NAMES_PERMISSION_LEVEL) &&
-		$effectivePermissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL)
-		|| (defined($inlist{$studentLogin}) and ($inlist{$studentLogin} > 0)) ? 1 : 0;
 	$out .= MODES(
 		TeX  => "\n%%% BEGIN PROBLEM PREAMBLE\n", #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
-		HTML => '<P style="margin: 0">'
+		HTML => ""
 	);
-	if ($print_path_name_flag) {
-		$out .= &M3("{\\bf\\footnotesize ($problemValue $points) \\path|$fileName|}\\smallskip\n",
-			" \\begin{rawhtml} ($problemValue $points) <B>$l2hFileName</B><BR>\\end{rawhtml}",
-			"($problemValue $points) <B>$fileName</B><BR>"
-		) if ($problemValue >= 0 and ($envir->{setNumber} =~ /\S/) and ($envir->{setNumber} ne 'Undefined_Set') and ($envir->{setNumber} ne 'not defined'));
-	} else {
-		$out .= &M3("($problemValue $points)\\smallskip\n",
-			"($problemValue $points) ",
-			"($problemValue $points) "
-		) if ($problemValue >= 0 and ($envir->{setNumber} =~ /\S/) and ($envir->{setNumber} ne 'Undefined_Set') and ($envir->{setNumber} ne 'not defined'));
-	}
 	$out .= MODES(%{main::PG_restricted_eval(q!$main::problemPreamble!)});
 	$out .= MODES(
 		TeX  => "\n%%% END PROBLEM PREAMBLE\n", #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
