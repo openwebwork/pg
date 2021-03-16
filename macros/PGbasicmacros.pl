@@ -1224,7 +1224,7 @@ sub solution {
 	if ($printSolutionForInstructor) { # always print solutions for instructor types
 		$out = join('', $BITALIC, "(",
 			maketext("Instructor solution preview: show the student solution after due date."),
-			")", $EITALIC, $displayMode =~ /TeX/ ? "\\par\\medskip" : $BR, @in);
+			")", $EITALIC, $displayMode =~ /TeX/ ? "\\par\\smallskip" : $BR, @in);
 	} elsif ($displaySolution) {
 		$out = join(' ', @in); # display solution
 	}
@@ -1241,7 +1241,7 @@ sub SOLUTION {
 	} elsif ($displayMode =~ /TeX/) {
 		TEXT(
 			"\n%%% BEGIN SOLUTION\n", #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
-			$PAR, "\\medskip", SOLUTION_HEADING(), $solution_body, $PAR,
+			"\\par\\smallskip", SOLUTION_HEADING(), $solution_body, "\\par\\medskip",
 			"\n%%% END SOLUTION\n"    #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
 		);
 	} elsif ($displayMode =~ /HTML/) {
@@ -1275,7 +1275,7 @@ sub hint {
 		if ($printHintForInstructor) {
 			$out = join('', $BITALIC,
 				maketext("(Instructor hint preview: show the student hint after the following number of attempts:"),
-				" ", $showHint + 1, ")\\par\\medskip", $EITALIC, @in);
+				" ", $showHint + 1, ")", $EITALIC, "\\par\\smallskip", @in);
 		} elsif ($displayHint and $afterAnswerDate) { # only display hints after the answer date.
 			$out = join(' ', @in);
 		}
@@ -1303,7 +1303,7 @@ sub HINT {
 	} elsif ($displayMode =~ /TeX/) {
 		TEXT(
 			"\n%%% BEGIN HINT\n", #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
-			"\\par\\medskip", HINT_HEADING(), hint(@_) . $PAR,
+			"\\par\\smallskip", HINT_HEADING(), hint(@_), "\\par\\medskip",
 			"\n%%% END HINT\n"    #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
 		) if hint(@_) ;
 	} elsif ($displayMode =~ /PTX/) {
@@ -1529,7 +1529,7 @@ sub ALPHABET  {
 # Some constants which are different in tex and in HTML
 # The order of arguments is TeX, Latex2HTML, HTML
 # Adopted Davide Cervone's improvements to PAR, LTS, GTS, LTE, GTE, LBRACE, RBRACE, LB, RB. 7-14-03 AKP
-sub PAR { MODES( TeX => '\\par ', Latex2HTML => '\\begin{rawhtml}<P>\\end{rawhtml}', HTML => '<P>', PTX => "\n\n"); };
+sub PAR { MODES( TeX => '\\vskip\\baselineskip ', Latex2HTML => '\\begin{rawhtml}<P>\\end{rawhtml}', HTML => '<P>', PTX => "\n\n"); };
 #sub BR { MODES( TeX => '\\par\\noindent ', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR>'); };
 # Alternate definition of BR which is slightly more flexible and gives more white space in printed output
 # which looks better but kills more trees.
