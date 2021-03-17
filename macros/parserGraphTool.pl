@@ -496,9 +496,8 @@ END_TIKZ
 	} else {
 		$self->constructJSXGraphOptions;
 		my $ans_name = $self->ANS_NAME;
-		my $prefix = ($main::setNumber =~ tr/./_/r) . "_" . $main::probNum;
-		$out .= "<div id='${prefix}_${ans_name}_graphbox' class='graphtool-container'></div>" .
-			"<script>graphTool('${prefix}_${ans_name}_graphbox', { " .
+		$out .= "<div id='${ans_name}_graphbox' class='graphtool-container'></div>" .
+			"<script>graphTool('${ans_name}_graphbox', { " .
 			"htmlInputId: '${ans_name}', " .
 			"staticObjects: '" . join(',', @{$self->{staticObjects}}) . "'," .
 			"snapSizeX: $self->{snapSizeX}," .
