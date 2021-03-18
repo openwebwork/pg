@@ -1222,9 +1222,9 @@ sub solution {
 	PG_restricted_eval(q!$main::solutionExists = 1!); # set solution exists variable.--don't need PGeval??
 
 	if ($printSolutionForInstructor) { # always print solutions for instructor types
-		$out = join(' ', $BITALIC, "(",
+		$out = join('', $BITALIC, "(",
 			maketext("Instructor solution preview: show the student solution after due date."),
-			" )$BR", $EITALIC, @in);
+			")", $EITALIC, $displayMode =~ /TeX/ ? "\\par\\smallskip" : $BR, @in);
 	} elsif ($displaySolution) {
 		$out = join(' ', @in); # display solution
 	}
@@ -1232,21 +1232,24 @@ sub solution {
 }
 
 sub SOLUTION {
+	my $solution_body = solution(@_);
+	return "" if $solution_body eq "";
+
 	if ($displayMode =~/HTML/ and $envir->{use_knowls_for_solutions}) {
-		TEXT($PAR, knowlLink(SOLUTION_HEADING(), value => escapeSolutionHTML($BR . solution(@_) . $PAR ),
-				base64 => 1)) if solution(@_);
+		TEXT($PAR, knowlLink(SOLUTION_HEADING(), value => escapeSolutionHTML("$BR$solution_body$PAR"),
+				base64 => 1));
 	} elsif ($displayMode =~ /TeX/) {
 		TEXT(
 			"\n%%% BEGIN SOLUTION\n", #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
-			$PAR, SOLUTION_HEADING(), solution(@_).$PAR,
+			"\\par\\smallskip", SOLUTION_HEADING(), $solution_body, "\\par\\medskip",
 			"\n%%% END SOLUTION\n"    #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
-		) if solution(@_) ;
+		);
 	} elsif ($displayMode =~ /HTML/) {
-		TEXT($PAR.SOLUTION_HEADING().$BR.solution(@_).$PAR) if solution(@_) ;
+		TEXT($PAR, SOLUTION_HEADING(), $BR, $solution_body, $PAR);
 	} elsif ($displayMode =~ /PTX/) {
-		TEXT('<solution>', "\n", solution(@_), "\n", '</solution>', "\n\n") if solution(@_) ;
+		TEXT('<solution>', "\n", $solution_body, "\n", '</solution>', "\n\n");
 	} else {
-		TEXT($PAR.solution(@_).$PAR) if solution(@_) ;
+		TEXT($PAR, $solution_body, $PAR);
 	}
 }
 
@@ -1270,18 +1273,18 @@ sub hint {
 	if ($displayMode =~ /TeX/) {
 		my $afterAnswerDate = (time() > $envir{answerDate});
 		if ($printHintForInstructor) {
-			$out = join(' ', $BITALIC,
+			$out = join('', $BITALIC,
 				maketext("(Instructor hint preview: show the student hint after the following number of attempts:"),
-				$showHint, $BR, $EITALIC, @in);
+				" ", $showHint + 1, ")", $EITALIC, "\\par\\smallskip", @in);
 		} elsif ($displayHint and $afterAnswerDate) { # only display hints after the answer date.
 			$out = join(' ', @in);
 		}
 
 	} elsif ($displayMode =~ /HTML/) {
 		if ($printHintForInstructor) {  # always print hints for instructor types in HTML mode
-			$out = join(' ', $BITALIC,
+			$out = join('', $BITALIC,
 				maketext("(Instructor hint preview: show the student hint after the following number of attempts:"),
-				$showHint, "$BR", $EITALIC, @in);
+				" ", $showHint + 1, ")$BR", $EITALIC, @in);
 		} elsif ($displayHint and ($attempts > $showHint)) {
 			## the second test above prevents a hint being shown if a doctored form is submitted
 			$out = join(' ', @in);
@@ -1300,7 +1303,7 @@ sub HINT {
 	} elsif ($displayMode =~ /TeX/) {
 		TEXT(
 			"\n%%% BEGIN HINT\n", #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
-			$PAR, HINT_HEADING(), hint(@_) . $PAR,
+			"\\par\\smallskip", HINT_HEADING(), hint(@_), "\\par\\medskip",
 			"\n%%% END HINT\n"    #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
 		) if hint(@_) ;
 	} elsif ($displayMode =~ /PTX/) {
@@ -1526,7 +1529,7 @@ sub ALPHABET  {
 # Some constants which are different in tex and in HTML
 # The order of arguments is TeX, Latex2HTML, HTML
 # Adopted Davide Cervone's improvements to PAR, LTS, GTS, LTE, GTE, LBRACE, RBRACE, LB, RB. 7-14-03 AKP
-sub PAR { MODES( TeX => '\\par ', Latex2HTML => '\\begin{rawhtml}<P>\\end{rawhtml}', HTML => '<P>', PTX => "\n\n"); };
+sub PAR { MODES( TeX => '\\vskip\\baselineskip ', Latex2HTML => '\\begin{rawhtml}<P>\\end{rawhtml}', HTML => '<P>', PTX => "\n\n"); };
 #sub BR { MODES( TeX => '\\par\\noindent ', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR>'); };
 # Alternate definition of BR which is slightly more flexible and gives more white space in printed output
 # which looks better but kills more trees.
@@ -1542,18 +1545,17 @@ sub LTS { MODES(TeX => '<', Latex2HTML => '\\lt ', HTML => '&lt;', HTML_tth => '
 sub GTS { MODES(TeX => '>', Latex2HTML => '\\gt ', HTML => '&gt;', HTML_tth => '>', PTX => '\gt' ); };  #only for use in math mode
 sub LTE { MODES(TeX => '\\le ', Latex2HTML => '\\le ', HTML => '<U>&lt;</U>', HTML_tth => '\\le ', PTX => '\leq' ); };  #only for use in math mode
 sub GTE { MODES(TeX => '\\ge ', Latex2HTML => '\\ge ', HTML => '<U>&gt;</U>', HTML_tth => '\\ge ', PTX => '\geq' ); };  #only for use in math mode
-sub BEGIN_ONE_COLUMN { MODES(TeX => "\\ifdefined\\nocolumns\\else \\end{multicols}\\fi\n",  Latex2HTML => " ", HTML =>   " "); };
+sub BEGIN_ONE_COLUMN { MODES(TeX => "\\ifdefined\\nocolumns\\else\\end{multicols}\\fi\n",  Latex2HTML => " ", HTML =>   " "); };
 sub END_ONE_COLUMN { MODES(TeX =>
-		" \\ifdefined\\nocolumns\\else \\begin{multicols}{2}\n\\columnwidth=\\linewidth \\fi\n",
+		"\\ifdefined\\nocolumns\\else\\begin{multicols}{2}\n\\columnwidth=\\linewidth\\fi\n",
 		Latex2HTML => ' ', HTML => ' ');
-
 };
-sub SOLUTION_HEADING { MODES( TeX => '\\par {\\bf '.maketext('Solution:').' }',
+sub SOLUTION_HEADING { MODES( TeX => '{\\bf '.maketext('Solution: ').' }',
 		Latex2HTML => '\\par {\\bf '.maketext('Solution:').' }',
 		HTML =>  '<B>'.maketext('Solution:').'</B> ',
 		PTX => '');
 };
-sub HINT_HEADING { MODES( TeX => "\\par {\\bf ".maketext('Hint:')." }", Latex2HTML => "\\par {\\bf ".maketext('Hint:')." }", HTML => "<B>".maketext('Hint:')."</B> ", PTX => ''); };
+sub HINT_HEADING { MODES( TeX => "{\\bf ".maketext('Hint: ')."}", Latex2HTML => "\\par {\\bf ".maketext('Hint:')." }", HTML => "<B>".maketext('Hint:')."</B> ", PTX => ''); };
 sub US { MODES(TeX => '\\_', Latex2HTML => '\\_', HTML => '_', PTX => '_');};  # underscore, e.g. file${US}name
 sub SPACE { MODES(TeX => '\\ ',  Latex2HTML => '\\ ', HTML => '&nbsp;', PTX => ' ');};  # force a space in latex, doesn't force extra space in html
 sub NBSP { MODES(TeX => '~',  Latex2HTML => '~', HTML => '&nbsp;', PTX => '<nbsp/>');};
@@ -2467,39 +2469,10 @@ A wide variety of google widgets, youtube videos, and other online resources can
 
 sub beginproblem {
 	my $out = "";
-	my $problemValue = $envir->{problemValue} || 0;
-	my $fileName     = $envir->{probFileName};
-	my $probNum      = $envir->{probNum};
-	my $l2hFileName  = protect_underbar($envir->{probFileName});
-	my %inlist;
-	my $permissionLevel = $envir->{permissionLevel};
-	my $points = maketext('points');
-
-	$points = maketext('point') if $problemValue == 1;
-	## Prepare header for the problem
-	grep($inlist{$_}++, @{$envir->{'PRINT_FILE_NAMES_FOR'}});
-	my $effectivePermissionLevel = $envir->{effectivePermissionLevel}; # permission level of user assigned to question
-	my $PRINT_FILE_NAMES_PERMISSION_LEVEL = $envir->{'PRINT_FILE_NAMES_PERMISSION_LEVEL'};
-	my $studentLogin = $envir->{studentLogin};
-	my $print_path_name_flag = (defined($effectivePermissionLevel) &&
-		defined($PRINT_FILE_NAMES_PERMISSION_LEVEL) &&
-		$effectivePermissionLevel >= $PRINT_FILE_NAMES_PERMISSION_LEVEL)
-		|| (defined($inlist{$studentLogin}) and ($inlist{$studentLogin} > 0)) ? 1 : 0;
 	$out .= MODES(
 		TeX  => "\n%%% BEGIN PROBLEM PREAMBLE\n", #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
-		HTML => '<P style="margin: 0">'
+		HTML => ""
 	);
-	if ($print_path_name_flag) {
-		$out .= &M3("{\\bf ${probNum}. {\\footnotesize ($problemValue $points) \\path|$fileName|}}\\newline ",
-			" \\begin{rawhtml} ($problemValue $points) <B>$l2hFileName</B><BR>\\end{rawhtml}",
-			"($problemValue $points) <B>$fileName</B><BR>"
-		) if ($problemValue >= 0 and ($envir->{setNumber} =~ /\S/) and ($envir->{setNumber} ne 'Undefined_Set') and ($envir->{setNumber} ne 'not defined'));
-	} else {
-		$out .= &M3("{\\bf ${probNum}.} ($problemValue $points) ",
-			"($problemValue $points) ",
-			"($problemValue $points) "
-		) if ($problemValue >= 0 and ($envir->{setNumber} =~ /\S/) and ($envir->{setNumber} ne 'Undefined_Set') and ($envir->{setNumber} ne 'not defined'));
-	}
 	$out .= MODES(%{main::PG_restricted_eval(q!$main::problemPreamble!)});
 	$out .= MODES(
 		TeX  => "\n%%% END PROBLEM PREAMBLE\n", #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying

@@ -1488,7 +1488,7 @@ sub Format {
   my $parser = PGML::Parse->new(shift);
   my $format;
   if ($main::displayMode eq 'TeX') {
-    $format = "{\\pgmlSetup\n".PGML::Format::tex->new($parser)->format."\\par}%\n";
+    $format = "\n{\\pgmlSetup\n" . PGML::Format::tex->new($parser)->format . "\\par}%\n";
   } elsif ($main::displayMode eq 'PTX') {
     $format = PGML::Format::ptx->new($parser)->format."\n";
     $format = main::PTX_cleanup($format);
@@ -1518,95 +1518,6 @@ sub LaTeX {
 }
 
 ######################################################################
-#
-#  TeX code needed for PGML in hardcopy
-#
-
-our $preamble = <<'END_PREAMBLE';
-\ifdim\lastskip=\pgmlMarker
-  \let\pgmlPar=\relax
- \else
-  \let\pgmlPar=\par
-  \vadjust{\kern3pt}%
-\fi
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-%    definitions for PGML
-%
-
-\ifx\pgmlCount\undefined  % do not redefine if multiple files load PGML.pl
-  \newcount\pgmlCount
-  \newdimen\pgmlPercent
-  \newdimen\pgmlPixels  \pgmlPixels=.5pt
-\fi
-\pgmlPercent=.01\hsize
-
-\def\pgmlSetup{%
-  \parskip=0pt \parindent=0pt
-%  \ifdim\lastskip=\pgmlMarker\else\par\fi
-  \pgmlPar
-}%
-
-\def\pgmlIndent{\par\advance\leftskip by 2em \advance\pgmlPercent by .02em \pgmlCount=0}%
-\def\pgmlbulletItem{\par\indent\llap{$\bullet$ }\ignorespaces}%
-\def\pgmldiscItem{\par\indent\llap{$\bullet$ }\ignorespaces}%
-\def\pgmlcircleItem{\par\indent\llap{$\circ$ }\ignorespaces}%
-\def\pgmlsquareItem{\par\indent\llap{\vrule height 1ex width .75ex depth -.25ex\ }\ignorespaces}%
-\def\pgmlnumericItem{\par\indent\advance\pgmlCount by 1 \llap{\the\pgmlCount. }\ignorespaces}%
-\def\pgmlalphaItem{\par\indent{\advance\pgmlCount by `\a \llap{\char\pgmlCount. }}\advance\pgmlCount by 1\ignorespaces}%
-\def\pgmlAlphaItem{\par\indent{\advance\pgmlCount by `\A \llap{\char\pgmlCount. }}\advance\pgmlCount by 1\ignorespaces}%
-\def\pgmlromanItem{\par\indent\advance\pgmlCount by 1 \llap{\romannumeral\pgmlCount. }\ignorespaces}%
-\def\pgmlRomanItem{\par\indent\advance\pgmlCount by 1 \llap{\uppercase\expandafter{\romannumeral\pgmlCount}. }\ignorespaces}%
-
-\def\pgmlCenter{%
-  \par \parfillskip=0pt
-  \advance\leftskip by 0pt plus .5\hsize
-  \advance\rightskip by 0pt plus .5\hsize
-  \def\pgmlBreak{\break}%
-}%
-\def\pgmlRight{%
-  \par \parfillskip=0pt
-  \advance\leftskip by 0pt plus \hsize
-  \def\pgmlBreak{\break}%
-}%
-
-\def\pgmlBreak{\\}%
-
-\def\pgmlHeading#1{%
-  \par\bfseries
-  \ifcase#1 \or\huge \or\LARGE \or\large \or\normalsize \or\footnotesize \or\scriptsize \fi
-}%
-
-\def\pgmlRule#1#2{%
-  \par\noindent
-  \hbox{%
-    \strut%
-    \dimen1=\ht\strutbox%
-    \advance\dimen1 by -#2%
-    \divide\dimen1 by 2%
-    \advance\dimen2 by -\dp\strutbox%
-    \raise\dimen1\hbox{\vrule width #1 height #2 depth 0pt}%
-  }%
-  \par
-}%
-
-\def\pgmlIC#1{\futurelet\pgmlNext\pgmlCheckIC}%
-\def\pgmlCheckIC{\ifx\pgmlNext\pgmlSpace \/\fi}%
-{\def\getSpace#1{\global\let\pgmlSpace= }\getSpace{} }%
-
-{\catcode`\ =12\global\let\pgmlSpaceChar= }%
-{\obeylines\gdef\pgmlPreformatted{\par\small\ttfamily\hsize=10\hsize\obeyspaces\obeylines\let^^M=\pgmlNL\pgmlNL}}%
-\def\pgmlNL{\par\bgroup\catcode`\ =12\pgmlTestSpace}%
-\def\pgmlTestSpace{\futurelet\next\pgmlTestChar}%
-\def\pgmlTestChar{\ifx\next\pgmlSpaceChar\ \pgmlTestNext\fi\egroup}%
-\def\pgmlTestNext\fi\egroup#1{\fi\pgmlTestSpace}%
-
-\def^^M{\ifmmode\else\space\fi\ignorespaces}%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-END_PREAMBLE
-
-######################################################################
 
 package main;
 
@@ -1616,19 +1527,6 @@ sub _PGML_init {
   my $context = Context(); # prevent Typeset context from becoming active
   loadMacros("contextTypeset.pl");
   Context($context);
-  $problemPreamble->{TeX} .= $PGML::preamble unless $problemPreamble->{TeX} =~ m/definitions for PGML/;
-  ## Avoid bad spacing at the top of the problem (need to modify hardcopyPreamble.tex)
-  TEXT(MODES(HTML=>'', TeX=>'
-    \ifx\pgmlMarker\undefined
-      \newdimen\pgmlMarker \pgmlMarker=0.00314159pt  % hack to tell if \newline was used
-    \fi
-    \ifx\oldnewline\undefined \let\oldnewline=\newline \fi
-    \def\newline{\oldnewline\hskip-\pgmlMarker\hskip\pgmlMarker\relax}%
-    \parindent=0pt
-    \catcode`\^^M=\active
-    \def^^M{\ifmmode\else\fi\ignorespaces}%  skip paragraph breaks in the preamble
-    \def\par{\ifmmode\else\endgraf\fi\ignorespaces}%
-  '));
 }
 
 ######################################################################
