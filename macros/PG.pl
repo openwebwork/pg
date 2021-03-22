@@ -173,19 +173,46 @@ sub SET_PROBLEM_TEXTDIRECTION {
   }
 }
 
-# Request that the problem HTML page also include additional CSS files
-# from the webwork2/htdocs/css/ directory.
+=head4 ADD_CSS_FILE
+
+Request that the problem HTML page also include additional CSS files
+from the webwork2/htdocs/ directory or from an external location.
+
+	ADD_CSS_FILE($file, $external);
+
+If external is 1, it is assumed the full url is provided.  If external is 0 or
+not given, then file name will be prefixed with the webwork2/htdocs/ directory.
+For example:
+
+	ADD_CSS_FILE("css/rtl.css");
+	ADD_CSS_FILE("https://external.domain.com/path/to/file.css", 1);
+
+=cut
+
 sub ADD_CSS_FILE {
-  my $file = shift;
-  push(@{$PG->{flags}{extra_css_files}}, $file);
+  my ($file, $external) = shift;
+  push(@{$PG->{flags}{extra_css_files}}, { file => $file, external => $external });
 }
 
-# Request that the problem HTML page also include additional JS files.
-# If local is 1 the given file name will be prefixed with the webwork2/htdocs/js/ directory,
-# otherwise it is assumed the full url is provided.
+=head4 ADD_JS_FILE
+
+Request that the problem HTML page also include additional JS files
+from the webwork2/htdocs/ directory or from an external location.
+
+	ADD_JS_FILE($file, $external);
+
+If external is 1, it is assumed the full url is provided.  If external is 0 or
+not given, then file name will be prefixed with the webwork2/htdocs/ directory.
+For example:
+
+	ADD_JS_FILE("js/apps/Base64/Base64.js");
+	ADD_JS_FILE("//web.geogebra.org/4.4/web/web.nocache.js", 1);
+
+=cut
+
 sub ADD_JS_FILE {
-	my ($file, $local) = @_;
-	push(@{$PG->{flags}{extra_js_files}}, { file => $file, local => $local });
+	my ($file, $external) = @_;
+	push(@{$PG->{flags}{extra_js_files}}, { file => $file, external => $external });
 }
 
 sub AskSage {

@@ -28,8 +28,8 @@ See also L<http://webwork.maa.org/pod/pg_TRUNK/lib/Applet.html>.
 
 # Add basic functionality to the header of the question
 sub _AppletObjects_init{
-	ADD_JS_FILE("apps/Base64/Base64.js", 1);
-	ADD_JS_FILE("apps/AppletSupport/ww_applet_support.js", 1);
+	ADD_JS_FILE("js/apps/Base64/Base64.js");
+	ADD_JS_FILE("js/apps/AppletSupport/ww_applet_support.js");
 };
 
 =head3  FlashApplet
@@ -39,7 +39,7 @@ sub _AppletObjects_init{
 =cut
 
 sub FlashApplet {
-	ADD_JS_FILE("apps/AppletSupport/AC_RunActiveContent.js", 1);
+	ADD_JS_FILE("js/apps/AppletSupport/AC_RunActiveContent.js");
 	return new FlashApplet(@_);
 }
 
@@ -70,7 +70,7 @@ sub CanvasApplet {
 =cut
 
 sub GeogebraWebApplet {
-	ADD_JS_FILE("//web.geogebra.org/4.4/web/web.nocache.js", 0);
+	ADD_JS_FILE("//web.geogebra.org/4.4/web/web.nocache.js", 1);
 	return new GeogebraWebApplet(@_);
 }
 
