@@ -215,7 +215,7 @@ sub random_coprime {
 					}
 				}
 			}
-			do {warn "Unable to find a coprime tuple from input"; return;} unless (@{$newcandidates[0]},@{$newcandidates[1]});
+			do {warn "Unable to find a coprime tuple from input"; return;} unless (@{$newcandidates[0]} || @{$newcandidates[1]});
 			return random_coprime([@newcandidates],@_);
 		} else {
 			my @coprime_tuples = @{$candidates[0]};
