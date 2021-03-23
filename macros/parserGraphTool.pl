@@ -176,7 +176,7 @@ This is the size of the graph that will be output when a hard copy of the proble
 =cut
 
 sub _parserGraphTool_init {
-	if ($main::displayMode ne 'TeX' && !$main::GraphToolHeaderSet) {
+	if ($main::displayMode ne 'TeX' && $main::displayMode ne 'PTX' && !$main::GraphToolHeaderSet) {
 		main::TEXT(
 			'<link rel="stylesheet" type="text/css" href="/webwork2_files/js/vendor/jsxgraph/jsxgraph.css">' .
 			'<link rel="stylesheet" type="text/css" href="/webwork2_files/js/apps/GraphTool/graphtool.css">' .
@@ -493,7 +493,7 @@ END_TIKZ
 
 		$out = main::image(main::insertGraph($graph),
 			width => $size[0], height => $size[1], tex_size => $self->{texSize});
-	} else {
+	} elsif ($main::displayMode ne 'PTX') {
 		$self->constructJSXGraphOptions;
 		my $ans_name = $self->ANS_NAME;
 		$out .= "<div id='${ans_name}_graphbox' class='graphtool-container'></div>" .
@@ -549,7 +549,7 @@ sub cmp {
 	my $self = shift;
 	my $cmp = $self->SUPER::cmp(non_tex_preview => 1, %{$self->{cmpOptions}}, @_);
 
-	if ($main::displayMode ne 'TeX') {
+	if ($main::displayMode ne 'TeX' && $main::displayMode ne 'PTX') {
 		my $ans_name = $self->ANS_NAME;
 		$self->constructJSXGraphOptions;
 		my $graphObjs = @{$self->{staticObjects}} ?
