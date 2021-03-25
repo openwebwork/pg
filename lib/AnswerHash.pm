@@ -122,6 +122,7 @@ BEGIN {
 package AnswerHash;
 use Exporter;
 use PGUtil qw(not_null pretty_print);
+use JSON;
 
 # initialization fields
 my %fields = (		'score'					=>	undef,
@@ -247,19 +248,25 @@ sub score {
 
 =head4  stringify_hash
 
-        Usage:      $rh_ans->stringify_hash;
+	Usage:      $rh_ans->stringify_hash;
 
-        Turns all values in the hash into strings (so they won't cause trouble outside
-        the safe compartment).
+	Turns all values in the hash into strings (so they won't cause trouble outside
+	the safe compartment).
+
+	A special case is made to convert the mathQuillOpts key (if defined)
+	into JSON so it can be used in javascript.
 
 =cut
 
 sub stringify_hash {
-  my $self = shift;
-  Parser::Context->current(undef,$self->{correct_value}->context) if $self->{correct_value};
-  foreach my $key (keys %$self) {
-    $self->{$key} = "$self->{$key}" if ref($self->{$key});
-  }
+	my $self = shift;
+	Parser::Context->current(undef,$self->{correct_value}->context) if $self->{correct_value};
+	if ($self->{mathQuillOpts} && ref($self->{mathQuillOpts}) eq "HASH") {
+		$self->{mathQuillOpts} = JSON->new->utf8->encode($self->{mathQuillOpts});
+	}
+	foreach my $key (keys %$self) {
+		$self->{$key} = "$self->{$key}" if ref($self->{$key});
+	}
 }
 
 # error methods
