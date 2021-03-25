@@ -507,7 +507,7 @@ sub DataTable {
   # build html and ptx strings for the table (which have structural similarities that distinguish them from tex)
   if ($options{LaYoUt} != 1) {
   $table = '<TABLE style = "'.$tablecss.'">';
-  $ptxtable = "<sidebyside" . (($center)?' margins="auto"':'') . ">\n<tabular" . (($midrules)?' top="minor" bottom="minor"':'') . ">\n";
+  $ptxtable = "<tabular" . (($midrules)?' top="minor" bottom="minor"':'') . ">\n";
   $table .= '<colgroup>';
   for my $i (0..$#{$columnscss})
     {$columnscss->[$i] = '' unless (defined($columnscss->[$i]));
@@ -549,7 +549,7 @@ sub DataTable {
       elsif ($bodystarted and ($i == $#{$dataref})) {$table .= '</TBODY>';};
     };
     $table .= "</TABLE>";
-    $ptxtable .= "</tabular>\n</sidebyside>";
+    $ptxtable .= "</tabular>";
    }# now if it is a Layout Table...
    else {
      $table = '<SECTION style = "display:table;'.$tablecss.'">';

@@ -59,6 +59,18 @@ if the student answer is the
 same type as the correct one.
 Default: 1
 
+=item C<S<< processPreview => 0 or 1 >>>
+
+1 means process student answers even
+during answer previews.  Usually, no
+hints are given durring previews, but
+only when answers are checked or submitted.
+The default can be controlled on an individual
+message basis, or by adding
+C<answerHintsProcessPreview> to the C<cmp()>
+arguments, or in the context's flags.
+Default: 0
+
 =item C<S<< score => number >>>
 
 Specifies the score to use if
@@ -111,6 +123,11 @@ sub AnswerHints {
     my $student = $ans->{student_value};
     Value::Error("AnswerHints can only be used with MathObjects answer checkers") unless ref($correct);
     return $ans unless ref($student);
+    my $context = $correct->context;
+    my $hash = $context->{answerHash};
+    $context->{answerHash} = $ans;
+    my $processPreview = $correct->getFlag('answerHintsProcessPreview', 0);
+    $context->{answerHash} = $hash;
 
     while (@_) {
       my $wrongList = shift; my $message = shift; my @options;
@@ -119,11 +136,13 @@ sub AnswerHints {
         checkCorrect => 0,
         replaceMessage => 0,
 	checkTypes => 1,
+        processPreview => $processPreview,
         score => undef,
         cmp_options => [],
         @options,
       );
-      next if $options{checkType} && $correct->type ne $student->type;
+      next if $options{checkTypes} && $correct->type ne $student->type;
+      next if !$options{processPreview} && $ans->{isPreview};
       $wrongList = [$wrongList] unless ref($wrongList) eq 'ARRAY';
       foreach my $wrong (@{$wrongList}) {
 	if (ref($wrong) eq 'CODE') {

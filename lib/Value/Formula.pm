@@ -331,6 +331,7 @@ sub createRandomPoints {
   if ($include) {
     push(@{$points},@{$include});
     push(@{$values},@{$self->createPointValues($include,1,$cacheResults,$checkUndef)});
+    $num_points += scalar(@{$include});
   }
   my (@P,@p,$v,$i); my $k = 0;
   while (scalar(@{$points}) < $num_points+$num_undef && $k < 10) {

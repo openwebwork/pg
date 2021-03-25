@@ -879,6 +879,9 @@ sub blank_postfilter  {
     return($rh_ans) unless defined($rh_ans->{error_flag}) and $rh_ans->{error_flag} eq 'BLANK';
     $rh_ans->{error_flag} = undef;
     $rh_ans->{error_message} = '';
+    if ( defined($rh_ans->{message_for_blank_answer} ) ) {
+        $rh_ans->{ans_message} = $rh_ans->{message_for_blank_answer};
+    }
     $rh_ans->{done} =1;    # no further checking is needed.
     $rh_ans;
 };

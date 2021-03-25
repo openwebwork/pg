@@ -687,6 +687,10 @@ sub imageName {
 	}
 }
 
+sub ext {
+	return $WWPlot::use_png ? 'png' : 'ext';
+}
+
 sub position {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";

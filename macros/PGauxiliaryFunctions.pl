@@ -25,13 +25,19 @@ loadMacros("PGcommonFunctions.pl");
 #  max(@listNumbers)
 #  min(@listNumbers)
 #  round($number)
-#  lcm($number1,$number2)
-#  gfc($number1,$number2)
-#  gcd($number1,$number2)  
+#  lcm(@listNumbers)
+#  gcf(@listNumbers)
+#  gcd(@listNumbers)
 #  isPrime($number)
 #  reduce($numerator,$denominator)
 #  preformat($scalar, "QuotedString")
 #
+
+# Generate random relatively prime tuple
+# (uses gcf(), so it's here, even though this isn't a "function")
+# random_pairwise_coprime($ar1, $ar2, ... )
+# random_coprime($ar1, $ar2, ... )
+
 
 =cut
 
@@ -56,44 +62,38 @@ sub floor {
 # ^function max
 sub max {
 
-        my $maxVal = shift;
-        my @input = @_;
+	my $maxVal = shift;
+	my @input = @_;
 
-        foreach my $num (@input) {
-                $maxVal = $num if ($maxVal < $num);
-        }
+	foreach my $num (@input) {
+		$maxVal = $num if ($maxVal < $num);
+	}
 
-        $maxVal;
+	$maxVal;
 
 }
 
 # ^function min
 sub min {
 
-        my $minVal = shift;
-        my @input = @_;
+	my $minVal = shift;
+	my @input = @_;
 
-        foreach my $num (@input) {
-                $minVal = $num if ($minVal > $num);
-        }
+	foreach my $num (@input) {
+		$minVal = $num if ($minVal > $num);
+	}
 
-        $minVal;
+	$minVal;
 
 }
 
-#round added 6/12/2000 by David Etlinger. Edited by AKP 3-6-03
+# round added 6/12/2000 by David Etlinger. Edited by AKP 3-6-03
 
 # ^function round
 # ^uses Round
 sub round {
 	my $input = shift;
 	my $out = Round($input);
-#	if( $input >= 0 ) {
-#		$out = int ($input + .5);
-#	}
-#	else {
-#		$out = ceil($input - .5);
-#	}
 	$out;
 }
 
@@ -105,95 +105,184 @@ sub Round {
 	elsif (@_ == 2) { $_[0] > 0 ? Round($_[0]*10**$_[1])/10**$_[1] :Round($_[0]*10**$_[1])/10**$_[1]}
 }
 
-#least common multiple
-#VS 6/29/2000
+# least common multiple
+# should be passed a nonempty array of integers
+# checks if passed an empty array, but otherwise does not validate input
+# returns their least common multiple
 # ^function lcm
 sub lcm {
-	my $a = shift;
-	my $b = shift;
-
-	#reorder such that $a is the smaller number
-	if ($a > $b) {
-		my $temp = $a;
-		$a = $b;
-		$b = $temp;
-	}
-
-	my $lcm = 0;
-	my $curr = $b;;
-
-	while($lcm == 0) {
-		$lcm = $curr if ($curr % $a == 0);
-		$curr += $b;
-	}
-
-	$lcm;
-
+	do {warn 'Cannot take lcm of the empty set'; return;} unless (@_);
+	my $a = abs(shift);
+	return 0 unless $a;
+	return $a unless (@_);
+	my $b = abs(shift);
+	return 0 unless $b;
+	return lcm($a*$b/gcf($a,$b),@_);
 }
 
 
 # greatest common factor
-# takes in two scalar values and uses the Euclidean Algorithm to return the gcf
-#VS 6/29/2000
+# should be passed a nonempty array of integers
+# checks if passed an empty array, but otherwise does not validate input
+# returns their greatest common factor
 # ^function gcf
 sub gcf {
-        my $a = abs(shift);	# absolute values because this will yield the same gcd,
-        my $b = abs(shift);	# but allows use of the mod operation
-
-	# reorder such that b is the smaller number
-	if ($a < $b) {
-		my $temp = $a;
-		$a = $b;
-		$b = $temp;
+	# An empty argument array is either from the user or has been filtered down
+	# from previous iterations where the user submitted an all-zero array
+	do {warn 'Cannot take gcf of the empty set or an all-zero set'; return;} unless (@_);
+	my $a = abs(shift);
+	return gcf(@_) unless $a;
+	return $a unless (@_);
+	return 1 unless ($a > 1);
+	my $b = abs(shift);
+	# Swap if needed to make sure $a is smaller
+	($a,$b) = ($b,$a) if $a > $b;
+	while ($a) {
+		($a, $b) = ($b % $a, $a);
 	}
-
-	return $a if $b == 0;
-
-	my $q = int($a/$b);	# quotient
-	my $r = $a % $b;	# remainder
-
-	return $b if $r == 0;
-
-	my $tempR = $r;
-
-	while ($r != 0) {
-
-		#keep track of what $r was in the last loop, as this is the value
-		#we will want when $r is set to 0
-		$tempR = $r;
-
-		$a = $b;
-		$b = $r;
-		$q = $a/$b;
-		$r = $a % $b;
-
-	}
-
-	$tempR;
+	return gcf($b,@_);
 }
 
-
-#greatest common factor.
-#same as gcf, but both names are sufficiently common names
+# greatest common factor.
+# same as gcf, but both names are sufficiently common names
 # ^function gcd
 # ^uses gcf
 sub gcd {
-        return gcf($_[0], $_[1]);
+	return gcf(@_);
 }
 
-#returns 1 for a prime number, else 0
-#VS 6/30/2000
+# Generate relatively prime integers
+# Arguments should be array references to arrays of integers.
+# Returns an n-tuple of relatively prime integers,
+# each one coming from the corresponding array.
+# Random selection is uniform among all possible tuples that are relatively prime.
+# Does not consider (0,0) to be relatively prime.
+# In array context, returns an array. Otherwise, an array ref.
+# Use like:
+# random_coprime([1..9],[1..9]) to output maybe (2,9) or (1,1) but not (6,8)
+# random_coprime([-9..-1,1..9],[1..9],[1..9]) to output maybe (-3,7,4), (-1,1,1), or (-2,2,3) but not (-2,2,4)
+# random_pairwise_coprime([-9..-1,1..9],[1..9],[1..9]) to output maybe (-3,7,4) or (-1,1,1) but not (-2,2,3)
+# WARNING: random_coprime() will use a lot of memory and CPU resources if used with too many/too large arguments.
+# For example, random_coprime([-20..20],[-20..20],[-20..20],[-20..20],[-20..20]) involves processing 41^5 arrays.
+# Consider using random_pairwise_coprime() instead. Or breaking things up like:
+# random_coprime([-20..20],[-20..20]),random_coprime([-20..20],[-20..20],[-20..20])
+
+
+# ^ function random_coprime
+# ^uses gcd
+sub random_coprime {
+	# Expect first argument to be an array reference
+	my $c = shift;
+	my @candidates = @$c if $c;
+	# @candidates has numbers on the first iteration
+	# On subsequent iterations it has two array references
+	# The first of these is full of array references to tuples where we already know the gcf is 1
+	# The second is full of array references to tuples where the gcf is not 1, but these may become usable on later iterations
+	# If it has numbers, initialize the two array refs
+	if (ref $candidates[0] eq '') {
+		do {warn "Unable to find a coprime tuple from input"; return;} unless (@candidates);
+		my @refcandidates = ([],[]);
+		for my $i (@candidates) {
+			if (abs($i) == 1) {
+				push @{$refcandidates[0]},[$i];
+			} else {
+				push @{$refcandidates[1]},[$i];
+			}
+		}
+		return random_coprime([@refcandidates],@_);
+	} elsif (ref $candidates[0] eq 'ARRAY') {
+		# Expect second argument to be an array reference to an array of integers, if present
+		my $n = shift;
+		my @newcomers = @$n if ($n);
+		if (@newcomers) {
+			# Cross @candidates with @newcomers to make @newcandidates
+			my @newcandidates = ([],[]);
+			for my $i (@{$candidates[0]}) {
+				for my $j (@newcomers) {
+					push @{$newcandidates[0]}, [@{$i}, $j];
+				}
+			}
+			for my $i (@{$candidates[1]}) {
+				for my $j (@newcomers) {
+					# next three lines are to avoid asking for gcf of all-zero set
+					my $hasnonzero = 0;
+					for my $k (@{$i}) {do {$hasnonzero = 1; last;} if ($k != 0)};
+					do {push @{$newcandidates[1]}, [@{$i}, $j]; next} unless ($hasnonzero or $j != 0);
+					if (gcf($j,@{$i}) == 1) {
+						push @{$newcandidates[0]}, [@{$i}, $j];
+					} else {
+						push @{$newcandidates[1]}, [@{$i}, $j];
+					}
+				}
+			}
+			do {warn "Unable to find a coprime tuple from input"; return;} unless (@{$newcandidates[0]} || @{$newcandidates[1]});
+			return random_coprime([@newcandidates],@_);
+		} else {
+			my @coprime_tuples = @{$candidates[0]};
+			do {warn "Unable to find a coprime tuple from input"; return;} unless (@coprime_tuples);
+			my $return = list_random(@coprime_tuples);
+			return wantarray ? @{$return} : $return;
+		};
+	}
+}
+
+# ^ function random_pairwise_coprime
+# ^uses gcd
+sub random_pairwise_coprime {
+	# Expect first argument to be an array reference
+	my $c = shift;
+	my @candidates = @$c if $c;
+	# The array may have numbers (first iteration)
+	# or array references to tuples (subsequent iterations)
+	# If it has numbers, convert to an array reference of references to 1-element arrays
+	# and start over
+	if (ref $candidates[0] eq '') {
+		my @refcandidates;
+		for my $i (@candidates) {push @refcandidates,[$i];}
+		do {warn "Unable to find a coprime tuple from input"; return;} unless (@refcandidates);
+		return random_pairwise_coprime([@refcandidates],@_);
+	} elsif (ref $candidates[0] eq 'ARRAY') {
+		# Expect second argument to be an array reference to an array of integers, if present
+		my $n = shift;
+		my @newcomers = @$n if ($n);
+		if (@newcomers) {
+			# Build @newcandidates by combining tuples from @candidates with numbers from @newcomers, only when pairwise coprime
+			my @newcandidates;
+			for my $i (@candidates) {
+				for my $j (@newcomers) {
+					my $jOK = 1;
+					for my $k (@{$i}) {
+						# $j=0 is not OK if @{$i} already contains a 0
+						if ($j == 0 and $k == 0) {$jOK = 0; last;}
+						# in general, $j are not OK if there is something in @{$i} with which they have gcf > 1
+						if (gcf($j,$k) != 1) {$jOK = 0; last;}
+					}
+					push @newcandidates, [@{$i}, $j] if ($jOK);
+				}
+			}
+			do {warn "Unable to find a coprime tuple from input"; return;} unless (@newcandidates);
+			return random_pairwise_coprime([@newcandidates],@_);
+		} else {
+			# We know all candidate tuples are pairwise coprime already
+			my $return = list_random(@candidates);
+			return wantarray ? @{$return} : $return;
+		};
+	}
+}
+
+# returns 1 for a prime number, else 0
+# VS 6/30/2000
 # ^function isPrime
 sub isPrime {
-        my $num = shift;
-        return 1 if ($num == 2 or $num == 3);
-        return 0 if ($num == 1 or $num == 0);
-        for (my $i = 2; $i <= sqrt($num); $i++) { return 0 if ($num % $i == 0); }
-        return 1;
+	my $num = shift;
+	return 1 if ($num == 2 or $num == 3);
+	return 0 if ($num == 1 or $num == 0);
+	for (my $i = 2; $i <= sqrt($num); $i++) { return 0 if ($num % $i == 0); }
+	return 1;
 }
 
-#reduces a fraction, returning an array containing ($numerator, $denominator)
-#VS 7/10/2000
+# reduces a fraction, returning an array containing ($numerator, $denominator)
+# VS 7/10/2000
 # ^function reduce
 # ^uses gcd
 sub reduce {
@@ -233,7 +322,7 @@ sub preformat {
 	return $num.$obj;
 }
 
-#factorial
+# factorial
 # ^function fact
 # ^uses P
 sub fact {

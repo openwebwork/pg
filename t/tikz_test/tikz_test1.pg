@@ -1,0 +1,43 @@
+##DESCRIPTION
+# TEST tikz from a pg problem
+##ENDDESCRIPTION
+
+DOCUMENT();
+
+loadMacros(
+    "PGstandard.pl",
+    "MathObjects.pl",
+    "PGtikz.pl"
+);
+
+TEXT(beginproblem());
+
+##############################################################
+#  Setup
+##############################################################
+
+$drawing = createTikZImage();
+$drawing->tex(<<END_TIKZ);
+\draw (-4,0) -- (4,0);
+\draw (0,-2) -- (0,2);
+\draw (0,0) circle[radius=1.5];
+\draw (0, 1.5) node[anchor=south]{N} -- (2.5,0) node[above]{y};
+\draw (1.2,0.9) node[right]{\((\vec x, x_{n})\)};
+END_TIKZ
+
+$path = insertGraph($drawing);
+
+Context("Numeric");
+
+##############################################################
+#  Text
+##############################################################
+
+BEGIN_TEXT
+\{protect_underbar("path = $path")\};
+$BR alias = \{protect_underbar(alias($path))\}
+$PAR image = \{image($path, width => 228, height => 114, tex_size => 400)\}
+$PAR svg = \{embedSVG($path)\}
+END_TEXT
+
+ENDDOCUMENT();
