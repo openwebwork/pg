@@ -253,19 +253,21 @@ sub score {
 	Turns all values in the hash into strings (so they won't cause trouble outside
 	the safe compartment).
 
-	A special case is made to convert the mathQuillOpts key (if defined)
-	into JSON so it can be used in javascript.
+	Hashes and arrays are converted into a JSON string.
 
 =cut
 
 sub stringify_hash {
 	my $self = shift;
 	Parser::Context->current(undef,$self->{correct_value}->context) if $self->{correct_value};
-	if ($self->{mathQuillOpts} && ref($self->{mathQuillOpts}) eq "HASH") {
-		$self->{mathQuillOpts} = JSON->new->utf8->encode($self->{mathQuillOpts});
-	}
 	foreach my $key (keys %$self) {
-		$self->{$key} = "$self->{$key}" if ref($self->{$key});
+		my $ref = ref($self->{$key});
+		next if !$ref;
+		if ($ref eq "HASH" or $ref eq "ARRAY") {
+			$self->{$key} = JSON->new->utf8->allow_unknown->allow_blessed->encode($self->{$key});
+		} else {
+			$self->{$key} = "$self->{$key}";
+		}
 	}
 }
 
