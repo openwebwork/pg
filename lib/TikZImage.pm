@@ -109,6 +109,7 @@ sub header {
 	my @output = ();
 	push(@output, "\\documentclass{standalone}\n");
 	push(@output, "\\usepackage[svgnames]{xcolor}\n");
+	push(@output, "\\def\\pgfsysdriver{pgfsys-dvisvgm.def}\n") if $self->ext eq 'svg';
 	push(@output, "\\usepackage{tikz}\n");
 	push(@output, map {
 			"\\usepackage" . ($self->texPackages->{$_} ne "" ? "[$self->texPackages->{$_}]" : "") . "{$_}\n"
@@ -145,17 +146,21 @@ sub draw {
 	print $fh $self->footer;
 	close $fh;
 
-	my $pdflatex_command = "cd " . $working_dir . " && " .
-		WeBWorK::PG::IO::pdflatexCommand() . " > pdflatex.stdout 2> pdflatex.stderr image.tex";
+	my $ext = $self->ext;
+	my $latex_binary = WeBWorK::PG::IO::externalCommand($ext eq 'svg' ? 'latex' : 'pdflatex');
 
 	# Generate the pdf file.
-	system "$pdflatex_command";
-	if (-r "$working_dir/image.pdf" ) {
-		my $ext = $self->ext;
+	system "cd " . $working_dir . " && $latex_binary > pdflatex.stdout 2> /dev/null image.tex";
 
+	if (-r "$working_dir/image." . ($ext eq 'svg' ? 'dvi' : 'pdf') ) {
 		# Convert the file to the appropriate type of image file
-		system WeBWorK::PG::IO::convertCommand() . " $working_dir/image.pdf $working_dir/image.$ext"
-		if $ext ne 'pdf';
+		if ($ext eq 'svg') {
+			system WeBWorK::PG::IO::externalCommand('dvisvgm') .
+				" $working_dir/image.dvi 2>&1 /dev/null --no-fonts --output=$working_dir/image.svg"
+		} elsif ($ext ne 'pdf') {
+			system WeBWorK::PG::IO::externalCommand('convert') .
+				" 2>&1 /dev/null $working_dir/image.pdf $working_dir/image.$ext"
+		}
 
 		if (-r "$working_dir/image.$ext") {
 			# Read the generated image file into memory
