@@ -176,15 +176,11 @@ This is the size of the graph that will be output when a hard copy of the proble
 =cut
 
 sub _parserGraphTool_init {
-	if ($main::displayMode ne 'TeX' && $main::displayMode ne 'PTX' && !$main::GraphToolHeaderSet) {
-		main::TEXT(
-			'<link rel="stylesheet" type="text/css" href="/webwork2_files/js/vendor/jsxgraph/jsxgraph.css">' .
-			'<link rel="stylesheet" type="text/css" href="/webwork2_files/js/apps/GraphTool/graphtool.css">' .
-			'<script type="text/javascript" src="/webwork2_files/js/vendor/jsxgraph/jsxgraphcore.js"></script>' .
-			'<script type="text/javascript" src="/webwork2_files/js/apps/GraphTool/graphtool.min.js"></script>'
-		);
-		$main::GraphToolHeaderSet = 1;
-	}
+	ADD_CSS_FILE("js/vendor/jsxgraph/jsxgraph.css");
+	ADD_CSS_FILE("js/apps/GraphTool/graphtool.css");
+	ADD_JS_FILE("js/vendor/jsxgraph/jsxgraphcore.js", 0, { defer => undef });
+	ADD_JS_FILE("js/apps/GraphTool/graphtool.min.js", 0, { defer => undef });
+
 	main::PG_restricted_eval('sub GraphTool { parser::GraphTool->new(@_) }');
 }
 
@@ -355,16 +351,14 @@ sub constructJSXGraphOptions
 {
 	my $self = shift;
 	return if defined($self->{JSXGraphOptions});
-	$self->{JSXGraphOptions} = <<END_OPTS;
-{
-	boundingBox: [${\join(",", @{$self->{bBox}})}],
-	defaultAxes: {
-		x: { ticks: { ticksDistance: $self->{ticksDistanceX}, minorTicks: $self->{minorTicksX}} },
-		y: { ticks: { ticksDistance: $self->{ticksDistanceY}, minorTicks: $self->{minorTicksY}} }
-	},
-	grid: { gridX: $self->{gridX}, gridY: $self->{gridY} }
-}
-END_OPTS
+	$self->{JSXGraphOptions} = JSON->new->encode({
+			boundingBox => $self->{bBox},
+			defaultAxes => {
+				x => { ticks => { ticksDistance => $self->{ticksDistanceX}, minorTicks => $self->{minorTicksX}} },
+				y => { ticks => { ticksDistance => $self->{ticksDistanceY}, minorTicks => $self->{minorTicksY}} }
+			},
+			grid => { gridX => $self->{gridX}, gridY => $self->{gridY} }
+		});
 }
 
 # Produce a hidden answer rule to contain the JavaScript result and insert the graphbox div and
@@ -497,7 +491,8 @@ END_TIKZ
 		$self->constructJSXGraphOptions;
 		my $ans_name = $self->ANS_NAME;
 		$out .= "<div id='${ans_name}_graphbox' class='graphtool-container'></div>" .
-			"<script>graphTool('${ans_name}_graphbox', { " .
+			"<script>window.addEventListener('DOMContentLoaded', function() {
+			graphTool('${ans_name}_graphbox', { " .
 			"htmlInputId: '${ans_name}', " .
 			"staticObjects: '" . join(',', @{$self->{staticObjects}}) . "'," .
 			"snapSizeX: $self->{snapSizeX}," .
@@ -506,7 +501,7 @@ END_TIKZ
 			"customTools: {$customTools}," .
 			"availableTools: ['" . join("','", @{$self->{availableTools}}) . "']," .
 			"JSXGraphOptions: $self->{JSXGraphOptions}," .
-			"});</script>";
+			"});});</script>";
 	}
 
 	return $out;
@@ -526,7 +521,7 @@ sub cmp_preprocess {
 		$ans->{preview_latex_string} = <<"END_ANS";
 <div id='${ans_name}_student_ans_graphbox' class='graphtool-answer-container'></div>
 <script>
-jQuery(function() {
+window.addEventListener("DOMContentLoaded", function() {
 	graphTool("${ans_name}_student_ans_graphbox", {
 		staticObjects: "$graphObjs",
 		isStatic: true,
@@ -558,7 +553,7 @@ sub cmp {
 		$cmp->{rh_ans}{correct_ans_latex_string} = << "END_ANS";
 <div id='${ans_name}_correct_ans_graphbox' class='graphtool-answer-container'></div>
 <script>
-jQuery(function() {
+window.addEventListener("DOMContentLoaded", function() {
 	graphTool("${ans_name}_correct_ans_graphbox", {
 		staticObjects: "$graphObjs",
 		isStatic: true,
