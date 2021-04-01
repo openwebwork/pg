@@ -203,16 +203,21 @@ from the webwork2/htdocs/ directory or from an external location.
 
 If external is 1, it is assumed the full url is provided.  If external is 0 or
 not given, then file name will be prefixed with the webwork2/htdocs/ directory.
+
+Addtional attributes can be passed as a hash reference in the optional third
+argument.  These attributes will be added as attributes to the script tag.
+
 For example:
 
 	ADD_JS_FILE("js/apps/Base64/Base64.js");
 	ADD_JS_FILE("//web.geogebra.org/4.4/web/web.nocache.js", 1);
+	ADD_JS_FILE("js/apps/GraphTool/graphtool.min.js", 0, { id => "gt_script", defer => undef });
 
 =cut
 
 sub ADD_JS_FILE {
-	my ($file, $external) = @_;
-	push(@{$PG->{flags}{extra_js_files}}, { file => $file, external => $external });
+	my ($file, $external, $attributes) = @_;
+	push(@{$PG->{flags}{extra_js_files}}, { file => $file, external => $external, attributes => $attributes });
 }
 
 sub AskSage {
