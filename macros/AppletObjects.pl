@@ -22,7 +22,7 @@ AppletObjects.pl - Macro-based front end for the Applet.pm module.
 The subroutines in this file provide mechanisms to insert Flash applets, Java applets, HTML 5
 Canvas applets, and Geogebra web applets into a WeBWorK problem.
 
-See also L<http://webwork.maa.org/pod/pg_TRUNK/lib/Applet.html>.
+See also L<Applet.pm>.
 
 =cut
 
