@@ -142,7 +142,7 @@ sub draw {
 		or warn "Can't open $working_dir/image.tex for writing.";
 	chmod(0777, "$working_dir/image.tex");
 	print $fh $self->header;
-	print $fh $self->tex . "\n";
+	print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
 	print $fh $self->footer;
 	close $fh;
 
