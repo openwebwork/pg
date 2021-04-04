@@ -72,21 +72,41 @@ TikZImage object return by createTikZImage to generate the desired image.
 
     $image->ext()              Set the file type to be used for the image.
                                The valid image types are 'png', 'gif', 'svg',
-                               and 'pdf'.  The default is a 'png' image.  This
-                               macro sets this to 'pdf' when a hardcopy is
-                               generated.
+                               and 'pdf'.  The default is an 'svg' image.  You
+                               should determine if an 'svg' image works well with
+                               the TikZ code that you utilize.  If not, then use
+                               this method to change the exension to 'png' or
+                               'gif'.
+
+                               This macro sets the extension to 'pdf' when a
+                               hardcopy is generated.
 
 =cut
 
-sub _PGtikz_init {}
+sub _PGtikz_init {
+	main::PG_restricted_eval('sub createTikZImage { PGtikz->new(@_); }');
+}
+
+package PGtikz;
+our @ISA = qw(TikZImage);
 
 # Not much needs to be done here.  The real work is done in TikZImage.pm.
-sub createTikZImage
-{
-	my $image = new TikZImage;
-	$image->ext('pdf') if $main::displayMode eq 'TeX';
+sub new {
+	my $self = shift;
+	my $class = ref($self) || $self;
+
+	my $image = $class->SUPER::new(@_);
+	$image->SUPER::ext('pdf') if $main::displayMode eq 'TeX';
 	$image->imageName($main::PG->getUniqueName($image->ext));
-	return $image;
+
+	return bless $image, $class;
+}
+
+sub ext {
+	my $self = shift;
+	my $ext = shift;
+	return $self->SUPER::ext($ext) if $ext && $main::displayMode ne 'TeX';
+	return $self->SUPER::ext;
 }
 
 1;

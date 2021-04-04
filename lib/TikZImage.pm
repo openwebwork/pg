@@ -35,7 +35,7 @@ sub new {
 		tikzLibraries => '',
 		texPackages   => {},
 		addToPreamble => '',
-		ext           => 'png',
+		ext           => 'svg',
         imageName     => ''
 	};
 	my $self = sub {
@@ -46,7 +46,7 @@ sub new {
 			if ($field eq 'ext') {
 				my $ext = shift;
 				$data->{ext} = $ext
-				if ($ext eq 'png' || $ext eq 'gif' || $ext eq 'svg' || $ext eq 'pdf');
+				if ($ext && ($ext eq 'png' || $ext eq 'gif' || $ext eq 'svg' || $ext eq 'pdf'));
 			}
 			else {
 				$data->{$field} = shift;
