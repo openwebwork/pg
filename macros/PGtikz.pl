@@ -23,7 +23,7 @@ This is a convenience macro for utilizing the TikZImage object to insert TikZ
 images into problems.  Create a TikZ image as follows:
 
     $image = createTikZImage();
-    $image->tex(<<END_TIKZ);
+    $image->BEGIN_TIKZ
     \draw (-2,0) -- (2,0);
     \draw (0,-2) -- (0,2);
     \draw (0,0) circle[radius=1.5];
