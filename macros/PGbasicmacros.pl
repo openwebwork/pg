@@ -2997,11 +2997,16 @@ sub image {
 			|| $displayMode eq 'HTML_asciimath'
 			|| $displayMode eq 'HTML_LaTeXMathML'
 			|| $displayMode eq 'HTML_img') {
-			my $altattrib = (defined $alt) ? ('alt="' . ($alt =~ s/"/&quot;/gr) . '"') : '';
+			my $altattrib = '';
+			if (defined $alt) {$altattrib = 'alt="' . encode_pg_and_html($alt) . '"'};
 			$out = qq!<IMG SRC="$imageURL" class="image-view-elt" tabindex="0" role="button" WIDTH="$width" $height_attrib $out_options{extra_html_tags} $altattrib>!
 		} elsif ($displayMode eq 'PTX') {
 			my $ptxwidth = 100*$width/600;
-			$out = (defined $alt) ? qq!<image width="$ptxwidth%" source="$imageURL"><description>$alt</description></image>! : qq!<image width="$ptxwidth%" source="$imageURL" />!
+			if (defined $alt) {
+				$out = qq!<image width="$ptxwidth%" source="$imageURL"><description>$alt</description></image>!
+			} else {
+				$out = qq!<image width="$ptxwidth%" source="$imageURL" />!
+			}
 		} else {
 			$out = "Error: PGbasicmacros: image: Unknown displayMode: $displayMode.\n";
 		}
