@@ -2929,6 +2929,8 @@ sub image {
 		width    => 100,
 		height   => '',
 		tex_size => 800,
+		# default value for alt is undef, since an empty string is the explicit indicator of a decorative image
+		alt => undef,
 		extra_html_tags => '',
 	);
 	# handle options
@@ -2944,6 +2946,7 @@ sub image {
 	my $width       = $out_options{width};
 	my $height      = $out_options{height};
 	my $tex_size    = $out_options{tex_size};
+	my $alt         = $out_options{alt};
 	my $width_ratio = $tex_size*(.001);
 	my @image_list  = ();
 
@@ -2994,10 +2997,11 @@ sub image {
 			|| $displayMode eq 'HTML_asciimath'
 			|| $displayMode eq 'HTML_LaTeXMathML'
 			|| $displayMode eq 'HTML_img') {
-			$out = qq!<IMG SRC="$imageURL" class="image-view-elt" tabindex="0" role="button" WIDTH="$width" $height_attrib $out_options{extra_html_tags}>!
+			my $altattrib = (defined $alt) ? ('alt="' . ($alt =~ s/"/&quot;/gr) . '"') : '';
+			$out = qq!<IMG SRC="$imageURL" class="image-view-elt" tabindex="0" role="button" WIDTH="$width" $height_attrib $out_options{extra_html_tags} $altattrib>!
 		} elsif ($displayMode eq 'PTX') {
 			my $ptxwidth = 100*$width/600;
-			$out = qq!<image width="$ptxwidth%" source="$imageURL" />!
+			$out = (defined $alt) ? qq!<image width="$ptxwidth%" source="$imageURL"><description>$alt</description></image>! : qq!<image width="$ptxwidth%" source="$imageURL" />!
 		} else {
 			$out = "Error: PGbasicmacros: image: Unknown displayMode: $displayMode.\n";
 		}
