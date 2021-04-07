@@ -2908,12 +2908,7 @@ sub row {
 =head2 Macros for displaying static images
 
     Usage:
-    $string = image($image, width => 100, height => 100, tex_size => 800)
-    $string = image($image, width => 100, height => 100, extra_html_tags => 'align="middle"', tex_size => 800)
-    $string = image([$image1, $image2], width => 100, height => 100, tex_size => 800)
-    $string = caption($string);
-    $string = imageRow([$image1, $image2 ], [$caption1, $caption2]);
-             # produces a complete table with rows of pictures.
+    $string = image($image, width => 100, height => 100, tex_size => 800, alt => 'alt text', extra_html_tags => 'style="border:solid black 1pt"');
 
 =cut
 
@@ -2955,6 +2950,7 @@ sub image {
 	my $height_attrib = '';
 	$height_attrib = qq{height = "$height"} if ($height);
 
+	# if image() is being called to support the legacy imageRow(), its argument may be an array reference
 	if (ref($image_ref) =~ /ARRAY/ ) {
 		@image_list = @{$image_ref};
 	} else {
@@ -3012,6 +3008,7 @@ sub image {
 		}
 		push(@output_list, $out);
 	}
+	# if image() is being called to support the legacy imageRow(), wantarray is true
 	return wantarray ? @output_list : $output_list[0];
 }
 
