@@ -2925,7 +2925,6 @@ this produces an array in array context and joins the elements with C<' '> in sc
 #   More advanced macros
 sub image {
 	my $image_ref = shift;
-	$image_ref = main::insertGraph($image_ref) if (ref($image_ref) eq 'WWPlot' or ref($image_ref) eq 'TikZImage');
 	my @opt = @_;
 	unless (scalar(@opt) % 2 == 0 ) {
 		warn "ERROR in image macro.  A list of macros must be inclosed in square brackets.";
@@ -2975,7 +2974,9 @@ sub image {
 
 	my @output_list = ();
 	while(@image_list) {
-		my $imageURL = alias(shift @image_list)//'';
+		my $image_item = shift @image_list;
+		$image_item = main::insertGraph($image_item) if (ref($image_item) eq 'WWPlot' or ref($image_item) eq 'TikZImage');
+		my $imageURL = alias($image_item)//'';
 		$imageURL = ($envir{use_site_prefix})? $envir{use_site_prefix}.$imageURL : $imageURL;
 		my $out = "";
 
