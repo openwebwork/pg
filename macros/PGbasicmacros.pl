@@ -2975,7 +2975,7 @@ sub image {
 	my @output_list = ();
 	while(@image_list) {
 		my $image_item = shift @image_list;
-		$image_item = main::insertGraph($image_item) if (ref($image_item) eq 'WWPlot' or ref($image_item) eq 'TikZImage');
+		$image_item = insertGraph($image_item) if (ref $image_item eq 'WWPlot' || ref $image_item eq 'TikZImage');
 		my $imageURL = alias($image_item)//'';
 		$imageURL = ($envir{use_site_prefix})? $envir{use_site_prefix}.$imageURL : $imageURL;
 		my $out = "";
