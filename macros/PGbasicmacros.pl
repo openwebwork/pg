@@ -2905,10 +2905,15 @@ sub row {
 	$out;
 }
 
-=head2 Macros for displaying static images
+=head2 Macros for displaying images
 
     Usage:
-    $string = image($image, width => 100, height => 100, tex_size => 800, alt => 'alt text', extra_html_tags => 'style="border:solid black 1pt"');
+    image($image, width => 100, height => 100, tex_size => 800, alt => 'alt text', extra_html_tags => 'style="border:solid black 1pt"');
+    # where $image can be a local file path or URL
+    # width and height are pixel counts for HTML display, while tex_size is per 1000 applied to linewidth (for example 800 leads to 0.8\linewidth)
+    image([$image1,$image2], width => 100, height => 100, tex_size => 800, alt => ['alt text 1','alt text 2'], extra_html_tags => 'style="border:solid black 1pt"');
+    image([$image1,$image2], width => 100, height => 100, tex_size => 800, alt => 'common alt text', extra_html_tags => 'style="border:solid black 1pt"');
+    # this produces an array in array context and joins the elements with ' ' in scalar context
 
 =cut
 
@@ -2944,17 +2949,22 @@ sub image {
 	my $alt         = $out_options{alt};
 	my $width_ratio = $tex_size*(.001);
 	my @image_list  = ();
+	my @alt_list  = ();
 
 	# if height was explicitly given, create string for height attribute to be used in HTML, LaTeX2HTML
 	# otherwise omit a height attribute and allow the browser to use aspect ratio preservation
 	my $height_attrib = '';
 	$height_attrib = qq{height = "$height"} if ($height);
 
-	# if image() is being called to support the legacy imageRow(), its argument may be an array reference
 	if (ref($image_ref) =~ /ARRAY/ ) {
 		@image_list = @{$image_ref};
 	} else {
 		push(@image_list, $image_ref);
+	}
+	if (ref($alt) =~ /ARRAY/ ) {
+		@alt_list = @{$alt};
+	} else {
+		for my $i (@image_list) {push(@alt_list, $alt)};
 	}
 
 	my @output_list = ();
@@ -2994,7 +3004,7 @@ sub image {
 			|| $displayMode eq 'HTML_LaTeXMathML'
 			|| $displayMode eq 'HTML_img') {
 			my $altattrib = '';
-			if (defined $alt) {$altattrib = 'alt="' . encode_pg_and_html($alt) . '"'};
+			if (defined $alt_list[0]) {$altattrib = 'alt="' . encode_pg_and_html(shift @alt_list) . '"'};
 			$out = qq!<IMG SRC="$imageURL" class="image-view-elt" tabindex="0" role="button" WIDTH="$width" $height_attrib $out_options{extra_html_tags} $altattrib>!
 		} elsif ($displayMode eq 'PTX') {
 			my $ptxwidth = 100*$width/600;
@@ -3008,8 +3018,7 @@ sub image {
 		}
 		push(@output_list, $out);
 	}
-	# if image() is being called to support the legacy imageRow(), wantarray is true
-	return wantarray ? @output_list : $output_list[0];
+	return wantarray ? @output_list : join(' ',@output_list);
 }
 
 #This is bare bones code for embedding svg
