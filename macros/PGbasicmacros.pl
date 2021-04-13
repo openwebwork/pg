@@ -2911,9 +2911,9 @@ Usage:
 
     image($image, width => 100, height => 100, tex_size => 800, alt => 'alt text', extra_html_tags => 'style="border:solid black 1pt"');
 
-where C<$image> can be a local file path or URL, C<width> and C<height> are
-pixel counts for HTML display, while C<tex_size> is per 1000 applied to
-linewidth (for example 800 leads to 0.8\linewidth)
+where C<$image> can be a local file path, URL, WWPlot object, or TikZImage object,
+C<width> and C<height> are pixel counts for HTML display, while C<tex_size> is
+per 1000 applied to linewidth (for example 800 leads to 0.8\linewidth)
 
     image([$image1,$image2], width => 100, height => 100, tex_size => 800, alt => ['alt text 1','alt text 2'], extra_html_tags => 'style="border:solid black 1pt"');
     image([$image1,$image2], width => 100, height => 100, tex_size => 800, alt => 'common alt text', extra_html_tags => 'style="border:solid black 1pt"');
