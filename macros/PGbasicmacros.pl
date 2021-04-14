@@ -2112,7 +2112,7 @@ sub general_math_ev3 {
 
 	my $out;
 	if($displayMode eq "HTML_MathJax") {
-		$out = '<span>'.$in_delim.'</span>';
+		$out = '<span><script type="math/tex' . ($mode eq 'display' ? '; mode=display' : '') . '">' . $in . '</script></span>';
 	} elsif ($displayMode eq "HTML_dpng" ) {
 		# for jj's version of ImageGenerator
 		#$out = $envir->{'imagegen'}->add($in_delim);
