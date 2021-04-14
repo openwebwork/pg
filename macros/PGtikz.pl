@@ -96,6 +96,7 @@ sub new {
 	my $class = ref($self) || $self;
 
 	my $image = $class->SUPER::new(@_);
+	$image->ext($main::envir{tikzImageExtension} // 'png');
 	$image->SUPER::ext('pdf') if $main::displayMode eq 'TeX';
 	$image->imageName($main::PG->getUniqueName($image->ext));
 
