@@ -36,6 +36,7 @@ sub new {
 		texPackages   => {},
 		addToPreamble => '',
 		ext           => 'svg',
+		svgMethod     => 'pdf2svg',
         imageName     => ''
 	};
 	my $self = sub {
@@ -98,6 +99,12 @@ sub ext {
 	return &$self('ext', @_);
 }
 
+# Set the method to use to generate svg images.  The valid methods are 'pdf2svg' and 'dvisvgm'.
+sub svgMethod {
+	my $self = shift;
+	return &$self('svgMethod', @_);
+}
+
 # Set the file name.
 sub imageName {
 	my $self = shift;
@@ -109,7 +116,7 @@ sub header {
 	my @output = ();
 	push(@output, "\\documentclass{standalone}\n");
 	push(@output, "\\usepackage[svgnames]{xcolor}\n");
-	push(@output, "\\def\\pgfsysdriver{pgfsys-dvisvgm.def}\n") if $self->ext eq 'svg';
+	push(@output, "\\def\\pgfsysdriver{pgfsys-dvisvgm.def}\n") if $self->ext eq 'svg' && $self->svgMethod eq 'dvisvgm';
 	push(@output, "\\usepackage{tikz}\n");
 	push(@output, map {
 			"\\usepackage" . ($self->texPackages->{$_} ne "" ? "[$self->texPackages->{$_}]" : "") . "{$_}\n"
@@ -147,19 +154,25 @@ sub draw {
 	close $fh;
 
 	my $ext = $self->ext;
-	my $latex_binary = WeBWorK::PG::IO::externalCommand($ext eq 'svg' ? 'latex' : 'pdflatex');
+	my $tex_ext = $ext eq 'svg' && $self->svgMethod eq 'dvisvgm' ? 'dvi' : 'pdf';
+	my $latex_binary = WeBWorK::PG::IO::externalCommand($tex_ext eq 'dvi' ? 'latex' : 'pdflatex');
 
 	# Generate the pdf file.
-	system "cd " . $working_dir . " && $latex_binary > pdflatex.stdout 2> /dev/null image.tex";
+	system "cd " . $working_dir . " && $latex_binary image.tex > pdflatex.stdout 2> /dev/null";
 
-	if (-r "$working_dir/image." . ($ext eq 'svg' ? 'dvi' : 'pdf') ) {
+	if (-r "$working_dir/image.$tex_ext") {
 		# Convert the file to the appropriate type of image file
 		if ($ext eq 'svg') {
-			system WeBWorK::PG::IO::externalCommand('dvisvgm') .
-				" $working_dir/image.dvi 2>&1 /dev/null --no-fonts --output=$working_dir/image.svg"
+			if ($self->svgMethod eq 'dvisvgm') {
+				system WeBWorK::PG::IO::externalCommand('dvisvgm') .
+					" $working_dir/image.dvi --no-fonts --output=$working_dir/image.svg > /dev/null 2>&1";
+			} else {
+				system WeBWorK::PG::IO::externalCommand($self->svgMethod) .
+					" $working_dir/image.pdf $working_dir/image.svg > /dev/null 2>&1";
+			}
 		} elsif ($ext ne 'pdf') {
 			system WeBWorK::PG::IO::externalCommand('convert') .
-				" 2>&1 /dev/null $working_dir/image.pdf $working_dir/image.$ext"
+				" $working_dir/image.pdf $working_dir/image.$ext > /dev/null 2>&1";
 		}
 
 		if (-r "$working_dir/image.$ext") {
@@ -173,9 +186,8 @@ sub draw {
 			warn "Convert operation failed.";
 		}
 	} else {
-		warn "File $working_dir/image.pdf was not created.";
-		if (open(my $err_fh, "<", "$working_dir/pdflatex.stdout"))
-		{
+		warn "File $working_dir/image.$tex_ext was not created.";
+		if (open(my $err_fh, "<", "$working_dir/pdflatex.stdout")) {
 			while (my $error = <$err_fh>) {
 				warn $error;
 			}
