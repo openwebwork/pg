@@ -1024,8 +1024,9 @@ interpreted as the return value of ENDDOCUMENT(). Therefore, ENDDOCUMENT() must
 be the last executable statement of every problem. It can only appear once. It
 returns a list consisting of:
 
+=back
 
-
+=over
 
 =item *
 

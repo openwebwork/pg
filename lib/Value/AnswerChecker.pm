@@ -26,7 +26,7 @@ use PGcore;
 #
 $Value::defaultContext->{cmpDefaults} = {};
 
-=head5 $mathObject->cmp_defaults()
+=head4 $mathObject->cmp_defaults()
 
 #  Internal use.
 #  Set default flags for the answer checker in this object

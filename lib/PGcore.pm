@@ -199,8 +199,7 @@ up the results of problem processing for delivery back to WeBWorK.
 The HEADER_TEXT(), TEXT(), and ANS() macros add to the header text string,
 body text string, and answer evaluator queue, respectively.
 
-=cut
-
+=over
 
 =item HEADER_TEXT()
 
@@ -597,6 +596,8 @@ sub encode_pg_and_html {
 		   '<>"&\'\$\@\\\\`\\[*_\x00-\x1F\x7F');
     return $input;
 }
+
+=back
 
 =head2   Message channels
 
