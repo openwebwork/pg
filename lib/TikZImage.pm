@@ -115,12 +115,13 @@ sub header {
 	my $self = shift;
 	my @output = ();
 	push(@output, "\\documentclass{standalone}\n");
-	push(@output, "\\usepackage[svgnames]{xcolor}\n");
 	push(@output, "\\def\\pgfsysdriver{pgfsys-dvisvgm.def}\n") if $self->ext eq 'svg' && $self->svgMethod eq 'dvisvgm';
+	my $xcolorOpts = $self->texPackages->{xcolor} ? $self->texPackages->{xcolor} : 'svgnames';
+	push(@output, "\\usepackage[$xcolorOpts]{xcolor}\n");
 	push(@output, "\\usepackage{tikz}\n");
 	push(@output, map {
 			"\\usepackage" . ($self->texPackages->{$_} ne "" ? "[$self->texPackages->{$_}]" : "") . "{$_}\n"
-		} keys %{$self->texPackages});
+		} grep { $_ ne 'xcolor' } keys %{$self->texPackages});
 	push(@output, "\\usetikzlibrary{" . $self->tikzLibraries . "}") if ($self->tikzLibraries ne "");
 	push(@output, $self->addToPreamble);
 	push(@output, "\\begin{document}\n");
