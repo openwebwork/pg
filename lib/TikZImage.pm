@@ -108,6 +108,12 @@ sub svgMethod {
 	return &$self('svgMethod', @_);
 }
 
+# Set the options to be used by ImageMagick convert.
+sub convertOptions {
+	my $self = shift;
+	return &$self('convertOptions', @_);
+}
+
 # Set the file name.
 sub imageName {
 	my $self = shift;
@@ -178,7 +184,10 @@ sub draw {
 			}
 		} elsif ($ext ne 'pdf') {
 			system WeBWorK::PG::IO::externalCommand('convert') .
-				" $working_dir/image.pdf $working_dir/image.$ext > /dev/null 2>&1";
+				join('',map {" -$_ " . $self->convertOptions->[0]->{$_}} (keys %{$self->convertOptions->[0]})) .
+				" $working_dir/image.pdf" .
+				join('',map {" -$_ " . $self->convertOptions->[1]->{$_}} (keys %{$self->convertOptions->[1]})) .
+				" $working_dir/image.$ext > /dev/null 2>&1";
 		}
 
 		if (-r "$working_dir/image.$ext") {

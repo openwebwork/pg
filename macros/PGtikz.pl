@@ -100,6 +100,7 @@ sub new {
 
 	my $image = $class->SUPER::new(@_);
 	$image->svgMethod($main::envir{tikzSVGMethod} // 'pdf2svg');
+	$image->convertOptions($main::envir{convertOptions} // [{},{}]);
 	$image->SUPER::ext('pdf') if $main::displayMode eq 'TeX';
 	$image->imageName($main::PG->getUniqueName($image->ext));
 
