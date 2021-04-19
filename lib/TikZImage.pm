@@ -162,6 +162,7 @@ sub draw {
 	system "cd " . $working_dir . " && $latex_binary image.tex > pdflatex.stdout 2> /dev/null";
 
 	if (-r "$working_dir/image.$tex_ext") {
+		chmod(0777, "$working_dir/image.$tex_ext");
 		# Convert the file to the appropriate type of image file
 		if ($ext eq 'svg') {
 			if ($self->svgMethod eq 'dvisvgm') {
