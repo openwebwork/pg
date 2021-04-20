@@ -33,7 +33,7 @@ sub new {
 		tex           => '',
 		tikzOptions   => '',
 		tikzLibraries => '',
-		texPackages   => {},
+		texPackages   => [],
 		addToPreamble => '',
 		ext           => 'svg',
 		svgMethod     => 'pdf2svg',
@@ -79,10 +79,13 @@ sub tikzLibraries {
 	return &$self('tikzLibraries', @_);
 }
 
-# Set additional TeX packages to load.  This accepts a single hash parameter.
+# Set additional TeX packages to load.  This accepts an array parameter.  Note
+# that each element of this array should either be a string or an array with one
+# or two elements (the first element the package name, and the optional second
+# element the package options).
 sub texPackages {
 	my $self = shift;
-	return &$self('texPackages', $_[0]) if ref($_[0]) eq "HASH";
+	return &$self('texPackages', $_[0]) if ref($_[0]) eq "ARRAY";
 	return &$self('texPackages');
 }
 
@@ -116,12 +119,13 @@ sub header {
 	my @output = ();
 	push(@output, "\\documentclass{standalone}\n");
 	push(@output, "\\def\\pgfsysdriver{pgfsys-dvisvgm.def}\n") if $self->ext eq 'svg' && $self->svgMethod eq 'dvisvgm';
-	my $xcolorOpts = $self->texPackages->{xcolor} ? $self->texPackages->{xcolor} : 'svgnames';
+	my @xcolorOpts = grep { ref $_ eq "ARRAY" && $_->[0] eq "xcolor" && defined $_->[1] } @{$self->texPackages};
+	my $xcolorOpts = @xcolorOpts ? $xcolorOpts[0][1] : 'svgnames';
 	push(@output, "\\usepackage[$xcolorOpts]{xcolor}\n");
 	push(@output, "\\usepackage{tikz}\n");
 	push(@output, map {
-			"\\usepackage" . ($self->texPackages->{$_} ne "" ? "[$self->texPackages->{$_}]" : "") . "{$_}\n"
-		} grep { $_ ne 'xcolor' } keys %{$self->texPackages});
+			"\\usepackage" . (ref $_ eq "ARRAY" && @$_ > 1 && $_->[1] ne "" ? "[$_->[1]]" : "") . "{" . (ref $_ eq "ARRAY" ? $_->[0] : $_) . "}\n"
+		} grep { (ref $_ eq "ARRAY" && $_->[0] ne 'xcolor') || $_ ne 'xcolor' } @{$self->texPackages});
 	push(@output, "\\usetikzlibrary{" . $self->tikzLibraries . "}") if ($self->tikzLibraries ne "");
 	push(@output, $self->addToPreamble);
 	push(@output, "\\begin{document}\n");
