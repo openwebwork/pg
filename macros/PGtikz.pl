@@ -57,15 +57,18 @@ TikZImage object return by createTikZImage to generate the desired image.
                                For example:
                                $image->tikzLibraries("arrows.meta,calc");
 
-    $image->texPackages()      Add tex packages to load.  This takes a hash for
-                               its parameter.  The keys of this hash are the
-                               package names, and the corresponding values a
-                               string consisting of options for the package.
+    $image->texPackages()      Add tex packages to load.  This takes an array for
+                               its parameter.  Each element of this array should
+                               either be the package name as a string, or an
+                               array with two elements, the first of which is the
+                               package name as a string and the second of which
+                               is a string containing the options for the package.
                                For example:
-                               $image->texPackages({
-                                   "pgfplots" => "",
-                                   "hf-tikz" => "customcolors"
-                               });
+                               $image->texPackages([
+                                   "pgfplots",
+                                   ["hf-tikz", "customcolors"],
+                                   ["xcolor", "cmyk,table"]
+                               ]);
 
     $image->addToPreamble()    Additional commands to add to the TeX preamble.
                                This takes a single string parameter.
