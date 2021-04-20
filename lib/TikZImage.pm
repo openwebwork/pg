@@ -37,7 +37,7 @@ sub new {
 		addToPreamble  => '',
 		ext            => 'svg',
 		svgMethod      => 'pdf2svg',
-		convertOptions => [{},{}],
+		convertOptions => {input => {},output => {}},
 		imageName      => ''
 	};
 	my $self = sub {
@@ -185,9 +185,9 @@ sub draw {
 			}
 		} elsif ($ext ne 'pdf') {
 			system WeBWorK::PG::IO::externalCommand('convert') .
-				join('',map {" -$_ " . $self->convertOptions->[0]->{$_}} (keys %{$self->convertOptions->[0]})) .
+				join('',map {" -$_ " . $self->convertOptions->{input}->{$_}} (keys %{$self->convertOptions->{input}})) .
 				" $working_dir/image.pdf" .
-				join('',map {" -$_ " . $self->convertOptions->[1]->{$_}} (keys %{$self->convertOptions->[1]})) .
+				join('',map {" -$_ " . $self->convertOptions->{output}->{$_}} (keys %{$self->convertOptions->{output}})) .
 				" $working_dir/image.$ext > /dev/null 2>&1";
 		}
 
