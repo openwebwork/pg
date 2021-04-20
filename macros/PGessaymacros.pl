@@ -21,7 +21,7 @@
 
 PGessaymacros.pl - Macros for building answer evaluators.
 
-=head SYNPOSIS
+=head2 SYNPOSIS
 
 Answer Evaluators:
 

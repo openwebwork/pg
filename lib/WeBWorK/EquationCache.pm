@@ -72,6 +72,8 @@ sub new {
 Looks up a TeX string in the database. A unique identifier for the cached image
 is returned. If necessary, the string is added to the database.
 
+=back
+
 =cut
 
 sub lookup {
