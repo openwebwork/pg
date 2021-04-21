@@ -287,26 +287,6 @@ sub curlCommand {
 	return $CE->{externalPrograms}{curl};
 }
 
-=item convertCommand
-
-	convert -- path to convert defined in site.conf
-
-=cut
-
-sub convertCommand {
-	return $CE->{externalPrograms}{convert};
-}
-
-=item pdflatexCommand
-
-	pdflatex -- path to pdflatex defined in site.conf
-
-=cut
-
-sub pdflatexCommand {
-	return $CE->{externalPrograms}{pdflatex};
-}
-
 =item copyCommand
 
 	copyCommand -- path to cp defined in site.conf
@@ -317,6 +297,15 @@ sub copyCommand {
 	return $CE->{externalPrograms}{cp};
 }
 
+=item externalCommand
+
+	returns the path to a requested external command that is defined in site.conf
+
+=cut
+
+sub externalCommand {
+	return $CE->{externalPrograms}{$_[0]};
+}
 
 #
 # isolate the call to the sage server in case we have to jazz it up
