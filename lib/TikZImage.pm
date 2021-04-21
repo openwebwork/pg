@@ -30,14 +30,15 @@ package TikZImage;
 sub new {
 	my $class = shift;
 	my $data = {
-		tex           => '',
-		tikzOptions   => '',
-		tikzLibraries => '',
-		texPackages   => [],
-		addToPreamble => '',
-		ext           => 'svg',
-		svgMethod     => 'pdf2svg',
-        imageName     => ''
+		tex            => '',
+		tikzOptions    => '',
+		tikzLibraries  => '',
+		texPackages    => [],
+		addToPreamble  => '',
+		ext            => 'svg',
+		svgMethod      => 'pdf2svg',
+		convertOptions => [{},{}],
+		imageName      => ''
 	};
 	my $self = sub {
 		my $field = shift;
