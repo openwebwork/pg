@@ -1,57 +1,94 @@
+################################################################################
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2021 The WeBWorK Project, http://openwebwork.sf.net/
+# 
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+# 
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
 
-sub _PGauxiliaryFunctions_init {
 
-}
+
+
+=head1 NAME
+
+A set of auxilliary functions that are often used in PG problems.  
+
 
 =head1 DESCRIPTION
 
-#
-#  Get the functions that are in common with Parser.pm
-#
+This macro creates the following functions that are available for PG: 
 
+	step($number)
+	ceil($number)
+	floor($number)
+	max(@listNumbers)
+	min(@listNumbers)
+	round($number)
+	lcm(@listNumbers)
+	gcf(@listNumbers)
+	gcd(@listNumbers)
+	isPrime($number)
+	reduce($numerator,$denominator)
+	preformat($scalar, "QuotedString")
+	random_pairwise_coprime($ar1, $ar2, ... )
+	random_coprime($ar1, $ar2, ... )
 =cut
 
 # ^uses loadMacros
 loadMacros("PGcommonFunctions.pl");
 
-=head3
 
-#
-#  Do the additional functions such as:
-#
-#  step($number)
-#  ceil($number)
-#  floor($number)
-#  max(@listNumbers)
-#  min(@listNumbers)
-#  round($number)
-#  lcm(@listNumbers)
-#  gcf(@listNumbers)
-#  gcd(@listNumbers)
-#  isPrime($number)
-#  reduce($numerator,$denominator)
-#  preformat($scalar, "QuotedString")
-#
+sub _PGauxiliaryFunctions_init {
 
-# Generate random relatively prime tuple
-# (uses gcf(), so it's here, even though this isn't a "function")
-# random_pairwise_coprime($ar1, $ar2, ... )
-# random_coprime($ar1, $ar2, ... )
+}
 
+=head3 step function
+
+=pod
+
+	Usage: step(x);
+
+	returns the step function (or Heavyside function) with jump at x=0.  That is when x<0, it returns 0, when x>=0 the function returns 1. 
 
 =cut
 
-# ^function step
 sub step {     # heavyside function (1 or x>0)
 	my $x = shift;
 	($x > 0 ) ? 1 : 0;
 }
-# ^function ceil
+
+=head3 ceil Function
+
+=pod
+
+	Usage: ceil(x);
+
+	returns the ceiling function of x.  This rounds up to the nearest integer.  
+
+=cut
+
 sub ceil {
 	my $x = shift;
 	- floor(-$x);
 }
-# ^function floor
+
+=head3 floor Function
+
+=pod
+
+	Usage: floor(x);
+
+	returns the floor function of x.  This rounds down to the nearest integer.  
+
+=cut
+
 sub floor {
 	my $input = shift;
 	my $out = int $input;
@@ -59,7 +96,16 @@ sub floor {
 	$out;
 }
 
-# ^function max
+=head3 max function 
+
+=pod
+
+	Usage: max(@arr);
+
+	returns the maximum of the values in the array @arr. 
+
+=cut
+
 sub max {
 
 	my $maxVal = shift;
@@ -73,7 +119,17 @@ sub max {
 
 }
 
-# ^function min
+
+=head3 min function 
+
+=pod
+
+	Usage: min(@arr);
+
+	returns the minimum of the values in the array @arr. 
+
+=cut
+
 sub min {
 
 	my $minVal = shift;
@@ -89,7 +145,17 @@ sub min {
 
 # round added 6/12/2000 by David Etlinger. Edited by AKP 3-6-03
 
-# ^function round
+
+=head3 round function 
+
+=pod
+
+	Usage: round(x);
+
+	returns integer nearest x.  
+
+=cut
+
 # ^uses Round
 sub round {
 	my $input = shift;
@@ -97,19 +163,41 @@ sub round {
 	$out;
 }
 
+=head3 Round function 
+
+=pod
+
+	Usage: Round(x);
+
+	returns integer nearest x.  
+
+	Usage: Round(x,n);
+
+	returns the number rounded to n digits.  For example, Round(1.789,2) returns 1.79
+
+=cut
+
+
 # Round contributed bt Mark Schmitt 3-6-03
-# ^function Round
-# ^uses Round
 sub Round {
 	if (@_ == 1) { $_[0] > 0 ? int $_[0] + 0.5 : int $_[0] - 0.5}
 	elsif (@_ == 2) { $_[0] > 0 ? Round($_[0]*10**$_[1])/10**$_[1] :Round($_[0]*10**$_[1])/10**$_[1]}
 }
 
-# least common multiple
-# should be passed a nonempty array of integers
-# checks if passed an empty array, but otherwise does not validate input
-# returns their least common multiple
-# ^function lcm
+=head3 lcm function 
+
+=pod
+
+	Usage: lcm(@arr);
+
+	returns the lowest common multiple of the array @arr of integers.  
+
+	For example lcm(3,4,5,6) returns 60.
+
+	Note: it checks for an empty array, however doesn't check if the inputs are integers. 
+
+=cut
+
 sub lcm {
 	do {warn 'Cannot take lcm of the empty set'; return;} unless (@_);
 	my $a = abs(shift);
@@ -120,12 +208,20 @@ sub lcm {
 	return lcm($a*$b/gcf($a,$b),@_);
 }
 
+=head3 gcf function 
 
-# greatest common factor
-# should be passed a nonempty array of integers
-# checks if passed an empty array, but otherwise does not validate input
-# returns their greatest common factor
-# ^function gcf
+=pod
+
+	Usage: gcf(@arr);
+
+	returns the greatest common factor of the array @arr of integers.  
+
+	For example gcf(20,30,45) returns 5.
+
+	Note: it checks for an empty array, however doesn't check if the inputs are integers. 
+
+=cut
+
 sub gcf {
 	# An empty argument array is either from the user or has been filtered down
 	# from previous iterations where the user submitted an all-zero array
@@ -143,32 +239,59 @@ sub gcf {
 	return gcf($b,@_);
 }
 
-# greatest common factor.
-# same as gcf, but both names are sufficiently common names
-# ^function gcd
-# ^uses gcf
+=head3 gcf function 
+
+=pod
+
+	Usage: gcd(@arr);
+
+	returns the greatest common denominator of the array @arr of integers.  
+
+	For example gcd(20,30,45) returns 5.
+
+	Note: this is just an alias for gcf. 
+
+=cut
+
 sub gcd {
 	return gcf(@_);
 }
 
-# Generate relatively prime integers
-# Arguments should be array references to arrays of integers.
-# Returns an n-tuple of relatively prime integers,
-# each one coming from the corresponding array.
-# Random selection is uniform among all possible tuples that are relatively prime.
-# Does not consider (0,0) to be relatively prime.
-# In array context, returns an array. Otherwise, an array ref.
-# Use like:
-# random_coprime([1..9],[1..9]) to output maybe (2,9) or (1,1) but not (6,8)
-# random_coprime([-9..-1,1..9],[1..9],[1..9]) to output maybe (-3,7,4), (-1,1,1), or (-2,2,3) but not (-2,2,4)
-# random_pairwise_coprime([-9..-1,1..9],[1..9],[1..9]) to output maybe (-3,7,4) or (-1,1,1) but not (-2,2,3)
-# WARNING: random_coprime() will use a lot of memory and CPU resources if used with too many/too large arguments.
-# For example, random_coprime([-20..20],[-20..20],[-20..20],[-20..20],[-20..20]) involves processing 41^5 arrays.
-# Consider using random_pairwise_coprime() instead. Or breaking things up like:
-# random_coprime([-20..20],[-20..20]),random_coprime([-20..20],[-20..20],[-20..20])
+=head3 random_coprime function 
 
+=pod
 
-# ^ function random_coprime
+	Usage: random_coprime(array of array_refs);
+
+	returns relatively prime integers. The arguments should be references to arrays of integers.  This returns an n-tuple of relatively prime integers, 
+	each one coming from the corresponding array. Random selection is uniform among all possible tuples that are relatively prime.
+	This does not consider (0,0) to be relatively prime.
+
+	This function may return an n-tuple where pairs are not coprime.  This returns n-tuples where the largest (in absolute) common factor is 1. 
+
+	In array context, returns an array. Otherwise, an array ref.
+
+	Examples: 
+
+	random_coprime([1..9],[1..9]) may return (2,9) or (1,1) but not (6,8)
+	random_coprime([-9..-1,1..9],[1..9],[1..9]) may return (-3,7,4), (-1,1,1), or (-2,2,3) but not (-2,2,4)
+
+	Note: in the example above (-2,2,3) is valid because not all three share a factor greater than 1.  If you don't want to 
+	allow pairs of numbers to be coprime, see random_pairwise_coprime. 
+
+	random_pairwise_coprime([-9..-1,1..9],[1..9],[1..9]) may return (-3,7,4) or (-1,1,1) but not (-2,2,3)
+
+	WARNING: random_coprime() will use a lot of memory and CPU resources if used with too many/too large arguments.
+	For example, random_coprime([-20..20],[-20..20],[-20..20],[-20..20],[-20..20]) involves processing 41^5 arrays.	
+	Consider using random_pairwise_coprime() instead. Or breaking things up like:
+	random_coprime([-20..20],[-20..20]),random_coprime([-20..20],[-20..20],[-20..20])
+
+	Note for Problem Authors: one reason for developing this function is to be able to create polynomials that don't have a constant factor.  
+	For example, if random_coprime([-9..-1,1..9],[1..9],[1..9]) returns (-5,5,3)
+	then building the quadratic 3x^2+5x-5 doesn't lead to a constant multiple to be factored.  
+
+=cut
+
 # ^uses gcd
 sub random_coprime {
 	# Expect first argument to be an array reference
@@ -226,6 +349,21 @@ sub random_coprime {
 	}
 }
 
+=head3 random_pairwise_coprime function 
+
+=pod
+
+	Usage: random_pairwise_coprime($arr);
+
+	This is similar to the random_coprime function with the additional constraint that all pairs of numbers are also coprime.  
+
+	Examples: 
+
+	random_coprime([-9..-1,1..9],[1..9],[1..9]) may return (-3,7,4), (-1,1,1), or (-2,2,3) but not (-2,2,4)
+	random_pairwise_coprime([-9..-1,1..9],[1..9],[1..9]) may return (-3,7,4) or (-1,1,1) but not (-2,2,3) or (3,5,6)
+
+=cut
+
 # ^ function random_pairwise_coprime
 # ^uses gcd
 sub random_pairwise_coprime {
@@ -270,9 +408,22 @@ sub random_pairwise_coprime {
 	}
 }
 
-# returns 1 for a prime number, else 0
+=head3 isPrime function 
+
+=pod
+
+	Usage: isPrime(n);
+
+	returns 1 if n is prime and 0 otherwise. 
+
+	For example gcf(20,30,45) returns 5.
+
+	Note: this doesn't check if n is negative. 
+
+=cut
+
 # VS 6/30/2000
-# ^function isPrime
+
 sub isPrime {
 	my $num = shift;
 	return 1 if ($num == 2 or $num == 3);
@@ -281,10 +432,19 @@ sub isPrime {
 	return 1;
 }
 
-# reduces a fraction, returning an array containing ($numerator, $denominator)
+=head3 reduce function 
+
+=pod
+
+	Usage: reduce(num,den);
+
+	returns the fraction num/den as an array with first entry as the numerator and second as the denominator.  
+
+	For example reduce(15,20) returns (3,4)
+
+=cut
+
 # VS 7/10/2000
-# ^function reduce
-# ^uses gcd
 sub reduce {
 
 	my $num = shift;
@@ -302,13 +462,19 @@ sub reduce {
 	@frac;
 }
 
+=head3 preFormat function 
 
-# takes a number and fixed object, as in "$a x" and formats
-# to account for when $a = 0, 1, -1
-# Usage: preformat($scalar, "quoted string");
-# Example: preformat(-1, "\pi") returns "-\pi"
+=pod
+
+	Usage: preFormat($scalar,"quoted string");
+
+	returns the string preformated with the $scalar as 0,1, or -1  takes a number and fixed object, as in "$a x" and formats
+
+	For example preformat(-1, "\pi") returns "-\pi"
+
+=cut
+
 # VS 8/1/2000  -  slight adaption of code from T. Shemanske of Dartmouth College
-# ^function preformat
 sub preformat {
 	my $num = shift;
 	my $obj = shift;
