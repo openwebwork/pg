@@ -30,14 +30,15 @@ package TikZImage;
 sub new {
 	my $class = shift;
 	my $data = {
-		tex           => '',
-		tikzOptions   => '',
-		tikzLibraries => '',
-		texPackages   => [],
-		addToPreamble => '',
-		ext           => 'svg',
-		svgMethod     => 'pdf2svg',
-        imageName     => ''
+		tex            => '',
+		tikzOptions    => '',
+		tikzLibraries  => '',
+		texPackages    => [],
+		addToPreamble  => '',
+		ext            => 'svg',
+		svgMethod      => 'pdf2svg',
+		convertOptions => {input => {},output => {}},
+		imageName      => ''
 	};
 	my $self = sub {
 		my $field = shift;
@@ -106,6 +107,12 @@ sub ext {
 sub svgMethod {
 	my $self = shift;
 	return &$self('svgMethod', @_);
+}
+
+# Set the options to be used by ImageMagick convert.
+sub convertOptions {
+	my $self = shift;
+	return &$self('convertOptions', @_);
 }
 
 # Set the file name.
@@ -178,7 +185,10 @@ sub draw {
 			}
 		} elsif ($ext ne 'pdf') {
 			system WeBWorK::PG::IO::externalCommand('convert') .
-				" $working_dir/image.pdf $working_dir/image.$ext > /dev/null 2>&1";
+				join('',map {" -$_ " . $self->convertOptions->{input}->{$_}} (keys %{$self->convertOptions->{input}})) .
+				" $working_dir/image.pdf" .
+				join('',map {" -$_ " . $self->convertOptions->{output}->{$_}} (keys %{$self->convertOptions->{output}})) .
+				" $working_dir/image.$ext > /dev/null 2>&1";
 		}
 
 		if (-r "$working_dir/image.$ext") {

@@ -84,6 +84,17 @@ TikZImage object return by createTikZImage to generate the desired image.
                                This macro sets the extension to 'pdf' when a
                                hardcopy is generated.
 
+    $image->convertOptions()   If ImageMagick's convert command is used to build
+                               the output image (presently only done for 'png'
+                               output) these input and output options will be
+                               used. For example:
+                               $image->convertOptions({
+                                   input => {density => 300},
+                                   output => {quality => 100, resize => "500x500"}
+                               });
+                               For a complete list of options, see:
+                               https://imagemagick.org/script/command-line-options.php
+
 =cut
 
 sub _PGtikz_init {
@@ -100,6 +111,7 @@ sub new {
 
 	my $image = $class->SUPER::new(@_);
 	$image->svgMethod($main::envir{tikzSVGMethod} // 'pdf2svg');
+	$image->convertOptions($main::envir{tikzConvertOptions} // {input => {},output => {}});
 	$image->SUPER::ext('pdf') if $main::displayMode eq 'TeX';
 	$image->imageName($main::PG->getUniqueName($image->ext));
 
