@@ -55,7 +55,11 @@ sub _PGauxiliaryFunctions_init {
 
 	Usage: step(x);
 
-	returns the step function (or Heavyside function) with jump at x=0.  That is when x<0, it returns 0, when x>=0 the function returns 1. 
+returns the step function (or Heavyside function) with jump at x=0.  That is when x<0, it returns 0, when x>=0 the function returns 1. 
+
+Example:
+
+	step(3.14159) returns 1
 
 =cut
 
@@ -70,7 +74,12 @@ sub step {     # heavyside function (1 or x>0)
 
 	Usage: ceil(x);
 
-	returns the ceiling function of x.  This rounds up to the nearest integer.  
+returns the ceiling function of x.  This rounds up to the nearest integer.  
+
+Examples: 
+
+	ceil(3.14159) returns 4
+	ceil(-9.75) return -9
 
 =cut
 
@@ -85,7 +94,12 @@ sub ceil {
 
 	Usage: floor(x);
 
-	returns the floor function of x.  This rounds down to the nearest integer.  
+returns the floor function of x.  This rounds down to the nearest integer.  
+
+Examples: 
+
+	floor(3.14159) returns 3
+	floor(-9.75) return -10
 
 =cut
 
@@ -102,7 +116,11 @@ sub floor {
 
 	Usage: max(@arr);
 
-	returns the maximum of the values in the array @arr. 
+returns the maximum of the values in the array @arr. 
+
+Example
+
+	max(1,2,3,4,5,6,7) returns 7
 
 =cut
 
@@ -126,7 +144,11 @@ sub max {
 
 	Usage: min(@arr);
 
-	returns the minimum of the values in the array @arr. 
+returns the minimum of the values in the array @arr. 
+
+Example
+
+	min(1,2,3,4,5,6,7) returns 1
 
 =cut
 
@@ -152,7 +174,11 @@ sub min {
 
 	Usage: round(x);
 
-	returns integer nearest x.  
+returns integer nearest x. 
+
+Example:
+
+	round(3.14159) returns 3
 
 =cut
 
@@ -169,11 +195,15 @@ sub round {
 
 	Usage: Round(x);
 
-	returns integer nearest x.  
+returns integer nearest x.  
 
 	Usage: Round(x,n);
 
-	returns the number rounded to n digits.  For example, Round(1.789,2) returns 1.79
+returns the number rounded to n digits.  
+
+Example:
+
+	Round(1.789,2) returns 1.79
 
 =cut
 
@@ -190,11 +220,13 @@ sub Round {
 
 	Usage: lcm(@arr);
 
-	returns the lowest common multiple of the array @arr of integers.  
+returns the lowest common multiple of the array @arr of integers.  
 
-	For example lcm(3,4,5,6) returns 60.
+Example:
 
-	Note: it checks for an empty array, however doesn't check if the inputs are integers. 
+	 lcm(3,4,5,6) returns 60.
+
+Note: it checks for an empty array, however doesn't check if the inputs are integers. 
 
 =cut
 
@@ -214,11 +246,13 @@ sub lcm {
 
 	Usage: gcf(@arr);
 
-	returns the greatest common factor of the array @arr of integers.  
+returns the greatest common factor of the array @arr of integers.  
 
-	For example gcf(20,30,45) returns 5.
+Example:
+ 
+ 	gcf(20,30,45) returns 5.
 
-	Note: it checks for an empty array, however doesn't check if the inputs are integers. 
+Note: it checks for an empty array, however doesn't check if the inputs are integers. 
 
 =cut
 
@@ -245,11 +279,12 @@ sub gcf {
 
 	Usage: gcd(@arr);
 
-	returns the greatest common denominator of the array @arr of integers.  
+returns the greatest common denominator of the array @arr of integers.  
 
-	For example gcd(20,30,45) returns 5.
+Example:
+	gcd(20,30,45) returns 5.
 
-	Note: this is just an alias for gcf. 
+Note: this is just an alias for gcf. 
 
 =cut
 
@@ -263,32 +298,32 @@ sub gcd {
 
 	Usage: random_coprime(array of array_refs);
 
-	returns relatively prime integers. The arguments should be references to arrays of integers.  This returns an n-tuple of relatively prime integers, 
-	each one coming from the corresponding array. Random selection is uniform among all possible tuples that are relatively prime.
-	This does not consider (0,0) to be relatively prime.
+returns relatively prime integers. The arguments should be references to arrays of integers.  This returns an n-tuple of relatively prime integers, 
+each one coming from the corresponding array. Random selection is uniform among all possible tuples that are relatively prime.
+This does not consider (0,0) to be relatively prime.
 
-	This function may return an n-tuple where pairs are not coprime.  This returns n-tuples where the largest (in absolute) common factor is 1. 
+This function may return an n-tuple where pairs are not coprime.  This returns n-tuples where the largest (in absolute) common factor is 1. 
 
-	In array context, returns an array. Otherwise, an array ref.
+In array context, returns an array. Otherwise, an array ref.
 
-	Examples: 
+Examples: 
 
 	random_coprime([1..9],[1..9]) may return (2,9) or (1,1) but not (6,8)
 	random_coprime([-9..-1,1..9],[1..9],[1..9]) may return (-3,7,4), (-1,1,1), or (-2,2,3) but not (-2,2,4)
 
-	Note: in the example above (-2,2,3) is valid because not all three share a factor greater than 1.  If you don't want to 
-	allow pairs of numbers to be coprime, see random_pairwise_coprime. 
+Note: in the example above (-2,2,3) is valid because not all three share a factor greater than 1.  If you don't want to 
+allow pairs of numbers to be coprime, see random_pairwise_coprime. 
 
 	random_pairwise_coprime([-9..-1,1..9],[1..9],[1..9]) may return (-3,7,4) or (-1,1,1) but not (-2,2,3)
 
-	WARNING: random_coprime() will use a lot of memory and CPU resources if used with too many/too large arguments.
-	For example, random_coprime([-20..20],[-20..20],[-20..20],[-20..20],[-20..20]) involves processing 41^5 arrays.	
-	Consider using random_pairwise_coprime() instead. Or breaking things up like:
-	random_coprime([-20..20],[-20..20]),random_coprime([-20..20],[-20..20],[-20..20])
+WARNING: random_coprime() will use a lot of memory and CPU resources if used with too many/too large arguments.
+For example, random_coprime([-20..20],[-20..20],[-20..20],[-20..20],[-20..20]) involves processing 41^5 arrays.	
+Consider using random_pairwise_coprime() instead. Or breaking things up like:
+random_coprime([-20..20],[-20..20]),random_coprime([-20..20],[-20..20],[-20..20])
 
-	Note for Problem Authors: one reason for developing this function is to be able to create polynomials that don't have a constant factor.  
-	For example, if random_coprime([-9..-1,1..9],[1..9],[1..9]) returns (-5,5,3)
-	then building the quadratic 3x^2+5x-5 doesn't lead to a constant multiple to be factored.  
+Note for Problem Authors: one reason for developing this function is to be able to create polynomials that don't have a constant factor.  
+For example, if random_coprime([-9..-1,1..9],[1..9],[1..9]) returns (-5,5,3)
+then building the quadratic 3x^2+5x-5 doesn't lead to a constant multiple to be factored.  
 
 =cut
 
@@ -355,9 +390,9 @@ sub random_coprime {
 
 	Usage: random_pairwise_coprime($arr);
 
-	This is similar to the random_coprime function with the additional constraint that all pairs of numbers are also coprime.  
+This is similar to the random_coprime function with the additional constraint that all pairs of numbers are also coprime.  
 
-	Examples: 
+Examples: 
 
 	random_coprime([-9..-1,1..9],[1..9],[1..9]) may return (-3,7,4), (-1,1,1), or (-2,2,3) but not (-2,2,4)
 	random_pairwise_coprime([-9..-1,1..9],[1..9],[1..9]) may return (-3,7,4) or (-1,1,1) but not (-2,2,3) or (3,5,6)
@@ -414,11 +449,13 @@ sub random_pairwise_coprime {
 
 	Usage: isPrime(n);
 
-	returns 1 if n is prime and 0 otherwise. 
+returns 1 if n is prime and 0 otherwise. 
 
-	For example gcf(20,30,45) returns 5.
+Example: 
+	
+	gcf(20,30,45) returns 5.
 
-	Note: this doesn't check if n is negative. 
+Note: this doesn't check if n is negative. 
 
 =cut
 
@@ -438,9 +475,11 @@ sub isPrime {
 
 	Usage: reduce(num,den);
 
-	returns the fraction num/den as an array with first entry as the numerator and second as the denominator.  
+returns the fraction num/den as an array with first entry as the numerator and second as the denominator.  
 
-	For example reduce(15,20) returns (3,4)
+Example:  
+	
+	reduce(15,20) returns (3,4)
 
 =cut
 
@@ -468,9 +507,11 @@ sub reduce {
 
 	Usage: preFormat($scalar,"quoted string");
 
-	returns the string preformated with the $scalar as 0,1, or -1  takes a number and fixed object, as in "$a x" and formats
+returns the string preformated with the $scalar as 0,1, or -1  takes a number and fixed object, as in "$a x" and formats
 
-	For example preformat(-1, "\pi") returns "-\pi"
+Example:  
+
+	preformat(-1, "\pi") returns "-\pi"
 
 =cut
 
