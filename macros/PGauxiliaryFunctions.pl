@@ -55,7 +55,7 @@ sub _PGauxiliaryFunctions_init {
 
 	Usage: step(x);
 
-returns the step function (or Heavyside function) with jump at x=0.  That is when x<0, it returns 0, when x>=0 the function returns 1. 
+returns the step function (or Heaviside function) with jump at x=0.  That is when x<0, it returns 0, when x>=0 the function returns 1. 
 
 Example:
 
@@ -63,7 +63,7 @@ Example:
 
 =cut
 
-sub step {     # heavyside function (1 or x>0)
+sub step {     # Heaviside function (1 or x>0)
 	my $x = shift;
 	($x > 0 ) ? 1 : 0;
 }
@@ -273,13 +273,13 @@ sub gcf {
 	return gcf($b,@_);
 }
 
-=head3 gcf function 
+=head3 gcd function 
 
 =pod
 
 	Usage: gcd(@arr);
 
-returns the greatest common denominator of the array @arr of integers.  
+returns the greatest common divisor of the array @arr of integers.  
 
 Example:
 	gcd(20,30,45) returns 5.
@@ -453,7 +453,8 @@ returns 1 if n is prime and 0 otherwise.
 
 Example: 
 	
-	gcf(20,30,45) returns 5.
+	isPrime(7) returns 1.
+	isPrime(8) returns 0
 
 Note: this doesn't check if n is negative. 
 
@@ -507,7 +508,7 @@ sub reduce {
 
 	Usage: preFormat($scalar,"quoted string");
 
-returns the string preformated with the $scalar as 0,1, or -1  takes a number and fixed object, as in "$a x" and formats
+returns the string preformatted with the $scalar as 0,1, or -1  takes a number and fixed object, as in "$a x" and formats
 
 Example:  
 
