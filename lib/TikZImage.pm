@@ -170,19 +170,18 @@ sub draw {
 	if (($ext eq 'svg' || $ext eq 'tgz') && $svgMethod eq 'dvisvgm') {
 		open($fh, ">", "$working_dir/image-dvisvgm.tex")
 			or warn "Can't open $working_dir/image-dvisvgm.tex for writing.";
-		chmod(0777, "$working_dir/image-dvisvgm.tex");
-		print $fh $self->header =~ s/(\\documentclass\{standalone\}\n)/$1\\def\\pgfsysdriver{pgfsys-dvisvgm.def}\n/r;
+		my @header = $self->header;
+		splice @header, 1, 0, "\\def\\pgfsysdriver{pgfsys-dvisvgm.def}\n";
+		print $fh @header;
 		print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
 		print $fh $self->footer;
 		close $fh;
-		system "cd $working_dir && $latex image-dvisvgm.tex > latex.stdout 2> /dev/null";
-		system "mv image-dvisvgm.dvi image.dvi";
+		system "cd $working_dir && $latex image-dvisvgm.tex > latex.stdout 2> /dev/null && mv image-dvisvgm.dvi image.dvi";
 		chmod(0777, "$working_dir/image.dvi");
 	}
 	if ($ext ne 'svg' || ($ext eq 'svg' && $svgMethod ne 'dvisvgm')) {
 		open($fh, ">", "$working_dir/image.tex")
 			or warn "Can't open $working_dir/image.tex for writing.";
-		chmod(0777, "$working_dir/image.tex");
 		print $fh $self->header;
 		print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
 		print $fh $self->footer;
@@ -267,7 +266,7 @@ sub use_svgMethod {
 	my $working_dir = shift;
 	my $file = shift;
 	my $svgfile = $file =~ s/\.(dvi|pdf)$/\.svg/r;
-	if ($file =~ /\.dvi^/) {
+	if ($file =~ /\.dvi$/) {
 		system WeBWorK::PG::IO::externalCommand('dvisvgm') .
 			" $working_dir/$file --no-fonts --output=$working_dir/$svgfile > /dev/null 2>&1";
 	} else {
