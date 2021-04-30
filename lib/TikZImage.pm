@@ -199,7 +199,7 @@ sub draw {
 			$self->use_svgMethod($working_dir);
 		} else {
 		        warn "The dvi file was not created.";
-			if (open(my $err_fh, "<", $working_dir/latex.stdout)) {
+			if (open(my $err_fh, "<", "$working_dir/latex.stdout")) {
 				while (my $error = <$err_fh>) {
 					warn $error;
 				}
@@ -221,7 +221,7 @@ sub draw {
 			}
 		} else {
 			warn "The pdf file was not created.";
-			if (open(my $err_fh, "<", $working_dir/pdflatex.stdout)) {
+			if (open(my $err_fh, "<", "$working_dir/pdflatex.stdout")) {
 				while (my $error = <$err_fh>) {
 					warn $error;
 				}
