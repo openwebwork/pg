@@ -175,7 +175,8 @@ sub draw {
 		print $fh $self->footer;
 		close $fh;
 		system "cd $working_dir && " . WeBWorK::PG::IO::externalCommand('latex') .
-			" image-dvisvgm.tex > latex.stdout 2> /dev/null && mv image-dvisvgm.dvi image.dvi";
+			" image-dvisvgm.tex > latex.stdout 2> /dev/null && " .
+			WeBWorK::PG::IO::externalCommand('mv') . " image-dvisvgm.dvi image.dvi";
 		chmod(0777, "$working_dir/image.dvi");
 	}
 	if ($ext ne 'svg' || ($ext eq 'svg' && $svgMethod ne 'dvisvgm')) {
@@ -241,7 +242,7 @@ sub draw {
 
 	# Delete the files used to generate the image.
 	if (-e $working_dir) {
-		system "rm -rf $working_dir";
+		system WeBWorK::PG::IO::externalCommand('rm') . " -rf $working_dir";
 	}
 
 	return $data;
