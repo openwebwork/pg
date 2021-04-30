@@ -159,8 +159,6 @@ sub draw {
 
 	my $ext = $self->ext;
 	my $svgMethod = $self->svgMethod;
-	my $latex     = WeBWorK::PG::IO::externalCommand('latex');
-	my $pdflatex  = WeBWorK::PG::IO::externalCommand('pdflatex');
 
 	my $fh;
 
@@ -176,7 +174,8 @@ sub draw {
 		print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
 		print $fh $self->footer;
 		close $fh;
-		system "cd $working_dir && $latex image-dvisvgm.tex > latex.stdout 2> /dev/null && mv image-dvisvgm.dvi image.dvi";
+		system "cd $working_dir && " . WeBWorK::PG::IO::externalCommand('latex') .
+			" image-dvisvgm.tex > latex.stdout 2> /dev/null && mv image-dvisvgm.dvi image.dvi";
 		chmod(0777, "$working_dir/image.dvi");
 	}
 	if ($ext ne 'svg' || ($ext eq 'svg' && $svgMethod ne 'dvisvgm')) {
@@ -186,7 +185,8 @@ sub draw {
 		print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
 		print $fh $self->footer;
 		close $fh;
-		system "cd $working_dir && $pdflatex image.tex > pdflatex.stdout 2> /dev/null";
+		system "cd $working_dir && " . WeBWorK::PG::IO::externalCommand('pdflatex') .
+			" image.tex > pdflatex.stdout 2> /dev/null";
 		chmod(0777, "$working_dir/image.pdf");
 	}
 
