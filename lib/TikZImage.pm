@@ -232,8 +232,9 @@ sub draw {
 
 	# Make the tgz
 	if ($ext eq 'tgz') {
-		my $tar = WeBWorK::PG::IO::externalCommand('tar');
-			system "cd $working_dir && $tar -czf image.tgz image.tex image.pdf image.svg image.png > /dev/null 2>&1";
+		system "cd $working_dir && " . WeBWorK::PG::IO::externalCommand('tar') .
+			" -czf image.tgz image.tex image.pdf image.svg image.png > /dev/null 2>&1";
+		warn "Failed to generate tgz file." unless -r "$working_dir/image.tgz";
 	}
 
 	# Read the generated image file into memory
