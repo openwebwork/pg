@@ -198,30 +198,35 @@ sub draw {
 		if (-r "$working_dir/image.dvi") {
 			$self->use_svgMethod($working_dir);
 		} else {
-			$self->warnLaTeXOutput("$working_dir/latex.stdout", "dvi");
+		        warn "The dvi file was not created.";
+			if (open(my $err_fh, "<", $working_dir/latex.stdout)) {
+				while (my $error = <$err_fh>) {
+					warn $error;
+				}
+				close($err_fh);
+			}
 		}
 	}
 
 	# Make derivatives of the pdf
-	if (($ext eq 'svg' || $ext eq 'tgz') && $svgMethod ne 'dvisvgm') {
+	if (($svgMethod ne 'dvisvgm' || $ext ne 'svg') && $ext ne 'pdf') {
 		if (-r "$working_dir/image.pdf") {
-			$self->use_svgMethod($working_dir);
+			if (($ext eq 'svg' || $ext eq 'tgz') && $svgMethod ne 'dvisvgm') {
+				$self->use_svgMethod($working_dir);
+			}
+			if ($ext eq 'tgz') {
+				$self->use_convert($working_dir, "png");
+			} elsif ($ext ne 'svg' && $ext ne 'pdf') {
+				$self->use_convert($working_dir, $ext);
+			}
 		} else {
-			$self->warnLaTeXOutput("$working_dir/pdflatex.stdout", "pdf");
-		}
-	}
-	if ($ext eq 'tgz') {
-		if (-r "$working_dir/image.pdf") {
-			$self->use_convert($working_dir, "png");
-		} else {
-			$self->warnLaTeXOutput("$working_dir/pdflatex.stdout", "pdf");
-		}
-	}
-	elsif ($ext ne 'svg' && $ext ne 'pdf') {
-		if (-r "$working_dir/image.pdf") {
-			$self->use_convert($working_dir, $ext);
-		} else {
-			$self->warnLaTeXOutput("$working_dir/pdflatex.stdout", "pdf");
+			warn "The pdf file was not created.";
+			if (open(my $err_fh, "<", $working_dir/pdflatex.stdout)) {
+				while (my $error = <$err_fh>) {
+					warn $error;
+				}
+				close($err_fh);
+			}
 		}
 	}
 
@@ -248,19 +253,6 @@ sub draw {
 	}
 
 	return $data;
-}
-
-sub warnLaTeXOutput {
-	my $self = shift;
-	my $stdout = shift;
-	my $filetype = shift;
-	warn "The $filetype file was not created.";
-	if (open(my $err_fh, "<", $stdout)) {
-		while (my $error = <$err_fh>) {
-			warn $error;
-		}
-		close($err_fh);
-	}
 }
 
 sub use_svgMethod {
