@@ -193,7 +193,7 @@ sub draw {
 	# Make derivatives of the dvi
 	if (($ext eq 'svg' || $ext eq 'tgz') && $svgMethod eq 'dvisvgm') {
 		if (-r "$working_dir/image.dvi") {
-			$self->use_svgMethod($working_dir, "image.dvi");
+			$self->use_svgMethod($working_dir);
 		} else {
 			$self->warnLaTeXOutput("$working_dir/latex.stdout", "dvi");
 		}
@@ -202,21 +202,21 @@ sub draw {
 	# Make derivatives of the pdf
 	if (($ext eq 'svg' || $ext eq 'tgz') && $svgMethod ne 'dvisvgm') {
 		if (-r "$working_dir/image.pdf") {
-			$self->use_svgMethod($working_dir, "image.pdf");
+			$self->use_svgMethod($working_dir);
 		} else {
 			$self->warnLaTeXOutput("$working_dir/pdflatex.stdout", "pdf");
 		}
 	}
 	if ($ext eq 'tgz') {
 		if (-r "$working_dir/image.pdf") {
-			$self->use_convert($working_dir, "image.pdf", "png");
+			$self->use_convert($working_dir, "png");
 		} else {
 			$self->warnLaTeXOutput("$working_dir/pdflatex.stdout", "pdf");
 		}
 	}
 	elsif ($ext ne 'svg' && $ext ne 'pdf') {
 		if (-r "$working_dir/image.pdf") {
-			$self->use_convert($working_dir, "image.pdf", $ext);
+			$self->use_convert($working_dir, $ext);
 		} else {
 			$self->warnLaTeXOutput("$working_dir/pdflatex.stdout", "pdf");
 		}
@@ -263,30 +263,26 @@ sub warnLaTeXOutput {
 sub use_svgMethod {
 	my $self = shift;
 	my $working_dir = shift;
-	my $file = shift;
-	my $svgfile = $file =~ s/\.(dvi|pdf)$/\.svg/r;
-	if ($file =~ /\.dvi$/) {
+	if ($self->svgMethod eq 'dvisvgm') {
 		system WeBWorK::PG::IO::externalCommand('dvisvgm') .
-			" $working_dir/$file --no-fonts --output=$working_dir/$svgfile > /dev/null 2>&1";
+			" $working_dir/image.dvi --no-fonts --output=$working_dir/image.svg > /dev/null 2>&1";
 	} else {
 		system WeBWorK::PG::IO::externalCommand($self->svgMethod) .
-			" $working_dir/$file $working_dir/$svgfile > /dev/null 2>&1";
+			" $working_dir/image.pdf $working_dir/image.svg > /dev/null 2>&1";
 	}
-	warn "File $working_dir/$svgfile was not created" unless (-r "$working_dir/$svgfile");
+	warn "Failed to generate svg file." unless -r "$working_dir/image.svg";
 }
 
 sub use_convert {
 	my $self = shift;
 	my $working_dir = shift;
-	my $file = shift;
 	my $ext = shift;
-	my $outfile = $file =~ s/\.pdf$/\.$ext/r;
 	system WeBWorK::PG::IO::externalCommand('convert') .
 		join('',map {" -$_ " . $self->convertOptions->{input}->{$_}} (keys %{$self->convertOptions->{input}})) .
-		" $working_dir/$file" .
+		" $working_dir/image.pdf" .
 		join('',map {" -$_ " . $self->convertOptions->{output}->{$_}} (keys %{$self->convertOptions->{output}})) .
-		" $working_dir/$outfile > /dev/null 2>&1";
-	warn "File $working_dir/$outfile was not created" unless (-r "$working_dir/$outfile");
+		" $working_dir/image.$ext > /dev/null 2>&1";
+	warn "Failed to generate $ext file." unless -r "$working_dir/image.$ext";
 }
 
 1;
