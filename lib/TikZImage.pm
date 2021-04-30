@@ -195,7 +195,7 @@ sub draw {
 		if (-r "$working_dir/image.dvi") {
 			$self->use_svgMethod($working_dir, "image.dvi");
 		} else {
-			$self->warnLaTeXOutput($working_dir, "image.dvi");
+			$self->warnLaTeXOutput("$working_dir/latex.stdout", "dvi");
 		}
 	}
 
@@ -204,21 +204,21 @@ sub draw {
 		if (-r "$working_dir/image.pdf") {
 			$self->use_svgMethod($working_dir, "image.pdf");
 		} else {
-			$self->warnLaTeXOutput($working_dir, "image.pdf");
+			$self->warnLaTeXOutput("$working_dir/pdflatex.stdout", "pdf");
 		}
 	}
 	if ($ext eq 'tgz') {
 		if (-r "$working_dir/image.pdf") {
 			$self->use_convert($working_dir, "image.pdf", "png");
 		} else {
-			$self->warnLaTeXOutput($working_dir, "image.pdf");
+			$self->warnLaTeXOutput("$working_dir/pdflatex.stdout", "pdf");
 		}
 	}
-	elsif ($ext ne 'svg') {
+	elsif ($ext ne 'svg' && $ext ne 'pdf') {
 		if (-r "$working_dir/image.pdf") {
 			$self->use_convert($working_dir, "image.pdf", $ext);
 		} else {
-			$self->warnLaTeXOutput($working_dir, "image.pdf");
+			$self->warnLaTeXOutput("$working_dir/pdflatex.stdout", "pdf");
 		}
 	}
 
@@ -249,11 +249,10 @@ sub draw {
 
 sub warnLaTeXOutput {
 	my $self = shift;
-	my $working_dir = shift;
-	my $file = shift;
-	my $stdout = ($self->svgMethod eq 'dvisvgm') ? 'latex.stdout' : 'pdflatex.stdout';
-	warn "File $file was not created.";
-	if (open(my $err_fh, "<", "$working_dir/$stdout")) {
+	my $stdout = shift;
+	my $filetype = shift;
+	warn "The $filetype file was not created.";
+	if (open(my $err_fh, "<", $stdout)) {
 		while (my $error = <$err_fh>) {
 			warn $error;
 		}
