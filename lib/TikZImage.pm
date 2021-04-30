@@ -170,6 +170,7 @@ sub draw {
 			or warn "Can't open $working_dir/image-dvisvgm.tex for writing.";
 		my @header = $self->header;
 		splice @header, 1, 0, "\\def\\pgfsysdriver{pgfsys-dvisvgm.def}\n";
+		chmod(0777, "$working_dir/image-dvisvgm.tex");
 		print $fh @header;
 		print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
 		print $fh $self->footer;
@@ -182,6 +183,7 @@ sub draw {
 	if ($ext ne 'svg' || ($ext eq 'svg' && $svgMethod ne 'dvisvgm')) {
 		open($fh, ">", "$working_dir/image.tex")
 			or warn "Can't open $working_dir/image.tex for writing.";
+		chmod(0777, "$working_dir/image.tex");
 		print $fh $self->header;
 		print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
 		print $fh $self->footer;
