@@ -195,7 +195,7 @@ sub atan2 {
 ##################################################
 
 sub string {
-  my $self = shift; my $equation = shift; my $prec = shift;
+  my $self = shift; my $equation = shift; shift; shift; my $prec = shift;
   my $n = $self->{data}[0];
   my $format = $self->getFlag("format",$equation->{format} ||
 			        ($equation->{context} || $self->context)->{format}{number});

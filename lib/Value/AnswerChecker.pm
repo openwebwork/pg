@@ -1731,6 +1731,7 @@ sub cmp_postfilter {
   return $ans if ($ans->{bypass_equivalence_test});
   my $context = $self->context;
   Parser::Context->current(undef,$context);
+  my $flags = Value::contextSet($context,$self->cmp_contextFlags($ans)); # save old context flags
   $ans->{prev_formula} = Parser::Formula($ans->{prev_ans});
   if (defined($ans->{prev_formula}) && defined($ans->{student_formula})) {
     my $prev = eval {$self->promote($ans->{prev_formula})->inherit($self)}; # inherit limits, etc.
@@ -1744,6 +1745,7 @@ sub cmp_postfilter {
 	and $ans->{prev_ans} ne $ans->{original_student_ans}) # but not identical
       {$ans->{ans_message} = "This answer is equivalent to the one you just submitted."}
   }
+  Value::contextSet($context,%{$flags});            # restore context values
   return $ans;
 }
 
