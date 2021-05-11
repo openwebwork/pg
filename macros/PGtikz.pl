@@ -113,6 +113,7 @@ sub new {
 	$image->svgMethod($main::envir{tikzSVGMethod} // 'pdf2svg');
 	$image->convertOptions($main::envir{tikzConvertOptions} // {input => {},output => {}});
 	$image->SUPER::ext('pdf') if $main::displayMode eq 'TeX';
+	$image->SUPER::ext('tgz') if $main::displayMode eq 'PTX';
 	$image->imageName($main::PG->getUniqueName($image->ext));
 
 	return bless $image, $class;

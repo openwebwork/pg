@@ -48,7 +48,7 @@ sub new {
 			if ($field eq 'ext') {
 				my $ext = shift;
 				$data->{ext} = $ext
-				if ($ext && ($ext eq 'png' || $ext eq 'gif' || $ext eq 'svg' || $ext eq 'pdf'));
+				if ($ext && ($ext =~ /^(png|gif|svg|pdf|tgz)$/));
 			}
 			else {
 				$data->{$field} = shift;
@@ -96,8 +96,10 @@ sub addToPreamble {
 	return &$self('addToPreamble', @_);
 }
 
-# Set the image type.  The valid types are 'png', 'gif', 'svg', and 'pdf'.
+# Set the image type.  The valid types are 'png', 'gif', 'svg', 'pdf', and 'tgz'.
 # The 'pdf' option should be set for print.
+# The 'tgz' option should be set when 'PTX' is the display mode.
+# It creates a .tgz file containing .tex, .pdf, .png, and .svg versions of the image
 sub ext {
 	my $self = shift;
 	return &$self('ext', @_);
@@ -125,7 +127,6 @@ sub header {
 	my $self = shift;
 	my @output = ();
 	push(@output, "\\documentclass{standalone}\n");
-	push(@output, "\\def\\pgfsysdriver{pgfsys-dvisvgm.def}\n") if $self->ext eq 'svg' && $self->svgMethod eq 'dvisvgm';
 	my @xcolorOpts = grep { ref $_ eq "ARRAY" && $_->[0] eq "xcolor" && defined $_->[1] } @{$self->texPackages};
 	my $xcolorOpts = @xcolorOpts ? $xcolorOpts[0][1] : 'svgnames';
 	push(@output, "\\usepackage[$xcolorOpts]{xcolor}\n");
@@ -156,67 +157,128 @@ sub draw {
 	my $working_dir = WeBWorK::PG::ImageGenerator::makeTempDirectory(WeBWorK::PG::IO::ww_tmp_dir(), "tikz");
 	my $data;
 
-	my $fh;
-	open($fh, ">", "$working_dir/image.tex")
-		or warn "Can't open $working_dir/image.tex for writing.";
-	chmod(0777, "$working_dir/image.tex");
-	print $fh $self->header;
-	print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
-	print $fh $self->footer;
-	close $fh;
-
 	my $ext = $self->ext;
-	my $tex_ext = $ext eq 'svg' && $self->svgMethod eq 'dvisvgm' ? 'dvi' : 'pdf';
-	my $latex_binary = WeBWorK::PG::IO::externalCommand($tex_ext eq 'dvi' ? 'latex' : 'pdflatex');
+	my $svgMethod = $self->svgMethod;
 
-	# Generate the pdf file.
-	system "cd " . $working_dir . " && $latex_binary image.tex > pdflatex.stdout 2> /dev/null";
+	my $fh;
 
-	if (-r "$working_dir/image.$tex_ext") {
-		chmod(0777, "$working_dir/image.$tex_ext");
-		# Convert the file to the appropriate type of image file
-		if ($ext eq 'svg') {
-			if ($self->svgMethod eq 'dvisvgm') {
-				system WeBWorK::PG::IO::externalCommand('dvisvgm') .
-					" $working_dir/image.dvi --no-fonts --output=$working_dir/image.svg > /dev/null 2>&1";
-			} else {
-				system WeBWorK::PG::IO::externalCommand($self->svgMethod) .
-					" $working_dir/image.pdf $working_dir/image.svg > /dev/null 2>&1";
-			}
-		} elsif ($ext ne 'pdf') {
-			system WeBWorK::PG::IO::externalCommand('convert') .
-				join('',map {" -$_ " . $self->convertOptions->{input}->{$_}} (keys %{$self->convertOptions->{input}})) .
-				" $working_dir/image.pdf" .
-				join('',map {" -$_ " . $self->convertOptions->{output}->{$_}} (keys %{$self->convertOptions->{output}})) .
-				" $working_dir/image.$ext > /dev/null 2>&1";
-		}
+	# Create either one or two tex files with one small difference:
+	# set pgfsysdriver to pgfsys-dvisvgm.def for a tex file that dvisvgm will use
+	# Then make only the dvi, only the pdf, or both in case we are making tgz with svg via dvisvgm
+	if (($ext eq 'svg' || $ext eq 'tgz') && $svgMethod eq 'dvisvgm') {
+		open($fh, ">", "$working_dir/image-dvisvgm.tex")
+			or warn "Can't open $working_dir/image-dvisvgm.tex for writing.";
+		my @header = $self->header;
+		splice @header, 1, 0, "\\def\\pgfsysdriver{pgfsys-dvisvgm.def}\n";
+		chmod(0777, "$working_dir/image-dvisvgm.tex");
+		print $fh @header;
+		print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
+		print $fh $self->footer;
+		close $fh;
+		system "cd $working_dir && " . WeBWorK::PG::IO::externalCommand('latex') .
+			" image-dvisvgm.tex > latex.stdout 2> /dev/null && " .
+			WeBWorK::PG::IO::externalCommand('mv') . " image-dvisvgm.dvi image.dvi";
+		chmod(0777, "$working_dir/image.dvi");
+	}
+	if ($ext ne 'svg' || ($ext eq 'svg' && $svgMethod ne 'dvisvgm')) {
+		open($fh, ">", "$working_dir/image.tex")
+			or warn "Can't open $working_dir/image.tex for writing.";
+		chmod(0777, "$working_dir/image.tex");
+		print $fh $self->header;
+		print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
+		print $fh $self->footer;
+		close $fh;
+		system "cd $working_dir && " . WeBWorK::PG::IO::externalCommand('pdflatex') .
+			" image.tex > pdflatex.stdout 2> /dev/null";
+		chmod(0777, "$working_dir/image.pdf");
+	}
 
-		if (-r "$working_dir/image.$ext") {
-			# Read the generated image file into memory
-			open(my $in_fh,  "<", "$working_dir/image.$ext")
-				or warn "Failed to open $working_dir/image.$ext for reading.", return;
-			local $/;
-			$data = <$in_fh>;
-            close($in_fh);
+	# Make derivatives of the dvi
+	if (($ext eq 'svg' || $ext eq 'tgz') && $svgMethod eq 'dvisvgm') {
+		if (-r "$working_dir/image.dvi") {
+			$self->use_svgMethod($working_dir);
 		} else {
-			warn "Convert operation failed.";
-		}
-	} else {
-		warn "File $working_dir/image.$tex_ext was not created.";
-		if (open(my $err_fh, "<", "$working_dir/pdflatex.stdout")) {
-			while (my $error = <$err_fh>) {
-				warn $error;
+		        warn "The dvi file was not created.";
+			if (open(my $err_fh, "<", "$working_dir/latex.stdout")) {
+				while (my $error = <$err_fh>) {
+					warn $error;
+				}
+				close($err_fh);
 			}
-			close($err_fh);
 		}
+	}
+
+	# Make derivatives of the pdf
+	if (($svgMethod ne 'dvisvgm' || $ext ne 'svg') && $ext ne 'pdf') {
+		if (-r "$working_dir/image.pdf") {
+			if (($ext eq 'svg' || $ext eq 'tgz') && $svgMethod ne 'dvisvgm') {
+				$self->use_svgMethod($working_dir);
+			}
+			if ($ext eq 'tgz') {
+				$self->use_convert($working_dir, "png");
+			} elsif ($ext ne 'svg' && $ext ne 'pdf') {
+				$self->use_convert($working_dir, $ext);
+			}
+		} else {
+			warn "The pdf file was not created.";
+			if (open(my $err_fh, "<", "$working_dir/pdflatex.stdout")) {
+				while (my $error = <$err_fh>) {
+					warn $error;
+				}
+				close($err_fh);
+			}
+		}
+	}
+
+	# Make the tgz
+	if ($ext eq 'tgz') {
+		system "cd $working_dir && " . WeBWorK::PG::IO::externalCommand('tar') .
+			" -czf image.tgz image.tex image.pdf image.svg image.png > /dev/null 2>&1";
+		warn "Failed to generate tgz file." unless -r "$working_dir/image.tgz";
+	}
+
+	# Read the generated image file into memory
+	if (-r "$working_dir/image.$ext") {
+		open(my $in_fh,  "<", "$working_dir/image.$ext")
+			or warn "Failed to open $working_dir/image.$ext for reading.", return;
+		local $/;
+		$data = <$in_fh>;
+		close($in_fh);
+	} else {
+		warn "Image file production failed.";
 	}
 
 	# Delete the files used to generate the image.
 	if (-e $working_dir) {
-		system "rm -rf $working_dir";
+		system WeBWorK::PG::IO::externalCommand('rm') . " -rf $working_dir";
 	}
 
 	return $data;
+}
+
+sub use_svgMethod {
+	my $self = shift;
+	my $working_dir = shift;
+	if ($self->svgMethod eq 'dvisvgm') {
+		system WeBWorK::PG::IO::externalCommand('dvisvgm') .
+			" $working_dir/image.dvi --no-fonts --output=$working_dir/image.svg > /dev/null 2>&1";
+	} else {
+		system WeBWorK::PG::IO::externalCommand($self->svgMethod) .
+			" $working_dir/image.pdf $working_dir/image.svg > /dev/null 2>&1";
+	}
+	warn "Failed to generate svg file." unless -r "$working_dir/image.svg";
+}
+
+sub use_convert {
+	my $self = shift;
+	my $working_dir = shift;
+	my $ext = shift;
+	system WeBWorK::PG::IO::externalCommand('convert') .
+		join('',map {" -$_ " . $self->convertOptions->{input}->{$_}} (keys %{$self->convertOptions->{input}})) .
+		" $working_dir/image.pdf" .
+		join('',map {" -$_ " . $self->convertOptions->{output}->{$_}} (keys %{$self->convertOptions->{output}})) .
+		" $working_dir/image.$ext > /dev/null 2>&1";
+	warn "Failed to generate $ext file." unless -r "$working_dir/image.$ext";
 }
 
 1;
