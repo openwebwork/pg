@@ -1,7 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 20014 The WeBWorK Project, http://openwebwork.sf.net/
-# $$
+# Copyright &copy; 2000-2020 The WeBWorK Project, http://openwebwork.sf.net/
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -263,7 +262,11 @@ within that section.
 
 =cut
 
-sub _scaffold_init {};   # don't reload this file
+sub _scaffold_init {
+	# Load style and javascript for opening and closing the scaffolds.
+	ADD_CSS_FILE("js/apps/Scaffold/scaffold.css");
+	ADD_JS_FILE("js/apps/Scaffold/scaffold.js");
+};
 
 #
 #  The Scaffoling package
@@ -321,7 +324,7 @@ sub End {
   Scaffold->Error("Scaffold ended with section was still open") if $self->{current_section};
   my $self = $scaffold;
   push(@{$self->{output}},splice(@$PG_OUTPUT,0));                      # collect any final non-section output
-  $self->open_sections(@{$self->{open}});                              # make the open sections be displayed
+  $self->hide_other_results(@{$self->{open}});                         # hide results of unnopened sections in the results table
   push(@$PG_OUTPUT,@{$self->{previous_output}},@{$self->{output}});    # put back original output and scaffold output
   delete $self->{previous_output}; delete $self->{output};             # don't need these any more
   shift(@scaffolds); $scaffold = $scaffolds[0];
@@ -422,17 +425,6 @@ sub is_open {
   my $self = shift;
   push(@{$self->{open}},map {$_->{number}} @_) if @_;
   return $self->{open};
-}
-
-#
-#  Add the javascript to open the given sections
-#  and hide the rows of the results table for other sections.
-#
-sub open_sections {
-  my $self = shift;
-  my @script = map {'$("#'.$self->{sections}{$_}{label}.'").opensection();'} @_;
-  push(@{$self->{output}},main::MODES(TeX=>'', HTML=>"<script>\n".join("\n",@script)."\n</script>",PTX=>''));
-  $self->hide_other_results(@_);
 }
 
 #
@@ -575,16 +567,19 @@ sub add_container {
   splice(@$PG_OUTPUT,0,scalar(@$PG_OUTPUT)) if !($canopen || $iscorrect || $Scaffold::isPTX) || (!$isopen && $Scaffold::isHardcopy);
   unshift(@$PG_OUTPUT,@{main::MODES(
     HTML => [
-      '<div class="section-div">',
-      '<h3 tabindex=0 id="'.$label.'" class="'.($iscorrect?"iscorrect":"iswrong").'">'.$self->{name}.'</h3>',
-      '<div><p>',
-      '<script>$("#'.$label.'").can'.($canopen?"":"not").'open()</script>',
+      '<div class="accordion-group section-div">',
+      '<div class="accordion-heading ' . ($iscorrect ? "iscorrect" : "iswrong") . ' ' . ($canopen ? "canopen" : "cannotopen") . '">',
+	  '<a class="accordion-toggle' . ($isopen ? '': ' collapsed') . '"' .
+	    ($canopen ? ' href="#' . $label . '" data-toggle="collapse"' : ' tabindex="-1"') . '><span class="section-title">' . $self->{name} . '</span></a>',
+      '</div>',
+      '<div id="' . $label . '" class="accordion-body collapse' . ($isopen ? ' in' : '') . '">',
+      '<div class="accordion-inner">'
     ],
     TeX => ["\\par{\\bf $self->{name}}\\par "],
     PTX => ["<stage>\n"],
   )});
   push(@$PG_OUTPUT,main::MODES(
-    HTML => '</p></div></div>',
+    HTML => '</div></div></div>',
     TeX  => "\\par ",
     PTX => "<\/stage>\n",
   ));
@@ -741,99 +736,4 @@ sub correct_or_first_incorrect {
 #
 sub never {return 0}
 
-
-
-package main;
-
-#
-#  Set up some styles and the jQuery calls for opening and closing the scaffolds.
-#
-TEXT(<<'END_HEADER_TEXT') if !($Scaffold::isHardcopy or $Scaffold::isPTX);  # should be HEADER_TEXT, but that gets lost in library browser
-
-<style type="text/css">
-.section-div > div {padding:0 .5em;}    /* move the contents away from the edges */
-.section-div > h3 > .ui-icon {
-  display: inline-block;                /* make the triangle be on the same line as the title */
-  margin: 3px 1px;                      /* adjust its position slightly */
-  vertical-align: -5px;
-}
-.section-div > h3 {
-  color: #212121!important;
-  border-color: #AAAAAA!important;
-  font-weight: normal!important;
-  font-style: normal!important;
-}
-
-.section-div > h3:focus {
-    outline-style:solid;
-    outline-color:#aaaa00;
-    outline-width:2px;
-}
-
-.section-div > h3.ui-state-default {
-  color: #555555!important;
-}
-.section-div > div.ui-accordion-content {
-  background: #FAFAFA!important;
-}
-.canopen    {background:yellow!important;}
-.iscorrect  {background:lightgreen!important;}
-.cannotopen {
-  background:#EEEEEE!important;
-  padding: 3px 0px 3px 16px;        /* leave space that would have been triangle */
-}
-</style>
-
-<script type="text/javascript">
-$.fn.canopen = function() {
-   $(this).addClass("canopen ui-accordion-header ui-helper-reset ui-state-default ui-corner-top ui-corner-bottom")
-   .hover(function() { $(this).toggleClass("ui-state-hover"); })
-   .prepend('<span class="ui-icon ui-icon-triangle-1-e"></span>')
-   .on('keypress click', function(e) {
-     if (e.type != 'click' && e.which != 13) {
-       return true;
-     }
-     if ($(this).hasClass("ui-accordion-header-active")) {
-       var THIS = this;
-       $(this)
-         .toggleClass("ui-accordion-header-active ui-state-active ui-state-default")
-         .find("> .ui-icon").toggleClass("ui-icon-triangle-1-e ui-icon-triangle-1-s").end()
-         .next().slideToggle(400,function () {$(THIS).toggleClass("ui-corner-bottom")});
-     } else {
-       $(this)
-         .toggleClass("ui-accordion-header-active ui-state-active ui-state-default ui-corner-bottom")
-         .find("> .ui-icon").toggleClass("ui-icon-triangle-1-e ui-icon-triangle-1-s").end()
-         .next().slideToggle();
-       // Reflow MathQuill answer boxes so that their contents are rendered correctly
-       if ('answerQuills' in window) {
-           Object.keys(answerQuills).forEach(
-               function(key, index) { answerQuills[key].mathField.reflow(); }
-           );
-       }
-     }
-     return false;
-   })
-   .next()
-     .addClass("ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom")
-     .hide();
-};
-$.fn.cannotopen = function() {
-   $(this).addClass("cannotopen ui-accordion-header ui-helper-reset ui-state-default ui-corner-top ui-corner-bottom")
-   .hover(function() { $(this).toggleClass("ui-state-hover"); })
-   .next()
-     .addClass("ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom")
-     .hide();
-};
-$.fn.opensection = function() {
-   $(this)
-     .toggleClass("ui-accordion-header-active ui-state-active ui-state-default ui-corner-bottom")
-     .find("> .ui-icon").toggleClass("ui-icon-triangle-1-e ui-icon-triangle-1-s").end()
-     .next().slideToggle();
-   return false;
-}
-</script>
-END_HEADER_TEXT
-
-
 1;
-
