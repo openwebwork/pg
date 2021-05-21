@@ -190,7 +190,7 @@ For example:
 =cut
 
 sub ADD_CSS_FILE {
-  my ($file, $external) = shift;
+  my ($file, $external) = @_;
   push(@{$PG->{flags}{extra_css_files}}, { file => $file, external => $external });
 }
 
