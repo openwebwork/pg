@@ -204,7 +204,7 @@ from the webwork2/htdocs/ directory or from an external location.
 If external is 1, it is assumed the full url is provided.  If external is 0 or
 not given, then file name will be prefixed with the webwork2/htdocs/ directory.
 
-Addtional attributes can be passed as a hash reference in the optional third
+Additional attributes can be passed as a hash reference in the optional third
 argument.  These attributes will be added as attributes to the script tag.
 
 For example:
