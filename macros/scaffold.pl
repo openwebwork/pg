@@ -186,6 +186,15 @@ the first section, you might want the first section to be closed, and
 have the student open it by hand before anwering the questions.  In
 this case, set this value to 0 (it is 1 by default).
 
+=item C<S<< numbered => 0 or 1 >>>
+
+This determines whether each section is automatically numbered before
+its title. If true, each section title will be preceded by a number
+and a period. The section's nesting level determines the style of
+numbering: a, i, A. Any deeper and numbering is just arabic.
+If there is no title, a default title like "Part 1:" is used, and
+in that case no extra numbering is added regardless of this option.
+
 =back
 
 Some useful configurations are:
@@ -284,6 +293,7 @@ our $afterAnswerDate = (time() > $main::envir{answerDate});
 our $scaffold;           # the active scaffold (set by Begin() below)
 my  @scaffolds = ();     # array of nested scaffolds
 my  $scaffold_no = 0;    # each scaffold gets a unique number
+my  $scaffold_depth = 1; # each scaffold has a nesting depth
 
 our $PG_ANSWERS_HASH = $main::PG->{PG_ANSWERS_HASH};  # where PG stores answer evaluators
 our $PG_OUTPUT = $main::PG->{OUTPUT_ARRAY};           # where PG stores the TEXT() output
@@ -305,7 +315,7 @@ our $PREFIX = "$main::envir{QUIZ_PREFIX}Prob-$main::envir{questionNumber}";
 #
 sub Begin {
   my $self = Scaffold->new(@_);
-  unshift(@scaffolds,$self); $scaffold = $self;
+  unshift(@scaffolds,$self); $scaffold = $self; $scaffold_depth++;
   $self->{previous_output} = [splice(@{$PG_OUTPUT},0)];  # get output and clear it without changing the array pointer
   $self->{output} = [];                                  # the contents of the scaffold
   return $self;
@@ -328,6 +338,7 @@ sub End {
   push(@$PG_OUTPUT,@{$self->{previous_output}},@{$self->{output}});    # put back original output and scaffold output
   delete $self->{previous_output}; delete $self->{output};             # don't need these any more
   shift(@scaffolds); $scaffold = $scaffolds[0];
+  $scaffold_depth--;
   return $scaffold;
 }
 
@@ -354,8 +365,10 @@ sub new {
     is_open => "first_incorrect",
     hardcopy_is_open => "always",                 # open all possible sections in hardcopy
     open_first_section => 1,                      # 0 means don't open any sections initially
+    numbered => 0,                                # 1 means sections will be printed with their number
     @_,
-    number => ++$scaffold_no,                     # the number for this section
+    number => ++$scaffold_no,                     # the number for this scaffold
+    depth => $scaffold_depth,                     # the nesting depth for this scaffold
     sections => {},                               # the sections within this scaffold
     section_no => 0,                              # the current section number
     ans_names => [],                              # the names of all answer blanks in this scaffold
@@ -495,7 +508,28 @@ sub Begin {
   Scaffold->Error("Sections must appear within a Scaffold") unless $scaffold;
   Scaffold->Error("Section::Begin() while a section is already open") if $scaffold->{current_section};
   my $self = $scaffold->start_section(Section->new(@_));
-  $self->{name} = "Part $self->{number}:" unless $self->{name};
+  my $number_at_depth;
+  if ($scaffold->{depth} == 1) {
+	$number_at_depth = ('a'..'zz')[$self->{number}-1];
+  } elsif ($scaffold->{depth} == 2) {
+	# Avoiding a package for roman numerals
+	my @romanatom = (['i','v','x'],['x','l','c'],['c','d','m']);
+	my @romanmolecule = map{['',$_->[0],$_->[0]x2,$_->[0]x3,$_->[0].$_->[1],$_->[1],$_->[1].$_->[0],$_->[1].$_->[0]x2,$_->[1].$_->[0]x3,$_->[0].$_->[2]]}(@romanatom);
+	my @roman;
+	for my $i (@{$romanmolecule[2]}) {
+		for my $j (@{$romanmolecule[1]}) {
+			for my $k (@{$romanmolecule[0]}) {
+				push(@roman,$i.$j.$k);
+			}
+		}
+	}
+	$number_at_depth = $roman[$self->{number}];
+  } elsif ($scaffold->{depth} == 3) {
+	$number_at_depth = ('A'..'ZZ')[$self->{number}-1];
+  } elsif ($scaffold->{depth} > 3) {
+	$number_at_depth = $self->{number};
+  }
+  $self->{number_at_depth} = $number_at_depth;
   $self->{previous_ans} = [@{$scaffold->{ans_names}}],      # copy of current list of answers in the scaffold
   $self->{assigned_ans} = [$self->assigned_ans],            # array indicating which answers have evaluators
   return $self;
@@ -557,6 +591,9 @@ sub new {
 sub add_container {
   my $self = shift; my $scaffold = $Scaffold::scaffold;
   my $label = $self->{label};
+  my $name = $self->{name} // '';
+  my $title = ($name || $scaffold->{numbered}) ? $name : "Part $self->{number}:";
+  my $number = ($scaffold->{numbered} ? $self->{number_at_depth}.'.' : '');
   my ($iscorrect,$canopen,$isopen);
 
   $iscorrect = $self->{is_correct} = $self->is_correct;
@@ -570,17 +607,19 @@ sub add_container {
       '<div class="accordion-group section-div">',
       '<div class="accordion-heading ' . ($iscorrect ? "iscorrect" : "iswrong") . ' ' . ($canopen ? "canopen" : "cannotopen") . '">',
 	  '<a class="accordion-toggle' . ($isopen ? '': ' collapsed') . '"' .
-	    ($canopen ? ' href="#' . $label . '" data-toggle="collapse"' : ' tabindex="-1"') . '><span class="section-title">' . $self->{name} . '</span></a>',
+	    ($canopen ? ' href="#' . $label . '" data-toggle="collapse"' : ' tabindex="-1"') . '>',
+	    "<span class=\"section-number\">$number</span>",
+	    '<span class="section-title">' . $title . '</span></a>',
       '</div>',
       '<div id="' . $label . '" class="accordion-body collapse' . ($isopen ? ' in' : '') . '">',
       '<div class="accordion-inner">'
     ],
-    TeX => ["\\par{\\bf $self->{name}}\\par "],
-    PTX => ["<stage>\n"],
+    TeX => ["\\par{\\bf $number $title}\\addtolength{\\parindent}{1em}\\par "],
+    PTX => $name ? ["<stage>\n", "<title>$name</title>"] : ["<stage>\n"],
   )});
   push(@$PG_OUTPUT,main::MODES(
     HTML => '</div></div></div>',
-    TeX  => "\\par ",
+    TeX  => "\\addtolength{\\parindent}{-1em}\\par ",
     PTX => "<\/stage>\n",
   ));
 }
