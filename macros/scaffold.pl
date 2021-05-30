@@ -614,12 +614,12 @@ sub add_container {
       '<div id="' . $label . '" class="accordion-body collapse' . ($isopen ? ' in' : '') . '">',
       '<div class="accordion-inner">'
     ],
-    TeX => ["\\par{\\bf $number $title}\\addtolength{\\parindent}{1em}\\par "],
+    TeX => ["\\par{\\bf $number $title}\\addtolength{\\leftskip}{15pt}\\par "],
     PTX => $name ? ["<stage>\n", "<title>$name</title>"] : ["<stage>\n"],
   )});
   push(@$PG_OUTPUT,main::MODES(
     HTML => '</div></div></div>',
-    TeX  => "\\addtolength{\\parindent}{-1em}\\par ",
+    TeX  => "\\addtolength{\\leftskip}{-15pt}\\par ",
     PTX => "<\/stage>\n",
   ));
 }
