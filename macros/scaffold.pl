@@ -615,12 +615,12 @@ sub add_container {
       '<div class="accordion-inner">'
     ],
     TeX => ["\\par{\\bf $number $title}\\addtolength{\\leftskip}{15pt}\\par "],
-    PTX => $name ? ["<stage>\n", "<title>$name</title>"] : ["<stage>\n"],
+    PTX => $name ? ["<task>\n", "<title>$name</title>"] : ["<task>\n"],
   )});
   push(@$PG_OUTPUT,main::MODES(
     HTML => '</div></div></div>',
     TeX  => "\\addtolength{\\leftskip}{-15pt}\\par ",
-    PTX => "<\/stage>\n",
+    PTX => "<\/task>\n",
   ));
 }
 

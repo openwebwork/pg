@@ -454,7 +454,7 @@ sub process_section {
          <h3 id="section$sectionNo" class="$iscorrect_class">Section: $name:</h3>
          <div><p>$renderedtext</p></div></li>
       !, TeX=>"\\par{\\bf Section: $name}\\par $renderedtext\\par",
-      PTX=>"<stage>\n$renderedtext</stage>\n",
+      PTX=>"<task>\n$renderedtext</task>\n",
     );
     ($iscorrect,$canshow);
 }
