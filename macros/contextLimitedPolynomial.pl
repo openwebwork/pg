@@ -68,7 +68,7 @@ sub markPowers {
     $self->{index} = $vIndex->{$self->{name}};
     $self->{exponents} = [(0) x scalar(keys %{$vIndex})];
     $self->{exponents}[$self->{index}] = 1;
-  } elsif ($self->class eq 'Number') {
+  } elsif ($self->class eq 'Number' || ($self->isNeg && isConstant($self))) {
     my $vIndex = LimitedPolynomial::getVarIndex($self);
     $self->{exponents} = [(0) x scalar(keys %{$vIndex})];
   }
@@ -318,6 +318,7 @@ sub _check {
   $self->{isPoly} = 2;
   $self->{powers} = $op->{powers}; delete $op->{powers};
   $self->{exponents} = $op->{exponents}; delete $op->{exponents};
+  $self->{powers}{1} = 1 if $op->class eq 'Variable';
   return if $self->checkPolynomial;
   $self->Error("You can only use '%s' with monomials",$self->{def}{string});
 }
