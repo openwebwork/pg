@@ -504,35 +504,45 @@ $PG_OUTPUT = $Scaffold::PG_OUTPUT;
 #    see which answers belong to this section when it closes).
 #
 sub Begin {
-  my $scaffold = $Scaffold::scaffold;
-  Scaffold->Error("Sections must appear within a Scaffold") unless $scaffold;
-  Scaffold->Error("Section::Begin() while a section is already open") if $scaffold->{current_section};
-  my $self = $scaffold->start_section(Section->new(@_));
-  my $number_at_depth;
-  if ($scaffold->{depth} == 1) {
-	$number_at_depth = ('a'..'zz')[$self->{number}-1];
-  } elsif ($scaffold->{depth} == 2) {
-	# Avoiding a package for roman numerals
-	my @romanatom = (['i','v','x'],['x','l','c'],['c','d','m']);
-	my @romanmolecule = map{['',$_->[0],$_->[0]x2,$_->[0]x3,$_->[0].$_->[1],$_->[1],$_->[1].$_->[0],$_->[1].$_->[0]x2,$_->[1].$_->[0]x3,$_->[0].$_->[2]]}(@romanatom);
-	my @roman;
-	for my $i (@{$romanmolecule[2]}) {
-		for my $j (@{$romanmolecule[1]}) {
-			for my $k (@{$romanmolecule[0]}) {
-				push(@roman,$i.$j.$k);
+	my $scaffold = $Scaffold::scaffold;
+	Scaffold->Error("Sections must appear within a Scaffold") unless $scaffold;
+	Scaffold->Error("Section::Begin() while a section is already open") if $scaffold->{current_section};
+	my $self = $scaffold->start_section(Section->new(@_));
+	my $number = $self->{number};
+	my $number_at_depth = $number;
+	# Convert the number (e.g. 2) into a depth-styled version (e.g. b, ii, B)
+	# Supports numbers up to 99 and depth up to 3 but then leaves in arabic
+	if ($scaffold->{depth} == 1 && $number <= 99) {
+		$number_at_depth = ('a'..'cu')[$number-1];
+	} elsif ($scaffold->{depth} == 2 && $number <= 99) {
+		# Avoiding a package for roman numerals
+		my @romanatom = (['i','v','x'],['x','l','c']);
+		my @romanmolecule = map{[
+			'',
+			$_->[0],
+			$_->[0]x2,
+			$_->[0]x3,
+			$_->[0].$_->[1],
+			$_->[1],
+			$_->[1].$_->[0],
+			$_->[1].$_->[0]x2,
+			$_->[1].$_->[0]x3,
+			$_->[0].$_->[2]
+		]}(@romanatom);
+		my @roman;
+		for my $i (@{$romanmolecule[1]}) {
+			for my $j (@{$romanmolecule[0]}) {
+				push(@roman,$i.$j);
 			}
 		}
+		$number_at_depth = $roman[$number];
+	} elsif ($scaffold->{depth} == 3 && $number <= 99) {
+		$number_at_depth = ('A'..'CU')[$number-1];
 	}
-	$number_at_depth = $roman[$self->{number}];
-  } elsif ($scaffold->{depth} == 3) {
-	$number_at_depth = ('A'..'ZZ')[$self->{number}-1];
-  } elsif ($scaffold->{depth} > 3) {
-	$number_at_depth = $self->{number};
-  }
-  $self->{number_at_depth} = $number_at_depth;
-  $self->{previous_ans} = [@{$scaffold->{ans_names}}],      # copy of current list of answers in the scaffold
-  $self->{assigned_ans} = [$self->assigned_ans],            # array indicating which answers have evaluators
-  return $self;
+	$self->{number_at_depth} = $number_at_depth;
+	$self->{previous_ans} = [@{$scaffold->{ans_names}}],      # copy of current list of answers in the scaffold
+	$self->{assigned_ans} = [$self->assigned_ans],            # array indicating which answers have evaluators
+	return $self;
 }
 
 #
