@@ -746,30 +746,26 @@ sub insertObject {
     my $selfLoading = $self->{selfLoading};
     my $javaParameters = '';
     my $flashParameters = '';
-    my $webgeogebraParameters = '';
+    my $webgeogebraParameters = 'var params = {';
     if (PGUtil::not_null($self->{parameter_string}) ) {
     	$javaParameters = $self->{parameter_string};
     	$flashParameters = $self->{parameter_string};
-    	$webgeogebraParameters = $self->{parameter_string};
     } else {
 		my %param_hash = %{$self->params()};
 
 		foreach my $key (keys %param_hash) {
 			$javaParameters .= qq!<param name ="$key"  value = "$param_hash{$key}">\n!;
 			$flashParameters .= uri_escape($key).'='.uri_escape($param_hash{$key}).'&';
-			$webgeogebraParameters .= qq!data-param-$key = "$param_hash{$key}"\n!;
+			$webgeogebraParameters .= qq!"$key": "$param_hash{$key}",\n!;
 		}
 		$flashParameters =~ s/\&$//;    # trim last &
-		$webgeogebraParameters = qq!<article class="geogebraweb"
-		 data-param-id     = "$appletName"
-		 data-param-width  = "$width"
-		 data-param-height = "$height"
-		 !. $webgeogebraParameters . 
-		 qq!\n
-		> </article> !;
+
+    $webgeogebraParameters .= qq!"id": "$appletName",\n!;
+    $webgeogebraParameters .= qq!"width": "$width",\n!;
+    $webgeogebraParameters .= qq!"height": "$height",\n!;
+    $webgeogebraParameters .= "};";
 	}
-  
-   
+
     $objectText = $self->{objectText};
     $objectText =~ s/(\$\w+)/$1/gee;  # interpolate values into object text 
     $objectText .=qq{<script language="javascript">ww_applet_list["$appletName"].visible = 1;</script>}; # don't submit things if not visible
@@ -1160,11 +1156,17 @@ use constant GEOGEBRAWEB_OBJECT_TEXT =><<'END_OBJECT_TEXT';
     <div class="geogebra_object">
     <script language="javascript">ww_applet_list["$appletName"].visible = 1; // don't submit things if not visible
     </script>
-<script type="text/javascript" language="javascript" src="//web.geogebra.org/4.4/web/web.nocache.js"></script>
 
-$webgeogebraParameters
-	</div>
-	</div>
+   <div id="ggb-element"></div>
+
+   <script>
+     $webgeogebraParameters
+     var applet = new GGBApplet(params, '5.0');
+     applet.inject('ggb-element');
+   </script>
+
+   </div>
+   </div>
 END_OBJECT_TEXT
 
 sub new {
