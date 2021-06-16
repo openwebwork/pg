@@ -71,6 +71,7 @@ The module Applet stores common code for the different types of applets.
 package Applet;
 use URI::Escape;
 use MIME::Base64 qw(encode_base64 decode_base64);
+use JSON qw(encode_json);
 use PGcore;
 @ISA = qw(PGcore);
 
@@ -729,7 +730,7 @@ sub insertObject {
 
 	my $javaParameters = '';
 	my $flashParameters = '';
-	my $webgeogebraParameters = '';
+        my $webgeogebraParameters = qq!<div id = "$appletName"></div>\n<script>\nvar params = !;
 
 	if (PGUtil::not_null($self->{parameter_string})) {
 		$javaParameters = $self->{parameter_string};
@@ -741,14 +742,19 @@ sub insertObject {
 		foreach my $key (keys %param_hash) {
 			$javaParameters .= qq!<param name="$key" value="$param_hash{$key}">\n!;
 			$flashParameters .= uri_escape($key) . '=' . uri_escape($param_hash{$key}) . '&';
-			$webgeogebraParameters .= qq!data-param-$key = "$param_hash{$key}"\n!;
 		}
 		$flashParameters =~ s/\&$//; # trim last &
-		$webgeogebraParameters = qq!<article class="geogebraweb"
-			data-param-id     = "$appletName"
-			data-param-width  = "$width"
-			data-param-height = "$height"
-			!. $webgeogebraParameters . qq!\n></article>!;
+                $param_hash{id}     = $appletName;
+                $param_hash{height} = $height;
+                $param_hash{width}  = $width;
+                $webgeogebraParameters .= encode_json(\%param_hash) . ';';
+                $webgeogebraParameters .= qq!
+                    var $appletName = new GGBApplet(params, true);
+                    window.addEventListener('load', function() {
+                        $appletName.setHTML5Codebase('https://geogebra.org/apps/latest/web3d/');
+                        $appletName.inject('$appletName');
+                    });
+                </script>!;
 	}
 
 	my $objectText = $self->{objectText};
