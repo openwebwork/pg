@@ -730,7 +730,7 @@ sub insertObject {
 
 	my $javaParameters = '';
 	my $flashParameters = '';
-        my $webgeogebraParameters = qq!<div id = "$appletName"></div>\n<script>\nvar params = !;
+	my $webgeogebraParameters = qq!<div id = "$appletName"></div>\n<script>\nvar params = !;
 
 	if (PGUtil::not_null($self->{parameter_string})) {
 		$javaParameters = $self->{parameter_string};
@@ -744,17 +744,17 @@ sub insertObject {
 			$flashParameters .= uri_escape($key) . '=' . uri_escape($param_hash{$key}) . '&';
 		}
 		$flashParameters =~ s/\&$//; # trim last &
-                $param_hash{id}     = $appletName;
-                $param_hash{height} = $height;
-                $param_hash{width}  = $width;
-                $webgeogebraParameters .= encode_json(\%param_hash) . ';';
-                $webgeogebraParameters .= qq!
-                    var $appletName = new GGBApplet(params, true);
-                    window.addEventListener('load', function() {
-                        $appletName.setHTML5Codebase('https://geogebra.org/apps/latest/web3d/');
-                        $appletName.inject('$appletName');
-                    });
-                </script>!;
+		$param_hash{id}     = $appletName;
+		$param_hash{height} = $height;
+		$param_hash{width}  = $width;
+		$webgeogebraParameters .= encode_json(\%param_hash) . ';';
+		$webgeogebraParameters .= qq!
+			var $appletName = new GGBApplet(params, true);
+			window.addEventListener('load', function() {
+				$appletName.setHTML5Codebase('https://geogebra.org/apps/latest/web3d/');
+				$appletName.inject('$appletName');
+			});
+		</script>!;
 	}
 
 	my $objectText = $self->{objectText};
