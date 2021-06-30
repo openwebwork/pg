@@ -1320,7 +1320,7 @@ sub statement {
 }
 
 sub STATEMENT {
-	if ($displayMode eq 'PTX') { TEXT('<statement>', "\n", statement(@_), "\n", '</statement>', "\n\n"); }
+	if ($displayMode eq 'PTX') { TEXT('<statement>', "\n", statement(@_), "\n", '</statement>', "\n"); }
 	else { TEXT(statement(@_)) };
 }
 
