@@ -173,7 +173,7 @@ sub MENU {
     };
     $menu .= "</select>";
   } elsif ($main::displayMode eq 'PTX') {
-    $menu = '<var form="popup">' . "\n";
+    $menu = qq(<var form="popup" name="$name">) . "\n";
     foreach my $item (@list) {
       $menu .= '<li>';
       my $escaped_item = $item;
