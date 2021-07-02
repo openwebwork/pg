@@ -2583,7 +2583,7 @@ sub knowlLink {
 	my $display_text = shift;
 	my @options = @_;  # so we can check parity
 	my %options = @options;
-	WARN_MESSAGE('usage   knowlLink($display_text, [url => $url, value => $helpMessage, type => 'help/hint/solution/...'] );'.
+	WARN_MESSAGE('usage   knowlLink($display_text, [url => $url, value => $helpMessage, type => "help/hint/solution/..."] );'.
 		qq!after  the display_text the information requires key/value pairs.
 		Received @options !, scalar(@options)%2) if scalar(@options)%2;
 	# check that options has an even number of inputs
