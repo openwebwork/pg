@@ -2596,7 +2596,7 @@ sub knowlLink {
 		$properties = qq! knowl = "$options{url}"!;
 	}
 	else {
-		WARN_MESSAGE('usage   knowlLink($display_text, [url => $url, value => $helpMessage, type => 'help/hint/solution/...'] );');
+		WARN_MESSAGE('usage   knowlLink($display_text, [url => $url, value => $helpMessage, type => "help/hint/solution/..."] );');
 	}
 	if ($options{type}) {
 		$properties .= qq! data-type = "$options{type}"!;
