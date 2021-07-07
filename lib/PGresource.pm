@@ -17,6 +17,7 @@
 package PGresource;
 use strict;
 use Exporter;
+use Scalar::Util;
 use UUID::Tiny  ':std';
 use PGcore;
 our @ISA= qw( PGcore ) ;
@@ -60,6 +61,7 @@ sub new {
 		%options,
 	};
 	bless $self, $class;
+	Scalar::Util::weaken($self->{parent_alias});
 	$self->warning_message( "PGresource must be called with an  alias object") unless ref($parent_alias) =~ /PGalias/;
 	$self->warning_message(  "PGresource must be called with a name" ) unless $id;
 	$self->warning_message(  "PGresource must be called with a type") unless $type;

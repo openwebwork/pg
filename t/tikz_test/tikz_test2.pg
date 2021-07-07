@@ -1,0 +1,48 @@
+##DESCRIPTION
+# TEST tikz from a pgml problem
+##ENDDESCRIPTION
+
+DOCUMENT();
+
+loadMacros(
+    "PGstandard.pl",
+    "MathObjects.pl",
+    "PGML.pl",
+    "PGtikz.pl"
+);
+
+TEXT(beginproblem());
+
+##############################################################
+#  Setup
+##############################################################
+
+
+$drawing = createTikZImage();
+$drawing->tikzOptions("main_node/.style={circle,fill=blue!20,draw,minimum size=1em,inner sep=3pt}");
+$drawing->tex(<<END_TIKZ);
+\node[main_node] (1) at (0,0) {1};
+\node[main_node] (2) at (-1, -1.5)  {2};
+\node[main_node] (3) at (1, -1.5) {3};
+\draw (1) -- (2) -- (3) -- (1);
+END_TIKZ
+
+$path = insertGraph($drawing);
+
+Context("Numeric");
+
+##############################################################
+#  Text
+##############################################################
+
+BEGIN_PGML
+path = [@ protect_underbar($path) @]
+[@ $BR @]*
+alias = [@ protect_underbar(alias($path)) @]*
+
+image = [@ image($path, width => 100, tex_size => 400) @]*
+
+svg = [@ embedSVG($path) @]*
+END_PGML
+
+ENDDOCUMENT();

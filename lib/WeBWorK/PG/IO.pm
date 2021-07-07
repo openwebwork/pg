@@ -18,6 +18,7 @@ use utf8;
 my $CE = new WeBWorK::CourseEnvironment({
     webwork_dir => $ENV{WEBWORK_ROOT},
 					});
+
 =head1 NAME
 
 WeBWorK::PG::IO - Private functions used by WeBWorK::PG::Translator for file IO.
@@ -268,8 +269,42 @@ Checks to see if the given path is a sub directory of the courses directory
 =cut
 
 sub path_is_course_subdir {
-    
     return path_is_subdir(shift,$CE->{webwork_courses_dir},1);
+}
+
+sub ww_tmp_dir {
+	return $CE->{webworkDirs}{tmp};
+}
+
+
+=item curlCommand
+
+	curl -- path to curl defined in site.conf
+
+=cut
+
+sub curlCommand {
+	return $CE->{externalPrograms}{curl};
+}
+
+=item copyCommand
+
+	copyCommand -- path to cp defined in site.conf
+
+=cut
+
+sub copyCommand {
+	return $CE->{externalPrograms}{cp};
+}
+
+=item externalCommand
+
+	returns the path to a requested external command that is defined in site.conf
+
+=cut
+
+sub externalCommand {
+	return $CE->{externalPrograms}{$_[0]};
 }
 
 #

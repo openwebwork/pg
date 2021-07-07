@@ -17,7 +17,7 @@ sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $equation = shift;
   my ($name,$ref) = @_;
-  my $const = $equation->{context}{constants}{$name};
+  my $const = $equation->{context}->constants->resolveDef($name);
   my ($value,$type) = Value::getValueType($equation,$const->{value});
   my $c = bless {
     name => $name, type => $type, def => $const,

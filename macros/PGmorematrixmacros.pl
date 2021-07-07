@@ -567,7 +567,7 @@ sub vec_list_string{
 
 
 
-=head5 ans_array_filter
+=head4 ans_array_filter
 
 	(this filter is not necessary when using MathObjects.  It may someday be useful
 	again if the AnswerEvaluator pipeline is used to its fullest extent. )

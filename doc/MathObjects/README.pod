@@ -184,3 +184,5 @@ sin 2x return sin(2x) rather than (sin(2))x.
 
 Shows how to switch contexts (in this case, to complex and to vector
 contexts), and how this affects the parsing.
+
+=back

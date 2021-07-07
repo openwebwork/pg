@@ -41,6 +41,7 @@ sub init {
   $self->{name} = 'diagnostics';
   $self->{Name} = 'Diagnostics';
   $self->{namePattern} = qr/[-\w_.]+/;
+  $self->{allowAlias} = 0;
 }
 
 sub update {} # no pattern or tokens needed

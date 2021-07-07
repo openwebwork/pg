@@ -14,7 +14,7 @@
 # Artistic License for more details.
 ################################################################################
 
-
+=encoding UTF-8
 =head1 NAME
 
 

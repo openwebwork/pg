@@ -335,7 +335,7 @@ sub pdot {
 }
 
 sub string {
-  my $self = shift; my $equation = shift; shift; shift; my $prec = shift//0;
+  my $self = shift; my $equation = shift; shift; shift; my $prec = shift;
   my $op = ($equation->{context} || $self->context)->{operators}{'U'};
   my @intervals = ();
   foreach my $x (@{$self->data}) {
@@ -343,17 +343,17 @@ sub string {
     push(@intervals,$x->string($equation))
   }
   my $string = join($op->{string} || ' U ',@intervals);
-  $string = '('.$string.')' if $prec > ($op->{precedence} || 1.5);
+  $string = '('.$string.')' if defined($prec) && $prec > ($op->{precedence} || 1.5);
   return $string;
 }
 
 sub TeX {
-  my $self = shift; my $equation = shift; shift; shift; my $prec = shift//0; #FIXME find out about precedece
+  my $self = shift; my $equation = shift; shift; shift; my $prec = shift;
   my $op = ($equation->{context} || $self->context)->{operators}{'U'};
   my @intervals = ();
   foreach my $x (@{$self->data}) {push(@intervals,$x->TeX($equation))}
   my $TeX = join($op->{TeX} || $op->{string} || ' U ',@intervals);
-  $TeX = '\left('.$TeX.'\right)' if $prec > ($op->{precedence} || 1.5);
+  $TeX = '\left('.$TeX.'\right)' if defined($prec) && $prec > ($op->{precedence} || 1.5);
   return $TeX;
 }
 

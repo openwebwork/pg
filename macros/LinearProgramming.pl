@@ -246,6 +246,8 @@ sub lp_solve {
 	return($a_ref, $endcode, $piv_count);
 }
 
+=back
+
 =head2 lp_current_value
 
 Takes a simplex tableau and returns the value of a particular variable.

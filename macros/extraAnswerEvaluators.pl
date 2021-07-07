@@ -496,7 +496,7 @@ sub number_list_cmp {
 }
 
 
-=heads equation_cmp
+=head2 equation_cmp
 
 Compares an equation.  This really piggy-backs off of fun_cmp.  It looks
 at LHS-RHS of the equations to see if they agree up to constant multiple.

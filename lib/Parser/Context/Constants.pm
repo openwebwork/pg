@@ -11,7 +11,7 @@ sub init {
   $self->{dataName} = 'constants';
   $self->{name} = 'constant';
   $self->{Name} = 'Constant';
-  $self->{namePattern} = qr/[a-zA-Z][a-zA-Z0-9]*|_blank_|_0/;
+  $self->{namePattern} = qr/\w+/;
   $self->{tokenType} = 'const';
 }
 
@@ -31,7 +31,7 @@ sub uncreate {shift; (shift)->{value}}
 #
 sub value {
   my $self = shift; my $x = shift;
-  return $self->{context}{constants}{$x}{value};
+  return $self->{context}->constants->resolveDef($x)->{value};
 }
 
 #########################################################################

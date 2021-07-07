@@ -102,10 +102,10 @@ sub DISPLAY_SECTION {
          <div class="acc-section" style="height: 0px; opacity: 0.004347826086956522;">
          <div class="acc-content"  style="$canshow">
       !, TeX=>"\\par{\\bf Part: $name }\\par",
-         PTX=>"<stage>\n"));
+         PTX=>"<task>\n"));
      my $rendered_text_string = EV3($text_string);
      TEXT( $rendered_text_string ) if $options{canshow}==1;
-     TEXT( MODES(HTML=>"</p></div></div></li>", TeX=>'\\par', PTX=>"</stage>\n" ) );
+     TEXT( MODES(HTML=>"</p></div></div></li>", TeX=>'\\par', PTX=>"</task>\n" ) );
      
      
 }

@@ -26,7 +26,7 @@ use PGcore;
 #
 $Value::defaultContext->{cmpDefaults} = {};
 
-=head5 $mathObject->cmp_defaults()
+=head4 $mathObject->cmp_defaults()
 
 #  Internal use.
 #  Set default flags for the answer checker in this object
@@ -1252,7 +1252,11 @@ sub cmp_equal {
   my $self = shift; my $ans = shift;
   my $error = $self->cmp_checkUnionReduce($ans->{student_value},$ans);
   if ($error) {$self->cmp_Error($ans,$error); return}
-  Value::List::cmp_equal($self,$ans);
+  if ($self->typeMatch($ans->{student_value})) {
+    Value::List::cmp_equal($self,$ans);
+  } else {
+    $self->SUPER::cmp_equal($ans);
+  }
 }
 
 #
@@ -1517,7 +1521,10 @@ sub cmp_list_compare {
     #
     if ($ordered) {
       if (scalar(@correct)) {
-	if (shift(@correct)->cmp_compare($entry,$ans,$nth,$value)) {$score++; next ENTRY}
+	my $correct = shift(@correct);
+	if ($correct->typeMatch($entry) && $correct->cmp_compare($entry,$ans,$nth,$value)) {
+          $score++; next ENTRY;
+        }
       } else {
 	# do syntax check
 	if (ref($extra) eq 'CODE') {&$extra($entry,$ans,$nth,$value)}
@@ -1526,7 +1533,7 @@ sub cmp_list_compare {
       if ($error->{flag} == $CMP_ERROR) {$self->cmp_error($ans); return}
     } else {
       foreach my $k (0..$#correct) {
-	if ($correct[$k]->cmp_compare($entry,$ans,$nth,$value)) {
+	if ($correct[$k]->typeMatch($entry) && $correct[$k]->cmp_compare($entry,$ans,$nth,$value)) {
 	  splice(@correct,$k,1);
 	  $score++; next ENTRY;
 	}
@@ -1721,20 +1728,24 @@ sub cmp_postfilter {
   $ans->{_filter_name} = "produce_equivalence_message";
   return $ans if $ans->{ans_message}; # don't overwrite other messages
   return $ans unless defined($ans->{prev_ans}); # if prefilters are erased, don't do this check
+  return $ans if ($ans->{bypass_equivalence_test});
   my $context = $self->context;
   Parser::Context->current(undef,$context);
+  my $flags = Value::contextSet($context,$self->cmp_contextFlags($ans)); # save old context flags
   $ans->{prev_formula} = Parser::Formula($ans->{prev_ans});
   if (defined($ans->{prev_formula}) && defined($ans->{student_formula})) {
     my $prev = eval {$self->promote($ans->{prev_formula})->inherit($self)}; # inherit limits, etc.
     next unless defined($prev);
     $context->{answerHash} = $ans; # values here can override context flags
-    $ans->{prev_equals_current} = Value::cmp_compare($prev,$ans->{student_formula},$ans);
+    $ans->{prev_equals_current} = $prev->typeMatch($ans->{student_formula})
+      && $prev->cmp_compare($ans->{student_formula},$ans);
     $context->{answerHash} = undef;
     if (   !$ans->{isPreview}                                 # not preview mode
 	and $ans->{prev_equals_current}                       # equivalent
 	and $ans->{prev_ans} ne $ans->{original_student_ans}) # but not identical
       {$ans->{ans_message} = "This answer is equivalent to the one you just submitted."}
   }
+  Value::contextSet($context,%{$flags});            # restore context values
   return $ans;
 }
 

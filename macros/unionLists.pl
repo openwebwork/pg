@@ -16,40 +16,37 @@ sub _unionLists_init {}; # don't reload this file
 
 =head2 unionLists.pl
 
- ######################################################################
- #
- #  Usage:  BeginList(type,options);
- #
- #  Produces <OL> and <UL> lists.  Type must be either "OL" or "UL",
- #  (and defaults to "OL").  The options are
- #
- #    type => "type"            Specifies the type of marker
- #                              (default is none specified)
- #
- #    value => num or string    Specified the initial value of the
- #                              item numbering
- #
- #    tex_par => 1 or 0         Set paragraph spacing in TeX mode
- #                              (default is 0)
- #
- #    noTopSkip => 1 or 0       Remove top skip produced by enumerate
- #                              in TeX mode
- #                              (default is 0)
- #
- #  Example:
- #
- #    BEGIN_TEXT
- #      \{BeginList("OL")\}
- #      $ITEM This is the first item
- #      $ITEM This is the second
- #      \{EndList("OL")\}
- #    END_TEXT
- #
- #
- #  Usage:  EndList(type)
- #
- #  where type is the list type (and must match the BeginList type).
- #
+  Usage:  BeginList(type,options);
+
+  Produces <OL> and <UL> lists.  Type must be either "OL" or "UL",
+  (and defaults to "OL").  The options are
+
+    type => "type"            Specifies the type of marker
+                              (default is none specified)
+
+    value => num or string    Specified the initial value of the
+                              item numbering
+
+    tex_par => 1 or 0         Set paragraph spacing in TeX mode
+                              (default is 0)
+
+    noTopSkip => 1 or 0       Remove top skip produced by enumerate
+                              in TeX mode
+                              (default is 0)
+
+  Example:
+
+    BEGIN_TEXT
+      \{BeginList("OL")\}
+      $ITEM This is the first item
+      $ITEM This is the second
+      \{EndList("OL")\}
+    END_TEXT
+
+
+  Usage:  EndList(type)
+
+  where type is the list type (and must match the BeginList type).
 
 =cut
 
@@ -72,16 +69,6 @@ sub BeginList {
     HTML => $LIST."\n",
   );
 }
-
-=pod
-
-#
-#  Usage:  EndList(type)
-#
-#  where type is the list type (and must match the BeginList type).
-#
-
-=cut
 
 sub EndList {
   my $LIST = shift; $LIST = 'OL' unless defined $LIST;

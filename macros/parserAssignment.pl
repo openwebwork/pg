@@ -191,6 +191,28 @@ sub perl {
 }
 
 #
+# Display without unwanted parentheses
+#
+sub string {
+  my ($self,$precedence,$showparens) = @_;
+  my $bop = $self->{def};
+  my $string = $self->{lop}->string . ' = ' . $self->{rop}->string($bop->{precedence},$bop->{rightparens});
+  $string = $self->addParens($string) if defined($precedence) &&
+    ($showparens eq 'all' || $precedence > $bop->{precedence} ||
+     ($precedence == $bop->{precedence} && ($bop->{associativity} eq 'right' || $showparens eq 'same')));
+  return $string;
+}
+sub TeX {
+  my ($self,$precedence,$showparens) = @_;
+  my $bop = $self->{def};
+  my $tex = $self->{lop}->TeX . ' = ' . $self->{rop}->TeX($bop->{precedence},$bop->{rightparens});
+  $tex = $self->addParens($string) if defined($precedence) &&
+    ($showparens eq 'all' || $precedence > $bop->{precedence} ||
+     ($precedence == $bop->{precedence} && ($bop->{associativity} eq 'right' || $showparens eq 'same')));
+  return $tex;
+}
+
+#
 #  Add/Remove the Assignment operator to/from a context
 #
 sub Allow {

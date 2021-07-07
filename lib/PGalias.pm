@@ -254,19 +254,7 @@ sub make_alias {
 	
 	if ($ext eq 'html' 		    ) {
 	   $adr_output = $self->alias_for_html($aux_file_id,$ext)
-	} elsif (   $ext eq 'gif'  
-		     or $ext eq 'jpg' 
-		     or $ext eq 'png'
-		     or $ext eq 'svg'
-		    or $ext eq 'pdf'
-		    or $ext eq 'mp4'
-		    or $ext eq 'mpg'
-		    or $ext eq 'ogg'
-		    or $ext eq 'webm'
-		    or $ext eq 'css'
-		    or $ext eq 'js'
-		    or $ext eq 'nb'
-		    ) {
+	} elsif ($ext =~ /^(gif|jpg|png|svg|pdf|mp4|mpg|ogg|webm|css|js|nb|tgz)$/) {
 		if ($displayMode =~ /^HTML/ or $displayMode eq 'PTX') {
 			 $adr_output=$self->alias_for_html($aux_file_id, $ext);
 		} elsif ($displayMode eq 'TeX') {

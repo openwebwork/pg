@@ -11,8 +11,8 @@ $Parser::class->{UOP} = 'Parser::UOP';
 sub new {
   my $self = shift; my $class = ref($self) || $self;
   my $equation = shift; my $context = $equation->{context};
-  my ($uop,$op,$ref) = @_;
-  my $def = $context->{operators}{$uop};
+  my ($uop,$op,$ref) = @_; my $def;
+  ($uop,$def) = $context->operators->resolve($uop);
   my $UOP = bless {
     uop => $uop, op => $op,
     def => $def, ref => $ref, equation => $equation
@@ -151,7 +151,7 @@ sub Neg {
   my $self = shift;
   my $equation = $self->{equation};
   $self->Error("Can't reduce:  negation operator is not defined")
-    if (!defined($equation->{context}{operators}{'u-'}));
+    if (!defined($equation->{context}->operators->resolveDef('u-')));
   return ($self->Item("UOP")->new($equation,'u-',$self))->reduce;
 }
 

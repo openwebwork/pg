@@ -14,9 +14,10 @@ $Parser::class->{Variable} = 'Parser::Variable';
 #
 sub new {
   my $self = shift; my $class = ref($self) || $self;
-  my $equation = shift; my $variables = $equation->{context}{variables};
-  my ($name,$ref) = @_;
-  unless ($variables->{$name}) {
+  my $equation = shift;
+  my ($name,$ref) = @_; my $def;
+  ($name,$def) = $equation->{context}->variables->resolve($name);
+  unless ($def) {
     my $string = substr($equation->{string},$ref->[2]);
     if ($string =~ m/^([a-z][a-z]+)/i) {
       $ref->[3] = $ref->[2]+length($1);
@@ -25,9 +26,8 @@ sub new {
     $equation->Error(["Variable '%s' is not defined in this context",$name],$ref);
   }
   $equation->Error(["Variable '%s' is not defined in this context",$name],$ref)
-    if $variables-> {$name}{parameter} && $equation->{context}{flags}{no_parameters};
+    if $def->{parameter} && $equation->{context}{flags}{no_parameters};
   $equation->{variables}{$name} = 1;
-  my $def = $variables->{$name};
   my $v = bless {
     name => $name, def => $def, type => $def->{type},
     ref => $ref, equation => $equation

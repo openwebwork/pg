@@ -51,12 +51,6 @@ See F<PGbasicmacros> for definitions of C<image> and C<caption>
                                  # of MathObjects since that can mess up 
                                  # problems that don't use MathObjects but use Matrices.
 
-our %images_created = ();  # this keeps track of the base names of the images created during this session.
-                     #  We tack on
-                     # $imageNum  = ++$images_created{$imageName} to keep from overwriting files
-                     # when we don't want to.
-
-
 
 
 =head2 init_graph
@@ -115,26 +109,7 @@ sub init_graph {
 
     my $graphRef = new WWPlot(@size);
 	# select a  name for this graph based on the user, the psvn and the problem
-	my $setName = $main::setNumber;
-	# replace dots, commmas and @ signs in set and user names to keep latex and html happy
-	# this should be abstracted and placed in PGalias.pm or PGcore.pm or perhaps PG.pm
-	#FIXME
-	$setName =~ s/Q/QQ/g;
-	$setName =~ s/\./-Q-/g;
-	my $studentLogin = $main::studentLogin;
-	$studentLogin =~ s/Q/QQ/g;
-	$studentLogin =~ s/\./-Q-/g;
-	$studentLogin =~ s/\,/-Q-/g;
-	$studentLogin =~ s/\@/-Q-/g;
-	my $imageName = "$main::studentLogin-$main::problemSeed-set${main::setNumber}prob${main::probNum}";
-	# $imageNum counts the number of graphs with this name which have been created since PGgraphmacros.pl was initiated.
-	my $imageNum  = ++$images_created{$imageName};
-	# this provides a unique name for the graph -- it does not include an extension.
-	# PG_alias->make_resource_object(fileName, type) --> returns a UUID
-	my $resource = $main::PG->{PG_alias}->make_resource_object("image$imageNum","png");
-	$resource->path("__");  # some kind of path is required in order for create_unique_id to work
-	# the only role of the resource object is to create the UUID -- the object is then discarded.
-	$graphRef->imageName($resource->create_unique_id);
+	$graphRef->imageName($main::PG->getUniqueName($graphRef->ext));
 
 	# Set the initial/default bounds for the graph.
 	$graphRef->xmin($xmin) if defined($xmin);
@@ -241,15 +216,7 @@ sub init_graph_no_labels {
 	}
     my $graphRef = new WWPlot(@size);
 	# select a  name for this graph based on the user, the psvn and the problem
-	my $imageName = "$main::studentLogin-$main::problemSeed-set${main::setNumber}prob${main::probNum}";
-	# $imageNum counts the number of graphs with this name which have been created since PGgraphmacros.pl was initiated.
-	my $imageNum  = ++$images_created{$imageName};
-	# this provides a unique name for the graph -- it does not include an extension.
-	# PG_alias->make_resource_object(fileName, type) --> returns a UUID
-	my $resource = $main::PG->{PG_alias}->make_resource_object("image$imageNum","png");
-	$resource->path("__");  # some kind of path is required in order for create_unique_id to work
-	# the only role of the resource object is to create the UUID -- the object is then discarded.
-	$graphRef->imageName($resource->create_unique_id);
+	$graphRef->imageName($main::PG->getUniqueName($graphRef->ext));
 
 	$graphRef->xmin($xmin) if defined($xmin);
 	$graphRef->xmax($xmax) if defined($xmax);
@@ -416,7 +383,7 @@ sub plot_functions {
 
 B<Note:> insertGraph is defined in PGcore.pl, because it involves writing to the disk.
 
-insertGraph(graphObject) writes a image file to the C<html/tmp/gif> directory of the current course.
+insertGraph(graphObject) writes a image file to the C<html/tmp/images> directory of the current course.
 The file name is obtained from the graphObject.  Warnings are issued if errors occur while writing to
 the file.
 
@@ -427,7 +394,7 @@ B<Returns:>   A string containing the full path to the temporary file containing
 
 
 
-InsertGraph draws the object $graph, stores it in "${tempDirectory}gif/$imageName.gif (or .png)" where
+InsertGraph draws the object $graph, stores it in "${tempDirectory}images/$imageName.png (or .gif)" where
 the $imageName is obtained from the graph object.  ConvertPath and surePathToTmpFile are used to insure
 that the correct directory separators are used for the platform and that the necessary directories
 are created if they are not already present.  The directory address to the file is the result.

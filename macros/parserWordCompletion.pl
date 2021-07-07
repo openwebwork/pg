@@ -125,6 +125,11 @@ sub new {
   return $self;
 }
 
+sub cmp_defaults {(
+	shift->SUPER::cmp_defaults(@_),
+	mathQuillOpts => 'disabled'
+)}
+
 sub menu {
     my $self = shift;
     my $size = shift || 20;
