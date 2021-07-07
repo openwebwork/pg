@@ -1237,7 +1237,7 @@ sub SOLUTION {
 
 	if ($displayMode =~/HTML/ and $envir->{use_knowls_for_solutions}) {
 		TEXT($PAR, knowlLink(SOLUTION_HEADING(), value => escapeSolutionHTML("$BR$solution_body$PAR"),
-				base64 => 1));
+				base64 => 1, type => 'solution'));
 	} elsif ($displayMode =~ /TeX/) {
 		TEXT(
 			"\n%%% BEGIN SOLUTION\n", #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
@@ -1299,7 +1299,7 @@ sub hint {
 sub HINT {
 	if ($displayMode =~/HTML/ and $envir->{use_knowls_for_hints}) {
 		TEXT($PAR, knowlLink(HINT_HEADING(), value => escapeSolutionHTML($BR . hint(@_) . $PAR),
-				base64 => 1)) if hint(@_);
+				base64 => 1, type => 'hint')) if hint(@_);
 	} elsif ($displayMode =~ /TeX/) {
 		TEXT(
 			"\n%%% BEGIN HINT\n", #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
@@ -2391,12 +2391,12 @@ sub PTX_cleanup {
     OL(@array)      # formats the array as an Ordered List ( <OL> </OL> ) enumerated by letters.
                     # See BeginList()  and EndList in unionLists.pl for a more powerful version
                     # of this macro.
-    knowlLink($display_text, url => $url, value =>'' )
+    knowlLink($display_text, url => $url, value =>'', type =>'' )
                     # Places a reference to a knowl for the URL with the specified text in the problem.
-                    # A common usage is \{ 'for help', url =>knowlLink(alias('prob1_help.html') \} )
+                    # A common usage is \{ 'for help', url =>knowlLink(alias('prob1_help.html')) \} )
                     # where alias finds the full address of the prob1_help.html file in the same directory
                     # as the problem file
-    knowlLink($display_text,  url => '', value = <<EOF );  # this starts a here document that ends at EOF (left justified)
+    knowlLink($display_text,  url => '', type =>'', value = <<EOF );  # this starts a here document that ends at EOF (left justified)
                     help text goes here .....
     EOF
                     # This version of the knowl reference facilitates immediate reference to a HERE document
@@ -2579,11 +2579,11 @@ sub htmlLink {
 
 sub knowlLink {
     # an new syntax for knowlLink that facilitates a local HERE document
-	#   suggested usage   knowlLink(text, [url => ...,   value => ....])
+	#   suggested usage   knowlLink(text, [url => ...,   value => ..., type => ...])
 	my $display_text = shift;
 	my @options = @_;  # so we can check parity
 	my %options = @options;
-	WARN_MESSAGE('usage   knowlLink($display_text, [url => $url,   value => $helpMessage] );'.
+	WARN_MESSAGE('usage   knowlLink($display_text, [url => $url, value => $helpMessage, type => "help/hint/solution/..."] );'.
 		qq!after  the display_text the information requires key/value pairs.
 		Received @options !, scalar(@options)%2) if scalar(@options)%2;
 	# check that options has an even number of inputs
@@ -2596,7 +2596,10 @@ sub knowlLink {
 		$properties = qq! knowl = "$options{url}"!;
 	}
 	else {
-		WARN_MESSAGE('usage   knowlLink($display_text, [url => $url,   value => $helpMessage] );');
+		WARN_MESSAGE('usage   knowlLink($display_text, [url => $url, value => $helpMessage, type => "help/hint/solution/..."] );');
+	}
+	if ($options{type}) {
+		$properties .= qq! data-type = "$options{type}"!;
 	}
 	#my $option_string = qq!url = "$options{url}" value = "$options{value}" !;
 	MODES(
@@ -2625,7 +2628,7 @@ sub helpLink {
 	my $helpurl = shift;
 	return "" if(not defined($envir{'localHelpURL'}));
 	if (defined $helpurl) {
-		return knowlLink($display_text, url => $envir{'localHelpURL'}.$helpurl);
+		return knowlLink($display_text, url => $envir{'localHelpURL'}.$helpurl, type => 'help');
 	}
 	my %typeHash = (
 		'angle' => 'Entering-Angles.html',
@@ -2662,7 +2665,7 @@ sub helpLink {
 
 	# If infoRef is still '', we give up and just print plain text
 	return $display_text unless ($infoRef);
-	return knowlLink($display_text, url => $envir{'localHelpURL'}.$infoRef);
+	return knowlLink($display_text, url => $envir{'localHelpURL'}.$infoRef, type => 'help');
 	# Old way of doing this:
 	#	return htmlLink( $envir{'localHelpURL'}.$infoRef, $type1,
 	#'target="ww_help" onclick="window.open(this.href, this.target, \'width=550, height=350, scrollbars=yes, resizable=on\'); return false;"');

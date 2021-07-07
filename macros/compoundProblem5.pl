@@ -590,9 +590,12 @@ sub SECTION_SOLUTION {
     my $output = '';
     my $formatted_solution = main::solution($options->{PGML} ? PGML::Format2(join("",@_)) : main::EV3P(@_));
     if ($main::displayMode =~ /^HTML/ and $main::envir{use_knowls_for_solutions}) {
-        $output = join($main::PAR, main::knowlLink(main::SOLUTION_HEADING(),
-    	               value => main::escapeSolutionHTML($main::BR.$formatted_solution.$main::PAR),
-    	               base64 => 1)) if $formatted_solution;
+		$output = join($main::PAR, main::knowlLink(
+			main::SOLUTION_HEADING(),
+			value => main::escapeSolutionHTML($main::BR.$formatted_solution.$main::PAR),
+			base64 => 1,
+			type => 'solution'
+		)) if $formatted_solution;
     } elsif ($main::displayMode =~ /TeX/) {
     	$output = join($main::PAR,main::SOLUTION_HEADING(),$formatted_solution,$main::PAR) if $formatted_solution;
     } else {
