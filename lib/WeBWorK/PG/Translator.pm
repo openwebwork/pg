@@ -1220,8 +1220,7 @@ sub process_answers{
  	#### @answer_entry_order was created from PG_ANSWERS_HASH which maintains the
  	#### order of its keys
 
-	our ($rf_fun, $temp_ans);
-	our($new_rf_fun, $new_temp_ans);
+	our ($new_rf_fun, $new_temp_ans);
  	foreach my $ans_name (keys %{ $PG->{PG_ANSWERS_HASH} }) {
  		my $local_debug = 0;  #enables reporting of each $ans_name evaluator and responses
  		$PG->debug_message("Executing answer evaluator $ans_name ") if $local_debug;
@@ -1250,7 +1249,7 @@ sub process_answers{
  	    # gather answers and answer evaluator (new method)
  	    ####################################
 
-		local($new_rf_fun,$new_temp_ans) = (undef,undef);
+		local ($new_rf_fun,$new_temp_ans);
 		my $answergrp = $PG->{PG_ANSWERS_HASH}->{$ans_name};  #this has all answer evaluators AND answer blanks (just to be sure ) 
  	    my $responsegrp = $answergrp->response_obj;
 #################
@@ -1265,7 +1264,7 @@ sub process_answers{
         	$skip_evaluation=1;
         } elsif (not ref($new_rf_fun) =~ /AnswerEvaluator/ ) {
 				$PG->warning_message( "Error in Translator.pm::process_answers: Answer $ans_name: 
-				                    Unrecognized evaluator type |". ref($rf_fun). "|");
+				                    Unrecognized evaluator type |". ref($new_rf_fun). "|");
 				$skip_evaluation=1;
 		}
 		if (not defined($new_temp_ans) ) {

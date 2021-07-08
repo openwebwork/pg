@@ -19,7 +19,7 @@ use strict;
 use Exporter;
 use PGUtil  qw(not_null) ;
 use PGanswergroup;
-use Tie::IxHash;
+# use Tie::IxHash;
 
 #############################################
 # An object which contains the student response(s)
