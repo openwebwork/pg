@@ -70,7 +70,7 @@ sub CanvasApplet {
 =cut
 
 sub GeogebraWebApplet {
-	ADD_JS_FILE("https://www.geogebra.org/apps/latest/web/web.nocache.js", 1);
+	ADD_JS_FILE("https://www.geogebra.org/apps/deployggb.js", 1);
 	return new GeogebraWebApplet(@_);
 }
 
