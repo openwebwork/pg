@@ -98,6 +98,7 @@ sub tokenize {
   my $tokenPattern = $self->{context}{pattern}{token};
   my $tokenType = $self->{context}{pattern}{tokenType};
   my @patternType = @{$self->{context}{pattern}{type}};
+  $string =~ tr/\N{U+FF01}-\N{U+FF5E}/\x21-\x7E/ if $self->{context}->flag('convertFullWidthCharacters');
   @{$tokens} = (); $self->{error} = 0;
   $string =~ m/^\s*/gc; my $p0; my $p1;
   while (pos($string) < length($string)) {
@@ -106,7 +107,9 @@ sub tokenize {
       foreach my $i (0..$#patternType) {
 	if (defined($match[$i])) {
 	  $p1 = pos($string) = pos($string) + length($match[$i]);
-	  push(@{$tokens},[($patternType[$i]||$tokenType->{$match[$i]}),$match[$i],$p0,$p1,$space]);
+	  my ($class, $id) = ($patternType[$i] || $tokenType->{$match[$i]}, $match[$i]);
+	  ($class,$id) = @$class if ref($class) eq 'ARRAY';
+	  push(@{$tokens},[$class,$id,$p0,$p1,$space]);
 	  last;
 	}
       }
@@ -198,7 +201,7 @@ sub ImplicitMult {
   $iref->[2]--; $iref->[3] = $iref->[2]+1;
   $iref->[3]++ unless substr($self->{string},$iref->[2],1) eq ' ';
   $self->Error("Can't perform implied multiplication in this context",$iref)
-    unless $self->{context}{operators}{' '}{class};
+    unless $self->{context}->operators->resolveDef(' ')->{class};
   $self->Op(' ',$iref);
   $self->{ref} = $ref;
 }
@@ -265,8 +268,9 @@ sub pushBlankOperand {
 sub Op {
   my $self = shift; my $name = shift;
   my $ref = $self->{ref} = shift;
-  my $context = $self->{context}; my $op = $context->{operators}{$name};
-  $op = $context->{operators}{$op->{space}} if $self->{space} && defined($op->{space});
+  my $context = $self->{context}; my $op;
+  ($name,$op) = $context->operators->resolve($name);
+  ($name,$op) = $context->operators->resolve($op->{space}) if $self->{space} && defined($op->{space});
   if ($self->state eq 'operand') {
     if ($op->{type} eq 'unary' && $op->{associativity} eq 'left') {
       $self->ImplicitMult();
@@ -278,14 +282,14 @@ sub Op {
           my $top = $self->pop;
           $self->pushOperand($self->Item("UOP")->new($self,$name,$top->{value},$ref));
         } else {
-          $name = $context->{operators}{' '}{string}
-            if ($name//'') eq ' ' or ($name//'') eq $context->{operators}{' '}{space};
+          my $def = $context->operators->resolveDef(' ');
+          $name = $def->{string} if defined($name) and ($name eq ' ' or $name eq $def->{space});
           $self->pushOperator($name,$op->{precedence});
         }
       } elsif (($ref && $name ne ' ') || $self->state ne 'fn') {$self->Op($name,$ref)}
     }
   } else {
-    $name = 'u'.$name, $op = $context->{operators}{$name}
+    ($name,$op) = $context->operators->resolve('u'.$name)
       if ($op->{type} eq 'both' && defined $context->{operators}{'u'.$name});
     if ($op->{type} eq 'unary' && $op->{associativity} eq 'left') {
       $self->pushOperator($name,$op->{precedence});
@@ -319,12 +323,12 @@ sub Op {
 #
 sub Open {
   my $self = shift; my $type = shift;
-  my $paren = $self->{context}{parens}{$type};
   if ($self->state eq 'operand') {
-    if ($type eq $paren->{close}) {
+    my $parens = $self->{context}->parens;
+    if ($self->{context}->parens->match($type,$type)) {
       my $stack = $self->{stack}; my $i = scalar(@{$stack})-1;
       while ($i >= 0 && $stack->[$i]{type} ne "open") {$i--}
-      if ($i >= 0 && $stack->[$i]{value} eq $type) {
+      if ($i >= 0 && $parens->match($stack->[$i]{value},$type)) {
 	$self->Close($type,$self->{ref});
 	return;
       }
@@ -369,16 +373,17 @@ sub Open {
 sub Close {
   my $self = shift; my $type = shift;
   my $ref = $self->{ref} = shift;
-  my $parens = $self->{context}{parens};
+  my $parens = $self->{context}->parens;
 
   for ($self->state) {
     /open/ and do {
-      my $top = $self->pop; my $paren = $parens->{$top->{value}};
-      if ($paren->{emptyOK} && $paren->{close} eq $type) {
-        $self->pushOperand($self->Item("List")->new($self,[],1,$paren,undef,$top->{value},$paren->{close}))
+      my $top = $self->pop;
+      my ($open,$paren) = $parens->resolve($top->{value});
+      if ($paren->{emptyOK} && $parens->match($open,$type)) {
+        $self->pushOperand($self->Item("List")->new($self,[],1,$paren,undef,$open,$paren->{close}))
       }
       elsif ($type eq 'start') {$self->Error(["Missing close parenthesis for '%s'",$top->{value}],$top->{ref})}
-      elsif ($top->{value} eq 'start') {$self->Error(["Extra close parenthesis '%s'",$type],$ref)}
+      elsif ($open eq 'start') {$self->Error(["Extra close parenthesis '%s'",$type],$ref)}
       else {$top->{ref}[3]=$ref->[3]; $self->Error("Empty parentheses",$top->{ref})}
       last;
     };
@@ -386,29 +391,29 @@ sub Close {
     /operand/ and do {
       $self->Precedence(-1); return if ($self->{error});
       if ($self->state ne 'operand') {$self->Close($type,$ref); return}
-      my $paren = $parens->{$self->prev->{value}};
-      if ($paren->{close} eq $type) {
+      my ($open,$paren) = $parens->resolve($self->prev->{value});
+      if ($parens->match($open,$type)) {
         my $top = $self->pop;
         if (!$paren->{removable} || ($top->{value}->type eq "Comma")) {
           $top = $top->{value};
           $top = {type => 'operand', value =>
 	          $self->Item("List")->new($self,[$top->makeList],$top->{isConstant},$paren,
                     ($top->type eq 'Comma') ? $top->entryType : $top->typeRef,
-                    ($type ne 'start') ? ($self->top->{value},$type) : () )};
+                    ($type ne 'start') ? ($open,$paren->{close}) : () )};
         } else {
 	  $top->{value}{hadParens} = 1;
 	}
         $self->pop; $self->push($top);
         $self->CloseFn() if ($paren->{function} && $self->prev->{type} eq 'fn');
       } elsif ($paren->{formInterval} eq $type && $self->top->{value}->length == 2) {
-        my $top = $self->pop->{value}; my $open = $self->pop->{value};
+        my $top = $self->pop->{value}; $self->pop;
         $self->pushOperand(
            $self->Item("List")->new($self,[$top->makeList],$top->{isConstant},
 				     $paren,$top->entryType,$open,$type));
       } else {
         my $prev = $self->prev;
-        if ($type eq "start") {$self->Error(["Missing close parenthesis for '%s'",$prev->{value}],$prev->{ref})}
-        elsif ($prev->{value} eq "start") {$self->Error(["Extra close parenthesis '%s'",$type],$ref)}
+        if    ($type eq "start") {$self->Error(["Missing close parenthesis for '%s'",$prev->{value}],$prev->{ref})}
+        elsif ($open eq "start") {$self->Error(["Extra close parenthesis '%s'",$type],$ref)}
         else {$self->Error(["Mismatched parentheses: '%s' and '%s'",$prev->{value},$type],$ref)}
         return;
       }
@@ -482,16 +487,16 @@ sub Precedence {
     for ($prev->{type}) {
 
       /operator/ and do {
-        my $prev_prec = $context->{operators}{$prev->{name}}{rprecedence};
+        my $def = $context->operators->resolveDef($prev->{name});
+        my $prev_prec = $def->{rprecedence};
         $prev_prec = $prev->{precedence} unless $prev_prec;
         return if ($precedence > $prev_prec);
         if ($self->top(-2)->{type} eq 'operand' || $prev->{reverse}) {
-          return if ($precedence == $prev_prec &&
-              $context->{operators}{$prev->{name}}{associativity} eq 'right');
+          return if ($precedence == $prev_prec && $def->{associativity} eq 'right');
           if ($self->top(-2)->{type} eq 'fn') {
             my $top = $self->pop; my $op = $self->pop; my $fun = $self->pop;
             if (Parser::Function::checkInverse($self,$fun,$op,$top)) {
-              $fun->{name} = $context->{functions}{$fun->{name}}{inverse};
+              $fun->{name} = $context->functions->resolveDef($fun->{name})->{inverse};
               $self->push($fun);
             } else {$self->push($top,$op,$fun)}
           } else {
@@ -533,9 +538,9 @@ sub CloseFn {
   my $self = shift; my $context = $self->{context};
   my $top = $self->pop->{value}; my $fn = $self->pop;
   my $constant = $top->{isConstant};
-  if ($top->{open} && $context->{parens}{$top->{open}}{function} &&
-      $context->{parens}{$top->{open}}{close} eq $top->{close} &&
-      !$context->{functions}{$fn->{name}}{vectorInput})
+  if ($top->{open} && $context->parens->resolveDef($top->{open})->{function} &&
+      $context->parens->match($top->{open},$top->{close}) &&
+      !$context->functions->resolveDef($fn->{name})->{vectorInput})
          {$top = $top->coords} else {$top = [$top]}
   $self->pushOperand($self->Item("Function")->new($self,$fn->{name},$top,$constant,$fn->{ref}));
 }
@@ -566,7 +571,7 @@ sub Num {
 #
 sub Const {
   my $self = shift; my $ref = $self->{ref}; my $name = shift;
-  my $const = $self->{context}{constants}{$name};
+  my $const = $self->{context}->constants->resolveDef($name);
   $self->ImplicitMult() if $self->state eq 'operand';
   if (defined($self->{context}{variables}{$name})) {
     $self->pushOperand($self->Item("Variable")->new($self,$name,$ref));

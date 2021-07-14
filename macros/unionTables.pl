@@ -18,23 +18,21 @@ sub _unionTables_init {}; # don't reload this file
 
 =head2 unionTables.pl
 
- ######################################################################
- #
- #  Make a two-column table in HTML and Latex2HTML modes
- #
- #  Usage:  ColumnTable(col1,col2,[options])
- #
- #  Options can be taken from:
- #
- #      indent => n           the width to indent the first column
- #                            (default is 0)
- #
- #      separation => n       the width of the separating gutter
- #                            (default is 50)
- #
- #      valign => type        set the vertical alignment
- #                            (default is "MIDDLE")
- #
+  Make a two-column table in HTML and Latex2HTML modes
+
+  Usage:  ColumnTable(col1,col2,[options])
+
+  Options can be taken from:
+
+      indent => n           the width to indent the first column
+                            (default is 0)
+
+      separation => n       the width of the separating gutter
+                            (default is 50)
+
+      valign => type        set the vertical alignment
+                            (default is "MIDDLE")
+
 
 =cut
 
@@ -59,21 +57,19 @@ sub ColumnTable {
            '\medskip\hbox{\qquad\vtop{'.
            '\advance\hsize by -3em '.$col2.'}}\medskip',
     HTML => $HTMLtable,
-    PTX => qq!\n<sidebyside>\n<tabular valign="! . lc($valign) . qq!">\n<row>\n<cell>$col1</cell>\n<cell>$col2</cell>\n</row>\n</tabular>\n</sidebyside>\n!,
+    PTX => qq!\n<tabular valign="! . lc($valign) . qq!">\n<row>\n<cell>$col1</cell>\n<cell>$col2</cell>\n</row>\n</tabular>\n!,
 
   );
 }
 
 =pod
 
- #
- #  Use columns for a match-list output
- #
- #  Usage:  ColumnMatchTable($ml,options)
- #
- #  where $ml is a math list reference and options are those
- #  allowed for ColumnTable above.
- #
+  Use columns for a match-list output
+
+  Usage:  ColumnMatchTable($ml,options)
+
+  where $ml is a math list reference and options are those
+  allowed for ColumnTable above.
 
 =cut
 
@@ -85,22 +81,19 @@ sub ColumnMatchTable {
 
 =pod 
 
- #
- #  Command for tables with no borders.
- #
- #  Usage:  BeginTable(options);
- #
- #  Options are taken from:
- #
- #    border => n           value for BORDER attribute (default 0)
- #    spacing => n          value for CELLSPACING attribute (default 0)
- #    padding => n          value for CELLPADDING attribute (default 0)
- #    tex_spacing => dimen  value for spacing between columns in TeX
- #                          (e.g, tex_spacing => 2em) (default 1em)
- #    tex_border => dimen   value for left- and right border in TeX (0pt)
- #    center => 0 or 1      center table or not (default 1)
- #
- #
+  Command for tables with no borders.
+
+  Usage:  BeginTable(options);
+
+  Options are taken from:
+
+    border => n           value for BORDER attribute (default 0)
+    spacing => n          value for CELLSPACING attribute (default 0)
+    padding => n          value for CELLPADDING attribute (default 0)
+    tex_spacing => dimen  value for spacing between columns in TeX
+                          (e.g, tex_spacing => 2em) (default 1em)
+    tex_border => dimen   value for left- and right border in TeX (0pt)
+    center => 0 or 1      center table or not (default 1)
 
 =cut
 
@@ -121,19 +114,17 @@ sub BeginTable {
     TeX => '\par\medskip'.$tcenter.'{\kern '.$tbd.
            '\vbox{\halign{#\hfil&&\kern '.$tsp.' #\hfil',
     HTML => $table."\n",
-    PTX => qq!\n<sidebyside>\n<tabular top="$ptxborder" bottom="$ptxborder" left="$ptxborder" right="$ptxborder">\n!,
+    PTX => qq!\n<tabular top="$ptxborder" bottom="$ptxborder" left="$ptxborder" right="$ptxborder">\n!,
   );
 }
 
 =pod
 
- #
- #  Usage:  EndTable(options)
- #
- #  where options are taken from:
- #
- #     tex_border => dimen     extra vertical space in TeX mode (default 0pt)
- #
+  Usage:  EndTable(options)
+
+  where options are taken from:
+
+     tex_border => dimen     extra vertical space in TeX mode (default 0pt)
 
 =cut
 
@@ -143,35 +134,33 @@ sub EndTable {
   MODES(
     TeX => '\cr}}\kern '.$tbd.'}\medskip'."\n",
     HTML => '</TABLE>'."\n",
-    PTX => "\n</tabular>\n</sidebyside>\n",
+    PTX => "\n</tabular>\n",
   );
 }
 
 =pod
 
- #
- #  Creates a row in the table
- #
- #  Usage:  Row([item1,item2,...],options);
- #
- #  Each item appears as a separate entry in the table.
- #
- #  Options control how the row is displayed:
- #
- #    indent => num           Specifies size of blank column on the left
- #                            (default:  indent => 0)
- #
- #    separation => num       Specifies separation of columns
- #                            (default:  spearation => 30)
- #
- #    tex_vspace => "dimen"   Specifies additional vertical spacing for TeX
- #
- #    align => "type"         Specifies alignment of initial column
- #                            (default:  align => "LEFT")
- #
- #    valign => "type"        Specified vertical alignment of row
- #                            (default:  valign => "MIDDLE")
- #
+  Creates a row in the table
+
+  Usage:  Row([item1,item2,...],options);
+
+  Each item appears as a separate entry in the table.
+
+  Options control how the row is displayed:
+
+    indent => num           Specifies size of blank column on the left
+                            (default:  indent => 0)
+
+    separation => num       Specifies separation of columns
+                            (default:  spearation => 30)
+
+    tex_vspace => "dimen"   Specifies additional vertical spacing for TeX
+
+    align => "type"         Specifies alignment of initial column
+                            (default:  align => "LEFT")
+
+    valign => "type"        Specified vertical alignment of row
+                            (default:  valign => "MIDDLE")
 
 =cut
 
@@ -204,25 +193,23 @@ sub Row {
 
 =pod
 
- #
- #  AlignedRow([item1,item2,...],options);
- #
- #  Options control how the row is displayed:
- #
- #    indent => num           Specifies size of blank column on the left
- #                            (default:  indent => 0)
- #
- #    separation => num       Specifies separation of columns
- #                            (default:  spearation => 30)
- #
- #    tex_vspace => "dimen"   Specifies additional vertical spacing for TeX
- #
- #    align => "type"         Specifies alignment of all columns
- #                            (default:  align => "CENTER")
- #
- #    valign => "type"        Specified vertical alignment of row
- #                            (default:  valign => "MIDDLE")
- #
+  AlignedRow([item1,item2,...],options);
+
+  Options control how the row is displayed:
+
+    indent => num           Specifies size of blank column on the left
+                            (default:  indent => 0)
+
+    separation => num       Specifies separation of columns
+                            (default:  spearation => 30)
+
+    tex_vspace => "dimen"   Specifies additional vertical spacing for TeX
+
+    align => "type"         Specifies alignment of all columns
+                            (default:  align => "CENTER")
+
+    valign => "type"        Specified vertical alignment of row
+                            (default:  valign => "MIDDLE")
 
 =cut
 
@@ -256,14 +243,12 @@ sub AlignedRow {
 
 =pod
 
- #
- #  Add extra space between rows of a table
- #
- #  Usage:  TableSpace(pixels,points)
- #
- #  where pixels is the number of pixels of space in HTML mode and
- #  points is the number of points to use in TeX mode.
- #
+  Add extra space between rows of a table
+
+  Usage:  TableSpace(pixels,points)
+
+  where pixels is the number of pixels of space in HTML mode and
+  points is the number of points to use in TeX mode.
 
 =cut
 
@@ -281,11 +266,9 @@ sub TableSpace {
 
 =pod
 
- #
- #  A horizontal rule within a table.  (Could have been a variable,
- #  but all the other table commands are subroutines, so kept it
- #  one to be consistent.)
- #
+  A horizontal rule within a table.  (Could have been a variable,
+  but all the other table commands are subroutines, so kept it
+  one to be consistent.)
 
 =cut
 

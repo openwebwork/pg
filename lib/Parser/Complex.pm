@@ -65,7 +65,7 @@ $Parser::reduce->{'-a-bi'} = 1;
 #
 sub string {
   my $self = shift; my $precedence = shift; my $show = shift;
-  my $context = $self->context; my $plus = $context->{operators}{'+'}{precedence};
+  my $context = $self->context; my $plus = $context->operators->resolveDef('+')->{precedence};
   my $z = $self->Package("Complex")->make($context,@{$self->{value}})->string($self->{equation});
   $z = "(".$z.")" if defined($precedence) &&
     ($precedence > $plus || $precedence == $plus && $show eq "same") && $z =~ m/[-+]/;
@@ -74,7 +74,7 @@ sub string {
 
 sub TeX {
   my $self = shift; my $precedence = shift; my $show = shift;
-  my $context = $self->context; my $plus = $context->{operators}{'+'}{precedence};
+  my $context = $self->context; my $plus = $context->operators->resolveDef('+')->{precedence};
   my $z = $self->Package("Complex")->make($context,@{$self->{value}})->TeX($self->{equation});
   $z = '\left('.$z.'\right)' if defined($precedence) &&
     ($precedence > $plus || $precedence == $plus && $show eq "same") && $z =~ m/[-+]/;

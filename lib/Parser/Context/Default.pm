@@ -44,17 +44,18 @@ $operators = {
            class => 'Parser::BOP::add'},
 
    '-' => {precedence => 1, associativity => 'left', type => 'both', string => '-',
-           class => 'Parser::BOP::subtract', rightparens => 'same'},
+           class => 'Parser::BOP::subtract', rightparens => 'same', alternatives => ["\x{2212}"]},
 
    'U' => {precedence => 1.5, associativity => 'left', type => 'bin', isUnion => 1,
-           string => ' U ', TeX => '\cup ', class => 'Parser::BOP::union'},
+           string => ' U ', TeX => '\cup ', class => 'Parser::BOP::union',
+           alternatives => ["\x{222A}","\x{22C3}"]},
 
    '><'=> {precedence => 2, associativity => 'left', type => 'bin',
            string => ' >< ', TeX => '\times ', perl => 'x', fullparens => 1,
-           class => 'Parser::BOP::cross'},
+           class => 'Parser::BOP::cross', alternatives => ["\x{00D7}"]},
 
-   '.' => {precedence => 2, associativity => 'left', type => 'bin',
-           string => '.', TeX => '\cdot ', class => 'Parser::BOP::dot'},
+   '.' => {precedence => 2, associativity => 'left', type => 'bin', patternPrecedence => 8, # after number pattern
+           string => '.', TeX => '\cdot ', class => 'Parser::BOP::dot', alternatives => ["\x{2219}", "\x{2022}"]},
 
    '*' => {precedence => 3, associativity => 'left', type => 'bin', space => ' *',
            string => '*', TeX => '', class => 'Parser::BOP::multiply'},
@@ -82,7 +83,7 @@ $operators = {
            class => 'Parser::BOP::multiply', TeX => ''},
 
    'fn'=> {precedence => 2.9, associativity => 'left', type => 'unary', string => '',
-           parenPrecedence => 5, hidden => 1},
+           parenPrecedence => 6.5, hidden => 1},
 
    ' ' => {precedence => 3.1, associativity => 'left', type => 'bin', string => '*',
            class => 'Parser::BOP::multiply', space => ' *', hidden => 1},
@@ -109,9 +110,11 @@ $operators = {
 $parens = {
    '(' => {close => ')', type => 'Point', formMatrix => 1, formInterval => ']',
            formList => 1, removable => 1, emptyOK => 1, function => 1},
-   '[' => {close => ']', type => 'Point', formMatrix => 1, formInterval => ')', removable => 1},
-   '<' => {close => '>', type => 'Vector'},
-   '{' => {close => '}', type => 'Point', removable => 1},
+   '[' => {close => ']', type => 'List', formMatrix => 1, formInterval => ')', removable => 1},
+   '<' => {close => '>', type => 'Vector',
+           alternatives => ["\x{2329}","\x{3008}","\x{27E8}"],
+           alternativeClose => ["\x{232A}","\x{3009}","\x{27E9}"]},
+   '{' => {close => '}', type => 'Set', removable => 1},
    '|' => {close => '|', type => 'AbsoluteValue'},
    'start' => {close => 'start', type => 'List', formList => 1,
                removable => 1, emptyOK => 1, hidden => 1},
@@ -133,7 +136,7 @@ $lists = {
 
 $constants = {
    'e'  => exp(1),
-   'pi' => {value => 4*atan2(1,1), TeX => '\pi ', perl => "pi"},
+   'pi' => {value => 4*atan2(1,1), TeX => '\pi ', perl => "pi", alternatives => ["\x{03C0}","\x{1D70B}"]},
    'i'  => {value => Value::Complex->new(0,1), isConstant => 1,                        string => "i", perl => "i"},
    'j'  => {value => Value::Vector->new(0,1,0)->with(ijk=>1), TeX => '\boldsymbol{j}', string => "j", perl => "j"},
    'k'  => {value => Value::Vector->new(0,0,1)->with(ijk=>1), TeX => '\boldsymbol{k}', string => "k", perl => "k"},
@@ -183,7 +186,7 @@ $functions = {
    'log'   => {class => 'Parser::Function::numeric', TeX => '\log', simplePowers => 1},
    'log10' => {class => 'Parser::Function::numeric', nocomplex => 1, TeX => '\log_{10}'},
    'exp'   => {class => 'Parser::Function::numeric', inverse => 'log', TeX => '\exp'},
-   'sqrt'  => {class => 'Parser::Function::numeric', braceTeX => 1, TeX => '\sqrt'},
+   'sqrt'  => {class => 'Parser::Function::numeric', braceTeX => 1, TeX => '\sqrt', alternatives => ["\x{221A}"]},
    'abs'   => {class => 'Parser::Function::numeric'},
    'int'   => {class => 'Parser::Function::numeric'},
    'sgn'   => {class => 'Parser::Function::numeric', nocomplex => 1},
@@ -219,7 +222,7 @@ $functions = {
 };
 
 $strings = {
-   'infinity'  => {infinite => 1},
+   'infinity'  => {infinite => 1, alternatives => ["\x{221E}"]},
    'inf'  => {alias => 'infinity'},
    'NONE' => {},
    'DNE'  => {},
@@ -239,6 +242,8 @@ $flags = {
   allowBadOperands => 0,               # 1 is used by Typeset context (types need not match)
   allowBadFunctionInputs => 0,         # 1 is used by Typeset context (types need not match)
   allowWrongArgCount => 0,             # 1 = numbers need not be correct
+  parseAlternatives => 0,              # 1 = allow parsing of alternative tokens in the context
+  convertFullWidthCharacters => 0,     # 1 = convert Unicode full width characters to ASCII positions
 };
 
 ############################################################################
@@ -279,8 +284,7 @@ $context->constants->remove('i','j','k');
 $context->parens->remove('<');
 $context->parens->set(
    '(' => {type => 'List', formMatrix => 0},
-   '[' => {type => 'List', formMatrix => 0},
-   '{' => {type => 'List'},
+   '[' => {formMatrix => 0}
 );
 $context->{name} = "Numeric";
 
@@ -351,8 +355,7 @@ $context->constants->remove('j','k');
 $context->parens->remove('<');
 $context->parens->set(
    '(' => {type => 'List', formMatrix => 0},
-   '[' => {type => 'List', formMatrix => 0},
-   '{' => {type => 'List'},
+   '[' => {formMatrix => 0}
 );
 $context->operators->set(
   '^'  => {class => 'Parser::Function::complex_power', negativeIsComplex => 1},
@@ -369,12 +372,8 @@ $context->{name} = "Complex";
 #
 $context = $context{"Complex-Vector"} = $context{Complex}->copy;
 $context->operators->redefine(['><','.'],from=>'Vector');
-$context->parens->add('<' => {close => '>', type => 'Vector'});
-$context->parens->set(
-  '(' => {type => "Point", formMatrix => 0},
-  '[' => {type => "Point", formMatrix => 0},
-  '{' => {type => "Point"},
-);
+$context->parens->redefine('<',from=>'Vector');
+$context->parens->set('(' => {type => "Point"});
 $context->{name} = "Complex-Vector";
 
 #

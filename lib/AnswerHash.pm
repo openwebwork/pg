@@ -122,6 +122,7 @@ BEGIN {
 package AnswerHash;
 use Exporter;
 use PGUtil qw(not_null pretty_print);
+use JSON;
 
 # initialization fields
 my %fields = (		'score'					=>	undef,
@@ -247,19 +248,27 @@ sub score {
 
 =head4  stringify_hash
 
-        Usage:      $rh_ans->stringify_hash;
+	Usage:      $rh_ans->stringify_hash;
 
-        Turns all values in the hash into strings (so they won't cause trouble outside
-        the safe compartment).
+	Turns all values in the hash into strings (so they won't cause trouble outside
+	the safe compartment).
+
+	Hashes and arrays are converted into a JSON string.
 
 =cut
 
 sub stringify_hash {
-  my $self = shift;
-  Parser::Context->current(undef,$self->{correct_value}->context) if $self->{correct_value};
-  foreach my $key (keys %$self) {
-    $self->{$key} = "$self->{$key}" if ref($self->{$key});
-  }
+	my $self = shift;
+	Parser::Context->current(undef,$self->{correct_value}->context) if $self->{correct_value};
+	foreach my $key (keys %$self) {
+		my $ref = ref($self->{$key});
+		next if !$ref;
+		if ($ref eq "HASH" or $ref eq "ARRAY") {
+			$self->{$key} = JSON->new->utf8->allow_unknown->allow_blessed->encode($self->{$key});
+		} else {
+			$self->{$key} = "$self->{$key}";
+		}
+	}
 }
 
 # error methods
@@ -879,6 +888,9 @@ sub blank_postfilter  {
     return($rh_ans) unless defined($rh_ans->{error_flag}) and $rh_ans->{error_flag} eq 'BLANK';
     $rh_ans->{error_flag} = undef;
     $rh_ans->{error_message} = '';
+    if ( defined($rh_ans->{message_for_blank_answer} ) ) {
+        $rh_ans->{ans_message} = $rh_ans->{message_for_blank_answer};
+    }
     $rh_ans->{done} =1;    # no further checking is needed.
     $rh_ans;
 };

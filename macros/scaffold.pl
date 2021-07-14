@@ -1,7 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 20014 The WeBWorK Project, http://openwebwork.sf.net/
-# $$
+# Copyright &copy; 2000-2020 The WeBWorK Project, http://openwebwork.sf.net/
 # 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -187,6 +186,15 @@ the first section, you might want the first section to be closed, and
 have the student open it by hand before anwering the questions.  In
 this case, set this value to 0 (it is 1 by default).
 
+=item C<S<< numbered => 0 or 1 >>>
+
+This determines whether each section is automatically numbered before
+its title. If true, each section title will be preceded by a number
+and a period. The section's nesting level determines the style of
+numbering: a, i, A. Any deeper and numbering is just arabic.
+If there is no title, a default title like "Part 1:" is used, and
+in that case no extra numbering is added regardless of this option.
+
 =back
 
 Some useful configurations are:
@@ -263,7 +271,11 @@ within that section.
 
 =cut
 
-sub _scaffold_init {};   # don't reload this file
+sub _scaffold_init {
+	# Load style and javascript for opening and closing the scaffolds.
+	ADD_CSS_FILE("js/apps/Scaffold/scaffold.css");
+	ADD_JS_FILE("js/apps/Scaffold/scaffold.js");
+};
 
 #
 #  The Scaffoling package
@@ -281,6 +293,7 @@ our $afterAnswerDate = (time() > $main::envir{answerDate});
 our $scaffold;           # the active scaffold (set by Begin() below)
 my  @scaffolds = ();     # array of nested scaffolds
 my  $scaffold_no = 0;    # each scaffold gets a unique number
+my  $scaffold_depth = 1; # each scaffold has a nesting depth
 
 our $PG_ANSWERS_HASH = $main::PG->{PG_ANSWERS_HASH};  # where PG stores answer evaluators
 our $PG_OUTPUT = $main::PG->{OUTPUT_ARRAY};           # where PG stores the TEXT() output
@@ -302,7 +315,7 @@ our $PREFIX = "$main::envir{QUIZ_PREFIX}Prob-$main::envir{questionNumber}";
 #
 sub Begin {
   my $self = Scaffold->new(@_);
-  unshift(@scaffolds,$self); $scaffold = $self;
+  unshift(@scaffolds,$self); $scaffold = $self; $scaffold_depth++;
   $self->{previous_output} = [splice(@{$PG_OUTPUT},0)];  # get output and clear it without changing the array pointer
   $self->{output} = [];                                  # the contents of the scaffold
   return $self;
@@ -321,10 +334,11 @@ sub End {
   Scaffold->Error("Scaffold ended with section was still open") if $self->{current_section};
   my $self = $scaffold;
   push(@{$self->{output}},splice(@$PG_OUTPUT,0));                      # collect any final non-section output
-  $self->open_sections(@{$self->{open}});                              # make the open sections be displayed
+  $self->hide_other_results(@{$self->{open}});                         # hide results of unnopened sections in the results table
   push(@$PG_OUTPUT,@{$self->{previous_output}},@{$self->{output}});    # put back original output and scaffold output
   delete $self->{previous_output}; delete $self->{output};             # don't need these any more
   shift(@scaffolds); $scaffold = $scaffolds[0];
+  $scaffold_depth--;
   return $scaffold;
 }
 
@@ -351,8 +365,10 @@ sub new {
     is_open => "first_incorrect",
     hardcopy_is_open => "always",                 # open all possible sections in hardcopy
     open_first_section => 1,                      # 0 means don't open any sections initially
+    numbered => 0,                                # 1 means sections will be printed with their number
     @_,
-    number => ++$scaffold_no,                     # the number for this section
+    number => ++$scaffold_no,                     # the number for this scaffold
+    depth => $scaffold_depth,                     # the nesting depth for this scaffold
     sections => {},                               # the sections within this scaffold
     section_no => 0,                              # the current section number
     ans_names => [],                              # the names of all answer blanks in this scaffold
@@ -425,17 +441,6 @@ sub is_open {
 }
 
 #
-#  Add the javascript to open the given sections
-#  and hide the rows of the results table for other sections.
-#
-sub open_sections {
-  my $self = shift;
-  my @script = map {'$("#'.$self->{sections}{$_}{label}.'").opensection();'} @_;
-  push(@{$self->{output}},main::MODES(TeX=>'', HTML=>"<script>\n".join("\n",@script)."\n</script>",PTX=>''));
-  $self->hide_other_results(@_);
-}
-
-#
 #  Add CSS to dim the rows of the table that are not in the open
 #  section.  (When a section is marked correct, the next section will
 #  be opened, so the correct answers will be dimmed, and the new
@@ -499,14 +504,45 @@ $PG_OUTPUT = $Scaffold::PG_OUTPUT;
 #    see which answers belong to this section when it closes).
 #
 sub Begin {
-  my $scaffold = $Scaffold::scaffold;
-  Scaffold->Error("Sections must appear within a Scaffold") unless $scaffold;
-  Scaffold->Error("Section::Begin() while a section is already open") if $scaffold->{current_section};
-  my $self = $scaffold->start_section(Section->new(@_));
-  $self->{name} = "Part $self->{number}:" unless $self->{name};
-  $self->{previous_ans} = [@{$scaffold->{ans_names}}],      # copy of current list of answers in the scaffold
-  $self->{assigned_ans} = [$self->assigned_ans],            # array indicating which answers have evaluators
-  return $self;
+	my $scaffold = $Scaffold::scaffold;
+	Scaffold->Error("Sections must appear within a Scaffold") unless $scaffold;
+	Scaffold->Error("Section::Begin() while a section is already open") if $scaffold->{current_section};
+	my $self = $scaffold->start_section(Section->new(@_));
+	my $number = $self->{number};
+	my $number_at_depth = $number;
+	# Convert the number (e.g. 2) into a depth-styled version (e.g. b, ii, B)
+	# Supports numbers up to 99 and depth up to 3 but then leaves in arabic
+	if ($scaffold->{depth} == 1 && $number <= 99) {
+		$number_at_depth = ('a'..'cu')[$number-1];
+	} elsif ($scaffold->{depth} == 2 && $number <= 99) {
+		# Avoiding a package for roman numerals
+		my @romanatom = (['i','v','x'],['x','l','c']);
+		my @romanmolecule = map{[
+			'',
+			$_->[0],
+			$_->[0]x2,
+			$_->[0]x3,
+			$_->[0].$_->[1],
+			$_->[1],
+			$_->[1].$_->[0],
+			$_->[1].$_->[0]x2,
+			$_->[1].$_->[0]x3,
+			$_->[0].$_->[2]
+		]}(@romanatom);
+		my @roman;
+		for my $i (@{$romanmolecule[1]}) {
+			for my $j (@{$romanmolecule[0]}) {
+				push(@roman,$i.$j);
+			}
+		}
+		$number_at_depth = $roman[$number];
+	} elsif ($scaffold->{depth} == 3 && $number <= 99) {
+		$number_at_depth = ('A'..'CU')[$number-1];
+	}
+	$self->{number_at_depth} = $number_at_depth;
+	$self->{previous_ans} = [@{$scaffold->{ans_names}}],      # copy of current list of answers in the scaffold
+	$self->{assigned_ans} = [$self->assigned_ans],            # array indicating which answers have evaluators
+	return $self;
 }
 
 #
@@ -565,6 +601,9 @@ sub new {
 sub add_container {
   my $self = shift; my $scaffold = $Scaffold::scaffold;
   my $label = $self->{label};
+  my $name = $self->{name} // '';
+  my $title = ($name || $scaffold->{numbered}) ? $name : "Part $self->{number}:";
+  my $number = ($scaffold->{numbered} ? $self->{number_at_depth}.'.' : '');
   my ($iscorrect,$canopen,$isopen);
 
   $iscorrect = $self->{is_correct} = $self->is_correct;
@@ -575,18 +614,23 @@ sub add_container {
   splice(@$PG_OUTPUT,0,scalar(@$PG_OUTPUT)) if !($canopen || $iscorrect || $Scaffold::isPTX) || (!$isopen && $Scaffold::isHardcopy);
   unshift(@$PG_OUTPUT,@{main::MODES(
     HTML => [
-      '<div class="section-div">',
-      '<h3 tabindex=0 id="'.$label.'" class="'.($iscorrect?"iscorrect":"iswrong").'">'.$self->{name}.'</h3>',
-      '<div><p>',
-      '<script>$("#'.$label.'").can'.($canopen?"":"not").'open()</script>',
+      '<div class="accordion-group section-div">',
+      '<div class="accordion-heading ' . ($iscorrect ? "iscorrect" : "iswrong") . ' ' . ($canopen ? "canopen" : "cannotopen") . '">',
+	  '<a class="accordion-toggle' . ($isopen ? '': ' collapsed') . '"' .
+	    ($canopen ? ' href="#' . $label . '" data-toggle="collapse"' : ' tabindex="-1"') . '>',
+	    "<span class=\"section-number\">$number</span>",
+	    '<span class="section-title">' . $title . '</span></a>',
+      '</div>',
+      '<div id="' . $label . '" class="accordion-body collapse' . ($isopen ? ' in' : '') . '">',
+      '<div class="accordion-inner">'
     ],
-    TeX => ["\\par{\\bf $self->{name}}\\par "],
-    PTX => ["<stage>\n"],
+    TeX => ["\\par{\\bf $number $title}\\addtolength{\\leftskip}{15pt}\\par "],
+    PTX => $name ? ["<task>\n", "<title>$name</title>\n"] : ["<task>\n"],
   )});
   push(@$PG_OUTPUT,main::MODES(
-    HTML => '</p></div></div>',
-    TeX  => "\\par ",
-    PTX => "<\/stage>\n",
+    HTML => '</div></div></div>',
+    TeX  => "\\addtolength{\\leftskip}{-15pt}\\par ",
+    PTX => "<\/task>\n",
   ));
 }
 
@@ -741,99 +785,4 @@ sub correct_or_first_incorrect {
 #
 sub never {return 0}
 
-
-
-package main;
-
-#
-#  Set up some styles and the jQuery calls for opening and closing the scaffolds.
-#
-TEXT(<<'END_HEADER_TEXT') if !($Scaffold::isHardcopy or $Scaffold::isPTX);  # should be HEADER_TEXT, but that gets lost in library browser
-
-<style type="text/css">
-.section-div > div {padding:0 .5em;}    /* move the contents away from the edges */
-.section-div > h3 > .ui-icon {
-  display: inline-block;                /* make the triangle be on the same line as the title */
-  margin: 3px 1px;                      /* adjust its position slightly */
-  vertical-align: -5px;
-}
-.section-div > h3 {
-  color: #212121!important;
-  border-color: #AAAAAA!important;
-  font-weight: normal!important;
-  font-style: normal!important;
-}
-
-.section-div > h3:focus {
-    outline-style:solid;
-    outline-color:#aaaa00;
-    outline-width:2px;
-}
-
-.section-div > h3.ui-state-default {
-  color: #555555!important;
-}
-.section-div > div.ui-accordion-content {
-  background: #FAFAFA!important;
-}
-.canopen    {background:yellow!important;}
-.iscorrect  {background:lightgreen!important;}
-.cannotopen {
-  background:#EEEEEE!important;
-  padding: 3px 0px 3px 16px;        /* leave space that would have been triangle */
-}
-</style>
-
-<script type="text/javascript">
-$.fn.canopen = function() {
-   $(this).addClass("canopen ui-accordion-header ui-helper-reset ui-state-default ui-corner-top ui-corner-bottom")
-   .hover(function() { $(this).toggleClass("ui-state-hover"); })
-   .prepend('<span class="ui-icon ui-icon-triangle-1-e"></span>')
-   .on('keypress click', function(e) {
-     if (e.type != 'click' && e.which != 13) {
-       return true;
-     }
-     if ($(this).hasClass("ui-accordion-header-active")) {
-       var THIS = this;
-       $(this)
-         .toggleClass("ui-accordion-header-active ui-state-active ui-state-default")
-         .find("> .ui-icon").toggleClass("ui-icon-triangle-1-e ui-icon-triangle-1-s").end()
-         .next().slideToggle(400,function () {$(THIS).toggleClass("ui-corner-bottom")});
-     } else {
-       $(this)
-         .toggleClass("ui-accordion-header-active ui-state-active ui-state-default ui-corner-bottom")
-         .find("> .ui-icon").toggleClass("ui-icon-triangle-1-e ui-icon-triangle-1-s").end()
-         .next().slideToggle();
-       // Reflow MathQuill answer boxes so that their contents are rendered correctly
-       if ('answerQuills' in window) {
-           Object.keys(answerQuills).forEach(
-               function(key, index) { answerQuills[key].mathField.reflow(); }
-           );
-       }
-     }
-     return false;
-   })
-   .next()
-     .addClass("ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom")
-     .hide();
-};
-$.fn.cannotopen = function() {
-   $(this).addClass("cannotopen ui-accordion-header ui-helper-reset ui-state-default ui-corner-top ui-corner-bottom")
-   .hover(function() { $(this).toggleClass("ui-state-hover"); })
-   .next()
-     .addClass("ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom")
-     .hide();
-};
-$.fn.opensection = function() {
-   $(this)
-     .toggleClass("ui-accordion-header-active ui-state-active ui-state-default ui-corner-bottom")
-     .find("> .ui-icon").toggleClass("ui-icon-triangle-1-e ui-icon-triangle-1-s").end()
-     .next().slideToggle();
-   return false;
-}
-</script>
-END_HEADER_TEXT
-
-
 1;
-

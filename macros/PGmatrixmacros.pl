@@ -228,7 +228,7 @@ sub dm_begin_matrix {
                 $out .= qq!<TABLE class="matrix" BORDER="0" style="border-collapse: separate; border-spacing:10px 0px;">\n!;
         }
         elsif ( $main::displayMode eq 'PTX' ) {
-                $out .= qq!<sidebyside>\n<tabular>\n!;
+                $out .= qq!<tabular>\n!;
         }
         else {
                 $out = "Error: dm_begin_matrix: Unknown displayMode: $main::displayMode.\n";
@@ -384,7 +384,7 @@ sub dm_end_matrix {
                 $out .= "</TABLE>\n";
                 }
         elsif ( $main::displayMode eq 'PTX') {
-                $out .= qq!</tabular>\n</sidebyside>\n!;
+                $out .= qq!</tabular>\n!;
                 }
         else {
                 $out = "Error: PGmatrixmacros: dm_end_matrix: Unknown displayMode: $main::displayMode.\n";
@@ -768,15 +768,12 @@ seeking.
 
 sub convert_to_array_ref {
 	my $input = shift;
-	if (Value::isValue($input) and Value::classMatch($input,"Matrix")) {
-	    # handles Value::Matrix (MathObject matrices)
-		$input = [$input->value]; # convert an array to an array_ref (see POD comment above)
+	if (Value::isValue($input) && Value::classMatch($input,"Matrix")) {
+		$input = [$input->value];		
 	} elsif (ref($input) eq 'Matrix' ) {
-        # handles wwMatrix objects (old style)
 		$input = $input->array_ref;
 	} elsif (ref($input) =~/ARRAY/) {
 		# no change to input value
-		# handles raw perl array_ref types
 	} else {
 	WARN_MESSAGE("This does not appear to be a matrix ");
 	}

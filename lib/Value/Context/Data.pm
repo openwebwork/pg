@@ -14,9 +14,10 @@ sub new {
     dataName => {},         # name of data storage in context hash
     tokens => {},           # hash of id => type specifications that will be made into a pattern
     patterns => {},         # hash of pattern => [precedence,type] specification for extra patterns
-    tokenType => {},        # type of Parser token for these pattern
+    tokenType => {},        # type of Parser token for these patterns
     namePattern => '',      # pattern for allowed names for new items
     name => '', Name => '', # lower- and upper-case names for the class of items
+    allowAlias => 1,        # allow entries to use alias property to point to another
   }, $class;
   $data->weaken;
   $data->init();
@@ -66,17 +67,41 @@ sub weaken {Scalar::Util::weaken((shift)->{context})}
 #
 sub update {(shift)->{context}->update}
 
+#
+#  Add the token to the tokens list, and add any alternative forms
+#
 sub addToken {
   my $self = shift; my $token = shift;
-  $self->{tokens}{$token} = $self->{tokenType}
-    unless $self->{context}{$self->{dataName}}{$token}{hidden};
+  my $def = $self->{context}{$self->{dataName}}{$token};
+  unless ($def->{hidden}) {
+    if (defined $def->{patternPrecedence}) {
+      $self->{patterns}{Parser::Context::protectRegexp($token)} = [$def->{patternPrecedence}, $self->{tokenType}];
+    } else {
+      $self->{tokens}{$token} = $self->{tokenType};
+    }
+    $self->addAlternatives($token,$def->{alternatives});
+  }
+}
+sub addAlternatives {
+  my $self = shift; my $token = shift; my $alternatives = shift || [];
+  foreach my $alt (@$alternatives) {
+    Value::Error("Illegal %s name '%s'",$self->{name},$alt) unless $alt =~ m/^$self->{namePattern}$/;
+    $self->{tokens}{$alt} = [$self->{tokenType},$token];
+  }
 }
 
+#
+#  Remove the token from the tokens list, and any alternative forms
+#
 sub removeToken {
   my $self = shift; my $token = shift;
   delete $self->{tokens}{$token};
+  $self->removeAlternatives($token,$self->{context}{$self->{dataName}}{$token}{alternatives});
 }
-
+sub removeAlternatives {
+  my $self = shift; my $token = shift; my $alternatives = shift || [];
+  foreach my $alt (@$alternatives) {delete  $self->{tokens}{$alt}}
+}
 
 #
 #  Add one or more new items to the list
@@ -87,8 +112,18 @@ sub add {
   foreach my $x (keys %D) {
     Value::Error("Illegal %s name '%s'",$self->{name},$x) unless $x =~ m/^$self->{namePattern}$/;
     warn "$self->{Name} '$x' already exists" if defined($data->{$x});
+    if ($data->{$x}) {
+      delete $self->{tokens}{$x};
+      delete $self->{patterns}{Parser::Context::protectRegexp($x)};
+    }
     $data->{$x} = $self->create($D{$x});
     $self->addToken($x);
+    if (ref($data->{$x}) eq 'HASH' && $data->{$x}{alias}) {
+      Value::Error("Alias not allowed with %s objects",$self->{name}) unless $self->{allowAlias};
+      my $alias = $data->{$x}{alias};
+      Value::Error("Alias '%s' doesn't exist for %s '%s'",$alias,$self->{name},$x)
+          if !(defined($data->{$alias}) || defined($D{$alias}));
+    }
   }
   $self->update;
 }
@@ -181,15 +216,48 @@ sub get {
 sub set {
   my $self = shift; my %D = (@_);
   my $data = $self->{context}{$self->{dataName}};
+  my $update = 0;
   foreach my $x (keys(%D)) {
     my $xref = $data->{$x};
     if (defined($xref) && ref($xref) eq 'HASH') {
-      foreach my $id (keys %{$D{$x}}) {$xref->{$id} = $D{$x}{$id}}
+      foreach my $id (keys %{$D{$x}}) {
+        $xref->{$id} = $D{$x}{$id};
+        if ($id eq 'alternatives' && !$D{$x}{hidden}) {
+          $self->addAlternatives($x, $D{$x}{$id});
+          $update = 1;
+        }
+        if ($id eq 'patternPrecedence') {
+          delete $self->{tokens}{$x};
+          $self->addToken($x);
+          $update = 1;
+        }
+      }
     } else {
       $data->{$x} = $self->create($D{$x});
       $self->addToken($x);
+      $update = 1;
     }
   };
+  $self->update if $update;
+}
+
+#
+#  Follow aliases to get final definition
+#
+sub resolveDef {
+  my $self = shift;
+  ($self->resolve(@_))[1];
+}
+
+#
+#  Follow aliases to get final name and definition
+#
+sub resolve {
+  my $self = shift; my $name = shift;
+  my $data = $self->{context}{$self->{dataName}};
+  my $def = $data->{$name};
+  $name = $def->{alias}, $def = $data->{$name} while defined($def) && $def->{alias};
+  return ($name, $def);
 }
 
 #

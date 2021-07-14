@@ -199,7 +199,18 @@ to get the answer checker for the radion buttons.
 
 You can use the RadioButtons object in MultiAnswer objects.  This is
 the reason for the RadioButton's C<ans_rule()> method (since that is
-what MultiAnswer calls to get answer rules).
+what MultiAnswer calls to get answer rules).  Just pass a RadioButtons
+object as one of the arguments of the MultiAnswer constructor.
+
+When writing a custom answer checker involving a RadioButtons object
+(e.g. if it is part of a MultiAnswer and its answer depends on, or
+affects, the answers given to other parts), note that the actual
+answer strings associated to a RadioButtons object (which are those
+appearing in the "student answer" argument passed to a custom answer
+checker) are neither the supplied choice strings nor the supplied
+labels, but are an internal implementation detail whose format should
+not be depended on.  You can convert one of these answer strings to a
+choice string or a label with the methods answerChoice or answerLabel.
 
 =cut
 
@@ -403,6 +414,31 @@ sub cmp_preprocess {
   }
 }
 
+#
+#  Allow users to convert a "Bn" string into a choice or label
+#
+sub answerChoice {
+  my $self = shift; my $index = substr(shift,1);
+  return $self->{orderedChoices}[$index];
+}
+sub answerLabel {
+  my $self = shift; my $index = substr(shift,1);
+  return $self->{labels}[$index];
+}
+
+#
+#  Include the "Bn" string for the correct choice
+#  in the answer hash
+#
+sub cmp {
+  my $self = shift;
+  my $cmp = $self->SUPER::cmp(
+    correct_choice => $self->value,
+    @_
+  );
+  return $cmp;
+}
+
 ##################################################################
 #
 #  Handle old-style options (order, first, last, randomize)
@@ -530,7 +566,7 @@ sub makeUncheckable {
 #  Create the radio-buttons text
 #
 sub BUTTONS {
-  my $self = shift; my $extend = shift; my $name = shift;
+  my $self = shift; my $extend = shift; my $name = shift; my $size = shift;
   my @choices = @{$self->{orderedChoices}};
   my @radio = ();
   $name = main::NEW_ANS_NAME() unless $name;
@@ -539,12 +575,11 @@ sub BUTTONS {
     my $value = "B$i"; my $tag = $choices[$i];
     $value = "%".$value if $i == $self->{checkedI};
     $tag = $self->labelFormat($self->{labels}[$i]).$tag if $self->{displayLabels};
-    if ($extend) {
-      push(@radio,main::NAMED_ANS_RADIO_EXTENSION($name,$value,$tag,
-	   aria_label=>$label."option $i "));
+    if ($i > 0) {
+      push(@radio,main::NAMED_ANS_RADIO_EXTENSION($name, $value, $tag,
+           aria_label => $label."option " . ($i+1) . " ", @_));
     } else {
-      push(@radio,main::NAMED_ANS_RADIO($name,$value,$tag));
-      $extend = 1;
+      push(@radio, main::NAMED_ANS_RADIO($name, $value, $tag, $extend, @_));
     }
   }
   #
@@ -557,7 +592,7 @@ sub BUTTONS {
     $radio[$#radio_buttons] .= "\n\\end{itemize}\n";
   }
   if ($main::displayMode eq 'PTX') {
-    $radio[0] = '<var form="buttons">' . "\n" . $radio[0];
+    $radio[0] = qq(<var form="buttons" name="$name">) . "\n" . $radio[0];
     $radio[$#radio_buttons] .= '</var>';
     #turn any math delimiters
     @radio = map {$_ =~ s/\\\(/<m>/g; $_} (@radio);
