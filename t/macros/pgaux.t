@@ -26,23 +26,17 @@ use PGcore;
 
 my $ce = WeBWorK::CourseEnvironment->new({webwork_dir => $main::webwork_dir, pg_dir => $main::pg_dir});
 
-# my $pg = WeBWorK::PG->new(undef,$ce);
-# require("$main::macros_dir/PG.pl");
-# DOCUMENT();
-
-
-
 
 sub PG_restricted_eval {
 	# my $self = shift;
 	WeBWorK::PG::Translator::PG_restricted_eval(@_);
 }
 
-# sub loadMacros {
-# 	for my $file (@_) {
-# 		require("$main::macros_dir/$file");
-# 	}
-# }
+sub loadMacros {
+	for my $file (@_) {
+		require("$main::macros_dir/$file");
+	}
+}
 
 sub ParserDefineLog {
 
@@ -112,15 +106,6 @@ is(gcd(16,8),8,"gcd: 2 powers of 2");
 is(gcd(10,9),1,"gcd: 2 relatively prime");
 
 is(gcd(10,20,30,40),10,"gcd: 4 multiples of 10");
-
-## note: bug in random_coprime that list_random cannot run in this without
-## the PGbasicmacros.pl
-
-require("$main::macros_dir/PGbasicmacros.pl");
-
-## random_coprime
-
-dd random_coprime([1..9],[1..9]);
 
 
 done_testing;
