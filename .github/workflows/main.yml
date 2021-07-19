@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  pgaux:
+  tests:
     runs-on: ubuntu-latest
     env:
       WEBWORK_ROOT: ../webwork2
@@ -12,10 +12,13 @@ jobs:
     steps:
       - name: Checkout pg repository
         uses: actions/checkout@v2
+        with:
+          ref: unit-tests
       - name: Checkout webwork2 repository
         uses: actions/checkout@v2
         with:
           repository: openwebwork/webwork2
+          ref: develop
       - name: unit test for PGauxiliaryFunctions.pl
         run: |
           cpanm Data::Dump
