@@ -13,7 +13,7 @@ jobs:
       - name: Checkout pg repository
         uses: actions/checkout@v2
         with:
-          ref: unit-tests
+          ref: unit-test
       - name: Checkout webwork2 repository
         uses: actions/checkout@v2
         with:
