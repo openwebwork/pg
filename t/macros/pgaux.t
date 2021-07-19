@@ -17,6 +17,7 @@ BEGIN {
 	$main::webwork_dir = $ENV{WEBWORK_ROOT};
 	$main::pg_dir = $ENV{PG_ROOT};
 	$main::pg_dir = "$main::webwork_dir/../pg" unless $main::pg_dir;
+	$main::macros_dir = "$main::pg_dir/macros";
 }
 
 
