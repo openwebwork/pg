@@ -1,27 +1,19 @@
 use warnings;
 use strict;
-
-BEGIN {
-	use File::Basename qw/dirname/;
-	use Cwd qw/abs_path/;
-        $main::test_dir = abs_path( dirname(__FILE__) );
-	$main::macros_dir  = dirname( dirname($main::test_dir) ) . '/macros';
-}
+package main;
 
 use Data::Dump qw/dd/;
 use Test::More;
 
-sub loadMacros {
-	for my $file (@_) {
-	require("$main::macros_dir/$file");
-	}
-}
 
-sub ParserDefineLog {
+our %envir;
 
-}
+# the following loads a basic PG environment for testing.
 
-require("$main::macros_dir/PGauxiliaryFunctions.pl");
+require("build_PG_envir.pl");
+
+
+loadMacros("PGauxiliaryFunctions.pl");
 
 # test step functions
 
@@ -91,12 +83,39 @@ is (isPrime(7),1,"isPrime: 7 is prime");
 is (isPrime(2),1,"isPrime: 2 is prime");
 is (isPrime(15),0,"isPrime: 15 is not prime");
 
+## random_coprime
+
+my $sum = 0;
+for my $i (1..1000) {
+	my @coprimes = random_coprime([1..20],[1..20]);
+	$sum += gcd($coprimes[0],$coprimes[1]);
+}
+is($sum,1000,"random_coprime: 1000 tests in 1..20,1..20");
+
+$sum = 0;
+
+for my $i (1..1000) {
+	my @coprimes = random_coprime([-9..-1,1..9],[1..9],[1..9]);
+	$sum += gcd(@coprimes);
+}
+is($sum,1000,"random_coprime: 1000 tests in [-9..-1,1..9],[1..9],[1..9]");
+
+my ($sum1, $sum2, $sum3,$sum4) = (0,0,0);
+for my $i (1..1000) {
+	my @coprimes = random_pairwise_coprime([-9..-1,1..9],[1..9],[1..9]);
+	$sum1 += gcd(@coprimes);
+	$sum2 += gcd($coprimes[0],$coprimes[1]);
+	$sum3 += gcd($coprimes[0],$coprimes[2]);
+	$sum4 += gcd($coprimes[1],$coprimes[2]);
+}
+is($sum1+$sum2+$sum3+$sum4,4000,"random_pairwise_coprime: 1000 tests of [-9..-1,1..9],[1..9],[1..9]");
+
 ## reduce
 ## it would be nicer to directly compare the arrays
 my @my_arr = (3,4);
 my @res = reduce(15,20);
-ok ($my_arr[0] eq $res[0] , "reduce: correct numerator");
-ok ($my_arr[1] eq $res[1] , "reduce: correct denominator");
+is ($my_arr[0], $res[0] , "reduce: correct numerator");
+is ($my_arr[1], $res[1] , "reduce: correct denominator");
 
 
 
