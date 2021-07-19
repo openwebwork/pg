@@ -7,19 +7,20 @@ jobs:
   pgaux:
     runs-on: ubuntu-latest
     env:
-      WEBWORK_ROOT: .
+      WEBWORK_ROOT: ../webwork2
     container: perl:latest
     steps:
-      - name: Checkout
+      - name: Checkout pg repository
         uses: actions/checkout@v2
-      - name: Checkout tools repo
+      - name: Checkout webwork2 repository
         uses: actions/checkout@v2
         with:
           repository: openwebwork/webwork2
       - name: unit test for PGauxiliaryFunctions.pl
         run: |
           cpanm Data::Dump
-          prove t/macros/pgaux.t
+          echo $WEBWORK_ROOT
+          ls ${{ github.workspace }}
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
     steps:
