@@ -30,7 +30,7 @@ use lib "$main::pg_dir/t/macros";
 
 # the following loads a basic PG environment for testing.
 
-require("$main::pg_dir/t/macros/build_PG_envir.pl");
+require("build_PG_envir.pl");
 
 
 loadMacros("PGauxiliaryFunctions.pl");
