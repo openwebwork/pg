@@ -16,7 +16,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: openwebwork/webwork2
-        path: my-tools
       - name: unit test for PGauxiliaryFunctions.pl
         run: |
           cpanm Data::Dump
