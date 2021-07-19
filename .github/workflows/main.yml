@@ -9,7 +9,7 @@ jobs:
     container: perl:latest
     steps:
       - uses: actions/checkout@v2
-      - name: run a simple unit test
+      - name: unit test for PGauxiliaryFunctions.pl
         run: |
           cpanm Data::Dump
           prove t/macros/pgaux.t
