@@ -4,37 +4,16 @@ use strict;
 BEGIN {
 	use File::Basename qw/dirname/;
 	use Cwd qw/abs_path/;
-	$main::test_dir = abs_path( dirname(__FILE__) );
+        $main::test_dir = abs_path( dirname(__FILE__) );
 	$main::macros_dir  = dirname( dirname($main::test_dir) ) . '/macros';
-	$main::lib_dir  = dirname( dirname($main::test_dir) ) . '/lib';
-	die "WEBWORK_ROOT not found in environment.\n" unless $ENV{WEBWORK_ROOT};
-	$main::webwork_dir = $ENV{WEBWORK_ROOT};
-	$main::pg_dir = $ENV{PG_ROOT};
-	$main::pg_dir = "$main::webwork_dir/../pg" unless $main::pg_dir;
 }
 
 use Data::Dump qw/dd/;
 use Test::More;
 
-use lib "$main::lib_dir";
-use lib "$main::webwork_dir/lib";
-use lib "$main::pg_dir/lib";
-
-use WeBWorK::CourseEnvironment;
-use WeBWorK::PG;
-use PGcore;
-
-my $ce = WeBWorK::CourseEnvironment->new({webwork_dir => $main::webwork_dir, pg_dir => $main::pg_dir});
-
-
-sub PG_restricted_eval {
-	# my $self = shift;
-	WeBWorK::PG::Translator::PG_restricted_eval(@_);
-}
-
 sub loadMacros {
 	for my $file (@_) {
-		require("$main::macros_dir/$file");
+	require("$main::macros_dir/$file");
 	}
 }
 
@@ -106,6 +85,19 @@ is(gcd(16,8),8,"gcd: 2 powers of 2");
 is(gcd(10,9),1,"gcd: 2 relatively prime");
 
 is(gcd(10,20,30,40),10,"gcd: 4 multiples of 10");
+
+## isPrime
+is (isPrime(7),1,"isPrime: 7 is prime");
+is (isPrime(2),1,"isPrime: 2 is prime");
+is (isPrime(15),0,"isPrime: 15 is not prime");
+
+## reduce
+## it would be nicer to directly compare the arrays
+my @my_arr = (3,4);
+my @res = reduce(15,20);
+ok ($my_arr[0] eq $res[0] , "reduce: correct numerator");
+ok ($my_arr[1] eq $res[1] , "reduce: correct denominator");
+
 
 
 done_testing;

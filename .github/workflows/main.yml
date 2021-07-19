@@ -1,0 +1,15 @@
+name: pg-unit-testing
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  pgaux:
+    runs-on: ubuntu-latest
+    container: perl:latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: run a simple unit test
+        run: |
+          cpanm Data::Dump
+          perl t/macros/pgaux.t
