@@ -8,9 +8,21 @@ use Test::More;
 
 our %envir;
 
+BEGIN {
+	use File::Basename qw/dirname/;
+	use Cwd qw/abs_path/;
+	# $main::test_dir = abs_path( dirname(__FILE__) );
+
+	die "WEBWORK_ROOT not found in environment.\n" unless $ENV{WEBWORK_ROOT};
+	$main::webwork_dir = $ENV{WEBWORK_ROOT};
+	$main::pg_dir = $ENV{PG_ROOT};
+	$main::pg_dir = "$main::webwork_dir/../pg" unless $main::pg_dir;
+}
+
+
 # the following loads a basic PG environment for testing.
 
-require("build_PG_envir.pl");
+require("$main::pg_dir/t/macros/build_PG_envir.pl");
 
 
 loadMacros("PGauxiliaryFunctions.pl");
