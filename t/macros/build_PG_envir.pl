@@ -1,5 +1,6 @@
 use warnings;
 use strict;
+package main;
 
 BEGIN {
 	use File::Basename qw/dirname/;
@@ -13,24 +14,25 @@ BEGIN {
 	$main::macros_dir  = "$main::pg_dir/macros";
 }
 
-use Data::Dump qw/dd/;
-use Test::More;
-
 use lib "$main::webwork_dir/lib";
 use lib "$main::pg_dir/lib";
 
 use WeBWorK::CourseEnvironment;
+use WeBWorK::Localize;
 use WeBWorK::PG;
 use PGcore;
 
-my $ce = WeBWorK::CourseEnvironment->new({webwork_dir => $main::webwork_dir, pg_dir => $main::pg_dir});
-
-# dd $ce;
+# build up enough of a PG environment to get things running
 
 our %envir=();
 $envir{htmlDirectory} = "/opt/webwork/courses/daemon_course/html";
 $envir{htmlURL} = "http://localhost/webwork2/daemon_course/html";
 $envir{tempURL} = "http://localhost/webwork2/daemon_course/tmp";
+$envir{pgDirectories}->{macrosPath} = [ "$main::macros_dir"];
+$envir{macrosPath} = [ "$main::macros_dir"];
+$envir{displayMode} = "HTML_MathJax";
+$envir{language} = "en-us";
+$envir{language_subroutine} = WeBWorK::Localize::getLoc($envir{language});
 
 sub be_strict {
 	require 'ww_strict.pm';
@@ -38,31 +40,12 @@ sub be_strict {
 }
 
 sub PG_restricted_eval {
-	my $self = shift;
 	WeBWorK::PG::Translator::PG_restricted_eval(@_);
 }
 
-
-require("$main::macros_dir/PG.pl");
-$main::PG = PGcore->new(\%envir);
-
-$main::PG->{envir}->{macrosPath} = [ $main::macros_dir];
-
-be_strict();
-
-# dd $main::PG;
-loadMacros("PGauxiliaryFunctions.pl");
-
-# dd $main::PG;
-
-
-## note: bug in random_coprime that list_random cannot run in this without
-## the PGbasicmacros.pl
+require "$main::macros_dir/PG.pl";
+DOCUMENT();
 
 loadMacros("PGbasicmacros.pl");
 
-## random_coprime
-
-dd random_coprime([1..9],[1..9]);
-
-#my $PG = WeBWorK::PG->defineProblemEnvir($ce);
+1;

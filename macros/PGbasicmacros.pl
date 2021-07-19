@@ -94,6 +94,10 @@ my ($PAR,
 	$r_ans_rule_count,
 );
 
+# use Data::Dump qw/dd/;
+
+our %envir;
+
 sub _PGbasicmacros_init {
 	# The big problem is that at compile time in the cached Safe compartment
 	# main:: has one definition, probably Safe::Root1::
@@ -102,6 +106,8 @@ sub _PGbasicmacros_init {
 	# It is important to
 	# initialize the my variable version of $displayMode from the "runtime" version
 	# of main::displayMode
+
+	# dd "in _PGbasicmacros_init";
 
 	$displayMode            = main::PG_restricted_eval(q!$main::displayMode!);
 

@@ -12,4 +12,4 @@ jobs:
       - name: run a simple unit test
         run: |
           cpanm Data::Dump
-          perl t/macros/pgaux.t
+          prove t/macros/pgaux.t
