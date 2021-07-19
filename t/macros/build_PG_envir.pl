@@ -2,18 +2,6 @@ use warnings;
 use strict;
 package main;
 
-BEGIN {
-	use File::Basename qw/dirname/;
-	use Cwd qw/abs_path/;
-	# $main::test_dir = abs_path( dirname(__FILE__) );
-
-	die "WEBWORK_ROOT not found in environment.\n" unless $ENV{WEBWORK_ROOT};
-	$main::webwork_dir = $ENV{WEBWORK_ROOT};
-	$main::pg_dir = $ENV{PG_ROOT};
-	$main::pg_dir = "$main::webwork_dir/../pg" unless $main::pg_dir;
-	$main::macros_dir  = "$main::pg_dir/macros";
-}
-
 use lib "$main::webwork_dir/lib";
 use lib "$main::pg_dir/lib";
 
