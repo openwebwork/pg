@@ -22,7 +22,7 @@ jobs:
       - name: unit test for PGauxiliaryFunctions.pl
         run: |
           cpanm Data::Dump
-          prove t/macros
+          prove t/macros/pgaux.t
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
     steps:
