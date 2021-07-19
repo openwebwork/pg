@@ -22,8 +22,7 @@ jobs:
       - name: unit test for PGauxiliaryFunctions.pl
         run: |
           cpanm Data::Dump
-          echo $WEBWORK_ROOT
-          ls ${{ github.workspace }}
+          prove t/macros
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
     steps:
