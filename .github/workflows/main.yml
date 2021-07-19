@@ -14,11 +14,13 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: unit-test
+          path: pg
       - name: Checkout webwork2 repository
         uses: actions/checkout@v2
         with:
           repository: openwebwork/webwork2
           ref: develop
+          path: webwork2
       - name: unit test for PGauxiliaryFunctions.pl
         run: |
           pwd
