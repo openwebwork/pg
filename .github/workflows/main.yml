@@ -59,11 +59,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: run a simple unit test
         run: |
-          pwd
-          ls -a 
-          cd ..
-          echo "----"
-          ls -a
+          PG_ROOT=`pwd`
+          export PG_ROOT
           prove pg/t/macros/pgaux.t
 
   explore:
