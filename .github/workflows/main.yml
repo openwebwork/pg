@@ -21,9 +21,13 @@ jobs:
           repository: openwebwork/webwork2
           ref: develop
           path: webwork2
+      - name: install cpanm and multiple modules
+        uses: perl-actions/install-with-cpanm@v1
+        with:
+          install: |
+            Data::Dump
+            Locale::Maketext
+            Locale::Maketext::Lexicon
       - name: unit test for PGauxiliaryFunctions.pl
         run: |
-          pwd
-          ls
-          cpanm Data::Dump
           prove pg/t/macros/pgaux.t
