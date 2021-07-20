@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: install ubuntu packages
         run: |
-          apt-get install perl-modules-5.32
+          apt-get install libjson-perl
       - name: Checkout pg repository
         uses: actions/checkout@v2
         with:
