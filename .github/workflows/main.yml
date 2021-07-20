@@ -27,12 +27,12 @@ jobs:
           repository: openwebwork/webwork2
           ref: develop
           path: webwork2
-      # - name: install cpanm and multiple modules
-      #   uses: perl-actions/install-with-cpanm@v1
-      #   with:
-      #     sudo: false
-      #     install: |
-      #       Date::Parse
+      - name: install cpanm and multiple modules
+        uses: perl-actions/install-with-cpanm@v1
+        with:
+          sudo: false
+          install: |
+            Data::Dump
       - name: copy config files
         run: |
           cp webwork2/conf/site.conf.dist webwork2/conf/site.conf
