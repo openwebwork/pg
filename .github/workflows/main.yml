@@ -51,3 +51,14 @@ jobs:
         run: |
           cd pg/t/macros
           prove pgaux.t
+
+  full-docker:
+    runs-on: ubuntu-latest
+    container: eltenedor/pg-unit-testing:latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: pg
+      - name: run a simple unit test
+        run: |
+          prove t/macros/pgaux.t
