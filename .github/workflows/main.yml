@@ -61,19 +61,5 @@ jobs:
         run: |
           PG_ROOT=`pwd`
           export PG_ROOT
-          prove t/macros/pgaux.t
+          prove -v t/macros/pgaux.t
 
-  explore:
-    runs-on: ubuntu-latest
-    container: eltenedor/pg-unit-testing:latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: exlore the environment
-        run: |
-          PG_ROOT=`pwd`
-          export PG_ROOT
-          env | grep ROOT
-          cd $WEBWORK_ROOT
-          ls -a
-          cd $PG_ROOT
-          ls -a
