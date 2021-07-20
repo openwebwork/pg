@@ -50,7 +50,7 @@ jobs:
       - name: unit test for PGauxiliaryFunctions.pl
         run: |
           cd pg/t/macros
-          prove pgaux.t
+          prove *.t
 
   full-docker:
     runs-on: ubuntu-latest
@@ -59,6 +59,6 @@ jobs:
       - uses: actions/checkout@v2
       - name: run a simple unit test
         run: |
-          ln -s -t /opt/webwork/ `pwd` 
-          prove -v t/macros/pgaux.t
+          ln -s -t /opt/webwork/ `pwd`
+          prove -v t/macros/*.t
 
