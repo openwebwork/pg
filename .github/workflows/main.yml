@@ -32,6 +32,7 @@ jobs:
             DateTime
             Date::Parse
             JSON
+            Tie::IxHash
       - name: unit test for PGauxiliaryFunctions.pl
         run: |
           prove pg/t/macros/pgaux.t
