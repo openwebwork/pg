@@ -16,5 +16,5 @@ RUN git clone https://github.com/openwebwork/webwork2.git /opt/webwork/webwork2 
   mv localOverrides.conf.dist localOverrides.conf
 WORKDIR /opt/webwork/pg
 ENV WEBWORK_ROOT /opt/webwork/webwork2
-ENV PG_ROOT /opt/webwork/webwork2
+ENV PG_ROOT /opt/webwork/pg
 CMD ["/bin/bash"]
