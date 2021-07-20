@@ -7,7 +7,8 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     env:
-      WEBWORK_ROOT: webwork2
+      WEBWORK_ROOT: /__w/pg/pg/webwork2
+      PG_ROOT: /__w/pg/pg/pg
     container: perl:latest
     steps:
       - name: Checkout pg repository
