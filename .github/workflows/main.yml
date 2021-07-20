@@ -33,6 +33,7 @@ jobs:
             Date::Parse
             JSON
             Tie::IxHash
+            UUID::Tiny
       - name: unit test for PGauxiliaryFunctions.pl
         run: |
           prove pg/t/macros/pgaux.t
