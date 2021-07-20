@@ -38,7 +38,7 @@ jobs:
         run: |
           cp webwork2/conf/site.conf.dist webwork2/conf/site.conf
           cp webwork2/conf/localOverrides.conf.dist webwork2/conf/localOverrides.conf
-          ls webwork2/conf
+          ls webwork2/../pg/t/macros
       - name: unit test for PGauxiliaryFunctions.pl
         run: |
           cd pg/t/macros
