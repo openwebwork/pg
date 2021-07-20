@@ -1,5 +1,5 @@
 FROM perl:latest
-RUN cpanm \
+RUN cpanm -fi --notest \
   DBI \
   Data::Dump \
   Date::Parse \
