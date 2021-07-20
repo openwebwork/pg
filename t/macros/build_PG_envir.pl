@@ -4,7 +4,7 @@ package main;
 
 $main::macros_dir = "$main::pg_dir/macros";
 
-use WeBWorK::Localize;
+# use WeBWorK::Localize;
 use PGcore;
 use Parser;
 
@@ -19,7 +19,7 @@ $envir{pgDirectories}->{macrosPath} = [ "$main::macros_dir"];
 $envir{macrosPath} = [ "$main::macros_dir"];
 $envir{displayMode} = "HTML_MathJax";
 $envir{language} = "en-us";
-$envir{language_subroutine} = WeBWorK::Localize::getLoc($envir{language});
+$envir{language_subroutine} = sub { return @_;}; # return the string passed in instead going to maketext
 
 sub be_strict {
 	require 'ww_strict.pm';

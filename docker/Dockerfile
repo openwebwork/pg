@@ -1,15 +1,13 @@
 FROM perl:latest
 RUN cpanm -fi --notest \
-  DBI \
   Data::Dump \
   Date::Parse \
   DateTime \
   JSON \
-  Locale::Maketext \
-  Locale::Maketext::Lexicon \
+  Test::Exception \
   Tie::IxHash \
   UUID::Tiny module \
- && mkdir -p /opt/webwork 
+ && mkdir -p /opt/webwork
 RUN git clone https://github.com/openwebwork/webwork2.git /opt/webwork/webwork2 && \
   cd /opt/webwork/webwork2/conf && \
   mv site.conf.dist site.conf && \
