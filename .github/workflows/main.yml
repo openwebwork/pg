@@ -51,6 +51,7 @@ jobs:
       - name: unit test for PGauxiliaryFunctions.pl
         run: |
           cd pg/t/macros
+
           prove *.t
 
   full-docker:
@@ -62,4 +63,3 @@ jobs:
         run: |
           ln -s -t /opt/webwork/ `pwd`
           prove -v t/macros/*.t
-
