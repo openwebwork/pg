@@ -31,6 +31,7 @@ jobs:
             Locale::Maketext::Lexicon
             DateTime
             Date::Parse
+            JSON
       - name: unit test for PGauxiliaryFunctions.pl
         run: |
           prove pg/t/macros/pgaux.t
