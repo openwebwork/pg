@@ -4,46 +4,50 @@ on:
   workflow_dispatch:
 
 jobs:
-  pgaux:
+  tests:
     runs-on: ubuntu-latest
     env:
-      WEBWORK_ROOT: webwork2
+      WEBWORK_ROOT: /__w/pg/pg/webwork2
+      PG_ROOT: /__w/pg/pg/pg
     container: perl:latest
     steps:
-      - name: Checkout
+      # - name: install ubuntu packages
+      #   run: |
+      #     apt-get update
+      #     apt-get install -y liblocale-maketext-lexicon-perl libdata-dump-perl
+      #     apt-get install -y libdatetime-perl libtie-ixhash-perl libjson-perl libuuid-tiny-perl libtimedate-perl
+      - name: Checkout pg repository
         uses: actions/checkout@v2
         with:
+          ref: unit-test
           path: pg
-      - name: Checkout tools repo
+      - name: Checkout webwork2 repository
         uses: actions/checkout@v2
         with:
           repository: openwebwork/webwork2
+          ref: develop
           path: webwork2
+      - name: install cpanm and multiple modules
+        uses: perl-actions/install-with-cpanm@v1
+        with:
+          sudo: false
+          install: |
+            Data::Dump
+            Locale::Maketext
+            Locale::Maketext::Lexicon
+            DateTime
+            Date::Parse
+            JSON
+            Tie::IxHash
+            UUID::Tiny
+      - name: copy config files
+        run: |
+          cp webwork2/conf/site.conf.dist webwork2/conf/site.conf
+          cp webwork2/conf/localOverrides.conf.dist webwork2/conf/localOverrides.conf
+          ls webwork2/../pg/t/macros
+          pwd
+          perl --version
       - name: unit test for PGauxiliaryFunctions.pl
         run: |
-          cpanm Data::Dump
-          prove pg/t/macros/pgaux.t
-
-  webwork-container:
-    runs-on: ubuntu-latest
-    container: eltenedor/pg-unit-testing
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Run unit test
-        run: prove t/macros/pgaux.t
-
-  Explore-GitHub-Actions:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - name: Check out repository code
-        uses: actions/checkout@v2
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: List files in the repository
-        run: |
-          ls ${{ github.workspace }}
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+          cd pg/t/macros
+          prove pgaux.t
