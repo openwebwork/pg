@@ -38,6 +38,7 @@ jobs:
             HTML::Entities
             HTML::TagParser
             JSON
+            Test::Exception
             Tie::IxHash
             UUID::Tiny
       - name: copy config files
