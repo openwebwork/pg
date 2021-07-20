@@ -75,3 +75,4 @@ jobs:
         run: |
           env | grep ROOT
           cd $WEBWORK_ROOT
+          ls -a
