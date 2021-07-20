@@ -61,6 +61,20 @@ jobs:
         run: |
           pwd
           ls -a 
-          ls -a ../
-          prove t/macros/pgaux.t
+          cd ..
+          echo "----"
+          ls -a
+          prove pg/t/macros/pgaux.t
 
+  explore:
+    runs-on: ubuntu-latest
+    container: eltenedor/pg-unit-testing:latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: exlore the environment
+        run: |
+          pwd
+          ls -a 
+          cd ..
+          echo "----"
+          ls -a
