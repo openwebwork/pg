@@ -39,6 +39,7 @@ jobs:
           cp webwork2/conf/localOverrides.conf.dist webwork2/conf/localOverrides.conf
           ls webwork2/../pg/t/macros
           pwd
+          perl --version
       - name: unit test for PGauxiliaryFunctions.pl
         run: |
           cd pg/t/macros
