@@ -2,9 +2,6 @@ use warnings;
 use strict;
 package main;
 
-warn "$main::webwork_dir/lib";
-warn "$main::pg_dir/lib";
-
 use lib "$main::webwork_dir/lib";
 use lib "$main::pg_dir/lib";
 
@@ -12,6 +9,7 @@ use lib "$main::pg_dir/lib";
 use WeBWorK::Localize;
 # use WeBWorK::PG;
 use PGcore;
+
 
 
 # build up enough of a PG environment to get things running
