@@ -24,6 +24,7 @@ jobs:
       - name: install cpanm and multiple modules
         uses: perl-actions/install-with-cpanm@v1
         with:
+          sudo: false
           install: |
             Data::Dump
             Locale::Maketext
