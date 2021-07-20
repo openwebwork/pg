@@ -30,6 +30,7 @@ jobs:
             Locale::Maketext
             Locale::Maketext::Lexicon
             DateTime
+            Date::Parse
       - name: unit test for PGauxiliaryFunctions.pl
         run: |
           prove pg/t/macros/pgaux.t
