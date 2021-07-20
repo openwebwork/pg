@@ -2,14 +2,11 @@ use warnings;
 use strict;
 package main;
 
-use lib "$main::webwork_dir/lib";
-use lib "$main::pg_dir/lib";
+$main::macros_dir = "$main::pg_dir/macros";
 
-# use WeBWorK::CourseEnvironment;
 use WeBWorK::Localize;
-# use WeBWorK::PG;
 use PGcore;
-
+use Parser;
 
 
 # build up enough of a PG environment to get things running

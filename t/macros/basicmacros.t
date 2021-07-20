@@ -28,20 +28,17 @@ require("$main::current_dir/build_PG_envir.pl");
 
 ## END OF TOP_MATERIAL
 
-loadMacros("MathObjects.pl");
+loadMacros("PGbasicmacros.pl");
 
-my $ctx = Context("Numeric");
+use HTML::Entities;
+use HTML::TagParser
 
-ok(Value::isContext($ctx),"math objects: check context");
+my $named_box = NAMED_ANS_BOX("name");
 
-my $f = Compute("x^2");
+dd $named_box;
 
-ok(Value::isFormula($f),"math objects: check for formula");
-is($f->class,"Formula","math objects: check that the class is Formula");
-is($f->type,"Number","math objects: check that the type is Number");
+my $html = HTML::TagParser->new( $named_box );
 
-
-
-
+# dd $html;
 
 done_testing();
