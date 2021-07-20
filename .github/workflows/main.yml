@@ -74,4 +74,4 @@ jobs:
       - name: exlore the environment
         run: |
           env | grep ROOT
-          cd $PG_ROOT
+          cd $WEBWORK_ROOT
