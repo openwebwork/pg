@@ -59,7 +59,6 @@ jobs:
       - uses: actions/checkout@v2
       - name: run a simple unit test
         run: |
-          PG_ROOT=`pwd`
-          export PG_ROOT
+          ln -s /opt/webwork/pg `pwd`
           prove -v t/macros/pgaux.t
 
