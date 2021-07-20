@@ -4,14 +4,50 @@ on:
   workflow_dispatch:
 
 jobs:
-  pgaux:
+  tests:
     runs-on: ubuntu-latest
     env:
-      WEBWORK_ROOT: .
+      WEBWORK_ROOT: /__w/pg/pg/webwork2
+      PG_ROOT: /__w/pg/pg/pg
     container: perl:latest
     steps:
-      - uses: actions/checkout@v2
+      # - name: install ubuntu packages
+      #   run: |
+      #     apt-get update
+      #     apt-get install -y liblocale-maketext-lexicon-perl libdata-dump-perl
+      #     apt-get install -y libdatetime-perl libtie-ixhash-perl libjson-perl libuuid-tiny-perl libtimedate-perl
+      - name: Checkout pg repository
+        uses: actions/checkout@v2
+        with:
+          ref: unit-test
+          path: pg
+      - name: Checkout webwork2 repository
+        uses: actions/checkout@v2
+        with:
+          repository: openwebwork/webwork2
+          ref: develop
+          path: webwork2
+      - name: install cpanm and multiple modules
+        uses: perl-actions/install-with-cpanm@v1
+        with:
+          sudo: false
+          install: |
+            Data::Dump
+            Locale::Maketext
+            Locale::Maketext::Lexicon
+            DateTime
+            Date::Parse
+            JSON
+            Tie::IxHash
+            UUID::Tiny
+      - name: copy config files
+        run: |
+          cp webwork2/conf/site.conf.dist webwork2/conf/site.conf
+          cp webwork2/conf/localOverrides.conf.dist webwork2/conf/localOverrides.conf
+          ls webwork2/../pg/t/macros
+          pwd
+          perl --version
       - name: unit test for PGauxiliaryFunctions.pl
         run: |
-          cpanm Data::Dump
-          prove t/macros/pgaux.t
+          cd pg/t/macros
+          prove pgaux.t

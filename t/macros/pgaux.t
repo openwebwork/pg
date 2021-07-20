@@ -20,6 +20,13 @@ BEGIN {
 	$main::macros_dir = "$main::pg_dir/macros";
 }
 
+warn "$main::webwork_dir/lib";
+warn "$main::pg_dir/lib";
+use lib "$main::webwork_dir/lib";
+use lib "$main::pg_dir/lib";
+# use lib "$main::pg_dir/t/macros";
+
+
 
 # the following loads a basic PG environment for testing.
 
