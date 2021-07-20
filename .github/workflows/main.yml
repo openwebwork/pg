@@ -57,8 +57,6 @@ jobs:
     container: eltenedor/pg-unit-testing:latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          path: pg
       - name: run a simple unit test
-        run: |
-          prove t/macros/pgaux.t
+        run: prove t/macros/pgaux.t
+
