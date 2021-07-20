@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: install ubuntu packages
         run: |
-          apt-get install libdata-dump-perl
+          apt-get install perl-modules-5.32
       - name: Checkout pg repository
         uses: actions/checkout@v2
         with:
