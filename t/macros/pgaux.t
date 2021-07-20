@@ -24,13 +24,13 @@ warn "$main::webwork_dir/lib";
 warn "$main::pg_dir/lib";
 use lib "$main::webwork_dir/lib";
 use lib "$main::pg_dir/lib";
-use lib "$main::pg_dir/t/macros";
+# use lib "$main::pg_dir/t/macros";
 
 
 
 # the following loads a basic PG environment for testing.
 
-require("build_PG_envir.pl");
+require("$main::pg_dir/t/macros/build_PG_envir.pl");
 
 
 loadMacros("PGauxiliaryFunctions.pl");
