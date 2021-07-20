@@ -33,10 +33,10 @@ jobs:
           sudo: false
           install: |
             Data::Dump
-            Locale::Maketext
-            Locale::Maketext::Lexicon
             DateTime
             Date::Parse
+            HTML::Entities
+            HTML::TagParser
             JSON
             Tie::IxHash
             UUID::Tiny
