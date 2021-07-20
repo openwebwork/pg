@@ -14,7 +14,7 @@ jobs:
       - name: install ubuntu packages
         run: |
           apt-get update
-          apt-get install -y liblocale-maketext-lexicon-perl
+          apt-get install -y liblocale-maketext-lexicon-perl libdata-dump-perl
           apt-get install -y libdatetime-perl libtie-ixhash-perl libjson-perl libuuid-tiny-perl libtimedate-perl
       - name: Checkout pg repository
         uses: actions/checkout@v2
