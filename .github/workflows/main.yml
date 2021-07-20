@@ -73,8 +73,5 @@ jobs:
       - uses: actions/checkout@v2
       - name: exlore the environment
         run: |
-          pwd
-          ls -a 
-          cd ..
-          echo "----"
-          ls -a
+          env | grep ROOT
+          cd $PG_ROOT
