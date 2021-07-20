@@ -3,6 +3,8 @@ RUN cpanm -fi --notest \
   Data::Dump \
   Date::Parse \
   DateTime \
+  HTML::Entities \
+  HTML::TagParser \
   JSON \
   Test::Exception \
   Tie::IxHash \
