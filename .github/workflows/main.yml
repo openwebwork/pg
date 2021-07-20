@@ -13,6 +13,7 @@ jobs:
     steps:
       - name: install ubuntu packages
         run: |
+          perl --version
           apt-get update
           apt-get install -y perl-modules-5.30 liblocale-maketext-lexicon-perl
           apt-get install -y libdatetime-perl libtie-ixhash-perl libjson-perl libuuid-tiny-perl libtimedate-perl
