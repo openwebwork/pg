@@ -61,7 +61,7 @@ jobs:
         run: |
           PG_ROOT=`pwd`
           export PG_ROOT
-          prove pg/t/macros/pgaux.t
+          prove t/macros/pgaux.t
 
   explore:
     runs-on: ubuntu-latest
