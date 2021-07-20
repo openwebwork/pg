@@ -41,4 +41,5 @@ jobs:
           ls webwork2/conf
       - name: unit test for PGauxiliaryFunctions.pl
         run: |
-          prove pg/t/macros/pgaux.t
+          cd pg/t/macros
+          prove pgaux.t
