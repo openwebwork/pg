@@ -29,6 +29,7 @@ jobs:
             Data::Dump
             Locale::Maketext
             Locale::Maketext::Lexicon
+            DateTime
       - name: unit test for PGauxiliaryFunctions.pl
         run: |
           prove pg/t/macros/pgaux.t
