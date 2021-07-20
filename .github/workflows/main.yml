@@ -11,11 +11,11 @@ jobs:
       PG_ROOT: /__w/pg/pg/pg
     container: perl:latest
     steps:
-      - name: install ubuntu packages
-        run: |
-          apt-get update
-          apt-get install -y liblocale-maketext-lexicon-perl libdata-dump-perl
-          apt-get install -y libdatetime-perl libtie-ixhash-perl libjson-perl libuuid-tiny-perl libtimedate-perl
+      # - name: install ubuntu packages
+      #   run: |
+      #     apt-get update
+      #     apt-get install -y liblocale-maketext-lexicon-perl libdata-dump-perl
+      #     apt-get install -y libdatetime-perl libtie-ixhash-perl libjson-perl libuuid-tiny-perl libtimedate-perl
       - name: Checkout pg repository
         uses: actions/checkout@v2
         with:
@@ -33,6 +33,13 @@ jobs:
           sudo: false
           install: |
             Data::Dump
+            Locale::Maketext
+            Locale::Maketext::Lexicon
+            DateTime
+            Date::Parse
+            JSON
+            Tie::IxHash
+            UUID::Tiny
       - name: copy config files
         run: |
           cp webwork2/conf/site.conf.dist webwork2/conf/site.conf
