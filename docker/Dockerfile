@@ -1,5 +1,14 @@
 FROM perl:latest
-RUN cpanm Data::Dump DateTime Date::Parse JSON DBI Tie::IxHash UUID::Tiny module \
+RUN cpanm \
+  DBI \
+  Data::Dump \
+  Date::Parse \
+  DateTime \
+  JSON \
+  Locale::Maketext \
+  Locale::Maketext::Lexicon \
+  Tie::IxHash \
+  UUID::Tiny module \
  && mkdir -p /opt/webwork 
 RUN git clone https://github.com/openwebwork/webwork2.git /opt/webwork/webwork2 && \
   cd /opt/webwork/webwork2/conf && \
@@ -7,4 +16,5 @@ RUN git clone https://github.com/openwebwork/webwork2.git /opt/webwork/webwork2 
   mv localOverrides.conf.dist localOverrides.conf
 WORKDIR /opt/webwork/pg
 ENV WEBWORK_ROOT /opt/webwork/webwork2
+ENV PG_ROOT /opt/webwork/webwork2
 CMD ["/bin/bash"]
