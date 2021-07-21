@@ -46,8 +46,9 @@ ok(! $inputs[0]->attributes->{value},"basicmacros: test NAMED_ANS_RULE value att
 
 is($inputs[1]->attributes->{name},"previous_$name", "basicmacros: test NAMED_ANS_RULE hidden name attribute");
 is($inputs[1]->attributes->{type},"hidden", "basicmacros: test NAMED_ANS_RULE hidden type attribute");
-dd $inputs[1]->attributes->{value};
 
-dd $named_box;
+dd ans_rule(3);
+dd ans_rule(3);
+
 
 done_testing();

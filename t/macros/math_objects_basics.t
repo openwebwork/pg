@@ -94,9 +94,18 @@ is($sum->value,$val1+$val2,"math objects: test sum");
 is($diff->value,$val1-$val2,"math objects: test difference");
 is($prod->value,$val1*$val2,"math objects: test product");
 
-# check some formulas
 
-my $f = Compute("x^2");
+## check scores using the cmp method
+
+is (check_score($sum,Compute($sum)),1,"math object: use cmp to check sum");
+is (check_score($diff,Compute($diff)),1,"math object: use cmp to check diff");
+is (check_score($prod,Compute($prod)),1,"math object: use cmp to check prod");
+
+## check some wrong answers;
+
+is (check_score($sum,Compute($sum+1)),0,"math object: use cmp to check sum");
+is (check_score($diff,Compute($diff+1)),0,"math object: use cmp to check diff");
+is (check_score($prod,Compute($prod+1)),0,"math object: use cmp to check prod");
 
 
 

@@ -1,3 +1,6 @@
+## Test suite for contextInteger
+
+
 use warnings;
 use strict;
 package main;
@@ -24,29 +27,15 @@ BEGIN {
 use lib "$main::webwork_dir/lib";
 use lib "$main::pg_dir/lib";
 
-require("$main::current_dir/build_PG_envir.pl");
+require("$main::current_dir/../macros/build_PG_envir.pl");
 
 ## END OF TOP_MATERIAL
 
-loadMacros("MathObjects.pl");
+loadMacros("MathObjects.pl","contextInteger.pl");
 
-my $ctx = Context("Numeric");
+Context("Integer");
 
-ok(Value::isContext($ctx),"math objects: check context");
-
-my $f = Compute("x^2");
-my $g = Compute("sin(x)");
-
-ok(Value::isFormula($f),"math objects: check for formula");
-is($f->class,"Formula","math objects: check that the class is Formula");
-is($f->type,"Number","math objects: check that the type is Number");
-
-## check answer evaluators
-
-is(check_score($f->eval(x=>2),Compute("4")),1,"math objects: eval");
-is(check_score($f->eval(x=>-3),Compute("9")),1,"math objects: eval");
+my $b = Compute(gcd(5, 2));
+ANS($b->cmp);
 
 
-
-
-done_testing();

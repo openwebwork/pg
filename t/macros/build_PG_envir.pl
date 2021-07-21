@@ -30,6 +30,11 @@ sub PG_restricted_eval {
 	WeBWorK::PG::Translator::PG_restricted_eval(@_);
 }
 
+sub check_score {
+	my ($correct_answer,$ans) = @_;
+	return $correct_answer->cmp->evaluate($ans)->{score};
+}
+
 require "$main::macros_dir/PG.pl";
 DOCUMENT();
 

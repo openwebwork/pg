@@ -24,29 +24,38 @@ BEGIN {
 use lib "$main::webwork_dir/lib";
 use lib "$main::pg_dir/lib";
 
-require("$main::current_dir/build_PG_envir.pl");
+require("$main::current_dir/../macros/build_PG_envir.pl");
 
 ## END OF TOP_MATERIAL
 
-loadMacros("MathObjects.pl");
+loadMacros("PGstandard.pl","MathObjects.pl","contextFraction.pl");
 
-my $ctx = Context("Numeric");
+# dd @INC;
 
-ok(Value::isContext($ctx),"math objects: check context");
-
-my $f = Compute("x^2");
-my $g = Compute("sin(x)");
-
-ok(Value::isFormula($f),"math objects: check for formula");
-is($f->class,"Formula","math objects: check that the class is Formula");
-is($f->type,"Number","math objects: check that the type is Number");
-
-## check answer evaluators
-
-is(check_score($f->eval(x=>2),Compute("4")),1,"math objects: eval");
-is(check_score($f->eval(x=>-3),Compute("9")),1,"math objects: eval");
+for my $module (qw/Parser Value Parser::Legacy/){
+	eval "package Main; require $module; import $module;";
+}
 
 
+# use Value;
+# use Value::Complex;
+# # use Value::Type;
+# use Parser::Context::Default;
+# use Parser::Legacy;
+# use Parser::Context;
+
+Context("Fraction");
+
+# require("Parser::Legacy::LimitedNumeric::Number");
+# require("Parser::Legacy");
+
+
+
+
+my $a1 = Compute("1/2");
+my $a2 = Compute("2/4");
+
+is($a1->value,$a2->value,"contextFraction: reduce fractions");
 
 
 done_testing();
