@@ -2,6 +2,7 @@ use warnings;
 use strict;
 package main;
 
+
 $main::macros_dir = "$main::pg_dir/macros";
 
 # use WeBWorK::Localize;
