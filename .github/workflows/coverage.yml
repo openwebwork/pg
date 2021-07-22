@@ -9,7 +9,7 @@ on:
 jobs:
   env:
     runs-on: ubuntu-latest
-    container: eltenedor/pg-unit-test:latest
+    container: eltenedor/pg-unit-testing:latest
     steps:
       - uses: actions/checkout@v2
       - name: Build project and run tests
