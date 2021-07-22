@@ -9,10 +9,6 @@ use Test::Exception;
 ## the following needs to include at the top of any testing  down to TOP_MATERIAL
 
 BEGIN {
-	use File::Basename qw/dirname/;
-	use Cwd qw/abs_path/;
-	$main::current_dir = abs_path( dirname(__FILE__) );
-
 	die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
 	die "WEBWORK_ROOT not found in environment.\n" unless $ENV{WEBWORK_ROOT};
 
@@ -24,7 +20,7 @@ BEGIN {
 use lib "$main::webwork_dir/lib";
 use lib "$main::pg_dir/lib";
 
-require("$main::current_dir/build_PG_envir.pl");
+require("$main::pg_dir/t/build_PG_envir.pl");
 
 ## END OF TOP_MATERIAL
 
@@ -43,9 +39,13 @@ is($f->type,"Number","math objects: check that the type is Number");
 
 ## check answer evaluators
 
-is(check_score($f->eval(x=>2),Compute("4")),1,"math objects: eval");
-is(check_score($f->eval(x=>-3),Compute("9")),1,"math objects: eval");
+is(check_score($f->eval(x=>2),"4"),1,"math objects: eval x^2 at x=2");
+is(check_score($f->eval(x=>-3),"9"),1,"math objects: eval x^2 at x=-3");
+is(check_score($g->eval(x=>Compute("pi/6")),"1/2"),1,"math objects: eval sin(x) at x=pi/6");
 
+## check derivatives
+is(check_score($f->D("x"),"2x"),1,"math objects: derivative of x^2");
+is(check_score($g->D("x"),"cos(x)"),1,"math objects: derivative of sin(x)");
 
 
 

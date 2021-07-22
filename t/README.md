@@ -7,21 +7,21 @@ Formal unit tests are located in the the `macros` and `contexts` directories tha
 ## Running the tests
 
 ```
-cd t
+cd $PG_ROOT
 prove -r .
 ```
 
-will run all of the tests in `.t` files within subdirectories.
+will run all of the tests in `.t` files within subdirectories of `t`.
 
 ### Running an individual test
 
 If instead, you want to run an individual test, for example the `pgaux.t` test suite,
 ```
-cd t/macros
-prove -lv pgaux.t
+cd $PG_ROOT/t/macros
+prove -v pgaux.t
 ```
 
-which will be verbose (`-v`) and report the result of each test (`-l`).
+which will be verbose (`-v`).
 
 ## Writing a Unit Test
 
@@ -32,17 +32,12 @@ use warnings;
 use strict;
 package main;
 
-use Data::Dump qw/dd/;
 use Test::More;
-
+use Test::Exception; # needed only if you test for errors.
 
 ## the following needs to include at the top of any testing  down to TOP_MATERIAL
 
 BEGIN {
-	use File::Basename qw/dirname/;
-	use Cwd qw/abs_path/;
-	$main::current_dir = abs_path( dirname(__FILE__) );
-
 	die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
 	die "WEBWORK_ROOT not found in environment.\n" unless $ENV{WEBWORK_ROOT};
 
@@ -54,11 +49,27 @@ BEGIN {
 use lib "$main::webwork_dir/lib";
 use lib "$main::pg_dir/lib";
 
-require("$main::current_dir/build_PG_envir.pl");
+require("$main::pg_dir/t/build_PG_envir.pl");
 
 ## END OF TOP_MATERIAL
 ```
 and ensure that both `PG_ROOT` and `WEBWORK_ROOT` are in your environmental variables.
 
-Now, run some tests. (__SHOW AN EXAMPLE__)
+### Example: Running a test
+
+The following shows how to test a Math object
+
+```perl
+loadMacros("MathObjects.pl");
+
+Context("Numeric");
+
+my $f = Compute("x^2");
+
+# evaluate f at x=2
+
+is(check_score($f->eval(x=>2),"4"),1,"math objects: eval x^2 at x=2");
+```
+
+The `check_score` subroutine evaluates and compares a MathObject with a string representation of the answer.  If the score is 1, then the two are equal.
 
