@@ -10,6 +10,7 @@ my $builder = Module::Build->new(
     build_requires => {
         'Test::More' => '0.10',
     },
+    test_files => 't/**/*.t'
 );
 
 $builder->create_build_script();
