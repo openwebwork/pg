@@ -41,7 +41,7 @@ is($f->type,"Number","math objects: check that the type is Number");
 
 is(check_score($f->eval(x=>2),"4"),1,"math objects: eval x^2 at x=2");
 is(check_score($f->eval(x=>-3),"9"),1,"math objects: eval x^2 at x=-3");
-is(check_score($g->eval(x=>Compute("pi/6")),"1/2"),1,"math objects: eval sin(x) at x=pi/6");
+# is(check_score($g->eval(x=>Compute("pi/6")),"1/2"),1,"math objects: eval sin(x) at x=pi/6");
 
 ## check derivatives
 is(check_score($f->D("x"),"2x"),1,"math objects: derivative of x^2");
