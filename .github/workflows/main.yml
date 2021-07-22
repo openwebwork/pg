@@ -4,57 +4,57 @@ on:
   workflow_dispatch:
 
 jobs:
-  tests:
-    runs-on: ubuntu-latest
-    env:
-      WEBWORK_ROOT: /__w/pg/pg/webwork2
-      PG_ROOT: /__w/pg/pg/pg
-    container: perl:latest
-    steps:
-      # - name: install ubuntu packages
-      #   run: |
-      #     apt-get update
-      #     apt-get install -y liblocale-maketext-lexicon-perl libdata-dump-perl
-      #     apt-get install -y libdatetime-perl libtie-ixhash-perl libjson-perl libuuid-tiny-perl libtimedate-perl
-      - name: Checkout pg repository
-        uses: actions/checkout@v2
-        with:
-          ref: unit-test
-          path: pg
-      - name: Checkout webwork2 repository
-        uses: actions/checkout@v2
-        with:
-          repository: openwebwork/webwork2
-          ref: develop
-          path: webwork2
-      - name: install cpanm and multiple modules
-        uses: perl-actions/install-with-cpanm@v1
-        with:
-          sudo: false
-          install: |
-            Data::Dump
-            DateTime
-            Date::Parse
-            HTML::Entities
-            HTML::TagParser
-            JSON
-            Test::Exception
-            Tie::IxHash
-            UUID::Tiny
-      - name: copy config files
-        run: |
-          cp webwork2/conf/site.conf.dist webwork2/conf/site.conf
-          cp webwork2/conf/localOverrides.conf.dist webwork2/conf/localOverrides.conf
-          ls webwork2/../pg/t/macros
-          pwd
-          perl --version
-      - name: unit test for PGauxiliaryFunctions.pl
-        run: |
-          cd pg/t/macros
+#   tests:
+#     runs-on: ubuntu-latest
+#     env:
+#       WEBWORK_ROOT: /__w/pg/pg/webwork2
+#       PG_ROOT: /__w/pg/pg/pg
+#     container: perl:latest
+#     steps:
+#       # - name: install ubuntu packages
+#       #   run: |
+#       #     apt-get update
+#       #     apt-get install -y liblocale-maketext-lexicon-perl libdata-dump-perl
+#       #     apt-get install -y libdatetime-perl libtie-ixhash-perl libjson-perl libuuid-tiny-perl libtimedate-perl
+#       - name: Checkout pg repository
+#         uses: actions/checkout@v2
+#         with:
+#           ref: unit-test
+#           path: pg
+#       - name: Checkout webwork2 repository
+#         uses: actions/checkout@v2
+#         with:
+#           repository: openwebwork/webwork2
+#           ref: develop
+#           path: webwork2
+#       - name: install cpanm and multiple modules
+#         uses: perl-actions/install-with-cpanm@v1
+#         with:
+#           sudo: false
+#           install: |
+#             Data::Dump
+#             DateTime
+#             Date::Parse
+#             HTML::Entities
+#             HTML::TagParser
+#             JSON
+#             Test::Exception
+#             Tie::IxHash
+#             UUID::Tiny
+#       - name: copy config files
+#         run: |
+#           cp webwork2/conf/site.conf.dist webwork2/conf/site.conf
+#           cp webwork2/conf/localOverrides.conf.dist webwork2/conf/localOverrides.conf
+#           ls webwork2/../pg/t/macros
+#           pwd
+#           perl --version
+#       - name: unit test for PGauxiliaryFunctions.pl
+#         run: |
+#           cd pg/t/macros
+# 
+#           prove *.t
 
-          prove *.t
-
-  full-docker:
+  run-tests:
     runs-on: ubuntu-latest
     container: eltenedor/pg-unit-testing:latest
     steps:
@@ -63,3 +63,4 @@ jobs:
         run: |
           ln -s -t /opt/webwork/ `pwd`
           prove -v t/macros/*.t
+
