@@ -3,16 +3,17 @@ RUN cpanm -fi --notest \
   Data::Dump \
   Date::Parse \
   DateTime \
+  Devel::Cover::Report::Codecov \
   HTML::Entities \
   HTML::TagParser \
   JSON \
-  HTML::Entities \
-  HTML::TagParser \
+  Module::Build Devel::Cover \
   Test::Exception \
   Tie::IxHash \
-  UUID::Tiny module \
- && mkdir -p /opt/webwork
-RUN git clone https://github.com/openwebwork/webwork2.git /opt/webwork/webwork2 && \
+  UUID::Tiny module 
+RUN \
+  mkdir -p /opt/webwork && \
+  git clone https://github.com/openwebwork/webwork2.git /opt/webwork/webwork2 && \
   cd /opt/webwork/webwork2/conf && \
   mv site.conf.dist site.conf && \
   mv localOverrides.conf.dist localOverrides.conf
