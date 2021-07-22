@@ -515,7 +515,7 @@ sub initialize {
 	$self->{align} = ($self->{align})//$myAlignString;
  	$self->{S} = Value::Matrix->I($m);
  	$self->{basis_columns} = [($n+1)...($n+$m)] unless ref($self->{basis_columns})=~/ARRAY/;	
- 	my @rows = $self->assemble_matrix;
+ 	my @rows = $self->assemble_tableau;
  	$self->M( _Matrix([@rows]) ); #original matrix
  	$self->{data}= $self->M->data;	
 	my $new_obj_row = $self->objective_row;
