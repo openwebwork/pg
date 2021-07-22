@@ -1,4 +1,4 @@
-![main workflow](https://github.com/pstaab/pg/actions/workflows/main.yml/badge.svg)
+![main workflow](https://github.com/pstaabp/pg/actions/workflows/main.yml/badge.svg)
 
 # Welcome to WeBWorK
 
