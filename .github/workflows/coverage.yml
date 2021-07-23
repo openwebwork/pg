@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  code coverage:
+  code_coverage:
     runs-on: ubuntu-latest
     container: eltenedor/pg-unit-testing:latest
     steps:
