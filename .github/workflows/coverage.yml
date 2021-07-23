@@ -17,10 +17,12 @@ jobs:
           perl Build.PL
           cover -test
       - uses: actions/upload-artifact@v2
+        if: always()
         with:
           name: coverage-report
           path: cover_db/
       - name: push coverage analysis
+        if: always()
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: cover -report codecov
