@@ -22,8 +22,6 @@ use warnings;
 
 package DragNDrop;
 
-my $bucket_id = 0;
-
 sub new {    
 	my $self = shift; 
     my $class = ref($self) || $self;
@@ -41,6 +39,7 @@ sub new {
         bucket_list => [],
         aggregate_list => $aggregate_list,
         default_buckets => $default_buckets,
+		bucket_id => 0,
         %options,
     }, $class;
             	
@@ -50,7 +49,7 @@ sub new {
 sub addBucket {    
     my $self = shift; 
     
-    my $bucket_id = $bucket_id++;
+    my $bucket_id = $self->{bucket_id}++;
     
     my $indices = shift;
     my $label = shift; 
