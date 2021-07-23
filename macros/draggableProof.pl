@@ -97,26 +97,18 @@ sub new {
 sub Print {
 	my $self = shift;
 
-	if ($main::displayMode eq 'TeX') {
-		return "\\begin{itemize}\\item".join("\n\n\\item\n" , @{ $self->{aggregate_list} })."\\end{itemize}";
-	}
-	
-	my $html = $self->{dnd}->toHTML;
 	my $ans_rule = $self->{ans_rule};
 	
 	if ($main::displayMode ne "TeX") { # HTML mode
 		return join("\n",
 			'<div style="min-width:750px;">',
 			$ans_rule,
-			$html,
+			$self->{dnd}->HTML,
 			'<br clear="all" />',
 			'</div>',
 		);
 	} else { # TeX mode
-		return join("\n",
-			$ans_rule,
-			$html,
-		);
+		return $self->{dnd}->TeX;
 	}
 }
 
