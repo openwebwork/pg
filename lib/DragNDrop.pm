@@ -20,21 +20,9 @@
 use strict;
 use warnings;
 
-# sub _DragNDrop_init {
-# 
-#   $courseHtmlUrl = $envir{htmlURL};
-#   # Load jquery nestable from cdnjs.cloudflare.com
-#   ADD_CSS_FILE("https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.css", 1);
-#   ADD_JS_FILE("https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.js", 1);
-#   ADD_CSS_FILE("$courseHtmlUrl/js/dragndrop.css", 1);
-#   ADD_JS_FILE("$courseHtmlUrl/js/dragndrop.js", 1, { defer => undef });
-# 
-#   main::PG_restricted_eval("sub DragNDrop {new DragNDrop(\@_)}");
-# } 
-
 package DragNDrop;
 
-my $bucket_id = 1;
+my $bucket_id = 0;
 
 sub new {    
 	my $self = shift; 
@@ -55,7 +43,7 @@ sub new {
         default_buckets => $default_buckets,
         %options,
     }, $class;
-            
+            	
     return $self;
 }
 
@@ -74,7 +62,6 @@ sub addBucket {
     my $bucket = {
         indices => $indices,
         list => [ map { $self->{aggregate_list}->[$_] } @$indices ],
-        # container_id => $container_id,
         bucket_id => $bucket_id,
         label => $label,
         removable => $options{removable},
@@ -85,7 +72,7 @@ sub addBucket {
 
 sub toHTML {
     my $self = shift;
-    
+    	
     my $out = '';
     $out .= "<div class='bucket_pool' data-ans='$self->{answer_input_id}'>";
         
@@ -123,12 +110,4 @@ sub toHTML {
     return $out;
 }
 
-# sub ans_rule {
-# 	my $self = shift;
-#     if ($main::displayMode eq 'TeX') {
-#         return "\\begin{itemize}\\item".join("\n\n\\item\n" , @{ $self->{aggregate_list} })."\\end{itemize}";
-#     }
-#     my $out = $self->toHTML;
-#     return main::NAMED_HIDDEN_ANS_RULE($self->{answer_input_id}).$out;    
-# }
 1;
