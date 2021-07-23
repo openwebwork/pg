@@ -1,5 +1,5 @@
 ![main workflow](https://github.com/pstaabp/pg/actions/workflows/main.yml/badge.svg)
-[![codecov](https://codecov.io/gh/pstaabp/pg/branch/main/graph/badge.svg?token=H7WYHBDB9S)](https://codecov.io/gh/pstaabp/pg)
+[![codecov](https://codecov.io/gh/pstaabp/pg/branch/unit-test/graph/badge.svg?token=H7WYHBDB9S)](https://codecov.io/gh/pstaabp/pg)
 ![GitHub last commit](https://img.shields.io/github/last-commit/pstaabp/pg/unit-test)
 
 # Welcome to WeBWorK
