@@ -14,7 +14,7 @@ use vars qw($VERSION @ISA @EXPORT %EXPORT_TAGS);
 
 my ( $i, $ip2, %logn );
 
-$VERSION = sprintf("%s", q$Id$ =~ /(\d+\.\d+)/);
+# $VERSION = sprintf("%s", q$Id$ =~ /(\d+\.\d+)/);  # not finding $Id  ???
 
 @ISA = qw(Exporter);
 
@@ -57,7 +57,7 @@ use overload
 	'log'	=> \&log,
 	'sin'	=> \&sin,
 	'cos'	=> \&cos,
-	'tan'	=> \&tan,
+#	'tan'	=> \&tan,  # perl doesn't have a native tan() function so you can't override it
 	'atan2'	=> \&atan2,
 	qw("" stringify);
 
