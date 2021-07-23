@@ -87,14 +87,15 @@ sub toHTML {
         $out .= "</ol></div>";
     }
     
-    for (my $i = 0; $i < @{$self->{bucket_list}}; $i++) {
-        my $bucket = $self->{bucket_list}->[$i];
+    # for (my $i = 0; $i < @{$self->{bucket_list}}; $i++) 
+	for my $bucket ( @{$self->{bucket_list}} ) {
+        # my $bucket = $self->{bucket_list}->[$i];		
         $out .= "<div class='hidden past_answers bucket' data-bucket-id='$bucket->{bucket_id}' data-removable='$bucket->{removable}'>";
         $out .= "<div class='label'>$bucket->{label}</div>"; 
         $out .= "<ol class='answer'>";
         
         for my $index ( @{$bucket->{indices}} ) {
-            $out .= "<li data-shuffled-index='".$index."'>".$self->{aggregate_list}->[$index]."</li>";
+            $out .= "<li data-shuffled-index='$index'>$self->{aggregate_list}->[$index]</li>";
         }
         $out .= "</ol>";
         $out .= "</div>"; 
@@ -103,7 +104,7 @@ sub toHTML {
     $out .= '</div>';
     $out .= "<br clear='all'><div><a class='btn reset_buckets'>reset</a>";    
     if ($self->{AllowNewBuckets} == 1) {
-        $out .= "<a class='btn add_bucket' data-ans='".$self->{answer_input_id}."'>add bucket</a></div>";
+        $out .= "<a class='btn add_bucket' data-ans='$self->{answer_input_id}'>add bucket</a></div>";
     }
     
     return $out;
