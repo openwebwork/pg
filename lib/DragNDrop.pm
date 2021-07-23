@@ -122,7 +122,7 @@ sub TeX {
 		if ( @{$default_bucket->{indices}} > 0 ) {
 			$out .= "\n\\hrule\n\\begin{itemize}";		
 			for my $j ( @{$default_bucket->{indices}} ) {
-				$out .= "\n\\item\n $self->{aggregate_list}->[$j]";
+				$out .= "\n\\item[$j.]\n $self->{aggregate_list}->[$j]";
 			}
 			$out .= "\n\\end{itemize}";
 		}
