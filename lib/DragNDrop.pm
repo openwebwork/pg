@@ -69,7 +69,7 @@ sub addBucket {
     
 }
 
-sub toHTML {
+sub HTML {
     my $self = shift;
     	
     my $out = '';
@@ -110,4 +110,24 @@ sub toHTML {
     return $out;
 }
 
+sub TeX {
+    my $self = shift;
+    	
+    my $out = "";
+        
+    # default buckets;
+    for (my $i = 0; $i < @{ $self->{default_buckets} }; $i++) {
+		$out .= "\n";
+        my $default_bucket = $self->{default_buckets}->[$i];
+		if ( @{$default_bucket->{indices}} > 0 ) {
+			$out .= "\n\\hrule\n\\begin{itemize}";		
+			for my $j ( @{$default_bucket->{indices}} ) {
+				$out .= "\n\\item\n $self->{aggregate_list}->[$j]";
+			}
+			$out .= "\n\\end{itemize}";
+		}
+		$out .= "\n\\hrule\n";
+    }
+    return $out;
+}
 1;
