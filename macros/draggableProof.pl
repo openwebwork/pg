@@ -131,10 +131,11 @@ sub filter {
 	my $correct = $anshash->{correct_ans} =~ s/\(|\)|\s*//gr;
 	
 	if ($self->{NumBuckets} == 2) {
-		my @matches = ( $anshash->{student_ans} =~ /(\(\d*(?:,\s*\d+)*\)|\d+)/g );
+		# my @matches = ( $anshash->{student_ans} =~ /(\(\d*(?:,\s*\d+)*\)|\d+)/g );
+        my @matches = ( $anshash->{student_ans} =~ /(\([^\(\)]*\))/g );
 		$actual_answer = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
 		
-		@matches = ( $anshash->{correct_ans} =~ /(\(\d*(?:,\s*\d+)*\)|\d+)/g );
+		@matches = ( $anshash->{correct_ans} =~ /(\([^\(\)]*\))/g );
 		$correct = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
 		
 		$anshash->{correct_ans} = main::List($correct); # change to main::Set if order does not matter
@@ -169,10 +170,11 @@ sub levenshtein_filter {
 	my $correct = $anshash->{correct_ans} =~ s/\(|\)|\s*//gr;
 	
 	if ($self->{NumBuckets} == 2) {
-		my @matches = ( $anshash->{student_ans} =~ /(\(\d*(?:,\s*\d+)*\)|\d+)/g );
+		# my @matches = ( $anshash->{student_ans} =~ /(\(\d*(?:,\s*\d+)*\)|\d+)/g );
+        my @matches = ( $anshash->{student_ans} =~ /(\([^\(\)]*\))/g );
 		$actual_answer = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
 		
-		@matches = ( $anshash->{correct_ans} =~ /(\(\d*(?:,\s*\d+)*\)|\d+)/g );
+		@matches = ( $anshash->{correct_ans} =~ /(\([^\(\)]*\))/g );
 		$correct = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
 		
 		$anshash->{correct_ans} = main::List($correct); # change to main::Set if order does not matter
@@ -188,10 +190,10 @@ sub levenshtein_filter {
 	my @correct = @lines[map {@order[$_]} split(/,/, $correct)];
 	my @student = @lines[map {@order[$_]} split(',', $actual_answer)];
 	$anshash->{student_ans} = "(see preview)";
-	$anshash->{correct_ans_latex_string} = "\\begin{array}{l}\\text{".join("}\\\\\\text{",@correct)."}\\end{array}";
-	$anshash->{correct_ans} = join("<br />",@correct);
 	$anshash->{preview_latex_string} = "\\begin{array}{l}\\text{".join("}\\\\\\text{",@student)."}\\end{array}";
-	
+    $anshash->{correct_ans_latex_string} = "\\begin{array}{l}\\text{".join("}\\\\\\text{",@correct)."}\\end{array}";
+	# $anshash->{correct_ans} = join("\n\n",@correct);
+    $anshash->{correct_ans} = $correct;
 	return $anshash;
 }
 1;
