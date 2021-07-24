@@ -23,7 +23,7 @@ sub new {
 	
 	# user arguments
 	my $set = shift || []; 
-	my $cosets = shift || []; 
+	my $subsets = shift || []; 
 	my $default_buckets = shift || [];
 	# end user arguments
 	
@@ -72,12 +72,12 @@ sub new {
 		}
 	}	
 		
-	my @shuffled_cosets_array = ();
-	for my $coset ( @$cosets ) {
-		my @shuffled_coset = map {$unorder[$_]} @$coset;
-		push(@shuffled_cosets_array, main::Set(join(',', @shuffled_coset)));
+	my @shuffled_subsets_array = ();
+	for my $subset ( @$subsets ) {
+		my @shuffled_subset = map {$unorder[$_]} @$subset;
+		push(@shuffled_subsets_array, main::Set(join(',', @shuffled_subset)));
 	}	
-	my $shuffled_cosets = main::List(@shuffled_cosets_array);
+	my $shuffled_subsets = main::List(@shuffled_subsets_array);
 			
 	
 	$self = bless {
@@ -86,7 +86,7 @@ sub new {
 		numProvided => $numProvided,
 		order => \@order, 
 		unordered => \@unorder,
-		shuffled_cosets => $shuffled_cosets,
+		shuffled_subsets => $shuffled_subsets,
 		answer_input_id => $answer_input_id,
 		dnd => $dnd,
 		ans_rule => $ans_rule,
@@ -115,7 +115,7 @@ sub Print {
 
 sub cmp {
 	my $self = shift;	
-	return $self->{shuffled_cosets}->cmp(ordered => 0, removeParens => 1)->withPreFilter(sub {$self->prefilter(@_)});
+	return $self->{shuffled_subsets}->cmp(ordered => 0, removeParens => 1)->withPreFilter(sub {$self->prefilter(@_)});
 }
 
 sub prefilter {
