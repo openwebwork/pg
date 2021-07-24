@@ -91,11 +91,11 @@ sub new {
 
 sub addBucket {    
     my $self = shift; 
-        
-    my $indices = shift || [];
-	my $label = shift || '';
+    
+    my $indices = shift;
 	
 	my %options = (
+	label => "",
 	removable => 0,
 	@_
     );
@@ -107,7 +107,7 @@ sub addBucket {
         indices => $indices,
         list => [ map { $self->{aggregate_list}->[$_] } @$indices ],
         bucket_id => $bucket_id,
-        label => $label,
+		label => $options{label},
         removable => $options{removable},
     };
     push(@{$self->{bucket_list}}, $bucket);
