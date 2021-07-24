@@ -73,21 +73,21 @@ sub new {
 	
 	if ($previous eq "") {
 		if ($self->{NumBuckets} == 2) {
-			$dnd->addBucket([0..$numProvided-1], $options{'SourceLabel'});
+			$dnd->addBucket([0..$numProvided-1], label => $options{'SourceLabel'});
 			$dnd->addBucket([], $options{'TargetLabel'});
 		} elsif ($self->{NumBuckets} == 1) {
-			$dnd->addBucket([0..$numProvided-1], $options{'TargetLabel'});
+			$dnd->addBucket([0..$numProvided-1], label => $options{'TargetLabel'});
 		}
 	} else {
 		my @matches = ( $previous =~ /(\(\d*(?:,\d+)*\))+/g );
 		if ($self->{NumBuckets} == 2) {
 			my $indices1 = [ split(',', @matches[0] =~ s/\(|\)//gr) ];		
-			$dnd->addBucket($indices1, $options{'SourceLabel'});		
+			$dnd->addBucket($indices1, label => $options{'SourceLabel'});		
 			my $indices2 = [ split(',', @matches[1] =~ s/\(|\)//gr) ];
-			$dnd->addBucket($indices2, $options{'TargetLabel'});
+			$dnd->addBucket($indices2, label => $options{'TargetLabel'});
 		} else {
 			my $indices1 = [ split(',', @matches[0] =~ s/\(|\)//gr) ];
-			$dnd->addBucket($indices1, $options{'TargetLabel'});
+			$dnd->addBucket($indices1, label => $options{'TargetLabel'});
 		}
 	}
 		
