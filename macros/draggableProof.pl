@@ -1,6 +1,6 @@
 loadMacros("PGchoicemacros.pl",
 "MathObjects.pl",
-"levenshtein.pl",
+# "levenshtein.pl",
  );
 
 sub _draggableProof_init {
@@ -120,6 +120,22 @@ sub _LeitfadenToMatrix { # for internal use
     return [ @matrix ];
 }
 
+sub _levenshtein { # for internal use
+    my @ar1 = split /$_[2]/, $_[0];
+    my @ar2 = split /$_[2]/, $_[1];
+    
+    my @dist = ([0 .. @ar2]);
+    $dist[$_][0] = $_ for (1 .. @ar1);
+
+    for my $i (0 .. $#ar1) {
+        for my $j (0 .. $#ar2) {
+            $dist[$i+1][$j+1] = main::min($dist[$i][$j+1] + 1, $dist[$i+1][$j] + 1,
+            $dist[$i][$j] + ($ar1[$i] ne $ar2[$j]) );
+        }
+    }
+    main::min(1, $dist[-1][-1]/(@ar1));
+}
+
 sub Print {
 	my $self = shift;
 
@@ -167,7 +183,7 @@ sub filter {
     $anshash->{student_formula} = $anshash->{student_ans};		
     
     if ($self->{Levenshtein} == 1) {
-        $anshash->{score} = 1 - levenshtein::levenshtein($correct, $actual_answer, ',');
+        $anshash->{score} = 1 - _levenshtein($correct, $actual_answer, ',');
     } elsif ($self->{Leitfaden} ne "") {        
         my @student_indices = map { $self->{order}[$_]} split(',', $actual_answer);
         my @inference_matrix = @{ $self->{inference_matrix} };
