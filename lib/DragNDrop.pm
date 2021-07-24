@@ -1,24 +1,69 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
-# 
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-# 
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
-
-# This is a Perl module which simplifies and automates the process of generating
-# simple images using TikZ, and converting them into a web-useable format.  Its
-# typical usage is via the macro PGtikz.pl and is documented there.
-
 use strict;
 use warnings;
+
+################################################################
+=pod
+=head1 NAME
+DragNDrop.pm - Drag-And-Drop Module
+  
+=head1 DESCRIPTION
+DragNDrop.pm is a backend Perl module which facilitates the implementation of 
+'Drag-And-Drop' in WeBWorK problems. It is meant to be used in tandem with other perl macros
+such as draggableProof.pl.
+
+=head1 TERMINOLOGY
+An HTML element into or out of which other elements may be dragged will be called a "bucket".
+An HTML element which houses a collection of buckets will be called a "bucket pool".
+
+=head1 USAGE
+Each macro aiming to implement drag-n-drop features must call at its initialization:
+ADD_CSS_FILE("https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.css", 1);
+ADD_JS_FILE("https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.js", 1);
+ADD_CSS_FILE("js/apps/DragNDrop/dragndrop.css", 0);
+ADD_JS_FILE("js/apps/DragNDrop/dragndrop.js", 0, { defer => undef });
+
+To initialize a bucket pool, do:
+
+my $bucket_pool = new DragNDrop($answer_input_id, $aggregate_list);
+
+$answer_input_id is a unique identifier for the bucket_pool, it is recommended that
+it be generated with NEW_HIDDEN_ANS_NAME.
+
+$aggregate_list is a reference to an array of all "statements" intended to be draggable.
+e.g. $aggregate_list = ['socrates is a man', 'all men are mortal', 'therefore socrates is mortal']
+It is imperative that square brackets be used.
+
+################################################################
+OPTIONAL: DragNDrop($answer_input_id, $aggregate_list, AllowNewBuckets => 1);
+allows student to create new buckets by clicking on a button.
+################################################################
+
+To add a bucket to an existing pool $bucket_pool, do:
+$bucket_pool->addBucket($indices);
+
+$indices is the reference to the array of indices corresponding to the statements in $aggregate_list
+to be pre-included in the bucket. 
+For example, if the $aggregate_list is ['Socrates is a man', 'all men are mortal', 'therefore Socrates is mortal'],
+and the bucket consists of  { 'Socrates is a man', 'therefore Socrates is mortal' },
+then $indices = (0, 2).
+
+An empty argument, e.g. $bucket_pool->addBucket(), gives an empty bucket.
+
+################################################################
+OPTIONAL: $bucket_pool->addBucket($indices, label => 'Barrel')
+puts the label 'Barrel' at the top of the bucket.
+################################################################
+
+To output the bucket pool to HTML, call:
+$bucket_pool->HTML
+
+To output the bucket pool to LaTeX, call:
+$bucket_pool->TeX
+
+=head1 EXAMPLES
+See draggableProof.pl and draggableSubsets.pl
+=cut
+################################################################
 
 package DragNDrop;
 
@@ -26,9 +71,9 @@ sub new {
 	my $self = shift; 
     my $class = ref($self) || $self;
     
-    my $answer_input_id = shift;
-    my $aggregate_list = shift;
-    my $default_buckets = shift;
+    my $answer_input_id = shift; # 'id' of html <input> tag corresponding to the answer blank. Must be unique to each pool of DragNDrop buckets
+    my $aggregate_list = shift; # array of all statements provided
+    my $default_buckets = shift; # instructor-provided default buckets with pre-included statements encoded by the array of corresponding statement indices
     my %options = (
 		AllowNewBuckets => 0,
 		@_
@@ -48,16 +93,17 @@ sub new {
 
 sub addBucket {    
     my $self = shift; 
+        
+    my $indices = shift || [];
     
-    my $bucket_id = $self->{bucket_id}++;
-    
-    my $indices = shift;
-    my $label = shift; 
-    my %options = (
+	my %options = (
+	    label => '',
 		removable => 0,
 		@_
-	);  
-    
+	);
+	
+	my $bucket_id = $self->{bucket_id}++;
+    		
     my $bucket = {
         indices => $indices,
         list => [ map { $self->{aggregate_list}->[$_] } @$indices ],
@@ -75,7 +121,7 @@ sub HTML {
     my $out = '';
     $out .= "<div class='bucket_pool' data-ans='$self->{answer_input_id}'>";
         
-    # default buckets;
+    # buckets from instructor-defined default settings
     for (my $i = 0; $i < @{ $self->{default_buckets} }; $i++) {
         my $default_bucket = $self->{default_buckets}->[$i];
         $out .= "<div class='hidden default bucket' data-bucket-id='$i' data-removable='$default_bucket->{removable}'>";
@@ -87,9 +133,8 @@ sub HTML {
         $out .= "</ol></div>";
     }
     
-    # for (my $i = 0; $i < @{$self->{bucket_list}}; $i++) 
-	for my $bucket ( @{$self->{bucket_list}} ) {
-        # my $bucket = $self->{bucket_list}->[$i];		
+	# buckets from past answers
+    for my $bucket ( @{$self->{bucket_list}} ) {
         $out .= "<div class='hidden past_answers bucket' data-bucket-id='$bucket->{bucket_id}' data-removable='$bucket->{removable}'>";
         $out .= "<div class='label'>$bucket->{label}</div>"; 
         $out .= "<ol class='answer'>";
