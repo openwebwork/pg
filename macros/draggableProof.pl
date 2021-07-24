@@ -1,7 +1,3 @@
-# Done: show possible choices in TeX mode
-# To do: display student answers and correct answers in TeX mode properly.
-# To do: put jquery.nestable.js in a universal spot on every webwork server.
-
 loadMacros("PGchoicemacros.pl",
 "MathObjects.pl",
 "levenshtein.pl",
@@ -28,6 +24,8 @@ sub new {
 		TargetLabel => "Your Proof:",
 		NumBuckets => 2,
 		Levenshtein => 0,
+        Leitfaden => '',
+        InferenceMatrix => [],
 		@_
 	);
 	
@@ -41,7 +39,6 @@ sub new {
 	
 	my $answer_input_id = main::NEW_ANS_NAME() unless $self->{answer_input_id};
 	my $ans_rule = main::NAMED_HIDDEN_ANS_RULE($answer_input_id);
-	# warn main::pretty_print $ans_rule;
 	
 	my $dnd;
 	if ($options{NumBuckets} == 2) {
@@ -53,8 +50,15 @@ sub new {
 	my $proof = $options{NumBuckets} == 2 ? 
 	main::List(main::List(@unorder[$numNeeded .. $numProvided - 1]), main::List(@unorder[0..$numNeeded-1]))
 	: main::List('('.join(',', @unorder[0..$numNeeded-1]).')');
-		
-		
+	
+    
+    my $InferenceMatrix = $options{InferenceMatrix};
+    if (@{ $InferenceMatrix } == 0) {
+        if ($options{Leitfaden} ne '') {            
+            $InferenceMatrix = _LeitfadenToMatrix($options{Leitfaden}, $numProvided);
+        } 
+    }
+
 	$self = bless {
 		lines => $lines,
 		shuffled_lines => $shuffled_lines,
@@ -66,6 +70,7 @@ sub new {
 		answer_input_id => $answer_input_id,
 		dnd => $dnd,
 		ans_rule => $ans_rule,
+        inference_matrix => $InferenceMatrix,
 		%options,
 	}, $class;
 	
@@ -76,10 +81,10 @@ sub new {
 			$dnd->addBucket([0..$numProvided-1], label => $options{'SourceLabel'});
 			$dnd->addBucket([], $options{'TargetLabel'});
 		} elsif ($self->{NumBuckets} == 1) {
-			$dnd->addBucket([0..$numProvided-1], label => $options{'TargetLabel'});
+			$dnd->addBucket([0..$numProvided-1], label =>  $options{'TargetLabel'});
 		}
 	} else {
-		my @matches = ( $previous =~ /(\(\d*(?:,\d+)*\))+/g );
+		my @matches = ( $previous =~ /(\([^\(\)]*\))/g );
 		if ($self->{NumBuckets} == 2) {
 			my $indices1 = [ split(',', @matches[0] =~ s/\(|\)//gr) ];		
 			$dnd->addBucket($indices1, label => $options{'SourceLabel'});		
@@ -92,6 +97,27 @@ sub new {
 	}
 		
 	return $self;
+}
+
+sub _LeitfadenToMatrix { # for internal use
+
+    my $leitfaden = shift;    
+    my $numProvided = shift;
+
+    my @matrix = ();
+
+    for (1..$numProvided) {
+        push(@matrix, [ (0) x $numProvided ]);
+    }
+    
+    my @chains = split(',', $leitfaden);
+    for my $chain ( @chains ) {
+        my @entries = split('>', $chain);
+        for (my $i = 0; $i < @entries - 1; $i++) {
+            $matrix[$entries[$i] - 1]->[$entries[$i + 1] - 1] = 1;
+        }
+    }
+    return [ @matrix ];
 }
 
 sub Print {
@@ -113,40 +139,54 @@ sub Print {
 }
 
 sub cmp {
-	my $self = shift;	
-	if ($self->{Levenshtein} == 0) {
-		return $self->{proof}->cmp(ordered => 1, removeParens => 1)->withPreFilter("erase")->withPostFilter(sub {$self->filter(@_)});
-	} else {
-		return $self->{proof}->cmp(ordered => 1, removeParens => 1)->withPreFilter("erase")->withPostFilter(sub {$self->levenshtein_filter(@_)});
-	}
+	my $self = shift;
+    
+    return $self->{proof}->cmp(ordered => 1, removeParens => 1)->withPreFilter("erase")->withPostFilter(sub {$self->filter(@_)});
 }
 
 sub filter {
-	my $self = shift; my $anshash = shift;
+	my $self = shift; 
+    my $anshash = shift;
 		
 	my @lines = @{$self->{lines}}; 
 	my @order = @{$self->{order}};
 	
 	my $actual_answer = $anshash->{student_ans} =~ s/\(|\)|\s*//gr;
 	my $correct = $anshash->{correct_ans} =~ s/\(|\)|\s*//gr;
-	
 	if ($self->{NumBuckets} == 2) {
 		my @matches = ( $anshash->{student_ans} =~ /(\([^\(\)]*\))/g );
 		$actual_answer = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
 		
 		@matches = ( $anshash->{correct_ans} =~ /(\([^\(\)]*\))/g );
-		$correct = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
-		
-		$anshash->{correct_ans} = main::List($correct); # change to main::Set if order does not matter
-		$anshash->{student_ans} = main::List($actual_answer); # change to main::Set if order does not matter
-		$anshash->{original_student_ans} = $anshash->{student_ans};
-		$anshash->{student_value} = $anshash->{student_ans};
-		$anshash->{student_formula} = $anshash->{student_ans};
-		
-		if ($anshash->{correct_ans} eq $anshash->{student_ans}) {
-			$anshash->{score} = 1;
-		}
+		$correct = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';		
 	}
+    $anshash->{correct_ans} = main::List($correct); # change to main::Set if order does not matter
+    $anshash->{student_ans} = main::List($actual_answer); # change to main::Set if order does not matter
+    $anshash->{original_student_ans} = $anshash->{student_ans};
+    $anshash->{student_value} = $anshash->{student_ans};
+    $anshash->{student_formula} = $anshash->{student_ans};		
+    
+    if ($self->{Levenshtein} == 1) {
+        $anshash->{score} = 1 - levenshtein::levenshtein($correct, $actual_answer, ',');
+    } elsif ($self->{Leitfaden} ne "") {        
+        my @student_indices = map { $self->{order}[$_]} split(',', $actual_answer);
+        my @inference_matrix = @{ $self->{inference_matrix} };
+        my $inference_score = 0;
+        for (my $j = 0; $j < @student_indices; $j++ ) {
+            for (my $i = $j - 1; $i >= 0; $i--)  {
+                $inference_score += $inference_matrix[$student_indices[$i]][$student_indices[$j]];
+            }
+        }
+        my $total = 0;
+        for my $row ( @inference_matrix ) {
+            foreach (@$row) {
+                $total += $_;
+            }
+        }
+        $anshash->{score} = $inference_score / $total;
+    } else {
+        $anshash->{score} = $anshash->{correct_ans} eq $anshash->{student_ans} ? 1 : 0;
+    }
 	
 	my @correct = @lines[map {@order[$_]} split(/,/, $correct)];
 	my @student = @lines[map {@order[$_]} split(',', $actual_answer)];
@@ -159,39 +199,4 @@ sub filter {
 	return $anshash;
 }
 
-sub levenshtein_filter {
-	my $self = shift; my $anshash = shift;
-		
-	my @lines = @{$self->{lines}}; 
-	my @order = @{$self->{order}};
-	
-	my $actual_answer = $anshash->{student_ans} =~ s/\(|\)|\s*//gr;
-	my $correct = $anshash->{correct_ans} =~ s/\(|\)|\s*//gr;
-	
-	if ($self->{NumBuckets} == 2) {
-		my @matches = ( $anshash->{student_ans} =~ /(\([^\(\)]*\))/g );
-		$actual_answer = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
-		
-		@matches = ( $anshash->{correct_ans} =~ /(\([^\(\)]*\))/g );
-		$correct = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
-		
-		$anshash->{correct_ans} = main::List($correct); # change to main::Set if order does not matter
-		$anshash->{student_ans} = main::List($actual_answer); # change to main::Set if order does not matter
-		$anshash->{original_student_ans} = $anshash->{student_ans};
-		$anshash->{student_value} = $anshash->{student_ans};
-		$anshash->{student_formula} = $anshash->{student_ans};
-		
-	}
-	
-	$anshash->{score} = 1 - levenshtein::levenshtein($correct, $actual_answer, ',');
-	 
-	my @correct = @lines[map {@order[$_]} split(/,/, $correct)];
-	my @student = @lines[map {@order[$_]} split(',', $actual_answer)];
-	$anshash->{student_ans} = "(see preview)";
-	$anshash->{preview_latex_string} = "\\begin{array}{l}\\text{".join("}\\\\\\text{",@student)."}\\end{array}";
-    $anshash->{correct_ans_latex_string} = "\\begin{array}{l}\\text{".join("}\\\\\\text{",@correct)."}\\end{array}";
-	# $anshash->{correct_ans} = join("\n\n",@correct);
-    $anshash->{correct_ans} = $correct;
-	return $anshash;
-}
 1;
