@@ -1,6 +1,89 @@
-# Done: show possible choices in TeX mode
-# To do: display student answers and correct answers in TeX mode properly.
-# To do: put jquery.nestable.js in a universal spot on every webwork server.
+################################################################
+=head1 NAME
+draggableSubsets.pl
+  
+=head1 DESCRIPTION
+
+=head1 TERMINOLOGY
+An HTML element into or out of which other elements may be dragged will be called a "bucket".
+An HTML element which houses a collection of buckets will be called a "bucket pool".
+
+=head1 USAGE
+
+=head1 EXAMPLES
+DOCUMENT();
+loadMacros(
+  "PGstandard.pl",
+  "MathObjects.pl",
+  "draggableSubsets.pl",
+);
+
+TEXT(beginproblem());
+$D6 = [
+"\(e\)", #0
+"\(r\)", #1
+"\(r^2\)", #2
+"\(r^3\)", #3
+"\(r^4\)", #4
+"\(r^5\)", #5
+"\(s\)", #6
+"\(sr\)", #7
+"\(sr^2\)", #8
+"\(sr^3\)", #9
+"\(sr^4\)", #10
+"\(sr^5\)", #11
+];
+
+$group = "e, r^3, s, sr^3"; 
+$ans = [
+[0, 3, 6, 9],
+[1, 4, 7, 10],
+[2, 5, 8, 11]
+];
+
+$CorrectProof = DraggableSubsets($D6, $ans, [
+{
+    label => 'coset 1',
+    indices => [ 1, 3, 4, 5, 6, 7, 8, 9, 10, 11 ],
+    removable => 0
+},
+{
+    label => 'coset 2',
+    indices => [ 0 ],
+    removable => 1
+},
+{
+    label => 'coset 3',
+    indices => [ 2 ],
+    removable => 1
+}
+]);
+
+Context()->texStrings;
+
+BEGIN_TEXT
+
+Let \[
+G=D_6=\lbrace e,r,r^2,r^3,r^4,r^5,s,sr,sr^2,sr^3,sr^4,sr^5\rbrace
+\]
+be the Dihedral group of order \(12\), where \(r\) is rotation by \(2\pi/6\), and \(s\) is the reflection across the \(x\)-axis.
+
+Partition \(G=D_6\) into $BBOLD right $EBOLD cosets of the subgroup
+\(H=\lbrace $group \rbrace\).  Give your result by dragging the following elements into separate buckets, each corresponding to a coset.
+
+$PAR
+\{ $CorrectProof->Print \}
+
+END_TEXT
+Context()->normalStrings;
+
+# Answer Evaluation
+
+ANS($CorrectProof->cmp);
+
+ENDDOCUMENT();
+=cut
+################################################################
 
 loadMacros(
 "PGchoicemacros.pl",
@@ -59,7 +142,7 @@ sub new {
 	
 	if ($previous eq '') {
 		for my $default_bucket ( @$default_shuffled_buckets ) {
-			$dnd->addBucket($default_bucket->{indices}, label => $default_bucket->{label});
+			$dnd->addBucket($default_bucket->{indices}, $default_bucket->{label});
 		}
 	} else {
 		my @matches = ( $previous =~ /(\(\d*(?:,\d+)*\))+/g );
@@ -68,7 +151,7 @@ sub new {
 			my $indices = [ split(',', $match) ];
 			my $label = $i < @$default_shuffled_buckets ? $default_shuffled_buckets->[$i]->{label} : '';
 			my $removable = $i < @$default_shuffled_buckets ? $default_shuffled_buckets->[$i]->{removable} : 1;
-			$dnd->addBucket($indices, label => $label, removable => $removable);
+			$dnd->addBucket($indices, $label, removable => $removable);
 		}
 	}	
 		
@@ -121,7 +204,8 @@ sub cmp {
 sub prefilter {
 	my $self = shift; my $anshash = shift;	
 	
-	my @student = ( $anshash->{original_student_ans} =~ /(\(\d*(?:,\s*\d+)*\)|\d+)/g );
+	# my @student = ( $anshash->{original_student_ans} =~ /(\(\d*(?:,\s*\d+)*\)|\d+)/g );
+	my @student = ( $anshash->{original_student_ans} =~ /(\([^\(\)]*\))/g );
 	
 	my @student_ans_array;
 	for my $match ( @student ) {
