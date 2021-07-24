@@ -131,8 +131,7 @@ sub filter {
 	my $correct = $anshash->{correct_ans} =~ s/\(|\)|\s*//gr;
 	
 	if ($self->{NumBuckets} == 2) {
-		# my @matches = ( $anshash->{student_ans} =~ /(\(\d*(?:,\s*\d+)*\)|\d+)/g );
-        my @matches = ( $anshash->{student_ans} =~ /(\([^\(\)]*\))/g );
+		my @matches = ( $anshash->{student_ans} =~ /(\([^\(\)]*\))/g );
 		$actual_answer = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
 		
 		@matches = ( $anshash->{correct_ans} =~ /(\([^\(\)]*\))/g );
@@ -170,8 +169,7 @@ sub levenshtein_filter {
 	my $correct = $anshash->{correct_ans} =~ s/\(|\)|\s*//gr;
 	
 	if ($self->{NumBuckets} == 2) {
-		# my @matches = ( $anshash->{student_ans} =~ /(\(\d*(?:,\s*\d+)*\)|\d+)/g );
-        my @matches = ( $anshash->{student_ans} =~ /(\([^\(\)]*\))/g );
+		my @matches = ( $anshash->{student_ans} =~ /(\([^\(\)]*\))/g );
 		$actual_answer = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
 		
 		@matches = ( $anshash->{correct_ans} =~ /(\([^\(\)]*\))/g );

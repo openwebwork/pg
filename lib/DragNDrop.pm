@@ -1,8 +1,3 @@
-use strict;
-use warnings;
-
-################################################################
-=pod
 =head1 NAME
 DragNDrop.pm - Drag-And-Drop Module
   
@@ -47,7 +42,7 @@ For example, if the $aggregate_list is ['Socrates is a man', 'all men are mortal
 and the bucket consists of  { 'Socrates is a man', 'therefore Socrates is mortal' },
 then $indices = (0, 2).
 
-An empty argument, e.g. $bucket_pool->addBucket(), gives an empty bucket.
+An empty array reference, e.g. $bucket_pool->addBucket([]), gives an empty bucket.
 
 ################################################################
 OPTIONAL: $bucket_pool->addBucket($indices, label => 'Barrel')
@@ -64,6 +59,9 @@ $bucket_pool->TeX
 See draggableProof.pl and draggableSubsets.pl
 =cut
 ################################################################
+
+use strict;
+use warnings;
 
 package DragNDrop;
 
@@ -95,15 +93,16 @@ sub addBucket {
     my $self = shift; 
         
     my $indices = shift || [];
-    
+	my $label = shift || '';
+	
 	my %options = (
-	    label => '',
-		removable => 0,
-		@_
-	);
+	removable => 0,
+	@_
+    );
 	
 	my $bucket_id = $self->{bucket_id}++;
-    		
+
+	# warn $options{label};
     my $bucket = {
         indices => $indices,
         list => [ map { $self->{aggregate_list}->[$_] } @$indices ],
