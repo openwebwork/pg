@@ -19,32 +19,26 @@ loadMacros(
 );
 
 TEXT(beginproblem());
-$D6 = [
+$D3 = [
 "\(e\)", #0
 "\(r\)", #1
 "\(r^2\)", #2
-"\(r^3\)", #3
-"\(r^4\)", #4
-"\(r^5\)", #5
-"\(s\)", #6
-"\(sr\)", #7
-"\(sr^2\)", #8
-"\(sr^3\)", #9
-"\(sr^4\)", #10
-"\(sr^5\)", #11
+"\(s\)", #3
+"\(sr\)", #4
+"\(sr^2\)", #5
 ];
 
-$group = "e, r^3, s, sr^3"; 
+$subgroup = "e, s"; 
 $ans = [
-[0, 3, 6, 9],
-[1, 4, 7, 10],
-[2, 5, 8, 11]
+[0, 3],
+[1, 4],
+[2, 5]
 ];
 
-$CorrectProof = DraggableSubsets($D6, $ans, [
+$CorrectProof = DraggableSubsets($D3, $ans, [
 {
     label => 'coset 1',
-    indices => [ 1, 3, 4, 5, 6, 7, 8, 9, 10, 11 ],
+    indices => [ 1, 3, 4, 5 ],
     removable => 0
 },
 {
@@ -64,12 +58,12 @@ Context()->texStrings;
 BEGIN_TEXT
 
 Let \[
-G=D_6=\lbrace e,r,r^2,r^3,r^4,r^5,s,sr,sr^2,sr^3,sr^4,sr^5\rbrace
+G=D_3=\lbrace e,r,r^2, s,sr,sr^2 \rbrace
 \]
-be the Dihedral group of order \(12\), where \(r\) is rotation by \(2\pi/6\), and \(s\) is the reflection across the \(x\)-axis.
+be the Dihedral group of order \(6\), where \(r\) is rotation by \(2\pi/3\), and \(s\) is the reflection across the \(x\)-axis.
 
-Partition \(G=D_6\) into $BBOLD right $EBOLD cosets of the subgroup
-\(H=\lbrace $group \rbrace\).  Give your result by dragging the following elements into separate buckets, each corresponding to a coset.
+Partition \(G=D_3\) into $BBOLD right $EBOLD cosets of the subgroup
+\(H=\lbrace $subgroup \rbrace\).  Give your result by dragging the following elements into separate buckets, each corresponding to a coset.
 
 $PAR
 \{ $CorrectProof->Print \}
@@ -145,7 +139,7 @@ sub new {
 			$dnd->addBucket($default_bucket->{indices}, label => $default_bucket->{label});
 		}
 	} else {
-		my @matches = ( $previous =~ /(\(\d*(?:,\d+)*\))+/g );
+		my @matches = ( $previous =~ /(\([^\(\)]*\)|\d+)+/g );
 		for(my $i = 0; $i < @matches; $i++) {
 			my $match = @matches[$i] =~ s/\(|\)//gr;			
 			my $indices = [ split(',', $match) ];
@@ -198,13 +192,13 @@ sub Print {
 
 sub cmp {
 	my $self = shift;	
-	return $self->{shuffled_subsets}->cmp(ordered => 0, removeParens => 1)->withPreFilter(sub {$self->prefilter(@_)});
+	return $self->{shuffled_subsets}->cmp(ordered => 0, removeParens => 1)->withPreFilter(sub {$self->prefilter(@_)})->withPostFilter(sub {$self->filter(@_)});
 }
 
 sub prefilter {
 	my $self = shift; my $anshash = shift;	
 	
-	my @student = ( $anshash->{original_student_ans} =~ /(\([^\(\)]*\))/g );
+	my @student = ( $anshash->{original_student_ans} =~ /(\([^\(\)]*\)|\d+)/g );
 	
 	my @student_ans_array;
 	for my $match ( @student ) {
@@ -212,6 +206,26 @@ sub prefilter {
 	}
 	
 	$anshash->{student_ans} = main::List(@student_ans_array);
+		
+	return $anshash;
+}
+
+sub filter {
+	my $self = shift; my $anshash = shift;	
+	
+	my @order = @{ $self->{order} };
+	my @student = ( $anshash->{original_student_ans} =~ /(\([^\(\)]*\)|\d+)/g );
+	
+	my @student_ans_array;
+	for my $match ( @student ) {
+		push(@student_ans_array, main::Set($match =~ s/\(|\)//gr));
+	}
+	
+	$anshash->{preview_latex_string} = join (",", map { 
+		"\\{\\text{".join(",", (map { 
+			$self->{shuffled_set}->[$_] 
+		} (split(',', $_ =~ s/{|}//gr)) ))."}\\}" 
+	} @student_ans_array);
 	
 	return $anshash;
 }
