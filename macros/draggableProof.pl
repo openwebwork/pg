@@ -23,6 +23,7 @@ sub new {
     TargetLabel => "Your Proof:",
     NumBuckets => 2,
     Levenshtein => 0,
+    DamerauLevenshtein => 0,
     Leitfaden => '',
     InferenceMatrix => [],
     @_
@@ -50,11 +51,10 @@ sub new {
     main::List(main::List(@unorder[$numNeeded .. $numProvided - 1]), main::List(@unorder[0..$numNeeded-1]))
     : main::List('('.join(',', @unorder[0..$numNeeded-1]).')');
     
-    
     my $InferenceMatrix = $options{InferenceMatrix};
     if (@{ $InferenceMatrix } == 0) {
         if ($options{Leitfaden} ne '') {            
-            $InferenceMatrix = _LeitfadenToMatrix($options{Leitfaden}, $numProvided);
+            $InferenceMatrix = LeitfadenToMatrix($options{Leitfaden}, $numProvided);
         } 
     }
     
@@ -98,41 +98,88 @@ sub new {
     return $self;
 }
 
-sub _LeitfadenToMatrix { # for internal use
-
-my $leitfaden = shift;    
-my $numProvided = shift;
-
-my @matrix = ();
-
-for (1..$numProvided) {
-    push(@matrix, [ (0) x $numProvided ]);
-}
-
-my @chains = split(',', $leitfaden);
-for my $chain ( @chains ) {
-    my @entries = split('>', $chain);
-    for (my $i = 0; $i < @entries - 1; $i++) {
-        $matrix[$entries[$i] - 1]->[$entries[$i + 1] - 1] = 1;
+sub LeitfadenToMatrix {
+    my $leitfaden = shift;    
+    my $numProvided = shift;
+    
+    my @matrix = ();
+    
+    for (1..$numProvided) {
+        push(@matrix, [ (0) x $numProvided ]);
     }
-}
-return [ @matrix ];
-}
-
-sub _levenshtein { # for internal use
-my @ar1 = split /$_[2]/, $_[0];
-my @ar2 = split /$_[2]/, $_[1];
-
-my @dist = ([0 .. @ar2]);
-$dist[$_][0] = $_ for (1 .. @ar1);
-
-for my $i (0 .. $#ar1) {
-    for my $j (0 .. $#ar2) {
-        $dist[$i+1][$j+1] = main::min($dist[$i][$j+1] + 1, $dist[$i+1][$j] + 1,
-        $dist[$i][$j] + ($ar1[$i] ne $ar2[$j]) );
+    
+    my @chains = split(',', $leitfaden);
+    for my $chain ( @chains ) {
+        my @entries = split('>', $chain);
+        for (my $i = 0; $i < @entries - 1; $i++) {
+            $matrix[$entries[$i] - 1]->[$entries[$i + 1] - 1] = 1;
+        }
     }
+    return [ @matrix ];
 }
-main::min(1, $dist[-1][-1]/(@ar1));
+
+sub Levenshtein {    
+    my @ar1 = split /$_[2]/, $_[0];
+    my @ar2 = split /$_[2]/, $_[1];
+    
+    my @dist = ([0 .. @ar2]);
+    $dist[$_][0] = $_ for (1 .. @ar1);
+    
+    for my $i (0 .. $#ar1) {
+        for my $j (0 .. $#ar2) {
+            $dist[$i+1][$j+1] = main::min($dist[$i][$j+1] + 1, $dist[$i+1][$j] + 1,
+            $dist[$i][$j] + ($ar1[$i] ne $ar2[$j]) );
+        }
+    }
+    main::min(1, $dist[-1][-1]/(@ar1));
+}
+
+sub DamerauLevenshtein {
+    # Damerau–Levenshtein distance with adjacent transpositions
+    # https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
+    
+    my $discourse1 = shift;
+    my $discourse2 = shift;
+    my $delimiter = shift;
+    my $numProvided = shift;
+    
+    my @ar1 = split /$delimiter/, $discourse1;
+    my @ar2 = split /$delimiter/, $discourse2;
+    
+    my @da = (0) x $numProvided;    
+    my @d = ();
+    
+    my $maxdist = @ar1 + @ar2;
+    for my $i (1 .. @ar1 + 1) {
+        push(@d, [ (0) x (@ar2 + 2) ] );
+        $d[$i][0] = $maxdist;
+        $d[$i][1] = $i - 1;
+    }
+    for my $j (1 .. @ar2 + 1) {
+        $d[0][$j] = $maxdist;
+        $d[1][$j] = $j - 1;
+    }
+    my $db;
+    for my $i (2 .. @ar1 + 1) {
+        $db = 0;
+        my $k, $l, $cost;
+        for my $j (2 .. @ar2 + 1) {
+            $k = $da[$ar2[$j - 2]];
+            $l = $db;
+            if ($ar1[$i - 2] == $ar2[$j - 2]) {
+                $cost = 0;
+                $db = $j;
+            } else {
+                $cost = 1;
+            }
+            $d[$i][$j] = main::min($d[$i-1][$j-1] + $cost,
+            $d[$i][$j-1] + 1,
+            $d[$i-1][$j] + 1,
+            $d[$k-1][$l-1] + ($i - $k - 1) + 1 + ($j - $l - 1));
+        }
+        $da[$ar1[$i - 2]] = $i;
+    }
+    main::min(1, $d[-1][-1]/(@ar1));
 }
 
 sub Print {
@@ -140,17 +187,19 @@ sub Print {
     
     my $ans_rule = $self->{ans_rule};
     
-    if ($main::displayMode ne "TeX") { # HTML mode
-    return join("\n",
-    '<div style="min-width:750px;">',
-    $ans_rule,
-    $self->{dnd}->HTML,
-    '<br clear="all" />',
-    '</div>',
-    );
-} else { # TeX mode
-return $self->{dnd}->TeX;
-}
+    if ($main::displayMode ne "TeX") {
+        # HTML mode
+        return join("\n",
+        '<div style="min-width:750px;">',
+        $ans_rule,
+        $self->{dnd}->HTML,
+        '<br clear="all" />',
+        '</div>',
+        );
+    } else {
+        # TeX mode
+        return $self->{dnd}->TeX;
+    }
 }
 
 sub cmp {
@@ -182,8 +231,10 @@ sub filter {
     $anshash->{student_formula} = $anshash->{student_ans};		
     
     if ($self->{Levenshtein} == 1) {
-        $anshash->{score} = 1 - _levenshtein($correct, $actual_answer, ',');
-    } elsif ($self->{Leitfaden} ne "") {        
+        $anshash->{score} = 1 - Levenshtein($correct, $actual_answer, ',');
+    } elsif ($self->{DamerauLevenshtein} == 1) {
+        $anshash->{score} = 1 - DamerauLevenshtein($correct, $actual_answer, ',', $self->{numProvided});
+    } elsif (@{ $self->{inference_matrix} } != 0) {        
         my @student_indices = map { $self->{order}[$_]} split(',', $actual_answer);
         my @inference_matrix = @{ $self->{inference_matrix} };
         my $inference_score = 0;
@@ -213,5 +264,4 @@ sub filter {
     
     return $anshash;
 }
-
 1;
