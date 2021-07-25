@@ -145,7 +145,11 @@ sub new {
 			my $indices = [ split(',', $match) ];
 			my $label = $i < @$default_shuffled_buckets ? $default_shuffled_buckets->[$i]->{label} : '';
 			my $removable = $i < @$default_shuffled_buckets ? $default_shuffled_buckets->[$i]->{removable} : 1;
-			$dnd->addBucket($indices, label => $label, removable => $removable);
+			if ($indices->[0] >= 0) {
+				$dnd->addBucket($indices, label => $label, removable => $removable);
+			} else {
+				$dnd->addBucket([], label => $label, removable => $removable);
+			}
 		}
 	}	
 		
@@ -202,7 +206,11 @@ sub prefilter {
 	
 	my @student_ans_array;
 	for my $match ( @student ) {
-		push(@student_ans_array, main::Set($match =~ s/\(|\)//gr));
+		if ($match eq "\(\)") {
+			push(@student_ans_array, main::Set('{}'));
+		} else {
+			push(@student_ans_array, main::Set($match =~ s/\(|\)//gr));
+		}
 	}
 	
 	$anshash->{student_ans} = main::List(@student_ans_array);
@@ -223,7 +231,7 @@ sub filter {
 	
 	$anshash->{preview_latex_string} = join (",", map { 
 		"\\{\\text{".join(",", (map { 
-			$self->{shuffled_set}->[$_] 
+			$_ >= 0 ? $self->{shuffled_set}->[$_] : ''
 		} (split(',', $_ =~ s/{|}//gr)) ))."}\\}" 
 	} @student_ans_array);
 	
