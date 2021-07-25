@@ -1,3 +1,77 @@
+################################################################
+=head1 NAME
+draggableProof.pl
+  
+=head1 DESCRIPTION
+
+=head1 TERMINOLOGY
+An HTML element into or out of which other elements may be dragged will be called a "bucket".
+An HTML element which houses a collection of buckets will be called a "bucket pool".
+
+=head1 USAGE
+
+=head1 EXAMPLES
+DOCUMENT();
+loadMacros(
+  "PGstandard.pl",
+  "MathObjects.pl",
+  "draggableProof.pl"
+);
+
+TEXT(beginproblem());
+
+$statements = [
+"All men are mortal.", #0
+"Socrates is a man.", #1
+"Socrates is mortal." #2
+];
+
+$extra = [
+"Some animals are men.",
+"Beauty is immortal.",
+"Not all animals are men."
+];
+
+$discourse = DraggableProof(
+$statements,
+$extra,
+NumBuckets => 2, # either 1 or 2
+SourceLabel => "Axioms",
+TargetLabel => "<strong>Reasoning</strong>",
+# Levenshtein => 1,
+# DamerauLevenshtein => 1,
+Leitfaden => "0 > 1, 0 > 2",
+# InferenceMatrix => [
+# [0, 1, 0, 0, 0, 0],
+# [0, 0, 1, 0, 0, 0],
+# [0, 0, 0, 0, 0, 0],
+# [0, 0, 0, 0, 0, 0],
+# [0, 0, 0, 0, 0, 0],
+# [0, 0, 0, 0, 0, 0]
+# ]
+);
+
+Context()->texStrings;
+
+BEGIN_TEXT
+
+Show that Socrates is mortal by dragging the relevant $BBOLD Axioms $EBOLD
+into the $BBOLD Reasoning $EBOLD box in an appropriate order.
+
+$PAR 
+
+\{ $discourse->Print \}
+
+END_TEXT
+Context()->normalStrings;
+
+ANS($discourse->cmp);
+
+
+ENDDOCUMENT();
+=cut
+################################################################
+
 loadMacros("PGchoicemacros.pl",
 "MathObjects.pl",
 );
@@ -16,8 +90,8 @@ sub new {
     my $self = shift; 
     my $class = ref($self) || $self;
     
-    my $proof = shift || []; 
-    my $extra = shift || [];	
+    my $proof = shift; 
+    my $extra = shift;	
     my %options = (
     SourceLabel => "Choose from these sentences:",
     TargetLabel => "Your Proof:",
@@ -29,12 +103,11 @@ sub new {
     @_
     );
     
-    my $lines = [@$proof,@$extra];	
+    my $lines = [ @$proof, @$extra ];
     my $numNeeded = scalar(@$proof);
     my $numProvided = scalar(@$lines);
     my @order = main::shuffle($numProvided);
     my @unorder = main::invert(@order);
-    
     my $shuffled_lines = [ map {$lines->[$_]} @order ];
     
     my $answer_input_id = main::NEW_ANS_NAME() unless $self->{answer_input_id};
@@ -47,9 +120,12 @@ sub new {
         $dnd = new DragNDrop($answer_input_id, $shuffled_lines, [{indices=>[0..$numProvided-1], label=>$options{'TargetLabel'}}], AllowNewBuckets => 0);
     }
     
-    my $proof = $options{NumBuckets} == 2 ? 
-    main::List(main::List(@unorder[$numNeeded .. $numProvided - 1]), main::List(@unorder[0..$numNeeded-1]))
-    : main::List('('.join(',', @unorder[0..$numNeeded-1]).')');
+    my $proof = $options{NumBuckets} == 2 ? main::List(
+    main::List(@unorder[$numNeeded .. $numProvided - 1]),
+    main::List(@unorder[0..$numNeeded-1])
+    ) : main::List('('.join(',', @unorder[0..$numNeeded-1]).')');
+    
+    my $extra = main::Set(@unorder[$numNeeded .. $numProvided - 1]);
     
     my $InferenceMatrix = $options{InferenceMatrix};
     if (@{ $InferenceMatrix } == 0) {
@@ -66,6 +142,7 @@ sub new {
         order => \@order, 
         unorder => \@unorder,
         proof => $proof,
+        extra => $extra,
         answer_input_id => $answer_input_id,
         dnd => $dnd,
         ans_rule => $ans_rule,
@@ -83,7 +160,7 @@ sub new {
             $dnd->addBucket([0..$numProvided-1], label =>  $options{'TargetLabel'});
         }
     } else {
-        my @matches = ( $previous =~ /(\([^\(\)]*\))/g );
+        my @matches = ( $previous =~ /(\([^\(\)]*\)|\d+)/g );
         if ($self->{NumBuckets} == 2) {
             my $indices1 = [ split(',', @matches[0] =~ s/\(|\)//gr) ];		
             $dnd->addBucket($indices1, label => $options{'SourceLabel'});		
@@ -112,7 +189,7 @@ sub LeitfadenToMatrix {
     for my $chain ( @chains ) {
         my @entries = split('>', $chain);
         for (my $i = 0; $i < @entries - 1; $i++) {
-            $matrix[$entries[$i] - 1]->[$entries[$i + 1] - 1] = 1;
+            $matrix[$entries[$i]][$entries[$i + 1]] = 1;
         }
     }
     return [ @matrix ];
@@ -131,7 +208,7 @@ sub Levenshtein {
             $dist[$i][$j] + ($ar1[$i] ne $ar2[$j]) );
         }
     }
-    main::min(1, $dist[-1][-1]/(@ar1));
+    $dist[-1][-1];    
 }
 
 sub DamerauLevenshtein {
@@ -179,7 +256,7 @@ sub DamerauLevenshtein {
         }
         $da[$ar1[$i - 2]] = $i;
     }
-    main::min(1, $d[-1][-1]/(@ar1));
+    $d[-1][-1];
 }
 
 sub Print {
@@ -217,30 +294,31 @@ sub filter {
     
     my $actual_answer = $anshash->{student_ans} =~ s/\(|\)|\s*//gr;
     my $correct = $anshash->{correct_ans} =~ s/\(|\)|\s*//gr;
+    
     if ($self->{NumBuckets} == 2) {
-        my @matches = ( $anshash->{student_ans} =~ /(\([^\(\)]*\))/g );
-        $actual_answer = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
-        
-        @matches = ( $anshash->{correct_ans} =~ /(\([^\(\)]*\))/g );
-        $correct = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';		
+        my @matches = ( $anshash->{student_ans} =~ /(\([^\(\)]*\)|\d+)/g );
+        $actual_answer = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';        
+        @matches = ( $anshash->{correct_ans} =~ /(\([^\(\)]*\)|\d+)/g );
+        $correct = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
     }
+        
     $anshash->{correct_ans} = main::List($correct); # change to main::Set if order does not matter
     $anshash->{student_ans} = main::List($actual_answer); # change to main::Set if order does not matter
     $anshash->{original_student_ans} = $anshash->{student_ans};
     $anshash->{student_value} = $anshash->{student_ans};
-    $anshash->{student_formula} = $anshash->{student_ans};		
+    $anshash->{student_formula} = $anshash->{student_ans};		    
     
     if ($self->{Levenshtein} == 1) {
-        $anshash->{score} = 1 - Levenshtein($correct, $actual_answer, ',');
+        $anshash->{score} = 1 - main::min(1, Levenshtein($correct, $actual_answer, ',')/$self->{numNeeded});
     } elsif ($self->{DamerauLevenshtein} == 1) {
-        $anshash->{score} = 1 - DamerauLevenshtein($correct, $actual_answer, ',', $self->{numProvided});
+        $anshash->{score} = 1 - main::min(1, DamerauLevenshtein($correct, $actual_answer, ',', $self->{numProvided})/$self->{numNeeded});
     } elsif (@{ $self->{inference_matrix} } != 0) {        
         my @student_indices = map { $self->{order}[$_]} split(',', $actual_answer);
         my @inference_matrix = @{ $self->{inference_matrix} };
         my $inference_score = 0;
-        for (my $j = 0; $j < @student_indices; $j++ ) {
+        for (my $j = 0; $j < @student_indices; $j++ ) {            
             for (my $i = $j - 1; $i >= 0; $i--)  {
-                $inference_score += $inference_matrix[$student_indices[$i]][$student_indices[$j]];
+                $inference_score += $inference_matrix[$student_indices[$i]]->[$student_indices[$j]];
             }
         }
         my $total = 0;
@@ -250,18 +328,26 @@ sub filter {
             }
         }
         $anshash->{score} = $inference_score / $total;
+        
+        my %invoked = map { $_ => 1 } split(',', $actual_answer);
+        foreach ( split(',', $self->{extra}->string =~ s/{|}|\s*//gr ) ) {
+            if ( exists($invoked{$_}) ) {
+                $anshash->{ans_message} = 'There is at least one irrelevant statement in your reasoning';
+                $anshash->{score} = $anshash->{score} <= 1/$self->{numNeeded} ? 0 : $anshash->{score} - 1/$self->{numNeeded};
+            }
+        }
     } else {
         $anshash->{score} = $anshash->{correct_ans} eq $anshash->{student_ans} ? 1 : 0;
     }
-    
-    my @correct = @lines[map {@order[$_]} split(/,/, $correct)];
-    my @student = @lines[map {@order[$_]} split(',', $actual_answer)];
+            
+    my @correct = @lines[map {$order[$_]} split(/,/, $correct)];
+    my @student = @lines[map {$order[$_]} split(',', $actual_answer)];
     
     $anshash->{student_ans} = "(see preview)";
-    $anshash->{correct_ans_latex_string} = "\\begin{array}{l}\\text{".join("}\\\\\\text{",@correct)."}\\end{array}";
+    $anshash->{correct_ans_latex_string} = "\\begin{array}{l}\\text{".join("}\\newline\\text{",@correct)."}\\end{array}";
     $anshash->{correct_ans} = join("<br />",@correct);
-    $anshash->{preview_latex_string} = "\\begin{array}{l}\\text{".join("}\\\\\\text{",@student)."}\\end{array}";
-    
+    $anshash->{preview_latex_string} = "\\begin{array}{l}\\text{".join("}\\newline\\text{",@student)."}\\end{array}";
+        
     return $anshash;
 }
 1;
