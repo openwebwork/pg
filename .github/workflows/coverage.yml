@@ -7,21 +7,22 @@ on:
   workflow_dispatch:
 
 jobs:
-  env:
+  code_coverage:
     runs-on: ubuntu-latest
     container: eltenedor/pg-unit-testing:latest
     steps:
       - uses: actions/checkout@v2
       - name: Build project and run tests
         run: |
-          perl -Ilib Build.PL
-          ./Build build
+          perl Build.PL
           cover -test
       - uses: actions/upload-artifact@v2
+        if: always()
         with:
           name: coverage-report
           path: cover_db/
       - name: push coverage analysis
+        if: always()
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: cover -report codecov
