@@ -142,7 +142,7 @@ sub new {
 	
 	if ($previous eq '') {
 		for my $default_bucket ( @$default_shuffled_buckets ) {
-			$dnd->addBucket($default_bucket->{indices}, $default_bucket->{label});
+			$dnd->addBucket($default_bucket->{indices}, label => $default_bucket->{label});
 		}
 	} else {
 		my @matches = ( $previous =~ /(\(\d*(?:,\d+)*\))+/g );
@@ -151,7 +151,7 @@ sub new {
 			my $indices = [ split(',', $match) ];
 			my $label = $i < @$default_shuffled_buckets ? $default_shuffled_buckets->[$i]->{label} : '';
 			my $removable = $i < @$default_shuffled_buckets ? $default_shuffled_buckets->[$i]->{removable} : 1;
-			$dnd->addBucket($indices, $label, removable => $removable);
+			$dnd->addBucket($indices, label => $label, removable => $removable);
 		}
 	}	
 		
@@ -204,7 +204,6 @@ sub cmp {
 sub prefilter {
 	my $self = shift; my $anshash = shift;	
 	
-	# my @student = ( $anshash->{original_student_ans} =~ /(\(\d*(?:,\s*\d+)*\)|\d+)/g );
 	my @student = ( $anshash->{original_student_ans} =~ /(\([^\(\)]*\))/g );
 	
 	my @student_ans_array;
