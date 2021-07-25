@@ -139,7 +139,7 @@ sub new {
 			$dnd->addBucket($default_bucket->{indices}, label => $default_bucket->{label});
 		}
 	} else {
-		my @matches = ( $previous =~ /(\([^\(\)]*\)|\d+)+/g );
+		my @matches = ( $previous =~ /(\([^\(\)]*\)|-?\d+)+/g );
 		for(my $i = 0; $i < @matches; $i++) {
 			my $match = @matches[$i] =~ s/\(|\)//gr;			
 			my $indices = [ split(',', $match) ];
@@ -202,7 +202,7 @@ sub cmp {
 sub prefilter {
 	my $self = shift; my $anshash = shift;	
 	
-	my @student = ( $anshash->{original_student_ans} =~ /(\([^\(\)]*\)|\d+)/g );
+	my @student = ( $anshash->{original_student_ans} =~ /(\([^\(\)]*\)|-?\d+)/g );
 	
 	my @student_ans_array;
 	for my $match ( @student ) {
@@ -222,7 +222,7 @@ sub filter {
 	my $self = shift; my $anshash = shift;	
 	
 	my @order = @{ $self->{order} };
-	my @student = ( $anshash->{original_student_ans} =~ /(\([^\(\)]*\)|\d+)/g );
+	my @student = ( $anshash->{original_student_ans} =~ /(\([^\(\)]*\)|-?\d+)/g );
 	
 	my @student_ans_array;
 	for my $match ( @student ) {

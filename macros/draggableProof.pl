@@ -162,13 +162,25 @@ sub new {
     } else {
         my @matches = ( $previous =~ /(\([^\(\)]*\)|\d+)/g );
         if ($self->{NumBuckets} == 2) {
-            my $indices1 = [ split(',', @matches[0] =~ s/\(|\)//gr) ];		
-            $dnd->addBucket($indices1, label => $options{'SourceLabel'});		
+            my $indices1 = [ split(',', @matches[0] =~ s/\(|\)//gr) ];	
+            if ($indices1->[0] >= 0) {
+				$dnd->addBucket($indices1, label => $options{'SourceLabel'});
+            } else {
+                $dnd->addBucket([], label => $options{'SourceLabel'}, removable => $removable);
+            }
             my $indices2 = [ split(',', @matches[1] =~ s/\(|\)//gr) ];
-            $dnd->addBucket($indices2, label => $options{'TargetLabel'});
+            if ($indices2->[0] >= 0) {
+                $dnd->addBucket($indices2, label => $options{'TargetLabel'});
+            } else {
+                $dnd->addBucket([], label => $options{'TargetLabel'}, removable => $removable);
+            }
         } else {
             my $indices1 = [ split(',', @matches[0] =~ s/\(|\)//gr) ];
-            $dnd->addBucket($indices1, label => $options{'TargetLabel'});
+            if ($indices1->[0] >= 0) {
+                $dnd->addBucket($indices1, label => $options{'TargetLabel'});
+            } else {
+                $dnd->addBucket([], label => $options{'TargetLabel'});
+            }
         }
     }
     
@@ -281,7 +293,6 @@ sub Print {
 
 sub cmp {
     my $self = shift;
-    
     return $self->{proof}->cmp(ordered => 1, removeParens => 1)->withPreFilter("erase")->withPostFilter(sub {$self->filter(@_)});
 }
 
@@ -296,9 +307,9 @@ sub filter {
     my $correct = $anshash->{correct_ans} =~ s/\(|\)|\s*//gr;
     
     if ($self->{NumBuckets} == 2) {
-        my @matches = ( $anshash->{student_ans} =~ /(\([^\(\)]*\)|\d+)/g );
+        my @matches = ( $anshash->{student_ans} =~ /(\([^\(\)]*\)|-?\d+)/g );
         $actual_answer = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';        
-        @matches = ( $anshash->{correct_ans} =~ /(\([^\(\)]*\)|\d+)/g );
+        @matches = ( $anshash->{correct_ans} =~ /(\([^\(\)]*\)|-?\d+)/g );
         $correct = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
     }
         
@@ -312,7 +323,7 @@ sub filter {
         $anshash->{score} = 1 - main::min(1, Levenshtein($correct, $actual_answer, ',')/$self->{numNeeded});
     } elsif ($self->{DamerauLevenshtein} == 1) {
         $anshash->{score} = 1 - main::min(1, DamerauLevenshtein($correct, $actual_answer, ',', $self->{numProvided})/$self->{numNeeded});
-    } elsif (@{ $self->{inference_matrix} } != 0) {        
+    } elsif (@{ $self->{inference_matrix} } != 0) {
         my @student_indices = map { $self->{order}[$_]} split(',', $actual_answer);
         my @inference_matrix = @{ $self->{inference_matrix} };
         my $inference_score = 0;
@@ -333,15 +344,16 @@ sub filter {
         foreach ( split(',', $self->{extra}->string =~ s/{|}|\s*//gr ) ) {
             if ( exists($invoked{$_}) ) {
                 $anshash->{ans_message} = 'There is at least one irrelevant statement in your reasoning';
-                $anshash->{score} = $anshash->{score} <= 1/$self->{numNeeded} ? 0 : $anshash->{score} - 1/$self->{numNeeded};
+                $anshash->{score} = $anshash->{score} <= 1/$total ? 0 : $anshash->{score} - 1/$total;
             }
         }
     } else {
         $anshash->{score} = $anshash->{correct_ans} eq $anshash->{student_ans} ? 1 : 0;
     }
             
-    my @correct = @lines[map {$order[$_]} split(/,/, $correct)];
-    my @student = @lines[map {$order[$_]} split(',', $actual_answer)];
+    my @correct = map { $_ >= 0 ? $lines[$order[$_]] : '' } split(',', $correct);
+    my @student = map { $_ >= 0 ? $lines[$order[$_]] : '' } split(',', $actual_answer);
+    
     
     $anshash->{student_ans} = "(see preview)";
     $anshash->{correct_ans_latex_string} = "\\begin{array}{l}\\text{".join("}\\newline\\text{",@correct)."}\\end{array}";
