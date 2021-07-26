@@ -18,7 +18,7 @@ jobs:
           cp -R . /opt/webwork/pg
           cd /opt/webwork/pg
           pwd
-          ls
+          ls /opt/webwork/webwork2/conf
           perl Build.PL
           cover -test
       - uses: actions/upload-artifact@v2

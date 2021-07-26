@@ -1,14 +1,12 @@
 lib/chromatic/color*.bak
-MANIFEST
+*.bak
 # Created by https://www.toptal.com/developers/gitignore/api/perl
 # Edit at https://www.toptal.com/developers/gitignore?templates=perl
 
 ### Perl ###
 !Build/
 .last_cover_stats
-/META.yml
-/META.json
-/MYMETA.*
+MYMETA.*
 *.o
 *.pm.tdy
 *.bs
@@ -36,7 +34,7 @@ inc/
 /*.gz
 /Makefile
 /Makefile.old
-/MANIFEST.bak
+/MANIFEST*.bak
 /pm_to_blib
 /*.zip
 
