@@ -145,11 +145,7 @@ sub new {
 			my $indices = [ split(',', $match) ];
 			my $label = $i < @$default_shuffled_buckets ? $default_shuffled_buckets->[$i]->{label} : '';
 			my $removable = $i < @$default_shuffled_buckets ? $default_shuffled_buckets->[$i]->{removable} : 1;
-			if ($indices->[0] >= 0) {
-				$dnd->addBucket($indices, label => $label, removable => $removable);
-			} else {
-				$dnd->addBucket([], label => $label, removable => $removable);
-			}
+			$dnd->addBucket($indices->[0] != -1 ? $indices : [], label => $label, removable => $removable);
 		}
 	}	
 		
@@ -181,7 +177,8 @@ sub Print {
 	
 	my $ans_rule = $self->{ans_rule};
 	
-	if ($main::displayMode ne "TeX") { # HTML mode
+	if ($main::displayMode ne "TeX") {
+		# HTML mode
 		return join("\n",
 			'<div style="min-width:750px;">',
 			$ans_rule,
@@ -189,20 +186,21 @@ sub Print {
 			'<br clear="all" />',
 			'</div>',
 		);
-	} else { # TeX mode
+	} else {
+		# TeX mode
 	    return $self->{dnd}->TeX;		
 	}
 }
 
 sub cmp {
 	my $self = shift;	
-	return $self->{shuffled_subsets}->cmp(ordered => 0, removeParens => 1)->withPreFilter(sub {$self->prefilter(@_)})->withPostFilter(sub {$self->filter(@_)});
+	return $self->{shuffled_subsets}->cmp(ordered => 0, removeParens => 1, partialCredit => 1)->withPreFilter(sub {$self->prefilter(@_)})->withPostFilter(sub {$self->filter(@_)});
 }
 
 sub prefilter {
 	my $self = shift; my $anshash = shift;	
 	
-	my @student = ( $anshash->{original_student_ans} =~ /(\([^\(\)]*\)|-?\d+)/g );
+	my @student = ( $anshash->{original_student_ans} =~ /(\([^\(\)]*\)|-?\d+)/g );	
 	
 	my @student_ans_array;
 	for my $match ( @student ) {
@@ -223,17 +221,21 @@ sub filter {
 	
 	my @order = @{ $self->{order} };
 	my @student = ( $anshash->{original_student_ans} =~ /(\([^\(\)]*\)|-?\d+)/g );
+	my @correct = ( $anshash->{correct_ans} =~ /({[^{}]*}|-?\d+)/g );
 	
-	my @student_ans_array;
-	for my $match ( @student ) {
-		push(@student_ans_array, main::Set($match =~ s/\(|\)//gr));
-	}
+	$anshash->{correct_ans_latex_string} = join (",", map { 
+		"\\{\\text{".join(",", (map { 
+			$_ != -1 ? $self->{shuffled_set}->[$_] : ''
+		} (split(',', $_ =~ s/{|}//gr)) ))."}\\}" 
+	} @correct);
 	
 	$anshash->{preview_latex_string} = join (",", map { 
 		"\\{\\text{".join(",", (map { 
-			$_ >= 0 ? $self->{shuffled_set}->[$_] : ''
-		} (split(',', $_ =~ s/{|}//gr)) ))."}\\}" 
-	} @student_ans_array);
+			$_ != -1 ? $self->{shuffled_set}->[$_] : ''
+		} (split(',', $_ =~ s/\(|\)//gr)) ))."}\\}" 
+	} @student);
+	
+	$anshash->{student_ans} = "(see preview)";
 	
 	return $anshash;
 }
