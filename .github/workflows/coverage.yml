@@ -17,6 +17,8 @@ jobs:
           mkdir -p /opt/webwork/pg
           cp -R . /opt/webwork/pg
           cd /opt/webwork/pg
+          pwd
+          ls
           perl Build.PL
           cover -test
       - uses: actions/upload-artifact@v2
