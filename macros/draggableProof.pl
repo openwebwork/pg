@@ -48,7 +48,8 @@ Leitfaden => "0 > 2, 1 > 2",
 # [0, 0, 0, 0, 0, 0],
 # [0, 0, 0, 0, 0, 0],
 # [0, 0, 0, 0, 0, 0]
-# ]
+# ],
+IrrelevancePenalty => 1 # Penalty for each irrelevant statement is IrrelevancePenalty times the score equivalent to one correct instance of inference. Default value = 1.
 );
 
 Context()->texStrings;
@@ -90,6 +91,7 @@ sub new {
     my $self = shift; 
     my $class = ref($self) || $self;
     
+    # user arguments
     my $proof = shift; 
     my $extra = shift;	
     my %options = (
@@ -100,8 +102,10 @@ sub new {
     DamerauLevenshtein => 0,
     Leitfaden => '',
     InferenceMatrix => [],
+    IrrelevancePenalty => 1,
     @_
     );
+    # end user arguments
     
     my $lines = [ @$proof, @$extra ];
     my $numNeeded = scalar(@$proof);
@@ -331,8 +335,7 @@ sub filter {
         my %invoked = map { $_ => 1 } split(',', $actual_answer);
         foreach ( split(',', $self->{extra}->string =~ s/{|}|\s*//gr ) ) {
             if ( exists($invoked{$_}) ) {
-                $anshash->{ans_message} = 'There is at least one irrelevant statement in your reasoning';
-                $anshash->{score} = $anshash->{score} <= 1/$total ? 0 : $anshash->{score} - 1/$total;
+                $anshash->{score} = main::max(0, $anshash->{score} - ($self->{IrrelevancePenalty}/$total));
             }
         }
     } else {

@@ -29,13 +29,17 @@ $D3 = [
 ];
 
 $subgroup = "e, s"; 
-$ans = [
+
+$subsets = [
 [0, 3],
 [1, 4],
 [2, 5]
 ];
 
-$CorrectProof = DraggableSubsets($D3, $ans, [
+$CorrectProof = DraggableSubsets(
+$D3, # full set
+$subsets, # reference to array of arrays of indices, corresponding to correct set of subsets
+[
 {
     label => 'coset 1',
     indices => [ 1, 3, 4, 5 ],
@@ -51,7 +55,9 @@ $CorrectProof = DraggableSubsets($D3, $ans, [
     indices => [ 2 ],
     removable => 1
 }
-]);
+],
+# OrderedSubsets => 1 # OrderedSubsets => 0 means order of subsets does not matter. OrderedSubsets => 1 means it does. The order of elements within each subset never matters. Default value = 0. 
+);
 
 Context()->texStrings;
 
@@ -99,9 +105,13 @@ sub new {
 	my $class = ref($self) || $self;
 	
 	# user arguments
-	my $set = shift || []; 
-	my $subsets = shift || []; 
-	my $default_buckets = shift || [];
+	my $set = shift; 
+	my $subsets = shift; 
+	my $default_buckets = shift;
+	my %options = (
+	OrderedSubsets => 0,
+    @_
+    );
 	# end user arguments
 	
 	my $numProvided = scalar(@$set);
@@ -152,7 +162,7 @@ sub new {
 	my @shuffled_subsets_array = ();
 	for my $subset ( @$subsets ) {
 		my @shuffled_subset = map {$unorder[$_]} @$subset;
-		push(@shuffled_subsets_array, main::Set(join(',', @shuffled_subset)));
+		push(@shuffled_subsets_array, @$subset != 0 ? main::Set(join(',', @shuffled_subset)) : main::Set());
 	}	
 	my $shuffled_subsets = main::List(@shuffled_subsets_array);
 			
@@ -167,6 +177,7 @@ sub new {
 		answer_input_id => $answer_input_id,
 		dnd => $dnd,
 		ans_rule => $ans_rule,
+		OrderedSubsets => $options{OrderedSubsets},
 	}, $class;
 	
 	return $self;
@@ -194,7 +205,7 @@ sub Print {
 
 sub cmp {
 	my $self = shift;	
-	return $self->{shuffled_subsets}->cmp(ordered => 0, removeParens => 1, partialCredit => 1)->withPreFilter(sub {$self->prefilter(@_)})->withPostFilter(sub {$self->filter(@_)});
+	return $self->{shuffled_subsets}->cmp(ordered => $self->{OrderedSubsets}, removeParens => 1, partialCredit => 1)->withPreFilter(sub {$self->prefilter(@_)})->withPostFilter(sub {$self->filter(@_)});
 }
 
 sub prefilter {
@@ -204,8 +215,8 @@ sub prefilter {
 	
 	my @student_ans_array;
 	for my $match ( @student ) {
-		if ($match eq "\(\)") {
-			push(@student_ans_array, main::Set('{}'));
+		if ($match =~ /-1/) {
+			push(@student_ans_array, main::Set());
 		} else {
 			push(@student_ans_array, main::Set($match =~ s/\(|\)//gr));
 		}
