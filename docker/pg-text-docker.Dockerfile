@@ -1,4 +1,8 @@
 FROM perl:latest
+# set metadata
+LABEL maintainer="fabian.gabel@tuhh.de"
+LABEL hub.docker.com="eltenedor/pg-unit-testing"
+# install needed perl modules
 RUN cpanm -fi --notest \
   Data::Dump \
   Date::Parse \
@@ -11,6 +15,7 @@ RUN cpanm -fi --notest \
   Test::Exception \
   Tie::IxHash \
   UUID::Tiny module 
+# create webwork environment
 RUN \
   mkdir -p /opt/webwork && \
   git clone https://github.com/openwebwork/webwork2.git /opt/webwork/webwork2 && \
