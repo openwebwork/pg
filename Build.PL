@@ -2,6 +2,9 @@ use strict;
 use warnings;
 use Module::Build;
 
+use lib "$ENV{WEBWORK_ROOT}/lib";
+use lib "$ENV{PG_ROOT}/lib";
+
 my $builder = Module::Build->new(
     module_name         => 'PGcore',
     license             => 'perl',

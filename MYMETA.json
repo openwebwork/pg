@@ -1,5 +1,5 @@
 {
-   "abstract" : "Hello short description",
+   "abstract" : "PG Modules",
    "author" : [
       "Author Name <email_addy@goes.here>"
    ],
@@ -18,6 +18,444 @@
          "requires" : {
             "Test::More" : "0.10"
          }
+      }
+   },
+   "provides" : {
+      "AlgParser" : {
+         "file" : "lib/AlgParser.pm"
+      },
+      "AlgParserWithImplicitExpand" : {
+         "file" : "lib/AlgParser.pm"
+      },
+      "AnswerEvaluator" : {
+         "file" : "lib/AnswerHash.pm"
+      },
+      "AnswerHash" : {
+         "file" : "lib/AnswerHash.pm"
+      },
+      "AnswerIO" : {
+         "file" : "lib/AnswerIO.pm"
+      },
+      "Applet" : {
+         "file" : "lib/Applet.pm"
+      },
+      "CanvasApplet" : {
+         "file" : "lib/Applet.pm"
+      },
+      "ChoiceList" : {
+         "file" : "lib/ChoiceList.pm"
+      },
+      "Chromatic" : {
+         "file" : "lib/Chromatic.pm"
+      },
+      "Circle" : {
+         "file" : "lib/Circle.pm"
+      },
+      "Complex" : {
+         "file" : "lib/Complex.pm"
+      },
+      "Complex1" : {
+         "file" : "lib/Complex1.pm"
+      },
+      "Distributions" : {
+         "file" : "lib/Distributions.pm",
+         "version" : "0.07"
+      },
+      "Expr" : {
+         "file" : "lib/AlgParser.pm"
+      },
+      "ExprWithImplicitExpand" : {
+         "file" : "lib/AlgParser.pm"
+      },
+      "FlashApplet" : {
+         "file" : "lib/Applet.pm"
+      },
+      "Fraction" : {
+         "file" : "lib/Fraction.pm"
+      },
+      "Fun" : {
+         "file" : "lib/Fun.pm"
+      },
+      "GeogebraWebApplet" : {
+         "file" : "lib/Applet.pm"
+      },
+      "Hermite" : {
+         "file" : "lib/Hermite.pm"
+      },
+      "JavaApplet" : {
+         "file" : "lib/Applet.pm"
+      },
+      "Label" : {
+         "file" : "lib/Label.pm"
+      },
+      "List" : {
+         "file" : "lib/List.pm"
+      },
+      "Match" : {
+         "file" : "lib/Match.pm"
+      },
+      "Matrix" : {
+         "file" : "lib/Matrix.pm"
+      },
+      "MatrixReal1" : {
+         "file" : "lib/MatrixReal1.pm",
+         "version" : "1.3"
+      },
+      "Multiple" : {
+         "file" : "lib/Multiple.pm"
+      },
+      "PGUtil" : {
+         "file" : "lib/PGUtil.pm"
+      },
+      "PGalias" : {
+         "file" : "lib/PGalias.pm"
+      },
+      "PGanswergroup" : {
+         "file" : "lib/PGanswergroup.pm"
+      },
+      "PGcore" : {
+         "file" : "lib/PGcore.pm"
+      },
+      "PGloadfiles" : {
+         "file" : "lib/PGloadfiles.pm"
+      },
+      "PGrandom" : {
+         "file" : "lib/PGrandom.pm"
+      },
+      "PGresource" : {
+         "file" : "lib/PGresource.pm"
+      },
+      "PGresponsegroup" : {
+         "file" : "lib/PGresponsegroup.pm"
+      },
+      "Parser" : {
+         "file" : "lib/Parser.pm"
+      },
+      "Parser::BOP" : {
+         "file" : "lib/Parser/BOP.pm"
+      },
+      "Parser::BOP::add" : {
+         "file" : "lib/Parser/BOP/add.pm"
+      },
+      "Parser::BOP::comma" : {
+         "file" : "lib/Parser/BOP/comma.pm"
+      },
+      "Parser::BOP::cross" : {
+         "file" : "lib/Parser/BOP/cross.pm"
+      },
+      "Parser::BOP::divide" : {
+         "file" : "lib/Parser/BOP/divide.pm"
+      },
+      "Parser::BOP::dot" : {
+         "file" : "lib/Parser/BOP/dot.pm"
+      },
+      "Parser::BOP::equality" : {
+         "file" : "lib/Parser/BOP/equality.pm"
+      },
+      "Parser::BOP::multiply" : {
+         "file" : "lib/Parser/BOP/multiply.pm"
+      },
+      "Parser::BOP::power" : {
+         "file" : "lib/Parser/BOP/power.pm"
+      },
+      "Parser::BOP::subtract" : {
+         "file" : "lib/Parser/BOP/subtract.pm"
+      },
+      "Parser::BOP::undefined" : {
+         "file" : "lib/Parser/BOP/undefined.pm"
+      },
+      "Parser::BOP::underscore" : {
+         "file" : "lib/Parser/BOP/underscore.pm"
+      },
+      "Parser::BOP::union" : {
+         "file" : "lib/Parser/BOP/union.pm"
+      },
+      "Parser::Complex" : {
+         "file" : "lib/Parser/Complex.pm"
+      },
+      "Parser::Constant" : {
+         "file" : "lib/Parser/Constant.pm"
+      },
+      "Parser::Context" : {
+         "file" : "lib/Parser/Context.pm"
+      },
+      "Parser::Context::Constants" : {
+         "file" : "lib/Parser/Context/Constants.pm"
+      },
+      "Parser::Context::Default" : {
+         "file" : "lib/Parser/Context/Default.pm"
+      },
+      "Parser::Context::Functions" : {
+         "file" : "lib/Parser/Context/Functions.pm"
+      },
+      "Parser::Context::Operators" : {
+         "file" : "lib/Parser/Context/Operators.pm"
+      },
+      "Parser::Context::Parens" : {
+         "file" : "lib/Parser/Context/Parens.pm"
+      },
+      "Parser::Context::Reduction" : {
+         "file" : "lib/Parser/Context/Reduction.pm"
+      },
+      "Parser::Context::Strings" : {
+         "file" : "lib/Parser/Context/Strings.pm"
+      },
+      "Parser::Context::Variables" : {
+         "file" : "lib/Parser/Context/Variables.pm"
+      },
+      "Parser::Differentiation" : {
+         "file" : "lib/Parser/Differentiation.pm"
+      },
+      "Parser::Function" : {
+         "file" : "lib/Parser/Function.pm"
+      },
+      "Parser::Function::complex" : {
+         "file" : "lib/Parser/Function/complex.pm"
+      },
+      "Parser::Function::complex_numeric" : {
+         "file" : "lib/Parser/Function/complex.pm"
+      },
+      "Parser::Function::complex_power" : {
+         "file" : "lib/Parser/Function/complex.pm"
+      },
+      "Parser::Function::hyperbolic" : {
+         "file" : "lib/Parser/Function/hyperbolic.pm"
+      },
+      "Parser::Function::numeric" : {
+         "file" : "lib/Parser/Function/numeric.pm"
+      },
+      "Parser::Function::numeric2" : {
+         "file" : "lib/Parser/Function/numeric2.pm"
+      },
+      "Parser::Function::trig" : {
+         "file" : "lib/Parser/Function/trig.pm"
+      },
+      "Parser::Function::undefined" : {
+         "file" : "lib/Parser/Function/undefined.pm"
+      },
+      "Parser::Function::vector" : {
+         "file" : "lib/Parser/Function/vector.pm"
+      },
+      "Parser::Item" : {
+         "file" : "lib/Parser/Item.pm"
+      },
+      "Parser::Legacy::FormulaWithUnits" : {
+         "file" : "lib/Parser/Legacy/NumberWithUnits.pm"
+      },
+      "Parser::Legacy::LimitedComplex" : {
+         "file" : "lib/Parser/Legacy/LimitedComplex.pm"
+      },
+      "Parser::Legacy::LimitedComplex::BOP" : {
+         "file" : "lib/Parser/Legacy/LimitedComplex.pm"
+      },
+      "Parser::Legacy::LimitedComplex::BOP::add" : {
+         "file" : "lib/Parser/Legacy/LimitedComplex.pm"
+      },
+      "Parser::Legacy::LimitedComplex::BOP::divide" : {
+         "file" : "lib/Parser/Legacy/LimitedComplex.pm"
+      },
+      "Parser::Legacy::LimitedComplex::BOP::multiply" : {
+         "file" : "lib/Parser/Legacy/LimitedComplex.pm"
+      },
+      "Parser::Legacy::LimitedComplex::BOP::power" : {
+         "file" : "lib/Parser/Legacy/LimitedComplex.pm"
+      },
+      "Parser::Legacy::LimitedComplex::BOP::subtract" : {
+         "file" : "lib/Parser/Legacy/LimitedComplex.pm"
+      },
+      "Parser::Legacy::LimitedComplex::List::AbsoluteValue" : {
+         "file" : "lib/Parser/Legacy/LimitedComplex.pm"
+      },
+      "Parser::Legacy::LimitedComplex::UOP" : {
+         "file" : "lib/Parser/Legacy/LimitedComplex.pm"
+      },
+      "Parser::Legacy::LimitedComplex::UOP::minus" : {
+         "file" : "lib/Parser/Legacy/LimitedComplex.pm"
+      },
+      "Parser::Legacy::LimitedComplex::UOP::plus" : {
+         "file" : "lib/Parser/Legacy/LimitedComplex.pm"
+      },
+      "Parser::Legacy::LimitedNumeric" : {
+         "file" : "lib/Parser/Legacy/LimitedNumeric.pm"
+      },
+      "Parser::Legacy::LimitedNumeric::BOP::divide" : {
+         "file" : "lib/Parser/Legacy/LimitedNumeric.pm"
+      },
+      "Parser::Legacy::LimitedNumeric::Number" : {
+         "file" : "lib/Parser/Legacy/LimitedNumeric.pm"
+      },
+      "Parser::Legacy::LimitedNumeric::UOP::minus" : {
+         "file" : "lib/Parser/Legacy/LimitedNumeric.pm"
+      },
+      "Parser::Legacy::NumberWithUnits" : {
+         "file" : "lib/Parser/Legacy/NumberWithUnits.pm"
+      },
+      "Parser::Legacy::Numeric" : {
+         "file" : "lib/Parser/Legacy/Numeric.pm"
+      },
+      "Parser::Legacy::ObjectWithUnits" : {
+         "file" : "lib/Parser/Legacy/NumberWithUnits.pm"
+      },
+      "Parser::List" : {
+         "file" : "lib/Parser/List.pm"
+      },
+      "Parser::List::AbsoluteValue" : {
+         "file" : "lib/Parser/List/AbsoluteValue.pm"
+      },
+      "Parser::List::Interval" : {
+         "file" : "lib/Parser/List/Interval.pm"
+      },
+      "Parser::List::List" : {
+         "file" : "lib/Parser/List/List.pm"
+      },
+      "Parser::List::Matrix" : {
+         "file" : "lib/Parser/List/Matrix.pm"
+      },
+      "Parser::List::Point" : {
+         "file" : "lib/Parser/List/Point.pm"
+      },
+      "Parser::List::Set" : {
+         "file" : "lib/Parser/List/Set.pm"
+      },
+      "Parser::List::Vector" : {
+         "file" : "lib/Parser/List/Vector.pm"
+      },
+      "Parser::Number" : {
+         "file" : "lib/Parser/Number.pm"
+      },
+      "Parser::String" : {
+         "file" : "lib/Parser/String.pm"
+      },
+      "Parser::UOP" : {
+         "file" : "lib/Parser/UOP.pm"
+      },
+      "Parser::UOP::factorial" : {
+         "file" : "lib/Parser/UOP/factorial.pm"
+      },
+      "Parser::UOP::minus" : {
+         "file" : "lib/Parser/UOP/minus.pm"
+      },
+      "Parser::UOP::plus" : {
+         "file" : "lib/Parser/UOP/plus.pm"
+      },
+      "Parser::UOP::undefined" : {
+         "file" : "lib/Parser/UOP/undefined.pm"
+      },
+      "Parser::Value" : {
+         "file" : "lib/Parser/Value.pm"
+      },
+      "Parser::Variable" : {
+         "file" : "lib/Parser/Variable.pm"
+      },
+      "Polynomial" : {
+         "file" : "lib/Polynomial.pm"
+      },
+      "PowerPolynomial" : {
+         "file" : "lib/PowerPolynomial.pm"
+      },
+      "Regression" : {
+         "file" : "lib/Regression.pm",
+         "version" : "0.1"
+      },
+      "Rserve" : {
+         "file" : "lib/Rserve.pm"
+      },
+      "Select" : {
+         "file" : "lib/Select.pm"
+      },
+      "Statistics" : {
+         "file" : "lib/Statistics.pm",
+         "version" : "0.01"
+      },
+      "TikZImage" : {
+         "file" : "lib/TikZImage.pm"
+      },
+      "Units" : {
+         "file" : "lib/Units.pm"
+      },
+      "Value" : {
+         "file" : "lib/Value.pm"
+      },
+      "Value::Complex" : {
+         "file" : "lib/Value/Complex.pm"
+      },
+      "Value::Context" : {
+         "file" : "lib/Value/Context.pm"
+      },
+      "Value::Context::Data" : {
+         "file" : "lib/Value/Context/Data.pm"
+      },
+      "Value::Context::Diagnostics" : {
+         "file" : "lib/Value/Context/Diagnostics.pm"
+      },
+      "Value::Context::Flags" : {
+         "file" : "lib/Value/Context/Flags.pm"
+      },
+      "Value::Context::Lists" : {
+         "file" : "lib/Value/Context/Lists.pm"
+      },
+      "Value::Formula" : {
+         "file" : "lib/Value/Formula.pm"
+      },
+      "Value::Infinity" : {
+         "file" : "lib/Value/Infinity.pm"
+      },
+      "Value::Interval" : {
+         "file" : "lib/Value/Interval.pm"
+      },
+      "Value::List" : {
+         "file" : "lib/Value/List.pm"
+      },
+      "Value::Matrix" : {
+         "file" : "lib/Value/Matrix.pm"
+      },
+      "Value::Point" : {
+         "file" : "lib/Value/Point.pm"
+      },
+      "Value::Real" : {
+         "file" : "lib/Value/Real.pm"
+      },
+      "Value::Set" : {
+         "file" : "lib/Value/Set.pm"
+      },
+      "Value::String" : {
+         "file" : "lib/Value/String.pm"
+      },
+      "Value::Union" : {
+         "file" : "lib/Value/Union.pm"
+      },
+      "Value::Vector" : {
+         "file" : "lib/Value/Vector.pm"
+      },
+      "VectorField" : {
+         "file" : "lib/VectorField.pm"
+      },
+      "WWPlot" : {
+         "file" : "lib/WWPlot.pm"
+      },
+      "WeBWorK::EquationCache" : {
+         "file" : "lib/WeBWorK/EquationCache.pm"
+      },
+      "WeBWorK::PG::IO" : {
+         "file" : "lib/WeBWorK/PG/IO.pm"
+      },
+      "WeBWorK::PG::IO::Daemon2" : {
+         "file" : "lib/WeBWorK/PG/IO/Daemon2.pm"
+      },
+      "WeBWorK::PG::IO::WW1" : {
+         "file" : "lib/WeBWorK/PG/IO/WW1.pm"
+      },
+      "WeBWorK::PG::IO::WW2" : {
+         "file" : "lib/WeBWorK/PG/IO/WW2.pm"
+      },
+      "WeBWorK::PG::ImageGenerator" : {
+         "file" : "lib/WeBWorK/PG/ImageGenerator.pm"
+      },
+      "WeBWorK::PG::Translator" : {
+         "file" : "lib/WeBWorK/PG/Translator.pm"
+      },
+      "ww_strict" : {
+         "file" : "lib/ww_strict.pm"
       }
    },
    "release_status" : "stable",
