@@ -3,13 +3,13 @@
 draggableSubsets.pl
   
 =head1 DESCRIPTION
+draggableSubsets.pl helps the instructor create a drag-and-drop environment in which a pre-specified set of elements may be dragged to different "buckets", effectively partitioning the original set into subsets.
 
 =head1 TERMINOLOGY
 An HTML element into or out of which other elements may be dragged will be called a "bucket".
 An HTML element which houses a collection of buckets will be called a "bucket pool".
 
 =head1 USAGE
-
 To initialize a DraggableSubset bucket pool in a .pg problem, do:
 
 $Draggable = DraggableSubsets($full_set, $ans, Options1 => ..., Options2 => ...);
@@ -22,8 +22,8 @@ $Draggable->Print
 
 within the BEGIN_TEXT / END_TEXT environment;
 
-$full_set is an array reference to a list of labels for elements in the full set.
-$ans is an array reference to a list of array references, [[...], [...], ...], corresponding to the correct answer which is a set of subsets. Each subset is specified via the indices of the element according to their positions in $full_set. The first element has index 0.
+$full_set, e.g. ["statement1", "statement2", ...], is an array reference to the list of elements, given as strings, in the original full set.
+$ans, e.g. [[1, 2, 3], [4, 5], ...], is an array reference to the list of array references corresponding to the correct answer which is a set of subsets. Each subset is specified via the indices of the elements according to their positions in $full_set, with the first element having index 0.
 
 Available Options:
 DefaultSubsets
@@ -58,10 +58,10 @@ $subsets = [
 [2, 5]
 ];
 
-$Draggble = DraggableSubsets(
+$Draggable = DraggableSubsets(
 $D3, # full set. Square brackets must be used.
 $subsets, # reference to array of arrays of indices, corresponding to correct set of subsets. Square brackets must be used.
-DefaultSubsets => [ # default setup of subsets. Default value = [].
+DefaultSubsets => [ # default instructor-provided subsets. Default value = [].
 {
     label => 'coset 1', # label of the bucket.
     indices => [ 1, 3, 4, 5 ], # specifies pre-included elements in the bucket via their indices.
@@ -95,14 +95,14 @@ Partition \(G=D_3\) into $BBOLD right $EBOLD cosets of the subgroup
 \(H=\lbrace $subgroup \rbrace\).  Give your result by dragging the following elements into separate buckets, each corresponding to a coset.
 
 $PAR
-\{ $Draggble->Print \}
+\{ $Draggable->Print \}
 
 END_TEXT
 Context()->normalStrings;
 
 # Answer Evaluation
 
-ANS($CorrectProof->cmp);
+ANS($Draggable->cmp);
 
 ENDDOCUMENT();
 =cut
@@ -246,7 +246,7 @@ sub prefilter {
 	my @student_ans_array;
 	for my $match ( @student ) {
 		if ($match =~ /-1/) {
-			push(@student_ans_array, main::Set());
+			push(@student_ans_array, main::Set()); # index -1 corresponds to empty set
 		} else {
 			push(@student_ans_array, main::Set($match =~ s/\(|\)//gr));
 		}
