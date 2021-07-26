@@ -10,7 +10,29 @@ An HTML element which houses a collection of buckets will be called a "bucket po
 
 =head1 USAGE
 
-=head1 EXAMPLES
+To initialize a DraggableSubset bucket pool in a .pg problem, do:
+
+$Draggable = DraggableSubsets($full_set, $ans, Options1 => ..., Options2 => ...);
+
+before BEGIN_TEXT.
+
+Then, call:
+
+$Draggable->Print
+
+within the BEGIN_TEXT / END_TEXT environment;
+
+$full_set is an array reference to a list of labels for elements in the full set.
+$ans is an array reference to a list of array references, [[...], [...], ...], corresponding to the correct answer which is a set of subsets. Each subset is specified via the indices of the element according to their positions in $full_set. The first element has index 0.
+
+Available Options:
+DefaultSubsets
+OrderedSubsets
+AllowNewBuckets
+
+Their usage is explained in the example below.
+
+=head1 EXAMPLE
 DOCUMENT();
 loadMacros(
   "PGstandard.pl",
@@ -36,14 +58,14 @@ $subsets = [
 [2, 5]
 ];
 
-$CorrectProof = DraggableSubsets(
-$D3, # full set
-$subsets, # reference to array of arrays of indices, corresponding to correct set of subsets
-[
+$Draggble = DraggableSubsets(
+$D3, # full set. Square brackets must be used.
+$subsets, # reference to array of arrays of indices, corresponding to correct set of subsets. Square brackets must be used.
+DefaultSubsets => [ # default setup of subsets. Default value = [].
 {
-    label => 'coset 1',
-    indices => [ 1, 3, 4, 5 ],
-    removable => 0
+    label => 'coset 1', # label of the bucket.
+    indices => [ 1, 3, 4, 5 ], # specifies pre-included elements in the bucket via their indices.
+    removable => 0 # specifies whether student may remove bucket.
 },
 {
     label => 'coset 2',
@@ -56,7 +78,8 @@ $subsets, # reference to array of arrays of indices, corresponding to correct se
     removable => 1
 }
 ],
-# OrderedSubsets => 1 # OrderedSubsets => 0 means order of subsets does not matter. OrderedSubsets => 1 means it does. The order of elements within each subset never matters. Default value = 0. 
+# OrderedSubsets => 0, # OrderedSubsets => 0 means order of subsets does not matter. 1 means otherwise. (The order of elements within each subset never matters.) Default value = 0. 
+# AllowNewBuckets => 1, # AllowNewBuckets => 0 means no new buckets may be added by student. 1 means otherwise. Default value = 1. 
 );
 
 Context()->texStrings;
@@ -72,7 +95,7 @@ Partition \(G=D_3\) into $BBOLD right $EBOLD cosets of the subgroup
 \(H=\lbrace $subgroup \rbrace\).  Give your result by dragging the following elements into separate buckets, each corresponding to a coset.
 
 $PAR
-\{ $CorrectProof->Print \}
+\{ $Draggble->Print \}
 
 END_TEXT
 Context()->normalStrings;
@@ -107,9 +130,10 @@ sub new {
 	# user arguments
 	my $set = shift; 
 	my $subsets = shift; 
-	my $default_buckets = shift;
 	my %options = (
+	DefaultSubsets => [],
 	OrderedSubsets => 0,
+	AllowNewBuckets => 1,
     @_
     );
 	# end user arguments
@@ -120,6 +144,7 @@ sub new {
 
 	my $shuffled_set = [ map {$set->[$_]} @order ];
 	
+	my $default_buckets = $options{DefaultSubsets};
 	my $default_shuffled_buckets = [];
 	if (@$default_buckets) {
 		for my $default_bucket (@$default_buckets) {
@@ -140,7 +165,12 @@ sub new {
 		
 	my $answer_input_id = main::NEW_ANS_NAME() unless $self->{answer_input_id};	
 	my $ans_rule = main::NAMED_HIDDEN_ANS_RULE($answer_input_id);
-	my $dnd = new DragNDrop($answer_input_id, $shuffled_set, $default_shuffled_buckets, AllowNewBuckets => 1);	
+	my $dnd = new DragNDrop(
+	$answer_input_id, 
+	$shuffled_set, 
+	$default_shuffled_buckets, 
+	AllowNewBuckets => $options{AllowNewBuckets},
+	);	
 	
 	my $previous = $main::inputs_ref->{$answer_input_id} || '';
 	
@@ -165,8 +195,7 @@ sub new {
 		push(@shuffled_subsets_array, @$subset != 0 ? main::Set(join(',', @shuffled_subset)) : main::Set());
 	}	
 	my $shuffled_subsets = main::List(@shuffled_subsets_array);
-			
-	
+		
 	$self = bless {
 		set => $set,
 		shuffled_set => $shuffled_set,
@@ -178,6 +207,7 @@ sub new {
 		dnd => $dnd,
 		ans_rule => $ans_rule,
 		OrderedSubsets => $options{OrderedSubsets},
+		AllowNewBuckets => $options{AllowNewBuckets},
 	}, $class;
 	
 	return $self;
