@@ -40,9 +40,9 @@ SourceLabel => "Axioms",
 TargetLabel => "<strong>Reasoning</strong>",
 # Levenshtein => 1,
 # DamerauLevenshtein => 1,
-Leitfaden => "0 > 1, 0 > 2",
+Leitfaden => "0 > 2, 1 > 2",
 # InferenceMatrix => [
-# [0, 1, 0, 0, 0, 0],
+# [0, 0, 1, 0, 0, 0],
 # [0, 0, 1, 0, 0, 0],
 # [0, 0, 0, 0, 0, 0],
 # [0, 0, 0, 0, 0, 0],
@@ -160,27 +160,15 @@ sub new {
             $dnd->addBucket([0..$numProvided-1], label =>  $options{'TargetLabel'});
         }
     } else {
-        my @matches = ( $previous =~ /(\([^\(\)]*\)|\d+)/g );
+        my @matches = ( $previous =~ /(\([^\(\)]*\)|-?\d+)/g );
         if ($self->{NumBuckets} == 2) {
             my $indices1 = [ split(',', @matches[0] =~ s/\(|\)//gr) ];	
-            if ($indices1->[0] >= 0) {
-				$dnd->addBucket($indices1, label => $options{'SourceLabel'});
-            } else {
-                $dnd->addBucket([], label => $options{'SourceLabel'}, removable => $removable);
-            }
+            $dnd->addBucket($indices1->[0] != -1 ? $indices1 : [], label => $options{'SourceLabel'});
             my $indices2 = [ split(',', @matches[1] =~ s/\(|\)//gr) ];
-            if ($indices2->[0] >= 0) {
-                $dnd->addBucket($indices2, label => $options{'TargetLabel'});
-            } else {
-                $dnd->addBucket([], label => $options{'TargetLabel'}, removable => $removable);
-            }
+            $dnd->addBucket($indices2->[0] != -1 ? $indices2 : [], label => $options{'TargetLabel'});
         } else {
             my $indices1 = [ split(',', @matches[0] =~ s/\(|\)//gr) ];
-            if ($indices1->[0] >= 0) {
-                $dnd->addBucket($indices1, label => $options{'TargetLabel'});
-            } else {
-                $dnd->addBucket([], label => $options{'TargetLabel'});
-            }
+            $dnd->addBucket($indices1->[0] != -1 ? $indices1 : [], label => $options{'TargetLabel'});
         }
     }
     
