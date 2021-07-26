@@ -1,9 +1,9 @@
 =head1 NAME
-DragNDrop.pm - Drag-And-Drop Module
+DragNDrop.pm - Drag-N-Drop Module
   
 =head1 DESCRIPTION
 DragNDrop.pm is a backend Perl module which facilitates the implementation of 
-'Drag-And-Drop' in WeBWorK problems. It is meant to be used in tandem with other perl macros
+'Drag-And-Drop' in WeBWorK problems. It is meant to be used by other perl macros
 such as draggableProof.pl.
 
 =head1 TERMINOLOGY
@@ -25,29 +25,28 @@ $answer_input_id is a unique identifier for the bucket_pool, it is recommended t
 it be generated with NEW_HIDDEN_ANS_NAME.
 
 $aggregate_list is a reference to an array of all "statements" intended to be draggable.
-e.g. $aggregate_list = ['socrates is a man', 'all men are mortal', 'therefore socrates is mortal']
+e.g. $aggregate_list = ['socrates is a man', 'all men are mortal', 'therefore socrates is mortal'].
 It is imperative that square brackets be used.
 
-################################################################
+##############################################################################
 OPTIONAL: DragNDrop($answer_input_id, $aggregate_list, AllowNewBuckets => 1);
 allows student to create new buckets by clicking on a button.
-################################################################
+##############################################################################
 
 To add a bucket to an existing pool $bucket_pool, do:
 $bucket_pool->addBucket($indices);
 
-$indices is the reference to the array of indices corresponding to the statements in $aggregate_list
-to be pre-included in the bucket. 
-For example, if the $aggregate_list is ['Socrates is a man', 'all men are mortal', 'therefore Socrates is mortal'],
-and the bucket consists of  { 'Socrates is a man', 'therefore Socrates is mortal' },
-then $indices = (0, 2).
+$indices is the reference to the array of indices corresponding to the statements in $aggregate_list to be pre-included in the bucket. 
+For example, if the $aggregate_list is ['Socrates is a man', 'all men are mortal', 'therefore Socrates is mortal'], and the bucket consists of  { 'Socrates is a man', 'therefore Socrates is mortal' }, then $indices = [0, 2].
 
 An empty array reference, e.g. $bucket_pool->addBucket([]), gives an empty bucket.
 
-################################################################
-OPTIONAL: $bucket_pool->addBucket($indices, label => 'Barrel')
+###############################################################################
+OPTIONAL: $bucket_pool->addBucket($indices, label => 'Barrel', removable => 1)
 puts the label 'Barrel' at the top of the bucket.
-################################################################
+With the removable option set to 1, the bucket may be removed by the student via the click of a "Remove" button at the bottom of the bucket.
+(The first created bucket may never be removed.)
+###############################################################################
 
 To output the bucket pool to HTML, call:
 $bucket_pool->HTML
@@ -58,7 +57,7 @@ $bucket_pool->TeX
 =head1 EXAMPLES
 See draggableProof.pl and draggableSubsets.pl
 =cut
-################################################################
+###############################################################################
 
 use strict;
 use warnings;
@@ -82,8 +81,7 @@ sub new {
         bucket_list => [],
         aggregate_list => $aggregate_list,
         default_buckets => $default_buckets,
-		bucket_id => 0,
-        %options,
+		%options,
     }, $class;
             	
     return $self;
@@ -100,13 +98,10 @@ sub addBucket {
 	@_
     );
 	
-	my $bucket_id = $self->{bucket_id}++;
-
-	# warn $options{label};
-    my $bucket = {
+	my $bucket = {
         indices => $indices,
         list => [ map { $self->{aggregate_list}->[$_] } @$indices ],
-        bucket_id => $bucket_id,
+        bucket_id => scalar @{ $self->{bucket_list} },
 		label => $options{label},
         removable => $options{removable},
     };
@@ -121,7 +116,7 @@ sub HTML {
     $out .= "<div class='bucket_pool' data-ans='$self->{answer_input_id}'>";
         
     # buckets from instructor-defined default settings
-    for (my $i = 0; $i < @{ $self->{default_buckets} }; $i++) {
+    for (my $i = 0; $i < @{$self->{default_buckets}}; $i++) {
         my $default_bucket = $self->{default_buckets}->[$i];
         $out .= "<div class='hidden default bucket' data-bucket-id='$i' data-removable='$default_bucket->{removable}'>";
         $out .= "<div class='label'>$default_bucket->{label}</div>"; 
@@ -143,8 +138,7 @@ sub HTML {
         }
         $out .= "</ol>";
         $out .= "</div>"; 
-    }
-    
+    }    
     $out .= '</div>';
     $out .= "<br clear='all'><div><a class='btn reset_buckets'>reset</a>";    
     if ($self->{AllowNewBuckets} == 1) {
