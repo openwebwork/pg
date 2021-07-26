@@ -26,4 +26,5 @@ jobs:
         if: always()
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: ./Build testcover -report codecov
+        #run: ./Build testcover -report codecov
+        run: cover -report codecov
