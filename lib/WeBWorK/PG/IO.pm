@@ -8,6 +8,7 @@ use warnings qw(FATAL utf8);
 use parent qw(Exporter);
 use Encode qw( encode decode);
 use JSON qw(decode_json);
+use File::Spec::Functions qw(canonpath);
 use PGUtil qw(not_null);
 # use WeBWorK::Utils qw(path_is_subdir);
 # use WeBWorK::CourseEnvironment;
@@ -21,8 +22,6 @@ use utf8;
 # 					});
 
 my $pg_envir = new PGEnvironment();
-
-dd $pg_envir;
 
 =head1 NAME
 

@@ -16,4 +16,3 @@ options:
     dvisvgm: /Library/TeX/texbin/dvisvgm
     pdf2svf: /usr/local/bin/pdf2svg
     convert: /usr/local/bin/convert
-

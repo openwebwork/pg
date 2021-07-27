@@ -1,14 +1,44 @@
-
+################################################################################
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
+# $CVSHeader: pg/lib/PGcore.pm,v 1.6 2010/05/25 22:47:52 gage Exp $
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
+package PGEnvironment;
 
 use strict;
 use warnings;
 
-package PGEnvironment;
+=pod
+
+=head1 PGEnvironment
+
+This is a substitute for the CourseEnvironment module on the webwork2 side
+however is much slimmed down.  It loads only configuration options need for
+PG when not run in full mode.
+
+If the the WeBWorK::CourseEnvironment module is found the lib path, then the
+necessary configuration options are loaded.
+
+Otherwise, defaults are loaded from PG_ROOT/conf/pg_defaults.yml
+
+=cut
+
+
+
 
 my $ce;
 my $pg_dir;
 
-use Data::Dump qw/dd/;
 use YAML::XS qw/LoadFile/;
 
 
@@ -37,7 +67,7 @@ sub new {
 	my $self = {
 	};
 
-	if (defined($ce)){
+	if (defined($ce)) {
 		$self->{webworkDirs} = $ce->{webworkDirs};
 		$self->{externalPrograms} = $ce->{externalPrograms};
 		$self->{pg_dir} = $ce->{pg_dir};
@@ -45,7 +75,12 @@ sub new {
 		## load from an conf file;
 		$self->{pg_dir} = $ENV{PG_ROOT};
 
-		dd LoadFile($self->{pg_dir} . "/conf/pg_defaults.yml");
+		my $defaults_file = $self->{pg_dir} . "/conf/pg_defaults.yml";
+		die "Cannot read the configuration file found at $defaults_file" unless -r $defaults_file;
+
+		my $options = LoadFile($defaults_file);
+		$self->{webworkDirs} = $options->{webworkDirs};
+		$self->{externalPrograms} = $options->{externalPrograms};
 
 	}
 
