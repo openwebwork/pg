@@ -10,13 +10,18 @@ our $webwork_directory = $WeBWorK::Constants::WEBWORK_DIRECTORY; #'/opt/webwork/
 # or a WEBWORK_PG_DIRECTORY variable?  -- perhaps not since all of those are in the defaults.config file
 # we would have to read that at compile time.
 
-our $seed_ce = new WeBWorK::CourseEnvironment({ webwork_dir => $webwork_directory, courseName =>'foobar'});
-die "Can't create seed course environment for webwork in $webwork_directory" unless ref($seed_ce);
-our $PGdirectory = $seed_ce->{pg_dir};
+my $pg_envir = new PGEnvironment();
+
+# our $seed_ce = new WeBWorK::CourseEnvironment({ webwork_dir => $webwork_directory, courseName =>'foobar'});
+# die "Can't create seed course environment for webwork in $webwork_directory" unless ref($seed_ce);
+# our $PGdirectory = $seed_ce->{pg_dir};
+my $PGdirectory = $pg_envir->{pg_dir};
 
 # now that we have the PGdirectory we can get to work compiling color
 our $command = "$PGdirectory/lib/chromatic/color";
+warn $command;
 our $compileCommand = "/usr/bin/gcc -O3 -o $PGdirectory/lib/chromatic/color $PGdirectory/lib/chromatic/color.c";
+warn $compileCommand;
 unless (-x $command) {
 	if (-w "$PGdirectory/lib/chromatic" and -r "$PGdirectory/lib/chromatic/color.c" and -x "/usr/bin/gcc") {
     # compile color if it is not there
@@ -31,7 +36,7 @@ unless (-x $command) {
     	warn "Can't read C file $PGdirectory/lib/chromatic/color.c" unless -r "$PGdirectory/lib/chromatic/color.c";
     }
 }
-our $tempDirectory = $seed_ce->{webworkDirs}->{DATA};
+our $tempDirectory = $pg_envir->{webworkDirs}->{DATA};
 use UUID::Tiny  ':std';
 
 sub matrix_graph {
@@ -58,9 +63,9 @@ sub ChromNum {
   my $unique_id_stub = create_uuid_as_string(UUID_V3, UUID_NS_URL, $unique_id_seed);
   my $fileout = "$tempDirectory/$unique_id_stub";
 	unless (-x $command) {
-	
+
 		die "Can't execute $command to calculate chromatic color";
-	} 
+	}
 
   @adj = matrix_graph($graph);
   $count = 0;
