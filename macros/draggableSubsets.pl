@@ -26,9 +26,9 @@ $full_set, e.g. ["statement1", "statement2", ...], is an array reference to the 
 $ans, e.g. [[1, 2, 3], [4, 5], ...], is an array reference to the list of array references corresponding to the correct answer which is a set of subsets. Each subset is specified via the indices of the elements according to their positions in $full_set, with the first element having index 0.
 
 Available Options:
-DefaultSubsets
-OrderedSubsets
-AllowNewBuckets
+DefaultSubsets => <array reference>
+OrderedSubsets => 0 or 1
+AllowNewBuckets => 0 or 1
 
 Their usage is explained in the example below.
 
