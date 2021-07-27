@@ -9,8 +9,37 @@ An HTML element into or out of which other elements may be dragged will be calle
 An HTML element which houses a collection of buckets will be called a "bucket pool".
 
 =head1 USAGE
+To initialize a DraggableSubset bucket pool in a .pg problem, do:
 
-=head1 EXAMPLES
+$Draggable = DraggableSubsets($statements, $extra, Options1 => ..., Options2 => ...);
+
+before BEGIN_TEXT.
+
+Then, call:
+
+$Draggable->Print
+
+within the BEGIN_TEXT / END_TEXT environment;
+
+$statements, e.g. ["Socrates is a man.", "Socrates is mortal.", ...], is an array reference to the list of statements used in the correct proof. It is imperative that square brackets be used.
+
+$extra, e.g. ["Roses are red."], is an array reference to the list statements extraneous to the proof. It can be left empty [].
+
+By default, the score of the student answer is 100% if the draggable statements are placed in the exact same order as in the array referenced by $statements, with no inclusion of any statement from $extra. The score is 0% otherwise.
+
+Available Options:
+NumBuckets => 1 or 2
+SourceLabel => <string>
+TargetLabel => <string>
+Levenshtein => 0 or 1
+DamerauLevenshtein => 0 or 1
+Inference => <string>
+InferenceMatrix => <array reference>
+IrrelevancePenalty => <float>
+
+Their usage is explained in the example below.
+
+=head1 EXAMPLE
 DOCUMENT();
 loadMacros(
   "PGstandard.pl",
@@ -35,12 +64,20 @@ $extra = [
 $discourse = DraggableProof(
 $statements,
 $extra,
-NumBuckets => 2, # either 1 or 2
-SourceLabel => "Axioms",
-TargetLabel => "<strong>Reasoning</strong>",
-# Levenshtein => 1,
-# DamerauLevenshtein => 1,
-Leitfaden => "0 > 2, 1 > 2",
+NumBuckets => 2, # either 1 or 2.
+SourceLabel => "Axioms", # label of first bucket if NumBuckets = 2.
+TargetLabel => "<strong>Reasoning</strong>", # label of second bucket if NumBuckets = 2, of the only bucket if NumBuckets = 1.
+################################################################
+# Levenshtein => 1, 
+# if equal to one scoring is determined by the Levenshtein edit distance between student answer and correct proof. 
+################################################################
+# DamerauLevenshtein => 1, 
+# if equal to one scoring is determined by the Damerau-Levenshtein distance between student answer and correct proof. A pair of transposed adjacent statements is counted as two mistakes under Levenshtein scoring, but as one mistake under Damerau-Levenshtein scoring.
+################################################################
+Inference => "0 > 2, 1 > 2",
+# This stipulates that statement 2 is inferred from statements 0 and 1.
+# May be coded in a chain, e.g. "0 > 1 > 2 > 3, 2 > 4".
+################################################################
 # InferenceMatrix => [
 # [0, 0, 1, 0, 0, 0],
 # [0, 0, 1, 0, 0, 0],
@@ -49,6 +86,8 @@ Leitfaden => "0 > 2, 1 > 2",
 # [0, 0, 0, 0, 0, 0],
 # [0, 0, 0, 0, 0, 0]
 # ],
+# (i, j)-entry is nonzero <=> statement i implies statement j. The score of each corresponding inference is weighted according to the value of the matrix entry. This matrix is automatically generated from the Inference option, if provided, with each inference given equal weight.
+################################################################
 IrrelevancePenalty => 1 # Penalty for each irrelevant statement is IrrelevancePenalty times the score equivalent to one correct instance of inference. Default value = 1.
 );
 
@@ -100,7 +139,7 @@ sub new {
     NumBuckets => 2,
     Levenshtein => 0,
     DamerauLevenshtein => 0,
-    Leitfaden => '',
+    Inference => '',
     InferenceMatrix => [],
     IrrelevancePenalty => 1,
     @_
@@ -133,8 +172,8 @@ sub new {
     
     my $InferenceMatrix = $options{InferenceMatrix};
     if (@{ $InferenceMatrix } == 0) {
-        if ($options{Leitfaden} ne '') {            
-            $InferenceMatrix = LeitfadenToMatrix($options{Leitfaden}, $numProvided);
+        if ($options{Inference} ne '') {            
+            $InferenceMatrix = InferenceToMatrix($options{Inference}, $numProvided);
         } 
     }
     
@@ -179,8 +218,8 @@ sub new {
     return $self;
 }
 
-sub LeitfadenToMatrix {
-    my $leitfaden = shift;    
+sub InferenceToMatrix {
+    my $Inference = shift;    
     my $numProvided = shift;
     
     my @matrix = ();
@@ -189,7 +228,7 @@ sub LeitfadenToMatrix {
         push(@matrix, [ (0) x $numProvided ]);
     }
     
-    my @chains = split(',', $leitfaden);
+    my @chains = split(',', $Inference);
     for my $chain ( @chains ) {
         my @entries = split('>', $chain);
         for (my $i = 0; $i < @entries - 1; $i++) {
