@@ -11,13 +11,13 @@ An HTML element which houses a collection of buckets will be called a "bucket po
 =head1 USAGE
 To initialize a DraggableSubset bucket pool in a .pg problem, do:
 
-$Draggable = DraggableSubsets($statements, $extra, Options1 => ..., Options2 => ...);
+$draggable = DraggableSubsets($statements, $extra, Options1 => ..., Options2 => ...);
 
 before BEGIN_TEXT.
 
 Then, call:
 
-$Draggable->Print
+$draggable->Print
 
 within the BEGIN_TEXT / END_TEXT environment;
 
@@ -61,7 +61,7 @@ $extra = [
 "Not all animals are men."
 ];
 
-$discourse = DraggableProof(
+$draggable = DraggableProof(
 $statements,
 $extra,
 NumBuckets => 2, # either 1 or 2.
@@ -74,18 +74,11 @@ TargetLabel => "<strong>Reasoning</strong>", # label of second bucket if NumBuck
 # DamerauLevenshtein => 1, 
 # if equal to one scoring is determined by the Damerau-Levenshtein distance between student answer and correct proof. A pair of transposed adjacent statements is counted as two mistakes under Levenshtein scoring, but as one mistake under Damerau-Levenshtein scoring.
 ################################################################
-Inference => "0 > 2, 1 > 2",
-# This stipulates that statement 2 is inferred from statements 0 and 1.
-# May be coded in a chain, e.g. "0 > 1 > 2 > 3, 2 > 4".
-################################################################
-# InferenceMatrix => [
-# [0, 0, 1, 0, 0, 0],
-# [0, 0, 1, 0, 0, 0],
-# [0, 0, 0, 0, 0, 0],
-# [0, 0, 0, 0, 0, 0],
-# [0, 0, 0, 0, 0, 0],
-# [0, 0, 0, 0, 0, 0]
-# ],
+InferenceMatrix => [
+[0, 0, 1],
+[0, 0, 1],
+[0, 0, 0]
+],
 # (i, j)-entry is nonzero <=> statement i implies statement j. The score of each corresponding inference is weighted according to the value of the matrix entry. This matrix is automatically generated from the Inference option, if provided, with each inference given equal weight.
 ################################################################
 IrrelevancePenalty => 1 # Penalty for each irrelevant statement is IrrelevancePenalty times the score equivalent to one correct instance of inference. Default value = 1.
@@ -100,19 +93,19 @@ into the $BBOLD Reasoning $EBOLD box in an appropriate order.
 
 $PAR 
 
-\{ $discourse->Print \}
+\{ $draggable->Print \}
 
 END_TEXT
 Context()->normalStrings;
 
-ANS($discourse->cmp);
-
+ANS($draggable->cmp);
 
 ENDDOCUMENT();
 =cut
 ################################################################
 
-loadMacros("PGchoicemacros.pl",
+loadMacros(
+"PGchoicemacros.pl",
 "MathObjects.pl",
 );
 
@@ -139,7 +132,6 @@ sub new {
     NumBuckets => 2,
     Levenshtein => 0,
     DamerauLevenshtein => 0,
-    Inference => '',
     InferenceMatrix => [],
     IrrelevancePenalty => 1,
     @_
@@ -151,16 +143,34 @@ sub new {
     my $numProvided = scalar(@$lines);
     my @order = main::shuffle($numProvided);
     my @unorder = main::invert(@order);
-    my $shuffled_lines = [ map {$lines->[$_]} @order ];
+    my $shuffledLines = [ map {$lines->[$_]} @order ];
     
-    my $answer_input_id = main::NEW_ANS_NAME() unless $self->{answer_input_id};
-    my $ans_rule = main::NAMED_HIDDEN_ANS_RULE($answer_input_id);
+    my $answerInputId = main::NEW_ANS_NAME() unless $self->{answerInputId};
+    my $ans_rule = main::NAMED_HIDDEN_ANS_RULE($answerInputId);
     
     my $dnd;
     if ($options{NumBuckets} == 2) {
-        $dnd = new DragNDrop($answer_input_id, $shuffled_lines, [{indices=>[0..$numProvided-1], label=>$options{'SourceLabel'}}, {indices=>[], label=>$options{'TargetLabel'}}], AllowNewBuckets => 0);
+        $dnd = new DragNDrop($answerInputId, $shuffledLines,
+        [
+        {
+            indices => [0..$numProvided-1],
+            label => $options{'SourceLabel'}
+        }, 
+        {
+            indices => [],
+            label => $options{'TargetLabel'}
+        }
+        ],
+        AllowNewBuckets => 0);
     } elsif($options{NumBuckets} == 1) {
-        $dnd = new DragNDrop($answer_input_id, $shuffled_lines, [{indices=>[0..$numProvided-1], label=>$options{'TargetLabel'}}], AllowNewBuckets => 0);
+        $dnd = new DragNDrop($answerInputId, $shuffledLines,
+        [
+        {
+            indices => [0..$numProvided-1],
+            label => $options{'TargetLabel'}
+        }
+        ],
+        AllowNewBuckets => 0);
     }
     
     my $proof = $options{NumBuckets} == 2 ? main::List(
@@ -171,29 +181,24 @@ sub new {
     my $extra = main::Set(@unorder[$numNeeded .. $numProvided - 1]);
     
     my $InferenceMatrix = $options{InferenceMatrix};
-    if (@{ $InferenceMatrix } == 0) {
-        if ($options{Inference} ne '') {            
-            $InferenceMatrix = InferenceToMatrix($options{Inference}, $numNeeded);
-        } 
-    }
     
     $self = bless {
         lines => $lines,
-        shuffled_lines => $shuffled_lines,
+        shuffledLines => $shuffledLines,
         numNeeded => $numNeeded, 
         numProvided => $numProvided,
         order => \@order, 
         unorder => \@unorder,
         proof => $proof,
         extra => $extra,
-        answer_input_id => $answer_input_id,
+        answerInputId => $answerInputId,
         dnd => $dnd,
         ans_rule => $ans_rule,
-        inference_matrix => $InferenceMatrix,
+        inferenceMatrix => $InferenceMatrix,
         %options,
     }, $class;
     
-    my $previous = $main::inputs_ref->{$answer_input_id} || '';
+    my $previous = $main::inputs_ref->{$answerInputId} || '';
     
     if ($previous eq "") {
         if ($self->{NumBuckets} == 2) {
@@ -216,26 +221,6 @@ sub new {
     }
     
     return $self;
-}
-
-sub InferenceToMatrix {
-    my $Inference = shift;    
-    my $numNeeded = shift;
-    
-    my @matrix = ();
-    
-    for (1..$numNeeded) {
-        push(@matrix, [ (0) x $numNeeded ]);
-    }
-    
-    my @chains = split(',', $Inference);
-    for my $chain ( @chains ) {
-        my @entries = split('>', $chain);
-        for (my $i = 0; $i < @entries - 1; $i++) {
-            $matrix[$entries[$i]][$entries[$i + 1]] = 1;
-        }
-    }
-    return [ @matrix ];
 }
 
 sub Levenshtein {    
@@ -334,44 +319,44 @@ sub filter {
     my @lines = @{$self->{lines}}; 
     my @order = @{$self->{order}};
     
-    my $actual_answer = $anshash->{student_ans} =~ s/\(|\)|\s*//gr;
+    my $actualAnswer = $anshash->{student_ans} =~ s/\(|\)|\s*//gr;
     my $correct = $anshash->{correct_ans} =~ s/\(|\)|\s*//gr;
     
     if ($self->{NumBuckets} == 2) {
         my @matches = ( $anshash->{student_ans} =~ /(\([^\(\)]*\)|-?\d+)/g );
-        $actual_answer = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';        
+        $actualAnswer = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';        
         @matches = ( $anshash->{correct_ans} =~ /(\([^\(\)]*\)|-?\d+)/g );
         $correct = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
     }
         
     $anshash->{correct_ans} = main::List($correct); # change to main::Set if order does not matter
-    $anshash->{student_ans} = main::List($actual_answer); # change to main::Set if order does not matter
+    $anshash->{student_ans} = main::List($actualAnswer); # change to main::Set if order does not matter
     $anshash->{original_student_ans} = $anshash->{student_ans};
     $anshash->{student_value} = $anshash->{student_ans};
     $anshash->{student_formula} = $anshash->{student_ans};		    
     
     if ($self->{Levenshtein} == 1) {
-        $anshash->{score} = 1 - main::min(1, Levenshtein($correct, $actual_answer, ',')/$self->{numNeeded});
+        $anshash->{score} = 1 - main::min(1, Levenshtein($correct, $actualAnswer, ',')/$self->{numNeeded});
     } elsif ($self->{DamerauLevenshtein} == 1) {
-        $anshash->{score} = 1 - main::min(1, DamerauLevenshtein($correct, $actual_answer, ',', $self->{numProvided})/$self->{numNeeded});
-    } elsif (@{ $self->{inference_matrix} } != 0) {
-        my @student_indices = map { $self->{order}[$_]} split(',', $actual_answer);
-        my @inference_matrix = @{ $self->{inference_matrix} };
-        my $inference_score = 0;
-        for (my $j = 0; $j < @student_indices; $j++ ) {            
+        $anshash->{score} = 1 - main::min(1, DamerauLevenshtein($correct, $actualAnswer, ',', $self->{numProvided})/$self->{numNeeded});
+    } elsif (@{ $self->{inferenceMatrix} } != 0) {
+        my @unshuffledStudentIndices = map { $self->{order}[$_]} split(',', $actualAnswer);
+        my @inferenceMatrix = @{ $self->{inferenceMatrix} };
+        my $inferenceScore = 0;
+        for (my $j = 0; $j < @unshuffledStudentIndices; $j++ ) {        
             for (my $i = $j - 1; $i >= 0; $i--)  {
-                $inference_score += $inference_matrix[$student_indices[$i]]->[$student_indices[$j]];
+                $inferenceScore += $inferenceMatrix[$unshuffledStudentIndices[$i]]->[$unshuffledStudentIndices[$j]];
             }
         }
         my $total = 0;
-        for my $row ( @inference_matrix ) {
+        for my $row ( @inferenceMatrix ) {
             foreach (@$row) {
                 $total += $_;
             }
         }
-        $anshash->{score} = $inference_score / $total;
+        $anshash->{score} = $inferenceScore / $total;
         
-        my %invoked = map { $_ => 1 } split(',', $actual_answer);
+        my %invoked = map { $_ => 1 } split(',', $actualAnswer);
         foreach ( split(',', $self->{extra}->string =~ s/{|}|\s*//gr ) ) {
             if ( exists($invoked{$_}) ) {
                 $anshash->{score} = main::max(0, $anshash->{score} - ($self->{IrrelevancePenalty}/$total));
@@ -382,7 +367,7 @@ sub filter {
     }
             
     my @correct = map { $_ >= 0 ? $lines[$order[$_]] : '' } split(',', $correct);
-    my @student = map { $_ >= 0 ? $lines[$order[$_]] : '' } split(',', $actual_answer);
+    my @student = map { $_ >= 0 ? $lines[$order[$_]] : '' } split(',', $actualAnswer);
     
     
     $anshash->{student_ans} = "(see preview)";
