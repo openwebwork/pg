@@ -10,15 +10,15 @@ use Test::More;
 
 BEGIN {
 	die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
-	die "WEBWORK_ROOT not found in environment.\n" unless $ENV{WEBWORK_ROOT};
+	# die "WEBWORK_ROOT not found in environment.\n" unless $ENV{WEBWORK_ROOT};
 
 	$main::pg_dir = $ENV{PG_ROOT};
-	$main::webwork_dir = $ENV{WEBWORK_ROOT};
+	# $main::webwork_dir = $ENV{WEBWORK_ROOT};
 
 }
 
 
-use lib "$main::webwork_dir/lib";
+# use lib "$main::webwork_dir/lib";
 use lib "$main::pg_dir/lib";
 
 require("$main::pg_dir/t/build_PG_envir.pl");
@@ -99,29 +99,29 @@ is (isPrime(15),0,"isPrime: 15 is not prime");
 ## random_coprime
 
 my $sum = 0;
-for my $i (1..1000) {
+for my $i (1..100) {
 	my @coprimes = random_coprime([1..20],[1..20]);
 	$sum += gcd($coprimes[0],$coprimes[1]);
 }
-is($sum,1000,"random_coprime: 1000 tests in 1..20,1..20");
+is($sum,100,"random_coprime: 100 tests in 1..20,1..20");
 
 $sum = 0;
 
-for my $i (1..1000) {
+for my $i (1..100) {
 	my @coprimes = random_coprime([-9..-1,1..9],[1..9],[1..9]);
 	$sum += gcd(@coprimes);
 }
-is($sum,1000,"random_coprime: 1000 tests in [-9..-1,1..9],[1..9],[1..9]");
+is($sum,100,"random_coprime: 100 tests in [-9..-1,1..9],[1..9],[1..9]");
 
 my ($sum1, $sum2, $sum3,$sum4) = (0,0,0);
-for my $i (1..1000) {
+for my $i (1..100) {
 	my @coprimes = random_pairwise_coprime([-9..-1,1..9],[1..9],[1..9]);
 	$sum1 += gcd(@coprimes);
 	$sum2 += gcd($coprimes[0],$coprimes[1]);
 	$sum3 += gcd($coprimes[0],$coprimes[2]);
 	$sum4 += gcd($coprimes[1],$coprimes[2]);
 }
-is($sum1+$sum2+$sum3+$sum4,4000,"random_pairwise_coprime: 1000 tests of [-9..-1,1..9],[1..9],[1..9]");
+is($sum1+$sum2+$sum3+$sum4,400,"random_pairwise_coprime: 100 tests of [-9..-1,1..9],[1..9],[1..9]");
 
 ## reduce
 ## it would be nicer to directly compare the arrays
