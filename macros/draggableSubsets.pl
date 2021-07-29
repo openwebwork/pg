@@ -12,13 +12,13 @@ An HTML element which houses a collection of buckets will be called a "bucket po
 =head1 USAGE
 To initialize a DraggableSubset bucket pool in a .pg problem, do:
 
-$Draggable = DraggableSubsets($full_set, $ans, Options1 => ..., Options2 => ...);
+$draggable = DraggableSubsets($full_set, $ans, Options1 => ..., Options2 => ...);
 
 before BEGIN_TEXT.
 
 Then, call:
 
-$Draggable->Print
+$draggable->Print
 
 within the BEGIN_TEXT / END_TEXT environment;
 
@@ -58,7 +58,7 @@ $subsets = [
 [2, 5]
 ];
 
-$Draggable = DraggableSubsets(
+$draggable = DraggableSubsets(
 $D3, # full set. Square brackets must be used.
 $subsets, # reference to array of arrays of indices, corresponding to correct set of subsets. Square brackets must be used.
 DefaultSubsets => [ # default instructor-provided subsets. Default value = [].
@@ -95,14 +95,14 @@ Partition \(G=D_3\) into $BBOLD right $EBOLD cosets of the subgroup
 \(H=\lbrace $subgroup \rbrace\).  Give your result by dragging the following elements into separate buckets, each corresponding to a coset.
 
 $PAR
-\{ $Draggable->Print \}
+\{ $draggable->Print \}
 
 END_TEXT
 Context()->normalStrings;
 
 # Answer Evaluation
 
-ANS($Draggable->cmp);
+ANS($draggable->cmp);
 
 ENDDOCUMENT();
 =cut
@@ -142,49 +142,49 @@ sub new {
 	my @order = main::shuffle($numProvided);
 	my @unorder = main::invert(@order);
 
-	my $shuffled_set = [ map {$set->[$_]} @order ];
+	my $shuffledSet = [ map {$set->[$_]} @order ];
 	
-	my $default_buckets = $options{DefaultSubsets};
-	my $default_shuffled_buckets = [];
-	if (@$default_buckets) {
-		for my $default_bucket (@$default_buckets) {
-			my $shuffled_indices = [ map {$unorder[$_]} @{ $default_bucket->{indices} } ];
+	my $defaultBuckets = $options{DefaultSubsets};
+	my $defaultShuffledBuckets = [];
+	if (@$defaultBuckets) {
+		for my $defaultBucket (@$defaultBuckets) {
+			my $shuffledIndices = [ map {$unorder[$_]} @{ $defaultBucket->{indices} } ];
 			my $default_shuffled_bucket = { 
-				label => $default_bucket->{label}, 
-				indices => $shuffled_indices,
-				removable => $default_bucket->{removable},
+				label => $defaultBucket->{label}, 
+				indices => $shuffledIndices,
+				removable => $defaultBucket->{removable},
 			};
-			push(@$default_shuffled_buckets, $default_shuffled_bucket);			
+			push(@$defaultShuffledBuckets, $default_shuffled_bucket);			
 		} 
 	} else {
-		push(@$default_shuffled_buckets, [ { 
+		push(@$defaultShuffledBuckets, [ { 
 			label => '', 
 			indices => [ 0..$numProvided-1 ]
 		} ]);
 	}
 		
-	my $answer_input_id = main::NEW_ANS_NAME() unless $self->{answer_input_id};	
-	my $ans_rule = main::NAMED_HIDDEN_ANS_RULE($answer_input_id);
+	my $answerInputId = main::NEW_ANS_NAME() unless $self->{answerInputId};	
+	my $ans_rule = main::NAMED_HIDDEN_ANS_RULE($answerInputId);
 	my $dnd = new DragNDrop(
-	$answer_input_id, 
-	$shuffled_set, 
-	$default_shuffled_buckets, 
+	$answerInputId, 
+	$shuffledSet, 
+	$defaultShuffledBuckets, 
 	AllowNewBuckets => $options{AllowNewBuckets},
 	);	
 	
-	my $previous = $main::inputs_ref->{$answer_input_id} || '';
+	my $previous = $main::inputs_ref->{$answerInputId} || '';
 	
 	if ($previous eq '') {
-		for my $default_bucket ( @$default_shuffled_buckets ) {
-			$dnd->addBucket($default_bucket->{indices}, label => $default_bucket->{label});
+		for my $defaultBucket ( @$defaultShuffledBuckets ) {
+			$dnd->addBucket($defaultBucket->{indices}, label => $defaultBucket->{label});
 		}
 	} else {
 		my @matches = ( $previous =~ /(\([^\(\)]*\)|-?\d+)+/g );
 		for(my $i = 0; $i < @matches; $i++) {
 			my $match = @matches[$i] =~ s/\(|\)//gr;			
 			my $indices = [ split(',', $match) ];
-			my $label = $i < @$default_shuffled_buckets ? $default_shuffled_buckets->[$i]->{label} : '';
-			my $removable = $i < @$default_shuffled_buckets ? $default_shuffled_buckets->[$i]->{removable} : 1;
+			my $label = $i < @$defaultShuffledBuckets ? $defaultShuffledBuckets->[$i]->{label} : '';
+			my $removable = $i < @$defaultShuffledBuckets ? $defaultShuffledBuckets->[$i]->{removable} : 1;
 			$dnd->addBucket($indices->[0] != -1 ? $indices : [], label => $label, removable => $removable);
 		}
 	}	
@@ -198,12 +198,12 @@ sub new {
 		
 	$self = bless {
 		set => $set,
-		shuffled_set => $shuffled_set,
+		shuffledSet => $shuffledSet,
 		numProvided => $numProvided,
 		order => \@order, 
 		unordered => \@unorder,
 		shuffled_subsets => $shuffled_subsets,
-		answer_input_id => $answer_input_id,
+		answerInputId => $answerInputId,
 		dnd => $dnd,
 		ans_rule => $ans_rule,
 		OrderedSubsets => $options{OrderedSubsets},
@@ -243,16 +243,16 @@ sub prefilter {
 	
 	my @student = ( $anshash->{original_student_ans} =~ /(\([^\(\)]*\)|-?\d+)/g );	
 	
-	my @student_ans_array;
+	my @studentAnsArray;
 	for my $match ( @student ) {
 		if ($match =~ /-1/) {
-			push(@student_ans_array, main::Set()); # index -1 corresponds to empty set
+			push(@studentAnsArray, main::Set()); # index -1 corresponds to empty set
 		} else {
-			push(@student_ans_array, main::Set($match =~ s/\(|\)//gr));
+			push(@studentAnsArray, main::Set($match =~ s/\(|\)//gr));
 		}
 	}
 	
-	$anshash->{student_ans} = main::List(@student_ans_array);
+	$anshash->{student_ans} = main::List(@studentAnsArray);
 		
 	return $anshash;
 }
@@ -266,13 +266,13 @@ sub filter {
 	
 	$anshash->{correct_ans_latex_string} = join (",", map { 
 		"\\{\\text{".join(",", (map { 
-			$_ != -1 ? $self->{shuffled_set}->[$_] : ''
+			$_ != -1 ? $self->{shuffledSet}->[$_] : ''
 		} (split(',', $_ =~ s/{|}//gr)) ))."}\\}" 
 	} @correct);
 	
 	$anshash->{preview_latex_string} = join (",", map { 
 		"\\{\\text{".join(",", (map { 
-			$_ != -1 ? $self->{shuffled_set}->[$_] : ''
+			$_ != -1 ? $self->{shuffledSet}->[$_] : ''
 		} (split(',', $_ =~ s/\(|\)//gr)) ))."}\\}" 
 	} @student);
 	

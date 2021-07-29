@@ -19,25 +19,25 @@ ADD_JS_FILE("js/apps/DragNDrop/dragndrop.js", 0, { defer => undef });
 
 To initialize a bucket pool, do:
 
-my $bucket_pool = new DragNDrop($answer_input_id, $aggregate_list);
+my $bucket_pool = new DragNDrop($answerInputId, $aggregateList);
 
-$answer_input_id is a unique identifier for the bucket_pool, it is recommended that
+$answerInputId is a unique identifier for the bucket_pool, it is recommended that
 it be generated with NEW_HIDDEN_ANS_NAME.
 
-$aggregate_list is a reference to an array of all "statements" intended to be draggable.
-e.g. $aggregate_list = ['socrates is a man', 'all men are mortal', 'therefore socrates is mortal'].
+$aggregateList is a reference to an array of all "statements" intended to be draggable.
+e.g. $aggregateList = ['socrates is a man', 'all men are mortal', 'therefore socrates is mortal'].
 It is imperative that square brackets be used.
 
 ##############################################################################
-OPTIONAL: DragNDrop($answer_input_id, $aggregate_list, AllowNewBuckets => 1);
+OPTIONAL: DragNDrop($answerInputId, $aggregateList, AllowNewBuckets => 1);
 allows student to create new buckets by clicking on a button.
 ##############################################################################
 
 To add a bucket to an existing pool $bucket_pool, do:
 $bucket_pool->addBucket($indices);
 
-$indices is the reference to the array of indices corresponding to the statements in $aggregate_list to be pre-included in the bucket. 
-For example, if the $aggregate_list is ['Socrates is a man', 'all men are mortal', 'therefore Socrates is mortal'], and the bucket consists of  { 'Socrates is a man', 'therefore Socrates is mortal' }, then $indices = [0, 2].
+$indices is the reference to the array of indices corresponding to the statements in $aggregateList to be pre-included in the bucket. 
+For example, if the $aggregateList is ['Socrates is a man', 'all men are mortal', 'therefore Socrates is mortal'], and the bucket consists of  { 'Socrates is a man', 'therefore Socrates is mortal' }, then $indices = [0, 2].
 
 An empty array reference, e.g. $bucket_pool->addBucket([]), gives an empty bucket.
 
@@ -68,19 +68,19 @@ sub new {
 	my $self = shift; 
     my $class = ref($self) || $self;
     
-    my $answer_input_id = shift; # 'id' of html <input> tag corresponding to the answer blank. Must be unique to each pool of DragNDrop buckets
-    my $aggregate_list = shift; # array of all statements provided
-    my $default_buckets = shift; # instructor-provided default buckets with pre-included statements encoded by the array of corresponding statement indices
+    my $answerInputId = shift; # 'id' of html <input> tag corresponding to the answer blank. Must be unique to each pool of DragNDrop buckets
+    my $aggregateList = shift; # array of all statements provided
+    my $defaultBuckets = shift; # instructor-provided default buckets with pre-included statements encoded by the array of corresponding statement indices
     my %options = (
 		AllowNewBuckets => 0,
 		@_
 	);
 
     $self = bless {        
-        answer_input_id => $answer_input_id,        
-        bucket_list => [],
-        aggregate_list => $aggregate_list,
-        default_buckets => $default_buckets,
+        answerInputId => $answerInputId,        
+        bucketList => [],
+        aggregateList => $aggregateList,
+        defaultBuckets => $defaultBuckets,
 		%options,
     }, $class;
             	
@@ -100,12 +100,12 @@ sub addBucket {
 	
 	my $bucket = {
         indices => $indices,
-        list => [ map { $self->{aggregate_list}->[$_] } @$indices ],
-        bucket_id => scalar @{ $self->{bucket_list} },
+        list => [ map { $self->{aggregateList}->[$_] } @$indices ],
+        bucket_id => scalar @{ $self->{bucketList} },
 		label => $options{label},
         removable => $options{removable},
     };
-    push(@{$self->{bucket_list}}, $bucket);
+    push(@{$self->{bucketList}}, $bucket);
     
 }
 
@@ -113,28 +113,28 @@ sub HTML {
     my $self = shift;
     	
     my $out = '';
-    $out .= "<div class='bucket_pool' data-ans='$self->{answer_input_id}'>";
+    $out .= "<div class='bucket_pool' data-ans='$self->{answerInputId}'>";
         
     # buckets from instructor-defined default settings
-    for (my $i = 0; $i < @{$self->{default_buckets}}; $i++) {
-        my $default_bucket = $self->{default_buckets}->[$i];
-        $out .= "<div class='hidden default bucket' data-bucket-id='$i' data-removable='$default_bucket->{removable}'>";
-        $out .= "<div class='label'>$default_bucket->{label}</div>"; 
+    for (my $i = 0; $i < @{$self->{defaultBuckets}}; $i++) {
+        my $defaultBucket = $self->{defaultBuckets}->[$i];
+        $out .= "<div class='hidden default bucket' data-bucket-id='$i' data-removable='$defaultBucket->{removable}'>";
+        $out .= "<div class='label'>$defaultBucket->{label}</div>"; 
         $out .= "<ol class='answer'>";
-        for my $j ( @{$default_bucket->{indices}} ) {
-            $out .= "<li data-shuffled-index='$j'>$self->{aggregate_list}->[$j]</li>";
+        for my $j ( @{$defaultBucket->{indices}} ) {
+            $out .= "<li data-shuffled-index='$j'>$self->{aggregateList}->[$j]</li>";
         }
         $out .= "</ol></div>";
     }
     
 	# buckets from past answers
-    for my $bucket ( @{$self->{bucket_list}} ) {
+    for my $bucket ( @{$self->{bucketList}} ) {
         $out .= "<div class='hidden past_answers bucket' data-bucket-id='$bucket->{bucket_id}' data-removable='$bucket->{removable}'>";
         $out .= "<div class='label'>$bucket->{label}</div>"; 
         $out .= "<ol class='answer'>";
         
         for my $index ( @{$bucket->{indices}} ) {
-            $out .= "<li data-shuffled-index='$index'>$self->{aggregate_list}->[$index]</li>";
+            $out .= "<li data-shuffled-index='$index'>$self->{aggregateList}->[$index]</li>";
         }
         $out .= "</ol>";
         $out .= "</div>"; 
@@ -142,7 +142,7 @@ sub HTML {
     $out .= '</div>';
     $out .= "<br clear='all'><div><a class='btn reset_buckets'>reset</a>";    
     if ($self->{AllowNewBuckets} == 1) {
-        $out .= "<a class='btn add_bucket' data-ans='$self->{answer_input_id}'>add bucket</a></div>";
+        $out .= "<a class='btn add_bucket' data-ans='$self->{answerInputId}'>add bucket</a></div>";
     }
     
     return $out;
@@ -154,13 +154,13 @@ sub TeX {
     my $out = "";
         
     # default buckets;
-    for (my $i = 0; $i < @{ $self->{default_buckets} }; $i++) {
+    for (my $i = 0; $i < @{ $self->{defaultBuckets} }; $i++) {
 		$out .= "\n";
-        my $default_bucket = $self->{default_buckets}->[$i];
-		if ( @{$default_bucket->{indices}} > 0 ) {
+        my $defaultBucket = $self->{defaultBuckets}->[$i];
+		if ( @{$defaultBucket->{indices}} > 0 ) {
 			$out .= "\n\\hrule\n\\begin{itemize}";		
-			for my $j ( @{$default_bucket->{indices}} ) {
-				$out .= "\n\\item[$j.]\n $self->{aggregate_list}->[$j]";
+			for my $j ( @{$defaultBucket->{indices}} ) {
+				$out .= "\n\\item[$j.]\n $self->{aggregateList}->[$j]";
 			}
 			$out .= "\n\\end{itemize}";
 		}
