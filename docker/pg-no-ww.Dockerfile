@@ -18,6 +18,8 @@ RUN cpanm -fi --notest \
   YAML::XS
 # create webwork environment
 RUN mkdir -p /opt/webwork
+# rename config file at startup 
+RUN echo "mv /opt/webwork/pg/conf/pg_defaults.yml.dist /opt/webwork/pg/conf/pg_defaults.yml" >> ~/.bashrc
 WORKDIR /opt/webwork
 ENV PG_ROOT /opt/webwork/pg
 ENV WEBWORK_ROOT /opt/webwork/webwork2
