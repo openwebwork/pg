@@ -15,7 +15,7 @@ jobs:
       - name: Adapt configuration and run tests
         run: |
           ln -s -t /opt/webwork/ `pwd`
-          mv conf/pg_defaults.yml.dist conf/pg_defaults.yml
+          #mv conf/pg_defaults.yml.dist conf/pg_defaults.yml
           prove -r t
       - name: push coverage analysis
         if: always()
