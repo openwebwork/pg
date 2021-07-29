@@ -173,7 +173,7 @@ sub new {
     my $InferenceMatrix = $options{InferenceMatrix};
     if (@{ $InferenceMatrix } == 0) {
         if ($options{Inference} ne '') {            
-            $InferenceMatrix = InferenceToMatrix($options{Inference}, $numProvided);
+            $InferenceMatrix = InferenceToMatrix($options{Inference}, $numNeeded);
         } 
     }
     
@@ -220,12 +220,12 @@ sub new {
 
 sub InferenceToMatrix {
     my $Inference = shift;    
-    my $numProvided = shift;
+    my $numNeeded = shift;
     
     my @matrix = ();
     
-    for (1..$numProvided) {
-        push(@matrix, [ (0) x $numProvided ]);
+    for (1..$numNeeded) {
+        push(@matrix, [ (0) x $numNeeded ]);
     }
     
     my @chains = split(',', $Inference);
