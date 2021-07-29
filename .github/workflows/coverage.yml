@@ -9,13 +9,14 @@ on:
 jobs:
   code_coverage:
     runs-on: ubuntu-latest
-    container: eltenedor/pg-unit-testing:latest
+    container: eltenedor/pg-no-ww:latest
     steps:
       - uses: actions/checkout@v2
-      - name: Build project and run tests
+      - name: Adapt configuration and run tests
         run: |
           ln -s -t /opt/webwork/ `pwd`
-          cover -test
+          mv conf/pg_defaults.yml.dist conf/pg_defaults.yml
+          prove -r t
       - uses: actions/upload-artifact@v2
         if: always()
         with:
@@ -25,5 +26,5 @@ jobs:
         if: always()
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        #run: ./Build testcover -report codecov
         run: cover -report codecov
+
