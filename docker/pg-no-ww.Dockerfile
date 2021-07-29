@@ -18,11 +18,7 @@ RUN cpanm -fi --notest \
   UUID::Tiny module
 # create webwork environment
 RUN \
-  mkdir -p /opt/webwork && \
-  git clone https://github.com/openwebwork/webwork2.git /opt/webwork/webwork2 && \
-  cd /opt/webwork/webwork2/conf && \
-  mv site.conf.dist site.conf && \
-  mv localOverrides.conf.dist localOverrides.conf
+  mkdir -p /opt/webwork
 WORKDIR /opt/webwork
 ENV WEBWORK_ROOT /opt/webwork/webwork2
 ENV PG_ROOT /opt/webwork/pg
