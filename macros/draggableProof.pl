@@ -198,7 +198,7 @@ sub new {
     if ($previous eq "") {
         if ($self->{NumBuckets} == 2) {
             $dnd->addBucket([0..$numProvided-1], label => $options{'SourceLabel'});
-            $dnd->addBucket([], $options{'TargetLabel'});
+            $dnd->addBucket([], label => $options{'TargetLabel'});
         } elsif ($self->{NumBuckets} == 1) {
             $dnd->addBucket([0..$numProvided-1], label =>  $options{'TargetLabel'});
         }
