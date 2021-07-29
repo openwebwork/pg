@@ -17,11 +17,6 @@ jobs:
           ln -s -t /opt/webwork/ `pwd`
           mv conf/pg_defaults.yml.dist conf/pg_defaults.yml
           prove -r t
-      - uses: actions/upload-artifact@v2
-        if: always()
-        with:
-          name: coverage-report
-          path: cover_db/
       - name: push coverage analysis
         if: always()
         env:
