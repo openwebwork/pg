@@ -15,8 +15,7 @@ jobs:
       - name: Build project and run tests
         run: |
           ln -s -t /opt/webwork/ `pwd`
-          perl ./Build.PL
-          ./Build test
+          cover -test
       - uses: actions/upload-artifact@v2
         if: always()
         with:

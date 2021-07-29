@@ -7,6 +7,7 @@ RUN cpanm -fi --notest \
   Data::Dump \
   Date::Parse \
   DateTime \
+  Devel::Cover \
   Devel::Cover::Report::Codecov \
   HTML::Entities \
   HTML::TagParser \
@@ -14,7 +15,7 @@ RUN cpanm -fi --notest \
   Module::Build Devel::Cover \
   Test::Exception \
   Tie::IxHash \
-  UUID::Tiny module 
+  UUID::Tiny module
 # create webwork environment
 RUN \
   mkdir -p /opt/webwork && \
@@ -25,4 +26,5 @@ RUN \
 WORKDIR /opt/webwork
 ENV WEBWORK_ROOT /opt/webwork/webwork2
 ENV PG_ROOT /opt/webwork/pg
+ENV HARNESS_PERL_SWITCHES -MDevel::Cover
 CMD ["/bin/bash"]
