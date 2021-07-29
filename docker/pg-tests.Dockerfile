@@ -12,7 +12,7 @@ RUN cpanm -fi --notest \
   HTML::Entities \
   HTML::TagParser \
   JSON \
-  Module::Build Devel::Cover \
+  Module::Build \
   Test::Exception \
   Tie::IxHash \
   UUID::Tiny module
@@ -26,5 +26,5 @@ RUN \
 WORKDIR /opt/webwork
 ENV WEBWORK_ROOT /opt/webwork/webwork2
 ENV PG_ROOT /opt/webwork/pg
-ENV HARNESS_PERL_SWITCHES -MDevel::Cover
+#ENV HARNESS_PERL_SWITCHES -MDevel::Cover
 CMD ["/bin/bash"]
