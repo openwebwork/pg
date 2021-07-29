@@ -1,0 +1,18 @@
+# This file is loaded if PG is loaded without a webwork2 lib
+#
+# The following are configuration options that are needed by PG
+# and are a slimmed down list from those of WEBWORK_ROOT/conf/defaults.config
+
+options:
+  webworkDirs:
+    tmp: /tmp
+  externalPrograms:
+    curl: /usr/bin/curl
+    cp: /bin/cp
+    mv: /bin/mv
+    rm: /bin/rm
+    latex: /Library/TeX/texbin/latex
+    pdflatex: /Library/TeX/texbin/pdflatex
+    dvisvgm: /Library/TeX/texbin/dvisvgm
+    pdf2svf: /usr/local/bin/pdf2svg
+    convert: /usr/local/bin/convert
