@@ -1,20 +1,61 @@
 # Docker Instructions
 
-These are instructions to get the docker image running for pg-unit tests. 
-The environment variable `${PG_ROOT}` may not be set in your system or differ from the instance of `pg` that you are using.
-In this case, replate all occurences of `${PG_ROOT}` by your working copy of `pg`.
+These are instructions to get the docker image running for running the unit tests in `/t`. 
 
-1. `cd ${PG_ROOT}/docker` 
-2. `docker build -t pg-no-ww -f pg-no-dww.Dockerfile .` \
-note: you may need sudo privileges.  The first time, this may take a couple of minutes.
-3. `docker run -it --rm --name pg-unit-test -v ${PG_ROOT}:/opt/webwork/pg -w /opt/webwork/pg pg-no-ww prove -r t`
-
-This will run all of the tests. In order to generate a code coverage report additionally run
-
-4. `docker run -it --rm --name pg-unit-test -v ${PG_ROOT}:/opt/webwork/pg -w /opt/webwork/pg -e CODECOV_TOKEN=xxxx-xxxx-xxxx pg-no-ww cover -report codecov`
-
-where `CODECOV_TOKEN=xxxx-xxxx-xxxx` should be adapted to your actual token.
+Note: You may need sudo privileges in order to run the commands starting with `docker ...`.
 
 ## Using the Image from Docker Hub
 
-You can also pull and run a suitable image from hub.docker.com. To this end, skip steps 1 and 2 and, in replace all occurrences of `pg-no-ww` by `eltenedor/pg-no-ww`
+The following Docker command will execute the command `prove -r t` inside the Docker container from the image [`eltenedor/pg-no-ww`](https://hub.docker.com/r/eltenedor/pg-no-ww).
+Make sure to run the commands from your `pg` folder.
+The first time, this may take a couple of minutes.
+
+### Running the Test Suite
+
+```bash
+docker run -it --rm --name pg-unit-test -v `pwd`:/opt/webwork/pg -w /opt/webwork/pg eltenedor/pg-no-ww prove -r t
+```
+
+### Code Coverage
+
+As above, run one of the following Docker commands from you `pg` folder.
+
+#### HTML Output
+
+This runs the command `cover -report html` in the Docker container.
+
+```bash
+docker run -it --rm --name pg-unit-test -v `pwd`:/opt/webwork/pg -w /opt/webwork/pg -e CODECOV_TOKEN=xxxx-xxxx-xxxx eltenedor/pg-no-ww cover -report html
+```
+
+Check the HTML output written to `./pg/cover_db/coverage.html`.
+
+#### Publish Results to `codecov.io`
+
+```bash
+docker run -it --rm --name pg-unit-test -v `pwd`:/opt/webwork/pg -w /opt/webwork/pg -e CODECOV_TOKEN=xxxx-xxxx-xxxx eltenedor/pg-no-ww cover -report codecov
+```
+
+Here, `CODECOV_TOKEN=xxxx-xxxx-xxxx` should be adapted to your actual token.
+
+### Using the Shell
+
+You can also just open up the `bash` of the Docker container via
+```bash
+docker run -it --rm --name pg-unit-test -v `pwd`:/opt/webwork/pg -w /opt/webwork/pg eltenedor/pg-no-ww
+```
+
+At the prompt, just run the commands `prove -r t` and `cover -report html` as indicated above.
+
+## Building the Docker Image Locally
+
+Execute the following command from your `pg/docker` folder
+
+```bash
+docker build -t pg-no-ww -f pg-no-dww.Dockerfile
+```
+
+### Running the Test Suite
+
+Same as above for the image from Docker Hub. Just replace the name `eltenedor/pg-no-ww` by `pg-no-ww`.
+
