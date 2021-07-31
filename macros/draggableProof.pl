@@ -33,7 +33,6 @@ SourceLabel => <string>
 TargetLabel => <string>
 Levenshtein => 0 or 1
 DamerauLevenshtein => 0 or 1
-Inference => <string>
 InferenceMatrix => <array reference>
 IrrelevancePenalty => <float>
 
@@ -328,7 +327,7 @@ sub filter {
         @matches = ( $anshash->{correct_ans} =~ /(\([^\(\)]*\)|-?\d+)/g );
         $correct = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
     }
-        
+    
     $anshash->{correct_ans} = main::List($correct); # change to main::Set if order does not matter
     $anshash->{student_ans} = main::List($actualAnswer); # change to main::Set if order does not matter
     $anshash->{original_student_ans} = $anshash->{student_ans};
@@ -343,9 +342,13 @@ sub filter {
         my @unshuffledStudentIndices = map { $self->{order}[$_]} split(',', $actualAnswer);
         my @inferenceMatrix = @{ $self->{inferenceMatrix} };
         my $inferenceScore = 0;
-        for (my $j = 0; $j < @unshuffledStudentIndices; $j++ ) {        
-            for (my $i = $j - 1; $i >= 0; $i--)  {
-                $inferenceScore += $inferenceMatrix[$unshuffledStudentIndices[$i]]->[$unshuffledStudentIndices[$j]];
+        for (my $j = 0; $j < @unshuffledStudentIndices; $j++ ) {
+            if ($unshuffledStudentIndices[$j] < $self->{numNeeded}) {     
+                for (my $i = $j - 1; $i >= 0; $i--)  {
+                    if ($unshuffledStudentIndices[$i] < $self->{numNeeded}) {
+                        $inferenceScore += $inferenceMatrix[$unshuffledStudentIndices[$i]][$unshuffledStudentIndices[$j]];
+                    }
+                }
             }
         }
         my $total = 0;
@@ -365,16 +368,19 @@ sub filter {
     } else {
         $anshash->{score} = $anshash->{correct_ans} eq $anshash->{student_ans} ? 1 : 0;
     }
-            
+    
+    
     my @correct = map { $_ >= 0 ? $lines[$order[$_]] : '' } split(',', $correct);
     my @student = map { $_ >= 0 ? $lines[$order[$_]] : '' } split(',', $actualAnswer);
     
-    
+    $anshash->{non_tex_preview} = 1;
     $anshash->{student_ans} = "(see preview)";
-    $anshash->{correct_ans_latex_string} = "\\begin{array}{l}\\text{".join("}\\newline\\text{",@correct)."}\\end{array}";
-    $anshash->{correct_ans} = join("<br />",@correct);
-    $anshash->{preview_latex_string} = "\\begin{array}{l}\\text{".join("}\\newline\\text{",@student)."}\\end{array}";
-        
+    # $anshash->{preview_latex_string} = "\\begin{array}{l}\\text{".join("}\\newline\\text{",@student)."}\\end{array}";
+    $anshash->{preview_latex_string} = "<div style='text-align:left'><ul><li>".join("</li><li>",@student)."</li></ul></div>";
+    # $anshash->{correct_ans_latex_string} = "\\begin{array}{l}\\text{".join("}\\newline\\text{",@correct)."}\\end{array}";
+    $anshash->{correct_ans_latex_string} = "<div style='text-align:left'><ul><li>".join("</li><li>",@correct)."</li></ul></div>";
+    $anshash->{correct_ans} = $correct;
+            
     return $anshash;
 }
 1;
