@@ -30,13 +30,14 @@ docker run -it --rm --name pg-unit-test -v `pwd`:/opt/webwork/pg -w /opt/webwork
 
 Check the HTML output written to `./pg/cover_db/coverage.html`.
 
-#### Publish Results to `codecov.io`
+#### Publish Results to [`codecov.io`](https://about.codecov.io/)
 
 ```bash
 docker run -it --rm --name pg-unit-test -v `pwd`:/opt/webwork/pg -w /opt/webwork/pg -e CODECOV_TOKEN=xxxx-xxxx-xxxx eltenedor/pg-no-ww cover -report codecov
 ```
 
-Here, `CODECOV_TOKEN=xxxx-xxxx-xxxx` should be adapted to your actual token.
+Here, `CODECOV_TOKEN=xxxx-xxxx-xxxx` should be adapted to your actual [token](https://docs.codecov.com/docs/quick-start).
+HTTP Code `200` means that the data was sent successfully to codecov and is availablle at https://app.codecov.io/gh/pstaabp/pg
 
 ### Using the Shell
 
