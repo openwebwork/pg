@@ -150,7 +150,7 @@ sub new {
 		for my $defaultBucket (@$defaultBuckets) {
 			my $shuffledIndices = [ map {$unorder[$_]} @{ $defaultBucket->{indices} } ];
 			my $default_shuffled_bucket = { 
-				label => $defaultBucket->{label}, 
+				label => $defaultBucket->{label} || '', 
 				indices => $shuffledIndices,
 				removable => $defaultBucket->{removable},
 			};

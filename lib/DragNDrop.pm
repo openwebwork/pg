@@ -142,8 +142,9 @@ sub HTML {
     $out .= '</div>';
     $out .= "<br clear='all'><div><a class='btn reset_buckets'>reset</a>";    
     if ($self->{AllowNewBuckets} == 1) {
-        $out .= "<a class='btn add_bucket' data-ans='$self->{answerInputId}'>add bucket</a></div>";
+        $out .= "<a class='btn add_bucket' data-ans='$self->{answerInputId}'>add bucket</a>";
     }
+	$out .= "</div>";
     
     return $out;
 }
