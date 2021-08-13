@@ -9,9 +9,9 @@ An HTML element into or out of which other elements may be dragged will be calle
 An HTML element which houses a collection of buckets will be called a "bucket pool".
 
 =head1 USAGE
-To initialize a DraggableSubset bucket pool in a .pg problem, do:
+To initialize a DraggableProof bucket pool in a .pg problem, do:
 
-$draggable = DraggableSubsets($statements, $extra, Options1 => ..., Options2 => ...);
+$draggable = DraggableProof($statements, $extra, Options1 => ..., Options2 => ...);
 
 before BEGIN_TEXT.
 
@@ -321,6 +321,7 @@ sub filter {
     my $actualAnswer = $anshash->{student_ans} =~ s/\(|\)|\s*//gr;
     my $correct = $anshash->{correct_ans} =~ s/\(|\)|\s*//gr;
     
+    warn main::pretty_print $anshash;
     if ($self->{NumBuckets} == 2) {
         my @matches = ( $anshash->{student_ans} =~ /(\([^\(\)]*\)|-?\d+)/g );
         $actualAnswer = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';        
@@ -328,7 +329,8 @@ sub filter {
         $correct = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
     }
     
-    $anshash->{correct_ans} = main::List($correct); # change to main::Set if order does not matter
+    # $anshash->{correct_ans} = main::List($correct); # change to main::Set if order does not matter
+    my $correct_ans = main::List($correct); # change to main::Set if order does not matter
     $anshash->{student_ans} = main::List($actualAnswer); # change to main::Set if order does not matter
     $anshash->{original_student_ans} = $anshash->{student_ans};
     $anshash->{student_value} = $anshash->{student_ans};
@@ -366,7 +368,7 @@ sub filter {
             }
         }
     } else {
-        $anshash->{score} = $anshash->{correct_ans} eq $anshash->{student_ans} ? 1 : 0;
+        $anshash->{score} = $correct_ans eq $anshash->{student_ans} ? 1 : 0;
     }
     
     
@@ -379,7 +381,7 @@ sub filter {
     $anshash->{preview_latex_string} = "<div style='text-align:left'><ul><li>".join("</li><li>",@student)."</li></ul></div>";
     # $anshash->{correct_ans_latex_string} = "\\begin{array}{l}\\text{".join("}\\newline\\text{",@correct)."}\\end{array}";
     $anshash->{correct_ans_latex_string} = "<div style='text-align:left'><ul><li>".join("</li><li>",@correct)."</li></ul></div>";
-    $anshash->{correct_ans} = $correct;
+    # $anshash->{correct_ans} = $correct;
             
     return $anshash;
 }
