@@ -16,14 +16,19 @@ jobs:
         run: |
           ln -s -t /opt/webwork/ `pwd`
           cover -test
-      - uses: actions/upload-artifact@v2
-        if: always()
-        with:
-          name: coverage-report
-          path: cover_db/
+      # - uses: actions/upload-artifact@v2
+      #   if: always()
+      #   with:
+      #     name: coverage-report
+      #     path: cover_db/
       - name: push coverage analysis
-        if: always()
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        #run: ./Build testcover -report codecov
-        run: cover -report codecov
+      - uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          verbose: true # optional (default = false)
+      # - name: push coverage analysis
+      #   if: always()
+      #   env:
+      #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      #   #run: ./Build testcover -report codecov
+      #   run: cover -report codecov
