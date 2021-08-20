@@ -13,6 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Adapt configuration and run tests
+        env:
+            HARNESS_PERL_SWITCHES: -MDevel::Cover
         run: |
           ln -s -t /opt/webwork/ `pwd`
           mv conf/pg_defaults.yml.dist conf/pg_defaults.yml
