@@ -1,4 +1,4 @@
-FROM perl:latest
+FROM perl:5.32
 # set metadata
 LABEL maintainer="fabian.gabel@tuhh.de"
 LABEL hub.docker.com="eltenedor/pg-no-ww"
@@ -19,7 +19,7 @@ RUN cpanm -fi --notest \
   YAML::XS
 # create webwork environment
 RUN mkdir -p /opt/webwork
-# rename config file at startup 
+# rename config file at startup
 RUN echo "cp -f /opt/webwork/pg/conf/pg_defaults.yml.dist /opt/webwork/pg/conf/pg_defaults.yml" >> ~/.bashrc
 WORKDIR /opt/webwork
 ENV PG_ROOT /opt/webwork/pg
