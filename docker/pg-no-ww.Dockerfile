@@ -4,6 +4,7 @@ LABEL maintainer="fabian.gabel@tuhh.de"
 LABEL hub.docker.com="eltenedor/pg-no-ww"
 # install needed perl modules
 RUN cpanm -fi --notest \
+  Class::Accessor \
   Data::Dump \
   Date::Parse \
   DateTime \
@@ -23,5 +24,6 @@ RUN echo "cp -f /opt/webwork/pg/conf/pg_defaults.yml.dist /opt/webwork/pg/conf/p
 WORKDIR /opt/webwork
 ENV PG_ROOT /opt/webwork/pg
 ENV WEBWORK_ROOT /opt/webwork/webwork2
+ENV WEBWORK_TOPLEVEL /opt/webwork
 ENV HARNESS_PERL_SWITCHES -MDevel::Cover
 CMD ["/bin/bash"]
