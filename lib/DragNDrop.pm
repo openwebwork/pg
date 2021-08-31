@@ -4,7 +4,7 @@ DragNDrop.pm - Drag-N-Drop Module
 =head1 DESCRIPTION
 DragNDrop.pm is a backend Perl module which facilitates the implementation of 
 'Drag-And-Drop' in WeBWorK problems. It is meant to be used by other perl macros
-such as draggableProof.pl.
+such as draggableProof.pl and draggableSubsets.pl
 
 =head1 TERMINOLOGY
 An HTML element into or out of which other elements may be dragged will be called a "bucket".
