@@ -9,7 +9,7 @@ An HTML element into or out of which other elements may be dragged will be calle
 An HTML element which houses a collection of buckets will be called a "bucket pool".
 
 =head1 USAGE
-To initialize a DraggableProof bucket pool in a .pg problem, do:
+To initialize a DraggableProof bucket pool in a .pg problem, insert the line:
 
 $draggable = DraggableProof($statements, $extra, Options1 => ..., Options2 => ...);
 
@@ -23,7 +23,7 @@ within the BEGIN_TEXT / END_TEXT environment;
 
 $statements, e.g. ["Socrates is a man.", "Socrates is mortal.", ...], is an array reference to the list of statements used in the correct proof. It is imperative that square brackets be used.
 
-$extra, e.g. ["Roses are red."], is an array reference to the list statements extraneous to the proof. It can be left empty [].
+$extra, e.g. ["Roses are red."], is an array reference to the list statements extraneous to the proof. If there are no extraneous statements, use the empty array reference [].
 
 By default, the score of the student answer is 100% if the draggable statements are placed in the exact same order as in the array referenced by $statements, with no inclusion of any statement from $extra. The score is 0% otherwise.
 
@@ -68,19 +68,20 @@ SourceLabel => "Axioms", # label of first bucket if NumBuckets = 2.
 TargetLabel => "<strong>Reasoning</strong>", # label of second bucket if NumBuckets = 2, of the only bucket if NumBuckets = 1.
 ################################################################
 # Levenshtein => 1, 
-# if equal to one scoring is determined by the Levenshtein edit distance between student answer and correct proof. 
+# If equal to 1, scoring is determined by the Levenshtein edit distance between student answer and correct answer. 
 ################################################################
 # DamerauLevenshtein => 1, 
-# if equal to one scoring is determined by the Damerau-Levenshtein distance between student answer and correct proof. A pair of transposed adjacent statements is counted as two mistakes under Levenshtein scoring, but as one mistake under Damerau-Levenshtein scoring.
+# If equal to 1, scoring is determined by the Damerau-Levenshtein distance between student answer and correct answer.
+# A pair of transposed adjacent statements is counted as two mistakes under Levenshtein scoring, but as one mistake under Damerau-Levenshtein scoring.
 ################################################################
 InferenceMatrix => [
 [0, 0, 1],
 [0, 0, 1],
 [0, 0, 0]
 ],
-# (i, j)-entry is nonzero <=> statement i implies statement j. The score of each corresponding inference is weighted according to the value of the matrix entry. This matrix is automatically generated from the Inference option, if provided, with each inference given equal weight.
+# (i, j)-entry is nonzero <=> statement i implies statement j. The score of each corresponding inference is weighted according to the value of the matrix entry.
 ################################################################
-IrrelevancePenalty => 1 # Penalty for each irrelevant statement is IrrelevancePenalty times the score equivalent to one correct instance of inference. Default value = 1.
+IrrelevancePenalty => 1 # This option is processed only if the InferenceMatrix option is set. Penalty for each extraneous statement in the student answer is <IrrelevancePenalty> divided by the total number of inference points (i.e. sum of all entries in the InferenceMatrix). Default value = 1.
 );
 
 Context()->texStrings;
@@ -173,8 +174,8 @@ sub new {
     }
     
     my $proof = $options{NumBuckets} == 2 ? main::List(
-    main::List(@unorder[$numNeeded .. $numProvided - 1]),
-    main::List(@unorder[0..$numNeeded-1])
+        main::List(@unorder[$numNeeded .. $numProvided - 1]),
+        main::List(@unorder[0..$numNeeded-1])
     ) : main::List('('.join(',', @unorder[0..$numNeeded-1]).')');
     
     my $extra = main::Set(@unorder[$numNeeded .. $numProvided - 1]);
@@ -331,11 +332,7 @@ sub filter {
         $correctProcessed = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
     }
     
-    my $correct_ans = main::List($correctProcessed); # change to main::Set if order does not matter
-    # $anshash->{student_ans} = main::List($actualAnswer); # change to main::Set if order does not matter
-    # $anshash->{original_student_ans} = $anshash->{student_ans};
-    # $anshash->{student_value} = $anshash->{student_ans};
-    # $anshash->{student_formula} = $anshash->{student_ans};
+    my $correct_ans = main::List($correctProcessed);
     
     if ($self->{Levenshtein} == 1) {
         $anshash->{score} = 1 - main::min(1, Levenshtein($correct_ans, $actualAnswer, ',')/$self->{numNeeded});
@@ -369,7 +366,7 @@ sub filter {
             }
         }
     } else {
-        $anshash->{score} = $correct_ans eq main::List($actualAnswer) ? 1 : 0; # change to main::Set if order does not matter
+        $anshash->{score} = $correct_ans eq main::List($actualAnswer) ? 1 : 0;
     }
     
     
