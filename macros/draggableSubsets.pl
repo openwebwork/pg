@@ -10,7 +10,7 @@ An HTML element into or out of which other elements may be dragged will be calle
 An HTML element which houses a collection of buckets will be called a "bucket pool".
 
 =head1 USAGE
-To initialize a DraggableSubset bucket pool in a .pg problem, do:
+To initialize a DraggableSubset bucket pool in a .pg problem, insert the line:
 
 $draggable = DraggableSubsets($full_set, $ans, Options1 => ..., Options2 => ...);
 
@@ -89,7 +89,7 @@ BEGIN_TEXT
 Let \[
 G=D_3=\lbrace e,r,r^2, s,sr,sr^2 \rbrace
 \]
-be the Dihedral group of order \(6\), where \(r\) is rotation by \(2\pi/3\), and \(s\) is the reflection across the \(x\)-axis.
+be the Dihedral group of order \(6\), where \(r\) is counter-clockwise rotation by \(2\pi/3\), and \(s\) is the reflection across the \(x\)-axis.
 
 Partition \(G=D_3\) into $BBOLD right $EBOLD cosets of the subgroup
 \(H=\lbrace $subgroup \rbrace\).  Give your result by dragging the following elements into separate buckets, each corresponding to a coset.
