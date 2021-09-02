@@ -1,7 +1,7 @@
 ################################################################
 =head1 NAME
 draggableProof.pl
-  
+
 =head1 DESCRIPTION
 
 =head1 TERMINOLOGY
@@ -41,9 +41,9 @@ Their usage is explained in the example below.
 =head1 EXAMPLE
 DOCUMENT();
 loadMacros(
-  "PGstandard.pl",
-  "MathObjects.pl",
-  "draggableProof.pl"
+"PGstandard.pl",
+"MathObjects.pl",
+"draggableProof.pl"
 );
 
 TEXT(beginproblem());
@@ -123,7 +123,6 @@ sub new {
     my $self = shift; 
     my $class = ref($self) || $self;
     
-    # user arguments
     my $proof = shift; 
     my $extra = shift;	
     my %options = (
@@ -136,7 +135,6 @@ sub new {
     IrrelevancePenalty => 1,
     @_
     );
-    # end user arguments
     
     my $lines = [ @$proof, @$extra ];
     my $numNeeded = scalar(@$proof);
@@ -174,8 +172,8 @@ sub new {
     }
     
     my $proof = $options{NumBuckets} == 2 ? main::List(
-        main::List(@unorder[$numNeeded .. $numProvided - 1]),
-        main::List(@unorder[0..$numNeeded-1])
+    main::List(@unorder[$numNeeded .. $numProvided - 1]),
+    main::List(@unorder[0..$numNeeded-1])
     ) : main::List('('.join(',', @unorder[0..$numNeeded-1]).')');
     
     my $extra = main::Set(@unorder[$numNeeded .. $numProvided - 1]);
@@ -222,6 +220,12 @@ sub new {
     
     return $self;
 }
+
+sub lines {@{shift->{lines}}}
+sub numNeeded {shift->{numNeeded}}
+sub numProvided {shift->{numProvided}}
+sub order {@{shift->{order}}}
+sub unorder {@{shift->{unorder}}}
 
 sub Levenshtein {    
     my @ar1 = split /$_[2]/, $_[0];
@@ -309,7 +313,29 @@ sub Print {
 
 sub cmp {
     my $self = shift;
-    return $self->{proof}->cmp(ordered => 1, removeParens => 1)->withPreFilter("erase")->withPostFilter(sub {$self->filter(@_)});
+    
+    return $self->{proof}->cmp(ordered => 1, removeParens => 1)->withPreFilter(sub {$self->prefilter(@_)})->withPostFilter(sub {$self->filter(@_)});
+    
+}
+
+sub prefilter {
+    my $self = shift; 
+    my $anshash = shift;
+    
+    my $correctProcessed;
+    
+    $anshash->{original_correct_value} = $anshash->{correct_value};
+    
+    if ($self->{NumBuckets} == 1) {
+        $correctProcessed = $anshash->{correct_value} =~ s/\(|\)|\s*//gr;
+    } elsif ($self->{NumBuckets} == 2) {
+        my @matches = ( $anshash->{correct_value} =~ /(\([^\(\)]*\)|-?\d+)/g );
+        $correctProcessed = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
+    }
+    
+    $anshash->{correct_value} = main::List($correctProcessed);
+    
+    return $anshash;
 }
 
 sub filter {
@@ -319,25 +345,20 @@ sub filter {
     my @lines = @{$self->{lines}}; 
     my @order = @{$self->{order}};
     
+    my $correct_value = $anshash->{correct_value};
     my $actualAnswer;
-    my $correctProcessed;
     
     if ($self->{NumBuckets} == 1) {
-        $actualAnswer = $anshash->{student_ans} =~ s/\(|\)|\s*//gr;
-        $correctProcessed = $anshash->{correct_ans} =~ s/\(|\)|\s*//gr;
+        $actualAnswer = $anshash->{student_value} =~ s/\(|\)|\s*//gr;
     } elsif ($self->{NumBuckets} == 2) {
-        my @matches = ( $anshash->{student_ans} =~ /(\([^\(\)]*\)|-?\d+)/g );
+        my @matches = ( $anshash->{student_value} =~ /(\([^\(\)]*\)|-?\d+)/g );
         $actualAnswer = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';        
-        @matches = ( $anshash->{correct_ans} =~ /(\([^\(\)]*\)|-?\d+)/g );
-        $correctProcessed = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
-    }
-    
-    my $correct_ans = main::List($correctProcessed);
+    }    
     
     if ($self->{Levenshtein} == 1) {
-        $anshash->{score} = 1 - main::min(1, Levenshtein($correct_ans, $actualAnswer, ',')/$self->{numNeeded});
+        $anshash->{score} = 1 - main::min(1, Levenshtein($correct_value, $actualAnswer, ',')/$self->{numNeeded});
     } elsif ($self->{DamerauLevenshtein} == 1) {
-        $anshash->{score} = 1 - main::min(1, DamerauLevenshtein($correct_ans, $actualAnswer, ',', $self->{numProvided})/$self->{numNeeded});
+        $anshash->{score} = 1 - main::min(1, DamerauLevenshtein($correct_value, $actualAnswer, ',', $self->{numProvided})/$self->{numNeeded});
     } elsif (@{ $self->{inferenceMatrix} } != 0) {
         my @unshuffledStudentIndices = map { $self->{order}[$_]} split(',', $actualAnswer);
         my @inferenceMatrix = @{ $self->{inferenceMatrix} };
@@ -366,18 +387,18 @@ sub filter {
             }
         }
     } else {
-        $anshash->{score} = $correct_ans eq main::List($actualAnswer) ? 1 : 0;
+        $anshash->{score} = $correct_value eq main::List($actualAnswer) ? 1 : 0;
     }
     
-    
-    my @correct = map { $_ >= 0 ? $lines[$order[$_]] : '' } split(',', $correct_ans);
+    my @correct = map { $_ >= 0 ? $lines[$order[$_]] : '' } split(',', $correct_value);
     my @student = map { $_ >= 0 ? $lines[$order[$_]] : '' } split(',', $actualAnswer);
     
     $anshash->{non_tex_preview} = 1;
     $anshash->{student_ans} = "(see preview)";
     $anshash->{preview_latex_string} = "<div style='text-align:left'><ul><li>".join("</li><li>",@student)."</li></ul></div>";
     $anshash->{correct_ans_latex_string} = "<div style='text-align:left'><ul><li>".join("</li><li>",@correct)."</li></ul></div>";
-            
+    $anshash->{correct_value} = $anshash->{original_correct_value};
+    
     return $anshash;
 }
 1;
