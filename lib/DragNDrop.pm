@@ -92,22 +92,22 @@ package DragNDrop;
 sub new {
 	my $self = shift;
 	my $class = ref($self) || $self;
-	
+
 	# 'id' of html <input> tag corresponding to the answer blank. Must be unique to each pool of DragNDrop buckets
 	my $answerInputId = shift;
-	
+
 	# array of all statements provided
 	my $aggregateList = shift;
-	
+
 	# instructor-provided default buckets with pre-included statements encoded
 	# by the array of corresponding statement indices
 	my $defaultBuckets = shift;
-	
+
 	my %options = (
 	AllowNewBuckets => 0,
 	@_
 	);
-	
+
 	$self = bless {
 		answerInputId => $answerInputId,
 		bucketList => [],
@@ -115,21 +115,21 @@ sub new {
 		defaultBuckets => $defaultBuckets,
 		%options,
 	}, $class;
-	
+
 	return $self;
 }
 
 sub addBucket {
 	my $self = shift;
-	
+
 	my $indices = shift;
-	
+
 	my %options = (
 	label => "",
 	removable => 0,
 	@_
 	);
-	
+
 	my $bucket = {
 		indices => $indices,
 		list => [ map { $self->{aggregateList}->[$_] } @$indices ],
@@ -138,15 +138,15 @@ sub addBucket {
 		removable => $options{removable},
 	};
 	push(@{$self->{bucketList}}, $bucket);
-	
+
 }
 
 sub HTML {
 	my $self = shift;
-	
+
 	my $out = '';
 	$out .= "<div class='bucket_pool' data-ans='$self->{answerInputId}'>";
-	
+
 	# buckets from instructor-defined default settings
 	for (my $i = 0; $i < @{$self->{defaultBuckets}}; $i++) {
 		my $defaultBucket = $self->{defaultBuckets}->[$i];
@@ -158,14 +158,14 @@ sub HTML {
 		}
 		$out .= "</ol></div>";
 	}
-	
+
 	# buckets from past answers
 	for my $bucket ( @{$self->{bucketList}} ) {
 		$out .= "<div class='hidden past_answers bucket' data-bucket-id='$bucket->{bucket_id}' ";
 		$out .= "data-removable='$bucket->{removable}'>";
 		$out .= "<div class='label'>$bucket->{label}</div>";
 		$out .= "<ol class='answer'>";
-		
+
 		for my $index ( @{$bucket->{indices}} ) {
 			$out .= "<li data-shuffled-index='$index'>$self->{aggregateList}->[$index]</li>";
 		}
@@ -178,21 +178,21 @@ sub HTML {
 		$out .= "<a class='btn add_bucket' data-ans='$self->{answerInputId}'>add bucket</a>";
 	}
 	$out .= "</div>";
-	
+
 	return $out;
 }
 
 sub TeX {
 	my $self = shift;
-	
+
 	my $out = "";
-	
+
 	# default buckets;
 	for (my $i = 0; $i < @{ $self->{defaultBuckets} }; $i++) {
 		$out .= "\n";
 		my $defaultBucket = $self->{defaultBuckets}->[$i];
 		if ( @{$defaultBucket->{indices}} > 0 ) {
-			$out .= "\n\\hrule\n\\begin{itemize}";		
+			$out .= "\n\\hrule\n\\begin{itemize}";
 			for my $j ( @{$defaultBucket->{indices}} ) {
 				$out .= "\n\\item[$j.]\n $self->{aggregateList}->[$j]";
 			}

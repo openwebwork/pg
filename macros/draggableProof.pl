@@ -158,9 +158,9 @@ package draggableProof;
 sub new {
 	my $self = shift;
 	my $class = ref($self) || $self;
-	
+
 	my $proof = shift;
-	my $extra = shift;	
+	my $extra = shift;
 	my %options = (
 	SourceLabel => "Choose from these sentences:",
 	TargetLabel => "Your Proof:",
@@ -171,17 +171,17 @@ sub new {
 	IrrelevancePenalty => 1,
 	@_
 	);
-	
+
 	my $lines = [ @$proof, @$extra ];
 	my $numNeeded = scalar(@$proof);
 	my $numProvided = scalar(@$lines);
 	my @order = main::shuffle($numProvided);
 	my @unorder = main::invert(@order);
 	my $shuffledLines = [ map {$lines->[$_]} @order ];
-	
+
 	my $answerInputId = main::NEW_ANS_NAME() unless $self->{answerInputId};
 	my $ans_rule = main::NAMED_HIDDEN_ANS_RULE($answerInputId);
-	
+
 	my $dnd;
 	if ($options{NumBuckets} == 2) {
 		$dnd = new DragNDrop($answerInputId, $shuffledLines,
@@ -206,16 +206,16 @@ sub new {
 		],
 		AllowNewBuckets => 0);
 	}
-	
+
 	my $proof = $options{NumBuckets} == 2 ? main::List(
 	main::List(@unorder[$numNeeded .. $numProvided - 1]),
 	main::List(@unorder[0..$numNeeded-1])
 	) : main::List('('.join(',', @unorder[0..$numNeeded-1]).')');
-	
+
 	my $extra = main::Set(@unorder[$numNeeded .. $numProvided - 1]);
-	
+
 	my $InferenceMatrix = $options{InferenceMatrix};
-	
+
 	$self = bless {
 		lines => $lines,
 		shuffledLines => $shuffledLines,
@@ -231,9 +231,9 @@ sub new {
 		inferenceMatrix => $InferenceMatrix,
 		%options,
 	}, $class;
-	
+
 	my $previous = $main::inputs_ref->{$answerInputId} || '';
-	
+
 	if ($previous eq "") {
 		if ($self->{NumBuckets} == 2) {
 			$dnd->addBucket([0..$numProvided-1], label => $options{'SourceLabel'});
@@ -244,7 +244,7 @@ sub new {
 	} else {
 		my @matches = ( $previous =~ /(\([^\(\)]*\)|-?\d+)/g );
 		if ($self->{NumBuckets} == 2) {
-			my $indices1 = [ split(',', @matches[0] =~ s/\(|\)//gr) ];	
+			my $indices1 = [ split(',', @matches[0] =~ s/\(|\)//gr) ];
 			$dnd->addBucket($indices1->[0] != -1 ? $indices1 : [], label => $options{'SourceLabel'});
 			my $indices2 = [ split(',', @matches[1] =~ s/\(|\)//gr) ];
 			$dnd->addBucket($indices2->[0] != -1 ? $indices2 : [], label => $options{'TargetLabel'});
@@ -253,7 +253,7 @@ sub new {
 			$dnd->addBucket($indices1->[0] != -1 ? $indices1 : [], label => $options{'TargetLabel'});
 		}
 	}
-	
+
 	return $self;
 }
 
@@ -266,10 +266,10 @@ sub unorder {@{shift->{unorder}}}
 sub Levenshtein {
 	my @ar1 = split /$_[2]/, $_[0];
 	my @ar2 = split /$_[2]/, $_[1];
-	
+
 	my @dist = ([0 .. @ar2]);
 	$dist[$_][0] = $_ for (1 .. @ar1);
-	
+
 	for my $i (0 .. $#ar1) {
 		for my $j (0 .. $#ar2) {
 			$dist[$i+1][$j+1] = main::min($dist[$i][$j+1] + 1, $dist[$i+1][$j] + 1,
@@ -282,18 +282,18 @@ sub Levenshtein {
 sub DamerauLevenshtein {
 	# Damerau–Levenshtein distance with adjacent transpositions
 	# https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
-	
+
 	my $discourse1 = shift;
 	my $discourse2 = shift;
 	my $delimiter = shift;
 	my $numProvided = shift;
-	
+
 	my @ar1 = split /$delimiter/, $discourse1;
 	my @ar2 = split /$delimiter/, $discourse2;
-	
+
 	my @da = (0) x $numProvided;
 	my @d = ();
-	
+
 	my $maxdist = @ar1 + @ar2;
 	for my $i (1 .. @ar1 + 1) {
 		push(@d, [ (0) x (@ar2 + 2) ] );
@@ -329,9 +329,9 @@ sub DamerauLevenshtein {
 
 sub Print {
 	my $self = shift;
-	
+
 	my $ans_rule = $self->{ans_rule};
-	
+
 	if ($main::displayMode ne "TeX") {
 		# HTML mode
 		return join("\n",
@@ -352,39 +352,39 @@ sub cmp {
 	return $self->{proof}
 	->cmp(ordered => 1, removeParens => 1)
 	->withPreFilter(sub {$self->prefilter(@_)})
-	->withPostFilter(sub {$self->filter(@_)});	
+	->withPostFilter(sub {$self->filter(@_)});
 }
 
 sub prefilter {
 	my $self = shift;
 	my $anshash = shift;
-	
+
 	my $correctProcessed;
-	
+
 	$anshash->{original_correct_value} = $anshash->{correct_value};
-	
+
 	if ($self->{NumBuckets} == 1) {
 		$correctProcessed = $anshash->{correct_value} =~ s/\(|\)|\s*//gr;
 	} elsif ($self->{NumBuckets} == 2) {
 		my @matches = ( $anshash->{correct_value} =~ /(\([^\(\)]*\)|-?\d+)/g );
 		$correctProcessed = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
 	}
-	
+
 	$anshash->{correct_value} = main::List($correctProcessed);
-	
+
 	return $anshash;
 }
 
 sub filter {
 	my $self = shift;
 	my $anshash = shift;
-	
+
 	my @lines = @{$self->{lines}};
 	my @order = @{$self->{order}};
-	
+
 	my $correct_value = $anshash->{correct_value};
 	my $actualAnswer;
-	
+
 	if ($self->{NumBuckets} == 1) {
 		$actualAnswer = main::List( $anshash->{student_value} =~ s/\(|\)|\s*//gr );
 	} elsif ($self->{NumBuckets} == 2) {
@@ -417,7 +417,7 @@ sub filter {
 			}
 		}
 		$anshash->{score} = $inferenceScore / $total;
-		
+
 		my %invoked = map { $_ => 1 } split(',', $actualAnswer);
 		foreach ( split(',', $self->{extra}->string =~ s/{|}|\s*//gr ) ) {
 			if ( exists($invoked{$_}) ) {
@@ -427,27 +427,27 @@ sub filter {
 	} else {
 		$anshash->{score} = $correct_value eq main::List($actualAnswer) ? 1 : 0;
 	}
-	
+
 	my @correct = map { $_ >= 0 ? $lines[$order[$_]] : '' } split(',', $correct_value);
 	my @student = map { $_ >= 0 ? $lines[$order[$_]] : '' } split(',', $actualAnswer);
-	
+
 	$anshash->{non_tex_preview} = 1;
 	$anshash->{student_ans} = "(see preview)";
-	
+
 	$anshash->{preview_latex_string} = join('', (
 	"<div style='text-align:left'><ul><li>",
 	join("</li><li>",@student),
 	"</li></ul></div>"
 	));
-	
+
 	$anshash->{correct_ans_latex_string} = join('', (
 	"<div style='text-align:left'><ul><li>",
 	join("</li><li>",@correct),
 	"</li></ul></div>"
 	));
-	
+
 	$anshash->{correct_value} = $anshash->{original_correct_value};
-	
+
 	return $anshash;
 }
 1;

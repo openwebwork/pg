@@ -161,7 +161,7 @@ package draggableSubsets;
 sub new {
 	my $self = shift;
 	my $class = ref($self) || $self;
-	
+
 	# user arguments
 	my $set = shift;
 	my $subsets = shift;
@@ -172,13 +172,13 @@ sub new {
 	@_
 	);
 	# end user arguments
-	
+
 	my $numProvided = scalar(@$set);
 	my @order = main::shuffle($numProvided);
 	my @unorder = main::invert(@order);
-	
+
 	my $shuffledSet = [ map {$set->[$_]} @order ];
-	
+
 	my $defaultBuckets = $options{DefaultSubsets};
 	my $defaultShuffledBuckets = [];
 	if (@$defaultBuckets) {
@@ -189,7 +189,7 @@ sub new {
 				indices => $shuffledIndices,
 				removable => $defaultBucket->{removable},
 			};
-			push(@$defaultShuffledBuckets, $default_shuffled_bucket);			
+			push(@$defaultShuffledBuckets, $default_shuffled_bucket);
 		}
 	} else {
 		push(@$defaultShuffledBuckets, [ {
@@ -197,18 +197,18 @@ sub new {
 			indices => [ 0..$numProvided-1 ]
 		} ]);
 	}
-	
-	my $answerInputId = main::NEW_ANS_NAME() unless $self->{answerInputId};	
+
+	my $answerInputId = main::NEW_ANS_NAME() unless $self->{answerInputId};
 	my $ans_rule = main::NAMED_HIDDEN_ANS_RULE($answerInputId);
 	my $dnd = new DragNDrop(
 	$answerInputId,
 	$shuffledSet,
 	$defaultShuffledBuckets,
 	AllowNewBuckets => $options{AllowNewBuckets},
-	);	
-	
+	);
+
 	my $previous = $main::inputs_ref->{$answerInputId} || '';
-	
+
 	if ($previous eq '') {
 		for my $defaultBucket ( @$defaultShuffledBuckets ) {
 			$dnd->addBucket($defaultBucket->{indices}, label => $defaultBucket->{label});
@@ -216,21 +216,21 @@ sub new {
 	} else {
 		my @matches = ( $previous =~ /(\([^\(\)]*\)|-?\d+)+/g );
 		for(my $i = 0; $i < @matches; $i++) {
-			my $match = @matches[$i] =~ s/\(|\)//gr;			
+			my $match = @matches[$i] =~ s/\(|\)//gr;
 			my $indices = [ split(',', $match) ];
 			my $label = $i < @$defaultShuffledBuckets ? $defaultShuffledBuckets->[$i]->{label} : '';
 			my $removable = $i < @$defaultShuffledBuckets ? $defaultShuffledBuckets->[$i]->{removable} : 1;
 			$dnd->addBucket($indices->[0] != -1 ? $indices : [], label => $label, removable => $removable);
 		}
-	}	
-	
+	}
+
 	my @shuffled_subsets_array = ();
 	for my $subset ( @$subsets ) {
 		my @shuffled_subset = map {$unorder[$_]} @$subset;
 		push(@shuffled_subsets_array, @$subset != 0 ? main::Set(join(',', @shuffled_subset)) : main::Set());
-	}	
+	}
 	my $shuffled_subsets = main::List(@shuffled_subsets_array);
-	
+
 	$self = bless {
 		set => $set,
 		shuffledSet => $shuffledSet,
@@ -244,15 +244,15 @@ sub new {
 		OrderedSubsets => $options{OrderedSubsets},
 		AllowNewBuckets => $options{AllowNewBuckets},
 	}, $class;
-	
+
 	return $self;
 }
 
 sub Print {
 	my $self = shift;
-	
+
 	my $ans_rule = $self->{ans_rule};
-	
+
 	if ($main::displayMode ne "TeX") {
 		# HTML mode
 		return join("\n",
@@ -264,13 +264,13 @@ sub Print {
 		);
 	} else {
 		# TeX mode
-		return $self->{dnd}->TeX;		
+		return $self->{dnd}->TeX;
 	}
 }
 
 sub cmp {
-	my $self = shift;	
-	
+	my $self = shift;
+
 	return $self->{shuffled_subsets}
 	->cmp(ordered => $self->{OrderedSubsets}, removeParens => 1, partialCredit => 1)
 	->withPreFilter(sub {$self->prefilter(@_)})
@@ -278,10 +278,10 @@ sub cmp {
 }
 
 sub prefilter {
-	my $self = shift; my $anshash = shift;	
-	
-	my @student = ( $anshash->{original_student_ans} =~ /(\([^\(\)]*\)|-?\d+)/g );	
-	
+	my $self = shift; my $anshash = shift;
+
+	my @student = ( $anshash->{original_student_ans} =~ /(\([^\(\)]*\)|-?\d+)/g );
+
 	my @studentAnsArray;
 	for my $match ( @student ) {
 		if ($match =~ /-1/) {
@@ -290,33 +290,33 @@ sub prefilter {
 			push(@studentAnsArray, main::Set($match =~ s/\(|\)//gr));
 		}
 	}
-	
+
 	$anshash->{student_ans} = main::List(@studentAnsArray);
-	
+
 	return $anshash;
 }
 
 sub filter {
-	my $self = shift; my $anshash = shift;	
-	
+	my $self = shift; my $anshash = shift;
+
 	my @order = @{ $self->{order} };
 	my @student = ( $anshash->{original_student_ans} =~ /(\([^\(\)]*\)|-?\d+)/g );
 	my @correct = ( $anshash->{correct_ans} =~ /({[^{}]*}|-?\d+)/g );
-	
+
 	$anshash->{correct_ans_latex_string} = join (",", map {
 		"\\{\\text{".join(",", (map {
 			$_ != -1 ? $self->{shuffledSet}->[$_] : ''
 		} (split(',', $_ =~ s/{|}//gr)) ))."}\\}"
 	} @correct);
-	
+
 	$anshash->{preview_latex_string} = join (",", map {
 		"\\{\\text{".join(",", (map {
 			$_ != -1 ? $self->{shuffledSet}->[$_] : ''
 		} (split(',', $_ =~ s/\(|\)//gr)) ))."}\\}"
 	} @student);
-	
+
 	$anshash->{student_ans} = "(see preview)";
-	
+
 	return $anshash;
 }
 1;
