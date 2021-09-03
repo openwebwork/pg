@@ -361,6 +361,8 @@ sub prefilter {
 
 	my $correctProcessed;
 
+	main::Context()->normalStrings;
+
 	$anshash->{original_correct_value} = $anshash->{correct_value};
 
 	if ($self->{NumBuckets} == 1) {
@@ -425,7 +427,7 @@ sub filter {
 			}
 		}
 	} else {
-		$anshash->{score} = $correct_value eq main::List($actualAnswer) ? 1 : 0;
+		$anshash->{score} = $correct_value eq $actualAnswer ? 1 : 0;
 	}
 
 	my @correct = map { $_ >= 0 ? $lines[$order[$_]] : '' } split(',', $correct_value);
