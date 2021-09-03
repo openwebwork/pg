@@ -384,14 +384,14 @@ sub filter {
 	my @lines = @{$self->{lines}};
 	my @order = @{$self->{order}};
 
-	my $correct_value = $anshash->{correct_value};
+	my $correct_value = $anshash->{correct_value} =~ s/\(|\)|\s*//gr;
 	my $actualAnswer;
 
 	if ($self->{NumBuckets} == 1) {
-		$actualAnswer = main::List( $anshash->{student_value} =~ s/\(|\)|\s*//gr );
+		$actualAnswer = $anshash->{student_value} =~ s/\(|\)|\s*//gr;
 	} elsif ($self->{NumBuckets} == 2) {
 		my @matches = ( $anshash->{student_value} =~ /(\([^\(\)]*\)|-?\d+)/g );
-		$actualAnswer = main::List( @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '' );
+		$actualAnswer = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
 	}
 	if ($self->{Levenshtein} == 1) {
 		$anshash->{score} = 1 - main::min(1, Levenshtein($correct_value, $actualAnswer, ',')/$self->{numNeeded});
@@ -427,7 +427,7 @@ sub filter {
 			}
 		}
 	} else {
-		$anshash->{score} = $correct_value eq $actualAnswer ? 1 : 0;
+		$anshash->{score} = main::List($correct_value) eq main::List($actualAnswer) ? 1 : 0;
 	}
 
 	my @correct = map { $_ >= 0 ? $lines[$order[$_]] : '' } split(',', $correct_value);
