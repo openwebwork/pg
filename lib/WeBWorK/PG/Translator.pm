@@ -79,67 +79,70 @@ sets or PG macro files.  Use this way to imitate the behavior of C<use strict;>
 =cut
 
 BEGIN {
-	my $ce = new WeBWorK::CourseEnvironment({
-        webwork_dir => $ENV{WEBWORK_ROOT},
-    });
+	# Setup the safe compartment for the standalone renderer.
+	if (exists($ENV{MOJO_MODE})) {
+		my $ce = new WeBWorK::CourseEnvironment({
+			webwork_dir => $ENV{WEBWORK_ROOT},
+		});
 
-    # This safe compartment is used to read the large macro files such as
-    # PG.pl, PGbasicmacros.pl and PGanswermacros and cache the results so that
-    # future calls have preloaded versions of these large files. This saves
-    # approximately 200ms per render.
-    my $safeCache = new WWSafe;
+		# This safe compartment is used to read the large macro files such as
+		# PG.pl, PGbasicmacros.pl and PGanswermacros and cache the results so that
+		# future calls have preloaded versions of these large files. This saves
+		# approximately 200ms per render.
+		my $safeCache = new WWSafe;
 
-    my @modules = @{ $ce->{pg}->{modules} };
-	my $ra_included_modules = [];
+		my @modules = @{ $ce->{pg}->{modules} };
+		my $ra_included_modules = [];
 
-    foreach my $module_packages_ref (@modules) {
-        my ( $module, @extra_packages ) = @$module_packages_ref;
+		foreach my $module_packages_ref (@modules) {
+			my ( $module, @extra_packages ) = @$module_packages_ref;
 
-        # the first item is the main package
-		$module =~ s/\.pm$//;
-		eval "package Main; require $module; import $module;";
-        warn "Failed to evaluate module $module: $@" if $@;
-        push @$ra_included_modules, "\%${module}::";
+			# the first item is the main package
+			$module =~ s/\.pm$//;
+			eval "package Main; require $module; import $module;";
+			warn "Failed to evaluate module $module: $@" if $@;
+			push @$ra_included_modules, "\%${module}::";
 
-        # the remaining items are "extra" packages
-		foreach (@extra_packages) {
-			s/\.pm$//;
-			import $_;
-			warn "Failed to evaluate module $_: $@" if $@;
-			push @$ra_included_modules, "\%${_}::";
+			# the remaining items are "extra" packages
+			foreach (@extra_packages) {
+				s/\.pm$//;
+				import $_;
+				warn "Failed to evaluate module $_: $@" if $@;
+				push @$ra_included_modules, "\%${_}::";
+			}
 		}
-    }
 
-	$safeCache->share_from( 'main', $ra_included_modules );
+		$safeCache->share_from( 'main', $ra_included_modules );
 
-	my $store_mask = $safeCache->mask();
-	$safeCache->mask(Opcode::empty_opset());
-	my $safe_cmpt_package_name = $safeCache->root();
-	
-	# these days, the only unrestricted load is from PG.pl -- include it in pre-cache
-	my $filePath = $WeBWorK::Constants::PG_DIRECTORY . "/macros/PG.pl";
-	my $init_subroutine_name = "${safe_cmpt_package_name}::_PG_init";
+		my $store_mask = $safeCache->mask();
+		$safeCache->mask(Opcode::empty_opset());
+		my $safe_cmpt_package_name = $safeCache->root();
 
-	my $errors = "";
-	if (-r $filePath ) {
-		my $rdoResult = $safeCache->rdo($filePath);
-		$errors .= "\nThere were problems compiling the file:\n $filePath\n $@\n" if $@;
-	} else {
-		$errors .= "Can't open file $filePath for reading\n";
+		# these days, the only unrestricted load is from PG.pl -- include it in pre-cache
+		my $filePath = $WeBWorK::Constants::PG_DIRECTORY . "/macros/PG.pl";
+		my $init_subroutine_name = "${safe_cmpt_package_name}::_PG_init";
+
+		my $errors = "";
+		if ( -r $filePath ) {
+			my $rdoResult = $safeCache->rdo($filePath);
+			$errors .= "\nThere were problems compiling the file:\n $filePath\n $@\n" if $@;
+		} else {
+			$errors .= "Can't open file $filePath for reading\n";
+		}
+		$safeCache -> mask($store_mask);
+
+		# intialize PG.pl
+		my $init_subroutine  = eval { \&{$init_subroutine_name} };
+		my $macro_file_loaded	= ref($init_subroutine) =~ /CODE/;
+		if ( $macro_file_loaded ) {
+			&$init_subroutine();
+		}
+		$errors .= "\nUnknown error.  Unable to load $filePath\n" if ($errors eq '' and not $macro_file_loaded);
+		die "Translator.pm [BEGIN errors]: $errors\n" if $errors;
+
+		# stash the cache in a global variable
+		$WeBWorK::Translator::safeCache = $safeCache;
 	}
-	$safeCache -> mask($store_mask);
-
-	# intialize PG.pl
-	my $init_subroutine  = eval { \&{$init_subroutine_name} };
-	my $macro_file_loaded	= ref($init_subroutine) =~ /CODE/;
-	if ( $macro_file_loaded ) {
-		&$init_subroutine();
-	}
-	$errors .= "\nUnknown error.  Unable to load $filePath\n" if ($errors eq '' and not $macro_file_loaded);
-	die "Translator.pm [BEGIN errors]: $errors\n" if $errors;
-
-	# stash the cache in a global variable
-	$WeBWorK::Translator::safeCache = $safeCache;
 
 	# allows the use of strict within macro packages.
 	sub be_strict {
@@ -208,15 +211,20 @@ sub load_extra_packages{
 }
 
 =head2  new
+
 	Creates the translator object.
+
 =cut
 
 
 sub new {
 	my $class = shift;
-	# it is safe for all requests to use the safeCache because the perl
-	# process is forked for each render request (thanks async!)
-	my $safe_cmpt = $WeBWorK::Translator::safeCache;
+
+	# The standalone renderer caches the safe compartment when the module is compiled.
+	# It is safe for all requests to use the safeCache because the perl
+	# process is forked for each render request.  (thanks async!)
+	my $safe_cmpt = exists($ENV{MOJO_MODE}) ? $WeBWorK::Translator::safeCache : new WWSafe;
+
 	my $self = {
 	    preprocess_code           =>  \&default_preprocess_code,
 	    postprocess_code           => \&default_postprocess_code,
@@ -356,9 +364,10 @@ sub initialize {
 	#$safe_cmpt -> share('$rf_restricted_eval');
 	use strict;
     	
-	# $safe_cmpt -> share_from('main', $self->{ra_included_modules} );
-	# the above line will get changed when we fix the PG modules thing. heh heh. [FIXED]
-	# now the default included modules from defaults.config are loaded at BEGIN
+	# The standalone renderer does this when the module is compiled.
+	unless (exists($ENV{MOJO_MODE})) {
+		$safe_cmpt -> share_from('main', $self->{ra_included_modules} );
+	}
 }
 
 sub environment{
