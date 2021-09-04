@@ -50,94 +50,95 @@ Each subset is specified via the indices of the elements according to their posi
 with the first element having index 0.
 
 Available Options:
-DefaultSubsets => <array reference>
-OrderedSubsets => 0 or 1
-AllowNewBuckets => 0 or 1
+
+ DefaultSubsets => <array reference>
+ OrderedSubsets => 0 or 1
+ AllowNewBuckets => 0 or 1
 
 Their usage is explained in the example below.
 
 =head1 EXAMPLE
 
-DOCUMENT();
-loadMacros(
-"PGstandard.pl",
-"MathObjects.pl",
-"draggableSubsets.pl",
-);
+ DOCUMENT();
+ loadMacros(
+ "PGstandard.pl",
+ "MathObjects.pl",
+ "draggableSubsets.pl",
+ );
 
-TEXT(beginproblem());
+ TEXT(beginproblem());
 
-$D3 = [
-"\(e\)", #0
-"\(r\)", #1
-"\(r^2\)", #2
-"\(s\)", #3
-"\(sr\)", #4
-"\(sr^2\)", #5
-];
+ $D3 = [
+ "\(e\)", #0
+ "\(r\)", #1
+ "\(r^2\)", #2
+ "\(s\)", #3
+ "\(sr\)", #4
+ "\(sr^2\)", #5
+ ];
 
-$subgroup = "e, s";
+ $subgroup = "e, s";
 
-$subsets = [
-[0, 3],
-[1, 4],
-[2, 5]
-];
+ $subsets = [
+ [0, 3],
+ [1, 4],
+ [2, 5]
+ ];
 
-$draggable = DraggableSubsets(
-$D3, # full set. Square brackets must be used.
-#
-$subsets, # reference to array of arrays of indices, corresponding to correct set of subsets.
-# Square brackets must be used.
-#
-DefaultSubsets => [ # default instructor-provided subsets. Default value = [].
-{
-label => 'coset 1', # label of the bucket.
-indices => [ 1, 3, 4, 5 ], # specifies pre-included elements in the bucket via their indices.
-removable => 0 # specifies whether student may remove bucket.
-},
-{
-label => 'coset 2',
-indices => [ 0 ],
-removable => 1
-},
-{
-label => 'coset 3',
-indices => [ 2 ],
-removable => 1
-}
-],
-# OrderedSubsets => 0, # means order of subsets does not matter. 1 means otherwise.
-# (The order of elements within each subset never matters.) Default value = 0.
-#
-# AllowNewBuckets => 0, # means no new buckets may be added by student. 1 means otherwise. Default value = 1.
-);
+ $draggable = DraggableSubsets(
+ $D3, # full set. Square brackets must be used.
+ #
+ $subsets, # reference to array of arrays of indices, corresponding to correct set of subsets.
+ # Square brackets must be used.
+ #
+ DefaultSubsets => [ # default instructor-provided subsets. Default value = [].
+ {
+ label => 'coset 1', # label of the bucket.
+ indices => [ 1, 3, 4, 5 ], # specifies pre-included elements in the bucket via their indices.
+ removable => 0 # specifies whether student may remove bucket.
+ },
+ {
+ label => 'coset 2',
+ indices => [ 0 ],
+ removable => 1
+ },
+ {
+ label => 'coset 3',
+ indices => [ 2 ],
+ removable => 1
+ }
+ ],
+ # OrderedSubsets => 0, # means order of subsets does not matter. 1 means otherwise.
+ # (The order of elements within each subset never matters.) Default value = 0.
+ #
+ # AllowNewBuckets => 0, # means no new buckets may be added by student. 1 means otherwise. Default value = 1.
+ );
 
-Context()->texStrings;
+ Context()->texStrings;
 
-BEGIN_TEXT
+ BEGIN_TEXT
 
-Let \[
-G=D_3=\lbrace e,r,r^2, s,sr,sr^2 \rbrace
-\]
-be the Dihedral group of order \(6\), where \(r\) is counter-clockwise rotation by \(2\pi/3\),
-and \(s\) is the reflection across the \(x\)-axis.
+ Let \[
+ G=D_3=\lbrace e,r,r^2, s,sr,sr^2 \rbrace
+ \]
+ be the Dihedral group of order \(6\), where \(r\) is counter-clockwise rotation by \(2\pi/3\),
+ and \(s\) is the reflection across the \(x\)-axis.
 
-Partition \(G=D_3\) into $BBOLD right $EBOLD cosets of the subgroup
-\(H=\lbrace $subgroup \rbrace\).  Give your result by dragging the following elements into separate buckets,
-each corresponding to a coset.
+ Partition \(G=D_3\) into $BBOLD right $EBOLD cosets of the subgroup
+ \(H=\lbrace $subgroup \rbrace\).  Give your result by dragging the following elements into separate buckets,
+ each corresponding to a coset.
 
-$PAR
-\{ $draggable->Print \}
+ $PAR
+ \{ $draggable->Print \}
 
-END_TEXT
-Context()->normalStrings;
+ END_TEXT
+ Context()->normalStrings;
 
-# Answer Evaluation
+ # Answer Evaluation
 
-ANS($draggable->cmp);
+ ANS($draggable->cmp);
 
-ENDDOCUMENT();
+ ENDDOCUMENT();
 
 =cut
 

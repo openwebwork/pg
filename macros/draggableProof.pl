@@ -53,88 +53,90 @@ if the draggable statements are placed in the exact same order as in the array r
 with no inclusion of any statement from $extra. The score is 0% otherwise.
 
 Available Options:
-NumBuckets => 1 or 2
-SourceLabel => <string>
-TargetLabel => <string>
-Levenshtein => 0 or 1
-DamerauLevenshtein => 0 or 1
-InferenceMatrix => <array reference>
-IrrelevancePenalty => <float>
+
+ NumBuckets => 1 or 2
+ SourceLabel => <string>
+ TargetLabel => <string>
+ Levenshtein => 0 or 1
+ DamerauLevenshtein => 0 or 1
+ InferenceMatrix => <array reference>
+ IrrelevancePenalty => <float>
 
 Their usage is explained in the example below.
 
 =head1 EXAMPLE
 
-DOCUMENT();
-loadMacros(
-"PGstandard.pl",
-"MathObjects.pl",
-"draggableProof.pl"
-);
+ DOCUMENT();
+ loadMacros(
+ "PGstandard.pl",
+ "MathObjects.pl",
+ "draggableProof.pl"
+ );
 
-TEXT(beginproblem());
+ TEXT(beginproblem());
 
-$statements = [
-"All men are mortal.", #0
-"Socrates is a man.", #1
-"Socrates is mortal." #2
-];
+ $statements = [
+ "All men are mortal.", #0
+ "Socrates is a man.", #1
+ "Socrates is mortal." #2
+ ];
 
-$extra = [
-"Some animals are men.",
-"Beauty is immortal.",
-"Not all animals are men."
-];
+ $extra = [
+ "Some animals are men.",
+ "Beauty is immortal.",
+ "Not all animals are men."
+ ];
 
-$draggable = DraggableProof(
-$statements,
-$extra,
-NumBuckets => 2, # either 1 or 2.
-SourceLabel => "Axioms", # label of first bucket if NumBuckets = 2.
-#
-TargetLabel => "<strong>Reasoning</strong>",
-# label of second bucket if NumBuckets = 2,
-# of the only bucket if NumBuckets = 1.
-################################################################
-# Levenshtein => 1,
-# If equal to 1, scoring is determined by the Levenshtein edit distance between student answer and correct answer.
-################################################################
-# DamerauLevenshtein => 1,
-# If equal to 1, scoring is determined by the Damerau-Levenshtein distance between student answer and correct answer.
-# A pair of transposed adjacent statements is counted as two mistakes under Levenshtein scoring,
-# but as one mistake under Damerau-Levenshtein scoring.
-################################################################
-InferenceMatrix => [
-[0, 0, 1],
-[0, 0, 1],
-[0, 0, 0]
-],
-# (i, j)-entry is nonzero <=> statement i implies statement j.
-# The score of each corresponding inference is weighted according to the value of the matrix entry.
-################################################################
-IrrelevancePenalty => 1 # This option is processed only if the InferenceMatrix option is set.
-# Penalty for each extraneous statement in the student answer is <IrrelevancePenalty>
-# divided by the total number of inference points (i.e. sum of all entries in the InferenceMatrix).
-# Default value = 1.
-);
+ $draggable = DraggableProof(
+ $statements,
+ $extra,
+ NumBuckets => 2, # either 1 or 2.
+ SourceLabel => "Axioms", # label of first bucket if NumBuckets = 2.
+ #
+ TargetLabel => "<strong>Reasoning</strong>",
+ # label of second bucket if NumBuckets = 2,
+ # of the only bucket if NumBuckets = 1.
+ #
+ # Levenshtein => 1,
+ # If equal to 1, scoring is determined by the Levenshtein edit distance between student answer and correct answer.
+ #
+ # DamerauLevenshtein => 1,
+ # If equal to 1, scoring is determined by the Damerau-Levenshtein distance between student answer and correct answer.
+ # A pair of transposed adjacent statements is counted as two mistakes under Levenshtein scoring,
+ # but as one mistake under Damerau-Levenshtein scoring.
+ #
+ InferenceMatrix => [
+ [0, 0, 1],
+ [0, 0, 1],
+ [0, 0, 0]
+ ],
+ # (i, j)-entry is nonzero <=> statement i implies statement j.
+ # The score of each corresponding inference is weighted according to the value of the matrix entry.
+ #
+ IrrelevancePenalty => 1
+ # This option is processed only if the InferenceMatrix option is set.
+ # Penalty for each extraneous statement in the student answer is <IrrelevancePenalty>
+ # divided by the total number of inference points (i.e. sum of all entries in the InferenceMatrix).
+ # Default value = 1.
+ );
 
-Context()->texStrings;
+ Context()->texStrings;
 
-BEGIN_TEXT
+ BEGIN_TEXT
 
-Show that Socrates is mortal by dragging the relevant $BBOLD Axioms $EBOLD
-into the $BBOLD Reasoning $EBOLD box in an appropriate order.
+ Show that Socrates is mortal by dragging the relevant $BBOLD Axioms $EBOLD
+ into the $BBOLD Reasoning $EBOLD box in an appropriate order.
 
-$PAR
+ $PAR
 
-\{ $draggable->Print \}
+ \{ $draggable->Print \}
 
-END_TEXT
-Context()->normalStrings;
+ END_TEXT
+ Context()->normalStrings;
 
-ANS($draggable->cmp);
+ ANS($draggable->cmp);
 
-ENDDOCUMENT();
+ ENDDOCUMENT();
 
 =cut
 

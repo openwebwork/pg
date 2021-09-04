@@ -31,39 +31,60 @@ An HTML element which houses a collection of buckets will be called a "bucket po
 =head1 USAGE
 
 Each macro aiming to implement drag-n-drop features must call at its initialization:
-ADD_CSS_FILE("https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.css", 1);
-ADD_JS_FILE("https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.js", 1);
-ADD_CSS_FILE("js/apps/DragNDrop/dragndrop.css", 0);
-ADD_JS_FILE("js/apps/DragNDrop/dragndrop.js", 0, { defer => undef });
+
+ ADD_CSS_FILE("https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.css", 1);
+ ADD_JS_FILE("https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.js", 1, { defer => undef });
+ ADD_CSS_FILE("js/apps/DragNDrop/dragndrop.css", 0);
+ ADD_JS_FILE("js/apps/DragNDrop/dragndrop.js", 0, { defer => undef });
 
 To initialize a bucket pool, do:
 
-my $bucket_pool = new DragNDrop($answerInputId, $aggregateList);
+ my $bucket_pool = new DragNDrop($answerInputId, $aggregateList);
 
 $answerInputId is a unique identifier for the bucket_pool, it is recommended that
 it be generated with NEW_ANS_NAME.
 
 $aggregateList is a reference to an array of all "statements" intended to be draggable.
-e.g. $aggregateList = ['socrates is a man', 'all men are mortal', 'therefore socrates is mortal'].
+Example:
+
+ $aggregateList = ['socrates is a man', 'all men are mortal', 'therefore socrates is mortal'];
+
 It is imperative that square brackets be used.
 
 ##############################################################################
-OPTIONAL: DragNDrop($answerInputId, $aggregateList, AllowNewBuckets => 1);
+OPTIONAL:
+
+ DragNDrop($answerInputId, $aggregateList, AllowNewBuckets => 1);
+
 allows student to create new buckets by clicking on a button.
 ##############################################################################
 
 To add a bucket to an existing pool $bucket_pool, do:
-$bucket_pool->addBucket($indices);
+
+ $bucket_pool->addBucket($indices);
 
 $indices is the reference to the array of indices corresponding to the statements in $aggregateList
 to be pre-included in the bucket.
-For example, if the $aggregateList is ['Socrates is a man', 'all men are mortal', 'therefore Socrates is mortal'],
-and the bucket consists of  { 'Socrates is a man', 'therefore Socrates is mortal' }, then $indices = [0, 2].
+
+For example, if the $aggregateList is:
+
+ ['Socrates is a man', 'all men are mortal', 'therefore Socrates is mortal']
+
+and the bucket consists of:
+
+ { 'Socrates is a man', 'therefore Socrates is mortal' }
+
+then:
+
+ $indices = [0, 2].
 
 An empty array reference, e.g. $bucket_pool->addBucket([]), gives an empty bucket.
 
 ###############################################################################
-OPTIONAL: $bucket_pool->addBucket($indices, label => 'Barrel', removable => 1)
+OPTIONAL:
+
+ $bucket_pool->addBucket($indices, label => 'Barrel', removable => 1)
+
 puts the label 'Barrel' at the top of the bucket.
 With the removable option set to 1, the bucket may be removed by the student via the click of a "Remove" button
 at the bottom of the bucket.
@@ -71,10 +92,12 @@ at the bottom of the bucket.
 ###############################################################################
 
 To output the bucket pool to HTML, call:
-$bucket_pool->HTML
+
+ $bucket_pool->HTML
 
 To output the bucket pool to LaTeX, call:
-$bucket_pool->TeX
+
+ $bucket_pool->TeX
 
 =head1 EXAMPLES
 
