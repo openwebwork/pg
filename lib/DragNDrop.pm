@@ -41,7 +41,7 @@ To initialize a bucket pool, do:
 my $bucket_pool = new DragNDrop($answerInputId, $aggregateList);
 
 $answerInputId is a unique identifier for the bucket_pool, it is recommended that
-it be generated with NEW_HIDDEN_ANS_NAME.
+it be generated with NEW_ANS_NAME.
 
 $aggregateList is a reference to an array of all "statements" intended to be draggable.
 e.g. $aggregateList = ['socrates is a man', 'all men are mortal', 'therefore socrates is mortal'].

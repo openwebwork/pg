@@ -118,7 +118,7 @@ IrrelevancePenalty => 1 # This option is processed only if the InferenceMatrix o
 # Default value = 1.
 );
 
-Context()->texStrings; # must be placed AFTER defining all DraggableSubsets.
+Context()->texStrings;
 
 BEGIN_TEXT
 
@@ -147,7 +147,7 @@ loadMacros(
 
 sub _draggableProof_init {
 	ADD_CSS_FILE("https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.css", 1);
-	ADD_JS_FILE("https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.js", 1);
+	ADD_JS_FILE("https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.js", 1, { defer => undef });
 	ADD_CSS_FILE("js/apps/DragNDrop/dragndrop.css", 0);
 	ADD_JS_FILE("js/apps/DragNDrop/dragndrop.js", 0, { defer => undef });
 	PG_restricted_eval("sub DraggableProof {new draggableProof(\@_)}");

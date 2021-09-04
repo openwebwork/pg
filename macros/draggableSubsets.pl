@@ -113,7 +113,7 @@ removable => 1
 # AllowNewBuckets => 0, # means no new buckets may be added by student. 1 means otherwise. Default value = 1.
 );
 
-Context()->texStrings; # must be placed AFTER defining all DraggableSubsets.
+Context()->texStrings;
 
 BEGIN_TEXT
 
@@ -150,7 +150,7 @@ loadMacros(
 
 sub _draggableSubsets_init {
 	ADD_CSS_FILE("https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.css", 1);
-	ADD_JS_FILE("https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.js", 1);
+	ADD_JS_FILE("https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.js", 1, { defer => undef });
 	ADD_CSS_FILE("js/apps/DragNDrop/dragndrop.css", 0);
 	ADD_JS_FILE("js/apps/DragNDrop/dragndrop.js", 0, { defer => undef });
 	PG_restricted_eval("sub DraggableSubsets {new draggableSubsets(\@_)}");
