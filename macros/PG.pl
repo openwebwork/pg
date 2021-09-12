@@ -236,7 +236,7 @@ sub ADD_JS_FILE {
 
 sub load_js() {
 	ADD_JS_FILE("https://polyfill.io/v3/polyfill.min.js?features=es6", 1);
-	ADD_JS_FILE("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.1.2/es5/tex-chtml.min.js", 1);
+	# ADD_JS_FILE("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.1.2/es5/tex-chtml.min.js", 1);
 	ADD_JS_FILE("https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js", 1);
 	ADD_JS_FILE("https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js", 1);
 	ADD_JS_FILE("https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.3.2/iframeResizer.contentWindow.min.js", 1);
