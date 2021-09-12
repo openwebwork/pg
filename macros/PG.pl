@@ -102,7 +102,8 @@ sub DOCUMENT {
   } elsif ($envir{displayMode} eq 'HTML_LaTeXMathML') {
        TEXT('<script src="'.$envir{LaTeXMathMLURL}.'"></script>'."\n");
   }
-
+  load_css();
+  load_js();
 }
 $main::displayMode = $PG->{displayMode};
 $main::PG = $PG;
@@ -194,6 +195,19 @@ sub ADD_CSS_FILE {
   push(@{$PG->{flags}{extra_css_files}}, { file => $file, external => $external });
 }
 
+sub load_css() {
+	ADD_CSS_FILE("https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css", 1);
+	ADD_CSS_FILE("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css", 1);
+	ADD_CSS_FILE("js/vendor/bootstrap/css/bootstrap.min.css");
+	ADD_CSS_FILE("js/vendor/bootstrap/css/bootstrap-responsive.min.css");
+	ADD_CSS_FILE("css/bootstrap.sub.css");
+	ADD_CSS_FILE("themes/math4/math4.css");
+	ADD_CSS_FILE("css/knowlstyle.css");
+	ADD_CSS_FILE("js/apps/MathQuill/mathquill.css");
+	ADD_CSS_FILE("js/apps/MathQuill/mqeditor.css");
+	ADD_CSS_FILE("js/apps/ImageView/imageview.css");
+}
+
 =head4 ADD_JS_FILE
 
 Request that the problem HTML page also include additional JS files
@@ -218,6 +232,24 @@ For example:
 sub ADD_JS_FILE {
 	my ($file, $external, $attributes) = @_;
 	push(@{$PG->{flags}{extra_js_files}}, { file => $file, external => $external, attributes => $attributes });
+}
+
+sub load_js() {
+	ADD_JS_FILE("https://polyfill.io/v3/polyfill.min.js?features=es6", 1);
+	ADD_JS_FILE("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.1.2/es5/tex-chtml.min.js", 1);
+	ADD_JS_FILE("https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js", 1);
+	ADD_JS_FILE("https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js", 1);
+	ADD_JS_FILE("https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.3.2/iframeResizer.contentWindow.min.js", 1);
+	ADD_JS_FILE("js/apps/MathJaxConfig/mathjax-config.js");
+	ADD_JS_FILE("js/legacy/java_init.js");
+	ADD_JS_FILE("js/apps/InputColor/color.js");
+	ADD_JS_FILE("js/apps/Base64/Base64.js");
+	ADD_JS_FILE("js/legacy/vendor/knowl.js");
+	ADD_JS_FILE("js/apps/ImageView/imageview.js");
+	ADD_JS_FILE("themes/math4/math4.js");
+	ADD_JS_FILE("js/apps/MathQuill/mathquill.min.js");
+	ADD_JS_FILE("js/apps/MathQuill/mqeditor.js");
+	ADD_JS_FILE("js/submithelper.js");
 }
 
 sub AskSage {
