@@ -15,7 +15,7 @@
 ################################################################################
 
 # This is a Perl module which simplifies and automates the process of generating
-# simple images using TikZ, and converting them into a web-useable format.  Its
+# simple images using LaTeX, and converting them into a web-useable format.  Its
 # typical usage is via the macro PGtikz.pl and is documented there.
 
 use strict;
@@ -31,7 +31,9 @@ sub new {
 	my $class = shift;
 	my $data = {
 		tex            => '',
-		tikzOptions    => '',
+		environment    => '',
+		envirOptions   => '',
+		tikzOptions    => '',  # legacy
 		tikzLibraries  => '',
 		texPackages    => [],
 		addToPreamble  => '',
@@ -61,14 +63,27 @@ sub new {
 
 # Accessors
 
-# Set TikZ image code, not including begin and end tags, as a single
-# string parameter.  Works best single quoted.
+# Set LaTeX image code as a single string parameter.  Works best single quoted.
 sub tex {
 	my $self = shift;
 	return &$self('tex', @_);
 }
 
-# Set TikZ picture options as a single string parameter.
+# Set LaTeX environment as a single string parameter.
+sub environment {
+	my $self = shift;
+	return &$self('environment', @_);
+}
+
+# Set LaTeX environment options as a single string parameter.
+sub envirOptions {
+	my $self = shift;
+	# legacy support for tikzOptions
+	return $self->tikzOptions if ($self->tikzOptions ne '');
+	return &$self('envirOptions', @_);
+}
+
+# Legacy support for tikzOptions
 sub tikzOptions {
 	my $self = shift;
 	return &$self('tikzOptions', @_);
@@ -137,15 +152,16 @@ sub header {
 	push(@output, "\\usetikzlibrary{" . $self->tikzLibraries . "}") if ($self->tikzLibraries ne "");
 	push(@output, $self->addToPreamble);
 	push(@output, "\\begin{document}\n");
-	push(@output, "\\begin{tikzpicture}");
-	push(@output, "[" . $self->tikzOptions . "]") if ($self->tikzOptions ne "");
+	push(@output, "\\begin{" , $self->environment . "}") if $self->environment;
+	push(@output, "[" . $self->envirOptions . "]") if ($self->environment && $self->envirOptions ne "");
+	push(@output, "\n") if $self->environment;
 	@output;
 }
 
 sub footer {
 	my $self = shift;
 	my @output = ();
-	push(@output, "\\end{tikzpicture}\n");
+	push(@output, "\\end{" , $self->environment . "}\n") if $self->environment;
 	push(@output, "\\end{document}\n");
 	@output;
 }

@@ -44,11 +44,11 @@ LaTeXImage object return by createTikZImage to generate the desired image.
                                string.  Escaping of special characters may be
                                needed in some cases.
 
-    $image->tikzOptions()      Add options that will be passed to
+    $image->envirOptions()     Add options that will be passed to
                                \begin{tikzpicture}.  This takes a single
                                string parameter.
                                For example:
-                               $image->tikzOptions(
+                               $image->envirOptions(
                                    "x=.5cm,y=.5cm,declare function={f(\x)=sqrt(\x);}"
                                );
 
@@ -104,12 +104,14 @@ sub _PGtikz_init {
 package PGtikz;
 our @ISA = qw(LaTeXImage);
 
-# Not much needs to be done here.  The real work is done in LaTeXImage.pm.
+# Not much needs to be done here except flag this as needing the tikz environment wrapper.
+# The real work is done in LaTeXImage.pm.
 sub new {
 	my $self = shift;
 	my $class = ref($self) || $self;
 
 	my $image = $class->SUPER::new(@_);
+	$image->environment('tikzpicture');
 	$image->svgMethod($main::envir{tikzSVGMethod} // 'pdf2svg');
 	$image->convertOptions($main::envir{tikzConvertOptions} // {input => {},output => {}});
 	$image->SUPER::ext('pdf') if $main::displayMode eq 'TeX';
