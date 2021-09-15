@@ -24,7 +24,7 @@ use Carp;
 use WeBWorK::PG::IO;
 use WeBWorK::PG::ImageGenerator;
 
-package TikZImage;
+package LaTeXImage;
 
 # The constructor (it takes no parameters)
 sub new {

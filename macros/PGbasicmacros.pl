@@ -2914,7 +2914,7 @@ Usage:
 
     image($image, width => 100, height => 100, tex_size => 800, alt => 'alt text', extra_html_tags => 'style="border:solid black 1pt"');
 
-where C<$image> can be a local file path, URL, WWPlot object, or TikZImage object,
+where C<$image> can be a local file path, URL, WWPlot object, or LaTeXImage object,
 C<width> and C<height> are pixel counts for HTML display, while C<tex_size> is
 per 1000 applied to linewidth (for example 800 leads to 0.8\linewidth)
 
@@ -2979,7 +2979,7 @@ sub image {
 	while(@image_list) {
 		my $image_item = shift @image_list;
 		$image_item = insertGraph($image_item)
-			if (ref $image_item eq 'WWPlot' || ref $image_item eq 'TikZImage' || ref $image_item eq 'PGtikz');
+			if (ref $image_item eq 'WWPlot' || ref $image_item eq 'LaTeXImage' || ref $image_item eq 'PGtikz');
 		my $imageURL = alias($image_item)//'';
 		$imageURL = ($envir{use_site_prefix})? $envir{use_site_prefix}.$imageURL : $imageURL;
 		my $out = "";

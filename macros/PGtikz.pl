@@ -19,7 +19,7 @@ PGtikz.pl - Insert images into problems that are generated using LaTeX and TikZ.
 
 =head1 DESCRIPTION
 
-This is a convenience macro for utilizing the TikZImage object to insert TikZ
+This is a convenience macro for utilizing the LaTeXImage object to insert TikZ
 images into problems.  Create a TikZ image as follows:
 
     $image = createTikZImage();
@@ -35,8 +35,8 @@ Then insert the image into the problem with
 
 =head1 DETAILED USAGE
 
-There are several TikZImage parameters that may need to be set for the
-TikZImage object return by createTikZImage to generate the desired image.
+There are several LaTeXImage parameters that may need to be set for the
+LaTeXImage object return by createTikZImage to generate the desired image.
 
     $image->tex()              Add the tikz commands that define the image.
                                This takes a single string parameter.  It is
@@ -102,9 +102,9 @@ sub _PGtikz_init {
 }
 
 package PGtikz;
-our @ISA = qw(TikZImage);
+our @ISA = qw(LaTeXImage);
 
-# Not much needs to be done here.  The real work is done in TikZImage.pm.
+# Not much needs to be done here.  The real work is done in LaTeXImage.pm.
 sub new {
 	my $self = shift;
 	my $class = ref($self) || $self;
