@@ -1,0 +1,41 @@
+##DESCRIPTION
+# TEST tikz from a pg problem
+##ENDDESCRIPTION
+
+DOCUMENT();
+
+loadMacros(
+    "PGstandard.pl",
+    "MathObjects.pl",
+    "PGlateximage.pl"
+);
+
+TEXT(beginproblem());
+
+##############################################################
+#  Setup
+##############################################################
+
+$drawing = createLaTeXImage();
+$drawing->texPackages([['xy','all']]);
+$drawing->BEGIN_LATEX_IMAGE
+\xymatrix{ A \ar[r] & B \ar[d] \\\\
+           D \ar[u] & C \ar[l] }
+END_LATEX_IMAGE
+
+$path = insertGraph($drawing);
+
+Context("Numeric");
+
+##############################################################
+#  Text
+##############################################################
+
+BEGIN_TEXT
+\{protect_underbar("path = $path")\};
+$BR alias = \{protect_underbar(alias($path))\}
+$PAR image = \{image($path, width => 228, height => 114, tex_size => 400)\}
+$PAR svg = \{embedSVG($path)\}
+END_TEXT
+
+ENDDOCUMENT();
