@@ -56,6 +56,8 @@ LaTeXImage object return by createTikZImage to generate the desired image.
                                string parameter.
                                For example:
                                $image->tikzOptions(
+                                   "x=.5cm,y=.5cm,declare function={f(\x)=sqrt(\x);}"
+                               );
 
     $image->tikzLibraries()    Add additional tikz libraries to load.  This
                                takes a single string parameter.

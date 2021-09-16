@@ -34,7 +34,7 @@ with backslashes. In the above, \\\\ becomes \\, because a simple \\ would
 become \. But \x and \a do not require escaping the backslash. (It would be
 harmless to escape these too though.)
 
-If math content is wihtin the LaTeX code, delimit it with \(...\) instead of
+If math content is within the LaTeX code, delimit it with \(...\) instead of
 with dollar signs.
 
 Then insert the image into the problem with
