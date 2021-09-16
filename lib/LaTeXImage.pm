@@ -146,8 +146,9 @@ sub header {
 	my $xcolorOpts = @xcolorOpts ? $xcolorOpts[0][1] : 'svgnames';
 	push(@output, "\\usepackage[$xcolorOpts]{xcolor}\n");
 	# Load tikz if environment is tikzpicture, but not if texPackages contains tikz already
-	my %istikzused = map {ref $_ eq "ARRAY" ? ($_->[0] => ($_->[0] eq 'tikz')) : ($_ => ($_ eq 'tikz'))} @{$self->texPackages};
-	push(@output, "\\usepackage{tikz}\n") if ($self->environment->[0] eq 'tikzpicture' && !$istikzused{'tikz'});
+	push(@output, "\\usepackage{tikz}\n")
+	if ($self->environment->[0] eq 'tikzpicture' &&
+		!grep { (ref $_ eq "ARRAY" && $_->[0] eq 'tikz') || $_ eq 'tikz' } @{$self->texPackages});
 	push(@output, map {
 			"\\usepackage" . (ref $_ eq "ARRAY" && @$_ > 1 && $_->[1] ne "" ? "[$_->[1]]" : "") . "{" . (ref $_ eq "ARRAY" ? $_->[0] : $_) . "}\n"
 		} grep { (ref $_ eq "ARRAY" && $_->[0] ne 'xcolor') || $_ ne 'xcolor' } @{$self->texPackages});
