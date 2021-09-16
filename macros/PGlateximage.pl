@@ -15,25 +15,26 @@
 
 =head1 NAME
 
-PGtikz.pl - Insert images into problems that are generated using LaTeX and TikZ.
+PGlateximage.pl - Insert images into problems that are generated using LaTeX.
 
 =head1 DESCRIPTION
 
-This is a convenience macro for utilizing the LaTeXImage object to insert TikZ
-images into problems.  Create a TikZ image as follows:
+This is a convenience macro for utilizing the LaTeXImage object to insert LaTeX
+images into problems.  An example::
 
-    $image = createTikZImage();
-    $image->BEGIN_TIKZ
-    \draw (-2,0) -- (2,0);
-    \draw (0,-2) -- (0,2);
-    \draw (0,0) circle[radius=1.5];
-    END_TIKZ
+    $image = createLaTeXImage();
+    $image->texPackages([['xy','all']]);
+    $image->BEGIN_LATEX_IMAGE
+    \xymatrix{ A \ar[r] & B \ar[d] \\\\
+               D \ar[u] & C \ar[l] }
+    END_LATEX_IMAGE
 
 The LaTeX code is in a perl interpolated heredoc, so you may need to be careful
-with backslashes. In the above, \d does not require escaping the backslash. But
-if the code needed a double backslash line break, you would need to use \\\\.
+with backslashes. In the above, \\\\ becomes \\, because a simple \\ would
+become \. But \x and \a do not require escaping the backslash. (It would be
+harmless to escape these too though.)
 
-If math content is within the LaTeX code, delimit it with \(...\) instead of
+If math content is wihtin the LaTeX code, delimit it with \(...\) instead of
 with dollar signs.
 
 Then insert the image into the problem with
@@ -43,19 +44,21 @@ Then insert the image into the problem with
 =head1 DETAILED USAGE
 
 There are several LaTeXImage parameters that may need to be set for the
-LaTeXImage object return by createTikZImage to generate the desired image.
+LaTeXImage object return by createLaTeXImage to generate the desired image.
 
-    $image->tex()              Add the tikz commands that define the image.
+    $image->tex()              Add the tex commands that define the image.
                                This takes a single string parameter.  It is
                                generally best to use single quotes around the
                                string.  Escaping of special characters may be
                                needed in some cases.
 
-    $image->tikzOptions()      Add options that will be passed to
-                               \begin{tikzpicture}.  This takes a single
-                               string parameter.
+    $image->environment()      Either a string naming an environment to wrap the
+                               tex() in, or an array where the first element is
+                               the name of an environment and an optional second
+                               argument is a string with options for the environment.
                                For example:
-                               $image->tikzOptions(
+                               $image->texPackages(['circuitikz']);
+                               $image->environment(['circuitikz','scale=1.2, transform shape']);
 
     $image->tikzLibraries()    Add additional tikz libraries to load.  This
                                takes a single string parameter.
@@ -82,7 +85,7 @@ LaTeXImage object return by createTikZImage to generate the desired image.
                                The valid image types are 'png', 'gif', 'svg',
                                and 'pdf'.  The default is an 'svg' image.  You
                                should determine if an 'svg' image works well with
-                               the TikZ code that you utilize.  If not, then use
+                               the LaTeX code that you utilize.  If not, then use
                                this method to change the exension to 'png' or
                                'gif'.
 
@@ -102,21 +105,20 @@ LaTeXImage object return by createTikZImage to generate the desired image.
 
 =cut
 
-sub _PGtikz_init {
-	main::PG_restricted_eval('sub createTikZImage { PGtikz->new(@_); }');
+sub _PGlateximage_init {
+	main::PG_restricted_eval('sub createLaTeXImage { PGlateximage->new(@_); }');
 }
 
-package PGtikz;
+package PGlateximage;
 our @ISA = qw(LaTeXImage);
 
-# Not much needs to be done here except flag this as needing the tikz environment wrapper.
+# Not much needs to be done here.
 # The real work is done in LaTeXImage.pm.
 sub new {
 	my $self = shift;
 	my $class = ref($self) || $self;
 
 	my $image = $class->SUPER::new(@_);
-	$image->environment('tikzpicture');
 	$image->svgMethod($main::envir{latexImageSVGMethod} // 'pdf2svg');
 	$image->convertOptions($main::envir{latexImageConvertOptions} // {input => {},output => {}});
 	$image->SUPER::ext('pdf') if $main::displayMode eq 'TeX';

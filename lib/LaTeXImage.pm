@@ -32,7 +32,6 @@ sub new {
 	my $data = {
 		tex            => '',
 		environment    => '',
-		envirOptions   => '',
 		tikzOptions    => '',  # legacy
 		tikzLibraries  => '',
 		texPackages    => [],
@@ -69,18 +68,17 @@ sub tex {
 	return &$self('tex', @_);
 }
 
-# Set LaTeX environment as a single string parameter.
+# Set an environment to surround the tex(). This can be a string naming the environment.
+# Or it can be an array reference. The first element of this array should be the name of
+# the environment. If there is a second element, it should be a string with options for
+# the environment. This could be extended to support environments with multiple option
+# fields that may use parentheses for delimiters.
 sub environment {
 	my $self = shift;
+	# legacy support
+	return ['tikzpicture',$self->tikzOptions] if ($self->tikzOptions ne '');
+	return [&$self('environment', @_), ''] if (ref(&$self('environment', @_)) ne 'ARRAY');
 	return &$self('environment', @_);
-}
-
-# Set LaTeX environment options as a single string parameter.
-sub envirOptions {
-	my $self = shift;
-	# legacy support for tikzOptions
-	return $self->tikzOptions if ($self->tikzOptions ne '');
-	return &$self('envirOptions', @_);
 }
 
 # Legacy support for tikzOptions
@@ -101,6 +99,11 @@ sub tikzLibraries {
 # element the package options).
 sub texPackages {
 	my $self = shift;
+	# Legacy: if tikzpicture is the environment, make sure tikz package is included
+	if ($self->environment->[0] eq 'tikzpicture') {
+		return &$self('texPackages', ['tikz',@$_[0]]) if ref($_[0]) eq "ARRAY";
+		return &$self('texPackages', ['tikz']);
+	}
 	return &$self('texPackages', $_[0]) if ref($_[0]) eq "ARRAY";
 	return &$self('texPackages');
 }
@@ -145,23 +148,24 @@ sub header {
 	my @xcolorOpts = grep { ref $_ eq "ARRAY" && $_->[0] eq "xcolor" && defined $_->[1] } @{$self->texPackages};
 	my $xcolorOpts = @xcolorOpts ? $xcolorOpts[0][1] : 'svgnames';
 	push(@output, "\\usepackage[$xcolorOpts]{xcolor}\n");
-	push(@output, "\\usepackage{tikz}\n");
 	push(@output, map {
 			"\\usepackage" . (ref $_ eq "ARRAY" && @$_ > 1 && $_->[1] ne "" ? "[$_->[1]]" : "") . "{" . (ref $_ eq "ARRAY" ? $_->[0] : $_) . "}\n"
 		} grep { (ref $_ eq "ARRAY" && $_->[0] ne 'xcolor') || $_ ne 'xcolor' } @{$self->texPackages});
 	push(@output, "\\usetikzlibrary{" . $self->tikzLibraries . "}") if ($self->tikzLibraries ne "");
 	push(@output, $self->addToPreamble);
 	push(@output, "\\begin{document}\n");
-	push(@output, "\\begin{" , $self->environment . "}") if $self->environment;
-	push(@output, "[" . $self->envirOptions . "]") if ($self->environment && $self->envirOptions ne "");
-	push(@output, "\n") if $self->environment;
+	if ($self->environment->[0]) {
+		push(@output, "\\begin{" , $self->environment->[0] . "}");
+		push(@output, "[" . $self->environment->[1] . "]") if (defined $self->environment->[1] && $self->environment->[1] ne "");
+		push(@output, "\n");
+	}
 	@output;
 }
 
 sub footer {
 	my $self = shift;
 	my @output = ();
-	push(@output, "\\end{" , $self->environment . "}\n") if $self->environment;
+	push(@output, "\\end{" , $self->environment->[0] . "}\n") if $self->environment->[0];
 	push(@output, "\\end{document}\n");
 	@output;
 }
@@ -214,7 +218,7 @@ sub draw {
 		if (-r "$working_dir/image.dvi") {
 			$self->use_svgMethod($working_dir);
 		} else {
-		        warn "The dvi file was not created.";
+			warn "The dvi file was not created.";
 			if (open(my $err_fh, "<", "$working_dir/latex.stdout")) {
 				while (my $error = <$err_fh>) {
 					warn $error;
