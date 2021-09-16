@@ -101,11 +101,6 @@ sub tikzLibraries {
 # element the package options).
 sub texPackages {
 	my $self = shift;
-	# if tikzpicture is the environment, make sure tikz package is included
-	if ($self->environment->[0] eq 'tikzpicture') {
-		return &$self('texPackages', ['tikz',@$_[0]]) if ref($_[0]) eq "ARRAY";
-		return &$self('texPackages', ['tikz']);
-	}
 	return &$self('texPackages', $_[0]) if ref($_[0]) eq "ARRAY";
 	return &$self('texPackages');
 }
@@ -150,6 +145,9 @@ sub header {
 	my @xcolorOpts = grep { ref $_ eq "ARRAY" && $_->[0] eq "xcolor" && defined $_->[1] } @{$self->texPackages};
 	my $xcolorOpts = @xcolorOpts ? $xcolorOpts[0][1] : 'svgnames';
 	push(@output, "\\usepackage[$xcolorOpts]{xcolor}\n");
+	# Load tikz if environment is tikzpicture, but not if texPackages contains tikz already
+	my %istikzused = map {ref $_ eq "ARRAY" ? ($_->[0] => ($_->[0] eq 'tikz')) : ($_ => ($_ eq 'tikz'))} @{$self->texPackages};
+	push(@output, "\\usepackage{tikz}\n") if ($self->environment->[0] eq 'tikzpicture' && !$istikzused{'tikz'});
 	push(@output, map {
 			"\\usepackage" . (ref $_ eq "ARRAY" && @$_ > 1 && $_->[1] ne "" ? "[$_->[1]]" : "") . "{" . (ref $_ eq "ARRAY" ? $_->[0] : $_) . "}\n"
 		} grep { (ref $_ eq "ARRAY" && $_->[0] ne 'xcolor') || $_ ne 'xcolor' } @{$self->texPackages});
