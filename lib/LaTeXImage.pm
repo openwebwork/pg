@@ -32,7 +32,9 @@ sub new {
 	my $data = {
 		tex            => '',
 		environment    => '',
-		tikzOptions    => '',  # legacy
+		# if tikzOptions is nonempty, then environment
+		# will effectively be ['tikzpicture', tikzOptions]
+		tikzOptions    => '',
 		tikzLibraries  => '',
 		texPackages    => [],
 		addToPreamble  => '',
@@ -73,15 +75,15 @@ sub tex {
 # the environment. If there is a second element, it should be a string with options for
 # the environment. This could be extended to support environments with multiple option
 # fields that may use parentheses for delimiters.
+# If tikzOptions is nonempty, the input is ignored and output is ['tikzpicture',tikzOptions].
 sub environment {
 	my $self = shift;
-	# legacy support
 	return ['tikzpicture',$self->tikzOptions] if ($self->tikzOptions ne '');
 	return [&$self('environment', @_), ''] if (ref(&$self('environment', @_)) ne 'ARRAY');
 	return &$self('environment', @_);
 }
 
-# Legacy support for tikzOptions
+# Set TikZ picture options as a single string parameter.
 sub tikzOptions {
 	my $self = shift;
 	return &$self('tikzOptions', @_);
@@ -99,7 +101,7 @@ sub tikzLibraries {
 # element the package options).
 sub texPackages {
 	my $self = shift;
-	# Legacy: if tikzpicture is the environment, make sure tikz package is included
+	# if tikzpicture is the environment, make sure tikz package is included
 	if ($self->environment->[0] eq 'tikzpicture') {
 		return &$self('texPackages', ['tikz',@$_[0]]) if ref($_[0]) eq "ARRAY";
 		return &$self('texPackages', ['tikz']);
