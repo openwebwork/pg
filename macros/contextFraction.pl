@@ -618,7 +618,7 @@ sub reduce {
 #
 sub string {
   my $self = shift;
-  my $string = $self->SUPER::string($self, @_);
+  my $string = $self->SUPER::string(@_);
   return $string unless $self->{value}->classMatch('Fraction');
   my $precedence = shift;
   my $frac = $self->context->operators->get('/')->{precedence};
@@ -627,15 +627,17 @@ sub string {
 }
 
 #
-#  Add parentheses if they are needed by precedence
+#  Add parentheses if they were there originally, or
+#  are needed by precedence and we asked for exxxtra parens
 #
 sub TeX {
   my $self = shift;
-  my $string = $self->SUPER::TeX($self, @_);
+  my $string = $self->SUPER::TeX(@_);
   return $string unless $self->{value}->classMatch('Fraction');
   my $precedence = shift;
   my $frac = $self->context->operators->get('/')->{precedence};
-  $string = '\left(' . $string . '\right)' if defined $precedence && $precedence > $frac;
+  $string = '\left(' . $string . '\right)' 
+    if defined $precedence && $precedence > $frac && $self->context->flag('showExtraParens') > 1;
   return $string;
 }
 
@@ -898,7 +900,6 @@ sub string {
   if ($self->getFlagWithAlias("showMixedNumbers","showProperFractions") && CORE::abs($a) > $b)
     {$n = int($a/$b); $a = CORE::abs($a) % $b; $n .= " " unless $a == 0}
   $n .= "$a/$b" unless $a == 0 && $n ne '';
-  $n = "($n)" if defined $prec && $prec >= 1;
   return "$n";
 }
 
@@ -911,7 +912,6 @@ sub TeX {
   my $s = ""; ($a,$s) = (-$a,"-") if $a < 0;
   $n .= ($self->{isHorizontal} ? "$s$a/$b" : "${s}{\\textstyle\\frac{$a}{$b}}")
     unless $a == 0 && $n ne '';
-  $n = "\\left($n\\right)" if defined $prec && $prec >= 1;
   return "$n";
 }
 
