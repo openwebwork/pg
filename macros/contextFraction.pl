@@ -636,8 +636,8 @@ sub TeX {
   return $string unless $self->{value}->classMatch('Fraction');
   my $precedence = shift;
   my $frac = $self->context->operators->get('/')->{precedence};
-  $string = '\left(' . $string . '\right)' 
-    if defined $precedence && $precedence > $frac && $self->context->flag('showExtraParens') > 1;
+  $string = '\left(' . $string . '\right)' if $self->{hadParens} ||
+    (defined $precedence && $precedence > $frac && $self->context->flag('showExtraParens') > 1);
   return $string;
 }
 
