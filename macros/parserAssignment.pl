@@ -351,18 +351,6 @@ sub new {
   return $f;
 }
 
-sub typeMatch {
-  my $self = shift; my $other = shift; my $ans = shift;
-  return 0 unless $self->type eq $other->type;
-  $other = $other->Package("Formula")->new($self->context,$other) unless $other->isFormula;
-  my $typeMatch = ($self->createRandomPoints(1))[1]->[0]{data}[1];
-  $main::__other__ = sub {($other->createRandomPoints(1))[1]->[0]{data}[1]};
-  $other = main::PG_restricted_eval('&$__other__()');
-  delete $main::{__other__};
-  return 1 unless defined($other); # can't really tell, so don't report type mismatch
-  $typeMatch->typeMatch($other,$ans);
-}
-
 sub cmp_class {
   my $self = shift; my $value;
   if ($self->{tree}{rop}{isConstant}) {
