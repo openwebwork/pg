@@ -240,7 +240,7 @@ our %graphObjectTikz = (
 			my $self = shift;
 			my ($x, $y) = @{$_->{data}[1]{data}};
 			my $point = "($x,$y)";
-			return ("\\draw[thick,blue,fill=blue!30] $point circle[radius=5pt];", [
+			return ("\\draw[line width=4pt,blue,fill=red] $point circle[radius=5pt];", [
 						$point,
 						sub { return ($_[0] - $x)**2 + ($_[1] - $y)**2; }
 					]);
