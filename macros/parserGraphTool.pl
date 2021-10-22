@@ -238,7 +238,7 @@ our %graphObjectTikz = (
 	point => {
 		code => sub {
 			my $self = shift;
-			my ($x, $y) = @{$_->{data}[2]{data}};
+			my ($x, $y) = @{$_->{data}[1]{data}};
 			my $point = "($x,$y)";
 			return ("\\draw[thick,blue,fill=blue!30] $point circle[radius=5pt];", [
 						$point,
