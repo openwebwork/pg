@@ -183,8 +183,7 @@ sub _parserGraphTool_init {
 	ADD_CSS_FILE("js/vendor/jsxgraph/jsxgraph.css");
 	ADD_CSS_FILE("js/apps/GraphTool/graphtool.css");
 	ADD_JS_FILE("js/vendor/jsxgraph/jsxgraphcore.js", 0, { defer => undef });
-	#ADD_JS_FILE("js/apps/GraphTool/graphtool.min.js", 0, { defer => undef });
-	ADD_JS_FILE("js/apps/GraphTool/graphtool.js", 0, { defer => undef });
+	ADD_JS_FILE("js/apps/GraphTool/graphtool.min.js", 0, { defer => undef });
 
 	main::PG_restricted_eval('sub GraphTool { parser::GraphTool->new(@_) }');
 }
@@ -222,7 +221,6 @@ sub new {
 		ticksDistanceX => 2, ticksDistanceY => 2,
 		minorTicksX => 1, minorTicksY => 1,
 		availableTools => [
-			"PointTool",
 			"LineTool",
 			"CircleTool",
 			"VerticalParabolaTool",
