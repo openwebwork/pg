@@ -146,6 +146,10 @@ graph as the default values for the options above:
 These restrict the x coordinate and y coordinate of points that can be graphed to being
 multiples of the respective parameter.  These values must be greater than zero.
 
+=item showCoordinateHints (Default: showCoordinateHints => 1)
+
+Set this to 0 to disable the display of the coordinates in the lower right corner of the graph.
+
 =item availableTools (Default: availableTools => [ "LineTool", "CircleTool",
 	"VerticalParabolaTool", "HorizontalParabolaTool", "FillTool", "SolidDashTool" ])
 
@@ -220,6 +224,7 @@ sub new {
 		gridX => 1, gridY => 1, snapSizeX => 1, snapSizeY => 1,
 		ticksDistanceX => 2, ticksDistanceY => 2,
 		minorTicksX => 1, minorTicksY => 1,
+		showCoordinateHints => 1,
 		availableTools => [
 			"LineTool",
 			"CircleTool",
@@ -516,6 +521,7 @@ END_TIKZ
 			staticObjects: '${\(join(',', @{$self->{staticObjects}}))}',
 			snapSizeX: $self->{snapSizeX},
 			snapSizeY: $self->{snapSizeY},
+			showCoordinateHints: $self->{showCoordinateHints},
 			customGraphObjects: {$customGraphObjects},
 			customTools: {$customTools},
 			availableTools: ['${\(join("','", @{$self->{availableTools}}))}'],
