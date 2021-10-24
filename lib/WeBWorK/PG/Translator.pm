@@ -132,7 +132,7 @@ sub evaluate_modules {
 
 Loads extra packages for modules that contain more than one package.  Works in conjunction with
 evaluate_modules.  It is assumed that the file containing the extra packages (along with the base
-pachage name which is the same as the name of the file minus the .pm extension) has already been
+package name which is the same as the name of the file minus the .pm extension) has already been
 loaded using evaluate_modules
 =cut
 
