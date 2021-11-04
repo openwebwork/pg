@@ -348,7 +348,18 @@ sub new {
   my $self = shift; $class = ref($self) || $self;
   my $f = $self->SUPER::new(@_);
   bless $f, $class if $f->type eq 'Assignment';
+  my $rhs = $f->getTypicalValue($f)->{data}[1];
+  Value->Error('Assignment of strings is not allowed.') if $rhs && $rhs->type eq 'String';
   return $f;
+}
+
+sub typeMatch {
+  my $self = shift; my $other = shift; my $ans = shift;
+  return 0 unless $self->type eq $other->type;
+  my $typeMatch = $self->getTypicalValue($self)->{data}[1];
+  $other = $self->getTypicalValue($other,1)->{data}[1];
+  return 1 unless defined($other); # can't really tell, so don't report type mismatch
+  $typeMatch->typeMatch($other,$ans);
 }
 
 sub cmp_class {
