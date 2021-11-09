@@ -284,7 +284,9 @@ sub Op {
         } else {
           my $def = $context->operators->resolveDef(' ');
           $name = $def->{string} if defined($NAME) and ($NAME eq ' ' or $NAME eq $def->{space});
-          $self->pushOperator($name,$op->{precedence});
+          $self->pushOperator($name,
+              $context->flag("parseMathQuill") && defined $op->{mq_precedence}
+              ? $op->{mq_precedence} : $op->{precedence});
         }
       } elsif (($ref && $NAME ne ' ') || $self->state ne 'fn') {$self->Op($NAME,$ref)}
     }

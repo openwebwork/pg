@@ -407,6 +407,72 @@ sub EXTEND_RESPONSE { # for radio buttons and checkboxes
 }
 
 sub ENDDOCUMENT {
+	# Request MathQuill javascript and css, and insert MathQuill responses if MathQuill is enabled.
+	# Add responses to each answer's response group that store the latex form of the students'
+	# answers and add corresponding hidden input boxes to the page.
+	if ($envir{useMathQuill}) {
+		ADD_CSS_FILE("node_modules/mathquill/dist/mathquill.css");
+		ADD_CSS_FILE("js/apps/MathQuill/mqeditor.css");
+		ADD_JS_FILE("node_modules/mathquill/dist/mathquill.js", 0, { defer => undef });
+		ADD_JS_FILE("js/apps/MathQuill/mqeditor.js", 0, { defer => undef });
+
+		for my $answerLabel (keys %{$PG->{PG_ANSWERS_HASH}}) {
+			my $answerGroup = $PG->{PG_ANSWERS_HASH}{$answerLabel};
+			my $mq_opts = $answerGroup->{ans_eval}{rh_ans}{mathQuillOpts} // {};
+
+			# This is a special case for multi answers.  This is used to obtain mathQuillOpts set
+			# specifically for individual parts.
+			my $multiAns;
+			my $part;
+			if ($answerGroup->{ans_eval}{rh_ans}{type} =~ /MultiAnswer(?:\((\d*)\))?/) {
+				# This will only be set if singleResult is not enabled.
+				$part = $1;
+				# The MultiAnswer object passes itself as the first optional argument to the evaluator it creates.
+				# Loop through the evaluators to find it.
+				for (@{$answerGroup->{ans_eval}{evaluators}}) {
+					$multiAns = $_->[1] if (ref($_->[1]) && ref($_->[1]) eq "parser::MultiAnswer");
+				}
+				# Pass the mathQuillOpts of the main MultiAnswer object on to each part
+				# (unless the part already has the option set).
+				if (defined $multiAns) {
+					for (@{$multiAns->{cmp}}) {
+						$_->rh_ans(mathQuillOpts => $mq_opts) unless defined $_->{rh_ans}{mathQuillOpts};
+					}
+				}
+			}
+
+			next if $mq_opts =~ /^\s*disabled\s*$/i;
+
+			my $response_obj = $answerGroup->response_obj;
+			my $responseCount = -1;
+			for my $response ($response_obj->response_labels) {
+				++$responseCount;
+				next if ref($response_obj->{responses}{$response});
+
+				my $ansHash = defined $multiAns
+					? $multiAns->{cmp}[$part // $responseCount]{rh_ans}
+					: $answerGroup->{ans_eval}{rh_ans};
+				my $mq_part_opts = $ansHash->{mathQuillOpts} // $mq_opts;
+				next if $mq_part_opts =~ /^\s*disabled\s*$/i;
+
+				my $context = $ansHash->{correct_value}->context if $ansHash->{correct_value};
+				$mq_part_opts->{rootsAreExponents} = 0
+					if $context && $context->functions->get('root') && !defined $mq_part_opts->{rootsAreExponents};
+
+				my $name = "MaThQuIlL_$response";
+				my $answer_value = '';
+				$answer_value = $inputs_ref->{$name} if defined($inputs_ref->{$name});
+				RECORD_EXTRA_ANSWERS($name);
+				$answer_value = encode_pg_and_html($answer_value);
+				my $data_mq_opts = scalar(keys %$mq_part_opts)
+					? qq!data-mq-opts="@{[encode_pg_and_html(JSON->new->encode($mq_part_opts))]}"!
+					: "";
+				TEXT(MODES(TeX => "",
+						HTML => qq!<input type=hidden name="$name" id="$name" value="$answer_value" $data_mq_opts>!));
+			}
+		}
+	}
+
 	# check that answers match
 	# gather up PG_FLAGS elements
 

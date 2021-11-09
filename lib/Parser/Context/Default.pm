@@ -244,6 +244,7 @@ $flags = {
   allowWrongArgCount => 0,             # 1 = numbers need not be correct
   parseAlternatives => 0,              # 1 = allow parsing of alternative tokens in the context
   convertFullWidthCharacters => 0,     # 1 = convert Unicode full width characters to ASCII positions
+  useMathQuill => 0,
 };
 
 ############################################################################

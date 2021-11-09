@@ -132,9 +132,12 @@ sub cmp_parse {
   #  Parse and evaluate the student answer
   #
   $ans->score(0);  # assume failure
+  $context->flags->set(parseMathQuill => $context->flag("useMathQuill") &&
+    (!defined $context->{answerHash}{mathQuillOpts} || $context->{answerHash}{mathQuillOpts} !~ /^\s*disabled\s*$/i));
   $ans->{student_value} = $ans->{student_formula} = Parser::Formula($ans->{student_ans});
   $ans->{student_value} = Parser::Evaluate($ans->{student_formula})
     if defined($ans->{student_formula}) && $ans->{student_formula}->isConstant;
+  $context->flags->set(parseMathQuill => 0);
 
   #
   #  If it parsed OK, save the output forms and check if it is correct
@@ -590,7 +593,10 @@ sub ans_collect {
 	$entry = $ans->{original_student_ans};
 	$ans->{student_formula} = $ans->{student_value} = undef unless $entry =~ m/\S/;
       }
-      my $result = $data->[$i][$j]->cmp(@ans_cmp_defaults)->evaluate($entry);
+	  # Pass the mathQuillOpts on to each entry to ensure that the correct parsing is used for each entry.
+	  # This really only needs to know if MathQuill is disabled or not, but it is more efficient to just pass on the reference.
+	  # The value is safely ignored if $ans->{mathQuillOpts} does not match /^\s*disabled\s*$/i.
+      my $result = $data->[$i][$j]->cmp(@ans_cmp_defaults, mathQuillOpts => $ans->{mathQuillOpts})->evaluate($entry);
       $OK &= entryCheck($result,$blank);
       push(@row,$result->{student_formula});
       entryMessage($result->{ans_message},$errors,$i,$j,$rows,$cols);

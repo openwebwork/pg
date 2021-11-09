@@ -237,7 +237,7 @@ sub Init {
      "/ " => {class => "context::Fraction::BOP::divide"},
      " /" => {class => "context::Fraction::BOP::divide"},
      "u-" => {class => "context::Fraction::UOP::minus"},
-     " "  => {precedence => 2.8, string => ' *'},
+     " "  => {precedence => 2.8, mq_precedence => 3, string => ' *'},
      " *" => {class => "context::Fraction::BOP::multiply", precedence => 2.8},
      #  precedence is lower to get proper parens in string() and TeX() calls
      "  " => {precedence => 2.7, associativity => 'left', type => 'bin', string => ' ',
