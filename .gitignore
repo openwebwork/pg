@@ -1,4 +1,6 @@
 lib/chromatic/color
 conf/*.yml
 
+*.bak
+
 cover_db/
