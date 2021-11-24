@@ -2,6 +2,7 @@
 
 use warnings;
 use strict;
+
 package main;
 
 use Data::Dump qw/dd/;
@@ -27,7 +28,7 @@ loadMacros("contextTrigDegrees.pl");
 # my $ctx = Context("Numeric");
 my $ctx = Context("TrigDegrees");
 
-ok(Value::isContext($ctx),"trig degrees: check context");
+ok(Value::isContext($ctx), "trig degrees: check context");
 
 my $cos60 = Compute("cos(60)");
 

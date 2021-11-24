@@ -1,5 +1,6 @@
 use warnings;
 use strict;
+
 package main;
 
 use Data::Dump qw/dd/;
@@ -19,14 +20,13 @@ require("$main::pg_dir/t/build_PG_envir.pl");
 
 ## END OF TOP_MATERIAL
 
-loadMacros("PGstandard.pl","MathObjects.pl","contextFraction.pl");
+loadMacros("PGstandard.pl", "MathObjects.pl", "contextFraction.pl");
 
 # dd @INC;
 
-for my $module (qw/Parser Value Parser::Legacy/){
+for my $module (qw/Parser Value Parser::Legacy/) {
 	eval "package Main; require $module; import $module;";
 }
-
 
 # use Value;
 # use Value::Complex;
@@ -40,13 +40,9 @@ Context("Fraction");
 # require("Parser::Legacy::LimitedNumeric::Number");
 # require("Parser::Legacy");
 
-
-
-
 my $a1 = Compute("1/2");
 my $a2 = Compute("2/4");
 
-is($a1->value,$a2->value,"contextFraction: reduce fractions");
-
+is($a1->value, $a2->value, "contextFraction: reduce fractions");
 
 done_testing();

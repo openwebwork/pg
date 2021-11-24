@@ -1,8 +1,8 @@
 ## Test suite for contextInteger
 
-
 use warnings;
 use strict;
+
 package main;
 
 use Test::More;
@@ -21,20 +21,18 @@ require("$main::pg_dir/t/build_PG_envir.pl");
 
 ## END OF TOP_MATERIAL
 
-loadMacros("MathObjects.pl","contextInteger.pl");
+loadMacros("MathObjects.pl", "contextInteger.pl");
 
-for my $module (qw/Parser Value Parser::Legacy/){
+for my $module (qw/Parser Value Parser::Legacy/) {
 	eval "package Main; require $module; import $module;";
 }
-
 
 Context("Integer");
 
 my $b = Compute(gcd(5, 2));
 ANS($b->cmp);
 
-ok(1,"integer test: dummy test");
+ok(1, "integer test: dummy test");
 
 done_testing();
-
 
