@@ -17,9 +17,6 @@ use utf8;
 #binmode(STDOUT,":encoding(UTF-8)");
 #binmode(STDIN,":encoding(UTF-8)");
 #binmode(INPUT,":encoding(UTF-8)");
-# my $pg_envir = new WeBWorK::CourseEnvironment({
-#     webwork_dir => $ENV{WEBWORK_ROOT},
-# 					});
 
 my $pg_envir = new PGEnvironment();
 
@@ -269,7 +266,7 @@ sub createDirectory {
 # This is needed for the subroutine below.  It is copied from WeBWorK::Utils.
 # Note: if a place for common code is ever created this should go there.
 
-sub path_is_subdir($$;$) {
+sub path_is_subdir {
 	my ($path, $dir, $allow_relative) = @_;
 
 	unless ($path =~ /^\//) {
