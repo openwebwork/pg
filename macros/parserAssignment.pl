@@ -348,17 +348,16 @@ sub new {
   my $self = shift; $class = ref($self) || $self;
   my $f = $self->SUPER::new(@_);
   bless $f, $class if $f->type eq 'Assignment';
+  my $rhs = $f->getTypicalValue($f)->{data}[1];
+  Value->Error('Assignment of strings is not allowed.') if $rhs && $rhs->type eq 'String';
   return $f;
 }
 
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
   return 0 unless $self->type eq $other->type;
-  $other = $other->Package("Formula")->new($self->context,$other) unless $other->isFormula;
-  my $typeMatch = ($self->createRandomPoints(1))[1]->[0]{data}[1];
-  $main::__other__ = sub {($other->createRandomPoints(1))[1]->[0]{data}[1]};
-  $other = main::PG_restricted_eval('&$__other__()');
-  delete $main::{__other__};
+  my $typeMatch = $self->getTypicalValue($self)->{data}[1];
+  $other = $self->getTypicalValue($other,1)->{data}[1];
   return 1 unless defined($other); # can't really tell, so don't report type mismatch
   $typeMatch->typeMatch($other,$ans);
 }

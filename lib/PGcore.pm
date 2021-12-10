@@ -35,7 +35,6 @@ use PGloadfiles;
 use AnswerHash;
 use WeBWorK::PG::IO(); # don't important any command directly
 use Tie::IxHash;
-# use WeBWorK::Debug;  # removing webwork2 modules.  This doesn't appear to be called at all.
 use MIME::Base64();
 use PGUtil();
 use Encode qw(encode_utf8 decode_utf8);

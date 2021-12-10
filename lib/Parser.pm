@@ -266,7 +266,7 @@ sub pushBlankOperand {
 #    Otherwise, report the missing operand for this operator
 #
 sub Op {
-  my $self = shift; my $name = shift;
+  my $self = shift; my $name = shift; my $NAME = $name;
   my $ref = $self->{ref} = shift;
   my $context = $self->{context}; my $op;
   ($name,$op) = $context->operators->resolve($name);
@@ -283,10 +283,10 @@ sub Op {
           $self->pushOperand($self->Item("UOP")->new($self,$name,$top->{value},$ref));
         } else {
           my $def = $context->operators->resolveDef(' ');
-          $name = $def->{string} if defined($name) and ($name eq ' ' or $name eq $def->{space});
+          $name = $def->{string} if defined($NAME) and ($NAME eq ' ' or $NAME eq $def->{space});
           $self->pushOperator($name,$op->{precedence});
         }
-      } elsif (($ref && $name ne ' ') || $self->state ne 'fn') {$self->Op($name,$ref)}
+      } elsif (($ref && $NAME ne ' ') || $self->state ne 'fn') {$self->Op($NAME,$ref)}
     }
   } else {
     ($name,$op) = $context->operators->resolve('u'.$name)
@@ -401,8 +401,8 @@ sub Close {
                     ($top->type eq 'Comma') ? $top->entryType : $top->typeRef,
                     ($type ne 'start') ? ($open,$paren->{close}) : () )};
         } else {
-	  $top->{value}{hadParens} = 1;
-	}
+          $top->{value}{hadParens} = 1 unless $open eq 'start';
+        }
         $self->pop; $self->push($top);
         $self->CloseFn() if ($paren->{function} && $self->prev->{type} eq 'fn');
       } elsif ($paren->{formInterval} eq $type && $self->top->{value}->length == 2) {
