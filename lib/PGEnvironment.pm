@@ -1,7 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/lib/PGcore.pm,v 1.6 2010/05/25 22:47:52 gage Exp $
+# Copyright &copy; 2000-2021 The WeBWorK Project, http://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -33,30 +32,21 @@ Otherwise, defaults are loaded from PG_ROOT/conf/pg_defaults.yml
 
 =cut
 
-
-
-
 my $ce;
 my $pg_dir;
 
 use YAML::XS qw/LoadFile/;
 
-
 BEGIN {
 	eval {
-			require WeBWorK::CourseEnvironment;
-			# WeBWorK::CourseEnvironment->import();
-			$ce = WeBWorK::CourseEnvironment->new({webwork_dir=>$ENV{WEBWORK_ROOT}});
-			1;
+		require WeBWorK::CourseEnvironment;
+		# WeBWorK::CourseEnvironment->import();
+		$ce = WeBWorK::CourseEnvironment->new({ webwork_dir => $ENV{WEBWORK_ROOT} });
 	} or do {
 		my $error = $@;
 
 		$pg_dir = $ENV{PG_ROOT};
 		die "The environmental variable PG_ROOT must be a directory" unless -d $pg_dir;
-
-		# Module load failed. You could recover, try loading
-		# an alternate module, die with $error...
-		# whatever's appropriate
 	};
 }
 
@@ -64,13 +54,12 @@ sub new {
 	my ($invocant, @rest) = @_;
 	my $class = ref($invocant) || $invocant;
 
-	my $self = {
-	};
+	my $self = {};
 
 	if (defined($ce)) {
-		$self->{webworkDirs} = $ce->{webworkDirs};
+		$self->{webworkDirs}      = $ce->{webworkDirs};
 		$self->{externalPrograms} = $ce->{externalPrograms};
-		$self->{pg_dir} = $ce->{pg_dir};
+		$self->{pg_dir}           = $ce->{pg_dir};
 	} else {
 		## load from an conf file;
 		$self->{pg_dir} = $ENV{PG_ROOT};
@@ -79,7 +68,7 @@ sub new {
 		die "Cannot read the configuration file found at $defaults_file" unless -r $defaults_file;
 
 		my $options = LoadFile($defaults_file);
-		$self->{webworkDirs} = $options->{webworkDirs};
+		$self->{webworkDirs}      = $options->{webworkDirs};
 		$self->{externalPrograms} = $options->{externalPrograms};
 
 	}
@@ -88,6 +77,5 @@ sub new {
 
 	return $self;
 }
-
 
 1;
