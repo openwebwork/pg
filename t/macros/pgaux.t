@@ -3,7 +3,6 @@ use strict;
 
 package main;
 
-use Data::Dump qw/dd/;
 use Test::More;
 
 ## the following needs to include at the top of any testing  down to TOP_MATERIAL

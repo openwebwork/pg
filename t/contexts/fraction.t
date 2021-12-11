@@ -3,7 +3,6 @@ use strict;
 
 package main;
 
-use Data::Dump qw/dd/;
 use Test::More;
 use Test::Exception;
 

@@ -2,7 +2,6 @@ FROM perl:5.32
 # install needed perl modules
 RUN cpanm -fi --notest \
   Class::Accessor \
-  Data::Dump \
   Date::Parse \
   DateTime \
   Devel::Cover \

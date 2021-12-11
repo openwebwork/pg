@@ -94,8 +94,6 @@ my ($PAR,
 	$r_ans_rule_count,
 );
 
-# use Data::Dump qw/dd/;
-
 our %envir;
 
 sub _PGbasicmacros_init {
