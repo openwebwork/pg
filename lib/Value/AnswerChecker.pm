@@ -590,6 +590,7 @@ sub ans_collect {
 	$entry = $ans->{original_student_ans};
 	$ans->{student_formula} = $ans->{student_value} = undef unless $entry =~ m/\S/;
       }
+      $ans->{typeError} = 0;
       my $result = $data->[$i][$j]->cmp(@ans_cmp_defaults)->evaluate($entry);
       $OK &= entryCheck($result,$blank);
       push(@row,$result->{student_formula});
@@ -616,18 +617,20 @@ sub entryMessage {
   if ($rows == 1) {$title = "In entry $j"}
   elsif ($cols == 1) {$title = "In entry $i"}
   else {$title = "In entry ($i,$j)"}
-  push(@{$errors},"<TR VALIGN=\"TOP\"><TD NOWRAP STYLE=\"text-align:right; border:0px\"><I>$title</I>:&nbsp;</TD>".
-                  "<TD STYLE=\"text-align:left; border:0px\">$message</TD></TR>");
+  push(@{$errors},
+       "<TR><TD NOWRAP STYLE=\"vertical-align:top; background-color:transparent; text-align:right; border:0px\"><I>$title</I>:&nbsp;</TD>".
+       "<TD STYLE=\"background-color:transparent; text-align:left; border:0px\">$message</TD></TR>");
 }
 
 sub entryCheck {
   my $ans = shift; my $blank = shift;
+  return 0 if $ans->{typeError};
   return 1 if defined($ans->{student_value});
   if (!defined($ans->{student_formula})) {
     $ans->{student_formula} = $ans->{student_ans};
     $ans->{student_formula} = $blank unless $ans->{student_formula};
   }
-  return 0
+  return 0;
 }
 
 
