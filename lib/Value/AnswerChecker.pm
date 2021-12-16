@@ -201,6 +201,7 @@ sub cmp_collect {
   $ans->{student_value} = $ans->{student_formula};
   $ans->{preview_text_string} = $ans->{student_ans};
   $ans->{preview_latex_string} = $ans->{student_formula}->TeX;
+  return 0 if $ans->{typeError};
   if (Value::isFormula($ans->{student_formula}) && $ans->{student_formula}->isConstant) {
     $ans->{student_value} = Parser::Evaluate($ans->{student_formula});
     return 0 unless $ans->{student_value};
@@ -593,6 +594,7 @@ sub ans_collect {
       $ans->{typeError} = 0;
       my $result = $data->[$i][$j]->cmp(@ans_cmp_defaults)->evaluate($entry);
       $OK &= entryCheck($result,$blank);
+      $ans->{typeError} = 1 if $result->{typeError};
       push(@row,$result->{student_formula});
       entryMessage($result->{ans_message},$errors,$i,$j,$rows,$cols);
     }
@@ -624,8 +626,7 @@ sub entryMessage {
 
 sub entryCheck {
   my $ans = shift; my $blank = shift;
-  return 0 if $ans->{typeError};
-  return 1 if defined($ans->{student_value});
+  return 1 if defined($ans->{student_value}) || $ans->{typeError};
   if (!defined($ans->{student_formula})) {
     $ans->{student_formula} = $ans->{student_ans};
     $ans->{student_formula} = $blank unless $ans->{student_formula};
