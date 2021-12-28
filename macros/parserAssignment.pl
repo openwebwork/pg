@@ -347,7 +347,8 @@ our @ISA = ("Value::Formula");
 sub new {
   my $self = shift; $class = ref($self) || $self;
   my $f = $self->SUPER::new(@_);
-  bless $f, $class if $f->type eq 'Assignment';
+  return $f unless $f->type eq 'Assignment';
+  bless $f, $class;
   my $rhs = $f->getTypicalValue($f)->{data}[1];
   Value->Error('Assignment of strings is not allowed.') if $rhs && $rhs->type eq 'String';
   return $f;
