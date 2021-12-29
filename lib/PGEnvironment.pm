@@ -40,7 +40,6 @@ use YAML::XS qw/LoadFile/;
 BEGIN {
 	eval {
 		require WeBWorK::CourseEnvironment;
-		# WeBWorK::CourseEnvironment->import();
 		$ce = WeBWorK::CourseEnvironment->new({ webwork_dir => $ENV{WEBWORK_ROOT} });
 	} or do {
 		my $error = $@;
@@ -64,7 +63,8 @@ sub new {
 		## load from an conf file;
 		$self->{pg_dir} = $ENV{PG_ROOT};
 
-		my $defaults_file = $self->{pg_dir} . "/conf/pg_defaults.yml";
+		my $config_file = $self->{pg_dir} . "/conf/pg_defaults.yml";
+		my $defaults_file = $self->{pg_dir} . "/conf/pg_defaults.dist.yml" unless (-e $config_file);
 		die "Cannot read the configuration file found at $defaults_file" unless -r $defaults_file;
 
 		my $options = LoadFile($defaults_file);

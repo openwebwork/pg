@@ -1,5 +1,3 @@
-## Test suite for contextInteger
-
 use warnings;
 use strict;
 
@@ -8,7 +6,7 @@ package main;
 use Test::More;
 use Test::Exception;
 
-## the following needs to include at the top of any testing  down to TOP_MATERIAL
+# The following needs to include at the top of any testing down to END OF TOP_MATERIAL.
 
 BEGIN {
 	die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};

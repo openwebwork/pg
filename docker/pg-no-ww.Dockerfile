@@ -1,7 +1,4 @@
 FROM perl:5.32
-# set metadata
-LABEL maintainer="fabian.gabel@tuhh.de"
-LABEL hub.docker.com="eltenedor/pg-no-ww"
 # install needed perl modules
 RUN cpanm -fi --notest \
   Class::Accessor \

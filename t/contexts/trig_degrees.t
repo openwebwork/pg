@@ -1,5 +1,3 @@
-## test the contextTrigDegrees.pl script.
-
 use warnings;
 use strict;
 
@@ -8,7 +6,7 @@ package main;
 use Test::More;
 use Test::Exception;
 
-## the following needs to include at the top of any testing  down to TOP_MATERIAL
+# The following needs to include at the top of any testing down to END OF TOP_MATERIAL.
 
 BEGIN {
 	die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
@@ -21,10 +19,8 @@ require("$main::pg_dir/t/build_PG_envir.pl");
 
 ## END OF TOP_MATERIAL
 
-# loadMacros("MathObjects.pl");
 loadMacros("contextTrigDegrees.pl");
 
-# my $ctx = Context("Numeric");
 my $ctx = Context("TrigDegrees");
 
 ok(Value::isContext($ctx), "trig degrees: check context");

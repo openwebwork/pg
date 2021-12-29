@@ -6,7 +6,7 @@ package main;
 use Test::More;
 use Test::Exception;
 
-## the following needs to include at the top of any testing  down to TOP_MATERIAL
+# The following needs to include at the top of any testing down to END OF TOP_MATERIAL.
 
 BEGIN {
 	die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
@@ -187,8 +187,8 @@ is_deeply($tableau1->basis([ 2, 3 ]),   List([ 2, 3 ]), "->basis([2,3])");
 # find basis column index corresponding to row index (and value of the basis coefficient)
 
 $tableau1->basis(5, 6);
-diag("\nbasis is",                     $tableau1->basis(5, 6));
-diag(print $tableau1->current_tableau, "\n");
+note("\nbasis is",                     $tableau1->basis(5, 6));
+note(print $tableau1->current_tableau, "\n");
 is_deeply([ $tableau1->find_leaving_column(1) ], [ 5, 1 ], "find_leaving_column returns [col_index, pivot_value] ");
 is_deeply([ $tableau1->find_leaving_column(2) ], [ 6, 1 ], "find_leaving_column returns [col_index, pivot_value] ");
 
@@ -215,8 +215,8 @@ throws_ok(
 );    # probably shouldn't be doing this.
 
 $tableau1->basis(2, 3);
-diag("\nbasis is",                     $tableau1->basis());
-diag(print $tableau1->current_tableau, "\n");
+note("\nbasis is",                     $tableau1->basis());
+note(print $tableau1->current_tableau, "\n");
 is_deeply([ $tableau1->find_leaving_column(1) ], [ 2, 500 ], "find_leaving_column returns [col_index, pivot_value] ");
 is_deeply([ $tableau1->find_leaving_column(2) ], [ 3, 500 ], "find_leaving_column returns [col_index, pivot_value] ");
 
@@ -234,16 +234,16 @@ is_deeply($tableau1->find_next_basis_from_pivot(2, 1), Set(1, 2), "find next bas
 is_deeply($tableau1->find_next_basis_from_pivot(1, 1), Set(1, 3), "find next basis from pivot (1,1)");
 
 $tableau1->basis(5, 6);
-diag("\nbasis is ",              $tableau1->basis());
-diag($tableau1->current_tableau, "\n");
-diag("find next short cut pivots");
+note("\nbasis is ",              $tableau1->basis());
+note($tableau1->current_tableau, "\n");
+note("find next short cut pivots");
 # ($row_index, $value, $feasible_point) = $self->find_short_cut_row()
 is_deeply([ $tableau1->find_short_cut_row() ],     [ 1, -4700, 0 ], "row 1");
 is_deeply([ $tableau1->find_short_cut_column(1) ], [ 1, -5000, 0 ], "column 1 ");
 is_deeply([ $tableau1->next_short_cut_pivot() ],   [ 1, 1, 0, 0 ],  "pivot (1,1)");
 is_deeply([ $tableau1->next_short_cut_basis() ],   [ 1, 6, undef ], "new basis {1,6} continue");
 $tableau1->current_tableau(1, 6);
-diag($tableau1->current_tableau);
+note($tableau1->current_tableau);
 
 is_deeply([ $tableau1->find_short_cut_row ],       [ 2, Value::Real->new(-8.4E+06), 0 ], "find short cut row");
 is_deeply([ $tableau1->find_short_cut_column(2) ], [ 2, Value::Real->new(-1.3E+06), 0 ], "find short cut col 2 ");
@@ -251,7 +251,7 @@ is_deeply([ $tableau1->next_short_cut_pivot() ],   [ 2, 2, 0, 0 ],              
 is_deeply([ $tableau1->next_short_cut_basis() ],   [ 1, 2, undef ],                      "new basis {1,2} continue");
 
 $tableau1->current_tableau(1, 2);
-diag($tableau1->current_tableau);
+note($tableau1->current_tableau);
 
 is_deeply([ $tableau1->next_short_cut_pivot() ], [ undef, undef, 1, 0 ], "feasible point found");
 is_deeply(
@@ -265,7 +265,7 @@ is_deeply([ $tableau1->find_next_pivot('max') ],   [ 1, 3, 0, 0 ],              
 is_deeply([ $tableau1->find_next_basis('max') ],   [ 2, 3, undef ], "new basis {2,3} continue");
 
 $tableau1->current_tableau(2, 3);
-diag($tableau1->current_tableau);
+note($tableau1->current_tableau);
 is_deeply([ $tableau1->find_pivot_column('max') ], [ 4, Value::Real->new(-300), 0 ], "col 4");
 is_deeply([ $tableau1->find_pivot_row(4) ], [ 1, 4500, 0 ], "row 2) ");
 
@@ -273,7 +273,7 @@ is_deeply([ $tableau1->find_next_pivot('max') ], [ 1, 4, 0, 0 ], "pivot 1,4");
 is_deeply([ $tableau1->find_next_basis('max') ], [ 3, 4, undef ], "new basis {3,4} continue");
 
 $tableau1->current_tableau(3, 4);
-diag($tableau1->current_tableau);
+note($tableau1->current_tableau);
 is_deeply([ $tableau1->find_pivot_column('max') ], [ 5, Value::Real->new(-1), 0 ], "col 5");
 is_deeply([ $tableau1->find_pivot_row(5) ], [ undef, undef, 1 ], "row 2) ");
 
@@ -292,9 +292,9 @@ is_deeply([ $tableau1->find_next_basis('max') ], [ 3, 4, 'unbounded' ], "basis 3
 # # "unbounded, feasible_point, infeasible_tableau, optimal"?
 # # it might be easier to remember.
 #
-diag("reset tableau to feasible point and try to minimize it for phase2");
+note("reset tableau to feasible point and try to minimize it for phase2");
 $tableau1->current_tableau(1, 2);
-diag($tableau1->current_tableau);
+note($tableau1->current_tableau);
 is_deeply([ $tableau1->next_short_cut_pivot() ], [ undef, undef, 1, 0 ], "feasible point found");
 is_deeply(
 	[ $tableau1->next_short_cut_basis() ],

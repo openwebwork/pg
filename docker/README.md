@@ -1,6 +1,6 @@
 # Docker Instructions
 
-These are instructions to get the docker image running for running the unit tests in `/t`. 
+These are instructions to get the docker image running for running the unit tests in `/t`.
 
 Note: You may need sudo privileges in order to run the commands starting with `docker ...`.
 
@@ -38,11 +38,12 @@ docker run -it --rm --name pg-unit-test -v `pwd`:/opt/webwork/pg -w /opt/webwork
 
 Here, `CODECOV_TOKEN=xxxx-xxxx-xxxx` should be adapted to your actual [token](https://docs.codecov.com/docs/quick-start). It is passed to the docker container as argument to the `-e` option.
 
-HTTP Code `200` means that the data was sent successfully to codecov and is availablle at https://app.codecov.io/gh/pstaabp/pg
+HTTP Code `200` means that the data was sent successfully to codecov and is availablle at [https://app.codecov.io/gh/pstaabp/pg](https://app.codecov.io/gh/pstaabp/pg)
 
 ### Using the Shell
 
 You can also just open up the `bash` of the Docker container via
+
 ```bash
 docker run -it --rm --name pg-unit-test -v `pwd`:/opt/webwork/pg -w /opt/webwork/pg eltenedor/pg-no-ww
 ```
@@ -57,7 +58,6 @@ Execute the following command from your `pg/docker` folder
 docker build -t pg-no-ww -f pg-no-dww.Dockerfile
 ```
 
-### Running the Test Suite
+### Running the Test Suite Locally
 
 Same as above for the image from Docker Hub. Just replace the name `eltenedor/pg-no-ww` by `pg-no-ww`.
-

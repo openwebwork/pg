@@ -5,18 +5,14 @@ package main;
 
 use Test::More;
 use Test::Exception;
-## the following needs to include at the top of any testing  down to TOP_MATERIAL
+
+# The following needs to include at the top of any testing down to END OF TOP_MATERIAL.
 
 BEGIN {
 	die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
-	# die "WEBWORK_ROOT not found in environment.\n" unless $ENV{WEBWORK_ROOT};
-
 	$main::pg_dir = $ENV{PG_ROOT};
-	# $main::webwork_dir = $ENV{WEBWORK_ROOT};
-
 }
 
-# use lib "$main::webwork_dir/lib";
 use lib "$main::pg_dir/lib";
 
 require("$main::pg_dir/t/build_PG_envir.pl");
