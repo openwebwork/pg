@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2021 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2000-2021 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -33,13 +33,13 @@ To initialize a DraggableProof bucket pool in a .pg problem, insert the line:
 
 $draggable = DraggableProof($statements, $extra, Options1 => ..., Options2 => ...);
 
-before BEGIN_TEXT.
+before BEGIN_TEXT (or BEGIN_PGML).
 
 Then, call:
 
-$draggable->Print
+$draggable->Print (or [@ $draggable->Print @]* )
 
-within the BEGIN_TEXT / END_TEXT environment;
+within the BEGIN_TEXT / END_TEXT (or BEGIN_PGML / END_PGML ) environment.
 
 $statements, e.g. ["Socrates is a man.", "Socrates is mortal.", ...],
 is an array reference to the list of statements used in the correct proof.
@@ -69,6 +69,7 @@ Their usage is explained in the example below.
  DOCUMENT();
  loadMacros(
  "PGstandard.pl",
+ "PGML.pl",
  "MathObjects.pl",
  "draggableProof.pl"
  );
@@ -91,9 +92,9 @@ Their usage is explained in the example below.
  $statements,
  $extra,
  NumBuckets => 2, # either 1 or 2.
- SourceLabel => "Axioms", # label of first bucket if NumBuckets = 2.
+ SourceLabel => "${BBOLD}Axioms${EBOLD}", # label of first bucket if NumBuckets = 2.
  #
- TargetLabel => "<strong>Reasoning</strong>",
+ TargetLabel => "${BBOLD}Reasoning${EBOLD}",
  # label of second bucket if NumBuckets = 2,
  # of the only bucket if NumBuckets = 1.
  #
@@ -120,19 +121,15 @@ Their usage is explained in the example below.
  # Default value = 1.
  );
 
- Context()->texStrings;
 
- BEGIN_TEXT
+ BEGIN_PGML
 
- Show that Socrates is mortal by dragging the relevant $BBOLD Axioms $EBOLD
- into the $BBOLD Reasoning $EBOLD box in an appropriate order.
+ Show that Socrates is mortal by dragging the relevant *Axioms*
+ into the *Reasoning* box in an appropriate order.
 
- $PAR
+ [@ $draggable->Print @]*
 
- \{ $draggable->Print \}
-
- END_TEXT
- Context()->normalStrings;
+ END_PGML
 
  ANS($draggable->cmp);
 
@@ -142,10 +139,7 @@ Their usage is explained in the example below.
 
 ################################################################
 
-loadMacros(
-"PGchoicemacros.pl",
-"MathObjects.pl",
-);
+loadMacros("PGchoicemacros.pl", "MathObjects.pl",);
 
 sub _draggableProof_init {
 	ADD_CSS_FILE("https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.css", 1);
@@ -158,78 +152,83 @@ sub _draggableProof_init {
 package draggableProof;
 
 sub new {
-	my $self = shift;
+	my $self  = shift;
 	my $class = ref($self) || $self;
 
-	my $proof = shift;
-	my $extra = shift;
+	my $proof   = shift;
+	my $extra   = shift;
 	my %options = (
-	SourceLabel => "Choose from these sentences:",
-	TargetLabel => "Your Proof:",
-	NumBuckets => 2,
-	Levenshtein => 0,
-	DamerauLevenshtein => 0,
-	InferenceMatrix => [],
-	IrrelevancePenalty => 1,
-	@_
+		SourceLabel        => "Choose from these sentences:",
+		TargetLabel        => "Your Proof:",
+		NumBuckets         => 2,
+		Levenshtein        => 0,
+		DamerauLevenshtein => 0,
+		InferenceMatrix    => [],
+		IrrelevancePenalty => 1,
+		@_
 	);
 
-	my $lines = [ @$proof, @$extra ];
-	my $numNeeded = scalar(@$proof);
-	my $numProvided = scalar(@$lines);
-	my @order = main::shuffle($numProvided);
-	my @unorder = main::invert(@order);
-	my $shuffledLines = [ map {$lines->[$_]} @order ];
+	my $lines         = [ @$proof, @$extra ];
+	my $numNeeded     = scalar(@$proof);
+	my $numProvided   = scalar(@$lines);
+	my @order         = main::shuffle($numProvided);
+	my @unorder       = main::invert(@order);
+	my $shuffledLines = [ map { $lines->[$_] } @order ];
 
 	my $answerInputId = main::NEW_ANS_NAME() unless $self->{answerInputId};
-	my $ans_rule = main::NAMED_HIDDEN_ANS_RULE($answerInputId);
+	my $ans_rule      = main::NAMED_HIDDEN_ANS_RULE($answerInputId);
 
 	my $dnd;
 	if ($options{NumBuckets} == 2) {
-		$dnd = new DragNDrop($answerInputId, $shuffledLines,
-		[
-		{
-			indices => [0..$numProvided-1],
-			label => $options{'SourceLabel'}
-		},
-		{
-			indices => [],
-			label => $options{'TargetLabel'}
-		}
-		],
-		AllowNewBuckets => 0);
-	} elsif($options{NumBuckets} == 1) {
-		$dnd = new DragNDrop($answerInputId, $shuffledLines,
-		[
-		{
-			indices => [0..$numProvided-1],
-			label => $options{'TargetLabel'}
-		}
-		],
-		AllowNewBuckets => 0);
+		$dnd = new DragNDrop(
+			$answerInputId,
+			$shuffledLines,
+			[
+				{
+					indices => [ 0 .. $numProvided - 1 ],
+					label   => $options{'SourceLabel'}
+				},
+				{
+					indices => [],
+					label   => $options{'TargetLabel'}
+				}
+			],
+			AllowNewBuckets => 0
+		);
+	} elsif ($options{NumBuckets} == 1) {
+		$dnd = new DragNDrop(
+			$answerInputId,
+			$shuffledLines,
+			[ {
+				indices => [ 0 .. $numProvided - 1 ],
+				label   => $options{'TargetLabel'}
+			} ],
+			AllowNewBuckets => 0
+		);
 	}
 
-	my $proof = $options{NumBuckets} == 2 ? main::List(
-	main::List(@unorder[$numNeeded .. $numProvided - 1]),
-	main::List(@unorder[0..$numNeeded-1])
-	) : main::List('('.join(',', @unorder[0..$numNeeded-1]).')');
+	my $proof =
+		$options{NumBuckets} == 2
+		? main::List(main::List(@unorder[ $numNeeded .. $numProvided - 1 ]),
+		main::List(@unorder[ 0 .. $numNeeded - 1 ]))
+		: main::List('(' . join(',', @unorder[ 0 .. $numNeeded - 1 ]) . ')');
 
-	my $extra = main::Set(@unorder[$numNeeded .. $numProvided - 1]);
+	my $extra = main::Set(@unorder[ $numNeeded .. $numProvided - 1 ]);
 
 	my $InferenceMatrix = $options{InferenceMatrix};
 
 	$self = bless {
-		lines => $lines,
-		shuffledLines => $shuffledLines,
-		numNeeded => $numNeeded,
-		numProvided => $numProvided,
-		order => \@order,
-		unorder => \@unorder,
-		proof => $proof,
-		extra => $extra,
-		answerInputId => $answerInputId,
-		dnd => $dnd,
-		ans_rule => $ans_rule,
+		lines           => $lines,
+		shuffledLines   => $shuffledLines,
+		numNeeded       => $numNeeded,
+		numProvided     => $numProvided,
+		order           => \@order,
+		unorder         => \@unorder,
+		proof           => $proof,
+		extra           => $extra,
+		answerInputId   => $answerInputId,
+		dnd             => $dnd,
+		ans_rule        => $ans_rule,
 		inferenceMatrix => $InferenceMatrix,
 		%options,
 	}, $class;
@@ -238,13 +237,13 @@ sub new {
 
 	if ($previous eq "") {
 		if ($self->{NumBuckets} == 2) {
-			$dnd->addBucket([0..$numProvided-1], label => $options{'SourceLabel'});
-			$dnd->addBucket([], label => $options{'TargetLabel'});
+			$dnd->addBucket([ 0 .. $numProvided - 1 ], label => $options{'SourceLabel'});
+			$dnd->addBucket([],                        label => $options{'TargetLabel'});
 		} elsif ($self->{NumBuckets} == 1) {
-			$dnd->addBucket([0..$numProvided-1], label =>  $options{'TargetLabel'});
+			$dnd->addBucket([ 0 .. $numProvided - 1 ], label => $options{'TargetLabel'});
 		}
 	} else {
-		my @matches = ( $previous =~ /(\([^\(\)]*\)|-?\d+)/g );
+		my @matches = ($previous =~ /(\([^\(\)]*\)|-?\d+)/g);
 		if ($self->{NumBuckets} == 2) {
 			my $indices1 = [ split(',', @matches[0] =~ s/\(|\)//gr) ];
 			$dnd->addBucket($indices1->[0] != -1 ? $indices1 : [], label => $options{'SourceLabel'});
@@ -259,46 +258,47 @@ sub new {
 	return $self;
 }
 
-sub lines {@{shift->{lines}}}
-sub numNeeded {shift->{numNeeded}}
-sub numProvided {shift->{numProvided}}
-sub order {@{shift->{order}}}
-sub unorder {@{shift->{unorder}}}
+sub lines       { @{ shift->{lines} } }
+sub numNeeded   { shift->{numNeeded} }
+sub numProvided { shift->{numProvided} }
+sub order       { @{ shift->{order} } }
+sub unorder     { @{ shift->{unorder} } }
 
 sub Levenshtein {
 	my @ar1 = split /$_[2]/, $_[0];
 	my @ar2 = split /$_[2]/, $_[1];
 
-	my @dist = ([0 .. @ar2]);
+	my @dist = ([ 0 .. @ar2 ]);
 	$dist[$_][0] = $_ for (1 .. @ar1);
 
 	for my $i (0 .. $#ar1) {
 		for my $j (0 .. $#ar2) {
-			$dist[$i+1][$j+1] = main::min($dist[$i][$j+1] + 1, $dist[$i+1][$j] + 1,
-			$dist[$i][$j] + ($ar1[$i] ne $ar2[$j]) );
+			$dist[ $i + 1 ][ $j + 1 ] =
+				main::min($dist[$i][ $j + 1 ] + 1, $dist[ $i + 1 ][$j] + 1, $dist[$i][$j] + ($ar1[$i] ne $ar2[$j]));
 		}
 	}
 	$dist[-1][-1];
 }
 
 sub DamerauLevenshtein {
+
 	# Damerau–Levenshtein distance with adjacent transpositions
 	# https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
 
-	my $discourse1 = shift;
-	my $discourse2 = shift;
-	my $delimiter = shift;
+	my $discourse1  = shift;
+	my $discourse2  = shift;
+	my $delimiter   = shift;
 	my $numProvided = shift;
 
 	my @ar1 = split /$delimiter/, $discourse1;
 	my @ar2 = split /$delimiter/, $discourse2;
 
 	my @da = (0) x $numProvided;
-	my @d = ();
+	my @d  = ();
 
 	my $maxdist = @ar1 + @ar2;
 	for my $i (1 .. @ar1 + 1) {
-		push(@d, [ (0) x (@ar2 + 2) ] );
+		push(@d, [ (0) x (@ar2 + 2) ]);
 		$d[$i][0] = $maxdist;
 		$d[$i][1] = $i - 1;
 	}
@@ -311,20 +311,22 @@ sub DamerauLevenshtein {
 		$db = 0;
 		my $k, $l, $cost;
 		for my $j (2 .. @ar2 + 1) {
-			$k = $da[$ar2[$j - 2]];
+			$k = $da[ $ar2[ $j - 2 ] ];
 			$l = $db;
-			if ($ar1[$i - 2] == $ar2[$j - 2]) {
+			if ($ar1[ $i - 2 ] == $ar2[ $j - 2 ]) {
 				$cost = 0;
-				$db = $j;
+				$db   = $j;
 			} else {
 				$cost = 1;
 			}
-			$d[$i][$j] = main::min($d[$i-1][$j-1] + $cost,
-			$d[$i][$j-1] + 1,
-			$d[$i-1][$j] + 1,
-			$d[$k-1][$l-1] + ($i - $k - 1) + 1 + ($j - $l - 1));
+			$d[$i][$j] = main::min(
+				$d[ $i - 1 ][ $j - 1 ] + $cost,
+				$d[$i][ $j - 1 ] + 1,
+				$d[ $i - 1 ][$j] + 1,
+				$d[ $k - 1 ][ $l - 1 ] + ($i - $k - 1) + 1 + ($j - $l - 1)
+			);
 		}
-		$da[$ar1[$i - 2]] = $i;
+		$da[ $ar1[ $i - 2 ] ] = $i;
 	}
 	$d[-1][-1];
 }
@@ -335,14 +337,11 @@ sub Print {
 	my $ans_rule = $self->{ans_rule};
 
 	if ($main::displayMode ne "TeX") {
+
 		# HTML mode
-		return join("\n",
-		'<div style="min-width:750px;">',
-		$ans_rule,
-		$self->{dnd}->HTML,
-		'<br clear="all" />',
-		'</div>',
-		);
+		return
+			join("\n", '<div style="min-width:750px;">', $ans_rule, $self->{dnd}->HTML,
+			'<br clear="all" />', '</div>',);
 	} else {
 		# TeX mode
 		return $self->{dnd}->TeX;
@@ -351,14 +350,12 @@ sub Print {
 
 sub cmp {
 	my $self = shift;
-	return $self->{proof}
-	->cmp(ordered => 1, removeParens => 1)
-	->withPreFilter(sub {$self->prefilter(@_)})
-	->withPostFilter(sub {$self->filter(@_)});
+	return $self->{proof}->cmp(ordered => 1, removeParens => 1)->withPreFilter(sub { $self->prefilter(@_) })
+		->withPostFilter(sub { $self->filter(@_) });
 }
 
 sub prefilter {
-	my $self = shift;
+	my $self    = shift;
 	my $anshash = shift;
 
 	my $correctProcessed;
@@ -370,7 +367,7 @@ sub prefilter {
 	if ($self->{NumBuckets} == 1) {
 		$correctProcessed = $anshash->{correct_value} =~ s/\(|\)|\s*//gr;
 	} elsif ($self->{NumBuckets} == 2) {
-		my @matches = ( $anshash->{correct_value} =~ /(\([^\(\)]*\)|-?\d+)/g );
+		my @matches = ($anshash->{correct_value} =~ /(\([^\(\)]*\)|-?\d+)/g);
 		$correctProcessed = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
 	}
 
@@ -380,11 +377,11 @@ sub prefilter {
 }
 
 sub filter {
-	my $self = shift;
+	my $self    = shift;
 	my $anshash = shift;
 
-	my @lines = @{$self->{lines}};
-	my @order = @{$self->{order}};
+	my @lines = @{ $self->{lines} };
+	my @order = @{ $self->{order} };
 
 	my $correct_value = $anshash->{correct_value} =~ s/\(|\)|\s*//gr;
 	my $actualAnswer;
@@ -392,30 +389,32 @@ sub filter {
 	if ($self->{NumBuckets} == 1) {
 		$actualAnswer = $anshash->{student_value} =~ s/\(|\)|\s*//gr;
 	} elsif ($self->{NumBuckets} == 2) {
-		my @matches = ( $anshash->{student_value} =~ /(\([^\(\)]*\)|-?\d+)/g );
+		my @matches = ($anshash->{student_value} =~ /(\([^\(\)]*\)|-?\d+)/g);
 		$actualAnswer = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
 	}
 	if ($self->{Levenshtein} == 1) {
-		$anshash->{score} = 1 - main::min(1, Levenshtein($correct_value, $actualAnswer, ',')/$self->{numNeeded});
+		$anshash->{score} = 1 - main::min(1, Levenshtein($correct_value, $actualAnswer, ',') / $self->{numNeeded});
 	} elsif ($self->{DamerauLevenshtein} == 1) {
 		my $DLDistance = DamerauLevenshtein($correct_value, $actualAnswer, ',', $self->{numProvided});
-		$anshash->{score} = 1 - main::min(1, $DLDistance/($self->{numNeeded}));
+		$anshash->{score} =
+			1 - main::min(1, $DLDistance / ($self->{numNeeded}));
 	} elsif (@{ $self->{inferenceMatrix} } != 0) {
-		my @unshuffledStudentIndices = map { $self->{order}[$_]} split(',', $actualAnswer);
+		my @unshuffledStudentIndices =
+			map { $self->{order}[$_] } split(',', $actualAnswer);
 		my @inferenceMatrix = @{ $self->{inferenceMatrix} };
-		my $inferenceScore = 0;
-		for (my $j = 0; $j < @unshuffledStudentIndices; $j++ ) {
+		my $inferenceScore  = 0;
+		for (my $j = 0; $j < @unshuffledStudentIndices; $j++) {
 			if ($unshuffledStudentIndices[$j] < $self->{numNeeded}) {
-				for (my $i = $j - 1; $i >= 0; $i--)  {
+				for (my $i = $j - 1; $i >= 0; $i--) {
 					if ($unshuffledStudentIndices[$i] < $self->{numNeeded}) {
 						$inferenceScore +=
-						$inferenceMatrix[$unshuffledStudentIndices[$i]][$unshuffledStudentIndices[$j]];
+							$inferenceMatrix[ $unshuffledStudentIndices[$i] ][ $unshuffledStudentIndices[$j] ];
 					}
 				}
 			}
 		}
 		my $total = 0;
-		for my $row ( @inferenceMatrix ) {
+		for my $row (@inferenceMatrix) {
 			foreach (@$row) {
 				$total += $_;
 			}
@@ -423,32 +422,29 @@ sub filter {
 		$anshash->{score} = $inferenceScore / $total;
 
 		my %invoked = map { $_ => 1 } split(',', $actualAnswer);
-		foreach ( split(',', $self->{extra}->string =~ s/{|}|\s*//gr ) ) {
-			if ( exists($invoked{$_}) ) {
-				$anshash->{score} = main::max(0, $anshash->{score} - ($self->{IrrelevancePenalty}/$total));
+		foreach (split(',', $self->{extra}->string =~ s/{|}|\s*//gr)) {
+			if (exists($invoked{$_})) {
+				$anshash->{score} = main::max(0, $anshash->{score} - ($self->{IrrelevancePenalty} / $total));
 			}
 		}
 	} else {
-		$anshash->{score} = main::List($correct_value) eq main::List($actualAnswer) ? 1 : 0;
+		$anshash->{score} =
+			main::List($correct_value) eq main::List($actualAnswer) ? 1 : 0;
 	}
 
-	my @correct = map { $_ >= 0 ? $lines[$order[$_]] : '' } split(',', $correct_value);
-	my @student = map { $_ >= 0 ? $lines[$order[$_]] : '' } split(',', $actualAnswer);
+	my @correct =
+		map { $_ >= 0 ? $lines[ $order[$_] ] : '' } split(',', $correct_value);
+	my @student =
+		map { $_ >= 0 ? $lines[ $order[$_] ] : '' } split(',', $actualAnswer);
 
 	$anshash->{non_tex_preview} = 1;
-	$anshash->{student_ans} = "(see preview)";
+	$anshash->{student_ans}     = "(see preview)";
 
-	$anshash->{preview_latex_string} = join('', (
-	"<div style='text-align:left'><ul><li>",
-	join("</li><li>",@student),
-	"</li></ul></div>"
-	));
+	$anshash->{preview_latex_string} =
+		join('', ("<div style='text-align:left'><ul><li>", join("</li><li>", @student), "</li></ul></div>"));
 
-	$anshash->{correct_ans_latex_string} = join('', (
-	"<div style='text-align:left'><ul><li>",
-	join("</li><li>",@correct),
-	"</li></ul></div>"
-	));
+	$anshash->{correct_ans_latex_string} =
+		join('', ("<div style='text-align:left'><ul><li>", join("</li><li>", @correct), "</li></ul></div>"));
 
 	$anshash->{correct_value} = $anshash->{original_correct_value};
 

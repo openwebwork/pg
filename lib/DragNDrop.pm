@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2021 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2000-2021 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -51,13 +51,11 @@ Example:
 
 It is imperative that square brackets be used.
 
-##############################################################################
 OPTIONAL:
 
  DragNDrop($answerInputId, $aggregateList, AllowNewBuckets => 1);
 
 allows student to create new buckets by clicking on a button.
-##############################################################################
 
 To add a bucket to an existing pool $bucket_pool, do:
 
@@ -80,7 +78,6 @@ then:
 
 An empty array reference, e.g. $bucket_pool->addBucket([]), gives an empty bucket.
 
-###############################################################################
 OPTIONAL:
 
  $bucket_pool->addBucket($indices, label => 'Barrel', removable => 1)
@@ -89,7 +86,6 @@ puts the label 'Barrel' at the top of the bucket.
 With the removable option set to 1, the bucket may be removed by the student via the click of a "Remove" button
 at the bottom of the bucket.
 (The first created bucket may never be removed.)
-###############################################################################
 
 To output the bucket pool to HTML, call:
 
@@ -105,15 +101,13 @@ See draggableProof.pl and draggableSubsets.pl
 
 =cut
 
-###############################################################################
-
 use strict;
 use warnings;
 
 package DragNDrop;
 
 sub new {
-	my $self = shift;
+	my $self  = shift;
 	my $class = ref($self) || $self;
 
 	# 'id' of html <input> tag corresponding to the answer blank. Must be unique to each pool of DragNDrop buckets
@@ -127,14 +121,14 @@ sub new {
 	my $defaultBuckets = shift;
 
 	my %options = (
-	AllowNewBuckets => 0,
-	@_
+		AllowNewBuckets => 0,
+		@_
 	);
 
 	$self = bless {
-		answerInputId => $answerInputId,
-		bucketList => [],
-		aggregateList => $aggregateList,
+		answerInputId  => $answerInputId,
+		bucketList     => [],
+		aggregateList  => $aggregateList,
 		defaultBuckets => $defaultBuckets,
 		%options,
 	}, $class;
@@ -148,19 +142,19 @@ sub addBucket {
 	my $indices = shift;
 
 	my %options = (
-	label => "",
-	removable => 0,
-	@_
+		label     => "",
+		removable => 0,
+		@_
 	);
 
 	my $bucket = {
-		indices => $indices,
-		list => [ map { $self->{aggregateList}->[$_] } @$indices ],
+		indices   => $indices,
+		list      => [ map { $self->{aggregateList}->[$_] } @$indices ],
 		bucket_id => scalar @{ $self->{bucketList} },
-		label => $options{label},
+		label     => $options{label},
 		removable => $options{removable},
 	};
-	push(@{$self->{bucketList}}, $bucket);
+	push(@{ $self->{bucketList} }, $bucket);
 
 }
 
@@ -171,34 +165,34 @@ sub HTML {
 	$out .= "<div class='bucket_pool' data-ans='$self->{answerInputId}'>";
 
 	# buckets from instructor-defined default settings
-	for (my $i = 0; $i < @{$self->{defaultBuckets}}; $i++) {
+	for (my $i = 0; $i < @{ $self->{defaultBuckets} }; $i++) {
 		my $defaultBucket = $self->{defaultBuckets}->[$i];
 		$out .= "<div class='hidden default bucket' data-bucket-id='$i' data-removable='$defaultBucket->{removable}'>";
 		$out .= "<div class='label'>$defaultBucket->{label}</div>";
 		$out .= "<ol class='answer'>";
-		for my $j ( @{$defaultBucket->{indices}} ) {
+		for my $j (@{ $defaultBucket->{indices} }) {
 			$out .= "<li data-shuffled-index='$j'>$self->{aggregateList}->[$j]</li>";
 		}
 		$out .= "</ol></div>";
 	}
 
 	# buckets from past answers
-	for my $bucket ( @{$self->{bucketList}} ) {
+	for my $bucket (@{ $self->{bucketList} }) {
 		$out .= "<div class='hidden past_answers bucket' data-bucket-id='$bucket->{bucket_id}' ";
 		$out .= "data-removable='$bucket->{removable}'>";
 		$out .= "<div class='label'>$bucket->{label}</div>";
 		$out .= "<ol class='answer'>";
 
-		for my $index ( @{$bucket->{indices}} ) {
+		for my $index (@{ $bucket->{indices} }) {
 			$out .= "<li data-shuffled-index='$index'>$self->{aggregateList}->[$index]</li>";
 		}
 		$out .= "</ol>";
 		$out .= "</div>";
 	}
 	$out .= '</div>';
-	$out .= "<br clear='all'><div><a class='btn reset_buckets'>reset</a>";
+	$out .= "<br clear='all'><div><a class='btn btn-secondary reset_buckets'>reset</a>";
 	if ($self->{AllowNewBuckets} == 1) {
-		$out .= "<a class='btn add_bucket' data-ans='$self->{answerInputId}'>add bucket</a>";
+		$out .= "<a class='btn btn-secondary add_bucket' data-ans='$self->{answerInputId}'>add bucket</a>";
 	}
 	$out .= "</div>";
 
@@ -214,9 +208,9 @@ sub TeX {
 	for (my $i = 0; $i < @{ $self->{defaultBuckets} }; $i++) {
 		$out .= "\n";
 		my $defaultBucket = $self->{defaultBuckets}->[$i];
-		if ( @{$defaultBucket->{indices}} > 0 ) {
+		if (@{ $defaultBucket->{indices} } > 0) {
 			$out .= "\n\\hrule\n\\begin{itemize}";
-			for my $j ( @{$defaultBucket->{indices}} ) {
+			for my $j (@{ $defaultBucket->{indices} }) {
 				$out .= "\n\\item[$j.]\n $self->{aggregateList}->[$j]";
 			}
 			$out .= "\n\\end{itemize}";

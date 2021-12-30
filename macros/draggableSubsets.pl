@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2021 The WeBWorK Project, http://openwebwork.sf.net/
+# Copyright &copy; 2000-2021 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -33,13 +33,13 @@ To initialize a DraggableSubset bucket pool in a .pg problem, insert the line:
 
 $draggable = DraggableSubsets($full_set, $ans, Options1 => ..., Options2 => ...);
 
-before BEGIN_TEXT.
+before BEGIN_TEXT (or BEGIN_PGML).
 
 Then, call:
 
-$draggable->Print
+$draggable->Print (or [@ $draggable->Print @]* )
 
-within the BEGIN_TEXT / END_TEXT environment;
+within the BEGIN_TEXT / END_TEXT (or BEGIN_PGML / END_PGML ) environment.
 
 $full_set, e.g. ["statement1", "statement2", ...], is an array reference to the list of elements, given as strings,
 in the original full set.
@@ -62,6 +62,7 @@ Their usage is explained in the example below.
  DOCUMENT();
  loadMacros(
  "PGstandard.pl",
+ "PGML.pl",
  "MathObjects.pl",
  "draggableSubsets.pl",
  );
@@ -69,21 +70,17 @@ Their usage is explained in the example below.
  TEXT(beginproblem());
 
  $D3 = [
- "\(e\)", #0
- "\(r\)", #1
- "\(r^2\)", #2
- "\(s\)", #3
- "\(sr\)", #4
- "\(sr^2\)", #5
+ "`e`",    #0
+ "`r`",    #1
+ "`r^2`",  #2
+ "`s`",    #3
+ "`sr`",   #4
+ "`sr^2`", #5
  ];
 
  $subgroup = "e, s";
 
- $subsets = [
- [0, 3],
- [1, 4],
- [2, 5]
- ];
+ $subsets = [ [0, 3], [1, 4], [2, 5] ];
 
  $draggable = DraggableSubsets(
  $D3, # full set. Square brackets must be used.
@@ -96,58 +93,49 @@ Their usage is explained in the example below.
  label => 'coset 1', # label of the bucket.
  indices => [ 1, 3, 4, 5 ], # specifies pre-included elements in the bucket via their indices.
  removable => 0 # specifies whether student may remove bucket.
- },
- {
- label => 'coset 2',
- indices => [ 0 ],
- removable => 1
- },
- {
- label => 'coset 3',
- indices => [ 2 ],
- removable => 1
- }
- ],
- # OrderedSubsets => 0, # means order of subsets does not matter. 1 means otherwise.
- # (The order of elements within each subset never matters.) Default value = 0.
- #
- # AllowNewBuckets => 0, # means no new buckets may be added by student. 1 means otherwise. Default value = 1.
- );
+},
+{
+label => 'coset 2',
+indices => [ 0 ],
+removable => 1
+},
+{
+label => 'coset 3',
+indices => [ 2 ],
+removable => 1
+}
+],
+# OrderedSubsets => 0, # means order of subsets does not matter. 1 means otherwise.
+# (The order of elements within each subset never matters.) Default value = 0.
+#
+# AllowNewBuckets => 0, # means no new buckets may be added by student. 1 means otherwise. Default value = 1.
+);
 
- Context()->texStrings;
+BEGIN_PGML
 
- BEGIN_TEXT
+Let [``G=D_3=\lbrace e,r,r^2, s,sr,sr^2 \rbrace``]
+be the Dihedral group of order [`6`], where [`r`] is counter-clockwise rotation by [`2\pi/3`],
+and [`s`] is the reflection across the [`x`]-axis.
 
- Let \[
- G=D_3=\lbrace e,r,r^2, s,sr,sr^2 \rbrace
- \]
- be the Dihedral group of order \(6\), where \(r\) is counter-clockwise rotation by \(2\pi/3\),
- and \(s\) is the reflection across the \(x\)-axis.
+Partition [`G=D_3`] into *right* cosets of the subgroup [`H=\lbrace [$subgroup] \rbrace`].
+Give your result by dragging the following elements into separate buckets,
+each corresponding to a coset.
 
- Partition \(G=D_3\) into $BBOLD right $EBOLD cosets of the subgroup
- \(H=\lbrace $subgroup \rbrace\).  Give your result by dragging the following elements into separate buckets,
- each corresponding to a coset.
+[@ $draggable->Print @]*
 
- $PAR
- \{ $draggable->Print \}
+END_PGML
 
- END_TEXT
- Context()->normalStrings;
+# Answer Evaluation
 
- # Answer Evaluation
+ANS($draggable->cmp);
 
- ANS($draggable->cmp);
-
- ENDDOCUMENT();
+ENDDOCUMENT();
 
 =cut
 
 ################################################################
 
-loadMacros(
-"PGchoicemacros.pl",
-"MathObjects.pl",
-);
+loadMacros("PGchoicemacros.pl", "MathObjects.pl",);
 
 sub _draggableSubsets_init {
 	ADD_CSS_FILE("https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.css", 1);
@@ -160,90 +148,96 @@ sub _draggableSubsets_init {
 package draggableSubsets;
 
 sub new {
-	my $self = shift;
+	my $self  = shift;
 	my $class = ref($self) || $self;
 
 	# user arguments
-	my $set = shift;
+	my $set     = shift;
 	my $subsets = shift;
 	my %options = (
-	DefaultSubsets => [],
-	OrderedSubsets => 0,
-	AllowNewBuckets => 1,
-	@_
+		DefaultSubsets  => [],
+		OrderedSubsets  => 0,
+		AllowNewBuckets => 1,
+		@_
 	);
+
 	# end user arguments
 
 	my $numProvided = scalar(@$set);
-	my @order = main::shuffle($numProvided);
-	my @unorder = main::invert(@order);
+	my @order       = main::shuffle($numProvided);
+	my @unorder     = main::invert(@order);
 
-	my $shuffledSet = [ map {$set->[$_]} @order ];
+	my $shuffledSet = [ map { $set->[$_] } @order ];
 
-	my $defaultBuckets = $options{DefaultSubsets};
+	my $defaultBuckets         = $options{DefaultSubsets};
 	my $defaultShuffledBuckets = [];
 	if (@$defaultBuckets) {
 		for my $defaultBucket (@$defaultBuckets) {
-			my $shuffledIndices = [ map {$unorder[$_]} @{ $defaultBucket->{indices} } ];
+			my $shuffledIndices =
+				[ map { $unorder[$_] } @{ $defaultBucket->{indices} } ];
 			my $default_shuffled_bucket = {
-				label => $defaultBucket->{label},
-				indices => $shuffledIndices,
+				label     => $defaultBucket->{label},
+				indices   => $shuffledIndices,
 				removable => $defaultBucket->{removable},
 			};
 			push(@$defaultShuffledBuckets, $default_shuffled_bucket);
 		}
 	} else {
-		push(@$defaultShuffledBuckets, [ {
-			label => '',
-			indices => [ 0..$numProvided-1 ]
-		} ]);
+		push(
+			@$defaultShuffledBuckets,
+			[ {
+				label   => '',
+				indices => [ 0 .. $numProvided - 1 ]
+			} ]
+		);
 	}
 
 	my $answerInputId = main::NEW_ANS_NAME() unless $self->{answerInputId};
-	my $ans_rule = main::NAMED_HIDDEN_ANS_RULE($answerInputId);
-	my $dnd = new DragNDrop(
-	$answerInputId,
-	$shuffledSet,
-	$defaultShuffledBuckets,
-	AllowNewBuckets => $options{AllowNewBuckets},
-	);
+	my $ans_rule      = main::NAMED_HIDDEN_ANS_RULE($answerInputId);
+	my $dnd =
+		new DragNDrop($answerInputId, $shuffledSet, $defaultShuffledBuckets,
+		AllowNewBuckets => $options{AllowNewBuckets},);
 
 	my $previous = $main::inputs_ref->{$answerInputId} || '';
 
 	if ($previous eq '') {
-		for my $defaultBucket ( @$defaultShuffledBuckets ) {
+		for my $defaultBucket (@$defaultShuffledBuckets) {
 			$dnd->addBucket($defaultBucket->{indices}, label => $defaultBucket->{label});
 		}
 	} else {
-		my @matches = ( $previous =~ /(\([^\(\)]*\)|-?\d+)+/g );
-		for(my $i = 0; $i < @matches; $i++) {
-			my $match = @matches[$i] =~ s/\(|\)//gr;
-			my $indices = [ split(',', $match) ];
-			my $label = $i < @$defaultShuffledBuckets ? $defaultShuffledBuckets->[$i]->{label} : '';
+		my @matches = ($previous =~ /(\([^\(\)]*\)|-?\d+)+/g);
+		for (my $i = 0; $i < @matches; $i++) {
+			my $match     = @matches[$i] =~ s/\(|\)//gr;
+			my $indices   = [ split(',', $match) ];
+			my $label     = $i < @$defaultShuffledBuckets ? $defaultShuffledBuckets->[$i]->{label}     : '';
 			my $removable = $i < @$defaultShuffledBuckets ? $defaultShuffledBuckets->[$i]->{removable} : 1;
-			$dnd->addBucket($indices->[0] != -1 ? $indices : [], label => $label, removable => $removable);
+			$dnd->addBucket(
+				$indices->[0] != -1 ? $indices : [],
+				label     => $label,
+				removable => $removable
+			);
 		}
 	}
 
 	my @shuffled_subsets_array = ();
-	for my $subset ( @$subsets ) {
-		my @shuffled_subset = map {$unorder[$_]} @$subset;
+	for my $subset (@$subsets) {
+		my @shuffled_subset = map { $unorder[$_] } @$subset;
 		push(@shuffled_subsets_array, @$subset != 0 ? main::Set(join(',', @shuffled_subset)) : main::Set());
 	}
 	my $shuffled_subsets = main::List(@shuffled_subsets_array);
 
 	$self = bless {
-		set => $set,
-		shuffledSet => $shuffledSet,
-		numProvided => $numProvided,
-		order => \@order,
-		unordered => \@unorder,
+		set              => $set,
+		shuffledSet      => $shuffledSet,
+		numProvided      => $numProvided,
+		order            => \@order,
+		unordered        => \@unorder,
 		shuffled_subsets => $shuffled_subsets,
-		answerInputId => $answerInputId,
-		dnd => $dnd,
-		ans_rule => $ans_rule,
-		OrderedSubsets => $options{OrderedSubsets},
-		AllowNewBuckets => $options{AllowNewBuckets},
+		answerInputId    => $answerInputId,
+		dnd              => $dnd,
+		ans_rule         => $ans_rule,
+		OrderedSubsets   => $options{OrderedSubsets},
+		AllowNewBuckets  => $options{AllowNewBuckets},
 	}, $class;
 
 	return $self;
@@ -255,14 +249,11 @@ sub Print {
 	my $ans_rule = $self->{ans_rule};
 
 	if ($main::displayMode ne "TeX") {
+
 		# HTML mode
-		return join("\n",
-		'<div style="min-width:750px;">',
-		$ans_rule,
-		$self->{dnd}->HTML,
-		'<br clear="all" />',
-		'</div>',
-		);
+		return
+			join("\n", '<div style="min-width:750px;">', $ans_rule, $self->{dnd}->HTML,
+			'<br clear="all" />', '</div>',);
 	} else {
 		# TeX mode
 		return $self->{dnd}->TeX;
@@ -272,21 +263,23 @@ sub Print {
 sub cmp {
 	my $self = shift;
 
-	return $self->{shuffled_subsets}
-	->cmp(ordered => $self->{OrderedSubsets}, removeParens => 1, partialCredit => 1)
-	->withPreFilter(sub {$self->prefilter(@_)})
-	->withPostFilter(sub {$self->filter(@_)});
+	return $self->{shuffled_subsets}->cmp(
+		ordered       => $self->{OrderedSubsets},
+		removeParens  => 1,
+		partialCredit => 1
+	)->withPreFilter(sub { $self->prefilter(@_) })->withPostFilter(sub { $self->filter(@_) });
 }
 
 sub prefilter {
-	my $self = shift; my $anshash = shift;
+	my $self    = shift;
+	my $anshash = shift;
 
-	my @student = ( $anshash->{original_student_ans} =~ /(\([^\(\)]*\)|-?\d+)/g );
+	my @student = ($anshash->{original_student_ans} =~ /(\([^\(\)]*\)|-?\d+)/g);
 
 	my @studentAnsArray;
-	for my $match ( @student ) {
+	for my $match (@student) {
 		if ($match =~ /-1/) {
-			push(@studentAnsArray, main::Set()); # index -1 corresponds to empty set
+			push(@studentAnsArray, main::Set());    # index -1 corresponds to empty set
 		} else {
 			push(@studentAnsArray, main::Set($match =~ s/\(|\)//gr));
 		}
@@ -298,23 +291,29 @@ sub prefilter {
 }
 
 sub filter {
-	my $self = shift; my $anshash = shift;
+	my $self    = shift;
+	my $anshash = shift;
 
-	my @order = @{ $self->{order} };
-	my @student = ( $anshash->{original_student_ans} =~ /(\([^\(\)]*\)|-?\d+)/g );
-	my @correct = ( $anshash->{correct_ans} =~ /({[^{}]*}|-?\d+)/g );
+	my @order   = @{ $self->{order} };
+	my @student = ($anshash->{original_student_ans} =~ /(\([^\(\)]*\)|-?\d+)/g);
+	my @correct = ($anshash->{correct_ans}          =~ /({[^{}]*}|-?\d+)/g);
 
-	$anshash->{correct_ans_latex_string} = join (",", map {
-		"\\{\\text{".join(",", (map {
-			$_ != -1 ? $self->{shuffledSet}->[$_] : ''
-		} (split(',', $_ =~ s/{|}//gr)) ))."}\\}"
-	} @correct);
+	$anshash->{correct_ans_latex_string} = join(
+		",",
+		map {
+			"\\{\\text{"
+				. join(",", (map { $_ != -1 ? $self->{shuffledSet}->[$_] : '' } (split(',', $_ =~ s/{|}//gr)))) . "}\\}"
+		} @correct
+	);
 
-	$anshash->{preview_latex_string} = join (",", map {
-		"\\{\\text{".join(",", (map {
-			$_ != -1 ? $self->{shuffledSet}->[$_] : ''
-		} (split(',', $_ =~ s/\(|\)//gr)) ))."}\\}"
-	} @student);
+	$anshash->{preview_latex_string} = join(
+		",",
+		map {
+			"\\{\\text{"
+				. join(",", (map { $_ != -1 ? $self->{shuffledSet}->[$_] : '' } (split(',', $_ =~ s/\(|\)//gr))))
+				. "}\\}"
+		} @student
+	);
 
 	$anshash->{student_ans} = "(see preview)";
 
