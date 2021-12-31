@@ -1,5 +1,5 @@
 lib/chromatic/color
-conf/*.yml
+conf/pg_defaults.yml
 *.bak
 
 cover_db/
