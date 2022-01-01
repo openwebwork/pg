@@ -1,2 +1,3 @@
 lib/chromatic/color
 conf/*.yml
+htdocs/package-lock.json
