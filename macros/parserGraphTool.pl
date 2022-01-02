@@ -188,6 +188,7 @@ sub _parserGraphTool_init {
 	ADD_CSS_FILE("js/apps/GraphTool/graphtool.css");
 	ADD_JS_FILE("node_modules/jsxgraph/distrib/jsxgraphcore.js", 0, { defer => undef });
 	ADD_JS_FILE("js/apps/GraphTool/graphtool.min.js", 0, { defer => undef });
+	ADD_JS_FILE('js/apps/GraphTool/pointtool.js', 0, { defer => undef });
 
 	main::PG_restricted_eval('sub GraphTool { parser::GraphTool->new(@_) }');
 }
@@ -198,7 +199,6 @@ package parser::GraphTool;
 our @ISA = qw(Value::List);
 
 our %contextStrings = (
-	point => {},
 	line => {},
 	circle => {},
 	parabola => {},
@@ -356,6 +356,10 @@ sub addTools {
 	my %tools = @_;
 	$customTools .= join(",", map { "$_: $tools{$_}" } keys %tools) . ",";
 }
+
+# The point tool is available for use by default.  It is added this way so that the javascript can be kept separate.
+parser::GraphTool->addGraphObjects(point => { js => 'graphTool.pointTool.graphObject' });
+parser::GraphTool->addTools(PointTool => 'graphTool.pointTool.graphTool');
 
 sub ANS_NAME
 {
