@@ -375,7 +375,7 @@ sub perform_check {
   foreach my $ans (@{$self->{ans}}) {
     push(@correct,$ans->{correct_value});
     push(@student,$ans->{student_value});
-    return if $ans->{ans_message} ne "" || !defined($ans->{student_value});
+    return if $ans->{ans_message} || !defined($ans->{student_value});
     return if $self->{checkTypes} && $ans->{student_value}->type ne $ans->{correct_value}->type &&
               !($self->{allowBlankAnswers} && $ans->{student_ans} !~ m/\S/) ;
   }
