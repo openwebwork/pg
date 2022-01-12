@@ -40,11 +40,8 @@ use YAML::XS qw/LoadFile/;
 BEGIN {
 	eval {
 		require WeBWorK::CourseEnvironment;
-		# WeBWorK::CourseEnvironment->import();
 		$ce = WeBWorK::CourseEnvironment->new({ webwork_dir => $ENV{WEBWORK_ROOT} });
 	} or do {
-		my $error = $@;
-
 		$pg_dir = $ENV{PG_ROOT};
 		die "The environmental variable PG_ROOT must be a directory" unless -d $pg_dir;
 	};
@@ -57,20 +54,21 @@ sub new {
 	my $self = {};
 
 	if (defined($ce)) {
-		$self->{webworkDirs}      = $ce->{webworkDirs};
-		$self->{externalPrograms} = $ce->{externalPrograms};
-		$self->{pg_dir}           = $ce->{pg_dir};
+		$self->{webworkDirs}         = $ce->{webworkDirs};
+		$self->{externalPrograms}    = $ce->{externalPrograms};
+		$self->{pg_dir}              = $ce->{pg_dir};
+		$self->{webwork_courses_dir} = $ce->{webwork_courses_dir};
 	} else {
-		## load from an conf file;
+		# Load from the conf file.
 		$self->{pg_dir} = $ENV{PG_ROOT};
 
 		my $defaults_file = $self->{pg_dir} . "/conf/pg_defaults.yml";
-		die "Cannot read the configuration file found at $defaults_file" unless -r $defaults_file;
+		die "Cannot read the configuration file $defaults_file" unless -r $defaults_file;
 
 		my $options = LoadFile($defaults_file);
-		$self->{webworkDirs}      = $options->{webworkDirs};
-		$self->{externalPrograms} = $options->{externalPrograms};
-
+		$self->{webworkDirs}         = $options->{webworkDirs};
+		$self->{externalPrograms}    = $options->{externalPrograms};
+		$self->{webwork_courses_dir} = $ce->{webwork_courses_dir};
 	}
 
 	bless $self, $class;
