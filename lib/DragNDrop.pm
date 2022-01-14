@@ -162,14 +162,15 @@ sub HTML {
 	my $self = shift;
 
 	my $out = '';
-	$out .= "<div class='bucket_pool' data-ans='$self->{answerInputId}'>";
+	$out .= "<div class='dd-bucket-pool' data-ans='$self->{answerInputId}'>";
 
 	# buckets from instructor-defined default settings
 	for (my $i = 0; $i < @{ $self->{defaultBuckets} }; $i++) {
 		my $defaultBucket = $self->{defaultBuckets}->[$i];
-		$out .= "<div class='hidden default bucket' data-bucket-id='$i' data-removable='$defaultBucket->{removable}'>";
-		$out .= "<div class='label'>$defaultBucket->{label}</div>";
-		$out .= "<ol class='answer'>";
+		$defaultBucket->{removable} //= 0;
+		$out .= "<div class='dd-hidden dd-default dd-bucket' data-bucket-id='$i' data-removable='$defaultBucket->{removable}'>";
+		$out .= "<div class='dd-label'>$defaultBucket->{label}</div>";
+		$out .= "<ol class='dd-answer'>";
 		for my $j (@{ $defaultBucket->{indices} }) {
 			$out .= "<li data-shuffled-index='$j'>$self->{aggregateList}->[$j]</li>";
 		}
@@ -178,10 +179,10 @@ sub HTML {
 
 	# buckets from past answers
 	for my $bucket (@{ $self->{bucketList} }) {
-		$out .= "<div class='hidden past_answers bucket' data-bucket-id='$bucket->{bucket_id}' ";
+		$out .= "<div class='dd-hidden dd-past-answers dd-bucket' data-bucket-id='$bucket->{bucket_id}' ";
 		$out .= "data-removable='$bucket->{removable}'>";
-		$out .= "<div class='label'>$bucket->{label}</div>";
-		$out .= "<ol class='answer'>";
+		$out .= "<div class='dd-label'>$bucket->{label}</div>";
+		$out .= "<ol class='dd-answer'>";
 
 		for my $index (@{ $bucket->{indices} }) {
 			$out .= "<li data-shuffled-index='$index'>$self->{aggregateList}->[$index]</li>";
@@ -190,9 +191,9 @@ sub HTML {
 		$out .= "</div>";
 	}
 	$out .= '</div>';
-	$out .= "<br clear='all'><div><a class='btn btn-secondary reset_buckets'>reset</a>";
+	$out .= "<div class='dd-buttons'><button type='button' class='btn btn-secondary dd-reset-buckets'>reset</button>";
 	if ($self->{AllowNewBuckets} == 1) {
-		$out .= "<a class='btn btn-secondary add_bucket' data-ans='$self->{answerInputId}'>add bucket</a>";
+		$out .= "<button type='button' class='btn btn-secondary dd-add-bucket' data-ans='$self->{answerInputId}'>add bucket</button>";
 	}
 	$out .= "</div>";
 
