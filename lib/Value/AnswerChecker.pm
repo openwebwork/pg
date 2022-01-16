@@ -198,6 +198,8 @@ sub cmp_collect {
   $ans->{student_formula} = eval {$type->new($array)->with(ColumnVector=>$self->{ColumnVector})};
   if (!defined($ans->{student_formula}) || $self->context->{error}{flag})
     {Parser::reportEvalError($@); $self->cmp_error($ans); return 0}
+  $ans->{student_formula}{tree}{open} = $self->{open} if $self->{open};
+  $ans->{student_formula}{tree}{close} = $self->{close} if $self->{close};
   $ans->{student_value} = $ans->{student_formula};
   $ans->{preview_text_string} = $ans->{student_ans};
   $ans->{preview_latex_string} = $ans->{student_formula}->TeX;

@@ -274,10 +274,14 @@ sub ForceBreak {
 
 sub Par {
   my $self = shift; my $token = shift;
-  $self->End(undef, shift);
-  $self->Item("par",$token,{noIndent => 1});
-  $self->{atLineStart} = $self->{ignoreNL} = 1;
-  $self->{indent} = $self->{actualIndent} = 0;
+  if ($self->{block}{allowPar}) {
+    $self->Text("\n\n");
+  } else {
+    $self->End(undef, shift);
+    $self->Item("par",$token,{noIndent => 1});
+    $self->{atLineStart} = $self->{ignoreNL} = 1;
+    $self->{indent} = $self->{actualIndent} = 0;
+  }
 }
 
 sub Indent {
@@ -470,7 +474,7 @@ my $balanceAll = qr/[\{\[\'\"]/;
   "[<"   => {type=>'link', parseComments=>1, parseSubstitutions=>1,
                terminator=>qr/>\]/, terminateMethod=>'terminateGetString',
                cancelNL=>1, options=>["text","title"]},
-  "[%"   => {type=>'comment', parseComments=>1, terminator=>qr/%\]/},
+  "[%"   => {type=>'comment', parseComments=>1, terminator=>qr/%\]/, allowPar=>1},
   "[\@"  => {type=>'command', parseComments=>1, parseSubstitutions=>1,
                terminator=>qr/@\]/, terminateMethod=>'terminateGetString',
                balance=>qr/[\'\"]/, allowStar=>1, allowDblStar=>1, allowTriStar=>1},
@@ -486,7 +490,7 @@ my $balanceAll = qr/[\{\[\'\"]/;
 	       balance=>$balanceAll, cancelUnbalanced=>1},
   "'"    => {type=>'balance', terminator=>qr/\'/, terminateMethod=>'terminateBalance'},
   '"'    => {type=>'balance', terminator=>qr/\"/, terminateMethod=>'terminateBalance'},
-  "```"  => {type=>'code', terminator=>qr/```/, terminateMethod=>'terminateCode'},
+  "```"  => {type=>'code', terminator=>qr/```/, terminateMethod=>'terminateCode', allowPar=>1},
   ":   " => {type=>'pre', parseAll=>1, terminator=>qr/\n+/, terminateMethod=>'terminatePre',
                combine=>{pre=>"type"}, noIndent=>-1},
   ">>"   => {type=>'align', parseAll=>1, align=>"right", breakInside=>1,
