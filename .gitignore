@@ -1,5 +1,6 @@
 lib/chromatic/color
 conf/*.yml
 htdocs/package-lock.json
+htdocs/node_modules
 htdocs/js/apps/Problem/problem.css
 htdocs/js/apps/Problem/problem.css.map
