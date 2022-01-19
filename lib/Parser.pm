@@ -403,8 +403,8 @@ sub Close {
                     ($top->type eq 'Comma') ? $top->entryType : $top->typeRef,
                     ($type ne 'start') ? ($open,$paren->{close}) : () )};
         } else {
-	  $top->{value}{hadParens} = 1;
-	}
+          $top->{value}{hadParens} = 1 unless $open eq 'start';
+        }
         $self->pop; $self->push($top);
         $self->CloseFn() if ($paren->{function} && $self->prev->{type} eq 'fn');
       } elsif ($paren->{formInterval} eq $type && $self->top->{value}->length == 2) {

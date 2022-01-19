@@ -490,18 +490,27 @@ END_TIKZ
 	} elsif ($main::displayMode ne 'PTX') {
 		$self->constructJSXGraphOptions;
 		my $ans_name = $self->ANS_NAME;
-		$out .= "<div id='${ans_name}_graphbox' class='graphtool-container'></div>" .
-			"<script>window.addEventListener('DOMContentLoaded', function() {
-			graphTool('${ans_name}_graphbox', { " .
-			"htmlInputId: '${ans_name}', " .
-			"staticObjects: '" . join(',', @{$self->{staticObjects}}) . "'," .
-			"snapSizeX: $self->{snapSizeX}," .
-			"snapSizeY: $self->{snapSizeY}," .
-			"customGraphObjects: {$customGraphObjects}," .
-			"customTools: {$customTools}," .
-			"availableTools: ['" . join("','", @{$self->{availableTools}}) . "']," .
-			"JSXGraphOptions: $self->{JSXGraphOptions}," .
-			"});});</script>";
+		$out .= <<END_SCRIPT
+<div id='${ans_name}_graphbox' class='graphtool-container'></div>
+<script>
+(() => {
+	const initialize = () => {
+		graphTool('${ans_name}_graphbox', {
+			htmlInputId: '${ans_name}',
+			staticObjects: '${\(join(',', @{$self->{staticObjects}}))}',
+			snapSizeX: $self->{snapSizeX},
+			snapSizeY: $self->{snapSizeY},
+			customGraphObjects: {$customGraphObjects},
+			customTools: {$customTools},
+			availableTools: ['${\(join("','", @{$self->{availableTools}}))}'],
+			JSXGraphOptions: $self->{JSXGraphOptions}
+		});
+	};
+	if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', initialize);
+	else initialize();
+})();
+</script>
+END_SCRIPT
 	}
 
 	return $out;
@@ -521,16 +530,20 @@ sub cmp_preprocess {
 		$ans->{preview_latex_string} = <<"END_ANS";
 <div id='${ans_name}_student_ans_graphbox' class='graphtool-answer-container'></div>
 <script>
-window.addEventListener("DOMContentLoaded", function() {
-	graphTool("${ans_name}_student_ans_graphbox", {
-		staticObjects: "$graphObjs",
-		isStatic: true,
-		snapSizeX: $self->{snapSizeX},
-		snapSizeY: $self->{snapSizeY},
-		customGraphObjects: {$customGraphObjects},
-		JSXGraphOptions: $self->{JSXGraphOptions}
-	});
-});
+(() => {
+	const initialize = () => {
+		graphTool("${ans_name}_student_ans_graphbox", {
+			staticObjects: "$graphObjs",
+			isStatic: true,
+			snapSizeX: $self->{snapSizeX},
+			snapSizeY: $self->{snapSizeY},
+			customGraphObjects: {$customGraphObjects},
+			JSXGraphOptions: $self->{JSXGraphOptions}
+		});
+	};
+	if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', initialize);
+	else initialize();
+})();
 </script>
 END_ANS
 	}
@@ -553,16 +566,20 @@ sub cmp {
 		$cmp->{rh_ans}{correct_ans_latex_string} = << "END_ANS";
 <div id='${ans_name}_correct_ans_graphbox' class='graphtool-answer-container'></div>
 <script>
-window.addEventListener("DOMContentLoaded", function() {
-	graphTool("${ans_name}_correct_ans_graphbox", {
-		staticObjects: "$graphObjs",
-		isStatic: true,
-		snapSizeX: $self->{snapSizeX},
-		snapSizeY: $self->{snapSizeY},
-		customGraphObjects: {$customGraphObjects},
-		JSXGraphOptions: $self->{JSXGraphOptions}
-	});
-});
+(() => {
+	const initialize = () => {
+		graphTool("${ans_name}_correct_ans_graphbox", {
+			staticObjects: "$graphObjs",
+			isStatic: true,
+			snapSizeX: $self->{snapSizeX},
+			snapSizeY: $self->{snapSizeY},
+			customGraphObjects: {$customGraphObjects},
+			JSXGraphOptions: $self->{JSXGraphOptions}
+		});
+	};
+	if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', initialize);
+	else initialize();
+})();
 </script>
 END_ANS
 	}

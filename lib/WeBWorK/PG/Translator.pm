@@ -79,6 +79,71 @@ sets or PG macro files.  Use this way to imitate the behavior of C<use strict;>
 =cut
 
 BEGIN {
+	# Setup the safe compartment for the standalone renderer.
+	if (exists($ENV{MOJO_MODE})) {
+		my $ce = new WeBWorK::CourseEnvironment({
+			webwork_dir => $ENV{WEBWORK_ROOT},
+		});
+
+		# This safe compartment is used to read the large macro files such as
+		# PG.pl, PGbasicmacros.pl and PGanswermacros and cache the results so that
+		# future calls have preloaded versions of these large files. This saves
+		# approximately 200ms per render.
+		my $safeCache = new WWSafe;
+
+		my @modules = @{ $ce->{pg}->{modules} };
+		my $ra_included_modules = [];
+
+		foreach my $module_packages_ref (@modules) {
+			my ( $module, @extra_packages ) = @$module_packages_ref;
+
+			# the first item is the main package
+			$module =~ s/\.pm$//;
+			eval "package Main; require $module; import $module;";
+			warn "Failed to evaluate module $module: $@" if $@;
+			push @$ra_included_modules, "\%${module}::";
+
+			# the remaining items are "extra" packages
+			foreach (@extra_packages) {
+				s/\.pm$//;
+				import $_;
+				warn "Failed to evaluate module $_: $@" if $@;
+				push @$ra_included_modules, "\%${_}::";
+			}
+		}
+
+		$safeCache->share_from( 'main', $ra_included_modules );
+
+		my $store_mask = $safeCache->mask();
+		$safeCache->mask(Opcode::empty_opset());
+		my $safe_cmpt_package_name = $safeCache->root();
+
+		# these days, the only unrestricted load is from PG.pl -- include it in pre-cache
+		my $filePath = $WeBWorK::Constants::PG_DIRECTORY . "/macros/PG.pl";
+		my $init_subroutine_name = "${safe_cmpt_package_name}::_PG_init";
+
+		my $errors = "";
+		if ( -r $filePath ) {
+			my $rdoResult = $safeCache->rdo($filePath);
+			$errors .= "\nThere were problems compiling the file:\n $filePath\n $@\n" if $@;
+		} else {
+			$errors .= "Can't open file $filePath for reading\n";
+		}
+		$safeCache -> mask($store_mask);
+
+		# intialize PG.pl
+		my $init_subroutine  = eval { \&{$init_subroutine_name} };
+		my $macro_file_loaded	= ref($init_subroutine) =~ /CODE/;
+		if ( $macro_file_loaded ) {
+			&$init_subroutine();
+		}
+		$errors .= "\nUnknown error.  Unable to load $filePath\n" if ($errors eq '' and not $macro_file_loaded);
+		die "Translator.pm [BEGIN errors]: $errors\n" if $errors;
+
+		# stash the cache in a global variable
+		$WeBWorK::Translator::safeCache = $safeCache;
+	}
+
 	# allows the use of strict within macro packages.
 	sub be_strict {
 		require 'ww_strict.pm';
@@ -117,14 +182,7 @@ sub evaluate_modules {
 		push @{$self->{ra_included_modules}}, "\%${_}::";
 	}
 }
-#      old code for runtime_use
-# 		if ( -r  "${courseScriptsDirectory}${module_name}.pm"   ) {
-# 			eval(qq! require "${courseScriptsDirectory}${module_name}.pm";  import ${module_name};! );
-# 			warn "Errors in including the module ${courseScriptsDirectory}$module_name.pm $@" if $@;
-# 		} else {
-# 			eval(qq! require "${module_name}.pm";  import ${module_name};! );
-# 			warn "Errors in including either the module $module_name.pm or ${courseScriptsDirectory}${module_name}.pm $@" if $@;
-# 		}
+
 =head2 load_extra_packages
 
 	Usage:  $obj -> load_extra_packages('AlgParserWithImplicitExpand',
@@ -153,6 +211,7 @@ sub load_extra_packages{
 }
 
 =head2  new
+
 	Creates the translator object.
 
 =cut
@@ -160,7 +219,12 @@ sub load_extra_packages{
 
 sub new {
 	my $class = shift;
-	my $safe_cmpt = new WWSafe; #('PG_priv');
+
+	# The standalone renderer caches the safe compartment when the module is compiled.
+	# It is safe for all requests to use the safeCache because the perl
+	# process is forked for each render request.  (thanks async!)
+	my $safe_cmpt = exists($ENV{MOJO_MODE}) ? $WeBWorK::Translator::safeCache : new WWSafe;
+
 	my $self = {
 	    preprocess_code           =>  \&default_preprocess_code,
 	    postprocess_code           => \&default_postprocess_code,
@@ -300,166 +364,11 @@ sub initialize {
 	#$safe_cmpt -> share('$rf_restricted_eval');
 	use strict;
     	
-	$safe_cmpt -> share_from('main', $self->{ra_included_modules} );
-		# the above line will get changed when we fix the PG modules thing. heh heh.
+	# The standalone renderer does this when the module is compiled.
+	unless (exists($ENV{MOJO_MODE})) {
+		$safe_cmpt -> share_from('main', $self->{ra_included_modules} );
+	}
 }
-
-# -- Preloading has not been used for some time.
-# It was a method of speeding up the creation of a new safe compartment
-# It may be worth saving this for a while as a reference
-# ################################################################
-# #  Preloading the macro files
-# ################################################################
-# 
-# #  Preloading the macro files can significantly speed up the translation process.
-# #  Files are read into a separate safe compartment (typically Safe::Root1::)
-# #  This means that all non-explicit subroutine references and those explicitly prefixed by main::
-# #  are prefixed by Safe::Root1::
-# #  These subroutines (but not the constants) are then explicitly exported to the current
-# #  safe compartment Safe::Rootx::
-# 
-# #  Although it is not large, it is important to import PG.pl into the 
-# #  cached safe compartment as well.  This is because a call in PGbasicmacros.pl to NEW_ANSWER_NAME
-# #  which is defined in PG.pl would actually be a call to Safe::Root1::NEW_ANSWER_NAME since
-# #  PGbasicmacros is compiled into the SAfe::Root1:: compartment.  If PG.pl has only been compiled into
-# #  the current Safe compartment, this call will fail.  There are many calls between PG.pl,
-# #  PGbasicmacros and PGanswermacros so it is easiest to have all of them defined in Safe::Root1::
-# #  There subroutines are still available in the current safe compartment.
-# #  Sharing the hash %Safe::Root1:: in the current compartment means that any references to Safe::Root1::NEW_ANSWER_NAME
-# #  will be found as long as NEW_ANSWER_NAME has been defined in Safe::Root1::
-# #  
-# #  Constants and references to subroutines in other macro files have to be handled carefully in preloaded files.
-# #  For example a call to main::display_matrix (defined in PGmatrixmacros.pl) will become Safe::Root1::display_matrix and
-# #  will fail since PGmatrixmacros.pl is loaded only into the current safe compartment Safe::Rootx::.  
-# #  The value of main:: has to be evaluated at runtime in order to make this work.  Hence  something like
-# #  my $temp_code  = eval('\&main::display_matrix');
-# #  &$temp_code($matrix_object_to_be_displayed);
-# #  in PGanswermacros.pl
-# #  would reference the run time value of main::, namely Safe::Rootx::
-# #  There may be a clearer or more efficient way to obtain the runtime value of main::
-# 
-# 
-# sub pre_load_macro_files {
-#     time_it("Begin pre_load_macro_files");
-# 	my $self                = shift;
-# 	my $cached_safe_cmpt    = shift;
-# 	my $dirName             = shift;
-# 	my @fileNameList        = @_;
-# 	my $debugON			    = 0;    # This helps with debugging the loading of macro files
-# 
-# ################################################################
-# #    prepare safe_cache
-# ################################################################
-#     $cached_safe_cmpt -> share_from('WeBWorK::PG::Translator',
-# 				    [keys %Translator_shared_subroutine_hash]);
-#     $cached_safe_cmpt -> share_from('WeBWorK::PG::IO',
-# 				    [keys %IO_shared_subroutine_hash]);	
-#     no strict;
-#     local(%envir) = %{ $self ->{envir} };
-# 	$cached_safe_cmpt -> share('%envir');
-# 	use strict;
-#     $cached_safe_cmpt -> share_from('main', $self->{ra_included_modules} );
-#     $cached_safe_cmpt->mask(Opcode::full_opset());  # allow no operations
-#     $cached_safe_cmpt->permit(qw(   :default ));
-#     $cached_safe_cmpt->permit(qw(time));  # used to determine whether solutions are visible.
-# 	$cached_safe_cmpt->permit(qw( atan2 sin cos exp log sqrt ));
-# 
-# 	# just to make sure we'll deny some things specifically
-# 	$cached_safe_cmpt->deny(qw(entereval));
-# 	$cached_safe_cmpt->deny(qw (  unlink symlink system exec ));
-# 	$cached_safe_cmpt->deny(qw(print require));
-# 
-# ################################################################
-# #    read in macro files
-# ################################################################
-# 
-# 	foreach my $fileName (@fileNameList)   {
-# 	    # determine whether the file has already been loaded by checking for
-# 	    # subroutine named _${macro_file_name}_init
-# 		my $macro_file_name = $fileName;
-# 		$macro_file_name =~s/\.pl//;  # trim off the extension
-# 		$macro_file_name =~s/\.pg//;  # sometimes the extension is .pg (e.g. CAPA files)
-# 		my $init_subroutine_name      = "_${macro_file_name}_init";
-#         my $macro_file_loaded = defined(&{$cached_safe_cmpt->root."::$init_subroutine_name"}) ? 1 : 0; 
-# 	
-# 	    
-# 		if ( $macro_file_loaded  )     {
-# 			warn "$macro_file_name is already loaded" if $debugON;
-# 		 }else {
-# 			warn "pre_load_macro_files: reading and evaluating $macro_file_name from $dirName/$fileName" ;
-# 			### read in file
-# 			my $filePath = "$dirName/$fileName";
-# 			local(*MACROFILE);
-# 			local($/);
-# 			$/ = undef;   # allows us to treat the file as a single line
-# 			open(MACROFILE, "<:encoding(UTF-8)", $filePath) || die "Cannot open file: $filePath";
-# 			my $string = <MACROFILE>;
-# 			close(MACROFILE);
-# 			
-# 
-# ################################################################
-# #    Evaluate macro files
-# ################################################################
-# #    FIXME  The following hardwired behavior should be modifiable
-# #    either in the procedure call or in global.conf:
-# # 
-# #    PG.pl, IO.pl are loaded without restriction;
-# #    all other files are loaded with restriction
-# #     
-# 			# construct a regex that matches only these three files safely
-# 			my @unrestricted_files = (); #  no longer needed? FIXME w/PG.pl IO.pl/;
-# 			my $unrestricted_files = join("|", map { quotemeta } @unrestricted_files);
-# 			
-# 			my $store_mask; 
-# 			if ($fileName =~ /^($unrestricted_files)$/) {
-# 	        	$store_mask = $cached_safe_cmpt->mask();
-# 				$cached_safe_cmpt ->mask(Opcode::empty_opset());
-# 	        } 			
-# 			$cached_safe_cmpt -> reval('BEGIN{push @main::__eval__,__FILE__}; package main; ' .$string);
-# 			warn "preload Macros: errors in compiling $macro_file_name:<br/> $@" if $@;
-# 			$self->{envir}{__files__}{$cached_safe_cmpt->reval('pop @main::__eval__')} = $filePath;
-# 			if ($fileName =~ /^($unrestricted_files)$/) {
-# 	        	$cached_safe_cmpt ->mask($store_mask);
-# 	        	warn "mask restored after $fileName" if $debugON;
-# 	        }
-# 			
-# 
-# 		}
-#  	}
-#  	
-# ################################################################################
-# # load symbol table
-# ################################################################################
-# 	warn "begin loading symbol table "  if $debugON;
-# 	no strict 'refs';
-# 	my %symbolHash  = %{$cached_safe_cmpt->root.'::'};
-# 	use strict 'refs';
-# 	my @subroutine_names;
-# 
-# 	foreach my $name (keys %symbolHash) {
-# 		# weed out internal symbols
-# 		next if $name =~ /^(INC|_|__ANON__|main::)$/;
-# 		if ( defined(&{*{$symbolHash{$name}}})  )  {
-# #			    warn "subroutine $name" if $debugON;;
-# 			push(@subroutine_names, "&$name");		
-# 		}	   
-# 	}
-# 	
-# 	warn "Loading symbols into active safe compartment:<br/> ", join(" ",sort @subroutine_names) if $debugON;
-# 	$self->{safe} -> share_from($cached_safe_cmpt->root,[@subroutine_names]);
-# 	
-# 	# Also need to share the cached safe compartment symbol hash in the current safe compartment. 
-# 	# This is necessary because the macro files have been read into the cached safe compartment
-# 	# So all subroutines have the implied names  Safe::Root1::subroutine
-# 	# When they call each other we need to make sure that they can reach each other
-# 	# through the Safe::Root1 symbol table.
-# 
-# 	$self->{safe} -> share('%'.$cached_safe_cmpt->root.'::');
-# 	warn 'Sharing '.'%'. $cached_safe_cmpt->root. '::'  if $debugON;
-# 	time_it("End pre_load_macro_files");
-# 	# return empty string.
-# 	'';
-# }
 
 sub environment{
 	my $self = shift;
