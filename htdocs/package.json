@@ -6,7 +6,15 @@
         "type": "git",
         "url": "https://github.com/openwebwork/pg"
     },
+    "scripts": {
+        "generate-css": "sass --style compressed --no-source-map js/apps",
+        "sass-watch": "sass --watch js/apps",
+        "prepare": "npm run generate-css"
+    },
     "dependencies": {
         "jsxgraph": "^1.4.0"
+    },
+    "devDependencies": {
+        "sass": "^1.49.0"
     }
 }
