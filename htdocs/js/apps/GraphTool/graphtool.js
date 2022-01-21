@@ -155,11 +155,11 @@ function graphTool(containerId, options) {
 		return Math.round(Math.round(x / snap) * snap * 100000) / 100000;
 	};
 
-	gt.setTextCoords = function(x, y) {
+	gt.setTextCoords = options.showCoordinateHints ? function(x, y) {
 		gt.current_pos_text.setText(
 			'(' + gt.snapRound(x, gt.snapSizeX) + ', ' + gt.snapRound(y, gt.snapSizeY) + ')'
-		);
-	};
+		)
+	} : function() {};
 
 	gt.updateText = function() {
 		gt.html_input.value = gt.graphedObjs.reduce(
@@ -312,6 +312,51 @@ function graphTool(containerId, options) {
 		});
 		if (obj !== false) obj.blur();
 		return obj;
+	};
+
+	// Point graph object
+	function Point(x, y, color) {
+		GraphObject.call(this, gt.board.create('point', [x, y], {
+			size: 2, snapToGrid: true, snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, withLabel: false,
+			strokeColor: color ? color : gt.underConstructionColor, fixed: gt.isStatic,
+			highlightStrokeColor: gt.underConstructionColor, highlightFillColor: gt.pointHighlightColor
+		}));
+		if (!gt.isStatic) {
+			this.on('down', function() { gt.board.containerObj.style.cursor = 'none'; });
+			this.on('up', function() { gt.board.containerObj.style.cursor = 'auto'; });
+			this.on('drag', gt.updateText);
+		}
+	};
+	Point.prototype = Object.create(GraphObject.prototype);
+	Object.defineProperty(Point.prototype, 'constructor',
+		{ value: Point, enumerable: false, writable: true });
+	Point.prototype.blur = function() {
+		this.baseObj.setAttribute({ highlight: false, strokeColor: gt.curveColor, strokeWidth: 2 });
+	};
+	Point.prototype.focus = function() {
+		this.baseObj.setAttribute({ highlight: true, strokeColor: gt.focusCurveColor, strokeWidth: 3 });
+	};
+	Point.prototype.stringify = function() {
+		return [
+			Point.strId,
+			'(' + gt.snapRound(this.baseObj.X(), gt.snapSizeX) + ',' +
+			gt.snapRound(this.baseObj.Y(), gt.snapSizeY) + ')'
+		].join(',');
+	};
+	Point.prototype.updateTextCoords = function(coords) {
+		if (this.baseObj.hasPoint(coords.scrCoords[1], coords.scrCoords[2]))
+			gt.setTextCoords(this.baseObj.X(), this.baseObj.Y());
+	};
+	Point.strId = 'point';
+	Point.restore = function(string) {
+		var pointData = gt.pointRegexp.exec(string);
+		var points = [];
+		while (pointData) {
+			points.push(pointData.slice(1, 3));
+			pointData = gt.pointRegexp.exec(string)
+		}
+		if (points.length < 1) return false;
+		return new gt.graphObjectTypes.point(parseFloat(points[0][0]), parseFloat(points[0][1]), gt.curveColor);
 	};
 
 	// Line graph object
@@ -630,6 +675,7 @@ function graphTool(containerId, options) {
 	};
 
 	gt.graphObjectTypes = {};
+	gt.graphObjectTypes[Point.strId] = Point;
 	gt.graphObjectTypes[Line.strId] = Line;
 	gt.graphObjectTypes[Parabola.strId] = Parabola;
 	gt.graphObjectTypes[Circle.strId] = Circle;
@@ -829,6 +875,51 @@ function graphTool(containerId, options) {
 	SelectTool.prototype.deactivate = function() {
 		gt.graphedObjs.forEach(function(obj) { obj.off('down', this.selectionChanged); }, this);
 		GenericTool.prototype.deactivate.call(this);
+	};
+
+	// Point tool
+	function PointTool(container, iconName, tooltip) {
+		GenericTool.call(this, container, iconName ? iconName : 'point', tooltip ? tooltip : 'Point Tool');
+	}
+	PointTool.prototype = Object.create(GenericTool.prototype);
+	Object.defineProperty(PointTool.prototype, 'constructor',
+		{ value: PointTool, enumerable: false, writable: true });
+	PointTool.prototype.updateHighlights = function(coords) {
+		if (typeof(coords) === 'undefined') return false;
+		if (!('hl_point' in this.hlObjs)) {
+			this.hlObjs.hl_point = gt.board.create('point', [coords.usrCoords[1], coords.usrCoords[2]], {
+				size: 2, color: gt.underConstructionColor, fixed: true, snapToGrid: true,
+				snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, withLabel: false
+			});
+		}
+		else
+			this.hlObjs.hl_point.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+
+		gt.setTextCoords(coords.usrCoords[1], coords.usrCoords[2]);
+		gt.board.update();
+		return true;
+	};
+	PointTool.prototype.deactivate = function() {
+		gt.board.off('up');
+		gt.board.containerObj.style.cursor = 'auto';
+		GenericTool.prototype.deactivate.call(this);
+	};
+	PointTool.prototype.activate = function() {
+		GenericTool.prototype.activate.call(this);
+		gt.board.containerObj.style.cursor = 'none';
+		var this_tool = this;
+		gt.board.on('up', function(e) {
+			var coords = gt.getMouseCoords(e);
+
+			// Don't allow the point to be created off the board
+			if (!gt.board.hasPoint(coords.usrCoords[1], coords.usrCoords[2])) return;
+			gt.board.off('up');
+
+			gt.selectedObj = new gt.graphObjectTypes.point(coords.usrCoords[1], coords.usrCoords[2]);
+			gt.graphedObjs.push(gt.selectedObj);
+
+			this_tool.finish();
+		});
 	};
 
 	// Line graphing tool
@@ -1281,6 +1372,7 @@ function graphTool(containerId, options) {
 	}
 
 	gt.toolTypes = {
+		PointTool: PointTool,
 		LineTool: LineTool,
 		CircleTool: CircleTool,
 		VerticalParabolaTool: VerticalParabolaTool,
