@@ -176,9 +176,12 @@ sub load_css() {
 	ADD_CSS_FILE('js/apps/Problem/problem.css');
 	ADD_CSS_FILE('js/apps/Knowls/knowl.css');
 	ADD_CSS_FILE('js/apps/ImageView/imageview.css');
+
 	if ($envir{useMathQuill}) {
 		ADD_CSS_FILE('node_modules/mathquill/dist/mathquill.css');
 		ADD_CSS_FILE('js/apps/MathQuill/mqeditor.css');
+	} elsif ($envir{useMathView}) {
+		ADD_CSS_FILE('js/apps/MathView/mathview.css');
 	}
 }
 
@@ -217,9 +220,17 @@ sub load_js() {
 	ADD_JS_FILE('js/apps/Base64/Base64.js',       0, { defer => undef });
 	ADD_JS_FILE('js/apps/Knowls/knowl.js',        0, { defer => undef });
 	ADD_JS_FILE('js/apps/ImageView/imageview.js', 0, { defer => undef });
+
 	if ($envir{useMathQuill}) {
 		ADD_JS_FILE('node_modules/mathquill/dist/mathquill.js', 0, { defer => undef });
 		ADD_JS_FILE('js/apps/MathQuill/mqeditor.js',            0, { defer => undef });
+	} elsif ($envir{useMathView}) {
+		ADD_JS_FILE("js/apps/MathView/$envir{mathViewLocale}");
+		ADD_JS_FILE('js/apps/MathView/mathview.js');
+	} elsif ($envir{useWirisEditor}) {
+		ADD_JS_FILE('js/apps/WirisEditor/quizzes.js');
+		ADD_JS_FILE('js/apps/WirisEditor/wiriseditor.js');
+		ADD_JS_FILE('js/apps/WirisEditor/mathml2webwork.js');
 	}
 }
 
