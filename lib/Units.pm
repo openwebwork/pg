@@ -744,7 +744,7 @@ our %known_units = ('m'  => {
                            's'         => -2,
                          },
                 'G' => {
-                           'factor'    => 1E-5,
+                           'factor'    => 1E-4,
                            'kg'        => 1,
                            'amp'       => -1,
                            's'         => -2,
