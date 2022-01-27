@@ -25,7 +25,7 @@ Applet.pl - Provides code for inserting GeogebraWebApplets into webwork problems
     $appletName = "PointGraph";
     $applet = GeogebraWebApplet(
         appletName         => $appletName,
-		...
+        ...
     );
 
     ###################################
@@ -300,26 +300,26 @@ submit action which consists of
 
 sub new {
 	my $class = shift;
-	my $self = {
-		appletName                => '',
-		params                    => undef,
-		width                     => 550,
-		height                    => 400,
-		type                      => '',
-		configuration             => '', # configuration defining the applet
-		initialState              => '', # initial state.
-		getStateAlias             => 'getXML',
-		setStateAlias             => 'setXML',
-		getConfigAlias            => 'getConfig',
-		setConfigAlias            => 'setConfig',
-		initializeActionAlias     => 'setXML',
-		submitActionAlias         => 'getXML',
-		submitActionScript        => '', # script executed on submitting the WW question
-		answerBoxAlias            => 'answerBox',
-		onInit                    => '',
-		headerText                => DEFAULT_HEADER_TEXT(),
-		objectText                => '',
-		debugMode                 => 0,
+	my $self  = {
+		appletName            => '',
+		params                => undef,
+		width                 => 550,
+		height                => 400,
+		type                  => '',
+		configuration         => '',                      # configuration defining the applet
+		initialState          => '',                      # initial state.
+		getStateAlias         => 'getXML',
+		setStateAlias         => 'setXML',
+		getConfigAlias        => 'getConfig',
+		setConfigAlias        => 'setConfig',
+		initializeActionAlias => 'setXML',
+		submitActionAlias     => 'getXML',
+		submitActionScript    => '',                      # script executed on submitting the WW question
+		answerBoxAlias        => 'answerBox',
+		onInit                => '',
+		headerText            => DEFAULT_HEADER_TEXT(),
+		objectText            => '',
+		debugMode             => 0,
 		@_,
 	};
 	bless $self, $class;
@@ -358,7 +358,7 @@ sub height {
 	$self->{height};
 }
 
-sub  header {
+sub header {
 	my $self = shift;
 	# $applet->header('reset'); erases default header text.
 	if ($_[0] eq "reset") {
@@ -370,7 +370,7 @@ sub  header {
 	$self->{headerText};
 }
 
-sub  object {
+sub object {
 	my $self = shift;
 	if ($_[0] eq "reset") {
 		$self->{objectText} = '';
@@ -382,7 +382,7 @@ sub  object {
 
 sub configuration {
 	my $self = shift;
-	$self->{configuration} =  shift || $self->{configuration};
+	$self->{configuration} = shift || $self->{configuration};
 	$self->{configuration} =~ s/\n//g;
 	$self->{configuration};
 }
@@ -460,22 +460,22 @@ sub insertHeader {
 	my $appletName            = $self->appletName;
 	my $initializeActionAlias = $self->initializeActionAlias;
 	# Replace newlines and returns with spaces. These can cause trouble in the JavaScript.
-	my $submitActionScript    = $self->submitActionScript =~ s/\n|\r/ /gr;
-	my $setStateAlias         = $self->setStateAlias;
-	my $getStateAlias         = $self->getStateAlias;
+	my $submitActionScript = $self->submitActionScript =~ s/\n|\r/ /gr;
+	my $setStateAlias      = $self->setStateAlias;
+	my $getStateAlias      = $self->getStateAlias;
 
-	my $setConfigAlias        = $self->setConfigAlias;
-	my $getConfigAlias        = $self->getConfigAlias;
-	my $debug                 = $self->debugMode;
-	my $answerBoxAlias        = $self->{answerBoxAlias};
-	my $stateInput            = $self->{stateInput};
+	my $setConfigAlias = $self->setConfigAlias;
+	my $getConfigAlias = $self->getConfigAlias;
+	my $debug          = $self->debugMode;
+	my $answerBoxAlias = $self->{answerBoxAlias};
+	my $stateInput     = $self->{stateInput};
 	# Function to call or code to execute to initialize the applet.
-	my $onInit                = encode_base64($self->{onInit} =~ s/\n|\r/ /gr) =~ s/\n//gr;
+	my $onInit = encode_base64($self->{onInit} =~ s/\n|\r/ /gr) =~ s/\n//gr;
 
 	my $base64_submitActionScript = encode_base64($submitActionScript) =~ s/\n//gr;
 	# These are base64 encoded xml.
 	my $base64_configuration = encode_base64($self->configuration) =~ s/\n//gr;
-	my $base64_initialState = encode_base64($self->initialState) =~ s/\n//gr;
+	my $base64_initialState  = encode_base64($self->initialState)  =~ s/\n//gr;
 
 	my $headerText = $self->header();
 	$headerText =~ s/(\$\w+)/$1/gee;
@@ -518,7 +518,7 @@ sub insertObject {
 	if ($self->{parameter_string}) {
 		$webgeogebraParameters = $self->{parameter_string};
 	} else {
-		my %param_hash = %{$self->params()};
+		my %param_hash = %{ $self->params() };
 
 		for my $key (keys %param_hash) {
 			$webgeogebraParameters .= qq!data-$key = "$param_hash{$key}"\n!;

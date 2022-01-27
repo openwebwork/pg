@@ -27,9 +27,9 @@ See also L<Applet.pm>.
 =cut
 
 # Add basic functionality to the header of the question
-sub _AppletObjects_init{
+sub _AppletObjects_init {
 	ADD_JS_FILE("js/apps/AppletSupport/ww_applet_support.js");
-};
+}
 
 =head3  GeogebraWebApplet
 
@@ -71,7 +71,7 @@ creates a hidden answer blank for storing the state of the applet.
 
 # Inserts both header text and object text.
 sub insertAll {
-	my $self = shift;
+	my $self    = shift;
 	my %options = @_;
 
 	my $includeAnswerBox = (defined($options{includeAnswerBox}) && $options{includeAnswerBox} == 1) ? 1 : 0;
@@ -91,8 +91,8 @@ sub insertAll {
 	my $appletStateName = $self->{stateInput};
 
 	# Names of routines for this applet
-	my $getState = $self->getStateAlias;
-	my $setState = $self->setStateAlias;
+	my $getState  = $self->getStateAlias;
+	my $setState  = $self->setStateAlias;
 	my $getConfig = $self->getConfigAlias;
 	my $setConfig = $self->setConfigAlias;
 
@@ -108,10 +108,10 @@ sub insertAll {
 	if (defined(${$main::inputs_ref}{$appletStateName}) && ${$main::inputs_ref}{$appletStateName} =~ /\S/) {
 		$answer_value = ${$main::inputs_ref}{$appletStateName};
 	} elsif (defined($main::rh_sticky_answers->{$appletStateName})) {
-		$answer_value = shift(@{$main::rh_sticky_answers->{$appletStateName}});
+		$answer_value = shift(@{ $main::rh_sticky_answers->{$appletStateName} });
 	}
-	$answer_value =~ tr/\\$@`//d; # Make sure student answers can not be interpolated by e.g. EV3
-	$answer_value =~ s/\s+/ /g; # Remove excessive whitespace from student answer
+	$answer_value =~ tr/\\$@`//d;    # Make sure student answers can not be interpolated by e.g. EV3
+	$answer_value =~ s/\s+/ /g;      # Remove excessive whitespace from student answer
 
 	# Regularize the applet's state which could be in either XML format or in XML format encoded by base64.
 	# In rare cases it might be simple string.  Protect against that by putting xml tags around the state.
@@ -123,24 +123,24 @@ sub insertAll {
 	my $decoded_answer_value;
 	if ($answer_value =~ /<XML|<?xml/i) {
 		$base_64_encoded_answer_value = encode_base64($answer_value);
-		$decoded_answer_value = $answer_value;
+		$decoded_answer_value         = $answer_value;
 	} else {
 		$decoded_answer_value = decode_base64($answer_value);
-		if ($decoded_answer_value =~/<XML|<?xml/i) {
+		if ($decoded_answer_value =~ /<XML|<?xml/i) {
 			# Great, we've decoded the answer to obtain an xml string
 			$base_64_encoded_answer_value = $answer_value;
 		} else {
 			#WTF??  apparently we don't have XML tags
-			$answer_value = "<xml>$answer_value</xml>";
+			$answer_value                 = "<xml>$answer_value</xml>";
 			$base_64_encoded_answer_value = encode_base64($answer_value);
-			$decoded_answer_value = $answer_value;
+			$decoded_answer_value         = $answer_value;
 		}
 	}
-	$base_64_encoded_answer_value =~ s/\r|\n//g; # Get rid of line returns
+	$base_64_encoded_answer_value =~ s/\r|\n//g;    # Get rid of line returns
 
 	# Construct the reset button string (this is blank if the button is not to be displayed).
-	my $reset_button_str = $reset_button ?
-		qq!<button type='button' class='btn btn-primary applet-reset-btn' data-applet-name="$appletName">
+	my $reset_button_str = $reset_button
+		? qq!<button type='button' class='btn btn-primary applet-reset-btn' data-applet-name="$appletName">
 		Return this question to its initial state</button><br/>!
 		: '';
 
@@ -154,25 +154,22 @@ sub insertAll {
 	# with the applet.  It is separate from maintaining state but it often contains similar
 	# data.  Additional answer boxes or buttons can be defined but they must be explicitly
 	# connected to the applet with additional JavaScript commands.
-	my $answerBox_code =
-		$includeAnswerBox ? $answerBox_code = main::NAMED_HIDDEN_ANS_RULE($self->{answerBoxAlias}, 50) : '';
+	my $answerBox_code = $includeAnswerBox
+		? $answerBox_code = main::NAMED_HIDDEN_ANS_RULE($self->{answerBoxAlias}, 50)
+		: '';
 
 	# Insert header material
 	main::HEADER_TEXT($self->insertHeader());
 
 	# Return HTML or TeX strings to be included in the body of the page
 	return main::MODES(
-		TeX => ' {\bf ' . $self->{type} . ' applet } ',
+		TeX  => ' {\bf ' . $self->{type} . ' applet } ',
 		HTML => $self->insertObject . $main::BR . $state_storage_html_code . $answerBox_code,
-		PTX => ' applet '
+		PTX  => ' applet '
 	);
 }
 
 =head3 Example problem
-
-=cut
-
-=pod
 
     DOCUMENT();
 
@@ -277,3 +274,5 @@ sub insertAll {
     ENDDOCUMENT();
 
 =cut
+
+1;
