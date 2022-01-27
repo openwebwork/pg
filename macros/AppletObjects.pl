@@ -39,7 +39,23 @@ sub _AppletObjects_init {
 
 sub GeogebraWebApplet {
 	ADD_JS_FILE("https://www.geogebra.org/apps/deployggb.js", 1);
-	return new GeogebraWebApplet(@_);
+	return GeogebraWebApplet->new(@_);
+}
+
+# Deprecated applets (these are just stubs to show a warning if used)
+sub FlashApplet {
+	warn 'Flash applets are no longer supported';
+	return Applet->new(type => 'flash');
+}
+
+sub JavaApplet {
+	warn 'Java applets are no longer supported';
+	return Applet->new(type => 'java');
+}
+
+sub CanvasApplet {
+	warn 'Canvas applets are no longer supported';
+	return Applet->new(type => 'canvas');
 }
 
 package Applet;
