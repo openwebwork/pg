@@ -16,7 +16,7 @@ sub _PG_init{
   Parser::Context->current(\%main::context);
 }
 
-our $PG;  
+our $PG;
 
 sub not_null {$PG->not_null(@_)};
 
@@ -39,11 +39,11 @@ sub DOCUMENT {
 	# get environment
 	$rh_envir = \%envir;  #KLUDGE FIXME
 	# warn "rh_envir is ",ref($rh_envir);
-	$PG = new PGcore($rh_envir,	# can add key/value options to modify		
+	$PG = new PGcore($rh_envir,	# can add key/value options to modify
 	);
 	$PG->clear_internal_debug_messages;
 	# initialize main:: variables
-	
+
 	$ANSWER_PREFIX         		= $PG->{ANSWER_PREFIX};
 	$QUIZ_PREFIX           		= $PG->{QUIZ_PREFIX};
 	$showPartialCorrectAnswers 	= $PG->{flags}->{showPartialCorrectAnswers};
@@ -52,9 +52,9 @@ sub DOCUMENT {
 	$hintExists            		= $PG->{flags}->{hintExists};
 	$pgComment                  = '';
 	%external_refs         		= %{ $PG->{external_refs}};
-	
+
 	@KEPT_EXTRA_ANSWERS =();   #temporary hack
-	
+
 	my %envir              =   %$rh_envir;
 	# Save the file name for use in error messages
 
@@ -63,7 +63,7 @@ sub DOCUMENT {
    		PG_restricted_eval(qq!\$main::$var = \$envir{$var}!);  #whew!! makes sure $var is interpolated but $main:: is evaluated at run time.
 	    warn "Problem defining $var  while initializing the PG problem: $@" if $@;
 	}
-	
+
 	$displayMode           = $PG->{displayMode};
 	$problemSeed           = $PG->{problemSeed};
 	$PG_random_generator   = $PG->{PG_random_generator};
@@ -85,14 +85,14 @@ sub DOCUMENT {
 		}
 		$prefix .= '<script>processDoubleClicks = '.($main::envir{jsMath}{processDoubleClicks}?'1':'0')."</script>\n";
 		TEXT(
-		  $prefix, 
+		  $prefix,
 		  '<script src="'.$envir{jsMathURL}. '"></script>' . "\n" ,
 		  '<noscript><center><font color="#CC0000">' ,
 			  '<strong> Warning: the mathematics on this page requires JavaScript.',  ,$BR,
 					'If your browser supports it, be sure it is enabled.
 			  </strong>',
 		  '</font></center><p>
-		  </noscript>' 
+		  </noscript>'
 		);
 		TEXT('<script>jsMath.Setup.Script("plugins/noImageFonts.js")</script>')
 		    if ($envir{jsMath}{noImageFonts});
@@ -229,7 +229,7 @@ sub AskSage {
 
 # sageReturnedFail checks to see if the return from Sage indicates some kind of failure
 # undefined means old style return (a simple string) failed
-# $obj->{success} defined but equal to zero means that the failed return and error 
+# $obj->{success} defined but equal to zero means that the failed return and error
 # messages are encoded in the $obj hash.
 sub sageReturnedFail {
         my $obj = shift;
@@ -296,14 +296,14 @@ sub store_persistent_data {
 		$PG->store_persistent_data(@_); #needs testing
 }
 sub RECORD_FORM_LABEL {              # this stores form data (such as sticky answers), but does nothing more
-                                     # it's a bit of hack since we are storing these in the 
+                                     # it's a bit of hack since we are storing these in the
                                      # KEPT_EXTRA_ANSWERS queue even if they aren't answers per se.
     #FIXME
     # warn "Using RECORD_FORM_LABEL -- deprecated? use $PG->store_persistent_data instead.";
 	RECORD_EXTRA_ANSWERS(@_);
 }
 
-sub RECORD_EXTRA_ANSWERS {                                     
+sub RECORD_EXTRA_ANSWERS {
 	return "" if $PG_STOP_FLAG;
 	my $label   = shift;             # the label of the input box or textarea
     eval(q!push(@main::KEPT_EXTRA_ANSWERS, $label)!); #put the labels into the hash to be caught later for recording purposes
@@ -325,7 +325,7 @@ sub NEW_ANS_ARRAY_NAME {  # this keeps track of the answers within an array whic
 #		$PG->record_ans_name($array_ans_eval_label, $response_group);
 #       What does vecnum do?
 #       The name is simply so that it won't conflict when placed on the HTML page
-#       my $array_label = shift;	
+#       my $array_label = shift;
 		$PG->record_array_name($label);  # returns $array_label, $ans_label
 }
 
@@ -333,14 +333,14 @@ sub NEW_ANS_ARRAY_NAME_EXTENSION {
 	NEW_ANS_ARRAY_ELEMENT_NAME(@_);
 }
 
-sub NEW_ANS_ARRAY_ELEMENT_NAME {   # creates a new array element answer name and records it   
-                                          
+sub NEW_ANS_ARRAY_ELEMENT_NAME {   # creates a new array element answer name and records it
+
         return "" if $PG_STOP_FLAG;
-		my $number=shift;   
+		my $number=shift;
 		my $row_num = shift;
 		my $col_num = shift;
 		if( $row_num == 0 && $col_num == 0 ){
-			$main::vecnum += 1;		
+			$main::vecnum += 1;
 		}
 #		my $ans_label = "ArRaY".sprintf("%04u", $number);
 		my $ans_label = $PG->new_array_label($number);
@@ -371,14 +371,14 @@ sub CLEAR_RESPONSES {
 		if ( ref($responsegroup) ) {
 			$responsegroup->clear;
 		} else {
-			$responsegroup = $PG->{PG_ANSWERS_HASH}->{$ans_label}->{response} = new PGresponsegroup($label);	
+			$responsegroup = $PG->{PG_ANSWERS_HASH}->{$ans_label}->{response} = new PGresponsegroup($label);
 		}
 	}
 	'';
 }
 
 #FIXME -- examine the difference between insert_response and extend_response
-sub INSERT_RESPONSE { 
+sub INSERT_RESPONSE {
 	my $ans_label  = shift;
 	my $response_label = shift;
 	my $ans_value  = shift;
@@ -407,18 +407,84 @@ sub EXTEND_RESPONSE { # for radio buttons and checkboxes
 }
 
 sub ENDDOCUMENT {
+	# Request MathQuill javascript and css, and insert MathQuill responses if MathQuill is enabled.
+	# Add responses to each answer's response group that store the latex form of the students'
+	# answers and add corresponding hidden input boxes to the page.
+	if ($envir{useMathQuill}) {
+		ADD_CSS_FILE("node_modules/mathquill/dist/mathquill.css");
+		ADD_CSS_FILE("js/apps/MathQuill/mqeditor.css");
+		ADD_JS_FILE("node_modules/mathquill/dist/mathquill.js", 0, { defer => undef });
+		ADD_JS_FILE("js/apps/MathQuill/mqeditor.js", 0, { defer => undef });
+
+		for my $answerLabel (keys %{$PG->{PG_ANSWERS_HASH}}) {
+			my $answerGroup = $PG->{PG_ANSWERS_HASH}{$answerLabel};
+			my $mq_opts = $answerGroup->{ans_eval}{rh_ans}{mathQuillOpts} // {};
+
+			# This is a special case for multi answers.  This is used to obtain mathQuillOpts set
+			# specifically for individual parts.
+			my $multiAns;
+			my $part;
+			if ($answerGroup->{ans_eval}{rh_ans}{type} =~ /MultiAnswer(?:\((\d*)\))?/) {
+				# This will only be set if singleResult is not enabled.
+				$part = $1;
+				# The MultiAnswer object passes itself as the first optional argument to the evaluator it creates.
+				# Loop through the evaluators to find it.
+				for (@{$answerGroup->{ans_eval}{evaluators}}) {
+					$multiAns = $_->[1] if (ref($_->[1]) && ref($_->[1]) eq "parser::MultiAnswer");
+				}
+				# Pass the mathQuillOpts of the main MultiAnswer object on to each part
+				# (unless the part already has the option set).
+				if (defined $multiAns) {
+					for (@{$multiAns->{cmp}}) {
+						$_->rh_ans(mathQuillOpts => $mq_opts) unless defined $_->{rh_ans}{mathQuillOpts};
+					}
+				}
+			}
+
+			next if $mq_opts =~ /^\s*disabled\s*$/i;
+
+			my $response_obj = $answerGroup->response_obj;
+			my $responseCount = -1;
+			for my $response ($response_obj->response_labels) {
+				++$responseCount;
+				next if ref($response_obj->{responses}{$response});
+
+				my $ansHash = defined $multiAns
+					? $multiAns->{cmp}[$part // $responseCount]{rh_ans}
+					: $answerGroup->{ans_eval}{rh_ans};
+				my $mq_part_opts = $ansHash->{mathQuillOpts} // $mq_opts;
+				next if $mq_part_opts =~ /^\s*disabled\s*$/i;
+
+				my $context = $ansHash->{correct_value}->context if $ansHash->{correct_value};
+				$mq_part_opts->{rootsAreExponents} = 0
+					if $context && $context->functions->get('root') && !defined $mq_part_opts->{rootsAreExponents};
+
+				my $name = "MaThQuIlL_$response";
+				my $answer_value = '';
+				$answer_value = $inputs_ref->{$name} if defined($inputs_ref->{$name});
+				RECORD_EXTRA_ANSWERS($name);
+				$answer_value = encode_pg_and_html($answer_value);
+				my $data_mq_opts = scalar(keys %$mq_part_opts)
+					? qq!data-mq-opts="@{[encode_pg_and_html(JSON->new->encode($mq_part_opts))]}"!
+					: "";
+				TEXT(MODES(TeX => "",
+						HTML => qq!<input type=hidden name="$name" id="$name" value="$answer_value" $data_mq_opts>!));
+			}
+		}
+	}
+
 	# check that answers match
 	# gather up PG_FLAGS elements
 
     $PG->{flags}->{showPartialCorrectAnswers}      = defined($showPartialCorrectAnswers)?  $showPartialCorrectAnswers : 1 ;
 	$PG->{flags}->{recordSubmittedAnswers}         = defined($recordSubmittedAnswers)?     $recordSubmittedAnswers    : 1 ;
-	$PG->{flags}->{refreshCachedImages}            = defined($refreshCachedImages)?        $refreshCachedImages       : 0 ;	
+	$PG->{flags}->{refreshCachedImages}            = defined($refreshCachedImages)?        $refreshCachedImages       : 0 ;
 	$PG->{flags}->{hintExists}                     = defined($hintExists)?                 $hintExists                : 0 ;
 	$PG->{flags}->{solutionExists}                 = defined($solutionExists)?             $solutionExists            : 0 ;
-	$PG->{flags}->{comment}                        = defined($pgComment)?                  $pgComment                 :'' ;  
-    $PG->{flags}->{showHintLimit}                  = defined($showHint)?                   $showHint                  : 0 ;  
- 
-    
+	$PG->{flags}->{comment}                        = defined($pgComment)?                  $pgComment                 :'' ;
+    $PG->{flags}->{showHintLimit}                  = defined($showHint)?                   $showHint                  : 0 ;
+
+
 	# install problem grader
 	if (defined($PG->{flags}->{PROBLEM_GRADER_TO_USE})  ) {
 		# problem grader defined within problem -- no further action needed
@@ -441,7 +507,7 @@ sub ENDDOCUMENT {
 	} else {
 		# PGtranslator will install its default problem grader
 	}
-	
+
 	# add javaScripts
 	if ($rh_envir->{displayMode} eq 'HTML_jsMath') {
 		TEXT('<script> jsMath.wwProcess() </script>');
@@ -453,14 +519,14 @@ sub ENDDOCUMENT {
 						'</object><?import namespace="mml" implementation="#mathplayer"?>'
 			);
 		}
-	
+
 	}
 	TEXT( MODES(%{$rh_envir->{problemPostamble}}) );
-  
-    
-    
-	
-	
+
+
+
+
+
 	@PG_ANSWERS=();
 	if ( 0 or # allow one to force debug output  manually
 		($inputs_ref->{showResourceInfo})//'' and ($rh_envir->{permissionLevel})>= 5) {
@@ -473,22 +539,22 @@ sub ENDDOCUMENT {
 		}
 		if ($str eq '') {
 			$str = "No auxiliary resources<br/>";
-		} else { 
-			my $summary = "## RESOURCES('".join("','", @resource_names)."')$BR\n";	 
+		} else {
+			my $summary = "## RESOURCES('".join("','", @resource_names)."')$BR\n";
 			$PG->debug_message($summary.$str) ;
 		}
 	}
 	if ( 0 or # allow one to force debug output  manually
 	    ($inputs_ref->{showPGInfo} and ($permissionLevel >=10)) ){
  	     my $context = $$Value::context->{flags};
- 	     $PG->debug_message("PGbasicmacros.pl 2184: ", 
+ 	     $PG->debug_message("PGbasicmacros.pl 2184: ",
  	   			$HR,"Form variables",$BR,
  	   			pretty_print($inputs_ref),
 				$HR,"Environment variables", $BR,
 				pretty_print(\%envir),
                 $HR,"Context flags",$BR,
 				pretty_print($context),
-		  ) ;	
+		  ) ;
  	}
 
 
@@ -515,7 +581,7 @@ sub ENDDOCUMENT {
 	            #unshift @response_keys, $response_key unless ($response_key eq $answer_group->{ans_label});
 	            # don't save the first response key if it is the same as the ans_label
 	            # maybe we should insure that the first response key is always the same as the answer label?
-	  #          warn "first response key label and answer key label don't agree" 
+	  #          warn "first response key label and answer key label don't agree"
 	  #                 unless ($response_key eq $answer_key);
 
 	            # even if no answer blank is printed for it? or a hidden answer blank?
@@ -525,7 +591,7 @@ sub ENDDOCUMENT {
 	            #push @PG_ANSWERS, $response_key,$answergroup->{ans_eval};
 	            $PG_ANSWERS_HASH{$answer_key} = $answergroup->{ans_eval};
 	            push @PG_ANSWER_ENTRY_ORDER, $answer_key;
-	            # @KEPT_EXTRA_ANSWERS could be replaced by saving all of the responses for this answergroup 
+	            # @KEPT_EXTRA_ANSWERS could be replaced by saving all of the responses for this answergroup
 	            push @KEPT_EXTRA_ANSWERS, @response_keys;
 			} else {
 			    warn "$key is ", join("|",%{$PG->{PG_ANSWERS_HASH}->{$key}});
@@ -535,20 +601,20 @@ sub ENDDOCUMENT {
 	#Hackish way to store other persistence data
 	$PG->{flags}->{KEPT_EXTRA_ANSWERS} = \@KEPT_EXTRA_ANSWERS;
 	$PG->{flags}->{ANSWER_ENTRY_ORDER} = \@PG_ANSWER_ENTRY_ORDER;
-	
+
 	# these should not be needed any longer since PG_alias warning queue is attached to PGcore's
 	# $PG->warning_message( @{ $PG->{PG_alias}->{flags}->{WARNING_messages}} );
 	# $PG->debug_message( @{ $PG->{PG_alias}->{flags}->{DEBUG_messages}}   );
-	
-	
+
+
     warn "KEPT_EXTRA_ANSWERS", join(" ", @KEPT_EXTRA_ANSWERS), $BR     if $ans_debug==1;
     warn "PG_ANSWER_ENTRY_ORDER",join(" ",@PG_ANSWER_ENTRY_ORDER), $BR if $ans_debug==1;
     # not needed for the moment:
     # warn "DEBUG messages", join( "$BR",@{$PG->get_debug_messages} ) if $ans_debug==1;
     warn "INTERNAL_DEBUG messages", join( "$BR",@{$PG->get_internal_debug_messages} ) if $ans_debug==1;
 	$STRINGforOUTPUT      = join("", @{$PG->{OUTPUT_ARRAY} });
-	$STRINGforHEADER_TEXT = join("", @{$PG->{HEADER_ARRAY} }); 
-    $STRINGforPOSTHEADER_TEXT = join("", @{$PG->{POST_HEADER_ARRAY} }); 
+	$STRINGforHEADER_TEXT = join("", @{$PG->{HEADER_ARRAY} });
+    $STRINGforPOSTHEADER_TEXT = join("", @{$PG->{POST_HEADER_ARRAY} });
 	# warn pretty_print($PG->{PG_ANSWERS_HASH});
 	#warn "printing another warning";
 
@@ -608,7 +674,7 @@ sub loadMacros {
 # ^uses %PG_FLAGS{PROBLEM_GRADER_TO_USE}
 sub install_problem_grader {
 	my $rf_problem_grader =	shift;
-	my $rh_flags = $PG->{flags};    
+	my $rh_flags = $PG->{flags};
 	$rh_flags->{PROBLEM_GRADER_TO_USE} = $rf_problem_grader if not_null($rf_problem_grader) ;
 	$rh_flags->{PROBLEM_GRADER_TO_USE};
 }
@@ -616,7 +682,7 @@ sub install_problem_grader {
 sub current_problem_grader {
 	install_problem_grader(@_);
 }
-	
+
 #  FIXME? The following functions were taken from the former
 #  dangerousMacros.pl file and might have issues when placed here.
 #
@@ -808,7 +874,7 @@ sub includePGproblem {
     my $fullfilePath = $PG->envir("templateDirectory").$filePath;
     my $r_string    =  $PG->read_whole_problem_file($fullfilePath);
     if (ref($r_string) eq 'SCALAR') {
-        $r_string = $$r_string;      
+        $r_string = $$r_string;
     }
 
 	# The problem calling this should provide DOCUMENT and ENDDOCUMENT,
@@ -841,12 +907,12 @@ __END__
 # WeBWorK Online Homework Delivery System
 # Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
 # $CVSHeader: pg/macros/PG.pl,v 1.46 2010/05/27 02:22:51 gage Exp $
-# 
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any later
 # version, or (b) the "Artistic License" which comes with this package.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
@@ -862,20 +928,20 @@ PG.pl - Provides core Program Generation Language functionality.
 In a PG problem:
 
 	DOCUMENT();             # should be the first statment in the problem
-	
+
 	loadMacros(.....);      # (optional) load other macro files if needed.
-	
+
 	HEADER_TEXT(...);       # (optional) used only for inserting javaScript into problems.
-	
+
 	TEXT(                   # insert text of problems
 		"Problem text to be displayed. ",
 		"Enter 1 in this blank:",
 		ANS_RULE(1,30)      # ANS_RULE() defines an answer blank 30 characters long.
  		                	# It is defined in F<PGbasicmacros.pl>
 	);
-	
+
 	ANS(answer_evalutors);  # see F<PGanswermacros.pl> for examples of answer evaluatiors.
-	
+
 	ENDDOCUMENT()           # must be the last statement in the problem
 
 =head1 DESCRIPTION
@@ -1130,7 +1196,7 @@ used exclusively by L<PGbasicmacros.pl>.
 
 =item inc_ans_rule_count()
 
-DEPRECATED 
+DEPRECATED
 
 Increments the internal count of the number of answer blanks that have been
 defined ($ans_rule_count) and returns the new count. This should only be used

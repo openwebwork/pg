@@ -94,6 +94,8 @@ my ($PAR,
 	$r_ans_rule_count,
 );
 
+our %envir;
+
 sub _PGbasicmacros_init {
 	# The big problem is that at compile time in the cached Safe compartment
 	# main:: has one definition, probably Safe::Root1::
@@ -1236,8 +1238,7 @@ sub SOLUTION {
 	return "" if $solution_body eq "";
 
 	if ($displayMode =~/HTML/ and $envir->{use_knowls_for_solutions}) {
-		TEXT($PAR, knowlLink(SOLUTION_HEADING(), value => escapeSolutionHTML("$BR$solution_body$PAR"),
-				base64 => 1, type => 'solution'));
+		TEXT($PAR, knowlLink(SOLUTION_HEADING(), value => $solution_body, type => 'solution'));
 	} elsif ($displayMode =~ /TeX/) {
 		TEXT(
 			"\n%%% BEGIN SOLUTION\n", #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
@@ -1297,19 +1298,20 @@ sub hint {
 }
 
 sub HINT {
+	my $hint_body = hint(@_);
+	return unless $hint_body;
 	if ($displayMode =~/HTML/ and $envir->{use_knowls_for_hints}) {
-		TEXT($PAR, knowlLink(HINT_HEADING(), value => escapeSolutionHTML($BR . hint(@_) . $PAR),
-				base64 => 1, type => 'hint')) if hint(@_);
+		TEXT($PAR, knowlLink(HINT_HEADING(), value => $hint_body, type => 'hint'));
 	} elsif ($displayMode =~ /TeX/) {
 		TEXT(
 			"\n%%% BEGIN HINT\n", #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
-			"\\par\\smallskip", HINT_HEADING(), hint(@_), "\\par\\medskip",
+			"\\par\\smallskip", HINT_HEADING(), $hint_body, "\\par\\medskip",
 			"\n%%% END HINT\n"    #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
-		) if hint(@_) ;
+		);
 	} elsif ($displayMode =~ /PTX/) {
-		TEXT( '<hint>', "\n", hint(@_), "\n", '</hint>', "\n\n") if hint(@_);
+		TEXT( '<hint>', "\n", $hint_body, "\n", '</hint>', "\n\n");
 	} else {
-		TEXT($PAR, HINT_HEADING(), $BR. hint(@_) . $PAR) if hint(@_);
+		TEXT($PAR, HINT_HEADING(), $BR. $hint_body . $PAR);
 	}
 }
 
@@ -2577,35 +2579,39 @@ sub htmlLink {
 	);
 }
 
+# Suggested usage:  knowlLink(text, [url => ..., value => ..., type => ...])
 sub knowlLink {
-    # an new syntax for knowlLink that facilitates a local HERE document
-	#   suggested usage   knowlLink(text, [url => ...,   value => ..., type => ...])
 	my $display_text = shift;
-	my @options = @_;  # so we can check parity
-	my %options = @options;
-	WARN_MESSAGE('usage   knowlLink($display_text, [url => $url, value => $helpMessage, type => "help/hint/solution/..."] );'.
-		qq!after  the display_text the information requires key/value pairs.
-		Received @options !, scalar(@options)%2) if scalar(@options)%2;
-	# check that options has an even number of inputs
-	my $properties = "";
-	if ($options{value} )  { #internal knowl from HERE document
-		$options{value} =~ s/"/'/g; # escape quotes  #FIXME -- make escape more robust
-		my $base64 = ($options{base64})?"base64 = \"1\"" :"";
-		$properties = qq! href="#" knowl = "" class = "internal" value = "$options{value} " $base64 !;
+
+	# Check that there are an even number of inputs
+	WARN_MESSAGE(
+		'usage:  knowlLink($display_text, [url => $url, value => $helpMessage, type => "help/hint/solution/..."]);'
+		. qq!after the display_text the information requires key/value pairs.
+		Received @_ !, scalar(@_) % 2
+	) if scalar(@_) % 2;
+
+	my %options = @_;
+
+	my $properties = '';
+	if ($options{value}) {
+		$properties =
+			'data-knowl-contents="'
+			. encode_pg_and_html($options{value})
+			. ($options{base64} ? '" data-base64="1"' : '"');
 	} elsif ($options{url}) {
-		$properties = qq! knowl = "$options{url}"!;
+		$properties = qq!data-knowl-url="$options{url}"!;
+	} else {
+		WARN_MESSAGE(
+			'usage:  knowlLink($display_text, [url => $url, value => $helpMessage, type => "help/hint/solution/..."]);'
+		);
 	}
-	else {
-		WARN_MESSAGE('usage   knowlLink($display_text, [url => $url, value => $helpMessage, type => "help/hint/solution/..."] );');
-	}
-	if ($options{type}) {
-		$properties .= qq! data-type = "$options{type}"!;
-	}
-	#my $option_string = qq!url = "$options{url}" value = "$options{value}" !;
+
+	$properties .= qq! data-type="$options{type}"! if $options{type};
+
 	MODES(
-        TeX  => "{\\bf \\underline{$display_text}}",
-		HTML => "<a $properties >$display_text</a>",
-		PTX  => '<url '. (($options{url})? 'href="'."$options{url}".'"':'')  .' >'.$display_text.'</url>',
+		TeX  => "{\\bf \\underline{$display_text}}",
+		HTML => qq!<a href="#" class="knowl" $properties>$display_text</a>!,
+		PTX  => '<url ' . ($options{url} ? 'href="' . $options{url} . '"' : '') . ' >' . $display_text . '</url>',
 	);
 }
 
