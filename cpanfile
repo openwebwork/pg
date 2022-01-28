@@ -1,41 +1,45 @@
-# install required module dependancies listed here (runtime and test) with
+# Install required module dependancies listed here (runtime and test) with
 # cpanm --installdeps .
 
 on runtime => sub {
-    requires   'perl' => '5.20.3'; # guessing at a minimum viable version
-    recommends 'perl' => '5.30.0'; # needed for Statistics::R::IO
+	requires   'perl' => '5.20.3';
+	recommends 'perl' => '5.30.0'; # Needed for Statistics::R::IO
 
-    requires 'DBI';
-    requires 'Digest::MD5';
-    requires 'Encode';
-    requires 'Encode::Encoding';
-    requires 'GD';
-    requires 'HTML::Parser';
-    requires 'HTML::Entities';
-    requires 'JSON';
-    requires 'Locale::Maketext';
-    requires 'Tie::IxHash';
-    requires 'UUID::Tiny';
+	requires 'DBI';
+	requires 'Digest::MD5';
+	requires 'Class::Accessor';
+	requires 'Encode';
+	requires 'Encode::Encoding';
+	requires 'Exporter';
+	requires 'GD';
+	requires 'HTML::Entities';
+	requires 'HTML::Parser';
+	requires 'JSON';
+	requires 'JSON::XS';
+	requires 'Locale::Maketext';
+	requires 'Tie::IxHash';
+	requires 'Types::Serialiser';
+	requires 'UUID::Tiny';
+	requires 'YAML::XS';
 
-    # needed for Rserve
-    recommends 'Statistics::R::IO::Rserve';
-    recommends 'Class::Tiny';
-    recommends 'IO::Handle';
+	# Needed for Rserve
+	recommends 'Statistics::R::IO::Rserve';
+	recommends 'Class::Tiny';
+	recommends 'IO::Handle';
 };
 
 on test => sub {
-    requires 'HTML::TagParser';         # for t/macros/basicmacros.t
-    requires 'Test2::V0';               # for t/units/*
+	requires 'Test2::V0' => '0.000139';
+	requires 'HTML::TagParser';         # Used by t/macros/basicmacros.t
 
-    recommends 'Data::Dumper';          # for debugging data structures
-    recommends 'Test::Number::Delta';   # future unit tests using tolerance
-    recommends 'Test2::Tools::Explain'; # for debugging data structures
+	recommends 'Data::Dumper';          # For debugging data structures
+	recommends 'Test2::Tools::Explain'; # For debugging data structures
 };
 
-# install author dependancies with
+# Install development dependancies with
 # cpanm --installdeps --with-develop --with-recommends .
 
 on develop => sub {
-    recommends 'Module::CPANfile';
-    recommends 'Test::CPANfile';   # verifies this file has all the dependancies
+	recommends 'Module::CPANfile';
+	recommends 'Test::CPANfile';   # Verifies this file has all the dependancies
 };
