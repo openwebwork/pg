@@ -207,13 +207,13 @@ sub new {
 		);
 	}
 
-	my $proof =
+	$proof =
 		$options{NumBuckets} == 2
 		? main::List(main::List(@unorder[ $numNeeded .. $numProvided - 1 ]),
 		main::List(@unorder[ 0 .. $numNeeded - 1 ]))
 		: main::List('(' . join(',', @unorder[ 0 .. $numNeeded - 1 ]) . ')');
 
-	my $extra = main::Set(@unorder[ $numNeeded .. $numProvided - 1 ]);
+	$extra = main::Set(@unorder[ $numNeeded .. $numProvided - 1 ]);
 
 	my $InferenceMatrix = $options{InferenceMatrix};
 
@@ -245,12 +245,12 @@ sub new {
 	} else {
 		my @matches = ($previous =~ /(\([^\(\)]*\)|-?\d+)/g);
 		if ($self->{NumBuckets} == 2) {
-			my $indices1 = [ split(',', @matches[0] =~ s/\(|\)//gr) ];
+			my $indices1 = [ split(',', $matches[0] =~ s/\(|\)//gr) ];
 			$dnd->addBucket($indices1->[0] != -1 ? $indices1 : [], label => $options{'SourceLabel'});
-			my $indices2 = [ split(',', @matches[1] =~ s/\(|\)//gr) ];
+			my $indices2 = [ split(',', $matches[1] =~ s/\(|\)//gr) ];
 			$dnd->addBucket($indices2->[0] != -1 ? $indices2 : [], label => $options{'TargetLabel'});
 		} else {
-			my $indices1 = [ split(',', @matches[0] =~ s/\(|\)//gr) ];
+			my $indices1 = [ split(',', $matches[0] =~ s/\(|\)//gr) ];
 			$dnd->addBucket($indices1->[0] != -1 ? $indices1 : [], label => $options{'TargetLabel'});
 		}
 	}
@@ -309,7 +309,7 @@ sub DamerauLevenshtein {
 	my $db;
 	for my $i (2 .. @ar1 + 1) {
 		$db = 0;
-		my $k, $l, $cost;
+		my ($k, $l, $cost);
 		for my $j (2 .. @ar2 + 1) {
 			$k = $da[ $ar2[ $j - 2 ] ];
 			$l = $db;
@@ -340,8 +340,7 @@ sub Print {
 
 		# HTML mode
 		return
-			join("\n", '<div style="min-width:750px;">', $ans_rule, $self->{dnd}->HTML,
-			'<br clear="all" />', '</div>',);
+			join('', '<div class="dd-wrapper">', $ans_rule, $self->{dnd}->HTML, '</div>',);
 	} else {
 		# TeX mode
 		return $self->{dnd}->TeX;

@@ -207,7 +207,7 @@ sub new {
 	} else {
 		my @matches = ($previous =~ /(\([^\(\)]*\)|-?\d+)+/g);
 		for (my $i = 0; $i < @matches; $i++) {
-			my $match     = @matches[$i] =~ s/\(|\)//gr;
+			my $match     = $matches[$i] =~ s/\(|\)//gr;
 			my $indices   = [ split(',', $match) ];
 			my $label     = $i < @$defaultShuffledBuckets ? $defaultShuffledBuckets->[$i]->{label}     : '';
 			my $removable = $i < @$defaultShuffledBuckets ? $defaultShuffledBuckets->[$i]->{removable} : 1;
@@ -252,8 +252,7 @@ sub Print {
 
 		# HTML mode
 		return
-			join("\n", '<div style="min-width:750px;">', $ans_rule, $self->{dnd}->HTML,
-			'<br clear="all" />', '</div>',);
+			join('', '<div class="dd-wrapper">', $ans_rule, $self->{dnd}->HTML, '</div>',);
 	} else {
 		# TeX mode
 		return $self->{dnd}->TeX;
@@ -296,7 +295,7 @@ sub filter {
 
 	my @order   = @{ $self->{order} };
 	my @student = ($anshash->{original_student_ans} =~ /(\([^\(\)]*\)|-?\d+)/g);
-	my @correct = ($anshash->{correct_ans}          =~ /({[^{}]*}|-?\d+)/g);
+	my @correct = ($anshash->{correct_ans}          =~ /(\{[^{}]*\}|-?\d+)/g);
 
 	$anshash->{correct_ans_latex_string} = join(
 		",",
@@ -319,4 +318,5 @@ sub filter {
 
 	return $anshash;
 }
+
 1;

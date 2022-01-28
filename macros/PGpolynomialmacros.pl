@@ -31,6 +31,8 @@
 
 =head3 ValidPoly(@PolynomialCoeffs)
 
+
+
 =cut
 
 sub ValidPoly {
@@ -42,7 +44,7 @@ sub ValidPoly {
 =head3 PolyAdd(@Polyn1,@Polyn2)
 
 #
-# Takes two arrays of polynomial coefficients representing 
+# Takes two arrays of polynomial coefficients representing
 # two polynomials and returns their sum.
 #
 
@@ -67,7 +69,7 @@ sub PolyAdd{
 =head3 PolySub(@Polyn1,@Polyn2)
 
 #
-# Takes two arrays of polynomial coefficients representing 
+# Takes two arrays of polynomial coefficients representing
 # two polynomials and returns their difference.
 #
 
@@ -114,7 +116,7 @@ sub PolyMult{
 =head3 (@quotient,$remainder) = SynDiv(~~@dividend,~~@divisor)
 
 #
-# Performs synthetic division on two polynomials returning 
+# Performs synthetic division on two polynomials returning
 # the quotient and remainder in an array.
 #
 
@@ -255,7 +257,7 @@ sub PolyString{
 			}
 			elsif ($poly[$i] == 0) {}
 			elsif ($poly[$i] == -1) {$string=$string."-x^{$j}";}
-			else {$string = $string."$poly[$i] x^{$j}";}	
+			else {$string = $string."$poly[$i] x^{$j}";}
 		}
 		elsif ($j > 0 && $j!=1) {
 			if ($poly[$i] >0) {

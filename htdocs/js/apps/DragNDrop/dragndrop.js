@@ -5,14 +5,14 @@
 			this.bucketId = pgData['bucketId'];
 			this.label = pgData['label'] || '';
 			this.removable = pgData['removable'];
-			this.bucketPool = $('.bucket_pool[data-ans="' + this.answerInputId + '"]').first()[0];
+			this.bucketPool = $('.dd-bucket-pool[data-ans="' + this.answerInputId + '"]').first()[0];
 
 			const $bucketPool = $(this.bucketPool);
 			const $newBucket = this._newBucket(
 				this.bucketId,
 				this.label,
 				this.removable,
-				$bucketPool.find('.hidden.past_answers.bucket[data-bucket-id="' + this.bucketId + '"]')
+				$bucketPool.find('.dd-hidden.dd-past-answers.dd-bucket[data-bucket-id="' + this.bucketId + '"]')
 			);
 
 			$bucketPool.append($newBucket);
@@ -37,13 +37,13 @@
 			$newBucket.append($('<div class="dd" data-bucket-id="' + bucketId + '"></div>'));
 
 			if (removable != 0) {
-				$newBucket.append($('<a class="btn remove_bucket">Remove</a>'));
+				$newBucket.append($('<button type="button" class="btn btn-secondary dd-remove-bucket">Remove</button>'));
 			}
 
-			if ($bucketHtmlElement.find('ol.answer li').length) {
+			if ($bucketHtmlElement.find('ol.dd-answer li').length) {
 				const $ddList = $('<ol class="dd-list"></ol>');
 
-				$bucketHtmlElement.find('ol.answer li').each(function() {
+				$bucketHtmlElement.find('ol.dd-answer li').each(function() {
 					const $item = $('<li><div class="dd-handle">' + $(this).html() + '</div></li>');
 
 					$item.addClass('dd-item').attr('data-shuffled-index', $(this).attr('data-shuffled-index'));
@@ -76,12 +76,12 @@
 
 		_ddUpdate() {
 			const answerInputId = this.answerInputId;
-			const $bucketPool = $('.bucket_pool[data-ans="' + answerInputId + '"]').first();
+			const $bucketPool = $('.dd-bucket-pool[data-ans="' + answerInputId + '"]').first();
 			const el = this;
 
 			$(function() {
-				$bucketPool.parent().find('.add_bucket').off();
-				$bucketPool.parent().find('.add_bucket').on('click', function() {
+				$bucketPool.parent().find('.dd-add-bucket').off();
+				$bucketPool.parent().find('.dd-add-bucket').on('click', function() {
 					new DragNDropBucket({
 						answerInputId: $(this).attr('data-ans'),
 						bucketId: +($('.dd').length) + 1,
@@ -89,8 +89,8 @@
 						label:'',
 					});
 				});
-				$bucketPool.find('.remove_bucket').off();
-				$bucketPool.find('.remove_bucket').on('click', function() {
+				$bucketPool.find('.dd-remove-bucket').off();
+				$bucketPool.find('.dd-remove-bucket').on('click', function() {
 					if ($bucketPool.find('.dd ol').length == 1) {
 						return 0;
 					}
@@ -100,16 +100,16 @@
 					$container.remove();
 					el._nestableUpdate();
 				});
-				$bucketPool.parent().find('.reset_buckets').off();
-				$bucketPool.parent().find('.reset_buckets').on('click', function() {
+				$bucketPool.parent().find('.dd-reset-buckets').off();
+				$bucketPool.parent().find('.dd-reset-buckets').on('click', function() {
 					$bucketPool.find('.dd-container').remove();
-					$bucketPool.find('div.hidden.default.bucket').each(function() {
+					$bucketPool.find('div.dd-hidden.dd-default.dd-bucket').each(function() {
 						const bucketId = $(this).attr('data-bucket-id');
 						const $bucket = el._newBucket(
 							$(this).attr('data-bucket-id'),
-							$(this).find('.label').first().html(),
+							$(this).find('.dd-label').first().html(),
 							$(this).attr('data-removable'),
-							$bucketPool.find('.hidden.default.bucket[data-bucket-id="' + bucketId + '"]')
+							$bucketPool.find('.dd-hidden.dd-default.dd-bucket[data-bucket-id="' + bucketId + '"]')
 						);
 
 						$bucketPool.append($bucket);
@@ -128,15 +128,15 @@
 
 	}
 
-	$('div.bucket_pool').each(function() {
+	$('div.dd-bucket-pool').each(function() {
 		const answerInputId = $(this).attr('data-ans');
 
-		if ($(this).find('div.bucket.past_answers.hidden').length) {
-			$(this).find('div.bucket.past_answers.hidden').each(function() {
+		if ($(this).find('div.dd-bucket.dd-past-answers.dd-hidden').length) {
+			$(this).find('div.dd-bucket.dd-past-answers.dd-hidden').each(function() {
 				new DragNDropBucket({
 					answerInputId : answerInputId,
 					bucketId : $(this).attr('data-bucket-id'),
-					label : $(this).find('.label').html(),
+					label : $(this).find('.dd-label').html(),
 					removable : $(this).attr('data-removable'),
 				});
 			});

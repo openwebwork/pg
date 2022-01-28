@@ -1,149 +1,133 @@
-/* 
- * Knowl - Feature Demo for Knowls
- * Copyright (C) 2011  Harald Schilly
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * 4/11/2012 Modified by David Guichard to allow inline knowl code.
- * Sample use:
- *      This is an <a knowl="" class="internal" 
- *      value="Hello World!">inline knowl.</a>
- */
+/* global MathJax, Base64 */
 
-/* javascript code for the knowl features 
- * global counter, used to uniquely identify each knowl-output element
- * that's necessary because the same knowl could be referenced several times
- * on the same page */
-var knowl_id_counter = 0;
- 
-function knowl_click_handler($el) {
-  // the knowl attribute holds the id of the knowl
-  var knowl_id = $el.attr("knowl");
-  // the uid is necessary if we want to reference the same content several times
-  var uid = $el.attr("knowl-uid");
-  var output_id = '#knowl-output-' + uid; 
-  var $output_id = $(output_id);
-  // create the element for the content, insert it after the one where the 
-  // knowl element is included (e.g. inside a <h1> tag) (sibling in DOM)
-  var idtag = "id='"+output_id.substring(1) + "'";
-  var kid   = "id='kuid-"+ uid + "'";
-  // if we already have the content, toggle visibility
-  if ($output_id.length > 0) {
-     $("#kuid-"+uid).slideToggle("fast");
-     $el.toggleClass("active");
- 
-  // otherwise download it or get it from the cache
-  } else { 
-    var knowl = "<div class='knowl-output' "+kid+"><div class='knowl'><div class='knowl-content' " +idtag+ ">loading '"+knowl_id+"'</div><div class='knowl-footer'>"+knowl_id+"</div></div></div>";
-    
-    // check, if the knowl is inside a td or th in a table. otherwise assume its
-    // properly sitting inside a <div> or <p>
-    if($el.parent().is("td") || $el.parent().is("th") ) {
-      // assume we are in a td or th tag, go 2 levels up
-      var cols = $el.parent().parent().children().length;
-      $el.parents().eq(1).after(
-      // .parents().eq(1) was formerly written as .parent().parent()
-          "<tr><td colspan='"+cols+"'>"+knowl+"</td></tr>");
-    } else if ($el.parent().is("li")) {
-      $el.parent().after(knowl);
-    // the following is implemented stupidly, but I had to do it quickly.
-    // someone please replace it with an appropriate loop -- DF
-    //also, after you close the knowl, it still has a shaded background
-    } else if ($el.parent().css('display') == "block") {
-             $el.parent().after(knowl);
-    } else if ($el.parent().parent().css('display') == "block") {
-             $el.parent().parent().after(knowl);
-    } else {
-     $el.parent().parent().parent().after(knowl);
-    }
- 
-//else {
-//      // $el.parent().after(knowl);
-//      var theparents=$el.parents();
-//      var ct=0;
-//     while (theparents[ct] != "block" && ct<2) 
-//       ct++;
-//      ct=0;
-//      //$el.parents().eq(ct).after(knowl);
-//      $el.parents().eq(ct).after(theparents[1]);
-//    }
-   
-    // "select" where the output is and get a hold of it 
-    var $output = $(output_id);
-    var $knowl = $("#kuid-"+uid);
-    $output.addClass("loading");
-    $knowl.hide();
-    // DRG: inline code
-    if ($el.attr("class") == 'internal') {
-      if ($el.attr("base64") == 1 ){
-      	$output.html(Base64.decode( $el.attr("value") ));
-      } else {
-      	$output.html( $el.attr("value") );
-      }
-      //console.log("here" +Base64.decode( $el.attr("value") ));
-      $knowl.hide();
-      $el.addClass("active");
-      if(window.MathJax == undefined) {
-            $knowl.slideDown("slow");
-      }  else {
-		  MathJax.startup.promise = MathJax.startup.promise.then(function() { return MathJax.typesetPromise([$output[0]]); });
-		  MathJax.startup.promise.then(function () {$knowl.slideDown("slow")});
-      }
-    } else {
-    // Get code from server.
-    $output.load(knowl_id,
-     function(response, status, xhr) { 
-      $knowl.removeClass("loading");
-      if (status == "error") {
-        $el.removeClass("active");
-        $output.html("<div class='knowl-output error'>ERROR: " + xhr.status + " " + xhr.statusText + '</div>');
-        $output.show();
-      } else if (status == "timeout") {
-        $el.removeClass("active");
-        $output.html("<div class='knowl-output error'>ERROR: timeout. " + xhr.status + " " + xhr.statusText + '</div>');
-        $output.show();
-      } else {
-        $knowl.hide();
-        $el.addClass("active");
-      }
-      // if we are using MathJax, then we reveal the knowl after it has finished rendering the contents
-      if(window.MathJax == undefined) {
-            $knowl.slideDown("slow");
-      }  else {
-		  MathJax.startup.promise = MathJax.startup.promise.then(function() { return MathJax.typesetPromise([$output[0]]); });
-		  MathJax.startup.promise.then(function () {$knowl.slideDown("slow")});
-      }
-     }); 
-    }
-  }
-} //~~ end click handler for *[knowl] elements
+(() => {
+	let knowlUID = 0;
 
-/** register a click handler for each element with the knowl attribute 
- * @see jquery's doc about 'live'! the handler function does the 
- *  download/show/hide magic. also add a unique ID, 
- *  necessary when the same reference is used several times. */
-$(function() {
-  // $("*[knowl]").live({
-    $("body").on("click", "*[knowl]", function(evt) {
-//  click: function(evt) {
-      evt.preventDefault();
-      var $knowl = $(this);
-      if(!$knowl.attr("knowl-uid")) {
-        $knowl.attr("knowl-uid", knowl_id_counter);
-        knowl_id_counter++;
-      }
-      knowl_click_handler($knowl, evt);
-//    }
-  });
-});
+	// This sets the innerHTML of the element and executes any script tags therein.
+	const setInnerHTML = (elt, html) => {
+		elt.innerHTML = html;
+		elt.querySelectorAll('script').forEach((origScript) => {
+			const newScript = document.createElement('script');
+			Array.from(origScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+			newScript.appendChild(document.createTextNode(origScript.innerHTML));
+			origScript.parentNode.replaceChild(newScript, origScript);
+		});
+	};
+
+	const initializeKnowl = (knowl) => {
+		knowl.dataset.bsToggle = 'collapse';
+		if (!knowl.knowlContainer) {
+			knowl.knowlContainer = document.createElement('div');
+			knowl.knowlContainer.id = `knowl-uid-${knowlUID++}`;
+			knowl.knowlContainer.classList.add('collapse');
+
+			const knowlOutput = document.createElement('div');
+			knowlOutput.classList.add('knowl-output');
+
+			const knowlContent = document.createElement('div');
+			knowlContent.classList.add('knowl-content');
+			knowlOutput.append(knowlContent);
+
+			if (knowl.dataset.knowlUrl) {
+				const knowlFooter = document.createElement('div');
+				knowlFooter.classList.add('knowl-footer');
+				knowlFooter.textContent = knowl.dataset.knowlUrl;
+				knowlOutput.append(knowlFooter);
+			}
+
+			knowl.knowlContainer.appendChild(knowlOutput);
+
+			knowl.knowlContainer.addEventListener('show.bs.collapse', () => knowl.classList.add('active'));
+			knowl.knowlContainer.addEventListener('hide.bs.collapse', () => knowl.classList.remove('active'));
+
+			// If the knowl is inside a table row, then insert a new row into the table after that one to contain
+			// the knowl content.  If the knowl is inside a list element, then insert the content after the list
+			// element.  Otherwise insert the content either before the first sibling that follows it that is
+			// display block, or append it to the first ancestor that is display block.
+			let insertElt = knowl.closest('tr');
+			if (insertElt) {
+				const row = document.createElement('tr');
+				const td = document.createElement('td');
+				td.colSpan = insertElt.childElementCount;
+				td.appendChild(knowl.knowlContainer);
+				row.appendChild(td);
+				insertElt.after(row);
+			} else {
+				insertElt = knowl.closest('li');
+				if (insertElt) {
+					insertElt.after(knowl.knowlContainer);
+				} else {
+					let append = false;
+					insertElt = knowl;
+					do {
+						const lastElt = insertElt;
+						insertElt = lastElt.nextElementSibling;
+						if (!insertElt) {
+							insertElt = lastElt.parentNode;
+							append = true;
+						}
+					} while (getComputedStyle(insertElt)?.getPropertyValue('display') !== 'block');
+
+					if (append) insertElt.append(knowl.knowlContainer);
+					else insertElt.before(knowl.knowlContainer);
+				}
+			}
+
+			knowl.dataset.bsTarget = `#${knowl.knowlContainer.id}`;
+
+			if (knowl.dataset.knowlContents) {
+				// Inline html
+				if (knowl.dataset.base64 == '1') {
+					if (window.Base64)
+						setInnerHTML(knowlContent, Base64.decode(knowl.dataset.knowlContents));
+					else {
+						setInnerHTML(knowlContent, 'ERROR: Base64 decoding not available');
+						knowlContent.classList.add('knowl-error');
+					}
+				} else {
+					setInnerHTML(knowlContent, knowl.dataset.knowlContents);
+				}
+				// If we are using MathJax, then render math content.
+				if (window.MathJax) {
+					MathJax.startup.promise =
+						MathJax.startup.promise.then(() => MathJax.typesetPromise([knowlContent]));
+				}
+			} else if (knowl.dataset.knowlUrl) {
+				// Retrieve url content.
+				fetch(knowl.dataset.knowlUrl).then((response) => response.ok ? response.text() : response)
+					.then((data) => {
+						if (typeof data == 'object') {
+							knowlContent.textContent = `ERROR: ${data.status} ${data.statusText}`;
+							knowlContent.classList.add('knowl-error');
+						} else {
+							setInnerHTML(knowlContent, data);
+						}
+						// If we are using MathJax, then render math content.
+						if (window.MathJax) {
+							MathJax.startup.promise =
+								MathJax.startup.promise.then(() => MathJax.typesetPromise([knowlContent]));
+						}
+					});
+			} else {
+				knowlContent.textContent = 'ERROR: knowl content not provided.';
+				knowlContent.classList.add('knowl-error');
+			}
+		}
+	};
+
+	// Deal with knowls that are already on the page.
+	document.querySelectorAll('.knowl').forEach(initializeKnowl);
+
+	// Deal with knowls that are added to the page later.
+	const observer = new MutationObserver((mutationsList) => {
+		mutationsList.forEach((mutation) => {
+			mutation.addedNodes.forEach((node) => {
+				if (node instanceof Element) {
+					if (node.classList.contains('knowl')) initializeKnowl(node);
+					else node.querySelectorAll('.knowl').forEach(initializeKnowl);
+				}
+			});
+		});
+	});
+	observer.observe(document.body, { childList: true, subtree: true });
+})();

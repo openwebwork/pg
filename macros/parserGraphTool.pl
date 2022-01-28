@@ -521,7 +521,7 @@ END_SCRIPT
 # The raw list form of the answer is displayed in the "Entered" box.
 sub cmp_preprocess {
 	my $self = shift; my $ans = shift;
-	if (defined($ans->{student_value})) {
+	if ($main::displayMode ne 'TeX' && defined($ans->{student_value})) {
 		my $ans_name = $self->ANS_NAME;
 		$self->constructJSXGraphOptions;
 		my $graphObjs = @{$self->{staticObjects}} ?
