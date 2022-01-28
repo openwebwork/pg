@@ -80,15 +80,20 @@ sub new {
 #  Find the units for the formula and split that off
 #
 sub splitUnits {
-  my $aUnit = '(?:'.getUnitNames().')(?:\s*(?:\^|\*\*)\s*[-+]?\d+)?';
-  my $unitPattern = $aUnit.'(?:\s*[/* ]\s*'.$aUnit.')*';
-  my $unitSpace = "($aUnit) +($aUnit)";
   my $string = shift;
+  my $parseMathQuill = shift;
+  my $aUnit = '(?:'.getUnitNames().')(?:\s*(?:\^|\*\*)\s*[-+]?\d+)?';
+  my $unitPattern = $parseMathQuill
+    ? '\(?\s*'.$aUnit.'(?:\s*[* ]\s*'.$aUnit.')*\s*\)?'
+    : $aUnit.'(?:\s*[/* ]\s*'.$aUnit.')*';
+  $unitPattern = $unitPattern.'(?:\/'.$unitPattern.')?' if $parseMathQuill;
+  my $unitSpace = "($aUnit) +($aUnit)";
   my ($num,$units) = $string =~ m!^(.*?(?:[)}\]0-9a-z]|\d\.))\s*($unitPattern)\s*$!;
   if ($units) {
     while ($units =~ s/$unitSpace/$1*$2/) {};
     $units =~ s/ //g;
     $units =~ s/\*\*/^/g;
+    $units =~ s/^\(?([^\(\)]*)\)?\/\(?([^\(\)]*)\)?$/$1\/$2/g if $parseMathQuill;
   }
 
   return ($num,$units);
@@ -161,7 +166,9 @@ sub cmp_parse {
   #  Check that the units are defined and legal
   #
 
-  my ($num,$units) = splitUnits($ans->{student_ans});
+  my ($num,$units) = splitUnits($ans->{student_ans},
+    $ans->{correct_value}{context} && $ans->{correct_value}->context->flag('useMathQuill') &&
+      (!defined $ans->{mathQuillOpts} || $ans->{mathQuillOpts} !~ /^\s*disabled\s*$/i));
   unless (defined($num) && defined($units) && $units ne '') {
     $self->cmp_Error($ans,"Your answer doesn't look like ".lc($self->cmp_class));
     return $ans;

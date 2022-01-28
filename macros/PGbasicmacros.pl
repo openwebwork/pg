@@ -94,6 +94,8 @@ my ($PAR,
 	$r_ans_rule_count,
 );
 
+our %envir;
+
 sub _PGbasicmacros_init {
 	# The big problem is that at compile time in the cached Safe compartment
 	# main:: has one definition, probably Safe::Root1::
