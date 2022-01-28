@@ -2415,16 +2415,6 @@ sub PTX_cleanup {
                     # form(from the webpage) inside another (the defining form for the problem
 A wide variety of google widgets, youtube videos, and other online resources can be imbedded using this macro. In HTML mode it creates an iframe, in TeX mode it prints the url.
 
-    appletLink( { name => "xFunctions",
-                  codebase => '',    # use this to specify the complete url
-                                     # otherwise libraries specified in global.conf are searched
-                  archive  => 'xFunctions.zip', # name the archive containing code (.jar files go here also)
-                  code     => 'xFunctionsLauncher.class',
-                  width    => 100,
-                  height   => 14,
-                  params   => { param1 =>value1, param2 => value2},
-                }
-              );
     helpLink($type)     allows site specific help. specified in global.conf or course.conf
                    The parameter localHelpURL  must be defined in the environment
                    and is set by default to webwork2/htdocs/helpFiles
@@ -2444,15 +2434,6 @@ A wide variety of google widgets, youtube videos, and other online resources can
                         'interval'
                         'unit'
                         'syntax'
-
-    ########################
-                  deprecated coding method
-                    appletLink    ($url, $parameters)
-                    # For example
-                    # appletLink(q!  archive="http: //webwork.math.rochester.edu/gage/xFunctions/xFunctions.zip"
-                                    code="xFunctionsLauncher.class"  width=100 height=14!,
-                    " parameter text goes here")
-                    # will link to xFunctions.
 
     low level:
 
@@ -2666,77 +2647,18 @@ sub helpLink {
 	# If infoRef is still '', we give up and just print plain text
 	return $display_text unless ($infoRef);
 	return knowlLink($display_text, url => $envir{'localHelpURL'}.$infoRef, type => 'help');
-	# Old way of doing this:
-	#	return htmlLink( $envir{'localHelpURL'}.$infoRef, $type1,
-	#'target="ww_help" onclick="window.open(this.href, this.target, \'width=550, height=350, scrollbars=yes, resizable=on\'); return false;"');
 }
 
+# This method is deprecated.  There is no hope for the problems that use it.  Java and flash are dead.
 sub appletLink {
-	my $url  = $_[0];
-	return oldAppletLink(@_) unless ref($url) ; # handle legacy where applet link completely defined
-	# search for applet
-	# get fileName of applet
-	my $applet       = shift;
-	my $options      = shift;
-	my $archive      = $applet ->{archive};
-	my $codebase     = $applet ->{codebase};
-	my $code         = $applet ->{code};
-	my $appletHeader = '';
-	# find location of applet
-	if (defined($codebase) and $codebase =~/\S/) {
-		# do nothing
-	} elsif(defined($archive) and $archive =~/\S/) {
-		$codebase = findAppletCodebase($archive )
-	} elsif (defined($code) and $code =~/\S/) {
-		$codebase =  findAppletCodebase($code )
-	} else {
-		warn "Must define the achive (.jar file) or code (.class file) where the applet code is to be found";
-		return;
-	}
-
-	if ( $codebase =~/^Error/) {
-		warn $codebase;
-		return;
-	} else {
-		# we are set to include the applet
-	}
-	$appletHeader  =  qq! archive = "$archive " codebase = "$codebase" !;
-	foreach my $key ('name', 'code', 'width', 'height', ) {
-		if ( defined($applet->{$key})   ) {
-			$appletHeader .= qq! $key = "!.$applet->{$key}.q!" ! ;
-		} else {
-			warn " $key is not defined for applet ".$applet->{name};
-			# technically name is not required, but all of the other parameters are
-		}
-	}
-	# add parameters to options
-	if (defined($applet->{params}) ) {
-		foreach my $key (keys %{ $applet->{params} }) {
-			my $value = $applet->{params}->{$key};
-			$options .=  qq{<PARAM NAME = "$key" VALUE = "$value" >\n};
-		}
-
-	}
+	warn 'Applet problems that use the appletLink method are no longer supported.';
 	MODES(
-        TeX        => "{\\bf \\underline{APPLET}  }".$applet->{name},
-        Latex2HTML => "\\begin{rawhtml} <APPLET $appletHeader> $options </APPLET>\\end{rawhtml}",
-        HTML       => "<APPLET\n $appletHeader> \n $options \n </APPLET>",
-        #HTML       => qq!<OBJECT $appletHeader codetype="application/java"> $options </OBJECT>!
-        PTX        => 'PreTeXt does not support appletLink',
+		TeX  => "{\\bf WeBWorK does not support appletLink}",
+		HTML => "<div style='background-color:pink'>WeBWorK does not support appletLink</div>",
+		PTX  => 'PreTeXt does not support appletLink',
 	);
 }
 
-sub oldAppletLink {
-	my $url = shift;
-	my $options = shift;
-	$options = "" unless defined($options);
-	MODES(
-        TeX        => "{\\bf \\underline{APPLET}  }",
-		Latex2HTML => "\\begin{rawhtml} <APPLET $url> $options </APPLET>\\end{rawhtml}",
-		HTML       => "<APPLET $url> $options </APPLET>",
-		PTX        => 'PreTeXt does not support appletLink',
-	);
-}
 sub spf {
 	my ($number, $format) = @_;  # attention, the order of format and number are reversed
 	$format = "%4.3g" unless $format;   # default value for format
