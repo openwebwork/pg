@@ -206,7 +206,7 @@ sub usePrecedence {
 
     /^Standard/i  and do {
       $self->operators->set(
-        ' *' => {precedence => 3},
+        ' *' => {precedence => 3, mq_precedence => 2.9},
         '* ' => {precedence => 3},
         ' /' => {precedence => 3},
         '/ ' => {precedence => 3},

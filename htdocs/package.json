@@ -12,7 +12,8 @@
         "prepare": "npm run generate-css"
     },
     "dependencies": {
-        "jsxgraph": "^1.4.0"
+        "jsxgraph": "^1.4.0",
+		"mathquill": "github:openwebwork/mathquill"
     },
     "devDependencies": {
         "sass": "^1.49.0"
