@@ -105,8 +105,6 @@ sub _PGbasicmacros_init {
 	# initialize the my variable version of $displayMode from the "runtime" version
 	# of main::displayMode
 
-	# dd "in _PGbasicmacros_init";
-
 	$displayMode            = main::PG_restricted_eval(q!$main::displayMode!);
 
 	# This is initializes the remaining variables in the runtime main:: compartment.
