@@ -14,7 +14,7 @@ use vars qw($VERSION @ISA @EXPORT %EXPORT_TAGS);
 
 my ( $i, $ip2, %logn );
 
-$VERSION = sprintf("%s", q$Id$ =~ /(\d+\.\d+)/);
+# $VERSION = sprintf("%s", q$Id$ =~ /(\d+\.\d+)/);
 
 @ISA = qw(Exporter);
 
@@ -57,7 +57,7 @@ use overload
 	'log'	=> \&log,
 	'sin'	=> \&sin,
 	'cos'	=> \&cos,
-	'tan'	=> \&tan,
+	# 'tan'	=> \&tan,
 	'atan2'	=> \&atan2,
 	qw("" stringify);
 
@@ -295,9 +295,9 @@ sub minus {
 		$z1->set_cartesian([$re1 - $re2, $im1 - $im2]);
 		return $z1;
 	}
-	
+
 	 return ( $inverted) ?
- 		(ref $z1)->make($re2 - $re1, $im2 - $im1) : 
+ 		(ref $z1)->make($re2 - $re1, $im2 - $im1) :
  		(ref $z1)->make($re1 - $re2, $im1 - $im2);
 
 }

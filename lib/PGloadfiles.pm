@@ -2,12 +2,12 @@
 # WeBWorK Online Homework Delivery System
 # Copyright © 2000-2012 The WeBWorK Project, http://openwebwork.org
 # $CVSHeader: pg/lib/PGloadfiles.pm,v 1.1 2010/05/14 11:39:02 gage Exp $
-# 
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any later
 # version, or (b) the "Artistic License" which comes with this package.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
@@ -22,7 +22,7 @@
 
 	loadMacros(@macroFiles)
 
-loadMacros takes a list of file names and evaluates the contents of each file. 
+loadMacros takes a list of file names and evaluates the contents of each file.
 This is used to load macros which define and augment the PG language. The macro
 files are searched for in the directories specified by the array referenced by
 $macrosPath, which by default is the current course's macros directory followed
@@ -80,12 +80,12 @@ our @ISA = qw ( PGcore  ) ;  # look up features in PGcore -- in this case we wan
 
 
 
-# new 
+# new
 #   Create one loadfiles object per question (and per PGcore object)
 #   Process macro files
 #   Keep list of macro files processed.
 sub new {
-	my $class = shift;	
+	my $class = shift;
 	my $envir = shift;  #pointer to environment hash
 	warn "PGloadmacros must be called with an environment" unless ref($envir) eq 'HASH';
 	my $self = {
@@ -109,9 +109,9 @@ sub initialize {
 	$pwd =~ s!/[^/]*$!!;
     $pwd = $templateDirectory.$pwd unless substr($pwd,0,1) eq '/';
     $pwd =~ s!/tmpEdit/!/!;
-	$self->{pwd} = $pwd;	
-	$self->{macrosPath} = $self->{envir}->{pgDirectories}->{macrosPath};
-	
+	$self->{pwd} = $pwd;
+	$self->{macrosPath} = $self->{envir}->{macrosPath};
+
 }
 
 sub PG_restricted_eval {
@@ -139,7 +139,7 @@ sub loadMacros {
     # At this point the directories have been defined from %envir and we can define
     # the directories for this file
     ###############################################################################
-   
+
     while (@files) {
         $fileName = shift @files;
 
@@ -154,7 +154,7 @@ sub loadMacros {
 		$macro_file_name =~s/\.pg//;  # sometimes the extension is .pg (e.g. CAPA files)
 		my $init_subroutine_name = "_${macro_file_name}_init";
 		$init_subroutine_name =~ s![^a-zA-Z0-9_]!_!g;  # remove dangerous chars
-	
+
 		my $init_subroutine  = eval { \&{'main::'.$init_subroutine_name} };
 
 	###############################################################################
@@ -169,7 +169,7 @@ sub loadMacros {
 	    #### (check for renamed files here?) ####
 	    warn "loadMacros:  look for $fileName at |$filePath|" if $debugON;
 	    if ($filePath) {
-	        $self->compile_file($filePath); 
+	        $self->compile_file($filePath);
 			warn "loadMacros is compiling $filePath" if $debugON;
 	    } else {
 	    	my $pgDirectory       = $self->{envir}->{pgDirectories}->{macros};
@@ -180,9 +180,9 @@ sub loadMacros {
 	        warn "Can't locate macro file |$fileName| via path: |".join("|,<br/> |",@shortenedPaths)."|\n";
 	    }
 	}
-           
+
 	$init_subroutine  = eval { \&{'main::'.$init_subroutine_name} };
-	
+
 	###############################################################################
 
 	$macro_file_loaded = defined($init_subroutine) && defined(&$init_subroutine);
@@ -227,12 +227,12 @@ sub findMacroFile {
 sub compile_file {
     my $self     = shift;
  	my $filePath = shift;
-    
- 	warn "loading $filePath" if $debugON; 
+
+ 	warn "loading $filePath" if $debugON;
  	local(*MACROFILE);
  	local($/);
  	$/ = undef;   # allows us to treat the file as a single line
-    
+
  	open(MACROFILE, "<:raw", $filePath) || die "Cannot open file: $filePath";
  	my $string = 'BEGIN {push @__eval__, __FILE__};' . "\n" . <MACROFILE>;
  	utf8::decode($string);   # can't yet use :encoding(UTF-8)
@@ -244,7 +244,7 @@ sub compile_file {
  		#$fullerror =~ s/\(eval \d+\)/ $filePath\n/;   # attempt to insert file name instead of eval number
  		die "Error detected while loading $filePath:\n$fullerror";
  	}
- 	
+
 #  	local(*MACROFILE);
 #  	local($/);
 #  	$/ = undef;   # allows us to treat the file as a single line
@@ -256,9 +256,9 @@ sub compile_file {
 #                 # this is now handled by PG_errorMessage() in the PG translator
 #  		#$fullerror =~ s/\(eval \d+\)/ $filePath\n/;   # attempt to insert file name instead of eval number
 #  		die "Error detected while loading $filePath:\n$fullerror";
-# 
+#
 #  	}
-# 
+#
 #  	close(MACROFILE);
 	$self->{macroFileList}->{$filePath} = 1;
  	close(MACROFILE);

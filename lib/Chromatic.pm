@@ -10,12 +10,12 @@ our $webwork_directory = $WeBWorK::Constants::WEBWORK_DIRECTORY; #'/opt/webwork/
 # or a WEBWORK_PG_DIRECTORY variable?  -- perhaps not since all of those are in the defaults.config file
 # we would have to read that at compile time.
 
-my $pg_envir = new PGEnvironment();
+my $pg_env = new PGEnvironment();
 
 # our $seed_ce = new WeBWorK::CourseEnvironment({ webwork_dir => $webwork_directory, courseName =>'foobar'});
 # die "Can't create seed course environment for webwork in $webwork_directory" unless ref($seed_ce);
 # our $PGdirectory = $seed_ce->{pg_dir};
-my $PGdirectory = $pg_envir->{pg_dir};
+my $PGdirectory = $pg_env->{environment}->{pg_root};
 
 # now that we have the PGdirectory we can get to work compiling color
 our $command = "$PGdirectory/lib/chromatic/color";
@@ -34,7 +34,7 @@ unless (-x $command) {
 			warn "Can't read C file $PGdirectory/lib/chromatic/color.c" unless -r "$PGdirectory/lib/chromatic/color.c";
 		}
 }
-our $tempDirectory = $pg_envir->{webworkDirs}->{DATA};
+our $tempDirectory = $pg_env->{renderer_dirs}->{temp_dir};
 use UUID::Tiny  ':std';
 
 sub matrix_graph {
