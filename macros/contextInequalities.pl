@@ -380,7 +380,7 @@ sub _check {
     unless $self->{lop}{isInequality} && $self->{rop}{isInequality};
   $self->Error("Inequalities combined by '%s' must both use the same variable",$self->{bop})
     unless $self->{lop}{varName} eq $self->{rop}{varName};
-  $self->{type} = Value::Type("Interval",2);
+  $self->{type} = $Value::Type{interval};
   $self->{varName} = $self->{lop}{varName};
   $self->{isInequality} = 1;
 }
@@ -400,7 +400,7 @@ sub _check {
     unless $self->{lop}{isInequality} && $self->{rop}{isInequality};
   $self->Error("Inequalities combined by '%s' must both use the same variable",$self->{bop})
     unless $self->{lop}{varName} eq $self->{rop}{varName};
-  $self->{type} = Value::Type("Interval",2);
+  $self->{type} = $Value::Type{interval};
   $self->{varName} = $self->{lop}{varName};
   $self->{isInequality} = 1;
 }
@@ -840,7 +840,7 @@ our @ISA = ("Value::Interval");
 
 sub new {
   my $self = shift;
-  $self = $self->SUPER::new(@_);
+  $self = Value::Interval->new(@_);
   $self = $self->demote if $self->classMatch("Inequality");
   return $self;
 }
@@ -878,7 +878,7 @@ sub _check {
     my $entryType = $self->typeRef->{entryType};
     return unless $entryType->{name} =~ m/^(unknown|Interval|Set|Union)$/;
     foreach my $x (@{$self->{coords}}) {return unless $x->{isInequality}};
-    $entryType->{name} = "Inequality";
+    $self->typeRef->{entryType} = Value::Type("Inequality", $entryType->{length}, $entryType->{entryType});
   }
 }
 
