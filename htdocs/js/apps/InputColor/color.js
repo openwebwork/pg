@@ -6,8 +6,32 @@
 		const answerInput = document.getElementById(answerId);
 
 		const type = answerLink.parentNode.classList.contains('ResultsWithoutError') ? 'correct' : 'incorrect';
+		const radioGroups = {};
+
+		// Color all of the inputs and selects associated with this answer.  On the first pass radio inputs are
+		// collected into groups by name, and on the second pass the checked radio is highlighted, or if none are
+		// checked all are highlighted.
 		document.querySelectorAll(`input[name*=${answerId}],select[name*=${answerId}`)
-			.forEach((input) => input.classList.add(type));
+			.forEach((input) => {
+				if (input.type.toLowerCase() === 'radio') {
+					if (!radioGroups[input.name]) radioGroups[input.name] = [];
+					radioGroups[input.name].push(input);
+				} else {
+					input.classList.add(type);
+				}
+			});
+
+		Object.values(radioGroups).forEach((group) => {
+			if (group.every((radio) => {
+				if (radio.checked) {
+					radio.classList.add(type);
+					return false;
+				}
+				return true;
+			})) {
+				group.forEach((radio) => radio.classList.add(type));
+			}
+		});
 
 		if (answerInput) {
 			answerLink.addEventListener('click', (e) => {
