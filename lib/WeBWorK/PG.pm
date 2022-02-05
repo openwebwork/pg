@@ -29,9 +29,12 @@ API.
 use strict;
 use warnings;
 use WeBWorK::Debug;
+use WeBWorK::Localize;
 use WeBWorK::PG::ImageGenerator;
 use WeBWorK::Utils qw(runtime_use formatDateTime makeTempDirectory);
 use WeBWorK::Utils::RestrictedClosureClass;
+
+use Data::Dumper;
 
 use constant DISPLAY_MODES => {
 	# display name   # mode name
@@ -237,26 +240,28 @@ sub defineProblemEnvir {
 	# The following two are not used anywhere
 	# $envir{webworkHtmlDirectory}   = $ce->{webworkDirs}->{htdocs}."/";
 	# $envir{webworkHtmlURL}         = $ce->{webworkURLs}->{htdocs}."/";
-	$envir{htmlDirectory}          = $ce->{courseDirs}->{html}."/";
-	$envir{htmlURL}                = $ce->{courseURLs}->{html}."/";
-	$envir{templateDirectory}      = $pg_env->{environment}->{template_dir}."/";
-	$envir{tempDirectory}          = $pg_env->{environment}->{temp_dir}."/";
-	$envir{tempURL}                = $ce->{courseURLs}->{html_temp}."/";
+	$envir{htmlDirectory}          = $pg_env->{directories}->{course_html}."/";
+	$envir{htmlURL}                = $pg_env->{URLs}->{course_html}."/";
+	$envir{templateDirectory}      = $pg_env->{directories}->{course_templates}."/";
+	$envir{tempDirectory}          = $pg_env->{directories}->{temp_dir}."/";
+	$envir{tempURL}                = $pg_env->{URLs}->{html_temp}."/";
 	$envir{scriptDirectory}        = undef;
-	$envir{webworkDocsURL}         = $ce->{webworkURLs}->{docs}."/";
-	$envir{localHelpURL}           = $ce->{webworkURLs}->{local_help}."/";
-	$envir{MathJaxURL}             = $ce->{webworkURLs}->{MathJax};
-	$envir{server_root_url}        = $ce->{server_root_url}|| '';
+	$envir{webworkDocsURL}         = $pg_env->{URLs}->{webwork_docs}."/";
+	$envir{localHelpURL}           = $pg_env->{URLs}->{local_help}."/";
+	$envir{MathJaxURL}             = $pg_env->{URLs}->{mathjax};
+	$envir{server_root_url}        = $pg_env->{server_root_url}|| '';
 
 	# Information for sending mail
 
-	$envir{mailSmtpServer} = $ce->{mail}->{smtpServer};
-	$envir{mailSmtpSender} = $ce->{mail}->{smtpSender};
-	$envir{ALLOW_MAIL_TO}  = $ce->{mail}->{allowedRecipients};
+	# Can we push this to webwork?
+
+	# $envir{mailSmtpServer} = $ce->{mail}->{smtpServer};
+	# $envir{mailSmtpSender} = $ce->{mail}->{smtpSender};
+	# $envir{ALLOW_MAIL_TO}  = $ce->{mail}->{allowedRecipients};
 
 	# Default values for evaluating answers
 
-	my $ansEvalDefaults = $ce->{pg}->{ansEvalDefaults};
+	my $ansEvalDefaults = $pg_env->{ansEvalDefaults};
 	$envir{$_} = $ansEvalDefaults->{$_} foreach (keys %$ansEvalDefaults);
 
 	# ----------------------------------------------------------------------
@@ -273,7 +278,7 @@ sub defineProblemEnvir {
 		#	qw/Open SendEnc Close Cancel skipped_recipients error error_msg/);
 		#my $safe_hole = new Safe::Hole {};
 		#$envir{mailer} = $safe_hole->wrap($rmailer);
-		$envir{mailer} = new WeBWorK::Utils::RestrictedClosureClass($extras->{mailer}, "add_message");
+		# $envir{mailer} = new WeBWorK::Utils::RestrictedClosureClass($extras->{mailer}, "add_message");
 	}
 	# ADDED use_opaque_prefix and use_site_prefix
 
@@ -282,21 +287,22 @@ sub defineProblemEnvir {
 
 	# Other things...
 	$envir{QUIZ_PREFIX}              = $translationOptions->{QUIZ_PREFIX}//''; # used by quizzes
-	$envir{PROBLEM_GRADER_TO_USE}    = $ce->{pg}->{options}->{grader};
-	$envir{PRINT_FILE_NAMES_FOR}     = $ce->{pg}->{specialPGEnvironmentVars}->{PRINT_FILE_NAMES_FOR};
+	$envir{PROBLEM_GRADER_TO_USE}    = $pg_env->{renderer}->{grader};
+	$envir{PRINT_FILE_NAMES_FOR}     = $pg_env->{env_vars}->{PRINT_FILE_NAMES_FOR};
 	$envir{useMathQuill}             = $translationOptions->{useMathQuill};
 
         #  ADDED: __files__
         #    an array for mapping (eval nnn) to filenames in error messages
 	$envir{__files__} = {
-	  root => $ce->{webworkDirs}{root},     # used to shorten filenames
-	  pg   => $ce->{pg}{directories}{root}, # ditto
-	  tmpl => $ce->{courseDirs}{templates}, # ditto
+		# Note: we shouldn't need the webwork information
+	  # root => $ce->{webworkDirs}{root},
+	  pg   => $pg_env->{environment}->{pg_root}, # used to shorten filenames
+	  tmpl => $pg_env->{directories}->{course_templates}, # ditto
 	};
 
 	# variables for interpreting capa problems and other things to be
         # seen in a pg file
-	my $specialPGEnvironmentVarHash = $ce->{pg}->{specialPGEnvironmentVars};
+	my $specialPGEnvironmentVarHash = $pg_env->{env_vars};
 	for my $SPGEV (keys %{$specialPGEnvironmentVarHash}) {
 		$envir{$SPGEV} = $specialPGEnvironmentVarHash->{$SPGEV};
 	}

@@ -11,7 +11,7 @@ use lib "$pg_dir/lib";
 
 use PGEnvironment;
 
-# my $pg_env = PGEnvironment->new(course_name => "test");
-my $pg_env = PGEnvironment->new();
+my $pg_env = PGEnvironment->new(course_name => "staab_course");
+# my $pg_env = PGEnvironment->new();
 
 $pg_env->checkEnvironment();

@@ -18,7 +18,6 @@ use utf8;
 use v5.12;
 binmode(STDOUT,":encoding(UTF-8)");
 #use PadWalker;     # used for processing error messages
-#use Data::Dumper;
 
 
 # loading GD within the Safe compartment has occasionally caused infinite recursion

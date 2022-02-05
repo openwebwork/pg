@@ -195,7 +195,7 @@ use Getopt::Long qw[:config no_ignore_case bundling];
 use File::Find;
 use FileHandle;
 use Cwd 'abs_path';
-# use FormatRenderedProblem;
+use FormatRenderedProblem;
 use Proc::ProcessTable;
 
 use 5.10.0;
@@ -210,9 +210,10 @@ use MockDB::Set;
 use MockDB::Problem;
 use vars qw($courseName);
 
+use Data::Dumper;
+
 use PGEnvironment;
 
-say "Loading the PGEnvironment";
 my $pg_env = new PGEnvironment(course_name => 'staab_course');
 
 #############################################
@@ -227,9 +228,8 @@ use constant HTML_DISPLAY_COMMAND => "open -a 'Google Chrome' ";    # (MacOS com
 use constant HASH_DISPLAY_COMMAND => "";                            # display tempoutputfile to STDOUT
 
 ### Path to a temporary file for storing the output of sendXMLRPC.pl
-my $TEMPOUTPUTDIR = $pg_env->{environment}->{temp_dir};
+my $TEMPOUTPUTDIR = $pg_env->{directories}->{temp_dir};
 
-say $pg_env->{environment}->{temp_dir};
 die "You must make the directory $TEMPOUTPUTDIR writeable " unless -w $TEMPOUTPUTDIR;
 my $TEMP_HTML = "$TEMPOUTPUTDIR/temporary_output.html";
 
@@ -586,6 +586,8 @@ sub process_problem {
 	my $form_data = shift;
 	# %credentials is global
 
+	say "in process_problem";
+
 	### get source and correct file_path name so that it is relative to templates directory
 
 	my ($adj_file_path, $source) = get_source($file_path);
@@ -665,13 +667,13 @@ sub process_problem {
 	my $cg_duration    = $cg_end - $cg_start;
 	my $memory_use_end = get_current_process_memory();
 	my $memory_use     = $memory_use_end - $memory_use_start;
-	WebworkClient::writeRenderLogEntry(
-		"",
-		"{script:$scriptName; file:$file_path; "
-			. sprintf("duration: %.3f sec;", $cg_duration)
-			. sprintf(" memory: %6d bytes;", $memory_use) . "}",
-		''
-	);
+	# WebworkClient::writeRenderLogEntry(
+	# 	"",
+	# 	"{script:$scriptName; file:$file_path; "
+	# 		. sprintf("duration: %.3f sec;", $cg_duration)
+	# 		. sprintf(" memory: %6d bytes;", $memory_use) . "}",
+	# 	''
+	# );
 
 	#######################################################################
 	# End processing of the pg file
@@ -892,7 +894,7 @@ sub fake_problem {
 ###########################################
 
 sub standaloneRenderer {
-	#print "entering standaloneRenderer\n\n";
+	print "entering standaloneRenderer\n\n";
 	my $problemFile = shift // '';
 	my $input       = shift // '';
 	my $form_data   = shift // '';
@@ -906,7 +908,7 @@ sub standaloneRenderer {
 	my $showHints     = $input->{showHints}          || 0;
 	my $showSolutions = $input->{showSolutions}      || 0;
 	my $problemNumber = $input->{'problem_number'}   || 1;
-	my $displayMode   = $form_data->{displayMode} // $pg_env->{UI}->{displayMode};
+	my $displayMode   = $form_data->{displayMode} // $pg_env->{renderer}->{displayMode};
 
 	my $translationOptions = {
 		displayMode       => $displayMode,

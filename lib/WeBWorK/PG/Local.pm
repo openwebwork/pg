@@ -16,6 +16,7 @@
 
 package WeBWorK::PG::Local;
 use base qw(WeBWorK::PG);
+use feature 'say';
 
 =head1 NAME
 
@@ -73,6 +74,7 @@ sub alarm_handler {
 
 sub new {
 	my $invocant = shift;
+	say "in PG::Local->new";
 	local $SIG{ALRM} = \&alarm_handler;
 	alarm TIMEOUT;
 	my $result = eval { $invocant->new_helper(@_) };
@@ -97,6 +99,7 @@ sub new_helper {
 								# hints and the display mode to use
 	) = @_;
 
+	say "in PG::Local->new_helper";
 # write timing log entry
 # 	writeTimingLogEntry($ce, "WeBWorK::PG::new",
 # 		"user=".$user->user_id.",problem=".$ce->{courseName}."/".$set->set_id."/".$problem->problem_id.",mode=".$translationOptions->{displayMode},
@@ -124,7 +127,6 @@ sub new_helper {
 	# evaluate modules and "extra packages"
 	############################################################################
 
-	#warn "PG: evaluating modules and \"extra packages\"\n";
 	my @modules = @{ $pg_env->{perl_modules} };
 	# HACK for apache2
 	if (MP2) {
@@ -193,7 +195,6 @@ sub new_helper {
 	# set the environment (from defineProblemEnvir)
 	############################################################################
 
-	#warn "PG: setting the environment (from defineProblemEnvir)\n";
 	my $envir = $class->defineProblemEnvir(
 		$pg_env,
 		$user,
@@ -446,9 +447,9 @@ EOF
 	# send any queued mail messages
 	############################################################################
 
-	if ($mailer) {
-		$mailer->send_messages;
-	}
+	# if ($mailer) {
+	# 	$mailer->send_messages;
+	# }
 
 	############################################################################
 	# end of cleanup phase

@@ -26,6 +26,6 @@ use base qw/Class::Accessor/;
 
 MockDB::Problem->mk_accessors(qw/set_id problem_id source_file value max_attempts
 	att_to_open_children counts_parent_grade showMeAnother showMeAnotherCount
-	prPeriod prCount flags problem_seed/);
+	prPeriod prCount flags problem_seed num_correct num_incorrect status sub_status/);
 
 1;
