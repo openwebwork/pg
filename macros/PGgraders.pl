@@ -303,23 +303,10 @@ sub custom_problem_grader_fluid {
     
     $problem_result{score} = $total; 
     
-# Determine if we are in the reduced scoring period and if the reduced scoring period is enabled and act accordingly
-#warn("enable_reduced_scoring is $enable_reduced_scoring");
-#warn("dueDate is $dueDate");
-
-	if (!$enable_reduced_scoring or time() < $reducedScoringDate) {	# the reduced scoring period is disabled or it is before the reduced scoring period
+	# FIXME: This check should be moved out of PG, webwork should do this check instead.
+	if (time() < $dueDate) {
 		# increase recorded score if the current score is greater.
 		$problem_state{recorded_score} = $problem_result{score}	if $problem_result{score} > $problem_state{recorded_score};
-		# the sub_recored_score holds the recored_score before entering the reduced scoring period
-		$problem_state{sub_recorded_score} = $problem_state{recorded_score};
-	}
-elsif (time() < $dueDate) {	# we are in the reduced scoring period.
- 		# student gets credit for all work done before the reduced scoring period plus a portion of work done during period
-		my $newScore = 0;
-		$newScore =   $problem_state{sub_recorded_score} + $reducedScoringValue*($problem_result{score} - $problem_state{sub_recorded_score})  if ($problem_result{score} > $problem_state{sub_recorded_score});
-		$problem_state{recorded_score} = $newScore if $newScore > $problem_state{recorded_score};
-		my $reducedScoringPerCent = int(100*$reducedScoringValue+.5);
-		$problem_result{msg} = $problem_result{msg}."<br />You are in the Reduced Scoring Period: All additional work done counts $reducedScoringPerCent\% of the original."; 		
 	}
 	
     (\%problem_result, \%problem_state);
