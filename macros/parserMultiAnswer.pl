@@ -386,7 +386,7 @@ sub perform_check {
 
   Parser::Context->current(undef,$context);    # change to multi-answser's context
   my $flags = Value::contextSet($context,$self->cmp_contextFlags($ans)); # save old context flags
-  $context->{answerHash} = $rf_ans;            # attach the answerHash
+  $context->{answerHash} = $rh_ans;            # attach the answerHash
   my @result = Value::cmp_compare([@correct],[@student],$self,$rh_ans);
   Value::contextSet($context,%{$flags});       # restore context values
   $context->{answerHash} = undef;              # remove answerHash
