@@ -1,0 +1,518 @@
+# This file contains all of the default settings for PG.
+#
+# There are XX top-level fields:
+# - directories: locations of important directories.
+# - environment: the directories, macro Paths and external Programs
+# - modules: this contains settings for modules like showMeAnother
+# - perl_modules: a list of required perl_modules.
+
+directories:
+  courses: /opt/webwork/courses
+  OPL: /opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary
+
+  # The following are directories typically in PG_HOME
+  # htdocs will end up as PG_HOME/htdocs
+  # temp_dir and help_files are directories in htdocs
+  # equation_cache will be in temp_dir
+
+
+  renderer_dirs:
+    htdocs: htdocs
+    temp_dir: tmp
+    equation_cache: equations
+    help_files: helpFiles
+
+URLs:
+  webwork_docs: https://webwork.maa.org
+
+  # relative path of MathJax
+  mathjax: mathjax/es5/tex-chtml.js
+
+environment:
+  language: en
+
+  # The following would be a default course that PG would run using.
+  # Unless setting up as a standalone renderer, this should not be set.
+  # course_name: course_daemon
+
+
+  #  The macro file search path.  Each directory in this list is searched
+  #  (in this order) by loadMacros() when it looks for a .pl file.
+
+  # Note: the macrosPath will also contain ".", courses_dir/macros, pg_macros
+  # and the following will be added to the course_dir/Library/macros
+
+  macrosPath:
+    - Alfred
+    - BrockPhysics
+    - CollegeOfIdaho
+    - Dartmouth
+    - FortLewis
+    - Hope
+    - LaTech
+    - MC
+    - Michigan
+    - Mizzou
+    - NAU
+    - PCC
+    - TCNJ
+    - UBC
+    - UMass-Amherst
+    - UW-Stout
+    - UniSiegen
+    - Union
+    - WHFreeman
+    - Wiley
+
+  # This is the relative path of applets
+  appletPath:
+    - applets
+    - applets/geogebra_stable
+    - applets/Xgraph
+    - applets/PointGraph
+    - applets/Xgraph
+    - applets/liveJar
+    - applets/Image_and_Cursor_All
+
+  # Paths to external programs:
+  externalPrograms:
+    curl: /usr/bin/curl
+    cp: /bin/cp
+    mv: /bin/mv
+    rm: /bin/rm
+    tar: /bin/tar
+    latex: /usr/bin/latex --no-shell-escape
+    pdflatex: /usr/bin/pdflatex --no-shell-escape
+    dvisvgm: /usr/bin/dvisvgm
+    pdf2svg: /usr/bin/pdf2svg
+    convert: /usr/bin/convert
+
+
+
+  # Flat-file database used to protect against MD5 hash collisions. TeX equations
+  # are hashed to determine the name of the image file. There is a tiny chance of
+  # a collision between two TeX strings. This file allows for that. However, this
+  # is slow, so most people chose not to worry about it. Set this to "" if you
+  # don't want to use the equation cache file.
+  equation_cache_db: '' # "$webworkDirs{DATA}/equationcache";
+
+
+  server_root_url: 'http://localhost'
+  log:
+    output: /var/log/pg_out.log
+    error: /var/log/pg_error.log
+
+renderer:
+  base: WeBWorK::PG::Local
+
+  # Default display mode for Mathematics
+  displayMode: MathJax
+
+  # The following handles the display mode options for images
+  displayModeOptions:
+    images:
+    # Determines the method used to align images in output. Can be
+    # "baseline", "absmiddle", or "mysql".
+      dvipng_align: mysql
+
+    # If mysql is chosen, this information indicates which database contains the
+    # 'depths' table. Since 2.3.0, the depths table is kept in the main webwork
+    # database. (If you are upgrading from an earlier version of webwork, and
+    # used the mysql method in the past, you should move your existing 'depths'
+    # table to the main database.)
+
+    # Note: need to handle this in PGEnvironment
+      dvipng_depth_db:
+        dbsource: $database_dsn,
+        user: $database_username,
+        passwd: $database_password,
+
+  # The default grader to use, if a problem doesn't specify.
+  grader: avg_problem_grader
+
+  # Fill in answer blanks with the student's last answer by default?
+  showOldAnswers: true
+
+  # Default for showing the MathView preview system.  To completely disable MathView you need to change the PG special environment variable.
+  useMathView: true
+
+  # This is the operations file to use for mathview,  each contains a different locale.
+  mathViewLocale: "mv_locale_us.js"
+
+  # Default for showing the WirisEditor preview system.  To completely disable WirisEditor you need to change the PG special environment variable.
+  useWirisEditor: true
+
+  # Default for showing the MathQuill preview system.  To completely disable MathQuill you need to change the PG special environment variable.
+  useMathQuill: true
+
+  # Show correct answers (when allowed) by default?
+  showCorrectAnswers: false  # this is a backup value use when nothing else has been set. I can think of no case where it should anything but zero.
+
+  # Customize hints and solutions
+  # Show hints (when allowed) by default?
+  showHints: false  # this is a backup value use when nothing else has been set. I can think of no case where it should anything but zero.
+
+  # Show solutions (when allowed) by default?
+  showSolutions: false  # this is a backup value use when nothing else has been set. I can think of no case where it should anything but zero.
+  showAnsGroupInfo: false
+  showAnsHashInfo: false
+  showPGInfo: false
+
+  # By default hints and solutions are ALWAYS shown for professors (and above) so that they
+  # can check hints and solutions easily and make corrections.
+  # To disable this feature set the permission levels
+  # always_show_hint to "nobody" (by default this is "professor")
+  # and always_show_solution to "nobody" (by default this is "professor")
+  # This is done in the %permissions section above.
+
+  # If always_show_hint is set to "nobody" then hints are shown, even to professors, only after
+  # a certain number of submissions have occurred.  This number is set in each problem with
+  # the variable $main::showHints
+
+
+  # Use knowls for hints
+  use_knowls_for_hints: true
+
+  # Use knowls for solutions
+  use_knowls_for_solutions: true
+
+  # The buttons below are active only if knowls are being used. If set to 1 then the hints (and solutions)
+  # checkboxes are shown and when these are checked and the problem resubmitted THEN the knowls outline
+  # appears.  I can't immediately think of a useful case where these should be set to 1.  If knowls are not being
+  # used then these checkboxes are ALWAYS shown when a hint or solution is available and the value
+  # of these two options is ignored.
+
+  # Show solution checkbox
+  show_solution_checkbox: false
+
+  # Show hint checkbox
+  show_hint_checkbox: false
+
+  # Display the "Entered" column which automatically shows the evaluated student answer, e.g. 1 if student input is sin(pi/2).
+  # If this is set to 0, e.g. to save space in the response area, the student can still see their evaluated answer by hovering
+  # the mouse pointer over the typeset version of their answer
+  showEvaluatedAnswers: true
+
+  # Catch translation warnings internally by default? (We no longer need to do
+  # this, since there is a global warnings handler. So this should be off.)
+  catchWarnings: false
+
+  # decorations for correct input blanks -- apparently you can't define and name attribute collections in a .css file
+  correct_answer: "{border-width:2;border-style:solid;border-color:#8F8}" #matches resultsWithOutError class in math2.css
+
+  # decorations for incorrect input blanks
+  incorrect_answer: "{border-width:2;border-style:solid;border-color:#F55}" #matches resultsWithError class in math2.css
+
+site:
+  timezone: America/New_York
+  locale: ''
+
+#  PG answer evaluation defaults:
+ansEvalDefaults:
+  functAbsTolDefault: .001
+  functLLimitDefault: .0000001
+  functMaxConstantOfIntegration: 1E8
+  functNumOfPoints: 3
+  functRelPercentTolDefault: .1
+  functULimitDefault: .9999999
+  functVarDefault: "x"
+  functZeroLevelDefault: 1E-14
+  functZeroLevelTolDefault: 1E-12
+  numAbsTolDefault: .001
+  numFormatDefault: ""
+  numRelPercentTolDefault: .1
+  numZeroLevelDefault: 1E-14
+  numZeroLevelTolDefault: 1E-12
+  useBaseTenLog: 0
+  defaultDisplayMatrixStyle: "[s]"  # left delimiter, middle line delimiters, right delimiter
+  enableReducedScoring: 0
+  reducedScoringPeriod: 0 # Default length of Reduced Scoring Period in minutes
+  reducedScoringValue: .75 # Percent of score students receive in Reduced Scoring Period
+  timeAssignDue: "11:59pm"
+  assignOpenPriorToDue: 14400 # a number of minutes (default is 10 days)
+  answersOpenAfterDueDate: 2880 # number of minutes (default is 2 days)
+
+
+##### "Special" PG environment variables. (Stuff that doesn't fit in anywhere else.)
+
+# Users for whom to print the file name of the PG file being processed.
+env_vars:
+  PRINT_FILE_NAMES_FOR: ["professor"]
+
+  # whether to use javascript for rendering Live3D graphs
+  use_javascript_for_live3d: true
+
+  # Binary that the PGtikz.pl macro will use to create svg images.
+  # This should be either 'pdf2svg' or 'dvipdfm'.
+  tikzSVGMethod: "pdf2svg"
+
+  # When ImageMagick is used for image conversions, this sets the default options.
+  # See https://imagemagick.org/script/convert.php for a full list of options.
+  # convert will be called as:
+  # convert <input options> file.ext1 <output options> file.ext2
+  tikzConvertOptions:
+    input:
+      density: 300
+      output:
+        quality: 100
+
+  # The link Contrib in the course templates directory should point to ../webwork-open-problem-library/Contrib
+  # The link webwork2/htdocs/CAPA_Graphics should point to ../webwork-open-problem-library/Contrib/CAPA/macros/CAPA_graphics
+  # Size in pixels of dynamically-generated images, i.e. graphs.
+  onTheFlyImageSize: 400
+
+  #  set the flags immediately above in the $pg{options} section above -- not here.
+
+
+  # To disable the Parser-based versions of num_cmp and fun_cmp, and use the
+  # original versions instead, set this value to 1.
+  useOldAnswerMacros: false
+
+
+  # Determines whether or not MathObjects contexts will parse the alternative tokens
+  # listed in the "alternatives" property (mostly for unicode alternatives for parse tokens).
+  parseAlternatives: false
+
+
+  # Determines whether or not the MathObjects parser will convert the Full Width Unicode block
+  # (U+FF01 to U+FF5E) to their corresponding ASCII characters (U+0021 to U+007E) automatically.
+  convertFullWidthCharacters: false
+
+  # Strings to insert at the start and end of the body of a problem
+  #  (at beginproblem() and ENDDOCUMENT) in various modes.  More display modes
+  #  can be added if different behaviours are desired (e.g., HTML_dpng,
+  #  HTML_asciimath, etc.).  These parts are not used in the Library browser.
+
+  problemPreamble:
+    TeX: ''
+    HTML: ''
+
+  problemPostamble:
+    TeX: ''
+    HTML: ''
+
+
+# This belongs on the WeBWorK side.
+
+modules:
+  ################################################################################
+  # showMeAnother
+  ################################################################################
+  showMeAnother:
+  # Switch to enable showMeAnother button.
+    enable: false
+  # Default number of attempts before enabling show me another.
+    #showMeAnotherDefault: -1
+    numAttempts: -1
+  # Maximum number of times (per problem) the button can be used.
+    #showMeAnotherMaxReps: 3
+    maxReps: 3
+  # Maximum number of attempts to check if changing the problem seed changes the problem.
+  # showMeAnotherGeneratesDifferentProblem: 5
+    generateDifferentProblem: 5
+  # showMeAnother options
+    options:
+      - "SMAcheckAnswers"
+      - "SMAshowSolutions"
+      - "SMAshowCorrect"
+      - "SMAshowHints"
+
+
+  ###############################################################################
+  # periodicRandomization
+  ################################################################################
+  # switch to enable periodic re-randomization
+  enablePeriodicRandomization: false
+  # Course-wide default period for re-randomization, should be an integer.
+  # The value of 0 disables re-randomization
+  periodicRandomizationPeriod: 5
+  # Show the correct answer after a student's last attempt at the current version
+  # and before a new version is requested.
+  showCorrectOnRandomize: 0
+
+
+##### PG modules to load
+
+# The first item of each list is the module to load. The remaining items are
+# additional packages to import.
+#
+# That is: If you wish to include a module MyModule.pm which depends
+# on additional modules Dependency1.pm and Dependency2.pm, these
+# should appear as ['Mymodule.pm, Dependency1.pm, Dependency2.pm)]
+
+perl_modules:
+  - ['Encode']
+  - ['Encode::Encoding']
+  - ['HTML::Parser']
+  - ['HTML::Entities']
+  - ['DynaLoader']
+  - ['Encode']
+  - ['Exporter']
+  - ['GD']
+  - ['AlgParser', 'AlgParserWithImplicitExpand', 'Expr', 'ExprWithImplicitExpand', 'utf8']
+  - ['AnswerHash', 'AnswerEvaluator']
+  - ['TikZImage']
+  - ['WWPlot'] # required by Circle (and others)
+  - ['Circle']
+  - ['Class::Accessor']
+  - ['Complex']
+  - ['Complex1']
+  - ['Distributions']
+  - ['Fraction']
+  - ['Fun']
+  - ['Hermite']
+  - ['Label']
+  - ['ChoiceList']
+  - ['Match']
+  - ['MatrixReal1'] # required by Matrix
+  - ['Matrix']
+  - ['Multiple']
+  - ['PGrandom']
+  - ['Regression']
+  - ['Select']
+  - ['Units']
+  - ['VectorField']
+  - ['Parser', 'Value']
+  - ['Parser::Legacy']
+  - ['Statistics']
+  #	['SaveFile']
+  - ['Chromatic'] # for Northern Arizona graph problems
+                    #  -- follow instructions at libraries/nau_problib/lib/README to install
+  - ['Applet', 'GeogebraWebApplet'] # FlashApplet JavaApplet CanvasApplet
+  - ['PGcore', 'PGalias', 'PGresource', 'PGloadfiles', 'PGanswergroup', 'PGresponsegroup', 'Tie::IxHash']
+  - ['Locale::Maketext']
+  # - ['WeBWorK::Localize']
+  - ['JSON']
+  - ['Rserve', 'Class::Tiny', 'IO::Handle']
+  - ['DragNDrop']
+
+# These are options used for TeX
+
+hardcopy:
+  PreserveTempFiles: false
+
+  ImageGenerator:
+   DvipngArgs: "-bgTransparent -D120 -q -depth"
+   PreserveTempFiles: false
+
+   TexPreamble: >
+    \documentclass[12pt]{article}
+    \nonstopmode
+    \usepackage{amsmath,amsfonts,amssymb}
+    \def\gt{>}
+    \def\lt{<}
+    \usepackage[active,textmath,displaymath]{preview}
+    \begin{document}
+
+  TexPostamble: >
+    \end{document}
+
+# Permissions
+
+userRoles:
+  guest: -5
+  student: 0
+  login_proctor: 2
+  grade_proctor: 3
+  ta: 5
+  professor: 10
+  admin: 20
+  nobody: 99999999 # insure that nobody comes at the end
+
+# this hash maps operations to the roles that are allowed to perform those
+# operations. the role listed and any role with a higher permission level (in
+# the %userRoles hash) will be allowed to perform the operation. If the role
+# is undefined, no users will be allowed to perform the operation.
+#
+
+permissionLevels:
+  login: guest
+  report_bugs: ta
+  submit_feedback: student
+  change_password: student
+  change_email_address: student
+
+  proctor_quiz_login: login_proctor
+  proctor_quiz_grade: grade_proctor
+  view_proctored_tests: student
+  view_hidden_work: ta
+
+  view_multiple_sets: ta
+  view_unopened_sets: ta
+  view_hidden_sets: ta
+  view_answers: ta
+  view_ip_restricted_sets: ta
+
+  become_student: professor
+  access_instructor_tools: ta
+  score_sets: professor
+  send_mail: professor
+  receive_feedback: ta
+
+  create_and_delete_problem_sets: professor
+  assign_problem_sets: professor
+  modify_problem_sets: professor
+  modify_student_data: professor
+  modify_classlist_files: professor
+  modify_set_def_files: professor
+  modify_scoring_files: professor
+  modify_problem_template_files: professor
+  manage_course_files: professor
+  edit_achievements: professor
+  create_and_delete_courses: professor
+  fix_course_databases: professor
+  modify_tags: admin
+  edit_restricted_files: admin
+
+  ##### Behavior of the interactive problem processor #####
+  show_resource_info: admin
+  show_correct_answers_before_answer_date: ta
+  show_solutions_before_answer_date: ta
+  avoid_recording_answers:  "nobody" # record the grade/status/state of everyone's entries.
+                                                                # Setting this to ta would record grade/status/state
+                                                                # for students but not TA's or professors;
+                                                                # TA's and above could avoid having their answers recorded.
+
+        # controls if old answers can be shown
+  can_show_old_answers: student
+  check_answers_before_open_date: ta
+  check_answers_after_open_date_with_attempts: guest
+  check_answers_after_open_date_without_attempts: guest
+  check_answers_after_due_date: guest
+  check_answers_after_answer_date: guest
+  can_check_and_submit_answers: ta
+  can_use_show_me_another_early: ta
+  create_new_set_version_when_acting_as_student: ''
+  print_path_to_problem: professor # see "Special" PG environment variables
+  always_show_hint: professor # see "Special" PG environment variables
+  always_show_solution: professor  # see "Special" PG environment variables
+  record_set_version_answers_when_acting_as_student: ''
+  record_answers_when_acting_as_student: ''
+  # "record_answers_when_acting_as_student" takes precedence
+  # over the following for professors acting as students:
+  record_answers_before_open_date: ''
+  record_answers_after_open_date_with_attempts: student
+  record_answers_after_open_date_without_attempts: ''
+  record_answers_after_due_date: ''
+  record_answers_after_answer_date: ''
+  dont_log_past_answers: ''
+                                                  # controls logging of the responses to a question
+                                                  # in the past answer data base
+                                                  # and in the myCourse/logs/answer_log file.
+                                                  # Activities of users with this permission enabled are not entered
+                                                  # in these logs.  This might be used when collecting student data
+                                                  # to avoid contaminating the data with TA and instructor activities.
+                                                  # The professor setting means that  professor's answers are not logged or
+                                                  # saved in the past answer database.
+  view_problem_debugging_info: ta
+  show_pg_info_checkbox: admin
+  show_answer_hash_info_checkbox: admin
+  show_answer_group_info_checkbox: admin
+  ##### Behavior of the Hardcopy Processor #####
+
+  download_hardcopy_multiuser: ta
+  download_hardcopy_multiset: ta
+  download_hardcopy_view_errors: professor
+  download_hardcopy_format_pdf: guest
+  download_hardcopy_format_tex: ta
+  download_hardcopy_change_theme: ta
