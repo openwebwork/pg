@@ -165,27 +165,22 @@ window.answerQuills = {};
 		answerQuill.mathField.moveToLeftEnd();
 		answerQuill.mathField.blur();
 
-		// Give the mathquill answer box the correct/incorrect colors.
-		setTimeout(() => {
-			if (answerQuill.input.hasClass('correct')) answerQuill.addClass('correct');
-			else if (answerQuill.input.hasClass('incorrect')) answerQuill.addClass('incorrect');
-		}, 300);
+		// Look for a result in the attempts table for this answer.
+		document.querySelectorAll(`td a[data-answer-id]`).forEach((tableLink) => {
+			// Give the mathquill answer box the correct/incorrect colors.
+			if (answerLabel.includes(tableLink.dataset.answerId)) {
+				if (tableLink.parentNode.classList.contains('ResultsWithoutError')) answerQuill.addClass('correct');
+				else answerQuill.addClass('incorrect');
+			}
 
-		// Replace the result table correct/incorrect javascript that gives focus
-		// to the original input, with javascript that gives focus to the mathquill
-		// answer box.
-		const resultsTableRows = $('table.attemptResults tr:not(:first-child)');
-		if (resultsTableRows.length) {
-			resultsTableRows.each(function() {
-				const result = $(this).find('td > a');
-				const href = result.attr('href');
-				if (result.length && href !== undefined && href.indexOf(answerLabel) != -1) {
-					// Set focus to the mathquill answer box if the correct/incorrect link is clicked.
-					result.attr('href',
-						"javascript:void(window.answerQuills['" + answerLabel + "'].textarea.focus())");
-				}
-			});
-		}
+			// Make a click on the results table link give focus to the mathquill answer box.
+			if (answerLabel === tableLink.dataset.answerId) {
+				tableLink.addEventListener('click', (e) => {
+					e.preventDefault();
+					answerQuill.textarea.focus();
+				});
+			}
+		});
 
 		window.answerQuills[answerLabel] = answerQuill;
 	};
