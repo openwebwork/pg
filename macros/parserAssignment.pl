@@ -357,6 +357,7 @@ sub new {
 sub typeMatch {
   my $self = shift; my $other = shift; my $ans = shift;
   return 0 unless $self->type eq $other->type;
+  $other = $other->Package("Formula")->new($self->context,$other) unless $other->isFormula;
   my $typeMatch = $self->getTypicalValue($self)->{data}[1];
   $other = $self->getTypicalValue($other,1)->{data}[1];
   return 1 unless defined($other); # can't really tell, so don't report type mismatch
