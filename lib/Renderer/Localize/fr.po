@@ -1,0 +1,3739 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2021-03-10 21:15-0600\n"
+"Last-Translator: Geoff Goehle <goehle@gmail.com>\n"
+"Language-Team: WeBWorK language team <gage@math.rochester.edu>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Erreur: ce fichier existe déjà dans le dossier temporaire -- aucun nouveau "
+"fichier n'a été créé. Chemin = %1\n"
+"X-Generator: Poedit 1.6.10\n"
+
+#
+#. (wwRound(0, $answerScore * 100)
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:285
+msgid "%1% correct"
+msgstr ""
+
+#
+#. ($numBlanks)
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:434
+msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1278
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1287
+msgid ""
+"(Instructor hint preview: show the student hint after the following number "
+"of attempts:"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:130
+msgid ""
+"A table showing all the current users along with several fields of user "
+"information. The fields from left to right are: Login Name, Login Status, "
+"Assigned Sets, First Name, Last Name, Email Address, Student ID, Enrollment "
+"Status, Section, Recitation, Comments, and Permission Level.  Clicking on "
+"the links in the column headers will sort the table by the field it "
+"corresponds to. The Login Name fields contain checkboxes for selecting the "
+"user.  Clicking the link of the name itself will allow you to act as the "
+"selected user.  There will also be an image link following the name which "
+"will take you to a page where you can edit the selected user's information.  "
+"Clicking the emails will allow you to email the corresponding user.  "
+"Clicking the links in the entries in the assigned sets columns will take you "
+"to a page where you can view and reassign the sets for the selected user."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:422
+msgid "All of the answers above are correct."
+msgstr ""
+
+#
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:419
+msgid "All of the gradeable answers above are correct."
+msgstr ""
+
+#
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:317
+msgid "Answer Preview"
+msgstr "Aperçu des réponses"
+
+#
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:426
+msgid "At least one of the answers above is NOT correct."
+msgstr ""
+
+#
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Audit"
+msgstr ""
+
+#
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:293
+msgid "Check Answers"
+msgstr "Vérifier les réponses"
+
+#
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:319
+msgid "Correct Answer"
+msgstr ""
+
+#
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Drop"
+msgstr ""
+
+#
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Enrolled"
+msgstr "Inscrit"
+
+#
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:316
+msgid "Entered"
+msgstr "Saisi"
+
+#
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:270
+msgid "FeedbackMessage"
+msgstr ""
+
+#
+#: /opt/webwork/pg/macros/problemRandomize.pl:185
+#: /opt/webwork/pg/macros/problemRandomize.pl:186
+msgid "Get a new version of this problem"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:470
+msgid "Go back to Part 1"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:291
+#: /opt/webwork/pg/macros/compoundProblem.pl:480
+#: /opt/webwork/pg/macros/compoundProblem.pl:491
+msgid "Go on to next part"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:409
+msgid "Hardcopy will always print the original version of the problem."
+msgstr ""
+
+#
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1560
+msgid "Hint:"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1560
+msgid "Hint: "
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:116
+msgid ""
+"If you check %1 your login information will be remembered by the browser you "
+"are using, allowing you to visit WeBWorK pages without typing your user name "
+"and password (until your session expires). This feature is not safe for "
+"public workstations, untrusted machines, and machines over which you do not "
+"have direct control."
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:408
+msgid "If you come back to it later, it may revert to its original version."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1228
+msgid "Instructor solution preview: show the student solution after due date."
+msgstr ""
+
+# vérifier le contexte ...msgstr "tr: Match on what? (separate multiple IDs with commas)"
+#
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:320
+msgid "Message"
+msgstr ""
+
+#
+#: /opt/webwork/pg/macros/problemRandomize.pl:382
+#: /opt/webwork/pg/macros/problemRandomize.pl:407
+msgid "Note:"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:134
+msgid "One Column"
+msgstr ""
+
+#
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:289
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:288
+msgid "Preview My Answers"
+msgstr ""
+
+#
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Proctor"
+msgstr ""
+
+#
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:318
+msgid "Result"
+msgstr "Résultat"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:331
+msgid "Results for this submission"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:187
+msgid "Set random seed to:"
+msgstr ""
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:297
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:289
+msgid "Show Correct Answers"
+msgstr ""
+
+# avant: msgstr "tr: Drop"
+#
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1556
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1557
+msgid "Solution:"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1555
+msgid "Solution: "
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:410
+msgid "Some answers will be graded later."
+msgstr ""
+
+# avant: msgstr "ID de l'étudiant"
+#
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:290
+msgid "Submit Answers"
+msgstr "Soumettre les réponses"
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:502
+msgid "Submit your answers again to go on to the next part."
+msgstr ""
+
+#
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:413
+msgid "The answer above is NOT correct."
+msgstr ""
+
+#
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:408
+msgid "The answer above is correct."
+msgstr "La réponse ci-dessus est correcte."
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:126
+msgid ""
+"The course %1 uses an external authentication system (%2). You've "
+"authenticated through that system, but aren't allowed to log in to this "
+"course."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:124
+msgid ""
+"This course supports guest logins. Click %1 to log into this course as a "
+"guest."
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:407
+msgid "This is a new (re-randomized) version of the problem."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:128
+msgid ""
+"This is a table showing the current Homework sets for this class.  The "
+"fields from left to right are: Edit Set Data, Edit Problems, Edit Assigned "
+"Users, Visibility to students, Reduced Credit Enabled, Date it was opened, "
+"Date it is due, and the Date during which the answers are posted.  The Edit "
+"Set Data field contains checkboxes for selection and a link to the set data "
+"editing page.  The cells in the Edit Problems fields contain links which "
+"take you to a page where you can edit the containing problems, and the cells "
+"in the edit assigned users field contains links which take you to a page "
+"where you can edit what students the set is assigned to."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:122
+msgid ""
+"This is the Achievement Editor.  It is used to edit the achievements "
+"available to students.  Please keep in mind the following facts: Achievments "
+"are displayed, and evaluated, in the order they are listed. The \"secret\" "
+"category creates achievements which are not visible to students until they "
+"are earned.  The \"level\" category is used for the achievements associated "
+"to a users level."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:120
+msgid ""
+"This is the classlist editor page, where you can view and edit the records "
+"of all the students currently enrolled in this course.  The top of the page "
+"contains forms which allow you to filter which students to view, sort your "
+"students in a chosen order, edit student records, give new passwords to "
+"students, import/export student records from/to external files, or add/"
+"delete students.  To use, please select the action you would like to "
+"perform, enter in the relevant information in the fields below, and hit the "
+"\"Take Action!\" button at the bottom of the form.  The bottom of the page "
+"contains a table containing the student usernames and their information."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:118
+msgid ""
+"This is the homework sets editor page where you can view and edit the "
+"homework sets that exist in this course and the problems that they contain. "
+"The top of the page contains forms which allow you to filter which sets to "
+"display in the table, sort the sets in a chosen order, edit homework sets, "
+"publish homework sets, import/export sets from/to an external file, score "
+"sets, or create/delete sets.  To use, please select the action you would "
+"like to perform, enter in the relevant information in the fields below, and "
+"hit the \"Take Action!\" button at the bottom of the form.  The bottom of "
+"the page contains a table displaying the sets and several pieces of relevant "
+"information."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:132
+msgid ""
+"This is the past answer viewer.  Students can only see their answers, and "
+"they will not be able to see which parts are correct.  Instructors can view "
+"any users answers using the form below and the answers will be colored "
+"according to correctness."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:3116
+msgid "This problem contains a video which must be viewed online."
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:602
+msgid "This problem has more than one part."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:136
+msgid "Two Columns"
+msgstr ""
+
+# /home/francois/ExtractStrings/lib/WeBWorK/ContentGenerator/Problem.pm
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:279
+msgid "Ungraded"
+msgstr "Mise à jour réussie"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:114
+msgid ""
+"WeBWorK has encountered a software error while attempting to process this "
+"problem. It is likely that there is an error in the problem itself. If you "
+"are a student, report this error message to your professor to have it "
+"corrected. If you are a professor, please consult the error output below for "
+"more information."
+msgstr ""
+
+#
+#: /opt/webwork/pg/macros/PGanswermacros.pl:1693
+msgid "You can earn partial credit on this problem."
+msgstr "Vous pouvez obtenir une partie des points pour ce problème."
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:383
+msgid "You can get a new version of this problem after the due date."
+msgstr ""
+
+#
+#: /opt/webwork/pg/macros/compoundProblem.pl:610
+msgid "You may not change your answers when going on to the next part!"
+msgstr ""
+
+# avant: msgstr "Spécifier le code d'usager."  pour cohérence
+#
+#. (wwRound(0, $problemResult->{score} * 100)
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:265
+msgid "You received a score of %1 for this attempt."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:3111
+msgid "Your browser does not support the video tag."
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:603
+msgid "Your score for this attempt is for this part only;"
+msgstr ""
+
+#. (wwRound(0, $problemResult->{score} * 100)
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:225
+msgid "Your score on this attempt is %1"
+msgstr ""
+
+#
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:268
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:227
+msgid "Your score was not recorded."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "admin"
+msgstr ""
+
+#
+# vérifier le contexte: Je vois "answers due" et "answer available", mais pas answer date
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:647
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:658
+msgid "answer"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:671
+msgid "column"
+msgstr ""
+
+#
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:276
+msgid "correct"
+msgstr "correct"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "grade_proctor"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "guest"
+msgstr ""
+
+#. ('j','k','_0')
+#. ('j','k')
+#: /opt/webwork/pg/lib/Parser/List/Vector.pm:35
+#: /opt/webwork/pg/lib/Value/Vector.pm:278
+#: /opt/webwork/pg/macros/contextLimitedVector.pl:94
+msgid "i"
+msgstr ""
+
+#: /opt/webwork/pg/macros/contextPiecewiseFunction.pl:774
+msgid "if"
+msgstr ""
+
+#
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:283
+msgid "incorrect"
+msgstr "erroné"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "login_proctor"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "nobody"
+msgstr ""
+
+#: /opt/webwork/pg/macros/contextPiecewiseFunction.pl:777
+msgid "otherwise"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:664
+msgid "part"
+msgstr ""
+
+#
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:653
+msgid "problem"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "professor"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:670
+msgid "row"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "student"
+msgstr "étudiant"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "ta"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:470
+#: /opt/webwork/pg/macros/compoundProblem.pl:480
+msgid "when you submit your answers"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:604
+msgid "your overall score is for all the parts combined."
+msgstr ""
+
+#
+#, fuzzy
+#~ msgid ""
+#~ "%1 users replaced, %2 users added, %3 users skipped. Skipped users: (%4)"
+#~ msgstr ""
+#~ "%1 usagers remplacés, %2 usagers ajoutés, %3 usagers ignorés. Usagés "
+#~ "ignorés : (%4)"
+
+#
+#~ msgid "%1: Problem %2"
+#~ msgstr "%1: Problème %2."
+
+#~ msgid "(Any unsaved changes will be lost.)"
+#~ msgstr "(Les modification non sauvegardées seront perdus)"
+
+#
+#~ msgid "(This problem will not count towards your grade.)"
+#~ msgstr "(Ce problème ne sera pas noté.)"
+
+#, fuzzy
+#~ msgid ""
+#~ "<p>After the Reduced Scoring Date all additional work done by the student "
+#~ "counts at a reduced rate. Here is where you set the reduced rate which "
+#~ "must be a percentage. For example if this value is 50% and a student "
+#~ "views a problem during the Reduced Scoring Period, they will see the "
+#~ "message \"You are in the Reduced Scoring Period: All additional work done "
+#~ "counts 50% of the original.\" </p><p>To use this, you also have to enable "
+#~ "Reduced Scoring and set the Reduced Scoring Date for individual "
+#~ "assignments by editing the set data using the Hmwk Sets Editor.</"
+#~ "p><p>This works with the avg_problem_grader (which is the the default "
+#~ "grader) and the std_problem_grader (the all or nothing grader). It will "
+#~ "work with custom graders if they are written appropriately.</p>"
+#~ msgstr ""
+#~ "<p> La durée du crédit réduit (officiellement appelé la période de "
+#~ "notation réduite) est une période antérieure à la date d'échéance au "
+#~ "cours de laquelle tout travail supplémentaire effectué par l'élève compte "
+#~ "à un taux réduit. C'est ici que vous définissez le taux réduit qui doit "
+#~ "être un nombre dans l'intervalle (0,1). 1 signifie aucune réduction. Par "
+#~ "exemple, si cette valeur est 0,5 et un étudiant regarde un problème au "
+#~ "cours de la période de crédit réduit, il verra le message \"Vous êtes "
+#~ "dans la période de crédit réduit: Tout travail supplémentaire effectué "
+#~ "compte pour 50% de l'original.\" </p><p> Pour l'utiliser, vous devez "
+#~ "également activer crédit réduit pour les travaux individuels en modifiant "
+#~ "le devoir à l'aide de Hmwk Sets Editor. </p><p> Cela fonctionne avec le "
+#~ "avg_problem_grader (notation par défaut) et le std_problem_grader "
+#~ "(notation tout ou rien). Il travaillera avec les élèves personnalisées si "
+#~ "elles sont écrites de façon appropriée. </p>"
+
+#~ msgid ""
+#~ "<p>When viewing a problem, users may choose different methods of "
+#~ "rendering formulas via an options box in the left panel. Here, you can "
+#~ "adjust what display modes are listed.</p><p>Some display modes require "
+#~ "other software to be installed on the server. Be sure to check that all "
+#~ "display modes selected here work from your server.</p><p>The display "
+#~ "modes are <ul><li> plainText: shows the raw LaTeX srings for formulas."
+#~ "<li> images: produces images using the external programs LaTeX and dvipng."
+#~ "<li> MathJax: a successor to jsMath, uses javascript to place render "
+#~ "mathematics.</ul></p></p>You must use at least one display mode. If you "
+#~ "select only one, then the options box will not give a choice of modes "
+#~ "(since there will only be one active).</p>"
+#~ msgstr ""
+#~ "<p>Lorsque vous regardez un problème, les utilisateurs peuvent choisir "
+#~ "différentes méthodes de rendu de formules via une boîte d'options dans le "
+#~ "panneau de gauche. Ici, vous pouvez ajuster quels modes d'affichage sont "
+#~ "énumérées. </ p><p> Certains modes d'affichage nécessitent qu'un autre "
+#~ "logiciel doit être installé sur le serveur. N'oubliez pas de vérifier que "
+#~ "tous les modes d'affichage sélectionnés ici fonctionnent à partir de "
+#~ "votre serveur. </p><p> Les modes d'affichage sont <ul><li> plainText: "
+#~ "montre les chaînes des formules brutes LaTeX.<li>images : produit des "
+#~ "images en utilisant le programme externe LaTeX et dvipng.<li> MathJax: un "
+#~ "successeur à jsMath, utilise JavaScript pour faire un rendu mathématiques."
+#~ "</Ul></P></P>Vous devez utiliser au moins un mode d'affichage. Si vous en "
+#~ "sélectionnez un seule, la boîte d'options ne montrera aucun choix de "
+#~ "modes (car il n'y aura qu'un seul actif). </ p>"
+
+#
+#, fuzzy
+#~ msgid ""
+#~ "A new file has been created at '%1' with the contents below.  No changes "
+#~ "have been made to set %2"
+#~ msgstr ""
+#~ "Un nouveau fichier nommé '%1' a été créé avec le contenu ci-dessous. "
+#~ "Aucune modification n'a été appliquée au devoir %2."
+
+#
+#~ msgid "ANSWERS ONLY CHECKED -- ANSWERS NOT RECORDED"
+#~ msgstr ""
+#~ "LES RÉPONSES ONT ÉTÉ VÉRIFIÉES -- MAIS ELLES N'ONT PAS ÉTÉ ENREGISTRÉES"
+
+#
+# avant: msgstr "Abandonner les changements"
+#~ msgid "Abandon changes"
+#~ msgstr "Ne pas enregistrer les modifications"
+
+#
+#~ msgid "Abandon export"
+#~ msgstr "Annuler l'exportation"
+
+#~ msgid "Act as:"
+#~ msgstr "Est:"
+
+#
+#~ msgid "Active"
+#~ msgstr "Actif"
+
+#~ msgid ""
+#~ "Activiating this will enable Mathchievements for webwork.  "
+#~ "Mathchievements can be managed by using the Achievement Editor link."
+#~ msgstr ""
+#~ "Ceci est pour activer Mathchievements pour webwork. Mathchievements peut "
+#~ "être géré en utilisant le lien de l'éditeur d'objectifs."
+
+#
+#~ msgid "Add"
+#~ msgstr "Ajouter"
+
+#~ msgid "Add All"
+#~ msgstr "Ajouter tous"
+
+#
+#~ msgid "Add Users"
+#~ msgstr "Ajouter des usagers"
+
+#
+#~ msgid "Add which new users?"
+#~ msgstr "Ajouter quels nouveaux usagers?"
+
+#~ msgid "Added %1 to %2 as problem %3"
+#~ msgstr "Ajouté %1 à %2 en problème %3"
+
+#~ msgid "Additional addresses for receiving feedback e-mail."
+#~ msgstr "Autres adresses pour recevoir les commentaires par e-mail."
+
+#~ msgid "Advanced Search"
+#~ msgstr "Recherche avancée"
+
+#~ msgid "All students in course"
+#~ msgstr "Tous les étudiants dans le cours"
+
+#~ msgid "Allowed error, as a percentage, for numerical comparisons"
+#~ msgstr "Erreur permise, en pourcentage, pour les comparaisons numériques"
+
+#~ msgid "Allowed to <em>act as</em> another user"
+#~ msgstr "Autorisé à <em> agir comme </ em> un autre utilisateur"
+
+#~ msgid "Allowed to change their e-mail address"
+#~ msgstr "Autorisés à modifier leur adresse e-mail"
+
+#~ msgid "Allowed to change their password"
+#~ msgstr "Autorisés à changer leur mot de passe"
+
+#~ msgid "Allowed to login to the course"
+#~ msgstr "Autorisé à se connecter au cours"
+
+#~ msgid "Allowed to see solutions before the answer date"
+#~ msgstr ""
+#~ "Autorisés à voir les solutions avant la date de disponibilité des réponses"
+
+#~ msgid "Allowed to see the correct answers before the answer date"
+#~ msgstr ""
+#~ "Autorisé à voir les bonnes réponses avant la date de disponibilité des "
+#~ "réponses"
+
+#~ msgid "Allowed to view past answers"
+#~ msgstr "Autorisés à voir les anciennes réponses"
+
+#~ msgid "Allowed to view problems in sets which are not open yet"
+#~ msgstr ""
+#~ "Autorisés à voir des problèmes dans des devoirs qui ne sont pas encore "
+#~ "ouverts"
+
+#
+# vérifier le contexte: Je vois "answers due" et "answer available", mais pas answer date
+#~ msgid "Answer Date"
+#~ msgstr "Date de disponibilité des réponses"
+
+#
+#~ msgid "Answers Available"
+#~ msgstr "Réponses disponible"
+
+#~ msgid "Answers cannot be due until on or after the open date!"
+#~ msgstr "Les réponses ne peut pas être dues avant la date d'ouverture!"
+
+#
+#, fuzzy
+#~ msgid ""
+#~ "Any changes made below will be reflected in the achievement for ALL "
+#~ "students."
+#~ msgstr ""
+#~ "Les changements effectués ci-bas affecteront les devoirs de TOUS les "
+#~ "étudiants"
+
+#
+#~ msgid ""
+#~ "Any changes made below will be reflected in the set for ALL students."
+#~ msgstr ""
+#~ "Les changements effectués ci-bas affecteront les devoirs de TOUS les "
+#~ "étudiants"
+
+#~ msgid ""
+#~ "Any changes made below will be reflected in the set for ONLY the "
+#~ "student(s) listed above."
+#~ msgstr ""
+#~ "Les changements suivants vont être reflètés dans le devoir SEULEMENT pour "
+#~ "les étudiants dans la liste suivante."
+
+#
+#~ msgid "Assign this set to which users?"
+#~ msgstr "Assigner ce devoir à quels usagers?"
+
+#
+#~ msgid "Assigned Sets"
+#~ msgstr "Devoirs assignés"
+
+#
+#~ msgid "Assignment type"
+#~ msgstr "Type de devoir"
+
+#
+#~ msgid "Attempts"
+#~ msgstr "Essais"
+
+#
+#~ msgid "Author Info"
+#~ msgstr "À propos de l'auteur"
+
+#~ msgid "Automatic"
+#~ msgstr "Automatique"
+
+#~ msgid "Basic Search"
+#~ msgstr "Recherche de base"
+
+#~ msgid "Binary"
+#~ msgstr "Binaire"
+
+#~ msgid ""
+#~ "By default, feeback is sent to all users above who have permission to "
+#~ "receive feedback. Feedback is also sent to any addresses specified in "
+#~ "this blank. Separate email address entries by commas."
+#~ msgstr ""
+#~ "Par défaut, un feeback est envoyé à tous les utilisateurs ci-dessus qui "
+#~ "ont la permission de recevoir des commentaires. Un feedback est également "
+#~ "envoyé à toutes les adresses spécifiées dans ce vide. Séparer les "
+#~ "adresses e-mail par des virgules."
+
+#~ msgid "Can e-mail instructor"
+#~ msgstr "Peut envoyer des emails à un instructeur"
+
+#~ msgid "Can report bugs"
+#~ msgstr "Peut rapporter des bugs"
+
+#~ msgid "Can submit answers for a student"
+#~ msgstr "Peut soumettre les réponses pour un étudiant"
+
+#
+#~ msgid "Cancel Export"
+#~ msgstr "Annuler l'exportation"
+
+#
+#~ msgid "Cancel Password"
+#~ msgstr "Annuler le mot de passe"
+
+#
+#~ msgid "Change Email Address"
+#~ msgstr "Changer l'adresse courriel"
+
+#
+#~ msgid "Change Password"
+#~ msgstr "Changer le mot de passe"
+
+#
+#~ msgid "Changes abandoned"
+#~ msgstr "Les modifications n'ont pas été sauvegardées"
+
+#
+#~ msgid "Changes in this file have not yet been permanently saved."
+#~ msgstr "Les modifications dans ce fichier n'ont pas été sauvegardées."
+
+# msgstr "Les modifications ont été annulées"
+#
+#~ msgid "Changes saved"
+#~ msgstr "Les modifications ont été sauvegardées"
+
+#~ msgid "Chapter:"
+#~ msgstr "Chapitre:"
+
+#
+#~ msgid "Checking additional error messages"
+#~ msgstr "Vérification des messages d'erreur additionnels"
+
+#
+#~ msgid "Choose visibility of the sets to be affected"
+#~ msgstr "Choisir si les devoirs seront visibles ou non auprès des étudiants"
+
+# avant: msgstr "Modifier la visibilité des devoirs choisis."
+#
+#~ msgid "Choose which sets to be affected"
+#~ msgstr "Choisir les devoirs à modifier"
+
+#~ msgid "Class values"
+#~ msgstr "Valeur classe"
+
+#
+#~ msgid "Classlist Editor"
+#~ msgstr "Liste d'usagers"
+
+#
+#~ msgid "Clear"
+#~ msgstr "Effacer"
+
+#~ msgid "Clear Problem Display"
+#~ msgstr "Effacer l'affichage du problème"
+
+#
+#~ msgid ""
+#~ "Click on the login name to edit individual problem set data, (e.g. due "
+#~ "dates) for these students."
+#~ msgstr ""
+#~ "Cliquer sur le nom d'usager pour éditer les devoirs individuellement (par "
+#~ "ex. la date de remise) pour ces étudiants"
+
+#
+# vérifier contexte (commentaire ou commenter)
+#~ msgid "Comment"
+#~ msgstr "Commenter"
+
+#
+#~ msgid "Continue"
+#~ msgstr "Continuer"
+
+#~ msgid "Copy"
+#~ msgstr "Copier"
+
+#~ msgid "Copy file as:"
+#~ msgstr "Copier le fichier vers\t:"
+
+#
+#~ msgid "Correct"
+#~ msgstr "Correct"
+
+#
+#~ msgid "Correct answers"
+#~ msgstr "Bonnes réponses"
+
+#, fuzzy
+#~ msgid ""
+#~ "Could not add %1 problems to this set.  The number must be between 1 and "
+#~ "%2"
+#~ msgstr ""
+#~ "Impossible d'ajouter %1 problèmes à ce devoir. Le nombre doit être entre "
+#~ "1 et %2"
+
+#
+#~ msgid "Course Administration"
+#~ msgstr "Administration du cours"
+
+#
+#~ msgid "Course Configuration"
+#~ msgstr "Configuration du cours"
+
+#
+#~ msgid "Course Info"
+#~ msgstr "Informations sur le cours"
+
+#
+#~ msgid "Courses"
+#~ msgstr "Cours"
+
+#
+#~ msgid "Create"
+#~ msgstr "Créer"
+
+#~ msgid "Create a New Set in This Course:"
+#~ msgstr "Créer un nouveau devoir dans ce cours"
+
+#
+#~ msgid "Create as what type of set?"
+#~ msgstr "Créer en tant que quel type de devoir?"
+
+#~ msgid "Data"
+#~ msgstr "Données"
+
+#, fuzzy
+#~ msgid ""
+#~ "Default Amount of Time (in minutes) after Due Date that Answers are Open"
+#~ msgstr ""
+#~ "Laps de temps (en minutes) après la date d'échéance que les réponses sont "
+#~ "ouvertes"
+
+#, fuzzy
+#~ msgid ""
+#~ "Default Amount of Time (in minutes) before Due Date that the Assignment "
+#~ "is Open"
+#~ msgstr ""
+#~ "Laps de temps (en minutes) avant la date d'échéance que le devoir est "
+#~ "ouvert"
+
+#
+#~ msgid "Delete"
+#~ msgstr "Supprimer"
+
+#
+#~ msgid "Delete how many?"
+#~ msgstr "En supprimer combien?"
+
+#~ msgid "Delete it?"
+#~ msgstr "Supprimer?"
+
+#, fuzzy
+#~ msgid ""
+#~ "Deletion deletes all location data and related addresses, and is not "
+#~ "undoable!"
+#~ msgstr ""
+#~ "La suppression détruit toutes les données liées au devoir et n'est pas "
+#~ "annulable!"
+
+#~ msgid "Display Mode:"
+#~ msgstr "Mode d'affichage:"
+
+#~ msgid "Display the evaluated student answer"
+#~ msgstr "Afficher la réponse évalué de l'élève"
+
+# FileManager.pm
+#~ msgid "Download"
+#~ msgstr "Télécharger"
+
+#
+#~ msgid "Download PDF or TeX Hardcopy for Current Set"
+#~ msgstr "Télécharger une copie PDF ou TeX pour le devoir en cours"
+
+#
+#~ msgid "Duplicate this set and name it"
+#~ msgstr "Copier ce devoir et le renommer"
+
+#~ msgid ""
+#~ "During summer 2005, a newer version of the answer checkers was "
+#~ "implemented for answers which are functions and numbers.  The newer "
+#~ "checkers allow more functions in student answers, and behave better in "
+#~ "certain cases.  Some problems are specifically coded to use new (or old) "
+#~ "answer checkers.  However, for the bulk of the problems, you can choose "
+#~ "what the default will be here.  <p>Choosing <i>false</i> here means that "
+#~ "the newer answer checkers will be used by default, and choosing <i>true</"
+#~ "i> means that the old answer checkers will be used by default."
+#~ msgstr ""
+#~ "Au cours de l'été 2005, une nouvelle version du vérificateur de réponse a "
+#~ "été mis en oeuvre pour obtenir des réponses qui sont des fonctions et des "
+#~ "chiffres. Le vérificateur les plus récents permet plus de fonctions dans "
+#~ "les réponses des élèves, et se comportent mieux dans certains cas. "
+#~ "Certains problèmes sont spécifiquement codés à utiliser le nouveau (ou "
+#~ "ancien) vérificateur de réponses. Cependant, pour la majeure partie des "
+#~ "problèmes, vous pouvez choisir ce que la valeur par défaut sera ici. <p> "
+#~ "Choisir <i>false</i> ici signifie que le nouveau vérificateur de réponses "
+#~ "sera utilisées par défaut, et en choisissant <i>true</i> signifie que "
+#~ "l'ancien vérivicateur de réponses sera utilisé par défaut."
+
+# avant: msgstr "Options. Les bonnes réponses et les solutions ne sont disponibles qu'après la date de remise."
+#
+#~ msgid "E-mail Instructor"
+#~ msgstr "Envoyer un courriel à l'enseignant"
+
+#~ msgid "E-mail addresses which can receive e-mail from a pg problem"
+#~ msgstr ""
+#~ "Adresses e-mail qui peuvent recevoir des e-mail à partir d'un problème pg"
+
+#~ msgid ""
+#~ "E-mail feedback from students automatically sent to this permission level "
+#~ "and higher:"
+#~ msgstr ""
+#~ "Feedback par e-mail des étudiants envoyés automatiquement à ce niveau "
+#~ "d'autorisation et supérieur:"
+
+#~ msgid "E-mail verbosity level"
+#~ msgstr "Niveau de verbose pour les emails"
+
+#
+#~ msgid "Edit"
+#~ msgstr "Editer"
+
+#
+#~ msgid "Edit Assigned Users"
+#~ msgstr "Éditer les usagers assignés"
+
+#
+#~ msgid "Edit Problems"
+#~ msgstr "Éditer les problèmes"
+
+#~ msgid "Edit Set"
+#~ msgstr "Modifier le devoir"
+
+#
+#~ msgid "Edit Set Data"
+#~ msgstr "Éditer les données des devoirs"
+
+#~ msgid "Edit Target Set"
+#~ msgstr "Modifier ce devoir"
+
+#
+#~ msgid "Edit which sets?"
+#~ msgstr "Éditer quels devoirs?"
+
+# avant: msgstr "Nom d'utilisateur" cohérence
+#
+#~ msgid "Email"
+#~ msgstr "Courriel"
+
+#
+#~ msgid "Email Address"
+#~ msgstr "Adresse courriel"
+
+#
+#~ msgid "Email instructor"
+#~ msgstr "Envoyer un courriel à l'enseignant"
+
+#
+#~ msgid "Enrollment Status"
+#~ msgstr "Statut d'inscription"
+
+# avant: msgstr "Statut d'étudiant"
+#
+#~ msgid "Enter filename below"
+#~ msgstr "Entrer le nom du fichier ci-bas"
+
+#
+#~ msgid "Enter filenames below"
+#~ msgstr "Entrer les noms de fichiers ci-bas"
+
+#, fuzzy
+#~ msgid ""
+#~ "Error getting old set-proctor password from the database: %1.  No update "
+#~ "to the password was done."
+#~ msgstr ""
+#~ "Erreur en obtenant l'ancien mot de passs set-proctor de la base de "
+#~ "données %1. La mise à jour du mot de passe n'a pas été effectué."
+
+#, fuzzy
+#~ msgid ""
+#~ "Error: Reduced scoring date must come between the open date and close "
+#~ "date in set %1"
+#~ msgstr ""
+#~ "Erreur: La date de remise doit venir après date d'ouverture du devoir 1%"
+
+#
+#~ msgid "Export"
+#~ msgstr "Exporter"
+
+#
+#~ msgid "Export to what kind of file?"
+#~ msgstr "Exporter sous quel type de fichier?"
+
+#
+#~ msgid "Export which users?"
+#~ msgstr "Exporter quels usagers?"
+
+#
+#~ msgid "Failed to create new set: no set name specified!"
+#~ msgstr "Impossible de créer le nouveau devoir : aucun nom n'a été spécifié!"
+
+#
+#, fuzzy
+#~ msgid ""
+#~ "Failed to duplicate achievement: no achievement selected for duplication!"
+#~ msgstr ""
+#~ "Impossible de dupliquer le devoir : aucun devoir n'a été sélectionné pour "
+#~ "la duplication!"
+
+#
+#~ msgid "Failed to duplicate set: no set name specified!"
+#~ msgstr "Impossible de dupliquer le devoir : aucun nom n'a été spécifié!"
+
+#
+#~ msgid "Failed to duplicate set: no set selected for duplication!"
+#~ msgstr ""
+#~ "Impossible de dupliquer le devoir : aucun devoir n'a été sélectionné pour "
+#~ "la duplication!"
+
+#
+#, fuzzy
+#~ msgid ""
+#~ "File '%1' exists. File not saved. No changes have been made.  You can "
+#~ "change the file path for this problem manually from the 'Hmwk Sets "
+#~ "Editor' page"
+#~ msgstr ""
+#~ "Le fichier '%1' existe déjà. Le fichier ne sera pas enregistré. Aucun "
+#~ "changement n'a été effectué. Il est possible de modifier manuellement le "
+#~ "chemin de ce fichier par le biais de l'éditeur de devoirs."
+
+#
+#~ msgid "File Manager"
+#~ msgstr "Gestionnaire de fichiers"
+
+#
+#~ msgid "Filename"
+#~ msgstr "Nom de fichier"
+
+#
+#~ msgid "Filter by what text?"
+#~ msgstr "Filtrer avec quelle chaîne de caractères?"
+
+#
+#~ msgid "First Name"
+#~ msgstr "Prénom"
+
+#~ msgid "Format for the subject line in feedback e-mails"
+#~ msgstr "Format pour la ligne sujet dans les e-mails de feedback"
+
+#~ msgid "From This Course"
+#~ msgstr "De ce cours"
+
+#
+#~ msgid "From:"
+#~ msgstr "De :"
+
+#~ msgid "Gateway parameters"
+#~ msgstr "Paramètres passerelle"
+
+#
+#~ msgid "General Information"
+#~ msgstr "Information Générale"
+
+#
+#~ msgid "Generate Hardcopy"
+#~ msgstr "Générer le fichier"
+
+# /home/francois/ExtractStrings/lib/WeBWorK/ContentGenerator/Hardcopy.pm
+#~ msgid "Generate hardcopy for selected sets and selected users"
+#~ msgstr ""
+#~ "Générer une copie papier pour les devoirs sélectionnés et les "
+#~ "utilisateurs sélectionnés"
+
+#
+#~ msgid "Give new password to which users?"
+#~ msgstr "Donner un nouveau mot de passe à quels usagers?"
+
+#~ msgid "Global set data will be shown instead of user specific data"
+#~ msgstr ""
+#~ "Les données globals vont être affichés au lieu de ceux spécifique à "
+#~ "l'utilisateur."
+
+# /home/francois/ExtractStrings/lib/WeBWorK/ContentGenerator/ProblemSet.pm
+#~ msgid "Grader"
+#~ msgstr "Étudiant"
+
+#
+#~ msgid "Guest Login"
+#~ msgstr "Invité"
+
+#
+#~ msgid "Hardcopy Format:"
+#~ msgstr "Format :"
+
+#
+#~ msgid "Hardcopy Generator"
+#~ msgstr "Imprimer dans un fichier"
+
+#
+#~ msgid "Hardcopy Header"
+#~ msgstr "Entête d'impression"
+
+#~ msgid "Headers"
+#~ msgstr "Entêtes"
+
+#
+#~ msgid "Help"
+#~ msgstr "Aide"
+
+# avant: msgstr "Entête d'impression" pour cohérence
+#
+#~ msgid "Hidden"
+#~ msgstr "Caché"
+
+#
+#~ msgid "Hints"
+#~ msgstr "Indices"
+
+#
+#~ msgid "Hmwk Sets Editor"
+#~ msgstr "Éditeur de devoirs"
+
+#
+#~ msgid "Homework Sets"
+#~ msgstr "Devoirs"
+
+#
+#~ msgid ""
+#~ "If a password field is left blank, the student's current password will be "
+#~ "maintained."
+#~ msgstr ""
+#~ "Si le champ d'un mot de passe est vide, le mot de passe actuel sera "
+#~ "conservé."
+
+#~ msgid "Illegal filename contains '..'"
+#~ msgstr "Fichier illégal contient '..'"
+
+#
+#~ msgid "Import"
+#~ msgstr "Importer"
+
+#
+#~ msgid "Import from where?"
+#~ msgstr "Importer d'où?"
+
+#
+#~ msgid "Import how many sets?"
+#~ msgstr "Importer combien de devoirs?"
+
+#
+#~ msgid "Import sets with names"
+#~ msgstr "Importer les devoirs avec le nom"
+
+#
+#~ msgid "Import users from what file?"
+#~ msgstr "Importer les usagers à partir de quel fichier?"
+
+#
+#~ msgid "Inactive"
+#~ msgstr "Inactif"
+
+#~ msgid "Inactivity time before a user is required to login again"
+#~ msgstr ""
+#~ "Temps d'inactivité avant que l'utilisateur doit se connecter à nouveau"
+
+#
+#~ msgid "Instructor Tools"
+#~ msgstr "Outils pour l'enseignant"
+
+#
+#~ msgid "Invalid user ID or password."
+#~ msgstr "Numéro d'usager ou mot de passe invalide."
+
+#~ msgid "Keywords:"
+#~ msgstr "Mots clés:"
+
+#~ msgid "Language (refresh page after saving changes to reveal new language.)"
+#~ msgstr ""
+#~ "Langue (rafraîchir la page après l'enregistrement des modifications pour "
+#~ "révéler la nouvelle langue.) "
+
+# avant: msgstr "Code d'usager ou mot de passe invalides"
+#
+#~ msgid "Last Name"
+#~ msgstr "Nom de famille"
+
+#~ msgid ""
+#~ "Length of time, in seconds, a user has to be inactive before he is "
+#~ "required to login again.<p> This value should be entered as a number, so "
+#~ "as 3600 instead of 60*60 for one hour"
+#~ msgstr ""
+#~ "Longueur de temps, en secondes, qu'un utilisateur doit être inactif avant "
+#~ "qu'il doive se connecter à nouveau. <p> La valeur doit être un nombre, il "
+#~ "faut écrire 3600 au lieu de 60*60 pour une heure"
+
+#~ msgid "Level:"
+#~ msgstr "Niveau:"
+
+#
+#~ msgid "Library Browser"
+#~ msgstr "Choisir des problèmes"
+
+#~ msgid "List of display modes made available to students"
+#~ msgstr "Liste des modes d'affichage mis à la disposition des étudiants"
+
+#~ msgid ""
+#~ "List of e-mail addresses to which e-mail can be sent by a problem. "
+#~ "Professors need to be added to this list if questionaires are used, or "
+#~ "other WeBWorK problems which send e-mail as part of their answer "
+#~ "mechanism."
+#~ msgstr ""
+#~ "Liste des adresses e-mail auxquelles un e-mail peut être envoyé par un "
+#~ "problème. Les professeurs doivent être ajoutés à cette liste si les "
+#~ "questionnaires sont utilisés, ou d'autres problèmes de Webwork qui "
+#~ "envoient du courrier électronique dans le cadre de leur mécanisme de "
+#~ "réponse."
+
+#~ msgid "Local"
+#~ msgstr "locaux"
+
+#~ msgid "Local Problems"
+#~ msgstr "Problèmes locaux"
+
+#
+#~ msgid "Log In Again"
+#~ msgstr "Se connecter à nouveau"
+
+#
+#~ msgid "Log Out"
+#~ msgstr "Se déconnecter"
+
+#
+#~ msgid "Login Info"
+#~ msgstr "Paramètres du compte"
+
+#
+#~ msgid "Login Name"
+#~ msgstr "Nom d'usager"
+
+#
+#~ msgid "Login Status"
+#~ msgstr "Statut d'accès"
+
+#
+#~ msgid "Logout"
+#~ msgstr "Déconnexion"
+
+# msgstr "Statut"
+#
+#~ msgid "Main Menu"
+#~ msgstr "Menu principal"
+
+#~ msgid "Make Archive"
+#~ msgstr "Archiver"
+
+#~ msgid "Mark Correct?"
+#~ msgstr "Marquer correct?"
+
+#
+#~ msgid "Match on what? (separate multiple IDs with commas)"
+#~ msgstr ""
+#~ "L'associer à quoi? (Séparer les différents numéros d'identification par "
+#~ "des virgules)"
+
+#
+#~ msgid "Math Objects"
+#~ msgstr "Math Objects"
+
+#
+#~ msgid "Name"
+#~ msgstr "Nom"
+
+#~ msgid "Name for new set here"
+#~ msgstr "Nom du nouveau cours ici"
+
+# /home/francois/ExtractStrings/defaults.config (doc)
+#~ msgid "Name of course information file"
+#~ msgstr "Nom du fichier pour les informations du cours"
+
+#
+#~ msgid "Name the new set"
+#~ msgstr "Nommer le nouveau devoir"
+
+#~ msgid "New File"
+#~ msgstr "Nouveau fichier"
+
+#~ msgid "New Folder"
+#~ msgstr "Nouveau dossier"
+
+#
+#~ msgid "New Password"
+#~ msgstr "Nouveau mot de passe"
+
+#~ msgid "New file name:"
+#~ msgstr "Nom du nouveau fichier:"
+
+#~ msgid "New folder name:"
+#~ msgstr "Nom du nouveau dossier:"
+
+#
+#~ msgid "New passwords saved"
+#~ msgstr "Nouveaux mots de passe sauvegardés"
+
+#
+#~ msgid "Next Problem"
+#~ msgstr "Problème suivant"
+
+#~ msgid "Next page"
+#~ msgstr "Page suivante"
+
+#
+#~ msgid "No"
+#~ msgstr "Non"
+
+# /home/francois/ExtractStrings/lib/WeBWorK/Authen.pm
+#, fuzzy
+#~ msgid ""
+#~ "No authentication method found for your request.  If this recurs, please "
+#~ "speak with your instructor."
+#~ msgstr "Aucune méthode d'authentification trouvé pour votre demande.  "
+
+#
+#~ msgid "No change made to any set"
+#~ msgstr "Aucun changement effectué à aucun devoir"
+
+#~ msgid "No changes were saved!"
+#~ msgstr "Aucun changement n'a été sauvegardé!"
+
+#~ msgid "No record found."
+#~ msgstr "Aucun enregistrement trouvé."
+
+#
+#~ msgid "No sets selected for scoring"
+#~ msgstr "Aucun devoir sélectionné pour la notation"
+
+# avant: msgstr "Aucun devoir sélectionné pour évaluation." (cohérence avec traduction préc.)
+#
+#~ msgid ""
+#~ "No sets shown.  Choose one of the options above to list the sets in the "
+#~ "course."
+#~ msgstr ""
+#~ "Aucun devoir affiché. Choisir l'une des options ci-dessus pour afficher "
+#~ "les devoirs de ce cours."
+
+#~ msgid "No source filePath specified"
+#~ msgstr "Aucun chemin de fichier source n'a été spécifié"
+
+#~ msgid ""
+#~ "No students shown.  Choose one of the options above to list the students "
+#~ "in the course."
+#~ msgstr ""
+#~ "Aucun étudiant affichés. Choisissez l'une des options ci-dessus pour "
+#~ "lister les étudiants dans le cours."
+
+#
+#~ msgid "Not logged in."
+#~ msgstr "Non connecté."
+
+#
+#~ msgid "Note"
+#~ msgstr "Note"
+
+#~ msgid ""
+#~ "Only this permission level and higher get buttons for sending e-mail to "
+#~ "the instructor."
+#~ msgstr ""
+#~ "Seul ce niveau d'autorisation et supérieur peuvent voir le bouton pour "
+#~ "l'envoi d'e-mail à l'instructeur."
+
+#~ msgid "Open"
+#~ msgstr "Ouvrir"
+
+#
+#~ msgid "Open Date"
+#~ msgstr "Date d'ouverture"
+
+#
+#~ msgid "Opens"
+#~ msgstr "Ouverture"
+
+#~ msgid "Out Of"
+#~ msgstr "Indisponible"
+
+#~ msgid "Overwrite existing files silently"
+#~ msgstr "Écraser les fichier existant en silence"
+
+#~ msgid "PG debug messages"
+#~ msgstr "Messages de debug PG"
+
+#~ msgid "PG internal errors"
+#~ msgstr "Erreur internes PG"
+
+#~ msgid "PG question failed to render"
+#~ msgstr "Le rendu de la question PG a échoué"
+
+#~ msgid "PG question processing error messages"
+#~ msgstr "Traîtement des messages d'erreur de la question PG"
+
+#~ msgid "PG warning messages"
+#~ msgstr "Messages d'avertissement PG"
+
+#
+#~ msgid "PREVIEW ONLY -- ANSWERS NOT RECORDED"
+#~ msgstr "APERÇU SEULEMENT --  LES RÉPONSES NE SERONT PAS ENREGISTRÉES"
+
+# avant: msgstr "Signaler un bogue ou encore poser une question à WeBWorK en suivant ce lien. À la première utilisation, il sera nécessaire de s'enregistrer en fournissant une adresse courriel valide, de telle sorte d'assurer un suivi sur les correctifs."
+#
+#~ msgid "Pad Fields"
+#~ msgstr "Remplir les champs"
+
+#
+#~ msgid "Password"
+#~ msgstr "Mot de passe"
+
+#
+#~ msgid "Permission Level"
+#~ msgstr "Niveau de permission"
+
+#~ msgid "Please enter in a value to match in the filter field."
+#~ msgstr "Veuillez entrer une valeur qui correspond au champ du filtre."
+
+#
+#~ msgid "Please enter your username and password for %1 below:"
+#~ msgstr ""
+#~ "Veuillez écrire votre nom d'usager et votre mot de passe pour %1 ci-"
+#~ "dessous:"
+
+# avant: msgstr "Veuillez écrire votre nom d'utilisateur et mot de passe pour %1 ci-dessous:" Pour la cohérence et ajout de "votre"
+#
+#~ msgid "Please select action to be performed."
+#~ msgstr "Veuillez sélectionner une action à effectuer."
+
+#
+#~ msgid "Please specify a file to save to."
+#~ msgstr ""
+#~ "Prière d’attribuer un nom au fichier pour permettre l’enregistrement."
+
+#~ msgid "Preview message"
+#~ msgstr "Prévisualiser le message"
+
+#
+#~ msgid "Previous Problem"
+#~ msgstr "Problème précédent"
+
+#~ msgid "Previous page"
+#~ msgstr "Page précédente"
+
+#
+#~ msgid "Problem Editor"
+#~ msgstr "Éditeur de problèmes"
+
+#
+#~ msgid "Problem List"
+#~ msgstr "Liste des problèmes"
+
+#
+#~ msgid "Problem Techniques"
+#~ msgstr "Techniques de problèmes"
+
+#~ msgid "Problem source is drawn from a grouping set"
+#~ msgstr "La source d'un problèm est tiré d'un groupe de devoir"
+
+#
+#~ msgid "Problems"
+#~ msgstr "Problèmes"
+
+#~ msgid ""
+#~ "Proctored tests require proctor authorization to start and to grade.  "
+#~ "Provide a password to have a single password for all students to start a "
+#~ "proctored test."
+#~ msgstr ""
+#~ "Un examen requiert l'authorization d'un superviseur avant de commencer. "
+#~ "Entrer un mot de passe pour avoir le même mot de passe pour tous les "
+#~ "étudiants pour commencer en examen."
+
+#
+#~ msgid "Publish"
+#~ msgstr "Publier"
+
+#~ msgid "Really delete the items listed above?"
+#~ msgstr "Vous voulez vraiment supprimer les éléments énumérés ci-dessus?"
+
+#
+#~ msgid "Record Scores for Single Sets"
+#~ msgstr "Ajouter les résultats de chaque devoir"
+
+#~ msgid "Refresh"
+#~ msgstr "Rafraîchir"
+
+# avant: msgstr "Points partiels débute: %1"
+#~ msgid "Remaining"
+#~ msgstr "Nombre d'essais restant"
+
+#
+#~ msgid "Remember Me"
+#~ msgstr "Rester connecté"
+
+#~ msgid "Rename"
+#~ msgstr "Renommer"
+
+#~ msgid "Rename file as:"
+#~ msgstr "Renommer le fichier en:"
+
+#
+#~ msgid "Replace which users?"
+#~ msgstr "Remplacer quels usagers?"
+
+#
+#~ msgid "Report bugs"
+#~ msgstr "Signaler un bogue"
+
+#~ msgid "Reset"
+#~ msgstr "Réinitialiser"
+
+#~ msgid "Reset Form"
+#~ msgstr "Réinitialiser le formulaire"
+
+#
+#~ msgid "Results of last action performed"
+#~ msgstr "Résultats de la dernière action effectuée"
+
+#
+#~ msgid "Save"
+#~ msgstr "Enregistrer"
+
+#
+#~ msgid "Save As"
+#~ msgstr "Enregistrer sous [TMPL]/"
+
+#~ msgid "Save Changes"
+#~ msgstr "Sauvegarder les modifications"
+
+#
+#~ msgid "Save Edit"
+#~ msgstr "Enregistrer la modification"
+
+# avant: msgstr "tr: Note: this problem viewer is for viewing purposes only. As of right now, testing functionality is not possible." voir contexte
+#
+#~ msgid "Save Export"
+#~ msgstr "Enregistrer l'exportation"
+
+# avant: msgstr "Sauvegarder les résultats sélectionnés sous"
+#
+#~ msgid "Save Password"
+#~ msgstr "Enregistrer le mot de passe"
+
+#
+#~ msgid "Save as"
+#~ msgstr "Enregistrer sous"
+
+#~ msgid "Save as Default"
+#~ msgstr "Enregistrer par défaut"
+
+#
+#~ msgid "Save changes"
+#~ msgstr "Sauvegarder les modifications"
+
+#
+#~ msgid "Score"
+#~ msgstr "Résultat"
+
+# avant: msgstr "tr: Top level of author information on the wiki." vérif contexte
+#
+#~ msgid "Score selected set(s) and save to:"
+#~ msgstr "Sauvegarder les résultats sélectionnés sous:"
+
+#
+#~ msgid "Score which sets?"
+#~ msgstr "Évaluer quels devoirs?"
+
+#
+#~ msgid "Scoring Download"
+#~ msgstr "Télécharger les résultats"
+
+#
+#~ msgid "Scoring Tools"
+#~ msgstr "Outils d'évaluation"
+
+#~ msgid ""
+#~ "Screen and Hardcopy set header information can not be overridden for "
+#~ "individual students."
+#~ msgstr ""
+#~ "Les informations des entêtes de devoir à l'écran et sur papier ne peuvent "
+#~ "pas être substitués pour pour un étudiant individuel."
+
+#
+#~ msgid "Section"
+#~ msgstr "Section"
+
+#~ msgid "Select"
+#~ msgstr "Selectionner"
+
+#
+#~ msgid "Select an action to perform"
+#~ msgstr "Sélectionner une action à effectuer"
+
+# /home/francois/ExtractStrings/lib/WeBWorK/ContentGenerator/CourseAdmin.pm
+#~ msgid "Select an action to perform:"
+#~ msgstr "Sélectionner une action à effectuer"
+
+#~ msgid ""
+#~ "Select the homework sets for which to generate hardcopy versions. You may "
+#~ "also select multiple users from the users list. You will receive hardcopy "
+#~ "for each (set, user) pair."
+#~ msgstr ""
+#~ "Sélectionnez les devoirs pour lesquels vous voulez générer une version "
+#~ "copie papier. Vous pouvez aussi selectionner plisieurs utilisateurs dans "
+#~ "la liste. Vous allez reçevoir une copie papier pour chaque pair (devoir, "
+#~ "utilisateur)"
+
+#~ msgid "Selected students"
+#~ msgstr "Étudiants sélectionnés"
+
+#~ msgid "Send Email"
+#~ msgstr "Envoyer"
+
+#~ msgid "Send to:"
+#~ msgstr "Envoyer à:"
+
+#
+#~ msgid "Set"
+#~ msgstr "Devoirs"
+
+#~ msgid "Set Definition Filename"
+#~ msgstr "Modifier le fichier de définition"
+
+#~ msgid "Set Definition Files"
+#~ msgstr "Fichier de définition devoirs"
+
+#~ msgid "Set Description"
+#~ msgstr "Description du devoir"
+
+#
+#~ msgid "Set Header"
+#~ msgstr "Entête du devoir"
+
+#~ msgid "Set headers are not used in display of gateway tests."
+#~ msgstr ""
+#~ "Les entêtes de devoir ne sont pas utilisés pour affichée les tests "
+#~ "passerelle."
+
+#~ msgid ""
+#~ "Set to true for log to mean base 10 log and false for log to mean natural "
+#~ "logarithm"
+#~ msgstr "Définir à vrai pour log base 10 et à faux logarithme naturel"
+
+#~ msgid ""
+#~ "Set to true to display MathView equation editor icon next to each answer "
+#~ "box"
+#~ msgstr ""
+#~ "Définir la valeur à true pour afficher l'icone de l'éditeur d'équation "
+#~ "mathview à côté de chaque boîte de réponse"
+
+#~ msgid ""
+#~ "Set to true to display the \"Entered\" column which automatically shows "
+#~ "the evaluated student answer, e.g. 1 if student input is sin(pi/2). If "
+#~ "this is set to false, e.g. to save space in the response area, the "
+#~ "student can still see their evaluated answer by hovering the mouse "
+#~ "pointer over the typeset version of their answer."
+#~ msgstr ""
+#~ "la valeur true pour afficher le \"Entrée\"colonne qui affiche "
+#~ "automatiquement la réponse de l'élève évalué, par exemple "
+
+# msgstr "tr: Set Name"
+#
+#~ msgid "Sets"
+#~ msgstr "Devoirs"
+
+#~ msgid "Show Date & Size"
+#~ msgstr "Voir la date et la taille"
+
+#
+#~ msgid "Show Hints"
+#~ msgstr "Afficher les indices"
+
+# avant: msgstr "Recourir à des indices"
+#
+#~ msgid "Show Past Answers"
+#~ msgstr "Afficher les réponses précédentes"
+
+#
+#~ msgid "Show Solutions"
+#~ msgstr "Afficher les solutions"
+
+#
+#~ msgid "Show correct answers"
+#~ msgstr "Afficher les bonnes réponses"
+
+#~ msgid "Show saved answers?"
+#~ msgstr "Montrer les réponses enregistrés ?"
+
+#
+#~ msgid "Show which sets?"
+#~ msgstr "Afficher quels devoirs?"
+
+#
+#~ msgid "Show/Hide Site Description"
+#~ msgstr "Afficher/masquer la description du site web"
+
+#
+#~ msgid "Show:"
+#~ msgstr "Afficher : "
+
+# avant: msgstr "tr: Drop"
+#
+#~ msgid "Solutions"
+#~ msgstr "Solutions"
+
+#~ msgid ""
+#~ "Some of these files are directories. Only delete directories if you "
+#~ "really know what you are doing. You can seriously damage your course if "
+#~ "you delete the wrong thing."
+#~ msgstr ""
+#~ "Certains de ces fichiers sont des répertoires. Supprimer seulement des "
+#~ "répertoires si vous savez vraiment ce que vous faites. Vous pouvez "
+#~ "endommager sérieusement votre cours si vous supprimez la mauvaise chose."
+
+#, fuzzy
+#~ msgid ""
+#~ "Some servers handle courses taking place in different timezones.  If this "
+#~ "course is not showing the correct timezone, enter the correct value "
+#~ "here.  The format consists of unix times, such as \"America/New_York\","
+#~ "\"America/Chicago\", \"America/Denver\", \"America/Phoenix\" or \"America/"
+#~ "Los_Angeles\". Complete list: <a href=\"http://en.wikipedia.org/wiki/"
+#~ "List_of_zoneinfo_time_zones\">TimeZoneFiles</a>"
+#~ msgstr ""
+#~ "Certains serveurs gèrent les cours se déroulent dans des fuseaux horaires "
+#~ "différents. Si ce cours ne montre le bon fuseau horaire, entrez la valeur "
+#~ "correcte ici. Ce format consiste en temps Unix, tels que \" Amérique/"
+#~ "New_York \",\"Amérique/Chicago\", \"Amérique/Denver\", \"Amérique/Phoenix"
+#~ "\"ou \"Amérique/Los_Angeles\"Liste complète: <a href=\"http://en."
+#~ "wikipedia.org/wiki/List_of_zoneinfo_time_zones\"> TimeZoneFiles </ a> "
+
+#, fuzzy
+#~ msgid ""
+#~ "Something was wrong with your LTI parameters.  If this recurs, please "
+#~ "speak with your instructor"
+#~ msgstr "Quelque chose n'a pas bien été avec vos paramètres LTI."
+
+# msgstr "tr: Site Information"
+#
+#~ msgid "Sort by"
+#~ msgstr "Trier selon"
+
+#~ msgid ""
+#~ "Source file paths cannot include .. or start with /: your source file "
+#~ "path was modified."
+#~ msgstr ""
+#~ "Le chemin de fichier source ne peut pas inclure .. ou commencer par /: le "
+#~ "chemin a été modifié."
+
+# avant: msgstr "tr: Revert" voir contexte
+#
+#~ msgid "Statistics"
+#~ msgstr "Statistiques"
+
+#
+#~ msgid "Status"
+#~ msgstr "Statut"
+
+#
+#~ msgid "Stop Acting"
+#~ msgstr "Cesser de jouer le rôle"
+
+#
+#~ msgid "Student ID"
+#~ msgstr "Numéro de l'étudiant"
+
+# avant: msgstr "tr: Proctor"
+#
+#~ msgid "Student Progress"
+#~ msgstr "Progrès des étudiants"
+
+#
+#~ msgid "Student answers"
+#~ msgstr "Réponses de l'étudiant"
+
+#~ msgid "Subject:"
+#~ msgstr "Sujet:"
+
+# avant: msgstr "Soumettre ses réponses de %1"
+#
+#~ msgid "Success"
+#~ msgstr "Succès"
+
+#
+#~ msgid "Take Action!"
+#~ msgstr "Effectuer l'action!"
+
+#~ msgid "Text"
+#~ msgstr "Texte"
+
+#~ msgid "Text chapter:"
+#~ msgstr "Chapitre du texte:"
+
+#~ msgid "Text section:"
+#~ msgstr "Section du texte:"
+
+#~ msgid "Textbook:"
+#~ msgstr "Livre:"
+
+#
+#~ msgid "The WeBWorK Project"
+#~ msgstr "Le projet WeBWorK"
+
+#, fuzzy
+#~ msgid ""
+#~ "The amount of time (in minutes) after the due date that the Answers are "
+#~ "available to student to view.  You can change this for individual "
+#~ "homework, but WeBWorK will use this value when a set is created."
+#~ msgstr ""
+#~ "La nombre de temps (en minutes) après la date d'échéance que les réponses "
+#~ "sont à la disposition des étudiants pour les voir."
+
+#, fuzzy
+#~ msgid ""
+#~ "The amount of time (in minutes) before the due date when the assignment "
+#~ "is opened.  You can change this for individual homework, but WeBWorK will "
+#~ "use this value when a set is created. "
+#~ msgstr ""
+#~ "Le moment de la journée que la devoir est due. Ceci peut être changé sur "
+#~ "une base individuelle, mais WeBWorK utilisera cette valeur par défaut "
+#~ "quand une date est fixée."
+
+#~ msgid ""
+#~ "The configuration module did not find the data it needs to function.  "
+#~ "Have your site administrator check that Constants.pm is up to date."
+#~ msgstr ""
+#~ "Le module de configuration n'a pas trouvé les données dont il a besoin "
+#~ "pour fonctionner. Demandez à votre administrateur du site pour que "
+#~ "Constants.pm soit à jour."
+
+#~ msgid "The default display mode"
+#~ msgstr "Le mode d'affichage par défaut"
+
+#, fuzzy
+#~ msgid ""
+#~ "The following users are NOT assigned to this set and will be ignored: %1"
+#~ msgstr ""
+#~ "Les utilisateurs suivant ne sont PAS assignée à un devoir et seront "
+#~ "ignorés: %1"
+
+#
+#, fuzzy
+#~ msgid ""
+#~ "The grade for this problem is the larger of the score for this problem, "
+#~ "or the score of problem %1."
+#~ msgstr "Ce problème ne sera pas noté."
+
+# /home/francois/ExtractStrings/defaults.config (doc2)
+#~ msgid ""
+#~ "The name of course information file (located in the templates directory). "
+#~ "Its contents are displayed in the right panel next to the list of "
+#~ "homework sets."
+#~ msgstr ""
+#~ "Le nom du fichier d'informations de cours (situé dans le répertoire "
+#~ "templates). Son contenu est affiché dans le panneau juste à côté de la "
+#~ "liste des devoirs."
+
+#, fuzzy
+#~ msgid ""
+#~ "The open date: %1, close date: %2, and answer date: %3 must be defined "
+#~ "and in chronological order."
+#~ msgstr ""
+#~ "La date d'ouverture: %1, la date d'échéance: 2%, et la date de remise des "
+#~ "éponse: 3% doivent être définies et être dans l'ordre chronologique."
+
+#
+#, fuzzy
+#~ msgid ""
+#~ "The password you entered in the %1 field does not match your current "
+#~ "password. Please retype your current password and try again."
+#~ msgstr ""
+#~ "Le mot de passe que vous avez entré dans la case %1 est erroné. Veuillez "
+#~ "soumettre de nouveau votre mot de passe."
+
+#
+#, fuzzy
+#~ msgid ""
+#~ "The passwords you entered in the %1 and %2 fields don't match. Please "
+#~ "retype your new password and try again."
+#~ msgstr ""
+#~ "Les mots de passe saisis dans les champs %1 et %2 sont différents. "
+#~ "Veuillez essayer de nouveau"
+
+#
+#~ msgid "The path to the original file should be absolute"
+#~ msgstr ""
+#~ "Le chemin du fichier original devrait être décrit de manière absolue"
+
+#, fuzzy
+#~ msgid ""
+#~ "The reduced credit date should be between the open date %1 and close date "
+#~ "%2"
+#~ msgstr ""
+#~ "Erreur: La date de remise doit venir après date d'ouverture du devoir 1%"
+
+#, fuzzy
+#~ msgid ""
+#~ "The reduced scoring date should be between the open date and close date."
+#~ msgstr ""
+#~ "Erreur: La date de remise doit venir après date d'ouverture du devoir 1%"
+
+# avant: msgstr "Exporter les résultats" pas certaine que c'est ok
+#
+#, fuzzy
+#~ msgid ""
+#~ "The source file for 'set %1 / problem %2 has been changed from '%3' to "
+#~ "'%4'"
+#~ msgstr ""
+#~ "Le fichier source du 'devoir %1 / problème %2' a été changé de %3 à '%4'."
+
+#
+#~ msgid ""
+#~ "The text box now contains the source of the original problem. You can "
+#~ "recover lost edits by using the Back button on your browser."
+#~ msgstr ""
+#~ "La boîte de saisie contient actuellement le code source du problème "
+#~ "original. Les modifications perdues peuvent être récupérées en utilisant "
+#~ "le bouton Précédent du navigateur web."
+
+#, fuzzy
+#~ msgid ""
+#~ "The time of the day that the assignment is due.  This can be changed on "
+#~ "an individual basis, but WeBWorK will use this value for default when a "
+#~ "set is created."
+#~ msgstr ""
+#~ "Le moment de la journée que la devoir est due. Ceci peut être changé sur "
+#~ "une base individuelle, mais WeBWorK utilisera cette valeur par défaut "
+#~ "quand une date est fixée."
+
+#, fuzzy
+#~ msgid ""
+#~ "The value %1 for enableReducedScoring is not valid; it will be replaced "
+#~ "with 'N'."
+#~ msgstr ""
+#~ "La valeur %1 de l'option hideScore n'est pas valide, elle sera remplacé "
+#~ "par 'N'."
+
+#, fuzzy
+#~ msgid ""
+#~ "The value %1 for the capTimeLimit option is not valid; it will be "
+#~ "replaced with '0'."
+#~ msgstr ""
+#~ "La valeur %1 de l'option capTimeLimit n'est pas valide, elle sera "
+#~ "remplacé par '0'."
+
+#, fuzzy
+#~ msgid ""
+#~ "The value %1 for the hideScore option is not valid; it will be replaced "
+#~ "with 'N'."
+#~ msgstr ""
+#~ "La valeur %1 de l'option hideScore n'est pas valide, elle sera remplacé "
+#~ "par 'N'."
+
+#, fuzzy
+#~ msgid ""
+#~ "The value %1 for the hideWork option is not valid; it will be replaced "
+#~ "with 'N'."
+#~ msgstr ""
+#~ "La valeur %1 de l'option hideWork n'est pas valide, elle sera remplacé "
+#~ "par 'N'."
+
+#, fuzzy
+#~ msgid ""
+#~ "The value %1 for the relaxRestrictIP option is not valid; it will be "
+#~ "replaced with 'No'."
+#~ msgstr ""
+#~ "La valeur %1 de l'option relaxRestrictIP n'est pas valide, elle sera "
+#~ "remplacé par 'No'."
+
+#, fuzzy
+#~ msgid ""
+#~ "The value %1 for the restrictIP option is not valid; it will be replaced "
+#~ "with 'No'."
+#~ msgstr ""
+#~ "La valeur %1 de l'option restrictIP n'est pas valide, elle sera remplacé "
+#~ "par 'No'."
+
+#~ msgid "Theme (refresh page after saving changes to reveal new theme.)"
+#~ msgstr ""
+#~ "Thème (rafraîchir la page après l'enregistrement des modifications pour "
+#~ "révéler le nouveau thème.)"
+
+#
+#~ msgid "Then by"
+#~ msgstr "Ensuite selon"
+
+#~ msgid "There are no matching WeBWorK problems"
+#~ msgstr "Il n'y a pas de problèmes de Webwork correspondant"
+
+#~ msgid "There is no undo for deleting files or directories!"
+#~ msgstr ""
+#~ "L'annulation n'es pas possibler pour la suppression de fichiers ou de "
+#~ "répertoires!"
+
+#~ msgid ""
+#~ "These users and higher get the \"Show Past Answers\" button on the "
+#~ "problem page."
+#~ msgstr ""
+#~ "Ces utilisateurs et supérieur peuvent voir le \"Voir les anciennes "
+#~ "réponses\" sur la page du problème."
+
+#
+#~ msgid "This homework set contains no problems."
+#~ msgstr "Ce devoir ne contient aucun problème."
+
+#
+#~ msgid "This homework set is closed."
+#~ msgstr "Ce devoir n'est plus disponible."
+
+# avant: msgstr "Ce devoir est échu."
+#
+#~ msgid "This homework set is not yet open."
+#~ msgstr "Ce devoir n'est pas encore disponible."
+
+#
+#, fuzzy
+#~ msgid ""
+#~ "This is a blank problem template file and can not be edited directly. Use "
+#~ "the 'NewVersion' action below to create a local copy of the file and add "
+#~ "it to the current problem set."
+#~ msgstr ""
+#~ "Ceci est un fichier modèle d'un problème vierge et on ne peut le modifier "
+#~ "directement. Utiliser la fonction \"Enregistrer sous\" pour créer une "
+#~ "copie locale du fichier et l'ajouter au devoir courant."
+
+#~ msgid ""
+#~ "This is the number of achievement points given to each user for "
+#~ "completing a problem."
+#~ msgstr ""
+#~ "Ceci est le nombre de points pour les objectifs donnés à chaque "
+#~ "utilisateur pour avoir rempli un problème."
+
+#
+#~ msgid "This problem will not count towards your grade."
+#~ msgstr "Ce problème ne sera pas noté."
+
+#
+#, fuzzy
+#~ msgid ""
+#~ "This score for this problem does not count for the score of problem %1 or "
+#~ "for the set."
+#~ msgstr "Ce problème ne sera pas noté."
+
+#~ msgid "This set doesn't contain any problems yet."
+#~ msgstr "Ce devoir ne contient pas encore de problème."
+
+#, fuzzy
+#~ msgid ""
+#~ "This sets whether the Reduced Scoring system will be enabled.  If enabled "
+#~ "you will need to set the default length of the reduced scoring period and "
+#~ "the value of work done in the reduced scoring period below.  <p> To use "
+#~ "this, you also have to enable Reduced Scoring for individual assignments "
+#~ "and set their Reduced Scoring Dates by editing the set data.<p> This "
+#~ "works with the avg_problem_grader (which is the the default grader) and "
+#~ "the  std_problem_grader (the all or nothing grader).  It will work with "
+#~ "custom graders if they are written appropriately."
+#~ msgstr ""
+#~ "<p> La durée du crédit réduit (officiellement appelé la période de "
+#~ "notation réduite) est une période antérieure à la date d'échéance au "
+#~ "cours de laquelle tout travail supplémentaire effectué par l'élève compte "
+#~ "à un taux réduit. C'est ici que vous définissez le taux réduit qui doit "
+#~ "être un nombre dans l'intervalle (0,1). 1 signifie aucune réduction. Par "
+#~ "exemple, si cette valeur est 0,5 et un étudiant regarde un problème au "
+#~ "cours de la période de crédit réduit, il verra le message \"Vous êtes "
+#~ "dans la période de crédit réduit: Tout travail supplémentaire effectué "
+#~ "compte pour 50% de l'original.\" </p><p> Pour l'utiliser, vous devez "
+#~ "également activer crédit réduit pour les travaux individuels en modifiant "
+#~ "le devoir à l'aide de Hmwk Sets Editor. </p><p> Cela fonctionne avec le "
+#~ "avg_problem_grader (notation par défaut) et le std_problem_grader "
+#~ "(notation tout ou rien). Il travaillera avec les élèves personnalisées si "
+#~ "elles sont écrites de façon appropriée. </p>"
+
+#~ msgid "This source file does not exist!"
+#~ msgstr "Ce fichier source n'existe pas!"
+
+#~ msgid "This source file is a directory!"
+#~ msgstr "Ce fichier source est un dossier!"
+
+#~ msgid "This source file is not a plain file!"
+#~ msgstr "Ce fichier source n'est pas un fichier!"
+
+#~ msgid "This source file is not readable!"
+#~ msgstr "Impossible de lire ce fichier source!"
+
+#~ msgid "Timezone for the course"
+#~ msgstr "Fuseau horaire pour le cours"
+
+#~ msgid ""
+#~ "To edit a specific student version of this set, edit (all of) her/his "
+#~ "assigned sets."
+#~ msgstr ""
+#~ "Pour modifier une version spécifique à un étudiant de ce devoir, modifier "
+#~ "(tous) ses devoirs assignés."
+
+#
+#, fuzzy
+#~ msgid ""
+#~ "To edit this text you must first make a copy of this file using the "
+#~ "'NewVersion' action below."
+#~ msgstr ""
+#~ "Pour modifier ce texte, d'abord faire une copie du fichier à l'aide de la "
+#~ "fonction \"Enregistrer sous\"."
+
+#
+#, fuzzy
+#~ msgid ""
+#~ "To edit this text you must use the 'NewVersion' action below to save it "
+#~ "to another file."
+#~ msgstr ""
+#~ "Pour modifier ce texte, utiliser l'action \"Enregistrer sous\" offerte "
+#~ "plus bas pour l'enregistrer dans un autre fichier."
+
+#~ msgid "Unable to obtain error messages from within the PG question."
+#~ msgstr "Incapable d'obtenir un message d'erreur de la question PG."
+
+#~ msgid "Unpack archives automatically"
+#~ msgstr "Décompresser les archives automatiquement"
+
+#~ msgid "Update Menus"
+#~ msgstr "MAJ des menus"
+
+#~ msgid "Update settings and refresh page"
+#~ msgstr "Mise à jour des paramètres et rafraîchir la page"
+
+#~ msgid "Upload"
+#~ msgstr "Envoyer"
+
+#~ msgid "Use Default Header File"
+#~ msgstr "Utiliser le fichier d'entête par défaut"
+
+# avant: msgstr "Dessélectionner pour les usagers"
+#
+#~ msgid "Use System Default"
+#~ msgstr "Utiliser les paramètres par défaut"
+
+#~ msgid "Use log base 10 instead of base <i>e</i>"
+#~ msgstr "Utiliser une base log 10 au lieu de <i>e</i>"
+
+#~ msgid "Use older answer checkers"
+#~ msgstr "Utiliser l'ancien vérificateur de réponses"
+
+#
+#~ msgid ""
+#~ "Use this form to report to your professor a problem with the WeBWorK "
+#~ "system or an error in a problem you are attempting. Along with your "
+#~ "message, additional information about the state of the system will be "
+#~ "included."
+#~ msgstr ""
+#~ "Utiliser ce formulaire pour signaler à l'enseignant un problème avec le "
+#~ "système WeBWorK ou une erreur dans un problème d'un devoir. Des "
+#~ "informations additionnelles sur l'état du système utilisé accompagneront "
+#~ "votre message."
+
+# /home/francois/ExtractStrings/lib/WeBWorK/ContentGenerator/Instructor/ProblemSetDetail.pm
+#~ msgid "User Values"
+#~ msgstr "Valeur utilisateur"
+
+#, fuzzy
+#~ msgid ""
+#~ "UserProblem missing for user=%1 set=%2 problem=%3. This may indicate "
+#~ "database corruption."
+#~ msgstr ""
+#~ "UserProblem manquant pour user=%1 set=%2 problem=%3. Ceci peut indiquer "
+#~ "la corruption de la base de données."
+
+#
+#~ msgid "Username"
+#~ msgstr "Nom d'usager"
+
+#~ msgid "Users"
+#~ msgstr "Utilisateur"
+
+#
+#~ msgid "Users List"
+#~ msgstr "Liste d'usagers"
+
+#~ msgid ""
+#~ "Users at this level and higher are allowed to change their e-mail "
+#~ "address. Normally guest users are not allowed to change the e-mail "
+#~ "address since it does not make sense to send e-mail to anonymous accounts."
+#~ msgstr ""
+#~ "Les utilisateurs de ce niveau et supérieur sont autorisés à modifier leur "
+#~ "adresse e-mail. Normalement les utilisateurs invités ne sont pas "
+#~ "autorisés à modifier l'adresse e-mail car il n'est pas logique d'envoyer "
+#~ "des e-mail à des comptes anonymes."
+
+#~ msgid ""
+#~ "Users at this level and higher are allowed to change their password. "
+#~ "Normally guest users are not allowed to change their password."
+#~ msgstr ""
+#~ "Les utilisateurs de ce niveau et supérieur sont autorisés à modifier leur "
+#~ "mot de passe. Normalement les utilisateurs invités ne sont pas autorisés "
+#~ "à changer leur mot de passe."
+
+#~ msgid ""
+#~ "Users with at least this permission level get a link in the left panel "
+#~ "for reporting bugs to the bug tracking system in Rochester"
+#~ msgstr ""
+#~ "Les utilisateurs ayant au moins ce niveau d'autorisation peuvent voir un "
+#~ "lien dans le panneau de gauche pour signaler des bogues dans le système "
+#~ "de suivi des bogues à Rochester"
+
+#~ msgid ""
+#~ "Users with this permssion level or greater will automatically be sent "
+#~ "feedback from students (generated when they use the \"Contact instructor"
+#~ "\" button on any problem page).  In addition the feedback message will be "
+#~ "sent to addresses listed below.  To send ONLY to addresses listed below "
+#~ "set permission level to \"nobody\"."
+#~ msgstr ""
+#~ "Les utilisateurs avec ce niveau de permssion ou supérieur recevront "
+#~ "automatiquement les commentaires des étudiants (généré quand ils "
+#~ "utilisent le bouton \"Contacter un instructeur\" sur n'importe quelle "
+#~ "page de problème). Par ailleurs, le message de réponse est envoyé aux "
+#~ "adresses ci-dessous. Pour envoyer SEULEMENT aux adresses énumérées ci-"
+#~ "après, régler le niveau de permission à \"personne\"."
+
+#~ msgid "Versions of a set can only be edited for one user at a time."
+#~ msgstr ""
+#~ "La version d'un devoir peut seulement être modifier par un seul "
+#~ "utilisateur à la fois."
+
+# avant: msgstr "Progrès des étudiants"
+#
+#~ msgid "View"
+#~ msgstr "Voir"
+
+#~ msgid "View Problems"
+#~ msgstr "Voir les problèmes"
+
+# avant: msgstr "Les étudiants voient ce devoir."
+#
+#~ msgid "View equations as"
+#~ msgstr "Afficher les équations à l'aide de"
+
+#
+#~ msgid "View statistics by set"
+#~ msgstr "Statistiques par devoir"
+
+#
+#~ msgid "View statistics by student"
+#~ msgstr "Statistiques par étudiant"
+
+#
+#~ msgid "View student progress by set"
+#~ msgstr "Voir le progrès des étudiants par devoir"
+
+#
+#~ msgid "View student progress by student"
+#~ msgstr "Voir le progrès individuel d'un étudiant"
+
+# avant: msgstr "Visionnement du fichier temporaire : "
+#
+#~ msgid "Visibility"
+#~ msgstr "Visibilité"
+
+#
+#~ msgid "Visible"
+#~ msgstr "Visible"
+
+#
+#~ msgid "Visible to Students"
+#~ msgstr "Visible aux étudiants"
+
+#
+#~ msgid ""
+#~ "Warning: Deletion destroys all user-related data and is not undoable!"
+#~ msgstr ""
+#~ "Avertissement: la suppression détruit toutes les données relatives aux "
+#~ "usagers et est irréversible"
+
+#~ msgid ""
+#~ "WeBWorK currently has translations for four languages: \"English en\", "
+#~ "\"Turkish tr\", \"Spanish es\", and \"French fr\" "
+#~ msgstr ""
+#~ "WeBWorK a actuellement des traductions pour quatre langues: \"Anglais en"
+#~ "\", \"Turque tr\", \"Enspagnol es\", and \"Français fr\" "
+
+#~ msgid "Weight"
+#~ msgstr "Poids"
+
+# avant: msgstr "Avertissement: la suppression détruit toutes les données des usagers et est irréversible"
+#
+#~ msgid "Welcome to WeBWorK!"
+#~ msgstr "Bienvenue sur WeBWorK!"
+
+#
+#~ msgid "What field should filtered users match on?"
+#~ msgstr "Sélectionner les usagers selon quel champs d'information?"
+
+#~ msgid ""
+#~ "When acting as a student, this permission level and higher can submit "
+#~ "answers for that student."
+#~ msgstr ""
+#~ "En agissant comme un étudiant, ce niveau d'autorisation et supérieur "
+#~ "peuvent soumettre des réponses pour cet élève."
+
+#~ msgid ""
+#~ "When students click the <em>Email Instructor</em> button to send "
+#~ "feedback, WeBWorK fills in the subject line.  Here you can set the "
+#~ "subject line.  In it, you can have various bits of information filled in "
+#~ "with the following escape sequences.<p><ul><li> %c = course ID<li> %u = "
+#~ "user ID<li> %s = set ID<li> %p = problem ID<li> %x = section<li> %r = "
+#~ "recitation<li> %% = literal percent sign</ul>"
+#~ msgstr ""
+#~ "Lorsque les élèves cliquent sur le bouton <em>Email instructeur</ em> "
+#~ "pour envoyer vos commentaires, WeBWorK remplit la ligne du sujet. Ici "
+#~ "vous pouvez définir la ligne du sujet. Dans ce document, vous pouvez "
+#~ "avoir plusieurs bits d'information remplis avec les séquences suivantes."
+#~ "<p><ul><li> %c = ID du cours<li> %u = ID de l'utilisateur<li> %s = ID du "
+#~ "devoir<li> %p = ID du problème<li> %x = section<li> %r = recitation<li> %"
+#~ "% = signe pourcent</ul>"
+
+#, fuzzy
+#~ msgid ""
+#~ "When viewing a problem, WeBWorK usually puts the previously submitted "
+#~ "answer in the answer blank.  Below this level, old answers are never "
+#~ "shown.  Typically, that is the desired behaviour for guest accounts."
+#~ msgstr ""
+#~ "Lorsque vous regardez un problème, WeBWorK met généralement la réponse "
+#~ "déjà soumise dans la réponse vide si elle est antérieure à la date "
+#~ "d'échéance. En dessous de ce niveau, les anciennes réponses ne sont "
+#~ "jamais affichés initialement. Typiquement, c'est le comportement souhaité "
+#~ "pour les comptes invités."
+
+# avant : msgstr "tr: What field should filtered users match on?"  *** vérif contexte... sélectionner les usagers selon quel champs d'information
+#
+#~ msgid "Worth"
+#~ msgstr "Pondération"
+
+#
+#, fuzzy
+#~ msgid ""
+#~ "Write permissions have not been enabled for '%1'.  Changes must be saved "
+#~ "to another file for viewing."
+#~ msgstr ""
+#~ "Il n'est pas permis d'écrire dans '%1'.  Les modifications doivent "
+#~ "d'abord être enregistrées dans un autre fichier."
+
+#
+#, fuzzy
+#~ msgid ""
+#~ "Write permissions have not been enabled in '%1'.  Changes must be saved "
+#~ "to a different directory for viewing."
+#~ msgstr ""
+#~ "Il n'est pas permis d'écrire dans le dossier '%1'.  Les modifications "
+#~ "doivent d'abord être enregistrées dans un autre dossier."
+
+# avant: msgstr "tr: hardcopy header file" voir contexte
+#
+#~ msgid ""
+#~ "Write permissions have not been enabled in the templates directory.  No "
+#~ "changes can be made."
+#~ msgstr ""
+#~ "Les droits d'écriture n'ont pas été activés pour le répertoire templates. "
+#~ "Aucune modification ne peut être effectuée."
+
+#
+#~ msgid "Yes"
+#~ msgstr "Oui"
+
+#~ msgid "You are not authorized to access the Instructor tools."
+#~ msgstr "Vous n'êtes pas autorisé à accéder aux outils de l'enseignant."
+
+#
+#~ msgid "You are not authorized to access the instructor tools."
+#~ msgstr "Vous n'êtes pas autorisé à accéder aux outils de l'enseignant."
+
+#
+#~ msgid "You are not authorized to modify homework sets."
+#~ msgstr "Vous n'êtes pas autorisé à modifier les devoirs."
+
+#
+#~ msgid "You are not authorized to modify problems."
+#~ msgstr "Vous n'êtes pas autorisé à modifier des problèmes."
+
+#
+#~ msgid "You are not authorized to modify set definition files."
+#~ msgstr "Vous n'êtes pas autorisé à modifier les fichiers de définition."
+
+#
+#~ msgid "You are not authorized to modify student data"
+#~ msgstr "Vous n'êtes pas autorisé à modifier les données des étudiants."
+
+#
+#~ msgid "You are not authorized to perform this action."
+#~ msgstr "Vous n'êtes pas autorisé à effectuer cette action."
+
+#
+#~ msgid "You cannot delete yourself!"
+#~ msgstr "Vous ne pouvez pas vous supprimer vous-même!"
+
+#
+#~ msgid "You do not have permission to change email addresses."
+#~ msgstr ""
+#~ "Vos droits ne vous permettent pas de modifier des adresses de courriel."
+
+#
+#~ msgid "You do not have permission to change your password."
+#~ msgstr "Vos droits ne vous permettent pas de modifier votre mot de passe."
+
+#
+#~ msgid "You do not have permission to view the details of this error."
+#~ msgstr ""
+#~ "Les droits qui vous sont assignés ne permettent pas de voir les détails "
+#~ "de cette erreur."
+
+#
+#~ msgid "You have been logged out of WeBWorK."
+#~ msgstr "Vous êtes déconnecté de WeBWorK."
+
+#, fuzzy
+#~ msgid ""
+#~ "You may choose to show any of the following data. Correct answers, hints, "
+#~ "and solutions are only available %1 after the answer date of the homework "
+#~ "set."
+#~ msgstr ""
+#~ "Vous pouvez choisir n'importer quelle données suivantes. Les réponses et "
+#~ "solutions seront seulement disponible %1 après la date de disponibilité "
+#~ "des réponses du devoir."
+
+#
+#~ msgid "You may not change your own password here!"
+#~ msgstr "Vous ne pouvez pas modifier votre propre mot de passe ici!"
+
+#
+#, fuzzy
+#~ msgid ""
+#~ "You must attempt this problem %quant(%1,time,times) before Show Me "
+#~ "Another is available."
+#~ msgstr "Vous avez essayé ce problème à %1 reprises."
+
+#
+#, fuzzy
+#~ msgid ""
+#~ "You must attempt this problem %quant(%1,time,times) before this feature "
+#~ "is available"
+#~ msgstr "Vous avez essayé ce problème à %1 reprises."
+
+#
+#~ msgid "You must specify a user ID."
+#~ msgstr "Spécifier le numéro d'usager."
+
+#, fuzzy
+#~ msgid ""
+#~ "Your LTI OAuth verification failed.  If this recurs, please speak with "
+#~ "your instructor"
+#~ msgstr "Votre vérification OAuth LTI a échoué."
+
+#~ msgid ""
+#~ "Your authentication failed.  Please return to Oncourse and login again."
+#~ msgstr ""
+#~ "Votre authentification a échoué. S'il vous plaît revenir à OnCourse et "
+#~ "vous connecter à nouveau."
+
+#, fuzzy
+#~ msgid ""
+#~ "Your authentication failed.  Please try again. Please speak with your "
+#~ "instructor if you need help."
+#~ msgstr ""
+#~ "Votre authentification a échoué. S'il vous plaît essayer de nouveau."
+
+#
+#~ msgid "Your email address has been changed."
+#~ msgstr "Votre adresse courriel a été modifiée."
+
+#
+#~ msgid ""
+#~ "Your score was not recorded because there was a failure in storing the "
+#~ "problem record to the database."
+#~ msgstr ""
+#~ "Votre résultat n'a pas été enregistré à cause d'une défaillance dans le "
+#~ "processus d'enregistrement dans la base de données."
+
+#
+#~ msgid "Your score was not recorded because this homework set is closed."
+#~ msgstr ""
+#~ "Votre résultat n'a pas été enregistré car la date de remise est passée."
+
+#
+#~ msgid ""
+#~ "Your score was not recorded because this problem has not been assigned to "
+#~ "you."
+#~ msgstr ""
+#~ "Votre résultat n'a pas été enregistré car ce problème ne vous a pas été "
+#~ "assigné."
+
+#
+#, fuzzy
+#~ msgid ""
+#~ "Your score was not recorded because this problem set version is not open."
+#~ msgstr ""
+#~ "Votre résultat n'a pas été enregistré car ce problème ne vous a pas été "
+#~ "assigné."
+
+#
+#, fuzzy
+#~ msgid ""
+#~ "Your score was not recorded because you have exceeded the time limit for "
+#~ "this test. (Time taken: %1 min; allowed: %2 min.)"
+#~ msgstr ""
+#~ "Votre résultat n'a pas été enregistré car ce problème ne vous a pas été "
+#~ "assigné."
+
+#
+#, fuzzy
+#~ msgid ""
+#~ "Your score was not recorded because you have no attempts remaining on "
+#~ "this set version."
+#~ msgstr ""
+#~ "Votre résultat n'a pas été enregistré car ce problème ne vous a pas été "
+#~ "assigné."
+
+#
+#~ msgid "Your score was recorded."
+#~ msgstr "Votre résultat a été enregistré"
+
+# avant: msgstr "Le résultat final est : %1.  %2"
+#
+#~ msgid "Your session has timed out due to inactivity. Please log in again."
+#~ msgstr "Votre session est échue. Veuillez vous reconnecter"
+
+#
+#~ msgid "_CLASSLIST_EDITOR_DESCRIPTION"
+#~ msgstr ""
+#~ "Ceci est la page d’édition de la liste de classe, où vous pouvez voir et "
+#~ "éditer les enregistrements de tous les étudiants présentement inscrits "
+#~ "dans ce cours.  Au haut de la page se trouvent les formulaires vous "
+#~ "permettant de filtrer les étudiants  à visualiser, les trier selon un "
+#~ "ordre choisi, éditer leurs enregistrements, leur assigner de nouveaux "
+#~ "mots de passe, importer/exporter des enregistrements d’étudiants à partir "
+#~ "(ou vers) des fichiers externes, ou d’ajouter/retirer des étudiants. Afin "
+#~ "d’effectuer l’une de ces actions, prière de sélectionner l’action "
+#~ "désirée, insérer ensuite l’information correspondante dans les champs "
+#~ "d’informations ci-dessous, et cliquer sur le bouton \"Effectuer l’action!"
+#~ "\" au bas du formulaire. À la fin de cette page se trouve un tableau "
+#~ "renfermant les noms d’usager ainsi que les informations correspondantes "
+#~ "pour chacun des étudiants."
+
+#
+#~ msgid "_EXTERNAL_AUTH_MESSAGE"
+#~ msgstr ""
+#~ "%1 utilise un système externe d’authentification. Vous avez effectué une "
+#~ "authentification avec ce système, mais vous n’êtes pas autorisé à vous "
+#~ "enregistrer dans ce cours."
+
+#
+#~ msgid "_GUEST_LOGIN_MESSAGE"
+#~ msgstr ""
+#~ " Ce cours permet l’enregistrement d’invités. Cliquer sur %1 afin de vous "
+#~ "enregister dans ce cours en tant qu’invité."
+
+#
+#~ msgid "_HMWKSETS_EDITOR_DESCRIPTION"
+#~ msgstr ""
+#~ "Ceci est le page d’édition des devoirs, où vous pouvez voir et éditer les "
+#~ "devoirs existant dans ce cours ainsi que les problèmes qu’ils renferment. "
+#~ "Au haut de la page se trouvent les formulaires vous permettant de filtrer "
+#~ "les devoirs à afficher dans le tableau, les trier selon un ordre choisi, "
+#~ "les éditer, les publier, les importer/exporter à partir/vers un fichier "
+#~ "externe, accéder à leurs résultats, ou les créer/supprimer. Afin "
+#~ "d’effectuer l’une de ces actions, prière de sélectionner l’action "
+#~ "désirée, insérer ensuite l’information correspondante dans les champs "
+#~ "d’informations ci-dessous, et cliquer sur le bouton \"Effectuer l’action!"
+#~ "\" au bas du formulaire. À la fin de cette page se trouve un tableau "
+#~ "renfermant les devoirs ainsi que leurs informations correspondantes."
+
+#
+#~ msgid "_LOGIN_MESSAGE"
+#~ msgstr ""
+#~ "Si l'option %1 est cochée, le navigateur que vous utilisez retiendra "
+#~ "votre nom d'usager et votre mot de passe que vous avez entré lors de "
+#~ "visites ultérieures. Évitez d'utiliser cette fonctionnalité sur les "
+#~ "ordinateurs publics, les ordinateurs qui ne sont pas sécuritaires ou qui "
+#~ "n'ont pas de contrôle direct. Utilisez cette fonctionnalité que pour les "
+#~ "ordinateurs de confiance."
+
+#
+#~ msgid "_REQUEST_ERROR"
+#~ msgstr ""
+#~ "WebWork a rencontré une erreur logicielle lors de la manipulation de ce "
+#~ "problème. Le problème lui-même est susceptible d'être la cause de "
+#~ "l'erreur. Si vous êtes un étudiant, mentionner l'erreur aux responsables "
+#~ "du cours. Si vous avez les droits, alors vous pouvez voir le rapport "
+#~ "d'erreur suivant."
+
+#
+#~ msgid "a duplicate of the first selected set"
+#~ msgstr "une copie du premier devoir sélectionné"
+
+#
+#~ msgid "a new empty set"
+#~ msgstr "un nouveau devoir vide"
+
+#
+#~ msgid "a single set"
+#~ msgstr "un seul devoir"
+
+# /home/francois/ExtractStrings/lib/WeBWorK/ContentGenerator/Instructor/UserList2.pm
+#~ msgid "added missing permission level for user"
+#~ msgstr "le niveau d'autorisation manquant pour l'utilisateur a été ajouté"
+
+#~ msgid "all current users"
+#~ msgstr "tous les utilisateurs actuels"
+
+#
+#~ msgid "all sets"
+#~ msgstr "tous les devoirs"
+
+#
+#~ msgid "all users"
+#~ msgstr "tous les usagers"
+
+#
+#~ msgid "any users"
+#~ msgstr "n'importe quel usager"
+
+#~ msgid "as"
+#~ msgstr "tel"
+
+#~ msgid "blank problem template(s) to end of homework set"
+#~ msgstr "Problème(s) modèle(s) vide(s) à la fin du devoir"
+
+#
+#~ msgid "changes abandoned"
+#~ msgstr "Les modifications n'ont pas été sauvegardées"
+
+# avant: msgstr "modificiations annulées"
+#
+#~ msgid "changes saved"
+#~ msgstr "modifications sauvegardées"
+
+#
+#~ msgid "editing all sets"
+#~ msgstr "modification de tous les devoirs"
+
+#
+#~ msgid "editing all users"
+#~ msgstr "modification de tous les usagers"
+
+#
+#~ msgid "editing selected sets"
+#~ msgstr "modification des devoirs sélectionnés"
+
+#
+#~ msgid "editing selected users"
+#~ msgstr "modification des usagers sélectionnés"
+
+#
+#~ msgid "editing visible sets"
+#~ msgstr "modifications des devoirs visibles"
+
+#
+#~ msgid "editing visible users"
+#~ msgstr "modification des usagers visibles"
+
+# avant: msgstr "tr: enter matching set IDs below"
+#
+#~ msgid "export abandoned"
+#~ msgstr "exportation annulée"
+
+#
+#~ msgid "giving new passwords to all users"
+#~ msgstr "assignation de nouveaux mots de passe à tous les usagers"
+
+#
+#~ msgid "giving new passwords to selected users"
+#~ msgstr "assignation de nouveaux mots de passe aux usagers sélectionnés"
+
+#
+#~ msgid "giving new passwords to visible users"
+#~ msgstr "assignation de nouveaux mots de passe aux usagers visibles"
+
+#
+#~ msgid "hidden"
+#~ msgstr "caché"
+
+# avant: msgstr "Destruction du fichier temporaire %1"
+#
+#~ msgid "hidden from"
+#~ msgstr "invisible pour"
+
+#
+#~ msgid "hidden from students"
+#~ msgstr "caché pour les étudiants"
+
+#
+#~ msgid "hidden sets"
+#~ msgstr "devoirs cachés"
+
+#~ msgid "illegal character in input: '/'"
+#~ msgstr "caractère illégal : '/'"
+
+#~ msgid "made visible for"
+#~ msgstr "rendue visible pour"
+
+#
+#~ msgid "multiple sets"
+#~ msgstr "devoirs multiples"
+
+#
+#~ msgid "no sets"
+#~ msgstr "aucun devoir"
+
+#
+#~ msgid "no users"
+#~ msgstr "aucun usager"
+
+# /home/francois/ExtractStrings/lib/WeBWorK/ContentGenerator/Instructor/UserList3.pm
+#~ msgid "number of students not defined"
+#~ msgstr "Le nombre d'étudiants n'est pas définie"
+
+#~ msgid "only"
+#~ msgstr "seulement"
+
+#~ msgid "pg debug"
+#~ msgstr "pg debug"
+
+#~ msgid "pg internal errors"
+#~ msgstr "pg erreur interne"
+
+#~ msgid "pg warning"
+#~ msgstr "pg avertissement"
+
+#, fuzzy
+#~ msgid ""
+#~ "restriction location %1 does not exist.  IP restrictions have been "
+#~ "ignored."
+#~ msgstr ""
+#~ "restriction de lieu %1 n'existe pas. Les restrictions IP ont été ignorées."
+
+#
+#~ msgid "selected sets"
+#~ msgstr "devoirs sélectionnés"
+
+#
+#~ msgid "selected users"
+#~ msgstr "usagers sélectionnés"
+
+#~ msgid "set"
+#~ msgstr "devoir"
+
+# /home/francois/ExtractStrings/lib/WeBWorK/ContentGenerator/Instructor/ProblemSetList.pm
+#~ msgid "sets"
+#~ msgstr "devoirs"
+
+#
+#~ msgid "showing all sets"
+#~ msgstr "affichage de tous les devoirs"
+
+#
+#~ msgid "showing all users"
+#~ msgstr "affichage de tous les usagers"
+
+#
+#~ msgid "showing matching users"
+#~ msgstr "affichage des usagers correspondant"
+
+#
+#~ msgid "showing no sets"
+#~ msgstr "affichage d'aucun devoir"
+
+#
+#~ msgid "showing no users"
+#~ msgstr "affichage d'aucun usager"
+
+#
+#~ msgid "showing selected sets"
+#~ msgstr "affichage des devoirs sélectionnés"
+
+#
+#~ msgid "showing selected users"
+#~ msgstr "affichage des usagers sélectionnés"
+
+#~ msgid "then delete them"
+#~ msgstr "et les effacer ensuite"
+
+# avant: msgstr "Soumettre ses réponses"
+#
+#~ msgid "time"
+#~ msgstr "reprise"
+
+#
+#~ msgid "times"
+#~ msgstr "reprises"
+
+#~ msgid "to"
+#~ msgstr "à"
+
+#
+#~ msgid "unlimited"
+#~ msgstr "illimité"
+
+#
+#~ msgid "users who match on selected field"
+#~ msgstr "usagers qui correspondent aux champs sélectionnés"
+
+# avant: msgstr "usagers qui correspondent pour les champs sélectionnés"
+#
+#~ msgid "visible"
+#~ msgstr "visible"
+
+#
+#~ msgid "visible sets"
+#~ msgstr "devoirs visibles"
+
+#
+#~ msgid "visible to students"
+#~ msgstr "visible pour les étudiants"
+
+#
+#~ msgid "visible users"
+#~ msgstr "usagers visibles"
+
+#, fuzzy
+#~ msgid ""
+#~ "There are currently two themes (or skins) to choose from: math3 and "
+#~ "math4.  The theme specifies a unified look and feel for the WeBWorK "
+#~ "course web pages."
+#~ msgstr ""
+#~ "Il existe actuellement cinq thèmes (ou skins) à choisir parmi: ur, math, "
+#~ "math2 et dgage. Le thème spécifie une apparence unifiée pour les pages "
+#~ "web de cours de Webwork."
+
+#
+#~ msgid "Add how many students?"
+#~ msgstr "Ajouter combien d'étudiants?"
+
+#
+#~ msgid "Download PDF or TeX Hardcopy for Selected Sets"
+#~ msgstr "Télécharger une copie PDF ou TeX pour les devoirs sélectionnés"
+
+#
+#~ msgid "Edit Which Users?"
+#~ msgstr "Éditer quels usagers?"
+
+#
+#~ msgid "Export selected sets"
+#~ msgstr "Exporter les devoirs sélectionnés"
+
+# msgstr "Exporter sous quel sorte de fichier?"
+#
+#~ msgid "Export which sets?"
+#~ msgstr "Exporter quels devoirs?"
+
+#
+#~ msgid "Show Which Users?"
+#~ msgstr "Afficher quels usagers?"
+
+#
+#~ msgid "exporting all sets"
+#~ msgstr "exportation de tous les devoirs"
+
+#
+#~ msgid "exporting selected sets"
+#~ msgstr "exportation des devoirs sélectionnés"
+
+#
+#~ msgid "exporting visible sets"
+#~ msgstr "exportation des devoirs visibles"
+
+#~ msgid ""
+#~ "Any time problem numbers are intentionally changed, the problems will "
+#~ "always be renumbered consecutively, starting from one.  When deleting "
+#~ "problems, gaps will be left in the numbering unless the box above is "
+#~ "checked."
+#~ msgstr ""
+#~ "Si le numéro d'un problèmes est intentionnellement modifié, les problèmes "
+#~ "seront renumérotés consécutivement, en commençant par un. Si un problème "
+#~ "est supprimé, il manquera un numéro dans la série sauf si la case si-"
+#~ "contre est cochée."
+
+#~ msgid "Deletion destroys all set-related data and is not undoable!"
+#~ msgstr ""
+#~ "La suppression détruit toutes les données liées au devoir et n'est pas "
+#~ "annulable!"
+
+#~ msgid "Deletion destroys all user-related data and is not undoable!"
+#~ msgstr ""
+#~ "La suppression détruit toutes les données utilisateur connexes et n'est "
+#~ "pas annulable!"
+
+#
+#~ msgid "Edit All Set Data"
+#~ msgstr "Editer les données de tous les devoirs"
+
+#~ msgid "Edit it"
+#~ msgstr "Modifier"
+
+#
+#~ msgid ""
+#~ "Force problems to be numbered consecutively from one (always done when "
+#~ "reordering problems)"
+#~ msgstr ""
+#~ "Forcer les problèmes à être numérotées par un (toujours fait lors de la "
+#~ "renumérotation des problèmes)"
+
+#~ msgid "Give new password to"
+#~ msgstr "Donne le nouveau mot de passe à"
+
+#~ msgid ""
+#~ "It is before the open date.  You probably want to renumber the problems "
+#~ "if you are deleting some from the middle."
+#~ msgstr ""
+#~ "C'est avant la date d'ouverture. Vous voulez probablement renuméroter les "
+#~ "problèmes si vous en effacer quelques-uns dans le milieu."
+
+#
+#~ msgid "Library Browser 2"
+#~ msgstr "Choisir des problèmes 2"
+
+# /home/francois/ExtractStrings/lib/WeBWorK/ContentGenerator.pm
+#~ msgid "Library Browser 3"
+#~ msgstr "Navigateur des librairies 3"
+
+#~ msgid "Make"
+#~ msgstr "faire"
+
+#~ msgid "Orig. Lib. Browser"
+#~ msgstr "Navig. orig. lib."
+
+#~ msgid "Primary sort"
+#~ msgstr "Tri primaire"
+
+#
+#~ msgid "Refresh Display"
+#~ msgstr "Rafraîchir la page"
+
+#~ msgid "Reorder problems only"
+#~ msgstr "Réordonner les problèmes seulement"
+
+# /home/francois/ExtractStrings/lib/WeBWorK/ContentGenerator/Instructor/UserList.pm
+#~ msgid "Result of last action performed"
+#~ msgstr "Résultat de la dernière action effectuée"
+
+#~ msgid "Secondary sort"
+#~ msgstr "Tri secondaire"
+
+#
+#~ msgid "Select all sets"
+#~ msgstr "Sélectionner tous les devoirs"
+
+#
+#~ msgid "Select all users"
+#~ msgstr "Sélectionner tous les usagers"
+
+#~ msgid "Show"
+#~ msgstr "Afficher"
+
+#~ msgid "Showing"
+#~ msgstr "Présentation"
+
+# /home/francois/ExtractStrings/lib/WeBWorK/ContentGenerator/Instructor/Stats.pm
+#~ msgid "Statistics for"
+#~ msgstr "Statistiques pour"
+
+#~ msgid "Try it"
+#~ msgstr "Essayer"
+
+#
+#~ msgid "Unselect all sets"
+#~ msgstr "Désélectionner tous les devoirs"
+
+# avant: msgstr "Dessélectionner tous les devoirs"
+#
+#~ msgid "Unselect all users"
+#~ msgstr "Désélectionner tous les usagers"
+
+#~ msgid "View it"
+#~ msgstr "Voir"
+
+#, fuzzy
+#~ msgid ""
+#~ "When changing problem numbers, we will move the problem to be %1 the "
+#~ "chosen number."
+#~ msgstr ""
+#~ "Si le numéro du problème est changé, le problème sera %1 le numéro choisis"
+
+#~ msgid "a new file named:"
+#~ msgstr "un nouveau fichier nommé:"
+
+#~ msgid "active"
+#~ msgstr "Actif"
+
+#~ msgid "assigning this set to"
+#~ msgstr "attribuer ce devoir à"
+
+#~ msgid "for students"
+#~ msgstr "pour les étudiants"
+
+#~ msgid "from"
+#~ msgstr "de"
+
+#~ msgid "in their"
+#~ msgstr "dans leurs"
+
+#~ msgid "inactive"
+#~ msgstr "innactif"
+
+#~ msgid "out of"
+#~ msgstr "hors de"
+
+#~ msgid "separate multiple IDs with commas"
+#~ msgstr "plusieurs IDs séparées par des virgules"
+
+#~ msgid "sets checked below"
+#~ msgstr "Devoirs vérifiés ci-dessous"
+
+#~ msgid "sets hidden from students"
+#~ msgstr "devoirs cachés aux étudiants"
+
+#~ msgid "sets visible to students"
+#~ msgstr "devoirs visible pour les étudiants"
+
+#~ msgid "sets with matching set IDs:"
+#~ msgstr "devoirs avec ID de devoirs correspondants"
+
+#~ msgid "the following file(s)"
+#~ msgstr "les fichiers suivants"
+
+#~ msgid "then by"
+#~ msgstr "puis par"
+
+#~ msgid "users"
+#~ msgstr "utlisateur"
+
+#~ msgid "users who match:"
+#~ msgstr "Utilisateurs correspondants:"
+
+#~ msgid "with set name(s):"
+#~ msgstr "avec le nom des devoirs:"
+
+#
+#~ msgid "Test Date"
+#~ msgstr "Date du test"
+
+#
+#~ msgid "Test Score"
+#~ msgstr "Résultat du test"
+
+#~ msgid "Edit1"
+#~ msgstr "Modifier1"
+
+#~ msgid "Edit2"
+#~ msgstr "Modifier2"
+
+#~ msgid "Edit3"
+#~ msgstr "Modifier3"
+
+# vérifier le contexte ...msgstr "tr: Match on what? (separate multiple IDs with commas)"
+#
+#, fuzzy
+#~ msgid "Message:"
+#~ msgstr "Messages"
+
+# vérifier le contexte ...msgstr "tr: Match on what? (separate multiple IDs with commas)"
+#
+#~ msgid "Messages"
+#~ msgstr "Messages"
+
+#~ msgid "The answer will be graded later."
+#~ msgstr "La réponde va être corrigée plus tard."
+
+#
+#, fuzzy
+#~ msgid "This answer is NOT completely correct."
+#~ msgstr "La réponse ci-dessus N'EST PAS %1correcte."
+
+#
+#, fuzzy
+#~ msgid "This answer is NOT correct."
+#~ msgstr "La réponse ci-dessus N'EST PAS %1correcte."
+
+#
+#, fuzzy
+#~ msgid "This answer is correct."
+#~ msgstr "La réponse ci-dessus est correcte."
+
+#, fuzzy
+#~ msgid "Import achievements from"
+#~ msgstr "Activer les objectifs des cours"
+
+#
+#, fuzzy
+#~ msgid "Open, reduced scoring starts on %1."
+#~ msgstr "Points partiels débutent: %1"
+
+#
+#, fuzzy
+#~ msgid "Reduced Scoring Starts %1"
+#~ msgstr "Points partiels débutent: %1"
+
+#
+#, fuzzy
+#~ msgid "Reduced scoring started on %1."
+#~ msgstr "Points partiels débutent: %1"
+
+#
+# vérifier le contexte: Je vois "answers due" et "answer available", mais pas answer date
+#, fuzzy
+#~ msgid "answer "
+#~ msgstr "Date de disponibilité des réponses"
+
+#
+#, fuzzy
+#~ msgid "Will open on %1"
+#~ msgstr "sera disponible le %1"
+
+#, fuzzy
+#~ msgid "User ID:"
+#~ msgstr "Utilisateur"
+
+#
+#~ msgid "Viewing temporary file"
+#~ msgstr "Visualisation du fichier temporaire"
+
+#~ msgid "Warning:"
+#~ msgstr "Attention:"
+
+#~ msgid "You are not authorized to access instructor tools"
+#~ msgstr "Vous n'êtes pas autorisé à accéder aux outils d'instructeur"
+
+#, fuzzy
+#~ msgid "all achievements."
+#~ msgstr "Activer les objectifs des cours"
+
+#, fuzzy
+#~ msgid "all current users."
+#~ msgstr "tous les utilisateurs actuels"
+
+#~ msgid "font-hidden"
+#~ msgstr "font-caché"
+
+#~ msgid "font-visible"
+#~ msgstr "font-visible"
+
+#
+#, fuzzy
+#~ msgid "no users."
+#~ msgstr "aucun usager"
+
+#
+#, fuzzy
+#~ msgid "set %1."
+#~ msgstr "Retourner à %1"
+
+#
+#~ msgid "submitAnswers"
+#~ msgstr "Soumettre les réponses"
+
+#
+#, fuzzy
+#~ msgid "All sets %1 all students"
+#~ msgstr "Tous les devoirs %1 à tous les étudiants"
+
+#~ msgid "Bad Nonce for user "
+#~ msgstr "Mauvais nom pour l'utilisateur "
+
+#~ msgid "Browse from: "
+#~ msgstr "Naviguer de: "
+
+#, fuzzy
+#~ msgid "Can't write to file: %1"
+#~ msgstr "Impossible d'écrire dans le fichier %1"
+
+#
+#, fuzzy
+#~ msgid "Change Display Options"
+#~ msgstr "Options d'affichage"
+
+# /home/francois/ExtractStrings/lib/WeBWorK/ContentGenerator/Instructor/Config.pm
+#~ msgid "Changes saved."
+#~ msgstr "Changements sauvegardés."
+
+#, fuzzy
+#~ msgid "Error: due date cannot be more than 10 years from now in set %1"
+#~ msgstr ""
+#~ "Erreur: la date de remise ne peut pas dépasser 10 ans après la date "
+#~ "d'aujourd'hui dans le devoir %1"
+
+#
+#, fuzzy
+#~ msgid "Hardcopy Theme:"
+#~ msgstr "Entête d'impression"
+
+#
+#~ msgid "No sets selected for scoring."
+#~ msgstr "Aucun devoir sélectionné pour la notation."
+
+#~ msgid "Recitation:"
+#~ msgstr "Récitation:"
+
+#~ msgid "Save as:"
+#~ msgstr "Enregistrer sous:"
+
+#
+#, fuzzy
+#~ msgid "Log into"
+#~ msgstr "Se déconnecter"
+
+#
+#, fuzzy
+#~ msgid "Sets assigned to $userID"
+#~ msgstr "Éditer les usagers assignés"
+
+# /home/francois/ExtractStrings/lib/WeBWorK/ContentGenerator/Instructor/StudentProgress.pm
+#~ msgid "Student Progress for"
+#~ msgstr "Progression"
+
+#
+#~ msgid "navNext"
+#~ msgstr "Suivant"
+
+#
+#~ msgid "navNextGrey"
+#~ msgstr "Suivant"
+
+#
+#~ msgid "navPrev"
+#~ msgstr "Précédent"
+
+#
+#~ msgid "navPrevGrey"
+#~ msgstr "Précédent"
+
+#
+#~ msgid "navProbList"
+#~ msgstr "Liste de problèmes"
+
+#
+#~ msgid "navProbListGrey"
+#~ msgstr "Liste de problèmes"
+
+#
+#~ msgid "navUp"
+#~ msgstr "Haut"
+
+#, fuzzy
+#~ msgid ""
+#~ ":  Something was wrong with your Nonce LTI parameters.  If this recurs, "
+#~ "please speak with your instructor"
+#~ msgstr "Quelque chose n'a pas bien été avec vos paramètres LTI."
+
+# avant: msgstr "signaler un bogue pour ce problème"
+#
+#~ msgid "Problem [_1]"
+#~ msgstr "Problème %1"
+
+#
+#, fuzzy
+#~ msgid "[_1]% correct"
+#~ msgstr "%1% correct"
+
+#
+#, fuzzy
+#~ msgid "At least one of these answers is NOT completely correct."
+#~ msgstr "Au moins une des réponses ci-dessus N'EST PAS %1 correcte."
+
+#
+#~ msgid "Added [_1] to [_2] as problem [_3]"
+#~ msgstr "Le problème %1 a été ajouté à %2 en tant que problème %3"
+
+#~ msgid "before"
+#~ msgstr "avant"
+
+#
+#, fuzzy
+#~ msgid "[_1]: Problem [_2]"
+#~ msgstr "devoir %1/problème %2"
+
+#
+#, fuzzy
+#~ msgid "Show me another [_1]"
+#~ msgstr "Afficher dans une autre fenêtre"
+
+# FileManager.pm
+#, fuzzy
+#~ msgid "Download [_1]"
+#~ msgstr "Télécharger"
+
+#
+#, fuzzy
+#~ msgid "Edit "
+#~ msgstr "Editer"
+
+#, fuzzy
+#~ msgid "Assign "
+#~ msgstr "Assigné à "
+
+#
+#, fuzzy
+#~ msgid "Delete "
+#~ msgstr "Supprimer"
+
+#
+#, fuzzy
+#~ msgid "Export "
+#~ msgstr "Exporter"
+
+#, fuzzy
+#~ msgid "Some of these files are directories. "
+#~ msgstr ""
+#~ "L'annulation n'es pas possibler pour la suppression de fichiers ou de "
+#~ "répertoires!"
+
+#, fuzzy
+#~ msgid "Add "
+#~ msgstr "Ajouter tous"
+
+#~ msgid " Display Mode: "
+#~ msgstr " Mode d'affichage: "
+
+#~ msgid "Due"
+#~ msgstr "Due"
+
+#
+#~ msgid "Apply Options"
+#~ msgstr "Appliquer les options"
+
+#
+#~ msgid "Disable"
+#~ msgstr "Désactiver"
+
+#
+#~ msgid "Enable/Disable reduced scoring for selected sets"
+#~ msgstr ""
+#~ "Activer/Désactiver l'attribution de points partiels pour les devoirs "
+#~ "sélectionnés"
+
+#
+#~ msgid ""
+#~ "No students shown.  Choose one of the options above to \n"
+#~ "\t              list the students in the course."
+#~ msgstr ""
+#~ "Aucun étudiant affiché. Choisir l'une des options ci-dessus pour afficher "
+#~ "les étudiants de ce cours."
+
+# msgstr "tr: Recitation" vérif contexte
+#
+#~ msgid "Reduced Credit %1 for all sets"
+#~ msgstr "Points partiels %1 pour tous les devoirs"
+
+#
+#~ msgid "Reduced Credit %1 for selected sets"
+#~ msgstr "Points partiels %1 pour les devoirs sélectionnés"
+
+#
+#~ msgid "Reduced Credit %1 for visable sets"
+#~ msgstr "Points partiels %1 pour les devoirs visibles"
+
+#
+#~ msgid "You have %1 %2 remaining."
+#~ msgstr "Il reste %1 %2."
+
+# avant: msgstr "Si l'option %1 est cochée, le navigateur que vous utilisez retiendra le login et votre mot de passe que vous avez entré lors de visites ultérieures. Évitez d'utiliser cette fonctionnalité sur les ordinateurs publics, les ordinateurs qui ne sont pas sûrs ou qui n'ont pas de contrôle direct. Utilisez cette fonctionalité que pour les ordinateurs de confiance."
+#
+#~ msgid "_REDUCED_CREDIT_MESSAGE_1"
+#~ msgstr ""
+#~ "Ce travail a une période permettant l’attribution de points partiels, "
+#~ "celle-ci débutant %1 et se terminant à la date de remise du  %2.  Au "
+#~ "cours de cette période, tout travail supplémentaire effectué comptera "
+#~ "pour %3% du travail original."
+
+#
+#~ msgid "_REDUCED_CREDIT_MESSAGE_2"
+#~ msgstr ""
+#~ "Ce travail avait une période permettant l’attribution de points partiels, "
+#~ "celle-ci ayant débuté %1 et ayant terminé à la date de remise du  %2.  Au "
+#~ "cours de cette période, tout travail supplémentaire effectué a compté "
+#~ "pour %3% du travail original.\""
+
+#
+#~ msgid "attempts"
+#~ msgstr "essais"
+
+#
+#~ msgid "completely"
+#~ msgstr "complètement"
+
+#
+#~ msgid "Course Information for course [_1]"
+#~ msgstr "Information sur le cours %1"
+
+# avant: msgstr "tr: Enrolled" vérifier contexte (traduire par vérification?)
+#
+#~ msgid "Hardcopy Header for set [_1]"
+#~ msgstr "Entête d'impression du devoir %1"
+
+# avant: msgstr "tr: Hardcopy Header for set %1"
+#
+#~ msgid ""
+#~ "Report bugs in a WeBWorK question/problem using this link. The very first "
+#~ "time you do this you will need to register with an email address so that "
+#~ "information on the bug fix can be reported back to you."
+#~ msgstr ""
+#~ "Signaler une erreur ou encore poser une question à WeBWorK en suivant ce "
+#~ "lien. À la première utilisation, il sera nécessaire de s'enregistrer en "
+#~ "fournissant une adresse courriel valide, de telle sorte d'assurer un "
+#~ "suivi sur les correctifs."
+
+#
+#~ msgid "hardcopy header file"
+#~ msgstr "entête d'impression du document"
+
+# avant: msgstr "Les fichiers auxiliares de %1 ont été copiés dans %2"
+#
+#~ msgid "Unpublished"
+#~ msgstr "Non publié"
+
+#
+#~ msgid "Unable to change the hardcopy header for set [_1]. Unknown error."
+#~ msgstr ""
+#~ "Impossible de modifier l'entête d'impression du devoir %1. Erreur "
+#~ "inconnue."
+
+#
+#~ msgid "Unable to make '[_1]' the set header for [_2]"
+#~ msgstr "Impossible de faire de '%1' l'entête du devoir %2"
+
+#
+#~ msgid "Can't determine user of temporary edit file [_1]."
+#~ msgstr "Impossible de déterminer l'utilisateur du fichier temporaire : %1."
+
+#
+#~ msgid "Download a hardcopy of this homework set."
+#~ msgstr "Télécharger une copie de ce devoir."
+
+#
+#, fuzzy
+#~ msgid "Top level of author information on the wiki."
+#~ msgstr "Niveau supérieur des informations de l'auteur dans le wiki."
+
+#
+#~ msgid "Reverting to original file '[_1]'"
+#~ msgstr "Revenir au fichier original '%1'"
+
+#
+#~ msgid "Wiki summary page for MathObjects"
+#~ msgstr "Sommaire Wiki de MathObjects"
+
+#
+#~ msgid "Password/Email"
+#~ msgstr "Mot de passe/courriel"
+
+#
+#~ msgid "Snippets of PG code illustrating specific techniques"
+#~ msgstr "Extraits de code PG illustrant des techniques spécifiques"
+
+# avant: msgstr "Bouts de code PG illustrant des techniques spécifiques"
+#
+#~ msgid "Error copying [_1] to [_2]"
+#~ msgstr "Erreur lors de la copie de %1 vers %2"
+
+#
+#~ msgid "This set is [_1] students."
+#~ msgstr "Ce devoir est %1 pour les étudiants."
+
+#
+#~ msgid "header file"
+#~ msgstr "Fichier d'entête"
+
+#
+#~ msgid "Display Mode"
+#~ msgstr "Mode d'affichage"
+
+#
+#~ msgid "blank problem"
+#~ msgstr "Problème vierge"
+
+#
+#, fuzzy
+#~ msgid ""
+#~ "Note: this problem viewer is for viewing purposes only. As of right now, "
+#~ "testing functionality is not possible."
+#~ msgstr ""
+#~ "Note: Cet outil peut être utilisé seulement à des fins de visionnement. "
+#~ "En ce moment, il n'est pas possible de tester les fonctionnalités."
+
+#
+#~ msgid "webwork"
+#~ msgstr "webwork"
+
+#
+#~ msgid "submit button clicked"
+#~ msgstr "Le bouton Soumettre a été activé"
+
+#
+#~ msgid ""
+#~ "Test snippets of PG code in interactive lab.  Good way to learn PG "
+#~ "language."
+#~ msgstr ""
+#~ "Tester des extraits de code PG dans un labo interactif.  Une bonne façon "
+#~ "d'apprendre le langage PG."
+
+# avant: msgstr "Tester des bouts de code PG dans un labo interactif.  Une bonne façon d'apprendre le langage PG."
+#
+#~ msgid "Page generated at [_1] at [_2]"
+#~ msgstr "Page générée à %1 le %2"
+
+#
+#~ msgid "View Using Seed Number"
+#~ msgstr "Voir à l'aide du numéro de la graine"
+
+#
+#~ msgid "Published"
+#~ msgstr "Publié"
+
+#
+#~ msgid ""
+#~ "Documentation from source code for PG modules and macro files. Often the "
+#~ "most up-to-date information."
+#~ msgstr ""
+#~ "Documentation des modules PG et des fichiers de macro à partir du code "
+#~ "source. Il s'agit souvent de l'information la plus à jour."
+
+#
+#~ msgid ""
+#~ "PG mark down syntax used to format WeBWorK questions. This interactive "
+#~ "lab can help you to learn the techniques."
+#~ msgstr ""
+#~ "Syntaxe PG utilisée pour formater les questions WeBWorK. Ce labo "
+#~ "interactif peut vous aider à apprendre les techniques."
+
+# avant: msgstr "L'en-tête de devoir pour le devoir %1 a été renommé par '%2'."
+#
+#~ msgid ""
+#~ "Error: This path is already in the temporary edit directory -- no new "
+#~ "temporary file is created. path = [_1]"
+#~ msgstr ""
+#~ "Erreur : ce fichier existe déjà dans le dossier temporaire -- aucun "
+#~ "nouveau fichier n'a été créé. Chemin = %1"
+
+#
+#~ msgid ""
+#~ "Please use radio buttons to choose the method for saving this file. Can't "
+#~ "recognize saveMode: |[_1]|."
+#~ msgstr ""
+#~ "Veuillez sélectionner la méthode d'enregistrement à l'aide des boutons "
+#~ "radio. Impossible d'identifier le mode d'enregistrement : |%1|."
+
+# avant: msgstr "Spécifier où le fichier doit être enregistré." pas certaine de ma modif
+#
+#~ msgid "The selected problem ([_1]) is not a valid problem for set [_2]."
+#~ msgstr "Le problème choisi (%1) n'est pas valide pour le devoir %2."
+
+#
+#~ msgid "Resources"
+#~ msgstr "Ressources"
+
+#
+#~ msgid "Duplicate"
+#~ msgstr "Dupliquer"
+
+#
+#~ msgid "This path |[_1]| is not the path to a temporary edit file."
+#~ msgstr "Ce chemin |%1| ne décrit pas un fichier temporaire modifiable"
+
+#
+#~ msgid "visible to"
+#~ msgstr "visible à"
+
+# avant: msgstr "visible"
+#
+#~ msgid ""
+#~ "Unable to change the source file path for set [_1], problem [_2]. Unknown "
+#~ "error."
+#~ msgstr ""
+#~ "Impossible de modifier le chemin du fichier source du devoir %1, problème "
+#~ "%2. Erreur inconnue."
+
+#
+#~ msgid "Options Information"
+#~ msgstr "Information sur les options"
+
+#
+#~ msgid "Save as new independent problem"
+#~ msgstr "Enregistrer en tant que nouveau problème indépendant"
+
+#
+#~ msgid "options information"
+#~ msgstr "information sur les options"
+
+#
+#~ msgid "The selected problem([_1]) is not a valid problem for set [_2]."
+#~ msgstr "Le problème choisi(%1) n'est pas valide pour le devoir %2."
+
+#
+#~ msgid "Unknown file type"
+#~ msgstr "Format de fichier inconnu"
+
+#
+#~ msgid "WeBWorK Assignment [_1] is due : [_2]."
+#~ msgstr "Date de remise du devoir %1 : %2"
+
+#
+#~ msgid "This set is visible to students."
+#~ msgstr "Ce devoir est visible auprès des étudiants."
+
+#
+#~ msgid ""
+#~ "You may choose to show any of the following data. Correct answers and "
+#~ "solutions are only available after the answer date of the homework set."
+#~ msgstr ""
+#~ "Vous pouvez choisir de montrer une des données suivantes. Les bonnes "
+#~ "réponses et les solutions ne sont disponibles qu'après la date de remise "
+#~ "du devoir."
+
+#~ msgid "You have %1 remaining."
+#~ msgstr "Vous avez $1 restant."
+
+#~ msgid "enabled"
+#~ msgstr "activé"
+
+#~ msgid "disabled"
+#~ msgstr "désactivé"
+
+#~ msgid "Can always show old answers by default"
+#~ msgstr "Peut toujours voir les anciennes réponses par défaut"
+
+#~ msgid "Control string for displaying matrices"
+#~ msgstr "Contrôler les chaînes pour l'affichage de matrices"
+
+#~ msgid ""
+#~ "<span style=\"color:red\">NOT READY for achievements: fix database.conf</"
+#~ "span>"
+#~ msgstr ""
+#~ "<span style=\"color:red\">PAS PRÊT pour des objectifs: fixer database."
+#~ "conf</span>"
+
+#~ msgid "Use MathView editor for answer entry"
+#~ msgstr "Utiliser l'éditeur MathView pour l'entrée de réponse"
+
+#~ msgid "Use DragMath editor for answer entry"
+#~ msgstr "Utiliser l'éditeur DragMath pour l'entrée de réponse"
+
+#~ msgid ""
+#~ "When viewing a problem, WeBWorK usually puts the previously submitted "
+#~ "answer in the answer blank if it is before the due date.  At this level "
+#~ "and higher, old answers are always shown (independent of the answer date)."
+#~ msgstr ""
+#~ "Lorsque vous regardez un problème, WeBWorK met généralement la réponse "
+#~ "déjà soumise dans la réponse vide si elle est antérieure à la date "
+#~ "d'échéance. A ce niveau et supérieurs, les anciennes réponses sont "
+#~ "toujours affichés (indépendamment de la date de la réponse)."
+
+#~ msgid ""
+#~ "Enter one of the allowed display mode types above.  See 'display modes "
+#~ "entry' for descriptions."
+#~ msgstr ""
+#~ "Entrez l'un des types de mode d'affichage admis ci-dessus. Voir \"Saisie "
+#~ "des mode d'affichage\" pour les descriptions"
+
+#~ msgid ""
+#~ "Set to true to display pencil DragMath equation editor next to each "
+#~ "answer box"
+#~ msgstr ""
+#~ "Définir la valeur à true pour afficher l'éditeur d'équation DragMath à "
+#~ "côté de chaque boîte de réponse"
+
+#~ msgid ""
+#~ "The Reduced Credit Period (formally called the Reduced Scoring Period) is "
+#~ "a period before the due date during which all additional work done by the "
+#~ "student counts at a reduced rate. Here is where you set the length of "
+#~ "this period in minutes. If this value is greater than 0, a message like "
+#~ "\"This assignment has a Reduced Credit Period that begins 11/08/2009  at "
+#~ "06:17pm EST and ends on the due date, 11/10/2009 at 06:17pm EST. During "
+#~ "this  period all additional work done counts 50% of the original.\" will "
+#~ "be displayed.<p> To use this, you also have to enable Reduced Credit for "
+#~ "individual assignments by editing the set data using the Hmwk Sets Editor."
+#~ "<p> This works with the avg_problem_grader (which is the the default "
+#~ "grader) and the  std_problem_grader (the all or nothing grader).  It will "
+#~ "work with custom graders if they are written appropriately."
+#~ msgstr ""
+#~ "La durée du crédit réduit (officiellement appelé la période de notation "
+#~ "réduite) est une période antérieure à la date d'échéance au cours de "
+#~ "laquelle tout travail supplémentaire effectué par l'élève compte à un "
+#~ "taux réduit. C'est ici que vous définissez la durée de cette période en "
+#~ "minutes. Si cette valeur est supérieure à 0, un message du type \"Ce "
+#~ "devoir a une durée de crédit réduit qui commence 11/08/2009 à 06:17 h HNE "
+#~ "et se termine à la date d'échéance, le 11/10/2009 à 18h17 HNE. pendant "
+#~ "cette période, tous les travaux supplémentaires qui sont fait compte pour "
+#~ "50% de l'original.\" sera affiché. <p> Pour l'utiliser, vous devez "
+#~ "également activer crédit réduit pour les travaux individuels en modifiant "
+#~ "le devoir à l'aide de Hmwk Sets Editor. <p> Cela fonctionne avec le "
+#~ "avg_problem_grader (notation par défaut) et le std_problem_grader "
+#~ "(notation tout ou rien). Il travaillera avec les élèves personnalisées si "
+#~ "elles sont écrites de façon appropriée."
+
+#~ msgid ""
+#~ "The amount of time (in minutes) before the due date when the assignment "
+#~ "is opened."
+#~ msgstr ""
+#~ "La nombre de temps (en minutes) avant la date d'échéance lorsque le "
+#~ "devoir est ouvert."
+
+#~ msgid ""
+#~ "When numerical answers are checked, most test if the student's answer is "
+#~ "close enough to the programmed answer be computing the error as a "
+#~ "percentage of the correct answer.  This value controls the default for "
+#~ "how close the student answer has to be in order to be marked correct.<p>A "
+#~ "value such as 0.1 means 0.1 percent error is allowed."
+#~ msgstr ""
+#~ "Lorsque les réponses numériques sont vérifiés, la plupart test si la "
+#~ "réponse de l'élève est assez proche de la réponse programmée, elle sera "
+#~ "calculer avec une marge d'erreur en pourcentage de la réponse correcte. "
+#~ "Cette valeur contrôle à combien proche la réponse de l'élève doit être "
+#~ "pour être marqué correct. <p> Une valeur telle que 0,1 signifie que 0,1 "
+#~ "pourcent de l'erreur est permise."
+
+#~ msgid "All Chapters"
+#~ msgstr "Tous les chapitres"
+
+#~ msgid "All Subjects"
+#~ msgstr "Tous les sujets"
+
+#~ msgid "All Sections"
+#~ msgstr "Tous les sections"
+
+#~ msgid "All Textbooks"
+#~ msgstr "Tous les livres"

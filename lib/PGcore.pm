@@ -33,7 +33,7 @@ use PGrandom;
 use PGalias;
 use PGloadfiles;
 use AnswerHash;
-use WeBWorK::PG::IO(); # don't important any command directly
+use Renderer::IO(); # don't important any command directly
 use Tie::IxHash;
 use MIME::Base64();
 use PGUtil();
@@ -556,7 +556,7 @@ sub check_answer_hash {
 
 sub PG_restricted_eval {
 	my $self = shift;
-	WeBWorK::PG::Translator::PG_restricted_eval(@_);
+	Renderer::Translator::PG_restricted_eval(@_);
 }
 
 
@@ -762,38 +762,38 @@ sub maketext {
 }
 sub includePGtext {
 	my $self = shift;
-	WeBWorK::PG::IO::includePGtext(@_);
+	Renderer::IO::includePGtext(@_);
  };
 sub read_whole_problem_file {
 	my $self = shift;
-	WeBWorK::PG::IO::read_whole_problem_file(@_);
+	Renderer::IO::read_whole_problem_file(@_);
  };
 sub convertPath {
 	my $self = shift;
-	WeBWorK::PG::IO::convertPath(@_);
+	Renderer::IO::convertPath(@_);
  };
 sub getDirDelim {
 	my $self = shift;
-	WeBWorK::PG::IO::getDirDelim(@_);
+	Renderer::IO::getDirDelim(@_);
  };
 sub fileFromPath {
 	my $self = shift;
-	WeBWorK::PG::IO::fileFromPath(@_);
+	Renderer::IO::fileFromPath(@_);
  };
 sub directoryFromPath {
 	my $self = shift;
-	WeBWorK::PG::IO::directoryFromPath(@_);
+	Renderer::IO::directoryFromPath(@_);
  };
 sub createDirectory {
 	my $self = shift;
-	WeBWorK::PG::IO::createDirectory(@_);
+	Renderer::IO::createDirectory(@_);
  };
 sub AskSage {
 	my $self = shift;
 	my $python = shift;
 	my $options = shift;
-	$options->{curlCommand} = WeBWorK::PG::IO::curlCommand();
-	WeBWorK::PG::IO::AskSage($python, $options);
+	$options->{curlCommand} = Renderer::IO::curlCommand();
+	Renderer::IO::AskSage($python, $options);
 }
 
 sub tempDirectory {

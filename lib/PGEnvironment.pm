@@ -173,6 +173,8 @@ sub processDirectories {
 		$config->{directories}->{renderer_dirs}->{equation_cache};
 	$config->{directories}->{help_files} = $config->{directories}->{htdocs} . "/" .
 		$config->{directories}->{renderer_dirs}->{help_files};
+	$config->{directories}->{problem_templates} = $config->{environment}->{pg_root} . "/" .
+		$config->{directories}->{problem_templates};
 
 	delete $config->{directories}->{renderer_dirs};
 
@@ -196,6 +198,23 @@ sub processDirectories {
 	} @{$config->{environment}->{appletPath}};
 
 	$config->{environment}->{appletPath} = \@appletPath;
+
+	# Locations of CAPA resources. (Only necessary if you need to use converted CAPA
+	# problems.)
+	################################################################################
+	# "Special" PG environment variables. (Stuff that doesn't fit in anywhere else.)
+	################################################################################
+
+	# CAPA_Tools:             = "$courseDirs{templates}/Contrib/CAPA/macros/CAPA_Tools/",
+	#  $pg{specialPGEnvironmentVars}{CAPA_MCTools}           = "$courseDirs{templates}/Contrib/CAPA/macros/CAPA_MCTools/",
+	#  $pg{specialPGEnvironmentVars}{CAPA_GraphicsDirectory} = "$courseDirs{templates}/Contrib/CAPA/CAPA_Graphics/",
+	#  $pg{specialPGEnvironmentVars}{CAPA_Graphics_URL}      = "$webworkURLs{htdocs}/CAPA_Graphics/",
+
+	#  push @{$pg{directories}{macrosPath}},
+	#    "$courseDirs{templates}/Contrib/CAPA/macros/CAPA_Tools",
+	#    "$courseDirs{templates}/Contrib/CAPA/macros/CAPA_MCTools";
+
+
 	return;
 }
 
@@ -210,6 +229,7 @@ sub processURLs {
 	$self->{URLs}->{html_temp} = "FIXME";
 	$self->{URLs}->{local_help} = $self->{URLs}->{htdocs} . '/' . $self->{directories}->{help_files};
 	$self->{URLs}->{temp_dir} = $self->{URLs}->{htdocs} . '/' . $self->{directories}->{temp_dir};
+	$self->{URLs}->{equation_cache} = $self->{URLs}->{htdocs} . '/' . $self->{directories}->{equation_cache};
 	$self->{URLs}->{mathjax} = $self->{URLs}->{htdocs} . '/' . $self->{URLs}->{mathjax};
 }
 
@@ -222,36 +242,36 @@ sub processEnvVars {
 		$self->{userRoles}->{$self->{permissionLevels}->{view_problem_debugging_info}};
 
 	# ie file paths are printed for 'gage'
-  # PRINT_FILE_NAMES_PERMISSION_LEVEL}
-  #       $userRoles{ $permissionLevels{print_path_to_problem} };
-   # (file paths are also printed for anyone with this permission or higher)
-# $pg{specialPGEnvironmentVars}{ALWAYS_SHOW_HINT_PERMISSION_LEVEL} =
-#         $userRoles{ $permissionLevels{always_show_hint} };
-   # (hints are automatically shown to anyone with this permission or higher)
-# $pg{specialPGEnvironmentVars}{ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL} =
-#         $userRoles{ $permissionLevels{always_show_solution} };
-   # (solutions are automatically shown to anyone with this permission or higher)
-# $pg{specialPGEnvironmentVars}{VIEW_PROBLEM_DEBUGGING_INFO} =
-#         $userRoles{ $permissionLevels{view_problem_debugging_info} };
- # (variable whether to show the debugging info from a problem to a student)
+	$self->{env_vars}->{PRINT_FILE_NAMES_PERMISSION_LEVEL} =
+		$self->{userRoles}->{$self->{permissionLevels}->{print_path_to_problem} };
 
-# $pg{specialPGEnvironmentVars}{use_knowls_for_hints}     = $pg{options}{use_knowls_for_hints};
-# $pg{specialPGEnvironmentVars}{use_knowls_for_solutions} = $pg{options}{use_knowls_for_solutions};
+	# (file paths are also printed for anyone with this permission or higher)
+	$self->{env_vars}->{ALWAYS_SHOW_HINT_PERMISSION_LEVEL} =
+		$self->{userRoles}->{$self->{permissionLevels}->{always_show_hint} };
 
-# Locations of CAPA resources. (Only necessary if you need to use converted CAPA
-# problems.)
-################################################################################
-# "Special" PG environment variables. (Stuff that doesn't fit in anywhere else.)
-################################################################################
+	# (hints are automatically shown to anyone with this permission or higher)
+	$self->{env_vars}->{ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL} =
+		$self->{userRoles}->{$self->{permissionLevels}->{always_show_solution} };
 
-#  $pg{specialPGEnvironmentVars}{CAPA_Tools}             = "$courseDirs{templates}/Contrib/CAPA/macros/CAPA_Tools/",
-#  $pg{specialPGEnvironmentVars}{CAPA_MCTools}           = "$courseDirs{templates}/Contrib/CAPA/macros/CAPA_MCTools/",
-#  $pg{specialPGEnvironmentVars}{CAPA_GraphicsDirectory} = "$courseDirs{templates}/Contrib/CAPA/CAPA_Graphics/",
-#  $pg{specialPGEnvironmentVars}{CAPA_Graphics_URL}      = "$webworkURLs{htdocs}/CAPA_Graphics/",
+	# (solutions are automatically shown to anyone with this permission or higher)
+	$self->{env_vars}->{PRINT_FILE_NAMES_PERMISSION_LEVEL} =
+		$self->{userRoles}->{$self->{permissionLevels}->{print_path_to_problem} };
 
-#  push @{$pg{directories}{macrosPath}},
-#    "$courseDirs{templates}/Contrib/CAPA/macros/CAPA_Tools",
-#    "$courseDirs{templates}/Contrib/CAPA/macros/CAPA_MCTools";
+
+	# Locations of CAPA resources. (Only necessary if you need to use converted CAPA
+	# problems.)
+	################################################################################
+	# "Special" PG environment variables. (Stuff that doesn't fit in anywhere else.)
+	################################################################################
+
+	#  $pg{specialPGEnvironmentVars}{CAPA_Tools}             = "$courseDirs{templates}/Contrib/CAPA/macros/CAPA_Tools/",
+	#  $pg{specialPGEnvironmentVars}{CAPA_MCTools}           = "$courseDirs{templates}/Contrib/CAPA/macros/CAPA_MCTools/",
+	#  $pg{specialPGEnvironmentVars}{CAPA_GraphicsDirectory} = "$courseDirs{templates}/Contrib/CAPA/CAPA_Graphics/",
+	#  $pg{specialPGEnvironmentVars}{CAPA_Graphics_URL}      = "$webworkURLs{htdocs}/CAPA_Graphics/",
+
+	#  push @{$pg{directories}{macrosPath}},
+	#    "$courseDirs{templates}/Contrib/CAPA/macros/CAPA_Tools",
+	#    "$courseDirs{templates}/Contrib/CAPA/macros/CAPA_MCTools";
 
 
 
@@ -334,6 +354,19 @@ sub checkEnvironment {
 		warn "The $prog program at '$self->{environment}->{externalPrograms}->{$prog}' is not executable"
 			unless (-x $args[0]);
 	}
+}
+
+sub get_language_handle {
+	my $self = shift;
+	my $lang = $self->{environment}->{language};
+	my $lh;
+	if($lang) {
+		$lh = Renderer::Localize->get_handle($lang) || die "No language handle for '$lang'";
+	} else {
+		# Config file missing, maybe?
+		$lh = Renderer::Localize->get_handle() || die "Can't get a language handle";
+	}
+	return $lh;
 }
 
 1;

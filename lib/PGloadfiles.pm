@@ -66,15 +66,15 @@ they will not interfere with the normal behavior of WeBWorK in other courses.
 
 =cut
 
-our $debugON =0;
+our $debugON =1;
 
 package PGloadfiles;
 use strict;
 #use Encode(qw(encode decode));
 use Exporter;
 use PGcore;
-use WeBWorK::PG::Translator;
-use WeBWorK::PG::IO;
+use Renderer::Translator;
+use Renderer::IO;
 
 our @ISA = qw ( PGcore  ) ;  # look up features in PGcore -- in this case we want the environment.
 
@@ -116,12 +116,12 @@ sub initialize {
 
 sub PG_restricted_eval {
 	my $self = shift;
-	WeBWorK::PG::Translator::PG_restricted_eval(@_);
+	Renderer::Translator::PG_restricted_eval(@_);
 }
 
 sub PG_macro_file_eval {
 	my $self = shift;
-	WeBWorK::PG::Translator::PG_macro_file_eval(@_);
+	Renderer::Translator::PG_macro_file_eval(@_);
 }
 
 # ^function loadMacros
@@ -134,7 +134,7 @@ sub loadMacros {
     my @files = @_;
     my $fileName;
     my $macrosPath = $self->{envir}->{macrosPath};
-    eval {main::time_it("begin load macros");};
+		eval {main::time_it("begin load macros");};
     ###############################################################################
     # At this point the directories have been defined from %envir and we can define
     # the directories for this file

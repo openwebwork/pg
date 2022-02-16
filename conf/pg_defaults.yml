@@ -9,12 +9,12 @@
 directories:
   courses: /opt/webwork/courses
   OPL: /opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary
+  problem_templates: lib/Renderer/ProblemTemplate
 
   # The following are directories typically in PG_HOME
   # htdocs will end up as PG_HOME/htdocs
   # temp_dir and help_files are directories in htdocs
   # equation_cache will be in temp_dir
-
 
   renderer_dirs:
     htdocs: htdocs
@@ -107,6 +107,14 @@ renderer:
 
   # Default display mode for Mathematics
   displayMode: MathJax
+
+  display_modes:
+    # display name   # mode name
+    tex: TeX
+    plainText: HTML
+    images: HTML_dpng
+    MathJax: HTML_MathJax
+    PTX: PTX
 
   # The following handles the display mode options for images
   displayModeOptions:
@@ -203,6 +211,7 @@ renderer:
   # decorations for incorrect input blanks
   incorrect_answer: "{border-width:2;border-style:solid;border-color:#F55}" #matches resultsWithError class in math2.css
 
+
 site:
   timezone: America/New_York
   locale: ''
@@ -290,46 +299,6 @@ env_vars:
   problemPostamble:
     TeX: ''
     HTML: ''
-
-
-# This belongs on the WeBWorK side.
-
-modules:
-  ################################################################################
-  # showMeAnother
-  ################################################################################
-  showMeAnother:
-  # Switch to enable showMeAnother button.
-    enable: false
-  # Default number of attempts before enabling show me another.
-    #showMeAnotherDefault: -1
-    numAttempts: -1
-  # Maximum number of times (per problem) the button can be used.
-    #showMeAnotherMaxReps: 3
-    maxReps: 3
-  # Maximum number of attempts to check if changing the problem seed changes the problem.
-  # showMeAnotherGeneratesDifferentProblem: 5
-    generateDifferentProblem: 5
-  # showMeAnother options
-    options:
-      - "SMAcheckAnswers"
-      - "SMAshowSolutions"
-      - "SMAshowCorrect"
-      - "SMAshowHints"
-
-
-  ###############################################################################
-  # periodicRandomization
-  ################################################################################
-  # switch to enable periodic re-randomization
-  enablePeriodicRandomization: false
-  # Course-wide default period for re-randomization, should be an integer.
-  # The value of 0 disables re-randomization
-  periodicRandomizationPeriod: 5
-  # Show the correct answer after a student's last attempt at the current version
-  # and before a new version is requested.
-  showCorrectOnRandomize: 0
-
 
 ##### PG modules to load
 

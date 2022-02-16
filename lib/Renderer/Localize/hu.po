@@ -1,0 +1,2219 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Translators:
+# pcsiba <pcsiba@gmail.com>, 2014,2016-2017
+msgid ""
+msgstr ""
+"Project-Id-Version: webwork2\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2021-03-10 21:17-0600\n"
+"Last-Translator: Jason Aubrey <aubreyja@gmail.com>\n"
+"Language-Team: Hungarian (http://www.transifex.com/webwork/webwork2/language/"
+"hu/)\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. (wwRound(0, $answerScore * 100)
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:285
+msgid "%1% correct"
+msgstr "%1% helyes"
+
+#. ($numBlanks)
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:434
+msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
+msgstr "%quant(%1,kérdés maradt,kérdés maradt) megválaszolatlan."
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1278
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1287
+msgid ""
+"(Instructor hint preview: show the student hint after the following number "
+"of attempts:"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:130
+msgid ""
+"A table showing all the current users along with several fields of user "
+"information. The fields from left to right are: Login Name, Login Status, "
+"Assigned Sets, First Name, Last Name, Email Address, Student ID, Enrollment "
+"Status, Section, Recitation, Comments, and Permission Level.  Clicking on "
+"the links in the column headers will sort the table by the field it "
+"corresponds to. The Login Name fields contain checkboxes for selecting the "
+"user.  Clicking the link of the name itself will allow you to act as the "
+"selected user.  There will also be an image link following the name which "
+"will take you to a page where you can edit the selected user's information.  "
+"Clicking the emails will allow you to email the corresponding user.  "
+"Clicking the links in the entries in the assigned sets columns will take you "
+"to a page where you can view and reassign the sets for the selected user."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:422
+msgid "All of the answers above are correct."
+msgstr "Az összes fenti válasz helyes."
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:419
+msgid "All of the gradeable answers above are correct."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:317
+msgid "Answer Preview"
+msgstr "A válasz megmutatása"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:426
+msgid "At least one of the answers above is NOT correct."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Audit"
+msgstr "ellenőrzés"
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:293
+msgid "Check Answers"
+msgstr "A válaszok ellenőrzése"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:319
+msgid "Correct Answer"
+msgstr "Helyes válasz"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Drop"
+msgstr "Dobd"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Enrolled"
+msgstr "beiratkozott"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:316
+msgid "Entered"
+msgstr "Belépve"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:270
+msgid "FeedbackMessage"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:185
+#: /opt/webwork/pg/macros/problemRandomize.pl:186
+msgid "Get a new version of this problem"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:470
+msgid "Go back to Part 1"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:291
+#: /opt/webwork/pg/macros/compoundProblem.pl:480
+#: /opt/webwork/pg/macros/compoundProblem.pl:491
+msgid "Go on to next part"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:409
+msgid "Hardcopy will always print the original version of the problem."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1560
+msgid "Hint:"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1560
+msgid "Hint: "
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:116
+msgid ""
+"If you check %1 your login information will be remembered by the browser you "
+"are using, allowing you to visit WeBWorK pages without typing your user name "
+"and password (until your session expires). This feature is not safe for "
+"public workstations, untrusted machines, and machines over which you do not "
+"have direct control."
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:408
+msgid "If you come back to it later, it may revert to its original version."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1228
+msgid "Instructor solution preview: show the student solution after due date."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:320
+msgid "Message"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:382
+#: /opt/webwork/pg/macros/problemRandomize.pl:407
+msgid "Note:"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:134
+msgid "One Column"
+msgstr ""
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:289
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:288
+msgid "Preview My Answers"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Proctor"
+msgstr "Felügyelő"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:318
+msgid "Result"
+msgstr "Eredmények"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:331
+msgid "Results for this submission"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:187
+msgid "Set random seed to:"
+msgstr ""
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:297
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:289
+msgid "Show Correct Answers"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1556
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1557
+msgid "Solution:"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1555
+msgid "Solution: "
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:410
+msgid "Some answers will be graded later."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:290
+msgid "Submit Answers"
+msgstr "A válasz elküldése"
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:502
+msgid "Submit your answers again to go on to the next part."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:413
+msgid "The answer above is NOT correct."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:408
+msgid "The answer above is correct."
+msgstr "A fenti válasz helyes"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:126
+msgid ""
+"The course %1 uses an external authentication system (%2). You've "
+"authenticated through that system, but aren't allowed to log in to this "
+"course."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:124
+msgid ""
+"This course supports guest logins. Click %1 to log into this course as a "
+"guest."
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:407
+msgid "This is a new (re-randomized) version of the problem."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:128
+msgid ""
+"This is a table showing the current Homework sets for this class.  The "
+"fields from left to right are: Edit Set Data, Edit Problems, Edit Assigned "
+"Users, Visibility to students, Reduced Credit Enabled, Date it was opened, "
+"Date it is due, and the Date during which the answers are posted.  The Edit "
+"Set Data field contains checkboxes for selection and a link to the set data "
+"editing page.  The cells in the Edit Problems fields contain links which "
+"take you to a page where you can edit the containing problems, and the cells "
+"in the edit assigned users field contains links which take you to a page "
+"where you can edit what students the set is assigned to."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:122
+msgid ""
+"This is the Achievement Editor.  It is used to edit the achievements "
+"available to students.  Please keep in mind the following facts: Achievments "
+"are displayed, and evaluated, in the order they are listed. The \"secret\" "
+"category creates achievements which are not visible to students until they "
+"are earned.  The \"level\" category is used for the achievements associated "
+"to a users level."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:120
+msgid ""
+"This is the classlist editor page, where you can view and edit the records "
+"of all the students currently enrolled in this course.  The top of the page "
+"contains forms which allow you to filter which students to view, sort your "
+"students in a chosen order, edit student records, give new passwords to "
+"students, import/export student records from/to external files, or add/"
+"delete students.  To use, please select the action you would like to "
+"perform, enter in the relevant information in the fields below, and hit the "
+"\"Take Action!\" button at the bottom of the form.  The bottom of the page "
+"contains a table containing the student usernames and their information."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:118
+msgid ""
+"This is the homework sets editor page where you can view and edit the "
+"homework sets that exist in this course and the problems that they contain. "
+"The top of the page contains forms which allow you to filter which sets to "
+"display in the table, sort the sets in a chosen order, edit homework sets, "
+"publish homework sets, import/export sets from/to an external file, score "
+"sets, or create/delete sets.  To use, please select the action you would "
+"like to perform, enter in the relevant information in the fields below, and "
+"hit the \"Take Action!\" button at the bottom of the form.  The bottom of "
+"the page contains a table displaying the sets and several pieces of relevant "
+"information."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:132
+msgid ""
+"This is the past answer viewer.  Students can only see their answers, and "
+"they will not be able to see which parts are correct.  Instructors can view "
+"any users answers using the form below and the answers will be colored "
+"according to correctness."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:3116
+msgid "This problem contains a video which must be viewed online."
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:602
+msgid "This problem has more than one part."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:136
+msgid "Two Columns"
+msgstr "Két oszlop"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:279
+msgid "Ungraded"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:114
+msgid ""
+"WeBWorK has encountered a software error while attempting to process this "
+"problem. It is likely that there is an error in the problem itself. If you "
+"are a student, report this error message to your professor to have it "
+"corrected. If you are a professor, please consult the error output below for "
+"more information."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGanswermacros.pl:1693
+msgid "You can earn partial credit on this problem."
+msgstr "Ezért a feladatért részpontokat kaphat. "
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:383
+msgid "You can get a new version of this problem after the due date."
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:610
+msgid "You may not change your answers when going on to the next part!"
+msgstr ""
+
+#. (wwRound(0, $problemResult->{score} * 100)
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:265
+msgid "You received a score of %1 for this attempt."
+msgstr "Ön %1 pontot kapott ezért a próbálkozásért."
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:3111
+msgid "Your browser does not support the video tag."
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:603
+msgid "Your score for this attempt is for this part only;"
+msgstr ""
+
+#. (wwRound(0, $problemResult->{score} * 100)
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:225
+msgid "Your score on this attempt is %1"
+msgstr ""
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:268
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:227
+msgid "Your score was not recorded."
+msgstr ""
+
+# #short for administrator
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "admin"
+msgstr "admin"
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:647
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:658
+msgid "answer"
+msgstr "válasz"
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:671
+msgid "column"
+msgstr "oszlop"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:276
+msgid "correct"
+msgstr "helyes"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "grade_proctor"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "guest"
+msgstr "vendég"
+
+# doe snot need to be translated
+#. ('j','k','_0')
+#. ('j','k')
+#: /opt/webwork/pg/lib/Parser/List/Vector.pm:35
+#: /opt/webwork/pg/lib/Value/Vector.pm:278
+#: /opt/webwork/pg/macros/contextLimitedVector.pl:94
+msgid "i"
+msgstr ""
+
+#: /opt/webwork/pg/macros/contextPiecewiseFunction.pl:774
+msgid "if"
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:283
+msgid "incorrect"
+msgstr "helytelen"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "login_proctor"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "nobody"
+msgstr "senki"
+
+#: /opt/webwork/pg/macros/contextPiecewiseFunction.pl:777
+msgid "otherwise"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:664
+msgid "part"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:653
+msgid "problem"
+msgstr "feladat"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "professor"
+msgstr "tanár"
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:670
+msgid "row"
+msgstr "sor"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "student"
+msgstr "diák"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "ta"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:470
+#: /opt/webwork/pg/macros/compoundProblem.pl:480
+msgid "when you submit your answers"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:604
+msgid "your overall score is for all the parts combined."
+msgstr ""
+
+#~ msgid "% correct"
+#~ msgstr "% helyes"
+
+#~ msgid "% correct with review"
+#~ msgstr "% ellenőrzéssel helyes "
+
+# Percent students
+#~ msgid "% students"
+#~ msgstr "% diák"
+
+#~ msgid "%1 Points:"
+#~ msgstr "%1 pont"
+
+#~ msgid "%1 Problems:"
+#~ msgstr "%1 feladat"
+
+#~ msgid "%1 sets added, %2 sets skipped. Skipped sets: (%3)"
+#~ msgstr ""
+#~ "%1 feladatsor hozzáadva, %2 feladatsor átugorva. Az átugrott "
+#~ "feladatsorok: (%3)"
+
+#~ msgid "%1 sets exported, %2 sets skipped. Skipped sets: (%3)"
+#~ msgstr ""
+#~ "%1 feladatsor exportálva, %2 feladatsor átugorva. Az átugrott "
+#~ "feladatsorok: (%3) "
+
+#~ msgid "%1 students out of %2"
+#~ msgstr "%1 diák a %2 közül"
+
+#~ msgid "%1 title and institution changed from %2 to %3 and from %4 to %5"
+#~ msgstr ""
+#~ "A %1 kurzus címe %2 -ról(ről) %3 - ra(re) és intézménye %4 -ról(ről) %5 - "
+#~ "ra(re) változott "
+
+#~ msgid "%1 users exported to file %2/%3"
+#~ msgstr "%1 felhasználó exportálva a %2/%3 állományba"
+
+#~ msgid ""
+#~ "%1 users replaced, %2 users added, %3 users skipped. Skipped users: (%4)"
+#~ msgstr ""
+#~ "%1 felhasználó cserélve, %2 hozzáadva, %3 átugorva. Az átugrott "
+#~ "feladatsorok: (%4) "
+
+#~ msgid "%1% Complete"
+#~ msgstr "%1% teljesítve"
+
+#~ msgid "%1's Current Address"
+#~ msgstr "%1 jelenlegi címe"
+
+#~ msgid "%1's Current Password"
+#~ msgstr "%1 jelenlegi jelszava"
+
+#~ msgid "%1's New Address"
+#~ msgstr "%1 új címe"
+
+#~ msgid "%1's New Password"
+#~ msgstr "%1 új jelszava"
+
+#~ msgid "%1's new password cannot be blank."
+#~ msgstr "%1 új jelszava nem lehet üres"
+
+#~ msgid "%1's password has been changed."
+#~ msgstr "%1 jelszava megváltozott."
+
+#~ msgid "%1: Problem %2"
+#~ msgstr "%1: %2 feladata"
+
+#~ msgid "%1: The directory for the course not found."
+#~ msgstr "%1: Ennek a kurzusnak a könyvtára nem található."
+
+#~ msgid "(Any unsaved changes will be lost.)"
+#~ msgstr "(Minden nem mentett változtatás el fog veszni.)"
+
+#~ msgid "(This problem will not count towards your grade.)"
+#~ msgstr "(Ez a feladat nem számít be az értékelésbe.)"
+
+#~ msgid "(correct)"
+#~ msgstr "(helyes)"
+
+#~ msgid "(incorrect)"
+#~ msgstr "(helytelen)"
+
+#~ msgid "1 student"
+#~ msgstr "1 diák"
+
+#~ msgid "A course with ID %1 already exists."
+#~ msgstr "Ezzel az azonosítóvall (ID %1) már létezik kurzus!"
+
+#~ msgid ""
+#~ "A directory already exists with the name %1. You must first delete this "
+#~ "existing course before you can unarchive."
+#~ msgstr ""
+#~ "Ezzel a névvel (%1) már létezik könyvtár. Önnek előbb törölnie kell ezt a "
+#~ "létező kurzust, mielőtt vissza tudná állítani az archívumból."
+
+#~ msgid "A file with that name already exists"
+#~ msgstr "Ilyen nevű állomány már létezik."
+
+#~ msgid "ANSWERS NOT RECORDED"
+#~ msgstr "A VÁLASZ NINCS ELMENTVE"
+
+#~ msgid "ANSWERS NOT RECORDED --"
+#~ msgstr "A VÁLASZ NINCS ELMENTVE --"
+
+#~ msgid "ANSWERS ONLY CHECKED -- "
+#~ msgstr "A VÁLASZ CSAK ELLENŐRIZVE LETT --"
+
+#~ msgid "ANSWERS ONLY CHECKED -- ANSWERS NOT RECORDED"
+#~ msgstr "A VÁLASZ CSAK ELLENŐRIZVE - A VÁLASZ NICS RÖGZÍTVE"
+
+#~ msgid "Abandon changes"
+#~ msgstr "A változások elhagyása"
+
+#~ msgid "Abandon export"
+#~ msgstr "Az export elhagyása"
+
+#~ msgid "Achievement"
+#~ msgstr "Eredmény"
+
+#~ msgid "Achievement %1 created with evaluator '%2'."
+#~ msgstr "'%2' értékelő létrehozta a %1 eredményt."
+
+#~ msgid "Achievement %1 exists.  No achievement created"
+#~ msgstr "%1 eredmény már létezik. Az eredmény-típus nem lett létrehozva"
+
+#~ msgid "Achievement Editor"
+#~ msgstr "Eredmény szerkesztő"
+
+#~ msgid "Achievement Evaluator Editor"
+#~ msgstr "Eredmény-értékelő szerkesztő"
+
+#~ msgid "Achievement Evaluator for achievement %1"
+#~ msgstr "%1 eredmény értékelője"
+
+#~ msgid "Achievement ID"
+#~ msgstr "Eredmény-azonosító"
+
+#~ msgid "Achievement ID exists!  No new achievement created.  File not saved."
+#~ msgstr ""
+#~ "Ez az eredmény-azonosító már létezik! Nem lett új eredmény-katégória  "
+
+#~ msgid "Achievement Points Per Problem"
+#~ msgstr "Feladatonkénti eredmény-pontok"
+
+#~ msgid "Achievement User Editor"
+#~ msgstr "Felhasználói eredményszerkesztő"
+
+#~ msgid "Achievement has been assigned to all users."
+#~ msgstr "Az eredmény hozzá lett rendelve az összes felhasználóhoz"
+
+#~ msgid "Achievement has been unassigned to all students."
+#~ msgstr "Az eredmény-hozzárendelés vissza lett vonva az összes diáknál"
+
+#~ msgid "Achievement scores saved to %1"
+#~ msgstr "Az eredmények pontszáma el lett mentve ehhez: %1 "
+
+#~ msgid "Achievements"
+#~ msgstr "Eredmények"
+
+#~ msgid "Active"
+#~ msgstr "Aktív"
+
+#~ msgid "Add"
+#~ msgstr "Hozzáadás"
+
+#~ msgid "Add All"
+#~ msgstr "Mindet add hozzá"
+
+#~ msgid "Add Course"
+#~ msgstr "Kurzus hozzáadása"
+
+#~ msgid "Add Students"
+#~ msgstr "Diák hozzáadása"
+
+#~ msgid "Add Users"
+#~ msgstr "Felhasználók hozzáadása"
+
+#~ msgid "Add WeBWorK administrators to new course"
+#~ msgstr "Add hozzá az új kurzushoz annak WeBWorK adminisztrátorait"
+
+#~ msgid "Add as what filetype?"
+#~ msgstr "Milyen állomány(fájl)típusként adja hozzá?"
+
+#~ msgid "Add problems to"
+#~ msgstr "A feladat hozzáadása ehhez:"
+
+#~ msgid "Add to what set?"
+#~ msgstr "Melyik feladatsorhoz adja hozzá?"
+
+#~ msgid "Add which new users?"
+#~ msgstr "Hány felhasználót adjon hozzá?"
+
+#~ msgid "Addresses"
+#~ msgstr "Címek"
+
+#~ msgid "Adds 24 hours to the close date of a homework."
+#~ msgstr "A házi feladat lezárásának meghosszabbítása 24 órával"
+
+#~ msgid "Adds 48 hours to the close date of a homework."
+#~ msgstr "A házi feladat lezárásának meghosszabbítása 48 órával"
+
+#~ msgid "Advanced Search"
+#~ msgstr "Bővített keresés"
+
+#~ msgid "All selected sets hidden from all students"
+#~ msgstr "Az összes kiválasztott feladatsor elrejtve az összes diák elől"
+
+#~ msgid "All selected sets made visible for all students"
+#~ msgstr ""
+#~ "Az összes kiválasztott feladatsor láthatóvá téve az összes diák számára"
+
+#~ msgid "All sets hidden from all students"
+#~ msgstr "Az összes feladatsor elrejtve az összes diák elől"
+
+#~ msgid "All sets made visible for all students"
+#~ msgstr "Az összes feladatsor láthatóvá téve az összes diák számára"
+
+#~ msgid "All students in course"
+#~ msgstr "A kurzus összes diákja"
+
+#~ msgid "Answer Date"
+#~ msgstr "A válasz dátuma"
+
+#~ msgid "Answer Log"
+#~ msgstr "A válaszok naplója"
+
+#~ msgid "Answer:"
+#~ msgstr "Válasz:"
+
+#~ msgid "Answers"
+#~ msgstr "Válaszok"
+
+#~ msgid "Answers Available"
+#~ msgstr "Válaszok engedélyezve"
+
+#, fuzzy
+#~ msgid ""
+#~ "Any changes made below will be reflected in the achievement for ALL "
+#~ "students."
+#~ msgstr ""
+#~ "Bármely fenti változás a feladatsorban alkalmazódik az összes diákra."
+
+#~ msgid ""
+#~ "Any changes made below will be reflected in the set for ALL students."
+#~ msgstr ""
+#~ "Bármely fenti változás a feladatsorban alkalmazódik az összes diákra."
+
+#~ msgid "Assign this set to which users?"
+#~ msgstr "Mely felhasználókhoz rendelje ezt a feladatsort?"
+
+#~ msgid "Assigned Sets"
+#~ msgstr "Hozzárendelt feladatsorok"
+
+#~ msgid "Attempts"
+#~ msgstr "Próbálkozások"
+
+#~ msgid "Author Info"
+#~ msgstr "Szerző adatai"
+
+#~ msgid "Automatic"
+#~ msgstr "Automatikus"
+
+#~ msgid "Basic Search"
+#~ msgstr "Alap keresés"
+
+#~ msgid "Binary"
+#~ msgstr "Bináris"
+
+#~ msgid "Browse"
+#~ msgstr "Keres"
+
+#~ msgid "Browse from:"
+#~ msgstr "Keresés innen:"
+
+#~ msgid "CLOSE DATE"
+#~ msgstr "A lezárás dátuma"
+
+#~ msgid "CLOSE TIME"
+#~ msgstr "A lezárás ideje"
+
+#~ msgid "Can report bugs"
+#~ msgstr "Be lehet jelenteni a hibákat "
+
+#~ msgid "Can show old answers"
+#~ msgstr "Meg tudja mutatni a régi válaszokat"
+
+#~ msgid "Can submit answers for a student"
+#~ msgstr "El tudja fogadni a válaszokat a diáknak"
+
+#~ msgid "Can't copy file: %1"
+#~ msgstr "Nem tudja a %1 állományt másolni"
+
+#~ msgid "Can't create archive '%1': command returned %2"
+#~ msgstr ""
+#~ "Nem lehet létrehozni a '%1' archívumot: a parancs %2 hibaüzenetet adott"
+
+#~ msgid "Can't create course environment for %1 because %2"
+#~ msgstr "Nem lehet létrehozni %1 számára a kurzuskörnyezetet, mert %2 "
+
+#~ msgid "Can't create directory: %1"
+#~ msgstr "Nem lehet létrehozni a %1 könvytárat"
+
+#~ msgid "Can't create file '%1': %2"
+#~ msgstr "Nem lehet létrehozni a '%1' állományt: %2 "
+
+#~ msgid "Can't create file: %1"
+#~ msgstr "Nem lehet létrehozni a '%1' állományt"
+
+#~ msgid "Can't delete archive '%1': %2"
+#~ msgstr "Nem lehet törölni a '%1' archívumot: %2"
+
+#~ msgid "Can't get password record for effective user '%1': %2"
+#~ msgstr "Nem kapható meg %1 aktív felhasználó jelszó rekordját: %2"
+
+#~ msgid "Can't get password record for user '%1': %2"
+#~ msgstr "Nem kapható meg %1 felhasználó jelszó rekordját: %2"
+
+#~ msgid "Can't open %1"
+#~ msgstr "Nem lehet megnyitni ezt: %1"
+
+#~ msgid "Can't open file %1"
+#~ msgstr "Nem lehet megnyitni a %1 állományt"
+
+#~ msgid "Can't read merge file %1. No message sent"
+#~ msgstr "A %1 egyesített állomány nem olvasható. Nem lett üzenet küldve"
+
+#~ msgid "Can't rename file: %1"
+#~ msgstr "Nem lehet átnevezni a %1 állományt"
+
+#~ msgid "Can't rename to the same name."
+#~ msgstr "Nem lehet átnevezni  ugyanarra a névre"
+
+#~ msgid "Can't write to file %1"
+#~ msgstr "Nem lehet írni a %1 állományba"
+
+#~ msgid "Cancel"
+#~ msgstr "Mégse"
+
+#~ msgid "Cannot open %1"
+#~ msgstr "Nem lehet megnyitni %1 -t"
+
+#~ msgid "Category"
+#~ msgstr "Kategória"
+
+#~ msgid "Change Course Title to:"
+#~ msgstr "A kurzus címének változtatása erre:"
+
+#~ msgid "Change CourseID to:"
+#~ msgstr "A kurzusazonosító megváltoztatása erre:"
+
+#~ msgid "Change Display Settings"
+#~ msgstr "A megjelenítési beállítások megváltoztatása "
+
+#~ msgid "Change Email Address"
+#~ msgstr "Az e-mai cím változtatása"
+
+#~ msgid "Change Institution to:"
+#~ msgstr "Az intézmény megváltoztatása erre:"
+
+#~ msgid "Change Password"
+#~ msgstr "A jelszó változtatása"
+
+#~ msgid "Change User Settings"
+#~ msgstr "A felhasználói beállítások megváltoztatása"
+
+#~ msgid "Change course institution from %1 to %2"
+#~ msgstr "Az kurzus intézményének %1 -ról(ről) %2 -ra(re) változtatása"
+
+#~ msgid "Change title from %1 to %2"
+#~ msgstr "A cím %1 -ról(ről) %2 -ra(re) változtatása"
+
+#~ msgid "Changes abandoned"
+#~ msgstr "A változtatások elhagyása"
+
+#~ msgid "Changes in this file have not yet been permanently saved."
+#~ msgstr "Az állomány változásait jelenleg nem menthetőek véglegesen."
+
+#~ msgid "Changes saved"
+#~ msgstr "A változtatások mentve"
+
+#~ msgid "Chapter:"
+#~ msgstr "Fejezet"
+
+#~ msgid "Check Test"
+#~ msgstr "A teszt ellenőrzése"
+
+#~ msgid "Check that it's permissions are set correctly."
+#~ msgstr "Ellenőrizze, hogy a jogosultságai helyesen lettek beállítva"
+
+#~ msgid ""
+#~ "Check whether it exists and whether the directory %1 can be read by the "
+#~ "webserver."
+#~ msgstr ""
+#~ "Ellenőrizze, hogy létezik-e és olvasható-e a webszerveren a %1 könyvtár."
+
+#~ msgid "Checking additional error messages"
+#~ msgstr "További hibaüzenetek ellenőrzése"
+
+#~ msgid "Choose visibility of the sets to be affected"
+#~ msgstr "Válassza ki az érintett feladatsorok láthatóságát"
+
+#~ msgid "Choose which sets to be affected"
+#~ msgstr "Válassza ki mely feladotsorok legyenek érintettek"
+
+#~ msgid "Classlist Editor"
+#~ msgstr "Osztálynévsor szerkesztése"
+
+#~ msgid "Clear"
+#~ msgstr "Töröl"
+
+#~ msgid ""
+#~ "Click on the login name to edit individual problem set data, (e.g. due "
+#~ "dates) for these students."
+#~ msgstr ""
+#~ "Kattintson a bejelentkezési névre ezen diákok feladatsorainak adatainak "
+#~ "egyéni módosításához (pl. határidők)."
+
+#~ msgid "Close"
+#~ msgstr "Lezárás"
+
+#~ msgid "Close Date"
+#~ msgstr "Dátum lezárása"
+
+#~ msgid "Closed, answers available."
+#~ msgstr "Lezárva, válaszadás lehetséges"
+
+#~ msgid "Closed, answers on %1."
+#~ msgstr "Lezárva, válaszadás eddig: %1"
+
+#~ msgid "Closed, answers recently available."
+#~ msgstr "Lezárva, válaszadás jelenleg lehetséges"
+
+#~ msgid "Closed."
+#~ msgstr "Lezárva"
+
+#~ msgid "Closes"
+#~ msgstr "Lezárás"
+
+#~ msgid "Closes %1"
+#~ msgstr "Lezárás ekkor: %1"
+
+#~ msgid "Closes:"
+#~ msgstr "Lezárás:"
+
+#~ msgid "Comment"
+#~ msgstr "Megjegyzés"
+
+#~ msgid "Completed."
+#~ msgstr "Teljesítve."
+
+#~ msgid "Confirm"
+#~ msgstr "Megerősít"
+
+#~ msgid "Confirm %1's New Password"
+#~ msgstr "%1 új jelszavának jóváhagyása"
+
+#~ msgid "Confirm Password:"
+#~ msgstr "Erősítse meg a jelszót:"
+
+#~ msgid "Congratulations, you earned a new level!"
+#~ msgstr "Gratulálunk, Ön egy új szintet ért el!"
+
+#~ msgid "Continue"
+#~ msgstr "Folytatás"
+
+#~ msgid "Copy"
+#~ msgstr "Másol"
+
+#~ msgid "Copy file as:"
+#~ msgstr "Másolja az állományt mint:"
+
+#~ msgid "Correct"
+#~ msgstr "Helyes"
+
+#~ msgid "Correct Adjusted Status"
+#~ msgstr "Helyes módosított állapot"
+
+#~ msgid "Correct Answers:"
+#~ msgstr "Helyes válaszok:"
+
+#~ msgid "Correct Status"
+#~ msgstr "Helyes állapot"
+
+#~ msgid "Correct answers"
+#~ msgstr "Helyes válaszok"
+
+#~ msgid "Correct: %1/%2"
+#~ msgstr "Helyes: %1/%2"
+
+#~ msgid "CorrectAnswers"
+#~ msgstr "HelyesVálasz"
+
+#~ msgid ""
+#~ "Could not add %1 problems to this set.  The number must be between 1 and "
+#~ "%2"
+#~ msgstr ""
+#~ "Nem lehet hozzáadni %1 feladatot ehhez a feladatsorhoz. A számnak 1 és %2 "
+#~ "között kell lennie."
+
+#~ msgid "Couldn't change %1's password: %2"
+#~ msgstr "Nem lehet véltoztatni %1 ezen jelszaván: %2"
+
+#~ msgid "Couldn't change your email address: %1"
+#~ msgstr "Nem lehet változtatni az Ön %1 e-mail címén"
+
+#~ msgid "Counter"
+#~ msgstr "Számláló"
+
+#~ msgid "Course Administration"
+#~ msgstr "Kurzus adminisztráció"
+
+#~ msgid "Course Configuration"
+#~ msgstr "Kurzus konfiguráció"
+
+#~ msgid ""
+#~ "Course ID may only contain letters, numbers, hyphens, and underscores."
+#~ msgstr ""
+#~ "A kurzusazonosító csak betűt, számot, kötőjelet és alulvonást "
+#~ "tartalmazhat."
+
+#~ msgid "Course ID:"
+#~ msgstr "Kurzus azonosító"
+
+#~ msgid "Course Info"
+#~ msgstr "Kurzus infó"
+
+#~ msgid "Course Name:"
+#~ msgstr "A kurzus neve:"
+
+#~ msgid "Course Title:"
+#~ msgstr "A kurzus címe"
+
+#~ msgid "Course archived."
+#~ msgstr "A kurzus archiválva lett."
+
+#~ msgid "Courses"
+#~ msgstr "Kurzusok"
+
+#~ msgid "Create"
+#~ msgstr "Létrehozás"
+
+#~ msgid "Create CSV"
+#~ msgstr "CSV létrehozása"
+
+#~ msgid "Create Location:"
+#~ msgstr "Elhelyezkedés létrehozása"
+
+#~ msgid "Create a New Set in This Course:"
+#~ msgstr "Új feladatsor létrehozása ebben a kurzusban:"
+
+#~ msgid "Create as what type of set?"
+#~ msgstr "Milyen típusú feladatsort kíván létrehozni?"
+
+#~ msgid "Current"
+#~ msgstr "Jelenlegi"
+
+#~ msgid "Currently defined locations are listed below."
+#~ msgstr "A jelenleg meghatározott elhelyezkedés alább van felsorolva."
+
+#~ msgid "Data"
+#~ msgstr "Adat"
+
+#~ msgid "Database tables are ok"
+#~ msgstr "Az adatbázis táblák rendben vannak"
+
+#~ msgid "Database tables need updating."
+#~ msgstr "Az adatbázis táblákat frissíteni kell"
+
+#~ msgid "Database tables ok"
+#~ msgstr "Az adatbázis táblák rendben vannak"
+
+#~ msgid "Database:"
+#~ msgstr "Adatbázis:"
+
+#~ msgid "Date"
+#~ msgstr "Dátum"
+
+#~ msgid "Debug"
+#~ msgstr "Hibakeresés"
+
+#~ msgid "Default"
+#~ msgstr "Alapértelmezett"
+
+#~ msgid "Delete"
+#~ msgstr "Törlés"
+
+#~ msgid "Delete Course"
+#~ msgstr "Kurzus törlése"
+
+#~ msgid "Delete all existing addresses"
+#~ msgstr "Törli az összes létező címet"
+
+#~ msgid "Delete course after archiving. Caution there is no undo!"
+#~ msgstr ""
+#~ "Az archiválás után törli a kurzust. Vigyázat nincs utólagos visszavonási "
+#~ "lehetőség!"
+
+#~ msgid "Delete course:"
+#~ msgstr "Ezen kurzusok törlése"
+
+#~ msgid "Delete how many?"
+#~ msgstr "Mennyit töröljön?"
+
+#~ msgid "Delete it?"
+#~ msgstr "Törli?"
+
+#~ msgid "Delete location:"
+#~ msgstr "Törli az elhelyezkedést:"
+
+#~ msgid "Deleted Location(s): %1"
+#~ msgstr "Törli az elhelyezkedés(eke)t: %1 "
+
+#~ msgid "Deleted addresses %1 from location."
+#~ msgstr "Törli a %1 címeket az elhelyezkedésből."
+
+#~ msgid "Directory"
+#~ msgstr "Könyvtár"
+
+#~ msgid "Directory '%1' not removed: %2"
+#~ msgstr "%1 könyvtár nem lett törölve: %2"
+
+#~ msgid "Directory '%1' removed (items deleted: %2)"
+#~ msgstr "%1 könyvtár törölve (a törölt elemek száma: %2)"
+
+#~ msgid "Directory permission errors "
+#~ msgstr "Hiba a könyvtárhoz való hozzáféréssel"
+
+#~ msgid "Directory structure"
+#~ msgstr "Könyvtárstruktúra"
+
+#~ msgid "Directory structure is ok"
+#~ msgstr "A könyvtárstruktúra OK"
+
+#~ msgid "Directory structure needs to be repaired manually before archiving."
+#~ msgstr ""
+#~ "Az archiválás előtt a könyvtárstruktúrát kézileg helyre kell állítani. "
+
+#~ msgid "Directory structure needs to be repaired manually before renaming."
+#~ msgstr ""
+#~ "Az átnevezés előtt a könyvtárstruktúrát kézileg helyre kell állítani."
+
+#~ msgid "Directory structure or permissions need to be repaired. "
+#~ msgstr "A könyvtárstruktúrát vagy jogosultságait helyre kell állítani."
+
+#~ msgid "Display Mode:"
+#~ msgstr "Megjelenítési mód:"
+
+#~ msgid "Display Past Answers"
+#~ msgstr "Mutasd a legutóbbi választ"
+
+#~ msgid "Download Hardcopy for Selected %plural(%1,Set,Sets)"
+#~ msgstr ""
+#~ "A kiválasztott %plural(%1,sor,sorok) PDF vagy TeX kimeneti állományainak "
+#~ "letöltése"
+
+#~ msgid "Download PDF or TeX Hardcopy for Current Set"
+#~ msgstr "A jelenlegi sor PDF vagy TeX kimeneti állományainak mentése "
+
+#~ msgid "Duplicate this set and name it"
+#~ msgstr "Készitse el a feladatsor másolatát és nevezze el"
+
+#~ msgid "E-mail Instructor"
+#~ msgstr "e-mail a tanárnak"
+
+#~ msgid "E-mail:"
+#~ msgstr "e-mail:"
+
+#~ msgid "Edit"
+#~ msgstr "Módosít"
+
+#~ msgid "Edit Assigned Users"
+#~ msgstr "A hozzárendelt felhasználók módosítása"
+
+#~ msgid "Edit Problems"
+#~ msgstr "A feladatok módosítása"
+
+#~ msgid "Edit Set Data"
+#~ msgstr "A feladotsor adatainak módosítása"
+
+#~ msgid "Edit which sets?"
+#~ msgstr "Mely feladatsorokat módosítja?"
+
+#~ msgid "Email"
+#~ msgstr "e-mail"
+
+#~ msgid "Email Address"
+#~ msgstr "E-mail cím"
+
+#~ msgid "Email instructor"
+#~ msgstr "e-mail a tanárnak"
+
+#~ msgid "Enrollment Status"
+#~ msgstr "Regisztrációs állapot"
+
+#~ msgid "Enter filename below"
+#~ msgstr "Írja be lent a fájlnevet"
+
+#~ msgid "Enter filenames below"
+#~ msgstr "Írja be lent a fájlneveket"
+
+#~ msgid "Export"
+#~ msgstr "Export"
+
+#~ msgid "Export to what kind of file?"
+#~ msgstr "Mely fájlokat akarja exportálni?"
+
+#~ msgid "Export which users?"
+#~ msgstr "Mely felhasználókat akarja exportálni?"
+
+#~ msgid "Failed to create new set: %1"
+#~ msgstr "Nem sikerült létrehozni a %1 új feladatsort"
+
+#~ msgid "Failed to create new set: no set name specified!"
+#~ msgstr ""
+#~ "Nem sikerült létrehozni az új feladatsort: nincs megadva a feladatnév!"
+
+#~ msgid "Failed to duplicate set: %1"
+#~ msgstr "Nem sikerült létrehozni a %1 feladatsor másolatát."
+
+#~ msgid "Failed to duplicate set: no set name specified!"
+#~ msgstr ""
+#~ "Nem sikerült létrehozni a feladatsor másolatát: nincs megadva a "
+#~ "feladatnév!"
+
+#~ msgid "Failed to duplicate set: no set selected for duplication!"
+#~ msgstr ""
+#~ "Nem sikerült létrehozni a feladatsor másolatát: nincs kiválaszva "
+#~ "feladatsor!"
+
+#~ msgid "Failed to duplicate set: set %1 already exists!"
+#~ msgstr ""
+#~ "Nem sikerült létrehozni a feladatsor másolatát: a %1 feladatsor már "
+#~ "létezik!"
+
+#~ msgid "Feedback"
+#~ msgstr "Visszacsatolás"
+
+#~ msgid "File Manager"
+#~ msgstr "Állománykezelő"
+
+#~ msgid "Filename"
+#~ msgstr "Fájlnév"
+
+#~ msgid "Filter by what text?"
+#~ msgstr "Melyik szöveg alapján szűrjek?"
+
+#~ msgid "First Name"
+#~ msgstr "Keresztnév"
+
+#~ msgid "From:"
+#~ msgstr "Feladó"
+
+#~ msgid "Generate Hardcopy"
+#~ msgstr "Másolat generálása"
+
+#~ msgid "Give new password to which users?"
+#~ msgstr "Melyik felhasználónak kér új jelszót?"
+
+#~ msgid "Grades"
+#~ msgstr "Eredményesség"
+
+#~ msgid "Guest Login"
+#~ msgstr "Vendég felhasználó"
+
+#~ msgid "Hardcopy Format:"
+#~ msgstr "Kimeneti formátum:"
+
+#~ msgid "Hardcopy Generator"
+#~ msgstr "kimeneti generátor"
+
+#~ msgid "Hardcopy Header"
+#~ msgstr "Fejléc másolata"
+
+#~ msgid "Help"
+#~ msgstr "Súgó"
+
+#~ msgid "Hidden"
+#~ msgstr "Rejtett"
+
+#~ msgid "Hints"
+#~ msgstr "Tippek"
+
+# Hmwk is short for Homework
+#~ msgid "Hmwk Sets Editor"
+#~ msgstr "HF-sor szerkesztő"
+
+#~ msgid "Homework Sets"
+#~ msgstr "Feladatsorok"
+
+#~ msgid ""
+#~ "If a password field is left blank, the student's current password will be "
+#~ "maintained."
+#~ msgstr ""
+#~ "Ha a jelszó mezőt üresen hagyja, a diák jelenlegi jelszava megmarad."
+
+#~ msgid "Import"
+#~ msgstr "Import"
+
+#~ msgid "Import from where?"
+#~ msgstr "Honnan importálni?"
+
+#~ msgid "Import how many sets?"
+#~ msgstr "Hány feladatsort importálni?"
+
+#~ msgid "Import sets with names"
+#~ msgstr "Ezen nevű feladatsorok importálása"
+
+#~ msgid "Import users from what file?"
+#~ msgstr "Mely állományból akar felhasználókat importálni?"
+
+#~ msgid "Inactive"
+#~ msgstr "Inaktív"
+
+#~ msgid "Instructor Tools"
+#~ msgstr "Oktatói eszközök"
+
+#~ msgid "Invalid user ID or password."
+#~ msgstr "Érvénytelen felhasználói azonosító vagy jelszó."
+
+#~ msgid "Last Name"
+#~ msgstr "Vezetéknév"
+
+#~ msgid "Library Browser"
+#~ msgstr "Könyvtár böngésző"
+
+#~ msgid "Log In Again"
+#~ msgstr "Újra bejelentkezni"
+
+#~ msgid "Log Out"
+#~ msgstr "Kijelentkezés"
+
+#~ msgid "Login"
+#~ msgstr "Bejelentkezés"
+
+#~ msgid "Login Info"
+#~ msgstr "Bejelentkezési információk"
+
+#~ msgid "Login Name"
+#~ msgstr "Bejelentkezési név"
+
+#~ msgid "Login Status"
+#~ msgstr "Bejelentkezési állapot"
+
+#~ msgid "Logout"
+#~ msgstr "Kijelentkezés"
+
+#~ msgid "Main Menu"
+#~ msgstr "Főmenü"
+
+#~ msgid "Match on what? (separate multiple IDs with commas)"
+#~ msgstr "Találatok (többszörös azonosítók szétválasztása vesszővel)"
+
+#~ msgid "Math Objects"
+#~ msgstr "Mat. objektumok"
+
+#~ msgid "Name"
+#~ msgstr "Név"
+
+#~ msgid "Name the new set"
+#~ msgstr "Az új feladatsor neve"
+
+#~ msgid "New Password"
+#~ msgstr "Új jelszó"
+
+#~ msgid "New passwords saved"
+#~ msgstr "Az új jelszó mentve"
+
+#~ msgid "Next Problem"
+#~ msgstr "Új feladat"
+
+#~ msgid "No"
+#~ msgstr "Nem"
+
+#~ msgid "No change made to any set"
+#~ msgstr "Egy feladatsorban sem történt változás"
+
+#~ msgid "No sets selected for scoring"
+#~ msgstr "Nincsenek feladatsorok kiválasztva értékelésre"
+
+#~ msgid ""
+#~ "No sets shown.  Choose one of the options above to list the sets in the "
+#~ "course."
+#~ msgstr ""
+#~ "Nem jeleníthetőek meg feladatsorok. Válasszon fent egy lehetőséget a "
+#~ "kurzus feladatsorainak jegyzékéért. "
+
+#~ msgid "Not logged in."
+#~ msgstr "Nincs bejelentkezve."
+
+#~ msgid "Note"
+#~ msgstr "Megjegyzés"
+
+#~ msgid "Open Date"
+#~ msgstr "A kezdés dátuma"
+
+#~ msgid "PREVIEW ONLY -- ANSWERS NOT RECORDED"
+#~ msgstr "A kezdés dátumaCSAK MEGTEKINTÉS - A VÁLASZOK NINCSENEK MENTVE"
+
+#~ msgid "Pad Fields"
+#~ msgstr "Betét mező"
+
+#~ msgid "Page generated at %1"
+#~ msgstr "Az oldal generálva: %1"
+
+#~ msgid "Password"
+#~ msgstr "Jelszó"
+
+#~ msgid "Permission Level"
+#~ msgstr "Hozzáférési szint"
+
+#~ msgid "Please enter your username and password for %1 below:"
+#~ msgstr "Kérjük adja meg alább %1 felhasználói nevét és jelszavát:"
+
+#~ msgid "Please select action to be performed."
+#~ msgstr "Válassza ki a végrehajtandó művelet."
+
+#~ msgid "Please specify a file to save to."
+#~ msgstr "Kérjük válassza ki a mentendő állományt"
+
+#~ msgid "Previous Problem"
+#~ msgstr "Előző feladat"
+
+#~ msgid "Problem %1"
+#~ msgstr "%1. feladat"
+
+#~ msgid "Problem Editor"
+#~ msgstr "Feladatszerkesztő"
+
+#~ msgid "Problem List"
+#~ msgstr "Feladatlista"
+
+#~ msgid "Problem Techniques"
+#~ msgstr "Feladat-technikák"
+
+#~ msgid "Problem Viewer"
+#~ msgstr "Feladat-néző"
+
+#~ msgid "Problems"
+#~ msgstr "Feladatok"
+
+#~ msgid "Publish"
+#~ msgstr "Közzététel"
+
+#~ msgid "Recitation"
+#~ msgstr "Előadás"
+
+#~ msgid "Record Scores for Single Sets"
+#~ msgstr "A pontszámok mentése az adott feladatsorhoz"
+
+# Context is "Attempts Remaining"
+#~ msgid "Remaining"
+#~ msgstr "Maradék"
+
+#~ msgid "Remember Me"
+#~ msgstr "Emlékezz rám!"
+
+#~ msgid "Replace which users?"
+#~ msgstr "Mely felhasználókat cseréli?"
+
+#~ msgid "Report bugs"
+#~ msgstr "Hiba bejelentése"
+
+#~ msgid "Result of last action performed: %1"
+#~ msgstr "Az utolsó művelet eredményei: %1"
+
+#~ msgid "Results of last action performed"
+#~ msgstr "Az utolsó művelet eredményei"
+
+#~ msgid "Revert"
+#~ msgstr "Visszaállít"
+
+#~ msgid "STUDENT ID"
+#~ msgstr "Diák azonosító (ID)"
+
+#~ msgid "Save"
+#~ msgstr "mentés"
+
+#~ msgid "Save As"
+#~ msgstr "Mentés mint"
+
+#~ msgid "Save as"
+#~ msgstr "mentés mint"
+
+#~ msgid "Save changes"
+#~ msgstr "A változások mentése"
+
+#~ msgid "Score"
+#~ msgstr "Eredmény"
+
+#~ msgid "Score selected set(s) and save to:"
+#~ msgstr "A kiválasztott feladatsor(ok) pontozása és mentése ide:"
+
+#~ msgid "Score which sets?"
+#~ msgstr "Mely feladatsor eredményei?"
+
+#~ msgid "Scoring Download"
+#~ msgstr "Az eredmények letöltése"
+
+#~ msgid "Scoring Tools"
+#~ msgstr "Pontozási eszközök"
+
+#~ msgid "Section"
+#~ msgstr "Fejezet"
+
+#~ msgid "Select an action to perform"
+#~ msgstr "Válassza ki a végrehajtandó művelet"
+
+#~ msgid "Set"
+#~ msgstr "Feladatsor/Beállítás"
+
+#~ msgid "Set Definition Filename"
+#~ msgstr "A fájlnév definíciójának beállítása"
+
+#~ msgid "Set Header"
+#~ msgstr "A feladatsor fejléce"
+
+#~ msgid "Set Info"
+#~ msgstr "Feladatsor infó"
+
+#~ msgid "Set List"
+#~ msgstr "Feladatsor lista"
+
+#~ msgid "Set Name"
+#~ msgstr "A feladatsor neve"
+
+#~ msgid "Sets"
+#~ msgstr "Feladatsorok"
+
+#~ msgid "Show Hints"
+#~ msgstr "Tippek megjelenítése"
+
+#~ msgid "Show Past Answers"
+#~ msgstr "Az utolsó válasz megjelenítése"
+
+#~ msgid "Show Solutions"
+#~ msgstr "A megoldás megjelenítése"
+
+#~ msgid "Show correct answers"
+#~ msgstr "A helyes válasz megjelenítése"
+
+#~ msgid "Show which sets?"
+#~ msgstr "Mely feladatsorok megjelenítése"
+
+#~ msgid "Show/Hide Site Description"
+#~ msgstr "Az oldal leírásának megjelnítése/rejtése"
+
+#~ msgid "Show:"
+#~ msgstr "Mutasd:"
+
+#~ msgid "Showing %1 out of %2 sets."
+#~ msgstr "%2 feladatsorból %1 megjelenítve."
+
+#~ msgid "Showing %1 out of %2 users"
+#~ msgstr "%2 felhasználóból %1 megjelenítve"
+
+#~ msgid "Site Information"
+#~ msgstr "Oldal-információ"
+
+#~ msgid "Solutions"
+#~ msgstr "Megoldások"
+
+#~ msgid "Sort"
+#~ msgstr "rendezés"
+
+#~ msgid "Sort by"
+#~ msgstr "E szerint rendezve"
+
+#~ msgid "Sort by %1 and then by %2"
+#~ msgstr "%1 majd %2 szerint rendezve"
+
+#~ msgid "Statistics"
+#~ msgstr "Statisztikák"
+
+#~ msgid "Status"
+#~ msgstr "Állapot"
+
+#~ msgid "Stop Acting"
+#~ msgstr "A tevékenység befejezése"
+
+#~ msgid "Student ID"
+#~ msgstr "Diák ID"
+
+#~ msgid "Student Progress"
+#~ msgstr "Diákok előmenetele"
+
+#~ msgid "Student answers"
+#~ msgstr "Hallgató válaszai"
+
+#~ msgid "Submit Answers for %1"
+#~ msgstr "%1 válaszainak jóváhagyása"
+
+#~ msgid "Success"
+#~ msgstr "Sikeres"
+
+#~ msgid "Successfully created new set %1"
+#~ msgstr "Sikeresen létrehozva a(z) %1 új feladatsor"
+
+#~ msgid "Take Action!"
+#~ msgstr "Csináld!"
+
+#~ msgid "The WeBWorK Project"
+#~ msgstr "A WeBWorK projekt"
+
+#~ msgid "The path to the original file should be absolute"
+#~ msgstr "Az állomány eredeti elérési útvonala legyen abszolút"
+
+#~ msgid "The selected problem set (%1) is not a valid set for %2"
+#~ msgstr "A kiválasztott feladatsor (%1) nem érvényes sor a  %2 -hoz(höz)"
+
+# Context is "Sort by ____ Then by _____"
+#~ msgid "Then by"
+#~ msgstr "aztán e szerint"
+
+#~ msgid "This homework set contains no problems."
+#~ msgstr "Ez a feladatgysor nem tartalmaz feladatokat."
+
+#~ msgid "This homework set is closed."
+#~ msgstr "Ez a feladatsor zárolva van."
+
+#~ msgid "This homework set is not yet open."
+#~ msgstr "Ez a feladatsor jelenleg nincs nyitva."
+
+#~ msgid "This problem will not count towards your grade."
+#~ msgstr "Ez a feladatsor nem számít be az értékelésbe."
+
+# Context is "This set is visible" or "This set is hidden"
+#~ msgid "This set is %1"
+#~ msgstr "Ez a feladatsor %1"
+
+#~ msgid "True"
+#~ msgstr "Igaz"
+
+#~ msgid "Unpack"
+#~ msgstr "Kicsomagol"
+
+#~ msgid "Unpack archives automatically"
+#~ msgstr "Az archívumok automatikus kicsomagolása"
+
+#~ msgid "Unselect all courses"
+#~ msgstr "Az összes kurzus kijelölésének megszüntetése"
+
+#~ msgid "Update"
+#~ msgstr "Frissítés"
+
+#~ msgid "Update Display"
+#~ msgstr "A képernyő frissítése"
+
+#~ msgid "Update Menus"
+#~ msgstr "A menük frissítése"
+
+#~ msgid "Update settings and refresh page"
+#~ msgstr "A beállítások majd az oldal frissítése "
+
+#~ msgid "Update the checked directories?"
+#~ msgstr "A bejelölt könyvtárak frissítése"
+
+#~ msgid "Updated location description."
+#~ msgstr "A frissített elhelyezkedés leírása"
+
+#~ msgid "Upgrade"
+#~ msgstr "Frissítés"
+
+#~ msgid "Upgrade Course Tables"
+#~ msgstr "A kurzustáblák frissítése"
+
+#~ msgid "Upgrade Courses"
+#~ msgstr "A kurzusok frissítése"
+
+#~ msgid "Upgrade process completed"
+#~ msgstr "A frissítési folyamat befejezve"
+
+#~ msgid "Upload"
+#~ msgstr "Feltöltés"
+
+#~ msgid "Use Date Picker"
+#~ msgstr "Dátumválasztó használata"
+
+#~ msgid "Use Equation Editor?"
+#~ msgstr "Egyenletszerkesztő használata"
+
+#~ msgid "Use Item"
+#~ msgstr "Elem használata"
+
+#~ msgid "Use System Default"
+#~ msgstr "Rendszerbeállítások használata"
+
+#~ msgid "Use browser back button to return from preview mode"
+#~ msgstr ""
+#~ "Használja a böngészője vissza gombját a kilépéshez az előnézeti módból."
+
+#~ msgid "Use log base 10 instead of base <i>e</i>"
+#~ msgstr "10-es alapú logaritmust használj <i>e</i> alapú helyett"
+
+#~ msgid ""
+#~ "Use this form to report to your professor a problem with the WeBWorK "
+#~ "system or an error in a problem you are attempting. Along with your "
+#~ "message, additional information about the state of the system will be "
+#~ "included."
+#~ msgstr ""
+#~ "Használja ezt a tanárának szóló űrlapot WebWork rendszerben vagy az "
+#~ "valamely feladatnál előállt hiba bejelentésére. Az üzenettel el lesznek "
+#~ "küldve további információk a rendszer állapotáról is."
+
+#~ msgid "User ID"
+#~ msgstr "Felhasználói azonosító"
+
+#~ msgid "User Settings"
+#~ msgstr "Felhasználói beállíttások"
+
+#~ msgid "User Values"
+#~ msgstr "Felhasználói értékek"
+
+#~ msgid "User's name is:"
+#~ msgstr "A felhasználó neve ez:"
+
+#~ msgid "User's username is:"
+#~ msgstr "A felhasználó felhasználóneve ez:"
+
+#~ msgid "Username"
+#~ msgstr "Felhasználónév"
+
+#~ msgid "Users"
+#~ msgstr "Felhasználók"
+
+#~ msgid "Users Assigned to Set %2"
+#~ msgstr "A felhasználó ki lett jelölve a %2 feladatsorhoz"
+
+#~ msgid "Users List"
+#~ msgstr "Felhasználói lista"
+
+#~ msgid "Users sorted by %1, then by %2, then by %3"
+#~ msgstr "A felhasználók előbb %1, aztán %2 és végül %3 szerint rendezve"
+
+#~ msgid "View"
+#~ msgstr "Megjelenítés"
+
+#~ msgid "View equations as"
+#~ msgstr "Mutasd az egyenletet mint"
+
+#~ msgid "View statistics by set"
+#~ msgstr "Mutasd a statisztikákat feladatsoronként"
+
+#~ msgid "View statistics by student"
+#~ msgstr "A diák statisztikájának megjelenítése"
+
+#~ msgid "View student progress by set"
+#~ msgstr "A diákok előmenetelének megtekintése feladatsoronként."
+
+#~ msgid "View student progress by student"
+#~ msgstr "A diákok előmenetelének megtekintése diákonként"
+
+#~ msgid "View/Edit"
+#~ msgstr "Mutat/szerkeszt"
+
+#~ msgid "Viewing temporary file:"
+#~ msgstr "Átmeneti állomány mutatása:"
+
+#~ msgid "Visibility"
+#~ msgstr "Láthatóság"
+
+#~ msgid "Visible"
+#~ msgstr "Látható"
+
+#~ msgid "Visible to Students"
+#~ msgstr "Látható diákok"
+
+#~ msgid "Warning"
+#~ msgstr "Figyelmeztetés"
+
+#~ msgid "Warning messages"
+#~ msgstr "Figyelmeztető üzenet"
+
+#~ msgid ""
+#~ "Warning: Deletion destroys all user-related data and is not undoable!"
+#~ msgstr ""
+#~ "Vigyázat: a törléssel minden felhaszálóval kapcsolatos adat "
+#~ "visszavonhatatlanul törlődik!"
+
+#~ msgid "WeBWorK Error"
+#~ msgstr "WeBWorK hiba"
+
+#~ msgid "WeBWorK Warnings"
+#~ msgstr "WeBWorK figyelmeztetés"
+
+#~ msgid "Weight"
+#~ msgstr "Súly"
+
+#~ msgid "Welcome to WeBWorK!"
+#~ msgstr "Üdvözöl a WeBWork!"
+
+#~ msgid "What field should filtered users match on?"
+#~ msgstr "A felhasználók mely mezőjére kíván szűrési feltételt megadni? "
+
+#~ msgid "Worth"
+#~ msgstr "Megéri"
+
+#~ msgid ""
+#~ "Write permissions have not been enabled in the templates directory.  No "
+#~ "changes can be made."
+#~ msgstr ""
+#~ "Az átmeneti könyvtárnak nincsenek engedényezve az írási jogosultságok. "
+#~ "Nem történik változás."
+
+#~ msgid "Yes"
+#~ msgstr "Igen"
+
+#~ msgid "You are not authorized to access the instructor tools."
+#~ msgstr "Ön nem jogosult hozzaférni az oktatói eszközökhöz."
+
+#~ msgid "You are not authorized to modify homework sets."
+#~ msgstr "Ön nem jogosult módosítani a feladatsort."
+
+#~ msgid "You are not authorized to modify problems."
+#~ msgstr "Önnek nincs jogosultsága módosítani a feladatot."
+
+#~ msgid "You are not authorized to modify set definition files."
+#~ msgstr "Ön nem jogosult módosítani a feladatsor definíciós állományait."
+
+#~ msgid "You are not authorized to modify student data"
+#~ msgstr "Ön nem jogosult módosítani a diák adatait"
+
+#~ msgid "You are not authorized to perform this action."
+#~ msgstr "Ön nem jogosult végrehajtani ezt a műveletet."
+
+#~ msgid "You cannot delete yourself!"
+#~ msgstr "Nem törölheti önmagát!"
+
+#~ msgid "You do not have permission to change email addresses."
+#~ msgstr "Önnek nincs jogosultsága változtatni az e-mail címeket."
+
+#~ msgid "You do not have permission to change your password."
+#~ msgstr "Önnek nincs jogosultsága megváltoztatni a jelszavát."
+
+#~ msgid "You do not have permission to view the details of this error."
+#~ msgstr "Nincsen engedélye a hiba részleteinek megtekintéséhez."
+
+#~ msgid ""
+#~ "You have %negquant(%1,unlimited attempts,attempt,attempts) remaining."
+#~ msgstr ""
+#~ "Önnek %negquant(%1,korlátlan próbálkozás,próbálkozás,próbálkozás) maradt."
+
+#~ msgid "You have attempted this problem %quant(%1,time,times)."
+#~ msgstr "Ön ezt a feladatot %quant(%1,-szor(ször),-szor(ször)) próbálta."
+
+#~ msgid "You have been logged out of WeBWorK."
+#~ msgstr "Ön kijelentkezett WebWork-ből."
+
+#~ msgid "You may not change your own password here!"
+#~ msgstr "Ön nem tudja megváltoztatni itt a jelszavát!"
+
+#~ msgid "You must specify a user ID."
+#~ msgstr "Meg kell adni egy felhasználói azonosítót (ID)."
+
+#~ msgid "You must specify an file name in order to save a new file."
+#~ msgstr "Meg kell adnia egy fájlnevet, hogy mentsen egy új fájlt."
+
+#~ msgid "Your email address has been changed."
+#~ msgstr "Az Ön e-mail címe megváltozott."
+
+#~ msgid "Your overall recorded score is %1.  %2"
+#~ msgstr "Az Ön teljes pontszáma %1. %2"
+
+#~ msgid ""
+#~ "Your score was not recorded because there was a failure in storing the "
+#~ "problem record to the database."
+#~ msgstr ""
+#~ "Az Ön pontszáma nem lett elmentve, mert a feladat pontszámának "
+#~ "adatbázisba írása hibába ütközött."
+
+#~ msgid "Your score was not recorded because this homework set is closed."
+#~ msgstr "Pontjai nem lettek elmentve, mivel ez a feladatsor zárva van."
+
+#~ msgid ""
+#~ "Your score was not recorded because this problem has not been assigned to "
+#~ "you."
+#~ msgstr ""
+#~ "Pontjai nem lettek elmentve, mivel ez a feladat nincs hozzárendelve Önhöz."
+
+#~ msgid "Your score was recorded."
+#~ msgstr "Az eredmény el lett mentve"
+
+#~ msgid "Your session has timed out due to inactivity. Please log in again."
+#~ msgstr ""
+#~ "A időkorlátja lejárt inaktivitás miatt. Kérjük, jelentkezzen be újra."
+
+#~ msgid "_CLASSLIST_EDITOR_DESCRIPTION"
+#~ msgstr ""
+#~ "Ezen az oldalon megtekintheti és szerkesztheti a kurzushoz hozzárendelt "
+#~ "diákok nyilvántartását. Az oldal felső részén szűrési, rendezési "
+#~ "eszközöket talál, valamint a diákok bejegyzeseit lehet szerkeszteni, új "
+#~ "jelszavakat szolgáltatni, importálni és exportálni, illetve hozzáadni és "
+#~ "törölni a diákokat. A használathoz válassza ki a végrehajtandó művelete, "
+#~ "majd kattintson a \"Csináld!\" gombra a tennivalók felsorolása alatt. "
+#~ "Ezek alatt a diákok felhasználói nevei és adadatait tartalmazó táblázatok "
+#~ "találhatók. "
+
+#~ msgid "_EXTERNAL_AUTH_MESSAGE"
+#~ msgstr ""
+#~ "1% külső hitelesítési rendszert használ. Önt ez a rendszer hitelesítette, "
+#~ "de nem engedélyezi a belépését ebbe a kurzusba."
+
+#~ msgid "_GUEST_LOGIN_MESSAGE"
+#~ msgstr ""
+#~ "Ez a kurzus támogatja vendég bejelentkezést. Kattintson a % 1 -ra(re) "
+#~ "vendégként való bejelentkezéshez."
+
+#~ msgid "_HMWKSETS_EDITOR_DESCRIPTION"
+#~ msgstr ""
+#~ "Ez a házi feladatok (HF) - feladatsorok szerkesztőjének oldala, ahol "
+#~ "megtekintehi és szerkeszheti az egyes kurzusokhoz tartozó feladatsorokat "
+#~ "valamit a tartalmazott feladatokat. Az oldal felső részén olyan "
+#~ "kapcsolókat talál, amelyekkel szűrheti, rendezheti, szerkesztheti, "
+#~ "importálhatja/exportálhatja, publikálhatja, létrehozhatja/törölheti a "
+#~ "feladatsorokat. Válassza ki a végrehajtandó tevékenységet, majd a "
+#~ "\"Csináld!\" gombbal végrehajtatja azt. Ezek alatt egy táblázatot talál a "
+#~ "a feladatsor feladataival és annak információival."
+
+#~ msgid "_LOGIN_MESSAGE"
+#~ msgstr ""
+#~ "A(z) % 1 megjelölésével az Ön bejelentkezési adatait megjegyzi az Ön "
+#~ "által használt böngésző, ami lehetővé teszi a WeBWoRK oldalra "
+#~ "bejelentkezését anélkül, hogy beírná a felhasználói nevét és jelszavát "
+#~ "(míg a munkamenet le nem jár). Ez a lehetőség nem ajánlott, nem "
+#~ "biztonságos nyilvános, nem megbízható munkaállomásokon, számítógépeken, "
+#~ "és olyan számítógépeken, amelyek felett nincs közvetlen ellenőrzési "
+#~ "lehetősége."
+
+#~ msgid "_REQUEST_ERROR"
+#~ msgstr ""
+#~ "A WeBWoRK szoftverhibába ütközött, miközben megpróbálta feldolgozni ezt a "
+#~ "feladatot. Valószínű, hogy a hiba az Ön feladatában van. Ha Ön diák, "
+#~ "jelentse ezt a hibaüzenetet a tanárának, hogy orvosolni tudja. Ha Ön "
+#~ "tanár, kérjük, olvassa el a hiba kimenetét a részletekért."
+
+# Context is "Create set ______ as a duplicate of the first selected set"
+#~ msgid "a duplicate of the first selected set"
+#~ msgstr "másolat az első kijelölt feladatsorról"
+
+# Context is "Create set ______ as a new empty set"
+#~ msgid "a new empty set"
+#~ msgstr "új, üres feladatsor"
+
+#~ msgid "a single set"
+#~ msgstr "egyetlen feladatsor"
+
+#~ msgid "add problems"
+#~ msgstr "feladat hozzáadása"
+
+#~ msgid "all current users"
+#~ msgstr "az összes jelenlegi felhasználó"
+
+#~ msgid "all sets"
+#~ msgstr "az összes feladatsor"
+
+#~ msgid "all students"
+#~ msgstr "minden diák"
+
+#~ msgid "all users"
+#~ msgstr "az összes felhasználó"
+
+#~ msgid "alphabetically"
+#~ msgstr "abc-sorrendben"
+
+#~ msgid "any users"
+#~ msgstr "bármely felhasználó"
+
+# Context is "Create _____ as a new empty set"
+#~ msgid "as"
+#~ msgstr "mint"
+
+#~ msgid "changes abandoned"
+#~ msgstr "változások elhagyása"
+
+#~ msgid "changes saved"
+#~ msgstr "változások mentve"
+
+#~ msgid "close"
+#~ msgstr "bezár"
+
+#~ msgid "columns:"
+#~ msgstr "oszlopok"
+
+#~ msgid "course files"
+#~ msgstr "kurzusállomány"
+
+#~ msgid "deleted %1 sets"
+#~ msgstr "törölve %1 feladatsor"
+
+#~ msgid "deleted %1 users"
+#~ msgstr "törölve %1 felhasználó"
+
+#~ msgid "editing all sets"
+#~ msgstr "az összes feladatsor módosítása"
+
+#~ msgid "editing all users"
+#~ msgstr "az összes felhasználó módosítása"
+
+#~ msgid "editing selected sets"
+#~ msgstr "a kiválasztott feladatsorok módosítása"
+
+#~ msgid "editing selected users"
+#~ msgstr "a kiválasztott felhasználók módosítása"
+
+#~ msgid "editing visible sets"
+#~ msgstr "a látható feladatsorok módosítása"
+
+#~ msgid "editing visible users"
+#~ msgstr "a látható felhasználók módosítása"
+
+#~ msgid "email:"
+#~ msgstr "e-mail:"
+
+#~ msgid "empty"
+#~ msgstr "üres"
+
+#~ msgid "enter matching set IDs below"
+#~ msgstr "adja meg alább a megfelelő feladatsor azonosítóját (ID) "
+
+#~ msgid "entry rows."
+#~ msgstr "üres sor"
+
+#~ msgid "export abandoned"
+#~ msgstr "az export elhagyva"
+
+#~ msgid "giving new passwords to all users"
+#~ msgstr "új jelszót minden felhasználónak "
+
+#~ msgid "giving new passwords to selected users"
+#~ msgstr "új jelszót minden kijelölt felhasználónak"
+
+#~ msgid "giving new passwords to visible users"
+#~ msgstr "új jelszót minden látható felhasználónak"
+
+#~ msgid "hidden"
+#~ msgstr "rejtve"
+
+#~ msgid "hidden from"
+#~ msgstr "rejtve innen:"
+
+#~ msgid "hidden from students"
+#~ msgstr "rejtve a diákoktól"
+
+#~ msgid "hidden sets"
+#~ msgstr "rejtett feladatsorok"
+
+#~ msgid "login"
+#~ msgstr "bejelentkezés"
+
+#~ msgid "login ID"
+#~ msgstr "bejelentkezési azonosító"
+
+#~ msgid "login/studentID:"
+#~ msgstr "bejelentkezési/diák azonosító"
+
+# Context is "Set _____ made visibile for _____ users"
+#~ msgid "made visible for"
+#~ msgstr "tedd láthatóvá"
+
+#~ msgid "max"
+#~ msgstr "max."
+
+#~ msgid "multiple sets"
+#~ msgstr "többszörös feladatsor"
+
+#~ msgid "new set:"
+#~ msgstr "új feladatsor:"
+
+#~ msgid "new users"
+#~ msgstr "új felhasználók"
+
+#~ msgid "no sets"
+#~ msgstr "nincs feladatsor"
+
+#~ msgid "no users"
+#~ msgstr "nincs felhasználó"
+
+#~ msgid "nth colum of merge file"
+#~ msgstr "n-edik oszlopa az összevont állománynak"
+
+#~ msgid "number of students not defined"
+#~ msgstr "a diákok száma nincs definiálva"
+
+#~ msgid "or"
+#~ msgstr "vagy"
+
+#~ msgid "point"
+#~ msgstr "pont"
+
+#~ msgid "points"
+#~ msgstr "pontok"
+
+#~ msgid "problems"
+#~ msgstr "feladatok"
+
+#~ msgid "selected sets"
+#~ msgstr "kiválasztott feladatsorok"
+
+#~ msgid "selected users"
+#~ msgstr "kiválasztott felhasználók"
+
+#~ msgid "set"
+#~ msgstr "feladatsor"
+
+#~ msgid "sets"
+#~ msgstr "feladatsorok"
+
+#~ msgid "showing all sets"
+#~ msgstr "mutasd az összes feladatsort"
+
+#~ msgid "showing all users"
+#~ msgstr "mutasd az összes felhasználót"
+
+#~ msgid "showing hidden sets"
+#~ msgstr "a rejtett feladatsorok mutatása"
+
+#~ msgid "showing matching sets"
+#~ msgstr "a megfelelő feladatsorok mutatása"
+
+#~ msgid "showing matching users"
+#~ msgstr "mutasd az összes megfelelő felhasználót"
+
+#~ msgid "showing no sets"
+#~ msgstr "ne mutasd a feladatsorokat"
+
+#~ msgid "showing no users"
+#~ msgstr "ne mutasd a felhasználókat"
+
+#~ msgid "showing selected sets"
+#~ msgstr "mutasd a kiválaszott feladatsorokat"
+
+#~ msgid "showing selected users"
+#~ msgstr "mutasd a kiválasztott felhasználókat"
+
+#~ msgid "showing visible sets"
+#~ msgstr "a látható feladatsorok mutatása"
+
+#~ msgid "test"
+#~ msgstr "teszt"
+
+#~ msgid "test date"
+#~ msgstr "a teszt dátuma"
+
+#~ msgid "test time"
+#~ msgstr "a teszt időpontja "
+
+#~ msgid "the following file"
+#~ msgstr "a következő állomány"
+
+#~ msgid "time"
+#~ msgstr "idő"
+
+#~ msgid "times"
+#~ msgstr "idők"
+
+#~ msgid "unlimited"
+#~ msgstr "korlátlan"
+
+#~ msgid "userID: %1 --"
+#~ msgstr "felhasználói azonosító: %1 --"
+
+#~ msgid "users who match on selected field"
+#~ msgstr "a kiválasztott mezőknek megfelelő felhasználók"
+
+#~ msgid "visible"
+#~ msgstr "látható"
+
+#~ msgid "visible sets"
+#~ msgstr "látható feladatsorok"
+
+#~ msgid "visible to students"
+#~ msgstr "látható a diákoknak"
+
+#~ msgid "visible users"
+#~ msgstr "látható felhasználók"
+
+#~ msgid "Add how many students?"
+#~ msgstr "Hány diákot adjon hozzá?"
+
+#~ msgid "Download PDF or TeX Hardcopy for Selected Sets"
+#~ msgstr "A kiválasztott sorok PDF vagy TeX kimeneti állományainak mentése "
+
+#~ msgid "Edit Which Users?"
+#~ msgstr "Mely felhasználókat módosítja?"
+
+#~ msgid "Export selected sets"
+#~ msgstr "A kiválasztott feladatsorok exportja"
+
+#~ msgid "Export which sets?"
+#~ msgstr "Mely feladatsorokat akarja exportálni?"
+
+#~ msgid "Show Which Users?"
+#~ msgstr "Mely felhasználók megjelenítése?"
+
+#~ msgid "exporting all sets"
+#~ msgstr "az összes feladatsor exportálása"
+
+#~ msgid "exporting selected sets"
+#~ msgstr "a kiválasztott feladatsorok exportálása"
+
+#~ msgid "exporting visible sets"
+#~ msgstr "a látható feladatsorok exportálása"
+
+#~ msgid "%1 (old editor)"
+#~ msgstr "%1 (régi szerkesztő)"
+
+#~ msgid "Edit All Set Data"
+#~ msgstr "Az összes feladatsor adatainak módosÍtása"
+
+#~ msgid "Library Browser 2"
+#~ msgstr "Könyvtár böngésző 2"
+
+#~ msgid "Select all sets"
+#~ msgstr "Az összes feladatsor kiválasztása"
+
+#~ msgid "Select all users"
+#~ msgstr "Az öszes felhasználó kiválasztása"
+
+#~ msgid "Try it"
+#~ msgstr "Próbáld ki"
+
+#~ msgid "Unselect all sets"
+#~ msgstr "Az összes feladatsor kijelölésének visszavonása "
+
+#~ msgid "Unselect all users"
+#~ msgstr "Az összes felhasználó kijelölésének visszavonása"
+
+#~ msgid "active"
+#~ msgstr "aktív"
+
+#~ msgid "for students"
+#~ msgstr "diákoknak"
+
+#~ msgid "inactive"
+#~ msgstr "inaktív"
+
+#~ msgid "sets checked below"
+#~ msgstr "az alább bejelölt feladatsorok"
+
+#~ msgid "sets hidden from students"
+#~ msgstr "diákok elől elrejtett feladatsorok"
+
+#~ msgid "sets visible to students"
+#~ msgstr "a diákok számára látható feladatsorok"
+
+#~ msgid "sets with matching set IDs:"
+#~ msgstr "Az azonosítójukban egyező feladatsorok"
+
+#~ msgid "students"
+#~ msgstr "diákok"
+
+#~ msgid "the following file(s)"
+#~ msgstr "a következő állományok"
+
+#~ msgid "users"
+#~ msgstr "felhasználók"
+
+# Gateway (test 3)
+#~ msgid "%1 (test %2)"
+#~ msgstr "%1 (%2 teszt)"
+
+#~ msgid ""
+#~ "%1 uses an external authentication system (e.g., Oncourse,  CAS,  "
+#~ "Blackboard, Moodle, Canvas, etc.).  Please return to system you used and "
+#~ "try again."
+#~ msgstr ""
+#~ "%1 külső autentikációs  rendszert (pl. Oncourse, CAS, Blackboard, Moodle, "
+#~ "Canvas, etc.) használ. Kérem térjen vissza a használt rendszerbe és "
+#~ "próbálja meg újra."
+
+#~ msgid ""
+#~ "%1 uses an external authentication system.  You've authenticated through "
+#~ "that system, but aren't allowed to log in to this course."
+#~ msgstr ""
+#~ "%1 külső autentikációs  rendszert használ. Önt ez a rendszer "
+#~ "hitelesítette, de nincs engedélyezve a belépése ebbe a kurzusba."
+
+#~ msgid "Take %1 test"
+#~ msgstr "Hajtsd végre a %1 tesztet"
+
+#~ msgid "Test Date"
+#~ msgstr "A teszt dátuma"
+
+#~ msgid "Test Score"
+#~ msgstr "A teszt eredménye"
+
+#~ msgid "Messages"
+#~ msgstr "Üzenetek"

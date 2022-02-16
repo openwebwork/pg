@@ -1,0 +1,1806 @@
+# Korean Translation for WeBWorK
+# Copyright (C) 1996-2013
+# This file is distributed under the same license as the WeBWorK package.
+# WeBWorK Translation Team <trans@webwork.maa.org>.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: WeBWorK\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2021-03-10 21:17-0600\n"
+"Last-Translator: Geoff Goehle <goehle@gmail.com>\n"
+"Language-Team: WeBWorK Translation Team <trans@webwork.maa.org>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.10\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#. (wwRound(0, $answerScore * 100)
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:285
+msgid "%1% correct"
+msgstr ""
+
+#. ($numBlanks)
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:434
+msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1278
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1287
+msgid ""
+"(Instructor hint preview: show the student hint after the following number "
+"of attempts:"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:130
+msgid ""
+"A table showing all the current users along with several fields of user "
+"information. The fields from left to right are: Login Name, Login Status, "
+"Assigned Sets, First Name, Last Name, Email Address, Student ID, Enrollment "
+"Status, Section, Recitation, Comments, and Permission Level.  Clicking on "
+"the links in the column headers will sort the table by the field it "
+"corresponds to. The Login Name fields contain checkboxes for selecting the "
+"user.  Clicking the link of the name itself will allow you to act as the "
+"selected user.  There will also be an image link following the name which "
+"will take you to a page where you can edit the selected user's information.  "
+"Clicking the emails will allow you to email the corresponding user.  "
+"Clicking the links in the entries in the assigned sets columns will take you "
+"to a page where you can view and reassign the sets for the selected user."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:422
+msgid "All of the answers above are correct."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:419
+msgid "All of the gradeable answers above are correct."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:317
+msgid "Answer Preview"
+msgstr "정답 미리보기"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:426
+msgid "At least one of the answers above is NOT correct."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Audit"
+msgstr "감사"
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:293
+msgid "Check Answers"
+msgstr "정답 확인"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:319
+msgid "Correct Answer"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Drop"
+msgstr "중단"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Enrolled"
+msgstr "등록됨"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:316
+msgid "Entered"
+msgstr "접속됨"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:270
+msgid "FeedbackMessage"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:185
+#: /opt/webwork/pg/macros/problemRandomize.pl:186
+msgid "Get a new version of this problem"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:470
+msgid "Go back to Part 1"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:291
+#: /opt/webwork/pg/macros/compoundProblem.pl:480
+#: /opt/webwork/pg/macros/compoundProblem.pl:491
+msgid "Go on to next part"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:409
+msgid "Hardcopy will always print the original version of the problem."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1560
+msgid "Hint:"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1560
+msgid "Hint: "
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:116
+msgid ""
+"If you check %1 your login information will be remembered by the browser you "
+"are using, allowing you to visit WeBWorK pages without typing your user name "
+"and password (until your session expires). This feature is not safe for "
+"public workstations, untrusted machines, and machines over which you do not "
+"have direct control."
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:408
+msgid "If you come back to it later, it may revert to its original version."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1228
+msgid "Instructor solution preview: show the student solution after due date."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:320
+msgid "Message"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:382
+#: /opt/webwork/pg/macros/problemRandomize.pl:407
+msgid "Note:"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:134
+msgid "One Column"
+msgstr ""
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:289
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:288
+msgid "Preview My Answers"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Proctor"
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:318
+msgid "Result"
+msgstr "결과"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:331
+msgid "Results for this submission"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:187
+msgid "Set random seed to:"
+msgstr ""
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:297
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:289
+msgid "Show Correct Answers"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1556
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1557
+msgid "Solution:"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1555
+msgid "Solution: "
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:410
+msgid "Some answers will be graded later."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:290
+msgid "Submit Answers"
+msgstr "정답 제출하기"
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:502
+msgid "Submit your answers again to go on to the next part."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:413
+msgid "The answer above is NOT correct."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:408
+msgid "The answer above is correct."
+msgstr "정답입니다"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:126
+msgid ""
+"The course %1 uses an external authentication system (%2). You've "
+"authenticated through that system, but aren't allowed to log in to this "
+"course."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:124
+msgid ""
+"This course supports guest logins. Click %1 to log into this course as a "
+"guest."
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:407
+msgid "This is a new (re-randomized) version of the problem."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:128
+msgid ""
+"This is a table showing the current Homework sets for this class.  The "
+"fields from left to right are: Edit Set Data, Edit Problems, Edit Assigned "
+"Users, Visibility to students, Reduced Credit Enabled, Date it was opened, "
+"Date it is due, and the Date during which the answers are posted.  The Edit "
+"Set Data field contains checkboxes for selection and a link to the set data "
+"editing page.  The cells in the Edit Problems fields contain links which "
+"take you to a page where you can edit the containing problems, and the cells "
+"in the edit assigned users field contains links which take you to a page "
+"where you can edit what students the set is assigned to."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:122
+msgid ""
+"This is the Achievement Editor.  It is used to edit the achievements "
+"available to students.  Please keep in mind the following facts: Achievments "
+"are displayed, and evaluated, in the order they are listed. The \"secret\" "
+"category creates achievements which are not visible to students until they "
+"are earned.  The \"level\" category is used for the achievements associated "
+"to a users level."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:120
+msgid ""
+"This is the classlist editor page, where you can view and edit the records "
+"of all the students currently enrolled in this course.  The top of the page "
+"contains forms which allow you to filter which students to view, sort your "
+"students in a chosen order, edit student records, give new passwords to "
+"students, import/export student records from/to external files, or add/"
+"delete students.  To use, please select the action you would like to "
+"perform, enter in the relevant information in the fields below, and hit the "
+"\"Take Action!\" button at the bottom of the form.  The bottom of the page "
+"contains a table containing the student usernames and their information."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:118
+msgid ""
+"This is the homework sets editor page where you can view and edit the "
+"homework sets that exist in this course and the problems that they contain. "
+"The top of the page contains forms which allow you to filter which sets to "
+"display in the table, sort the sets in a chosen order, edit homework sets, "
+"publish homework sets, import/export sets from/to an external file, score "
+"sets, or create/delete sets.  To use, please select the action you would "
+"like to perform, enter in the relevant information in the fields below, and "
+"hit the \"Take Action!\" button at the bottom of the form.  The bottom of "
+"the page contains a table displaying the sets and several pieces of relevant "
+"information."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:132
+msgid ""
+"This is the past answer viewer.  Students can only see their answers, and "
+"they will not be able to see which parts are correct.  Instructors can view "
+"any users answers using the form below and the answers will be colored "
+"according to correctness."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:3116
+msgid "This problem contains a video which must be viewed online."
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:602
+msgid "This problem has more than one part."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:136
+msgid "Two Columns"
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:279
+msgid "Ungraded"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:114
+msgid ""
+"WeBWorK has encountered a software error while attempting to process this "
+"problem. It is likely that there is an error in the problem itself. If you "
+"are a student, report this error message to your professor to have it "
+"corrected. If you are a professor, please consult the error output below for "
+"more information."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGanswermacros.pl:1693
+msgid "You can earn partial credit on this problem."
+msgstr "이 문제의 부분 점수를 받았습니다."
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:383
+msgid "You can get a new version of this problem after the due date."
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:610
+msgid "You may not change your answers when going on to the next part!"
+msgstr ""
+
+#. (wwRound(0, $problemResult->{score} * 100)
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:265
+msgid "You received a score of %1 for this attempt."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:3111
+msgid "Your browser does not support the video tag."
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:603
+msgid "Your score for this attempt is for this part only;"
+msgstr ""
+
+#. (wwRound(0, $problemResult->{score} * 100)
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:225
+msgid "Your score on this attempt is %1"
+msgstr ""
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:268
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:227
+msgid "Your score was not recorded."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "admin"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:647
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:658
+msgid "answer"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:671
+msgid "column"
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:276
+msgid "correct"
+msgstr "수정"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "grade_proctor"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "guest"
+msgstr ""
+
+#. ('j','k','_0')
+#. ('j','k')
+#: /opt/webwork/pg/lib/Parser/List/Vector.pm:35
+#: /opt/webwork/pg/lib/Value/Vector.pm:278
+#: /opt/webwork/pg/macros/contextLimitedVector.pl:94
+msgid "i"
+msgstr ""
+
+#: /opt/webwork/pg/macros/contextPiecewiseFunction.pl:774
+msgid "if"
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:283
+msgid "incorrect"
+msgstr "실패"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "login_proctor"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "nobody"
+msgstr ""
+
+#: /opt/webwork/pg/macros/contextPiecewiseFunction.pl:777
+msgid "otherwise"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:664
+msgid "part"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:653
+msgid "problem"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "professor"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:670
+msgid "row"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "student"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "ta"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:470
+#: /opt/webwork/pg/macros/compoundProblem.pl:480
+msgid "when you submit your answers"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:604
+msgid "your overall score is for all the parts combined."
+msgstr ""
+
+#, fuzzy
+#~ msgid ""
+#~ "%1 users replaced, %2 users added, %3 users skipped. Skipped users: (%4)"
+#~ msgstr ""
+#~ "%1 교체된 사용자, %2 추가된 사용자, %3 넘어간 사용자. 넘어간 사용자: (4%)"
+
+#~ msgid "%1: Problem %2"
+#~ msgstr "%1: 문제 %2"
+
+#~ msgid "(This problem will not count towards your grade.)"
+#~ msgstr "(이 문제는 성적에 들어가지 않습니다.)"
+
+#, fuzzy
+#~ msgid ""
+#~ "A new file has been created at '%1' with the contents below.  No changes "
+#~ "have been made to set %2"
+#~ msgstr ""
+#~ "새로운 파일이 아래의 내용과 함께 '[_1]'에서 생성되었습니다. 문제집 [_2]에"
+#~ "는 변경사항이 없습니다."
+
+#~ msgid "ANSWERS ONLY CHECKED -- ANSWERS NOT RECORDED"
+#~ msgstr "답안만 체크됨 -- 답안 기록되지 않음"
+
+#~ msgid "Abandon changes"
+#~ msgstr "변경사항 취소"
+
+#~ msgid "Abandon export"
+#~ msgstr "저장후 내보내기 취소"
+
+#~ msgid "Active"
+#~ msgstr "활성화"
+
+#~ msgid "Add"
+#~ msgstr "추가"
+
+#~ msgid "Add which new users?"
+#~ msgstr "어떤 사용자를 추가하시겠습니까?"
+
+#~ msgid "Answer Date"
+#~ msgstr "대답한 날짜"
+
+#, fuzzy
+#~ msgid ""
+#~ "Any changes made below will be reflected in the achievement for ALL "
+#~ "students."
+#~ msgstr "아래에 변경된 사항은 모든 학생들 문제집에 반영됩니다."
+
+#~ msgid ""
+#~ "Any changes made below will be reflected in the set for ALL students."
+#~ msgstr "아래에 변경된 사항은 모든 학생들 문제집에 반영됩니다."
+
+#, fuzzy
+#~ msgid ""
+#~ "Any changes made below will be reflected in the set for ONLY the "
+#~ "student(s) listed above."
+#~ msgstr "아래에 변경된 사항은 모든 학생들 문제집에 반영됩니다."
+
+#~ msgid "Assign this set to which users?"
+#~ msgstr "이 문제집을 할당할 사용자는?"
+
+#~ msgid "Assigned Sets"
+#~ msgstr "할당된 문제집"
+
+#~ msgid "Attempts"
+#~ msgstr "시도"
+
+#~ msgid "Author Info"
+#~ msgstr "작성자 정보"
+
+#~ msgid "Cancel Export"
+#~ msgstr "내보내기 취소"
+
+#~ msgid "Cancel Password"
+#~ msgstr "비밀번호 취소"
+
+#~ msgid "Change Email Address"
+#~ msgstr "이메일주소 변경"
+
+#~ msgid "Change Password"
+#~ msgstr "비밀번호 변경"
+
+#~ msgid "Changes abandoned"
+#~ msgstr "변경 취소"
+
+#~ msgid "Changes in this file have not yet been permanently saved."
+#~ msgstr "이 파일의 변경사항이 영구적으로 저장되지 않았습니다."
+
+#~ msgid "Changes saved"
+#~ msgstr "변경사항 저장"
+
+#~ msgid "Checking additional error messages"
+#~ msgstr "추가 오류 메시지 확인"
+
+#~ msgid "Choose visibility of the sets to be affected"
+#~ msgstr "보여질 문제집 선택"
+
+#~ msgid "Choose which sets to be affected"
+#~ msgstr "적용될 문제집을 선택하세요"
+
+#~ msgid "Classlist Editor"
+#~ msgstr "Classlist 편집자"
+
+#~ msgid "Clear"
+#~ msgstr "Clear"
+
+#~ msgid ""
+#~ "Click on the login name to edit individual problem set data, (e.g. due "
+#~ "dates) for these students."
+#~ msgstr ""
+#~ "개인별 문제집 데이터(예. 마감기한)를 편집하기 위해 로그인 이름을 클릭하세"
+#~ "요."
+
+#~ msgid "Comment"
+#~ msgstr "코멘트"
+
+#~ msgid "Continue"
+#~ msgstr "계속"
+
+#~ msgid "Correct"
+#~ msgstr "수정"
+
+#~ msgid "Correct answers"
+#~ msgstr "답안 수정"
+
+#~ msgid "Course Administration"
+#~ msgstr "수업 관리"
+
+#~ msgid "Course Configuration"
+#~ msgstr "환경설정"
+
+#~ msgid "Course Info"
+#~ msgstr "수업 정보"
+
+#~ msgid "Courses"
+#~ msgstr "수업내역"
+
+#~ msgid "Create"
+#~ msgstr "생성하기"
+
+#~ msgid "Create as what type of set?"
+#~ msgstr "어떤 종류의 문제집으로 생성?"
+
+#~ msgid "Delete"
+#~ msgstr "삭제"
+
+#~ msgid "Delete how many?"
+#~ msgstr "삭제할 개수는?"
+
+#, fuzzy
+#~ msgid ""
+#~ "Deletion deletes all location data and related addresses, and is not "
+#~ "undoable!"
+#~ msgstr "경고: 삭제시 모든 사용자 관련 정보가 사라지고, 복구되지 않습니다!"
+
+#~ msgid "Download Hardcopy for Selected %plural(%1,Set,Sets)"
+#~ msgstr "선택된 %plural(%1, Set, Sets)에 Hardcopy 다운로드"
+
+#~ msgid "Download PDF or TeX Hardcopy for Current Set"
+#~ msgstr "PDF 다운로드 혹은 현재 문제집을 TeX Hardcopy"
+
+#~ msgid "Duplicate this set and name it"
+#~ msgstr "이 문제집 복사 후 이름 바꾸기"
+
+#~ msgid "E-mail Instructor"
+#~ msgstr "강사에게 이메일 전송"
+
+#~ msgid "Edit"
+#~ msgstr "편집"
+
+#~ msgid "Edit Assigned Users"
+#~ msgstr "배정된 사용자 편집하기"
+
+#~ msgid "Edit Problems"
+#~ msgstr "문제 수정하기"
+
+#~ msgid "Edit Set Data"
+#~ msgstr "문제집 데이터 편집"
+
+#~ msgid "Edit which sets?"
+#~ msgstr "수정할 문제집은?"
+
+#~ msgid "Email"
+#~ msgstr "이메일"
+
+#~ msgid "Email Address"
+#~ msgstr "이메일 주소"
+
+#~ msgid "Email instructor"
+#~ msgstr "강사에게 이메일 전송"
+
+#~ msgid "Enrollment Status"
+#~ msgstr "등록 현황"
+
+#~ msgid "Enter filename below"
+#~ msgstr "아래에 파일명을 입력해주세요"
+
+#~ msgid "Enter filenames below"
+#~ msgstr "아래에 파일명을 입력해주세요"
+
+#~ msgid "Export"
+#~ msgstr "저장 후 내보내기"
+
+#~ msgid "Export to what kind of file?"
+#~ msgstr "저장 후 내보낼 파일 종류?"
+
+#~ msgid "Export which users?"
+#~ msgstr "저장 후 내보낼 사용자는?"
+
+#~ msgid "Failed to create new set: no set name specified!"
+#~ msgstr "새로운 문제집 생성 실패: 문제집 이름 없음!"
+
+#, fuzzy
+#~ msgid ""
+#~ "Failed to duplicate achievement: no achievement selected for duplication!"
+#~ msgstr "문제집 복사 실패: 복사할 문제집이 선택되지 않음! "
+
+#~ msgid "Failed to duplicate set: no set name specified!"
+#~ msgstr "문제집 복사 실패: 문제집 이름이 없음!"
+
+#~ msgid "Failed to duplicate set: no set selected for duplication!"
+#~ msgstr "문제집 복사 실패: 복사할 문제집이 선택되지 않음! "
+
+#, fuzzy
+#~ msgid ""
+#~ "File '%1' exists. File not saved. No changes have been made.  You can "
+#~ "change the file path for this problem manually from the 'Hmwk Sets "
+#~ "Editor' page"
+#~ msgstr ""
+#~ "파일 '[_1]'이 존재. 파일이 저장안됨. 변경사항 없음. '문제집 편집자' 페이지"
+#~ "에서 수동으로 파일경로를 바꿀 수 있음. "
+
+#~ msgid "File Manager"
+#~ msgstr "파일 매니저"
+
+#~ msgid "Filename"
+#~ msgstr "파일명"
+
+#~ msgid "Filter by what text?"
+#~ msgstr "어떤 문자열을 필터하시겠습니까?"
+
+#~ msgid "First Name"
+#~ msgstr "성"
+
+#~ msgid "From:"
+#~ msgstr "From:"
+
+#~ msgid "Generate Hardcopy"
+#~ msgstr "Hardcopy 생성"
+
+#~ msgid "Give new password to which users?"
+#~ msgstr "새 비밀번호를 부여할 사용자는?"
+
+#~ msgid "Guest Login"
+#~ msgstr "게스트 로그인"
+
+#~ msgid "Hardcopy Format:"
+#~ msgstr "Hardcopy 포맷:"
+
+#~ msgid "Hardcopy Generator"
+#~ msgstr "Hardcopy Generator"
+
+#~ msgid "Hardcopy Header"
+#~ msgstr "Hardcopy Header"
+
+#~ msgid "Help"
+#~ msgstr "도움말"
+
+#~ msgid "Hidden"
+#~ msgstr "숨김"
+
+#~ msgid "Hints"
+#~ msgstr "힌트"
+
+#~ msgid "Hmwk Sets Editor"
+#~ msgstr "문제집 에디터"
+
+#~ msgid "Homework Sets"
+#~ msgstr "문제집"
+
+#~ msgid ""
+#~ "If a password field is left blank, the student's current password will be "
+#~ "maintained."
+#~ msgstr "비밀번호를 공백으로 두면, 학생의 현재 비밀번호로 유지됩니다."
+
+#~ msgid "Import"
+#~ msgstr "가져오기"
+
+#~ msgid "Import from where?"
+#~ msgstr "어디서 가져오겠습니까?"
+
+#~ msgid "Import how many sets?"
+#~ msgstr "가져올 문제집 개수는?"
+
+#~ msgid "Import sets with names"
+#~ msgstr "새로운 이름으로 문제집 가져오기"
+
+#~ msgid "Import users from what file?"
+#~ msgstr "어떤 파일에서 사용자를 가져오겠습니까?"
+
+#~ msgid "Inactive"
+#~ msgstr "비활성화"
+
+#~ msgid "Instructor Tools"
+#~ msgstr "강사 전용 도구"
+
+#~ msgid "Invalid user ID or password."
+#~ msgstr "사용자 ID나 비밀번호에 오류가 있습니다"
+
+#~ msgid "Last Name"
+#~ msgstr "성"
+
+#~ msgid "Library Browser"
+#~ msgstr "라이브러리 브라우저"
+
+#~ msgid "Log In Again"
+#~ msgstr "다시 로그인해주세요"
+
+#~ msgid "Log Out"
+#~ msgstr "로그아웃"
+
+#~ msgid "Login Info"
+#~ msgstr "로그인 정보"
+
+#~ msgid "Login Name"
+#~ msgstr "로그인 이름"
+
+#~ msgid "Login Status"
+#~ msgstr "로그인 상태"
+
+#~ msgid "Logout"
+#~ msgstr "로그아웃"
+
+#~ msgid "Main Menu"
+#~ msgstr "메   뉴"
+
+#~ msgid "Match on what? (separate multiple IDs with commas)"
+#~ msgstr "무엇과 대응됩니까? (여러개의 ID를 콤마로 구별하시오) "
+
+#~ msgid "Math Objects"
+#~ msgstr "수학 문제"
+
+#~ msgid "Name"
+#~ msgstr "이름"
+
+#~ msgid "Name the new set"
+#~ msgstr "새로운 문제집 이름"
+
+#~ msgid "New Password"
+#~ msgstr "새 비밀번호"
+
+#~ msgid "New passwords saved"
+#~ msgstr "새 비밀번호 저장하기"
+
+#~ msgid "Next Problem"
+#~ msgstr "다음 문제"
+
+#~ msgid "No"
+#~ msgstr "아니오"
+
+#~ msgid "No change made to any set"
+#~ msgstr "문제집에 변화없음"
+
+#~ msgid "No sets selected for scoring"
+#~ msgstr "점수기록할 문제집이 선택되지 않음."
+
+#~ msgid ""
+#~ "No sets shown.  Choose one of the options above to list the sets in the "
+#~ "course."
+#~ msgstr ""
+#~ "문제집이 없습니다. 기입할 문제집을 위해 강좌에서 옵션을 선택해주세요."
+
+#, fuzzy
+#~ msgid ""
+#~ "No students shown.  Choose one of the options above to list the students "
+#~ "in the course."
+#~ msgstr ""
+#~ "문제집이 없습니다. 기입할 문제집을 위해 강좌에서 옵션을 선택해주세요."
+
+#~ msgid "Not logged in."
+#~ msgstr "로그인 실패"
+
+#~ msgid "Note"
+#~ msgstr "공지"
+
+#~ msgid "Open Date"
+#~ msgstr "날짜 열기"
+
+#~ msgid "PREVIEW ONLY -- ANSWERS NOT RECORDED"
+#~ msgstr "미리보기만 -- 답이 입력되지 않았습니다"
+
+#~ msgid "Pad Fields"
+#~ msgstr "필드 삽입"
+
+#~ msgid "Password"
+#~ msgstr "비밀번호"
+
+#~ msgid "Permission Level"
+#~ msgstr "허용 레벨"
+
+#~ msgid "Please enter your username and password for %1 below:"
+#~ msgstr "사용자이름과 비밀번호를 입력해주세요 %1"
+
+#~ msgid "Please select action to be performed."
+#~ msgstr "실행할 항목을 선택해주세요"
+
+#~ msgid "Please specify a file to save to."
+#~ msgstr "저장할 파일을 명시해주세요."
+
+#~ msgid "Previous Problem"
+#~ msgstr "이전 문제"
+
+#~ msgid "Problem Editor"
+#~ msgstr "문제 편집기"
+
+#~ msgid "Problem List"
+#~ msgstr "문제 리스트"
+
+#~ msgid "Problem Techniques"
+#~ msgstr "기술적 문제"
+
+#~ msgid "Problems"
+#~ msgstr "문제"
+
+#~ msgid "Publish"
+#~ msgstr "출판"
+
+#~ msgid "Recitation"
+#~ msgstr "설명"
+
+#~ msgid "Record Scores for Single Sets"
+#~ msgstr "개별 문제집에 대해 점수 기록"
+
+#~ msgid "Remaining"
+#~ msgstr "시도 횟수"
+
+#~ msgid "Remember Me"
+#~ msgstr "나를 기억해주세요"
+
+#~ msgid "Replace which users?"
+#~ msgstr "바꿀 사용자는?"
+
+#~ msgid "Report bugs"
+#~ msgstr "오류 보고"
+
+#~ msgid "Results of last action performed"
+#~ msgstr "마지막으로 실행된 결과"
+
+#~ msgid "Revert"
+#~ msgstr "되돌아가기"
+
+#~ msgid "Save"
+#~ msgstr "저장"
+
+#~ msgid "Save As"
+#~ msgstr "저장하기"
+
+#~ msgid "Save Export"
+#~ msgstr "내보낸 파일 저장하기"
+
+#~ msgid "Save Password"
+#~ msgstr "비밀번호 저장"
+
+#~ msgid "Save changes"
+#~ msgstr "변경사항 저장"
+
+#~ msgid "Score"
+#~ msgstr "점수"
+
+#~ msgid "Score selected set(s) and save to:"
+#~ msgstr "선택된 문제집 점수 부여하고 저장:"
+
+#~ msgid "Score which sets?"
+#~ msgstr "점수매길 문제집은?"
+
+#~ msgid "Section"
+#~ msgstr "섹션"
+
+#~ msgid "Select an action to perform"
+#~ msgstr "실행할 동작을 선택하세요"
+
+#~ msgid "Set"
+#~ msgstr "문제집"
+
+#~ msgid "Set Definition Filename"
+#~ msgstr "문제집 정의 파일명"
+
+#~ msgid "Set Header"
+#~ msgstr "문제집 헤더"
+
+#~ msgid "Set Info"
+#~ msgstr "문제집 정보"
+
+#~ msgid "Set List"
+#~ msgstr "문제집 리스트"
+
+#~ msgid "Set Name"
+#~ msgstr "문제집 이름"
+
+#~ msgid "Sets"
+#~ msgstr "문제집"
+
+#~ msgid "Show Hints"
+#~ msgstr "힌트보여주기"
+
+#~ msgid "Show Past Answers"
+#~ msgstr "지난 정답 보기"
+
+#~ msgid "Show Solutions"
+#~ msgstr "풀이 보기"
+
+#~ msgid "Show correct answers"
+#~ msgstr "정답 보기"
+
+#~ msgid "Show which sets?"
+#~ msgstr "보여줄 문제집은?"
+
+#~ msgid "Show/Hide Site Description"
+#~ msgstr "사이트 설명 보이기/감추기"
+
+#~ msgid "Show:"
+#~ msgstr "보이기:"
+
+#~ msgid "Site Information"
+#~ msgstr "사이트 정보"
+
+#~ msgid "Solutions"
+#~ msgstr "풀이"
+
+#~ msgid "Sort by"
+#~ msgstr "분류"
+
+#~ msgid "Statistics"
+#~ msgstr "점수 통계"
+
+#~ msgid "Status"
+#~ msgstr "상태"
+
+#~ msgid "Stop Acting"
+#~ msgstr "동작 중지"
+
+#~ msgid "Student ID"
+#~ msgstr "학생 ID"
+
+#~ msgid "Student Progress"
+#~ msgstr "학생 진행상황"
+
+#~ msgid "Student answers"
+#~ msgstr "학생 답안"
+
+#~ msgid "Success"
+#~ msgstr "성공"
+
+#~ msgid "Take Action!"
+#~ msgstr "실행!"
+
+#~ msgid "The WeBWorK Project"
+#~ msgstr "WeBWorK 프로젝트"
+
+#, fuzzy
+#~ msgid ""
+#~ "The grade for this problem is the larger of the score for this problem, "
+#~ "or the score of problem %1."
+#~ msgstr "이 문제는 성적에 들어가지 않습니다."
+
+#, fuzzy
+#~ msgid ""
+#~ "The password you entered in the %1 field does not match your current "
+#~ "password. Please retype your current password and try again."
+#~ msgstr ""
+#~ "%1 \n"
+#~ "\t\t\t\t\t\t필드에입력한 비밀번호가 현재 비밀번호 \n"
+#~ "\t\t\t\t\t\t와 맞지 않습니다. 현재 비밀번호를 재입력하고 \n"
+#~ "\t\t\t\t\t\t를 다시 시도해주세요."
+
+#, fuzzy
+#~ msgid ""
+#~ "The passwords you entered in the %1 and %2 fields don't match. Please "
+#~ "retype your new password and try again."
+#~ msgstr ""
+#~ "입력한 비밀번호가  \n"
+#~ "\t\t\t\t\t\t\t\t%1 과 %2\n"
+#~ "\t\t\t\t\t\t\t\t필드에 맞지 않습니다. 새로운 비밀번호를 입력해주시고 \n"
+#~ "\t\t\t\t\t\t\t\t 다시 시도해주세요."
+
+#~ msgid "The path to the original file should be absolute"
+#~ msgstr "파일의 초기경로는 완전합니다"
+
+#, fuzzy
+#~ msgid ""
+#~ "The source file for 'set %1 / problem %2 has been changed from '%3' to "
+#~ "'%4'"
+#~ msgstr ""
+#~ "'문제집 [_1] / 문제 [_2]'의 소스 파일이 [_3]에서 '[_4]'로 바뀌었습니다."
+
+#~ msgid ""
+#~ "The text box now contains the source of the original problem. You can "
+#~ "recover lost edits by using the Back button on your browser."
+#~ msgstr ""
+#~ "테스트 박스가 초기 문제의 소스를 가지고 있습니다. 브라우저에서 뒤로가기 버"
+#~ "튼을 눌러 잃어버린 편집본을 복구할 수 있습니다."
+
+#~ msgid "Then by"
+#~ msgstr "그러면"
+
+#~ msgid "This homework set contains no problems."
+#~ msgstr "이 문제집에는 문제가 없습니다."
+
+#~ msgid "This homework set is closed."
+#~ msgstr "이 문제집은 닫혔습니다."
+
+#~ msgid "This homework set is not yet open."
+#~ msgstr "이 문제집은 아직 열리지 않습니다."
+
+#, fuzzy
+#~ msgid ""
+#~ "This is a blank problem template file and can not be edited directly. Use "
+#~ "the 'NewVersion' action below to create a local copy of the file and add "
+#~ "it to the current problem set."
+#~ msgstr ""
+#~ "이것은 빈 문제 템플릿 파일이고 즉시 편집되지 않습니다. 아래의 '저장하"
+#~ "기'를 사용하여 파일의 로컬 사본을 만들고 현재 문제집에 추가해주세요."
+
+#~ msgid "This problem will not count towards your grade."
+#~ msgstr "이 문제는 성적에 들어가지 않습니다."
+
+#, fuzzy
+#~ msgid ""
+#~ "This score for this problem does not count for the score of problem %1 or "
+#~ "for the set."
+#~ msgstr "이 문제는 성적에 들어가지 않습니다."
+
+#, fuzzy
+#~ msgid ""
+#~ "To edit this text you must first make a copy of this file using the "
+#~ "'NewVersion' action below."
+#~ msgstr ""
+#~ "이 문자열을 수정하려면 아래의 '저장하기' 버튼을 이용해 파일을 먼저 복사해"
+#~ "주세요."
+
+#, fuzzy
+#~ msgid ""
+#~ "To edit this text you must use the 'NewVersion' action below to save it "
+#~ "to another file."
+#~ msgstr ""
+#~ "이 문자열을 수정하려면 아래의 '저장하기'를 이용해 다른 파일로 저장하세요."
+
+#~ msgid "Use System Default"
+#~ msgstr "시스템 초기값 사용"
+
+#~ msgid ""
+#~ "Use this form to report to your professor a problem with the WeBWorK "
+#~ "system or an error in a problem you are attempting. Along with your "
+#~ "message, additional information about the state of the system will be "
+#~ "included."
+#~ msgstr ""
+#~ "WeBWorK 시스템이나 풀고있는 문제의 오류를 교수에게 보고할 때 이 양식을 이"
+#~ "용하시오. 메시지 뿐 아니라, 시스템 상황에 대한 부가 정보도 포함."
+
+#~ msgid "Users List"
+#~ msgstr "사용자 리스트"
+
+#~ msgid "View"
+#~ msgstr "보기"
+
+#~ msgid "View equations as"
+#~ msgstr "방정식은 다음과 같습니다;"
+
+#~ msgid "View statistics by set"
+#~ msgstr "문제집별 진행상황 통계 보기"
+
+#~ msgid "View statistics by student"
+#~ msgstr "학생별 진행상황 통계 보기"
+
+#~ msgid "View student progress by set"
+#~ msgstr "문제집별 학생 진행상황 보기"
+
+#~ msgid "View student progress by student"
+#~ msgstr "학생별 진행상황 보기"
+
+#~ msgid "Visibility"
+#~ msgstr "보임"
+
+#~ msgid "Visible"
+#~ msgstr "보임"
+
+#~ msgid ""
+#~ "Warning: Deletion destroys all user-related data and is not undoable!"
+#~ msgstr "경고: 삭제시 모든 사용자 관련 정보가 사라지고, 복구되지 않습니다!"
+
+#~ msgid "Welcome to WeBWorK!"
+#~ msgstr "WeBWorK에 오신 걸 환영합니다!"
+
+#~ msgid "What field should filtered users match on?"
+#~ msgstr "어떤 필드에 필터된 사용자가 맞습니까?"
+
+#~ msgid "Worth"
+#~ msgstr "점수"
+
+#, fuzzy
+#~ msgid ""
+#~ "Write permissions have not been enabled for '%1'.  Changes must be saved "
+#~ "to another file for viewing."
+#~ msgstr ""
+#~ "'[_1]'에서 허가되지 않았습니다. 변경사항은 다른 디렉토리에 저장되어야 합니"
+#~ "다."
+
+#, fuzzy
+#~ msgid ""
+#~ "Write permissions have not been enabled in '%1'.  Changes must be saved "
+#~ "to a different directory for viewing."
+#~ msgstr ""
+#~ "'[_1]'에서 허가되지 않았습니다. 변경사항은 다른 디렉토리에 저장되어야 합니"
+#~ "다."
+
+#~ msgid ""
+#~ "Write permissions have not been enabled in the templates directory.  No "
+#~ "changes can be made."
+#~ msgstr "템플릿 디렉토리에서 허가되지 않음. 변경할 수 없음."
+
+#~ msgid "Yes"
+#~ msgstr "예"
+
+#~ msgid "You are not authorized to access the instructor tools."
+#~ msgstr "강사 전용 도구입니다."
+
+#~ msgid "You are not authorized to modify homework sets."
+#~ msgstr "문제집을 변경할 권한이 없습니다."
+
+#~ msgid "You are not authorized to modify problems."
+#~ msgstr "문제를 변경할 권한이 없습니다."
+
+#~ msgid "You are not authorized to modify set definition files."
+#~ msgstr "문제집 정의 파일을 변경할 권한이 없습니다."
+
+#~ msgid "You are not authorized to modify student data"
+#~ msgstr "학생 데이터를 변경할 권한이 없습니다."
+
+#~ msgid "You are not authorized to perform this action."
+#~ msgstr "이 동작을 취할 권한이 없습니다."
+
+#~ msgid "You cannot delete yourself!"
+#~ msgstr "본인을 삭제할 수 없습니다!"
+
+#~ msgid "You do not have permission to change email addresses."
+#~ msgstr "이메일 주소를 변경할 권한이 없습니다."
+
+#~ msgid "You do not have permission to change your password."
+#~ msgstr "비밀번호를 변경할 권한이 없습니다."
+
+#~ msgid "You do not have permission to view the details of this error."
+#~ msgstr "자세한 오류를 볼 권한이 없습니다."
+
+#~ msgid "You have been logged out of WeBWorK."
+#~ msgstr "WeBWorK에서 로그아웃되었습니다."
+
+#, fuzzy
+#~ msgid ""
+#~ "You may choose to show any of the following data. Correct answers, hints, "
+#~ "and solutions are only available %1 after the answer date of the homework "
+#~ "set."
+#~ msgstr ""
+#~ "다음 데이터를 보려면 선택하시오. 정답과 풀이는 문제집의 answer date 후에 "
+#~ "볼 수 있음."
+
+#~ msgid "You may not change your own password here!"
+#~ msgstr "여기서 비밀번호를 바꿀 수 없습니다!"
+
+#, fuzzy
+#~ msgid ""
+#~ "You must attempt this problem %quant(%1,time,times) before Show Me "
+#~ "Another is available."
+#~ msgstr "이 문제를 %quant(%1, 번) 시도했습니다."
+
+#, fuzzy
+#~ msgid ""
+#~ "You must attempt this problem %quant(%1,time,times) before this feature "
+#~ "is available"
+#~ msgstr "이 문제를 %quant(%1, 번) 시도했습니다."
+
+#~ msgid "You must specify a user ID."
+#~ msgstr "사용자 ID를 명시해주세요."
+
+#~ msgid "Your email address has been changed."
+#~ msgstr "이메일 주소가 변경되었습니다."
+
+#~ msgid ""
+#~ "Your score was not recorded because there was a failure in storing the "
+#~ "problem record to the database."
+#~ msgstr ""
+#~ "점수가 기록되지 않았습니다; 데이터베이스에 문제를 저장하는데 실패함."
+
+#~ msgid "Your score was not recorded because this homework set is closed."
+#~ msgstr "점수가 입력되지 않았습니다; 문제집이 닫힘"
+
+#~ msgid ""
+#~ "Your score was not recorded because this problem has not been assigned to "
+#~ "you."
+#~ msgstr "점수가 기록되지 않았습니다. 이 문제가 할당되지 않았음."
+
+#, fuzzy
+#~ msgid ""
+#~ "Your score was not recorded because this problem set version is not open."
+#~ msgstr "점수가 기록되지 않았습니다. 이 문제가 할당되지 않았음."
+
+#, fuzzy
+#~ msgid ""
+#~ "Your score was not recorded because you have exceeded the time limit for "
+#~ "this test. (Time taken: %1 min; allowed: %2 min.)"
+#~ msgstr "점수가 기록되지 않았습니다. 이 문제가 할당되지 않았음."
+
+#, fuzzy
+#~ msgid ""
+#~ "Your score was not recorded because you have no attempts remaining on "
+#~ "this set version."
+#~ msgstr "점수가 기록되지 않았습니다. 이 문제가 할당되지 않았음."
+
+#~ msgid "Your score was recorded."
+#~ msgstr "점수가 기록되었습니다."
+
+#~ msgid "Your session has timed out due to inactivity. Please log in again."
+#~ msgstr "로그인 시간이 지났습니다. 다시 로그인해 주세요."
+
+#~ msgid "_CLASSLIST_EDITOR_DESCRIPTION"
+#~ msgstr "_CLASSLIST_편집자_설명"
+
+#~ msgid "_EXTERNAL_AUTH_MESSAGE"
+#~ msgstr "_외부_권한_메시지"
+
+#~ msgid "_GUEST_LOGIN_MESSAGE"
+#~ msgstr "_게스트_로그인_메시지"
+
+#~ msgid "_HMWKSETS_EDITOR_DESCRIPTION"
+#~ msgstr "_문제집_편집자_정보"
+
+#~ msgid "_LOGIN_MESSAGE"
+#~ msgstr "_로그인_메시지"
+
+#~ msgid "_REQUEST_ERROR"
+#~ msgstr "_오류_보고"
+
+#~ msgid "a duplicate of the first selected set"
+#~ msgstr "첫번쨰 선택된 문제집 사본"
+
+#~ msgid "a new empty set"
+#~ msgstr "새로운 빈 문제집"
+
+#~ msgid "a single set"
+#~ msgstr "문제집 하나"
+
+#~ msgid "all sets"
+#~ msgstr "모든 문제집"
+
+#~ msgid "all users"
+#~ msgstr "모든 사용자"
+
+#~ msgid "any users"
+#~ msgstr "모든 사용자"
+
+#~ msgid "changes abandoned"
+#~ msgstr "변경사항 취소됨"
+
+#~ msgid "changes saved"
+#~ msgstr "변경사항 저장"
+
+#~ msgid "editing all sets"
+#~ msgstr "모든 문제집 수정"
+
+#~ msgid "editing all users"
+#~ msgstr "모든 사용자 수정"
+
+#~ msgid "editing selected sets"
+#~ msgstr "선택된 문제집 수정"
+
+#~ msgid "editing selected users"
+#~ msgstr "선택된 사용자 수정"
+
+#~ msgid "editing visible sets"
+#~ msgstr "보이는 문제집 수정"
+
+#~ msgid "editing visible users"
+#~ msgstr "보이는 사용자 수정"
+
+#~ msgid "enter matching set IDs below"
+#~ msgstr "아래에 맞는 문제집 ID 입력"
+
+#~ msgid "export abandoned"
+#~ msgstr "내보내기 취소"
+
+#~ msgid "giving new passwords to all users"
+#~ msgstr "모든 사용자에게 새 비밀번호 부여"
+
+#~ msgid "giving new passwords to selected users"
+#~ msgstr "선택된 사용자에게 새 비밀번호 부여"
+
+#~ msgid "giving new passwords to visible users"
+#~ msgstr "보이는 사용자에게 새 비밀번호 부여"
+
+#~ msgid "hidden"
+#~ msgstr "숨김"
+
+#~ msgid "hidden from"
+#~ msgstr "숨겨짐"
+
+#~ msgid "hidden from students"
+#~ msgstr "학생들로부터 숨김"
+
+#~ msgid "hidden sets"
+#~ msgstr "숨겨진 문제집"
+
+#~ msgid "multiple sets"
+#~ msgstr "많은 문제집"
+
+#~ msgid "no sets"
+#~ msgstr "없는 문제집입니다"
+
+#~ msgid "no users"
+#~ msgstr "없는 사용자입니다"
+
+#~ msgid "selected sets"
+#~ msgstr "선택된 문제집"
+
+#~ msgid "selected users"
+#~ msgstr "선택된 사용자"
+
+#~ msgid "showing all sets"
+#~ msgstr "선택된 모든 문제집"
+
+#~ msgid "showing all users"
+#~ msgstr "선택된 모든 사용자"
+
+#~ msgid "showing matching users"
+#~ msgstr "알맞는 사용자 보이기"
+
+#~ msgid "showing no sets"
+#~ msgstr "어떤 문제집도 보이지않기"
+
+#~ msgid "showing no users"
+#~ msgstr "사용자 감추기"
+
+#~ msgid "showing selected sets"
+#~ msgstr "선택된 문제집 감추기"
+
+#~ msgid "showing selected users"
+#~ msgstr "선택된 사용자 보이기"
+
+#~ msgid "time"
+#~ msgstr "시간"
+
+#~ msgid "times"
+#~ msgstr "번"
+
+#~ msgid "unlimited"
+#~ msgstr "무제한"
+
+#~ msgid "users who match on selected field"
+#~ msgstr "선택된 필드에 부합한 사용자"
+
+#~ msgid "visible"
+#~ msgstr "보임"
+
+#~ msgid "visible sets"
+#~ msgstr "풀이집 보임"
+
+#~ msgid "visible to students"
+#~ msgstr "학생들에게 보임"
+
+#~ msgid "visible users"
+#~ msgstr "알아볼 수 있는 사용자"
+
+#~ msgid "Add how many students?"
+#~ msgstr "몇 명을 추가하시겠습니까?"
+
+#~ msgid "Download PDF or TeX Hardcopy for Selected Sets"
+#~ msgstr "선택된 문제집의 PDF또는 TeX Hardcopy 다운로드"
+
+#~ msgid "Edit Which Users?"
+#~ msgstr "수정할 사용자는?"
+
+#~ msgid "Export selected sets"
+#~ msgstr "선택된 문제집 저장 후 내보내기"
+
+#~ msgid "Export which sets?"
+#~ msgstr "저장 후 내보낼 문제집은?"
+
+#~ msgid "Show Which Users?"
+#~ msgstr "보여줄 사용자는?"
+
+#~ msgid "exporting all sets"
+#~ msgstr "모든 문제집 내보내기"
+
+#~ msgid "exporting selected sets"
+#~ msgstr "선택된 문제집 저장 후 내보내기"
+
+#~ msgid "exporting visible sets"
+#~ msgstr "보이는 문제집 저장 후 내보내기"
+
+#~ msgid "Edit All Set Data"
+#~ msgstr "모든 문제집 데이터 수정"
+
+#~ msgid "Library Browser 2"
+#~ msgstr "라이브러리 브라우저 2"
+
+#~ msgid "Select all sets"
+#~ msgstr "모든 문제집 선택"
+
+#~ msgid "Select all users"
+#~ msgstr "모든 사용자 선택"
+
+#~ msgid "Unselect all sets"
+#~ msgstr "모든 문제집 선택 해제"
+
+#~ msgid "Unselect all users"
+#~ msgstr "모든 사용자 선택 해제"
+
+#~ msgid "Test Date"
+#~ msgstr "시험 날짜"
+
+#~ msgid "Test Score"
+#~ msgstr "시험 점수"
+
+#, fuzzy
+#~ msgid "Message:"
+#~ msgstr "메시지"
+
+#~ msgid "Messages"
+#~ msgstr "메시지"
+
+#, fuzzy
+#~ msgid "The answer will be graded later."
+#~ msgstr "정답입니다"
+
+#, fuzzy
+#~ msgid "This answer is NOT completely correct."
+#~ msgstr "위의 답안은 %1 틀립니다."
+
+#, fuzzy
+#~ msgid "This answer is NOT correct."
+#~ msgstr "위의 답안은 %1 틀립니다."
+
+#, fuzzy
+#~ msgid "This answer is correct."
+#~ msgstr "정답입니다"
+
+#, fuzzy
+#~ msgid "Import achievements from"
+#~ msgstr "선택된 문제집 저장 후 내보내기"
+
+#, fuzzy
+#~ msgid "Open, reduced scoring starts on %1."
+#~ msgstr "감점 시작: %1"
+
+#, fuzzy
+#~ msgid "Reduced Scoring Starts %1"
+#~ msgstr "감점 시작: %1"
+
+#, fuzzy
+#~ msgid "Reduced scoring started on %1."
+#~ msgstr "감점 시작: %1"
+
+#, fuzzy
+#~ msgid "answer "
+#~ msgstr "대답한 날짜"
+
+#, fuzzy
+#~ msgid "Will open on %1"
+#~ msgstr "%1후에 열립니다"
+
+#, fuzzy
+#~ msgid "User ID:"
+#~ msgstr "사용자 추가"
+
+#~ msgid "Viewing temporary file"
+#~ msgstr "임시파일 보이기"
+
+#, fuzzy
+#~ msgid "You are not authorized to access instructor tools"
+#~ msgstr "강사 전용 도구입니다."
+
+#, fuzzy
+#~ msgid "all current users."
+#~ msgstr "모든 사용자"
+
+#, fuzzy
+#~ msgid "font-hidden"
+#~ msgstr "숨김"
+
+#, fuzzy
+#~ msgid "font-visible"
+#~ msgstr "보임"
+
+#, fuzzy
+#~ msgid "no users."
+#~ msgstr "없는 사용자입니다"
+
+#, fuzzy
+#~ msgid "set %1."
+#~ msgstr "[_1]로 돌아가기"
+
+#~ msgid "submitAnswers"
+#~ msgstr "답안 제출하기"
+
+#, fuzzy
+#~ msgid "All sets %1 all students"
+#~ msgstr "모든 문제집 %1 모든 학생들"
+
+#, fuzzy
+#~ msgid "Bad Nonce for user "
+#~ msgstr "문제집 [_1]의 헤더"
+
+#, fuzzy
+#~ msgid "Can't write to file: %1"
+#~ msgstr "파일 '[_1]'로 저장하기"
+
+#, fuzzy
+#~ msgid "Change Display Options"
+#~ msgstr "디스플레이 옵션"
+
+#, fuzzy
+#~ msgid "Changes saved."
+#~ msgstr "변경사항 저장"
+
+#, fuzzy
+#~ msgid "Hardcopy Theme:"
+#~ msgstr "Hardcopy Header"
+
+#~ msgid "No sets selected for scoring."
+#~ msgstr "점수기록할 문제집이 선택되지 않음."
+
+#, fuzzy
+#~ msgid "Recitation:"
+#~ msgstr "설명"
+
+#, fuzzy
+#~ msgid "Save as:"
+#~ msgstr "저장하기"
+
+#, fuzzy
+#~ msgid "Log into"
+#~ msgstr "로그아웃"
+
+#, fuzzy
+#~ msgid "Sets assigned to $userID"
+#~ msgstr "배정된 사용자 편집하기"
+
+#~ msgid "navNext"
+#~ msgstr "navNext"
+
+#~ msgid "navNextGrey"
+#~ msgstr "navNextGrey"
+
+#~ msgid "navPrev"
+#~ msgstr "navPrev"
+
+#~ msgid "navPrevGrey"
+#~ msgstr "navPrevGrey"
+
+#~ msgid "navProbList"
+#~ msgstr "navProbList"
+
+#~ msgid "navProbListGrey"
+#~ msgstr "navProbListGrey"
+
+#~ msgid "navUp"
+#~ msgstr "navUp"
+
+#~ msgid "Problem [_1]"
+#~ msgstr "문제 [_1]"
+
+#, fuzzy
+#~ msgid "[_1]% correct"
+#~ msgstr "%1 맞음"
+
+#, fuzzy
+#~ msgid "At least one of these answers is NOT completely correct."
+#~ msgstr "제출 답안 중 최소 한 개가 %1 올바르지 않습니다. "
+
+#, fuzzy
+#~ msgid "[_1]: Problem [_2]"
+#~ msgstr "문제집 [_1]/ 문제 [_2]"
+
+#, fuzzy
+#~ msgid "Show me another [_1]"
+#~ msgstr "새 창에서 보이기"
+
+#, fuzzy
+#~ msgid "Edit "
+#~ msgstr "편집"
+
+#, fuzzy
+#~ msgid "Assign "
+#~ msgstr "할당된 문제집"
+
+#, fuzzy
+#~ msgid "Delete "
+#~ msgstr "삭제"
+
+#, fuzzy
+#~ msgid "Export "
+#~ msgstr "저장 후 내보내기"
+
+#, fuzzy
+#~ msgid "Add "
+#~ msgstr "사용자 추가"
+
+#~ msgid "Apply Options"
+#~ msgstr "적용"
+
+#~ msgid "Disable"
+#~ msgstr "사용 불가능"
+
+#~ msgid "Enable/Disable reduced scoring for selected sets"
+#~ msgstr "선택된 문제집에 감점 가능/불가능"
+
+#~ msgid ""
+#~ "No students shown.  Choose one of the options above to \n"
+#~ "\t              list the students in the course."
+#~ msgstr ""
+#~ "학생들이 보이지않음. 위의 옵션 중 하나를 선택하여 \n"
+#~ "\t 학생들 명단을 작성하세요."
+
+#~ msgid "Reduced Credit %1 for all sets"
+#~ msgstr "모든 문제집에 감점 %1"
+
+#~ msgid "Reduced Credit %1 for selected sets"
+#~ msgstr "선택된 문제집에 감점 %1"
+
+#~ msgid "Reduced Credit %1 for visable sets"
+#~ msgstr "보이는 문제집에 감점 %1"
+
+#~ msgid "_REDUCED_CREDIT_MESSAGE_1"
+#~ msgstr "_감점_메시지_1"
+
+#~ msgid "_REDUCED_CREDIT_MESSAGE_2"
+#~ msgstr "_감점_메시지_2"
+
+#~ msgid "completely"
+#~ msgstr "완전히"
+
+#~ msgid "Course Information for course [_1]"
+#~ msgstr "강의 [_1]에 대한 강좌 정보"
+
+#~ msgid "Hardcopy Header for set [_1]"
+#~ msgstr "문제집 [_1]의 Hardcopy 헤더"
+
+#~ msgid ""
+#~ "Report bugs in a WeBWorK question/problem using this link. The very first "
+#~ "time you do this you will need to register with an email address so that "
+#~ "information on the bug fix can be reported back to you."
+#~ msgstr "이 링크를 이용하여 WeBWorK 질문/문제의 오류를 보고해주세요. 제일 처"
+
+#~ msgid "hardcopy header file"
+#~ msgstr "hardcopy 헤더 파일"
+
+#~ msgid "Unpublished"
+#~ msgstr "출판되지않음"
+
+#~ msgid "Unable to change the hardcopy header for set [_1]. Unknown error."
+#~ msgstr "문제집 [_1]에서 hardcopy 헤더가 변경되지 않음. 알려지지 않은 오류."
+
+#~ msgid "Unable to make '[_1]' the set header for [_2]"
+#~ msgstr "'[_1]'을 [_2]의 문제집 헤더로 만들 수 없음"
+
+#~ msgid "Can't determine user of temporary edit file [_1]."
+#~ msgstr "임시 편집 파일 [_1]의 사용자를 결정할 수 없음"
+
+#~ msgid "Top level of author information on the wiki."
+#~ msgstr "wiki 상의 상위 작성자 정보 "
+
+#~ msgid "Reverting to original file '[_1]'"
+#~ msgstr "원래 파일 '[_1]'으로 돌아가기"
+
+#~ msgid "Wiki summary page for MathObjects"
+#~ msgstr "수학문제 페이지의 wiki 요약본"
+
+#~ msgid "Password/Email"
+#~ msgstr "비밀번호/이메일"
+
+#~ msgid "Snippets of PG code illustrating specific techniques"
+#~ msgstr "구체적인 기술을 보여주는 프로그램 코드 조각"
+
+#~ msgid "Error copying [_1] to [_2]"
+#~ msgstr "[_1]을 [_2]로 복사하는데 오류"
+
+#~ msgid "This set is [_1] students."
+#~ msgstr "이 문제집은 [_1] 학생들입니다."
+
+#~ msgid "blank problem"
+#~ msgstr "빈 문제"
+
+#~ msgid ""
+#~ "Note: this problem viewer is for viewing purposes only. As of right now, "
+#~ "testing functionality is not possible."
+#~ msgstr ""
+#~ "공지사항: 이 프로그램 뷰어는 내용을 읽을 수만 있습니다. 테스트 기능은 지원"
+#~ "하지 않습니다."
+
+#~ msgid "webwork"
+#~ msgstr "webwork"
+
+#~ msgid "submit button clicked"
+#~ msgstr "제출 버튼 클릭"
+
+#~ msgid ""
+#~ "Test snippets of PG code in interactive lab.  Good way to learn PG "
+#~ "language."
+#~ msgstr ""
+#~ "대화형 마법사의 프로그램 코드 테스트 조각. 프로그램을 언어를 배우는 좋은 "
+#~ "방법."
+
+#~ msgid "Page generated at [_1] at [_2]"
+#~ msgstr "[_1]에서 페이지 생성됨 [_2]"
+
+#~ msgid "View Using Seed Number"
+#~ msgstr "Seed Number을 사용해서 보기"
+
+#~ msgid "Published"
+#~ msgstr "출판됨"
+
+#~ msgid ""
+#~ "Documentation from source code for PG modules and macro files. Often the "
+#~ "most up-to-date information."
+#~ msgstr "프로그램 모듈, 매크로 파일의 소스 코드 문서. 가장 최근의 정보."
+
+#~ msgid ""
+#~ "PG mark down syntax used to format WeBWorK questions. This interactive "
+#~ "lab can help you to learn the techniques."
+#~ msgstr ""
+#~ "WeBWorK 문제를 포맷하기 위한 프로그램 언어구조. 대화형 마법사가 방법을 알"
+#~ "려줍니다."
+
+#~ msgid ""
+#~ "Error: This path is already in the temporary edit directory -- no new "
+#~ "temporary file is created. path = [_1]"
+#~ msgstr ""
+#~ "오류: 이 경로는 이미 임시 편집 디렉토리에 있습니다 -- 새로운 임시파일 생"
+#~ "성 안됨. 경로 = [_1]"
+
+#~ msgid ""
+#~ "Please use radio buttons to choose the method for saving this file. Can't "
+#~ "recognize saveMode: |[_1]|."
+#~ msgstr ""
+#~ "이 파일의 저장방법을 선택하기 위해 라디오 버튼을 이용해주세요. 저장모드: |"
+#~ "[_1]|을 인식하지 못함."
+
+#~ msgid "The selected problem ([_1]) is not a valid problem for set [_2]."
+#~ msgstr "선택된 문제 ([_1])은 문제집 [_2]의 유효한 문제가 아닙니다."
+
+#~ msgid "Resources"
+#~ msgstr "자료"
+
+#~ msgid "Duplicate"
+#~ msgstr "복사"
+
+#~ msgid "This path |[_1]| is not the path to a temporary edit file."
+#~ msgstr "이 경로 |[_1]|는 임시 편집 파일의 경로가 아닙니다."
+
+#~ msgid ""
+#~ "Unable to change the source file path for set [_1], problem [_2]. Unknown "
+#~ "error."
+#~ msgstr ""
+#~ "문제집 [_1], 문제 [_2]의 소스파일 경로를 바꾸지 못했습니다. 알려지지 않은 "
+#~ "오류."
+
+#~ msgid "Options Information"
+#~ msgstr "선택 정보"
+
+#~ msgid "Save as new independent problem"
+#~ msgstr "독립된 새로운 문제로 저장하기"
+
+#~ msgid "options information"
+#~ msgstr "선택 정보"
+
+#~ msgid "The selected problem([_1]) is not a valid problem for set [_2]."
+#~ msgstr "선택된 문제([_1])은 문제집 [_2]의 유효한 문제가 아닙니다."
+
+#~ msgid "Unknown file type"
+#~ msgstr "알려지지 않은 파일"

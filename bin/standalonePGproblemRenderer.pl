@@ -54,13 +54,6 @@ same computer.
 =head2 credentials file
 	No local configuration file is needed for this client.
 
-
-
-
-
-
-
-
 =cut
 
 =head2 Options
@@ -104,7 +97,7 @@ same computer.
 	Same as -c but the question is rendered with the correct answers submitted.
     This succeeds only if the correct answers, as determined from the answer hash, all succeed.
 
-=item	 f=s
+=item	-f=s
 
 	Specify the format used by the browser in displaying the question.
          Choices for s are
@@ -195,16 +188,16 @@ use Getopt::Long qw[:config no_ignore_case bundling];
 use File::Find;
 use FileHandle;
 use Cwd 'abs_path';
-use FormatRenderedProblem;
+use Renderer::FormatRenderedProblem;
 use Proc::ProcessTable;
 
 use 5.10.0;
 $Carp::Verbose = 1;
 
 # the remainder are all in the PG directory
-use WeBWorK::PG::ImageGenerator;
+use Renderer::ImageGenerator;
 use PGUtil qw(pretty_print not_null);
-use WeBWorK::PG;
+# use WeBWorK::PG;
 use MockDB::User;
 use MockDB::Set;
 use MockDB::Problem;
@@ -690,7 +683,7 @@ sub display_tex_output {
 	$file_path =~ m|/?([^/]+)$|;
 	my $file_name = $1;
 	$file_name =~ s/\.\w+$/\.tex/;    # replace extension with tex
-	my $output_file = TEMPOUTPUTDIR() . $file_name;
+	my $output_file =  $pg_env->{directories}->{temp_dir} . $file_name;
 	local (*FH);
 	open(FH, '>', $output_file) or die "Can't open file $output_file for writing";
 	print FH $output_text;
@@ -701,7 +694,7 @@ sub display_tex_output {
 		print "pdf mode\n";
 		my $pdf_file_name = $file_name;
 		$pdf_file_name =~ s/\.\w+$/\.pdf/;    # replace extension with pdf
-		my $pdf_path = TEMPOUTPUTDIR() . $pdf_file_name;
+		my $pdf_path =  $pg_env->{directories}->{temp_dir} . $pdf_file_name;
 		print "pdflatex $output_file\n";
 		system("pdflatex $output_file");
 		print "pdflatex to $pdf_path DONE\n";
@@ -724,7 +717,7 @@ sub display_html_output {    #display the problem in a browser
 	$file_path =~ m|/?([^/]+)$|;
 	my $file_name = $1;
 	$file_name =~ s/\.\w+$/\.html/;    # replace extension with html
-	my $output_file = TEMPOUTPUTDIR() . $file_name;
+	my $output_file =  $pg_env->{directories}->{temp_dir} . $file_name;
 	local (*FH);
 	open(FH, '>', $output_file) or die "Can't open file $output_file for writing";
 	print FH $output_text;
@@ -743,7 +736,7 @@ sub display_hash_output {    # print the entire hash output to the command line
 	$file_path =~ m|/?([^/]+)$|;
 	my $file_name = $1;
 	$file_name =~ s/\.\w+$/\.txt/;    # replace extension with html
-	my $output_file  = TEMPOUTPUTDIR() . $file_name;
+	my $output_file  =  $pg_env->{directories}->{temp_dir} . $file_name;
 	my $output_text2 = pretty_print_rh($output_text);
 	print STDOUT $output_text2;
 
@@ -765,7 +758,7 @@ sub display_ans_output {    # print the collection of answer hashes to the comma
 	$file_path =~ m|/?([^/]+)$|;
 	my $file_name = $1;
 	$file_name =~ s/\.\w+$/\.txt/;    # replace extension with html
-	my $output_file = TEMPOUTPUTDIR() . $file_name;
+	my $output_file =  $pg_env->{directories}->{temp_dir} . $file_name;
 	my $output_text = pretty_print_rh($return_object->{answers});
 	print STDOUT $output_text;
 	# 	local(*FH);
@@ -953,6 +946,7 @@ sub standaloneRenderer {
 		$translationOptions,
 		$extras,
 	);
+
 	# new version of output:
 	my $warning_messages = '';    # for now -- set up warning trap later
 	my ($internal_debug_messages, $pgwarning_messages, $pgdebug_messages);
@@ -1020,7 +1014,7 @@ sub get_current_process_memory {
 sub writeRenderLogEntry($$$) {
 	my ($function, $details, $beginEnd) = @_;
 	$beginEnd = ($beginEnd eq "begin") ? ">" : ($beginEnd eq "end") ? "<" : "-";
-#	WeBWorK::Utils::writeLog(, "render_timing", "$$ ".time." $beginEnd $function [$details]");
+#	Renderer::Utils::writeLog(, "render_timing", "$$ ".time." $beginEnd $function [$details]");
 #	WebworkClient::writeRenderLogEntry("", "{script:$scriptName; file:$file_path; ". sprintf("duration: %.3f sec;", $cg_duration)." url: $credentials{site_url}; }",'');
 
 }

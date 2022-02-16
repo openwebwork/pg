@@ -1,0 +1,1044 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2021-03-10 21:13-0600\n"
+"Last-Translator: Robert Mařík\n"
+"Language-Team: \n"
+"Language: cs_CZ\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.3\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n>=2 && n<=4 ? 1 : 2);\n"
+
+#. (wwRound(0, $answerScore * 100)
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:285
+msgid "%1% correct"
+msgstr "%1% správně"
+
+#. ($numBlanks)
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:434
+msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
+msgstr "Nebylo odpovězeno na %quant(%1,otázku,otázky)."
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1278
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1287
+msgid ""
+"(Instructor hint preview: show the student hint after the following number "
+"of attempts:"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:130
+msgid ""
+"A table showing all the current users along with several fields of user "
+"information. The fields from left to right are: Login Name, Login Status, "
+"Assigned Sets, First Name, Last Name, Email Address, Student ID, Enrollment "
+"Status, Section, Recitation, Comments, and Permission Level.  Clicking on "
+"the links in the column headers will sort the table by the field it "
+"corresponds to. The Login Name fields contain checkboxes for selecting the "
+"user.  Clicking the link of the name itself will allow you to act as the "
+"selected user.  There will also be an image link following the name which "
+"will take you to a page where you can edit the selected user's information.  "
+"Clicking the emails will allow you to email the corresponding user.  "
+"Clicking the links in the entries in the assigned sets columns will take you "
+"to a page where you can view and reassign the sets for the selected user."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:422
+msgid "All of the answers above are correct."
+msgstr "Všechny odpovědi uvedené výše jsou odpovězeny správně."
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:419
+msgid "All of the gradeable answers above are correct."
+msgstr "Všechny otázky s automatickým hodnocením jsou správně."
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:317
+msgid "Answer Preview"
+msgstr "Náhled odpovědi"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:426
+msgid "At least one of the answers above is NOT correct."
+msgstr "Nejméně jedna z otázek není zodpovězena správně."
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Audit"
+msgstr ""
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:293
+msgid "Check Answers"
+msgstr "Zkontrolovat odpovědi"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:319
+msgid "Correct Answer"
+msgstr "Správná opdověď"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Drop"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Enrolled"
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:316
+msgid "Entered"
+msgstr "Zapsáno"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:270
+msgid "FeedbackMessage"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:185
+#: /opt/webwork/pg/macros/problemRandomize.pl:186
+msgid "Get a new version of this problem"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:470
+msgid "Go back to Part 1"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:291
+#: /opt/webwork/pg/macros/compoundProblem.pl:480
+#: /opt/webwork/pg/macros/compoundProblem.pl:491
+msgid "Go on to next part"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:409
+msgid "Hardcopy will always print the original version of the problem."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1560
+msgid "Hint:"
+msgstr "Nápověda:"
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1560
+msgid "Hint: "
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:116
+msgid ""
+"If you check %1 your login information will be remembered by the browser you "
+"are using, allowing you to visit WeBWorK pages without typing your user name "
+"and password (until your session expires). This feature is not safe for "
+"public workstations, untrusted machines, and machines over which you do not "
+"have direct control."
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:408
+msgid "If you come back to it later, it may revert to its original version."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1228
+msgid "Instructor solution preview: show the student solution after due date."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:320
+msgid "Message"
+msgstr "Zpráva"
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:382
+#: /opt/webwork/pg/macros/problemRandomize.pl:407
+msgid "Note:"
+msgstr "Poznámka:"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:134
+msgid "One Column"
+msgstr ""
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:289
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:288
+msgid "Preview My Answers"
+msgstr "Náhled odpovědí"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Proctor"
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:318
+msgid "Result"
+msgstr "Hodnocení"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:331
+msgid "Results for this submission"
+msgstr "Hodnocení pro zadané odpovědi"
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:187
+msgid "Set random seed to:"
+msgstr ""
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:297
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:289
+msgid "Show Correct Answers"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1556
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1557
+msgid "Solution:"
+msgstr "Řešení:"
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1555
+msgid "Solution: "
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:410
+msgid "Some answers will be graded later."
+msgstr "Některé odpovědi budou vyhodnoceny později."
+
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:290
+msgid "Submit Answers"
+msgstr "Odeslat odpověd(-i)"
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:502
+msgid "Submit your answers again to go on to the next part."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:413
+msgid "The answer above is NOT correct."
+msgstr "Zadaná odpověď NENÍ správně."
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:408
+msgid "The answer above is correct."
+msgstr "Zadaná odpověď je správně."
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:126
+msgid ""
+"The course %1 uses an external authentication system (%2). You've "
+"authenticated through that system, but aren't allowed to log in to this "
+"course."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:124
+msgid ""
+"This course supports guest logins. Click %1 to log into this course as a "
+"guest."
+msgstr ""
+"Předmět umožňuje přihlášení jako host. Stiskněte %1 pro přihlášení do "
+"předmětu v roli hosta."
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:407
+msgid "This is a new (re-randomized) version of the problem."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:128
+msgid ""
+"This is a table showing the current Homework sets for this class.  The "
+"fields from left to right are: Edit Set Data, Edit Problems, Edit Assigned "
+"Users, Visibility to students, Reduced Credit Enabled, Date it was opened, "
+"Date it is due, and the Date during which the answers are posted.  The Edit "
+"Set Data field contains checkboxes for selection and a link to the set data "
+"editing page.  The cells in the Edit Problems fields contain links which "
+"take you to a page where you can edit the containing problems, and the cells "
+"in the edit assigned users field contains links which take you to a page "
+"where you can edit what students the set is assigned to."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:122
+msgid ""
+"This is the Achievement Editor.  It is used to edit the achievements "
+"available to students.  Please keep in mind the following facts: Achievments "
+"are displayed, and evaluated, in the order they are listed. The \"secret\" "
+"category creates achievements which are not visible to students until they "
+"are earned.  The \"level\" category is used for the achievements associated "
+"to a users level."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:120
+msgid ""
+"This is the classlist editor page, where you can view and edit the records "
+"of all the students currently enrolled in this course.  The top of the page "
+"contains forms which allow you to filter which students to view, sort your "
+"students in a chosen order, edit student records, give new passwords to "
+"students, import/export student records from/to external files, or add/"
+"delete students.  To use, please select the action you would like to "
+"perform, enter in the relevant information in the fields below, and hit the "
+"\"Take Action!\" button at the bottom of the form.  The bottom of the page "
+"contains a table containing the student usernames and their information."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:118
+msgid ""
+"This is the homework sets editor page where you can view and edit the "
+"homework sets that exist in this course and the problems that they contain. "
+"The top of the page contains forms which allow you to filter which sets to "
+"display in the table, sort the sets in a chosen order, edit homework sets, "
+"publish homework sets, import/export sets from/to an external file, score "
+"sets, or create/delete sets.  To use, please select the action you would "
+"like to perform, enter in the relevant information in the fields below, and "
+"hit the \"Take Action!\" button at the bottom of the form.  The bottom of "
+"the page contains a table displaying the sets and several pieces of relevant "
+"information."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:132
+msgid ""
+"This is the past answer viewer.  Students can only see their answers, and "
+"they will not be able to see which parts are correct.  Instructors can view "
+"any users answers using the form below and the answers will be colored "
+"according to correctness."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:3116
+msgid "This problem contains a video which must be viewed online."
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:602
+msgid "This problem has more than one part."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:136
+msgid "Two Columns"
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:279
+msgid "Ungraded"
+msgstr "Zatím nehodnoceno"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:114
+msgid ""
+"WeBWorK has encountered a software error while attempting to process this "
+"problem. It is likely that there is an error in the problem itself. If you "
+"are a student, report this error message to your professor to have it "
+"corrected. If you are a professor, please consult the error output below for "
+"more information."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGanswermacros.pl:1693
+msgid "You can earn partial credit on this problem."
+msgstr "Za částečné zodpovězení této úlohy můžete obdržet částečné hodnocení."
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:383
+msgid "You can get a new version of this problem after the due date."
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:610
+msgid "You may not change your answers when going on to the next part!"
+msgstr ""
+
+#. (wwRound(0, $problemResult->{score} * 100)
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:265
+msgid "You received a score of %1 for this attempt."
+msgstr "Za tento pokus získáváte hodnocení %1."
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:3111
+msgid "Your browser does not support the video tag."
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:603
+msgid "Your score for this attempt is for this part only;"
+msgstr ""
+
+#. (wwRound(0, $problemResult->{score} * 100)
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:225
+msgid "Your score on this attempt is %1"
+msgstr ""
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:268
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:227
+msgid "Your score was not recorded."
+msgstr "Hodnocení nebylo uloženo."
+
+# #short for administrator
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "admin"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:647
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:658
+msgid "answer"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:671
+msgid "column"
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:276
+msgid "correct"
+msgstr "správně"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "grade_proctor"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "guest"
+msgstr ""
+
+# doe snot need to be translated
+#. ('j','k','_0')
+#. ('j','k')
+#: /opt/webwork/pg/lib/Parser/List/Vector.pm:35
+#: /opt/webwork/pg/lib/Value/Vector.pm:278
+#: /opt/webwork/pg/macros/contextLimitedVector.pl:94
+msgid "i"
+msgstr ""
+
+#: /opt/webwork/pg/macros/contextPiecewiseFunction.pl:774
+msgid "if"
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:283
+msgid "incorrect"
+msgstr "nesprávně"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "login_proctor"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "nobody"
+msgstr ""
+
+#: /opt/webwork/pg/macros/contextPiecewiseFunction.pl:777
+msgid "otherwise"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:664
+msgid "part"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:653
+msgid "problem"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "professor"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:670
+msgid "row"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "student"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "ta"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:470
+#: /opt/webwork/pg/macros/compoundProblem.pl:480
+msgid "when you submit your answers"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:604
+msgid "your overall score is for all the parts combined."
+msgstr ""
+
+#~ msgid "# of active students"
+#~ msgstr "počet aktivních studentů"
+
+#~ msgid "#corr"
+#~ msgstr "počet správně"
+
+#~ msgid "#incorr"
+#~ msgstr "počet nesprávně"
+
+#~ msgid "% correct"
+#~ msgstr "% správně"
+
+#~ msgid "%1's Current Address"
+#~ msgstr "Současná adresa uživatele %1"
+
+#~ msgid "%1's Current Password"
+#~ msgstr "Současné heslo uživatele %1"
+
+#~ msgid "%1's New Address"
+#~ msgstr "Nová adresa uživatele %1"
+
+#~ msgid "%1's New Password"
+#~ msgstr "Nové heslo uživatele %1"
+
+#~ msgid "%1's new password cannot be blank."
+#~ msgstr "Nové heslo uživatele %1 nemůže být prázdné."
+
+#~ msgid "%1's password has been changed."
+#~ msgstr "Heslo uživatele %1 bylo aktualizováno."
+
+#~ msgid "%1: Problem %2"
+#~ msgstr "%1: Úloha %2"
+
+#~ msgid "%1: Problem %2 Show Me Another"
+#~ msgstr "%1: Úloha %2, cvičná verze"
+
+#~ msgid "(This problem will not count towards your grade.)"
+#~ msgstr "(Tato úloha se nezapočítává do celkového bodového zisku.)"
+
+#~ msgid "(correct)"
+#~ msgstr "(správně)"
+
+#~ msgid "(incorrect)"
+#~ msgstr "(nesprávně)"
+
+#~ msgid ""
+#~ "A hardcopy file was generated, but it may not be complete or correct. "
+#~ "Please check that no problems are missing and that they are all legible. "
+#~ "If not, please inform your instructor."
+#~ msgstr ""
+#~ "Tištěná verze byla vytvořena, ale může být nekompletní nebo nesprávně "
+#~ "formátována. Zkontrolujte prosím, že žádná úloha nechybí a není "
+#~ "nesrozumitelná. V případě problémů kontaktujte vyučujícího."
+
+#~ msgid "ANSWERS NOT RECORDED"
+#~ msgstr "ODPOVĚDI NEBYLY ULOŽENY"
+
+#~ msgid "ANSWERS NOT RECORDED --"
+#~ msgstr "ODPOVĚDI NEBYLY ULOŽENY --"
+
+#~ msgid "ANSWERS ONLY CHECKED -- "
+#~ msgstr "ODPOVĚDI BYLY POUZE ZKONTROLOVÁNY -- "
+
+#~ msgid "ANSWERS ONLY CHECKED -- ANSWERS NOT RECORDED"
+#~ msgstr "ODPOVĚDI BYLY POUZE ZKONTROLOVÁNY -- ODPOVĚDI NEBYLY ULOŽENY"
+
+#~ msgid "Answer(s) submitted:"
+#~ msgstr "Uložená odpověd:"
+
+#~ msgid "Answer:"
+#~ msgstr "Odpověď:"
+
+#~ msgid "Answers"
+#~ msgstr "Odpovědi"
+
+#~ msgid "Attempts"
+#~ msgstr "Pokusy"
+
+#~ msgid "Cancel E-mail"
+#~ msgstr "Zrušit E-mail"
+
+#~ msgid "Change Display Settings"
+#~ msgstr "Změnit nastavení zobrazování"
+
+#~ msgid "Change Email Address"
+#~ msgstr "Změnit E-mailovou adresu"
+
+#~ msgid "Change Password"
+#~ msgstr "Změnit heslo"
+
+#~ msgid "Change User Settings"
+#~ msgstr "Změnit uživatelská nastavení"
+
+#~ msgid "Closed, answers available."
+#~ msgstr "Odevzdávání ukončeno, řešení jsou k dispozici."
+
+#~ msgid "Closed, answers on %1."
+#~ msgstr "Odevzdávání ukončeno. Termín zpřístupnění řešení je %1."
+
+#~ msgid "Closed, answers recently available."
+#~ msgstr "Odevzdávání ukončeno, řešení byla nedávno uvolněna."
+
+#~ msgid "Closed."
+#~ msgstr "Uzavřeno."
+
+#~ msgid "Closes"
+#~ msgstr "Končí"
+
+#~ msgid "Closes %1"
+#~ msgstr "Končí %1"
+
+#~ msgid "Closes:"
+#~ msgstr "Končí:"
+
+#~ msgid "Comment"
+#~ msgstr "Poznámka"
+
+#~ msgid "Confirm %1's New Password"
+#~ msgstr "Potvrzení hesla pro uživatele %1"
+
+#~ msgid "Continue"
+#~ msgstr "Pokračovat"
+
+#~ msgid "Correct Answers:"
+#~ msgstr "Správné odpovědi:"
+
+#~ msgid "Correct answers"
+#~ msgstr "Správné odpovědi"
+
+#~ msgid "Correct: %1/%2"
+#~ msgstr "Správně: %1/%2"
+
+#~ msgid "CorrectAnswers"
+#~ msgstr "Správné odpovědi"
+
+#~ msgid "Course Info"
+#~ msgstr "Informace k předmětu"
+
+#~ msgid "Courses"
+#~ msgstr "Předměty"
+
+#~ msgid "Download Hardcopy"
+#~ msgstr "Stáhnout PDF"
+
+#~ msgid "Download PDF or TeX Hardcopy for Current Set"
+#~ msgstr "Stáhnout zadání v PDF formátu"
+
+#~ msgid "Download hardcopy of set %1 for %2?"
+#~ msgstr "Stáhnout zadání %1 uživatele %2?"
+
+#~ msgid "Download:"
+#~ msgstr "Stáhnout:"
+
+#~ msgid "Email instructor"
+#~ msgstr "Email vyučujícímu"
+
+#~ msgid "Feature exhausted for this problem"
+#~ msgstr "Tato možnost je již pro zadanou úlohu vyčerpána"
+
+#~ msgid "From:"
+#~ msgstr "Odesílatel:"
+
+#~ msgid "Generate Hardcopy"
+#~ msgstr "Stáhnout"
+
+#~ msgid "Grade Test"
+#~ msgstr "Opravit Test"
+
+#~ msgid "Grades"
+#~ msgstr "Hodnocení"
+
+#~ msgid "Guest Login"
+#~ msgstr "Vstoupit jako host"
+
+#~ msgid "Hardcopy Format:"
+#~ msgstr "Formát:"
+
+#~ msgid "Hardcopy Generator"
+#~ msgstr "Stažení tištěné verze"
+
+#~ msgid "Here is a new version of your problem."
+#~ msgstr "Toto je nová verze řešené úlohy."
+
+#~ msgid "Hints"
+#~ msgstr "Nápověda"
+
+#~ msgid "Homework Sets"
+#~ msgstr "Zadání úloh"
+
+#~ msgid "Homework Totals"
+#~ msgstr "Celkem"
+
+#~ msgid "Jump to Problem:"
+#~ msgstr "Přejít na úlohu:"
+
+#~ msgid "Log In Again"
+#~ msgstr "Znovu se přihlásit"
+
+#~ msgid "Log Out"
+#~ msgstr "Odhlásit"
+
+#~ msgid "Logged in as %1."
+#~ msgstr "Přihlášen jako %1."
+
+#~ msgid "Login Info"
+#~ msgstr "Instrukce pro přihlášení"
+
+#~ msgid "Logout"
+#~ msgstr "Odhlášení"
+
+#~ msgid "Main Menu"
+#~ msgstr "Hlavní nabídka"
+
+#~ msgid "Name"
+#~ msgstr "Název"
+
+#~ msgid "Next Problem"
+#~ msgstr "Další úloha"
+
+#~ msgid "No"
+#~ msgstr "Ne"
+
+#~ msgid "No guest logins are available. Please try again in a few minutes."
+#~ msgstr ""
+#~ "Počet hostů je omezen a nejsou volná prostředky pro přihlášení dalšího "
+#~ "hosta. Zkuste prosím později."
+
+#~ msgid "Not logged in."
+#~ msgstr "Nepřihlášen."
+
+#~ msgid "Note"
+#~ msgstr "Poznámka"
+
+#~ msgid ""
+#~ "Note: grading the test grades all problems, not just those on this page."
+#~ msgstr ""
+#~ "Poznámka: opravují se všechny úlohu v testu, nejenom ty zobrazené na "
+#~ "aktuální straně."
+
+#~ msgid "Open, closes %1."
+#~ msgstr "Otevřeno. Uzávěrka je %1."
+
+#~ msgid "Open, complete by %1."
+#~ msgstr "Otevřeno, termín odevzdání %1."
+
+#~ msgid "PREVIEW ONLY -- ANSWERS NOT RECORDED"
+#~ msgstr "POUZE NÁHLED -- ODPOVĚDI SE NEUKLÁDAJÍ"
+
+#~ msgid "Password"
+#~ msgstr "Heslo"
+
+#~ msgid "Password:"
+#~ msgstr "Heslo:"
+
+#~ msgid "Percent"
+#~ msgstr "Procenta"
+
+#~ msgid "Please enter your username and password for %1 below:"
+#~ msgstr "Zadejte Vaše vstupní údaje pro přístup do předmětu %1:"
+
+#~ msgid "Preview Test"
+#~ msgstr "Náhled Testu"
+
+#~ msgid "Previous Problem"
+#~ msgstr "Předchozí úloha"
+
+#~ msgid "Previous page"
+#~ msgstr "Předchozí strana"
+
+# Short for Problem
+#~ msgid "Prob"
+#~ msgstr "Úloha"
+
+#~ msgid "Problem #"
+#~ msgstr "Úloha #"
+
+#~ msgid "Problem %1"
+#~ msgstr "Úloha %1"
+
+#~ msgid "Problem %1."
+#~ msgstr "Úloha %1."
+
+#~ msgid "Problem List"
+#~ msgstr "Seznam úloh"
+
+#~ msgid "Problem Number"
+#~ msgstr "Číslo úlohy"
+
+#~ msgid "Problem Number "
+#~ msgstr "Číslo úlohy "
+
+#~ msgid "Problems"
+#~ msgstr "Úlohy"
+
+# Context is "Attempts Remaining"
+#~ msgid "Remaining"
+#~ msgstr "Zbývá"
+
+#~ msgid ""
+#~ "Remember to return to your original problem when you're finished here!"
+#~ msgstr "Nezapomeňte se odsud vrátit k původní otázce!"
+
+#~ msgid "Report bugs"
+#~ msgstr "Nahlásit chybu"
+
+#~ msgid "Requested set '%1' could not be found in the database for user %2."
+#~ msgstr "Požadované zadání '%1' pro uživatele %2 nebylo nalezeno v databázi."
+
+#~ msgid "Requested set '%1' is not available yet."
+#~ msgstr "Zadání '%1' ještě není k dispozici."
+
+#~ msgid "Requested set '%1' is not yet open."
+#~ msgstr "Zadání '%1' ještě nebylo otevřeno pro studenty."
+
+#~ msgid "Return to your work"
+#~ msgstr "Zpět k úloze"
+
+#~ msgid "Score"
+#~ msgstr "Body"
+
+#~ msgid "Score summary for last submit:"
+#~ msgstr "Hodnocení pro předchozí odeslání:"
+
+#~ msgid "Send E-mail"
+#~ msgstr "Poslat E-mail"
+
+#~ msgid "Send Email"
+#~ msgstr "Poslat Email"
+
+#~ msgid "Set"
+#~ msgstr "Zadání"
+
+#~ msgid "Set Info"
+#~ msgstr "Informace o zadání"
+
+#~ msgid "Sets"
+#~ msgstr "Zadání"
+
+#~ msgid "Show me another"
+#~ msgstr "Ukázat podobnou otázku"
+
+#~ msgid "Show me another %1"
+#~ msgstr "Ukázat podobnou otázku %1"
+
+#~ msgid "Show saved answers?"
+#~ msgstr "Zobrazovat uložené odpovědi?"
+
+#~ msgid "Show:"
+#~ msgstr "Zobrazit:"
+
+#~ msgid "Site Information"
+#~ msgstr "Informace o serveru"
+
+#~ msgid "Solutions"
+#~ msgstr "Řešení"
+
+#~ msgid "Status"
+#~ msgstr "Stav"
+
+#~ msgid "Student answers"
+#~ msgstr "Odpovědi studenta"
+
+#~ msgid "Submit"
+#~ msgstr "Odeslat"
+
+#~ msgid "This homework set is closed."
+#~ msgstr "Odevzdávání tohoto zadání bylo ukončeno."
+
+#~ msgid "This homework set is not yet open."
+#~ msgstr "Toto zadání ještě nemá otevřené odevzdávání."
+
+#~ msgid "This problem will not count towards your grade."
+#~ msgstr "Tato úloha se nezapočítává do celkového bodového zisku."
+
+#~ msgid ""
+#~ "Use this form to report to your professor a problem with the WeBWorK "
+#~ "system or an error in a problem you are attempting. Along with your "
+#~ "message, additional information about the state of the system will be "
+#~ "included."
+#~ msgstr ""
+#~ "Tento formulář můžete použít pro nahlášení problému s úlohou nebo "
+#~ "podezření na chybu v úloze, kterou právě řešíte. Kromě zprávy příjemce "
+#~ "obdrží automaticky i dodatečné informace o situaci, ze které stránky "
+#~ "zprávu posíláte, jaké bylo zadání úlohy, jaké byly vloženy odpovědi atd."
+
+#~ msgid "User Settings"
+#~ msgstr "Uživatelská nastavení"
+
+#~ msgid "Username"
+#~ msgstr "Jméno"
+
+#~ msgid "View equations as"
+#~ msgstr "Způsob zobrazování vzorců"
+
+#~ msgid "Welcome to WeBWorK!"
+#~ msgstr "Vítejte v systému WeBWorK!"
+
+#~ msgid "Will open on %1."
+#~ msgstr "Termín otevření je %1."
+
+#~ msgid "Worth"
+#~ msgstr "Body"
+
+#~ msgid "Yes"
+#~ msgstr "Ano"
+
+#~ msgid ""
+#~ "You are currently checking answers to a different version of your problem "
+#~ "- these will not be recorded, and you should remember to return to your "
+#~ "original problem once you are done here."
+#~ msgstr ""
+#~ "Byly zkontrolovány odpovědi na cvičnou verzi Vašeho zadání. Výsledky "
+#~ "nebyly uloženy a jakmile zakončíte práci na  cvičné verzi, musíte se "
+#~ "vrátit původní ostré verzi."
+
+#~ msgid ""
+#~ "You are currently previewing answers to a different version of your "
+#~ "problem - these will not be recorded, and you should remember to return "
+#~ "to your original problem once you are done here."
+#~ msgstr ""
+#~ "Prohlížíte si odpovědi k cvičné variantě Vašeho příkladu. Odpovědi "
+#~ "nebudou ukládány a musíte pamatovat na návrat k původní ostré variantě "
+#~ "otázky."
+
+#~ msgid ""
+#~ "You can use this feature %quant(%1,more time,more times,as many times as "
+#~ "you want) on this problem"
+#~ msgstr ""
+#~ "Tuto volbu můžete použít ještě %quant(%1,-krát,-krát,opakovaně bez "
+#~ "omezení)"
+
+#~ msgid "You do not have permission to generate hardcopy in %1 format."
+#~ msgstr "Nemáte dostatečná oprávnění pro stažení zadání ve formátu %1."
+
+#~ msgid "You exceeded the allowed time."
+#~ msgstr "Došlo k překročení časového limitu."
+
+#~ msgid "You have %1 attempt(s) remaining on this test."
+#~ msgstr "Na tento test Vám zbývá %1 pokusů."
+
+#~ msgid ""
+#~ "You have %negquant(%1,unlimited attempts,attempt,attempts) remaining."
+#~ msgstr "Počet zbývajících pokusů:  %negquant(%1,bez omezení,pokus,pokusů)."
+
+#~ msgid ""
+#~ "You have %quant(%1,attempt,attempts) left before new version will be "
+#~ "requested."
+#~ msgstr "Počet pokusů do vygenerování nové verze úlohy je %1."
+
+#~ msgid "You have attempted this problem %quant(%1,time,times)."
+#~ msgstr "Na tuto úlohu jste odpověděl(-a)  %1-krát."
+
+#~ msgid "You have been logged out of WeBWorK."
+#~ msgstr "Odhlášeno ze systému WeBWorK."
+
+#~ msgid ""
+#~ "You may check your answers to this problem without affecting the maximum "
+#~ "number of tries to your original problem."
+#~ msgstr ""
+#~ "Můžete vyzkoušet odpovědět na tuto otázku aniž byste ovlivnili počet "
+#~ "pokusů na původní otázku."
+
+#~ msgid ""
+#~ "You may choose to show any of the following data. Correct answers, hints, "
+#~ "and solutions are only available %1 after the answer date of the homework "
+#~ "set."
+#~ msgstr ""
+#~ "Následující data je možné zahrnout do tištěné verze. Správné odpovědi, "
+#~ "nápověda a řešení jsou k dispozici %1 po zveřejnění řešení."
+
+#~ msgid "You may still check your answers."
+#~ msgstr "Stále ještě můžete kontrolovat vložené odpovědi."
+
+#~ msgid ""
+#~ "You must attempt this problem %quant(%1,time,times) before this feature "
+#~ "is available"
+#~ msgstr ""
+#~ "Tato možnost ae aktivuje až po %quant(%1,dalším neúspěšném pokusu,dalších "
+#~ "neúspěšnýh pokusech)"
+
+#~ msgid ""
+#~ "Your authentication failed.  Please return to Oncourse and login again."
+#~ msgstr ""
+#~ "Zadaná kombinace jména a hesla nebyla rozpoznána. Prosím, zkuste to znovu."
+
+#~ msgid ""
+#~ "Your authentication failed.  Please try again. Please speak with your "
+#~ "instructor if you need help."
+#~ msgstr ""
+#~ "Zadaná kombinace jména a hesla nebyla rozpoznána. Pro pomoc můžete "
+#~ "kontaktovat vyučujícího."
+
+#~ msgid "Your message was sent successfully."
+#~ msgstr "Zpráva byla úspěšně odeslána."
+
+#~ msgid "Your overall recorded score is %1.  %2"
+#~ msgstr "Vaše celkové uložené hodnocení je %1. %2"
+
+# $testNounNum is either "test (#)" or "submission (#)"
+#~ msgid "Your score on this %1 WAS recorded."
+#~ msgstr "Vaše hodnocení na tento %1 BYLO uloženo."
+
+# $testNoun is either "test" or "submission"
+#~ msgid "Your score on this %1 is %2/%3."
+#~ msgstr "Vaše hodnocení na %1 je %2/%3."
+
+#~ msgid "Your score was not recorded because this homework set is closed."
+#~ msgstr ""
+#~ "Hodnocení nebylo uloženo, pro tuto domácí úlohu již bylo ukončeno "
+#~ "odevzdávání."
+
+#~ msgid ""
+#~ "Your score was not recorded because this problem set version is not open."
+#~ msgstr ""
+#~ "Hodnocení nebylo uloženo, protože odevzdávání ještě nebylo otevřeno."
+
+#~ msgid "Your score was recorded."
+#~ msgstr "Hodnocení bylo uloženo."
+
+#~ msgid "Your session has timed out due to inactivity. Please log in again."
+#~ msgstr "Přihlášení vypršelo z důvodu nečinnosti. Přihlaste se znovu heslem."
+
+#~ msgid "_ACHIEVEMENTS_EDITOR_DESCRIPTION"
+#~ msgstr "_ACHIEVEMENTS_EDITOR_DESCRIPTION"
+
+#~ msgid "_ANSWER_LOG_DESCRIPTION"
+#~ msgstr "_ANSWER_LOG_DESCRIPTION"
+
+#~ msgid "_CLASSLIST_EDITOR_DESCRIPTION"
+#~ msgstr "_CLASSLIST_EDITOR_DESCRIPTION"
+
+#~ msgid "_EXTERNAL_AUTH_MESSAGE"
+#~ msgstr "_EXTERNAL_AUTH_MESSAGE"
+
+#~ msgid "_GUEST_LOGIN_MESSAGE"
+#~ msgstr "Předmět umožňuje přístup pro hosty"
+
+#~ msgid "_HMWKSETS_EDITOR_DESCRIPTION"
+#~ msgstr "_HMWKSETS_EDITOR_DESCRIPTION"
+
+#~ msgid "_LOGIN_MESSAGE"
+#~ msgstr "_LOGIN_MESSAGE"
+
+#~ msgid "_PROBLEM_SET_SUMMARY"
+#~ msgstr "_PROBLEM_SET_SUMMARY"
+
+#~ msgid "_REQUEST_ERROR"
+#~ msgstr "_REQUEST_ERROR"
+
+#~ msgid "_USER_TABLE_SUMMARY"
+#~ msgstr "_USER_TABLE_SUMMARY"
+
+#~ msgid "preview answers"
+#~ msgstr "náhled odpovědí"
+
+#~ msgid "Download PDF or TeX Hardcopy for Selected Sets"
+#~ msgstr "Stáhnout zadání v PDF formátu"
+
+#~ msgid "Jump to Page:"
+#~ msgstr "Přejít na stranu:"
+
+#~ msgid "Problem"
+#~ msgstr "Úloha"
+
+#~ msgid "Show"
+#~ msgstr "Zobrazit"
+
+#~ msgid "Open, due %1, afterward reduced credit can be earned until %2."
+#~ msgstr "Otevřeno do %1, poté možnost získat redukované body do %2."
+
+#~ msgid "Take %1 test"
+#~ msgstr "Napsat test %1"
+
+#~ msgid "Take %1 test."
+#~ msgstr "Napsat test %1."
+
+#~ msgid ""
+#~ "The test (which is number %1) may  no longer be submitted for a grade."
+#~ msgstr "Tento test (číslo %1) již není povoleno odeslat k vyhodnocení."
+
+#~ msgid "Your recorded score on this test (number %1) is %2/%3."
+#~ msgstr "Vaše uložené hodnocení na tento test (číslo  %1) je %2/%3."
+
+#~ msgid "Message:"
+#~ msgstr "Zpráva:"
+
+#~ msgid "Messages"
+#~ msgstr "Zprávy"
+
+#~ msgid "The answer will be graded later."
+#~ msgstr "Odpověď bude vyhodnocena později."
+
+#~ msgid "This answer is NOT correct."
+#~ msgstr "Odpověď NENÍ správně."
+
+#~ msgid "This answer is correct."
+#~ msgstr "Zadaná odpověď je správně."
+
+#~ msgid "This answer will be graded at a later time."
+#~ msgstr ""
+#~ "Tato odpověď bude vyhodnocena ručně po uzavření úkolu. Budou přiděleny "
+#~ "body a případně připsán komentář."
+
+#~ msgid "Can't raise a negative number to a non-integer power"
+#~ msgstr "Nemůžu umocňovat záporné číslo neceločíselným exponentem."
+
+#~ msgid "Unexpected character '%s'"
+#~ msgstr "Neočekávaný znak '%s'"
+
+#~ msgid "Missing operand before '%s'"
+#~ msgstr "Chybějící výraz nebo číslo před '%s'"

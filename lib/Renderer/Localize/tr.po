@@ -1,0 +1,1898 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: webwork2\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2021-03-10 21:17-0600\n"
+"Last-Translator: Jason Aubrey <aubreyja@gmail.com>\n"
+"Language-Team: Turkish (http://www.transifex.com/webwork/webwork2/language/"
+"tr/)\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. (wwRound(0, $answerScore * 100)
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:285
+msgid "%1% correct"
+msgstr "%1% doğru"
+
+#. ($numBlanks)
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:434
+msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
+msgstr "Soruların %1 tanesi yanıtsız bırakıldı."
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1278
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1287
+msgid ""
+"(Instructor hint preview: show the student hint after the following number "
+"of attempts:"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:130
+msgid ""
+"A table showing all the current users along with several fields of user "
+"information. The fields from left to right are: Login Name, Login Status, "
+"Assigned Sets, First Name, Last Name, Email Address, Student ID, Enrollment "
+"Status, Section, Recitation, Comments, and Permission Level.  Clicking on "
+"the links in the column headers will sort the table by the field it "
+"corresponds to. The Login Name fields contain checkboxes for selecting the "
+"user.  Clicking the link of the name itself will allow you to act as the "
+"selected user.  There will also be an image link following the name which "
+"will take you to a page where you can edit the selected user's information.  "
+"Clicking the emails will allow you to email the corresponding user.  "
+"Clicking the links in the entries in the assigned sets columns will take you "
+"to a page where you can view and reassign the sets for the selected user."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:422
+msgid "All of the answers above are correct."
+msgstr "Yanıtların tümü doğru"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:419
+msgid "All of the gradeable answers above are correct."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:317
+msgid "Answer Preview"
+msgstr "Gösterim"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:426
+msgid "At least one of the answers above is NOT correct."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Audit"
+msgstr "Denetle"
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:293
+msgid "Check Answers"
+msgstr "Yanıtları kontrol et"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:319
+msgid "Correct Answer"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Drop"
+msgstr "Bırak"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Enrolled"
+msgstr "Kayıtlı"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:316
+msgid "Entered"
+msgstr "Yanıt"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:270
+msgid "FeedbackMessage"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:185
+#: /opt/webwork/pg/macros/problemRandomize.pl:186
+msgid "Get a new version of this problem"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:470
+msgid "Go back to Part 1"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:291
+#: /opt/webwork/pg/macros/compoundProblem.pl:480
+#: /opt/webwork/pg/macros/compoundProblem.pl:491
+msgid "Go on to next part"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:409
+msgid "Hardcopy will always print the original version of the problem."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1560
+msgid "Hint:"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1560
+msgid "Hint: "
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:116
+msgid ""
+"If you check %1 your login information will be remembered by the browser you "
+"are using, allowing you to visit WeBWorK pages without typing your user name "
+"and password (until your session expires). This feature is not safe for "
+"public workstations, untrusted machines, and machines over which you do not "
+"have direct control."
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:408
+msgid "If you come back to it later, it may revert to its original version."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1228
+msgid "Instructor solution preview: show the student solution after due date."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:320
+msgid "Message"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:382
+#: /opt/webwork/pg/macros/problemRandomize.pl:407
+msgid "Note:"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:134
+msgid "One Column"
+msgstr ""
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:289
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:288
+msgid "Preview My Answers"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Proctor"
+msgstr "Gözetmen"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:318
+msgid "Result"
+msgstr "Sonuç"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:331
+msgid "Results for this submission"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:187
+msgid "Set random seed to:"
+msgstr ""
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:297
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:289
+msgid "Show Correct Answers"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1556
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1557
+msgid "Solution:"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1555
+msgid "Solution: "
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:410
+msgid "Some answers will be graded later."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:290
+msgid "Submit Answers"
+msgstr "Yanıtları Gönder"
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:502
+msgid "Submit your answers again to go on to the next part."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:413
+msgid "The answer above is NOT correct."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:408
+msgid "The answer above is correct."
+msgstr "Yukarıdaki yanıt doğru."
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:126
+msgid ""
+"The course %1 uses an external authentication system (%2). You've "
+"authenticated through that system, but aren't allowed to log in to this "
+"course."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:124
+msgid ""
+"This course supports guest logins. Click %1 to log into this course as a "
+"guest."
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:407
+msgid "This is a new (re-randomized) version of the problem."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:128
+msgid ""
+"This is a table showing the current Homework sets for this class.  The "
+"fields from left to right are: Edit Set Data, Edit Problems, Edit Assigned "
+"Users, Visibility to students, Reduced Credit Enabled, Date it was opened, "
+"Date it is due, and the Date during which the answers are posted.  The Edit "
+"Set Data field contains checkboxes for selection and a link to the set data "
+"editing page.  The cells in the Edit Problems fields contain links which "
+"take you to a page where you can edit the containing problems, and the cells "
+"in the edit assigned users field contains links which take you to a page "
+"where you can edit what students the set is assigned to."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:122
+msgid ""
+"This is the Achievement Editor.  It is used to edit the achievements "
+"available to students.  Please keep in mind the following facts: Achievments "
+"are displayed, and evaluated, in the order they are listed. The \"secret\" "
+"category creates achievements which are not visible to students until they "
+"are earned.  The \"level\" category is used for the achievements associated "
+"to a users level."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:120
+msgid ""
+"This is the classlist editor page, where you can view and edit the records "
+"of all the students currently enrolled in this course.  The top of the page "
+"contains forms which allow you to filter which students to view, sort your "
+"students in a chosen order, edit student records, give new passwords to "
+"students, import/export student records from/to external files, or add/"
+"delete students.  To use, please select the action you would like to "
+"perform, enter in the relevant information in the fields below, and hit the "
+"\"Take Action!\" button at the bottom of the form.  The bottom of the page "
+"contains a table containing the student usernames and their information."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:118
+msgid ""
+"This is the homework sets editor page where you can view and edit the "
+"homework sets that exist in this course and the problems that they contain. "
+"The top of the page contains forms which allow you to filter which sets to "
+"display in the table, sort the sets in a chosen order, edit homework sets, "
+"publish homework sets, import/export sets from/to an external file, score "
+"sets, or create/delete sets.  To use, please select the action you would "
+"like to perform, enter in the relevant information in the fields below, and "
+"hit the \"Take Action!\" button at the bottom of the form.  The bottom of "
+"the page contains a table displaying the sets and several pieces of relevant "
+"information."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:132
+msgid ""
+"This is the past answer viewer.  Students can only see their answers, and "
+"they will not be able to see which parts are correct.  Instructors can view "
+"any users answers using the form below and the answers will be colored "
+"according to correctness."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:3116
+msgid "This problem contains a video which must be viewed online."
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:602
+msgid "This problem has more than one part."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:136
+msgid "Two Columns"
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:279
+msgid "Ungraded"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:114
+msgid ""
+"WeBWorK has encountered a software error while attempting to process this "
+"problem. It is likely that there is an error in the problem itself. If you "
+"are a student, report this error message to your professor to have it "
+"corrected. If you are a professor, please consult the error output below for "
+"more information."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGanswermacros.pl:1693
+msgid "You can earn partial credit on this problem."
+msgstr "Bu sorudan kısmi puan alabilirsiniz."
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:383
+msgid "You can get a new version of this problem after the due date."
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:610
+msgid "You may not change your answers when going on to the next part!"
+msgstr ""
+
+#. (wwRound(0, $problemResult->{score} * 100)
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:265
+msgid "You received a score of %1 for this attempt."
+msgstr "Bu soru için %1 puan aldınız."
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:3111
+msgid "Your browser does not support the video tag."
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:603
+msgid "Your score for this attempt is for this part only;"
+msgstr ""
+
+#. (wwRound(0, $problemResult->{score} * 100)
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:225
+msgid "Your score on this attempt is %1"
+msgstr ""
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:268
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:227
+msgid "Your score was not recorded."
+msgstr ""
+
+# #short for administrator
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "admin"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:647
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:658
+msgid "answer"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:671
+msgid "column"
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:276
+msgid "correct"
+msgstr "doğru"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "grade_proctor"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "guest"
+msgstr ""
+
+# doe snot need to be translated
+#. ('j','k','_0')
+#. ('j','k')
+#: /opt/webwork/pg/lib/Parser/List/Vector.pm:35
+#: /opt/webwork/pg/lib/Value/Vector.pm:278
+#: /opt/webwork/pg/macros/contextLimitedVector.pl:94
+msgid "i"
+msgstr ""
+
+#: /opt/webwork/pg/macros/contextPiecewiseFunction.pl:774
+msgid "if"
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:283
+msgid "incorrect"
+msgstr "yanlış"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "login_proctor"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "nobody"
+msgstr ""
+
+#: /opt/webwork/pg/macros/contextPiecewiseFunction.pl:777
+msgid "otherwise"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:664
+msgid "part"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:653
+msgid "problem"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "professor"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:670
+msgid "row"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "student"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "ta"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:470
+#: /opt/webwork/pg/macros/compoundProblem.pl:480
+msgid "when you submit your answers"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:604
+msgid "your overall score is for all the parts combined."
+msgstr ""
+
+#~ msgid "%1 sets added, %2 sets skipped. Skipped sets: (%3)"
+#~ msgstr "%1 set eklendi, %2 sets atlandı. Atlanan setler: (%3)"
+
+#~ msgid "%1 sets exported, %2 sets skipped. Skipped sets: (%3)"
+#~ msgstr "%1 set aktarıldı, %2 set atlandı. Atlanan setler: (%3)"
+
+#~ msgid "%1 users exported to file %2/%3"
+#~ msgstr "%1 kullanıcı %2/%3 dosyasına aktarıldı."
+
+#~ msgid ""
+#~ "%1 users replaced, %2 users added, %3 users skipped. Skipped users: (%4)"
+#~ msgstr ""
+#~ "%1 kullanıcı değiştirildi, %2 kullanıcı eklendi, %3 kullanıcı atlandı. "
+#~ "Atlanan kullanıcılar: (%4)"
+
+#~ msgid "%1's Current Address"
+#~ msgstr "%1 için Mevcut Adres"
+
+#~ msgid "%1's Current Password"
+#~ msgstr "%1 için Mevcut Şifre"
+
+#~ msgid "%1's New Address"
+#~ msgstr "%1 için Yeni Adres"
+
+#~ msgid "%1's New Password"
+#~ msgstr "%1 için Yeni Şifre"
+
+#~ msgid "%1's new password cannot be blank."
+#~ msgstr "%1 için yeni şifre boş bırakılamaz."
+
+#~ msgid "%1's password has been changed."
+#~ msgstr "%1 adlı kullanıcının şifresi değiştirildi."
+
+#~ msgid "%1: Problem %2"
+#~ msgstr "%1: Soru %2."
+
+#~ msgid "(This problem will not count towards your grade.)"
+#~ msgstr "(Bu soru notunuzu etkilemeyecektir.)"
+
+#~ msgid "ANSWERS ONLY CHECKED -- ANSWERS NOT RECORDED"
+#~ msgstr "YANITLAR SADECE KONTROL EDİLİYOR -- YANITLAR KAYDEDİLMEDİ"
+
+#~ msgid "Abandon changes"
+#~ msgstr "Değişiklikleri kaydetme"
+
+#~ msgid "Abandon export"
+#~ msgstr "Dışa aktarımı iptal et"
+
+#~ msgid "Active"
+#~ msgstr "Aktif"
+
+#~ msgid "Add"
+#~ msgstr "Ekle"
+
+#~ msgid "Add Users"
+#~ msgstr "Kullanıcı Ekle"
+
+#~ msgid "Add as what filetype?"
+#~ msgstr "Hangi dosya tipi olarak eklenecek?"
+
+#~ msgid "Add which new users?"
+#~ msgstr "Hangi yeni kullanıcılar eklenecek?"
+
+#~ msgid "Answer Date"
+#~ msgstr "Cevap tarihi"
+
+#, fuzzy
+#~ msgid ""
+#~ "Any changes made below will be reflected in the achievement for ALL "
+#~ "students."
+#~ msgstr ""
+#~ "Aşağıda yapılan değişiklikler seti çözen HER öğrenci için uygulanacakç"
+
+#~ msgid ""
+#~ "Any changes made below will be reflected in the set for ALL students."
+#~ msgstr ""
+#~ "Aşağıda yapılan değişiklikler seti çözen HER öğrenci için uygulanacakç"
+
+#~ msgid "Assign this set to which users?"
+#~ msgstr "Bu set hangi kullanıcılara ödev verilecek?"
+
+#~ msgid "Assigned Sets"
+#~ msgstr "Ödev verilmiş setler"
+
+#~ msgid "Attempts"
+#~ msgstr "Deneme sayısı"
+
+#~ msgid "Author Info"
+#~ msgstr "Yazar Bilgileri"
+
+#~ msgid "Can't get password record for effective user '%1': %2"
+#~ msgstr "Mevcut kullanıcı için şifre bilgileri alınamadı '%1': %2"
+
+#~ msgid "Can't get password record for user '%1': %2"
+#~ msgstr "kullanıcı için şifre bilgileri alınamadı '%1': %2"
+
+#, fuzzy
+#~ msgid "Cancel Export"
+#~ msgstr "Dışa aktar"
+
+#, fuzzy
+#~ msgid "Cancel Password"
+#~ msgstr "Şifre Değiştir"
+
+#~ msgid "Change Email Address"
+#~ msgstr "E-posta Adresi Değiştir"
+
+#~ msgid "Change Password"
+#~ msgstr "Şifre Değiştir"
+
+#~ msgid "Changes abandoned"
+#~ msgstr "Değişiklikler kaydedilmedi"
+
+#~ msgid "Changes in this file have not yet been permanently saved."
+#~ msgstr "Dosyadaki değişiklikler henüz kalıcı olarak kaydedilmedi."
+
+#~ msgid "Changes saved"
+#~ msgstr "Değişiklikler kaydedildi"
+
+#~ msgid "Checking additional error messages"
+#~ msgstr "Diğer hata mesajları kontrol ediliyor"
+
+#~ msgid "Choose visibility of the sets to be affected"
+#~ msgstr "Etkilenecek setlerin görünürlüğünü seçin"
+
+#~ msgid "Choose which sets to be affected"
+#~ msgstr "Hangi setlerin etkileneceğini seçin"
+
+#~ msgid "Classlist Editor"
+#~ msgstr "Sınıf Listesi Düzenleyici"
+
+#~ msgid "Clear"
+#~ msgstr "Temizle"
+
+#~ msgid ""
+#~ "Click on the login name to edit individual problem set data, (e.g. due "
+#~ "dates) for these students."
+#~ msgstr ""
+#~ "Bu öğrenciler için problem setlerinde değişiklik (teslim tarihi vb.) "
+#~ "yapmak için isimlerinin üzerine tıklayın."
+
+#~ msgid "Comment"
+#~ msgstr "Yorum"
+
+#~ msgid "Confirm %1's New Password"
+#~ msgstr "%1 için Şifre Onayı"
+
+#~ msgid "Continue"
+#~ msgstr "Devam"
+
+#~ msgid "Correct"
+#~ msgstr "Doğru yanıt"
+
+#~ msgid "Correct answers"
+#~ msgstr "Doğru yanıtları göster"
+
+#~ msgid "Couldn't change %1's password: %2"
+#~ msgstr "%1 adlı kullanıcının şifresi değiştirilemedi: %2"
+
+#~ msgid "Couldn't change your email address: %1"
+#~ msgstr "E-posta adresiniz değiştirilemedi: %1"
+
+#~ msgid "Course Administration"
+#~ msgstr "Ders Yönetimi"
+
+#~ msgid "Course Configuration"
+#~ msgstr "Ders Seçenekleri"
+
+#~ msgid "Course Info"
+#~ msgstr "Ders bilgileri"
+
+#~ msgid "Courses"
+#~ msgstr "Dersler"
+
+#~ msgid "Create"
+#~ msgstr "Oluştur"
+
+#~ msgid "Create as what type of set?"
+#~ msgstr "Ne tip set oluşturulacak?"
+
+#~ msgid "Delete"
+#~ msgstr "Sil"
+
+#~ msgid "Delete how many?"
+#~ msgstr "Kaç tane silinecek?"
+
+#~ msgid "Download Hardcopy for Selected %plural(%1,Set,Sets)"
+#~ msgstr "Seçili Setleri Yazdırmak için dosya indir: [plural,_1,Set,Sets]"
+
+#~ msgid "Download PDF or TeX Hardcopy for Current Set"
+#~ msgstr "Mevcut seti Yazdırmak için dosya indir"
+
+#~ msgid "Duplicate this set and name it"
+#~ msgstr "Bu seti çoğalt ve isimlendir"
+
+#~ msgid "E-mail Instructor"
+#~ msgstr "Eğitmene E-posta"
+
+#~ msgid "E-mail:"
+#~ msgstr "E-posta"
+
+#~ msgid "Edit"
+#~ msgstr "Düzenle"
+
+#~ msgid "Edit Assigned Users"
+#~ msgstr "Ödev verilmiş kullanıcıları düzenle"
+
+#~ msgid "Edit Problems"
+#~ msgstr "Soruları Düzenle"
+
+#~ msgid "Edit Set Data"
+#~ msgstr "Set Bilgilerini Düzenle"
+
+#~ msgid "Edit which sets?"
+#~ msgstr "Hangi setler düzenlecek?"
+
+#~ msgid "Email"
+#~ msgstr "E-posta"
+
+#~ msgid "Email Address"
+#~ msgstr "E-posta Adresi"
+
+#~ msgid "Email instructor"
+#~ msgstr "Eğitmene E-posta"
+
+#~ msgid "Enrollment Status"
+#~ msgstr "Kayıt Durumu"
+
+#~ msgid "Enter filename below"
+#~ msgstr "Aşağıya dosya adı girin"
+
+#~ msgid "Enter filenames below"
+#~ msgstr "Aşağıya dosya isimlerini girin"
+
+#~ msgid "Export"
+#~ msgstr "Dışa aktar"
+
+#~ msgid "Export to what kind of file?"
+#~ msgstr "Ne çeşit dosyaya aktarılacak?"
+
+#~ msgid "Export which users?"
+#~ msgstr "Hangi kullanıcılar dışarı aktarılacak?"
+
+#~ msgid "Failed to create new set: %1"
+#~ msgstr "Yeni set yaratılamadı: %1"
+
+#~ msgid "Failed to create new set: no set name specified!"
+#~ msgstr "Yeni set oluşturulamadı: set adı belirtilmemiş!"
+
+#~ msgid "Failed to duplicate set: %1"
+#~ msgstr "Set çoğaltılamadı: %1"
+
+#~ msgid "Failed to duplicate set: no set name specified!"
+#~ msgstr "Set çoğaltılamadı: set adı belirtilmemiş!"
+
+#~ msgid "Failed to duplicate set: no set selected for duplication!"
+#~ msgstr "Set çoğaltılamadı: herhangi bir set seçili değil!"
+
+#~ msgid "Failed to duplicate set: set %1 already exists!"
+#~ msgstr "Set çoğaltılamadı: set %1 zaten mevcut!"
+
+#~ msgid "Feedback"
+#~ msgstr "Geri Bildirim"
+
+#~ msgid "File Manager"
+#~ msgstr "Dosya Yöneticisi"
+
+#~ msgid "Filename"
+#~ msgstr "Dosya adı"
+
+#~ msgid "Filter by what text?"
+#~ msgstr "Hangi metin ile filtrelenecek?"
+
+#~ msgid "First Name"
+#~ msgstr "İsim"
+
+#~ msgid "From:"
+#~ msgstr "Gönderen:"
+
+#~ msgid "Generate Hardcopy"
+#~ msgstr "Yazdırılabilir dosya oluştur"
+
+#~ msgid "Give new password to which users?"
+#~ msgstr "Hangi kullanıcılara yeni şifre verilecek?"
+
+#~ msgid "Grades"
+#~ msgstr "Notlar"
+
+#~ msgid "Guest Login"
+#~ msgstr "Misafir Kullanıcı Girişi"
+
+#~ msgid "Hardcopy Format:"
+#~ msgstr "Çıktı Dosyası Başlığı"
+
+#~ msgid "Hardcopy Generator"
+#~ msgstr "Çıktı Dosyası Başlığı"
+
+#~ msgid "Hardcopy Header"
+#~ msgstr "Çıktı Dosyası Başlığı"
+
+#~ msgid "Help"
+#~ msgstr "Yardım"
+
+#~ msgid "Hidden"
+#~ msgstr "Gizli"
+
+#~ msgid "Hints"
+#~ msgstr "İpuçlarını göster"
+
+# Hmwk is short for Homework
+#~ msgid "Hmwk Sets Editor"
+#~ msgstr "Ödev Setleri Düzenleyici"
+
+#~ msgid "Homework Sets"
+#~ msgstr "Soru Grupları"
+
+#~ msgid ""
+#~ "If a password field is left blank, the student's current password will be "
+#~ "maintained."
+#~ msgstr "Şifre alanı boş bırakılırsa kullanıcının mevcut şifresi kullanılır."
+
+#~ msgid "Import"
+#~ msgstr "İçeri Aktar"
+
+#~ msgid "Import from where?"
+#~ msgstr "Nereden aktarılacak?"
+
+#~ msgid "Import how many sets?"
+#~ msgstr "Kaç set aktarılacak?"
+
+#~ msgid "Import sets with names"
+#~ msgstr "Setleri isimleriyle beraber aktar"
+
+#~ msgid "Import users from what file?"
+#~ msgstr "Kullanıcılar hangi dosyadan aktarılacak?"
+
+#~ msgid "Inactive"
+#~ msgstr "Aktif Değil"
+
+#~ msgid "Instructor Tools"
+#~ msgstr "Eğitmen Araçları"
+
+#~ msgid "Invalid user ID or password."
+#~ msgstr "Yanlış kullanıcı adı ya da şifre."
+
+#~ msgid "Last Name"
+#~ msgstr "Soyadı"
+
+#~ msgid "Library Browser"
+#~ msgstr "Soru Kütüphaneleri"
+
+#~ msgid "Log In Again"
+#~ msgstr "Tekrar giriş yap"
+
+#~ msgid "Log Out"
+#~ msgstr "Çıkış Yap"
+
+#~ msgid "Login"
+#~ msgstr "Devam et"
+
+#~ msgid "Login Info"
+#~ msgstr "Giriş Bilgileri"
+
+#~ msgid "Login Name"
+#~ msgstr "Kullanıcı adı"
+
+#~ msgid "Login Status"
+#~ msgstr "Durumu"
+
+#~ msgid "Logout"
+#~ msgstr "Çıkış"
+
+#~ msgid "Main Menu"
+#~ msgstr "Ana Menü"
+
+#~ msgid "Match on what? (separate multiple IDs with commas)"
+#~ msgstr ""
+#~ "Hangi özellikler eşleştirilecek? (birden fazla kullanıcı adını virgülle "
+#~ "ayırın)"
+
+#~ msgid "Math Objects"
+#~ msgstr "Matematik Nesneleri"
+
+#~ msgid "Name"
+#~ msgstr "Grup Adı"
+
+#~ msgid "Name the new set"
+#~ msgstr "Yeni seti adlandırın"
+
+#~ msgid "New Password"
+#~ msgstr "Yeni Şifre"
+
+#~ msgid "New passwords saved"
+#~ msgstr "Yeni şifreler kaydedildi"
+
+#~ msgid "Next Problem"
+#~ msgstr "Sonraki Soru"
+
+#~ msgid "No"
+#~ msgstr "Hayır"
+
+#~ msgid "No change made to any set"
+#~ msgstr "Herhangi bir sete değişiklik yapılmadı"
+
+#~ msgid "No sets selected for scoring"
+#~ msgstr "Notlamak için bir set seçili değil"
+
+#~ msgid ""
+#~ "No sets shown.  Choose one of the options above to list the sets in the "
+#~ "course."
+#~ msgstr ""
+#~ "Hiç set gösterilmiyor. Dersteki setleri görmek için yukarıdaki "
+#~ "seçeneklerden birini işaretleyin."
+
+#~ msgid "Not logged in."
+#~ msgstr "Giriş yapmadınız."
+
+#~ msgid "Note"
+#~ msgstr "Not"
+
+#~ msgid "Open Date"
+#~ msgstr "Açılış tarihi"
+
+#~ msgid "PREVIEW ONLY -- ANSWERS NOT RECORDED"
+#~ msgstr "GÖSTERİM -- YANITLAR KAYDEDİLMEDİ "
+
+#~ msgid "Pad Fields"
+#~ msgstr "tr: Pad Fields"
+
+#~ msgid "Page generated at %1"
+#~ msgstr "Sayfa %1de yaratıldı"
+
+#~ msgid "Password"
+#~ msgstr "Sifre"
+
+#~ msgid "Permission Level"
+#~ msgstr "Yetki seviyesi"
+
+#~ msgid "Please enter your username and password for %1 below:"
+#~ msgstr "Lütfen %1 dersi için kullanici adi ve sifrenizi giriniz:"
+
+#~ msgid "Please select action to be performed."
+#~ msgstr "Lütfen gerçekleştirilecek işlemi seçin."
+
+#~ msgid "Please specify a file to save to."
+#~ msgstr "Lütfen kaydedilecek dosyayın belirtin."
+
+#~ msgid "Previous Problem"
+#~ msgstr "Önceki Soru"
+
+#~ msgid "Problem %1"
+#~ msgstr "Soru %1"
+
+#~ msgid "Problem Editor"
+#~ msgstr "Soru Düzenleyici"
+
+#~ msgid "Problem List"
+#~ msgstr "Soru Listesi"
+
+#~ msgid "Problem Techniques"
+#~ msgstr "Soru Teknikleri"
+
+#~ msgid "Problem Viewer"
+#~ msgstr "Soru Görüntüleyici"
+
+#~ msgid "Problems"
+#~ msgstr "Sorular"
+
+#~ msgid "Publish"
+#~ msgstr "Yayımla"
+
+#~ msgid "Recitation"
+#~ msgstr "Problem cozum dersi"
+
+#~ msgid "Record Scores for Single Sets"
+#~ msgstr "Tek set için notları kaydet"
+
+# Context is "Attempts Remaining"
+#~ msgid "Remaining"
+#~ msgstr "Kalan hak"
+
+#~ msgid "Remember Me"
+#~ msgstr "Beni hatırla"
+
+#~ msgid "Replace which users?"
+#~ msgstr "Hangi kullanıcılar değiştirilecek?"
+
+#~ msgid "Report bugs"
+#~ msgstr "Hataları bildir"
+
+#~ msgid "Result of last action performed: %1"
+#~ msgstr "En son gerçekleştilen işlemin sonucu: %1"
+
+#~ msgid "Results of last action performed"
+#~ msgstr "En son gerçekleştirilen işlemin sonuçları"
+
+#~ msgid "Revert"
+#~ msgstr "Ters çevir"
+
+#~ msgid "Save"
+#~ msgstr "Kaydet"
+
+#~ msgid "Save As"
+#~ msgstr "Farklı Kaydet: [TMPL]/"
+
+#, fuzzy
+#~ msgid "Save Export"
+#~ msgstr "Dışa aktar"
+
+#, fuzzy
+#~ msgid "Save Password"
+#~ msgstr "Yeni Şifre"
+
+#~ msgid "Save as"
+#~ msgstr "Farklı kaydet"
+
+#~ msgid "Save changes"
+#~ msgstr "Değişiklikleri kaydet"
+
+#~ msgid "Score"
+#~ msgstr "Not"
+
+#~ msgid "Score selected set(s) and save to:"
+#~ msgstr "Seçili setleri notla ve dosyaya kaydet:"
+
+#~ msgid "Score which sets?"
+#~ msgstr "Hangi setler notlanacak?"
+
+#~ msgid "Scoring Download"
+#~ msgstr "Notları İndir"
+
+#~ msgid "Scoring Tools"
+#~ msgstr "Notlama Araçları"
+
+#~ msgid "Section"
+#~ msgstr "Bölüm"
+
+#~ msgid "Select an action to perform"
+#~ msgstr "Yapılacak işlemi seç"
+
+#~ msgid "Set"
+#~ msgstr "Set"
+
+#~ msgid "Set Definition Filename"
+#~ msgstr "Set Tanım Dosyası Adı"
+
+#~ msgid "Set Header"
+#~ msgstr "Set Başlığı"
+
+#~ msgid "Set Info"
+#~ msgstr "Set Bilgileri"
+
+#~ msgid "Set List"
+#~ msgstr "Set Listesi"
+
+#~ msgid "Set Name"
+#~ msgstr "Set Adı"
+
+#~ msgid "Sets"
+#~ msgstr "Setler"
+
+#~ msgid "Show Hints"
+#~ msgstr "İpuçlarını göster"
+
+#~ msgid "Show Past Answers"
+#~ msgstr "Önceki Yanıtları Göster"
+
+#~ msgid "Show Solutions"
+#~ msgstr "Çözümleri göster"
+
+#~ msgid "Show correct answers"
+#~ msgstr "Doğru yanıtları göster"
+
+#~ msgid "Show which sets?"
+#~ msgstr "Hangi setler gösterilecek?"
+
+#~ msgid "Show/Hide Site Description"
+#~ msgstr "Web Alanı Açıklamasını Göster/Gizle"
+
+#~ msgid "Show:"
+#~ msgstr "Göster"
+
+#~ msgid "Showing %1 out of %2 sets."
+#~ msgstr "%2 setin %1 tanesi gösteriliyor."
+
+#~ msgid "Showing %1 out of %2 users"
+#~ msgstr "%2 kullanıcının %1 tanesi gösteriliyor."
+
+#~ msgid "Site Information"
+#~ msgstr "Web Alanı Bilgileri"
+
+#~ msgid "Solutions"
+#~ msgstr "Çözümleri göster"
+
+#~ msgid "Sort"
+#~ msgstr "Sırala"
+
+#~ msgid "Sort by"
+#~ msgstr "Kriterlere Göre Sırala"
+
+#~ msgid "Sort by %1 and then by %2"
+#~ msgstr "Önce %1 sonra %2 kriteriyle sırala"
+
+#~ msgid "Statistics"
+#~ msgstr "İstatistikler"
+
+#~ msgid "Status"
+#~ msgstr "Durumu"
+
+#~ msgid "Stop Acting"
+#~ msgstr "Rol Yapmayı bırak"
+
+#~ msgid "Student ID"
+#~ msgstr "Kullanıcı Adı"
+
+#~ msgid "Student Progress"
+#~ msgstr "Öğrenci Gelişimi"
+
+#~ msgid "Student answers"
+#~ msgstr "Yanıtları Gönder"
+
+#~ msgid "Submit Answers for %1"
+#~ msgstr "%1 için Yanıtları Gönder"
+
+#~ msgid "Success"
+#~ msgstr "Başarılı"
+
+#~ msgid "Successfully created new set %1"
+#~ msgstr "Yeni set %1 başarıyla yaratıldı"
+
+#~ msgid "Take Action!"
+#~ msgstr "İşlemi Gerçekleştir!"
+
+#~ msgid "The WeBWorK Project"
+#~ msgstr "WeBWorK Projesi"
+
+#~ msgid "The path to the original file should be absolute"
+#~ msgstr "Sorunun özgün yolu kesin olmalı"
+
+#~ msgid "The selected problem set (%1) is not a valid set for %2"
+#~ msgstr "Seçtiğiniz soru seti (%1) set %2 için geçerli değil"
+
+#
+#~ msgid ""
+#~ "The text box now contains the source of the original problem. You can "
+#~ "recover lost edits by using the Back button on your browser."
+#~ msgstr ""
+#~ "Şu anda sorunun orijinal hali gösteriliyor. Kaydedilmemiş değişiklikleri "
+#~ "kurtarmak için internet tarayıcınızın \"Geri\" tuşunu kullanın."
+
+# Context is "Sort by ____ Then by _____"
+#~ msgid "Then by"
+#~ msgstr "sonra"
+
+#~ msgid "This homework set contains no problems."
+#~ msgstr "Bu soru grubunda soru bulunmamaktadır."
+
+#~ msgid "This homework set is closed."
+#~ msgstr "Bu soru grubu kapalı."
+
+#~ msgid "This homework set is not yet open."
+#~ msgstr "Bu soru grubu henüz açık değil."
+
+#~ msgid "This problem will not count towards your grade."
+#~ msgstr "Bu soru, notunuzu etkilemeyecektir."
+
+# Context is "This set is visible" or "This set is hidden"
+#~ msgid "This set is %1"
+#~ msgstr "Bu set %1"
+
+#~ msgid "Use System Default"
+#~ msgstr "Varsayılan Ayarları Kullan"
+
+#~ msgid ""
+#~ "Use this form to report to your professor a problem with the WeBWorK "
+#~ "system or an error in a problem you are attempting. Along with your "
+#~ "message, additional information about the state of the system will be "
+#~ "included."
+#~ msgstr ""
+#~ "Bu formu eğitmeninize WebWork sistemiyle ya da şu anda yapmakta olduğunuz "
+#~ "soruda bir hata olduğunu bildirmek için kullanabilirsiniz. "
+
+#~ msgid "Username"
+#~ msgstr "Kullanici adi"
+
+#~ msgid "Users List"
+#~ msgstr "Kullanıcı Listesi"
+
+#~ msgid "Users sorted by %1, then by %2, then by %3"
+#~ msgstr "Kullanıcılar sırasıyla %1, %2 ve %3 kriterlerine göre sıları"
+
+#~ msgid "View"
+#~ msgstr "Göster"
+
+#~ msgid "View equations as"
+#~ msgstr "Eşitlikler ne şekilde gösterilecek"
+
+#~ msgid "View statistics by set"
+#~ msgstr "Setlere göre istatistikleri göster"
+
+#~ msgid "View statistics by student"
+#~ msgstr "İstatistikleri öğrencilere göre göster"
+
+#~ msgid "View student progress by set"
+#~ msgstr "Setlere göre öğrenci gelişimini göster"
+
+#~ msgid "View student progress by student"
+#~ msgstr "tr: View student progress by student"
+
+#~ msgid "Visibility"
+#~ msgstr "Görünürlük"
+
+#~ msgid "Visible"
+#~ msgstr "Görünür"
+
+#~ msgid ""
+#~ "Warning: Deletion destroys all user-related data and is not undoable!"
+#~ msgstr ""
+#~ "Dikkat: Silme işlemi kullanıcının bütün bilgilerini yok eder ve bu işlem "
+#~ "geri döndürelemez!"
+
+#~ msgid "Welcome to WeBWorK!"
+#~ msgstr "WeBWorK sitemize hoşgeldiniz!"
+
+#~ msgid "What field should filtered users match on?"
+#~ msgstr "Seçili kullanıcılar hangi kriterlerde eşleşmeli?"
+
+#~ msgid "Worth"
+#~ msgstr "Değeri"
+
+#~ msgid ""
+#~ "Write permissions have not been enabled in the templates directory.  No "
+#~ "changes can be made."
+#~ msgstr "Şablon klasörü yazmaya kapalı. Değişiklik yapılamaz."
+
+#~ msgid "Yes"
+#~ msgstr "Evet"
+
+#~ msgid "You are not authorized to access the instructor tools."
+#~ msgstr "Eğitmen araçlarına erişim yetkiniz yok."
+
+#~ msgid "You are not authorized to modify homework sets."
+#~ msgstr "Ödev setlerini değiştirme yetkiniz yok."
+
+#~ msgid "You are not authorized to modify problems."
+#~ msgstr "Sorularda değişklik yapma yetkiniz yok."
+
+#~ msgid "You are not authorized to modify set definition files."
+#~ msgstr "Set tanım dosyalarını değiştirme yetkiniz yok."
+
+#~ msgid "You are not authorized to modify student data"
+#~ msgstr "Öğrenci bilgilerini değiştirme yetkisine sahip değilsiniz."
+
+#~ msgid "You are not authorized to perform this action."
+#~ msgstr "Bu işlemi gerçekleştirme yetkiniz yok."
+
+#~ msgid "You cannot delete yourself!"
+#~ msgstr "Kendinizi silemezsiniz!"
+
+#~ msgid "You do not have permission to change email addresses."
+#~ msgstr "Adres değiştirmek için yetkiniz yok."
+
+#~ msgid "You do not have permission to change your password."
+#~ msgstr "Şifre değiştirmek için yetkiniz yok."
+
+#~ msgid "You do not have permission to view the details of this error."
+#~ msgstr "Bu hatanın detaylarını görmeye yetkiniz yok."
+
+#~ msgid ""
+#~ "You have %negquant(%1,unlimited attempts,attempt,attempts) remaining."
+#~ msgstr ""
+#~ "[negquant,_1,Sınırsız deneme hakkı,deneme hakkı,deneme hakkı] kaldı."
+
+#~ msgid "You have attempted this problem %quant(%1,time,times)."
+#~ msgstr "Bu soru için [quant,_1,deneme hakkı,deneme hakkı] kullandınız."
+
+#~ msgid "You have been logged out of WeBWorK."
+#~ msgstr "WeBWorK sisteminden çıkış yaptınız."
+
+#~ msgid "You may not change your own password here!"
+#~ msgstr "Şifrenizi buradan değiştiremezsiniz!"
+
+#~ msgid "You must specify a user ID."
+#~ msgstr "Bir kullanıcı adı girmelisiniz."
+
+#~ msgid "You must specify an file name in order to save a new file."
+#~ msgstr "Yeni dosya kaydetmek için dosya adı belirtmelisiniz."
+
+#~ msgid "Your email address has been changed."
+#~ msgstr "E-posta adresiniz değiştirildi."
+
+#~ msgid "Your overall recorded score is %1.  %2"
+#~ msgstr "Ortalama puanınız: %1.  %2"
+
+#~ msgid ""
+#~ "Your score was not recorded because there was a failure in storing the "
+#~ "problem record to the database."
+#~ msgstr ""
+#~ "Notunuz kaydedilemedi, çünkü notun veritabanına kaydı sırasında bir hata "
+#~ "oluştu."
+
+#~ msgid "Your score was not recorded because this homework set is closed."
+#~ msgstr "Notunuz kaydedilemedi çünkü bu soru grubu kapalı."
+
+#~ msgid ""
+#~ "Your score was not recorded because this problem has not been assigned to "
+#~ "you."
+#~ msgstr "Notunuz kaydedilmedi çünkü bu soru size yöneltilmedi."
+
+#~ msgid "Your score was recorded."
+#~ msgstr "Notunuz kaydedildi."
+
+#~ msgid "Your session has timed out due to inactivity. Please log in again."
+#~ msgstr "Oturumunuz zaman aşımına uğradı. Lütfen tekrar giriş yapınız."
+
+#~ msgid "_ACHIEVEMENTS_EDITOR_DESCRIPTION"
+#~ msgstr ""
+#~ "Bu sayfa ödev setleri editörü. Burada bu derse ait ödev setlerini "
+#~ "görebilir ve üzerlerinde değişiklikler yapabilirsiniz. Yukarıdaki "
+#~ "formları kullanarak setleri istediğiniz kriterlere göre görüntüleyebilir, "
+#~ "setleri düzenleyebilir, yeni setler yayımlayabilir, dışarıdan ödev "
+#~ "setleri aktarabilir, ödevleri notlayabilir yahut var olan setleri "
+#~ "silebilirsiniz.  Hangi işlemi yapmak istiyorsanız seçin ve gerekli "
+#~ "bilgileri girin daha sonra \"İşlemi Gerçekleştir!\" tuşuna basın. "
+#~ "Sayfanın aşağısında mevcut setler hakkında bir takım bilgiler var."
+
+#~ msgid "_CLASSLIST_EDITOR_DESCRIPTION"
+#~ msgstr ""
+#~ "Bu sayfa sınıf listesi editörü. Burada derse kayıtlı öğrencilerin "
+#~ "bilgilerini görebilir ve değiştirebilirsiniz. Sayfanın yukarısında hangi "
+#~ "öğrencileri görmek istediğinizi belirleyebileceğiniz filtre formları var. "
+#~ "Bunları kullanarak öğrencileri belirlediğiniz kriterlere göre "
+#~ "sıralayabilir, öğrenci bilgilerini değiştirebilir,öğrencilere yeni şifre "
+#~ "verebilir, dışarıdan öğrenci bilgileri alabilir yahut derse yeni "
+#~ "öğrenciler ekleyip çıkarabilirsiniz. Hangi işlemi yapmak istiyorsanız "
+#~ "seçin ve gerekli bilgileri girin daha sonra \"İşlemi Gerçekleştir!\" "
+#~ "tuşuna basın. Sayfanın altında öğrencilerin bilgilerini gösteren bir "
+#~ "tablo var."
+
+#~ msgid "_EXTERNAL_AUTH_MESSAGE"
+#~ msgstr ""
+#~ "%1 harici bir kimlik doğrulama sistemi kullanıyor.  Bu sistemle "
+#~ "kimliğinizi doğruladınız fakat bu derse giriş yapma izniniz yok."
+
+#~ msgid "_GUEST_LOGIN_MESSAGE"
+#~ msgstr ""
+#~ "Bu derse misafir olarak girebilirsiniz. Misafir olarak girmek için %1 "
+#~ "linkine basın. "
+
+#~ msgid "_HMWKSETS_EDITOR_DESCRIPTION"
+#~ msgstr ""
+#~ "Bu sayfa ödev setleri editörü. Burada bu derse ait ödev setlerini "
+#~ "görebilir ve üzerlerinde değişiklikler yapabilirsiniz. Yukarıdaki "
+#~ "formları kullanarak setleri istediğiniz kriterlere göre görüntüleyebilir, "
+#~ "setleri düzenleyebilir, yeni setler yayımlayabilir, dışarıdan ödev "
+#~ "setleri aktarabilir, ödevleri notlayabilir yahut var olan setleri "
+#~ "silebilirsiniz.  Hangi işlemi yapmak istiyorsanız seçin ve gerekli "
+#~ "bilgileri girin daha sonra \"İşlemi Gerçekleştir!\" tuşuna basın. "
+#~ "Sayfanın aşağısında mevcut setler hakkında bir takım bilgiler var."
+
+#~ msgid "_LOGIN_MESSAGE"
+#~ msgstr ""
+#~ " Eğer %1 seçeneğini işaretlerseniz, giriş bilgileriniz kullandığınız "
+#~ "tarayıcı tarafından hatırlanacak ve sonraki girişlerinizde kullanıcı adı "
+#~ "ve şifre girmeden WebWork sayfalarını kullanabileceksiniz. Bu özellik, "
+#~ "ortak kullanıma açık bilgisayarlar, güvenli olmayan bilgisayarlar, ve "
+#~ "doğrudan kontrole sahip olmadığınız bilgisayarlarda kullanmak için "
+#~ "güvenli değildir."
+
+#~ msgid "_REQUEST_ERROR"
+#~ msgstr ""
+#~ " WebWork bu problemi işlerken bir yazılım hatası ile karşılaştı. "
+#~ "Problemin kendisinde bir hata olması muhtemeldir. Eğer bir öğrenci iseniz "
+#~ "bu hatayı ilgili kişilere bildiriniz. Eğer yetkili bir kişiyseniz daha "
+#~ "fazla bilgi için alttaki hata raporunu inceleyiniz."
+
+# Context is "Create set ______ as a duplicate of the first selected set"
+#~ msgid "a duplicate of the first selected set"
+#~ msgstr "İlk seçilen setin bir kopyası"
+
+# Context is "Create set ______ as a new empty set"
+#~ msgid "a new empty set"
+#~ msgstr "Boş bir yeni set"
+
+#~ msgid "a single set"
+#~ msgstr "tek bir set"
+
+#~ msgid "all sets"
+#~ msgstr "bütün setler"
+
+#~ msgid "all users"
+#~ msgstr "bütün kullanıcılar"
+
+#~ msgid "any users"
+#~ msgstr "her kullanıcı"
+
+#~ msgid "changes abandoned"
+#~ msgstr "değişiklikler kaydedilmedi"
+
+#~ msgid "changes saved"
+#~ msgstr "değişiklikler kaydedildi"
+
+#~ msgid "deleted %1 sets"
+#~ msgstr "%1 set silindi."
+
+#~ msgid "deleted %1 users"
+#~ msgstr "%1 kullanıcı silindi."
+
+#~ msgid "editing all sets"
+#~ msgstr "bütün setler düzenleniyor"
+
+#~ msgid "editing all users"
+#~ msgstr "bütün kullancılar düzenleniyor"
+
+#~ msgid "editing selected sets"
+#~ msgstr "seçili setler düzenleniyor"
+
+#~ msgid "editing selected users"
+#~ msgstr "seçili kullanıcılar düzenleniyor"
+
+#~ msgid "editing visible sets"
+#~ msgstr "görünür setler düzenleniyor"
+
+#~ msgid "editing visible users"
+#~ msgstr "görünür kullanıcılar düzenleniyor"
+
+#~ msgid "enter matching set IDs below"
+#~ msgstr "eşleşen ödev setlerini aşağıya girin"
+
+#~ msgid "export abandoned"
+#~ msgstr "dışarı aktarım yapılmadı"
+
+#~ msgid "giving new passwords to all users"
+#~ msgstr "bütün kullanıcılara yeni şifre veriliyor"
+
+#~ msgid "giving new passwords to selected users"
+#~ msgstr "seçili kullanıcılara yeni şifre veriliyor"
+
+#~ msgid "giving new passwords to visible users"
+#~ msgstr "görünür kullanıcılara yeni şifre veriliyor"
+
+#~ msgid "hidden"
+#~ msgstr "gizli"
+
+#~ msgid "hidden from"
+#~ msgstr "görüntülenmiyor"
+
+#~ msgid "hidden from students"
+#~ msgstr "öğrenciler tarafından görülemez"
+
+#~ msgid "hidden sets"
+#~ msgstr "gizli setler"
+
+#~ msgid "multiple sets"
+#~ msgstr "birden fazla set"
+
+#~ msgid "no sets"
+#~ msgstr "Set yok"
+
+#~ msgid "no users"
+#~ msgstr "kullanıcı yok"
+
+#~ msgid "selected sets"
+#~ msgstr "seçili setler"
+
+#~ msgid "selected users"
+#~ msgstr "seçili kullanıcılar"
+
+#~ msgid "showing all sets"
+#~ msgstr "bütün setler gösteriliyor"
+
+#~ msgid "showing all users"
+#~ msgstr "bütün kullanıcılar gösteriliyor"
+
+#~ msgid "showing matching users"
+#~ msgstr "eşleşen kullanıcılar gösteriliyor"
+
+#~ msgid "showing no sets"
+#~ msgstr "hiçbir set gösterilmiyor"
+
+#~ msgid "showing no users"
+#~ msgstr "hiçbir kullanıcı gösterilmiyor"
+
+#~ msgid "showing selected sets"
+#~ msgstr "seçili setler gösteriliyor"
+
+#~ msgid "showing selected users"
+#~ msgstr "seçili kullanıcılar gösteriliyor"
+
+#~ msgid "time"
+#~ msgstr "deneme hakkı"
+
+#~ msgid "times"
+#~ msgstr "deneme hakkı"
+
+#~ msgid "unlimited"
+#~ msgstr "sınırsız"
+
+#~ msgid "users who match on selected field"
+#~ msgstr "seçili alanla eşleşen kullanıcılar"
+
+#~ msgid "visible"
+#~ msgstr "Görünür"
+
+#~ msgid "visible sets"
+#~ msgstr "görünür setler"
+
+#~ msgid "visible to students"
+#~ msgstr "öğrencilere görüntüleyebilir"
+
+#~ msgid "visible users"
+#~ msgstr "kullanıcılar görüntüleyebilir"
+
+#~ msgid "Add how many students?"
+#~ msgstr "Kaç öğrenci eklenecek?"
+
+#~ msgid "Download PDF or TeX Hardcopy for Selected Sets"
+#~ msgstr "Seçili Setleri Yazdırmak için dosya indir"
+
+#~ msgid "Edit Which Users?"
+#~ msgstr "Hangi Kullanıcılar Düzenlenecek?"
+
+#~ msgid "Export selected sets"
+#~ msgstr "Şeçili setleri dışarı aktar"
+
+#~ msgid "Export which sets?"
+#~ msgstr "Hangı setler dışarı aktarılacak?"
+
+#~ msgid "Show Which Users?"
+#~ msgstr "Hangi kullanıcılar gösterilecek?"
+
+#~ msgid "exporting all sets"
+#~ msgstr "bürün setler dışarı aktarılıyor"
+
+#~ msgid "exporting selected sets"
+#~ msgstr "seçili setler dışarı aktarılıyor"
+
+#~ msgid "exporting visible sets"
+#~ msgstr "görünür setler dışarı aktarılıyor"
+
+#~ msgid "Edit All Set Data"
+#~ msgstr "Bütün set bilgilerini düzenle"
+
+#~ msgid "Library Browser 2"
+#~ msgstr "Soru Kütüphane Tarayıcısı 2"
+
+#~ msgid "Select all sets"
+#~ msgstr "Bütün setleri seç"
+
+#~ msgid "Select all users"
+#~ msgstr "Bütün kullanıcıları seç"
+
+#~ msgid "Unselect all sets"
+#~ msgstr "Bütün setlerdeki seçimi kaldır"
+
+#~ msgid "Unselect all users"
+#~ msgstr "Bütün kullanıcılardaki seçimi kaldir"
+
+# Gateway (test 3)
+#~ msgid "%1 (test %2)"
+#~ msgstr "%1 (test %2)"
+
+#~ msgid "Take %1 test"
+#~ msgstr "%1 testini çöz"
+
+#~ msgid "Test Date"
+#~ msgstr "Sınav Tarihi"
+
+#~ msgid "Test Score"
+#~ msgstr "Sınav Notu"
+
+#~ msgid "Messages"
+#~ msgstr "Mesajlar"
+
+#
+#, fuzzy
+#~ msgid "Will open on %1"
+#~ msgstr "%1 tarihinde açılacak"
+
+#
+#, fuzzy
+#~ msgid "User ID:"
+#~ msgstr "Kullanıcı Ekle"
+
+#
+#~ msgid "Viewing temporary file"
+#~ msgstr "Geçici dosya gösteriliyor"
+
+#
+#, fuzzy
+#~ msgid "set %1."
+#~ msgstr "%1'e geri dön"
+
+#
+#, fuzzy
+#~ msgid "Bad Nonce for user "
+#~ msgstr "Set %1 başlığı"
+
+#
+#, fuzzy
+#~ msgid "Can't write to file: %1"
+#~ msgstr "'%1' dosyasına kaydedildi"
+
+#
+#, fuzzy
+#~ msgid "Change Display Options"
+#~ msgstr "Görünüm Seçenekleri"
+
+#
+#~ msgid "navNext"
+#~ msgstr "&nbspSonraki"
+
+#
+#~ msgid "navNextGrey"
+#~ msgstr "&nbspSonraki"
+
+#
+#~ msgid "navPrev"
+#~ msgstr "&nbspÖnceki"
+
+#
+#~ msgid "navPrevGrey"
+#~ msgstr "&nbspÖnceki"
+
+#
+#~ msgid "navProbListGrey"
+#~ msgstr "&nbspSorular"
+
+#
+#~ msgid "navUp"
+#~ msgstr "&nbspYukarı"
+
+#
+#, fuzzy
+#~ msgid "Show me another [_1]"
+#~ msgstr "Yani pencerede göster"
+
+#
+#~ msgid "Apply Options"
+#~ msgstr "Seçenekleri Uygula"
+
+#
+#~ msgid "Disable"
+#~ msgstr "Devre dişi bırak"
+
+#
+#~ msgid "Enable/Disable reduced scoring for selected sets"
+#~ msgstr "Seçili setler için azaltılmış not seçenegini etkinleştir/kaldır"
+
+#
+#~ msgid "Reduced Credit %1 for all sets"
+#~ msgstr "Bütün setler için notlar %1 azaltıldı"
+
+#
+#~ msgid "_REDUCED_CREDIT_MESSAGE_1"
+#~ msgstr ""
+#~ "Bu ödev seti için Azaltılmış Not süresi var. Bu süre %1 tarihinde "
+#~ "başlıyor ve %2 tarihinde son buluyor. Bu süre içinde cevaplanan bütün "
+#~ "sorular asıl değerlerinin yüzde %3 değerinde olacak."
+
+#
+#~ msgid "_REDUCED_CREDIT_MESSAGE_2"
+#~ msgstr ""
+#~ "Bu ödev seti için Azaltılmış Not süresi vardı. Bu süre %1 tarihinde "
+#~ "başladı ve %2 tarihinde bitti. Bu süre içinde cevaplanan bütün sorular "
+#~ "asıl değerlerinin yüzde %3 değerinde notlandı."
+
+#
+#~ msgid "completely"
+#~ msgstr "tamamen"
+
+#
+#~ msgid "Course Information for course [_1]"
+#~ msgstr "%1 dersinin bilgileri"
+
+#
+#~ msgid ""
+#~ "Report bugs in a WeBWorK question/problem using this link. The very first "
+#~ "time you do this you will need to register with an email address so that "
+#~ "information on the bug fix can be reported back to you."
+#~ msgstr ""
+#~ "WebWork veya soruyla ilgili hata bildirmek için bu linki kullanın. Bunu "
+#~ "ilk kez yaparken e-posta adresinizle kayıt olmanız gerekmektedir."
+
+#
+#~ msgid "Unable to change the hardcopy header for set [_1]. Unknown error."
+#~ msgstr ""
+#~ "%1 seti için yazdırılabilir dosya başlığı değiştirilemedi. Bilinmeyen "
+#~ "hata."
+
+#
+#~ msgid "Unable to make '[_1]' the set header for [_2]"
+#~ msgstr "'%1' set %2 için dosya başlığı yapılamadı"
+
+#
+#~ msgid "Can't determine user of temporary edit file [_1]."
+#~ msgstr "Geçici dosya %1 için kullanıcı belirlenemedi."
+
+#
+#~ msgid "Top level of author information on the wiki."
+#~ msgstr "Wikide yazar bilgilerinin en üst seviyesi."
+
+#
+#~ msgid "Reverting to original file '[_1]'"
+#~ msgstr "Asıl dosyaya geri dönülüyor ('%1')"
+
+#
+#~ msgid "Wiki summary page for MathObjects"
+#~ msgstr "MathObjects için özet wiki sayfası"
+
+#
+#~ msgid "Snippets of PG code illustrating specific techniques"
+#~ msgstr "Özel teknikleri gösteren PG yazılımı"
+
+#
+#~ msgid "Error copying [_1] to [_2]"
+#~ msgstr "Dosya %1, %2ye kopyalanarken hata oluştu"
+
+#
+#~ msgid "blank problem"
+#~ msgstr "boş soru"
+
+#
+#~ msgid ""
+#~ "Note: this problem viewer is for viewing purposes only. As of right now, "
+#~ "testing functionality is not possible."
+#~ msgstr ""
+#~ "Not: Bu soru görüntüleyici şu an sadece soruları görüntüleyebilir, soru "
+#~ "çözme fonksiyonu şu an mevcut değil."
+
+#
+#~ msgid "webwork"
+#~ msgstr "webwork"
+
+#
+#~ msgid "submit button clicked"
+#~ msgstr "gönder düğmesine basıldı"
+
+#
+#~ msgid ""
+#~ "Test snippets of PG code in interactive lab.  Good way to learn PG "
+#~ "language."
+#~ msgstr ""
+#~ "Interaktif labaratuarda PG test yazılımları. PG yazılım dilini öğrenmek "
+#~ "içi iyi bir kaynak."
+
+#
+#~ msgid "View Using Seed Number"
+#~ msgstr "Tohum numarasını kullanarak göster"
+
+#
+#~ msgid ""
+#~ "Documentation from source code for PG modules and macro files. Often the "
+#~ "most up-to-date information."
+#~ msgstr ""
+#~ "PG modülleri ve makro dosyaları hakkında bilgi dosyası. Genellikle en son "
+#~ "bilgileri içerir."
+
+#
+#~ msgid ""
+#~ "PG mark down syntax used to format WeBWorK questions. This interactive "
+#~ "lab can help you to learn the techniques."
+#~ msgstr ""
+#~ "WebWork sorularında kullanılan PG kodu sözdizimi. Bu interaktif "
+#~ "labaratuar, teknikleri öğrenmek için kullanılabilir."
+
+#
+#~ msgid ""
+#~ "Error: This path is already in the temporary edit directory -- no new "
+#~ "temporary file is created. path = [_1]"
+#~ msgstr ""
+#~ "Hata: Bu yol belirteci geçici düzenleme klasöründe mevcut -- yeni bir "
+#~ "geçici dosya oluşturuldu. yol = %1"
+
+#
+#~ msgid ""
+#~ "Please use radio buttons to choose the method for saving this file. Can't "
+#~ "recognize saveMode: |[_1]|."
+#~ msgstr "Bu dosya için kaydetme modunu seçin. Kaydetme modu tanınmadı: |%1|."
+
+#
+#~ msgid "Resources"
+#~ msgstr "Kaynaklar"
+
+#
+#~ msgid "Duplicate"
+#~ msgstr "Çoğalt"
+
+#
+#~ msgid "This path |[_1]| is not the path to a temporary edit file."
+#~ msgstr "Bu yol belirteci |%1| geçici düzenleme dosyası yolu değil."
+
+#
+#~ msgid ""
+#~ "Unable to change the source file path for set [_1], problem [_2]. Unknown "
+#~ "error."
+#~ msgstr ""
+#~ "Set %1, soru %2 için kaynak kodu yolu değiştirilemiyor. Bilinmeyen hata."
+
+#
+#~ msgid "Save as new independent problem"
+#~ msgstr "Yeni bir soru olarak kaydet"
+
+#
+#~ msgid "Unknown file type"
+#~ msgstr "Bilinmeyen dosya tipi"
+
+#, fuzzy
+#~ msgid "answer "
+#~ msgstr "Cevap tarihi"
+
+#, fuzzy
+#~ msgid "You are not authorized to access instructor tools"
+#~ msgstr "Eğitmen araçlarına erişim yetkiniz yok."
+
+#, fuzzy
+#~ msgid "all current users."
+#~ msgstr "bütün kullanıcılar"
+
+#, fuzzy
+#~ msgid "font-hidden"
+#~ msgstr "gizli"
+
+#, fuzzy
+#~ msgid "font-visible"
+#~ msgstr "Görünür"
+
+#, fuzzy
+#~ msgid "no users."
+#~ msgstr "kullanıcı yok"
+
+#, fuzzy
+#~ msgid "submitAnswers"
+#~ msgstr "Yanıtları Gönder"
+
+#, fuzzy
+#~ msgid "All sets %1 all students"
+#~ msgstr "Bütün setleri seç"
+
+#, fuzzy
+#~ msgid "Changes saved."
+#~ msgstr "Değişiklikler kaydedildi"
+
+#, fuzzy
+#~ msgid "Hardcopy Theme:"
+#~ msgstr "Çıktı Dosyası Başlığı"
+
+#, fuzzy
+#~ msgid "No sets selected for scoring."
+#~ msgstr "Notlamak için bir set seçili değil"
+
+#, fuzzy
+#~ msgid "Recitation:"
+#~ msgstr "Problem cozum dersi"
+
+#, fuzzy
+#~ msgid "Save as:"
+#~ msgstr "Farklı kaydet"
+
+#, fuzzy
+#~ msgid "Log into"
+#~ msgstr "Çıkış Yap"
+
+#, fuzzy
+#~ msgid "Sets assigned to $userID"
+#~ msgstr "Ödev verilmiş kullanıcıları düzenle"
+
+#, fuzzy
+#~ msgid "navProbList"
+#~ msgstr "Soru Listesi"
+
+#, fuzzy
+#~ msgid "Problem [_1]"
+#~ msgstr "Soru %1"
+
+#, fuzzy
+#~ msgid "[_1]% correct"
+#~ msgstr "%1% doğru"
+
+#, fuzzy
+#~ msgid "At least one of these answers is NOT completely correct."
+#~ msgstr "Yanıtların tümü doğru"
+
+#, fuzzy
+#~ msgid "[_1]: Problem [_2]"
+#~ msgstr "%1: Soru %2."
+
+#, fuzzy
+#~ msgid "Edit "
+#~ msgstr "Düzenle"
+
+#, fuzzy
+#~ msgid "Assign "
+#~ msgstr "Ödev verilmiş setler"
+
+#, fuzzy
+#~ msgid "Delete "
+#~ msgstr "Sil"
+
+#, fuzzy
+#~ msgid "Export "
+#~ msgstr "Dışa aktar"
+
+#, fuzzy
+#~ msgid "Add "
+#~ msgstr "Kullanıcı Ekle"
+
+#, fuzzy
+#~ msgid ""
+#~ "No students shown.  Choose one of the options above to \n"
+#~ "\t              list the students in the course."
+#~ msgstr ""
+#~ "Hiç set gösterilmiyor. Dersteki setleri görmek için yukarıdaki "
+#~ "seçeneklerden birini işaretleyin."
+
+#, fuzzy
+#~ msgid "Reduced Credit %1 for selected sets"
+#~ msgstr "seçili setler düzenleniyor"
+
+#, fuzzy
+#~ msgid "Reduced Credit %1 for visable sets"
+#~ msgstr "Tek set için notları kaydet"
+
+#, fuzzy
+#~ msgid "Hardcopy Header for set [_1]"
+#~ msgstr "Çıktı Dosyası Başlığı"
+
+#, fuzzy
+#~ msgid "hardcopy header file"
+#~ msgstr "Çıktı Dosyası Başlığı"
+
+#, fuzzy
+#~ msgid "Unpublished"
+#~ msgstr "Yayımla"
+
+#, fuzzy
+#~ msgid "Password/Email"
+#~ msgstr "Sifre"
+
+# Context is "This set is visible" or "This set is hidden"
+#, fuzzy
+#~ msgid "This set is [_1] students."
+#~ msgstr "Bu set %1"
+
+#, fuzzy
+#~ msgid "Page generated at [_1] at [_2]"
+#~ msgstr "Sayfa %1de yaratıldı"
+
+#, fuzzy
+#~ msgid "Published"
+#~ msgstr "Yayımla"
+
+#, fuzzy
+#~ msgid "The selected problem ([_1]) is not a valid problem for set [_2]."
+#~ msgstr "Seçtiğiniz soru seti (%1) set %2 için geçerli değil"
+
+#, fuzzy
+#~ msgid "Options Information"
+#~ msgstr "Web Alanı Bilgileri"
+
+#, fuzzy
+#~ msgid "options information"
+#~ msgstr "Web Alanı Bilgileri"
+
+#, fuzzy
+#~ msgid "The selected problem([_1]) is not a valid problem for set [_2]."
+#~ msgstr "Seçtiğiniz soru seti (%1) set %2 için geçerli değil"

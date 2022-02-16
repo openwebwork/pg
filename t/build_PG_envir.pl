@@ -27,7 +27,7 @@ sub be_strict {
 }
 
 sub PG_restricted_eval {
-	WeBWorK::PG::Translator::PG_restricted_eval(@_);
+	Renderer::Translator::PG_restricted_eval(@_);
 }
 
 sub check_score {

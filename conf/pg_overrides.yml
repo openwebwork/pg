@@ -15,3 +15,5 @@ environment:
     dvisvgm: /Library/TeX/texbin/dvisvgm
     pdf2svg: /usr/local/bin/pdf2svg
     convert: /usr/local/bin/convert
+
+  language: en-US

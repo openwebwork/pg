@@ -1,0 +1,1801 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Translators:
+# chenhappiness <chenlipi@msu.edu>, 2013
+# chenhappiness <chenlipi@msu.edu>, 2013
+msgid ""
+msgstr ""
+"Project-Id-Version: WeBWorK\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2021-03-10 21:17-0600\n"
+"Last-Translator: Geoff Goehle <goehle@gmail.com>\n"
+"Language-Team: Chinese (China) <trans@webwork.maa.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 1.6.10\n"
+
+#. (wwRound(0, $answerScore * 100)
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:285
+msgid "%1% correct"
+msgstr ""
+
+#. ($numBlanks)
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:434
+msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1278
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1287
+msgid ""
+"(Instructor hint preview: show the student hint after the following number "
+"of attempts:"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:130
+msgid ""
+"A table showing all the current users along with several fields of user "
+"information. The fields from left to right are: Login Name, Login Status, "
+"Assigned Sets, First Name, Last Name, Email Address, Student ID, Enrollment "
+"Status, Section, Recitation, Comments, and Permission Level.  Clicking on "
+"the links in the column headers will sort the table by the field it "
+"corresponds to. The Login Name fields contain checkboxes for selecting the "
+"user.  Clicking the link of the name itself will allow you to act as the "
+"selected user.  There will also be an image link following the name which "
+"will take you to a page where you can edit the selected user's information.  "
+"Clicking the emails will allow you to email the corresponding user.  "
+"Clicking the links in the entries in the assigned sets columns will take you "
+"to a page where you can view and reassign the sets for the selected user."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:422
+msgid "All of the answers above are correct."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:419
+msgid "All of the gradeable answers above are correct."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:317
+msgid "Answer Preview"
+msgstr "答案预览"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:426
+msgid "At least one of the answers above is NOT correct."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Audit"
+msgstr "审核中"
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:293
+msgid "Check Answers"
+msgstr "检查答案"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:319
+msgid "Correct Answer"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Drop"
+msgstr "退课"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Enrolled"
+msgstr "已注册"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:316
+msgid "Entered"
+msgstr "已输入"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:270
+msgid "FeedbackMessage"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:185
+#: /opt/webwork/pg/macros/problemRandomize.pl:186
+msgid "Get a new version of this problem"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:470
+msgid "Go back to Part 1"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:291
+#: /opt/webwork/pg/macros/compoundProblem.pl:480
+#: /opt/webwork/pg/macros/compoundProblem.pl:491
+msgid "Go on to next part"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:409
+msgid "Hardcopy will always print the original version of the problem."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1560
+msgid "Hint:"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1560
+msgid "Hint: "
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:116
+msgid ""
+"If you check %1 your login information will be remembered by the browser you "
+"are using, allowing you to visit WeBWorK pages without typing your user name "
+"and password (until your session expires). This feature is not safe for "
+"public workstations, untrusted machines, and machines over which you do not "
+"have direct control."
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:408
+msgid "If you come back to it later, it may revert to its original version."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1228
+msgid "Instructor solution preview: show the student solution after due date."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:320
+msgid "Message"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:382
+#: /opt/webwork/pg/macros/problemRandomize.pl:407
+msgid "Note:"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:134
+msgid "One Column"
+msgstr ""
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:289
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:288
+msgid "Preview My Answers"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Proctor"
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:318
+msgid "Result"
+msgstr "结果"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:331
+msgid "Results for this submission"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:187
+msgid "Set random seed to:"
+msgstr ""
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:297
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:289
+msgid "Show Correct Answers"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1556
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1557
+msgid "Solution:"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1555
+msgid "Solution: "
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:410
+msgid "Some answers will be graded later."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:290
+msgid "Submit Answers"
+msgstr "提交答案"
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:502
+msgid "Submit your answers again to go on to the next part."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:413
+msgid "The answer above is NOT correct."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:408
+msgid "The answer above is correct."
+msgstr "上面的答案是正确的."
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:126
+msgid ""
+"The course %1 uses an external authentication system (%2). You've "
+"authenticated through that system, but aren't allowed to log in to this "
+"course."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:124
+msgid ""
+"This course supports guest logins. Click %1 to log into this course as a "
+"guest."
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:407
+msgid "This is a new (re-randomized) version of the problem."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:128
+msgid ""
+"This is a table showing the current Homework sets for this class.  The "
+"fields from left to right are: Edit Set Data, Edit Problems, Edit Assigned "
+"Users, Visibility to students, Reduced Credit Enabled, Date it was opened, "
+"Date it is due, and the Date during which the answers are posted.  The Edit "
+"Set Data field contains checkboxes for selection and a link to the set data "
+"editing page.  The cells in the Edit Problems fields contain links which "
+"take you to a page where you can edit the containing problems, and the cells "
+"in the edit assigned users field contains links which take you to a page "
+"where you can edit what students the set is assigned to."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:122
+msgid ""
+"This is the Achievement Editor.  It is used to edit the achievements "
+"available to students.  Please keep in mind the following facts: Achievments "
+"are displayed, and evaluated, in the order they are listed. The \"secret\" "
+"category creates achievements which are not visible to students until they "
+"are earned.  The \"level\" category is used for the achievements associated "
+"to a users level."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:120
+msgid ""
+"This is the classlist editor page, where you can view and edit the records "
+"of all the students currently enrolled in this course.  The top of the page "
+"contains forms which allow you to filter which students to view, sort your "
+"students in a chosen order, edit student records, give new passwords to "
+"students, import/export student records from/to external files, or add/"
+"delete students.  To use, please select the action you would like to "
+"perform, enter in the relevant information in the fields below, and hit the "
+"\"Take Action!\" button at the bottom of the form.  The bottom of the page "
+"contains a table containing the student usernames and their information."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:118
+msgid ""
+"This is the homework sets editor page where you can view and edit the "
+"homework sets that exist in this course and the problems that they contain. "
+"The top of the page contains forms which allow you to filter which sets to "
+"display in the table, sort the sets in a chosen order, edit homework sets, "
+"publish homework sets, import/export sets from/to an external file, score "
+"sets, or create/delete sets.  To use, please select the action you would "
+"like to perform, enter in the relevant information in the fields below, and "
+"hit the \"Take Action!\" button at the bottom of the form.  The bottom of "
+"the page contains a table displaying the sets and several pieces of relevant "
+"information."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:132
+msgid ""
+"This is the past answer viewer.  Students can only see their answers, and "
+"they will not be able to see which parts are correct.  Instructors can view "
+"any users answers using the form below and the answers will be colored "
+"according to correctness."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:3116
+msgid "This problem contains a video which must be viewed online."
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:602
+msgid "This problem has more than one part."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:136
+msgid "Two Columns"
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:279
+msgid "Ungraded"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:114
+msgid ""
+"WeBWorK has encountered a software error while attempting to process this "
+"problem. It is likely that there is an error in the problem itself. If you "
+"are a student, report this error message to your professor to have it "
+"corrected. If you are a professor, please consult the error output below for "
+"more information."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGanswermacros.pl:1693
+msgid "You can earn partial credit on this problem."
+msgstr "这一题你可以得到部分成绩"
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:383
+msgid "You can get a new version of this problem after the due date."
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:610
+msgid "You may not change your answers when going on to the next part!"
+msgstr ""
+
+#. (wwRound(0, $problemResult->{score} * 100)
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:265
+msgid "You received a score of %1 for this attempt."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:3111
+msgid "Your browser does not support the video tag."
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:603
+msgid "Your score for this attempt is for this part only;"
+msgstr ""
+
+#. (wwRound(0, $problemResult->{score} * 100)
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:225
+msgid "Your score on this attempt is %1"
+msgstr ""
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:268
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:227
+msgid "Your score was not recorded."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "admin"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:647
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:658
+msgid "answer"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:671
+msgid "column"
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:276
+msgid "correct"
+msgstr "正确"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "grade_proctor"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "guest"
+msgstr ""
+
+#. ('j','k','_0')
+#. ('j','k')
+#: /opt/webwork/pg/lib/Parser/List/Vector.pm:35
+#: /opt/webwork/pg/lib/Value/Vector.pm:278
+#: /opt/webwork/pg/macros/contextLimitedVector.pl:94
+msgid "i"
+msgstr ""
+
+#: /opt/webwork/pg/macros/contextPiecewiseFunction.pl:774
+msgid "if"
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:283
+msgid "incorrect"
+msgstr "错误"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "login_proctor"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "nobody"
+msgstr ""
+
+#: /opt/webwork/pg/macros/contextPiecewiseFunction.pl:777
+msgid "otherwise"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:664
+msgid "part"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:653
+msgid "problem"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "professor"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:670
+msgid "row"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "student"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "ta"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:470
+#: /opt/webwork/pg/macros/compoundProblem.pl:480
+msgid "when you submit your answers"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:604
+msgid "your overall score is for all the parts combined."
+msgstr ""
+
+#, fuzzy
+#~ msgid ""
+#~ "%1 users replaced, %2 users added, %3 users skipped. Skipped users: (%4)"
+#~ msgstr "%1个用户已替换，%2个用户已添加，%3个用户已跳过。跳过的用户有：(%4)"
+
+#~ msgid "%1: Problem %2"
+#~ msgstr "%1：第%2题"
+
+#~ msgid "(This problem will not count towards your grade.)"
+#~ msgstr "(这道题将不会计入您的成绩.)"
+
+#, fuzzy
+#~ msgid ""
+#~ "A new file has been created at '%1' with the contents below.  No changes "
+#~ "have been made to set %2"
+#~ msgstr "一个包含以下内容的新文件已在'[_1]'中创建。没有对[_2]做任何修改。"
+
+#~ msgid "ANSWERS ONLY CHECKED -- ANSWERS NOT RECORDED"
+#~ msgstr "答案仅检查 -- 答案没有被记录"
+
+#~ msgid "Abandon changes"
+#~ msgstr "放弃更改"
+
+#~ msgid "Abandon export"
+#~ msgstr "放弃输出"
+
+#~ msgid "Active"
+#~ msgstr "活跃的"
+
+#~ msgid "Add"
+#~ msgstr "添加"
+
+#~ msgid "Add which new users?"
+#~ msgstr "增加哪种新用户?"
+
+#~ msgid "Answer Date"
+#~ msgstr "答案日期"
+
+#, fuzzy
+#~ msgid ""
+#~ "Any changes made below will be reflected in the achievement for ALL "
+#~ "students."
+#~ msgstr "以下所有修改会影响所有学生的这次作业。"
+
+#~ msgid ""
+#~ "Any changes made below will be reflected in the set for ALL students."
+#~ msgstr "以下所有修改会影响所有学生的这次作业。"
+
+#, fuzzy
+#~ msgid ""
+#~ "Any changes made below will be reflected in the set for ONLY the "
+#~ "student(s) listed above."
+#~ msgstr "以下所有修改会影响所有学生的这次作业。"
+
+#~ msgid "Assign this set to which users?"
+#~ msgstr "这次作业留给哪些用户?"
+
+#~ msgid "Assigned Sets"
+#~ msgstr "已布置的作业"
+
+#~ msgid "Attempts"
+#~ msgstr "尝试次数"
+
+#~ msgid "Author Info"
+#~ msgstr "作者信息"
+
+#~ msgid "Cancel Export"
+#~ msgstr "取消导出"
+
+#~ msgid "Cancel Password"
+#~ msgstr "取消修改密码"
+
+#~ msgid "Change Email Address"
+#~ msgstr "修改电子邮箱地址"
+
+#~ msgid "Change Password"
+#~ msgstr "更改密码"
+
+#~ msgid "Changes abandoned"
+#~ msgstr "放弃修改"
+
+#~ msgid "Changes in this file have not yet been permanently saved."
+#~ msgstr "对这个文件的修改还未永久保存。"
+
+#~ msgid "Changes saved"
+#~ msgstr "保存修改"
+
+#~ msgid "Checking additional error messages"
+#~ msgstr "检查额外的错误信息"
+
+#~ msgid "Choose visibility of the sets to be affected"
+#~ msgstr "选择要修改可见性的作业"
+
+#~ msgid "Choose which sets to be affected"
+#~ msgstr "选择要修改的作业"
+
+#~ msgid "Classlist Editor"
+#~ msgstr "课程名单编辑"
+
+#~ msgid "Clear"
+#~ msgstr "清除"
+
+#~ msgid ""
+#~ "Click on the login name to edit individual problem set data, (e.g. due "
+#~ "dates) for these students."
+#~ msgstr "点击用户名去修改该用户的作业信息(比如截至日期)。"
+
+#~ msgid "Comment"
+#~ msgstr "评论"
+
+#~ msgid "Continue"
+#~ msgstr "继续"
+
+#~ msgid "Correct"
+#~ msgstr "正确"
+
+#~ msgid "Correct answers"
+#~ msgstr "正确答案"
+
+#~ msgid "Course Administration"
+#~ msgstr "课程管理"
+
+#~ msgid "Course Configuration"
+#~ msgstr "课程配置"
+
+#~ msgid "Course Info"
+#~ msgstr "课程信息"
+
+#~ msgid "Courses"
+#~ msgstr "课程"
+
+#~ msgid "Create"
+#~ msgstr "创建"
+
+#~ msgid "Create as what type of set?"
+#~ msgstr "创建为哪种类型的作业？"
+
+#~ msgid "Delete"
+#~ msgstr "删除"
+
+#~ msgid "Delete how many?"
+#~ msgstr "删除多少?"
+
+#, fuzzy
+#~ msgid ""
+#~ "Deletion deletes all location data and related addresses, and is not "
+#~ "undoable!"
+#~ msgstr "警告：删除会销毁所有与用户相关的资料且不可撤销！"
+
+#~ msgid "Download Hardcopy for Selected %plural(%1,Set,Sets)"
+#~ msgstr "下载选中的 %plural(%1,作业,作业)"
+
+#~ msgid "Download PDF or TeX Hardcopy for Current Set"
+#~ msgstr "下载当前作业的PDF或者TeX文件"
+
+#~ msgid "Duplicate this set and name it"
+#~ msgstr "复制这次作业并重命名"
+
+#~ msgid "E-mail Instructor"
+#~ msgstr "发电子邮件给老师"
+
+#~ msgid "Edit"
+#~ msgstr "编辑"
+
+#~ msgid "Edit Assigned Users"
+#~ msgstr "编辑选中的用户"
+
+#~ msgid "Edit Problems"
+#~ msgstr "编辑题目"
+
+#~ msgid "Edit Set Data"
+#~ msgstr "编辑作业信息"
+
+#~ msgid "Edit which sets?"
+#~ msgstr "编辑哪些作业"
+
+#~ msgid "Email"
+#~ msgstr "电子邮件"
+
+#~ msgid "Email Address"
+#~ msgstr "电子邮件地址"
+
+#~ msgid "Email instructor"
+#~ msgstr "发电子邮件给老师"
+
+#~ msgid "Enrollment Status"
+#~ msgstr "注册状态"
+
+#~ msgid "Enter filename below"
+#~ msgstr "输入文件名"
+
+#~ msgid "Enter filenames below"
+#~ msgstr "输入文件名"
+
+#~ msgid "Export"
+#~ msgstr "导出"
+
+#~ msgid "Export to what kind of file?"
+#~ msgstr "导出为哪种文件类型？"
+
+#~ msgid "Export which users?"
+#~ msgstr "导出哪些用户？"
+
+#~ msgid "Failed to create new set: no set name specified!"
+#~ msgstr "创建新作业失败：没有给定作业名！"
+
+#, fuzzy
+#~ msgid ""
+#~ "Failed to duplicate achievement: no achievement selected for duplication!"
+#~ msgstr "复制作业失败：没有指定要复制的作业！"
+
+#~ msgid "Failed to duplicate set: no set name specified!"
+#~ msgstr "复制作业失败：没有给定作业名！"
+
+#~ msgid "Failed to duplicate set: no set selected for duplication!"
+#~ msgstr "复制作业失败：没有指定要复制的作业！"
+
+#, fuzzy
+#~ msgid ""
+#~ "File '%1' exists. File not saved. No changes have been made.  You can "
+#~ "change the file path for this problem manually from the 'Hmwk Sets "
+#~ "Editor' page"
+#~ msgstr ""
+#~ "文件'[_1]'已存在。文件未保存。未做任何修改。您需要在'作业编辑'中手动修改文"
+#~ "件路径。"
+
+#~ msgid "File Manager"
+#~ msgstr "文件管理"
+
+#~ msgid "Filename"
+#~ msgstr "文件名"
+
+#~ msgid "Filter by what text?"
+#~ msgstr "关键字"
+
+#~ msgid "First Name"
+#~ msgstr "名"
+
+#~ msgid "From:"
+#~ msgstr "来自于："
+
+#~ msgid "Generate Hardcopy"
+#~ msgstr "打印副本"
+
+#~ msgid "Give new password to which users?"
+#~ msgstr "为哪些用户设置新密码？"
+
+#~ msgid "Guest Login"
+#~ msgstr "游客登录"
+
+#~ msgid "Hardcopy Format:"
+#~ msgstr "文件格式"
+
+#~ msgid "Hardcopy Generator"
+#~ msgstr "打印作业"
+
+#~ msgid "Hardcopy Header"
+#~ msgstr "文件头"
+
+#~ msgid "Help"
+#~ msgstr "帮助"
+
+#~ msgid "Hidden"
+#~ msgstr "隐藏"
+
+#~ msgid "Hints"
+#~ msgstr "提示"
+
+#~ msgid "Hmwk Sets Editor"
+#~ msgstr "作业编辑"
+
+#~ msgid "Homework Sets"
+#~ msgstr "作业"
+
+#~ msgid ""
+#~ "If a password field is left blank, the student's current password will be "
+#~ "maintained."
+#~ msgstr "若密码栏为空，则保留学生当前密码。"
+
+#~ msgid "Import"
+#~ msgstr "导入"
+
+#~ msgid "Import from where?"
+#~ msgstr "从哪儿导入？"
+
+#~ msgid "Import how many sets?"
+#~ msgstr "导入多少次作业？"
+
+#~ msgid "Import sets with names"
+#~ msgstr "导入作业名为"
+
+#~ msgid "Import users from what file?"
+#~ msgstr "从哪个文件导入用户？"
+
+#~ msgid "Inactive"
+#~ msgstr "不活跃的"
+
+#~ msgid "Instructor Tools"
+#~ msgstr "教师工具"
+
+#~ msgid "Invalid user ID or password."
+#~ msgstr "无效的用户名或者密码."
+
+#~ msgid "Last Name"
+#~ msgstr "姓"
+
+#~ msgid "Library Browser"
+#~ msgstr "浏览资料库"
+
+#~ msgid "Log In Again"
+#~ msgstr "重新登录"
+
+#~ msgid "Log Out"
+#~ msgstr "登出"
+
+#~ msgid "Login Info"
+#~ msgstr "登录信息"
+
+#~ msgid "Login Name"
+#~ msgstr "登录名"
+
+#~ msgid "Login Status"
+#~ msgstr "登录状态"
+
+#~ msgid "Logout"
+#~ msgstr "登出"
+
+#~ msgid "Main Menu"
+#~ msgstr "主菜单"
+
+#~ msgid "Match on what? (separate multiple IDs with commas)"
+#~ msgstr "关键字？ (用逗号分开多个用户名)"
+
+#~ msgid "Math Objects"
+#~ msgstr "数学函数对象"
+
+#~ msgid "Name"
+#~ msgstr "名称"
+
+#~ msgid "Name the new set"
+#~ msgstr "命名新作业"
+
+#~ msgid "New Password"
+#~ msgstr "新密码"
+
+#~ msgid "New passwords saved"
+#~ msgstr "新密码已保存"
+
+#~ msgid "Next Problem"
+#~ msgstr "下一题"
+
+#~ msgid "No"
+#~ msgstr "否"
+
+#~ msgid "No change made to any set"
+#~ msgstr "没有修改任何作业"
+
+#~ msgid "No sets selected for scoring"
+#~ msgstr "没有选中作业去计分"
+
+#~ msgid ""
+#~ "No sets shown.  Choose one of the options above to list the sets in the "
+#~ "course."
+#~ msgstr "没有显示作业。选择以上某个选项去列出这门课满足条件的作业。"
+
+#, fuzzy
+#~ msgid ""
+#~ "No students shown.  Choose one of the options above to list the students "
+#~ "in the course."
+#~ msgstr "没有显示作业。选择以上某个选项去列出这门课满足条件的作业。"
+
+#~ msgid "Not logged in."
+#~ msgstr "没有登录。"
+
+#~ msgid "Note"
+#~ msgstr "注意"
+
+#~ msgid "Open Date"
+#~ msgstr "开始日期"
+
+#~ msgid "PREVIEW ONLY -- ANSWERS NOT RECORDED"
+#~ msgstr "只是预览 -- 答案未记录"
+
+#~ msgid "Pad Fields"
+#~ msgstr "填补栏"
+
+#~ msgid "Password"
+#~ msgstr "密码"
+
+#~ msgid "Permission Level"
+#~ msgstr "权限等级"
+
+#~ msgid "Please enter your username and password for %1 below:"
+#~ msgstr "请在下面%1处输入你的用户名和密码 :"
+
+#~ msgid "Please select action to be performed."
+#~ msgstr "请选择需要进行的操作。"
+
+#~ msgid "Please specify a file to save to."
+#~ msgstr "请指定要保存到的文件。"
+
+#~ msgid "Previous Problem"
+#~ msgstr "上一题"
+
+#~ msgid "Problem Editor"
+#~ msgstr "题目编辑"
+
+#~ msgid "Problem List"
+#~ msgstr "题目列表"
+
+#~ msgid "Problem Techniques"
+#~ msgstr "问题方法"
+
+#~ msgid "Problems"
+#~ msgstr "题目"
+
+#~ msgid "Publish"
+#~ msgstr "发布"
+
+#~ msgid "Recitation"
+#~ msgstr "习题课"
+
+#~ msgid "Record Scores for Single Sets"
+#~ msgstr "记录单个作业的成绩"
+
+#~ msgid "Remaining"
+#~ msgstr "剩余"
+
+#~ msgid "Remember Me"
+#~ msgstr "自动登录"
+
+#~ msgid "Replace which users?"
+#~ msgstr "替换哪些用户？"
+
+#~ msgid "Report bugs"
+#~ msgstr "报告错误"
+
+#~ msgid "Results of last action performed"
+#~ msgstr "最后一次操作的结果"
+
+#~ msgid "Revert"
+#~ msgstr "恢复"
+
+#~ msgid "Save"
+#~ msgstr "保存"
+
+#~ msgid "Save As"
+#~ msgstr "另存为"
+
+#~ msgid "Save Export"
+#~ msgstr "保存导出"
+
+#~ msgid "Save Password"
+#~ msgstr "保存密码"
+
+#~ msgid "Save changes"
+#~ msgstr "保存修变"
+
+#~ msgid "Score"
+#~ msgstr "成绩"
+
+#~ msgid "Score selected set(s) and save to:"
+#~ msgstr "对选中的作业进行计分并保存到："
+
+#~ msgid "Score which sets?"
+#~ msgstr "对哪些作业进行计分？"
+
+#~ msgid "Section"
+#~ msgstr "班级"
+
+#~ msgid "Select an action to perform"
+#~ msgstr "选择一个操作去执行"
+
+#~ msgid "Set"
+#~ msgstr "作业"
+
+#~ msgid "Set Definition Filename"
+#~ msgstr "定义作业的文件名"
+
+#~ msgid "Set Header"
+#~ msgstr "作业头"
+
+#~ msgid "Set Info"
+#~ msgstr "作业信息"
+
+#~ msgid "Set List"
+#~ msgstr "作业清单"
+
+#~ msgid "Set Name"
+#~ msgstr "作业名"
+
+#~ msgid "Sets"
+#~ msgstr "作业"
+
+#~ msgid "Show Hints"
+#~ msgstr "显示提示"
+
+#~ msgid "Show Past Answers"
+#~ msgstr "显示以往的回答"
+
+#~ msgid "Show Solutions"
+#~ msgstr "显示答案"
+
+#~ msgid "Show correct answers"
+#~ msgstr "显示正确答案"
+
+#~ msgid "Show which sets?"
+#~ msgstr "显示哪些作业？"
+
+#~ msgid "Show/Hide Site Description"
+#~ msgstr "显示/隐藏站点描述"
+
+#~ msgid "Show:"
+#~ msgstr "显示："
+
+#~ msgid "Site Information"
+#~ msgstr "站点信息"
+
+#~ msgid "Solutions"
+#~ msgstr "答案"
+
+#~ msgid "Sort by"
+#~ msgstr "排序方式为"
+
+#~ msgid "Statistics"
+#~ msgstr "统计数据"
+
+#~ msgid "Status"
+#~ msgstr "状态"
+
+#~ msgid "Stop Acting"
+#~ msgstr "停止担任"
+
+#~ msgid "Student ID"
+#~ msgstr "学号"
+
+#~ msgid "Student Progress"
+#~ msgstr "学生进度"
+
+#~ msgid "Student answers"
+#~ msgstr "学生答案"
+
+#~ msgid "Success"
+#~ msgstr "成功"
+
+#~ msgid "Take Action!"
+#~ msgstr "确认操作！"
+
+#~ msgid "The WeBWorK Project"
+#~ msgstr "WeBWorK项目"
+
+#, fuzzy
+#~ msgid ""
+#~ "The grade for this problem is the larger of the score for this problem, "
+#~ "or the score of problem %1."
+#~ msgstr "这道题目不算成绩。"
+
+#, fuzzy
+#~ msgid ""
+#~ "The password you entered in the %1 field does not match your current "
+#~ "password. Please retype your current password and try again."
+#~ msgstr ""
+#~ "你在%1里输入的密码与您当前密码不匹配。请重新输入您当前密码再试一次。"
+
+#, fuzzy
+#~ msgid ""
+#~ "The passwords you entered in the %1 and %2 fields don't match. Please "
+#~ "retype your new password and try again."
+#~ msgstr "你在%1和%2里输入的密码不匹配。请重新输入您的新密码再试一次。"
+
+#~ msgid "The path to the original file should be absolute"
+#~ msgstr "指向原文件的路径必须是完整的"
+
+#, fuzzy
+#~ msgid ""
+#~ "The source file for 'set %1 / problem %2 has been changed from '%3' to "
+#~ "'%4'"
+#~ msgstr "'作业 [_1] / 题目 [_2]'的源文件已从[_3] 变为 '[_4]'。"
+
+#~ msgid ""
+#~ "The text box now contains the source of the original problem. You can "
+#~ "recover lost edits by using the Back button on your browser."
+#~ msgstr ""
+#~ "这个文本框中包含原问题的来源。您可以通过点击您的浏览器上的后退按钮来恢复丢"
+#~ "失的修改。"
+
+#~ msgid "Then by"
+#~ msgstr "然后按"
+
+#~ msgid "This homework set contains no problems."
+#~ msgstr "这个作业没有包含任何题目。"
+
+#~ msgid "This homework set is closed."
+#~ msgstr "这个作业已关闭。"
+
+#~ msgid "This homework set is not yet open."
+#~ msgstr "这个作业还未开始。"
+
+#, fuzzy
+#~ msgid ""
+#~ "This is a blank problem template file and can not be edited directly. Use "
+#~ "the 'NewVersion' action below to create a local copy of the file and add "
+#~ "it to the current problem set."
+#~ msgstr ""
+#~ "这是一个空的不能直接修改的题目模版文件。使用下面的'另存为'操作去创建该文件"
+#~ "的一个副本并将它加入到当前的作业中。"
+
+#~ msgid "This problem will not count towards your grade."
+#~ msgstr "这道题目不算成绩。"
+
+#, fuzzy
+#~ msgid ""
+#~ "This score for this problem does not count for the score of problem %1 or "
+#~ "for the set."
+#~ msgstr "这道题目不算成绩。"
+
+#, fuzzy
+#~ msgid ""
+#~ "To edit this text you must first make a copy of this file using the "
+#~ "'NewVersion' action below."
+#~ msgstr "要编辑这个文本您必须先用下面的'另存为'操作生成这个文件的一个副本。"
+
+#, fuzzy
+#~ msgid ""
+#~ "To edit this text you must use the 'NewVersion' action below to save it "
+#~ "to another file."
+#~ msgstr "要修改这个文本你必须使用下方的'另存为'操作将其保存到另外一个文件。"
+
+#~ msgid "Use System Default"
+#~ msgstr "使用系统默认配置"
+
+#~ msgid ""
+#~ "Use this form to report to your professor a problem with the WeBWorK "
+#~ "system or an error in a problem you are attempting. Along with your "
+#~ "message, additional information about the state of the system will be "
+#~ "included."
+#~ msgstr ""
+#~ "通过这个表格向您的老师报告您在解题过程中碰到的在WeBWorK系统或题目中的问"
+#~ "题。连同您的消息，关于系统状态的一些额外信息也会添加。"
+
+#~ msgid "Users List"
+#~ msgstr "用户列表"
+
+#~ msgid "View"
+#~ msgstr "查看"
+
+#~ msgid "View equations as"
+#~ msgstr "公式显示为"
+
+#~ msgid "View statistics by set"
+#~ msgstr "查看作业统计数据"
+
+#~ msgid "View statistics by student"
+#~ msgstr "查看学生统计数据"
+
+#~ msgid "View student progress by set"
+#~ msgstr "看学生在某个作业上的进度"
+
+#~ msgid "View student progress by student"
+#~ msgstr "查看学生进度"
+
+#~ msgid "Visibility"
+#~ msgstr "可见性"
+
+#~ msgid "Visible"
+#~ msgstr "可见的"
+
+#~ msgid ""
+#~ "Warning: Deletion destroys all user-related data and is not undoable!"
+#~ msgstr "警告：删除会销毁所有与用户相关的资料且不可撤销！"
+
+#~ msgid "Welcome to WeBWorK!"
+#~ msgstr "欢迎来到WebWorK!"
+
+#~ msgid "What field should filtered users match on?"
+#~ msgstr "匹配用户哪项信息？"
+
+#~ msgid "Worth"
+#~ msgstr "分数"
+
+#, fuzzy
+#~ msgid ""
+#~ "Write permissions have not been enabled for '%1'.  Changes must be saved "
+#~ "to another file for viewing."
+#~ msgstr ""
+#~ "未在'[_1]'中启用写入权限。要查看所做的修改必须将其保持到另外一个文件。"
+
+#, fuzzy
+#~ msgid ""
+#~ "Write permissions have not been enabled in '%1'.  Changes must be saved "
+#~ "to a different directory for viewing."
+#~ msgstr ""
+#~ "未在'[_1]'中启用写入权限。要查看所做的修改必须将其保持到另外一个目录。"
+
+#~ msgid ""
+#~ "Write permissions have not been enabled in the templates directory.  No "
+#~ "changes can be made."
+#~ msgstr "模版目录的写入权限未启用。不能做任何修改。"
+
+#~ msgid "Yes"
+#~ msgstr "是"
+
+#~ msgid "You are not authorized to access the instructor tools."
+#~ msgstr "您没有被授权使用教师工具。"
+
+#~ msgid "You are not authorized to modify homework sets."
+#~ msgstr "您没有被授权修改作业。"
+
+#~ msgid "You are not authorized to modify problems."
+#~ msgstr "您没有被授权修改题目。"
+
+#~ msgid "You are not authorized to modify set definition files."
+#~ msgstr "您没有被授权修改作业定义文件。"
+
+#~ msgid "You are not authorized to modify student data"
+#~ msgstr "您没有授权修改学生数据"
+
+#~ msgid "You are not authorized to perform this action."
+#~ msgstr "您没有被授权执行此操作。"
+
+#~ msgid "You cannot delete yourself!"
+#~ msgstr "你不能删除自己!"
+
+#~ msgid "You do not have permission to change email addresses."
+#~ msgstr "你没有权限改变电子邮件地址。"
+
+#~ msgid "You do not have permission to change your password."
+#~ msgstr "你没有权限改变你的密码。"
+
+#~ msgid "You do not have permission to view the details of this error."
+#~ msgstr "您没有权限去查看这个错误的详细信息。"
+
+#~ msgid "You have been logged out of WeBWorK."
+#~ msgstr "你已经登出WeBWorK."
+
+#, fuzzy
+#~ msgid ""
+#~ "You may choose to show any of the following data. Correct answers, hints, "
+#~ "and solutions are only available %1 after the answer date of the homework "
+#~ "set."
+#~ msgstr ""
+#~ "您可以选择显示以下任何资料。正确的答案和解题方法只有在作业截至日期之后才可"
+#~ "以看到。"
+
+#~ msgid "You may not change your own password here!"
+#~ msgstr "您不能在这里修改您自己的密码！"
+
+#, fuzzy
+#~ msgid ""
+#~ "You must attempt this problem %quant(%1,time,times) before Show Me "
+#~ "Another is available."
+#~ msgstr "您已经试过这个题目%quant(%1,次,次)。"
+
+#, fuzzy
+#~ msgid ""
+#~ "You must attempt this problem %quant(%1,time,times) before this feature "
+#~ "is available"
+#~ msgstr "您已经试过这个题目%quant(%1,次,次)。"
+
+#~ msgid "You must specify a user ID."
+#~ msgstr "您必须指定用户名。"
+
+#~ msgid "Your email address has been changed."
+#~ msgstr "你的电子邮件地址已经改变."
+
+#~ msgid ""
+#~ "Your score was not recorded because there was a failure in storing the "
+#~ "problem record to the database."
+#~ msgstr "您的成绩没有被记录因为在将该问题的分数存入到数据库时出错。"
+
+#~ msgid "Your score was not recorded because this homework set is closed."
+#~ msgstr "因为这个作业已经截止了，所以您的成绩没有记录。"
+
+#~ msgid ""
+#~ "Your score was not recorded because this problem has not been assigned to "
+#~ "you."
+#~ msgstr "因为这个题目没有布置给您，所以您的成绩没有被记录。"
+
+#, fuzzy
+#~ msgid ""
+#~ "Your score was not recorded because this problem set version is not open."
+#~ msgstr "因为这个题目没有布置给您，所以您的成绩没有被记录。"
+
+#, fuzzy
+#~ msgid ""
+#~ "Your score was not recorded because you have exceeded the time limit for "
+#~ "this test. (Time taken: %1 min; allowed: %2 min.)"
+#~ msgstr "因为这个题目没有布置给您，所以您的成绩没有被记录。"
+
+#, fuzzy
+#~ msgid ""
+#~ "Your score was not recorded because you have no attempts remaining on "
+#~ "this set version."
+#~ msgstr "因为这个题目没有布置给您，所以您的成绩没有被记录。"
+
+#~ msgid "Your score was recorded."
+#~ msgstr "您的成绩已记录。"
+
+#~ msgid "Your session has timed out due to inactivity. Please log in again."
+#~ msgstr "您的会话已因闲置超时。请重新登录。"
+
+#~ msgid "_CLASSLIST_EDITOR_DESCRIPTION"
+#~ msgstr ""
+#~ "这是班级名单修改页面，您可以在这里查看并修改这门课目前已注册的所有学生的记"
+#~ "录。在该页最上方有一些表格，您可以输入一些关键字去搜索学生，按照某种规则对"
+#~ "学生进行排序，修改学生记录，给学生设置新密码，导入/导出学生记录从/到外部文"
+#~ "件，或者添加/删除学生。使用方法：首先选择您想执行的操作，接着在信息栏中输"
+#~ "入相关信息，然后点击在表格底部的“确认执行！” 。该页的下方是一个显示学生用"
+#~ "户名以及他们信息的表格。"
+
+#~ msgid "_EXTERNAL_AUTH_MESSAGE"
+#~ msgstr ""
+#~ "[_1]使用外部身份验证系统。您已授权使用那个系统，但没有权限登录这门课。"
+
+#~ msgid "_GUEST_LOGIN_MESSAGE"
+#~ msgstr "这门课支持以游客身份登录。 点击[_1]以游客身份登陆这门课。"
+
+#~ msgid "_HMWKSETS_EDITOR_DESCRIPTION"
+#~ msgstr ""
+#~ "这是作业修改页面，您可以在这里查看并修改这门课目前已有的作业和题目。在该页"
+#~ "最上方有一些表格，您可以输入一些关键字去搜索作业，按照某种规则对作业进行排"
+#~ "序，修改作业设置，给学生布置作业，导入/导出作业从/到外部文件，或者添加/删"
+#~ "除学生。使用方法：首先选择您想执行的操作，接着在信息栏中输入相关信息，然后"
+#~ "点击在表格底部的“确认执行！”。 该页的下方是一个显示作业以及它们相关信息的"
+#~ "表格。"
+
+#~ msgid "_LOGIN_MESSAGE"
+#~ msgstr ""
+#~ "如果您选中 %1，您的登录信息将会被您当前使用的浏览器记录，这样下次您访问"
+#~ "WeBWorK页面时不需要在输入您的用户名和密码（直到您的会话到期）。此功能在公"
+#~ "共服务器，不可信赖的机器和您不能直接控制的电脑上使用不安全。"
+
+#~ msgid "_REQUEST_ERROR"
+#~ msgstr ""
+#~ "在处理这道题时，WeBWorK碰到一个系统错误。很可能是问题本身有错误，如果您是"
+#~ "学生，请将这个错误信息报告给您的老师。如果您是老师，您可以从下面的错误输出"
+#~ "获得跟多信息。"
+
+#~ msgid "a duplicate of the first selected set"
+#~ msgstr "第一个选中作业的副本"
+
+#~ msgid "a new empty set"
+#~ msgstr "一个新的空作业(没有题目)"
+
+#~ msgid "a single set"
+#~ msgstr "单个作业"
+
+#~ msgid "all sets"
+#~ msgstr "所有作业"
+
+#~ msgid "all users"
+#~ msgstr "所有用户"
+
+#~ msgid "any users"
+#~ msgstr "任何用户"
+
+#~ msgid "changes abandoned"
+#~ msgstr "已放弃修改"
+
+#~ msgid "changes saved"
+#~ msgstr "已保存修改"
+
+#~ msgid "editing all sets"
+#~ msgstr "编辑所有作业"
+
+#~ msgid "editing all users"
+#~ msgstr "编辑所有用户"
+
+#~ msgid "editing selected sets"
+#~ msgstr "编辑选中的作业"
+
+#~ msgid "editing selected users"
+#~ msgstr "编辑选中的用户"
+
+#~ msgid "editing visible sets"
+#~ msgstr "编辑可见的作业"
+
+#~ msgid "editing visible users"
+#~ msgstr "编辑可见的用户"
+
+#~ msgid "enter matching set IDs below"
+#~ msgstr "在下面输入用于匹配的作业名"
+
+#~ msgid "export abandoned"
+#~ msgstr "已放弃导出"
+
+#~ msgid "giving new passwords to all users"
+#~ msgstr "给所有用户设置新密码"
+
+#~ msgid "giving new passwords to selected users"
+#~ msgstr "给选中的用户设置新密码"
+
+#~ msgid "giving new passwords to visible users"
+#~ msgstr "给所有可见的用户设置新密码"
+
+#~ msgid "hidden"
+#~ msgstr "隐藏"
+
+#~ msgid "hidden from"
+#~ msgstr "隐藏于"
+
+#~ msgid "hidden from students"
+#~ msgstr "对学生隐藏"
+
+#~ msgid "hidden sets"
+#~ msgstr "隐藏的作业"
+
+#~ msgid "multiple sets"
+#~ msgstr "多个作业"
+
+#~ msgid "no sets"
+#~ msgstr "没有作业"
+
+#~ msgid "no users"
+#~ msgstr "没有用户"
+
+#~ msgid "selected sets"
+#~ msgstr "选中的作业"
+
+#~ msgid "selected users"
+#~ msgstr "选中的用户"
+
+#~ msgid "showing all sets"
+#~ msgstr "显示所有作业"
+
+#~ msgid "showing all users"
+#~ msgstr "显示所有用户"
+
+#~ msgid "showing matching users"
+#~ msgstr "显示匹配的用户"
+
+#~ msgid "showing no sets"
+#~ msgstr "没有显示任何作业"
+
+#~ msgid "showing no users"
+#~ msgstr "没有显示任何用户"
+
+#~ msgid "showing selected sets"
+#~ msgstr "显示选中的作业"
+
+#~ msgid "showing selected users"
+#~ msgstr "显示选中的用户"
+
+#~ msgid "time"
+#~ msgstr "次"
+
+#~ msgid "times"
+#~ msgstr "次"
+
+#~ msgid "unlimited"
+#~ msgstr "无限"
+
+#~ msgid "users who match on selected field"
+#~ msgstr "匹配所选字段的用户"
+
+#~ msgid "visible"
+#~ msgstr "可见的"
+
+#~ msgid "visible sets"
+#~ msgstr "可见的作业"
+
+#~ msgid "visible to students"
+#~ msgstr "对学生是可见的"
+
+#~ msgid "visible users"
+#~ msgstr "可见的用户"
+
+#~ msgid "Add how many students?"
+#~ msgstr "增加多少学生?"
+
+#~ msgid "Download PDF or TeX Hardcopy for Selected Sets"
+#~ msgstr "下载已选定的作业的PDF或者TeX文件"
+
+#~ msgid "Edit Which Users?"
+#~ msgstr "编辑哪些用户?"
+
+#~ msgid "Export selected sets"
+#~ msgstr "导出已选定的作业"
+
+#~ msgid "Export which sets?"
+#~ msgstr "导出哪些作业？"
+
+#~ msgid "Show Which Users?"
+#~ msgstr "显示哪些用户？"
+
+#~ msgid "exporting all sets"
+#~ msgstr "导出所有作业"
+
+#~ msgid "exporting selected sets"
+#~ msgstr "导出选中的作业"
+
+#~ msgid "exporting visible sets"
+#~ msgstr "导出可见的作业"
+
+#~ msgid "Edit All Set Data"
+#~ msgstr "编辑所有作业数据"
+
+#~ msgid "Library Browser 2"
+#~ msgstr "浏览资料库2"
+
+#~ msgid "Select all sets"
+#~ msgstr "选中所有作业"
+
+#~ msgid "Select all users"
+#~ msgstr "选中所有用户"
+
+#~ msgid "Unselect all sets"
+#~ msgstr "取消选中所有作业"
+
+#~ msgid "Unselect all users"
+#~ msgstr "取消选中所有用户"
+
+#~ msgid "Test Date"
+#~ msgstr "考试日期"
+
+#~ msgid "Test Score"
+#~ msgstr "考试成绩"
+
+#, fuzzy
+#~ msgid "Message:"
+#~ msgstr "消息"
+
+#~ msgid "Messages"
+#~ msgstr "消息"
+
+#, fuzzy
+#~ msgid "The answer will be graded later."
+#~ msgstr "上面的答案是正确的."
+
+#, fuzzy
+#~ msgid "This answer is NOT completely correct."
+#~ msgstr "以上答案不是%1c正确。"
+
+#, fuzzy
+#~ msgid "This answer is NOT correct."
+#~ msgstr "以上答案不是%1c正确。"
+
+#, fuzzy
+#~ msgid "This answer is correct."
+#~ msgstr "上面的答案是正确的."
+
+#, fuzzy
+#~ msgid "Import achievements from"
+#~ msgstr "导出已选定的作业"
+
+#, fuzzy
+#~ msgid "Open, reduced scoring starts on %1."
+#~ msgstr "降低总分开始于：%1"
+
+#, fuzzy
+#~ msgid "Reduced Scoring Starts %1"
+#~ msgstr "降低总分开始于：%1"
+
+#, fuzzy
+#~ msgid "Reduced scoring started on %1."
+#~ msgstr "降低总分开始于：%1"
+
+#, fuzzy
+#~ msgid "answer "
+#~ msgstr "答案日期"
+
+#, fuzzy
+#~ msgid "Will open on %1"
+#~ msgstr "开放于 %1"
+
+#, fuzzy
+#~ msgid "User ID:"
+#~ msgstr "添加用户"
+
+#~ msgid "Viewing temporary file"
+#~ msgstr "打开临时文件"
+
+#, fuzzy
+#~ msgid "You are not authorized to access instructor tools"
+#~ msgstr "您没有被授权使用教师工具。"
+
+#, fuzzy
+#~ msgid "all current users."
+#~ msgstr "所有用户"
+
+#, fuzzy
+#~ msgid "font-hidden"
+#~ msgstr "隐藏"
+
+#, fuzzy
+#~ msgid "font-visible"
+#~ msgstr "可见的"
+
+#, fuzzy
+#~ msgid "no users."
+#~ msgstr "没有用户"
+
+#, fuzzy
+#~ msgid "set %1."
+#~ msgstr "恢复到[_1]"
+
+#~ msgid "submitAnswers"
+#~ msgstr "提交答案"
+
+#, fuzzy
+#~ msgid "All sets %1 all students"
+#~ msgstr "所有作业 %1 所有学生。"
+
+#, fuzzy
+#~ msgid "Bad Nonce for user "
+#~ msgstr "设置 [_1] 的作业名"
+
+#, fuzzy
+#~ msgid "Can't write to file: %1"
+#~ msgstr "已保存到'[_1]'"
+
+#, fuzzy
+#~ msgid "Change Display Options"
+#~ msgstr "显示选项"
+
+#, fuzzy
+#~ msgid "Changes saved."
+#~ msgstr "保存修改"
+
+#, fuzzy
+#~ msgid "Hardcopy Theme:"
+#~ msgstr "文件头"
+
+#~ msgid "No sets selected for scoring."
+#~ msgstr "没有选中作业去计分。"
+
+#, fuzzy
+#~ msgid "Recitation:"
+#~ msgstr "习题课"
+
+#, fuzzy
+#~ msgid "Save as:"
+#~ msgstr "另存为"
+
+#, fuzzy
+#~ msgid "Log into"
+#~ msgstr "登出"
+
+#, fuzzy
+#~ msgid "Sets assigned to $userID"
+#~ msgstr "编辑选中的用户"
+
+#~ msgid "navNext"
+#~ msgstr "下一题"
+
+#~ msgid "navNextGrey"
+#~ msgstr "下一题"
+
+#~ msgid "navPrev"
+#~ msgstr "上一题"
+
+#~ msgid "navPrevGrey"
+#~ msgstr "上一题"
+
+#~ msgid "navProbList"
+#~ msgstr "上一级"
+
+#~ msgid "navProbListGrey"
+#~ msgstr "上一级"
+
+#~ msgid "navUp"
+#~ msgstr "上一级"
+
+#~ msgid "Problem [_1]"
+#~ msgstr "第 [_1] 题"
+
+#, fuzzy
+#~ msgid "[_1]% correct"
+#~ msgstr "%1% 正确"
+
+#, fuzzy
+#~ msgid "At least one of these answers is NOT completely correct."
+#~ msgstr "以上答案至少其中一个不是%1c正确。"
+
+#, fuzzy
+#~ msgid "[_1]: Problem [_2]"
+#~ msgstr "作业[_1]/第[_2]题"
+
+#, fuzzy
+#~ msgid "Show me another [_1]"
+#~ msgstr "在新的窗口里显示"
+
+#, fuzzy
+#~ msgid "Edit "
+#~ msgstr "编辑"
+
+#, fuzzy
+#~ msgid "Assign "
+#~ msgstr "已布置的作业"
+
+#, fuzzy
+#~ msgid "Delete "
+#~ msgstr "删除"
+
+#, fuzzy
+#~ msgid "Export "
+#~ msgstr "导出"
+
+#, fuzzy
+#~ msgid "Add "
+#~ msgstr "添加用户"
+
+#~ msgid "Apply Options"
+#~ msgstr "使用选项"
+
+#~ msgid "Disable"
+#~ msgstr "禁用"
+
+#~ msgid "Enable/Disable reduced scoring for selected sets"
+#~ msgstr "对选中的作业 启用/禁用 减分系统"
+
+#~ msgid ""
+#~ "No students shown.  Choose one of the options above to \n"
+#~ "\t              list the students in the course."
+#~ msgstr "没有显示学生。选择以上某个选项去列出这门课满足条件的学生名单。"
+
+#~ msgid "Reduced Credit %1 for all sets"
+#~ msgstr "降低所有作业的总分为%1"
+
+#~ msgid "Reduced Credit %1 for selected sets"
+#~ msgstr "降低选中作业的总分为%1"
+
+#~ msgid "Reduced Credit %1 for visable sets"
+#~ msgstr "降低可见的作业总分为%1"
+
+#~ msgid "_REDUCED_CREDIT_MESSAGE_1"
+#~ msgstr ""
+#~ "这个作业有个减分期间，开始于[_1]，结束于[_2]。在这段时间里所做的所有作业的"
+#~ "总分只有原来的[_3]%。"
+
+#~ msgid "_REDUCED_CREDIT_MESSAGE_2"
+#~ msgstr ""
+#~ "这个作业有个减分期间，开始于[_1]，结束于[_2]。在那段时间里所做的所有作业的"
+#~ "总分只有原来的[_3]%。"
+
+#~ msgid "completely"
+#~ msgstr "百分百"
+
+#~ msgid "Course Information for course [_1]"
+#~ msgstr "课程 [_1] 的课程信息"
+
+#~ msgid "Hardcopy Header for set [_1]"
+#~ msgstr "作业 [_1] 的文件名"
+
+#~ msgid ""
+#~ "Report bugs in a WeBWorK question/problem using this link. The very first "
+#~ "time you do this you will need to register with an email address so that "
+#~ "information on the bug fix can be reported back to you."
+#~ msgstr ""
+#~ "通过这个链接报告WeBWorK题目中的错误。如果您是第一次使用，您需要使用您的电"
+#~ "子邮件地址注册一下，这样有关于错误修复的消息可以汇报给您。"
+
+#~ msgid "hardcopy header file"
+#~ msgstr "文件头名"
+
+#~ msgid "Unpublished"
+#~ msgstr "未发布"
+
+#~ msgid "Unable to change the hardcopy header for set [_1]. Unknown error."
+#~ msgstr "不能修改作业 [_1] 的文件名。未知的错误。"
+
+#~ msgid "Unable to make '[_1]' the set header for [_2]"
+#~ msgstr "不能用 '[_1]' 作为 [_2] 的作业名"
+
+#~ msgid "Can't determine user of temporary edit file [_1]."
+#~ msgstr "不能决定哪个用户在临时修改文件 [_1]。"
+
+#~ msgid "Top level of author information on the wiki."
+#~ msgstr "作者信息可在wiki上找到。"
+
+#~ msgid "Reverting to original file '[_1]'"
+#~ msgstr "恢复到原文件 '[_1]'"
+
+#~ msgid "Wiki summary page for MathObjects"
+#~ msgstr "Wiki上介绍MathObjects的页面"
+
+#~ msgid "Password/Email"
+#~ msgstr "密码/电子邮件"
+
+#~ msgid "Snippets of PG code illustrating specific techniques"
+#~ msgstr "这些PG代码的片段解释了具体方法"
+
+#~ msgid "Error copying [_1] to [_2]"
+#~ msgstr "复制 [_1] 到 [_2] 出错"
+
+#~ msgid "This set is [_1] students."
+#~ msgstr "这个作业对学生是[_1]。"
+
+#~ msgid "blank problem"
+#~ msgstr "空白问题"
+
+#~ msgid ""
+#~ "Note: this problem viewer is for viewing purposes only. As of right now, "
+#~ "testing functionality is not possible."
+#~ msgstr "注意：这个题目预览只是为了查看题目。截至目前，不能测试功能。"
+
+#~ msgid "webwork"
+#~ msgstr "webwork"
+
+#~ msgid "submit button clicked"
+#~ msgstr "已点击提交按钮"
+
+#~ msgid ""
+#~ "Test snippets of PG code in interactive lab.  Good way to learn PG "
+#~ "language."
+#~ msgstr "PG代码的片段在互动实验室中。学习PG语言的好方法。"
+
+#~ msgid "Page generated at [_1] at [_2]"
+#~ msgstr "页面生成于 [_1], [_2]"
+
+#~ msgid "View Using Seed Number"
+#~ msgstr "查看所使用的种子值"
+
+#~ msgid "Published"
+#~ msgstr "已发布"
+
+#~ msgid ""
+#~ "Documentation from source code for PG modules and macro files. Often the "
+#~ "most up-to-date information."
+#~ msgstr "文档从PG模版和宏文件的源代码中得到。一般都是最新的信息。"
+
+#~ msgid ""
+#~ "PG mark down syntax used to format WeBWorK questions. This interactive "
+#~ "lab can help you to learn the techniques."
+#~ msgstr ""
+#~ "PG标记出了用于设置WeBWorK问题格式的语法。这个互动实验室可以帮助您学习这些"
+#~ "方法。"
+
+#~ msgid ""
+#~ "Error: This path is already in the temporary edit directory -- no new "
+#~ "temporary file is created. path = [_1]"
+#~ msgstr ""
+#~ "错误：这个路径已在临时编辑目录下 -- 没有创建新的临时文件。路径 = [_1]"
+
+#~ msgid ""
+#~ "Please use radio buttons to choose the method for saving this file. Can't "
+#~ "recognize saveMode: |[_1]|."
+#~ msgstr "请用单选按钮去选择保存这个文件的方式。不能识别保持模式：|[_1]|。"
+
+#~ msgid "The selected problem ([_1]) is not a valid problem for set [_2]."
+#~ msgstr "选中的问题([_1])不是作业[_2]中的有效题目。"
+
+#~ msgid "Resources"
+#~ msgstr "资源"
+
+#~ msgid "Duplicate"
+#~ msgstr "复制"
+
+#~ msgid "This path |[_1]| is not the path to a temporary edit file."
+#~ msgstr "这个路径|[_1]| 不是指向一个临时编辑文件的路径。"
+
+#~ msgid ""
+#~ "Unable to change the source file path for set [_1], problem [_2]. Unknown "
+#~ "error."
+#~ msgstr "不能修改作业[_1]，问题[_2]的源文件路径。未知的错误。"
+
+#~ msgid "Options Information"
+#~ msgstr "选项信息"
+
+#~ msgid "Save as new independent problem"
+#~ msgstr "保存未新的独立题目"
+
+#~ msgid "options information"
+#~ msgstr "选项信息"
+
+#~ msgid "The selected problem([_1]) is not a valid problem for set [_2]."
+#~ msgstr "选中的题目([_1])不是作业[_2]有效的题目。"
+
+#~ msgid "Unknown file type"
+#~ msgstr "未知的文件类型"

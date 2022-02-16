@@ -2,12 +2,12 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
-# 
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any later
 # version, or (b) the "Artistic License" which comes with this package.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
@@ -21,8 +21,8 @@
 use strict;
 use warnings;
 use Carp;
-use WeBWorK::PG::IO;
-use WeBWorK::PG::ImageGenerator;
+use Renderer::IO;
+use Renderer::ImageGenerator;
 
 package LaTeXImage;
 
@@ -175,7 +175,7 @@ sub footer {
 sub draw {
 	my $self = shift;
 
-	my $working_dir = WeBWorK::PG::ImageGenerator::makeTempDirectory(WeBWorK::PG::IO::ww_tmp_dir(), "tikz");
+	my $working_dir = Renderer::ImageGenerator::makeTempDirectory(Renderer::IO::ww_tmp_dir(), "tikz");
 	my $data;
 
 	my $ext = $self->ext;
@@ -196,9 +196,9 @@ sub draw {
 		print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
 		print $fh $self->footer;
 		close $fh;
-		system "cd $working_dir && " . WeBWorK::PG::IO::externalCommand('latex') .
+		system "cd $working_dir && " . Renderer::IO::externalCommand('latex') .
 			" image-dvisvgm.tex > latex.stdout 2> /dev/null && " .
-			WeBWorK::PG::IO::externalCommand('mv') . " image-dvisvgm.dvi image.dvi";
+			Renderer::IO::externalCommand('mv') . " image-dvisvgm.dvi image.dvi";
 		chmod(0777, "$working_dir/image.dvi");
 	}
 	if ($ext ne 'svg' || ($ext eq 'svg' && $svgMethod ne 'dvisvgm')) {
@@ -209,7 +209,7 @@ sub draw {
 		print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
 		print $fh $self->footer;
 		close $fh;
-		system "cd $working_dir && " . WeBWorK::PG::IO::externalCommand('pdflatex') .
+		system "cd $working_dir && " . Renderer::IO::externalCommand('pdflatex') .
 			" image.tex > pdflatex.stdout 2> /dev/null";
 		chmod(0777, "$working_dir/image.pdf");
 	}
@@ -253,7 +253,7 @@ sub draw {
 
 	# Make the tgz
 	if ($ext eq 'tgz') {
-		system "cd $working_dir && " . WeBWorK::PG::IO::externalCommand('tar') .
+		system "cd $working_dir && " . Renderer::IO::externalCommand('tar') .
 			" -czf image.tgz image.tex image.pdf image.svg image.png > /dev/null 2>&1";
 		warn "Failed to generate tgz file." unless -r "$working_dir/image.tgz";
 	}
@@ -271,7 +271,7 @@ sub draw {
 
 	# Delete the files used to generate the image.
 	if (-e $working_dir) {
-		system WeBWorK::PG::IO::externalCommand('rm') . " -rf $working_dir";
+		system Renderer::IO::externalCommand('rm') . " -rf $working_dir";
 	}
 
 	return $data;
@@ -281,10 +281,10 @@ sub use_svgMethod {
 	my $self = shift;
 	my $working_dir = shift;
 	if ($self->svgMethod eq 'dvisvgm') {
-		system WeBWorK::PG::IO::externalCommand('dvisvgm') .
+		system Renderer::IO::externalCommand('dvisvgm') .
 			" $working_dir/image.dvi --no-fonts --output=$working_dir/image.svg > /dev/null 2>&1";
 	} else {
-		system WeBWorK::PG::IO::externalCommand($self->svgMethod) .
+		system Renderer::IO::externalCommand($self->svgMethod) .
 			" $working_dir/image.pdf $working_dir/image.svg > /dev/null 2>&1";
 	}
 	warn "Failed to generate svg file." unless -r "$working_dir/image.svg";
@@ -294,7 +294,7 @@ sub use_convert {
 	my $self = shift;
 	my $working_dir = shift;
 	my $ext = shift;
-	system WeBWorK::PG::IO::externalCommand('convert') .
+	system Renderer::IO::externalCommand('convert') .
 		join('',map {" -$_ " . $self->convertOptions->{input}->{$_}} (keys %{$self->convertOptions->{input}})) .
 		" $working_dir/image.pdf" .
 		join('',map {" -$_ " . $self->convertOptions->{output}->{$_}} (keys %{$self->convertOptions->{output}})) .

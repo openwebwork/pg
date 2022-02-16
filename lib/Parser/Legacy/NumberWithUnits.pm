@@ -147,7 +147,7 @@ sub TeXunits {
   $units =~ s/\*/\\,/g;
   $units =~ s/%/\\%/g;
   return '{\rm '.$units.'}' unless $units =~ m!^(.*)/(.*)$!;
-  my $displayMode = WeBWorK::PG::Translator::PG_restricted_eval(q!$main::displayMode!);
+  my $displayMode = Renderer::Translator::PG_restricted_eval(q!$main::displayMode!);
   return '{\textstyle\frac{'.$1.'}{'.$2.'}}' if ($displayMode eq 'HTML_tth');
   return '{\textstyle\frac{\rm\mathstrut '.$1.'}{\rm\mathstrut '.$2.'}}';
 }
@@ -229,14 +229,14 @@ sub add_fundamental_unit {
 sub add_unit {
   my $unit = shift;
   my $hash = shift;
-  
+
   unless (ref($hash) eq 'HASH') {
     $hash = {'factor'    => 1,
 	     "$unit"     => 1 };
   }
 
   # make sure that if this unit is defined in terms of any other units
-  # then those units are fundamental units.  
+  # then those units are fundamental units.
   foreach my $subUnit (keys %$hash) {
     if (!defined($fundamental_units->{$subUnit})) {
       add_fundamental_unit($subUnit);

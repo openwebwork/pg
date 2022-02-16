@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ -z "$PG_ROOT" ]; then
+    echo >&2 "You need to set PG_ROOT environment variable.  Aborting."
+    exit 1
+fi
+
+command -v xgettext.pl >/dev/null 2>&1 || {
+    echo >&2 "xgettext.pl needs to be installed.  It is inlcuded in the perl package Locale::Maketext::Extract. Aborting.";
+    exit 1;
+}
+
+LOCDIR=$PG_ROOT/lib/Renderer/Localize
+
+cd $LOCDIR
+
+echo "Updating $LOCDIR/webwork2.pot"
+
+xgettext.pl -v -v -v -o webwork2.pot -D $PG_ROOT/lib -D $PG_ROOT/macros
+
+find $LOCDIR -name '*.po' -exec bash -c "echo \"Updating {}\"; msgmerge -qUN {} webwork2.pot" \;

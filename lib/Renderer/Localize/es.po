@@ -1,0 +1,2020 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Translators:
+# Enrique Acosta <enriqueacostajaramillo@gmail.com>, 2020
+# Andrés Forero <aguilulfo@gmail.com>, 2020
+# Jason Aubrey <aubreyja@gmail.com>
+msgid ""
+msgstr ""
+"Project-Id-Version: webwork2\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2021-03-10 21:14-0600\n"
+"Last-Translator: Enrique Acosta <enriqueacostajaramillo@gmail.com>\n"
+"Language-Team: Spanish (http://www.transifex.com/webwork/webwork2/language/"
+"es/)\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. (wwRound(0, $answerScore * 100)
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:285
+msgid "%1% correct"
+msgstr ""
+
+#. ($numBlanks)
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:434
+msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
+msgstr ""
+"%quant(%1,de las preguntas sigue,de las preguntas siguen) sin respuesta."
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1278
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1287
+msgid ""
+"(Instructor hint preview: show the student hint after the following number "
+"of attempts:"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:130
+msgid ""
+"A table showing all the current users along with several fields of user "
+"information. The fields from left to right are: Login Name, Login Status, "
+"Assigned Sets, First Name, Last Name, Email Address, Student ID, Enrollment "
+"Status, Section, Recitation, Comments, and Permission Level.  Clicking on "
+"the links in the column headers will sort the table by the field it "
+"corresponds to. The Login Name fields contain checkboxes for selecting the "
+"user.  Clicking the link of the name itself will allow you to act as the "
+"selected user.  There will also be an image link following the name which "
+"will take you to a page where you can edit the selected user's information.  "
+"Clicking the emails will allow you to email the corresponding user.  "
+"Clicking the links in the entries in the assigned sets columns will take you "
+"to a page where you can view and reassign the sets for the selected user."
+msgstr "Apellido"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:422
+msgid "All of the answers above are correct."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:419
+msgid "All of the gradeable answers above are correct."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:317
+msgid "Answer Preview"
+msgstr "Vista previa de mi respuesta"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:426
+msgid "At least one of the answers above is NOT correct."
+msgstr "Al menos una de las respuestas arriba NO es correcta."
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Audit"
+msgstr "tr: Enrolled"
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:293
+msgid "Check Answers"
+msgstr "Verificar mis respuestas"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:319
+msgid "Correct Answer"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Drop"
+msgstr "tr: Drop"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Enrolled"
+msgstr "Inscrito"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:316
+msgid "Entered"
+msgstr "Mi respuesta"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:270
+msgid "FeedbackMessage"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:185
+#: /opt/webwork/pg/macros/problemRandomize.pl:186
+msgid "Get a new version of this problem"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:470
+msgid "Go back to Part 1"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:291
+#: /opt/webwork/pg/macros/compoundProblem.pl:480
+#: /opt/webwork/pg/macros/compoundProblem.pl:491
+msgid "Go on to next part"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:409
+msgid "Hardcopy will always print the original version of the problem."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1560
+msgid "Hint:"
+msgstr "Pista:"
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1560
+msgid "Hint: "
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:116
+msgid ""
+"If you check %1 your login information will be remembered by the browser you "
+"are using, allowing you to visit WeBWorK pages without typing your user name "
+"and password (until your session expires). This feature is not safe for "
+"public workstations, untrusted machines, and machines over which you do not "
+"have direct control."
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:408
+msgid "If you come back to it later, it may revert to its original version."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1228
+msgid "Instructor solution preview: show the student solution after due date."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:320
+msgid "Message"
+msgstr ""
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:382
+#: /opt/webwork/pg/macros/problemRandomize.pl:407
+msgid "Note:"
+msgstr "Nota:"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:134
+msgid "One Column"
+msgstr ""
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:289
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:288
+msgid "Preview My Answers"
+msgstr "Vista previa de mis respuestas"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
+msgid "Proctor"
+msgstr "tr: Proctor"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:318
+msgid "Result"
+msgstr "Resultado"
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:331
+msgid "Results for this submission"
+msgstr "Resultados"
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:187
+msgid "Set random seed to:"
+msgstr ""
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:297
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:289
+msgid "Show Correct Answers"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1556
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1557
+msgid "Solution:"
+msgstr "Solución:"
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1555
+msgid "Solution: "
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:410
+msgid "Some answers will be graded later."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:290
+msgid "Submit Answers"
+msgstr "Enviar mis respuestas"
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:502
+msgid "Submit your answers again to go on to the next part."
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:413
+msgid "The answer above is NOT correct."
+msgstr "Tu respuesta NO es correcta."
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:408
+msgid "The answer above is correct."
+msgstr "Tu respuesta es correcta."
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:126
+msgid ""
+"The course %1 uses an external authentication system (%2). You've "
+"authenticated through that system, but aren't allowed to log in to this "
+"course."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:124
+msgid ""
+"This course supports guest logins. Click %1 to log into this course as a "
+"guest."
+msgstr ""
+"Este curso permite ingresar como invitado. Haz clic en %1 para ingresar a "
+"este curso como invitado."
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:407
+msgid "This is a new (re-randomized) version of the problem."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:128
+msgid ""
+"This is a table showing the current Homework sets for this class.  The "
+"fields from left to right are: Edit Set Data, Edit Problems, Edit Assigned "
+"Users, Visibility to students, Reduced Credit Enabled, Date it was opened, "
+"Date it is due, and the Date during which the answers are posted.  The Edit "
+"Set Data field contains checkboxes for selection and a link to the set data "
+"editing page.  The cells in the Edit Problems fields contain links which "
+"take you to a page where you can edit the containing problems, and the cells "
+"in the edit assigned users field contains links which take you to a page "
+"where you can edit what students the set is assigned to."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:122
+msgid ""
+"This is the Achievement Editor.  It is used to edit the achievements "
+"available to students.  Please keep in mind the following facts: Achievments "
+"are displayed, and evaluated, in the order they are listed. The \"secret\" "
+"category creates achievements which are not visible to students until they "
+"are earned.  The \"level\" category is used for the achievements associated "
+"to a users level."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:120
+#, fuzzy
+msgid ""
+"This is the classlist editor page, where you can view and edit the records "
+"of all the students currently enrolled in this course.  The top of the page "
+"contains forms which allow you to filter which students to view, sort your "
+"students in a chosen order, edit student records, give new passwords to "
+"students, import/export student records from/to external files, or add/"
+"delete students.  To use, please select the action you would like to "
+"perform, enter in the relevant information in the fields below, and hit the "
+"\"Take Action!\" button at the bottom of the form.  The bottom of the page "
+"contains a table containing the student usernames and their information."
+msgstr ""
+"Este es el editor de lista de clase. Acá puedes ver y editar los registros "
+"de todos los estudiantes que están inscritos actualmente en este curso. En "
+"la parte de arriba hay filtros que te permiten elegir qué estudiantes ver, "
+"ordenar a los estudiantes de distintas formas, editar registros de "
+"estudiantes, dar nuevas claves a estudiantes, importar y exportar registros "
+"de estudiantes hacia o de archivos externos, o agregar y eliminar "
+"estudiantes. Para usar el editor, selecciona la acción que quieres ejecutar, "
+"introduce la información relevante en los campos de abajo y presiona el "
+"botón \\\"Ejecutar\\\" en la parte de abajo. Al final de la página hay una "
+"tabla que muestra los nombres de usuario de los estudiantes y su información."
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:118
+#, fuzzy
+msgid ""
+"This is the homework sets editor page where you can view and edit the "
+"homework sets that exist in this course and the problems that they contain. "
+"The top of the page contains forms which allow you to filter which sets to "
+"display in the table, sort the sets in a chosen order, edit homework sets, "
+"publish homework sets, import/export sets from/to an external file, score "
+"sets, or create/delete sets.  To use, please select the action you would "
+"like to perform, enter in the relevant information in the fields below, and "
+"hit the \"Take Action!\" button at the bottom of the form.  The bottom of "
+"the page contains a table displaying the sets and several pieces of relevant "
+"information."
+msgstr ""
+"Este es el editor de lista de clase. Acá puedes ver y editar los registros "
+"de todos los estudiantes que están inscritos actualmente en este curso. En "
+"la parte de arriba hay filtros que te permiten elegir qué estudiantes ver, "
+"ordenar a los estudiantes de distintas formas, editar registros de "
+"estudiantes, dar nuevas claves a estudiantes, importar y exportar registros "
+"de estudiantes hacia o de archivos externos, o agregar y eliminar "
+"estudiantes. Para usar el editor, selecciona la acción que quieres ejecutar, "
+"introduce la información relevante en los campos de abajo y presiona el "
+"botón \\\"Ejecutar\\\" en la parte de abajo. Al final de la página hay una "
+"tabla que muestra los nombres de usuario de los estudiantes y su información."
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:132
+msgid ""
+"This is the past answer viewer.  Students can only see their answers, and "
+"they will not be able to see which parts are correct.  Instructors can view "
+"any users answers using the form below and the answers will be colored "
+"according to correctness."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:3116
+msgid "This problem contains a video which must be viewed online."
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:602
+msgid "This problem has more than one part."
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:136
+msgid "Two Columns"
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:279
+msgid "Ungraded"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:114
+msgid ""
+"WeBWorK has encountered a software error while attempting to process this "
+"problem. It is likely that there is an error in the problem itself. If you "
+"are a student, report this error message to your professor to have it "
+"corrected. If you are a professor, please consult the error output below for "
+"more information."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGanswermacros.pl:1693
+msgid "You can earn partial credit on this problem."
+msgstr "Puedes obtener una fracción del puntaje total en este problema."
+
+#: /opt/webwork/pg/macros/problemRandomize.pl:383
+msgid "You can get a new version of this problem after the due date."
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:610
+msgid "You may not change your answers when going on to the next part!"
+msgstr ""
+
+#. (wwRound(0, $problemResult->{score} * 100)
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:265
+msgid "You received a score of %1 for this attempt."
+msgstr "Obtuviste un puntaje de %1 en este intento."
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:3111
+msgid "Your browser does not support the video tag."
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:603
+msgid "Your score for this attempt is for this part only;"
+msgstr ""
+
+#. (wwRound(0, $problemResult->{score} * 100)
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:225
+msgid "Your score on this attempt is %1"
+msgstr ""
+
+#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:268
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:227
+msgid "Your score was not recorded."
+msgstr "Tu puntaje NO se ha guardado."
+
+# #short for administrator
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "admin"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:647
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:658
+msgid "answer"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:671
+msgid "column"
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:276
+msgid "correct"
+msgstr "correcto"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "grade_proctor"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "guest"
+msgstr ""
+
+# doe snot need to be translated
+#. ('j','k','_0')
+#. ('j','k')
+#: /opt/webwork/pg/lib/Parser/List/Vector.pm:35
+#: /opt/webwork/pg/lib/Value/Vector.pm:278
+#: /opt/webwork/pg/macros/contextLimitedVector.pl:94
+msgid "i"
+msgstr ""
+
+#: /opt/webwork/pg/macros/contextPiecewiseFunction.pl:774
+msgid "if"
+msgstr ""
+
+#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:283
+msgid "incorrect"
+msgstr "incorrecto"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "login_proctor"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "nobody"
+msgstr ""
+
+#: /opt/webwork/pg/macros/contextPiecewiseFunction.pl:777
+msgid "otherwise"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:664
+msgid "part"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:653
+msgid "problem"
+msgstr "Problema"
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "professor"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:670
+msgid "row"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "student"
+msgstr ""
+
+#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
+msgid "ta"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:470
+#: /opt/webwork/pg/macros/compoundProblem.pl:480
+msgid "when you submit your answers"
+msgstr ""
+
+#: /opt/webwork/pg/macros/compoundProblem.pl:604
+msgid "your overall score is for all the parts combined."
+msgstr ""
+
+#~ msgid "%1 Points:"
+#~ msgstr "%1 Puntos:"
+
+#~ msgid "%1 Problems:"
+#~ msgstr "%1 Problemas"
+
+#~ msgid "%1's Current Address"
+#~ msgstr "Correo electrónico actual de %1"
+
+#~ msgid "%1's Current Password"
+#~ msgstr "Contraseña actual de %1"
+
+#~ msgid "%1's New Address"
+#~ msgstr "Correo electrónico nuevo de %1"
+
+#~ msgid "%1's New Password"
+#~ msgstr "Nueva contraseña de %1"
+
+#~ msgid "%1: Problem %2"
+#~ msgstr "%1: Problema %2"
+
+#~ msgid "(Any unsaved changes will be lost.)"
+#~ msgstr "(Todos los cambios no guardados se perderán.)"
+
+#~ msgid "(score %1)"
+#~ msgstr "(puntaje %1)"
+
+#~ msgid ""
+#~ "A hardcopy file was generated, but it may not be complete or correct. "
+#~ "Please check that no problems are missing and that they are all legible. "
+#~ "If not, please inform your instructor."
+#~ msgstr ""
+#~ "Se generó una versión para imprimir, pero puede no estar correcta o "
+#~ "completa. Por favor verifica que no falten problemas y que todos sean "
+#~ "legibles. De lo contrario, contacta a tu instructor."
+
+#~ msgid "ANSWERS NOT RECORDED"
+#~ msgstr "NO SE HAN GUARDADO TUS RESPUESTAS"
+
+#~ msgid "ANSWERS NOT RECORDED --"
+#~ msgstr "NO SE HAN GUARDADO TUS RESPUESTAS --"
+
+#~ msgid "ANSWERS ONLY CHECKED -- ANSWERS NOT RECORDED"
+#~ msgstr ""
+#~ "LAS RESPUESTAS SOLO SE VERIFICARON -- LAS RESPUESTAS NO SE GUARDARON"
+
+#~ msgid "Abandon changes"
+#~ msgstr "tr: Abandon changes"
+
+#~ msgid "Abandon export"
+#~ msgstr "tr: Abandon export"
+
+#~ msgid "Act as"
+#~ msgstr "Actuar como"
+
+#~ msgid "Act as:"
+#~ msgstr "Actuar como:"
+
+#~ msgid "Acting as %1."
+#~ msgstr "Actuando como %1"
+
+#~ msgid "Active"
+#~ msgstr "tr: Active"
+
+#~ msgid "Add"
+#~ msgstr "Agregar"
+
+#~ msgid "Add All"
+#~ msgstr "Agregar todos"
+
+#~ msgid "Add Students"
+#~ msgstr "Agregar estudiantes"
+
+#~ msgid "Add Users"
+#~ msgstr "Agregar usuarios"
+
+#~ msgid "Add as what filetype?"
+#~ msgstr "Agregar como archivo de tipo:"
+
+#~ msgid "Add problems to"
+#~ msgstr "Agregar problemas a"
+
+#~ msgid "Add to what set?"
+#~ msgstr "Agregar a la tarea:"
+
+#~ msgid "Add which new users?"
+#~ msgstr "¿Qué nuevos usuarios agregar?"
+
+#~ msgid "Advanced Search"
+#~ msgstr "Búsqueda avanzada"
+
+#~ msgid "All selected sets hidden from all students"
+#~ msgstr "Oculta para los estudiantes"
+
+#~ msgid "Allow unassign"
+#~ msgstr "Permitir desasignar tareas"
+
+#~ msgid "Allowed to <em>act as</em> another user"
+#~ msgstr "Con autorización para <em>actuar como</em> otro usuario"
+
+#~ msgid "Answer Date"
+#~ msgstr "Fecha de publicación de respuestas"
+
+#~ msgid "Answer(s) submitted:"
+#~ msgstr "Respuesta(s) enviada(s):"
+
+#~ msgid "Answers Available"
+#~ msgstr "Respuestas disponibles"
+
+#~ msgid "Answers cannot be due until on or after the open date!"
+#~ msgstr "Disponible desde"
+
+#~ msgid "Answers cannot be made available until on or after the close date!"
+#~ msgstr ""
+#~ "¡Las respuestas no se pueden mostrar antes de la fecha de entrega de la "
+#~ "tarea!"
+
+#~ msgid ""
+#~ "Any changes made below will be reflected in the set for ALL students."
+#~ msgstr ""
+#~ "Todos los cambios que se hagan a continuación aplicarán en la tarea para "
+#~ "TODOS los estudiantes."
+
+#~ msgid "Append"
+#~ msgstr "Agregar"
+
+#~ msgid "Append to end of %1 set"
+#~ msgstr "Agregar al final de la tarea %1"
+
+#~ msgid "Assign"
+#~ msgstr "Asignar"
+
+#~ msgid "Assign selected sets to selected users"
+#~ msgstr "Asignar tareas seleccionadas a los usuarios seleccionados"
+
+#~ msgid "Assign this set to which users?"
+#~ msgstr "tr: Assign this set to which users?"
+
+#~ msgid "Assign to All Current Users"
+#~ msgstr "Asignar a todos los usuarios actuales"
+
+#~ msgid "Assigned"
+#~ msgstr "Asignado(s)"
+
+#~ msgid "Assigned Sets"
+#~ msgstr "Tareas asignadas"
+
+#~ msgid "Assignment type"
+#~ msgstr "Tipo de asignación"
+
+#~ msgid "Attempts"
+#~ msgstr "Intentos"
+
+#~ msgid "Author Info"
+#~ msgstr "Info. para autores"
+
+#~ msgid "Automatically render problems on page load"
+#~ msgstr "Mostrar vistas previas de los problemas al cargar la página"
+
+#~ msgid "Browse"
+#~ msgstr "Explorar"
+
+#~ msgid "CLOSE DATE"
+#~ msgstr "FECHA DE ENTREGA"
+
+#~ msgid "Can e-mail instructor"
+#~ msgstr "Puede enviar correos electrónicos al instructor"
+
+#~ msgid "Cancel E-mail"
+#~ msgstr "Cancelar correo"
+
+#~ msgid "Change Display Settings"
+#~ msgstr "Cambiar preferencias de visualización"
+
+#~ msgid "Change Email Address"
+#~ msgstr "Cambiar dirección de correo (email)"
+
+#~ msgid "Change Password"
+#~ msgstr "Cambiar contraseña"
+
+#~ msgid "Change User Settings"
+#~ msgstr "Guardar preferencias de usuario"
+
+#~ msgid "Changes in this file have not yet been permanently saved."
+#~ msgstr "tr: Changes in this file have not yet been permanently saved."
+
+#~ msgid "Changes saved"
+#~ msgstr "Los cambios se han guardado"
+
+#~ msgid "Chapter:"
+#~ msgstr "Capítulo:"
+
+#~ msgid "Checking additional error messages"
+#~ msgstr "tr: Checking additional error messages"
+
+#~ msgid "Choose visibility of the sets to be affected"
+#~ msgstr "Nuevo estado de las tareas a modificar:"
+
+#~ msgid "Choose which sets to be affected"
+#~ msgstr "Elige qué tareas se van a modificar"
+
+#~ msgid "Classlist Editor"
+#~ msgstr "Editor de lista de clase"
+
+#~ msgid "Clear"
+#~ msgstr "Desmarcar todo"
+
+#~ msgid "Clear Problem Display"
+#~ msgstr "Limpiar vista de problemas"
+
+#~ msgid "Close Date"
+#~ msgstr "Disponible hasta"
+
+#~ msgid "Closed, answers available."
+#~ msgstr "No disponible. Se pueden revisar las respuestas."
+
+#~ msgid "Closes"
+#~ msgstr "Cierra el "
+
+#~ msgid "Closes %1"
+#~ msgstr "Cierra el %1"
+
+#~ msgid "Comment"
+#~ msgstr "Comentario"
+
+#~ msgid "Confirm %1's New Password"
+#~ msgstr "Confirmar la nueva contraseña de %1"
+
+#~ msgid "Continue"
+#~ msgstr "Ingresar"
+
+#~ msgid "Correct"
+#~ msgstr "Correcto"
+
+#~ msgid "CorrectAnswers"
+#~ msgstr "Respuestas correctas"
+
+#~ msgid "Course Administration"
+#~ msgstr "Administrar curso"
+
+#~ msgid "Course Configuration"
+#~ msgstr "Configuración del curso"
+
+#~ msgid "Course Info"
+#~ msgstr "Información del curso"
+
+#~ msgid "Courses"
+#~ msgstr "Cursos"
+
+#~ msgid "Create"
+#~ msgstr "Crear"
+
+#~ msgid "Create a New Set in This Course:"
+#~ msgstr "Crear una nueva tarea en este curso:"
+
+#~ msgid "Create as what type of set?"
+#~ msgstr "Tipo de tarea"
+
+#~ msgid "Create unattached problem"
+#~ msgstr "Crear problema sin asociación a tareas"
+
+#~ msgid "Delete"
+#~ msgstr "Eliminar"
+
+#~ msgid "Delete Course"
+#~ msgstr "Eliminar curso"
+
+#~ msgid "Delete course:"
+#~ msgstr "Eliminar curso:"
+
+#~ msgid "Delete how many?"
+#~ msgstr "¿Eliminar qué usuarios?"
+
+#~ msgid "Delete it?"
+#~ msgstr "Eliminar"
+
+#~ msgid "Display Mode:"
+#~ msgstr "Modo de visualización:"
+
+#~ msgid "Do not uncheck students, unless you know what you are doing."
+#~ msgstr "No desmarques estudiantes a menos de que sepas lo que haces."
+
+#~ msgid "Download PDF or TeX Hardcopy for Current Set"
+#~ msgstr "Descargar el PDF o archivo TeX de esta tarea"
+
+#~ msgid "Download hardcopy of set %1 for %2?"
+#~ msgstr "¿Descargar una versión para imprimir de la tarea %1 para %2?"
+
+#~ msgid "Duplicate this set and name it"
+#~ msgstr "tr: Duplicate this set and name it"
+
+#~ msgid "E-Mail"
+#~ msgstr "Enviar un correo"
+
+#~ msgid "E-mail Instructor"
+#~ msgstr "Enviar un correo electrónico al instructor"
+
+#~ msgid "Edit"
+#~ msgstr "Editar"
+
+#~ msgid "Edit Assigned Users"
+#~ msgstr "Editar usuarios asignados"
+
+#~ msgid "Edit Problems"
+#~ msgstr "Editar problemas"
+
+#~ msgid "Edit Set Data"
+#~ msgstr "Editar información de tareas"
+
+#~ msgid "Edit Target Set"
+#~ msgstr "Editar esta tarea"
+
+#~ msgid "Edit data for %1"
+#~ msgstr "Editar información de %1"
+
+#~ msgid "Edit which sets?"
+#~ msgstr "tr: Edit which sets?"
+
+#~ msgid "Editing %1 in file '%2'"
+#~ msgstr "Editando %1 en el archivo '%2'"
+
+#~ msgid "Email"
+#~ msgstr "E-mail"
+
+#~ msgid "Email Address"
+#~ msgstr "tr: Email Address"
+
+#~ msgid "Email Link"
+#~ msgstr "Enlace al correo electrónico"
+
+#~ msgid "Email instructor"
+#~ msgstr "Enviar un correo electrónico al instructor"
+
+#~ msgid "Enrollment Status"
+#~ msgstr "tr: Enrollment Status"
+
+#~ msgid "Enter filename below"
+#~ msgstr "tr: Enter filename below"
+
+#~ msgid "Enter filenames below"
+#~ msgstr "tr: Enter filenames below"
+
+#~ msgid ""
+#~ "Enter information below for students you wish to add. Each student's "
+#~ "password will initially be set to their student ID."
+#~ msgstr ""
+#~ "Ingresa abajo la información de los estudiantes que quieres agregar. "
+#~ "Inicialmente, la clave de cada estudiante es su ID de estudiante."
+
+#~ msgid "Export"
+#~ msgstr "Exportar"
+
+#~ msgid "Export to what kind of file?"
+#~ msgstr "¿Exportar a qué tipo de archivo?"
+
+#~ msgid "Export which users?"
+#~ msgstr "¿Qué usuarios exportar?"
+
+#~ msgid "Failed to create new set: no set name specified!"
+#~ msgstr "tr: Failed to create new set: no set name specified!"
+
+#~ msgid "Failed to duplicate set: no set name specified!"
+#~ msgstr "tr: Failed to duplicate set: no set name specified!"
+
+#~ msgid "Failed to duplicate set: no set selected for duplication!"
+#~ msgstr "tr: Failed to duplicate set: no set selected for duplication!"
+
+#~ msgid "Feedback"
+#~ msgstr "Retroalimentación"
+
+#~ msgid "File Manager"
+#~ msgstr "Administrador de archivos"
+
+#~ msgid "Filename"
+#~ msgstr "Nombre de archivo"
+
+#~ msgid "Filter by what text?"
+#~ msgstr "¿Qué texto usar para filtrar?"
+
+#~ msgid "Filter:"
+#~ msgstr "Filtrar:"
+
+#~ msgid "First Name"
+#~ msgstr "Nombre"
+
+#~ msgid "Force problems to be numbered consecutively from one"
+#~ msgstr ""
+#~ "Hacer que los problemas queden numerados de forma consecutiva desde 1"
+
+#~ msgid "Format:"
+#~ msgstr "Formato:"
+
+#~ msgid "From This Course"
+#~ msgstr "De este curso"
+
+#~ msgid "From:"
+#~ msgstr "De:"
+
+#~ msgid "General Information"
+#~ msgstr "Información general"
+
+#~ msgid "Generate Hardcopy"
+#~ msgstr "Generar versión para imprimir"
+
+#~ msgid "Generate hardcopy for selected sets and selected users"
+#~ msgstr ""
+#~ "Generar versión para imprimir de las tareas y los estudiantes "
+#~ "seleccionados"
+
+#~ msgid "Give new password to which users?"
+#~ msgstr "¿Dar una nueva contraseña a qué usuarios?"
+
+#~ msgid "Grades"
+#~ msgstr "Calificaciones"
+
+#~ msgid "Guest Login"
+#~ msgstr "Iniciar como invitado"
+
+#~ msgid "Hardcopy Format:"
+#~ msgstr "Formato de versión para imprimir:"
+
+#~ msgid "Hardcopy Generator"
+#~ msgstr "Generador de versiones para imprimir"
+
+#~ msgid "Hardcopy Header"
+#~ msgstr "Encabezado de la versión para imprimir"
+
+#~ msgid "Headers"
+#~ msgstr "Encabezados"
+
+#~ msgid "Help"
+#~ msgstr "Ayuda"
+
+#~ msgid "Hidden"
+#~ msgstr "tr: Hidden"
+
+#~ msgid "Hide All"
+#~ msgstr "Ocultar todos"
+
+#~ msgid "Hide Hints from Students"
+#~ msgstr "No mostrar pistas a los estudiantes"
+
+#~ msgid "Hints"
+#~ msgstr "Pistas"
+
+# Hmwk is short for Homework
+#~ msgid "Hmwk Sets Editor"
+#~ msgstr "Editor de tareas"
+
+#~ msgid "Homework Sets"
+#~ msgstr "Tareas"
+
+#~ msgid "Homework Totals"
+#~ msgstr "Totales de la tarea"
+
+#~ msgid ""
+#~ "If a password field is left blank, the student's current password will be "
+#~ "maintained."
+#~ msgstr ""
+#~ "tr: If a password field is left blank, the student's current password "
+#~ "will be maintained."
+
+#~ msgid "Import"
+#~ msgstr "Importar"
+
+#~ msgid "Import from where?"
+#~ msgstr "tr: Import from where?"
+
+#~ msgid "Import how many sets?"
+#~ msgstr "tr: Import how many sets?"
+
+#~ msgid "Import sets with names"
+#~ msgstr "tr: Import sets with names"
+
+#~ msgid "Import users from what file?"
+#~ msgstr "¿Importar usuarios de qué archivo?"
+
+#~ msgid "Inactive"
+#~ msgstr "tr: Inactive"
+
+#~ msgid "Include Success Index"
+#~ msgstr "Incluir índice de éxito"
+
+#~ msgid "Incorrect"
+#~ msgstr "incorrecto"
+
+#~ msgid "Instructor Tools"
+#~ msgstr "Herramientas del instructor"
+
+#~ msgid "Invalid user ID or password."
+#~ msgstr "Usuario o contraseña inválidos."
+
+#~ msgid "Last Name"
+#~ msgstr "Apellido"
+
+#~ msgid "Last name"
+#~ msgstr "Apellido"
+
+#~ msgid "Library Browser"
+#~ msgstr "Explorador de problemas"
+
+#~ msgid "Local Problems"
+#~ msgstr "Problemas locales"
+
+#~ msgid "Log Out"
+#~ msgstr "Salir"
+
+#~ msgid "Logged in as %1."
+#~ msgstr "Sesión iniciada como %1"
+
+#~ msgid "Login Name"
+#~ msgstr "Nombre de usuario"
+
+#~ msgid "Login Status"
+#~ msgstr "Estado de usuario"
+
+#~ msgid "Logout"
+#~ msgstr "Salir"
+
+#~ msgid "Main Menu"
+#~ msgstr "Menú Principal"
+
+#~ msgid "Mark Correct?"
+#~ msgstr "¿Marcar como correcta?"
+
+#~ msgid "Match on what? (separate multiple IDs with commas)"
+#~ msgstr "¿Qué IDs buscar? (usa comas para separar los IDs)"
+
+#~ msgid "Math Objects"
+#~ msgstr "MathObjects"
+
+#~ msgid "Max attempts"
+#~ msgstr "Máx. número de intentos"
+
+#~ msgid "Max. Shown:"
+#~ msgstr "Mostrar máximo:"
+
+#~ msgid "Name"
+#~ msgstr "Nombre"
+
+#~ msgid "Name the new set"
+#~ msgstr "Nombre de la nueva tarea"
+
+#~ msgid "New Password"
+#~ msgstr "Nueva contraseña"
+
+#~ msgid "New passwords saved"
+#~ msgstr "tr: New passwords saved"
+
+#~ msgid "Next Problem"
+#~ msgstr "Problema siguiente"
+
+#~ msgid "Next page"
+#~ msgstr "Siguiente página"
+
+#~ msgid "No"
+#~ msgstr "No"
+
+#~ msgid "No change made to any set"
+#~ msgstr "tr: No change made to any set"
+
+#~ msgid "No sets selected for scoring"
+#~ msgstr "tr: No sets selected for scoring"
+
+#~ msgid ""
+#~ "No sets shown.  Choose one of the options above to list the sets in the "
+#~ "course."
+#~ msgstr ""
+#~ "tr: No sets shown.  Choose one of the options above to list the sets in "
+#~ "the course."
+
+#~ msgid "Not logged in."
+#~ msgstr "No ha iniciado sesión"
+
+#~ msgid "Note"
+#~ msgstr "Nota"
+
+#~ msgid "Open Date"
+#~ msgstr "Fecha de disponibilidad"
+
+#~ msgid "Open Problem Library"
+#~ msgstr "OpenProblemLibrary"
+
+#~ msgid "Open in New Window"
+#~ msgstr "Abrir en una nueva ventana"
+
+#~ msgid "Open in new window"
+#~ msgstr "Abrir en una nueva ventana"
+
+#~ msgid "Open, closes %1."
+#~ msgstr "Disponible, cierra el %1."
+
+#~ msgid "Opens"
+#~ msgstr "Disponible el"
+
+# Context is "7 Out Of 10"
+#~ msgid "Out Of"
+#~ msgstr "De un total de"
+
+# Doesn't need to be translated
+#~ msgid "PGLab"
+#~ msgstr "PGLab"
+
+# Doesn't need to be translated
+#~ msgid "PGML"
+#~ msgstr "PGML"
+
+# Doesn't need to be translated
+#~ msgid "POD"
+#~ msgstr "Documentación POD"
+
+#~ msgid "PREVIEW ONLY -- ANSWERS NOT RECORDED"
+#~ msgstr "VISTA PREVIA -- NO SE HAN GUARDADO TUS RESPUESTAS"
+
+#~ msgid "Pad Fields"
+#~ msgstr "tr: Pad Fields"
+
+#~ msgid "Password"
+#~ msgstr "Contraseña"
+
+#~ msgid "Password:"
+#~ msgstr "Contraseña:"
+
+#~ msgid "Percent"
+#~ msgstr "Porcentaje"
+
+#~ msgid "Permission Level"
+#~ msgstr "Nivel de permisos"
+
+#~ msgid "Please enter your username and password for %1 below:"
+#~ msgstr "Por favor ingresa tu nombre de usuario y contraseña para %1"
+
+#~ msgid "Please select action to be performed."
+#~ msgstr "Por favor selecciona la acción que quieres realizar."
+
+#~ msgid "Please specify a file to save to."
+#~ msgstr "tr: Please specify a file to save to."
+
+#~ msgid "Points"
+#~ msgstr "Puntos"
+
+#~ msgid "Previous Problem"
+#~ msgstr "Problema anterior"
+
+#~ msgid "Problem #"
+#~ msgstr "Problema #"
+
+#~ msgid "Problem %1"
+#~ msgstr "Problema %1"
+
+#~ msgid "Problem %1."
+#~ msgstr "Problema %1."
+
+#~ msgid "Problem Editor"
+#~ msgstr "Editor de problemas"
+
+#~ msgid "Problem List"
+#~ msgstr "Lista de problemas"
+
+#~ msgid "Problem Techniques"
+#~ msgstr "Estrategias para problemas"
+
+#~ msgid "Problem Viewer"
+#~ msgstr "Visualizador de problemas"
+
+#~ msgid "Problems"
+#~ msgstr "Problemas"
+
+#~ msgid "Problems for selected students have been reassigned."
+#~ msgstr "Se han reasignado problemas para los estudiantes seleccionados."
+
+#~ msgid "Publish"
+#~ msgstr "Publicar"
+
+#~ msgid "Read only"
+#~ msgstr "Solo lectura"
+
+#~ msgid "Recitation"
+#~ msgstr "tr: Recitation"
+
+#~ msgid "Record Scores for Single Sets"
+#~ msgstr "tr: Record Scores for Single Sets"
+
+# Context is "Attempts Remaining"
+#~ msgid "Remaining"
+#~ msgstr "Restantes"
+
+#~ msgid "Remember Me"
+#~ msgstr "tr: Remember Me"
+
+#~ msgid "Render All"
+#~ msgstr "Mostrar todos"
+
+#~ msgid "Renumber Problems"
+#~ msgstr "Volver a numerar los problemas"
+
+#~ msgid "Replace current problem: %1"
+#~ msgstr "Reemplazar problema actual: %1"
+
+#~ msgid "Replace which users?"
+#~ msgstr "¿Qué usuarios reemplazar?"
+
+#~ msgid "Report Bugs in this Problem"
+#~ msgstr "Reportar errores de código en este problema"
+
+#~ msgid "Report bugs"
+#~ msgstr "Reportar problemas (bugs)"
+
+#~ msgid "Request information"
+#~ msgstr "Solicitar información"
+
+#~ msgid "Reset Form"
+#~ msgstr "Descartar cambios"
+
+#~ msgid "Results of last action performed"
+#~ msgstr "Resultados de la última acción realizada"
+
+#~ msgid "Results of last action performed: "
+#~ msgstr "Resultados de la última acción:"
+
+#~ msgid "Revert"
+#~ msgstr "tr: Revert"
+
+#~ msgid "Save"
+#~ msgstr "Guardar"
+
+#~ msgid "Save %1"
+#~ msgstr "Guardar %1"
+
+#~ msgid "Save As"
+#~ msgstr "Guardar como"
+
+#~ msgid "Save Changes"
+#~ msgstr "Guardar los cambios"
+
+#~ msgid "Save as"
+#~ msgstr "Guardar como"
+
+#~ msgid "Save changes"
+#~ msgstr "Guardar los cambios"
+
+#~ msgid "Save file to:"
+#~ msgstr "Guardar archivo en:"
+
+#~ msgid "Score"
+#~ msgstr "Calificar"
+
+#~ msgid "Score (%)"
+#~ msgstr "Puntaje (%)"
+
+#~ msgid "Score selected set(s) and save to:"
+#~ msgstr "Calificar las tareas selccionadas y guardar en:"
+
+#~ msgid "Score which sets?"
+#~ msgstr "¿Qué tareas calificar?"
+
+#~ msgid "Scoring Download"
+#~ msgstr "Bajar Calificaciones"
+
+#~ msgid "Scoring Tools"
+#~ msgstr "Herramientas de calificación"
+
+#~ msgid "Section"
+#~ msgstr "Sección"
+
+#~ msgid "Section:"
+#~ msgstr "Sección:"
+
+#~ msgid "Select a Set from this Course"
+#~ msgstr "Seleccionar una tarea de este curso"
+
+#~ msgid "Select an action to perform"
+#~ msgstr "tr: Select an action to perform"
+
+#~ msgid "Select an action to perform:"
+#~ msgstr "Selecciona una acción:"
+
+#~ msgid "Select sets below to assign them to the newly-created users."
+#~ msgstr ""
+#~ "Selecciona abajo las tareas que quieres asignar a los nuevos usuarios."
+
+#~ msgid ""
+#~ "Select user(s) and/or set(s) below and click the action button of your "
+#~ "choice."
+#~ msgstr ""
+#~ "Selecciona usuarios y/o tareas abajo y selecciona la acción que desees "
+#~ "ejecutar."
+
+#~ msgid "Send Email"
+#~ msgstr "Enviar correo"
+
+#~ msgid "Set"
+#~ msgstr "Tarea"
+
+#~ msgid "Set Definition Files"
+#~ msgstr "Archivos de tareas (.def)"
+
+#~ msgid "Set Description"
+#~ msgstr "Descripción de la tarea"
+
+#~ msgid "Set Detail for set %2"
+#~ msgstr "Detalles de la tarea %2"
+
+#~ msgid "Set Header"
+#~ msgstr "Encabezado de la tarea"
+
+#~ msgid "Set Info"
+#~ msgstr "Información sobre la tarea"
+
+#~ msgid "Set List"
+#~ msgstr "Lista de tareas"
+
+#~ msgid "Set Name"
+#~ msgstr "tr: Set Name"
+
+#~ msgid "Sets"
+#~ msgstr "Tareas"
+
+#~ msgid "Show Me Another"
+#~ msgstr "Muéstrame otra versión"
+
+#~ msgid "Show Past Answers"
+#~ msgstr "Mostrar respuestas anteriores"
+
+#~ msgid "Show Solutions"
+#~ msgstr "Mostrar soluciones"
+
+#~ msgid "Show me another"
+#~ msgstr "Muéstrame otra versión"
+
+#~ msgid "Show saved answers?"
+#~ msgstr "¿Mostrar respuestas guardadas?"
+
+#~ msgid "Show which sets?"
+#~ msgstr "¿Qué tareas mostrar?"
+
+#~ msgid "Show/Hide Site Description"
+#~ msgstr "Mostrar/Ocultar la descripción de esta página"
+
+#~ msgid "Show:"
+#~ msgstr "Mostrar:"
+
+#~ msgid "Showing %1 out of %2 users"
+#~ msgstr "Mostrando %1 de un total de %2 usuarios."
+
+#~ msgid "Solutions"
+#~ msgstr "Soluciones"
+
+#~ msgid "Sort"
+#~ msgstr "Ordenar"
+
+#~ msgid "Sort by"
+#~ msgstr "Ordenar por"
+
+#~ msgid "Sort:"
+#~ msgstr "Ordenar por:"
+
+#~ msgid "Source File"
+#~ msgstr "Archivo:"
+
+#~ msgid "Statistics"
+#~ msgstr "Estadísticas"
+
+#~ msgid "Status"
+#~ msgstr "Estado"
+
+#~ msgid "Stop Acting"
+#~ msgstr "Volver al usuario original"
+
+#~ msgid "Student ID"
+#~ msgstr "ID de estudiante"
+
+#~ msgid "Student Name"
+#~ msgstr "Nombre del estudiante"
+
+#~ msgid "Student Progress"
+#~ msgstr "Reportes de avance"
+
+#~ msgid "Student Progress for %1 set %2. Closes %3"
+#~ msgstr "Reporte de avance del estudiante %2 de %1. Cierra el %3"
+
+#~ msgid "Student Progress for %1 student %2"
+#~ msgstr "Reporte de avance del estudiante %2 de %1"
+
+#~ msgid "Student answers"
+#~ msgstr "Respuestas del estudiante"
+
+#~ msgid "Subject:"
+#~ msgstr "Tema:"
+
+#~ msgid "Subject: "
+#~ msgstr "Tema:"
+
+#~ msgid "Submit Answers for %1"
+#~ msgstr "Enviar mis respuestas para %1"
+
+#~ msgid "Success"
+#~ msgstr "tr: Success"
+
+#~ msgid "Take Action!"
+#~ msgstr "Ejecutar"
+
+#~ msgid "Target Set:"
+#~ msgstr "La Tarea:"
+
+#~ msgid "The WeBWorK Project"
+#~ msgstr "tr: The WeBWorK Project"
+
+#~ msgid "The file '%1' is protected!"
+#~ msgstr "¡El archivo %1 está protegido!"
+
+#~ msgid "The path to the original file should be absolute"
+#~ msgstr "tr: The path to the original file should be absolute"
+
+#~ msgid "The set %1 is assigned to %2."
+#~ msgstr "La tarea %1 está asignada a %2."
+
+# Context is "Sort by ____ Then by _____"
+#~ msgid "Then by"
+#~ msgstr "Después por:"
+
+#~ msgid "There are %1 matching WeBWorK problems"
+#~ msgstr "%1 problemas cumplen con los criterios seleccionados"
+
+#~ msgid ""
+#~ "There is NO undo for this function.  Do not use it unless you know what "
+#~ "you are doing!  When you unassign a student using this button, or by "
+#~ "unchecking their name, you destroy all of the data for homework set "
+#~ "$setID for this student."
+#~ msgstr ""
+#~ "Esta función NO se puede deshacer. ¡No la uses a menos que sepas lo que "
+#~ "haces! Cuando desasignas a un estudiante al usar este botón, o al "
+#~ "desmarcar su nombre, destruyes toda la información de este estudiante "
+#~ "relativa a la tarea $setID."
+
+#~ msgid "There is NO undo for unassigning students."
+#~ msgstr "La acción \"desasignar estudiantes\" NO se puede deshacer."
+
+#~ msgid ""
+#~ "There may be something wrong with this question. Please inform your "
+#~ "instructor including the warning messages below."
+#~ msgstr ""
+#~ "Puede que haya problemas técnicos con esta pregunta. Por favor informa a "
+#~ "tu instructor e incluye los mensajes de alerta que ves abajo en la página."
+
+#~ msgid "This action can take a long time if there are many students."
+#~ msgstr "Esta acción puede tomar bastante tiempo si hay muchos estudiantes."
+
+#~ msgid "This homework set is not yet open."
+#~ msgstr "Esta tarea todavía no está disponible."
+
+#~ msgid "This set %1 is assigned to %2."
+#~ msgstr "Esta tarea (%1) está asignada a %2."
+
+# Context is "This set is visible" or "This set is hidden"
+#~ msgid "This set is %1"
+#~ msgstr "Esta tarea está %1"
+
+#~ msgid "This source file does not exist!"
+#~ msgstr "¡Este archivo no existe!"
+
+#~ msgid "This source file is a directory!"
+#~ msgstr "¡Este archivo es un directorio!"
+
+#~ msgid "This source file is not a plain file!"
+#~ msgstr "¡Este archivo no es un archivo de texto!"
+
+#~ msgid "This source file is not readable!"
+#~ msgstr "¡Este archivo no se pudo leer!"
+
+#~ msgid ""
+#~ "To edit this text you must first make a copy of this file using the "
+#~ "'NewVersion' action below."
+#~ msgstr ""
+#~ "Para editar este texto, primero debes hacer una copia de este archivo "
+#~ "usando la acción \"Nueva versión\" abajo."
+
+#~ msgid "Transfer"
+#~ msgstr "Transferir"
+
+#~ msgid "Unassign from All Users"
+#~ msgstr "Desasignar de todos los usuarios"
+
+#~ msgid "Update"
+#~ msgstr "Actualizar"
+
+#~ msgid "Use Default Header File"
+#~ msgstr "Usar encabezados estándar"
+
+#~ msgid "Use Equation Editor?"
+#~ msgstr "¿Usar editor de ecuaciones?"
+
+#~ msgid "Use System Default"
+#~ msgstr "tr: Use System Default"
+
+#~ msgid ""
+#~ "Use the interface below to quickly access commonly-used instructor tools, "
+#~ "or select a tool from the list to the left."
+#~ msgstr ""
+#~ "Usa la interfaz que se muestra abajo para acceder rápidamente a "
+#~ "herramientas de uso frecuente para el instructor o selecciona una "
+#~ "herramienta de la lista a la izquierda."
+
+#~ msgid ""
+#~ "Use this form to report to your professor a problem with the WeBWorK "
+#~ "system or an error in a problem you are attempting. Along with your "
+#~ "message, additional information about the state of the system will be "
+#~ "included."
+#~ msgstr ""
+#~ "Usa este formulario para reportar a tu profesor un problema con el "
+#~ "sistema WeBWorK o un error en un problema que estás intentando hacer. Se "
+#~ "incluirá automáticamente información adicional sobre el estado del "
+#~ "sistema junto con tu mensaje."
+
+#~ msgid "User Settings"
+#~ msgstr "Preferencias de usuario"
+
+#~ msgid "Username"
+#~ msgstr "Nombre de usuario"
+
+#~ msgid "Users"
+#~ msgstr "Usuarios"
+
+#~ msgid "Users Assigned to Set %2"
+#~ msgstr "Usuarios a los que se ha asignado la tarea %2"
+
+#~ msgid "Users List"
+#~ msgstr "Lista de usuarios"
+
+#~ msgid "Using what display mode?: "
+#~ msgstr "Modo de visualización:"
+
+#~ msgid "Using what seed?: "
+#~ msgstr "Semilla para usar:"
+
+#~ msgid "View"
+#~ msgstr "Ver"
+
+#~ msgid "View Problems"
+#~ msgstr "Ver problemas"
+
+#~ msgid "View equations as"
+#~ msgstr "Ver las ecuaciones como"
+
+#~ msgid "View statistics by set"
+#~ msgstr "Ver estadísticas de una tarea"
+
+#~ msgid "View statistics by student"
+#~ msgstr "Ver estadísticas de un estudiante"
+
+#~ msgid "View student progress by set"
+#~ msgstr "Ver reporte de progreso de una tarea"
+
+#~ msgid "View student progress by student"
+#~ msgstr "Ver reporte de progreso de un estudiante"
+
+#~ msgid "View/Edit"
+#~ msgstr "Ver/Editar"
+
+#~ msgid "Viewing temporary file:"
+#~ msgstr "Viendo archivo temporal:"
+
+#~ msgid "Visibility"
+#~ msgstr "tr: Visibility"
+
+#~ msgid "Visible"
+#~ msgstr "Visible"
+
+#~ msgid "Visible to Students"
+#~ msgstr "Visible para los estudiantes"
+
+#~ msgid "Warning messages"
+#~ msgstr "Mensajes de alerta"
+
+#~ msgid ""
+#~ "Warning: Deletion destroys all user-related data and is not undoable!"
+#~ msgstr ""
+#~ "Alerta: ¡Al eliminar usuarios, destruyes toda la información de este "
+#~ "estudiante y no la puedes recuperar!"
+
+#~ msgid "WeBWorK Warnings"
+#~ msgstr "Alertas de WeBWorK"
+
+#~ msgid ""
+#~ "WeBWorK has encountered warnings while processing your request. If this "
+#~ "occured when viewing a problem, it was likely caused by an error or "
+#~ "ambiguity in that problem. Otherwise, it may indicate a problem with the "
+#~ "WeBWorK system itself. If you are a student, report these warnings to "
+#~ "your professor to have them corrected. If you are a professor, please "
+#~ "consult the warning output below for more information."
+#~ msgstr ""
+#~ "WeBWorK ha generado alertas al procesar tu solucitud. Si esto ocurrió "
+#~ "mientras veías un problema, es probable que haya sido causado por un "
+#~ "error o ambiguedad en este problema. De lo contrario, puede que indique "
+#~ "un problema con el sistema interno de WeBWorK. Si eres un estudiante, "
+#~ "reporta estas alertas a tu instructor para que sean corregidas. Si eres "
+#~ "un instructor, por favor consulta el registro de alertas que se incluye "
+#~ "abajo."
+
+#~ msgid ""
+#~ "WeBWorK was unable to generate a paper copy of this homework set.  Please "
+#~ "inform your instructor. "
+#~ msgstr ""
+#~ "WeBWorK no pudo generar una versión para imprimir de esta tarea. Por "
+#~ "favor contacta a tu instructor."
+
+#~ msgid "Weight"
+#~ msgstr "Peso"
+
+#~ msgid "Welcome to WeBWorK!"
+#~ msgstr "¡Bienvenido a WeBWorK!"
+
+#~ msgid "What field should filtered users match on?"
+#~ msgstr "¿Qué campo utilizar para filtrar la lista de usuarios?"
+
+#~ msgid ""
+#~ "When a student has more attempts than is specified here they will be able "
+#~ "to view another version of this problem.  If set to -1 the feature is "
+#~ "disabled and if set to -2 the course default is used."
+#~ msgstr ""
+#~ "Cuando un estudiante tiene más intentos de lo que se especifica acá, "
+#~ "podrá ver otra versión de este problema. Si se asigna -1, la opción de "
+#~ "ver más intentos se deshabilita. Si se asigna -2, se usa la opción "
+#~ "estándar del curso."
+
+#~ msgid ""
+#~ "When you unassign by unchecking a student's name, you destroy all of the "
+#~ "data for achievement %1 for this student. Make sure this is what you want "
+#~ "to do."
+#~ msgstr ""
+#~ "Cuando desasignas estudiantes desmarcando sus nombres, destruyes toda su "
+#~ "información asociada a la tarea %1. Por ello, después deberás reasignar "
+#~ "la tarea a estos estudiantes y ellos recibirán nuevas versiones de los "
+#~ "problemas. Asegúrate de que esto es lo que quieres hacer antes de "
+#~ "desmarcar casillas de estudiantes."
+
+#~ msgid "Will open on %1."
+#~ msgstr "Estará disponible desde el %1"
+
+#~ msgid "Worth"
+#~ msgstr "Valor"
+
+#~ msgid ""
+#~ "Write permissions have not been enabled in the templates directory.  No "
+#~ "changes can be made."
+#~ msgstr ""
+#~ "tr: Write permissions have not been enabled in the templates directory.  "
+#~ "No changes can be made."
+
+#~ msgid "Yes"
+#~ msgstr "Sí"
+
+#~ msgid "You are not authorized to access the instructor tools."
+#~ msgstr "tr: You are not authorized to access the instructor tools."
+
+#~ msgid "You are not authorized to modify homework sets."
+#~ msgstr "tr: You are not authorized to modify homework sets."
+
+#~ msgid "You are not authorized to modify problems."
+#~ msgstr "tr: You are not authorized to modify problems."
+
+#~ msgid "You are not authorized to modify set definition files."
+#~ msgstr "tr: You are not authorized to modify set definition files."
+
+#~ msgid "You are not authorized to perform this action."
+#~ msgstr "tr: You are not authorized to perform this action."
+
+#~ msgid "You cannot delete yourself!"
+#~ msgstr "tr: You cannot delete yourself!"
+
+#~ msgid "You do not have permission to change email addresses."
+#~ msgstr "No tienes permiso para cambiar direcciones de correo electrónico."
+
+#~ msgid "You do not have permission to change your password."
+#~ msgstr "No tienes permiso para cambiar tu contraseña."
+
+#~ msgid "You do not have permission to generate hardcopy in %1 format."
+#~ msgstr ""
+#~ "No tienes permiso para generar una versiones para imprimir en formato %1."
+
+#~ msgid ""
+#~ "You have %negquant(%1,unlimited attempts,attempt,attempts) remaining."
+#~ msgstr ""
+#~ "Tienes %negquant(%1,intentos ilimitados,intento,intentos) en este "
+#~ "problema."
+
+#~ msgid "You have attempted this problem %quant(%1,time,times)."
+#~ msgstr "Has intentado este problema %quant(%1,vez,veces)."
+
+#~ msgid "You have been logged out of WeBWorK."
+#~ msgstr "Has salido de WeBWork"
+
+#~ msgid ""
+#~ "You may choose to show any of the following data. Correct answers, hints, "
+#~ "and solutions are only available %1 after the answer date of the homework "
+#~ "set."
+#~ msgstr ""
+#~ "Puedes elegir mostrar cualquiera de la siguiente información. Las "
+#~ "respuestas correctas, pistas y soluciones solo están disponibles %1 de la "
+#~ "fecha límite de envío de respuestas de la tarea."
+
+#~ msgid "You may not change your own password here!"
+#~ msgstr "tr: You may not change your own password here!"
+
+#~ msgid "You must select one or more sets for scoring!"
+#~ msgstr "¡Debes seleccionar al menos una tarea para calificar!"
+
+#~ msgid "You must specify a user ID."
+#~ msgstr "Debe especificar un ID de usuario."
+
+#~ msgid "You must specify an file name in order to save a new file."
+#~ msgstr "tr: You must specify an file name in order to save a new file."
+
+#~ msgid ""
+#~ "Your authentication failed.  Please try again. Please speak with your "
+#~ "instructor if you need help."
+#~ msgstr ""
+#~ "Usuario o contraseña inválidos. Intenta nuevamente. Si necesitas ayuda, "
+#~ "comunícate con tu instructor."
+
+#~ msgid "Your email address has been changed."
+#~ msgstr "Su dirección de correo ha sido cambiada."
+
+#~ msgid "Your overall recorded score is %1.  %2"
+#~ msgstr "Tu puntaje actual en este problema es %1. %2"
+
+# $testNounNum is either "test (#)" or "submission (#)"
+#~ msgid "Your score on this %1 WAS recorded."
+#~ msgstr "Tu puntaje en este %1 se ha guardado."
+
+# $testNoun is either "test" or "submission"
+#~ msgid "Your score on this %1 is %2/%3."
+#~ msgstr "Tu puntaje en este %1 es %2/%3."
+
+# $testNounNum is either "test (#)" or "submission (#)
+#~ msgid "Your score on this %1 was NOT recorded."
+#~ msgstr "Tu puntaje en este %1 NO se ha guardado."
+
+#~ msgid "Your score on this problem was recorded."
+#~ msgstr "Tu puntaje en este problema se ha guardado."
+
+#~ msgid "Your score was recorded."
+#~ msgstr "Tu puntaje se ha guardado."
+
+#~ msgid "Your session has timed out due to inactivity. Please log in again."
+#~ msgstr ""
+#~ "Tu sesión ha terminado debido a inactividad. Por favor reinicia la sesión."
+
+#~ msgid "_ANSWER_LOG_DESCRIPTION"
+#~ msgstr "_ANSWER_LOG_DESCRIPTION"
+
+#~ msgid "_CLASSLIST_EDITOR_DESCRIPTION"
+#~ msgstr ""
+#~ "tr: This is the classlist editor page, where you can view and edit the "
+#~ "records of all the students currently enrolled in this course.  The top "
+#~ "of the page contains forms which allow you to filter which students to "
+#~ "view, sort your students in a chosen order, edit student records, give "
+#~ "new passwords to students, import/export student records from/to external "
+#~ "files, or add/delete students.  To use, please select the action you "
+#~ "would like to perform, enter in the relevant information in the fields "
+#~ "below, and hit the \"Take Action!\" button at the bottom of the form.  "
+#~ "The bottom of the page contains a table containing the student usernames "
+#~ "and their information."
+
+#~ msgid "_EXTERNAL_AUTH_MESSAGE"
+#~ msgstr ""
+#~ "%1 uses an external authentication system.  You've authenticated through "
+#~ "that system, but aren't allowed to log in to this course."
+
+#~ msgid "_GUEST_LOGIN_MESSAGE"
+#~ msgstr ""
+#~ "tr: This course supports guest logins. Click %1 to log into this course "
+#~ "as a guest."
+
+#~ msgid "_HMWKSETS_EDITOR_DESCRIPTION"
+#~ msgstr ""
+#~ "tr: This is the homework sets editor page where you can view and edit the "
+#~ "homework sets that exist in this course and the problems that they "
+#~ "contain. The top of the page contains forms which allow you to filter "
+#~ "which sets to display in the table, sort the sets in a chosen order, edit "
+#~ "homework sets, publish homework sets, import/export sets from/to an "
+#~ "external file, score sets, or create/delete sets.  To use, please select "
+#~ "the action you would like to perform, enter in the relevant information "
+#~ "in the fields below, and hit the \"Take Action!\" button at the bottom of "
+#~ "the form.  The bottom of the page contains a table displaying the sets "
+#~ "and several pieces of relevant information."
+
+#~ msgid "_LOGIN_MESSAGE"
+#~ msgstr ""
+#~ "If you check %1 your login information will be remembered by the browser "
+#~ "you are using, allowing you to visit WeBWorK pages without typing your "
+#~ "user name and password (until your session expires). This feature is not "
+#~ "safe for public workstations, untrusted machines, and machines over which "
+#~ "you do not have direct control."
+
+#~ msgid "_REQUEST_ERROR"
+#~ msgstr ""
+#~ "WebWork ha detectado un error de software al intentar procesar este "
+#~ "problema. Es probable que hay un error en el problema mismo. Si usted es "
+#~ "un estudiante, el informe de este mensaje de error al profesor para que "
+#~ "sea subsanado. Si usted es un profesor, por favor consulte la salida de "
+#~ "error para obtener más información."
+
+# Context is "Create set ______ as a duplicate of the first selected set"
+#~ msgid "a duplicate of the first selected set"
+#~ msgstr "una copia de la primera tarea seleccionada en la lista de abajo"
+
+# Context is "Create set ______ as a new empty set"
+#~ msgid "a new empty set"
+#~ msgstr "una nueva tarea en blanco"
+
+#~ msgid "a single set"
+#~ msgstr "tr: a single set"
+
+#~ msgid "all set dates for one <b>user</b>"
+#~ msgstr "todas las fechas de las tareas de un <b> usuario </b>"
+
+#~ msgid "all sets"
+#~ msgstr "todas las tareas"
+
+#~ msgid "all students"
+#~ msgstr "todos los estudiantes"
+
+#~ msgid "all users"
+#~ msgstr "todos los usuarios"
+
+#~ msgid "any users"
+#~ msgstr "cualquier usuario"
+
+# Context is "Append ____ blank problem template(s) to end of homework set"
+#~ msgid "blank problem template(s) to end of homework set"
+#~ msgstr ""
+#~ "problema(s) en blanco usando la plantilla estándar al final de la tarea."
+
+#~ msgid "changes abandoned"
+#~ msgstr "tr: changes abandoned"
+
+#~ msgid "changes saved"
+#~ msgstr "los cambios se han guardado"
+
+#~ msgid "class list data for selected <b>users</b>"
+#~ msgstr "información de clase para los <b>usuarios</b> seleccionados"
+
+#~ msgid "course files"
+#~ msgstr "archivos del curso"
+
+#~ msgid "editing all sets"
+#~ msgstr "editando todas las tareas"
+
+#~ msgid "editing all users"
+#~ msgstr "editando todos los usuarios"
+
+#~ msgid "editing selected sets"
+#~ msgstr "editando tareas seleccionadas"
+
+#~ msgid "editing selected users"
+#~ msgstr "tr: editing selected users"
+
+#~ msgid "editing visible sets"
+#~ msgstr "tr: editing visible sets"
+
+#~ msgid "editing visible users"
+#~ msgstr "tr: editing visible users"
+
+#~ msgid "enter matching set IDs below"
+#~ msgstr "Ingresa abajo los IDs de tareas que quieres buscar"
+
+#~ msgid "export abandoned"
+#~ msgstr "tr: export abandoned"
+
+#~ msgid "for one <b>user</b>"
+#~ msgstr "de un <b>usuario</b>"
+
+#~ msgid "giving new passwords to all users"
+#~ msgstr "tr: giving new passwords to all users"
+
+#~ msgid "giving new passwords to selected users"
+#~ msgstr "tr: giving new passwords to selected users"
+
+#~ msgid "giving new passwords to visible users"
+#~ msgstr "tr: giving new passwords to visible users"
+
+#~ msgid "hidden from students"
+#~ msgstr "tr: hidden from students"
+
+#~ msgid "hidden sets"
+#~ msgstr "tr: hidden sets"
+
+#~ msgid "multiple sets"
+#~ msgstr "tr: multiple sets"
+
+#~ msgid "new users"
+#~ msgstr "nuevos usuarios"
+
+#~ msgid "no sets"
+#~ msgstr "ninguna tarea"
+
+#~ msgid "no users"
+#~ msgstr "ningún usuario"
+
+#~ msgid "one <b>user</b> (on one <b>set</b>)"
+#~ msgstr "un <b>usuario</b> (en una <b>tarea</b>)"
+
+#~ msgid "or Problems from"
+#~ msgstr "o problemas del"
+
+#~ msgid "point"
+#~ msgstr "punto"
+
+#~ msgid "points"
+#~ msgstr "puntos"
+
+#~ msgid "problems"
+#~ msgstr "Problemas"
+
+#~ msgid "progress"
+#~ msgstr "Reporte de avance"
+
+#~ msgid "section:"
+#~ msgstr "sección:"
+
+#~ msgid "selected <b>users</b> to selected <b>sets</b>"
+#~ msgstr "<b>usuarios</b> seleccionados a <b>tareas</b> seleccionadas"
+
+#~ msgid "selected sets"
+#~ msgstr "tareas seleccionadas"
+
+#~ msgid "selected users"
+#~ msgstr "usuarios seleccionados"
+
+#~ msgid "sets"
+#~ msgstr "tareas"
+
+#~ msgid "showing all sets"
+#~ msgstr "mostrando todas las tareas"
+
+#~ msgid "showing all users"
+#~ msgstr "mostrando todos los usuarios"
+
+#~ msgid "showing matching users"
+#~ msgstr "tr: showing matching users"
+
+#~ msgid "showing no sets"
+#~ msgstr "mostrando ninguna tarea"
+
+#~ msgid "showing no users"
+#~ msgstr "tr: showing no users"
+
+#~ msgid "showing selected sets"
+#~ msgstr "mostrando tareas seleccionadas"
+
+#~ msgid "showing selected users"
+#~ msgstr "mostrando usuarios seleccionados"
+
+#~ msgid "top score"
+#~ msgstr "mejor puntaje"
+
+#~ msgid "unlimited"
+#~ msgstr "ilimitados"
+
+#~ msgid "users who match on selected field"
+#~ msgstr "tr: users who match on selected field"
+
+#~ msgid "visible sets"
+#~ msgstr "tr: visible sets"
+
+#~ msgid "visible to students"
+#~ msgstr "visible para los estudiantes"
+
+#~ msgid "visible users"
+#~ msgstr "usuarios visibles"
+
+#~ msgid "your students"
+#~ msgstr "a tus estudiantes"
+
+#~ msgid "Add how many students?"
+#~ msgstr "¿Agregar cuántos estudiantes?"
+
+#~ msgid "Download PDF or TeX Hardcopy for Selected Sets"
+#~ msgstr "tr: Download PDF or TeX Hardcopy for Selected Sets"
+
+#~ msgid "Edit Which Users?"
+#~ msgstr "¿Qué usuarios editar?"
+
+#~ msgid "Export selected sets"
+#~ msgstr "tr: Export selected sets"
+
+#~ msgid "Export which sets?"
+#~ msgstr "¿Qué tareas exportar?"
+
+#~ msgid "Show Which Users?"
+#~ msgstr "¿Qué usuarios mostrar?"
+
+#~ msgid "exporting all sets"
+#~ msgstr "exportando todas las tareas"
+
+#~ msgid "exporting selected sets"
+#~ msgstr "exportando tareas seleccionadas"
+
+#~ msgid "exporting visible sets"
+#~ msgstr "tr: exporting visible sets"
+
+#~ msgid "Edit All Set Data"
+#~ msgstr "tr: Edit All Set Data"
+
+#~ msgid "Library Browser 2"
+#~ msgstr "Explorador de problemas 2"
+
+#~ msgid "Library Browser 3"
+#~ msgstr "Explorador de problemas 3"
+
+# No space
+#~ msgid "NewVersion"
+#~ msgstr "Nueva versión"
+
+#~ msgid "Problem"
+#~ msgstr "Problema"
+
+#~ msgid "Select all sets"
+#~ msgstr "tr: Select all sets"
+
+#~ msgid "Select all users"
+#~ msgstr "tr: Select all users"
+
+#~ msgid "Set Detail 2 for set %2"
+#~ msgstr "Detalles v2 de la tarea %2"
+
+#~ msgid "Show all paths"
+#~ msgstr "Mostrar las rutas de todos los archivos"
+
+#~ msgid "Show path ..."
+#~ msgstr "Mostrar ruta del archivo..."
+
+#~ msgid "Unselect all sets"
+#~ msgstr "tr: Unselect all sets"
+
+#~ msgid "Unselect all users"
+#~ msgstr "tr: Unselect all users"
+
+#~ msgid "out of"
+#~ msgstr "de un total de"
+
+#~ msgid "users"
+#~ msgstr "usuarios"
+
+#~ msgid "Test Date"
+#~ msgstr "tr: Test Date"
+
+#~ msgid "Test Score"
+#~ msgstr "tr: Test Score"
+
+# No space before number
+#~ msgid "Problem Editor2"
+#~ msgstr "Editor de problemas 2"
+
+# No space before number
+#~ msgid "Problem Editor3"
+#~ msgstr "Editor de problemas 3"
+
+#~ msgid "Messages"
+#~ msgstr "Mensajes"

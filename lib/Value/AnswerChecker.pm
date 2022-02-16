@@ -375,8 +375,8 @@ sub ans_array {shift->ans_rule(@_)};
 sub named_ans_array {shift->named_ans_rule(@_)};
 sub named_ans_array_extension {shift->named_ans_rule_extension(@_)};
 
-sub pgCall {my $call = shift; &{WeBWorK::PG::Translator::PG_restricted_eval('\&'.$call)}(@_)}
-sub pgRef {WeBWorK::PG::Translator::PG_restricted_eval('\&'.shift)}
+sub pgCall {my $call = shift; &{Renderer::Translator::PG_restricted_eval('\&'.$call)}(@_)}
+sub pgRef {Renderer::Translator::PG_restricted_eval('\&'.shift)}
 
 our $answerPrefix = "MaTrIx";
 
@@ -414,7 +414,7 @@ sub ans_matrix {
       }
       my $answer_group_name = $options{answer_group_name}//$name;
       if ($i == 0 && $j == 0) {
-		if ($extend) {  
+		if ($extend) {
 		  push(@row,&$named_extension($name,$size,
 				answer_group_name=> $answer_group_name,
 				aria_label=>$label)
@@ -422,7 +422,7 @@ sub ans_matrix {
 		} else {
 		  push(@row,&$named_ans_rule($name,$size,aria_label=>$label));
 		}
-      } else { 
+      } else {
 		push(@row,&$named_extension(ANS_NAME($ename,$i,$j),$size,
 			 answer_group_name => $answer_group_name,
 			 aria_label=>$label));
@@ -608,7 +608,7 @@ sub ans_collect {
   $ans->{student_formula} = [@array];
   $ans->{ans_message} = $ans->{error_message} = "";
   if (scalar(@{$errors})) {
-    $ans->{ans_message} = $ans->{error_message} = 
+    $ans->{ans_message} = $ans->{error_message} =
       '<TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0" CLASS="ArrayLayout">'.
       join('<TR><TD HEIGHT="4"></TD></TR>',@{$errors}).
       '</TABLE>';
@@ -688,7 +688,7 @@ sub NameForNumber {
 #
 sub getPG {
   my $self = shift;
-#  (WeBWorK::PG::Translator::PG_restricted_eval(shift))[0];
+#  (Renderer::Translator::PG_restricted_eval(shift))[0];
   eval ('package main; '.shift);  # faster
 }
 
@@ -984,7 +984,7 @@ sub correct_ans {
 sub ANS_MATRIX {
   my $self = shift;
   my $extend = shift; my $name = shift;
-  my $size = shift || 5; 
+  my $size = shift || 5;
   my %options = @_;
   my ($def,$open,$close);
   $def = $self->context->lists->get('Matrix');
@@ -2111,9 +2111,9 @@ sub correct_ans {
 sub ANS_MATRIX {
   my $self = shift;
   my $extend = shift; my $name = shift;
-  my $size = shift || 5; 
+  my $size = shift || 5;
   my %options = @_;
-  my $type = $self->type; 
+  my $type = $self->type;
   my $cols = $self->length; my $rows = 1; my $sep = ',';
   if ($type eq 'Matrix') {
     $sep = ''; $rows = $cols; $cols = $self->{tree}->typeRef->{entryType}{length};
