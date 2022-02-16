@@ -1,0 +1,4 @@
+{
+	"node_modules/jsxgraph/distrib/jsxgraph.css": "https://cdn.jsdelivr.net/npm/jsxgraph@1.4.0/distrib/jsxgraph.min.css",
+	"node_modules/jsxgraph/distrib/jsxgraphcore.js": "https://cdn.jsdelivr.net/npm/jsxgraph@1.4.0/distrib/jsxgraphcore.js"
+}

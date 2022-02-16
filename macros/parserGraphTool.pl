@@ -187,7 +187,7 @@ sub _parserGraphTool_init {
 	ADD_CSS_FILE("node_modules/jsxgraph/distrib/jsxgraph.css");
 	ADD_CSS_FILE("js/apps/GraphTool/graphtool.css");
 	ADD_JS_FILE("node_modules/jsxgraph/distrib/jsxgraphcore.js", 0, { defer => undef });
-	ADD_JS_FILE("js/apps/GraphTool/graphtool.min.js", 0, { defer => undef });
+	ADD_JS_FILE("js/apps/GraphTool/graphtool.js", 0, { defer => undef });
 	ADD_JS_FILE('js/apps/GraphTool/pointtool.js', 0, { defer => undef });
 
 	main::PG_restricted_eval('sub GraphTool { parser::GraphTool->new(@_) }');
