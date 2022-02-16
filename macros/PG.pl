@@ -73,37 +73,11 @@ sub DOCUMENT {
 	#warn "problemSeed $problemSeed";
 	$inputs_ref->{problemSeed}='';   #this version of the problemSeed is tainted. It can be set by a student
 	$inputs_ref->{displayMode}='';   # not sure whether this should ever by used or not.
-	#use strict;
-	#FIXME
-	# load java script needed for displayModes
-	if ($envir{displayMode} eq 'HTML_jsMath') {
-		my $prefix = "";
-		if (!$envir{jsMath}{reportMissingFonts}) {
-			$prefix .= '<script>noFontMessage = 1</script>'."\n";
-		} elsif ($main::envir{jsMath}{missingFontMessage}) {
-			$prefix .= '<script>missingFontMessage = "'.$main::envir{jsMath}{missingFontMessage}.'"</script>'."\n";
-		}
-		$prefix .= '<script>processDoubleClicks = '.($main::envir{jsMath}{processDoubleClicks}?'1':'0')."</script>\n";
-		TEXT(
-		  $prefix,
-		  '<script src="'.$envir{jsMathURL}. '"></script>' . "\n" ,
-		  '<noscript><center><font color="#CC0000">' ,
-			  '<strong> Warning: the mathematics on this page requires JavaScript.',  ,$BR,
-					'If your browser supports it, be sure it is enabled.
-			  </strong>',
-		  '</font></center><p>
-		  </noscript>'
-		);
-		TEXT('<script>jsMath.Setup.Script("plugins/noImageFonts.js")</script>')
-		    if ($envir{jsMath}{noImageFonts});
-	} elsif ($envir{displayMode} eq 'HTML_asciimath') {
-		TEXT('<script src="'.$envir{asciimathURL}.'"></script>' . "\n" ,
-             '<script>mathcolor = "black"</script>' );
-  } elsif ($envir{displayMode} eq 'HTML_LaTeXMathML') {
-       TEXT('<script src="'.$envir{LaTeXMathMLURL}.'"></script>'."\n");
-  }
 
+	load_css();
+	load_js();
 }
+
 $main::displayMode = $PG->{displayMode};
 $main::PG = $PG;
 sub TEXT {
@@ -194,6 +168,23 @@ sub ADD_CSS_FILE {
   push(@{$PG->{flags}{extra_css_files}}, { file => $file, external => $external });
 }
 
+# This loads the basic css needed by pg.
+# It is expected that the requestor will also load the styles for Bootstrap.
+# Some problems use jquery-ui still, and so the requestor should also load the css for that if those problems are used,
+# although those problems should also be rewritten to not use jquery-ui.
+sub load_css() {
+	ADD_CSS_FILE('js/apps/Problem/problem.css');
+	ADD_CSS_FILE('js/apps/Knowls/knowl.css');
+	ADD_CSS_FILE('js/apps/ImageView/imageview.css');
+
+	if ($envir{useMathQuill}) {
+		ADD_CSS_FILE('node_modules/mathquill/dist/mathquill.css');
+		ADD_CSS_FILE('js/apps/MathQuill/mqeditor.css');
+	} elsif ($envir{useMathView}) {
+		ADD_CSS_FILE('js/apps/MathView/mathview.css');
+	}
+}
+
 =head4 ADD_JS_FILE
 
 Request that the problem HTML page also include additional JS files
@@ -218,6 +209,29 @@ For example:
 sub ADD_JS_FILE {
 	my ($file, $external, $attributes) = @_;
 	push(@{$PG->{flags}{extra_js_files}}, { file => $file, external => $external, attributes => $attributes });
+}
+
+# This loads the basic javascript needed by pg.
+# It is expected that the requestor will also load MathJax, Bootstrap, and jquery.
+# Some problems use jquery-ui still, and so the requestor should also load the js for that if those problems are used,
+# although those problems should also be rewritten to not use jquery-ui.
+sub load_js() {
+	ADD_JS_FILE('js/apps/InputColor/color.js',    0, { defer => undef });
+	ADD_JS_FILE('js/apps/Base64/Base64.js',       0, { defer => undef });
+	ADD_JS_FILE('js/apps/Knowls/knowl.js',        0, { defer => undef });
+	ADD_JS_FILE('js/apps/ImageView/imageview.js', 0, { defer => undef });
+
+	if ($envir{useMathQuill}) {
+		ADD_JS_FILE('node_modules/mathquill/dist/mathquill.js', 0, { defer => undef });
+		ADD_JS_FILE('js/apps/MathQuill/mqeditor.js',            0, { defer => undef });
+	} elsif ($envir{useMathView}) {
+		ADD_JS_FILE("js/apps/MathView/$envir{mathViewLocale}");
+		ADD_JS_FILE('js/apps/MathView/mathview.js');
+	} elsif ($envir{useWirisEditor}) {
+		ADD_JS_FILE('js/apps/WirisEditor/quizzes.js');
+		ADD_JS_FILE('js/apps/WirisEditor/wiriseditor.js');
+		ADD_JS_FILE('js/apps/WirisEditor/mathml2webwork.js');
+	}
 }
 
 sub AskSage {
@@ -407,15 +421,9 @@ sub EXTEND_RESPONSE { # for radio buttons and checkboxes
 }
 
 sub ENDDOCUMENT {
-	# Request MathQuill javascript and css, and insert MathQuill responses if MathQuill is enabled.
-	# Add responses to each answer's response group that store the latex form of the students'
-	# answers and add corresponding hidden input boxes to the page.
+	# Insert MathQuill responses if MathQuill is enabled.  Add responses to each answer's response group that store the
+	# latex form of the students' answers and add corresponding hidden input boxes to the page.
 	if ($envir{useMathQuill}) {
-		ADD_CSS_FILE("node_modules/mathquill/dist/mathquill.css");
-		ADD_CSS_FILE("js/apps/MathQuill/mqeditor.css");
-		ADD_JS_FILE("node_modules/mathquill/dist/mathquill.js", 0, { defer => undef });
-		ADD_JS_FILE("js/apps/MathQuill/mqeditor.js", 0, { defer => undef });
-
 		for my $answerLabel (keys %{$PG->{PG_ANSWERS_HASH}}) {
 			my $answerGroup = $PG->{PG_ANSWERS_HASH}{$answerLabel};
 			my $mq_opts = $answerGroup->{ans_eval}{rh_ans}{mathQuillOpts} // {};

@@ -370,7 +370,8 @@ sub entry_check {
 #
 sub perform_check {
   my $self = shift; my $rh_ans = shift;
-  $self->context->clearError;
+  my $context = $self->context;
+  $context->clearError;
   my @correct; my @student;
   foreach my $ans (@{$self->{ans}}) {
     push(@correct,$ans->{correct_value});
@@ -382,8 +383,15 @@ sub perform_check {
   my $inputs = $main::inputs_ref;
   $rh_ans->{isPreview} = $inputs->{previewAnswers} ||
                          ($inputs_{action} && $inputs->{action} =~ m/^Preview/);
+
+  Parser::Context->current(undef,$context);    # change to multi-answser's context
+  my $flags = Value::contextSet($context,$self->cmp_contextFlags($ans)); # save old context flags
+  $context->{answerHash} = $rh_ans;            # attach the answerHash
   my @result = Value::cmp_compare([@correct],[@student],$self,$rh_ans);
-  if (!@result && $self->context->{error}{flag}) {$self->cmp_error($self->{ans}[0]); return 1}
+  Value::contextSet($context,%{$flags});       # restore context values
+  $context->{answerHash} = undef;              # remove answerHash
+  if (!@result && $context->{error}{flag}) {$self->cmp_error($self->{ans}[0]); return 1}
+
   my $result = (scalar(@result) > 1 ? [@result] : $result[0] || 0);
   if (ref($result) eq 'ARRAY') {
     die "Checker subroutine returned the wrong number of results"
