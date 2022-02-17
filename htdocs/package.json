@@ -16,20 +16,21 @@
     },
     "devDependencies": {
         "autoprefixer": "^10.4.2",
+        "chokidar": "^3.5.3",
         "postcss": "^8.4.6",
         "sass": "^1.49.0",
         "terser": "^5.10.0",
         "yargs": "^17.3.1"
     },
-	"browserslist": [
-		"last 10 Chrome versions",
-		"last 10 Firefox versions",
-		"last 4 Edge versions",
-		"last 7 Safari versions",
-		"last 8 Android versions",
-		"last 8 ChromeAndroid versions",
-		"last 8 FirefoxAndroid versions",
-		"last 10 iOS versions",
-		"last 5 Opera versions"
-	]
+    "browserslist": [
+        "last 10 Chrome versions",
+        "last 10 Firefox versions",
+        "last 4 Edge versions",
+        "last 7 Safari versions",
+        "last 8 Android versions",
+        "last 8 ChromeAndroid versions",
+        "last 8 FirefoxAndroid versions",
+        "last 10 iOS versions",
+        "last 5 Opera versions"
+    ]
 }
