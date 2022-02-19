@@ -582,7 +582,6 @@ sub ans_collect {
   my @array = (); my $data = [$self->value]; my $errors = []; my $OK = 1;
   if ($self->{ColumnVector}) {foreach my $x (@{$data}) {$x = [$x]}}
   $data = [$data] unless ref($data->[0]) eq 'ARRAY';
-  my $sawTypeError = 0;
   foreach my $i (0..$rows-1) {
     my @row = (); my $entry;
     foreach my $j (0..$cols-1) {
@@ -594,13 +593,12 @@ sub ans_collect {
       }
       my $result = $data->[$i][$j]->cmp(@ans_cmp_defaults)->evaluate($entry);
       $OK &= entryCheck($result,$blank);
-      $sawTypeError |= $result->{typeError};
+      $ans->{typeError} = 1 if $result->{typeError};
       push(@row,$result->{student_formula});
       entryMessage($result->{ans_message},$errors,$i,$j,$rows,$cols);
     }
     push(@array,[@row]);
   }
-  $ans->{typeError} = $sawTypeError;
   $ans->{student_formula} = [@array];
   $ans->{ans_message} = $ans->{error_message} = "";
   if (scalar(@{$errors})) {
