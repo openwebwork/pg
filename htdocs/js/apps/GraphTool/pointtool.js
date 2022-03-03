@@ -1,55 +1,64 @@
-(function() {
+(() => {
 	if (graphTool && graphTool.pointTool) return;
 
 	graphTool.pointTool = {
 		graphObject: {
-			preInit: function(gt, x, y, color) {
+			preInit(gt, x, y, color) {
 				return gt.board.create('point', [x, y], {
 					size: 2, snapToGrid: true, snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, withLabel: false,
 					strokeColor: color ? color : gt.underConstructionColor, fixed: gt.isStatic,
 					highlightStrokeColor: gt.underConstructionColor, highlightFillColor: gt.pointHighlightColor
 				});
 			},
-			postInit: function(gt) {
+			postInit(gt) {
+				// The base object is also a defining point for a Point.  This makes it so that a point can not steal
+				// focus from another focused object that has a defining point at the same location.
+				this.definingPts.point = this.baseObj;
+
 				if (!gt.isStatic) {
-					this.on('down', function() { gt.board.containerObj.style.cursor = 'none'; });
-					this.on('up', function() { gt.board.containerObj.style.cursor = 'auto'; });
+					this.on('down', () => gt.board.containerObj.style.cursor = 'none');
+					this.on('up', () => gt.board.containerObj.style.cursor = 'auto');
 					this.on('drag', gt.updateText);
 				}
 			},
-			blur: function(gt) {
-				this.baseObj.setAttribute({ highlight: false, strokeColor: gt.curveColor, strokeWidth: 2 });
+			blur(gt) {
+				this.baseObj.setAttribute(
+					{ fixed: true, highlight: false, strokeColor: gt.curveColor, strokeWidth: 2 });
 			},
-			focus: function(gt) {
-				this.baseObj.setAttribute({ highlight: true, strokeColor: gt.focusCurveColor, strokeWidth: 3 });
+			focus(gt) {
+				this.baseObj.setAttribute(
+					{ fixed: false, highlight: true, strokeColor: gt.focusCurveColor, strokeWidth: 3 });
 			},
-			stringify: function(gt) {
+			stringify(gt) {
 				return [
 					"(" + gt.snapRound(this.baseObj.X(), gt.snapSizeX) + "," +
 					gt.snapRound(this.baseObj.Y(), gt.snapSizeY) + ")"
 				].join(",");
 			},
-			updateTextCoords: function(gt, coords) {
+			updateTextCoords(gt, coords) {
 				if (this.baseObj.hasPoint(coords.scrCoords[1], coords.scrCoords[2]))
 					gt.setTextCoords(this.baseObj.X(), this.baseObj.Y());
 			},
-			restore: function(gt, string) {
-				var pointData;
-				var points = [];
-				while (pointData = gt.pointRegexp.exec(string))
-				{ points.push(pointData.slice(1, 3)); }
+			restore(gt, string) {
+				const points = [];
+				let pointData = gt.pointRegexp.exec(string);
+				while (pointData) {
+					points.push(pointData.slice(1, 3));
+					pointData = gt.pointRegexp.exec(string);
+				}
 				if (points.length < 1) return false;
 				return new gt.graphObjectTypes.point(parseFloat(points[0][0]), parseFloat(points[0][1]), gt.curveColor);
 			}
 		},
+
 		graphTool: {
 			iconName: "point",
 			tooltip: "Point Tool",
-			updateHighlights: function(gt, coords) {
+			updateHighlights(gt, coords) {
 				if (typeof(coords) === 'undefined') return false;
 				if (!('hl_point' in this.hlObjs)) {
 					this.hlObjs.hl_point = gt.board.create('point', [coords.usrCoords[1], coords.usrCoords[2]], {
-						size: 2, color: gt.underConstructionColor, fixed: true, snapToGrid: true,
+						size: 2, color: gt.underConstructionColor, snapToGrid: true,
 						snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, withLabel: false
 					});
 				}
@@ -60,15 +69,15 @@
 				gt.board.update();
 				return true;
 			},
-			deactivate: function(gt) {
+			deactivate(gt) {
 				gt.board.off('up');
 				gt.board.containerObj.style.cursor = 'auto';
 			},
-			activate: function(gt) {
+			activate(gt) {
 				gt.board.containerObj.style.cursor = 'none';
-				var this_tool = this;
-				gt.board.on('up', function(e) {
-					var coords = gt.getMouseCoords(e);
+
+				gt.board.on('up', (e) => {
+					const coords = gt.getMouseCoords(e);
 
 					// Don't allow the point to be created off the board
 					if (!gt.board.hasPoint(coords.usrCoords[1], coords.usrCoords[2])) return;
@@ -77,7 +86,7 @@
 					gt.selectedObj = new gt.graphObjectTypes.point(coords.usrCoords[1], coords.usrCoords[2]);
 					gt.graphedObjs.push(gt.selectedObj);
 
-					this_tool.finish();
+					this.finish();
 				});
 			}
 		}
