@@ -168,7 +168,7 @@ cleanDir(path.resolve(__dirname, 'js/apps'));
 if (argv.clean) process.exit();
 
 // Add third party assets to the assets list.
-if (argv.useCDN) {
+if (argv.useCDN || process.env.USE_CDN) {
 	// If using a cdn, the values are the cdn location for the file.
 	console.log('\x1b[32mAdding third party assets from CDN.\x1b[0m');
 	Object.assign(assets, thirdPartyAssets);
