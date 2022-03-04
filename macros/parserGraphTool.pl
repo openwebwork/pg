@@ -128,6 +128,11 @@ Labels that will be added to the ends of the horizontal (x) and vertical (y) axe
 values of these options will be used in MathJax online and in LaTeX math mode in print.  These can
 also be set to the empty string '' to remove the labels.
 
+=item ariaDescription (Default: ariaDescription => '')
+
+This will be added to a hidden div that will be referenced in an aria-describedby attribute of
+the jsxgraph board.
+
 =item JSXGraphOptions (Default: undefined)
 
 This is an advanced option that you usually do not want to use.  It is usually constructed by
@@ -249,6 +254,7 @@ sub new {
 		minorTicksY         => 1,
 		xAxisLabel          => 'x',
 		yAxisLabel          => 'y',
+		ariaDescription     => '',
 		showCoordinateHints => 1,
 		availableTools      =>
 			[ 'LineTool', 'CircleTool', 'VerticalParabolaTool', 'HorizontalParabolaTool', 'FillTool', 'SolidDashTool' ],
@@ -384,10 +390,10 @@ sub addTools {
 	$customTools .= join(',', map {"$_: $tools{$_}"} keys %tools) . ',';
 }
 
-# The point tool is available for use by default.  It is added this way so that the javascript can be kept separate.
 parser::GraphTool->addGraphObjects(
+	# The point graph object.
 	point => {
-		js   => 'graphTool.pointTool.graphObject',
+		js   => 'graphTool.pointTool.Point',
 		tikz => {
 			code => sub {
 				my $self = shift;
@@ -401,7 +407,10 @@ parser::GraphTool->addGraphObjects(
 		}
 	}
 );
-parser::GraphTool->addTools(PointTool => 'graphTool.pointTool.graphTool');
+parser::GraphTool->addTools(
+	# The point tool.
+	PointTool => 'graphTool.pointTool.PointTool'
+);
 
 sub ANS_NAME {
 	my $self = shift;
@@ -584,6 +593,7 @@ END_TIKZ
 			snapSizeY: $self->{snapSizeY},
 			xAxisLabel: '$self->{xAxisLabel}',
 			yAxisLabel: '$self->{yAxisLabel}',
+			ariaDescription: '$self->{ariaDescription}',
 			showCoordinateHints: $self->{showCoordinateHints},
 			customGraphObjects: {$customGraphObjects},
 			customTools: {$customTools},
@@ -610,10 +620,6 @@ sub cmp_preprocess {
 	if ($main::displayMode ne 'TeX' && defined($ans->{student_value})) {
 		my $ans_name = $self->ANS_NAME;
 		$self->constructJSXGraphOptions;
-		my $graphObjs =
-			@{ $self->{staticObjects} }
-			? join(',', @{ $self->{staticObjects} }, $ans->{student_ans})
-			: $ans->{student_ans};
 
 		$ans->{preview_latex_string} = <<END_ANS;
 <div id='${ans_name}_student_ans_graphbox' class='graphtool-answer-container'></div>
@@ -621,7 +627,8 @@ sub cmp_preprocess {
 (() => {
 	const initialize = () => {
 		graphTool("${ans_name}_student_ans_graphbox", {
-			staticObjects: '$graphObjs',
+			staticObjects: '${\(join(',', @{$self->{staticObjects}}))}',
+			answerObjects: '${\(join(',', $ans->{student_ans}))}',
 			isStatic: true,
 			snapSizeX: $self->{snapSizeX},
 			snapSizeY: $self->{snapSizeY},
@@ -650,10 +657,6 @@ sub cmp {
 	if ($main::displayMode ne 'TeX' && $main::displayMode ne 'PTX') {
 		my $ans_name = $self->ANS_NAME;
 		$self->constructJSXGraphOptions;
-		my $graphObjs =
-			@{ $self->{staticObjects} }
-			? join(',', @{ $self->{staticObjects} }, $cmp->{rh_ans}{correct_ans})
-			: $cmp->{rh_ans}{correct_ans};
 
 		$cmp->{rh_ans}{correct_ans_latex_string} = <<END_ANS;
 <div id='${ans_name}_correct_ans_graphbox' class='graphtool-answer-container'></div>
@@ -661,7 +664,8 @@ sub cmp {
 (() => {
 	const initialize = () => {
 		graphTool("${ans_name}_correct_ans_graphbox", {
-			staticObjects: '$graphObjs',
+			staticObjects: '${\(join(',', @{$self->{staticObjects}}))}',
+			answerObjects: '${\(join(',', $cmp->{rh_ans}{correct_ans}))}',
 			isStatic: true,
 			snapSizeX: $self->{snapSizeX},
 			snapSizeY: $self->{snapSizeY},
