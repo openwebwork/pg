@@ -25,55 +25,55 @@ answers.
 To create a GraphTool object pass a list of graph objects (discussed below) for the students to
 graph to GraphTool().  For example:
 
-	$gt = GraphTool("{line,solid,(0,0),(1,1)}", "{circle,dashed,(2,2),(4,2)}");
+    $gt = GraphTool("{line,solid,(0,0),(1,1)}", "{circle,dashed,(2,2),(4,2)}");
 
 or
 
-	$gt = GraphTool("{line,solid,(0,0),(1,1)}")->with(bBox => [-20, 20, 20, -20]);
+    $gt = GraphTool("{line,solid,(0,0),(1,1)}")->with(bBox => [-20, 20, 20, -20]);
 
 Then, for standard PG use $gt->ans_rule() to insert the JavaScript graph into the problem (or a
 print graph when a hard copy is generated), and $gt->cmp to produce the answer checker.  For
 example:
 
-	BEGIN_TEXT
-	Graph the line \(y = x\).
-	$PAR
-	\{$gt->ans_rule()\}
-	END_TEXT
+    BEGIN_TEXT
+    Graph the line \(y = x\).
+    $PAR
+    \{$gt->ans_rule()\}
+    END_TEXT
 
-	ANS($gt->cmp);
+    ANS($gt->cmp);
 
 For PGML you can just do
 
-	BEGIN_PGML
-	Graph the line [`y = x`].
+    BEGIN_PGML
+    Graph the line [`y = x`].
 
-	[_]{$gt}
-	END_PGML
+    [_]{$gt}
+    END_PGML
 
 =head1 GRAPH OBJECTS
 
-There are five types of graph objects that the students can graph.  Points, lines, circles,
-parabolas, and fills (or shading of a region).  The syntax for each of these objects to pass to
-the GraphTool constructor is summarized as follows.  Each object must be enclosed in braces.
-The first element in the braces must be the name of the object.  The following elements in the
-braces depend on the type of element.
+There are seven types of graph objects that the students can graph.  Points, lines, circles,
+parabolas, quadratics, cubics, and fills (or shading of a region).  The syntax for each of these
+objects to pass to the GraphTool constructor is summarized as follows.  Each object must be
+enclosed in braces.  The first element in the braces must be the name of the object.  The
+following elements in the braces depend on the type of element.
 
 For points the name "point" must be followed by the coordinates. For example:
 
-        "{point,(3,5)}"
+    "{point,(3,5)}"
 
 For lines the name "line" must be followed by the word "solid" or "dashed" to indicate if the
 line is expected to be drawn solid or dashed.  That is followed by two distinct points on the
 line.  For example:
 
-	"{line,dashed,(1,5),(3,4)}"
+    "{line,dashed,(1,5),(3,4)}"
 
 For circles the name "circle" must be followed by the word "solid" or "dashed" to indicate if
 the circle is expected to be drawn solid or dashed.  That is followed by the point that is to be
 the center of circle, and then by a point on the circle.  For example:
 
-	"{circle,solid,(1,1),(4,5)}"
+    "{circle,solid,(1,1),(4,5)}"
 
 For parabolas the name "parabola" must be followed by the word "solid" or "dashed" to indicate
 if the parabola is expected to be drawn solid or dashed.  The next element in the braces must be
@@ -81,12 +81,24 @@ the word "vertical" for a parabola that opens up or down, or "horizontal" for a 
 opens to the left or right.  That is followed by the vertex and then another point on the
 parabola.  For example:
 
-	"{parabola,solid,vertical,(1,0),(3,3)}"
+    "{parabola,solid,vertical,(1,0),(3,3)}"
+
+For three point quadratics the name "quadratic" must be followed by the word "solid" or "dashed"
+to indicate if the quadratic is expected to be drawn solid or dashed.  That is followed by the
+three points that define the quadratic.  For example:
+
+    "{quadratic,solid,(-1,2),(1,0),(3,3)}"
+
+For four point cubics the name "cubic" must be followed by the word "solid" or "dashed"
+to indicate if the cubic is expected to be drawn solid or dashed.  That is followed by the
+four points that define the cubic.  For example:
+
+    "{cubic,solid,(1,-3),(-1,2),(4,3),(3,2)}"
 
 For fills the name "fill" must be followed by a point in the region that is to be filled.  For
 example:
 
-	"{fill,(5,5)}"
+    "{fill,(5,5)}"
 
 The student answers that are returned by the JavaScript will be a list of the list objects
 discussed above and will be parsed by WeBWorK and passed to the checker as such.  The default
@@ -144,13 +156,13 @@ JXG.JSXGraph.initBoard at L<https://jsxgraph.org/docs/symbols/JXG.JSXGraph.html#
 For example the following value for JSXGraphOptions will give the same result for the JavaScript
 graph as the default values for the options above:
 
-	JSXGraphOptions => "{ boundingBox: [-10, 10, 10, -10]," .
-		"defaultAxes: {" .
-			"x: { ticks: { ticksDistance: 2, minorTicks: 1} }," .
-			"y: { ticks: { ticksDistance: 2, minorTicks: 1} }" .
-		"}," .
-		"grid: { gridX: 1, gridY: 1 }" .
-	"}"
+    JSXGraphOptions => "{ boundingBox: [-10, 10, 10, -10]," .
+        "defaultAxes: {" .
+            "x: { ticks: { ticksDistance: 2, minorTicks: 1} }," .
+            "y: { ticks: { ticksDistance: 2, minorTicks: 1} }" .
+        "}," .
+        "grid: { gridX: 1, gridY: 1 }" .
+    "}"
 
 =item snapSizeX, snapSizeY (Default: snapSizeX => 1, snapSizeY => 1)
 
@@ -162,12 +174,13 @@ multiples of the respective parameter.  These values must be greater than zero.
 Set this to 0 to disable the display of the coordinates in the lower right corner of the graph.
 
 =item availableTools (Default: availableTools => [ "LineTool", "CircleTool",
-	"VerticalParabolaTool", "HorizontalParabolaTool", "FillTool", "SolidDashTool" ])
+    "VerticalParabolaTool", "HorizontalParabolaTool", "FillTool", "SolidDashTool" ])
 
 This is an array of tools that will be made available for students to use in the graph tool.
 The order the tools are listed here will also be the order the tools are presented in the graph
 tool button box.  All of the tools that may be included are listed in the default options above,
-except for the "PointTool". Note that the case of the tool names must match what is shown.
+except for the "PointTool", the three point "QuadraticTool", and the four point "CubicTool".
+Note that the case of the tool names must match what is shown.
 
 =item staticObjects (Default: staticObjects => [])
 
@@ -200,6 +213,8 @@ sub _parserGraphTool_init {
 	ADD_JS_FILE('node_modules/jsxgraph/distrib/jsxgraphcore.js', 0, { defer => undef });
 	ADD_JS_FILE('js/apps/GraphTool/graphtool.js',                0, { defer => undef });
 	ADD_JS_FILE('js/apps/GraphTool/pointtool.js',                0, { defer => undef });
+	ADD_JS_FILE('js/apps/GraphTool/quadratictool.js',            0, { defer => undef });
+	ADD_JS_FILE('js/apps/GraphTool/cubictool.js',                0, { defer => undef });
 
 	main::PG_restricted_eval('sub GraphTool { parser::GraphTool->new(@_) }');
 }
@@ -360,7 +375,7 @@ our %graphObjectTikz = (
 				. "($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n"
 				. $clip_code
 				. "\\fill[yellow!40] "
-			   	. "($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n"
+				. "($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n"
 				. "\\end{scope}";
 		},
 		fillType => 1
@@ -405,11 +420,170 @@ parser::GraphTool->addGraphObjects(
 				);
 			}
 		}
+	},
+	# A three point quadratic graph object.
+	quadratic => {
+		js   => 'graphTool.quadraticTool.Quadratic',
+		tikz => {
+			code => sub {
+				my $gt = shift;
+				my ($x1, $y1) = @{ $_->{data}[2]{data} };
+				my ($x2, $y2) = @{ $_->{data}[3]{data} };
+				my ($x3, $y3) = @{ $_->{data}[4]{data} };
+
+				my $den = ($x1 - $x2) * ($x1 - $x3) * ($x2 - $x3);
+				my $a   = (($x2 - $x3) * $y1 + ($x3 - $x1) * $y2 + ($x1 - $x2) * $y3) / $den;
+
+				if ($a == 0) {
+					# Colinear points
+					my $y = sub { return ($y2 - $y1) / ($x2 - $x1) * ($_[0] - $x1) + $y1; };
+					my $line =
+						"($gt->{bBox}[0]," . &$y($gt->{bBox}[0]) . ") -- ($gt->{bBox}[2]," . &$y($gt->{bBox}[2]) . ")";
+					return (
+						"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $line;\n",
+						[
+							"$line -- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
+							sub { return $_[1] - &$y($_[0]); }
+						]
+					);
+				} else {
+					# Non-degenerate quadratic
+					my $b = (($x3**2 - $x2**2) * $y1 + ($x1**2 - $x3**2) * $y2 + ($x2**2 - $x1**2) * $y3) / $den;
+					my $c =
+						(($x2 - $x3) * $x2 * $x3 * $y1 + ($x3 - $x1) * $x1 * $x3 * $y2 + ($x1 - $x2) * $x1 * $x2 * $y3)
+						/ $den;
+					my $h         = -$b / (2 * $a);
+					my $k         = $c - $b**2 / (4 * $a);
+					my $diff      = sqrt((($a >= 0 ? $gt->{bBox}[1] : $gt->{bBox}[3]) - $k) / $a);
+					my $dmin      = $h - $diff;
+					my $dmax      = $h + $diff;
+					my $quadratic = "plot[domain=$dmin:$dmax,smooth](\\x,{$a*(\\x)^2+($b)*\\x+($c)})";
+					return (
+						"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $quadratic;",
+						[ $quadratic, sub { return $a * ($_[1] - $a * $_[0]**2 - $b * $_[0] - $c); } ]
+					);
+				}
+			}
+		}
+	},
+	# A four point cubic graph object.
+	cubic => {
+		js   => "graphTool.cubicTool.Cubic",
+		tikz => {
+			code => sub {
+				my $gt = shift;
+				my ($x1, $y1) = @{ $_->{data}[2]{data} };
+				my ($x2, $y2) = @{ $_->{data}[3]{data} };
+				my ($x3, $y3) = @{ $_->{data}[4]{data} };
+				my ($x4, $y4) = @{ $_->{data}[5]{data} };
+
+				my $c3 =
+					($y1 / (($x1 - $x2) * ($x1 - $x3) * ($x1 - $x4)) +
+						$y2 / (($x2 - $x1) * ($x2 - $x3) * ($x2 - $x4)) +
+						$y3 / (($x3 - $x1) * ($x3 - $x2) * ($x3 - $x4)) +
+						$y4 / (($x4 - $x1) * ($x4 - $x2) * ($x4 - $x3)));
+				my $c2 =
+					((-$x2 - $x3 - $x4) * $y1 / (($x1 - $x2) * ($x1 - $x3) * ($x1 - $x4)) +
+						(-$x1 - $x3 - $x4) * $y2 / (($x2 - $x1) * ($x2 - $x3) * ($x2 - $x4)) +
+						(-$x1 - $x2 - $x4) * $y3 / (($x3 - $x1) * ($x3 - $x2) * ($x3 - $x4)) +
+						(-$x1 - $x2 - $x3) * $y4 / (($x4 - $x1) * ($x4 - $x2) * ($x4 - $x3)));
+
+				if ($c3 == 0 && $c2 == 0) {
+					# Colinear points
+					my $y = sub { return ($y2 - $y1) / ($x2 - $x1) * ($_[0] - $x1) + $y1; };
+					my $line =
+						"($gt->{bBox}[0]," . &$y($gt->{bBox}[0]) . ") -- ($gt->{bBox}[2]," . &$y($gt->{bBox}[2]) . ")";
+					return (
+						"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $line;\n",
+						[
+							"$line -- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
+							sub { return $_[1] - &$y($_[0]); }
+						]
+					);
+				} elsif ($c3 == 0) {
+					# Quadratic
+					my $den = ($x1 - $x2) * ($x1 - $x3) * ($x2 - $x3);
+					my $a   = (($x2 - $x3) * $y1 + ($x3 - $x1) * $y2 + ($x1 - $x2) * $y3) / $den;
+					my $b   = (($x3**2 - $x2**2) * $y1 + ($x1**2 - $x3**2) * $y2 + ($x2**2 - $x1**2) * $y3) / $den;
+					my $c =
+						(($x2 - $x3) * $x2 * $x3 * $y1 + ($x3 - $x1) * $x1 * $x3 * $y2 + ($x1 - $x2) * $x1 * $x2 * $y3)
+						/ $den;
+					my $h        = -$b / (2 * $a);
+					my $k        = $c - $b**2 / (4 * $a);
+					my $diff     = sqrt((($a >= 0 ? $gt->{bBox}[1] : $gt->{bBox}[3]) - $k) / $a);
+					my $dmin     = $h - $diff;
+					my $dmax     = $h + $diff;
+					my $parabola = "plot[domain=$dmin:$dmax,smooth](\\x,{$a*(\\x)^2+($b)*\\x+($c)})";
+					return (
+						"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $parabola;",
+						[ $parabola, sub { return $a * ($_[1] - $a * $_[0]**2 - $b * $_[0] - $c); } ]
+					);
+				} else {
+					# Non-degenerate cubic
+					my $cubic_function = sub {
+						return (($_[0] - $x2) *
+								($_[0] - $x3) *
+								($_[0] - $x4) *
+								$y1 /
+								(($x1 - $x2) * ($x1 - $x3) * ($x1 - $x4)) +
+								($_[0] - $x1) *
+								($_[0] - $x3) *
+								($_[0] - $x4) *
+								$y2 /
+								(($x2 - $x1) * ($x2 - $x3) * ($x2 - $x4)) +
+								($_[0] - $x1) *
+								($_[0] - $x2) *
+								($_[0] - $x4) *
+								$y3 /
+								(($x3 - $x1) * ($x3 - $x2) * ($x3 - $x4)) +
+								($_[0] - $x1) *
+								($_[0] - $x2) *
+								($_[0] - $x3) *
+								$y4 /
+								(($x4 - $x1) * ($x4 - $x2) * ($x4 - $x3)));
+					};
+
+					my $height     = $gt->{bBox}[1] - $gt->{bBox}[3];
+					my $lowerBound = $gt->{bBox}[3] - $height;
+					my $upperBound = $gt->{bBox}[1] + $height;
+					my $step       = ($gt->{bBox}[2] - $gt->{bBox}[0]) / 200;
+					my $x          = $gt->{bBox}[0];
+
+					my $coords;
+					do {
+						my $y = $cubic_function->($x);
+						$coords .= "($x,$y) " if $y >= $lowerBound && $y <= $upperBound;
+						$x += $step;
+					} while ($x < $gt->{bBox}[2]);
+
+					my $cubic = "plot[smooth] coordinates { $coords }";
+					return (
+						"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $cubic;",
+						[
+							$cubic
+								. (
+									$a > 0
+									? ("-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1])"
+										. "-- ($gt->{bBox}[0],$gt->{bBox}[3]) -- cycle")
+									: ("-- ($gt->{bBox}[2],$gt->{bBox}[3]) -- ($gt->{bBox}[0],$gt->{bBox}[3])"
+										. "-- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle")
+								),
+							sub { return $a * ($_[1] - $cubic_function->($_[0])); }
+						]
+					);
+				}
+			}
+		}
 	}
 );
+
 parser::GraphTool->addTools(
 	# The point tool.
-	PointTool => 'graphTool.pointTool.PointTool'
+	PointTool => 'graphTool.pointTool.PointTool',
+	# A three point quadratic tool.
+	QuadraticTool => 'graphTool.quadraticTool.QuadraticTool',
+	# A four point cubic tool.
+	CubicTool => 'graphTool.cubicTool.CubicTool',
 );
 
 sub ANS_NAME {
