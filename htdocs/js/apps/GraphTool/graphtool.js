@@ -198,35 +198,6 @@ window.graphTool = (containerId, options) => {
 							);
 						}
 						break;
-					case 'keydown':
-						if (gt.activeTool && gt.activeTool !== gt.selectTool) break;
-
-						gt.graphedObjs.forEach((obj) => obj.handleKeyEvent(e, el));
-						gt.updateObjects();
-						gt.updateText();
-						if (el.coords) {
-							if (gt.activeTool?.updateHighlights(el.coords)) break;
-							if (!gt.selectedObj || !gt.selectedObj.updateTextCoords(el.coords))
-								gt.setTextCoords(el.coords.usrCoords[1], el.coords.usrCoords[2]);
-						}
-						break;
-					case 'pointerdown':
-						if (gt.activeTool && gt.activeTool !== gt.selectTool) break;
-
-						// Check to see if a defining point of a graphed object was clicked on.
-						// If so focus the object and that point.
-						gt.graphedObjs.some((obj) =>
-							obj.definingPts.some((point) => {
-								if (point.id === el.id) {
-									obj.focusPoint = point;
-									obj.focus();
-									e.preventDefault();
-									e.stopPropagation();
-									return true;
-								}
-							})
-						);
-						break;
 				}
 			});
 
@@ -313,6 +284,24 @@ window.graphTool = (containerId, options) => {
 				if (gt.activeTool) return;
 				const coords = gt.getMouseCoords(e).scrCoords.slice(1);
 
+				// Check to see if a defining point of a graphed object was clicked on.
+				// If so focus the object and that point.
+				for (const obj of gt.graphedObjs) {
+					if (obj.baseObj.rendNode === e.target) {
+						for (const point of obj.definingPts) {
+							if (point.rendNode === e.target) {
+								gt.hasFocus = true;
+								gt.selectedObj = obj;
+								gt.selectTool.activate();
+								// If a focus point was found, then resend this event so that jsxgraph
+								// will start a drag if the pointer is held down.
+								obj.focusPoint?.rendNode.dispatchEvent(new PointerEvent('pointerdown', e));
+								return;
+							}
+						}
+					}
+				}
+
 				// Check to see if the pointer is on an object, in which case focus that.  This focuses the first object
 				// found searching in the order that the objecs were graphed.
 				for (const obj of gt.graphedObjs) {
@@ -348,6 +337,26 @@ window.graphTool = (containerId, options) => {
 			});
 
 			gt.graphContainer.addEventListener('keydown', (e) => {
+				if (gt.activeTool === gt.selectTool &&
+					gt.board.containerObj.contains(document.activeElement) && gt.graphedObjs.length &&
+					['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)
+				) {
+					gt.graphedObjs.some((obj) => {
+						const el = obj.definingPts.find((point) => point.rendNode === e.target);
+						if (el) {
+							obj.handleKeyEvent(e, el);
+							gt.updateObjects();
+							gt.updateText();
+							if (!gt.activeTool?.updateHighlights(el.coords)) {
+								if (!gt.selectedObj || !gt.selectedObj.updateTextCoords(el.coords))
+									gt.setTextCoords(el.coords.usrCoords[1], el.coords.usrCoords[2]);
+							}
+						}
+					});
+				} else {
+					gt.activeTool?.handleKeyEvent(e);
+				}
+
 				if (!gt.buttonBox.contains(document.activeElement) && e.key === 'N' && e.shiftKey) {
 					// Shift-N moves focus to the first tool button after the select button unless the tool bar already
 					// has the focused element. (The select button is disabled at this point, so focus can't go there.)
@@ -367,7 +376,7 @@ window.graphTool = (containerId, options) => {
 				} else if (e.key === 'd') {
 					// If 'd' is pressed change to drawing dashed.
 					gt.toggleSolidity(e, false)
-				} else gt.activeTool?.handleKeyEvent(e);
+				}
 			});
 		}
 
@@ -799,7 +808,7 @@ window.graphTool = (containerId, options) => {
 					[() => point.X() - 12 / gt.board.unitX, () => point.Y() - 12 / gt.board.unitY],
 					[() => 24 / gt.board.unitX, () => 24 / gt.board.unitY]
 				],
-				{ withLabel: false, highlight: false, layer: 9, name: 'FillIcon', fixed: true }
+				{ withLabel: false, highlight: false, layer: 8, name: 'FillIcon', fixed: true }
 			)
 
 			if (!gt.isStatic) this.on('drag', (e) => { this.update(); gt.updateText(); });
@@ -808,13 +817,15 @@ window.graphTool = (containerId, options) => {
 		// The fill object has an invisible focus object.  So the focus/blur methods need to be overridden.
 		blur() {
 			this.focused = false;
+			this.baseObj.setAttribute({ fixed: true });
 			gt.board.update();
 		}
 
 		focus() {
 			this.focused = true;
+			this.baseObj.setAttribute({ fixed: false });
 			gt.board.update();
-			setTimeout(() => this.baseObj.rendNode.focus());
+			this.baseObj.rendNode.focus();
 		}
 
 		remove() {
@@ -1107,13 +1118,35 @@ window.graphTool = (containerId, options) => {
 			// This handles pointer selection of an object.
 			for (const [index, obj] of gt.graphedObjs.entries()) {
 				obj.selectionChangedHandler = (e) => {
+					const coords = gt.getMouseCoords(e);
+
+					// Determine if another object or one of its defining points is the actual target of this event.
+					// This can happen if the defining point of another object is on this object and neither has focus.
+					const otherIsTarget = gt.graphedObjs.some((otherObj) => {
+						if (otherObj.id() === obj.id()) return false;
+						if (otherObj.baseObj.rendNode === e.target) return true;
+						return otherObj.definingPts.some((otherPt) => otherPt.rendNode === e.target);
+					});
+
+					// Check to see if one of the defining points of this object has the pointer.  If so set that point
+					// as the focus point.  However, if some other object is the target then don't focus this object.
+					// This is most important if a fill object is the target.  In that case the focus slips through to
+					// the object below it.
+					for (const point of obj.definingPts) {
+						if (point.hasPoint(coords.scrCoords[1], coords.scrCoords[2])) {
+							obj.focusPoint = point;
+							if (otherIsTarget) return;
+							point.rendNode.focus();
+							break;
+						}
+					}
+
 					let lastSelected;
 					if (gt.selectedObj) {
 						if (gt.selectedObj.id() != obj.id()) {
 							// Don't allow the selection of a new object if the pointer
 							// is in the vicinity of one of the currently selected
 							// object's defining points.
-							const coords = gt.getMouseCoords(e);
 							for (const point of gt.selectedObj.definingPts) {
 								if (
 									point.X() == gt.snapRound(coords.usrCoords[1], gt.snapSizeX) &&
@@ -1124,6 +1157,7 @@ window.graphTool = (containerId, options) => {
 							lastSelected = gt.selectedObj;
 						} else return;
 					}
+
 					gt.selectedObj = obj;
 					gt.selectedObj.focus();
 					lastSelected?.blur();
