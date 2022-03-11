@@ -202,7 +202,7 @@ For example:
 
 	ADD_JS_FILE("js/apps/Base64/Base64.js");
 	ADD_JS_FILE("//web.geogebra.org/4.4/web/web.nocache.js", 1);
-	ADD_JS_FILE("js/apps/GraphTool/graphtool.min.js", 0, { id => "gt_script", defer => undef });
+	ADD_JS_FILE("js/apps/GraphTool/graphtool.js", 0, { id => "gt_script", defer => undef });
 
 =cut
 
