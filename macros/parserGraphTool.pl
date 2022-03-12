@@ -53,11 +53,15 @@ For PGML you can just do
 
 =head1 GRAPH OBJECTS
 
-There are four types of graph objects that the students can graph.  Lines, circles, parabolas,
-and fills (or shading of a region).  The syntax for each of these objects to pass to the
-GraphTool constructor is summarized as follows.  Each object must be enclosed in braces.  The
-first element in the braces must be the name of the object.  The following elements in the
+There are five types of graph objects that the students can graph.  Points, lines, circles,
+parabolas, and fills (or shading of a region).  The syntax for each of these objects to pass to
+the GraphTool constructor is summarized as follows.  Each object must be enclosed in braces.
+The first element in the braces must be the name of the object.  The following elements in the
 braces depend on the type of element.
+
+For points the name "point" must be followed by the coordinates. For example:
+
+        "{point,(3,5)}"
 
 For lines the name "line" must be followed by the word "solid" or "dashed" to indicate if the
 line is expected to be drawn solid or dashed.  That is followed by two distinct points on the
@@ -142,13 +146,17 @@ graph as the default values for the options above:
 These restrict the x coordinate and y coordinate of points that can be graphed to being
 multiples of the respective parameter.  These values must be greater than zero.
 
+=item showCoordinateHints (Default: showCoordinateHints => 1)
+
+Set this to 0 to disable the display of the coordinates in the lower right corner of the graph.
+
 =item availableTools (Default: availableTools => [ "LineTool", "CircleTool",
 	"VerticalParabolaTool", "HorizontalParabolaTool", "FillTool", "SolidDashTool" ])
 
 This is an array of tools that will be made available for students to use in the graph tool.
 The order the tools are listed here will also be the order the tools are presented in the graph
-tool button box.  All of the tools that may be included are listed in the default options above.
-Note that the case of the tool names must match what is shown.
+tool button box.  All of the tools that may be included are listed in the default options above,
+except for the "PointTool". Note that the case of the tool names must match what is shown.
 
 =item staticObjects (Default: staticObjects => [])
 
@@ -179,7 +187,8 @@ sub _parserGraphTool_init {
 	ADD_CSS_FILE("node_modules/jsxgraph/distrib/jsxgraph.css");
 	ADD_CSS_FILE("js/apps/GraphTool/graphtool.css");
 	ADD_JS_FILE("node_modules/jsxgraph/distrib/jsxgraphcore.js", 0, { defer => undef });
-	ADD_JS_FILE("js/apps/GraphTool/graphtool.min.js", 0, { defer => undef });
+	ADD_JS_FILE("js/apps/GraphTool/graphtool.js", 0, { defer => undef });
+	ADD_JS_FILE('js/apps/GraphTool/pointtool.js', 0, { defer => undef });
 
 	main::PG_restricted_eval('sub GraphTool { parser::GraphTool->new(@_) }');
 }
@@ -215,6 +224,7 @@ sub new {
 		gridX => 1, gridY => 1, snapSizeX => 1, snapSizeY => 1,
 		ticksDistanceX => 2, ticksDistanceY => 2,
 		minorTicksX => 1, minorTicksY => 1,
+		showCoordinateHints => 1,
 		availableTools => [
 			"LineTool",
 			"CircleTool",
@@ -228,6 +238,17 @@ sub new {
 }
 
 our %graphObjectTikz = (
+	point => {
+		code => sub {
+			my $self = shift;
+			my ($x, $y) = @{$_->{data}[1]{data}};
+			my $point = "($x,$y)";
+			return ("\\draw[line width=4pt,blue,fill=red] $point circle[radius=5pt];", [
+						$point,
+						sub { return ($_[0] - $x)**2 + ($_[1] - $y)**2; }
+					]);
+		}
+	},
 	line => {
 		code => sub {
 			my $self = shift;
@@ -335,6 +356,10 @@ sub addTools {
 	my %tools = @_;
 	$customTools .= join(",", map { "$_: $tools{$_}" } keys %tools) . ",";
 }
+
+# The point tool is available for use by default.  It is added this way so that the javascript can be kept separate.
+parser::GraphTool->addGraphObjects(point => { js => 'graphTool.pointTool.graphObject' });
+parser::GraphTool->addTools(PointTool => 'graphTool.pointTool.graphTool');
 
 sub ANS_NAME
 {
@@ -446,7 +471,7 @@ END_TIKZ
 			"($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n";
 
 
-		# Graph the lines, circles, and parabolas.
+		# Graph the points, lines, circles, and parabolas.
 		if (@{$self->{staticObjects}}) {
 			my $obj = $self->SUPER::new($self->{context}, @{$self->{staticObjects}});
 
@@ -500,6 +525,7 @@ END_TIKZ
 			staticObjects: '${\(join(',', @{$self->{staticObjects}}))}',
 			snapSizeX: $self->{snapSizeX},
 			snapSizeY: $self->{snapSizeY},
+			showCoordinateHints: $self->{showCoordinateHints},
 			customGraphObjects: {$customGraphObjects},
 			customTools: {$customTools},
 			availableTools: ['${\(join("','", @{$self->{availableTools}}))}'],

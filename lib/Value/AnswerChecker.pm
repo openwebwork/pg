@@ -206,6 +206,7 @@ sub cmp_collect {
   $ans->{student_value} = $ans->{student_formula};
   $ans->{preview_text_string} = $ans->{student_ans};
   $ans->{preview_latex_string} = $ans->{student_formula}->TeX;
+  return 0 if $ans->{typeError};
   if (Value::isFormula($ans->{student_formula}) && $ans->{student_formula}->isConstant) {
     $ans->{student_value} = Parser::Evaluate($ans->{student_formula});
     return 0 unless $ans->{student_value};
@@ -600,6 +601,7 @@ sub ans_collect {
 	  # The value is safely ignored if $ans->{mathQuillOpts} does not match /^\s*disabled\s*$/i.
       my $result = $data->[$i][$j]->cmp(@ans_cmp_defaults, mathQuillOpts => $ans->{mathQuillOpts})->evaluate($entry);
       $OK &= entryCheck($result,$blank);
+      $ans->{typeError} = 1 if $result->{typeError};
       push(@row,$result->{student_formula});
       entryMessage($result->{ans_message},$errors,$i,$j,$rows,$cols);
     }
@@ -624,18 +626,19 @@ sub entryMessage {
   if ($rows == 1) {$title = "In entry $j"}
   elsif ($cols == 1) {$title = "In entry $i"}
   else {$title = "In entry ($i,$j)"}
-  push(@{$errors},"<TR VALIGN=\"TOP\"><TD NOWRAP STYLE=\"text-align:right; border:0px\"><I>$title</I>:&nbsp;</TD>".
-                  "<TD STYLE=\"text-align:left; border:0px\">$message</TD></TR>");
+  push(@{$errors},
+       "<TR><TD NOWRAP STYLE=\"vertical-align:top; background-color:transparent; text-align:right; border:0px\"><I>$title</I>:&nbsp;</TD>".
+       "<TD STYLE=\"background-color:transparent; text-align:left; border:0px\">$message</TD></TR>");
 }
 
 sub entryCheck {
   my $ans = shift; my $blank = shift;
-  return 1 if defined($ans->{student_value});
+  return 1 if defined($ans->{student_value}) || $ans->{typeError};
   if (!defined($ans->{student_formula})) {
     $ans->{student_formula} = $ans->{student_ans};
     $ans->{student_formula} = $blank unless $ans->{student_formula};
   }
-  return 0
+  return 0;
 }
 
 
