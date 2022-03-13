@@ -767,7 +767,7 @@ END_TIKZ
 			snapSizeY: $self->{snapSizeY},
 			xAxisLabel: '$self->{xAxisLabel}',
 			yAxisLabel: '$self->{yAxisLabel}',
-			ariaDescription: '$self->{ariaDescription}',
+			ariaDescription: '${\(main::encode_pg_and_html($self->{ariaDescription}))}',
 			showCoordinateHints: $self->{showCoordinateHints},
 			customGraphObjects: {$customGraphObjects},
 			customTools: {$customTools},
@@ -809,7 +809,8 @@ sub cmp_preprocess {
 			xAxisLabel: '$self->{xAxisLabel}',
 			yAxisLabel: '$self->{yAxisLabel}',
 			customGraphObjects: {$customGraphObjects},
-			JSXGraphOptions: $self->{JSXGraphOptions}
+			JSXGraphOptions: $self->{JSXGraphOptions},
+			ariaDescription: "answer preview graph"
 		});
 	};
 	if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', initialize);
@@ -846,7 +847,8 @@ sub cmp {
 			xAxisLabel: '$self->{xAxisLabel}',
 			yAxisLabel: '$self->{yAxisLabel}',
 			customGraphObjects: {$customGraphObjects},
-			JSXGraphOptions: $self->{JSXGraphOptions}
+			JSXGraphOptions: $self->{JSXGraphOptions},
+			ariaDescription: "correct answer graph"
 		});
 	};
 	if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', initialize);
