@@ -1226,7 +1226,7 @@ sub solution {
 	if ($printSolutionForInstructor) { # always print solutions for instructor types
 		$out = join('', $BITALIC, "(",
 			maketext("Instructor solution preview: show the student solution after due date."),
-			")", $EITALIC, $displayMode =~ /TeX/ ? "\\par\\smallskip" : $BR, @in);
+			")", $EITALIC, $displayMode =~ /TeX/ ? "\\par\\smallskip{}" : $BR, @in);
 	} elsif ($displaySolution) {
 		$out = join(' ', @in); # display solution
 	}
@@ -1276,7 +1276,7 @@ sub hint {
 		if ($printHintForInstructor) {
 			$out = join('', $BITALIC,
 				maketext("(Instructor hint preview: show the student hint after the following number of attempts:"),
-				" ", $showHint + 1, ")", $EITALIC, "\\par\\smallskip", @in);
+				" ", $showHint + 1, ")", $EITALIC, "\\par\\smallskip{}", @in);
 		} elsif ($displayHint and $afterAnswerDate) { # only display hints after the answer date.
 			$out = join(' ', @in);
 		}
