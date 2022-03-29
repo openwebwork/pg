@@ -40,7 +40,7 @@ sub class {'MINUS'};
 # instead of 'UOP' as it is for the Parser::UOP::minus parent package.
 sub isNeg {
   my $self = shift;
-  return $self->class eq 'MINUS' && $self->{uop} eq 'u-' && !$self->{op}{isInfinite};
+  return !$self->{op}{isInfinite};
 }
 
 ##################################################
