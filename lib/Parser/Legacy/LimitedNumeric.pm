@@ -36,6 +36,12 @@ sub _check {
 
 sub class {'MINUS'};
 
+# Override the parent method because the class for this package is 'MINUS'
+# instead of 'UOP' as it is for the Parser::UOP::minus parent package.
+sub isNeg {
+  my $self = shift;
+  return $self->class eq 'MINUS' && $self->{uop} eq 'u-' && !$self->{op}{isInfinite};
+}
 
 ##################################################
 #
