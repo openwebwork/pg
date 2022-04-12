@@ -11,13 +11,13 @@
         "prepare": "npm run generate-assets"
     },
     "dependencies": {
-        "cssnano": "^5.1.4",
         "jsxgraph": "^1.4.2",
         "mathquill": "github:openwebwork/mathquill"
     },
     "devDependencies": {
         "autoprefixer": "^10.4.2",
         "chokidar": "^3.5.3",
+        "cssnano": "^5.1.7",
         "postcss": "^8.4.6",
         "rtlcss": "^3.5.0",
         "sass": "^1.49.0",
