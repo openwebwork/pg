@@ -37,8 +37,10 @@ my $ce;
 my $pg_dir;
 
 use YAML::XS qw/LoadFile/;
+use Renderer::Localize;
 
-use Data::Dumper;
+
+# use Data::Dumper;
 
 BEGIN {
 	$pg_dir = $ENV{PG_ROOT};
@@ -68,6 +70,10 @@ sub new {
 
 
 	bless $self, $class;
+
+	# Add the language_handle for maketext
+	$self->{environment}->{maketext} = $self->maketext;
+
 
 	return $self;
 }
@@ -151,6 +157,7 @@ sub processEnvironment {
 			= "$config->{directories}->{courses}/$config->{environment}->{course_name}";
 		$config->{directories}->{template_dir} = "$config->{directories}->{course_directory}/templates";
 	}
+
 
 	return;
 }
@@ -356,12 +363,29 @@ sub checkEnvironment {
 	}
 }
 
+sub maketext {
+	my $self = shift;
+	my $lang = $self->{environment}->{language};
+	return Renderer::Localize->getLoc($lang);
+	# my $lh;
+	# if($lang) {
+	# 	$lh = Renderer::Localize->get_handle($lang) || die "No language handle for '$lang'";
+	# } else {
+	# 	# Config file missing, maybe?
+	# 	$lh = Renderer::Localize->get_handle() || die "Can't get a language handle";
+	# }
+	# return sub {
+	# 	$lh->maketext(shift);
+	# };
+}
+
 sub get_language_handle {
 	my $self = shift;
 	my $lang = $self->{environment}->{language};
+
 	my $lh;
 	if($lang) {
-		$lh = Renderer::Localize->get_handle($lang) || die "No language handle for '$lang'";
+		$lh = Renderer::Localize->getLangHandle($lang) || die "No language handle for '$lang'";
 	} else {
 		# Config file missing, maybe?
 		$lh = Renderer::Localize->get_handle() || die "Can't get a language handle";

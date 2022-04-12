@@ -20,12 +20,17 @@ use Renderer::Localize;
 
 
 my $pg_env = PGEnvironment->new(course_name => "staab_course");
-my $lh = $pg_env->get_language_handle;
+my $lh = $pg_env->{environment}->{language_handle};
+my $mt =  Renderer::Localize::getLoc('fr');
+
+print Dumper $mt;
 
 
-print Dumper $lh->maketext('Entered');
+print Dumper &$mt('Solution:');
+print Dumper &$mt('All students in course');
+print Dumper &$mt('Fred:');
 
  # Depending on the user's locale, etc., this will
  # make a language handle from among the classes available,
  # and any defaults that you declare.
-die "Couldn't make a language handle??" unless $lh;
+# die "Couldn't make a language handle??" unless $lh;

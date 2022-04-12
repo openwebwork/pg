@@ -17,7 +17,7 @@
 # Note: this is basically the WeBWorK::PG file from the WeBWorK side.
 # intention to simplify and strip out DB calls and webwork CourseEnvironment.
 
-package WeBWorK::PG;
+package Renderer::PG;
 
 =head1 NAME
 
@@ -34,7 +34,7 @@ use Renderer::ImageGenerator;
 use Renderer::Utils qw(runtime_use formatDateTime makeTempDirectory);
 use Renderer::Utils::RestrictedClosureClass;
 
-use Data::Dumper;
+# use Data::Dumper;
 
 use constant DISPLAY_MODES => {
 	# display name   # mode name
@@ -48,6 +48,8 @@ use constant DISPLAY_MODES => {
 sub new {
 	shift;    # throw away invocant -- we don't need it
 	my ($pg_env, $user, $key, $set, $problem, $psvn, $formFields, $translationOptions) = @_;
+
+	dd 'in PG::new';
 
 	my $renderer = $pg_env->{renderer}->{base};
 
@@ -74,7 +76,7 @@ sub defineProblemEnvir {
 
 	my %envir;
 
-	print "in defineProblemEnvir\n";
+	print "in REnderer::PG::defineProblemEnvir\n";
 
 	debug("in WEBWORK::PG");
 

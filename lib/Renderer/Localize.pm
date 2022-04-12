@@ -1,23 +1,36 @@
 package Renderer::Localize;
 
-use base qw/Locale::Maketext/;
+use File::Spec;
 
-use strict;
-use warnings;
+use Locale::Maketext;
+use Locale::Maketext::Lexicon;
 
-use feature "say";
+my $pattern  = "/opt/webwork/pg/lib/Renderer/Localize/*.[pm]o";
+my $decode   = 1;
+my $encoding = undef;
 
-die 'not found.' unless -r "/opt/webwork/pg/lib/Renderer/Localize/en.po";
+warn 'in Renderer::Localize';
 
-use Locale::Maketext::Lexicon {
-	# '*' => [Gettext => "/Users/pstaab/Downloads/test_localization/loc/*.po"],
-	'en'      => [ Gettext => "/opt/webwork/pg/lib/Renderer/Localize/en.po" ],
-	_auto     => 1,
-	_decode   => 1,
-	_encoding => undef
-};
+eval "
+	package Renderer::Localize::I18N;
+	use base 'Locale::Maketext';
+    # %Renderer::Localize::I18N::Lexicon = ( '_AUTO' => 1 );
+	Locale::Maketext::Lexicon->import({
+			_auto => 1,
+	    # 'i-default' => [ 'Auto' ],
+	    '*'	=> [ Gettext => \$pattern ],
+	    _decode => \$decode,
+	    _encoding => \$encoding,
+	});
+	*tense = sub { \$_[1] . ((\$_[2] eq 'present') ? 'ing' : 'ed') };
 
-use Data::Dumper;
+" or die "Can't process eval in WeBWorK/Localize.pm: line 35:  " . $@;
+
+# package Renderer::Localize;
+
+# use Renderer::Localize::I18N;
+
+use Data::Dump;
 
 # This subroutine is shared with the safe compartment in PG to
 # allow maketext() to be constructed in PG problems and macros
@@ -25,16 +38,18 @@ use Data::Dumper;
 # on perl 5.8.8
 sub getLoc {
 	my $lang = shift;
-	my $lh   = Renderer::Localize->get_handle($lang);
+	my $lh   = Renderer::Localize::I18N->get_handle($lang);
 	return sub {
-		# say 'in getLoc sub';
-		print Dumper \@_;
+		warn "in getLoc\n";
+		# dd $lh;
 		$lh->maketext(@_);
 	};
 }
 
 sub getLangHandle {
-	return Renderer::Localize->get_handle(shift);
+	my $lang = shift;
+	my $lh   = Renderer::Localize::I18N->get_handle($lang);
+	return $lh;
 }
 
 # this is like [quant] but it doesn't write the number
@@ -64,5 +79,10 @@ sub negquant {
 	return $forms[2] if @forms > 2 and $num == 0;
 	return ($handle->numf($num) . ' ' . $handle->numerate($num, @forms));
 }
+
+%Lexicon = ('_AUTO' => 1,);
+
+package Renderer::Localize::I18N;
+use base(Renderer::Localize);
 
 1;

@@ -23,6 +23,8 @@ Problem.pm
 
 package Renderer::Problem;
 
+use feature 'say';
+
 use PGEnvironment;
 use Renderer::Translator;
 use Renderer::Localize;
@@ -56,8 +58,20 @@ sub new {
 	};
 
 	$self->{pg_env} = PGEnvironment->new() unless ($self->{pg_env});
-	# check some defaults if not passed in.
-	setDefaults($self);
+
+	# set defaults for the translationOptions
+	my $translationOptions = {
+		displayMode     => $self->{translationOptions}->{displayMode}    // $self->{pg_env}->{renderer}->{displayMode},
+		problem_seed    => $self->{translationOptions}->{problem_seed}   // 1,
+		showHints       => $self->{translationOptions}->{showHints}      // 0,
+		showSolutions   => $self->{translationOptions}->{showSolutions}  // 0,
+		refreshMath2img => $self->{refreshMath2img}->{showSolutions}     // 1,
+		processAnswers  => $self->{translationOptions}->{processAnswers} // 0,
+		QUIZ_PREFIX     => $self->{translationOptions}->{QUIZ_PREFIX}    // '',
+		use_opaque_prefix => $self->{translationOptions}->{use_opaque_prefix} // 0
+	};
+
+	$self->{translationOptions} = $translationOptions;
 
 	# The rest of this is from WeBWorK::PG::Local
 
@@ -70,6 +84,62 @@ sub new {
 	# create a Translator
 	warn "PG: creating a Translator\n";
 	$self->{translator} = Renderer::Translator->new;
+
+	for my $module_packages_ref (@{ $self->{pg_env}->{perl_modules} }) {
+		my ($module, @extra_packages) = @$module_packages_ref;
+
+		# the first item is the main package
+		$self->{translator}->evaluate_modules($module);
+
+		# the remaining items are "extra" packages
+		$self->{translator}->load_extra_packages(@extra_packages);
+	}
+
+	############################################################################
+	# prepare an imagegenerator object (if we're in "images" mode)
+	############################################################################
+	my $image_generator;
+	my $site_prefix = ($translationOptions->{use_site_prefix}) // '';
+	if ($translationOptions->{displayMode} eq "images"
+		|| $translationOptions->{displayMode} eq "opaque_image")
+	{
+		my %imagesModeOptions = %{ $self->{pg_env}->{renderer}->{displayModeOptions}->{images} };
+		$image_generator = WeBWorK::PG::ImageGenerator->new(
+			tempDir         => $self->{pg_env}->{directories}->{renderer_dirs}->{temp_dir},
+			latex           => $self->{pg_evn}->{environment}->{externalPrograms}->{latex},
+			dvipng          => $self->{pg_evn}->{environment}->{externalPrograms}->{dvipng},
+			useCache        => 1,
+			cacheDir        => $self->{pg_env}->{directories}->{renderer_dirs}->{equation_cache},
+			cacheURL        => $self->{pg_env}->{URLs}->{equation_cache},
+			cacheDB         => $self->{pg_env}->{environment}->{equation_cache_db},
+			useMarkers      => ($imagesModeOptions{dvipng_align} && $imagesModeOptions{dvipng_align} eq 'mysql'),
+			dvipng_align    => $imagesModeOptions{dvipng_align},
+			dvipng_depth_db => $imagesModeOptions{dvipng_depth_db},
+		);
+	}
+
+############################################################################
+	# set the environment (from defineProblemEnvir)
+	############################################################################
+
+	print Dumper 'transOpts';
+	print Dumper $translationOptions;
+
+	warn "Problem: setting the environment (from defineProblemEnvir)\n";
+	my $envir = defineProblemEnvir(
+		$self->{pg_env},
+		$psvn,    #FIXME -- not used
+		$formFields,
+		$translationOptions,
+		{         #extras (this is kind of a hack, but not a serious one)
+			image_generator => $image_generator,
+			mailer          => $mailer,
+			problemUUID     => 0,
+		}
+	);
+	$self->{translator}->environment($envir);
+
+	$self->{translator}->initialize;
 
 	############################################################################
 	# Here are the new instructions for preloading the macros
@@ -105,48 +175,7 @@ sub new {
 		$self->{translator}->load_extra_packages(@extra_packages);
 	}
 
-	############################################################################
-	# prepare an imagegenerator object (if we're in "images" mode)
-	############################################################################
-	my $image_generator;
-	my $site_prefix = ($translationOptions->{use_site_prefix}) // '';
-	if ($self->{translationOptions}->{displayMode} eq "images"
-		|| $self->{translationOptions}->{displayMode} eq "opaque_image")
-	{
-		my %imagesModeOptions = %{ $pg_env->{renderer}->{displayModeOptions}->{images} };
-		$image_generator = Renderer::ImageGenerator->new(
-			tempDir         => $pg_env->{directories}->{tmp_dir},         # global temp dir
-			latex           => $pg_env->{externalPrograms}->{latex},
-			dvipng          => $pg_env->{externalPrograms}->{dvipng},
-			useCache        => 1,
-			cacheDir        => $pg_env->{directories}->{equationCache},
-			cacheURL        => $pg_env->{URLs}->{equation_cache},
-			cacheDB         => $ce->{webworkFiles}{equationCacheDB},
-			useMarkers      => ($imagesModeOptions{dvipng_align} && $imagesModeOptions{dvipng_align} eq 'mysql'),
-			dvipng_align    => $imagesModeOptions{dvipng_align},
-			dvipng_depth_db => $imagesModeOptions{dvipng_depth_db},
-		);
-	}
-
 	bless $self, $class;
-}
-
-sub setDefaults {
-	my $options = shift;
-
-	# set defaults for the translationOptions
-	my $t_opts = {};
-	$t_opts->{displayMode} = $options->{translationOptions}->{displayMode}
-		// $opts->{pg_env}->{renderer}->{displayMode};
-	$t_opts->{problem_seed}        = $options->{translationOptions}->{problem_seed}      // 1;
-	$t_opts->{showHints}           = $options->{translationOptions}->{showHints}         // 0;
-	$t_opts->{showSolutions}       = $options->{translationOptions}->{showSolutions}     // 0;
-	$t_opts->{refreshMath2img}     = $options->{refreshMath2img}->{showSolutions}        // 1;
-	$t_opts->{processAnswers}      = $options->{translationOptions}->{processAnswers}    // 0;
-	$t_opts->{QUIZ_PREFIX}         = $options->{translationOptions}->{QUIZ_PREFIX}       // 0;
-	$t_opts->{use_opaque_prefix}   = $options->{translationOptions}->{use_opaque_prefix} // 0;
-	$options->{translationOptions} = $t_opts;
-
 }
 
 sub free {
@@ -163,26 +192,8 @@ sub free {
 }
 
 sub render {
+	say "in Problem::render";
 	my ($self, $psvn, $formFields) = @_;
-
-	############################################################################
-	# set the environment (from defineProblemEnvir)
-	############################################################################
-
-	my $envir = defineProblemEnvir(
-		$self->{pg_env},
-		$psvn,    #FIXME -- not used
-		$formFields,
-		$self->{translationOptions},
-		{         #extras (this is kind of a hack, but not a serious one)
-			image_generator => $image_generator,
-			mailer          => $mailer,
-			problemUUID     => 0,
-		},
-		x
-	);
-	$self->{translator}->environment($envir);
-	$self->{translator}->initialize();
 
 	############################################################################
 	# set the opcode mask (using default values)
@@ -249,134 +260,76 @@ sub nullSafetyFilter {
 	return shift, 0;    # no errors
 }
 
+=head2 defineProblemEnvir
+
+This creates the problem environment, which are a set of variables that can
+be used within a problem
+
+=cut
+
+use Data::Dump;
+
 sub defineProblemEnvir {
 	my (
 		$pg_env,
-		$psvn,          # Is it time to get rid of this?
+		$psvn,    # Is it time to get rid of this?
 		$formFields,
 		$translationOptions,
 		$extras,
 	) = @_;
 
+	print Dumper 'in Renderer::Problem::defineProblemEnvir';
+
 	my %envir;
 
-	# ----------------------------------------------------------------------
-	# PG environment variables
-	# from docs/pglanguage/pgreference/environmentvariables as of 06/25/2002
-	# any changes are noted by "ADDED:" or "REMOVED:"
+	# This is an old problem set version number, but is used for other things currently.
+	$envir{psvn} = $psvn;
 
-	# Vital state information
-	# ADDED: displayModeFailover, displayHintsQ, displaySolutionsQ,
-	#        refreshMath2img, texDisposition
-
-	$envir{psvn} = $psvn;    #'problem set version number' (associated with homework set)
-	 # $envir{psvn}                = $envir{psvn}//$set->psvn; # use set value of psvn unless there is an explicit override.
-	 # update problemUUID from submitted form, and fall back to the earlier name problemIdentifierPrefix if necessary
+	# update problemUUID from submitted form, and fall back to the earlier name problemIdentifierPrefix if necessary
 	$envir{problemUUID} = $formFields->{problemUUID} // $formFields->{problemIdentifierPrefix} // $envir{problemUUID}
 		// 0;
 	$envir{psvnNumber} = "psvnNumber-is-deprecated-Please-use-psvn-Instead";    #FIXME
-		# $envir{probNum}             = $problem->problem_id;
-	$envir{questionNumber} = $envir{probNum};
-	# $envir{fileName}            = $problem->source_file;
-	$envir{probFileName} = $envir{fileName};
-	$envir{problemSeed}  = $translationOptions->{problem_seed};
-	$envir{displayMode}  = $pg_env->{renderer}->{display_modes}->{ $translationOptions->{displayMode} };
-	#	$envir{languageMode}        = $envir{displayMode};	# don't believe this is ever used.
+
+	$envir{questionNumber}    = $envir{probNum};
+	$envir{probFileName}      = $envir{fileName};
+	$envir{problemSeed}       = $translationOptions->{problem_seed};
+	$envir{displayMode}       = $pg_env->{renderer}->{display_modes}->{ $translationOptions->{displayMode} };
 	$envir{outputMode}        = $envir{displayMode};
 	$envir{displayHintsQ}     = $translationOptions->{showHints};
 	$envir{displaySolutionsQ} = $translationOptions->{showSolutions};
-	$envir{texDisposition}    = "pdf";                                  # in webwork2, we use pdflatex
+	$envir{texDisposition}    = "pdf";                                          # in webwork2, we use pdflatex
 
-	# Problem Information
-	# ADDED: courseName, formatedDueDate, enable_reduced_scoring
+	# Note: information related to dates removed.  Problems should be renderered
+	# independent of any date. Also, all student information including course is
+	# removed for security reasons.
 
-# $envir{openDate}            = $set->open_date;
-# $envir{formattedOpenDate}   = formatDateTime($envir{openDate}, $pg_env->{site}->{timezone});
-# $envir{OpenDateDayOfWeek}   = formatDateTime($envir{openDate}, $pg_env->{site}->{timezone}, "%A", $pg_env->{site}->{locale});
-# $envir{OpenDateDayOfWeekAbbrev} = formatDateTime($envir{openDate}, $pg_env->{site}->{timezone}, "%a", $pg_env->{site}->{locale});
-# $envir{OpenDateDay}         = formatDateTime($envir{openDate}, $pg_env->{site}->{timezone}, "%d", $pg_env->{site}->{locale});
-# $envir{OpenDateMonthNumber} = formatDateTime($envir{openDate}, $pg_env->{site}->{timezone}, "%m", $pg_env->{site}->{locale});
-# $envir{OpenDateMonthWord}   = formatDateTime($envir{openDate}, $pg_env->{site}->{timezone}, "%B", $pg_env->{site}->{locale});
-# $envir{OpenDateMonthAbbrev} = formatDateTime($envir{openDate}, $pg_env->{site}->{timezone}, "%b", $pg_env->{site}->{locale});
-# $envir{OpenDateYear2Digit}  = formatDateTime($envir{openDate}, $pg_env->{site}->{timezone}, "%y", $pg_env->{site}->{locale});
-# $envir{OpenDateYear4Digit}  = formatDateTime($envir{openDate}, $pg_env->{site}->{timezone}, "%Y", $pg_env->{site}->{locale});
-# $envir{OpenDateHour12}      = formatDateTime($envir{openDate}, $pg_env->{site}->{timezone}, "%I", $pg_env->{site}->{locale});
-# $envir{OpenDateHour24}      = formatDateTime($envir{openDate}, $pg_env->{site}->{timezone}, "%H", $pg_env->{site}->{locale});
-# $envir{OpenDateMinute}      = formatDateTime($envir{openDate}, $pg_env->{site}->{timezone}, "%M", $pg_env->{site}->{locale});
-# $envir{OpenDateAMPM}        = formatDateTime($envir{openDate}, $pg_env->{site}->{timezone}, "%P", $pg_env->{site}->{locale});
-# $envir{OpenDateTimeZone}    = formatDateTime($envir{openDate}, $pg_env->{site}->{timezone}, "%Z", $pg_env->{site}->{locale});
-# $envir{OpenDateTime12}      = formatDateTime($envir{openDate}, $pg_env->{site}->{timezone}, "%I:%M%P", $pg_env->{site}->{locale});
-# $envir{OpenDateTime24}      = formatDateTime($envir{openDate}, $pg_env->{site}->{timezone}, "%R", $pg_env->{site}->{locale});
-# $envir{dueDate}             = $set->due_date;
-# $envir{formattedDueDate}    = formatDateTime($envir{dueDate}, $pg_env->{site}->{timezone});
-# $envir{formatedDueDate}     = $envir{formattedDueDate}; # typo in many header files
-# $envir{DueDateDayOfWeek}    = formatDateTime($envir{dueDate}, $pg_env->{site}->{timezone}, "%A", $pg_env->{site}->{locale});
-# $envir{DueDateDayOfWeekAbbrev} = formatDateTime($envir{dueDate}, $pg_env->{site}->{timezone}, "%a", $pg_env->{site}->{locale});
-# $envir{DueDateDay}          = formatDateTime($envir{dueDate}, $pg_env->{site}->{timezone}, "%d", $pg_env->{site}->{locale});
-# $envir{DueDateMonthNumber}  = formatDateTime($envir{dueDate}, $pg_env->{site}->{timezone}, "%m", $pg_env->{site}->{locale});
-# $envir{DueDateMonthWord}    = formatDateTime($envir{dueDate}, $pg_env->{site}->{timezone}, "%B", $pg_env->{site}->{locale});
-# $envir{DueDateMonthAbbrev}  = formatDateTime($envir{dueDate}, $pg_env->{site}->{timezone}, "%b", $pg_env->{site}->{locale});
-# $envir{DueDateYear2Digit}   = formatDateTime($envir{dueDate}, $pg_env->{site}->{timezone}, "%y", $pg_env->{site}->{locale});
-# $envir{DueDateYear4Digit}   = formatDateTime($envir{dueDate}, $pg_env->{site}->{timezone}, "%Y", $pg_env->{site}->{locale});
-# $envir{DueDateHour12}       = formatDateTime($envir{dueDate}, $pg_env->{site}->{timezone}, "%I", $pg_env->{site}->{locale});
-# $envir{DueDateHour24}       = formatDateTime($envir{dueDate}, $pg_env->{site}->{timezone}, "%H", $pg_env->{site}->{locale});
-# $envir{DueDateMinute}       = formatDateTime($envir{dueDate}, $pg_env->{site}->{timezone}, "%M", $pg_env->{site}->{locale});
-# $envir{DueDateAMPM}         = formatDateTime($envir{dueDate}, $pg_env->{site}->{timezone}, "%P", $pg_env->{site}->{locale});
-# $envir{DueDateTimeZone}     = formatDateTime($envir{dueDate}, $pg_env->{site}->{timezone}, "%Z", $pg_env->{site}->{locale});
-# $envir{DueDateTime12}       = formatDateTime($envir{dueDate}, $pg_env->{site}->{timezone}, "%I:%M%P", $pg_env->{site}->{locale});
-# $envir{DueDateTime24}       = formatDateTime($envir{dueDate}, $pg_env->{site}->{timezone}, "%R", $pg_env->{site}->{locale});
-# $envir{answerDate}          = $set->answer_date;
-# $envir{formattedAnswerDate} = formatDateTime($envir{answerDate}, $pg_env->{site}->{timezone});
-# $envir{AnsDateDayOfWeek}    = formatDateTime($envir{answerDate}, $pg_env->{site}->{timezone}, "%A", $pg_env->{site}->{locale});
-# $envir{AnsDateDayOfWeekAbbrev} = formatDateTime($envir{answerDate}, $pg_env->{site}->{timezone}, "%a", $pg_env->{site}->{locale});
-# $envir{AnsDateDay}          = formatDateTime($envir{answerDate}, $pg_env->{site}->{timezone}, "%d", $pg_env->{site}->{locale});
-# $envir{AnsDateMonthNumber}  = formatDateTime($envir{answerDate}, $pg_env->{site}->{timezone}, "%m", $pg_env->{site}->{locale});
-# $envir{AnsDateMonthWord}    = formatDateTime($envir{answerDate}, $pg_env->{site}->{timezone}, "%B", $pg_env->{site}->{locale});
-# $envir{AnsDateMonthAbbrev}  = formatDateTime($envir{answerDate}, $pg_env->{site}->{timezone}, "%b", $pg_env->{site}->{locale});
-# $envir{AnsDateYear2Digit}   = formatDateTime($envir{answerDate}, $pg_env->{site}->{timezone}, "%y", $pg_env->{site}->{locale});
-# $envir{AnsDateYear4Digit}   = formatDateTime($envir{answerDate}, $pg_env->{site}->{timezone}, "%Y", $pg_env->{site}->{locale});
-# $envir{AnsDateHour12}       = formatDateTime($envir{answerDate}, $pg_env->{site}->{timezone}, "%I", $pg_env->{site}->{locale});
-# $envir{AnsDateHour24}       = formatDateTime($envir{answerDate}, $pg_env->{site}->{timezone}, "%H", $pg_env->{site}->{locale});
-# $envir{AnsDateMinute}       = formatDateTime($envir{answerDate}, $pg_env->{site}->{timezone}, "%M", $pg_env->{site}->{locale});
-# $envir{AnsDateAMPM}         = formatDateTime($envir{answerDate}, $pg_env->{site}->{timezone}, "%P", $pg_env->{site}->{locale});
-# $envir{AnsDateTimeZone}     = formatDateTime($envir{answerDate}, $pg_env->{site}->{timezone}, "%Z", $pg_env->{site}->{locale});
-# $envir{AnsDateTime12}       = formatDateTime($envir{answerDate}, $pg_env->{site}->{timezone}, "%I:%M%P", $pg_env->{site}->{locale});
-# $envir{AnsDateTime24}       = formatDateTime($envir{answerDate}, $pg_env->{site}->{timezone}, "%R", $pg_env->{site}->{locale});
-# my $ungradedAttempts        = ($formFields->{submitAnswers})?1:0; # is an attempt about to be graded?
-# # $envir{numOfAttempts}       = ($problem->num_correct || 0) + ($problem->num_incorrect || 0) +$ungradedAttempts;
-# $envir{problemValue}        = $problem->value;
-# $envir{sessionKey}          = $key;
-# $envir{courseName}          = $pg_env->{environment}->{course_name};
-# $envir{enable_reduced_scoring} = $pg_env->{ansEvalDefaults}->{enableReducedScoring} && $set->enable_reduced_scoring;
-
-	$envir{language}            = $pg_env->{environment}->{language};
+	$envir{language} = $pg_env->{environment}->{language};
+	# $envir{language_handle} = $pg_env->get_language_handle;
+	print Dumper 'defining maketext';
 	$envir{language_subroutine} = Renderer::Localize::getLoc($envir{language});
-	# $envir{reducedScoringDate} = $set->reduced_scoring_date;
-	# $envir{formattedReducedScoringDate} = formatDateTime($envir{reducedScoringDate}, $pg_env->{site}->{timezone});
+	# $envir{language_subroutine} = $pg_env->{environment}->{maketext};
+	# $envir{language_subroutine} = $pg_env->maketext();
+	# $envir{language_subroutine} = sub {
+	# 	warn 'in Problem.pm';
+	# 	# dd $pg_env;
+	# 	dd $pg_env->{environment};
+	# 	my $lh = $pg_env->{environment}->{language_handle};
+	# 	dd $lh;
+	# 	return $lh->maketext(@_);
+	# };
 
-	# Student Information
-	# ADDED: studentID
-
-	# $envir{sectionName}      = $user->section;
-	# $envir{sectionNumber}    = $envir{sectionName};
-	# $envir{recitationName}   = $user->recitation;
-	# $envir{recitationNumber} = $envir{recitationName};
-	# $envir{setNumber}        = $set->set_id;
-	# $envir{studentLogin}     = $user->user_id;
-	# $envir{studentName}      = $user->first_name . " " . $user->last_name;
-	# $envir{studentID}        = $user->student_id;
-	# $envir{permissionLevel}  = $translationOptions->{permissionLevel};  # permission level of actual user
+	# Are these needed?  Or should permission level be handled at a level above?
+	$envir{permissionLevel} = $translationOptions->{permissionLevel};    # permission level of actual user
 	$envir{effectivePermissionLevel} =
 		$translationOptions->{effectivePermissionLevel};    # permission level of user assigned to this question
-
-	# Answer Information
-	# REMOVED: refSubmittedAnswers
 
 	$envir{inputs_ref} = $formFields;
 
 	# External Programs
 	# ADDED: externalLaTeXPath, externalDvipngPath,
 	#        externalGif2EpsPath, externalPng2EpsPath
+
+	# Question: why are these needed for within a problem?
 
 	$envir{externalLaTeXPath}   = $pg_env->{environment}->{externalPrograms}->{latex};
 	$envir{externalDvipngPath}  = $pg_env->{environment}->{externalPrograms}->{dvipng};
@@ -385,15 +338,6 @@ sub defineProblemEnvir {
 	$envir{externalGif2PngPath} = $pg_env->{environment}->{externalPrograms}->{gif2png};
 	$envir{externalCheckUrl}    = $pg_env->{environment}->{externalPrograms}->{checkurl};
 	#$envir{externalCurlCommand}  = $pg_env->{environment}->{externalPrograms}->{curl};
-	# Directories and URLs
-	# REMOVED: courseName
-	# ADDED: dvipngTempDir
-	# ADDED: jsMathURL
-	# ADDED: MathJaxURL
-	# ADDED: asciimathURL
-	# ADDED: macrosPath
-	# REMOVED: macrosDirectory, courseScriptsDirectory
-	# ADDED: LaTeXMathML
 
 	$envir{cgiDirectory}   = undef;
 	$envir{cgiURL}         = undef;
@@ -420,13 +364,7 @@ sub defineProblemEnvir {
 	$envir{MathJaxURL}        = $pg_env->{URLs}->{mathjax};
 	$envir{server_root_url}   = $pg_env->{server_root_url} || '';
 
-	# Information for sending mail
-
-	# Can we push this to webwork?
-
-	# $envir{mailSmtpServer} = $ce->{mail}->{smtpServer};
-	# $envir{mailSmtpSender} = $ce->{mail}->{smtpSender};
-	# $envir{ALLOW_MAIL_TO}  = $ce->{mail}->{allowedRecipients};
+	# Mail information is not needed here.
 
 	# Default values for evaluating answers
 

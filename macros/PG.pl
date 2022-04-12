@@ -4,7 +4,6 @@
 # provided by the translator
 # initialize PGcore and PGrandom
 
-
 sub _PG_init{
   $main::VERSION ="PG-2.15";
 
@@ -13,7 +12,7 @@ sub _PG_init{
   #  that don't load MathObjects.pl
   #
   %main::context = ();
-  Parser::Context->current(\%main::context);
+	Parser::Context->current(\%main::context);
 }
 
 our $PG;

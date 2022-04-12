@@ -107,6 +107,9 @@ sub new {
 	return $self;
 }
 
+use Renderer::Localize;
+
+
 sub initialize {
 	my $self = shift;
 	warn "environment is not defined in PGcore" unless ref($self->{envir}) eq 'HASH';
@@ -115,16 +118,16 @@ sub initialize {
 	$self->{PG_original_problem_seed}   = $self->{envir}->{problemSeed};
 	$self->{PG_random_generator}        = new PGrandom( $self->{PG_original_problem_seed});
 	$self->{problemSeed}                = $self->{PG_original_problem_seed};
-		$self->{tempDirectory}        		= $self->{envir}->{tempDirectory};
+	$self->{tempDirectory}        		= $self->{envir}->{tempDirectory};
 	$self->{PG_problem_grader}    		= $self->{envir}->{PROBLEM_GRADER_TO_USE};
-		$self->{PG_alias}             		= PGalias->new($self->{envir},
+	$self->{PG_alias}             		= PGalias->new($self->{envir},
 												WARNING_messages => $self->{WARNING_messages},
 												DEBUG_messages   => $self->{DEBUG_messages},
 										);
-	#$self->{maketext} =  WeBWorK::Localize::getLoc($self->{envir}->{language});
+	# $self->{maketext} =  Renderer::Localize::getLoc($self->{envir}->{language});
 	$self->{maketext} = $self->{envir}->{language_subroutine};
 	#$self->debug_message("PG alias created", $self->{PG_alias} );
-		$self->{PG_loadMacros}        = new PGloadfiles($self->{envir});
+	$self->{PG_loadMacros}        = new PGloadfiles($self->{envir});
 	$self->{flags} = {
 		showpartialCorrectAnswers => 1,
 		showHint                  => 1,
@@ -753,8 +756,13 @@ sub getUniqueName {
 		createDirectory
 
 =cut
+
+use Data::Dump;
+
 sub maketext {
 	my $self = shift;
+	warn 'in maketext\n';
+	dd @_;
 	# uncomment this to check to see if strings are run through
 	# maketext.
 	# return 'xXx'.  &{ $self->{maketext}}(@_).'xXx';

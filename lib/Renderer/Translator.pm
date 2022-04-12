@@ -164,8 +164,8 @@ which can be used by the PG problems.  The keyword 'reset' or 'erase' erases the
 sub evaluate_modules {
 	my $self    = shift;
 	my @modules = @_;
-	print Dumper "in evaluate_modules";
-	print Dumper \@modules;
+	# print Dumper "in evaluate_modules";
+	# print Dumper \@modules;
 	local $SIG{__DIE__} = "DEFAULT";    # we're going to be eval()ing code
 	foreach (@modules) {
 		#warn "attempting to load $_\n";
@@ -344,8 +344,9 @@ my %IO_shared_subroutine_hash = %Renderer::IO::SHARE;
 sub initialize {
 	my $self = shift;
 	print "in Translator::initialize\n";
+
 	my $safe_cmpt = $self->{safe};
-	print "initializing safeCompartment", $safe_cmpt->root(), "\n";
+	print "initializing safeCompartment ", $safe_cmpt->root(), "\n";
 
 	$safe_cmpt->share_from('Renderer::Translator', [ keys %Translator_shared_subroutine_hash ]);
 	$safe_cmpt->share_from('Renderer::IO',         [ keys %IO_shared_subroutine_hash ]);
@@ -363,6 +364,7 @@ sub initialize {
 	# The standalone renderer does this when the module is compiled.
 	unless (exists($ENV{MOJO_MODE})) {
 		$safe_cmpt->share_from('main', $self->{ra_included_modules});
+		# print Dumper $self->{ra_included_modules};
 	}
 }
 
@@ -376,7 +378,7 @@ sub environment {
 			$self->{errors} .= "ERROR: The environment method for PG_translate objects requires a reference to a hash";
 		}
 	}
-	$self->{envir};    #reference to current environment
+	return $self->{envir};    #reference to current environment
 }
 
 =head2   Safe compartment pass through macros
@@ -861,14 +863,14 @@ case the previously defined safe compartment is used. (See item 1.)
 
 	my ($PG_PROBLEM_TEXT_REF, $PG_HEADER_TEXT_REF, $PG_POST_HEADER_TEXT_REF,
 		$PG_ANSWER_HASH_REF, $PG_FLAGS_REF, $PGcore)
-		= $safe_cmpt->reval("   $evalString");
+		= $safe_cmpt->reval("$evalString");
 
-	print Dumper $PG_PROBLEM_TEXT_REF;
-	print Dumper $PG_HEADER_TEXT_REF;
-	print Dumper $PG_POST_HEADER_TEXT_REF;
-	print Dumper $PG_ANSWER_HASH_REF;
-	print Dumper $PG_FLAGS_REF;
-	print Dumper $PGcore;
+	# print Dumper $PG_PROBLEM_TEXT_REF;
+	# print Dumper $PG_HEADER_TEXT_REF;
+	# print Dumper $PG_POST_HEADER_TEXT_REF;
+	# print Dumper $PG_ANSWER_HASH_REF;
+	# print Dumper $PG_FLAGS_REF;
+	# print Dumper $PGcore;
 
 # This section could use some more error messages.  In particular if a problem doesn't produce the right output, the user needs
 # information about which problem was at fault.

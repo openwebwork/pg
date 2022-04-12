@@ -294,8 +294,6 @@ sub varglob {
 	return *{ $obj->root() . "::$var" };
 }
 
-use Data::Dumper;
-
 sub reval {
 	my ($obj, $expr, $strict) = @_;
 	my $root = $obj->{Root};

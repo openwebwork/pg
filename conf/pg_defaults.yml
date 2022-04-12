@@ -27,6 +27,7 @@ URLs:
 
   # relative path of MathJax
   mathjax: mathjax/es5/tex-chtml.js
+  equation_cache: tmp/equations
 
 environment:
   language: en
@@ -320,7 +321,7 @@ perl_modules:
   - ['GD']
   - ['AlgParser', 'AlgParserWithImplicitExpand', 'Expr', 'ExprWithImplicitExpand', 'utf8']
   - ['AnswerHash', 'AnswerEvaluator']
-  - ['TikZImage']
+  - ['LaTeXImage']
   - ['WWPlot'] # required by Circle (and others)
   - ['Circle']
   - ['Class::Accessor']
