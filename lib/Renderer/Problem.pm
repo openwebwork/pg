@@ -82,7 +82,7 @@ sub new {
 		if $self->{pg_env}->{renderer}->{catchWarnings};
 
 	# create a Translator
-	warn "PG: creating a Translator\n";
+	# warn "PG: creating a Translator\n";
 	$self->{translator} = Renderer::Translator->new;
 
 	for my $module_packages_ref (@{ $self->{pg_env}->{perl_modules} }) {
@@ -121,9 +121,6 @@ sub new {
 ############################################################################
 	# set the environment (from defineProblemEnvir)
 	############################################################################
-
-	print Dumper 'transOpts';
-	print Dumper $translationOptions;
 
 	warn "Problem: setting the environment (from defineProblemEnvir)\n";
 	my $envir = defineProblemEnvir(
@@ -223,6 +220,127 @@ sub render {
 	#warn "PG: translating the PG source into text\n";
 	$self->{translator}->translate();
 
+	my ($result, $state);    # we'll need these on the other side of the if block!
+	if ($translationOptions->{processAnswers}) {
+
+		############################################################################
+		# process student answers
+		############################################################################
+
+		#warn "PG: processing student answers\n";
+		$self->{translator}->process_answers($formFields);
+
+		############################################################################
+		# retrieve the problem state and give it to the translator
+		############################################################################
+		#warn "PG: retrieving the problem state and giving it to the translator\n";
+
+		$self->{translator}->rh_problem_state({
+			recorded_score       => $problem->{status},
+			sub_recorded_score   => $problem->{sub_status},
+			num_of_correct_ans   => $problem->{num_correct},
+			num_of_incorrect_ans => $problem->{num_incorrect},
+		});
+
+		############################################################################
+		# determine an entry order -- the ANSWER_ENTRY_ORDER flag is built by
+		# the PG macro package (PG.pl)
+		############################################################################
+		#warn "PG: determining an entry order\n";
+
+		my @answerOrder =
+			$self->{translator}->rh_flags->{ANSWER_ENTRY_ORDER}
+			? @{ $self->{translator}->rh_flags->{ANSWER_ENTRY_ORDER} }
+			: keys %{ $self->{translator}->rh_evaluated_answers };
+
+		############################################################################
+		# install a grader -- use the one specified in the problem,
+		# or fall back on the default from the course environment.
+		# (two magic strings are accepted, to avoid having to
+		# reference code when it would be difficult.)
+		############################################################################
+		#warn "PG: installing a grader\n";
+
+		my $grader = $self->{translator}->rh_flags->{PROBLEM_GRADER_TO_USE}
+			|| "avg_problem_grader";
+		$grader = $self->{translator}->rf_std_problem_grader
+			if $grader eq "std_problem_grader";
+		$grader = $self->{translator}->rf_avg_problem_grader
+			if $grader eq "avg_problem_grader";
+		die "Problem grader $grader is not a CODE reference."
+			unless ref $grader eq "CODE";
+		$self->{translator}->rf_problem_grader($grader);
+
+		############################################################################
+		# grade the problem
+		############################################################################
+		#warn "PG: grading the problem\n";
+
+		($result, $state) = $self->{translator}->grade_problem(
+			answers_submitted  => $translationOptions->{processAnswers},
+			ANSWER_ENTRY_ORDER => \@answerOrder,
+			%{$formFields},    #FIXME?  this is used by sequentialGrader is there a better way
+		);
+
+	}
+
+	############################################################################
+	# after we're done translating, we may have to clean up after the
+	# translator:
+	############################################################################
+
+	############################################################################
+	# HTML_dpng uses an ImageGenerator. We have to render the queued equations.
+	############################################################################
+	my $body_text_ref = $self->{translator}->r_text;
+	if ($image_generator) {
+		my $sourceFile = $ce->{courseDirs}->{templates} . "/" . $problem->source_file;
+		my %mtimeOption =
+			-e $sourceFile ? (mtime => (stat $sourceFile)[9]) : ();
+
+		$image_generator->render(
+			refresh => $translationOptions->{refreshMath2img},
+			%mtimeOption,
+			body_text => $body_text_ref,
+		);
+	}
+
+	############################################################################
+	# send any queued mail messages
+	############################################################################
+
+	#	if ($mailer) {
+	#		$mailer->send_messages;
+	#	}
+
+	############################################################################
+	# end of cleanup phase
+	############################################################################
+
+	############################################################################
+	# write timing log entry
+	############################################################################
+	# 	writeTimingLogEntry($ce, "WeBWorK::PG::new", "", "end");
+
+	############################################################################
+	# return an object which contains the translator and the results of
+	# the translation process.
+	############################################################################
+
+	return bless {
+		translator       => $self->{translator},
+		head_text        => ${ $self->{translator}->r_header },
+		post_header_text => ${ $self->{translator}->r_post_header },
+		body_text        => ${$body_text_ref},                   # from $self->{translator}->r_text
+		answers          => $self->{translator}->rh_evaluated_answers,
+		result           => $result,
+		state            => $state,
+		errors           => $self->{translator}->errors,
+		warnings         => $warnings,
+		flags            => $self->{translator}->rh_flags,
+		pgcore           => $self->{translator}->{rh_pgcore},
+	}, $class;
+
 }
 
 # This seems to be used only once.  No need to make it separate subroutine.
@@ -267,8 +385,6 @@ be used within a problem
 
 =cut
 
-use Data::Dump;
-
 sub defineProblemEnvir {
 	my (
 		$pg_env,
@@ -278,9 +394,7 @@ sub defineProblemEnvir {
 		$extras,
 	) = @_;
 
-	print Dumper 'in Renderer::Problem::defineProblemEnvir';
-
-	my %envir;
+	my %envir = %main::envir;
 
 	# This is an old problem set version number, but is used for other things currently.
 	$envir{psvn} = $psvn;
@@ -305,9 +419,8 @@ sub defineProblemEnvir {
 
 	$envir{language} = $pg_env->{environment}->{language};
 	# $envir{language_handle} = $pg_env->get_language_handle;
-	print Dumper 'defining maketext';
-	$envir{language_subroutine} = Renderer::Localize::getLoc($envir{language});
-	# $envir{language_subroutine} = $pg_env->{environment}->{maketext};
+	# $envir{language_subroutine} = Renderer::Localize::getLoc($envir{language});
+	$envir{language_subroutine} = sub { return @_; };
 	# $envir{language_subroutine} = $pg_env->maketext();
 	# $envir{language_subroutine} = sub {
 	# 	warn 'in Problem.pm';
@@ -319,9 +432,10 @@ sub defineProblemEnvir {
 	# };
 
 	# Are these needed?  Or should permission level be handled at a level above?
-	$envir{permissionLevel} = $translationOptions->{permissionLevel};    # permission level of actual user
-	$envir{effectivePermissionLevel} =
-		$translationOptions->{effectivePermissionLevel};    # permission level of user assigned to this question
+	# Permission level of actual user
+	$envir{permissionLevel} = $translationOptions->{permissionLevel};
+	# Permission level of user assigned to this question
+	$envir{effectivePermissionLevel} = $translationOptions->{effectivePermissionLevel};
 
 	$envir{inputs_ref} = $formFields;
 
@@ -347,8 +461,6 @@ sub defineProblemEnvir {
 	$envir{htmlPath}       = $pg_env->{environment}->{htmlPath};
 	$envir{imagesPath}     = $pg_env->{environment}->{imagesPath};
 	$envir{pdfPath}        = $pg_env->{environment}->{pdfPath};
-	# This is no longer needed.
-	# $envir{pgDirectories}          = $ce->{pg}->{directories};
 
 	# The following two are not used anywhere
 	# $envir{webworkHtmlDirectory}   = $ce->{webworkDirs}->{htdocs}."/";
@@ -411,6 +523,8 @@ sub defineProblemEnvir {
 	for my $SPGEV (keys %{$specialPGEnvironmentVarHash}) {
 		$envir{$SPGEV} = $specialPGEnvironmentVarHash->{$SPGEV};
 	}
+
+	# %main::envir = %envir;
 
 	return \%envir;
 }

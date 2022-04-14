@@ -66,7 +66,7 @@ they will not interfere with the normal behavior of WeBWorK in other courses.
 
 =cut
 
-our $debugON =1;
+our $debugON = 0;
 
 package PGloadfiles;
 use strict;

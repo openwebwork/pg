@@ -757,12 +757,8 @@ sub getUniqueName {
 
 =cut
 
-use Data::Dump;
-
 sub maketext {
 	my $self = shift;
-	warn 'in maketext\n';
-	dd @_;
 	# uncomment this to check to see if strings are run through
 	# maketext.
 	# return 'xXx'.  &{ $self->{maketext}}(@_).'xXx';

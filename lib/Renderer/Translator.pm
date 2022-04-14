@@ -164,8 +164,6 @@ which can be used by the PG problems.  The keyword 'reset' or 'erase' erases the
 sub evaluate_modules {
 	my $self    = shift;
 	my @modules = @_;
-	# print Dumper "in evaluate_modules";
-	# print Dumper \@modules;
 	local $SIG{__DIE__} = "DEFAULT";    # we're going to be eval()ing code
 	foreach (@modules) {
 		#warn "attempting to load $_\n";
@@ -865,13 +863,6 @@ case the previously defined safe compartment is used. (See item 1.)
 		$PG_ANSWER_HASH_REF, $PG_FLAGS_REF, $PGcore)
 		= $safe_cmpt->reval("$evalString");
 
-	# print Dumper $PG_PROBLEM_TEXT_REF;
-	# print Dumper $PG_HEADER_TEXT_REF;
-	# print Dumper $PG_POST_HEADER_TEXT_REF;
-	# print Dumper $PG_ANSWER_HASH_REF;
-	# print Dumper $PG_FLAGS_REF;
-	# print Dumper $PGcore;
-
 # This section could use some more error messages.  In particular if a problem doesn't produce the right output, the user needs
 # information about which problem was at fault.
 #
@@ -916,8 +907,6 @@ The original text string is given line numbers and concatenated to
 the errors.
 
 =cut
-
-	# print Dumper $self->{envir};
 
 	##########################################
 	###### PG error processing code ##########

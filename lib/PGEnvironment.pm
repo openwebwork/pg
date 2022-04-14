@@ -39,9 +39,6 @@ my $pg_dir;
 use YAML::XS qw/LoadFile/;
 use Renderer::Localize;
 
-
-# use Data::Dumper;
-
 BEGIN {
 	$pg_dir = $ENV{PG_ROOT};
 	die "The environmental variable PG_ROOT must be a directory" unless -d $pg_dir;

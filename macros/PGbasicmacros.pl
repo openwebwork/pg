@@ -97,7 +97,6 @@ my ($PAR,
 our %envir;
 
 sub _PGbasicmacros_init {
-	warn 'in _PGbasicmacros::init\n';
 	# The big problem is that at compile time in the cached Safe compartment
 	# main:: has one definition, probably Safe::Root1::
 	# At runtime main has another definition Safe::Rootx:: where x is > 1
@@ -107,9 +106,8 @@ sub _PGbasicmacros_init {
 	# of main::displayMode
 
 	$displayMode            = main::PG_restricted_eval(q!$main::displayMode!);
-	warn "$displayMode\n";
-	# This is initializes the remaining variables in the runtime main:: compartment.
 
+	# This is initializes the remaining variables in the runtime main:: compartment.
 	main::PG_restricted_eval( <<'EndOfFile');
 	$displayMode            = $displayMode;
 
@@ -186,15 +184,10 @@ EndOfFile
 	$GTE                 = GTE();
 	$BEGIN_ONE_COLUMN    = BEGIN_ONE_COLUMN();
 	$END_ONE_COLUMN      = END_ONE_COLUMN();
-	warn "in pgbasic::init\n";
 	$SOL                 = SOLUTION_HEADING();
-	warn "in pgbasic::init\n";
 	$SOLUTION            = SOLUTION_HEADING();
-	warn "in pgbasic::init\n";
 	$HINT                = HINT_HEADING();
-	warn "in pgbasic::init\n";
 	$US                  = US();
-	warn "in pgbasic::init\n";
 	$SPACE               = SPACE();
 	$NBSP                = NBSP();
 	$NDASH               = NDASH();
@@ -1562,15 +1555,12 @@ sub END_ONE_COLUMN { MODES(TeX =>
 		Latex2HTML => ' ', HTML => ' ');
 };
 sub SOLUTION_HEADING {
-		warn "in SOLUTION_HEADING\n";
-		warn maketext('Solution:');
-		warn 'next line:';
 		MODES( TeX => '{\\bf '.maketext('Solution:').' }',
 		Latex2HTML => '\\par {\\bf '.maketext('Solution:').' }',
 		HTML =>  '<B>'.maketext('Solution:').'</B> ',
 		PTX => '');
 };
-sub HINT_HEADING { MODES( TeX => "{\\bf ".maketext('Hint: ')."}", Latex2HTML => "\\par {\\bf ".maketext('Hint:')." }", HTML => "<B>".maketext('Hint:')."</B> ", PTX => ''); };
+sub HINT_HEADING { MODES( TeX => "{\\bf ".maketext('Hint:')."}", Latex2HTML => "\\par {\\bf ".maketext('Hint:')." }", HTML => "<B>".maketext('Hint:')."</B> ", PTX => ''); };
 sub US { MODES(TeX => '\\_', Latex2HTML => '\\_', HTML => '_', PTX => '_');};  # underscore, e.g. file${US}name
 sub SPACE { MODES(TeX => '\\ ',  Latex2HTML => '\\ ', HTML => '&nbsp;', PTX => ' ');};  # force a space in latex, doesn't force extra space in html
 sub NBSP { MODES(TeX => '~',  Latex2HTML => '~', HTML => '&nbsp;', PTX => '<nbsp/>');};

@@ -34,8 +34,6 @@ use Renderer::ImageGenerator;
 use Renderer::Utils qw(runtime_use formatDateTime makeTempDirectory);
 use Renderer::Utils::RestrictedClosureClass;
 
-# use Data::Dumper;
-
 use constant DISPLAY_MODES => {
 	# display name   # mode name
 	tex       => "TeX",

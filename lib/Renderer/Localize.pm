@@ -5,7 +5,9 @@ use File::Spec;
 use Locale::Maketext;
 use Locale::Maketext::Lexicon;
 
-my $pattern  = "/opt/webwork/pg/lib/Renderer/Localize/*.[pm]o";
+my $path = "/opt/webwork/pg/lib/Renderer/Localize";
+my $pattern = File::Spec->catfile($path, '*.[pm]o');
+
 my $decode   = 1;
 my $encoding = undef;
 
@@ -14,19 +16,19 @@ warn 'in Renderer::Localize';
 eval "
 	package Renderer::Localize::I18N;
 	use base 'Locale::Maketext';
-    # %Renderer::Localize::I18N::Lexicon = ( '_AUTO' => 1 );
+	%Renderer::Localize::I18N::Lexicon = ( '_AUTO' => 1 );
 	Locale::Maketext::Lexicon->import({
-			_auto => 1,
-	    # 'i-default' => [ 'Auto' ],
-	    '*'	=> [ Gettext => \$pattern ],
-	    _decode => \$decode,
-	    _encoding => \$encoding,
+		#_auto => 1,
+		'i-default' => [ 'Auto' ],
+		'*'	=> [ Gettext => \$pattern ],
+		_decode => \$decode,
+		_encoding => \$encoding,
 	});
 	*tense = sub { \$_[1] . ((\$_[2] eq 'present') ? 'ing' : 'ed') };
 
-" or die "Can't process eval in WeBWorK/Localize.pm: line 35:  " . $@;
+" or die "Can't process eval in WeBWorK/Localize.pm: line 29:  " . $@;
 
-# package Renderer::Localize;
+package Renderer::Localize;
 
 # use Renderer::Localize::I18N;
 
@@ -40,8 +42,6 @@ sub getLoc {
 	my $lang = shift;
 	my $lh   = Renderer::Localize::I18N->get_handle($lang);
 	return sub {
-		warn "in getLoc\n";
-		# dd $lh;
 		$lh->maketext(@_);
 	};
 }
