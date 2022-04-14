@@ -1,21 +1,19 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-# Translators:
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: webwork2\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2021-03-09 17:00-0600\n"
-"Last-Translator: Jason Aubrey <aubreyja@gmail.com>\n"
-"Language-Team: English (United States) (http://www.transifex.com/webwork/"
-"webwork2/language/en_US/)\n"
-"Language: en_US\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. (wwRound(0, $answerScore * 100)
 #: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:279
@@ -27,11 +25,8 @@ msgstr ""
 msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:1280
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:1289
-msgid ""
-"(Instructor hint preview: show the student hint after the following number "
-"of attempts:"
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1280 /opt/webwork/pg/macros/PGbasicmacros.pl:1289
+msgid "(Instructor hint preview: show the student hint after the following number of attempts:"
 msgstr ""
 
 #: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:420
@@ -66,8 +61,7 @@ msgstr ""
 msgid "FeedbackMessage"
 msgstr ""
 
-#: /opt/webwork/pg/macros/problemRandomize.pl:185
-#: /opt/webwork/pg/macros/problemRandomize.pl:186
+#: /opt/webwork/pg/macros/problemRandomize.pl:185 /opt/webwork/pg/macros/problemRandomize.pl:186
 msgid "Get a new version of this problem"
 msgstr ""
 
@@ -75,9 +69,7 @@ msgstr ""
 msgid "Go back to Part 1"
 msgstr ""
 
-#: /opt/webwork/pg/macros/compoundProblem.pl:291
-#: /opt/webwork/pg/macros/compoundProblem.pl:480
-#: /opt/webwork/pg/macros/compoundProblem.pl:491
+#: /opt/webwork/pg/macros/compoundProblem.pl:291 /opt/webwork/pg/macros/compoundProblem.pl:480 /opt/webwork/pg/macros/compoundProblem.pl:491
 msgid "Go on to next part"
 msgstr ""
 
@@ -105,8 +97,7 @@ msgstr ""
 msgid "Message"
 msgstr ""
 
-#: /opt/webwork/pg/macros/problemRandomize.pl:382
-#: /opt/webwork/pg/macros/problemRandomize.pl:407
+#: /opt/webwork/pg/macros/problemRandomize.pl:382 /opt/webwork/pg/macros/problemRandomize.pl:407
 msgid "Note:"
 msgstr ""
 
@@ -130,9 +121,7 @@ msgstr ""
 msgid "Show Correct Answers"
 msgstr ""
 
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:1558
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:1559
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:1560
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1558 /opt/webwork/pg/macros/PGbasicmacros.pl:1559 /opt/webwork/pg/macros/PGbasicmacros.pl:1560
 msgid "Solution:"
 msgstr ""
 
@@ -197,8 +186,7 @@ msgstr ""
 msgid "Your score was not recorded."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:649
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:660
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:649 /opt/webwork/pg/macros/PGbasicmacros.pl:660
 msgid "answer"
 msgstr ""
 
@@ -210,16 +198,12 @@ msgstr ""
 msgid "correct"
 msgstr ""
 
-# doe snot need to be translated
 #. ('j','k','_0')
 #. ('j','k')
-#: /opt/webwork/pg/lib/Parser/List/Vector.pm:35
-#: /opt/webwork/pg/lib/Value/Vector.pm:278
-#: /opt/webwork/pg/macros/contextLimitedVector.pl:94
+#: /opt/webwork/pg/lib/Parser/List/Vector.pm:35 /opt/webwork/pg/lib/Value/Vector.pm:278 /opt/webwork/pg/macros/contextLimitedVector.pl:94
 msgid "i"
 msgstr ""
 
-# does not need to be translated
 #: /opt/webwork/pg/macros/contextPiecewiseFunction.pl:774
 msgid "if"
 msgstr ""
@@ -244,8 +228,7 @@ msgstr ""
 msgid "row"
 msgstr ""
 
-#: /opt/webwork/pg/macros/compoundProblem.pl:470
-#: /opt/webwork/pg/macros/compoundProblem.pl:480
+#: /opt/webwork/pg/macros/compoundProblem.pl:470 /opt/webwork/pg/macros/compoundProblem.pl:480
 msgid "when you submit your answers"
 msgstr ""
 

@@ -15,90 +15,59 @@ msgstr ""
 
 #
 #. (wwRound(0, $answerScore * 100)
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:285
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:279
 msgid "%1% correct"
 msgstr ""
 
 #
 #. ($numBlanks)
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:434
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:432
 msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:1278
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:1287
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1280
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1289
 msgid ""
 "(Instructor hint preview: show the student hint after the following number "
 "of attempts:"
 msgstr ""
 
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:130
-msgid ""
-"A table showing all the current users along with several fields of user "
-"information. The fields from left to right are: Login Name, Login Status, "
-"Assigned Sets, First Name, Last Name, Email Address, Student ID, Enrollment "
-"Status, Section, Recitation, Comments, and Permission Level.  Clicking on "
-"the links in the column headers will sort the table by the field it "
-"corresponds to. The Login Name fields contain checkboxes for selecting the "
-"user.  Clicking the link of the name itself will allow you to act as the "
-"selected user.  There will also be an image link following the name which "
-"will take you to a page where you can edit the selected user's information.  "
-"Clicking the emails will allow you to email the corresponding user.  "
-"Clicking the links in the entries in the assigned sets columns will take you "
-"to a page where you can view and reassign the sets for the selected user."
-msgstr ""
-
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:422
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:420
 msgid "All of the answers above are correct."
 msgstr ""
 
 #
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:419
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:417
 msgid "All of the gradeable answers above are correct."
 msgstr ""
 
 #
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:317
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:314
 msgid "Answer Preview"
 msgstr "Aperçu des réponses"
 
 #
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:426
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:424
 msgid "At least one of the answers above is NOT correct."
 msgstr ""
 
 #
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
-msgid "Audit"
-msgstr ""
-
-#
-#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:293
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:306
 msgid "Check Answers"
 msgstr "Vérifier les réponses"
 
 #
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:319
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:316
 msgid "Correct Answer"
 msgstr ""
 
 #
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
-msgid "Drop"
-msgstr ""
-
-#
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
-msgid "Enrolled"
-msgstr "Inscrit"
-
-#
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:316
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:313
 msgid "Entered"
 msgstr "Saisi"
 
 #
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:270
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:264
 msgid "FeedbackMessage"
 msgstr ""
 
@@ -123,34 +92,25 @@ msgid "Hardcopy will always print the original version of the problem."
 msgstr ""
 
 #
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:1560
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1563
 msgid "Hint:"
 msgstr ""
 
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:1560
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1563
 msgid "Hint: "
-msgstr ""
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:116
-msgid ""
-"If you check %1 your login information will be remembered by the browser you "
-"are using, allowing you to visit WeBWorK pages without typing your user name "
-"and password (until your session expires). This feature is not safe for "
-"public workstations, untrusted machines, and machines over which you do not "
-"have direct control."
 msgstr ""
 
 #: /opt/webwork/pg/macros/problemRandomize.pl:408
 msgid "If you come back to it later, it may revert to its original version."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:1228
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1230
 msgid "Instructor solution preview: show the student solution after due date."
 msgstr ""
 
 # vérifier le contexte ...msgstr "tr: Match on what? (separate multiple IDs with commas)"
 #
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:320
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:317
 msgid "Message"
 msgstr ""
 
@@ -160,27 +120,17 @@ msgstr ""
 msgid "Note:"
 msgstr ""
 
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:134
-msgid "One Column"
-msgstr ""
-
 #
-#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:289
-#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:288
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:300
 msgid "Preview My Answers"
 msgstr ""
 
 #
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
-msgid "Proctor"
-msgstr ""
-
-#
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:318
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:315
 msgid "Result"
 msgstr "Résultat"
 
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:331
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:328
 msgid "Results for this submission"
 msgstr ""
 
@@ -188,122 +138,41 @@ msgstr ""
 msgid "Set random seed to:"
 msgstr ""
 
-#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:297
-#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:289
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:312
 msgid "Show Correct Answers"
 msgstr ""
 
 # avant: msgstr "tr: Drop"
 #
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:1556
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:1557
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1558
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1559
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1560
 msgid "Solution:"
 msgstr ""
 
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:1555
-msgid "Solution: "
-msgstr ""
-
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:410
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:408
 msgid "Some answers will be graded later."
 msgstr ""
-
-# avant: msgstr "ID de l'étudiant"
-#
-#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:290
-msgid "Submit Answers"
-msgstr "Soumettre les réponses"
 
 #: /opt/webwork/pg/macros/compoundProblem.pl:502
 msgid "Submit your answers again to go on to the next part."
 msgstr ""
 
 #
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:413
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:411
 msgid "The answer above is NOT correct."
 msgstr ""
 
 #
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:408
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:406
 msgid "The answer above is correct."
 msgstr "La réponse ci-dessus est correcte."
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:126
-msgid ""
-"The course %1 uses an external authentication system (%2). You've "
-"authenticated through that system, but aren't allowed to log in to this "
-"course."
-msgstr ""
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:124
-msgid ""
-"This course supports guest logins. Click %1 to log into this course as a "
-"guest."
-msgstr ""
 
 #: /opt/webwork/pg/macros/problemRandomize.pl:407
 msgid "This is a new (re-randomized) version of the problem."
 msgstr ""
 
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:128
-msgid ""
-"This is a table showing the current Homework sets for this class.  The "
-"fields from left to right are: Edit Set Data, Edit Problems, Edit Assigned "
-"Users, Visibility to students, Reduced Credit Enabled, Date it was opened, "
-"Date it is due, and the Date during which the answers are posted.  The Edit "
-"Set Data field contains checkboxes for selection and a link to the set data "
-"editing page.  The cells in the Edit Problems fields contain links which "
-"take you to a page where you can edit the containing problems, and the cells "
-"in the edit assigned users field contains links which take you to a page "
-"where you can edit what students the set is assigned to."
-msgstr ""
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:122
-msgid ""
-"This is the Achievement Editor.  It is used to edit the achievements "
-"available to students.  Please keep in mind the following facts: Achievments "
-"are displayed, and evaluated, in the order they are listed. The \"secret\" "
-"category creates achievements which are not visible to students until they "
-"are earned.  The \"level\" category is used for the achievements associated "
-"to a users level."
-msgstr ""
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:120
-msgid ""
-"This is the classlist editor page, where you can view and edit the records "
-"of all the students currently enrolled in this course.  The top of the page "
-"contains forms which allow you to filter which students to view, sort your "
-"students in a chosen order, edit student records, give new passwords to "
-"students, import/export student records from/to external files, or add/"
-"delete students.  To use, please select the action you would like to "
-"perform, enter in the relevant information in the fields below, and hit the "
-"\"Take Action!\" button at the bottom of the form.  The bottom of the page "
-"contains a table containing the student usernames and their information."
-msgstr ""
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:118
-msgid ""
-"This is the homework sets editor page where you can view and edit the "
-"homework sets that exist in this course and the problems that they contain. "
-"The top of the page contains forms which allow you to filter which sets to "
-"display in the table, sort the sets in a chosen order, edit homework sets, "
-"publish homework sets, import/export sets from/to an external file, score "
-"sets, or create/delete sets.  To use, please select the action you would "
-"like to perform, enter in the relevant information in the fields below, and "
-"hit the \"Take Action!\" button at the bottom of the form.  The bottom of "
-"the page contains a table displaying the sets and several pieces of relevant "
-"information."
-msgstr ""
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:132
-msgid ""
-"This is the past answer viewer.  Students can only see their answers, and "
-"they will not be able to see which parts are correct.  Instructors can view "
-"any users answers using the form below and the answers will be colored "
-"according to correctness."
-msgstr ""
-
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:3116
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:3041
 msgid "This problem contains a video which must be viewed online."
 msgstr ""
 
@@ -311,23 +180,10 @@ msgstr ""
 msgid "This problem has more than one part."
 msgstr ""
 
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:136
-msgid "Two Columns"
-msgstr ""
-
 # /home/francois/ExtractStrings/lib/WeBWorK/ContentGenerator/Problem.pm
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:279
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:273
 msgid "Ungraded"
 msgstr "Mise à jour réussie"
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:114
-msgid ""
-"WeBWorK has encountered a software error while attempting to process this "
-"problem. It is likely that there is an error in the problem itself. If you "
-"are a student, report this error message to your professor to have it "
-"corrected. If you are a professor, please consult the error output below for "
-"more information."
-msgstr ""
 
 #
 #: /opt/webwork/pg/macros/PGanswermacros.pl:1693
@@ -346,11 +202,11 @@ msgstr ""
 # avant: msgstr "Spécifier le code d'usager."  pour cohérence
 #
 #. (wwRound(0, $problemResult->{score} * 100)
-#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:265
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:271
 msgid "You received a score of %1 for this attempt."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:3111
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:3036
 msgid "Your browser does not support the video tag."
 msgstr ""
 
@@ -358,44 +214,26 @@ msgstr ""
 msgid "Your score for this attempt is for this part only;"
 msgstr ""
 
-#. (wwRound(0, $problemResult->{score} * 100)
-#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:225
-msgid "Your score on this attempt is %1"
-msgstr ""
-
 #
-#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:268
-#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:227
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:275
 msgid "Your score was not recorded."
-msgstr ""
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
-msgid "admin"
 msgstr ""
 
 #
 # vérifier le contexte: Je vois "answers due" et "answer available", mais pas answer date
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:647
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:658
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:649
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:660
 msgid "answer"
 msgstr ""
 
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:671
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:673
 msgid "column"
 msgstr ""
 
 #
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:276
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:270
 msgid "correct"
 msgstr "correct"
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
-msgid "grade_proctor"
-msgstr ""
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
-msgid "guest"
-msgstr ""
 
 #. ('j','k','_0')
 #. ('j','k')
@@ -410,45 +248,25 @@ msgid "if"
 msgstr ""
 
 #
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:283
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:277
 msgid "incorrect"
 msgstr "erroné"
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
-msgid "login_proctor"
-msgstr ""
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
-msgid "nobody"
-msgstr ""
 
 #: /opt/webwork/pg/macros/contextPiecewiseFunction.pl:777
 msgid "otherwise"
 msgstr ""
 
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:664
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:666
 msgid "part"
 msgstr ""
 
 #
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:653
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:655
 msgid "problem"
 msgstr ""
 
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
-msgid "professor"
-msgstr ""
-
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:670
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:672
 msgid "row"
-msgstr ""
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
-msgid "student"
-msgstr "étudiant"
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
-msgid "ta"
 msgstr ""
 
 #: /opt/webwork/pg/macros/compoundProblem.pl:470
@@ -459,6 +277,18 @@ msgstr ""
 #: /opt/webwork/pg/macros/compoundProblem.pl:604
 msgid "your overall score is for all the parts combined."
 msgstr ""
+
+#
+#~ msgid "Enrolled"
+#~ msgstr "Inscrit"
+
+# avant: msgstr "ID de l'étudiant"
+#
+#~ msgid "Submit Answers"
+#~ msgstr "Soumettre les réponses"
+
+#~ msgid "student"
+#~ msgstr "étudiant"
 
 #
 #, fuzzy

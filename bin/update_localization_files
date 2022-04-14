@@ -14,8 +14,8 @@ LOCDIR=$PG_ROOT/lib/Renderer/Localize
 
 cd $LOCDIR
 
-echo "Updating $LOCDIR/webwork2.pot"
+echo "Updating $LOCDIR/pg.pot"
 
-xgettext.pl -v -v -v -o webwork2.pot -D $PG_ROOT/lib -D $PG_ROOT/macros
+xgettext.pl -v -v -v -o pg.pot -D $PG_ROOT/lib -D $PG_ROOT/macros
 
 find $LOCDIR -name '*.po' -exec bash -c "echo \"Updating {}\"; msgmerge -qUN {} webwork2.pot" \;

@@ -22,87 +22,51 @@ msgstr ""
 "1 == 0) ? 1: (n % 10 == 0 && n % 1 == 0 && n > 10) ? 2 : 3;\n"
 
 #. (wwRound(0, $answerScore * 100)
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:285
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:279
 msgid "%1% correct"
 msgstr "%1% נכון"
 
 #. ($numBlanks)
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:434
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:432
 msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
 msgstr "%quant(%1, מהשאלות לא נענתה, מהשאלות לא נענו)."
 
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:1278
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:1287
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1280
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1289
 msgid ""
 "(Instructor hint preview: show the student hint after the following number "
 "of attempts:"
 msgstr "(צפייה ברמז למדריך: הראה לתלמיד את הרמז לאחר מספר זה של נסיונות:"
 
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:130
-msgid ""
-"A table showing all the current users along with several fields of user "
-"information. The fields from left to right are: Login Name, Login Status, "
-"Assigned Sets, First Name, Last Name, Email Address, Student ID, Enrollment "
-"Status, Section, Recitation, Comments, and Permission Level.  Clicking on "
-"the links in the column headers will sort the table by the field it "
-"corresponds to. The Login Name fields contain checkboxes for selecting the "
-"user.  Clicking the link of the name itself will allow you to act as the "
-"selected user.  There will also be an image link following the name which "
-"will take you to a page where you can edit the selected user's information.  "
-"Clicking the emails will allow you to email the corresponding user.  "
-"Clicking the links in the entries in the assigned sets columns will take you "
-"to a page where you can view and reassign the sets for the selected user."
-msgstr ""
-"טבלה שמראה את כל המשתמשים העשיויים ובנוסף מס' נתונים על המשתמשים. הנתונים "
-"מימין לשמאל: שם משתמש, מצב התחברות, אוספים שהוקצאו, שם פרטי, שם משפחה, כתובת "
-"דוא\"ל, מס' תלמיד, מצב לימודים, קבוצה, תרגול, תגובות, והרשאות. לחיצה על "
-"הקישורים בראש העמוד תמhין את הטבלה לפי הנתון המתאים. תאי שם המשתמשים מכילים "
-"ריבועים לסימון בחירת המשתמש. לחיצה על הקישור שבשם עצמו יאפשר פהתחזות לאותו "
-"משתמש. יהיה גם תמונת קישור לאחר השם שיוביל לעמוד בו ניתן את פרטי אותו "
-"המשתמש. לחיצה על דוא\"ל תאפשר שליחת דוא\"ל לאותו המשתמש. הקישורים בעמודת "
-"האוספים שהוקצאו מובילים לעמוד בו ניתן לראות ולהקצות אוספים עבור אותו משתשמש."
-
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:422
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:420
 msgid "All of the answers above are correct."
 msgstr "כל התשובות לעיל הן נכונות."
 
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:419
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:417
 msgid "All of the gradeable answers above are correct."
 msgstr "כל התשבות לעיל שניתנות לניקוד הן נכונות."
 
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:317
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:314
 msgid "Answer Preview"
 msgstr "תצוגה מקדימה של תשובות"
 
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:426
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:424
 msgid "At least one of the answers above is NOT correct."
 msgstr "לפחות אחת מהתשובות למעלה היא לא נכונה."
 
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
-msgid "Audit"
-msgstr "צופה"
-
-#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:293
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:306
 msgid "Check Answers"
 msgstr "בדוק תשובות"
 
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:319
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:316
 msgid "Correct Answer"
 msgstr "תשובה נכונה"
 
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
-msgid "Drop"
-msgstr "עזוב"
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
-msgid "Enrolled"
-msgstr "רשום"
-
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:316
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:313
 msgid "Entered"
 msgstr "הוכנס"
 
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:270
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:264
 msgid "FeedbackMessage"
 msgstr "הודעת משוב"
 
@@ -125,36 +89,23 @@ msgstr ""
 msgid "Hardcopy will always print the original version of the problem."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:1560
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1563
 msgid "Hint:"
 msgstr "רמז:"
 
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:1560
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1563
 msgid "Hint: "
 msgstr ""
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:116
-msgid ""
-"If you check %1 your login information will be remembered by the browser you "
-"are using, allowing you to visit WeBWorK pages without typing your user name "
-"and password (until your session expires). This feature is not safe for "
-"public workstations, untrusted machines, and machines over which you do not "
-"have direct control."
-msgstr ""
-"אם אתה בוחר את %1 פרטי ההתחברות שלך ישמרו על ידי הדפדפן שלך, מה שיאפשר לך "
-"לבקר בדפי WeBWorK בלי להקליד שם משתמש וסיסמה (עד שפג תוקף הביקור). אפשרות זו "
-"לא בטוחה עבור מקומות עובודה ציבוריים, מחשבים לא בטוחים, ומחשבים שבהם אתה לא "
-"שולט באופן ישיר."
 
 #: /opt/webwork/pg/macros/problemRandomize.pl:408
 msgid "If you come back to it later, it may revert to its original version."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:1228
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1230
 msgid "Instructor solution preview: show the student solution after due date."
 msgstr "הצגת פתרון למדריך: הראה לתלמיד פתרון לאחר מועד ההגשה."
 
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:320
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:317
 msgid "Message"
 msgstr "הודעה"
 
@@ -163,24 +114,15 @@ msgstr "הודעה"
 msgid "Note:"
 msgstr "הערה:"
 
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:134
-msgid "One Column"
-msgstr "עמודה אחת"
-
-#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:289
-#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:288
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:300
 msgid "Preview My Answers"
 msgstr "צפייה מוקדמת בתשובות שלי"
 
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:140
-msgid "Proctor"
-msgstr "משגיח"
-
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:318
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:315
 msgid "Result"
 msgstr "תוצאות"
 
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:331
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:328
 msgid "Results for this submission"
 msgstr "תוצאות של הגשה זו"
 
@@ -188,141 +130,37 @@ msgstr "תוצאות של הגשה זו"
 msgid "Set random seed to:"
 msgstr ""
 
-#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:297
-#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:289
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:312
 msgid "Show Correct Answers"
 msgstr ""
 
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:1556
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:1557
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1558
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1559
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:1560
 msgid "Solution:"
 msgstr "פתרון:"
 
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:1555
-msgid "Solution: "
-msgstr ""
-
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:410
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:408
 msgid "Some answers will be graded later."
 msgstr "חלק מהתשובות ינוקדו מאוחר יותר."
-
-#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:290
-msgid "Submit Answers"
-msgstr "שלח תשובות"
 
 #: /opt/webwork/pg/macros/compoundProblem.pl:502
 msgid "Submit your answers again to go on to the next part."
 msgstr "שלח את התשובות שוב כדי להתקדם לחלק הבא."
 
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:413
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:411
 msgid "The answer above is NOT correct."
 msgstr "התשובה לעיל היא לא נכונה."
 
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:408
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:406
 msgid "The answer above is correct."
 msgstr "התשובה למעלה נכונה."
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:126
-msgid ""
-"The course %1 uses an external authentication system (%2). You've "
-"authenticated through that system, but aren't allowed to log in to this "
-"course."
-msgstr ""
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:124
-msgid ""
-"This course supports guest logins. Click %1 to log into this course as a "
-"guest."
-msgstr "הקורס הזה תומך במשתמשים אורחים. לחץ %1 כדי להתחבר לקורס בתור אורח."
 
 #: /opt/webwork/pg/macros/problemRandomize.pl:407
 msgid "This is a new (re-randomized) version of the problem."
 msgstr "הנה גרסה חדשה של השאלה."
 
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:128
-msgid ""
-"This is a table showing the current Homework sets for this class.  The "
-"fields from left to right are: Edit Set Data, Edit Problems, Edit Assigned "
-"Users, Visibility to students, Reduced Credit Enabled, Date it was opened, "
-"Date it is due, and the Date during which the answers are posted.  The Edit "
-"Set Data field contains checkboxes for selection and a link to the set data "
-"editing page.  The cells in the Edit Problems fields contain links which "
-"take you to a page where you can edit the containing problems, and the cells "
-"in the edit assigned users field contains links which take you to a page "
-"where you can edit what students the set is assigned to."
-msgstr ""
-"טבלה זו מראה את אוספי שיעורי הבית הנוכחיים של כיתה זו. השדות משמאל לימין הם: "
-"ערוך נתוני גליון, ערוך שאלות, ערוך הקצאות משתמשים, ראות לתלמידים, מופעל "
-"ניקוד מופחת, תאריך פתיחה, תאריך הגשה, והתאריך בו התשובות מוצגות. שדה ה-"
-"\"ערוך נתוני גליון\" מכיל ריבועים לסימון בחירה וקישור לדף עריכת נתוני גליון. "
-"התאים בשדת \"ערוך שאלות\" מכילים קישורים שמפנים לדף שבו ניתן לערוך לאיזה "
-"תלמידים מוקצה הקורס/"
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:122
-msgid ""
-"This is the Achievement Editor.  It is used to edit the achievements "
-"available to students.  Please keep in mind the following facts: Achievments "
-"are displayed, and evaluated, in the order they are listed. The \"secret\" "
-"category creates achievements which are not visible to students until they "
-"are earned.  The \"level\" category is used for the achievements associated "
-"to a users level."
-msgstr ""
-"זהו עורך ההישגים.  הוא משמש לערוך את ההישגים שזמינים לתלמידים. אנא זכור את "
-"העובדות הבאות: הישגים הם מוצגים, ומוערכים, בסדר שהם רשומים. הקטגוריה ה-"
-"\"סודית\" יוצרת הישגים שמוחבאים מהתלמידים עד שהם הרוויחו אותם. הקטגורית ה-"
-"\"שלב\" משמשת להישגים שמקושרים לשלב המשתמש."
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:120
-#, fuzzy
-msgid ""
-"This is the classlist editor page, where you can view and edit the records "
-"of all the students currently enrolled in this course.  The top of the page "
-"contains forms which allow you to filter which students to view, sort your "
-"students in a chosen order, edit student records, give new passwords to "
-"students, import/export student records from/to external files, or add/"
-"delete students.  To use, please select the action you would like to "
-"perform, enter in the relevant information in the fields below, and hit the "
-"\"Take Action!\" button at the bottom of the form.  The bottom of the page "
-"contains a table containing the student usernames and their information."
-msgstr ""
-"זהו דף רשימת הכיתה, בו ניתן לצפות ולערוך את הנתונים של כל התלמידים שרשומים "
-"בקורס. החלק העליון של דף זה מכיל טפסים שמאפשרים לסנן את התלמדים, לסדר אותם "
-"לפי סדר מסויים, לערוך נתוני תלמידים, לתת להם סיסמ חדש, ליבא/ליצא נתוני "
-"תלמידים לקבצים חיצוניים, או להוסיף/למחוק תלמידים. לביצוע פעולה אנא בחר את "
-"הפעולה הרצוייה והחנס את המידע הדרוש בשדות למטה, ולחץ על כפתור \\\"בצע פעולה!"
-"\"\\ בתחתית הטופס. תחתית הדף כוללת טבלה שמכילה את שמות התלמידים ואת נתוניהם."
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:118
-#, fuzzy
-msgid ""
-"This is the homework sets editor page where you can view and edit the "
-"homework sets that exist in this course and the problems that they contain. "
-"The top of the page contains forms which allow you to filter which sets to "
-"display in the table, sort the sets in a chosen order, edit homework sets, "
-"publish homework sets, import/export sets from/to an external file, score "
-"sets, or create/delete sets.  To use, please select the action you would "
-"like to perform, enter in the relevant information in the fields below, and "
-"hit the \"Take Action!\" button at the bottom of the form.  The bottom of "
-"the page contains a table displaying the sets and several pieces of relevant "
-"information."
-msgstr ""
-"זהו דף עורך אוספי שיעורי הבית, שבו ניתן לצפות ולערוך אוספי שיעורי בית "
-"שקיימים בקורס ואת השאלות שהם מכילים. החל העליון של דף זה מכיל טפסים שמאפשרים "
-"סינון של האוספים, לסדר אותם בסדר מסויים, לערוך אוספי שיעורי בית, לפרסם אוספי "
-"שיעורי בית, ליבא/ליצא אוספים לקובץ חיצוני, לנקד אוספים, או ליצור/למחוק "
-"אוספים. ליצוע פעולה אנא בחר בעולה לביצוע, מלא את המידע הדרוש בשדות למטה, "
-"ולחץ על כפתור \\\"בצע פעולה!\"\\ בתחתית הטופס. תחתית הדף מכילה טבלה שמציגה "
-"את האוספים וכמה נתונים רלוונטים."
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:132
-msgid ""
-"This is the past answer viewer.  Students can only see their answers, and "
-"they will not be able to see which parts are correct.  Instructors can view "
-"any users answers using the form below and the answers will be colored "
-"according to correctness."
-msgstr ""
-
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:3116
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:3041
 msgid "This problem contains a video which must be viewed online."
 msgstr "השאלה מכילה וידיאו שיש לראות באופן מקוון."
 
@@ -330,25 +168,9 @@ msgstr "השאלה מכילה וידיאו שיש לראות באופן מקוו
 msgid "This problem has more than one part."
 msgstr ""
 
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:136
-msgid "Two Columns"
-msgstr "שתי עמודות"
-
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:279
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:273
 msgid "Ungraded"
 msgstr "לא נוקדו"
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:114
-msgid ""
-"WeBWorK has encountered a software error while attempting to process this "
-"problem. It is likely that there is an error in the problem itself. If you "
-"are a student, report this error message to your professor to have it "
-"corrected. If you are a professor, please consult the error output below for "
-"more information."
-msgstr ""
-"WeBWorK נתקלה שגיאת תוכנה בזמן הניסיון לעבד את שאלה זו. סביר להניח שיש שגיאה "
-"בשאלה עצמה. אם אתה תלמיד, דווח על הודעת שגיאה זו למרצה שלך כדי שיתקן את "
-"השאלה. אם אתה המרצה, אנא פנה לפלט השגיאה למטה למידע נוסף."
 
 #: /opt/webwork/pg/macros/PGanswermacros.pl:1693
 msgid "You can earn partial credit on this problem."
@@ -363,11 +185,11 @@ msgid "You may not change your answers when going on to the next part!"
 msgstr "לא ניתן לשנות תשובות כאשר אתה מתקדם לחלק הבא!"
 
 #. (wwRound(0, $problemResult->{score} * 100)
-#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:265
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:271
 msgid "You received a score of %1 for this attempt."
 msgstr "קיבלת ציון %1 עבור ניסיון זה"
 
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:3111
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:3036
 msgid "Your browser does not support the video tag."
 msgstr "הדפדפן שלך לא תומך ב-video tag."
 
@@ -375,41 +197,22 @@ msgstr "הדפדפן שלך לא תומך ב-video tag."
 msgid "Your score for this attempt is for this part only;"
 msgstr ""
 
-#. (wwRound(0, $problemResult->{score} * 100)
-#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:225
-msgid "Your score on this attempt is %1"
-msgstr ""
-
-#: /opt/webwork/pg/lib/FormatRenderedProblem.pm:268
-#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:227
+#: /opt/webwork/pg/lib/Renderer/FormatRenderedProblem.pm:275
 msgid "Your score was not recorded."
 msgstr "הניקוד שלך לא נשמר."
 
-# #short for administrator
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
-msgid "admin"
-msgstr "מנהל"
-
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:647
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:658
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:649
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:660
 msgid "answer"
 msgstr "תשובה"
 
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:671
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:673
 msgid "column"
 msgstr "עמודה"
 
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:276
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:270
 msgid "correct"
 msgstr "נכון"
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
-msgid "grade_proctor"
-msgstr "משגיח_ציון"
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
-msgid "guest"
-msgstr "אורח"
 
 # does not need to be translated
 #. ('j','k','_0')
@@ -425,45 +228,25 @@ msgstr "i"
 msgid "if"
 msgstr "if"
 
-#: /opt/webwork/pg/lib/WeBWorK/Utils/AttemptsTable.pm:283
+#: /opt/webwork/pg/lib/Renderer/Utils/AttemptsTable.pm:277
 msgid "incorrect"
 msgstr "לא נכון"
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
-msgid "login_proctor"
-msgstr "התחברות_משגיח"
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
-msgid "nobody"
-msgstr "אף אחד"
 
 #: /opt/webwork/pg/macros/contextPiecewiseFunction.pl:777
 msgid "otherwise"
 msgstr ""
 
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:664
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:666
 msgid "part"
 msgstr "חלק"
 
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:653
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:655
 msgid "problem"
 msgstr "שאלה"
 
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
-msgid "professor"
-msgstr "מרצה"
-
-#: /opt/webwork/pg/macros/PGbasicmacros.pl:670
+#: /opt/webwork/pg/macros/PGbasicmacros.pl:672
 msgid "row"
 msgstr "שורה"
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
-msgid "student"
-msgstr "תלמיד"
-
-#: /opt/webwork/pg/lib/Renderer/Localize.pm:138
-msgid "ta"
-msgstr "עוזר מורה"
 
 #: /opt/webwork/pg/macros/compoundProblem.pl:470
 #: /opt/webwork/pg/macros/compoundProblem.pl:480
@@ -473,6 +256,179 @@ msgstr ""
 #: /opt/webwork/pg/macros/compoundProblem.pl:604
 msgid "your overall score is for all the parts combined."
 msgstr ""
+
+#~ msgid ""
+#~ "A table showing all the current users along with several fields of user "
+#~ "information. The fields from left to right are: Login Name, Login Status, "
+#~ "Assigned Sets, First Name, Last Name, Email Address, Student ID, "
+#~ "Enrollment Status, Section, Recitation, Comments, and Permission Level.  "
+#~ "Clicking on the links in the column headers will sort the table by the "
+#~ "field it corresponds to. The Login Name fields contain checkboxes for "
+#~ "selecting the user.  Clicking the link of the name itself will allow you "
+#~ "to act as the selected user.  There will also be an image link following "
+#~ "the name which will take you to a page where you can edit the selected "
+#~ "user's information.  Clicking the emails will allow you to email the "
+#~ "corresponding user.  Clicking the links in the entries in the assigned "
+#~ "sets columns will take you to a page where you can view and reassign the "
+#~ "sets for the selected user."
+#~ msgstr ""
+#~ "טבלה שמראה את כל המשתמשים העשיויים ובנוסף מס' נתונים על המשתמשים. הנתונים "
+#~ "מימין לשמאל: שם משתמש, מצב התחברות, אוספים שהוקצאו, שם פרטי, שם משפחה, "
+#~ "כתובת דוא\"ל, מס' תלמיד, מצב לימודים, קבוצה, תרגול, תגובות, והרשאות. "
+#~ "לחיצה על הקישורים בראש העמוד תמhין את הטבלה לפי הנתון המתאים. תאי שם "
+#~ "המשתמשים מכילים ריבועים לסימון בחירת המשתמש. לחיצה על הקישור שבשם עצמו "
+#~ "יאפשר פהתחזות לאותו משתמש. יהיה גם תמונת קישור לאחר השם שיוביל לעמוד בו "
+#~ "ניתן את פרטי אותו המשתמש. לחיצה על דוא\"ל תאפשר שליחת דוא\"ל לאותו "
+#~ "המשתמש. הקישורים בעמודת האוספים שהוקצאו מובילים לעמוד בו ניתן לראות "
+#~ "ולהקצות אוספים עבור אותו משתשמש."
+
+#~ msgid "Audit"
+#~ msgstr "צופה"
+
+#~ msgid "Drop"
+#~ msgstr "עזוב"
+
+#~ msgid "Enrolled"
+#~ msgstr "רשום"
+
+#~ msgid ""
+#~ "If you check %1 your login information will be remembered by the browser "
+#~ "you are using, allowing you to visit WeBWorK pages without typing your "
+#~ "user name and password (until your session expires). This feature is not "
+#~ "safe for public workstations, untrusted machines, and machines over which "
+#~ "you do not have direct control."
+#~ msgstr ""
+#~ "אם אתה בוחר את %1 פרטי ההתחברות שלך ישמרו על ידי הדפדפן שלך, מה שיאפשר לך "
+#~ "לבקר בדפי WeBWorK בלי להקליד שם משתמש וסיסמה (עד שפג תוקף הביקור). אפשרות "
+#~ "זו לא בטוחה עבור מקומות עובודה ציבוריים, מחשבים לא בטוחים, ומחשבים שבהם "
+#~ "אתה לא שולט באופן ישיר."
+
+#~ msgid "One Column"
+#~ msgstr "עמודה אחת"
+
+#~ msgid "Proctor"
+#~ msgstr "משגיח"
+
+#~ msgid "Submit Answers"
+#~ msgstr "שלח תשובות"
+
+#~ msgid ""
+#~ "This course supports guest logins. Click %1 to log into this course as a "
+#~ "guest."
+#~ msgstr "הקורס הזה תומך במשתמשים אורחים. לחץ %1 כדי להתחבר לקורס בתור אורח."
+
+#~ msgid ""
+#~ "This is a table showing the current Homework sets for this class.  The "
+#~ "fields from left to right are: Edit Set Data, Edit Problems, Edit "
+#~ "Assigned Users, Visibility to students, Reduced Credit Enabled, Date it "
+#~ "was opened, Date it is due, and the Date during which the answers are "
+#~ "posted.  The Edit Set Data field contains checkboxes for selection and a "
+#~ "link to the set data editing page.  The cells in the Edit Problems fields "
+#~ "contain links which take you to a page where you can edit the containing "
+#~ "problems, and the cells in the edit assigned users field contains links "
+#~ "which take you to a page where you can edit what students the set is "
+#~ "assigned to."
+#~ msgstr ""
+#~ "טבלה זו מראה את אוספי שיעורי הבית הנוכחיים של כיתה זו. השדות משמאל לימין "
+#~ "הם: ערוך נתוני גליון, ערוך שאלות, ערוך הקצאות משתמשים, ראות לתלמידים, "
+#~ "מופעל ניקוד מופחת, תאריך פתיחה, תאריך הגשה, והתאריך בו התשובות מוצגות. "
+#~ "שדה ה-\"ערוך נתוני גליון\" מכיל ריבועים לסימון בחירה וקישור לדף עריכת "
+#~ "נתוני גליון. התאים בשדת \"ערוך שאלות\" מכילים קישורים שמפנים לדף שבו ניתן "
+#~ "לערוך לאיזה תלמידים מוקצה הקורס/"
+
+#~ msgid ""
+#~ "This is the Achievement Editor.  It is used to edit the achievements "
+#~ "available to students.  Please keep in mind the following facts: "
+#~ "Achievments are displayed, and evaluated, in the order they are listed. "
+#~ "The \"secret\" category creates achievements which are not visible to "
+#~ "students until they are earned.  The \"level\" category is used for the "
+#~ "achievements associated to a users level."
+#~ msgstr ""
+#~ "זהו עורך ההישגים.  הוא משמש לערוך את ההישגים שזמינים לתלמידים. אנא זכור "
+#~ "את העובדות הבאות: הישגים הם מוצגים, ומוערכים, בסדר שהם רשומים. הקטגוריה ה-"
+#~ "\"סודית\" יוצרת הישגים שמוחבאים מהתלמידים עד שהם הרוויחו אותם. הקטגורית ה-"
+#~ "\"שלב\" משמשת להישגים שמקושרים לשלב המשתמש."
+
+#, fuzzy
+#~ msgid ""
+#~ "This is the classlist editor page, where you can view and edit the "
+#~ "records of all the students currently enrolled in this course.  The top "
+#~ "of the page contains forms which allow you to filter which students to "
+#~ "view, sort your students in a chosen order, edit student records, give "
+#~ "new passwords to students, import/export student records from/to external "
+#~ "files, or add/delete students.  To use, please select the action you "
+#~ "would like to perform, enter in the relevant information in the fields "
+#~ "below, and hit the \"Take Action!\" button at the bottom of the form.  "
+#~ "The bottom of the page contains a table containing the student usernames "
+#~ "and their information."
+#~ msgstr ""
+#~ "זהו דף רשימת הכיתה, בו ניתן לצפות ולערוך את הנתונים של כל התלמידים "
+#~ "שרשומים בקורס. החלק העליון של דף זה מכיל טפסים שמאפשרים לסנן את התלמדים, "
+#~ "לסדר אותם לפי סדר מסויים, לערוך נתוני תלמידים, לתת להם סיסמ חדש, "
+#~ "ליבא/ליצא נתוני תלמידים לקבצים חיצוניים, או להוסיף/למחוק תלמידים. לביצוע "
+#~ "פעולה אנא בחר את הפעולה הרצוייה והחנס את המידע הדרוש בשדות למטה, ולחץ על "
+#~ "כפתור \\\"בצע פעולה!\"\\ בתחתית הטופס. תחתית הדף כוללת טבלה שמכילה את "
+#~ "שמות התלמידים ואת נתוניהם."
+
+#, fuzzy
+#~ msgid ""
+#~ "This is the homework sets editor page where you can view and edit the "
+#~ "homework sets that exist in this course and the problems that they "
+#~ "contain. The top of the page contains forms which allow you to filter "
+#~ "which sets to display in the table, sort the sets in a chosen order, edit "
+#~ "homework sets, publish homework sets, import/export sets from/to an "
+#~ "external file, score sets, or create/delete sets.  To use, please select "
+#~ "the action you would like to perform, enter in the relevant information "
+#~ "in the fields below, and hit the \"Take Action!\" button at the bottom of "
+#~ "the form.  The bottom of the page contains a table displaying the sets "
+#~ "and several pieces of relevant information."
+#~ msgstr ""
+#~ "זהו דף עורך אוספי שיעורי הבית, שבו ניתן לצפות ולערוך אוספי שיעורי בית "
+#~ "שקיימים בקורס ואת השאלות שהם מכילים. החל העליון של דף זה מכיל טפסים "
+#~ "שמאפשרים סינון של האוספים, לסדר אותם בסדר מסויים, לערוך אוספי שיעורי בית, "
+#~ "לפרסם אוספי שיעורי בית, ליבא/ליצא אוספים לקובץ חיצוני, לנקד אוספים, או "
+#~ "ליצור/למחוק אוספים. ליצוע פעולה אנא בחר בעולה לביצוע, מלא את המידע הדרוש "
+#~ "בשדות למטה, ולחץ על כפתור \\\"בצע פעולה!\"\\ בתחתית הטופס. תחתית הדף "
+#~ "מכילה טבלה שמציגה את האוספים וכמה נתונים רלוונטים."
+
+#~ msgid "Two Columns"
+#~ msgstr "שתי עמודות"
+
+#~ msgid ""
+#~ "WeBWorK has encountered a software error while attempting to process this "
+#~ "problem. It is likely that there is an error in the problem itself. If "
+#~ "you are a student, report this error message to your professor to have it "
+#~ "corrected. If you are a professor, please consult the error output below "
+#~ "for more information."
+#~ msgstr ""
+#~ "WeBWorK נתקלה שגיאת תוכנה בזמן הניסיון לעבד את שאלה זו. סביר להניח שיש "
+#~ "שגיאה בשאלה עצמה. אם אתה תלמיד, דווח על הודעת שגיאה זו למרצה שלך כדי "
+#~ "שיתקן את השאלה. אם אתה המרצה, אנא פנה לפלט השגיאה למטה למידע נוסף."
+
+# #short for administrator
+#~ msgid "admin"
+#~ msgstr "מנהל"
+
+#~ msgid "grade_proctor"
+#~ msgstr "משגיח_ציון"
+
+#~ msgid "guest"
+#~ msgstr "אורח"
+
+#~ msgid "login_proctor"
+#~ msgstr "התחברות_משגיח"
+
+#~ msgid "nobody"
+#~ msgstr "אף אחד"
+
+#~ msgid "professor"
+#~ msgstr "מרצה"
+
+#~ msgid "student"
+#~ msgstr "תלמיד"
+
+#~ msgid "ta"
+#~ msgstr "עוזר מורה"
 
 #~ msgid "# of active students"
 #~ msgstr "מספר תלמידים פעילים"
