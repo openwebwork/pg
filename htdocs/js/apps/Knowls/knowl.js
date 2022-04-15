@@ -55,7 +55,10 @@
 			} else {
 				insertElt = knowl.closest('li');
 				if (insertElt) {
-					insertElt.after(knowl.knowlContainer);
+					const newLi = document.createElement('li');
+					newLi.style.listStyle = 'none';
+					newLi.append(knowl.knowlContainer);
+					insertElt.after(newLi);
 				} else {
 					let append = false;
 					insertElt = knowl;
