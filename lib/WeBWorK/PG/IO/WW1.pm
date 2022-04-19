@@ -1,6 +1,16 @@
 ################################################################################
-# WeBWorK mod-perl (c) 2000-2002 WeBWorK Project
-# $Id$
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
 ################################################################################
 
 package WeBWorK::PG::IO::WW1;
@@ -22,7 +32,7 @@ BEGIN {
 		send_mail_to
 		surePathToTmpFile
 	);
-	
+
 	$WeBWorK::PG::IO::SHARE{$_} = __PACKAGE__ foreach @EXPORT;
 }
 
@@ -46,30 +56,30 @@ in a new environment. It uses the C<Net::SMTP> module.
 sub send_mail_to {
 	my $user_address = shift;   # user must be an instructor
 	my %options = @_;
-	
+
 	my $subject = '';
 	$subject = $options{'subject'} if defined($options{'subject'});
-	
+
 	my $msg_body = '';
 	$msg_body =$options{'body'} if defined($options{'body'});
-	
+
 	my @mail_to_allowed_list = ();
 	@mail_to_allowed_list = @{ $options{'ALLOW_MAIL_TO'} } if defined($options{'ALLOW_MAIL_TO'});
 	my $out;
-	
+
 	# check whether user is an instructor
 	my $mailing_allowed_flag = 0;
-	
+
 	while (@mail_to_allowed_list) {
 		if ($user_address eq shift @mail_to_allowed_list ) {
 			$mailing_allowed_flag =1;
 			last;
 		}
 	}
-	
+
 	my $REMOTE_HOST = (defined( $ENV{'REMOTE_HOST'} ) ) ? $ENV{'REMOTE_HOST'}: 'unknown host';
 	my $REMOTE_ADDR = (defined( $ENV{'REMOTE_ADDR'}) ) ? $ENV{'REMOTE_ADDR'}: 'unknown address';
-	
+
 	if ($mailing_allowed_flag) {
 		## mail header text:
 		my $email_msg ="To:  $user_address\n"
@@ -79,7 +89,7 @@ sub send_mail_to {
 		my $smtp = Net::SMTP->new($Global::smtpServer, Timeout=>10)
 			or warn "Couldn't contact SMTP server.";
 		$smtp->mail($Global::webmaster);
-		
+
 		if ( $smtp->recipient($user_address)) {  # this one's okay, keep going
 			$smtp->data( $email_msg)
 				or warn("Unknown problem sending message data to SMTP server.");
@@ -95,7 +105,7 @@ sub send_mail_to {
 			. "Permitted addresses are specified in the courseWeBWorK.ph file.";
 		$out = 0;
 	}
-	
+
 	return $out;
 }
 

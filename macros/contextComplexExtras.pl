@@ -1,7 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2012 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/contextComplexExtras.pl,v 1.0 2012/08/01 11:33:50 dpvc Exp $
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
