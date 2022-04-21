@@ -12,7 +12,7 @@
 	const setupMQInput = (mq_input) => {
 		const answerLabel = mq_input.id.replace(/^MaThQuIlL_/, '');
 		const input = document.getElementById(answerLabel);
-		const inputType = input.type;
+		const inputType = input?.type;
 		if (typeof(inputType) != 'string'
 			|| inputType.toLowerCase() !== 'text'
 			|| !input.classList.contains('codeshard'))
