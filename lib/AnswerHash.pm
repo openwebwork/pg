@@ -3,16 +3,26 @@
 ##
 ## Provides a data structure for answer hashes. Currently just a wrapper
 ## for the hash, but that might change
-####################################################################
-# Copyright @ 1995-2002 WeBWorK Team
-# All Rights Reserved
-####################################################################
+################################################################################
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
 #$Id$
 
 =head1 NAME
 
 	AnswerHash.pm -- located in the courseScripts directory
-	
+
 	This file contains the packages/classes:
 	AnswerHash   and AnswerEvaluator
 
@@ -20,14 +30,14 @@
 
 	AnswerHash  -- this class stores information related to the student's
 		       answer.  It is little more than a standard perl hash with
-		       a special name, but it does have some access and 
+		       a special name, but it does have some access and
 		       manipulation methods.  More of these may be added as it
 		       becomes necessary.
-		       
+
 	Usage:     $rh_ans = new AnswerHash;
-		       
+
 	AnswerEvaluator -- this class organizes the construction of
-			   answer evaluator subroutines which check the 
+			   answer evaluator subroutines which check the
 			   student's answer.  By plugging filters into the
 			   answer evaluator class you can customize the way the
 			   student's answer is normalized and checked.  Our hope
@@ -36,7 +46,7 @@
 			   combinations to obtain different answer evaluators,
 			   thus greatly reducing the programming and maintenance
 			   required for constructing answer evaluators.
-			   
+
 	Usage:  	$ans_eval  = new AnswerEvaluator;
 
 =cut
@@ -72,16 +82,16 @@ The answer hash class is guaranteed to contain the following instance variables:
 						This is displayed in the section reporting
 						the results of checking the student answers.
 
-	$ans_hash->{original_student_ans}	--	This is the original student answer. 
+	$ans_hash->{original_student_ans}	--	This is the original student answer.
 						 This is displayed on the preview page and may be used for
 						 sticky answers.
 
-	$ans_hash->{ans_message}		--	Any error message, or hint provided by 
+	$ans_hash->{ans_message}		--	Any error message, or hint provided by
 						the answer evaluator.
 						This is also displayed in the section reporting
 						the results of checking the student answers.
 
-	$ans_hash->{type}			--	A string indicating the type of answer evaluator. 
+	$ans_hash->{type}			--	A string indicating the type of answer evaluator.
 						This helps in preprocessing the student answer for errors.
 						Some examples:
 							'number_with_units'
@@ -97,13 +107,13 @@ The answer hash class is guaranteed to contain the following instance variables:
 						same as $ans_hash{student_ans}.
 
 
-	$ans_hash->{preview_latex_string}	--	
+	$ans_hash->{preview_latex_string}	--
 						THIS IS OPTIONAL. This is latex version of the student answer
 						which is used to show a typeset view on the answer on the preview
 						page. For a student answer of 2/3, this would be \frac{2}{3}.
 
 						'ans_message'			=>	'', # null string
-											
+
 						'preview_text_string'	=>	undef,
 						'preview_latex_string'	=>  undef,
 						'error_flag'			=>  undef,
@@ -116,7 +126,7 @@ The answer hash class is guaranteed to contain the following instance variables:
 
 BEGIN {
 #	main::be_strict(); # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
-    
+
 }
 
 package AnswerHash;
@@ -140,14 +150,14 @@ my %fields = (		'score'					=>	undef,
 =head4 new
 
 	Useage		$rh_anshash = new AnswerHash;
-	
+
 	returns an object of type AnswerHash.
-	
+
 =cut
 
 sub new {
 	my $class = shift @_;
-	
+
 	my $self  = {	'score'					=>	0,
 					'correct_ans'			=>	'No correct answer specified',
 					'student_ans'			=>	undef,
@@ -161,10 +171,10 @@ sub new {
 					'error_message'		    =>  '',
 
 	};	# return a reference to	a hash.
-	
+
 	bless $self, $class;
 	$self -> setKeys(@_);
-	
+
 	return $self;
 }
 
@@ -172,26 +182,26 @@ sub new {
 ## Checks to make sure that the keys are valid,
 ## then sets their value
 
-=head4 	setKeys		
-			
-			$rh_ans->setKeys(score=>1, student_answer => "yes");  
+=head4 	setKeys
+
+			$rh_ans->setKeys(score=>1, student_answer => "yes");
 			Sets standard elements in the AnswerHash (the ones defined
 			above). Will give error if one attempts to set non-standard keys.
-			
+
 			To set a non-standard element in a hash use
-			
+
 			$rh_ans->{non-standard-key} = newValue;
-			
+
 			There are no safety checks when using this method.
 
 =cut
 
- 
+
 sub setKeys {
     my $self = shift;
 	my %inits = @_;
 	foreach my $item (keys %inits) {
-		if ( exists $fields{$item} ) { 
+		if ( exists $fields{$item} ) {
 			$self -> {$item} = $inits{$item};
 		}
 		else {
@@ -206,14 +216,14 @@ sub setKeys {
 
 	Usage:      $rh_ans->data('foo');               set $rh_ans->{student_ans} = 'foo';
 	            $student_input = $rh_ans->data();   retrieve value of $rh_ans->{student_ans}
-	
+
 	synonym for input
 
-=head4  input	
+=head4  input
 
 	Usage:      $rh_ans->input('foo')    sets $rh_ans->{student_ans} = 'foo';
 				$student_input = $rh_ans->input();
-	
+
 	synonym for data
 
 =cut
@@ -230,16 +240,16 @@ sub input {     #$rh_ans->input('foo') is a synonym for $rh_ans->{student_ans}='
 	$self->{student_ans}
 }
 
-=head4  input	
+=head4  input
 
-	Usage:      $rh_ans->score(1)    
+	Usage:      $rh_ans->score(1)
 				$score = $rh_ans->score();
-	
+
 	Retrieve or set $rh_ans->{score}, the student's score on the problem.
 
 =cut
 
-sub score {     
+sub score {
 	my $self = shift;
     my $score = shift;
     $self->{score} = $score if defined($score);
@@ -276,20 +286,20 @@ sub stringify_hash {
 =head4 throw_error
 
 	Usage: 	$rh_ans->throw_error("FLAG", "message");
-	
-	FLAG is a distinctive word that describes the type of error.  
+
+	FLAG is a distinctive word that describes the type of error.
 	Examples are EVAL for an evaluation error or "SYNTAX" for a syntax error.
 	The entry $rh_ans->{error_flag} is set to "FLAG".
-	
+
 	The catch_error and clear_error methods use
 	this entry.
-	
+
 	message is a descriptive message for the end user, defining what error occured.
 
 =head4 catch_error
 
 	Usage:  $rh_ans->catch_error("FLAG2");
-	
+
 	Returns true (1) if  $rh_ans->{error_flag} equals "FLAG2", otherwise it returns
 	false (empty string).
 
@@ -298,8 +308,8 @@ sub stringify_hash {
 =head4 clear_error
 
 	Usage:   $rh_ans->clear_error("FLAG2");
-	
-	If $rh_ans->{error_flag} equals "FLAG2" then the {error_flag} entry is set to 
+
+	If $rh_ans->{error_flag} equals "FLAG2" then the {error_flag} entry is set to
 	the empty string as is the entry {error_message}
 
 =head4 error_flag
@@ -307,11 +317,11 @@ sub stringify_hash {
 =head4 error_message
 
 	Usage:    $flag = $rh_ans -> error_flag();
-			
+
 			  $message = $rh_ans -> error_message();
 
-	Retrieve or set the {error_flag} and {error_message} entries. 
-	
+	Retrieve or set the {error_flag} and {error_message} entries.
+
 	Use catch_error and throw_error where possible.
 
 =cut
@@ -359,15 +369,15 @@ sub error_message {
 # error print out method
 
 # =head4 pretty_print
-# 
-# 
+#
+#
 # 	Usage:      $rh_ans -> pretty_print();
-# 	
-# 	
+#
+#
 # 	Returns a string containing a representation of the AnswerHash as an HTML table.
-# 
+#
 # =cut
-# 
+#
 # sub pretty_print {
 #     my $r_input = shift;
 #     my $level = shift;
@@ -391,7 +401,7 @@ sub error_message {
 # 		while (@array) {
 # 			$out .= pretty_print(shift @array, $level) . " , ";
 # 		}
-# 		$out .= " )"; 
+# 		$out .= " )";
 # 	} elsif (ref($r_input) eq 'CODE') {
 # 		$out = "$r_input";
 # 	} else {
@@ -401,14 +411,14 @@ sub error_message {
 # 		$out;
 # }
 
-# action methods	
+# action methods
 
 =head4 OR
 
 	Usage:     $rh_ans->OR($rh_ans2);
-	
+
 	Returns a new AnswerHash whose score is the maximum of the scores in $rh_ans and $rh_ans2.
-	The correct answers for the two hashes are combined with "OR".  
+	The correct answers for the two hashes are combined with "OR".
 	The types are concatenated with "OR" as well.
 	Currently nothing is done with the error flags and messages.
 
@@ -418,9 +428,9 @@ sub error_message {
 
 
 	Usage:     $rh_ans->AND($rh_ans2);
-	
+
 	Returns a new AnswerHash whose score is the minimum of the scores in $rh_ans and $rh_ans2.
-	The correct answers for the two hashes are combined with "AND". 
+	The correct answers for the two hashes are combined with "AND".
 	The types are concatenated with "AND" as well.
 	 Currently nothing is done with the error flags and messages.
 
@@ -433,11 +443,11 @@ sub error_message {
 
 sub OR {
 	my $self = shift;
-	
+
 	my $rh_ans2 = shift;
 	my %options = @_;
 	return($self) unless defined($rh_ans2) and ref($rh_ans2) eq 'AnswerHash';
-	
+
 	my $out_hash = new AnswerHash;
 	# score is the maximum of the two scores
 	$out_hash->{score} = ( $self->{score}  <  $rh_ans2->{score} ) ? $rh_ans2->{score} :$self->{score};
@@ -498,17 +508,17 @@ use PGUtil qw(not_null pretty_print);
 
 sub new {
 	my $class = shift @_;
-	
+
 	my $self  = {	pre_filters 	=>	[ [\&blank_prefilter] ],
 					evaluators		=>	[],
 					post_filters	=>  [ [\&blank_postfilter] ],
 					debug			=>  0,
 					rh_ans		=>	new AnswerHash,
-					
+
 	};
-	
+
 	bless $self, $class;
-	$self->rh_ans(@_);    #initialize answer hash	
+	$self->rh_ans(@_);    #initialize answer hash
 	return $self;
 }
 sub clone {
@@ -527,15 +537,15 @@ sub dereference_array_ans {
 	}
 	$rh_ans;
 }
-	
+
 sub get_student_answer {
 	my $self           = shift;
-	my $input          = shift;	
+	my $input          = shift;
 	my %answer_options = @_;
 	my $display_input  = $input;
 	$display_input =~ s/\0/\\0/g;  # make null spacings visible
 	eval (q!main::DEBUG_MESSAGE(  "Raw student answer is |$display_input|")!) if $self->{debug};
-	$input = '' unless defined($input); 
+	$input = '' unless defined($input);
 	if (ref($input) =~/AnswerHash/) {
 		# in this case nothing needs to be done, since the student's answer is already in an answerhash.
 		# This is useful when an AnswerEvaluator is used as a filter in another answer evaluator.
@@ -544,17 +554,17 @@ sub get_student_answer {
 	   	$self-> {rh_ans} -> {original_student_ans} = " ( " .join(", ",@input) . " ) ";
 		$input = \@input;
 		$self-> {rh_ans} -> {student_ans} = $input;
-	} elsif (ref($input) eq 'ARRAY' ) {  # sometimes the answer may already be decoded into an array.   
+	} elsif (ref($input) eq 'ARRAY' ) {  # sometimes the answer may already be decoded into an array.
 	   	my @input = @$input;
 	   	$self-> {rh_ans} -> {original_student_ans} = " ( " .join(", ",@input) . " ) ";
 		$input = \@input;
 		$self-> {rh_ans} -> {student_ans} = $input;
 	} else {
-	    
+
 		$self-> {rh_ans} -> {original_student_ans} = $input;
 		$self-> {rh_ans} -> {student_ans} = $input;
 	}
-	$self->{rh_ans}->{ans_label}   = $answer_options{ans_label} if defined($answer_options{ans_label});	
+	$self->{rh_ans}->{ans_label}   = $answer_options{ans_label} if defined($answer_options{ans_label});
 	$self->{rh_ans}->{_filter_name} = 'get_student_answer';
 	$input;
 }
@@ -572,12 +582,12 @@ sub evaluate {
 	$self->get_student_answer(@_);
 	# dereference $self->{rh_ans};
 	my $rh_ans      =   $self ->{rh_ans};
-	$rh_ans->{error_flag}=undef;  #reset the error flags in case 
+	$rh_ans->{error_flag}=undef;  #reset the error flags in case
 	$rh_ans->{done}=undef;        #the answer evaluator is called twice
-	
+
     eval (q!main::DEBUG_MESSAGE( "<H3> Answer evaluator information: </H3>")!) if defined($self->{debug}) and $self->{debug}>0;
     $self->print_result_if_debug('pre_filter',$rh_ans);
-    
+
 	my @prefilters	= @{$self -> {pre_filters}};
 	$count = 0;  # the get student answer filter is counted as filter -1
 	foreach my $i	(@prefilters) {
@@ -630,7 +640,7 @@ sub print_result_if_debug {
 	    	my $name = (defined($rh_ans->{_filter_name})) ? $rh_ans->{_filter_name}: 'unnamed';
 	    	eval (q! main::DEBUG_MESSAGE( "\n $count. Result from queue $queue:  name: \"$name\"n", pretty_print($rh_ans,'html',4))
 	    	!);
-	    	++$count; 	
+	    	++$count;
 	 }
 	$rh_ans->{_filter_name} = undef;
 }
@@ -639,7 +649,7 @@ sub print_result_if_debug {
 # sub correct_answer_evaluate {
 # 	my $self 		= 	shift;
 # 	$self-> {rh_ans} -> {correct_ans} = shift @_;
-# 	my $rh_ans    =   $self ->{rh_ans}; 
+# 	my $rh_ans    =   $self ->{rh_ans};
 # 	my @prefilters	= @{$self -> {correct_answer_pre_filters}};
 # 	my $count = -1;  # the blank filter is counted as filter 0
 # 	foreach my $i	(@prefilters) {
@@ -669,7 +679,7 @@ sub print_result_if_debug {
 # 		$rh_ans 	= &$filter($rh_ans,@array);
 # 		warn "Filter Name:", $rh_ans->{_filter_name},"<BR>\n" if $self->{debug}>0 and defined($rh_ans->{_filter_name})
 # 	}
-# 	$rh_ans = $self->dereference_array_ans($rh_ans);   
+# 	$rh_ans = $self->dereference_array_ans($rh_ans);
 # 	# make sure that the student answer is not an array so that it is reported correctly in answer section.
 # 	warn "final result: ", $self->{rh_ans}->pretty_print() if defined($self->{debug}) and $self->{debug}>0;
 # 	$self ->{rh_ans} = $rh_ans;
@@ -811,7 +821,7 @@ sub withPostFilter {
 sub ans_hash {  #alias for rh_ans
 	my $self = shift;
 	$self->rh_ans(@_);
-}		
+}
 sub rh_ans {
 	my $self = shift;
 	my %in_hash = @_;
@@ -823,11 +833,11 @@ sub rh_ans {
 
 =head1 Description: Filters
 
-A filter is a subroutine which takes one AnswerHash as an input, followed by 
+A filter is a subroutine which takes one AnswerHash as an input, followed by
 a hash of options.
 
 		Usage:   filter($ans_hash, option1 =>value1, option2=> value2 );
-		
+
 
 The filter performs some operations on the input AnswerHash and returns an
 AnswerHash as output.
@@ -837,17 +847,17 @@ three queues:
 
 	pre_filters:	these normalize student input, prepare text and so forth
 	evaluators: 	these decide whether or not an answer is correct
-	post_filters:	typically these clean up error messages or process errors 
+	post_filters:	typically these clean up error messages or process errors
 					and generate error messages.
 
 If a filter detects an error it can throw an error message using the C<$rh_ans->throw_error()>
 method.  This skips the AnswerHash by all remaining pre_filter C<$rh_ans->catch_error>,
 decides how (
 or whether) it is supposed to handle the error and then passes the result on
-to the next post_filter.  
+to the next post_filter.
 
-Setting the flag C<$rh_ans->{done} = 1> will skip 
-the AnswerHash past the remaining post_filters.  
+Setting the flag C<$rh_ans->{done} = 1> will skip
+the AnswerHash past the remaining post_filters.
 
 
 =head3 Built in filters
@@ -867,7 +877,7 @@ the AnswerHash past the remaining post_filters.
 
 
 sub blank_prefilter  { # check for blanks
-	my $rh_ans = shift;  
+	my $rh_ans = shift;
 	$rh_ans->{_filter_name} = 'blank_prefilter';
     # undefined answers are BLANKS
 	( not defined($rh_ans->{student_ans}) ) && do {$rh_ans->throw_error("BLANK", 'The answer is blank');
@@ -882,7 +892,7 @@ sub blank_prefilter  { # check for blanks
  	$rh_ans;
 };
 
-sub blank_postfilter  { 
+sub blank_postfilter  {
 	my $rh_ans=shift;
 	$rh_ans->{_filter_name} = 'blank_postfilter';
     return($rh_ans) unless defined($rh_ans->{error_flag}) and $rh_ans->{error_flag} eq 'BLANK';
