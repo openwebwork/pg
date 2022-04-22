@@ -1174,7 +1174,8 @@ window.graphTool = (containerId, options) => {
 							if (e.key !== 'Tab' ||
 								(index === 0 && e.shiftKey) ||
 								(index === gt.graphedObjs.length - 1 && !e.shiftKey) ||
-								(a.length > 1 && ((pIndex === 0 && !e.shiftKey) || (pIndex === 1 && e.shiftKey)))
+								(a.length > 1 &&
+									((pIndex === 0 && !e.shiftKey) || (pIndex === a.length - 1 && e.shiftKey)))
 							)
 								return;
 
@@ -1194,8 +1195,8 @@ window.graphTool = (containerId, options) => {
 
 							obj.blur();
 						};
+						point.rendNode.addEventListener('keydown', point.focusOutHandler);
 					}
-					point.rendNode.addEventListener('keydown', point.focusOutHandler);
 
 					// Attach a focusin handler to all points to update the coordinates display.
 					point.focusInHandler = (e) => gt.setTextCoords(point.X(), point.Y());
