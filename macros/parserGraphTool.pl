@@ -25,55 +25,55 @@ answers.
 To create a GraphTool object pass a list of graph objects (discussed below) for the students to
 graph to GraphTool().  For example:
 
-	$gt = GraphTool("{line,solid,(0,0),(1,1)}", "{circle,dashed,(2,2),(4,2)}");
+    $gt = GraphTool("{line,solid,(0,0),(1,1)}", "{circle,dashed,(2,2),(4,2)}");
 
 or
 
-	$gt = GraphTool("{line,solid,(0,0),(1,1)}")->with(bBox => [-20, 20, 20, -20]);
+    $gt = GraphTool("{line,solid,(0,0),(1,1)}")->with(bBox => [-20, 20, 20, -20]);
 
 Then, for standard PG use $gt->ans_rule() to insert the JavaScript graph into the problem (or a
 print graph when a hard copy is generated), and $gt->cmp to produce the answer checker.  For
 example:
 
-	BEGIN_TEXT
-	Graph the line \(y = x\).
-	$PAR
-	\{$gt->ans_rule()\}
-	END_TEXT
+    BEGIN_TEXT
+    Graph the line \(y = x\).
+    $PAR
+    \{$gt->ans_rule()\}
+    END_TEXT
 
-	ANS($gt->cmp);
+    ANS($gt->cmp);
 
 For PGML you can just do
 
-	BEGIN_PGML
-	Graph the line [`y = x`].
+    BEGIN_PGML
+    Graph the line [`y = x`].
 
-	[_]{$gt}
-	END_PGML
+    [_]{$gt}
+    END_PGML
 
 =head1 GRAPH OBJECTS
 
-There are five types of graph objects that the students can graph.  Points, lines, circles,
-parabolas, and fills (or shading of a region).  The syntax for each of these objects to pass to
-the GraphTool constructor is summarized as follows.  Each object must be enclosed in braces.
-The first element in the braces must be the name of the object.  The following elements in the
-braces depend on the type of element.
+There are seven types of graph objects that the students can graph.  Points, lines, circles,
+parabolas, quadratics, cubics, and fills (or shading of a region).  The syntax for each of these
+objects to pass to the GraphTool constructor is summarized as follows.  Each object must be
+enclosed in braces.  The first element in the braces must be the name of the object.  The
+following elements in the braces depend on the type of element.
 
 For points the name "point" must be followed by the coordinates. For example:
 
-        "{point,(3,5)}"
+    "{point,(3,5)}"
 
 For lines the name "line" must be followed by the word "solid" or "dashed" to indicate if the
 line is expected to be drawn solid or dashed.  That is followed by two distinct points on the
 line.  For example:
 
-	"{line,dashed,(1,5),(3,4)}"
+    "{line,dashed,(1,5),(3,4)}"
 
 For circles the name "circle" must be followed by the word "solid" or "dashed" to indicate if
 the circle is expected to be drawn solid or dashed.  That is followed by the point that is to be
 the center of circle, and then by a point on the circle.  For example:
 
-	"{circle,solid,(1,1),(4,5)}"
+    "{circle,solid,(1,1),(4,5)}"
 
 For parabolas the name "parabola" must be followed by the word "solid" or "dashed" to indicate
 if the parabola is expected to be drawn solid or dashed.  The next element in the braces must be
@@ -81,12 +81,24 @@ the word "vertical" for a parabola that opens up or down, or "horizontal" for a 
 opens to the left or right.  That is followed by the vertex and then another point on the
 parabola.  For example:
 
-	"{parabola,solid,vertical,(1,0),(3,3)}"
+    "{parabola,solid,vertical,(1,0),(3,3)}"
+
+For three point quadratics the name "quadratic" must be followed by the word "solid" or "dashed"
+to indicate if the quadratic is expected to be drawn solid or dashed.  That is followed by the
+three points that define the quadratic.  For example:
+
+    "{quadratic,solid,(-1,2),(1,0),(3,3)}"
+
+For four point cubics the name "cubic" must be followed by the word "solid" or "dashed"
+to indicate if the cubic is expected to be drawn solid or dashed.  That is followed by the
+four points that define the cubic.  For example:
+
+    "{cubic,solid,(1,-3),(-1,2),(4,3),(3,2)}"
 
 For fills the name "fill" must be followed by a point in the region that is to be filled.  For
 example:
 
-	"{fill,(5,5)}"
+    "{fill,(5,5)}"
 
 The student answers that are returned by the JavaScript will be a list of the list objects
 discussed above and will be parsed by WeBWorK and passed to the checker as such.  The default
@@ -122,6 +134,17 @@ respectively.
 These are the number of minor (unlabeled) ticks between major ticks on the x and y axes,
 respectively.
 
+=item xAxisLabel, yAxisLabel (Default: xAxisLabel => 'x', yAxisLabel => 'y')
+
+Labels that will be added to the ends of the horizontal (x) and vertical (y) axes.  Note that the
+values of these options will be used in MathJax online and in LaTeX math mode in print.  These can
+also be set to the empty string '' to remove the labels.
+
+=item ariaDescription (Default: ariaDescription => '')
+
+This will be added to a hidden div that will be referenced in an aria-describedby attribute of
+the jsxgraph board.
+
 =item JSXGraphOptions (Default: undefined)
 
 This is an advanced option that you usually do not want to use.  It is usually constructed by
@@ -133,13 +156,13 @@ JXG.JSXGraph.initBoard at L<https://jsxgraph.org/docs/symbols/JXG.JSXGraph.html#
 For example the following value for JSXGraphOptions will give the same result for the JavaScript
 graph as the default values for the options above:
 
-	JSXGraphOptions => "{ boundingBox: [-10, 10, 10, -10]," .
-		"defaultAxes: {" .
-			"x: { ticks: { ticksDistance: 2, minorTicks: 1} }," .
-			"y: { ticks: { ticksDistance: 2, minorTicks: 1} }" .
-		"}," .
-		"grid: { gridX: 1, gridY: 1 }" .
-	"}"
+    JSXGraphOptions => "{ boundingBox: [-10, 10, 10, -10]," .
+        "defaultAxes: {" .
+            "x: { ticks: { ticksDistance: 2, minorTicks: 1} }," .
+            "y: { ticks: { ticksDistance: 2, minorTicks: 1} }" .
+        "}," .
+        "grid: { gridX: 1, gridY: 1 }" .
+    "}"
 
 =item snapSizeX, snapSizeY (Default: snapSizeX => 1, snapSizeY => 1)
 
@@ -151,12 +174,13 @@ multiples of the respective parameter.  These values must be greater than zero.
 Set this to 0 to disable the display of the coordinates in the lower right corner of the graph.
 
 =item availableTools (Default: availableTools => [ "LineTool", "CircleTool",
-	"VerticalParabolaTool", "HorizontalParabolaTool", "FillTool", "SolidDashTool" ])
+    "VerticalParabolaTool", "HorizontalParabolaTool", "FillTool", "SolidDashTool" ])
 
 This is an array of tools that will be made available for students to use in the graph tool.
 The order the tools are listed here will also be the order the tools are presented in the graph
 tool button box.  All of the tools that may be included are listed in the default options above,
-except for the "PointTool". Note that the case of the tool names must match what is shown.
+except for the "PointTool", the three point "QuadraticTool", and the four point "CubicTool".
+Note that the case of the tool names must match what is shown.
 
 =item staticObjects (Default: staticObjects => [])
 
@@ -184,206 +208,405 @@ This is the size of the graph that will be output when a hard copy of the proble
 =cut
 
 sub _parserGraphTool_init {
-	ADD_CSS_FILE("node_modules/jsxgraph/distrib/jsxgraph.css");
-	ADD_CSS_FILE("js/apps/GraphTool/graphtool.css");
-	ADD_JS_FILE("node_modules/jsxgraph/distrib/jsxgraphcore.js", 0, { defer => undef });
-	ADD_JS_FILE("js/apps/GraphTool/graphtool.js", 0, { defer => undef });
-	ADD_JS_FILE('js/apps/GraphTool/pointtool.js', 0, { defer => undef });
+	ADD_CSS_FILE('node_modules/jsxgraph/distrib/jsxgraph.css');
+	ADD_CSS_FILE('js/apps/GraphTool/graphtool.css');
+	ADD_JS_FILE('node_modules/jsxgraph/distrib/jsxgraphcore.js', 0, { defer => undef });
+	ADD_JS_FILE('js/apps/GraphTool/graphtool.js',                0, { defer => undef });
+	ADD_JS_FILE('js/apps/GraphTool/pointtool.js',                0, { defer => undef });
+	ADD_JS_FILE('js/apps/GraphTool/quadratictool.js',            0, { defer => undef });
+	ADD_JS_FILE('js/apps/GraphTool/cubictool.js',                0, { defer => undef });
 
 	main::PG_restricted_eval('sub GraphTool { parser::GraphTool->new(@_) }');
 }
 
-loadMacros("MathObjects.pl", "PGtikz.pl");
+loadMacros('MathObjects.pl', 'PGtikz.pl');
 
 package parser::GraphTool;
 our @ISA = qw(Value::List);
 
 our %contextStrings = (
-	line => {},
-	circle => {},
-	parabola => {},
-	vertical => {},
+	line       => {},
+	circle     => {},
+	parabola   => {},
+	vertical   => {},
 	horizontal => {},
-	fill => {},
-	solid => {},
-	dashed => {}
+	fill       => {},
+	solid      => {},
+	dashed     => {}
 );
 
 sub new {
-	my $self = shift; my $class = ref($self) || $self;
-	my $context = Parser::Context->getCopy("Point");
-	$context->parens->set('{' => {close => '}', type => 'List', formList => 1, formMatrix => 0, removable => 0});
-	$context->lists->set('GraphTool' => {class =>'Parser::List::List', open => '',  close => '',  separator => ', ',
-			nestedOpen => '{', nestedClose => ')'});
+	my $self    = shift;
+	my $class   = ref($self) || $self;
+	my $context = Parser::Context->getCopy('Point');
+	$context->parens->set('{' => { close => '}', type => 'List', formList => 1, formMatrix => 0, removable => 0 });
+	$context->lists->set(
+		'GraphTool' => {
+			class       => 'Parser::List::List',
+			open        => '',
+			close       => '',
+			separator   => ', ',
+			nestedOpen  => '{',
+			nestedClose => ')'
+		}
+	);
 	$context->strings->add(%contextStrings);
 	my $obj = $self->SUPER::new($context, @_);
 	return bless {
-		data => $obj->{data}, type => $obj->{type}, context => $context,
-		staticObjects => [], cmpOptions => {},
-		bBox => [-10, 10, 10, -10],
-		gridX => 1, gridY => 1, snapSizeX => 1, snapSizeY => 1,
-		ticksDistanceX => 2, ticksDistanceY => 2,
-		minorTicksX => 1, minorTicksY => 1,
+		data                => $obj->{data},
+		type                => $obj->{type},
+		context             => $context,
+		staticObjects       => [],
+		cmpOptions          => {},
+		bBox                => [ -10, 10, 10, -10 ],
+		gridX               => 1,
+		gridY               => 1,
+		snapSizeX           => 1,
+		snapSizeY           => 1,
+		ticksDistanceX      => 2,
+		ticksDistanceY      => 2,
+		minorTicksX         => 1,
+		minorTicksY         => 1,
+		xAxisLabel          => 'x',
+		yAxisLabel          => 'y',
+		ariaDescription     => '',
 		showCoordinateHints => 1,
-		availableTools => [
-			"LineTool",
-			"CircleTool",
-			"VerticalParabolaTool",
-			"HorizontalParabolaTool",
-			"FillTool",
-			"SolidDashTool"
-		],
+		availableTools      =>
+			[ 'LineTool', 'CircleTool', 'VerticalParabolaTool', 'HorizontalParabolaTool', 'FillTool', 'SolidDashTool' ],
 		texSize => 400
 	}, $class;
 }
 
 our %graphObjectTikz = (
-	point => {
-		code => sub {
-			my $self = shift;
-			my ($x, $y) = @{$_->{data}[1]{data}};
-			my $point = "($x,$y)";
-			return ("\\draw[line width=4pt,blue,fill=red] $point circle[radius=5pt];", [
-						$point,
-						sub { return ($_[0] - $x)**2 + ($_[1] - $y)**2; }
-					]);
-		}
-	},
 	line => {
 		code => sub {
 			my $self = shift;
 
-			my ($p1x, $p1y) = @{$_->{data}[2]{data}};
-			my ($p2x, $p2y) = @{$_->{data}[3]{data}};
+			my ($p1x, $p1y) = @{ $_->{data}[2]{data} };
+			my ($p2x, $p2y) = @{ $_->{data}[3]{data} };
 
 			if ($p1x == $p2x) {
 				# Vertical line
 				my $line = "($p1x,$self->{bBox}[3]) -- ($p1x,$self->{bBox}[1])";
-				return ("\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $line;\n", [
-						$line . "-- ($self->{bBox}[2],$self->{bBox}[1]) -- ($self->{bBox}[2],$self->{bBox}[3]) -- cycle",
+				return (
+					"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $line;\n",
+					[
+						$line
+							. "-- ($self->{bBox}[2],$self->{bBox}[1]) -- ($self->{bBox}[2],$self->{bBox}[3]) -- cycle",
 						sub { return $_[0] - $p1x; }
-					]);
+					]
+				);
 			} else {
 				# Non-vertical line
 				my $m = ($p2y - $p1y) / ($p2x - $p1x);
 				my $y = sub { return $m * ($_[0] - $p1x) + $p1y; };
-				my $line = "($self->{bBox}[0]," . &$y($self->{bBox}[0]) . ") -- " .
-				"($self->{bBox}[2]," . &$y($self->{bBox}[2]) . ")";
-				return ("\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $line;\n", [
-						$line .  "-- ($self->{bBox}[2],$self->{bBox}[1]) -- ($self->{bBox}[0],$self->{bBox}[1]) -- cycle",
+				my $line =
+					"($self->{bBox}[0],"
+					. &$y($self->{bBox}[0]) . ') -- '
+					. "($self->{bBox}[2],"
+					. &$y($self->{bBox}[2]) . ')';
+				return (
+					"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $line;\n",
+					[
+						$line
+							. "-- ($self->{bBox}[2],$self->{bBox}[1]) -- ($self->{bBox}[0],$self->{bBox}[1]) -- cycle",
 						sub { return $_[1] - &$y($_[0]); }
-					]);
+					]
+				);
 			}
 		}
 	},
 	circle => {
 		code => sub {
 			my $self = shift;
-			my ($cx, $cy) = @{$_->{data}[2]{data}};
-			my ($px, $py) = @{$_->{data}[3]{data}};
-			my $r = sqrt(($cx - $px) ** 2 + ($cy - $py) ** 2);
+			my ($cx, $cy) = @{ $_->{data}[2]{data} };
+			my ($px, $py) = @{ $_->{data}[3]{data} };
+			my $r      = sqrt(($cx - $px)**2 + ($cy - $py)**2);
 			my $circle = "($cx, $cy) circle[radius=$r]";
-			return ("\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $circle;\n",
-				[ $circle, sub { return $r - sqrt(($cx - $_[0]) ** 2 + ($cy - $_[1]) ** 2); } ]);
+			return (
+				"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $circle;\n",
+				[ $circle, sub { return $r - sqrt(($cx - $_[0])**2 + ($cy - $_[1])**2); } ]
+			);
 		}
 	},
 	parabola => {
 		code => sub {
 			my $self = shift;
-			my ($h, $k) = @{$_->{data}[3]{data}};
-			my ($px, $py) = @{$_->{data}[4]{data}};
+			my ($h,  $k)  = @{ $_->{data}[3]{data} };
+			my ($px, $py) = @{ $_->{data}[4]{data} };
 
 			if ($_->{data}[2] eq 'vertical') {
 				# Vertical parabola
-				my $a = ($py - $k) / ($px - $h) ** 2;
-				my $diff = sqrt((($a >= 0 ? $self->{bBox}[1] : $self->{bBox}[3]) - $k) / $a);
-				my $dmin = $h - $diff;
-				my $dmax = $h + $diff;
+				my $a        = ($py - $k) / ($px - $h)**2;
+				my $diff     = sqrt((($a >= 0 ? $self->{bBox}[1] : $self->{bBox}[3]) - $k) / $a);
+				my $dmin     = $h - $diff;
+				my $dmax     = $h + $diff;
 				my $parabola = "plot[domain=$dmin:$dmax,smooth](\\x,{$a*(\\x-($h))^2+($k)})";
-				return ("\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $parabola;\n",
-					[ $parabola, sub { return $a * ($_[1] - $a * ($_[0] - $h) ** 2 - $k); } ]);
+				return (
+					"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $parabola;\n",
+					[ $parabola, sub { return $a * ($_[1] - $a * ($_[0] - $h)**2 - $k); } ]
+				);
 			} else {
 				# Horizontal parabola
-				my $a = ($px - $h) / ($py - $k) ** 2;
-				my $diff = sqrt((($a >= 0 ? $self->{bBox}[2] : $self->{bBox}[0]) - $h) / $a);
-				my $dmin = $k - $diff;
-				my $dmax = $k + $diff;
+				my $a        = ($px - $h) / ($py - $k)**2;
+				my $diff     = sqrt((($a >= 0 ? $self->{bBox}[2] : $self->{bBox}[0]) - $h) / $a);
+				my $dmin     = $k - $diff;
+				my $dmax     = $k + $diff;
 				my $parabola = "plot[domain=$dmin:$dmax,smooth]({$a*(\\x-($k))^2+($h)},\\x)";
-				return ("\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $parabola;\n",
-					[ $parabola, sub { return $a * ($_[0] - $a * ($_[1] - $k) ** 2 - $h); } ]);
+				return (
+					"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $parabola;\n",
+					[ $parabola, sub { return $a * ($_[0] - $a * ($_[1] - $k)**2 - $h); } ]
+				);
 			}
 		}
 	},
 	fill => {
 		code => sub {
 			my ($self, $fill, $obj_data) = @_;
-			my ($fx, $fy) = @{$fill->{data}[1]{data}};
-			my $clip_code = "";
+			my ($fx, $fy) = @{ $fill->{data}[1]{data} };
+			my $clip_code = '';
 			for (@$obj_data) {
-				my $clip_dir = &{$_->[1]}($fx, $fy);
-				return "" if $clip_dir == 0;
-				$clip_code .= "\\clip " . ($clip_dir < 0 ? "[inverse clip]" : "") . $_->[0] . ";\n";
+				my $clip_dir = &{ $_->[1] }($fx, $fy);
+				return '' if $clip_dir == 0;
+				$clip_code .= "\\clip " . ($clip_dir < 0 ? '[inverse clip]' : '') . $_->[0] . ";\n";
 			}
-			return "\\begin{scope}\n\\clip[rounded corners=14pt] " .
-			"($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n" .
-			$clip_code .
-			"\\fill[yellow!40] ($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n" .
-			"\\end{scope}";
+			return
+				"\\begin{scope}\n\\clip[rounded corners=14pt] "
+				. "($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n"
+				. $clip_code
+				. "\\fill[yellow!40] "
+				. "($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n"
+				. "\\end{scope}";
 		},
 		fillType => 1
 	}
 );
 
-our $customGraphObjects = "";
-our $customTools = "";
+our $customGraphObjects = '';
+our $customTools        = '';
 
 sub addGraphObjects {
-	my $self = shift;
+	my $self    = shift;
 	my %objects = @_;
-	$customGraphObjects .= join(",", map { "$_: $objects{$_}{js}" } keys %objects) . ",";
+	$customGraphObjects .= join(',', map {"$_: $objects{$_}{js}"} keys %objects) . ',';
 
 	# Add the object's name and any other custom strings to the context strings, and add the
 	# code for generating the object in print to the %graphObjectTikz hash.
 	for (keys %objects) {
-		$contextStrings{$_} = {};
-		$contextStrings{$_} = {} for (@{$objects{$_}{strings}});
+		$contextStrings{$_}  = {};
+		$contextStrings{$_}  = {} for (@{ $objects{$_}{strings} });
 		$graphObjectTikz{$_} = $objects{$_}{tikz} if defined $objects{$_}{tikz};
 	}
 }
 
 sub addTools {
-	my $self = shift;
+	my $self  = shift;
 	my %tools = @_;
-	$customTools .= join(",", map { "$_: $tools{$_}" } keys %tools) . ",";
+	$customTools .= join(',', map {"$_: $tools{$_}"} keys %tools) . ',';
 }
 
-# The point tool is available for use by default.  It is added this way so that the javascript can be kept separate.
-parser::GraphTool->addGraphObjects(point => { js => 'graphTool.pointTool.graphObject' });
-parser::GraphTool->addTools(PointTool => 'graphTool.pointTool.graphTool');
+parser::GraphTool->addGraphObjects(
+	# The point graph object.
+	point => {
+		js   => 'graphTool.pointTool.Point',
+		tikz => {
+			code => sub {
+				my $self = shift;
+				my ($x, $y) = @{ $_->{data}[1]{data} };
+				my $point = "($x,$y)";
+				return (
+					"\\draw[line width=4pt,blue,fill=red] $point circle[radius=5pt];",
+					[ $point, sub { return ($_[0] - $x)**2 + ($_[1] - $y)**2; } ]
+				);
+			}
+		}
+	},
+	# A three point quadratic graph object.
+	quadratic => {
+		js   => 'graphTool.quadraticTool.Quadratic',
+		tikz => {
+			code => sub {
+				my $gt = shift;
+				my ($x1, $y1) = @{ $_->{data}[2]{data} };
+				my ($x2, $y2) = @{ $_->{data}[3]{data} };
+				my ($x3, $y3) = @{ $_->{data}[4]{data} };
 
-sub ANS_NAME
-{
+				my $den = ($x1 - $x2) * ($x1 - $x3) * ($x2 - $x3);
+				my $a   = (($x2 - $x3) * $y1 + ($x3 - $x1) * $y2 + ($x1 - $x2) * $y3) / $den;
+
+				if ($a == 0) {
+					# Colinear points
+					my $y = sub { return ($y2 - $y1) / ($x2 - $x1) * ($_[0] - $x1) + $y1; };
+					my $line =
+						"($gt->{bBox}[0]," . &$y($gt->{bBox}[0]) . ") -- ($gt->{bBox}[2]," . &$y($gt->{bBox}[2]) . ")";
+					return (
+						"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $line;\n",
+						[
+							"$line -- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
+							sub { return $_[1] - &$y($_[0]); }
+						]
+					);
+				} else {
+					# Non-degenerate quadratic
+					my $b = (($x3**2 - $x2**2) * $y1 + ($x1**2 - $x3**2) * $y2 + ($x2**2 - $x1**2) * $y3) / $den;
+					my $c =
+						(($x2 - $x3) * $x2 * $x3 * $y1 + ($x3 - $x1) * $x1 * $x3 * $y2 + ($x1 - $x2) * $x1 * $x2 * $y3)
+						/ $den;
+					my $h         = -$b / (2 * $a);
+					my $k         = $c - $b**2 / (4 * $a);
+					my $diff      = sqrt((($a >= 0 ? $gt->{bBox}[1] : $gt->{bBox}[3]) - $k) / $a);
+					my $dmin      = $h - $diff;
+					my $dmax      = $h + $diff;
+					my $quadratic = "plot[domain=$dmin:$dmax,smooth](\\x,{$a*(\\x)^2+($b)*\\x+($c)})";
+					return (
+						"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $quadratic;",
+						[ $quadratic, sub { return $a * ($_[1] - $a * $_[0]**2 - $b * $_[0] - $c); } ]
+					);
+				}
+			}
+		}
+	},
+	# A four point cubic graph object.
+	cubic => {
+		js   => "graphTool.cubicTool.Cubic",
+		tikz => {
+			code => sub {
+				my $gt = shift;
+				my ($x1, $y1) = @{ $_->{data}[2]{data} };
+				my ($x2, $y2) = @{ $_->{data}[3]{data} };
+				my ($x3, $y3) = @{ $_->{data}[4]{data} };
+				my ($x4, $y4) = @{ $_->{data}[5]{data} };
+
+				my $c3 =
+					($y1 / (($x1 - $x2) * ($x1 - $x3) * ($x1 - $x4)) +
+						$y2 / (($x2 - $x1) * ($x2 - $x3) * ($x2 - $x4)) +
+						$y3 / (($x3 - $x1) * ($x3 - $x2) * ($x3 - $x4)) +
+						$y4 / (($x4 - $x1) * ($x4 - $x2) * ($x4 - $x3)));
+				my $c2 =
+					((-$x2 - $x3 - $x4) * $y1 / (($x1 - $x2) * ($x1 - $x3) * ($x1 - $x4)) +
+						(-$x1 - $x3 - $x4) * $y2 / (($x2 - $x1) * ($x2 - $x3) * ($x2 - $x4)) +
+						(-$x1 - $x2 - $x4) * $y3 / (($x3 - $x1) * ($x3 - $x2) * ($x3 - $x4)) +
+						(-$x1 - $x2 - $x3) * $y4 / (($x4 - $x1) * ($x4 - $x2) * ($x4 - $x3)));
+
+				if ($c3 == 0 && $c2 == 0) {
+					# Colinear points
+					my $y = sub { return ($y2 - $y1) / ($x2 - $x1) * ($_[0] - $x1) + $y1; };
+					my $line =
+						"($gt->{bBox}[0]," . &$y($gt->{bBox}[0]) . ") -- ($gt->{bBox}[2]," . &$y($gt->{bBox}[2]) . ")";
+					return (
+						"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $line;\n",
+						[
+							"$line -- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
+							sub { return $_[1] - &$y($_[0]); }
+						]
+					);
+				} elsif ($c3 == 0) {
+					# Quadratic
+					my $den = ($x1 - $x2) * ($x1 - $x3) * ($x2 - $x3);
+					my $a   = (($x2 - $x3) * $y1 + ($x3 - $x1) * $y2 + ($x1 - $x2) * $y3) / $den;
+					my $b   = (($x3**2 - $x2**2) * $y1 + ($x1**2 - $x3**2) * $y2 + ($x2**2 - $x1**2) * $y3) / $den;
+					my $c =
+						(($x2 - $x3) * $x2 * $x3 * $y1 + ($x3 - $x1) * $x1 * $x3 * $y2 + ($x1 - $x2) * $x1 * $x2 * $y3)
+						/ $den;
+					my $h        = -$b / (2 * $a);
+					my $k        = $c - $b**2 / (4 * $a);
+					my $diff     = sqrt((($a >= 0 ? $gt->{bBox}[1] : $gt->{bBox}[3]) - $k) / $a);
+					my $dmin     = $h - $diff;
+					my $dmax     = $h + $diff;
+					my $parabola = "plot[domain=$dmin:$dmax,smooth](\\x,{$a*(\\x)^2+($b)*\\x+($c)})";
+					return (
+						"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $parabola;",
+						[ $parabola, sub { return $a * ($_[1] - $a * $_[0]**2 - $b * $_[0] - $c); } ]
+					);
+				} else {
+					# Non-degenerate cubic
+					my $cubic_function = sub {
+						return (($_[0] - $x2) *
+								($_[0] - $x3) *
+								($_[0] - $x4) *
+								$y1 /
+								(($x1 - $x2) * ($x1 - $x3) * ($x1 - $x4)) +
+								($_[0] - $x1) *
+								($_[0] - $x3) *
+								($_[0] - $x4) *
+								$y2 /
+								(($x2 - $x1) * ($x2 - $x3) * ($x2 - $x4)) +
+								($_[0] - $x1) *
+								($_[0] - $x2) *
+								($_[0] - $x4) *
+								$y3 /
+								(($x3 - $x1) * ($x3 - $x2) * ($x3 - $x4)) +
+								($_[0] - $x1) *
+								($_[0] - $x2) *
+								($_[0] - $x3) *
+								$y4 /
+								(($x4 - $x1) * ($x4 - $x2) * ($x4 - $x3)));
+					};
+
+					my $height     = $gt->{bBox}[1] - $gt->{bBox}[3];
+					my $lowerBound = $gt->{bBox}[3] - $height;
+					my $upperBound = $gt->{bBox}[1] + $height;
+					my $step       = ($gt->{bBox}[2] - $gt->{bBox}[0]) / 200;
+					my $x          = $gt->{bBox}[0];
+
+					my $coords;
+					do {
+						my $y = $cubic_function->($x);
+						$coords .= "($x,$y) " if $y >= $lowerBound && $y <= $upperBound;
+						$x += $step;
+					} while ($x < $gt->{bBox}[2]);
+
+					my $cubic = "plot[smooth] coordinates { $coords }";
+					return (
+						"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $cubic;",
+						[
+							$cubic
+								. (
+									$a > 0
+									? ("-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1])"
+										. "-- ($gt->{bBox}[0],$gt->{bBox}[3]) -- cycle")
+									: ("-- ($gt->{bBox}[2],$gt->{bBox}[3]) -- ($gt->{bBox}[0],$gt->{bBox}[3])"
+										. "-- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle")
+								),
+							sub { return $a * ($_[1] - $cubic_function->($_[0])); }
+						]
+					);
+				}
+			}
+		}
+	}
+);
+
+parser::GraphTool->addTools(
+	# The point tool.
+	PointTool => 'graphTool.pointTool.PointTool',
+	# A three point quadratic tool.
+	QuadraticTool => 'graphTool.quadraticTool.QuadraticTool',
+	# A four point cubic tool.
+	CubicTool => 'graphTool.cubicTool.CubicTool',
+);
+
+sub ANS_NAME {
 	my $self = shift;
 	$self->{name} = main::NEW_ANS_NAME() unless defined($self->{name});
 	return $self->{name};
 }
 
-sub type { return "List"; }
+sub type { return 'List'; }
 
 # Convert the GraphTool object's options into JSON that can be passed to the JavaScript
 # graphTool method.
-sub constructJSXGraphOptions
-{
+sub constructJSXGraphOptions {
 	my $self = shift;
 	return if defined($self->{JSXGraphOptions});
 	$self->{JSXGraphOptions} = JSON->new->encode({
-			boundingBox => $self->{bBox},
-			defaultAxes => {
-				x => { ticks => { ticksDistance => $self->{ticksDistanceX}, minorTicks => $self->{minorTicksX}} },
-				y => { ticks => { ticksDistance => $self->{ticksDistanceY}, minorTicks => $self->{minorTicksY}} }
-			},
-			grid => { gridX => $self->{gridX}, gridY => $self->{gridY} }
-		});
+		boundingBox => $self->{bBox},
+		defaultAxes => {
+			x => { ticks => { ticksDistance => $self->{ticksDistanceX}, minorTicks => $self->{minorTicksX} } },
+			y => { ticks => { ticksDistance => $self->{ticksDistanceY}, minorTicks => $self->{minorTicksY} } }
+		},
+		grid => { gridX => $self->{gridX}, gridY => $self->{gridY} }
+	});
 }
 
 # Produce a hidden answer rule to contain the JavaScript result and insert the graphbox div and
@@ -392,18 +615,20 @@ sub constructJSXGraphOptions
 # look as much as possible like the JavaScript graph.
 sub ans_rule {
 	my $self = shift;
-	my $out = main::NAMED_HIDDEN_ANS_RULE($self->ANS_NAME);
+	my $out  = main::NAMED_HIDDEN_ANS_RULE($self->ANS_NAME);
 
 	if ($main::displayMode eq 'TeX') {
-		return &{$self->{printGraph}}
-		if defined($self->{printGraph}) && ref($self->{printGraph}) eq 'CODE';
+		return &{ $self->{printGraph} }
+			if defined($self->{printGraph}) && ref($self->{printGraph}) eq 'CODE';
 
 		my @size = (500, 500);
 
 		my $graph = main::createTikZImage();
-		$graph->tikzLibraries("arrows.meta");
-		$graph->tikzOptions("x=" . ($size[0] / 96 / ($self->{bBox}[2] - $self->{bBox}[0])) . "in," .
-			"y=" . ($size[1] / 96 / ($self->{bBox}[1] - $self->{bBox}[3])) . "in");
+		$graph->tikzLibraries('arrows.meta');
+		$graph->tikzOptions('x='
+				. ($size[0] / 96 / ($self->{bBox}[2] - $self->{bBox}[0])) . 'in,y='
+				. ($size[1] / 96 / ($self->{bBox}[1] - $self->{bBox}[3]))
+				. 'in');
 
 		my $tikz = <<END_TIKZ;
 \n\\tikzset{
@@ -424,71 +649,81 @@ sub ans_rule {
 END_TIKZ
 
 		# Vertical grid lines
-		my @xGridLines = grep { $_ < $self->{bBox}[2] } map { $_ * $self->{gridX} }
-			(1 .. $self->{bBox}[2] / $self->{gridX});
-		push(@xGridLines, grep { $_ > $self->{bBox}[0] } map { -$_ * $self->{gridX} }
-			(1 .. -$self->{bBox}[0] / $self->{gridX}));
-		$tikz .= "\\foreach \\x in {" . join(",", @xGridLines) .
-			"}{\\draw[line width=0.2pt,color=lightgray] (\\x,$self->{bBox}[3]) -- (\\x,$self->{bBox}[1]);}\n"
-		if (@xGridLines);
+		my @xGridLines =
+			grep { $_ < $self->{bBox}[2] } map { $_ * $self->{gridX} } (1 .. $self->{bBox}[2] / $self->{gridX});
+		push(@xGridLines,
+			grep { $_ > $self->{bBox}[0] } map { -$_ * $self->{gridX} } (1 .. -$self->{bBox}[0] / $self->{gridX}));
+		$tikz .=
+			"\\foreach \\x in {"
+			. join(',', @xGridLines)
+			. "}{\\draw[line width=0.2pt,color=lightgray] (\\x,$self->{bBox}[3]) -- (\\x,$self->{bBox}[1]);}\n"
+			if (@xGridLines);
 
 		# Horizontal grid lines
-		my @yGridLines = grep { $_ < $self->{bBox}[1] } map { $_ * $self->{gridY} }
-			(1 .. $self->{bBox}[1] / $self->{gridY});
-		push(@yGridLines, grep { $_ > $self->{bBox}[3] } map { -$_ * $self->{gridY} }
-			(1 .. -$self->{bBox}[3] / $self->{gridY}));
-		$tikz .= "\\foreach \\y in {" . join(",", @yGridLines) .
-			"}{\\draw[line width=0.2pt,color=lightgray] ($self->{bBox}[0],\\y) -- ($self->{bBox}[2],\\y);}\n"
-		if (@yGridLines);
+		my @yGridLines =
+			grep { $_ < $self->{bBox}[1] } map { $_ * $self->{gridY} } (1 .. $self->{bBox}[1] / $self->{gridY});
+		push(@yGridLines,
+			grep { $_ > $self->{bBox}[3] } map { -$_ * $self->{gridY} } (1 .. -$self->{bBox}[3] / $self->{gridY}));
+		$tikz .=
+			"\\foreach \\y in {"
+			. join(',', @yGridLines)
+			. "}{\\draw[line width=0.2pt,color=lightgray] ($self->{bBox}[0],\\y) -- ($self->{bBox}[2],\\y);}\n"
+			if (@yGridLines);
 
 		# Axis and labels.
 		$tikz .= <<END_TIKZ;
 \\huge
-\\draw[<->,thick] ($self->{bBox}[0],0) -- ($self->{bBox}[2],0) node[above left,outer sep=2pt]{\$x\$};
-\\draw[<->,thick] (0,$self->{bBox}[3]) -- (0,$self->{bBox}[1]) node[below right,outer sep=2pt]{\$y\$};
+\\draw[<->,thick] ($self->{bBox}[0],0) -- ($self->{bBox}[2],0) node[above left,outer sep=2pt]{\$$self->{xAxisLabel}\$};
+\\draw[<->,thick] (0,$self->{bBox}[3]) -- (0,$self->{bBox}[1]) node[below right,outer sep=2pt]{\$$self->{yAxisLabel}\$};
 END_TIKZ
 
 		# Horizontal axis ticks and labels
-		my @xTicks = grep { $_ < $self->{bBox}[2] } map { $_ * $self->{ticksDistanceX} }
-			(1 .. $self->{bBox}[2] / $self->{ticksDistanceX});
-		push(@xTicks, grep { $_ > $self->{bBox}[0] } map { -$_ * $self->{ticksDistanceX} }
-			(1 .. -$self->{bBox}[0] / $self->{ticksDistanceX}));
-		$tikz .= "\\foreach \\x in {" . join(",", @xTicks) .
-			"}{\\draw[thin] (\\x,5pt) -- (\\x,-5pt) node[below]{\$\\x\$};}\n"
-		if (@xTicks);
+		my @xTicks = grep { $_ < $self->{bBox}[2] }
+			map { $_ * $self->{ticksDistanceX} } (1 .. $self->{bBox}[2] / $self->{ticksDistanceX});
+		push(@xTicks,
+			grep { $_ > $self->{bBox}[0] }
+			map { -$_ * $self->{ticksDistanceX} } (1 .. -$self->{bBox}[0] / $self->{ticksDistanceX}));
+		$tikz .=
+			"\\foreach \\x in {"
+			. join(',', @xTicks)
+			. "}{\\draw[thin] (\\x,5pt) -- (\\x,-5pt) node[below]{\$\\x\$};}\n"
+			if (@xTicks);
 
 		# Vertical axis ticks and labels
-		my @yTicks = grep { $_ < $self->{bBox}[1] } map { $_ * $self->{ticksDistanceY} }
-			(1 .. $self->{bBox}[1] / $self->{ticksDistanceY});
-		push(@yTicks, grep { $_ > $self->{bBox}[3] } map { -$_ * $self->{ticksDistanceY} }
-			(1 .. -$self->{bBox}[3] / $self->{ticksDistanceY}));
-		$tikz .= "\\foreach \\y in {" . join(",", @yTicks) .
-			"}{\\draw[thin] (5pt,\\y) -- (-5pt,\\y) node[left]{\$\\y\$};}\n"
-		if (@yTicks);
+		my @yTicks = grep { $_ < $self->{bBox}[1] }
+			map { $_ * $self->{ticksDistanceY} } (1 .. $self->{bBox}[1] / $self->{ticksDistanceY});
+		push(@yTicks,
+			grep { $_ > $self->{bBox}[3] }
+			map { -$_ * $self->{ticksDistanceY} } (1 .. -$self->{bBox}[3] / $self->{ticksDistanceY}));
+		$tikz .=
+			"\\foreach \\y in {"
+			. join(',', @yTicks)
+			. "}{\\draw[thin] (5pt,\\y) -- (-5pt,\\y) node[left]{\$\\y\$};}\n"
+			if (@yTicks);
 
 		# Border box
-		$tikz .= "\\draw[borderblue,rounded corners=14pt,thick] " .
-			"($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n";
-
+		$tikz .= "\\draw[borderblue,rounded corners=14pt,thick] "
+			. "($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n";
 
 		# Graph the points, lines, circles, and parabolas.
-		if (@{$self->{staticObjects}}) {
-			my $obj = $self->SUPER::new($self->{context}, @{$self->{staticObjects}});
+		if (@{ $self->{staticObjects} }) {
+			my $obj = $self->SUPER::new($self->{context}, @{ $self->{staticObjects} });
 
 			# Switch to the foreground layer and clipping box for the objects.
 			$tikz .= "\\begin{pgfonlayer}{foreground}\n";
-			$tikz .= "\\clip[rounded corners=14pt] " .
-				"($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n";
+			$tikz .= "\\clip[rounded corners=14pt] "
+				. "($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n";
 
 			my @obj_data;
 
 			# First graph lines, parabolas, and circles.  Cache the clipping path and a function
 			# for determining which side of the object to shade for filling later.
-			for (@{$obj->{data}}) {
-				next unless (ref($graphObjectTikz{$_->{data}[0]}) eq 'HASH' &&
-					ref($graphObjectTikz{$_->{data}[0]}{code}) eq 'CODE' &&
-					!$graphObjectTikz{$_->{data}[0]}{fillType});
-				my ($object_tikz, $object_data) = $graphObjectTikz{$_->{data}[0]}{code}->($self, $_);
+			for (@{ $obj->{data} }) {
+				next
+					unless (ref($graphObjectTikz{ $_->{data}[0] }) eq 'HASH'
+						&& ref($graphObjectTikz{ $_->{data}[0] }{code}) eq 'CODE'
+						&& !$graphObjectTikz{ $_->{data}[0] }{fillType});
+				my ($object_tikz, $object_data) = $graphObjectTikz{ $_->{data}[0] }{code}->($self, $_);
 				$tikz .= $object_tikz;
 				push(@obj_data, $object_data);
 			}
@@ -497,10 +732,11 @@ END_TIKZ
 			$tikz .= "\\end{pgfonlayer}\n\\begin{pgfonlayer}{background}\n";
 
 			# Now shade the fill regions.
-			for (@{$obj->{data}}) {
-				next unless (ref($graphObjectTikz{$_->{data}[0]}) eq 'HASH' &&
-					ref($graphObjectTikz{$_->{data}[0]}{code}) eq 'CODE' &&
-					$graphObjectTikz{$_->{data}[0]}{fillType});
+			for (@{ $obj->{data} }) {
+				next
+					unless (ref($graphObjectTikz{ $_->{data}[0] }) eq 'HASH'
+						&& ref($graphObjectTikz{ $_->{data}[0] }{code}) eq 'CODE'
+						&& $graphObjectTikz{ $_->{data}[0] }{fillType});
 				$tikz .= $graphObjectTikz{fill}{code}->($self, $_, [@obj_data], $obj);
 			}
 
@@ -510,12 +746,16 @@ END_TIKZ
 
 		$graph->tex($tikz);
 
-		$out = main::image(main::insertGraph($graph),
-			width => $size[0], height => $size[1], tex_size => $self->{texSize});
+		$out = main::image(
+			main::insertGraph($graph),
+			width    => $size[0],
+			height   => $size[1],
+			tex_size => $self->{texSize}
+		);
 	} elsif ($main::displayMode ne 'PTX') {
 		$self->constructJSXGraphOptions;
 		my $ans_name = $self->ANS_NAME;
-		$out .= <<END_SCRIPT
+		$out .= <<END_SCRIPT;
 <div id='${ans_name}_graphbox' class='graphtool-container'></div>
 <script>
 (() => {
@@ -525,6 +765,9 @@ END_TIKZ
 			staticObjects: '${\(join(',', @{$self->{staticObjects}}))}',
 			snapSizeX: $self->{snapSizeX},
 			snapSizeY: $self->{snapSizeY},
+			xAxisLabel: '$self->{xAxisLabel}',
+			yAxisLabel: '$self->{yAxisLabel}',
+			ariaDescription: '${\(main::encode_pg_and_html($self->{ariaDescription}))}',
 			showCoordinateHints: $self->{showCoordinateHints},
 			customGraphObjects: {$customGraphObjects},
 			customTools: {$customTools},
@@ -546,25 +789,28 @@ END_SCRIPT
 # JavaScript graph of the student's answer in the "Answer Preview" box of the results table.
 # The raw list form of the answer is displayed in the "Entered" box.
 sub cmp_preprocess {
-	my $self = shift; my $ans = shift;
+	my $self = shift;
+	my $ans  = shift;
 	if ($main::displayMode ne 'TeX' && defined($ans->{student_value})) {
 		my $ans_name = $self->ANS_NAME;
 		$self->constructJSXGraphOptions;
-		my $graphObjs = @{$self->{staticObjects}} ?
-			join(",", @{$self->{staticObjects}}, $ans->{student_ans}) : $ans->{student_ans};
 
-		$ans->{preview_latex_string} = <<"END_ANS";
+		$ans->{preview_latex_string} = <<END_ANS;
 <div id='${ans_name}_student_ans_graphbox' class='graphtool-answer-container'></div>
 <script>
 (() => {
 	const initialize = () => {
 		graphTool("${ans_name}_student_ans_graphbox", {
-			staticObjects: "$graphObjs",
+			staticObjects: '${\(join(',', @{$self->{staticObjects}}))}',
+			answerObjects: '${\(join(',', $ans->{student_ans}))}',
 			isStatic: true,
 			snapSizeX: $self->{snapSizeX},
 			snapSizeY: $self->{snapSizeY},
+			xAxisLabel: '$self->{xAxisLabel}',
+			yAxisLabel: '$self->{yAxisLabel}',
 			customGraphObjects: {$customGraphObjects},
-			JSXGraphOptions: $self->{JSXGraphOptions}
+			JSXGraphOptions: $self->{JSXGraphOptions},
+			ariaDescription: "answer preview graph"
 		});
 	};
 	if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', initialize);
@@ -581,26 +827,28 @@ END_ANS
 # displayed in the "Correct Answer" box of the results table.
 sub cmp {
 	my $self = shift;
-	my $cmp = $self->SUPER::cmp(non_tex_preview => 1, %{$self->{cmpOptions}}, @_);
+	my $cmp  = $self->SUPER::cmp(non_tex_preview => 1, %{ $self->{cmpOptions} }, @_);
 
 	if ($main::displayMode ne 'TeX' && $main::displayMode ne 'PTX') {
 		my $ans_name = $self->ANS_NAME;
 		$self->constructJSXGraphOptions;
-		my $graphObjs = @{$self->{staticObjects}} ?
-			join(",", @{$self->{staticObjects}}, $cmp->{rh_ans}{correct_ans}) : $cmp->{rh_ans}{correct_ans};
 
-		$cmp->{rh_ans}{correct_ans_latex_string} = << "END_ANS";
+		$cmp->{rh_ans}{correct_ans_latex_string} = <<END_ANS;
 <div id='${ans_name}_correct_ans_graphbox' class='graphtool-answer-container'></div>
 <script>
 (() => {
 	const initialize = () => {
 		graphTool("${ans_name}_correct_ans_graphbox", {
-			staticObjects: "$graphObjs",
+			staticObjects: '${\(join(',', @{$self->{staticObjects}}))}',
+			answerObjects: '${\(join(',', $cmp->{rh_ans}{correct_ans}))}',
 			isStatic: true,
 			snapSizeX: $self->{snapSizeX},
 			snapSizeY: $self->{snapSizeY},
+			xAxisLabel: '$self->{xAxisLabel}',
+			yAxisLabel: '$self->{yAxisLabel}',
 			customGraphObjects: {$customGraphObjects},
-			JSXGraphOptions: $self->{JSXGraphOptions}
+			JSXGraphOptions: $self->{JSXGraphOptions},
+			ariaDescription: "correct answer graph"
 		});
 	};
 	if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', initialize);
