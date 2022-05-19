@@ -664,6 +664,11 @@ window.graphTool = (containerId, options) => {
 			));
 			this.definingPts.push(center, point);
 			this.focusPoint = center;
+
+			// Redefine the circle's hasPoint method to return true if the center point has the given coordinates, so
+			// that a pointer over the center point will give focus to the object with the center point activated.
+			const circleHasPoint = this.baseObj.hasPoint.bind(this.baseObj);
+			this.baseObj.hasPoint = (x, y) => circleHasPoint(x, y) || center.hasPoint(x, y);
 		}
 
 		handleKeyEvent(e, el) {
