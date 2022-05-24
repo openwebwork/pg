@@ -146,11 +146,16 @@ sub AnswerHints {
       foreach my $wrong (@{$wrongList}) {
 	if (ref($wrong) eq 'CODE') {
 	  if (($ans->{score} < 1 || $options{checkCorrect}) &&
-	      ($ans->{ans_message} eq "" || $options{replaceMessage}) &&
-	      &$wrong($correct,$student,$ans)) {
-	    $ans->{ans_message} = $ans->{error_message} = $message;
-	    $ans->{score} = $options{score} if defined $options{score};
-	    last;
+	      ($ans->{ans_message} eq "" || $options{replaceMessage}) ) {
+	      # Make the call to run the function inside an eval to trap errors
+	      my $myResult = 0;
+	      eval { $myResult = &$wrong($correct,$student,$ans); };
+	      if ( $@ ) { $myResult = 0; }
+	      if ( $myResult ) {
+	        $ans->{ans_message} = $ans->{error_message} = $message;
+	        $ans->{score} = $options{score} if defined $options{score};
+	        last;
+	      }
 	  }
 	} else {
 	  $wrong = Value::makeValue($wrong);
