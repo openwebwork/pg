@@ -149,9 +149,11 @@ sub AnswerHints {
 	      ($ans->{ans_message} eq "" || $options{replaceMessage}) ) {
 	      # Make the call to run the function inside an eval to trap errors
 	      my $myResult = 0;
-	      eval { $myResult = &$wrong($correct,$student,$ans); };
-	      if ( $@ ) { $myResult = 0; }
-	      if ( $myResult ) {
+	      eval { $myResult = &$wrong($correct,$student,$ans); } or do {
+	        $ans->{ans_message} = "error during AnswerHints processing";
+	        last;
+	      };
+	      if ($myResult) {
 	        $ans->{ans_message} = $ans->{error_message} = $message;
 	        $ans->{score} = $options{score} if defined $options{score};
 	        last;
