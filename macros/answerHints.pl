@@ -113,66 +113,81 @@ Example:
 
 =cut
 
-sub _answerHints_init {}
+sub _answerHints_init { }
 
 sub AnswerHints {
-  return (sub {
-    my $ans = shift; $ans->{_filter_name} = "Answer Hints Post Filter";
-    my $correct = $ans->{correct_value};
-    my $student = $ans->{student_value};
-    Value::Error("AnswerHints can only be used with MathObjects answer checkers") unless ref($correct);
-    return $ans unless ref($student);
-    my $context = $correct->context;
-    my $hash = $context->{answerHash};
-    $context->{answerHash} = $ans;
-    my $processPreview = $correct->getFlag('answerHintsProcessPreview', 0);
-    $context->{answerHash} = $hash;
+	return (
+		sub {
+			my $ans = shift;
+			$ans->{_filter_name} = "Answer Hints Post Filter";
+			my $correct = $ans->{correct_value};
+			my $student = $ans->{student_value};
+			Value::Error("AnswerHints can only be used with MathObjects answer checkers") unless ref($correct);
+			return $ans unless ref($student);
+			my $context = $correct->context;
+			my $hash    = $context->{answerHash};
+			$context->{answerHash} = $ans;
+			my $processPreview = $correct->getFlag('answerHintsProcessPreview', 0);
+			$context->{answerHash} = $hash;
 
-    while (@_) {
-      my $wrongList = shift; my $message = shift; my @options;
-      ($message,@options) = @{$message} if ref($message) eq 'ARRAY';
-      my %options = (
-        checkCorrect => 0,
-        replaceMessage => 0,
-	checkTypes => 1,
-        processPreview => $processPreview,
-        score => undef,
-        cmp_options => [],
-        @options,
-      );
-      next if $options{checkTypes} && $correct->type ne $student->type;
-      next if !$options{processPreview} && $ans->{isPreview};
-      $wrongList = [$wrongList] unless ref($wrongList) eq 'ARRAY';
-      foreach my $wrong (@{$wrongList}) {
-	if (ref($wrong) eq 'CODE') {
-	  if (($ans->{score} < 1 || $options{checkCorrect}) &&
-	      ($ans->{ans_message} eq "" || $options{replaceMessage}) ) {
-	      # Make the call to run the function inside an eval to trap errors
-	      my $myResult = 0;
-	      eval { $myResult = &$wrong($correct,$student,$ans); } or do {
-	        $ans->{ans_message} = "error during AnswerHints processing";
-	        last;
-	      };
-	      if ($myResult) {
-	        $ans->{ans_message} = $ans->{error_message} = $message;
-	        $ans->{score} = $options{score} if defined $options{score};
-	        last;
-	      }
-	  }
-	} else {
-	  $wrong = Value::makeValue($wrong);
-	  if (($ans->{score} < 1 || $options{checkCorrect} || AnswerHints::Compare($correct,$wrong,$ans)) &&
-	      ($ans->{ans_message} eq "" || $options{replaceMessage}) &&
-	      AnswerHints::Compare($wrong,$student,$ans,@{$options{cmp_options}})) {
-	    $ans->{ans_message} = $ans->{error_message} = $message;
-	    $ans->{score} = $options{score} if defined $options{score};
-	    last;
-	  }
-	}
-      }
-    }
-    return $ans;
-  },@_);
+			while (@_) {
+				my $wrongList = shift;
+				my $message   = shift;
+				my @options;
+				($message, @options) = @{$message} if ref($message) eq 'ARRAY';
+				my %options = (
+					checkCorrect   => 0,
+					replaceMessage => 0,
+					checkTypes     => 1,
+					processPreview => $processPreview,
+					score          => undef,
+					cmp_options    => [],
+					@options,
+				);
+				next if $options{checkTypes}      && $correct->type ne $student->type;
+				next if !$options{processPreview} && $ans->{isPreview};
+				$wrongList = [$wrongList] unless ref($wrongList) eq 'ARRAY';
+
+				foreach my $wrong (@{$wrongList}) {
+					if (ref($wrong) eq 'CODE') {
+						if (   ($ans->{score} < 1 || $options{checkCorrect})
+							&& ($ans->{ans_message} eq "" || $options{replaceMessage}))
+						{
+							# Make the call to run the function inside an eval to trap errors
+							my $myResult = 0;
+							eval { $myResult = &$wrong($correct, $student, $ans); } or do {
+								$ans->{ans_message} = "error during AnswerHints processing";
+								last;
+							};
+							if ($myResult) {
+								$ans->{ans_message} = $ans->{error_message} = $message;
+								$ans->{score}       = $options{score} if defined $options{score};
+								last;
+							}
+						}
+					} else {
+						$wrong = Value::makeValue($wrong);
+						if (
+							(
+								   $ans->{score} < 1
+								|| $options{checkCorrect}
+								|| AnswerHints::Compare($correct, $wrong, $ans)
+							)
+							&& ($ans->{ans_message} eq "" || $options{replaceMessage})
+							&& AnswerHints::Compare($wrong, $student, $ans, @{ $options{cmp_options} })
+							)
+						{
+							$ans->{ans_message} = $ans->{error_message} = $message;
+							$ans->{score}       = $options{score} if defined $options{score};
+							last;
+						}
+					}
+				}
+			}
+			return $ans;
+		},
+		@_
+	);
 }
 
 package AnswerHints;
@@ -182,23 +197,27 @@ package AnswerHints;
 #  and returns true if the two values match and false otherwise.
 #
 sub Compare {
-  my $self = shift; my $other = shift; my $ans = shift;
-  $ans = bless {%{$ans},@_}, ref($ans);  # make a copy
-  $ans->{typeError} = 0; $ans->{ans_message} = $ans->{error_message} = ""; $ans->{score} = 0;
-  if (sprintf("%p",$self) ne sprintf("%p",$ans->{correct_value})) {
-    $ans->{correct_ans} = $self->string;
-    $ans->{correct_value} = $self;
-    $ans->{correct_formula} = Value->Package("Formula")->new($self);
-  }
-  if (sprintf("%p",$other) ne sprintf("%p",$ans->{student_value})) {
-    $ans->{student_ans} = $other->string;
-    $ans->{student_value} = $other;
-    $ans->{student_formula} = Value->Package("Formula")->new($other);
-  }
-  $self->cmp_preprocess($ans);
-  $self->cmp_equal($ans);
-  $self->cmp_postprocess($ans) if !$ans->{error_message} && !$ans->{typeError};
-  return $ans->{score} >= 1;
+	my $self  = shift;
+	my $other = shift;
+	my $ans   = shift;
+	$ans = bless { %{$ans}, @_ }, ref($ans);    # make a copy
+	$ans->{typeError}   = 0;
+	$ans->{ans_message} = $ans->{error_message} = "";
+	$ans->{score}       = 0;
+	if (sprintf("%p", $self) ne sprintf("%p", $ans->{correct_value})) {
+		$ans->{correct_ans}     = $self->string;
+		$ans->{correct_value}   = $self;
+		$ans->{correct_formula} = Value->Package("Formula")->new($self);
+	}
+	if (sprintf("%p", $other) ne sprintf("%p", $ans->{student_value})) {
+		$ans->{student_ans}     = $other->string;
+		$ans->{student_value}   = $other;
+		$ans->{student_formula} = Value->Package("Formula")->new($other);
+	}
+	$self->cmp_preprocess($ans);
+	$self->cmp_equal($ans);
+	$self->cmp_postprocess($ans) if !$ans->{error_message} && !$ans->{typeError};
+	return $ans->{score} >= 1;
 }
 
 1;
