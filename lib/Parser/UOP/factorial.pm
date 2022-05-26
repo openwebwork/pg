@@ -25,6 +25,7 @@ sub _eval {
   my $n = shift; my $f = 1;
   $self->Error("Factorial can only be taken of (non-negative) integers")
     unless $n =~ m/^\d+$/;
+  return Inf if $n > 170;
   while ($n > 0) {$f *= $n; $n--}
   return $f;
 }
