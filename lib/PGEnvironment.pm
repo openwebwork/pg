@@ -62,7 +62,8 @@ sub new {
 		# Load from the conf file.
 		$self->{pg_dir} = $ENV{PG_ROOT};
 
-		my $defaults_file = $self->{pg_dir} . "/conf/pg_defaults.yml";
+		my $defaults_file = "$self->{pg_dir}/conf/pg_defaults.yml";
+		$defaults_file = "$self->{pg_dir}/conf/pg_defaults.dist.yml" unless -r $defaults_file;
 		die "Cannot read the configuration file $defaults_file" unless -r $defaults_file;
 
 		my $options = LoadFile($defaults_file);
