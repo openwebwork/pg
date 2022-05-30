@@ -33,7 +33,7 @@
 			& > button.accordion-button {
 				background: #eee;
 
-				&::focus {
+				&:focus {
 					box-shadow: none;
 				}
 
