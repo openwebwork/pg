@@ -19,6 +19,12 @@ require("$main::pg_dir/t/build_PG_envir.pl");
 
 ## END OF TOP_MATERIAL
 
+# remove warnings about redefining trig functions
+delete $main::{sin};
+delete $main::{cos};
+delete $main::{atan2};
+
+
 loadMacros("contextTrigDegrees.pl");
 
 my $ctx = Context("TrigDegrees");
