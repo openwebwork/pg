@@ -220,9 +220,6 @@ sub new {
 	# process is forked for each render request.  (thanks async!)
 	my $safe_cmpt = exists($ENV{MOJO_MODE}) ? $PG::Translator::safeCache : WWSafe->new();
 
-	print "in Translator::new\n";
-	# print Dumper $safe_cmpt;
-
 	my $self = {
 		preprocess_code           => \&default_preprocess_code,
 		postprocess_code          => \&default_postprocess_code,
@@ -341,10 +338,7 @@ my %IO_shared_subroutine_hash = %Renderer::IO::SHARE;
 
 sub initialize {
 	my $self = shift;
-	print "in Translator::initialize\n";
-
 	my $safe_cmpt = $self->{safe};
-	print "initializing safeCompartment ", $safe_cmpt->root(), "\n";
 
 	$safe_cmpt->share_from('Renderer::Translator', [ keys %Translator_shared_subroutine_hash ]);
 	$safe_cmpt->share_from('Renderer::IO',         [ keys %IO_shared_subroutine_hash ]);
@@ -362,7 +356,6 @@ sub initialize {
 	# The standalone renderer does this when the module is compiled.
 	unless (exists($ENV{MOJO_MODE})) {
 		$safe_cmpt->share_from('main', $self->{ra_included_modules});
-		# print Dumper $self->{ra_included_modules};
 	}
 }
 
@@ -447,7 +440,6 @@ sub source_file {
 }
 
 sub unrestricted_load {
-	print "in unrestricted_load\n";
 	my $self       = shift;
 	my $filePath   = shift;
 	my $safe_cmpt  = $self->{safe};
@@ -462,9 +454,6 @@ sub unrestricted_load {
 
 	my $local_errors = "";
 	no strict;
-
-	print "loading $macro_file_name\n";
-	print "calling $init_subroutine_name\n";
 
 	my $init_subroutine = eval { \&{$init_subroutine_name} };
 	warn "No init routine for $init_subroutine_name: $@" if $debugON and $@;
@@ -746,7 +735,6 @@ sub PG_undef_var_check {
 =cut
 
 sub translate {
-	print "in Translator::translate\n";
 	my $self                = shift;
 	my @PROBLEM_TEXT_OUTPUT = ();
 	my $safe_cmpt           = $self->{safe};
@@ -755,6 +743,7 @@ sub translate {
 	$self->{errors} .= qq{ERROR:  You must define the environment before translating.}
 		unless defined($self->{envir});
 
+	warn 'in Translator::translate\n';
 	# install handlers for warn and die that call PG_errorMessage.
 	# if the existing signal handler is not a coderef, the built-in warn or
 	# die function is called. this does not account for the case where the
@@ -859,6 +848,8 @@ case the previously defined safe compartment is used. (See item 1.)
 
 =cut
 
+warn 'line 851 in Translator.pm\n';
+
 	my ($PG_PROBLEM_TEXT_REF, $PG_HEADER_TEXT_REF, $PG_POST_HEADER_TEXT_REF,
 		$PG_ANSWER_HASH_REF, $PG_FLAGS_REF, $PGcore)
 		= $safe_cmpt->reval("$evalString");
@@ -868,13 +859,13 @@ case the previously defined safe compartment is used. (See item 1.)
 #
 #
 
+warn 'line 862 in Translator.pm\n';
+
 #################
 	# FIXME The various warning message tracks are still being sorted out
 	# WARNING and DEBUG tracks are being handled elsewhere (in Problem.pm?)
 #######################################################################
 	$self->{errors} .= "ERRORS from evaluating PG file: <br/> $@<br/>\n" if $@;
-
-	print Dumper $self->{errors};
 
 #######################################################################
 
@@ -952,7 +943,6 @@ the errors.
 			qq!\n<A NAME="problem">!
 				. qq!\n2. ERROR caught by Translator while processing this problem <br/></pre>\r\n!);
 
-		print Dumper \@PROBLEM_TEXT_OUTPUT;
 	}
 
 =pod
@@ -992,8 +982,6 @@ the errors.
 
 	#warn "PGcore is ", ref($PGcore), " in Translator";
 	#$self ->{errors};
-
-	print Dumper $self->{errors};
 }    # end translate
 
 =head2   Answer evaluation methods

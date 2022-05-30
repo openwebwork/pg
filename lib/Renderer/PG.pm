@@ -74,9 +74,7 @@ sub defineProblemEnvir {
 
 	my %envir;
 
-	print "in REnderer::PG::defineProblemEnvir\n";
-
-	debug("in WEBWORK::PG");
+	debug("in Renderer::PG");
 
 	# ----------------------------------------------------------------------
 

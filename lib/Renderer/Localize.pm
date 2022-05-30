@@ -11,8 +11,6 @@ my $pattern = File::Spec->catfile($path, '*.[pm]o');
 my $decode   = 1;
 my $encoding = undef;
 
-warn 'in Renderer::Localize';
-
 eval "
 	package Renderer::Localize::I18N;
 	use base 'Locale::Maketext';

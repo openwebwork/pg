@@ -423,43 +423,6 @@ sub formatRenderedProblem {
 
 	return "Unknown format name $format_name<br>" unless $template;
 
-	# checking for unknown values:
-	say "\$webwork_htdocs_url";
-	print Dumper $webwork_htdocs_url;
-
-	say "\$COURSE_LANG_AND_DIR";
-	print Dumper $COURSE_LANG_AND_DIR;
-
-	say "\$SITE_URL";
-	print Dumper $SITE_URL;
-
-	say "\$extra_css_files";
-	print Dumper $extra_css_files;
-	my $extra_css_files = '';
-
-	say "\$problemHeadText";
-	print Dumper $problemHeadText;
-
-	say "\$problemPostHeaderText";
-	print Dumper $problemPostHeaderText;
-	my $problemPostHeaderText = '';
-
-	say "\$fileName";
-	print Dumper $fileName;
-
-	say "\$problemSourceURL";
-	print Dumper $problemSourceURL;
-
-	my $problemSourceURL = '';
-
-	say "\$PROBLEM_LANG_AND_DIR";
-	print Dumper $PROBLEM_LANG_AND_DIR;
-
-	say "\$session_key";
-	print Dumper $session_key;
-
-	say "\$STRING_Preview";
-	print Dumper $STRING_Preview;
 	my $STRING_Preview     = '';
 	my $STRING_Submit      = '';
 	my $STRING_ShowCorrect = '';

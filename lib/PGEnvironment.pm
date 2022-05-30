@@ -363,17 +363,16 @@ sub checkEnvironment {
 sub maketext {
 	my $self = shift;
 	my $lang = $self->{environment}->{language};
-	return Renderer::Localize->getLoc($lang);
-	# my $lh;
-	# if($lang) {
-	# 	$lh = Renderer::Localize->get_handle($lang) || die "No language handle for '$lang'";
-	# } else {
-	# 	# Config file missing, maybe?
-	# 	$lh = Renderer::Localize->get_handle() || die "Can't get a language handle";
-	# }
-	# return sub {
-	# 	$lh->maketext(shift);
-	# };
+	my $lh;
+	if($lang) {
+		$lh = Renderer::Localize->getLoc($lang) || die "No language handle for '$lang'";
+	} else {
+		# Config file missing, maybe?
+		$lh = Renderer::Localize->getLoc() || die "Can't get a language handle";
+	}
+	return sub {
+		$lh->maketext(shift);
+	};
 }
 
 sub get_language_handle {

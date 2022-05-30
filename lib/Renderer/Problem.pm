@@ -189,7 +189,6 @@ sub free {
 }
 
 sub render {
-	say "in Problem::render";
 	my ($self, $psvn, $formFields) = @_;
 
 	############################################################################
@@ -217,7 +216,7 @@ sub render {
 	# translate the PG source into text
 	############################################################################
 
-	#warn "PG: translating the PG source into text\n";
+	warn "PG: translating the PG source into text\n";
 	$self->{translator}->translate();
 
 	my ($result, $state);    # we'll need these on the other side of the if block!
@@ -227,7 +226,7 @@ sub render {
 		# process student answers
 		############################################################################
 
-		#warn "PG: processing student answers\n";
+		warn "PG: processing student answers\n";
 		$self->{translator}->process_answers($formFields);
 
 		############################################################################
@@ -425,9 +424,9 @@ sub defineProblemEnvir {
 	# $envir{language_subroutine} = sub {
 	# 	warn 'in Problem.pm';
 	# 	# dd $pg_env;
-	# 	dd $pg_env->{environment};
+	# 	# dd $pg_env->{environment};
 	# 	my $lh = $pg_env->{environment}->{language_handle};
-	# 	dd $lh;
+	# 	# dd $lh;
 	# 	return $lh->maketext(@_);
 	# };
 
