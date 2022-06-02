@@ -155,8 +155,8 @@ sub AnswerHints {
 						{
 							# Make the call to run the function inside an eval to trap errors
 							my $myResult = 0;
-							eval { $myResult = &$wrong($correct, $student, $ans); } or do {
-								$ans->{ans_message} = "error during AnswerHints processing";
+							eval { $myResult = &$wrong($correct, $student, $ans); 1; } or do {
+								warn "An error occurred in this problem.";
 								last;
 							};
 							if ($myResult) {
