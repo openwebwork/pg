@@ -1,21 +1,15 @@
-use warnings;
-use strict;
+use Test2::V0;
 
-package main;
+use lib 't/lib';
+use Test::PG;
 
-use Test::More;
 
-## the following needs to include at the top of any testing  down to TOP_MATERIAL
+=head1 PGauxiliaryFunctions
 
-BEGIN {
-	die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
-	$main::pg_dir = $ENV{PG_ROOT};
-}
+Tests pass
 
-use lib "$main::pg_dir/lib";
-require("$main::pg_dir/t/build_PG_envir.pl");
+=cut
 
-## END OF TOP_MATERIAL
 
 loadMacros("PGauxiliaryFunctions.pl");
 
