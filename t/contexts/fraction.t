@@ -1,23 +1,15 @@
-use warnings;
-use strict;
+use Test2::V0;
 
-package main;
+# should I "use" Parser Value Parser::Legacy here instead?
 
-use Test::More;
-use Test::Exception;
+use lib 't/lib';
+use Test::PG;
 
-# The following needs to include at the top of any testing down to END OF TOP_MATERIAL.
+=head2 Fraction context
 
-BEGIN {
-	die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
-	$main::pg_dir = $ENV{PG_ROOT};
-}
+To test the reduction of fractions
 
-use lib "$main::pg_dir/lib";
-
-require("$main::pg_dir/t/build_PG_envir.pl");
-
-## END OF TOP_MATERIAL
+=cut
 
 loadMacros("PGstandard.pl", "MathObjects.pl", "contextFraction.pl");
 
@@ -39,9 +31,9 @@ Context("Fraction");
 # require("Parser::Legacy::LimitedNumeric::Number");
 # require("Parser::Legacy");
 
-my $a1 = Compute("1/2");
-my $a2 = Compute("2/4");
+ok my $a1 = Compute("1/2");
+ok my $a2 = Compute("2/4");
 
-is($a1->value, $a2->value, "contextFraction: reduce fractions");
+is $a1->value, $a2->value, 'contextFraction: reduce fractions';
 
 done_testing();

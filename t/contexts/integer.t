@@ -1,23 +1,15 @@
-use warnings;
-use strict;
+use Test2::V0;
 
-package main;
+# should I "use" Parser Value Parser::Legacy here instead?
 
-use Test::More;
-use Test::Exception;
+use lib 't/lib';
+use Test::PG;
 
-# The following needs to include at the top of any testing down to END OF TOP_MATERIAL.
+=head2 Integer context
 
-BEGIN {
-	die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
-	$main::pg_dir = $ENV{PG_ROOT};
-}
+To test for greatest common denomenators and such like.
 
-use lib "$main::pg_dir/lib";
-
-require("$main::pg_dir/t/build_PG_envir.pl");
-
-## END OF TOP_MATERIAL
+=cut
 
 loadMacros("MathObjects.pl", "contextInteger.pl");
 
@@ -33,4 +25,3 @@ ANS($b->cmp);
 ok(1, "integer test: dummy test");
 
 done_testing();
-
