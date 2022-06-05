@@ -90,7 +90,7 @@ subtest 'Check attributes' => sub {
             context => check_isa 'Parser::Context',
         },
         'This looks like a joule'
-);
+    );
 };
 
 subtest 'Basic definitions of energy equivalence' => sub {
