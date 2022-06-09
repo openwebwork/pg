@@ -34,7 +34,7 @@ a reliable test)
 =cut
 
 
-loadMacros("tableau.pl", "Value.pl");    #gives us Real() etc.
+loadMacros('tableau.pl', 'Value.pl');    #gives us Real() etc.
 
 my %context = ();
 
@@ -106,14 +106,13 @@ my $b = Value::Vector->new([ -$bill_profit, -$steve_profit ]);    # need vertica
 my $c = Value::Vector->new([ $money_total, $time_total, 1, 1 ]);
 
 my $tableau1 = Tableau->new(A => $a, b => $b, c => $c);
-###############################################################
-# Check mutators
-#
-#
+
 ###############################################################
 
-is $tableau1, D(), 'tableau has been defined and loaded';
-is $tableau1, object { prop isa => 'Tableau' }, 'has type Tableau';
+subtest 'Check mutators' => sub {
+	is $tableau1, D(), 'tableau has been defined and loaded';
+	is $tableau1, object { prop isa => 'Tableau' }, 'has type Tableau';
+};
 
 subtest 'test "close_enough_to_zero" subroutine' => sub {
 	is $tableau1->close_enough_to_zero(0),     1, 'checking_close_enough to zero';
@@ -129,12 +128,15 @@ subtest 'test "close_enough_to_zero" subroutine' => sub {
 	is $tableau1->close_enough_to_zero(-0.9999e-10), 1, 'checking_close_enough to zero for -0.9999e-10';
 };
 
+subtest 'Basic test warmup' => sub {
+	note("display stringified  \$tableau1: ", $tableau1, "\n");
+	is ref($tableau1), "Tableau", "checking data type is Tableau";
+	is $tableau1,
+		'[[-5000,-400,-1,0,1,0,0,-4700],[-3000,-500,0,-1,0,1,0,-4500]]',
+		'checking_stringification of tableau';
 
-note("display stringified  \$tableau1: ", $tableau1, "\n");
-is ref($tableau1), "Tableau", "checking data type is Tableau";
-ok $tableau1 eq "[[-5000,-400,-1,0,1,0,0,-4700],[-3000,-500,0,-1,0,1,0,-4500]]", "checking_stringification of tableau";
-
-is($tableau1->{m}, 2, 'number of constraints is 2');
+	is $tableau1->{m}, 2, 'number of constraints is 2';
+};
 
 subtest 'check data structure of tableau object' => sub {
 	is($tableau1->{m}, 2, 'number of constraints is 2');
@@ -167,56 +169,64 @@ subtest 'check data structure of tableau object' => sub {
 
 my $test_constraint_matrix = Matrix($ra_matrix->[0], $ra_matrix->[1]);
 
-is $tableau1->{current_constraint_matrix}->string,
-	$test_constraint_matrix->string, 'initialization of current_constraint_matrix';
-is
-	$tableau1->{current_constraint_matrix}->string,
-	$tableau1->current_constraint_matrix->string,
-	'current_constraint_matrix accessor';
-is $tableau1->{current_b}->string,               $tableau1->{b}->string,       'initialization of current_b';
-is $tableau1->{current_b}->string,               $tableau1->current_b->string, 'current_b accessor';
+subtest 'Current constraint matrix' => sub {
+	is $tableau1->{current_constraint_matrix}->string,
+		$test_constraint_matrix->string,
+		'initialization of current_constraint_matrix';
+	is
+		$tableau1->{current_constraint_matrix}->string,
+		$tableau1->current_constraint_matrix->string,
+		'current_constraint_matrix accessor';
+	is $tableau1->{current_b}->string, $tableau1->{b}->string,       'initialization of current_b';
+	is $tableau1->{current_b}->string, $tableau1->current_b->string, 'current_b accessor';
 
-is [ $tableau1->current_b->dimensions ], [ 2, 1 ],             'dimensions of current_b';
+	is [ $tableau1->current_b->dimensions ], [ 2, 1 ],               'dimensions of current_b';
+};
 
-my $obj_row_test = [ ((-$c)->value, 0, 0, 1, 0) ];
-for (my $i = 0; $i < 4; $i++) {
-	is $tableau1->objective_row->[$i]->string, $obj_row_test->[$i]->string,
-		'initialization of $tableau->{obj_row}';
-}
-is @{$tableau1->objective_row}[4..7], @{$obj_row_test}[4..7], 'initialization of $tableau->{obj_row}';
+subtest 'Objective row properties' => sub {
+	my $obj_row_test = [ ((-$c)->value, 0, 0, 1, 0) ];
 
-is $tableau1->{obj_row},         object { prop isa => 'Value::Matrix' }, '->{obj_row} has type Value::Matrix';
-is $tableau1->obj_row,           object { prop isa => 'Value::Matrix' }, '->obj_row has type Value::Matrix';
-is $tableau1->obj_row->string,   $tableau1->{obj_row}->string,           'verify mutator for {obj_row}';
-is ref $tableau1->objective_row, 'ARRAY',                                '->objective_row has type ARRAY';
+	for (my $i = 0; $i < 4; $i++) {
+		is $tableau1->objective_row->[$i]->string, $obj_row_test->[$i]->string,
+			'initialization of $tableau->{obj_row} (first half)';
+	}
+	is @{$tableau1->objective_row}[4..7],
+		@{$obj_row_test}[4..7],
+		'initialization of $tableau->{obj_row} (second half)';
 
-# the first 4 elements are Value::Real's and the remainder are perl scalars (numbers)
-# these are all mapped to array refs of scalars
-# should these use the validator( $compare_data ) pattern below?
-is  [ map { ref $_ ? $_->{data} : [$_] } $tableau1->objective_row->@* ],
-    [ map { ref $_ ? $_->{data} : $_ } $tableau1->{obj_row}->value ],
-    'access to {obj_row}';
-is  [ map { ref $_ ? $_->{data} : [$_] } $tableau1->objective_row->@* ],
-    [ map { ref $_ ? $_->{data} : $_ } $tableau1->obj_row->value ],
-    'objective_row is obj_row->value = ARRAY';
+	is $tableau1->{obj_row}, object { prop isa => 'Value::Matrix' }, '->{obj_row} has type Value::Matrix';
+	is $tableau1->obj_row,   object { prop isa => 'Value::Matrix' }, '->obj_row has type Value::Matrix';
+	is $tableau1->obj_row->string,   $tableau1->{obj_row}->string,   'verify mutator for {obj_row}';
+	is ref $tableau1->objective_row, 'ARRAY',                        '->objective_row has type ARRAY';
 
-is $tableau1->current_tableau, object { prop isa => 'Value::Matrix' }, '-> current_tableau is Value::Matrix';
-is $tableau1->current_tableau, Matrix($ra_matrix)->string, 'entire tableau including obj coeff row';
+    # the first 4 elements are Value::Real's and the remainder are perl scalars (numbers)
+    # these are all mapped to array refs of scalars
+    # should these use the validator( $compare_data ) pattern below?
+    is  [ map { ref $_ ? $_->{data} : [$_] } $tableau1->objective_row->@* ],
+        [ map { ref $_ ? $_->{data} : $_ } $tableau1->{obj_row}->value ],
+        'access to {obj_row}';
+    is  [ map { ref $_ ? $_->{data} : [$_] } $tableau1->objective_row->@* ],
+        [ map { ref $_ ? $_->{data} : $_ } $tableau1->obj_row->value ],
+        'objective_row is obj_row->value = ARRAY';
+};
 
-is $tableau1->S, object { prop isa => 'Value::Matrix' }, 'slack variables are a Value::Matrix';
-is $tableau1->S, $tableau1->I($tableau1->m)->string, 'slack variables are identity matrix';
+subtest 'Current tableau' => sub {
+	is $tableau1->current_tableau,
+		object { prop isa => 'Value::Matrix' },
+		'-> current_tableau is Value::Matrix';
+	is $tableau1->current_tableau,
+		Matrix($ra_matrix)->string,
+		'entire tableau including obj coeff row';
 
-sub stringify {
-	my $arrayref = shift;
-	warn "Not an array ref [$arrayref]" unless ref $arrayref eq 'ARRAY';
-	return sprintf("[%s]", 
-		join(',', map { my $s = $_; ref $s eq 'ARRAY' ? stringify($s) : $s } @{$arrayref})
-	);
-}
+	is $tableau1->S, object { prop isa => 'Value::Matrix' }, 'slack variables are a Value::Matrix';
+	is $tableau1->S, $tableau1->I($tableau1->m)->string,     'slack variables are identity matrix';
+};
 
-my $aref = [ [qw/1 2/], 7, [3, 0.4], [ (5, -.6, [8, 9])], 0, -1, [qw/-2 -3/]];
-my $expected_string = '[[1,2],7,[3,0.4],[5,-0.6,[8,9]],0,-1,[-2,-3]]';
-is stringify($aref), $expected_string, 'Local stringify recursively descends the refs';
+subtest 'Verify stringify subroutine' => sub {
+	my $aref = [ [qw/1 2/], 7, [3, 0.4], [ (5, -.6, [8, 9])], 0, -1, [qw/-2 -3/]];
+	my $expected_string = '[[1,2],7,[3,0.4],[5,-0.6,[8,9]],0,-1,[-2,-3]]';
+	is stringify($aref), $expected_string, 'Local stringify recursively descends the refs';
+};
 
 # try out validator for mixed data types
 my $compare_data = sub {
@@ -232,12 +242,15 @@ my $compare_data = sub {
 	return is $got, $exp, 'Compare datastructures of MathObjects';
 };
 
-is [ $tableau1->obj_row, $tableau1->{obj_row} ],
-    validator( $compare_data ),
-    'verify mutator for {obj_row}';
-is [ $tableau1->objective_row, [$tableau1->obj_row->value] ],
-    validator( $compare_data ),
-    'objective_row is obj_row->value = ARRAY';
+subtest 'Verify objective_row methods and properties' => sub {
+	is [ $tableau1->obj_row, $tableau1->{obj_row} ],
+		validator( $compare_data ),
+		'verify mutator for {obj_row}';
+
+	is [ $tableau1->objective_row, [$tableau1->obj_row->value] ],
+		validator( $compare_data ),
+		'objective_row is obj_row->value = ARRAY';
+};
 
 subtest 'test basis' => sub {
 	is ref $tableau1->basis_columns, 'ARRAY',  '{basis_column} has type ARRAY';
@@ -279,13 +292,19 @@ subtest 'find basis column index corresponding to row index' => sub {
 	$tableau1->basis(5, 6);
 	note("\nbasis is",                     $tableau1->basis(5, 6));
 	note(print $tableau1->current_tableau, "\n");
-	is [ $tableau1->find_leaving_column(1) ], [ 5, 1 ], 'find_leaving_column returns [col_index, pivot_value] ';
-	is [ $tableau1->find_leaving_column(2) ], [ 6, 1 ], 'find_leaving_column returns [col_index, pivot_value] ';
+	is [ $tableau1->find_leaving_column(1) ], [ 5, 1 ],
+		'find_leaving_column returns [col_index, pivot_value] ';
+	is [ $tableau1->find_leaving_column(2) ], [ 6, 1 ],
+		'find_leaving_column returns [col_index, pivot_value] ';
 
-	is $tableau1->find_next_basis_from_pivot(1, 2)->string, Set(2, 6)->string, 'find next basis from pivot (1,2)';
-	is $tableau1->find_next_basis_from_pivot(1, 3)->string, Set(3, 6)->string, 'find next basis from pivot (1,3)';
-	is $tableau1->find_next_basis_from_pivot(2, 1)->string, Set(1, 5)->string, 'find next basis from pivot (2,1)';
-	is $tableau1->find_next_basis_from_pivot(1, 1)->string, Set(1, 6)->string, 'find next basis from pivot (1,1)';
+	is $tableau1->find_next_basis_from_pivot(1, 2)->string, Set(2, 6)->string,
+		'find next basis from pivot (1,2)';
+	is $tableau1->find_next_basis_from_pivot(1, 3)->string, Set(3, 6)->string,
+		'find next basis from pivot (1,3)';
+	is $tableau1->find_next_basis_from_pivot(2, 1)->string, Set(1, 5)->string,
+		'find next basis from pivot (2,1)';
+	is $tableau1->find_next_basis_from_pivot(1, 1)->string, Set(1, 6)->string,
+		'find next basis from pivot (1,1)';
 
 	like(
 		dies { $tableau1->find_next_basis_from_pivot(2, 5)  },
@@ -298,7 +317,8 @@ subtest 'find basis column index corresponding to row index' => sub {
 		"can't pivot in basis column (2,6)"
 	);    # probably shouldn't be doing this.
 
-	is $tableau1->find_next_basis_from_pivot(2, 1)->string, Set(1, 5)->string, 'find next basis from pivot (2,1)';
+	is $tableau1->find_next_basis_from_pivot(2, 1)->string, Set(1, 5)->string,
+		'find next basis from pivot (2,1)';
 	like(
 		dies { $tableau1->find_next_basis_from_pivot(2, 6) },
 		qr/pivot point should not be in a basis column/,
@@ -311,8 +331,10 @@ subtest 'find another basis (2,3)' => sub {
 	note("\nbasis is",                     $tableau1->basis());
 	note(print $tableau1->current_tableau, "\n");
 
-	is [ $tableau1->find_leaving_column(1) ], [ 2, 500 ], 'find_leaving_column returns [col_index, pivot_value] ';
-	is [ $tableau1->find_leaving_column(2) ], [ 3, 500 ], 'find_leaving_column returns [col_index, pivot_value] ';
+	is [ $tableau1->find_leaving_column(1) ], [ 2, 500 ],
+		'find_leaving_column returns [col_index, pivot_value] ';
+	is [ $tableau1->find_leaving_column(2) ], [ 3, 500 ],
+		'find_leaving_column returns [col_index, pivot_value] ';
 
 	like(
 		dies { $tableau1->find_next_basis_from_pivot(1, 2) },
@@ -325,8 +347,10 @@ subtest 'find another basis (2,3)' => sub {
 		"can't pivot in basis column (1,3)"
 	);    # probably shouldn't be doing this.
 
-	is $tableau1->find_next_basis_from_pivot(2, 1)->string, Set(1, 2)->string, 'find next basis from pivot (2,1)';
-	is $tableau1->find_next_basis_from_pivot(1, 1)->string, Set(1, 3)->string, 'find next basis from pivot (1,1)';
+	is $tableau1->find_next_basis_from_pivot(2, 1)->string, Set(1, 2)->string,
+		'find next basis from pivot (2,1)';
+	is $tableau1->find_next_basis_from_pivot(1, 1)->string, Set(1, 3)->string,
+		'find next basis from pivot (1,1)';
 };
 
 subtest 'find next short cut pivots' => sub {
@@ -336,48 +360,50 @@ subtest 'find next short cut pivots' => sub {
 
 	# ($row_index, $value, $feasible_point) = $self->find_short_cut_row()
 
-	is [ $tableau1->find_short_cut_row() ],     [ 1, -4700, 0 ], "row 1";
-	is [ $tableau1->find_short_cut_column(1) ], [ 1, -5000, 0 ], "column 1 ";
-	is [ $tableau1->next_short_cut_pivot() ],   [ 1, 1, 0, 0 ],  "pivot (1,1)";
-	is [ $tableau1->next_short_cut_basis() ],   [ 1, 6, undef ], "new basis {1,6} continue";
+	is [ $tableau1->find_short_cut_row() ],     [ 1, -4700, 0 ], 'row 1';
+	is [ $tableau1->find_short_cut_column(1) ], [ 1, -5000, 0 ], 'column 1 ';
+	is [ $tableau1->next_short_cut_pivot() ],   [ 1, 1, 0, 0 ],  'pivot (1,1)';
+	is [ $tableau1->next_short_cut_basis() ],   [ 1, 6, undef ], 'new basis {1,6} continue';
 
 	$tableau1->current_tableau(1, 6);
 	note($tableau1->current_tableau);
 
-	is [ $tableau1->find_short_cut_row ],       [ 2, Value::Real->new(-8.4E+06)->string, 0 ], "find short cut row";
-	is [ $tableau1->find_short_cut_column(2) ], [ 2, Value::Real->new(-1.3E+06)->string, 0 ], "find short cut col 2 ";
-	is [ $tableau1->next_short_cut_pivot() ],   [ 2, 2, 0, 0 ],                       "pivot (2,2)";
-	is [ $tableau1->next_short_cut_basis() ],   [ 1, 2, undef ],                      "new basis {1,2} continue";
+	is [ $tableau1->find_short_cut_row ],
+		[ 2, Value::Real->new(-8.4E+06)->string, 0 ], 'find short cut row';
+	is [ $tableau1->find_short_cut_column(2) ],
+		[ 2, Value::Real->new(-1.3E+06)->string, 0 ], 'find short cut col 2 ';
+	is [ $tableau1->next_short_cut_pivot() ], [ 2, 2, 0, 0 ],  'pivot (2,2)';
+	is [ $tableau1->next_short_cut_basis() ], [ 1, 2, undef ], 'new basis {1,2} continue';
 
 	$tableau1->current_tableau(1, 2);
 	note($tableau1->current_tableau);
 
-	is [ $tableau1->next_short_cut_pivot() ], [ undef, undef, 1, 0 ], "feasible point found";
+	is [ $tableau1->next_short_cut_pivot() ], [ undef, undef, 1, 0 ], 'feasible point found';
 	is(
 		[ $tableau1->next_short_cut_basis() ],
 		[ 1, 2, 'feasible_point' ],
-		"all constraints positive at basis {1,2} --start phase2"
+		'all constraints positive at basis {1,2} --start phase2'
 	);
-	is [ $tableau1->find_pivot_column('max') ], [ 3, Value::Real->new(-100000)->string, 0 ],      "col 3";
-	is [ $tableau1->find_pivot_row(3) ],        [ 1, Value::Real->new(550000 / 500)->string, 0 ], "row 1 ";
-	is [ $tableau1->find_next_pivot('max') ],   [ 1, 3, 0, 0 ],                           "pivot (1,3)";
-	is [ $tableau1->find_next_basis('max') ],   [ 2, 3, undef ], "new basis {2,3} continue";
+	is [ $tableau1->find_pivot_column('max') ], [ 3, Value::Real->new(-100000)->string, 0 ],      'col 3';
+	is [ $tableau1->find_pivot_row(3) ],        [ 1, Value::Real->new(550000 / 500)->string, 0 ], 'row 1';
+	is [ $tableau1->find_next_pivot('max') ],   [ 1, 3, 0, 0 ],  'pivot (1,3)';
+	is [ $tableau1->find_next_basis('max') ],   [ 2, 3, undef ], 'new basis {2,3} continue';
 
 	$tableau1->current_tableau(2, 3);
 	note($tableau1->current_tableau);
-	is [ $tableau1->find_pivot_column('max') ], [ 4, Value::Real->new(-300)->string, 0 ], "col 4";
-	is [ $tableau1->find_pivot_row(4) ], [ 1, 4500, 0 ], "row 2) ";
+	is [ $tableau1->find_pivot_column('max') ], [ 4, Value::Real->new(-300)->string, 0 ], 'col 4';
+	is [ $tableau1->find_pivot_row(4) ], [ 1, 4500, 0 ], 'row 2';
 
-	is [ $tableau1->find_next_pivot('max') ], [ 1, 4, 0, 0 ], "pivot 1,4";
-	is [ $tableau1->find_next_basis('max') ], [ 3, 4, undef ], "new basis {3,4} continue";
+	is [ $tableau1->find_next_pivot('max') ], [ 1, 4, 0, 0 ], 'pivot 1,4';
+	is [ $tableau1->find_next_basis('max') ], [ 3, 4, undef ], 'new basis {3,4} continue';
 
 	$tableau1->current_tableau(3, 4);
 	note($tableau1->current_tableau);
-	is [ $tableau1->find_pivot_column('max') ], [ 5, Value::Real->new(-1)->string, 0 ], "col 5";
-	is [ $tableau1->find_pivot_row(5) ], [ undef, undef, 1 ], "row 2) ";
+	is [ $tableau1->find_pivot_column('max') ], [ 5, Value::Real->new(-1)->string, 0 ], 'col 5';
+	is [ $tableau1->find_pivot_row(5) ], [ undef, undef, 1 ], 'row 2';
 
-	is [ $tableau1->find_next_pivot('max') ], [ undef, 5, 0, 1 ], "unbounded -- no pivot";
-	is [ $tableau1->find_next_basis('max') ], [ 3, 4, 'unbounded' ], "basis 3,4 unbounded";
+	is [ $tableau1->find_next_pivot('max') ], [ undef, 5, 0, 1 ],    'unbounded -- no pivot';
+	is [ $tableau1->find_next_basis('max') ], [ 3, 4, 'unbounded' ], 'basis 3,4 unbounded';
 };
 # note that the column is returned from find_next_pivot so one can find a certificate
 # of unboundedness (can return a line going off to infinity)
@@ -403,10 +429,12 @@ subtest 'reset tableau to feasible point and try to minimize it for phase2' => s
 		'all constraints positive at basis {1,2} --start phase2'
 	);
 
-	is [ $tableau1->find_pivot_column('min') ], [ undef, undef, 1 ],                          'all neg coeff';
-	is [ $tableau1->find_pivot_row(1) ],        [ 1, Value::Real->new(550000 / 1300000)->string, 0 ], 'row 1 ';
-	is [ $tableau1->find_next_pivot('min') ],   [ undef, undef, 1, 0 ],                       'optimum';
-	is [ $tableau1->find_next_basis('min') ],   [ 1, 2, 'optimum' ],                          'optimum';
+	is [ $tableau1->find_pivot_column('min') ], [ undef, undef, 1 ], 'all neg coeff';
+	is [ $tableau1->find_pivot_row(1) ],
+		[ 1, Value::Real->new(550000 / 1300000)->string, 0 ],
+		'row 1';
+	is [ $tableau1->find_next_pivot('min') ], [ undef, undef, 1, 0 ], 'optimum';
+	is [ $tableau1->find_next_basis('min') ], [ 1, 2, 'optimum' ],    'optimum';
 
 	is(
 		$tableau1->statevars,    # round off errors
@@ -414,7 +442,7 @@ subtest 'reset tableau to feasible point and try to minimize it for phase2' => s
 		'state variables'
 	);
 
-	is $tableau1->align, 'cccc|cc|c|c', 'check align';
+	is $tableau1->align,    'cccc|cc|c|c',               'check align';
 	is $tableau1->toplevel, [qw(x1 x2 x3 x4 x5 x6 z b)], 'check toplevel';
 
 	# diag($tableau1->align);
@@ -423,3 +451,11 @@ subtest 'reset tableau to feasible point and try to minimize it for phase2' => s
 
 
 done_testing();
+
+sub stringify {
+	my $arrayref = shift;
+	warn "Not an array ref [$arrayref]" unless ref $arrayref eq 'ARRAY';
+	return sprintf("[%s]",
+		join(',', map { my $s = $_; ref $s eq 'ARRAY' ? stringify($s) : $s } @{$arrayref})
+	);
+}
