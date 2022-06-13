@@ -38,6 +38,7 @@
 					}
 
 					el.setPosition(JXG.COORDS_BY_USER, [x, el.Y()]);
+					gt.board.update();
 				}
 			},
 

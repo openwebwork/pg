@@ -452,6 +452,7 @@ window.graphTool = (containerId, options) => {
 		else if (y > boundingBox[1]) y = boundingBox[1] - gt.snapSizeY;
 
 		point1.setPosition(JXG.COORDS_BY_USER, [x, y]);
+		gt.board.update();
 	};
 
 	// Prevent paired points from being moved into the same position by a drag.  This
