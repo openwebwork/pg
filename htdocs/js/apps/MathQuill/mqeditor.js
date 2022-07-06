@@ -165,7 +165,7 @@
 				document.querySelector('input[name=previewAnswers]')?.click();
 				// For ww3
 				const previewButtonId =
-					answerQuill.textarea.closest('[name=problemMainForm]')[0]?.id
+					answerQuill.textarea.closest('[name=problemMainForm]')?.id
 						.replace('problemMainForm', 'previewAnswers');
 				if (previewButtonId) document.getElementById(previewButtonId)?.click();
 			}
