@@ -475,8 +475,11 @@ sub ENDDOCUMENT {
 				my $data_mq_opts = scalar(keys %$mq_part_opts)
 					? qq!data-mq-opts="@{[encode_pg_and_html(JSON->new->encode($mq_part_opts))]}"!
 					: "";
-				TEXT(MODES(TeX => "",
-						HTML => qq!<input type=hidden name="$name" id="$name" value="$answer_value" $data_mq_opts>!));
+				TEXT(MODES(
+					TeX => "",
+					PTX => "",
+					HTML => qq!<input type=hidden name="$name" id="$name" value="$answer_value" $data_mq_opts>!
+				));
 			}
 		}
 	}
