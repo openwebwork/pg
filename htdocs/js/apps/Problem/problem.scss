@@ -34,7 +34,6 @@
 
 	/* Problem elements */
 	label, input[type=text], select, textarea {
-		font-size: 16px;
 		font-weight: normal;
 		line-height: 18px;
 		width: auto;
@@ -48,8 +47,11 @@
 		vertical-align: middle;
 		border: 1px solid #ccc;
 		border-radius: 4px;
-		font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 		background-color: white;
+	}
+
+	textarea, input[type=text] {
+		font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	}
 
 	input[type=text] {
