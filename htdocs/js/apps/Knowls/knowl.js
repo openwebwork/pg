@@ -15,6 +15,11 @@
 	};
 
 	const initializeKnowl = (knowl) => {
+		if (getComputedStyle(knowl)?.display === '') {
+			setTimeout(() => initializeKnowl(knowl), 100);
+			return;
+		}
+
 		knowl.dataset.bsToggle = 'collapse';
 		if (!knowl.knowlContainer) {
 			knowl.knowlContainer = document.createElement('div');
