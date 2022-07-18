@@ -452,6 +452,7 @@ window.graphTool = (containerId, options) => {
 		else if (y > boundingBox[1]) y = boundingBox[1] - gt.snapSizeY;
 
 		point1.setPosition(JXG.COORDS_BY_USER, [x, y]);
+		gt.board.update();
 	};
 
 	// Prevent paired points from being moved into the same position by a drag.  This
@@ -664,6 +665,11 @@ window.graphTool = (containerId, options) => {
 			));
 			this.definingPts.push(center, point);
 			this.focusPoint = center;
+
+			// Redefine the circle's hasPoint method to return true if the center point has the given coordinates, so
+			// that a pointer over the center point will give focus to the object with the center point activated.
+			const circleHasPoint = this.baseObj.hasPoint.bind(this.baseObj);
+			this.baseObj.hasPoint = (x, y) => circleHasPoint(x, y) || center.hasPoint(x, y);
 		}
 
 		handleKeyEvent(e, el) {
@@ -1174,7 +1180,8 @@ window.graphTool = (containerId, options) => {
 							if (e.key !== 'Tab' ||
 								(index === 0 && e.shiftKey) ||
 								(index === gt.graphedObjs.length - 1 && !e.shiftKey) ||
-								(a.length > 1 && ((pIndex === 0 && !e.shiftKey) || (pIndex === 1 && e.shiftKey)))
+								(a.length > 1 &&
+									((pIndex === 0 && !e.shiftKey) || (pIndex === a.length - 1 && e.shiftKey)))
 							)
 								return;
 
@@ -1194,8 +1201,8 @@ window.graphTool = (containerId, options) => {
 
 							obj.blur();
 						};
+						point.rendNode.addEventListener('keydown', point.focusOutHandler);
 					}
-					point.rendNode.addEventListener('keydown', point.focusOutHandler);
 
 					// Attach a focusin handler to all points to update the coordinates display.
 					point.focusInHandler = (e) => gt.setTextCoords(point.X(), point.Y());

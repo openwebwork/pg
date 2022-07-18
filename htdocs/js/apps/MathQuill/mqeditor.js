@@ -84,8 +84,11 @@
 			{ id: 'text', latex: '\\text', tooltip: 'text mode (")', icon: 'Tt' }
 		];
 
+		answerQuill.hasFocus = false;
+
 		// Open the toolbar when the mathquill answer box gains focus.
 		answerQuill.textarea.addEventListener('focusin', () => {
+			answerQuill.hasFocus = true;
 			if (answerQuill.toolbar) return;
 
 			answerQuill.toolbar = document.createElement('div');
@@ -114,6 +117,7 @@
 				}));
 
 				button.addEventListener('click', () => {
+					answerQuill.hasFocus = true;
 					answerQuill.mathField.cmd(button.dataset.latex);
 					answerQuill.textarea.focus();
 				})
@@ -136,15 +140,15 @@
 		});
 
 		answerQuill.textarea.addEventListener('focusout', (e) => {
-			if (e.relatedTarget && (e.relatedTarget.closest('.quill-toolbar') ||
-				e.relatedTarget.classList.contains('symbol-button')))
-				return;
-			if (answerQuill.toolbar) {
-				window.removeEventListener('resize', answerQuill.toolbar.adjustWidth);
-				answerQuill.toolbar.tooltips.forEach((tooltip) => tooltip.dispose());
-				answerQuill.toolbar.remove();
-				delete answerQuill.toolbar;
-			}
+			answerQuill.hasFocus = false;
+			setTimeout(function() {
+				if (!answerQuill.hasFocus && answerQuill.toolbar) {
+					window.removeEventListener('resize', answerQuill.toolbar.adjustWidth);
+					answerQuill.toolbar.tooltips.forEach((tooltip) => tooltip.dispose());
+					answerQuill.toolbar.remove();
+					delete answerQuill.toolbar;
+				}
+			}, 200);
 		});
 
 		// Trigger an answer preview when the enter key is pressed in an answer box.
@@ -161,7 +165,7 @@
 				document.querySelector('input[name=previewAnswers]')?.click();
 				// For ww3
 				const previewButtonId =
-					answerQuill.textarea.closest('[name=problemMainForm]')[0]?.id
+					answerQuill.textarea.closest('[name=problemMainForm]')?.id
 						.replace('problemMainForm', 'previewAnswers');
 				if (previewButtonId) document.getElementById(previewButtonId)?.click();
 			}

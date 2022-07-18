@@ -1,6 +1,16 @@
 ################################################################################
-# WeBWorK mod_perl (c) 2000-2012 The Open WeBWorK Project (openwebwork.org)
-# $Id$
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
 ################################################################################
 
 package WeBWorK::PG::Translator;
@@ -46,7 +56,7 @@ WeBWorK::PG::Translator - Evaluate PG code and evaluate answers safely
                                     # other macros are loaded from within the problem using loadMacros
 
     $pt ->translate();              # translate the problem (the out following 4 pieces of information are created)
-    
+
     $PG_PROBLEM_TEXT_ARRAY_REF = $pt->ra_text();              # output text for the body of the HTML file (in array form)
     $PG_PROBLEM_TEXT_REF = $pt->r_text();                     # output text for the body of the HTML file
     $PG_HEADER_TEXT_REF = $pt->r_header;#\$PG_HEADER_TEXT;    # text for the header of the HTML file
@@ -55,7 +65,7 @@ WeBWorK::PG::Translator - Evaluate PG code and evaluate answers safely
     $PG_FLAGS_REF = $pt ->rh_flags;                           # misc. status flags.
 
     $pt -> process_answers(\%inputs);    # evaluates all of the answers using submitted answers from %input
-    
+
     my $rh_answer_results = $pt->rh_evaluated_answers;  # provides a hash of the results of evaluating the answers.
     my $rh_problem_result = $pt->grade_problem;         # grades the problem using the default problem grading method.
 
@@ -149,7 +159,7 @@ BEGIN {
 		require 'ww_strict.pm';
 		strict::import();
 	}
-	
+
 	# also define in Main::, for PG modules.
 	sub Main::be_strict { &be_strict }
 }
@@ -175,7 +185,7 @@ sub evaluate_modules {
 		s/\.pm$// and warn "fixing your broken package name: $_.pm => $_";
 		# call runtime_use on the package name
 		# don't worry -- runtime_use won't load a package twice!
-		#eval { runtime_use $_ };                   # 
+		#eval { runtime_use $_ };                   #
 		eval "package Main; require $_; import $_"; # change for WW1
 		warn "Failed to evaluate module $_: $@" if $@;
 		# record this in the appropriate place
@@ -198,7 +208,7 @@ sub load_extra_packages{
 	my $self = shift;
 	my @package_list = @_;
 	my $package_name;
-	
+
 	foreach (@package_list) {
 		# ensure that the name is in fact a base name
 		s/\.pm$// and warn "fixing your broken package name: $_.pm => $_";
@@ -308,7 +318,7 @@ The macros shared with the safe compartment are
 =cut
 
 # SHARE variables and routines with safe compartment
-# 
+#
 # Some symbols are defined here (or in the IO module), and used inside the safe
 # compartment. Under WeBWorK 1.x, functions defined here had access to the
 # Global:: namespace, which contained course-specific data such things as
@@ -317,16 +327,16 @@ The macros shared with the safe compartment are
 # which need access to course-specific data are now defined in the IO.pl macro
 # file, which has access to the problem environment. Several entries have been
 # added to the problem environment to support this move.
-# 
+#
 
 
 # Useful for timing portions of the translating process
 # The timer $WeBWorK::timer is defined in the module WeBWorK.pm
-# You must make sure that the code in that script for initialzing the 
+# You must make sure that the code in that script for initialzing the
 # timer is active.
 
 sub time_it {
-	my $msg = shift;	
+	my $msg = shift;
 	$WeBWorK::timer->continue("PG macro:". $msg) if defined($WeBWorK::timer);
 }
 
@@ -335,14 +345,14 @@ my %Translator_shared_subroutine_hash = (
 	'time_it'                  => __PACKAGE__,
 	'&PG_answer_eval'          => __PACKAGE__,
 	'&PG_restricted_eval'      => __PACKAGE__,
-	'&PG_macro_file_eval'       => __PACKAGE__,     
+	'&PG_macro_file_eval'       => __PACKAGE__,
 	'&be_strict'               => __PACKAGE__,
 	'&PGsort'                  => __PACKAGE__,
 	'&dumpvar'                 => __PACKAGE__,
 );
 
 # add names from WeBWorK::PG::IO and WeBWorK::PG::IO::*
-my %IO_shared_subroutine_hash = %WeBWorK::PG::IO::SHARE; 
+my %IO_shared_subroutine_hash = %WeBWorK::PG::IO::SHARE;
 
 sub initialize {
     my $self = shift;
@@ -363,7 +373,7 @@ sub initialize {
 	#$safe_cmpt -> share('$rf_answer_eval');
 	#$safe_cmpt -> share('$rf_restricted_eval');
 	use strict;
-    	
+
 	# The standalone renderer does this when the module is compiled.
 	unless (exists($ENV{MOJO_MODE})) {
 		$safe_cmpt -> share_from('main', $self->{ra_included_modules} );
@@ -461,7 +471,7 @@ sub unrestricted_load {
 	my $store_mask = $safe_cmpt->mask();
 	$safe_cmpt->mask(Opcode::empty_opset());
 	my $safe_cmpt_package_name = $safe_cmpt->root();
-	
+
 	my $macro_file_name = fileFromPath($filePath);
 	$macro_file_name =~s/\.pl//;  # trim off the extenstion
 	my $export_subroutine_name = "_${macro_file_name}_export";
@@ -476,11 +486,11 @@ sub unrestricted_load {
 	my $macro_file_loaded = ref($init_subroutine) =~ /CODE/ &&
 	    defined(&$init_subroutine);
 
-	#print STDERR "$macro_file_name   has not yet been loaded\n" unless $macro_file_loaded;	
+	#print STDERR "$macro_file_name   has not yet been loaded\n" unless $macro_file_loaded;
 	unless ($macro_file_loaded) {
 		## load the $filePath file
 		## Using rdo insures that the $filePath file is loaded for every problem, allowing initializations to occur.
-		## Ordinary mortals should not be fooling with the fundamental macros in these files.  
+		## Ordinary mortals should not be fooling with the fundamental macros in these files.
 		my $local_errors = "";
 		if (-r $filePath ) {
 			my $rdoResult = $safe_cmpt->rdo($filePath);
@@ -493,7 +503,7 @@ sub unrestricted_load {
 			$self ->{errors} .= $local_errors if $local_errors;
 		}
 		$safe_cmpt -> mask($store_mask);
-		
+
 	}
 	# try again to define the initization subroutine
 	$init_subroutine  = eval { \&{"$init_subroutine_name"} };
@@ -668,7 +678,7 @@ that, so we remove it as well.
 File names are shortened, when possible, by replacing the templates
 directory with [TMPL], the WeBWorK root directory by [WW] and
 the PG root directory by [PG].
-  
+
 =cut
 
 sub PG_errorMessage {
@@ -726,7 +736,7 @@ sub PG_errorMessage {
            '$GLOBAL_VARIABLE' => \'global',
            '$t' => \undef,
            '$s' => \'regular output'
- 
+
 
 
 
@@ -740,7 +750,7 @@ sub PG_undef_var_check {
 		local $Data::Dumper::Maxdepth = 2;
 		# takes all lexical variables from caller-nemaspace
 		my $possibles = Data::Dumper::Dumper({ %{PadWalker::peek_my(1)}, %{PadWalker::peek_our(1)} });
-		
+
 		$possibles ne "\$VAR1 = {};\n" ? ($possibles =~ s/^.*?\n(.*)\n.*?\n$/$1/ms) : ($possibles = '');
 		return "Warning: " . join(', ', @_) . "Possible variables are:\n$possibles\n";
 	}
@@ -761,20 +771,20 @@ sub translate {
 	$self ->{errors} .= qq{ERROR:  This problem file was empty!\n} unless ($evalString) ;
 	$self ->{errors} .= qq{ERROR:  You must define the environment before translating.}
 	     unless defined( $self->{envir} );
-    
+
 	# install handlers for warn and die that call PG_errorMessage.
 	# if the existing signal handler is not a coderef, the built-in warn or
 	# die function is called. this does not account for the case where the
 	# handler is set to "IGNORE" or to the name of a function. in these cases
 	# the built-in function will be called.
-	
+
 	my $outer_sig_warn = $SIG{__WARN__};
 	local $SIG{__WARN__} = sub {
 		ref $outer_sig_warn eq "CODE"
 			? &$outer_sig_warn(PG_errorMessage('message', $_[0]))
 			: warn PG_errorMessage('message', $_[0]);
 	};
-	
+
 	my $outer_sig_die = $SIG{__DIE__};
 	local $SIG{__DIE__} = sub {
 		ref $outer_sig_die eq "CODE"
@@ -847,10 +857,10 @@ without warnings.
 		    ##########################################
 		    ###### PG preprocessing code #############
 		    ##########################################
-		    
+
 		        $evalString = &{$self->{preprocess_code}}($evalString);
 
-		     
+
 #               # default_preprocess_code
 #		        # BEGIN_TEXT and END_TEXT must occur on a line by themselves.
 #		        $evalString =~ s/\n\s*END_TEXT[\s;]*\n/\nEND_TEXT\n/g;
@@ -873,7 +883,7 @@ case the previously defined safe compartment is used. (See item 1.)
 
 				my ($PG_PROBLEM_TEXT_REF, $PG_HEADER_TEXT_REF, $PG_POST_HEADER_TEXT_REF,$PG_ANSWER_HASH_REF, $PG_FLAGS_REF, $PGcore)
 				      =$safe_cmpt->reval("   $evalString");
-				      
+
 
 # This section could use some more error messages.  In particular if a problem doesn't produce the right output, the user needs
 # information about which problem was at fault.
@@ -1000,7 +1010,7 @@ the errors.
 	    $self ->{ rh_correct_answers	}		= $PG_ANSWER_HASH_REF;
 	    $self ->{ PG_FLAGS_REF			}		= $PG_FLAGS_REF;
 	    $self ->{ rh_pgcore             }       = $PGcore;
-	    
+
 	    #warn "PGcore is ", ref($PGcore), " in Translator";
 	    #$self ->{errors};
 }  # end translate
@@ -1082,29 +1092,29 @@ sub process_answers{
 	# the foreach loop around the conditional involving $rf_fun, but for efficiency
 	# we've moved it out here. This means that the handlers will be active during the
 	# code before and after the actual answer evaluation.
-	
+
 	my $outer_sig_warn = $SIG{__WARN__};
 	local $SIG{__WARN__} = sub {
 		ref $outer_sig_warn eq "CODE"
 			? &$outer_sig_warn(PG_errorMessage('message', $_[0]))
 			: warn PG_errorMessage('message', $_[0]);
 	};
-	
+
 	# the die handler is a closure over %errorTable and $outer_sig_die.
-	# 
+	#
 	# %errorTable accumulates a "full" error message for each error that occurs during
 	# answer evaluation. then, right after the evaluation (which is done within a call
 	# to Safe::reval), $@ is checked and it's value is looked up in %errorTable to get
 	# the full error to report.
-	# 
+	#
 	# my question: why is this a hash? this is die, so once one occurs, we exit the reval.
 	# wouldn't it be sufficient to have a scalar like $backtrace_for_last_error?
-	# 
+	#
 	# Note that %errorTable is cleared for each answer.
 	my %errorTable;
 	my $outer_sig_die = $SIG{__DIE__};
 	local $SIG{__DIE__} = sub {
-		
+
 		# this chunk taken from dpvc's original handler
 		my $fullerror = PG_errorMessage('traceback', @_);
 		my ($error,$traceback) = split /\n/, $fullerror, 2;
@@ -1112,7 +1122,7 @@ sub process_answers{
 		$error .= "\n";
 		$errorTable{$error} = $fullerror;
 		# end of dpvc's original code
-		
+
 		ref $outer_sig_die eq "CODE"
 			? &$outer_sig_die($error)
 			: die $error;
@@ -1121,11 +1131,11 @@ sub process_answers{
 
  	# apply each instructors answer to the corresponding student answer
 	# my $printAnsHash = 1; # this turns on error printing of the answer hashes
-	
+
 	#$PG->debug_message("Student answers are: ", join(" ", %h_student_answers) ) if $printAnsHash==1;
  	# we will want to redefine the entry order in terms of the answer evaluators
- 	
- 	#### foreach my $ans_name ( @answer_entry_order ) { 
+
+ 	#### foreach my $ans_name ( @answer_entry_order ) {
  	#### @answer_entry_order was created from PG_ANSWERS_HASH which maintains the
  	#### order of its keys
 
@@ -1139,7 +1149,7 @@ sub process_answers{
  	    ####################################
 
 # 		local($rf_fun,$temp_ans)= (undef,undef);
-# 		
+#
 # 		my ($ans, $errors) = $self->filter_answer( $h_student_answers{$ans_name} );
 # 		$temp_ans  = $ans;
 # 		$temp_ans = '' unless defined($temp_ans); #make sure that answer is always defined
@@ -1147,33 +1157,33 @@ sub process_answers{
 # 		####################################
 #  	    # get answer evaluator (old method)
 #  	    ####################################
-# 		
+#
 # 		if ( defined($rh_correct_answers ->{$ans_name} ) ) {
 # 			$rf_fun  = $rh_correct_answers->{$ans_name};
 # 		} else {
 # 			warn "There is no answer evaluator for the question labeled $ans_name";
 # 		}
 # 		$self->{safe}->share('$rf_fun','$temp_ans');
-# 
+#
 	    ####################################
  	    # gather answers and answer evaluator (new method)
  	    ####################################
 
 		local($new_rf_fun,$new_temp_ans) = (undef,undef);
-		my $answergrp = $PG->{PG_ANSWERS_HASH}->{$ans_name};  #this has all answer evaluators AND answer blanks (just to be sure ) 
+		my $answergrp = $PG->{PG_ANSWERS_HASH}->{$ans_name};  #this has all answer evaluators AND answer blanks (just to be sure )
  	    my $responsegrp = $answergrp->response_obj;
 #################
 # refactor to answer group?
 ##################
-        $new_rf_fun = $answergrp->ans_eval;   
-        my ($ans, $errors) = $self->filter_answer( $responsegrp->get_response($ans_name) );     
+        $new_rf_fun = $answergrp->ans_eval;
+        my ($ans, $errors) = $self->filter_answer( $responsegrp->get_response($ans_name) );
         $new_temp_ans = $ans; # avoid undefined errors in translator
         my $skip_evaluation=0;
         if (not defined($new_rf_fun) ) {
         	$PG->warning_message( "No answer evaluator for the question labeled: $ans_name ");
         	$skip_evaluation=1;
         } elsif (not ref($new_rf_fun) =~ /AnswerEvaluator/ ) {
-				$PG->warning_message( "Error in Translator.pm::process_answers: Answer $ans_name: 
+				$PG->warning_message( "Error in Translator.pm::process_answers: Answer $ans_name:
 				                    Unrecognized evaluator type |". ref($rf_fun). "|");
 				$skip_evaluation=1;
 		}
@@ -1182,7 +1192,7 @@ sub process_answers{
 				$skip_evaluation=1;
 		}
 		$PG->debug_message("Answers associated with $ans_name are $new_temp_ans ref=". ref($new_temp_ans) ) if defined $new_temp_ans and $local_debug;
-       #FIXME -- this is a hack for handling check boxes. 
+       #FIXME -- this is a hack for handling check boxes.
         if (ref( $new_temp_ans) =~/HASH/i) {
         	my @tmp = ();
         	foreach my $key (sort keys %$new_temp_ans) {
@@ -1192,7 +1202,7 @@ sub process_answers{
         	$PG->debug_message("Hash answer associated with $ans_name is $new_temp_ans. ref=". ref($new_temp_ans)."<br/>".pretty_print($new_temp_ans) ) if $local_debug;
         }
         #FIXME -- hack to allow answers such as <4,6,7>  -- < and > have been escaped.
-        unless( $skip_evaluation) { 
+        unless( $skip_evaluation) {
 # 			$new_temp_ans =~ s/\&lt\;/</g; # <
 # 			$new_temp_ans =~ s/\&gt\;/>/g; # >
 # 			$new_temp_ans =~ s/\&\#91\;/\[/g; # <
@@ -1204,12 +1214,12 @@ sub process_answers{
 		$self->{safe}->share('$new_rf_fun','$new_temp_ans');
 
 
- 	     	    
+
  	    # clear %errorTable for each problem
  	    %errorTable = (); # is the error table being used? perhaps by math objects?
- 	    
+
 		my ($rh_ans_evaluation_result, $new_rh_ans_evaluation_result);
-		
+
 		if (ref($new_rf_fun) eq 'CODE' ) {
 #			$rh_ans_evaluation_result = $self->{safe} ->reval( '&{ $rf_fun }($temp_ans, ans_label => \''.$ans_name.'\')' ) ;
 #			warn "Error in Translator.pm::process_answers: Answer $ans_name: |$temp_ans|\n $@\n" if $@;
@@ -1225,13 +1235,13 @@ sub process_answers{
 # 			warn "Evaluation error: Answer $ans_name:<br/>\n",
 # 				$rh_ans_evaluation_result->error_flag(), " :: ",
 # 				$rh_ans_evaluation_result->error_message(),"<br/>\n"
-# 					if defined($rh_ans_evaluation_result)  
+# 					if defined($rh_ans_evaluation_result)
 # 						and defined($rh_ans_evaluation_result->error_flag());
-# 
+#
 # 			$rh_ans_evaluation_result = {%$rh_ans_evaluation_result};  #needed to protect result
 # 			                                                           # from next evaluation apparently
 #########################################
-			
+
 		  #  Get full traceback, but save it in local variable $errorTable so that
 		  #  we can add it later.  This is because some evaluators use
 		  #  eval to trap errors and then report them in the message
@@ -1246,22 +1256,22 @@ sub process_answers{
 				$PG->warning_message( "Evaluation error in new process: Answer $ans_name:<br/>\n",
 					$new_rh_ans_evaluation_result->error_flag(), " :: ",
 					$new_rh_ans_evaluation_result->error_message(),"<br/>\n")
-						if defined($new_rh_ans_evaluation_result) && ref($new_rh_ans_evaluation_result) 
+						if defined($new_rh_ans_evaluation_result) && ref($new_rh_ans_evaluation_result)
 							&& defined($new_rh_ans_evaluation_result->error_flag());
 			} else {
 				$PG->warning_message(" The evaluated answer is not an answer hash ".($new_rh_ans_evaluation_result//'').': |'.ref($new_rh_ans_evaluation_result)."|.");
-			}						
+			}
 # 			$PG->debug_message( $self->{envir}->{'probFileName'}  ." new_temp_ans and temp_ans don't agree: ".
-#                       ref($new_temp_ans)." $new_temp_ans ". ref($temp_ans). "  $temp_ans".length($new_temp_ans).length($temp_ans)) 
+#                       ref($new_temp_ans)." $new_temp_ans ". ref($temp_ans). "  $temp_ans".length($new_temp_ans).length($temp_ans))
 #                       unless $new_temp_ans eq $temp_ans;
 		} else {
 			$PG->warning_message( "Answer evaluator $ans_name was not executed due to errors. ", "========");
 		}
-#########################################################	
+#########################################################
 # End refactor to answer group ?
 #############################################
-       
-#########################################################	
+
+#########################################################
 # check that old and new answers are the same
 #    	   foreach my $key (keys %$rh_ans_evaluation_result) {
 #   	   		next unless defined $key;
@@ -1272,14 +1282,14 @@ sub process_answers{
 #   	   			$rh_ans_evaluation_result->{$key}." new: ".$new_rh_ans_evaluation_result->{$key})
 #   	   			unless $rh_ans_evaluation_result->{$key} eq $new_rh_ans_evaluation_result->{$key};
 #    	   	}
-	
-#########################################################	       
+
+#########################################################
   	   #$PG->debug_message("old $ans_name: $rf_fun -- ans: $temp_ans",pretty_print($rh_ans_evaluation_result)) if $printAnsHash==1;
-  	   $PG->debug_message("new $ans_name: $new_rf_fun -- ans: 
-  	          	$new_temp_ans",pretty_print($new_rh_ans_evaluation_result)) 
-  	            if ($PG->{envir}->{inputs_ref}->{showAnsHashInfo})//'' 
+  	   $PG->debug_message("new $ans_name: $new_rf_fun -- ans:
+  	          	$new_temp_ans",pretty_print($new_rh_ans_evaluation_result))
+  	            if ($PG->{envir}->{inputs_ref}->{showAnsHashInfo})//''
   	              and ($PG->{envir}->{permissionLevel})//0 >=10;
-#########################################################	
+#########################################################
 
 # decide whether to return the new or old answer evaluator hash
 		$rh_ans_evaluation_result = $new_rh_ans_evaluation_result;
@@ -1287,7 +1297,7 @@ sub process_answers{
 #    This warning may not be needed.
 # 		unless ( ( ref($rh_ans_evaluation_result) eq 'HASH') or ( ref($rh_ans_evaluation_result) eq 'AnswerHash') ) {
 # 			warn "Error in Translator.pm::process_answers: Answer $ans_name:<br/>\n
-# 				Answer evaluators must return a hash or an AnswerHash type, not type |", 
+# 				Answer evaluators must return a hash or an AnswerHash type, not type |",
 # 				ref($rh_ans_evaluation_result), "|";
 # 		}
 		$rh_ans_evaluation_result ->{ans_message} .= "$errors \n" if $errors;
@@ -1519,8 +1529,8 @@ sub filter_answer {
 	my $errors='';
 	if (ref($ans) eq 'ARRAY') {   #handle the case where the answer comes from several inputs with the same name
 								  # In many cases this will be passed as a reference to an array
-								  # if it is passed as a single string (separated by \0 characters) as 
-								  # some early versions of CGI behave, then 
+								  # if it is passed as a single string (separated by \0 characters) as
+								  # some early versions of CGI behave, then
 								  # it is unclear what will happen when the answer is filtered.
 		foreach my $item (@{$ans}) {
 			my ($filtered_ans, $error) = &{ $self->{rf_safety_filter} } ($item);
@@ -1528,11 +1538,11 @@ sub filter_answer {
 			$errors .= " ". $error if $error;  # add error message if error is non-zero.
 		}
 		(\@filtered_answers,$errors);
-	
+
 	} else {
 		&{ $self->{rf_safety_filter} } ($ans);
 	}
-	
+
 }
 
 sub rf_safety_filter {
@@ -1592,16 +1602,16 @@ have special significance.
 C<sort {$a<=>$b} @list>
 C<sort {$a cmp $b} @list>
 
-sorts the list numerically and lexically respectively. 
+sorts the list numerically and lexically respectively.
 
 If C<my $a;> is used in a problem, before the sort routine is defined in a macro, then
-things get badly confused.  To correct this the macro PGsort is defined below.  It is 
+things get badly confused.  To correct this the macro PGsort is defined below.  It is
 evaluated before the problem template is read.  In PGbasicmacros.pl, the two subroutines
 
 	PGsort sub { $_[0] < $_[1] }, @list;
 	PGsort sub { $_[0] lt $_[1] }, @list;
 
-(called num_sort and lex_sort) provide slightly slower, but safer, routines for the PG language. 
+(called num_sort and lex_sort) provide slightly slower, but safer, routines for the PG language.
 (The subroutines for ordering are B<required>. Note the commas!)
 
 =cut
@@ -1690,10 +1700,10 @@ sub PG_restricted_eval_helper {
 sub PG_macro_file_eval {      # would like to modify this so that it requires use strict on the files that it evaluates.
     my $string = shift;
     my ($pck,$file,$line) = caller;
-	
+
 	local $SIG{__WARN__} = "DEFAULT";
 	local $SIG{__DIE__} = "DEFAULT";
-	
+
     no strict;
     my $out = eval  ("package main; be_strict();\n" . $string );
     my $errors =$@;
@@ -1701,7 +1711,7 @@ sub PG_macro_file_eval {      # would like to modify this so that it requires us
                 . $errors .
                 "The calling package is $pck\n" if defined($errors) && $errors =~/\S/;
     use strict;
-    
+
     return (wantarray) ?  ($out, $errors,$full_error_report) : $out;
 }
 =head2 PG_answer_eval
@@ -1725,20 +1735,20 @@ sub PG_answer_eval {
    my($string) = shift;   # I made this local just in case -- see PG_restricted_eval
    my $errors = '';
    my $full_error_report = '';
-   my ($pck,$file,$line) = caller; 
+   my ($pck,$file,$line) = caller;
     # Because of the global variable $PG::compartment_name and $PG::safe_cmpt
     # only one problem safe compartment can be active at a time.
     # This might cause problems at some point.  In that case a cleverer way
     # of insuring that the package stays in scope until the answer is evaluated
     # will be required.
-    
+
     # This is pretty tricky and doesn't always work right.
     # We seem to need PG_priv instead of main when PG_answer_eval is called within a completion
     # 'package PG_priv; '
-    
+
     local $SIG{__WARN__} = sub {die(@_)};  # make warn die, so all errors are reported.
 	local $SIG{__DIE__} = "DEFAULT";
-	
+
     no strict;
     my $out = eval('package main;'.$string);
     $out = '' unless defined($out);
@@ -1747,7 +1757,7 @@ sub PG_answer_eval {
                 $errors
                 The calling package is $pck\n" if defined($errors) && $errors =~/\S/;
     use strict;
-    
+
     return (wantarray) ?  ($out, $errors,$full_error_report) : $out;
 
 
@@ -1759,7 +1769,7 @@ sub PG_answer_eval {
 # 	$evalString =~ s/\n\s*END_TEXT[\s;]*\n/\nEND_TEXT\n/g;
 # 	$evalString =~ s/\n\s*BEGIN_TEXT[\s;]*\n/\nTEXT\(EV3\(<<'END_TEXT'\)\);\n/g;
 # 	$evalString =~ s/ENDDOCUMENT.*/ENDDOCUMENT();/s; # remove text after ENDDOCUMENT
-# 
+#
 # 	$evalString =~ s/\\/\\\\/g;    # \ can't be used for escapes because of TeX conflict
 # 	$evalString =~ s/~~/\\/g;      # use ~~ as escape instead, use # for comments
 # 	$evalString;
@@ -1794,33 +1804,33 @@ sub default_postprocess_code {
 	$evalString_ref;
 }
 
-no strict;   
+no strict;
 sub dumpvar {
     my ($packageName) = @_;
 
     local(*alias);
-    
+
     sub emit {
     	print @_;
     }
-    
+
     *stash = *{"${packageName}::"};
     $, = "  ";
-    
+
     emit "Content-type: text/html; charset=UTF-8\n\n<pre>\n";
-    
-    
+
+
     while ( ($varName, $globValue) = each %stash) {
         emit "$varName\n";
-        
+
 	*alias = $globValue;
 	next if $varName=~/main/;
-	
+
 	#if (defined($alias) ) {  # get rid of defined since this is deprecated
 	if ($alias ) {
 	    emit "  \$$varName $alias \n";
 	}
-	
+
 	if ( @alias) {
 	    emit "  \@$varName @alias \n";
 	}

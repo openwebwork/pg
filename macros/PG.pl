@@ -475,8 +475,11 @@ sub ENDDOCUMENT {
 				my $data_mq_opts = scalar(keys %$mq_part_opts)
 					? qq!data-mq-opts="@{[encode_pg_and_html(JSON->new->encode($mq_part_opts))]}"!
 					: "";
-				TEXT(MODES(TeX => "",
-						HTML => qq!<input type=hidden name="$name" id="$name" value="$answer_value" $data_mq_opts>!));
+				TEXT(MODES(
+					TeX => "",
+					PTX => "",
+					HTML => qq!<input type=hidden name="$name" id="$name" value="$answer_value" $data_mq_opts>!
+				));
 			}
 		}
 	}
@@ -913,8 +916,7 @@ __END__
 
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/PG.pl,v 1.46 2010/05/27 02:22:51 gage Exp $
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the

@@ -1,6 +1,16 @@
 ################################################################################
-# WeBWorK mod_perl (c) 2000-2002 WeBWorK Project
-# $Id$
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
 ################################################################################
 
 package WeBWorK::PG::ImageGenerator;
@@ -175,14 +185,14 @@ sub new {
 	$self->{dvipng_align} = 'absmiddle' unless defined($self->{dvipng_align});
 	$self->{store_depths} = 1 if ($self->{dvipng_align} eq 'mysql');
 	$self->{useMarkers} = $self->{useMarkers} || 0;
-	
+
 	if ($self->{useCache}) {
 		$self->{dir} = $self->{cacheDir};
 		$self->{url} = $self->{cacheURL};
 		$self->{basename} = "";
 		$self->{equationCache} = WeBWorK::EquationCache->new(cacheDB => $self->{cacheDB});
 	}
-	
+
 	bless $self, $class;
 }
 
@@ -194,7 +204,7 @@ For example
 
 Will define a question wide style for interpreting
    \( \myVec{v}  \)
-   
+
 If this statement is placed in PGcourse.pl then the backslashes must be doubled since it is a .pl file
 not a .pg file
 
@@ -231,7 +241,7 @@ for displaying the image.
 
 sub add {
 	my ($self, $string, $mode) = @_;
-	
+
 	my $names    = $self->{names};
 	my $strings  = $self->{strings};
 	my $dir      = $self->{dir};
@@ -239,7 +249,7 @@ sub add {
 	my $basename = $self->{basename};
 	my $useCache = $self->{useCache};
 	my $depths  = $self->{depths};
-	
+
 	# if the string came in with delimiters, chop them off and set the mode
 	# based on whether they were \[ .. \] or \( ... \). this means that if
 	# the string has delimiters, the mode *argument* is ignored.
@@ -249,16 +259,16 @@ sub add {
 		$mode = "inline";
 	}
 	# otherwise, leave the string and the mode alone.
-	
+
 	# assume that a bare string with no mode specified is inline
 	$mode ||= "inline";
-	
+
 	# now that we know what mode we're dealing with, we can generate a "real"
 	# string to pass to latex
 	my $realString = ($mode eq "display")
 		? '\(\displaystyle{' . $string . '}\)'
 		: '\(' . $string . '\)';
-	
+
 	# alignment tag could be a fixed default
 	my ($imageNum, $aligntag) = (0, qq|align="$self->{dvipng_align}"|);
 	# if the default is for variable heights, the default should be meaningful
@@ -277,7 +287,7 @@ sub add {
 	} else {
 		$imageNum = @$strings + 1;
 	}
-	
+
 	# We are banking on the fact that if useCache is true, then basename is empty.
 	# Maybe we should simplify and drop support for useCache =0 and having a basename.
 
@@ -285,15 +295,15 @@ sub add {
 	my $imageName = ($basename)
 		? "$basename.$imageNum.png"
 		: "$imageNum.png";
-	
+
 	# store the full file name of the image, and the "real" tex string to the object
 	push @$names, $imageName;
 	push @$strings, $realString;
 	#warn "ImageGenerator: added string $realString with name $imageName\n";
-	
+
 	# ... and the full URL.
 	my $imageURL = "$url/$imageName";
-	
+
 	my $safeString = PGcore::encode_pg_and_html($string);
 
 	my $imageTag  = ($mode eq "display")
@@ -305,7 +315,7 @@ sub add {
 
 =item render(%options)
 
-Uses LaTeX and dvipng to render the equations stored in the object. 
+Uses LaTeX and dvipng to render the equations stored in the object.
 
 The option C<body_text> is a reference to the text of the problem's text.  After
 rendering the images and figuring out their depths, we go through and fix the tags
@@ -328,7 +338,7 @@ NOTE: It's not clear to me that mtime has been implemented -- MEG - 2011/06
 
 sub render {
 	my ($self, %options) = @_;
-	
+
 	my $tempDir  = $self->{tempDir};
 	my $dir      = $self->{dir};
 	my $basename = $self->{basename};
@@ -347,8 +357,8 @@ sub render {
 		my $success = mkdir "$dir";
 		warn "Could not make directory $dir" unless $success;
 	}
-	
-	###############################################			
+
+	###############################################
 	# determine which images need to be generated
 	###############################################
 	my (@newStrings, @newNames);
@@ -363,12 +373,12 @@ sub render {
 			push @newNames, $name;
 		}
 	}
-	
+
     if(@newStrings) { # Don't run latex if there are no images to generate
-		
+
 		# create temporary directory in which to do TeX processing
 		my $wd = makeTempDirectory($tempDir, "ImageGenerator");
-		
+
 		# store equations in a tex file
 		my $texFile = "$wd/equation.tex";
 		open my $tex, ">", $texFile
@@ -379,19 +389,19 @@ sub render {
 		print $tex $TexPostamble;
 		close $tex;
 		warn "tex file $texFile was not written" unless -e $texFile;
-		
+
 		###############################################
 		# call LaTeX
 		###############################################
 		my $latexCommand  = "cd $wd && $latex equation > latex.out 2> latex.err";
 		my $latexStatus = system $latexCommand;
-	
+
 		if ($latexStatus and $latexStatus !=256) {
 			warn "$latexCommand returned non-zero status $latexStatus: $!";
 			warn "cd $wd failed" if system "cd $wd";
 			warn "Unable to write to directory $wd. " unless -w $wd;
 			warn "Unable to execute $latex " unless -e $latex ;
-			
+
 			warn `ls -l $wd`;
 			my $errorMessage = '';
 			if (-r "$wd/equation.log") {
@@ -401,10 +411,10 @@ sub render {
 			   warn "Unable to read logfile $wd/equation.log ";
 			}
 		}
-	
+
 		warn "$latexCommand failed to generate a DVI file"
 			unless -e "$wd/equation.dvi";
-		
+
 		############################################
 		# call dvipng
 		############################################
@@ -418,29 +428,29 @@ sub render {
 		my @dvipngdepths = ($dvipngout =~ /depth=(\d+)/g);
 		# kill them all if something goes wrnog
 		@dvipngdepths = () if(scalar(@dvipngdepths) != scalar(@newNames));
-	
+
 		############################################
 		# move/rename images
 		############################################
-	
+
 	  chmod (0664,<$wd/*>);  # first make everything group writable so that a WeBWorK admin can delete images
 		foreach my $image (readDirectory($wd)) {
 			# only work on equation#.png files
 			next unless $image =~ m/^equation(\d+)\.png$/;
-			
+
 			# get image number from above match
 			my $imageNum = $1;
 			# note, problems with solutions/hints can have empty values in newNames
 			next unless $newNames[$imageNum-1];
-	
+
 			# record the dvipng offset
 			my $hashkey = $newNames[$imageNum-1];
 			$hashkey =~ s|/||;
 			$hashkey =~ s|\.png$||;
 			$depths->{"$hashkey"} = $dvipngdepths[$imageNum-1] if(defined($dvipngdepths[$imageNum-1]));
-			
+
 			#warn "ImageGenerator: found generated image $imageNum with name $newNames[$imageNum-1]\n";
-			
+
 			# move/rename image
 			#my $mvCommand = "cd $wd && /bin/mv $wd/$image $dir/$basename.$imageNum.png";
 			# check to see if this requires a directory we haven't made yet
@@ -457,12 +467,12 @@ sub render {
 				warn "$mvCommand returned non-zero status $mvStatus: $!";
 				warn "Can't write to tmp/equations directory $dir" unless -w $dir;
 			}
-	
+
 		}
 		############################################
 		# remove temporary directory (and its contents)
 		############################################
-	
+
 		if ($PreserveTempFiles) {
 			warn "ImageGenerator: preserved temp files in working directory '$wd'.\n";
 			chmod (0775,$wd);

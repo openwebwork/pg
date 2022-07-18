@@ -1,6 +1,16 @@
 ################################################################################
-# WeBWorK mod_perl (c) 2000-2002 WeBWorK Project
-# $Id$
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
 ################################################################################
 
 package WeBWorK::EquationCache;
@@ -63,7 +73,7 @@ sub new {
 	my $self = {
 		%options,
 	};
-	
+
 	bless $self, $class;
 }
 
@@ -90,14 +100,14 @@ sub lookup {
 	# $tex =~ s/\s+//g;
 
 	my $md5 = md5_hex(encode_utf8($tex));
-	
+
 	my $db = $self->{cacheDB};
 	unless($db) { return($md5 ."1"); }
 	sysopen(DB, $db, O_RDWR|O_CREAT)
 		or die "failed to create/open cacheDB $db: $!";
 	flock(DB, LOCK_EX)
 		or die "failed to write-lock cacheDB $db: $!";
-	
+
 	my $line = 0;
 	my $max = 0;
 	my $match = 0;
@@ -114,14 +124,14 @@ sub lookup {
 			$max = $1 if $1 > $max;
 		}
 	}
-	
+
 	unless ($match) {
 		# no match: invent a new instance number and add TeX string to DB
 		$match = $max + 1;
 		seek(DB, 0, 2); # we should already be at EOF, but what the hell.
 		print DB "$md5\t$match\t$tex\n";
 	}
-	
+
 	close(DB);
 	return "$md5$match";
 }

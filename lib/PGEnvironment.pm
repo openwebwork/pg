@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2021 The WeBWorK Project, http://github.com/openwebwork
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -62,7 +62,8 @@ sub new {
 		# Load from the conf file.
 		$self->{pg_dir} = $ENV{PG_ROOT};
 
-		my $defaults_file = $self->{pg_dir} . "/conf/pg_defaults.yml";
+		my $defaults_file = "$self->{pg_dir}/conf/pg_defaults.yml";
+		$defaults_file = "$self->{pg_dir}/conf/pg_defaults.dist.yml" unless -r $defaults_file;
 		die "Cannot read the configuration file $defaults_file" unless -r $defaults_file;
 
 		my $options = LoadFile($defaults_file);
