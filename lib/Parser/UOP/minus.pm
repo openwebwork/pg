@@ -29,7 +29,10 @@ sub _eval {-($_[1])}
 sub _reduce {
   my $self = shift; my $op = $self->{op};
   my $reduce = $self->{equation}{context}{reduction};
-  return $op->{op} if $op->isNeg && $reduce->{'-(-x)'};
+  if ($op->isNeg && $reduce->{'-(-x)'}) {
+    delete $op->{op}{noParens};
+    return $op->{op};
+  }
   return $op if $op->{isZero} && $reduce->{'-0'};
   return $self;
 }

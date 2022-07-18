@@ -1,0 +1,249 @@
+<h2 style="text-align: center">Syntax for entering answers to WeBWorK</h2>
+
+<h3 style="font-size: 1.25rem">Mathematical Symbols Available In WeBWorK</h3>
+<ul>
+	<li><code style="color: black">+</code> Addition.</li>
+	<li><code style="color: black">-</code> Subtraction.</li>
+	<li>
+		<code style="color: black">*</code> Multiplication. Multiplication can also be indicated by a space or
+		juxtaposition, e.g., <code style="color: black">2x</code>, <code style="color: black">2 x</code> or
+		<code style="color: black">2*x</code>, also <code style="color: black">2(3+4)</code>.
+	</li>
+	<li><code style="color: black">/</code> Division.</li>
+	<li>
+		<code style="color: black">^</code> or <code style="color: black">**</code> Exponent. You can use either
+		<code style="color: black">^</code> or <code style="color: black">** </code>for exponentiation, e.g.,
+		<code style="color: black">3^2</code> or <code style="color: black">3**2</code>.
+	</li>
+	<li>
+		<code style="color: black">( )</code> Parentheses. You can also use square brackets,
+		<code style="color: black">[ ]</code>, and braces, <code style="color: black">{ }</code>, for grouping, e.g.,
+		<code style="color: black">[1+2]/[3(4+5)]</code>
+	</li>
+</ul>
+
+<h3 style="font-size: 1.25rem"><span class="mw-headline">Syntax for entering expressions</span></h3>
+<ul>
+	<li>Be careful entering expressions just as you would be careful entering expressions in a calculator.</li>
+	<li>
+		<b>Use the "Preview Button" to see exactly how your entry looks.</b>
+		E.g., to tell the difference between <code style="color: black">1+2/3*4</code> and
+		<code style="color: black">[1+2]/[3*4]</code> click the "Preview Button".
+	</li>
+	<li>
+		Sometimes using the <code style="color: black">*</code> symbol to indicate mutiplication makes things easier to
+		read. For example <code style="color: black">(1+2)*(3+4)</code> and <code style="color: black">(1+2)(3+4)</code>
+		are both valid. So are <code style="color: black">3*4</code> and <code style="color: black">3 4</code>
+		(<code style="color: black">3 space 4</code>, not <code style="color: black">34</code>) but using a
+		<code style="color: black">*</code> makes things clearer.
+	</li>
+	<li>
+		Use <code style="color: black">(</code>'s and <code style="color: black">)</code>'s to make your meaning clear.
+		You can also use <code style="color: black">[</code>'s and <code style="color: black">]</code>'s and
+		<code style="color: black">{</code>'s and <code style="color: black">}</code>'s.
+	</li>
+	<li>
+		Don't enter <code style="color: black">2/4+5</code> (which is <code style="color: black">5.5</code>) when you
+		really want <code style="color: black">2/(4+5)</code> (which is <code style="color: black">2/9</code>).
+	</li>
+	<li>
+		Don't enter <code style="color: black">2/3*4</code> (which is <code style="color: black">8/3</code>) when you
+		really want <code style="color: black">2/(3*4)</code> (which is <code style="color: black">2/12</code>).
+	</li>
+	<li>
+		Entering big quotients with square brackets, e.g. <code style="color: black">[1+2+3+4]/[5+6+7+8]</code>, is a
+		good practice.
+	</li>
+	<li>
+		Be careful when entering functions. It's always good practice to use parentheses when entering functions. Write
+		<code style="color: black">sin(t)</code> instead of <code style="color: black">sint</code> or
+		<code style="color: black">sin t</code> even though WeBWorK is smart enough to <b>usually</b> accept
+		<code style="color: black">sin t</code> or even <code style="color: black">sint</code>.  For example,
+		<code style="color: black">sin 2t</code> is interpreted as <code style="color: black">sin(2)t</code>, i.e.
+		<code style="color: black">(sin(2))*t</code> so be careful.
+	</li>
+	<li>
+		You can enter <code style="color: black">sin^2(t)</code> as a short cut although mathematically speaking
+		<code style="color: black">sin^2(t)</code> is shorthand for <code style="color: black">(sin(t))^2</code> (the
+		square of sin of t). (You can enter it as <code style="color: black">sin(t)^2</code> or even
+		<code style="color: black">sint^2</code>, but don't try such things unless you <b>really</b> understand the
+		precedence of operations. The "<code style="color: black">sin</code>" operation has highest precedence, so it is
+		performed first, using the next token (i.e. <code style="color: black">t</code>) as an argument. Then the result
+		is squared.) You can always use the Preview button to see a typeset version of what you entered and check
+		whether what you wrote was what you meant.
+	</li>
+	<li>
+		For example <code style="color: black">2+3sin^2(4x)</code> will work and is equivalent to
+		<code style="color: black">2+3(sin(4x))^2</code> or <code style="color: black">2+3sin(4x)^2</code>. Why does the
+		last expression work? Because things in parentheses are always done first
+		[ i.e. <code style="color: black">(4x)</code>], next all functions, such as sin, are evaluated
+		[giving <code style="color: black">sin(4x)</code>], next all exponents are taken
+		[giving <code style="color: black">sin(4x)^2</code>], next all multiplications and divisions are performed in
+		order from left to right [<code style="color: black">giving 3sin(4x)^2</code>], and finally all additions and
+		subtractions are performed [giving <code style="color: black">2+3sin(4x)^2</code>].
+	</li>
+	<li>
+		Is <code style="color: black">-5^2</code> positive or negative? It's negative. This is because the square
+		operation is done before the negative sign is applied. Use <code style="color: black">(-5)^2</code> if you want
+		to square negative 5.
+	</li>
+	<li>When in doubt use parentheses!!!</li>
+	<li>
+		The complete rules for the precedence of operations, in addition to the above, are
+		<ul>
+			<li>
+				Multiplications and divisions are performed left to right:
+				<code style="color: black">2/3*4 = (2/3)*4 = 8/3</code>.
+			</li>
+			<li>
+				Additions and subtractions are performed left to right:
+				<code style="color: black">1-2+3 = (1-2)+3 = 2.</code>
+			</li>
+			<li>
+				Exponents are taken right to left:
+				<code style="color: black">2^3^4 = 2^(3^4) = 2^81 =</code> a big number.
+			</li>
+		</ul>
+	</li>
+</ul>
+
+<h3 style="font-size: 1.25rem"><span class="mw-headline">Mathematical Constants Available In WeBWorK</span></h3>
+<ul>
+	<li>
+		<code style="color: black">pi</code> This gives <code style="color: black">3.14159265358979</code>, e.g.
+		<code style="color: black">cos(pi)</code> is <code style="color: black">-1</code>
+	</li>
+	<li>
+		<code style="color: black">e</code> This gives <code style="color: black">2.71828182845905</code>, e.g.
+		<code style="color: black">ln(e*2)</code> is <code style="color: black">1 + ln(2)</code>
+	</li>
+</ul>
+
+<h3 style="font-size: 1.25rem"><span class="mw-headline">Scientific Notation Available In WeBWorK</span></h3>
+<ul>
+	<li><code style="color: black">2.1E2</code> is the same as <code style="color: black">210</code></li>
+	<li><code style="color: black">2.1E-2</code> is the same as <code style="color: black">0.021</code></li>
+</ul>
+
+<h3 style="font-size: 1.25rem"><span class="mw-headline">Mathematical Functions Available In WeBWorK</span></h3>
+<p style="margin-bottom: 0.5rem">
+	Note that sometimes one or more of these functions is disabled for a WeBWorK problem because the instructor wants
+	you to calculate the answer by some means other than just using the function.
+</p>
+<ul>
+	<li><code style="color: black">abs( )</code> The absolute value</li>
+	<li><code style="color: black">cos( )</code> Note: Uses radian measure.</li>
+	<li><code style="color: black">sin( )</code> Note: Uses radian measure.</li>
+	<li><code style="color: black">tan( )</code> Note: Uses radian measure.</li>
+	<li><code style="color: black">sec( )</code> Note: Uses radian measure.</li>
+	<li><code style="color: black">cot( )</code> Note: Uses radian measure.</li>
+	<li><code style="color: black">csc( )</code> Note: Uses radian measure.</li>
+	<li><code style="color: black">exp( )</code> The same function as <code style="color: black">e^x</code>.</li>
+	<li>
+		<code style="color: black">log( )</code>
+		This is usually the natural log but your instructor may have redined this to be log base 10.
+	</li>
+	<li><code style="color: black">ln( )</code> The natural log.</li>
+	<li><code style="color: black">logten( )</code> The log to the base 10.</li>
+	<li><code style="color: black">arcsin( )</code></li>
+	<li>
+		<code style="color: black">asin( )</code> or <code style="color: black">sin^-1( )</code>
+		Another name for <code style="color: black">arcsin</code>.
+	</li>
+	<li><code style="color: black">arccos( )</code></li>
+	<li>
+		<code style="color: black">acos( )</code> or <code style="color: black">cos^-1( )</code>
+		Another name for <code style="color: black">arccos</code>.
+	</li>
+	<li><code style="color: black">arctan( )</code></li>
+	<li>
+		<code style="color: black">atan( )</code> or <code style="color: black">tan^-1( )</code>
+		Another name for <code style="color: black">arctan</code>.
+	</li>
+	<li><code style="color: black">arccot( )</code></li>
+	<li>
+		<code style="color: black">acot( )</code> or <code style="color: black">cot^-1( )</code>
+		Another name for <code style="color: black">arccot</code>.
+	</li>
+	<li><code style="color: black">arcsec( )</code></li>
+	<li>
+		<code style="color: black">asec( )</code> or <code style="color: black">sec^-1( )</code>
+		Another name for arcsec
+	</li>
+	<li><code style="color: black">arccsc( )</code></li>
+	<li>
+		<code style="color: black">acsc( )</code> or <code style="color: black">csc^-1( )</code>
+		Another name for <code style="color: black">arccsc</code>.
+	</li>
+	<li><code style="color: black">sinh( )</code></li>
+	<li><code style="color: black">cosh( )</code></li>
+	<li><code style="color: black">tanh( )</code></li>
+	<li><code style="color: black">sech( )</code></li>
+	<li><code style="color: black">csch( )</code></li>
+	<li><code style="color: black">coth( )</code></li>
+	<li><code style="color: black">arcsinh( )</code></li>
+	<li>
+		<code style="color: black">asinh( )</code> or <code style="color: black">sinh^-1( )</code>
+		Another name for <code style="color: black">arcsinh</code>.
+	</li>
+	<li><code style="color: black">arccosh( )</code></li>
+	<li>
+		<code style="color: black">acosh( )</code> or <code style="color: black">cosh^-1( )</code>
+		Another name for <code style="color: black">arccosh</code>.
+	</li>
+	<li><code style="color: black">arctanh( )</code></li>
+	<li>
+		<code style="color: black">atanh( )</code> or <code style="color: black">tanh^-1( )</code>
+		Another name for <code style="color: black">arctanh</code>.
+	</li>
+	<li><code style="color: black">arcsech( )</code></li>
+	<li>
+		<code style="color: black">asech( )</code> or <code style="color: black">sech^-1( )</code>
+		Another name for <code style="color: black">arcsech</code>.
+	</li>
+	<li><code style="color: black">arccsch( )</code></li>
+	<li>
+		<code style="color: black">acsch( )</code> or <code style="color: black">csch^-1( )</code>
+		Another name for <code style="color: black">arccsch</code>.
+	</li>
+	<li><code style="color: black">arccoth( )</code></li>
+	<li>
+		<code style="color: black">acoth( )</code> or <code style="color: black">coth^-1( )</code>
+		Another name for <code style="color: black">arccoth</code>.
+	</li>
+	<li><code style="color: black">sqrt( )</code></li>
+	<li>
+		<code style="color: black">n!</code> n factorial. This is defined for integers
+		<code style="color: black">n</code> such that <code style="color: black">n &ge; 0</code>.
+	</li>
+</ul>
+
+<h3 style="font-size: 1.25rem"><span class="mw-headline">Other Mathematical Functions</span></h3>
+<p style="margin-bottom: 0.5rem">These functions may not always be available for every problem.</p>
+<ul>
+	<li>
+		<code style="color: black">sgn( )</code> The sign function.  Its value is one of
+		<code style="color: black">-1</code>, <code style="color: black">0</code>, or
+		<code style="color: black">1</code>.
+	</li>
+	<li>
+		<code style="color: black">step( )</code> The step function. Its value is
+		<code style="color: black">0</code> if <code style="color: black">x &le; 0</code> and
+		<code style="color: black">1</code> if <code style="color: black">x &gt; 0</code>.
+	</li>
+	<li>
+		<code style="color: black">fact(n)</code>
+		The factorial function <code style="color: black">n!</code> (defined only for nonnegative integers)
+	</li>
+	<li>
+		<code style="color: black">P(n,k) = n*(n-1)*(n-2)...(n-k+1)</code>, the number of ordered sequences of
+		<code style="color: black">k</code> elements chosen from <code style="color: black">n</code> elements
+	</li>
+	<li>
+		<code style="color: black">C(n,k) = "n choose k"</code>, the number of unordered sequences of
+		<code style="color: black">k</code> elements chosen from <code style="color: black">n</code> elements
+	</li>
+</ul>
+
+For more information see the
+<a href="http://webwork.maa.org/wiki/Available_Functions">list of all available functions</a>.

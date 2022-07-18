@@ -1,13 +1,12 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/contextInequalities.pl,v 1.23 2010/03/22 11:01:55 dpvc Exp $
-# 
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any later
 # version, or (b) the "Artistic License" which comes with this package.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
@@ -380,7 +379,7 @@ sub _check {
     unless $self->{lop}{isInequality} && $self->{rop}{isInequality};
   $self->Error("Inequalities combined by '%s' must both use the same variable",$self->{bop})
     unless $self->{lop}{varName} eq $self->{rop}{varName};
-  $self->{type} = Value::Type("Interval",2);
+  $self->{type} = $Value::Type{interval};
   $self->{varName} = $self->{lop}{varName};
   $self->{isInequality} = 1;
 }
@@ -400,7 +399,7 @@ sub _check {
     unless $self->{lop}{isInequality} && $self->{rop}{isInequality};
   $self->Error("Inequalities combined by '%s' must both use the same variable",$self->{bop})
     unless $self->{lop}{varName} eq $self->{rop}{varName};
-  $self->{type} = Value::Type("Interval",2);
+  $self->{type} = $Value::Type{interval};
   $self->{varName} = $self->{lop}{varName};
   $self->{isInequality} = 1;
 }
@@ -840,7 +839,7 @@ our @ISA = ("Value::Interval");
 
 sub new {
   my $self = shift;
-  $self = $self->SUPER::new(@_);
+  $self = Value::Interval->new(@_);
   $self = $self->demote if $self->classMatch("Inequality");
   return $self;
 }
@@ -878,7 +877,7 @@ sub _check {
     my $entryType = $self->typeRef->{entryType};
     return unless $entryType->{name} =~ m/^(unknown|Interval|Set|Union)$/;
     foreach my $x (@{$self->{coords}}) {return unless $x->{isInequality}};
-    $entryType->{name} = "Inequality";
+    $self->typeRef->{entryType} = Value::Type("Inequality", $entryType->{length}, $entryType->{entryType});
   }
 }
 

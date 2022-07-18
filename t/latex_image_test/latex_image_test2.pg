@@ -1,0 +1,44 @@
+##DESCRIPTION
+# TEST tikz from a pg problem
+##ENDDESCRIPTION
+
+DOCUMENT();
+
+loadMacros(
+    "PGstandard.pl",
+    "MathObjects.pl",
+    "PGlateximage.pl"
+);
+
+TEXT(beginproblem());
+
+##############################################################
+#  Setup
+##############################################################
+
+$drawing = createLaTeXImage();
+$drawing->texPackages(['circuitikz']);
+$drawing->environment(['circuitikz','scale=1.2, transform shape']);
+$drawing->BEGIN_LATEX_IMAGE
+\draw (60,1) to [battery2, v_=\(V_{cc}\), name=B] ++(0,2);
+\node[draw,red,circle,inner sep=4pt] at(B.left) {};
+\node[draw,red,circle,inner sep=4pt] at(B.right) {};
+END_LATEX_IMAGE
+
+$path = insertGraph($drawing);
+
+Context("Numeric");
+
+##############################################################
+#  Text
+##############################################################
+
+BEGIN_TEXT
+\{protect_underbar("path = $path")\};
+$BR alias = \{protect_underbar(alias($path))\}
+$PAR image = \{image($path, width => 228, height => 114, tex_size => 400)\}
+$PAR svg = \{embedSVG($path)\}
+END_TEXT
+
+ENDDOCUMENT();
+

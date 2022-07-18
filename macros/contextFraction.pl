@@ -237,7 +237,7 @@ sub Init {
      "/ " => {class => "context::Fraction::BOP::divide"},
      " /" => {class => "context::Fraction::BOP::divide"},
      "u-" => {class => "context::Fraction::UOP::minus"},
-     " "  => {precedence => 2.8, string => ' *'},
+     " "  => {precedence => 2.8, mq_precedence => 3, string => ' *'},
      " *" => {class => "context::Fraction::BOP::multiply", precedence => 2.8},
      #  precedence is lower to get proper parens in string() and TeX() calls
      "  " => {precedence => 2.7, associativity => 'left', type => 'bin', string => ' ',
@@ -907,11 +907,16 @@ sub string {
 sub TeX {
   my $self = shift; my $equation = shift; shift; shift; my $prec = shift;
   my ($a,$b) = @{$self->{data}}; my $n = "";
+  my $textstyle = '';
   return "$a" if $b == 1;
-  if ($self->getFlagWithAlias("showMixedNumbers","showProperFractions") && CORE::abs($a) > $b)
-    {$n = int($a/$b); $a = CORE::abs($a) % $b; $n .= " " unless $a == 0}
+  if ($self->getFlagWithAlias("showMixedNumbers","showProperFractions") && CORE::abs($a) > $b) {
+    $n = int($a/$b);
+    $a = CORE::abs($a) % $b;
+    $n .= ' ' unless $a == 0;
+    $textstyle = '\\textstyle';
+  }
   my $s = ""; ($a,$s) = (-$a,"-") if $a < 0;
-  $n .= ($self->{isHorizontal} ? "$s$a/$b" : "${s}{\\textstyle\\frac{$a}{$b}}")
+  $n .= ($self->{isHorizontal} ? "$s$a/$b" : "${s}{$textstyle\\frac{$a}{$b}}")
     unless $a == 0 && $n ne '';
   return "$n";
 }

@@ -93,6 +93,7 @@ my @wwEvalFields = qw(
   useBaseTenLog
   parseAlternatives
   convertFullWidthCharacters
+  useMathQuill
 );
 
 sub Parser::Context::copy {
@@ -114,6 +115,7 @@ sub Parser::Context::copy {
      useBaseTenLog              => $ww->{useBaseTenLog},
      parseAlternatives          => $ww->{parseAlternatives},
      convertFullWidthCharacters => $ww->{convertFullWidthCharacters},
+     useMathQuill               => $ww->{useMathQuill},
   );
   $context->{format}{number} = $ww->{numFormatDefault} if $ww->{numFormatDefault} ne '';
   $context->update if $context->flag('parseAlternatives',0) != $self->flag('parseAlternatives',0);

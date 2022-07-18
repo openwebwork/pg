@@ -1,13 +1,13 @@
 #!/bin/perl
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
-# 
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any later
 # version, or (b) the "Artistic License" which comes with this package.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
@@ -15,7 +15,7 @@
 ################################################################################
 
 # This is a Perl module which simplifies and automates the process of generating
-# simple images using TikZ, and converting them into a web-useable format.  Its
+# simple images using LaTeX, and converting them into a web-useable format.  Its
 # typical usage is via the macro PGtikz.pl and is documented there.
 
 use strict;
@@ -24,13 +24,16 @@ use Carp;
 use WeBWorK::PG::IO;
 use WeBWorK::PG::ImageGenerator;
 
-package TikZImage;
+package LaTeXImage;
 
 # The constructor (it takes no parameters)
 sub new {
 	my $class = shift;
 	my $data = {
 		tex            => '',
+		environment    => '',
+		# if tikzOptions is nonempty, then environment
+		# will effectively be ['tikzpicture', tikzOptions]
 		tikzOptions    => '',
 		tikzLibraries  => '',
 		texPackages    => [],
@@ -61,11 +64,23 @@ sub new {
 
 # Accessors
 
-# Set TikZ image code, not including begin and end tags, as a single
-# string parameter.  Works best single quoted.
+# Set LaTeX image code as a single string parameter.  Works best single quoted.
 sub tex {
 	my $self = shift;
 	return &$self('tex', @_);
+}
+
+# Set an environment to surround the tex(). This can be a string naming the environment.
+# Or it can be an array reference. The first element of this array should be the name of
+# the environment. If there is a second element, it should be a string with options for
+# the environment. This could be extended to support environments with multiple option
+# fields that may use parentheses for delimiters.
+# If tikzOptions is nonempty, the input is ignored and output is ['tikzpicture',tikzOptions].
+sub environment {
+	my $self = shift;
+	return ['tikzpicture',$self->tikzOptions] if ($self->tikzOptions ne '');
+	return [&$self('environment', @_), ''] if (ref(&$self('environment', @_)) ne 'ARRAY');
+	return &$self('environment', @_);
 }
 
 # Set TikZ picture options as a single string parameter.
@@ -130,22 +145,28 @@ sub header {
 	my @xcolorOpts = grep { ref $_ eq "ARRAY" && $_->[0] eq "xcolor" && defined $_->[1] } @{$self->texPackages};
 	my $xcolorOpts = @xcolorOpts ? $xcolorOpts[0][1] : 'svgnames';
 	push(@output, "\\usepackage[$xcolorOpts]{xcolor}\n");
-	push(@output, "\\usepackage{tikz}\n");
+	# Load tikz if environment is tikzpicture, but not if texPackages contains tikz already
+	push(@output, "\\usepackage{tikz}\n")
+	if ($self->environment->[0] eq 'tikzpicture' &&
+		!grep { (ref $_ eq "ARRAY" && $_->[0] eq 'tikz') || $_ eq 'tikz' } @{$self->texPackages});
 	push(@output, map {
 			"\\usepackage" . (ref $_ eq "ARRAY" && @$_ > 1 && $_->[1] ne "" ? "[$_->[1]]" : "") . "{" . (ref $_ eq "ARRAY" ? $_->[0] : $_) . "}\n"
 		} grep { (ref $_ eq "ARRAY" && $_->[0] ne 'xcolor') || $_ ne 'xcolor' } @{$self->texPackages});
 	push(@output, "\\usetikzlibrary{" . $self->tikzLibraries . "}") if ($self->tikzLibraries ne "");
 	push(@output, $self->addToPreamble);
 	push(@output, "\\begin{document}\n");
-	push(@output, "\\begin{tikzpicture}");
-	push(@output, "[" . $self->tikzOptions . "]") if ($self->tikzOptions ne "");
+	if ($self->environment->[0]) {
+		push(@output, "\\begin{" , $self->environment->[0] . "}");
+		push(@output, "[" . $self->environment->[1] . "]") if (defined $self->environment->[1] && $self->environment->[1] ne "");
+		push(@output, "\n");
+	}
 	@output;
 }
 
 sub footer {
 	my $self = shift;
 	my @output = ();
-	push(@output, "\\end{tikzpicture}\n");
+	push(@output, "\\end{" , $self->environment->[0] . "}\n") if $self->environment->[0];
 	push(@output, "\\end{document}\n");
 	@output;
 }
@@ -198,7 +219,7 @@ sub draw {
 		if (-r "$working_dir/image.dvi") {
 			$self->use_svgMethod($working_dir);
 		} else {
-		        warn "The dvi file was not created.";
+			warn "The dvi file was not created.";
 			if (open(my $err_fh, "<", "$working_dir/latex.stdout")) {
 				while (my $error = <$err_fh>) {
 					warn $error;

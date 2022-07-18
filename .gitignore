@@ -1,1 +1,10 @@
 lib/chromatic/color
+conf/pg_defaults.yml
+*.bak
+cover_db/
+
+htdocs/package-lock.json
+htdocs/node_modules
+htdocs/static-assets.json
+htdocs/**/*.min.js
+htdocs/**/*.min.css

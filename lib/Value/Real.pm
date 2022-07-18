@@ -144,14 +144,14 @@ sub compare {
       $b += ($b <=> 0) * "1E$exp";                       # Same for $b
       my $bd = sprintf("%.${tdigits}E", $b);             # Round $b to the number of tdigits
       $bd =~ s/^.*\.(.*?)0*E.*$/$1/;                     # Get the decimal part without trailing zeros
-      my $bn = length($bd);                              # Number of those decimal digits
+      my $bn = CORE::length($bd);                              # Number of those decimal digits
       $bn = $digits if ($bn < $digits);                  #  (with a minimum of $digits);
       my $aE = sprintf("%.${bn}E", $a);                  # Round $a to $bn digits
       my $bE = sprintf("%.${bn}E", $b);                  # Round $b to $bn digits
       return 0 if $aE eq $bE;                            # Return equal if they are
       if ($self->getFlag('tolTruncation')) {             # If truncation is allowed
         $aE = sprintf("%.15E", $a);                      #   Get $a to full resolution
-        $aE =~ s/\.(\d{$bn}).*E/.\1E/; $aE =~ s/\.E/E/;  #   Truncate it to the required number of digits
+        $aE =~ s/\.(\d{$bn}).*E/.$1E/; $aE =~ s/\.E/E/;  #   Truncate it to the required number of digits
         return 0 if $aE eq $bE;                          #   Return equal if they are
       }                                                  #
       return $a <=> $b;                                  # Otherwise compare numbers as perl reals

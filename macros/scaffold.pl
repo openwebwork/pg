@@ -1,12 +1,12 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2020 The WeBWorK Project, http://openwebwork.sf.net/
-# 
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any later
 # version, or (b) the "Artistic License" which comes with this package.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
@@ -42,21 +42,21 @@ C<ANS()> to assign answer checkers to the blanks that appear within
 the section.  For example:
 
     Scaffold::Begin();
-    
+
     Section::Begin("Part 1: The first part");
     BEGIN_TEXT
     This is the text for part 1.  \(1+1\) = \{ans_rule\}
     END_TEXT
     ANS(Real(2)->cmp);
     Section::End();
-    
+
     Section::Begin("Part 2: The second part");
     BEGIN_TEXT
     This is text for the second part.  \(2*2\) = \{ans_rule\}
     END_TEXT
     ANS(Real(4)->cmp);
     Section::End();
-    
+
     Scaffold::End();
 
 You can include whatever code you need to between the
@@ -95,7 +95,7 @@ which is currently open.  The following options are provided:
 
 =over
 
-=item C<S<< can_open => condition >>> 
+=item C<S<< can_open => condition >>>
 
 This specifies when a section can be opened by the student.  The
 C<condition> is either one of the strings C<"always">,
@@ -208,7 +208,7 @@ Some useful configurations are:
       can_open => "when_previous_correct",
       is_open  => "first_incorrect"
     );
-    
+
     #
     #  Sections stay open as the student works through
     #  the problem.
@@ -217,7 +217,7 @@ Some useful configurations are:
       can_open => "when_previous_correct",
       is_open  => "correct_or_first_incorrect"
     );
-    
+
     #
     #  Students work through the problem seeing only
     #  one section at a time, and can't go back to
@@ -227,7 +227,7 @@ Some useful configurations are:
       can_open => "first_incorrect",
       is_open  => "first_incorrect"
     );
-    
+
     #
     #  Students can view and work on any section,
     #  but only the first incorrect one is shown initially.
@@ -236,7 +236,7 @@ Some useful configurations are:
       can_open => "always",
       is_open  => "first_incorrect"
     );
-    
+
     #
     #  Students see all the parts initially, but the
     #  sections close as the student gets them correct.
@@ -245,7 +245,7 @@ Some useful configurations are:
       can_open => "always",
       is_open  => "incorrect"
     );
-    
+
     #
     #  Students see all the parts initially, but the
     #  sections close as the student gets them correct,
@@ -274,7 +274,7 @@ within that section.
 sub _scaffold_init {
 	# Load style and javascript for opening and closing the scaffolds.
 	ADD_CSS_FILE("js/apps/Scaffold/scaffold.css");
-	ADD_JS_FILE("js/apps/Scaffold/scaffold.js");
+	ADD_JS_FILE("js/apps/Scaffold/scaffold.js", 0, { defer => undef });
 };
 
 #
@@ -614,21 +614,29 @@ sub add_container {
   splice(@$PG_OUTPUT,0,scalar(@$PG_OUTPUT)) if !($canopen || $iscorrect || $Scaffold::isPTX) || (!$isopen && $Scaffold::isHardcopy);
   unshift(@$PG_OUTPUT,@{main::MODES(
     HTML => [
-      '<div class="accordion-group section-div">',
-      '<div class="accordion-heading ' . ($iscorrect ? "iscorrect" : "iswrong") . ' ' . ($canopen ? "canopen" : "cannotopen") . '">',
-	  '<a class="accordion-toggle' . ($isopen ? '': ' collapsed') . '"' .
-	    ($canopen ? ' href="#' . $label . '" data-toggle="collapse"' : ' tabindex="-1"') . '>',
-	    "<span class=\"section-number\">$number</span>",
-	    '<span class="section-title">' . $title . '</span></a>',
+      '<div class="accordion">',
+      '<div class="accordion-item section-div">',
+      '<div class="accordion-header '
+        . ($iscorrect ? 'iscorrect' : 'iswrong') . ' '
+        . ($canopen ? 'canopen' : 'cannotopen') . '" '
+        . qq{id="$label-header"}
+        . '>',
+      '<button class="accordion-button' . ($isopen ? '': ' collapsed') . '" type="button" '
+        . ($canopen ? qq{data-bs-target="#$label" data-bs-toggle="collapse" aria-controls="$label" } : 'tabindex="-1" ')
+        . 'aria-expanded="' . ($isopen ? 'true' : 'false')
+        . '">'
+        . qq{<span class="section-number">$number</span>}
+        . qq{<span class="section-title">$title</span>}
+        . '</button>',
       '</div>',
-      '<div id="' . $label . '" class="accordion-body collapse' . ($isopen ? ' in' : '') . '">',
-      '<div class="accordion-inner">'
+      qq{<div id="$label" class="accordion-collapse collapse} . ($isopen ? ' show' : '') . qq{" aria-labelledby="$label-header">},
+      '<div class="accordion-body">'
     ],
     TeX => ["\\par{\\bf $number $title}\\addtolength{\\leftskip}{15pt}\\par "],
     PTX => $name ? ["<task>\n", "<title>$name</title>\n"] : ["<task>\n"],
   )});
   push(@$PG_OUTPUT,main::MODES(
-    HTML => '</div></div></div>',
+    HTML => '</div></div></div></div>',
     TeX  => "\\addtolength{\\leftskip}{-15pt}\\par ",
     PTX => "<\/task>\n",
   ));

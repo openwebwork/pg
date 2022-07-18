@@ -1,0 +1,72 @@
+##DESCRIPTION
+# TEST tikz from a pgml problem
+##ENDDESCRIPTION
+
+DOCUMENT();
+
+loadMacros(
+    "PGstandard.pl",
+    "MathObjects.pl",
+    "PGML.pl",
+    "PGtikz.pl"
+);
+
+TEXT(beginproblem());
+
+##############################################################
+#  Setup
+##############################################################
+
+$a = random(1, 4);
+$b = random(3, 6);
+$c = random(5, 8);
+$d = random(7, 10);
+
+$tikz_code = <<END_TIKZ;
+\huge
+\begin{axis}
+	[
+		ybar=0pt,
+		bar width=2cm,
+		width=14cm,
+		height=12cm,
+		enlarge x limits=0.2,
+		ymajorgrids,
+		ymin=0,
+		ymax=11,        
+		ylabel={\textbf{Number of Books}},
+		xtick=data,
+		xticklabels={Philosophy, Math, Literature, History},
+		ytick={1,...,10},
+		major x tick style={opacity=0},
+	]
+	\addplot[fill=Blue!20] coordinates {(0, $a) (1, $b) (2, $c) (3, $d)};
+\end{axis}
+END_TIKZ
+
+$drawing = createTikZImage();
+$drawing->texPackages([["pgfplots"]]);
+$drawing->addToPreamble("\pgfplotsset{compat=1.15}");
+$drawing->tikzOptions("main_node/.style={circle,fill=blue!20,draw,minimum size=1em,inner sep=3pt}");
+$drawing->tex($tikz_code);
+
+
+$path = insertGraph($drawing);
+
+Context("Numeric");
+
+##############################################################
+#  Text
+##############################################################
+
+BEGIN_PGML
+path = [@ protect_underbar($path) @]
+[@ $BR @]*
+alias = [@ protect_underbar(alias($path)) @]*
+
+image = [@ image($path, width => 100, tex_size => 400) @]*
+
+svg = [@ embedSVG($path) @]*
+END_PGML
+
+ENDDOCUMENT();

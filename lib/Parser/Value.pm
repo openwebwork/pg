@@ -25,7 +25,10 @@ sub new {
   return $value->{tree}->copy($equation) if ($type eq 'Formula');
   return $self->Item("String",$context)->new($equation,$value,$ref) if ($type eq 'String');
   return $self->Item("String",$context)->newInfinity($equation,$value,$ref) if ($type eq 'Infinity');
-  return $self->Item("Number",$context)->new($equation,$value,$ref) if ($type eq 'Number');
+  if ($type eq 'Number') {
+    my $number = $self->Item("Number",$context)->new($equation,CORE::abs($value),$ref);
+    return ($value < 0 ? $self->Item("UOP",$context)->new($equation,'u-',$number) : $number);
+  }
   return $self->Item("Number",$context)->new($equation,$value->{data},$ref)
     if ($type eq 'value' && $value->class eq 'Complex');
   $equation->Error(["Can't convert %s to a constant",Value::showClass($value)],$ref)

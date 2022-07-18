@@ -1,6 +1,6 @@
 ################################################################################
-# WeBWorK Program Generation Language
-# Copyright &copy; 2000-2020 The WeBWorK Project, http://openwebwork.sf.net/
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -93,6 +93,8 @@ my ($PAR,
 	$rh_sticky_answers,
 	$r_ans_rule_count,
 );
+
+our %envir;
 
 sub _PGbasicmacros_init {
 	# The big problem is that at compile time in the cached Safe compartment
@@ -1224,7 +1226,7 @@ sub solution {
 	if ($printSolutionForInstructor) { # always print solutions for instructor types
 		$out = join('', $BITALIC, "(",
 			maketext("Instructor solution preview: show the student solution after due date."),
-			")", $EITALIC, $displayMode =~ /TeX/ ? "\\par\\smallskip" : $BR, @in);
+			")", $EITALIC, $displayMode =~ /TeX/ ? "\\par\\smallskip{}" : $BR, @in);
 	} elsif ($displaySolution) {
 		$out = join(' ', @in); # display solution
 	}
@@ -1236,8 +1238,7 @@ sub SOLUTION {
 	return "" if $solution_body eq "";
 
 	if ($displayMode =~/HTML/ and $envir->{use_knowls_for_solutions}) {
-		TEXT($PAR, knowlLink(SOLUTION_HEADING(), value => escapeSolutionHTML("$BR$solution_body$PAR"),
-				base64 => 1, type => 'solution'));
+		TEXT($PAR, knowlLink(SOLUTION_HEADING(), value => $solution_body, type => 'solution'));
 	} elsif ($displayMode =~ /TeX/) {
 		TEXT(
 			"\n%%% BEGIN SOLUTION\n", #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
@@ -1275,7 +1276,7 @@ sub hint {
 		if ($printHintForInstructor) {
 			$out = join('', $BITALIC,
 				maketext("(Instructor hint preview: show the student hint after the following number of attempts:"),
-				" ", $showHint + 1, ")", $EITALIC, "\\par\\smallskip", @in);
+				" ", $showHint + 1, ")", $EITALIC, "\\par\\smallskip{}", @in);
 		} elsif ($displayHint and $afterAnswerDate) { # only display hints after the answer date.
 			$out = join(' ', @in);
 		}
@@ -1297,19 +1298,20 @@ sub hint {
 }
 
 sub HINT {
+	my $hint_body = hint(@_);
+	return unless $hint_body;
 	if ($displayMode =~/HTML/ and $envir->{use_knowls_for_hints}) {
-		TEXT($PAR, knowlLink(HINT_HEADING(), value => escapeSolutionHTML($BR . hint(@_) . $PAR),
-				base64 => 1, type => 'hint')) if hint(@_);
+		TEXT($PAR, knowlLink(HINT_HEADING(), value => $hint_body, type => 'hint'));
 	} elsif ($displayMode =~ /TeX/) {
 		TEXT(
 			"\n%%% BEGIN HINT\n", #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
-			"\\par\\smallskip", HINT_HEADING(), hint(@_), "\\par\\medskip",
+			"\\par\\smallskip", HINT_HEADING(), $hint_body, "\\par\\medskip",
 			"\n%%% END HINT\n"    #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
-		) if hint(@_) ;
+		);
 	} elsif ($displayMode =~ /PTX/) {
-		TEXT( '<hint>', "\n", hint(@_), "\n", '</hint>', "\n\n") if hint(@_);
+		TEXT( '<hint>', "\n", $hint_body, "\n", '</hint>', "\n\n");
 	} else {
-		TEXT($PAR, HINT_HEADING(), $BR. hint(@_) . $PAR) if hint(@_);
+		TEXT($PAR, HINT_HEADING(), $BR. $hint_body . $PAR);
 	}
 }
 
@@ -2415,16 +2417,6 @@ sub PTX_cleanup {
                     # form(from the webpage) inside another (the defining form for the problem
 A wide variety of google widgets, youtube videos, and other online resources can be imbedded using this macro. In HTML mode it creates an iframe, in TeX mode it prints the url.
 
-    appletLink( { name => "xFunctions",
-                  codebase => '',    # use this to specify the complete url
-                                     # otherwise libraries specified in global.conf are searched
-                  archive  => 'xFunctions.zip', # name the archive containing code (.jar files go here also)
-                  code     => 'xFunctionsLauncher.class',
-                  width    => 100,
-                  height   => 14,
-                  params   => { param1 =>value1, param2 => value2},
-                }
-              );
     helpLink($type)     allows site specific help. specified in global.conf or course.conf
                    The parameter localHelpURL  must be defined in the environment
                    and is set by default to webwork2/htdocs/helpFiles
@@ -2444,15 +2436,6 @@ A wide variety of google widgets, youtube videos, and other online resources can
                         'interval'
                         'unit'
                         'syntax'
-
-    ########################
-                  deprecated coding method
-                    appletLink    ($url, $parameters)
-                    # For example
-                    # appletLink(q!  archive="http: //webwork.math.rochester.edu/gage/xFunctions/xFunctions.zip"
-                                    code="xFunctionsLauncher.class"  width=100 height=14!,
-                    " parameter text goes here")
-                    # will link to xFunctions.
 
     low level:
 
@@ -2577,35 +2560,39 @@ sub htmlLink {
 	);
 }
 
+# Suggested usage:  knowlLink(text, [url => ..., value => ..., type => ...])
 sub knowlLink {
-    # an new syntax for knowlLink that facilitates a local HERE document
-	#   suggested usage   knowlLink(text, [url => ...,   value => ..., type => ...])
 	my $display_text = shift;
-	my @options = @_;  # so we can check parity
-	my %options = @options;
-	WARN_MESSAGE('usage   knowlLink($display_text, [url => $url, value => $helpMessage, type => "help/hint/solution/..."] );'.
-		qq!after  the display_text the information requires key/value pairs.
-		Received @options !, scalar(@options)%2) if scalar(@options)%2;
-	# check that options has an even number of inputs
-	my $properties = "";
-	if ($options{value} )  { #internal knowl from HERE document
-		$options{value} =~ s/"/'/g; # escape quotes  #FIXME -- make escape more robust
-		my $base64 = ($options{base64})?"base64 = \"1\"" :"";
-		$properties = qq! href="#" knowl = "" class = "internal" value = "$options{value} " $base64 !;
+
+	# Check that there are an even number of inputs
+	WARN_MESSAGE(
+		'usage:  knowlLink($display_text, [url => $url, value => $helpMessage, type => "help/hint/solution/..."]);'
+		. qq!after the display_text the information requires key/value pairs.
+		Received @_ !, scalar(@_) % 2
+	) if scalar(@_) % 2;
+
+	my %options = @_;
+
+	my $properties = '';
+	if ($options{value}) {
+		$properties =
+			'data-knowl-contents="'
+			. encode_pg_and_html($options{value})
+			. ($options{base64} ? '" data-base64="1"' : '"');
 	} elsif ($options{url}) {
-		$properties = qq! knowl = "$options{url}"!;
+		$properties = qq!data-knowl-url="$options{url}"!;
+	} else {
+		WARN_MESSAGE(
+			'usage:  knowlLink($display_text, [url => $url, value => $helpMessage, type => "help/hint/solution/..."]);'
+		);
 	}
-	else {
-		WARN_MESSAGE('usage   knowlLink($display_text, [url => $url, value => $helpMessage, type => "help/hint/solution/..."] );');
-	}
-	if ($options{type}) {
-		$properties .= qq! data-type = "$options{type}"!;
-	}
-	#my $option_string = qq!url = "$options{url}" value = "$options{value}" !;
+
+	$properties .= qq! data-type="$options{type}"! if $options{type};
+
 	MODES(
-        TeX  => "{\\bf \\underline{$display_text}}",
-		HTML => "<a $properties >$display_text</a>",
-		PTX  => '<url '. (($options{url})? 'href="'."$options{url}".'"':'')  .' >'.$display_text.'</url>',
+		TeX  => "{\\bf \\underline{$display_text}}",
+		HTML => qq!<a href="#" class="knowl" $properties>$display_text</a>!,
+		PTX  => '<url ' . ($options{url} ? 'href="' . $options{url} . '"' : '') . ' >' . $display_text . '</url>',
 	);
 }
 
@@ -2666,77 +2653,18 @@ sub helpLink {
 	# If infoRef is still '', we give up and just print plain text
 	return $display_text unless ($infoRef);
 	return knowlLink($display_text, url => $envir{'localHelpURL'}.$infoRef, type => 'help');
-	# Old way of doing this:
-	#	return htmlLink( $envir{'localHelpURL'}.$infoRef, $type1,
-	#'target="ww_help" onclick="window.open(this.href, this.target, \'width=550, height=350, scrollbars=yes, resizable=on\'); return false;"');
 }
 
+# This method is deprecated.  There is no hope for the problems that use it.  Java and flash are dead.
 sub appletLink {
-	my $url  = $_[0];
-	return oldAppletLink(@_) unless ref($url) ; # handle legacy where applet link completely defined
-	# search for applet
-	# get fileName of applet
-	my $applet       = shift;
-	my $options      = shift;
-	my $archive      = $applet ->{archive};
-	my $codebase     = $applet ->{codebase};
-	my $code         = $applet ->{code};
-	my $appletHeader = '';
-	# find location of applet
-	if (defined($codebase) and $codebase =~/\S/) {
-		# do nothing
-	} elsif(defined($archive) and $archive =~/\S/) {
-		$codebase = findAppletCodebase($archive )
-	} elsif (defined($code) and $code =~/\S/) {
-		$codebase =  findAppletCodebase($code )
-	} else {
-		warn "Must define the achive (.jar file) or code (.class file) where the applet code is to be found";
-		return;
-	}
-
-	if ( $codebase =~/^Error/) {
-		warn $codebase;
-		return;
-	} else {
-		# we are set to include the applet
-	}
-	$appletHeader  =  qq! archive = "$archive " codebase = "$codebase" !;
-	foreach my $key ('name', 'code', 'width', 'height', ) {
-		if ( defined($applet->{$key})   ) {
-			$appletHeader .= qq! $key = "!.$applet->{$key}.q!" ! ;
-		} else {
-			warn " $key is not defined for applet ".$applet->{name};
-			# technically name is not required, but all of the other parameters are
-		}
-	}
-	# add parameters to options
-	if (defined($applet->{params}) ) {
-		foreach my $key (keys %{ $applet->{params} }) {
-			my $value = $applet->{params}->{$key};
-			$options .=  qq{<PARAM NAME = "$key" VALUE = "$value" >\n};
-		}
-
-	}
+	warn 'Applet problems that use the appletLink method are no longer supported.';
 	MODES(
-        TeX        => "{\\bf \\underline{APPLET}  }".$applet->{name},
-        Latex2HTML => "\\begin{rawhtml} <APPLET $appletHeader> $options </APPLET>\\end{rawhtml}",
-        HTML       => "<APPLET\n $appletHeader> \n $options \n </APPLET>",
-        #HTML       => qq!<OBJECT $appletHeader codetype="application/java"> $options </OBJECT>!
-        PTX        => 'PreTeXt does not support appletLink',
+		TeX  => "{\\bf WeBWorK does not support appletLink}",
+		HTML => "<div style='background-color:pink'>WeBWorK does not support appletLink</div>",
+		PTX  => 'PreTeXt does not support appletLink',
 	);
 }
 
-sub oldAppletLink {
-	my $url = shift;
-	my $options = shift;
-	$options = "" unless defined($options);
-	MODES(
-        TeX        => "{\\bf \\underline{APPLET}  }",
-		Latex2HTML => "\\begin{rawhtml} <APPLET $url> $options </APPLET>\\end{rawhtml}",
-		HTML       => "<APPLET $url> $options </APPLET>",
-		PTX        => 'PreTeXt does not support appletLink',
-	);
-}
 sub spf {
 	my ($number, $format) = @_;  # attention, the order of format and number are reversed
 	$format = "%4.3g" unless $format;   # default value for format
@@ -2914,7 +2842,7 @@ Usage:
 
     image($image, width => 100, height => 100, tex_size => 800, alt => 'alt text', extra_html_tags => 'style="border:solid black 1pt"');
 
-where C<$image> can be a local file path, URL, WWPlot object, or TikZImage object,
+where C<$image> can be a local file path, URL, WWPlot object, or LaTeXImage object,
 C<width> and C<height> are pixel counts for HTML display, while C<tex_size> is
 per 1000 applied to linewidth (for example 800 leads to 0.8\linewidth)
 
@@ -2979,7 +2907,7 @@ sub image {
 	while(@image_list) {
 		my $image_item = shift @image_list;
 		$image_item = insertGraph($image_item)
-			if (ref $image_item eq 'WWPlot' || ref $image_item eq 'TikZImage' || ref $image_item eq 'PGtikz');
+			if (ref $image_item eq 'WWPlot' || ref $image_item eq 'LaTeXImage' || ref $image_item eq 'PGtikz');
 		my $imageURL = alias($image_item)//'';
 		$imageURL = ($envir{use_site_prefix})? $envir{use_site_prefix}.$imageURL : $imageURL;
 		my $out = "";

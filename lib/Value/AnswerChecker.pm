@@ -132,9 +132,12 @@ sub cmp_parse {
   #  Parse and evaluate the student answer
   #
   $ans->score(0);  # assume failure
+  $context->flags->set(parseMathQuill => $context->flag("useMathQuill") &&
+    (!defined $context->{answerHash}{mathQuillOpts} || $context->{answerHash}{mathQuillOpts} !~ /^\s*disabled\s*$/i));
   $ans->{student_value} = $ans->{student_formula} = Parser::Formula($ans->{student_ans});
   $ans->{student_value} = Parser::Evaluate($ans->{student_formula})
     if defined($ans->{student_formula}) && $ans->{student_formula}->isConstant;
+  $context->flags->set(parseMathQuill => 0);
 
   #
   #  If it parsed OK, save the output forms and check if it is correct
@@ -198,9 +201,12 @@ sub cmp_collect {
   $ans->{student_formula} = eval {$type->new($array)->with(ColumnVector=>$self->{ColumnVector})};
   if (!defined($ans->{student_formula}) || $self->context->{error}{flag})
     {Parser::reportEvalError($@); $self->cmp_error($ans); return 0}
+  $ans->{student_formula}{tree}{open} = $self->{open} if $self->{open};
+  $ans->{student_formula}{tree}{close} = $self->{close} if $self->{close};
   $ans->{student_value} = $ans->{student_formula};
   $ans->{preview_text_string} = $ans->{student_ans};
   $ans->{preview_latex_string} = $ans->{student_formula}->TeX;
+  return 0 if $ans->{typeError};
   if (Value::isFormula($ans->{student_formula}) && $ans->{student_formula}->isConstant) {
     $ans->{student_value} = Parser::Evaluate($ans->{student_formula});
     return 0 unless $ans->{student_value};
@@ -590,8 +596,12 @@ sub ans_collect {
 	$entry = $ans->{original_student_ans};
 	$ans->{student_formula} = $ans->{student_value} = undef unless $entry =~ m/\S/;
       }
-      my $result = $data->[$i][$j]->cmp(@ans_cmp_defaults)->evaluate($entry);
+	  # Pass the mathQuillOpts on to each entry to ensure that the correct parsing is used for each entry.
+	  # This really only needs to know if MathQuill is disabled or not, but it is more efficient to just pass on the reference.
+	  # The value is safely ignored if $ans->{mathQuillOpts} does not match /^\s*disabled\s*$/i.
+      my $result = $data->[$i][$j]->cmp(@ans_cmp_defaults, mathQuillOpts => $ans->{mathQuillOpts})->evaluate($entry);
       $OK &= entryCheck($result,$blank);
+      $ans->{typeError} = 1 if $result->{typeError};
       push(@row,$result->{student_formula});
       entryMessage($result->{ans_message},$errors,$i,$j,$rows,$cols);
     }
@@ -616,18 +626,19 @@ sub entryMessage {
   if ($rows == 1) {$title = "In entry $j"}
   elsif ($cols == 1) {$title = "In entry $i"}
   else {$title = "In entry ($i,$j)"}
-  push(@{$errors},"<TR VALIGN=\"TOP\"><TD NOWRAP STYLE=\"text-align:right; border:0px\"><I>$title</I>:&nbsp;</TD>".
-                  "<TD STYLE=\"text-align:left; border:0px\">$message</TD></TR>");
+  push(@{$errors},
+       "<TR><TD NOWRAP STYLE=\"vertical-align:top; background-color:transparent; text-align:right; border:0px\"><I>$title</I>:&nbsp;</TD>".
+       "<TD STYLE=\"background-color:transparent; text-align:left; border:0px\">$message</TD></TR>");
 }
 
 sub entryCheck {
   my $ans = shift; my $blank = shift;
-  return 1 if defined($ans->{student_value});
+  return 1 if defined($ans->{student_value}) || $ans->{typeError};
   if (!defined($ans->{student_formula})) {
     $ans->{student_formula} = $ans->{student_ans};
     $ans->{student_formula} = $blank unless $ans->{student_formula};
   }
-  return 0
+  return 0;
 }
 
 

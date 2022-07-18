@@ -1,12 +1,12 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
-# 
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any later
 # version, or (b) the "Artistic License" which comes with this package.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
@@ -19,7 +19,7 @@ PGtikz.pl - Insert images into problems that are generated using LaTeX and TikZ.
 
 =head1 DESCRIPTION
 
-This is a convenience macro for utilizing the TikZImage object to insert TikZ
+This is a convenience macro for utilizing the LaTeXImage object to insert TikZ
 images into problems.  Create a TikZ image as follows:
 
     $image = createTikZImage();
@@ -29,14 +29,21 @@ images into problems.  Create a TikZ image as follows:
     \draw (0,0) circle[radius=1.5];
     END_TIKZ
 
+The LaTeX code is in a perl interpolated heredoc, so you may need to be careful
+with backslashes. In the above, \d does not require escaping the backslash. But
+if the code needed a double backslash line break, you would need to use \\\\.
+
+If math content is within the LaTeX code, delimit it with \(...\) instead of
+with dollar signs.
+
 Then insert the image into the problem with
 
     image(insertGraph($image));
 
 =head1 DETAILED USAGE
 
-There are several TikZImage parameters that may need to be set for the
-TikZImage object return by createTikZImage to generate the desired image.
+There are several LaTeXImage parameters that may need to be set for the
+LaTeXImage object return by createTikZImage to generate the desired image.
 
     $image->tex()              Add the tikz commands that define the image.
                                This takes a single string parameter.  It is
@@ -102,16 +109,18 @@ sub _PGtikz_init {
 }
 
 package PGtikz;
-our @ISA = qw(TikZImage);
+our @ISA = qw(LaTeXImage);
 
-# Not much needs to be done here.  The real work is done in TikZImage.pm.
+# Not much needs to be done here except flag this as needing the tikz environment wrapper.
+# The real work is done in LaTeXImage.pm.
 sub new {
 	my $self = shift;
 	my $class = ref($self) || $self;
 
 	my $image = $class->SUPER::new(@_);
-	$image->svgMethod($main::envir{tikzSVGMethod} // 'pdf2svg');
-	$image->convertOptions($main::envir{tikzConvertOptions} // {input => {},output => {}});
+	$image->environment('tikzpicture');
+	$image->svgMethod($main::envir{latexImageSVGMethod} // 'pdf2svg');
+	$image->convertOptions($main::envir{latexImageConvertOptions} // {input => {},output => {}});
 	$image->SUPER::ext('pdf') if $main::displayMode eq 'TeX';
 	$image->SUPER::ext('tgz') if $main::displayMode eq 'PTX';
 	$image->imageName($main::PG->getUniqueName($image->ext));

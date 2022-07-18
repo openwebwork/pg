@@ -55,14 +55,16 @@ sub ijk {
 sub TeX {
   my $self = shift;
   return $self->ijk("TeX",@_)
-    if $self->{ijk} || $self->{equation}{ijk} || $self->{equation}{context}->flag("ijk");
+    if (($self->{ijk} || $self->{equation}{ijk} || $self->{equation}{context}->flag("ijk")) &&
+        scalar(@{$self->{coords}}) <= 3);
   return $self->SUPER::TeX;
 }
 
 sub string {
   my $self = shift;
   return $self->ijk("string",@_)
-    if $self->{ijk} || $self->{equation}{ijk} || $self->{equation}{context}->flag("ijk");
+    if (($self->{ijk} || $self->{equation}{ijk} || $self->{equation}{context}->flag("ijk")) &&
+        scalar(@{$self->{coords}}) <= 3);
   return $self->SUPER::string;
 }
 

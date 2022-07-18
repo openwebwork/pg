@@ -1,13 +1,12 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader: pg/macros/parserMultiAnswer.pl,v 1.11 2009/06/25 23:28:44 gage Exp $
-# 
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any later
 # version, or (b) the "Artistic License" which comes with this package.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
@@ -370,20 +369,28 @@ sub entry_check {
 #
 sub perform_check {
   my $self = shift; my $rh_ans = shift;
-  $self->context->clearError;
+  my $context = $self->context;
+  $context->clearError;
   my @correct; my @student;
   foreach my $ans (@{$self->{ans}}) {
     push(@correct,$ans->{correct_value});
     push(@student,$ans->{student_value});
-    return if $ans->{ans_message} ne "" || !defined($ans->{student_value});
+    return if $ans->{ans_message} || !defined($ans->{student_value});
     return if $self->{checkTypes} && $ans->{student_value}->type ne $ans->{correct_value}->type &&
               !($self->{allowBlankAnswers} && $ans->{student_ans} !~ m/\S/) ;
   }
   my $inputs = $main::inputs_ref;
   $rh_ans->{isPreview} = $inputs->{previewAnswers} ||
                          ($inputs_{action} && $inputs->{action} =~ m/^Preview/);
+
+  Parser::Context->current(undef,$context);    # change to multi-answser's context
+  my $flags = Value::contextSet($context,$self->cmp_contextFlags($ans)); # save old context flags
+  $context->{answerHash} = $rh_ans;            # attach the answerHash
   my @result = Value::cmp_compare([@correct],[@student],$self,$rh_ans);
-  if (!@result && $self->context->{error}{flag}) {$self->cmp_error($self->{ans}[0]); return 1}
+  Value::contextSet($context,%{$flags});       # restore context values
+  $context->{answerHash} = undef;              # remove answerHash
+  if (!@result && $context->{error}{flag}) {$self->cmp_error($self->{ans}[0]); return 1}
+
   my $result = (scalar(@result) > 1 ? [@result] : $result[0] || 0);
   if (ref($result) eq 'ARRAY') {
     die "Checker subroutine returned the wrong number of results"
