@@ -1,23 +1,15 @@
-use warnings;
-use strict;
+use Test2::V0;
 
-package main;
+use lib 't/lib';
+use Test::PG;
 
-use Test::More;
-use Test::Exception;
 
-# The following needs to include at the top of any testing down to END OF TOP_MATERIAL.
+=head1 MathObjects
 
-BEGIN {
-	die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
-	$main::pg_dir = $ENV{PG_ROOT};
-}
+Tests pass
 
-use lib "$main::pg_dir/lib";
+=cut
 
-require("$main::pg_dir/t/build_PG_envir.pl");
-
-## END OF TOP_MATERIAL
 
 loadMacros("MathObjects.pl");
 
