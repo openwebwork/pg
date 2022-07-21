@@ -1,28 +1,18 @@
-use warnings;
-use strict;
-
-package main;
-
-use Test::More;
-use Test::Exception;
-
-# The following needs to include at the top of any testing down to END OF TOP_MATERIAL.
-
-BEGIN {
-	die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
-	$main::pg_dir = $ENV{PG_ROOT};
-}
-
-use lib "$main::pg_dir/lib";
-
-require("$main::pg_dir/t/build_PG_envir.pl");
-
-## END OF TOP_MATERIAL
-
-loadMacros("PGbasicmacros.pl");
+use Test2::V0;
 
 use HTML::Entities;
 use HTML::TagParser;
+
+use lib 't/lib';
+use Test::PG;
+
+
+=head1 MathObjects
+
+=cut
+
+
+loadMacros("PGbasicmacros.pl");
 
 my $name      = "myansrule";
 my $named_box = NAMED_ANS_RULE($name);
