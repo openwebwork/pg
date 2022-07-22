@@ -61,26 +61,10 @@ Or you could use `prove -lv t/macros/pgaux.t` from the root directory.
 To write a unit test, the following is needed at the top of the file:
 
 ```perl
-use warnings;
-use strict;
+use Test2::V0;
 
-package main;
-
-use Test::More;
-use Test::Exception;
-
-## the following needs to include at the top of any testing  down to TOP_MATERIAL
-
-BEGIN {
-    die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
-    $main::pg_dir = $ENV{PG_ROOT};
-}
-
-use lib "$main::pg_dir/lib";
-
-require("$main::pg_dir/t/build_PG_envir.pl");
-
-## END OF TOP_MATERIAL
+use lib 't/lib';
+use Test::PG;
 ```
 
 and ensure that `PG_ROOT` is in your environmental variables.
@@ -98,10 +82,11 @@ my $f = Compute("x^2");
 
 # evaluate f at x=2
 
-is(check_score($f->eval(x=>2),"4"),1,"math objects: eval x^2 at x=2");
+is check_score($f->eval(x=>2), '4'), 1, 'math objects: eval x^2 at x=2';
 ```
 
-The `check_score` subroutine evaluates and compares a MathObject with a string representation of the answer.  If the score is 1, then the two are equal.
+The `check_score` subroutine evaluates and compares a MathObject with a string representation of the answer.
+If the score is 1, then the two are equal.
 
 
 # Integration tests
