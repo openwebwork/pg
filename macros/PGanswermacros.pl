@@ -147,14 +147,6 @@ my $functULimitDefault;
 my $functVarDefault;
 # ^variable my $useBaseTenLog
 my $useBaseTenLog;
-# ^variable my $reducedScoringDate
-my $reducedScoringDate;
-# ^variable my $reducedScoringValue
-my $reducedScoringValue;
-# ^variable my $enable_reduced_scoring
-my $enable_reduced_scoring;
-# ^variable my $dueDate
-my $dueDate;
 
 # ^function _PGanswermacros_init
 # ^uses loadMacros
@@ -164,10 +156,6 @@ my $dueDate;
 # ^uses $envir{functULimitDefault}
 # ^uses $envir{functVarDefault}
 # ^uses $envir{useBaseTenLog}
-# ^uses $envir{reducedScoringDate}
-# ^uses $envir{reducedScoringValue}
-# ^uses $envir{enable_reduced_scoring}
-# ^uses $envir{dueDate}
 
 sub _PGanswermacros_init {
 	loadMacros('PGnumericevaluators.pl');    # even if these files are already loaded they need to be initialized.
@@ -175,15 +163,11 @@ sub _PGanswermacros_init {
 	loadMacros('PGstringevaluators.pl');
 	loadMacros('PGmiscevaluators.pl');
 
-	$BR                     = PG_restricted_eval(q/$BR/);
-	$functLLimitDefault     = PG_restricted_eval(q/$envir{functLLimitDefault}/);
-	$functULimitDefault     = PG_restricted_eval(q/$envir{functULimitDefault}/);
-	$functVarDefault        = PG_restricted_eval(q/$envir{functVarDefault}/);
-	$useBaseTenLog          = PG_restricted_eval(q/$envir{useBaseTenLog}/);
-	$reducedScoringDate     = PG_restricted_eval(q/$envir{reducedScoringDate}/);
-	$reducedScoringValue    = PG_restricted_eval(q/$envir{reducedScoringValue}/);
-	$enable_reduced_scoring = $reducedScoringDate ? PG_restricted_eval(q/$envir{enable_reduced_scoring}/) : 0;
-	$dueDate                = PG_restricted_eval(q/$envir{dueDate}/);
+	$BR                 = PG_restricted_eval(q/$BR/);
+	$functLLimitDefault = PG_restricted_eval(q/$envir{functLLimitDefault}/);
+	$functULimitDefault = PG_restricted_eval(q/$envir{functULimitDefault}/);
+	$functVarDefault    = PG_restricted_eval(q/$envir{functVarDefault}/);
+	$useBaseTenLog      = PG_restricted_eval(q/$envir{useBaseTenLog}/);
 }
 
 =head1 MACROS
@@ -1459,96 +1443,60 @@ before receiving credit.  You should make sure to use this grader on multiple ch
 and true-false questions, otherwise students will be able to deduce how many
 answers are correct by the grade reported by webwork.
 
-
 	install_problem_grader(~~&std_problem_grader);
 
 =cut
 
-# ^function std_problem_grader
 sub std_problem_grader {
-	my $rh_evaluated_answers = shift;
-	my $rh_problem_state     = shift;
-	my %form_options         = @_;
-	my %evaluated_answers    = %{$rh_evaluated_answers};
-	#  The hash	$rh_evaluated_answers typically	contains:
-	#	   'answer1' =>	34,	'answer2'=>	'Mozart', etc.
+	my ($rh_evaluated_answers, $rh_problem_state, %form_options) = @_;
 
-	# By default the  old problem state	is simply passed back out again.
+	my %evaluated_answers = %{$rh_evaluated_answers};
+
+	# By default the old problem state is simply passed back out again.
 	my %problem_state = %$rh_problem_state;
 
-	# %form_options	might include
-	# The user login name
-	# The permission level of the user
-	# The studentLogin name	for	this psvn.
-	# Whether the form is asking for a refresh or is submitting	a new answer.
-
-	# initial setup	of the answer
+	# Initial setup of the answer
 	my %problem_result = (
 		score  => 0,
 		errors => '',
 		type   => 'std_problem_grader',
 		msg    => '',
 	);
-	# Checks
 
-	my $ansCount = keys %evaluated_answers;    # get the number of answers
+	my $ansCount = keys %evaluated_answers;
 
 	unless ($ansCount > 0) {
-
-		$problem_result{msg} = "This problem did not ask any questions.";
+		$problem_result{msg} = 'This problem did not ask any questions.';
 		return (\%problem_result, \%problem_state);
 	}
 
-	if ($ansCount > 1) {
-		$problem_result{msg} = 'In order to	get	credit for this	problem	all	answers	must be	correct.';
-	}
+	$problem_result{msg} = 'In order to get credit for this problem all answers must be correct.' if ($ansCount > 1);
 
-	unless ($form_options{answers_submitted} == 1) {
-		return (\%problem_result, \%problem_state);
-	}
+	return (\%problem_result, \%problem_state) unless $form_options{answers_submitted} == 1;
 
 	my $allAnswersCorrectQ = 1;
-	foreach my $ans_name (keys %evaluated_answers) {
-		# I'm not sure if this check is	really useful.
-		if ((ref($evaluated_answers{$ans_name}) eq 'HASH') or (ref($evaluated_answers{$ans_name}) eq 'AnswerHash')) {
-			$allAnswersCorrectQ = 0 unless (1 == $evaluated_answers{$ans_name}->{score});
+	for my $ans_name (keys %evaluated_answers) {
+		if (ref $evaluated_answers{$ans_name} eq 'HASH' || ref $evaluated_answers{$ans_name} eq 'AnswerHash') {
+			$allAnswersCorrectQ = 0 unless $evaluated_answers{$ans_name}{score} == 1;
 		} else {
-			die "Error at file ", __FILE__, "line ", __LINE__,
-				":	Answer |$ans_name| is not a	hash reference\n"
+			die 'Error at file ', __FILE__, 'line ', __LINE__,
+				": Answer |$ans_name| is not a hash reference\n"
 				. $evaluated_answers{$ans_name}
-				. "This probably	means that the answer evaluator	for	this answer\n"
-				. "is not working correctly.";
-			$problem_result{error} = "Error: Answer	$ans_name is not a hash: $evaluated_answers{$ans_name}";
+				. 'This probably means that the answer evaluator for this answer is not working correctly.';
+			$problem_result{error} = "Error: Answer $ans_name is not a hash: $evaluated_answers{$ans_name}";
 		}
 	}
-	# report the results
+
+	# Report the results
 	$problem_result{score} = $allAnswersCorrectQ;
 
-	$problem_state{num_of_correct_ans}++   if $allAnswersCorrectQ == 1;
-	$problem_state{num_of_incorrect_ans}++ if $allAnswersCorrectQ == 0;
-	$problem_state{recorded_score} = 0 unless defined $problem_state{recorded_score};
-	# Determine if we are in the reduced scoring period and act accordingly
-	if (!$enable_reduced_scoring or time() < $reducedScoringDate)
-	{    # the reduced scoring period is disabled or it is before the reduced scoring period
-		 # increase recorded score if the current score is greater.
-		$problem_state{recorded_score} = $problem_result{score}
-			if $problem_result{score} > $problem_state{recorded_score};
-		# the sub_recored_score holds the recored_score before entering the reduced scoring period
-		$problem_state{sub_recorded_score} = $problem_state{recorded_score};
-	} elsif (time() < $dueDate) {    # we are in the reduced scoring period.
-		 # student gets credit for all work done before the reduced scoring period plus a portion of work done during period
-		my $newScore = 0;
-		$newScore =
-			$problem_state{sub_recorded_score} +
-			$reducedScoringValue * ($problem_result{score} - $problem_state{sub_recorded_score})
-			if ($problem_result{score} > $problem_state{sub_recorded_score});
-		$problem_state{recorded_score} = $newScore if $newScore > $problem_state{recorded_score};
-		my $reducedScoringPerCent = int(100 * $reducedScoringValue + .5);
-		$problem_result{msg} = $problem_result{msg}
-			. "<br />You are in the Reduced Scoring Period: All additional work done counts $reducedScoringPerCent\% of the original.";
-	}
+	++$problem_state{num_of_correct_ans}   if $allAnswersCorrectQ == 1;
+	++$problem_state{num_of_incorrect_ans} if $allAnswersCorrectQ == 0;
+	$problem_state{recorded_score} //= 0;
 
-	$problem_state{state_summary_msg} = '';    # an HTML formatted message printed at the bottom of the problem page
+	# Increase recorded score if the current score is greater.
+	$problem_state{recorded_score} = $problem_result{score}
+		if $problem_result{score} > $problem_state{recorded_score};
 
 	(\%problem_result, \%problem_state);
 }
@@ -1560,7 +1508,6 @@ before receiving credit.  You should make sure to use this grader on multiple ch
 and true-false questions, otherwise students will be able to deduce how many
 answers are correct by the grade reported by webwork.
 
-
 	install_problem_grader(~~&std_problem_grader2);
 
 The only difference between the two versions
@@ -1570,25 +1517,15 @@ whereas std_problem_grader records it regardless.
 
 =cut
 
-# ^function std_problem_grader2
 sub std_problem_grader2 {
-	my $rh_evaluated_answers = shift;
-	my $rh_problem_state     = shift;
-	my %form_options         = @_;
-	my %evaluated_answers    = %{$rh_evaluated_answers};
-	#  The hash	$rh_evaluated_answers typically	contains:
-	#	   'answer1' =>	34,	'answer2'=>	'Mozart', etc.
+	my ($rh_evaluated_answers, $rh_problem_state, %form_options) = @_;
 
-	# By default the  old problem state	is simply passed back out again.
+	my %evaluated_answers = %{$rh_evaluated_answers};
+
+	# By default the old problem state is simply passed back out again.
 	my %problem_state = %$rh_problem_state;
 
-	# %form_options	might include
-	# The user login name
-	# The permission level of the user
-	# The studentLogin name	for	this psvn.
-	# Whether the form is asking for a refresh or is submitting	a new answer.
-
-	# initial setup	of the answer
+	# Initial setup of the answer.
 	my %problem_result = (
 		score  => 0,
 		errors => '',
@@ -1596,107 +1533,74 @@ sub std_problem_grader2 {
 		msg    => '',
 	);
 
-	# syntax errors	are	not	counted.
+	# Syntax errors are not counted.
 	my $record_problem_attempt = 1;
+
 	# Checks
-	# FIXME:  syntax errors are never checked for so this grader does not perform as advertised
+	# FIXME: syntax errors are never checked for so this grader does not perform as advertised
 
-	my $ansCount = keys %evaluated_answers;    # get the number of answers
+	my $ansCount = keys %evaluated_answers;
 	unless ($ansCount > 0) {
-		$problem_result{msg} = "This problem did not ask any questions.";
+		$problem_result{msg} = 'This problem did not ask any questions.';
 		return (\%problem_result, \%problem_state);
 	}
 
-	if ($ansCount > 1) {
-		$problem_result{msg} = 'In order to	get	credit for this	problem	all	answers	must be	correct.';
-	}
+	$problem_result{msg} = 'In order to get credit for this problem all answers must be correct.' if ($ansCount > 1);
 
-	unless ($form_options{answers_submitted} == 1) {
-		return (\%problem_result, \%problem_state);
-	}
+	return (\%problem_result, \%problem_state) unless $form_options{answers_submitted} == 1;
 
 	my $allAnswersCorrectQ = 1;
 	foreach my $ans_name (keys %evaluated_answers) {
-		# I'm not sure if this check is	really useful.
-		if ((ref($evaluated_answers{$ans_name}) eq 'HASH') or (ref($evaluated_answers{$ans_name}) eq 'AnswerHash')) {
+		if (ref $evaluated_answers{$ans_name} eq 'HASH' || ref $evaluated_answers{$ans_name} eq 'AnswerHash') {
 			$allAnswersCorrectQ = 0 unless (1 == $evaluated_answers{$ans_name}->{score});
 		} else {
-			die "Error at file ", __FILE__, "line ", __LINE__,
-				":	Answer |$ans_name| is not a	hash reference\n"
+			die 'Error at file ', __FILE__, 'line ', __LINE__,
+				": Answer |$ans_name| is not a hash reference\n"
 				. $evaluated_answers{$ans_name}
-				. "This probably	means that the answer evaluator	for	this answer\n"
-				. "is not working correctly.";
-			$problem_result{error} = "Error: Answer	$ans_name is not a hash: $evaluated_answers{$ans_name}";
+				. 'This probably means that the answer evaluator for this answer is not working correctly.';
+			$problem_result{error} = "Error: Answer $ans_name is not a hash: $evaluated_answers{$ans_name}";
 		}
 	}
-	# report the results
-	$problem_result{score}         = $allAnswersCorrectQ;
-	$problem_state{recorded_score} = 0 unless defined $problem_state{recorded_score};
 
-	# Determine if we are in the reduced scoring period and act accordingly
-	if (!$enable_reduced_scoring or time() < $reducedScoringDate)
-	{    # the reduced scoring period is disabled or it is before the reduced scoring period
-		 # increase recorded score if the current score is greater.
-		$problem_state{recorded_score} = $problem_result{score}
-			if $problem_result{score} > $problem_state{recorded_score};
-		# the sub_recored_score holds the recored_score before entering the reduced scoring period
-		$problem_state{sub_recorded_score} = $problem_state{recorded_score};
-	} elsif (time() < $dueDate) {    # we are in the reduced scoring period.
-		 # student gets credit for all work done before the reduced scoring period plus a portion of work done during period
-		my $newScore = 0;
-		$newScore =
-			$problem_state{sub_recorded_score} +
-			$reducedScoringValue * ($problem_result{score} - $problem_state{sub_recorded_score})
-			if ($problem_result{score} > $problem_state{sub_recorded_score});
-		$problem_state{recorded_score} = $newScore if $newScore > $problem_state{recorded_score};
-		my $reducedScoringPerCent = int(100 * $reducedScoringValue + .5);
-		$problem_result{msg} = $problem_result{msg}
-			. "<br />You are in the Reduced Scoring Period: All additional work done counts $reducedScoringPerCent\% of the original.";
-	}
-	# record attempt only if there have	been no	syntax errors.
+	# Report the results
+	$problem_result{score} = $allAnswersCorrectQ;
+	$problem_state{recorded_score} //= 0;
 
+	# Increase recorded score if the current score is greater.
+	$problem_state{recorded_score} = $problem_result{score}
+		if $problem_result{score} > $problem_state{recorded_score};
+
+	# Record attempt only if there have been no syntax errors.
 	if ($record_problem_attempt == 1) {
-		$problem_state{num_of_correct_ans}++   if $allAnswersCorrectQ == 1;
-		$problem_state{num_of_incorrect_ans}++ if $allAnswersCorrectQ == 0;
-		$problem_state{state_summary_msg} = '';    # an HTML formatted message printed at the bottom of the problem page
-
+		++$problem_state{num_of_correct_ans}   if $allAnswersCorrectQ == 1;
+		++$problem_state{num_of_incorrect_ans} if $allAnswersCorrectQ == 0;
 	} else {
-		$problem_result{show_partial_correct_answers} =
-			0;                                     # prevent partial correct answers from	being shown	for	syntax errors.
+		# Prevent partial correct answers from being shown for syntax errors.
+		$problem_result{show_partial_correct_answers} = 0;
 	}
-	(\%problem_result, \%problem_state);
+
+	return (\%problem_result, \%problem_state);
 }
 
 =head4 avg_problem_grader
 
 This grader gives a grade depending on how many questions from the problem are correct.  (The highest
 grade is the one that is kept.  One can never lower the recorded grade on a problem by repeating it.)
-Many professors (and almost all students :-)  ) prefer this grader.
+Many professors (and almost all students :-) ) prefer this grader.
 
-
-	install_problem_grader(~~&avg_problem_grader);
+    install_problem_grader(~~&avg_problem_grader);
 
 =cut
 
-# ^function avg_problem_grader
 sub avg_problem_grader {
-	my $rh_evaluated_answers = shift;
-	my $rh_problem_state     = shift;
-	my %form_options         = @_;
-	my %evaluated_answers    = %{$rh_evaluated_answers};
-	#  The hash	$rh_evaluated_answers typically	contains:
-	#	   'answer1' =>	34,	'answer2'=>	'Mozart', etc.
+	my ($rh_evaluated_answers, $rh_problem_state, %form_options) = @_;
 
-	# By default the  old problem state	is simply passed back out again.
+	my %evaluated_answers = %{$rh_evaluated_answers};
+
+	# By default the old problem state is simply passed back out again.
 	my %problem_state = %$rh_problem_state;
 
-	# %form_options	might include
-	# The user login name
-	# The permission level of the user
-	# The studentLogin name	for	this psvn.
-	# Whether the form is asking for a refresh or is submitting	a new answer.
-
-	# initial setup	of the answer
+	# Initial setup of the answer.
 	my $total          = 0;
 	my %problem_result = (
 		score  => 0,
@@ -1706,58 +1610,36 @@ sub avg_problem_grader {
 	);
 	my $count = keys %evaluated_answers;
 	$problem_result{msg} = maketext('You can earn partial credit on this problem.') if $count > 1;
-	# Return unless	answers	have been submitted
-	unless ($form_options{answers_submitted} == 1) {
-		return (\%problem_result, \%problem_state);
-	}
 
-	# Answers have been	submitted -- process them.
-	foreach my $ans_name (keys %evaluated_answers) {
-		# I'm not sure if this check is	really useful.
-		if ((ref($evaluated_answers{$ans_name}) eq 'HASH') or (ref($evaluated_answers{$ans_name}) eq 'AnswerHash')) {
-			$total += ($evaluated_answers{$ans_name}->{score} // 0);
+	# Return unless answers have been submitted.
+	return (\%problem_result, \%problem_state) unless $form_options{answers_submitted} == 1;
+
+	# Answers have been submitted -- process them.
+	for my $ans_name (keys %evaluated_answers) {
+		if (ref $evaluated_answers{$ans_name} eq 'HASH' || ref $evaluated_answers{$ans_name} eq 'AnswerHash') {
+			$total += $evaluated_answers{$ans_name}{score} // 0;
 		} else {
-			die "Error:	Answer |$ans_name| is not a	hash reference\n"
+			die "Error: Answer |$ans_name| is not a hash reference\n"
 				. $evaluated_answers{$ans_name}
-				. "This probably	means that the answer evaluator	for	this answer\n"
-				. "is not working correctly.";
-			$problem_result{error} = "Error: Answer	$ans_name is not a hash: $evaluated_answers{$ans_name}";
+				. 'This probably means that the answer evaluator for this answer is not working correctly.';
+			$problem_result{error} = "Error: Answer $ans_name is not a hash: $evaluated_answers{$ans_name}";
 		}
 	}
-	# Calculate	score rounded to three places to avoid roundoff	problems
-	$problem_result{score}         = $total / $count if $count;
-	$problem_state{recorded_score} = 0 unless defined $problem_state{recorded_score};
 
-	$problem_state{num_of_correct_ans}++   if $total == $count;
-	$problem_state{num_of_incorrect_ans}++ if $total < $count;
+	# Calculate the score.
+	$problem_result{score} = $total / $count if $count;
 
-	# Determine if we are in the reduced scoring period and if the reduced scoring period is enabled and act accordingly
-	#warn("enable_reduced_scoring is $enable_reduced_scoring");
-	# warn("dueDate is $dueDate");
-	if (!$enable_reduced_scoring or time() < $reducedScoringDate)
-	{    # the reduced scoring period is disabled or it is before the reduced scoring period
-		 # increase recorded score if the current score is greater.
-		$problem_state{recorded_score} = $problem_result{score}
-			if $problem_result{score} > $problem_state{recorded_score};
-		# the sub_recored_score holds the recored_score before entering the reduced scoring period
-		$problem_state{sub_recorded_score} = $problem_state{recorded_score};
-	} elsif (time() < $dueDate) {    # we are in the reduced scoring period.
-		 # student gets credit for all work done before the reduced scoring period plus a portion of work done during period
-		my $newScore = 0;
-		$newScore =
-			$problem_state{sub_recorded_score} +
-			$reducedScoringValue * ($problem_result{score} - $problem_state{sub_recorded_score})
-			if ($problem_result{score} > $problem_state{sub_recorded_score});
-		$problem_state{recorded_score} = $newScore if $newScore > $problem_state{recorded_score};
-		my $reducedScoringPerCent = int(100 * $reducedScoringValue + .5);
-		$problem_result{msg} = $problem_result{msg}
-			. "<br />You are in the Reduced Scoring Period: All additional work done counts $reducedScoringPerCent\% of the original.";
-	}
+	++$problem_state{num_of_correct_ans}   if $total == $count;
+	++$problem_state{num_of_incorrect_ans} if $total < $count;
+	$problem_state{recorded_score} //= 0;
 
-	$problem_state{state_summary_msg} = '';    # an HTML formatted message printed at the bottom of the problem page
+	# Increase recorded score if the current score is greater.
+	$problem_state{recorded_score} = $problem_result{score}
+		if $problem_result{score} > $problem_state{recorded_score};
 
-	warn "Error	in grading this	problem	the	total $total is	larger than	$count" if $total > $count;
-	(\%problem_result, \%problem_state);
+	warn "Error in grading this problem the total $total is larger than $count" if $total > $count;
+
+	return (\%problem_result, \%problem_state);
 }
 
 =head2 Utility subroutines

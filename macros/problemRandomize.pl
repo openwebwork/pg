@@ -180,8 +180,11 @@ sub new {
 		when         => "correct",
 		onlyAfterDue => 1,
 		style        => "Button",
-		styleName    =>
-			($main::inputs_ref->{effectiveUser} ne $main::inputs_ref->{user} ? "checkAnswers" : "submitAnswers"),
+		styleName    => (
+			defined $main::inputs_ref->{effectiveUser}
+				&& defined $main::inputs_ref->{user}
+				&& $main::inputs_ref->{effectiveUser} ne $main::inputs_ref->{user}
+		) ? "checkAnswers" : "submitAnswers",
 		label         => undef,
 		buttonLabel   => $main::PG->maketext("Get a new version of this problem"),
 		checkboxLabel => $main::PG->maketext("Get a new version of this problem"),
@@ -211,7 +214,7 @@ sub getStatus {
 	$self->{status}  = $self->decode;
 	$self->{submit}  = $main::inputs_ref->{submitAnswers};
 	$self->{isReset} = $main::inputs_ref->{_reseed}    || ($self->{submit} && $self->{submit} eq $label);
-	$self->{isReset} = 0 unless !$self->{onlyAfterDue} || time >= $main::dueDate;
+	$self->{isReset} = 0 unless !$self->{onlyAfterDue} || $main::pastDue;
 }
 
 #
@@ -387,7 +390,7 @@ sub grader {
 	my $score    = ($isSubmit || $self->{isReset} ? $result->{score} : $state->{recorded_score});
 	my $isWhen   = ($self->{when} eq 'always'
 			|| ($self->{when} eq 'correct' && $score >= 1 && !$main::inputs_ref->{previewAnswers}));
-	my $okDate = (!$self->{onlyAfterDue} || time >= $main::dueDate);
+	my $okDate = (!$self->{onlyAfterDue} || $main::pastDue);
 
 	#
 	#  Add the problemRandomize message and data

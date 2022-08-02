@@ -105,9 +105,12 @@ sub initialize {
 	my $pwd               = $self->{envir}->{probFileName};
 	$pwd =~ s!/[^/]*$!!;
 	$pwd = $templateDirectory . $pwd unless substr($pwd, 0, 1) eq '/';
+
+	# FIXME: This shouldn't be here.  See the note in PGalias.pm in the initialize subroutine.
 	$pwd =~ s!/tmpEdit/!/!;
+
 	$self->{pwd}        = $pwd;
-	$self->{macrosPath} = $self->{envir}->{pgDirectories}->{macrosPath};
+	$self->{macrosPath} = $self->{envir}{macrosPath};
 
 }
 
@@ -122,7 +125,6 @@ sub PG_macro_file_eval {
 }
 
 # ^function loadMacros
-# ^uses time_it
 # ^uses $debugON
 # ^uses $externalTTHPath
 # ^uses findMacroFile
@@ -131,7 +133,6 @@ sub loadMacros {
 	my @files = @_;
 	my $fileName;
 	my $macrosPath = $self->{envir}->{macrosPath};
-	eval { main::time_it("begin load macros"); };
 	###############################################################################
 	# At this point the directories have been defined from %envir and we can define
 	# the directories for this file
@@ -170,31 +171,26 @@ sub loadMacros {
 				$self->compile_file($filePath);
 				warn "loadMacros is compiling $filePath" if $debugON;
 			} else {
-				my $pgDirectory       = $self->{envir}->{pgDirectories}->{macros};
-				my $templateDirectory = $self->{envir}->{templateDirectory};
+				my $pgDirectory       = $self->{envir}{pgMacrosDir};
+				my $templateDirectory = $self->{envir}{templateDirectory};
 				my @shortenedPaths    = @{$macrosPath};
 				@shortenedPaths = map { $_ =~ s|^$templateDirectory|[TMPL]/|; $_ } @shortenedPaths;
 				@shortenedPaths = map { $_ =~ s|^$pgDirectory|[PG]/macros/|;  $_ } @shortenedPaths;
 				warn "Can't locate macro file |$fileName| via path: |" . join("|,<br/> |", @shortenedPaths) . "|\n";
 			}
+
+			$init_subroutine = eval { \&{ 'main::' . $init_subroutine_name } };
+
+			$macro_file_loaded = defined($init_subroutine) && defined(&$init_subroutine);
+			warn "PGloadfiles: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|"
+				if $debugON;
+
+			if ($macro_file_loaded) {
+				warn "PGloadfiles:  $macro_file_name loaded, initializing $macro_file_name\n" if $debugON;
+				&$init_subroutine();
+			}
 		}
-
-		$init_subroutine = eval { \&{ 'main::' . $init_subroutine_name } };
-
-		###############################################################################
-
-		$macro_file_loaded = defined($init_subroutine) && defined(&$init_subroutine);
-		warn "PGloadfiles: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|"
-			if $debugON;
-
-		if ($macro_file_loaded) {
-			warn "PGloadfiles:  $macro_file_name loaded, initializing $macro_file_name\n" if $debugON;
-			&$init_subroutine();
-		}
-		#warn "main:: contains <br>\n $macro_file_name ".join("<br>\n $macro_file_name ", %main::);
 	}
-	#warn "files loaded:", join(" ", keys %{ $self->{macroFileList} });
-	eval { main::time_it("end load macros"); };
 }
 
 # ^function findMacroFile
@@ -217,6 +213,7 @@ sub findMacroFile {
 	}
 	return 0;    # no file found
 }
+
 # errors in compiling macros is not always being reported.
 # ^function compile_file
 # ^uses @__eval__
@@ -227,40 +224,29 @@ sub compile_file {
 	my $filePath = shift;
 
 	warn "loading $filePath" if $debugON;
-	local (*MACROFILE);
-	local ($/);
-	$/ = undef;    # allows us to treat the file as a single line
 
-	open(MACROFILE, "<:raw", $filePath) || die "Cannot open file: $filePath";
-	my $string = 'BEGIN {push @__eval__, __FILE__};' . "\n" . <MACROFILE>;
-	utf8::decode($string);                                         # can't yet use :encoding(UTF-8)
-																   #warn "compiling $string";
-	my ($result, $error, $fullerror) = $self->PG_macro_file_eval($string);
-	eval('$main::__files__->{pop @main::__eval__} = $filePath');   #used to keep track of which file is being evaluated.
-	if ($error) {    # the $fullerror report has formatting and is never empty
-					 # this is now handled by PG_errorMessage() in the PG translator
-					 #$fullerror =~ s/\(eval \d+\)/ $filePath\n/;   # attempt to insert file name instead of eval number
+	local $/ = undef;    # allows us to treat the file as a single line
+
+	open(my $MACROFILE, "<:raw", $filePath) || die "Cannot open file: $filePath";
+	my $string = 'BEGIN { push @main::__eval__, __FILE__ };' . "\n" . <$MACROFILE>;
+	close $MACROFILE;
+	utf8::decode($string);    # can't yet use :encoding(UTF-8)
+
+	my ($result, $error, $fullerror, $warnings) = $self->PG_macro_file_eval($string);
+
+	# Used to keep track of which file is being evaluated.
+	eval('$main::__files__->{ pop @main::__eval__ } = $filePath');
+
+	# "Re-warn" the warnings that occured now that the file name is in the __files__ array.
+	warn $warnings if $warnings;
+
+	if ($error) {
+		# The $fullerror report has formatting and is never empty.
+		# The die message is handled by PG_errorMessage() in the PG translator.
 		die "Error detected while loading $filePath:\n$fullerror";
 	}
 
-	#  	local(*MACROFILE);
-	#  	local($/);
-	#  	$/ = undef;   # allows us to treat the file as a single line
-	#  	open(MACROFILE, "<$filePath") || die "Cannot open file: $filePath";
-	#  	my $string = 'BEGIN {push @__eval__, __FILE__};' . "\n" . <MACROFILE>;
-	#  	my ($result,$error,$fullerror) = &PG_restricted_eval($string);
-	# 	eval ('$main::__files__->{pop @main::__eval__} = $filePath');
-	#  	if ($error) {    # the $fullerror report has formatting and is never empty
-	#                 # this is now handled by PG_errorMessage() in the PG translator
-	#  		#$fullerror =~ s/\(eval \d+\)/ $filePath\n/;   # attempt to insert file name instead of eval number
-	#  		die "Error detected while loading $filePath:\n$fullerror";
-	#
-	#  	}
-	#
-	#  	close(MACROFILE);
-	$self->{macroFileList}->{$filePath} = 1;
-	close(MACROFILE);
-
+	$self->{macroFileList}{$filePath} = 1;
 }
 
 =head2 sourceAlias
@@ -280,7 +266,6 @@ course's F<html> directory to allow formatted viewing of the problem source.
 # ^uses $envir{probNum}
 # ^uses $envir{displayMode}
 # ^uses $envir{courseName}
-# ^uses $envir{sessionKey}
 sub sourceAlias {
 	my $self         = shift;
 	my $path_to_file = shift;
@@ -299,9 +284,7 @@ sub sourceAlias {
 		. '&amp;user='
 		. $user
 		. '&amp;displayPath='
-		. $path_to_file
-		. '&amp;key='
-		. $envir->{sessionKey};
+		. $path_to_file;
 
 	$out;
 }

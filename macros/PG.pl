@@ -46,7 +46,6 @@ sub DOCUMENT {
 	$ANSWER_PREFIX             = $PG->{ANSWER_PREFIX};
 	$QUIZ_PREFIX               = $PG->{QUIZ_PREFIX};
 	$showPartialCorrectAnswers = $PG->{flags}->{showPartialCorrectAnswers};
-	$showHint                  = $PG->{flags}->{showHint};
 	$solutionExists            = $PG->{flags}->{solutionExists};
 	$hintExists                = $PG->{flags}->{hintExists};
 	$pgComment                 = '';
@@ -505,7 +504,6 @@ sub ENDDOCUMENT {
 	$PG->{flags}->{hintExists}                = defined($hintExists)                ? $hintExists                : 0;
 	$PG->{flags}->{solutionExists}            = defined($solutionExists)            ? $solutionExists            : 0;
 	$PG->{flags}->{comment}                   = defined($pgComment)                 ? $pgComment                 : '';
-	$PG->{flags}->{showHintLimit}             = defined($showHint)                  ? $showHint                  : 0;
 
 	# install problem grader
 	if (defined($PG->{flags}->{PROBLEM_GRADER_TO_USE})) {
@@ -545,11 +543,7 @@ sub ENDDOCUMENT {
 	TEXT(MODES(%{ $rh_envir->{problemPostamble} }));
 
 	@PG_ANSWERS = ();
-	if (
-		0 or    # allow one to force debug output  manually
-		($inputs_ref->{showResourceInfo}) // '' and ($rh_envir->{permissionLevel}) >= 5
-		)
-	{
+	if ($inputs_ref->{showResourceInfo} && $rh_envir->{show_resource_info}) {
 		my %resources      = %{ $PG->{PG_alias}->{resource_list} };
 		my $str            = '';
 		my @resource_names = ();
@@ -564,16 +558,11 @@ sub ENDDOCUMENT {
 			$PG->debug_message($summary . $str);
 		}
 	}
-	if (
-		0 or    # allow one to force debug output  manually
-		($inputs_ref->{showPGInfo} and ($permissionLevel >= 10))
-		)
-	{
+	if ($inputs_ref->{showPGInfo} && $rh_envir->{show_pg_info}) {
 		my $context = $$Value::context->{flags};
 		$PG->debug_message(
-			"PGbasicmacros.pl 2184: ", $HR, "Form variables",      $BR, pretty_print($inputs_ref), $HR,
-			"Environment variables",   $BR, pretty_print(\%envir), $HR, "Context flags",           $BR,
-			pretty_print($context),
+			$HR, "Form variables",      $BR, pretty_print($inputs_ref), $HR, "Environment variables",
+			$BR, pretty_print(\%envir), $HR, "Context flags",           $BR, pretty_print($context),
 		);
 	}
 
@@ -590,13 +579,9 @@ sub ENDDOCUMENT {
 		# The remainder of the response keys are placed in the EXTRA ANSWERS ARRAY
 		if (defined($answergroup)) {
 			my @response_keys = $answergroup->{response}->response_labels;
-			if (
-				0 or    # allow one to force debug output  manually
-				($inputs_ref->{showAnsGroupInfo}) // 0 and ($rh_envir->{permissionLevel}) >= 5
-				)
-			{
-				$PG->debug_message("PG.pl 418: ", pretty_print($answergroup));
-				$PG->debug_message("PG.pl 389: ", pretty_print($answergroup->{response}));
+			if ($inputs_ref->{showAnsGroupInfo} && $rh_envir->{show_answer_group_info}) {
+				$PG->debug_message(pretty_print($answergroup));
+				$PG->debug_message(pretty_print($answergroup->{response}));
 			}
 			my $response_key = $response_keys[0];
 			my $answer_key   = $answergroup->{ans_label};
@@ -910,7 +895,6 @@ sub includePGproblem {
 	# Reset the problem path so that static images can be found via
 	# their relative paths.
 	eval('$main::envir{probFileName} = $filePath');
-	eval('$main::envir{fileName} = $filePath');
 	# now update the PGalias object
 	my $save_PGalias = $PG->{PG_alias};
 	my $temp_PGalias = PGalias->new(
@@ -1168,10 +1152,6 @@ C<hintExits>: indicates the existence of a hint.
 =item *
 
 C<comment>: contents of COMMENT commands if any.
-
-=item *
-
-C<showHintLimit>: determines the number of attempts after which hint(s) will be shown
 
 =item *
 

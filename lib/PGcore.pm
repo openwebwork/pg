@@ -126,18 +126,13 @@ sub initialize {
 	#$self->debug_message("PG alias created", $self->{PG_alias} );
 	$self->{PG_loadMacros} = new PGloadfiles($self->{envir});
 	$self->{flags}         = {
-		showpartialCorrectAnswers => 1,
-		showHint                  => 1,
+		showPartialCorrectAnswers => 1,
 		hintExists                => 0,
-		showHintLimit             => 0,
 		solutionExists            => 0,
 		recordSubmittedAnswers    => 1,
 		refreshCachedImages       => 0,
-		#		ANSWER_ENTRY_ORDER        => [],  # may not be needed if we ue Tie:IxHash
-		comment => '',    # implement as array?
-
+		comment                   => '',    # implement as array?
 	};
-
 }
 
 ####################################################################
@@ -572,15 +567,13 @@ sub PG_restricted_eval {
 	WeBWorK::PG::Translator::PG_restricted_eval(@_);
 }
 
-# =head2 base64 coding
-#
-# 	$str       = decode_base64($coded_str);
-# 	$coded_str = encode_base64($str);
-#
-# # Sometimes a question author needs to code or decode base64 directly
-#
-# =cut
-#
+=head2 base64 encoding and decoding
+
+	$str       = decode_base64($coded_str);
+	$coded_str = encode_base64($str);
+
+=cut
+
 sub decode_base64 ($) {
 	my $self = shift;
 	my $str  = shift;
@@ -678,10 +671,6 @@ sub DESTROY {
 	# doing nothing about destruction, hope that isn't dangerous
 }
 
-# sub WARN {
-# 	warn(@_);
-# }
-
 # This creates on the fly graphs
 
 =head2 insertGraph
@@ -764,7 +753,6 @@ sub getUniqueName {
 		includePGtext
 		read_whole_problem_file
 		convertPath
-		getDirDelim
 		fileFromPath
 		directoryFromPath
 		createDirectory
@@ -792,11 +780,6 @@ sub read_whole_problem_file {
 sub convertPath {
 	my $self = shift;
 	WeBWorK::PG::IO::convertPath(@_);
-}
-
-sub getDirDelim {
-	my $self = shift;
-	WeBWorK::PG::IO::getDirDelim(@_);
 }
 
 sub fileFromPath {

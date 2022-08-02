@@ -1,0 +1,263 @@
+# Configuration options needed by PG.
+
+# You should not edit pg_config.dist.yml directly.  Copy pg_config.dist.yml file to pg_config.yml and make changes to
+# that file.
+
+# $pg_root may be used in values and will be replaced with the pg root directory set from the PG_ROOT environment
+# variable.
+
+# $render_root may be used in values and will be replaced with the renderer root directory set from the RENDER_ROOT
+# environment variable.
+
+# $OPL_dir may be used in values and will be replaced with the value of the directories OPL setting below.
+# $Contrib_dir may be used in values and will be replaced with the value of the directories Contrib setting below.
+# $pg_root_url may be used in values and will be replaced with the value of the URLs html setting below.
+
+directories:
+  # The OPL and Contrib directories.
+  OPL: /opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary
+  Contrib: /opt/webwork/libraries/webwork-open-problem-library/Contrib
+
+  # The root PG location.  This will be set from the PG_ROOT environment variable, but can be overriden here.
+  root: $pg_root
+
+  # Global temporary directory.  This location must be writable.
+  tmp: /tmp
+
+  # Public html location containing the PG javascript, css, and help files.
+  html: $pg_root/htdocs
+
+  # Temporary directory from which generated files will be served.  This location must be writable.
+  html_temp: $pg_root/htdocs/tmp
+
+  # Directory from which WeBWorK::PG::IO allows files to be read.
+  permitted_read_dir: /opt/webwork
+
+  # Location of cached equation images.
+  equationCache: $pg_root/htdocs/tmp/equations
+
+  #  The macro file search path.  Each directory in this list is searched
+  #  (in this order) by loadMacros when it looks for a .pl macro file.
+  macrosPath:
+    - .
+    - $pg_root/macros
+    - $OPL_dir/macros/Alfred
+    - $OPL_dir/macros/BrockPhysics
+    - $OPL_dir/macros/CollegeOfIdaho
+    - $OPL_dir/macros/Dartmouth
+    - $OPL_dir/macros/FortLewis
+    - $OPL_dir/macros/Hope
+    - $OPL_dir/macros/LaTech
+    - $OPL_dir/macros/MC
+    - $OPL_dir/macros/Michigan
+    - $OPL_dir/macros/Mizzou
+    - $OPL_dir/macros/NAU
+    - $OPL_dir/macros/PCC
+    - $OPL_dir/macros/TCNJ
+    - $OPL_dir/macros/UBC
+    - $OPL_dir/macros/UMass-Amherst
+    - $OPL_dir/macros/UW-Stout
+    - $OPL_dir/macros/UniSiegen
+    - $OPL_dir/macros/Union
+    - $OPL_dir/macros/WHFreeman
+    - $OPL_dir/macros/Wiley
+    - $Contrib_dir/CAPA/macros/CAPA_Tools
+    - $Contrib_dir/CAPA/macros/CAPA_MCTools
+
+URLs:
+  # The public URL of the html directory above.
+  html: /pg_files
+
+  # The public URL of the html_temp directory above.
+  tempURL: $pg_root_url/tmp
+
+  # The public URL of the PG help files.
+  localHelpURL: $pg_root_url/helpFiles
+
+  # URL of cached equation images.
+  equationCache: $pg_root_url/tmp/equations
+
+  # Paths to search for auxiliary html files (requires full url).
+  htmlPath:
+    - .
+    - $pg_root_url
+
+  # Paths to search for image files (requires full url).
+  imagesPath:
+    - .
+    - $pg_root_url/images
+
+# Flat-file database used to protect against MD5 hash collisions. TeX equations
+# are hashed to determine the name of the image file. There is a tiny chance of
+# a collision between two TeX strings. This file allows for that. However, this
+# is slow, so most people chose not to worry about it. Set this to '' if you
+# don't want to use the equation cache file.
+equationCacheDB: ''
+
+externalPrograms:
+  curl: /usr/bin/curl
+  cp: /bin/cp
+  mv: /bin/mv
+  rm: /bin/rm
+  tar: /bin/tar
+  latex: /usr/bin/latex --no-shell-escape
+  pdflatex: /usr/bin/pdflatex --no-shell-escape
+  dvisvgm: /usr/bin/dvisvgm
+  pdf2svg: /usr/bin/pdf2svg
+  convert: /usr/bin/convert
+  dvipng: /usr/bin/dvipng
+
+specialPGEnvironmentVars:
+  # switch to remove explanation essay block from questions that have one
+  waiveExplanations: 0
+
+  # To disable the Parser-based versions of num_cmp and fun_cmp, and use the
+  # original versions instead, set this value to 1.
+  useOldAnswerMacros: 0
+
+  # Determines whether or not MathObjects contexts will parse the alternative tokens
+  # listed in the "alternatives" property (mostly for unicode alternatives for parse tokens).
+  parseAlternatives: 0
+
+  # Determines whether or not the MathObjects parser will convert the Full Width Unicode block
+  # (U+FF01 to U+FF5E) to their corresponding ASCII characters (U+0021 to U+007E) automatically.
+  convertFullWidthCharacters: 0
+
+  # Binary that the PGtikz.pl and PGlateximage.pl macros will use to create svg images.
+  # This should be either 'pdf2svg' or 'dvipdfm'.
+  latexImageSVGMethod: pdf2svg
+
+  # When ImageMagick is used for image conversions, this sets the default options.
+  # See https://imagemagick.org/script/convert.php for a full list of options.
+  # convert will be called as:
+  # convert <input options> file.ext1 <output options> file.ext2
+  latexImageConvertOptions:
+    input:
+      density: 300
+    output:
+      quality: 100
+
+  # Strings to insert at the start and end of the body of a problem.
+  problemPreamble:
+    TeX: ''
+    HTML: ''
+  problemPostamble:
+    TeX: ''
+    HTML: ''
+
+  # Math entry assistance
+  entryAssist: MathQuill
+
+  # Whether to use javascript for rendering Live3D graphs.
+  use_javascript_for_live3d: 1
+
+  # Size in pixels of dynamically-generated images, i.e. graphs.
+  onTheFlyImageSize: 400
+
+  # Locations of CAPA resources. (Only necessary if you need to use converted CAPA problems.)
+  CAPA_Tools: $Contrib_dir/CAPA/macros/CAPA_Tools/
+  CAPA_MCTools: $Contrib_dir/Contrib/CAPA/macros/CAPA_MCTools/
+  CAPA_GraphicsDirectory: $Contrib_dir/Contrib/CAPA/CAPA_Graphics/
+  CAPA_Graphics_URL: $pg_root_url/CAPA_Graphics/
+
+# Answer evaluatior defaults
+ansEvalDefaults:
+  functAbsTolDefault: 0.001
+  functLLimitDefault: 0.0000001
+  functMaxConstantOfIntegration: 1E8
+  functNumOfPoints: 3
+  functRelPercentTolDefault: 0.1
+  functULimitDefault: 0.9999999
+  functVarDefault: x
+  functZeroLevelDefault: 1E-14
+  functZeroLevelTolDefault: 1E-12
+  numAbsTolDefault: 0.001
+  numFormatDefault: ''
+  numRelPercentTolDefault: 0.1
+  numZeroLevelDefault: 1E-14
+  numZeroLevelTolDefault: 1E-12
+  useBaseTenLog: 0
+  defaultDisplayMatrixStyle: '[s]' # left delimiter, middle line delimiters, right delimiter
+
+options:
+  # The default grader to use, if a problem doesn't specify.
+  grader: avg_problem_grader
+
+  # Note that the first of useMathQuill, useMathView, and useWirisEditor that is set (in that order) to 1 will be used.
+
+  # Set to 1 use MathQuill in answer boxes.
+  useMathQuill: 1
+
+  # Set to 1 to use the MathView preview system with answer boxes.
+  useMathView: 0
+
+  # This is the operations file to use for mathview, each contains a different locale.
+  mathViewLocale: mv_locale_us.js
+
+  # Set to 1 to show the WirisEditor preview system.
+  useWirisEditor: 0
+
+  # Catch translation warnings internally.
+  catchWarnings: 1
+
+# "images" mode has several settings:
+displayModeOptions:
+  images:
+    # Determines the method used to align images in output. Can be any valid value for the css vertical-align rule such
+    # as 'baseline' or 'middle'.
+    dvipng_align: baseline
+
+    # If dbsource is set to a nonempty value, then this database connection information will be used to store depths.
+    # It is assumed that the 'depths' table exists in the database.
+    dvipng_depth_db:
+      dbsource: ''
+      user: ''
+      passwd: ''
+
+# PG modules to load
+# The first item of each list is the module to load. The remaining items are additional packages to import.
+# That is: If you wish to include a module MyModule.pm which depends on additional modules Dependency1.pm and
+# Dependency2.pm, these should appear as [Mymodule, Dependency1, Dependency2]
+modules:
+  - [Encode]
+  - ['Encode::Encoding']
+  - ['HTML::Parser']
+  - ['HTML::Entities']
+  - [DynaLoader]
+  - [Encode]
+  - [Exporter]
+  - [GD]
+  - [AlgParser, AlgParserWithImplicitExpand, Expr, ExprWithImplicitExpand, utf8]
+  - [AnswerHash, AnswerEvaluator]
+  - [LaTeXImage]
+  - [WWPlot] # required by Circle (and others)
+  - [Circle]
+  - ['Class::Accessor']
+  - [Complex]
+  - [Complex1]
+  - [Distributions]
+  - [Fraction]
+  - [Fun]
+  - [Hermite]
+  - [Label]
+  - [ChoiceList]
+  - [Match]
+  - [MatrixReal1] # required by Matrix
+  - [Matrix]
+  - [Multiple]
+  - [PGrandom]
+  - [Regression]
+  - [Select]
+  - [Units]
+  - [VectorField]
+  - [Parser, Value]
+  - ['Parser::Legacy']
+  - [Statistics]
+  - [Chromatic] # for Northern Arizona graph problems
+  - [Applet, GeogebraWebApplet]
+  - [PGcore, PGalias, PGresource, PGloadfiles, PGanswergroup, PGresponsegroup, 'Tie::IxHash']
+  - ['Locale::Maketext']
+  - [JSON]
+  - [Rserve, 'Class::Tiny', 'IO::Handle']
+  - [DragNDrop]
+  - ['Types::Serialiser']

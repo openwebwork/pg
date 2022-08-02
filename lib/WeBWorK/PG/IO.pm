@@ -14,94 +14,54 @@
 ################################################################################
 
 package WeBWorK::PG::IO;
-use warnings              qw(FATAL utf8);
-use parent                qw(Exporter);
-use Encode                qw( encode decode);
-use JSON                  qw(decode_json);
+use parent qw(Exporter);
+
+use strict;
+use warnings;
+
+use Encode qw( encode decode);
+use JSON qw(decode_json);
 use File::Spec::Functions qw(canonpath);
-use PGUtil                qw(not_null);
-# use WeBWorK::Utils qw(path_is_subdir);
-# use WeBWorK::CourseEnvironment;
-use PGEnvironment;
+use PGUtil qw(not_null);
+use WeBWorK::PG::Environment;
 use utf8;
 #binmode(STDOUT,":encoding(UTF-8)");
 #binmode(STDIN,":encoding(UTF-8)");
 #binmode(INPUT,":encoding(UTF-8)");
 
-my $pg_envir = new PGEnvironment();
+my $pg_envir = WeBWorK::PG::Environment->new;
 
 =head1 NAME
 
-WeBWorK::PG::IO - Private functions used by WeBWorK::PG::Translator for file IO.
+WeBWorK::PG::IO - Functions used by WeBWorK::PG::Translator for file IO.
 
 =cut
 
-use strict;
-use warnings;
-
-BEGIN {
-	our @EXPORT = qw(
-		includePGtext
-		read_whole_problem_file
-		read_whole_file
-		convertPath
-		getDirDelim
-		fileFromPath
-		directoryFromPath
-		createFile
-		createDirectory
-		path_is_course_subdir
-	);
-
-	our @SHARED_FUNCTIONS = qw(
-		includePGtext
-		read_whole_problem_file
-		read_whole_file
-		convertPath
-		fileFromPath
-		directoryFromPath
-		createDirectory
-	);
-
-	our %SHARE = map { $_ => __PACKAGE__ } @SHARED_FUNCTIONS;
-	my $ww_version = "2.x";    # hack -- only WW2 versions are supported.
-	if (defined $ww_version) {
-		my $mod;
-		for ($ww_version) {
-			/^1\./          and $mod = "WeBWorK::PG::IO::WW1";
-			/^2\./          and $mod = "WeBWorK::PG::IO::WW2";
-			/^Daemon\s*2\./ and $mod = "WeBWorK::PG::IO::Daemon2";
-		}
-
-		eval "package Main; require $mod; import $mod";    # this is runtime_use
-		die $@ if $@;
-	} else {
-		warn "\$main::VERSION not defined -- not loading version-specific IO functions";
-	}
-}
+our @EXPORT = qw(
+	includePGtext
+	read_whole_problem_file
+	read_whole_file
+	convertPath
+	fileFromPath
+	directoryFromPath
+	createDirectory
+);
 
 =head1 SYNOPSIS
 
- BEGIN { $main::VERSION = "2.0" }
  use WeBWorK::PG::IO;
  my %functions_to_share = %WeBWorK::PG::IO::SHARE;
 
 =head1 DESCRIPTION
 
 This module defines several functions to be shared with a safe compartment by
-the PG translator. It also loads a version-specific module (if found) based on
-the value of the C<$main::VERSION> variable.
-
-This module also maintains a hash C<%WeBWorK::PG::IO::SHARE>. The keys of this
-hash are the names of functions, and the values are the name of the package that
-contains the function.
+the PG translator.  All exported methods are shared.
 
 =head1 FUNCTIONS
 
 =over
 
-=item includePGtext($string_ref, $envir_ref)
-
+=item includePGtext($string_ref)
 
 This is used in processing some of the sample CAPA files and
 in creating aliases to redirect calls to duplicate problems so that
@@ -116,9 +76,7 @@ sub includePGtext {
 	if (ref($evalString) eq 'SCALAR') {
 		$evalString = $$evalString;
 	}
-	#	$evalString =~ s/\nBEGIN_TEXT/\nTEXT\(EV3\(<<'END_TEXT'\)\);/g;
-	#	$evalString =~ s/\\/\\\\/g; # \ can't be used for escapes because of TeX conflict
-	#	$evalString =~ s/~~/\\/g;   # use ~~ as escape instead, use # for comments
+
 	no strict;
 	$evalString = eval(q! &{$main::PREPROCESS_CODE}($evalString) !);
 	$evalString = $evalString || '';
@@ -154,7 +112,7 @@ sub read_whole_file {
 	warn "Can't read file $filePath<br/>" unless -r $filePath;
 	return ""                             unless -r $filePath;
 	die "File path $filePath is unsafe."
-		unless path_is_course_subdir($filePath);
+		unless path_is_readable_subdir($filePath);
 
 	local (*INPUT);
 	open(INPUT, "<:raw", $filePath) || die "$0: read_whole_file subroutine: <BR>Can't read file $filePath";
@@ -186,37 +144,29 @@ sub convertPath {
 	return wantarray ? @_ : shift;
 }
 
-sub getDirDelim {
-	return ("/");
-}
-
 =item fileFromPath($path)
 
-Uses C<&getDirDelim> to determine the path delimiter.  Returns the last segment
-of the path (i.e. the text after the last delimiter).
+Returns the last segment of the path (i.e. the text after the last forward slash).
 
 =cut
 
 sub fileFromPath {
-	my $path  = shift;
-	my $delim = &getDirDelim();
+	my $path = shift;
 	$path = convertPath($path);
-	$path =~ m|([^$delim]+)$|;
+	$path =~ m|([^/]+)$|;
 	$1;
 }
 
 =item directoryFromPath($path)
 
-Uses C<&getDirDelim> to determine the path delimiter.  Returns the initial
-segments of the of the path (i.e. the text up to the last delimiter).
+Returns the initial segments of the of the path (i.e. the text up to the last forward slash).
 
 =cut
 
 sub directoryFromPath {
-	my $path  = shift;
-	my $delim = &getDirDelim();
+	my $path = shift;
 	$path = convertPath($path);
-	$path =~ s|[^$delim]*$||;
+	$path =~ s|[^/]*$||;
 	$path;
 }
 
@@ -229,7 +179,7 @@ Creates a file with the given name, permission bits, and group ID.
 sub createFile {
 	my ($fileName, $permission, $numgid) = @_;
 
-	die 'Path is unsafe' unless path_is_course_subdir($fileName);
+	die 'Path is unsafe' unless path_is_readable_subdir($fileName);
 
 	open(TEMPCREATEFILE, ">:encoding(UTF-8)", $fileName)
 		or die "Can't open $fileName: $!";
@@ -299,18 +249,18 @@ sub path_is_subdir {
 	return 1;
 }
 
-=item path_is_course_subdir($path)
+=item path_is_readable_subdir($path)
 
-Checks to see if the given path is a sub directory of the courses directory
+Checks to see if the given path is a sub directory of the directory the caller says we are allowed to read from.
 
 =cut
 
-sub path_is_course_subdir {
-	return path_is_subdir(shift, $pg_envir->{webwork_courses_dir}, 1);
+sub path_is_readable_subdir {
+	return path_is_subdir(shift, $pg_envir->{directories}{permitted_read_dir}, 1);
 }
 
-sub ww_tmp_dir {
-	return $pg_envir->{webworkDirs}{tmp};
+sub pg_tmp_dir {
+	return $pg_envir->{directories}{tmp};
 }
 
 =item curlCommand

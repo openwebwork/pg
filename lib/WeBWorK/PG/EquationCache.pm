@@ -13,15 +13,15 @@
 # Artistic License for more details.
 ################################################################################
 
-package WeBWorK::EquationCache;
+package WeBWorK::PG::EquationCache;
 
 =head1 NAME
 
-WeBWorK::EquationCache - create and cache images of TeX equations.
+WeBWorK::PG::EquationCache - create and cache images of TeX equations.
 
 =head1 SYNPOSIS
 
- my $cache = WeBWorK::EquationCache->new(cacheDB => "/path/to/equationcache.db");
+ my $cache = WeBWorK::PG::EquationCache->new(cacheDB => "/path/to/equationcache.db");
  my $imageName = $cache->lookup('\[3x^2\]');
 
 =head1 DESCRIPTION
@@ -46,9 +46,11 @@ extending to the end of the line is also ignored.
 
 use strict;
 use warnings;
+
 use Digest::MD5 qw(md5_hex);
-use Encode      qw(encode_utf8 );
-use Fcntl       qw(:DEFAULT :flock);
+use Encode qw(encode_utf8 );
+use Fcntl qw(:DEFAULT :flock);
+
 BEGIN { my @_junk = (O_RDWR, O_CREAT, LOCK_EX) }    # get rid of "subroutine redefined" warnings
 
 =head1 METHODS
@@ -86,21 +88,16 @@ is returned. If necessary, the string is added to the database.
 
 sub lookup {
 	my ($self, $tex) = @_;
-	# There are several ways to normalize TeX strings.  Use only
-	# one of them.
 
-	# Option 1 (default): remove leading and trailing whitespace, and
-	# compress all other whitespace to single spaces.
-	$tex =~ s/^\s+//g;
-	$tex =~ s/\s+$//g;
+	# Remove leading and trailing whitespace, and compress all other whitespace to single spaces.
+	$tex =~ s/^\s+|\s+$//g;
 	$tex =~ s/\s+/ /g;
-	# Option 2 (the old default): remove all whitespace
-	# $tex =~ s/\s+//g;
 
 	my $md5 = md5_hex(encode_utf8($tex));
 
 	my $db = $self->{cacheDB};
-	unless ($db) { return ($md5 . "1"); }
+	return $md5 unless $db;
+
 	sysopen(DB, $db, O_RDWR | O_CREAT)
 		or die "failed to create/open cacheDB $db: $!";
 	flock(DB, LOCK_EX)
