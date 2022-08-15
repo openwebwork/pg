@@ -2,6 +2,7 @@
 
 $appletName = "drawCanvas";
 $canvasName = "cv";
+$answerBox //= 'answerBox';
 
 ADD_JS_FILE('http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js', 1);
 ADD_JS_FILE('js/legacy/sketchgraphhtml5b/SketchGraph.pjs');

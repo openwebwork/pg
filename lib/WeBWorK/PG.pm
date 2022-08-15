@@ -91,7 +91,7 @@ sub new_helper ($invocant, %options) {
 			cacheURL        => ($options{use_site_prefix} // '') . $pg_envir->{URLs}{equationCache},
 			cacheDB         => $pg_envir->{equationCacheDB},
 			useMarkers      => 1,
-			dvipng_align    => $pg_envir->{displayModeOptions}{images}{dvipng_align} // 'baseline',
+			dvipng_align    => $pg_envir->{displayModeOptions}{images}{dvipng_align},
 			dvipng_depth_db => $pg_envir->{displayModeOptions}{images}{dvipng_depth_db},
 		)
 		: undef;

@@ -618,7 +618,7 @@ sub check_eigenvector {
 		return ($rh_ans) unless @correct_vector == @vector;
 		# make sure the vectors are the same dimension
 
-		my $vec = new Matrix(2, 1);
+		my $vec = Matrix->new(2, 1);
 		$vec->assign(1, 1, $vector[0]);
 		$vec->assign(2, 1, $vector[1]);
 		my $out_vec = $matrix * $vec;

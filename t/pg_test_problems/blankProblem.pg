@@ -1,0 +1,13 @@
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'MathObjects.pl', 'PGML.pl', 'PGcourse.pl');
+
+$pi = Real('pi');
+
+BEGIN_PGML
+Enter a value for [`\pi`].
+
+[_____]{$pi}
+END_PGML
+
+ENDDOCUMENT();

@@ -747,18 +747,18 @@ sub Infinity () {
 #  (needed for log() to implement $useBaseTenLog)
 #
 use subs 'abs', 'sqrt', 'exp', 'log', 'sin', 'cos', 'atan2', 'ParserDefineLog';
-sub abs($)  { return CORE::abs($_[0]) }
-sub sqrt($) { return CORE::sqrt($_[0]) }
-sub exp($)  { return CORE::exp($_[0]) }
-#sub log($)  {return CORE::log($_[0])};
-sub sin($)    { return CORE::sin($_[0]) }
-sub cos($)    { return CORE::cos($_[0]) }
-sub atan2($$) { return CORE::atan2($_[0], $_[1]) }
+sub abs  { return CORE::abs($_[0]) }
+sub sqrt { return CORE::sqrt($_[0]) }
+sub exp  { return CORE::exp($_[0]) }
+#sub log  {return CORE::log($_[0])};
+sub sin   { return CORE::sin($_[0]) }
+sub cos   { return CORE::cos($_[0]) }
+sub atan2 { return CORE::atan2($_[0], $_[1]) }
 
 # used to be Parser::defineLog -- but that generated redefined notices
 sub ParserDefineLog {
 	eval {
-		sub log($) { CommonFunction->Call("log", @_) }
+		sub log { CommonFunction->Call("log", @_) }
 	}
 }
 

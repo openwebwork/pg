@@ -334,7 +334,7 @@ sub mult {
 			push(@cycles, $self->Package("Cycle")->new(@cycle));
 		}
 		# return a Cycle if there is only one cycle as the result
-		return @cycles[0] if scalar(@cycles) == 1;
+		return $cycles[0] if scalar(@cycles) == 1;
 		# else return a Permutation if there are more than 1 cycles
 		return $self->Package("Permutation")->new(@cycles);
 	}
@@ -756,7 +756,7 @@ sub _check {
 #
 sub _eval {
 	my $self     = shift;
-	my @elements = @{ @_[0] };
+	my @elements = @{ $_[0] };
 	# transform into cycles
 	my @keys   = 1 .. scalar(@elements);
 	my @cycles = ();
@@ -780,7 +780,7 @@ sub _eval {
 		push(@cycles, $self->Package("Cycle")->new(@cycle));
 	}
 	# return a Cycle if there is only one cycle as the result
-	return @cycles[0] if scalar(@cycles) == 1;
+	return $cycles[0] if scalar(@cycles) == 1;
 	# else return a Permutation if there are more than 1 cycles
 	return $self->Package("Permutation")->new(@cycles);
 }
