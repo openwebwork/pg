@@ -7,11 +7,20 @@ on runtime => sub {
 
     requires 'DBI';
     requires 'Digest::MD5';
+    requires 'Encode';
+    requires 'Encode::Encoding';
+    requires 'GD';
+    requires 'HTML::Parser';
     requires 'HTML::Entities';
     requires 'JSON';
+    requires 'Locale::Maketext';
     requires 'Tie::IxHash';
-    requires 'URI::Escape';
     requires 'UUID::Tiny';
+
+    # needed for Rserve
+    recommends 'Statistics::R::IO::Rserve';
+    recommends 'Class::Tiny';
+    recommends 'IO::Handle';
 };
 
 on test => sub {
