@@ -39,43 +39,38 @@ sub _AppletObjects_init {
 
 sub GeogebraWebApplet {
 	ADD_JS_FILE("https://www.geogebra.org/apps/deployggb.js", 1);
-	return GeogebraWebApplet->new(@_);
+	return GeogebraWebAppletBase->new(@_);
 }
 
 # Deprecated applets (these are just stubs to show a warning if used)
 sub FlashApplet {
 	warn 'Flash applets are no longer supported';
-	return Applet->new(type => 'flash');
+	return PGApplet->new(type => 'flash');
 }
 
 sub JavaApplet {
 	warn 'Java applets are no longer supported';
-	return Applet->new(type => 'java');
+	return PGApplet->new(type => 'java');
 }
 
 sub CanvasApplet {
 	warn 'Canvas applets are no longer supported';
-	return Applet->new(type => 'canvas');
+	return PGApplet->new(type => 'canvas');
 }
 
-package Applet;
+package PGApplet;
+our @ISA = qw(Applet);
 
 =head1 Methods
 
-=cut
-
-# This method is defined in this file because it uses methods in PG.pl and PGbasicmacros.pl that
-# are not available to Applet.pm when it is compiled (at the time the apache child process is
-# first initialized).
+This method is defined in this file because it uses methods in PG.pl and PGbasicmacros.pl that
+are not available to Applet.pm when it is compiled (at the time the apache child process is
+first initialized).
 
 =head3  insertAll
 
     Useage:  TEXT($applet->insertAll());
              \{ $applet->insertAll() \}  (used within BEGIN_TEXT/END_TEXT blocks)
-
-=cut
-
-=pod
 
 Inserts applet at this point in the HTML code.  (In TeX mode a message "Applet" is written.)
 This method also adds the applets header material into the header portion of the HTML page. It
@@ -112,7 +107,7 @@ sub insertAll {
 	my $getConfig = $self->getConfigAlias;
 	my $setConfig = $self->setConfigAlias;
 
-	my $base64_initialState = encode_base64($self->initialState);
+	my $base64_initialState = $self->base64_encode($self->initialState);
 	# This insures that the state will be saved from one invocation to the next.
 	# FIXME -- with PGcore the persistant data mechanism can be used instead
 	main::RECORD_FORM_LABEL($appletStateName);
@@ -138,17 +133,17 @@ sub insertAll {
 	my $base_64_encoded_answer_value;
 	my $decoded_answer_value;
 	if ($answer_value =~ /<XML|<?xml/i) {
-		$base_64_encoded_answer_value = encode_base64($answer_value);
+		$base_64_encoded_answer_value = $self->base64_encode($answer_value);
 		$decoded_answer_value         = $answer_value;
 	} else {
-		$decoded_answer_value = decode_base64($answer_value);
+		$decoded_answer_value = $self->base64_decode($answer_value);
 		if ($decoded_answer_value =~ /<XML|<?xml/i) {
 			# Great, we've decoded the answer to obtain an xml string
 			$base_64_encoded_answer_value = $answer_value;
 		} else {
 			#WTF??  apparently we don't have XML tags
 			$answer_value                 = "<xml>$answer_value</xml>";
-			$base_64_encoded_answer_value = encode_base64($answer_value);
+			$base_64_encoded_answer_value = $self->base64_encode($answer_value);
 			$decoded_answer_value         = $answer_value;
 		}
 	}
@@ -182,6 +177,25 @@ sub insertAll {
 		TeX  => ' {\bf ' . $self->{type} . ' applet } ',
 		HTML => $self->insertObject . $main::BR . $state_storage_html_code . $answerBox_code,
 		PTX  => ' applet '
+	);
+}
+
+# GeogebraWeb APPLET PACKAGE
+package GeogebraWebAppletBase;
+our @ISA = qw(PGApplet);
+
+sub new {
+	my $class = shift;
+	$class->SUPER::new(
+		objectText => << 'END_OBJECT_TEXT',
+<div id="$appletName"
+	data-id="$appletName"
+	data-width="$width"
+	data-height="$height"
+	$webgeogebraParameters></div>
+END_OBJECT_TEXT
+		type       => 'geogebraweb',
+		@_
 	);
 }
 

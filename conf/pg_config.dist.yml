@@ -254,7 +254,7 @@ modules:
   - ['Parser::Legacy']
   - [Statistics]
   - [Chromatic] # for Northern Arizona graph problems
-  - [Applet, GeogebraWebApplet]
+  - [Applet]
   - [PGcore, PGalias, PGresource, PGloadfiles, PGanswergroup, PGresponsegroup, 'Tie::IxHash']
   - ['Locale::Maketext']
   - [JSON]
