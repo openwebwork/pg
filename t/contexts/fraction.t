@@ -1,38 +1,28 @@
-use Test2::V0;
+#!/usr/bin/env perl
 
-# should I "use" Parser Value Parser::Legacy here instead?
+=head1 Fraction context
 
-use lib 't/lib';
-use Test::PG;
-
-=head2 Fraction context
-
-To test the reduction of fractions
+Test the fraction context defined in contextFraction.pl.
 
 =cut
 
-loadMacros("PGstandard.pl", "MathObjects.pl", "contextFraction.pl");
+use Test2::V0 '!E', { E => 'EXISTS' };
 
-# dd @INC;
+die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
+do "$ENV{PG_ROOT}/t/build_PG_envir.pl";
 
-for my $module (qw/Parser Value Parser::Legacy/) {
-	eval "package Main; require $module; import $module;";
-}
+use lib "$ENV{PG_ROOT}/lib";
 
-# use Value;
-# use Value::Complex;
-# # use Value::Type;
-# use Parser::Context::Default;
-# use Parser::Legacy;
-# use Parser::Context;
+loadMacros('PGstandard.pl', 'MathObjects.pl', 'contextFraction.pl');
 
-Context("Fraction");
+use Value;
+require Parser::Legacy;
+import Parser::Legacy;
 
-# require("Parser::Legacy::LimitedNumeric::Number");
-# require("Parser::Legacy");
+Context('Fraction');
 
-ok my $a1 = Compute("1/2");
-ok my $a2 = Compute("2/4");
+ok my $a1 = Compute('1/2');
+ok my $a2 = Compute('2/4');
 
 is $a1->value, $a2->value, 'contextFraction: reduce fractions';
 

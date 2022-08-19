@@ -1,10 +1,4 @@
-use Test2::V0;
-
-use Parser;
-
-use lib 't/lib';
-use Test::PG;
-
+#!/usr/bin/env perl
 
 =head1 MathObjects
 
@@ -13,24 +7,26 @@ Try out operations with Infinity.
 
 =cut
 
+use Test2::V0 '!E', { E => 'EXISTS' };
 
-loadMacros("MathObjects.pl");
+die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
+do "$ENV{PG_ROOT}/t/build_PG_envir.pl";
 
-Context("Numeric");
+loadMacros('MathObjects.pl');
 
 my ($val1, $val2) = (10, 5);
 my $obj1 = Compute($val1);
 my $obj2 = Compute($val2);
-my $zero = Compute("0");
-ok my $one  = Compute("1"), 'Create a MathObject with Compute';
+my $zero = Compute('0');
+ok my $one = Compute('1'), 'Create a MathObject with Compute';
 
 subtest 'Basic properties of MathObjects' => sub {
 	is $obj1->class,  'Real',   'math objects: check class of object';
 	is $obj2->type,   'Number', 'math objects: check type of object';
-	is $one->isOne,   T(), 'math objects: check if a number is 1';
-	is $zero->isOne,  F(), 'math objects: check if a number is not 1';
-	is $zero->isZero, T(), 'math objects: check if a number is 0';
-	is $one->isZero,  F(), 'math objects: check if a number is not 0';
+	is $one->isOne,   T(),      'math objects: check if a number is 1';
+	is $zero->isOne,  F(),      'math objects: check if a number is not 1';
+	is $zero->isZero, T(),      'math objects: check if a number is 0';
+	is $one->isZero,  F(),      'math objects: check if a number is not 0';
 };
 
 subtest 'Class methods of Value to determine type' => sub {
@@ -48,32 +44,14 @@ subtest 'Tests for infinite values' => sub {
 	is $inf->value, 'infinity', 'math objects: check for infinity via a string';
 	is $inf->class, 'Infinity', 'math objects: check that the class is Infinity';
 	is $inf->type,  'Infinity', 'math objects: check that the type is Infinity';
-	ok !Value::isNumber($inf),  'math objects: check if inf is a number';
+	ok !Value::isNumber($inf), 'math objects: check if inf is a number';
 };
 
 subtest 'check that operations with infinity are not allowed' => sub {
-	like(
-		dies { Compute("$obj1+$inf") },
-		qr/can't be infinities/,
-		"math objects: addition with infinity"
-	);
-	like(
-		dies { Compute("$obj1-$inf") },
-		qr/can't be infinities/,
-		"math objects: subtraction with infinity"
-	);
-	like(
-		dies { Compute("$obj1*$inf") },
-		qr/can't be infinities/,
-		"math objects: multiplication with infinity"
-	);
-	like(
-		dies { Compute("$obj1/$inf") },
-		qr/can't be infinities/,
-		"math objects: division with infinity"
-	);
-
-	# is($result1->value,'infinity','math objects: check that the sum of a finite and infinite value is infinite');
+	like(dies { Compute("$obj1 + $inf") }, qr/can't be infinities/, 'math objects: addition with infinity');
+	like(dies { Compute("$obj1 - $inf") }, qr/can't be infinities/, 'math objects: subtraction with infinity');
+	like(dies { Compute("$obj1 * $inf") }, qr/can't be infinities/, 'math objects: multiplication with infinity');
+	like(dies { Compute("$obj1 / $inf") }, qr/can't be infinities/, 'math objects: division with infinity');
 };
 
 my $sum  = $obj1 + $obj2;
@@ -97,6 +75,5 @@ subtest 'check some wrong answers' => sub {
 	is check_score($diff, Compute($diff + 1)), 0, 'math object: use cmp to check diff';
 	is check_score($prod, Compute($prod + 1)), 0, 'math object: use cmp to check prod';
 };
-
 
 done_testing();

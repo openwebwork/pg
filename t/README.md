@@ -9,7 +9,7 @@ The philosophy of
 [Test Driven Design](https://en.wikipedia.org/wiki/Test-driven_development)
 is that when a bug is found, a test is written to show it failing
 and when it is fixed, the test will pass.
-The unit tests are easy to run and amenable to automation.  Some services
+The unit tests are easy to run and amenable to automation. Some services
 can be "mocked" so that behaviour can be tested in their absence.
 All of this is to provide confidence that the code does what is intended
 and a working test can be better than documentation because it shows how
@@ -18,8 +18,7 @@ the code currently works in practice.
 Old references can be found on the WebWork wiki page
 [Unit Testing](https://webwork.maa.org/wiki/Unit_Testing)
 
-
-# Unit Tests
+## Unit Tests
 
 [Unit tests](https://en.wikipedia.org/wiki/Unit_testing) look at small chunks
 of self-coherent code to verify the behaviour of a subroutine or module.
@@ -88,32 +87,30 @@ is check_score($f->eval(x=>2), '4'), 1, 'math objects: eval x^2 at x=2';
 The `check_score` subroutine evaluates and compares a MathObject with a string representation of the answer.
 If the score is 1, then the two are equal.
 
-
-# Integration tests
+## Integration tests
 
 [Integration testing](https://en.wikipedia.org/wiki/Integration_testing)
-tests components working together as a group.  The files with the `.pg`
+tests components working together as a group. The files with the `.pg`
 extension are used to demonstrate the output of the rendering engine.
 
 **TODO:** add an explanation of how to run these integration tests
 and their requirements.
 
-
-# Test Dependencies
+## Test Dependencies
 
 The tests for **Units.pm** have brought in a new module dependency,
 [Test2](https://metacpan.org/pod/Test2::V0) which is the state of the art in
-testing Perl modules.  It can compare data structures, examine warnings and
-catch fatal errors thrown under expected conditions.  It provides many tools
+testing Perl modules. It can compare data structures, examine warnings and
+catch fatal errors thrown under expected conditions. It provides many tools
 for testing and randomly executes its subtests to avoid the programmer
 depending on stateful data.
 
 To make these easier to install with
 [cpanm](https://metacpan.org/dist/App-cpanminus/view/bin/cpanm), there is a
 [cpanfile](https://metacpan.org/dist/Module-CPANfile/view/lib/cpanfile.pod)
-in the root directory.  Use
+in the root directory. Use
 
-  cpanm --installdeps .
+cpanm --installdeps .
 
 which will install the runtime and test dependencies.
 To use the cpanfile for a minimal install skipping the test requirements,

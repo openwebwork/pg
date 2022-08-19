@@ -1,27 +1,29 @@
-use Test2::V0;
+#!/usr/bin/env perl
 
-# should I "use" Parser Value Parser::Legacy here instead?
+=head1 Integer context
 
-use lib 't/lib';
-use Test::PG;
-
-=head2 Integer context
-
-To test for greatest common denomenators and such like.
+Test contextInteger.pl methods.
 
 =cut
 
-loadMacros("MathObjects.pl", "contextInteger.pl");
+use Test2::V0 '!E', { E => 'EXISTS' };
 
-for my $module (qw/Parser Value Parser::Legacy/) {
-	eval "package Main; require $module; import $module;";
-}
+die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
+do "$ENV{PG_ROOT}/t/build_PG_envir.pl";
 
-Context("Integer");
+use lib "$ENV{PG_ROOT}/lib";
+
+loadMacros('MathObjects.pl', 'contextInteger.pl');
+
+use Value;
+require Parser::Legacy;
+import Parser::Legacy;
+
+Context('Integer');
 
 my $b = Compute(gcd(5, 2));
 ANS($b->cmp);
 
-ok(1, "integer test: dummy test");
+ok(1, 'integer test: dummy test');
 
 done_testing();
