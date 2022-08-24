@@ -68,8 +68,12 @@ window.addEventListener('DOMContentLoaded', function () {
 		var input = this;
 
 		/* define the button and place it */
-		var button = $('<a>', {href: '#', class: 'btn', style: 'margin-left : 2ex; vertical-align : top'})
-			.html('<span class="icon icon-pencil" data-alt="Equation Editor"></span>')
+		var button = $('<a>', {
+			href: '#',
+			class: 'btn btn-sm btn-secondary codeshard-btn',
+			style: 'margin-left : 2ex; vertical-align : top'
+		})
+			.html('<i class="fa-solid fa-pencil" data-alt="Equation Editor"></i>')
 		$(input).after(button);
 		options = {
 			renderingMode: 'LATEX',
