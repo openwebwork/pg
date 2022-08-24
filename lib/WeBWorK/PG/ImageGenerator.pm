@@ -388,7 +388,7 @@ sub render ($self, %options) {
 		$dvipngout = readFile("$wd/dvipng.out") if (-r "$wd/dvipng.out");
 		my @dvipngdepths = ($dvipngout =~ /depth=(\d+)/g);
 
-		# Kill them all if something goes wrnog
+		# Kill them all if something goes wrong
 		@dvipngdepths = () if (scalar(@dvipngdepths) != scalar(@newNames));
 
 		# move/rename images

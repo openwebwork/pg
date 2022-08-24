@@ -101,8 +101,7 @@ contents of the file.
 
 sub read_whole_problem_file {
 	my $filePath = shift;
-	$filePath =~ s/^\s*//;    # get rid of initial spaces
-	$filePath =~ s/\s*$//;    # get rid of final spaces
+	$filePath =~ s/^\s*|\s$//g;    # get rid of leading and trailing spaces
 	$filePath = "$filePath.pg" unless $filePath =~ /\.pg$/;
 	read_whole_file($filePath);
 }

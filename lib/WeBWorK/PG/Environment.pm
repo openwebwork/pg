@@ -100,7 +100,7 @@ sub new ($invocant, $courseName = '___') {
 
 	# Note that placeholders used in $pg_envir->{URLs}{html}, $pg_envir->{directories}{OPL}, and
 	# $pg_envir->{directories}{Contrib} are set on the first iteration, and those carry over to anywhere those
-	# placehoders are are used in other settings on the second iteration.
+	# placeholders are are used in other settings on the second iteration.
 	for (1 .. 2) {
 		$pg_envir = replacePlaceholders(
 			$pg_envir,

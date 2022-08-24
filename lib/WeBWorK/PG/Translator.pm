@@ -1119,7 +1119,7 @@ sub std_problem_grader {
 		} else {
 			warn "Error: Answer $ans_name is not a hash";
 			warn "$evaluated_answers{$ans_name}";
-			warn 'This probably means that the answer evaluator is for this answer is not working correctly.';
+			warn 'This probably means that the answer evaluator for this answer is not working correctly.';
 			$problem_result{error} = "Error: Answer $ans_name is not a hash: $evaluated_answers{$ans_name}";
 		}
 	}

@@ -95,7 +95,7 @@ sub initialize {
 	$self->{problemUUID}       = $envir->{problemUUID} // 0;
 
 	# Find auxiliary files even when the main file is in templates/tmpEdit
-	# FIXME:  This shouldn't be done her.  Instead the front end should pass in the problem source with the file name.
+	# FIXME:  This shouldn't be done here.  Instead the front end should pass in the problem source with the file name.
 	# The other instance of this in PGloadfiles.pm needs to be removed.
 	$self->{pgFileName} =~ s!(^|/)tmpEdit/!$1!;
 
