@@ -108,7 +108,7 @@ sub BeginTable {
      ($center,$tcenter) = ('','') if (!$options{center});
   my $table = 
     qq{<TABLE BORDER="$bd" CELLPADDING="$pd" CELLSPACING="$sp"$center>};
-  my $ptxborder=0; if($bd==1){$ptxborder="minor"}elsif($bd==2){$ptxborder="medium"}elsif($bd>=3){$ptxborder="major"};
+  my $ptxborder="none"; if($bd==1){$ptxborder="minor"}elsif($bd==2){$ptxborder="medium"}elsif($bd>=3){$ptxborder="major"};
 
   MODES(
     TeX => '\par\medskip'.$tcenter.'{\kern '.$tbd.
