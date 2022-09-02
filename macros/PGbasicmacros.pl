@@ -2756,7 +2756,7 @@ sub begintable {
 		|| $displayMode eq 'HTML_asciimath'
 		|| $displayMode eq 'HTML_LaTeXMathML'
 		|| $displayMode eq 'HTML_img') {
-		$out .= "<TABLE BORDER='1' STYLE='text-align:center;'>\n"
+		$out .= '<table class="pg-table">';
 	}
 	else {
 		$out = "Error: PGbasicmacros: begintable: Unknown displayMode: $displayMode.\n";
@@ -2783,7 +2783,7 @@ sub endtable {
 		|| $displayMode eq 'HTML_asciimath'
 		|| $displayMode eq 'HTML_LaTeXMathML'
 		|| $displayMode eq 'HTML_img') {
-		$out .= "</TABLE>\n";
+		$out .= '</table>';
 	}
 	else {
 		$out = "Error: PGbasicmacros: endtable: Unknown displayMode: $displayMode.\n";
