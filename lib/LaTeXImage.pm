@@ -175,7 +175,7 @@ sub footer {
 sub draw {
 	my $self = shift;
 
-	my $working_dir = WeBWorK::PG::ImageGenerator::makeTempDirectory(WeBWorK::PG::IO::ww_tmp_dir(), "tikz");
+	my $working_dir = WeBWorK::PG::ImageGenerator::makeTempDirectory(WeBWorK::PG::IO::ww_tmp_dir(), "latex");
 	my $data;
 
 	my $ext = $self->ext;
