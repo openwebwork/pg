@@ -180,10 +180,23 @@ u
 - remove `answers/PGstringevaluators.pl` (not used in OPL/Contrib)
 - remove `answers/PGtextevaluators.pl` (used in only 1 problems in OPL/Contrib)
 - remove `answers/answerDiscussion.pl` (not used in OPL/Contrib)
-- remove `contextAlternativeDecimal.pl` (not used in OPL/Contrib)
 - only place `answerUtils.pl` is used is inside `unorderedAnswer.pl` (combine?  refactor?)
 - none of the LiveGraphics is working. Search for `LiveGraphics*.pl`
 - What is the `fracListChecker.pl` macro?  In a number of `Contrib/Mizzou` problems.
+- The following are not in OPL/Contrib:
+  - `contextMatrixExtras.pl`
+  - `contextOrdering.pl`
+  - `contextPartition.pl`
+  - `contextPermutation.pl`
+  - `contextPermutationUBC.pl`
+  - `contextReaction.pl`
+  - `contextAlternativeDecimal.pl`
+  - `PGcomplexmacros2.pl`
+  - `parserFormulaAnyVar.pl`
+  - `parserLinearInequality.pl`
+  - `parserParametricPlane.pl`
+
+- Remove `contexts/contextPeriodic.pl`.  Labelled as deprecated. No problems in OPL/Contrib.
 
 ## Info
 
