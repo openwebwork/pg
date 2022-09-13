@@ -28,7 +28,10 @@ closedir $dir;
 
 for (@macro_files) {
 	subtest $_ => sub {
-		my $pg = WeBWorK::PG->new(r_source => \"DOCUMENT(); loadMacros('PGstandard.pl', '$_'); ENDDOCUMENT();");
+		my $pg = WeBWorK::PG->new(
+			r_source         => \"DOCUMENT(); loadMacros('PGstandard.pl', '$_'); ENDDOCUMENT();",
+			debuggingOptions => { view_problem_debugging_info => 1 }
+		);
 
 		is($pg->{errors},   '', 'macro loads without errors');
 		is($pg->{warnings}, '', 'macro loads without warnings');

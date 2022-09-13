@@ -596,49 +596,53 @@ the PG root directory by [PG].
 sub PG_errorMessage {
 	my ($return, @messages) = @_;    # $return can be 'message' or 'traceback'
 
-	my $frame   = 2;
-	my $message = join("\n", @messages);
-	$message =~ s/\.?\s+$//;
-	my $files = eval('$main::__files__');
-	$files = {} unless $files;
-	my $tmpl = $files->{tmpl} || '$';
-	my $root = $files->{root} || '$';
-	my $pg   = $files->{pg}   || '$';
+	my $message = join("\n", @messages) =~ s/\s+$//r;
+
+	my $files = $main::__files__ // {};
+	my $tmpl  = $files->{tmpl} || '$';
+	my $root  = $files->{root} || '$';
+	my $pg    = $files->{pg}   || '$';
 
 	# Fix initial message file names
 	$message =~ s! $tmpl! [TMPL]!g;
 	$message =~ s! $root! [WW]!g;
 	$message =~ s! $pg! [PG]!g;
-	$message =~ s/(\(eval \d+\)) (line (\d+))/$2 of $1/;
-	while ($message =~ m/of (?:file )?(\(eval \d+\))/ && defined($files->{$1})) {
-		my $name = $files->{$1};
+	$message =~ s/(\(eval \d+\)) (line (\d+))/$2 of $1/g;
+	my @eval_ids = $message =~ m/of (?:file )?(\(eval \d+\))/g;
+	for (@eval_ids) {
+		my $name = $files->{$_};
+		next unless defined $name;
 		$name    =~ s!^$tmpl![TMPL]!;
 		$name    =~ s!^$root![WW]!;
 		$name    =~ s!^$pg![PG]!;
-		$message =~ s/\(eval \d+\)/$name/g;
+		$message =~ s/\($_\)/$name/g;
 	}
 
 	# Return the message if that is what was requested, or if the message already includes a stack trace.
 	return $message . "\n" if $return eq 'message' || $message =~ m/\n   Died within/;
 
+	$message =~ s/\.$//;
+
 	# Look through caller stack for traceback information
 	my @trace      = ($message);
 	my $skipParser = (caller(3))[3] =~ m/^(Parser|Value)::/;
+
+	my $frame = 2;
 	while (my ($pkg, $file, $line, $subname) = caller($frame++)) {
 		last if ($subname =~ m/^(Safe::reval|main::__ANON__)/);
-		next if $skipParser && $subname =~ m/^(Parser|Value)::/;    # Skip Parser and Value calls.
-		next if $subname                =~ m/__ANON__/;
+		next if $skipParser && $subname =~ m/^(Parser|Value)::/;              # Skip Parser and Value calls.
+		next if $subname                =~ m/^WeBWorK::PG::Translator/;       # Skip Translator calls.
+		next if $subname =~ m/^main::(safe_ev|old_safe_ev|ev_substring)$/;    # Skip PGbasicmacros.pl ev calls.
+		next if $subname =~ m/__ANON__/;
 		$file = $files->{$file} || $file;
 		$file =~ s!^$tmpl![TMPL]!;
 		$file =~ s!^$root![WW]!;
 		$file =~ s!^$pg![PG]!;
 		$message = "   from within $subname called at line $line of $file";
+		next if $message =~ m/within \(eval\)/;
 		push @trace, $message;
 		$skipParser = 0;
 	}
-	splice(@trace, 1, 1) while $trace[1] && $trace[1] =~ m/within \(eval\)/;
-	pop @trace while $trace[-1] && $trace[-1] =~ m/within \(eval\)/;
-	$trace[1] =~ s/   from/   Died/ if $trace[1];
 
 	# Report the full traceback.
 	return join("\n", @trace, '');
@@ -744,18 +748,19 @@ sub translate {
 	$self->{errors} .= qq{ERROR:  You must define the environment before translating.}
 		unless defined($self->{envir});
 
-	# install handlers for warn and die that call PG_errorMessage.
-	# if the existing signal handler is not a coderef, the built-in warn or
-	# die function is called. this does not account for the case where the
-	# handler is set to "IGNORE" or to the name of a function. in these cases
+	# Create a global reference to the __files__ hash in the envir so that
+	# it can be accessed in the $PG_errorMessage method.
+	$main::__files__ = $self->{envir}{__files__};
+
+	# Install handlers for warn and die that call PG_errorMessage.
+	# If the existing signal handler is not a coderef, the built-in warn or
+	# die function is called. This does not account for the case where the
+	# handler is set to "IGNORE" or to the name of a function. In these cases
 	# the built-in function will be called.
 
 	my $outer_sig_warn = $SIG{__WARN__};
-	local $SIG{__WARN__} = sub {
-		ref $outer_sig_warn eq "CODE"
-			? &$outer_sig_warn(PG_errorMessage('message', $_[0]))
-			: warn PG_errorMessage('message', $_[0]);
-	};
+	my (@frontend_warnings, @backend_warnings);
+	local $SIG{__WARN__} = sub { $_[1] ? push(@backend_warnings, $_[0]) : push(@frontend_warnings, $_[0]); };
 
 	my $outer_sig_die = $SIG{__DIE__};
 	local $SIG{__DIE__} = sub {
@@ -765,7 +770,10 @@ sub translate {
 	};
 
 	# PG preprocessing code
-	$evalString = &{ $self->{preprocess_code} }($evalString);
+	$evalString =
+		'BEGIN { my $eval = __FILE__; $main::envir{__files__}{$eval} = "'
+		. $self->{envir}{probFileName} . '" };' . "\n"
+		. &{ $self->{preprocess_code} }($evalString);
 
 	my ($PG_PROBLEM_TEXT_REF, $PG_HEADER_TEXT_REF, $PG_POST_HEADER_TEXT_REF, $PG_ANSWER_HASH_REF, $PG_FLAGS_REF,
 		$PGcore)
@@ -783,7 +791,24 @@ sub translate {
 	# Because more pleasant feedback is given when the problem doesn't render.
 	# Try to get the \n to appear at the end of the line.
 
-	use strict;
+	if (@frontend_warnings) {
+		ref $outer_sig_warn eq "CODE"
+			? &$outer_sig_warn(PG_errorMessage('message', @frontend_warnings))
+			: warn PG_errorMessage('message', @frontend_warnings);
+	}
+	if (@backend_warnings) {
+		if (ref $outer_sig_warn eq "CODE" && $self->{envir}{view_problem_debugging_info}) {
+			&$outer_sig_warn(PG_errorMessage(
+				'message',
+				'Non fatal warnings. '
+					. 'These are only displayed for users with permission to view problem debugging info.',
+				@backend_warnings
+			));
+		} else {
+			local $SIG{__WARN__} = 'DEFAULT';
+			warn PG_errorMessage('message', @backend_warnings);
+		}
+	}
 
 	# PG postprocessing code
 	$PG_PROBLEM_TEXT_REF = &{ $self->{postprocess_code} }($PG_PROBLEM_TEXT_REF);
@@ -1297,7 +1322,17 @@ is 'main'.
 # move the actual eval into a helper function called PG_restricted_eval_helper,
 # which doesn't need to have any lexicals.
 sub PG_restricted_eval {
-	my $string     = shift;
+	my $string = shift;
+
+	my $outer_sig_warn = $SIG{__WARN__};
+	local $SIG{__WARN__} = sub {
+		# Note that the second argument to outer_sig_warn is 1 so that these warnings will not be shown to students.
+		ref $outer_sig_warn eq 'CODE'
+			? &$outer_sig_warn(PG_errorMessage('traceback', $_[0]), 1)
+			: warn PG_errorMessage('traceback', $_[0]);
+	};
+	local $SIG{__DIE__} = 'DEFAULT';
+
 	my $out        = PG_restricted_eval_helper($string);
 	my $err        = $@;
 	my $err_report = $err if $err =~ /\S/;
@@ -1313,31 +1348,37 @@ sub PG_restricted_eval_helper {
 	# Many macros redefine methods using PG_restricted_eval.  This hides those warnings.
 	no warnings 'redefine';
 
-	local $SIG{__WARN__} = 'DEFAULT';
-	local $SIG{__DIE__}  = 'DEFAULT';
-
 	return eval("package main;\n$code");
 }
 
 sub PG_macro_file_eval {
-	my $string = shift;
-	my ($pck, $file, $line) = caller;
+	my ($string, $filePath) = @_;
 
-	# Save warnings instead of using the default warning handler.  If the warnings occur now, then the output will
-	# contain "(eval ???)" instead of the actual macro file name.  These warnings are "re-warned" after the macro file
-	# name has been added to the __files__ array.
-	my $warnings = '';
-	local $SIG{__WARN__} = sub { $warnings .= $_[0]; return; };
+	my $outer_sig_warn = $SIG{__WARN__};
+	my $warnings       = '';
+	local $SIG{__WARN__} = sub { $warnings .= $_[0]; };
 
 	local $SIG{__DIE__} = 'DEFAULT';
 
-	my ($out, $errors) = PG_macro_file_eval_helper($string);
+	my ($out, $errors) =
+		PG_macro_file_eval_helper('package main; be_strict();'
+			. 'BEGIN { my $eval = __FILE__; $main::envir{__files__}{$eval} = "'
+			. $filePath . '" };' . "\n"
+			. $string);
 
-	my $full_error_report =
-		"PG_macro_file_eval detected error at line $line of file $file \n" . $errors . "The calling package is $pck\n"
+	if ($warnings) {
+		# Send these files to the outer warning signal handler so the (eval nnn) will be replaced with the filename.
+		# Note that the second argument t outer_sig_warn is 1 so that these warnings will not be shown to students.
+		ref $outer_sig_warn eq 'CODE' ? &$outer_sig_warn($warnings, 1) : warn $warnings;
+	}
+
+	my ($pck, $file, $line) = caller;
+	my $full_error_report = '';
+	$full_error_report =
+		"PG_macro_file_eval detected error at line $line of file $file\n${errors}\nThe calling package is $pck\n"
 		if defined $errors && $errors =~ /\S/;
 
-	return (wantarray) ? ($out, $errors, $full_error_report, $warnings) : $out;
+	return (wantarray) ? ($out, $errors, $full_error_report) : $out;
 }
 
 # This is another helper that doesn't use any lexicals.
@@ -1351,7 +1392,7 @@ sub PG_macro_file_eval_helper {
 	# in the same process, the safe compartment is not entirely isolated between instances, and this causes redefine
 	# warnings if a macro is loaded in both instances.  So those warnings are disabled.
 	no warnings 'redefine';
-	my $out    = eval("package main; be_strict();\n" . $string);
+	my $out    = eval($string);
 	my $errors = $@;
 	use strict;
 

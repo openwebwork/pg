@@ -227,20 +227,14 @@ sub compile_file {
 	local $/ = undef;    # allows us to treat the file as a single line
 
 	open(my $MACROFILE, "<:raw", $filePath) || die "Cannot open file: $filePath";
-	my $string = 'BEGIN { push @main::__eval__, __FILE__ };' . "\n" . <$MACROFILE>;
+	my $string = <$MACROFILE>;
 	close $MACROFILE;
 	utf8::decode($string);    # can't yet use :encoding(UTF-8)
 
-	my ($result, $error, $fullerror, $warnings) = $self->PG_macro_file_eval($string);
-
-	# Used to keep track of which file is being evaluated.
-	eval('$main::__files__->{ pop @main::__eval__ } = $filePath');
-
-	# "Re-warn" the warnings that occured now that the file name is in the __files__ array.
-	warn $warnings if $warnings;
+	my ($result, $error, $fullerror) = $self->PG_macro_file_eval($string, $filePath);
 
 	if ($error) {
-		# The $fullerror report has formatting and is never empty.
+		# The $fullerror report has formatting and is never empty when there is an error.
 		# The die message is handled by PG_errorMessage() in the PG translator.
 		die "Error detected while loading $filePath:\n$fullerror";
 	}
