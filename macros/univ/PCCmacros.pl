@@ -374,8 +374,9 @@ sub PolyTermsTeXPrep {
 		if ($terms[ 2 * $i ] ne '') {
 			if (($terms[ 2 * $i ] ne '-') && ($terms[ 2 * $i ] ne '+')) {
 				$terms[ 2 * $i ] = Compute($terms[ 2 * $i ])->TeX;
+			} else {
+				$terms[ 2 * $i ] = '{}' . $terms[ 2 * $i ] . '{}';
 			}
-			else { $terms[ 2 * $i ] = '{}' . $terms[ 2 * $i ] . '{}'; }
 			$terms[ 2 * $i ] = $terms[ 2 * $i ] . $spacing;
 		}
 		$alignment = $alignment . "$align";

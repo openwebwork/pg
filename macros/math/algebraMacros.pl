@@ -76,7 +76,7 @@ sub disjointCycles {
 		$result = List(map { List('(' . join(',', @$_) . ')') } @cycles);
 	} else {
 		Context()->strings->add(id => { alias => "identity" });
-		$result = List('('.$cycle[0].')');
+		$result = List('(' . $cycle[0] . ')');
 	}
 	return $result;
 }

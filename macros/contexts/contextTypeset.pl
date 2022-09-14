@@ -235,8 +235,8 @@ sub _check {
 		foreach my $r (@rows) {
 			$r = ($r->class eq 'List' ? $r->{coords} : [$r]);
 			while (scalar(@{$r}) < $c) { push(@{$r}, $null) }
-			$r = bless
-				$context->{parser}{List}
+			$r =
+				bless $context->{parser}{List}
 				->new($equation, $r, 0, $context->{parens}{start}, $Value::Type{number}, '[', ']'),
 				$context->{lists}{Matrix}{class};
 		}

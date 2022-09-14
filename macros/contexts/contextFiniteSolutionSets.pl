@@ -155,7 +155,7 @@ sub _contextFiniteSolutionSets_init {
 		my ($correct, $student, $ansHash, $value) = @_;
 		my $score  = 0;     # number of correct student answers
 		my @errors = ();    # stores error messages
-		my ($i, $j, $k);      # loop counters
+		my ($i, $j, $k);    # loop counters
 		my $studentFormula = $ansHash->{student_formula};
 
 		# Student answer needs to be a set, list, a single number, or a single assignment
@@ -265,8 +265,9 @@ sub _contextFiniteSolutionSets_init {
 					do {
 						if ($badform == 1) {
 							push(@errors, Context()->flag('wrongFormMessage') =~ s/Your answer/Your $ith answer/gr);
+						} elsif ($n != 1) {
+							push(@errors, "Your $ith answer is not correct");
 						}
-						elsif ($n != 1) { push(@errors, "Your $ith answer is not correct") }
 					} unless $ansHash->{isPreview};
 				}
 			}

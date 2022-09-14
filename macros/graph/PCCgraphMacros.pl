@@ -18,7 +18,7 @@ To use it, load the macro file:
 
 =cut
 
-sub _init_PCCgraphMacros { loadMacros('PCCmacros.pl');}
+sub _init_PCCgraphMacros { loadMacros('PCCmacros.pl'); }
 
 ###############################
 #Some standard values

@@ -61,8 +61,9 @@ sub text2PG {
 	my $i = 0;
 	if ($options{allowCommands}) {
 		@parts = split(/(\\\{.*?\\\}|``.*?``\*?|`.+`\*?|\\\(.*?\\\)|\\\[.*?\\\])/s, $string);
+	} else {
+		@parts = split(/(``.*?``\*?|`.+`\*?|\\\(.*?\\\)|\\\[.*?\\\])/s, $string);
 	}
-	else { @parts = split(/(``.*?``\*?|`.+`\*?|\\\(.*?\\\)|\\\[.*?\\\])/s, $string) }
 	while ($i <= $#parts) {
 		if ($options{sanitizeText}) {
 			if ($displayMode eq 'TeX') {

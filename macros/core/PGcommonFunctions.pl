@@ -111,17 +111,17 @@ sub cot { CommonFunction->Call('cot', @_) }
 sub sec { CommonFunction->Call('sec', @_) }
 sub csc { CommonFunction->Call('csc', @_) }
 
-sub arcsin { CommonFunction->Call('asin', @_) };
+sub arcsin { CommonFunction->Call('asin', @_) }
 sub asin   { CommonFunction->Call('asin', @_) }
-sub arccos { CommonFunction->Call('acos', @_) };
+sub arccos { CommonFunction->Call('acos', @_) }
 sub acos   { CommonFunction->Call('acos', @_) }
-sub arctan { CommonFunction->Call('atan', @_) };
+sub arctan { CommonFunction->Call('atan', @_) }
 sub atan   { CommonFunction->Call('atan', @_) }
-sub arccot { CommonFunction->Call('acot', @_) };
+sub arccot { CommonFunction->Call('acot', @_) }
 sub acot   { CommonFunction->Call('acot', @_) }
-sub arcsec { CommonFunction->Call('asec', @_) };
+sub arcsec { CommonFunction->Call('asec', @_) }
 sub asec   { CommonFunction->Call('asec', @_) }
-sub arccsc { CommonFunction->Call('acsc', @_) };
+sub arccsc { CommonFunction->Call('acsc', @_) }
 sub acsc   { CommonFunction->Call('acsc', @_) }
 
 sub sinh { CommonFunction->Call('sinh', @_) }
@@ -131,17 +131,17 @@ sub sech { CommonFunction->Call('sech', @_) }
 sub csch { CommonFunction->Call('csch', @_) }
 sub coth { CommonFunction->Call('coth', @_) }
 
-sub arcsinh { CommonFunction->Call('asinh', @_) };
+sub arcsinh { CommonFunction->Call('asinh', @_) }
 sub asinh   { CommonFunction->Call('asinh', @_) }
-sub arccosh { CommonFunction->Call('acosh', @_) };
+sub arccosh { CommonFunction->Call('acosh', @_) }
 sub acosh   { CommonFunction->Call('acosh', @_) }
-sub arctanh { CommonFunction->Call('atanh', @_) };
+sub arctanh { CommonFunction->Call('atanh', @_) }
 sub atanh   { CommonFunction->Call('atanh', @_) }
-sub arcsech { CommonFunction->Call('asech', @_) };
+sub arcsech { CommonFunction->Call('asech', @_) }
 sub asech   { CommonFunction->Call('asech', @_) }
-sub arccsch { CommonFunction->Call('acsch', @_) };
+sub arccsch { CommonFunction->Call('acsch', @_) }
 sub acsch   { CommonFunction->Call('acsch', @_) }
-sub arccoth { CommonFunction->Call('acoth', @_) };
+sub arccoth { CommonFunction->Call('acoth', @_) }
 sub acoth   { CommonFunction->Call('acoth', @_) }
 
 sub sgn { CommonFunction->Call('sgn', @_) }

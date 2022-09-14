@@ -63,9 +63,9 @@ sub new {
 		ShowAnswerBlank  => 'hidden',                               #'hidden','visible','none'
 		AnswerReturn     => 1,                                      # (legacy, use ShowAnswerBlank=>'none')
 																	# 0 means no answer blank is registered
-		#     accepted_tos =>'false',   # force author to accept terms of service explicitly
-		# removed because sagecell.sagemath.org no longer requires
-		# acknowledgement of terms of service.
+			#     accepted_tos =>'false',   # force author to accept terms of service explicitly
+			# removed because sagecell.sagemath.org no longer requires
+			# acknowledgement of terms of service.
 		@_
 	);
 

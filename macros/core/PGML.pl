@@ -391,8 +391,9 @@ sub Emphasis {
 	}
 	if ($self->nextChar(' ') !~ m/\s/ && $self->prevChar(' ') !~ m/[a-z0-9]/i) {
 		$self->Begin($token, substr($token, 0, 1));
+	} else {
+		$self->Text($token);
 	}
-	else { $self->Text($token) }
 }
 
 sub Star {
