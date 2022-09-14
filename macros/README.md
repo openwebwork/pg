@@ -16,7 +16,7 @@ This directory now has a subdirectory structure for clarification.
 
 - `OPL/Alfred/Alfredmacros.pl` to `PG/macros/univ`
 - `OPL/BrockPhysics/BrockPhysicsMacros.pl` to `PG/macros/univ` (referenced throughout OPL, but blank, should be deleted.)
-- `OPL/BrockPhysics/fixedPrecision.pl` to `PG/macros/contexts` (not sure how this is used in problems).
+- `OPL/BrockPhysics/fixedPrecision.pl` to `PG/macros/contexts`
 - `OPL/Hope/PGgraphgrid.pl` to `PG/macros/graph`
 - `OPL/Hope/VectorListCheckers.pl` to `PG/macros/math`
 - `OPL/LaTech/SI_property_tables.pl` to `PG/macros/math`
@@ -172,14 +172,24 @@ u
 - `Contrib/PCC/CollegeAlgebra/FunctionBasics/FunctionTables20.pg` (warnings about PCCmacros.pl)
 - `Library/Union/setMVfunctions/system-f2.pg` (warning about uninitialized value)
 
+## Macros fixed:
+
+- `math/algebraMacros.pl` (removed all code, already in `customizeLaTeX.pl`)
+- `parsers/parserUtils.pl` (removed loadMacros call due to errors.  )
+- `contexts/contextFiniteSolutionSets.pl` (fixed warnings)
+- `contexts/contextLimitedRadicalComplex.pl` (fixed warnings)
+- `contexts/contextRationalExponent.pl` (fixed warnings)
+- `math/interpMacros.pl` (fixed warnings)
+- `math/PCCfactor.pl` (fixed warnings)
+- `math/SolveLinearEquationPCC.pl` (fixed warnings)
+- `math/SystemsOfLinearEquationsProblemPCC.pl` (fixed warnings)
+
 ## Todo
 
 - remove `BrockPhysicsMacros.pl` doesn't do anything.
-- remove `parserUtils.pl` and refactor the two problems that depend on it.
-- remove `answers/PGmiscevaluators.pl` (not used in OPL/Contrib)
-- remove `answers/PGstringevaluators.pl` (not used in OPL/Contrib)
-- remove `answers/PGtextevaluators.pl` (used in only 1 problems in OPL/Contrib)
+- remove `parserUtils.pl` and refactor the two problems that depend on it.  Seems like functionality is elsewhere.
 - remove `answers/answerDiscussion.pl` (not used in OPL/Contrib)
+- Remove `contexts/contextPeriodic.pl`.  Labelled as deprecated. No problems in OPL/Contrib.
 - only place `answerUtils.pl` is used is inside `unorderedAnswer.pl` (combine?  refactor?)
 - none of the LiveGraphics is working. Search for `LiveGraphics*.pl`
 - What is the `fracListChecker.pl` macro?  In a number of `Contrib/Mizzou` problems.
@@ -196,31 +206,3 @@ u
   - `parserLinearInequality.pl`
   - `parserParametricPlane.pl`
 
-- Remove `contexts/contextPeriodic.pl`.  Labelled as deprecated. No problems in OPL/Contrib.
-
-## Info
-
-This PR does a few related things.
-
-1. Adds some directory structure to the `PG_ROOT/macros` directory.
-2. Moves needed macros from the OPL macros directory into the PG_ROOT directories.
-3. Updates the `t/load_macros.t` test to recursively search the `PG_ROOT/macros` directory
-  for macros instead of the assumed old directory structure.
-
-Also for testing, the following homework set was used.  This set contains at least one problem for every macro.
-
-A number of issues arose while doing this.
-
-- there are a number of errors in the OPL macros that were not being shown (they are in the apache logs).  These are to be fixed in this PR.
-- The following macros are obsolete: algebraMacros, PGstringevaluators.pl, ....
-  This is because the functionality appears in other macros and there are redefined
-  subroutine errors upon loads.  Problems with these macros need to be adjusted in the
-  OPL.  A forthcoming PR to the webwork-problem-libraries branch will contain the deletion of the macros as well as updates to the problems.  Note: the timing of this will be important so existing OPLs will still function.
-
-Lastly, to keep the size of this discussion box reasonable, all of the changes are
-documented in `PG_ROOT/macros/README.md`. Clearly these can be added to this discussion
-or some other way of documenting all of these change.  Because this involved moving
-files from one repository to another, git will not track specific changes, just additions and deletions.
-
-This is based on PR ?? because of the update to the testing infrastructure makes it
-much easier to do testing with this PR.

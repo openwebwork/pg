@@ -5,7 +5,7 @@ sub interpVals {
 	$arrayLength  = ($#_) / 2;
 	@A_ARRAY      = @_[ 0 .. ($arrayLength - 1) ];
 	@B_ARRAY      = @_[ $arrayLength .. ($#_ - 1) ];
-	$A_VAL        = @_[$#_];
+	$A_VAL        = $_[$#_];
 	$arrayLength2 = $#A_ARRAY;
 
 	for ($i = 1; $i < ($#A_ARRAY + 1); $i++) {

@@ -1010,13 +1010,11 @@ sub DrawProcessorSchedule {
 				$done_array[$i], 'black', 'center', 'center'
 			);
 			$pic->lb($label);
-			$pic->fillRegion(
-				[
-					($scaled_break_lines[$i] + $lower_region) / 2,
-					(($yupper - $yuppermargin) + ($ylower + $margin)) * 2 / 3,
-					'gray'
-				]
-			);
+			$pic->fillRegion([
+				($scaled_break_lines[$i] + $lower_region) / 2,
+				(($yupper - $yuppermargin) + ($ylower + $margin)) * 2 / 3,
+				'gray'
+			]);
 		}
 		$label = new Label($scaled_break_lines[$i], $ylower + $margin * 3 / 4, $break_lines[$i], 'black', 'center',
 			'center');

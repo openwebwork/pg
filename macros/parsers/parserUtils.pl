@@ -1,4 +1,8 @@
-loadMacros("unionImage.pl", "unionTables.pl",);
+
+# not sure why these are loaded.  They are not used in this file.  If these are loaded
+# there is an error during the load_macros.t test.
+
+# loadMacros("unionImage.pl", "unionTables.pl",);
 
 $bHTML = '\begin{rawhtml}';
 $eHTML = '\end{rawhtml}';

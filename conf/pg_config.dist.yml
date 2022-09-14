@@ -42,6 +42,7 @@ directories:
     - .
     - $pg_root/macros
     - $pg_root/macros/answers
+    - $pg_root/macros/capa
     - $pg_root/macros/contexts
     - $pg_root/macros/core
     - $pg_root/macros/graph
@@ -49,8 +50,6 @@ directories:
     - $pg_root/macros/parsers
     - $pg_root/macros/ui
     - $pg_root/macros/univ
-    - $Contrib_dir/CAPA/macros/CAPA_Tools
-    - $Contrib_dir/CAPA/macros/CAPA_MCTools
 
 URLs:
   # The public URL of the html directory above.

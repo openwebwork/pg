@@ -1,4 +1,5 @@
 sub _fixedPrecision_init { }
+loadMacros('MathObjects.pl');
 
 package FixedPrecision;
 our @ISA = ("Value::Real");

@@ -1,9 +1,7 @@
 #These three subroutines uniformize how all our "solve this equation" problems are handled.
 
-loadMacros("PCCmacros.pl");
-
-sub _init_SolveLinearEquationPCCDevel {
-
+sub _init_SolveLinearEquationPCC {
+	loadMacros('PCCmacros.pl');
 	#Possibly add initialization code here
 	#sub routine is not required, but prevents the macro from being re-loaded
 
@@ -22,9 +20,8 @@ sub contextSetup {
 	parser::Assignment->Allow;
 	Context()->flags->set(
 		reduceConstantFunctions => 0,
-		formatStudentAnswer     => "parsed",
+		formatStudentAnswer     => 'parsed',
 		reduceConstants         => 0,
-		formatStudentAnswer     => parsed,
 		reduceFractions         => 0,
 		showExtraParens         => 0
 	);

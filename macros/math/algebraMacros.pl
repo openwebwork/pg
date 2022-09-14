@@ -10,63 +10,6 @@ sub _init_macro_template {
 
 }
 
-######################## display macros for cyclic and dihedral groups
-
-sub cyclic {
-
-	my $n = shift;
-
-# leave one of the following return commands uncommented, depending on what notation you want to use for finite cyclic groups (e.g., Z/nZ)
-
-	# display order n cyclic group as Z_n
-	return "\\mathbb{Z}_{$n}",
-
-		# display order n cyclic group as C_n
-		# return "C_{$n}";
-
-		# display order n cyclic group as Z/nZ
-		# return "\\mathbb{Z}/{$n}\\mathbb{Z}";
-
-}
-
-sub dihedral {
-
-	my $n = shift;
-
-# if you want to display dihedral groups as D_n (for instance, D_4 is the dihedral group of order 8), then leave this subroutine unmodified
-
-# if you want to display dihedral groups as D_{2n} (for instance, D_8 is the dihedral group of order 8), then uncomment this set of if/else statements. The regular expression conditionals are to make sure it handles different types of arguments correctly.
-# if( "$n" =~ m/^\s*(\d+)\s*$/ )
-# {
-# $n = 2 * $1;
-# }
-# elsif( "$n" =~ m/^\s*(\w+)\s*$/ )
-# {
-# $n = "2$1";
-# }
-# else
-# {
-# $n = "2($n)";
-# }
-
-	return "D_{$n}";
-
-}
-
-sub quaternions {
-
-	# if you want to display the Quaternion group as Q_8, then leave this subroutine unmodified
-
-	return "Q_8"
-
-# if you want to display the Quaternion group using some other notation, comment the statement above and uncomment one of these (or add your own):
-
-		# return "H_8"
-
-		# return "Q"
-
-}
-
 ######################## subroutines
 
 # fisher-yates shuffle
@@ -133,7 +76,7 @@ sub disjointCycles {
 		$result = List(map { List('(' . join(',', @$_) . ')') } @cycles);
 	} else {
 		Context()->strings->add(id => { alias => "identity" });
-		$result = List((id));
+		$result = List('('.$cycle[0].')');
 	}
 	return $result;
 }

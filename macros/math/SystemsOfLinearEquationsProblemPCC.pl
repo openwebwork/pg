@@ -1,4 +1,3 @@
-loadMacros('PCCmacros.pl');
 
 sub SystemOfLinearEquationsProblemSetup {
 
@@ -65,7 +64,7 @@ sub makeSides {
 	) = @_;
 
 	Context()->normalStrings;
-	my $ax, $by, $cx, $dy;
+	my ($ax, $by, $cx, $dy);
 
 	if    ($Asided == Fraction(1, 1))  { $ax = Formula("$X") }
 	elsif ($Asided == Fraction(-1, 1)) { $ax = Formula("-$X") }
@@ -250,7 +249,7 @@ sub SystemOfLinearEquationsProblemSolutionSetup {
     [```\\left\\{
     \\begin{aligned}
       $left1 & =  $right1\\\\
-      $left2 & =  $right2 
+      $left2 & =  $right2
     \\end{aligned}
     \\right.```]
 
@@ -287,19 +286,20 @@ sub SystemOfLinearEquationsProblemSolutionSetup {
 
 			if ($swap == 1) {
 				($left1, $right1, $left2, $right2, $leftOrd1, $rightOrd1, $leftOrd2, $rightOrd2) = makeSides(
-					$asided,   $bsided, $csided, $dsided, $esided,    $fsided, $xside1,   $yside1,
-					$cside1,   $xside2, $yside2, $cside2, $zeroa,     $zerob,  $zeroc,    $zerod,
-					$zeroe,    $zerof,  $x,      $y,      "constant", 0,       $leftOrd1, $rightOrd1,
+					$asided,   $bsided, $csided,    $dsided, $esided,   $fsided,
+					$xside1,   $yside1, $cside1,    $xside2, $yside2,   $cside2,
+					$zeroa,    $zerob,  $zeroc,     $zerod,  $zeroe,    $zerof,
+					$x,        $y,      "constant", 0,       $leftOrd1, $rightOrd1,
 					$leftOrd2, $rightOrd2
 				);
 
 				$Attack = $Attack
-					. "Since there is a coefficient of [`-1`], it is wise to add the corresponding term to both sides of that equation, so that we have a coefficient of [`1`] to work with. 
+					. "Since there is a coefficient of [`-1`], it is wise to add the corresponding term to both sides of that equation, so that we have a coefficient of [`1`] to work with.
 
     [```\\left\\{
     \\begin{aligned}
       $left1 & =  $right1\\\\
-      $left2 & =  $right2 
+      $left2 & =  $right2
     \\end{aligned}
     \\right.```]
 
@@ -343,7 +343,7 @@ sub SystemOfLinearEquationsProblemSolutionSetup {
 
     [```\\left\\{\\begin{aligned}
       $left1 & =  $right1\\\\
-      $left2 & =  $right2 
+      $left2 & =  $right2
     \\end{aligned}\\right.```]
 
 ";
@@ -603,19 +603,19 @@ So the solution is [`$x=$xsol, $y=$ysol`].";
 				$rightOrd2
 				)
 				= makeSides(
-				$asided * $eliminateYscalar1, $bsided * $eliminateYscalar1,
-				$csided * $eliminateYscalar2, $dsided * $eliminateYscalar2,
-				$esided * $eliminateYscalar1, $fsided * $eliminateYscalar2,
-				$xside1,                      $yside1,
-				$cside1,                      $xside2,
-				$yside2,                      $cside2,
-				$zeroa,                       $zerob,
-				$zeroc,                       $zerod,
-				$zeroe,                       $zerof,
-				$x,                           $y,
-				"constant",                   0,
-				[ 0, 1, 2 ],                  [ 0, 1, 2 ],
-				[ 0, 1, 2 ],                  [ 0, 1, 2 ]
+					$asided * $eliminateYscalar1, $bsided * $eliminateYscalar1,
+					$csided * $eliminateYscalar2, $dsided * $eliminateYscalar2,
+					$esided * $eliminateYscalar1, $fsided * $eliminateYscalar2,
+					$xside1,                      $yside1,
+					$cside1,                      $xside2,
+					$yside2,                      $cside2,
+					$zeroa,                       $zerob,
+					$zeroc,                       $zerod,
+					$zeroe,                       $zerof,
+					$x,                           $y,
+					"constant",                   0,
+					[ 0, 1, 2 ],                  [ 0, 1, 2 ],
+					[ 0, 1, 2 ],                  [ 0, 1, 2 ]
 				);
 
 			Context()->normalStrings;
@@ -628,7 +628,7 @@ So the solution is [`$x=$xsol, $y=$ysol`].";
 
     [```\\left\\{\\begin{aligned}
       $left1 & =  $right1\\\\
-      $left2 & =  $right2 
+      $left2 & =  $right2
     \\end{aligned}\\right.```]
 
 Then we identify a common multiple of the [`$y`] coefficients. In this case, a common multiple is [`$lcmy`]. We rescale each equation so that the coefficients of [`$y`] become [`$lcmy`] and [`-$lcmy`].
@@ -655,12 +655,10 @@ And now if we add left sides and right sides:
 			if ($determinant == Fraction(0, 1) and ($leftLastStep != $rightLastStep)) {
 				$Attack = $Attack
 					. "Since this is a false equation no matter what [`$x`] and [`$y`] are, the system has no solutions.";
-			}
-			elsif ($determinant == Fraction(0, 1) and ($leftLastStep == $rightLastStep)) {
+			} elsif ($determinant == Fraction(0, 1) and ($leftLastStep == $rightLastStep)) {
 				$Attack = $Attack
 					. "Since this equation is true no matter what [`$x`] and [`$y`] are, the system has infinitely solutions; Just let [`$x`] take any value and then use either equation to solve for [`$y`]. The pair that you get from this will satisfy both equations.";
-			}
-			else {
+			} else {
 				$left1Step  = ($eliminateXscalar1 == 1) ? $left1  : "$eliminateXscalar1\\left($left1\\right)";
 				$right1Step = ($eliminateXscalar1 == 1) ? $right1 : "$eliminateXscalar1\\left($right1\\right)";
 				$left2Step  = ($eliminateXscalar2 == 1) ? $left2  : "$eliminateXscalar2\\left($left2\\right)";
@@ -671,19 +669,19 @@ And now if we add left sides and right sides:
 					$rightOrd2
 					)
 					= makeSides(
-					$asided * $eliminateXscalar1, $bsided * $eliminateXscalar1,
-					$csided * $eliminateXscalar2, $dsided * $eliminateXscalar2,
-					$esided * $eliminateXscalar1, $fsided * $eliminateXscalar2,
-					$xside1,                      $yside1,
-					$cside1,                      $xside2,
-					$yside2,                      $cside2,
-					$zeroa,                       $zerob,
-					$zeroc,                       $zerod,
-					$zeroe,                       $zerof,
-					$x,                           $y,
-					"constant",                   0,
-					[ 0, 1, 2 ],                  [ 0, 1, 2 ],
-					[ 0, 1, 2 ],                  [ 0, 1, 2 ]
+						$asided * $eliminateXscalar1, $bsided * $eliminateXscalar1,
+						$csided * $eliminateXscalar2, $dsided * $eliminateXscalar2,
+						$esided * $eliminateXscalar1, $fsided * $eliminateXscalar2,
+						$xside1,                      $yside1,
+						$cside1,                      $xside2,
+						$yside2,                      $cside2,
+						$zeroa,                       $zerob,
+						$zeroc,                       $zerod,
+						$zeroe,                       $zerof,
+						$x,                           $y,
+						"constant",                   0,
+						[ 0, 1, 2 ],                  [ 0, 1, 2 ],
+						[ 0, 1, 2 ],                  [ 0, 1, 2 ]
 					);
 
 				Context()->normalStrings;
@@ -725,6 +723,8 @@ So [`$y=$ysol`]. So the solution to the system is [`$x=$xsol, $y=$ysol`].
 #  Set up the LinearSystems context
 #
 sub _SystemsOfLinearEquationsProblemPCC_init {
+	loadMacros('PCCmacros.pl', 'contextFraction.pl');
+
 	my $context = $main::context{LinearSystems} = Parser::Context->getCopy("LimitedFraction");
 
 	$context->flags->set(

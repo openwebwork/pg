@@ -48,7 +48,7 @@ sub _contextRationalExponent_init {
 	$context->flags->set(
 		reduceConstantFunctions => 0,
 		reduceConstants         => 0,
-		formatStudentAnswer     => parsed,
+		formatStudentAnswer     => 'parsed',
 		checkSqrt               => 0,
 		checkRoot               => 0
 	);

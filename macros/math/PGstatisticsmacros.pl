@@ -215,11 +215,11 @@ Generates N normally distributed random numbers with the given mean and standard
 =cut
 
 sub urand {    # generate normally dist. random numbers
-	# urand(mean,sd,N,digits)
-	# Generates N random numbers. The distribution is set by
-	# mean equal to "mean" and the standard deviation given by
-	# "sd." The value of 'digits' gives the number of decimal
-	# places to return.
+			   # urand(mean,sd,N,digits)
+			   # Generates N random numbers. The distribution is set by
+			   # mean equal to "mean" and the standard deviation given by
+			   # "sd." The value of 'digits' gives the number of decimal
+			   # places to return.
 	my ($mean, $sd, $N, $digits) = @_;
 	if ($N <= 0) {
 		die "Invalid N: $N\n";    # Cannot generate negative or zero numbers.
@@ -262,10 +262,10 @@ Generates N  exponentially distributed random numbers with the given parameter, 
 =cut
 
 sub exprand {    # generate exponentially dist. numbers  Exp(x,lambda)
-	# exprand(lambda,N,digits)
-	# Generates N random numbers. The distribution is exponetially
-	# distributed with parameter lambda.  The value of 'digits' gives the
-	# number of decimal places to return.
+				 # exprand(lambda,N,digits)
+				 # Generates N random numbers. The distribution is exponetially
+				 # distributed with parameter lambda.  The value of 'digits' gives the
+				 # number of decimal places to return.
 	my ($lambda, $N, $digits) = @_;
 	if ($lambda <= 0) {
 		die "Invalid parameter lambda: $lambda\n";    # must be a positive number
@@ -297,8 +297,8 @@ Generates N Poisson distributed random numbers with the given parameter, lambda.
 =cut
 
 sub poissonrand {    # generate random, Poisson dist. numbers  Pois(lambda)
-	# poissonrand(lambda,N)
-	# Generates N random numbers. The distribution is Poisson with  parameter lambda.
+					 # poissonrand(lambda,N)
+					 # Generates N random numbers. The distribution is Poisson with  parameter lambda.
 
 	my ($lambda, $N) = @_;
 	if ($lambda <= 0) {
@@ -344,8 +344,8 @@ Generates num binomial distributed random numbers with  parameters p and N.
 =cut
 
 sub binomrand {    # generate random, binomial dist. numbers  Bin(n,p)
-	# binomrand(p,N,num)
-	# Generates num random numbers. The distribution is binomial with parameters p and N.
+				   # binomrand(p,N,num)
+				   # Generates num random numbers. The distribution is binomial with parameters p and N.
 
 	my ($p, $N, $num) = @_;
 	if (($p <= 0) || ($p >= 1)) {
@@ -401,8 +401,8 @@ value for a failure is given by the optional "failure" parameter.
 =cut
 
 sub bernoullirand {    # generate random, Bernoulli dist. numbers  B(p)
-	# bernoullirand(p,num,{"success"=>"1","failure"=>"0"})
-	# Generates num random numbers. The distribution is Bernoulli with parameter p.
+					   # bernoullirand(p,num,{"success"=>"1","failure"=>"0"})
+					   # Generates num random numbers. The distribution is Bernoulli with parameter p.
 
 	my $p       = shift;
 	my $num     = shift;
@@ -479,11 +479,11 @@ array is the value assocated with the probability.
 =cut
 
 sub discreterand {    # generate random, values based on a given table
-	# discreterand($n,@tableOfProbabilities)
-	# Generates num random results. The distribution is in the given array.
-	# Each element in the array is itself an array.
-	# The first value in the array is the probability.
-	# The second value in the array is the value assocated with the probability.
+					  # discreterand($n,@tableOfProbabilities)
+					  # Generates num random results. The distribution is in the given array.
+					  # Each element in the array is itself an array.
+					  # The first value in the array is the probability.
+					  # The second value in the array is the value assocated with the probability.
 
 	my $num   = shift;    # Number of values to generate
 	my @table = @_;       # Table of arrays with the probabilities and values.
@@ -545,22 +545,22 @@ Computes the Chi Squared test statistic for a two way frequency table. Returns t
 =cut
 
 sub chisqrTable {    # Given a two-way frequency table calculates the chi-squared test statistic
-	# chisqrTable(@frequencies)
-	# @frequencies is an array of pointers to arrays. Each array must have the same dimension.
-	#
-	# Returns an array: (chi square test statistic , number degrees of freedom)
-	#
-	# Example:
-	# my @row1 = (1,2,2,2);
-	# my @row2 = (3,1,2,4);
-	# my @row3 = (1,4,2,1);
-	# my @row4 = (3,1,4,3);
-	# my @row5 = (5,2,2,4);
-	# push(@table,~~@row1);
-	# push(@table,~~@row2);
-	# push(@table,~~@row3);
-	# push(@table,~~@row4);
-	# push(@table,~~@row5);
+					 # chisqrTable(@frequencies)
+					 # @frequencies is an array of pointers to arrays. Each array must have the same dimension.
+					 #
+					 # Returns an array: (chi square test statistic , number degrees of freedom)
+					 #
+					 # Example:
+					 # my @row1 = (1,2,2,2);
+					 # my @row2 = (3,1,2,4);
+					 # my @row3 = (1,4,2,1);
+					 # my @row4 = (3,1,4,3);
+					 # my @row5 = (5,2,2,4);
+					 # push(@table,~~@row1);
+					 # push(@table,~~@row2);
+					 # push(@table,~~@row3);
+					 # push(@table,~~@row4);
+					 # push(@table,~~@row5);
 
 	my @table = @_;
 

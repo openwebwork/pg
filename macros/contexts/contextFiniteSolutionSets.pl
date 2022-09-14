@@ -39,10 +39,10 @@ The "x" should be the only context variable, and it should be what the student
 needed to solve for.
 
 If the answer is not submitted like {1,2}, and if the flag preferSetNotation is
-set to 1 (which is the default) then there is a message that this is the 
+set to 1 (which is the default) then there is a message that this is the
 preferred form (but the student still gets credit).
 
-Answers like 2/3 and (1+sqrt(2))/3 need to be in that form, so the problem 
+Answers like 2/3 and (1+sqrt(2))/3 need to be in that form, so the problem
 author needs to be careful to not do things like Formula("1/2,$a/$b,3/4")
 where $a and $b have a nontrivial common divisor.
 
@@ -155,7 +155,7 @@ sub _contextFiniteSolutionSets_init {
 		my ($correct, $student, $ansHash, $value) = @_;
 		my $score  = 0;     # number of correct student answers
 		my @errors = ();    # stores error messages
-		my $i, $j, $k;      # loop counters
+		my ($i, $j, $k);      # loop counters
 		my $studentFormula = $ansHash->{student_formula};
 
 		# Student answer needs to be a set, list, a single number, or a single assignment

@@ -255,22 +255,22 @@ sub factoringMethods {
 	my @y      = ($yStart, $yEnd);
 	my $gap    = $ymax / 100;
 
-	my $box1, $box2, $box3, $box4, $box1Up, $box1Left, $box2Up, $box3Left;
+	my ($box1, $box2, $box3, $box4, $box1Up, $box1Left, $box2Up, $box3Left);
 
 	for (my $i = 0; $i <= 1; $i++) {
 		$picture[$i] = init_graph($xmin, $ymin, $xmax, $ymax, pixels => [ 400, 400 ]);
 
 		$picture[$i]->moveTo($x[0], $y[0]);
-		$picture[$i]->lineTo($x[1], $y[0], blue, 3);
-		$picture[$i]->lineTo($x[1], $y[1], blue, 3);
-		$picture[$i]->lineTo($x[0], $y[1], blue, 3);
-		$picture[$i]->lineTo($x[0], $y[0], blue, 3);
+		$picture[$i]->lineTo($x[1], $y[0], 'blue', 3);
+		$picture[$i]->lineTo($x[1], $y[1], 'blue', 3);
+		$picture[$i]->lineTo($x[0], $y[1], 'blue', 3);
+		$picture[$i]->lineTo($x[0], $y[0], 'blue', 3);
 
 		$picture[$i]->moveTo($x[0], $ymax / 2);
-		$picture[$i]->lineTo($x[1], $ymax / 2, blue, 2);
+		$picture[$i]->lineTo($x[1], $ymax / 2, 'blue', 2);
 
 		$picture[$i]->moveTo($xmax / 2, $y[0]);
-		$picture[$i]->lineTo($xmax / 2, $y[1], blue, 2);
+		$picture[$i]->lineTo($xmax / 2, $y[1], 'blue', 2);
 
 		$squareLength = $x[1] - $x[0];
 		if ($var[0] ne "1") {
@@ -381,7 +381,7 @@ sub factoringMethods {
 		my $j = $co[0] / $i;
 		if ($j == int($j)) { push(@smallfactorA, $i); push(@largefactorA, $j); }
 	}
-	my $factorPairsAOutput = "";
+
 	for my $i (0 .. $#smallfactorA) {
 		$factorPairsAOutput .= $smallfactorA[$i] . '(' . $largefactorA[$i] . ')';
 		if   ($i % 4 == 3) { $factorPairsAOutput .= '\newline'; }
@@ -394,7 +394,7 @@ sub factoringMethods {
 		my $j = $co[2] / $i;
 		if ($j == int($j)) { push(@smallfactorC, $i, -$i); push(@largefactorC, $j, -$j); }
 	}
-	my $factorPairsCOutput = "";
+
 	for my $i (0 .. $#smallfactorC) {
 		$factorPairsCOutput .= $smallfactorC[$i] . '(' . $largefactorC[$i] . ')';
 		if   ($i % 4 == 3) { $factorPairsCOutput .= '\newline'; }
@@ -405,11 +405,11 @@ sub factoringMethods {
 
 	$outputString .= $BCENTER
 		. image(
-		insertGraph($picture[0]),
-		tex_size        => 400,
-		height          => 400,
-		width           => 400,
-		extra_html_tags => "alt= '$alt1' title= '$alt1'"
+			insertGraph($picture[0]),
+			tex_size        => 400,
+			height          => 400,
+			width           => 400,
+			extra_html_tags => "alt= '$alt1' title= '$alt1'"
 		)
 		. $ECENTER
 		. $PAR
@@ -431,11 +431,11 @@ sub factoringMethods {
 		. $PAR
 		. $BCENTER
 		. image(
-		insertGraph($picture[1]),
-		tex_size        => 400,
-		height          => 400,
-		width           => 400,
-		extra_html_tags => "alt= '$alt2' title= '$alt2'"
+			insertGraph($picture[1]),
+			tex_size        => 400,
+			height          => 400,
+			width           => 400,
+			extra_html_tags => "alt= '$alt2' title= '$alt2'"
 		)
 		. $ECENTER
 		. $PAR

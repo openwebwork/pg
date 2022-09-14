@@ -16,11 +16,22 @@ use lib "$ENV{PG_ROOT}/lib";
 
 use Test2::V0;
 use File::Find;
-use File::Basename;
 
 use WeBWorK::PG;
 
-my %baseMacros = ('PG.pl' => 1, 'PGstandard.pl' => 1);
+my %baseMacros = (
+	'PG.pl'                   => 1,
+	'PGstandard.pl'           => 1,
+	'PGbasicmacros.pl'        => 1,
+	'PGanswermacros.pl'       => 1,
+	'PGauxiliaryFunctions.pl' => 1,
+	'customizeLaTeX.pl'       => 1,
+	'PGnumericevaluators.pl'  => 1,
+	'PGfunctionevaluators.pl' => 1,
+	'PGstringevaluators.pl'   => 1,
+	'PGmiscevaluators.pl'     => 1,
+	'PGcommonFunctions.pl'    => 1
+);
 
 my %brokenMacros = ('answerDiscussion.pl' => 1);
 
@@ -30,12 +41,12 @@ find(
 	sub {
 		# Must be a file that has the ".pl" suffix.
 		return unless -f && /\.pl$/;
-		push @macro_files, $File::Find::name;
+		push @macro_files, $_;
 	},
 	"$ENV{PG_ROOT}/macros"
 );
 
-@macro_files = sort grep { my $f = fileparse($_); !$baseMacros{$f} && !$brokenMacros{$f} } @macro_files;
+@macro_files = sort grep { !$baseMacros{$_} && !$brokenMacros{$_} } @macro_files;
 
 for (@macro_files) {
 	subtest $_ => sub {

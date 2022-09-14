@@ -1,59 +1,59 @@
 
 =head1 NAME
-contextLimitedRadical.pl - defines a root(n,x) function for n-th root of x, and 
+contextLimitedRadical.pl - defines a root(n,x) function for n-th root of x, and
 allows for specification of forms of radical answers, like simplified radicals or
 with rational denominators
 
 =head1 DESCRIPTION
 
-This file enables a context LimitedRadical in which students and pg-authors may use 
-root(n,x) for the nth root of x. The function makes sure n!=0, and also allows for 
+This file enables a context LimitedRadical in which students and pg-authors may use
+root(n,x) for the nth root of x. The function makes sure n!=0, and also allows for
 negative x only if n is an odd integer.
 
-By default, the limits for Formula answer checking are [0,5] to avoid negatives in 
-radicals. If it is important to distinguish sqrt(x^2) as |x| rather than x, then the 
+By default, the limits for Formula answer checking are [0,5] to avoid negatives in
+radicals. If it is important to distinguish sqrt(x^2) as |x| rather than x, then the
 limits should be changed to include a region where they differ.
 
-The context requires that radical expressions (using either sqrt() or root()) meet 
-the form of the author's answer with respect to simplification and rationalization 
+The context requires that radical expressions (using either sqrt() or root()) meet
+the form of the author's answer with respect to simplification and rationalization
 of denominators.
 
-To accomplish this, Math Objects like "root(3,2)" should be created as Formula("root(3,2)"), 
-not Compute("root(3,2)"), or they will be treated as Reals and evaluated as decimals. 
+To accomplish this, Math Objects like "root(3,2)" should be created as Formula("root(3,2)"),
+not Compute("root(3,2)"), or they will be treated as Reals and evaluated as decimals.
 Compute("root(3,x)") should be fine though, since it is unambiguously a Formula.
 
-Student answers are first compared to the correct answer in the usual way to see if 
-they are at least numerically correct. Then to check that expressions are fully 
-simplified, during a check, both sqrt(x) and root(n,x) are temporarily replaced by certain 
-other functions.  Also +, -, *, and / are temporarily replaced with bizarro arithmetic 
-(from bizarroArithmetic.pl) that nearly make for a bizarro field structure on R. 
-If the student and author answers disagree after this change, then the student's answer 
+Student answers are first compared to the correct answer in the usual way to see if
+they are at least numerically correct. Then to check that expressions are fully
+simplified, during a check, both sqrt(x) and root(n,x) are temporarily replaced by certain
+other functions.  Also +, -, *, and / are temporarily replaced with bizarro arithmetic
+(from bizarroArithmetic.pl) that nearly make for a bizarro field structure on R.
+If the student and author answers disagree after this change, then the student's answer
 is not in form of the author's answer.
 
-For example "1+2" is not equivalent to "3" under bizarro addition. "2sqrt(2)" is not 
-equivalent to "sqrt(8)" with the bizarro arithmetic. Any radical applied to 1 is declared 
+For example "1+2" is not equivalent to "3" under bizarro addition. "2sqrt(2)" is not
+equivalent to "sqrt(8)" with the bizarro arithmetic. Any radical applied to 1 is declared
 unsimplified as well.
 
-If a student's answer is numerically equal to the author's, but not equal under bizarro 
-arithmetic, students get the message that their answer is not fully simplified. So care 
+If a student's answer is numerically equal to the author's, but not equal under bizarro
+arithmetic, students get the message that their answer is not fully simplified. So care
 should be taken by the problem author when defining answers.
 
-The near-field structure of the bizarro versions means that "1+sqrt(2)+sqrt(3)" can be 
-entered as "sqrt(3)+sqrt(2)+1", etc, and not be declared "unsimplified". Also "(1+sqrt(2))/2" 
-can be entered as "1/2+sqrt(2)/2" without being declared "unsimplified". However, 
-"(1+2sqrt(2))/2" *will* be declared different from "1/2+sqrt(2)", even though both are 
-generally considered fully simplified. If an author can foresee this arising, consider 
+The near-field structure of the bizarro versions means that "1+sqrt(2)+sqrt(3)" can be
+entered as "sqrt(3)+sqrt(2)+1", etc, and not be declared "unsimplified". Also "(1+sqrt(2))/2"
+can be entered as "1/2+sqrt(2)/2" without being declared "unsimplified". However,
+"(1+2sqrt(2))/2" *will* be declared different from "1/2+sqrt(2)", even though both are
+generally considered fully simplified. If an author can foresee this arising, consider
 using parserOneOf.pl to allow for multiple forms of the correct answer.
 
-Technically both "sqrt(3)/3" and "1/sqrt(3)" are fully simplified, although you may want 
-rational denominators. This context will declare them equal but not equivalent. The author 
-should either accept both as correct using parserOneOf.pl, or give the message that the 
+Technically both "sqrt(3)/3" and "1/sqrt(3)" are fully simplified, although you may want
+rational denominators. This context will declare them equal but not equivalent. The author
+should either accept both as correct using parserOneOf.pl, or give the message that the
 student's answer does not have a rational denominator using answerHints.pl.
 
-Note that there is nothing here that is actually doing any reducing of radical quantities 
-or honestly checking for "simplified" answers - so authors need to make sure their answers 
-are reduced and simplified. Also if the correct answer is "sqrt(2)" and the student 
-enters "sqrt(3)+sqrt(3)" or "4sqrt(2)/2", they will just be told they are wrong, not that 
+Note that there is nothing here that is actually doing any reducing of radical quantities
+or honestly checking for "simplified" answers - so authors need to make sure their answers
+are reduced and simplified. Also if the correct answer is "sqrt(2)" and the student
+enters "sqrt(3)+sqrt(3)" or "4sqrt(2)/2", they will just be told they are wrong, not that
 their (incorrect) answer is unsimplified.
 
 
@@ -90,7 +90,7 @@ sub _contextLimitedRadicalComplex_init {
 	$context->flags->set(
 		reduceConstantFunctions => 0,
 		reduceConstants         => 0,
-		formatStudentAnswer     => parsed,
+		formatStudentAnswer     => 'parsed',
 		checkSqrt               => 0,
 		checkRoot               => 0
 	);
@@ -111,7 +111,8 @@ sub _contextLimitedRadicalComplex_init {
 			bizarroMul => 1,
 			bizarroDiv => 1
 		);
-		delete $correct->{test_values}, $student->{test_values};
+		delete $correct->{test_values};
+		delete $student->{test_values};
 		my $OK = (($correct == $student) or ($student == $correct));    # check if equal when sqrt's are replaced by 1
 		Context()->flags->set(
 			checkSqrt  => 0,

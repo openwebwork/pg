@@ -488,8 +488,8 @@ sub vec_list_string {
 								$rh_ans->{'ans_message'}         = $display_ans . $parser->{error_msg},
 								$rh_ans->{'preview_text_string'} = '', $rh_ans->{'preview_latex_string'} = '',
 								$rh_ans->throw_error(
-								'SYNTAX',
-								'syntax error in answer:'
+									'SYNTAX',
+									'syntax error in answer:'
 									. $display_ans
 									. $parser->{htmlerror}
 									. "$main::BR"
@@ -623,8 +623,8 @@ sub ans_array_filter {
 						$rh_ans->{'ans_message'} = $display_ans . $parser->{error_msg},
 						$rh_ans->{'preview_text_string'} = '',
 						$rh_ans->throw_error(
-						'SYNTAX',
-						'syntax error in answer:'
+							'SYNTAX',
+							'syntax error in answer:'
 							. $display_ans
 							. $parser->{htmlerror}
 							. "$main::BR"
