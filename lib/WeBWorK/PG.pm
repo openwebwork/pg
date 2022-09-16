@@ -272,7 +272,6 @@ sub defineProblemEnvironment ($pg_envir, $options = {}, $image_generator = undef
 		tempDirectory     => $options->{tempDirectory}     // "$pg_envir->{directories}{html_temp}/",
 		tempURL           => $options->{tempURL}           // "$pg_envir->{URLs}{tempURL}/",
 		localHelpURL      => $options->{localHelpURL}      // "$pg_envir->{URLs}{localHelpURL}/",
-		server_root_url   => $options->{server_root_url} || '',
 
 		# Other things ...
 
@@ -519,11 +518,6 @@ Public html address of the tempDirectory above.
 =item localHelpURL (string, default taken from WeBWorK::PG::Environment)
 
 Public html address for the PG help files.
-
-=item server_root_url (string, default: '')
-
-Server root url.  This is used by check_url when verifying that static resources
-are available.  It is prepended to relative urls in this check.
 
 =item use_site_prefix (string, default: '')
 

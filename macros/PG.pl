@@ -648,10 +648,6 @@ sub findMacroFile {
 	$PG->{PG_alias}->findMacroFile(@_);
 }
 
-sub check_url {
-	$PG->{PG_alias}->check_url(@_);
-}
-
 sub findAppletCodebase {
 	my $appletName = shift;
 	my $url        = eval { $PG->{PG_alias}->findAppletCodebase($appletName) };

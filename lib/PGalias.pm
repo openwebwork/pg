@@ -306,10 +306,10 @@ sub alias_for_html {
 	# Find complete path to the original file
 	my $file_path;
 	if ($aux_file_id =~ /https?:/) {    #external link_file
-		$resource_object->uri($aux_file_id);    #no unique id is needed -- external link doc
-		$resource_object->{copy_link}->{type}    = 'external';
-		$resource_object->{uri}->{is_accessible} = $self->check_url($resource_object->uri());
-		return $resource_object->uri;           # external links need no further processing
+		$resource_object->uri($aux_file_id);                   #no unique id is needed -- external link doc
+		$resource_object->{copy_link}->{type} = 'external';
+		$resource_object->{uri}{is_accessible} = 1;            # Assume a url is accessible.
+		return $resource_object->uri;                          # external links need no further processing
 	} elsif ($aux_file_id =~ m|^/|) {
 		$file_path = $aux_file_id;
 	} else {
@@ -381,7 +381,6 @@ sub alias_for_html {
 	# Return full url to image file  (resource_id)
 ################################################################################
 
-# $self->debug_message("link created --alias_for_image_html: url is ".$resource_object->uri(). " check =".$self->check_url($resource_object->uri()) );
 	$resource_object->uri(); # return the uri of the resource -- in this case the URL for the file in the temp directory
 }
 
@@ -449,10 +448,10 @@ sub alias_for_tex {
 	# Find complete path to the original file
 	my $file_path;
 	if ($aux_file_id =~ /https?:/) {    # external link_file
-		$resource_object->uri($aux_file_id);    #no unique id is needed -- external link doc
-		$resource_object->{copy_link}->{type}    = 'external';
-		$resource_object->{uri}->{is_accessible} = $self->check_url($resource_object->uri());
-		return $resource_object->uri;           # external links need no further processing
+		$resource_object->uri($aux_file_id);                   #no unique id is needed -- external link doc
+		$resource_object->{copy_link}->{type} = 'external';
+		$resource_object->{uri}{is_accessible} = 1;            # Assume a url is accessible.
+		return $resource_object->uri;                          # external links need no further processing
 	} elsif ($aux_file_id =~ m|^/|) {
 		$file_path = $aux_file_id;
 	} else {
@@ -578,9 +577,9 @@ sub create_link_to_tmp_file {
 			$resource_object->{path}->{is_accessible}     = (-r $linkPath);
 
 			$resource_object->uri($resource_uri);
-			$resource_object->{uri}->{is_accessible} = $self->check_url($resource_object->uri());
-			$resource_object->{path}->{is_complete}  = 1;
-			$resource_object->{uri}->{is_complete}   = 1;
+			$resource_object->{uri}{is_accessible}  = 1;       # Assume a url is accessible.
+			$resource_object->{path}->{is_complete} = 1;
+			$resource_object->{uri}->{is_complete}  = 1;
 		} else {
 			$self->warning_message(
 				"The macro alias cannot create a link from |$linkPath|  to |" . $resource_object->path() . "|<BR>");
@@ -653,8 +652,6 @@ our (
 	$macrosPath,
 	# ^variable my $pwd
 	$pwd,
-	# ^variable my $server_root_url
-	$server_root_url,
 );
 
 # ^function findMacroFile
@@ -684,33 +681,6 @@ sub find_file_in_directories {
 		return $file_path if (-r $file_path);
 	}
 	return;                # no file found
-}
-
-# ^function check_url
-# ^uses %envir
-sub check_url {
-	my $self        = shift;
-	my $url         = shift;
-	my $OK_CONSTANT = "200 OK";
-	return undef if $url     =~ /;/;    # make sure we can't get a second command in the url
-	return undef unless $url =~ /\S/;
-#FIXME -- check for other exploits of the system call	#FIXME -- ALARM feature so that the response cannot be held up for too long.
-#ALARM: /opt/local/bin/lwp-request -d -t 40 -mHEAD ";
-# the -t 40 means the call times out after 40 seconds.
-# Set this alarm in site.conf
-#FIXME doesn't seem to work with relative addresses.
-#FIXME  Can we get the machine name of the server?
-	$server_root_url = $self->envir("server_root_url");
-	$self->warning_message("check_url: server_root_url is not defined in site.conf") unless $server_root_url;
-	unless ($url =~ /^http/) {
-		# $self->debug_message("check_url: augmenting url $url");
-		$url = "$server_root_url/$url";
-
-	}
-	my $check_url_command = WeBWorK::PG::IO::externalCommand('checkurl');
-	my $response          = `$check_url_command $url`;
-	# $self->debug_message("check_url: response for url $url is  $response");
-	return ($response =~ /$OK_CONSTANT/) ? 1 : 0;
 }
 
 # This is a stub for deprecated problems that call this method.  Some of the Geogebra problems that do so actually work

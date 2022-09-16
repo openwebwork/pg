@@ -86,12 +86,11 @@ sub new {
 	my $envir = shift;    #pointer to environment hash
 	warn "PGloadmacros must be called with an environment" unless ref($envir) eq 'HASH';
 	my $self = {
-		envir           => $envir,
-		macroFileList   => {},       # records macros used in compilation
-		pgFileName      => '',       # current pg file being processed
-		server_root_url => '',       # how do we find this?
-		macrosPath      => '',
-		pwd             => '',       # current directory -- defined in initialize
+		envir         => $envir,
+		macroFileList => {},       # records macros used in compilation
+		pgFileName    => '',       # current pg file being processed
+		macrosPath    => '',
+		pwd           => '',       # current directory -- defined in initialize
 	};
 	bless $self, $class;
 	$self->initialize;

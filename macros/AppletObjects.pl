@@ -194,7 +194,7 @@ sub new {
 	data-height="$height"
 	$webgeogebraParameters></div>
 END_OBJECT_TEXT
-		type       => 'geogebraweb',
+		type => 'geogebraweb',
 		@_
 	);
 }
