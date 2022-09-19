@@ -532,7 +532,7 @@ sub DataTable {
 							${ $dataref->[$i][$j] }{cellcss} =
 								"border-left:solid 1px; " . ${ $dataref->[$i][$j] }{cellcss};
 						}
-						if ($alignmentcolumns[$m] != 0) {
+						if (defined $alignmentcolumns[$m] && $alignmentcolumns[$m] != 0) {
 							${ $dataref->[$i][$j] }{cellcss} =
 								"border-right:solid 1px; " . ${ $dataref->[$i][$j] }{cellcss};
 						}
