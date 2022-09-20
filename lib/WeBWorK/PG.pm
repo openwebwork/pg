@@ -58,6 +58,7 @@ sub new_helper ($invocant, %options) {
 	$options{sourceFilePath}    //= '';
 	$options{templateDirectory} //= '';
 	$options{inputs_ref}        //= {};
+	$options{ext_data} //= {};
 
 	# Set up the warning handler.
 	my $warning_messages = '';
@@ -242,6 +243,7 @@ sub defineProblemEnvironment ($pg_envir, $options = {}, $image_generator = undef
 		pastDue            => $options->{pastDue}            // 0,
 		answersAvailable   => $options->{answersAvailable}   // 0,
 		isInstructor       => $options->{isInstructor}       // 0,
+		ext_data           => $options->{ext_data}           // {},
 
 		inputs_ref => $options->{inputs_ref},
 
