@@ -47,9 +47,31 @@ directories:
     - $pg_root/macros/core
     - $pg_root/macros/graph
     - $pg_root/macros/math
+    - $pg_root/macros/misc
     - $pg_root/macros/parsers
     - $pg_root/macros/ui
-    - $pg_root/macros/univ
+    - $OPL_dir/macros/Alfred
+    - $OPL_dir/macros/BrockPhysics
+    - $OPL_dir/macros/CollegeOfIdaho
+    - $OPL_dir/macros/Dartmouth
+    - $OPL_dir/macros/FortLewis
+    - $OPL_dir/macros/Hope
+    - $OPL_dir/macros/LaTech
+    - $OPL_dir/macros/MC
+    - $OPL_dir/macros/Michigan
+    - $OPL_dir/macros/Mizzou
+    - $OPL_dir/macros/NAU
+    - $OPL_dir/macros/PCC
+    - $OPL_dir/macros/TCNJ
+    - $OPL_dir/macros/UBC
+    - $OPL_dir/macros/UMass-Amherst
+    - $OPL_dir/macros/UW-Stout
+    - $OPL_dir/macros/UniSiegen
+    - $OPL_dir/macros/Union
+    - $OPL_dir/macros/WHFreeman
+    - $OPL_dir/macros/Wiley
+    - $Contrib_dir/CAPA/macros/CAPA_Tools
+    - $Contrib_dir/CAPA/macros/CAPA_MCTools
 
 URLs:
   # The public URL of the html directory above.

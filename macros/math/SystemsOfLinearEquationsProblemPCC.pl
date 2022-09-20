@@ -1,4 +1,6 @@
 
+loadMacros('PCCmacros.pl', 'contextFraction.pl');
+
 sub SystemOfLinearEquationsProblemSetup {
 
 	#markers for zero-values used in formatting
@@ -723,8 +725,6 @@ So [`$y=$ysol`]. So the solution to the system is [`$x=$xsol, $y=$ysol`].
 #  Set up the LinearSystems context
 #
 sub _SystemsOfLinearEquationsProblemPCC_init {
-	loadMacros('PCCmacros.pl', 'contextFraction.pl');
-
 	my $context = $main::context{LinearSystems} = Parser::Context->getCopy("LimitedFraction");
 
 	$context->flags->set(

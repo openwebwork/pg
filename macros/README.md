@@ -10,18 +10,16 @@ This directory now has a subdirectory structure for clarification.
 - **math** mathematical related macros
 - **parsers** macros that handle parsing
 - **ui** macros that affect the UI in the PG problem
-- **univ** university or other specific functionality related macros.
+
 
 ## These Have Been Copied
 
-- `OPL/Alfred/Alfredmacros.pl` to `PG/macros/univ`
-- `OPL/BrockPhysics/BrockPhysicsMacros.pl` to `PG/macros/univ` (referenced throughout OPL, but blank, should be deleted.)
 - `OPL/BrockPhysics/fixedPrecision.pl` to `PG/macros/contexts`
 - `OPL/Hope/PGgraphgrid.pl` to `PG/macros/graph`
 - `OPL/Hope/VectorListCheckers.pl` to `PG/macros/math`
 - `OPL/LaTech/SI_property_tables.pl` to `PG/macros/math`
 - `OPL/LaTech/interpMacros.pl` to `PG/macros/math`
-- `OPL/Mizzou/MUHelp.pl` to `PG/macros/univ`
+
 - `OPL/TCNJ/Generic.pl` to `PG/macros/answers`
 - `OPL/UBC/regrfnsPG.pl` to `PG/macros/math`
 - `OPL/UMass-Amherst/algebraMacros.pl` to `PG/macros/math`
@@ -30,7 +28,6 @@ This directory now has a subdirectory structure for clarification.
 
 ### CollegeOfIdaho
 
-- `OPL/CofIdaho_macros.pl` to `PG/macros/univ`
 - `OPL/CollegeOfIdaho/contextInequalitiesAllowStrings.pl` to `PG/macros/contexts`
 - `OPL/CollegeOfIdaho/contextFunctionAssign.pl` to `PG/macros/contexts`
 - `OPL/CollegeOfIdaho/parserUtils.pl` to `PG/macros/parsers`
@@ -61,14 +58,14 @@ This directory now has a subdirectory structure for clarification.
 ### Union
 
 - `OPL/Union/answerUtils.pl` to `PG/macros/answers`
-- `OPL/Union/PGunion.pl` to `PG/macros/univ`
-- `OPL/Union/unionImage.pl` to `PG/macros/univ`
-- `OPL/Union/unionInclude.pl` to `PG/macros/univ`
-- `OPL/Union/unionMacros.pl` to `PG/macros/univ`
+- `OPL/Union/PGunion.pl` to `PG/macros/misc`
+- `OPL/Union/unionImage.pl` to `PG/macros/graph`
+- `OPL/Union/unionInclude.pl` to `PG/macros/misc`
+- `OPL/Union/unionMacros.pl` to `PG/macros/misc`
 - `OPL/Union/unionLists.pl` to `PG/macros/ui`
-- `OPL/Union/unionProblem.pl` to `PG/macros/univ`
+- `OPL/Union/unionProblem.pl` to `PG/macros/misc`
 - `OPL/Union/unionTable.pl` to `PG/macros/ui`
-- `OPL/Union/unionUtils.pl` to `PG/macros/univ`
+- `OPL/Union/unionUtils.pl` to `PG/macros/misc`
 - `OPL/Union/imageChoice.pl` to `PG/macros/graph`
 - `OPL/FortLewis/AnswerHelp.pl` to `PG/macros/answers`
 
@@ -86,7 +83,7 @@ This directory now has a subdirectory structure for clarification.
 - `OPL/PCC/SolveLinearEquationPCC.pl` to `PG/macros/math`
 - `OPL/PCC/SystemsOfLinearEquationsProblemPCC.pl` to `PG/macros/math`
 
-## Not moved
+## The following have not been moved
 
 - `OPL/Hope/MatrixCheckers.pl` (already in PG/math)
 - `OPL/Hope/MatrixReduce.pl` (already in PG/math)
@@ -95,7 +92,11 @@ This directory now has a subdirectory structure for clarification.
 - `OPL/UBC/RserveClient.pl` (already in PG/core)
 - `OPL/UW-Stout/*.pl` (no problems in OPL/Contrib)
 - `OPL/UniSiegen/logicMacros.pl` (no problems in OPL/Contrib)
-u
+- `OPL/Alfred/Alfredmacros.pl` (not relevant)
+- `OPL/BrockPhysics/BrockPhysicsMacros.pl` (not relevant)
+- `OPL/Mizzou/MUHelp.pl` to `PG/macros/univ` (not relevant)
+- `OPL/WHFreeman/freemanMacros.pl` to `PG/macros/univ` (not relevant)
+- `OPL/Michigan/hhAdditionalMacros.pl` to `PG/macros/univ` (not relevant)
 
 ### CollegeOfIdaho
 

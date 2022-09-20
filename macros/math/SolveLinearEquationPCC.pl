@@ -1,7 +1,9 @@
 #These three subroutines uniformize how all our "solve this equation" problems are handled.
 
+loadMacros('PCCmacros.pl');
+
 sub _init_SolveLinearEquationPCC {
-	loadMacros('PCCmacros.pl');
+
 	#Possibly add initialization code here
 	#sub routine is not required, but prevents the macro from being re-loaded
 
