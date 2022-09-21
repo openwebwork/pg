@@ -1347,6 +1347,10 @@ sub PG_macro_file_eval_helper {
 	my $string = shift;
 
 	no strict;
+	# Many subroutines are redefined in macros.  In addition if multiple WeBWorK::PG::Translator instances are created
+	# in the same process, the safe compartment is not entirely isolated between instances, and this causes redefine
+	# warnings if a macro is loaded in both instances.  So those warnings are disabled.
+	no warnings 'redefine';
 	my $out    = eval("package main; be_strict();\n" . $string);
 	my $errors = $@;
 	use strict;
