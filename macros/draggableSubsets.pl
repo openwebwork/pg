@@ -196,7 +196,7 @@ sub new {
 	my $ans_rule      = main::NAMED_HIDDEN_ANS_RULE($answerInputId);
 	my $dnd =
 		new DragNDrop($answerInputId, $shuffledSet, $defaultShuffledBuckets,
-		AllowNewBuckets => $options{AllowNewBuckets},);
+			AllowNewBuckets => $options{AllowNewBuckets},);
 
 	my $previous = $main::inputs_ref->{$answerInputId} || '';
 
@@ -251,8 +251,7 @@ sub Print {
 	if ($main::displayMode ne "TeX") {
 
 		# HTML mode
-		return
-			join('', '<div class="dd-wrapper">', $ans_rule, $self->{dnd}->HTML, '</div>',);
+		return join('', '<div class="dd-wrapper">', $ans_rule, $self->{dnd}->HTML, '</div>',);
 	} else {
 		# TeX mode
 		return $self->{dnd}->TeX;

@@ -81,7 +81,7 @@ MultiAnswer calls to get answer rules).
 
 loadMacros('MathObjects.pl');
 
-sub _parserPopUp_init {parser::PopUp::Init()}; # don't reload this file
+sub _parserPopUp_init { parser::PopUp::Init() };    # don't reload this file
 
 #
 #  The package that implements pop-up menus
@@ -94,122 +94,136 @@ my $context;
 #  Setup the context and the PopUp() command
 #
 sub Init {
-  #
-  # make a context in which arbitrary strings can be entered
-  #
-  $context = Parser::Context->getCopy("Numeric");
-  $context->{name} = "PopUp";
-  $context->parens->clear();
-  $context->variables->clear();
-  $context->constants->clear();
-  $context->operators->clear();
-  $context->functions->clear();
-  $context->strings->clear();
-  $context->{pattern}{number} = "^\$";
-  $context->variables->{patterns} = {};
-  $context->strings->{patterns}{".*"} = [-20,'str'];
-  $context->{parser}{String} = "parser::PopUp::String";
-  $context->update;
-  main::PG_restricted_eval('sub PopUp {parser::PopUp->new(@_)}');
+	#
+	# make a context in which arbitrary strings can be entered
+	#
+	$context = Parser::Context->getCopy("Numeric");
+	$context->{name} = "PopUp";
+	$context->parens->clear();
+	$context->variables->clear();
+	$context->constants->clear();
+	$context->operators->clear();
+	$context->functions->clear();
+	$context->strings->clear();
+	$context->{pattern}{number}         = "^\$";
+	$context->variables->{patterns}     = {};
+	$context->strings->{patterns}{".*"} = [ -20, 'str' ];
+	$context->{parser}{String}          = "parser::PopUp::String";
+	$context->update;
+	main::PG_restricted_eval('sub PopUp {parser::PopUp->new(@_)}');
 }
 
 #
 #  Create a new PopUp object
 #
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
-  shift if Value::isContext($_[0]); # remove context, if given (it is not used)
-  my $choices = shift; my $value = shift;
-  Value->Error("A PopUp's first argument should be a list of menu items")
-    unless ref($choices) eq 'ARRAY';
-  Value->Error("A PopUp's second argument should be the correct menu choice")
-    unless defined($value) && $value ne "";
-  $self = bless {data => [$value], context => $context, choices => $choices}, $class;
-  $self->getChoiceOrder;
-  my %choice; map {$choice{$_} = 1} @{$self->{choices}};
-  if (!$choice{$value}) {
-    my @order = map {ref($_) eq "ARRAY" ? @$_ : $_} @$choices;
-    if ($value =~ m/^\d+$/ && $order[$value]) {$self->{data}[0] = $order[$value]}
-      else {Value->Error("The correct choice must be one of the PopUp menu items")}
-  }
-  return $self;
+	my $self  = shift;
+	my $class = ref($self) || $self;
+	shift if Value::isContext($_[0]);    # remove context, if given (it is not used)
+	my $choices = shift;
+	my $value   = shift;
+	Value->Error("A PopUp's first argument should be a list of menu items")
+		unless ref($choices) eq 'ARRAY';
+	Value->Error("A PopUp's second argument should be the correct menu choice")
+		unless defined($value) && $value ne "";
+	$self = bless { data => [$value], context => $context, choices => $choices }, $class;
+	$self->getChoiceOrder;
+	my %choice;
+	map { $choice{$_} = 1 } @{ $self->{choices} };
+
+	if (!$choice{$value}) {
+		my @order = map { ref($_) eq "ARRAY" ? @$_ : $_ } @$choices;
+		if ($value =~ m/^\d+$/ && $order[$value]) { $self->{data}[0] = $order[$value] }
+		else { Value->Error("The correct choice must be one of the PopUp menu items") }
+	}
+	return $self;
 }
 
 #
 #  Get the choices into the correct order (randomizing where requested)
 #
 sub getChoiceOrder {
-  my $self = shift;
-  my @choices = ();
-  foreach my $choice (@{$self->{choices}}) {
-    if (ref($choice) eq "ARRAY") {push(@choices,$self->randomOrder($choice))}
-      else {push(@choices,$choice)}
-  }
-  $self->{choices} = \@choices;
+	my $self    = shift;
+	my @choices = ();
+	foreach my $choice (@{ $self->{choices} }) {
+		if   (ref($choice) eq "ARRAY") { push(@choices, $self->randomOrder($choice)) }
+		else                           { push(@choices, $choice) }
+	}
+	$self->{choices} = \@choices;
 }
+
 sub randomOrder {
-  my $self = shift; my $choices = shift;
-  my %index = (map {$main::PG_random_generator->rand => $_} (0..scalar(@$choices)-1));
-  return (map {$choices->[$index{$_}]} main::PGsort(sub {$_[0] lt $_[1]},keys %index));
+	my $self    = shift;
+	my $choices = shift;
+	my %index   = (map { $main::PG_random_generator->rand => $_ } (0 .. scalar(@$choices) - 1));
+	return (map { $choices->[ $index{$_} ] } main::PGsort(sub { $_[0] lt $_[1] }, keys %index));
 }
 
 #
 #  Create the menu list
 #
-sub menu {shift->MENU(0,@_)}
+sub menu { shift->MENU(0, @_) }
+
 sub MENU {
-  my $self = shift; my $extend = shift; my $name = shift; my $size = shift; my %options = @_;
-  my @list = @{$self->{choices}}; my $menu = "";
-  $name = main::NEW_ANS_NAME() unless $name;
-  my $answer_value = (defined($main::inputs_ref->{$name}) ? $main::inputs_ref->{$name} : '');
-  my $label = main::generate_aria_label($name);
-  if ($main::displayMode =~ m/^HTML/) {
-    $menu = qq!<select class="pg-select" name="$name" id="$name" aria-label="$label" size="1">\n!;
-    foreach my $item (@list) {
-      my $selected = ($item eq $answer_value) ? " selected" : "";
-      my $option = $self->quoteHTML($item,1);
-      $menu .= qq!<option$selected value="$option" class="tex2jax_ignore">$option</option>\n!;
-    };
-    $menu .= "</select>";
-  } elsif ($main::displayMode eq 'PTX') {
-    $menu = qq(<var form="popup" name="$name">) . "\n";
-    foreach my $item (@list) {
-      $menu .= '<li>';
-      my $escaped_item = $item;
-      $escaped_item =~ s/&/&amp;/g;
-      $escaped_item =~ s/</&lt;/g;
-      $escaped_item =~ s/>/&gt;/g;
-      $menu .= $escaped_item . '</li>'. "\n";
-    }
-    $menu .= '</var>';
-  } elsif ($main::displayMode eq "TeX") {
-    # if the total number of characters is not more than
-    # 30 and not containing / or ] then we print out
-    # the select as a string: [A/B/C]
-    if (length(join('',@list)) < 25 &&
-	!grep(/(\/|\[|\])/,@list)) {
-      $menu = '['.join('/',map {$self->quoteTeX($_)} @list).']';
-    } else {
-      #otherwise we print a bulleted list
-      $menu = '\par\vtop{\def\bitem{\hbox\bgroup\indent\strut\textbullet\ \ignorespaces}\let\eitem=\egroup';
-      $menu = "\n".$menu."\n";
-      foreach my $option (@list) {
-	$menu .= '\bitem '.$self->quoteTeX($option)."\\eitem\n";
-      }
-      $menu .= '\vskip3pt}'."\n";
-    }
-  }
-  main::RECORD_ANS_NAME($name,$answer_value) unless $extend;   # record answer name
-  main::INSERT_RESPONSE($options{answer_group_name}, $name, $answer_value) if $extend;
-  $menu;
+	my $self    = shift;
+	my $extend  = shift;
+	my $name    = shift;
+	my $size    = shift;
+	my %options = @_;
+	my @list    = @{ $self->{choices} };
+	my $menu    = "";
+	$name = main::NEW_ANS_NAME() unless $name;
+	my $answer_value = (defined($main::inputs_ref->{$name}) ? $main::inputs_ref->{$name} : '');
+	my $label        = main::generate_aria_label($name);
+
+	if ($main::displayMode =~ m/^HTML/) {
+		$menu = qq!<select class="pg-select" name="$name" id="$name" aria-label="$label" size="1">\n!;
+		foreach my $item (@list) {
+			my $selected = ($item eq $answer_value) ? " selected" : "";
+			my $option   = $self->quoteHTML($item, 1);
+			$menu .= qq!<option$selected value="$option" class="tex2jax_ignore">$option</option>\n!;
+		}
+		$menu .= "</select>";
+	} elsif ($main::displayMode eq 'PTX') {
+		$menu = qq(<var form="popup" name="$name">) . "\n";
+		foreach my $item (@list) {
+			$menu .= '<li>';
+			my $escaped_item = $item;
+			$escaped_item =~ s/&/&amp;/g;
+			$escaped_item =~ s/</&lt;/g;
+			$escaped_item =~ s/>/&gt;/g;
+			$menu .= $escaped_item . '</li>' . "\n";
+		}
+		$menu .= '</var>';
+	} elsif ($main::displayMode eq "TeX") {
+		# if the total number of characters is not more than
+		# 30 and not containing / or ] then we print out
+		# the select as a string: [A/B/C]
+		if (length(join('', @list)) < 25
+			&& !grep(/(\/|\[|\])/, @list))
+		{
+			$menu = '[' . join('/', map { $self->quoteTeX($_) } @list) . ']';
+		} else {
+			#otherwise we print a bulleted list
+			$menu = '\par\vtop{\def\bitem{\hbox\bgroup\indent\strut\textbullet\ \ignorespaces}\let\eitem=\egroup';
+			$menu = "\n" . $menu . "\n";
+			foreach my $option (@list) {
+				$menu .= '\bitem ' . $self->quoteTeX($option) . "\\eitem\n";
+			}
+			$menu .= '\vskip3pt}' . "\n";
+		}
+	}
+	main::RECORD_ANS_NAME($name, $answer_value) unless $extend;    # record answer name
+	main::INSERT_RESPONSE($options{answer_group_name}, $name, $answer_value) if $extend;
+	$menu;
 }
 
 #
 #  Answer rule is the menu list
 #
-sub ans_rule {shift->MENU(0,'',@_)}
-sub named_ans_rule {shift->MENU(0,@_)}
-sub named_ans_rule_extension {shift->MENU(1,@_)}
+sub ans_rule                 { shift->MENU(0, '', @_) }
+sub named_ans_rule           { shift->MENU(0, @_) }
+sub named_ans_rule_extension { shift->MENU(1, @_) }
 
 ##################################################
 #
@@ -220,10 +234,10 @@ package parser::PopUp::String;
 our @ISA = ('Parser::String');
 
 sub new {
-  my $self = shift;
-  my ($equation,$value,$ref) = @_;
-  $value = $equation->{string};
-  $self->SUPER::new($equation,$value,$ref);
+	my $self = shift;
+	my ($equation, $value, $ref) = @_;
+	$value = $equation->{string};
+	$self->SUPER::new($equation, $value, $ref);
 }
 
 ##################################################

@@ -69,66 +69,67 @@ the TeX version of a formula within the text of a problem, you can use:
 
 loadMacros("MathObjects.pl");
 
-sub _parserSolutionFor_init {}; # don't reload this file
+sub _parserSolutionFor_init { };    # don't reload this file
 
 #
 #  Create a SolutionFor object of the correct type
 #
 sub SolutionFor {
-  #
-  #  Get the professor's equation
-  #
-  my $context = SolutionFor::getContext();     # use a context in which equality is defined
-  my $f = main::Formula($context,shift);       # get equation as a formula
+	#
+	#  Get the professor's equation
+	#
+	my $context = SolutionFor::getContext();         # use a context in which equality is defined
+	my $f       = main::Formula($context, shift);    # get equation as a formula
 
-  #
-  #  Get the professor's correct point
-  #
-  my $p = shift; $p = main::Point($p) if ref($p) eq "ARRAY";
-  $p = main::Compute($p) unless Value::isValue($p);
+	#
+	#  Get the professor's correct point
+	#
+	my $p = shift;
+	$p = main::Point($p) if ref($p) eq "ARRAY";
+	$p = main::Compute($p) unless Value::isValue($p);
 
-  #
-  #  Get any user options (e.g., vars => ['x','y'])
-  #
-  my %options = (vars=>undef,@_);
+	#
+	#  Get any user options (e.g., vars => ['x','y'])
+	#
+	my %options = (vars => undef, @_);
 
-  #
-  #  Do some error checking
-  #
-  Value::Error("Your formula doesn't look like an implicit equation")
-     unless $f->type eq 'Equality';
-  Value::Error("Professor's answer should be a point or a number")
-     unless Value::isNumber($p) || $p->type eq 'Point';
+	#
+	#  Do some error checking
+	#
+	Value::Error("Your formula doesn't look like an implicit equation")
+		unless $f->type eq 'Equality';
+	Value::Error("Professor's answer should be a point or a number")
+		unless Value::isNumber($p) || $p->type eq 'Point';
 
-  #
-  #  Save the formula for future reference, and make a callable
-  #  perl function out of it.
-  #
-  $p->{f} = $f;
-  $p->{F} = $f->perlFunction(undef,$options{vars});
+	#
+	#  Save the formula for future reference, and make a callable
+	#  perl function out of it.
+	#
+	$p->{f} = $f;
+	$p->{F} = $f->perlFunction(undef, $options{vars});
 
-  #
-  #  Save some data about the original object
-  #  and make the Value package think we are one of its objects
-  #
-  $p->{originalClass} = $p->cmp_class;
-  $p->{isValue} = 1;
+	#
+	#  Save some data about the original object
+	#  and make the Value package think we are one of its objects
+	#
+	$p->{originalClass} = $p->cmp_class;
+	$p->{isValue}       = 1;
 
-  #
-  #  Make the object into the correct SolutionFor subclass
-  #
-  $p = bless $p, "SolutionFor::".$p->class;
+	#
+	#  Make the object into the correct SolutionFor subclass
+	#
+	$p = bless $p, "SolutionFor::" . $p->class;
 
-  #
-  #  Make sure professor's answer actually works
-  #
-  Value::Error("Professor's answer of %s does not satisfy the given equation",$p->string)
-    unless $p->f($p);
+	#
+	#  Make sure professor's answer actually works
+	#
+	Value::Error("Professor's answer of %s does not satisfy the given equation", $p->string)
+		unless $p->f($p);
 
-  #
-  #  Return the SolutionFor object
-  #
-  return $p;
+	#
+	#  Return the SolutionFor object
+	#
+	return $p;
 }
 
 ######################################################################
@@ -144,14 +145,14 @@ package SolutionFor;
 #  Evaluate the formula on the given point
 #
 sub f {
-  my $self = shift;
-  &{$self->{F}}(shift->value);
+	my $self = shift;
+	&{ $self->{F} }(shift->value);
 }
 
 #
 #  The name of this object for error messages
 #
-sub cmp_class {shift->{originalClass}}
+sub cmp_class { shift->{originalClass} }
 
 #
 #  Do a comparison by testing if the formula's equality
@@ -160,9 +161,9 @@ sub cmp_class {shift->{originalClass}}
 #  to return 0 when true and 1 when false.)
 #
 sub compare {
-  my ($l,$r) = @_;
-  $r = Value::makeValue($r,context=>$l->context);
-  return ($l->f($r)) ? 0 : 1;
+	my ($l, $r) = @_;
+	$r = Value::makeValue($r, context => $l->context);
+	return ($l->f($r)) ? 0 : 1;
 }
 
 #
@@ -172,11 +173,11 @@ sub compare {
 #  be promoted to comparisons with the SolutionFor
 #
 sub getContext {
-  my $oldContext = main::Context();
-  $oldContext->{precedence}{SolutionFor} = $oldContext->{precedence}{special};
-  my $context = $oldContext->copy;
-  Parser::BOP::equality->Allow($context);
-  return $context
+	my $oldContext = main::Context();
+	$oldContext->{precedence}{SolutionFor} = $oldContext->{precedence}{special};
+	my $context = $oldContext->copy;
+	Parser::BOP::equality->Allow($context);
+	return $context;
 }
 
 ######################################################################
@@ -190,10 +191,9 @@ our @ISA = qw(SolutionFor Value::Real Value);
 #  Pass the real number directly
 #
 sub f {
-  my $self = shift;
-  &{$self->{F}}(shift);
+	my $self = shift;
+	&{ $self->{F} }(shift);
 }
-
 
 ######################################################################
 #
@@ -206,8 +206,8 @@ our @ISA = qw(SolutionFor Value::Complex Value);
 #  Pass the complex number directly
 #
 sub f {
-  my $self = shift;
-  &{$self->{F}}(shift);
+	my $self = shift;
+	&{ $self->{F} }(shift);
 }
 
 ######################################################################
@@ -221,9 +221,6 @@ our @ISA = qw(SolutionFor Value::Point Value);
 #  Use the Point's defaults, but turn off coordinate hints
 #  (since a wrong coordinate isn't detectable)
 #
-sub cmp_defaults {(
-  shift->SUPER::cmp_defaults,
-  showCoordinateHints => 0,
-)}
+sub cmp_defaults { (shift->SUPER::cmp_defaults, showCoordinateHints => 0,) }
 
-1; # make Perl happy
+1;    # make Perl happy

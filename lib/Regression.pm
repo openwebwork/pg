@@ -1,5 +1,4 @@
 
-
 package Regression;
 
 $VERSION = 0.1;
@@ -7,9 +6,10 @@ $VERSION = 0.1;
 use strict;
 
 ################################################################
-use constant TINY => 1e-8;
+use constant TINY      => 1e-8;
 use constant DEBUGGING => 0;
 ################################################################
+
 =pod
 
 =head1 NAME
@@ -89,17 +89,17 @@ nicer ways to compute the R^2.
 =head1 Subroutines
 
 =cut
-################################################################
 
+################################################################
 
 #### let's start with handling of missing data ("nan" or "NaN")
 
-my $nan= "NaN";
-sub isNaN {
-  if ($_[0] !~ /[0-9nan]/) { die "definitely not a number in NaN: '$_[0]'"; }
-  return ($_[0]=~ /NaN/i) || ($_[0] != $_[0]);
-}
+my $nan = "NaN";
 
+sub isNaN {
+	if ($_[0] !~ /[0-9nan]/) { die "definitely not a number in NaN: '$_[0]'"; }
+	return ($_[0] =~ /NaN/i) || ($_[0] != $_[0]);
+}
 
 ################################################################
 
@@ -116,43 +116,43 @@ the X coefficients.
 
 ################################################################
 sub new {
-  my $classname= shift(@_);
-  my $K= shift(@_); # the number of variables
-  my $regname= shift(@_) || "with no name";
+	my $classname = shift(@_);
+	my $K         = shift(@_);                     # the number of variables
+	my $regname   = shift(@_) || "with no name";
 
-  if (!defined($K)) { die "Regression->new needs at least one argument for the number of variables"; }
-  if ($K<=1) { die "Cannot run a regression without at least two variables."; }
+	if (!defined($K)) { die "Regression->new needs at least one argument for the number of variables"; }
+	if ($K <= 1)      { die "Cannot run a regression without at least two variables."; }
 
-  sub zerovec {
-    my @rv;
-    for (my $i=0; $i<=$_[0]; ++$i) { $rv[$i]=0; }
-    return \@rv;
-  }
+	sub zerovec {
+		my @rv;
+		for (my $i = 0; $i <= $_[0]; ++$i) { $rv[$i] = 0; }
+		return \@rv;
+	}
 
-  bless {
-	 k => $K,
-	 regname => $regname,
-	 xnames => shift(@_),
+	bless {
+		k       => $K,
+		regname => $regname,
+		xnames  => shift(@_),
 
-	 # constantly updated
-	 n => 0,
-	 sse => 0,
-	 syy => 0,
-	 sy => 0,
-	 wghtn => 0,
-	 d => zerovec($K),
-	 thetabar => zerovec($K),
-	 rbarsize => ($K+1)*$K/2+1,
-	 rbar => zerovec(($K+1)*$K/2+1),
+		# constantly updated
+		n        => 0,
+		sse      => 0,
+		syy      => 0,
+		sy       => 0,
+		wghtn    => 0,
+		d        => zerovec($K),
+		thetabar => zerovec($K),
+		rbarsize => ($K + 1) * $K / 2 + 1,
+		rbar     => zerovec(($K + 1) * $K / 2 + 1),
 
-	 # other constants
-	 neverabort => 0,
+		# other constants
+		neverabort => 0,
 
-	 # computed on demand
-	 theta => undef,
-	 sigmasq => undef,
-	 rsq => undef,
-	 adjrsq => undef
+		# computed on demand
+		theta   => undef,
+		sigmasq => undef,
+		rsq     => undef,
+		adjrsq  => undef
 	}, $classname;
 }
 
@@ -168,46 +168,46 @@ is used for debugging.
 
 ################################################################
 sub dump {
-  my $this= $_[0];
-  print "****************************************************************\n";
-  print "Regression '$this->{regname}'\n";
-  print "****************************************************************\n";
-  sub print1val {
-    no strict;
-    print "$_[1]($_[2])=\t". ((defined($_[0]->{ $_[2] }) ? $_[0]->{ $_[2] } : "intentionally undef"));
+	my $this = $_[0];
+	print "****************************************************************\n";
+	print "Regression '$this->{regname}'\n";
+	print "****************************************************************\n";
 
-    my $ref=$_[0]->{ $_[2] };
+	sub print1val {
+		no strict;
+		print "$_[1]($_[2])=\t" . ((defined($_[0]->{ $_[2] }) ? $_[0]->{ $_[2] } : "intentionally undef"));
 
-    if (ref($ref) eq 'ARRAY') {
-      my $arrayref= $ref;
-      print " $#$arrayref+1 elements:\n";
-      if ($#$arrayref>30) {
-	print "\t";
-	for(my $i=0; $i<$#$arrayref+1; ++$i) { print "$i='$arrayref->[$i]';"; }
-	print "\n";
-      }
-      else {
-	for(my $i=0; $i<$#$arrayref+1; ++$i) { print "\t$i=\t'$arrayref->[$i]'\n"; }
-      }
-    }
-    elsif (ref($ref) eq 'HASH') {
-      my $hashref= $ref;
-      print " ".scalar(keys(%$hashref))." elements\n";
-      while (my ($key, $val) = each(%$hashref)) {
-	print "\t'$key'=>'$val';\n";
-      }
-    }
-    else {
-      print " [was scalar]\n"; }
-  }
+		my $ref = $_[0]->{ $_[2] };
 
-  while (my ($key, $val) = each(%$this)) {
-    $this->print1val($key, $key);
-  }
-  print "****************************************************************\n";
+		if (ref($ref) eq 'ARRAY') {
+			my $arrayref = $ref;
+			print " $#$arrayref+1 elements:\n";
+			if ($#$arrayref > 30) {
+				print "\t";
+				for (my $i = 0; $i < $#$arrayref + 1; ++$i) { print "$i='$arrayref->[$i]';"; }
+				print "\n";
+			} else {
+				for (my $i = 0; $i < $#$arrayref + 1; ++$i) { print "\t$i=\t'$arrayref->[$i]'\n"; }
+			}
+		} elsif (ref($ref) eq 'HASH') {
+			my $hashref = $ref;
+			print " " . scalar(keys(%$hashref)) . " elements\n";
+			while (my ($key, $val) = each(%$hashref)) {
+				print "\t'$key'=>'$val';\n";
+			}
+		} else {
+			print " [was scalar]\n";
+		}
+	}
+
+	while (my ($key, $val) = each(%$this)) {
+		$this->print1val($key, $key);
+	}
+	print "****************************************************************\n";
 }
 
 ################################################################
+
 =pod
 
 =head2 print
@@ -215,24 +215,27 @@ sub dump {
 prints the estimated coefficients, and R^2 and N.
 
 =cut
+
 ################################################################
 sub print {
-  my $this= $_[0];
-  print "****************************************************************\n";
-  print "Regression '$this->{regname}'\n";
-  print "****************************************************************\n";
+	my $this = $_[0];
+	print "****************************************************************\n";
+	print "Regression '$this->{regname}'\n";
+	print "****************************************************************\n";
 
-  my $theta= $this->theta();
+	my $theta = $this->theta();
 
-  for (my $i=0; $i< $this->k(); ++$i) {
-    print "Theta[$i".(defined($this->{xnames}->[$i]) ? "='$this->{xnames}->[$i]'":"")."]= ".sprintf("%12.4f", $theta->[$i])."\n";
-  }
-  print "R^2= ".sprintf("%.3f", $this->rsq()).", N= ".$this->n()."\n";
-  print "****************************************************************\n";
+	for (my $i = 0; $i < $this->k(); ++$i) {
+		print "Theta[$i"
+			. (defined($this->{xnames}->[$i]) ? "='$this->{xnames}->[$i]'" : "") . "]= "
+			. sprintf("%12.4f", $theta->[$i]) . "\n";
+	}
+	print "R^2= " . sprintf("%.3f", $this->rsq()) . ", N= " . $this->n() . "\n";
+	print "****************************************************************\n";
 }
 
-
 ################################################################
+
 =pod
 
 =head2 include
@@ -247,63 +250,68 @@ weight of -1 can be used to delete an observation.
 The function returns the number of observations so far included.
 
 =cut
+
 ################################################################
 sub include {
-  my $this = shift();
-  my $yelement= shift();
-  my $xrow= shift();
-  my $weight= shift() || 1.0;
+	my $this     = shift();
+	my $yelement = shift();
+	my $xrow     = shift();
+	my $weight   = shift() || 1.0;
 
-  # omit observations with missing observations;
-  if (!defined($yelement)) { die "Internal Error: yelement is undef"; }
-  if (isNaN($yelement)) { return $this->{n}; }
+	# omit observations with missing observations;
+	if (!defined($yelement)) { die "Internal Error: yelement is undef"; }
+	if (isNaN($yelement))    { return $this->{n}; }
 
-  my @xcopy;
-  for (my $i=1; $i<=$this->{k}; ++$i) {
-    if (!defined($xrow->[$i-1])) { die "Internal Error: xrow [ $i-1 ] is undef"; }
-    if (isNaN($xrow->[$i-1])) { return $this->{n}; }
-    $xcopy[$i]= $xrow->[$i-1];
-  }
+	my @xcopy;
+	for (my $i = 1; $i <= $this->{k}; ++$i) {
+		if (!defined($xrow->[ $i - 1 ])) { die "Internal Error: xrow [ $i-1 ] is undef"; }
+		if (isNaN($xrow->[ $i - 1 ]))    { return $this->{n}; }
+		$xcopy[$i] = $xrow->[ $i - 1 ];
+	}
 
-  $this->{syy}+= ($weight*($yelement*$yelement));
-  $this->{sy}+= ($weight*($yelement));
-  if ($weight>=0.0) { ++$this->{n}; } else { --$this->{n}; }
+	$this->{syy} += ($weight * ($yelement * $yelement));
+	$this->{sy}  += ($weight * ($yelement));
+	if   ($weight >= 0.0) { ++$this->{n}; }
+	else                  { --$this->{n}; }
 
-  $this->{wghtn}+= $weight;
+	$this->{wghtn} += $weight;
 
-  for (my $i=1; $i<=$this->{k};++$i) {
-    if ($weight==0.0) { return $this->{n}; }
-    if (abs($xcopy[$i])>(TINY)) {
-      my $xi=$xcopy[$i];
+	for (my $i = 1; $i <= $this->{k}; ++$i) {
+		if ($weight == 0.0) { return $this->{n}; }
+		if (abs($xcopy[$i]) > (TINY)) {
+			my $xi = $xcopy[$i];
 
-      my $di=$this->{d}->[$i];
-      my $dprimei=$di+$weight*($xi*$xi);
-      my $cbar= $di/$dprimei;
-      my $sbar= $weight*$xi/$dprimei;
-      $weight*=($cbar);
-      $this->{d}->[$i]=$dprimei;
-      my $nextr=int( (($i-1)*( (2.0*$this->{k}-$i))/2.0+1) );
-      if (!($nextr<=$this->{rbarsize}) ) { die "Internal Error 2"; }
-      my $xk;
-      for (my $kc=$i+1;$kc<=$this->{k};++$kc) {
-	$xk=$xcopy[$kc]; $xcopy[$kc]=$xk-$xi*$this->{rbar}->[$nextr];
-	$this->{rbar}->[$nextr]= $cbar * $this->{rbar}->[$nextr]+$sbar*$xk;
-	++$nextr;
-      }
-      $xk=$yelement; $yelement-= $xi*$this->{thetabar}->[$i];
-      $this->{thetabar}->[$i]= $cbar*$this->{thetabar}->[$i]+$sbar*$xk;
-    }
-  }
-  $this->{sse}+=$weight*($yelement*$yelement);
+			my $di      = $this->{d}->[$i];
+			my $dprimei = $di + $weight * ($xi * $xi);
+			my $cbar    = $di / $dprimei;
+			my $sbar    = $weight * $xi / $dprimei;
+			$weight *= ($cbar);
+			$this->{d}->[$i] = $dprimei;
+			my $nextr = int((($i - 1) * ((2.0 * $this->{k} - $i)) / 2.0 + 1));
+			if (!($nextr <= $this->{rbarsize})) { die "Internal Error 2"; }
+			my $xk;
 
-  # indicate that Theta is garbage now
-  $this->{theta}= undef;
-  $this->{sigmasq}= undef; $this->{rsq}= undef; $this->{adjrsq}= undef;
+			for (my $kc = $i + 1; $kc <= $this->{k}; ++$kc) {
+				$xk                     = $xcopy[$kc];
+				$xcopy[$kc]             = $xk - $xi * $this->{rbar}->[$nextr];
+				$this->{rbar}->[$nextr] = $cbar * $this->{rbar}->[$nextr] + $sbar * $xk;
+				++$nextr;
+			}
+			$xk = $yelement;
+			$yelement -= $xi * $this->{thetabar}->[$i];
+			$this->{thetabar}->[$i] = $cbar * $this->{thetabar}->[$i] + $sbar * $xk;
+		}
+	}
+	$this->{sse} += $weight * ($yelement * $yelement);
 
-  return $this->{n};
+	# indicate that Theta is garbage now
+	$this->{theta}   = undef;
+	$this->{sigmasq} = undef;
+	$this->{rsq}     = undef;
+	$this->{adjrsq}  = undef;
+
+	return $this->{n};
 }
-
-
 
 ################################################################
 
@@ -314,31 +322,34 @@ sub include {
 estimates and returns the vector of coefficients.
 
 =cut
+
 ################################################################
 
 sub theta {
-  my $this= shift();
+	my $this = shift();
 
-  if (defined($this->{theta})) { return $this->{theta}; }
+	if (defined($this->{theta})) { return $this->{theta}; }
 
-  if ($this->{n} < $this->{k}) { return undef; }
-  for (my $i=($this->{k}); $i>=1; --$i) {
-    $this->{theta}->[$i]= $this->{thetabar}->[$i];
-    my $nextr= int (($i-1)*((2.0*$this->{k}-$i))/2.0+1);
-    if (!($nextr<=$this->{rbarsize})) { die "Internal Error 3"; }
-    for (my $kc=$i+1;$kc<=$this->{k};++$kc) {
-      $this->{theta}->[$i]-=($this->{rbar}->[$nextr]*$this->{theta}->[$kc]);
-      ++$nextr;
-    }
-  }
+	if ($this->{n} < $this->{k}) { return undef; }
+	for (my $i = ($this->{k}); $i >= 1; --$i) {
+		$this->{theta}->[$i] = $this->{thetabar}->[$i];
+		my $nextr = int(($i - 1) * ((2.0 * $this->{k} - $i)) / 2.0 + 1);
+		if (!($nextr <= $this->{rbarsize})) { die "Internal Error 3"; }
+		for (my $kc = $i + 1; $kc <= $this->{k}; ++$kc) {
+			$this->{theta}->[$i] -= ($this->{rbar}->[$nextr] * $this->{theta}->[$kc]);
+			++$nextr;
+		}
+	}
 
-  my $ref= $this->{theta}; shift(@$ref); # we are counting from 0
+	my $ref = $this->{theta};
+	shift(@$ref);    # we are counting from 0
 
-  # if in a scalar context, otherwise please return the array directly
-  return $this->{theta};
+	# if in a scalar context, otherwise please return the array directly
+	return $this->{theta};
 }
 
 ################################################################
+
 =pod
 
 =head2 rsq, adjrsq, sigmasq, ybar, sst, k, n
@@ -353,41 +364,42 @@ unnecessary because the computation is so simple anyway.
 ################################################################
 
 sub rsq {
-  my $this= shift();
-  return $this->{rsq}= 1.0- $this->{sse} / $this->sst();
+	my $this = shift();
+	return $this->{rsq} = 1.0 - $this->{sse} / $this->sst();
 }
 
 sub adjrsq {
-  my $this= shift();
-  return $this->{adjrsq}= 1.0- (1.0- $this->rsq())*($this->{n}-1)/($this->{n} - $this->{k});
+	my $this = shift();
+	return $this->{adjrsq} = 1.0 - (1.0 - $this->rsq()) * ($this->{n} - 1) / ($this->{n} - $this->{k});
 }
 
 sub sigmasq {
-  my $this= shift();
-  return $this->{sigmasq}= ($this->{n}<=$this->{k}) ? "Inf" : ($this->{sse}/($this->{n} - $this->{k}));
+	my $this = shift();
+	return $this->{sigmasq} = ($this->{n} <= $this->{k}) ? "Inf" : ($this->{sse} / ($this->{n} - $this->{k}));
 }
 
 sub ybar {
-  my $this= shift();
-  return $this->{ybar}= $this->{sy}/$this->{wghtn};
+	my $this = shift();
+	return $this->{ybar} = $this->{sy} / $this->{wghtn};
 }
 
 sub sst {
-  my $this= shift();
-  return $this->{sst}= ($this->{syy} - $this->{wghtn}*($this->ybar())**2);
+	my $this = shift();
+	return $this->{sst} = ($this->{syy} - $this->{wghtn} * ($this->ybar())**2);
 }
 
 sub k {
-  my $this= shift();
-  return $this->{k};
-}
-sub n {
-  my $this= shift();
-  return $this->{n};
+	my $this = shift();
+	return $this->{k};
 }
 
+sub n {
+	my $this = shift();
+	return $this->{n};
+}
 
 ################################################################
+
 =pod
 
 =head1 DEBUGGING = SAMPLE USAGE CODE
@@ -410,22 +422,25 @@ The printout should be
   ****************************************************************
 
 =cut
+
 ################################################################
 
 if (DEBUGGING) {
-  package main;
 
-  my $reg= Statistics::Regression->new( 3, "sample regression", [ "const", "someX", "someY" ] );
-  $reg->include( 2.0, [ 1.0, 3.0, -1.0 ] );
-  $reg->include( 1.0, [ 1.0, 5.0, 2.0 ] );
-  $reg->include( 20.0, [ 1.0, 31.0, 0.0 ] );
-  $reg->include( 15.0, [ 1.0, 11.0, 2.0 ] );
+	package main;
 
-#  $reg->print();   or: my $coefs= $reg->theta(); print @coefs; print $reg->rsq;
-# my $coefs= $reg->theta(); print $coeff[0];
+	my $reg = Statistics::Regression->new(3, "sample regression", [ "const", "someX", "someY" ]);
+	$reg->include(2.0,  [ 1.0, 3.0,  -1.0 ]);
+	$reg->include(1.0,  [ 1.0, 5.0,  2.0 ]);
+	$reg->include(20.0, [ 1.0, 31.0, 0.0 ]);
+	$reg->include(15.0, [ 1.0, 11.0, 2.0 ]);
+
+	#  $reg->print();   or: my $coefs= $reg->theta(); print @coefs; print $reg->rsq;
+	# my $coefs= $reg->theta(); print $coeff[0];
 }
 
 ################################################################
+
 =pod
 
 =head1 BUGS/PROBLEMS

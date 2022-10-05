@@ -168,7 +168,8 @@ sub HTML {
 	for (my $i = 0; $i < @{ $self->{defaultBuckets} }; $i++) {
 		my $defaultBucket = $self->{defaultBuckets}->[$i];
 		$defaultBucket->{removable} //= 0;
-		$out .= "<div class='dd-hidden dd-default dd-bucket' data-bucket-id='$i' data-removable='$defaultBucket->{removable}'>";
+		$out .=
+			"<div class='dd-hidden dd-default dd-bucket' data-bucket-id='$i' data-removable='$defaultBucket->{removable}'>";
 		$out .= "<div class='dd-label'>$defaultBucket->{label}</div>";
 		$out .= "<ol class='dd-answer'>";
 		for my $j (@{ $defaultBucket->{indices} }) {
@@ -193,7 +194,8 @@ sub HTML {
 	$out .= '</div>';
 	$out .= "<div class='dd-buttons'><button type='button' class='btn btn-secondary dd-reset-buckets'>reset</button>";
 	if ($self->{AllowNewBuckets} == 1) {
-		$out .= "<button type='button' class='btn btn-secondary dd-add-bucket' data-ans='$self->{answerInputId}'>add bucket</button>";
+		$out .=
+			"<button type='button' class='btn btn-secondary dd-add-bucket' data-ans='$self->{answerInputId}'>add bucket</button>";
 	}
 	$out .= "</div>";
 

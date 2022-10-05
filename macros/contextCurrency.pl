@@ -169,7 +169,7 @@ so that this $m will print as $50 rather than $50.00.
 loadMacros("MathObjects.pl");
 #loadMacros("problemPreserveAnswers.pl");  # obsolete
 
-sub _contextCurrency_init {Currency::Init()}
+sub _contextCurrency_init { Currency::Init() }
 
 package Currency;
 
@@ -178,19 +178,19 @@ package Currency;
 #  and sets up a Currency() constructor.
 #
 sub Init {
-  my $context = $main::context{Currency} = new Currency::Context();
-  $context->{name} = "Currency";
+	my $context = $main::context{Currency} = new Currency::Context();
+	$context->{name} = "Currency";
 
-  main::PG_restricted_eval('sub Currency {Value->Package("Currency")->new(@_)}');
+	main::PG_restricted_eval('sub Currency {Value->Package("Currency")->new(@_)}');
 }
 
 #
 #  Quote characters that are special in regular expressions
 #
 sub quoteRE {
-  my $s = shift;
-  $s =~ s/([-\\^\$+*?.\[\](){}])/\\$1/g;
-  return $s;
+	my $s = shift;
+	$s =~ s/([-\\^\$+*?.\[\](){}])/\\$1/g;
+	return $s;
 }
 
 #
@@ -199,14 +199,14 @@ sub quoteRE {
 #  characters included.
 #
 sub quoteTeX {
-  my $s = shift;
-  my $isText = ($s =~ m/[a-z]/i);
-  $s =~ s/\\/\\backslash /g;
-  $s =~ s/([\#\$%^_&{} ])/\\$1/g;
-  $s =~ s/([~\'])/{\\tt\\char\`\\$1}/g;
-  $s =~ s/,/{,}/g;
-  $s = "{\\rm $s}" if $isText;
-  return $s;
+	my $s      = shift;
+	my $isText = ($s =~ m/[a-z]/i);
+	$s =~ s/\\/\\backslash /g;
+	$s =~ s/([\#\$%^_&{} ])/\\$1/g;
+	$s =~ s/([~\'])/{\\tt\\char\`\\$1}/g;
+	$s =~ s/,/{,}/g;
+	$s = "{\\rm $s}" if $isText;
+	return $s;
 }
 
 ######################################################################
@@ -228,46 +228,55 @@ package Currency::Context;
 our @ISA = ('Parser::Context');
 
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
-  my %data = (
-    decimal => '.',
-    comma => ',',
-    symbol => "\$",
-    associativity => "left",
-    @_,
-  );
-  my $context = bless Parser::Context->getCopy("Numeric"), $class;
-  $context->{_initialized} = 0;
-  $context->{_currency} = new Currency::Context::currency($context,%data);
-  my $symbol = $context->{currency}{symbol};
-  my $associativity = $context->{currency}{associativity};
-  my $string = ($symbol =~ m/[a-z]/i ? " $symbol " : $symbol);
-  $context->{_currency}{symbol} = $symbol;
-  $context->operators->remove($symbol) if $context->operators->get($symbol);
-  $context->operators->add(
-    $symbol => {precedence => 10, associativity => $associativity, type => "unary",
-		string => (($main::displayMode eq 'TeX' or $main::displayMode eq 'PTX') ? Currency::quoteTeX($symbol) : $symbol),
-                TeX => Currency::quoteTeX($symbol), class => 'Currency::UOP::currency'},
-  );
-  $context->{parser}{Number} = "Currency::Number";
-  $context->{value}{Currency} = "Currency::Currency";
-  $context->flags->set(
-    tolerance => .005,
-    tolType => "absolute",
-    promoteReals => 1,
-    forceCommas => 0,
-    forceDecimals => 0,
-    noExtraDecimals => 1,
-    trimTrailingZeros => 0,
-  );
-  $context->{_initialized} = 1;
-  $context->update;
-  $context->{error}{msg}{"Missing operand after '%s'"} = "There should be a number after '%s'";
-  return $context;
+	my $self  = shift;
+	my $class = ref($self) || $self;
+	my %data  = (
+		decimal       => '.',
+		comma         => ',',
+		symbol        => "\$",
+		associativity => "left",
+		@_,
+	);
+	my $context = bless Parser::Context->getCopy("Numeric"), $class;
+	$context->{_initialized} = 0;
+	$context->{_currency}    = new Currency::Context::currency($context, %data);
+	my $symbol        = $context->{currency}{symbol};
+	my $associativity = $context->{currency}{associativity};
+	my $string        = ($symbol =~ m/[a-z]/i ? " $symbol " : $symbol);
+	$context->{_currency}{symbol} = $symbol;
+	$context->operators->remove($symbol) if $context->operators->get($symbol);
+	$context->operators->add(
+		$symbol => {
+			precedence    => 10,
+			associativity => $associativity,
+			type          => "unary",
+			string        => (
+				($main::displayMode eq 'TeX' or $main::displayMode eq 'PTX')
+				? Currency::quoteTeX($symbol)
+				: $symbol
+			),
+			TeX   => Currency::quoteTeX($symbol),
+			class => 'Currency::UOP::currency'
+		},
+	);
+	$context->{parser}{Number}  = "Currency::Number";
+	$context->{value}{Currency} = "Currency::Currency";
+	$context->flags->set(
+		tolerance         => .005,
+		tolType           => "absolute",
+		promoteReals      => 1,
+		forceCommas       => 0,
+		forceDecimals     => 0,
+		noExtraDecimals   => 1,
+		trimTrailingZeros => 0,
+	);
+	$context->{_initialized} = 1;
+	$context->update;
+	$context->{error}{msg}{"Missing operand after '%s'"} = "There should be a number after '%s'";
+	return $context;
 }
 
-sub currency {(shift)->{_currency}}   # access to currency data
-
+sub currency { (shift)->{_currency} }    # access to currency data
 
 ##################################################
 #
@@ -304,20 +313,20 @@ our @ISA = ("Value::Context::Data");
 #  Set up the initial data
 #
 sub init {
-  my $self = shift;
-  $self->{dataName} = 'currency';
-  $self->{name} = 'currency';
-  $self->{Name} = 'Currency';
-  $self->{namePattern} = qr/[-\w_.]+/;
-  $self->{numberPattern} = qr/\d{1,3}(?:,\d\d\d)+(?:\.\d*)?(?=\D|$)/;
-  $self->{tokenType} = "num";
-  $self->{precedence} = -12;
-  $self->{patterns}{$self->{numberPattern}} = [$self->{precedence},$self->{tokenType}];
-  $self->{extraSymbols} = [];
+	my $self = shift;
+	$self->{dataName}                           = 'currency';
+	$self->{name}                               = 'currency';
+	$self->{Name}                               = 'Currency';
+	$self->{namePattern}                        = qr/[-\w_.]+/;
+	$self->{numberPattern}                      = qr/\d{1,3}(?:,\d\d\d)+(?:\.\d*)?(?=\D|$)/;
+	$self->{tokenType}                          = "num";
+	$self->{precedence}                         = -12;
+	$self->{patterns}{ $self->{numberPattern} } = [ $self->{precedence}, $self->{tokenType} ];
+	$self->{extraSymbols}                       = [];
 }
 
-sub addToken {}       # no tokens are needed (only uses fixed pattern)
-sub removeToken {}
+sub addToken    { }    # no tokens are needed (only uses fixed pattern)
+sub removeToken { }
 
 #
 #  Do the usual set() method, but make sure patterns are
@@ -325,31 +334,33 @@ sub removeToken {}
 #  pattern.
 #
 sub set {
-  my $self = shift;
-  $self->SUPER::set(@_);
-  $self->update;
+	my $self = shift;
+	$self->SUPER::set(@_);
+	$self->update;
 }
 
 #
 #  Create, set and remove extra currency symbols
 #
 sub addSymbol {
-  my $self = shift; my $operators = $self->{context}->operators;
-  my $def = $operators->get($self->{symbol});
-  foreach my $symbol (@_) {
-    my ($string,$associativity) = ($symbol =~ m/[a-z]/i ? (" $symbol ","right") : ($symbol,"left"));
-    push @{$self->{extraSymbols}},$symbol;
-    $operators->add(
-      $symbol => {
-        %{$def}, associativity => $associativity,
-        string => ($main::displayMode eq 'TeX' ? Currency::quoteTeX($string) : $string),
-	TeX => Currency::quoteTeX($string),
-      }
-    );
-  }
+	my $self      = shift;
+	my $operators = $self->{context}->operators;
+	my $def       = $operators->get($self->{symbol});
+	foreach my $symbol (@_) {
+		my ($string, $associativity) = ($symbol =~ m/[a-z]/i ? (" $symbol ", "right") : ($symbol, "left"));
+		push @{ $self->{extraSymbols} }, $symbol;
+		$operators->add(
+			$symbol => {
+				%{$def},
+				associativity => $associativity,
+				string        => ($main::displayMode eq 'TeX' ? Currency::quoteTeX($string) : $string),
+				TeX           => Currency::quoteTeX($string),
+			}
+		);
+	}
 }
-sub setSymbol {(shift)->{context}->operators->set(@_)}
-sub removeSymbol {(shift)->{context}->operators->remove(@_)}
+sub setSymbol    { (shift)->{context}->operators->set(@_) }
+sub removeSymbol { (shift)->{context}->operators->remove(@_) }
 
 #
 #  Update the currency patterns in case the characters have changed,
@@ -357,32 +368,34 @@ sub removeSymbol {(shift)->{context}->operators->remove(@_)}
 #  create a new one for the given symbol.
 #
 sub update {
-  my $self = shift;
-  my $context = $self->{context};
-  my $pattern = $context->{pattern};
-  my $operators = $context->operators;
-  my $data = $context->{$self->{dataName}};
-  my ($symbol,$comma,$decimal) = (Currency::quoteRE($data->{symbol}),
-				  Currency::quoteRE($data->{comma}),
-				  Currency::quoteRE($data->{decimal}));
-  delete $self->{patterns}{$self->{numberPattern}};
-  $self->{numberPattern} = qr/\d{1,3}(?:$comma\d\d\d)+(?:$decimal\d*)?(?=\D|$)|\d{1,3}$decimal\d*/;
-  $self->{patterns}{$self->{numberPattern}} = [$self->{precedence},$self->{tokenType}];
-  $pattern->{currencyChars}   = qr/(?:$symbol|$comma)/;
-  $pattern->{currencyDecimal} = qr/$decimal/;
-  if ($self->{symbol} && $self->{symbol} ne $data->{symbol}) {
-    $operators->redefine($data->{symbol},from=>$context,using=>$self->{symbol});
-    $operators->remove($self->{symbol});
-    foreach $symbol (@{$self->{extraSymbols}}) {$operators->remove($symbol) if $operators->get($symbol)}
-    $self->{extraSymbols} = [];
-  }
-  my $string = ($data->{symbol} =~ m/[^a-z]/i ? $data->{symbol} : " $data->{symbol} ");
-  $context->operators->set($data->{symbol}=>{
-    associativity => $data->{associativity},
-    string => ($main::displayMode eq 'TeX' ? Currency::quoteTeX($string) : $string),
-    TeX => Currency::quoteTeX($string),
-  });
-  $context->update;
+	my $self      = shift;
+	my $context   = $self->{context};
+	my $pattern   = $context->{pattern};
+	my $operators = $context->operators;
+	my $data      = $context->{ $self->{dataName} };
+	my ($symbol, $comma, $decimal) =
+		(Currency::quoteRE($data->{symbol}), Currency::quoteRE($data->{comma}), Currency::quoteRE($data->{decimal}));
+	delete $self->{patterns}{ $self->{numberPattern} };
+	$self->{numberPattern} = qr/\d{1,3}(?:$comma\d\d\d)+(?:$decimal\d*)?(?=\D|$)|\d{1,3}$decimal\d*/;
+	$self->{patterns}{ $self->{numberPattern} } = [ $self->{precedence}, $self->{tokenType} ];
+	$pattern->{currencyChars}                   = qr/(?:$symbol|$comma)/;
+	$pattern->{currencyDecimal}                 = qr/$decimal/;
+
+	if ($self->{symbol} && $self->{symbol} ne $data->{symbol}) {
+		$operators->redefine($data->{symbol}, from => $context, using => $self->{symbol});
+		$operators->remove($self->{symbol});
+		foreach $symbol (@{ $self->{extraSymbols} }) { $operators->remove($symbol) if $operators->get($symbol) }
+		$self->{extraSymbols} = [];
+	}
+	my $string = ($data->{symbol} =~ m/[^a-z]/i ? $data->{symbol} : " $data->{symbol} ");
+	$context->operators->set(
+		$data->{symbol} => {
+			associativity => $data->{associativity},
+			string        => ($main::displayMode eq 'TeX' ? Currency::quoteTeX($string) : $string),
+			TeX           => Currency::quoteTeX($string),
+		}
+	);
+	$context->update;
 }
 
 ######################################################################
@@ -396,28 +409,30 @@ package Currency::Number;
 our @ISA = ('Parser::Number');
 
 sub new {
-  my $self = shift; my $equation = shift;
-  my $context = $equation->{context};
-  my $pattern = $context->{pattern};
-  my $currency = $context->{currency};
-  my $value = shift; my $value_string;
-  if (ref($value) eq "") {
-    $value_string = "$value";
-    $value =~ s/$pattern->{currencyChars}//g;   # get rid of currency characters
-    $value =~ s/$pattern->{currencyDecimal}/./; # convert decimal to .
-  } elsif (Value::classMatch($value,"Currency")) {
-    #
-    #  Put it back into a Value object, but must unmark it
-    #  as a Real temporarily to avoid an infinite loop.
-    #
-    $value->{isReal} = 0;
-    $value = $self->Item("Value")->new($equation,[$value]);
-    $value->{value}{isReal} = 1;
-    return $value;
-  }
-  $self = $self->SUPER::new($equation,$value,@_);
-  $self->{value_string} = $value_string if defined($value_string);
-  return $self;
+	my $self     = shift;
+	my $equation = shift;
+	my $context  = $equation->{context};
+	my $pattern  = $context->{pattern};
+	my $currency = $context->{currency};
+	my $value    = shift;
+	my $value_string;
+	if (ref($value) eq "") {
+		$value_string = "$value";
+		$value =~ s/$pattern->{currencyChars}//g;      # get rid of currency characters
+		$value =~ s/$pattern->{currencyDecimal}/./;    # convert decimal to .
+	} elsif (Value::classMatch($value, "Currency")) {
+		#
+		#  Put it back into a Value object, but must unmark it
+		#  as a Real temporarily to avoid an infinite loop.
+		#
+		$value->{isReal}        = 0;
+		$value                  = $self->Item("Value")->new($equation, [$value]);
+		$value->{value}{isReal} = 1;
+		return $value;
+	}
+	$self = $self->SUPER::new($equation, $value, @_);
+	$self->{value_string} = $value_string if defined($value_string);
+	return $self;
 }
 
 ##################################################
@@ -431,32 +446,32 @@ package Currency::UOP::currency;
 our @ISA = ('Parser::UOP');
 
 sub _check {
-  my $self = shift;
-  my $context = $self->context;
-  my $decimal = $context->{pattern}{currencyDecimal};
-  my $op = $self->{op}; my $value = $op->{value_string};
-  $self->Error("'%s' can only be used with numeric constants",$self->{uop})
-    unless $op->type eq 'Number' && $op->class eq 'Number';
-  $self->{ref} = $op->{ref}; # highlight the number, not the operator
-  $self->Error("You should have a '%s' every 3 digits",$context->{currency}{comma})
-    if $context->flag("forceCommas") && $value =~ m/\d\d\d\d/;
-  $self->Error("Monetary values must have exactly two decimal places")
-   if $value && $value =~ m/$decimal\d/ && $value !~ m/$decimal\d\d$/ && $context->flag('noExtraDecimals');
-  $self->Error("Monetary values require two decimal places",shift)
-    if $context->flag("forceDecimals") && $value !~ m/$decimal\d\d$/;
-  $self->{type} = {%{$op->typeRef}};
-  $self->{isCurrency} = 1;
+	my $self    = shift;
+	my $context = $self->context;
+	my $decimal = $context->{pattern}{currencyDecimal};
+	my $op      = $self->{op};
+	my $value   = $op->{value_string};
+	$self->Error("'%s' can only be used with numeric constants", $self->{uop})
+		unless $op->type eq 'Number' && $op->class eq 'Number';
+	$self->{ref} = $op->{ref};    # highlight the number, not the operator
+	$self->Error("You should have a '%s' every 3 digits", $context->{currency}{comma})
+		if $context->flag("forceCommas") && $value =~ m/\d\d\d\d/;
+	$self->Error("Monetary values must have exactly two decimal places")
+		if $value && $value =~ m/$decimal\d/ && $value !~ m/$decimal\d\d$/ && $context->flag('noExtraDecimals');
+	$self->Error("Monetary values require two decimal places", shift)
+		if $context->flag("forceDecimals") && $value !~ m/$decimal\d\d$/;
+	$self->{type}       = { %{ $op->typeRef } };
+	$self->{isCurrency} = 1;
 }
 
-sub _eval {my $self = shift; Value->Package("Currency")->make($self->context,@_)}
+sub _eval { my $self = shift; Value->Package("Currency")->make($self->context, @_) }
 
 #
 #  Use the Currency MathObject to produce the output formats
 #
-sub string {(shift)->eval->string}
-sub TeX    {(shift)->eval->TeX}
-sub perl   {(shift)->eval->perl}
-
+sub string { (shift)->eval->string }
+sub TeX    { (shift)->eval->TeX }
+sub perl   { (shift)->eval->perl }
 
 ######################################################################
 ######################################################################
@@ -476,34 +491,37 @@ our @ISA = ('Value::Real');
 #  produce an error message.
 #
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
-  my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  my $x = shift;
-  Value::Error("Can't convert %s to a monetary value",lc(Value::showClass($x)))
-      if !$self->getFlag("promoteReals",1) && Value::isRealNumber($x) && !Value::classMatch($x,"Currency");
-  $x = $x->value if Value::isReal($x);
-  $self = bless $self->SUPER::new($context,$x,@_), $class;
-  $self->{isReal} = $self->{isValue} = $self->{isCurrency} = 1;
-  return $self;
+	my $self    = shift;
+	my $class   = ref($self) || $self;
+	my $context = (Value::isContext($_[0]) ? shift : $self->context);
+	my $x       = shift;
+	Value::Error("Can't convert %s to a monetary value", lc(Value::showClass($x)))
+		if !$self->getFlag("promoteReals", 1) && Value::isRealNumber($x) && !Value::classMatch($x, "Currency");
+	$x              = $x->value if Value::isReal($x);
+	$self           = bless $self->SUPER::new($context, $x, @_), $class;
+	$self->{isReal} = $self->{isValue} = $self->{isCurrency} = 1;
+	return $self;
 }
 
 sub make {
-  my $self = shift; my $class = ref($self) || $self;
-  $self = bless $self->SUPER::make(@_), $class;
-  $self->{isReal} = $self->{isValue} = $self->{isCurrency} = 1;
-  return $self;
+	my $self  = shift;
+	my $class = ref($self) || $self;
+	$self = bless $self->SUPER::make(@_), $class;
+	$self->{isReal} = $self->{isValue} = $self->{isCurrency} = 1;
+	return $self;
 }
 
 sub round {
-  my $self = shift;
-  my $s = ($self->value >= 0 ? "" : "-");
-  return $self->make(($s.main::prfmt(CORE::abs($self->value),"%.2f")) + 0);
+	my $self = shift;
+	my $s    = ($self->value >= 0 ? "" : "-");
+	return $self->make(($s . main::prfmt(CORE::abs($self->value), "%.2f")) + 0);
 }
 
 sub truncate {
-  my $self = shift;
-  my $n = $self->value; $n =~ s/(\.\d\d).*/$1/;
-  return $self->make($n+0);
+	my $self = shift;
+	my $n    = $self->value;
+	$n =~ s/(\.\d\d).*/$1/;
+	return $self->make($n + 0);
 }
 
 #
@@ -514,25 +532,24 @@ sub truncate {
 #  and trailing spaces.
 #
 sub format {
-  my $self = shift; my $type = shift;
-  my $currency = ($self->{currency} || $self->context->{currency});
-  my ($symbol,$comma,$decimal) = ($currency->{symbol},$currency->{comma},$currency->{decimal});
-  $symbol = $self->context->operators->get($symbol)->{$type} || $symbol;
-  $comma = "{$comma}" if $type eq 'TeX';
-  my $s = ($self->value >= 0 ? "" : "-");
-  my $c = main::prfmt(CORE::abs($self->value),"%.2f");
-  $c =~ s/\.00// if $self->getFlag('trimTrailingZeros');
-  $c =~ s/\./$decimal/;
-  while ($c =~ s/(\d)(\d\d\d(?:\D|$))/$1$comma$2/) {}
-  $c = ($currency->{associativity} eq "right" ? $s.$c.$symbol : $s.$symbol.$c);
-  $c =~ s/^\s+|\s+$//g;
-  return $c;
+	my $self     = shift;
+	my $type     = shift;
+	my $currency = ($self->{currency} || $self->context->{currency});
+	my ($symbol, $comma, $decimal) = ($currency->{symbol}, $currency->{comma}, $currency->{decimal});
+	$symbol = $self->context->operators->get($symbol)->{$type} || $symbol;
+	$comma  = "{$comma}" if $type eq 'TeX';
+	my $s = ($self->value >= 0 ? "" : "-");
+	my $c = main::prfmt(CORE::abs($self->value), "%.2f");
+	$c =~ s/\.00// if $self->getFlag('trimTrailingZeros');
+	$c =~ s/\./$decimal/;
+	while ($c =~ s/(\d)(\d\d\d(?:\D|$))/$1$comma$2/) { }
+	$c = ($currency->{associativity} eq "right" ? $s . $c . $symbol : $s . $symbol . $c);
+	$c =~ s/^\s+|\s+$//g;
+	return $c;
 }
 
-sub string {(shift)->format("string")}
-sub TeX    {(shift)->format("TeX")}
-
-
+sub string { (shift)->format("string") }
+sub TeX    { (shift)->format("TeX") }
 
 #
 #  Override the class name to get better error messages
@@ -542,15 +559,14 @@ sub cmp_class {"a Monetary Value"}
 #
 #  Add promoteReals option to allow Reals with no dollars
 #
-sub cmp_defaults {(
-  (shift)->SUPER::cmp_defaults,
-  promoteReals => 0,
-)}
+sub cmp_defaults { ((shift)->SUPER::cmp_defaults, promoteReals => 0,) }
 
 sub typeMatch {
-  my $self = shift; my $other = shift; my $ans = shift;
-  return $self->SUPER::typeMatch($other,$ans,@_) if $self->getFlag("promoteReals");
-  return Value::classMatch($other,'Currency');
+	my $self  = shift;
+	my $other = shift;
+	my $ans   = shift;
+	return $self->SUPER::typeMatch($other, $ans, @_) if $self->getFlag("promoteReals");
+	return Value::classMatch($other, 'Currency');
 }
 
 ######################################################################

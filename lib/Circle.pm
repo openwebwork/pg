@@ -1,5 +1,4 @@
 
-
 =head1 NAME
 
 	Circle
@@ -44,14 +43,11 @@ This module defines a circle which can be inserted as a stamp in a graph (WWPlot
 
 =cut
 
-
 BEGIN {
-	be_strict(); # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
+	be_strict();    # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
 }
 
 package Circle;
-
-
 
 #use WWPlot;
 #Because of the way problem modules are loaded 'use' is disabled.
@@ -66,92 +62,97 @@ package Circle;
 # 		radius			=>	 8,
 # );
 
-
 sub new {
-	my $class 			= shift;
-	my $cx				= shift;
-	my $cy				= shift;
-	my $radius 			= shift;    # radius is in pixels, others are in real world coordinates
-	my $border_color	= shift;
-	my $fill_color	 	= shift;
-	$radius =4 unless defined $radius;
-	$border_color		= 	'black' unless defined($border_color);
-	$fill_color			=	'black' unless defined($fill_color);
+	my $class        = shift;
+	my $cx           = shift;
+	my $cy           = shift;
+	my $radius       = shift;    # radius is in pixels, others are in real world coordinates
+	my $border_color = shift;
+	my $fill_color   = shift;
+	$radius       = 4       unless defined $radius;
+	$border_color = 'black' unless defined($border_color);
+	$fill_color   = 'black' unless defined($fill_color);
 
-	my $self = { im 		=> 	new GD::Image(2*$radius, 2*$radius),
-				 cx			=>	$cx,
-				 cy			=>	$cy,
-				 radius		=>	$radius,
-				 border_color	=>	$border_color,
-				 fill_color		=>	$fill_color,
+	my $self = {
+		im           => new GD::Image(2 * $radius, 2 * $radius),
+		cx           => $cx,
+		cy           => $cy,
+		radius       => $radius,
+		border_color => $border_color,
+		fill_color   => $fill_color,
 
 	};
 
 	bless $self, $class;
- 	$self ->	_initialize_colors;
-	if (defined($self->{'colors'}{$border_color} ) ) {
+	$self->_initialize_colors;
+	if (defined($self->{'colors'}{$border_color})) {
 		$self->{'border_color'} = $self->{'colors'}{$border_color};
 	} else {
 		$self->{'border_color'} = 'default_color';
 	}
-	if (defined($self->{'colors'}{$fill_color} ) ) {
+	if (defined($self->{'colors'}{$fill_color})) {
 		$self->{'fill_color'} = $self->{'colors'}{$fill_color};
 	} else {
 		$self->{'fill_color'} = 'nearwhite';
 	}
-    $self->im->transparent($self->{'colors'}{'background_color'});
-    $self->im->arc($radius,$radius,2*$radius,2*$radius,0,360,$self->{'border_color'} );
-    $self->im->fill($radius,$radius,$self->{'fill_color'});
- 	return $self;
+	$self->im->transparent($self->{'colors'}{'background_color'});
+	$self->im->arc($radius, $radius, 2 * $radius, 2 * $radius, 0, 360, $self->{'border_color'});
+	$self->im->fill($radius, $radius, $self->{'fill_color'});
+	return $self;
 }
 
-sub	_initialize_colors {
-	my $self 			= shift;
-		# allocate some colors
-		$self->{'colors'}{'background_color'} 	= 	$self->im->colorAllocate(255,255,255);
-	    $self->{'colors'}{'default_color'} 	= 	$self->im->colorAllocate(0,0,0);
-		$self->{'colors'}{'white'} 	= 	$self->im->colorAllocate(255,255,255);
-	    $self->{'colors'}{'black'} 	= 	$self->im->colorAllocate(0,0,0);
-	    $self->{'colors'}{'red'} 	= 	$self->im->colorAllocate(255,0,0);
-	    $self->{'colors'}{'green'}	= 	$self->im->colorAllocate(0,255,0);
-	    $self->{'colors'}{'blue'} 	= 	$self->im->colorAllocate(0,0,255);
-	    $self->{'colors'}{'yellow'}	=	$self->im->colorAllocate(255,255,0);
-	    $self->{'colors'}{'orange'}	=	$self->im->colorAllocate(255,100,0);
-	    $self->{'colors'}{'gray'}	=	$self->im->colorAllocate(180,180,180);
-	    $self->{'colors'}{'nearwhite'}	=	$self->im->colorAllocate(254,254,254);
+sub _initialize_colors {
+	my $self = shift;
+	# allocate some colors
+	$self->{'colors'}{'background_color'} = $self->im->colorAllocate(255, 255, 255);
+	$self->{'colors'}{'default_color'}    = $self->im->colorAllocate(0,   0,   0);
+	$self->{'colors'}{'white'}            = $self->im->colorAllocate(255, 255, 255);
+	$self->{'colors'}{'black'}            = $self->im->colorAllocate(0,   0,   0);
+	$self->{'colors'}{'red'}              = $self->im->colorAllocate(255, 0,   0);
+	$self->{'colors'}{'green'}            = $self->im->colorAllocate(0,   255, 0);
+	$self->{'colors'}{'blue'}             = $self->im->colorAllocate(0,   0,   255);
+	$self->{'colors'}{'yellow'}           = $self->im->colorAllocate(255, 255, 0);
+	$self->{'colors'}{'orange'}           = $self->im->colorAllocate(255, 100, 0);
+	$self->{'colors'}{'gray'}             = $self->im->colorAllocate(180, 180, 180);
+	$self->{'colors'}{'nearwhite'}        = $self->im->colorAllocate(254, 254, 254);
 
 }
-
 
 ##########################
 # Access methods  -- Get only??? should this be changed?
 ##########################
 sub size {
 	my $s = shift;
-	(2*$s->{radius}, 2*$s->{radius});
+	(2 * $s->{radius}, 2 * $s->{radius});
 }
-sub height{
+
+sub height {
 	my $s = shift;
-	2*$s->{radius};
+	2 * $s->{radius};
 }
+
 sub width {
 	my $s = shift;
-	2*$s->{radius};
+	2 * $s->{radius};
 }
+
 sub radius {
 	my $s = shift;
 	$s->{radius};
 }
+
 sub x {
 	my $s = shift;
 	$s->{cx};
 }
+
 sub y {
 	my $s = shift;
 	$s->{cy};
 }
+
 sub image {
-	my $s	= shift;
+	my $s = shift;
 	$s->{im};
 }
 
@@ -159,63 +160,59 @@ sub image {
 # Access methods -- Get and Set
 ##########################
 
-
 sub colors {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{colors} ) {
+	unless (exists $self->{colors}) {
 		die "Can't find colors field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{colors} = shift;
 	} else {
-		return $self->{colors}
+		return $self->{colors};
 	}
 }
 
 sub border_color {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{border_color} ) {
+	unless (exists $self->{border_color}) {
 		die "Can't find border_color field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{border_color} = shift;
 	} else {
-		return $self->{border_color}
+		return $self->{border_color};
 	}
 }
 
 sub fill_color {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{fill_color} ) {
+	unless (exists $self->{fill_color}) {
 		die "Can't find fill_color field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{fill_color} = shift;
 	} else {
-		return $self->{fill_color}
+		return $self->{fill_color};
 	}
 }
 
-
-sub draw{
-	my $self = shift;
-	my $g = shift;   # the enclosing graph object
-	my $x = $self->x;
-	my $y = $self->y;
-	my $image = $self->image;
+sub draw {
+	my $self   = shift;
+	my $g      = shift;           # the enclosing graph object
+	my $x      = $self->x;
+	my $y      = $self->y;
+	my $image  = $self->image;
 	my $height = $self->height;
-	my $width	= $self->width;
-	$g->im->copy($image,
-				  ($g->ii($x)) - int($width/2),
-				  ($g->jj($y)) - int($height/2),
-				  0,  0,   $width,   $height);
+	my $width  = $self->width;
+	$g->im->copy($image, ($g->ii($x)) - int($width / 2), ($g->jj($y)) - int($height / 2), 0, 0, $width, $height);
 }
+
 sub DESTROY {
 	# doing nothing about destruction, hope that isn't dangerous
 }

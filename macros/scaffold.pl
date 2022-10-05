@@ -275,28 +275,27 @@ sub _scaffold_init {
 	# Load style and javascript for opening and closing the scaffolds.
 	ADD_CSS_FILE("js/apps/Scaffold/scaffold.css");
 	ADD_JS_FILE("js/apps/Scaffold/scaffold.js", 0, { defer => undef });
-};
+}
 
 #
 #  The Scaffoling package
 #
 package Scaffold;
 
-our $isLibrary = ($main::envir{effectivePermissionLevel} eq "");  # Library and problem set detail pages don't set this
-our $isInstructor = (
-  $isLibrary || $main::envir{effectivePermissionLevel} >= $main::envir{ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL}
-);
-our $isHardcopy = ($main::displayMode eq "TeX");
-our $isPTX = ($main::displayMode eq "PTX");
+our $isLibrary = ($main::envir{effectivePermissionLevel} eq "");   # Library and problem set detail pages don't set this
+our $isInstructor =
+	($isLibrary || $main::envir{effectivePermissionLevel} >= $main::envir{ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL});
+our $isHardcopy      = ($main::displayMode eq "TeX");
+our $isPTX           = ($main::displayMode eq "PTX");
 our $afterAnswerDate = (time() > $main::envir{answerDate});
 
-our $scaffold;           # the active scaffold (set by Begin() below)
-my  @scaffolds = ();     # array of nested scaffolds
-my  $scaffold_no = 0;    # each scaffold gets a unique number
-my  $scaffold_depth = 1; # each scaffold has a nesting depth
+our $scaffold;                                                     # the active scaffold (set by Begin() below)
+my @scaffolds      = ();                                           # array of nested scaffolds
+my $scaffold_no    = 0;                                            # each scaffold gets a unique number
+my $scaffold_depth = 1;                                            # each scaffold has a nesting depth
 
-our $PG_ANSWERS_HASH = $main::PG->{PG_ANSWERS_HASH};  # where PG stores answer evaluators
-our $PG_OUTPUT = $main::PG->{OUTPUT_ARRAY};           # where PG stores the TEXT() output
+our $PG_ANSWERS_HASH = $main::PG->{PG_ANSWERS_HASH};               # where PG stores answer evaluators
+our $PG_OUTPUT       = $main::PG->{OUTPUT_ARRAY};                  # where PG stores the TEXT() output
 
 our $PREFIX = "$main::envir{QUIZ_PREFIX}Prob-$main::envir{questionNumber}";
 
@@ -314,11 +313,14 @@ our $PREFIX = "$main::envir{QUIZ_PREFIX}Prob-$main::envir{questionNumber}";
 #    during the Section::End() call.
 #
 sub Begin {
-  my $self = Scaffold->new(@_);
-  unshift(@scaffolds,$self); $scaffold = $self; $scaffold_depth++;
-  $self->{previous_output} = [splice(@{$PG_OUTPUT},0)];  # get output and clear it without changing the array pointer
-  $self->{output} = [];                                  # the contents of the scaffold
-  return $self;
+	my $self = Scaffold->new(@_);
+	unshift(@scaffolds, $self);
+	$scaffold = $self;
+	$scaffold_depth++;
+	$self->{previous_output} =
+		[ splice(@{$PG_OUTPUT}, 0) ];    # get output and clear it without changing the array pointer
+	$self->{output} = [];                # the contents of the scaffold
+	return $self;
 }
 
 #
@@ -330,24 +332,28 @@ sub Begin {
 #    the stack and returned.
 #
 sub End {
-  Scaffold->Error("Scaffold::End() without a corresponding Scaffold::Begin") unless @scaffolds;
-  Scaffold->Error("Scaffold ended with section was still open") if $self->{current_section};
-  my $self = $scaffold;
-  push(@{$self->{output}},splice(@$PG_OUTPUT,0));                      # collect any final non-section output
-  $self->hide_other_results(@{$self->{open}});                         # hide results of unnopened sections in the results table
-  push(@$PG_OUTPUT,@{$self->{previous_output}},@{$self->{output}});    # put back original output and scaffold output
-  delete $self->{previous_output}; delete $self->{output};             # don't need these any more
-  shift(@scaffolds); $scaffold = $scaffolds[0];
-  $scaffold_depth--;
-  return $scaffold;
+	Scaffold->Error("Scaffold::End() without a corresponding Scaffold::Begin") unless @scaffolds;
+	Scaffold->Error("Scaffold ended with section was still open") if $self->{current_section};
+	my $self = $scaffold;
+	push(@{ $self->{output} }, splice(@$PG_OUTPUT, 0));    # collect any final non-section output
+	$self->hide_other_results(@{ $self->{open} });         # hide results of unnopened sections in the results table
+	push(@$PG_OUTPUT, @{ $self->{previous_output} }, @{ $self->{output} })
+		;                                                  # put back original output and scaffold output
+	delete $self->{previous_output};
+	delete $self->{output};                                # don't need these any more
+	shift(@scaffolds);
+	$scaffold = $scaffolds[0];
+	$scaffold_depth--;
+	return $scaffold;
 }
 
 #
 #  Report an error and die
 #
 sub Error {
-  my $self = shift; my $error = shift;
-  die $error;
+	my $self  = shift;
+	my $error = shift;
+	die $error;
 }
 
 #
@@ -357,25 +363,26 @@ sub Error {
 #    the author to override them.
 #
 sub new {
-  my $class = shift; $class = ref($class) if ref($class);
-  my $self = bless {
-    can_open => "when_previous_correct",
-    instructor_can_open => "always",
-    after_AnswerDate_can_open => "always",        # all sections can be opened after answer date
-    is_open => "first_incorrect",
-    hardcopy_is_open => "always",                 # open all possible sections in hardcopy
-    open_first_section => 1,                      # 0 means don't open any sections initially
-    numbered => 0,                                # 1 means sections will be printed with their number
-    @_,
-    number => ++$scaffold_no,                     # the number for this scaffold
-    depth => $scaffold_depth,                     # the nesting depth for this scaffold
-    sections => {},                               # the sections within this scaffold
-    section_no => 0,                              # the current section number
-    ans_names => [],                              # the names of all answer blanks in this scaffold
-    scores => {},                                 # the scores for the answers entered by the student
-    open => [],                                   # the sections to open
-  }, $class;
-  return $self;
+	my $class = shift;
+	$class = ref($class) if ref($class);
+	my $self = bless {
+		can_open                  => "when_previous_correct",
+		instructor_can_open       => "always",
+		after_AnswerDate_can_open => "always",                  # all sections can be opened after answer date
+		is_open                   => "first_incorrect",
+		hardcopy_is_open          => "always",                  # open all possible sections in hardcopy
+		open_first_section        => 1,                         # 0 means don't open any sections initially
+		numbered                  => 0,                         # 1 means sections will be printed with their number
+		@_,
+		number     => ++$scaffold_no,                           # the number for this scaffold
+		depth      => $scaffold_depth,                          # the nesting depth for this scaffold
+		sections   => {},                                       # the sections within this scaffold
+		section_no => 0,                                        # the current section number
+		ans_names  => [],                                       # the names of all answer blanks in this scaffold
+		scores     => {},                                       # the scores for the answers entered by the student
+		open       => [],                                       # the sections to open
+	}, $class;
+	return $self;
 }
 
 #
@@ -384,13 +391,14 @@ sub new {
 #  so that we know which section is active.
 #
 sub start_section {
-  my $self = shift; my $section = shift;
-  push(@{$self->{output}},splice(@{$PG_OUTPUT},0));        # get any non-section output that may have been added
-  $self->{sections}{++$self->{section_no}} = $section;
-  $self->{current_section} = $section;
-  $section->{number} = $self->{section_no};
-  $section->{label} = "${PREFIX}_SC-$self->{number}_SECT-$section->{number}";
-  return $section;
+	my $self    = shift;
+	my $section = shift;
+	push(@{ $self->{output} }, splice(@{$PG_OUTPUT}, 0));    # get any non-section output that may have been added
+	$self->{sections}{ ++$self->{section_no} } = $section;
+	$self->{current_section}                   = $section;
+	$section->{number}                         = $self->{section_no};
+	$section->{label}                          = "${PREFIX}_SC-$self->{number}_SECT-$section->{number}";
+	return $section;
 }
 
 #
@@ -398,9 +406,9 @@ sub start_section {
 #  and remove the current_section (so we can tell that no sectionis open).
 #
 sub end_section {
-  my $self = shift;
-  push(@{$self->{output}},splice(@{$PG_OUTPUT},0));        # save the section output
-  delete $self->{current_section};
+	my $self = shift;
+	push(@{ $self->{output} }, splice(@{$PG_OUTPUT}, 0));    # save the section output
+	delete $self->{current_section};
 }
 
 #
@@ -408,26 +416,27 @@ sub end_section {
 #  keeping the scores for future reference.
 #
 sub section_answers {
-  my $self = shift;
-  my %answers;
-  #
-  #  MultiAnswer objects can set the answer hash score when the last answer is evaluated,
-  #    so save the hashes and look up the scores after they have all been called.
-  #  Essay answers never return as correct, so special case them, and provide a
-  #    "scaffold_force" option in the AnswerHash that can be used to force Scaffold
-  #    to consider the score to be 1 (bug in PGessaymacros.pl prevents us from using
-  #    it for essay_cmp(), though).
-  #
-  push(@{$self->{ans_names}},@_);
-  foreach my $name (@_) {
-    my $input = $main::inputs_ref->{$name};
-    my $evaluator = $PG_ANSWERS_HASH->{$name}->ans_eval;
-    Parser::Eval(sub {$answers{$name} = $evaluator->evaluate($input)}) if defined($input) && $input ne "";
-    $answers{$name}{score} = 1
-      if $answers{$name} && (($answers{$name}{type}||"") eq "essay" || $answers{$name}{"scaffold_force"});
-    $evaluator->{rh_ans}{ans_message} = ""; delete $evaluator->{rh_ans}{error_message};
-  }
-  foreach my $name (@_) {$self->{scores}{$name} = $answers{$name}{score} if $answers{$name}}
+	my $self = shift;
+	my %answers;
+	#
+	#  MultiAnswer objects can set the answer hash score when the last answer is evaluated,
+	#    so save the hashes and look up the scores after they have all been called.
+	#  Essay answers never return as correct, so special case them, and provide a
+	#    "scaffold_force" option in the AnswerHash that can be used to force Scaffold
+	#    to consider the score to be 1 (bug in PGessaymacros.pl prevents us from using
+	#    it for essay_cmp(), though).
+	#
+	push(@{ $self->{ans_names} }, @_);
+	foreach my $name (@_) {
+		my $input     = $main::inputs_ref->{$name};
+		my $evaluator = $PG_ANSWERS_HASH->{$name}->ans_eval;
+		Parser::Eval(sub { $answers{$name} = $evaluator->evaluate($input) }) if defined($input) && $input ne "";
+		$answers{$name}{score} = 1
+			if $answers{$name} && (($answers{$name}{type} || "") eq "essay" || $answers{$name}{"scaffold_force"});
+		$evaluator->{rh_ans}{ans_message} = "";
+		delete $evaluator->{rh_ans}{error_message};
+	}
+	foreach my $name (@_) { $self->{scores}{$name} = $answers{$name}{score} if $answers{$name} }
 }
 
 #
@@ -435,9 +444,9 @@ sub section_answers {
 #  for this scaffold
 #
 sub is_open {
-  my $self = shift;
-  push(@{$self->{open}},map {$_->{number}} @_) if @_;
-  return $self->{open};
+	my $self = shift;
+	push(@{ $self->{open} }, map { $_->{number} } @_) if @_;
+	return $self->{open};
 }
 
 #
@@ -448,29 +457,31 @@ sub is_open {
 #  dimming.)
 #
 sub hide_other_results {
-  my $self = shift;
-  #
-  #  Record the row for each answer evaluator, and
-  #  mark which sections to show
-  #
-  my %row; my $i = 2;
-  foreach my $name (keys %{$PG_ANSWERS_HASH}) {$row{$name} = $i; $i++}; # record the rows for all answers
-  my %show; map {$show{$_} = 1} @_;
-  #
-  #  Get the row numbers for the answers from OTHER sections
-  #
-  my @hide = ();
-  foreach $i (keys %{$self->{sections}}) {
-    push(@hide,map {$row{$_}} @{$self->{sections}{$i}{ans_names}}) if !$show{$i};
-  }
-  #
-  #  Add styles that dim the hidden rows
-  #  (the other possibility would be to use display:none)
-  #
-  if (@hide) {
-    my @styles = (map {".attemptResults > tbody > tr:nth-child($_) {opacity:.5}"} @hide);
-    main::HEADER_TEXT("<style type=\"text/css\">\n".join("\n",@styles)."\n</style>\n");
-  }
+	my $self = shift;
+	#
+	#  Record the row for each answer evaluator, and
+	#  mark which sections to show
+	#
+	my %row;
+	my $i = 2;
+	foreach my $name (keys %{$PG_ANSWERS_HASH}) { $row{$name} = $i; $i++ };    # record the rows for all answers
+	my %show;
+	map { $show{$_} = 1 } @_;
+	#
+	#  Get the row numbers for the answers from OTHER sections
+	#
+	my @hide = ();
+	foreach $i (keys %{ $self->{sections} }) {
+		push(@hide, map { $row{$_} } @{ $self->{sections}{$i}{ans_names} }) if !$show{$i};
+	}
+	#
+	#  Add styles that dim the hidden rows
+	#  (the other possibility would be to use display:none)
+	#
+	if (@hide) {
+		my @styles = (map {".attemptResults > tbody > tr:nth-child($_) {opacity:.5}"} @hide);
+		main::HEADER_TEXT("<style type=\"text/css\">\n" . join("\n", @styles) . "\n</style>\n");
+	}
 }
 
 #
@@ -478,11 +489,11 @@ sub hide_other_results {
 #  (Must be called after the last section is ended.)
 #
 sub is_correct {
-  my $self = shift; my $scores = $self->{scores};
-  foreach my $name (@{$self->{ans_names}}) {return 0 unless ($scores->{$name}||0) >= 1}
-  return 1;
+	my $self   = shift;
+	my $scores = $self->{scores};
+	foreach my $name (@{ $self->{ans_names} }) { return 0 unless ($scores->{$name} || 0) >= 1 }
+	return 1;
 }
-
 
 package Section;
 
@@ -490,8 +501,7 @@ package Section;
 #  Shortcuts for Scaffold data
 #
 $PG_ANSWERS_HASH = $Scaffold::PG_ANSWERS_HASH;
-$PG_OUTPUT = $Scaffold::PG_OUTPUT;
-
+$PG_OUTPUT       = $Scaffold::PG_OUTPUT;
 
 #
 #  Section::Begin() is used to start a section in the scaffolding,
@@ -507,42 +517,42 @@ sub Begin {
 	my $scaffold = $Scaffold::scaffold;
 	Scaffold->Error("Sections must appear within a Scaffold") unless $scaffold;
 	Scaffold->Error("Section::Begin() while a section is already open") if $scaffold->{current_section};
-	my $self = $scaffold->start_section(Section->new(@_));
-	my $number = $self->{number};
+	my $self            = $scaffold->start_section(Section->new(@_));
+	my $number          = $self->{number};
 	my $number_at_depth = $number;
 	# Convert the number (e.g. 2) into a depth-styled version (e.g. b, ii, B)
 	# Supports numbers up to 99 and depth up to 3 but then leaves in arabic
 	if ($scaffold->{depth} == 1 && $number <= 99) {
-		$number_at_depth = ('a'..'cu')[$number-1];
+		$number_at_depth = ('a' .. 'cu')[ $number - 1 ];
 	} elsif ($scaffold->{depth} == 2 && $number <= 99) {
 		# Avoiding a package for roman numerals
-		my @romanatom = (['i','v','x'],['x','l','c']);
-		my @romanmolecule = map{[
+		my @romanatom     = ([ 'i', 'v', 'x' ], [ 'x', 'l', 'c' ]);
+		my @romanmolecule = map { [
 			'',
 			$_->[0],
-			$_->[0]x2,
-			$_->[0]x3,
-			$_->[0].$_->[1],
+			$_->[0] x 2,
+			$_->[0] x 3,
+			$_->[0] . $_->[1],
 			$_->[1],
-			$_->[1].$_->[0],
-			$_->[1].$_->[0]x2,
-			$_->[1].$_->[0]x3,
-			$_->[0].$_->[2]
-		]}(@romanatom);
+			$_->[1] . $_->[0],
+			$_->[1] . $_->[0] x 2,
+			$_->[1] . $_->[0] x 3,
+			$_->[0] . $_->[2]
+		] } (@romanatom);
 		my @roman;
-		for my $i (@{$romanmolecule[1]}) {
-			for my $j (@{$romanmolecule[0]}) {
-				push(@roman,$i.$j);
+		for my $i (@{ $romanmolecule[1] }) {
+			for my $j (@{ $romanmolecule[0] }) {
+				push(@roman, $i . $j);
 			}
 		}
 		$number_at_depth = $roman[$number];
 	} elsif ($scaffold->{depth} == 3 && $number <= 99) {
-		$number_at_depth = ('A'..'CU')[$number-1];
+		$number_at_depth = ('A' .. 'CU')[ $number - 1 ];
 	}
 	$self->{number_at_depth} = $number_at_depth;
-	$self->{previous_ans} = [@{$scaffold->{ans_names}}],      # copy of current list of answers in the scaffold
-	$self->{assigned_ans} = [$self->assigned_ans],            # array indicating which answers have evaluators
-	return $self;
+	$self->{previous_ans}    = [ @{ $scaffold->{ans_names} } ],    # copy of current list of answers in the scaffold
+		$self->{assigned_ans} = [ $self->assigned_ans ],           # array indicating which answers have evaluators
+		return $self;
 }
 
 #
@@ -554,14 +564,14 @@ sub Begin {
 #    that the section is complete (it adds the content to its output).
 #
 sub End {
-  my $scaffold = $Scaffold::scaffold;
-  Scaffold->Error("Sections must appear within a Scaffold") unless $scaffold;
-  Scaffold->Error("Section::End() without Section::Begin()") unless $scaffold->{current_section};
-  my $self = $scaffold->{current_section};
-  $self->{ans_names} = [$self->new_answers];
-  $scaffold->section_answers(@{$self->{ans_names}});
-  $self->add_container();
-  $scaffold->end_section();
+	my $scaffold = $Scaffold::scaffold;
+	Scaffold->Error("Sections must appear within a Scaffold")  unless $scaffold;
+	Scaffold->Error("Section::End() without Section::Begin()") unless $scaffold->{current_section};
+	my $self = $scaffold->{current_section};
+	$self->{ans_names} = [ $self->new_answers ];
+	$scaffold->section_answers(@{ $self->{ans_names} });
+	$self->add_container();
+	$scaffold->end_section();
 }
 
 #
@@ -572,18 +582,20 @@ sub End {
 #    by the author.
 #
 sub new {
-  my $class = shift; $class = ref($class) if ref($class);
-  my $name = shift; my $scaffold = $Scaffold::scaffold;
-  my $self = bless {
-    name => $name,
-    can_open => $scaffold->{can_open},
-    instructor_can_open => $scaffold->{instructor_can_open},
-    after_AnswerDate_can_open => $scaffold->{after_AnswerDate_can_open},
-    is_open => $scaffold->{is_open},
-    hardcopy_is_open => $scaffold->{hardcopy_is_open},
-    @_,
-  }, $class;
-  return $self;
+	my $class = shift;
+	$class = ref($class) if ref($class);
+	my $name     = shift;
+	my $scaffold = $Scaffold::scaffold;
+	my $self     = bless {
+		name                      => $name,
+		can_open                  => $scaffold->{can_open},
+		instructor_can_open       => $scaffold->{instructor_can_open},
+		after_AnswerDate_can_open => $scaffold->{after_AnswerDate_can_open},
+		is_open                   => $scaffold->{is_open},
+		hardcopy_is_open          => $scaffold->{hardcopy_is_open},
+		@_,
+	}, $class;
+	return $self;
 }
 
 #
@@ -599,56 +611,74 @@ sub new {
 #    output when $scaffold->end_section() is called.)
 #
 sub add_container {
-  my $self = shift; my $scaffold = $Scaffold::scaffold;
-  my $label = $self->{label};
-  my $name = $self->{name} // '';
-  my $title = ($name || $scaffold->{numbered}) ? $name : "Part $self->{number}:";
-  my $number = ($scaffold->{numbered} ? $self->{number_at_depth}.'.' : '');
-  my ($iscorrect,$canopen,$isopen);
+	my $self     = shift;
+	my $scaffold = $Scaffold::scaffold;
+	my $label    = $self->{label};
+	my $name     = $self->{name} // '';
+	my $title    = ($name || $scaffold->{numbered}) ? $name : "Part $self->{number}:";
+	my $number   = ($scaffold->{numbered} ? $self->{number_at_depth} . '.' : '');
+	my ($iscorrect, $canopen, $isopen);
 
-  $iscorrect = $self->{is_correct} = $self->is_correct;
-  $canopen   = $self->{can_open}   = $self->can_open;
-  $isopen    = $self->is_open;
+	$iscorrect = $self->{is_correct} = $self->is_correct;
+	$canopen   = $self->{can_open}   = $self->can_open;
+	$isopen    = $self->is_open;
 
-  $scaffold->is_open($self) if $isopen;
-  splice(@$PG_OUTPUT,0,scalar(@$PG_OUTPUT)) if !($canopen || $iscorrect || $Scaffold::isPTX) || (!$isopen && $Scaffold::isHardcopy);
-  unshift(@$PG_OUTPUT,@{main::MODES(
-    HTML => [
-      '<div class="accordion">',
-      '<div class="accordion-item section-div">',
-      '<div class="accordion-header '
-        . ($iscorrect ? 'iscorrect' : 'iswrong') . ' '
-        . ($canopen ? 'canopen' : 'cannotopen') . '" '
-        . qq{id="$label-header"}
-        . '>',
-      '<button class="accordion-button' . ($isopen ? '': ' collapsed') . '" type="button" '
-        . ($canopen ? qq{data-bs-target="#$label" data-bs-toggle="collapse" aria-controls="$label" } : 'tabindex="-1" ')
-        . 'aria-expanded="' . ($isopen ? 'true' : 'false')
-        . '">'
-        . qq{<span class="section-number">$number</span>}
-        . qq{<span class="section-title">$title</span>}
-        . '</button>',
-      '</div>',
-      qq{<div id="$label" class="accordion-collapse collapse} . ($isopen ? ' show' : '') . qq{" aria-labelledby="$label-header">},
-      '<div class="accordion-body">'
-    ],
-    TeX => ["\\par{\\bf $number $title}\\addtolength{\\leftskip}{15pt}\\par "],
-    PTX => $name ? ["<task>\n", "<title>$name</title>\n"] : ["<task>\n"],
-  )});
-  push(@$PG_OUTPUT,main::MODES(
-    HTML => '</div></div></div></div>',
-    TeX  => "\\addtolength{\\leftskip}{-15pt}\\par ",
-    PTX => "<\/task>\n",
-  ));
+	$scaffold->is_open($self) if $isopen;
+	splice(@$PG_OUTPUT, 0, scalar(@$PG_OUTPUT))
+		if !($canopen || $iscorrect || $Scaffold::isPTX) || (!$isopen && $Scaffold::isHardcopy);
+	unshift(
+		@$PG_OUTPUT,
+		@{
+			main::MODES(
+				HTML => [
+					'<div class="accordion">',
+					'<div class="accordion-item section-div">',
+					'<div class="accordion-header '
+						. ($iscorrect ? 'iscorrect' : 'iswrong') . ' '
+						. ($canopen   ? 'canopen'   : 'cannotopen') . '" '
+						. qq{id="$label-header"} . '>',
+					'<button class="accordion-button'
+						. ($isopen ? '' : ' collapsed')
+						. '" type="button" '
+						. (
+							$canopen
+							? qq{data-bs-target="#$label" data-bs-toggle="collapse" aria-controls="$label" }
+							: 'tabindex="-1" '
+						)
+						. 'aria-expanded="'
+						. ($isopen ? 'true' : 'false') . '">'
+						. qq{<span class="section-number">$number</span>}
+						. qq{<span class="section-title">$title</span>}
+						. '</button>',
+					'</div>',
+					qq{<div id="$label" class="accordion-collapse collapse}
+						. ($isopen ? ' show' : '')
+						. qq{" aria-labelledby="$label-header">},
+					'<div class="accordion-body">'
+				],
+				TeX => ["\\par{\\bf $number $title}\\addtolength{\\leftskip}{15pt}\\par "],
+				PTX => $name ? [ "<task>\n", "<title>$name</title>\n" ] : ["<task>\n"],
+			)
+		}
+	);
+	push(
+		@$PG_OUTPUT,
+		main::MODES(
+			HTML => '</div></div></div></div>',
+			TeX  => "\\addtolength{\\leftskip}{-15pt}\\par ",
+			PTX  => "<\/task>\n",
+		)
+	);
 }
 
 #
 #  Check if all the answers for this section are correct
 #
 sub is_correct {
-  my $self = shift; my $scores = $Scaffold::scaffold->{scores};
-  foreach my $name (@{$self->{ans_names}}) {return 0 unless ($scores->{$name}||0) >= 1}
-  return 1;
+	my $self   = shift;
+	my $scores = $Scaffold::scaffold->{scores};
+	foreach my $name (@{ $self->{ans_names} }) { return 0 unless ($scores->{$name} || 0) >= 1 }
+	return 1;
 }
 
 #
@@ -656,12 +686,12 @@ sub is_correct {
 #    If the author supplied code, use it, otherwise use the routine from Section::can_open.
 #
 sub can_open {
-  my $self = shift;
-  return 1 if $Scaffold::isLibrary;          # always open in library browser and problem set details
-  my $method = ($Scaffold::isInstructor ? $self->{instructor_can_open} : $self->{can_open});
-  $method = $self->{after_AnswerDate_can_open} if $Scaffold::afterAnswerDate;
-  $method = "Section::can_open::".$method unless ref($method) eq 'CODE';
-  return &{$method}($self);
+	my $self = shift;
+	return 1 if $Scaffold::isLibrary;    # always open in library browser and problem set details
+	my $method = ($Scaffold::isInstructor ? $self->{instructor_can_open} : $self->{can_open});
+	$method = $self->{after_AnswerDate_can_open} if $Scaffold::afterAnswerDate;
+	$method = "Section::can_open::" . $method unless ref($method) eq 'CODE';
+	return &{$method}($self);
 }
 
 #
@@ -669,13 +699,13 @@ sub can_open {
 #    If the author supplied code, use it, otherwise use the routine from Section::is_open.
 #
 sub is_open {
-  my $self = shift;
-  return 1 if $Scaffold::isLibrary;          # always open in library browser and problem set details
-  return 0 unless $self->{can_open};         # only open ones that are allowed to be open
-  my $method = $self->{is_open};
-  $method = $self->{hardcopy_is_open} if $Scaffold::isHardcopy;
-  $method = "Section::is_open::".$method unless ref($method) eq 'CODE';
-  return &{$method}($self);
+	my $self = shift;
+	return 1 if $Scaffold::isLibrary;     # always open in library browser and problem set details
+	return 0 unless $self->{can_open};    # only open ones that are allowed to be open
+	my $method = $self->{is_open};
+	$method = $self->{hardcopy_is_open} if $Scaffold::isHardcopy;
+	$method = "Section::is_open::" . $method unless ref($method) eq 'CODE';
+	return &{$method}($self);
 }
 
 #
@@ -683,12 +713,12 @@ sub is_open {
 #  an answer evaluator assigned to it and 0 means not.
 #
 sub assigned_ans {
-  my $self = shift;
-  my @answers = ();
-  foreach my $name (keys %{$PG_ANSWERS_HASH}) {
-    push(@answers,$PG_ANSWERS_HASH->{$name}->ans_eval ? 1 : 0);
-  }
-  return @answers;
+	my $self    = shift;
+	my @answers = ();
+	foreach my $name (keys %{$PG_ANSWERS_HASH}) {
+		push(@answers, $PG_ANSWERS_HASH->{$name}->ans_eval ? 1 : 0);
+	}
+	return @answers;
 }
 
 #
@@ -696,17 +726,17 @@ sub assigned_ans {
 #  evaluators attached.
 #
 sub new_answers {
-  my $self = shift;
-  my @assigned = @{$self->{assigned_ans}};     # 0 if previously unassigned, 1 if assigned
-  my @answers = (); my $i = 0;
-  foreach my $name (keys %{$PG_ANSWERS_HASH}) {
-    push(@answers,$name) if $PG_ANSWERS_HASH->{$name}->ans_eval && !$assigned[$i];
-    $i++;
-  }
-  delete $self->{assigned_ans};                # don't need these any more
-  return @answers;
+	my $self     = shift;
+	my @assigned = @{ $self->{assigned_ans} };    # 0 if previously unassigned, 1 if assigned
+	my @answers  = ();
+	my $i        = 0;
+	foreach my $name (keys %{$PG_ANSWERS_HASH}) {
+		push(@answers, $name) if $PG_ANSWERS_HASH->{$name}->ans_eval && !$assigned[$i];
+		$i++;
+	}
+	delete $self->{assigned_ans};                 # don't need these any more
+	return @answers;
 }
-
 
 ########################################################################
 #
@@ -718,34 +748,34 @@ package Section::can_open;
 #
 #  Always can be openned
 #
-sub always {return 1}
+sub always { return 1 }
 #
 #  Can be openned when all the answers from previous sections are correct
 #
 sub when_previous_correct {
-  my $section = shift; my $scores = $Scaffold::scaffold->{scores};
-  foreach my $name (@{$section->{previous_ans}}) {return 0 unless ($scores->{$name}||0) >= 1}
-  return 1;
+	my $section = shift;
+	my $scores  = $Scaffold::scaffold->{scores};
+	foreach my $name (@{ $section->{previous_ans} }) { return 0 unless ($scores->{$name} || 0) >= 1 }
+	return 1;
 }
 #
 #  Can open when previous are correct but this one is not
 #
 sub first_incorrect {
-  my $section = shift;
-  return when_previous_correct($section) && !$section->{is_correct};
+	my $section = shift;
+	return when_previous_correct($section) && !$section->{is_correct};
 }
 #
 #  Can open when incorrect
 #
 sub incorrect {
-  my $section = shift;
-  return !$section->{is_correct}
+	my $section = shift;
+	return !$section->{is_correct};
 }
 #
 #  Never can be openned
 #
-sub never {return 0}
-
+sub never { return 0 }
 
 ########################################################################
 #
@@ -757,40 +787,42 @@ package Section::is_open;
 #
 #  Every section is open that can be
 #
-sub always {return 1}
+sub always { return 1 }
 #
 #  Every incorrect section is open that can be
 #  (unless it is the first one, and everything is blank, and
 #   the scaffold doesn't have open_first_section set)
 #
 sub incorrect {
-  my $section = shift; my $scaffold = $Scaffold::scaffold;
-  return 0 if $section->{is_correct};
-  if (!$scaffold->{open_first_section}) {
-    my $scores = $scaffold->{scores}; my $blank = 1;
-    foreach my $name (@{$section->{ans_names}}) {$blank = 0 if defined $scores->{$name}}
-    return 0 if $blank;
-  }
-  return 1;
+	my $section  = shift;
+	my $scaffold = $Scaffold::scaffold;
+	return 0 if $section->{is_correct};
+	if (!$scaffold->{open_first_section}) {
+		my $scores = $scaffold->{scores};
+		my $blank  = 1;
+		foreach my $name (@{ $section->{ans_names} }) { $blank = 0 if defined $scores->{$name} }
+		return 0 if $blank;
+	}
+	return 1;
 }
 #
 #  The first incorrect section is open that can be
 #
 sub first_incorrect {
-  my $section = shift;
-  return Section::is_open::incorrect($section) && Section::can_open::when_previous_correct($section);
+	my $section = shift;
+	return Section::is_open::incorrect($section) && Section::can_open::when_previous_correct($section);
 }
 #
 #  All correct sections and the first incorrect section
 #  are open (that are allowed to be open)
 #
 sub correct_or_first_incorrect {
-  my $section = shift;
-  return 1 if $section->{is_correct} || Section::is_open::first_incorrect($section);
+	my $section = shift;
+	return 1 if $section->{is_correct} || Section::is_open::first_incorrect($section);
 }
 #
 #  No sections are open
 #
-sub never {return 0}
+sub never { return 0 }
 
 1;

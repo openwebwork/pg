@@ -86,65 +86,68 @@ my $context;
 #  Setup the context and the PopUp() command
 #
 sub Init {
-  #
-  # make a context in which arbitrary strings can be entered
-  #
-  $context = Parser::Context->getCopy("Numeric");
-  $context->{name} = "WordCompletion";
-  $context->parens->clear();
-  $context->variables->clear();
-  $context->constants->clear();
-  $context->operators->clear();
-  $context->functions->clear();
-  $context->strings->clear();
-  $context->{pattern}{number} = "^\$";
-  $context->variables->{patterns} = {};
-  $context->strings->{patterns}{".*"} = [-20,'str'];
-  $context->{parser}{String} = "parser::WordCompletion::String";
-  $context->update;
-  main::PG_restricted_eval('sub WordCompletion {parser::WordCompletion->new(@_)}');
+	#
+	# make a context in which arbitrary strings can be entered
+	#
+	$context = Parser::Context->getCopy("Numeric");
+	$context->{name} = "WordCompletion";
+	$context->parens->clear();
+	$context->variables->clear();
+	$context->constants->clear();
+	$context->operators->clear();
+	$context->functions->clear();
+	$context->strings->clear();
+	$context->{pattern}{number}         = "^\$";
+	$context->variables->{patterns}     = {};
+	$context->strings->{patterns}{".*"} = [ -20, 'str' ];
+	$context->{parser}{String}          = "parser::WordCompletion::String";
+	$context->update;
+	main::PG_restricted_eval('sub WordCompletion {parser::WordCompletion->new(@_)}');
 }
 
 #
 #  Create a new WordCompletion object
 #
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
-  shift if Value::isContext($_[0]); # remove context, if given (it is not used)
-  my $choices = shift; my $value = shift;
-  Value::Error("A WordCompletion's first argument should be a list of menu items")
-    unless ref($choices) eq 'ARRAY';
-  Value::Error("A WordCompletion's second argument should be the correct menu choice")
-    unless defined($value) && $value ne "";
-  my %choice; map {$choice{$_} = 1} @$choices;
-  Value::Error("The correct choice must be one of the WordCompletion menu items")
-    unless $choice{$value};
-  #warn join ', ' , @$choices;
-  $self = bless {data => [$value], context => $context, choices => $choices }, $class;
-  return $self;
+	my $self  = shift;
+	my $class = ref($self) || $self;
+	shift if Value::isContext($_[0]);    # remove context, if given (it is not used)
+	my $choices = shift;
+	my $value   = shift;
+	Value::Error("A WordCompletion's first argument should be a list of menu items")
+		unless ref($choices) eq 'ARRAY';
+	Value::Error("A WordCompletion's second argument should be the correct menu choice")
+		unless defined($value) && $value ne "";
+	my %choice;
+	map { $choice{$_} = 1 } @$choices;
+	Value::Error("The correct choice must be one of the WordCompletion menu items")
+		unless $choice{$value};
+	#warn join ', ' , @$choices;
+	$self = bless { data => [$value], context => $context, choices => $choices }, $class;
+	return $self;
 }
 
-sub cmp_defaults {(
-	shift->SUPER::cmp_defaults(@_),
-	mathQuillOpts => 'disabled'
-)}
+sub cmp_defaults { (shift->SUPER::cmp_defaults(@_), mathQuillOpts => 'disabled') }
 
 sub menu {
-    my $self = shift;
-    my $size = shift || 20;
-    my $name = shift;
+	my $self = shift;
+	my $size = shift || 20;
+	my $name = shift;
 
-    my $list = $self->{choices};
-    my $list_string = join ',', map { qq/"$_"/ } @{$list};
-    my $invalid_input_msg = qq(" is not a valid answer.\\n\\nPlease choose a valid answer from the list of allowable matching answers that appears when you type your answer into the answer blank.  Type slowly and pause between keystrokes to ensure that the drop-down list appears.\\n\\nNote: this special feature is enabled for this WeBWorK problem, but it is not available in all WeBWorK problems.");
+	my $list        = $self->{choices};
+	my $list_string = join ',', map {qq/"$_"/} @{$list};
+	my $invalid_input_msg =
+		qq(" is not a valid answer.\\n\\nPlease choose a valid answer from the list of allowable matching answers that appears when you type your answer into the answer blank.  Type slowly and pause between keystrokes to ensure that the drop-down list appears.\\n\\nNote: this special feature is enabled for this WeBWorK problem, but it is not available in all WeBWorK problems.");
 
-    # generate new answer blank name used both by jQuery and creating the ans_rule
-    #
-    $name = main::NEW_ANS_NAME() unless $name;
+	# generate new answer blank name used both by jQuery and creating the ans_rule
+	#
+	$name = main::NEW_ANS_NAME() unless $name;
 
-    # insert jQuery
-    #
-    main::POST_HEADER_TEXT(main::MODES(TeX=>"", HTML=>qq(
+	# insert jQuery
+	#
+	main::POST_HEADER_TEXT(main::MODES(
+		TeX  => "",
+		HTML => qq(
     <!-- jQuery script to enable autocompletion drop-down menu -->  
     <script>
     \$(function() {
@@ -163,46 +166,46 @@ sub menu {
         }
     });
     </script>
-    )));
+    )
+	));
 
-    # create the answer rule
-    #
-    main::NAMED_ANS_RULE($name,$size);
+	# create the answer rule
+	#
+	main::NAMED_ANS_RULE($name, $size);
 
-} # end menu
+}    # end menu
 
 sub choices_text {
-    my $self = shift;
-    my $list = $self->{choices};
-    my $output = join ', ', map { qq/$_/ } @{$list};
-    return $output;
+	my $self   = shift;
+	my $list   = $self->{choices};
+	my $output = join ', ', map {qq/$_/} @{$list};
+	return $output;
 }
 
 sub choices_list {
-    my $self = shift;
-    my $list = $self->{choices};
-    my $output = '';
+	my $self   = shift;
+	my $list   = $self->{choices};
+	my $output = '';
 
-    if ($main::displayMode eq "TeX") {
-        $output = join "\n", map { qq/\\item $_/ } @{$list};
-        return "\\begin{itemize}\n" . $output . "\\end{itemize}\n";
-    } else { # HTML mode
-        $output = join " ", map { qq/<li>$_<\/li>/ } @{$list};
-        return "<ul> " . $output . " </ul>";
-    }
-    return $output;
+	if ($main::displayMode eq "TeX") {
+		$output = join "\n", map {qq/\\item $_/} @{$list};
+		return "\\begin{itemize}\n" . $output . "\\end{itemize}\n";
+	} else {    # HTML mode
+		$output = join " ", map {qq/<li>$_<\/li>/} @{$list};
+		return "<ul> " . $output . " </ul>";
+	}
+	return $output;
 
-} # end choices_list
+}    # end choices_list
 
 ##################################################
 #
 #  Answer rule is the menu list (for compatibility with parserMultiAnswer)
 # Use alternates given below with older parserMultiAnswer.pl versions
 
-sub ans_rule {shift->menu(0,'',@_)}  # sub ans_rule {shift->menu(@_)} 
-sub named_ans_rule {shift->menu(0,@_)} # sub named_ans_rule {shift->menu(@_)}
-sub named_ans_rule_extension {shift->menu(1,@_)} # sub named_ans_rule_extension {shift->menu(@_)}
-
+sub ans_rule                 { shift->menu(0, '', @_) }    # sub ans_rule {shift->menu(@_)}
+sub named_ans_rule           { shift->menu(0, @_) }        # sub named_ans_rule {shift->menu(@_)}
+sub named_ans_rule_extension { shift->menu(1, @_) }        # sub named_ans_rule_extension {shift->menu(@_)}
 
 ##################################################
 #
@@ -213,13 +216,12 @@ package parser::WordCompletion::String;
 our @ISA = ('Parser::String');
 
 sub new {
-  my $self = shift;
-  my ($equation,$value,$ref) = @_;
-  $value = $equation->{string};
-  $self->SUPER::new($equation,$value,$ref);
+	my $self = shift;
+	my ($equation, $value, $ref) = @_;
+	$value = $equation->{string};
+	$self->SUPER::new($equation, $value, $ref);
 }
 
 ##################################################
-
 
 1;

@@ -49,17 +49,17 @@ loadMacros('MathObjects.pl');
 {
 	# ^package Equation_eval
 	package Equation_eval;
-	
+
 	# ^function split_eqn
 	sub split_eqn {
 		my $instring = shift;
-		
+
 		split /=/, $instring;
 	}
-	
-    #FIXME  -- this could be improved so that
-    #          1. it uses an answer evaluator object instead of a sub routine
-    #          2. it provides error messages when previous answers are equivalent
+
+	#FIXME  -- this could be improved so that
+	#          1. it uses an answer evaluator object instead of a sub routine
+	#          2. it provides error messages when previous answers are equivalent
 	# ^function equation_cmp
 	# ^uses AnswerHash::new
 	# ^uses split_eqn
@@ -67,35 +67,34 @@ loadMacros('MathObjects.pl');
 	# ^uses main::fun_cmp
 	sub equation_cmp {
 		my $right_ans = shift;
-		my %opts = @_;
-		my $vars = ['x','y'];
-
+		my %opts      = @_;
+		my $vars      = [ 'x', 'y' ];
 
 		$vars = $opts{'vars'} if defined($opts{'vars'});
 
 		my $ans_eval = sub {
-			my $student = shift;
+			my $student          = shift;
 			my %response_options = @_;
-			my $ans_hash = new AnswerHash(
-				'score'=>0,
-				'correct_ans'=>$right_ans,
-				'student_ans'=>$student,
+			my $ans_hash         = new AnswerHash(
+				'score'                => 0,
+				'correct_ans'          => $right_ans,
+				'student_ans'          => $student,
 				'original_student_ans' => $student,
-				'type' => 'equation_cmp',
-				'ans_message'=>'',
-				'preview_text_string'=>'',
-				'preview_latex_string'=>'',
+				'type'                 => 'equation_cmp',
+				'ans_message'          => '',
+				'preview_text_string'  => '',
+				'preview_latex_string' => '',
 			);
 
-			if(! ($student =~ /\S/)) { return $ans_hash; }
+			if (!($student =~ /\S/)) { return $ans_hash; }
 
-			my @right= split_eqn($right_ans);
-			if(scalar(@right) != 2) {
+			my @right = split_eqn($right_ans);
+			if (scalar(@right) != 2) {
 				$ans_hash->{'ans_message'} = "Tell your professor that there is an error in this problem.";
 				return $ans_hash;
 			}
 			my @studsplit = split_eqn($student);
-			if(scalar(@studsplit) != 2) {
+			if (scalar(@studsplit) != 2) {
 				$ans_hash->{'ans_message'} = "You did not enter an equation (with an equals sign and two sides).";
 				return $ans_hash;
 			}
@@ -104,70 +103,68 @@ loadMacros('MathObjects.pl');
 
 			my $ah = new AnswerHash;
 			$ah->input($right[0]);
-			$ah=main::check_syntax($ah);
-			if($ah->{error_flag}) {
+			$ah = main::check_syntax($ah);
+			if ($ah->{error_flag}) {
 				$ans_hash->{'ans_message'} = "Tell your professor that there is an error in this problem.";
 				return $ans_hash;
 			}
 
 			$ah->input($right[1]);
-			$ah=main::check_syntax($ah);
-			if($ah->{error_flag}) {
+			$ah = main::check_syntax($ah);
+			if ($ah->{error_flag}) {
 				$ans_hash->{'ans_message'} = "Tell your professor that there is an error in this problem.";
 				return $ans_hash;
 			}
 
 			# Correct answer checks out, now check student's syntax
 
-			my @prevs = ("","");
-			my @prevtxt = ("","");
+			my @prevs   = ("", "");
+			my @prevtxt = ("", "");
 			$ah->input($studsplit[0]);
-			$ah=main::check_syntax($ah);
-			if($ah->{error_flag}) {
+			$ah = main::check_syntax($ah);
+			if ($ah->{error_flag}) {
 				$ans_hash->{'ans_message'} = "Syntax error on the left side of your equation.";
 				return $ans_hash;
 			}
-			$prevs[0] = $ah->{'preview_latex_string'};
+			$prevs[0]    = $ah->{'preview_latex_string'};
 			$prevstxt[0] = $ah->{'preview_text_string'};
 
-
 			$ah->input($studsplit[1]);
-			$ah=main::check_syntax($ah);
-			if($ah->{error_flag}) {
+			$ah = main::check_syntax($ah);
+			if ($ah->{error_flag}) {
 				$ans_hash->{'ans_message'} = "Syntax error on the right side of your equation.";
 				return $ans_hash;
 			}
-			$prevs[1] = $ah->{'preview_latex_string'};
+			$prevs[1]    = $ah->{'preview_latex_string'};
 			$prevstxt[1] = $ah->{'preview_text_string'};
 
 			$ans_hash->{'preview_latex_string'} = "$prevs[0] = $prevs[1]";
-			$ans_hash->{'preview_text_string'} = "$prevstxt[0] = $prevstxt[1]";
-
+			$ans_hash->{'preview_text_string'}  = "$prevstxt[0] = $prevstxt[1]";
 
 			# Check for answer equivalent to 0=0
 			# Could be false positive below because of parameter
-			my $ae = main::fun_cmp("0", %opts);
+			my $ae  = main::fun_cmp("0", %opts);
 			my $res = $ae->evaluate("$studsplit[0]-($studsplit[1])");
-			if($res->{'score'}==1) {
+			if ($res->{'score'} == 1) {
 				# Student is 0=0, is correct answer also like this?
 				$res = $ae->evaluate("$right[0]-($right[1])");
-				if($res->{'score'}==1) {
-					$ans_hash-> setKeys('score' => $res->{'score'});
+				if ($res->{'score'} == 1) {
+					$ans_hash->setKeys('score' => $res->{'score'});
 				}
 				return $ans_hash;
 			}
 
 			# Maybe answer really is 0=0, and student got it wrong, so check that
 			$res = $ae->evaluate("$right[0]-($right[1])");
-			if($res->{'score'}==1) {
+			if ($res->{'score'} == 1) {
 				return $ans_hash;
 			}
 
 			# Finally, use fun_cmp to check the answers
 
-			$ae = main::fun_cmp("o*($right[0]-($right[1]))", vars=>$vars, params=>['o'], %opts);
-			$res= $ae->evaluate("$studsplit[0]-($studsplit[1])",%response_options);
-			$ans_hash-> setKeys('score' => $res->{'score'});
+			$ae  = main::fun_cmp("o*($right[0]-($right[1]))", vars => $vars, params => ['o'], %opts);
+			$res = $ae->evaluate("$studsplit[0]-($studsplit[1])", %response_options);
+			$ans_hash->setKeys('score' => $res->{'score'});
 
 			return $ans_hash;
 		};
@@ -185,64 +182,75 @@ loadMacros('MathObjects.pl');
 # ^uses $numRelPercentTolDefault
 # ^uses $numFormatDefault
 sub mode2context {
-	my $mode = shift;
+	my $mode    = shift;
 	my %options = @_;
 	my $context;
 	for ($mode) {
-		/^strict$/i  and do {
-			$context = Parser::Context->getCopy(\%main::context,"LimitedNumeric");
+		/^strict$/i and do {
+			$context = Parser::Context->getCopy(\%main::context, "LimitedNumeric");
 			$context->operators->redefine(',');
 			last;
 		};
-		/^arith$/i   and do {
-			$context = Parser::Context->getCopy(\%main::context,"LegacyNumeric");
+		/^arith$/i and do {
+			$context = Parser::Context->getCopy(\%main::context, "LegacyNumeric");
 			$context->functions->disable('All');
 			last;
 		};
-		/^frac$/i    and do {
-			$context = Parser::Context->getCopy(\%main::context,"LimitedNumeric-Fraction");
+		/^frac$/i and do {
+			$context = Parser::Context->getCopy(\%main::context, "LimitedNumeric-Fraction");
 			$context->operators->redefine(',');
 			last;
 		};
-		
+
 		# default
-		$context = Parser::Context->getCopy(\%main::context,"LegacyNumeric");
+		$context = Parser::Context->getCopy(\%main::context, "LegacyNumeric");
 	}
 	# If we are using complex numbers, then we ignore the other mode parts
-	if(defined($options{'complex'}) &&
-	   ($options{'complex'} =~ /(yes|ok)/i)) {
+	if (defined($options{'complex'})
+		&& ($options{'complex'} =~ /(yes|ok)/i))
+	{
 		#$context->constants->redefine('i', from=>'Complex');
 		#$context->functions->redefine(['arg','mod','Re','Im','conj', 'sqrt', 'log'], from=>'Complex');
 		#$context->operators->redefine(['^', '**'], from=>'Complex');
-		$context = Parser::Context->getCopy(\%main::context,"Complex");
+		$context = Parser::Context->getCopy(\%main::context, "Complex");
 	}
 	$options{tolType} = $options{tolType} || 'relative';
 	$options{tolType} = 'absolute' if defined($options{tol});
-	$options{zeroLevel} = $options{zeroLevel} || $options{zeroLevelTol} ||
-		$main::numZeroLevelTolDefault;
+	$options{zeroLevel} =
+		$options{zeroLevel}
+		|| $options{zeroLevelTol}
+		|| $main::numZeroLevelTolDefault;
 	if ($options{tolType} eq 'absolute' or defined($options{abstol})) {
-		$options{tolerance} = $options{tolerance} || $options{tol} ||
-			$options{reltol} || $options{relTol} || $options{abstol} ||
-			$main::numAbsTolDefault;
+		$options{tolerance} =
+			$options{tolerance}
+			|| $options{tol}
+			|| $options{reltol}
+			|| $options{relTol}
+			|| $options{abstol}
+			|| $main::numAbsTolDefault;
 		$context->flags->set(
 			tolerance => $options{tolerance},
-			tolType => 'absolute',
-			);
+			tolType   => 'absolute',
+		);
 	} else {
-		$options{tolerance} = $options{tolerance} || $options{tol} ||
-			$options{reltol} || $options{relTol} || $options{abstol} ||
-			$main::numRelPercentTolDefault;
+		$options{tolerance} =
+			$options{tolerance}
+			|| $options{tol}
+			|| $options{reltol}
+			|| $options{relTol}
+			|| $options{abstol}
+			|| $main::numRelPercentTolDefault;
 		$context->flags->set(
-			tolerance => .01*$options{tolerance},
-			tolType => 'relative',
-			);
+			tolerance => .01 * $options{tolerance},
+			tolType   => 'relative',
+		);
 	}
 	$context->flags->set(
-		zeroLevel => $options{zeroLevel},
+		zeroLevel    => $options{zeroLevel},
 		zeroLevelTol => $options{zeroLevelTol} || $main::numZeroLevelTolDefault,
-		);
+	);
 	$context->{format}{number} = $options{'format'} || $main::numFormatDefault;
-	return($context);
+	return ($context);
 }
 
 =head1 MACROS
@@ -320,92 +328,92 @@ sub interval_cmp {
 	my $correct_ans = shift;
 
 	my %opts = @_;
-	
-	my $mode          = $opts{mode} || 'std';
-	my %options       = (debug => $opts{debug});
-	my $ans_type = ''; # set to List, Union, or String below
-	
+
+	my $mode     = $opts{mode} || 'std';
+	my %options  = (debug => $opts{debug});
+	my $ans_type = '';                        # set to List, Union, or String below
+
 	#
 	#  Get an apppropriate context based on the mode
 	#
 	my $oldContext = Context();
-	my $context = mode2context($mode, %opts);
+	my $context    = mode2context($mode, %opts);
 
-	if(defined($opts{unions}) and $opts{unions} eq 'no' ) {
+	if (defined($opts{unions}) and $opts{unions} eq 'no') {
 		# This is really a list of points, not intervals at all
 		$ans_type = 'List';
 		$context->parens->redefine('(');
 		$context->parens->redefine('[');
 		$context->parens->redefine('{');
-		$context->operators->redefine('u',using=>',');
-		$context->operators->set(u=>{string=>", ", TeX=>',\,'});
+		$context->operators->redefine('u', using => ',');
+		$context->operators->set(u => { string => ", ", TeX => ',\,' });
 	} else {
-		$context->parens->redefine('(', from=>'Interval');
-		$context->parens->redefine('[', from=>'Interval');
-		$context->parens->redefine('{', from=>'Interval');
-		
-		$context->constants->redefine('R',from=>'Interval');
-		$context->operators->redefine('U',from=>"Interval");
-		$context->operators->redefine('u',from=>"Interval",using=>"U");
+		$context->parens->redefine('(', from => 'Interval');
+		$context->parens->redefine('[', from => 'Interval');
+		$context->parens->redefine('{', from => 'Interval');
+
+		$context->constants->redefine('R', from => 'Interval');
+		$context->operators->redefine('U', from => "Interval");
+		$context->operators->redefine('u', from => "Interval", using => "U");
 		$ans_type = 'Union';
 	}
 	# Take optional arguments intended for List, or Union
 	for my $o (qw( showCoordinateHints showHints partialCredit showLengthHints )) {
 		$options{$o} = $opts{$o} || 0;
 	}
-	$options{showUnionReduceWarnings} = $opts{showUnionReduceWarnings};
+	$options{showUnionReduceWarnings}  = $opts{showUnionReduceWarnings};
 	$options{studentsMustReduceUnions} = $opts{studentsMustReduceUnions};
-	if(defined($opts{ordered}) and $opts{ordered}) {
+	if (defined($opts{ordered}) and $opts{ordered}) {
 		$options{ordered} = 1;
 		# Force this option if the the union must be ordered
 		$options{studentsMustReduceUnions} = 1;
 	}
 	if (defined($opts{'sloppy'}) && $opts{'sloppy'} eq 'yes') {
-		 $options{requireParenMatch} = 0;
+		$options{requireParenMatch} = 0;
 	}
 	# historically we allow more infinities
 	$context->strings->add(
-		'i' => {alias=>'infinity'},
-		'infty' => {alias=>'infinity'},
-		'minfinity' => {infinite=>1, negative=>1},
-		'minfty' => {alias=>'minfinity'},
-		'minf' => {alias=>'minfinity'},
-		'mi' => {alias=>'minfinity'},
+		'i'         => { alias    => 'infinity' },
+		'infty'     => { alias    => 'infinity' },
+		'minfinity' => { infinite => 1, negative => 1 },
+		'minfty'    => { alias    => 'minfinity' },
+		'minf'      => { alias    => 'minfinity' },
+		'mi'        => { alias    => 'minfinity' },
 	);
 	# Add any strings
 	if ($opts{strings}) {
-		foreach my $string (@{$opts{strings}}) {
+		foreach my $string (@{ $opts{strings} }) {
 			$string = uc($string);
-			$context->strings->add($string) unless
-				defined($context->strings->get($string));
+			$context->strings->add($string)
+				unless defined($context->strings->get($string));
 			$ans_type = 'String' if $string eq uc($correct_ans);
 		}
 	}
 	# Add any variables
 	$opts{vars} = $opts{var} if ($opts{var});
 	if ($opts{vars}) {
-		$context->variables->are(); # clear old vars
-		$opts{vars} = [$opts{vars}] unless ref($opts{vars}) eq 'ARRAY';
-		foreach my $v (@{$opts{vars}}) {
-			$context->variables->add($v=>'Real')
+		$context->variables->are();    # clear old vars
+		$opts{vars} = [ $opts{vars} ] unless ref($opts{vars}) eq 'ARRAY';
+		foreach my $v (@{ $opts{vars} }) {
+			$context->variables->add($v => 'Real')
 				unless $context->variables->get($v);
 		}
 	}
-	
+
 	my $ans_eval;
 	Context($context);
-	if($ans_type eq 'List') {
+	if ($ans_type eq 'List') {
 		$ans_eval = List($correct_ans)->cmp(%options);
-	} elsif($ans_type eq 'Union') {
+	} elsif ($ans_type eq 'Union') {
 		$ans_eval = Union($correct_ans)->cmp(%options);
-	} elsif($ans_type eq 'String') {
+	} elsif ($ans_type eq 'String') {
 		$ans_eval = List($correct_ans)->cmp(%options);
 	} else {
 		warn "Bug -- should not be here in interval_cmp";
 	}
-		
+
 	Context($oldContext);
-	return($ans_eval);
+	return ($ans_eval);
 }
 
 =head2 number_list_cmp
@@ -462,22 +470,22 @@ sub number_list_cmp {
 
 	my %num_params = @_;
 
-	my $mode		  = $num_params{mode} || 'std';
-	my %options		  = (debug => $num_params{debug});
+	my $mode    = $num_params{mode} || 'std';
+	my %options = (debug => $num_params{debug});
 
 	#
 	#  Get an apppropriate context based on the mode
 	#
 	my $oldContext = Context();
-	my $context = mode2context($mode, %num_params);
+	my $context    = mode2context($mode, %num_params);
 
 	#$context->strings->clear;
 	if ($num_params{strings}) {
-		foreach my $string (@{$num_params{strings}}) {
-			my %tex = ($string =~ m/(-?)inf(inity)?/i)? (TeX => "$1\\infty"): ();
+		foreach my $string (@{ $num_params{strings} }) {
+			my %tex = ($string =~ m/(-?)inf(inity)?/i) ? (TeX => "$1\\infty") : ();
 			$string = uc($string);
-			$context->strings->add($string => {%tex}) unless
-				defined($context->strings->get($string));
+			$context->strings->add($string => {%tex})
+				unless defined($context->strings->get($string));
 		}
 	}
 
@@ -491,9 +499,8 @@ sub number_list_cmp {
 	Context($context);
 	my $ans_eval = List($list)->cmp(%options);
 	Context($oldContext);
-	return($ans_eval);
+	return ($ans_eval);
 }
-
 
 =head2 equation_cmp
 

@@ -13,7 +13,6 @@
 # Artistic License for more details.
 ################################################################################
 
-
 =head1 NAME
 
 C<Context("Partition")> - Provides a context that allows the
@@ -55,28 +54,26 @@ are equal.
 #
 
 sub _contextPartition_init {
-  my $context = $main::context{Partition} = Parser::Context->getCopy("Numeric");
-  $context->{name} = "Partition";
+	my $context = $main::context{Partition} = Parser::Context->getCopy("Numeric");
+	$context->{name} = "Partition";
 
-  $context->{pattern}{number} = '-?'.$context->{pattern}{number};
-  Parser::Number::NoDecimals($context);
+	$context->{pattern}{number} = '-?' . $context->{pattern}{number};
+	Parser::Number::NoDecimals($context);
 
-  $context->variables->clear();
-  $context->constants->clear();
-  $context->strings->clear();
-  $context->functions->disable("All");
-  $context->operators->undefine($context->operators->names);
-  $context->operators->redefine(["fn",",","+"]);
-  $context->operators->remove(" ");
+	$context->variables->clear();
+	$context->constants->clear();
+	$context->strings->clear();
+	$context->functions->disable("All");
+	$context->operators->undefine($context->operators->names);
+	$context->operators->redefine([ "fn", ",", "+" ]);
+	$context->operators->remove(" ");
 
-  $context->operators->set(
-    '+' => {class => 'context::Partition::BOP::add', type => "bin"},
-  );
+	$context->operators->set('+' => { class => 'context::Partition::BOP::add', type => "bin" },);
 
-  $context->{value}{Partition} = "context::Partition";
-  $context->{precedence}{Partition} = $context->{precedence}{special};
+	$context->{value}{Partition}      = "context::Partition";
+	$context->{precedence}{Partition} = $context->{precedence}{special};
 
-  PG_restricted_eval("sub Partition {context::Partition->new(\@_)}");
+	PG_restricted_eval("sub Partition {context::Partition->new(\@_)}");
 }
 
 ###########################################################
@@ -90,52 +87,55 @@ our @ISA = ("Value");
 #  Check the data and create the object
 #
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
-  my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  my $p = [@_]; $p = $p->[0] if scalar(@$p) == 1 && ref($p->[0]) eq "ARRAY";
-  $p = [$p->{data}] if scalar(@$p) == 1 && Value::classMatch($p->[0],$class);
-  foreach my $x (@{$p}) {
-    $x = Value::makeValue($x,context => $context);
-    Value->Error("An element of a Partition can't be %s",$x->showType)
-       unless $x->isNumber && !$x->isFormula;
-    my $i = $x->value;
-    Value->Error("Elements of Partitions must be positive") unless $i > 0;
-    Value->Error("Elements of Partitions must be integers") unless $i == int($i);
-  }
-  return bless {data => $p, context => $context}, $class;
+	my $self    = shift;
+	my $class   = ref($self) || $self;
+	my $context = (Value::isContext($_[0]) ? shift : $self->context);
+	my $p       = [@_];
+	$p = $p->[0]        if scalar(@$p) == 1 && ref($p->[0]) eq "ARRAY";
+	$p = [ $p->{data} ] if scalar(@$p) == 1 && Value::classMatch($p->[0], $class);
+	foreach my $x (@{$p}) {
+		$x = Value::makeValue($x, context => $context);
+		Value->Error("An element of a Partition can't be %s", $x->showType)
+			unless $x->isNumber && !$x->isFormula;
+		my $i = $x->value;
+		Value->Error("Elements of Partitions must be positive") unless $i > 0;
+		Value->Error("Elements of Partitions must be integers") unless $i == int($i);
+	}
+	return bless { data => $p, context => $context }, $class;
 }
 
 #
 #  Add a number to a partition, or add two partitions
 #
 sub add {
-  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
-  $self->make(@{$self->{data}},@{$other->{data}});
+	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
+	$self->make(@{ $self->{data} }, @{ $other->{data} });
 }
 
 #
 #  Produce the sum for a partition
 #
 sub sum {
-  my $self = shift;
-  my $n = 0; map {$n += $_} @{$self->{data}};
-  return $n;
+	my $self = shift;
+	my $n    = 0;
+	map { $n += $_ } @{ $self->{data} };
+	return $n;
 }
 
 #
 #  Compare two partitions (numbers are promoted)
 #
 sub compare {
-  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
-  return $l->canonical cmp $r->canonical;
+	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
+	return $l->canonical cmp $r->canonical;
 }
 
 #
 #  Produce a canonical representation (numbers sorted)
 #
 sub canonical {
-  my $self = shift;
-  $self->make(main::num_sort(@{$self->{data}}));
+	my $self = shift;
+	$self->make(main::num_sort(@{ $self->{data} }));
 }
 
 #
@@ -143,38 +143,39 @@ sub canonical {
 #  partition), and promote others to partitions, if possible.
 #
 sub promote {
-  my $self = shift; my $other = shift;
-  Value->Error("Can't promote %s to %s",Value::makeValue($other)->showType,$self->showType)
-    unless $self->typeMatch($other);
-  $self->SUPER::promote($other);
+	my $self  = shift;
+	my $other = shift;
+	Value->Error("Can't promote %s to %s", Value::makeValue($other)->showType, $self->showType)
+		unless $self->typeMatch($other);
+	$self->SUPER::promote($other);
 }
 
 #
 #  Check if types are compatible
 #
 sub typeMatch {
-  my ($self,$other) = @_;
-  return Value::classMatch($other,$self->class) ||
-         Value::matchNumber($other) ||
-         ref($other) eq 'ARRAY';
+	my ($self, $other) = @_;
+	return
+		Value::classMatch($other, $self->class)
+		|| Value::matchNumber($other)
+		|| ref($other) eq 'ARRAY';
 }
 
 #
 #  Produce a string version
 #
 sub string {
-  my $self = shift;
-  join(" + ",@{$self->{data}});
+	my $self = shift;
+	join(" + ", @{ $self->{data} });
 }
 
 #
 #  Produce a TeX version
 #
-sub string {
-  my $self = shift;
-  join(" + ",@{$self->{data}});
+sub TeX {
+	my $self = shift;
+	join(" + ", @{ $self->{data} });
 }
-
 
 ###########################################################
 #
@@ -189,11 +190,11 @@ our @ISA = ("Parser::BOP");
 #  the proper type reference, or give an error.
 #
 sub _check {
-  my $self = shift;
-  my ($ltype,$rtype) = ($self->{lop}->typeRef,$self->{rop}->typeRef);
-  $self->{equation}->Error(["Entries in a Partition must be positive integers"])
-    unless $self->checkOp($ltype) && $self->checkOp($rtype);
-  $self->{type} = Value::Type("Partition",$ltype->{length}+$rtype->{length},$Value::Type{number});
+	my $self = shift;
+	my ($ltype, $rtype) = ($self->{lop}->typeRef, $self->{rop}->typeRef);
+	$self->{equation}->Error(["Entries in a Partition must be positive integers"])
+		unless $self->checkOp($ltype) && $self->checkOp($rtype);
+	$self->{type} = Value::Type("Partition", $ltype->{length} + $rtype->{length}, $Value::Type{number});
 }
 
 #
@@ -201,8 +202,9 @@ sub _check {
 #  (It must be a partiation or a number)
 #
 sub checkOp {
-  my $self = shift; my $op = shift;
-  return $op->{name} eq "Partition" || ($op->{name} eq "Number" && $op->{length} == 1);
+	my $self = shift;
+	my $op   = shift;
+	return $op->{name} eq "Partition" || ($op->{name} eq "Number" && $op->{length} == 1);
 }
 
 #
@@ -210,10 +212,10 @@ sub checkOp {
 #   otherwise use addition (Value object will take over)
 #
 sub _eval {
-  my $self = shift;
-  my ($a,$b) = @_;
-  return Value->Package($self->type)->new($a,$b) if !ref($a) && !ref($b);
-  return $a + $b;
+	my $self = shift;
+	my ($a, $b) = @_;
+	return Value->Package($self->type)->new($a, $b) if !ref($a) && !ref($b);
+	return $a + $b;
 }
 
 ###########################################################

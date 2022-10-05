@@ -22,7 +22,7 @@ subroutine that performs the check for correctness.
 
 loadMacros('MathObjects.pl');
 
-sub _answerCustom_init {}; # don't reload this file
+sub _answerCustom_init { };    # don't reload this file
 
 =head1 MACROS
 
@@ -99,25 +99,26 @@ inform the instructor.
 =cut
 
 sub custom_cmp {
-  my $correct = shift; my $checker = shift;
-  die "custom_cmp requires a correct answer" unless defined($correct);
-  die "custom_cmp requires a checker subroutine" unless defined($checker);
-  $correct = Value::makeValue($correct);
-  $correct = Value->Package("Formula")->new($correct) unless Value::isValue($correct);
-  $correct->cmp(
-    checker => sub {
-      my ($correct,$student,$ans) = @_;
-      return 0 if $ans->{sameClass} && $correct->class ne $student->class;
-      return 0 if $ans->{sameLength} && $correct->length != $student->length;
-      return &{$ans->{custom_checker}}($correct,$student,$ans);
-    },
-    custom_checker => $checker,
-    sameClass => 1,
-    sameLength => 1,
-    showEqualErrors => 1,  # make sure we see errors in list checker
-    @custom_cmp_defaults,
-    @_,
-  );
+	my $correct = shift;
+	my $checker = shift;
+	die "custom_cmp requires a correct answer"     unless defined($correct);
+	die "custom_cmp requires a checker subroutine" unless defined($checker);
+	$correct = Value::makeValue($correct);
+	$correct = Value->Package("Formula")->new($correct) unless Value::isValue($correct);
+	$correct->cmp(
+		checker => sub {
+			my ($correct, $student, $ans) = @_;
+			return 0 if $ans->{sameClass}  && $correct->class ne $student->class;
+			return 0 if $ans->{sameLength} && $correct->length != $student->length;
+			return &{ $ans->{custom_checker} }($correct, $student, $ans);
+		},
+		custom_checker  => $checker,
+		sameClass       => 1,
+		sameLength      => 1,
+		showEqualErrors => 1,          # make sure we see errors in list checker
+		@custom_cmp_defaults,
+		@_,
+	);
 }
 
 #
@@ -170,16 +171,17 @@ inform the instructor.
 =cut
 
 sub custom_list_cmp {
-  my $correct = shift; my $checker = shift;
-  die "custom_list_cmp requires a correct answer" unless defined($correct);
-  die "custom_list_cmp requires a checker subroutine" unless defined($checker);
-  $correct = Value::makeValue($correct);
-  $correct = Value->Package("Formula")->new($correct) unless Value::isValue($correct);
-  $correct->cmp(
-    list_checker => $checker,
-    @custom_list_cmp_defaults,
-    @_,
-  );
+	my $correct = shift;
+	my $checker = shift;
+	die "custom_list_cmp requires a correct answer"     unless defined($correct);
+	die "custom_list_cmp requires a checker subroutine" unless defined($checker);
+	$correct = Value::makeValue($correct);
+	$correct = Value->Package("Formula")->new($correct) unless Value::isValue($correct);
+	$correct->cmp(
+		list_checker => $checker,
+		@custom_list_cmp_defaults,
+		@_,
+	);
 }
 
 #

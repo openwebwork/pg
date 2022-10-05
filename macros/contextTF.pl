@@ -36,20 +36,20 @@ when there are two answers, the first being "T" and the second being "F".
 
 =cut
 
-loadMacros("MathObjects.pl","contextString.pl");
+loadMacros("MathObjects.pl", "contextString.pl");
 
 sub _contextTF_init {
 
-  my $context = $main::context{TF} = Parser::Context->getCopy("String");
-  $context->{name} = "TF";
-  $context->strings->are(
-    "T" => {value => 1},
-    "F" => {value => 0},
-    "True" => {alias => "T"},
-    "False" => {alias => "F"},
-  );
+	my $context = $main::context{TF} = Parser::Context->getCopy("String");
+	$context->{name} = "TF";
+	$context->strings->are(
+		"T"     => { value => 1 },
+		"F"     => { value => 0 },
+		"True"  => { alias => "T" },
+		"False" => { alias => "F" },
+	);
 
-  main::Context("TF");  ### FIXME:  probably should require author to set this explicitly
+	main::Context("TF");    ### FIXME:  probably should require author to set this explicitly
 }
 
 1;

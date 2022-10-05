@@ -1,13 +1,12 @@
 
-
 #  Fun.pm
 # methods:
 # 	new Fun($rule,$graphRef)
-# 		If $rule is a subroutine then a function object is created, 
+# 		If $rule is a subroutine then a function object is created,
 #        with default data. If the graphRef is present the function is
 #       installed into the
-#		graph and the domain is reset to the graphRef's domain. 		
-# 		If the $rule is another function object then a copy of that function is 
+#		graph and the domain is reset to the graphRef's domain.
+# 		If the $rule is another function object then a copy of that function is
 # 		made with all of its data  and it is installed in the graphRef if that is present.
 #		In this case the domain of the function is not affected by the domain of the graphRef.
 # 	initial data
@@ -23,13 +22,12 @@
 #			It will be the same as $rule if $rule is actually another function object
 #					ELSE	   	the same as the domain of $graphRef if that is present
 #					ELSE		the interval (-1,1)
-# 	public access methods:    
+# 	public access methods:
 # 		domain
 # 		steps
 # 		color
 # 		rule
 #		weight
-;
 
 =head1 NAME
 
@@ -186,7 +184,7 @@ set the current position to (x,y)
 =cut
 
 BEGIN {
-	be_strict(); # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
+	be_strict();    # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
 }
 
 package Fun;
@@ -200,127 +198,127 @@ sub gdBrushed {
 	&GD::gdBrushed();
 }
 
-my $GRAPH_REFERENCE = "WWPlot";   
+my $GRAPH_REFERENCE    = "WWPlot";
 my $FUNCTION_REFERENCE = "Fun";
 
-my %fields =(
-		tstart		=>	-1,  # (tstart,$tstop) constitutes the domain
-		tstop		=>	1,
-		steps  		=>  50,
-		color		=>  'blue',
-		x_rule      => \&identity,
-		y_rule      => \&identity,
-		weight		=>	2,  # line thickness
+my %fields = (
+	tstart => -1,           # (tstart,$tstop) constitutes the domain
+	tstop  => 1,
+	steps  => 50,
+	color  => 'blue',
+	x_rule => \&identity,
+	y_rule => \&identity,
+	weight => 2,            # line thickness
 );
 
-
 sub new {
-	my $class 				=	shift;
-#	my ($rule,$graphRef)	=   @_;
+	my $class = shift;
+	#	my ($rule,$graphRef)	=   @_;
 
-	my $self 			= { 
-#				_permitted	=>	\%fields,
-				%fields,
+	my $self = {
+		#				_permitted	=>	\%fields,
+		%fields,
 	};
-	
+
 	bless $self, $class;
-	$self -> _initialize(@_);
+	$self->_initialize(@_);
 	return $self;
 }
 
-sub identity {  # the identity function
+sub identity {    # the identity function
 	shift;
 }
-sub rule  { # non-parametric functions are defined using rule; use x_rule and y_rule to define parametric functions
+
+sub rule {    # non-parametric functions are defined using rule; use x_rule and y_rule to define parametric functions
 	my $self = shift;
 	my $rule = shift;
 	my $out;
-	if ( defined($rule)  ){
-		$self->x_rule (\&identity);
+	if (defined($rule)) {
+		$self->x_rule(\&identity);
 		$self->y_rule($rule);
 		$out = $self->y_rule;
 	} else {
-		$out = $self->y_rule
+		$out = $self->y_rule;
 	}
 	$out;
 }
 
-sub _initialize {     
-	my	$self 	= 	shift;
-	my  ($xrule,$yrule, $rule,$graphRef);
+sub _initialize {
+	my $self = shift;
+	my ($xrule, $yrule, $rule, $graphRef);
 	my @input = @_;
-	if (ref($input[$#input]) eq $GRAPH_REFERENCE ) {
-		$graphRef = pop @input;  # get the last argument if it refers to a graph.  
-		$graphRef->fn($self);     # Install this function in the graph.
-	} 
-  
-    if ( @input == 1 ) {                 # only one argument left -- this is a non parametric function
-        $rule = $input[0];
-		if ( ref($rule) eq $FUNCTION_REFERENCE ) {  # clone another function
+	if (ref($input[$#input]) eq $GRAPH_REFERENCE) {
+		$graphRef = pop @input;    # get the last argument if it refers to a graph.
+		$graphRef->fn($self);      # Install this function in the graph.
+	}
+
+	if (@input == 1) {             # only one argument left -- this is a non parametric function
+		$rule = $input[0];
+		if (ref($rule) eq $FUNCTION_REFERENCE) {    # clone another function
 			my $k;
 			foreach $k (keys %fields) {
 				$self->{$k} = $rule->{$k};
 			}
 		} else {
-			$self->rule($rule);                     
-			if (ref($graphRef) eq $GRAPH_REFERENCE) { # use graph to initialize domain
-				$self->domain($graphRef->xmin,$graphRef->xmax);
+			$self->rule($rule);
+			if (ref($graphRef) eq $GRAPH_REFERENCE) {    # use graph to initialize domain
+				$self->domain($graphRef->xmin, $graphRef->xmax);
 			}
 		}
-	} elsif (@input == 2 ) {   #  two arguments -- parametric functions
-			$self->x_rule($input[0]);
-			$self->y_rule($input[1]);
-		
+	} elsif (@input == 2) {    #  two arguments -- parametric functions
+		$self->x_rule($input[0]);
+		$self->y_rule($input[1]);
+
 	} else {
 		die "Fun.pm:_initialize: Can't call function with more than two arguments";
 	}
-	
+
 }
 
 sub draw {
-    my $self = shift;  # this function 
-	my $g = shift;   # the graph containing the function.
-	my $color;   # get color scheme from graph
-	if ( defined( $g->{'colors'}{$self->color} )  ) {
-		$color = $g->{'colors'}{$self->color}; 
+	my $self = shift;          # this function
+	my $g    = shift;          # the graph containing the function.
+	my $color;                 # get color scheme from graph
+	if (defined($g->{'colors'}{ $self->color })) {
+		$color = $g->{'colors'}{ $self->color };
 	} else {
-		$color = $g->{'colors'}{'default_color'};  # what you do if the color isn't there
+		$color = $g->{'colors'}{'default_color'};    # what you do if the color isn't there
 	}
-	my $brush = new GD::Image($self->weight,$self->weight);
-	my $brush_color = $brush->colorAllocate($g->im->rgb($color));  # transfer color
+	my $brush       = new GD::Image($self->weight, $self->weight);
+	my $brush_color = $brush->colorAllocate($g->im->rgb($color));    # transfer color
 	$g->im->setBrush($brush);
- 	my $stepsize = ( $self->tstop - $self->tstart )/$self->steps;
-  	
-    my ($t,$x,$i,$y);
-    my $x_prev = undef;
-    my $y_prev = undef;	
-    foreach $i (0..$self->steps) {
-    		$t=$stepsize*$i + $self->tstart;
-    		$x=&{$self->x_rule}( $t );;
-    		$y=&{$self->y_rule}( $t );
-# Points where the function were not defined were not being handled
-# gracefully.  They would come as blank y values, which would ultimately
-# trigger errors downstream unless y was undefined.
-		if(defined($y) and $y eq "") { $y = undef; }
-    		if (defined($x) && defined($x_prev) && defined($y) && defined($y_prev) ) {
-    			$g->lineTo($x, $y, gdBrushed);
-    		} else {
-    			$g->moveTo($x, $y) if defined($x) && defined($y);
-    		}
-    		$x_prev = $x;
-    		$y_prev = $y;
+	my $stepsize = ($self->tstop - $self->tstart) / $self->steps;
+
+	my ($t, $x, $i, $y);
+	my $x_prev = undef;
+	my $y_prev = undef;
+	foreach $i (0 .. $self->steps) {
+		$t = $stepsize * $i + $self->tstart;
+		$x = &{ $self->x_rule }($t);
+		$y = &{ $self->y_rule }($t);
+		# Points where the function were not defined were not being handled
+		# gracefully.  They would come as blank y values, which would ultimately
+		# trigger errors downstream unless y was undefined.
+		if (defined($y) and $y eq "") { $y = undef; }
+		if (defined($x) && defined($x_prev) && defined($y) && defined($y_prev)) {
+			$g->lineTo($x, $y, gdBrushed);
+		} else {
+			$g->moveTo($x, $y) if defined($x) && defined($y);
 		}
+		$x_prev = $x;
+		$y_prev = $y;
+	}
 }
 
 sub domain {
-	my $self =shift;
+	my $self   = shift;
 	my $tstart = shift;
 	my $tstop  = shift;
-	if (defined($tstart) && defined($tstop) ) {
+	if (defined($tstart) && defined($tstop)) {
 		$self->tstart($tstart);
 		$self->tstop($tstop);
 	}
-		[$self->tstart,$self->tstop];	
+	[ $self->tstart, $self->tstop ];
 }
 
 ##########################
@@ -329,94 +327,98 @@ sub domain {
 sub tstart {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{tstart} ) {
+	unless (exists $self->{tstart}) {
 		die "Can't find tstart field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{tstart} = shift;
 	} else {
-		return $self->{tstart}
+		return $self->{tstart};
 	}
 }
 
 sub tstop {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{tstop} ) {
+	unless (exists $self->{tstop}) {
 		die "Can't find tstop field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{tstop} = shift;
 	} else {
-		return $self->{tstop}
+		return $self->{tstop};
 	}
 }
+
 sub steps {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{steps} ) {
+	unless (exists $self->{steps}) {
 		die "Can't find steps field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{steps} = shift;
 	} else {
-		return $self->{steps}
+		return $self->{steps};
 	}
 }
+
 sub color {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{color} ) {
+	unless (exists $self->{color}) {
 		die "Can't find color field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{color} = shift;
 	} else {
-		return $self->{color}
+		return $self->{color};
 	}
 }
+
 sub x_rule {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{x_rule} ) {
+	unless (exists $self->{x_rule}) {
 		die "Can't find x_rule field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{x_rule} = shift;
 	} else {
-		return $self->{x_rule}
+		return $self->{x_rule};
 	}
 }
+
 sub y_rule {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{y_rule} ) {
+	unless (exists $self->{y_rule}) {
 		die "Can't find y_rule field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{y_rule} = shift;
 	} else {
-		return $self->{y_rule}
+		return $self->{y_rule};
 	}
 }
 
 sub weight {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{weight} ) {
+	unless (exists $self->{weight}) {
 		die "Can't find weight field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{weight} = shift;
 	} else {
-		return $self->{weight}
+		return $self->{weight};
 	}
 }
 

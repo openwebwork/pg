@@ -52,12 +52,9 @@ functions, though they can be re-enabled, if needed.
 
 ##################################################
 
-loadMacros(
-  "MathObjects.pl",
-  "contextPolynomialFactors.pl"
-);
+loadMacros("MathObjects.pl", "contextPolynomialFactors.pl");
 
-sub _contextRationalFunction_init {RationalFunction::Init()}
+sub _contextRationalFunction_init { RationalFunction::Init() }
 
 ##############################################
 
@@ -65,15 +62,16 @@ package RationalFunction::BOP::multiply;
 our @ISA = qw(PolynomialFactors::BOP::multiply);
 
 sub checkFactors {
-  my $self = shift; my ($l,$r) = @_;
-  $self->SUPER::checkFactors($l,$r);
-  if (($l->{isPoly}||0) >= 6 || ($r->{isPoly}||0) >= 6) {
-    $self->Error("You can not use multiplication with rational functions as operands ".
-                 "(do you need parentheses around the denominator?)")
-      if $self->context->flag("singleQuotients");
-    $self->{isPoly} = 7; # product containing rational functions
-  }
-  return 1;
+	my $self = shift;
+	my ($l, $r) = @_;
+	$self->SUPER::checkFactors($l, $r);
+	if (($l->{isPoly} || 0) >= 6 || ($r->{isPoly} || 0) >= 6) {
+		$self->Error("You can not use multiplication with rational functions as operands "
+				. "(do you need parentheses around the denominator?)")
+			if $self->context->flag("singleQuotients");
+		$self->{isPoly} = 7;    # product containing rational functions
+	}
+	return 1;
 }
 
 ##############################################
@@ -82,37 +80,42 @@ package RationalFunction::BOP::divide;
 our @ISA = qw(PolynomialFactors::BOP::divide);
 
 sub checkPolynomial {
-  my $self = shift; my ($l,$r) = ($self->{lop},$self->{rop});
-  if ((!$l->{isPoly} || $l->{isPoly} == 2) && LimitedPolynomial::isConstant($r)) {
-    $self->{isPoly} = $l->{isPoly};
-    $self->{powers} = $l->{powers}; delete $l->{powers};
-    $self->{exponents} = $l->{exponents}; delete $l->{exponents};
-  } elsif (($l->{isPoly}||0) >= 6 || ($r->{isPoly}||0) >= 6) {
-    $self->Error("Only one polynomial division is allowed in a rational function");
-  } else {
-    PolynomialFactors::markFactor($l);
-    PolynomialFactors::markFactor($r);
-    $self->checkFactors($l,$r);
-  }
-  return 1;
+	my $self = shift;
+	my ($l, $r) = ($self->{lop}, $self->{rop});
+	if ((!$l->{isPoly} || $l->{isPoly} == 2) && LimitedPolynomial::isConstant($r)) {
+		$self->{isPoly} = $l->{isPoly};
+		$self->{powers} = $l->{powers};
+		delete $l->{powers};
+		$self->{exponents} = $l->{exponents};
+		delete $l->{exponents};
+	} elsif (($l->{isPoly} || 0) >= 6 || ($r->{isPoly} || 0) >= 6) {
+		$self->Error("Only one polynomial division is allowed in a rational function");
+	} else {
+		PolynomialFactors::markFactor($l);
+		PolynomialFactors::markFactor($r);
+		$self->checkFactors($l, $r);
+	}
+	return 1;
 }
 
 sub checkFactors {
-  my $self = shift; my ($l,$r) = @_;
-  my $single = $self->context->flag("singleFactors");
-  $self->Error("Only one constant multiple or fraction is allowed (combine or cancel them)")
-    if $l->{factors}{0} && $r->{factors}{0} && $self->context->flag("singleFactors");
-  $self->{factors} = $l->{factors}; delete $l->{factors};
-  foreach my $factor (keys %{$r->{factors}}) {
-    if ($single && $self->{factors}{$factor}) {
-      $self->Error("Each factor can appear only once (combine or cancel like factors)") unless $factor eq "0";
-      $self->Error("Only one constant coefficient or negation is allowed (combine or cancel them)");
-    }
-    $self->{factors}{$factor} = 1;
-  }
-  delete $r->{factors};
-  $self->{isPoly} = 6; # rational function
-  return 1;
+	my $self = shift;
+	my ($l, $r) = @_;
+	my $single = $self->context->flag("singleFactors");
+	$self->Error("Only one constant multiple or fraction is allowed (combine or cancel them)")
+		if $l->{factors}{0} && $r->{factors}{0} && $self->context->flag("singleFactors");
+	$self->{factors} = $l->{factors};
+	delete $l->{factors};
+	foreach my $factor (keys %{ $r->{factors} }) {
+		if ($single && $self->{factors}{$factor}) {
+			$self->Error("Each factor can appear only once (combine or cancel like factors)") unless $factor eq "0";
+			$self->Error("Only one constant coefficient or negation is allowed (combine or cancel them)");
+		}
+		$self->{factors}{$factor} = 1;
+	}
+	delete $r->{factors};
+	$self->{isPoly} = 6;    # rational function
+	return 1;
 }
 
 ##############################################
@@ -121,10 +124,11 @@ package RationalFunction::BOP::power;
 our @ISA = qw(PolynomialFactors::BOP::power);
 
 sub checkPolynomial {
-  my $self = shift; my ($l,$r) = ($self->{lop},$self->{rop});
-  $self->SUPER::checkPolynomial;
-  $self->{isPoly} = 6 if ($l->{isPoly}||0) >= 6;
-  return 1;
+	my $self = shift;
+	my ($l, $r) = ($self->{lop}, $self->{rop});
+	$self->SUPER::checkPolynomial;
+	$self->{isPoly} = 6 if ($l->{isPoly} || 0) >= 6;
+	return 1;
 }
 
 ##############################################
@@ -133,10 +137,10 @@ package RationalFunction::UOP::minus;
 our @ISA = qw(PolynomialFactors::UOP::minus);
 
 sub checkPolynomial {
-  my $self = shift;
-  $self->SUPER::checkPolynomial;
-  $self->{isPoly} = 6 if ($self->{op}{isPoly}||0) >= 6;
-  return 1;
+	my $self = shift;
+	$self->SUPER::checkPolynomial;
+	$self->{isPoly} = 6 if ($self->{op}{isPoly} || 0) >= 6;
+	return 1;
 }
 
 ##############################################
@@ -145,39 +149,41 @@ package RationalFunction;
 our @ISA = ('PolynomialFactors');
 
 sub Init {
-  #
-  #  Build the new context that calls the
-  #  above classes rather than the usual ones
-  #
+	#
+	#  Build the new context that calls the
+	#  above classes rather than the usual ones
+	#
 
-  my $context = $main::context{RationalFunction} = Parser::Context->getCopy("PolynomialFactors");
-  $context->{name} = "RationalFunction";
-  $context->operators->set(
-     '*' => {class => 'RationalFunction::BOP::multiply'},
-    '* ' => {class => 'RationalFunction::BOP::multiply'},
-    ' *' => {class => 'RationalFunction::BOP::multiply'},
-     ' ' => {class => 'RationalFunction::BOP::multiply'},
-     '/' => {class => 'RationalFunction::BOP::divide'},
-    ' /' => {class => 'RationalFunction::BOP::divide'},
-    '/ ' => {class => 'RationalFunction::BOP::divide'},
-     '^' => {class => 'RationalFunction::BOP::power'},
-    '**' => {class => 'RationalFunction::BOP::power'},
-    'u-' => {class => 'RationalFunction::UOP::minus'},
-  );
-  $context->flags->set(strictPowers => 1);
+	my $context = $main::context{RationalFunction} = Parser::Context->getCopy("PolynomialFactors");
+	$context->{name} = "RationalFunction";
+	$context->operators->set(
+		'*'  => { class => 'RationalFunction::BOP::multiply' },
+		'* ' => { class => 'RationalFunction::BOP::multiply' },
+		' *' => { class => 'RationalFunction::BOP::multiply' },
+		' '  => { class => 'RationalFunction::BOP::multiply' },
+		'/'  => { class => 'RationalFunction::BOP::divide' },
+		' /' => { class => 'RationalFunction::BOP::divide' },
+		'/ ' => { class => 'RationalFunction::BOP::divide' },
+		'^'  => { class => 'RationalFunction::BOP::power' },
+		'**' => { class => 'RationalFunction::BOP::power' },
+		'u-' => { class => 'RationalFunction::UOP::minus' },
+	);
+	$context->flags->set(strictPowers => 1);
 
-  #
-  #  A context where coefficients can't include operations
-  #
-  $context = $main::context{"RationalFunction-Strict"} = $context->copy;
-  $context->flags->set(
-    strictCoefficients => 1,
-    singlePowers => 1, singleFactors => 1, singleQuotients => 1,
-    reduceConstants => 0,
-  );
-  $context->functions->disable("All");  # can be re-enabled if needed
+	#
+	#  A context where coefficients can't include operations
+	#
+	$context = $main::context{"RationalFunction-Strict"} = $context->copy;
+	$context->flags->set(
+		strictCoefficients => 1,
+		singlePowers       => 1,
+		singleFactors      => 1,
+		singleQuotients    => 1,
+		reduceConstants    => 0,
+	);
+	$context->functions->disable("All");    # can be re-enabled if needed
 
-  main::Context("RationalFunction");  ### FIXME:  probably should require author to set this explicitly
+	main::Context("RationalFunction");      ### FIXME:  probably should require author to set this explicitly
 }
 
 1;

@@ -1,3 +1,4 @@
+
 =head1 NAME
 
 contextOrdering.pl - Parses ordered lists of letters like "B > A = C > D"
@@ -78,7 +79,7 @@ just "A > B".
 
 loadMacros("MathObjects.pl");
 
-sub _contextOrdering_init {context::Ordering::Init()}
+sub _contextOrdering_init { context::Ordering::Init() }
 
 ###########################################
 #
@@ -93,35 +94,37 @@ package context::Ordering;
 #  modified to read better for these contexts.
 #
 sub Init {
-  my $context = $main::context{Ordering} = Parser::Context->getCopy("Numeric");
-  $context->{name} = "Ordering";
-  $context->parens->clear();
-  $context->variables->clear();
-  $context->constants->clear();
-  $context->operators->clear();
-  $context->functions->clear();
-  $context->strings->clear();
-  $context->operators->add(
-   '>' => {precedence => 1.5, associativity => 'left', type => 'bin', class => 'context::Ordering::BOP::ordering'},
-   '=' => {precedence => 1.7, associativity => 'left', type => 'bin', class => 'context::Ordering::BOP::ordering'},
-  );
-  $context->{parser}{String}  = "context::Ordering::Parser::String";
-  $context->{parser}{Value}   = "context::Ordering::Parser::Value";
-  $context->{value}{String}   = "context::Ordering::Value::String";
-  $context->{value}{Ordering} = "context::Ordering::Value::Ordering";
-  $context->strings->add('='=>{hidden=>1},'>'=>{hidden=>1});
-  $context->{error}{msg}{"Variable '%s' is not defined in this context"} = "'%s' is not defined in this context";
-  $context->{error}{msg}{"Unexpected character '%s'"} = "Can't use '%s' in this context";
-  $context->{error}{msg}{"Missing operand before '%s'"} = "Missing letter before '%s'";
-  $context->{error}{msg}{"Missing operand after '%s'"} = "Missing letter after '%s'";
+	my $context = $main::context{Ordering} = Parser::Context->getCopy("Numeric");
+	$context->{name} = "Ordering";
+	$context->parens->clear();
+	$context->variables->clear();
+	$context->constants->clear();
+	$context->operators->clear();
+	$context->functions->clear();
+	$context->strings->clear();
+	$context->operators->add(
+		'>' =>
+			{ precedence => 1.5, associativity => 'left', type => 'bin', class => 'context::Ordering::BOP::ordering' },
+		'=' =>
+			{ precedence => 1.7, associativity => 'left', type => 'bin', class => 'context::Ordering::BOP::ordering' },
+	);
+	$context->{parser}{String}  = "context::Ordering::Parser::String";
+	$context->{parser}{Value}   = "context::Ordering::Parser::Value";
+	$context->{value}{String}   = "context::Ordering::Value::String";
+	$context->{value}{Ordering} = "context::Ordering::Value::Ordering";
+	$context->strings->add('=' => { hidden => 1 }, '>' => { hidden => 1 });
+	$context->{error}{msg}{"Variable '%s' is not defined in this context"} = "'%s' is not defined in this context";
+	$context->{error}{msg}{"Unexpected character '%s'"}                    = "Can't use '%s' in this context";
+	$context->{error}{msg}{"Missing operand before '%s'"}                  = "Missing letter before '%s'";
+	$context->{error}{msg}{"Missing operand after '%s'"}                   = "Missing letter after '%s'";
 
-  $context = $main::context{'Ordering-List'} = $context->copy;
-  $context->{name} = 'Ordering-List';
-  $context->operators->redefine(',',from => "Full");
-  $context->{value}{List} = "context::Ordering::Value::List";
+	$context = $main::context{'Ordering-List'} = $context->copy;
+	$context->{name} = 'Ordering-List';
+	$context->operators->redefine(',', from => "Full");
+	$context->{value}{List} = "context::Ordering::Value::List";
 
-  main::PG_restricted_eval('sub Letters {context::Ordering::Letters(@_)}');
-  main::PG_restricted_eval('sub Ordering {context::Ordering::Ordering(@_)}');
+	main::PG_restricted_eval('sub Letters {context::Ordering::Letters(@_)}');
+	main::PG_restricted_eval('sub Ordering {context::Ordering::Ordering(@_)}');
 }
 
 #
@@ -130,11 +133,11 @@ sub Init {
 #   since they are used in the List() objects that implement the context).
 #
 sub Letters {
-  my $context = (Value::isContext($_[0]) ? shift : main::Context());
-  my @strings;
-  foreach my $x (@_) {push(@strings, $x => {isLetter => 1, caseSensitive => 1})}
-  $context->strings->are(@strings);
-  $context->strings->add('='=>{hidden=>1},'>'=>{hidden=>1});
+	my $context = (Value::isContext($_[0]) ? shift : main::Context());
+	my @strings;
+	foreach my $x (@_) { push(@strings, $x => { isLetter => 1, caseSensitive => 1 }) }
+	$context->strings->are(@strings);
+	$context->strings->add('=' => { hidden => 1 }, '>' => { hidden => 1 });
 }
 
 #
@@ -144,28 +147,33 @@ sub Letters {
 #  Ordering object.
 #
 sub Ordering {
-  my $context = main::Context()->copy; my $string;
-  Value->Error("The current context is not the Ordering context")
-    unless $context->{name} =~ m/Ordering/;
-  if (scalar(@_) == 1) {
-    $string = shift;
-    my $letters = $string; $letters =~ s/ //g;
-    context::Ordering::Letters($context,split(/[>=]/,$letters));
-  } else {
-    my %letter = @_; my @letters = keys %letter;
-    context::Ordering::Letters($context,@letters);
-    foreach my $x (@letters) {$letter{$x} = Value::Real->new($context,$letter{$x})}
-    my @order = main::PGsort(
-      sub {$letter{$_[0]} == $letter{$_[1]} ?  $_[0] lt $_[1] : $letter{$_[0]} > $letter{$_[1]}},
-      @letters
-    );
-    my $a = shift(@order); my $b; $string = $a;
-    while ($b = shift(@order)) {
-      $string .= ($letter{$a} == $letter{$b} ? " = " : " > ") . $b;
-      $a = $b;
-    }
-  }
-  return main::Formula($context,$string)->eval;
+	my $context = main::Context()->copy;
+	my $string;
+	Value->Error("The current context is not the Ordering context")
+		unless $context->{name} =~ m/Ordering/;
+	if (scalar(@_) == 1) {
+		$string = shift;
+		my $letters = $string;
+		$letters =~ s/ //g;
+		context::Ordering::Letters($context, split(/[>=]/, $letters));
+	} else {
+		my %letter  = @_;
+		my @letters = keys %letter;
+		context::Ordering::Letters($context, @letters);
+		foreach my $x (@letters) { $letter{$x} = Value::Real->new($context, $letter{$x}) }
+		my @order = main::PGsort(
+			sub { $letter{ $_[0] } == $letter{ $_[1] } ? $_[0] lt $_[1] : $letter{ $_[0] } > $letter{ $_[1] } },
+			@letters);
+		my $a = shift(@order);
+		my $b;
+		$string = $a;
+
+		while ($b = shift(@order)) {
+			$string .= ($letter{$a} == $letter{$b} ? " = " : " > ") . $b;
+			$a = $b;
+		}
+	}
+	return main::Formula($context, $string)->eval;
 }
 
 #############################################################
@@ -184,41 +192,42 @@ our @ISA = ('Parser::BOP');
 sub class {"Ordering"}
 
 sub isOrdering {
-  my $self = shift; my $obj = shift; my $class = $obj->class;
-  return $class eq 'Ordering' || $obj->{def}{isLetter};
+	my $self  = shift;
+	my $obj   = shift;
+	my $class = $obj->class;
+	return $class eq 'Ordering' || $obj->{def}{isLetter};
 }
 
 sub _check {
-  my $self = shift;
-  $self->Error("Operands of %s must be letters",$self->{bop})
-    unless $self->isOrdering($self->{lop}) && $self->isOrdering($self->{rop});
-  $self->{letters} = $self->{lop}{letters}; # we modify {lop}{letters} this way, but that doesn't matter
-  foreach my $x (keys %{$self->{rop}{letters}}) {
-    if (defined($self->{letters}{$x})) {
-      $self->{ref} = $self->{rop}{letters}{$x};
-      $self->Error("Each letter may appear only once in an ordering");
-    }
-    $self->{letters}{$x} = $self->{rop}{letters}{$x};
-  }
+	my $self = shift;
+	$self->Error("Operands of %s must be letters", $self->{bop})
+		unless $self->isOrdering($self->{lop}) && $self->isOrdering($self->{rop});
+	$self->{letters} = $self->{lop}{letters};    # we modify {lop}{letters} this way, but that doesn't matter
+	foreach my $x (keys %{ $self->{rop}{letters} }) {
+		if (defined($self->{letters}{$x})) {
+			$self->{ref} = $self->{rop}{letters}{$x};
+			$self->Error("Each letter may appear only once in an ordering");
+		}
+		$self->{letters}{$x} = $self->{rop}{letters}{$x};
+	}
 }
 
 sub _eval {
-  my $self = shift;
-  my $ordering = $self->Package("Ordering")->new($self->context,$self->{bop},@_);
-  $ordering->{letters} = $self->{letters};
-  return $ordering;
+	my $self     = shift;
+	my $ordering = $self->Package("Ordering")->new($self->context, $self->{bop}, @_);
+	$ordering->{letters} = $self->{letters};
+	return $ordering;
 }
 
 sub string {
-  my $self = shift;
-  return $self->{lop}->string." ".$self->{bop}." ".$self->{rop}->string;
+	my $self = shift;
+	return $self->{lop}->string . " " . $self->{bop} . " " . $self->{rop}->string;
 }
 
 sub TeX {
-  my $self = shift;
-  return $self->{lop}->TeX." ".$self->{bop}." ".$self->{rop}->TeX;
+	my $self = shift;
+	return $self->{lop}->TeX . " " . $self->{bop} . " " . $self->{rop}->TeX;
 }
-
 
 #############################################################
 #
@@ -240,29 +249,32 @@ our @ISA = ('Value::List');
 #  Put all equal letters into one list and sort them
 #
 sub new {
-  my $self = shift;
-  my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  my $bop = shift; my @letters = @_;
-  if ($bop eq '=') {
-    if (Value::classMatch($letters[0],'Ordering') && $letters[0]->{data}[0] eq '=')
-      {@letters = ($letters[0]->value,$letters[1]); shift @letters}
-    @letters = main::lex_sort(@letters);
-  }
-  return $self->SUPER::new($context,$bop,@letters);
+	my $self    = shift;
+	my $context = (Value::isContext($_[0]) ? shift : $self->context);
+	my $bop     = shift;
+	my @letters = @_;
+	if ($bop eq '=') {
+		if (Value::classMatch($letters[0], 'Ordering') && $letters[0]->{data}[0] eq '=') {
+			@letters = ($letters[0]->value, $letters[1]);
+			shift @letters;
+		}
+		@letters = main::lex_sort(@letters);
+	}
+	return $self->SUPER::new($context, $bop, @letters);
 }
 
 sub string {
-  my $self = shift;
-  my ($bop,@rest) = $self->value;
-  foreach my $x (@rest) {$x = $x->string};
-  return join(" $bop ",@rest);
+	my $self = shift;
+	my ($bop, @rest) = $self->value;
+	foreach my $x (@rest) { $x = $x->string }
+	return join(" $bop ", @rest);
 }
 
 sub TeX {
-  my $self = shift;
-  my ($bop,@rest) = $self->value;
-  foreach my $x (@rest) {$x = $x->TeX};
-  return join(" $bop ",@rest);
+	my $self = shift;
+	my ($bop, @rest) = $self->value;
+	foreach my $x (@rest) { $x = $x->TeX }
+	return join(" $bop ", @rest);
 }
 
 #
@@ -271,30 +283,29 @@ sub TeX {
 #  the ordering)
 #
 sub cmp_equal {
-  my $self = shift; my $ans = $_[0];
-  $ans->{typeMatch} = $ans->{firstElement} = $self;
-  $ans->{correct_formula} = $self->{equation};
-  $self = $ans->{correct_value} = Value::List->make($self);
-  $ans->{student_value} = Value::List->make($ans->{student_value})
-      if Value::classMatch($ans->{student_value},'Ordering');
-  return $self->SUPER::cmp_equal(@_);
+	my $self = shift;
+	my $ans  = $_[0];
+	$ans->{typeMatch}       = $ans->{firstElement} = $self;
+	$ans->{correct_formula} = $self->{equation};
+	$self                   = $ans->{correct_value} = Value::List->make($self);
+	$ans->{student_value}   = Value::List->make($ans->{student_value})
+		if Value::classMatch($ans->{student_value}, 'Ordering');
+	return $self->SUPER::cmp_equal(@_);
 }
 
 sub cmp_defaults {
-  my $self = shift;
-  return (
-    $self->SUPER::cmp_defaults(@_),
-    showMissingLetterHints => 1,
-  );
+	my $self = shift;
+	return ($self->SUPER::cmp_defaults(@_), showMissingLetterHints => 1,);
 }
 
 sub cmp_postprocess {
-  my $self = shift; my $ans = shift;
-  return if $ans->{isPreview} || $ans->{score} != 0;
-  $self->cmp_Error($ans,"Your ordering should include all the letters")
-    if $ans->{showMissingLetterHints} &&
-       scalar(keys %{$ans->{correct_formula}{tree}{letters}}) !=
-       scalar(keys %{$ans->{student_formula}{tree}{letters}});
+	my $self = shift;
+	my $ans  = shift;
+	return if $ans->{isPreview} || $ans->{score} != 0;
+	$self->cmp_Error($ans, "Your ordering should include all the letters")
+		if $ans->{showMissingLetterHints}
+		&& scalar(keys %{ $ans->{correct_formula}{tree}{letters} }) !=
+		scalar(keys %{ $ans->{student_formula}{tree}{letters} });
 }
 
 #
@@ -302,13 +313,14 @@ sub cmp_postprocess {
 #  can include them even if they aren't in the correct answer).
 #
 sub AddLetters {
-  my $self = shift; my $context = $self->context;
-  my @strings;
-  foreach my $x (@_) {
-    push(@strings, $x => {isLetter => 1, caseSensitive => 1})
-      unless $context->strings->get($x);
-  }
-  $context->strings->add(@strings) if scalar(@strings);
+	my $self    = shift;
+	my $context = $self->context;
+	my @strings;
+	foreach my $x (@_) {
+		push(@strings, $x => { isLetter => 1, caseSensitive => 1 })
+			unless $context->strings->get($x);
+	}
+	$context->strings->add(@strings) if scalar(@strings);
 }
 
 #############################################################
@@ -320,8 +332,7 @@ sub AddLetters {
 package context::Ordering::Value::String;
 our @ISA = ('Value::String');
 
-sub TeX {shift->value}
-
+sub TeX { shift->value }
 
 #############################################################
 #
@@ -335,10 +346,10 @@ our @ISA = ('Parser::String');
 #  Save the letters positional reference
 #
 sub new {
-  my $self = shift;
-  $self = $self->SUPER::new(@_);
-  $self->{letters}{$self->{value}} = $self->{ref} if $self->{def}{isLetter};
-  return $self;
+	my $self = shift;
+	$self = $self->SUPER::new(@_);
+	$self->{letters}{ $self->{value} } = $self->{ref} if $self->{def}{isLetter};
+	return $self;
 }
 
 #########################
@@ -350,19 +361,19 @@ our @ISA = ('Parser::Value');
 #  Move letters to Value object
 #
 sub new {
-  my $self = shift;
-  $self = $self->SUPER::new(@_);
-  $self->{letters} = $self->{value}{letters} if defined $self->{value}{letters};
-  return $self;
+	my $self = shift;
+	$self = $self->SUPER::new(@_);
+	$self->{letters} = $self->{value}{letters} if defined $self->{value}{letters};
+	return $self;
 }
 
 #
 #  Return Ordering class if the object is one
 #
 sub class {
-  my $self = shift;
-  return "Ordering" if $self->{value}->classMatch('Ordering');
-  return $self->SUPER::class;
+	my $self = shift;
+	return "Ordering" if $self->{value}->classMatch('Ordering');
+	return $self->SUPER::class;
 }
 
 #############################################################
@@ -378,10 +389,11 @@ package context::Ordering::Value::List;
 our @ISA = ('Value::List');
 
 sub cmp_equal {
-  my $self = shift;  my $ans = $_[0];
-  $ans->{student_value} = Value::List->make($ans->{student_value})
-    if Value::classMatch($ans->{student_value},'Ordering');
-  return $self->SUPER::cmp_equal(@_);
+	my $self = shift;
+	my $ans  = $_[0];
+	$ans->{student_value} = Value::List->make($ans->{student_value})
+		if Value::classMatch($ans->{student_value}, 'Ordering');
+	return $self->SUPER::cmp_equal(@_);
 }
 
 #############################################################

@@ -70,34 +70,35 @@ in case you want to use it in error messages, for example.
 
 loadMacros("MathObjects.pl");
 
-sub _parserFormulaAnyVar_init {FormulaAnyVar::Init()}
+sub _parserFormulaAnyVar_init { FormulaAnyVar::Init() }
 
 package FormulaAnyVar;
 @ISA = ('Value::Formula');
 
 sub Init {
-  main::PG_restricted_eval('sub FormulaAnyVar {FormulaAnyVar->new(@_)}');
+	main::PG_restricted_eval('sub FormulaAnyVar {FormulaAnyVar->new(@_)}');
 }
 
 #
 #  Create an instance of a FormulaAnyVar.
 #
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
-  #
-  #  Copy the context (so we can modify it) and
-  #  replace the usual Variable object with our own.
-  #  Remove the variables from it, and let them be
-  #  created automatically as needed.
-  #
-  my $context = (Value::isContext($_[0]) ? shift : $self->context)->copy;
-  $context->{parser}{Variable} = 'FormulaAnyVar::Variable';
-  $context->variables->clear();
-  #
-  #  Create a formula from the user's input.
-  #
-  my $f = main::Formula($context,@_);
-  return bless $f, $class;
+	my $self  = shift;
+	my $class = ref($self) || $self;
+	#
+	#  Copy the context (so we can modify it) and
+	#  replace the usual Variable object with our own.
+	#  Remove the variables from it, and let them be
+	#  created automatically as needed.
+	#
+	my $context = (Value::isContext($_[0]) ? shift : $self->context)->copy;
+	$context->{parser}{Variable} = 'FormulaAnyVar::Variable';
+	$context->variables->clear();
+	#
+	#  Create a formula from the user's input.
+	#
+	my $f = main::Formula($context, @_);
+	return bless $f, $class;
 }
 
 ##################################################
@@ -106,14 +107,16 @@ sub new {
 #  variable by the professor's (if they differ).
 #
 sub compare {
-  my ($l,$r) = @_; my $self = $l; my $context = $self->context;
-  $r = Value::makeValue($r,context=>$context) unless Value::isValue($r);
-  #
-  #  If constants aren't the same, substitute the professor's in the student answer.
-  #
-  $r = $r->substitute($r->{x}=>$l->{x}) unless $r->{x} eq $l->{x};
-  $r = main::Formula($context,$r);
-  return $l->SUPER::compare($r);
+	my ($l, $r) = @_;
+	my $self    = $l;
+	my $context = $self->context;
+	$r = Value::makeValue($r, context => $context) unless Value::isValue($r);
+	#
+	#  If constants aren't the same, substitute the professor's in the student answer.
+	#
+	$r = $r->substitute($r->{x} => $l->{x}) unless $r->{x} eq $l->{x};
+	$r = main::Formula($context, $r);
+	return $l->SUPER::compare($r);
 }
 
 ######################################################################
@@ -128,23 +131,26 @@ package FormulaAnyVar::Variable;
 our @ISA = ('Parser::Variable');
 
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
-  my $equation = shift; my $variables = $equation->{context}{variables};
-  my ($name,$ref) = @_; my $def = $variables->{$name};
-  #
-  #  If the variable is not already in the context, add it
-  #  Save the variable for future reference
-  #
-  if (!defined($def) && length($name) eq 1) {
-    Value->Error("Your formula should include only one variable") if $equation->{x};
-    $equation->{context}->variables->add($name => 'Real');
-    $def = $variables->{$name};
-  }
-  $equation->{x} = $name;
-  #
-  #  Do the usual Variable stuff.
-  #
-  $self->SUPER::new($equation,$name,$ref);
+	my $self      = shift;
+	my $class     = ref($self) || $self;
+	my $equation  = shift;
+	my $variables = $equation->{context}{variables};
+	my ($name, $ref) = @_;
+	my $def = $variables->{$name};
+	#
+	#  If the variable is not already in the context, add it
+	#  Save the variable for future reference
+	#
+	if (!defined($def) && length($name) eq 1) {
+		Value->Error("Your formula should include only one variable") if $equation->{x};
+		$equation->{context}->variables->add($name => 'Real');
+		$def = $variables->{$name};
+	}
+	$equation->{x} = $name;
+	#
+	#  Do the usual Variable stuff.
+	#
+	$self->SUPER::new($equation, $name, $ref);
 }
 
 1;

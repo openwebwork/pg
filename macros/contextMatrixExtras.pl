@@ -58,20 +58,24 @@ Note that the F<contextMatrixExtras.pl> file modifies the Matrix context, so be 
 
 =cut
 
-
 loadMacros("MathObjects.pl");
 
 sub _contextMatrixExtras_init {
-  my $context = $main::context{Matrix} = Parser::Context->getCopy("Matrix");
-  $context->operators->add(
-    '^T' => {precedence => 7, associativity => 'right', type => 'unary', string => '^T',
-             class => 'context::MatrixExtras::UOP::transpose'},
-  );
-  $context->functions->add(
-    'tr'  => {class => "context::MatrixExtras::Function::matrix", method => "trace"},
-    'det' => {class => "context::MatrixExtras::Function::matrix"},
-  );
-};
+	my $context = $main::context{Matrix} = Parser::Context->getCopy("Matrix");
+	$context->operators->add(
+		'^T' => {
+			precedence    => 7,
+			associativity => 'right',
+			type          => 'unary',
+			string        => '^T',
+			class         => 'context::MatrixExtras::UOP::transpose'
+		},
+	);
+	$context->functions->add(
+		'tr'  => { class => "context::MatrixExtras::Function::matrix", method => "trace" },
+		'det' => { class => "context::MatrixExtras::Function::matrix" },
+	);
+}
 
 ####################################################
 #
@@ -82,17 +86,16 @@ package context::MatrixExtras::UOP::transpose;
 @ISA = ("Parser::UOP");
 
 sub _check {
-  my $self = shift;
-  $self->Error("Transpose is only defined for Matrices") unless $self->{op}->type eq "Matrix";
+	my $self = shift;
+	$self->Error("Transpose is only defined for Matrices") unless $self->{op}->type eq "Matrix";
 }
 
-sub _eval {shift; $_[0]->transpose}
+sub _eval { shift; $_[0]->transpose }
 
 sub perl {
-  my $self = shift;
-  return '('.$self->{op}->perl.'->transpose)';
+	my $self = shift;
+	return '(' . $self->{op}->perl . '->transpose)';
 }
-
 
 ####################################################
 #
@@ -104,15 +107,16 @@ our @ISA = ("Parser::Function");
 #
 #  Check for a single Matrix-valued input
 #
-sub _check {(shift)->checkMatrix(@_)}
+sub _check { (shift)->checkMatrix(@_) }
 
 #
 #  Evaluate by promoting to a Matrix
 #    and then calling the routine from the Value package
 #
 sub _eval {
-  my $self = shift; my $name = $self->{def}{method} || $self->{name};
-  $self->Package("Matrix")->promote($self->context,$_[0])->$name;
+	my $self = shift;
+	my $name = $self->{def}{method} || $self->{name};
+	$self->Package("Matrix")->promote($self->context, $_[0])->$name;
 }
 
 #
@@ -122,10 +126,12 @@ sub _eval {
 #    converting "tr" to "trace")
 #
 sub _call {
-  my $self = shift; my $name = shift;
-  Value->Error("Function '%s' has too many inputs",$name) if scalar(@_) > 1;
-  Value->Error("Function '%s' has too few inputs",$name) if scalar(@_) == 0;
-  my $M = shift; my $context = (Value::isValue($M) ? $M : $self)->context;
-  $name = "trace" if $name eq "tr";  # method of Matrix is trace not tr
-  $self->Package("Matrix")->promote($context,$M)->$name;
+	my $self = shift;
+	my $name = shift;
+	Value->Error("Function '%s' has too many inputs", $name) if scalar(@_) > 1;
+	Value->Error("Function '%s' has too few inputs",  $name) if scalar(@_) == 0;
+	my $M       = shift;
+	my $context = (Value::isValue($M) ? $M : $self)->context;
+	$name = "trace" if $name eq "tr";    # method of Matrix is trace not tr
+	$self->Package("Matrix")->promote($context, $M)->$name;
 }

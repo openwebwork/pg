@@ -198,7 +198,7 @@ so that the contents of the scaffold will be properly displayed.
 
 =cut
 
-sub _compoundProblem5_init {};   # don't reload this file
+sub _compoundProblem5_init { };    # don't reload this file
 
 #
 #  Set up some styles and the jQuery calls for opening and closing the scaffolds.
@@ -275,23 +275,23 @@ END_HEADER_TEXT
 package Scaffold;
 our @ISA = qw(PGcore);
 
-our $scaffold;  # the active scaffold (set by Scaffold() below)
+our $scaffold;    # the active scaffold (set by Scaffold() below)
 our $isInstructor = ($envir{effectivePermissionLevel} >= $envir{ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL});
 
-my $PG_ANSWERS_HASH = $main::PG->{PG_ANSWERS_HASH};  # where PG stores answer evaluators
+my $PG_ANSWERS_HASH = $main::PG->{PG_ANSWERS_HASH};    # where PG stores answer evaluators
 
 #
 #  Create a new Scaffold object
 #
 sub new {
-    my $class = shift;
-    my $self = bless {
-	sections => {},
-        current_section => 0,
-	ans_names => [],
-	scores => [],
-    }, $class;
-    return $self;
+	my $class = shift;
+	my $self  = bless {
+		sections        => {},
+		current_section => 0,
+		ans_names       => [],
+		scores          => [],
+	}, $class;
+	return $self;
 }
 
 #
@@ -299,40 +299,41 @@ sub new {
 #  the PROCESS_ANSWERS method below.
 #
 sub scores {
-    my $self = shift;
-    $self->{scores};
+	my $self = shift;
+	$self->{scores};
 }
 
 #
 #  Add answer evaluators to a section
-#   If the section is already displayed ($section->{section_answers} exists), 
+#   If the section is already displayed ($section->{section_answers} exists),
 #      Get the answer labels and add them to the scaffold and section
 #   Otherwise we pick them up in the new_answers() call.
 #
 sub ans_evaluators {
-    my $self = shift;
-    my $section = $self->{sections}{$self->{current_section}};
-    if ($section->{section_answers}) {
-        my $count = $main::PG->{unlabeled_answer_eval_count};      # Pitty that we have to grab this by hand
-	foreach my $evaluator (@_) {
-	    my $name = main::ANS_NUM_TO_NAME(++$count);
-	    push(@{$self->{ans_names}},$name);
-	    push(@{$section->{section_answers}},$name);
+	my $self    = shift;
+	my $section = $self->{sections}{ $self->{current_section} };
+	if ($section->{section_answers}) {
+		my $count = $main::PG->{unlabeled_answer_eval_count};    # Pitty that we have to grab this by hand
+		foreach my $evaluator (@_) {
+			my $name = main::ANS_NUM_TO_NAME(++$count);
+			push(@{ $self->{ans_names} },          $name);
+			push(@{ $section->{section_answers} }, $name);
+		}
 	}
-    }
-}
-sub named_ans_evaluators {
-    my $self = shift;
-    my $section = $self->{sections}{$self->{current_section}};
-    if ($section->{section_answers}) {
-        while (@_) {
-	    my $name = shift; my $evaluator = shift;
-	    push(@{$self->{ans_names}},$name);
-	    push(@{$section->{section_answers}},$name);
-	}
-    }
 }
 
+sub named_ans_evaluators {
+	my $self    = shift;
+	my $section = $self->{sections}{ $self->{current_section} };
+	if ($section->{section_answers}) {
+		while (@_) {
+			my $name      = shift;
+			my $evaluator = shift;
+			push(@{ $self->{ans_names} },          $name);
+			push(@{ $section->{section_answers} }, $name);
+		}
+	}
+}
 
 ###########################################
 #
@@ -355,38 +356,40 @@ sub named_ans_evaluators {
 #  the results table), and the rendered text for the section.
 #
 sub DISPLAY_SECTION {
-     my $self= shift;
-     my $options = shift;
-     $options = {name => shift(@$options), @$options} if ref($options) eq 'ARRAY';
-     $options = {name => $options} unless ref($options) eq 'HASH';
-     $options->{iscorrect} = sub {$self->iscorrect(shift)} unless $options->{iscorrect};
-     $options->{canshow}   = sub {$self->canshow(shift)}   unless $options->{canshow};
-     my $text_string = shift;
-     my $sectionNo = $options->{section} || ($self->{current_section}+1);
-     $self->{current_section} = $sectionNo;
-     my $sectionID = "DiSpLaY_SeCtIoN_$sectionNo";
-     my $section = $self->{sections}{$sectionNo} = {};
-     $section->{number} = $sectionNo;
-     $section->{options} = $options;
-     my @assigned = $self->assigned_answers;                         # the answer blanks with no evaluators
-     $section->{previous_answers} = [@{$self->{ans_names}}];         # copy of current list of answers
-     $section->{renderedtext} = ($options->{PGML} ? PGML::Format2($text_string) : main::EV3P($text_string));
-     $section->{section_answers} = [$self->new_answers(@assigned)];  # new answers in this section
-     push(@{$self->{ans_names}},@{$section->{section_answers}});     # add them to the answers in this scaffold
-     main::TEXT("$sectionID"); # place holder, on a line by itself that will be replaced in process_section
-     return "";
+	my $self    = shift;
+	my $options = shift;
+	$options              = { name => shift(@$options), @$options } if ref($options) eq 'ARRAY';
+	$options              = { name => $options } unless ref($options) eq 'HASH';
+	$options->{iscorrect} = sub { $self->iscorrect(shift) }
+		unless $options->{iscorrect};
+	$options->{canshow} = sub { $self->canshow(shift) }
+		unless $options->{canshow};
+	my $text_string = shift;
+	my $sectionNo   = $options->{section} || ($self->{current_section} + 1);
+	$self->{current_section} = $sectionNo;
+	my $sectionID = "DiSpLaY_SeCtIoN_$sectionNo";
+	my $section   = $self->{sections}{$sectionNo} = {};
+	$section->{number}  = $sectionNo;
+	$section->{options} = $options;
+	my @assigned = $self->assigned_answers;                              # the answer blanks with no evaluators
+	$section->{previous_answers} = [ @{ $self->{ans_names} } ];          # copy of current list of answers
+	$section->{renderedtext}     = ($options->{PGML} ? PGML::Format2($text_string) : main::EV3P($text_string));
+	$section->{section_answers}  = [ $self->new_answers(@assigned) ];    # new answers in this section
+	push(@{ $self->{ans_names} }, @{ $section->{section_answers} });     # add them to the answers in this scaffold
+	main::TEXT("$sectionID");    # place holder, on a line by itself that will be replaced in process_section
+	return "";
 }
 
 #
 #  Display a section using PGML rather than BEGIN_TEXT/END_TEXT notation
 #
 sub DISPLAY_PGML_SECTION {
-  my $self = shift;
-  my $options = shift;
-  $options = {name => shift(@$options), @$options} if ref($options) eq 'ARRAY';
-  $options = {name => $options} unless ref($options) eq 'HASH';
-  $options->{PGML} = 1;
-  $self->DISPLAY_SECTION($options,@_);
+	my $self    = shift;
+	my $options = shift;
+	$options         = { name => shift(@$options), @$options } if ref($options) eq 'ARRAY';
+	$options         = { name => $options } unless ref($options) eq 'HASH';
+	$options->{PGML} = 1;
+	$self->DISPLAY_SECTION($options, @_);
 }
 
 #
@@ -394,26 +397,27 @@ sub DISPLAY_PGML_SECTION {
 #  an answer evaluator assigned to it and 0 means not.
 #
 sub assigned_answers {
-    my $self = shift;
-    my @answers = ();
-    foreach my $name (keys %{$PG_ANSWERS_HASH}) {
-      push(@answers,$PG_ANSWERS_HASH->{$name}->ans_eval ? 1 : 0);
-    }
-    return @answers;
+	my $self    = shift;
+	my @answers = ();
+	foreach my $name (keys %{$PG_ANSWERS_HASH}) {
+		push(@answers, $PG_ANSWERS_HASH->{$name}->ans_eval ? 1 : 0);
+	}
+	return @answers;
 }
 #
 #  Get the names of any of the original answer blanks that now have
 #  evaluators attached.
 #
 sub new_answers {
-    my $self = shift;
-    my @assigned = @_;                  # 0 if previously unassigned, 1 if assigned
-    my @answers = (); my $i = 0;
-    foreach my $name (keys %{$PG_ANSWERS_HASH}) {
-      push(@answers,$name) if $PG_ANSWERS_HASH->{$name}->ans_eval && !$assigned[$i];
-      $i++;
-    }
-    return @answers;
+	my $self     = shift;
+	my @assigned = @_;      # 0 if previously unassigned, 1 if assigned
+	my @answers  = ();
+	my $i        = 0;
+	foreach my $name (keys %{$PG_ANSWERS_HASH}) {
+		push(@answers, $name) if $PG_ANSWERS_HASH->{$name}->ans_eval && !$assigned[$i];
+		$i++;
+	}
+	return @answers;
 }
 
 #
@@ -422,40 +426,42 @@ sub new_answers {
 #  and what color they should be.
 #
 sub process_section {
-    my $self = shift;
-    my $section = shift;
-    my $sectionNo = $section->{number};
-    my $options = $section->{options};
-    my $name = $options->{name};
+	my $self      = shift;
+	my $section   = shift;
+	my $sectionNo = $section->{number};
+	my $options   = $section->{options};
+	my $name      = $options->{name};
 
-    #
-    #  Process the iscorrect and canshow values and set the class
-    #
-    my $iscorrect = $self->process_check($section,$options->{iscorrect});
-    my $canshow   = $self->process_check($section,$options->{canshow});
-    my $iscorrect_class = 'notanswered';
-    $iscorrect_class = ($iscorrect ? 'iscorrect' : 'iswrong') if defined($iscorrect);
+	#
+	#  Process the iscorrect and canshow values and set the class
+	#
+	my $iscorrect       = $self->process_check($section, $options->{iscorrect});
+	my $canshow         = $self->process_check($section, $options->{canshow});
+	my $iscorrect_class = 'notanswered';
+	$iscorrect_class = ($iscorrect ? 'iscorrect' : 'iswrong') if defined($iscorrect);
 
-    #
-    #  Get the script to open or prevent the section from opening
-    #
-    my $action = $canshow ? "canshow()" : "cannotshow()";
-    my $scriptpreamble = main::MODES(TeX=>'', PTX=>'', HTML=>qq!<script>\$("#section$sectionNo").$action</script>!);
-    my $renderedtext = $canshow ? $section->{renderedtext} : '' ;
-    $renderedtext = $scriptpreamble . "\n" . $renderedtext;
-    $renderedtext .= $section->{solution} if main::not_null($section->{solution});
+	#
+	#  Get the script to open or prevent the section from opening
+	#
+	my $action = $canshow ? "canshow()" : "cannotshow()";
+	my $scriptpreamble =
+		main::MODES(TeX => '', PTX => '', HTML => qq!<script>\$("#section$sectionNo").$action</script>!);
+	my $renderedtext = $canshow ? $section->{renderedtext} : '';
+	$renderedtext = $scriptpreamble . "\n" . $renderedtext;
+	$renderedtext .= $section->{solution} if main::not_null($section->{solution});
 
-    #
-    #  Make the final version of the section's text
-    #
-    $section->{finalversion} = main::MODES(
-      HTML=> qq!<li class="section-li">
+	#
+	#  Make the final version of the section's text
+	#
+	$section->{finalversion} = main::MODES(
+		HTML => qq!<li class="section-li">
          <h3 id="section$sectionNo" class="$iscorrect_class">Section: $name:</h3>
          <div><p>$renderedtext</p></div></li>
-      !, TeX=>"\\par{\\bf Section: $name}\\par $renderedtext\\par",
-      PTX=>"<task>\n$renderedtext</task>\n",
-    );
-    ($iscorrect,$canshow);
+      !,
+		TeX => "\\par{\\bf Section: $name}\\par $renderedtext\\par",
+		PTX => "<task>\n$renderedtext</task>\n",
+	);
+	($iscorrect, $canshow);
 }
 #
 #  Process an answer check.
@@ -464,15 +470,17 @@ sub process_section {
 #   return the result.
 #
 sub process_check {
-    my $self = shift; my $section = shift; my $check = shift;
-    my ($result,$error);
-    if (ref($check) eq "CODE") {
-        $result = &$check($section);
-    } else {
-        ($result,$error) = main::PG_restricted_eval($check);
-	die $error if $error;
-    }
-    return $result;
+	my $self    = shift;
+	my $section = shift;
+	my $check   = shift;
+	my ($result, $error);
+	if (ref($check) eq "CODE") {
+		$result = &$check($section);
+	} else {
+		($result, $error) = main::PG_restricted_eval($check);
+		die $error if $error;
+	}
+	return $result;
 }
 
 #
@@ -480,34 +488,35 @@ sub process_check {
 #  so that we can use them in iscorrect and canshow checks.
 #
 sub PROCESS_ANSWERS {
-    my $self = shift;
-    my %answers;
-    my @debug_messages = ();
-    my %options = @_;   # allow debug options for example.
-    my $DEBUG_ON = 1 if defined $options{debug} and $options{debug} == 1;
+	my $self = shift;
+	my %answers;
+	my @debug_messages = ();
+	my %options        = @_;                                                      # allow debug options for example.
+	my $DEBUG_ON       = 1 if defined $options{debug} and $options{debug} == 1;
 
-    #
-    #  MultiAnswer objects can set the answer hash score when the last answer is evaluated,
-    #    so save the hashes and look up the scores after they have all been called.
-    #  Essay answers never return as correct, so special case them, and provide a
-    #    "scaffold_force" option in the AnswerHash that can be used to force Scaffold
-    #    to consider the score to be 1 (bug in PGessaymacros.pl prevents us from using
-    #    it for essay_cmp(), though).
-    #
-    foreach my $name (@{$self->{ans_names}}) {
-        my $input = $main::inputs_ref->{$name};
-	my $evaluator = $PG_ANSWERS_HASH->{$name}->ans_eval;
-	Parser::Eval(sub {$answers{$name} = $evaluator->evaluate($input)}) if defined($input) && $input ne "";
-	$answers{$name}{score} = 1
-	    if $answers{$name} && (($answers{$name}{type}||"") eq "essay" || $answers{$name}{scaffold_force});
-	$evaluator->{rh_ans}{ans_message} = ""; delete $evaluator->{rh_ans}{error_message};
-    }
-    $self->{scores} = {};
-    foreach my $name (@{$self->{ans_names}}) {
-        $self->{scores}{$name} = $answers{$name}{score} if $answers{$name};
-	push(@debug_messages, "Scaffold:  scores $name = $self->{scores}{$name}") if $DEBUG_ON && $answers{$name};
-    }
-    main::DEBUG_MESSAGE(join("<br/>",@debug_messages)) if $DEBUG_ON;
+	#
+	#  MultiAnswer objects can set the answer hash score when the last answer is evaluated,
+	#    so save the hashes and look up the scores after they have all been called.
+	#  Essay answers never return as correct, so special case them, and provide a
+	#    "scaffold_force" option in the AnswerHash that can be used to force Scaffold
+	#    to consider the score to be 1 (bug in PGessaymacros.pl prevents us from using
+	#    it for essay_cmp(), though).
+	#
+	foreach my $name (@{ $self->{ans_names} }) {
+		my $input     = $main::inputs_ref->{$name};
+		my $evaluator = $PG_ANSWERS_HASH->{$name}->ans_eval;
+		Parser::Eval(sub { $answers{$name} = $evaluator->evaluate($input) }) if defined($input) && $input ne "";
+		$answers{$name}{score} = 1
+			if $answers{$name} && (($answers{$name}{type} || "") eq "essay" || $answers{$name}{scaffold_force});
+		$evaluator->{rh_ans}{ans_message} = "";
+		delete $evaluator->{rh_ans}{error_message};
+	}
+	$self->{scores} = {};
+	foreach my $name (@{ $self->{ans_names} }) {
+		$self->{scores}{$name} = $answers{$name}{score}                           if $answers{$name};
+		push(@debug_messages, "Scaffold:  scores $name = $self->{scores}{$name}") if $DEBUG_ON && $answers{$name};
+	}
+	main::DEBUG_MESSAGE(join("<br/>", @debug_messages)) if $DEBUG_ON;
 }
 
 #
@@ -517,21 +526,25 @@ sub PROCESS_ANSWERS {
 #  incorrect section so that it can be opened when the page is displayed.
 #
 sub PROCESS_SECTIONS {
-    my $self = shift;
-    my $number; my $section; my @open = (); my $last_correct = 0;
-    foreach my $line (@{$main::PG->{OUTPUT_ARRAY}}) {
-        if ($line =~/^\s*DiSpLaY_SeCtIoN_(\d+)\s*$/) {
-	    $number = $1; $section = $self->{sections}{$number};
-	    main::WARN_MESSAGE("Can't find object for section $number") unless $section;
-	    my ($iscorrect,$canshow) = $self->process_section($section);
-	    push(@open,$number) unless scalar(@open) || $iscorrect; # first section that isn't correct;
-	    $last_correct = $number if $iscorrect; # backward compatibility;
-	    $line = $section->{finalversion};
+	my $self = shift;
+	my $number;
+	my $section;
+	my @open         = ();
+	my $last_correct = 0;
+	foreach my $line (@{ $main::PG->{OUTPUT_ARRAY} }) {
+		if ($line =~ /^\s*DiSpLaY_SeCtIoN_(\d+)\s*$/) {
+			$number  = $1;
+			$section = $self->{sections}{$number};
+			main::WARN_MESSAGE("Can't find object for section $number") unless $section;
+			my ($iscorrect, $canshow) = $self->process_section($section);
+			push(@open, $number) unless scalar(@open) || $iscorrect;    # first section that isn't correct;
+			$last_correct = $number if $iscorrect;                      # backward compatibility;
+			$line         = $section->{finalversion};
+		}
 	}
-    }
-    return $last_correct if $self->{oldstyle};
-    push(@open,$number) unless scalar(@open);
-    return @open;
+	return $last_correct if $self->{oldstyle};
+	push(@open, $number) unless scalar(@open);
+	return @open;
 }
 
 #
@@ -539,9 +552,9 @@ sub PROCESS_SECTIONS {
 #  leaving the usual one open.
 #
 sub PROCESS_SCAFFOLD {
-    my $self = shift;
-    $self->PROCESS_ANSWERS(@_);
-    $self->openSections($self->PROCESS_SECTIONS());
+	my $self = shift;
+	$self->PROCESS_ANSWERS(@_);
+	$self->openSections($self->PROCESS_SECTIONS());
 }
 
 #
@@ -552,28 +565,30 @@ sub PROCESS_SCAFFOLD {
 #  active.  That may be a downside to the dimming.)
 #
 sub HIDE_OTHER_RESULTS {
-    my $self = shift;
-    #
-    #  Record the row for each answer evaluator
-    #
-    my %row; my $i = 2;
-    foreach my $name (keys %{$PG_ANSWERS_HASH}) {$row{$name} = $i; $i++}; # record the rows for all answers
-    #
-    #  Mark which sections to show
-    #
-    my %show; map {$show{$_} = 1} @_;
-    #
-    #  Get the row numbers for the answers from OTHER sections
-    #
-    my @hide = ();
-    foreach $i (keys %{$self->{sections}}) {
-        push(@hide,map {$row{$_}} @{$self->{sections}{$i}{section_answers}}) if !$show{$i};
-    }
-    #
-    #  Add styles that dim the hidden rows
-    #
-    my @styles = (map {".attemptResults > tbody > tr:nth-child($_) {opacity:.5}"} @hide);
-    main::HEADER_TEXT("<style type=\"text/css\">\n".join("\n",@styles)."\n</style>\n");
+	my $self = shift;
+	#
+	#  Record the row for each answer evaluator
+	#
+	my %row;
+	my $i = 2;
+	foreach my $name (keys %{$PG_ANSWERS_HASH}) { $row{$name} = $i; $i++ };    # record the rows for all answers
+																			   #
+																			   #  Mark which sections to show
+																			   #
+	my %show;
+	map { $show{$_} = 1 } @_;
+	#
+	#  Get the row numbers for the answers from OTHER sections
+	#
+	my @hide = ();
+	foreach $i (keys %{ $self->{sections} }) {
+		push(@hide, map { $row{$_} } @{ $self->{sections}{$i}{section_answers} }) if !$show{$i};
+	}
+	#
+	#  Add styles that dim the hidden rows
+	#
+	my @styles = (map {".attemptResults > tbody > tr:nth-child($_) {opacity:.5}"} @hide);
+	main::HEADER_TEXT("<style type=\"text/css\">\n" . join("\n", @styles) . "\n</style>\n");
 }
 
 #
@@ -582,45 +597,51 @@ sub HIDE_OTHER_RESULTS {
 #  options.
 #
 sub SECTION_SOLUTION {
-    my $self = shift;
-    my $options = (ref($_[0]) eq 'HASH' ? shift : {});
-    my $sectionNo = $options->{section} || $self->{current_section};
-    my $section = $self->{sections}{$sectionNo}; main::WARN_MESSAGE("Can't find section '$sectionNo'") unless $section;
-    my $output = '';
-    my $formatted_solution = main::solution($options->{PGML} ? PGML::Format2(join("",@_)) : main::EV3P(@_));
-    if ($main::displayMode =~ /^HTML/ and $main::envir{use_knowls_for_solutions}) {
-		$output = join($main::PAR, main::knowlLink(
-			main::SOLUTION_HEADING(),
-			value => main::escapeSolutionHTML($main::BR.$formatted_solution.$main::PAR),
-			base64 => 1,
-			type => 'solution'
-		)) if $formatted_solution;
-    } elsif ($main::displayMode =~ /TeX/) {
-    	$output = join($main::PAR,main::SOLUTION_HEADING(),$formatted_solution,$main::PAR) if $formatted_solution;
-    } else {
-        $output = ("$main::PAR SOLUTION: ".$main::BR.$formatted_solution.$main::PAR) if $formatted_solution;
-    }
-    $section->{solution} = $output;
+	my $self      = shift;
+	my $options   = (ref($_[0]) eq 'HASH' ? shift : {});
+	my $sectionNo = $options->{section} || $self->{current_section};
+	my $section   = $self->{sections}{$sectionNo};
+	main::WARN_MESSAGE("Can't find section '$sectionNo'") unless $section;
+	my $output             = '';
+	my $formatted_solution = main::solution($options->{PGML} ? PGML::Format2(join("", @_)) : main::EV3P(@_));
+	if ($main::displayMode =~ /^HTML/ and $main::envir{use_knowls_for_solutions}) {
+		$output = join(
+			$main::PAR,
+			main::knowlLink(
+				main::SOLUTION_HEADING(),
+				value  => main::escapeSolutionHTML($main::BR . $formatted_solution . $main::PAR),
+				base64 => 1,
+				type   => 'solution'
+			)
+		) if $formatted_solution;
+	} elsif ($main::displayMode =~ /TeX/) {
+		$output = join($main::PAR, main::SOLUTION_HEADING(), $formatted_solution, $main::PAR) if $formatted_solution;
+	} else {
+		$output = ("$main::PAR SOLUTION: " . $main::BR . $formatted_solution . $main::PAR) if $formatted_solution;
+	}
+	$section->{solution} = $output;
 }
+
 sub SECTION_PGML_SOLUTION {
-    my $self = shift;
-    my $options = (ref($_[0]) eq 'HASH' ? shift : {});
-    $options->{PGML} = 1;
-    $self->SECTION_SOLUTION($options,@_);
+	my $self    = shift;
+	my $options = (ref($_[0]) eq 'HASH' ? shift : {});
+	$options->{PGML} = 1;
+	$self->SECTION_SOLUTION($options, @_);
 }
 
 #
 #  Add answers in the current section.
 #
 sub ANS {
-    my $self = shift;
-    $self->ans_evaluators(@_);
-    main::ANS(@_);
+	my $self = shift;
+	$self->ans_evaluators(@_);
+	main::ANS(@_);
 }
+
 sub NAMED_ANS {
-    my $self = shift;
-    $self->named_ans_evaluators(@_);
-    main::NAMED_ANS(@_);
+	my $self = shift;
+	$self->named_ans_evaluators(@_);
+	main::NAMED_ANS(@_);
 }
 
 #
@@ -629,8 +650,9 @@ sub NAMED_ANS {
 #  section.)
 #
 sub iscorrect {
-    my $self = shift; my $section = shift;
-    $self->needsCorrect(@{$section->{section_answers}});
+	my $self    = shift;
+	my $section = shift;
+	$self->needsCorrect(@{ $section->{section_answers} });
 }
 #
 #  Service routine to check for whether all the previous answers in a
@@ -638,8 +660,9 @@ sub iscorrect {
 #  as the default for the canshow option of a section.)
 #
 sub canshow {
-    my $self = shift; my $section = shift;
-    $isInstructor || $self->needsCorrect(@{$section->{previous_answers}});
+	my $self    = shift;
+	my $section = shift;
+	$isInstructor || $self->needsCorrect(@{ $section->{previous_answers} });
 }
 #
 #  Checks the scores to see if they are all correct (returns 1),
@@ -647,12 +670,13 @@ sub canshow {
 #  some are blank (returns undef).
 #
 sub needsCorrect {
-    my $self = shift; my $result = 1;
-    foreach my $name (@_) {
-	return undef unless defined($self->{scores}{$name});  # indicates some answers are blank
-	$result = 0 unless $self->{scores}{$name};
-    }
-    return $result;
+	my $self   = shift;
+	my $result = 1;
+	foreach my $name (@_) {
+		return undef unless defined($self->{scores}{$name});    # indicates some answers are blank
+		$result = 0  unless $self->{scores}{$name};
+	}
+	return $result;
 }
 
 #
@@ -665,22 +689,20 @@ sub needsCorrect {
 #  correct or can be opened.
 #
 sub requireCorrect {
-    my $self = shift;
-    '$Scaffold::scaffold->needsCorrect('.
-       join(",",map {$_ =~ /^\d+$/ ? main::ANS_NUM_TO_NAME($_) : $_} @_).
-    ')';
+	my $self = shift;
+	'$Scaffold::scaffold->needsCorrect(' . join(",", map { $_ =~ /^\d+$/ ? main::ANS_NUM_TO_NAME($_) : $_ } @_) . ')';
 }
 
 #
 #  Opens the given sections so they are open when the page loads.
 #
 sub openSections {
-    my $self = shift; my $script = '';
-    $self->HIDE_OTHER_RESULTS(@_);
-    foreach my $s (@_) {$script .= qq!\$("#section$s").openSection()\n!;}
-    main::TEXT(main::MODES(TeX=>'', PTX=>'', HTML=>qq!<script>\n$script</script>!));
+	my $self   = shift;
+	my $script = '';
+	$self->HIDE_OTHER_RESULTS(@_);
+	foreach my $s (@_) { $script .= qq!\$("#section$s").openSection()\n!; }
+	main::TEXT(main::MODES(TeX => '', PTX => '', HTML => qq!<script>\n$script</script>!));
 }
-
 
 package main;
 
@@ -689,18 +711,18 @@ package main;
 #  that you can't use these if you want to have nested scaffolds, as
 #  they rely on a global variable to store the active scaffold.
 #
-sub Scaffold              {$Scaffold::scaffold = Scaffold->new()}
-sub DISPLAY_SECTION       {$Scaffold::scaffold->DISPLAY_SECTION(@_)}
-sub DISPLAY_PGML_SECTION  {$Scaffold::scaffold->DISPLAY_PGML_SECTION(@_)}
-sub SECTION_SOLUTION      {$Scaffold::scaffold->SECTION_SOLUTION(@_)}
-sub SECTION_PGML_SOLUTION {$Scaffold::scaffold->SECTION_PGML_SOLUTION(@_)}
-sub SECTION_ANS           {$Scaffold::scaffold->ANS(@_)}
-sub SECTION_NAMED_ANS     {$Scaffold::scaffold->NAMED_ANS(@_)}
-sub PROCESS_ANSWERS       {$Scaffold::scaffold->PROCESS_ANSWERS(@_)}
-sub PROCESS_SECTIONS      {$Scaffold::scaffold->PROCESS_SECTIONS(@_)}
-sub PROCESS_SCAFFOLD      {$Scaffold::scaffold->PROCESS_SCAFFOLD(@_)}
+sub Scaffold              { $Scaffold::scaffold = Scaffold->new() }
+sub DISPLAY_SECTION       { $Scaffold::scaffold->DISPLAY_SECTION(@_) }
+sub DISPLAY_PGML_SECTION  { $Scaffold::scaffold->DISPLAY_PGML_SECTION(@_) }
+sub SECTION_SOLUTION      { $Scaffold::scaffold->SECTION_SOLUTION(@_) }
+sub SECTION_PGML_SOLUTION { $Scaffold::scaffold->SECTION_PGML_SOLUTION(@_) }
+sub SECTION_ANS           { $Scaffold::scaffold->ANS(@_) }
+sub SECTION_NAMED_ANS     { $Scaffold::scaffold->NAMED_ANS(@_) }
+sub PROCESS_ANSWERS       { $Scaffold::scaffold->PROCESS_ANSWERS(@_) }
+sub PROCESS_SECTIONS      { $Scaffold::scaffold->PROCESS_SECTIONS(@_) }
+sub PROCESS_SCAFFOLD      { $Scaffold::scaffold->PROCESS_SCAFFOLD(@_) }
 
-sub INITIALIZE_SCAFFOLD {$Scaffold::scaffold->{oldstyle} = 1}  # backward compatibility
+sub INITIALIZE_SCAFFOLD { $Scaffold::scaffold->{oldstyle} = 1 }    # backward compatibility
 
 1;
 

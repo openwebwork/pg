@@ -13,7 +13,6 @@
 # Artistic License for more details.
 ################################################################################
 
-
 =head1 NAME
 
 C<Context("Permutation")> - Provides contexts that allow the
@@ -133,90 +132,131 @@ entered.
 #
 
 sub _contextPermutation_init {
-  my $context = $main::context{Permutation} = Parser::Context->getCopy("Numeric");
-  $context->{name} = "Permutation";
-  Parser::Number::NoDecimals($context);
-  $context->variables->clear();
-  $context->operators->clear();
-  $context->constants->clear();
-  $context->strings->clear();
-  $context->functions->disable("All");
+	my $context = $main::context{Permutation} = Parser::Context->getCopy("Numeric");
+	$context->{name} = "Permutation";
+	Parser::Number::NoDecimals($context);
+	$context->variables->clear();
+	$context->operators->clear();
+	$context->constants->clear();
+	$context->strings->clear();
+	$context->functions->disable("All");
 
-  $context->{pattern}{number} = '(?:(?:^|(?<=[( ^*]))-)?(?:\d+(?:\.\d*)?|\.\d+)(?:E[-+]?\d+)?',
+	$context->{pattern}{number} = '(?:(?:^|(?<=[( ^*]))-)?(?:\d+(?:\.\d*)?|\.\d+)(?:E[-+]?\d+)?',
 
-  $context->operators->add(
-    ',' => {precedence => 0, associativity => 'left', type => 'bin', string => ',',
-            class => 'Parser::BOP::comma', isComma => 1},
+		$context->operators->add(
+			',' => {
+				precedence    => 0,
+				associativity => 'left',
+				type          => 'bin',
+				string        => ',',
+				class         => 'Parser::BOP::comma',
+				isComma       => 1
+			},
 
-    'fn'=> {precedence => 7.5, associativity => 'left', type => 'unary', string => '',
-            parenPrecedence => 5, hidden => 1},
+			'fn' => {
+				precedence      => 7.5,
+				associativity   => 'left',
+				type            => 'unary',
+				string          => '',
+				parenPrecedence => 5,
+				hidden          => 1
+			},
 
-    ' ' => {precedence => 3, associativity => 'right', type => 'bin', string => ' ',
-            class => 'context::Permutation::BOP::space', hidden => 1, isComma => 1},
+			' ' => {
+				precedence    => 3,
+				associativity => 'right',
+				type          => 'bin',
+				string        => ' ',
+				class         => 'context::Permutation::BOP::space',
+				hidden        => 1,
+				isComma       => 1
+			},
 
-    '^' => {precedence => 7, associativity => 'right', type => 'bin', string => '^', perl => '**',
-            class => 'context::Permutation::BOP::power'},
+			'^' => {
+				precedence    => 7,
+				associativity => 'right',
+				type          => 'bin',
+				string        => '^',
+				perl          => '**',
+				class         => 'context::Permutation::BOP::power'
+			},
 
-    '**'=> {precedence => 7, associativity => 'right', type => 'bin', string => '^', perl => '**',
-            class => 'context::Permutation::BOP::power'},
-  );
+			'**' => {
+				precedence    => 7,
+				associativity => 'right',
+				type          => 'bin',
+				string        => '^',
+				perl          => '**',
+				class         => 'context::Permutation::BOP::power'
+			},
+		);
 
-  $context->{value}{Cycle} = "context::Permutation::Cycle";
-  $context->{value}{Permutation} = "context::Permutation::Permutation";
-  $context->{precedence}{Cycle} = $context->{precedence}{special};
-  $context->{precedence}{Permutation} = $context->{precedence}{special}+1;
-  $context->lists->add(
-    "Cycle" => {class => "context::Permutation::List::Cycle", open => "(", close => ")", separator => " "},
-    "PermutationOneLineNotation" => {class => "context::Permutation::List::PermutationOneLineNotation", 
-        open => "[", close => "]", separator => " "},
-    "Permutation" => {open => "", close => "", separator => " "},  # used for output only
-  );
-  $context->parens->set(
-    '(' => {close => ')', type => 'Cycle', formList => 0, removable => 0, emptyOK => 0, function => 1},
-    '[' => {close => ']', type => 'PermutationOneLineNotation', formList => 0, removable => 0, emptyOK => 0, function => 1},
-  );
-  $context->flags->set(reduceConstants => 0);
+	$context->{value}{Cycle}            = "context::Permutation::Cycle";
+	$context->{value}{Permutation}      = "context::Permutation::Permutation";
+	$context->{precedence}{Cycle}       = $context->{precedence}{special};
+	$context->{precedence}{Permutation} = $context->{precedence}{special} + 1;
+	$context->lists->add(
+		"Cycle" => { class => "context::Permutation::List::Cycle", open => "(", close => ")", separator => " " },
+		"PermutationOneLineNotation" => {
+			class     => "context::Permutation::List::PermutationOneLineNotation",
+			open      => "[",
+			close     => "]",
+			separator => " "
+		},
+		"Permutation" => { open => "", close => "", separator => " " },    # used for output only
+	);
+	$context->parens->set(
+		'(' => { close => ')', type => 'Cycle', formList => 0, removable => 0, emptyOK => 0, function => 1 },
+		'[' => {
+			close     => ']',
+			type      => 'PermutationOneLineNotation',
+			formList  => 0,
+			removable => 0,
+			emptyOK   => 0,
+			function  => 1
+		},
+	);
+	$context->flags->set(reduceConstants => 0);
 
-  $context->flags->set(
-    displayOneLineNotation => 0,	 # output in one line notation
-    displayTwoLineNotation => 0,	 # output in two line notation
-    requireDisjoint => 0,    # require disjoint cycles as answers?
-    requireCanonical => 0,   # require canonical form?
-    noPowers => 0,           # allow powers of cycles and permutations?
-    noInverses => 0,         # allow negative powers to mean inverse?
-    noGroups => 0,           # allow parens for grouping (for powers)?
-  );
+	$context->flags->set(
+		displayOneLineNotation => 0,    # output in one line notation
+		displayTwoLineNotation => 0,    # output in two line notation
+		requireDisjoint        => 0,    # require disjoint cycles as answers?
+		requireCanonical       => 0,    # require canonical form?
+		noPowers               => 0,    # allow powers of cycles and permutations?
+		noInverses             => 0,    # allow negative powers to mean inverse?
+		noGroups               => 0,    # allow parens for grouping (for powers)?
+	);
 
-  $context->{error}{msg}{"Entries in a Cycle must be of the same type"} =
-     "Entries in a Cycle must be positive integers";
+	$context->{error}{msg}{"Entries in a Cycle must be of the same type"} =
+		"Entries in a Cycle must be positive integers";
 
-  #
-  #  A context in which permutations must be entered as
-  #  products of disjoint cycles.
-  #
-  $context = $main::context{"Permutation-Strict"} = $context->copy;
-  $context->{name} = "Permutation-Strict";
-  $context->flags->set(
-    requireDisjoint => 1,
-    noPowers => 1,
-    noInverses => 1,
-    noGroups => 1,
-  );
+	#
+	#  A context in which permutations must be entered as
+	#  products of disjoint cycles.
+	#
+	$context = $main::context{"Permutation-Strict"} = $context->copy;
+	$context->{name} = "Permutation-Strict";
+	$context->flags->set(
+		requireDisjoint => 1,
+		noPowers        => 1,
+		noInverses      => 1,
+		noGroups        => 1,
+	);
 
-  #
-  #  A context in which permutation must be entered
-  #  in canonical form.
-  #
-  $context = $main::context{"Permutation-Canonical"} = $context->copy;
-  $context->{name} = "Permutation-Canonical";
-  $context->flags->set(
-    requireCanonical => 1,
-    requireDisjoint => 0,     # requireCanonical already covers that
-  );
+	#
+	#  A context in which permutation must be entered
+	#  in canonical form.
+	#
+	$context = $main::context{"Permutation-Canonical"} = $context->copy;
+	$context->{name} = "Permutation-Canonical";
+	$context->flags->set(
+		requireCanonical => 1,
+		requireDisjoint  => 0,    # requireCanonical already covers that
+	);
 
-
-  PG_restricted_eval("sub Cycle {context::Permutation::Cycle->new(\@_)}");
-  PG_restricted_eval("sub Permutation {context::Permutation::Permutation->new(\@_)}");
+	PG_restricted_eval("sub Cycle {context::Permutation::Cycle->new(\@_)}");
+	PG_restricted_eval("sub Permutation {context::Permutation::Permutation->new(\@_)}");
 
 }
 
@@ -232,10 +272,10 @@ our @ISA = ("Value");
 #  Use the usual make(), and then add the permutation data
 #
 sub make {
-  my $self = shift;
-  $self = $self->SUPER::make(@_);
-  $self->makeP;
-  return $self;
+	my $self = shift;
+	$self = $self->SUPER::make(@_);
+	$self->makeP;
+	return $self;
 }
 
 #
@@ -243,60 +283,61 @@ sub make {
 #  or a product of two cycles or permutations.
 #
 sub mult {
-  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
-  if ($l->isReal) {
-    $l = $l->value;
-    Value->Error("Can't multiply %s by a non-integer value",$self->showType) unless $l == int($l);
-    Value->Error("Can't multiply %s by a negative value",$self->showType) if $l < 0;
-    my $n = $self->{P}{$l}; $n = $l unless defined $n;
-    return $self->Package("Real")->make($n);
-  } else {
-    Value->Error("Can't multiply %s by %s",$l->showType,$r->showType)
-      unless $r->classMatch("Cycle","Permutation");    
+	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
+	if ($l->isReal) {
+		$l = $l->value;
+		Value->Error("Can't multiply %s by a non-integer value", $self->showType) unless $l == int($l);
+		Value->Error("Can't multiply %s by a negative value",    $self->showType) if $l < 0;
+		my $n = $self->{P}{$l};
+		$n = $l unless defined $n;
+		return $self->Package("Real")->make($n);
+	} else {
+		Value->Error("Can't multiply %s by %s", $l->showType, $r->showType)
+			unless $r->classMatch("Cycle", "Permutation");
 
-    my @lKeys = %{$l->{P}} ? keys %{$l->{P}} : ();
-    my @rKeys = %{$r->{P}} ? keys %{$r->{P}} : ();
+		my @lKeys = %{ $l->{P} } ? keys %{ $l->{P} } : ();
+		my @rKeys = %{ $r->{P} } ? keys %{ $r->{P} } : ();
 
-    my %unique = ();
-    foreach my $item (@lKeys, @rKeys) {
-        $unique{$item}++;
-    }
-    my @keys = main::num_sort(keys %unique);
-    my @cycles = ();
-    while(my $key = shift(@keys)) {
-        my @cycle = ($key);
+		my %unique = ();
+		foreach my $item (@lKeys, @rKeys) {
+			$unique{$item}++;
+		}
+		my @keys   = main::num_sort(keys %unique);
+		my @cycles = ();
+		while (my $key = shift(@keys)) {
+			my @cycle = ($key);
 
-        # complete the cycle
-        my $currentKey = $key;
-        while(@keys) {
-            # set to right side value if present
-            if ($r->{P}{$currentKey}) {
-                $currentKey = $r->{P}{$currentKey};
-            } # else set to identity which doesn't need assignment
+			# complete the cycle
+			my $currentKey = $key;
+			while (@keys) {
+				# set to right side value if present
+				if ($r->{P}{$currentKey}) {
+					$currentKey = $r->{P}{$currentKey};
+				}    # else set to identity which doesn't need assignment
 
-            # set to left side value if present
-            if ($l->{P}{$currentKey}) {
-                $currentKey = $l->{P}{$currentKey};
-            } # else set to identity which doesn't need assignment
+				# set to left side value if present
+				if ($l->{P}{$currentKey}) {
+					$currentKey = $l->{P}{$currentKey};
+				}    # else set to identity which doesn't need assignment
 
-            # if cycle complete
-            if ($key == $currentKey) {
-                last;
-            } else {
-                # add $currentKey to the cycle
-                push(@cycle, $currentKey);
-                foreach my $index (reverse 0 .. $#keys) {
-                    splice(@keys, $index, 1) if $keys[$index] == $currentKey;
-                }
-            }
-        } 
-        push(@cycles, $self->Package("Cycle")->new(@cycle));
-    }
-    # return a Cycle if there is only one cycle as the result
-    return @cycles[0] if scalar(@cycles) == 1;
-    # else return a Permutation if there are more than 1 cycles
-    return $self->Package("Permutation")->new(@cycles);
-  }
+				# if cycle complete
+				if ($key == $currentKey) {
+					last;
+				} else {
+					# add $currentKey to the cycle
+					push(@cycle, $currentKey);
+					foreach my $index (reverse 0 .. $#keys) {
+						splice(@keys, $index, 1) if $keys[$index] == $currentKey;
+					}
+				}
+			}
+			push(@cycles, $self->Package("Cycle")->new(@cycle));
+		}
+		# return a Cycle if there is only one cycle as the result
+		return @cycles[0] if scalar(@cycles) == 1;
+		# else return a Permutation if there are more than 1 cycles
+		return $self->Package("Permutation")->new(@cycles);
+	}
 }
 
 #
@@ -304,32 +345,33 @@ sub mult {
 #  Negative powers are inverses.
 #
 sub power {
-  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
-  Value->Error("Can't raise %s to %s",$l->showType,$r->showType) unless $r->isNumber;
-  Value->Error("Powers are not allowed") if $self->getFlag("noPowers");
-  if ($r < 0) {
-    Value->Error("Inverses are not allowed",$l->showType) if $self->getFlag("noInverses");
-    $r = -$r; $l = $l->inverse;
-  }
-  $self->Package("Permutation")->make(map {$l} (1..$r))->canonical;
+	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
+	Value->Error("Can't raise %s to %s", $l->showType, $r->showType) unless $r->isNumber;
+	Value->Error("Powers are not allowed") if $self->getFlag("noPowers");
+	if ($r < 0) {
+		Value->Error("Inverses are not allowed", $l->showType) if $self->getFlag("noInverses");
+		$r = -$r;
+		$l = $l->inverse;
+	}
+	$self->Package("Permutation")->make(map {$l} (1 .. $r))->canonical;
 }
 
 #
 #  Compare canonical representations
 #
 sub compare {
-  my ($self,$l,$r,$other) = Value::checkOpOrderWithPromote(@_);
-  Value->Error("Can't compare %s and %s",$self->showType,$other->showType)
-    unless $other->classMatch("Cycle","Permutation");
-  return $l->canonical cmp $r->canonical;
+	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
+	Value->Error("Can't compare %s and %s", $self->showType, $other->showType)
+		unless $other->classMatch("Cycle", "Permutation");
+	return $l->canonical cmp $r->canonical;
 }
 
 #
 #  True if the permutation is in canonical form
 #
 sub isCanonical {
-  my $self = shift;
-  return $self eq $self->canonical;
+	my $self = shift;
+	return $self eq $self->canonical;
 }
 
 #
@@ -338,9 +380,10 @@ sub isCanonical {
 #  Cycle or Permutation.
 #
 sub promote {
-  my $self = shift; my $other = shift;
-  return Value::makeValue($other,context => $self->{context}) if Value::matchNumber($other);
-  return $self->SUPER::promote($other);
+	my $self  = shift;
+	my $other = shift;
+	return Value::makeValue($other, context => $self->{context}) if Value::matchNumber($other);
+	return $self->SUPER::promote($other);
 }
 
 #
@@ -349,75 +392,78 @@ sub promote {
 #  by initial entry.
 #
 sub canonical {
-  my $self = shift;
-  my @P = (); my @C;
-  my %N = (map {$_ => 1} (keys %{$self->{P}}));
-  while (scalar(keys %N)) {
-    $i = (main::num_sort(keys %N))[0]; @C = ();
-    do {
-      push(@C,$self->Package("Real")->new($i)); delete $N{$i};
-      $i = $self->{P}{$i} if defined $self->{P}{$i};
-    } while ($i != $C[0]);
-    push(@P,$self->Package("Cycle")->make($self->{context},@C));
-  }
-  return $P[0] if scalar(@P) == 1;
-  return $self->Package("Permutation")->make($self->{context},@P);
+	my $self = shift;
+	my @P    = ();
+	my @C;
+	my %N = (map { $_ => 1 } (keys %{ $self->{P} }));
+	while (scalar(keys %N)) {
+		$i = (main::num_sort(keys %N))[0];
+		@C = ();
+		do {
+			push(@C, $self->Package("Real")->new($i));
+			delete $N{$i};
+			$i = $self->{P}{$i} if defined $self->{P}{$i};
+		} while ($i != $C[0]);
+		push(@P, $self->Package("Cycle")->make($self->{context}, @C));
+	}
+	return $P[0] if scalar(@P) == 1;
+	return $self->Package("Permutation")->make($self->{context}, @P);
 }
 
 #
 #  Produce the inverse of a permutation or cycle.
 #
 sub inverse {
-  my $self = shift;
-  my $P = {map {$self->{P}{$_} => $_} (keys %{$self->{P}})};
-  return $self->with(P => $P)->canonical;
+	my $self = shift;
+	my $P    = { map { $self->{P}{$_} => $_ } (keys %{ $self->{P} }) };
+	return $self->with(P => $P)->canonical;
 }
 
 #
 #  Produce a string version (use "(1)" as the identity).
 #
 sub string {
-  my $self = shift;
-  my $displayOneLineNotation = $self->getFlag("displayOneLineNotation");
-  my $displayTwoLineNotation = $self->getFlag("displayTwoLineNotation");
-  if ($displayOneLineNotation || $displayTwoLineNotation) {
-    my @keys = main::num_sort(keys %{$self->{P}});
-    my $string = "";
-    if (@keys) {
-        $string .= join(' ',@{$self->{P}}{@keys});
-    } else {
-        $string .= "1";
-    }
-    return "(".$string.")";
-  } else {
-    my $string = $self->SUPER::string(@_);
-    $string = "(1)" unless length($string);
-    return $string;
-  }
+	my $self                   = shift;
+	my $displayOneLineNotation = $self->getFlag("displayOneLineNotation");
+	my $displayTwoLineNotation = $self->getFlag("displayTwoLineNotation");
+	if ($displayOneLineNotation || $displayTwoLineNotation) {
+		my @keys   = main::num_sort(keys %{ $self->{P} });
+		my $string = "";
+		if (@keys) {
+			$string .= join(' ', @{ $self->{P} }{@keys});
+		} else {
+			$string .= "1";
+		}
+		return "(" . $string . ")";
+	} else {
+		my $string = $self->SUPER::string(@_);
+		$string = "(1)" unless length($string);
+		return $string;
+	}
 }
 
 #
 #  Produce a TeX version (uses \; for spaces)
 #
 sub TeX {
-  my $self = shift;
-  my $displayTwoLineNotation = $self->getFlag("displayTwoLineNotation");
-  if ($displayTwoLineNotation) {
-    my $tex = "\\bigl(\\begin{smallmatrix} ";
-    my @keys = main::num_sort(keys %{$self->{P}});
-    if (@keys) {
-        $tex .= join(' & ',@keys) . " \\\\ " . join(' & ',@{$self->{P}}{@keys});
-    } else {
-        $tex .= "1 \\\\ 1";
-    }
-    $tex .= "\\end{smallmatrix}\\bigr)";
-    return $tex;
-  } else {
-    my $tex = $self->string;
-    $tex =~ s/\) \(/)\\,(/g; 
-    $tex =~ s/ /\\;/g;
-    return $tex;
-  }
+	my $self                   = shift;
+	my $displayTwoLineNotation = $self->getFlag("displayTwoLineNotation");
+	if ($displayTwoLineNotation) {
+		my $tex  = "\\bigl(\\begin{smallmatrix} ";
+		my @keys = main::num_sort(keys %{ $self->{P} });
+		if (@keys) {
+			$tex .= join(' & ', @keys) . " \\\\ " . join(' & ', @{ $self->{P} }{@keys});
+		} else {
+			$tex .= "1 \\\\ 1";
+		}
+		$tex .= "\\end{smallmatrix}\\bigr)";
+		return $tex;
+	} else {
+		my $tex = $self->string;
+		$tex =~ s/\) \(/)\\,(/g;
+		$tex =~ s/ /\\;/g;
+		return $tex;
+	}
 }
 
 ###########################################################
@@ -429,22 +475,25 @@ package context::Permutation::Cycle;
 our @ISA = ("context::Permutation");
 
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
-  my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  my $p = [@_]; $p = $p->[0] if scalar(@$p) == 1 && ref($p->[0]) eq "ARRAY";
-  return $p->[0] if scalar(@$p) == 1 && Value::classMatch($p->[0],"Cycle","Permutation");
-  my %N;
-  foreach my $x (@{$p}) {
-    $x = Value::makeValue($x,context => $context);
-    Value->Error("An entry of a Cycle can't be %s",$x->showType)
-       unless $x->isNumber && !$x->isFormula;
-    my $i = $x->value;
-    Value->Error("An entry of a Cycle can't be negative") if $i < 0;
-    Value->Error("Cycles can't contain repeated values") if $N{$i}; $N{$i} = 1;
-  }
-  my $cycle = bless {data => $p, context => $context}, $class;
-  $cycle->makeP;
-  return $cycle;
+	my $self    = shift;
+	my $class   = ref($self) || $self;
+	my $context = (Value::isContext($_[0]) ? shift : $self->context);
+	my $p       = [@_];
+	$p = $p->[0] if scalar(@$p) == 1 && ref($p->[0]) eq "ARRAY";
+	return $p->[0] if scalar(@$p) == 1 && Value::classMatch($p->[0], "Cycle", "Permutation");
+	my %N;
+	foreach my $x (@{$p}) {
+		$x = Value::makeValue($x, context => $context);
+		Value->Error("An entry of a Cycle can't be %s", $x->showType)
+			unless $x->isNumber && !$x->isFormula;
+		my $i = $x->value;
+		Value->Error("An entry of a Cycle can't be negative") if $i < 0;
+		Value->Error("Cycles can't contain repeated values")  if $N{$i};
+		$N{$i} = 1;
+	}
+	my $cycle = bless { data => $p, context => $context }, $class;
+	$cycle->makeP;
+	return $cycle;
 }
 
 #
@@ -452,19 +501,20 @@ sub new {
 #  (a hash representing where each element goes)
 #
 sub makeP {
-  my $self = shift;
-  my $p = $self->{data}; my $P = {};
-  my $displayOneLineNotation = $self->getFlag("displayOneLineNotation");
-  my $displayTwoLineNotation = $self->getFlag("displayTwoLineNotation");
-  if (@$p) {
-    my $i = $p->[scalar(@$p)-1]->value;
-    foreach my $x (@{$p}) {
-      my $j = $x->value;
-      $P->{$i} = $j if $i != $j || $displayOneLineNotation || $displayTwoLineNotation;
-      $i = $j;
-    }
-  }
-  $self->{P} = $P;
+	my $self                   = shift;
+	my $p                      = $self->{data};
+	my $P                      = {};
+	my $displayOneLineNotation = $self->getFlag("displayOneLineNotation");
+	my $displayTwoLineNotation = $self->getFlag("displayTwoLineNotation");
+	if (@$p) {
+		my $i = $p->[ scalar(@$p) - 1 ]->value;
+		foreach my $x (@{$p}) {
+			my $j = $x->value;
+			$P->{$i} = $j if $i != $j || $displayOneLineNotation || $displayTwoLineNotation;
+			$i = $j;
+		}
+	}
+	$self->{P} = $P;
 }
 
 ###########################################################
@@ -476,27 +526,29 @@ package context::Permutation::Permutation;
 our @ISA = ("context::Permutation");
 
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
-  my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  my $disjoint = $self->getFlag("requireDisjoint");
-  my $p = [@_]; my %N;
-  foreach my $x (@$p) {
-    $x = Value::makeValue($x,context=>$context) unless ref($x);
-    $x = Value->Package("Cycle")->new($context,$x) if ref($x) eq "ARRAY";
-    Value->Error("An entry of a Permutation can't be %s",Value::showClass($x))
-      unless Value::classMatch($x,"Cycle","Permutation");
-    if ($disjoint) {
-      foreach my $i (keys %{$x->{P}}) {
-        Value->Error("Your Permutation does not have disjoint Cycles") if $N{$i};
-        $N{$i} = 1;
-      }
-    }
-  }
-  my $perm = bless {data => $p, context => $context}, $class;
-  $perm->makeP;
-  Value->Error("Your Permutation is not in canonical form")
-    if $perm->getFlag("requireCanonical") && $perm ne $perm->canonical;
-  return $perm;
+	my $self     = shift;
+	my $class    = ref($self) || $self;
+	my $context  = (Value::isContext($_[0]) ? shift : $self->context);
+	my $disjoint = $self->getFlag("requireDisjoint");
+	my $p        = [@_];
+	my %N;
+	foreach my $x (@$p) {
+		$x = Value::makeValue($x, context => $context) unless ref($x);
+		$x = Value->Package("Cycle")->new($context, $x) if ref($x) eq "ARRAY";
+		Value->Error("An entry of a Permutation can't be %s", Value::showClass($x))
+			unless Value::classMatch($x, "Cycle", "Permutation");
+		if ($disjoint) {
+			foreach my $i (keys %{ $x->{P} }) {
+				Value->Error("Your Permutation does not have disjoint Cycles") if $N{$i};
+				$N{$i} = 1;
+			}
+		}
+	}
+	my $perm = bless { data => $p, context => $context }, $class;
+	$perm->makeP;
+	Value->Error("Your Permutation is not in canonical form")
+		if $perm->getFlag("requireCanonical") && $perm ne $perm->canonical;
+	return $perm;
 }
 
 #
@@ -504,17 +556,21 @@ sub new {
 #  (a hash representing where each element goes)
 #
 sub makeP {
-  my $self = shift; my $p = $self->{data};
-  my $P = {}; my %N;
-  my $displayOneLineNotation = $self->getFlag("displayOneLineNotation");
-  my $displayTwoLineNotation = $self->getFlag("displayTwoLineNotation");
-  foreach my $x (@$p) {map {$N{$_} = 1} (keys %{$x->{P}})}  # get all elements used
-  foreach my $i (keys %N) {
-    my $j = $i;
-    map {$j = $_->{P}{$j} if defined $_->{P}{$j}} @$p;   # apply all cycles/permutations
-    $P->{$i} = $j if $i != $j || $displayOneLineNotation || $displayTwoLineNotation;
-  }
-  $self->{P} = $P;
+	my $self = shift;
+	my $p    = $self->{data};
+	my $P    = {};
+	my %N;
+	my $displayOneLineNotation = $self->getFlag("displayOneLineNotation");
+	my $displayTwoLineNotation = $self->getFlag("displayTwoLineNotation");
+	foreach my $x (@$p) {
+		map { $N{$_} = 1 } (keys %{ $x->{P} });
+	}    # get all elements used
+	foreach my $i (keys %N) {
+		my $j = $i;
+		map { $j = $_->{P}{$j} if defined $_->{P}{$j} } @$p;    # apply all cycles/permutations
+		$P->{$i} = $j if $i != $j || $displayOneLineNotation || $displayTwoLineNotation;
+	}
+	$self->{P} = $P;
 }
 
 ###########################################################
@@ -533,30 +589,32 @@ our @ISA = ("Parser::BOP");
 #  the proper type reference, or give an error.
 #
 sub _check {
-  my $self = shift; my $type;
-  my ($ltype,$rtype) = ($self->{lop}->typeRef,$self->{rop}->typeRef);
-  if ($ltype->{name} eq "Number") {
-    if ($rtype->{name} eq "Number") {
-      $type = Value::Type("Comma",2,$Value::Type{number});
-    } elsif ($rtype->{name} eq "Comma") {
-      $type = Value::Type("Comma",$rtype->{length}+1,$Value::Type{number});
-    } elsif ($rtype->{name} eq "Cycle" || $rtype->{name} eq "Permutation") {
-      $type = $Value::Type{number};
-    }
-  } elsif ($ltype->{name} eq "Cycle") {
-    if ($rtype->{name} eq "Cycle") {
-      $type = Value::Type("Permutation",2,$ltype);
-    } elsif ($rtype->{name} eq "Permutation") {
-      $type = Value::Type("Permutation",$rtype->{length}+1,$ltype);
-    }
-  }
-  if (!$type) {
-    $ltype = $ltype->{name}; $rtype = $rtype->{name};
-    $ltype = (($ltype =~ m/^[aeiou]/i)? "An ": "A ") . $ltype;
-    $rtype = (($rtype =~ m/^[aeiou]/i)? "an ": "a ") . $rtype;
-    $self->{equation}->Error(["%s can not be multiplied by %s",$ltype,$rtype]);
-  }
-  $self->{type} = $type;
+	my $self = shift;
+	my $type;
+	my ($ltype, $rtype) = ($self->{lop}->typeRef, $self->{rop}->typeRef);
+	if ($ltype->{name} eq "Number") {
+		if ($rtype->{name} eq "Number") {
+			$type = Value::Type("Comma", 2, $Value::Type{number});
+		} elsif ($rtype->{name} eq "Comma") {
+			$type = Value::Type("Comma", $rtype->{length} + 1, $Value::Type{number});
+		} elsif ($rtype->{name} eq "Cycle" || $rtype->{name} eq "Permutation") {
+			$type = $Value::Type{number};
+		}
+	} elsif ($ltype->{name} eq "Cycle") {
+		if ($rtype->{name} eq "Cycle") {
+			$type = Value::Type("Permutation", 2, $ltype);
+		} elsif ($rtype->{name} eq "Permutation") {
+			$type = Value::Type("Permutation", $rtype->{length} + 1, $ltype);
+		}
+	}
+	if (!$type) {
+		$ltype = $ltype->{name};
+		$rtype = $rtype->{name};
+		$ltype = (($ltype =~ m/^[aeiou]/i) ? "An " : "A ") . $ltype;
+		$rtype = (($rtype =~ m/^[aeiou]/i) ? "an " : "a ") . $rtype;
+		$self->{equation}->Error([ "%s can not be multiplied by %s", $ltype, $rtype ]);
+	}
+	$self->{type} = $type;
 }
 
 #
@@ -564,10 +622,10 @@ sub _check {
 #  othewise take a product (Value object will take care of things).
 #
 sub _eval {
-  my $self = shift;
-  my ($a,$b) = @_;
-  return ($a,$b) if $self->type eq "Comma";
-  return $a * $b;
+	my $self = shift;
+	my ($a, $b) = @_;
+	return ($a, $b) if $self->type eq "Comma";
+	return $a * $b;
 }
 
 #
@@ -576,19 +634,19 @@ sub _eval {
 #    and right operands.
 #
 sub makeList {
-  my $self = shift; my $prec = shift;
-  return $self unless $self->{def}{isComma} && $self->type eq 'Comma';
-  return ($self->{lop}->makeList,$self->{rop}->makeList);
+	my $self = shift;
+	my $prec = shift;
+	return $self unless $self->{def}{isComma} && $self->type eq 'Comma';
+	return ($self->{lop}->makeList, $self->{rop}->makeList);
 }
 
 #
 #  Produce the TeX form
 #
 sub TeX {
-  my $self = shift;
-  return $self->{lop}->TeX."\\,".$self->{rop}->TeX;
+	my $self = shift;
+	return $self->{lop}->TeX . "\\," . $self->{rop}->TeX;
 }
-
 
 ###########################################################
 #
@@ -602,16 +660,16 @@ our @ISA = ("Parser::BOP::power");
 #    and return the proper type reference
 #
 sub _check {
-  my $self = shift; my $equation = $self->{equation};
-  $equation->Error(["Powers are not allowed"]) if $equation->{context}->flag("noPowers");
-  $equation->Error(["You can only take powers of Cycles or Permutations"])
-    unless $self->{lop}->type eq "Cycle";
-  $self->{rop} = $self->{rop}{coords}[0] if $self->{rop}->type eq "Cycle" && $self->{rop}->length == 1;
-  $equation->Error(["Powers of Cycles and Permutations must be Numbers"])
-    unless $self->{rop}->type eq "Number";
-  $self->{type} = Value::Type("Permutation",1,$self->{lop}->typeRef);
+	my $self     = shift;
+	my $equation = $self->{equation};
+	$equation->Error(["Powers are not allowed"]) if $equation->{context}->flag("noPowers");
+	$equation->Error(["You can only take powers of Cycles or Permutations"])
+		unless $self->{lop}->type eq "Cycle";
+	$self->{rop} = $self->{rop}{coords}[0] if $self->{rop}->type eq "Cycle" && $self->{rop}->length == 1;
+	$equation->Error(["Powers of Cycles and Permutations must be Numbers"])
+		unless $self->{rop}->type eq "Number";
+	$self->{type} = Value::Type("Permutation", 1, $self->{lop}->typeRef);
 }
-
 
 ###########################################################
 #
@@ -628,19 +686,21 @@ our @ISA = ("Parser::List");
 #   (so you can take groups of cycles to a power).
 #
 sub _check {
-  my $self = shift;
-  if ($self->length == 1 && !$self->{equation}{context}->flag("noGroups")) {
-    my $value = $self->{coords}[0];
-    return if ($value->type eq "Cycle" || $value->typeRef->{name} eq "Permutation" ||
-              ($value->class eq "Value" && $value->{value}->classMatch("Cycle","Permutation")));
-  }
-  foreach my $x (@{$self->{coords}}) {
-    unless ($x->isNumber) {
-      my $type = $x->type;
-      $type = (($type =~ m/^[aeiou]/i)? "an ": "a ") . $type;
-      $self->{equation}->Error(["An entry in a Cycle must be a Number not %s",$type]);
-    }
-  }
+	my $self = shift;
+	if ($self->length == 1 && !$self->{equation}{context}->flag("noGroups")) {
+		my $value = $self->{coords}[0];
+		return
+			if ($value->type eq "Cycle"
+				|| $value->typeRef->{name} eq "Permutation"
+				|| ($value->class eq "Value" && $value->{value}->classMatch("Cycle", "Permutation")));
+	}
+	foreach my $x (@{ $self->{coords} }) {
+		unless ($x->isNumber) {
+			my $type = $x->type;
+			$type = (($type =~ m/^[aeiou]/i) ? "an " : "a ") . $type;
+			$self->{equation}->Error([ "An entry in a Cycle must be a Number not %s", $type ]);
+		}
+	}
 }
 
 #
@@ -648,21 +708,25 @@ sub _check {
 #  a bug in the Value.pm version that neglects the separator value.)
 #
 sub string {
-  my $self = shift; my $precedence = shift; my @coords = ();
-  foreach my $x (@{$self->{coords}}) {push(@coords,$x->string)}
-  my $comma = $self->{equation}{context}{lists}{$self->{type}{name}}{separator};
-  return $self->{open}.join($comma,@coords).$self->{close};
+	my $self       = shift;
+	my $precedence = shift;
+	my @coords     = ();
+	foreach my $x (@{ $self->{coords} }) { push(@coords, $x->string) }
+	my $comma = $self->{equation}{context}{lists}{ $self->{type}{name} }{separator};
+	return $self->{open} . join($comma, @coords) . $self->{close};
 }
 
 #
 #  Produce a TeX version.
 #
 sub TeX {
-  my $self = shift; my $precedence = shift; my @coords = ();
-  foreach my $x (@{$self->{coords}}) {push(@coords,$x->TeX)}
-  my $comma = $self->{equation}{context}{lists}{$self->{type}{name}}{separator};
-  $comma =~ s/ /\\;/g;
-  return $self->{open}.join($comma,@coords).$self->{close};
+	my $self       = shift;
+	my $precedence = shift;
+	my @coords     = ();
+	foreach my $x (@{ $self->{coords} }) { push(@coords, $x->TeX) }
+	my $comma = $self->{equation}{context}{lists}{ $self->{type}{name} }{separator};
+	$comma =~ s/ /\\;/g;
+	return $self->{open} . join($comma, @coords) . $self->{close};
 }
 
 #########################################################################
@@ -676,14 +740,14 @@ our @ISA = ("Parser::List");
 #  Check that the coordinates are numbers.
 #
 sub _check {
-  my $self = shift;
-  foreach my $x (@{$self->{coords}}) {
-    unless ($x->isNumber) {
-      my $type = $x->type;
-      $type = (($type =~ m/^[aeiou]/i)? "an ": "a ") . $type;
-      $self->{equation}->Error(["An entry in a Permutation must be a Number not %s",$type]);
-    }
-  }
+	my $self = shift;
+	foreach my $x (@{ $self->{coords} }) {
+		unless ($x->isNumber) {
+			my $type = $x->type;
+			$type = (($type =~ m/^[aeiou]/i) ? "an " : "a ") . $type;
+			$self->{equation}->Error([ "An entry in a Permutation must be a Number not %s", $type ]);
+		}
+	}
 }
 
 #
@@ -691,34 +755,34 @@ sub _check {
 #  (Can be over-written by sub-classes)
 #
 sub _eval {
-  my $self = shift;
-  my @elements = @{@_[0]};
-  # transform into cycles
-  my @keys = 1 .. scalar(@elements);
-  my @cycles = ();
-  while(my $key = shift(@keys)) {
-    my @cycle = ($key);
-    # complete the cycle
-    my $currentKey = $key;
-    while(@keys) {
-        if ($elements[$currentKey-1]) {
-            $currentKey = $elements[$currentKey-1];
-        }
-        if ($key == $currentKey) {
-            last;
-        } else {
-            push(@cycle, $currentKey);
-            foreach my $index (reverse 0 .. $#keys) {
-                splice(@keys, $index, 1) if $keys[$index] == $currentKey;
-            }
-        }
-    } 
-    push(@cycles, $self->Package("Cycle")->new(@cycle));
-  }
-  # return a Cycle if there is only one cycle as the result
-  return @cycles[0] if scalar(@cycles) == 1;
-  # else return a Permutation if there are more than 1 cycles
-  return $self->Package("Permutation")->new(@cycles);
+	my $self     = shift;
+	my @elements = @{ @_[0] };
+	# transform into cycles
+	my @keys   = 1 .. scalar(@elements);
+	my @cycles = ();
+	while (my $key = shift(@keys)) {
+		my @cycle = ($key);
+		# complete the cycle
+		my $currentKey = $key;
+		while (@keys) {
+			if ($elements[ $currentKey - 1 ]) {
+				$currentKey = $elements[ $currentKey - 1 ];
+			}
+			if ($key == $currentKey) {
+				last;
+			} else {
+				push(@cycle, $currentKey);
+				foreach my $index (reverse 0 .. $#keys) {
+					splice(@keys, $index, 1) if $keys[$index] == $currentKey;
+				}
+			}
+		}
+		push(@cycles, $self->Package("Cycle")->new(@cycle));
+	}
+	# return a Cycle if there is only one cycle as the result
+	return @cycles[0] if scalar(@cycles) == 1;
+	# else return a Permutation if there are more than 1 cycles
+	return $self->Package("Permutation")->new(@cycles);
 }
 
 ###########################################################

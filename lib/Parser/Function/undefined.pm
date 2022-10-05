@@ -11,13 +11,14 @@ use strict;
 our @ISA = qw(Parser::Function);
 
 sub _check {
-  my $self = shift;
-  $self->Error("Function '%s' is not allowed in this context",$self->{name});
+	my $self = shift;
+	$self->Error("Function '%s' is not allowed in this context", $self->{name});
 }
 
 sub _call {
-  my $self = shift; my $name = shift;
-  Value::Error("Function '%s' is not allowed in this context",$name);
+	my $self = shift;
+	my $name = shift;
+	Value::Error("Function '%s' is not allowed in this context", $name);
 }
 
 #########################################################################

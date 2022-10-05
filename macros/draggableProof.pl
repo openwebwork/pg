@@ -210,7 +210,7 @@ sub new {
 	$proof =
 		$options{NumBuckets} == 2
 		? main::List(main::List(@unorder[ $numNeeded .. $numProvided - 1 ]),
-		main::List(@unorder[ 0 .. $numNeeded - 1 ]))
+			main::List(@unorder[ 0 .. $numNeeded - 1 ]))
 		: main::List('(' . join(',', @unorder[ 0 .. $numNeeded - 1 ]) . ')');
 
 	$extra = main::Set(@unorder[ $numNeeded .. $numProvided - 1 ]);
@@ -339,8 +339,7 @@ sub Print {
 	if ($main::displayMode ne "TeX") {
 
 		# HTML mode
-		return
-			join('', '<div class="dd-wrapper">', $ans_rule, $self->{dnd}->HTML, '</div>',);
+		return join('', '<div class="dd-wrapper">', $ans_rule, $self->{dnd}->HTML, '</div>',);
 	} else {
 		# TeX mode
 		return $self->{dnd}->TeX;

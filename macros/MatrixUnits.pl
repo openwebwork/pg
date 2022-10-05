@@ -1,3 +1,4 @@
+
 =pod
 
 =head1 NAME
@@ -56,252 +57,248 @@ Paul Pearson, Hope College, Department of Mathematics
 
 =cut
 
-sub _MatrixUnits_init {}; # don't reload this file
+sub _MatrixUnits_init { };    # don't reload this file
 
 loadMacros("MathObjects.pl",);
 
 ################################################
-#  
+#
 
 sub GL2Z {
-  my @a = GL2Z_perl();
-  return Matrix(\@a);
+	my @a = GL2Z_perl();
+	return Matrix(\@a);
 }
 
 sub GL2Z_perl {
 
-  # Create an invertible 2 x 2 matrix with determinant either 1  or -1
+	# Create an invertible 2 x 2 matrix with determinant either 1  or -1
 
-  my $a11 = random(-1,1,2);
-  my $a12 = non_zero_random(-3,3,1);
-  my $mult = non_zero_random(-2,2,1);
-  my $a21 = $mult * $a11;
-  my $b1 = random(-1,1,2);
-  my $a22 = $mult * $a12 + $b1;
+	my $a11  = random(-1, 1, 2);
+	my $a12  = non_zero_random(-3, 3, 1);
+	my $mult = non_zero_random(-2, 2, 1);
+	my $a21  = $mult * $a11;
+	my $b1   = random(-1, 1, 2);
+	my $a22  = $mult * $a12 + $b1;
 
-  # $a_det = $a11 * $b1;
-  return ([$a11,$a12],[$a21,$a22]);
-  
+	# $a_det = $a11 * $b1;
+	return ([ $a11, $a12 ], [ $a21, $a22 ]);
+
 }
 
 ###################################################
 
 sub SL2Z {
-  my @a = SL2Z_perl();
-  return Matrix(\@a);
+	my @a = SL2Z_perl();
+	return Matrix(\@a);
 }
 
 sub SL2Z_perl {
 
-  # Create an invertible 2 x 2 matrix with determinant 1
+	# Create an invertible 2 x 2 matrix with determinant 1
 
-  my $a11 = random(-1,1,2);
-  my $a12 = non_zero_random(-3,3,1);
-  my $mult = non_zero_random(-2,2,1);
-  my $a21 = $mult * $a11;
-  my $b1 = random(-1,1,2);
-  my $a22 = $mult * $a12 + $b1;
+	my $a11  = random(-1, 1, 2);
+	my $a12  = non_zero_random(-3, 3, 1);
+	my $mult = non_zero_random(-2, 2, 1);
+	my $a21  = $mult * $a11;
+	my $b1   = random(-1, 1, 2);
+	my $a22  = $mult * $a12 + $b1;
 
-  my $a_det = $a11 * $b1;
-  
-  if ($a_det == 1) {
-    return ([$a11,$a12],[$a21,$a22]);
-  } else { # det = -1, so swap rows to make det = 1
-    return ([$a21,$a22],[$a11,$a12]);
-  }
+	my $a_det = $a11 * $b1;
+
+	if ($a_det == 1) {
+		return ([ $a11, $a12 ], [ $a21, $a22 ]);
+	} else {    # det = -1, so swap rows to make det = 1
+		return ([ $a21, $a22 ], [ $a11, $a12 ]);
+	}
 
 }
 
 #######################################################
 
 sub GL3Z {
-  my @a = GL3Z_perl();
-  return Matrix(\@a);
+	my @a = GL3Z_perl();
+	return Matrix(\@a);
 }
 
 sub GL3Z_perl {
 
-  # Create an invertible 3 x 3 matrix with determinant either 1  or -1
+	# Create an invertible 3 x 3 matrix with determinant either 1  or -1
 
-  my $a11 = random(-2,2,1);
-  my $a21 = random(-1,1,2);
-  my $a31 = random(-1,1,2);
+	my $a11 = random(-2, 2, 1);
+	my $a21 = random(-1, 1, 2);
+	my $a31 = random(-1, 1, 2);
 
-  my $b1 = random(-1,1,2);
-  my $a12 = $b1 * $a11;
-  my $m = random(-1,1,2);
-  my $a22 = $b1 * $a21 + $m;
-  my $a32 = $b1 * $a31;
+	my $b1  = random(-1, 1, 2);
+	my $a12 = $b1 * $a11;
+	my $m   = random(-1, 1, 2);
+	my $a22 = $b1 * $a21 + $m;
+	my $a32 = $b1 * $a31;
 
-  my $c = random(-1,1,1);
-  my $d = random(-1,1,2);
-  my $n = random(-1,1,2);
-  my $a13 = $c * $a11 + $d * $a12 + $n;
-  my $a23 = $c * $a21 + $d * $a22;
-  my $a33 = $c * $a31 + $d * $a32;
+	my $c   = random(-1, 1, 1);
+	my $d   = random(-1, 1, 2);
+	my $n   = random(-1, 1, 2);
+	my $a13 = $c * $a11 + $d * $a12 + $n;
+	my $a23 = $c * $a21 + $d * $a22;
+	my $a33 = $c * $a31 + $d * $a32;
 
-  # $det = - $a31 * $m * $n;
+	# $det = - $a31 * $m * $n;
 
-  return ([$a11,$a12,$a13],[$a21,$a22,$a23],[$a31,$a32,$a33]);
+	return ([ $a11, $a12, $a13 ], [ $a21, $a22, $a23 ], [ $a31, $a32, $a33 ]);
 
 }
-
 
 ########################################################
 
 sub SL3Z {
-  my @a = SL3Z_perl();
-  return Matrix(\@a);
+	my @a = SL3Z_perl();
+	return Matrix(\@a);
 }
 
 sub SL3Z_perl {
 
-  # Create an invertible 3 x 3 matrix with determinant 1
+	# Create an invertible 3 x 3 matrix with determinant 1
 
-  my $a11 = random(-2,2,1);
-  my $a21 = random(-1,1,2);
-  my $a31 = random(-1,1,2);
+	my $a11 = random(-2, 2, 1);
+	my $a21 = random(-1, 1, 2);
+	my $a31 = random(-1, 1, 2);
 
-  my $b1 = random(-1,1,2);
-  my $a12 = $b1 * $a11;
-  my $m = random(-1,1,2);
-  my $a22 = $b1 * $a21 + $m;
-  my $a32 = $b1 * $a31;
+	my $b1  = random(-1, 1, 2);
+	my $a12 = $b1 * $a11;
+	my $m   = random(-1, 1, 2);
+	my $a22 = $b1 * $a21 + $m;
+	my $a32 = $b1 * $a31;
 
-  my $c = random(-1,1,1);
-  my $d = random(-1,1,2);
-  my $n = random(-1,1,2);
-  my $a13 = $c * $a11 + $d * $a12 + $n;
-  my $a23 = $c * $a21 + $d * $a22;
-  my $a33 = $c * $a31 + $d * $a32;
+	my $c   = random(-1, 1, 1);
+	my $d   = random(-1, 1, 2);
+	my $n   = random(-1, 1, 2);
+	my $a13 = $c * $a11 + $d * $a12 + $n;
+	my $a23 = $c * $a21 + $d * $a22;
+	my $a33 = $c * $a31 + $d * $a32;
 
-  my $det = - $a31 * $m * $n;
+	my $det = -$a31 * $m * $n;
 
-  if ($det == 1) { 
-      return ([$a11,$a12,$a13],[$a21,$a22,$a23],[$a31,$a32,$a33]); 
-  } else { # det = -1, so swap two rows so that det = +1. 
-      return ([$a21,$a22,$a23],[$a11,$a12,$a13],[$a31,$a32,$a33]); 
-  }
+	if ($det == 1) {
+		return ([ $a11, $a12, $a13 ], [ $a21, $a22, $a23 ], [ $a31, $a32, $a33 ]);
+	} else {    # det = -1, so swap two rows so that det = +1.
+		return ([ $a21, $a22, $a23 ], [ $a11, $a12, $a13 ], [ $a31, $a32, $a33 ]);
+	}
 
 }
-
 
 #######################################################
 
 sub GL4Z {
-  my @a = GL4Z_perl();
-  return Matrix(\@a);
+	my @a = GL4Z_perl();
+	return Matrix(\@a);
 }
-
 
 sub GL4Z_perl {
 
-  # Create an invertible 4 x 4 matrix with determinant either 1  or -1
+	# Create an invertible 4 x 4 matrix with determinant either 1  or -1
 
-  my @a = ();
-  $a[1][1] = random(-2,2,1);
-  $a[2][1] = random(-1,1,2);
-  $a[3][1] = random(-1,1,2);
-  $a[4][1] = random(-1,1,1);
+	my @a = ();
+	$a[1][1] = random(-2, 2, 1);
+	$a[2][1] = random(-1, 1, 2);
+	$a[3][1] = random(-1, 1, 2);
+	$a[4][1] = random(-1, 1, 1);
 
-  my $b1 = random(-1,1,2);
-  foreach my $i (1..4) { 
-  $a[$i][2] = $b1 * $a[$i][1];
-  }
-  my $p = random(-1,1,2);
-  $a[2][2] = $a[2][2] + $p;
+	my $b1 = random(-1, 1, 2);
+	foreach my $i (1 .. 4) {
+		$a[$i][2] = $b1 * $a[$i][1];
+	}
+	my $p = random(-1, 1, 2);
+	$a[2][2] = $a[2][2] + $p;
 
-  my $c = random(-1,1,1);
-  my $d = random(-1,1,2);
-  my $n = random(-1,1,2);
-  foreach my $i (1..4) {
-	$a[$i][3] = $c * $a[$i][1] + $d * $a[$i][2];
-  }
-  $n = random(-1,1,2);
-  $a[1][3] = $a[1][3] + $n;
+	my $c = random(-1, 1, 1);
+	my $d = random(-1, 1, 2);
+	my $n = random(-1, 1, 2);
+	foreach my $i (1 .. 4) {
+		$a[$i][3] = $c * $a[$i][1] + $d * $a[$i][2];
+	}
+	$n = random(-1, 1, 2);
+	$a[1][3] = $a[1][3] + $n;
 
-  my $f = random(-1,1,2);
-  my $g = random(-1,1,1);
-  my $h = random(-1,1,1);
-  foreach my $i (1..4) {
-	$a[$i][4] = $f * $a[$i][1] + $g * $a[$i][2] + $h * $a[$i][3];  
-  }
-  my $q = random(-1,1,2);
-  $a[4][4] = $a[4][4] + $q;
+	my $f = random(-1, 1, 2);
+	my $g = random(-1, 1, 1);
+	my $h = random(-1, 1, 1);
+	foreach my $i (1 .. 4) {
+		$a[$i][4] = $f * $a[$i][1] + $g * $a[$i][2] + $h * $a[$i][3];
+	}
+	my $q = random(-1, 1, 2);
+	$a[4][4] = $a[4][4] + $q;
 
-  # my $det = - $a[3][1] * $p * $n * $q;
+	# my $det = - $a[3][1] * $p * $n * $q;
 
-  return (
-  [ $a[1][1], $a[1][2], $a[1][3], $a[1][4] ],
-  [ $a[2][1], $a[2][2], $a[2][3], $a[2][4] ],
-  [ $a[3][1], $a[3][2], $a[3][3], $a[3][4] ],
-  [ $a[4][1], $a[4][2], $a[4][3], $a[4][4] ]
-  );
+	return (
+		[ $a[1][1], $a[1][2], $a[1][3], $a[1][4] ],
+		[ $a[2][1], $a[2][2], $a[2][3], $a[2][4] ],
+		[ $a[3][1], $a[3][2], $a[3][3], $a[3][4] ],
+		[ $a[4][1], $a[4][2], $a[4][3], $a[4][4] ]
+	);
 
 }
 
-
 sub SL4Z {
-  my @a = SL4Z_perl();
-  return Matrix(\@a);
+	my @a = SL4Z_perl();
+	return Matrix(\@a);
 }
 
 sub SL4Z_perl {
 
-  # Create an invertible 4 x 4 matrix with determinant 1
+	# Create an invertible 4 x 4 matrix with determinant 1
 
-  my @a = ();
-  $a[1][1] = random(-2,2,1);
-  $a[2][1] = random(-1,1,2);
-  $a[3][1] = random(-1,1,2);
-  $a[4][1] = random(-1,1,1);
+	my @a = ();
+	$a[1][1] = random(-2, 2, 1);
+	$a[2][1] = random(-1, 1, 2);
+	$a[3][1] = random(-1, 1, 2);
+	$a[4][1] = random(-1, 1, 1);
 
-  my $b1 = random(-1,1,2);
-  foreach my $i (1..4) { 
-	$a[$i][2] = $b1 * $a[$i][1];
-  }
-  my $p = random(-1,1,2);
-  $a[2][2] = $a[2][2] + $p;
+	my $b1 = random(-1, 1, 2);
+	foreach my $i (1 .. 4) {
+		$a[$i][2] = $b1 * $a[$i][1];
+	}
+	my $p = random(-1, 1, 2);
+	$a[2][2] = $a[2][2] + $p;
 
-  my $c = random(-1,1,1);
-  my $d = random(-1,1,2);
-  my $n = random(-1,1,2);
-  foreach my $i (1..4) {
-	$a[$i][3] = $c * $a[$i][1] + $d * $a[$i][2];
-  }
-  $n = random(-1,1,2);
-  $a[1][3] = $a[1][3] + $n;
+	my $c = random(-1, 1, 1);
+	my $d = random(-1, 1, 2);
+	my $n = random(-1, 1, 2);
+	foreach my $i (1 .. 4) {
+		$a[$i][3] = $c * $a[$i][1] + $d * $a[$i][2];
+	}
+	$n = random(-1, 1, 2);
+	$a[1][3] = $a[1][3] + $n;
 
-  my $f = random(-1,1,2);
-  my $g = random(-1,1,1);
-  my $h = random(-1,1,1);
-  foreach my $i (1..4) {
-	$a[$i][4] = $f * $a[$i][1] + $g * $a[$i][2] + $h * $a[$i][3];  
-  }
-  my $q = random(-1,1,2);
-  $a[4][4] = $a[4][4] + $q;
+	my $f = random(-1, 1, 2);
+	my $g = random(-1, 1, 1);
+	my $h = random(-1, 1, 1);
+	foreach my $i (1 .. 4) {
+		$a[$i][4] = $f * $a[$i][1] + $g * $a[$i][2] + $h * $a[$i][3];
+	}
+	my $q = random(-1, 1, 2);
+	$a[4][4] = $a[4][4] + $q;
 
-  my $det = - $a[3][1] * $p * $n * $q;
+	my $det = -$a[3][1] * $p * $n * $q;
 
-  if ($det == 1) {
+	if ($det == 1) {
 
-    return (
-    [ $a[1][1], $a[1][2], $a[1][3], $a[1][4] ],
-    [ $a[2][1], $a[2][2], $a[2][3], $a[2][4] ],
-    [ $a[3][1], $a[3][2], $a[3][3], $a[3][4] ],
-    [ $a[4][1], $a[4][2], $a[4][3], $a[4][4] ]
-    );
+		return (
+			[ $a[1][1], $a[1][2], $a[1][3], $a[1][4] ],
+			[ $a[2][1], $a[2][2], $a[2][3], $a[2][4] ],
+			[ $a[3][1], $a[3][2], $a[3][3], $a[3][4] ],
+			[ $a[4][1], $a[4][2], $a[4][3], $a[4][4] ]
+		);
 
-  } else { # det = -1, so swap two rows to make it have det = 1
+	} else {    # det = -1, so swap two rows to make it have det = 1
 
-    return (
-    [ $a[1][1], $a[1][2], $a[1][3], $a[1][4] ],
-    [ $a[3][1], $a[3][2], $a[3][3], $a[3][4] ],
-    [ $a[2][1], $a[2][2], $a[2][3], $a[2][4] ],
-    [ $a[4][1], $a[4][2], $a[4][3], $a[4][4] ]
-    );
+		return (
+			[ $a[1][1], $a[1][2], $a[1][3], $a[1][4] ],
+			[ $a[3][1], $a[3][2], $a[3][3], $a[3][4] ],
+			[ $a[2][1], $a[2][2], $a[2][3], $a[2][4] ],
+			[ $a[4][1], $a[4][2], $a[4][3], $a[4][4] ]
+		);
 
-  }
+	}
 
 }
 

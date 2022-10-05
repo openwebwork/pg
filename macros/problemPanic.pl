@@ -110,18 +110,18 @@ Panic::GradWithPenalty command is issued.
 
 =cut
 
-sub _problemPanic_init {Panic::Init()}
+sub _problemPanic_init { Panic::Init() }
 
 #
 #  The packge to contain the routines and data for the Panic buttons
 #
 package Panic;
 
-my $isTeX = 0;         # true in hardcopy mode
-my $allowReset = 0;    # true if a professor is viewing the problem
-my $buttonCount = 0;   # number of panic buttons displayed so far
-my @penalty = (0);     # accummulated penalty values
-my $grader;            # problem's original grader
+my $isTeX       = 0;      # true in hardcopy mode
+my $allowReset  = 0;      # true if a professor is viewing the problem
+my $buttonCount = 0;      # number of panic buttons displayed so far
+my @penalty     = (0);    # accummulated penalty values
+my $grader;               # problem's original grader
 
 #
 #  Allow resets if permission level is high enough.
@@ -129,15 +129,15 @@ my $grader;            # problem's original grader
 #  Save the panic level for the next time through.
 #
 sub Init {
-  $main::permissionLevel = 0 unless defined $main::permissionLevel;
-  $allowReset = $main::permissionLevel > $main::PRINT_FILE_NAMES_PERMISSION_LEVEL;
-  $isTeX = ($main::displayMode eq 'TeX');
-  unless ($isTeX) {
-    $main::panicked = $main::inputs_ref->{_panicked} || 0;
-    $main::panicked = 0 if $main::inputs_ref->{_panic_reset} && $allowReset;
-    main::TEXT(qq!<input type="hidden" name="_panicked" id="_panicked" value="$main::panicked" />!);
-    main::RECORD_FORM_LABEL("_panicked");
-  }
+	$main::permissionLevel = 0 unless defined $main::permissionLevel;
+	$allowReset            = $main::permissionLevel > $main::PRINT_FILE_NAMES_PERMISSION_LEVEL;
+	$isTeX                 = ($main::displayMode eq 'TeX');
+	unless ($isTeX) {
+		$main::panicked = $main::inputs_ref->{_panicked} || 0;
+		$main::panicked = 0 if $main::inputs_ref->{_panic_reset} && $allowReset;
+		main::TEXT(qq!<input type="hidden" name="_panicked" id="_panicked" value="$main::panicked" />!);
+		main::RECORD_FORM_LABEL("_panicked");
+	}
 }
 
 #
@@ -146,77 +146,80 @@ sub Init {
 #  Use submitAnswers if it is before the due date, and checkAnswers otherwise.
 #
 sub Button {
-  $buttonCount++;
-  my %options = (
-    label => "Request a Hint",
-    level => $buttonCount,
-    penalty => 0,
-    @_
-  );
-  my $label = $options{label};
-  my $level = $options{level};
-  $penalty[$buttonCount] = $penalty[$buttonCount-1] + $options{penalty};
-  $penalty[$buttonCount] = 1 if $penalty[$buttonCount] > 1;
-  return if $isTeX || $main::panicked >= $level;
-  my $time = time();
-  my $name = ($main::openDate <= $time && $time <= $main::dueDate ? "submitAnswers" : "checkAnswers");
-  $value = quoteHTML($value);
-  return qq!<input type="submit" name="$name" value="$label" onclick="document.getElementById('_panicked').value++">!;
+	$buttonCount++;
+	my %options = (
+		label   => "Request a Hint",
+		level   => $buttonCount,
+		penalty => 0,
+		@_
+	);
+	my $label = $options{label};
+	my $level = $options{level};
+	$penalty[$buttonCount] = $penalty[ $buttonCount - 1 ] + $options{penalty};
+	$penalty[$buttonCount] = 1 if $penalty[$buttonCount] > 1;
+	return if $isTeX || $main::panicked >= $level;
+	my $time = time();
+	my $name = ($main::openDate <= $time && $time <= $main::dueDate ? "submitAnswers" : "checkAnswers");
+	$value = quoteHTML($value);
+	return qq!<input type="submit" name="$name" value="$label" onclick="document.getElementById('_panicked').value++">!;
 }
 
 #
 #  The reset button
 #
 sub ResetButton {
-  main::RECORD_FORM_LABEL("_panic_reset");
-  return qq!<input type="checkbox" name="_panic_reset"> Reset problem hints!;
+	main::RECORD_FORM_LABEL("_panic_reset");
+	return qq!<input type="checkbox" name="_panic_reset"> Reset problem hints!;
 }
 
 #
 #  Handle HTML in the value
 #
 sub quoteHTML {
-  my $string = shift;
-  return main::encode_pg_and_html($string);
+	my $string = shift;
+	return main::encode_pg_and_html($string);
 }
 
 #
 #  Install the panic grader, saving the original one
 #
 sub GradeWithPenalty {
-  $grader = $main::PG->{flags}->{PROBLEM_GRADER_TO_USE} || \&main::avg_problem_grader;
-  main::install_problem_grader(\&Panic::grader);
+	$grader = $main::PG->{flags}->{PROBLEM_GRADER_TO_USE} || \&main::avg_problem_grader;
+	main::install_problem_grader(\&Panic::grader);
 }
 
 #
 #  The grader for the panic levels.
 #
 sub grader {
-  #
-  #  Save the old score and call the original grader.
-  #  Compute the penalized score, and save it, if it is better than the old score.
-  #  Reset the values if we are resetting scores.
-  #
-  my $oldScore = $_[1]->{recorded_score} || 0;
-  my ($result,$state) = &{$grader}(@_);
-  $result->{score} *= 1-$penalty[$main::panicked];
-  $state->{recorded_score} = ($result->{score} > $oldScore ? $result->{score} : $oldScore);
-  $state->{recorded_score} = $state->{num_of_incorrect_ans} = $state->{num_of_correct_ans} = 0
-    if $main::inputs_ref->{_panic_reset} && $allowReset;
+	#
+	#  Save the old score and call the original grader.
+	#  Compute the penalized score, and save it, if it is better than the old score.
+	#  Reset the values if we are resetting scores.
+	#
+	my $oldScore = $_[1]->{recorded_score} || 0;
+	my ($result, $state) = &{$grader}(@_);
+	$result->{score} *= 1 - $penalty[$main::panicked];
+	$state->{recorded_score} = ($result->{score} > $oldScore ? $result->{score} : $oldScore);
+	$state->{recorded_score} = $state->{num_of_incorrect_ans} = $state->{num_of_correct_ans} = 0
+		if $main::inputs_ref->{_panic_reset} && $allowReset;
 
-  #
-  #  Add the problemPanic message and data
-  #
-  $result->{type} = "problemPanic ($result->{type})";
-  if ($main::panicked) {
-    $result->{msg} .= '</i><p><b>Note:</b> <i>' if $result->{msg};
-    $result->{msg} .= 'Your score was reduced by '.(int($penalty[$main::panicked]*100)).'%'
-                   .  ' because you accepted '.($main::panicked == 1 ? 'a hint.' : $main::panicked.' hints.');
-    #
-    #  Add the reset checkbox, if needed
-    #
-    $result->{msg} .= '<p>'.ResetButton() if $allowReset;
-  }
+	#
+	#  Add the problemPanic message and data
+	#
+	$result->{type} = "problemPanic ($result->{type})";
+	if ($main::panicked) {
+		$result->{msg} .= '</i><p><b>Note:</b> <i>' if $result->{msg};
+		$result->{msg} .=
+			'Your score was reduced by '
+			. (int($penalty[$main::panicked] * 100)) . '%'
+			. ' because you accepted '
+			. ($main::panicked == 1 ? 'a hint.' : $main::panicked . ' hints.');
+		#
+		#  Add the reset checkbox, if needed
+		#
+		$result->{msg} .= '<p>' . ResetButton() if $allowReset;
+	}
 
-  return ($result,$state);
+	return ($result, $state);
 }

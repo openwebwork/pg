@@ -51,6 +51,7 @@ my $BR;
 my $PAR;
 my $QUESTIONNAIRE_ANSWERS;
 my $rh_envir;
+
 sub _PGtextevaluators_init {
 	$BR                    = PG_restricted_eval(q/$BR/);
 	$PAR                   = PG_restricted_eval(q/$PAR/);
@@ -85,25 +86,26 @@ mail_answers_to2().
 =cut
 
 sub anstext {
-	my $num	= shift;
-	my $ans_eval_template =	store_ans_at(\$QUESTIONNAIRE_ANSWERS);
-	my $psvn  = PG_restricted_eval(q!$main::psvn!);
-	my $probNum     = PG_restricted_eval(q!$main::probNum!);
-	my $courseName  = PG_restricted_eval(q!$main::courseName!);
-	my $setNumber     = PG_restricted_eval(q!$main::setNumber!);
-	
-	my $ans_eval    = sub {
-				 my	$text =	shift;
-				 $text = ''	unless defined($text);
-				 my	$new_text =	"\n${setNumber}_${courseName}_$psvn-Problem-$probNum-Question-$num:\n $text "; #	modify entered text
-				 my	$out = &$ans_eval_template($new_text);			 # standard	evaluator
-				 #warn "$QUESTIONNAIRE_ANSWERS";
-				 $out->{student_ans} = escapeHTML($text);  #	restore	original entered text
-				 $out->{correct_ans} = "Question  $num answered";
-				 $out->{original_student_ans} = escapeHTML($text);
-				 $out;
-   	};
-   $ans_eval;
+	my $num               = shift;
+	my $ans_eval_template = store_ans_at(\$QUESTIONNAIRE_ANSWERS);
+	my $psvn              = PG_restricted_eval(q!$main::psvn!);
+	my $probNum           = PG_restricted_eval(q!$main::probNum!);
+	my $courseName        = PG_restricted_eval(q!$main::courseName!);
+	my $setNumber         = PG_restricted_eval(q!$main::setNumber!);
+
+	my $ans_eval = sub {
+		my $text = shift;
+		$text = '' unless defined($text);
+		my $new_text =
+			"\n${setNumber}_${courseName}_$psvn-Problem-$probNum-Question-$num:\n $text ";    #	modify entered text
+		my $out = &$ans_eval_template($new_text);                                             # standard	evaluator
+			#warn "$QUESTIONNAIRE_ANSWERS";
+		$out->{student_ans}          = escapeHTML($text);           #	restore	original entered text
+		$out->{correct_ans}          = "Question  $num answered";
+		$out->{original_student_ans} = escapeHTML($text);
+		$out;
+	};
+	$ans_eval;
 }
 
 =head2 anstext
@@ -122,27 +124,28 @@ Where $num is the argument passed to anstext_non_anonymous().
 
 sub anstext_non_anonymous {
 	## this emails identifying information
-	my $num	         = shift;
-    my $psvn   = PG_restricted_eval(q!$main::psvn!);
+	my $num          = shift;
+	my $psvn         = PG_restricted_eval(q!$main::psvn!);
 	my $probNum      = PG_restricted_eval(q!$main::probNum!);
-    my $studentLogin = PG_restricted_eval(q!$main::studentLogin!);
+	my $studentLogin = PG_restricted_eval(q!$main::studentLogin!);
 	my $studentID    = PG_restricted_eval(q!$main::studentID!);
-    my $studentName  = PG_restricted_eval(q!$main::studentName!);
+	my $studentName  = PG_restricted_eval(q!$main::studentName!);
 
-
-	my $ans_eval_template =	store_ans_at(\$QUESTIONNAIRE_ANSWERS);
-	my $ans_eval = sub {
-				 my	$text =	shift;
-				 $text = ''	unless defined($text);
-				 my	$new_text =	"\n$psvn-Problem-$probNum-Question-$num:\n$studentLogin $main::studentID $studentName\n$text "; #	modify entered text
-				 my	$out = &$ans_eval_template($new_text);			 # standard	evaluator
-				 #warn "$QUESTIONNAIRE_ANSWERS";
-				 $out->{student_ans} = escapeHTML($text);  #	restore	original entered text
-				 $out->{correct_ans} = "Question  $num answered";
-				 $out->{original_student_ans} = escapeHTML($text);
-				 $out;
-   	};
-   $ans_eval;
+	my $ans_eval_template = store_ans_at(\$QUESTIONNAIRE_ANSWERS);
+	my $ans_eval          = sub {
+		my $text = shift;
+		$text = '' unless defined($text);
+		my $new_text =
+			"\n$psvn-Problem-$probNum-Question-$num:\n$studentLogin $main::studentID $studentName\n$text "
+			;    #	modify entered text
+		my $out = &$ans_eval_template($new_text);    # standard	evaluator
+													 #warn "$QUESTIONNAIRE_ANSWERS";
+		$out->{student_ans}          = escapeHTML($text);           #	restore	original entered text
+		$out->{correct_ans}          = "Question  $num answered";
+		$out->{original_student_ans} = escapeHTML($text);
+		$out;
+	};
+	$ans_eval;
 }
 
 =head2 ansradio
@@ -164,22 +167,22 @@ mail_answers_to2().
 =cut
 
 sub ansradio {
-	my $num	= shift;
-	my $psvn  = PG_restricted_eval(q!$main::psvn!);
-	my $probNum  = PG_restricted_eval(q!$main::probNum!);
+	my $num     = shift;
+	my $psvn    = PG_restricted_eval(q!$main::psvn!);
+	my $probNum = PG_restricted_eval(q!$main::probNum!);
 
-	my $ans_eval_template =	store_ans_at(\$QUESTIONNAIRE_ANSWERS);
-	my $ans_eval = sub {
-				 my	$text =	shift;
-				 $text = ''	unless defined($text);
-				 my	$new_text =	"\n$psvn-Problem-$probNum-RADIO-$num:\n $text	";		   # modify	entered	text
-				 my	$out = $ans_eval_template->($new_text);			  #	standard evaluator
-				 $out->{student_ans} =escapeHTML($text);  #	restore	original entered text
-				 $out->{original_student_ans} = escapeHTML($text);
-				 $out;
-	 };
+	my $ans_eval_template = store_ans_at(\$QUESTIONNAIRE_ANSWERS);
+	my $ans_eval          = sub {
+		my $text = shift;
+		$text = '' unless defined($text);
+		my $new_text = "\n$psvn-Problem-$probNum-RADIO-$num:\n $text	";    # modify	entered	text
+		my $out      = $ans_eval_template->($new_text);                    #	standard evaluator
+		$out->{student_ans}          = escapeHTML($text);                  #	restore	original entered text
+		$out->{original_student_ans} = escapeHTML($text);
+		$out;
+	};
 
-   $ans_eval;
+	$ans_eval;
 }
 
 =head2 store_ans_at
@@ -195,29 +198,29 @@ is used internally by anstext(), anstest_non_anonymous(), and ans_radio().
 =cut
 
 sub store_ans_at {
-	my $answerStringRef	= shift;
-	my %options	= @_;
-	my $ans_eval= '';
-	if ( ref($answerStringRef) eq 'SCALAR' ) {
-		$ans_eval= sub {
+	my $answerStringRef = shift;
+	my %options         = @_;
+	my $ans_eval        = '';
+	if (ref($answerStringRef) eq 'SCALAR') {
+		$ans_eval = sub {
 			my $text = shift;
-			$text =	'' unless defined($text);
-			$$answerStringRef =	$$answerStringRef  . $text;
+			$text             = '' unless defined($text);
+			$$answerStringRef = $$answerStringRef . $text;
 			my $ans_hash = new AnswerHash(
-							 'score'			=>	1,
-							 'correct_ans'			=>	'',
-							 'student_ans'			=>	$text,
-							 'ans_message'			=>	'',
-							 'type'				=>	'store_ans_at',
-							 'original_student_ans'		=>	$text,
-							 'preview_text_string'		=>	''
+				'score'                => 1,
+				'correct_ans'          => '',
+				'student_ans'          => $text,
+				'ans_message'          => '',
+				'type'                 => 'store_ans_at',
+				'original_student_ans' => $text,
+				'preview_text_string'  => ''
 			);
 
-		return $ans_hash;
+			return $ans_hash;
 		};
-	}
-	else {
-		die	"Syntax	error: \n The argument to store_ans_at() must be a pointer to a	scalar.\n(e.g.	store_ans_at(~~\$MSG) )\n\n";
+	} else {
+		die
+			"Syntax	error: \n The argument to store_ans_at() must be a pointer to a	scalar.\n(e.g.	store_ans_at(~~\$MSG) )\n\n";
 	}
 
 	return $ans_eval;
@@ -242,9 +245,9 @@ Use a normal textans() answer evaluator and mail_answers_to2() instead.
 
 # Fix me?? why is the body hard wired to the string QUESTIONNAIRE_ANSWERS?
 
-sub mail_answers_to {  #accepts	the	last answer	and	mails off the result
+sub mail_answers_to {    #accepts	the	last answer	and	mails off the result
 	my $user_address = shift;
-	my $ans_eval = sub {
+	my $ans_eval     = sub {
 
 		# then mail out	all of the answers, including this last one.
 
@@ -254,25 +257,26 @@ sub mail_answers_to {  #accepts	the	last answer	and	mails off the result
 		#			'body'			    =>	$QUESTIONNAIRE_ANSWERS,
 		#			'ALLOW_MAIL_TO'		=>	$rh_envir->{ALLOW_MAIL_TO}
 		#);
-		
+
 		# DelayedMailer is the new method (for now)
 		$rh_envir->{mailer}->add_message(
-			to => $user_address,
+			to      => $user_address,
 			subject => "$main::courseName WeBWorK questionnaire",
-			msg => $QUESTIONNAIRE_ANSWERS,
+			msg     => $QUESTIONNAIRE_ANSWERS,
 		);
 
-		my $ans_hash = new AnswerHash(	'score'		=>	1,
-						'correct_ans'	=>	'',
-						'student_ans'	=>	'Answer	recorded',
-						'ans_message'	=>	'',
-						'type'		=>	'send_mail_to',
+		my $ans_hash = new AnswerHash(
+			'score'       => 1,
+			'correct_ans' => '',
+			'student_ans' => 'Answer	recorded',
+			'ans_message' => '',
+			'type'        => 'send_mail_to',
 		);
 
 		return $ans_hash;
 	};
 
-	return $ans_eval; 
+	return $ans_eval;
 }
 
 =head2 [DEPRECATED] save_answer_to_file
@@ -282,32 +286,34 @@ answer to a file. It is unsupported and may not even work.
 
 =cut
 
-sub save_answer_to_file {  #accepts	the	last answer	and	mails off the result
-	my $fileID = shift;
+sub save_answer_to_file {    #accepts	the	last answer	and	mails off the result
+	my $fileID   = shift;
 	my $ans_eval = new AnswerEvaluator;
-	$ans_eval->install_evaluator(
-			sub {
-				 my $rh_ans = shift;
+	$ans_eval->install_evaluator(sub {
+		my $rh_ans = shift;
 
-       		 	 unless ( defined( $rh_ans->{student_ans} ) ) {
-        			$rh_ans->throw_error("save_answers_to_file","{student_ans} field not defined");
-        			return $rh_ans;
-       			}
+		unless (defined($rh_ans->{student_ans})) {
+			$rh_ans->throw_error("save_answers_to_file", "{student_ans} field not defined");
+			return $rh_ans;
+		}
 
-				my $error;
-				my $string = '';
-				$string = qq![[<$main::studentLogin> $main::studentName /!. time() . qq!/]]\n!.
-					$rh_ans->{student_ans}. qq!\n\n============================\n\n!;
+		my $error;
+		my $string = '';
+		$string =
+			qq![[<$main::studentLogin> $main::studentName /!
+			. time()
+			. qq!/]]\n!
+			. $rh_ans->{student_ans}
+			. qq!\n\n============================\n\n!;
 
-				if ($error = AnswerIO::saveAnswerToFile('preflight',$string) ) {
-					$rh_ans->throw_error("save_answers_to_file","Error:  $error");
-				} else {
-					$rh_ans->{'student_ans'} = 'Answer saved';
-					$rh_ans->{'score'} = 1;
-				}
-				$rh_ans;
-			}
-	);
+		if ($error = AnswerIO::saveAnswerToFile('preflight', $string)) {
+			$rh_ans->throw_error("save_answers_to_file", "Error:  $error");
+		} else {
+			$rh_ans->{'student_ans'} = 'Answer saved';
+			$rh_ans->{'score'}       = 1;
+		}
+		$rh_ans;
+	});
 
 	return $ans_eval;
 }
@@ -328,17 +334,18 @@ sent by WeBWorK after PG rendering has completed.
 
 sub mail_answers_to2 {
 	my ($to, $subject, $ra_allow_mail_to) = @_;
-	
+
 	$subject = "$main::courseName WeBWorK questionnaire" unless defined $subject;
-	warn "The third argument (ra_allow_mail_to) to mail_answers_to2() is ignored. The list of allowed addresses is fixed."
+	warn
+		"The third argument (ra_allow_mail_to) to mail_answers_to2() is ignored. The list of allowed addresses is fixed."
 		if defined $ra_allow_mail_to;
-	
+
 	$rh_envir->{mailer}->add_message(
-		to => $to,
+		to      => $to,
 		subject => $subject,
-		msg => $QUESTIONNAIRE_ANSWERS,
+		msg     => $QUESTIONNAIRE_ANSWERS,
 	);
-	
+
 	return;
 }
 
@@ -353,7 +360,7 @@ an HTML BR element.
 
 sub escapeHTML {
 	my $string = shift;
-	$string	=~ s/\n/$BR/ge;
+	$string =~ s/\n/$BR/ge;
 	$string;
 }
 
@@ -362,17 +369,17 @@ sub escapeHTML {
 =cut
 
 sub save_questionnaire_answers_to {
-	my $fileName =shift;
-	SaveFile::printAnswerFile($fileName,[$QUESTIONNAIRE_ANSWERS]);
+	my $fileName = shift;
+	SaveFile::printAnswerFile($fileName, [$QUESTIONNAIRE_ANSWERS]);
 }
 
 #### subroutines used in producing a questionnaire
 #### these are at least	good models	for	other answers of this type
 
 # my $QUESTIONNAIRE_ANSWERS='';	#  stores the answers until	it is time to send them
-		   #  this must	be initialized before the answer evaluators	are	run
-		   #  but that happens long	after all of the text in the problem is
-		   #  evaluated.
+#  this must	be initialized before the answer evaluators	are	run
+#  but that happens long	after all of the text in the problem is
+#  evaluated.
 # this is a	utility	script for cleaning	up the answer output for display in
 #the answers.
 
@@ -381,8 +388,8 @@ sub save_questionnaire_answers_to {
 =cut
 
 sub DUMMY_ANSWER {
-	my $num	= shift;
-	qq{<INPUT TYPE="HIDDEN"	NAME="answer$num" VALUE="">}
+	my $num = shift;
+	qq{<INPUT TYPE="HIDDEN"	NAME="answer$num" VALUE="">};
 }
 
 =head1 SEE ALSO

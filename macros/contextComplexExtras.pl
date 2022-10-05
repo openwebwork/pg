@@ -70,29 +70,44 @@ to load it before you set the Context.
 
 =cut
 
-
 loadMacros("MathObjects.pl");
 
 sub _contextComplexExtras_init {
-  my $context;
-  foreach $name ("Complex","Complex-Point","Complex-Vector","Complex-Matrix") {
-    $context = $main::context{$name} = Parser::Context->getCopy($name);
-    $context->operators->add(
-      '~' => {precedence => 6, associativity => 'left', type => 'unary', string => '~', perl => '~',
-               class => 'context::ComplexExtras::UOP::conjugate'},
-    );
-  }
-  $context->operators->add(
-    '^T' => {precedence => 7, associativity => 'right', type => 'unary', string => '^T',
-             class => 'context::ComplexExtras::UOP::transpose'},
-    '^*' => {precedence => 7, associativity => 'right', type => 'unary', string => '^*',
-             class => 'context::ComplexExtras::UOP::conjtrans'},
-  );
-  $context->functions->add(
-    'tr'  => {class => "context::ComplexExtras::Function::matrix", method => "trace"},
-    'det' => {class => "context::ComplexExtras::Function::matrix"},
-  );
-};
+	my $context;
+	foreach $name ("Complex", "Complex-Point", "Complex-Vector", "Complex-Matrix") {
+		$context = $main::context{$name} = Parser::Context->getCopy($name);
+		$context->operators->add(
+			'~' => {
+				precedence    => 6,
+				associativity => 'left',
+				type          => 'unary',
+				string        => '~',
+				perl          => '~',
+				class         => 'context::ComplexExtras::UOP::conjugate'
+			},
+		);
+	}
+	$context->operators->add(
+		'^T' => {
+			precedence    => 7,
+			associativity => 'right',
+			type          => 'unary',
+			string        => '^T',
+			class         => 'context::ComplexExtras::UOP::transpose'
+		},
+		'^*' => {
+			precedence    => 7,
+			associativity => 'right',
+			type          => 'unary',
+			string        => '^*',
+			class         => 'context::ComplexExtras::UOP::conjtrans'
+		},
+	);
+	$context->functions->add(
+		'tr'  => { class => "context::ComplexExtras::Function::matrix", method => "trace" },
+		'det' => { class => "context::ComplexExtras::Function::matrix" },
+	);
+}
 
 ####################################################
 #
@@ -105,11 +120,10 @@ our @ISA = ("Parser::UOP");
 #  Check that the operand is a Matrix
 #
 sub _check {
-  my $self = shift;
-  $self->Error("'%s' is only defined for Matrices",$self->{def}{string})
-    unless $self->{op}->type eq "Matrix";
+	my $self = shift;
+	$self->Error("'%s' is only defined for Matrices", $self->{def}{string})
+		unless $self->{op}->type eq "Matrix";
 }
-
 
 ####################################################
 #
@@ -120,12 +134,12 @@ package context::ComplexExtras::UOP::conjugate;
 our @ISA = ("context::ComplexExtras::UOP");
 
 sub _check {
-  my $self = shift;
-  $self->Error("Conjugate is only defined for Complex Numbers and Matrices")
-    unless $self->{op}->type =~ m/Number|Matrix/;
+	my $self = shift;
+	$self->Error("Conjugate is only defined for Complex Numbers and Matrices")
+		unless $self->{op}->type =~ m/Number|Matrix/;
 }
 
-sub _eval {shift; $_[0]->conj}
+sub _eval { shift; $_[0]->conj }
 
 ####################################################
 #
@@ -135,13 +149,12 @@ sub _eval {shift; $_[0]->conj}
 package context::ComplexExtras::UOP::transpose;
 our @ISA = ("context::ComplexExtras::UOP");
 
-sub _eval {shift; $_[0]->transpose}
+sub _eval { shift; $_[0]->transpose }
 
 sub perl {
-  my $self = shift;
-  return '('.$self->{op}->perl.'->transpose)';
+	my $self = shift;
+	return '(' . $self->{op}->perl . '->transpose)';
 }
-
 
 ####################################################
 #
@@ -151,11 +164,11 @@ sub perl {
 package context::ComplexExtras::UOP::conjtrans;
 our @ISA = ("context::ComplexExtras::UOP");
 
-sub _eval {shift; $_[0]->transpose->conj}
+sub _eval { shift; $_[0]->transpose->conj }
 
 sub perl {
-  my $self = shift;
-  return '('.$self->{op}->perl.'->transpose->conj)';
+	my $self = shift;
+	return '(' . $self->{op}->perl . '->transpose->conj)';
 }
 
 ####################################################
@@ -168,15 +181,16 @@ our @ISA = ("Parser::Function");
 #
 #  Check for a single Matrix-valued input
 #
-sub _check {(shift)->checkMatrix("complex")}
+sub _check { (shift)->checkMatrix("complex") }
 
 #
 #  Evaluate by promoting to a Matrix
 #    and then calling the routine from the Value package
 #
 sub _eval {
-  my $self = shift; my $name = $self->{def}{method} || $self->{name};
-  $self->Package("Matrix")->promote($self->context,$_[0])->$name;
+	my $self = shift;
+	my $name = $self->{def}{method} || $self->{name};
+	$self->Package("Matrix")->promote($self->context, $_[0])->$name;
 }
 
 #
@@ -186,10 +200,12 @@ sub _eval {
 #    converting "tr" to "trace")
 #
 sub _call {
-  my $self = shift; my $name = shift;
-  Value->Error("Function '%s' has too many inputs",$name) if scalar(@_) > 1;
-  Value->Error("Function '%s' has too few inputs",$name) if scalar(@_) == 0;
-  my $M = shift; my $context = (Value::isValue($M) ? $M : $self)->context;
-  $name = "trace" if $name eq "tr";  # method of Matrix is trace not tr
-  $self->Package("Matrix")->promote($context,$M)->$name;
+	my $self = shift;
+	my $name = shift;
+	Value->Error("Function '%s' has too many inputs", $name) if scalar(@_) > 1;
+	Value->Error("Function '%s' has too few inputs",  $name) if scalar(@_) == 0;
+	my $M       = shift;
+	my $context = (Value::isValue($M) ? $M : $self)->context;
+	$name = "trace" if $name eq "tr";    # method of Matrix is trace not tr
+	$self->Package("Matrix")->promote($context, $M)->$name;
 }

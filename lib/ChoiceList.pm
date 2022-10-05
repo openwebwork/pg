@@ -133,25 +133,23 @@ BEGIN {
 
 package ChoiceList;
 
-
-
 @ChoiceList::ISA = qw( Exporter );
 
 my %fields = (
-			questions			=>	undef,
-			answers				=>	undef,
-			extras				=>	undef,
-			selected_q			=>	undef,
-			selected_a			=>	undef,
-			selected_e			=>	undef,
-			ans_rule_len		=>	undef,
-			ra_pop_up_list		=>	undef,
-			rf_print_q			=>	undef,
-			rf_print_a			=>	undef,
-			slice				=>	undef,
-			shuffle				=>	undef,
-			inverted_shuffle	=>	undef,
-			rand_gen			=>	undef,
+	questions        => undef,
+	answers          => undef,
+	extras           => undef,
+	selected_q       => undef,
+	selected_a       => undef,
+	selected_e       => undef,
+	ans_rule_len     => undef,
+	ra_pop_up_list   => undef,
+	rf_print_q       => undef,
+	rf_print_a       => undef,
+	slice            => undef,
+	shuffle          => undef,
+	inverted_shuffle => undef,
+	rand_gen         => undef,
 );
 
 #used to initialize variables and create an instance of the class
@@ -161,22 +159,23 @@ sub new {
 
 	warn "ChoiceList requires a random number: new ChoiceList(random(1,2000,1)" unless defined $seed;
 
-	my $self = { 	_permitted => \%fields,
+	my $self = {
+		_permitted => \%fields,
 
-				questions			=> [],
-				answers				=> [],
-				extras				=> [],
-				selected_q			=> [],
-				selected_a			=> [],
-				selected_e			=> [],
-				ans_rule_len		=>  4,
-				ra_pop_up_list		=> [no_answer =>'  ?', T => 'True', F => 'False'],
-				rf_print_q			=>  0,
-				rf_print_a			=>  0,
-				slice				=> [],
-				shuffle				=> [],
-				inverted_shuffle	=> [],
-				rand_gen			=> new PGrandom,
+		questions        => [],
+		answers          => [],
+		extras           => [],
+		selected_q       => [],
+		selected_a       => [],
+		selected_e       => [],
+		ans_rule_len     => 4,
+		ra_pop_up_list   => [ no_answer => '  ?', T => 'True', F => 'False' ],
+		rf_print_q       => 0,
+		rf_print_a       => 0,
+		slice            => [],
+		shuffle          => [],
+		inverted_shuffle => [],
+		rand_gen         => new PGrandom,
 	};
 
 	bless $self, $class;
@@ -194,15 +193,15 @@ sub new {
 # sub AUTOLOAD {
 # 	my $self = shift;
 # 	my $type = ref($self) or die "$self is not an object";
-# 
+#
 # 	# $AUTOLOAD is sent in by Perl and is the full name of the object (i.e. main::blah::blah_more)
 # 	my $name = $ChoiceList::AUTOLOAD;
 # 	$name =~ s/.*://; #strips fully-qualified portion
-# 
+#
 # 	unless ( exists $self->{'_permitted'}->{$name} ) {
 # 		die "Can't find '$name' field in object of class '$type'";
 # 	}
-# 
+#
 # 	if (@_) {
 # 		return $self->{$name} = shift; #set the variable to the first parameter
 # 	} else {
@@ -213,7 +212,6 @@ sub new {
 sub DESTROY {
 	# doing nothing about destruction, hope that isn't dangerous
 }
-
 
 # *** Utility methods ***
 
@@ -226,11 +224,11 @@ sub NchooseK {
 	die "method NchooseK: n = $n cannot be less than k=$k\n
 	     You probably did a 'choose($k)' with only $n questions!" if $k > $n;
 
-	my @array = 0..($n-1);
-	my @out = ();
+	my @array = 0 .. ($n - 1);
+	my @out   = ();
 
 	while (@out < $k) {
-		push(@out, splice(@array, $self->{rand_gen}->random(0, $#array, 1), 1) );
+		push(@out, splice(@array, $self->{rand_gen}->random(0, $#array, 1), 1));
 	}
 
 	return @out;
@@ -239,12 +237,11 @@ sub NchooseK {
 #return an array of random numbers
 sub shuffle {
 	my $self = shift;
-	my $i = @_;
-	my @out = $self->NchooseK($i, $i);
+	my $i    = @_;
+	my @out  = $self->NchooseK($i, $i);
 
 	return @out;
 }
-
 
 # *** Utility subroutines ***
 
@@ -252,10 +249,10 @@ sub shuffle {
 #swap subscripts with their respective values
 sub invert {
 	my @array = @_;
-	my @out = ();
+	my @out   = ();
 
-	for (my $i=0; $i<@array; $i++) {
-		$out[$array[$i]] = $i;
+	for (my $i = 0; $i < @array; $i++) {
+		$out[ $array[$i] ] = $i;
 	}
 
 	return @out;
@@ -263,16 +260,16 @@ sub invert {
 #internal
 #slice of the alphabet
 sub ALPHABET {
-	return ('A'..'ZZ')[@_];
+	return ('A' .. 'ZZ')[@_];
 }
 
 #given a universe of subscripts and a subset of the universe,
 #return the complement of that set in the universe
 sub complement {
 	my $ra_univ = shift;
-	my $ra_set = shift;
-	my @univ = @$ra_univ;
-	my @set = @$ra_set;
+	my $ra_set  = shift;
+	my @univ    = @$ra_univ;
+	my @set     = @$ra_set;
 
 	my %set = ();
 
@@ -283,13 +280,11 @@ sub complement {
 	my @out = ();
 
 	foreach my $i (@univ) {
-		push(@out, $i) unless exists( $set{$i} );
+		push(@out, $i) unless exists($set{$i});
 	}
 
 	return @out;
 }
-
-
 
 # *** Input and Output subroutines ***
 #From here down are the ones that should be overloaded by sub-classes
@@ -303,21 +298,20 @@ sub complement {
 =cut
 
 sub qa {
-	my $self = shift;
+	my $self           = shift;
 	my @questANDanswer = @_;
 
 	while (@questANDanswer) {
-		push (@{ $self->{questions} }, shift(@questANDanswer) );
-		push (@{ $self->{answers} },   shift(@questANDanswer) );
+		push(@{ $self->{questions} }, shift(@questANDanswer));
+		push(@{ $self->{answers} },   shift(@questANDanswer));
 	}
 }
 
 #Input extra answers  -- not to be confused with access method extras below
 sub extra {
 	my $self = shift;
-	push(@{ $self->{extras} }, @_); #pushing allows multiple calls without overwriting old "extras"
+	push(@{ $self->{extras} }, @_);    #pushing allows multiple calls without overwriting old "extras"
 }
-
 
 #Output questions
 #Doesn't do actual output, refers to method given in call to 'new' (rf_print_q)
@@ -325,7 +319,7 @@ sub extra {
 sub print_q {
 	my $self = shift;
 
-	&{ $self->{rf_print_q} }( $self, @{ $self->{selected_q} } );
+	&{ $self->{rf_print_q} }($self, @{ $self->{selected_q} });
 }
 
 #Output answers
@@ -333,7 +327,7 @@ sub print_q {
 sub print_a {
 	my $self = shift;
 
-	&{ $self->{rf_print_a} }( $self, @{ $self->{selected_a} } );
+	&{ $self->{rf_print_a} }($self, @{ $self->{selected_a} });
 }
 
 #return array of answers to be checked against the students answers
@@ -352,11 +346,11 @@ returns a string of comparison methods for checking the list object
 
 =cut 
 
-sub cmp { 
-	my $self = shift;
-	my @answers = @{$self->{selected_a}};
-	@answers = map {Value::makeValue($_)} @answers; # make sure answers are all MathObjects
-	@answers = map {$_->cmp} @answers;              # replace the MathObjects by their AnswerEvaluators
+sub cmp {
+	my $self    = shift;
+	my @answers = @{ $self->{selected_a} };
+	@answers = map { Value::makeValue($_) } @answers;    # make sure answers are all MathObjects
+	@answers = map { $_->cmp } @answers;                 # replace the MathObjects by their AnswerEvaluators
 	return @answers;
 }
 
@@ -368,23 +362,22 @@ sub correct_ans {
 
 # *** Question and Answer Manipulation Subroutines ***
 
-
 #calls methods that deal with list specific methods of picking random questions and answers
 #mainly exists for backward compatibility and to hide some of the activity from the naive user
 sub choose {
-	my $self = shift;
+	my $self  = shift;
 	my @input = @_;
 
-	$self->getRandoms(scalar(@{$self->{questions}}), @input);	#pick random numbers
-	$self->selectQA();			#select questions and answers
-	$self->dumpExtra();			#dump extra answers into "extras"
-	$self->condense();			#eliminate duplicate answers"
+	$self->getRandoms(scalar(@{ $self->{questions} }), @input);    #pick random numbers
+	$self->selectQA();                                             #select questions and answers
+	$self->dumpExtra();                                            #dump extra answers into "extras"
+	$self->condense();                                             #eliminate duplicate answers"
 }
 
 #randomly inserts the selected extra answers into selected_a and
 #updates inverted_shuffle accordingly
 sub choose_extra {
-	my $self = shift;
+	my $self  = shift;
 	my @input = @_;
 
 	$self->getRandoms(scalar(@{ $self->{extras} }), @input);
@@ -392,7 +385,7 @@ sub choose_extra {
 	my $length = 0;
 
 	my $random = 0;
-	foreach my $extra_ans ( invert(@{ $self->{shuffle} }) ) {
+	foreach my $extra_ans (invert(@{ $self->{shuffle} })) {
 		#warn "Selected Answers: @{ $self->{selected_a} }<BR>
 		#      Inverted Shuffle: @{ $self->{inverted_shuffle} }<BR>
 		#      Random: $random";
@@ -400,20 +393,24 @@ sub choose_extra {
 		for (my $pos = 0; $pos < @{ $self->{inverted_shuffle} }; $pos++) {
 			@{ $self->{inverted_shuffle} }[$pos]++ unless @{ $self->{inverted_shuffle} }[$pos] < $random;
 		}
-		my @temp = ( @{ $self->{selected_a} }[0..$random-1], @{ $self->{selected_e} }[$extra_ans], @{$self->{selected_a} }[$random..$#{ $self->{selected_a} } ] );
+		my @temp = (
+			@{ $self->{selected_a} }[ 0 .. $random - 1 ],
+			@{ $self->{selected_e} }[$extra_ans],
+			@{ $self->{selected_a} }[ $random .. $#{ $self->{selected_a} } ]
+		);
 		@{ $self->{selected_a} } = @temp;
 	}
 }
 
 #create random @slice and @shuffle to randomize questions and answers
 sub getRandoms {
-	my $self = shift;
-	my $N = shift;
+	my $self  = shift;
+	my $N     = shift;
 	my @input = @_;
-	my $K = 0;
+	my $K     = 0;
 
-	my @fixed_choices = (); # questions forced by the user
-	foreach my $i (@input) { #input is of the form ([3, 5, 6], 3)
+	my @fixed_choices = ();     # questions forced by the user
+	foreach my $i (@input) {    #input is of the form ([3, 5, 6], 3)
 		if (ref($i) eq 'ARRAY') {
 			push(@fixed_choices, @{$i});
 		} else {
@@ -421,17 +418,17 @@ sub getRandoms {
 		}
 	}
 
-#	my $N = @{ $self->{questions} };
-	my @remaining = complement( [0..$N-1], [@fixed_choices] );
+	#	my $N = @{ $self->{questions} };
+	my @remaining = complement([ 0 .. $N - 1 ], [@fixed_choices]);
 
 	my @slice = @fixed_choices;
-	push (@slice, @remaining[ $self->NchooseK(scalar(@remaining), $K) ] ); #slice of remaing choices
-	@slice = @slice[ $self->NchooseK( scalar(@slice), scalar(@slice) ) ]; #randomize the slice (the questions)
+	push(@slice, @remaining[ $self->NchooseK(scalar(@remaining), $K) ]);    #slice of remaing choices
+	@slice = @slice[ $self->NchooseK(scalar(@slice), scalar(@slice)) ];     #randomize the slice (the questions)
 
 	#shuffle will be used to randomize the answers a second time (so they don't coincide with the questions)
-	my @shuffle = $self->NchooseK( scalar(@slice), scalar(@slice) );
+	my @shuffle = $self->NchooseK(scalar(@slice), scalar(@slice));
 
-	$self->{slice} = \@slice; #keep track of the slice and shuffle
+	$self->{slice}   = \@slice;                                             #keep track of the slice and shuffle
 	$self->{shuffle} = \@shuffle;
 }
 
@@ -439,30 +436,30 @@ sub getRandoms {
 sub selectQA {
 	my $self = shift;
 
-	$self->{selected_q} = [ @{ $self->{questions} }[ @{ $self->{slice} } ] ];
-	$self->{selected_a} = [ @{ $self->{answers} }[@{ $self->{slice} }[@{ $self->{shuffle} } ] ] ];
+	$self->{selected_q}       = [ @{ $self->{questions} }[ @{ $self->{slice} } ] ];
+	$self->{selected_a}       = [ @{ $self->{answers} }[ @{ $self->{slice} }[ @{ $self->{shuffle} } ] ] ];
 	$self->{inverted_shuffle} = [ invert(@{ $self->{shuffle} }) ];
 }
 
 #dump unused answers into list of extra answers
 sub dumpExtra {
-	my $self = shift;
-	my @more_extras = complement([0..scalar(@{ $self->{answers} })-1], [@{ $self->{slice} }]);
-	push( @{ $self->{extras} }, @{ $self->{answers} }[@more_extras] );
+	my $self        = shift;
+	my @more_extras = complement([ 0 .. scalar(@{ $self->{answers} }) - 1 ], [ @{ $self->{slice} } ]);
+	push(@{ $self->{extras} }, @{ $self->{answers} }[@more_extras]);
 }
 
 #Allows answers to be added to the end of the selected answers
 #This can be used to force answers like "None of the above" and/or "All of the above" to still occur at the
 #end of the list instead of being randomized like the rest of the answers
 sub makeLast {
-	my $self = shift;
+	my $self  = shift;
 	my @input = @_;
 
 	push(@{ $self->{selected_a} }, @input);
-	$self->condense(); 	#make sure that the user has not accidentally forced a duplicate answer
-				#note: condense was changed to eliminate the first occurence of a duplicate
-				#instead of the last occurence so that it could be used in this case and
-				#would not negate the fact that one of the answers needs to be at the end
+	$self->condense();    #make sure that the user has not accidentally forced a duplicate answer
+						  #note: condense was changed to eliminate the first occurence of a duplicate
+						  #instead of the last occurence so that it could be used in this case and
+						  #would not negate the fact that one of the answers needs to be at the end
 }
 
 #Eliminates duplicates answers and rearranges inverted_shuffle so that all questions with the same answer
@@ -474,7 +471,7 @@ sub makeLast {
 # 			if (@{ $self->{selected_a} }[$outer] eq @{ $self->{selected_a} }[$inner]) {
 # 				#then delete the duplicate answer at subscript $outer
 # 				@{ $self->{selected_a} } = ( @{ $self->{selected_a} }[0..$outer-1], @{ $self->{selected_a} }[$outer+1..$#{ $self->{selected_a} }] );
-# 
+#
 # 				#the values of inverted_shuffle point to the position elements in selected_a
 # 				#so in order to delete something from selected_a, each element with a position
 # 				#greater than $outer must have its position be decremented by one
@@ -504,14 +501,17 @@ sub condense {
 	my $repeat = 0;
 
 	while ($outer < @{ $self->{selected_a} }) {
-		$inner = $outer + 1;
-		$repeat = 0; #loop again if we find a match
-		while ($inner < @{ $self->{selected_a}}) {
-			$repeat = 0; #loop again if we find a match
-			if (@{ $self->{selected_a} }[$outer] eq @{$self->{selected_a} }[$inner]) {
+		$inner  = $outer + 1;
+		$repeat = 0;            #loop again if we find a match
+		while ($inner < @{ $self->{selected_a} }) {
+			$repeat = 0;        #loop again if we find a match
+			if (@{ $self->{selected_a} }[$outer] eq @{ $self->{selected_a} }[$inner]) {
 
 				#then delete the duplicate answer at subscript $outer by combining everything before and after it
-				@{ $self->{selected_a} } = ( @{ $self->{selected_a} }[0..$outer-1], @{ $self->{selected_a} }[$outer+1..$#{ $self->{selected_a} }] );
+				@{ $self->{selected_a} } = (
+					@{ $self->{selected_a} }[ 0 .. $outer - 1 ],
+					@{ $self->{selected_a} }[ $outer + 1 .. $#{ $self->{selected_a} } ]
+				);
 
 				#the values of inverted_shuffle to point the _subscript_ of elements in selected_a
 				#so in order to delete something from selected_a, each element with a subscript
@@ -521,9 +521,9 @@ sub condense {
 				$inner--;
 
 				for (my $pos = 0; $pos < @{ $self->{inverted_shuffle} }; $pos++) {
-					if ( @{ $self->{inverted_shuffle} }[$pos] == $outer) {
+					if (@{ $self->{inverted_shuffle} }[$pos] == $outer) {
 						@{ $self->{inverted_shuffle} }[$pos] = $inner;
-					} elsif ( @{ $self->{inverted_shuffle} }[$pos] > $outer ) {
+					} elsif (@{ $self->{inverted_shuffle} }[$pos] > $outer) {
 						@{ $self->{inverted_shuffle} }[$pos]--;
 					}
 				}
@@ -533,7 +533,7 @@ sub condense {
 				#no duplicates as well
 				#This means that we don't want to increment either counter (and we need to reset $inner)
 				$repeat = 1;
-				$inner = $outer + 1;
+				$inner  = $outer + 1;
 			}
 			$inner++ unless $repeat;
 		}
@@ -547,175 +547,183 @@ sub condense {
 sub questions {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{questions} ) {
+	unless (exists $self->{questions}) {
 		die "Can't find questions field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{questions} = shift;
 	} else {
-		return $self->{questions}
+		return $self->{questions};
 	}
 }
 
 sub answers {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{answers} ) {
+	unless (exists $self->{answers}) {
 		die "Can't find answers field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{answers} = shift;
 	} else {
-		return $self->{answers}
+		return $self->{answers};
 	}
 }
+
 sub extras {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{extras} ) {
+	unless (exists $self->{extras}) {
 		die "Can't find extras field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{extras} = shift;
 	} else {
-		return $self->{extras}
+		return $self->{extras};
 	}
 }
+
 sub selected_q {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{selected_q} ) {
+	unless (exists $self->{selected_q}) {
 		die "Can't find selected_q field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{selected_q} = shift;
 	} else {
-		return $self->{selected_q}
+		return $self->{selected_q};
 	}
 }
+
 sub selected_a {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{selected_a} ) {
+	unless (exists $self->{selected_a}) {
 		die "Can't find selected_a field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{selected_a} = shift;
 	} else {
-		return $self->{selected_a}
+		return $self->{selected_a};
 	}
 }
+
 sub selected_e {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{selected_e} ) {
+	unless (exists $self->{selected_e}) {
 		die "Can't find selected_e field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{selected_e} = shift;
 	} else {
-		return $self->{selected_e}
+		return $self->{selected_e};
 	}
 }
+
 sub ans_rule_len {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{ans_rule_len} ) {
+	unless (exists $self->{ans_rule_len}) {
 		die "Can't find ans_rule_len field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{ans_rule_len} = shift;
 	} else {
-		return $self->{ans_rule_len}
+		return $self->{ans_rule_len};
 	}
 }
+
 sub ra_pop_up_list {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{ra_pop_up_list} ) {
+	unless (exists $self->{ra_pop_up_list}) {
 		die "Can't find ra_pop_up_list field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{ra_pop_up_list} = shift;
 	} else {
-		return $self->{ra_pop_up_list}
+		return $self->{ra_pop_up_list};
 	}
 }
+
 sub rf_print_q {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{rf_print_q} ) {
+	unless (exists $self->{rf_print_q}) {
 		die "Can't find rf_print_q field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{rf_print_q} = shift;
 	} else {
-		return $self->{rf_print_q}
+		return $self->{rf_print_q};
 	}
 }
+
 sub rf_print_a {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{rf_print_a} ) {
+	unless (exists $self->{rf_print_a}) {
 		die "Can't find rf_print_a field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{rf_print_a} = shift;
 	} else {
-		return $self->{rf_print_a}
+		return $self->{rf_print_a};
 	}
 }
+
 sub slice {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{slice} ) {
+	unless (exists $self->{slice}) {
 		die "Can't find slice field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{slice} = shift;
 	} else {
-		return $self->{slice}
+		return $self->{slice};
 	}
 }
 
 sub inverted_shuffle {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{inverted_shuffle} ) {
+	unless (exists $self->{inverted_shuffle}) {
 		die "Can't find inverted_shuffle field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{inverted_shuffle} = shift;
 	} else {
-		return $self->{inverted_shuffle}
+		return $self->{inverted_shuffle};
 	}
 }
+
 sub rand_gen {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{rand_gen} ) {
+	unless (exists $self->{rand_gen}) {
 		die "Can't find rand_gen field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{rand_gen} = shift;
 	} else {
-		return $self->{rand_gen}
+		return $self->{rand_gen};
 	}
 }
-
-
 
 1;

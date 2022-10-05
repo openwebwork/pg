@@ -120,14 +120,13 @@ to rewrite them.
 
 =cut
 
-
 ##########################################################################
 
 loadMacros("MathObjects.pl");
 
 sub _contextComplexJ_init {
-  my $context = $main::context{Complex} = Parser::Context->getCopy("Complex");
-  context::ComplexJ->Enable($context);
+	my $context = $main::context{Complex} = Parser::Context->getCopy("Complex");
+	context::ComplexJ->Enable($context);
 }
 
 ###############################################################
@@ -138,20 +137,25 @@ package context::ComplexJ;
 #  Enables complex j notation in the given context
 #
 sub Enable {
-  my $self = shift; my $context = shift || main::Context();
-  $context->flags->set(
-     enterComplex => "either",
-     displayComplex => "either",
-  );
-  $context->{value}{Complex} = "context::ComplexJ::Value::Complex";
-  $context->{parser}{Value} = "context::ComplexJ::Parser::Value";
-  $context->{parser}{Complex} = "context::ComplexJ::Parser::Complex";
-  $context->{parser}{Constant} = "context::ComplexJ::Parser::Constant";
-  $context->constants->set(
-    j => {value => $context->Package("Complex")->new($context,0,1)->with(isJ=>1), isConstant => 1, perl => "j"},
-    i => {value => $context->Package("Complex")->new($context,0,1), isConstant => 1, perl => "i"},
-  );
-  $context->update;
+	my $self    = shift;
+	my $context = shift || main::Context();
+	$context->flags->set(
+		enterComplex   => "either",
+		displayComplex => "either",
+	);
+	$context->{value}{Complex}   = "context::ComplexJ::Value::Complex";
+	$context->{parser}{Value}    = "context::ComplexJ::Parser::Value";
+	$context->{parser}{Complex}  = "context::ComplexJ::Parser::Complex";
+	$context->{parser}{Constant} = "context::ComplexJ::Parser::Constant";
+	$context->constants->set(
+		j => {
+			value      => $context->Package("Complex")->new($context, 0, 1)->with(isJ => 1),
+			isConstant => 1,
+			perl       => "j"
+		},
+		i => { value => $context->Package("Complex")->new($context, 0, 1), isConstant => 1, perl => "i" },
+	);
+	$context->update;
 }
 
 #
@@ -162,20 +166,23 @@ sub Enable {
 #  professors can use either).
 #
 sub Default {
-  my $self = shift; my $enter = shift || "either";  my $display = shift || "either";
-  my $cmp = ($enter eq "j"); $enter = "either" if $cmp;
-  foreach my $name (keys %Parser::Context::Default::context) {
-    next unless $name =~ m/Complex/;
-    my $context = $main::context{$name} = Parser::Context->getCopy($name);
-    $self->Enable($context);
-    $context->flags->set(enterComplex => $enter, displayComplex => $display);
-    if ($cmp) {
-      foreach my $class (grep {/::/} (keys %Value::)) {
-        $context->{cmpDefaults}{substr($class,0,-2)}{enterComplex} = "j";
-      }
-    }
-  }
-  main::Context(main::Context()->{name});
+	my $self    = shift;
+	my $enter   = shift || "either";
+	my $display = shift || "either";
+	my $cmp     = ($enter eq "j");
+	$enter = "either" if $cmp;
+	foreach my $name (keys %Parser::Context::Default::context) {
+		next unless $name =~ m/Complex/;
+		my $context = $main::context{$name} = Parser::Context->getCopy($name);
+		$self->Enable($context);
+		$context->flags->set(enterComplex => $enter, displayComplex => $display);
+		if ($cmp) {
+			foreach my $class (grep {/::/} (keys %Value::)) {
+				$context->{cmpDefaults}{ substr($class, 0, -2) }{enterComplex} = "j";
+			}
+		}
+	}
+	main::Context(main::Context()->{name});
 }
 
 ###############################################################
@@ -188,16 +195,19 @@ package context::ComplexJ::Value::Complex;
 our @ISA = ('Value::Complex');
 
 sub string {
-  my $self = shift; my $display = $self->getFlag("displayComplex");
-  my $z = Value::Complex::format($self->{format},$self->value,'string',@_);
-  $z =~ s/i/j/ if ($self->{isJ} || $display eq 'j') && $display ne 'i';
-  return $z;
+	my $self    = shift;
+	my $display = $self->getFlag("displayComplex");
+	my $z       = Value::Complex::format($self->{format}, $self->value, 'string', @_);
+	$z =~ s/i/j/ if ($self->{isJ} || $display eq 'j') && $display ne 'i';
+	return $z;
 }
+
 sub TeX {
-  my $self = shift; my $display = $self->getFlag("displayComplex");
-  my $z = Value::Complex::format($self->{format},$self->value,'TeX',@_);
-  $z =~ s/i/j/ if ($self->{isJ} || $display eq 'j') && $display ne 'i';
-  return $z;
+	my $self    = shift;
+	my $display = $self->getFlag("displayComplex");
+	my $z       = Value::Complex::format($self->{format}, $self->value, 'TeX', @_);
+	$z =~ s/i/j/ if ($self->{isJ} || $display eq 'j') && $display ne 'i';
+	return $z;
 }
 
 ###############################################################
@@ -210,17 +220,17 @@ package context::ComplexJ::Parser::Value;
 our @ISA = ('Parser::Value');
 
 sub new {
-  my $self = shift;
-  my ($equation,$value,@ref) = @_;
-  my $z = $self->SUPER::new(@_);
-  if ($z->class eq "Complex") {
-    $value = $value->[0] if ref($value) eq 'ARRAY' && scalar(@$value) == 1;
-    $z->{isJ} = 1 if Value::isHash($value) && $value->{isJ};
-  }
-  return $z;
+	my $self = shift;
+	my ($equation, $value, @ref) = @_;
+	my $z = $self->SUPER::new(@_);
+	if ($z->class eq "Complex") {
+		$value    = $value->[0] if ref($value) eq 'ARRAY' && scalar(@$value) == 1;
+		$z->{isJ} = 1           if Value::isHash($value)  && $value->{isJ};
+	}
+	return $z;
 }
 
-sub class {'Value'};
+sub class {'Value'}
 
 ###############################################################
 #
@@ -232,10 +242,10 @@ package context::ComplexJ::Parser::Complex;
 our @ISA = ('Parser::Complex');
 
 sub eval {
-  my $self = shift;
-  my $z = $self->SUPER::eval(@_);
-  $z->{isJ} = 1 if $self->{isJ};
-  return $z;
+	my $self = shift;
+	my $z    = $self->SUPER::eval(@_);
+	$z->{isJ} = 1 if $self->{isJ};
+	return $z;
 }
 
 sub class {'Complex'}
@@ -253,35 +263,38 @@ package context::ComplexJ::Parser::Constant;
 our @ISA = ('Parser::Constant');
 
 sub new {
-  my $self = shift;
-  my $z = $self->SUPER::new(@_);
-  if ($z->isComplex) {
-    my $context = $z->{equation}{context};
-    my $enter = ($context->{answerHash}||{})->{enterComplex} || $context->flag("enterComplex");
-    $self->Error("Complex numbers must be entered using 'j'")
-      if $enter eq 'j' && !$z->{def}{value}{isJ};
-    $self->Error("Complex numbers must be entered using 'i'")
-      if $enter eq 'i' && $z->{def}{value}{isJ};
-  }
-  return $z;
+	my $self = shift;
+	my $z    = $self->SUPER::new(@_);
+	if ($z->isComplex) {
+		my $context = $z->{equation}{context};
+		my $enter   = ($context->{answerHash} || {})->{enterComplex} || $context->flag("enterComplex");
+		$self->Error("Complex numbers must be entered using 'j'")
+			if $enter eq 'j' && !$z->{def}{value}{isJ};
+		$self->Error("Complex numbers must be entered using 'i'")
+			if $enter eq 'i' && $z->{def}{value}{isJ};
+	}
+	return $z;
 }
 
 sub swapIJ {
-  my $self = shift; my $z = shift;
-  if ($self->isComplex) {
-    my $display = $self->{equation}{context}->flag("displayComplex");
-    $z =~ s/i/j/ if ($self->{def}{value}{isJ} || $display eq "j") && $display ne "i";
-    $z =~ s/j/i/ if ($self->{def}{value}{isJ} && $display eq "i");
-  }
-  return $z;
+	my $self = shift;
+	my $z    = shift;
+	if ($self->isComplex) {
+		my $display = $self->{equation}{context}->flag("displayComplex");
+		$z =~ s/i/j/ if ($self->{def}{value}{isJ} || $display eq "j") && $display ne "i";
+		$z =~ s/j/i/ if ($self->{def}{value}{isJ} && $display eq "i");
+	}
+	return $z;
 }
+
 sub string {
-  my $self = shift;
-  $self->swapIJ($self->SUPER::string(@_));
+	my $self = shift;
+	$self->swapIJ($self->SUPER::string(@_));
 }
+
 sub TeX {
-  my $self = shift;
-  $self->swapIJ($self->SUPER::TeX(@_));
+	my $self = shift;
+	$self->swapIJ($self->SUPER::TeX(@_));
 }
 
 sub class {'Constant'}

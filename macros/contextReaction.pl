@@ -1,3 +1,4 @@
+
 =head1 NAME
 
 contextReaction.pl - Implements a MathObject class for checmical reactions.
@@ -92,7 +93,7 @@ to allow a state of (x) for a compound.
 
 ######################################################################
 
-sub _contextReaction_init {context::Reaction::Init()}
+sub _contextReaction_init { context::Reaction::Init() }
 
 ######################################################################
 #
@@ -104,112 +105,157 @@ our @ISA = ('Value::Formula');
 #
 #  Some type declarations for the various classes
 #
-our $ELEMENT  = {isValue => 1, type => Value::Type("Element",1)};
-our $MOLECULE = {isValue => 1, type => Value::Type("Molecule",1)};
-our $ION      = {isValue => 1, type => Value::Type("Ion",1)};
-our $COMPOUND = {isValue => 1, type => Value::Type("Compound",1)};
-our $REACTION = {isValue => 1, type => Value::Type("Reaction",1)};
-our $CONSTANT = {isValue => 1, type => Value::Type("Constant",1)};
-our $STATE    = {isValue => 1, type => Value::Type("State",1)};
+our $ELEMENT  = { isValue => 1, type => Value::Type("Element",  1) };
+our $MOLECULE = { isValue => 1, type => Value::Type("Molecule", 1) };
+our $ION      = { isValue => 1, type => Value::Type("Ion",      1) };
+our $COMPOUND = { isValue => 1, type => Value::Type("Compound", 1) };
+our $REACTION = { isValue => 1, type => Value::Type("Reaction", 1) };
+our $CONSTANT = { isValue => 1, type => Value::Type("Constant", 1) };
+our $STATE    = { isValue => 1, type => Value::Type("State",    1) };
 
 #
 #  Set up the context and Reaction() constructor
 #
 sub Init {
-  my $context = $main::context{Reaction} = Parser::Context->getCopy("Numeric");
-  $context->{name} = "Reaction";
-  $context->functions->clear();
-  $context->strings->clear();
-  $context->constants->clear();
-  $context->lists->clear();
-  $context->lists->add(
-   'List' => {class =>'context::Reaction::List::List', open => '', close => '', separator => ' + '},
-  );
-  $context->parens->clear();
-  $context->parens->add(
-   '(' => {close => ')', type => 'List', formList => 1, removable => 1},
-   '{' => {close => '}', type => 'List', removable => 1},
-  );
-  $context->operators->clear();
-  $context->operators->set(
-   '-->' => {precedence => 1, associativity => 'left', type => 'bin', string => ' --> ',
-           class => 'context::Reaction::BOP::arrow', TeX => " \\longrightarrow "},
+	my $context = $main::context{Reaction} = Parser::Context->getCopy("Numeric");
+	$context->{name} = "Reaction";
+	$context->functions->clear();
+	$context->strings->clear();
+	$context->constants->clear();
+	$context->lists->clear();
+	$context->lists->add(
+		'List' => { class => 'context::Reaction::List::List', open => '', close => '', separator => ' + ' },);
+	$context->parens->clear();
+	$context->parens->add(
+		'(' => { close => ')', type => 'List', formList  => 1, removable => 1 },
+		'{' => { close => '}', type => 'List', removable => 1 },
+	);
+	$context->operators->clear();
+	$context->operators->set(
+		'-->' => {
+			precedence    => 1,
+			associativity => 'left',
+			type          => 'bin',
+			string        => ' --> ',
+			class         => 'context::Reaction::BOP::arrow',
+			TeX           => " \\longrightarrow "
+		},
 
-   '+' => {precedence => 2, associativity => 'left', type => 'both', string => ' + ',
-           class => 'context::Reaction::BOP::add', isComma => 1},
+		'+' => {
+			precedence    => 2,
+			associativity => 'left',
+			type          => 'both',
+			string        => ' + ',
+			class         => 'context::Reaction::BOP::add',
+			isComma       => 1
+		},
 
-   ' ' => {precedence => 3, associativity => 'left', type => 'bin', string => ' ',
-           class => 'context::Reaction::BOP::multiply', hidden => 1},
+		' ' => {
+			precedence    => 3,
+			associativity => 'left',
+			type          => 'bin',
+			string        => ' ',
+			class         => 'context::Reaction::BOP::multiply',
+			hidden        => 1
+		},
 
-   '_' => {precedence => 4, associativity => 'left', type => 'bin', string => '_',
-           class => 'context::Reaction::BOP::underscore'},
+		'_' => {
+			precedence    => 4,
+			associativity => 'left',
+			type          => 'bin',
+			string        => '_',
+			class         => 'context::Reaction::BOP::underscore'
+		},
 
-   '^' => {precedence => 4, associativity => 'left', type => 'bin', string => '^',
-           class => 'context::Reaction::BOP::superscript'},
+		'^' => {
+			precedence    => 4,
+			associativity => 'left',
+			type          => 'bin',
+			string        => '^',
+			class         => 'context::Reaction::BOP::superscript'
+		},
 
-   '-' => {precedence => 5, associativity => 'left', type => 'both', string => '-',
-           class => 'Parser::BOP::undefined'},
-   'u-'=> {precedence => 6, associativity => 'left', type => 'unary', string => '-',
-           class => 'context::Reaction::UOP::minus', hidden => 1},
-   'u+'=> {precedence => 6, associativity => 'left', type => 'unary', string => '+',
-           class => 'context::Reaction::UOP::plus', hidden => 1},
-  );
-  $context->variables->{namePattern} = qr/\(?[a-zA-Z][a-zA-Z0-9]*\)?/;
-  $context->variables->are(
-    map {$_ => $ELEMENT} (
-      "H",                                                                                   "He",
-      "Li","Be",                                                    "B", "C", "N", "O", "F", "Ne",
-      "Na","Mg",                                                    "Al","Si","P", "S", "Cl","Ar",
-      "K", "Ca",  "Sc","Ti","V", "Cr","Mn","Fe","Co","Ni","Cu","Zn","Ga","Ge","As","Se","Br","Kr",
-      "Rb","Sr",  "Y", "Zr","Nb","Mo","Tc","Ru","Rh","Pd","Ag","Cd","In","Sn","Sb","Te","I", "Xe",
-      "Cs","Ba",  "Lu","Hf","Ta","W", "Re","Os","Ir","Pt","Au","Hg","Ti","Pb","Bi","Po","At","Rn",
-      "Fr","Ra",  "Lr","Rf","Db","Sg","Bh","Hs","Mt","Ds","Rg","Cn","Nh","Fl","Mc","Lv","Ts","Og",
+		'-' => {
+			precedence    => 5,
+			associativity => 'left',
+			type          => 'both',
+			string        => '-',
+			class         => 'Parser::BOP::undefined'
+		},
+		'u-' => {
+			precedence    => 6,
+			associativity => 'left',
+			type          => 'unary',
+			string        => '-',
+			class         => 'context::Reaction::UOP::minus',
+			hidden        => 1
+		},
+		'u+' => {
+			precedence    => 6,
+			associativity => 'left',
+			type          => 'unary',
+			string        => '+',
+			class         => 'context::Reaction::UOP::plus',
+			hidden        => 1
+		},
+	);
+	$context->variables->{namePattern} = qr/\(?[a-zA-Z][a-zA-Z0-9]*\)?/;
+	$context->variables->are(
+		map { $_ => $ELEMENT } (
+			"H",  "He",
+			"Li", "Be", "B",  "C",  "N", "O",  "F",  "Ne",
+			"Na", "Mg", "Al", "Si", "P", "S",  "Cl", "Ar",
+			"K",  "Ca", "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br",
+			"Kr",
+			"Rb", "Sr", "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "Te", "I",
+			"Xe",
+			"Cs", "Ba", "Lu", "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg", "Ti", "Pb", "Bi", "Po", "At",
+			"Rn",
+			"Fr", "Ra", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn", "Nh", "Fl", "Mc", "Lv", "Ts",
+			"Og",
 
-                  "La","Ce","Pr","Nd","Pm","Sm","Eu","Gd","Tb","Dy","Ho","Er","Tm","Yb",
-                  "Ac","Th","Pa","U", "Np","Pu","Am","Cm","Bk","Cf","Es","Fm","Md","No",
-    )
-  );
-  $context->variables->add(
-    map {$_ => $STATE} (
-      "(aq)", "(s)", "(l)", "(g)", "(ppt)",
-    )
-  );
-  $context->reductions->clear();
-  $context->flags->set(reduceConstants => 0);
-  $context->{parser}{Number} = "context::Reaction::Number";
-  $context->{parser}{Variable} = "context::Reaction::Variable";
-  $context->{parser}{Formula} = "context::Reaction";
-  $context->{value}{Reaction} = "context::Reaction";
-  $context->{value}{Element} = "context::Reaction::Variable";
-  $context->{value}{Constant} = "context::Reaction::Variable";
-  $context->{value}{State} = "context::Reaction::Variable";
-  Parser::Number::NoDecimals($context);
+			"La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb",
+			"Ac", "Th", "Pa", "U",  "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No",
+		)
+	);
+	$context->variables->add(map { $_ => $STATE } ("(aq)", "(s)", "(l)", "(g)", "(ppt)",));
+	$context->reductions->clear();
+	$context->flags->set(reduceConstants => 0);
+	$context->{parser}{Number}   = "context::Reaction::Number";
+	$context->{parser}{Variable} = "context::Reaction::Variable";
+	$context->{parser}{Formula}  = "context::Reaction";
+	$context->{value}{Reaction}  = "context::Reaction";
+	$context->{value}{Element}   = "context::Reaction::Variable";
+	$context->{value}{Constant}  = "context::Reaction::Variable";
+	$context->{value}{State}     = "context::Reaction::Variable";
+	Parser::Number::NoDecimals($context);
 
-  main::PG_restricted_eval('sub Reaction {Value->Package("Formula")->new(@_)};');
+	main::PG_restricted_eval('sub Reaction {Value->Package("Formula")->new(@_)};');
 }
 
 #
 #  Compare by checking of the trees are equivalent
 #
 sub compare {
-  my ($l,$r) = @_; my $self = $l;
-  my $context = $self->context;
-  $r = $context->Package("Formula")->new($context,$r) unless Value::isFormula($r);
-  return ($l->{tree}->equivalent($r->{tree}) ? 0 : 1);
+	my ($l, $r) = @_;
+	my $self    = $l;
+	my $context = $self->context;
+	$r = $context->Package("Formula")->new($context, $r) unless Value::isFormula($r);
+	return ($l->{tree}->equivalent($r->{tree}) ? 0 : 1);
 }
 
 #
 #  Don't allow evaluation
 #
 sub eval {
-  my $self = shift;
-  $self->Error("Can't evaluate ".$self->TYPE);
+	my $self = shift;
+	$self->Error("Can't evaluate " . $self->TYPE);
 }
 
 #
 #  Provide a useful name
 #
-sub TYPE {'a chemical reaction'}
+sub TYPE      {'a chemical reaction'}
 sub cmp_class {'a Chemical Reaction'}
 
 #
@@ -219,13 +265,15 @@ sub cmp_class {'a Chemical Reaction'}
 #    give warnings when a reaction is compared to a
 #    student answer that isn't a reaction.
 #
-sub cmp_defaults {(showTypeWarnings => 1)}
-sub cmp_equal {Value::cmp_equal(@_)};
+sub cmp_defaults { (showTypeWarnings => 1) }
+sub cmp_equal    { Value::cmp_equal(@_) }
+
 sub cmp_postprocess {
-  my $self = shift; my $ans = shift;
-  return unless $self->{tree}->type eq 'Reaction';
-  $self->cmp_Error($ans,"Your answer doesn't seem to be a reaction\n(it should contain a reaction arrow '-->')")
-    if $ans->{showTypeWarnings} && $ans->{student_value}{tree}->type ne 'Reaction';
+	my $self = shift;
+	my $ans  = shift;
+	return unless $self->{tree}->type eq 'Reaction';
+	$self->cmp_Error($ans, "Your answer doesn't seem to be a reaction\n(it should contain a reaction arrow '-->')")
+		if $ans->{showTypeWarnings} && $ans->{student_value}{tree}->type ne 'Reaction';
 }
 
 #
@@ -234,8 +282,9 @@ sub cmp_postprocess {
 #  strings or constants, we would.)
 #
 sub typeMatch {
-  my $self = shift; my $other = shift;
-  return 1;
+	my $self  = shift;
+	my $other = shift;
+	return 1;
 }
 
 ######################################################################
@@ -249,15 +298,16 @@ our @ISA = ('Parser::Number');
 #  Equivalent is equal
 #
 sub equivalent {
-  my $self = shift; my $other = shift;
-  return 0 unless $other->class eq 'Number';
-  return $self->eval == $other->eval;
+	my $self  = shift;
+	my $other = shift;
+	return 0 unless $other->class eq 'Number';
+	return $self->eval == $other->eval;
 }
 
 sub isChemical {0}
 
 sub class {'Number'}
-sub TYPE {'a Number'}
+sub TYPE  {'a Number'}
 
 ######################################################################
 #
@@ -270,12 +320,13 @@ our @ISA = ('Parser::Variable');
 #  Two elements are equivalent if their names are equal
 #
 sub equivalent {
-  my $self = shift; my $other = shift;
-  return 0 unless $other->class eq 'Variable';
-  return $self->{name} eq $other->{name};
+	my $self  = shift;
+	my $other = shift;
+	return 0 unless $other->class eq 'Variable';
+	return $self->{name} eq $other->{name};
 }
 
-sub eval {context::Reaction::eval(@_)}
+sub eval { context::Reaction::eval(@_) }
 
 sub isChemical {1}
 
@@ -283,8 +334,8 @@ sub isChemical {1}
 #  Print element names in Roman
 #
 sub TeX {
-  my $self = shift;
-  return "{\\rm $self->{name}}";
+	my $self = shift;
+	return "{\\rm $self->{name}}";
 }
 
 sub class {'Variable'}
@@ -294,8 +345,8 @@ sub class {'Variable'}
 #  and 'an element' for an element.
 #
 sub TYPE {
-  my $self = shift;
-  return ($self->type eq 'Constant' || $self->type eq 'State' ? 'a state' : 'an element');
+	my $self = shift;
+	return ($self->type eq 'Constant' || $self->type eq 'State' ? 'a state' : 'an element');
 }
 
 ######################################################################
@@ -311,17 +362,18 @@ our @ISA = ('Parser::BOP');
 #
 sub isChemical {1}
 
-sub eval {context::Reaction::eval(@_)}
+sub eval { context::Reaction::eval(@_) }
 
 #
 #  Two nodes are equivalent if their operands are equivalent
 #  and they have the same operator
 #
 sub equivalent {
-  my $self = shift; my $other = shift;
-  return 0 unless $other->class eq 'BOP';
-  return 0 unless $self->{bop} eq $other->{bop};
-  return $self->{lop}->equivalent($other->{lop}) && $self->{rop}->equivalent($other->{rop});
+	my $self  = shift;
+	my $other = shift;
+	return 0 unless $other->class eq 'BOP';
+	return 0 unless $self->{bop} eq $other->{bop};
+	return $self->{lop}->equivalent($other->{lop}) && $self->{rop}->equivalent($other->{rop});
 }
 
 ######################################################################
@@ -340,12 +392,12 @@ sub isChemical {0}
 #  Check that the operands are correct.
 #
 sub _check {
-  my $self = shift;
-  $self->Error("The left-hand side of '-->' must be a (sum of) reactants, not %s",
-               $self->{lop}->TYPE) unless $self->{lop}->isChemical;
-  $self->Error("The right-hand side of '-->' must be a (sum of) products, not %s",
-               $self->{rop}->TYPE) unless $self->{rop}->isChemical;
-  $self->{type} = $REACTION->{type};
+	my $self = shift;
+	$self->Error("The left-hand side of '-->' must be a (sum of) reactants, not %s", $self->{lop}->TYPE)
+		unless $self->{lop}->isChemical;
+	$self->Error("The right-hand side of '-->' must be a (sum of) products, not %s", $self->{rop}->TYPE)
+		unless $self->{rop}->isChemical;
+	$self->{type} = $REACTION->{type};
 }
 
 sub TYPE {'a reaction'}
@@ -356,16 +408,16 @@ sub TYPE {'a reaction'}
 #  the Parser::BOP::comma operator
 #
 package context::Reaction::BOP::add;
-our @ISA = ('Parser::BOP::comma','context::Reaction::BOP');
+our @ISA = ('Parser::BOP::comma', 'context::Reaction::BOP');
 
 #
 #  Check that the operands are OK
 #
 sub _check {
-  my $self = shift;
-  $self->Error("Can't add %s and %s",$self->{lop}->TYPE,$self->{rop}->TYPE)
-     unless $self->{lop}->isChemical && $self->{rop}->isChemical;
-  $self->SUPER::_check(@_);
+	my $self = shift;
+	$self->Error("Can't add %s and %s", $self->{lop}->TYPE, $self->{rop}->TYPE)
+		unless $self->{lop}->isChemical && $self->{rop}->isChemical;
+	$self->SUPER::_check(@_);
 }
 
 #
@@ -374,10 +426,11 @@ sub _check {
 #  of a list rather than an "add" node in the final tree.
 #
 sub equivalent {
-  my $self = shift; my $other = shift;
-  return 0 unless substr($other->class,0,3) eq 'BOP';
-  return $self->SUPER::equivalent($other) ||
-         ($self->{lop}->equivalent($other->{rop}) && $self->{rop}->equivalent($other->{rop}));
+	my $self  = shift;
+	my $other = shift;
+	return 0 unless substr($other->class, 0, 3) eq 'BOP';
+	return $self->SUPER::equivalent($other)
+		|| ($self->{lop}->equivalent($other->{rop}) && $self->{rop}->equivalent($other->{rop}));
 }
 
 sub TYPE {'a sum of Compounds'}
@@ -394,30 +447,31 @@ our @ISA = ('context::Reaction::BOP');
 #  Check that the operands are OK
 #
 sub _check {
-  my $self = shift;
-  $self->Error("Can't combine %s and %s",$self->{lop}->TYPE,$self->{rop}->TYPE)
-    unless ($self->{lop}->class eq 'Number' || $self->{lop}->isChemical) &&
-            $self->{rop}->isChemical;
-  $self->Error("Compound already has a state")
-    if $self->{lop}{hasState} && $self->{rop}->type eq 'State';
-  $self->Error("Can't combine %s with %s",$self->{lop}{name},$self->{rop}->TYPE)
-    if $self->{lop}->type eq 'Constant';
-  $self->Error("Can't combine %s with %s",$self->{lop}->TYPE,$self->{rop}{name})
-    if $self->{rop}->type eq 'Constant';
-  $self->{type} = $COMPOUND->{type};
-  $self->{hasState} = 1 if $self->{rop}->type eq 'State';
+	my $self = shift;
+	$self->Error("Can't combine %s and %s", $self->{lop}->TYPE, $self->{rop}->TYPE)
+		unless ($self->{lop}->class eq 'Number' || $self->{lop}->isChemical)
+		&& $self->{rop}->isChemical;
+	$self->Error("Compound already has a state")
+		if $self->{lop}{hasState} && $self->{rop}->type eq 'State';
+	$self->Error("Can't combine %s with %s", $self->{lop}{name}, $self->{rop}->TYPE)
+		if $self->{lop}->type eq 'Constant';
+	$self->Error("Can't combine %s with %s", $self->{lop}->TYPE, $self->{rop}{name})
+		if $self->{rop}->type eq 'Constant';
+	$self->{type}     = $COMPOUND->{type};
+	$self->{hasState} = 1 if $self->{rop}->type eq 'State';
 }
 
 #
 #  No space in output for implied multiplication
 #
 sub string {
-  my $self = shift;
-  return $self->{lop}->string.$self->{rop}->string;
+	my $self = shift;
+	return $self->{lop}->string . $self->{rop}->string;
 }
+
 sub TeX {
-  my $self = shift;
-  return $self->{lop}->TeX.$self->{rop}->TeX;
+	my $self = shift;
+	return $self->{lop}->TeX . $self->{rop}->TeX;
 }
 
 sub TYPE {'a compound'}
@@ -433,32 +487,32 @@ our @ISA = ('context::Reaction::BOP');
 #  Check that the operands are OK
 #
 sub _check {
-  my $self = shift;
-  $self->Error("The left-hand side of '_' must be an element or compound, not %s",$self->{lop}->TYPE)
-    unless $self->{lop}->type eq 'Element' || $self->{lop}->type eq 'Compound';
-  $self->Error("The right-hand side of '_' must be a number, not %s",$self->{rop}->TYPE)
-    unless $self->{rop}->class eq 'Number';
-  $self->{type} = $MOLECULE->{type};
+	my $self = shift;
+	$self->Error("The left-hand side of '_' must be an element or compound, not %s", $self->{lop}->TYPE)
+		unless $self->{lop}->type eq 'Element' || $self->{lop}->type eq 'Compound';
+	$self->Error("The right-hand side of '_' must be a number, not %s", $self->{rop}->TYPE)
+		unless $self->{rop}->class eq 'Number';
+	$self->{type} = $MOLECULE->{type};
 }
 
 #
 #  Create proper TeX output
 #
 sub TeX {
-  my $self = shift;
-  my $left = $self->{lop}->TeX;
-  $left = "($left)" if $self->{lop}->type eq 'Compound';
-  return $left."_{".$self->{rop}->TeX."}";
+	my $self = shift;
+	my $left = $self->{lop}->TeX;
+	$left = "($left)" if $self->{lop}->type eq 'Compound';
+	return $left . "_{" . $self->{rop}->TeX . "}";
 }
 
 #
 #  Create proper text output
 #
 sub string {
-  my $self = shift;
-  my $left = $self->{lop}->string;
-  $left = "($left)" if $self->{lop}->type eq 'Compound';
-  return $left."_".$self->{rop}->string;
+	my $self = shift;
+	my $left = $self->{lop}->string;
+	$left = "($left)" if $self->{lop}->type eq 'Compound';
+	return $left . "_" . $self->{rop}->string;
 }
 
 sub TYPE {'a molecule'}
@@ -474,30 +528,30 @@ our @ISA = ('context::Reaction::BOP');
 #  Check that the operands are OK
 #
 sub _check {
-  my $self = shift;
-  $self->Error("The left-hand side of '^' must be an element or molecule, not %s",$self->{lop}->TYPE)
-    unless $self->{lop}->type eq 'Element' || $self->{lop}->type eq 'Molecule';
-  $self->Error("The right-hand side of '^' must be a signed number, not %s",$self->{rop}->TYPE)
-    unless $self->{rop}->class eq 'UOP';
-  $self->{type} = $ION->{type};
+	my $self = shift;
+	$self->Error("The left-hand side of '^' must be an element or molecule, not %s", $self->{lop}->TYPE)
+		unless $self->{lop}->type eq 'Element' || $self->{lop}->type eq 'Molecule';
+	$self->Error("The right-hand side of '^' must be a signed number, not %s", $self->{rop}->TYPE)
+		unless $self->{rop}->class eq 'UOP';
+	$self->{type} = $ION->{type};
 }
 
 #
 #  Create proper TeX output
 #
 sub TeX {
-  my $self = shift;
-  my $left = $self->{lop}->TeX;
-  return $left."^{".$self->{rop}->TeX."}";
+	my $self = shift;
+	my $left = $self->{lop}->TeX;
+	return $left . "^{" . $self->{rop}->TeX . "}";
 }
 
 #
 #  Create proper text output
 #
 sub string {
-  my $self = shift;
-  my $left = $self->{lop}->string;
-  return $left."^".$self->{rop}->string;
+	my $self = shift;
+	my $left = $self->{lop}->string;
+	return $left . "^" . $self->{rop}->string;
 }
 
 sub TYPE {'an ion'}
@@ -510,9 +564,9 @@ package context::Reaction::UOP;
 our @ISA = ('Parser::UOP');
 
 sub _check {
-  my $self = shift;
-  return if ($self->checkNumber);
-  $self->{type} = $Value::Type{number};
+	my $self = shift;
+	return if ($self->checkNumber);
+	$self->{type} = $Value::Type{number};
 }
 
 #
@@ -520,20 +574,21 @@ sub _check {
 #
 sub isChemical {0}
 
-sub eval {context::Reaction::eval(@_)}
+sub eval { context::Reaction::eval(@_) }
 
 #
 #  Two nodes are equivalent if their operands are equivalent
 #  and they have the same operator
 #
 sub equivalent {
-  my $self = shift; my $other = shift;
-  return 0 unless $other->class eq 'UOP';
-  return 0 unless $self->{uop} eq $other->{uop};
-  return $self->{op}->equivalent($other->{op});
+	my $self  = shift;
+	my $other = shift;
+	return 0 unless $other->class eq 'UOP';
+	return 0 unless $self->{uop} eq $other->{uop};
+	return $self->{op}->equivalent($other->{op});
 }
 
-sub TYPE {'a signed number'};
+sub TYPE {'a signed number'}
 
 ######################################################################
 #
@@ -549,7 +604,6 @@ our @ISA = ('context::Reaction::UOP');
 package context::Reaction::UOP::plus;
 our @ISA = ('context::Reaction::UOP');
 
-
 ######################################################################
 #
 #  Implements sums of compounds as a list
@@ -562,23 +616,26 @@ our @ISA = ('Parser::List::List');
 #  (we check by stringifying them and sorting, then compare results)
 #
 sub equivalent {
-  my $self = shift; my $other = shift;
-  return 0 unless $self->length == $other->length;
-  my @left = main::lex_sort(map {$_->string} @{$self->{coords}});
-  my @right = main::lex_sort(map {$_->string} @{$other->{coords}});
-  return join(',',@left) eq join(',',@right);
+	my $self  = shift;
+	my $other = shift;
+	return 0 unless $self->length == $other->length;
+	my @left  = main::lex_sort(map { $_->string } @{ $self->{coords} });
+	my @right = main::lex_sort(map { $_->string } @{ $other->{coords} });
+	return join(',', @left) eq join(',', @right);
 }
 
 #
 #  Use "+" between entries in the list (with no parens)
 #
 sub TeX {
-  my $self = shift; my $precedence = shift; my @coords = ();
-  foreach my $x (@{$self->{coords}}) {push(@coords,$x->TeX)}
-  return join(' + ',@coords);
+	my $self       = shift;
+	my $precedence = shift;
+	my @coords     = ();
+	foreach my $x (@{ $self->{coords} }) { push(@coords, $x->TeX) }
+	return join(' + ', @coords);
 }
 
-sub eval {context::Reaction::eval(@_)}
+sub eval { context::Reaction::eval(@_) }
 
 sub isChemical {1}
 

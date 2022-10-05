@@ -11,9 +11,9 @@ use strict;
 our @ISA = qw(Parser::BOP);
 
 sub _check {
-  my $self = shift;
-  my $bop = $self->{def}{string} || $self->{bop};
-  $self->Error("Can't use '%s' in this context",$bop);
+	my $self = shift;
+	my $bop  = $self->{def}{string} || $self->{bop};
+	$self->Error("Can't use '%s' in this context", $bop);
 }
 
 #########################################################################

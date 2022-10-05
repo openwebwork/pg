@@ -49,35 +49,36 @@ package Parser::Legacy::LimitedComplex::BOP;
 #  Otherwise report an error.
 #
 sub _check {
-  my $self = shift;
-  my $super = ref($self); $super =~ s/Legacy::LimitedComplex:://;
-  &{$super."::_check"}($self);
-  if ($self->{lop}->isRealNumber && $self->{rop}->isRealNumber) {
-    return unless $self->{equation}{context}{flags}{strict_numeric};
-  } else {
-    Value::Error("The constant 'i' may appear only once in your formula")
-      if ($self->{lop}->isComplex and $self->{rop}->isComplex);
-    return if $self->checkComplex;
-    $self->Error("Exponential form is 'a*e^(bi)'")
-      if $self->{lop}{isPower} || $self->{rop}{isPower};
-  }
-  $self->Error("Your answer should be of the form %s",$self->theForm)
+	my $self  = shift;
+	my $super = ref($self);
+	$super =~ s/Legacy::LimitedComplex:://;
+	&{ $super . "::_check" }($self);
+	if ($self->{lop}->isRealNumber && $self->{rop}->isRealNumber) {
+		return unless $self->{equation}{context}{flags}{strict_numeric};
+	} else {
+		Value::Error("The constant 'i' may appear only once in your formula")
+			if ($self->{lop}->isComplex and $self->{rop}->isComplex);
+		return if $self->checkComplex;
+		$self->Error("Exponential form is 'a*e^(bi)'")
+			if $self->{lop}{isPower} || $self->{rop}{isPower};
+	}
+	$self->Error("Your answer should be of the form %s", $self->theForm);
 }
 
 #
 #  filled in by subclasses
 #
-sub checkComplex {return 0}
+sub checkComplex { return 0 }
 
 #
 #  Get the form for use in error messages
 #
 sub theForm {
-  my $self = shift;
-  my $format = $self->{equation}{context}{flags}{complex_format};
-  return 'a+bi' if $format eq 'cartesian';
-  return 'a*e^(bi)' if $format eq 'polar';
-  return 'a+bi or a*e^(bi)';
+	my $self   = shift;
+	my $format = $self->{equation}{context}{flags}{complex_format};
+	return 'a+bi'     if $format eq 'cartesian';
+	return 'a*e^(bi)' if $format eq 'polar';
+	return 'a+bi or a*e^(bi)';
 }
 
 ##############################################
@@ -94,12 +95,14 @@ package Parser::Legacy::LimitedComplex::BOP::add;
 our @ISA = qw(Parser::Legacy::LimitedComplex::BOP Parser::BOP::add);
 
 sub checkComplex {
-  my $self = shift;
-  return 0 if $self->{equation}{context}{flags}{complex_format} eq 'polar';
-  my ($l,$r) = ($self->{lop},$self->{rop});
-  if ($l->isComplex) {my $tmp = $l; $l = $r; $r = $tmp};
-  return $r->class eq 'Constant' || $r->{isMult} ||
-    ($r->class eq 'Complex' && $r->{value}[0] == 0);
+	my $self = shift;
+	return 0 if $self->{equation}{context}{flags}{complex_format} eq 'polar';
+	my ($l, $r) = ($self->{lop}, $self->{rop});
+	if ($l->isComplex) { my $tmp = $l; $l = $r; $r = $tmp }
+	return
+		$r->class eq 'Constant'
+		|| $r->{isMult}
+		|| ($r->class eq 'Complex' && $r->{value}[0] == 0);
 }
 
 ##############################################
@@ -108,12 +111,14 @@ package Parser::Legacy::LimitedComplex::BOP::subtract;
 our @ISA = qw(Parser::Legacy::LimitedComplex::BOP Parser::BOP::subtract);
 
 sub checkComplex {
-  my $self = shift;
-  return 0 if $self->{equation}{context}{flags}{complex_format} eq 'polar';
-  my ($l,$r) = ($self->{lop},$self->{rop});
-  if ($l->isComplex) {my $tmp = $l; $l = $r; $r = $tmp};
-  return $r->class eq 'Constant' || $r->{isMult} ||
-    ($r->class eq 'Complex' && $r->{value}[0] == 0);
+	my $self = shift;
+	return 0 if $self->{equation}{context}{flags}{complex_format} eq 'polar';
+	my ($l, $r) = ($self->{lop}, $self->{rop});
+	if ($l->isComplex) { my $tmp = $l; $l = $r; $r = $tmp }
+	return
+		$r->class eq 'Constant'
+		|| $r->{isMult}
+		|| ($r->class eq 'Complex' && $r->{value}[0] == 0);
 }
 
 ##############################################
@@ -122,11 +127,11 @@ package Parser::Legacy::LimitedComplex::BOP::multiply;
 our @ISA = qw(Parser::Legacy::LimitedComplex::BOP Parser::BOP::multiply);
 
 sub checkComplex {
-  my $self = shift;
-  my ($l,$r) = ($self->{lop},$self->{rop});
-  $self->{isMult} = !$r->{isPower};
-  return (($l->class eq 'Constant' || $l->isRealNumber) &&
-	  ($r->class eq 'Constant' || $r->isRealNumber || $r->{isPower}));
+	my $self = shift;
+	my ($l, $r) = ($self->{lop}, $self->{rop});
+	$self->{isMult} = !$r->{isPower};
+	return (($l->class eq 'Constant' || $l->isRealNumber)
+			&& ($r->class eq 'Constant' || $r->isRealNumber || $r->{isPower}));
 }
 
 ##############################################
@@ -144,14 +149,20 @@ our @ISA = qw(Parser::Legacy::LimitedComplex::BOP Parser::BOP::power);
 #  since we only get here if exactly one term is complex)
 #
 sub checkComplex {
-  my $self = shift;
-  return 0 if $self->{equation}{context}{flags}{complex_format} eq 'cartesian';
-  my ($l,$r) = ($self->{lop},$self->{rop});
-  $self->{isPower} = 1;
-  return 1 if ($l->class eq 'Constant' && $l->{name} eq 'e' &&
-	       ($r->class eq 'Constant' || $r->{isMult} || $r->{isOp} ||
-		$r->class eq 'Complex' && $r->{value}[0] == 0));
-  $self->Error("Exponentials can only be of the form 'e^(ai)' in this context");
+	my $self = shift;
+	return 0 if $self->{equation}{context}{flags}{complex_format} eq 'cartesian';
+	my ($l, $r) = ($self->{lop}, $self->{rop});
+	$self->{isPower} = 1;
+	return 1
+		if (
+			$l->class eq 'Constant'
+			&& $l->{name} eq 'e'
+			&& ($r->class eq 'Constant'
+				|| $r->{isMult}
+				|| $r->{isOp}
+				|| $r->class eq 'Complex' && $r->{value}[0] == 0)
+		);
+	$self->Error("Exponentials can only be of the form 'e^(ai)' in this context");
 }
 
 ##############################################
@@ -163,23 +174,25 @@ sub checkComplex {
 package Parser::Legacy::LimitedComplex::UOP;
 
 sub _check {
-  my $self = shift;
-  my $super = ref($self); $super =~ s/Legacy::LimitedComplex:://;
-  &{$super."::_check"}($self);
-  my $op = $self->{op}; $self->{isOp} = 1;
-  if ($op->isRealNumber) {
-    return unless $self->{equation}{context}{flags}{strict_numeric};
-    return if $op->class eq 'Number';
-  } else {
-    return if $self->{op}{isMult} || $self->{op}{isPower};
-    return if $op->class eq 'Constant' && $op->{name} eq 'i';
-  }
-  $self->Error("Your answer should be of the form %s",$self->theForm)
+	my $self  = shift;
+	my $super = ref($self);
+	$super =~ s/Legacy::LimitedComplex:://;
+	&{ $super . "::_check" }($self);
+	my $op = $self->{op};
+	$self->{isOp} = 1;
+	if ($op->isRealNumber) {
+		return unless $self->{equation}{context}{flags}{strict_numeric};
+		return if $op->class eq 'Number';
+	} else {
+		return if $self->{op}{isMult} || $self->{op}{isPower};
+		return if $op->class eq 'Constant' && $op->{name} eq 'i';
+	}
+	$self->Error("Your answer should be of the form %s", $self->theForm);
 }
 
-sub checkComplex {return 0}
+sub checkComplex { return 0 }
 
-sub theForm {Parser::Legacy::LimitedComplex::BOP::theForm(@_)}
+sub theForm { Parser::Legacy::LimitedComplex::BOP::theForm(@_) }
 
 ##############################################
 
@@ -202,10 +215,10 @@ package Parser::Legacy::LimitedComplex::List::AbsoluteValue;
 our @ISA = qw(Parser::List::AbsoluteValue);
 
 sub _check {
-  my $self = shift;
-  $self->SUPER::_check;
-  return if $self->{coords}[0]->isRealNumber;
-  $self->Error("Can't take absolute value of Complex Numbers in this context");
+	my $self = shift;
+	$self->SUPER::_check;
+	return if $self->{coords}[0]->isRealNumber;
+	$self->Error("Can't take absolute value of Complex Numbers in this context");
 }
 
 ##############################################
@@ -226,29 +239,27 @@ $context->{name} = "LimtedComplex";
 #  Override operator classes
 #
 $context->operators->set(
-   '+' => {class => 'Parser::Legacy::LimitedComplex::BOP::add'},
-   '-' => {class => 'Parser::Legacy::LimitedComplex::BOP::subtract'},
-   '*' => {class => 'Parser::Legacy::LimitedComplex::BOP::multiply'},
-  '* ' => {class => 'Parser::Legacy::LimitedComplex::BOP::multiply'},
-  ' *' => {class => 'Parser::Legacy::LimitedComplex::BOP::multiply'},
-   ' ' => {class => 'Parser::Legacy::LimitedComplex::BOP::multiply'},
-   '/' => {class => 'Parser::Legacy::LimitedComplex::BOP::divide'},
-  ' /' => {class => 'Parser::Legacy::LimitedComplex::BOP::divide'},
-  '/ ' => {class => 'Parser::Legacy::LimitedComplex::BOP::divide'},
-   '^' => {class => 'Parser::Legacy::LimitedComplex::BOP::power'},
-  '**' => {class => 'Parser::Legacy::LimitedComplex::BOP::power'},
-  'u+' => {class => 'Parser::Legacy::LimitedComplex::UOP::plus'},
-  'u-' => {class => 'Parser::Legacy::LimitedComplex::UOP::minus'},
+	'+'  => { class => 'Parser::Legacy::LimitedComplex::BOP::add' },
+	'-'  => { class => 'Parser::Legacy::LimitedComplex::BOP::subtract' },
+	'*'  => { class => 'Parser::Legacy::LimitedComplex::BOP::multiply' },
+	'* ' => { class => 'Parser::Legacy::LimitedComplex::BOP::multiply' },
+	' *' => { class => 'Parser::Legacy::LimitedComplex::BOP::multiply' },
+	' '  => { class => 'Parser::Legacy::LimitedComplex::BOP::multiply' },
+	'/'  => { class => 'Parser::Legacy::LimitedComplex::BOP::divide' },
+	' /' => { class => 'Parser::Legacy::LimitedComplex::BOP::divide' },
+	'/ ' => { class => 'Parser::Legacy::LimitedComplex::BOP::divide' },
+	'^'  => { class => 'Parser::Legacy::LimitedComplex::BOP::power' },
+	'**' => { class => 'Parser::Legacy::LimitedComplex::BOP::power' },
+	'u+' => { class => 'Parser::Legacy::LimitedComplex::UOP::plus' },
+	'u-' => { class => 'Parser::Legacy::LimitedComplex::UOP::minus' },
 );
 #
 #  Remove these operators and functions
 #
-$context->lists->set(
-  AbsoluteValue => {class => 'Parser::Legacy::LimitedComplex::List::AbsoluteValue'},
-);
-$context->operators->undefine('_','U');
+$context->lists->set(AbsoluteValue => { class => 'Parser::Legacy::LimitedComplex::List::AbsoluteValue' },);
+$context->operators->undefine('_', 'U');
 $context->functions->disable('Complex');
-foreach my $fn ($context->functions->names) {$context->{functions}{$fn}{nocomplex} = 1}
+foreach my $fn ($context->functions->names) { $context->{functions}{$fn}{nocomplex} = 1 }
 #
 #  Format can be 'cartesian', 'polar', or 'either'
 #

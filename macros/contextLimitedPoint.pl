@@ -30,7 +30,7 @@ coordinates of the points, but not between points.
 
 loadMacros("MathObjects.pl");
 
-sub _contextLimitedPoint_init {LimitedPoint::Init()}; # don't load it again
+sub _contextLimitedPoint_init { LimitedPoint::Init() };    # don't load it again
 
 ##################################################
 #
@@ -43,12 +43,13 @@ package LimitedPoint::BOP;
 #  Otherwise report an error.
 #
 sub _check {
-  my $self = shift;
-  my $super = ref($self); $super =~ s/LimitedPoint/Parser/;
-  &{$super."::_check"}($self);
-  return if $self->checkNumbers;
-  my $bop = $self->{def}{string} || $self->{bop};
-  $self->Error("In this context, '%s' can only be used with Numbers",$bop);
+	my $self  = shift;
+	my $super = ref($self);
+	$super =~ s/LimitedPoint/Parser/;
+	&{ $super . "::_check" }($self);
+	return if $self->checkNumbers;
+	my $bop = $self->{def}{string} || $self->{bop};
+	$self->Error("In this context, '%s' can only be used with Numbers", $bop);
 }
 
 ##############################################
@@ -86,12 +87,13 @@ our @ISA = qw(LimitedPoint::BOP Parser::BOP::divide);
 package LimitedPoint::UOP;
 
 sub _check {
-  my $self = shift;
-  my $super = ref($self); $super =~ s/LimitedPoint/Parser/;
-  &{$super."::_check"}($self);
-  return if $self->checkNumber;
-  my $uop = $self->{def}{string} || $self->{uop};
-  $self->Error("In this context, '%s' can only be used with Numbers",$uop);
+	my $self  = shift;
+	my $super = ref($self);
+	$super =~ s/LimitedPoint/Parser/;
+	&{ $super . "::_check" }($self);
+	return if $self->checkNumber;
+	my $uop = $self->{def}{string} || $self->{uop};
+	$self->Error("In this context, '%s' can only be used with Numbers", $uop);
 }
 
 ##############################################
@@ -115,10 +117,10 @@ package LimitedPoint::List::AbsoluteValue;
 our @ISA = qw(Parser::List::AbsoluteValue);
 
 sub _check {
-  my $self = shift;
-  $self->SUPER::_check;
-  return if $self->{coords}[0]->type eq 'Number';
-  $self->Error("Vector norm is not allowed in this context");
+	my $self = shift;
+	$self->SUPER::_check;
+	return if $self->{coords}[0]->type eq 'Number';
+	$self->Error("Vector norm is not allowed in this context");
 }
 
 ##############################################
@@ -127,41 +129,39 @@ sub _check {
 package LimitedPoint;
 
 sub Init {
-  #
-  #  Build the new context that calls the
-  #  above classes rather than the usual ones
-  #
+	#
+	#  Build the new context that calls the
+	#  above classes rather than the usual ones
+	#
 
-  my $context = $main::context{LimitedPoint} = Parser::Context->getCopy("Point");
-  $context->{name} = "LimitedPoint";
-  $context->operators->set(
-    '+' => {class => 'LimitedPoint::BOP::add'},
-    '-' => {class => 'LimitedPoint::BOP::subtract'},
-    '*' => {class => 'LimitedPoint::BOP::multiply'},
-   '* ' => {class => 'LimitedPoint::BOP::multiply'},
-   ' *' => {class => 'LimitedPoint::BOP::multiply'},
-    ' ' => {class => 'LimitedPoint::BOP::multiply'},
-    '/' => {class => 'LimitedPoint::BOP::divide'},
-   ' /' => {class => 'LimitedPoint::BOP::divide'},
-   '/ ' => {class => 'LimitedPoint::BOP::divide'},
-   'u+' => {class => 'LimitedPoint::UOP::plus'},
-   'u-' => {class => 'LimitedPoint::UOP::minus'},
- );
-  #
-  #  Remove these operators and functions
-  #
-  $context->operators->undefine('_','U','><','.');
-  $context->functions->undefine('norm','unit');
-  $context->lists->set(
-    AbsoluteValue => {class => 'LimitedPoint::List::AbsoluteValue'},
-  );
-  $context->parens->set(
-    '(' => {formMatrix => 0},
-    '[' => {formMatrix => 0},
-  );
-  $context->variables->are(x=>'Real');
+	my $context = $main::context{LimitedPoint} = Parser::Context->getCopy("Point");
+	$context->{name} = "LimitedPoint";
+	$context->operators->set(
+		'+'  => { class => 'LimitedPoint::BOP::add' },
+		'-'  => { class => 'LimitedPoint::BOP::subtract' },
+		'*'  => { class => 'LimitedPoint::BOP::multiply' },
+		'* ' => { class => 'LimitedPoint::BOP::multiply' },
+		' *' => { class => 'LimitedPoint::BOP::multiply' },
+		' '  => { class => 'LimitedPoint::BOP::multiply' },
+		'/'  => { class => 'LimitedPoint::BOP::divide' },
+		' /' => { class => 'LimitedPoint::BOP::divide' },
+		'/ ' => { class => 'LimitedPoint::BOP::divide' },
+		'u+' => { class => 'LimitedPoint::UOP::plus' },
+		'u-' => { class => 'LimitedPoint::UOP::minus' },
+	);
+	#
+	#  Remove these operators and functions
+	#
+	$context->operators->undefine('_', 'U', '><', '.');
+	$context->functions->undefine('norm', 'unit');
+	$context->lists->set(AbsoluteValue => { class => 'LimitedPoint::List::AbsoluteValue' },);
+	$context->parens->set(
+		'(' => { formMatrix => 0 },
+		'[' => { formMatrix => 0 },
+	);
+	$context->variables->are(x => 'Real');
 
-  main::Context("LimitedPoint");  ### FIXME:  probably should require author to set this explicitly
+	main::Context("LimitedPoint");    ### FIXME:  probably should require author to set this explicitly
 }
 
 1;

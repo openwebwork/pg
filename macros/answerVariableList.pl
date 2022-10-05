@@ -53,36 +53,41 @@ Usage examples:
 loadMacros('MathObjects.pl');
 
 sub _answerVariableList_init {
-  #
-  #  A new context for variable lists
-  #
-  $main::context{VariableList} = Parser::Context->new(
-    operators => {',' => $Parser::Context::Default::context{Full}->operators->get(',')},
-    lists => {'List'  => {class =>'Parser::List::List'}},
-    parens => {
-     '(' => {close => ')', type => 'List', formList => 1},
-     'start' => {close => 'start', type => 'List', formList => 1,
-                 removable => 1, emptyOK => 1, hidden => 1},
-     'list'  => {type => 'List', hidden => 1},
-    },
-    flags => {
-      NumberCheck => 
-        sub {shift->Error("Entries in your list must be variable names")},
-      formatStudentAnswer => 'evaluated',  # or 'parsed' or 'reduced'
-    },
-  );
+	#
+	#  A new context for variable lists
+	#
+	$main::context{VariableList} = Parser::Context->new(
+		operators => { ','    => $Parser::Context::Default::context{Full}->operators->get(',') },
+		lists     => { 'List' => { class => 'Parser::List::List' } },
+		parens    => {
+			'('     => { close => ')', type => 'List', formList => 1 },
+			'start' => {
+				close     => 'start',
+				type      => 'List',
+				formList  => 1,
+				removable => 1,
+				emptyOK   => 1,
+				hidden    => 1
+			},
+			'list' => { type => 'List', hidden => 1 },
+		},
+		flags => {
+			NumberCheck         => sub { shift->Error("Entries in your list must be variable names") },
+			formatStudentAnswer => 'evaluated',    # or 'parsed' or 'reduced'
+		},
+	);
 
-  main::Context("VariableList");  ### FIXME:  probably should require author to set this explicitly.
+	main::Context("VariableList");                 ### FIXME:  probably should require author to set this explicitly.
 }
 
 sub variable_cmp {
-  Value->Package("Formula")->new(shift)->cmp(
-    ordered => 1,
-    entry_type =>'a variable',
-    list_type => 'a list',
-    implicitList => 0,
-    @_
-  );
+	Value->Package("Formula")->new(shift)->cmp(
+		ordered      => 1,
+		entry_type   => 'a variable',
+		list_type    => 'a list',
+		implicitList => 0,
+		@_
+	);
 }
 
 =head2 addVariables
@@ -94,8 +99,8 @@ Adds each string in @vars as a varible to the current context.
 =cut
 
 sub addVariables {
-  my $context = Context();
-  foreach my $v (@_) {$context->variables->add($v=>'Real')}
+	my $context = Context();
+	foreach my $v (@_) { $context->variables->add($v => 'Real') }
 }
 
 1;

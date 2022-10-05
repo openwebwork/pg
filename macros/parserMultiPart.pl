@@ -25,13 +25,13 @@ warning to that effect.
 
 =cut
 
-sub _parserMultiPart_init {}
+sub _parserMultiPart_init { }
 
 loadMacros("parserMultiAnswer.pl");
-sub MultiPart {
-  warn "The MultiPart object has been deprecated.${BR}You should use MultiAnswer object instead";
-  parser::MultiAnswer->new(@_);
-}
 
+sub MultiPart {
+	warn "The MultiPart object has been deprecated.${BR}You should use MultiAnswer object instead";
+	parser::MultiAnswer->new(@_);
+}
 
 1;

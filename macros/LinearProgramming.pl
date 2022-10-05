@@ -76,37 +76,37 @@ will have the same result as the example above.
 sub lp_pivot {
 	my $a_ref = shift;
 	$a_ref = convert_to_array_ref($a_ref);
-	my $row = shift;
-	my $col = shift;
+	my $row      = shift;
+	my $col      = shift;
 	my $fracmode = shift;
 	$fracmode = 0 unless defined($fracmode);
 	my @matrows = @{$a_ref};
 
-	if(($fracmode and $matrows[$row][$col]->scalar() == 0)
-		 or $matrows[$row][$col] == 0) {
+	if (($fracmode and $matrows[$row][$col]->scalar() == 0)
+		or $matrows[$row][$col] == 0)
+	{
 		warn "Pivoting a matrix on a zero element";
-		return($a_ref);
+		return ($a_ref);
 	}
 	my ($j, $k, $hld);
 	$hld = $matrows[$row][$col];
-	for $j (1..scalar(@{$matrows[0]})) {
-		$matrows[$row][$j-1] = $fracmode ? $matrows[$row][$j-1]->divBy($hld) :
-			$matrows[$row][$j-1]/$hld;
+	for $j (1 .. scalar(@{ $matrows[0] })) {
+		$matrows[$row][ $j - 1 ] = $fracmode ? $matrows[$row][ $j - 1 ]->divBy($hld) : $matrows[$row][ $j - 1 ] / $hld;
 	}
-	for $k (1..scalar(@matrows)) {
-		if($k-1 != $row) {
-			$hld = $matrows[$k-1][$col];
-			for $j (1..scalar(@{$matrows[0]})) {
-				$matrows[$k-1][$j-1] = $fracmode ?
-					$matrows[$k-1][$j-1]->minus($matrows[$row][$j-1]->times($hld)) :
-					$matrows[$k-1][$j-1] - $matrows[$row][$j-1]*$hld;
+	for $k (1 .. scalar(@matrows)) {
+		if ($k - 1 != $row) {
+			$hld = $matrows[ $k - 1 ][$col];
+			for $j (1 .. scalar(@{ $matrows[0] })) {
+				$matrows[ $k - 1 ][ $j - 1 ] =
+					$fracmode
+					? $matrows[ $k - 1 ][ $j - 1 ]->minus($matrows[$row][ $j - 1 ]->times($hld))
+					: $matrows[ $k - 1 ][ $j - 1 ] - $matrows[$row][ $j - 1 ] * $hld;
 			}
 		}
 	}
-	
-	return($a_ref);
-}
 
+	return ($a_ref);
+}
 
 =head2 lp_pivot_element
 
@@ -132,32 +132,33 @@ sub lp_pivot_element {
 	$a_ref = convert_to_array_ref($a_ref);
 	my $fracmode = shift;
 	$fracmode = 0 unless defined($fracmode);
-	my @m = @{$a_ref};
-	my $nrows = scalar(@m)-1; # really 1 less
-	my $ncols = scalar(@{$m[0]}) -1;  # really 1 less
-	# looking for minimum value
-	my $minv = $fracmode ? $m[$nrows][0]->scalar() : $m[$nrows][0];
-	my $pcol=0;
+	my @m     = @{$a_ref};
+	my $nrows = scalar(@m) - 1;                                        # really 1 less
+	my $ncols = scalar(@{ $m[0] }) - 1;                                # really 1 less
+																	   # looking for minimum value
+	my $minv  = $fracmode ? $m[$nrows][0]->scalar() : $m[$nrows][0];
+	my $pcol  = 0;
 	my $j;
-	for $j (1..($ncols-1)) {
-		if(($fracmode and $m[$nrows][$j]->scalar()<$minv) or $m[$nrows][$j]<$minv) {
-			$minv = $fracmode ? $m[$nrows][$j]->scalar() :$m[$nrows][$j];
+
+	for $j (1 .. ($ncols - 1)) {
+		if (($fracmode and $m[$nrows][$j]->scalar() < $minv) or $m[$nrows][$j] < $minv) {
+			$minv = $fracmode ? $m[$nrows][$j]->scalar() : $m[$nrows][$j];
 			$pcol = $j;
 		}
 	}
-	return (-1, -1) if ($minv>=0); # This means we are done
-	# Now find the pivot row
-	my $prow=-1;
-	for $j (0..($nrows-1)) {
-		if($fracmode ? ($m[$j][$pcol]->scalar() >0) : ($m[$j][$pcol]>0)) { # found a candidate
-			if($prow == -1) {
+	return (-1, -1) if ($minv >= 0);                                   # This means we are done
+																	   # Now find the pivot row
+	my $prow = -1;
+	for $j (0 .. ($nrows - 1)) {
+		if ($fracmode ? ($m[$j][$pcol]->scalar() > 0) : ($m[$j][$pcol] > 0)) {    # found a candidate
+			if ($prow == -1) {
 				$prow = $j;
-			} else { # Test to see if this is an improvement
-				if($fracmode ?
-						($m[$prow][$ncols]->scalar())/($m[$prow][$pcol]->scalar()) >
-						           ($m[$j][$ncols]->scalar()/$m[$j][$pcol]->scalar())
-					 : ($m[$prow][$ncols]/$m[$prow][$pcol] >
-					 $m[$j][$ncols]/$m[$j][$pcol])) {
+			} else {    # Test to see if this is an improvement
+				if ($fracmode
+					? ($m[$prow][$ncols]->scalar()) / ($m[$prow][$pcol]->scalar()) >
+					($m[$j][$ncols]->scalar() / $m[$j][$pcol]->scalar())
+					: ($m[$prow][$ncols] / $m[$prow][$pcol] > $m[$j][$ncols] / $m[$j][$pcol]))
+				{
 					$prow = $j;
 				}
 			}
@@ -212,37 +213,39 @@ sub lp_solve {
 	$a_ref_orig = convert_to_array_ref($a_ref_orig);
 	my %opts = @_;
 
-	set_default_options(\%opts,
-											'_filter_name' => 'lp_solve',
-											'pivot_limit' => 100,
-											'fraction_mode' => 0,
-											'allow_unknown_options'=> 0);
+	set_default_options(
+		\%opts,
+		'_filter_name'          => 'lp_solve',
+		'pivot_limit'           => 100,
+		'fraction_mode'         => 0,
+		'allow_unknown_options' => 0
+	);
 
 	my ($pcol, $prow);
 	my $a_ref;
 	# First we clone the matrix so that it isn't modified in place
-	for $prow (1..scalar(@{$a_ref_orig})) {
-		for $pcol (1..scalar(@{$a_ref_orig->[0]})) {
-			$a_ref->[$prow-1][$pcol-1] = $a_ref_orig->[$prow-1][$pcol-1];
+	for $prow (1 .. scalar(@{$a_ref_orig})) {
+		for $pcol (1 .. scalar(@{ $a_ref_orig->[0] })) {
+			$a_ref->[ $prow - 1 ][ $pcol - 1 ] = $a_ref_orig->[ $prow - 1 ][ $pcol - 1 ];
 		}
 	}
-	
+
 	my $piv_count = 0;
-	my $piv_limit = $opts{'pivot_limit'}; # Just in case of cycling or bugs
-	my $fracmode = $opts{'fraction_mode'};
+	my $piv_limit = $opts{'pivot_limit'};     # Just in case of cycling or bugs
+	my $fracmode  = $opts{'fraction_mode'};
 	# First do alternate pivoting
 	# Now do regular pivots
 	do {
 		($prow, $pcol) = lp_pivot_element($a_ref, $fracmode);
-		if($prow>=0) {
+		if ($prow >= 0) {
 			$a_ref = lp_pivot($a_ref, $prow, $pcol, $fracmode);
 			$piv_count++;
 		}
-	} until($prow<0 or $piv_count>=$piv_limit);
+	} until ($prow < 0 or $piv_count >= $piv_limit);
 	# code is 1 for success, 0 for unbounded
 	my $endcode = 1;
-	$endcode = 0 if ($pcol>=0);
-	return($a_ref, $endcode, $piv_count);
+	$endcode = 0 if ($pcol >= 0);
+	return ($a_ref, $endcode, $piv_count);
 }
 
 =back
@@ -264,42 +267,42 @@ are in).
 # ^function lp_current_value
 # ^uses Fraction::new
 sub lp_current_value {
-  my $col = shift;
-  my $aref = shift;
-  $aref = convert_to_array_ref($aref);
-  my $fractionmode = 0;
-  $fractionmode =1 if(ref($aref->[0][0]) eq 'Fraction');
+	my $col  = shift;
+	my $aref = shift;
+	$aref = convert_to_array_ref($aref);
+	my $fractionmode = 0;
+	$fractionmode = 1 if (ref($aref->[0][0]) eq 'Fraction');
 
-  # Count how many ones there are.  If we hit non-zero/non-one, force count
-  # to fail
-  my ($cnt,$row,$save) = (0,'',0);
-  for $row (@{$aref}) {
-    if($fractionmode) {
-      if($row->[$col]->scalar() != 0) {
-	$cnt += ($row->[$col]->scalar() == 1) ? 1 : 2;
-	$save = $row;
-      }
-    } else {
-      if($row->[$col] != 0) {
-	$cnt += ($row->[$col] == 1) ? 1 : 2;
-	$save = $row;
-      }
-    }
-  }
-  if($cnt != 1) {
-  	if ($fractionmode ) {
-  		if (defined &Fraction) {
-  			return Fraction(0);   # MathObjects version
-  		} else {
-  			return Fraction->new(0);	# old style Function module version
-  		}
-  	} else {
-  		return 0;
-  	}
- 
-  }
-  $cnt = scalar(@{$save});
-  return $save->[$cnt-1];
+	# Count how many ones there are.  If we hit non-zero/non-one, force count
+	# to fail
+	my ($cnt, $row, $save) = (0, '', 0);
+	for $row (@{$aref}) {
+		if ($fractionmode) {
+			if ($row->[$col]->scalar() != 0) {
+				$cnt += ($row->[$col]->scalar() == 1) ? 1 : 2;
+				$save = $row;
+			}
+		} else {
+			if ($row->[$col] != 0) {
+				$cnt += ($row->[$col] == 1) ? 1 : 2;
+				$save = $row;
+			}
+		}
+	}
+	if ($cnt != 1) {
+		if ($fractionmode) {
+			if (defined &Fraction) {
+				return Fraction(0);    # MathObjects version
+			} else {
+				return Fraction->new(0);    # old style Function module version
+			}
+		} else {
+			return 0;
+		}
+
+	}
+	$cnt = scalar(@{$save});
+	return $save->[ $cnt - 1 ];
 }
 
 =head2 lp_display_mm
@@ -338,7 +341,7 @@ enabled texStrings.
 # ^function lp_display_mm
 # ^uses lp_display
 sub lp_display_mm {
-  lp_display(@_, force_tex=>1);
+	lp_display(@_, force_tex => 1);
 }
 
 # Make a copy of a tableau
@@ -346,19 +349,19 @@ sub lp_display_mm {
 sub lp_clone {
 	my $a1_ref = shift;
 	$a1_ref = convert_to_array_ref($a1_ref);
-        my $a_ref = []; # make a copy to modify
-        my $nrows = scalar(@{$a1_ref})-1; # really 1 less
+	my $a_ref = [];                        # make a copy to modify
+	my $nrows = scalar(@{$a1_ref}) - 1;    # really 1 less
 	my ($j, $k);
-	for $j (0..$nrows) {
-	  if($a1_ref->[$j] eq 'hline') {
-	    $a_ref->[$j] = 'hline';
-	  } else {
-	    for $k (0..(scalar(@{$a1_ref->[$j]}) -1)) {
-	      $a_ref->[$j][$k] = $a1_ref->[$j][$k];
-	    }
-	  }
+	for $j (0 .. $nrows) {
+		if ($a1_ref->[$j] eq 'hline') {
+			$a_ref->[$j] = 'hline';
+		} else {
+			for $k (0 .. (scalar(@{ $a1_ref->[$j] }) - 1)) {
+				$a_ref->[$j][$k] = $a1_ref->[$j][$k];
+			}
+		}
 	}
-  return($a_ref);
+	return ($a_ref);
 }
 
 =head2 lp_display
@@ -386,26 +389,23 @@ horizontal line before the last row if it is not already specified.
 # ^uses display_matrix
 sub lp_display {
 	my $a1_ref = shift;
-	my %opts = @_;
+	my %opts   = @_;
 	$a1_ref = convert_to_array_ref($a1_ref);
-	my $nrows = scalar(@{$a1_ref})-1; # really 1 less
-	my $ncols = scalar(@{$a1_ref->[0]}) -1;  # really 1 less
-	
-	if(not defined($opts{'align'})) {
-	  my $align = "r" x $ncols;
-	  $align .=  "|r";
-	  $opts{'align'} = $align;
+	my $nrows = scalar(@{$a1_ref}) - 1;           # really 1 less
+	my $ncols = scalar(@{ $a1_ref->[0] }) - 1;    # really 1 less
+
+	if (not defined($opts{'align'})) {
+		my $align = "r" x $ncols;
+		$align .= "|r";
+		$opts{'align'} = $align;
 	}
 	my $a_ref = lp_clone($a1_ref);
-	
-	if($a_ref->[$nrows-1] ne 'hline') {
-	  $a_ref->[$nrows+1] = $a_ref->[$nrows];
-	  $a_ref->[$nrows] = 'hline';
+
+	if ($a_ref->[ $nrows - 1 ] ne 'hline') {
+		$a_ref->[ $nrows + 1 ] = $a_ref->[$nrows];
+		$a_ref->[$nrows] = 'hline';
 	}
 	display_matrix($a_ref, %opts);
 }
-
-
-
 
 1;

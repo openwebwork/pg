@@ -140,8 +140,7 @@ force alternate notation in problems without having to rewrite them.
 
 loadMacros("MathObjects.pl");
 
-sub _contextAlternateIntervals_init {context::AlternateIntervals->Init}
-
+sub _contextAlternateIntervals_init { context::AlternateIntervals->Init }
 
 ##########################################################################
 
@@ -151,45 +150,46 @@ package context::AlternateIntervals;
 #  Create the AlternateIntervals contexts
 #
 sub Init {
-  my $self = shift;
-  my $context = $main::context{AlternateIntervals} = Parser::Context->getCopy("Interval");
-  $context->{name} = "AlternateIntervals";
-  $self->Enable($context);
+	my $self    = shift;
+	my $context = $main::context{AlternateIntervals} = Parser::Context->getCopy("Interval");
+	$context->{name} = "AlternateIntervals";
+	$self->Enable($context);
 
-  $context = $main::context{"AlternateIntervals-Only"} = $context->copy;
-  $context->{name} = "AlternativeIntervals-Only";
-  $context->flags->set(
-    enterIntervals   => "alternate",
-    displayIntervals => "alternate",
-  );
+	$context = $main::context{"AlternateIntervals-Only"} = $context->copy;
+	$context->{name} = "AlternativeIntervals-Only";
+	$context->flags->set(
+		enterIntervals   => "alternate",
+		displayIntervals => "alternate",
+	);
 
-  $context = $main::context{"AlternateIntervals-Warning"} = $context->copy;
-  $context->{name} = "AlternativeIntervals-Warning";
-  $context->flags->set(
-    enterIntervals   => "standard",
-    displayIntervals => "standard",
-  );
+	$context = $main::context{"AlternateIntervals-Warning"} = $context->copy;
+	$context->{name} = "AlternativeIntervals-Warning";
+	$context->flags->set(
+		enterIntervals   => "standard",
+		displayIntervals => "standard",
+	);
 }
 
 #
 #  Enables alternate intervals in the given context
 #
 sub Enable {
-  my $self = shift; my $context = shift || main::Context();
-  $context->flags->set(
-    enterIntervals   => "either",    # or "standard" or "alternate"
-    displayIntervals => "either",    # or "standard" or "alternate"
-  );
-  $context->parens->set(
-    "[" => {close => "[", type => "Interval", formInterval => ["]",")"], removable => 0},
-    "]" => {close => "]", type => "Interval", formInterval => "["},
-  );
-  $context->update;
-  $context->{value}{Interval} = "context::AlternateIntervals::Interval";
-  $context->{value}{Formula}  = "context::AlternateIntervals::Formula";
-  $context->{parser}{Formula} = "context::AlternateIntervals::Formula";
-  $context->{parser}{List} = "context::AlternateIntervals::Parser::List";
-  $context->lists->set("Interval" => {class=>"context::AlternateIntervals::Parser::Interval"});
+	my $self    = shift;
+	my $context = shift || main::Context();
+	$context->flags->set(
+		enterIntervals   => "either",    # or "standard" or "alternate"
+		displayIntervals => "either",    # or "standard" or "alternate"
+	);
+	$context->parens->set(
+		"[" => { close => "[", type => "Interval", formInterval => [ "]", ")" ], removable => 0 },
+		"]" => { close => "]", type => "Interval", formInterval => "[" },
+	);
+	$context->update;
+	$context->{value}{Interval} = "context::AlternateIntervals::Interval";
+	$context->{value}{Formula}  = "context::AlternateIntervals::Formula";
+	$context->{parser}{Formula} = "context::AlternateIntervals::Formula";
+	$context->{parser}{List}    = "context::AlternateIntervals::Parser::List";
+	$context->lists->set("Interval" => { class => "context::AlternateIntervals::Parser::Interval" });
 }
 
 #
@@ -200,30 +200,31 @@ sub Enable {
 #  intervals (though professors can use either).
 #
 sub Default {
-  my $self = shift; my $enter = shift || "either";  my $display = shift || "either";
-  my $cmp = ($enter eq "alternate"); $enter = "either" if $cmp;
-  #
-  #  This adds the names from InequalitySetBuilder, but we need a better way to
-  #  link into contexts as they are created and copied.
-  #
-  my @InequalitySetBuilder = (
-    "SetBuilder::",
-    "InequalitySetBuilder::",
-    "InequalitySetBuilderInterval::",
-    "InequalitySetBuilderUnion::",
-    "InequalitySetBuilderSet::",
-  );
-  foreach my $name ("Interval","Full") {
-    my $context = $main::context{$name} = Parser::Context->getCopy($name);
-    $self->Enable($context);
-    $context->flags->set(enterIntervals => $enter, displayIntervals => $display);
-    if ($cmp) {
-      foreach my $class ((grep {/::/} (keys %Value::)),@InequalitySetBuilder) {
-        $context->{cmpDefaults}{substr($class,0,-2)}{enterIntervals} = "alternate";
-      }
-    }
-  }
-  main::Context(main::Context()->{name});
+	my $self    = shift;
+	my $enter   = shift || "either";
+	my $display = shift || "either";
+	my $cmp     = ($enter eq "alternate");
+	$enter = "either" if $cmp;
+	#
+	#  This adds the names from InequalitySetBuilder, but we need a better way to
+	#  link into contexts as they are created and copied.
+	#
+	my @InequalitySetBuilder = (
+		"SetBuilder::",                   "InequalitySetBuilder::",
+		"InequalitySetBuilderInterval::", "InequalitySetBuilderUnion::",
+		"InequalitySetBuilderSet::",
+	);
+	foreach my $name ("Interval", "Full") {
+		my $context = $main::context{$name} = Parser::Context->getCopy($name);
+		$self->Enable($context);
+		$context->flags->set(enterIntervals => $enter, displayIntervals => $display);
+		if ($cmp) {
+			foreach my $class ((grep {/::/} (keys %Value::)), @InequalitySetBuilder) {
+				$context->{cmpDefaults}{ substr($class, 0, -2) }{enterIntervals} = "alternate";
+			}
+		}
+	}
+	main::Context(main::Context()->{name});
 }
 
 ##########################################################################
@@ -236,26 +237,29 @@ our @ISA = ('Value::Formula');
 #  We need to handle several possible close delimiters.
 #
 sub Open {
-  my $self = shift; my $type = shift;
-  my $paren = $self->{context}{parens}{$type};
-  if ($self->state eq 'operand') {
-    if ($type eq $paren->{close}) {
-      my $stack = $self->{stack}; my $i = scalar(@{$stack})-1;
-      while ($i >= 0 && $stack->[$i]{type} ne "open") {$i--}
-      if ($i >= 0 && $stack->[$i]{close}{$type}) {
-	$self->Close($type,$self->{ref});
-	return;
-      }
-    }
-    $self->ImplicitMult();
-  }
-  my $item = {type => 'open', value => $type, ref => $self->{ref}, close => {}};
-  if ($paren->{formInterval}) {
-    my $close = $paren->{formInterval}; $close = [$close] unless ref($close) eq 'ARRAY';
-    $item->{close} = {map {$_ => 1} @$close};
-  }
-  $item->{close}{$type} = 1;
-  $self->push($item);
+	my $self  = shift;
+	my $type  = shift;
+	my $paren = $self->{context}{parens}{$type};
+	if ($self->state eq 'operand') {
+		if ($type eq $paren->{close}) {
+			my $stack = $self->{stack};
+			my $i     = scalar(@{$stack}) - 1;
+			while ($i >= 0 && $stack->[$i]{type} ne "open") { $i-- }
+			if ($i >= 0 && $stack->[$i]{close}{$type}) {
+				$self->Close($type, $self->{ref});
+				return;
+			}
+		}
+		$self->ImplicitMult();
+	}
+	my $item = { type => 'open', value => $type, ref => $self->{ref}, close => {} };
+	if ($paren->{formInterval}) {
+		my $close = $paren->{formInterval};
+		$close = [$close] unless ref($close) eq 'ARRAY';
+		$item->{close} = { map { $_ => 1 } @$close };
+	}
+	$item->{close}{$type} = 1;
+	$self->push($item);
 }
 
 #
@@ -266,41 +270,56 @@ sub Open {
 #  with our modifications.
 #
 sub Close {
-  my $self = shift; my $type = shift;
-  my $ref = $self->{ref} = shift;
-  my $parens = $self->{context}{parens};
+	my $self   = shift;
+	my $type   = shift;
+	my $ref    = $self->{ref} = shift;
+	my $parens = $self->{context}{parens};
 
-  return $self->SUPER::Close($type,$ref,@_) if $self->state ne "operand";
+	return $self->SUPER::Close($type, $ref, @_) if $self->state ne "operand";
 
-  $self->Precedence(-1); return if ($self->{error});
-  if ($self->state ne 'operand') {$self->Close($type,$ref); return}
-  my $paren = $parens->{$self->prev->{value}};
-  if ($paren->{close} eq $type) {
-    my $top = $self->pop;
-    if (!$paren->{removable} || ($top->{value}->type eq "Comma")) {
-      $top = $top->{value};
-      $top = {type => 'operand', value =>
-	      $self->Item("List")->new($self,[$top->makeList],$top->{isConstant},$paren,
-				       ($top->type eq 'Comma') ? $top->entryType : $top->typeRef,
-				       ($type ne 'start') ? ($self->top->{value},$type) : () )};
-    } else {$top->{value}{hadParens} = 1}
-    $self->pop; $self->push($top);
-    $self->CloseFn() if ($paren->{function} && $self->prev->{type} eq 'fn');
-  } else {
-    my $close = $paren->{formInterval}||[]; $close = [$close] unless ref($close) eq 'ARRAY';
-    $close = {map {$_ => 1} @$close};
-    if ($close->{$type}) {
-      my $top = $self->pop->{value}; my $open = $self->pop->{value};
-      $self->pushOperand(
-         $self->Item("List")->new($self,[$top->makeList],$top->{isConstant},
-				  $paren,$top->entryType,$open,$type));
-    } else {
-      my $prev = $self->prev;
-      if ($type eq "start") {$self->Error(["Missing close parenthesis for '%s'",$prev->{value}],$prev->{ref})}
-      elsif ($prev->{value} eq "start") {$self->Error(["Extra close parenthesis '%s'",$type],$ref)}
-      else {$self->Error(["Mismatched parentheses: '%s' and '%s'",$prev->{value},$type],$ref)}
-    }
-  }
+	$self->Precedence(-1);
+	return if ($self->{error});
+	if ($self->state ne 'operand') { $self->Close($type, $ref); return }
+	my $paren = $parens->{ $self->prev->{value} };
+	if ($paren->{close} eq $type) {
+		my $top = $self->pop;
+		if (!$paren->{removable} || ($top->{value}->type eq "Comma")) {
+			$top = $top->{value};
+			$top = {
+				type  => 'operand',
+				value => $self->Item("List")->new(
+					$self,              [ $top->makeList ],
+					$top->{isConstant}, $paren,
+					($top->type eq 'Comma') ? $top->entryType              : $top->typeRef,
+					($type ne 'start')      ? ($self->top->{value}, $type) : ()
+				)
+			};
+		} else {
+			$top->{value}{hadParens} = 1;
+		}
+		$self->pop;
+		$self->push($top);
+		$self->CloseFn() if ($paren->{function} && $self->prev->{type} eq 'fn');
+	} else {
+		my $close = $paren->{formInterval} || [];
+		$close = [$close] unless ref($close) eq 'ARRAY';
+		$close = { map { $_ => 1 } @$close };
+		if ($close->{$type}) {
+			my $top  = $self->pop->{value};
+			my $open = $self->pop->{value};
+			$self->pushOperand($self->Item("List")
+					->new($self, [ $top->makeList ], $top->{isConstant}, $paren, $top->entryType, $open, $type));
+		} else {
+			my $prev = $self->prev;
+			if ($type eq "start") {
+				$self->Error([ "Missing close parenthesis for '%s'", $prev->{value} ], $prev->{ref});
+			} elsif ($prev->{value} eq "start") {
+				$self->Error([ "Extra close parenthesis '%s'", $type ], $ref);
+			} else {
+				$self->Error([ "Mismatched parentheses: '%s' and '%s'", $prev->{value}, $type ], $ref);
+			}
+		}
+	}
 }
 
 sub class {'Formula'}
@@ -315,16 +334,18 @@ our @ISA = ('Value::Interval');
 #  Give error messages about forms that aren't allowed by the context flags.
 #
 sub new {
-  my $self = shift;
-  return $self->SUPER::new(@_) unless scalar(@_) == 5;
-  my @args = @_; my $alternate; my $format = $self->getFlag("enterIntervals");
-  if ($args[1] eq "]") {$alternate = 1; $args[1] = "("}
-  if ($args[4] eq "[") {$alternate = 1; $args[4] = ")"}
-  Value->Error("You must use parentheses to form open intervals")
-    if $alternate && $format eq "standard";
-  Value->Error("You must use reversed brackets to form open intervals")
-    if ($_[1] eq "(" || $_[4] eq ")") && $format eq "alternate";
-  $self->SUPER::new(@args)->with(alternateForm => $alternate);
+	my $self = shift;
+	return $self->SUPER::new(@_) unless scalar(@_) == 5;
+	my @args = @_;
+	my $alternate;
+	my $format = $self->getFlag("enterIntervals");
+	if ($args[1] eq "]") { $alternate = 1; $args[1] = "(" }
+	if ($args[4] eq "[") { $alternate = 1; $args[4] = ")" }
+	Value->Error("You must use parentheses to form open intervals")
+		if $alternate && $format eq "standard";
+	Value->Error("You must use reversed brackets to form open intervals")
+		if ($_[1] eq "(" || $_[4] eq ")") && $format eq "alternate";
+	$self->SUPER::new(@args)->with(alternateForm => $alternate);
 }
 
 #
@@ -332,29 +353,31 @@ sub new {
 #  or force standard or alternative form based on the context flags.
 #
 sub formatOutput {
-  my $self = shift; my $method = shift; my @args = @_;
-  my $format = $self->getFlag("displayIntervals");
-  my $alternate = ($self->{alternateForm} || $format eq "alternate") && $format ne "standard";
-  $args[1] = "]" if $alternate && ($args[1]||$self->{open}) eq "(";
-  $args[2] = "[" if $alternate && ($args[2]||$self->{close}) eq ")";
-  $method = "SUPER::$method";
-  $self->$method(@args);
+	my $self      = shift;
+	my $method    = shift;
+	my @args      = @_;
+	my $format    = $self->getFlag("displayIntervals");
+	my $alternate = ($self->{alternateForm} || $format eq "alternate") && $format ne "standard";
+	$args[1] = "]" if $alternate && ($args[1] || $self->{open}) eq "(";
+	$args[2] = "[" if $alternate && ($args[2] || $self->{close}) eq ")";
+	$method  = "SUPER::$method";
+	$self->$method(@args);
 }
 
 sub string {
-  my $self = shift;
-  $self->formatOutput("string",@_);
+	my $self = shift;
+	$self->formatOutput("string", @_);
 }
 
 sub TeX {
-  my $self = shift;
-  $self->formatOutput("TeX",@_);
+	my $self = shift;
+	$self->formatOutput("TeX", @_);
 }
 
 #
 #  This gets called directly, so pass it up the line
 #
-sub cmp_defaults {shift->SUPER::cmp_defaults(@_)}
+sub cmp_defaults { shift->SUPER::cmp_defaults(@_) }
 
 ##########################################################################
 
@@ -366,15 +389,15 @@ our @ISA = ('Parser::List');
 #  used so that comparisons and so on will work properly.
 #
 sub new {
-  my $self = shift;
-  my $alternate = ($_[5] eq "]" || $_[6] eq "[");
-  my $list = $self->SUPER::new(@_);
-  return $list unless $alternate && $list->type eq "Interval";
-  my $L = ($list->class eq "Value" ? $list->{value} : $list);
-  $L->{open} = "(" if $L->{open} eq "]";
-  $L->{close} = ")" if $L->{close} eq "[";
-  $L->{alternateForm} = 1;
-  return $list
+	my $self      = shift;
+	my $alternate = ($_[5] eq "]" || $_[6] eq "[");
+	my $list      = $self->SUPER::new(@_);
+	return $list unless $alternate && $list->type eq "Interval";
+	my $L = ($list->class eq "Value" ? $list->{value} : $list);
+	$L->{open}          = "(" if $L->{open} eq "]";
+	$L->{close}         = ")" if $L->{close} eq "[";
+	$L->{alternateForm} = 1;
+	return $list;
 }
 
 sub class {"List"}
@@ -388,26 +411,28 @@ our @ISA = ('Parser::List::Interval');
 #  Report errors when invalid form is specified
 #
 sub _check {
-  my $self = shift; my $context = $self->context;
-  my $format = (($context->{answerHash}||{})->{enterIntervals} || $context->flag("enterIntervals"));
-  $self->Error("You must use parentheses to form open intervals")
-    if $format eq "standard"  && ($self->{open} eq "]" || $self->{close} eq "[");
-  $self->Error("You must use reversed brackets to form open intervals")
-    if $format eq "alternate" && ($self->{open} eq "(" || $self->{close} eq ")");
-  $self->SUPER::_check(@_);
+	my $self    = shift;
+	my $context = $self->context;
+	my $format  = (($context->{answerHash} || {})->{enterIntervals} || $context->flag("enterIntervals"));
+	$self->Error("You must use parentheses to form open intervals")
+		if $format eq "standard" && ($self->{open} eq "]" || $self->{close} eq "[");
+	$self->Error("You must use reversed brackets to form open intervals")
+		if $format eq "alternate" && ($self->{open} eq "(" || $self->{close} eq ")");
+	$self->SUPER::_check(@_);
 }
 
 #
 #  Make a copy with the alternate delimiters, if needed.
 #
 sub fixDelimiters {
-  my $self = shift; my $alternate = shift;
-  if ($alternate) {
-    $self = $self->copy;
-    $self->{open} = "]" if $self->{open} eq "(";
-    $self->{close} = "[" if $self->{close} eq ")";
-  }
-  $self;
+	my $self      = shift;
+	my $alternate = shift;
+	if ($alternate) {
+		$self          = $self->copy;
+		$self->{open}  = "]" if $self->{open} eq "(";
+		$self->{close} = "[" if $self->{close} eq ")";
+	}
+	$self;
 }
 
 #
@@ -416,24 +441,28 @@ sub fixDelimiters {
 #
 
 sub _eval {
-  my $self = shift;
-  return $self->fixDelimiters($self->{alternateForm})->SUPER::_eval(@_);
+	my $self = shift;
+	return $self->fixDelimiters($self->{alternateForm})->SUPER::_eval(@_);
 }
 
 sub string {
-  my $self = shift;
-  my $format = $self->{equation}{context}->flag("displayIntervals");
-  my $alternate = $self->type eq "Interval" &&
-       ($self->{alternateForm} || $format eq "alternate") && $format ne "standard";
-  $self->fixDelimiters($alternate)->SUPER::string(@_);
+	my $self   = shift;
+	my $format = $self->{equation}{context}->flag("displayIntervals");
+	my $alternate =
+		$self->type eq "Interval"
+		&& ($self->{alternateForm} || $format eq "alternate")
+		&& $format ne "standard";
+	$self->fixDelimiters($alternate)->SUPER::string(@_);
 }
 
 sub TeX {
-  my $self = shift;
-  my $format = $self->{equation}{context}->flag("displayIntervals");
-  my $alternate = $self->type eq "Interval" &&
-       ($self->{alternateForm} || $format eq "alternate") && $format ne "standard";
-  $self->fixDelimiters($alternate)->SUPER::TeX(@_);
+	my $self   = shift;
+	my $format = $self->{equation}{context}->flag("displayIntervals");
+	my $alternate =
+		$self->type eq "Interval"
+		&& ($self->{alternateForm} || $format eq "alternate")
+		&& $format ne "standard";
+	$self->fixDelimiters($alternate)->SUPER::TeX(@_);
 }
 
 sub class {"Interval"}

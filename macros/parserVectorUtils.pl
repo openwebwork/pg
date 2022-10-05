@@ -23,7 +23,7 @@ Some utility routines that are useful in vector problems
 
 =cut
 
-sub _parserVectorUtils_init {}; # don't reload this file
+sub _parserVectorUtils_init { };    # don't reload this file
 
 =head1 MACROS
 
@@ -41,14 +41,14 @@ to distinguish the difference between bold and regular letters.)
 =cut
 
 sub Overline {
-  my $v = shift;
-  my $HTML = '<B><I>'.$v.'</B></I>';
-  MODES(
-    TeX => "\\overline{$v}",
-    HTML => $HTML,
-    HTML_tth => '\begin{rawhtml}'.$HTML.'\end{rawhtml}',
-    HTML_dpng => "\\overline{$v}",
-  );
+	my $v    = shift;
+	my $HTML = '<B><I>' . $v . '</B></I>';
+	MODES(
+		TeX       => "\\overline{$v}",
+		HTML      => $HTML,
+		HTML_tth  => '\begin{rawhtml}' . $HTML . '\end{rawhtml}',
+		HTML_dpng => "\\overline{$v}",
+	);
 }
 
 =head2 BoldMath
@@ -64,16 +64,16 @@ roman bold, not math-italic bold.
 =cut
 
 sub BoldMath {
-  my $v = shift;
-  my $HTML = '<B><I>'.$v.'</B></I>';
-  MODES(
-    TeX => "\\boldsymbol{$v}", #  doesn't seem to work in TeX mode
-#    TeX => "\\mathbf{$v}",      #  gives non-italic bold in TeX mode
-    Latex2HTML => "\\boldsymbol{$v}",
-    HTML => $HTML,
-    HTML_tth => '\begin{rawhtml}'.$HTML.'\end{rawhtml}',
-    HTML_dpng => "\\boldsymbol{$v}",
-  );
+	my $v    = shift;
+	my $HTML = '<B><I>' . $v . '</B></I>';
+	MODES(
+		TeX        => "\\boldsymbol{$v}",    #  doesn't seem to work in TeX mode
+											 #    TeX => "\\mathbf{$v}",      #  gives non-italic bold in TeX mode
+		Latex2HTML => "\\boldsymbol{$v}",
+		HTML       => $HTML,
+		HTML_tth   => '\begin{rawhtml}' . $HTML . '\end{rawhtml}',
+		HTML_dpng  => "\\boldsymbol{$v}",
+	);
 }
 
 =head2 $GRAD
@@ -106,14 +106,18 @@ non_zero_point2D and 3D automatically set Dimension to 2 and 3 respectively.
 =cut
 
 sub non_zero_point {
-  my $n = shift; my $k = $n; my @v = ();
-  my $a = shift || -5; my $b = shift || $a + 10; my $c = shift || 1;
-  while ($k--) {push(@v,random($a,$b,$c))}
-  if (norm(Point(@v)) == 0) {$v[random(0,$n-1,1)] = non_zero_random($a,$b,$c)}
-  return Point(@v);
+	my $n = shift;
+	my $k = $n;
+	my @v = ();
+	my $a = shift || -5;
+	my $b = shift || $a + 10;
+	my $c = shift || 1;
+	while ($k--) { push(@v, random($a, $b, $c)) }
+	if (norm(Point(@v)) == 0) { $v[ random(0, $n - 1, 1) ] = non_zero_random($a, $b, $c) }
+	return Point(@v);
 }
-sub non_zero_point2D {non_zero_point(2,@_)}
-sub non_zero_point3D {non_zero_point(3,@_)}
+sub non_zero_point2D { non_zero_point(2, @_) }
+sub non_zero_point3D { non_zero_point(3, @_) }
 
 =head2 non_zero_vector, non_zero_vector2D, non_zero_vector3D
 
@@ -128,9 +132,9 @@ non_zero_vector3D automatically set Dimension to 2 and 3 respectively.
 
 =cut
 
-sub non_zero_vector   {Vector(non_zero_point(@_))}
-sub non_zero_vector2D {non_zero_vector(2,@_)}
-sub non_zero_vector3D {non_zero_vector(3,@_)}
+sub non_zero_vector   { Vector(non_zero_point(@_)) }
+sub non_zero_vector2D { non_zero_vector(2, @_) }
+sub non_zero_vector3D { non_zero_vector(3, @_) }
 
 =head2 Line
 
@@ -155,12 +159,15 @@ parserParametricLine.pl).
 =cut
 
 sub Line {
-  my @p = Point(shift)->value; my @v = Vector(shift)->value;
-  my $t = shift; $t = 't' unless $t; $t = Formula($t);
-  my @coords = ();
-  die "Dimensions of point and vector don't match" unless $#p == $#v;
-  foreach my $i (0..$#p) {push(@coords,($p[$i]+$v[$i]*$t)->reduce)}
-  return Vector(@coords);
+	my @p = Point(shift)->value;
+	my @v = Vector(shift)->value;
+	my $t = shift;
+	$t = 't' unless $t;
+	$t = Formula($t);
+	my @coords = ();
+	die "Dimensions of point and vector don't match" unless $#p == $#v;
+	foreach my $i (0 .. $#p) { push(@coords, ($p[$i] + $v[$i] * $t)->reduce) }
+	return Vector(@coords);
 }
 
 =head2 Plane
@@ -174,13 +181,16 @@ the ImplicitPlane class from parserImplicitPlane.pl).
 =cut
 
 sub Plane {
-  my $P = Point(shift); my $N = Vector(shift); my @N = $N->value;
-  my $xyz = shift; $xyz = ['x','y','z'] unless defined($xyz);
-  die "Number of variables doesn't match dimension of normal vector"
-    unless scalar(@N) == scalar(@{$xyz});
-  my @terms = ();
-  foreach my $i (0..$#N) {push(@terms,$N[$i]->TeX.$xyz->[$i])}
-  Formula(join(' + ',@terms))->reduce->TeX . " = " . ($N.$P)->TeX;
+	my $P   = Point(shift);
+	my $N   = Vector(shift);
+	my @N   = $N->value;
+	my $xyz = shift;
+	$xyz = [ 'x', 'y', 'z' ] unless defined($xyz);
+	die "Number of variables doesn't match dimension of normal vector"
+		unless scalar(@N) == scalar(@{$xyz});
+	my @terms = ();
+	foreach my $i (0 .. $#N) { push(@terms, $N[$i]->TeX . $xyz->[$i]) }
+	Formula(join(' + ', @terms))->reduce->TeX . " = " . ($N . $P)->TeX;
 }
 
 1;

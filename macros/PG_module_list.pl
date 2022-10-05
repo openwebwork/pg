@@ -1,5 +1,4 @@
 
-
 use PGtranslator;
 
 =head1 DESCRIPTION
@@ -10,38 +9,37 @@ use PGtranslator;
 
 =cut
 
-PGtranslator -> evaluate_modules(qw( Exporter
-                                     DynaLoader
-                                     GD
-                                     WWPlot
-                                     Fun
-                                     Circle
-                                     Label
-                                     PGrandom
-                                     Units
-                                     Hermite
-								     List
-								     Match
-								     Select
-								     Multiple
-                                     AlgParser
-                                     AnswerHash
-                                     Fraction
-                                     VectorField
-                                     Complex1
-                                     Complex
-                                     MatrixReal1
-                                     Matrix
-				     Distributions
-				     Statistics
-				     Regression
-                                      ) );
+PGtranslator->evaluate_modules(qw( Exporter
+	DynaLoader
+	GD
+	WWPlot
+	Fun
+	Circle
+	Label
+	PGrandom
+	Units
+	Hermite
+	List
+	Match
+	Select
+	Multiple
+	AlgParser
+	AnswerHash
+	Fraction
+	VectorField
+	Complex1
+	Complex
+	MatrixReal1
+	Matrix
+	Distributions
+	Statistics
+	Regression
+));
 
-PGtranslator -> load_extra_packages(qw( AlgParserWithImplicitExpand
-                                        Expr
-                                        ExprWithImplicitExpand
-                                        AnswerEvaluator
-                                      ) );
-
+PGtranslator->load_extra_packages(qw( AlgParserWithImplicitExpand
+	Expr
+	ExprWithImplicitExpand
+	AnswerEvaluator
+));
 
 1;

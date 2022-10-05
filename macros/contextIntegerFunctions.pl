@@ -43,36 +43,40 @@ can be set back with Context("IntegerFunctions").
 
 loadMacros('MathObjects.pl');
 
-sub _contextIntegerFunctions_init {context::IntegerFunctions2::Init()}; # don't reload this file
+sub _contextIntegerFunctions_init { context::IntegerFunctions2::Init() };    # don't reload this file
 
 package context::IntegerFunctions2;
-our @ISA = qw(Parser::Function::numeric2); # checks for 2 numeric inputs
+our @ISA = qw(Parser::Function::numeric2);                                   # checks for 2 numeric inputs
 
 sub C {
-  shift; my ($n,$r) = @_; my $C = 1;
-  return (0) if($r>$n);
-  $r = $n-$r if ($r > $n-$r); # find the smaller of the two
-  for (1..$r) {$C = ($C*($n-$_+1))/$_}
-  return $C
+	shift;
+	my ($n, $r) = @_;
+	my $C = 1;
+	return (0)   if ($r > $n);
+	$r = $n - $r if ($r > $n - $r);    # find the smaller of the two
+	for (1 .. $r) { $C = ($C * ($n - $_ + 1)) / $_ }
+	return $C;
 }
 
 sub P {
-  shift; my ($n,$r) = @_; my $P = 1;
-  return (0) if($r>$n);
-  for (1..$r) {$P *= ($n-$_+1)}
-  return $P
+	shift;
+	my ($n, $r) = @_;
+	my $P = 1;
+	return (0) if ($r > $n);
+	for (1 .. $r) { $P *= ($n - $_ + 1) }
+	return $P;
 }
 
 sub Init {
-  my $context = $main::context{IntegerFunctions} = Parser::Context->getCopy("Numeric");
-  $context->{name} = "IntegerFunctions";
+	my $context = $main::context{IntegerFunctions} = Parser::Context->getCopy("Numeric");
+	$context->{name} = "IntegerFunctions";
 
-  $context->functions->add(
-    C => {class => 'context::IntegerFunctions2'},
-    P => {class => 'context::IntegerFunctions2'},
-  );
+	$context->functions->add(
+		C => { class => 'context::IntegerFunctions2' },
+		P => { class => 'context::IntegerFunctions2' },
+	);
 
-  main::Context("IntegerFunctions");
+	main::Context("IntegerFunctions");
 }
 
 1;

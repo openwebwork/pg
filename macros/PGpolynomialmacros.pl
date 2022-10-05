@@ -36,9 +36,9 @@
 =cut
 
 sub ValidPoly {
-    my $xref = @_;
-    if (${$xref}[0] != 0) {return 1;}
-    else {return 0;}
+	my $xref = @_;
+	if   (${$xref}[0] != 0) { return 1; }
+	else                    { return 0; }
 }
 
 =head3 PolyAdd(@Polyn1,@Polyn2)
@@ -50,20 +50,19 @@ sub ValidPoly {
 
 =cut
 
-sub PolyAdd{
-    my ($xref,$yref) = @_;
-    @local_x = @{$xref};
-    @local_y = @{$yref};
-    if ($#local_x < $#local_y) {
-    while ($#local_x < $#local_y) {unshift @local_x, 0;}
-    }
-    elsif ($#local_y < $#local_x) {
-    while ($#local_y < $#local_x) {unshift @local_y, 0;}
-    }
-    foreach $i (0..$#local_x) {
-        $sum[$i] = $local_x[$i] + $local_y[$i];
-    }
-    return @sum;
+sub PolyAdd {
+	my ($xref, $yref) = @_;
+	@local_x = @{$xref};
+	@local_y = @{$yref};
+	if ($#local_x < $#local_y) {
+		while ($#local_x < $#local_y) { unshift @local_x, 0; }
+	} elsif ($#local_y < $#local_x) {
+		while ($#local_y < $#local_x) { unshift @local_y, 0; }
+	}
+	foreach $i (0 .. $#local_x) {
+		$sum[$i] = $local_x[$i] + $local_y[$i];
+	}
+	return @sum;
 }
 
 =head3 PolySub(@Polyn1,@Polyn2)
@@ -75,20 +74,19 @@ sub PolyAdd{
 
 =cut
 
-sub PolySub{
-    my ($xref,$yref) = @_;
-    @local_x = @{$xref};
-    @local_y = @{$yref};
-    if ($#local_x < $#local_y) {
-        while ($#local_x < $#local_y) {unshift @local_x, 0;}
-    }
-    elsif ($#local_y < $#local_x) {
-    while ($#local_y < $#local_x) {unshift @local_y, 0;}
-    }
-    foreach $i (0..$#local_x) {
-        $diff[$i] = $local_x[$i] - $local_y[$i];
-    }
-    return @diff;
+sub PolySub {
+	my ($xref, $yref) = @_;
+	@local_x = @{$xref};
+	@local_y = @{$yref};
+	if ($#local_x < $#local_y) {
+		while ($#local_x < $#local_y) { unshift @local_x, 0; }
+	} elsif ($#local_y < $#local_x) {
+		while ($#local_y < $#local_x) { unshift @local_y, 0; }
+	}
+	foreach $i (0 .. $#local_x) {
+		$diff[$i] = $local_x[$i] - $local_y[$i];
+	}
+	return @diff;
 }
 
 =head3 PolyMult(~~@coefficientArray1,~~@coefficientArray2)
@@ -100,17 +98,17 @@ sub PolySub{
 
 =cut
 
-sub PolyMult{
-    my ($xref,$yref) = @_;
-    @local_x = @{$xref};
-    @local_y = @{$yref};
-    foreach $i (0..$#local_x + $#local_y) {$result[$i] = 0;}
-    foreach $i (0..$#local_x) {
-        foreach $j (0..$#local_y) {
-           $result[$i+$j] = $result[$i+$j]+$local_x[$i]*$local_y[$j];
-        }
-    }
-    return @result;
+sub PolyMult {
+	my ($xref, $yref) = @_;
+	@local_x = @{$xref};
+	@local_y = @{$yref};
+	foreach $i (0 .. $#local_x + $#local_y) { $result[$i] = 0; }
+	foreach $i (0 .. $#local_x) {
+		foreach $j (0 .. $#local_y) {
+			$result[ $i + $j ] = $result[ $i + $j ] + $local_x[$i] * $local_y[$j];
+		}
+	}
+	return @result;
 }
 
 =head3 (@quotient,$remainder) = SynDiv(~~@dividend,~~@divisor)
@@ -122,16 +120,16 @@ sub PolyMult{
 
 =cut
 
-sub SynDiv{
-    my ($dividendref,$divisorref)=@_;
-    my @dividend = @{$dividendref};
-    my @divisor = @{$divisorref};
-    my @quotient;
-    $quotient[0] = $dividend[0];
-    foreach $i (1..$#dividend) {
-        $quotient[$i] = $dividend[$i]-$quotient[$i-1]*$divisor[1];
-    }
-    return @quotient;
+sub SynDiv {
+	my ($dividendref, $divisorref) = @_;
+	my @dividend = @{$dividendref};
+	my @divisor  = @{$divisorref};
+	my @quotient;
+	$quotient[0] = $dividend[0];
+	foreach $i (1 .. $#dividend) {
+		$quotient[$i] = $dividend[$i] - $quotient[ $i - 1 ] * $divisor[1];
+	}
+	return @quotient;
 }
 
 =head3 (@quotient,@remainder) = LongDiv($dividendref,$divisorref)
@@ -143,25 +141,23 @@ sub SynDiv{
 
 =cut
 
-sub LongDiv{
-    my ($dividendref,$divisorref)=@_;
-    my @dividend = @{$dividendref};
-    my @divisor = @{$divisorref};
-    my @quotient; my @remainder;
-    foreach $i (0..$#dividend-$#divisor) {
-      $quotient[$i] = $dividend[$i]/$divisor[0];
-      foreach $j (1..$#divisor) {
-        $dividend[$i+$j] = $dividend[$i+$j] - $quotient[$i]*$divisor[$j];
-      }
-    }
-    foreach $i ($#dividend-$#divisor+1..$#dividend) {
-        $remainder[$i-($#dividend-$#divisor+1)] = $dividend[$i];
-    }
-    return (\@quotient,\@remainder);
+sub LongDiv {
+	my ($dividendref, $divisorref) = @_;
+	my @dividend = @{$dividendref};
+	my @divisor  = @{$divisorref};
+	my @quotient;
+	my @remainder;
+	foreach $i (0 .. $#dividend - $#divisor) {
+		$quotient[$i] = $dividend[$i] / $divisor[0];
+		foreach $j (1 .. $#divisor) {
+			$dividend[ $i + $j ] = $dividend[ $i + $j ] - $quotient[$i] * $divisor[$j];
+		}
+	}
+	foreach $i ($#dividend - $#divisor + 1 .. $#dividend) {
+		$remainder[ $i - ($#dividend - $#divisor + 1) ] = $dividend[$i];
+	}
+	return (\@quotient, \@remainder);
 }
-
-
-
 
 =head3 UpBound(~~@polynomial)
 
@@ -175,27 +171,24 @@ sub LongDiv{
 
 =cut
 
-
 sub UpBound {
-    my $polyref=$_[0];
-    my @poly = @{$polyref};
-    my $bound = 0;
-    my $test = 0;
-    while ($test < @poly) {
-        $bound++;
-        $test=0;
-        @div = (1,-$bound);
-        @result = &SynDiv(\@poly,\@div);
-        foreach $i (0..$#result) {
-           if (sgn($result[$i])==sgn($result[0]) || $result[$i]==0) {
-                $test++;
-           }
-        }
-    }
-    return $bound;
+	my $polyref = $_[0];
+	my @poly    = @{$polyref};
+	my $bound   = 0;
+	my $test    = 0;
+	while ($test < @poly) {
+		$bound++;
+		$test   = 0;
+		@div    = (1, -$bound);
+		@result = &SynDiv(\@poly, \@div);
+		foreach $i (0 .. $#result) {
+			if (sgn($result[$i]) == sgn($result[0]) || $result[$i] == 0) {
+				$test++;
+			}
+		}
+	}
+	return $bound;
 }
-
-
 
 =head3 LowBound(~~@polynomial)
 
@@ -210,26 +203,28 @@ sub UpBound {
 =cut
 
 sub LowBound {
-    my $polyref=$_[0];
-    my @poly = @{$polyref};
-    my $bound = 0;
-    my $test = 0;
-    while ($test == 0) {
-        $test = 1; $bound = $bound-1;
-        @div = (1,-$bound);
-        @res = &SynDiv(\@poly,\@div);
-        foreach $i (1..int(($#res -1)/2)) {
-            if (sgn($res[0])*sgn($res[2*$i]) == -1) {
-            $test = 0;}
-        }
-        foreach $i (1..int($#res/2)) {
-            if (sgn($res[0])*sgn($res[2*$i-1]) == 1) {
-            $test = 0;}
-        }
-    }
-    return $bound;
+	my $polyref = $_[0];
+	my @poly    = @{$polyref};
+	my $bound   = 0;
+	my $test    = 0;
+	while ($test == 0) {
+		$test  = 1;
+		$bound = $bound - 1;
+		@div   = (1, -$bound);
+		@res   = &SynDiv(\@poly, \@div);
+		foreach $i (1 .. int(($#res - 1) / 2)) {
+			if (sgn($res[0]) * sgn($res[ 2 * $i ]) == -1) {
+				$test = 0;
+			}
+		}
+		foreach $i (1 .. int($#res / 2)) {
+			if (sgn($res[0]) * sgn($res[ 2 * $i - 1 ]) == 1) {
+				$test = 0;
+			}
+		}
+	}
+	return $bound;
 }
-
 
 =head3 PolyString(~~@coefficientArray,x)
 
@@ -242,66 +237,73 @@ sub LowBound {
 
 =cut
 
-sub PolyString{
-	my $temp = $_[0];
-	my @poly = @{$temp};
+sub PolyString {
+	my $temp   = $_[0];
+	my @poly   = @{$temp};
 	my $string = '';
-	foreach my $i (0..$#poly) {
-		my $j = $#poly-$i;
+	foreach my $i (0 .. $#poly) {
+		my $j = $#poly - $i;
 		if ($j == $#poly) {
-			if ($poly[$i] >0) {
-				if ($poly[$i]!=1){
-					$string = $string."$poly[$i] x^{$j}";
+			if ($poly[$i] > 0) {
+				if ($poly[$i] != 1) {
+					$string = $string . "$poly[$i] x^{$j}";
+				} else {
+					$string = $string . "x^{$j}";
 				}
-				else {$string=$string."x^{$j}";}
+			} elsif ($poly[$i] == 0) {
+			} elsif ($poly[$i] == -1) {
+				$string = $string . "-x^{$j}";
+			} else {
+				$string = $string . "$poly[$i] x^{$j}";
 			}
-			elsif ($poly[$i] == 0) {}
-			elsif ($poly[$i] == -1) {$string=$string."-x^{$j}";}
-			else {$string = $string."$poly[$i] x^{$j}";}
-		}
-		elsif ($j > 0 && $j!=1) {
-			if ($poly[$i] >0) {
-				if ($poly[$i]!=1){
-					$string = $string."+$poly[$i] x^{$j}";
+		} elsif ($j > 0 && $j != 1) {
+			if ($poly[$i] > 0) {
+				if ($poly[$i] != 1) {
+					$string = $string . "+$poly[$i] x^{$j}";
+				} else {
+					$string = $string . "+x^{$j}";
 				}
-				else {$string = $string."+x^{$j}";}}
-			elsif ($poly[$i] == 0) {}
-			elsif ($poly[$i] == -1) {$string=$string."-x^{$j}";}
-			else {$string = $string."$poly[$i] x^{$j}";}
-		}
-		elsif ($j == 1) {
-			if ($poly[$i] > 0){
-		  		if ($poly[$i]!=1){
-					$string = $string."+$poly[$i] x";
+			} elsif ($poly[$i] == 0) {
+			} elsif ($poly[$i] == -1) {
+				$string = $string . "-x^{$j}";
+			} else {
+				$string = $string . "$poly[$i] x^{$j}";
+			}
+		} elsif ($j == 1) {
+			if ($poly[$i] > 0) {
+				if ($poly[$i] != 1) {
+					$string = $string . "+$poly[$i] x";
+				} else {
+					$string = $string . "+x";
 				}
-		  		else {$string = $string."+x";}
-		  	}
-			elsif ($poly[$i] == 0) {}
-			elsif ($poly[$i] == -1){$string=$string."-x";}
-			else {$string=$string."$poly[$i] x";}
-		}
-		else {
-			if ($poly[$i] > 0){
-		  		$string = $string."+$poly[$i] ";
-		  	}
-			elsif ($poly[$i] == 0) {}
-			else {$string=$string."$poly[$i] ";}
+			} elsif ($poly[$i] == 0) {
+			} elsif ($poly[$i] == -1) {
+				$string = $string . "-x";
+			} else {
+				$string = $string . "$poly[$i] x";
+			}
+		} else {
+			if ($poly[$i] > 0) {
+				$string = $string . "+$poly[$i] ";
+			} elsif ($poly[$i] == 0) {
+			} else {
+				$string = $string . "$poly[$i] ";
+			}
 		}
 	}
 	return $string;
 }
 
-
 sub PolyFunc {
-    my $temp = $_[0];
-    my @poly = @{$temp};
-    $func = "";
-    foreach $i (0..$#poly) {
-        $j = $#poly-$i;
-        if ($poly[$i] > 0) {$func = $func."+$poly[$i]*x**($j)";}
-        else {$func = $func."$poly[$i]*x**($j)";}
-    }
-    return $func;
+	my $temp = $_[0];
+	my @poly = @{$temp};
+	$func = "";
+	foreach $i (0 .. $#poly) {
+		$j = $#poly - $i;
+		if   ($poly[$i] > 0) { $func = $func . "+$poly[$i]*x**($j)"; }
+		else                 { $func = $func . "$poly[$i]*x**($j)"; }
+	}
+	return $func;
 }
 
 =head3 ($maxpos,$maxneg) = Descartes(~~@poly)
@@ -319,23 +321,15 @@ sub PolyFunc {
 =cut
 
 sub Descartes {
-    my $temp = $_[0];
-    my @poly = @{$temp};
-    my $pos = 0; my $neg = 0;
-    foreach $i (1..$#poly) {
-        if (sgn($poly[$i])*sgn($poly[$i-1]) == -1) {$pos++;}
-        elsif (sgn($poly[$i])*sgn($poly[$i-1]) == 1) {$neg++;}
-    }
-    return ($pos,$neg);
+	my $temp = $_[0];
+	my @poly = @{$temp};
+	my $pos  = 0;
+	my $neg  = 0;
+	foreach $i (1 .. $#poly) {
+		if    (sgn($poly[$i]) * sgn($poly[ $i - 1 ]) == -1) { $pos++; }
+		elsif (sgn($poly[$i]) * sgn($poly[ $i - 1 ]) == 1)  { $neg++; }
+	}
+	return ($pos, $neg);
 }
-
-
-
-
-
-
-
-
-
 
 1;

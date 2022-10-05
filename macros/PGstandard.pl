@@ -27,12 +27,6 @@ PGstandard.pl loads the following macro files:
 
 =cut
 
-loadMacros(
-	"PG.pl",
-	"PGbasicmacros.pl",
-	"PGanswermacros.pl",
-	"PGauxiliaryFunctions.pl",
-	"customizeLaTeX.pl",
-);
+loadMacros("PG.pl", "PGbasicmacros.pl", "PGanswermacros.pl", "PGauxiliaryFunctions.pl", "customizeLaTeX.pl",);
 
 1;

@@ -196,7 +196,7 @@ computations.
 
 loadMacros("MathObjects.pl");
 
-sub _contextPercent_init {Percent::Init()}
+sub _contextPercent_init { Percent::Init() }
 
 package Percent;
 
@@ -205,70 +205,73 @@ package Percent;
 #  creates the percent contexts.
 #
 sub Init {
-  my $context = $main::context{Percent} = Parser::Context->getCopy("Numeric");
-  $context->{name} = "Percent";
+	my $context = $main::context{Percent} = Parser::Context->getCopy("Numeric");
+	$context->{name} = "Percent";
 
-  $context->operators->add(
-    '%' => {precedence => 5.5, associativity => "right", type => "unary",
-            TeX => "\\%", class => 'Percent::UOP::percent'},
-  );
-  $context->{parser}{Number} = "Percent::Number";
-  $context->{value}{Percent} = "Percent::Percent";
-  $context->flags->set(
-    decimalPlaces => 1,         # number of decimal places to show or require
-    tolerance => .0005,
-    tolType => "absolute",
-    promoteReals => 1,          # treat .1 as 10% or not
-    strictPercent => 0,         # allow (5+5)% or just 10% (used by LimitedPercent contexts)
-    forceDecimals => 0,         # require at least the full number of decimals or not
-    noExtraDecimals => 0,       # prevent extra decimals or not
-    trimTrailingZeros => 1,     # remove trailing zeros in display
-  );
+	$context->operators->add(
+		'%' => {
+			precedence    => 5.5,
+			associativity => "right",
+			type          => "unary",
+			TeX           => "\\%",
+			class         => 'Percent::UOP::percent'
+		},
+	);
+	$context->{parser}{Number} = "Percent::Number";
+	$context->{value}{Percent} = "Percent::Percent";
+	$context->flags->set(
+		decimalPlaces     => 1,            # number of decimal places to show or require
+		tolerance         => .0005,
+		tolType           => "absolute",
+		promoteReals      => 1,            # treat .1 as 10% or not
+		strictPercent     => 0,            # allow (5+5)% or just 10% (used by LimitedPercent contexts)
+		forceDecimals     => 0,            # require at least the full number of decimals or not
+		noExtraDecimals   => 0,            # prevent extra decimals or not
+		trimTrailingZeros => 1,            # remove trailing zeros in display
+	);
 
-  $context = $main::context{LimitedPercent} = $context->copy;
-  $context->{name} = "LimitedPercent";
-  $context->flags->set(
-    promoteReals => 0,
-    reduceConstants => 0,
-    reduceConstantFunctions => 0,
-  );
-  $context->operators->set(
-    '+' => {class => 'LimitedPercent::BOP::add'},
-    '-' => {class => 'LimitedPercent::BOP::subtract'},
-    '*' => {class => 'LimitedPercent::BOP::multiply'},
-   '* ' => {class => 'LimitedPercent::BOP::multiply'},
-   ' *' => {class => 'LimitedPercent::BOP::multiply'},
-    ' ' => {class => 'LimitedPercent::BOP::multiply'},
-    '/' => {class => 'LimitedPercent::BOP::divide'},
-   ' /' => {class => 'LimitedPercent::BOP::divide'},
-   '/ ' => {class => 'LimitedPercent::BOP::divide'},
-    '^' => {class => 'LimitedPercent::BOP::power'},
-   '**' => {class => 'LimitedPercent::BOP::power'},
-   'u+' => {class => 'LimitedPercent::UOP::plus'},
-   'u-' => {class => 'LimitedPercent::UOP::minus'},
-  );
-  $context->lists->set(
-    AbsoluteValue => {class => 'LimitedPercent::List::AbsoluteValue'},
-  );
+	$context = $main::context{LimitedPercent} = $context->copy;
+	$context->{name} = "LimitedPercent";
+	$context->flags->set(
+		promoteReals            => 0,
+		reduceConstants         => 0,
+		reduceConstantFunctions => 0,
+	);
+	$context->operators->set(
+		'+'  => { class => 'LimitedPercent::BOP::add' },
+		'-'  => { class => 'LimitedPercent::BOP::subtract' },
+		'*'  => { class => 'LimitedPercent::BOP::multiply' },
+		'* ' => { class => 'LimitedPercent::BOP::multiply' },
+		' *' => { class => 'LimitedPercent::BOP::multiply' },
+		' '  => { class => 'LimitedPercent::BOP::multiply' },
+		'/'  => { class => 'LimitedPercent::BOP::divide' },
+		' /' => { class => 'LimitedPercent::BOP::divide' },
+		'/ ' => { class => 'LimitedPercent::BOP::divide' },
+		'^'  => { class => 'LimitedPercent::BOP::power' },
+		'**' => { class => 'LimitedPercent::BOP::power' },
+		'u+' => { class => 'LimitedPercent::UOP::plus' },
+		'u-' => { class => 'LimitedPercent::UOP::minus' },
+	);
+	$context->lists->set(AbsoluteValue => { class => 'LimitedPercent::List::AbsoluteValue' },);
 
-  $context = $main::context{"LimitedPercent-strict"} = $context->copy;
-  $context->{name} = "LimitedPercent-strict";
-  $context->flags->set(
-    strictPercent => 1,
-    noExtraDecimals => 1,
-    trimTrailingZeros => 0,
-  );
+	$context = $main::context{"LimitedPercent-strict"} = $context->copy;
+	$context->{name} = "LimitedPercent-strict";
+	$context->flags->set(
+		strictPercent     => 1,
+		noExtraDecimals   => 1,
+		trimTrailingZeros => 0,
+	);
 
-  $context = $main::context{"Percent-strict"} = Parser::Context->getCopy("Percent");
-  $context->{name} = "Percent-strict";
-  $context->flags->set(
-    strictPercent => 1,
-    promoteReals => 0,
-    reduceConstants => 0,
-    reduceConstantFunctions => 0,
-  );
+	$context = $main::context{"Percent-strict"} = Parser::Context->getCopy("Percent");
+	$context->{name} = "Percent-strict";
+	$context->flags->set(
+		strictPercent           => 1,
+		promoteReals            => 0,
+		reduceConstants         => 0,
+		reduceConstantFunctions => 0,
+	);
 
-  main::PG_restricted_eval('sub Percent {Value->Package("Percent")->new(@_)}');
+	main::PG_restricted_eval('sub Percent {Value->Package("Percent")->new(@_)}');
 }
 
 ######################################################################
@@ -280,20 +283,22 @@ package Percent::Number;
 our @ISA = ('Parser::Number');
 
 sub new {
-  my $self = shift; my $equation = shift; my $value = shift;
-  my $context = $equation->{context};
-  if (Value::classMatch($value,"Percent")) {
-    #
-    #  Put it back into a Value object, but must unmark it
-    #  as a Real temporarily to avoid an infinite loop.
-    #
-    $value->{isReal} = 0;
-    $value = $self->Item("Value")->new($equation,[$value]);
-    $value->{value}{isReal} = 1;
-  } else {
-    $value = $self->SUPER::new($equation,$value,@_);
-  }
-  return $value;
+	my $self     = shift;
+	my $equation = shift;
+	my $value    = shift;
+	my $context  = $equation->{context};
+	if (Value::classMatch($value, "Percent")) {
+		#
+		#  Put it back into a Value object, but must unmark it
+		#  as a Real temporarily to avoid an infinite loop.
+		#
+		$value->{isReal}        = 0;
+		$value                  = $self->Item("Value")->new($equation, [$value]);
+		$value->{value}{isReal} = 1;
+	} else {
+		$value = $self->SUPER::new($equation, $value, @_);
+	}
+	return $value;
 }
 
 ##################################################
@@ -307,36 +312,38 @@ package Percent::UOP::percent;
 our @ISA = ('Parser::UOP');
 
 sub _check {
-  my $self = shift;
-  my $context = $self->context;
-  my $op = $self->{op}; my $value = $op->{value_string};
-  $self->Error("'%s' can only be used with numeric constants",$self->{uop})
-    unless !$context->flag("strictPercent") || ($op->type eq 'Number' && $op->class eq 'Number');
-  $self->Error("Can't take percent of a percent") if $op->{isPercent};
-  $self->{ref} = $op->{ref}; # highlight the number, not the operator
-  my $n = $context->flag("decimalPlaces");
-  if (defined($value)) {
-    $self->Error("Your percentage value must have no more than %s decimal place%s",$n,($n == 1 ? "" : "s"))
-      if $value =~ m/\.\d{$n}\d/ && $context->flag('noExtraDecimals');
-    $self->Error("Your percentage value requires %s decimal place%s",$n,($n == 1 ? "" : "s"))
-      if $n && $context->flag("forceDecimals") && $value !~ m/\.\d{$n,}$/;
-  }
-  $self->{type} = {%{$op->typeRef}};
-  $self->{isPercent} = 1;
+	my $self    = shift;
+	my $context = $self->context;
+	my $op      = $self->{op};
+	my $value   = $op->{value_string};
+	$self->Error("'%s' can only be used with numeric constants", $self->{uop})
+		unless !$context->flag("strictPercent") || ($op->type eq 'Number' && $op->class eq 'Number');
+	$self->Error("Can't take percent of a percent") if $op->{isPercent};
+	$self->{ref} = $op->{ref};    # highlight the number, not the operator
+	my $n = $context->flag("decimalPlaces");
+
+	if (defined($value)) {
+		$self->Error("Your percentage value must have no more than %s decimal place%s", $n, ($n == 1 ? "" : "s"))
+			if $value =~ m/\.\d{$n}\d/ && $context->flag('noExtraDecimals');
+		$self->Error("Your percentage value requires %s decimal place%s", $n, ($n == 1 ? "" : "s"))
+			if $n && $context->flag("forceDecimals") && $value !~ m/\.\d{$n,}$/;
+	}
+	$self->{type}      = { %{ $op->typeRef } };
+	$self->{isPercent} = 1;
 }
 
 sub _eval {
-  my $self = shift; my $value = (shift) / 100;
-  Value->Package("Percent")->make($self->context,$value,@_);
+	my $self  = shift;
+	my $value = (shift) / 100;
+	Value->Package("Percent")->make($self->context, $value, @_);
 }
 
 #
 #  Use the Percent MathObject to produce the output formats
 #
-sub string {(shift)->eval->string}
-sub TeX    {(shift)->eval->TeX}
-sub perl   {(shift)->eval->perl}
-
+sub string { (shift)->eval->string }
+sub TeX    { (shift)->eval->TeX }
+sub perl   { (shift)->eval->perl }
 
 ######################################################################
 ######################################################################
@@ -356,50 +363,56 @@ our @ISA = ('Value::Real');
 #  produce an error message.
 #
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
-  my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  my $x = shift;
-  Value::Error("You can't use %s as a percentage",lc(Value::showClass($x)))
-      if !$self->getFlag("promoteReals",1) && Value::isRealNumber($x) && !Value::classMatch($x,"Percent");
-  $self = bless $self->SUPER::new($context,$x,@_), $class;
-  $self->{isReal} = $self->{isValue} = $self->{isPercent} = 1;
-  return $self;
+	my $self    = shift;
+	my $class   = ref($self) || $self;
+	my $context = (Value::isContext($_[0]) ? shift : $self->context);
+	my $x       = shift;
+	Value::Error("You can't use %s as a percentage", lc(Value::showClass($x)))
+		if !$self->getFlag("promoteReals", 1) && Value::isRealNumber($x) && !Value::classMatch($x, "Percent");
+	$self = bless $self->SUPER::new($context, $x, @_), $class;
+	$self->{isReal} = $self->{isValue} = $self->{isPercent} = 1;
+	return $self;
 }
 
 sub make {
-  my $self = shift; my $class = ref($self) || $self;
-  my $x = (Value::isContext($_[0]) ? $_[1] : $_[0]);
-  $self = bless $self->SUPER::make(@_), $class;
-  $self->{isReal} = $self->{isValue} = $self->{isPercent} = 1;
-  return $self;
+	my $self  = shift;
+	my $class = ref($self) || $self;
+	my $x     = (Value::isContext($_[0]) ? $_[1] : $_[0]);
+	$self = bless $self->SUPER::make(@_), $class;
+	$self->{isReal} = $self->{isValue} = $self->{isPercent} = 1;
+	return $self;
 }
 
 sub round {
-  my $self = shift; my $format = "%.".$self->getFlag("decimalPlaces")."f";
-  my $s = ($self->value >= 0 ? "" : "-");
-  return $self->make((($s.main::prfmt(CORE::abs($self->value*100),$format)) + 0)/100);
+	my $self   = shift;
+	my $format = "%." . $self->getFlag("decimalPlaces") . "f";
+	my $s      = ($self->value >= 0 ? "" : "-");
+	return $self->make((($s . main::prfmt(CORE::abs($self->value * 100), $format)) + 0) / 100);
 }
 
 sub truncate {
-  my $self = shift; my $d = $self->getFlag("decimalPlaces");
-  my $n = $self->value*100; $n =~ s/(\.\d{$d}).*/$1/;
-  return $self->make(($n+0)/100);
+	my $self = shift;
+	my $d    = $self->getFlag("decimalPlaces");
+	my $n    = $self->value * 100;
+	$n =~ s/(\.\d{$d}).*/$1/;
+	return $self->make(($n + 0) / 100);
 }
 
 #
 #  Format the output as a percent value.
 #
 sub format {
-  my $self = shift; my $type = shift;
-  my $format = "%.".$self->getFlag("decimalPlaces")."f";
-  my $s = ($self->value >= 0 ? "" : "-");
-  my $c = main::prfmt(CORE::abs($self->value*100),$format);
-  if ($self->getFlag('trimTrailingZeros')) {$c =~ s/(\.\d*?)0+$/$1/; $c =~ s/\.$//}
-  return $s.$c.($type eq "TeX" ? "\\%" : "%");
+	my $self   = shift;
+	my $type   = shift;
+	my $format = "%." . $self->getFlag("decimalPlaces") . "f";
+	my $s      = ($self->value >= 0 ? "" : "-");
+	my $c      = main::prfmt(CORE::abs($self->value * 100), $format);
+	if ($self->getFlag('trimTrailingZeros')) { $c =~ s/(\.\d*?)0+$/$1/; $c =~ s/\.$// }
+	return $s . $c . ($type eq "TeX" ? "\\%" : "%");
 }
 
-sub string {(shift)->format("string")}
-sub TeX    {(shift)->format("TeX")}
+sub string { (shift)->format("string") }
+sub TeX    { (shift)->format("TeX") }
 
 #
 #  Override the class name to get better error messages
@@ -410,9 +423,11 @@ sub cmp_class {"a Percentage Value"}
 #  Check for whether we want to work with reals as percents
 #
 sub typeMatch {
-  my $self = shift; my $other = shift; my $ans = shift;
-  return $self->SUPER::typeMatch($other,$ans,@_) if $self->getFlag("promoteReals");
-  return Value::classMatch($other,'Percent');
+	my $self  = shift;
+	my $other = shift;
+	my $ans   = shift;
+	return $self->SUPER::typeMatch($other, $ans, @_) if $self->getFlag("promoteReals");
+	return Value::classMatch($other, 'Percent');
 }
 
 ######################################################################
@@ -432,12 +447,13 @@ package LimitedPercent::BOP;
 #  Otherwise report an error.
 #
 sub _check {
-  my $self = shift;
-  my $super = ref($self); $super =~ s/LimitedPercent/Parser/;
-  &{$super."::_check"}($self);
-  return unless $self->{lop}{isPercent} || $self->{rop}{isPercent};
-  my $bop = $self->{def}{string} || $self->{bop};
-  $self->Error("In this context, '%s' can only be used with Numbers",$bop);
+	my $self  = shift;
+	my $super = ref($self);
+	$super =~ s/LimitedPercent/Parser/;
+	&{ $super . "::_check" }($self);
+	return unless $self->{lop}{isPercent} || $self->{rop}{isPercent};
+	my $bop = $self->{def}{string}        || $self->{bop};
+	$self->Error("In this context, '%s' can only be used with Numbers", $bop);
 }
 
 ##############################################
@@ -480,12 +496,13 @@ our @ISA = qw(LimitedPercent::BOP Parser::BOP::power);
 package LimitedPercent::UOP;
 
 sub _check {
-  my $self = shift;
-  my $super = ref($self); $super =~ s/LimitedPercent/Parser/;
-  &{$super."::_check"}($self);
-  return unless $self->{op}{isPercent};
-  my $uop = $self->{def}{string} || $self->{uop};
-  $self->Error("In this context, '%s' can only be used with Numbers",$uop);
+	my $self  = shift;
+	my $super = ref($self);
+	$super =~ s/LimitedPercent/Parser/;
+	&{ $super . "::_check" }($self);
+	return unless $self->{op}{isPercent};
+	my $uop = $self->{def}{string} || $self->{uop};
+	$self->Error("In this context, '%s' can only be used with Numbers", $uop);
 }
 
 ##############################################
@@ -509,10 +526,10 @@ package LimitedPercent::List::AbsoluteValue;
 our @ISA = qw(Parser::List::AbsoluteValue);
 
 sub _check {
-  my $self = shift;
-  $self->SUPER::_check;
-  return unless $self->{coords}[0]{isPercent};
-  $self->Error("In this context, absolute values can only be used with Numbers");
+	my $self = shift;
+	$self->SUPER::_check;
+	return unless $self->{coords}[0]{isPercent};
+	$self->Error("In this context, absolute values can only be used with Numbers");
 }
 
 ##############################################
