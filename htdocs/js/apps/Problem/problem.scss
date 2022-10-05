@@ -100,9 +100,11 @@
 		}
 	}
 
-	table {
+	.pg-table {
+		text-align: center;
 		thead, tbody, tfoot, tr, td, th {
-			border: revert;
+			padding: 0.25rem;
+			border: 1px solid black;
 		}
 	}
 }
