@@ -231,7 +231,7 @@
 					// Get a new x coordinate that is to the right, unless that is off the board.
 					// In that case go left instead.
 					let newX = this.point3.X() + gt.snapSizeX;
-					while ([this.point1, this.point2].some((other, i) => newX === other.X())) x += gt.snapSizeX;
+					while ([this.point1, this.point2].some((other, i) => newX === other.X())) newX += gt.snapSizeX;
 
 					// If the computed new x coordinate is off the board, then we need to move the point back instead.
 					const boundingBox = gt.board.getBoundingBox();
