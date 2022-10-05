@@ -215,7 +215,7 @@ choice string or a label with the methods answerChoice or answerLabel.
 
 loadMacros('MathObjects.pl');
 
-sub _parserRadioButtons_init {parserRadioButtons::Init()}; # don't reload this file
+sub _parserRadioButtons_init { parserRadioButtons::Init() };    # don't reload this file
 
 ##################################################################
 #
@@ -224,74 +224,79 @@ sub _parserRadioButtons_init {parserRadioButtons::Init()}; # don't reload this f
 package parserRadioButtons;
 our @ISA = qw(Value::String);
 
-my $jsPrinted = 0;  # true when the JavaScript has been printed
+my $jsPrinted = 0;    # true when the JavaScript has been printed
 
 #
 #  Set up the main:: namespace
 #
 sub Init {
-  $jsPrinted = 0;
-  main::PG_restricted_eval('sub RadioButtons {parserRadioButtons->new(@_)}');
+	$jsPrinted = 0;
+	main::PG_restricted_eval('sub RadioButtons {parserRadioButtons->new(@_)}');
 }
 
 #
 #  Create a new RadioButtons object
 #
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
-  my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  my $choices = shift; my $value = shift;
-  my %options;
-  main::set_default_options(\%options,
-    labels => "auto",
-    displayLabels => "auto",
-    labelFormat => "${main::BBOLD}%s${main::EBOLD}. ",
-    forceLabelFormat => 0,
-    separator => $main::BR,
-    checked => undef,
-    maxLabelSize => 25,
-    uncheckable => 0,
-    randomize => 0,
-    first => undef,
-    last => undef,
-    order => undef,
-    noindex => 0,
-    @_,
-    checkedI => -1,
-  );
-  Value::Error("A RadioButton's first argument should be a list of button values")
-    unless ref($choices) eq 'ARRAY';
-  Value::Error("A RadioButton's second argument should be the correct button choice")
-    unless defined($value) && $value ne "";
-  $context = Parser::Context->getCopy("Numeric");
-  $self = bless {%options, choices => $choices, context => $context}, $class;
-  $self->compatibility if $self->{order} || $self->{last} || $self->{first} || $self->{randomize};
-  $self->getChoiceOrder;
-  $self->addLabels;
-  $self->getCorrectChoice($value);
-  $self->getCheckedChoice($self->{checked});
-  $self->JavaScript if $self->{uncheckable};
-  $context->strings->are(map {"B".$_ => {}} (0..($self->{n}-1)));
-  return $self;
+	my $self    = shift;
+	my $class   = ref($self) || $self;
+	my $context = (Value::isContext($_[0]) ? shift : $self->context);
+	my $choices = shift;
+	my $value   = shift;
+	my %options;
+	main::set_default_options(
+		\%options,
+		labels           => "auto",
+		displayLabels    => "auto",
+		labelFormat      => "${main::BBOLD}%s${main::EBOLD}. ",
+		forceLabelFormat => 0,
+		separator        => $main::BR,
+		checked          => undef,
+		maxLabelSize     => 25,
+		uncheckable      => 0,
+		randomize        => 0,
+		first            => undef,
+		last             => undef,
+		order            => undef,
+		noindex          => 0,
+		@_,
+		checkedI => -1,
+	);
+	Value::Error("A RadioButton's first argument should be a list of button values")
+		unless ref($choices) eq 'ARRAY';
+	Value::Error("A RadioButton's second argument should be the correct button choice")
+		unless defined($value) && $value ne "";
+	$context = Parser::Context->getCopy("Numeric");
+	$self    = bless { %options, choices => $choices, context => $context }, $class;
+	$self->compatibility if $self->{order} || $self->{last} || $self->{first} || $self->{randomize};
+	$self->getChoiceOrder;
+	$self->addLabels;
+	$self->getCorrectChoice($value);
+	$self->getCheckedChoice($self->{checked});
+	$self->JavaScript if $self->{uncheckable};
+	$context->strings->are(map { "B" . $_ => {} } (0 .. ($self->{n} - 1)));
+	return $self;
 }
 
 #
 #  Get the choices into the correct order (randomizing where requested)
 #
 sub getChoiceOrder {
-  my $self = shift;
-  my @choices = ();
-  foreach my $choice (@{$self->{choices}}) {
-    if (ref($choice) eq "ARRAY") {push(@choices,$self->randomOrder($choice))}
-      else {push(@choices,$choice)}
-  }
-  $self->{orderedChoices} = \@choices;
-  $self->{n} = scalar(@choices);
+	my $self    = shift;
+	my @choices = ();
+	foreach my $choice (@{ $self->{choices} }) {
+		if   (ref($choice) eq "ARRAY") { push(@choices, $self->randomOrder($choice)) }
+		else                           { push(@choices, $choice) }
+	}
+	$self->{orderedChoices} = \@choices;
+	$self->{n}              = scalar(@choices);
 }
+
 sub randomOrder {
-  my $self = shift; my $choices = shift;
-  my %index = (map {$main::PG_random_generator->rand => $_} (0..scalar(@$choices)-1));
-  return (map {$choices->[$index{$_}]} main::PGsort(sub {$_[0] lt $_[1]},keys %index));
+	my $self    = shift;
+	my $choices = shift;
+	my %index   = (map { $main::PG_random_generator->rand => $_ } (0 .. scalar(@$choices) - 1));
+	return (map { $choices->[ $index{$_} ] } main::PGsort(sub { $_[0] lt $_[1] }, keys %index));
 }
 
 #
@@ -299,80 +304,90 @@ sub randomOrder {
 #  to those that don't (if requested)
 #
 sub addLabels {
-  my $self = shift; my $choices = $self->{orderedChoices};
-  my $labels = $self->{labels}; my $n = $self->{n};
-  $labels = [1..$n] if $labels eq "123";
-  $labels = [@main::ALPHABET[0..$n-1]] if uc($labels) eq "ABC";
-  $labels = [] if $labels eq "text";
-  if (ref($labels) ne "ARRAY") {
-    my $replace = ($labels ne "auto");
-    if (!$replace) {foreach (@$choices) {$replace = 1 if $_ =~ m/[^-+.,;:()!\[\]a-z0-9 ]/i}}
-    $labels = [map {"Choice $_"} (1..$n)] if $replace;
-    $self->{displayLabels} = 0 if $self->{displayLabels} eq "auto";
-  }
-  $labels = [] unless ref($labels) eq "ARRAY";
-  foreach my $i (0..$n-1) {
-    if (ref($choices->[$i]) eq "HASH") {
-      my $key = (keys %{$choices->[$i]})[0];
-      $labels->[$i] = $key; $choices->[$i] = $choices->[$i]{$key};
-    }
-  }
-  $self->{labels} = $labels;
-  $self->{displayLabels} = 1 if $self->{displayLabels} eq "auto";
+	my $self    = shift;
+	my $choices = $self->{orderedChoices};
+	my $labels  = $self->{labels};
+	my $n       = $self->{n};
+	$labels = [ 1 .. $n ]                        if $labels eq "123";
+	$labels = [ @main::ALPHABET[ 0 .. $n - 1 ] ] if uc($labels) eq "ABC";
+	$labels = []                                 if $labels eq "text";
+	if (ref($labels) ne "ARRAY") {
+		my $replace = ($labels ne "auto");
+		if (!$replace) {
+			foreach (@$choices) { $replace = 1 if $_ =~ m/[^-+.,;:()!\[\]a-z0-9 ]/i }
+		}
+		$labels                = [ map {"Choice $_"} (1 .. $n) ] if $replace;
+		$self->{displayLabels} = 0                               if $self->{displayLabels} eq "auto";
+	}
+	$labels = [] unless ref($labels) eq "ARRAY";
+	foreach my $i (0 .. $n - 1) {
+		if (ref($choices->[$i]) eq "HASH") {
+			my $key = (keys %{ $choices->[$i] })[0];
+			$labels->[$i]  = $key;
+			$choices->[$i] = $choices->[$i]{$key};
+		}
+	}
+	$self->{labels}        = $labels;
+	$self->{displayLabels} = 1 if $self->{displayLabels} eq "auto";
 }
 
 #
 #  Find the correct choice in the ordered array
 #
 sub getCorrectChoice {
-  my $self = shift; my $value = shift;
-  if ($value =~ m/^\d+$/ && !$self->{noindex}) {
-    $value = ($self->flattenChoices)[$value];
-    Value::Error("The correct answer index is outside the range of choices provided")
-      if !defined($value);
-  }
-  my @choices = @{$self->{orderedChoices}};
-  foreach my $i (0..$#choices) {
-    if ($value eq $choices[$i] || $value eq ($self->{labels}[$i]||"")) {
-      $self->{data} = ["B$i"];
-      return;
-    }
-  }
-  Value::Error("The correct choice must be one of the button values");
+	my $self  = shift;
+	my $value = shift;
+	if ($value =~ m/^\d+$/ && !$self->{noindex}) {
+		$value = ($self->flattenChoices)[$value];
+		Value::Error("The correct answer index is outside the range of choices provided")
+			if !defined($value);
+	}
+	my @choices = @{ $self->{orderedChoices} };
+	foreach my $i (0 .. $#choices) {
+		if ($value eq $choices[$i] || $value eq ($self->{labels}[$i] || "")) {
+			$self->{data} = ["B$i"];
+			return;
+		}
+	}
+	Value::Error("The correct choice must be one of the button values");
 }
+
 sub getCheckedChoice {
-  my $self = shift; my $value = shift;
-  return unless defined $value;
-  $value = ($self->flattenChoices)[$value] if $value =~ m/^\d+$/;
-  my @choices = @{$self->{orderedChoices}};
-  foreach my $i (0..$#choices) {
-    if ($value eq $choices[$i] || $value eq ($self->{labels}[$i]||"")) {
-      $self->{checkedI} = $i;
-      return;
-    }
-  }
-  Value::Error("The checked choice must be one of the button values");
+	my $self  = shift;
+	my $value = shift;
+	return unless defined $value;
+	$value = ($self->flattenChoices)[$value] if $value =~ m/^\d+$/;
+	my @choices = @{ $self->{orderedChoices} };
+	foreach my $i (0 .. $#choices) {
+		if ($value eq $choices[$i] || $value eq ($self->{labels}[$i] || "")) {
+			$self->{checkedI} = $i;
+			return;
+		}
+	}
+	Value::Error("The checked choice must be one of the button values");
 }
+
 sub flattenChoices {
-  my $self = shift;
-  my @choices = map {ref($_) eq "ARRAY" ? @$_ : $_} @{$self->{choices}};
-  foreach my $choice (@choices) {
-    if (ref($choice) eq "HASH") {
-      my $key = (keys %{$choice})[0];
-      $choice = $choice->{$key};
-    }
-  }
-  return @choices;
+	my $self    = shift;
+	my @choices = map { ref($_) eq "ARRAY" ? @$_ : $_ } @{ $self->{choices} };
+	foreach my $choice (@choices) {
+		if (ref($choice) eq "HASH") {
+			my $key = (keys %{$choice})[0];
+			$choice = $choice->{$key};
+		}
+	}
+	return @choices;
 }
 
 #
 #  Format a label using the user-provided format string
 #
 sub labelFormat {
-  my $self = shift; my $label = shift;
-  return "" unless $label || $self->{forceLabelFormat};
-  $label = "" unless defined $label;
-  sprintf($self->{labelFormat},$self->protect($label));
+	my $self  = shift;
+	my $label = shift;
+	return ""   unless $label || $self->{forceLabelFormat};
+	$label = "" unless defined $label;
+	sprintf($self->{labelFormat}, $self->protect($label));
 }
 
 #
@@ -380,23 +395,25 @@ sub labelFormat {
 #  to be displayed in the results table.
 #
 sub labelText {
-  my $self = shift; my $index = substr(shift,1);
-  my $choice = $self->{labels}[$index];
-  $choice = $self->{orderedChoices}[$index] unless defined $choice;
-  return $choice if length($choice) < $self->{maxLabelSize};
-  my @words = split(/( |\b)/,$choice); my ($s,$e) = ('','');
-  return $choice if scalar(@words) < 3;
-  do {$s .= shift(@words); $e = pop(@words) . $e if @words}
-    while length($s) + length($e) + 10 < $self->{maxLabelSize} && scalar(@words);
-  return $s . " ... " . $e;
+	my $self   = shift;
+	my $index  = substr(shift, 1);
+	my $choice = $self->{labels}[$index];
+	$choice = $self->{orderedChoices}[$index] unless defined $choice;
+	return $choice if length($choice) < $self->{maxLabelSize};
+	my @words = split(/( |\b)/, $choice);
+	my ($s, $e) = ('', '');
+	return $choice if scalar(@words) < 3;
+	do { $s .= shift(@words); $e = pop(@words) . $e if @words }
+		while length($s) + length($e) + 10 < $self->{maxLabelSize} && scalar(@words);
+	return $s . " ... " . $e;
 }
 
 #
 #  Use the actual choice string rather than the "Bn" string as the output
 #
 sub string {
-  my $self = shift;
-  $self->labelText($self->value);
+	my $self = shift;
+	$self->labelText($self->value);
 }
 
 #
@@ -404,25 +421,29 @@ sub string {
 #  choice string rather than the "Bn" string.
 #
 sub cmp_preprocess {
-  my $self = shift; my $ans = shift;
-  if (defined $ans->{student_value} && $ans->{student_value} ne '') {
-    my $label = $self->labelText($ans->{student_value}->value);
-    $ans->{preview_latex_string} = $self->quoteTeX($label);
-    $ans->{student_ans} = $self->quoteHTML($label);
-    $ans->{original_student_ans} = $label;
-  }
+	my $self = shift;
+	my $ans  = shift;
+	if (defined $ans->{student_value} && $ans->{student_value} ne '') {
+		my $label = $self->labelText($ans->{student_value}->value);
+		$ans->{preview_latex_string} = $self->quoteTeX($label);
+		$ans->{student_ans}          = $self->quoteHTML($label);
+		$ans->{original_student_ans} = $label;
+	}
 }
 
 #
 #  Allow users to convert a "Bn" string into a choice or label
 #
 sub answerChoice {
-  my $self = shift; my $index = substr(shift,1);
-  return $self->{orderedChoices}[$index];
+	my $self  = shift;
+	my $index = substr(shift, 1);
+	return $self->{orderedChoices}[$index];
 }
+
 sub answerLabel {
-  my $self = shift; my $index = substr(shift,1);
-  return $self->{labels}[$index];
+	my $self  = shift;
+	my $index = substr(shift, 1);
+	return $self->{labels}[$index];
 }
 
 #
@@ -430,12 +451,12 @@ sub answerLabel {
 #  in the answer hash
 #
 sub cmp {
-  my $self = shift;
-  my $cmp = $self->SUPER::cmp(
-    correct_choice => $self->value,
-    @_
-  );
-  return $cmp;
+	my $self = shift;
+	my $cmp  = $self->SUPER::cmp(
+		correct_choice => $self->value,
+		@_
+	);
+	return $cmp;
 }
 
 ##################################################################
@@ -444,56 +465,63 @@ sub cmp {
 #
 
 sub compatibility {
-  my $self = shift;
-  foreach my $choice (@{$self->{choices}}) {
-    Value::Error("Old-style options (order, first, last, randomize) can't be used with new-style choice array")
-      if ref($choice) eq "ARRAY" || ref($choice) eq "HASH";
-  }
-  $self->{n} = scalar(@{$self->{choices}});
-  my @choices; my %remaining = map {$_ => 1} @{$self->{choices}};
+	my $self = shift;
+	foreach my $choice (@{ $self->{choices} }) {
+		Value::Error("Old-style options (order, first, last, randomize) can't be used with new-style choice array")
+			if ref($choice) eq "ARRAY" || ref($choice) eq "HASH";
+	}
+	$self->{n} = scalar(@{ $self->{choices} });
+	my @choices;
+	my %remaining = map { $_ => 1 } @{ $self->{choices} };
 
-  if ($self->{order}) {
+	if ($self->{order}) {
 
-    Value::Error("You can't use 'first' or 'last' with 'order'") if $self->{first} || $self->{last};
-    my @order = @{$self->{order}};
-    foreach my $i (0..$#order) {
-      my $choice = $self->findChoice($order[$i]);
-      Value::Error("Item $i of the 'order' option is not a choice.") if !defined($choice);
-      Value::Error("Item $i of the 'order' option was already specified.") if !$remaining{$choice};
-      push(@choices,$choice); delete $remaining{$choice};
-    }
-    Value::Error("You must specify all choices in the 'order' option") if scalar(keys %remaining);
-    $self->{choices} = \@choices;
+		Value::Error("You can't use 'first' or 'last' with 'order'") if $self->{first} || $self->{last};
+		my @order = @{ $self->{order} };
+		foreach my $i (0 .. $#order) {
+			my $choice = $self->findChoice($order[$i]);
+			Value::Error("Item $i of the 'order' option is not a choice.")       if !defined($choice);
+			Value::Error("Item $i of the 'order' option was already specified.") if !$remaining{$choice};
+			push(@choices, $choice);
+			delete $remaining{$choice};
+		}
+		Value::Error("You must specify all choices in the 'order' option") if scalar(keys %remaining);
+		$self->{choices} = \@choices;
 
-  } elsif ($self->{first} || $self->{last}) {
-    my @first = @{$self->{first}||[]}; my @last = @{$self->{last}||[]};
+	} elsif ($self->{first} || $self->{last}) {
+		my @first = @{ $self->{first} || [] };
+		my @last  = @{ $self->{last}  || [] };
 
-    foreach my $i (0..$#first) {
-      my $choice = $self->findChoice($first[$i]);
-      Value::Error("Item $i of the 'first' option is not a choice.") if !defined($choice);
-      Value::Error("Item $i of the 'first' option was already specified.") if !$remaining{$choice};
-      push(@choices,$choice); delete $remaining{$choice};
-    }
+		foreach my $i (0 .. $#first) {
+			my $choice = $self->findChoice($first[$i]);
+			Value::Error("Item $i of the 'first' option is not a choice.")       if !defined($choice);
+			Value::Error("Item $i of the 'first' option was already specified.") if !$remaining{$choice};
+			push(@choices, $choice);
+			delete $remaining{$choice};
+		}
 
-    foreach my $i (0..$#last) {
-      my $choice = $self->findChoice($last[$i]);
-      Value::Error("Item $i of the 'last' option is not a choice.") if !defined($choice);
-      Value::Error("Item $i of the 'last' option was already specified.") if !$remaining{$choice};
-      $last[$i] = $choice; delete $remaining{$choice};
-    }
+		foreach my $i (0 .. $#last) {
+			my $choice = $self->findChoice($last[$i]);
+			Value::Error("Item $i of the 'last' option is not a choice.")       if !defined($choice);
+			Value::Error("Item $i of the 'last' option was already specified.") if !$remaining{$choice};
+			$last[$i] = $choice;
+			delete $remaining{$choice};
+		}
 
-    my @remaining;
-    foreach my $choice (@{$self->{choices}}) {push(@remaining,$choice) if $remaining{$choice}}
-    if (@remaining) {
-      @remaining = ([@remaining]) if $self->{randomize};
-      push(@choices,@remaining);
-    }
+		my @remaining;
+		foreach my $choice (@{ $self->{choices} }) { push(@remaining, $choice) if $remaining{$choice} }
+		if (@remaining) {
+			@remaining = ([@remaining]) if $self->{randomize};
+			push(@choices, @remaining);
+		}
 
-    push(@choices,@last) if @last;
+		push(@choices, @last) if @last;
 
-    $self->{choices} = \@choices;
+		$self->{choices} = \@choices;
 
-  } elsif ($self->{randomize}) {$self->{choices} = [$self->{choices}]}
+	} elsif ($self->{randomize}) {
+		$self->{choices} = [ $self->{choices} ];
+	}
 }
 
 #
@@ -501,24 +529,27 @@ sub compatibility {
 #  return the choice.
 #
 sub findChoice {
-  my $self = shift; my $value = shift;
-  my $index = $self->Index($value);
-  return $self->{choices}[$index] unless $index == -1;
-  foreach my $i (0..($self->{n}-1)) {
-    my $label = $self->{labels}[$i]; my $choice = $self->{choices}[$i];
-    $label = "" unless defined $label;
-    return $choice if $label eq $value || $choice eq $value;
-  }
-  return undef;
+	my $self  = shift;
+	my $value = shift;
+	my $index = $self->Index($value);
+	return $self->{choices}[$index] unless $index == -1;
+	foreach my $i (0 .. ($self->{n} - 1)) {
+		my $label  = $self->{labels}[$i];
+		my $choice = $self->{choices}[$i];
+		$label = "" unless defined $label;
+		return $choice if $label eq $value || $choice eq $value;
+	}
+	return undef;
 }
 
 #
 #  Get a numeric index (-1 if not defined or not a number)
 #
 sub Index {
-  my $self = shift; my $index = shift;
-  return -1 unless defined $index && $index =~ m/^\d$/;
-  return $index;
+	my $self  = shift;
+	my $index = shift;
+	return -1 unless defined $index && $index =~ m/^\d$/;
+	return $index;
 }
 
 ##################################################################
@@ -527,91 +558,99 @@ sub Index {
 #  Print the JavaScript needed for uncheckable radio buttons
 #
 sub JavaScript {
-  return if $jsPrinted || $main::displayMode eq 'TeX';
-  main::TEXT(
-    "\n<script>\n" .
-    "if (window.ww == null) {var ww = {}}\n" .
-    "if (ww.RadioButtons == null) {ww.RadioButtons = {}}\n" .
-    "if (ww.RadioButtons.selected == null) {ww.RadioButtons.selected = {}}\n" .
-    "ww.RadioButtons.Toggle = function (obj,event,shift) {\n" .
-    "  if (!event) {event = window.event}\n" .
-    "  if (shift && !event.shiftKey) {\n" .
-    "    this.selected[obj.name] = obj\n" .
-    "    return\n" .
-    "  }\n" .
-    "  var selected = this.selected[obj.name]\n" .
-    "  if (selected && selected == obj) {\n".
-    "    this.selected[obj.name] = null\n" .
-    "    obj.checked = false\n" .
-    "  } else {\n" .
-    "    this.selected[obj.name] = obj\n".
-    "  }\n" .
-    "}\n".
-    "</script>\n"
-  );
-  $jsPrinted = 1;
+	return if $jsPrinted || $main::displayMode eq 'TeX';
+	main::TEXT("\n<script>\n"
+			. "if (window.ww == null) {var ww = {}}\n"
+			. "if (ww.RadioButtons == null) {ww.RadioButtons = {}}\n"
+			. "if (ww.RadioButtons.selected == null) {ww.RadioButtons.selected = {}}\n"
+			. "ww.RadioButtons.Toggle = function (obj,event,shift) {\n"
+			. "  if (!event) {event = window.event}\n"
+			. "  if (shift && !event.shiftKey) {\n"
+			. "    this.selected[obj.name] = obj\n"
+			. "    return\n" . "  }\n"
+			. "  var selected = this.selected[obj.name]\n"
+			. "  if (selected && selected == obj) {\n"
+			. "    this.selected[obj.name] = null\n"
+			. "    obj.checked = false\n"
+			. "  } else {\n"
+			. "    this.selected[obj.name] = obj\n" . "  }\n" . "}\n"
+			. "</script>\n");
+	$jsPrinted = 1;
 }
 
 sub makeUncheckable {
-  my $self = shift;
-  my $shift = ($self->{uncheckable} =~ m/shift/i ? ",1" : "");
-  my $onclick = "onclick=\"ww.RadioButtons.Toggle(this,event$shift)\"";
-  my @radio = @_;
-  foreach (@radio) {$_ =~ s/<INPUT/<INPUT $onclick/i}
-  return @radio;
+	my $self    = shift;
+	my $shift   = ($self->{uncheckable} =~ m/shift/i ? ",1" : "");
+	my $onclick = "onclick=\"ww.RadioButtons.Toggle(this,event$shift)\"";
+	my @radio   = @_;
+	foreach (@radio) { $_ =~ s/<INPUT/<INPUT $onclick/i }
+	return @radio;
 }
 
 #
 #  Create the radio-buttons text
 #
 sub BUTTONS {
-  my $self = shift; my $extend = shift; my $name = shift; my $size = shift;
-  my @choices = @{$self->{orderedChoices}};
-  my @radio = ();
-  $name = main::NEW_ANS_NAME() unless $name;
-  my $label = main::generate_aria_label($name);
-  foreach my $i (0..$#choices) {
-    my $value = "B$i"; my $tag = $choices[$i];
-    $value = "%".$value if $i == $self->{checkedI};
-    $tag = $self->labelFormat($self->{labels}[$i]).$tag if $self->{displayLabels};
-    if ($i > 0) {
-      push(@radio,main::NAMED_ANS_RADIO_EXTENSION($name, $value, $tag,
-           aria_label => $label."option " . ($i+1) . " ", @_));
-    } else {
-      push(@radio, main::NAMED_ANS_RADIO($name, $value, $tag, $extend, @_));
-    }
-  }
-  #
-  #  Taken from PGbasicmacros.pl
-  #  It is wrong to have \item in the radio buttons and to add itemize here,
-  #    but that is the way PGbasicmacros.pl does it.
-  #
-  if ($main::displayMode eq 'TeX') {
-    $radio[0] = "\n\\begin{itemize}\n" . $radio[0];
-    $radio[$#radio_buttons] .= "\n\\end{itemize}\n";
-  }
-  if ($main::displayMode eq 'PTX') {
-    $radio[0] = qq(<var form="buttons" name="$name">) . "\n" . $radio[0];
-    $radio[$#radio_buttons] .= '</var>';
-    #turn any math delimiters
-    @radio = map {$_ =~ s/\\\(/<m>/g; $_} (@radio);
-    @radio = map {$_ =~ s/\\\)/<\/m>/g; $_} (@radio);
-  };
-  @radio = $self->makeUncheckable(@radio) if $self->{uncheckable};
-  (wantarray) ? @radio : join(($main::displayMode eq 'PTX')?'':$self->{separator}, @radio);
+	my $self    = shift;
+	my $extend  = shift;
+	my $name    = shift;
+	my $size    = shift;
+	my @choices = @{ $self->{orderedChoices} };
+	my @radio   = ();
+	$name = main::NEW_ANS_NAME() unless $name;
+	my $label = main::generate_aria_label($name);
+
+	foreach my $i (0 .. $#choices) {
+		my $value = "B$i";
+		my $tag   = $choices[$i];
+		$value = "%" . $value                                   if $i == $self->{checkedI};
+		$tag   = $self->labelFormat($self->{labels}[$i]) . $tag if $self->{displayLabels};
+		if ($i > 0) {
+			push(
+				@radio,
+				main::NAMED_ANS_RADIO_EXTENSION(
+					$name, $value, $tag,
+					aria_label => $label . "option " . ($i + 1) . " ",
+					@_
+				)
+			);
+		} else {
+			push(@radio, main::NAMED_ANS_RADIO($name, $value, $tag, $extend, @_));
+		}
+	}
+	#
+	#  Taken from PGbasicmacros.pl
+	#  It is wrong to have \item in the radio buttons and to add itemize here,
+	#    but that is the way PGbasicmacros.pl does it.
+	#
+	if ($main::displayMode eq 'TeX') {
+		$radio[0] = "\n\\begin{itemize}\n" . $radio[0];
+		$radio[$#radio_buttons] .= "\n\\end{itemize}\n";
+	}
+	if ($main::displayMode eq 'PTX') {
+		$radio[0] = qq(<var form="buttons" name="$name">) . "\n" . $radio[0];
+		$radio[$#radio_buttons] .= '</var>';
+		#turn any math delimiters
+		@radio = map { $_ =~ s/\\\(/<m>/g;   $_ } (@radio);
+		@radio = map { $_ =~ s/\\\)/<\/m>/g; $_ } (@radio);
+	}
+	@radio = $self->makeUncheckable(@radio) if $self->{uncheckable};
+	(wantarray) ? @radio : join(($main::displayMode eq 'PTX') ? '' : $self->{separator}, @radio);
 }
 
 sub protect {
-  my $self = shift; my $s = shift; return $s if !defined($s) || $s eq "";
-  main::MODES(TeX => $self->quoteTeX($s), HTML => $self->quoteHTML($s));
+	my $self = shift;
+	my $s    = shift;
+	return $s if !defined($s) || $s eq "";
+	main::MODES(TeX => $self->quoteTeX($s), HTML => $self->quoteHTML($s));
 }
 
-sub buttons {shift->BUTTONS(0,'',@_)}
-sub named_buttons {shift->BUTTONS(0,@_)}
+sub buttons { shift->BUTTONS(0, '', @_) }
+sub named_buttons { shift->BUTTONS(0, @_) }
 
-sub ans_rule {shift->BUTTONS(0,'',@_)}
-sub named_ans_rule {shift->BUTTONS(0,@_)}
-sub named_ans_rule_extension {shift->BUTTONS(1,@_)}
+sub ans_rule                 { shift->BUTTONS(0, '', @_) }
+sub named_ans_rule           { shift->BUTTONS(0, @_) }
+sub named_ans_rule_extension { shift->BUTTONS(1, @_) }
 
 ##################################################################
 

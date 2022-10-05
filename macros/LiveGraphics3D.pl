@@ -70,68 +70,69 @@ sub _LiveGraphics3D_init {
 
 =cut
 
-
 sub LiveGraphics3D {
-  my %options = (
-    size => [250,250],
-    background => "#FFFFFF",
-    scale => 1.,
-    tex_size => 500,
-    tex_center => 0,
-    @_
-  );
-  my $out = ""; my $p; my %pval;
-  my $ratio = $options{tex_size} * (.001);
+	my %options = (
+		size       => [ 250, 250 ],
+		background => "#FFFFFF",
+		scale      => 1.,
+		tex_size   => 500,
+		tex_center => 0,
+		@_
+	);
+	my $out = "";
+	my $p;
+	my %pval;
+	my $ratio = $options{tex_size} * (.001);
 
-  if ($main::displayMode eq "TeX") {
-    #
-    #  In TeX mode, include the image, if there is one, or
-    #   else give the user a message about using it on line
-    #
-    if ($options{image}) {
-      $out = "\\includegraphics[width=$ratio\\linewidth]{$options{image}}";
-      $out = "\\centerline{$out}" if $options{tex_center};
-      $out .= "\n";
-    } else {
-      $out = "\\vbox{
+	if ($main::displayMode eq "TeX") {
+		#
+		#  In TeX mode, include the image, if there is one, or
+		#   else give the user a message about using it on line
+		#
+		if ($options{image}) {
+			$out = "\\includegraphics[width=$ratio\\linewidth]{$options{image}}";
+			$out = "\\centerline{$out}" if $options{tex_center};
+			$out .= "\n";
+		} else {
+			$out = "\\vbox{
          \\hbox{[ This image is created by}
          \\hbox{\\quad an interactive applet;}
          \\hbox{you must view it on line ]}
       }";
-    }
-    # In html mode check to see if we use javascript or not
-  } else {
-    my ($w,$h) = @{$options{size}};
-    $out .= $bHTML if ($main::displayMode eq "Latex2HTML");
-    #
-    #  Put the js in a table
-    #
-    $out .= qq{\n<TABLE BORDER="1" CELLSPACING="2" CELLPADDING="0">\n<TR>};
-    $out .= qq{<TD WIDTH="$w" HEIGHT="$h" ALIGN="CENTER">};
+		}
+		# In html mode check to see if we use javascript or not
+	} else {
+		my ($w, $h) = @{ $options{size} };
+		$out .= $bHTML if ($main::displayMode eq "Latex2HTML");
+		#
+		#  Put the js in a table
+		#
+		$out .= qq{\n<TABLE BORDER="1" CELLSPACING="2" CELLPADDING="0">\n<TR>};
+		$out .= qq{<TD WIDTH="$w" HEIGHT="$h" ALIGN="CENTER">};
 
-    $archive_input = $options{archive} // '';
-    $file_input = $options{file} // '';
-    $direct_input = $options{input} // '';
+		$archive_input = $options{archive} // '';
+		$file_input    = $options{file}    // '';
+		$direct_input  = $options{input}   // '';
 
-    $direct_input =~ s/\n//g;
+		$direct_input =~ s/\n//g;
 
-    #
-    #  include any independent variables
-    #
-    $ind_vars = '{}';
-    
-    if ($options{vars}) {
-	$ind_vars = "{";
-	%vars = @{$options{vars}};
+		#
+		#  include any independent variables
+		#
+		$ind_vars = '{}';
 
-	foreach $var (keys %vars ) {
-	    $ind_vars .= "\"$var\":\"".$vars{$var}."\",";
-	}
-	
-	$ind_vars .= "}";
-    }
-    
-    $out .= <<EOS;
+		if ($options{vars}) {
+			$ind_vars = "{";
+			%vars     = @{ $options{vars} };
+
+			foreach $var (keys %vars) {
+				$ind_vars .= "\"$var\":\"" . $vars{$var} . "\",";
+			}
+
+			$ind_vars .= "}";
+		}
+
+		$out .= <<EOS;
     <script>
     var thisTD = jQuery('script:last').parent();
     var options = { width : $w,
@@ -149,14 +150,12 @@ sub LiveGraphics3D {
     </script>
 EOS
 
+		$out .= "</TD></TD>\n</TABLE>\n";
+		$out .= $eHTML if ($main::displayMode eq "Latex2HTML");
+		# otherwise use the applet
+	}
 
-
-    $out .= "</TD></TD>\n</TABLE>\n";
-    $out .= $eHTML if ($main::displayMode eq "Latex2HTML");
-    # otherwise use the applet
-  }
-
-  return $out;
+	return $out;
 }
 
 #
@@ -164,8 +163,8 @@ EOS
 #  LiveGraphics3D.
 #
 sub Live3Dfile {
-  my $file = shift;
-  LiveGraphics3D(file => $file, @_);
+	my $file = shift;
+	LiveGraphics3D(file => $file, @_);
 }
 
 #
@@ -173,19 +172,17 @@ sub Live3Dfile {
 #  to LiveGraphics3D.
 #
 sub Live3Ddata {
-  my $data = shift;
-  LiveGraphics3D(input => $data, @_);
+	my $data = shift;
+	LiveGraphics3D(input => $data, @_);
 }
-
 
 #
 #  A message you can use for a caption under a graph
 #
 $LIVEMESSAGE = MODES(
-  TeX => '',
-  Latex2HTML =>
-     $BCENTER.$BSMALL."Drag the surface to rotate it".$ESMALL.$ECENTER,
-  HTML => $BCENTER.$BSMALL."Drag the surface to rotate it".$ESMALL.$ECENTER
+	TeX        => '',
+	Latex2HTML => $BCENTER . $BSMALL . "Drag the surface to rotate it" . $ESMALL . $ECENTER,
+	HTML       => $BCENTER . $BSMALL . "Drag the surface to rotate it" . $ESMALL . $ECENTER
 );
 
 1;

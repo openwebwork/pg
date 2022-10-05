@@ -3,7 +3,6 @@
 #Inherits from ChoiceList.pm
 #VS 6/16/2000
 
-
 =head1 NAME
 
 Multiple.pm -- sub-class of ChoiceList that implements a multiple choice question.
@@ -190,25 +189,25 @@ package Multiple;
 @Multiple::ISA = qw( Exporter ChoiceList );
 
 # *** Subroutines which overload ChoiceList.pm ***
-sub choose { warn "Multiple choice does not support choosing answers.\n(You can't use \$mc->choose().)"; }
+sub choose       { warn "Multiple choice does not support choosing answers.\n(You can't use \$mc->choose().)"; }
 sub choose_extra { warn "Multiple choice does not support choosing answers.\n(You can't use \$mc->choose_extra().)"; }
-sub extras { warn "Extras() is not a method of Multiple.pm.\nUse the extra() method to add extra answers."; }
+sub extras       { warn "Extras() is not a method of Multiple.pm.\nUse the extra() method to add extra answers."; }
 
 sub qa {
-	my $self = shift;
+	my $self  = shift;
 	my @input = @_;
 
-	push( @{ $self->{questions} }, shift(@input) );	#one question
-	push( @{ $self->{answers} }, @input );	#correct answer(s)
+	push(@{ $self->{questions} }, shift(@input));    #one question
+	push(@{ $self->{answers} },   @input);           #correct answer(s)
 
 	$self->choose2(scalar(@{ $self->{answers} }));
 }
 
 sub extra {
-	my $self = shift;
+	my $self  = shift;
 	my @input = @_;
 
-	push( @{ $self->{extras} }, @input);
+	push(@{ $self->{extras} }, @input);
 
 	#call as a method of $self
 	&ChoiceList::choose_extra($self, scalar(@{ $self->{extras} }));
@@ -221,36 +220,36 @@ sub print_q {
 	@{ $self->{questions} }[0];
 }
 
-
 #This is called choose2 because it needs to be called internally
 #but i didn't want it available to the user (hence choose being
 #overloaded to give a error message above).
 sub choose2 {
- 	my $self = shift;
- 	my @input = @_;
+	my $self  = shift;
+	my @input = @_;
 
 	$self->getRandoms(scalar(@{ $self->{answers} }), @input);
- 	$self->selectQA();
+	$self->selectQA();
 }
 
 sub selectQA {
 	my $self = shift;
 
-	$self->{selected_q} = $self->{questions};
-	$self->{selected_a} = [ @{ $self->{answers} }[@{ $self->{shuffle} }] ];
+	$self->{selected_q}       = $self->{questions};
+	$self->{selected_a}       = [ @{ $self->{answers} }[ @{ $self->{shuffle} } ] ];
 	$self->{inverted_shuffle} = [ &ChoiceList::invert(@{ $self->{shuffle} }) ];
 }
 
 #Multiple
 sub ra_correct_ans {
-	warn "Multiple does not use ra_correct_ans because radio_cmp and checkbox_cmp expect a string.\nYou should use correct_ans instead.";
+	warn
+		"Multiple does not use ra_correct_ans because radio_cmp and checkbox_cmp expect a string.\nYou should use correct_ans instead.";
 }
 
 #sends letters for comparison instead of actual answers
 #actual answers aren't used because they might contain LaTeX or HTML
 sub correct_ans {
 	my $self = shift;
-	my @ans = &ChoiceList::ALPHABET( sort { $a <=> $b } @{$self->{inverted_shuffle}} );
+	my @ans  = &ChoiceList::ALPHABET(sort { $a <=> $b } @{ $self->{inverted_shuffle} });
 
 	#radio_cmp and checkbox_cmp expect a string, not a reference to an array like str_cmp, etc
 	join "", @ans;

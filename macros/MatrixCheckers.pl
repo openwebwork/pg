@@ -1,4 +1,4 @@
-sub _MatrixCheckers_init {}; # don't reload this file
+sub _MatrixCheckers_init { };    # don't reload this file
 
 =pod
 
@@ -128,46 +128,43 @@ Paul Pearson, Hope College, Department of Mathematics
 
 =cut
 
-
-
 ################################################
 
-loadMacros("MathObjects.pl",); # , will "parserMultiAnswer.pl" create an infinite loop?
-
+loadMacros("MathObjects.pl",);    # , will "parserMultiAnswer.pl" create an infinite loop?
 
 ################################################
 
 sub concatenate_columns_into_matrix {
 
-  my @c = @_;
-  my @temp = ();
-  for my $column (@c) {
-    push(@temp,Matrix($column)->transpose->row(1));    
-  }
-  return Matrix(\@temp)->transpose;
+	my @c    = @_;
+	my @temp = ();
+	for my $column (@c) {
+		push(@temp, Matrix($column)->transpose->row(1));
+	}
+	return Matrix(\@temp)->transpose;
 
 }
 
 ##########################################
 
-sub basis_checker_one_column { 
+sub basis_checker_one_column {
 
-      my ( $correct, $student, $answerHash ) = @_;
-      
-      # Most of the answer checking is done on integers 
-      # or on decimals like 0.24381729, so we will set the
-      # tolerance accordingly in a local context.
-      my $context = Context()->copy;
-      $context->flags->set(
-        tolerance => 0.001,
-        tolType => "absolute",
-      );
+	my ($correct, $student, $answerHash) = @_;
 
-      #my $C = Matrix($context,$correct);
-      #my $S = Matrix($context,$student);
-      my $C = Vector($context,$correct);
-      my $S = Vector($context,$student);
-      return $S->isParallel($C);
+	# Most of the answer checking is done on integers
+	# or on decimals like 0.24381729, so we will set the
+	# tolerance accordingly in a local context.
+	my $context = Context()->copy;
+	$context->flags->set(
+		tolerance => 0.001,
+		tolType   => "absolute",
+	);
+
+	#my $C = Matrix($context,$correct);
+	#my $S = Matrix($context,$student);
+	my $C = Vector($context, $correct);
+	my $S = Vector($context, $student);
+	return $S->isParallel($C);
 
 }
 
@@ -175,68 +172,67 @@ sub basis_checker_one_column {
 
 sub basis_checker_columns {
 
-      my ( $correct, $student, $answerHash ) = @_;
-      my @c = @{$correct};
-      my @s = @{$student};
+	my ($correct, $student, $answerHash) = @_;
+	my @c = @{$correct};
+	my @s = @{$student};
 
-      # Most of the answer checking is done on integers 
-      # or on decimals like 0.24381729, so we will set the
-      # tolerance accordingly in a local context.
-      my $context = Context()->copy;
-      $context->flags->set(
-        tolerance => 0.001,
-        tolType => "absolute",
-      );
+	# Most of the answer checking is done on integers
+	# or on decimals like 0.24381729, so we will set the
+	# tolerance accordingly in a local context.
+	my $context = Context()->copy;
+	$context->flags->set(
+		tolerance => 0.001,
+		tolType   => "absolute",
+	);
 
-      return 0 if scalar(@s) < scalar(@c);  # count the number of vector inputs
+	return 0 if scalar(@s) < scalar(@c);    # count the number of vector inputs
 
-      my $C = concatenate_columns_into_matrix(@c);
-      my $S = concatenate_columns_into_matrix(@s);
+	my $C = concatenate_columns_into_matrix(@c);
+	my $S = concatenate_columns_into_matrix(@s);
 
-      # Put $C and $S into the local context so that
-      # all of the computations that follow will also be in
-      # the local context.
-      $C = Matrix($context,$C);
-      $S = Matrix($context,$S);
+	# Put $C and $S into the local context so that
+	# all of the computations that follow will also be in
+	# the local context.
+	$C = Matrix($context, $C);
+	$S = Matrix($context, $S);
 
-      #  Theorem: A^T A is invertible if and only if A has linearly independent columns.
+	#  Theorem: A^T A is invertible if and only if A has linearly independent columns.
 
-      #  Check that the professor's vectors are, in fact, linearly independent.
-      $CTC = ($C->transpose) * $C;
-      warn "Correct answer is a linearly dependent set." if ($CTC->det == 0);
+	#  Check that the professor's vectors are, in fact, linearly independent.
+	$CTC = ($C->transpose) * $C;
+	warn "Correct answer is a linearly dependent set." if ($CTC->det == 0);
 
-      #  Check that the student's vectors are linearly independent
-      if ( (($S->transpose) * $S)->det == 0) {
-        Value->Error("Your vectors are linearly dependent");
-        return 0;
-      }
+	#  Check that the student's vectors are linearly independent
+	if ((($S->transpose) * $S)->det == 0) {
+		Value->Error("Your vectors are linearly dependent");
+		return 0;
+	}
 
-      # S = student, C = correct, X = change of basis matrix
-      # Solve S = CX for X using (C^T C)^{-1} C^T S = X.
-      $X = ($CTC->inverse) * (($C->transpose) * $S);
-      return $S == $C * $X;
+	# S = student, C = correct, X = change of basis matrix
+	# Solve S = CX for X using (C^T C)^{-1} C^T S = X.
+	$X = ($CTC->inverse) * (($C->transpose) * $S);
+	return $S == $C * $X;
 
 }
 
-
 #############################################
 
-sub unit_basis_checker_one_column { 
+sub unit_basis_checker_one_column {
 
-      my ( $correct, $student, $answerHash ) = @_;
-      
-      # Most of the answer checking is done on integers 
-      # or on decimals like 0.24381729, so we will set the
-      # tolerance accordingly in a local context.
-      my $context = Context()->copy;
-      $context->flags->set(
-        tolerance => 0.001,
-        tolType => "absolute",
-      );
+	my ($correct, $student, $answerHash) = @_;
 
-      my $C = Vector($context,$correct);
-      my $S = Vector($context,$student);
-      return ($S->isParallel($C) and norm($S)==1);
+	# Most of the answer checking is done on integers
+	# or on decimals like 0.24381729, so we will set the
+	# tolerance accordingly in a local context.
+	my $context = Context()->copy;
+	$context->flags->set(
+		tolerance => 0.001,
+		tolType   => "absolute",
+	);
+
+	my $C = Vector($context, $correct);
+	my $S = Vector($context, $student);
+	return ($S->isParallel($C) and norm($S) == 1);
 
 }
 
@@ -244,53 +240,53 @@ sub unit_basis_checker_one_column {
 
 sub orthonormal_basis_checker_columns {
 
-      my ( $correct, $student, $answerHash ) = @_;
-      my @c = @{$correct};
-      my @s = @{$student};
+	my ($correct, $student, $answerHash) = @_;
+	my @c = @{$correct};
+	my @s = @{$student};
 
-      # Most of the answer checking is done on integers 
-      # or on decimals like 0.24381729, so we will set the
-      # tolerance accordingly in a local context.
-      my $context = Context()->copy;
-      $context->flags->set(
-        tolerance => 0.001,
-        tolType => "absolute",
-      );
+	# Most of the answer checking is done on integers
+	# or on decimals like 0.24381729, so we will set the
+	# tolerance accordingly in a local context.
+	my $context = Context()->copy;
+	$context->flags->set(
+		tolerance => 0.001,
+		tolType   => "absolute",
+	);
 
-      return 0 if scalar(@s) < scalar(@c);  # count the number of vector inputs
+	return 0 if scalar(@s) < scalar(@c);    # count the number of vector inputs
 
-      my $C = concatenate_columns_into_matrix(@c);
-      my $S = concatenate_columns_into_matrix(@s);
+	my $C = concatenate_columns_into_matrix(@c);
+	my $S = concatenate_columns_into_matrix(@s);
 
-      # Put $C and $S into the local context so that
-      # all of the computations that follow will also be in
-      # the local context.
-      $C = Matrix($context,$C);
-      $S = Matrix($context,$S);
+	# Put $C and $S into the local context so that
+	# all of the computations that follow will also be in
+	# the local context.
+	$C = Matrix($context, $C);
+	$S = Matrix($context, $S);
 
-      #  Theorem: A^T A is invertible if and only if A has linearly independent columns.
+	#  Theorem: A^T A is invertible if and only if A has linearly independent columns.
 
-      #  Check that the professor's vectors are, in fact, linearly independent.
-      $CTC = ($C->transpose) * $C;
-      warn "Correct answer is a linearly dependent set." if ($CTC->det == 0);
+	#  Check that the professor's vectors are, in fact, linearly independent.
+	$CTC = ($C->transpose) * $C;
+	warn "Correct answer is a linearly dependent set." if ($CTC->det == 0);
 
-      #  Check that the student's vectors are linearly independent
-      if ( (($S->transpose) * $S)->det == 0) {
-        Value->Error("Your vectors are linearly dependent");
-        return 0;
-      }
+	#  Check that the student's vectors are linearly independent
+	if ((($S->transpose) * $S)->det == 0) {
+		Value->Error("Your vectors are linearly dependent");
+		return 0;
+	}
 
-      my $identity = Value::Matrix->I(scalar(@c));
-      #  Check that the student's vectors are orthonormal
-      if ( (($S->transpose) * $S) != $identity) {
-        Value->Error("Your vectors are not orthonormal (or you may need to enter more decimal places)");
-        return 0;
-      }
+	my $identity = Value::Matrix->I(scalar(@c));
+	#  Check that the student's vectors are orthonormal
+	if ((($S->transpose) * $S) != $identity) {
+		Value->Error("Your vectors are not orthonormal (or you may need to enter more decimal places)");
+		return 0;
+	}
 
-      # S = student, C = correct, X = change of basis matrix
-      # Solve S = CX for X using (C^T C)^{-1} C^T S = X.
-      $X = ($CTC->inverse) * (($C->transpose) * $S);
-      return $S == $C * $X;
+	# S = student, C = correct, X = change of basis matrix
+	# Solve S = CX for X using (C^T C)^{-1} C^T S = X.
+	$X = ($CTC->inverse) * (($C->transpose) * $S);
+	return $S == $C * $X;
 
 }
 
@@ -298,47 +294,47 @@ sub orthonormal_basis_checker_columns {
 
 sub basis_checker_rows {
 
-      my ( $correct, $student, $answerHash ) = @_;
-      my @c = @{$correct};
-      my @s = @{$student};
+	my ($correct, $student, $answerHash) = @_;
+	my @c = @{$correct};
+	my @s = @{$student};
 
-      # Most of the answer checking is done on integers 
-      # or on decimals like 0.24381729, so we will set the
-      # tolerance accordingly in a local context.
-      my $context = Context()->copy;
-      $context->flags->set(
-        tolerance => 0.001,
-        tolType => "absolute",
-      );
+	# Most of the answer checking is done on integers
+	# or on decimals like 0.24381729, so we will set the
+	# tolerance accordingly in a local context.
+	my $context = Context()->copy;
+	$context->flags->set(
+		tolerance => 0.001,
+		tolType   => "absolute",
+	);
 
-      return 0 if scalar(@s) < scalar(@c);  # count the number of vector inputs
+	return 0 if scalar(@s) < scalar(@c);    # count the number of vector inputs
 
-      # These two lines are what is different from basis_checker_columns
-      my $C = Matrix(\@c)->transpose; # put the rows of @c into columns of $C.
-      my $S = Matrix(\@s)->transpose; # put the rows of @s into columns of $S.
+	# These two lines are what is different from basis_checker_columns
+	my $C = Matrix(\@c)->transpose;         # put the rows of @c into columns of $C.
+	my $S = Matrix(\@s)->transpose;         # put the rows of @s into columns of $S.
 
-      # Put $C and $S into the local context so that
-      # all of the computations that follow will also be in
-      # the local context.
-      $C = Matrix($context,$C);
-      $S = Matrix($context,$S);
+	# Put $C and $S into the local context so that
+	# all of the computations that follow will also be in
+	# the local context.
+	$C = Matrix($context, $C);
+	$S = Matrix($context, $S);
 
-      #  Theorem: A^T A is invertible if and only if A has linearly independent columns.
+	#  Theorem: A^T A is invertible if and only if A has linearly independent columns.
 
-      #  Check that the professor's vectors are, in fact, linearly independent.
-      $CTC = ($C->transpose) * $C;
-      warn "Correct answer is a linearly dependent set." if ($CTC->det == 0);
+	#  Check that the professor's vectors are, in fact, linearly independent.
+	$CTC = ($C->transpose) * $C;
+	warn "Correct answer is a linearly dependent set." if ($CTC->det == 0);
 
-      #  Check that the student's vectors are linearly independent
-      if ( (($S->transpose) * $S)->det == 0) {
-        Value->Error("Your vectors are linearly dependent");
-        return 0;
-      }
+	#  Check that the student's vectors are linearly independent
+	if ((($S->transpose) * $S)->det == 0) {
+		Value->Error("Your vectors are linearly dependent");
+		return 0;
+	}
 
-      # S = student, C = correct, X = change of basis matrix
-      # Solve S = CX for X using (C^T C)^{-1} C^T S = X.
-      $X = ($CTC->inverse) * (($C->transpose) * $S);
-      return $S == $C * $X;
+	# S = student, C = correct, X = change of basis matrix
+	# Solve S = CX for X using (C^T C)^{-1} C^T S = X.
+	$X = ($CTC->inverse) * (($C->transpose) * $S);
+	return $S == $C * $X;
 
 }
 
@@ -346,54 +342,54 @@ sub basis_checker_rows {
 
 sub orthonormal_basis_checker_rows {
 
-      my ( $correct, $student, $answerHash ) = @_;
-      my @c = @{$correct};
-      my @s = @{$student};
+	my ($correct, $student, $answerHash) = @_;
+	my @c = @{$correct};
+	my @s = @{$student};
 
-      # Most of the answer checking is done on integers 
-      # or on decimals like 0.24381729, so we will set the
-      # tolerance accordingly in a local context.
-      my $context = Context()->copy;
-      $context->flags->set(
-        tolerance => 0.001,
-        tolType => "absolute",
-      );
+	# Most of the answer checking is done on integers
+	# or on decimals like 0.24381729, so we will set the
+	# tolerance accordingly in a local context.
+	my $context = Context()->copy;
+	$context->flags->set(
+		tolerance => 0.001,
+		tolType   => "absolute",
+	);
 
-      return 0 if scalar(@s) < scalar(@c);  # count the number of vector inputs
+	return 0 if scalar(@s) < scalar(@c);    # count the number of vector inputs
 
-      # These two lines are what is different from basis_checker_columns
-      my $C = Matrix(\@c)->transpose; # put the rows of @c into columns of $C.
-      my $S = Matrix(\@s)->transpose; # put the rows of @s into columns of $S.
+	# These two lines are what is different from basis_checker_columns
+	my $C = Matrix(\@c)->transpose;         # put the rows of @c into columns of $C.
+	my $S = Matrix(\@s)->transpose;         # put the rows of @s into columns of $S.
 
-      # Put $C and $S into the local context so that
-      # all of the computations that follow will also be in
-      # the local context.
-      $C = Matrix($context,$C);
-      $S = Matrix($context,$S);
+	# Put $C and $S into the local context so that
+	# all of the computations that follow will also be in
+	# the local context.
+	$C = Matrix($context, $C);
+	$S = Matrix($context, $S);
 
-      #  Theorem: A^T A is invertible if and only if A has linearly independent columns.
+	#  Theorem: A^T A is invertible if and only if A has linearly independent columns.
 
-      #  Check that the professor's vectors are, in fact, linearly independent.
-      $CTC = ($C->transpose) * $C;
-      warn "Correct answer is a linearly dependent set." if ($CTC->det == 0);
+	#  Check that the professor's vectors are, in fact, linearly independent.
+	$CTC = ($C->transpose) * $C;
+	warn "Correct answer is a linearly dependent set." if ($CTC->det == 0);
 
-      #  Check that the student's vectors are linearly independent
-      if ( (($S->transpose) * $S)->det == 0) {
-        Value->Error("Your vectors are linearly dependent");
-        return 0;
-      }
+	#  Check that the student's vectors are linearly independent
+	if ((($S->transpose) * $S)->det == 0) {
+		Value->Error("Your vectors are linearly dependent");
+		return 0;
+	}
 
-      my $identity = Value::Matrix->I(scalar(@c));
-      #  Check that the student's vectors are orthonormal
-      if ( (($S->transpose) * $S) != $identity) {
-        Value->Error("Your vectors are not orthonormal (or you may need to enter more decimal places)");
-        return 0;
-      }
+	my $identity = Value::Matrix->I(scalar(@c));
+	#  Check that the student's vectors are orthonormal
+	if ((($S->transpose) * $S) != $identity) {
+		Value->Error("Your vectors are not orthonormal (or you may need to enter more decimal places)");
+		return 0;
+	}
 
-      # S = student, C = correct, X = change of basis matrix
-      # Solve S = CX for X using (C^T C)^{-1} C^T S = X.
-      $X = ($CTC->inverse) * (($C->transpose) * $S);
-      return $S == $C * $X;
+	# S = student, C = correct, X = change of basis matrix
+	# Solve S = CX for X using (C^T C)^{-1} C^T S = X.
+	$X = ($CTC->inverse) * (($C->transpose) * $S);
+	return $S == $C * $X;
 
 }
 
@@ -401,66 +397,65 @@ sub orthonormal_basis_checker_rows {
 
 sub parametric_plane_checker_columns {
 
-      my ( $correct, $student, $answerHash ) = @_;
-      my @c = @{$correct};
-      my @s = @{$student};
+	my ($correct, $student, $answerHash) = @_;
+	my @c = @{$correct};
+	my @s = @{$student};
 
-      # Most of the answer checking is done on integers 
-      # or on decimals like 0.24381729, so we will set the
-      # tolerance accordingly in a local context.
-      my $context = Context()->copy;
-      $context->flags->set(
-        tolerance => 0.001,
-        tolType => "absolute",
-      );
+	# Most of the answer checking is done on integers
+	# or on decimals like 0.24381729, so we will set the
+	# tolerance accordingly in a local context.
+	my $context = Context()->copy;
+	$context->flags->set(
+		tolerance => 0.001,
+		tolType   => "absolute",
+	);
 
-      return 0 if scalar(@s) < scalar(@c);  # count the number of vector inputs
+	return 0 if scalar(@s) < scalar(@c);    # count the number of vector inputs
 
-      # pull off the first vector as the displacement vector
-      my $C0 = Matrix(shift(@c));
-      my $S0 = Matrix(shift(@s));
+	# pull off the first vector as the displacement vector
+	my $C0 = Matrix(shift(@c));
+	my $S0 = Matrix(shift(@s));
 
-      # put the remaining vectors into the columns of a matrix.
-      my $C = concatenate_columns_into_matrix(@c);
-      my $S = concatenate_columns_into_matrix(@s);
+	# put the remaining vectors into the columns of a matrix.
+	my $C = concatenate_columns_into_matrix(@c);
+	my $S = concatenate_columns_into_matrix(@s);
 
-      # Put $C and $S into the local context so that
-      # all of the computations that follow will also be in
-      # the local context.
-      $C0 = Matrix($context,$C0);
-      $S0 = Matrix($context,$S0);
-      $C = Matrix($context,$C);
-      $S = Matrix($context,$S);
+	# Put $C and $S into the local context so that
+	# all of the computations that follow will also be in
+	# the local context.
+	$C0 = Matrix($context, $C0);
+	$S0 = Matrix($context, $S0);
+	$C  = Matrix($context, $C);
+	$S  = Matrix($context, $S);
 
-      #  Theorem: A^T A is invertible if and only if A has linearly independent columns.
+	#  Theorem: A^T A is invertible if and only if A has linearly independent columns.
 
-      #  Check that the professor's vectors are, in fact, linearly independent.
-      $CTC = ($C->transpose) * $C;
-      warn "Correct answer is a linearly dependent set." if ($CTC->det == 0);
+	#  Check that the professor's vectors are, in fact, linearly independent.
+	$CTC = ($C->transpose) * $C;
+	warn "Correct answer is a linearly dependent set." if ($CTC->det == 0);
 
-      #  Check that the student's vectors are linearly independent
-      if ( (($S->transpose) * $S)->det == 0) {
-        Value->Error("Your vectors are linearly dependent");
-        return 0;
-      }
+	#  Check that the student's vectors are linearly independent
+	if ((($S->transpose) * $S)->det == 0) {
+		Value->Error("Your vectors are linearly dependent");
+		return 0;
+	}
 
-      # solve (S_0 = C_0 + C A) for the column vector A of weights using
-      # (S_0 - C_0) = C A
-      # C^T (S_0 - C_0) = C^T C A
-      # (C^T C)^{-1} C^T (S_0 - C_0) = A
-      my $A = ($CTC->inverse) * ($C->transpose) * ($S0 - $C0);
-      if ($S0 != $C0 + $C*$A) {
-          Value->Error("Your particular solution is incorrect");
-          return 0;
-      }
+	# solve (S_0 = C_0 + C A) for the column vector A of weights using
+	# (S_0 - C_0) = C A
+	# C^T (S_0 - C_0) = C^T C A
+	# (C^T C)^{-1} C^T (S_0 - C_0) = A
+	my $A = ($CTC->inverse) * ($C->transpose) * ($S0 - $C0);
+	if ($S0 != $C0 + $C * $A) {
+		Value->Error("Your particular solution is incorrect");
+		return 0;
+	}
 
-      # S = student, C = correct, X = change of basis matrix
-      # Solve S = CX for X using (C^T C)^{-1} C^T S = X.
-      $X = ($CTC->inverse) * (($C->transpose) * $S);
-      return $S == $C * $X;
+	# S = student, C = correct, X = change of basis matrix
+	# Solve S = CX for X using (C^T C)^{-1} C^T S = X.
+	$X = ($CTC->inverse) * (($C->transpose) * $S);
+	return $S == $C * $X;
 
 }
-
 
 ########################################################
 

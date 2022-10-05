@@ -45,6 +45,6 @@ a Vector, that will not be true.)
 
 =cut
 
-sub _parserCustomization_init {}
+sub _parserCustomization_init { }
 
 1;

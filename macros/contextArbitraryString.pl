@@ -47,30 +47,30 @@
 #
 
 sub _contextArbitraryString_init {
-  my $context = $main::context{ArbitraryString} = Parser::Context->getCopy("Numeric");
-  $context->{name} = "ArbitraryString";
-  $context->parens->clear();
-  $context->variables->clear();
-  $context->constants->clear();
-  $context->operators->clear();
-  $context->functions->clear();
-  $context->strings->clear();
-  $context->{pattern}{number} = "^\$";
-  $context->variables->{patterns} = {};
-  $context->strings->{patterns}{"(.|\n)*"} = [-20,'str'];
-  $context->{value}{"String()"} = "context::ArbitraryString";
-  $context->{value}{"String"} = "context::ArbitraryString::Value::String";
-  $context->{parser}{String} = "context::ArbitraryString::Parser::String";
-#  $context->flags->set(noLaTeXstring => "{{\\rm See\\ Entered}\\atop{\\rm Column}}");
-  $context->flags->set(noLaTeXstring => "\\longleftarrow");
-  $context->update;
+	my $context = $main::context{ArbitraryString} = Parser::Context->getCopy("Numeric");
+	$context->{name} = "ArbitraryString";
+	$context->parens->clear();
+	$context->variables->clear();
+	$context->constants->clear();
+	$context->operators->clear();
+	$context->functions->clear();
+	$context->strings->clear();
+	$context->{pattern}{number}              = "^\$";
+	$context->variables->{patterns}          = {};
+	$context->strings->{patterns}{"(.|\n)*"} = [ -20, 'str' ];
+	$context->{value}{"String()"}            = "context::ArbitraryString";
+	$context->{value}{"String"}              = "context::ArbitraryString::Value::String";
+	$context->{parser}{String}               = "context::ArbitraryString::Parser::String";
+	#  $context->flags->set(noLaTeXstring => "{{\\rm See\\ Entered}\\atop{\\rm Column}}");
+	$context->flags->set(noLaTeXstring => "\\longleftarrow");
+	$context->update;
 }
 
 #
 #  Handle creating String() constants
 #
 package context::ArbitraryString;
-sub new {shift; main::Compute(@_)}
+sub new { shift; main::Compute(@_) }
 
 #
 #  Replacement for Parser::String that uses the original string verbatim
@@ -80,11 +80,11 @@ package context::ArbitraryString::Parser::String;
 our @ISA = ('Parser::String');
 
 sub new {
-  my $self = shift;
-  my ($equation,$value,$ref) = @_;
-  $value = $equation->{string};
-  $value =~ s/\r\n?/\n/g;
-  $self->SUPER::new($equation,$value,$ref);
+	my $self = shift;
+	my ($equation, $value, $ref) = @_;
+	$value = $equation->{string};
+	$value =~ s/\r\n?/\n/g;
+	$self->SUPER::new($equation, $value, $ref);
 }
 
 #
@@ -98,22 +98,23 @@ our @ISA = ("Value::String");
 #  Mark a multi-line string to be displayed verbatim in TeX
 #
 sub quoteTeX {
-  my $self = shift; my $s = shift;
-  return $self->verb($s) unless $s =~ m/\n/;
-  my @tex = split(/\n/,$s);
-  foreach (@tex) {$_ = $self->verb($_) if $_ =~ m/\S/}
-  "\\begin{array}{l}".join("\\\\ ",@tex)."\\end{array}";
+	my $self = shift;
+	my $s    = shift;
+	return $self->verb($s) unless $s =~ m/\n/;
+	my @tex = split(/\n/, $s);
+	foreach (@tex) { $_ = $self->verb($_) if $_ =~ m/\S/ }
+	"\\begin{array}{l}" . join("\\\\ ", @tex) . "\\end{array}";
 }
 
 #
 #  Quote HTML special characters
 #
 sub quoteHTML {
-  my $self = shift;
-  my $s = $self->SUPER::quoteHTML(shift);
-  $s = "<pre style=\"text-align:left; padding-left:.2em\">$s</pre>"
-    unless ($main::displayMode eq "TeX" or $main::displayMode eq "PTX");
-  return $s;
+	my $self = shift;
+	my $s    = $self->SUPER::quoteHTML(shift);
+	$s = "<pre style=\"text-align:left; padding-left:.2em\">$s</pre>"
+		unless ($main::displayMode eq "TeX" or $main::displayMode eq "PTX");
+	return $s;
 }
 
 #
@@ -121,16 +122,17 @@ sub quoteHTML {
 #  multiline answers properly.
 #
 sub cmp_preprocess {
-  my $self = shift; my $ans = shift;
-  if ($self->getFlag("noLaTeXresults")) {
-    $ans->{preview_latex_string} = $self->getFlag("noLaTeXstring");
-    $ans->{correct_ans_latex_string} = "";
-  } else {
-    $ans->{preview_latex_string} = $ans->{student_value}->TeX
-      if defined $ans->{student_value};
-  }
-  $ans->{student_ans} = $self->quoteHTML($ans->{student_value}->string)
-    if defined $ans->{student_value};
+	my $self = shift;
+	my $ans  = shift;
+	if ($self->getFlag("noLaTeXresults")) {
+		$ans->{preview_latex_string}     = $self->getFlag("noLaTeXstring");
+		$ans->{correct_ans_latex_string} = "";
+	} else {
+		$ans->{preview_latex_string} = $ans->{student_value}->TeX
+			if defined $ans->{student_value};
+	}
+	$ans->{student_ans} = $self->quoteHTML($ans->{student_value}->string)
+		if defined $ans->{student_value};
 }
 
 1;

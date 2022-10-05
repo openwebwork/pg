@@ -62,7 +62,7 @@ to get the answer checker for $P.
 
 loadMacros('MathObjects.pl');
 
-sub _parserImplicitPlane_init {ImplicitPlane::Init()}; # don't reload this file
+sub _parserImplicitPlane_init { ImplicitPlane::Init() };    # don't reload this file
 
 ##################################################
 #
@@ -72,86 +72,91 @@ package ImplicitPlane;
 our @ISA = qw(Value::Formula);
 
 sub Init {
-  my $context = $main::context{ImplicitPlane} = Parser::Context->getCopy("Vector");
-  $context->{name} = "ImplicitPlane";
-  $context->{precedence}{ImplicitPlane} = $context->{precedence}{special};
-  $context->{value}{Formula} = "ImplicitPlane::formula";
-  #$context->{value}{Equality} = "ImplicitPlane::equality";
-  Parser::BOP::equality->Allow($context);
-  $context->operators->set('=' => {class => 'ImplicitPlane::equality', formulaClass=>'ImplicitPlane'});
+	my $context = $main::context{ImplicitPlane} = Parser::Context->getCopy("Vector");
+	$context->{name}                      = "ImplicitPlane";
+	$context->{precedence}{ImplicitPlane} = $context->{precedence}{special};
+	$context->{value}{Formula}            = "ImplicitPlane::formula";
+	#$context->{value}{Equality} = "ImplicitPlane::equality";
+	Parser::BOP::equality->Allow($context);
+	$context->operators->set('=' => { class => 'ImplicitPlane::equality', formulaClass => 'ImplicitPlane' });
 
-  main::Context("ImplicitPlane");  ### FIXME:  probably should require authors to set this explicitly
+	main::Context("ImplicitPlane");    ### FIXME:  probably should require authors to set this explicitly
 
-  main::PG_restricted_eval('sub ImplicitPlane {ImplicitPlane->new(@_)}');
+	main::PG_restricted_eval('sub ImplicitPlane {ImplicitPlane->new(@_)}');
 }
 
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
-  my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  if (scalar(@_) == 1 && ref($_[0]) eq 'ImplicitPlane') {
-  	my $obj = shift;
-  	$obj->{implicit}='foobar';  # some planes are being created without all of the data
-  	return $obj;
-  }
-  $_[0] = $context->Package("Point")->new($context,$_[0]) if ref($_[0]) eq 'ARRAY';
-  $_[1] = $context->Package("Vector")->new($context,$_[1]) if ref($_[1]) eq 'ARRAY';
-  my $formula = 'Value::Formula';  # since Package("Formula") is overloaded, use raw formula
+	my $self    = shift;
+	my $class   = ref($self) || $self;
+	my $context = (Value::isContext($_[0]) ? shift : $self->context);
+	if (scalar(@_) == 1 && ref($_[0]) eq 'ImplicitPlane') {
+		my $obj = shift;
+		$obj->{implicit} = 'foobar';    # some planes are being created without all of the data
+		return $obj;
+	}
+	$_[0] = $context->Package("Point")->new($context, $_[0])  if ref($_[0]) eq 'ARRAY';
+	$_[1] = $context->Package("Vector")->new($context, $_[1]) if ref($_[1]) eq 'ARRAY';
+	my $formula = 'Value::Formula';     # since Package("Formula") is overloaded, use raw formula
 
-  my ($p,$N,$plane,$vars,$d,$type); $type = 'plane';
-  if (scalar(@_) >= 2 && Value::classMatch($_[0],'Point','Vector') &&
-      Value::classMatch($_[1],'Vector') || Value::isRealNumber($_[1])) {
-    #
-    # Make a plane from a point and a vector,
-    # or from a list of coefficients and the constant
-    #
-    $p = shift; $N = shift;
-    if (Value::classMatch($N,'Vector')) {
-      $d = $p.$N;
-    } else {
-      $d = $context->Package("Real")->make($context,$N);
-      $N = $context->Package("Vector")->new($context,$p);
-    }
-    $vars = shift || [$context->variables->names];
-    $vars = [$vars] unless ref($vars) eq 'ARRAY';
-    $type = 'line' if scalar(@{$vars}) == 2;
-    my @terms = (); my $i = 0;
-    foreach my $x (@{$vars}) {push @terms, $N->{data}[$i++]->value.$x}
-    $plane = $formula->new(join(' + ',@terms).' = '.$d->value)->reduce(@_);
-  } else {
-    #
-    #  Determine the normal vector and d value from the equation
-    #
-    $plane = shift;
-    $plane = $formula->new($context,$plane) unless Value::isValue($plane);
-    $vars = shift || [$context->variables->names];
-    $vars = [$vars] unless ref($vars) eq 'ARRAY';
-    $type = 'line' if scalar(@{$vars}) == 2;
-    Value::Error("Your formula doesn't look like an implicit %s",$type)
-      unless $plane->type eq 'Equality';
-    #
-    #  Find the coefficients of the formula
-    #
-    my $f = ($formula->new($context,$plane->{tree}{lop}) -
-	     $formula->new($context,$plane->{tree}{rop}))->reduce;
-    my $F = $f->perlFunction(undef,[@{$vars}]);
-    my @v = split('','0' x scalar(@{$vars}));
-    $d = -&$F(@v); my @coeff = (@v);
-    foreach my $i (0..scalar(@v)-1)
-      {$v[$i] = 1; $coeff[$i] = &$F(@v) + $d; $v[$i] = 0}
-    #
-    #  Check that the student's formula really is what we thought
-    #
-    $N = Value::Vector->new([@coeff]);
-    $plane = ImplicitPlane->new($N,$d,$vars,'-x=-y'=>0,'-x=n'=>0);
-    Value::Error("Your formula isn't a linear one")
-      unless ($formula->new($plane->{tree}{lop}) -
-              $formula->new($plane->{tree}{rop})) == $f;
-    $plane = $plane->reduce;
-  }
-  Value::Error("The equation of a %s must be non-zero somewhere",$type)
-    if ($N->norm == 0);
-  $plane->{d} = $d; $plane->{N} = $N; $plane->{implicit} = $type;
-  return bless $plane, $class;
+	my ($p, $N, $plane, $vars, $d, $type);
+	$type = 'plane';
+	if (scalar(@_) >= 2 && Value::classMatch($_[0], 'Point', 'Vector') && Value::classMatch($_[1], 'Vector')
+		|| Value::isRealNumber($_[1]))
+	{
+		#
+		# Make a plane from a point and a vector,
+		# or from a list of coefficients and the constant
+		#
+		$p = shift;
+		$N = shift;
+		if (Value::classMatch($N, 'Vector')) {
+			$d = $p . $N;
+		} else {
+			$d = $context->Package("Real")->make($context, $N);
+			$N = $context->Package("Vector")->new($context, $p);
+		}
+		$vars = shift || [ $context->variables->names ];
+		$vars = [$vars] unless ref($vars) eq 'ARRAY';
+		$type = 'line' if scalar(@{$vars}) == 2;
+		my @terms = ();
+		my $i     = 0;
+		foreach my $x (@{$vars}) { push @terms, $N->{data}[ $i++ ]->value . $x }
+		$plane = $formula->new(join(' + ', @terms) . ' = ' . $d->value)->reduce(@_);
+	} else {
+		#
+		#  Determine the normal vector and d value from the equation
+		#
+		$plane = shift;
+		$plane = $formula->new($context, $plane) unless Value::isValue($plane);
+		$vars  = shift || [ $context->variables->names ];
+		$vars  = [$vars] unless ref($vars) eq 'ARRAY';
+		$type  = 'line' if scalar(@{$vars}) == 2;
+		Value::Error("Your formula doesn't look like an implicit %s", $type)
+			unless $plane->type eq 'Equality';
+		#
+		#  Find the coefficients of the formula
+		#
+		my $f = ($formula->new($context, $plane->{tree}{lop}) - $formula->new($context, $plane->{tree}{rop}))->reduce;
+		my $F = $f->perlFunction(undef, [ @{$vars} ]);
+		my @v = split('', '0' x scalar(@{$vars}));
+		$d = -&$F(@v);
+		my @coeff = (@v);
+		foreach my $i (0 .. scalar(@v) - 1) { $v[$i] = 1; $coeff[$i] = &$F(@v) + $d; $v[$i] = 0 }
+		#
+		#  Check that the student's formula really is what we thought
+		#
+		$N     = Value::Vector->new([@coeff]);
+		$plane = ImplicitPlane->new($N, $d, $vars, '-x=-y' => 0, '-x=n' => 0);
+		Value::Error("Your formula isn't a linear one")
+			unless ($formula->new($plane->{tree}{lop}) - $formula->new($plane->{tree}{rop})) == $f;
+		$plane = $plane->reduce;
+	}
+	Value::Error("The equation of a %s must be non-zero somewhere", $type)
+		if ($N->norm == 0);
+	$plane->{d}        = $d;
+	$plane->{N}        = $N;
+	$plane->{implicit} = $type;
+	return bless $plane, $class;
 }
 
 #
@@ -159,33 +164,35 @@ sub new {
 #  if the equations are multiples of each other.
 #
 sub compare {
-  return 1 if Value::classMatch($_[1],"String");
-  my ($self,$l,$r) = Value::checkOpOrderWithPromote(@_);
-  my ($lN,$ld) = ($l->{N},$l->{d});
-  my ($rN,$rd) = ($r->{N},$r->{d});
-  if ($rd == 0 || $ld == 0) {
-    return $rd <=> $ld unless $ld == $rd;
-    return $lN <=> $rN unless (areParallel $lN $rN);
-    return 0;
-  }
-  return $rd*$lN <=> $ld*$rN;
+	return 1 if Value::classMatch($_[1], "String");
+	my ($self, $l, $r) = Value::checkOpOrderWithPromote(@_);
+	my ($lN, $ld) = ($l->{N}, $l->{d});
+	my ($rN, $rd) = ($r->{N}, $r->{d});
+	if ($rd == 0 || $ld == 0) {
+		return $rd <=> $ld unless $ld == $rd;
+		return $lN <=> $rN unless (areParallel $lN $rN);
+		return 0;
+	}
+	return $rd * $lN <=> $ld * $rN;
 }
 
-sub cmp_class {'an Implicit '.(shift->{implicit}||'whatsis')};
-sub showClass {shift->cmp_class};
+sub cmp_class { 'an Implicit ' . (shift->{implicit} || 'whatsis') }
+sub showClass { shift->cmp_class }
 
-sub cmp_defaults{(
-  Value::Real::cmp_defaults(shift),
-  ignoreInfinity => 0,    # report infinity as an error
-)}
+sub cmp_defaults { (
+	Value::Real::cmp_defaults(shift),
+	ignoreInfinity => 0,    # report infinity as an error
+) }
 
 #
 #  Only compare two equalities
 #
 sub typeMatch {
-  my $self = shift; my $other = shift; my $ans = shift;
-  return ref($other) && $other->type eq 'Equality' unless ref($self);
-  return ref($other) && $self->type eq $other->type;
+	my $self  = shift;
+	my $other = shift;
+	my $ans   = shift;
+	return ref($other) && $other->type eq 'Equality' unless ref($self);
+	return ref($other) && $self->type eq $other->type;
 }
 
 #
@@ -196,20 +203,20 @@ package ImplicitPlane::equality;
 our @ISA = qw(Parser::BOP::equality);
 
 sub _check {
-  my $self = shift;
-  $self->SUPER::_check;
-  $self->Error("An implicit equation can't be constant on both sides")
-    if $self->{lop}{isConstant} && $self->{rop}{isConstant};
+	my $self = shift;
+	$self->SUPER::_check;
+	$self->Error("An implicit equation can't be constant on both sides")
+		if $self->{lop}{isConstant} && $self->{rop}{isConstant};
 }
 
 package ImplicitPlane::formula;
 our @ISA = ('Value::Formula');
 
 sub new {
-  my $self = shift;
-  my $f = Value::Formula->new(@_);
-  return $f unless $f->{tree}{def}{formulaClass};
-  return $f->{tree}{def}{formulaClass}->new($f);
+	my $self = shift;
+	my $f    = Value::Formula->new(@_);
+	return $f unless $f->{tree}{def}{formulaClass};
+	return $f->{tree}{def}{formulaClass}->new($f);
 }
 
 1;

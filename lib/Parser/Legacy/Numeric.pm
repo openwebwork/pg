@@ -16,14 +16,16 @@
 
 package Parser::Legacy::Numeric;
 our @ISA = qw(Parser::Function::numeric);
-sub step {shift; do_step(shift)}; sub do_step {Value::pgCall('step',@_)}
-sub fact {shift; do_fact(shift)}; sub do_fact {Value::pgCall('fact',@_)}
+sub step    { shift; do_step(shift) }
+sub do_step { Value::pgCall('step', @_) }
+sub fact    { shift; do_fact(shift) }
+sub do_fact { Value::pgCall('fact', @_) }
 
 my $context = $Parser::Context::Default::context{Numeric}->copy;
 $Parser::Context::Default::context{LegacyNumeric} = $context;
 $context->functions->add(
-  step => {class => 'Parser::Legacy::Numeric', perl => 'Parser::Legacy::Numeric::do_step'},
-  fact => {class => 'Parser::Legacy::Numeric', perl => 'Parser::Legacy::Numeric::do_fact'},
+	step => { class => 'Parser::Legacy::Numeric', perl => 'Parser::Legacy::Numeric::do_step' },
+	fact => { class => 'Parser::Legacy::Numeric', perl => 'Parser::Legacy::Numeric::do_fact' },
 );
 $context->{name} = "LegacyNumeric";
 

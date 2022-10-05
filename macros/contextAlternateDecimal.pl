@@ -165,13 +165,11 @@ rewrite them.
 
 =cut
 
-
 ###########################################################
 
 loadMacros("MathObjects.pl");
 
-sub _contextAlternateDecimal_init {context::AlternateDecimal->Init}
-
+sub _contextAlternateDecimal_init { context::AlternateDecimal->Init }
 
 ###########################################################
 
@@ -181,47 +179,48 @@ package context::AlternateDecimal;
 #  Create the AlternateDecimal contexts
 #
 sub Init {
-  my $context = $main::context{AlternateDecimal} = Parser::Context->getCopy("Numeric");
-  $context->{name} = "AlternateDecimal";
-  context::AlternateDecimal->Enable($context);
+	my $context = $main::context{AlternateDecimal} = Parser::Context->getCopy("Numeric");
+	$context->{name} = "AlternateDecimal";
+	context::AlternateDecimal->Enable($context);
 
-  $context = $main::context{"AlternateDecimal-Warning"} = $context->copy;
-  $context->{name} = "AlternateDecimal-Warning";
-  $context->flags->set(
-    enterDecimals => ".",
-    displayDecimals => ".",
-  );
+	$context = $main::context{"AlternateDecimal-Warning"} = $context->copy;
+	$context->{name} = "AlternateDecimal-Warning";
+	$context->flags->set(
+		enterDecimals   => ".",
+		displayDecimals => ".",
+	);
 
-  $context = $main::context{"AlternateDecimal-Only"} = $context->copy;
-  $context->{name} = "AlternateDecimal-Only";
-  $context->flags->set(
-    enterDecimals => ",",
-    displayDecimals => ",",
-  );
-  foreach my $list ($context->lists->names) {
-    my $sep = $context->lists->get($list)->{separator};
-    $context->lists->set($list,{separator => ";"}) if $sep eq ",";
-    $context->lists->set($list,{separator => "; "}) if $sep eq ", ";
-  }
+	$context = $main::context{"AlternateDecimal-Only"} = $context->copy;
+	$context->{name} = "AlternateDecimal-Only";
+	$context->flags->set(
+		enterDecimals   => ",",
+		displayDecimals => ",",
+	);
+	foreach my $list ($context->lists->names) {
+		my $sep = $context->lists->get($list)->{separator};
+		$context->lists->set($list, { separator => ";" })  if $sep eq ",";
+		$context->lists->set($list, { separator => "; " }) if $sep eq ", ";
+	}
 }
 
 #
 #  Enables alternate decimals in the given context
 #
 sub Enable {
-  my $self = shift; my $context = shift || main::Context();
-  $context->flags->set(
-    enterDecimals => "either",        # or "." or ","
-    displayDecimals => "either",      # or "." or ","
-  );
-  $context->{pattern}{number} = '(?:\d+(?:\.\d*|,\d+)?|\.\d+)(?:E[-+]?\d+)?';
-  $context->{pattern}{signedNumber} = '[-+]?(?:\d+(?:\.\d*|,\d+)?|\.\d+)(?:E[-+]?\d+)?';
-  $context->operators->add(';' => {%{$context->operators->get(',')}, string => ";"})
-    if $context->{operators}{','};
-  $context->update;
-  $context->{parser}{Value} = "context::AlternateDecimal::Value";
-  $context->{parser}{Number} = "context::AlternateDecimal::Number";
-  $context->{value}{Real} = "context::AlternateDecimal::Real";
+	my $self    = shift;
+	my $context = shift || main::Context();
+	$context->flags->set(
+		enterDecimals   => "either",    # or "." or ","
+		displayDecimals => "either",    # or "." or ","
+	);
+	$context->{pattern}{number}       = '(?:\d+(?:\.\d*|,\d+)?|\.\d+)(?:E[-+]?\d+)?';
+	$context->{pattern}{signedNumber} = '[-+]?(?:\d+(?:\.\d*|,\d+)?|\.\d+)(?:E[-+]?\d+)?';
+	$context->operators->add(';' => { %{ $context->operators->get(',') }, string => ";" })
+		if $context->{operators}{','};
+	$context->update;
+	$context->{parser}{Value}  = "context::AlternateDecimal::Value";
+	$context->{parser}{Number} = "context::AlternateDecimal::Number";
+	$context->{value}{Real}    = "context::AlternateDecimal::Real";
 }
 
 #
@@ -234,26 +233,29 @@ sub Enable {
 #  displayed as ";".
 #
 sub Default {
-  my $self = shift; my $enter = shift || "either";  my $display = shift || "either";
-  my $cmp = ($enter eq ","); $enter = "either" if $cmp;
-  foreach my $name (keys %Parser::Context::Default::context) {
-    my $context = $main::context{$name} = Parser::Context->getCopy($name);
-    $self->Enable($context);
-    $context->flags->set(enterDecimals => $enter, displayDecimals => $display);
-    if ($display ne ".") {
-      foreach my $list ($context->lists->names) {
-	my $sep = $context->lists->get($list)->{separator};
-	$context->lists->set($list,{separator => ";"}) if $sep eq ",";
-	$context->lists->set($list,{separator => "; "}) if $sep eq ", ";
-      }
-    }
-    if ($cmp) {
-      foreach my $class (grep {/::/} (keys %Value::)) {
-        $context->{cmpDefaults}{substr($class,0,-2)}{enterDecimals} = ",";
-      }
-    }
-  }
-  main::Context(main::Context()->{name});
+	my $self    = shift;
+	my $enter   = shift || "either";
+	my $display = shift || "either";
+	my $cmp     = ($enter eq ",");
+	$enter = "either" if $cmp;
+	foreach my $name (keys %Parser::Context::Default::context) {
+		my $context = $main::context{$name} = Parser::Context->getCopy($name);
+		$self->Enable($context);
+		$context->flags->set(enterDecimals => $enter, displayDecimals => $display);
+		if ($display ne ".") {
+			foreach my $list ($context->lists->names) {
+				my $sep = $context->lists->get($list)->{separator};
+				$context->lists->set($list, { separator => ";" })  if $sep eq ",";
+				$context->lists->set($list, { separator => "; " }) if $sep eq ", ";
+			}
+		}
+		if ($cmp) {
+			foreach my $class (grep {/::/} (keys %Value::)) {
+				$context->{cmpDefaults}{ substr($class, 0, -2) }{enterDecimals} = ",";
+			}
+		}
+	}
+	main::Context(main::Context()->{name});
 }
 
 ###########################################################
@@ -269,26 +271,29 @@ our @ISA = ('Parser::Number');
 #  THAT, and correct the number's numeric value.
 #
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
-  my $equation = shift; my $value = shift;
-  my $context = $equation->{context};
-  my $format = (($context->{answerHash}||{})->{enterDecimals} || $context->flag("enterDecimals"));
-  my $alternate = (Value::isHash($value) ? $value->{alternateForm} : ref($value) ? 0 : $value =~ m/,/);
-  my $num = $self->SUPER::new($equation,$value,@_);
-  if (!$context->flag("skipDecimalCheck")) {
-    $num->Error("Decimal numbers should be entered using a comma not a period")
-      if !$alternate && $value =~ m/\./ && $format eq ",";
-    $num->Error("Decimal numbers should be entered using a period not a comma")
-      if $alternate && $format eq ".";
-  }
-  if ($alternate) {
-    $num->{alternateForm} = 1;
-    $num->{value_original_string} = $value;
-    $value =~ s/\{?,\}?/./;
-    $num->{value_string} = $value;
-    $num->{value} = $value + 0;
-  }
-  return $num;
+	my $self      = shift;
+	my $class     = ref($self) || $self;
+	my $equation  = shift;
+	my $value     = shift;
+	my $context   = $equation->{context};
+	my $format    = (($context->{answerHash} || {})->{enterDecimals} || $context->flag("enterDecimals"));
+	my $alternate = (Value::isHash($value) ? $value->{alternateForm} : ref($value) ? 0 : $value =~ m/,/);
+	my $num       = $self->SUPER::new($equation, $value, @_);
+
+	if (!$context->flag("skipDecimalCheck")) {
+		$num->Error("Decimal numbers should be entered using a comma not a period")
+			if !$alternate && $value =~ m/\./ && $format eq ",";
+		$num->Error("Decimal numbers should be entered using a period not a comma")
+			if $alternate && $format eq ".";
+	}
+	if ($alternate) {
+		$num->{alternateForm}         = 1;
+		$num->{value_original_string} = $value;
+		$value =~ s/\{?,\}?/./;
+		$num->{value_string} = $value;
+		$num->{value}        = $value + 0;
+	}
+	return $num;
 }
 
 #
@@ -298,38 +303,40 @@ sub new {
 #  a Perl real).
 #
 sub eval {
-  my $self = shift;
-  my $n = $self->{value};
-  if ($self->{alternateForm}) {$n =~ s/\./,/; $n = $self->Package("Real")->make($n)}
-  return $n;
+	my $self = shift;
+	my $n    = $self->{value};
+	if ($self->{alternateForm}) { $n =~ s/\./,/; $n = $self->Package("Real")->make($n) }
+	return $n;
 }
 
 #
 #  Fix the decimal separators depending on the display format.
 #
 sub swapDecimal {
-  my $self = shift; my $n = shift;
-  my $context = $self->{equation}{context};
-  my $format = (($context->{answerHash}||{})->{displayDecimals} || $context->flag("displayDecimals"));
-  $n =~ s/\./,/ if ($self->{alternateForm} || $format eq ",") && $format ne ".";
-  return $n;
+	my $self    = shift;
+	my $n       = shift;
+	my $context = $self->{equation}{context};
+	my $format  = (($context->{answerHash} || {})->{displayDecimals} || $context->flag("displayDecimals"));
+	$n =~ s/\./,/ if ($self->{alternateForm} || $format eq ",") && $format ne ".";
+	return $n;
 }
+
 sub string {
-  my $self = shift;
-  $self->swapDecimal($self->SUPER::string(@_));
+	my $self = shift;
+	$self->swapDecimal($self->SUPER::string(@_));
 }
+
 sub TeX {
-  my $self = shift;
-  my $n = $self->swapDecimal($self->SUPER::TeX(@_));
-  $n =~ s/\{?,\}?/{,}/;
-  return $n;
+	my $self = shift;
+	my $n    = $self->swapDecimal($self->SUPER::TeX(@_));
+	$n =~ s/\{?,\}?/{,}/;
+	return $n;
 }
 
 #
 #  Return the proper class
 #
-sub class {(shift->isComplex ? "Complex" : "Number")}
-
+sub class { (shift->isComplex ? "Complex" : "Number") }
 
 ###########################################################
 
@@ -341,33 +348,39 @@ our @ISA = ('Value::Real');
 #  Save the decimal in standard notation, but mark it as alternate
 #  form so that it can be displayed in its original form, if needed.
 #
-sub new {shift->checkDecimal("new",@_)}
-sub make {shift->checkDecimal("make",@_)}
+sub new  { shift->checkDecimal("new",  @_) }
+sub make { shift->checkDecimal("make", @_) }
 
 sub checkDecimal {
-  my $self = shift; my $method = "SUPER::".shift;
-  my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  my $x = shift; my $alternate;
-  if (Value::matchNumber($x) && scalar(@_) == 0 && $x =~ m/,/) {$x =~ s/,/./; $alternate = 1}
-  $x = $self->$method($context,$x,@_); $x->{alternateForm} = 1 if $alternate;
-  return $x;
+	my $self    = shift;
+	my $method  = "SUPER::" . shift;
+	my $context = (Value::isContext($_[0]) ? shift : $self->context);
+	my $x       = shift;
+	my $alternate;
+	if (Value::matchNumber($x) && scalar(@_) == 0 && $x =~ m/,/) { $x =~ s/,/./; $alternate = 1 }
+	$x = $self->$method($context, $x, @_);
+	$x->{alternateForm} = 1 if $alternate;
+	return $x;
 }
 
-sub cmp_defaults {shift->SUPER::cmp_defaults(@_)}
+sub cmp_defaults { shift->SUPER::cmp_defaults(@_) }
 
 #
 #  Display the number in the correct form depending on the displayDecimals flag.
 #
 sub string {
-  my $self = shift; my $n = $self->SUPER::string(@_);
-  my $format = $self->getFlag("displayDecimals");
-  $n =~ s/\./,/ if ($self->{alternateForm} || $format eq ",") && $format ne ".";
-  return $n;
+	my $self   = shift;
+	my $n      = $self->SUPER::string(@_);
+	my $format = $self->getFlag("displayDecimals");
+	$n =~ s/\./,/ if ($self->{alternateForm} || $format eq ",") && $format ne ".";
+	return $n;
 }
+
 sub TeX {
-  my $self = shift; my $n = $self->SUPER::TeX(@_);
-  $n =~ s/,/{,}/;  # original TeX calls string(), which already has put in the comma
-  return $n;
+	my $self = shift;
+	my $n    = $self->SUPER::TeX(@_);
+	$n =~ s/,/{,}/;    # original TeX calls string(), which already has put in the comma
+	return $n;
 }
 
 ###########################################################
@@ -382,11 +395,12 @@ our @ISA = ('Parser::Value');
 #  directly by students).
 #
 sub new {
-  my $self = shift; my $context = $self->context;
-  $context->flags->set(skipDecimalCheck => 1);
-  my $result = $self->SUPER::new(@_);
-  $context->flags->remove("skipDecimalCheck");
-  return $result;
+	my $self    = shift;
+	my $context = $self->context;
+	$context->flags->set(skipDecimalCheck => 1);
+	my $result = $self->SUPER::new(@_);
+	$context->flags->remove("skipDecimalCheck");
+	return $result;
 }
 
 ###########################################################

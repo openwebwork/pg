@@ -1,3 +1,4 @@
+
 =head1 NAME
 
 contextLimitedRadical.pl - defines a root(n,x) function for n-th root of x, and 
@@ -58,9 +59,10 @@ their (incorrect) answer is unsimplified.
 
 
 =cut
+
 loadMacros(
-    "contextLimitedPowers.pl",
-    "bizarroArithmetic.pl",
+	"contextLimitedPowers.pl",
+	"bizarroArithmetic.pl",
 
 );
 
@@ -68,47 +70,62 @@ loadMacros(
 #  Set up the LimitedRadical context
 #
 sub _contextLimitedRadical_init {
-  my $context = $main::context{LimitedRadical} = Parser::Context->getCopy("Numeric");
-  Parser::Number::NoDecimals($context);
-  $context->flags->set(setSqrt => exp(1)/ln(2), setRoot => exp(1)/ln(2)); 
-  $context->operators->set(
-     '+' => {class => 'bizarro::BOP::add', isCommand => 1},       # override +
-     '-' => {class => 'bizarro::BOP::subtract', isCommand => 1},  # override -
-     '*' => {class => 'bizarro::BOP::multiply', isCommand => 1},  # override *
-     '* ' => {class => 'bizarro::BOP::multiply', isCommand => 1},  # override *
-     ' *' => {class => 'bizarro::BOP::multiply', isCommand => 1},  # override *
-     '/' => {class => 'bizarro::BOP::divide', isCommand => 1},    # override /
-     '/ ' => {class => 'bizarro::BOP::divide', isCommand => 1},    # override /
-     ' /' => {class => 'bizarro::BOP::divide', isCommand => 1},    # override /
-     '//' => {class => 'bizarro::BOP::divide', isCommand => 1},    # override /  
-);
-  $context->functions->set(sqrt=>{class=>'my::Function::numeric'});  # override sqrt()
-  main::PG_restricted_eval('sub root {Parser::Function->call("root",@_)}');
-  $context->functions->add(
-    root => {class => 'my::Function::numeric2'},
-  );
-  $context->flags->set(limits => [0,5]);   # no negatives in the radicals  
-  $context->flags->set(reduceConstantFunctions=>0,
-                       reduceConstants=>0,
-                       formatStudentAnswer =>"parsed",
-                       checkSqrt => 0, 
-                       checkRoot => 0);
-  LimitedPowers::OnlyPositiveIntegers($context);  # don't allow powers of 1/2, 1/3, etc
-  $context->{cmpDefaults}{Formula}{checker} = sub {
-    my ($correct,$student,$ans) = @_;
-    return 0 if $ans->{isPreview} || $correct != $student;
-    $student = $ans->{student_formula};
-    $correct = $correct->{original_formula} if defined $correct->{original_formula};
-    $student = Formula("$student"); $correct = Formula("$correct"); #ensure both are Formula objects
-    my ($setSqrt, $setRoot) = (Context()->flag("setSqrt"), Context()->flag("setRoot"));
-    Context()->flags->set(checkSqrt => $setSqrt, checkRoot => $setRoot, bizarroAdd => 1, bizarroSub => 1, bizarroMul => 1, bizarroDiv => 1); 
-    delete $correct->{test_values};
-    delete $student->{test_values};
-    my $OK = (($correct == $student) or ($student == $correct)); # check if equal when sqrt's are replaced by 1
-    Context()->flags->set(checkSqrt => 0, checkRoot => 0, bizarroAdd => 0, bizarroSub => 0, bizarroMul => 0, bizarroDiv => 0); 
-    Value::Error("You must simplify your answer further") unless $OK;
-    return $OK;
-  };
+	my $context = $main::context{LimitedRadical} = Parser::Context->getCopy("Numeric");
+	Parser::Number::NoDecimals($context);
+	$context->flags->set(setSqrt => exp(1) / ln(2), setRoot => exp(1) / ln(2));
+	$context->operators->set(
+		'+'  => { class => 'bizarro::BOP::add',      isCommand => 1 },    # override +
+		'-'  => { class => 'bizarro::BOP::subtract', isCommand => 1 },    # override -
+		'*'  => { class => 'bizarro::BOP::multiply', isCommand => 1 },    # override *
+		'* ' => { class => 'bizarro::BOP::multiply', isCommand => 1 },    # override *
+		' *' => { class => 'bizarro::BOP::multiply', isCommand => 1 },    # override *
+		'/'  => { class => 'bizarro::BOP::divide',   isCommand => 1 },    # override /
+		'/ ' => { class => 'bizarro::BOP::divide',   isCommand => 1 },    # override /
+		' /' => { class => 'bizarro::BOP::divide',   isCommand => 1 },    # override /
+		'//' => { class => 'bizarro::BOP::divide',   isCommand => 1 },    # override /
+	);
+	$context->functions->set(sqrt => { class => 'my::Function::numeric' });    # override sqrt()
+	main::PG_restricted_eval('sub root {Parser::Function->call("root",@_)}');
+	$context->functions->add(root => { class => 'my::Function::numeric2' },);
+	$context->flags->set(limits => [ 0, 5 ]);                                  # no negatives in the radicals
+	$context->flags->set(
+		reduceConstantFunctions => 0,
+		reduceConstants         => 0,
+		formatStudentAnswer     => "parsed",
+		checkSqrt               => 0,
+		checkRoot               => 0
+	);
+	LimitedPowers::OnlyPositiveIntegers($context);                             # don't allow powers of 1/2, 1/3, etc
+	$context->{cmpDefaults}{Formula}{checker} = sub {
+		my ($correct, $student, $ans) = @_;
+		return 0 if $ans->{isPreview} || $correct != $student;
+		$student = $ans->{student_formula};
+		$correct = $correct->{original_formula} if defined $correct->{original_formula};
+		$student = Formula("$student");
+		$correct = Formula("$correct");                                                 #ensure both are Formula objects
+		my ($setSqrt, $setRoot) = (Context()->flag("setSqrt"), Context()->flag("setRoot"));
+		Context()->flags->set(
+			checkSqrt  => $setSqrt,
+			checkRoot  => $setRoot,
+			bizarroAdd => 1,
+			bizarroSub => 1,
+			bizarroMul => 1,
+			bizarroDiv => 1
+		);
+		delete $correct->{test_values};
+		delete $student->{test_values};
+		my $OK = (($correct == $student) or ($student == $correct));    # check if equal when sqrt's are replaced by 1
+		Context()->flags->set(
+			checkSqrt  => 0,
+			checkRoot  => 0,
+			bizarroAdd => 0,
+			bizarroSub => 0,
+			bizarroMul => 0,
+			bizarroDiv => 0
+		);
+		Value::Error("You must simplify your answer further") unless $OK;
+		return $OK;
+	};
 }
 
 ###########################
@@ -119,28 +136,26 @@ sub _contextLimitedRadical_init {
 package my::Function::numeric2;
 our @ISA = ('Parser::Function::numeric2');
 
-
 sub root {
-  my $self = shift; my $n = shift; my $x = shift;
-  $self->Error("Can't take 0th roots") if ($n == 0);
-  $self->Error("Can't take general roots of negative numbers") if (($x < 0) and (($n-1)/2 != int(($n-1)/2)));
-  my $value = $self->context->flag("checkRoot");
-  return $value+1 if $value && $x == 1;  # force root(n,1) to be incorrect
-  return $value+1 if $value && $x == $value;  # force root(n,root(m,x))) to be incorrect
-  return $value+1 if $value && $x == $self->context->flag("checkSqrt");  # force root(n,sqrt(x))) to be incorrect
-  return $value*$x if $value;
-  return ($x)**(1/$n) if (($x > 0) and ($n != 0));
-  return -(abs($x)**(1/$n)) if (($x < 0) and (($n-1)/2 == int(($n-1)/2)));
+	my $self = shift;
+	my $n    = shift;
+	my $x    = shift;
+	$self->Error("Can't take 0th roots")                         if ($n == 0);
+	$self->Error("Can't take general roots of negative numbers") if (($x < 0) and (($n - 1) / 2 != int(($n - 1) / 2)));
+	my $value = $self->context->flag("checkRoot");
+	return $value + 1  if $value && $x == 1;                                  # force root(n,1) to be incorrect
+	return $value + 1  if $value && $x == $value;                             # force root(n,root(m,x))) to be incorrect
+	return $value + 1  if $value && $x == $self->context->flag("checkSqrt");  # force root(n,sqrt(x))) to be incorrect
+	return $value * $x if $value;
+	return ($x)**(1 / $n)       if (($x > 0) and ($n != 0));
+	return -(abs($x)**(1 / $n)) if (($x < 0) and (($n - 1) / 2 == int(($n - 1) / 2)));
 }
-
 
 sub TeX {
-  my $self = shift;
-  my ($n,$x) = ($self->{params}[0],$self->{params}[1]);
-  return '\sqrt['.$n->TeX."]{".$x->TeX."}";
+	my $self = shift;
+	my ($n, $x) = ($self->{params}[0], $self->{params}[1]);
+	return '\sqrt[' . $n->TeX . "]{" . $x->TeX . "}";
 }
-
-
 
 ###########################
 #
@@ -153,18 +168,14 @@ our @ISA = ('Parser::Function::numeric');
 #  Override sqrt() to return a special value times x when evaluated
 #
 sub sqrt {
-  my $self = shift;
-  my $x = shift;
-  my $value = $self->context->flag("checkSqrt");
-  return $value+1 if $value && $x == 1;  # force sqrt(1) to be incorrect
-  return $value+1 if $value && $x == $value;  # force sqrt(sqrt(x)) to be incorrect
-  return $value+1 if $value && $x == $self->context->flag("checkRoot");  # force sqrt(root(n,x))) to be incorrect
-  return $value*$x if $value;
-  return $self->SUPER::sqrt($x);
+	my $self  = shift;
+	my $x     = shift;
+	my $value = $self->context->flag("checkSqrt");
+	return $value + 1  if $value && $x == 1;                                    # force sqrt(1) to be incorrect
+	return $value + 1  if $value && $x == $value;                               # force sqrt(sqrt(x)) to be incorrect
+	return $value + 1  if $value && $x == $self->context->flag("checkRoot");    # force sqrt(root(n,x))) to be incorrect
+	return $value * $x if $value;
+	return $self->SUPER::sqrt($x);
 }
-
-
-
-
 
 1;

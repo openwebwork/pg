@@ -27,18 +27,18 @@ Parser.pl - Macro-based fronted to the MathObjects system.
 # ^uses $Parser::installed
 # ^uses $Value::installed
 if (!$Parser::installed) {
-  die "\n************************************************************\n" .
-        "* This problem requires the Parser.pm package, which doesn't\n".
-        "* seem to be installed.  Please contact your WeBWorK system\n".
-        "* administrator and ask him or her to install it first.\n".
-        "************************************************************\n\n"
+	die "\n************************************************************\n"
+		. "* This problem requires the Parser.pm package, which doesn't\n"
+		. "* seem to be installed.  Please contact your WeBWorK system\n"
+		. "* administrator and ask him or her to install it first.\n"
+		. "************************************************************\n\n";
 }
 if (!$Value::installed) {
-  die "\n************************************************************\n" .
-        "* This problem requires the Value.pm package, which doesn't\n".
-        "* seem to be installed.  Please contact your WeBWorK system\n".
-        "* administrator and ask him or her to install it first.\n".
-        "************************************************************\n\n"
+	die "\n************************************************************\n"
+		. "* This problem requires the Value.pm package, which doesn't\n"
+		. "* seem to be installed.  Please contact your WeBWorK system\n"
+		. "* administrator and ask him or her to install it first.\n"
+		. "************************************************************\n\n";
 }
 
 # ^uses loadMacros
@@ -58,7 +58,7 @@ or more variables).
 
 # ^function Formula
 # ^uses Value::Package
-sub Formula {Value->Package("Formula()")->new(@_)}
+sub Formula { Value->Package("Formula()")->new(@_) }
 
 =head2 Compute
 
@@ -93,25 +93,25 @@ original can be obtained from the C<original_formula> property.
 # ^uses Formula
 # ^uses Value::contextSet
 sub Compute {
-  my $string = shift;
-  my $formula = Formula($string);
-  $formula = $formula->{tree}->Compute if $formula->{tree}{canCompute};
-  my $context = $formula->context;
-  my $flags = Value::contextSet($context,reduceConstants=>0,reduceConstantFunctions=>0,showExtraParens=>0);
-  if (scalar(@_)) {
-    $formula = $formula->substitute(@_)->with(original_formula => $formula);
-    $string = $formula->string;
-  }
-  if ($formula->isConstant) {
-    $formula = $formula->eval()->with(original_formula => $formula->{original_formula} || $formula);
-  }
-  my $F = $formula;
-  $F = Formula($string)
-    if $formula->{original_formula} || $flags->{reduceConstants} ||  $flags->{reduceConstantFunctions};
-  $formula->{correct_ans} = $F->string;
-  $formula->{correct_ans_latex_string} = $F->TeX;
-  Value::contextSet($context,%{$flags});
-  return $formula;
+	my $string  = shift;
+	my $formula = Formula($string);
+	$formula = $formula->{tree}->Compute if $formula->{tree}{canCompute};
+	my $context = $formula->context;
+	my $flags   = Value::contextSet($context, reduceConstants => 0, reduceConstantFunctions => 0, showExtraParens => 0);
+	if (scalar(@_)) {
+		$formula = $formula->substitute(@_)->with(original_formula => $formula);
+		$string  = $formula->string;
+	}
+	if ($formula->isConstant) {
+		$formula = $formula->eval()->with(original_formula => $formula->{original_formula} || $formula);
+	}
+	my $F = $formula;
+	$F = Formula($string)
+		if $formula->{original_formula} || $flags->{reduceConstants} || $flags->{reduceConstantFunctions};
+	$formula->{correct_ans}              = $F->string;
+	$formula->{correct_ans_latex_string} = $F->TeX;
+	Value::contextSet($context, %{$flags});
+	return $formula;
 }
 
 =head2 Context
@@ -130,11 +130,11 @@ that context is set as the current one.  In all three cases, the current context
 # ^function Context
 # ^uses Parser::Context::current
 # ^uses %context
-sub Context {Parser::Context->current(\%context,@_)}
+sub Context { Parser::Context->current(\%context, @_) }
 #  # ^variable our %context
-%context = () unless %context;  # Locally defined contexts, including 'current' context
+%context = () unless %context;    # Locally defined contexts, including 'current' context
 # ^uses Context
-Context("Numeric");  # Set initial context
+Context("Numeric");               # Set initial context
 
 ###########################################################################
 #
@@ -142,7 +142,7 @@ Context("Numeric");  # Set initial context
 #
 
 # ^package Ignore
-package Ignore;  ## let PGauxiliaryFunctions.pl do these
+package Ignore;    ## let PGauxiliaryFunctions.pl do these
 
 # ^#function sin
 # ^#uses Parser::Function::call
@@ -152,54 +152,54 @@ package Ignore;  ## let PGauxiliaryFunctions.pl do these
 #sub cos {Parser::Function->call('cos',@_)}    # Let overload handle it
 # ^function tan
 # ^uses Parser::Function::call
-sub tan {Parser::Function->call('tan',@_)}
+sub tan { Parser::Function->call('tan', @_) }
 # ^function sec
 # ^uses Parser::Function::call
-sub sec {Parser::Function->call('sec',@_)}
+sub sec { Parser::Function->call('sec', @_) }
 # ^function csc
 # ^uses Parser::Function::call
-sub csc {Parser::Function->call('csc',@_)}
+sub csc { Parser::Function->call('csc', @_) }
 # ^function cot
 # ^uses Parser::Function::call
-sub cot {Parser::Function->call('cot',@_)}
+sub cot { Parser::Function->call('cot', @_) }
 
 # ^function asin
 # ^uses Parser::Function::call
-sub asin {Parser::Function->call('asin',@_)}
+sub asin { Parser::Function->call('asin', @_) }
 # ^function acos
 # ^uses Parser::Function::call
-sub acos {Parser::Function->call('acos',@_)}
+sub acos { Parser::Function->call('acos', @_) }
 # ^function atan
 # ^uses Parser::Function::call
-sub atan {Parser::Function->call('atan',@_)}
+sub atan { Parser::Function->call('atan', @_) }
 # ^function asec
 # ^uses Parser::Function::call
-sub asec {Parser::Function->call('asec',@_)}
+sub asec { Parser::Function->call('asec', @_) }
 # ^function acsc
 # ^uses Parser::Function::call
-sub acsc {Parser::Function->call('acsc',@_)}
+sub acsc { Parser::Function->call('acsc', @_) }
 # ^function acot
 # ^uses Parser::Function::call
-sub acot {Parser::Function->call('acot',@_)}
+sub acot { Parser::Function->call('acot', @_) }
 
 # ^function arcsin
 # ^uses Parser::Function::call
-sub arcsin {Parser::Function->call('asin',@_)}
+sub arcsin { Parser::Function->call('asin', @_) }
 # ^function arccos
 # ^uses Parser::Function::call
-sub arccos {Parser::Function->call('acos',@_)}
+sub arccos { Parser::Function->call('acos', @_) }
 # ^function arctan
 # ^uses Parser::Function::call
-sub arctan {Parser::Function->call('atan',@_)}
+sub arctan { Parser::Function->call('atan', @_) }
 # ^function arcsec
 # ^uses Parser::Function::call
-sub arcsec {Parser::Function->call('asec',@_)}
+sub arcsec { Parser::Function->call('asec', @_) }
 # ^function arccsc
 # ^uses Parser::Function::call
-sub arccsc {Parser::Function->call('acsc',@_)}
+sub arccsc { Parser::Function->call('acsc', @_) }
 # ^function arccot
 # ^uses Parser::Function::call
-sub arccot {Parser::Function->call('acot',@_)}
+sub arccot { Parser::Function->call('acot', @_) }
 
 ###########################################################################
 #
@@ -208,60 +208,60 @@ sub arccot {Parser::Function->call('acot',@_)}
 
 # ^function sinh
 # ^uses Parser::Function::call
-sub sinh {Parser::Function->call('sinh',@_)}
+sub sinh { Parser::Function->call('sinh', @_) }
 # ^function cosh
 # ^uses Parser::Function::call
-sub cosh {Parser::Function->call('cosh',@_)}
+sub cosh { Parser::Function->call('cosh', @_) }
 # ^function tanh
 # ^uses Parser::Function::call
-sub tanh {Parser::Function->call('tanh',@_)}
+sub tanh { Parser::Function->call('tanh', @_) }
 # ^function sech
 # ^uses Parser::Function::call
-sub sech {Parser::Function->call('sech',@_)}
+sub sech { Parser::Function->call('sech', @_) }
 # ^function csch
 # ^uses Parser::Function::call
-sub csch {Parser::Function->call('csch',@_)}
+sub csch { Parser::Function->call('csch', @_) }
 # ^function coth
 # ^uses Parser::Function::call
-sub coth {Parser::Function->call('coth',@_)}
+sub coth { Parser::Function->call('coth', @_) }
 
 # ^function asinh
 # ^uses Parser::Function::call
-sub asinh {Parser::Function->call('asinh',@_)}
+sub asinh { Parser::Function->call('asinh', @_) }
 # ^function acosh
 # ^uses Parser::Function::call
-sub acosh {Parser::Function->call('acosh',@_)}
+sub acosh { Parser::Function->call('acosh', @_) }
 # ^function atanh
 # ^uses Parser::Function::call
-sub atanh {Parser::Function->call('atanh',@_)}
+sub atanh { Parser::Function->call('atanh', @_) }
 # ^function asech
 # ^uses Parser::Function::call
-sub asech {Parser::Function->call('asech',@_)}
+sub asech { Parser::Function->call('asech', @_) }
 # ^function acsch
 # ^uses Parser::Function::call
-sub acsch {Parser::Function->call('acsch',@_)}
+sub acsch { Parser::Function->call('acsch', @_) }
 # ^function acoth
 # ^uses Parser::Function::call
-sub acoth {Parser::Function->call('acoth',@_)}
+sub acoth { Parser::Function->call('acoth', @_) }
 
 # ^function arcsinh
 # ^uses Parser::Function::call
-sub arcsinh {Parser::Function->call('asinh',@_)}
+sub arcsinh { Parser::Function->call('asinh', @_) }
 # ^function arccosh
 # ^uses Parser::Function::call
-sub arccosh {Parser::Function->call('acosh',@_)}
+sub arccosh { Parser::Function->call('acosh', @_) }
 # ^function arctanh
 # ^uses Parser::Function::call
-sub arctanh {Parser::Function->call('atanh',@_)}
+sub arctanh { Parser::Function->call('atanh', @_) }
 # ^function arcsech
 # ^uses Parser::Function::call
-sub arcsech {Parser::Function->call('asech',@_)}
+sub arcsech { Parser::Function->call('asech', @_) }
 # ^function arccsch
 # ^uses Parser::Function::call
-sub arccsch {Parser::Function->call('acsch',@_)}
+sub arccsch { Parser::Function->call('acsch', @_) }
 # ^function arccoth
 # ^uses Parser::Function::call
-sub arccoth {Parser::Function->call('acoth',@_)}
+sub arccoth { Parser::Function->call('acoth', @_) }
 
 ###########################################################################
 #
@@ -273,7 +273,7 @@ sub arccoth {Parser::Function->call('acoth',@_)}
 #sub log   {Parser::Function->call('log',@_)}    # Let overload handle it
 # ^function log10
 # ^uses Parser::Function::call
-sub log10 {Parser::Function->call('log10',@_)}
+sub log10 { Parser::Function->call('log10', @_) }
 # ^#function exp
 # ^#uses Parser::Function::call
 #sub exp   {Parser::Function->call('exp',@_)}    # Let overload handle it
@@ -285,27 +285,27 @@ sub log10 {Parser::Function->call('log10',@_)}
 #sub abs   {Parser::Function->call('abs',@_)}    # Let overload handle it
 # ^function int
 # ^uses Parser::Function::call
-sub int   {Parser::Function->call('int',@_)}
+sub int { Parser::Function->call('int', @_) }
 # ^function sgn
 # ^uses Parser::Function::call
-sub sgn   {Parser::Function->call('sgn',@_)}
+sub sgn { Parser::Function->call('sgn', @_) }
 
 # ^function ln
 # ^uses Parser::Function::call
-sub ln     {Parser::Function->call('log',@_)}
+sub ln { Parser::Function->call('log', @_) }
 # ^function logten
 # ^uses Parser::Function::call
-sub logten {Parser::Function->call('log10',@_)}
+sub logten { Parser::Function->call('log10', @_) }
 
 # ^package main
-package main;  ##  back to main
+package main;    ##  back to main
 
 # ^function log10
 # ^uses Parser::Function::call
-sub log10 {Parser::Function->call('log10',@_)}
+sub log10 { Parser::Function->call('log10', @_) }
 # ^function Factorial
 # ^uses Parser::UOP::factorial::call
-sub Factorial {Parser::UOP::factorial->call(@_)}
+sub Factorial { Parser::UOP::factorial->call(@_) }
 
 ###########################################################################
 #
@@ -323,19 +323,19 @@ sub Factorial {Parser::UOP::factorial->call(@_)}
 
 # ^function arg
 # ^uses Parser::Function::call
-sub arg  {Parser::Function->call('arg',@_)}
+sub arg { Parser::Function->call('arg', @_) }
 # ^function mod
 # ^uses Parser::Function::call
-sub mod  {Parser::Function->call('mod',@_)}
+sub mod { Parser::Function->call('mod', @_) }
 # ^function Re
 # ^uses Parser::Function::call
-sub Re   {Parser::Function->call('Re',@_)}
+sub Re { Parser::Function->call('Re', @_) }
 # ^function Im
 # ^uses Parser::Function::call
-sub Im   {Parser::Function->call('Im',@_)}
+sub Im { Parser::Function->call('Im', @_) }
 # ^function conj
 # ^uses Parser::Function::call
-sub conj {Parser::Function->call('conj',@_)}
+sub conj { Parser::Function->call('conj', @_) }
 
 ###########################################################################
 #
@@ -344,10 +344,10 @@ sub conj {Parser::Function->call('conj',@_)}
 
 # ^function norm
 # ^uses Parser::Function::call
-sub norm {Parser::Function->call('norm',@_)}
+sub norm { Parser::Function->call('norm', @_) }
 # ^function unit
 # ^uses Parser::Function::call
-sub unit {Parser::Function->call('unit',@_)}
+sub unit { Parser::Function->call('unit', @_) }
 
 #
 # These are defined in PG.pl (since they call eval())
@@ -359,10 +359,10 @@ sub unit {Parser::Function->call('unit',@_)}
 ###########################################################################
 
 # ^variable our $_parser_loaded
-$_parser_loaded = 1;  #  use this to tell if Parser.pl is loaded
+$_parser_loaded = 1;    #  use this to tell if Parser.pl is loaded
 
 # ^function _Parser_init
-sub _Parser_init {}; # don't let loadMacros load it again
+sub _Parser_init { };    # don't let loadMacros load it again
 
 # ^uses loadMacros
 loadMacros("parserCustomization.pl");

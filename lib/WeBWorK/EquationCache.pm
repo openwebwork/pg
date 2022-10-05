@@ -47,9 +47,9 @@ extending to the end of the line is also ignored.
 use strict;
 use warnings;
 use Digest::MD5 qw(md5_hex);
-use Encode qw(encode_utf8 );
-use Fcntl qw(:DEFAULT :flock);
-BEGIN { my @_junk = (O_RDWR,O_CREAT,LOCK_EX) } # get rid of "subroutine redefined" warnings
+use Encode      qw(encode_utf8 );
+use Fcntl       qw(:DEFAULT :flock);
+BEGIN { my @_junk = (O_RDWR, O_CREAT, LOCK_EX) }    # get rid of "subroutine redefined" warnings
 
 =head1 METHODS
 
@@ -70,9 +70,7 @@ are no md5 collisions.
 sub new {
 	my ($invocant, %options) = @_;
 	my $class = ref $invocant || $invocant;
-	my $self = {
-		%options,
-	};
+	my $self  = { %options, };
 
 	bless $self, $class;
 }
@@ -102,14 +100,14 @@ sub lookup {
 	my $md5 = md5_hex(encode_utf8($tex));
 
 	my $db = $self->{cacheDB};
-	unless($db) { return($md5 ."1"); }
-	sysopen(DB, $db, O_RDWR|O_CREAT)
+	unless ($db) { return ($md5 . "1"); }
+	sysopen(DB, $db, O_RDWR | O_CREAT)
 		or die "failed to create/open cacheDB $db: $!";
 	flock(DB, LOCK_EX)
 		or die "failed to write-lock cacheDB $db: $!";
 
-	my $line = 0;
-	my $max = 0;
+	my $line  = 0;
+	my $max   = 0;
 	my $match = 0;
 	local $/ = "\n";
 	while (<DB>) {
@@ -128,7 +126,7 @@ sub lookup {
 	unless ($match) {
 		# no match: invent a new instance number and add TeX string to DB
 		$match = $max + 1;
-		seek(DB, 0, 2); # we should already be at EOF, but what the hell.
+		seek(DB, 0, 2);    # we should already be at EOF, but what the hell.
 		print DB "$md5\t$match\t$tex\n";
 	}
 

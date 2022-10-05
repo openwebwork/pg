@@ -80,7 +80,7 @@ Congruences must be created with three paramters (a, b, m) from ax ≡ b (mod m)
 
 loadMacros('MathObjects.pl', 'contextInteger.pl');
 
-sub _contextCongruence_init {context::Congruence::Init()};
+sub _contextCongruence_init { context::Congruence::Init() }
 
 ###########################################################################
 
@@ -91,211 +91,229 @@ our @ISA = ('Value::Formula');
 #  Initialize the contexts and make the creator function.
 #
 sub Init {
-  my $context = $main::context{Congruence} = Parser::Context->getCopy("Numeric");
-  $context->{name} = "Congruence";
-  Parser::Number::NoDecimals($context);
+	my $context = $main::context{Congruence} = Parser::Context->getCopy("Numeric");
+	$context->{name} = "Congruence";
+	Parser::Number::NoDecimals($context);
 
-  $context->variables->clear();
-  $context->variables->add(k => 'Real');
+	$context->variables->clear();
+	$context->variables->add(k => 'Real');
 
-  $context->strings->add(
-    None=>{caseSensitive=>0},
-    N=>{caseSensitive=>0, alias=>"None"}
-  );
+	$context->strings->add(
+		None => { caseSensitive => 0 },
+		N    => { caseSensitive => 0, alias => "None" }
+	);
 
-  $context->flags->set(
-    requireGeneralSolution => 0, # require general solution as answer?
-    requireAllSolutions => 0, # require all solution as answer?
-    outputAllSolutions => 0 # default display only general solution. switch to 1 to display all possible solutions
-  );
+	$context->flags->set(
+		requireGeneralSolution => 0,    # require general solution as answer?
+		requireAllSolutions    => 0,    # require all solution as answer?
+		outputAllSolutions     =>
+			0    # default display only general solution. switch to 1 to display all possible solutions
+	);
 
-  #
-  #  Only allow general solution for answer and output
-  #
-  $context = $main::context{"Congruence-General-Solution"} = $context->copy;
-  $context->{name} = "Congruence-General-Solution";
-  $context->flags->set(
-    requireGeneralSolution => 1,
-    requireAllSolutions => 0,
-    outputAllSolutions => 0
-  );
+	#
+	#  Only allow general solution for answer and output
+	#
+	$context = $main::context{"Congruence-General-Solution"} = $context->copy;
+	$context->{name} = "Congruence-General-Solution";
+	$context->flags->set(
+		requireGeneralSolution => 1,
+		requireAllSolutions    => 0,
+		outputAllSolutions     => 0
+	);
 
-  #
-  #  Only allow all solutions for answer and output
-  #
-  $context = $main::context{"Congruence-All-Solutions"} = $context->copy;
-  $context->{name} = "Congruence-All-Solutions";
-  $context->flags->set(
-    requireGeneralSolution => 0,
-    requireAllSolutions => 1,
-    outputAllSolutions => 1
-  );
+	#
+	#  Only allow all solutions for answer and output
+	#
+	$context = $main::context{"Congruence-All-Solutions"} = $context->copy;
+	$context->{name} = "Congruence-All-Solutions";
+	$context->flags->set(
+		requireGeneralSolution => 0,
+		requireAllSolutions    => 1,
+		outputAllSolutions     => 1
+	);
 
-
-  main::PG_restricted_eval("sub Congruence {context::Congruence->new(\@_)}");
+	main::PG_restricted_eval("sub Congruence {context::Congruence->new(\@_)}");
 }
 
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
-  my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  
-  # validation is handled in _getCongruenceData
-  my ($g, $residue, $divisor) = context::Congruence::Function::Numeric3::_getCongruenceData(@_);
-  my $formula = main::Formula->new($context, "k");
-  $formula->{g} = $g;
-  $formula->{residue} = $residue;
-  $formula->{divisor} = $divisor;
-  return bless $formula, $class;
+	my $self    = shift;
+	my $class   = ref($self) || $self;
+	my $context = (Value::isContext($_[0]) ? shift : $self->context);
+
+	# validation is handled in _getCongruenceData
+	my ($g, $residue, $divisor) = context::Congruence::Function::Numeric3::_getCongruenceData(@_);
+	my $formula = main::Formula->new($context, "k");
+	$formula->{g}       = $g;
+	$formula->{residue} = $residue;
+	$formula->{divisor} = $divisor;
+	return bless $formula, $class;
 }
 
 sub compare {
-  my ($l,$r) = @_; my $self = $l;
-  my $context = $self->context;
-  
-  my $generalSolution = $l->generalSolution;
-  my $allSolutions = $l->allSolutions;
-  my $requireGeneralSolution = $self->getFlag("requireGeneralSolution");
-  my $requireAllSolutions = $self->getFlag("requireAllSolutions");
+	my ($l, $r) = @_;
+	my $self    = $l;
+	my $context = $self->context;
 
-  # allow unorder formula lists
-  if ($r->classMatch("Formula") && scalar($r->value)) {
-    my @orderedValues = main::PGsort(sub {  
-      $_[0]->eval(k=>0) < $_[1]->eval(k=>0);
-    },$r->value);
-    $r = Value::Formula->new($self->context, join(",", @orderedValues));
-  }
+	my $generalSolution        = $l->generalSolution;
+	my $allSolutions           = $l->allSolutions;
+	my $requireGeneralSolution = $self->getFlag("requireGeneralSolution");
+	my $requireAllSolutions    = $self->getFlag("requireAllSolutions");
 
-  if ($requireGeneralSolution) {
-    return $generalSolution->compare($r);
-  } elsif ($requireAllSolutions) {
-    return $allSolutions->compare($r);
-  } else {
-    # check both all solutons and general solution
-    return 0 if $allSolutions->compare($r) == 0;
-    return $generalSolution->compare($r);
-  }
+	# allow unorder formula lists
+	if ($r->classMatch("Formula") && scalar($r->value)) {
+		my @orderedValues = main::PGsort(
+			sub {
+				$_[0]->eval(k => 0) < $_[1]->eval(k => 0);
+			},
+			$r->value
+		);
+		$r = Value::Formula->new($self->context, join(",", @orderedValues));
+	}
+
+	if ($requireGeneralSolution) {
+		return $generalSolution->compare($r);
+	} elsif ($requireAllSolutions) {
+		return $allSolutions->compare($r);
+	} else {
+		# check both all solutons and general solution
+		return 0 if $allSolutions->compare($r) == 0;
+		return $generalSolution->compare($r);
+	}
 }
 
 sub generalSolution {
-  my $self = shift; 
+	my $self = shift;
 
-  # check no solution
-  return $self->Package("String")->new($self->context, "None") if ($self->{g} == 0);
+	# check no solution
+	return $self->Package("String")->new($self->context, "None") if ($self->{g} == 0);
 
-  return Value::Formula->new($self->context, $self->{residue} . "+" . $self->{divisor} . "k");
+	return Value::Formula->new($self->context, $self->{residue} . "+" . $self->{divisor} . "k");
 }
 
 sub allSolutions {
-  my $self = shift; 
+	my $self = shift;
 
-  # check no solution
-  return $self->Package("String")->new($self->context, "None") if ($self->{g} == 0);
+	# check no solution
+	return $self->Package("String")->new($self->context, "None") if ($self->{g} == 0);
 
-  @solutions = ();
-  my $divisor = $self->{divisor} * $self->{g};
-  for my $index (0..$self->{g}-1) {
-    my $residue = $self->{residue} + ($index * $self->{g});
-    push(@solutions, $residue . "+" . $divisor . "k");
-  }
-  return Value::Formula->new($self->context, join(",", @solutions));
+	@solutions = ();
+	my $divisor = $self->{divisor} * $self->{g};
+	for my $index (0 .. $self->{g} - 1) {
+		my $residue = $self->{residue} + ($index * $self->{g});
+		push(@solutions, $residue . "+" . $divisor . "k");
+	}
+	return Value::Formula->new($self->context, join(",", @solutions));
 }
 
 #
 #  Produce a string version
 #
 sub string {
-  my $self = shift;
-  my $outputAllSolutions = $self->getFlag("outputAllSolutions");
+	my $self               = shift;
+	my $outputAllSolutions = $self->getFlag("outputAllSolutions");
 
-  if ($outputAllSolutions) {
-    return $self->allSolutions->string;
-  } else {
-    return $self->generalSolution->string;
-  }
+	if ($outputAllSolutions) {
+		return $self->allSolutions->string;
+	} else {
+		return $self->generalSolution->string;
+	}
 }
 
 #
 #  Produce a TeX version
 #
 sub TeX {
-  my $self = shift;
-  my $outputAllSolutions = $self->getFlag("outputAllSolutions");
+	my $self               = shift;
+	my $outputAllSolutions = $self->getFlag("outputAllSolutions");
 
-  if ($outputAllSolutions) {
-    return $self->allSolutions->TeX;
-  } else {
-    return  $self->generalSolution->TeX;
-  }
+	if ($outputAllSolutions) {
+		return $self->allSolutions->TeX;
+	} else {
+		return $self->generalSolution->TeX;
+	}
 }
-
 
 sub typeMatch {
-  my $self = shift; my $other = shift;
-  return $other->classMatch("Formula", "String");
+	my $self  = shift;
+	my $other = shift;
+	return $other->classMatch("Formula", "String");
 }
 
-package context::Congruence::Function::Numeric3; # checks for 3 numeric inputs
+package context::Congruence::Function::Numeric3;    # checks for 3 numeric inputs
 our @ISA = qw(Parser::Function);
 
 #
 #  Check for two real-valued arguments
 #
 sub _check {
-  my $self = shift;
-  return if ($self->checkArgCount(3));
-  if (($self->{params}->[0]->isNumber && $self->{params}->[1]->isNumber && 
-       $self->{params}->[2]->isNumber &&
-      !$self->{params}->[0]->isComplex && !$self->{params}->[1]->isComplex && 
-      !$self->{params}->[2]->isComplex) ||
-      $self->context->flag("allowBadFunctionInputs")) {
-    $self->{type} = $Value::Type{number};
-  } else {
-    $self->Error("Function '%s' has the wrong type of inputs",$self->{name});
-  }
+	my $self = shift;
+	return if ($self->checkArgCount(3));
+	if (
+		(
+			$self->{params}->[0]->isNumber
+			&& $self->{params}->[1]->isNumber
+			&& $self->{params}->[2]->isNumber
+			&& !$self->{params}->[0]->isComplex
+			&& !$self->{params}->[1]->isComplex
+			&& !$self->{params}->[2]->isComplex
+		)
+		|| $self->context->flag("allowBadFunctionInputs")
+		)
+	{
+		$self->{type} = $Value::Type{number};
+	} else {
+		$self->Error("Function '%s' has the wrong type of inputs", $self->{name});
+	}
 }
 
 #
 #  Check that the inputs are OK
 #
 sub _call {
-  my $self = shift; my $name = shift;
-  Value::Error("Function '%s' has too many inputs",$name) if scalar(@_) > 3;
-  Value::Error("Function '%s' has too few inputs",$name) if scalar(@_) < 3;
-  Value::Error("Function '%s' has the wrong type of inputs",$name)
-    unless Value::matchNumber($_[0]) && Value::matchNumber($_[1]);
-  return $self->$name(@_);
+	my $self = shift;
+	my $name = shift;
+	Value::Error("Function '%s' has too many inputs", $name) if scalar(@_) > 3;
+	Value::Error("Function '%s' has too few inputs",  $name) if scalar(@_) < 3;
+	Value::Error("Function '%s' has the wrong type of inputs", $name)
+		unless Value::matchNumber($_[0]) && Value::matchNumber($_[1]);
+	return $self->$name(@_);
 }
 
 #
 #  Call the appropriate routine
 #
 sub _eval {
-  my $self = shift; my $name = $self->{name};
-  $self->$name(@_);
+	my $self = shift;
+	my $name = $self->{name};
+	$self->$name(@_);
 }
 
 #
 #  Congruence Class
-#  ax ≡ b (mod m) 
+#  ax ≡ b (mod m)
 #
 # returns gcd, residue, divisor
 sub _getCongruenceData {
-  my $a = shift; my $b = shift; my $m = shift;
-  my $g = context::Integer::Function::Numeric2::gcd($a, $m);
+	my $a = shift;
+	my $b = shift;
+	my $m = shift;
+	my $g = context::Integer::Function::Numeric2::gcd($a, $m);
 
-  # check for no solutions
-  if ($b % $g != 0) {
-    return (0, 0, 0);
-  }
+	# check for no solutions
+	if ($b % $g != 0) {
+		return (0, 0, 0);
+	}
 
-  # (a/g)x ≡ (b/g) (mod (m/g)) reduce multiple solutions
-  my $a2 = $a / $g; my $b2 = $b / $g; my $m2 = $m / $g;
+	# (a/g)x ≡ (b/g) (mod (m/g)) reduce multiple solutions
+	my $a2 = $a / $g;
+	my $b2 = $b / $g;
+	my $m2 = $m / $g;
 
-  # x ≡ $modularInverse * b2 (mod m2)
-  my $modularInverse = context::Integer::Function::Numeric2::mulularInverse($a2, $m2);
-  $x = ($modularInverse * $b2) % $m2;
+	# x ≡ $modularInverse * b2 (mod m2)
+	my $modularInverse = context::Integer::Function::Numeric2::mulularInverse($a2, $m2);
+	$x = ($modularInverse * $b2) % $m2;
 
-  return ($g, $x, $m2);
+	return ($g, $x, $m2);
 }
 
 1;

@@ -12,7 +12,7 @@
 ##    EndParList()            ends such a list
 ##
 
-sub _unionLists_init {}; # don't reload this file
+sub _unionLists_init { };    # don't reload this file
 
 =head2 unionLists.pl
 
@@ -51,53 +51,55 @@ sub _unionLists_init {}; # don't reload this file
 =cut
 
 sub BeginList {
-  my $LIST = 'OL';
-  $LIST = shift if (uc($_[0]) eq "OL" or uc($_[0]) eq "UL");
-  my $enum = ($LIST eq 'OL' ? "enumerate" : "itemize");
-  my %options = @_;
-  $LIST .= ' TYPE="'.$options{type}.'"' if defined($options{type});
-  $LIST .= ' START="'.$options{value}.'"' if defined($options{value});
-  $LIST = "<$LIST>";
-  my $tex = ""; my $type = ""; my $top = "";
-  $tex .= "\\parindent=0pt \\parskip=.75\\baselineskip\n" if $options{tex_par};
-  $tex .= "\\setcounter{enumi}{".($options{value}-1)."}" if defined($options{value}) && $LIST eq 'OL';
-  $type = "[\\quad $options{type}.]" if defined($options{type}) && $LIST eq 'OL';
-  $top = '\vskip-\parskip\hrule height 0pt' if $options{noTopSkip};
+	my $LIST = 'OL';
+	$LIST = shift if (uc($_[0]) eq "OL" or uc($_[0]) eq "UL");
+	my $enum    = ($LIST eq 'OL' ? "enumerate" : "itemize");
+	my %options = @_;
+	$LIST .= ' TYPE="' . $options{type} . '"'   if defined($options{type});
+	$LIST .= ' START="' . $options{value} . '"' if defined($options{value});
+	$LIST = "<$LIST>";
+	my $tex  = "";
+	my $type = "";
+	my $top  = "";
+	$tex .= "\\parindent=0pt \\parskip=.75\\baselineskip\n" if $options{tex_par};
+	$tex .= "\\setcounter{enumi}{" . ($options{value} - 1) . "}" if defined($options{value}) && $LIST eq 'OL';
+	$type = "[\\quad $options{type}.]"         if defined($options{type}) && $LIST eq 'OL';
+	$top  = '\vskip-\parskip\hrule height 0pt' if $options{noTopSkip};
 
-  MODES(
-    TeX => "\\par${top}{\\parskip=0pt\\begin{$enum}$type\n$tex",
-    HTML => $LIST."\n",
-  );
+	MODES(
+		TeX  => "\\par${top}{\\parskip=0pt\\begin{$enum}$type\n$tex",
+		HTML => $LIST . "\n",
+	);
 }
 
 sub EndList {
-  my $LIST = shift; $LIST = 'OL' unless defined $LIST;
-  my $enum = ($LIST eq 'OL' ? "enumerate" : "itemize");
-  $LIST = "</$LIST>";
-  MODES(
-    TeX => "\\end{$enum}}",
-    HTML => $LIST."\n",
-  );
+	my $LIST = shift;
+	$LIST = 'OL' unless defined $LIST;
+	my $enum = ($LIST eq 'OL' ? "enumerate" : "itemize");
+	$LIST = "</$LIST>";
+	MODES(
+		TeX  => "\\end{$enum}}",
+		HTML => $LIST . "\n",
+	);
 }
 
 #
 #  Syntactic sugar for making lists of paragraphs
 #
 sub BeginParList {
-  my $LIST = 'OL';
-  $LIST = shift if (uc($_[0]) eq "OL" or uc($_[0]) eq "UL");
-  BeginList($LIST,tex_par=>1,@_);
+	my $LIST = 'OL';
+	$LIST = shift if (uc($_[0]) eq "OL" or uc($_[0]) eq "UL");
+	BeginList($LIST, tex_par => 1, @_);
 }
 
-sub EndParList {EndList(@_)};
-
+sub EndParList { EndList(@_) }
 
 #
 #  Use $ITEM to introduce a new list item
 #
 $ITEM = MODES(
-  TeX => '\item\ignorespaces ',
-  HTML => "<LI>",
+	TeX  => '\item\ignorespaces ',
+	HTML => "<LI>",
 );
 
 #
@@ -105,8 +107,8 @@ $ITEM = MODES(
 #  space between list items properly
 #
 $ITEMSEP = MODES(
-  TeX => '\par\vskip-\parskip\vskip\baselineskip ',
-  HTML => "<BR><BR>",
+	TeX  => '\par\vskip-\parskip\vskip\baselineskip ',
+	HTML => "<BR><BR>",
 );
 
 1;

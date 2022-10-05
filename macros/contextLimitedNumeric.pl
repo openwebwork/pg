@@ -38,11 +38,11 @@ loadMacros("MathObjects.pl");
 
 sub _contextLimitedNumeric_init {
 
-  my $context = $main::context{"LimitedNumeric-List"} = Parser::Context->getCopy("LimitedNumeric");
-  $context->{name} = "LimitedNumeric-List";
-  $context->operators->redefine(',');
+	my $context = $main::context{"LimitedNumeric-List"} = Parser::Context->getCopy("LimitedNumeric");
+	$context->{name} = "LimitedNumeric-List";
+	$context->operators->redefine(',');
 
-  main::Context("LimitedNumeric");  ### FIXME:  probably should require the author to set this explicitly
+	main::Context("LimitedNumeric");    ### FIXME:  probably should require the author to set this explicitly
 }
 
 1;

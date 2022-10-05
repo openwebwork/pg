@@ -28,7 +28,7 @@ Encoding of special characters is now handled by PGbasicmacros.pl
 
 =cut
 
-sub _problemPreserveAnswers_init {PreserveAnswers::Init()}
+sub _problemPreserveAnswers_init { PreserveAnswers::Init() }
 
 package PreserveAnswers;
 
@@ -36,8 +36,7 @@ sub Init {
 
 }
 
-
-our $ENDDOCUMENT; # holds pointer to original ENDDOCUMENT
+our $ENDDOCUMENT;    # holds pointer to original ENDDOCUMENT
 
 ######################################################################
 

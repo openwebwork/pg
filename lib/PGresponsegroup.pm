@@ -16,7 +16,7 @@ package PGresponsegroup;
 
 use strict;
 use Exporter;
-use PGUtil  qw(not_null) ;
+use PGUtil qw(not_null);
 use PGanswergroup;
 use Tie::IxHash;
 
@@ -33,7 +33,7 @@ use Tie::IxHash;
 # 6. By convention the first response usually has the same label as the parent answergroup.
 #    This is always true if there is only a single response.
 #############################################
-our @ISA= qw(PGanswergroup);
+our @ISA = qw(PGanswergroup);
 
 ###
 # new ( label, response, label, response)
@@ -42,18 +42,18 @@ our @ISA= qw(PGanswergroup);
 # Optionally append label/response pairs
 ###
 sub new {
-	my $class = shift;
+	my $class             = shift;
 	my $answergroup_label = shift;
-	my $self = {
-	    answergroup_label  => $answergroup_label,    # enclosing answergroup that created this responsegroup
-		response_order     => [],         # response labels
-		responses          => {},         # response label/response value pair, 
-		                             	  # value could be an arrayref in the case of radio or checkbox groups        
+	my $self              = {
+		answergroup_label => $answergroup_label,    # enclosing answergroup that created this responsegroup
+		response_order    => [],                    # response labels
+		responses         => {},                    # response label/response value pair,
+													# value could be an arrayref in the case of radio or checkbox groups
 	};
 	bless $self, $class;
 	$self->append_responses(@_);
 	return $self;
-		
+
 }
 ###############
 # append_response (label, response)
@@ -62,20 +62,22 @@ sub new {
 # order is recorded in the response_order array
 ###############
 
-sub append_response{
+sub append_response {
 
-	my $self = shift;
+	my $self           = shift;
 	my $response_label = shift;
-	my $response_value =shift;
-	if (not_null($response_label) ) {
-		if (not exists ($self->{responses}->{$response_label}) ) {
-			push @{ $self->{response_order}} , $response_label;
+	my $response_value = shift;
+	if (not_null($response_label)) {
+		if (not exists($self->{responses}->{$response_label})) {
+			push @{ $self->{response_order} }, $response_label;
 			$self->{responses}->{$response_label} = $response_value;
 		} else {
-			$self->internal_debug_message( "PGresponsegroup::append_response error: there is already an answer labeled $response_label", caller(2),"\n");
+			$self->internal_debug_message(
+				"PGresponsegroup::append_response error: there is already an answer labeled $response_label",
+				caller(2), "\n");
 		}
 	} else {
-		    $self->internal_debug_message(  "PGresponsegroup::append_response error: undefined or empty response label");
+		$self->internal_debug_message("PGresponsegroup::append_response error: undefined or empty response label");
 	}
 	#warn "\n content of responses  is ",join(' ',%{$self->{responses}});
 }
@@ -87,12 +89,12 @@ sub append_response{
 # order is recorded in the response_order array
 ###############
 
-sub append_responses {   #no error checking
-	my $self = shift;
-	my @response_list  = @_;
+sub append_responses {    #no error checking
+	my $self          = shift;
+	my @response_list = @_;
 	#warn "working with @response_list,", caller(2);
 	while (@response_list) {
-		$self->append_response(shift @response_list , shift @response_list);
+		$self->append_response(shift @response_list, shift @response_list);
 	}
 }
 
@@ -102,16 +104,16 @@ sub append_responses {   #no error checking
 # replace the response to one response label entry
 ################
 sub replace_response {
-	my $self = shift;
+	my $self           = shift;
 	my $response_label = shift;
 	my $response_value = shift;
-	if (defined $self->{responses}->{$response_label}) {  
-		$self->{responses}->{$response_label}=$response_value if defined $response_value;
+	if (defined $self->{responses}->{$response_label}) {
+		$self->{responses}->{$response_label} = $response_value if defined $response_value;
 		return $self->{responses}->{$response_label};
 	} else {
-		warn "response label |$response_label| not defined" ;
+		warn "response label |$response_label| not defined";
 		return undef;
-    }
+	}
 }
 ################
 # extend_response(label, response)
@@ -119,29 +121,30 @@ sub replace_response {
 # extend the annonymous response to one response label entry  -- used for check boxes and radio buttons
 ################
 sub extend_response {
-	my $self = shift;
+	my $self           = shift;
 	my $response_label = shift;
 	my $new_value_key  = shift;
 	my $selected       = shift;
-	if (defined $self->{responses}->{$response_label}) {  
-		my $response_value = $self->{responses}->{$response_label};		
-		!defined($response_value) && do{ $response_value = {} };
-		ref($response_value) !~/HASH/ && do{ 
-		            $self->internal_debug_message("PGresponsegroup::extend_response: error in storing hash ", ref($response_value),$response_value);
-		            $response_value = {$response_value=>$selected};
-		          }; 
-		    #should not happen this means that a non-hash entry was made into this response label
-		    # this converts it to a hash entry		     
-		$response_value->{$new_value_key} =  $selected;
+	if (defined $self->{responses}->{$response_label}) {
+		my $response_value = $self->{responses}->{$response_label};
+		!defined($response_value) && do { $response_value = {} };
+		ref($response_value) !~ /HASH/ && do {
+			$self->internal_debug_message("PGresponsegroup::extend_response: error in storing hash ",
+				ref($response_value), $response_value);
+			$response_value = { $response_value => $selected };
+		};
+		#should not happen this means that a non-hash entry was made into this response label
+		# this converts it to a hash entry
+		$response_value->{$new_value_key} = $selected;
 		$self->{responses}->{$response_label} = $response_value;
-		return $response_value;  
-		# a hash of key/value pairs -- the key labels the radio button or checkbox, 
+		return $response_value;
+		# a hash of key/value pairs -- the key labels the radio button or checkbox,
 		# the value whether it is selected
 	} else {
-		$self->internal_debug_message("PGresponsegroup::extend_response: response label |$response_label| not defined") ;
+		$self->internal_debug_message("PGresponsegroup::extend_response: response label |$response_label| not defined");
 		return undef;
-    }
-	
+	}
+
 }
 ################
 # get_response(label)
@@ -149,25 +152,22 @@ sub extend_response {
 # returns  response for that label entry
 ################
 sub get_response {
-	my $self = shift;
+	my $self           = shift;
 	my $response_label = shift;
 	$self->{responses}->{$response_label};
 }
+
 sub get_answergroup_label {
 	my $self = shift;
-	if ( ! not_null ($self->{answergroup_label}) ) { #if $answergroup is not yet defined
-		$self->{answergroup_label} = ${$self->{response_order}}[0];
+	if (!not_null($self->{answergroup_label})) {    #if $answergroup is not yet defined
+		$self->{answergroup_label} = ${ $self->{response_order} }[0];
 	}
-	if ( not_null ($self->{answergroup_label}) ) { #if $answergroup is now defined
+	if (not_null($self->{answergroup_label})) {     #if $answergroup is now defined
 		return $self->{answergroup_label};
 	} else {
 		warn "This answer group has no labeled responses.";
 	}
 }
-
-	
-
-		
 
 ################
 # clear()
@@ -176,8 +176,8 @@ sub get_answergroup_label {
 ################
 sub clear {
 	my $self = shift;
-	$self->{response_order}=[];
-	$self->{responses} ={};
+	$self->{response_order} = [];
+	$self->{responses}      = {};
 }
 ################
 # response_labels()
@@ -185,10 +185,9 @@ sub clear {
 # returns entry ordered list of response labels
 ################
 
-
 sub response_labels {
 	my $self = shift;
-	@{$self->{response_order}};
+	@{ $self->{response_order} };
 }
 
 ################
@@ -199,20 +198,20 @@ sub response_labels {
 
 sub values {
 	my $self = shift;
-	my @out = ();
-	foreach my $key ( @{$self->{response_order}} ) {
+	my @out  = ();
+	foreach my $key (@{ $self->{response_order} }) {
 		push @out, $self->get_response($key);
 	}
 	@out;
 }
 # synonym for values #FIXME?  should this be the content of {responses}?
 sub responses {
-    my $self = shift;
+	my $self = shift;
 	$self->values(@_);
 }
 
 sub data {
 	my $self = shift;
-	return { %$self };
+	return {%$self};
 }
 1;

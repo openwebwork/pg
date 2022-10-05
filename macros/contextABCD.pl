@@ -46,23 +46,23 @@ when there are two answers, the first being "A" and the second being "B".
 
 =cut
 
-loadMacros("MathObjects.pl","contextString.pl");
+loadMacros("MathObjects.pl", "contextString.pl");
 
 sub _contextABCD_init {
-  my $context = $main::context{ABCD} = Parser::Context->getCopy("String");
-  $context->{name} = "ABCD";
-  $context->strings->are(
-    "A" => {},
-    "B" => {},
-    "C" => {},
-    "D" => {},
-   );
+	my $context = $main::context{ABCD} = Parser::Context->getCopy("String");
+	$context->{name} = "ABCD";
+	$context->strings->are(
+		"A" => {},
+		"B" => {},
+		"C" => {},
+		"D" => {},
+	);
 
-  $context = $main::context{'ABCD-List'} = $context->copy;
-  $context->operators->redefine(',', from => "Full");
-  $context->strings->add("NONE"=>{});
+	$context = $main::context{'ABCD-List'} = $context->copy;
+	$context->operators->redefine(',', from => "Full");
+	$context->strings->add("NONE" => {});
 
-  main::Context("ABCD");  ### FIXME:  probably should make author select context explicitly
+	main::Context("ABCD");    ### FIXME:  probably should make author select context explicitly
 }
 
 1;

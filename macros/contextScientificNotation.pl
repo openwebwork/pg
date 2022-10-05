@@ -107,7 +107,7 @@ digits that are shown.
 
 loadMacros("MathObjects.pl");
 
-sub _contextScientificNotation_init {ScientificNotation::Init()}
+sub _contextScientificNotation_init { ScientificNotation::Init() }
 
 package ScientificNotation;
 
@@ -115,77 +115,92 @@ package ScientificNotation;
 #  Creates and initializes the ScientificNotation context
 #
 sub Init {
-  #
-  #  Create the Scientific Notation context
-  #
-  my $context = $main::context{ScientificNotation} = Parser::Context->getCopy("Numeric");
-  $context->{name} = "ScientificNotation";
+	#
+	#  Create the Scientific Notation context
+	#
+	my $context = $main::context{ScientificNotation} = Parser::Context->getCopy("Numeric");
+	$context->{name} = "ScientificNotation";
 
-  #
-  #  Make numbers include the leading + or - and not allow E notation
-  #
-  $context->{pattern}{number} = '[-+]?(?:\d+(?:\.\d*)?|\.\d+)';
+	#
+	#  Make numbers include the leading + or - and not allow E notation
+	#
+	$context->{pattern}{number} = '[-+]?(?:\d+(?:\.\d*)?|\.\d+)';
 
-  #
-  #  Remove all the stuff we don't need
-  #
-  $context->variables->clear;
-  $context->constants->clear;
-  $context->parens->clear;
-  $context->operators->clear;
-  $context->functions->clear;
-  $context->strings->clear;
+	#
+	#  Remove all the stuff we don't need
+	#
+	$context->variables->clear;
+	$context->constants->clear;
+	$context->parens->clear;
+	$context->operators->clear;
+	$context->functions->clear;
+	$context->strings->clear;
 
-  #
-  #  Only allow  x  and  ^  operators
-  #
-  $context->operators->add(
-     'x' => {precedence => 3, associativity => 'left', type => 'bin',
-             string => 'x', TeX => '\times ', perl => '*',
-             class => 'ScientificNotation::BOP::x'},
+	#
+	#  Only allow  x  and  ^  operators
+	#
+	$context->operators->add(
+		'x' => {
+			precedence    => 3,
+			associativity => 'left',
+			type          => 'bin',
+			string        => 'x',
+			TeX           => '\times ',
+			perl          => '*',
+			class         => 'ScientificNotation::BOP::x'
+		},
 
-     '^' => {precedence => 7, associativity => 'right', type => 'bin',
-             string => '^', perl => '**',
-             class => 'ScientificNotation::BOP::power'},
+		'^' => {
+			precedence    => 7,
+			associativity => 'right',
+			type          => 'bin',
+			string        => '^',
+			perl          => '**',
+			class         => 'ScientificNotation::BOP::power'
+		},
 
-     '**'=> {precedence => 7, associativity => 'right', type => 'bin',
-             string => '^', perl => '**',
-             class => 'ScientificNotation::BOP::power'}
-  );
+		'**' => {
+			precedence    => 7,
+			associativity => 'right',
+			type          => 'bin',
+			string        => '^',
+			perl          => '**',
+			class         => 'ScientificNotation::BOP::power'
+		}
+	);
 
-  #
-  #  Don't reduce constant values (so 10^2 won't be replaced by 100)
-  #
-  $context->flags->set(reduceConstants => 0);
-  #
-  #  Flags controlling input and output
-  #
-  $context->flags->set(
-    snDigits => 6,     # number of decimal digits in mantissa for output
-    snTrimZeros => 1,  # 1 means remove trailing 0's, 0 means leave them
-    snMinDigits => 1,  # minimum number of decimal digits to require in student input
-                       #  (0 means no decimal is required)
-    snMaxDigits => -1, # maximum number of decimals allowed in student input
-                       #  (negative means no limit)
-  );
+	#
+	#  Don't reduce constant values (so 10^2 won't be replaced by 100)
+	#
+	$context->flags->set(reduceConstants => 0);
+	#
+	#  Flags controlling input and output
+	#
+	$context->flags->set(
+		snDigits    => 6,     # number of decimal digits in mantissa for output
+		snTrimZeros => 1,     # 1 means remove trailing 0's, 0 means leave them
+		snMinDigits => 1,     # minimum number of decimal digits to require in student input
+							  #  (0 means no decimal is required)
+		snMaxDigits => -1,    # maximum number of decimals allowed in student input
+							  #  (negative means no limit)
+	);
 
-  #
-  #  Better error message for this case
-  #
-  $context->{error}{msg}{"Unexpected character '%s'"} = "'%s' is not allowed in scientific notation";
+	#
+	#  Better error message for this case
+	#
+	$context->{error}{msg}{"Unexpected character '%s'"} = "'%s' is not allowed in scientific notation";
 
-  #
-  #  Hook into the Value package lookup mechanism
-  #
-  $context->{value}{ScientificNotation} = 'ScientificNotation::Real';
-  $context->{value}{"Real()"} = 'ScientificNotation::Real';
+	#
+	#  Hook into the Value package lookup mechanism
+	#
+	$context->{value}{ScientificNotation} = 'ScientificNotation::Real';
+	$context->{value}{"Real()"}           = 'ScientificNotation::Real';
 
-  #
-  #  Create the constructor function
-  #
-  main::PG_restricted_eval('sub ScientificNotation {Value->Package("ScientificNotation")->new(@_)}');
+	#
+	#  Create the constructor function
+	#
+	main::PG_restricted_eval('sub ScientificNotation {Value->Package("ScientificNotation")->new(@_)}');
 }
-
 
 ##################################################
 #
@@ -201,33 +216,37 @@ our @ISA = qw(Parser::BOP);
 #  decimal digits required.)
 #
 sub _check {
-  my $self = shift;
-  my ($lop,$rop) = ($self->{lop},$self->{rop});
-  my ($m,$M) = ($self->context->flag("snMinDigits"),$self->context->flag("snMaxDigits"));
-  $M = $m if $M >= 0 && $M < $m;
-  my $repeat = ($M < 0 ? "{$m,}" : "{$m,$M}");
-  my ($digits,$zeros) = ("\\.\\d$repeat","\\.0$repeat");
-  my $zero = ($m == 0 ? ($M > 0 ? "0.0" : "0") : "0.".("0"x$m));
-  my $decimals = ($m == $M ? ($m == 0 ? "no digits" : "exactly $m digit".($m == 1 ? "" : "s")) :
-                 ($M < 0 ?   ($m == 0 ? "" : "at least $m digit".($m == 1 ? "" : "s")) :
-                             ($m == 0 ? "at most $M digit".($M == 1 ? "" : "s") :
-                                        "between $m and $M digits")));
-  $decimals = " and ".$decimals." after it" if $decimals;
-  $digits = "($digits)?", $zeros = "($zeros)?" if $m == 0;
-  $self->Error("You must use a power of 10 to the right of 'x' in scientific notation") unless $rop->{isPowerOf10};
-  $self->Error("You must use a number to the left of 'x' in scientific notation") unless $lop->type eq 'Number';
-  $self->Error("The number to the left of 'x' must be %s, or have a single, non-zero digit before the decimal%s",
-               $zero,$decimals) unless $lop->{value_string} =~ m/^[-+]?([1-9]${digits}|0${zeros})$/;
-  $self->{type} = $Value::type{Number};
-  $self->{isScientificNotation} = 1;  # mark it so we can tell later on
+	my $self = shift;
+	my ($lop, $rop) = ($self->{lop}, $self->{rop});
+	my ($m, $M)     = ($self->context->flag("snMinDigits"), $self->context->flag("snMaxDigits"));
+	$M = $m if $M >= 0 && $M < $m;
+	my $repeat = ($M < 0 ? "{$m,}" : "{$m,$M}");
+	my ($digits, $zeros) = ("\\.\\d$repeat", "\\.0$repeat");
+	my $zero     = ($m == 0 ? ($M > 0 ? "0.0" : "0") : "0." . ("0" x $m));
+	my $decimals = (
+		$m == $M
+		? ($m == 0 ? "no digits" : "exactly $m digit" . ($m == 1 ? "" : "s"))
+		: ($M < 0
+			? ($m == 0 ? "" : "at least $m digit" . ($m == 1 ? "" : "s"))
+			: ($m == 0 ? "at most $M digit" . ($M == 1 ? "" : "s") : "between $m and $M digits"))
+	);
+	$decimals = " and " . $decimals . " after it" if $decimals;
+	$digits   = "($digits)?", $zeros = "($zeros)?" if $m == 0;
+	$self->Error("You must use a power of 10 to the right of 'x' in scientific notation") unless $rop->{isPowerOf10};
+	$self->Error("You must use a number to the left of 'x' in scientific notation")       unless $lop->type eq 'Number';
+	$self->Error("The number to the left of 'x' must be %s, or have a single, non-zero digit before the decimal%s",
+		$zero, $decimals)
+		unless $lop->{value_string} =~ m/^[-+]?([1-9]${digits}|0${zeros})$/;
+	$self->{type}                 = $Value::type{Number};
+	$self->{isScientificNotation} = 1;                      # mark it so we can tell later on
 }
 
 #
 #  Perform the multiplication and return a ScientificNotation object
 #
 sub _eval {
-  my ($self,$a,$b) = @_;
-  $self->Package("ScientificNotation")->make($self->context,$a*$b);
+	my ($self, $a, $b) = @_;
+	$self->Package("ScientificNotation")->make($self->context, $a * $b);
 }
 
 #
@@ -235,32 +254,32 @@ sub _eval {
 #  (if other operators are added back into the context, these will
 #   need to be modified to include parens at the appropriate times)
 #
-sub string {(shift)->eval->string}
-sub TeX    {(shift)->eval->TeX}
-sub perl   {(shift)->eval->perl}
+sub string { (shift)->eval->string }
+sub TeX    { (shift)->eval->TeX }
+sub perl   { (shift)->eval->perl }
 
 ##################################################
 #
 #  Scientific Notation exponentiation operator
 #
 package ScientificNotation::BOP::power;
-our @ISA = qw(Parser::BOP::power);  # inherit from standard power (TeX method in particular)
+our @ISA = qw(Parser::BOP::power);    # inherit from standard power (TeX method in particular)
 
 #
 #  Check that the operand types are compatible and
 #  produce appropriate errors if not
 #
 sub _check {
-  my $self = shift;
-  my ($lop,$rop) = ($self->{lop},$self->{rop});
-  $self->Error("The base can not have decimal places in scientific notation")
-    if $lop->{value} == 10 && $lop->{value_string} =~ m/\./;
-  $self->Error("You must use a power of 10 in scientific notation")
-    unless $lop->{value_string} eq "10";
-  $self->Error("The expondent must be an integer in scientific notation")
-    unless $rop->{value_string} =~ m/^[-+]?\d+$/;
-  $self->{type} = $Value::type{Number};
-  $self->{isPowerOf10} = 1;  # mark it so BOP::x above can recognize it
+	my $self = shift;
+	my ($lop, $rop) = ($self->{lop}, $self->{rop});
+	$self->Error("The base can not have decimal places in scientific notation")
+		if $lop->{value} == 10 && $lop->{value_string} =~ m/\./;
+	$self->Error("You must use a power of 10 in scientific notation")
+		unless $lop->{value_string} eq "10";
+	$self->Error("The expondent must be an integer in scientific notation")
+		unless $rop->{value_string} =~ m/^[-+]?\d+$/;
+	$self->{type}        = $Value::type{Number};
+	$self->{isPowerOf10} = 1;                      # mark it so BOP::x above can recognize it
 }
 
 #####################################
@@ -274,15 +293,15 @@ our @ISA = ("Value::Real");
 #  Override these so we can mark ourselves as scientific notation
 #
 sub new {
-  my $self = (shift)->SUPER::new(@_);
-  $self->{isValue} = $self->{isScientificNotation} = 1;
-  return $self;
+	my $self = (shift)->SUPER::new(@_);
+	$self->{isValue} = $self->{isScientificNotation} = 1;
+	return $self;
 }
 
 sub make {
-  my $self = (shift)->SUPER::make(@_);
-  $self->{isValue} = $self->{isScientificNotation} = 1;
-  return $self;
+	my $self = (shift)->SUPER::make(@_);
+	$self->{isValue} = $self->{isScientificNotation} = 1;
+	return $self;
 }
 
 #
@@ -291,22 +310,22 @@ sub make {
 #  if requested.
 #
 sub string {
-  my $self = shift;
-  my $digits = $self->getFlag("snDigits");
-  my $trim = ($self->getFlag("snTrimZeros") ? '0*' : '');
-  my $r = main::spf($self->value,"%.${digits}e");
-  $r =~ s/(\d)${trim}e\+?(-?)0*(\d)/$1 x 10^$2$3/i;
-  return $r;
+	my $self   = shift;
+	my $digits = $self->getFlag("snDigits");
+	my $trim   = ($self->getFlag("snTrimZeros") ? '0*' : '');
+	my $r      = main::spf($self->value, "%.${digits}e");
+	$r =~ s/(\d)${trim}e\+?(-?)0*(\d)/$1 x 10^$2$3/i;
+	return $r;
 }
 
 #
 #  Convert x notation to TeX form
 #
 sub TeX {
-  my $r = (shift)->string;
-  $r =~ s/x/\\times /;
-  $r =~ s/\^(.*)/^{$1}/;
-  return $r;
+	my $r = (shift)->string;
+	$r =~ s/x/\\times /;
+	$r =~ s/\^(.*)/^{$1}/;
+	return $r;
 }
 
 #
@@ -318,8 +337,10 @@ sub cmp_class {"Scientific Notation"}
 #  Only match against strings and Scientific Notation
 #
 sub typeMatch {
-  my $self = shift; my $other = shift; my $ans = shift;
-  return $other->{isScientificNotation};
+	my $self  = shift;
+	my $other = shift;
+	my $ans   = shift;
+	return $other->{isScientificNotation};
 }
 
 #########################################################################

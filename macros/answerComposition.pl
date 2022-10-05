@@ -27,7 +27,7 @@ neither of which is allowed to be the identity function.
 
 =cut
 
-sub _answerComposition_init {}; # don't reload this file
+sub _answerComposition_init { };    # don't reload this file
 
 =head1 MACROS
 
@@ -58,12 +58,13 @@ Example:
 =cut
 
 sub COMPOSITION_ANS {
-  my $f = shift; my $g = shift;
-  my $num_of_answers = main::ans_rule_count();
-  my $fID = ANS_NUM_TO_NAME($num_of_answers-1);
-  my $gID = ANS_NUM_TO_NAME($num_of_answers);
-  my %ans = composition_ans_list($fID=>$f,$gID=>$g,@_);
-  ANS($ans{$fID},$ans{$gID});
+	my $f              = shift;
+	my $g              = shift;
+	my $num_of_answers = main::ans_rule_count();
+	my $fID            = ANS_NUM_TO_NAME($num_of_answers - 1);
+	my $gID            = ANS_NUM_TO_NAME($num_of_answers);
+	my %ans            = composition_ans_list($fID => $f, $gID => $g, @_);
+	ANS($ans{$fID}, $ans{$gID});
 }
 
 =head2 NAMED_COMPOSITION_ANS
@@ -88,7 +89,7 @@ Example:
 
 =cut
 
-sub NAMED_COMPOSITION_ANS {NAMED_ANS(composition_ans_list(@_))}
+sub NAMED_COMPOSITION_ANS { NAMED_ANS(composition_ans_list(@_)) }
 
 =head2 composition_ans_list
 
@@ -121,94 +122,108 @@ used by the student is incorrect
 =cut
 
 sub composition_ans_list {
-  my ($fID,$f,$gID,$g,%params) = @_; my @IDs = ($fID,$gID);
-  #
-  #  Get options
-  #
-  $params{vars} = [$params{var},$params{var}] if $params{var} && !$params{vars};
-  $params{showVariableHints} = 1 unless defined($params{showVariableHints});
-  my $isPreview = $main::inputs_ref->{previewAnswers};
-  my $vars = $params{vars} || [];
-  my @options = (ignoreInfinity=>0,ignoreStrings=>0);
-  my ($i,$error);
+	my ($fID, $f, $gID, $g, %params) = @_;
+	my @IDs = ($fID, $gID);
+	#
+	#  Get options
+	#
+	$params{vars}              = [ $params{var}, $params{var} ] if $params{var} && !$params{vars};
+	$params{showVariableHints} = 1 unless defined($params{showVariableHints});
+	my $isPreview = $main::inputs_ref->{previewAnswers};
+	my $vars      = $params{vars} || [];
+	my @options   = (ignoreInfinity => 0, ignoreStrings => 0);
+	my ($i, $error);
 
-  #
-  #  Get correct answer data and determine which variables to use
-  #
-  $f = Value->Package("Formula")->new($f); $g = Value->Package("Formula")->new($g);
-  my %correct = ($fID => $f, $gID => $g);
-  my %x = ($fID => $vars->[0], $gID => $vars->[1]);
-  foreach $i (@IDs) {
-    unless ($x{$i}) {
-      die "Can't tell which variable to use for $correct{$i}: ".
-             "use var=>'x' or vars=>['x','y'] to specify it"
-	if scalar(keys %{$correct{$i}->{variables}}) > 1;
-      $x{$i} = (keys %{$correct{$i}->{variables}})[0];
-    }
-    die "$correct{$i} is not a function of $x{$i}"
-      unless defined($correct{$i}->{variables}{$x{$i}});
-  }
-  my %y = ($fID => $x{$gID}, $gID => $x{$fID});
-  my %ans = ($fID => message_cmp($f), $gID => message_cmp($g));
-  my $fog = $f->substitute($x{$fID}=>$g);  #  the composition
+	#
+	#  Get correct answer data and determine which variables to use
+	#
+	$f = Value->Package("Formula")->new($f);
+	$g = Value->Package("Formula")->new($g);
+	my %correct = ($fID => $f, $gID => $g);
+	my %x       = ($fID => $vars->[0], $gID => $vars->[1]);
+	foreach $i (@IDs) {
+		unless ($x{$i}) {
+			die "Can't tell which variable to use for $correct{$i}: " . "use var=>'x' or vars=>['x','y'] to specify it"
+				if scalar(keys %{ $correct{$i}->{variables} }) > 1;
+			$x{$i} = (keys %{ $correct{$i}->{variables} })[0];
+		}
+		die "$correct{$i} is not a function of $x{$i}"
+			unless defined($correct{$i}->{variables}{ $x{$i} });
+	}
+	my %y   = ($fID => $x{$gID}, $gID => $x{$fID});
+	my %ans = ($fID => message_cmp($f), $gID => message_cmp($g));
+	my $fog = $f->substitute($x{$fID} => $g);    #  the composition
 
-  #
-  #  Check that the student formulas parse OK,
-  #  produce a number, contain the correct variable,
-  #  don't contain the composition itself in a simple way,
-  #  and aren't the identity.
-  #
-  my %student = ($fID => $main::inputs_ref->{$fID},
-		 $gID => $main::inputs_ref->{$gID});
-  foreach $i (@IDs) {
-    next unless defined($student{$i});
-    $student{$i} = Parser::Formula($student{$i});
-    if (!defined($student{$i})) {$error = 1; next}
-    $ans{$i}->{rh_ans}{preview_latex_string} = $student{$i}->TeX;
-    if ($student{$i}->type ne 'Number') {
-      $ans{$i} = $correct{$i}->cmp(@options);
-      $error = 1; next;
-    }
-    if ($x{$fID} ne $x{$gID} && defined($student{$i}->{variables}{$y{$i}})) {
-      $ans{$i}->{rh_ans}{ans_message} = "Your formula may not contain $y{$i}"
-	unless $isPreview || !$params{showVariableHints};
-      $error = 1; next;
-    }
-    if (!defined($student{$i}->{variables}{$x{$i}})) {
-      $ans{$i}->{rh_ans}{ans_message} = "Your formula is not a function of $x{$i}"
-	unless $isPreview || !$params{showVariableHints};
-      $error = 1; next;
-    }
-    if (($student{$i}->{tree}->class eq 'BOP' &&
-	 ($fog == $student{$i}->{tree}{lop} || $fog == $student{$i}->{tree}{rop})) ||
-	($student{$i}->{tree}->class eq 'UOP' && $fog == $student{$i}->{tree}{op})) {
-      $ans{$i}->{rh_ans}{ans_message} =
-        "Your formula may not have the composition as one of its terms";
-      $error = 1; next;
-    }
-    if ($fog == $student{$i}) {
-      $ans{$i}->{rh_ans}{ans_message} =
-	"Your formula my not be the composition itself";
-      $error = 1; next;
-    }
-    if (Parser::Formula($x{$i}) == $student{$i}) {
-      $ans{$i}->{rh_ans}{ans_message} = "The identity function is not allowed"
-	unless $isPreview;
-      $error = 1; next;
-    }
+	#
+	#  Check that the student formulas parse OK,
+	#  produce a number, contain the correct variable,
+	#  don't contain the composition itself in a simple way,
+	#  and aren't the identity.
+	#
+	my %student = (
+		$fID => $main::inputs_ref->{$fID},
+		$gID => $main::inputs_ref->{$gID}
+	);
+	foreach $i (@IDs) {
+		next unless defined($student{$i});
+		$student{$i} = Parser::Formula($student{$i});
+		if (!defined($student{$i})) { $error = 1; next }
+		$ans{$i}->{rh_ans}{preview_latex_string} = $student{$i}->TeX;
+		if ($student{$i}->type ne 'Number') {
+			$ans{$i} = $correct{$i}->cmp(@options);
+			$error = 1;
+			next;
+		}
+		if ($x{$fID} ne $x{$gID} && defined($student{$i}->{variables}{ $y{$i} })) {
+			$ans{$i}->{rh_ans}{ans_message} = "Your formula may not contain $y{$i}"
+				unless $isPreview || !$params{showVariableHints};
+			$error = 1;
+			next;
+		}
+		if (!defined($student{$i}->{variables}{ $x{$i} })) {
+			$ans{$i}->{rh_ans}{ans_message} = "Your formula is not a function of $x{$i}"
+				unless $isPreview || !$params{showVariableHints};
+			$error = 1;
+			next;
+		}
+		if (
+			(
+				$student{$i}->{tree}->class eq 'BOP'
+				&& ($fog == $student{$i}->{tree}{lop} || $fog == $student{$i}->{tree}{rop})
+			)
+			|| ($student{$i}->{tree}->class eq 'UOP' && $fog == $student{$i}->{tree}{op})
+			)
+		{
+			$ans{$i}->{rh_ans}{ans_message} =
+				"Your formula may not have the composition as one of its terms";
+			$error = 1;
+			next;
+		}
+		if ($fog == $student{$i}) {
+			$ans{$i}->{rh_ans}{ans_message} =
+				"Your formula my not be the composition itself";
+			$error = 1;
+			next;
+		}
+		if (Parser::Formula($x{$i}) == $student{$i}) {
+			$ans{$i}->{rh_ans}{ans_message} = "The identity function is not allowed"
+				unless $isPreview;
+			$error = 1;
+			next;
+		}
 
-  }
+	}
 
-  #
-  #  If no error, and both answers are given, check if compositions are equal
-  #
-  if (!$error && defined($student{$fID}) && defined($student{$gID})) {
-    if ($fog == $student{$fID}->substitute($x{$fID}=>$student{$gID})) {
-      $ans{$fID}->{rh_ans}{score} = $ans{$gID}->{rh_ans}{score} = 1;
-    }
-  }
+	#
+	#  If no error, and both answers are given, check if compositions are equal
+	#
+	if (!$error && defined($student{$fID}) && defined($student{$gID})) {
+		if ($fog == $student{$fID}->substitute($x{$fID} => $student{$gID})) {
+			$ans{$fID}->{rh_ans}{score} = $ans{$gID}->{rh_ans}{score} = 1;
+		}
+	}
 
-  return (%ans);
+	return (%ans);
 }
 
 =head2 message_cmp
@@ -222,15 +237,15 @@ parts of the composition.
 =cut
 
 sub message_cmp {
-  my $correct = shift;
-  my $answerEvaluator = new AnswerEvaluator;
-  $answerEvaluator->ans_hash(
-     type => "message",
-     correct_ans => $correct->string,
-     ans_message => $message,
-  );
-  $answerEvaluator->install_evaluator(sub {shift});
-  return $answerEvaluator;
+	my $correct         = shift;
+	my $answerEvaluator = new AnswerEvaluator;
+	$answerEvaluator->ans_hash(
+		type        => "message",
+		correct_ans => $correct->string,
+		ans_message => $message,
+	);
+	$answerEvaluator->install_evaluator(sub {shift});
+	return $answerEvaluator;
 }
 
 1;

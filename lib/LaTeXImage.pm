@@ -29,9 +29,9 @@ package LaTeXImage;
 # The constructor (it takes no parameters)
 sub new {
 	my $class = shift;
-	my $data = {
-		tex            => '',
-		environment    => '',
+	my $data  = {
+		tex         => '',
+		environment => '',
 		# if tikzOptions is nonempty, then environment
 		# will effectively be ['tikzpicture', tikzOptions]
 		tikzOptions    => '',
@@ -40,7 +40,7 @@ sub new {
 		addToPreamble  => '',
 		ext            => 'svg',
 		svgMethod      => 'pdf2svg',
-		convertOptions => {input => {},output => {}},
+		convertOptions => { input => {}, output => {} },
 		imageName      => ''
 	};
 	my $self = sub {
@@ -51,9 +51,8 @@ sub new {
 			if ($field eq 'ext') {
 				my $ext = shift;
 				$data->{ext} = $ext
-				if ($ext && ($ext =~ /^(png|gif|svg|pdf|tgz)$/));
-			}
-			else {
+					if ($ext && ($ext =~ /^(png|gif|svg|pdf|tgz)$/));
+			} else {
 				$data->{$field} = shift;
 			}
 		}
@@ -78,8 +77,8 @@ sub tex {
 # If tikzOptions is nonempty, the input is ignored and output is ['tikzpicture',tikzOptions].
 sub environment {
 	my $self = shift;
-	return ['tikzpicture',$self->tikzOptions] if ($self->tikzOptions ne '');
-	return [&$self('environment', @_), ''] if (ref(&$self('environment', @_)) ne 'ARRAY');
+	return [ 'tikzpicture', $self->tikzOptions ] if ($self->tikzOptions ne '');
+	return [ &$self('environment', @_), '' ] if (ref(&$self('environment', @_)) ne 'ARRAY');
 	return &$self('environment', @_);
 }
 
@@ -139,34 +138,40 @@ sub imageName {
 }
 
 sub header {
-	my $self = shift;
+	my $self   = shift;
 	my @output = ();
 	push(@output, "\\documentclass{standalone}\n");
-	my @xcolorOpts = grep { ref $_ eq "ARRAY" && $_->[0] eq "xcolor" && defined $_->[1] } @{$self->texPackages};
+	my @xcolorOpts = grep { ref $_ eq "ARRAY" && $_->[0] eq "xcolor" && defined $_->[1] } @{ $self->texPackages };
 	my $xcolorOpts = @xcolorOpts ? $xcolorOpts[0][1] : 'svgnames';
 	push(@output, "\\usepackage[$xcolorOpts]{xcolor}\n");
 	# Load tikz if environment is tikzpicture, but not if texPackages contains tikz already
 	push(@output, "\\usepackage{tikz}\n")
-	if ($self->environment->[0] eq 'tikzpicture' &&
-		!grep { (ref $_ eq "ARRAY" && $_->[0] eq 'tikz') || $_ eq 'tikz' } @{$self->texPackages});
-	push(@output, map {
-			"\\usepackage" . (ref $_ eq "ARRAY" && @$_ > 1 && $_->[1] ne "" ? "[$_->[1]]" : "") . "{" . (ref $_ eq "ARRAY" ? $_->[0] : $_) . "}\n"
-		} grep { (ref $_ eq "ARRAY" && $_->[0] ne 'xcolor') || $_ ne 'xcolor' } @{$self->texPackages});
+		if ($self->environment->[0] eq 'tikzpicture'
+			&& !grep { (ref $_ eq "ARRAY" && $_->[0] eq 'tikz') || $_ eq 'tikz' } @{ $self->texPackages });
+	push(
+		@output,
+		map {
+			"\\usepackage"
+				. (ref $_ eq "ARRAY" && @$_ > 1 && $_->[1] ne "" ? "[$_->[1]]" : "") . "{"
+				. (ref $_ eq "ARRAY"                             ? $_->[0]     : $_) . "}\n"
+		} grep { (ref $_ eq "ARRAY" && $_->[0] ne 'xcolor') || $_ ne 'xcolor' } @{ $self->texPackages }
+	);
 	push(@output, "\\usetikzlibrary{" . $self->tikzLibraries . "}") if ($self->tikzLibraries ne "");
 	push(@output, $self->addToPreamble);
 	push(@output, "\\begin{document}\n");
 	if ($self->environment->[0]) {
-		push(@output, "\\begin{" , $self->environment->[0] . "}");
-		push(@output, "[" . $self->environment->[1] . "]") if (defined $self->environment->[1] && $self->environment->[1] ne "");
+		push(@output, "\\begin{", $self->environment->[0] . "}");
+		push(@output, "[" . $self->environment->[1] . "]")
+			if (defined $self->environment->[1] && $self->environment->[1] ne "");
 		push(@output, "\n");
 	}
 	@output;
 }
 
 sub footer {
-	my $self = shift;
+	my $self   = shift;
 	my @output = ();
-	push(@output, "\\end{" , $self->environment->[0] . "}\n") if $self->environment->[0];
+	push(@output, "\\end{", $self->environment->[0] . "}\n") if $self->environment->[0];
 	push(@output, "\\end{document}\n");
 	@output;
 }
@@ -178,7 +183,7 @@ sub draw {
 	my $working_dir = WeBWorK::PG::ImageGenerator::makeTempDirectory(WeBWorK::PG::IO::ww_tmp_dir(), "latex");
 	my $data;
 
-	my $ext = $self->ext;
+	my $ext       = $self->ext;
 	my $svgMethod = $self->svgMethod;
 
 	my $fh;
@@ -196,9 +201,11 @@ sub draw {
 		print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
 		print $fh $self->footer;
 		close $fh;
-		system "cd $working_dir && " . WeBWorK::PG::IO::externalCommand('latex') .
-			" image-dvisvgm.tex > latex.stdout 2> /dev/null && " .
-			WeBWorK::PG::IO::externalCommand('mv') . " image-dvisvgm.dvi image.dvi";
+		system "cd $working_dir && "
+			. WeBWorK::PG::IO::externalCommand('latex')
+			. " image-dvisvgm.tex > latex.stdout 2> /dev/null && "
+			. WeBWorK::PG::IO::externalCommand('mv')
+			. " image-dvisvgm.dvi image.dvi";
 		chmod(0777, "$working_dir/image.dvi");
 	}
 	if ($ext ne 'svg' || ($ext eq 'svg' && $svgMethod ne 'dvisvgm')) {
@@ -209,8 +216,9 @@ sub draw {
 		print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
 		print $fh $self->footer;
 		close $fh;
-		system "cd $working_dir && " . WeBWorK::PG::IO::externalCommand('pdflatex') .
-			" image.tex > pdflatex.stdout 2> /dev/null";
+		system "cd $working_dir && "
+			. WeBWorK::PG::IO::externalCommand('pdflatex')
+			. " image.tex > pdflatex.stdout 2> /dev/null";
 		chmod(0777, "$working_dir/image.pdf");
 	}
 
@@ -253,14 +261,15 @@ sub draw {
 
 	# Make the tgz
 	if ($ext eq 'tgz') {
-		system "cd $working_dir && " . WeBWorK::PG::IO::externalCommand('tar') .
-			" -czf image.tgz image.tex image.pdf image.svg image.png > /dev/null 2>&1";
+		system "cd $working_dir && "
+			. WeBWorK::PG::IO::externalCommand('tar')
+			. " -czf image.tgz image.tex image.pdf image.svg image.png > /dev/null 2>&1";
 		warn "Failed to generate tgz file." unless -r "$working_dir/image.tgz";
 	}
 
 	# Read the generated image file into memory
 	if (-r "$working_dir/image.$ext") {
-		open(my $in_fh,  "<", "$working_dir/image.$ext")
+		open(my $in_fh, "<", "$working_dir/image.$ext")
 			or warn "Failed to open $working_dir/image.$ext for reading.", return;
 		local $/;
 		$data = <$in_fh>;
@@ -278,27 +287,27 @@ sub draw {
 }
 
 sub use_svgMethod {
-	my $self = shift;
+	my $self        = shift;
 	my $working_dir = shift;
 	if ($self->svgMethod eq 'dvisvgm') {
-		system WeBWorK::PG::IO::externalCommand('dvisvgm') .
-			" $working_dir/image.dvi --no-fonts --output=$working_dir/image.svg > /dev/null 2>&1";
+		system WeBWorK::PG::IO::externalCommand('dvisvgm')
+			. " $working_dir/image.dvi --no-fonts --output=$working_dir/image.svg > /dev/null 2>&1";
 	} else {
-		system WeBWorK::PG::IO::externalCommand($self->svgMethod) .
-			" $working_dir/image.pdf $working_dir/image.svg > /dev/null 2>&1";
+		system WeBWorK::PG::IO::externalCommand($self->svgMethod)
+			. " $working_dir/image.pdf $working_dir/image.svg > /dev/null 2>&1";
 	}
 	warn "Failed to generate svg file." unless -r "$working_dir/image.svg";
 }
 
 sub use_convert {
-	my $self = shift;
+	my $self        = shift;
 	my $working_dir = shift;
-	my $ext = shift;
-	system WeBWorK::PG::IO::externalCommand('convert') .
-		join('',map {" -$_ " . $self->convertOptions->{input}->{$_}} (keys %{$self->convertOptions->{input}})) .
-		" $working_dir/image.pdf" .
-		join('',map {" -$_ " . $self->convertOptions->{output}->{$_}} (keys %{$self->convertOptions->{output}})) .
-		" $working_dir/image.$ext > /dev/null 2>&1";
+	my $ext         = shift;
+	system WeBWorK::PG::IO::externalCommand('convert')
+		. join('', map { " -$_ " . $self->convertOptions->{input}->{$_} } (keys %{ $self->convertOptions->{input} }))
+		. " $working_dir/image.pdf"
+		. join('', map { " -$_ " . $self->convertOptions->{output}->{$_} } (keys %{ $self->convertOptions->{output} }))
+		. " $working_dir/image.$ext > /dev/null 2>&1";
 	warn "Failed to generate $ext file." unless -r "$working_dir/image.$ext";
 }
 

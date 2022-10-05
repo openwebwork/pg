@@ -115,12 +115,12 @@ our @ISA = qw(LaTeXImage);
 # Not much needs to be done here.
 # The real work is done in LaTeXImage.pm.
 sub new {
-	my $self = shift;
+	my $self  = shift;
 	my $class = ref($self) || $self;
 
 	my $image = $class->SUPER::new(@_);
-	$image->svgMethod($main::envir{latexImageSVGMethod} // 'pdf2svg');
-	$image->convertOptions($main::envir{latexImageConvertOptions} // {input => {},output => {}});
+	$image->svgMethod($main::envir{latexImageSVGMethod}           // 'pdf2svg');
+	$image->convertOptions($main::envir{latexImageConvertOptions} // { input => {}, output => {} });
 	$image->SUPER::ext('pdf') if $main::displayMode eq 'TeX';
 	$image->SUPER::ext('tgz') if $main::displayMode eq 'PTX';
 	$image->imageName($main::PG->getUniqueName($image->ext));
@@ -130,7 +130,7 @@ sub new {
 
 sub ext {
 	my $self = shift;
-	my $ext = shift;
+	my $ext  = shift;
 	return $self->SUPER::ext($ext) if $ext && $main::displayMode ne 'TeX';
 	return $self->SUPER::ext;
 }

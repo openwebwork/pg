@@ -43,58 +43,61 @@
 #                                  Default: 1
 #
 sub text2PG {
-  my $string = shift; return unless defined($string);
-  my %options = (
-    trimWhiteSpace => 1,
-    convertBlanklines => 1,
-    convertNewlines => 1,
-    convertDollars => 0,
-    sanitizeText => 1,
-    allowCommands => 0,
-    doubleSlashes => 1,
-    @_,
-  );
-  $string =~ s/\r\n?/\n/g if $options{convertNewlines};  # convert Mac and PC line breaks to unix
-  $string =~ s/^\s+|\s+$//g if $options{trimWhitespace};
-  my @parts; my $i = 0;
-  if ($options{allowCommands}) 
-    {@parts = split(/(\\\{.*?\\\}|``.*?``\*?|`.+`\*?|\\\(.*?\\\)|\\\[.*?\\\])/s,$string)}
-   else
-    {@parts = split(/(``.*?``\*?|`.+`\*?|\\\(.*?\\\)|\\\[.*?\\\])/s,$string)}
-  while ($i <= $#parts) {
-    if ($options{sanitizeText}) {
-      if ($displayMode eq 'TeX') {
-	$parts[$i] =~ s/(["\#%&<>\\^_\{\}~])/$text2PG{TeX}{$1}/eg;
-      } else {
-        $parts[$i] =~ s/&/&amp;/g;
-        $parts[$i] =~ s/</&lt;/g;
-        $parts[$i] =~ s/>/&gt;/g;
-      }
-    }
-    $parts[$i] =~ s/\$/$DOLLAR/og if $options{convertDollars};
-    $parts[$i] =~ s/\n\n+/$PAR/og if $options{convertBlanklines};
-    $parts[$i] =~ s/\n/$BR/og if $options{convertNewlines};
-    $i += 2;
-  }
-  $string = join('',@parts);
-  $string =~ s/\\/\\\\/g if $options{doubleSlashes};
-  return $string;
+	my $string = shift;
+	return unless defined($string);
+	my %options = (
+		trimWhiteSpace    => 1,
+		convertBlanklines => 1,
+		convertNewlines   => 1,
+		convertDollars    => 0,
+		sanitizeText      => 1,
+		allowCommands     => 0,
+		doubleSlashes     => 1,
+		@_,
+	);
+	$string =~ s/\r\n?/\n/g   if $options{convertNewlines};    # convert Mac and PC line breaks to unix
+	$string =~ s/^\s+|\s+$//g if $options{trimWhitespace};
+	my @parts;
+	my $i = 0;
+	if ($options{allowCommands}) {
+		@parts = split(/(\\\{.*?\\\}|``.*?``\*?|`.+`\*?|\\\(.*?\\\)|\\\[.*?\\\])/s, $string);
+	} else {
+		@parts = split(/(``.*?``\*?|`.+`\*?|\\\(.*?\\\)|\\\[.*?\\\])/s, $string);
+	}
+	while ($i <= $#parts) {
+		if ($options{sanitizeText}) {
+			if ($displayMode eq 'TeX') {
+				$parts[$i] =~ s/(["\#%&<>\\^_\{\}~])/$text2PG{TeX}{$1}/eg;
+			} else {
+				$parts[$i] =~ s/&/&amp;/g;
+				$parts[$i] =~ s/</&lt;/g;
+				$parts[$i] =~ s/>/&gt;/g;
+			}
+		}
+		$parts[$i] =~ s/\$/$DOLLAR/og if $options{convertDollars};
+		$parts[$i] =~ s/\n\n+/$PAR/og if $options{convertBlanklines};
+		$parts[$i] =~ s/\n/$BR/og     if $options{convertNewlines};
+		$i += 2;
+	}
+	$string = join('', @parts);
+	$string =~ s/\\/\\\\/g if $options{doubleSlashes};
+	return $string;
 }
 
 $text2PG{TeX} = {
-  '"' => '{\tt\char34}',
-  '#' => '{\tt\char35}',
-  '$' => '\$',
-  '%' => '\%',
-  '&' => '\&',
-  '<' => '{\tt\char60}',
-  '>' => '{\tt\char62}',
-  '\\' => '{\tt\char92}',
-  '^' => '{\tt\char94}',
-  '_' => '\_',
-  '{' => '{\tt\char123}',
-  '}' => '{\tt\char125}',
-  '~' => '{\tt\char126}',
+	'"'  => '{\tt\char34}',
+	'#'  => '{\tt\char35}',
+	'$'  => '\$',
+	'%'  => '\%',
+	'&'  => '\&',
+	'<'  => '{\tt\char60}',
+	'>'  => '{\tt\char62}',
+	'\\' => '{\tt\char92}',
+	'^'  => '{\tt\char94}',
+	'_'  => '\_',
+	'{'  => '{\tt\char123}',
+	'}'  => '{\tt\char125}',
+	'~'  => '{\tt\char126}',
 };
 
 1;

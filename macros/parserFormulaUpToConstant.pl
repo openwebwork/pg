@@ -96,13 +96,13 @@ flag.  (Note: setting showHints to 0 also disables these hints.)
 
 loadMacros("MathObjects.pl");
 
-sub _parserFormulaUpToConstant_init {FormulaUpToConstant::Init()}
+sub _parserFormulaUpToConstant_init { FormulaUpToConstant::Init() }
 
 package FormulaUpToConstant;
 @ISA = ('Value::Formula');
 
 sub Init {
-  main::PG_restricted_eval('sub FormulaUpToConstant {FormulaUpToConstant->new(@_)}');
+	main::PG_restricted_eval('sub FormulaUpToConstant {FormulaUpToConstant->new(@_)}');
 }
 
 #
@@ -110,46 +110,47 @@ sub Init {
 #  is supplied, we add C ourselves.
 #
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
-  #
-  #  Copy the context (so we can modify it) and
-  #  replace the usual Variable object with our own.
-  #
-  my $context = (Value::isContext($_[0]) ? shift : $self->context)->copy;
-  $context->{parser}{Variable} = 'FormulaUpToConstant::Variable';
-  #
-  #  Create a formula from the user's input.
-  #
-  my $f = main::Formula($context,@_);
-  #
-  #  If it doesn't have a constant already, add one.
-  #  (should check that C isn't already in use, and look
-  #   up the first free name, but we'll cross our fingers
-  #   for now.  Could look through the defined variables
-  #   to see if there is already an arbitraryConstant
-  #   and use that.)
-  #
-  unless ($f->{constant}) {$f = $f + "C", $f->{constant} = "C"}
-  #
-  #  Check that the formula is linear in C.
-  #
-  my $n = $f->D($f->{constant});
-  Value->Error("Your formula isn't linear in the arbitrary constant '%s'",$f->{constant})
-    unless $n->isConstant;
-  #
-  #  Make a version with adaptive parameters for use in the
-  #  comparison later on.  We would like n00*C, but already have $n
-  #  copies of C, so remove them.  That way, n00 will be 0 when there
-  #  are no C's in the student answer during the adaptive comparison.
-  #  (Again, should really check that n00 is not in use already)
-  #
-  my $n00 = $context->variables->get("n00");
-  $context->variables->add(n00=>'Parameter') unless $n00 and $n00->{parameter};
-  my $n01 = $context->variables->get("n01");
-  $context->variables->add(n01=>'Parameter') unless $n01 and $n01->{parameter};
-  $f->{adapt} = $f + "(n00-$n)$f->{constant} + n01";
+	my $self  = shift;
+	my $class = ref($self) || $self;
+	#
+	#  Copy the context (so we can modify it) and
+	#  replace the usual Variable object with our own.
+	#
+	my $context = (Value::isContext($_[0]) ? shift : $self->context)->copy;
+	$context->{parser}{Variable} = 'FormulaUpToConstant::Variable';
+	#
+	#  Create a formula from the user's input.
+	#
+	my $f = main::Formula($context, @_);
+	#
+	#  If it doesn't have a constant already, add one.
+	#  (should check that C isn't already in use, and look
+	#   up the first free name, but we'll cross our fingers
+	#   for now.  Could look through the defined variables
+	#   to see if there is already an arbitraryConstant
+	#   and use that.)
+	#
+	unless ($f->{constant}) { $f = $f + "C", $f->{constant} = "C" }
+	#
+	#  Check that the formula is linear in C.
+	#
+	my $n = $f->D($f->{constant});
+	Value->Error("Your formula isn't linear in the arbitrary constant '%s'", $f->{constant})
+		unless $n->isConstant;
+	#
+	#  Make a version with adaptive parameters for use in the
+	#  comparison later on.  We would like n00*C, but already have $n
+	#  copies of C, so remove them.  That way, n00 will be 0 when there
+	#  are no C's in the student answer during the adaptive comparison.
+	#  (Again, should really check that n00 is not in use already)
+	#
+	my $n00 = $context->variables->get("n00");
+	$context->variables->add(n00 => 'Parameter') unless $n00 and $n00->{parameter};
+	my $n01 = $context->variables->get("n01");
+	$context->variables->add(n01 => 'Parameter') unless $n01 and $n01->{parameter};
+	$f->{adapt} = $f + "(n00-$n)$f->{constant} + n01";
 
-  return bless $f, $class;
+	return bless $f, $class;
 }
 
 ##################################################
@@ -161,42 +162,44 @@ sub new {
 #  (this can be used by the answer checker to print helpful messages)
 #
 sub compare {
-  my ($l,$r) = @_; my $self = $l; my $context = $self->context;
-  $r = Value::makeValue($r,context=>$context) unless Value::isValue($r);
-  #
-  #  Not equal if the student value is constant or has no + C
-  #
-  return 2 if !Value::isFormula($r);
-  return 3 if !defined($r->{constant});
-  #
-  #  If constants aren't the same, substitute the professor's in the student answer.
-  #
-  $r = $r->substitute($r->{constant}=>$l->{constant}) unless $r->{constant} eq $l->{constant};
-  $r->context($context) unless $r->context == $context;
+	my ($l, $r) = @_;
+	my $self    = $l;
+	my $context = $self->context;
+	$r = Value::makeValue($r, context => $context) unless Value::isValue($r);
+	#
+	#  Not equal if the student value is constant or has no + C
+	#
+	return 2 if !Value::isFormula($r);
+	return 3 if !defined($r->{constant});
+	#
+	#  If constants aren't the same, substitute the professor's in the student answer.
+	#
+	$r = $r->substitute($r->{constant} => $l->{constant}) unless $r->{constant} eq $l->{constant};
+	$r->context($context)                                 unless $r->context == $context;
 
-  #
-  #  Compare with adaptive parameters to see if $l + n00 C = $r for some n0.
-  #
-  my $adapt = $l->adapt;
-  my $equal = ($adapt == $r);
-  $self->{adapt} = $self->{adapt}->inherit($adapt);            # save the adapted value's flags
-  $self->{adapt}{test_values} = $adapt->{test_values};         #  (these two are removed by inherit)
-  $self->{adapt}{test_adapt} = $adapt->{test_adapt};
-  $_[1]->{test_values} = $r->{test_values};            # save these in student answer for diagnostics
-  return -1 unless $equal;
-  #
-  #  Check that n00 is non-zero (i.e., there is a multiple of C in the student answer)
-  #  (remember: return value of 0 is equal, and non-zero is unequal)
-  #
-  return (abs($context->variables->get("n00")->{value}) < $context->flag("zeroLevelTol") ? 1 : 0);
+	#
+	#  Compare with adaptive parameters to see if $l + n00 C = $r for some n0.
+	#
+	my $adapt = $l->adapt;
+	my $equal = ($adapt == $r);
+	$self->{adapt}              = $self->{adapt}->inherit($adapt);    # save the adapted value's flags
+	$self->{adapt}{test_values} = $adapt->{test_values};              #  (these two are removed by inherit)
+	$self->{adapt}{test_adapt}  = $adapt->{test_adapt};
+	$_[1]->{test_values}        = $r->{test_values};                  # save these in student answer for diagnostics
+	return -1 unless $equal;
+	#
+	#  Check that n00 is non-zero (i.e., there is a multiple of C in the student answer)
+	#  (remember: return value of 0 is equal, and non-zero is unequal)
+	#
+	return (abs($context->variables->get("n00")->{value}) < $context->flag("zeroLevelTol") ? 1 : 0);
 }
 
 #
 #  Return the {adapt} formula with test points adjusted
 #
 sub adapt {
-  my $self = shift;
-  return $self->adjustInherit($self->{adapt});
+	my $self = shift;
+	return $self->adjustInherit($self->{adapt});
 }
 
 #
@@ -204,21 +207,20 @@ sub adapt {
 #  adjust the test points to include the constants
 #
 sub adjustInherit {
-  my $self = shift;
-  my $f = shift->inherit($self);
-  delete $f->{adapt}; delete $f->{constant};
-  foreach my $id ('test_points','test_at') {
-    if (defined $f->{$id}) {
-      $f->{$id} = [$f->{$id}->value] if Value::isValue($f->{$id});
-      $f->{$id} = [$f->{$id}] unless ref($f->{$id}) eq 'ARRAY';
-      $f->{$id} = [map {
-	(Value::isValue($_) ? [$_->value] :
-        (ref($_) eq 'ARRAY'? $_ : [$_]))
-      } @{$f->{$id}}];
-      $f->{$id} = $self->addConstants($f->{$id});
-    }
-  }
-  return $f;
+	my $self = shift;
+	my $f    = shift->inherit($self);
+	delete $f->{adapt};
+	delete $f->{constant};
+	foreach my $id ('test_points', 'test_at') {
+		if (defined $f->{$id}) {
+			$f->{$id} = [ $f->{$id}->value ] if Value::isValue($f->{$id});
+			$f->{$id} = [ $f->{$id} ] unless ref($f->{$id}) eq 'ARRAY';
+			$f->{$id} =
+				[ map { (Value::isValue($_) ? [ $_->value ] : (ref($_) eq 'ARRAY' ? $_ : [$_])) } @{ $f->{$id} } ];
+			$f->{$id} = $self->addConstants($f->{$id});
+		}
+	}
+	return $f;
 }
 
 #
@@ -226,24 +228,27 @@ sub adjustInherit {
 #  (These are supposed to be +C, so the value shouldn't matter?)
 #
 sub addConstants {
-  my $self = shift; my $points = shift;
-  my @names = $self->context->variables->variables;
-  my $variables = $self->context->{variables};
-  my $Points = [];
-  foreach my $p (@{$points}) {
-    if (scalar(@{$p}) == scalar(@names)) {
-      push (@{$Points},$p);
-    } else {
-      my @P = (.1) x scalar(@names); my $j = 0;
-      foreach my $i (0..scalar(@names)-1) {
-        if (!$variables->{$names[$i]}{arbitraryConstant}) {
-	  $P[$i] = $p->[$j] if defined $p->[$j]; $j++;
+	my $self      = shift;
+	my $points    = shift;
+	my @names     = $self->context->variables->variables;
+	my $variables = $self->context->{variables};
+	my $Points    = [];
+	foreach my $p (@{$points}) {
+		if (scalar(@{$p}) == scalar(@names)) {
+			push(@{$Points}, $p);
+		} else {
+			my @P = (.1) x scalar(@names);
+			my $j = 0;
+			foreach my $i (0 .. scalar(@names) - 1) {
+				if (!$variables->{ $names[$i] }{arbitraryConstant}) {
+					$P[$i] = $p->[$j] if defined $p->[$j];
+					$j++;
+				}
+			}
+			push(@{$Points}, \@P);
+		}
 	}
-      }
-      push (@{$Points}, \@P);
-    }
-  }
-  return $Points;
+	return $Points;
 }
 
 ##################################################
@@ -257,18 +262,18 @@ sub addConstants {
 #
 #  Show hints by default
 #
-sub cmp_defaults {((shift)->SUPER::cmp_defaults,showHints => 1, showLinearityHints => 1)};
+sub cmp_defaults { ((shift)->SUPER::cmp_defaults, showHints => 1, showLinearityHints => 1) }
 
 #
 #  Provide diagnostics based on the adapted function used to check
 #  the student's answer
 #
 sub cmp_diagnostics {
-  my $self = shift;
-  my $adapt = $self->inherit($self->{adapt});
-  $adapt->{test_values} = $self->{adapt}{test_values};  # these aren't copied by inherit
-  $adapt->{test_adapt}  = $self->{adapt}{test_adapt};
-  $adapt->SUPER::cmp_diagnostics(@_);
+	my $self  = shift;
+	my $adapt = $self->inherit($self->{adapt});
+	$adapt->{test_values} = $self->{adapt}{test_values};    # these aren't copied by inherit
+	$adapt->{test_adapt}  = $self->{adapt}{test_adapt};
+	$adapt->SUPER::cmp_diagnostics(@_);
 }
 
 #
@@ -276,61 +281,69 @@ sub cmp_diagnostics {
 #  the arbitrary constants to 0 first.
 #
 sub cmp_graph {
-  my $self = shift; my $diagnostics = shift;
-  my $F1 = shift; my $F2; ($F1,$F2) = @{$F1} if (ref($F1) eq 'ARRAY');
-  my %subs; my $context = $self->context;
-  foreach my $v ($context->variables->variables)
-    {$subs{$v} = 0 if ($context->variables->get($v)->{arbitraryConstant})}
-  $F1 = $F1->inherit($F1->{adapt})->substitute(%subs)->reduce;
-  $F2 = $F2->inherit($F2->{adapt})->substitute(%subs)->reduce;
-  $self->SUPER::cmp_graph($diagnostics,[$F1,$F2]);
+	my $self        = shift;
+	my $diagnostics = shift;
+	my $F1          = shift;
+	my $F2;
+	($F1, $F2) = @{$F1} if (ref($F1) eq 'ARRAY');
+	my %subs;
+	my $context = $self->context;
+	foreach my $v ($context->variables->variables) {
+		$subs{$v} = 0 if ($context->variables->get($v)->{arbitraryConstant});
+	}
+	$F1 = $F1->inherit($F1->{adapt})->substitute(%subs)->reduce;
+	$F2 = $F2->inherit($F2->{adapt})->substitute(%subs)->reduce;
+	$self->SUPER::cmp_graph($diagnostics, [ $F1, $F2 ]);
 }
 
 #
 #  Add useful messages, if the author requested them
 #
 sub cmp_postprocess {
-  my $self = shift; my $ans = shift;
-  $self->SUPER::cmp_postprocess($ans,@_);
-  return unless $ans->{score} == 0 && !$ans->{isPreview};
-  return if $ans->{ans_message} || !$self->getFlag("showHints");
-  my $student = $ans->{student_value};
-  my $result = Parser::Eval(sub {return $ans->{correct_value} <=> $student}) || 0; # compare encodes the reason in the result
-  $self->cmp_Error($ans,"Note: there is always more than one possibility") if $result == 2 || $result == 3;
-  if ($result == 3) {
-    my $context = $self->context;
-    $context->flags->set(no_parameters=>0);
-    $context->variables->add(x00=>'Real');
-    my $correct = $self->removeConstant+"n01+n00x00";    # must use both parameters
-    $result = 1 if $correct->cmp_compare($student+"x00",{});
-    $context->variables->remove('x00');
-    $context->flags->set(no_parameters=>1);
-  }
-  $self->cmp_Error($ans,"Your answer is not the most general solution") if $result == 1;
-  $self->cmp_Error($ans,"Your formula should be linear in the constant '$student->{constant}'")
-    if $result == -1 && $self->getFlag("showLinearityHints") && !$student->D($student->{constant})->isConstant;
+	my $self = shift;
+	my $ans  = shift;
+	$self->SUPER::cmp_postprocess($ans, @_);
+	return unless $ans->{score} == 0 && !$ans->{isPreview};
+	return if $ans->{ans_message} || !$self->getFlag("showHints");
+	my $student = $ans->{student_value};
+	my $result =
+		Parser::Eval(sub { return $ans->{correct_value} <=> $student }) || 0; # compare encodes the reason in the result
+	$self->cmp_Error($ans, "Note: there is always more than one possibility") if $result == 2 || $result == 3;
+
+	if ($result == 3) {
+		my $context = $self->context;
+		$context->flags->set(no_parameters => 0);
+		$context->variables->add(x00 => 'Real');
+		my $correct = $self->removeConstant + "n01+n00x00";    # must use both parameters
+		$result = 1 if $correct->cmp_compare($student + "x00", {});
+		$context->variables->remove('x00');
+		$context->flags->set(no_parameters => 1);
+	}
+	$self->cmp_Error($ans, "Your answer is not the most general solution") if $result == 1;
+	$self->cmp_Error($ans, "Your formula should be linear in the constant '$student->{constant}'")
+		if $result == -1 && $self->getFlag("showLinearityHints") && !$student->D($student->{constant})->isConstant;
 }
 
 #
 #  Don't perform equivalence check
 #
 sub cmp_postfilter {
-  my $self = shift;
-  return shift;
+	my $self = shift;
+	return shift;
 }
 
 ##################################################
 #
 #  Get the name of the constant
 #
-sub constant {(shift)->{constant}}
+sub constant { (shift)->{constant} }
 
 #
 #  Remove the constant and return a Formula object
 #
 sub removeConstant {
-  my $self = shift;
-  return $self->adjustInherit(main::Formula($self->substitute($self->{constant}=>0))->reduce);
+	my $self = shift;
+	return $self->adjustInherit(main::Formula($self->substitute($self->{constant} => 0))->reduce);
 }
 
 #
@@ -339,8 +352,8 @@ sub removeConstant {
 #  add the C in again).
 #
 sub D {
-  my $self = shift;
-  $self->removeConstant->D(@_);
+	my $self = shift;
+	$self->removeConstant->D(@_);
 }
 
 ######################################################################
@@ -355,32 +368,35 @@ package FormulaUpToConstant::Variable;
 our @ISA = ('Parser::Variable');
 
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
-  my $equation = shift; my $variables = $equation->{context}{variables};
-  my ($name,$ref) = @_; my $def = $variables->{$name};
-  #
-  #  If the variable is not already in the context, add it
-  #    and mark it as an arbitrary constant (for later reference)
-  #
-  if (!defined($def) && length($name) eq 1) {
-    $equation->{context}->variables->add($name => 'Real');
-    $equation->{context}->variables->set($name => {arbitraryConstant => 1});
-    $def = $variables->{$name};
-  }
-  #
-  #  If the variable is an arbitrary constant
-  #    Error if we already have a constant and it's not this one.
-  #    Save the constant so we can check with it later.
-  #
-  if ($def && $def->{arbitraryConstant}) {
-    $equation->Error(["Your formula shouldn't have two arbitrary constants"],$ref)
-      if $equation->{constant} and $name ne $equation->{constant};
-    $equation->{constant} = $name;
-  }
-  #
-  #  Do the usual Variable stuff.
-  #
-  $self->SUPER::new($equation,$name,$ref);
+	my $self      = shift;
+	my $class     = ref($self) || $self;
+	my $equation  = shift;
+	my $variables = $equation->{context}{variables};
+	my ($name, $ref) = @_;
+	my $def = $variables->{$name};
+	#
+	#  If the variable is not already in the context, add it
+	#    and mark it as an arbitrary constant (for later reference)
+	#
+	if (!defined($def) && length($name) eq 1) {
+		$equation->{context}->variables->add($name => 'Real');
+		$equation->{context}->variables->set($name => { arbitraryConstant => 1 });
+		$def = $variables->{$name};
+	}
+	#
+	#  If the variable is an arbitrary constant
+	#    Error if we already have a constant and it's not this one.
+	#    Save the constant so we can check with it later.
+	#
+	if ($def && $def->{arbitraryConstant}) {
+		$equation->Error(["Your formula shouldn't have two arbitrary constants"], $ref)
+			if $equation->{constant} and $name ne $equation->{constant};
+		$equation->{constant} = $name;
+	}
+	#
+	#  Do the usual Variable stuff.
+	#
+	$self->SUPER::new($equation, $name, $ref);
 }
 
 1;

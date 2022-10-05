@@ -1,5 +1,5 @@
 
-sub _weightedGrader_init {}; # don't reload this file
+sub _weightedGrader_init { };    # don't reload this file
 
 =head1 NAME
 
@@ -159,11 +159,12 @@ weightedGrader.pl
 #  Issue ANS() calls for the weighted checkers
 #
 sub WEIGHTED_ANS {
-  my ($checker,$weight);
-  while (@_) {
-    $checker = shift; $weight = shift;
-    ANS(weight_ans($checker,$weight));
-  }
+	my ($checker, $weight);
+	while (@_) {
+		$checker = shift;
+		$weight  = shift;
+		ANS(weight_ans($checker, $weight));
+	}
 }
 
 ##################################################
@@ -171,11 +172,13 @@ sub WEIGHTED_ANS {
 #  Issue NAMED_ANS() calls for the weighted checkers
 #
 sub NAMED_WEIGHTED_ANS {
-  my ($name,$checker,$weight);
-  while (@_) {
-    $name = shift; $checker = shift; $weight = shift;
-    NAMED_ANS($name,weight_ans($checker,$weight));
-  }
+	my ($name, $checker, $weight);
+	while (@_) {
+		$name    = shift;
+		$checker = shift;
+		$weight  = shift;
+		NAMED_ANS($name, weight_ans($checker, $weight));
+	}
 }
 
 ##################################################
@@ -184,13 +187,12 @@ sub NAMED_WEIGHTED_ANS {
 #  credit to the given answers.
 #
 sub CREDIT_ANS {
-  my $checker = shift;
-  my $credit = shift;
-  $credit = [$credit] if defined($credit) && ref($credit) ne "ARRAY";
-  my $weight = shift;
-  ANS(weight_ans($checker,$weight,$credit));
+	my $checker = shift;
+	my $credit  = shift;
+	$credit = [$credit] if defined($credit) && ref($credit) ne "ARRAY";
+	my $weight = shift;
+	ANS(weight_ans($checker, $weight, $credit));
 }
-
 
 ##################################################
 #
@@ -199,24 +201,24 @@ sub CREDIT_ANS {
 #  add the "credit" field, if supplied.
 #
 sub weight_ans {
-  my $checker = shift; my $weight = shift;
-  my $credit = shift;
-  $credit = [$credit] if defined($credit) && ref($credit) ne "ARRAY";
-  if (ref($checker) eq "AnswerEvaluator") {
-    $checker->{rh_ans}->{weight} = $weight;
-    $checker->{rh_ans}->{credit} = $credit if defined($credit);
-    return $checker;
-  } else {
-    my $newChecker = sub {
-      my $hash = &{$checker}(@_);
-      $hash->{weight} = $weight;
-      $checker->{rh_ans}->{credit} = $credit if defined($credit);
-      return $hash;
-    };
-    return $newChecker;
-  }
+	my $checker = shift;
+	my $weight  = shift;
+	my $credit  = shift;
+	$credit = [$credit] if defined($credit) && ref($credit) ne "ARRAY";
+	if (ref($checker) eq "AnswerEvaluator") {
+		$checker->{rh_ans}->{weight} = $weight;
+		$checker->{rh_ans}->{credit} = $credit if defined($credit);
+		return $checker;
+	} else {
+		my $newChecker = sub {
+			my $hash = &{$checker}(@_);
+			$hash->{weight} = $weight;
+			$checker->{rh_ans}->{credit} = $credit if defined($credit);
+			return $hash;
+		};
+		return $newChecker;
+	}
 }
-
 
 ##################################################
 #
@@ -231,7 +233,7 @@ sub weight_ans {
 #  well.)
 #
 #  When the student's total is computed, it is divided by the sum of
-#  all the weights in order to determine the final score. 
+#  all the weights in order to determine the final score.
 #
 #  It also uses a special field called "credit" that determines
 #  what other (named) answers are given full credit if the given
@@ -240,96 +242,96 @@ sub weight_ans {
 #
 
 sub weighted_grader {
-  my $rh_evaluated_answers = shift;
-  my $rh_problem_state = shift;
-  my %form_options = @_;
-  my %answers = %{$rh_evaluated_answers};
-  my %problem_state =	%{$rh_problem_state};
-    
-  my %problem_result = (
-    score  => 0,
-    errors => '',
-    type   => 'weighted_grader',
-    msg    => '',
-  );
-    
-  if (scalar(keys(%answers)) == 0) {
-    $problem_result{msg} = "This problem did not ask any questions.";
-    return(\%problem_result,\%problem_state);
-  }
-    
-  return(\%problem_result,\%problem_state)
-    if (!$form_options{answers_submitted});
-    
-  my ($score,$total) = (0,0);
-  my ($weight,$ans_name,$credit_name);
-  my (%credit);
+	my $rh_evaluated_answers = shift;
+	my $rh_problem_state     = shift;
+	my %form_options         = @_;
+	my %answers              = %{$rh_evaluated_answers};
+	my %problem_state        = %{$rh_problem_state};
 
-  #
-  #  Get the score for each answer
-  #  (error if can't recognize the answer format).
-  #
-  foreach $ans_name (keys %answers) {
-    if (ref($answers{$ans_name}) =~ m/^(HASH|AnswerHash)$/) {
-      $credit{$ans_name} = $answers{$ans_name}->{score};
-    } else {
-      die "Error at file ",__FILE__,"line ", __LINE__,": Answer |$ans_name| " .
-	"is not a hash reference\n" . $answers{$ans_name} .
-	"\nThis probably means that the answer evaluator for ".
-	"this answer is not working correctly.";
-      $problem_result{error} =
-	"Error: Answer $ans_name is not a hash: $answers{$ans_name}";
-    }
-  }
+	my %problem_result = (
+		score  => 0,
+		errors => '',
+		type   => 'weighted_grader',
+		msg    => '',
+	);
 
-  #
-  #  Mark any optional answers as correct, if the goal answers
-  #  are right and the optional ones are blank.
-  #
-  foreach $ans_name (keys %answers) {
-    if ($credit{$ans_name} == 1 &&
-	defined($answers{$ans_name}->{credit})) {
-      foreach $credit_name (@{$answers{$ans_name}->{credit}}) {
-	$credit{$credit_name} = 1 
-	  if ( $answers{$credit_name}->{student_ans} =~ m/^\s*$/ );
-      }
-    }
-  }
+	if (scalar(keys(%answers)) == 0) {
+		$problem_result{msg} = "This problem did not ask any questions.";
+		return (\%problem_result, \%problem_state);
+	}
 
-  #
-  #  Add up the weighted scores
-  #
-  foreach $ans_name (keys %answers) {
-    $weight = $answers{$ans_name}->{weight};
-    $weight = 1 unless (defined($weight));
-    $total += $weight;
-    $score += $weight * $credit{$ans_name};
-  }
+	return (\%problem_result, \%problem_state)
+		if (!$form_options{answers_submitted});
 
-  $problem_result{score} = $score/$total if $total;
-    
-  # This gets rid of non-numeric scores
-  $problem_state{recorded_score} = 0
-    unless (defined($problem_state{recorded_score}) &&
-	    $problem_state{recorded_score} =~ m/^[+-]?(\d+(\.\d*)?|\.\d+)([Ee][-+]?\d+)?$/ );
+	my ($score, $total) = (0, 0);
+	my ($weight, $ans_name, $credit_name);
+	my (%credit);
 
-  $problem_state{recorded_score} = $problem_result{score}
-    if ($problem_result{score} > $problem_state{recorded_score});
+	#
+	#  Get the score for each answer
+	#  (error if can't recognize the answer format).
+	#
+	foreach $ans_name (keys %answers) {
+		if (ref($answers{$ans_name}) =~ m/^(HASH|AnswerHash)$/) {
+			$credit{$ans_name} = $answers{$ans_name}->{score};
+		} else {
+			die "Error at file ", __FILE__, "line ", __LINE__,
+				": Answer |$ans_name| "
+				. "is not a hash reference\n"
+				. $answers{$ans_name}
+				. "\nThis probably means that the answer evaluator for "
+				. "this answer is not working correctly.";
+			$problem_result{error} = "Error: Answer $ans_name is not a hash: $answers{$ans_name}";
+		}
+	}
 
-  $problem_state{num_of_correct_ans}++   if ($score == $total);
-  $problem_state{num_of_incorrect_ans}++ if ($score < $total);
-  warn "Error in grading this problem:  ".
-       "the score is larger than the total ($score > $total)"
-	  if $score > $total;
-    
-  (\%problem_result, \%problem_state);
+	#
+	#  Mark any optional answers as correct, if the goal answers
+	#  are right and the optional ones are blank.
+	#
+	foreach $ans_name (keys %answers) {
+		if ($credit{$ans_name} == 1
+			&& defined($answers{$ans_name}->{credit}))
+		{
+			foreach $credit_name (@{ $answers{$ans_name}->{credit} }) {
+				$credit{$credit_name} = 1
+					if ($answers{$credit_name}->{student_ans} =~ m/^\s*$/);
+			}
+		}
+	}
+
+	#
+	#  Add up the weighted scores
+	#
+	foreach $ans_name (keys %answers) {
+		$weight = $answers{$ans_name}->{weight};
+		$weight = 1 unless (defined($weight));
+		$total += $weight;
+		$score += $weight * $credit{$ans_name};
+	}
+
+	$problem_result{score} = $score / $total if $total;
+
+	# This gets rid of non-numeric scores
+	$problem_state{recorded_score} = 0
+		unless (defined($problem_state{recorded_score})
+			&& $problem_state{recorded_score} =~ m/^[+-]?(\d+(\.\d*)?|\.\d+)([Ee][-+]?\d+)?$/);
+
+	$problem_state{recorded_score} = $problem_result{score}
+		if ($problem_result{score} > $problem_state{recorded_score});
+
+	$problem_state{num_of_correct_ans}++   if ($score == $total);
+	$problem_state{num_of_incorrect_ans}++ if ($score < $total);
+	warn "Error in grading this problem:  " . "the score is larger than the total ($score > $total)"
+		if $score > $total;
+
+	(\%problem_result, \%problem_state);
 }
-
 
 ##################################################
 #
 #  Syntactic sugar to avoid ugly ~~& construct in PG.
 #
-sub install_weighted_grader {install_problem_grader(\&weighted_grader)}
+sub install_weighted_grader { install_problem_grader(\&weighted_grader) }
 
 1;

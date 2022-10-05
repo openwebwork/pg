@@ -1,4 +1,4 @@
-sub _compoundProblem_init {};   # don't reload this file
+sub _compoundProblem_init { };    # don't reload this file
 
 ######################################################################
 #
@@ -212,7 +212,6 @@ sub _compoundProblem_init {};   # don't reload this file
 
 ######################################################################
 
-
 package compoundProblem;
 
 #
@@ -220,17 +219,17 @@ package compoundProblem;
 #  the problem.
 #
 our %defaultStatus = (
-  part => 1,                # the current part
-  answers => "",            # answer labels from previous parts
-  new_answers => "",        # answer labels for THIS part
-  ans_rule_count => 0,      # the ans_rule count from previous parts
-  new_ans_rule_count => 0,  # the ans_rule count from THIS part
-  images_created => 0,      # the image count from the precious parts
-  new_images_created => 0,  # the image count from THIS part
-  imageName => "",          # name of images_created image file
-  score => 0,               # the (weighted) score on this part
-  total => 0,               # the total on previous parts
-  raw => 0,                 # raw score on this part
+	part               => 1,     # the current part
+	answers            => "",    # answer labels from previous parts
+	new_answers        => "",    # answer labels for THIS part
+	ans_rule_count     => 0,     # the ans_rule count from previous parts
+	new_ans_rule_count => 0,     # the ans_rule count from THIS part
+	images_created     => 0,     # the image count from the precious parts
+	new_images_created => 0,     # the image count from THIS part
+	imageName          => "",    # name of images_created image file
+	score              => 0,     # the (weighted) score on this part
+	total              => 0,     # the total on previous parts
+	raw                => 0,     # raw score on this part
 );
 
 #
@@ -240,31 +239,32 @@ our %defaultStatus = (
 #  and setting up the grader so that the current data can be saved.
 #
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
-  my $cp = bless {
-    parts => 1,
-    totalAnswers => undef,
-    weights => undef,            # array of weights per part
-    saveAllAnswers => 0,         # usually only save named answers
-    parserValues => 0,           # make Parser objects from the answers?
-    nextVisible => "ifCorrect",  # or "Always" or "Never"
-    nextStyle   => "Checkbox",   # or "Button", "Forced", or "HTML"
-    nextLabel   => undef,        # Checkbox text or button name or HTML
-    nextNoChange => 1,           # true if answer can't change for new part
-    allowReset => 0,             # true to show "back to part 1" button
-    resetLabel => undef,         # label for reset button
-    grader => $main::PG->{flags}->{PROBLEM_GRADER_TO_USE} || \&main::avg_problem_grader,
-    @_,
-    status => $defaultStatus,
-  }, $class;
-  die "You must provide either the totalAnswers or weights"
-    unless $cp->{totalAnswers} || $cp->{weights};
-  $cp->getTotalWeight if $cp->{weights};
-  main::loadMacros("Parser.pl") if $cp->{parserValues};
-  $cp->reset if $cp->{allowReset} && $main::inputs_ref->{_reset};
-  $cp->getStatus;
-  $cp->initPart;
-  return $cp;
+	my $self  = shift;
+	my $class = ref($self) || $self;
+	my $cp    = bless {
+		parts          => 1,
+		totalAnswers   => undef,
+		weights        => undef,          # array of weights per part
+		saveAllAnswers => 0,              # usually only save named answers
+		parserValues   => 0,              # make Parser objects from the answers?
+		nextVisible    => "ifCorrect",    # or "Always" or "Never"
+		nextStyle      => "Checkbox",     # or "Button", "Forced", or "HTML"
+		nextLabel      => undef,          # Checkbox text or button name or HTML
+		nextNoChange   => 1,              # true if answer can't change for new part
+		allowReset     => 0,              # true to show "back to part 1" button
+		resetLabel     => undef,          # label for reset button
+		grader         => $main::PG->{flags}->{PROBLEM_GRADER_TO_USE} || \&main::avg_problem_grader,
+		@_,
+		status => $defaultStatus,
+	}, $class;
+	die "You must provide either the totalAnswers or weights"
+		unless $cp->{totalAnswers} || $cp->{weights};
+	$cp->getTotalWeight           if $cp->{weights};
+	main::loadMacros("Parser.pl") if $cp->{parserValues};
+	$cp->reset                    if $cp->{allowReset} && $main::inputs_ref->{_reset};
+	$cp->getStatus;
+	$cp->initPart;
+	return $cp;
 }
 
 #
@@ -272,10 +272,11 @@ sub new {
 #  be properly scaled.
 #
 sub getTotalWeight {
-  my $self = shift;
-  $self->{totalWeight} = 0; $self->{totalAnswers} = 1;
-  foreach my $w (@{$self->{weights}}) {$self->{totalWeight} += $w}
-  $self->{totalWeight} = 1 if $self->{totalWeight} == 0;
+	my $self = shift;
+	$self->{totalWeight}  = 0;
+	$self->{totalAnswers} = 1;
+	foreach my $w (@{ $self->{weights} }) { $self->{totalWeight} += $w }
+	$self->{totalWeight} = 1 if $self->{totalWeight} == 0;
 }
 
 #
@@ -283,16 +284,17 @@ sub getTotalWeight {
 #  and see if we need to go on to the next part.
 #
 sub getStatus {
-  my $self = shift;
-  main::RECORD_FORM_LABEL("_next");
-  main::RECORD_FORM_LABEL("_status");
-  $self->{status} = $self->decode;
-  $self->{isNew} = $main::inputs_ref->{_next} || ($main::inputs_ref->{submitAnswers} &&
-     $main::inputs_ref->{submitAnswers} eq ($self->{nextLabel} || $main::PG->maketext("Go on to next part")));
-  if ($self->{isNew}) {
-    $self->checkAnswers;
-    $self->incrementPart unless $self->{nextNoChange} && $self->{answersChanged};
-  }
+	my $self = shift;
+	main::RECORD_FORM_LABEL("_next");
+	main::RECORD_FORM_LABEL("_status");
+	$self->{status} = $self->decode;
+	$self->{isNew}  = $main::inputs_ref->{_next}
+		|| ($main::inputs_ref->{submitAnswers}
+			&& $main::inputs_ref->{submitAnswers} eq ($self->{nextLabel} || $main::PG->maketext("Go on to next part")));
+	if ($self->{isNew}) {
+		$self->checkAnswers;
+		$self->incrementPart unless $self->{nextNoChange} && $self->{answersChanged};
+	}
 }
 
 #
@@ -302,13 +304,13 @@ sub getStatus {
 #  the variables for previous answers.
 #
 sub initPart {
-  my $self = shift;
-  $main::ans_rule_count = $self->{status}{ans_rule_count};
-  $main::images_created{$self->{status}{imageName}} = $self->{status}{images_created}
-    if $self->{status}{imageName};
-  main::install_problem_grader(\&compoundProblem::grader);
-  $main::PG->{flags}->{compoundProblem} = $self;
-  $self->initAnswers($self->{status}{answers});
+	my $self = shift;
+	$main::ans_rule_count = $self->{status}{ans_rule_count};
+	$main::images_created{ $self->{status}{imageName} } = $self->{status}{images_created}
+		if $self->{status}{imageName};
+	main::install_problem_grader(\&compoundProblem::grader);
+	$main::PG->{flags}->{compoundProblem} = $self;
+	$self->initAnswers($self->{status}{answers});
 }
 
 #
@@ -319,19 +321,21 @@ sub initPart {
 #  again on the next invocation.
 #
 sub initAnswers {
-  my $self = shift; my $answers = shift;
-  foreach my $id (split(/;/,$answers)) {
-    my $value = $main::inputs_ref->{$id}; $value = '' unless defined($value);
-    if ($self->{parserValues}) {
-      my $parser = Parser::Formula($value);
-      $parser = Parser::Evaluate($parser) if $parser && $parser->isConstant;
-      $value = $parser if $parser;
-    }
-    ${"main::$id"} = $value unless $id =~ m/$main::ANSWER_PREFIX/o;
-    $value = quoteHTML($value);
-    main::TEXT(qq!<input type="hidden" name="$id" value="$value" />!);
-    main::RECORD_FORM_LABEL($id);
-  }
+	my $self    = shift;
+	my $answers = shift;
+	foreach my $id (split(/;/, $answers)) {
+		my $value = $main::inputs_ref->{$id};
+		$value = '' unless defined($value);
+		if ($self->{parserValues}) {
+			my $parser = Parser::Formula($value);
+			$parser = Parser::Evaluate($parser) if $parser && $parser->isConstant;
+			$value  = $parser                   if $parser;
+		}
+		${"main::$id"} = $value unless $id =~ m/$main::ANSWER_PREFIX/o;
+		$value = quoteHTML($value);
+		main::TEXT(qq!<input type="hidden" name="$id" value="$value" />!);
+		main::RECORD_FORM_LABEL($id);
+	}
 }
 
 #
@@ -339,16 +343,16 @@ sub initAnswers {
 #  invocation of the problem.
 #
 sub checkAnswers {
-  my $self = shift;
-  foreach my $id (keys(%{$main::inputs_ref})) {
-    if ($id =~ m/^previous_(.*)$/) {
-      if ($main::inputs_ref->{$id} ne $main::inputs_ref->{$1}) {
-	$self->{answersChanged} = 1;
-	$self->{isNew} = 0 if $self->{nextNoChange};
-	return;
-      }
-    }
-  }
+	my $self = shift;
+	foreach my $id (keys(%{$main::inputs_ref})) {
+		if ($id =~ m/^previous_(.*)$/) {
+			if ($main::inputs_ref->{$id} ne $main::inputs_ref->{$1}) {
+				$self->{answersChanged} = 1;
+				$self->{isNew}          = 0 if $self->{nextNoChange};
+				return;
+			}
+		}
+	}
 }
 
 #
@@ -358,18 +362,18 @@ sub checkAnswers {
 #  part is showing.
 #
 sub incrementPart {
-  my $self = shift;
-  my $status = $self->{status};
-  if ($status->{part} < $self->{parts}) {
-    $status->{part}++;
-    $status->{answers} .= ';' if $status->{answers};
-    $status->{answers} .= $status->{new_answers};
-    $status->{ans_rule_count} = $status->{new_ans_rule_count};
-    $status->{images_created} = $status->{new_images_created};
-    $status->{total} += $status->{score};
-    $status->{score} = $status->{raw} = 0;
-    $status->{new_answers} = '';
-  }
+	my $self   = shift;
+	my $status = $self->{status};
+	if ($status->{part} < $self->{parts}) {
+		$status->{part}++;
+		$status->{answers} .= ';' if $status->{answers};
+		$status->{answers} .= $status->{new_answers};
+		$status->{ans_rule_count} = $status->{new_ans_rule_count};
+		$status->{images_created} = $status->{new_images_created};
+		$status->{total} += $status->{score};
+		$status->{score}       = $status->{raw} = 0;
+		$status->{new_answers} = '';
+	}
 }
 
 ######################################################################
@@ -383,48 +387,54 @@ sub incrementPart {
 #  it as valuable data if they view the page source).
 #
 sub encode {
-  my $self = shift; my $status = shift || $self->{status};
-  my @data = (); my $data = "";
-  foreach my $id (main::lex_sort(keys(%defaultStatus))) {push(@data,$status->{$id})}
-  foreach my $c (split(//,join('|',@data))) {$data .= toHex($c)}
-  return $data;
+	my $self   = shift;
+	my $status = shift || $self->{status};
+	my @data   = ();
+	my $data   = "";
+	foreach my $id (main::lex_sort(keys(%defaultStatus))) { push(@data, $status->{$id}) }
+	foreach my $c  (split(//, join('|', @data)))          { $data .= toHex($c) }
+	return $data;
 }
 
 #
 #  Decode the data and break it into the status hash.
 #
 sub decode {
-  my $self = shift; my $status = shift || $main::inputs_ref->{_status};
-  return {%defaultStatus} unless $status;
-  my @data = (); foreach my $hex (split(/(..)/,$status)) {push(@data,fromHex($hex)) if $hex ne ''}
-  @data = split('\\|',join('',@data)); $status = {%defaultStatus};
-  if (scalar(@data) == 8) {
-    # insert imageName, images_created, new_images_created, if missing
-    splice(@data,2,0,"",0); splice(@data,6,0,0);
-  }
-  foreach my $id (main::lex_sort(keys(%defaultStatus))) {$status->{$id} = shift(@data)}
-  return $status;
+	my $self   = shift;
+	my $status = shift || $main::inputs_ref->{_status};
+	return {%defaultStatus} unless $status;
+	my @data = ();
+	foreach my $hex (split(/(..)/, $status)) { push(@data, fromHex($hex)) if $hex ne '' }
+	@data   = split('\\|', join('', @data));
+	$status = {%defaultStatus};
+	if (scalar(@data) == 8) {
+		# insert imageName, images_created, new_images_created, if missing
+		splice(@data, 2, 0, "", 0);
+		splice(@data, 6, 0, 0);
+	}
+	foreach my $id (main::lex_sort(keys(%defaultStatus))) { $status->{$id} = shift(@data) }
+	return $status;
 }
-
 
 #
 #  Hex encoding is shifted by 10 to obfuscate it further.
 #  (shouldn't be a problem since the status will be made of
 #  printable characters, so they are all above ASCII 32)
 #
-sub toHex {main::spf(ord(shift)-10,"%X")}
-sub fromHex {main::spf(hex(shift)+10,"%c")}
-
+sub toHex   { main::spf(ord(shift) - 10, "%X") }
+sub fromHex { main::spf(hex(shift) + 10, "%c") }
 
 #
 #  Make sure the data can be properly preserved within
 #  an HTML <INPUT TYPE="HIDDEN"> tag.
 #
 sub quoteHTML {
-  my $string = shift;
-  $string =~ s/&/\&amp;/g; $string =~ s/"/\&quot;/g;
-  $string =~ s/>/\&gt;/g;  $string =~ s/</\&lt;/g;
-  return $string;
+	my $string = shift;
+	$string =~ s/&/\&amp;/g;
+	$string =~ s/"/\&quot;/g;
+	$string =~ s/>/\&gt;/g;
+	$string =~ s/</\&lt;/g;
+	return $string;
 }
 
 ######################################################################
@@ -433,8 +443,8 @@ sub quoteHTML {
 #  Set the grader for this part to the specified one.
 #
 sub useGrader {
-  my $self = shift;
-  $self->{grader} = shift;
+	my $self = shift;
+	$self->{grader} = shift;
 }
 
 #
@@ -442,73 +452,86 @@ sub useGrader {
 #  be preserved for use in future parts.
 #
 sub addAnswers {
-  my $self = shift;
-  $self->{extraAnswers} = [] unless $self->{extraAnswers};
-  push(@{$self->{extraAnswers}},@_);
+	my $self = shift;
+	$self->{extraAnswers} = [] unless $self->{extraAnswers};
+	push(@{ $self->{extraAnswers} }, @_);
 }
 
 #
 #  Go back to part 1 and clear the answers and scores.
 #
 sub reset {
-  my $self = shift;
-  if ($main::inputs_ref->{_status}) {
-    my $status = $self->decode($main::inputs_ref->{_status});
-    foreach my $id (split(/;/,$status->{answers})) {delete $main::inputs_ref->{$id}}
-    foreach my $id (1..$status->{ans_rule_count})
-      {delete $main::inputs_ref->{"${main::QUIZ_PREFIX}${main::ANSWER_PREFIX}$id"}}
-  }
-  $main::inputs_ref->{_status} = $self->encode(\%defaultStatus);
-  $main::inputs_ref->{_next} = 0;
+	my $self = shift;
+	if ($main::inputs_ref->{_status}) {
+		my $status = $self->decode($main::inputs_ref->{_status});
+		foreach my $id (split(/;/, $status->{answers})) { delete $main::inputs_ref->{$id} }
+		foreach my $id (1 .. $status->{ans_rule_count}) {
+			delete $main::inputs_ref->{"${main::QUIZ_PREFIX}${main::ANSWER_PREFIX}$id"};
+		}
+	}
+	$main::inputs_ref->{_status} = $self->encode(\%defaultStatus);
+	$main::inputs_ref->{_next}   = 0;
 }
 
 #
 #  Return the HTML for the "Go back to part 1" checkbox.
 #
 sub resetCheckbox {
-  my $self = shift;
-  my $label = shift || " <b>".$main::PG->maketext("Go back to Part 1")."</b> (".$main::PG->maketext("when you submit your answers").").";
-  my $par = shift; $par = ($par ? $main::PAR : '');
-  qq'$par<input type="checkbox" name="_reset" value="1" />$label';
+	my $self  = shift;
+	my $label = shift
+		|| " <b>"
+		. $main::PG->maketext("Go back to Part 1")
+		. "</b> ("
+		. $main::PG->maketext("when you submit your answers") . ").";
+	my $par = shift;
+	$par = ($par ? $main::PAR : '');
+	qq'$par<input type="checkbox" name="_reset" value="1" />$label';
 }
 
 #
 #  Return the HTML for the "next part" checkbox.
 #
 sub nextCheckbox {
-  my $self = shift;
-  my $label = shift || " <b>".$main::PG->maketext("Go on to next part")."</b> (".$main::PG->maketext("when you submit your answers").").";
-  my $par = shift; $par = ($par ? $main::PAR : '');
-  $self->{nextInserted} = 1;
-  qq!$par<input type="checkbox" name="_next" value="next" />$label!;
+	my $self  = shift;
+	my $label = shift
+		|| " <b>"
+		. $main::PG->maketext("Go on to next part")
+		. "</b> ("
+		. $main::PG->maketext("when you submit your answers") . ").";
+	my $par = shift;
+	$par = ($par ? $main::PAR : '');
+	$self->{nextInserted} = 1;
+	qq!$par<input type="checkbox" name="_next" value="next" />$label!;
 }
 
 #
 #  Return the HTML for the "next part" button.
 #
 sub nextButton {
-  my $self = shift;
-  my $label = quoteHTML(shift || $main::PG->maketext("Go on to next part"));
-  my $par = shift; $par = ($par ? $main::PAR : '');
-  $par . qq!<input type="submit" name="submitAnswers" value="$label" !
-       .      q!onclick="document.getElementById('_next').value=1" />!;
+	my $self  = shift;
+	my $label = quoteHTML(shift || $main::PG->maketext("Go on to next part"));
+	my $par   = shift;
+	$par = ($par ? $main::PAR : '');
+	$par
+		. qq!<input type="submit" name="submitAnswers" value="$label" !
+		. q!onclick="document.getElementById('_next').value=1" />!;
 }
 
 #
 #  Return the HTML for when going to the next part is forced.
 #
 sub nextForced {
-  my $self = shift;
-  my $label = shift || "<b>".$main::PG->maketext("Submit your answers again to go on to the next part.")."</b>";
-  $label = $main::PAR . $label if shift;
-  $self->{nextInserted} = 1;
-  qq!$label<input type="hidden" name="_next" id="_next" value="Next" />!;
+	my $self  = shift;
+	my $label = shift || "<b>" . $main::PG->maketext("Submit your answers again to go on to the next part.") . "</b>";
+	$label = $main::PAR . $label if shift;
+	$self->{nextInserted} = 1;
+	qq!$label<input type="hidden" name="_next" id="_next" value="Next" />!;
 }
 
 #
 #  Return the raw HTML provided
 #
-sub nextHTML {shift; shift}
+sub nextHTML { shift; shift }
 
 ######################################################################
 
@@ -518,32 +541,37 @@ sub nextHTML {shift; shift}
 #  the student didn't complete an earlier part).
 #
 sub part {
-  my $self = shift; my $status = $self->{status};
-  my $part = shift;
-  return $status->{part} unless defined $part && $main::displayMode ne 'TeX' && $main::displayMode ne 'PTX';
-  $part = 1 if $part < 1; $part = $self->{parts} if $part > $self->{parts};
-  if ($part > $status->{part} && !$main::inputs_ref->{_noadvance}) {
-    unless ((lc($self->{nextVisible}) eq 'ifcorrect' && $status->{raw} < 1) ||
-             lc($self->{nextVisible}) eq 'never') {
-      $self->initAnswers($status->{new_answers});
-      $self->incrementPart; $self->{isNew} = 1;
-    }
-  }
-  if ($part != $status->{part}) {
-    main::TEXT('<input type="hidden" name="_noadvance" value="1" />');
-    $self->{nextVisible} = 'IfCorrect' if lc($self->{nextVisible}) eq 'never';
-  }
-  return $status->{part};
+	my $self   = shift;
+	my $status = $self->{status};
+	my $part   = shift;
+	return $status->{part} unless defined $part && $main::displayMode ne 'TeX' && $main::displayMode ne 'PTX';
+	$part = 1              if $part < 1;
+	$part = $self->{parts} if $part > $self->{parts};
+	if ($part > $status->{part} && !$main::inputs_ref->{_noadvance}) {
+		unless ((lc($self->{nextVisible}) eq 'ifcorrect' && $status->{raw} < 1)
+			|| lc($self->{nextVisible}) eq 'never')
+		{
+			$self->initAnswers($status->{new_answers});
+			$self->incrementPart;
+			$self->{isNew} = 1;
+		}
+	}
+	if ($part != $status->{part}) {
+		main::TEXT('<input type="hidden" name="_noadvance" value="1" />');
+		$self->{nextVisible} = 'IfCorrect' if lc($self->{nextVisible}) eq 'never';
+	}
+	return $status->{part};
 }
 
 #
 #  Return the various scores
 #
-sub score {shift->{status}{score}}
-sub scoreRaw {shift->{status}{raw}}
+sub score    { shift->{status}{score} }
+sub scoreRaw { shift->{status}{raw} }
+
 sub scoreOverall {
-  my $self = shift;
-  return $self->{status}{score} + $self->{status}{total};
+	my $self = shift;
+	return $self->{status}{score} + $self->{status}{total};
 }
 
 ######################################################################
@@ -552,89 +580,99 @@ sub scoreOverall {
 #  and saving the data.
 #
 sub grader {
-  my $self = $main::PG->{flags}->{compoundProblem};
-  #
-  #  Get the answer names and the weight for the current part.
-  #
-  my @answers = keys(%{$_[0]});
-  my $weight = scalar(@answers)/$self->{totalAnswers};
-  $weight = $self->{weights}[$self->{status}{part}-1]/$self->{totalWeight}
-    if $self->{weights} && defined($self->{weights}[$self->{status}{part}-1]);
-  @answers = grep(!/$main::ANSWER_PREFIX/o,@answers) unless $self->{saveAllAnswers};
-  push(@answers,@{$self->{extraAnswers}}) if $self->{extraAnswers};
-  my $space = '<img src="about:blank" style="height:1px; width:3em; visibility:hidden" />';
+	my $self = $main::PG->{flags}->{compoundProblem};
+	#
+	#  Get the answer names and the weight for the current part.
+	#
+	my @answers = keys(%{ $_[0] });
+	my $weight  = scalar(@answers) / $self->{totalAnswers};
+	$weight = $self->{weights}[ $self->{status}{part} - 1 ] / $self->{totalWeight}
+		if $self->{weights} && defined($self->{weights}[ $self->{status}{part} - 1 ]);
+	@answers = grep(!/$main::ANSWER_PREFIX/o, @answers) unless $self->{saveAllAnswers};
+	push(@answers, @{ $self->{extraAnswers} }) if $self->{extraAnswers};
+	my $space = '<img src="about:blank" style="height:1px; width:3em; visibility:hidden" />';
 
-  #
-  #  Call the original grader, but put back the old recorded_score
-  #  (the grader will have updated it based on the score for the PART,
-  #  not the problem as a whole).
-  #
-  my $oldScore = ($_[1])->{recorded_score};
-  my ($result,$state) = &{$self->{grader}}(@_);
-  $state->{recorded_score} = $oldScore;
+	#
+	#  Call the original grader, but put back the old recorded_score
+	#  (the grader will have updated it based on the score for the PART,
+	#  not the problem as a whole).
+	#
+	my $oldScore = ($_[1])->{recorded_score};
+	my ($result, $state) = &{ $self->{grader} }(@_);
+	$state->{recorded_score} = $oldScore;
 
-  #
-  #  Update that state information and encode it.
-  #
-  my $status = $self->{status};
-  $status->{raw}   = $result->{score};
-  $status->{score} = $result->{score}*$weight;
-  $status->{new_ans_rule_count} = $main::ans_rule_count;
-  if (%main::images_created) {
-    $status->{imageName} = (keys %main::images_created)[0];
-    $status->{new_images_created} = $main::images_created{$status->{imageName}};
-  }
-  $status->{new_answers} = join(';',@answers);
-  my $data = quoteHTML($self->encode);
+	#
+	#  Update that state information and encode it.
+	#
+	my $status = $self->{status};
+	$status->{raw}                = $result->{score};
+	$status->{score}              = $result->{score} * $weight;
+	$status->{new_ans_rule_count} = $main::ans_rule_count;
+	if (%main::images_created) {
+		$status->{imageName}          = (keys %main::images_created)[0];
+		$status->{new_images_created} = $main::images_created{ $status->{imageName} };
+	}
+	$status->{new_answers} = join(';', @answers);
+	my $data = quoteHTML($self->encode);
 
-  #
-  #  Update the recorded score
-  #
-  my $newScore = $status->{total} + $status->{score};
-  $state->{recorded_score} = $newScore if $newScore > $oldScore;
-  $state->{recorded_score} = 0 if $self->{allowReset} && $main::inputs_ref->{_reset};
+	#
+	#  Update the recorded score
+	#
+	my $newScore = $status->{total} + $status->{score};
+	$state->{recorded_score} = $newScore if $newScore > $oldScore;
+	$state->{recorded_score} = 0         if $self->{allowReset} && $main::inputs_ref->{_reset};
 
-  #
-  #  Add the compoundProblem message and data
-  #
-  $result->{type} = "compoundProblem ($result->{type})";
-  $result->{msg} .= '</i><p><b>Note:</b> <i>' if $result->{msg};
-  $result->{msg} .= $main::PG->maketext("This problem has more than one part.")
-                 .  '<br/>'.$space.'<small>'.$main::PG->maketext("Your score for this attempt is for this part only;").'</small>'
-		 .  '<br/>'.$space.'<small>'.$main::PG->maketext("your overall score is for all the parts combined.").'</small>'
-                 .  qq!<input type="hidden" name="_status" value="$data" />!;
+	#
+	#  Add the compoundProblem message and data
+	#
+	$result->{type} = "compoundProblem ($result->{type})";
+	$result->{msg} .= '</i><p><b>Note:</b> <i>' if $result->{msg};
+	$result->{msg} .=
+		$main::PG->maketext("This problem has more than one part.") . '<br/>'
+		. $space
+		. '<small>'
+		. $main::PG->maketext("Your score for this attempt is for this part only;")
+		. '</small>' . '<br/>'
+		. $space
+		. '<small>'
+		. $main::PG->maketext("your overall score is for all the parts combined.")
+		. '</small>'
+		. qq!<input type="hidden" name="_status" value="$data" />!;
 
-  #
-  #  Warn if the answers changed when they shouldn't have
-  #
-  $result->{msg} .= '<p><b>'.$main::PG->maketext("You may not change your answers when going on to the next part!").'</b>'
-    if $self->{nextNoChange} && $self->{answersChanged};
+	#
+	#  Warn if the answers changed when they shouldn't have
+	#
+	$result->{msg} .=
+		'<p><b>' . $main::PG->maketext("You may not change your answers when going on to the next part!") . '</b>'
+		if $self->{nextNoChange} && $self->{answersChanged};
 
-  #
-  #  Include the "next part" checkbox, button, or whatever.
-  #
-  my $par = 1;
-  if ($self->{parts} > $status->{part} && !$main::inputs_ref->{previewAnswers}) {
-    if (lc($self->{nextVisible}) eq 'always' ||
-       (lc($self->{nextVisible}) eq 'ifcorrect' && $result->{score} >= 1)) {
-      my $method = "next".$self->{nextStyle}; $par = 0;
-      $result->{msg} .= $self->$method($self->{nextLabel},1).'<br/>';
-    }
-  }
+	#
+	#  Include the "next part" checkbox, button, or whatever.
+	#
+	my $par = 1;
+	if ($self->{parts} > $status->{part} && !$main::inputs_ref->{previewAnswers}) {
+		if (lc($self->{nextVisible}) eq 'always'
+			|| (lc($self->{nextVisible}) eq 'ifcorrect' && $result->{score} >= 1))
+		{
+			my $method = "next" . $self->{nextStyle};
+			$par = 0;
+			$result->{msg} .= $self->$method($self->{nextLabel}, 1) . '<br/>';
+		}
+	}
 
-  #
-  #  Add the reset checkbox, if needed
-  #
-  $result->{msg} .= $self->resetCheckbox($self->{resetLabel},$par)
-    if $self->{allowReset} && $status->{part} > 1;
+	#
+	#  Add the reset checkbox, if needed
+	#
+	$result->{msg} .= $self->resetCheckbox($self->{resetLabel}, $par)
+		if $self->{allowReset} && $status->{part} > 1;
 
-  #
-  #  Make sure we don't go on unless the next button really is checked
-  #
-  $result->{msg} .= '<input type="hidden" name="_next" value="0" />'
-    unless $self->{nextInserted};
+	#
+	#  Make sure we don't go on unless the next button really is checked
+	#
+	$result->{msg} .= '<input type="hidden" name="_next" value="0" />'
+		unless $self->{nextInserted};
 
-  return ($result,$state);
+	return ($result, $state);
 }
 
 1;

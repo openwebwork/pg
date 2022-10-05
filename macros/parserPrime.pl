@@ -106,7 +106,7 @@ from a context other than the current one.)
 
 =cut
 
-sub _parserPrime_init {};    # don't load a second time
+sub _parserPrime_init { };    # don't load a second time
 
 ##########################################
 #
@@ -118,23 +118,31 @@ package parser::Prime;
 #  Add prime to the given or current context
 #
 sub Enable {
-  my $self = shift; my $x = shift;
-  my $context = main::Context();
-  if (Value::isContext($x)) {$context = $x; $x = shift}
-  $context->operators->add("'"=>{
-    precedence => 8.5, associativity => "right", type => "unary", string => "'",
-    class => "parser::Prime::UOP::prime", isCommand => 1
-  });
-  $context->reduction->set("(f)'" => 0);
-  $context->flags->set(prime_variable => $x) if defined($x);
+	my $self    = shift;
+	my $x       = shift;
+	my $context = main::Context();
+	if (Value::isContext($x)) { $context = $x; $x = shift }
+	$context->operators->add(
+		"'" => {
+			precedence    => 8.5,
+			associativity => "right",
+			type          => "unary",
+			string        => "'",
+			class         => "parser::Prime::UOP::prime",
+			isCommand     => 1
+		}
+	);
+	$context->reduction->set("(f)'" => 0);
+	$context->flags->set(prime_variable => $x) if defined($x);
 }
 
 #
 #  Remove prime from the context
 #
 sub Disable {
-  my $self = shift; my $context = shift || main::Context();
-  $context->operators->remove("'");
+	my $self    = shift;
+	my $context = shift || main::Context();
+	$context->operators->remove("'");
 }
 
 ##########################################
@@ -148,10 +156,13 @@ our @ISA = ('Parser::UOP');
 #  Do a typecheck on the operand
 #
 sub _check {
-  my $self = shift;
-  return if $self->checkInfinite || $self->checkString ||
-            $self->checkList || $self->checkNumber;
-  $self->{type} = {%{$self->{op}->typeRef}};
+	my $self = shift;
+	return
+		if $self->checkInfinite
+		|| $self->checkString
+		|| $self->checkList
+		|| $self->checkNumber;
+	$self->{type} = { %{ $self->{op}->typeRef } };
 }
 
 #
@@ -159,56 +170,61 @@ sub _check {
 #   in string and TeX output (change the precedence to hide it)
 #
 sub string {
-  my ($self,$precedence,$showparens,$position,$outerRight) = @_;
-  my $uop = $self->{def}; $precedence -= .01 if $uop->{precedence} == $precedence;
-  return $self->SUPER::string($precedence,$showparens,$position,$outerRight);
+	my ($self, $precedence, $showparens, $position, $outerRight) = @_;
+	my $uop = $self->{def};
+	$precedence -= .01 if $uop->{precedence} == $precedence;
+	return $self->SUPER::string($precedence, $showparens, $position, $outerRight);
 }
+
 sub TeX {
-  my ($self,$precedence,$showparens,$position,$outerRight) = @_;
-  my $uop = $self->{def}; $precedence -= .01 if $uop->{precedence} == $precedence;
-  return $self->SUPER::TeX($precedence,$showparens,$position,$outerRight);
+	my ($self, $precedence, $showparens, $position, $outerRight) = @_;
+	my $uop = $self->{def};
+	$precedence -= .01 if $uop->{precedence} == $precedence;
+	return $self->SUPER::TeX($precedence, $showparens, $position, $outerRight);
 }
 
 #
 #  Produce a perl version of the derivative
 #
 sub perl {
-  my $self = shift;
-  return $self->{op}->D($self->getVar)->perl;
+	my $self = shift;
+	return $self->{op}->D($self->getVar)->perl;
 }
 
 #
 #  Evaluate the derivative
 #
 sub eval {
-  my $self = shift;
-  return $self->{op}->D($self->getVar)->eval;
+	my $self = shift;
+	return $self->{op}->D($self->getVar)->eval;
 }
 
 #
 #  Reduce by replacing with derivative
 #
 sub reduce {
-  my $self = shift;
-  return $self unless $self->context->{reduction}{"(f)'"};
-  return $self->{op}->D($self->getVar);
+	my $self = shift;
+	return $self unless $self->context->{reduction}{"(f)'"};
+	return $self->{op}->D($self->getVar);
 }
 
 sub getVar {
-  my $self = shift;
-  return $self->context->flag("prime_variable") ||
-         (keys(%{$self->getVariables}))[0] ||
-	 (keys(%{$self->{equation}{variables}}))[0] || 'x';
+	my $self = shift;
+	return
+		$self->context->flag("prime_variable")
+		|| (keys(%{ $self->getVariables }))[0]
+		|| (keys(%{ $self->{equation}{variables} }))[0]
+		|| 'x';
 }
-
 
 #
 #  Handle derivative by taking derivative of a prime by taking
 #  derivative of the prime's value (which is itself a derivative)
 #
 sub D {
-  my $self = shift; my $x = shift;
-  return $self->{op}->D($x)->D($x);
+	my $self = shift;
+	my $x    = shift;
+	return $self->{op}->D($x)->D($x);
 }
 
 1;

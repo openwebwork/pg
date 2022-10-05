@@ -78,12 +78,11 @@ choice question.
 =cut
 
 # ^uses be_strict
-BEGIN{
+BEGIN {
 	be_strict;
 }
 
 package main;
-
 
 BEGIN {
 	be_strict();
@@ -91,7 +90,7 @@ BEGIN {
 
 # ^function _PGchoicemacros_init
 
-sub _PGchoicemacros_init{
+sub _PGchoicemacros_init {
 }
 
 =head1 MACROS
@@ -127,7 +126,7 @@ is demonstrated with pop_up_list_print_q() below.
 # ^uses &std_print_a
 
 sub new_match_list {
-	new Match(random(1,2000,1), \&std_print_q, \&std_print_a);
+	new Match(random(1, 2000, 1), \&std_print_q, \&std_print_a);
 }
 
 =back
@@ -166,7 +165,7 @@ there is rarely a reason to print out the answers to a select list.
 # ^uses &std_print_a
 
 sub new_select_list {
-	new Select(random(1,2000,1), \&std_print_q, \&std_print_a);
+	new Select(random(1, 2000, 1), \&std_print_q, \&std_print_a);
 }
 
 =item new_pop_up_select_list()
@@ -186,7 +185,7 @@ it will render as a popup list. It is equivalent to:
 # ^uses &std_print_a
 
 sub new_pop_up_select_list {
-	new Select(random(1,2000,1), \&pop_up_list_print_q, \&std_print_a);
+	new Select(random(1, 2000, 1), \&pop_up_list_print_q, \&std_print_a);
 }
 
 =back
@@ -219,7 +218,7 @@ constrcutor described above under new_match_list().
 # ^uses &radio_print_a
 
 sub new_multiple_choice {
-	new Multiple(random(1,2000,1), \&std_print_q, \&radio_print_a);
+	new Multiple(random(1, 2000, 1), \&std_print_q, \&radio_print_a);
 }
 
 =item new_checkbox_multiple_choice()
@@ -239,7 +238,7 @@ equivalent to:
 # ^uses &std_print_q
 # ^uses &checkbox_print_a
 sub new_checkbox_multiple_choice {
-	new Multiple(random(1,2000,1), \&std_print_q, \&checkbox_print_a);
+	new Multiple(random(1, 2000, 1), \&std_print_q, \&checkbox_print_a);
 }
 
 =back
@@ -266,39 +265,44 @@ questions from and returns the appropriately formatted string.
 
 =cut
 
-
 # ^function std_print_q
 
 sub std_print_q {
-    my $self = shift;
-    my (@questions) = @_;
-    my $length = $self->{ans_rule_len};
-    my $out = "";
- 	#if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth') {
- 	if ($main::displayMode =~ /^HTML/) {
-	        my $i=1; my $quest; $out = "\n<P>\n";
- 		foreach $quest (@questions) {
- 			 $out.=	ans_rule($length) . "&nbsp;<B>$i.</B> $quest<BR>";
- 			 $i++;
- 		}
-	} elsif ($main::displayMode eq 'Latex2HTML') {
-	        my $i=1; my $quest; $out = "\\par\n";
+	my $self        = shift;
+	my (@questions) = @_;
+	my $length      = $self->{ans_rule_len};
+	my $out         = "";
+	#if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth') {
+	if ($main::displayMode =~ /^HTML/) {
+		my $i = 1;
+		my $quest;
+		$out = "\n<P>\n";
 		foreach $quest (@questions) {
-			 $out.=	ans_rule($length) . "\\begin{rawhtml}<B>$i. </B>\\end{rawhtml} $quest\\begin{rawhtml}<BR>\\end{rawhtml}\n";
-			 $i++;
+			$out .= ans_rule($length) . "&nbsp;<B>$i.</B> $quest<BR>";
+			$i++;
 		}
-	}  elsif ($main::displayMode eq 'TeX') {
-	    $out = "\n\\par\\begin{enumerate}\n";
-	    my $i=1; my $quest;
-	 	foreach $quest (@questions) {
-	 		$out .= "\\item[" . ans_rule($length) . "$i.] $quest\n";
-	 		$i++;
-	 	}
-	 	$out .= "\\end{enumerate}\n";
-    }  elsif ($main::displayMode eq 'PTX') {
-        $out = "<ol>\n<li>";
-        $out .= join("</li>\n<li>",@questions);
-        $out .= "</li>\n</ol>";
+	} elsif ($main::displayMode eq 'Latex2HTML') {
+		my $i = 1;
+		my $quest;
+		$out = "\\par\n";
+		foreach $quest (@questions) {
+			$out .= ans_rule($length)
+				. "\\begin{rawhtml}<B>$i. </B>\\end{rawhtml} $quest\\begin{rawhtml}<BR>\\end{rawhtml}\n";
+			$i++;
+		}
+	} elsif ($main::displayMode eq 'TeX') {
+		$out = "\n\\par\\begin{enumerate}\n";
+		my $i = 1;
+		my $quest;
+		foreach $quest (@questions) {
+			$out .= "\\item[" . ans_rule($length) . "$i.] $quest\n";
+			$i++;
+		}
+		$out .= "\\end{enumerate}\n";
+	} elsif ($main::displayMode eq 'PTX') {
+		$out = "<ol>\n<li>";
+		$out .= join("</li>\n<li>", @questions);
+		$out .= "</li>\n</ol>";
 	} else {
 		$out = "Error: PGchoicemacros: std_print_q: Unknown displayMode: $main::displayMode.\n";
 	}
@@ -326,51 +330,54 @@ $sl->qa('blah blah', 'T');
 
 =cut
 
-
 # ^function pop_up_list_print_q
 
 sub pop_up_list_print_q {
-    my $self = shift;
-    my (@questions) = @_;
-    my $length = $self->{ans_rule_len};
-    my @list = @{$self->{ra_pop_up_list} };
-    my $out = "";
+	my $self        = shift;
+	my (@questions) = @_;
+	my $length      = $self->{ans_rule_len};
+	my @list        = @{ $self->{ra_pop_up_list} };
+	my $out         = "";
 
- 	#if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth') {
- 	if ($main::displayMode =~ /^HTML/) {
- 		my $i=1; my $quest;
- 		foreach $quest (@questions) {
- 			 $out.=	"\n<p>" . pop_up_list(@list) . "&nbsp;<B>$i.</B> $quest";
- 			 $i++;
- 		}
- 		$out .= "<br>\n";
-	} elsif ($main::displayMode eq 'Latex2HTML') {
-		my $i=1; my $quest;
+	#if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth') {
+	if ($main::displayMode =~ /^HTML/) {
+		my $i = 1;
+		my $quest;
 		foreach $quest (@questions) {
-			 $out.=	" \\begin{rawhtml}<p><B>\\end{rawhtml}" . pop_up_list(@list) . " $i. \\begin{rawhtml}</B>\\end{rawhtml}   $quest";
-			 $i++;
+			$out .= "\n<p>" . pop_up_list(@list) . "&nbsp;<B>$i.</B> $quest";
+			$i++;
+		}
+		$out .= "<br>\n";
+	} elsif ($main::displayMode eq 'Latex2HTML') {
+		my $i = 1;
+		my $quest;
+		foreach $quest (@questions) {
+			$out .=
+				" \\begin{rawhtml}<p><B>\\end{rawhtml}"
+				. pop_up_list(@list)
+				. " $i. \\begin{rawhtml}</B>\\end{rawhtml}   $quest";
+			$i++;
 		}
 		$out .= " \\begin{rawhtml}<BR>\\end{rawhtml} ";
-	}  elsif ($main::displayMode eq 'TeX') {
-	    $out = "\n\\par\\begin{enumerate}\n";
-	    my $i=1; my $quest;
-	 	foreach $quest (@questions) {
-	 		$out .= "\\item[" .  pop_up_list(@list) . "$i.] $quest\n";
-	 		$i++;
-	 	}
-	 	$out .= "\\end{enumerate}\n";
-    }  elsif ($main::displayMode eq 'PTX') {
-        $out = "<ol>\n<li>";
-        $out .= join("</li>\n<li>",@questions);
-        $out .= "</li>\n</ol>";
+	} elsif ($main::displayMode eq 'TeX') {
+		$out = "\n\\par\\begin{enumerate}\n";
+		my $i = 1;
+		my $quest;
+		foreach $quest (@questions) {
+			$out .= "\\item[" . pop_up_list(@list) . "$i.] $quest\n";
+			$i++;
+		}
+		$out .= "\\end{enumerate}\n";
+	} elsif ($main::displayMode eq 'PTX') {
+		$out = "<ol>\n<li>";
+		$out .= join("</li>\n<li>", @questions);
+		$out .= "</li>\n</ol>";
 	} else {
 		$out = "Error: PGchoicemacros: pop_up_list_print_q: Unknown displayMode: $main::displayMode.\n";
 	}
 	$out;
 
 }
-
-
 
 =item quest_first_pop_up_list_print_q()
 
@@ -389,45 +396,52 @@ text in the output.
 # ^function quest_first_pop_up_list_print_q
 
 sub quest_first_pop_up_list_print_q {
-    my $self = shift;
-    my (@questions) = @_;
-    my $length = $self->{ans_rule_len};
-    my @list = @{$self->{ra_pop_up_list} };
-    my $out = "";
+	my $self        = shift;
+	my (@questions) = @_;
+	my $length      = $self->{ans_rule_len};
+	my @list        = @{ $self->{ra_pop_up_list} };
+	my $out         = "";
 
 	if ($main::displayMode eq 'HTML_MathJax'
-	 || $main::displayMode eq 'HTML_dpng'
-	 || $main::displayMode eq 'HTML'
-	 || $main::displayMode eq 'HTML_tth'
-	 || $main::displayMode eq 'HTML_jsMath'
-	 || $main::displayMode eq 'HTML_asciimath' 
-	 || $main::displayMode eq 'HTML_LaTeXMathML'
-	 || $main::displayMode eq 'HTML_img') {
- 		my $i=1; my $quest;
- 		foreach $quest (@questions) {
- 			 $out.=	"\n<p>" .  "&nbsp; $quest" . pop_up_list(@list);
- 			 $i++;
- 		}
- 		$out .= "<br>\n";
-	} elsif ($main::displayMode eq 'Latex2HTML') {
-		my $i=1; my $quest;
+		|| $main::displayMode eq 'HTML_dpng'
+		|| $main::displayMode eq 'HTML'
+		|| $main::displayMode eq 'HTML_tth'
+		|| $main::displayMode eq 'HTML_jsMath'
+		|| $main::displayMode eq 'HTML_asciimath'
+		|| $main::displayMode eq 'HTML_LaTeXMathML'
+		|| $main::displayMode eq 'HTML_img')
+	{
+		my $i = 1;
+		my $quest;
 		foreach $quest (@questions) {
-			 $out.=	" \\begin{rawhtml}<p><B>\\end{rawhtml}" . pop_up_list(@list) . " $i. \\begin{rawhtml}</B>\\end{rawhtml}   $quest";
-			 $i++;
+			$out .= "\n<p>" . "&nbsp; $quest" . pop_up_list(@list);
+			$i++;
+		}
+		$out .= "<br>\n";
+	} elsif ($main::displayMode eq 'Latex2HTML') {
+		my $i = 1;
+		my $quest;
+		foreach $quest (@questions) {
+			$out .=
+				" \\begin{rawhtml}<p><B>\\end{rawhtml}"
+				. pop_up_list(@list)
+				. " $i. \\begin{rawhtml}</B>\\end{rawhtml}   $quest";
+			$i++;
 		}
 		$out .= " \\begin{rawhtml}<BR>\\end{rawhtml} ";
-	}  elsif ($main::displayMode eq 'TeX') {
-	    $out = "\n\\par\\begin{enumerate}\n";
-	    my $i=1; my $quest;
-	 	foreach $quest (@questions) {
-	 		$out .= "\\item[" .  pop_up_list(@list) . "$i.] $quest\n";
-	 		$i++;
-	 	}
-	 	$out .= "\\end{enumerate}\n";
-    }  elsif ($main::displayMode eq 'PTX') {
-        $out = "<ol>\n<li>";
-        $out .= join("</li>\n<li>",@questions);
-        $out .= "</li>\n</ol>";
+	} elsif ($main::displayMode eq 'TeX') {
+		$out = "\n\\par\\begin{enumerate}\n";
+		my $i = 1;
+		my $quest;
+		foreach $quest (@questions) {
+			$out .= "\\item[" . pop_up_list(@list) . "$i.] $quest\n";
+			$i++;
+		}
+		$out .= "\\end{enumerate}\n";
+	} elsif ($main::displayMode eq 'PTX') {
+		$out = "<ol>\n<li>";
+		$out .= join("</li>\n<li>", @questions);
+		$out .= "</li>\n</ol>";
 	} else {
 		$out = "Error: PGchoicemacros: quest_first_pop_up_list_print_q : Unknown displayMode: $main::displayMode.\n";
 	}
@@ -453,45 +467,52 @@ middle of the text of a problem.
 # ^function ans_in_middle_pop_up_list_print_q
 
 sub ans_in_middle_pop_up_list_print_q {
-    my $self = shift;
-    my (@questions) = @_;
-    my $length = $self->{ans_rule_len};
-    my @list = @{$self->{ra_pop_up_list} };
-    my $out = "";
+	my $self        = shift;
+	my (@questions) = @_;
+	my $length      = $self->{ans_rule_len};
+	my @list        = @{ $self->{ra_pop_up_list} };
+	my $out         = "";
 
 	if ($main::displayMode eq 'HTML_MathJax'
-	 || $main::displayMode eq 'HTML_dpng'
-	 || $main::displayMode eq 'HTML'
-	 || $main::displayMode eq 'HTML_tth'
-	 || $main::displayMode eq 'HTML_jsMath'
-	 || $main::displayMode eq 'HTML_asciimath' 
-	 || $main::displayMode eq 'HTML_LaTeXMathML'
-	 || $main::displayMode eq 'HTML_img') {
- 		my $i=1; my $quest;
- 		foreach $quest (@questions) {
- 			 $out.=	"" .  "&nbsp; $quest" . pop_up_list(@list);
- 			 $i++;
- 		}
- 		$out .= "";
-	} elsif ($main::displayMode eq 'Latex2HTML') {
-		my $i=1; my $quest;
+		|| $main::displayMode eq 'HTML_dpng'
+		|| $main::displayMode eq 'HTML'
+		|| $main::displayMode eq 'HTML_tth'
+		|| $main::displayMode eq 'HTML_jsMath'
+		|| $main::displayMode eq 'HTML_asciimath'
+		|| $main::displayMode eq 'HTML_LaTeXMathML'
+		|| $main::displayMode eq 'HTML_img')
+	{
+		my $i = 1;
+		my $quest;
 		foreach $quest (@questions) {
-			 $out.=	" \\begin{rawhtml}<p><B>\\end{rawhtml}" . pop_up_list(@list) . " $i. \\begin{rawhtml}</B>\\end{rawhtml}   $quest";
-			 $i++;
+			$out .= "" . "&nbsp; $quest" . pop_up_list(@list);
+			$i++;
+		}
+		$out .= "";
+	} elsif ($main::displayMode eq 'Latex2HTML') {
+		my $i = 1;
+		my $quest;
+		foreach $quest (@questions) {
+			$out .=
+				" \\begin{rawhtml}<p><B>\\end{rawhtml}"
+				. pop_up_list(@list)
+				. " $i. \\begin{rawhtml}</B>\\end{rawhtml}   $quest";
+			$i++;
 		}
 		$out .= " \\begin{rawhtml}<BR>\\end{rawhtml} ";
-	}  elsif ($main::displayMode eq 'TeX') {
-	    $out = "\n\\par\\begin{enumerate}\n";
-	    my $i=1; my $quest;
-	 	foreach $quest (@questions) {
-	 		$out .= "\\item[" .  pop_up_list(@list) . "$i.] $quest\n";
-	 		$i++;
-	 	}
-	 	$out .= "\\end{enumerate}\n";
-    }  elsif ($main::displayMode eq 'PTX') {
-        $out = "<ol>\n<li>";
-        $out .= join("</li>\n<li>",@questions);
-        $out .= "</li>\n</ol>";
+	} elsif ($main::displayMode eq 'TeX') {
+		$out = "\n\\par\\begin{enumerate}\n";
+		my $i = 1;
+		my $quest;
+		foreach $quest (@questions) {
+			$out .= "\\item[" . pop_up_list(@list) . "$i.] $quest\n";
+			$i++;
+		}
+		$out .= "\\end{enumerate}\n";
+	} elsif ($main::displayMode eq 'PTX') {
+		$out = "<ol>\n<li>";
+		$out .= join("</li>\n<li>", @questions);
+		$out .= "</li>\n</ol>";
 	} else {
 		$out = "Error: PGchoicemacros: ans_in_middle_pop_up_list_print_q: Unknown displayMode: $main::displayMode.\n";
 	}
@@ -512,15 +533,15 @@ pop_up_list contents only are printed as a popup menu.
 # ^function units_list_print_q
 
 sub units_list_print_q {
-    my $self = shift;
-    my (@questions) = @_;
-    my $length = $self->{ans_rule_len};
-    my @list = @{$self->{ra_pop_up_list} };
-    my $out = '';
+	my $self        = shift;
+	my (@questions) = @_;
+	my $length      = $self->{ans_rule_len};
+	my @list        = @{ $self->{ra_pop_up_list} };
+	my $out         = '';
 
-	$out.= pop_up_list(@list);
+	$out .= pop_up_list(@list);
 
-    $out;
+	$out;
 }
 
 =back
@@ -547,38 +568,38 @@ for matching lists.  It lists the answers vertically lettered sequentially.
 #Standard method of printing answers in a matching list
 # ^function std_print_a
 sub std_print_a {
-	my $self = shift;
-	my(@array) = @_;
-	my $i = 0;
-	my @alpha = ('A'..'Z', 'AA'..'ZZ');
+	my $self    = shift;
+	my (@array) = @_;
+	my $i       = 0;
+	my @alpha   = ('A' .. 'Z', 'AA' .. 'ZZ');
 	my $letter;
-    my  $out=   &main::MODES(
-            TeX=> "\\begin{enumerate}\n",
-            Latex2HTML=> " \\begin{rawhtml} <OL TYPE=\"A\" VALUE=\"1\"> \\end{rawhtml} ",
-					# kludge to fix IE/CSS problem
-					#"<OL COMPACT TYPE=\"A\" START=\"1\">\n"
-            HTML=> "<BLOCKQUOTE>\n",
-            PTX=> '<ol label="A.">'."\n",
-	) ;
+	my $out = &main::MODES(
+		TeX        => "\\begin{enumerate}\n",
+		Latex2HTML => " \\begin{rawhtml} <OL TYPE=\"A\" VALUE=\"1\"> \\end{rawhtml} ",
+		# kludge to fix IE/CSS problem
+		#"<OL COMPACT TYPE=\"A\" START=\"1\">\n"
+		HTML => "<BLOCKQUOTE>\n",
+		PTX  => '<ol label="A.">' . "\n",
+	);
 	my $elem;
 	foreach $elem (@array) {
 		$letter = shift @alpha;
-        $out .= &main::MODES(
-            TeX=>   "\\item[$main::ALPHABET[$i].] $elem\n",
-            Latex2HTML=> " \\begin{rawhtml} <LI> \\end{rawhtml} $elem  ",
-					#"<LI> $elem</LI>\n"
-            HTML=>"<br /> <b>$letter.</b> $elem\n",
-            PTX=>"<li>$elem</li>\n",
-		) ;
+		$out .= &main::MODES(
+			TeX        => "\\item[$main::ALPHABET[$i].] $elem\n",
+			Latex2HTML => " \\begin{rawhtml} <LI> \\end{rawhtml} $elem  ",
+			#"<LI> $elem</LI>\n"
+			HTML => "<br /> <b>$letter.</b> $elem\n",
+			PTX  => "<li>$elem</li>\n",
+		);
 		$i++;
 	}
-    $out .= &main::MODES(
-            TeX=>   "\\end{enumerate}\n",
-            Latex2HTML=>" \\begin{rawhtml} </OL>\n \\end{rawhtml} ",
-				#"</OL>\n"
-            HTML=> "</BLOCKQUOTE>\n",
-            PTX=> "</ol>",
-	) ;
+	$out .= &main::MODES(
+		TeX        => "\\end{enumerate}\n",
+		Latex2HTML => " \\begin{rawhtml} </OL>\n \\end{rawhtml} ",
+		#"</OL>\n"
+		HTML => "</BLOCKQUOTE>\n",
+		PTX  => "</ol>",
+	);
 	$out;
 
 }
@@ -604,41 +625,41 @@ returns the appropriately formatted string.
 
 # ^function radio_print_a
 sub radio_print_a {
-    my $self = shift;
-    my (@answers) = @_;
-    my $out = "";
-	my $i =0;
-    my @in = ();
- 	#if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth') {
- 	if ($main::displayMode =~ /^HTML/) {
+	my $self      = shift;
+	my (@answers) = @_;
+	my $out       = "";
+	my $i         = 0;
+	my @in        = ();
+	#if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth') {
+	if ($main::displayMode =~ /^HTML/) {
 		foreach my $ans (@answers) {
-			push (@in, ($main::ALPHABET[$i], "<B> $main::ALPHABET[$i]. </B> $ans"));
+			push(@in, ($main::ALPHABET[$i], "<B> $main::ALPHABET[$i]. </B> $ans"));
 			$i++;
 		}
 		my @radio_buttons = ans_radio_buttons(@in);
 		$out = "\n<BR>" . join "\n<BR>", @radio_buttons;
- 		$out .= "<BR>\n";
+		$out .= "<BR>\n";
 	} elsif ($main::displayMode eq 'Latex2HTML') {
 		foreach my $ans (@answers) {
-			push (@in, ($main::ALPHABET[$i], "\\begin{rawhtml}<B> $main::ALPHABET[$i]. </B> \\end{rawhtml} $ans"));
+			push(@in, ($main::ALPHABET[$i], "\\begin{rawhtml}<B> $main::ALPHABET[$i]. </B> \\end{rawhtml} $ans"));
 			$i++;
 		}
 		my @radio_buttons = ans_radio_buttons(@in);
 		$out = "\\begin{rawhtml}<BR>\\end{rawhtml}" . join "\\begin{rawhtml}<BR>\\end{rawhtml}", @radio_buttons;
 		$out .= " \\begin{rawhtml}<BR>\\end{rawhtml} ";
-	}  elsif ($main::displayMode eq 'TeX') {
+	} elsif ($main::displayMode eq 'TeX') {
 		foreach my $ans (@answers) {
-			push (@in, ($main::ALPHABET[$i], "$main::ALPHABET[$i]. $ans"));
+			push(@in, ($main::ALPHABET[$i], "$main::ALPHABET[$i]. $ans"));
 			$i++;
 		}
 		my @radio_buttons = ans_radio_buttons(@in);
 		#$out = "\n\\par\\begin{itemize}\n";
 		$out .= join '', @radio_buttons;
 		#$out .= "\\end{itemize}\n";
-    }  elsif ($main::displayMode eq 'PTX') {
-        $out = '<var form="buttons">'."\n".'<li>';
-        $out .= join("</li>\n<li>", @answers);
-        $out .= "</li>\n</var>\n";
+	} elsif ($main::displayMode eq 'PTX') {
+		$out = '<var form="buttons">' . "\n" . '<li>';
+		$out .= join("</li>\n<li>", @answers);
+		$out .= "</li>\n</var>\n";
 	} else {
 		$out = "Error: PGchoicemacros: radio_print_a: Unknown displayMode: $main::displayMode.\n";
 	}
@@ -662,45 +683,43 @@ returns the appropriately formatted string.
 
 =cut
 
-
-
 # ^function checkbox_print_a
 sub checkbox_print_a {
-    my $self = shift;
-    my (@answers) = @_;
-    my $out = "";
-	my $i =0;
-    my @in = ();
-# 	if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth') {
- 	if ($main::displayMode =~ /^HTML/) {
+	my $self      = shift;
+	my (@answers) = @_;
+	my $out       = "";
+	my $i         = 0;
+	my @in        = ();
+	# 	if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth') {
+	if ($main::displayMode =~ /^HTML/) {
 		foreach my $ans (@answers) {
-			push (@in, ($main::ALPHABET[$i], "<B> $main::ALPHABET[$i]. </B> $ans"));
+			push(@in, ($main::ALPHABET[$i], "<B> $main::ALPHABET[$i]. </B> $ans"));
 			$i++;
 		}
 		my @checkboxes = ans_checkbox(@in);
 		$out = "\n<BR>" . join "\n<BR>", @checkboxes;
- 		$out .= "<BR>\n";
+		$out .= "<BR>\n";
 	} elsif ($main::displayMode eq 'Latex2HTML') {
 		foreach my $ans (@answers) {
-			push (@in, ($main::ALPHABET[$i], "\\begin{rawhtml}<B> $main::ALPHABET[$i]. </B> \\end{rawhtml} $ans"));
+			push(@in, ($main::ALPHABET[$i], "\\begin{rawhtml}<B> $main::ALPHABET[$i]. </B> \\end{rawhtml} $ans"));
 			$i++;
 		}
 		my @checkboxes = ans_checkbox(@in);
 		$out = "\\begin{rawhtml}<BR>\\end{rawhtml}" . join "\\begin{rawhtml}<BR>\\end{rawhtml}", @checkboxes;
 		$out .= " \\begin{rawhtml}<BR>\\end{rawhtml} ";
-	}  elsif ($main::displayMode eq 'TeX') {
+	} elsif ($main::displayMode eq 'TeX') {
 		foreach my $ans (@answers) {
-			push (@in, ($main::ALPHABET[$i], "$main::ALPHABET[$i]. $ans"));
+			push(@in, ($main::ALPHABET[$i], "$main::ALPHABET[$i]. $ans"));
 			$i++;
 		}
 		my @radio_buttons = ans_checkbox(@in);
 		#$out = "\n\\par\\begin{itemize}\n";
-		$out .= join '', @radio_buttons ;
+		$out .= join '', @radio_buttons;
 		#$out .= "\\end{itemize}\n";
-    }  elsif ($main::displayMode eq 'PTX') {
-        $out = '<var form="checkboxes">'."\n".'<li>';
-        $out .= join("</li>\n<li>", @answers);
-        $out .= "</li>\n</var>\n";
+	} elsif ($main::displayMode eq 'PTX') {
+		$out = '<var form="checkboxes">' . "\n" . '<li>';
+		$out .= join("</li>\n<li>", @answers);
+		$out .= "</li>\n</var>\n";
 	} else {
 		$out = "Error: PGchoicemacros: checkbox_print_a: Unknown displayMode: $main::displayMode.\n";
 	}
@@ -733,12 +752,12 @@ questions and answers to add to the $questions and $answers arrays.
 =cut
 
 # ^function qa   [DEPRECATED]
-# 
+#
 sub qa {
-	my($questionsRef,$answersRef,@questANDanswer) = @_;
+	my ($questionsRef, $answersRef, @questANDanswer) = @_;
 	while (@questANDanswer) {
-		push(@$questionsRef,shift(@questANDanswer));
-		push(@$answersRef,shift(@questANDanswer));
+		push(@$questionsRef, shift(@questANDanswer));
+		push(@$answersRef,   shift(@questANDanswer));
 
 	}
 }
@@ -755,10 +774,10 @@ C<undef,0,1,undef,2,undef,undef,undef,4>.
 # ^function invert   [DEPRECATED]
 sub invert {
 	my @array = @_;
-	my @out = ();
+	my @out   = ();
 	my $i;
-	for ($i=0;$i<=$#array;$i++) {
-		$out[$array[$i]]=$i;
+	for ($i = 0; $i <= $#array; $i++) {
+		$out[ $array[$i] ] = $i;
 	}
 	@out;
 }
@@ -774,11 +793,11 @@ Selects $K random nonrepeating elements in the range 0 to $N-1.
 # ^function NchooseK   [DEPRECATED]
 
 sub NchooseK {
-	my($n,$k)=@_;;
-	my @array = 0..($n-1);
-	my @out = ();
-	while (@out<$k) {
-		push(@out, splice(@array,    random(0,$#array,1) ,         1) );
+	my ($n, $k) = @_;
+	my @array = 0 .. ($n - 1);
+	my @out   = ();
+	while (@out < $k) {
+		push(@out, splice(@array, random(0, $#array, 1), 1));
 	}
 	@out;
 }
@@ -795,7 +814,7 @@ Returns the integers from 0 to $i-1 in random order.
 
 sub shuffle {
 	my ($i) = @_;
-	my @out = &NchooseK($i,$i);
+	my @out = &NchooseK($i, $i);
 	@out;
 }
 
@@ -809,28 +828,34 @@ sub match_questions_list {
 	my (@questions) = @_;
 	my $out = "";
 	#if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth') {
- 	if ($main::displayMode =~ /^HTML/) {
-		my $i=1; my $quest;
+	if ($main::displayMode =~ /^HTML/) {
+		my $i = 1;
+		my $quest;
 		foreach $quest (@questions) {
-			 $out.=	"\n<BR>" . ans_rule(4) . "<B>$i.</B> $quest";
-			 $i++;
+			$out .= "\n<BR>" . ans_rule(4) . "<B>$i.</B> $quest";
+			$i++;
 		}
 		$out .= "<br>\n";
 	} elsif ($main::displayMode eq 'Latex2HTML') {
-		my $i=1; my $quest;
+		my $i = 1;
+		my $quest;
 		foreach $quest (@questions) {
-			 $out.=	" \\begin{rawhtml}<BR>\\end{rawhtml} " . ans_rule(4) . "\\begin{rawhtml}<B>\\end{rawhtml} $i. \\begin{rawhtml}</B>\\end{rawhtml}   $quest"; #"$i.   $quest";
-			 $i++;
+			$out .=
+				" \\begin{rawhtml}<BR>\\end{rawhtml} "
+				. ans_rule(4)
+				. "\\begin{rawhtml}<B>\\end{rawhtml} $i. \\begin{rawhtml}</B>\\end{rawhtml}   $quest";  #"$i.   $quest";
+			$i++;
 		}
 		$out .= " \\begin{rawhtml}<BR>\\end{rawhtml} ";
 	} elsif ($main::displayMode eq 'TeX') {
-	  	$out = "\n\\par\\begin{enumerate}\n";
-	  	my $i=1; my $quest;
-	 	foreach $quest (@questions) {
-	 		$out .= "\\item[" . ans_rule(3) . "$i.] $quest\n";
-	 		$i++;
-	 		}
-	 	$out .= "\\end{enumerate}\n";
+		$out = "\n\\par\\begin{enumerate}\n";
+		my $i = 1;
+		my $quest;
+		foreach $quest (@questions) {
+			$out .= "\\item[" . ans_rule(3) . "$i.] $quest\n";
+			$i++;
+		}
+		$out .= "\\end{enumerate}\n";
 	} else {
 		$out = "Error: PGchoicemacros: match_questions_list: Unknown displayMode: $main::displayMode.\n";
 	}
@@ -847,28 +872,34 @@ sub match_questions_list_varbox {
 	my ($length, @questions) = @_;
 	my $out = "";
 	#if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth') {
- 	if ($main::displayMode =~ /^HTML/) {
-		my $i=1; my $quest;
+	if ($main::displayMode =~ /^HTML/) {
+		my $i = 1;
+		my $quest;
 		foreach $quest (@questions) {
-			$out.=	"\n<BR>" . ans_rule($length) . "<B>$i.</B> $quest";
+			$out .= "\n<BR>" . ans_rule($length) . "<B>$i.</B> $quest";
 			$i++;
 		}
 		$out .= "<br>\n";
 	} elsif ($main::displayMode eq 'Latex2HTML') {
-		my $i=1; my $quest;
+		my $i = 1;
+		my $quest;
 		foreach $quest (@questions) {
-			$out.=	" \\begin{rawhtml}<BR>\\end{rawhtml} " . ans_rule($length) . "\\begin{rawhtml}<B>\\end{rawhtml} $i. \\begin{rawhtml}</B>\\end{rawhtml}   $quest"; #"$i.   $quest";
+			$out .=
+				" \\begin{rawhtml}<BR>\\end{rawhtml} "
+				. ans_rule($length)
+				. "\\begin{rawhtml}<B>\\end{rawhtml} $i. \\begin{rawhtml}</B>\\end{rawhtml}   $quest";  #"$i.   $quest";
 			$i++;
 		}
 		$out .= " \\begin{rawhtml}<BR>\\end{rawhtml} ";
 	} elsif ($main::displayMode eq 'TeX') {
 		$out = "\n\\par\\begin{enumerate}\n";
-		my $i=1; my $quest;
-	 	foreach $quest (@questions) {
-	 		$out .= "\\item[" . ans_rule($length) . "$i.] $quest\n";
-	 		$i++;
-	 	}
-	 	$out .= "\\end{enumerate}\n";
+		my $i = 1;
+		my $quest;
+		foreach $quest (@questions) {
+			$out .= "\\item[" . ans_rule($length) . "$i.] $quest\n";
+			$i++;
+		}
+		$out .= "\\end{enumerate}\n";
 	} else {
 		$out = "Error: PGchoicemacros: match_questions_list_varbox: Unknown displayMode: $main::displayMode.\n";
 	}

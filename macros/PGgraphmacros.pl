@@ -1,5 +1,4 @@
 
-
 =head1 NAME
 
 	PGgraphmacros -- in courseScripts directory
@@ -32,7 +31,6 @@ See F<PGbasicmacros> for definitions of C<image> and C<caption>
 
 =cut
 
-
 #my $User = $main::studentLogin;
 #my $psvn = $main::psvn; #$main::in{'probSetKey'};  #in{'probSetNumber'}; #$main::probSetNumber;
 #my $setNumber     = $main::setNumber;
@@ -48,10 +46,8 @@ See F<PGbasicmacros> for definitions of C<image> and C<caption>
 #########################################################
 
 #loadMacros("MathObjects.pl");   # avoid loading the entire package
-                                 # of MathObjects since that can mess up 
-                                 # problems that don't use MathObjects but use Matrices.
-
-
+# of MathObjects since that can mess up
+# problems that don't use MathObjects but use Matrices.
 
 =head2 init_graph
 
@@ -74,11 +70,12 @@ If you want axes or grids you need to specify them in options. But the default v
 
 
 =cut
+
 BEGIN {
 	be_strict();
 }
-sub _PGgraphmacros_init {
 
+sub _PGgraphmacros_init {
 
 }
 #sub _PGgraphmacros_export {
@@ -91,23 +88,23 @@ sub _PGgraphmacros_init {
 #}
 
 sub init_graph {
-	my ($xmin,$ymin,$xmax,$ymax,%options) = @_;
+	my ($xmin, $ymin, $xmax, $ymax, %options) = @_;
 	my @size;
-	if ( defined($options{'size'}) ) {
-		@size = @{$options{'size'}};
-	}	elsif ( defined($options{'pixels'}) ) {
-		@size = @{$options{'pixels'}};
-	}   else {
+	if (defined($options{'size'})) {
+		@size = @{ $options{'size'} };
+	} elsif (defined($options{'pixels'})) {
+		@size = @{ $options{'pixels'} };
+	} else {
 		my $defaultSize = $main::envir{onTheFlyImageSize} || 200;
-		@size=($defaultSize,  $defaultSize);
+		@size = ($defaultSize, $defaultSize);
 	}
 
-	if(!(defined($options{'plotVerticalAxis'})) ) {
-			# Set the default value of whether or not to plot the y axis.
-			$options{'plotVerticalAxis'} = 1;
+	if (!(defined($options{'plotVerticalAxis'}))) {
+		# Set the default value of whether or not to plot the y axis.
+		$options{'plotVerticalAxis'} = 1;
 	}
 
-    my $graphRef = new WWPlot(@size);
+	my $graphRef = new WWPlot(@size);
 	# select a  name for this graph based on the user, the psvn and the problem
 	$graphRef->imageName($main::PG->getUniqueName($graphRef->ext));
 
@@ -116,105 +113,108 @@ sub init_graph {
 	$graphRef->xmax($xmax) if defined($xmax);
 	$graphRef->ymin($ymin) if defined($ymin);
 	$graphRef->ymax($ymax) if defined($ymax);
-	my $x_delta = ($graphRef->xmax -  $graphRef->xmin)/8;
-	my $y_delta = ($graphRef->ymax -  $graphRef->ymin)/8;
+	my $x_delta = ($graphRef->xmax - $graphRef->xmin) / 8;
+	my $y_delta = ($graphRef->ymax - $graphRef->ymin) / 8;
 
 	# Set the initial/default bounds for the placement of the axes
 	my $horizontalAxisLevel = 0.0;
-	my $verticalAxisLevel = 0.0;
-	if ($options{axes}) {   #   draw axis
-	    my $ra_axes = $options{axes};
-			$graphRef->h_axis($ra_axes->[1],'black');
-			if($options{'plotVerticalAxis'})
-			{
-					# It is okay to plot the y axis. Set the location of the vertical axis.
-					$graphRef->v_axis($ra_axes->[0],'black');
-					$verticalAxisLevel   = $ra_axes->[0];
-			}
-			$horizontalAxisLevel = $ra_axes->[1];
+	my $verticalAxisLevel   = 0.0;
+	if ($options{axes}) {    #   draw axis
+		my $ra_axes = $options{axes};
+		$graphRef->h_axis($ra_axes->[1], 'black');
+		if ($options{'plotVerticalAxis'}) {
+			# It is okay to plot the y axis. Set the location of the vertical axis.
+			$graphRef->v_axis($ra_axes->[0], 'black');
+			$verticalAxisLevel = $ra_axes->[0];
+		}
+		$horizontalAxisLevel = $ra_axes->[1];
 	}
 
-	if (defined($options{grid})) {   #   draw grid
-	    my $xdiv = ( ${$options{'grid'}}[0]) ? ${$options{'grid'}}[0] : 8; # number of ticks (8 is default)
-	    my $ydiv = ( ${$options{'grid'}}[1] )  ? ${$options{'grid'}}[1] : 8;
-		my $x_delta = ($graphRef->xmax -  $graphRef->xmin)/$xdiv;
-	    my $y_delta = ($graphRef->ymax -  $graphRef->ymin)/$ydiv;
-	    my $i; my @x_values=(); my @y_values=();
-	    foreach $i (1..($xdiv-1) ) {
-	    	push( @x_values, $i*$x_delta+$graphRef->{xmin});
-	    }
-	    foreach $i (1..($ydiv-1) ) {
-	    	push( @y_values, $i*$y_delta+$graphRef->{ymin});
-	    }
-		$graphRef->v_grid('gray',@x_values);
-		$graphRef->h_grid('gray',@y_values);
+	if (defined($options{grid})) {    #   draw grid
+		my $xdiv    = (${ $options{'grid'} }[0]) ? ${ $options{'grid'} }[0] : 8;    # number of ticks (8 is default)
+		my $ydiv    = (${ $options{'grid'} }[1]) ? ${ $options{'grid'} }[1] : 8;
+		my $x_delta = ($graphRef->xmax - $graphRef->xmin) / $xdiv;
+		my $y_delta = ($graphRef->ymax - $graphRef->ymin) / $ydiv;
+		my $i;
+		my @x_values = ();
+		my @y_values = ();
+		foreach $i (1 .. ($xdiv - 1)) {
+			push(@x_values, $i * $x_delta + $graphRef->{xmin});
+		}
+		foreach $i (1 .. ($ydiv - 1)) {
+			push(@y_values, $i * $y_delta + $graphRef->{ymin});
+		}
+		$graphRef->v_grid('gray', @x_values);
+		$graphRef->h_grid('gray', @y_values);
 
-			if($options{'plotVerticalAxis'})
-			{
-					# Set the labels associated with the vertical axis
-					$graphRef->lb(new Label($verticalAxisLevel,$y_delta,
-																	sprintf("%1.1f",$y_delta),'black','center','middle'));
-					$graphRef->lb(new Label($verticalAxisLevel,$ymax,$ymax,'black','top'));
-					$graphRef->lb(new Label($verticalAxisLevel,$ymin,$ymin,'black','bottom','right'));
-			}
+		if ($options{'plotVerticalAxis'}) {
+			# Set the labels associated with the vertical axis
+			$graphRef->lb(new Label(
+				$verticalAxisLevel, $y_delta, sprintf("%1.1f", $y_delta), 'black', 'center', 'middle'));
+			$graphRef->lb(new Label($verticalAxisLevel, $ymax, $ymax, 'black', 'top'));
+			$graphRef->lb(new Label($verticalAxisLevel, $ymin, $ymin, 'black', 'bottom', 'right'));
+		}
 
-			# Add the labels for the horizontal axis
-			$graphRef->lb(new Label($x_delta,$horizontalAxisLevel,
-															sprintf("%1.1f",$x_delta),'black','center','middle'));
-			$graphRef->lb(new Label($xmax,$horizontalAxisLevel,$xmax,'black','right'));
-			$graphRef->lb(new Label($xmin,$horizontalAxisLevel,$xmin,'black','left'));
+		# Add the labels for the horizontal axis
+		$graphRef->lb(new Label(
+			$x_delta, $horizontalAxisLevel, sprintf("%1.1f", $x_delta), 'black', 'center', 'middle'));
+		$graphRef->lb(new Label($xmax, $horizontalAxisLevel, $xmax, 'black', 'right'));
+		$graphRef->lb(new Label($xmin, $horizontalAxisLevel, $xmin, 'black', 'left'));
 
-	} elsif ($options{ticks}) {   #   draw ticks -- grid over rides ticks
+	} elsif ($options{ticks}) {    #   draw ticks -- grid over rides ticks
 
-			my $xdiv = ${$options{ticks}}[0]? ${$options{ticks}}[0] : 8; # number of ticks (8 is default)
-			my $ydiv = ${$options{ticks}}[1]? ${$options{ticks}}[1] : 8;
-			my $x_delta = ($graphRef->xmax -  $graphRef->xmin)/$xdiv;
-			my $y_delta = ($graphRef->ymax -  $graphRef->ymin)/$ydiv;
-			my $i; 
-			my @x_values=();
-			my @y_values=();
-			foreach $i (1..($xdiv-1) ) {
-					push( @x_values, $i*$x_delta+$graphRef->{xmin});
-			}
-			foreach $i (1..($ydiv-1) ) {
-					push( @y_values, $i*$y_delta+$graphRef->{ymin});
-			}
+		my $xdiv    = ${ $options{ticks} }[0] ? ${ $options{ticks} }[0] : 8;    # number of ticks (8 is default)
+		my $ydiv    = ${ $options{ticks} }[1] ? ${ $options{ticks} }[1] : 8;
+		my $x_delta = ($graphRef->xmax - $graphRef->xmin) / $xdiv;
+		my $y_delta = ($graphRef->ymax - $graphRef->ymin) / $ydiv;
+		my $i;
+		my @x_values = ();
+		my @y_values = ();
+		foreach $i (1 .. ($xdiv - 1)) {
+			push(@x_values, $i * $x_delta + $graphRef->{xmin});
+		}
+		foreach $i (1 .. ($ydiv - 1)) {
+			push(@y_values, $i * $y_delta + $graphRef->{ymin});
+		}
 
-			if($options{'plotVerticalAxis'})
-			{
-					# Add the labels associated with the vertical axis
-					$graphRef->v_ticks($verticalAxisLevel  ,'black',@y_values);
-					$graphRef->lb(new Label($verticalAxisLevel,$ymin+($ydiv/2)*$y_delta,
-																	$ymin+($ydiv/2)*$y_delta,'black','top'));
-					$graphRef->lb(new Label($verticalAxisLevel,$ymax,$ymax,'black','top'));
-					$graphRef->lb(new Label($verticalAxisLevel,$ymin,$ymin,'black','bottom','right'));
-			}
+		if ($options{'plotVerticalAxis'}) {
+			# Add the labels associated with the vertical axis
+			$graphRef->v_ticks($verticalAxisLevel, 'black', @y_values);
+			$graphRef->lb(new Label(
+				$verticalAxisLevel,             $ymin + ($ydiv / 2) * $y_delta,
+				$ymin + ($ydiv / 2) * $y_delta, 'black',
+				'top'
+			));
+			$graphRef->lb(new Label($verticalAxisLevel, $ymax, $ymax, 'black', 'top'));
+			$graphRef->lb(new Label($verticalAxisLevel, $ymin, $ymin, 'black', 'bottom', 'right'));
+		}
 
-			# Add the labels for the horizontal axis
-			$graphRef->h_ticks($horizontalAxisLevel,'black',@x_values);
-			$graphRef->lb(new Label($xmin+($xdiv/2)*$x_delta,$horizontalAxisLevel,
-															$xmin+($xdiv/2)*$x_delta,'black','center'));
-			$graphRef->lb(new Label($xmax,$horizontalAxisLevel,$xmax,'black','right'));
-			$graphRef->lb(new Label($xmin,$horizontalAxisLevel,$xmin,'black','left'));
+		# Add the labels for the horizontal axis
+		$graphRef->h_ticks($horizontalAxisLevel, 'black', @x_values);
+		$graphRef->lb(new Label(
+			$xmin + ($xdiv / 2) * $x_delta, $horizontalAxisLevel,
+			$xmin + ($xdiv / 2) * $x_delta, 'black',
+			'center'
+		));
+		$graphRef->lb(new Label($xmax, $horizontalAxisLevel, $xmax, 'black', 'right'));
+		$graphRef->lb(new Label($xmin, $horizontalAxisLevel, $xmin, 'black', 'left'));
 	}
-
-
 
 	$graphRef;
 }
 
 sub init_graph_no_labels {
-	my ($xmin,$ymin,$xmax,$ymax,%options) = @_;
+	my ($xmin, $ymin, $xmax, $ymax, %options) = @_;
 	my @size;
-	if ( defined($options{'size'}) ) {
-		@size = @{$options{'size'}};
-	}	elsif ( defined($options{'pixels'}) ) {
-		@size = @{$options{'pixels'}};
-	}   else {
+	if (defined($options{'size'})) {
+		@size = @{ $options{'size'} };
+	} elsif (defined($options{'pixels'})) {
+		@size = @{ $options{'pixels'} };
+	} else {
 		my $defaultSize = $main::envir{onTheFlyImageSize} || 200;
-		@size=($defaultSize,  $defaultSize);
+		@size = ($defaultSize, $defaultSize);
 	}
-    my $graphRef = new WWPlot(@size);
+	my $graphRef = new WWPlot(@size);
 	# select a  name for this graph based on the user, the psvn and the problem
 	$graphRef->imageName($main::PG->getUniqueName($graphRef->ext));
 
@@ -222,67 +222,67 @@ sub init_graph_no_labels {
 	$graphRef->xmax($xmax) if defined($xmax);
 	$graphRef->ymin($ymin) if defined($ymin);
 	$graphRef->ymax($ymax) if defined($ymax);
-	my $x_delta = ($graphRef->xmax -  $graphRef->xmin)/8;
-	my $y_delta = ($graphRef->ymax -  $graphRef->ymin)/8;
-	if (defined($options{grid})) {   #   draw grid
-	    my $xdiv = ( ${$options{'grid'}}[0]) ? ${$options{'grid'}}[0] : 8; # number of ticks (8 is default)
-	    my $ydiv = ( ${$options{'grid'}}[1] )  ? ${$options{'grid'}}[1] : 8;
-		my $x_delta = ($graphRef->xmax -  $graphRef->xmin)/$xdiv;
-	    my $y_delta = ($graphRef->ymax -  $graphRef->ymin)/$ydiv;
-	    my $i; my @x_values=(); my @y_values=();
-	    foreach $i (1..($xdiv-1) ) {
-	    	push( @x_values, $i*$x_delta+$graphRef->{xmin});
-	    }
-	    foreach $i (1..($ydiv-1) ) {
-	    	push( @y_values, $i*$y_delta+$graphRef->{ymin});
-	    }
-		$graphRef->v_grid('gray',@x_values);
-		$graphRef->h_grid('gray',@y_values);
+	my $x_delta = ($graphRef->xmax - $graphRef->xmin) / 8;
+	my $y_delta = ($graphRef->ymax - $graphRef->ymin) / 8;
+	if (defined($options{grid})) {    #   draw grid
+		my $xdiv    = (${ $options{'grid'} }[0]) ? ${ $options{'grid'} }[0] : 8;    # number of ticks (8 is default)
+		my $ydiv    = (${ $options{'grid'} }[1]) ? ${ $options{'grid'} }[1] : 8;
+		my $x_delta = ($graphRef->xmax - $graphRef->xmin) / $xdiv;
+		my $y_delta = ($graphRef->ymax - $graphRef->ymin) / $ydiv;
+		my $i;
+		my @x_values = ();
+		my @y_values = ();
+		foreach $i (1 .. ($xdiv - 1)) {
+			push(@x_values, $i * $x_delta + $graphRef->{xmin});
+		}
+		foreach $i (1 .. ($ydiv - 1)) {
+			push(@y_values, $i * $y_delta + $graphRef->{ymin});
+		}
+		$graphRef->v_grid('gray', @x_values);
+		$graphRef->h_grid('gray', @y_values);
 		#$graphRef->lb(new Label($x_delta,0,sprintf("%1.1f",$x_delta),'black','center','top'));
 		#$graphRef->lb(new Label($x_delta,0,"|",'black','center','middle'));
 		#$graphRef->lb(new Label(0,$y_delta,sprintf("%1.1f ",$y_delta),'black','right','middle'));
 		#$graphRef->lb(new Label(0,$y_delta,"-",'black','center','middle'));
 
+		$graphRef->lb(new Label($xmax, 0,     $xmax, 'black', 'right'));
+		$graphRef->lb(new Label($xmin, 0,     $xmin, 'black', 'left'));
+		$graphRef->lb(new Label(0,     $ymax, $ymax, 'black', 'top',    'right'));
+		$graphRef->lb(new Label(0,     $ymin, $ymin, 'black', 'bottom', 'right'));
 
-		$graphRef->lb(new Label($xmax,0,$xmax,'black','right'));
-		$graphRef->lb(new Label($xmin,0,$xmin,'black','left'));
-		$graphRef->lb(new Label(0,$ymax,$ymax,'black','top','right'));
-		$graphRef->lb(new Label(0,$ymin,$ymin,'black','bottom','right'));
+	} elsif ($options{ticks}) {    #   draw ticks -- grid over rides ticks
+		my $xdiv    = ${ $options{ticks} }[0] ? ${ $options{ticks} }[0] : 8;    # number of ticks (8 is default)
+		my $ydiv    = ${ $options{ticks} }[1] ? ${ $options{ticks} }[1] : 8;
+		my $x_delta = ($graphRef->xmax - $graphRef->xmin) / $xdiv;
+		my $y_delta = ($graphRef->ymax - $graphRef->ymin) / $ydiv;
+		my $i;
+		my @x_values = ();
+		my @y_values = ();
+		foreach $i (1 .. ($xdiv - 1)) {
+			push(@x_values, $i * $x_delta + $graphRef->{xmin});
+		}
+		foreach $i (1 .. ($ydiv - 1)) {
+			push(@y_values, $i * $y_delta + $graphRef->{ymin});
+		}
+		$graphRef->v_ticks(0, 'black', @x_values);
+		$graphRef->h_ticks(0, 'black', @y_values);
+		$graphRef->lb(new Label($x_delta, 0,        $x_delta, 'black', 'right'));
+		$graphRef->lb(new Label(0,        $y_delta, $y_delta, 'black', 'top'));
 
-	} elsif ($options{ticks}) {   #   draw ticks -- grid over rides ticks
-		my $xdiv = ${$options{ticks}}[0]? ${$options{ticks}}[0] : 8; # number of ticks (8 is default)
-	        my $ydiv = ${$options{ticks}}[1]? ${$options{ticks}}[1] : 8;
-		my $x_delta = ($graphRef->xmax -  $graphRef->xmin)/$xdiv;
-	        my $y_delta = ($graphRef->ymax -  $graphRef->ymin)/$ydiv;
-	        my $i; my @x_values=(); my @y_values=();
-	    foreach $i (1..($xdiv-1) ) {
-	    	push( @x_values, $i*$x_delta+$graphRef->{xmin});
-	    }
-	    foreach $i (1..($ydiv-1) ) {
-	    	push( @y_values, $i*$y_delta+$graphRef->{ymin});
-	    }
-		$graphRef->v_ticks(0,'black',@x_values);
-		$graphRef->h_ticks(0,'black',@y_values);
-		$graphRef->lb(new Label($x_delta,0,$x_delta,'black','right'));
-		$graphRef->lb(new Label(0,$y_delta,$y_delta,'black','top'));
-
-		$graphRef->lb(new Label($xmax,0,$xmax,'black','right'));
-		$graphRef->lb(new Label($xmin,0,$xmin,'black','left'));
-		$graphRef->lb(new Label(0,$ymax,$ymax,'black','top'));
-		$graphRef->lb(new Label(0,$ymin,$ymin,'black','bottom','right'));
+		$graphRef->lb(new Label($xmax, 0,     $xmax, 'black', 'right'));
+		$graphRef->lb(new Label($xmin, 0,     $xmin, 'black', 'left'));
+		$graphRef->lb(new Label(0,     $ymax, $ymax, 'black', 'top'));
+		$graphRef->lb(new Label(0,     $ymin, $ymin, 'black', 'bottom', 'right'));
 	}
 
-	if ($options{axes}) {   #   draw axis
-	    my $ra_axes = $options{axes};
-		$graphRef->h_axis($ra_axes->[1],'black');
-		$graphRef->v_axis($ra_axes->[0],'black');
+	if ($options{axes}) {    #   draw axis
+		my $ra_axes = $options{axes};
+		$graphRef->h_axis($ra_axes->[1], 'black');
+		$graphRef->v_axis($ra_axes->[0], 'black');
 	}
-
 
 	$graphRef;
 }
-
-
 
 =head2  plot_functions
 
@@ -311,70 +311,67 @@ sub add_functions {
 }
 
 sub plot_functions {
-	my $graph = shift;
+	my $graph         = shift;
 	my @function_list = @_;
-	my $error = "";
-	$error .= "The first argument to plot_functions must be a graph object" unless ref($graph) =~/WWPlot/;
+	my $error         = "";
+	$error .= "The first argument to plot_functions must be a graph object" unless ref($graph) =~ /WWPlot/;
 	my $fn;
-	my @functions=();
+	my @functions = ();
 	foreach $fn (@function_list) {
 
-	    # model:   "2.5-x^2 for x in <-1,0> using color:red and weight:2"
-		if ($fn =~ /^(.+)for\s*(\w+)\s*in\s*([\(\[\<])\s*([\d\.\-]+)\s*,\s*([\d\.\-]+)\s*([\)\]\>])\s*using\s*(.*)$/ )  {
-			my ($rule,$var, $left_br, $left_end, $right_end, $right_br, $options)=  ($1, $2, $3, $4, $5, $6, $7);
+		# model:   "2.5-x^2 for x in <-1,0> using color:red and weight:2"
+		if ($fn =~ /^(.+)for\s*(\w+)\s*in\s*([\(\[\<])\s*([\d\.\-]+)\s*,\s*([\d\.\-]+)\s*([\)\]\>])\s*using\s*(.*)$/) {
+			my ($rule, $var, $left_br, $left_end, $right_end, $right_br, $options) = ($1, $2, $3, $4, $5, $6, $7);
 
-			my %options = split( /\s*and\s*|\s*:\s*|\s*,\s*|\s*=\s*|\s+/,$options);
+			my %options = split(/\s*and\s*|\s*:\s*|\s*,\s*|\s*=\s*|\s+/, $options);
 			my ($color, $weight);
-			if ( defined($options{'color'})  ){
-				$color = $options{'color'}; #set pen color
-			}	else {
+			if (defined($options{'color'})) {
+				$color = $options{'color'};    #set pen color
+			} else {
 				$color = 'default_color';
 			}
-			if ( defined($options{'weight'}) ) {
-				$weight = $options{'weight'}; # set pen weight (width in pixels)
+			if (defined($options{'weight'})) {
+				$weight = $options{'weight'};    # set pen weight (width in pixels)
 			} else {
-				$weight =2;
+				$weight = 2;
 			}
 			# a workaround to call Parser code without loading MathObjects.
-			my $localContext= Parser::Context->current(\%main::context)->copy;
-			$localContext->variables->add($var=>'Real') unless $localContext->variables->get($var);
-			my $formula = Value->Package("Formula()")->new($localContext,$rule)->perlFunction(undef,[$var]);
-			my $subRef = sub {
-			  my $x = shift;
-			  my $y = Parser::Eval($formula,$x);  # traps errors, e.g. graph domain is larger than
-			  				      #  the function's domain.
-			  $y = $y->value if defined $y;
-			  return $y;
+			my $localContext = Parser::Context->current(\%main::context)->copy;
+			$localContext->variables->add($var => 'Real') unless $localContext->variables->get($var);
+			my $formula = Value->Package("Formula()")->new($localContext, $rule)->perlFunction(undef, [$var]);
+			my $subRef  = sub {
+				my $x = shift;
+				my $y = Parser::Eval($formula, $x);    # traps errors, e.g. graph domain is larger than
+													   #  the function's domain.
+				$y = $y->value if defined $y;
+				return $y;
 			};
-        	#my $subRef    = string_to_sub($rule,$var);
-			my $funRef = new Fun($subRef,$graph);
+			#my $subRef    = string_to_sub($rule,$var);
+			my $funRef = new Fun($subRef, $graph);
 			$funRef->color($color);
 			$funRef->weight($weight);
-			$funRef->domain($left_end , $right_end);
-			push(@functions,$funRef);
-		    # place open (1,3) or closed (1,3) circle at the endpoints or do nothing <1,3>
-		    if ($left_br eq '[' ) {
-		    	$graph->stamps(closed_circle($left_end,&$subRef($left_end),$color) );
-		    } elsif ($left_br eq '(' ) {
-		    	$graph->stamps(open_circle($left_end, &$subRef($left_end), $color) );
-		    }
-		    if ($right_br eq ']' ) {
-		    	$graph->stamps(closed_circle($right_end,&$subRef($right_end),$color) );
-		    } elsif ($right_br eq ')' ) {
-		    	$graph->stamps(open_circle($right_end, &$subRef($right_end), $color) );
-		    }
+			$funRef->domain($left_end, $right_end);
+			push(@functions, $funRef);
+			# place open (1,3) or closed (1,3) circle at the endpoints or do nothing <1,3>
+			if ($left_br eq '[') {
+				$graph->stamps(closed_circle($left_end, &$subRef($left_end), $color));
+			} elsif ($left_br eq '(') {
+				$graph->stamps(open_circle($left_end, &$subRef($left_end), $color));
+			}
+			if ($right_br eq ']') {
+				$graph->stamps(closed_circle($right_end, &$subRef($right_end), $color));
+			} elsif ($right_br eq ')') {
+				$graph->stamps(open_circle($right_end, &$subRef($right_end), $color));
+			}
 
 		} else {
 			$error .= "Error in parsing: $fn $main::BR";
 		}
 
 	}
-	die ("Error in plot_functions: \n\t $error ") if $error;
-	@functions;   # return function references unless there is an error.
+	die("Error in plot_functions: \n\t $error ") if $error;
+	@functions;    # return function references unless there is an error.
 }
-
-
-
 
 =head2 insertGraph
 
@@ -433,16 +430,15 @@ For example
 
 #########################################################
 sub open_circle {
-    my ($cx,$cy,$color) = @_;
-	new Circle ($cx, $cy, 4,$color,'nearwhite');
+	my ($cx, $cy, $color) = @_;
+	new Circle($cx, $cy, 4, $color, 'nearwhite');
 }
 
 sub closed_circle {
-    my ($cx,$cy, $color) = @_;
-    $color = 'black' unless defined $color;
-	new Circle ($cx, $cy, 4,$color, $color);
+	my ($cx, $cy, $color) = @_;
+	$color = 'black' unless defined $color;
+	new Circle($cx, $cy, 4, $color, $color);
 }
-
 
 =head2 Auxiliary macros
 
@@ -467,37 +463,39 @@ takes a single real number as input and produces a single output value.
 =cut
 
 sub my_math_constants {
-	my($in) = @_;
-	$in =~s/\bpi\b/(4*atan2(1,1))/g;
-	$in =~s/\be\b/(exp(1))/g;
-	$in =~s/\^/**/g;
+	my ($in) = @_;
+	$in =~ s/\bpi\b/(4*atan2(1,1))/g;
+	$in =~ s/\be\b/(exp(1))/g;
+	$in =~ s/\^/**/g;
 	$in;
 }
 
 sub string_to_sub {
 	my $str_in = shift;
 	my $var    = shift;
-	my $out = undef;
-	if ( defined(&check_syntax)  ) {
+	my $out    = undef;
+	if (defined(&check_syntax)) {
 		#prepare the correct answer and check it's syntax
-	    my $rh_correct_ans = new AnswerHash;
+		my $rh_correct_ans = new AnswerHash;
 		$rh_correct_ans->input($str_in);
 		$rh_correct_ans = check_syntax($rh_correct_ans);
- 		warn  $rh_correct_ans->{error_message} if $rh_correct_ans->{error_flag};
- 		$rh_correct_ans->clear_error();
- 		$rh_correct_ans = function_from_string2($rh_correct_ans, ra_vars => ['x'], store_in =>'rf_correct_ans');
- 		my $correct_eqn_sub = $rh_correct_ans->{rf_correct_ans};
- 		warn $rh_correct_ans->{error_message} if $rh_correct_ans->{error_flag};
-		$out = sub{ scalar( &$correct_eqn_sub(@_) ) };  #ignore the error messages from the function.
+		warn $rh_correct_ans->{error_message} if $rh_correct_ans->{error_flag};
+		$rh_correct_ans->clear_error();
+		$rh_correct_ans = function_from_string2($rh_correct_ans, ra_vars => ['x'], store_in => 'rf_correct_ans');
+		my $correct_eqn_sub = $rh_correct_ans->{rf_correct_ans};
+		warn $rh_correct_ans->{error_message} if $rh_correct_ans->{error_flag};
+		$out = sub { scalar(&$correct_eqn_sub(@_)) };    #ignore the error messages from the function.
 
 	} else {
-		my $in =$str_in;
+		my $in = $str_in;
 
 		$in =~ s/\b$var\b/\$XVAR/g;
 		$in = &my_math_constants($in);
-		my ($subRef, $PG_eval_errors,$PG_full_error_report) = PG_restricted_eval( " sub { my \$XVAR = shift; my \$out = $in; \$out; } ");
+		my ($subRef, $PG_eval_errors, $PG_full_error_report) =
+			PG_restricted_eval(" sub { my \$XVAR = shift; my \$out = $in; \$out; } ");
 		if ($PG_eval_errors) {
-			die " ERROR while defining a function from the string:\n\n$main::BR $main::BR $str_in $main::BR $main::BR\n\n  $PG_eval_errors"
+			die
+				" ERROR while defining a function from the string:\n\n$main::BR $main::BR $str_in $main::BR $main::BR\n\n  $PG_eval_errors";
 		} else {
 			$out = $subRef;
 		}

@@ -14,7 +14,7 @@
 ##    EndTable()              End the table
 ##
 
-sub _unionTables_init {}; # don't reload this file
+sub _unionTables_init { };    # don't reload this file
 
 =head2 unionTables.pl
 
@@ -37,12 +37,13 @@ sub _unionTables_init {}; # don't reload this file
 =cut
 
 sub ColumnTable {
-  my $col1 = shift; my $col2 = shift;
-  my %options = (indent => 0, separation => 50, valign => "MIDDLE", @_);
-  my ($ind,$sep) = ($options{"indent"}, $options{"separation"});
-  my $valign = $options{"valign"};
+	my $col1    = shift;
+	my $col2    = shift;
+	my %options = (indent => 0, separation => 50, valign => "MIDDLE", @_);
+	my ($ind, $sep) = ($options{"indent"}, $options{"separation"});
+	my $valign = $options{"valign"};
 
-  my $HTMLtable = qq {
+	my $HTMLtable = qq {
     <TABLE BORDER="0"><TR VALIGN="$valign">
     <TD WIDTH="$ind">&nbsp;</TD><TD>
     $col1
@@ -51,15 +52,20 @@ sub ColumnTable {
     </TD></TR></TABLE>
   };
 
-  MODES(
-    TeX => '\par\medskip\hbox{\qquad\vtop{'.
-	   '\advance\hsize by -3em '.$col1.'}}'.
-           '\medskip\hbox{\qquad\vtop{'.
-           '\advance\hsize by -3em '.$col2.'}}\medskip',
-    HTML => $HTMLtable,
-    PTX => qq!\n<tabular valign="! . lc($valign) . qq!">\n<row>\n<cell>$col1</cell>\n<cell>$col2</cell>\n</row>\n</tabular>\n!,
+	MODES(
+		TeX => '\par\medskip\hbox{\qquad\vtop{'
+			. '\advance\hsize by -3em '
+			. $col1 . '}}'
+			. '\medskip\hbox{\qquad\vtop{'
+			. '\advance\hsize by -3em '
+			. $col2
+			. '}}\medskip',
+		HTML => $HTMLtable,
+		PTX  => qq!\n<tabular valign="!
+			. lc($valign)
+			. qq!">\n<row>\n<cell>$col1</cell>\n<cell>$col2</cell>\n</row>\n</tabular>\n!,
 
-  );
+	);
 }
 
 =pod
@@ -74,9 +80,9 @@ sub ColumnTable {
 =cut
 
 sub ColumnMatchTable {
-  my $ml = shift;
+	my $ml = shift;
 
-  ColumnTable($ml->print_q,$ml->print_a,@_);
+	ColumnTable($ml->print_q, $ml->print_a, @_);
 }
 
 =pod 
@@ -98,24 +104,30 @@ sub ColumnMatchTable {
 =cut
 
 sub BeginTable {
-  my %options = (
-    border => 0, padding => 0, spacing => 0, center => 1,
-    tex_spacing => "1em", tex_border => "0pt", @_
-  );
-  my ($bd,$pd,$sp) = ($options{border},$options{padding},$options{spacing});
-  my ($tsp,$tbd) = ($options{tex_spacing},$options{tex_border});
-  my ($center,$tcenter) = (' ALIGN="CENTER"','\centerline');
-     ($center,$tcenter) = ('','') if (!$options{center});
-  my $table = 
-    qq{<TABLE BORDER="$bd" CELLPADDING="$pd" CELLSPACING="$sp"$center>};
-  my $ptxborder="none"; if($bd==1){$ptxborder="minor"}elsif($bd==2){$ptxborder="medium"}elsif($bd>=3){$ptxborder="major"};
+	my %options = (
+		border      => 0,
+		padding     => 0,
+		spacing     => 0,
+		center      => 1,
+		tex_spacing => "1em",
+		tex_border  => "0pt",
+		@_
+	);
+	my ($bd, $pd, $sp)     = ($options{border}, $options{padding}, $options{spacing});
+	my ($tsp, $tbd)        = ($options{tex_spacing}, $options{tex_border});
+	my ($center, $tcenter) = (' ALIGN="CENTER"', '\centerline');
+	($center, $tcenter) = ('', '') if (!$options{center});
+	my $table     = qq{<TABLE BORDER="$bd" CELLPADDING="$pd" CELLSPACING="$sp"$center>};
+	my $ptxborder = "none";
+	if    ($bd == 1) { $ptxborder = "minor" }
+	elsif ($bd == 2) { $ptxborder = "medium" }
+	elsif ($bd >= 3) { $ptxborder = "major" }
 
-  MODES(
-    TeX => '\par\medskip'.$tcenter.'{\kern '.$tbd.
-           '\vbox{\halign{#\hfil&&\kern '.$tsp.' #\hfil',
-    HTML => $table."\n",
-    PTX => qq!\n<tabular top="$ptxborder" bottom="$ptxborder" left="$ptxborder" right="$ptxborder">\n!,
-  );
+	MODES(
+		TeX  => '\par\medskip' . $tcenter . '{\kern ' . $tbd . '\vbox{\halign{#\hfil&&\kern ' . $tsp . ' #\hfil',
+		HTML => $table . "\n",
+		PTX  => qq!\n<tabular top="$ptxborder" bottom="$ptxborder" left="$ptxborder" right="$ptxborder">\n!,
+	);
 }
 
 =pod
@@ -129,13 +141,13 @@ sub BeginTable {
 =cut
 
 sub EndTable {
-  my %options = (tex_border => "0pt", @_);
-  my $tbd = $options{tex_border};
-  MODES(
-    TeX => '\cr}}\kern '.$tbd.'}\medskip'."\n",
-    HTML => '</TABLE>'."\n",
-    PTX => "\n</tabular>\n",
-  );
+	my %options = (tex_border => "0pt", @_);
+	my $tbd     = $options{tex_border};
+	MODES(
+		TeX  => '\cr}}\kern ' . $tbd . '}\medskip' . "\n",
+		HTML => '</TABLE>' . "\n",
+		PTX  => "\n</tabular>\n",
+	);
 }
 
 =pod
@@ -165,30 +177,42 @@ sub EndTable {
 =cut
 
 sub Row {
-  my $rowref = shift; my @row = @{$rowref};
+	my $rowref = shift;
+	my @row    = @{$rowref};
 
-  my %options = (
-    indent => 0, separation => 30,
-    align => "LEFT", valign => "MIDDLE",
-    @_
-  );
+	my %options = (
+		indent     => 0,
+		separation => 30,
+		align      => "LEFT",
+		valign     => "MIDDLE",
+		@_
+	);
 
-  my ($cind,$csep) = ($options{indent},$options{separation});
-  my ($align,$valign) = ($options{align},$options{valign});
-  my $sep = '<TD WIDTH="'.$csep.'">&nbsp;</TD>'; $sep = '' if ($csep < 1);
-  my $ind = '<TD WIDTH="'.$cind.'">&nbsp;</TD>'; $ind = '' if ($cind < 1);
-  my $fill = '';
-  $fill = '\hfil' if (uc($align) eq "CENTER");
-  $fill = '\hfill' if (uc($align) eq "RIGHT");
-  my $vspace = '';
-  $vspace = '\noalign{\vskip '.$options{tex_vspace}.'}' if $options{tex_vspace};
+	my ($cind,  $csep)   = ($options{indent}, $options{separation});
+	my ($align, $valign) = ($options{align},  $options{valign});
+	my $sep = '<TD WIDTH="' . $csep . '">&nbsp;</TD>';
+	$sep = '' if ($csep < 1);
+	my $ind = '<TD WIDTH="' . $cind . '">&nbsp;</TD>';
+	$ind = '' if ($cind < 1);
+	my $fill = '';
+	$fill = '\hfil'  if (uc($align) eq "CENTER");
+	$fill = '\hfill' if (uc($align) eq "RIGHT");
+	my $vspace = '';
+	$vspace = '\noalign{\vskip ' . $options{tex_vspace} . '}' if $options{tex_vspace};
 
-  MODES(
-    TeX => '\cr'.$vspace."\n". $fill . join('& ',@row),
-    HTML => "<TR VALIGN=\"$valign\">$ind<TD ALIGN=\"$align\">" .
-      join("</TD>$sep<TD>",@row) . '</TD></TR>'."\n",
-    PTX => qq!<row halign="! . lc($align) . qq!" valign="! . lc($valign) . qq!">\n<cell>! . join("</cell>\n<cell>",@row) . "</cell>\n</row>\n",
-  );
+	MODES(
+		TeX  => '\cr' . $vspace . "\n" . $fill . join('& ', @row),
+		HTML => "<TR VALIGN=\"$valign\">$ind<TD ALIGN=\"$align\">"
+			. join("</TD>$sep<TD>", @row)
+			. '</TD></TR>' . "\n",
+		PTX => qq!<row halign="!
+			. lc($align)
+			. qq!" valign="!
+			. lc($valign)
+			. qq!">\n<cell>!
+			. join("</cell>\n<cell>", @row)
+			. "</cell>\n</row>\n",
+	);
 }
 
 =pod
@@ -214,31 +238,41 @@ sub Row {
 =cut
 
 sub AlignedRow {
-  my $rowref = shift; my @row = @{$rowref};
-  my %options = (
-    indent => 0, separation => 30,
-    align => "CENTER", valign => "MIDDLE",
-    @_
-  );
+	my $rowref  = shift;
+	my @row     = @{$rowref};
+	my %options = (
+		indent     => 0,
+		separation => 30,
+		align      => "CENTER",
+		valign     => "MIDDLE",
+		@_
+	);
 
-  my ($cind,$csep) = ($options{indent},$options{separation});
-  my ($align,$valign) = ($options{align},$options{valign});
-  my $sep = '<TD WIDTH="'.$csep.'">&nbsp;</TD>'."\n";
-  $sep = '' if ($csep < 1);
-  my $ind = '<TD WIDTH="'.$cind.'">&nbsp;</TD>'."\n";
-  $ind = '' if ($cind < 1);
-  my $fill = '';
-  $fill = '\hfil ' if (uc($align) eq "CENTER");
-  $fill = '\hfill ' if (uc($align) eq "RIGHT");
-  my $vspace = '';
-  $vspace = '\noalign{\vskip '.$options{tex_vspace}.'}' if $options{tex_vspace};
+	my ($cind,  $csep)   = ($options{indent}, $options{separation});
+	my ($align, $valign) = ($options{align},  $options{valign});
+	my $sep = '<TD WIDTH="' . $csep . '">&nbsp;</TD>' . "\n";
+	$sep = '' if ($csep < 1);
+	my $ind = '<TD WIDTH="' . $cind . '">&nbsp;</TD>' . "\n";
+	$ind = '' if ($cind < 1);
+	my $fill = '';
+	$fill = '\hfil '  if (uc($align) eq "CENTER");
+	$fill = '\hfill ' if (uc($align) eq "RIGHT");
+	my $vspace = '';
+	$vspace = '\noalign{\vskip ' . $options{tex_vspace} . '}' if $options{tex_vspace};
 
-  MODES(
-    TeX => '\cr'.$vspace."\n". $fill . join('&'.$fill,@row),
-    HTML => "<TR VALIGN=\"$valign\">\n$ind<TD ALIGN=\"$align\">\n" .
-      join("</TD>\n$sep<TD ALIGN=\"$align\">", @row) . "</TD>\n</TR>\n",
-    PTX => qq!<row halign="! . lc($align) . qq!" valign="! . lc($valign) . qq!">\n<cell>! . join("</cell>\n<cell>",@row) . "</cell>\n</row>\n",
-  );
+	MODES(
+		TeX  => '\cr' . $vspace . "\n" . $fill . join('&' . $fill, @row),
+		HTML => "<TR VALIGN=\"$valign\">\n$ind<TD ALIGN=\"$align\">\n"
+			. join("</TD>\n$sep<TD ALIGN=\"$align\">", @row)
+			. "</TD>\n</TR>\n",
+		PTX => qq!<row halign="!
+			. lc($align)
+			. qq!" valign="!
+			. lc($valign)
+			. qq!">\n<cell>!
+			. join("</cell>\n<cell>", @row)
+			. "</cell>\n</row>\n",
+	);
 }
 
 =pod
@@ -253,15 +287,15 @@ sub AlignedRow {
 =cut
 
 sub TableSpace {
-  my $rsep = shift;
-  my $tsep = shift;
-  $rsep = $tsep if (defined($tsep) && $main::displayMode eq "TeX");
-  return "" if ($rsep < 1);
-  MODES(
-    TeX => '\vadjust{\kern '.$rsep.'pt}' . "\n",
-    HTML => "<TR><TD HEIGHT=\"$rsep\"></TD>\n</TR>\n",
-    PTX => '',
-  );
+	my $rsep = shift;
+	my $tsep = shift;
+	$rsep = $tsep if (defined($tsep) && $main::displayMode eq "TeX");
+	return "" if ($rsep < 1);
+	MODES(
+		TeX  => '\vadjust{\kern ' . $rsep . 'pt}' . "\n",
+		HTML => "<TR><TD HEIGHT=\"$rsep\"></TD>\n</TR>\n",
+		PTX  => '',
+	);
 }
 
 =pod
@@ -273,11 +307,11 @@ sub TableSpace {
 =cut
 
 sub TableLine {
-  MODES(
-    TeX => '\vadjust{\kern2pt\hrule\kern2pt}',
-    HTML =>'<TR><TD COLSPAN="10"><HR NOSHADE SIZE="1"></TD></TR>'."\n",
-    PTX => ''
-  );
+	MODES(
+		TeX  => '\vadjust{\kern2pt\hrule\kern2pt}',
+		HTML => '<TR><TD COLSPAN="10"><HR NOSHADE SIZE="1"></TD></TR>' . "\n",
+		PTX  => ''
+	);
 }
 
 1;

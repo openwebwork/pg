@@ -75,6 +75,7 @@ my $numZeroLevelDefault;
 my $numZeroLevelTolDefault;
 my $useOldAnswerMacros;
 my $user_context;
+
 sub _PGnumericevaluators_init {
 	$CA                      = PG_restricted_eval(q/$CA/);
 	$numAbsTolDefault        = PG_restricted_eval(q/$envir{numAbsTolDefault}/);
@@ -85,7 +86,7 @@ sub _PGnumericevaluators_init {
 	$useOldAnswerMacros      = PG_restricted_eval(q/$envir{useOldAnswerMacros}/);
 	unless ($useOldAnswerMacros) {
 		$user_context = PG_restricted_eval(q/\%context/);
-		$Context = sub { Parser::Context->current($user_context, @_) };
+		$Context      = sub { Parser::Context->current($user_context, @_) };
 	}
 }
 
@@ -263,102 +264,107 @@ If set to 1, extra debugging information will be output.
 
 =cut
 
-sub num_cmp	{
+sub num_cmp {
 	my $correctAnswer = shift @_;
 	$CA = $correctAnswer;
-	my @opt	= @_;
+	my @opt = @_;
 	my %out_options;
 
 #########################################################################
-# Retain this first check for backword compatibility.  Allows input of the form
-# num_cmp($ans, 1, '%0.5f') but warns against it
+	# Retain this first check for backword compatibility.  Allows input of the form
+	# num_cmp($ans, 1, '%0.5f') but warns against it
 #########################################################################
-	my %known_options =	(
-					'mode'			=>	'std',
-					'format'		=>	$numFormatDefault,
-					'tol'			=>	$numAbsTolDefault,
-					'relTol'		=>	$numRelPercentTolDefault,
-					'units'			=>	undef,
-					'strings'		=>	undef,
-					'zeroLevel'		=>	$numZeroLevelDefault,
-					'zeroLevelTol'	=>	$numZeroLevelTolDefault,
-					'tolType'       =>  'relative',
-					'tolerance'     =>  1,
-					'reltol'		=>	undef,			#alternate spelling
-					'unit'			=>	undef,			#alternate spelling
-					'debug'			=>	0
-        );
+	my %known_options = (
+		'mode'         => 'std',
+		'format'       => $numFormatDefault,
+		'tol'          => $numAbsTolDefault,
+		'relTol'       => $numRelPercentTolDefault,
+		'units'        => undef,
+		'strings'      => undef,
+		'zeroLevel'    => $numZeroLevelDefault,
+		'zeroLevelTol' => $numZeroLevelTolDefault,
+		'tolType'      => 'relative',
+		'tolerance'    => 1,
+		'reltol'       => undef,                      #alternate spelling
+		'unit'         => undef,                      #alternate spelling
+		'debug'        => 0
+	);
 
 	my @output_list;
-	my( $relPercentTol, $format, $zeroLevel, $zeroLevelTol) = @opt;
+	my ($relPercentTol, $format, $zeroLevel, $zeroLevelTol) = @opt;
 
-	unless( ref($correctAnswer) eq 'ARRAY' || scalar( @opt ) == 0 ||
-			  ( defined($opt[0]) and exists $known_options{$opt[0]} ) ) {
+	unless (ref($correctAnswer) eq 'ARRAY'
+		|| scalar(@opt) == 0
+		|| (defined($opt[0]) and exists $known_options{ $opt[0] }))
+	{
 		# unless the first parameter is	a list of arrays
 		# or the second	parameter is a known option or
 		# no options were used,
 		# use the old num_cmp which does not use options, but has inputs
 		# $relPercentTol,$format,$zeroLevel,$zeroLevelTol
-		warn "This method of using num_cmp() is deprecated. Please rewrite this" .
-					" problem using the options style of parameter passing (or" .
-					" check that your first option is spelled correctly).";
+		warn "This method of using num_cmp() is deprecated. Please rewrite this"
+			. " problem using the options style of parameter passing (or"
+			. " check that your first option is spelled correctly).";
 
-		%out_options = (	'relTol'		=> $relPercentTol,
-					'format'		=> $format,
-					'zeroLevel'		=> $zeroLevel,
-					'zeroLevelTol'	=> $zeroLevelTol,
-					'mode'			=> 'std'
+		%out_options = (
+			'relTol'       => $relPercentTol,
+			'format'       => $format,
+			'zeroLevel'    => $zeroLevel,
+			'zeroLevelTol' => $zeroLevelTol,
+			'mode'         => 'std'
 		);
 	}
 
 #########################################################################
-# Now handle the options assuming they are entered in the form
-# num_cmp($ans, relTol=>1, format=>'%0.5f')
+	# Now handle the options assuming they are entered in the form
+	# num_cmp($ans, relTol=>1, format=>'%0.5f')
 #########################################################################
 	%out_options = @opt;
-	assign_option_aliases( \%out_options,
-				'reltol'    =>      'relTol',
-				'unit'	    =>	    'units',
-				'abstol'	=>		'tol',
-				);
+	assign_option_aliases(
+		\%out_options,
+		'reltol' => 'relTol',
+		'unit'   => 'units',
+		'abstol' => 'tol',
+	);
 
-	set_default_options( \%out_options,
-			     'tolType'		=>  (defined($out_options{'tol'}) ) ? 'absolute' : 'relative',  # the existence of "tol" means that we use absolute tolerance mode
-			     'tolerance'    =>  (defined($out_options{'tolType'}) && $out_options{'tolType'} eq 'absolute' ) ? $numAbsTolDefault : $numRelPercentTolDefault,  # relative tolerance is the default
-			     'mode'		    =>	'std',
-			     'format'		=>	$numFormatDefault,
-			     'tol'		    =>	undef,
-			     'relTol'		=>	undef,
-			     'units'		=>	undef,
-			     'strings'		=>	undef,
-			     'zeroLevel'	=>	$numZeroLevelDefault,
-			     'zeroLevelTol'	=>	$numZeroLevelTolDefault,
-			     'debug'		=>	0,
+	set_default_options(
+		\%out_options,
+		'tolType' => (defined($out_options{'tol'}))
+		? 'absolute'
+		: 'relative',                  # the existence of "tol" means that we use absolute tolerance mode
+		'tolerance' => (defined($out_options{'tolType'}) && $out_options{'tolType'} eq 'absolute')
+		? $numAbsTolDefault
+		: $numRelPercentTolDefault,    # relative tolerance is the default
+		'mode'         => 'std',
+		'format'       => $numFormatDefault,
+		'tol'          => undef,
+		'relTol'       => undef,
+		'units'        => undef,
+		'strings'      => undef,
+		'zeroLevel'    => $numZeroLevelDefault,
+		'zeroLevelTol' => $numZeroLevelTolDefault,
+		'debug'        => 0,
 	);
 
 	# can't use both units and strings
-	if( defined( $out_options{'units'} ) && defined( $out_options{'strings'} ) ) {
-		warn "Can't use both 'units' and 'strings' in the same problem " .
-		"(check your parameters to num_cmp() )";
+	if (defined($out_options{'units'}) && defined($out_options{'strings'})) {
+		warn "Can't use both 'units' and 'strings' in the same problem " . "(check your parameters to num_cmp() )";
 	}
 
 	# absolute tolType and relTol are incompatible. So are relative tolType and tol
-	if( defined( $out_options{'relTol'} ) &&  $out_options{'tolType'} eq 'absolute' )  {
-		warn "The 'tolType' 'absolute' is not compatible with 'relTol' " .
-		"(check your parameters to num_cmp() )";
+	if (defined($out_options{'relTol'}) && $out_options{'tolType'} eq 'absolute') {
+		warn "The 'tolType' 'absolute' is not compatible with 'relTol' " . "(check your parameters to num_cmp() )";
 	}
-	if( defined( $out_options{'tol'} ) &&  $out_options{'tolType'} eq 'relative' )  {
-		warn "The 'tolType' 'relative' is not compatible with 'tol' " .
-		"(check your parameters to num_cmp() )";
+	if (defined($out_options{'tol'}) && $out_options{'tolType'} eq 'relative') {
+		warn "The 'tolType' 'relative' is not compatible with 'tol' " . "(check your parameters to num_cmp() )";
 	}
-
 
 	# Handle legacy options
-   	if ($out_options{tolType} eq 'absolute')   {
-		$out_options{'tolerance'}=$out_options{'tol'} if defined($out_options{'tol'});
-		delete($out_options{'relTol'}) if exists( $out_options{'relTol'} );
+	if ($out_options{tolType} eq 'absolute') {
+		$out_options{'tolerance'} = $out_options{'tol'} if defined($out_options{'tol'});
+		delete($out_options{'relTol'})                  if exists($out_options{'relTol'});
 	} else {
-		$out_options{'tolerance'}=$out_options{'relTol'} if defined($out_options{'relTol'});
+		$out_options{'tolerance'} = $out_options{'relTol'} if defined($out_options{'relTol'});
 		# delete($out_options{'tol'}) if exists( $out_options{'tol'} );
 	}
 	# end legacy options
@@ -366,66 +372,70 @@ sub num_cmp	{
 	# thread over lists
 	my @ans_list = ();
 
-	if ( ref($correctAnswer) eq 'ARRAY' ) {
-		@ans_list =	@{$correctAnswer};
-	}
-	else { push( @ans_list, $correctAnswer );
+	if (ref($correctAnswer) eq 'ARRAY') {
+		@ans_list = @{$correctAnswer};
+	} else {
+		push(@ans_list, $correctAnswer);
 	}
 
 	# produce answer evaluators
-	foreach	my $ans	(@ans_list) {
-		if( defined( $out_options{'units'} ) ) {
+	foreach my $ans (@ans_list) {
+		if (defined($out_options{'units'})) {
 			$ans = "$ans $out_options{'units'}";
 
-			push( @output_list, NUM_CMP(	
-			                'correctAnswer'	=>	$ans,
-							'tolerance'		=>	$out_options{'tolerance'},
-							'tolType'		=>	$out_options{'tolType'},
-							'format'		=>	$out_options{'format'},
-							'mode'			=>	$out_options{'mode'},
-							'zeroLevel'		=>	$out_options{'zeroLevel'},
-							'zeroLevelTol'	=>	$out_options{'zeroLevelTol'},
-							'debug'			=>	$out_options{'debug'},
-							'units'			=>	$out_options{'units'},
-			      )
+			push(
+				@output_list,
+				NUM_CMP(
+					'correctAnswer' => $ans,
+					'tolerance'     => $out_options{'tolerance'},
+					'tolType'       => $out_options{'tolType'},
+					'format'        => $out_options{'format'},
+					'mode'          => $out_options{'mode'},
+					'zeroLevel'     => $out_options{'zeroLevel'},
+					'zeroLevelTol'  => $out_options{'zeroLevelTol'},
+					'debug'         => $out_options{'debug'},
+					'units'         => $out_options{'units'},
+				)
 			);
-		} elsif( defined( $out_options{'strings'} ) ) {
+		} elsif (defined($out_options{'strings'})) {
 
-
-			push( @output_list, NUM_CMP( 	
-			                'correctAnswer'	=> 	$ans,
-							'tolerance'		=>	$out_options{tolerance},
-							'tolType'		=>	$out_options{tolType},
-							'format'		=>	$out_options{'format'},
-							'mode'			=>	$out_options{'mode'},
-							'zeroLevel'		=>	$out_options{'zeroLevel'},
-							'zeroLevelTol'	=>	$out_options{'zeroLevelTol'},
-							'debug'			=>	$out_options{'debug'},
-							'strings'		=> 	$out_options{'strings'},
-				 )
-				 );
+			push(
+				@output_list,
+				NUM_CMP(
+					'correctAnswer' => $ans,
+					'tolerance'     => $out_options{tolerance},
+					'tolType'       => $out_options{tolType},
+					'format'        => $out_options{'format'},
+					'mode'          => $out_options{'mode'},
+					'zeroLevel'     => $out_options{'zeroLevel'},
+					'zeroLevelTol'  => $out_options{'zeroLevelTol'},
+					'debug'         => $out_options{'debug'},
+					'strings'       => $out_options{'strings'},
+				)
+			);
 		} else {
-			push(@output_list,
-				NUM_CMP(	
-				    'correctAnswer'	=>	$ans,
-					'tolerance'		=>	$out_options{tolerance},
-					'tolType'		=>	$out_options{tolType},
-					'format'		=>	$out_options{'format'},
-					'mode'			=>	$out_options{'mode'},
-					'zeroLevel'		=>	$out_options{'zeroLevel'},
-					'zeroLevelTol'	=>	$out_options{'zeroLevelTol'},
-					'debug'			=>	$out_options{'debug'},
+			push(
+				@output_list,
+				NUM_CMP(
+					'correctAnswer' => $ans,
+					'tolerance'     => $out_options{tolerance},
+					'tolType'       => $out_options{tolType},
+					'format'        => $out_options{'format'},
+					'mode'          => $out_options{'mode'},
+					'zeroLevel'     => $out_options{'zeroLevel'},
+					'zeroLevelTol'  => $out_options{'zeroLevelTol'},
+					'debug'         => $out_options{'debug'},
 				),
 			);
-	    }
+		}
 	}
 
 	return (wantarray) ? @output_list : $output_list[0];
 }
 
 #legacy code for compatability purposes
-sub num_rel_cmp	{		# compare numbers
-    std_num_cmp( @_ );
+sub num_rel_cmp {    # compare numbers
+	std_num_cmp(@_);
 }
 
 =head1 "mode"_num_cmp() functions
@@ -524,27 +534,29 @@ absolute tolerance and format specified.
 
 =cut
 
-sub std_num_cmp	{						# compare numbers allowing use of elementary functions
-    my ( $correctAnswer, $relPercentTol, $format, $zeroLevel, $zeroLevelTol ) = @_;
+sub std_num_cmp {    # compare numbers allowing use of elementary functions
+	my ($correctAnswer, $relPercentTol, $format, $zeroLevel, $zeroLevelTol) = @_;
 
-	my %options = ( 'relTol'        =>	$relPercentTol,
-		    		'format'		=>	$format,
-		    		'zeroLevel'		=>	$zeroLevel,
-		    		'zeroLevelTol'	=>	$zeroLevelTol
-    );
+	my %options = (
+		'relTol'       => $relPercentTol,
+		'format'       => $format,
+		'zeroLevel'    => $zeroLevel,
+		'zeroLevelTol' => $zeroLevelTol
+	);
 
-    set_default_options( \%options,
-			 'tolType'	    =>  'relative',
-			 'tolerance'    =>  $numRelPercentTolDefault,
-			 'mode'		    =>	'std',
-			 'format'	    =>	$numFormatDefault,
-			 'relTol'	    =>	$numRelPercentTolDefault,
-			 'zeroLevel'    =>  $numZeroLevelDefault,
-			 'zeroLevelTol' =>  $numZeroLevelTolDefault,
-			 'debug'        =>  0,
-    );
+	set_default_options(
+		\%options,
+		'tolType'      => 'relative',
+		'tolerance'    => $numRelPercentTolDefault,
+		'mode'         => 'std',
+		'format'       => $numFormatDefault,
+		'relTol'       => $numRelPercentTolDefault,
+		'zeroLevel'    => $numZeroLevelDefault,
+		'zeroLevelTol' => $numZeroLevelTolDefault,
+		'debug'        => 0,
+	);
 
-    num_cmp([$correctAnswer], %options);
+	num_cmp([$correctAnswer], %options);
 }
 
 ##	Similar	to std_num_cmp but accepts a list of numbers in	the	form
@@ -553,41 +565,45 @@ sub std_num_cmp	{						# compare numbers allowing use of elementary functions
 ##	You	must enter a format	and	tolerance
 
 sub std_num_cmp_list {
-	my ( $relPercentTol, $format, @answerList) = @_;
+	my ($relPercentTol, $format, @answerList) = @_;
 
-	my %options = ( 'relTol'	=>      $relPercentTol,
-			        'format'    =>      $format,
+	my %options = (
+		'relTol' => $relPercentTol,
+		'format' => $format,
 	);
 
-	set_default_options( \%options,
-			     'tolType'      =>      'relative',
-			     'tolerance'    =>      $numRelPercentTolDefault,
-			     'mode'         =>      'std',
-			     'format'       =>      $numFormatDefault,
-			     'relTol'       =>      $numRelPercentTolDefault,
-			     'zeroLevel'    =>      $numZeroLevelDefault,
-			     'zeroLevelTol' =>      $numZeroLevelTolDefault,
-			     'debug'        =>      0,
+	set_default_options(
+		\%options,
+		'tolType'      => 'relative',
+		'tolerance'    => $numRelPercentTolDefault,
+		'mode'         => 'std',
+		'format'       => $numFormatDefault,
+		'relTol'       => $numRelPercentTolDefault,
+		'zeroLevel'    => $numZeroLevelDefault,
+		'zeroLevelTol' => $numZeroLevelTolDefault,
+		'debug'        => 0,
 	);
 
 	num_cmp(\@answerList, %options);
 
 }
 
-sub std_num_cmp_abs	{			# compare numbers allowing use of elementary functions with absolute tolerance
-	my ( $correctAnswer, $absTol, $format) = @_;
-	my %options = ( 'tolerance'  => $absTol,
-		      	'format'     => $format
+sub std_num_cmp_abs {    # compare numbers allowing use of elementary functions with absolute tolerance
+	my ($correctAnswer, $absTol, $format) = @_;
+	my %options = (
+		'tolerance' => $absTol,
+		'format'    => $format
 	);
 
-	set_default_options (\%options,
-			     'tolType'      =>      'absolute',
-			     'tolerance'    =>      $absTol,
-			     'mode'         =>      'std',
-			     'format'       =>      $numFormatDefault,
-			     'zeroLevel'    =>      0,
-			     'zeroLevelTol' =>      0,
-			     'debug'        =>      0,
+	set_default_options(
+		\%options,
+		'tolType'      => 'absolute',
+		'tolerance'    => $absTol,
+		'mode'         => 'std',
+		'format'       => $numFormatDefault,
+		'zeroLevel'    => 0,
+		'zeroLevelTol' => 0,
+		'debug'        => 0,
 	);
 
 	num_cmp([$correctAnswer], %options);
@@ -596,286 +612,310 @@ sub std_num_cmp_abs	{			# compare numbers allowing use of elementary functions w
 ##	See std_num_cmp_list for usage
 
 sub std_num_cmp_abs_list {
-	my ( $absTol, $format, @answerList ) = @_;
+	my ($absTol, $format, @answerList) = @_;
 
-        my %options = ( 'tolerance'         =>      $absTol,
-                        'format'            =>      $format,
+	my %options = (
+		'tolerance' => $absTol,
+		'format'    => $format,
 	);
 
-        set_default_options( \%options,
-                             'tolType'      =>      'absolute',
-                             'tolerance'    =>      $absTol,
-                             'mode'         =>      'std',
-                             'format'       =>      $numFormatDefault,
-                             'zeroLevel'    =>      0,
-                             'zeroLevelTol' =>      0,
-                             'debug'        =>      0,
-        );
+	set_default_options(
+		\%options,
+		'tolType'      => 'absolute',
+		'tolerance'    => $absTol,
+		'mode'         => 'std',
+		'format'       => $numFormatDefault,
+		'zeroLevel'    => 0,
+		'zeroLevelTol' => 0,
+		'debug'        => 0,
+	);
 
-        num_cmp(\@answerList, %options);
+	num_cmp(\@answerList, %options);
 }
 
-sub frac_num_cmp {						# only allow fractions and numbers as submitted answer
+sub frac_num_cmp {    # only allow fractions and numbers as submitted answer
 
-	my ( $correctAnswer, $relPercentTol, $format, $zeroLevel, $zeroLevelTol ) = @_;
+	my ($correctAnswer, $relPercentTol, $format, $zeroLevel, $zeroLevelTol) = @_;
 
-	my %options = (	'relTol'	 =>		$relPercentTol,
-					'format'		 =>		$format,
-					'zeroLevel'	 =>		$zeroLevel,
-					'zeroLevelTol'	 =>		$zeroLevelTol
+	my %options = (
+		'relTol'       => $relPercentTol,
+		'format'       => $format,
+		'zeroLevel'    => $zeroLevel,
+		'zeroLevelTol' => $zeroLevelTol
 	);
 
-	set_default_options( \%options,
-				 'tolType'		 =>		'relative',
-				 'tolerance'	 =>		$relPercentTol,
-				 'mode'			 =>		'frac',
-				 'format'		 =>		$numFormatDefault,
-				 'zeroLevel'	 =>		$numZeroLevelDefault,
-				 'zeroLevelTol'	 =>		$numZeroLevelTolDefault,
-				 'relTol'		 =>		$numRelPercentTolDefault,
-				 'debug'		 =>		0,
-	 );
+	set_default_options(
+		\%options,
+		'tolType'      => 'relative',
+		'tolerance'    => $relPercentTol,
+		'mode'         => 'frac',
+		'format'       => $numFormatDefault,
+		'zeroLevel'    => $numZeroLevelDefault,
+		'zeroLevelTol' => $numZeroLevelTolDefault,
+		'relTol'       => $numRelPercentTolDefault,
+		'debug'        => 0,
+	);
 
 	num_cmp([$correctAnswer], %options);
 }
 
 ##	See std_num_cmp_list for usage
 sub frac_num_cmp_list {
-	my ( $relPercentTol, $format, @answerList ) = @_;
+	my ($relPercentTol, $format, @answerList) = @_;
 
-	my %options = (			 'relTol'	 =>		$relPercentTol,
-							 'format'		 =>		$format
+	my %options = (
+		'relTol' => $relPercentTol,
+		'format' => $format
 	);
 
-	set_default_options( \%options,
-			 'tolType'		 =>		'relative',
-			 'tolerance'	 =>		$relPercentTol,
-			 'mode'			 =>		'frac',
-			 'format'		 =>		$numFormatDefault,
-			 'zeroLevel'	 =>		$numZeroLevelDefault,
-			 'zeroLevelTol'	 =>		$numZeroLevelTolDefault,
-			 'relTol'		 =>		$numRelPercentTolDefault,
-			 'debug'		 =>		0,
+	set_default_options(
+		\%options,
+		'tolType'      => 'relative',
+		'tolerance'    => $relPercentTol,
+		'mode'         => 'frac',
+		'format'       => $numFormatDefault,
+		'zeroLevel'    => $numZeroLevelDefault,
+		'zeroLevelTol' => $numZeroLevelTolDefault,
+		'relTol'       => $numRelPercentTolDefault,
+		'debug'        => 0,
 	);
 
 	num_cmp(\@answerList, %options);
 }
 
-sub frac_num_cmp_abs {			# only allow fraction expressions as submitted answer with absolute tolerance
-    my ( $correctAnswer, $absTol, $format ) = @_;
+sub frac_num_cmp_abs {    # only allow fraction expressions as submitted answer with absolute tolerance
+	my ($correctAnswer, $absTol, $format) = @_;
 
-    my %options = (           	'tolerance'    =>     $absTol,
-		        	'format'       =>     $format
-    );
-
-	set_default_options (\%options,
-			'tolType'	   =>	  'absolute',
-			'tolerance'	   =>	  $absTol,
-			'mode'		   =>	  'frac',
-			'format'	   =>	  $numFormatDefault,
-			'zeroLevel'	   =>	  0,
-			'zeroLevelTol' =>	  0,
-			'debug'		   =>	  0,
+	my %options = (
+		'tolerance' => $absTol,
+		'format'    => $format
 	);
 
-    num_cmp([$correctAnswer], %options);
+	set_default_options(
+		\%options,
+		'tolType'      => 'absolute',
+		'tolerance'    => $absTol,
+		'mode'         => 'frac',
+		'format'       => $numFormatDefault,
+		'zeroLevel'    => 0,
+		'zeroLevelTol' => 0,
+		'debug'        => 0,
+	);
+
+	num_cmp([$correctAnswer], %options);
 }
 
 ##	See std_num_cmp_list for usage
 
 sub frac_num_cmp_abs_list {
-    my ( $absTol, $format, @answerList ) = @_;
+	my ($absTol, $format, @answerList) = @_;
 
-    my %options = (           	'tolerance'    =>     $absTol,
-			      	'format'       =>     $format
-    );
+	my %options = (
+		'tolerance' => $absTol,
+		'format'    => $format
+	);
 
-    set_default_options (\%options,
-			 'tolType'      =>     'absolute',
-			 'tolerance'    =>     $absTol,
-			 'mode'         =>     'frac',
-			 'format'       =>     $numFormatDefault,
-			 'zeroLevel'    =>     0,
-			 'zeroLevelTol' =>     0,
-			 'debug'        =>     0,
-    );
+	set_default_options(
+		\%options,
+		'tolType'      => 'absolute',
+		'tolerance'    => $absTol,
+		'mode'         => 'frac',
+		'format'       => $numFormatDefault,
+		'zeroLevel'    => 0,
+		'zeroLevelTol' => 0,
+		'debug'        => 0,
+	);
 
-    num_cmp(\@answerList, %options);
+	num_cmp(\@answerList, %options);
 }
 
+sub arith_num_cmp {    # only allow arithmetic expressions as submitted answer
 
-sub arith_num_cmp {						# only allow arithmetic expressions as submitted answer
+	my ($correctAnswer, $relPercentTol, $format, $zeroLevel, $zeroLevelTol) = @_;
 
-    my ( $correctAnswer, $relPercentTol, $format, $zeroLevel, $zeroLevelTol ) = @_;
+	my %options = (
+		'relTol'       => $relPercentTol,
+		'format'       => $format,
+		'zeroLevel'    => $zeroLevel,
+		'zeroLevelTol' => $zeroLevelTol
+	);
 
-    my %options = (     'relTol'      =>     $relPercentTol,
-			'format'         =>     $format,
-			'zeroLevel'      =>     $zeroLevel,
-			'zeroLevelTol'   =>     $zeroLevelTol
-    );
+	set_default_options(
+		\%options,
+		'tolType'      => 'relative',
+		'tolerance'    => $relPercentTol,
+		'mode'         => 'arith',
+		'format'       => $numFormatDefault,
+		'zeroLevel'    => $numZeroLevelDefault,
+		'zeroLevelTol' => $numZeroLevelTolDefault,
+		'relTol'       => $numRelPercentTolDefault,
+		'debug'        => 0,
+	);
 
-    set_default_options( \%options,
-                        'tolType'       =>     'relative',
-                        'tolerance'     =>     $relPercentTol,
-                        'mode'          =>     'arith',
-                        'format'        =>     $numFormatDefault,
-                        'zeroLevel'     =>     $numZeroLevelDefault,
-                        'zeroLevelTol'  =>     $numZeroLevelTolDefault,
-                        'relTol'        =>     $numRelPercentTolDefault,
-                        'debug'         =>     0,
-    );
-
-    num_cmp([$correctAnswer], %options);
+	num_cmp([$correctAnswer], %options);
 }
 
 ##	See std_num_cmp_list for usage
 sub arith_num_cmp_list {
-    my ( $relPercentTol, $format, @answerList ) = @_;
+	my ($relPercentTol, $format, @answerList) = @_;
 
-    my %options = (     'relTol'     =>     $relPercentTol,
-                        'format'        =>     $format,
-    );
+	my %options = (
+		'relTol' => $relPercentTol,
+		'format' => $format,
+	);
 
-    set_default_options( \%options,
-                         'tolType'       =>     'relative',
-                         'tolerance'     =>     $relPercentTol,
-                         'mode'          =>     'arith',
-                         'format'        =>     $numFormatDefault,
-                         'zeroLevel'     =>     $numZeroLevelDefault,
-                         'zeroLevelTol'  =>     $numZeroLevelTolDefault,
-                         'relTol'        =>     $numRelPercentTolDefault,
-                         'debug'         =>     0,
-    );
+	set_default_options(
+		\%options,
+		'tolType'      => 'relative',
+		'tolerance'    => $relPercentTol,
+		'mode'         => 'arith',
+		'format'       => $numFormatDefault,
+		'zeroLevel'    => $numZeroLevelDefault,
+		'zeroLevelTol' => $numZeroLevelTolDefault,
+		'relTol'       => $numRelPercentTolDefault,
+		'debug'        => 0,
+	);
 
-    num_cmp(\@answerList, %options);
+	num_cmp(\@answerList, %options);
 }
 
-sub arith_num_cmp_abs {			# only allow arithmetic expressions as submitted answer with absolute tolerance
-    my ( $correctAnswer, $absTol, $format ) = @_;
+sub arith_num_cmp_abs {    # only allow arithmetic expressions as submitted answer with absolute tolerance
+	my ($correctAnswer, $absTol, $format) = @_;
 
-    my %options = (      'tolerance'    =>     $absTol,
-                         'format'       =>     $format
-    );
+	my %options = (
+		'tolerance' => $absTol,
+		'format'    => $format
+	);
 
-    set_default_options (\%options,
-                         'tolType'      =>     'absolute',
-                         'tolerance'    =>     $absTol,
-                         'mode'         =>     'arith',
-                         'format'       =>     $numFormatDefault,
-                         'zeroLevel'    =>     0,
-                         'zeroLevelTol' =>     0,
-                         'debug'        =>     0,
-    );
+	set_default_options(
+		\%options,
+		'tolType'      => 'absolute',
+		'tolerance'    => $absTol,
+		'mode'         => 'arith',
+		'format'       => $numFormatDefault,
+		'zeroLevel'    => 0,
+		'zeroLevelTol' => 0,
+		'debug'        => 0,
+	);
 
-    num_cmp([$correctAnswer], %options);
+	num_cmp([$correctAnswer], %options);
 }
 
 ##	See std_num_cmp_list for usage
 sub arith_num_cmp_abs_list {
-    my ( $absTol, $format, @answerList ) = @_;
+	my ($absTol, $format, @answerList) = @_;
 
-    my %options = (      'tolerance'    =>     $absTol,
-                         'format'       =>     $format
-    );
+	my %options = (
+		'tolerance' => $absTol,
+		'format'    => $format
+	);
 
-    set_default_options (\%options,
-                         'tolType'      =>     'absolute',
-                         'tolerance'    =>     $absTol,
-                         'mode'         =>     'arith',
-                         'format'       =>     $numFormatDefault,
-                         'zeroLevel'    =>     0,
-                         'zeroLevelTol' =>     0,
-                         'debug'        =>     0,
-    );
+	set_default_options(
+		\%options,
+		'tolType'      => 'absolute',
+		'tolerance'    => $absTol,
+		'mode'         => 'arith',
+		'format'       => $numFormatDefault,
+		'zeroLevel'    => 0,
+		'zeroLevelTol' => 0,
+		'debug'        => 0,
+	);
 
-    num_cmp(\@answerList, %options);
+	num_cmp(\@answerList, %options);
 }
 
-sub strict_num_cmp {					# only allow numbers as submitted answer
-    my ( $correctAnswer, $relPercentTol, $format, $zeroLevel, $zeroLevelTol ) = @_;
+sub strict_num_cmp {    # only allow numbers as submitted answer
+	my ($correctAnswer, $relPercentTol, $format, $zeroLevel, $zeroLevelTol) = @_;
 
-    my %options = (      'relTol'     =>     $relPercentTol,
-                         'format'        =>     $format,
-                         'zeroLevel'     =>     $zeroLevel,
-                         'zeroLevelTol'  =>     $zeroLevelTol
-    );
+	my %options = (
+		'relTol'       => $relPercentTol,
+		'format'       => $format,
+		'zeroLevel'    => $zeroLevel,
+		'zeroLevelTol' => $zeroLevelTol
+	);
 
-    set_default_options( \%options,
-                         'tolType'       =>     'relative',
-                         'tolerance'     =>     $relPercentTol,
-                         'mode'          =>     'strict',
-                         'format'        =>     $numFormatDefault,
-                         'zeroLevel'     =>     $numZeroLevelDefault,
-                         'zeroLevelTol'  =>     $numZeroLevelTolDefault,
-                         'relTol'        =>     $numRelPercentTolDefault,
-                         'debug'         =>     0,
-    );
-    num_cmp([$correctAnswer], %options);
-
-}
-
-##	See std_num_cmp_list for usage
-sub strict_num_cmp_list	{				# compare numbers
-    my ( $relPercentTol, $format, @answerList ) = @_;
-
-    my %options = (  	 'relTol'     =>     $relPercentTol,
-			 'format'        =>     $format,
-    );
-
-    set_default_options( \%options,
-                         'tolType'       =>     'relative',
-                         'tolerance'     =>     $relPercentTol,
-                         'mode'          =>     'strict',
-                         'format'        =>     $numFormatDefault,
-                         'zeroLevel'     =>     $numZeroLevelDefault,
-                         'zeroLevelTol'  =>     $numZeroLevelTolDefault,
-                         'relTol'        =>     $numRelPercentTolDefault,
-                         'debug'         =>     0,
-    );
-
-    num_cmp(\@answerList, %options);
-}
-
-
-sub strict_num_cmp_abs {				# only allow numbers as submitted answer with absolute tolerance
-    my ( $correctAnswer, $absTol, $format ) = @_;
-
-    my %options = (       'tolerance'    =>     $absTol,
-	                  'format'       =>     $format
-    );
-
-    set_default_options (\%options,
-                         'tolType'      =>     'absolute',
-                         'tolerance'    =>     $absTol,
-                         'mode'         =>     'strict',
-                         'format'       =>     $numFormatDefault,
-                         'zeroLevel'    =>     0,
-                         'zeroLevelTol' =>     0,
-                         'debug'        =>     0,
-    );
-    num_cmp([$correctAnswer], %options);
+	set_default_options(
+		\%options,
+		'tolType'      => 'relative',
+		'tolerance'    => $relPercentTol,
+		'mode'         => 'strict',
+		'format'       => $numFormatDefault,
+		'zeroLevel'    => $numZeroLevelDefault,
+		'zeroLevelTol' => $numZeroLevelTolDefault,
+		'relTol'       => $numRelPercentTolDefault,
+		'debug'        => 0,
+	);
+	num_cmp([$correctAnswer], %options);
 
 }
 
 ##	See std_num_cmp_list for usage
-sub strict_num_cmp_abs_list	{			# compare numbers
-    my ( $absTol, $format, @answerList ) = @_;
+sub strict_num_cmp_list {    # compare numbers
+	my ($relPercentTol, $format, @answerList) = @_;
 
-    my %options = (      'tolerance'    =>     $absTol,
-                         'format'       =>     $format
-    );
+	my %options = (
+		'relTol' => $relPercentTol,
+		'format' => $format,
+	);
 
-    set_default_options (\%options,
-                         'tolType'      =>     'absolute',
-                         'tolerance'    =>     $absTol,
-                         'mode'         =>     'strict',
-                         'format'       =>     $numFormatDefault,
-                         'zeroLevel'    =>     0,
-                         'zeroLevelTol' =>     0,
-                         'debug'        =>     0,
-    );
+	set_default_options(
+		\%options,
+		'tolType'      => 'relative',
+		'tolerance'    => $relPercentTol,
+		'mode'         => 'strict',
+		'format'       => $numFormatDefault,
+		'zeroLevel'    => $numZeroLevelDefault,
+		'zeroLevelTol' => $numZeroLevelTolDefault,
+		'relTol'       => $numRelPercentTolDefault,
+		'debug'        => 0,
+	);
 
-    num_cmp(\@answerList, %options);
+	num_cmp(\@answerList, %options);
+}
+
+sub strict_num_cmp_abs {    # only allow numbers as submitted answer with absolute tolerance
+	my ($correctAnswer, $absTol, $format) = @_;
+
+	my %options = (
+		'tolerance' => $absTol,
+		'format'    => $format
+	);
+
+	set_default_options(
+		\%options,
+		'tolType'      => 'absolute',
+		'tolerance'    => $absTol,
+		'mode'         => 'strict',
+		'format'       => $numFormatDefault,
+		'zeroLevel'    => 0,
+		'zeroLevelTol' => 0,
+		'debug'        => 0,
+	);
+	num_cmp([$correctAnswer], %options);
+
+}
+
+##	See std_num_cmp_list for usage
+sub strict_num_cmp_abs_list {    # compare numbers
+	my ($absTol, $format, @answerList) = @_;
+
+	my %options = (
+		'tolerance' => $absTol,
+		'format'    => $format
+	);
+
+	set_default_options(
+		\%options,
+		'tolType'      => 'absolute',
+		'tolerance'    => $absTol,
+		'mode'         => 'strict',
+		'format'       => $numFormatDefault,
+		'zeroLevel'    => 0,
+		'zeroLevelTol' => 0,
+		'debug'        => 0,
+	);
+
+	num_cmp(\@answerList, %options);
 }
 
 =head1 Miscellaneous functions
@@ -906,11 +946,11 @@ This function is deprecated. Use num_cmp with the units option instead:
 # This mode is depricated.  send input through num_cmp -- it can handle units.
 
 sub numerical_compare_with_units {
-	my $correct_answer = shift;	 # the answer is a string which	includes both the numerical answer and the units.
-	my %options	= @_;		 # all of the other inputs are (key value) pairs
+	my $correct_answer = shift;    # the answer is a string which	includes both the numerical answer and the units.
+	my %options        = @_;       # all of the other inputs are (key value) pairs
 
 	# Prepare the correct answer
-	$correct_answer	= str_filters( $correct_answer, 'trim_whitespace' );
+	$correct_answer = str_filters($correct_answer, 'trim_whitespace');
 
 	# it surprises me that the match below works since the first .*	is greedy.
 	my ($correct_num_answer, $correct_units) = $correct_answer =~ /^(.*)\s+([^\s]*)$/;
@@ -930,15 +970,21 @@ This function is deprecated. Use num_cmp() with the strings option instead:
 =cut
 
 sub std_num_str_cmp {
-	my ( $correctAnswer, $ra_legalStrings, $relpercentTol, $format, $zeroLevel, $zeroLevelTol ) = @_;
+	my ($correctAnswer, $ra_legalStrings, $relpercentTol, $format, $zeroLevel, $zeroLevelTol) = @_;
 	# warn ('This method is depreciated.  Use num_cmp instead.');
-	return num_cmp ($correctAnswer, strings=>$ra_legalStrings, relTol=>$relpercentTol, format=>$format,
-		zeroLevel=>$zeroLevel, zeroLevelTol=>$zeroLevelTol);
+	return num_cmp(
+		$correctAnswer,
+		strings      => $ra_legalStrings,
+		relTol       => $relpercentTol,
+		format       => $format,
+		zeroLevel    => $zeroLevel,
+		zeroLevelTol => $zeroLevelTol
+	);
 }
 
-sub NUM_CMP {                              # low level numeric compare (now uses Parser)
+sub NUM_CMP {    # low level numeric compare (now uses Parser)
 	return ORIGINAL_NUM_CMP(@_)
-	  if $main::useOldAnswerMacros;
+		if $main::useOldAnswerMacros;
 	my %num_params = @_;
 
 	#
@@ -946,8 +992,8 @@ sub NUM_CMP {                              # low level numeric compare (now uses
 	#
 	my @keys = qw(correctAnswer tolerance tolType format mode zeroLevel zeroLevelTol debug);
 	foreach my $key (@keys) {
-	    warn( "$key must be defined in options when calling NUM_CMP" )
-	      unless defined($num_params{$key});
+		warn("$key must be defined in options when calling NUM_CMP")
+			unless defined($num_params{$key});
 	}
 
 	my $correctAnswer = $num_params{correctAnswer};
@@ -959,99 +1005,102 @@ sub NUM_CMP {                              # low level numeric compare (now uses
 	#  (e.g., perl will pass .0000001 as 1e-07).
 	#
 	$correctAnswer = uc($correctAnswer)
-	  if $correctAnswer =~ m/e/ && Value::isNumber($correctAnswer);
+		if $correctAnswer =~ m/e/ && Value::isNumber($correctAnswer);
 
 	#
 	#  Get an apppropriate context based on the mode
 	#
 	my $context;
 	for ($mode) {
-	  /^strict$/i and do {
-	    $context = Parser::Context->getCopy($user_context,"LimitedNumeric");
-	    last;
-	  };
-	  /^arith$/i  and do {
-	    $context = Parser::Context->getCopy($user_context,"LegacyNumeric");
-	    $context->functions->disable('All');
-	    last;
-	  };
-	  /^frac$/i   and do {
-	    $context = Parser::Context->getCopy($user_context,"LimitedNumeric-Fraction");
-	    last;
-	  };
+		/^strict$/i and do {
+			$context = Parser::Context->getCopy($user_context, "LimitedNumeric");
+			last;
+		};
+		/^arith$/i and do {
+			$context = Parser::Context->getCopy($user_context, "LegacyNumeric");
+			$context->functions->disable('All');
+			last;
+		};
+		/^frac$/i and do {
+			$context = Parser::Context->getCopy($user_context, "LimitedNumeric-Fraction");
+			last;
+		};
 
-	  # default
-	  $context = Parser::Context->getCopy($user_context,"LegacyNumeric");
+		# default
+		$context = Parser::Context->getCopy($user_context, "LegacyNumeric");
 	}
 	$context->{format}{number} = $num_params{'format'};
 	$context->strings->clear;
 	#  FIXME:  should clear variables as well? Copy them from the current context?
-	
+
 	#
 	#  Add the strings to the context
 	#
 	if ($num_params{strings}) {
-	  foreach my $string (@{$num_params{strings}}) {
-	    my %tex = ($string =~ m/^(-?)inf(inity)?$/i)? (TeX => "$1\\infty"): ();
-	    %tex = (TeX => "-\\infty") if uc($string) eq "MINF";
-	    $context->strings->add(uc($string) => {%tex})
-	      unless $context->strings->get(uc($string));
-	  }
+		foreach my $string (@{ $num_params{strings} }) {
+			my %tex = ($string =~ m/^(-?)inf(inity)?$/i) ? (TeX => "$1\\infty") : ();
+			%tex = (TeX => "-\\infty") if uc($string) eq "MINF";
+			$context->strings->add(uc($string) => {%tex})
+				unless $context->strings->get(uc($string));
+		}
 	}
 
 	#
 	#  Set the tolerances
 	#
 	if ($num_params{tolType} eq 'absolute') {
-	  $context->flags->set(
-	    tolerance => $num_params{tolerance},
-	    tolType => 'absolute',
-	  );
+		$context->flags->set(
+			tolerance => $num_params{tolerance},
+			tolType   => 'absolute',
+		);
 	} else {
-	  $context->flags->set(
-	    tolerance => .01*$num_params{tolerance},
-	    tolType => 'relative',
-	  );
+		$context->flags->set(
+			tolerance => .01 * $num_params{tolerance},
+			tolType   => 'relative',
+		);
 	}
 	$context->flags->set(
-	  zeroLevel => $num_params{zeroLevel},
-	  zeroLevelTol => $num_params{zeroLevelTol},
+		zeroLevel    => $num_params{zeroLevel},
+		zeroLevelTol => $num_params{zeroLevelTol},
 	);
 
 	#
 	#  Get the proper Parser object for the professor's answer
 	#  using the initialized context
 	#
-	my $oldContext = &$Context(); &$Context($context); my $r;
+	my $oldContext = &$Context();
+	&$Context($context);
+	my $r;
 	if ($num_params{units}) {
-	  $r = new Parser::Legacy::NumberWithUnits($correctAnswer);
-          $options{rh_correct_units} = $num_params{units};
+		$r = new Parser::Legacy::NumberWithUnits($correctAnswer);
+		$options{rh_correct_units} = $num_params{units};
 	} else {
-	  $r = Value::Formula->new($correctAnswer);
-	  die "The professor's answer can't be a formula" unless $r->isConstant;
-	  $r = $r->eval; $r = new Value::Real($r) unless Value::class($r) eq 'String';
-	  $r->{correct_ans} = $correctAnswer;
-	  if ($mode eq 'phase_pi') {
-	    my $pi = 4*atan2(1,1);
-	    while ($r >  $pi/2) {$r -= $pi}
-	    while ($r < -$pi/2) {$r += $pi}
-	  }
+		$r = Value::Formula->new($correctAnswer);
+		die "The professor's answer can't be a formula" unless $r->isConstant;
+		$r                = $r->eval;
+		$r                = new Value::Real($r) unless Value::class($r) eq 'String';
+		$r->{correct_ans} = $correctAnswer;
+		if ($mode eq 'phase_pi') {
+			my $pi = 4 * atan2(1, 1);
+			while ($r > $pi / 2)  { $r -= $pi }
+			while ($r < -$pi / 2) { $r += $pi }
+		}
 	}
 	#
 	#  Get the answer checker from the parser object
 	#
 	my $cmp = $r->cmp(%options);
 	$cmp->install_pre_filter(sub {
-	  my $rh_ans = shift;
-	  $rh_ans->{original_student_ans} = $rh_ans->{student_ans};
-	  $rh_ans->{original_correct_ans} = $rh_ans->{correct_ans};
-	  return $rh_ans;
+		my $rh_ans = shift;
+		$rh_ans->{original_student_ans} = $rh_ans->{student_ans};
+		$rh_ans->{original_correct_ans} = $rh_ans->{correct_ans};
+		return $rh_ans;
 	});
 	$cmp->install_post_filter(sub {
-	  my $rh_ans = shift;
-	  $rh_ans->{student_ans} = $rh_ans->{student_value}->string
-	    if ref($rh_ans->{student_value});
-	  return $rh_ans;
+		my $rh_ans = shift;
+		$rh_ans->{student_ans} = $rh_ans->{student_value}->string
+			if ref($rh_ans->{student_value});
+		return $rh_ans;
 	});
 	&$Context($oldContext);
 
@@ -1062,20 +1111,20 @@ sub NUM_CMP {                              # low level numeric compare (now uses
 #  The original version, for backward compatibility
 #  (can be removed when the Parser-based version is more fully tested.)
 #
-sub ORIGINAL_NUM_CMP {		# low level	numeric	compare
+sub ORIGINAL_NUM_CMP {    # low level	numeric	compare
 	my %num_params = @_;
 	# WARN_MESSAGE("Using old ORIGINAL_NUM_CMP function.");
 	my @keys = qw ( correctAnswer tolerance tolType format mode zeroLevel zeroLevelTol debug );
 	foreach my $key (@keys) {
-	    warn "$key must be defined in options when calling NUM_CMP" unless defined ($num_params{$key});
+		warn "$key must be defined in options when calling NUM_CMP" unless defined($num_params{$key});
 	}
 
-	my $correctAnswer	=	$num_params{'correctAnswer'};
-	my $format		    =	$num_params{'format'};
-	my $mode		    =	$num_params{'mode'};
+	my $correctAnswer = $num_params{'correctAnswer'};
+	my $format        = $num_params{'format'};
+	my $mode          = $num_params{'mode'};
 
-	if( $num_params{tolType} eq 'relative' ) {
-		$num_params{'tolerance'} = .01*$num_params{'tolerance'};
+	if ($num_params{tolType} eq 'relative') {
+		$num_params{'tolerance'} = .01 * $num_params{'tolerance'};
 	}
 
 	my $formattedCorrectAnswer;
@@ -1084,52 +1133,51 @@ sub ORIGINAL_NUM_CMP {		# low level	numeric	compare
 	my %correct_units;
 	my $corrAnswerIsString = 0;
 
-
 	if (defined($num_params{units}) && $num_params{units}) {
-		$correctAnswer	= str_filters( $correctAnswer, 'trim_whitespace' );
-						# units are in form stuff space units where units contains no spaces.
+		$correctAnswer = str_filters($correctAnswer, 'trim_whitespace');
+		# units are in form stuff space units where units contains no spaces.
 
 		($correct_num_answer, $correct_units) = $correctAnswer =~ /^(.*)\s+([^\s]*)$/;
 		%correct_units = Units::evaluate_units($correct_units);
-		if ( defined( $correct_units{'ERROR'} ) ) {
-			 warn ("ERROR: The answer \"$correctAnswer\" in the problem definition cannot be parsed:\n" .
-			 	"$correct_units{'ERROR'}\n");
+		if (defined($correct_units{'ERROR'})) {
+			warn("ERROR: The answer \"$correctAnswer\" in the problem definition cannot be parsed:\n"
+					. "$correct_units{'ERROR'}\n");
 		}
 		# $formattedCorrectAnswer = spf($correct_num_answer,$num_params{'format'}) . " $correct_units";
-		$formattedCorrectAnswer = prfmt($correct_num_answer,$num_params{'format'}) . " $correct_units";
+		$formattedCorrectAnswer = prfmt($correct_num_answer, $num_params{'format'}) . " $correct_units";
 
 	} elsif (defined($num_params{strings}) && $num_params{strings}) {
-		my $legalString	= '';
-		my @legalStrings = @{$num_params{strings}};
-		$correct_num_answer = $correctAnswer;
+		my $legalString  = '';
+		my @legalStrings = @{ $num_params{strings} };
+		$correct_num_answer     = $correctAnswer;
 		$formattedCorrectAnswer = $correctAnswer;
-		foreach	$legalString (@legalStrings) {
-			if ( uc($correctAnswer) eq uc($legalString) ) {
-				$corrAnswerIsString	= 1;
+		foreach $legalString (@legalStrings) {
+			if (uc($correctAnswer) eq uc($legalString)) {
+				$corrAnswerIsString = 1;
 
 				last;
 			}
-		}		  ## at	this point $corrAnswerIsString = 0 iff correct answer is numeric
+		}    ## at	this point $corrAnswerIsString = 0 iff correct answer is numeric
 	} else {
-		$correct_num_answer = $correctAnswer;
-		$formattedCorrectAnswer = prfmt( $correctAnswer, $num_params{'format'} );
+		$correct_num_answer     = $correctAnswer;
+		$formattedCorrectAnswer = prfmt($correctAnswer, $num_params{'format'});
 	}
 
 	$correct_num_answer = math_constants($correct_num_answer);
 
 	my $PGanswerMessage = '';
 
-	my ($inVal,$correctVal,$PG_eval_errors,$PG_full_error_report);
+	my ($inVal, $correctVal, $PG_eval_errors, $PG_full_error_report);
 
-	if (defined($correct_num_answer) && $correct_num_answer =~ /\S/ && $corrAnswerIsString == 0 )	{
-			($correctVal, $PG_eval_errors,$PG_full_error_report) = PG_answer_eval($correct_num_answer);
-	} else { # case of a string answer
-		$PG_eval_errors	= '	';
-		$correctVal = $correctAnswer;
+	if (defined($correct_num_answer) && $correct_num_answer =~ /\S/ && $corrAnswerIsString == 0) {
+		($correctVal, $PG_eval_errors, $PG_full_error_report) = PG_answer_eval($correct_num_answer);
+	} else {    # case of a string answer
+		$PG_eval_errors = '	';
+		$correctVal     = $correctAnswer;
 	}
 
-	if ( ($PG_eval_errors && $corrAnswerIsString == 0) or ((not is_a_number($correctVal)) && $corrAnswerIsString == 0)) {
-				##error message from eval or above
+	if (($PG_eval_errors && $corrAnswerIsString == 0) or ((not is_a_number($correctVal)) && $corrAnswerIsString == 0)) {
+		##error message from eval or above
 		warn "Error in 'correct' answer: $PG_eval_errors<br>
 		      The answer $correctAnswer evaluates to $correctVal,
 		      which cannot be interpreted as a number.  ";
@@ -1138,81 +1186,83 @@ sub ORIGINAL_NUM_CMP {		# low level	numeric	compare
 	#########################################################################
 
 	#construct the answer evaluator
-    	my $answer_evaluator = new AnswerEvaluator;
-    	$answer_evaluator->{debug} = $num_params{debug};
-    	$answer_evaluator->ans_hash(
-    						correct_ans 			=> 	$correctVal,
-    					 	type					=>	"${mode}_number",
-    					 	tolerance				=>	$num_params{tolerance},
-					 		tolType					=>	$num_params{tolType},
-					 		units					=> 	$correct_units,
-     					 	original_correct_ans	=>	$formattedCorrectAnswer,
-     					 	rh_correct_units		=>      \%correct_units,
-     					 	answerIsString			=>	$corrAnswerIsString,
-     	);
-    	my ($in, $formattedSubmittedAnswer);
-	$answer_evaluator->install_pre_filter(sub {my $rh_ans = shift;
-		$rh_ans->{original_student_ans} = $rh_ans->{student_ans}; $rh_ans;}
+	my $answer_evaluator = new AnswerEvaluator;
+	$answer_evaluator->{debug} = $num_params{debug};
+	$answer_evaluator->ans_hash(
+		correct_ans          => $correctVal,
+		type                 => "${mode}_number",
+		tolerance            => $num_params{tolerance},
+		tolType              => $num_params{tolType},
+		units                => $correct_units,
+		original_correct_ans => $formattedCorrectAnswer,
+		rh_correct_units     => \%correct_units,
+		answerIsString       => $corrAnswerIsString,
 	);
-
-	
+	my ($in, $formattedSubmittedAnswer);
+	$answer_evaluator->install_pre_filter(sub {
+		my $rh_ans = shift;
+		$rh_ans->{original_student_ans} = $rh_ans->{student_ans};
+		$rh_ans;
+	});
 
 	if (defined($num_params{units}) && $num_params{units}) {
-			$answer_evaluator->install_pre_filter(\&check_units);
+		$answer_evaluator->install_pre_filter(\&check_units);
 	}
 	if (defined($num_params{strings}) && $num_params{strings}) {
-			$answer_evaluator->install_pre_filter(\&check_strings, %num_params);
+		$answer_evaluator->install_pre_filter(\&check_strings, %num_params);
 	}
-	
+
 	## FIXME? - this pre filter was moved before check_units to allow
 	## 	    for latex preview of answers with no units.
 	##          seems to work but may have unintended side effects elsewhere.
-	
+
 	##      Actually it caused trouble with the check strings package so it has been moved back
 	#       We'll try some other method  -- perhaps add code to fix_answer for display
 	$answer_evaluator->install_pre_filter(\&check_syntax);
 
 	$answer_evaluator->install_pre_filter(\&math_constants);
 
-	if ($mode eq 'std')	{
-				# do nothing
+	if ($mode eq 'std') {
+		# do nothing
 	} elsif ($mode eq 'strict') {
 		$answer_evaluator->install_pre_filter(\&is_a_number);
 	} elsif ($mode eq 'arith') {
-			$answer_evaluator->install_pre_filter(\&is_an_arithmetic_expression);
-		} elsif ($mode eq 'frac') {
-			$answer_evaluator->install_pre_filter(\&is_a_fraction);
+		$answer_evaluator->install_pre_filter(\&is_an_arithmetic_expression);
+	} elsif ($mode eq 'frac') {
+		$answer_evaluator->install_pre_filter(\&is_a_fraction);
 
-		} elsif ($mode eq 'phase_pi') {
-			$answer_evaluator->install_pre_filter(\&phase_pi);
+	} elsif ($mode eq 'phase_pi') {
+		$answer_evaluator->install_pre_filter(\&phase_pi);
 
-		} else {
-			$PGanswerMessage = 'Tell your professor	that there is an error in his or her answer mechanism. No mode was specified.';
-			$formattedSubmittedAnswer =	$in;
-		}
+	} else {
+		$PGanswerMessage =
+			'Tell your professor	that there is an error in his or her answer mechanism. No mode was specified.';
+		$formattedSubmittedAnswer = $in;
+	}
 
-	if ($corrAnswerIsString == 0 ){		# avoiding running compare_numbers when correct answer is a string.
+	if ($corrAnswerIsString == 0) {    # avoiding running compare_numbers when correct answer is a string.
 		$answer_evaluator->install_evaluator(\&compare_numbers, %num_params);
-	 }
-
+	}
 
 ###############################################################################
-# We'll leave these next lines out for now, so that the evaluated versions of the student's and professor's
-# can be displayed in the answer message.  This may still cause a few anomolies when strings are used
-#
+	# We'll leave these next lines out for now, so that the evaluated versions of the student's and professor's
+	# can be displayed in the answer message.  This may still cause a few anomolies when strings are used
+	#
 ###############################################################################
 
 	$answer_evaluator->install_post_filter(\&fix_answers_for_display);
 
-     	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift;
-					return $rh_ans unless $rh_ans->catch_error('EVAL');
-					$rh_ans->{student_ans} = $rh_ans->{original_student_ans}. ' '. $rh_ans->{error_message};
-					$rh_ans->clear_error('EVAL'); } );
-     	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift; $rh_ans->clear_error('SYNTAX'); } );
-     	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift; $rh_ans->clear_error('UNITS'); } );
-     	$answer_evaluator->install_post_filter(sub {my $rh_ans = shift; $rh_ans->clear_error('NUMBER'); } );
-	    $answer_evaluator->install_post_filter(sub {my $rh_ans = shift; $rh_ans->clear_error('STRING'); } );
-     	$answer_evaluator;
+	$answer_evaluator->install_post_filter(sub {
+		my $rh_ans = shift;
+		return $rh_ans unless $rh_ans->catch_error('EVAL');
+		$rh_ans->{student_ans} = $rh_ans->{original_student_ans} . ' ' . $rh_ans->{error_message};
+		$rh_ans->clear_error('EVAL');
+	});
+	$answer_evaluator->install_post_filter(sub { my $rh_ans = shift; $rh_ans->clear_error('SYNTAX'); });
+	$answer_evaluator->install_post_filter(sub { my $rh_ans = shift; $rh_ans->clear_error('UNITS'); });
+	$answer_evaluator->install_post_filter(sub { my $rh_ans = shift; $rh_ans->clear_error('NUMBER'); });
+	$answer_evaluator->install_post_filter(sub { my $rh_ans = shift; $rh_ans->clear_error('STRING'); });
+	$answer_evaluator;
 }
 
 =head1 SEE ALSO

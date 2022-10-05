@@ -1,3 +1,4 @@
+
 =head1 NAME
 
 RserveClient.pl - Macros for evaluating R code on an Rserve server
@@ -105,100 +106,91 @@ ${pg}{modules}.
 
 =cut
 
-
-my $rserve;                     # Statistics::R::IO::Rserve instance
-
+my $rserve;    # Statistics::R::IO::Rserve instance
 
 sub _rserve_warn_no_config {
-    my @trace = split /\n/, Value::traceback();
-    my ($function, $line, $file) = $trace[0] =~ /^\s*in ([^ ]+) at line (\d+) of (.*)/;
-    
-    $PG->warning_message('Calling ' . $function .
-                         ' is disabled unless Rserve host is configured in $pg{specialPGEnvironmentVars}{Rserve}{host}')
-}
+	my @trace = split /\n/, Value::traceback();
+	my ($function, $line, $file) = $trace[0] =~ /^\s*in ([^ ]+) at line (\d+) of (.*)/;
 
+	$PG->warning_message('Calling '
+			. $function
+			. ' is disabled unless Rserve host is configured in $pg{specialPGEnvironmentVars}{Rserve}{host}');
+}
 
 sub rserve_start {
-    _rserve_warn_no_config && return unless $Rserve->{host};
-    
-    $rserve = Rserve::access(server => $Rserve->{host}, _usesocket => 1);
+	_rserve_warn_no_config && return unless $Rserve->{host};
 
-    # Keep R's RNG reproducible for this problem
-    $rserve->eval("set.seed($problemSeed)")
+	$rserve = Rserve::access(server => $Rserve->{host}, _usesocket => 1);
+
+	# Keep R's RNG reproducible for this problem
+	$rserve->eval("set.seed($problemSeed)");
 }
-
 
 sub rserve_finish {
-    $rserve->close() if $rserve;
-    undef $rserve
+	$rserve->close() if $rserve;
+	undef $rserve;
 }
-
 
 sub rserve_eval {
-    _rserve_warn_no_config && return unless $Rserve->{host};
-    
-    my $query = shift;
-    
-    rserve_start unless $rserve;
-    
-    my $result = Rserve::try_eval($rserve, $query);
-    Rserve::unref_rexp($result)
-}
+	_rserve_warn_no_config && return unless $Rserve->{host};
 
+	my $query = shift;
+
+	rserve_start unless $rserve;
+
+	my $result = Rserve::try_eval($rserve, $query);
+	Rserve::unref_rexp($result);
+}
 
 sub rserve_query {
-    _rserve_warn_no_config && return unless $Rserve->{host};
-    
-    my $query = shift;
-    $query = "set.seed($problemSeed)\n" . $query;
-    my $rserve_client = Rserve::access(server => $Rserve->{host}, _usesocket => 1);
-    my $result = Rserve::try_eval($rserve_client, $query);
-    $rserve_client->close;
-    Rserve::unref_rexp($result)
-}
+	_rserve_warn_no_config && return unless $Rserve->{host};
 
+	my $query = shift;
+	$query = "set.seed($problemSeed)\n" . $query;
+	my $rserve_client = Rserve::access(server => $Rserve->{host}, _usesocket => 1);
+	my $result        = Rserve::try_eval($rserve_client, $query);
+	$rserve_client->close;
+	Rserve::unref_rexp($result);
+}
 
 sub rserve_start_plot {
-    _rserve_warn_no_config && return unless $Rserve->{host};
-    
-    my $device = shift // 'png';
-    my $width = shift // '';
-    my $height = shift // '';
+	_rserve_warn_no_config && return unless $Rserve->{host};
 
-    die "Unsupported image type $device" unless $device =~ /^(png|pdf|jpg)$/;
-    my $remote_image = (rserve_eval("tempfile(fileext='.$device')"))[0];
-    
-    $device =~ s/jpg/jpeg/;
-    
-    rserve_eval("$device('$remote_image', width = ${width}, height = ${height})");
+	my $device = shift // 'png';
+	my $width  = shift // '';
+	my $height = shift // '';
 
-    $remote_image
+	die "Unsupported image type $device" unless $device =~ /^(png|pdf|jpg)$/;
+	my $remote_image = (rserve_eval("tempfile(fileext='.$device')"))[0];
+
+	$device =~ s/jpg/jpeg/;
+
+	rserve_eval("$device('$remote_image', width = ${width}, height = ${height})");
+
+	$remote_image;
 }
-
 
 sub rserve_finish_plot {
-    _rserve_warn_no_config && return unless $Rserve->{host};
-    
-    my $remote_image = shift or die "Missing remote image name";
+	_rserve_warn_no_config && return unless $Rserve->{host};
 
-    rserve_eval("dev.off()");
+	my $remote_image = shift or die "Missing remote image name";
 
-    rserve_get_file($remote_image)
+	rserve_eval("dev.off()");
+
+	rserve_get_file($remote_image);
 }
-
 
 sub rserve_get_file {
-    _rserve_warn_no_config && return unless $Rserve->{host};
-    
-    my $remote = shift or die "Missing remote file name";
-    my $local = shift // $PG->fileFromPath($remote);
+	_rserve_warn_no_config && return unless $Rserve->{host};
 
-    $local = $PG->surePathToTmpFile($local);
+	my $remote = shift or die "Missing remote file name";
+	my $local  = shift // $PG->fileFromPath($remote);
 
-    $rserve->get_file($remote, $local);
-    
-    $local
+	$local = $PG->surePathToTmpFile($local);
+
+	$rserve->get_file($remote, $local);
+
+	$local;
 }
-
 
 1;

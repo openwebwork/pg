@@ -64,47 +64,49 @@ argument.  The third argument is optional and the default value
 
 loadMacros('MathObjects.pl');
 
-sub _parserDifferenceQuotient_init {DifferenceQuotient::Init()}; # don't reload this file
+sub _parserDifferenceQuotient_init { DifferenceQuotient::Init() };    # don't reload this file
 
 package DifferenceQuotient;
 our @ISA = qw(Value::Formula);
 
 sub Init {
-  main::Context("Numeric");  ### FIXME:  probably should require author to set this explicitly
-  main::PG_restricted_eval('sub DifferenceQuotient {new DifferenceQuotient(@_)}');
+	main::Context("Numeric");    ### FIXME:  probably should require author to set this explicitly
+	main::PG_restricted_eval('sub DifferenceQuotient {new DifferenceQuotient(@_)}');
 }
 
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
-  my $current = (Value::isContext($_[0]) ? shift : $self->context);
-  my $formula = shift;
-  my $dx = shift || $current->flag('diffQuotientVar') || 'd'.($current->variables->names)[-1];
-  my $zp = shift || 0; # division by zero point
-  #
-  #  Make a copy of the context to which we add a variable for 'dx'
-  #
-  my $context = $current->copy;
-  $context->variables->add($dx=>'Real') unless ($context->variables->get($dx));
-  $q = bless $context->Package("Formula")->new($context,$formula), $class;
-  $q->{'dx'} = $dx;
-  $q->{'zp'} = $zp; # the division by zero point
-  return $q;
+	my $self    = shift;
+	my $class   = ref($self) || $self;
+	my $current = (Value::isContext($_[0]) ? shift : $self->context);
+	my $formula = shift;
+	my $dx      = shift || $current->flag('diffQuotientVar') || 'd' . ($current->variables->names)[-1];
+	my $zp      = shift || 0;    # division by zero point
+								 #
+								 #  Make a copy of the context to which we add a variable for 'dx'
+								 #
+	my $context = $current->copy;
+	$context->variables->add($dx => 'Real') unless ($context->variables->get($dx));
+	$q         = bless $context->Package("Formula")->new($context, $formula), $class;
+	$q->{'dx'} = $dx;
+	$q->{'zp'} = $zp;            # the division by zero point
+	return $q;
 }
 
 sub cmp_class {'a Difference Quotient'}
 
-sub cmp_defaults{(
-  shift->SUPER::cmp_defaults,
-  ignoreInfinity => 0,
-)}
+sub cmp_defaults { (shift->SUPER::cmp_defaults, ignoreInfinity => 0,) }
 
 sub cmp_postprocess {
-  my $self = shift; my $ans = shift; my $dx = $self->{'dx'}; my $zp = $self->{'zp'};
-  return if $ans->{score} == 0 || $ans->{isPreview};
-  $main::__student_value__ = $ans->{student_value};
-  my ($value,$err) = main::PG_restricted_eval('$__student_value__->substitute(\''.$dx.'\'=>\''.$zp.'\')->reduce');
-  $self->cmp_Error($ans,"It looks like you didn't finish simplifying your answer")
-    if $err && $err =~ m/division by zero/i;
+	my $self = shift;
+	my $ans  = shift;
+	my $dx   = $self->{'dx'};
+	my $zp   = $self->{'zp'};
+	return if $ans->{score} == 0 || $ans->{isPreview};
+	$main::__student_value__ = $ans->{student_value};
+	my ($value, $err) =
+		main::PG_restricted_eval('$__student_value__->substitute(\'' . $dx . '\'=>\'' . $zp . '\')->reduce');
+	$self->cmp_Error($ans, "It looks like you didn't finish simplifying your answer")
+		if $err && $err =~ m/division by zero/i;
 }
 
 1;

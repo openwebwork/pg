@@ -1,3 +1,4 @@
+
 =head1 NAME
 
 bizarroArithmetic.pl - Enables bizarro arithmetic where, for example, 1+1 does not equal 2;
@@ -76,9 +77,6 @@ ANS($ans -> cmp(
 
 =cut
 
-
-
-
 ###########################
 #
 #  functions used in defining bizarro arithmetic
@@ -89,23 +87,22 @@ package bizarro;
 #This f just stretches complex numbers by a positve real that
 #depends in a nontrivial away on the magnitude of z
 sub f {
-  my $z = shift;
-  my $r = abs($z);
-  return 0 if ($r == 0);
-  return $z * ($r**2 + 3);
+	my $z = shift;
+	my $r = abs($z);
+	return 0 if ($r == 0);
+	return $z * ($r**2 + 3);
 }
 
 #The inverse of f.
 sub g {
-  my $z = shift;
-  my $r = abs($z);
-  return 0 if ($r == 0);
-  my $k = sqrt(($r)**2+4);
-  #Note that in what follows, base of (1/3) exponent is always a positive real
-  #because $k > $r > 0 
-  return $z/$r * ((($k+$r)/2)**(1/3) - (($k-$r)/2)**(1/3));
+	my $z = shift;
+	my $r = abs($z);
+	return 0 if ($r == 0);
+	my $k = sqrt(($r)**2 + 4);
+	#Note that in what follows, base of (1/3) exponent is always a positive real
+	#because $k > $r > 0
+	return $z / $r * ((($k + $r) / 2)**(1 / 3) - (($k - $r) / 2)**(1 / 3));
 }
-
 
 ###########################
 #
@@ -115,18 +112,18 @@ package bizarro::BOP::add;
 our @ISA = ('Parser::BOP::add');
 
 sub _eval {
-  my $self = shift;
-  my $context = $self->context;
-  my ($a,$b) = @_;
-  if ($context->flag("bizarroAdd")) {
-    if (($a == 0) or ($b == 0)) {return 2*$a+2*$b+1;}
-    else {return bizarro::f(bizarro::g($a) + bizarro::g($b))};
-  } else {
-    return $a + $b;
-  }
+	my $self    = shift;
+	my $context = $self->context;
+	my ($a, $b) = @_;
+	if ($context->flag("bizarroAdd")) {
+		if   (($a == 0) or ($b == 0)) { return 2 * $a + 2 * $b + 1; }
+		else                          { return bizarro::f(bizarro::g($a) + bizarro::g($b)) }
+	} else {
+		return $a + $b;
+	}
 }
 
-sub call {(shift)->_eval(@_)}
+sub call { (shift)->_eval(@_) }
 
 ###########################
 #
@@ -136,18 +133,18 @@ package bizarro::BOP::subtract;
 our @ISA = ('Parser::BOP::subtract');
 
 sub _eval {
-  my $self = shift;
-  my $context = $self->context;
-  my ($a,$b) = @_;
-  if ($context->flag("bizarroSub")) {
-    if (($a == 0) or ($b == 0)) {return 2*$a+2*(-$b)+1;}
-    else {return bizarro::f(bizarro::g($a) + bizarro::g(-$b))};
-  } else {
-    return $a - $b;
-  }
+	my $self    = shift;
+	my $context = $self->context;
+	my ($a, $b) = @_;
+	if ($context->flag("bizarroSub")) {
+		if   (($a == 0) or ($b == 0)) { return 2 * $a + 2 * (-$b) + 1; }
+		else                          { return bizarro::f(bizarro::g($a) + bizarro::g(-$b)) }
+	} else {
+		return $a - $b;
+	}
 }
 
-sub call {(shift)->_eval(@_)}
+sub call { (shift)->_eval(@_) }
 
 ###########################
 #
@@ -157,18 +154,17 @@ package bizarro::BOP::multiply;
 our @ISA = ('Parser::BOP::multiply');
 
 sub _eval {
-  my $self = shift;
-  my $context = $self->context;
-  my ($a,$b) = @_;
-  if ($context->flag("bizarroMul")) {
-    return bizarro::f(bizarro::g($a) * bizarro::g($b));
-  } else {
-    return $a * $b;
-  }
+	my $self    = shift;
+	my $context = $self->context;
+	my ($a, $b) = @_;
+	if ($context->flag("bizarroMul")) {
+		return bizarro::f(bizarro::g($a) * bizarro::g($b));
+	} else {
+		return $a * $b;
+	}
 }
 
-sub call {(shift)->_eval(@_)}
-
+sub call { (shift)->_eval(@_) }
 
 ###########################
 #
@@ -178,18 +174,18 @@ package bizarro::BOP::divide;
 our @ISA = ('Parser::BOP::divide');
 
 sub _eval {
-  my $self = shift;
-  my $context = $self->context;
-  my ($a,$b) = @_;
-  if ($context->flag("bizarroDiv")) {
-    if (($a == 1) or ($a == -1)) {return $a/$b;}
-    else {return bizarro::f(bizarro::g($a) * bizarro::g(1/$b));}
-  } else {
-    return $a / $b;
-  }
+	my $self    = shift;
+	my $context = $self->context;
+	my ($a, $b) = @_;
+	if ($context->flag("bizarroDiv")) {
+		if   (($a == 1) or ($a == -1)) { return $a / $b; }
+		else                           { return bizarro::f(bizarro::g($a) * bizarro::g(1 / $b)); }
+	} else {
+		return $a / $b;
+	}
 }
 
-sub call {(shift)->_eval(@_)}
+sub call { (shift)->_eval(@_) }
 
 ###########################
 #
@@ -199,18 +195,18 @@ package bizarro::BOP::power;
 our @ISA = ('Parser::BOP::power');
 
 sub _eval {
-  my $self = shift;
-  my $context = $self->context;
-  my ($a,$b) = @_;
-  if ($context->flag("bizarroPow")) {
-    if (($a == 1) or ($b == 0)) {return ($a+1)**($b+1);}
-    else {return bizarro::f(bizarro::g($a) ** bizarro::g($b))};
-  } else {
-    return $a ** $b;
-  }
+	my $self    = shift;
+	my $context = $self->context;
+	my ($a, $b) = @_;
+	if ($context->flag("bizarroPow")) {
+		if   (($a == 1) or ($b == 0)) { return ($a + 1)**($b + 1); }
+		else                          { return bizarro::f(bizarro::g($a)**bizarro::g($b)) }
+	} else {
+		return $a**$b;
+	}
 }
 
-sub call {(shift)->_eval(@_)}
+sub call { (shift)->_eval(@_) }
 
 ###########################
 #
@@ -220,22 +216,17 @@ package bizarro::UOP::minus;
 our @ISA = ('Parser::UOP::minus');
 
 sub _eval {
-  my $self = shift;
-  my $context = $self->context;
-  my $a = shift;
-  if ($context->flag("bizarroNeg")) {
-    return bizarro::f(bizarro::g(-1) * bizarro::g($a));
-  } else {
-    return -$a;
-  }
-};
+	my $self    = shift;
+	my $context = $self->context;
+	my $a       = shift;
+	if ($context->flag("bizarroNeg")) {
+		return bizarro::f(bizarro::g(-1) * bizarro::g($a));
+	} else {
+		return -$a;
+	}
+}
 
-sub call {(shift)->_eval(@_)};
-
-
-
-
+sub call { (shift)->_eval(@_) }
 
 1;
-
 

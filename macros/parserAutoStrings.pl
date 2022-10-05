@@ -44,16 +44,15 @@ context rather than the active one.
 
 =cut
 
-sub _parserAutoStrings_init {}
+sub _parserAutoStrings_init { }
 
 ######################################################################
 
-sub AutoStrings {(shift || Value->context)->{value}{"String()"} = "parser::AutoStrings"};
+sub AutoStrings { (shift || Value->context)->{value}{"String()"} = "parser::AutoStrings" }
 
 sub DefineStrings {
-  my $context = (Value::isContext($_[0]) ? shift : Value->context);
-  foreach my $x (@_)
-    {$context->strings->add($x=>{}) unless defined $context->{strings}{$x}}
+	my $context = (Value::isContext($_[0]) ? shift : Value->context);
+	foreach my $x (@_) { $context->strings->add($x => {}) unless defined $context->{strings}{$x} }
 }
 
 ######################################################################
@@ -62,11 +61,12 @@ package parser::AutoStrings;
 our @ISA = ("Value::String");
 
 sub new {
-  my $self = shift; my $class = ref($self) || $self;
-  my $context = (Value::isContext($_[0]) ? shift : $self->context);
-  my $x = join('',@_);
-  $context->strings->add($x=>{}) unless defined $context->{strings}{$x};
-  $self->SUPER::new($x);
+	my $self    = shift;
+	my $class   = ref($self) || $self;
+	my $context = (Value::isContext($_[0]) ? shift : $self->context);
+	my $x       = join('', @_);
+	$context->strings->add($x => {}) unless defined $context->{strings}{$x};
+	$self->SUPER::new($x);
 }
 
 ######################################################################

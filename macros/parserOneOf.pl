@@ -75,21 +75,21 @@ or
 
 =cut
 
-sub _parserOneOf_init {parser::OneOf::Init()}
+sub _parserOneOf_init { parser::OneOf::Init() }
 
 ######################################################################
 
 package parser::OneOf;
 our @ISA = ('Value::List');
 
-my $SEPARATOR = ", ";  # default separator
-my $OR = " or ";       # default "or" word
+my $SEPARATOR = ", ";      # default separator
+my $OR        = " or ";    # default "or" word
 
 #
 #  Define the OneOf() creator function
 #
 sub Init {
-  main::PG_restricted_eval('sub OneOf {parser::OneOf->new(@_)}');
+	main::PG_restricted_eval('sub OneOf {parser::OneOf->new(@_)}');
 }
 
 #
@@ -97,17 +97,18 @@ sub Init {
 #   for each entry
 #
 sub new {
-  my $self = shift; my @params = (@_);
-  foreach $x (@params) {$x = main::Compute($x) unless Value::isValue($x)}
-  return $self->SUPER::new(@params);
+	my $self   = shift;
+	my @params = (@_);
+	foreach $x (@params) { $x = main::Compute($x) unless Value::isValue($x) }
+	return $self->SUPER::new(@params);
 }
 
 #
 #  Return the type of the first entry (usually these will all be the same)
 #
 sub type {
-  my $self = shift;
-  $self->{data}[0]->type;
+	my $self = shift;
+	$self->{data}[0]->type;
 }
 
 #
@@ -115,19 +116,21 @@ sub type {
 #  go with it.
 #
 sub typeMatch {
-  my $self = shift; my $other = shift;
-  return &{$self->{typeMatch}}($other) if ref($self->{typeMatch}) eq "CODE";
-  foreach $x (@{$self->{data}}) {return 1 if $x->typeMatch($other)}
-  return 0;
+	my $self  = shift;
+	my $other = shift;
+	return &{ $self->{typeMatch} }($other) if ref($self->{typeMatch}) eq "CODE";
+	foreach $x (@{ $self->{data} }) { return 1 if $x->typeMatch($other) }
+	return 0;
 }
 
 #
 #  Return the class for the first entry
 #
 sub cmp_class {
-  my $self = shift; return $self->{cmp_class} if defined($self->{cmp_class});
-  my $x = $self->{data}[0];
-  return $x->{cmp_class} || $x->cmp_class();
+	my $self = shift;
+	return $self->{cmp_class} if defined($self->{cmp_class});
+	my $x = $self->{data}[0];
+	return $x->{cmp_class} || $x->cmp_class();
 }
 
 #
@@ -135,7 +138,7 @@ sub cmp_class {
 #  this acts as a single item not a list.
 #
 sub cmp_equal {
-  Value::cmp_equal(@_);
+	Value::cmp_equal(@_);
 }
 
 #
@@ -144,39 +147,39 @@ sub cmp_equal {
 #  (FIXME: should this check all and return the highest score?)
 #
 sub cmp_compare {
-  my ($self,$other,$ans) = @_;
-  foreach $x (@{$self->{data}}) {my $result = $x->cmp_compare($other,$ans); return $result if $result}
-  return 0;
+	my ($self, $other, $ans) = @_;
+	foreach $x (@{ $self->{data} }) { my $result = $x->cmp_compare($other, $ans); return $result if $result }
+	return 0;
 }
 
 #
 #  Produce the correct answer by combining correct answers of the originals.
 #
 sub correct_ans {
-  my $self = shift;
-  my $sep = $self->getFlag("separator",$SEPARATOR);
-  my $or  = $self->getFlag("or",$OR);
-  Value::preformat($self->format("correct_ans",$sep,$or));
+	my $self = shift;
+	my $sep  = $self->getFlag("separator", $SEPARATOR);
+	my $or   = $self->getFlag("or",        $OR);
+	Value::preformat($self->format("correct_ans", $sep, $or));
 }
 
 #
 #  Produce the string version by making a comma separated list with " or " for the last comma
 #
 sub string {
-  my $self = shift;
-  my $sep = $self->getFlag("separator",$SEPARATOR);
-  my $or  = $self->getFlag("or",$OR);
-  $self->format("string",$sep,$or);
+	my $self = shift;
+	my $sep  = $self->getFlag("separator", $SEPARATOR);
+	my $or   = $self->getFlag("or",        $OR);
+	$self->format("string", $sep, $or);
 }
 
 #
 #  Produce the TeX version by making a comma separated list with " or " for the last comma
 #
 sub TeX {
-  my $self = shift;
-  my $sep = $self->getFlag("tex_separator","\\hbox{$SEPARATOR}");
-  my $or  = $self->getFlag("tex_or","\\hbox{$OR}");
-  $self->format("TeX",$sep,$or);
+	my $self = shift;
+	my $sep  = $self->getFlag("tex_separator", "\\hbox{$SEPARATOR}");
+	my $or   = $self->getFlag("tex_or",        "\\hbox{$OR}");
+	$self->format("TeX", $sep, $or);
 }
 
 #
@@ -185,17 +188,21 @@ sub TeX {
 #  If there is a format (or tex_format) flag, use that to format the list instead.
 #
 sub format {
-  my $self = shift;
-  my $method = shift; my $sep = shift; my $or = shift;
-  my @c = map {(defined($_->{$method})? $_->{$method} : $_->$method)} @{$self->{data}};
-  my $format = $self->getFlag(($method eq "TeX" ? "tex_" : "")."format");
-  return &$format(@c) if ref($format) eq "CODE";
-  return sprintf($format,@c) if $format;
-  return $c[0] unless scalar(@c) > 1;
-  return join($or,@c) if scalar(@c) == 2;
-  my $last = pop(@c); $or = "$sep$or";
-  $or =~ s/(\\hbox\{.+?)\}\\hbox\{/$1/; $or =~ s/  +/ /g; # clear up some extra spacing
-  return join($sep,@c).$or.$last;
+	my $self   = shift;
+	my $method = shift;
+	my $sep    = shift;
+	my $or     = shift;
+	my @c      = map { (defined($_->{$method}) ? $_->{$method} : $_->$method) } @{ $self->{data} };
+	my $format = $self->getFlag(($method eq "TeX" ? "tex_" : "") . "format");
+	return &$format(@c)         if ref($format) eq "CODE";
+	return sprintf($format, @c) if $format;
+	return $c[0] unless scalar(@c) > 1;
+	return join($or, @c) if scalar(@c) == 2;
+	my $last = pop(@c);
+	$or = "$sep$or";
+	$or =~ s/(\\hbox\{.+?)\}\\hbox\{/$1/;
+	$or =~ s/  +/ /g;                       # clear up some extra spacing
+	return join($sep, @c) . $or . $last;
 }
 
 #
@@ -203,8 +210,9 @@ sub format {
 #  formula returning a list.
 #
 sub formula {
-  my $self = shift; my $class = ref($self) || $self;
-  bless {data => shift, context => $self->context}, $class;
+	my $self  = shift;
+	my $class = ref($self) || $self;
+	bless { data => shift, context => $self->context }, $class;
 }
 
 1;

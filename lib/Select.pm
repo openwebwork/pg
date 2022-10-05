@@ -192,32 +192,30 @@ BEGIN {
 #'
 package Select;
 
-
 @Select::ISA = qw( Exporter ChoiceList );
 
 # *** Subroutines which overload ChoiceList.pm ***
 
 #these
-sub extra { warn "Select lists do not use extra answers.\n(You can't use \$sl->extra().)" }
+sub extra        { warn "Select lists do not use extra answers.\n(You can't use \$sl->extra().)" }
 sub choose_extra { warn "Select lists do not use extra answers.\n(You can't use \$sl->choose_extra().)" }
-sub makeLast { warn "Select lists do not use extra answers.\n(You can't use \$sl->makeLast().)" }
+sub makeLast     { warn "Select lists do not use extra answers.\n(You can't use \$sl->makeLast().)" }
 
 #overload choose so that the answers don't get randomized
 sub choose {
- 	my $self = shift;
- 	my @input = @_;
+	my $self  = shift;
+	my @input = @_;
 
-
- 	$self->getRandoms(scalar(@{ $self->{questions} }), @input);
- 	$self->selectQA();
- 	$self->dumpExtra();
+	$self->getRandoms(scalar(@{ $self->{questions} }), @input);
+	$self->selectQA();
+	$self->dumpExtra();
 }
 
 sub selectQA {
 	my $self = shift;
 
-	$self->{selected_q} = [ @{ $self->{questions} }[ @{ $self->{slice} } ] ];
-	$self->{selected_a} = [ @{ $self->{answers} }[@{ $self->{slice} } ] ];
+	$self->{selected_q}       = [ @{ $self->{questions} }[ @{ $self->{slice} } ] ];
+	$self->{selected_a}       = [ @{ $self->{answers} }[ @{ $self->{slice} } ] ];
 	$self->{inverted_shuffle} = [ &ChoiceList::invert(@{ $self->{shuffle} }) ];
 }
 

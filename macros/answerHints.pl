@@ -123,7 +123,7 @@ sub AnswerHints {
 			my $correct = $ans->{correct_value};
 			my $student = $ans->{student_value};
 			Value::Error("AnswerHints can only be used with MathObjects answer checkers") unless ref($correct);
-			return $ans unless ref($student);
+			return $ans                                                                   unless ref($student);
 			my $context = $correct->context;
 			my $hash    = $context->{answerHash};
 			$context->{answerHash} = $ans;
@@ -150,7 +150,7 @@ sub AnswerHints {
 
 				foreach my $wrong (@{$wrongList}) {
 					if (ref($wrong) eq 'CODE') {
-						if (   ($ans->{score} < 1 || $options{checkCorrect})
+						if (($ans->{score} < 1 || $options{checkCorrect})
 							&& ($ans->{ans_message} eq "" || $options{replaceMessage}))
 						{
 							# Make the call to run the function inside an eval to trap errors
@@ -169,7 +169,7 @@ sub AnswerHints {
 						$wrong = Value::makeValue($wrong);
 						if (
 							(
-								   $ans->{score} < 1
+								$ans->{score} < 1
 								|| $options{checkCorrect}
 								|| AnswerHints::Compare($correct, $wrong, $ans)
 							)
@@ -200,7 +200,7 @@ sub Compare {
 	my $self  = shift;
 	my $other = shift;
 	my $ans   = shift;
-	$ans = bless { %{$ans}, @_ }, ref($ans);    # make a copy
+	$ans                = bless { %{$ans}, @_ }, ref($ans);    # make a copy
 	$ans->{typeError}   = 0;
 	$ans->{ans_message} = $ans->{error_message} = "";
 	$ans->{score}       = 0;

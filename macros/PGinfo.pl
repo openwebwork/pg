@@ -24,12 +24,7 @@ is being written.
 
 =cut
 
-
 loadMacros("MathObjects.pl");
-
-
-
-
 
 =head3  listVariables
 
@@ -42,13 +37,12 @@ context for the problem.
 
 =cut
 
-
 sub listVariables {
-	TEXT($HR,"Form variables",$BR );
+	TEXT($HR, "Form variables", $BR);
 	listFormVariables();
-	TEXT($HR,"Environment variables",$BR );
+	TEXT($HR, "Environment variables", $BR);
 	listEnvironmentVariables();
-	TEXT($HR,"Context flags",$BR );
+	TEXT($HR, "Context flags", $BR);
 	listContextFlags();
 }
 
@@ -59,9 +53,9 @@ sub listVariables {
 =cut
 
 sub listFormVariables {
-    # Lists all of the variables filled out on the input form
+	# Lists all of the variables filled out on the input form
 	# Useful for debugging
-    TEXT(pretty_print($inputs_ref));
+	TEXT(pretty_print($inputs_ref));
 
 }
 
@@ -71,10 +65,9 @@ sub listFormVariables {
 
 =cut
 
-
 sub listEnvironmentVariables {
-    # list the environment variables
-    TEXT(pretty_print(\%envir));
+	# list the environment variables
+	TEXT(pretty_print(\%envir));
 }
 
 =head4 listContextFlags()
@@ -96,13 +89,14 @@ sub listContextFlags {
 
 =cut
 
-sub listContext {  # include
+sub listContext {    # include
 	my $context = shift;
-	return TEXT("$PAR Error in listContext:  usage:  listContext(Context()); # must specify a context to list $BR") unless defined $context;
+	return TEXT("$PAR Error in listContext:  usage:  listContext(Context()); # must specify a context to list $BR")
+		unless defined $context;
 	foreach $key (keys %$context) {
-		next if $key =~/^_/; # skip if it begins with
+		next if $key =~ /^_/;    # skip if it begins with
 		TEXT($HR, $key, $BR);
-		TEXT( pretty_print($context->{$key}) );
+		TEXT(pretty_print($context->{$key}));
 	}
 }
 
@@ -117,7 +111,7 @@ sub listContext {  # include
 =cut
 
 sub pp {
-    my $hash = shift;
-    "printing |". ref($hash)."|$BR". pretty_print($hash);
+	my $hash = shift;
+	"printing |" . ref($hash) . "|$BR" . pretty_print($hash);
 }
 1;
