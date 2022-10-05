@@ -1,19 +1,10 @@
 sub _LiveGraphics3D_init {
-
-    if ($main::envir{use_javascript_for_live3d} &&
-	!$main::LiveGraphics3DHeaderSet) {
-	main::HEADER_TEXT(<<'END_HEADER_TEXT');
-	<script src="/webwork2_files/js/vendor/x3dom/x3dom-full.js" language="javascript"></script>
-	<script src="/webwork2_files/js/vendor/jszip/jszip.min.js" language="javascript"></script>
-	<script src="/webwork2_files/js/vendor/jszip/jszip-utils.min.js" language="javascript"></script>
-	<script src="/webwork2_files/js/apps/LiveGraphics/liveGraphics.js" language="javascript"></script>
-	<link rel="stylesheet" href="/webwork2_files/js/vendor/x3dom/x3dom.css">
-END_HEADER_TEXT
-
-	$main::LiveGraphics3DHeaderSet = 1;
-    }
-    
-}; 
+	ADD_JS_FILE('node_modules/x3dom/x3dom.js');
+	ADD_JS_FILE('node_modules/jszip/dist/jszip.min.js');
+	ADD_JS_FILE('node_modules/jszip-utils/dist/jszip-utils.min.js');
+	ADD_JS_FILE('js/apps/LiveGraphics/liveGraphics.js');
+	ADD_CSS_FILE('node_modules/x3dom/x3dom.css');
+}
 
 =head2 LiveGraphics3D.pl
 
@@ -59,8 +50,6 @@ END_HEADER_TEXT
  #                            the applet with their replacement strings
  #                            (see LiveGraphics3D documentation)
  #
- #     jar => URL             where to find the live.jar file
- #
  #     background=>"#RRGGBB"  the background color to use (default is white)
  #
  #     scale => n             scaling factor for applet (default is 1.)
@@ -85,9 +74,6 @@ END_HEADER_TEXT
 sub LiveGraphics3D {
   my %options = (
     size => [250,250],
-    jar => "live.jar", # "${htmlURL}live.jar",
-    codebase => findAppletCodebase("live.jar"),
-    # codebase => "https://demo.webwork.rochester.edu/webwork2_files/applets/",  # used for testing
     background => "#FFFFFF",
     scale => 1.,
     tex_size => 500,
@@ -114,7 +100,7 @@ sub LiveGraphics3D {
       }";
     }
     # In html mode check to see if we use javascript or not
-  } elsif ($main::envir{use_javascript_for_live3d}) {
+  } else {
     my ($w,$h) = @{$options{size}};
     $out .= $bHTML if ($main::displayMode eq "Latex2HTML");
     #
@@ -168,71 +154,7 @@ EOS
     $out .= "</TD></TD>\n</TABLE>\n";
     $out .= $eHTML if ($main::displayMode eq "Latex2HTML");
     # otherwise use the applet
-  } else {
-    my ($w,$h) = @{$options{size}};
-    $out .= $bHTML if ($main::displayMode eq "Latex2HTML");
-    #
-    #  Put the applet in a table
-    #
-    $out .= qq{\n<TABLE BORDER="1" CELLSPACING="2" CELLPADDING="0">\n<TR>};
-    $out .= qq{<TD WIDTH="$w" HEIGHT="$h" ALIGN="CENTER">};
-    #
-    #  start the applet
-    #
-    $out .= qq{
-      <APPLET CODEBASE="$options{codebase}" ARCHIVE="$options{jar}" CODE="Live.class" WIDTH="$w" HEIGHT="$h">
-      <PARAM NAME="BGCOLOR" VALUE="$options{background}">
-      <PARAM NAME="MAGNIFICATION" VALUE="$options{scale}">
-    };
-    #
-    #  include the file or data
-    #
-    $out .= qq{<PARAM NAME="INPUT_ARCHIVE" VALUE="$options{archive}">\n} 
-      if ($options{archive});
-    $out .= qq{<PARAM NAME="INPUT_FILE" VALUE="$options{file}">\n} 
-      if ($options{file});
-    $out .= qq{<PARAM NAME="INPUT" VALUE="$options{input}">\n} 
-      if ($options{input});
-    #
-    #  include any independent variables
-    #
-    if ($options{vars}) {
-      my @vars = (); %pval = @{$options{vars}};
-      foreach $p (lex_sort(keys(%pval))) {push(@vars,"${p}->$pval{$p}");}
-      $out .=
-	'<PARAM NAME="INDEPENDENT_VARIABLES" VALUE="{'.join(',',@vars).'}">';
-      $out .= "\n";
-    }
-    #
-    #  include dependent variables
-    #
-    if ($options{depend}) {
-      my @depend = (); $pval = @{$options{depend}};
-      foreach $p (lex_sort(keys(%pval))) {push(@depend,"${p}->$pval{$p}");}
-      $out .=
-	'<PARAM NAME="DEPENDENT_VARIABLES" VALUE="{'.join(',',@depend).'}">';
-      $out .= "\n";
-    }
-    #
-    #  include any extra Live3D parameters
-    #
-    if ($options{Live3D}) {
-      my %pval = @{$options{Live3D}};
-      foreach $p (lex_sort(keys(%pval))) {
-	$out .= qq{<PARAM NAME="$p" VALUE="$pval{$p}">\n};
-      }
-    }
-    #
-    #  End the applet and table
-    #
-    $out .= qq{<IMG SRC="$options{image}" BORDER="0">} if ($options{image});
-    $out .= "<SMALL>[Enable Java to make this image interactive]</SMALL><BR>";
-    $out .= "</APPLET>";
-    $out .= "</TD></TD>\n</TABLE>\n";
-    $out .= $eHTML if ($main::displayMode eq "Latex2HTML");
-    
   }
-
 
   return $out;
 }
