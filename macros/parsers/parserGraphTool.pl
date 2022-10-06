@@ -252,7 +252,7 @@ sub new {
 			close       => '',
 			separator   => ', ',
 			nestedOpen  => '{',
-			nestedClose => ')'
+			nestedClose => '}'
 		}
 	);
 	$context->strings->add(%contextStrings);

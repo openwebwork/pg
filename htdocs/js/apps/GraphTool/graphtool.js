@@ -102,18 +102,8 @@ window.graphTool = (containerId, options) => {
 		}
 	};
 
-	// Deep extend utility function.  This should be good enough for what is needed here.
-	const extend = (out, obj) => {
-		for (const prop in obj) {
-			if (obj.hasOwnProperty(prop)) {
-				if (typeof obj[prop] === 'object' && typeof out[prop] === 'object') extend(out[prop], obj[prop]);
-				else out[prop] = obj[prop];
-			}
-		}
-	};
-
 	// Merge options that are set by the problem.
-	if (typeof options.JSXGraphOptions === 'object') extend(cfgOptions, options.JSXGraphOptions);
+	if (typeof options.JSXGraphOptions === 'object') JXG.merge(cfgOptions, options.JSXGraphOptions);
 
 	const setupBoard = () => {
 		gt.board = JXG.JSXGraph.initBoard(`${containerId}_graph`, cfgOptions);
@@ -380,7 +370,13 @@ window.graphTool = (containerId, options) => {
 			});
 		}
 
-		window.addEventListener('resize', () => {
+		const resize = () => {
+			// If the container does not have width or height (for example if the graph is inside a closed scaffold when
+			// the window is resized), then delay resizing the graph until the container does have width and height.
+			if (!gt.board.containerObj.offsetWidth || !gt.board.containerObj.offsetHeight) {
+				setTimeout(resize, 1000);
+				return;
+			}
 			if (gt.board.canvasWidth != gt.board.containerObj.offsetWidth - 2 ||
 				gt.board.canvasHeight != gt.board.containerObj.offsetHeight - 2)
 			{
@@ -389,7 +385,9 @@ window.graphTool = (containerId, options) => {
 				gt.graphedObjs.forEach((object) => object.onResize());
 				gt.staticObjs.forEach((object) => object.onResize());
 			}
-		});
+		};
+
+		window.addEventListener('resize', resize);
 
 		gt.drawSolid = true;
 		gt.graphedObjs = [];
@@ -1049,13 +1047,13 @@ window.graphTool = (containerId, options) => {
 			const div = document.createElement('div');
 			div.classList.add('gt-button-div');
 			div.dataset.bsToggle = 'tooltip';
-			div.title = tooltip;
+			div.dataset.bsTitle = tooltip;
 			div.id = `gt-${name}-tool`;
 			this.button = document.createElement('button');
 			this.button.type = 'button';
 			this.button.classList.add('btn', 'btn-light', 'gt-button', 'gt-tool-button', div.id);
 			this.button.addEventListener('click', () => this.activate());
-			this.button.setAttribute('aria-labelledby', div.id);
+			this.button.setAttribute('aria-label', tooltip);
 			div.append(this.button);
 			container.append(div);
 			this.hlObjs = {};
@@ -1733,12 +1731,12 @@ window.graphTool = (containerId, options) => {
 			const solidButtonDiv = document.createElement('div');
 			solidButtonDiv.classList.add('gt-button-div', 'gt-solid-button-div');
 			solidButtonDiv.dataset.bsToggle = 'tooltip';
-			solidButtonDiv.title = 'Make Selected Object Solid';
+			solidButtonDiv.dataset.bsTitle = 'Make Selected Object Solid';
 			solidButtonDiv.id = 'gt-solid-tool';
 			gt.solidButton = document.createElement('button');
 			gt.solidButton.classList.add('btn', 'btn-light', 'gt-button', 'gt-tool-button', solidButtonDiv.id);
 			gt.solidButton.type = 'button';
-			gt.solidButton.setAttribute('aria-labelledby', solidButtonDiv.id);
+			gt.solidButton.setAttribute('aria-label', solidButtonDiv.dataset.bsTitle);
 			gt.solidButton.disabled = true;
 			gt.solidButton.addEventListener('click', (e) => gt.toggleSolidity(e, true));
 			solidButtonDiv.append(gt.solidButton);
@@ -1747,12 +1745,12 @@ window.graphTool = (containerId, options) => {
 			const dashedButtonDiv = document.createElement('div');
 			dashedButtonDiv.classList.add('gt-button-div', 'gt-dashed-button-div');
 			dashedButtonDiv.dataset.bsToggle = 'tooltip';
-			dashedButtonDiv.title = 'Make Selected Object Dashed';
+			dashedButtonDiv.dataset.bsTitle = 'Make Selected Object Dashed';
 			dashedButtonDiv.id = 'gt-dashed-tool';
 			gt.dashedButton = document.createElement('button');
 			gt.dashedButton.classList.add('btn', 'btn-light', 'gt-button', 'gt-tool-button', dashedButtonDiv.id);
 			gt.dashedButton.type = 'button';
-			gt.dashedButton.setAttribute('aria-labelledby', dashedButtonDiv.id);
+			gt.dashedButton.setAttribute('aria-label', dashedButtonDiv.dataset.bsTitle);
 			gt.dashedButton.addEventListener('click', (e) => gt.toggleSolidity(e, false));
 			dashedButtonDiv.append(gt.dashedButton);
 			solidDashBox.append(dashedButtonDiv);
