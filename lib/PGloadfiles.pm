@@ -21,7 +21,7 @@
 
 	loadMacros(@macroFiles)
 
-loadMacros takes a list of file names and evaluates the contents of each file. 
+loadMacros takes a list of file names and evaluates the contents of each file.
 This is used to load macros which define and augment the PG language. The macro
 files are searched for in the directories specified by the array referenced by
 $macrosPath, which by default is the current course's macros directory followed

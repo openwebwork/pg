@@ -205,6 +205,9 @@ CSS SYNTAX PRIMER
 
 =cut
 
+# ^uses loadMacros
+loadMacros("PGauxiliaryFunctions.pl");
+
 sub _niceTables_init { };    # don't reload this file
 
 sub DataTable {
