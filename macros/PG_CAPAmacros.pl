@@ -63,7 +63,6 @@ sub CAPA_import {
 	my $r_string   = read_whole_problem_file($filePath);
 
 	$main::envir{'probFileName'} = $filePath;
-	$main::envir{'fileName'}     = $filePath;
 	includePGtext($r_string);
 	%main::envir = %save_envir;
 }

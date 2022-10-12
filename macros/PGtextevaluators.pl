@@ -246,6 +246,9 @@ Use a normal textans() answer evaluator and mail_answers_to2() instead.
 # Fix me?? why is the body hard wired to the string QUESTIONNAIRE_ANSWERS?
 
 sub mail_answers_to {    #accepts	the	last answer	and	mails off the result
+	warn 'Sending email in PG problems is no longer supported.';
+	return;
+
 	my $user_address = shift;
 	my $ans_eval     = sub {
 
@@ -333,6 +336,9 @@ sent by WeBWorK after PG rendering has completed.
 =cut
 
 sub mail_answers_to2 {
+	warn 'Sending email in PG problems is no longer supported.';
+	return;
+
 	my ($to, $subject, $ra_allow_mail_to) = @_;
 
 	$subject = "$main::courseName WeBWorK questionnaire" unless defined $subject;

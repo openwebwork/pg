@@ -181,8 +181,8 @@ sub Live3Ddata {
 #
 $LIVEMESSAGE = MODES(
 	TeX        => '',
-	Latex2HTML => $BCENTER . $BSMALL . "Drag the surface to rotate it" . $ESMALL . $ECENTER,
-	HTML       => $BCENTER . $BSMALL . "Drag the surface to rotate it" . $ESMALL . $ECENTER
+	Latex2HTML => $BCENTER . "Drag the surface to rotate it" . $ECENTER,
+	HTML       => $BCENTER . "Drag the surface to rotate it" . $ECENTER
 );
 
 1;

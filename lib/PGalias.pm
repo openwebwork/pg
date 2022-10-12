@@ -82,81 +82,46 @@ sub get_resource {
 sub initialize {
 	my $self  = shift;
 	my $envir = $self->{envir};
-	# warn "envir-- ", join(" ", %$envir);
-	$self->{pgFileName}          = $envir->{probFileName};
-	$self->{htmlDirectory}       = $envir->{htmlDirectory};
-	$self->{htmlURL}             = $envir->{htmlURL};
-	$self->{tempDirectory}       = $envir->{tempDirectory};
-	$self->{templateDirectory}   = $envir->{templateDirectory};
-	$self->{tempURL}             = $envir->{tempURL};
-	$self->{studentLogin}        = $envir->{studentLogin};
-	$self->{psvn}                = $envir->{psvn};
-	$self->{setNumber}           = $envir->{setNumber};
-	$self->{probNum}             = $envir->{probNum};
-	$self->{displayMode}         = $envir->{displayMode};
-	$self->{externalGif2EpsPath} = $envir->{externalGif2EpsPath};
-	$self->{externalPng2EpsPath} = $envir->{externalPng2EpsPath};
-	$self->{externalGif2PngPath} = $envir->{externalGif2PngPath};
-	$self->{courseID}            = $envir->{courseName};
-	$self->{problemSeed}         = $envir->{problemSeed};
-	$self->{problemUUID}         = $envir->{problemUUID} // 0;
 
-	$self->{appletPath} = $self->{envir}->{pgDirectories}->{appletPath};
-	#
-	#  Find auxiliary files even when the main file is in tempates/tmpEdit
-	#
+	$self->{pgFileName}        = $envir->{probFileName};
+	$self->{htmlDirectory}     = $envir->{htmlDirectory};
+	$self->{htmlURL}           = $envir->{htmlURL};
+	$self->{tempDirectory}     = $envir->{tempDirectory};
+	$self->{templateDirectory} = $envir->{templateDirectory};
+	$self->{tempURL}           = $envir->{tempURL};
+	$self->{psvn}              = $envir->{psvn};
+	$self->{displayMode}       = $envir->{displayMode};
+	$self->{problemSeed}       = $envir->{problemSeed};
+	$self->{problemUUID}       = $envir->{problemUUID} // 0;
+
+	# Find auxiliary files even when the main file is in templates/tmpEdit
+	# FIXME:  This shouldn't be done here.  Instead the front end should pass in the problem source with the file name.
+	# The other instance of this in PGloadfiles.pm needs to be removed.
 	$self->{pgFileName} =~ s!(^|/)tmpEdit/!$1!;
 
-	$self->{ext} = "";
+	$self->{ext} = '';
 
-	my $unique_id_seed = join("-",
-		$self->{studentLogin}, $self->{psvn}, $self->{courseID},
-		'set' . $self->{setNumber},
-		'prob' . $self->{probNum},
-		$self->{problemSeed}, $self->{problemUUID},);
-
-##################################
-	# Cached vs. uncached uuid's -- or should the uuid be unique to each file/psvn/login, but always the same?
-	# If every uuid is uniqu then the same file will be linked to multiple times and it will be important
-	# to use asynchronous garbage cleanup to remove all links that won't be used again
-	# If one tries to reuse links then one can get duplicates, for example if many files using the same name
-	# (prob3.pg) appear in a list of library problems.
-###################################
-
-##########################
-	# create an ID which is unique to the student and context for the problem
-##########################
-	my $unique_id_stub = create_uuid_as_string(UUID_V3, UUID_NS_URL, $unique_id_seed);
-	$self->{unique_id_stub} = $unique_id_stub;
-
+	# Create an ID which is unique for the given psvn, problemSeed, and problemUUID.
+	# It is the responsibility of the caller to pass in a problemUUID that will provide the required uniqueness.
+	# That could include a course name, a student login name, etc.
+	$self->{unique_id_stub} = create_uuid_as_string(UUID_V3, UUID_NS_URL,
+		join('-', $self->{psvn}, $self->{problemSeed}, $self->{problemUUID}));
 }
 
 sub check_parameters {
 	my $self = shift;
 
-	# problem specific data
-	$self->warning_message("The path to the current problem file template probFileName is not defined.")
+	# Problem specific data
+	$self->warning_message('The path to the current problem file template probFileName is not defined.')
 		unless $self->{pgFileName};
-	$self->warning_message("The current studentLogin is not defined ") unless $self->{studentLogin};
-	$self->warning_message("The current problem set number setNumber is not defined")
-		if $self->{setNumber} eq "";    # allow for sets equal to 0
-	$self->warning_message("The current problem number probNum is not defined") if $self->{probNum} eq "";
-	$self->warning_message("The current problem set version number (psvn) is not defined")
-		unless defined($self->{psvn});
-	$self->warning_message("The displayMode is not defined") unless $self->{displayMode};
-
-# required macros
-#	warn "The macro &surePathToTmpFile can't be found"                    unless defined(&{$self->surePathToTmpFile()} );
-#	warn "The macro &convertPath can't be found"                          unless defined(&{$self->convertPath()});
-#	warn "The macro &directoryFromPath can't be found"                    unless defined(&{$self->directoryFromPath()});
-#    warn $self->surePathToTmpFile("foo");
-# warn "The webwork server does not have permission to execute the gif2eps script at  ${externalGif2EpsPath}." unless ( -x "${externalGif2EpsPath}" );
-# warn "The webwork server does not have permission to execute the png2eps script at ${externalPng2EpsPath}." unless ( -x "${externalPng2EpsPath}" );
+	$self->warning_message('The current problem set version number (psvn) is not defined')
+		unless defined $self->{psvn};
+	$self->warning_message('The displayMode is not defined') unless $self->{displayMode};
 
 	# required directory addresses (and URL address)
-	warn "htmlDirectory is not defined." unless $self->{htmlDirectory};
-	warn "htmlURL is not defined."       unless $self->{htmlURL};
-	warn "tempURL is not defined."       unless $self->{tempURL};
+	warn 'htmlDirectory is not defined.' unless $self->{htmlDirectory};
+	warn 'htmlURL is not defined.'       unless $self->{htmlURL};
+	warn 'tempURL is not defined.'       unless $self->{tempURL};
 }
 
 sub make_resource_object {
@@ -334,17 +299,17 @@ sub alias_for_html {
 
 	# replace "." with the current pg question directory
 	my $current_pg_directory = $self->directoryFromPath($pgFileName);
-	$current_pg_directory  = $self->{templateDirectory} . "/" . $current_pg_directory;
+	$current_pg_directory  = $self->{templateDirectory} . $current_pg_directory;
 	@aux_files_directories = map { ($_ eq '.') ? $current_pg_directory : $_ } @aux_files_directories;
 	#$self->debug_message("search directories", @aux_files_directories);
 
 	# Find complete path to the original file
 	my $file_path;
 	if ($aux_file_id =~ /https?:/) {    #external link_file
-		$resource_object->uri($aux_file_id);    #no unique id is needed -- external link doc
-		$resource_object->{copy_link}->{type}    = 'external';
-		$resource_object->{uri}->{is_accessible} = $self->check_url($resource_object->uri());
-		return $resource_object->uri;           # external links need no further processing
+		$resource_object->uri($aux_file_id);                   #no unique id is needed -- external link doc
+		$resource_object->{copy_link}->{type} = 'external';
+		$resource_object->{uri}{is_accessible} = 1;            # Assume a url is accessible.
+		return $resource_object->uri;                          # external links need no further processing
 	} elsif ($aux_file_id =~ m|^/|) {
 		$file_path = $aux_file_id;
 	} else {
@@ -364,7 +329,7 @@ sub alias_for_html {
 ##############################################
 	if ($file_path =~ m|^$tempDirectory|) {    #case: file is stored in the course temporary directory
 		$resource_uri = $file_path;
-		$resource_uri =~ s|$tempDirectory|$tempURL/|;
+		$resource_uri =~ s|$tempDirectory|$tempURL|;
 		$resource_object->uri($resource_uri);    #no unique id is needed -- public doc
 		$resource_object->path($file_path);
 		$resource_object->{copy_link}->{type}   = 'orig';
@@ -416,7 +381,6 @@ sub alias_for_html {
 	# Return full url to image file  (resource_id)
 ################################################################################
 
-# $self->debug_message("link created --alias_for_image_html: url is ".$resource_object->uri(). " check =".$self->check_url($resource_object->uri()) );
 	$resource_object->uri(); # return the uri of the resource -- in this case the URL for the file in the temp directory
 }
 
@@ -462,18 +426,6 @@ sub alias_for_tex {
 	my $resource_object = $self->get_resource($aux_file_id);
 	#warn ( "\nresource for $aux_file_id is ", ref($resource_object), $resource_object );
 
-################################################################################
-	# Create PDF output directly -- convert .gif to .png format which pdflatex accepts natively
-################################################################################
-
-	unless ($self->{envir}->{texDisposition} eq "pdf") {
-		$self->warning_message("Support for pure latex output (as opposed to pdflatex output) is not implemented.");
-		return "";    # blank resource_uri
-	}
-	# We're going to create PDF files with our TeX (using pdflatex); so we
-	# need images in PNG format.
-	# No longer support for pure latex/DVI construction
-
 ##############################################
 	# Find complete path to the original files
 ##############################################
@@ -496,10 +448,10 @@ sub alias_for_tex {
 	# Find complete path to the original file
 	my $file_path;
 	if ($aux_file_id =~ /https?:/) {    # external link_file
-		$resource_object->uri($aux_file_id);    #no unique id is needed -- external link doc
-		$resource_object->{copy_link}->{type}    = 'external';
-		$resource_object->{uri}->{is_accessible} = $self->check_url($resource_object->uri());
-		return $resource_object->uri;           # external links need no further processing
+		$resource_object->uri($aux_file_id);                   #no unique id is needed -- external link doc
+		$resource_object->{copy_link}->{type} = 'external';
+		$resource_object->{uri}{is_accessible} = 1;            # Assume a url is accessible.
+		return $resource_object->uri;                          # external links need no further processing
 	} elsif ($aux_file_id =~ m|^/|) {
 		$file_path = $aux_file_id;
 	} else {
@@ -625,9 +577,9 @@ sub create_link_to_tmp_file {
 			$resource_object->{path}->{is_accessible}     = (-r $linkPath);
 
 			$resource_object->uri($resource_uri);
-			$resource_object->{uri}->{is_accessible} = $self->check_url($resource_object->uri());
-			$resource_object->{path}->{is_complete}  = 1;
-			$resource_object->{uri}->{is_complete}   = 1;
+			$resource_object->{uri}{is_accessible}  = 1;       # Assume a url is accessible.
+			$resource_object->{path}->{is_complete} = 1;
+			$resource_object->{uri}->{is_complete}  = 1;
 		} else {
 			$self->warning_message(
 				"The macro alias cannot create a link from |$linkPath|  to |" . $resource_object->path() . "|<BR>");
@@ -653,7 +605,7 @@ sub convert_file_to_png_for_tex {
 	my %args               = @_;
 	my $resource_object    = $args{resource};
 	my $targetDirectory    = $args{targetDirectory};
-	my $conversion_command = $self->{externalGif2PngPath};
+	my $conversion_command = WeBWorK::PG::IO::externalCommand('gif2png');
 	################################################################################
 	# Create path to new .png file
 	# Create  new .png file
@@ -700,16 +652,6 @@ our (
 	$macrosPath,
 	# ^variable my $pwd
 	$pwd,
-	# ^variable my $appletPath
-	$appletPath,
-	# ^variable my $server_root_url
-	$server_root_url,
-	# ^variable my $templateDirectory
-	$templateDirectory,
-	# ^variable my $scriptDirectory
-	$scriptDirectory,
-	# ^variable my $externalTTHPath
-	$externalTTHPath,
 );
 
 # ^function findMacroFile
@@ -739,35 +681,6 @@ sub find_file_in_directories {
 		return $file_path if (-r $file_path);
 	}
 	return;                # no file found
-}
-
-# ^function check_url
-# ^uses %envir
-sub check_url {
-	my $self        = shift;
-	my $url         = shift;
-	my $OK_CONSTANT = "200 OK";
-	return undef if $url     =~ /;/;    # make sure we can't get a second command in the url
-	return undef unless $url =~ /\S/;
-#FIXME -- check for other exploits of the system call	#FIXME -- ALARM feature so that the response cannot be held up for too long.
-#ALARM: /opt/local/bin/lwp-request -d -t 40 -mHEAD ";
-# the -t 40 means the call times out after 40 seconds.
-# Set this alarm in site.conf
-#FIXME doesn't seem to work with relative addresses.
-#FIXME  Can we get the machine name of the server?
-	$server_root_url = $self->envir("server_root_url");
-	$self->warning_message("check_url: server_root_url is not defined in site.conf") unless $server_root_url;
-	unless ($url =~ /^http/) {
-		# $self->debug_message("check_url: augmenting url $url");
-		$url = "$server_root_url/$url";
-
-	}
-	my $check_url_command = $self->{envir}->{externalCheckUrl};
-#	 $self->warning_message("check_url_command: $check_url_command -- externalCheckUrl is not properly defined in configuration file")
-#	 	unless (-x $check_url_command );
-	my $response = `$check_url_command $url`;
-	# $self->debug_message("check_url: response for url $url is  $response");
-	return ($response =~ /$OK_CONSTANT/) ? 1 : 0;
 }
 
 # This is a stub for deprecated problems that call this method.  Some of the Geogebra problems that do so actually work

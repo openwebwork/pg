@@ -282,22 +282,21 @@ sub _scaffold_init {
 #
 package Scaffold;
 
-our $isLibrary = ($main::envir{effectivePermissionLevel} eq "");   # Library and problem set detail pages don't set this
-our $isInstructor =
-	($isLibrary || $main::envir{effectivePermissionLevel} >= $main::envir{ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL});
-our $isHardcopy      = ($main::displayMode eq "TeX");
-our $isPTX           = ($main::displayMode eq "PTX");
-our $afterAnswerDate = (time() > $main::envir{answerDate});
+our $forceOpen       = $main::envir{forceScaffoldsOpen};
+our $isInstructor    = $main::envir{isInstructor};
+our $isHardcopy      = $main::displayMode eq "TeX";
+our $isPTX           = $main::displayMode eq "PTX";
+our $afterAnswerDate = $main::envir{answersAvailable};
 
-our $scaffold;                                                     # the active scaffold (set by Begin() below)
-my @scaffolds      = ();                                           # array of nested scaffolds
-my $scaffold_no    = 0;                                            # each scaffold gets a unique number
-my $scaffold_depth = 1;                                            # each scaffold has a nesting depth
+our $scaffold;              # the active scaffold (set by Begin() below)
+my @scaffolds      = ();    # array of nested scaffolds
+my $scaffold_no    = 0;     # each scaffold gets a unique number
+my $scaffold_depth = 1;     # each scaffold has a nesting depth
 
-our $PG_ANSWERS_HASH = $main::PG->{PG_ANSWERS_HASH};               # where PG stores answer evaluators
-our $PG_OUTPUT       = $main::PG->{OUTPUT_ARRAY};                  # where PG stores the TEXT() output
+our $PG_ANSWERS_HASH = $main::PG->{PG_ANSWERS_HASH};    # where PG stores answer evaluators
+our $PG_OUTPUT       = $main::PG->{OUTPUT_ARRAY};       # where PG stores the TEXT() output
 
-our $PREFIX = "$main::envir{QUIZ_PREFIX}Prob-$main::envir{questionNumber}";
+our $PREFIX = "$main::envir{QUIZ_PREFIX}Prob-$main::envir{probNum}";
 
 #
 #  Scaffold::Begin() is used to start a new scaffold section, passing
@@ -687,7 +686,7 @@ sub is_correct {
 #
 sub can_open {
 	my $self = shift;
-	return 1 if $Scaffold::isLibrary;    # always open in library browser and problem set details
+	return 1 if $Scaffold::forceOpen;
 	my $method = ($Scaffold::isInstructor ? $self->{instructor_can_open} : $self->{can_open});
 	$method = $self->{after_AnswerDate_can_open} if $Scaffold::afterAnswerDate;
 	$method = "Section::can_open::" . $method unless ref($method) eq 'CODE';
@@ -700,7 +699,7 @@ sub can_open {
 #
 sub is_open {
 	my $self = shift;
-	return 1 if $Scaffold::isLibrary;     # always open in library browser and problem set details
+	return 1 if $Scaffold::forceOpen;
 	return 0 unless $self->{can_open};    # only open ones that are allowed to be open
 	my $method = $self->{is_open};
 	$method = $self->{hardcopy_is_open} if $Scaffold::isHardcopy;

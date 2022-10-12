@@ -180,7 +180,7 @@ sub footer {
 sub draw {
 	my $self = shift;
 
-	my $working_dir = WeBWorK::PG::ImageGenerator::makeTempDirectory(WeBWorK::PG::IO::ww_tmp_dir(), "latex");
+	my $working_dir = WeBWorK::PG::ImageGenerator::makeTempDirectory(WeBWorK::PG::IO::pg_tmp_dir(), "latex");
 	my $data;
 
 	my $ext       = $self->ext;

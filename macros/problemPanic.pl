@@ -124,14 +124,13 @@ my @penalty     = (0);    # accummulated penalty values
 my $grader;               # problem's original grader
 
 #
-#  Allow resets if permission level is high enough.
+#  Allow resets for instructors.
 #  Look up the panic level and reset it if needed.
 #  Save the panic level for the next time through.
 #
 sub Init {
-	$main::permissionLevel = 0 unless defined $main::permissionLevel;
-	$allowReset            = $main::permissionLevel > $main::PRINT_FILE_NAMES_PERMISSION_LEVEL;
-	$isTeX                 = ($main::displayMode eq 'TeX');
+	$allowReset = $main::isInstructor;
+	$isTeX      = ($main::displayMode eq 'TeX');
 	unless ($isTeX) {
 		$main::panicked = $main::inputs_ref->{_panicked} || 0;
 		$main::panicked = 0 if $main::inputs_ref->{_panic_reset} && $allowReset;
@@ -159,7 +158,7 @@ sub Button {
 	$penalty[$buttonCount] = 1 if $penalty[$buttonCount] > 1;
 	return if $isTeX || $main::panicked >= $level;
 	my $time = time();
-	my $name = ($main::openDate <= $time && $time <= $main::dueDate ? "submitAnswers" : "checkAnswers");
+	my $name = $main::setOpen && !$main::pastDue ? 'submitAnswers' : 'checkAnswers';
 	$value = quoteHTML($value);
 	return qq!<input type="submit" name="$name" value="$label" onclick="document.getElementById('_panicked').value++">!;
 }

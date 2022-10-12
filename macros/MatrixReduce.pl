@@ -293,9 +293,9 @@ sub row_add {
 		warn "i = $i, j = $j, r = $r.  Index out of bounds in row_add().  Returning original matrix.";
 		return $M;
 	}
-	if ($s == 0 and $permissionLevel >= 10) {
-		warn
-			"Scaling a row by zero is not a valid row operation.  (This warning is only shown to professors.)  Returning original matrix.";
+	if ($s == 0 && $envir{view_problem_debugging_info}) {
+		warn 'Scaling a row by zero is not a valid row operation.  '
+			. '(This warning is only shown to professors.)  Returning original matrix.';
 		return $M;
 	}
 
@@ -340,8 +340,8 @@ sub row_mult {
 		warn "Index out of bounds in row multiplication.  Returning original matrix.";
 		return $M;
 	}
-	if ($s == 0 and $permissionLevel >= 10) {
-		warn "Scaling a row by zero is not a valid row operation.  (This warning is only shown to professors.)";
+	if ($s == 0 && $envir{view_problem_debugging_info}) {
+		warn 'Scaling a row by zero is not a valid row operation.  (This warning is only shown to professors.)';
 	}
 	my @m = $M->value;
 	foreach my $rowval (@{ $m[ $i - 1 ] }) { $rowval *= $s; }    # row multiplication

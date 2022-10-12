@@ -2,13 +2,13 @@
 
 $appletName = "drawCanvas";
 $canvasName = "cv";
+$answerBox //= 'answerBox';
+
+ADD_JS_FILE('http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js', 1);
+ADD_JS_FILE('js/legacy/sketchgraphhtml5b/SketchGraph.pjs');
+ADD_JS_FILE('js/legacy/sketchgraphhtml5b/processing-dgfix.js');
 
 HEADER_TEXT(<<END_HEADER_TEXT);
-<script language="javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-<script language="javascript" src="${webworkHtmlURL}js/legacy/sketchgraphhtml5b/SketchGraph.pjs"></script>
-<script language="javascript" src="${webworkHtmlURL}js/legacy/sketchgraphhtml5b/processing-dgfix.js"></script>
-
-
 <script>
 // define your canvasObject here
 var $appletName = new Object

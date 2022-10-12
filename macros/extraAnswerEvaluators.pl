@@ -43,6 +43,8 @@ answers of various "exotic" types.
 
 =cut
 
+sub _extraAnswerEvaluators_init { }
+
 # ^uses loadMacros
 loadMacros('MathObjects.pl');
 

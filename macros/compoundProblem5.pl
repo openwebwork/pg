@@ -276,7 +276,7 @@ package Scaffold;
 our @ISA = qw(PGcore);
 
 our $scaffold;    # the active scaffold (set by Scaffold() below)
-our $isInstructor = ($envir{effectivePermissionLevel} >= $envir{ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL});
+our $isInstructor = $envir{isInstructor};
 
 my $PG_ANSWERS_HASH = $main::PG->{PG_ANSWERS_HASH};    # where PG stores answer evaluators
 
@@ -604,7 +604,7 @@ sub SECTION_SOLUTION {
 	main::WARN_MESSAGE("Can't find section '$sectionNo'") unless $section;
 	my $output             = '';
 	my $formatted_solution = main::solution($options->{PGML} ? PGML::Format2(join("", @_)) : main::EV3P(@_));
-	if ($main::displayMode =~ /^HTML/ and $main::envir{use_knowls_for_solutions}) {
+	if ($main::displayMode =~ /^HTML/) {
 		$output = join(
 			$main::PAR,
 			main::knowlLink(

@@ -1160,26 +1160,13 @@ sub ans_array_extension {
 statement takes a string, probably from EV3P, and possibly wraps opening and closing
 content, paralleling one feature of solution and hint.
 
-Solution prints its concatenated input when the check box named 'ShowSol' is set and
-the time is after the answer date.  The check box 'ShowSol' is visible only after the
-answer date or when the problem is viewed by a professor.
+If $envir{showSolutions} is set to 1 then the solution is displayed.
 
-$main::envir{'displaySolutionsQ'} is set to 1 when a solution is to be displayed.
-
-Hints are shown only after the number of attempts is greater than $:showHint
-($main::showHint defaults to 1) and the check box named 'ShowHint' is set. The check box
-'ShowHint' is visible only after the number of attempts is greater than $main::showHint.
-
-Hints are always shown immediately to instructors to facilitate editing the hint section.
-
-$main::envir{'displayHintsQ'} is set to 1 when a hint is to be displayed.
+If $envir{showHints} is set to 1 then the hint is displayed.
 
 =cut
 
-# solution prints its input when $displaySolutionsQ is set.
-# use as TEXT(solution("blah, blah");
-# \$solutionExists
-# is passed to processProblem which displays a "show Solution" button
+# $main::solutionExists is passed to processProblem which displays a "show Solution" button
 # when a solution is available for viewing
 
 sub escapeSolutionHTML {
@@ -1189,38 +1176,16 @@ sub escapeSolutionHTML {
 }
 
 sub solution {
-	my @in              = @_;
-	my $out             = '';
-	my $permissionLevel = $envir->{permissionLevel} || 0;    #user permission level
-															 # protect against undefined values
-	my $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL =
-		(defined($envir->{'ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL'}))
-		? $envir->{'ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL'}
-		: 10000;
-	my $displaySolution            = PG_restricted_eval(q!$main::envir{'displaySolutionsQ'}!);
-	my $printSolutionForInstructor = (
-		($displayMode ne 'TeX' && ($permissionLevel >= $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL))
-			|| ($displayMode eq 'TeX'
-				&& $displaySolution
-				&& ($permissionLevel >= $ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL))
-	);
-	PG_restricted_eval(q!$main::solutionExists = 1!);        # set solution exists variable.--don't need PGeval??
-
-	if ($printSolutionForInstructor) {                       # always print solutions for instructor types
-		$out = join('',
-			$BITALIC, "(", maketext("Instructor solution preview: show the student solution after due date."),
-			")", $EITALIC, $displayMode =~ /TeX/ ? "\\par\\smallskip{}" : $BR, @in);
-	} elsif ($displaySolution) {
-		$out = join(' ', @in);                               # display solution
-	}
-	$out;
+	my @in = @_;
+	$main::solutionExists = 1;
+	return $envir->{showSolutions} ? join('', @in) : '';
 }
 
 sub SOLUTION {
 	my $solution_body = solution(@_);
 	return "" if $solution_body eq "";
 
-	if ($displayMode =~ /HTML/ and $envir->{use_knowls_for_solutions}) {
+	if ($displayMode =~ /HTML/) {
 		TEXT($PAR, knowlLink(SOLUTION_HEADING(), value => $solution_body, type => 'solution'));
 	} elsif ($displayMode =~ /TeX/) {
 		TEXT(
@@ -1229,8 +1194,6 @@ sub SOLUTION {
 			"\\par\\smallskip", SOLUTION_HEADING(), $solution_body, "\\par\\medskip",
 			"\n%%% END SOLUTION\n" #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
 		);
-	} elsif ($displayMode =~ /HTML/) {
-		TEXT($PAR, SOLUTION_HEADING(), $BR, $solution_body, $PAR);
 	} elsif ($displayMode =~ /PTX/) {
 		TEXT('<solution>', "\n", $solution_body, "\n", '</solution>', "\n\n");
 	} else {
@@ -1239,63 +1202,15 @@ sub SOLUTION {
 }
 
 sub hint {
-	my @in              = @_;
-	my $out             = '';
-	my $permissionLevel = $envir->{permissionLevel} || 0;    #user permission level
-															 # protect against undefined values
-	my $ALWAYS_SHOW_HINT_PERMISSION_LEVEL =
-		(defined($envir->{'ALWAYS_SHOW_HINT_PERMISSION_LEVEL'}))
-		? $envir->{'ALWAYS_SHOW_HINT_PERMISSION_LEVEL'}
-		: 10000;
-	my $showHint               = PG_restricted_eval(q!$main::showHint!);
-	my $displayHint            = PG_restricted_eval(q!$main::envir{'displayHintsQ'}!);
-	my $printHintForInstructor = ((($displayMode ne 'TeX') && ($permissionLevel >= $ALWAYS_SHOW_HINT_PERMISSION_LEVEL))
-			|| (($displayMode eq 'TeX') && $displayHint && ($permissionLevel >= $ALWAYS_SHOW_HINT_PERMISSION_LEVEL)));
-	PG_restricted_eval(q!$main::hintExists =1!);
-	PG_restricted_eval(q!$main::numOfAttempts = 0 unless defined($main::numOfAttempts);!);
-	my $attempts = PG_restricted_eval(q!$main::numOfAttempts!);
-
-	if ($displayMode =~ /TeX/) {
-		my $afterAnswerDate = (time() > $envir{answerDate});
-		if ($printHintForInstructor) {
-			$out = join('',
-				$BITALIC,
-				maketext("(Instructor hint preview: show the student hint after the following number of attempts:"),
-				" ",
-				$showHint + 1,
-				")",
-				$EITALIC,
-				"\\par\\smallskip{}",
-				@in);
-		} elsif ($displayHint and $afterAnswerDate) {    # only display hints after the answer date.
-			$out = join(' ', @in);
-		}
-
-	} elsif ($displayMode =~ /HTML/) {
-		if ($printHintForInstructor) {                   # always print hints for instructor types in HTML mode
-			$out = join('',
-				$BITALIC,
-				maketext("(Instructor hint preview: show the student hint after the following number of attempts:"),
-				" ",
-				$showHint + 1,
-				")$BR",
-				$EITALIC,
-				@in);
-		} elsif ($displayHint and ($attempts > $showHint)) {
-			## the second test above prevents a hint being shown if a doctored form is submitted
-			$out = join(' ', @in);
-		}
-	} elsif ($displayMode =~ /PTX/) {
-		$out = join(' ', @in);
-	}
-
-	$out;
+	my @in = @_;
+	$main::hintExists = 1;
+	return $envir->{showHints} ? join('', @in) : '';
 }
 
 sub HINT {
 	my $hint_body = hint(@_);
 	return unless $hint_body;
-	if ($displayMode =~ /HTML/ and $envir->{use_knowls_for_hints}) {
+	if ($displayMode =~ /HTML/) {
 		TEXT($PAR, knowlLink(HINT_HEADING(), value => $hint_body, type => 'hint'));
 	} elsif ($displayMode =~ /TeX/) {
 		TEXT(
@@ -2516,10 +2431,7 @@ sub PTX_cleanup {
 
 =head2 Formatting macros
 
-    beginproblem()  # generates text listing number and the point value of
-                    # the problem. It will also print the file name containing
-                    # the problem for users listed in the PRINT_FILE_NAMES_FOR PG_environment
-                    # variable.
+    beginproblem()  # Adds a custom TeX preamble.  This is deprecated and should not be used in newly written problems.
     OL(@array)      # formats the array as an Ordered List ( <OL> </OL> ) enumerated by letters.
                     # See BeginList()  and EndList in unionLists.pl for a more powerful version
                     # of this macro.
@@ -3042,21 +2954,13 @@ sub image {
 
 		if ($displayMode eq 'TeX') {
 			my $imagePath = $imageURL;    # in TeX mode, alias gives us a path, not a URL
-			if (defined $envir->{texDisposition} and $envir->{texDisposition} eq "pdf") {
-				# We're going to create PDF files with our TeX (using pdflatex), so
-				# alias should have given us the path to a PNG image. What we need
-				# to do is find out the dimmensions of this image, since pdflatex
-				# is too dumb to live.
-				if ($imagePath) {
-					$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
-				} else {
-					$out = "";
-				}
-			} else {
-				# Since we're not creating PDF files, alias should have given us the
-				# path to an EPS file. latex can get its dimmensions no problem!
 
+			# We're going to create PDF files with our TeX (using pdflatex), so
+			# alias should have given us the path to a PNG image.
+			if ($imagePath) {
 				$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
+			} else {
+				$out = "";
 			}
 		} elsif ($displayMode eq 'Latex2HTML') {
 			my $wid = ($envir->{onTheFlyImageSize} || 0) + 30;

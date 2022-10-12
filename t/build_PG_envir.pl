@@ -12,14 +12,13 @@ use Parser;
 # build up enough of a PG environment to get things running
 
 our %envir = ();
-$envir{htmlDirectory}               = "/opt/webwork/courses/daemon_course/html";
-$envir{htmlURL}                     = "http://localhost/webwork2/daemon_course/html";
-$envir{tempURL}                     = "http://localhost/webwork2/daemon_course/tmp";
-$envir{pgDirectories}->{macrosPath} = ["$main::macros_dir"];
-$envir{macrosPath}                  = ["$main::macros_dir"];
-$envir{displayMode}                 = "HTML_MathJax";
-$envir{language}                    = "en-us";
-$envir{language_subroutine}         = sub { return @_; };    # return the string passed in instead going to maketext
+$envir{htmlDirectory}       = "/opt/webwork/courses/daemon_course/html";
+$envir{htmlURL}             = "http://localhost/webwork2/daemon_course/html";
+$envir{tempURL}             = "http://localhost/webwork2/daemon_course/tmp";
+$envir{macrosPath}          = ["$main::macros_dir"];
+$envir{displayMode}         = "HTML_MathJax";
+$envir{language}            = "en-us";
+$envir{language_subroutine} = sub { return @_; };    # return the string passed in instead going to maketext
 
 sub be_strict {
 	require 'ww_strict.pm';

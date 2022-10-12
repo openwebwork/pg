@@ -52,7 +52,7 @@ sub _contextTrigDegrees_init { context::TrigDegrees::Init() };    # don't reload
 
 package context::TrigDegrees::common;
 
-my $deg = $main::PI / 180;
+our $deg = $main::PI / 180;
 
 #
 #  Check the number of arguments, and call the proper method with the
@@ -125,7 +125,7 @@ our @ISA = ('context::TrigDegrees::common', 'Parser::Function::hyperbolic');
 package context::TrigDegrees::numeric2;
 our @ISA = ('Parser::Function::numeric2');
 
-my $deg = $main::PI / 180;
+our $deg = $main::PI / 180;
 
 sub atan2 { CORE::atan2($_[1], $_[2]) / $deg }
 
