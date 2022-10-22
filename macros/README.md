@@ -11,7 +11,6 @@ This directory now has a subdirectory structure for clarification.
 - **parsers** macros that handle parsing
 - **ui** macros that affect the UI in the PG problem
 
-
 ## These Have Been Copied
 
 - `OPL/BrockPhysics/fixedPrecision.pl` to `PG/macros/contexts`
@@ -26,14 +25,14 @@ This directory now has a subdirectory structure for clarification.
 - `OPL/WHFreeman/freemanMacros.pl` to `PG/macros/univ`
 - `OPL/Michigan/hhAdditionalMacros.pl` to `PG/macros/univ`
 
-### CollegeOfIdaho
+### CollegeOfIdaho copied
 
 - `OPL/CollegeOfIdaho/contextInequalitiesAllowStrings.pl` to `PG/macros/contexts`
 - `OPL/CollegeOfIdaho/contextFunctionAssign.pl` to `PG/macros/contexts`
 - `OPL/CollegeOfIdaho/parserUtils.pl` to `PG/macros/parsers`
 - `OPL/CollegeOfIdaho/unorderedAnswer.pl` to `PG/macros/answers`
 
-### FortLewis
+### FortLewis copied
 
 - `OPL/FortLewis/AnswerFormatHelp.pl` to `PG/macros/answers`
 - `OPL/FortLewis/ConditionalHint.pl` to `PG/macros/answers`
@@ -43,9 +42,9 @@ This directory now has a subdirectory structure for clarification.
 - `OPL/FortLewis/LiveGraphicsVectorField2D.pl` to `PG/macros/graph`
 - `OPL/FortLewis/LiveGraphicsVectorField3D.pl` to `PG/macros/graph`
 - `OPL/FortLewis/MatrixUnimodular.pl` to `PG/macros/math`
-- `OPL/FortLewis/PeriodicRandomization.pl` to `PG/macros/core`
+- `OPL/FortLewis/PeriodicRerandomization.pl` to `PG/macros/core`
 
-### NAU
+### NAU copied
 
 - `OPL/NAU/PGnauBinpacking.pl` to `PG/macros/math`
 - `OPL/NAU/PGnauGraphtheory.pl` to `PG/macros/math`
@@ -55,7 +54,7 @@ This directory now has a subdirectory structure for clarification.
 - `OPL/NAU/PGnauStats.pl` to `PG/macros/math`
 - `OPL/NAU/PGnauGraphics.pl` to `PG/macros/graph`
 
-### Union
+### Union copied
 
 - `OPL/Union/answerUtils.pl` to `PG/macros/answers`
 - `OPL/Union/PGunion.pl` to `PG/macros/misc`
@@ -69,7 +68,7 @@ This directory now has a subdirectory structure for clarification.
 - `OPL/Union/imageChoice.pl` to `PG/macros/graph`
 - `OPL/FortLewis/AnswerHelp.pl` to `PG/macros/answers`
 
-### PCC
+### PCC copied
 
 - `OPL/PCC/contextFiniteSolutionSets.pl` to `PG/macros/contexts`
 - `OPL/PCC/contextForm.pl` to `PG/macros/contexts`
@@ -98,7 +97,7 @@ This directory now has a subdirectory structure for clarification.
 - `OPL/WHFreeman/freemanMacros.pl` to `PG/macros/univ` (not relevant)
 - `OPL/Michigan/hhAdditionalMacros.pl` to `PG/macros/univ` (not relevant)
 
-### CollegeOfIdaho
+### CollegeOfIdaho not moved
 
 - `OPL/CollegeOfIdaho/allPlotMacros.pl` (no problems in OPL/Contrib)
 - `OPL/CollegeOfIdaho/answerUtils.pl` (used newer Union version instead)
@@ -130,12 +129,12 @@ This directory now has a subdirectory structure for clarification.
 - `OPL/CollegeOfIdaho/vectorUtils.pl` (not used in OPL/Contrib)
 - `OPL/CollegeOfIdaho/weightedGrader.pl` (already in PG/core/weightedGrader)
 
-### FortLewis
+### FortLewis not moved
 
 - `OPL/FortLewis/JavaView.pl` (not in OPL/Contrib)
 - `OPL/FortLewis/JavaViewRectangularPlot3D.pl` (not in OPL/Contrib)
 
-### PCC
+### PCC not moved
 
 - `OPL/PCC/contextAssignmentForm.pl` (no problems in OPL/Contrib)
 - `OPL/PCC/contextInequalitySetBuilder.pl` (newer copy in `PG/macros/contexts`)
@@ -144,7 +143,7 @@ This directory now has a subdirectory structure for clarification.
 - `OPL/PCC/contextPercent.pl` (newer copy in `PG/macros/contexts`)
 - `OPL/PCC/parserRoot.pl` (newer copy in `PG/macros/parsers`)
 
-### Union
+### Union not moved
 
 - `OPL/Union/answerUtils.pl` (not used in OPL/Contrib)
 - `OPL/Union/courseHeaders.pl` (not used in OPL/Contrib)
@@ -173,7 +172,7 @@ This directory now has a subdirectory structure for clarification.
 - `Contrib/PCC/CollegeAlgebra/FunctionBasics/FunctionTables20.pg` (warnings about PCCmacros.pl)
 - `Library/Union/setMVfunctions/system-f2.pg` (warning about uninitialized value)
 
-## Macros fixed:
+## Macros fixed
 
 - `math/algebraMacros.pl` (removed all code, already in `customizeLaTeX.pl`)
 - `parsers/parserUtils.pl` (removed loadMacros call due to errors.  )
@@ -192,7 +191,6 @@ This directory now has a subdirectory structure for clarification.
 - remove `answers/answerDiscussion.pl` (not used in OPL/Contrib)
 - Remove `contexts/contextPeriodic.pl`.  Labelled as deprecated. No problems in OPL/Contrib.
 - only place `answerUtils.pl` is used is inside `unorderedAnswer.pl` (combine?  refactor?)
-- none of the LiveGraphics is working. Search for `LiveGraphics*.pl`
 - What is the `fracListChecker.pl` macro?  In a number of `Contrib/Mizzou` problems.
 - The following are not in OPL/Contrib:
   - `contextMatrixExtras.pl`
@@ -206,4 +204,3 @@ This directory now has a subdirectory structure for clarification.
   - `parserFormulaAnyVar.pl`
   - `parserLinearInequality.pl`
   - `parserParametricPlane.pl`
-

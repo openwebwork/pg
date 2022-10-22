@@ -41,12 +41,13 @@ find(
 	sub {
 		# Must be a file that has the ".pl" suffix.
 		return unless -f && /\.pl$/;
+		return if $baseMacros{$_} || $brokenMacros{$_};
 		push @macro_files, $_;
 	},
 	"$ENV{PG_ROOT}/macros"
 );
 
-@macro_files = sort grep { !$baseMacros{$_} && !$brokenMacros{$_} } @macro_files;
+@macro_files = sort @macro_files;
 
 for (@macro_files) {
 	subtest $_ => sub {
