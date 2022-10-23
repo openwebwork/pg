@@ -32,9 +32,8 @@ use lib "$ENV{PG_ROOT}/lib";
 use Parser::Legacy::NumberWithUnits;
 use Units;
 
-loadMacros("parserNumberWithUnits.pl");
-
-Context("Numeric");
+loadMacros('parserNumberWithUnits.pl');
+loadMacros('parserFormulaWithUnits.pl');
 
 # define some basic objects
 my $joule             = NumberWithUnits(1, 'J');
@@ -44,7 +43,7 @@ my $energy_base_units = NumberWithUnits(1, 'kg*m^2/s^2');
 subtest 'Verify classes and methods' => sub {
 	isa_ok $joule, 'Parser::Legacy::NumberWithUnits';
 	can_ok $joule, [
-		qw/cmp splitUnits getUnitNames getUnits TeXunits cmp_parse adjustCorrectValue
+		qw/cmp splitUnits getUnitNames getUnits TeXunits cmp_parse
 			add_fundamental_unit add_unit string TeX /
 		],
 		'Can we NumberWithUnits';
@@ -96,11 +95,11 @@ subtest 'Test error handling' => sub {
 		qr/Unrecognizable unit: \|$fake\|/,
 		"No unit '$fake' defined in Units file"
 	);
-	like(dies { NumberWithUnits(1) }, qr/You must provide units for your number/, "No unit given");
+	like(dies { NumberWithUnits(1) }, qr/You must provide units for your number/, 'No unit given');
 	like(
 		dies { NumberWithUnits('J') },
 		qr/You must provide units for your number/,
-		"No value given, wants 2 arguments"
+		'No value given, wants 2 arguments'
 	);
 };
 
@@ -128,8 +127,6 @@ subtest 'Check some known units' => sub {
 
 subtest 'Check other methods' => sub {
 	is [ $joule->splitUnits ], [ '1', 'J' ], 'splitUnits creates an array';
-
-	is $joule->adjustCorrectValue, 0, 'What is adjustCorrectValue?';
 };
 
 subtest 'Check display methods' => sub {
@@ -152,34 +149,63 @@ subtest 'Check display methods' => sub {
 subtest 'Check possible answer format branches' => sub {
 	# re-write without check_score so we can get the messages to students
 
-	is check_score($joule, '1 J'),     1, 'one Joule plain';
-	is check_score($joule, '1.00 J'),  1, 'one Joule float';
-	is check_score($joule, '1E0 J'),   1, 'one Joule exponential notation';
-	is check_score($joule, '7/7 J'),   1, 'one Joule value calculated';
-	is check_score($joule, '1 J^1'),   1, 'one Joule to the power of one';
-	is check_score($joule, 'J 1'),     0, 'one Joule wrong order';
-	is check_score($joule, '2 J'),     0, 'one Joule wrong value';
-	is check_score($joule, '1 j'),     0, 'one Joule wrong case';
-	is check_score($joule, '1'),       0, 'one Joule missing unit';
-	is check_score($joule, 'J'),       0, 'one Joule missing value';
-	is check_score($joule, '1J'),      1, 'one Joule missing space between value and unit is valid';
-	is check_score($joule, '1 N'),     0, 'one Joule wrong unit force not energy';
-	is check_score($joule, '1 Nm'),    0, 'one Joule Nm missing *';
-	is check_score($joule, '1 N*m'),   1, 'one Joule as Newton metre';
-	is check_score($joule, '1 Joule'), 0, 'one Joule in words';
-	is check_score($joule, '1E-3 kJ'), 1, 'one Joule value as exponential';
+	is check_score($joule, '1 J'),       1, 'one Joule plain';
+	is check_score($joule, '1.00 J'),    1, 'one Joule float';
+	is check_score($joule, '1E0 J'),     1, 'one Joule exponential notation';
+	is check_score($joule, '7/7 J'),     1, 'one Joule value calculated';
+	is check_score($joule, '1 J^1'),     1, 'one Joule to the power of one';
+	is check_score($joule, 'J 1'),       0, 'one Joule wrong order';
+	is check_score($joule, '2 J'),       0, 'one Joule wrong value';
+	is check_score($joule, '1 j'),       0, 'one Joule wrong case';
+	is check_score($joule, '1'),         0, 'one Joule missing unit';
+	is check_score($joule, 'J'),         0, 'one Joule missing value';
+	is check_score($joule, '1J'),        1, 'one Joule missing space between value and unit is valid';
+	is check_score($joule, '1 N'),       0, 'one Joule wrong unit force not energy';
+	is check_score($joule, '1 Nm'),      0, 'one Joule Nm missing *';
+	is check_score($joule, '1 N*m'),     1, 'one Joule as Newton metre';
+	is check_score($joule, '1 Joule'),   0, 'one Joule in words';
+	is check_score($joule, '1E-3 kJ'),   1, 'one Joule value as exponential';
+	is check_score($joule, '0.001 kJ'),  1, 'one Joule decimal kJ';
+	is check_score($joule, '1/1000 kJ'), 1, 'one Joule fractional kJ';
+	is check_score($joule, '10^-3 kJ'),  1, 'one Joule latex power kJ';
+	is check_score($joule, '10**-3 kJ'), 1, 'one Joule power of 10 kJ';
 };
 
-todo 'check_score is stateful.  Cannot handle repeated calls' => sub {
-	is check_score($joule, '1E-3 kJ'), 1, 'one Joule value as exponential second call';
-	is check_score($joule, '1E-3 kJ'), 1, 'one Joule value as exponential third call';
+subtest 'Check possible answers compared to the number 0.005 T' => sub {
+	my $correct = NumberWithUnits('0.005 T');
 
-	# the other tests I'd like to run
-	is check_score($joule, '0.001 kJ'),     1, 'one Joule decimal kJ';
-	is check_score($joule, '1/1000 kJ'),    1, 'one Joule fractional kJ';
-	is check_score($joule, '10^-3 kJ'),     1, 'one Joule latex power kJ';
-	is check_score($joule, '1 x 10^-3 kJ'), 1, 'one Joule scientific notation';
-	is check_score($joule, '10**-3 kJ'),    1, 'one Joule power of 10 kJ';
+	is check_score($correct, '0.005 T'),        1, '0.005 T is correct';
+	is check_score($correct, '5*10^-13 T*m/A'), 1, '5*10^-13 T*m/A is correct';
+	is check_score($correct, '0 T*m/A'),        0, '0 T*m/A is incorrect';
+};
+
+subtest 'Check possible answers compared to the formula 0.005 T' => sub {
+	my $correct = FormulaWithUnits('0.005 T');
+
+	is check_score($correct, '0.005 T'),        1, '0.005 T is correct';
+	is check_score($correct, '5*10^-13 T*m/A'), 1, '5*10^-13 T*m/A is correct';
+	is check_score($correct, '0 T*m/A'),        0, '0 T*m/A is incorrect';
+};
+
+subtest 'Check possible answers compared to the formula 0.009 x^2 T' => sub {
+	my $correct = FormulaWithUnits('0.009 x^2 T');
+
+	is check_score($correct, '0.009 x^2 T'),        1, '0.009 x^2 T is correct';
+	is check_score($correct, '9*10^-13 x^2 T*m/A'), 1, '9*10^-13 x^2 T*m/A is correct';
+	is check_score($correct, '0 T*m/A'),            0, '0 T*m/A is incorrect';
+	is check_score($correct, '0 x^2 T*m/A'),        0, '0 x^2 T*m/A is incorrect';
+};
+
+subtest 'Check possible answers compared to the the number 1 amu' => sub {
+	my $correct = NumberWithUnits('1 amu');
+
+	is check_score($correct, '1 amu'),                 1, '1 amu is correct';
+	is check_score($correct, '2 amu'),                 0, '2 amu is incorrect';
+	is check_score($correct, '1.660538921*10^-27 kg'), 1, '1.660538921*10^-27 kg is correct';
+	is check_score($correct, '0 kg'),                  0, '0 kg is incorrect';
+	is check_score($correct, '1.660538921*10^-24 g'),  1, '1.660538921*10^-24 g is correct';
+	is check_score($correct, '0 g'),                   0, '0 g is incorrect';
+	is check_score($correct, '1.1374*10^-28 slug'),    1, '1.1374*10^-28 slug is correct';
 };
 
 done_testing;

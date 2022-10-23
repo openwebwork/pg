@@ -188,17 +188,20 @@ sub cmp_parse {
 	}
 	my %Units = getUnits($units);
 	if ($Units{ERROR}) { $self->cmp_Error($ans, $Units{ERROR}); return $ans }
-	#
-	#  Check the numeric part of the answer
-	#   and adjust the answer strings
-	#
-	$self->adjustCorrectValue($ans, $self->{units_ref}{factor} / $Units{factor});
-	$ans->{student_ans} = $num;
+
+	# Check the numeric part of the answer.
+	$ans->{student_ans}        = $num;
+	$self->{student_units_ref} = \%Units;
+
 	$ans = $self->cmp_reparse($ans);
+
+	delete $self->{student_units_ref};
+
+	# Adjust the answer strings.
 	$ans->{student_ans}          .= " " . $units;
 	$ans->{preview_text_string}  .= " " . $units;
 	$ans->{preview_latex_string} .= '\ ' . TeXunits($units);
-	#
+
 	return $ans unless $ans->{ans_message} eq '';
 	#
 	#  Check that we have an actual number, and check the units
@@ -219,16 +222,6 @@ sub cmp_parse {
 		}
 	}
 	return $ans;
-}
-
-#
-#  Fix the correct answer so that the value matches the student's units
-#
-sub adjustCorrectValue {
-	my $self   = shift;
-	my $ans    = shift;
-	my $factor = shift;
-	$ans->{correct_value}{data}[0] *= $factor;
 }
 
 sub cmp_reparse { Value::cmp_parse(@_) }
@@ -297,6 +290,28 @@ sub promote {
 	return $self->new($context, $x, @_);
 }
 
+# This saves the current value of the student answer, and then compares the answers with the parent compare method.
+# Then the student value is put back to what it was.  The correct value will be the one that has the units refs.
+sub compare {
+	my ($self, $other, $flag) = @_;
+
+	if (defined $self->{units_ref} && defined $self->{student_units_ref}) {
+		my $other_value = $other->value;
+		$other->{data}[0] = $other_value * $self->{student_units_ref}{factor} / $self->{units_ref}{factor};
+		my $ret = $self->SUPER::compare($other, $flag);
+		$other->{data}[0] = $other_value;
+		return $ret;
+	} elsif (defined $other->{units_ref} && defined $other->{student_units_ref}) {
+		my $self_value = $self->value;
+		$self->{data}[0] = $self_value * $other->{student_units_ref}{factor} / $other->{unit_ref}{factor};
+		my $ret = $self->SUPER::compare($other, $flag);
+		$self->{data}[0] = $self_value;
+		return $ret;
+	}
+
+	return $self->SUPER::compare($other, $flag);
+}
+
 sub string {
 	my $self = shift;
 	Value::Real::string($self, @_) . ' ' . $self->{units};
@@ -334,12 +349,47 @@ sub checkStudentValue {
 	return $student->type ne 'Number';
 }
 
-sub adjustCorrectValue {
-	my $self   = shift;
-	my $ans    = shift;
-	my $factor = shift;
-	my $f      = $ans->{correct_value};
-	$f->{tree} = $f->Item("BOP")->new($f, '*', $f->{tree}, $f->Item("Value")->new($f, $factor));
+# This does much the same as the compare method for a Parser::Legacy::NumberWithUnits object, except that it tries to
+# adjust the formula tree of the student answer.  If the student answer is not a formula, then it adjusts its value.
+# The comparison is made by the parent class method.  Then the adjustment is undone.
+sub compare {
+	my ($self, $other, $flag) = @_;
+
+	if (defined $self->{units_ref} && defined $self->{student_units_ref}) {
+		if (defined $other->{tree}) {
+			my $other_tree = $other->{tree};
+			$other->{tree} = $other->Item('BOP')->new($other, '*', $other_tree,
+				$other->Item('Value')->new($other, $self->{student_units_ref}{factor} / $self->{units_ref}{factor})
+			);
+			my $ret = $self->SUPER::compare($other, $flag);
+			$other->{tree} = $other_tree;
+			return $ret;
+		} else {
+			my $other_value = $other->value;
+			$other->{data}[0] = $other_value * $self->{student_units_ref}{factor} / $self->{units_ref}{factor};
+			$ret              = $self->SUPER::compare($other, $flag);
+			$other->{data}[0] = $other_value;
+			return $ret;
+		}
+	} elsif (defined $other->{units_ref} && defined $other->{student_units_ref}) {
+		if (defined $self->{tree}) {
+			my $self_tree = $self->{tree};
+			$self->{tree} = $self->Item('BOP')->new($self, '*', $self_tree,
+				$self->Item('Value')->new($self, $other->{student_units_ref}{factor} / $other->{units_ref}{factor})
+			);
+			my $ret = $self->SUPER::compare($other, $flag);
+			$self->{tree} = $self_tree;
+			return $ret;
+		} else {
+			my $self_value = $self->value;
+			$self->{data}[0] = $self_value * $other->{student_units_ref}{factor} / $other->{units_ref}{factor};
+			$ret             = $self->SUPER::compare($other, $flag);
+			$self->{data}[0] = $self_value;
+			return $ret;
+		}
+	}
+
+	return $self->SUPER::compare($other, $flag);
 }
 
 sub string {
