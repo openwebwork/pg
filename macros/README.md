@@ -6,6 +6,7 @@ This directory now has a subdirectory structure for clarification.
 - **capa** any CAPA related macros
 - **contexts** context related macros
 - **core** macros related to core PG functionality
+- **deprecated** macros that have been labelled deprecated
 - **graph** graphing/graphical related macros.
 - **math** mathematical related macros
 - **parsers** macros that handle parsing
@@ -14,19 +15,23 @@ This directory now has a subdirectory structure for clarification.
 ## These Have Been Copied
 
 - `OPL/BrockPhysics/fixedPrecision.pl` to `PG/macros/contexts`
+- `OPL/BrockPhysics/BrockPhysicsMacros.pl` to `PG/macros/deprecated`
+- `OPL/Dartmouth/Dartmouthmacros.pl` to `PG/macros/deprecated`
 - `OPL/Hope/PGgraphgrid.pl` to `PG/macros/graph`
 - `OPL/Hope/VectorListCheckers.pl` to `PG/macros/math`
 - `OPL/LaTech/SI_property_tables.pl` to `PG/macros/math`
 - `OPL/LaTech/interpMacros.pl` to `PG/macros/math`
-
+- `OPL/Mizzou/MUHelp.pl` to `PG/macros/deprecated`
 - `OPL/TCNJ/Generic.pl` to `PG/macros/answers`
 - `OPL/UBC/regrfnsPG.pl` to `PG/macros/math`
 - `OPL/UMass-Amherst/algebraMacros.pl` to `PG/macros/math`
-- `OPL/WHFreeman/freemanMacros.pl` to `PG/macros/univ`
-- `OPL/Michigan/hhAdditionalMacros.pl` to `PG/macros/univ`
+- `OPL/WHFreeman/freemanMacros.pl` to `PG/macros/deprecated`
+- `OPL/Michigan/hhAdditionalMacros.pl` to `PG/macros/deprecated`
+- `OPL/Wiley/littleneck.pl` to `PG/macros/deprecated`
 
 ### CollegeOfIdaho copied
 
+- `OPL/CollegeOfIdaho/CofIdaho_macros.pl` to `PG/macros/deprecated`
 - `OPL/CollegeOfIdaho/contextInequalitiesAllowStrings.pl` to `PG/macros/contexts`
 - `OPL/CollegeOfIdaho/contextFunctionAssign.pl` to `PG/macros/contexts`
 - `OPL/CollegeOfIdaho/parserUtils.pl` to `PG/macros/parsers`
@@ -77,7 +82,7 @@ This directory now has a subdirectory structure for clarification.
 - `OPL/PCC/contextRestrictedDomains.pl` to `PG/macros/contexts`
 - `OPL/PCC/PCCfactor.pl` to `PG/macros/math`
 - `OPL/PCC/PCCgraphMacros.pl` to `PG/macros/graph`
-- `OPL/PCC/PCCmacros.pl` to `PG/macros/univ`
+- `OPL/PCC/PCCmacros.pl` to `PG/macros/misc`
 - `OPL/PCC/pccTables.pl` to `PG/macros/ui`
 - `OPL/PCC/SolveLinearEquationPCC.pl` to `PG/macros/math`
 - `OPL/PCC/SystemsOfLinearEquationsProblemPCC.pl` to `PG/macros/math`
@@ -93,9 +98,6 @@ This directory now has a subdirectory structure for clarification.
 - `OPL/UniSiegen/logicMacros.pl` (no problems in OPL/Contrib)
 - `OPL/Alfred/Alfredmacros.pl` (not relevant)
 - `OPL/BrockPhysics/BrockPhysicsMacros.pl` (not relevant)
-- `OPL/Mizzou/MUHelp.pl` to `PG/macros/univ` (not relevant)
-- `OPL/WHFreeman/freemanMacros.pl` to `PG/macros/univ` (not relevant)
-- `OPL/Michigan/hhAdditionalMacros.pl` to `PG/macros/univ` (not relevant)
 
 ### CollegeOfIdaho not moved
 

@@ -50,7 +50,8 @@ directories:
     - $pg_root/macros/misc
     - $pg_root/macros/parsers
     - $pg_root/macros/ui
-    - $OPL_dir/macros/univ
+    - $pg_root/macros/deprecated
+
 
 URLs:
   # The public URL of the html directory above.
