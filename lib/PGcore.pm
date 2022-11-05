@@ -629,9 +629,8 @@ inside the PGcore object would report.
 =cut
 
 sub debug_message {
-	my $self = shift;
-	my @str  = @_;
-	push @{ $self->{DEBUG_messages} }, "<br/>\n", @str;
+	my ($self, @str) = @_;
+	push @{ $self->{DEBUG_messages} }, @str;
 }
 
 sub get_debug_messages {
@@ -640,10 +639,9 @@ sub get_debug_messages {
 }
 
 sub warning_message {
-	my $self = shift;
-	my @str  = @_;
-	unshift @str, "<br/>------";    # mark start of each message
-	push @{ $self->{WARNING_messages} }, @str;
+	my ($self, @str) = @_;
+	# Mark the start of each message.
+	push @{ $self->{WARNING_messages} }, '------', @str;
 }
 
 sub get_warning_messages {
@@ -652,9 +650,8 @@ sub get_warning_messages {
 }
 
 sub internal_debug_message {
-	my $self = shift;
-	my @str  = @_;
-	push @{$internal_debug_messages}, @str;
+	my ($self, @str) = @_;
+	push @$internal_debug_messages, @str;
 }
 
 sub get_internal_debug_messages {
