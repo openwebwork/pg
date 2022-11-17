@@ -9,6 +9,11 @@
 	padding: 0 2px;
 }
 
+.knowl-container {
+	margin-top: 1rem;
+	margin-bottom: 1rem;
+}
+
 .knowl:hover,
 .knowl.active {
 	border-bottom: 2px solid #aaf;
