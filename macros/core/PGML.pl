@@ -39,7 +39,7 @@ my $lineend   = '\n+';
 my $linebreak = '   ?(?=\n)';
 my $heading   = '#+';
 my $rule      = '(?:---+|===+)';
-my $list      = '(?:^|(?<=[\t ]))(?:[-+o*]|(?:\d|[ivxl]+|[IVXL]+|[a-zA-Z])[.)]) +';
+my $list      = '(?:^|(?<=[\t ]))(?:[-+o*]|(?:\d+|[ivxl]+|[IVXL]+|[a-zA-Z])[.)]) +';
 my $align     = '>> *| *<<';
 my $code      = '```';
 my $pre       = ':   ';
@@ -174,7 +174,7 @@ sub All {
 	return $self->Begin($token) if substr($token, 0, 1) eq "[" && $BlockDefs{$token};
 	for ($token) {
 		/^(?:\t|    )/ && do { return $self->Indent($token) };
-		/\d+\. /       && do { return $self->Bullet($token, "numeric") };
+		/\d+[.)] /     && do { return $self->Bullet($token, "numeric") };
 		/[ivxl]+[.)] / && do { return $self->Bullet($token, "roman") };
 		/[a-z][.)] /   && do { return $self->Bullet($token, "alpha") };
 		/[IVXL]+[.)] / && do { return $self->Bullet($token, "Roman") };
