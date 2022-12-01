@@ -166,7 +166,7 @@ Options may also contain:
  dvipng_depth_db => Database connection information for a database that has the 'depths' table.
  useMarkers      => If you want to have the dvipng images vertically aligned, this involves adding markers.
                     This only works if dvipng depths are stored and the body_text is provided.
-                    
+
 
 =cut
 
@@ -260,7 +260,7 @@ sub add ($self, $string, $mode = 'inline') {
 	my $realString = ($mode eq "display") ? '\(\displaystyle{' . $string . '}\)' : '\(' . $string . '\)';
 
 	# Alignment tag could be a fixed default
-	my ($imageNum, $aligntag) = (0, qq{style="vertical-align=$self->{dvipng_align}"});
+	my ($imageNum, $aligntag) = (0, qq{style="vertical-align:$self->{dvipng_align}"});
 
 	# Determine what the image's "number" is.
 	if ($useCache) {
@@ -477,7 +477,7 @@ sub fix_markers ($self) {
 	my %depths = %{ $self->{depths} };
 	for my $depthkey (keys %depths) {
 		if ($depths{$depthkey} eq 'none') {
-			${ $self->{body_text} } =~ s/MaRkEr$depthkey/style="vertical-align="$self->{dvipng_align}"/g;
+			${ $self->{body_text} } =~ s/MaRkEr$depthkey/style="vertical-align:"$self->{dvipng_align}"/g;
 		} else {
 			my $ndepth = 0 - $depths{$depthkey};
 			${ $self->{body_text} } =~ s/MaRkEr$depthkey/style="vertical-align:${ndepth}px"/g;
