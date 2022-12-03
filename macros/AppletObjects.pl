@@ -137,12 +137,12 @@ sub insertAll {
 
 	my $base_64_encoded_answer_value;
 	my $decoded_answer_value;
-	if ($answer_value =~ /<XML|<?xml/i) {
+	if ($answer_value =~ /<\??xml/i) {
 		$base_64_encoded_answer_value = encode_base64($answer_value);
 		$decoded_answer_value         = $answer_value;
 	} else {
 		$decoded_answer_value = decode_base64($answer_value);
-		if ($decoded_answer_value =~ /<XML|<?xml/i) {
+		if ($decoded_answer_value =~ /<\??xml/i) {
 			# Great, we've decoded the answer to obtain an xml string
 			$base_64_encoded_answer_value = $answer_value;
 		} else {
