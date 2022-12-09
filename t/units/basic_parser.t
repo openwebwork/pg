@@ -23,7 +23,6 @@ methods are working.
 =cut
 
 use Test2::V0 '!E', { E => 'EXISTS' };
-use Scalar::Util qw(blessed);
 
 die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
 do "$ENV{PG_ROOT}/t/build_PG_envir.pl";
