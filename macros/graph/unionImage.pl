@@ -1,3 +1,7 @@
+loadMacros("unionMacros.pl");
+
+sub _unionImage_init { };    # don't reload this file
+
 ######################################################################
 #
 #  A routine to make including images easier to control
@@ -45,6 +49,7 @@
 sub Image {
 	my $image = shift;
 	my $ilink;
+	return unless defined $image;
 	my %options = (
 		size       => [ 150, 150 ],
 		tex_size   => 200,
@@ -60,15 +65,23 @@ sub Image {
 	my $HTML;
 	my $TeX;
 	($image, $ilink) = @{$image} if (ref($image) eq "ARRAY");
+	$ilink = $ilink // '';
 	$image = alias(insertGraph($image)) if (ref($image) eq "WWPlot");
-	$image = alias($image) unless ($image =~ m!^/!i);
+	$image = alias($image) unless ($image =~ m!^(/|https?:)!i);         # see note
 
 	if ($ilink) {
 		$ilink = alias(insertGraph($ilink)) if (ref($ilink) eq "WWPlot");
-		$ilink = alias($ilink) unless ($ilink =~ m!^/!i);
+		$ilink = alias($ilink) unless ($ilink =~ m!^(/|https?:)!i);         # see note
 	} else {
 		$ilink = $image;
 	}
+	#
+	# Note: These cases were added to handle the examples where the
+	# $image tag has a full url -- in practice this arises when using lighttpd
+	# to server images from a different port
+	# e.g. http://hosted2.webwork.rochester.edu:8000/webwork2_course_files/....
+	# A smarter implementation of alias might make this check unnecessary
+	#
 	$border = (($link || $ilink ne $image) ? 2 : 1) unless defined($border);
 	$HTML =
 		'<IMG SRC="'

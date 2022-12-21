@@ -1,4 +1,8 @@
-loadMacros("unionImage.pl", "unionTables.pl",);
+
+# not sure why these are loaded.  They are not used in this file.  If these are loaded
+# there is an error during the load_macros.t test.
+
+# loadMacros("unionImage.pl", "unionTables.pl",);
 
 $bHTML = '\begin{rawhtml}';
 $eHTML = '\end{rawhtml}';
@@ -46,7 +50,10 @@ $RQ = MODES(TeX => "''", Latex2HTML => '"', HTML => '"');
 #
 sub protectHTML {
 	my $string = shift;
-	return encode_pg_and_html($string);
+	$string =~ s/&/\&amp;/g;
+	$string =~ s/</\&lt;/g;
+	$string =~ s/>/\&gt;/g;
+	$string;
 }
 
 sub _parserUtils_init { }

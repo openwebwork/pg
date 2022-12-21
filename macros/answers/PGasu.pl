@@ -17,7 +17,7 @@
 
 =pod
 
-	Usage: ANS(auto_right()); 
+	Usage: ANS(auto_right());
           or
                ANS(auto_right("this answer can be left blank"));
 
@@ -90,7 +90,7 @@ sub no_decs {
 =pod
 
 Wrapper for other answer evaluators.  It insists that a string is part of
-the answer to be marked right. 
+the answer to be marked right.
 
 =cut
 
@@ -116,8 +116,8 @@ it contains one of the six basic trig functions.
 This is useful if you want students to report the value of sin(pi/4),
 but you don't want to allow "sin(pi/4)" as the answer.
 
-A similar effect can be accomplished with Contexts() by undefining 
-the trig functions.  
+A similar effect can be accomplished with Contexts() by undefining
+the trig functions.
 See http://webwork.maa.org/wiki/Modifying_contexts_%28advanced%29#.282.29_Functions
 
 
@@ -200,7 +200,7 @@ Filter for checking that an answer has (or doesn't have) a certain
 string in it.  This can be used to screen answers where you want them
 in a particular form (e.g., if you allow most functions, but not trig
 functions in the answer, or if the answer must include some string).
-     
+
 First argument is the string to have, or not have
 Second argument is optional, and tells us whether yes or no
 Third argument is the error message to produce (if any).
@@ -208,8 +208,8 @@ Third argument is the error message to produce (if any).
 When using this filter directly, you also need to install catch_errors_filter
 as a post filter.
 
-A similar effect can be accomplished with Contexts() by undefining 
-the trig functions.  
+A similar effect can be accomplished with Contexts() by undefining
+the trig functions.
 See http://webwork.maa.org/wiki/Modifying_contexts_%28advanced%29
 
 =cut

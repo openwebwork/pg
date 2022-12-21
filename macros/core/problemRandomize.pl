@@ -180,11 +180,8 @@ sub new {
 		when         => "correct",
 		onlyAfterDue => 1,
 		style        => "Button",
-		styleName    => (
-			defined $main::inputs_ref->{effectiveUser}
-				&& defined $main::inputs_ref->{user}
-				&& $main::inputs_ref->{effectiveUser} ne $main::inputs_ref->{user}
-		) ? "checkAnswers" : "submitAnswers",
+		styleName    =>
+			($main::inputs_ref->{effectiveUser} ne $main::inputs_ref->{user} ? "checkAnswers" : "submitAnswers"),
 		label         => undef,
 		buttonLabel   => $main::PG->maketext("Get a new version of this problem"),
 		checkboxLabel => $main::PG->maketext("Get a new version of this problem"),

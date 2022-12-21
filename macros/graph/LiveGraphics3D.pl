@@ -26,7 +26,7 @@ sub _LiveGraphics3D_init {
  #      Live3Ddata          load raw Graphics3D data
  #      LiveGraphics3D      access to all parameters
  #
- 
+
  #
  #  LiveGraphics3D(options)
  #
@@ -58,7 +58,7 @@ sub _LiveGraphics3D_init {
  #                            or when Java is disabled
  #
  #     tex_size => ratio      a scaling factor for the TeX image (as a portion
- #                            of the line width).  
+ #                            of the line width).
  #                                1000 is 100%, 500 is 50%, etc.
  #
  #     tex_center => 0 or 1   center the image in TeX mode or not

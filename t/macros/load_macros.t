@@ -15,16 +15,39 @@ die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
 use lib "$ENV{PG_ROOT}/lib";
 
 use Test2::V0;
+use File::Find;
 
 use WeBWorK::PG;
 
-my %baseMacros = ('PG.pl' => 1, 'PGstandard.pl' => 1);
+my %baseMacros = (
+	'PG.pl'                   => 1,
+	'PGstandard.pl'           => 1,
+	'PGbasicmacros.pl'        => 1,
+	'PGanswermacros.pl'       => 1,
+	'PGauxiliaryFunctions.pl' => 1,
+	'customizeLaTeX.pl'       => 1,
+	'PGnumericevaluators.pl'  => 1,
+	'PGfunctionevaluators.pl' => 1,
+	'PGstringevaluators.pl'   => 1,
+	'PGmiscevaluators.pl'     => 1,
+	'PGcommonFunctions.pl'    => 1
+);
 
 my %brokenMacros = ('answerDiscussion.pl' => 1);
 
-opendir my $dir, "$ENV{PG_ROOT}/macros" or die "Unable to open pg macro directory: $!";
-my @macro_files = sort grep { !/^\./ && /\.pl$/ && !$baseMacros{$_} && !$brokenMacros{$_} } readdir $dir;
-closedir $dir;
+# Find all macro files inside the $ENV{PG_ROOT}/macros directory.
+my @macro_files;
+find(
+	sub {
+		# Must be a file that has the ".pl" suffix.
+		return unless -f && /\.pl$/;
+		return if $baseMacros{$_} || $brokenMacros{$_};
+		push @macro_files, $_;
+	},
+	"$ENV{PG_ROOT}/macros"
+);
+
+@macro_files = sort @macro_files;
 
 for (@macro_files) {
 	subtest $_ => sub {

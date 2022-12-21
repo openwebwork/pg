@@ -184,7 +184,5 @@ sub get_tableau_variable_values {
 # and basis is {3,4,5}  (start columns with 1)
 #  $n= 4;  $m = 7
 #  $x1=0; $x2=0; $x3=s1=3; $x4=s2=6; $x5=s3=9; w=10=objective value
-#
-#
 
 1;
