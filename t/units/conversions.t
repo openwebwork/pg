@@ -119,7 +119,7 @@ subtest 'Check astronomical units' => sub {
 		'parsec conversion';
 };
 
-subtest 'Recently added electrical units' => sub {
+subtest 'Additional electrical units' => sub {
 	is multiply_by(1000, evaluate_units('eV')), { evaluate_units('keV') }, 'kilo-electron volt conversion';
 	is multiply_by(1E6,  evaluate_units('eV')), { evaluate_units('MeV') }, 'mega-electron volt conversion';
 	is multiply_by(1E9,  evaluate_units('eV')), { evaluate_units('GeV') }, 'giga-electron volt conversion';
