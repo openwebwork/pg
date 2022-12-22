@@ -8,7 +8,7 @@ our $ArRaY = $main::PG->{ARRAY_PREFIX};
 =head2 NAME
 
 	macros/PGmorematrixmacros.pl
-	
+
 =cut
 
 sub _PGmorematrixmacros_init { }
@@ -67,12 +67,12 @@ sub random_diag_matrix {    ## Builds and returns a random diagonal \$n by \$n m
 	return $D;
 }
 
-=head4 swap_rows ($matrix, $row1, $row2) 
+=head4 swap_rows ($matrix, $row1, $row2)
 
 	(deprecated use MathObject Matrix instead)
 
-$matrix is assumed to be a RealMatrix1 object. 
-It is better to use MathObject Matrices and row swap mechanisms 
+$matrix is assumed to be a RealMatrix1 object.
+It is better to use MathObject Matrices and row swap mechanisms
 from MatrixReduce.pl instead.
 
 =cut
@@ -98,12 +98,12 @@ sub swap_rows {
 	return $B;
 }
 
-=head4  row_mult ($matrix, $scaler, $row) 
+=head4  row_mult ($matrix, $scaler, $row)
 
 	(deprecated use MathObject Matrix instead)
 
-$matrix is assumed to be a RealMatrix1 object. 
-It is better to use MathObject Matrices and row swap mechanisms 
+$matrix is assumed to be a RealMatrix1 object.
+It is better to use MathObject Matrices and row swap mechanisms
 from MatrixReduce.pl instead.
 
 =cut
@@ -129,7 +129,7 @@ sub row_mult {
 
 Adds a multiple of row1 to row2.
 
-$matrix is assumed to be a RealMatrix1 object. 
+$matrix is assumed to be a RealMatrix1 object.
 It is better to use MathObject Matrices and subroutines
 from MatrixReduce.pl instead.
 
@@ -153,9 +153,9 @@ sub linear_combo {
 	return $B;
 }
 
-=head2 
+=pod
 
-These should be compared to similar subroutines made later in 
+These should be compared to similar subroutines made later in
 MatrixCheckers.pl
 
 
@@ -191,7 +191,7 @@ ANS( basis_cmp( vectors_as_array_ref_in_array_ref, options_hash ) );
                             (This is only in unit mode)
                     'orthonormal' (Gives errors from orthogonal and orthonormal)
                             (This is only in orthonormal mode)
-                    'verbose' (Gives all the above answer messages)             
+                    'verbose' (Gives all the above answer messages)
 
     Returns an answer evaluator.
 
@@ -340,11 +340,11 @@ sub BASIS_CMP {
 
 =head4 compare_basis
 
-    compare_basis( $ans_hash, 
+    compare_basis( $ans_hash,
         %options
         ra_student_ans     # a reference to the array of students answer vectors
         rm_correct_ans,    # a reference to the correct answer matrix
-        %options               
+        %options
     )
 
 
@@ -373,8 +373,8 @@ sub compare_basis {
 		$vecs[$i] = $lin_space_tr * $vecs[$i];
 		($dim, $x_vector, $base_matrix) = $matrix_lr->solve_LR($vecs[$i]);
 		push(@ch_coord, $x_vector);
-		$errors = "A unique adapted answer could not be determined.  
-        Possibly the parameters have coefficient zero.<br>  dim = $dim base_matrix 
+		$errors = "A unique adapted answer could not be determined.
+        Possibly the parameters have coefficient zero.<br>  dim = $dim base_matrix
         is $base_matrix\n" if $dim;    # only print if the dim is not zero.
 	}
 
@@ -430,7 +430,7 @@ Most errors are handled well. Any error in an entry is caught by the PG_answer_e
 Right now the method basically ignores every thing outside the vectors. Also, an unmatched open parenthesis is caught,
 but a unmatched close parenthesis ends the vector, and since everything outside is ignored, no error is sent (other than the
 later when the length of the vectors is checked.
-In the end, the method returns an array of Matrix objects.   
+In the end, the method returns an array of Matrix objects.
 
 =cut
 
@@ -558,7 +558,7 @@ sub vec_list_string {
 
 	(this filter is not necessary when using MathObjects.  It may someday be useful
 	again if the AnswerEvaluator pipeline is used to its fullest extent. )
-	
+
     This filter was created to get, format, and evaluate each entry of the ans_array and ans_array_extension
     answer entry methods. Running this filter is necessary to get all the entries out of the answer
     hash. Each entry is evaluated and the resulting number is put in the display for student answer
@@ -675,11 +675,11 @@ sub ans_array_filter {
 
 }
 
-=head3 
+=pod
 
-The following subroutines, meant to be used with MatrixReal1 type matrices, are 
-deprecated.  In general you should use the MathObject Matrix type and the 
-checking methods in MatrixCheckers.pl 
+The following subroutines, meant to be used with MatrixReal1 type matrices, are
+deprecated.  In general you should use the MathObject Matrix type and the
+checking methods in MatrixCheckers.pl
 
 	are_orthogonal_vecs($vec_ref, %opts)
 	is_diagonal($matrix, %opts)
@@ -687,7 +687,7 @@ checking methods in MatrixCheckers.pl
 	display_correct_vecs($vec_ref, %opts)
 	vec_solution_cmp($vec,%opts)
 		filter: compare_vec_solution($rh_ans,%opts);
-	
+
 =cut
 
 sub are_orthogonal_vecs {

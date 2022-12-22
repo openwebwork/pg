@@ -697,6 +697,7 @@ sub GReulertrail_size {
 	my ($i, @deg, $pic, $comp, $diff, $temp, $graph, @index, @lowdeg);
 
 =pod
+
   for ($i = 0; $i < $size; $i++){
     push @lowdeg, 2;
   }
@@ -709,12 +710,13 @@ sub GReulertrail_size {
     }
     $graph = GRgraph_degrees(@deg);
     $comp = GRncomponents_graph($graph);
-    
+
     do {
       $diff = random (0, $size - 1, 1);
     } until ($lowdeg[$diff] < $size - 2);
     $lowdeg[$diff] += 2;
   }
+
 =cut
 
 	if ($size <= 4) {
@@ -755,6 +757,7 @@ sub GRnoneuler_size {
 	@ans = (1, '');
 
 =pod
+
   while ($graph eq 'DNE' || $ans == 1){
     @deg = ();
     for ($i = 0; $i < $size; $i++){
@@ -764,12 +767,13 @@ sub GRnoneuler_size {
     if ($graph ne 'DNE'){
       @ans = GRiseulertrail_graph($graph);
     }
-    
+
     do {
     $diff = random (0, $size - 1, 1);
     } until ($lowdeg[$diff] < $size - 1);
     $lowdeg[$diff]++;
   }
+
 =cut
 
 	do {

@@ -4,14 +4,13 @@ sub _ConditionalHint_init { };    # don't reload this file
 
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright � 2000-2007 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader$
-# 
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any later
 # version, or (b) the "Artistic License" which comes with this package.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
@@ -25,13 +24,13 @@ has entered an answer correctly.
 
 =head2 DESCRIPTION
 
-The subroutine ConditionalHint() allows a hint to be revealed 
-after a student has entered an answer correctly.  It is useful 
-for multi-part questions in which a hint for answering one part 
-should not be revealed until a previous part has been answered 
+The subroutine ConditionalHint() allows a hint to be revealed
+after a student has entered an answer correctly.  It is useful
+for multi-part questions in which a hint for answering one part
+should not be revealed until a previous part has been answered
 correctly.
 
-A subroutine IsAnswerCorrect() that returns 0 or 1 is also 
+A subroutine IsAnswerCorrect() that returns 0 or 1 is also
 provided.
 
 =head2 USAGE
@@ -48,7 +47,7 @@ Enter \( x^2 \) \{ ans_rule(20) \}
 ConditionalHint(
   ans_name=>$ans,
   ans_number=>1,
-  html_hint=>"$BR ${BBOLD}Hint:${EBOLD} 
+  html_hint=>"$BR ${BBOLD}Hint:${EBOLD}
   \( \displaystyle \int x^2 \, dx = \frac{x^3}{3} + C.\) $BR",
   tex_hint=>'',
 );

@@ -8,7 +8,7 @@ VectorListCheckers.pl
 
 =head1 SYNOPSIS
 
-Provides subroutines for answer checking lists MathObjects 
+Provides subroutines for answer checking lists MathObjects
 vectors with real entries.
 
 =head1 DESCRIPTION
@@ -19,7 +19,7 @@ First, load the C<VectorListCheckers.pl> macro file.
 
 =item C<loadMacros("PGstandard.pl","MathObjects.pl","VectorListCheckers.pl");>
 
-= back
+=back
 
 For a MathObject list of MathObject vectors, the way to use the
 answer checkers is the same as using a custom answer checker
@@ -34,7 +34,7 @@ such as
 
 =back
 
-The "list of vectors" at the end of the checker name refers to the 
+The "list of vectors" at the end of the checker name refers to the
 fact that the student answer is a list of vectors.
 
 Here is an example of how to use these answer checkers.
@@ -49,7 +49,7 @@ loadMacros(
 "PGcourse.pl",
 );
 $showPartialCorrectAnswers = 1;
-TEXT(beginproblem()); 
+TEXT(beginproblem());
 
 Context('Vector');
 
@@ -59,13 +59,13 @@ $answer = List(ColumnVector(1,0,0),ColumnVector(0,1,0));
 
 Context()->texStrings;
 BEGIN_TEXT
-A basis for the column space of \( B = $B \) is 
+A basis for the column space of \( B = $B \) is
 $BR
 $BR
 \{ $answer->ans_rule(60) \}
 $BR
 $BR
-Enter your answer as a comma separated list of vectors, such as 
+Enter your answer as a comma separated list of vectors, such as
 \( \verb+<1,2,3>,<4,5,6>+ \).
 END_TEXT
 Context()->normalStrings;
@@ -88,10 +88,10 @@ ANS( $multians->cmp );
 
 The C<parametric_plane_checker_columns> should be used for
 solutions to non-homogeneous systems of linear equations for
-which the solution is essentially a point plus the span of 
+which the solution is essentially a point plus the span of
 several linearly independent vectors.  When using the parametric
 plane checker, the first vector input always serves as a point
-on the hyperplane (i.e., the first vector input is always a 
+on the hyperplane (i.e., the first vector input is always a
 particular solution), while the remaining vectors are a basis for
 the hyperplane (i.e., they span the homogeneous solution set).
 
@@ -180,10 +180,10 @@ sub basis_checker_list_of_vectors {
 $vector_list_column_syntax_angle_brackets = MODES(
 	TeX  => '',
 	HTML => "Enter a column vector such as
-\\( \\left\\lbrack \\begin{array}{r} 1 \\\\ 2 \\end{array} \\right\\rbrack \\) 
-using the syntax \\( \\verb+<1,2>+ \\). 
-If there is more than one vector in your answer, enter 
-your answer as a comma separated list of vectors, such as 
+\\( \\left\\lbrack \\begin{array}{r} 1 \\\\ 2 \\end{array} \\right\\rbrack \\)
+using the syntax \\( \\verb+<1,2>+ \\).
+If there is more than one vector in your answer, enter
+your answer as a comma separated list of vectors, such as
 \\( \\verb+<1,2>,<3,4>+ \\)."
 );
 
@@ -191,9 +191,9 @@ your answer as a comma separated list of vectors, such as
 
 $vector_list_row_syntax_angle_brackets = MODES(
 	TeX  => '',
-	HTML => "Enter a row vector using the syntax \\( \\verb+<1,2>+ \\). 
-If there is more than one vector in your answer, enter 
-your answer as a comma separated list of vectors, such as 
+	HTML => "Enter a row vector using the syntax \\( \\verb+<1,2>+ \\).
+If there is more than one vector in your answer, enter
+your answer as a comma separated list of vectors, such as
 \\( \\verb+<1,2>,<3,4>+ \\)."
 );
 
