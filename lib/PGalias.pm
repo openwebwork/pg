@@ -22,9 +22,8 @@ use PGresource;
 
 our @ISA = qw ( PGcore  );    # look up features in PGcore -- in this case we want the environment.
 
-=head2
+=head2 new
 
-new
   Create one alias object per question (and per PGcore object since there is a unique PGcore per question.)
   Check that information is intact
   Construct unique id stub seeds -- the id stub seed is for this PGalias object which is

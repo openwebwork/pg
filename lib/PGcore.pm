@@ -567,7 +567,7 @@ sub PG_restricted_eval {
 	WeBWorK::PG::Translator::PG_restricted_eval(@_);
 }
 
-=head2 base64 encoding and decoding
+=item base64 encoding and decoding
 
 	$str       = decode_base64($coded_str);
 	$coded_str = encode_base64($str);
