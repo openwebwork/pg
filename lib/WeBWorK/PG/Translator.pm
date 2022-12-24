@@ -263,7 +263,6 @@ sub new {
     &PG_answer_eval
     &PG_restricted_eval
     &send_mail_to
-    &PGsort
 
 In addition the environment hash C<%envir> is shared.  This variable is unpacked
 when PG.pl is run and provides most of the environment variables for each problem
@@ -285,7 +284,6 @@ The macros shared with the safe compartment are
     '&PG_restricted_eval'
     '&be_strict'
     '&send_mail_to'
-    '&PGsort'
 
 =cut
 
@@ -298,7 +296,6 @@ my @Translator_shared_subroutine_array = qw(
 	&PG_restricted_eval
 	&PG_macro_file_eval
 	&be_strict
-	&PGsort
 );
 
 sub initialize {
@@ -1268,43 +1265,6 @@ sub safetyFilter {
 
 	$errorno = 0;
 	return ($answer, $errorno);
-}
-
-=head2 PGsort
-
-Because of the way sort is optimized in Perl, the symbols $a and $b
-have special significance.
-
-C<sort {$a<=>$b} @list>
-C<sort {$a cmp $b} @list>
-
-sorts the list numerically and lexically respectively.
-
-If C<my $a;> is used in a problem, before the sort routine is defined in a macro, then
-things get badly confused.  To correct this the macro PGsort is defined below.  It is
-evaluated before the problem template is read.  In PGbasicmacros.pl, the two subroutines
-
-    PGsort sub { $_[0] < $_[1] }, @list;
-    PGsort sub { $_[0] lt $_[1] }, @list;
-
-(called num_sort and lex_sort) provide slightly slower, but safer, routines for the PG language.
-(The subroutines for ordering are B<required>. Note the commas!)
-
-=cut
-
-sub PGsort {
-	my ($cmp, @list) = @_;
-	die "Must supply an ordering function with PGsort: PGsort sub {\$_[0]  < \$_[1] }, \@list\n"
-		unless ref $cmp eq 'CODE';
-
-	return if @list == 0;
-
-	my $b_item = shift @list;
-	my ($small, $large);
-	for my $a_item (@list) {
-		push @{ &$cmp($a_item, $b_item) ? $small : $large }, $a_item;
-	}
-	return PGsort($cmp, @$small), $b_item, PGsort($cmp, @$large);
 }
 
 =head2 PG_restricted_eval
