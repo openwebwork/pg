@@ -507,6 +507,7 @@ sub format_matrix {
 	my $displayMode = $self->getPG('$displayMode');
 	$array = [$array] unless ref($array->[0]) eq 'ARRAY';
 	return $self->format_matrix_tex($array, @_) if ($displayMode eq 'TeX');
+	return $self->format_matrix_PTX($array, @_) if ($displayMode eq 'PTX');
 	return $self->format_matrix_HTML($array, @_);
 }
 
@@ -532,6 +533,17 @@ sub format_matrix_tex {
 	$tex .= join('\cr' . "\n", @rows);
 	$tex .= '\end{array}\right' . $close . '\)';
 	return $tex;
+}
+
+sub format_matrix_PTX {
+	my $self  = shift;
+	my $array = shift;
+	my ($rows, $cols) = (scalar(@{$array}), scalar(@{ $array->[0] }));
+	my $ptx = '<fillin';
+	$ptx .= qq( rows="$rows") if $rows > 1;
+	$ptx .= qq( cols="$cols") if $cols > 1;
+	$ptx .= '/>';
+	return $ptx;
 }
 
 sub format_matrix_HTML {
