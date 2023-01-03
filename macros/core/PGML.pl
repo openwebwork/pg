@@ -158,11 +158,11 @@ sub Parse {
 			/^\n\z/    && do { $self->Break($token); last };
 			/^\n\n+\z/ && do { $self->Par($token);   last };
 			/^\*\*?$/  && (!$block->{parseAll} && $block->{parseSubstitutions}) && do { $self->Star($token); last };
-			$block->{parseQuoted} && /^q/ && do { $self->Quoted($token); last };
-			$block->{balance}  && /^$block->{balance}/ && do { $self->Begin($token, substr($token, 0,  1)); last };
-			$block->{balance}  && /$block->{balance}$/ && do { $self->Begin($token, substr($token, -1, 1)); last };
-			$block->{parseAll} && do { $self->All($token);        last };
-			/^[\}\]]\z/        && do { $self->Unbalanced($token); last };
+			$block->{parseQuoted} && /^q/                 && do { $self->Quoted($token);                       last };
+			$block->{balance}     && /^$block->{balance}/ && do { $self->Begin($token, substr($token, 0, 1));  last };
+			$block->{balance}     && /$block->{balance}$/ && do { $self->Begin($token, substr($token, -1, 1)); last };
+			$block->{parseAll}    && do { $self->All($token);        last };
+			/^[\}\]]\z/           && do { $self->Unbalanced($token); last };
 			$self->Text($token);
 		}
 	}
@@ -514,15 +514,16 @@ sub Preformatted {
 }
 
 sub Quoted {
-	my $self = shift; my $token = shift;
-	my $quote = substr($token,-1,1);
+	my $self  = shift;
+	my $token = shift;
+	my $quote = substr($token, -1, 1);
 	$self->Text($token);
-	while ($self->{i} < scalar(@{$self->{split}})) {
-		my $text = $self->{split}[$self->{i}];
-		my $i = index($text,$quote);
+	while ($self->{i} < scalar(@{ $self->{split} })) {
+		my $text = $self->{split}[ $self->{i} ];
+		my $i    = index($text, $quote);
 		if ($i > -1) {
-			$self->Text(substr($text,0,$i+1));
-			$text = $self->{split}[$self->{i}] = substr($text,$i+1);
+			$self->Text(substr($text, 0, $i + 1));
+			$text = $self->{split}[ $self->{i} ] = substr($text, $i + 1);
 			$self->{i}++ if $text eq '';
 			return;
 		}
