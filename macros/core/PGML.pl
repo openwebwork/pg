@@ -514,15 +514,16 @@ sub Preformatted {
 }
 
 sub Quoted {
-	my $self  = shift;
-	my $token = shift;
-	my $quote = substr($token, -1, 1);
+	my $self   = shift;
+	my $token  = shift;
+	my $quote  = substr($token, -1, 1);
         my $pcount = 0;
-        my $open = ($quote =~ m/[({[]/ ? $quote : '');
-        my $close = $open // $quote;
+        my $open   = ($quote =~ m/[({[]/ ? $quote : '');
+        my $close  = $open // $quote;
         $close =~ tr/({[/)}]/;
         my $qclose = "\\$close";
 	$self->Text($token);
+
 	while ($self->{i} < scalar(@{ $self->{split} })) {
 		my $text = $self->{split}[ $self->{i} ];
 		if ($open && $text eq $open) {
