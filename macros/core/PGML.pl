@@ -43,9 +43,9 @@ my $list      = '(?:^|(?<=[\t ]))(?:[-+o*]|(?:\d|[ivxl]+|[IVXL]+|[a-zA-Z])[.)]) 
 my $align     = '>> *| *<<';
 my $code      = '```';
 my $pre       = ':   ';
-my $quoted    = 'q[qr]?.';
+my $quoted    = '\bq[qr]?(?:[^\s\w]|\s+.)';
 my $emphasis  = '\*+|_+';
-my $chars     = '\\\\.|[{}[\]\'"]';
+my $chars     = '\\\\.|[{}[\]()\'"]';
 my $ansrule   = '\[(?:_+|[ox^])\]\*?';
 my $open      = '\[(?:[!<%@$]|::?:?|``?`?|\|+ ?)';
 my $close     = '(?:[!>%@$]|::?:?|``?`?| ?\|+)\]';
@@ -517,15 +517,26 @@ sub Quoted {
 	my $self  = shift;
 	my $token = shift;
 	my $quote = substr($token, -1, 1);
+        my $pcount = 0;
+        my $open = ($quote =~ m/[({[]/ ? $quote : '');
+        my $close = $open // $quote;
+        $close =~ tr/({[/)}]/;
+        my $qclose = "\\$close";
 	$self->Text($token);
 	while ($self->{i} < scalar(@{ $self->{split} })) {
 		my $text = $self->{split}[ $self->{i} ];
-		my $i    = index($text, $quote);
-		if ($i > -1) {
-			$self->Text(substr($text, 0, $i + 1));
-			$text = $self->{split}[ $self->{i} ] = substr($text, $i + 1);
-			$self->{i}++ if $text eq '';
-			return;
+		if ($open && $text eq $open) {
+			$pcount++;
+		} elsif ($open && $text eq $close && $pcount > 0) {
+			$pcount--;
+		} elsif ($text ne $qclose && $pcount == 0) {
+			my $i = index($text, $close);
+			if ($i > -1) {
+				$self->Text(substr($text, 0, $i + 1));
+				$text = $self->{split}[ $self->{i} ] = substr($text, $i + 1);
+				$self->{i}++ if $text eq '';
+				return;
+			}
 		}
 		$self->Text($text);
 		$self->{i}++;
