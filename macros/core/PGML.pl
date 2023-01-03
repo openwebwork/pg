@@ -43,6 +43,7 @@ my $list      = '(?:^|(?<=[\t ]))(?:[-+o*]|(?:\d|[ivxl]+|[IVXL]+|[a-zA-Z])[.)]) 
 my $align     = '>> *| *<<';
 my $code      = '```';
 my $pre       = ':   ';
+my $quoted    = 'q[qr]?.';
 my $emphasis  = '\*+|_+';
 my $chars     = '\\\\.|[{}[\]\'"]';
 my $ansrule   = '\[(?:_+|[ox^])\]\*?';
@@ -51,7 +52,7 @@ my $close     = '(?:[!>%@$]|::?:?|``?`?| ?\|+)\]';
 my $noop      = '\[\]';
 
 my $splitPattern =
-	qr/($indent|$open|$ansrule|$close|$linebreak|$lineend|$heading|$rule|$list|$align|$code|$pre|$emphasis|$noop|$chars)/m;
+	qr/($indent|$open|$ansrule|$close|$linebreak|$lineend|$heading|$rule|$list|$align|$code|$pre|$quoted|$emphasis|$noop|$chars)/m;
 
 my %BlockDefs;
 
@@ -157,6 +158,7 @@ sub Parse {
 			/^\n\z/    && do { $self->Break($token); last };
 			/^\n\n+\z/ && do { $self->Par($token);   last };
 			/^\*\*?$/  && (!$block->{parseAll} && $block->{parseSubstitutions}) && do { $self->Star($token); last };
+			$block->{parseQuoted} && /^q/ && do { $self->Quoted($token); last };
 			$block->{balance}  && /^$block->{balance}/ && do { $self->Begin($token, substr($token, 0,  1)); last };
 			$block->{balance}  && /$block->{balance}$/ && do { $self->Begin($token, substr($token, -1, 1)); last };
 			$block->{parseAll} && do { $self->All($token);        last };
@@ -511,6 +513,24 @@ sub Preformatted {
 	$self->Begin($token, ':   ');
 }
 
+sub Quoted {
+	my $self = shift; my $token = shift;
+	my $quote = substr($token,-1,1);
+	$self->Text($token);
+	while ($self->{i} < scalar(@{$self->{split}})) {
+		my $text = $self->{split}[$self->{i}];
+		my $i = index($text,$quote);
+		if ($i > -1) {
+			$self->Text(substr($text,0,$i+1));
+			$text = $self->{split}[$self->{i}] = substr($text,$i+1);
+			$self->{i}++ if $text eq '';
+			return;
+		}
+		$self->Text($text);
+		$self->{i}++;
+	}
+}
+
 sub Quote {
 	my $self  = shift;
 	my $token = shift;
@@ -611,6 +631,7 @@ my $balanceAll = qr/[\{\[\'\"]/;
 		type               => 'command',
 		parseComments      => 1,
 		parseSubstitutions => 1,
+		parseQuoted        => 1,
 		terminator         => qr/@\]/,
 		terminateMethod    => 'terminateGetString',
 		balance            => qr/[\'\"]/,
