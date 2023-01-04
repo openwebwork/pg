@@ -85,8 +85,9 @@ cmp() method is called.  For example:
             my ($correct, $student, $self, $ans) = @_; # get the parameters
             my ($radio_cor, $a_cor, $b_cor) = @$correct; # extract the correct answers
             my ($radio_stu, $a_stu, $b_stu) = @$student; # extract the student answers
-            return ($radio_cor eq $radio_stu && $a_cor->[0] ==
-                    $a_stu->[0] && $a_cor->[1] = $a_y_stu->[1]);
+            return ($radio_cor == $radio_stu
+                && $a_cor->[0] == $a_stu->[0]
+                && $a_cor->[1] == $a_stu->[1]);
         }
     );
     ANS($rma->cmp);
@@ -98,15 +99,15 @@ or
         my ($correct, $student, $self, $ans) = @_; # get the parameters
         my ($radio_cor, $a_cor, $b_cor) = @$correct; # extract the correct answers
         my ($radio_stu, $a_stu, $b_stu) = @$student; # extract the student answers
-        return ($radio_cor eq $radio_stu && $a_cor->[0] ==
-                $a_stu->[0] && $a_cor->[1] = $a_y_stu->[1]);
+        return ($radio_cor == $radio_stu
+            && $a_cor->[0] == $a_stu->[0]
+            && $a_cor->[1] == $a_stu->[1]);
     };
     ANS($rma->cmp(checker => ~~&check));
 
-Note that the student answers in the parts that are not selected will always be blank.  This is
-enforced by javascript.
+See the checker option below for more details.
 
-=head1 USAGE
+=head1 CONSTRUCTOR
 
     RadioMultiAnswer([['First part %s, %s', $answer1, $answer2],
                       ['Second part %s, %s', $answer3, $answer4],
@@ -132,6 +133,24 @@ reference to the RadioMultiAnswer object itself, and a reference to the checker'
 The routine should return a score from 0 to 1.  If this is not defined, then this will be set to
 a default checker that returns 1 if the student selects the correct radio answer, and all
 answers in that part are equal to correct answers in that part, and 0 otherwise.
+
+The structures of the array of student answers and the array of correct answers are the same.
+The first entry of each will be a number from 1 up to the number of radio answers in the
+problem.  The remaining entries will be array references to the answers for each part.  So the
+first entry can be used to access the index of the array containing the answers for the correct
+part.  For example, $correct->[$correct->[0]] and $student->[$correct->[0]].  Note that the
+student answers in the parts that are not selected will always be blank.  This is enforced by
+javascript.
+
+So, for the CONSTRUCTOR example shown above the correct answer array will be
+
+    [ 1, [ $answer1, $answer2 ], [ $answer3, $answer4 ], [] ]
+
+and if the student selects the incorrect second part, then the student answer array will be:
+
+    [ 2, [ '', '' ], [ '5t+2', 't' ], [] ]
+
+where the entries in the latter arrays are not actually strings but are MathObjects.
 
 =item namedRules (Default: namedRules => 0)
 
