@@ -33,9 +33,9 @@ my $rando = randomPerson();
 is(ref $rando, 'Person', 'Check that the randomPerson method returns an object of Person class');
 
 like(
-		dies { Person->new({ name => 'Head', pronoun => 'xxx'}) },
-		qr/The pronoun must be/,
-		"An invalid pronoun is passed in."
-	);
+	dies { Person->new({ name => 'Head', pronoun => 'xxx' }) },
+	qr/The pronoun must be/,
+	"An invalid pronoun is passed in."
+);
 
 done_testing;
