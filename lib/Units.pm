@@ -129,7 +129,9 @@ our %known_units = (
 	},
 	# TIME
 	# s     -- seconds
-	# ms    -- miliseconds
+	# ms    -- milliseconds
+	# us    -- microseconds
+	# ns    -- nanoseconds
 	# min   -- minutes
 	# hr    -- hours
 	# day   -- days
@@ -150,6 +152,14 @@ our %known_units = (
 	},
 	'ms' => {
 		'factor' => 0.001,
+		's'      => 1
+	},
+	'us' => {
+		'factor' => 1E-6,
+		's'      => 1
+	},
+	'ns' => {
+		'factor' => 1E-9,
 		's'      => 1
 	},
 	'min' => {
@@ -214,6 +224,8 @@ our %known_units = (
 	# um   -- micrometer
 	# nm   -- nanometer
 	# A    -- Angstrom
+	# pm   -- picometer
+	# fm   -- femtometer
 	#
 	'km' => {
 		'factor' => 1000,
@@ -241,6 +253,14 @@ our %known_units = (
 	},
 	'A' => {
 		'factor' => 1E-10,
+		'm'      => 1
+	},
+	'pm' => {
+		'factor' => 1E-12,
+		'm'      => 1
+	},
+	'fm' => {
+		'factor' => 1E-15,
 		'm'      => 1
 	},
 	# ENGLISH LENGTHS
@@ -347,7 +367,7 @@ our %known_units = (
 		's'      => -1
 	},
 	# MASS
-	# mg   -- miligrams
+	# mg   -- milligrams
 	# g    -- grams
 	# kg   -- kilograms
 	# tonne -- metric ton
@@ -477,6 +497,7 @@ our %known_units = (
 	# keV    -- kilo electron volt
 	# MeV    -- mega electron volt
 	# GeV    -- giga electron volt
+	# TeV    -- tera electron volt
 	# kWh    -- kilo Watt hour
 	#
 	'J' => {
@@ -551,6 +572,12 @@ our %known_units = (
 		'kg'     => 1,
 		's'      => -2
 	},
+	'TeV' => {
+		'factor' => 1.6022E-7,
+		'm'      => 2,
+		'kg'     => 1,
+		's'      => -2
+	},
 	'kWh' => {
 		'factor' => 3.6E6,
 		'm'      => 2,
@@ -560,6 +587,8 @@ our %known_units = (
 	# POWER
 	# W      -- Watt
 	# kW     -- kilo Watt
+	# MW     -- mega Watt
+	# mW     -- milli Watt
 	# hp     -- horse power  746 W
 	#
 	'W' => {
@@ -570,6 +599,18 @@ our %known_units = (
 	},
 	'kW' => {
 		'factor' => 1000,
+		'm'      => 2,
+		'kg'     => 1,
+		's'      => -3
+	},
+	'MW' => {
+		'factor' => 1E6,
+		'm'      => 2,
+		'kg'     => 1,
+		's'      => -3
+	},
+	'mW' => {
+		'factor' => 0.001,
 		'm'      => 2,
 		'kg'     => 1,
 		's'      => -3
@@ -657,20 +698,40 @@ our %known_units = (
 	},
 	# ELECTRICAL UNITS
 	# C      -- Coulomb
+	# mC     -- milliCoulomb
+	# uC     -- microCoulomb
+	# nC     -- nanoCoulomb
 	# V      -- volt
-	# mV     -- milivolt
+	# mV     -- millivolt
 	# kV     -- kilovolt
 	# MV     -- megavolt
 	# F      -- Farad
-	# mF     -- miliFarad
+	# mF     -- milliFarad
 	# uF     -- microFarad
 	# ohm    -- ohm
 	# kohm   -- kilo-ohm
 	# Mohm	 -- mega-ohm
 	# S		 -- siemens
+	# mA     -- milli-ampere
+	# mamp   -- milli-ampere
 	#
 	'C' => {
 		'factor' => 1,
+		'amp'    => 1,
+		's'      => 1,
+	},
+	'mC' => {
+		'factor' => 0.001,
+		'amp'    => 1,
+		's'      => 1,
+	},
+	'uC' => {
+		'factor' => 1e-6,
+		'amp'    => 1,
+		's'      => 1,
+	},
+	'nC' => {
+		'factor' => 1e-9,
 		'amp'    => 1,
 		's'      => 1,
 	},
@@ -751,14 +812,29 @@ our %known_units = (
 		'amp'    => 2,
 		's'      => 3,
 	},
+	'mA' => {    # milliampere
+		'factor' => 0.001,
+		'amp'    => 1,
+	},
+	'mamp' => {
+		'factor' => 0.001,
+		'amp'    => 1,
+	},
 	# MAGNETIC UNITS
-	# T	 	 -- tesla
-	# G	 	 -- gauss
-	# Wb	 -- weber
-	# H	 	 -- henry
+	# T      -- tesla
+	# mT     -- millitesla
+	# G      -- gauss
+	# Wb     -- weber
+	# H      -- henry
 	#
 	'T' => {    # also kg/A s^2		N s/C m
 		'factor' => 1,
+		'kg'     => 1,
+		'amp'    => -1,
+		's'      => -2,
+	},
+	'mT' => {
+		'factor' => 0.001,
 		'kg'     => 1,
 		'amp'    => -1,
 		's'      => -2,
@@ -830,6 +906,7 @@ our %known_units = (
 	# Sv	-- sievert, dose equivalent radiation	http://xkcd.com/radiation
 	# mSv	-- millisievert				http://blog.xkcd.com/2011/03/19/radiation-chart
 	# uSv	-- microsievert				http://blog.xkcd.com/2011/04/26/radiation-chart-update
+	# Bq    -- becquerel, radioactivity             https://en.wikipedia.org/wiki/Becquerel
 	#
 	'Sv' => {
 		'factor' => 1,
@@ -845,6 +922,10 @@ our %known_units = (
 		'factor' => 0.000001,
 		'm'      => 2,
 		's'      => -2,
+	},
+	'Bq' => {
+		'factor' => 1,
+		's'      => -1,
 	},
 	# BIOLOGICAL & CHEMICAL UNITS
 	# mmol	-- milli mole
