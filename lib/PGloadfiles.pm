@@ -13,10 +13,6 @@
 # Artistic License for more details.
 ################################################################################
 
-=head2
-
-=cut
-
 =head2 loadMacros
 
 	loadMacros(@macroFiles)

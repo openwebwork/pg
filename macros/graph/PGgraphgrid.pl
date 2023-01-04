@@ -8,7 +8,7 @@ PGgraphgrid.pl
 
 =head1 SYNOPSIS
 
-Provides subroutines plotting a parallelogram grid on a 
+Provides subroutines plotting a parallelogram grid on a
 graph object created by PGgraphmacros.pl.
 
 =head1 DESCRIPTION
@@ -19,11 +19,11 @@ Load the C<PGgraphgrid.pl> macro file.
 
 =item C<loadMacros("PGstandard.pl","MathObjects.pl","PGgraphmacros.pl","PGgraphgrid.pl");>
 
-= back
+=back
 
 The macro C<PGgraphgrid.pl> provides two different subroutines
 for graphing grids: the first one draws the grid using parallel lines
-and should be fast, and a second that draws each individual 
+and should be fast, and a second that draws each individual
 parallelogram and should be slow (but will suffer less from clipping):
 
 =over 12
@@ -34,14 +34,12 @@ parallelogram and should be slow (but will suffer less from clipping):
 
 =back
 
-Here C<$gr> is a graph object created by C<PGgraphmacros.pl>, 
-C<$B> is a two by two MathObjects matrix, the integers C<$hmin> and 
-C<$vmin> specify one corner of the grid, the integers C<$hmax> and 
+Here C<$gr> is a graph object created by C<PGgraphmacros.pl>,
+C<$B> is a two by two MathObjects matrix, the integers C<$hmin> and
+C<$vmin> specify one corner of the grid, the integers C<$hmax> and
 C<$vmax> specify the opposite corner of the grid, C<$color> is a string
 that specifies the drawing color, and C<$linewidth> is a positive integer
 for the line width.
-
-=over 12
 
 =head1 AUTHORS
 

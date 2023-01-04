@@ -5,12 +5,15 @@
     extra macros for Intermediate Algebra problems at CofI
 
 =head1 Synposis
+
     macros by R Cruz -- The College of Idaho
+
 =cut
 
 =head3 Allows string answers for the set of real numbers and the empty set
-       
+
 =pod
+
       Adds the string "All real numbers" to the Inequalities context
  NOT WORKING: Adds the string "No solution" to the Inequalities context
 
