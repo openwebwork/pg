@@ -1186,7 +1186,8 @@ sub SOLUTION {
 	return "" if $solution_body eq "";
 
 	if ($displayMode =~ /HTML/) {
-		TEXT('<div>', knowlLink(SOLUTION_HEADING(), value => $solution_body, type => 'solution'), '</div>');
+		TEXT('<div class="knowl-container">',
+			knowlLink(SOLUTION_HEADING(), value => $solution_body, type => 'solution'), '</div>');
 	} elsif ($displayMode =~ /TeX/) {
 		TEXT(
 			"\n%%% BEGIN SOLUTION\n"
@@ -1211,7 +1212,7 @@ sub HINT {
 	my $hint_body = hint(@_);
 	return unless $hint_body;
 	if ($displayMode =~ /HTML/) {
-		TEXT('<div>', knowlLink(HINT_HEADING(), value => $hint_body, type => 'hint'), '</div>');
+		TEXT('<div class="knowl-container">', knowlLink(HINT_HEADING(), value => $hint_body, type => 'hint'), '</div>');
 	} elsif ($displayMode =~ /TeX/) {
 		TEXT(
 			"\n%%% BEGIN HINT\n"
