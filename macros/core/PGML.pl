@@ -519,7 +519,7 @@ sub Quoted {
 	my $quote  = substr($token, -1, 1);
 	my $pcount = 0;
 	my $open   = ($quote =~ m/[({[]/ ? $quote : '');
-	my $close  = $open // $quote;
+	my $close  = $open || $quote;
 	$close =~ tr/({[/)}]/;
 	my $qclose = "\\$close";
 	$self->Text($token);
@@ -530,12 +530,11 @@ sub Quoted {
 			$pcount++;
 		} elsif ($open && $text eq $close && $pcount > 0) {
 			$pcount--;
-		} elsif ($text ne $qclose && $pcount == 0) {
+		} elsif (!$open || ($text ne $qclose && $pcount == 0)) {
 			my $i = index($text, $close);
 			if ($i > -1) {
 				$self->Text(substr($text, 0, $i + 1));
 				$text = $self->{split}[ $self->{i} ] = substr($text, $i + 1);
-				$self->{i}++ if $text eq '';
 				return;
 			}
 		}
