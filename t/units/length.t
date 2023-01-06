@@ -15,6 +15,7 @@ loadMacros('parserNumberWithUnits.pl');
 my $micron     = NumberWithUnits(1,   'um');
 my $picometer  = NumberWithUnits(1E6, 'pm');
 my $femtometer = NumberWithUnits(1E9, 'fm');
+my $angstrom   = NumberWithUnits(1E4, 'Angstrom');
 
 subtest 'LaTeX output' => sub {
 	is $picometer->TeX, '1\times 10^{6}\ {\rm pm}', 'LaTeX output for 1E6 picometers';
@@ -26,6 +27,7 @@ subtest 'LaTeX output' => sub {
 subtest 'Equivalent to micrometer' => sub {
 	is check_score($picometer,  $micron), 1, '1 micrometer in picometers';
 	is check_score($femtometer, $micron), 1, '1 micrometer in femtometers';
+	is check_score($angstrom,   $micron), 1, '1 micrometer in picometers';
 };
 
 done_testing();

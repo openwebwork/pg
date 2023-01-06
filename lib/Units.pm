@@ -224,6 +224,8 @@ our %known_units = (
 	# um   -- micrometer
 	# nm   -- nanometer
 	# A    -- Angstrom
+	# Angstrom -- Angstrom
+	# angstrom -- Angstrom
 	# pm   -- picometer
 	# fm   -- femtometer
 	#
@@ -252,6 +254,14 @@ our %known_units = (
 		'm'      => 1
 	},
 	'A' => {
+		'factor' => 1E-10,
+		'm'      => 1
+	},
+	'Angstrom' => {
+		'factor' => 1E-10,
+		'm'      => 1
+	},
+	'angstrom' => {
 		'factor' => 1E-10,
 		'm'      => 1
 	},
