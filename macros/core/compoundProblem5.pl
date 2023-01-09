@@ -36,34 +36,34 @@ C<PROCESS_SECTIONS()> to finalize all the sections.
 Here is a sample:
 
 	loadMacros("compoundProblem5.pl");
-	
+
 	$scaffold = Scaffold();   # create the scaffold
 	Context("Numeric");
-	
+
 	##########################################
 	#  Section 1
 	##########################################
-	
+
 	$f = Compute("x^2-1");
-	
+
 	Context()->texStrings;
 	DISPLAY_SECTION("Section 1: The equation",<<'END_SECTION');
 	  Enter the function \($f\): \{ SECTION_ANS($f->cmp); $f->ans_rule(10) \}
 	END_SECTION
 	Context()->normalStrings;
-	
+
 	##########################################
 	#  Section 2
 	##########################################
-	
+
 	$x = Compute("sqrt(3)/2");
-	
+
 	DISPLAY_SECTION("Section 2: The number",<<'END_SECTION');
 	  What is \(\sin(\pi/3)\)? \{ SECTION_ANS($x->cmp); $x->ans_rule \}
 	END_SECTION
-	
+
 	##########################################
-	
+
 	PROCESS_SCAFFOLD();
 
 The C<DISPLAY_SECTION()> and C<DISPLAY_PGML_SECTION()> macros can
@@ -162,7 +162,7 @@ C<SECTION_PGML_SOLUTION()> to create it.  E.g.,
     DISPLAY_SECTION("Part 1",<<'END_SECTION');
     \(1 + 1\) = \{ANS($r->cmp); $r->ans_rule(5)\}
     END_SECTION
-    
+
     SECTION_SOLUTION(<<'END_SOLUTION');
     When you add 1 to 1 you get 2.
     END_SOLUTION
@@ -176,16 +176,16 @@ attach to:
     DISPLAY_SECTION("Part 1",<<'END_SECTION');
     \(1 + 1\) = \{ANS($r1->cmp); $r1->ans_rule(5)\}
     END_SECTION
-    
+
     $r2 = Real(4);
     DISPLAY_SECTION("Part 1",<<'END_SECTION');
     \(2\times 2\) = \{ANS($r2->cmp); $r2->ans_rule(5)\}
     END_SECTION
-    
+
     SECTION_SOLUTION({section => 1},<<'END_SOLUTION')
     When you add 1 to 1 you get 2.
     END_SOLUTION
-    
+
     SECTION_SOLUTION({section => 2},<<'END_SOLUTION')
     When you multiply 2 by 2 you get 4.
     END_SOLUTION
@@ -205,7 +205,7 @@ sub _compoundProblem5_init { };    # don't reload this file
 #
 HEADER_TEXT(<<'END_HEADER_TEXT');
 
-<style type="text/css">
+<style>
 
 .section-li {list-style: none}          /* don't show bullets */
 .section-li > div {padding:0 .5em;}     /* move the contents away from the edges */
@@ -588,7 +588,7 @@ sub HIDE_OTHER_RESULTS {
 	#  Add styles that dim the hidden rows
 	#
 	my @styles = (map {".attemptResults > tbody > tr:nth-child($_) {opacity:.5}"} @hide);
-	main::HEADER_TEXT("<style type=\"text/css\">\n" . join("\n", @styles) . "\n</style>\n");
+	main::HEADER_TEXT('<style>' . join('', @styles) . '</style>');
 }
 
 #

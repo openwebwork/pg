@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w 
+#!/usr/bin/perl -w
 
 ###################################
 # quick matrix entry package
@@ -30,16 +30,16 @@ sub MATRIX_ENTRY_BUTTON {
 	# warn("answer number $answer_name rows $rows columns $columns");
 	return qq!
 	$PAR
-		<input class="opener" type='button' name="$answer_name" value="Quick Entry" 
+		<input class="opener" type='button' name="$answer_name" value="Quick Entry"
 		rows="$rows" columns="$columns">
 	$PAR!;
 }
 
 our $quick_entry_javascript = <<'END_JS';
-<script type="text/javascript">
-$(function() {        
+<script>
+$(function() {
         $( "#quick_entry_form" ).dialog({
-            autoOpen: false,  
+            autoOpen: false,
             });
         //console.log('startup');
         var name = $("#quick_entry_form").attr("name");
@@ -58,7 +58,7 @@ $(function() {
 				pos= "#"+name;
 			}  //MaTrIx_AnSwEr0007_0_3
 			//console.log($(pos).val());
-			return $(pos).val() ; 
+			return $(pos).val() ;
 		}
     $( ".opener" ).click(function() {
          //console.log(this.name );
@@ -77,13 +77,13 @@ $(function() {
          //console.log("entry " + entry); # prefill the entry area
          $("textarea#matrix_input").val(entry);
          $( "#quick_entry_form" ).dialog( "open" );
-      
+
     });
     $( "#closer" ).click(function() {
         //var name="AnSwEr0007";
         var entry1 = $("textarea#matrix_input").val().replace(/^\s*/,'');
         //remove initial white space
-        var entry2=entry1; 
+        var entry2=entry1;
         // replace commas with a space
         // replace ] with a return
         // replace [ with nothing
@@ -100,7 +100,7 @@ $(function() {
         for (i=0; i<mat3.length; i++) {
             for(j=0; j<mat3[i].length; j++){
                 insert_value(name,i,j,mat3[i][j]);
-            }		
+            }
         }
         $( "#quick_entry_form" ).dialog( "close" );
       });
@@ -110,7 +110,7 @@ END_JS
 
 our $quick_entry_form = <<'END_TEXT';
 <div id="quick_entry_form" name="quick entry" title="Enter matrix">
-  <textarea id="matrix_input" rows="5" columns = "10"> 
+  <textarea id="matrix_input" rows="5" columns = "10">
   </textarea>
   <button id="closer">enter</button>
 </div>
