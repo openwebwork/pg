@@ -361,9 +361,9 @@ sub NAMED_HIDDEN_ANS_RULE {
 
 	MODES(
 		TeX        => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
-		Latex2HTML => qq!\\begin{rawhtml}<input type=text size=$col name="$name" value="">\\end{rawhtml}!,
-		HTML       => qq!<input type=hidden size=$col name="$name" id ="$name" value="$answer_value">!
-			. qq!<input type=hidden  name="previous_$name" id = "previous_$name" value="$answer_value">!,
+		Latex2HTML => qq!\\begin{rawhtml}<input type=text name="$name" value="">\\end{rawhtml}!,
+		HTML       => qq!<input type=hidden name="$name" id="$name" value="$answer_value">!
+			. qq!<input type=hidden name="previous_$name" id="previous_$name" value="$answer_value">!,
 		PTX => '',
 	);
 }
