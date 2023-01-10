@@ -36,6 +36,8 @@ and verb conjugation.  It is can be used within a problem as
 
 =cut
 
+sub _randomNamesPronouns_init { }
+
 my $names = {
 	'Aaliyah'   => 'she',
 	'Aaron'     => 'he',
