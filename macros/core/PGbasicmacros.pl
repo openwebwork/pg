@@ -1130,7 +1130,6 @@ a hard copy output.
               HTML       => "output this in HTML mode",
               HTML_tth   => "output this in HTML_tth mode",
               HTML_dpng  => "output this in HTML_dpng mode",
-              Latex2HTML => "output this in Latex2HTML mode",
              )
 
     M3      (tex_version, latex2html_version, html_version) #obsolete
@@ -1139,25 +1138,17 @@ a hard copy output.
 
 sub M3 {
 	my ($tex, $l2h, $html) = @_;
-	MODES(TeX => $tex, Latex2HTML => $l2h, HTML => $html, HTML_tth => $html, HTML_dpng => $html);
+	MODES(TeX => $tex, HTML => $html, HTML_tth => $html, HTML_dpng => $html);
 }
 
 # MODES() is now table driven
 our %DISPLAY_MODE_FAILOVER = (
-	TeX              => [],
-	HTML             => [],
-	PTX              => ["HTML"],
-	HTML_tth         => [ "HTML", ],
-	HTML_dpng        => [ "HTML_tth",  "HTML", ],
-	HTML_jsMath      => [ "HTML_dpng", "HTML_tth", "HTML", ],
-	HTML_MathJax     => [ "HTML_dpng", "HTML_tth", "HTML", ],
-	HTML_asciimath   => [ "HTML_dpng", "HTML_tth", "HTML", ],
-	HTML_LaTeXMathML => [ "HTML_dpng", "HTML_tth", "HTML", ],
-	# legacy modes -- these are not supported, but some problems might try to
-	# set the display mode to one of these values manually and some macros may
-	# provide rendered versions for these modes but not the one we want.
-	Latex2HTML => [ "TeX", "HTML", ],
-	HTML_img   => [ "HTML_dpng", "HTML_tth", "HTML", ],
+	TeX          => [],
+	HTML         => [],
+	PTX          => ["HTML"],
+	HTML_tth     => ["HTML"],
+	HTML_dpng    => [ "HTML_tth",  "HTML" ],
+	HTML_MathJax => [ "HTML_dpng", "HTML_tth", "HTML" ]
 );
 
 # This replaces M3.  You can add new modes at will to this one.
@@ -1246,63 +1237,60 @@ sub ALPHABET {
 
 ###############################################################
 # Some constants which are different in tex and in HTML
-# The order of arguments is TeX, Latex2HTML, HTML
+# The order of arguments is TeX, HTML
 # Adopted Davide Cervone's improvements to PAR, LTS, GTS, LTE, GTE, LBRACE, RBRACE, LB, RB. 7-14-03 AKP
 sub PAR {
 	MODES(
-		TeX        => '\\vskip\\baselineskip ',
-		Latex2HTML => '\\begin{rawhtml}<P>\\end{rawhtml}',
-		HTML       => '<div style="margin-top:1em"></div>',
-		PTX        => "\n\n"
+		TeX  => '\\vskip\\baselineskip ',
+		HTML => '<div style="margin-top:1em"></div>',
+		PTX  => "\n\n"
 	);
 }
-#sub BR { MODES( TeX => '\\par\\noindent ', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR>'); };
+#sub BR { MODES( TeX => '\\par\\noindent ', HTML => '<BR>'); };
 # Alternate definition of BR which is slightly more flexible and gives more white space in printed output
 # which looks better but kills more trees.
 sub BR {
 	MODES(
-		TeX        => '\\leavevmode\\\\\\relax ',
-		Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}',
-		HTML       => '<BR>',
-		PTX        => "\n\n"
+		TeX  => '\\leavevmode\\\\\\relax ',
+		HTML => '<BR>',
+		PTX  => "\n\n"
 	);
 }
 
 sub BRBR {
 	MODES(
-		TeX        => '\\leavevmode\\\\\\relax \\leavevmode\\\\\\relax ',
-		Latex2HTML => '\\begin{rawhtml}<BR><BR>\\end{rawhtml}',
-		HTML       => '<P>',
-		PTX        => "\n"
+		TeX  => '\\leavevmode\\\\\\relax \\leavevmode\\\\\\relax ',
+		HTML => '<P>',
+		PTX  => "\n"
 	);
 }
-sub LQ { MODES(TeX => "\\lq\\lq{}", Latex2HTML => '"', HTML    => '&quot;', PTX => '<lq/>'); }
-sub RQ { MODES(TeX => "\\rq\\rq{}", Latex2HTML => '"', HTML    => '&quot;', PTX => '<rq/>'); }
-sub BM { MODES(TeX => '\\(', Latex2HTML => '\\(', HTML_MathJax => '\\(', HTML => '', PTX => '<m>'); }; # begin math mode
-sub EM { MODES(TeX => '\\)', Latex2HTML => '\\)', HTML_MathJax => '\\)', HTML => '', PTX => '</m>'); };  # end math mode
+sub LQ { MODES(TeX => "\\lq\\lq{}", HTML         => '&quot;', PTX  => '<lq/>'); }
+sub RQ { MODES(TeX => "\\rq\\rq{}", HTML         => '&quot;', PTX  => '<rq/>'); }
+sub BM { MODES(TeX => '\\(',        HTML_MathJax => '\\(',    HTML => '', PTX => '<m>'); };     # begin math mode
+sub EM { MODES(TeX => '\\)',        HTML_MathJax => '\\)',    HTML => '', PTX => '</m>'); };    # end math mode
 
 sub BDM {
-	MODES(TeX => '\\[', Latex2HTML => '\\[', HTML_MathJax => '\\[', HTML => '<P ALIGN=CENTER>', PTX => '<me>');
-};    #begin displayMath mode
+	MODES(TeX => '\\[', HTML_MathJax => '\\[', HTML => '<P ALIGN=CENTER>', PTX => '<me>');
+};                                                                                              #begin displayMath mode
 
 sub EDM {
-	MODES(TeX => '\\]', Latex2HTML => '\\]', HTML_MathJax => '\\]', HTML => '</P>', PTX => '</me>');
-};    #end displayMath mode
+	MODES(TeX => '\\]', HTML_MathJax => '\\]', HTML => '</P>', PTX => '</me>');
+};                                                                                              #end displayMath mode
 
 sub LTS {
-	MODES(TeX => '<', Latex2HTML => '\\lt ', HTML => '&lt;', HTML_tth => '<', PTX => '\lt');
+	MODES(TeX => '<', HTML => '&lt;', HTML_tth => '<', PTX => '\lt');
 };    #only for use in math mode
 
 sub GTS {
-	MODES(TeX => '>', Latex2HTML => '\\gt ', HTML => '&gt;', HTML_tth => '>', PTX => '\gt');
+	MODES(TeX => '>', HTML => '&gt;', HTML_tth => '>', PTX => '\gt');
 };    #only for use in math mode
 
 sub LTE {
-	MODES(TeX => '\\le ', Latex2HTML => '\\le ', HTML => '<U>&lt;</U>', HTML_tth => '\\le ', PTX => '\leq');
+	MODES(TeX => '\\le ', HTML => '<U>&lt;</U>', HTML_tth => '\\le ', PTX => '\leq');
 };    #only for use in math mode
 
 sub GTE {
-	MODES(TeX => '\\ge ', Latex2HTML => '\\ge ', HTML => '<U>&gt;</U>', HTML_tth => '\\ge ', PTX => '\geq');
+	MODES(TeX => '\\ge ', HTML => '<U>&gt;</U>', HTML_tth => '\\ge ', PTX => '\geq');
 };    #only for use in math mode
 
 sub BEGIN_ONE_COLUMN {    # deprecated
@@ -1328,80 +1316,77 @@ sub HINT_HEADING {
 		PTX  => ''
 	);
 }
-sub US { MODES(TeX => '\\_', Latex2HTML => '\\_', HTML => '_', PTX => '_'); };    # underscore, e.g. file${US}name
+sub US { MODES(TeX => '\\_', HTML => '_', PTX => '_'); };    # underscore, e.g. file${US}name
 
+# force a space in latex, doesn't force extra space in html
 sub SPACE {
-	MODES(TeX => '\\ ', Latex2HTML => '\\ ', HTML => '&nbsp;', PTX => ' ');
-};    # force a space in latex, doesn't force extra space in html
-sub NBSP    { MODES(TeX => '~',            Latex2HTML => '~',            HTML => '&nbsp;',    PTX => '<nbsp/>'); }
-sub NDASH   { MODES(TeX => '--',           Latex2HTML => '--',           HTML => '&ndash;',   PTX => '<ndash/>'); }
-sub MDASH   { MODES(TeX => '---',          Latex2HTML => '---',          HTML => '&mdash;',   PTX => '<mdash/>'); }
-sub BBOLD   { MODES(TeX => '{\\bf ',       Latex2HTML => '{\\bf ',       HTML => '<STRONG>',  PTX => '<alert>'); }
-sub EBOLD   { MODES(TeX => '}',            Latex2HTML => '}',            HTML => '</STRONG>', PTX => '</alert>'); }
-sub BLABEL  { MODES(TeX => '',             Latex2HTML => '',             HTML => '<LABEL>',   PTX => ''); }
-sub ELABEL  { MODES(TeX => '',             Latex2HTML => '',             HTML => '</LABEL>',  PTX => ''); }
-sub BITALIC { MODES(TeX => '{\\it ',       Latex2HTML => '{\\it ',       HTML => '<I>',       PTX => '<em>'); }
-sub EITALIC { MODES(TeX => '} ',           Latex2HTML => '} ',           HTML => '</I>',      PTX => '</em>'); }
-sub BUL     { MODES(TeX => '\\underline{', Latex2HTML => '\\underline{', HTML => '<U>',       PTX => '<em>'); }
-sub EUL     { MODES(TeX => '}',            Latex2HTML => '}',            HTML => '</U>',      PTX => '</em>'); }
+	MODES(TeX => '\\ ', HTML => '&nbsp;', PTX => ' ');
+}
+sub NBSP    { MODES(TeX => '~',            HTML => '&nbsp;',    PTX => '<nbsp/>'); }
+sub NDASH   { MODES(TeX => '--',           HTML => '&ndash;',   PTX => '<ndash/>'); }
+sub MDASH   { MODES(TeX => '---',          HTML => '&mdash;',   PTX => '<mdash/>'); }
+sub BBOLD   { MODES(TeX => '{\\bf ',       HTML => '<STRONG>',  PTX => '<alert>'); }
+sub EBOLD   { MODES(TeX => '}',            HTML => '</STRONG>', PTX => '</alert>'); }
+sub BLABEL  { MODES(TeX => '',             HTML => '<LABEL>',   PTX => ''); }
+sub ELABEL  { MODES(TeX => '',             HTML => '</LABEL>',  PTX => ''); }
+sub BITALIC { MODES(TeX => '{\\it ',       HTML => '<I>',       PTX => '<em>'); }
+sub EITALIC { MODES(TeX => '} ',           HTML => '</I>',      PTX => '</em>'); }
+sub BUL     { MODES(TeX => '\\underline{', HTML => '<U>',       PTX => '<em>'); }
+sub EUL     { MODES(TeX => '}',            HTML => '</U>',      PTX => '</em>'); }
 
 sub BCENTER {
 	MODES(
-		TeX        => '\\begin{center} ',
-		Latex2HTML => ' \\begin{rawhtml} <div align="center"> \\end{rawhtml} ',
-		HTML       => '<div align="center">',
-		PTX        => ''
+		TeX  => '\\begin{center} ',
+		HTML => '<div align="center">',
+		PTX  => ''
 	);
 }
 
 sub ECENTER {
 	MODES(
-		TeX        => '\\end{center} ',
-		Latex2HTML => ' \\begin{rawhtml} </div> \\end{rawhtml} ',
-		HTML       => '</div>',
-		PTX        => ''
+		TeX  => '\\end{center} ',
+		HTML => '</div>',
+		PTX  => ''
 	);
 }
 
 sub BLTR {
 	MODES(
-		TeX        => ' ',
-		Latex2HTML => ' \\begin{rawhtml} <div dir="ltr"> \\end{rawhtml} ',
-		HTML       => '<span dir="ltr">',
-		PTX        => ''
+		TeX  => ' ',
+		HTML => '<span dir="ltr">',
+		PTX  => ''
 	);
 }
-sub ELTR { MODES(TeX => ' ', Latex2HTML => ' \\begin{rawhtml} </div> \\end{rawhtml} ', HTML => '</span>', PTX => ''); }
-sub BKBD { MODES(TeX => '\\texttt{', Latex2HTML => '',                                 HTML => '<KBD>',   PTX => ''); }
-sub EKBD { MODES(TeX => '}',         Latex2HTML => '',                                 HTML => '</KBD>',  PTX => ''); }
+sub ELTR { MODES(TeX => ' ',         HTML => '</span>', PTX => ''); }
+sub BKBD { MODES(TeX => '\\texttt{', HTML => '<KBD>',   PTX => ''); }
+sub EKBD { MODES(TeX => '}',         HTML => '</KBD>',  PTX => ''); }
 
 sub HR {
 	MODES(
-		TeX        => '\\par\\hrulefill\\par ',
-		Latex2HTML => '\\begin{rawhtml} <HR> \\end{rawhtml}',
-		HTML       => '<HR>',
-		PTX        => ''
+		TeX  => '\\par\\hrulefill\\par ',
+		HTML => '<HR>',
+		PTX  => ''
 	);
 }
 
 sub LBRACE {
-	MODES(TeX => '\{', Latex2HTML => '\\lbrace', HTML => '{', HTML_tth => '\\lbrace', PTX => '{');
+	MODES(TeX => '\{', HTML => '{', HTML_tth => '\\lbrace', PTX => '{');
 };    #not for use in math mode
 
 sub RBRACE {
-	MODES(TeX => '\}', Latex2HTML => '\\rbrace', HTML => '}', HTML_tth => '\\rbrace', PTX => '}');
+	MODES(TeX => '\}', HTML => '}', HTML_tth => '\\rbrace', PTX => '}');
 };    #not for use in math mode
 
 sub LB {
-	MODES(TeX => '\{', Latex2HTML => '\\lbrace', HTML => '{', HTML_tth => '\\lbrace', PTX => '{');
+	MODES(TeX => '\{', HTML => '{', HTML_tth => '\\lbrace', PTX => '{');
 };    #not for use in math mode
 
 sub RB {
-	MODES(TeX => '\}', Latex2HTML => '\\rbrace', HTML => '}', HTML_tth => '\\rbrace', PTX => '}');
+	MODES(TeX => '\}', HTML => '}', HTML_tth => '\\rbrace', PTX => '}');
 };    #not for use in math mode
-sub DOLLAR  { MODES(TeX => '\\$',       Latex2HTML => '&#36;',     HTML => '&#36;', PTX => '$'); }
-sub PERCENT { MODES(TeX => '\\%',       Latex2HTML => '\\%',       HTML => '%',     PTX => '%'); }
-sub CARET   { MODES(TeX => '\\verb+^+', Latex2HTML => '\\verb+^+', HTML => '^',     PTX => '^'); }
+sub DOLLAR  { MODES(TeX => '\\$',       HTML => '&#36;', PTX => '$'); }
+sub PERCENT { MODES(TeX => '\\%',       HTML => '%',     PTX => '%'); }
+sub CARET   { MODES(TeX => '\\verb+^+', HTML => '^',     PTX => '^'); }
 sub PI      { 4 * atan2(1, 1); }
 sub E       { exp(1); }
 sub LATEX   { MODES(TeX => '\\LaTeX', HTML => '\\(\\mathrm\\LaTeX\\)', PTX => '<latex/>'); }
@@ -1599,10 +1584,9 @@ sub openDivSpan {
 	# internalBalancingIncrement("open${type}");
 
 	MODES(
-		TeX        => "$tex_code",
-		Latex2HTML => qq!\\begin{rawhtml}<$type $html_attribs>\\end{rawhtml}!,
-		HTML       => qq!<$type $html_attribs>\n!,
-		PTX        => "$ptx_code",
+		TeX  => "$tex_code",
+		HTML => qq!<$type $html_attribs>\n!,
+		PTX  => "$ptx_code",
 	);
 }
 
@@ -1627,10 +1611,9 @@ sub closeDivSpan {
 	# internalBalancingDecrement("open${type}");
 
 	MODES(
-		TeX        => "$tex_code",
-		Latex2HTML => qq!\\begin{rawhtml}</$type>\\end{rawhtml}!,
-		HTML       => qq!</$type>\n!,
-		PTX        => "$ptx_code",
+		TeX  => "$tex_code",
+		HTML => qq!</$type>\n!,
+		PTX  => "$ptx_code",
 	);
 }
 
@@ -1730,7 +1713,7 @@ In .pg files use single backslashes. This is in accordance with the usual rules 
 in PG.
 
 For the moment this change only works in image mode.  It does not work in
-jsMath or MathJax mode.  Stay tuned.
+MathJax mode.  Stay tuned.
 
 Adding this command
 
@@ -1765,7 +1748,7 @@ sub addToTeXPreamble {
 		# when printing hardcopy.  --it's weird and there must be a better way.
 		TEXT("\\ifdefined\\nocolumns\\else \\end{multicols} \\fi\n",
 			$str, "\n", "\\ifdefined\\nocolumns\\else \\begin{multicols}{2}\\columnwidth=\\linewidth \\fi\n");
-	} else {    # for jsMath and MathJax mode
+	} else {    # for MathJax mode
 		my $mathstr = "\\(" . $str . "\\)";    #add math mode.
 		$mathstr =~ s/\\/\\\\/g;               # protect math modes ($str has a true TeX command,
 											   # with single backslashes.  The backslashes have not
@@ -1781,10 +1764,7 @@ sub addToTeXPreamble {
 The mathematical formulas are run through the macro C<FEQ> (Format EQuations) which performs
 several substitutions (see below).
 In C<HTML_tth> mode the resulting code is processed by tth to obtain an HTML version
-of the formula. (In the future processing by WebEQ may be added here as another option.)
-The Latex2HTML mode does nothing
-at this stage; it creates the entire problem before running it through
-TeX and creating the GIF images of the equations.
+of the formula.
 
 The resulting string is output (and usually fed into TEXT to be printed in the problem).
 
@@ -1956,18 +1936,6 @@ sub general_math_ev3 {
 		## remove leading and trailing spaces as per Davide Cervone.
 		$out =~ s/^\s+//;
 		$out =~ s/\s+$//;
-	} elsif ($displayMode eq "HTML_img") {
-		$out = math2img($in, $mode);
-	} elsif ($displayMode eq "HTML_jsMath") {
-		$in =~ s/&/&amp;/g;
-		$in =~ s/</&lt;/g;
-		$in =~ s/>/&gt;/g;
-		$out = '<SPAN CLASS="math">' . $in . '</SPAN>' if $mode eq "inline";
-		$out = '<DIV CLASS="math">' . $in . '</DIV>'   if $mode eq "display";
-	} elsif ($displayMode eq "HTML_asciimath") {
-		$in  = HTML::Entities::encode_entities($in);
-		$out = "`$in`"                                   if $mode eq "inline";
-		$out = '<DIV ALIGN="CENTER">`' . $in . '`</DIV>' if $mode eq "display";
 	} elsif ($displayMode eq "PTX") {
 		# protect XML control characters
 		$in =~ s/\&(?!([\w#]+;))/\\amp /g;
@@ -1989,12 +1957,6 @@ sub general_math_ev3 {
 		} elsif ($mode eq 'display') {
 			$out = "<me>$in</me>";
 		}
-	} elsif ($displayMode eq "HTML_LaTeXMathML") {
-		$in = HTML::Entities::encode_entities($in);
-		$in = '{' . $in . '}';
-		$in =~ s/\{\s*(\\(display|text|script|scriptscript)style)/$1\{/g;
-		$out = '$$' . $in . '$$'                                          if $mode eq "inline";
-		$out = '<DIV ALIGN="CENTER">$$\displaystyle{' . $in . '}$$</DIV>' if $mode eq "display";
 	} elsif ($displayMode eq "HTML") {
 		$in_delim = HTML::Entities::encode_entities($in_delim);
 		$out      = "<span class='tex2jax_ignore'>$in_delim</span>";
@@ -2377,28 +2339,25 @@ sub OL {
 	my @alpha = ('A' .. 'Z', 'AA' .. 'ZZ');
 	my $letter;
 	my $out = MODES(
-		TeX        => "\\begin{enumerate}\n",
-		Latex2HTML => " \\begin{rawhtml} <OL TYPE=\"A\" VALUE=\"1\"> \\end{rawhtml} ",
-		HTML       => "<BLOCKQUOTE>\n",
-		PTX        => '<ol label="A.">' . "\n",
+		TeX  => "\\begin{enumerate}\n",
+		HTML => "<BLOCKQUOTE>\n",
+		PTX  => '<ol label="A.">' . "\n",
 	);
 	my $elem;
 	foreach $elem (@array) {
 		$letter = shift @alpha;
 		$out .= MODES(
-			TeX        => "\\item[$ALPHABET[$i].] $elem\n",
-			Latex2HTML => " \\begin{rawhtml} <LI> \\end{rawhtml} $elem  ",
-			HTML       => "<br /> <b>$letter.</b> $elem\n",
-			HTML_dpng  => "<br /> <b>$letter.</b> $elem \n",
-			PTX        => "<li><p>$elem</p></li>\n",
+			TeX       => "\\item[$ALPHABET[$i].] $elem\n",
+			HTML      => "<br /> <b>$letter.</b> $elem\n",
+			HTML_dpng => "<br /> <b>$letter.</b> $elem \n",
+			PTX       => "<li><p>$elem</p></li>\n",
 		);
 		$i++;
 	}
 	$out .= MODES(
-		TeX        => "\\end{enumerate}\n",
-		Latex2HTML => " \\begin{rawhtml} </OL>\n \\end{rawhtml} ",
-		HTML       => "</BLOCKQUOTE>\n",
-		PTX        => '</ol>' . "\n",
+		TeX  => "\\end{enumerate}\n",
+		HTML => "</BLOCKQUOTE>\n",
+		PTX  => '</ol>' . "\n",
 	);
 }
 
@@ -2717,16 +2676,10 @@ sub begintable {
 		$out .= "\n\\par\\smallskip\\begin{center}\\begin{tabular}{" . "|c" x $number . "|} \\hline\n";
 	} elsif ($displayMode eq 'PTX') {
 		$out .= "\n" . '<tabular top="medium" bottom="medium" left="medium" right="medium">' . "\n";
-	} elsif ($displayMode eq 'Latex2HTML') {
-		$out .= "\n\\begin{rawhtml} <TABLE, BORDER=1>\n\\end{rawhtml}";
 	} elsif ($displayMode eq 'HTML_MathJax'
 		|| $displayMode eq 'HTML_dpng'
 		|| $displayMode eq 'HTML'
-		|| $displayMode eq 'HTML_tth'
-		|| $displayMode eq 'HTML_jsMath'
-		|| $displayMode eq 'HTML_asciimath'
-		|| $displayMode eq 'HTML_LaTeXMathML'
-		|| $displayMode eq 'HTML_img')
+		|| $displayMode eq 'HTML_tth')
 	{
 		$out .= '<table class="pg-table">';
 	} else {
@@ -2741,16 +2694,10 @@ sub endtable {
 		$out .= "\n\\end {tabular}\\end{center}\\par\\smallskip\n";
 	} elsif ($displayMode eq 'PTX') {
 		$out .= "\n" . '</tabular>' . "\n";
-	} elsif ($displayMode eq 'Latex2HTML') {
-		$out .= "\n\\begin{rawhtml} </TABLE >\n\\end{rawhtml}";
 	} elsif ($displayMode eq 'HTML_MathJax'
 		|| $displayMode eq 'HTML_dpng'
 		|| $displayMode eq 'HTML'
-		|| $displayMode eq 'HTML_tth'
-		|| $displayMode eq 'HTML_jsMath'
-		|| $displayMode eq 'HTML_asciimath'
-		|| $displayMode eq 'HTML_LaTeXMathML'
-		|| $displayMode eq 'HTML_img')
+		|| $displayMode eq 'HTML_tth')
 	{
 		$out .= '</table>';
 	} else {
@@ -2775,23 +2722,10 @@ sub row {
 			$out .= '<cell>' . shift(@elements) . '</cell>' . "\n";
 		}
 		$out .= '</row>' . "\n";
-	} elsif ($displayMode eq 'Latex2HTML') {
-		$out .= "\n\\begin{rawhtml}\n<TR>\n\\end{rawhtml}\n";
-		while (@elements) {
-			$out .=
-				" \n\\begin{rawhtml}\n<TD> \n\\end{rawhtml}\n"
-				. shift(@elements)
-				. " \n\\begin{rawhtml}\n</TD> \n\\end{rawhtml}\n";
-		}
-		$out .= " \n\\begin{rawhtml}\n</TR> \n\\end{rawhtml}\n";
 	} elsif ($displayMode eq 'HTML_MathJax'
 		|| $displayMode eq 'HTML_dpng'
 		|| $displayMode eq 'HTML'
-		|| $displayMode eq 'HTML_tth'
-		|| $displayMode eq 'HTML_jsMath'
-		|| $displayMode eq 'HTML_asciimath'
-		|| $displayMode eq 'HTML_LaTeXMathML'
-		|| $displayMode eq 'HTML_img')
+		|| $displayMode eq 'HTML_tth')
 	{
 		$out .= "<TR>\n";
 		while (@elements) {
@@ -2933,19 +2867,10 @@ sub image {
 			} else {
 				$out = "";
 			}
-		} elsif ($displayMode eq 'Latex2HTML') {
-			my $wid = ($envir->{onTheFlyImageSize} || 0) + 30;
-			$out =
-				qq!\\begin{rawhtml}\n<A HREF="$imageURL" TARGET="_blank" onclick="window.open(this.href, this.target, 'width=$wid, height=$wid, scrollbars=yes, resizable=on'); return false;"><IMG SRC="$imageURL"$width_attrib$height_attrib></A>\n
-			\\end{rawhtml}\n !
 		} elsif ($displayMode eq 'HTML_MathJax'
 			|| $displayMode eq 'HTML_dpng'
 			|| $displayMode eq 'HTML'
-			|| $displayMode eq 'HTML_tth'
-			|| $displayMode eq 'HTML_jsMath'
-			|| $displayMode eq 'HTML_asciimath'
-			|| $displayMode eq 'HTML_LaTeXMathML'
-			|| $displayMode eq 'HTML_img')
+			|| $displayMode eq 'HTML_tth')
 		{
 			my $altattrib = '';
 			if (defined $alt_list[0]) { $altattrib = 'alt="' . encode_pg_and_html(shift @alt_list) . '"' }
@@ -3047,20 +2972,10 @@ sub video {
 				. maketext("This problem contains a video which must be viewed online.")
 				. "} \\end{center}";
 
-		} elsif ($displayMode eq 'Latex2HTML') {
-			$out = qq!\\begin{rawhtml}<VIDEO WIDTH="$width" HEIGHT="$height" CONTROLS>\n
-			<SOURCE SRC="$videoURL" TYPE="video/$type">\n
-			${htmlmessage}\n
-			</VIDEO>\n
-			\\end{rawhtml}\n !
 		} elsif ($displayMode eq 'HTML_MathJax'
 			|| $displayMode eq 'HTML_dpng'
 			|| $displayMode eq 'HTML'
-			|| $displayMode eq 'HTML_tth'
-			|| $displayMode eq 'HTML_jsMath'
-			|| $displayMode eq 'HTML_asciimath'
-			|| $displayMode eq 'HTML_LaTeXMathML'
-			|| $displayMode eq 'HTML_img')
+			|| $displayMode eq 'HTML_tth')
 		{
 			$out = qq!<VIDEO WIDTH="$width" HEIGHT="$height" CONTROLS>\n
 			<SOURCE SRC="$videoURL" TYPE="video/$type">\n
@@ -3094,11 +3009,6 @@ sub caption {
 	$out = " $out  "  if $displayMode eq 'HTML';
 	$out = " $out  "  if $displayMode eq 'HTML_tth';
 	$out = " $out  "  if $displayMode eq 'HTML_dpng';
-	$out = " $out  "  if $displayMode eq 'HTML_img';
-	$out = " $out  "  if $displayMode eq 'HTML_jsMath';
-	$out = " $out  "  if $displayMode eq 'HTML_asciimath';
-	$out = " $out  "  if $displayMode eq 'HTML_LaTeXMathML';
-	$out = " $out  "  if $displayMode eq 'Latex2HTML';
 	$out;
 }
 
@@ -3139,33 +3049,10 @@ sub imageRow {
 		}
 		chop($out);
 		$out .= "\\\\ \\hline \n\\end {tabular}\\end{center}\\par\\smallskip\n";
-	} elsif ($displayMode eq 'Latex2HTML') {
-
-		$out .= "\n\\begin{rawhtml} <TABLE  BORDER=1><TR>\n\\end{rawhtml}\n";
-		while (@images) {
-			$out .=
-				"\n\\begin{rawhtml} <TD>\n\\end{rawhtml}\n"
-				. &image(shift(@images), %options)
-				. "\n\\begin{rawhtml} </TD>\n\\end{rawhtml}\n";
-		}
-
-		$out .= "\n\\begin{rawhtml}</TR><TR>\\end{rawhtml}\n";
-		while (@captions) {
-			$out .=
-				"\n\\begin{rawhtml} <TH>\n\\end{rawhtml}\n"
-				. &caption(shift(@captions))
-				. "\n\\begin{rawhtml} </TH>\n\\end{rawhtml}\n";
-		}
-
-		$out .= "\n\\begin{rawhtml} </TR> </TABLE >\n\\end{rawhtml}";
 	} elsif ($displayMode eq 'HTML_MathJax'
 		|| $displayMode eq 'HTML_dpng'
 		|| $displayMode eq 'HTML'
-		|| $displayMode eq 'HTML_tth'
-		|| $displayMode eq 'HTML_jsMath'
-		|| $displayMode eq 'HTML_asciimath'
-		|| $displayMode eq 'HTML_LaTeXMathML'
-		|| $displayMode eq 'HTML_img')
+		|| $displayMode eq 'HTML_tth')
 	{
 		$out .= "<P>\n <TABLE BORDER=2 CELLPADDING=3 CELLSPACING=2><TR ALIGN=CENTER VALIGN=MIDDLE>\n";
 		while (@images) {

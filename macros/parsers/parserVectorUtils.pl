@@ -67,12 +67,11 @@ sub BoldMath {
 	my $v    = shift;
 	my $HTML = '<B><I>' . $v . '</B></I>';
 	MODES(
-		TeX        => "\\boldsymbol{$v}",    #  doesn't seem to work in TeX mode
-											 #    TeX => "\\mathbf{$v}",      #  gives non-italic bold in TeX mode
-		Latex2HTML => "\\boldsymbol{$v}",
-		HTML       => $HTML,
-		HTML_tth   => '\begin{rawhtml}' . $HTML . '\end{rawhtml}',
-		HTML_dpng  => "\\boldsymbol{$v}",
+		TeX       => "\\boldsymbol{$v}",    #  doesn't seem to work in TeX mode
+											#    TeX => "\\mathbf{$v}",      #  gives non-italic bold in TeX mode
+		HTML      => $HTML,
+		HTML_tth  => '\begin{rawhtml}' . $HTML . '\end{rawhtml}',
+		HTML_dpng => "\\boldsymbol{$v}",
 	);
 }
 

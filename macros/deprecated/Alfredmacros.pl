@@ -32,9 +32,8 @@ sub doubleclickprevent {
 #math mode. This macro warns the user to use JS math mode if they are not.
 sub jsMathwarn {
 	TEXT(MODES(
-		TeX         => '',
-		HTML_jsMath => '',
-		HTML        => $HR
+		TeX  => '',
+		HTML => $HR
 			. "Warning: to use this problem, you need to"
 			. "select jsMath mode in the Display Options panel at the left"
 			. $HR,
@@ -43,9 +42,8 @@ sub jsMathwarn {
 
 sub jsmathmode {
 	TEXT(MODES(
-		TeX         => '',
-		HTML_jsMath => '',
-		HTML        => $HR
+		TeX  => '',
+		HTML => $HR
 			. "Warning: to use this problem, you need to "
 			. "select jsMath mode in the Display Options panel at the left"
 			. $HR,
@@ -373,4 +371,3 @@ sub tablefrac {
 	}
 	return $upper . $BR . $divisionbar . $BR . $lower;
 }
-

@@ -640,7 +640,6 @@ sub format_delimiter {
 		if $tth || $displayMode eq 'HTML_tth' || $displayMode !~ m/^HTML_/;
 	my $rule = '\vrule width 0pt height ' . $rows . 'em depth 0pt';
 	$rule  = '\Rule{0pt}{' . (1.2 * $rows) . 'em}{0pt}' if $displayMode eq 'HTML_MathJax';
-	$rule  = '\rule 0pt ' . (1.2 * $rows) . 'em 0pt'    if $displayMode eq 'HTML_jsMath';
 	$delim = '\\' . $delim                              if $delim eq '{' || $delim eq '}';
 	return '\(\left' . $delim . $rule . '\right.\)';
 }

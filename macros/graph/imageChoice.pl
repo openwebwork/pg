@@ -81,9 +81,8 @@ sub img_print_a {
 		push(
 			@labels,
 			MODES(
-				TeX        => "\\hfil \\textbf{$main::ALPHABET[$i]}",
-				Latex2HTML => $bHTML . "<CENTER><B>$main::ALPHABET[$i]</B></CENTER>" . $eHTML,
-				HTML       => "<CENTER><B>$main::ALPHABET[$i]</B></CENTER>"
+				TeX  => "\\hfil \\textbf{$main::ALPHABET[$i]}",
+				HTML => "<CENTER><B>$main::ALPHABET[$i]</B></CENTER>"
 			)
 		);
 		if ((++$i % $m) == 0) {
