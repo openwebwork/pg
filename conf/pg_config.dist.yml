@@ -213,7 +213,6 @@ modules:
   - ['HTML::Parser']
   - ['HTML::Entities']
   - [DynaLoader]
-  - [Encode]
   - [Exporter]
   - [GD]
   - [AlgParser, AlgParserWithImplicitExpand, Expr, ExprWithImplicitExpand, utf8]

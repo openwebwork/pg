@@ -33,7 +33,8 @@ my %baseMacros = (
 	'PGcommonFunctions.pl'    => 1
 );
 
-my %brokenMacros = ('answerDiscussion.pl' => 1);
+# PG_CAPAmacros.pl is not really broken, but it depends on files that are in the OPL and not in the PG repository.
+my %brokenMacros = ('answerDiscussion.pl' => 1, 'PG_CAPAmacros.pl' => 1);
 
 # Find all macro files inside the $ENV{PG_ROOT}/macros directory.
 my @macro_files;

@@ -5,6 +5,8 @@ use Test2::V0 '!E', { E => 'EXISTS' };
 die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
 do "$ENV{PG_ROOT}/t/build_PG_envir.pl";
 
+use lib "$ENV{PG_ROOT}/lib";
+
 use Units;
 use Parser::Legacy::NumberWithUnits;
 
