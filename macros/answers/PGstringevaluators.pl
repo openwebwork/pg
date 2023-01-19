@@ -601,10 +601,9 @@ sub STR_CMP {
 	});
 	$answer_evaluator->install_post_filter(sub {
 		my $rh_hash = shift;
-		my $c       = chr(128);    ## something that won't be typed
-		$rh_hash->{_filter_name}          = "clean up preview strings";
-		$rh_hash->{'preview_text_string'} = $rh_hash->{student_ans};
-		#		$rh_hash->{'preview_latex_string'} = "\\text{ ".$rh_hash->{student_ans}." }";
+		my $c       = MODES(HTML => chr(0x1F), TeX => chr(0xD), PTX => chr(0xD));    # something that won't be typed
+		$rh_hash->{_filter_name}           = "clean up preview strings";
+		$rh_hash->{'preview_text_string'}  = $rh_hash->{student_ans};
 		$rh_hash->{'preview_latex_string'} = "\\verb" . $c . $rh_hash->{student_ans} . $c;
 		$rh_hash;
 	});
