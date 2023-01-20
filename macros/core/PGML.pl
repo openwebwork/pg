@@ -43,7 +43,7 @@ my $list      = '(?:^|(?<=[\t ]))(?:[-+o*]|(?:\d|[ivxl]+|[IVXL]+|[a-zA-Z])[.)]) 
 my $align     = '>> *| *<<';
 my $code      = '```';
 my $pre       = ':   ';
-my $quoted    = '\bq[qr]?(?:[^\s\w]|\s+.)';
+my $quoted    = '(?<=[^$@\B])q[qr]?(?=[^\s\w])|(?<=[^$@\B])q[qr]?\s+(?=.)';
 my $emphasis  = '\*+|_+';
 my $chars     = '\\\\.|[{}[\]()\'"]';
 my $ansrule   = '\[(?:_+|[ox^])\]\*?';
@@ -516,13 +516,15 @@ sub Preformatted {
 sub Quoted {
 	my $self   = shift;
 	my $token  = shift;
-	my $quote  = substr($token, -1, 1);
+	my $next   = $self->{split}[ $self->{i} ];
+	my $quote  = substr($next, 0, 1);
+	$self->{split}[ $self->{i} ] = substr($next, 1);
 	my $pcount = 0;
 	my $open   = ($quote =~ m/[({[]/ ? $quote : '');
 	my $close  = $open || $quote;
 	$close =~ tr/({[/)}]/;
 	my $qclose = "\\$close";
-	$self->Text($token);
+	$self->Text($token . $quote);
 
 	while ($self->{i} < scalar(@{ $self->{split} })) {
 		my $text = $self->{split}[ $self->{i} ];
