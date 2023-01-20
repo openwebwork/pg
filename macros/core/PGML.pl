@@ -514,10 +514,10 @@ sub Preformatted {
 }
 
 sub Quoted {
-	my $self   = shift;
-	my $token  = shift;
-	my $next   = $self->{split}[ $self->{i} ];
-	my $quote  = substr($next, 0, 1);
+	my $self  = shift;
+	my $token = shift;
+	my $next  = $self->{split}[ $self->{i} ];
+	my $quote = substr($next, 0, 1);
 	$self->{split}[ $self->{i} ] = substr($next, 1);
 	my $pcount = 0;
 	my $open   = ($quote =~ m/[({[]/ ? $quote : '');
