@@ -43,7 +43,7 @@ my $list      = '(?:^|(?<=[\t ]))(?:[-+o*]|(?:\d|[ivxl]+|[IVXL]+|[a-zA-Z])[.)]) 
 my $align     = '>> *| *<<';
 my $code      = '```';
 my $pre       = ':   ';
-my $quoted    = '\b(?<=[^$@])q[qr]?(?=[^\s\w])|\b(?<=[^$@])q[qr]?\s+(?=.)';
+my $quoted    = '[$@%]q[qr]?|\bq[qr]?\s+(?=.)|\bq[qr]?(?=\W)';
 my $emphasis  = '\*+|_+';
 my $chars     = '\\\\.|[{}[\]()\'"]';
 my $ansrule   = '\[(?:_+|[ox^])\]\*?';
