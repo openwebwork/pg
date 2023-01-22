@@ -675,9 +675,11 @@ sub contained_in {
 ##########################
 
 sub NAMED_ANS_CHECKBOX {
-	my $name  = shift;
-	my $value = shift;
-	my $tag   = shift;
+	my $name    = shift;
+	my $value   = shift;
+	my $tag     = shift;
+	my $extend  = shift;
+	my %options = @_;
 
 	my $checked = '';
 	if ($value =~ /^\%/) {
@@ -693,17 +695,20 @@ sub NAMED_ANS_CHECKBOX {
 		}
 
 	}
-	$name = RECORD_ANS_NAME($name, { $value => $checked });
+	$name = RECORD_ANS_NAME($name, { $value => $checked }) unless $extend;
+	INSERT_RESPONSE($options{answer_group_name}, $name, { $value => $checked }) if $extend;
 	my $label = generate_aria_label($name);
 	$label .= "option 1 ";
 
 	MODES(
 		TeX        => qq!\\item{$tag}\n!,
-		Latex2HTML =>
-			qq!\\begin{rawhtml}\n<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML =>
-			qq!<label><INPUT TYPE=CHECKBOX NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!,
-		PTX => '<li>' . "$tag" . '</li>' . "\n",
+		Latex2HTML => qq!\\begin{rawhtml}\n!
+			. qq!<input type=checkbox name="$name" id="$name" VALUE="$value" $checked>!
+			. qq!\\end{rawhtml}$tag!,
+		HTML => '<label>'
+			. qq!<input type=checkbox name="$name" id="$name" aria-label="$label" VALUE="$value" $checked>!
+			. qq!$tag</label>!,
+		PTX => "<li>$tag</li>\n",
 	);
 
 }
@@ -728,7 +733,7 @@ sub NAMED_ANS_CHECKBOX_OPTION {
 		}
 
 	}
-	EXTEND_RESPONSE($name, $name, $value, $checked);
+	EXTEND_RESPONSE($options{answer_group_name} // $name, $name, $value, $checked);
 	my $label;
 	if (defined($options{aria_label})) {
 		$label = $options{aria_label};
@@ -738,11 +743,13 @@ sub NAMED_ANS_CHECKBOX_OPTION {
 
 	MODES(
 		TeX        => qq!\\item{$tag}\n!,
-		Latex2HTML =>
-			qq!\\begin{rawhtml}\n<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML =>
-			qq!<label><INPUT TYPE=CHECKBOX NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!,
-		PTX => '<li>' . "$tag" . '</li>' . "\n",
+		Latex2HTML => qq!\\begin{rawhtml}\n!
+			. qq!<input type=checkbox name="$name" id="${name}_$value" value="$value" $checked>!
+			. qq!\\end{rawhtml}$tag!,
+		HTML => '<label>'
+			. qq!<input type=checkbox name="$name" id="${name}_$value" aria-label="$label" value="$value" $checked>!
+			. qq!$tag</label>!,
+		PTX => "<li>$tag</li>\n",
 	);
 
 }
