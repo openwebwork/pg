@@ -43,15 +43,16 @@ my $list      = '(?:^|(?<=[\t ]))(?:[-+o*]|(?:\d+|[ivxl]+|[IVXL]+|[a-zA-Z])[.)])
 my $align     = '>> *| *<<';
 my $code      = '```';
 my $pre       = ':   ';
+my $quoted    = '[$@%]q[qr]?|\bq[qr]?\s+(?=.)|\bq[qr]?(?=\W)';
 my $emphasis  = '\*+|_+';
-my $chars     = '\\\\.|[{}[\]\'"]';
+my $chars     = '\\\\.|[{}[\]()\'"]';
 my $ansrule   = '\[(?:_+|[ox^])\]\*?';
 my $open      = '\[(?:[!<%@$]|::?:?|``?`?|\|+ ?)';
 my $close     = '(?:[!>%@$]|::?:?|``?`?| ?\|+)\]';
 my $noop      = '\[\]';
 
 my $splitPattern =
-	qr/($indent|$open|$ansrule|$close|$linebreak|$lineend|$heading|$rule|$list|$align|$code|$pre|$emphasis|$noop|$chars)/m;
+	qr/($indent|$open|$ansrule|$close|$linebreak|$lineend|$heading|$rule|$list|$align|$code|$pre|$quoted|$emphasis|$noop|$chars)/m;
 
 my %BlockDefs;
 
@@ -157,10 +158,11 @@ sub Parse {
 			/^\n\z/    && do { $self->Break($token); last };
 			/^\n\n+\z/ && do { $self->Par($token);   last };
 			/^\*\*?$/  && (!$block->{parseAll} && $block->{parseSubstitutions}) && do { $self->Star($token); last };
-			$block->{balance}  && /^$block->{balance}/ && do { $self->Begin($token, substr($token, 0,  1)); last };
-			$block->{balance}  && /$block->{balance}$/ && do { $self->Begin($token, substr($token, -1, 1)); last };
-			$block->{parseAll} && do { $self->All($token);        last };
-			/^[\}\]]\z/        && do { $self->Unbalanced($token); last };
+			$block->{parseQuoted} && /^q/                 && do { $self->Quoted($token);                       last };
+			$block->{balance}     && /^$block->{balance}/ && do { $self->Begin($token, substr($token, 0, 1));  last };
+			$block->{balance}     && /$block->{balance}$/ && do { $self->Begin($token, substr($token, -1, 1)); last };
+			$block->{parseAll}    && do { $self->All($token);        last };
+			/^[\}\]]\z/           && do { $self->Unbalanced($token); last };
 			$self->Text($token);
 		}
 	}
@@ -511,6 +513,38 @@ sub Preformatted {
 	$self->Begin($token, ':   ');
 }
 
+sub Quoted {
+	my $self  = shift;
+	my $token = shift;
+	my $next  = $self->{split}[ $self->{i} ];
+	my $quote = substr($next, 0, 1);
+	$self->{split}[ $self->{i} ] = substr($next, 1);
+	my $pcount = 0;
+	my $open   = ($quote =~ m/[({[]/ ? $quote : '');
+	my $close  = $open || $quote;
+	$close =~ tr/({[/)}]/;
+	my $qclose = "\\$close";
+	$self->Text($token . $quote);
+
+	while ($self->{i} < scalar(@{ $self->{split} })) {
+		my $text = $self->{split}[ $self->{i} ];
+		if ($open && $text eq $open) {
+			$pcount++;
+		} elsif ($open && $text eq $close && $pcount > 0) {
+			$pcount--;
+		} elsif (!$open || ($text ne $qclose && $pcount == 0)) {
+			my $i = index($text, $close);
+			if ($i > -1) {
+				$self->Text(substr($text, 0, $i + 1));
+				$text = $self->{split}[ $self->{i} ] = substr($text, $i + 1);
+				return;
+			}
+		}
+		$self->Text($text);
+		$self->{i}++;
+	}
+}
+
 sub Quote {
 	my $self  = shift;
 	my $token = shift;
@@ -611,6 +645,7 @@ my $balanceAll = qr/[\{\[\'\"]/;
 		type               => 'command',
 		parseComments      => 1,
 		parseSubstitutions => 1,
+		parseQuoted        => 1,
 		terminator         => qr/@\]/,
 		terminateMethod    => 'terminateGetString',
 		balance            => qr/[\'\"]/,
