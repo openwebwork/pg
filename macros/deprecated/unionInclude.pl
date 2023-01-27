@@ -17,21 +17,17 @@ sub _unionInclude_init { };    # don't reload this file
 #
 sub includePGfile {
 	my $name   = shift;
-	my $PGfile = $main::envir{'fileName'};
+	my $PGfile = $main::envir{'probFileName'};
 	$PGfile =~ s![^/]+$!!;
 	$PGfile .= $name;
 	while ($PGfile =~ s![^/]*/../!!) { }
 	$PGfile =~ s!^tmpEdit/!!;
-	#  warn("file is $PGfile, directory is $main::templateDirectory");
 	my $problem = read_whole_problem_file($main::templateDirectory . $PGfile);
 
-	my ($oldpname, $oldname) =
-		($main::envir{'probFileName'}, $main::envir{'fileName'});
+	my $oldname = $main::envir{'probFileName'};
 	$main::envir{'probFileName'} = $PGfile;
-	$main::envir{'fileName'}     = $PGfile;
 	includePGtext($problem, %main::envir);
-	($main::envir{'probFileName'}, $main::envir{'fileName'}) =
-		($oldpname, $oldname);
+	$main::envir{'probFileName'} = $oldname;
 }
 
 ######################################################################
