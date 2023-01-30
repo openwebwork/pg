@@ -7,6 +7,7 @@ sub evaluate_units {
 
 # Methods for evaluating units in answers
 package Units;
+use utf8;
 
 #require Exporter;
 #@ISA = qw(Exporter);
@@ -223,9 +224,9 @@ our %known_units = (
 	# micron -- micrometer
 	# um   -- micrometer
 	# nm   -- nanometer
-	# A    -- Angstrom
-	# Angstrom -- Angstrom
-	# angstrom -- Angstrom
+	# angstrom -- angstrom
+	# Angstrom -- angstrom
+	# Å        -- angstrom
 	# pm   -- picometer
 	# fm   -- femtometer
 	#
@@ -253,7 +254,7 @@ our %known_units = (
 		'factor' => 1E-9,
 		'm'      => 1
 	},
-	'A' => {
+	'angstrom' => {
 		'factor' => 1E-10,
 		'm'      => 1
 	},
@@ -261,7 +262,7 @@ our %known_units = (
 		'factor' => 1E-10,
 		'm'      => 1
 	},
-	'angstrom' => {
+	'Å' => {    # unicode "\x{00C5}"
 		'factor' => 1E-10,
 		'm'      => 1
 	},
@@ -722,8 +723,8 @@ our %known_units = (
 	# kohm   -- kilo-ohm
 	# Mohm	 -- mega-ohm
 	# S		 -- siemens
+	# A      -- ampere
 	# mA     -- milli-ampere
-	# mamp   -- milli-ampere
 	#
 	'C' => {
 		'factor' => 1,
@@ -822,11 +823,11 @@ our %known_units = (
 		'amp'    => 2,
 		's'      => 3,
 	},
-	'mA' => {    # milliampere
-		'factor' => 0.001,
+	'A' => {    # ampere
+		'factor' => 1,
 		'amp'    => 1,
 	},
-	'mamp' => {
+	'mA' => {    # milliampere
 		'factor' => 0.001,
 		'amp'    => 1,
 	},

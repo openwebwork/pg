@@ -15,7 +15,7 @@ loadMacros('parserNumberWithUnits.pl');
 my $micron     = NumberWithUnits(1,   'um');
 my $picometer  = NumberWithUnits(1E6, 'pm');
 my $femtometer = NumberWithUnits(1E9, 'fm');
-my $angstrom   = NumberWithUnits(1E4, 'Angstrom');
+my $angstrom   = NumberWithUnits(1E4, 'angstrom');
 
 subtest 'LaTeX output' => sub {
 	is $picometer->TeX, '1\times 10^{6}\ {\rm pm}', 'LaTeX output for 1E6 picometers';

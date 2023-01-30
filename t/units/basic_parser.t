@@ -115,7 +115,7 @@ subtest 'Check some known units' => sub {
 	ok my @unit_names = (split /\|/, $joule->getUnitNames), 'Can getUnitNames';
 
 	is \@unit_names, bag {
-		all_items(match qr/^[-%\w]+$/);
+		all_items(match qr/^(?:[-%\w]+|\p{Lu})$/);
 		item 'J';
 		item 'N';
 		item 'm';
