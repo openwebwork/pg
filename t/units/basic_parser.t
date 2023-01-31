@@ -147,6 +147,7 @@ subtest 'Check display methods' => sub {
 };
 
 subtest 'Check possible answer format branches' => sub {
+
 	# re-write without check_score so we can get the messages to students
 
 	is check_score($joule, '1 J'),       1, 'one Joule plain';

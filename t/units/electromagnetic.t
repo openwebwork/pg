@@ -16,8 +16,8 @@ my $watt      = NumberWithUnits(1,    'W');
 my $milliwatt = NumberWithUnits(1E3,  'mW');
 my $megawatt  = NumberWithUnits(1E-6, 'MW');
 
-my $amp      = NumberWithUnits(1, 'amp');
-my $ampere   = NumberWithUnits(1, 'A');
+my $amp      = NumberWithUnits(1,    'amp');
+my $ampere   = NumberWithUnits(1,    'A');
 my $milliamp = NumberWithUnits(1000, 'mA');
 
 my $tesla      = NumberWithUnits(1,    'T');
