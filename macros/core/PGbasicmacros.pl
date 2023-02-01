@@ -2661,6 +2661,43 @@ sub iframe {
 	);
 }
 
+=head2 helpLink($type, $display_text, $helpurl)
+
+Creates links for students to help documentation on formatting answers and
+allows for custom help links.
+
+There are 16 predefined help links: angles, decimals, equations, exponents,
+formulas, fractions, inequalities, intervals, limits, logarithms, matrices,
+numbers, points, syntax, units, vectors.
+
+Usage:
+
+     DOCUMENT();
+     loadMacros("PGstandard.pl");
+     BEGIN_TEXT
+     \{ ans_rule(20) \} \{ helpLink("formulas") \}
+     $PAR
+     \{ ans_rule(20) \} \{ helpLink("equations", "help entering equations") \}
+     $PAR
+     \{ ans_rule(20) \}
+     \{ helpLink("my custom help", undef, "custom_help.html") \}
+     END_TEXT
+     ENDDOCUMENT();
+
+
+The first example uses the default link text and displays the help link next to
+the answer blank which is recommended.
+
+The second example customizes the link text displayed to the student, but the
+actual help document is unaffected.
+
+The third example displays a link to the contents of C<custom_help.html>.  Note
+that the file C<custom_help.html> must be located in the location defined in the
+environment variable C<$envir{localHelpURL}>.  The value of that variable can be
+customized by a problem.
+
+=cut
+
 sub helpLink {
 	my $type         = shift;
 	my $display_text = shift;
