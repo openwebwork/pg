@@ -147,7 +147,6 @@ subtest 'Check display methods' => sub {
 };
 
 subtest 'Check possible answer format branches' => sub {
-
 	# re-write without check_score so we can get the messages to students
 
 	is check_score($joule, '1 J'),       1, 'one Joule plain';
@@ -175,26 +174,26 @@ subtest 'Check possible answer format branches' => sub {
 subtest 'Check possible answers compared to the number 0.005 T' => sub {
 	my $correct = NumberWithUnits('0.005 T');
 
-	is check_score($correct, '0.005 T'),        1, '0.005 T is correct';
-	is check_score($correct, '5*10^-13 T*m/A'), 1, '5*10^-13 T*m/A is correct';
-	is check_score($correct, '0 T*m/A'),        0, '0 T*m/A is incorrect';
+	is check_score($correct, '0.005 T'),               1, '0.005 T is correct';
+	is check_score($correct, '5*10^-13 T*m/angstrom'), 1, '5*10^-13 T*m/angstrom is correct';
+	is check_score($correct, '0 T*m/angstrom'),        0, '0 T*m/angstrom is incorrect';
 };
 
 subtest 'Check possible answers compared to the formula 0.005 T' => sub {
 	my $correct = FormulaWithUnits('0.005 T');
 
-	is check_score($correct, '0.005 T'),        1, '0.005 T is correct';
-	is check_score($correct, '5*10^-13 T*m/A'), 1, '5*10^-13 T*m/A is correct';
-	is check_score($correct, '0 T*m/A'),        0, '0 T*m/A is incorrect';
+	is check_score($correct, '0.005 T'),               1, '0.005 T is correct';
+	is check_score($correct, '5*10^-13 T*m/angstrom'), 1, '5*10^-13 T*m/angstrom is correct';
+	is check_score($correct, '0 T*m/angstrom'),        0, '0 T*m/angstrom is incorrect';
 };
 
 subtest 'Check possible answers compared to the formula 0.009 x^2 T' => sub {
 	my $correct = FormulaWithUnits('0.009 x^2 T');
 
-	is check_score($correct, '0.009 x^2 T'),        1, '0.009 x^2 T is correct';
-	is check_score($correct, '9*10^-13 x^2 T*m/A'), 1, '9*10^-13 x^2 T*m/A is correct';
-	is check_score($correct, '0 T*m/A'),            0, '0 T*m/A is incorrect';
-	is check_score($correct, '0 x^2 T*m/A'),        0, '0 x^2 T*m/A is incorrect';
+	is check_score($correct, '0.009 x^2 T'),               1, '0.009 x^2 T is correct';
+	is check_score($correct, '9*10^-13 x^2 T*m/angstrom'), 1, '9*10^-13 x^2 T*m/angstrom is correct';
+	is check_score($correct, '0 T*m/angstrom'),            0, '0 T*m/angstrom is incorrect';
+	is check_score($correct, '0 x^2 T*m/angstrom'),        0, '0 x^2 T*m/angstrom is incorrect';
 };
 
 subtest 'Check possible answers compared to the the number 1 amu' => sub {
