@@ -2663,39 +2663,43 @@ sub iframe {
 
 sub helpLink {
 	my $type         = shift;
-	my $display_text = shift || $type;
+	my $display_text = shift;
 	my $helpurl      = shift;
 	return "" if (not defined($envir{'localHelpURL'}));
 	if (defined $helpurl) {
-		return knowlLink($display_text, url => $envir{'localHelpURL'} . $helpurl, type => 'help');
+		return knowlLink($display_text // $type, url => $envir{'localHelpURL'} . $helpurl, type => 'help');
 	}
 	my %typeHash = (
-		'angle'     => 'Entering-Angles.html',
-		'decimal'   => 'Entering-Decimals.html',
-		'equation'  => 'Entering-Equations.html',
-		'exponent'  => 'Entering-Exponents.html',
-		'formula'   => 'Entering-Formulas.html',
-		'fraction'  => 'Entering-Fractions.html',
-		'inequalit' => 'Entering-Inequalities.html',
-		'limit'     => 'Entering-Limits.html',
-		'log'       => 'Entering-Logarithms.html',
-		'number'    => 'Entering-Numbers.html',
-		'point'     => 'Entering-Points.html',
-		'vector'    => 'Entering-Vectors.html',
-		'interval'  => 'IntervalNotation.html',
-		'unit'      => 'Units.html',
-		'syntax'    => 'Syntax.html',
+		'angle'     => [ 'Entering-Angles.html',       'help (angles)' ],
+		'decimal'   => [ 'Entering-Decimals.html',     'help (decimals)' ],
+		'equation'  => [ 'Entering-Equations.html',    'help (equations)' ],
+		'exponent'  => [ 'Entering-Exponents.html',    'help (exponents)' ],
+		'formula'   => [ 'Entering-Formulas.html',     'help (formulas)' ],
+		'fraction'  => [ 'Entering-Fractions.html',    'help (fractions)' ],
+		'inequalit' => [ 'Entering-Inequalities.html', 'help (inequalities)' ],
+		'limit'     => [ 'Entering-Limits.html',       'help (limits)' ],
+		'log'       => [ 'Entering-Logarithms.html',   'help (logarithms)' ],
+		'matri'     => [ 'Entering-Matrices.html',     'help (matrices)' ],
+		'number'    => [ 'Entering-Numbers.html',      'help (numbers)' ],
+		'point'     => [ 'Entering-Points.html',       'help (points)' ],
+		'vector'    => [ 'Entering-Vectors.html',      'help (vectors)' ],
+		'interval'  => [ 'IntervalNotation.html',      'help (intervals)' ],
+		'unit'      => [ 'Units.html',                 'help (units)' ],
+		'syntax'    => [ 'Syntax.html',                'help (syntax)' ]
 	);
 
 	my $infoRef = '';
 	my $refhold = '';
 	for my $ref (keys %typeHash) {
 		if ($type =~ /$ref/i) {
-			$infoRef = $typeHash{$ref};
+			$infoRef = $typeHash{$ref}[0];
 			$refhold = $ref;
+			$display_text //= $typeHash{$ref}[1];
 			last;
 		}
 	}
+	$display_text //= $type;
+
 	# We use different help files in some cases when BaseTenLog is set
 	if (PG_restricted_eval(q/$envir{useBaseTenLog}/)) {
 		$infoRef = 'Entering-Logarithms10.html' if ($refhold eq 'log');
