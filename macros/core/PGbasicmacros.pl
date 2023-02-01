@@ -1493,12 +1493,16 @@ sub GTE {
 };    #only for use in math mode
 
 sub BEGIN_ONE_COLUMN {
-	MODES(TeX => "\\ifdefined\\nocolumns\\else\\end{multicols}\\fi\n", Latex2HTML => " ", HTML => " ");
+	MODES(
+		TeX        => "\\ifdefined\\nocolumns\\else\\twocolumn[\\begin{\@twocolumnfalse}\\fi\n",
+		Latex2HTML => " ",
+		HTML       => " "
+	);
 }
 
 sub END_ONE_COLUMN {
 	MODES(
-		TeX        => "\\ifdefined\\nocolumns\\else\\begin{multicols}{2}\n\\columnwidth=\\linewidth\\fi\n",
+		TeX        => "\\ifdefined\\nocolumns\\else\\end{\@twocolumnfalse}]\\fi\n",
 		Latex2HTML => ' ',
 		HTML       => ' '
 	);
