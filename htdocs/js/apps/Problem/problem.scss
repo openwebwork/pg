@@ -60,7 +60,7 @@
 		line-height: 20px;
 	}
 
-	select, input[type=text], input[type=radio] {
+	select, input[type=text], input[type=radio], input[type=checkbox] {
 		&.correct {
 			border-color: rgba(81, 153, 81, 0.8); /* green */
 			outline: 0;
