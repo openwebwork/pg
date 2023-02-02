@@ -10,7 +10,8 @@ randomNamesPronouns.pl - Load macros for random names.
 =head2 DESCRIPTION
 
 randomNamesPronouns.pl provides a randomName function that generates a random name with pronouns.  In addition,
-there is the capability of providing pronouns with and without capitilization and verb conjugation.
+there is the capability of providing pronouns, possessive pronouns, adjectives and object pronouns
+with and without capitilization and verb conjugation.
 
 Note: this idea and the names wer taken from the PCCmacros.pl RandomName subroutine to extend to
 the handling of pronouns. Most of the names in here were taken from that macro.  Many thanks to those
@@ -18,21 +19,25 @@ who worked on that macro.
 
 =head2 USAGE
 
-First load the C<randomNamesPronouns> with
+First load the C<randomNamesPronouns> macro with
 
-	loadMacros('randomNamesPronouns.pl');
+  loadMacros('randomNamesPronouns.pl');
 
 and then call the randomPerson subroutine
 
-	$p1 = randomPerson()
+  $p1 = randomPerson()
 
 The variable C<$p1> is now a C<Person> object with methods to access the names, pronouns
 and verb conjugation.  It is can be used within a problem as
 
-	BEGIN_PGML
-	[@ $p1->name @] [@ $p1->verb('travel') @] 1.5 miles to school.  After school,
-	[$p1->pronoun] then [@$p1->verb('goes','go')@] to work.
-	END_PGML
+  BEGIN_PGML
+  [@ $p1->name @] [@ $p1->verb('travel') @] 1.5 miles to school.  After school,
+  [$p1->pronoun] then [@$p1->verb('goes','go')@] to work.
+
+  [@ $p1->Poss_adj @] dog greets [@ $p1->obj_pronoun @] when [@ $p1->obj_pronoun @] gets home.
+
+  The books on the table are [@ $p1->poss_pronoun @].
+  END_PGML
 
 =cut
 
@@ -215,7 +220,7 @@ This makes a Person object to handle name and pronouns of a Person.
 
 Make a person with
 
-	Person->new({ name => 'Roger', pronoun => 'he'})
+  Person->new({ name => 'Roger', pronoun => 'he'})
 
 as an example. This is often used with the C<randomPerson> method which returns a blessed Person object
 which can be used in problems to write a problem with a random name with pronouns
@@ -242,9 +247,9 @@ sub new {
 
 This returns the name of the person.
 
-	my $p = new Person({ name => 'Roger', pronoun => 'he'});
+  my $p = new Person({ name => 'Roger', pronoun => 'he'});
 
-	$p->name;
+  $p->name;
 
 returns the name ('Roger').
 =cut
@@ -255,7 +260,7 @@ sub name { return shift->{_name}; }
 
 This returns the pronoun as a lower case.
 
-	$p->pronoun;
+  $p->pronoun;
 
 returns the pronoun. In this case 'he'.
 
@@ -267,13 +272,100 @@ sub pronoun { return shift->{_pronoun}; }
 
 This returns the pronoun as an upper case.
 
-	$p->Pronoun;
+  $p->Pronoun;
 
 returns the upper case pronoun. In this case 'He'.
 
 =cut
 
 sub Pronoun { return ucfirst(shift->{_pronoun}); }
+
+=head2 poss_adj
+
+This returns the possessive adjective
+
+  $p->poss_adj;
+
+returns (his, her, their) for the pronouns (he/she/they)
+
+=cut
+
+sub poss_adj {
+	my $p = shift->{_pronoun};
+	return $p eq 'he' ? 'his' : ($p eq 'she' ? 'her' : 'their');
+}
+
+=head2 Poss_adj
+
+This returns the captilized possessive adjective
+
+  $p->Poss_adj;
+
+returns (His, Her, Their) for the pronouns (he/she/they)
+
+=cut
+
+sub Poss_adj {
+	return ucfirst(shift->poss_adj);
+}
+
+=head2 poss_pronoun
+
+This returns the possessive pronoun
+
+  $p->poss_pronoun;
+
+returns (his, hers, theirs) for the pronouns (he/she/they)
+
+=cut
+
+sub poss_pronoun {
+	my $p = shift->{_pronoun};
+	return $p eq 'he' ? 'his' : ($p eq 'she' ? 'hers' : 'theirs');
+}
+
+=head2 Poss_pronoun
+
+This returns the capitalized versions of possessive pronoun
+
+  $p->Poss_pronoun;
+
+returns (His, Hers, Theirs) for the pronouns (he/she/they)
+
+=cut
+
+sub Poss_pronoun {
+	return ucfirst(shift->poss_pronoun);
+}
+
+=head2 obj_pronoun
+
+This returns the object pronoun
+
+  $p->obj_pronoun;
+
+returns (him, her, them) for the pronouns (he/she/they)
+
+=cut
+
+sub obj_pronoun {
+	my $p = shift->{_pronoun};
+	return $p eq 'he' ? 'him' : ($p eq 'she' ? 'her' : 'them');
+}
+
+=head2 Obj_pronoun
+
+This returns the captilized object pronoun
+
+  $p->Obj_pronoun;
+
+returns (Him, Her, Them) for the pronouns (he/she/they)
+
+=cut
+
+sub Obj_pronoun {
+	return ucfirst(shift->obj_pronoun);
+}
 
 =head2 verb
 
@@ -282,14 +374,14 @@ be regular and the plural (without an s) version.
 
 For example
 
-	$p1 = new Person({ name => 'Roger', pronoun => 'he' });
-	$p2 = new Person({ name => 'Max', pronoun => 'they'});
+  $p1 = new Person({ name => 'Roger', pronoun => 'he' });
+  $p2 = new Person({ name => 'Max', pronoun => 'they'});
 
-	$p1->verb('find');
+  $p1->verb('find');
 
 returns 'finds'
 
-	$p2->verb('find')
+  $p2->verb('find')
 
 returns 'find'
 
@@ -299,14 +391,14 @@ verbs in that order.
 
 For example if
 
-	$p1 = new Person({ name => 'Roger', pronoun => 'he' });
-	$p2 = new Person({ name => 'Max', pronoun 'they'});
+  $p1 = new Person({ name => 'Roger', pronoun => 'he' });
+  $p2 = new Person({ name => 'Max', pronoun 'they'});
 
-	$p1->verb('is', 'are');
+  $p1->verb('is', 'are');
 
 returns 'is'
 
-	$p2->verb('is', 'are');
+  $p2->verb('is', 'are');
 
 returns C<'are'>
 
