@@ -29,7 +29,7 @@ subtest 'Check fundamental units' => sub {
 	is \%Units::known_units, hash {
 		field m => { factor => 1, m => 1 };
 
-		all_keys match qr/^(?:[a-z02]+(?:-\w+)?|%)$/i;
+		all_keys match qr/^(?:[a-z02]+(?:-\w+)?|%|\p{Lu})$/i;
 		all_vals hash {
 			field factor => !number(0);
 
@@ -49,9 +49,11 @@ subtest 'Check base units' => sub {
 	is { evaluate_units('V') },   in_base_units(amp => -1, s => -3, kg => 1, m => 2, factor => 1), 'Volt';
 	is { evaluate_units('J*s') }, in_base_units(kg => 1, m => 2, s => -1, factor => 1), 'Joule-seconds';
 
-	is { evaluate_units('V/m') }, in_base_units(kg => 1, m => 1, s => -3, amp => -1, factor => 1),
+	is { evaluate_units('V/m') },
+		in_base_units(kg => 1, m => 1, s => -3, amp => -1, factor => 1),
 		'Volts per metre';
-	is { evaluate_units('N/C') }, in_base_units(kg => 1, m => 1, s => -3, amp => -1, factor => 1),
+	is { evaluate_units('N/C') },
+		in_base_units(kg => 1, m => 1, s => -3, amp => -1, factor => 1),
 		'Newtons per Coulomb';
 };
 
@@ -98,13 +100,15 @@ subtest 'Check a collection of units' => sub {
 	is multiply_by(1e9,  evaluate_units('Pa')),  { evaluate_units('GPa') }, 'gigapascal conversion';
 	is multiply_by(1000, evaluate_units('kPa')), { evaluate_units('MPa') }, 'kilopascal conversion';
 
-	is multiply_by(2 * 1000 * $Units::PI, evaluate_units('rad/s')), { evaluate_units('kHz') },
+	is multiply_by(2 * 1000 * $Units::PI, evaluate_units('rad/s')),
+		{ evaluate_units('kHz') },
 		'kilohertz conversion';
 
 	is multiply_by(0.01, %Units::fundamental_units), { evaluate_units('%') }, 'percent conversion';
 
 	my $todo = todo 'use within() to fudge factor in 9th decimal place';
-	is multiply_by((180 / $Units::PI)**2, evaluate_units('deg^2')), { evaluate_units('sr') },
+	is multiply_by((180 / $Units::PI)**2, evaluate_units('deg^2')),
+		{ evaluate_units('sr') },
 		'solid angle conversion';
 };
 
@@ -115,7 +119,8 @@ subtest 'Check astronomical units' => sub {
 	is { evaluate_units('c*yr') }, { evaluate_units('light-year') }, 'light year';
 
 	my $todo = todo 'use within() to fudge factor in 9th decimal place';
-	is multiply_by(cos($second_arc) / sin($second_arc), evaluate_units('AU')), { evaluate_units('parsec') },
+	is multiply_by(cos($second_arc) / sin($second_arc), evaluate_units('AU')),
+		{ evaluate_units('parsec') },
 		'parsec conversion';
 };
 
