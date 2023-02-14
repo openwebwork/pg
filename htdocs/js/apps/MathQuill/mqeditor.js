@@ -150,23 +150,66 @@
 				// that box-sizing is border-box.
 				const toolbarHeight = 49 * answerQuill.buttons.length + 4;
 
-				// Get the page height.  This is the greater of the height of the document element or the window height.
 				const pageHeight = (() => {
 					const documentElHeight = document.documentElement.getBoundingClientRect().height;
 					if (window.innerHeight > documentElHeight) return window.innerHeight;
 					return documentElHeight;
 				})();
 
-				if (toolbarHeight > pageHeight) {
-					answerQuill.toolbar.style.top = 0;
-					answerQuill.toolbar.style.height = '100%';
-				} else {
+				// Different positioning is needed when contained in a relatively positioned parent.
+				const relativeParent = (() => {
+					let parent = answerQuill.parentElement;
+					while (parent && parent !== document) {
+						const positionType = window.getComputedStyle(parent).position;
+						if (positionType === 'relative') return parent;
+						// If a fixed parent is encountered before a relative parent is encountered,
+						// that negates relative positioning.
+						if (positionType === 'fixed') return;
+						parent = parent.parentElement;
+					}
+				})();
+
+				if (relativeParent) {
+					// If contained in a relatively positioned parent, the toolbar needs
+					// to be positioned relative to that parent.
+					const pageWidth = (() => {
+						const documentElWidth = document.documentElement.getBoundingClientRect().width;
+						if (window.innerWidth > documentElWidth) return window.innerWidth;
+						return documentElWidth;
+					})();
+
+					const parentRect = relativeParent.getBoundingClientRect();
+					answerQuill.toolbar.style.right = `${window.scrollX + parentRect.right + 10 - pageWidth}px`;
+
 					const elRect = answerQuill.getBoundingClientRect();
-					const top = window.scrollY + elRect.bottom - elRect.height / 2 - toolbarHeight / 2;
-					const bottom = window.scrollY + elRect.bottom - elRect.height / 2 + toolbarHeight / 2;
-					answerQuill.toolbar.style.top =
-						`${top < 0 ? 0 : bottom > pageHeight ? pageHeight - toolbarHeight : top}px`;
-					answerQuill.toolbar.style.height = null;
+
+					if (window.scrollY + elRect.top + elRect.height / 2 < toolbarHeight / 2) {
+						answerQuill.toolbar.style.top = `-${window.scrollY + parentRect.top}px`;
+						answerQuill.toolbar.style.bottom = toolbarHeight > pageHeight ?
+							`${window.scrollY + parentRect.bottom - pageHeight}px`
+							: null;
+					} else if (window.scrollY + elRect.top + elRect.height / 2 + toolbarHeight / 2 > pageHeight) {
+						answerQuill.toolbar.style.top = null;
+						answerQuill.toolbar.style.bottom = `${window.scrollY + parentRect.bottom - pageHeight}px`;
+					} else {
+						answerQuill.toolbar.style.top =
+							`${elRect.top + elRect.height / 2 - toolbarHeight / 2 - parentRect.top}px`;
+						answerQuill.toolbar.style.bottom = null;
+					}
+
+				} else {
+					// If in a relatively positioned parent, the toolbar is positioned absolutely on the page.
+					if (toolbarHeight > pageHeight) {
+						answerQuill.toolbar.style.top = 0;
+						answerQuill.toolbar.style.height = '100%';
+					} else {
+						const elRect = answerQuill.getBoundingClientRect();
+						const top = window.scrollY + elRect.bottom - elRect.height / 2 - toolbarHeight / 2;
+						const bottom = top + toolbarHeight;
+						answerQuill.toolbar.style.top =
+							`${top < 0 ? 0 : bottom > pageHeight ? pageHeight - toolbarHeight : top}px`;
+						answerQuill.toolbar.style.height = null;
+					}
 				}
 			}
 
