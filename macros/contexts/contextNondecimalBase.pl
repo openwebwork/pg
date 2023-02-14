@@ -70,7 +70,6 @@ our $base = 10;
 our $digits16 = [ '0' .. '9', 'A' .. 'F' ];
 our $digit16  = { map { ($digits16->[$_], $_) } (0 .. scalar(@$digits16) - 1) };
 
-use Data::Dumper;
 #
 #  Initialize the contexts and make the creator function.
 #
@@ -104,11 +103,9 @@ sub Init {
 
 	# main::PG_restricted_eval('sub Hex {context::Hex::Hex->new(@_)}');
 }
-use Data::Dumper;
 
 sub convert {
 	my $value = shift;
-	print Dumper "convert: $value";
 	# Set default options and get passed in options.
 	my %options = (
 		from   => 10,
@@ -119,7 +116,6 @@ sub convert {
 	my $from   = $options{'from'};
 	my $to     = $options{'to'};
 	my $digits = $options{'digits'};
-	print Dumper "from: $from; to: $to";
 
 	die "The digits option must be an array of characters to use for the digits"
 		unless ref($digits) eq 'ARRAY';
@@ -170,8 +166,6 @@ sub convert {
 
 # set the base for the context.
 
-use Data::Dumper;
-
 sub setBase {
 	my $b = shift;
 	return Value::Error('The base must be greater than 1 and less than or equal to $max_base')
@@ -189,8 +183,6 @@ sub setBase {
 #
 package context::NondecimalBase::Number;
 our @ISA = ('Parser::Number');
-
-use Data::Dumper;
 
 # Create a new number in the given base and convert to base 10.
 

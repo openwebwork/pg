@@ -39,8 +39,5 @@ subtest 'check arithmetic in non-decimal base' => sub {
 	ok $a4->value, '122', 'Base 5 subtraction is correct';
 };
 
-use Data::Dumper;
-
-print Dumper convertBase(69, from => 10, to => 5);
 
 done_testing();
