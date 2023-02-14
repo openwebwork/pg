@@ -92,6 +92,7 @@
 			if (!answerQuill.hasFocus && answerQuill.toolbar) {
 				answerQuill.toolbar.style.opacity = 0;
 				answerQuill.toolbar.addEventListener('transitionend', () => {
+					if (!answerQuill.toolbar) return;
 					window.removeEventListener('resize', answerQuill.toolbar.setPosition);
 					answerQuill.toolbar.tooltips.forEach((tooltip) => tooltip.dispose());
 					answerQuill.toolbar.remove();
@@ -224,9 +225,40 @@
 			setTimeout(() => answerQuill.toolbar.style.opacity = 1, 0);
 		});
 
-		// Alt-t toggles whether the toolbar is enabled or not.
-		answerQuill.addEventListener('keydown', (e) => {
-			if (e.key === 't' && e.altKey) {
+		// Add a context menu to toggle whether the toolbar is enabled or not.
+		answerQuill.addEventListener('contextmenu', (e) => {
+			e.preventDefault();
+
+			const container = document.createElement('div');
+			container.classList.add('dropdown', 'd-inline-block');
+			answerQuill.after(container);
+
+			const hiddenLink = document.createElement('a');
+			hiddenLink.classList.add('dropdown-toggle', 'd-none');
+			hiddenLink.dataset.bsToggle = 'dropdown';
+			hiddenLink.href = '#';
+			container.append(hiddenLink);
+
+			const menuEl = document.createElement('ul');
+			menuEl.classList.add('dropdown-menu');
+			const li = document.createElement('li');
+			menuEl.append(li);
+			const action = document.createElement('a');
+			action.classList.add('dropdown-item');
+			action.href = '#';
+			action.textContent = toolbarEnabled ? 'Disable Toolbar' : 'Enable Toolbar';
+			li.append(action);
+			container.append(menuEl);
+
+			const menu =
+				new bootstrap.Dropdown(hiddenLink, { reference: answerQuill, offset: [answerQuill.offsetWidth, 0] });
+			menu.show();
+
+			hiddenLink.addEventListener('hidden.bs.dropdown', () => {
+				menu.dispose(); menuEl.remove(); container.remove();
+			});
+
+			action.addEventListener('click', (e) => {
 				e.preventDefault();
 				toolbarEnabled = !toolbarEnabled;
 				localStorage.setItem('MQEditorToolbarEnabled', toolbarEnabled)
@@ -237,7 +269,9 @@
 				if (toolbarEnabled && !answerQuill.toolbar) {
 					answerQuill.textarea.dispatchEvent(new Event('focusin'));
 				}
-			}
+				menu.hide();
+				answerQuill.textarea.focus();
+			}, { once: true });
 		});
 
 		answerQuill.textarea.addEventListener('focusout', () => {
