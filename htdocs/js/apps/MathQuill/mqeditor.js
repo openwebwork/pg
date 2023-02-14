@@ -90,10 +90,13 @@
 
 		const toolbarRemove = () => {
 			if (!answerQuill.hasFocus && answerQuill.toolbar) {
-				window.removeEventListener('resize', answerQuill.toolbar.setPosition);
-				answerQuill.toolbar.tooltips.forEach((tooltip) => tooltip.dispose());
-				answerQuill.toolbar.remove();
-				delete answerQuill.toolbar;
+				answerQuill.toolbar.style.opacity = 0;
+				answerQuill.toolbar.addEventListener('transitionend', () => {
+					window.removeEventListener('resize', answerQuill.toolbar.setPosition);
+					answerQuill.toolbar.tooltips.forEach((tooltip) => tooltip.dispose());
+					answerQuill.toolbar.remove();
+					delete answerQuill.toolbar;
+				});
 			}
 		};
 
@@ -106,6 +109,7 @@
 			answerQuill.toolbar = document.createElement('div');
 			answerQuill.toolbar.tabIndex = -1;
 			answerQuill.toolbar.classList.add('quill-toolbar');
+			answerQuill.toolbar.style.opacity = 0;
 
 			answerQuill.toolbar.addEventListener('focusin', (e) => answerQuill.hasFocus = true);
 			answerQuill.toolbar.addEventListener('focusout', (e) => {
@@ -217,6 +221,7 @@
 			answerQuill.toolbar.setPosition();
 
 			answerQuill.after(answerQuill.toolbar);
+			setTimeout(() => answerQuill.toolbar.style.opacity = 1, 0);
 		});
 
 		// Alt-t toggles whether the toolbar is enabled or not.
