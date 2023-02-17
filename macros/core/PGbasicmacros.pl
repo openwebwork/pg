@@ -453,10 +453,10 @@ sub NAMED_ANS_BOX {
 	$answer_value = encode_pg_and_html($answer_value);
 	my $out = MODES(
 		TeX        => qq!\\vskip $height in \\hrulefill\\quad !,
-		Latex2HTML =>
-			qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" aria-label="$label" ROWS="$row" COLS="$col"
+		Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
 				>$answer_value</TEXTAREA>\\end{rawhtml}!,
-		HTML => qq!<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col">$answer_value</TEXTAREA>!
+		HTML => qq!<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col" aria-label="$label">!
+			. qq!$answer_value</TEXTAREA>!
 			. qq!<INPUT TYPE=HIDDEN NAME="previous_$name" VALUE="$answer_value">!,
 		PTX => '<var name="' . "$name" . '" height="' . "$row" . '" width="' . "$col" . '" />',
 	);
