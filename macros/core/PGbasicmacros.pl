@@ -470,35 +470,36 @@ sub ANS_BOX {    #deprecated
 }
 
 sub NAMED_ANS_RADIO {
-	my $name    = shift;
-	my $value   = shift;
-	my $tag     = shift;
-	my $extend  = shift;
-	my %options = @_;
+	my ($name, $value, $tag, $extend, %options) = @_;
 
 	my $checked = '';
 	if ($value =~ /^\%/) {
 		$value =~ s/^\%//;
 		$checked = 'CHECKED';
 	}
-	if (defined($inputs_ref->{$name})) {
-		if ($inputs_ref->{$name} eq $value) {
-			$checked = 'CHECKED';
-		} else {
-			$checked = '';
-		}
+	$checked = $inputs_ref->{$name} eq $value ? 'CHECKED' : '' if defined $inputs_ref->{$name};
 
-	}
 	$name = RECORD_ANS_NAME($name, { $value => $checked }) unless $extend;
 	INSERT_RESPONSE($options{answer_group_name}, $name, { $value => $checked }) if $extend;
-	my $label = generate_aria_label($name);
-	$label .= "option 1 ";
+
 	MODES(
 		TeX        => qq!\\item{$tag}\n!,
 		Latex2HTML =>
 			qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML =>
-			qq!<label><INPUT TYPE=RADIO NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!,
+		HTML => tag(
+			'label',
+			tag(
+				'input',
+				type       => 'radio',
+				name       => $name,
+				id         => $name,
+				aria_label => generate_aria_label($name) . 'option 1 ',
+				value      => $value,
+				$checked ? (checked => undef) : (),
+				%{ $options{attributes} }
+				)
+				. $tag
+		),
 		PTX => '<li>' . "$tag" . '</li>' . "\n",
 	);
 
@@ -509,38 +510,35 @@ sub NAMED_ANS_RADIO_OPTION {    #deprecated
 }
 
 sub NAMED_ANS_RADIO_EXTENSION {
-	my $name    = shift;
-	my $value   = shift;
-	my $tag     = shift;
-	my %options = @_;
+	my ($name, $value, $tag, %options) = @_;
 
 	my $checked = '';
 	if ($value =~ /^\%/) {
 		$value =~ s/^\%//;
 		$checked = 'CHECKED';
 	}
-	if (defined($inputs_ref->{$name})) {
-		if ($inputs_ref->{$name} eq $value) {
-			$checked = 'CHECKED';
-		} else {
-			$checked = '';
-		}
+	$checked = $inputs_ref->{$name} eq $value ? 'CHECKED' : '' if defined $inputs_ref->{$name};
 
-	}
 	EXTEND_RESPONSE($options{answer_group_name} // $name, $name, $value, $checked);
-	my $label;
-	if (defined($options{aria_label})) {
-		$label = $options{aria_label};
-	} else {
-		$label = generate_aria_label($name);
-	}
 
 	MODES(
 		TeX        => qq!\\item{$tag}\n!,
 		Latex2HTML =>
 			qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML =>
-			qq!<label><INPUT TYPE=RADIO NAME="$name" id="${name}_$value" aria-label="$label" VALUE="$value" $checked>$tag</label>!,
+		HTML => tag(
+			'label',
+			tag(
+				'input',
+				type       => 'radio',
+				name       => $name,
+				id         => $options{id}         // "${name}_$value",
+				aria_label => $options{aria_label} // generate_aria_label($name),
+				value      => $value,
+				$checked ? (checked => undef) : (),
+				%{ $options{attributes} }
+				)
+				. $tag
+		),
 		PTX => '<li>' . "$tag" . '</li>' . "\n",
 	);
 
@@ -3294,6 +3292,43 @@ sub imageRow {
 		warn $out;
 	}
 	$out;
+}
+
+=head2 Tag helper method:
+
+	tag('input', name => 'AnSwEr0001', id => 'answer_id')
+	tag('div', class => 'style-class', 'This is my content')
+
+This produces an html tag with attributes.  This is designed to be similar to
+the Mojolicious::Plugin::TagHelpers tag method (although much simpler and not
+nearly as versatile).  The first argument is the tag name and is required.  This
+is followed by attribute C<< name => value >> pairs.  Note that all underscores
+in attribute names are converted into hyphens.  The final argument is the
+content of the tag.  If not given the tag will have no content.  This is ignored
+for a self closing tag if given.
+
+Currently this is only designed to be used for HTML output, but perhaps could be
+extended for XML (PTX) output.
+
+=cut
+
+# Self closing tags.
+my %SELF_CLOSING = map { $_ => 1 } qw(area base br col embed hr img input link meta source track wbr);
+
+sub tag {
+	my ($tag, @data) = @_;
+	my $content    = @data % 2 ? pop @data : '';
+	my %attributes = @data;
+
+	my $attributes_str = join(
+		' ',
+		map {
+			($_ =~ s/_/-/gr) . (defined $attributes{$_} ? ('="' . encode_pg_and_html($attributes{$_})) . '"' : '')
+		}
+			keys %attributes
+	);
+
+	return "<$tag" . ($attributes_str ? " $attributes_str" : '') . '>' . ($SELF_CLOSING{$tag} ? '' : "$content</$tag>");
 }
 
 ###########
