@@ -198,7 +198,7 @@ A number or a nested list that gives the sizes of the answer blanks.  If this is
 all answer rules will use that for the size.  If this is a nested list, then it should contain a
 list of sizes for each rule in each part.  If there are not enough sizes in each sub list, then
 a default of 20 will be used.  If this is not defined, then WeBWorK defaults will be used.  The
-sizes of the answer balanks can also be set via the argument to ans_rule.  The same types of
+sizes of the answer blanks can also be set via the argument to ans_rule.  The same types of
 arguments are accepted there.
 
 =item labels (Default: labels => "ABC")
@@ -206,7 +206,23 @@ arguments are accepted there.
 This determines what label to show for each choice.  The default is "S<< ABC >>", which results in
 upper case alphabetic labels, starting with S<< A >>.  If the value is "S<< 123 >>" then the
 choices will be labeled with numbers.  The value of labels may also be a list of labels for each
-choice (e.g. C<[label1,label2,...]>).
+choice (e.g. C<[label1,label2,...]>).  Note that if you give a list of labels and do not supply
+enough labels for the number of radio choices in your problem, expect inconsistent labelling.
+
+=item values (Default: values => [])
+
+Values are the form of the student answer that will be displayed in the past answers table for the
+radio button choices part of the answer.  By default these are B0, B1, etc.  However, that can be
+changed with this option.  The value of the option should be a reference to an array containing the
+values for the choices.  For example:
+
+    values => [ 'first choice', 'second choice', ... ]
+
+If a choice is not represented in the hash, then C<Bn> will be used for the value instead where C<n>
+is the 0 based index of the choice.
+
+These values can be any descriptive string that is unique for the choice, but care should be taken
+to ensure that these values do not indicate which choice is the correct answer.
 
 =item labelFormat (Default: labelFormat => C<${BBOLD}%s.${EBOLD}>)
 
@@ -226,14 +242,14 @@ undefined, which means that none of the radio buttons are initially checked.
 
 =item uncheckable (Default: uncheckable => 0)
 
-If this is set to 1 or "shift" then it possible to uncheck a radio button by clicking it when it
+If this is set to 1 or "shift" then it is possible to uncheck a radio button by clicking it when it
 is checked.  If this is set to "shift", unchecking requires the shift key to be pressed.
 
 =back
 
 =cut
 
-loadMacros('MathObjects.pl');
+loadMacros('MathObjects.pl', 'PGbasicmacros.pl');
 
 sub _parserRadioMultiAnswer_init {
 	ADD_CSS_FILE('js/apps/RadioMultiAnswer/RadioMultiAnswer.css', 0);
@@ -272,6 +288,7 @@ sub new {
 		labels            => 'ABC',
 		displayLabels     => 1,
 		labelFormat       => "${main::BBOLD}%s.${main::EBOLD}",
+		values            => [],
 		namedRules        => 0,
 		cmpOpts           => undef,
 		checkTypes        => 1,
@@ -286,7 +303,7 @@ sub new {
 		@inputs
 	);
 
-	my @cmp;
+	my (@cmp, @values);
 	for (@$data) {
 		Value::Error("Each part of a RadioMultiAnswer should be a list with at least one element,\n"
 				. 'which must be an sprintf style string.')
@@ -296,19 +313,29 @@ sub new {
 			$x = Value::makeValue($x, context => $context) unless Value::isValue($x);
 			push(@itemCmps, $x->cmp(@ans_defaults));
 		}
-		push(@cmp, [@itemCmps]);
+		push(@cmp,    [@itemCmps]);
+		push(@values, $options{values}[ scalar(@values) ] // ('B' . scalar(@values)));
 	}
 
 	return bless {
 		%options,
 		data          => $data,
-		cmp           => [@cmp],
+		cmp           => \@cmp,
+		values        => \@values,
 		correct       => $correct,
 		ans           => [],
 		isValue       => 1,
 		context       => $context,
 		errorMessages => []
 	}, $class;
+}
+
+# Convert a value string into a numeric index.
+sub getIndexByValue {
+	my ($self, $value) = @_;
+	return -1 unless defined $value;
+	my ($index) = grep { $self->{values}[$_] eq $value } 0 .. $#{ $self->{values} };
+	return $index // -1;
 }
 
 # Creates an answer evaluator to be passed to ANS() or an array with a label and answer
@@ -319,13 +346,10 @@ sub new {
 sub cmp {
 	my ($self, %options) = @_;
 
-	%options = (%options, %{ $self->{cmpOpts} }) if defined $self->{cmpOpts} && ref($self->{cmpOpts}) eq 'HASH';
+	%options = (%options, %{ $self->{cmpOpts} }) if ref($self->{cmpOpts}) eq 'HASH';
 
 	for my $id ('checker', 'separator') {
-		if (defined $options{$id}) {
-			$self->{$id} = $options{$id};
-			delete $options{$id};
-		}
+		$self->{$id} = delete $options{$id} if defined $options{$id};
 	}
 
 	unless (ref($self->{checker}) eq 'CODE') {
@@ -377,7 +401,7 @@ sub cmp {
 			: join($self->{tex_separator}, @correct_tex)
 		),
 		type           => 'RadioMultiAnswer',
-		correct_choice => "B$self->{correct}",
+		correct_choice => $self->{values}[ $self->{correct} ],
 		%options
 	);
 	$ans->install_evaluator(sub { my $ans = shift; (shift)->answer_evaluator($ans) }, $self);
@@ -404,7 +428,7 @@ sub answer_evaluator {
 	return $ans if !defined $ans->{original_student_ans} || $ans->{original_student_ans} eq '';
 	my (@errors, @student, @latex, @text);
 	$self->perform_check($ans);
-	my $stu_index = substr($ans->{original_student_ans}, 1);
+	my $stu_index = $self->getIndexByValue($ans->{original_student_ans});
 	# Only the radio answer and the answers in the selected part are needed.
 	push(@latex,   $self->quoteTeX($self->label($stu_index)))  if $self->{displayLabels};
 	push(@text,    $self->quoteHTML($self->label($stu_index))) if $self->{displayLabels};
@@ -414,19 +438,27 @@ sub answer_evaluator {
 		push(@text,    check_string($result->{preview_text_string}, '__'));
 		push(@student, check_string($result->{student_ans},         '__'));
 		if ($result->{ans_message}) {
-			push(@errors,
-				qq{<tr style="vertical-align:top"><td style="text-align:left;">$result->{ans_message}</td></tr>});
+			push(
+				@errors,
+				main::tag(
+					'tr',
+					style => 'vertical-align:top',
+					main::tag('td', style => 'text-align:left', $result->{ans_message})
+				)
+			);
 		}
 	}
 	for (@{ $self->{errorMessages} }) {
-		push(@errors, qq{<tr style="vertical-align:top;"><td style="text-align:left;">$_</td></tr>});
+		push(@errors, main::tag('tr', style => 'vertical-align:top', main::tag('td', style => 'text-align:left', $_)));
 	}
 	$ans->{ans_message} = $ans->{error_message} = '';
 	if (@errors) {
-		$ans->{ans_message} = $ans->{error_message} =
-			'<table style="border-collapse:collapse;" class="ArrayLayout">'
-			. join('<tr><td style="height:4px;"></td></tr>', @errors)
-			. '</table>';
+		$ans->{ans_message} = $ans->{error_message} = main::tag(
+			'table',
+			style => 'border-collapse:collapse',
+			class => 'ArrayLayout',
+			join(main::tag('tr', main::tag('td', style => 'height:4px')), @errors)
+		);
 	}
 
 	$ans->{preview_latex_string} =
@@ -467,7 +499,7 @@ sub perform_check {
 	# one, so that it is the location in the list sent to the grader of the answers for the
 	# selected part (the radio answer is in position 0).
 	push(@correct, $self->{correct} + 1);
-	push(@student, substr($main::inputs_ref->{ $self->ANS_NAME(0) }, 1) + 1);
+	push(@student, $self->getIndexByValue($main::inputs_ref->{ $self->ANS_NAME(0) }) + 1);
 	my $part_index = 1;
 	for my $part (@{ $self->{ans} }) {
 		my @part_correct;
@@ -525,10 +557,11 @@ sub label {
 	$self->{labels} = [ @main::ALPHABET[ 0 .. $#{ $self->{data} } ] ] if uc($self->{labels}) eq 'ABC';
 	$self->{labels} = [ 1 .. @{ $self->{data} } ]                     if $self->{labels} eq '123';
 
-	# Fill with Bn labels as needed.
+	# Fill with additional alphabetic labels as needed.
+	# This is a fallback and if used indicates a failure of the problem author to use this macro correctly.
 	$self->{labels} = [] unless ref($self->{labels}) eq 'ARRAY';
 	for (0 .. $#{ $self->{data} }) {
-		$self->{labels}[$_] = "B$_" unless defined $self->{labels}[$_];
+		$self->{labels}[$_] = $main::ALPHABET[$_] unless defined $self->{labels}[$_];
 	}
 	return $self->{labels}[$i];
 }
@@ -587,10 +620,15 @@ sub ans_rule {
 		}
 		$rule .= main::MODES(
 			TeX  => sprintf($data[$i][0] =~ s/%s\*/%s/gr, @part_rules),
-			HTML => qq{<div class="radio-content" data-radio="$radio_name" data-index="B$i" data-part-names="}
-				. main::encode_pg_and_html(JSON->new->encode(\@part_names)) . '">'
-				. sprintf($data[$i][0] =~ s/%s\*/%s/gr, @part_rules)
-				. '</div>'
+			HTML => main::tag(
+				'div',
+				class           => 'radio-content',
+				data_radio      => $radio_name,
+				data_index      => $self->{values}[$i],
+				data_part_names => JSON->new->encode(\@part_names),
+				sprintf($data[$i][0] =~ s/%s\*/%s/gr, @part_rules)
+			),
+			PTX => sprintf($data[$i][0] =~ s/%s\*/%s/gr, @part_rules)
 		);
 		$rule .= $self->end_radio();
 		push(@rules, $rule);
@@ -598,7 +636,7 @@ sub ans_rule {
 
 	return
 		main::MODES(TeX => '\\begin{itemize}', HTML => '')
-		. join(main::MODES(TeX => '\vskip\baselineskip', HTML => '<div style="margin-top:1rem"></div>'), @rules)
+		. join(main::MODES(TeX => '\vskip\baselineskip', HTML => main::tag('div', style => 'margin-top:1rem')), @rules)
 		. main::MODES(TeX => '\\end{itemize}', HTML => '');
 }
 
@@ -614,42 +652,43 @@ sub begin_radio {
 	my ($self, $i, $extend) = @_;
 
 	my $name  = $self->ANS_NAME(0);
-	my $value = "B$i";
+	my $value = $self->{values}[$i];
 	my $tag   = $self->label_format($self->label($i));
 
 	my $checked = $i == ($self->{checked} // -1) ? 'checked' : '';
-	if (defined $main::inputs_ref->{$name}) {
-		if ($main::inputs_ref->{$name} eq $value) {
-			$checked = 'checked';
-		} else {
-			$checked = '';
-		}
-	}
+	$checked = $main::inputs_ref->{$name} eq $value ? 'checked' : '' if (defined $main::inputs_ref->{$name});
 
-	if ($extend) {
-		main::EXTEND_RESPONSE($name, $name, $value, $checked);
-	} else {
-		$name = main::RECORD_ANS_NAME($name, { $value => $checked });
-	}
-	my $label = main::generate_aria_label("$answerPrefix${name}_0") . ' option ' . ($i + 1);
-	my $dataAttr =
-		$self->{uncheckable}
-		? ('data-uncheckable-radio=1' . (!$extend && $self->{uncheckable} =~ m/shift/i ? ' data-shift=1' : ''))
-		: '';
+	if ($extend) { main::EXTEND_RESPONSE($name, $name, $value, $checked) }
+	else         { $name = main::RECORD_ANS_NAME($name, { $value => $checked }) }
+
 	my $idSuffix = $extend ? "_$value" : '';
 
 	return main::MODES(
 		TeX  => qq!\\item{$tag}\n!,
-		HTML => qq!<div class="radio-container">
-			<input $dataAttr type=radio name="$name" id="$name$idSuffix" aria-label="$label" value="$value" $checked>
-			<label for="$name$idSuffix">$tag</label>!,
-		PTX => '<li>' . $tag . '</li>' . "\n",
+		HTML => qq{<div class="radio-container">}
+			. main::tag(
+				'input',
+				type       => 'radio',
+				name       => $name,
+				id         => "$name$idSuffix",
+				aria_label => main::generate_aria_label("$answerPrefix${name}_0") . ' option ' . ($i + 1),
+				value      => $value,
+				$self->{uncheckable}
+				? (
+					data_uncheckable_radio => 1,
+					(!$extend && $self->{uncheckable}) =~ m/shift/i ? (data_shift => 1) : ()
+				)
+				: (),
+				$checked ? (checked => undef) : ()
+			)
+			. main::tag('label', for => "$name$idSuffix", $tag),
+		PTX => "<li>$tag",
 	);
 }
 
 # End a radio button container.
 sub end_radio {
-	return main::MODES(TeX => '', HTML => '</div>', PTX => '');
+	return main::MODES(TeX => '', HTML => '</div>', PTX => '</li>');
 }
 
 # Record an answer-blank name (when using extensions)
