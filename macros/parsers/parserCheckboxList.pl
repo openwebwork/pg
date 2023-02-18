@@ -28,21 +28,30 @@ To create a CheckboxList object, use
     $checks = CheckboxList([choices, ...], [correct_choices, ...], options);
 
 where "S<choices>" are the label value strings for the checkboxes,
-"S<correct_choices>" are the choices that are the correct answera (or their
+"S<correct_choices>" are the choices that are the correct answers (or their
 indices, with 0 being the first one), and options are chosen from among those
-listed below.  If the correct answer is a number, it is interpretted as an
-index, even if the array of choices are also numbers.  (See the C<noindex> below
-for more details.)
+listed below.  If the correct answer is a number, it is interpreted as an index,
+even if the array of choices are also numbers.  (See the C<noindex> below for
+more details.)
 
 The entries in the choices array can either be strings that are the text to use
 for the choice buttons, or C<< { label => text } >> where C<label> is a label to
-use for the choice when showing the student or correct answers, and C<text> is
-the text to use for the choice.  See below for options controlling how the
-labels will be used.  If a choice includes mathematics, you should use labels as
-above or through the C<labels> option below in order to have the student and
-correct answers display properly in the results table when an answer is
-submitted.  Use the C<displayLabels> option to make the labels be part of the
-choice as it is displayed following the checkbox.
+use for the choice when showing the student or correct answers and C<text> is
+the text to use for the choice, or C<< { label => [ text, value ] } >> where
+C<label> and C<text> are as described above and C<value> is the value to for the
+checkbox input for this choice.
+
+See below for options controlling how the labels will be used.  If a choice
+includes mathematics, you should use labels as above or through the C<labels>
+option below in order to have the student and correct answers display properly
+in the results table when an answer is submitted.  Use the C<displayLabels>
+option to make the labels be part of the choice as it is displayed following the
+checkbox.
+
+The values set as described above are the answers that will be displayed in the
+past answers table.  See the C<values> option below for more information.
+Problem authors are encourages to set these values either as described above, or
+via the C<values> option.  This is useful for instructors viewing past answers.
 
 By default, the choices are left in the order that you provide them, but you can
 cause some or all of them to be ordered randomly by enclosing those that should
@@ -91,6 +100,33 @@ preferred).
 Default: labels are the text of the choice when they don't include any special
 characters, and "Button 1", "Button 2", etc., otherwise.
 
+=item C<S<< values => array reference >>>
+
+Values are the form of the student answer that will be displayed in the past
+answers table for this answer.  By default these are B0, B1, etc.  However, that
+can be changed either with this option or by specifying the choices with 
+C<< { label => [ text, value ] } >> as described previously.  If this option is
+used, then the value of the option should be a reference to an array containing
+the values for the choices.  For example:
+
+    values => [ 'first choice', 'second choice', ... ]
+
+If a choice is not represented in the hash, then C<Bn> will be used for the
+value instead where C<n> is the 0 based index of the choice.
+
+These values can be any descriptive string that is unique for the choice, but
+care should be taken to ensure that these values do not indicate which choice is
+the correct answer.
+
+Note that values given via C<< { label => [ text, value ] } >> will override any
+values given by this option if both are provided for a particular choice.
+
+Also note that due to the way that checkbox values are passed in HTML forms, all
+checked values will be concatenated into a single string for the original
+student answer with no separator.  So it is advisable to end each value with a
+comma or semicolon to provide a separator for the parts of the answer that were
+checked.
+
 =item C<S<< displayLabels => 0 or 1 >>>
 
 Specifies whether labels should be displayed after the checkbox and before its
@@ -108,7 +144,7 @@ followed by a period and a space.
 
 When C<displayLabels> is set, this controls how blank labels are handled.  When
 set to C<0>, no label is inserted before the choice text for blank labels, and
-when C<1>, the C<labelFormat> is applied ot the empty string and the result is
+when C<1>, the C<labelFormat> is applied to the empty string and the result is
 inserted before the choice text.  Default: 0.
 
 =item C<S<< separator => string >>>
@@ -128,7 +164,7 @@ trimmed and "..." inserted) Default: 25
 
 =item C<S<< noindex => 0 or 1 >>>
 
-Determines whether a numeric value for the correct answer is interpretted as an
+Determines whether a numeric value for the correct answer is interpreted as an
 index into the choice array or not.  If set to 1, then the number is treated as
 the literal correct answer, not an index to it.  Default: 0
 
@@ -151,7 +187,7 @@ with PGML, or
 with basic PG.
 
 You can use the CheckboxList object in MultiAnswer objects.  This is the reason
-for the CheckboxLists's C<ans_rule> method (since that is what MultiAnswer calls
+for the CheckboxList's C<ans_rule> method (since that is what MultiAnswer calls
 to get answer rules).  Just pass a CheckboxList object as one of the arguments
 of the MultiAnswer constructor.
 
@@ -160,9 +196,12 @@ is part of a MultiAnswer and its answer depends on, or affects, the answers
 given to other parts), note that the actual answer strings associated to a
 CheckboxList object (which are those appearing in the "student answer" argument
 passed to a custom answer checker) are neither the supplied choice strings nor
-the supplied labels, but are an internal implementation detail whose format
-should not be depended on.  You can convert one of these answer strings to a
-choice string or a label with the methods answerChoice or answerLabel.
+the supplied labels, but are the checkbox input values.  These are the values
+given by the C<values> option or C<< { label => [ text, value ] } >> choice
+format if provided. Otherwise they are an internal implementation detail whose
+format should not be depended on.  In any case, you can convert these value
+strings to a choice string or a label with the methods answerChoice or
+answerLabel.
 
 =cut
 
@@ -196,6 +235,7 @@ sub new {
 		displayLabels    => 'auto',
 		labelFormat      => "${main::BBOLD}%s${main::EBOLD}. ",
 		forceLabelFormat => 0,
+		values           => [],
 		separator        => $main::BR,
 		checked          => [],
 		maxLabelSize     => 25,
@@ -215,7 +255,7 @@ sub new {
 	$self->getCorrectChoices($correct);
 	$self->getCheckedChoices($self->{checked});
 
-	$context->strings->are(map { ("B$_" => {}) } (0 .. ($self->{n} - 1)));
+	$context->strings->add(map { ($self->{values}[$_] => {}) } (0 .. ($self->{n} - 1)));
 	$_ = Value::makeValue($_, context => $context) for @{ $self->data };
 
 	return $self;
@@ -229,8 +269,8 @@ sub getChoiceOrder {
 
 	my @choices;
 	for my $choice (@{ $self->{choices} }) {
-		if   (ref($choice) eq 'ARRAY') { push(@choices, $self->randomOrder($choice)) }
-		else                           { push(@choices, $choice) }
+		if (ref($choice) eq 'ARRAY') { push(@choices, $self->randomOrder($choice)) }
+		else { push(@choices, $choice); push(@{ $self->{order} }, scalar(@{ $self->{order} })); }
 	}
 	$self->{orderedChoices} = \@choices;
 	$self->{n}              = scalar(@choices);
@@ -240,8 +280,10 @@ sub getChoiceOrder {
 
 sub randomOrder {
 	my ($self, $choices) = @_;
-	my %index = (map { $main::PG_random_generator->rand => $_ } (0 .. scalar(@$choices) - 1));
-	return (map { $choices->[ $index{$_} ] } main::PGsort(sub { $_[0] lt $_[1] }, keys %index));
+	my @indices = 0 .. $#$choices;
+	my @order   = map { splice(@indices, $main::PG_random_generator->random(0, $#indices), 1) } @indices;
+	push(@{ $self->{order} }, map { $_ + scalar(@{ $self->{order} }) } @order);
+	return map { $choices->[$_] } @order;
 }
 
 # Collect the labels from those that have them, and add ones to those that don't (if requested).
@@ -265,16 +307,24 @@ sub addLabels {
 
 	$labels = [] unless ref($labels) eq 'ARRAY';
 
+	my @values = (undef) x $self->{n};
+
 	for (0 .. $self->{n} - 1) {
 		if (ref($choices->[$_]) eq 'HASH') {
 			my $key = (keys %{ $choices->[$_] })[0];
-			$labels->[$_]  = $key;
-			$choices->[$_] = $choices->[$_]{$key};
+			$labels->[$_] = $key;
+			if (ref($choices->[$_]{$key}) eq 'ARRAY') {
+				$values[$_] = $choices->[$_]{$key}[1];
+				$choices->[$_] = $choices->[$_]{$key}[0];
+			} else {
+				$choices->[$_] = $choices->[$_]{$key};
+			}
 		}
 	}
 
 	$self->{labels}        = $labels;
 	$self->{displayLabels} = 1 if $self->{displayLabels} eq 'auto';
+	$self->{values}        = [ map { $values[$_] // $self->{values}[ $self->{order}[$_] ] // "B$_" } 0 .. $#values ];
 
 	return;
 }
@@ -296,7 +346,7 @@ sub getCorrectChoices {
 
 		for (0 .. $#{ $self->{orderedChoices} }) {
 			if ($value eq $self->{orderedChoices}[$_] || $value eq ($self->{labels}[$_] || '')) {
-				push(@{ $self->{data} }, "B$_");
+				push(@{ $self->{data} }, $self->{values}[$_]);
 				last;
 			}
 		}
@@ -340,7 +390,7 @@ sub flattenChoices {
 	for my $choice (@choices) {
 		if (ref($choice) eq 'HASH') {
 			my $key = (keys %$choice)[0];
-			$choice = $choice->{$key};
+			$choice = ref($choice->{$key}) eq 'ARRAY' ? $choice->{$key}[0] : $choice->{$key};
 		}
 	}
 	return @choices;
@@ -354,10 +404,18 @@ sub labelFormat {
 	return sprintf($self->{labelFormat}, $self->protect($label));
 }
 
+# Convert a value string into a numeric index.
+sub getIndexByValue {
+	my ($self, $value) = @_;
+	return -1 unless defined $value;
+	my ($index) = grep { $self->{values}[$_] eq $value } 0 .. $#{ $self->{values} };
+	return $index // -1;
+}
+
 # Trim the selected choice or label so that it is not too long to be displayed in the results table.
 sub labelText {
-	my ($self, $index) = @_;
-	$index = substr($index, 1);
+	my ($self, $value) = @_;
+	$index = $self->getIndexByValue($value);
 	my $choice = $self->{labels}[$index];
 	$choice = $self->{orderedChoices}[$index] unless defined $choice;
 	return $choice if length($choice) < $self->{maxLabelSize};
@@ -369,7 +427,7 @@ sub labelText {
 	return $s . " ... " . $e;
 }
 
-# Use the actual choice strings in the output rather than the "Bn" string.
+# Use the actual choice strings in the output rather than the value string.
 sub TeX {
 	my $self = shift;
 	return $self->quoteTeX(join(', ', map { $self->labelText($_) } $self->value));
@@ -392,7 +450,7 @@ sub cmp_defaults {
 	);
 }
 
-# Adjust student preview and answer strings to be the actual choice strings rather than the "Bn" strings.
+# Adjust student preview and answer strings to be the actual choice strings rather than the value strings.
 sub cmp_preprocess {
 	my ($self, $ans) = @_;
 	if (defined $ans->{student_value} && @{ $ans->{student_value}->data }) {
@@ -433,13 +491,13 @@ sub quoteHTML {
 }
 
 sub answerChoice {
-	my ($self, $index) = @_;
-	return $self->{orderedChoices}[ substr($index, 1) ];
+	my ($self, $value) = @_;
+	return $self->{orderedChoices}[ $self->getIndexByValue($value) ];
 }
 
 sub answerLabel {
-	my ($self, $index) = @_;
-	return $self->{labels}[ substr($index, 1) ];
+	my ($self, $value) = @_;
+	return $self->{labels}[ $self->getIndexByValue($value) ];
 }
 
 # Given a choice, a label, or an index into the choices array, return the choice.
@@ -471,7 +529,7 @@ sub CHECKS {
 	my $label = main::generate_aria_label($name);
 
 	for my $i (0 .. $#{ $self->{orderedChoices} }) {
-		my $value = "B$i";
+		my $value = $self->{values}[$i];
 		my $tag   = $self->{orderedChoices}[$i];
 		$value = '%' . $value                                   if (grep { $i == $_ } @{ $self->{checkedI} });
 		$tag   = $self->labelFormat($self->{labels}[$i]) . $tag if $self->{displayLabels};
@@ -480,6 +538,7 @@ sub CHECKS {
 				@checks,
 				main::NAMED_ANS_CHECKBOX_OPTION(
 					$name, $value, " $tag",
+					id         => "${name}_$i",
 					aria_label => $label . 'option ' . ($i + 1) . ' ',
 					%options
 				)

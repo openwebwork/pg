@@ -482,7 +482,7 @@ sub NAMED_ANS_RADIO {
 	$name = RECORD_ANS_NAME($name, { $value => $checked }) unless $extend;
 	INSERT_RESPONSE($options{answer_group_name}, $name, { $value => $checked }) if $extend;
 
-	MODES(
+	return MODES(
 		TeX        => qq!\\item{$tag}\n!,
 		Latex2HTML =>
 			qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
@@ -493,7 +493,7 @@ sub NAMED_ANS_RADIO {
 				type       => 'radio',
 				name       => $name,
 				id         => $name,
-				aria_label => generate_aria_label($name) . 'option 1 ',
+				aria_label => $options{aria_label} // generate_aria_label($name) . 'option 1 ',
 				value      => $value,
 				$checked ? (checked => undef) : (),
 				%{ $options{attributes} }
@@ -521,7 +521,7 @@ sub NAMED_ANS_RADIO_EXTENSION {
 
 	EXTEND_RESPONSE($options{answer_group_name} // $name, $name, $value, $checked);
 
-	MODES(
+	return MODES(
 		TeX        => qq!\\item{$tag}\n!,
 		Latex2HTML =>
 			qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
@@ -665,17 +665,8 @@ sub contained_in {
 	}
 }
 
-##########################
-# If multiple boxes are checked then the $inputs_ref->{name }will be a null separated string
-# or a reference to an array.
-##########################
-
 sub NAMED_ANS_CHECKBOX {
-	my $name    = shift;
-	my $value   = shift;
-	my $tag     = shift;
-	my $extend  = shift;
-	my %options = @_;
+	my ($name, $value, $tag, $extend, %options) = @_;
 
 	my $checked = '';
 	if ($value =~ /^\%/) {
@@ -683,71 +674,70 @@ sub NAMED_ANS_CHECKBOX {
 		$checked = 'CHECKED';
 	}
 
-	if (defined($inputs_ref->{$name})) {
-		if (contained_in($value, $inputs_ref->{$name})) {
-			$checked = 'CHECKED';
-		} else {
-			$checked = '';
-		}
+	# If multiple boxes are checked then the $inputs_ref->{name} will be a null separated string
+	# or a reference to an array.
+	$checked = contained_in($value, $inputs_ref->{$name}) ? 'CHECKED' : '' if defined $inputs_ref->{$name};
 
-	}
 	$name = RECORD_ANS_NAME($name, { $value => $checked }) unless $extend;
 	INSERT_RESPONSE($options{answer_group_name}, $name, { $value => $checked }) if $extend;
-	my $label = generate_aria_label($name);
-	$label .= "option 1 ";
 
-	MODES(
+	return MODES(
 		TeX        => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n!
 			. qq!<input type=checkbox name="$name" id="$name" VALUE="$value" $checked>!
 			. qq!\\end{rawhtml}$tag!,
-		HTML => '<label>'
-			. qq!<input type=checkbox name="$name" id="$name" aria-label="$label" VALUE="$value" $checked>!
-			. qq!$tag</label>!,
+		HTML => tag(
+			'label',
+			tag(
+				'input',
+				type       => 'checkbox',
+				name       => $name,
+				id         => $name,
+				aria_label => generate_aria_label($name) . 'option 1 ',
+				value      => $value,
+				$checked ? (checked => undef) : (),
+				%{ $options{attributes} }
+				)
+				. $tag
+		),
 		PTX => "<li>$tag</li>\n",
 	);
 
 }
 
 sub NAMED_ANS_CHECKBOX_OPTION {
-	my $name    = shift;
-	my $value   = shift;
-	my $tag     = shift;
-	my %options = @_;
+	my ($name, $value, $tag, %options) = @_;
 
 	my $checked = '';
 	if ($value =~ /^\%/) {
 		$value =~ s/^\%//;
 		$checked = 'CHECKED';
 	}
+	$checked = contained_in($value, $inputs_ref->{$name}) ? 'CHECKED' : '' if defined $inputs_ref->{$name};
 
-	if (defined($inputs_ref->{$name})) {
-		if (contained_in($value, $inputs_ref->{$name})) {
-			$checked = 'CHECKED';
-		} else {
-			$checked = '';
-		}
-
-	}
 	EXTEND_RESPONSE($options{answer_group_name} // $name, $name, $value, $checked);
-	my $label;
-	if (defined($options{aria_label})) {
-		$label = $options{aria_label};
-	} else {
-		$label = generate_aria_label($name);
-	}
 
-	MODES(
+	return MODES(
 		TeX        => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n!
 			. qq!<input type=checkbox name="$name" id="${name}_$value" value="$value" $checked>!
 			. qq!\\end{rawhtml}$tag!,
-		HTML => '<label>'
-			. qq!<input type=checkbox name="$name" id="${name}_$value" aria-label="$label" value="$value" $checked>!
-			. qq!$tag</label>!,
+		HTML => tag(
+			'label',
+			tag(
+				'input',
+				type       => 'checkbox',
+				name       => $name,
+				id         => $options{id}         // "${name}_$value",
+				aria_label => $options{aria_label} // generate_aria_label($name),
+				value      => $value,
+				$checked ? (checked => undef) : (),
+				%{ $options{attributes} }
+				)
+				. $tag
+		),
 		PTX => "<li>$tag</li>\n",
 	);
-
 }
 
 sub NAMED_ANS_CHECKBOX_BUTTONS {
