@@ -372,7 +372,7 @@ sub Verbatim {
 sub Answer {
 	my $self  = shift;
 	my $token = shift;
-	my $def   = { options => [ "answer", "width", "name", "array" ] };
+	my $def   = { options => [ "answer", "width", "name", "cmp_options" ] };
 	$def->{hasStar} = 1 if $token =~ m/\*$/;
 	$self->Item("answer", $token, $def);
 }
@@ -1305,9 +1305,9 @@ sub Answer {
 			$rule = PGML::LaTeX($rule);
 			if (!(ref($ans) eq 'parser::MultiAnswer' && $ans->{part} > 1)) {
 				if (defined($item->{name})) {
-					main::NAMED_ANS($item->{name} => $ans->cmp);
+					main::NAMED_ANS($item->{name} => $ans->cmp(%{ $item->{cmp_options} }));
 				} else {
-					main::ANS($ans->cmp);
+					main::ANS($ans->cmp(%{ $item->{cmp_options} }));
 				}
 			}
 		}
