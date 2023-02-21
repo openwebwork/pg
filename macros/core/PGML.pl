@@ -1270,7 +1270,7 @@ sub Answer {
 	my $rule;
 	$item->{width} = length($item->{token}) - 2 if (!defined($item->{width}));
 	if (defined($ans)) {
-		if (ref($ans) =~ /CODE|AnswerEvaluator/) {
+		if (ref($ans) eq 'CODE' || (ref($ans) eq 'AnswerEvaluator' && !Value::isValue($ans->{rh_ans}{correct_value}))) {
 			if (defined($item->{name})) {
 				$rule = main::NAMED_ANS_RULE($item->{name}, $item->{width});
 				main::NAMED_ANS($item->{name} => $ans);
@@ -1279,6 +1279,8 @@ sub Answer {
 				main::ANS($ans);
 			}
 		} else {
+			$ans = $ans->{rh_ans}{correct_value} if ref($ans) eq 'AnswerEvaluator';
+
 			unless (Value::isValue($ans)) {
 				$ans = Parser::Formula($item->{answer});
 				if (defined($ans)) {
@@ -1304,10 +1306,12 @@ sub Answer {
 			$rule = $ans->$method(@options);
 			$rule = PGML::LaTeX($rule);
 			if (!(ref($ans) eq 'parser::MultiAnswer' && $ans->{part} > 1)) {
+				my @cmp =
+					ref($item->{answer}) eq 'AnswerEvaluator' ? $item->{answer} : $ans->cmp(%{ $item->{cmp_options} });
 				if (defined($item->{name})) {
-					main::NAMED_ANS($item->{name} => $ans->cmp(%{ $item->{cmp_options} }));
+					main::NAMED_ANS($item->{name} => @cmp);
 				} else {
-					main::ANS($ans->cmp(%{ $item->{cmp_options} }));
+					main::ANS(@cmp);
 				}
 			}
 		}
