@@ -64,8 +64,7 @@ Options for the TABLE
                                     X          left-aligned paragraph that expands to fill
                                                (see Xratio below)
                                     |    a vertical rule
-                                    ||   a slighlty thicker vertical rule
-                                    |||  (3 or more pipes) an even thicker vertical rule
+                                         (n adjacent pipes makes one rule that is n times thick)
                                     !{\vrule width ...}  vertical rule of the indicated width
                                                          (width must be an absolute width)
                                     >{commands}   execute commands at each cell in the column
@@ -82,7 +81,7 @@ Options for the TABLE
                                                       \itshape    italics
                                                       \ttfamily   monospace
                                                     Other LaTeX commands apply only to hardcopy output.
-	align => string             convenient short version of texalignment
+        align => string             convenient short version of texalignment
         Xratio => number            applies when X is part of overall alignment
                                     Xratio must be some number with 0 < Xratio <= 1 (default 0.97)
                                     The table will only be Xratio wide, relative to the overall
@@ -186,14 +185,26 @@ Options for ROWS
 
 sub _niceTables_init { };    # don't reload this file
 
+
 sub DataTable {
+	return NiceTables->DataTable(@_);
+}
+
+sub LayoutTable {
+	return NiceTables->LayoutTable(@_);
+}
+
+package NiceTables; 
+
+sub DataTable {
+	my $class = shift;
 	my $userArray = shift;
 	my $dataArray = DataArray($userArray);
 	my $optsArray = OptionsArray($userArray);
 	my $colCount  = ColumnCount($optsArray);
 	my $tableOpts = TableOptions($colCount, @_);
 	my $alignment = ParseAlignment($tableOpts->{texalignment});
-	TableEnvironment($dataArray, $optsArray, $colCount, $tableOpts, $alignment);
+	return TableEnvironment($dataArray, $optsArray, $colCount, $tableOpts, $alignment);
 }
 
 sub LayoutTable {
@@ -329,7 +340,7 @@ sub TableEnvironment {
 	}
 	$ptx = suffix($ptx, $ptxcaption);
 
-	MODES(
+	return main::MODES(
 		TeX  => $tex,
 		HTML => $html,
 		PTX  => $ptx,
@@ -393,7 +404,7 @@ sub Cols {
 		push(@ptx, $ptx);
 	}
 
-	$return = MODES(
+	$return = main::MODES(
 		HTML => join("\n", @html),
 		PTX  => join("\n", @ptx)
 	);
@@ -585,7 +596,7 @@ sub Rows {
 		) if (@htmlhead);
 	}
 
-	$return = MODES(
+	$return = main::MODES(
 		TeX  => join(" ", @tex),
 		HTML => $htmlout,
 		PTX  => join("\n", @ptx),
@@ -783,7 +794,7 @@ sub Row {
 		push(@ptx, $ptx);
 	}
 
-	$return = MODES(
+	$return = main::MODES(
 		TeX  => join(" ",  @tex),
 		HTML => join("\n", @html),
 		PTX  => join("\n", @ptx),
@@ -929,7 +940,7 @@ sub ColumnCount {
 		for my $j (0 .. $lastColIndex) {
 			$thisRowColCount += $rowOpts[$j]->{colspan};
 		}
-		$colCount = max($colCount, $thisRowColCount);
+		$colCount = main::max($colCount, $thisRowColCount);
 	}
 	return $colCount;
 }
@@ -1117,7 +1128,7 @@ sub tag {
 	my ($inner, $name, $attributes, $separator) = @_;
 	$separator = "\n" unless defined $separator;
 	my $return = "<$name";
-	for my $x (lex_sort(keys %$attributes)) {
+	for my $x (main::lex_sort(keys %$attributes)) {
 		$return .= qq( $x="$attributes->{$x}") if ($attributes->{$x} ne '');
 	}
 	if ($inner) {
