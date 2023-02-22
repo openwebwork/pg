@@ -1403,6 +1403,8 @@ sub PG_answer_eval {
 sub default_preprocess_code {
 	my $evalString = shift // '';
 
+	$evalString =~ s/\r\n/\n/g;
+
 	# BEGIN_TEXT, END_TEXT, and the others that follow must occur on a line by themselves.
 	$evalString =~ s/\n\h*END_TEXT[\h;]*\n/\nEND_TEXT\n/g;
 	$evalString =~ s/\n\h*END_PGML[\h;]*\n/\nEND_PGML\n/g;
