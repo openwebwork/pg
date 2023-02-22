@@ -779,7 +779,7 @@ sub terminateOptions {
 	$self->{block} = $self->{block}{prev};
 	$self->{block}->popItem;
 	$block = $self->{block}->topItem;
-	if ($options =~ m/^[a-z_][a-z0-9_]*=>/i) {
+	if ($options =~ m/^\s*[a-z_][a-z0-9_]*\s*=>/i) {
 		my %allowed = (map { $_ => 1 } (@{ $block->{options} }));
 		my ($options, $error) = PGML::Eval("{$options}");
 		$options = {}, PGML::Warning "Error evaluating options: $error" if $error;
