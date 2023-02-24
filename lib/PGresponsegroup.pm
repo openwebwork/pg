@@ -115,37 +115,35 @@ sub replace_response {
 		return undef;
 	}
 }
-################
-# extend_response(label, response)
-#
-# extend the annonymous response to one response label entry  -- used for check boxes and radio buttons
-################
+
+# Extend the response to an array for this response label entry.  This is used for check boxes and radio buttons.  This
+# converts the reponse value into an array of label/value pairs if it is a hash to begin with.  Otherwise it just adds a
+# label/value pair to the existing array.
 sub extend_response {
-	my $self           = shift;
-	my $response_label = shift;
-	my $new_value_key  = shift;
-	my $selected       = shift;
-	if (defined $self->{responses}->{$response_label}) {
-		my $response_value = $self->{responses}->{$response_label};
-		!defined($response_value) && do { $response_value = {} };
-		ref($response_value) !~ /HASH/ && do {
-			$self->internal_debug_message("PGresponsegroup::extend_response: error in storing hash ",
+	my ($self, $response_label, $new_value_key, $selected) = @_;
+
+	if (defined $self->{responses}{$response_label}) {
+		my $response_value = $self->{responses}{$response_label};
+		$response_value //= [];
+
+		if (ref($response_value) !~ /^(HASH|ARRAY)$/) {
+			$self->internal_debug_message("PGresponsegroup::extend_response: error in extending response ",
 				ref($response_value), $response_value);
-			$response_value = { $response_value => $selected };
-		};
-		#should not happen this means that a non-hash entry was made into this response label
-		# this converts it to a hash entry
-		$response_value->{$new_value_key} = $selected;
-		$self->{responses}->{$response_label} = $response_value;
+			$response_value = [ [ $response_value => $selected ] ];
+		}
+
+		if (ref($response_value) eq 'HASH') {
+			$response_value = [ map { [ $_ => $response_value->{$_} ] } keys %$response_value ];
+		}
+		push(@$response_value, [ $new_value_key => $selected ]);
+		$self->{responses}{$response_label} = $response_value;
 		return $response_value;
-		# a hash of key/value pairs -- the key labels the radio button or checkbox,
-		# the value whether it is selected
 	} else {
 		$self->internal_debug_message("PGresponsegroup::extend_response: response label |$response_label| not defined");
-		return undef;
+		return;
 	}
-
 }
+
 ################
 # get_response(label)
 #

@@ -104,7 +104,7 @@ characters, and "Button 1", "Button 2", etc., otherwise.
 
 Values are the form of the student answer that will be displayed in the past
 answers table for this answer.  By default these are B0, B1, etc.  However, that
-can be changed either with this option or by specifying the choices with 
+can be changed either with this option or by specifying the choices with
 C<< { label => [ text, value ] } >> as described previously.  If this option is
 used, then the value of the option should be a reference to an array containing
 the values for the choices.  For example:
@@ -353,7 +353,8 @@ sub getCorrectChoices {
 	}
 
 	# Sort the correct choices into display order.
-	$self->{data} = [ main::PGsort(sub { $_[0] lt $_[1] }, @{ $self->{data} }) ];
+	$self->{data} =
+		[ main::PGsort(sub { $self->getIndexByValue($_[0]) < $self->getIndexByValue($_[1]) }, @{ $self->{data} }) ];
 
 	Value::Error('The correct choices must be among the label values') unless @{ $self->{data} };
 
