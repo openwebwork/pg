@@ -687,9 +687,9 @@ sub Row {
 			unless $cellOpts->{noencase};
 		$tex = wrap($tex, $cellOpts->{texpre}, $cellOpts->{texpost});
 		$tex = prefix($tex, '\bfseries', ' ')
-			if ($tableOpts->{rowheaders} and $i == 0
-				or $headerrow
-				or $cellOpts->{header} =~ /^(th|rh|ch|col|column|row)$/i);
+			if ($tableOpts->{rowheaders} && $cellOpts->{header} ne 'td' && $i == 0
+				|| ($headerrow && $cellOpts->{header} ne 'td')
+				|| $cellOpts->{header} =~ /^(th|rh|ch|col|column|row)$/i);
 		if ($cellOpts->{colspan} > 1
 			or $cellOpts->{halign}
 			or $valign
