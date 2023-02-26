@@ -289,7 +289,7 @@ sub TableEnvironment {
 		unless ($cols =~ /^(<col>|\n)*$/ or $tableOpts->{LaYoUt});
 	$html = prefix($html, $htmlcols);
 	my $htmlcaption = tag($tableOpts->{caption}, 'caption', { style => $tableOpts->{captioncss} });
-	$html = prefix($html, $htmlcaption) unless $tableOpts->{LaYoUt};
+	$html = prefix($html, $htmlcaption) if ($tableOpts->{caption} || !$tableOpts->{LaYoUt});
 
 	if ($tableOpts->{LaYoUt}) {
 		$css .= css('display',         'table');
