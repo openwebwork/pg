@@ -115,7 +115,6 @@ This is the caption
 my $tab_with_hor_rules = DataTable([ [ 1, 2, 3 ], [ 4, 5, 6 ] ], horizontalrules => 1);
 
 is $tab_with_hor_rules, qq{<table style="margin:auto;">
-<caption>
 <tbody style="vertical-align:top;">
 <tr style="border-top:solid 3px;border-bottom:solid 1px;">
 <td style="$std_pad$talign_center">
