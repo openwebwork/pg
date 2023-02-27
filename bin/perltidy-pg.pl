@@ -82,7 +82,7 @@ my $postfilter = sub {
 	$evalString =~ s/\h*SOLUTION\(EV3P\(<<'END_SOLUTION'\)\);/BEGIN_SOLUTION/g;
 	$evalString =~ s/\h*HINT\(EV3P\(<<'END_HINT'\)\);/BEGIN_HINT/g;
 	$evalString =~ s/(.*)->tex\(<<END_TIKZ\);/$1->BEGIN_TIKZ/g;
-	$evalString =~ s/(.*)->tex\(<<END_LATEX_IMAGE\);/(.*)->BEGIN_LATEX_IMAGE/g;
+	$evalString =~ s/(.*)->tex\(<<END_LATEX_IMAGE\);/$1->BEGIN_LATEX_IMAGE/g;
 
 	# Care is needed to reverse the preprocessing here.
 	# First in all occurences of an odd number of backslashes the first backslash is replaced with two tildes.
