@@ -321,7 +321,7 @@ sub NAMED_ANS_RULE {
 
 		# Note: codeshard is used in the css to identify input elements that come from pg
 		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" aria-label="$label" !
-			. qq!dir="auto" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" !
+			. qq!dir="auto" autocomplete="off" autocapitalize="off" spellcheck="false" !
 			. qq!value="$answer_value">!
 			. qq!<input type=hidden name="$previous_name" value="$answer_value">!,
 		PTX => qq!<fillin name="$name" characters="$col" />!
@@ -361,9 +361,9 @@ sub NAMED_HIDDEN_ANS_RULE {
 
 	MODES(
 		TeX        => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
-		Latex2HTML => qq!\\begin{rawhtml}<input type=text size=$col name="$name" value="">\\end{rawhtml}!,
-		HTML       => qq!<input type=hidden size=$col name="$name" id ="$name" value="$answer_value">!
-			. qq!<input type=hidden  name="previous_$name" id = "previous_$name" value="$answer_value">!,
+		Latex2HTML => qq!\\begin{rawhtml}<input type=text name="$name" value="">\\end{rawhtml}!,
+		HTML       => qq!<input type=hidden name="$name" id="$name" value="$answer_value">!
+			. qq!<input type=hidden name="previous_$name" id="previous_$name" value="$answer_value">!,
 		PTX => '',
 	);
 }
@@ -417,7 +417,7 @@ sub NAMED_ANS_RULE_EXTENSION {
 		Latex2HTML =>
 			qq!\\begin{rawhtml}\n<input type=text size=$col name="$name" id="$name" value="">\n\\end{rawhtml}\n!,
 		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" aria-label="$label" !
-			. qq!dir="auto" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" !
+			. qq!dir="auto" autocomplete="off" autocapitalize="off" spellcheck="false" !
 			. qq!value="$answer_value">!
 			. qq!<input type=hidden  name="previous_$name" id="previous_$name" value="$answer_value">!,
 		PTX => qq!<fillin name="$name" characters="$col" />!,
@@ -453,13 +453,11 @@ sub NAMED_ANS_BOX {
 	$answer_value = encode_pg_and_html($answer_value);
 	my $out = MODES(
 		TeX        => qq!\\vskip $height in \\hrulefill\\quad !,
-		Latex2HTML =>
-			qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" aria-label="$label" ROWS="$row" COLS="$col"
-		              WRAP="VIRTUAL">$answer_value</TEXTAREA>\\end{rawhtml}!,
-		HTML => qq!<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
-		        WRAP="VIRTUAL">$answer_value</TEXTAREA>
-		        <INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">
-		        !,
+		Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
+				>$answer_value</TEXTAREA>\\end{rawhtml}!,
+		HTML => qq!<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col" aria-label="$label">!
+			. qq!$answer_value</TEXTAREA>!
+			. qq!<INPUT TYPE=HIDDEN NAME="previous_$name" VALUE="$answer_value">!,
 		PTX => '<var name="' . "$name" . '" height="' . "$row" . '" width="' . "$col" . '" />',
 	);
 	$out;
@@ -966,11 +964,11 @@ sub NAMED_POP_UP_LIST {
 		|| $displayMode eq 'HTML_LaTeXMathML'
 		|| $displayMode eq 'HTML_img')
 	{
-		$out = qq!<SELECT class="pg-select" NAME = "$moodle_prefix$name" id="$moodle_prefix$name" SIZE=1> \n!;
+		$out = qq!<SELECT class="pg-select" NAME="$moodle_prefix$name" id="$moodle_prefix$name" SIZE=1>\n!;
 		my $i;
 		foreach ($i = 0; $i < @list; $i = $i + 2) {
 			my $select_flag = ($list[$i] eq $answer_value) ? "SELECTED" : "";
-			$out .= qq!<OPTION $select_flag VALUE ="$list[$i]" > $list[$i+1]  </OPTION>\n!;
+			$out .= qq!<OPTION $select_flag VALUE="$list[$i]">$list[$i+1]</OPTION>\n!;
 		}
 		$out .= " </SELECT>\n";
 	} elsif ($displayMode eq "Latex2HTML") {
@@ -1094,7 +1092,7 @@ sub NAMED_ANS_ARRAY_EXTENSION {
 		Latex2HTML =>
 			qq!\\begin{rawhtml}\n<input type=text size=$col name="$name" id="$name" value="">\n\\end{rawhtml}\n!,
 		HTML => qq!<input type=text size=$col name="$name" id="$name" class="codeshard" aria-label="$label" !
-			. qq!autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value="$answer_value">!,
+			. qq!autocomplete="off" autocapitalize="off" spellcheck="false" value="$answer_value">!,
 		PTX => qq!<fillin name="$name" characters="$col" />!,
 	);
 }
@@ -1464,7 +1462,7 @@ sub BR {
 	MODES(
 		TeX        => '\\leavevmode\\\\\\relax ',
 		Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}',
-		HTML       => '<BR/>',
+		HTML       => '<BR>',
 		PTX        => "\n\n"
 	);
 }

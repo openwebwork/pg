@@ -736,6 +736,9 @@ Sets the following hash keys of the translator object:
 
 =cut
 
+# Characters that should be escaped in XML
+my %XML = ('&' => '&amp;', '<' => '&lt;', '>' => '&gt;', '"' => '&quot;', '\'' => '&#39;');
+
 sub translate {
 	my $self                = shift;
 	my @PROBLEM_TEXT_OUTPUT = ();
@@ -811,26 +814,29 @@ sub translate {
 	$PG_PROBLEM_TEXT_REF = &{ $self->{postprocess_code} }($PG_PROBLEM_TEXT_REF);
 
 	# PG error processing code
-	if ($self->{errors} && $self->{envir}{view_problem_debugging_info}) {
-		push(@PROBLEM_TEXT_OUTPUT,
-			"<pre>ERROR caught by Translator while processing problem file: $self->{envir}{probFileName}<hr>"
-				. $self->{errors}
-				. '<hr>');
+	if ($self->{errors}) {
+		chomp($self->{errors});
+		if ($self->{envir}{view_problem_debugging_info}) {
+			push(
+				@PROBLEM_TEXT_OUTPUT,
+				"<p>ERROR caught by Translator while processing problem file: $self->{envir}{probFileName}</p><hr>",
+				"<pre>$self->{errors}</pre><hr>"
+			);
 
-		push(@PROBLEM_TEXT_OUTPUT, 'Input Read:<hr>');
-		$self->{source} =~ s/</&lt;/g;
-		my @input      = split("\n", $self->{source});
-		my $lineNumber = 1;
-		for my $line (@input) {
-			chomp($line);
-			push(@PROBLEM_TEXT_OUTPUT, "$lineNumber\t\t$line\r\n");
-			$lineNumber++;
+			push(@PROBLEM_TEXT_OUTPUT, '<p>Input Read:</p><hr><pre style="tab-size:4">');
+			$self->{source} =~ s/([&<>"'])/$XML{$1}/ge;
+			my @input      = split("\n", $self->{source});
+			my $lineNumber = 1;
+			for my $line (@input) {
+				chomp($line);
+				push(@PROBLEM_TEXT_OUTPUT, "$lineNumber:\t$line\n");
+				$lineNumber++;
+			}
+			push(@PROBLEM_TEXT_OUTPUT, '</pre>');
+		} else {
+			warn "ERRORS in rendering problem: $self->{envir}{probFileName}\n$self->{errors}";
+			push(@PROBLEM_TEXT_OUTPUT, '<p>ERROR caught by Translator while processing this problem</p>');
 		}
-		push(@PROBLEM_TEXT_OUTPUT, "</pre>\n");
-
-	} elsif ($self->{errors}) {
-		warn "ERRORS in rendering problem: $self->{envir}{probFileName}\n$self->{errors}";
-		push(@PROBLEM_TEXT_OUTPUT, '<pre>ERROR caught by Translator while processing this problem</pre>');
 	}
 
 	$PG_FLAGS_REF->{'error_flag'} = 1 if $self->{errors};

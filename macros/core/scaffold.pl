@@ -479,7 +479,7 @@ sub hide_other_results {
 	#
 	if (@hide) {
 		my @styles = (map {".attemptResults > tbody > tr:nth-child($_) {opacity:.5}"} @hide);
-		main::HEADER_TEXT("<style type=\"text/css\">\n" . join("\n", @styles) . "\n</style>\n");
+		main::HEADER_TEXT('<style>' . join('', @styles) . '</style>');
 	}
 }
 

@@ -4,7 +4,7 @@ sub _compoundProblem2_init { };    # don't reload this file
 $width = 700;                      #457
 HEADER_TEXT(<<'END_HEADER_TEXT');
 
-<style type="text/css">
+<style>
 
 * {margin:0; padding:0; font:12px Verdana,Arial}
 code {font-family:"Courier New",Courier}

@@ -24,7 +24,7 @@ is(
 		. qq{Enter a value for <script type="math/tex">\\pi</script>.\n}
 		. qq{<div style="margin-top:1em"></div>\n}
 		. qq{<input type=text class="codeshard" size=5 name="AnSwEr0001" id="AnSwEr0001" aria-label="answer 1 " }
-		. qq{dir="auto" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value="3.14159">}
+		. qq{dir="auto" autocomplete="off" autocapitalize="off" spellcheck="false" value="3.14159">}
 		. qq{<input type=hidden name="previous_AnSwEr0001" value="3.14159">\n}
 		. qq{</div>\n}
 		. qq{<input type=hidden name="MaThQuIlL_AnSwEr0001" id="MaThQuIlL_AnSwEr0001" value="" >},
