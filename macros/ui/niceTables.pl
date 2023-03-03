@@ -558,7 +558,7 @@ sub TableEnvironment {
 
 		my $htmlcols = '';
 		$htmlcols = tag($cols, 'colgroup')
-			unless ($cols =~ /^(<col>|\n)*$/ or $tableOpts->{LaYoUt});
+			unless ($cols =~ /^(<col>|\n)*$/ || $tableOpts->{LaYoUt});
 		$rows = prefix($rows, $htmlcols);
 		my $htmlcaption = tag($tableOpts->{caption}, 'caption', { style => $tableOpts->{captioncss} });
 		$rows = prefix($rows, $htmlcaption) if ($tableOpts->{caption} && !$tableOpts->{LaYoUt});
@@ -699,7 +699,7 @@ sub Rows {
 					|| $headerrow && $tableOpts->{headerrules});
 			$row = suffix($row, "\\\\" . hrule($booktabs, 'bottom', $bottom), ' ')
 				if ($i == $#$tableArray
-					&& ($bottom or $tableOpts->{horizontalrules}));
+					&& ($bottom || $tableOpts->{horizontalrules}));
 
 			# do cells in this row have a top or bottom border?
 			# although a propery of cells, LaTeX makes us do this at the row level
@@ -906,8 +906,8 @@ sub Row {
 			$cell = tag($cell, 'p')
 				if ((
 					$cellAlign->{width}
-					or $cellAlign->{halign} eq 'X'
-					or $cellOpts->{halign} =~ /^p/
+					|| $cellAlign->{halign} eq 'X'
+					|| $cellOpts->{halign} =~ /^p/
 				))
 				&& !$tableOpts->{LaYoUt};
 			my $ptxhalign = '';
