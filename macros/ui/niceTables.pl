@@ -16,7 +16,6 @@ LayoutTable()   Creates a "table" without using an HTML table in HTML output.
     relation between content cells within a column or within a row. If the
     answer is no in both cases, it is likely a case for LayoutTable().
 
-
 =head2 Description
 
 Command for a typical table.
@@ -260,122 +259,114 @@ sub TableEnvironment {
 	my $cols = Cols($tableArray, $tableOpts, $alignment);
 	my $rows = Rows($tableArray, $tableOpts, $alignment);
 
-	# TeX
-	my $tex          = $rows;
-	my $tabulartype  = $hasX ? 'tabularx'                        : 'tabular';
-	my $tabularwidth = $hasX ? "$tableOpts->{Xratio}\\linewidth" : '';
-	$tex = latexEnvironment($tex, $tabulartype, [ $tabularwidth, '[t]', $tableOpts->{texalignment} ], ' ');
-	$tex = prefix($tex, '\centering%') if $tableOpts->{center};
-	$tex = prefix($tex, '\renewcommand{\arraystretch}{2}', '')
-		if $tableOpts->{LaYoUt};
-	$tex =
-		suffix($tex,
-			"\\captionsetup{textfont={sc},belowskip=12pt,aboveskip=4pt}\\captionof*{table}{$tableOpts->{caption}}", ' ')
-		if ($tableOpts->{caption});
-	$tex = wrap($tex, '\par', '\par', '');
-	$tex = wrap($tex, '{',    '}',    '');
+	if ($main::displayMode eq 'TeX') {
+		my $tabulartype  = $hasX ? 'tabularx'                        : 'tabular';
+		my $tabularwidth = $hasX ? "$tableOpts->{Xratio}\\linewidth" : '';
+		$rows = latexEnvironment($rows, $tabulartype, [ $tabularwidth, '[t]', $tableOpts->{texalignment} ], ' ');
+		$rows = prefix($rows, '\centering%') if $tableOpts->{center};
+		$rows = prefix($rows, '\renewcommand{\arraystretch}{2}', '')
+			if $tableOpts->{LaYoUt};
+		$rows = suffix(
+			$rows,
+			"\\captionsetup{textfont={sc},belowskip=12pt,aboveskip=4pt}\\captionof*{table}{$tableOpts->{caption}}",
+			' '
+		) if ($tableOpts->{caption});
+		$rows = wrap($rows, '\par', '\par', '');
+		$rows = wrap($rows, '{',    '}',    '');
+	} elsif ($main::displayMode eq 'PTX') {
+		my $ptxleft = getPTXthickness($alignment->[0]{left});
+		my $ptxtop  = ($tableOpts->{horizontalrules}) ? 'major' : '';
+		$ptxtop = getPTXthickness($rowtop) if $rowtop;
+		my $ptxwidth   = '';
+		my $ptxmargins = '';
 
-	# HTML
-	my $css = $tableOpts->{tablecss};
-	if ($hasX) {
-		$css .= css('width', $tableOpts->{Xratio} * 100 . '%');
-	}
-	$css .= css('border-left', getRuleCSS($alignment->[0]{left}));
-	$css .= css('margin',      'auto') if $tableOpts->{center};
-
-	my $html     = $rows;
-	my $htmlcols = '';
-	$htmlcols = tag($cols, 'colgroup')
-		unless ($cols =~ /^(<col>|\n)*$/ or $tableOpts->{LaYoUt});
-	$html = prefix($html, $htmlcols);
-	my $htmlcaption = tag($tableOpts->{caption}, 'caption', { style => $tableOpts->{captioncss} });
-	$html = prefix($html, $htmlcaption) if ($tableOpts->{caption} && !$tableOpts->{LaYoUt});
-
-	if ($tableOpts->{LaYoUt}) {
-		$css .= css('display',         'table');
-		$css .= css('border-collapse', 'collapse');
-		$html = tag($html, 'div', { style => $css });
-	} else {
-		$html = tag($html, 'table', { style => $css });
-	}
-
-	# PTX
-	my $ptx     = $rows;
-	my $ptxleft = getPTXthickness($alignment->[0]{left});
-	my $ptxtop  = ($tableOpts->{horizontalrules}) ? 'major' : '';
-	$ptxtop = getPTXthickness($rowtop) if $rowtop;
-	my $ptxwidth   = '';
-	my $ptxmargins = '';
-
-	if ($hasX) {
-		$ptxwidth = $tableOpts->{Xratio} * 100;
-		my $leftmargin  = ($tableOpts->{center}) ? (100 - $ptxwidth) / 2 : 0;
-		my $rightmargin = 100 - $ptxwidth - $leftmargin;
-		$ptxmargins = "${leftmargin}% ${rightmargin}%";
-		$ptxwidth .= '%';
-	} elsif (!$tableOpts->{center}) {
-		$ptxwidth   = '100%';
-		$ptxmargins = '0% 0%';
-	}
-	my $ptxbottom = ($tableOpts->{horizontalrules}) ? 'minor' : '';
-	if ($tableOpts->{LaYoUt}) {
-		$ptx = tag(
-			$ptx,
-			'sbsgroup',
-			{
-				width   => $ptxwidth,
-				margins => $ptxmargins,
-			}
-		);
-	} elsif (!$tableOpts->{LaYoUt}) {
-		$ptx = prefix($rows, $cols);
-		$ptx = tag(
-			$ptx,
-			'tabular',
-			{
-				valign  => ($tableOpts->{valign} ne 'middle') ? $tableOpts->{valign} : '',
-				width   => $ptxwidth,
-				margins => $ptxmargins,
-				left    => $ptxleft,
-				top     => $ptxtop,
-				bottom  => $ptxbottom
-			}
-		);
-	}
-
-	# We fake a caption as a tabular that follows the actual tabular
-	# This is not great, but PTX has no option to put a caption on a tabular
-	# (It can put a caption on a table, but we are not making a PTX table.)
-	my $ptxcaption = '';
-	if ($tableOpts->{caption}) {
-		$ptxcaption = $tableOpts->{caption};
-		$ptxcaption = tag($ptxcaption, 'cell');
-		$ptxcaption = tag($ptxcaption, 'row');
-		my $ptxcapwidth = '';
 		if ($hasX) {
-			$ptxcapwidth = $tableOpts->{Xratio} * 100 . '%';
-		} else {
-			$ptxcapwidth = '50%';
+			$ptxwidth = $tableOpts->{Xratio} * 100;
+			my $leftmargin  = ($tableOpts->{center}) ? (100 - $ptxwidth) / 2 : 0;
+			my $rightmargin = 100 - $ptxwidth - $leftmargin;
+			$ptxmargins = "${leftmargin}% ${rightmargin}%";
+			$ptxwidth .= '%';
+		} elsif (!$tableOpts->{center}) {
+			$ptxwidth   = '100%';
+			$ptxmargins = '0% 0%';
 		}
-		$ptxcapcol  = tag('', 'col', { width => $ptxcapwidth });
-		$ptxcaption = prefix($ptxcaption, $ptxcapcol);
-		$ptxcaption = tag($ptxcaption, 'tabular', { width => $ptxwidth, margins => $ptxmargins });
-	}
-	$ptx = suffix($ptx, $ptxcaption);
+		my $ptxbottom = ($tableOpts->{horizontalrules}) ? 'minor' : '';
+		if ($tableOpts->{LaYoUt}) {
+			$rows = tag(
+				$rows,
+				'sbsgroup',
+				{
+					width   => $ptxwidth,
+					margins => $ptxmargins,
+				}
+			);
+		} elsif (!$tableOpts->{LaYoUt}) {
+			$rows = prefix($rows, $cols);
+			$rows = tag(
+				$rows,
+				'tabular',
+				{
+					valign  => ($tableOpts->{valign} ne 'middle') ? $tableOpts->{valign} : '',
+					width   => $ptxwidth,
+					margins => $ptxmargins,
+					left    => $ptxleft,
+					top     => $ptxtop,
+					bottom  => $ptxbottom
+				}
+			);
+		}
 
-	return main::MODES(
-		TeX  => $tex,
-		HTML => $html,
-		PTX  => $ptx,
-	);
+		# We fake a caption as a tabular that follows the actual tabular
+		# This is not great, but PTX has no option to put a caption on a tabular
+		# (It can put a caption on a table, but we are not making a PTX table.)
+		my $ptxcaption = '';
+		if ($tableOpts->{caption}) {
+			$ptxcaption = $tableOpts->{caption};
+			$ptxcaption = tag($ptxcaption, 'cell');
+			$ptxcaption = tag($ptxcaption, 'row');
+			my $ptxcapwidth = '';
+			if ($hasX) {
+				$ptxcapwidth = $tableOpts->{Xratio} * 100 . '%';
+			} else {
+				$ptxcapwidth = '50%';
+			}
+			$ptxcapcol  = tag('', 'col', { width => $ptxcapwidth });
+			$ptxcaption = prefix($ptxcaption, $ptxcapcol);
+			$ptxcaption = tag($ptxcaption, 'tabular', { width => $ptxwidth, margins => $ptxmargins });
+		}
+		$rows = suffix($rows, $ptxcaption);
+	} else {
+		my $css = $tableOpts->{tablecss};
+		if ($hasX) {
+			$css .= css('width', $tableOpts->{Xratio} * 100 . '%');
+		}
+		$css .= css('border-left', getRuleCSS($alignment->[0]{left}));
+		$css .= css('margin',      'auto') if $tableOpts->{center};
+
+		my $htmlcols = '';
+		$htmlcols = tag($cols, 'colgroup')
+			unless ($cols =~ /^(<col>|\n)*$/ or $tableOpts->{LaYoUt});
+		$rows = prefix($rows, $htmlcols);
+		my $htmlcaption = tag($tableOpts->{caption}, 'caption', { style => $tableOpts->{captioncss} });
+		$rows = prefix($rows, $htmlcaption) if ($tableOpts->{caption} && !$tableOpts->{LaYoUt});
+
+		if ($tableOpts->{LaYoUt}) {
+			$css .= css('display',         'table');
+			$css .= css('border-collapse', 'collapse');
+			$rows = tag($rows, 'div', { style => $css });
+		} else {
+			$rows = tag($rows, 'table', { style => $css });
+		}
+	}
+
+	return $rows;
 
 }
 
 sub Cols {
 	my ($tableArray, $tableOpts, $alignment) = @_;
 	my $columnscss = $tableOpts->{columnscss};
-	my @html;
-	my @ptx;
+	my @cols       = ();
 
 	# Loop through columns ($alignment->[0] is the left border not a column)
 	for my $i (1 .. $#$alignment) {
@@ -403,71 +394,68 @@ sub Cols {
 			}
 		}
 
-		# HTML
-		my $htmlright = '';
-		$htmlright .= css('border-right', 'solid 2px')
-			if ($tableOpts->{rowheaders} && $i == 0);
-		$htmlright .= css('border-right', getRuleCSS($align->{right}));
-		my $htmltop = '';
-		$htmltop .= css('border-top', getRuleCSS($top));
+		if ($main::displayMode eq 'PTX') {
+			my $ptxhalign = '';
+			$ptxhalign = 'center' if ($align->{halign} eq 'c');
+			$ptxhalign = 'right'  if ($align->{halign} eq 'r');
+			my $ptxright = '';
+			$ptxright = getPTXthickness($align->{right});
+			my $ptxtop = '';
+			$ptxtop = getPTXthickness($top);
+			my $ptxwidth = '';
+			$ptxwidth = getWidthPercent($align->{width}) if $align->{width};
+			$ptxwidth = ($tableOpts->{Xratio} / $#$alignment * 100) . '%'
+				if ($align->{halign} eq 'X');
+			$ptxwidth = getWidthPercent($width) if $width;
+			push(
+				@cols,
+				tag(
+					'', 'col',
+					{
+						header => ($tableOpts->{rowheaders} && $i == 0) ? 'yes' : '',
+						halign => $ptxhalign,
+						right  => $ptxright,
+						top    => $ptxtop,
+						width  => $ptxwidth
+					}
+				)
+			);
+		} else {
+			my $htmlright = '';
+			$htmlright .= css('border-right', 'solid 2px')
+				if ($tableOpts->{rowheaders} && $i == 0);
+			$htmlright .= css('border-right', getRuleCSS($align->{right}));
+			my $htmltop = '';
+			$htmltop .= css('border-top', getRuleCSS($top));
 
-		# $i starts at 1, but columncss indexing starts at 0
-		my $htmlcolcss = $columnscss->[ $i - 1 ];
-		if ($align->{tex} =~ /\\columncolor(\[HTML\])?\{(.*?)[}!]/) {
-			$htmlcolcss .= css('background-color', ($1 ? '#' : '') . $2);
+			# $i starts at 1, but columncss indexing starts at 0
+			my $htmlcolcss = $columnscss->[ $i - 1 ];
+			if ($align->{tex} =~ /\\columncolor(\[HTML\])?\{(.*?)[}!]/) {
+				$htmlcolcss .= css('background-color', ($1 ? '#' : '') . $2);
+			}
+
+			push(@cols, tag('', 'col', { style => "${htmlright}${htmltop}${htmlcolcss}" }));
 		}
 
-		my $html = tag('', 'col', { style => "${htmlright}${htmltop}${htmlcolcss}" });
-		push(@html, $html);
-
-		# PTX
-		my $ptxhalign = '';
-		$ptxhalign = 'center' if ($align->{halign} eq 'c');
-		$ptxhalign = 'right'  if ($align->{halign} eq 'r');
-		my $ptxright = '';
-		$ptxright = getPTXthickness($align->{right});
-		my $ptxtop = '';
-		$ptxtop = getPTXthickness($top);
-		my $ptxwidth = '';
-		$ptxwidth = getWidthPercent($align->{width}) if $align->{width};
-		$ptxwidth = ($tableOpts->{Xratio} / $#$alignment * 100) . '%'
-			if ($align->{halign} eq 'X');
-		$ptxwidth = getWidthPercent($width) if $width;
-		my $ptx = tag(
-			'', 'col',
-			{
-				header => ($tableOpts->{rowheaders} && $i == 0) ? 'yes' : '',
-				halign => $ptxhalign,
-				right  => $ptxright,
-				top    => $ptxtop,
-				width  => $ptxwidth
-			}
-		);
-		push(@ptx, $ptx);
 	}
 
-	$return = main::MODES(
-		HTML => join("\n", @html),
-		PTX  => join("\n", @ptx)
-	);
-
-	return $return;
+	return join("\n", @cols);
 
 }
 
 sub Rows {
 	my ($tableArray, $tableOpts, $alignment) = @_;
 
-	my @tex;
+	my @rows;
 	my @htmlhead;
 	my @htmlbody;
 	my $stillinhtmlhead = 1;
-	my @ptx;
 
 	for my $i (0 .. $#$tableArray) {
 		my $rowArray = $tableArray->[$i];
 		my $booktabs = $tableOpts->{booktabs};
 		my $row      = Row($rowArray, $tableOpts, $alignment);
+		my $html     = $row;
 
 		# establish if this row has certain things
 		# when declared mulltiple times, last non-falsy values are used
@@ -484,150 +472,146 @@ sub Rows {
 			$valign    = $x->{valign}    if ($x->{valign});
 		}
 
-		# TeX
-		my $tex = $row;
+		if ($main::displayMode eq 'TeX') {
+			# separator argument is space (not the default line break)
+			# to avoid PGML catcode manipulation issues
+			$row = prefix($row, "\\rowcolor" . formatColorLaTeX($rowcolor), ' ')
+				if ($rowcolor);
+			$row = prefix($row, hrule($booktabs, 'top', $top), ' ')
+				if ($top || ($i == 0 && $tableOpts->{horizontalrules}));
+			$row = suffix($row, "\\\\",                           ' ') unless ($i == $#$tableArray);
+			$row = suffix($row, hrule($booktabs, 'mid', $bottom), ' ')
+				if ($i < $#$tableArray && ($bottom || $tableOpts->{horizontalrules})
+					|| $headerrow);
+			$row = suffix($row, "\\\\" . hrule($booktabs, 'bottom', $bottom), ' ')
+				if ($i == $#$tableArray
+					&& ($bottom or $tableOpts->{horizontalrules}));
 
-		# separator argument is space (not the default line break)
-		# to avoid PGML catcode manipulation issues
-		$tex = prefix($tex, "\\rowcolor" . formatColorLaTeX($rowcolor), ' ')
-			if ($rowcolor);
-		$tex = prefix($tex, hrule($booktabs, 'top', $top), ' ')
-			if ($top || ($i == 0 && $tableOpts->{horizontalrules}));
-		$tex = suffix($tex, "\\\\",                           ' ') unless ($i == $#$tableArray);
-		$tex = suffix($tex, hrule($booktabs, 'mid', $bottom), ' ')
-			if ($i < $#$tableArray && ($bottom || $tableOpts->{horizontalrules})
-				|| $headerrow);
-		$tex = suffix($tex, "\\\\" . hrule($booktabs, 'bottom', $bottom), ' ')
-			if ($i == $#$tableArray
-				&& ($bottom or $tableOpts->{horizontalrules}));
+			# do cells in this row have a top or bottom border?
+			# although a propery of cells, LaTeX makes us do this at the row level
+			for my $x (@$rowArray) {
+				$row = prefix($row, hrule($booktabs, 'cmid', $x->{top}) . "{$x->{leftcol}-$x->{rightcol}}", ' ')
+					if ($i == 0 && $x->{top});
+				$row = suffix($row, hrule($booktabs, 'cmid', $x->{bottom}) . "{$x->{leftcol}-$x->{rightcol}}", ' ')
+					if $x->{bottom};
+			}
 
-		# do cells in this row have a top or bottom border?
-		# although a propery of cells, LaTeX makes us do this at the row level
-		for my $x (@$rowArray) {
-			$tex = prefix($tex, hrule($booktabs, 'cmid', $x->{top}) . "{$x->{leftcol}-$x->{rightcol}}", ' ')
-				if ($i == 0 && $x->{top});
-			$tex = suffix($tex, hrule($booktabs, 'cmid', $x->{bottom}) . "{$x->{leftcol}-$x->{rightcol}}", ' ')
-				if $x->{bottom};
-		}
+			push(@rows, $row);
+		} elsif ($main::displayMode eq 'PTX') {
+			my $ptxbottom = '';
+			$ptxbottom = 'minor'
+				if ($i < $#$tableArray && $tableOpts->{horizontalrules});
+			$ptxbottom = 'major'
+				if ($i == $#$tableArray && $tableOpts->{horizontalrules});
+			$ptxbottom = getPTXthickness($bottom) if $bottom;
+			my $ptxleft = '';
+			$ptxleft = 'minor'  if ($rowArray->[0]{halign} =~ /^\s*\|/);
+			$ptxleft = 'medium' if ($rowArray->[0]{halign} =~ /^\s*\|\s*\|/);
+			$ptxleft = 'major'  if ($rowArray->[0]{halign} =~ /^\s*\|\s*\|\s*\|/);
 
-		push(@tex, $tex);
+			if ($rowArray->[0]{halign} =~ /^(?:\s|\|)*!\{\s*\\vrule\s+width\s+([^}]*?)\s*}/) {
+				$ptxleft = 'minor'  if ($1);
+				$ptxleft = 'minor'  if ($1 == '0.04em');
+				$ptxleft = 'medium' if ($1 == '0.07em');
+				$ptxleft = 'major'  if ($1 == '0.11em');
+			}
 
-		# HTML
-		my $css = '';
-		for my $x (@$rowArray) {
-			$css .= $x->{rowcss} if $x->{rowcss};
-		}
-		$css .= css('background-color', formatColorHTML($rowcolor));
-		$css .= css('border-top',       'solid 3px')
-			if ($i == 0 && $tableOpts->{horizontalrules});
-		$css .= css('border-top',    getRuleCSS($top));
-		$css .= css('border-bottom', 'solid 1px')
-			if ($i < $#$tableArray && $tableOpts->{horizontalrules});
-		$css .= css('border-bottom', 'solid 3px')
-			if ($i == $#$tableArray && $tableOpts->{horizontalrules});
-		$css .= css('border-bottom',  getRuleCSS($bottom));
-		$css .= css('vertical-align', $valign);
-		my $html;
+			$ptxleft = '' if ($ptxleft eq $alignment->[0]{left});
+			$ptxleft = "none"
+				if (!$ptxleft && $rowArray->[0]{halign} && $alignment->[0]{left});
 
-		if ($tableOpts->{LaYoUt}) {
-			$css .= css('display', 'table-row');
-			$html = tag($row, 'div', { style => $css });
-			push(@htmlbody, $html);
-		} else {
-			$html = tag($row, 'tr', { style => $css });
-			if ($stillinhtmlhead && $headerrow) {
-				push(@htmlhead, $html);
+			if ($tableOpts->{LaYoUt}) {
+				my $ptxwidthsum = 0;
+				my $ptxautocols = $#alignment;
+				for my $j (1 .. $#alignment) {
+					if ($rowArray->[ $j - 1 ]{width}) {
+						$ptxwidthsum +=
+							substr getWidthPercent($tableArray->[ $j - 1 ]{width}),
+							0, -1;
+						$ptxautocols -= 1;
+					} elsif ($alignment->[$j]{width}) {
+						$ptxwidthsum += substr getWidthPercent($alignment->[$j]{width}), 0, -1;
+						$ptxautocols -= 1;
+					}
+				}
+
+				# determine if somewhere in the overall alignment, there are X columns
+				my $hasX = 0;
+				for my $align (@$alignment) {
+					if ($align->{halign} eq 'X') {
+						$hasX = 1;
+						last;
+					}
+				}
+				my $leftoverspace =
+					(($hasX) ? $tableOpts->{Xratio} * 100 : 100) - $ptxwidthsum;
+				my $divvyuptherest = 0;
+				$divvyuptherest = int($leftoverspace / $ptxautocols * 10000) / 10000
+					unless ($ptxautocols == 0);
+				my @ptxwidths;
+				for my $j (1 .. $#alignment) {
+					if ($rowOpts->[ $j - 1 ]{width}) {
+						push(@ptxwidths, getWidthPercent($rowOpts->[ $j - 1 ]{width}));
+					} elsif ($alignment->[$j]{width}) {
+						push(@ptxwidths, getWidthPercent($alignment->[$j]{width}));
+					} else {
+						push(@ptxwidths, $divvyuptherest . '%');
+					}
+				}
+
+				my $ptxwidths = join(" ", @ptxwidths);
+				$row = tag(
+					$row,
+					'sidebyside',
+					{
+						valign  => ($valign) ? $valign : $tableOpts->{valign},
+						margins => '0% 0%',
+						widths  => $ptxwidths,
+					}
+				);
 			} else {
-				$stillinhtmlhead = 0;
-				push(@htmlbody, $html);
+				$row = tag(
+					$row, 'row',
+					{
+						left   => $ptxleft,
+						valign => $valign,
+						header => $headerrow,
+						bottom => $ptxbottom
+					}
+				);
 			}
-		}
-
-		# PTX
-		my $ptx .= $row;
-		my $ptxbottom = '';
-		$ptxbottom = 'minor'
-			if ($i < $#$tableArray && $tableOpts->{horizontalrules});
-		$ptxbottom = 'major'
-			if ($i == $#$tableArray && $tableOpts->{horizontalrules});
-		$ptxbottom = getPTXthickness($bottom) if $bottom;
-		my $ptxleft = '';
-		$ptxleft = 'minor'  if ($rowArray->[0]{halign} =~ /^\s*\|/);
-		$ptxleft = 'medium' if ($rowArray->[0]{halign} =~ /^\s*\|\s*\|/);
-		$ptxleft = 'major'  if ($rowArray->[0]{halign} =~ /^\s*\|\s*\|\s*\|/);
-
-		if ($rowArray->[0]{halign} =~ /^(?:\s|\|)*!\{\s*\\vrule\s+width\s+([^}]*?)\s*}/) {
-			$ptxleft = 'minor'  if ($1);
-			$ptxleft = 'minor'  if ($1 == '0.04em');
-			$ptxleft = 'medium' if ($1 == '0.07em');
-			$ptxleft = 'major'  if ($1 == '0.11em');
-		}
-
-		$ptxleft = '' if ($ptxleft eq $alignment->[0]{left});
-		$ptxleft = "none"
-			if (!$ptxleft && $rowArray->[0]{halign} && $alignment->[0]{left});
-
-		if ($tableOpts->{LaYoUt}) {
-			my $ptxwidthsum = 0;
-			my $ptxautocols = $#alignment;
-			for my $j (1 .. $#alignment) {
-				if ($rowArray->[ $j - 1 ]{width}) {
-					$ptxwidthsum +=
-						substr getWidthPercent($tableArray->[ $j - 1 ]{width}),
-						0, -1;
-					$ptxautocols -= 1;
-				} elsif ($alignment->[$j]{width}) {
-					$ptxwidthsum += substr getWidthPercent($alignment->[$j]{width}), 0, -1;
-					$ptxautocols -= 1;
-				}
-			}
-
-			# determine if somewhere in the overall alignment, there are X columns
-			my $hasX = 0;
-			for my $align (@$alignment) {
-				if ($align->{halign} eq 'X') {
-					$hasX = 1;
-					last;
-				}
-			}
-			my $leftoverspace =
-				(($hasX) ? $tableOpts->{Xratio} * 100 : 100) - $ptxwidthsum;
-			my $divvyuptherest = 0;
-			$divvyuptherest = int($leftoverspace / $ptxautocols * 10000) / 10000
-				unless ($ptxautocols == 0);
-			my @ptxwidths;
-			for my $j (1 .. $#alignment) {
-				if ($rowOpts->[ $j - 1 ]{width}) {
-					push(@ptxwidths, getWidthPercent($rowOpts->[ $j - 1 ]{width}));
-				} elsif ($alignment->[$j]{width}) {
-					push(@ptxwidths, getWidthPercent($alignment->[$j]{width}));
-				} else {
-					push(@ptxwidths, $divvyuptherest . '%');
-				}
-			}
-
-			my $ptxwidths = join(" ", @ptxwidths);
-			$ptx = tag(
-				$ptx,
-				'sidebyside',
-				{
-					valign  => ($valign) ? $valign : $tableOpts->{valign},
-					margins => '0% 0%',
-					widths  => $ptxwidths,
-				}
-			);
+			push(@rows, $row);
 		} else {
-			$ptx = tag(
-				$ptx, 'row',
-				{
-					left   => $ptxleft,
-					valign => $valign,
-					header => $headerrow,
-					bottom => $ptxbottom
+			my $css = '';
+			for my $x (@$rowArray) {
+				$css .= $x->{rowcss} if $x->{rowcss};
+			}
+			$css .= css('background-color', formatColorHTML($rowcolor));
+			$css .= css('border-top',       'solid 3px')
+				if ($i == 0 && $tableOpts->{horizontalrules});
+			$css .= css('border-top',    getRuleCSS($top));
+			$css .= css('border-bottom', 'solid 1px')
+				if ($i < $#$tableArray && $tableOpts->{horizontalrules});
+			$css .= css('border-bottom', 'solid 3px')
+				if ($i == $#$tableArray && $tableOpts->{horizontalrules});
+			$css .= css('border-bottom',  getRuleCSS($bottom));
+			$css .= css('vertical-align', $valign);
+
+			if ($tableOpts->{LaYoUt}) {
+				$css .= css('display', 'table-row');
+				$html = tag($html, 'div', { style => $css });
+				push(@htmlbody, $html);
+			} else {
+				$html = tag($html, 'tr', { style => $css });
+				if ($stillinhtmlhead && $headerrow) {
+					push(@htmlhead, $html);
+				} else {
+					$stillinhtmlhead = 0;
+					push(@htmlbody, $html);
 				}
-			);
+			}
 		}
-		push(@ptx, $ptx);
+
 	}
 
 	my $htmlout;
@@ -650,13 +634,11 @@ sub Rows {
 		) if (@htmlhead);
 	}
 
-	$return = main::MODES(
-		TeX  => join(" ", @tex),
+	return main::MODES(
+		TeX  => join(" ", @rows),
 		HTML => $htmlout,
-		PTX  => join("\n", @ptx),
+		PTX  => join("\n", @rows),
 	);
-
-	return $return;
 
 }
 
@@ -670,199 +652,194 @@ sub Row {
 		$valign    = $x->{valign} if ($x->{valign});
 	}
 
-	my @tex;
-	my @html;
-	my @ptx;
+	my @cells;
 
 	# Loops over the cells in the row
 	for my $i (0 .. $#$rowArray) {
 		my $cellOpts  = $rowArray->[$i];
-		my $cellData  = $cellOpts->{data};
 		my $cellAlign = $alignment->[ $rowArray->[$i]{leftcol} ];
+		my $cellData  = $cellOpts->{data};
+		my $cell      = $cellData;
 
-		# TeX
-		my $tex = $cellData;
-		$tex = prefix($tex, $cellOpts->{tex}, ' ');
-		$tex = wrap($tex, @{ $tableOpts->{encase} })
-			unless $cellOpts->{noencase};
-		$tex = wrap($tex, $cellOpts->{texpre}, $cellOpts->{texpost});
-		$tex = prefix($tex, '\bfseries', ' ')
-			if ($tableOpts->{rowheaders} && $cellOpts->{header} ne 'td' && $i == 0
-				|| ($headerrow && $cellOpts->{header} ne 'td')
-				|| $cellOpts->{header} =~ /^(th|rh|ch|col|column|row)$/i);
-		if ($cellOpts->{colspan} > 1
-			or $cellOpts->{halign}
-			or $valign
-			or ($tableOpts->{valign} && $tableOpts->{valign} ne 'top'))
-		{
-			my $columntype = $cellOpts->{halign};
-			$columntype = $cellAlign->{halign} // 'l' unless $columntype;
-			$columntype = 'p{' . $tableOpts->{Xratio} / ($#$rowArray + 1) . "\\linewidth}"
-				if ($columntype eq 'X');
-			$columntype = "p{$cellAlign->{width}}"
-				if ($cellAlign->{width});
-			$columntype =~ s/^p/m/ if ($valign eq 'middle');
-			$columntype =~ s/^p/b/ if ($valign eq 'bottom');
-			$columntype =~ s/^p/m/ if ($tableOpts->{valign} eq 'middle');
-			$columntype =~ s/^p/b/ if ($tableOpts->{valign} eq 'bottom');
-			$tex = latexCommand('multicolumn', [ $cellOpts->{colspan}, $columntype, $tex ]);
-		}
-		$tex = suffix($tex, '&', ' ') unless ($i == $#$rowArray);
-		push(@tex, $tex);
-
-		# HTML
-		my $t     = 'td';
-		my $scope = '';
-		do { $t = 'th'; $scope = 'row'; }
-			if ($i == 0 && $tableOpts->{rowheaders});
-		do { $t = 'th'; $scope = 'col'; } if ($headerrow);
-		$t     = 'th'  if ($cellOpts->{header} =~ /^(th|rh|ch|col|column|row)$/i);
-		$scope = 'row' if ($cellOpts->{header} =~ /^(rh|row)$/i);
-		$scope = 'col' if ($cellOpts->{header} =~ /^(ch|col|column)$/i);
-		do { $t = 'td'; $scope = ''; } if ($cellOpts->{header} =~ /^td$/i);
-		my $css = '';
-
-		# col level
-		$css .= css('text-align', 'center')
-			if ($cellAlign->{halign} eq 'c');
-		$css .= css('text-align', 'right')
-			if ($cellAlign->{halign} eq 'r');
-		$css .= css('width', $cellAlign->{width})
-			if ($cellAlign->{width});
-		$css .= css('font-weight', 'bold')
-			if ($cellAlign->{tex} =~ /\\bfseries/);
-		$css .= css('font-style', 'italic')
-			if ($cellAlign->{tex} =~ /\\itshape/);
-		$css .= css('font-family', 'monospace')
-			if ($cellAlign->{tex} =~ /\\ttfamily/);
-		if ($cellAlign->{tex} =~ /\\color(\[HTML\])?\{(.*?)[}!]/) {
-			$css .= css('color', ($1 ? '#' : '') . $2);
-		}
-
-		# cell level
-		$css .= $cellOpts->{cellcss};
-		if ($cellOpts->{halign} =~ /^([|\s]*\|)/ && $i == 0) {
-			my $count = $1 =~ tr/\|//;
-			$css .= css('border-left', "solid ${count}px");
-		}
-		if ($cellOpts->{halign} =~ /^(\s\|)*!\{\\vrule\s+width\s+([^}]*?)}/
-			&& $i == 0)
-		{
-			$css .= css('border-left', "solid $2");
-		}
-		if ($cellOpts->{halign} =~ /(\|[|\s]*)$/) {
-			my $count = $1 =~ tr/\|//;
-			$css .= css('border-right', "solid ${count}px");
-		}
-		if ($cellOpts->{halign} =~ /!\{\\vrule\s+width\s+([^}]*?)}\s*$/) {
-			$css .= css('border-right', "solid $1");
-		}
-		$css .= css('border-bottom', getRuleCSS($cellOpts->{bottom}));
-		$css .= css('text-align',    'left') if ($cellOpts->{halign} =~ /^l/);
-		$css .= css('text-align',    'center')
-			if ($cellOpts->{halign} =~ /^c/);
-		$css .= css('text-align', 'right') if ($cellOpts->{halign} =~ /^r/);
-		$css .= css('text-align', 'left')  if ($cellOpts->{halign} =~ /^p/);
-		$css .= css('width',      $1)
-			if ($cellOpts->{halign} =~ /^p\{([^}]*?)}/);
-		$css .= css('font-weight', 'bold')
-			if ($cellOpts->{tex} =~ /\\bfseries/);
-		$css .= css('font-style', 'italic')
-			if ($cellOpts->{tex} =~ /\\itshape/);
-		$css .= css('font-family', 'monospace')
-			if ($cellOpts->{tex} =~ /\\ttfamily/);
-
-		if ($cellOpts->{tex} =~ /\\cellcolor(\[HTML\])?\{(.*?)[}!]/) {
-			$css .= css('background-color', ($1 ? '#' : '') . $2);
-		}
-		if ($cellOpts->{tex} =~ /\\color(\[HTML\])?\{(.*?)[}!]/) {
-			$css .= css('color', ($1 ? '#' : '') . $2);
-		}
-		$css .= $tableOpts->{allcellcss};
-		$css .= $tableOpts->{headercss} if ($t eq 'th');
-		$css .= $tableOpts->{datacss}   if ($t eq 'td');
-		my $html = $cellData;
-		$html = wrap($html, @{ $tableOpts->{encase} })
-			unless $cellOpts->{noencase};
-		if ($tableOpts->{LaYoUt}) {
-			$css .= css('display', 'table-cell');
-			my $cellvalign = $tableOpts->{valign};
-			$cellvalign = $valign if ($valign);
-			$css        = css('vertical-align', $cellvalign) . $css;
-			$css        = css('padding',        '12pt') . $css;
-			if ($cellAlign->{tex} =~ /\\columncolor(\[HTML\])?\{(.*?)[\}!]/) {
-				$css = css('background-color', ($1 ? '#' : '') . $2) . $css;
+		if ($main::displayMode eq 'TeX') {
+			$cell = prefix($cell, $cellOpts->{tex}, ' ');
+			$cell = wrap($cell, @{ $tableOpts->{encase} })
+				unless $cellOpts->{noencase};
+			$cell = wrap($cell, $cellOpts->{texpre}, $cellOpts->{texpost});
+			$cell = prefix($cell, '\bfseries', ' ')
+				if ($tableOpts->{rowheaders} && $cellOpts->{header} ne 'td' && $i == 0
+					|| ($headerrow && $cellOpts->{header} ne 'td')
+					|| $cellOpts->{header} =~ /^(th|rh|ch|col|column|row)$/i);
+			if ($cellOpts->{colspan} > 1
+				or $cellOpts->{halign}
+				or $valign
+				or ($tableOpts->{valign} && $tableOpts->{valign} ne 'top'))
+			{
+				my $columntype = $cellOpts->{halign};
+				$columntype = $cellAlign->{halign} // 'l' unless $columntype;
+				$columntype = 'p{' . $tableOpts->{Xratio} / ($#$rowArray + 1) . "\\linewidth}"
+					if ($columntype eq 'X');
+				$columntype = "p{$cellAlign->{width}}"
+					if ($cellAlign->{width});
+				$columntype =~ s/^p/m/ if ($valign eq 'middle');
+				$columntype =~ s/^p/b/ if ($valign eq 'bottom');
+				$columntype =~ s/^p/m/ if ($tableOpts->{valign} eq 'middle');
+				$columntype =~ s/^p/b/ if ($tableOpts->{valign} eq 'bottom');
+				$cell = latexCommand('multicolumn', [ $cellOpts->{colspan}, $columntype, $cell ]);
 			}
-			$css =
-				css('border-right', getRuleCSS($cellAlign->{right})) . $css;
-			$html = tag($html, 'div', { style => $css });
+			$cell = suffix($cell, '&', ' ') unless ($i == $#$rowArray);
+			push(@cells, $cell);
+		} elsif ($main::displayMode eq 'PTX') {
+			$cell = wrap($cell, @{ $tableOpts->{encase} })
+				unless $cellOpts->{noencase};
+
+			$cell = tag($cell, 'p')
+				if ((
+					$cellAlign->{width}
+					or $cellAlign->{halign} eq 'X'
+					or $cellOpts->{halign} =~ /^p/
+				))
+				&& !$tableOpts->{LaYoUt};
+			my $ptxhalign = '';
+			$ptxhalign = 'center' if ($cellOpts->{halign} =~ /c/);
+			$ptxhalign = 'right'  if ($cellOpts->{halign} =~ /r/);
+			my $ptxright = '';
+			$ptxright = 'minor'  if ($cellOpts->{halign} =~ /\|\s*$/);
+			$ptxright = 'medium' if ($cellOpts->{halign} =~ /\|\s*\|\s*$/);
+			$ptxright = 'major'  if ($cellOpts->{halign} =~ /\|\s*\|\s*\|\s*$/);
+			my $ptxbottom = '';
+			$ptxbottom .= getPTXthickness($cellOpts->{bottom});
+
+			if ($cellOpts->{halign} =~ /!\{\s*\\vrule\s+width\s+([^}]*?)\s*}\s*$/) {
+				$ptxright = 'minor'  if ($1);
+				$ptxright = 'minor'  if ($1 eq '0.04em');
+				$ptxright = 'medium' if ($1 eq '0.07em');
+				$ptxright = 'major'  if ($1 eq '0.11em');
+			}
+			if ($tableOpts->{LaYoUt}) {
+				$cell = tag($cell, 'p') unless ($cellData =~ /<image[ >]/);
+				$cell = tag($cell, 'stack',);
+
+			} else {
+				$cell = tag(
+					$cell, 'cell',
+					{
+						halign  => $ptxhalign,
+						colspan => ($cellOpts->{colspan} > 1) ? $cellOpts->{colspan} : '',
+						right   => $ptxright,
+						bottom  => $ptxbottom
+					},
+					''
+				);
+			}
+			push(@cells, $cell);
 		} else {
-			$css  = css('padding', '0pt 6pt') . $css;
-			$html = tag(
-				$html, $t,
-				{
-					style   => $css,
-					scope   => $scope,
-					colspan => ($cellOpts->{colspan} > 1) ? $cellOpts->{colspan} : ''
+
+			# HTML
+			my $t     = 'td';
+			my $scope = '';
+			do { $t = 'th'; $scope = 'row'; }
+				if ($i == 0 && $tableOpts->{rowheaders});
+			do { $t = 'th'; $scope = 'col'; } if ($headerrow);
+			$t     = 'th'  if ($cellOpts->{header} =~ /^(th|rh|ch|col|column|row)$/i);
+			$scope = 'row' if ($cellOpts->{header} =~ /^(rh|row)$/i);
+			$scope = 'col' if ($cellOpts->{header} =~ /^(ch|col|column)$/i);
+			do { $t = 'td'; $scope = ''; } if ($cellOpts->{header} =~ /^td$/i);
+			my $css = '';
+
+			# col level
+			$css .= css('text-align', 'center')
+				if ($cellAlign->{halign} eq 'c');
+			$css .= css('text-align', 'right')
+				if ($cellAlign->{halign} eq 'r');
+			$css .= css('width', $cellAlign->{width})
+				if ($cellAlign->{width});
+			$css .= css('font-weight', 'bold')
+				if ($cellAlign->{tex} =~ /\\bfseries/);
+			$css .= css('font-style', 'italic')
+				if ($cellAlign->{tex} =~ /\\itshape/);
+			$css .= css('font-family', 'monospace')
+				if ($cellAlign->{tex} =~ /\\ttfamily/);
+			if ($cellAlign->{tex} =~ /\\color(\[HTML\])?\{(.*?)[}!]/) {
+				$css .= css('color', ($1 ? '#' : '') . $2);
+			}
+
+			# cell level
+			$css .= $cellOpts->{cellcss};
+			if ($cellOpts->{halign} =~ /^([|\s]*\|)/ && $i == 0) {
+				my $count = $1 =~ tr/\|//;
+				$css .= css('border-left', "solid ${count}px");
+			}
+			if ($cellOpts->{halign} =~ /^(\s\|)*!\{\\vrule\s+width\s+([^}]*?)}/
+				&& $i == 0)
+			{
+				$css .= css('border-left', "solid $2");
+			}
+			if ($cellOpts->{halign} =~ /(\|[|\s]*)$/) {
+				my $count = $1 =~ tr/\|//;
+				$css .= css('border-right', "solid ${count}px");
+			}
+			if ($cellOpts->{halign} =~ /!\{\\vrule\s+width\s+([^}]*?)}\s*$/) {
+				$css .= css('border-right', "solid $1");
+			}
+			$css .= css('border-bottom', getRuleCSS($cellOpts->{bottom}));
+			$css .= css('text-align',    'left') if ($cellOpts->{halign} =~ /^l/);
+			$css .= css('text-align',    'center')
+				if ($cellOpts->{halign} =~ /^c/);
+			$css .= css('text-align', 'right') if ($cellOpts->{halign} =~ /^r/);
+			$css .= css('text-align', 'left')  if ($cellOpts->{halign} =~ /^p/);
+			$css .= css('width',      $1)
+				if ($cellOpts->{halign} =~ /^p\{([^}]*?)}/);
+			$css .= css('font-weight', 'bold')
+				if ($cellOpts->{tex} =~ /\\bfseries/);
+			$css .= css('font-style', 'italic')
+				if ($cellOpts->{tex} =~ /\\itshape/);
+			$css .= css('font-family', 'monospace')
+				if ($cellOpts->{tex} =~ /\\ttfamily/);
+
+			if ($cellOpts->{tex} =~ /\\cellcolor(\[HTML\])?\{(.*?)[}!]/) {
+				$css .= css('background-color', ($1 ? '#' : '') . $2);
+			}
+			if ($cellOpts->{tex} =~ /\\color(\[HTML\])?\{(.*?)[}!]/) {
+				$css .= css('color', ($1 ? '#' : '') . $2);
+			}
+			$css .= $tableOpts->{allcellcss};
+			$css .= $tableOpts->{headercss} if ($t eq 'th');
+			$css .= $tableOpts->{datacss}   if ($t eq 'td');
+			$cell = wrap($cell, @{ $tableOpts->{encase} })
+				unless $cellOpts->{noencase};
+			if ($tableOpts->{LaYoUt}) {
+				$css .= css('display', 'table-cell');
+				my $cellvalign = $tableOpts->{valign};
+				$cellvalign = $valign if ($valign);
+				$css        = css('vertical-align', $cellvalign) . $css;
+				$css        = css('padding',        '12pt') . $css;
+				if ($cellAlign->{tex} =~ /\\columncolor(\[HTML\])?\{(.*?)[\}!]/) {
+					$css = css('background-color', ($1 ? '#' : '') . $2) . $css;
 				}
-			);
+				$css =
+					css('border-right', getRuleCSS($cellAlign->{right})) . $css;
+				$cell = tag($cell, 'div', { style => $css });
+			} else {
+				$css  = css('padding', '0pt 6pt') . $css;
+				$cell = tag(
+					$cell, $t,
+					{
+						style   => $css,
+						scope   => $scope,
+						colspan => ($cellOpts->{colspan} > 1) ? $cellOpts->{colspan} : ''
+					}
+				);
+			}
+			push(@cells, $cell);
 		}
-		push(@html, $html);
-
-		# PTX
-		my $ptx = $cellData;
-		$ptx = wrap($ptx, @{ $tableOpts->{encase} })
-			unless $cellOpts->{noencase};
-
-		$ptx = tag($ptx, 'p')
-			if ((
-				$cellAlign->{width}
-				or $cellAlign->{halign} eq 'X'
-				or $cellOpts->{halign} =~ /^p/
-			))
-			&& !$tableOpts->{LaYoUt};
-		my $ptxhalign = '';
-		$ptxhalign = 'center' if ($cellOpts->{halign} =~ /c/);
-		$ptxhalign = 'right'  if ($cellOpts->{halign} =~ /r/);
-		my $ptxright = '';
-		$ptxright = 'minor'  if ($cellOpts->{halign} =~ /\|\s*$/);
-		$ptxright = 'medium' if ($cellOpts->{halign} =~ /\|\s*\|\s*$/);
-		$ptxright = 'major'  if ($cellOpts->{halign} =~ /\|\s*\|\s*\|\s*$/);
-		my $ptxbottom = '';
-		$ptxbottom .= getPTXthickness($cellOpts->{bottom});
-
-		if ($cellOpts->{halign} =~ /!\{\s*\\vrule\s+width\s+([^}]*?)\s*}\s*$/) {
-			$ptxright = 'minor'  if ($1);
-			$ptxright = 'minor'  if ($1 eq '0.04em');
-			$ptxright = 'medium' if ($1 eq '0.07em');
-			$ptxright = 'major'  if ($1 eq '0.11em');
-		}
-		if ($tableOpts->{LaYoUt}) {
-			$ptx = tag($ptx, 'p') unless ($cellData =~ /<image[ >]/);
-			$ptx = tag($ptx, 'stack',);
-
-		} else {
-			$ptx = tag(
-				$ptx, 'cell',
-				{
-					halign  => $ptxhalign,
-					colspan => ($cellOpts->{colspan} > 1) ? $cellOpts->{colspan} : '',
-					right   => $ptxright,
-					bottom  => $ptxbottom
-				},
-				''
-			);
-		}
-		push(@ptx, $ptx);
 	}
 
-	$return = main::MODES(
-		TeX  => join(" ",  @tex),
-		HTML => join("\n", @html),
-		PTX  => join("\n", @ptx),
+	return main::MODES(
+		TeX  => join(" ",  @cells),
+		HTML => join("\n", @cells),
+		PTX  => join("\n", @cells),
 	);
-
-	return $return;
 
 }
 
