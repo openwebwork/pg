@@ -155,6 +155,10 @@ In that case, use C<[$BM,$EM]>. See also noencase for individual cells.
 
 Make the first element of every row a row header.
 
+=item C<headerrules =E<gt> 0 or 1>
+
+Make a horizontal rule under a row of column headers and a vertical rule to the right of a column of row headers. Default is 1.
+
 =item C<valign =E<gt> 'top'>
 
 Can be 'top', 'middle', or 'bottom'. Applies to all rows. See below to override for an individual row.
@@ -621,7 +625,7 @@ sub Cols {
 				tag(
 					'', 'col',
 					{
-						header => ($tableOpts->{rowheaders} && $i == 1) ? 'yes' : '',
+						header => ($i == 1 && $tableOpts->{rowheaders}) ? 'yes' : '',
 						halign => $ptxhalign,
 						right  => $ptxright,
 						top    => $ptxtop,
@@ -632,7 +636,7 @@ sub Cols {
 		} else {
 			my $htmlright = '';
 			$htmlright .= css('border-right', 'solid 2px')
-				if ($tableOpts->{rowheaders} && $i == 0);
+				if ($i == 1 && $tableOpts->{rowheaders} && $tableOpts->{headerrules});
 			$htmlright .= css('border-right', getRuleCSS($align->{right}));
 			my $htmltop = '';
 			$htmltop .= css('border-top', getRuleCSS($top));
@@ -691,7 +695,7 @@ sub Rows {
 			$row = suffix($row, "\\\\",                           ' ') unless ($i == $#$tableArray);
 			$row = suffix($row, hrule($booktabs, 'mid', $bottom), ' ')
 				if ($i < $#$tableArray && ($bottom || $tableOpts->{horizontalrules})
-					|| $headerrow);
+					|| $headerrow && $tableOpts->{headerrules});
 			$row = suffix($row, "\\\\" . hrule($booktabs, 'bottom', $bottom), ' ')
 				if ($i == $#$tableArray
 					&& ($bottom or $tableOpts->{horizontalrules}));
@@ -880,10 +884,12 @@ sub Row {
 				if ($tableOpts->{rowheaders} && $cellOpts->{header} ne 'td' && $i == 0
 					|| ($headerrow && $cellOpts->{header} ne 'td')
 					|| $cellOpts->{header} =~ /^(th|rh|ch|col|column|row)$/i);
+			# Situations where we need \multicolumn
 			if ($cellOpts->{colspan} > 1
-				or $cellOpts->{halign}
-				or $valign
-				or ($tableOpts->{valign} && $tableOpts->{valign} ne 'top'))
+				|| $cellOpts->{halign}
+				|| $valign
+				|| ($tableOpts->{valign} && $tableOpts->{valign} ne 'top')
+				|| ($tableOpts->{rowheaders} && $tableOpts->{headerrules}))
 			{
 				my $columntype = $cellOpts->{halign};
 				$columntype = $cellAlign->{halign} // 'l' unless $columntype;
@@ -895,6 +901,7 @@ sub Row {
 				$columntype =~ s/^p/b/ if ($valign eq 'bottom');
 				$columntype =~ s/^p/m/ if ($tableOpts->{valign} eq 'middle');
 				$columntype =~ s/^p/b/ if ($tableOpts->{valign} eq 'bottom');
+				$columntype .= '|' if ($i == 0 && $cellOpts->{colspan} == 1 && $tableOpts->{rowheaders} && $tableOpts->{headerrules});
 				$cell = latexCommand('multicolumn', [ $cellOpts->{colspan}, $columntype, $cell ]);
 			}
 			$cell = suffix($cell, '&', ' ') unless ($i == $#$rowArray);
@@ -1191,6 +1198,7 @@ sub TableOptions {
 		allcellcss      => '',
 		valign          => 'top',
 		booktabs        => 1,
+		headerrules     => 1,
 		LaYoUt          => 0,
 	);
 	%outHash = %supportedOptions;
