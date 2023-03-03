@@ -662,6 +662,7 @@ sub Rows {
 	my @rows;
 	my @htmlhead;
 	my @htmlbody;
+	my $htmlout;
 	my $stillinhtmlhead = 1;
 
 	for my $i (0 .. $#$tableArray) {
@@ -825,27 +826,19 @@ sub Rows {
 				}
 			}
 		}
-
-	}
-
-	my $htmlout;
-	if ($tableOpts->{LaYoUt}) {
-		$htmlout = join("\n", @htmlbody);
-	} else {
-		my $htmlvalign = '';
-		$htmlvalign = $tableOpts->{valign}
-			unless ($tableOpts->{valign} eq 'middle');
-		$htmlout = tag(join("\n", @htmlbody), 'tbody', { style => css('vertical-align', $htmlvalign) });
-		$htmlout = prefix(
-			$htmlout,
-			tag(
-				join("\n", @htmlhead),
-				'thead',
-				{
-					style => css('vertical-align', $htmlvalign) . css('border-bottom', 'solid 2px')
-				}
-			)
-		) if (@htmlhead);
+		if ($tableOpts->{LaYoUt}) {
+			$htmlout = join("\n", @htmlbody);
+		} else {
+			my $htmlvalign = '';
+			$htmlvalign = $tableOpts->{valign}
+				unless ($tableOpts->{valign} eq 'middle');
+			$htmlout = tag(join("\n", @htmlbody), 'tbody', { style => css('vertical-align', $htmlvalign) });
+			if (@htmlhead) {
+				my $htmlheadcss = css('vertical-align', $htmlvalign);
+				$htmlheadcss .= css('border-bottom', 'solid 2px') if $tableOpts->{headerrules};
+				$htmlout = prefix($htmlout, tag(join("\n", @htmlhead), 'thead', { style => $htmlheadcss }));
+			}
+		}
 	}
 
 	return main::MODES(
