@@ -137,6 +137,7 @@ Options for CELLS
                                         rh   row header
                                              ('row' works too)
                                         td   overrides a headerrow or rowheaders option
+                                             except PTX output cannont honor this
         color => string             color name or 6-character hex color code for text color
         bgcolor => string           color name or 6-character hex color code for background color
         b=>1, i=>1, m=>1            Bold, italics, and monospace font settings.
@@ -251,10 +252,12 @@ sub TableEnvironment {
 	}
 
 	# determine if first row has a top border
-	my $top;
+	my $top = '';
 	for my $x (@{ $tableArray->[0] }) {
 		$top = $x->{rowtop} if ($x->{rowtop});
 	}
+
+	my $booktabs = $tableOpts->{booktabs};
 
 	my $cols = Cols($tableArray, $tableOpts, $alignment);
 	my $rows = Rows($tableArray, $tableOpts, $alignment);
@@ -275,8 +278,13 @@ sub TableEnvironment {
 		$rows = wrap($rows, '{',    '}',    '');
 	} elsif ($main::displayMode eq 'PTX') {
 		my $ptxleft = getPTXthickness($alignment->[0]{left});
-		my $ptxtop  = ($tableOpts->{horizontalrules}) ? 'major' : '';
-		$ptxtop = getPTXthickness($rowtop) if $rowtop;
+		my $ptxtop  = '';
+		if ($tableOpts->{horizontalrules} && $booktabs) {
+			$ptxtop = 'major';
+		} elsif ($tableOpts->{horizontalrules}) {
+			$ptxtop = 'minor';
+		}
+		$ptxtop = getPTXthickness($top) if $top;
 		my $ptxwidth   = '';
 		my $ptxmargins = '';
 
@@ -412,7 +420,7 @@ sub Cols {
 				tag(
 					'', 'col',
 					{
-						header => ($tableOpts->{rowheaders} && $i == 0) ? 'yes' : '',
+						header => ($tableOpts->{rowheaders} && $i == 1) ? 'yes' : '',
 						halign => $ptxhalign,
 						right  => $ptxright,
 						top    => $ptxtop,
@@ -499,10 +507,11 @@ sub Rows {
 			push(@rows, $row);
 		} elsif ($main::displayMode eq 'PTX') {
 			my $ptxbottom = '';
-			$ptxbottom = 'minor'
-				if ($i < $#$tableArray && $tableOpts->{horizontalrules});
-			$ptxbottom = 'major'
-				if ($i == $#$tableArray && $tableOpts->{horizontalrules});
+			if ($i == $#$tableArray && $tableOpts->{horizontalrules} && $booktabs) {
+				$ptxbottom = 'major';
+			} elsif ($tableOpts->{horizontalrules}) {
+				$ptxbottom = 'minor';
+			}
 			$ptxbottom = getPTXthickness($bottom) if $bottom;
 			my $ptxleft = '';
 			$ptxleft = 'minor'  if ($rowArray->[0]{halign} =~ /^\s*\|/);
@@ -701,8 +710,8 @@ sub Row {
 				))
 				&& !$tableOpts->{LaYoUt};
 			my $ptxhalign = '';
-			$ptxhalign = 'center' if ($cellOpts->{halign} =~ /c/);
-			$ptxhalign = 'right'  if ($cellOpts->{halign} =~ /r/);
+			$ptxhalign = 'left'  if ($cellOpts->{halign} =~ /l/);
+			$ptxhalign = 'right' if ($cellOpts->{halign} =~ /r/);
 			my $ptxright = '';
 			$ptxright = 'minor'  if ($cellOpts->{halign} =~ /\|\s*$/);
 			$ptxright = 'medium' if ($cellOpts->{halign} =~ /\|\s*\|\s*$/);
@@ -717,7 +726,7 @@ sub Row {
 				$ptxright = 'major'  if ($1 eq '0.11em');
 			}
 			if ($tableOpts->{LaYoUt}) {
-				$cell = tag($cell, 'p') unless ($cellData =~ /<image[ >]/);
+				$cell = tag($cell, 'p');
 				$cell = tag($cell, 'stack',);
 
 			} else {
@@ -1222,6 +1231,13 @@ sub getRuleCSS {
 }
 
 sub getPTXthickness {
+	# For a positive integer input, 1=>minor, 2=>medium, and greater=>major.
+	# For a specific width input, we honor the PTX values
+	# 0.04em=>minor, 0.07em=>medium, 0.11em=>major
+	# but anything else goes to minor. Ideally an input would be compared
+	# as a length unit to 0.04em, 0.07em, 0.11em and an appropriate choice
+	# from minor|mediuum|major would be used. But we do not get into
+	# comparing length units here.
 	my $input = shift;
 	return '' unless ($input);
 	my $output = '';
@@ -1229,7 +1245,7 @@ sub getPTXthickness {
 		$output = "minor";
 	} elsif ($input eq '2') {
 		$output = "medium";
-	} elsif ($input =~ /[3-9]|[1-9]\d+/) {
+	} elsif ($input =~ /^[3-9]|[1-9]\d+$/) {
 		$output = "major";
 	} elsif ($input eq '0.04em') {
 		$output = 'minor';
