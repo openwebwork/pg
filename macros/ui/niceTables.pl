@@ -881,7 +881,7 @@ sub Row {
 			if ($cellOpts->{colspan} > 1
 				|| $cellOpts->{halign}
 				|| $valign
-				|| ($tableOpts->{valign} && $tableOpts->{valign} ne 'top')
+				|| ($tableOpts->{valign}     && $tableOpts->{valign} ne 'top')
 				|| ($tableOpts->{rowheaders} && $tableOpts->{headerrules}))
 			{
 				my $columntype = $cellOpts->{halign};
@@ -894,7 +894,8 @@ sub Row {
 				$columntype =~ s/^p/b/ if ($valign eq 'bottom');
 				$columntype =~ s/^p/m/ if ($tableOpts->{valign} eq 'middle');
 				$columntype =~ s/^p/b/ if ($tableOpts->{valign} eq 'bottom');
-				$columntype .= '|' if ($i == 0 && $cellOpts->{colspan} == 1 && $tableOpts->{rowheaders} && $tableOpts->{headerrules});
+				$columntype .= '|'
+					if ($i == 0 && $cellOpts->{colspan} == 1 && $tableOpts->{rowheaders} && $tableOpts->{headerrules});
 				$cell = latexCommand('multicolumn', [ $cellOpts->{colspan}, $columntype, $cell ]);
 			}
 			$cell = suffix($cell, '&', ' ') unless ($i == $#$rowArray);
@@ -904,11 +905,7 @@ sub Row {
 				unless $cellOpts->{noencase};
 
 			$cell = tag($cell, 'p')
-				if ((
-					$cellAlign->{width}
-					|| $cellAlign->{halign} eq 'X'
-					|| $cellOpts->{halign} =~ /^p/
-				))
+				if (($cellAlign->{width} || $cellAlign->{halign} eq 'X' || $cellOpts->{halign} =~ /^p/))
 				&& !$tableOpts->{LaYoUt};
 			my $ptxhalign = '';
 			$ptxhalign = 'left'  if ($cellOpts->{halign} =~ /l/);
