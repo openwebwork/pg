@@ -14,7 +14,7 @@
         "jsxgraph": "^1.4.2",
         "jszip": "^3.10.1",
         "jszip-utils": "^0.1.0",
-        "mathquill": "github:openwebwork/mathquill",
+        "mathquill": "github:openwebwork/mathquill#WeBWorK-2.17",
         "x3dom": "^1.8.1"
     },
     "devDependencies": {
