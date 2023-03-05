@@ -90,13 +90,13 @@
 
 		const toolbarRemove = () => {
 			if (!answerQuill.hasFocus && answerQuill.toolbar) {
-				answerQuill.toolbar.style.opacity = 0;
-				answerQuill.toolbar.addEventListener('transitionend', () => {
-					if (!answerQuill.toolbar) return;
-					window.removeEventListener('resize', answerQuill.toolbar.setPosition);
-					answerQuill.toolbar.tooltips.forEach((tooltip) => tooltip.dispose());
-					answerQuill.toolbar.remove();
-					delete answerQuill.toolbar;
+				const toolbar = answerQuill.toolbar;
+				delete answerQuill.toolbar;
+				toolbar.style.opacity = 0;
+				toolbar.addEventListener('transitionend', () => {
+					window.removeEventListener('resize', toolbar.setPosition);
+					toolbar.tooltips.forEach((tooltip) => tooltip.dispose());
+					toolbar.remove();
 				});
 			}
 		};
