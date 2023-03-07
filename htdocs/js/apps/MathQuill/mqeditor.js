@@ -147,6 +147,13 @@
 				})
 			}
 
+			answerQuill.toolbar.addEventListener('keydown', (e) => {
+				if (e.key === 'Escape') {
+					answerQuill.hasFocus = false;
+					toolbarRemove();
+				}
+			});
+
 			answerQuill.toolbar.setPosition = () => {
 				// Note that this must be kept in sync with css.  Currently each symbol button has a fixed height (due
 				// to flex-shrink being 0) of 45px plus a 1px padding on the top and bottom plus a 1px margin on the top
@@ -201,7 +208,6 @@
 							`${elRect.top + elRect.height / 2 - toolbarHeight / 2 - parentRect.top}px`;
 						answerQuill.toolbar.style.bottom = null;
 					}
-
 				} else {
 					// If in a relatively positioned parent, the toolbar is positioned absolutely on the page.
 					if (toolbarHeight > pageHeight) {
@@ -280,7 +286,7 @@
 		});
 
 		// Trigger an answer preview when the enter key is pressed in an answer box.
-		answerQuill.keypressHandler = (e) => {
+		answerQuill.keydownHandler = (e) => {
 			if (e.key == 'Enter') {
 				// Ensure that the toolbar and any open tooltips are removed.
 				answerQuill.toolbar?.tooltips.forEach((tooltip) => tooltip.dispose());
@@ -298,7 +304,7 @@
 				if (previewButtonId) document.getElementById(previewButtonId)?.click();
 			}
 		};
-		answerQuill.addEventListener('keypress', answerQuill.keypressHandler);
+		answerQuill.addEventListener('keydown', answerQuill.keydownHandler);
 
 		answerQuill.mathField.latex(answerQuill.latexInput.value);
 		answerQuill.mathField.moveToLeftEnd();
