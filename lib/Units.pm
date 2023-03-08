@@ -18,20 +18,6 @@ use utf8;
 # there can be only one / in a unit.
 # powers can be negative integers as well as positive integers.
 
-# These subroutines return a unit hash.
-# A unit hash has the entries
-#      factor => number   number can be any real number
-#      m      => power    power is a signed integer
-#      kg     => power
-#      s      => power
-#      rad    => power
-#      degC   => power
-#      degF   => power
-#      degK   => power
-#      mol	  => power
-#	   amp	  => power
-#	   cd	  => power
-
 # Unfortunately there will be no automatic conversion between the different
 # temperature scales since we haven't allowed for affine conversions.
 
@@ -43,7 +29,7 @@ our %fundamental_units = (
 	'rad'    => 0,
 	'degC'   => 0,
 	'degF'   => 0,
-	'degK'   => 0,
+	'K'      => 0,
 	'mol'    => 0,    # moles, treated as a fundamental unit
 	'amp'    => 0,
 	'cd'     => 0,    # candela, SI unit of luminous intensity
@@ -77,7 +63,11 @@ our %known_units = (
 		'factor' => 1,
 		'degC'   => 1
 	},
-	'°C' => {    # unicode "\x{00B0}C"
+	"\x{00B0}C" => {    # Unicode degree symbol with text C
+		'factor' => 1,
+		'degC'   => 1
+	},
+	"\x{2103}" => {     # Unicode degree Celsius symbol
 		'factor' => 1,
 		'degC'   => 1
 	},
@@ -85,18 +75,29 @@ our %known_units = (
 		'factor' => 1,
 		'degF'   => 1
 	},
-	'°F' => {    # unicode "\x{00B0}F"
+	"\x{00B0}F" => {    # Unicode degree symbol with text F
 		'factor' => 1,
 		'degF'   => 1
 	},
-	# FIXME: Shouldn't this just be K?
+	"\x{2109}" => {     # Unicode degree Fahrenheit symbol
+		'factor' => 1,
+		'degF'   => 1
+	},
+	'K' => {
+		'factor' => 1,
+		'K'      => 1
+	},
 	'degK' => {
 		'factor' => 1,
-		'degK'   => 1
+		'K'      => 1
 	},
-	'°K' => {    # unicode "\x{00B0}K"
+	"\x{00B0}K" => {    # Unicode degree symbol with text K
 		'factor' => 1,
-		'degK'   => 1
+		'K'      => 1
+	},
+	"\x{212A}" => {     # Unicode Kelvin symbol
+		'factor' => 1,
+		'K'      => 1
 	},
 	'mol' => {
 		'factor' => 1,
@@ -117,11 +118,11 @@ our %known_units = (
 	# deg  -- degrees
 	# sr   -- steradian, a mesure of solid angle
 	#
-	'°' => {    # unicode "\x{00B0}"
+	'deg' => {
 		'factor' => 0.0174532925,
 		'rad'    => 1
 	},
-	'deg' => {
+	"\x{00B0}" => {    # Unicode degree symbol
 		'factor' => 0.0174532925,
 		'rad'    => 1
 	},
@@ -287,7 +288,7 @@ our %known_units = (
 		'factor' => 1E-10,
 		'm'      => 1
 	},
-	'Å' => {    # unicode "\x{00C5}"
+	"\x{00C5}" => {    # Unicode angstrom symbol
 		'factor' => 1E-10,
 		'm'      => 1
 	},

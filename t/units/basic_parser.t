@@ -70,7 +70,7 @@ subtest 'Check attributes' => sub {
 				rad    => 0,
 				degC   => 0,
 				degF   => 0,
-				degK   => 0,
+				K      => 0,
 			},
 			isValue => T(),
 			context => check_isa 'Parser::Context'

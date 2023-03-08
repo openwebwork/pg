@@ -18,7 +18,7 @@ subtest 'Check fundamental units' => sub {
 			rad    => 0,
 			degC   => 0,
 			degF   => 0,
-			degK   => 0,
+			K      => 0,
 			mol    => 0,
 			amp    => 0,
 			cd     => 0,
@@ -145,4 +145,3 @@ sub multiply_by {
 	$unit{factor} *= $conversion;
 	return \%unit;
 }
-
