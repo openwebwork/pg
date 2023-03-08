@@ -115,7 +115,7 @@ subtest 'Check some known units' => sub {
 	ok my @unit_names = (split /\|/, $joule->getUnitNames), 'Can getUnitNames';
 
 	is \@unit_names, bag {
-		all_items(match qr/^(?:[-%\w]+|\p{Lu})$/);
+		all_items(match qr/^(?:[-%\w]+|\p{L}|\p{S}\w?)$/);
 		item 'J';
 		item 'N';
 		item 'm';
@@ -140,8 +140,8 @@ subtest 'Check display methods' => sub {
 
 	ok my $celsius = NumberWithUnits(1, 'degC');
 	ok my $kelvin  = NumberWithUnits(1, 'degK');
-	todo 'Fix the display of temperatures' => sub {
-		is $celsius->TeX, '1\ {\rm ^{\circ}C}', 'Displays LaTeX string for degrees (finally)';
+	ok 'Display of degrees' => sub {
+		is $celsius->TeX, '1\ {\rm ^{\circ}C}', 'Displays LaTeX string for degrees';
 		is $kelvin->TeX,  '1\ {\rm K}',         'Displays LaTeX string for kelvin, no degree sign';
 	};
 };

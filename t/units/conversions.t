@@ -29,7 +29,7 @@ subtest 'Check fundamental units' => sub {
 	is \%Units::known_units, hash {
 		field m => { factor => 1, m => 1 };
 
-		all_keys match qr/^(?:[a-z02]+(?:-\w+)?|%|\p{Lu})$/i;
+		all_keys match qr/^(?:[a-z02]+(?:-\w+)?|%|\p{L}|\p{S}\w?)$/i;
 		all_vals hash {
 			field factor => !number(0);
 

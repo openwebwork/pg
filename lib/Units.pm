@@ -77,11 +77,24 @@ our %known_units = (
 		'factor' => 1,
 		'degC'   => 1
 	},
+	'°C' => {    # unicode "\x{00B0}C"
+		'factor' => 1,
+		'degC'   => 1
+	},
 	'degF' => {
 		'factor' => 1,
 		'degF'   => 1
 	},
+	'°F' => {    # unicode "\x{00B0}F"
+		'factor' => 1,
+		'degF'   => 1
+	},
+	# FIXME: Shouldn't this just be K?
 	'degK' => {
+		'factor' => 1,
+		'degK'   => 1
+	},
+	'°K' => {    # unicode "\x{00B0}K"
 		'factor' => 1,
 		'degK'   => 1
 	},
@@ -104,6 +117,10 @@ our %known_units = (
 	# deg  -- degrees
 	# sr   -- steradian, a mesure of solid angle
 	#
+	'°' => {    # unicode "\x{00B0}"
+		'factor' => 0.0174532925,
+		'rad'    => 1
+	},
 	'deg' => {
 		'factor' => 0.0174532925,
 		'rad'    => 1
@@ -258,7 +275,15 @@ our %known_units = (
 		'factor' => 1E-10,
 		'm'      => 1
 	},
+	'angstroms' => {
+		'factor' => 1E-10,
+		'm'      => 1
+	},
 	'Angstrom' => {
+		'factor' => 1E-10,
+		'm'      => 1
+	},
+	'Angstroms' => {
 		'factor' => 1E-10,
 		'm'      => 1
 	},
