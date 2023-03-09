@@ -372,7 +372,7 @@ sub Verbatim {
 sub Answer {
 	my $self  = shift;
 	my $token = shift;
-	my $def   = { options => [ "answer", "width", "name", "array" ] };
+	my $def   = { options => [ "answer", "width", "name", "cmp_options" ] };
 	$def->{hasStar} = 1 if $token =~ m/\*$/;
 	$self->Item("answer", $token, $def);
 }
@@ -779,7 +779,7 @@ sub terminateOptions {
 	$self->{block} = $self->{block}{prev};
 	$self->{block}->popItem;
 	$block = $self->{block}->topItem;
-	if ($options =~ m/^[a-z_][a-z0-9_]*=>/i) {
+	if ($options =~ m/^\s*[a-z_][a-z0-9_]*\s*=>/i) {
 		my %allowed = (map { $_ => 1 } (@{ $block->{options} }));
 		my ($options, $error) = PGML::Eval("{$options}");
 		$options = {}, PGML::Warning "Error evaluating options: $error" if $error;
@@ -1270,7 +1270,7 @@ sub Answer {
 	my $rule;
 	$item->{width} = length($item->{token}) - 2 if (!defined($item->{width}));
 	if (defined($ans)) {
-		if (ref($ans) =~ /CODE|AnswerEvaluator/) {
+		if (ref($ans) eq 'CODE' || (ref($ans) eq 'AnswerEvaluator' && !Value::isValue($ans->{rh_ans}{correct_value}))) {
 			if (defined($item->{name})) {
 				$rule = main::NAMED_ANS_RULE($item->{name}, $item->{width});
 				main::NAMED_ANS($item->{name} => $ans);
@@ -1279,6 +1279,8 @@ sub Answer {
 				main::ANS($ans);
 			}
 		} else {
+			$ans = $ans->{rh_ans}{correct_value} if ref($ans) eq 'AnswerEvaluator';
+
 			unless (Value::isValue($ans)) {
 				$ans = Parser::Formula($item->{answer});
 				if (defined($ans)) {
@@ -1304,10 +1306,12 @@ sub Answer {
 			$rule = $ans->$method(@options);
 			$rule = PGML::LaTeX($rule);
 			if (!(ref($ans) eq 'parser::MultiAnswer' && $ans->{part} > 1)) {
+				my @cmp =
+					ref($item->{answer}) eq 'AnswerEvaluator' ? $item->{answer} : $ans->cmp(%{ $item->{cmp_options} });
 				if (defined($item->{name})) {
-					main::NAMED_ANS($item->{name} => $ans->cmp);
+					main::NAMED_ANS($item->{name} => @cmp);
 				} else {
-					main::ANS($ans->cmp);
+					main::ANS(@cmp);
 				}
 			}
 		}
