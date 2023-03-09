@@ -13,260 +13,449 @@
 # Artistic License for more details.
 ################################################################################
 
+=encoding utf8
+
 =head1 NAME
 
 draggableProof.pl
 
 =head1 DESCRIPTION
 
-This macro helps the instructor create a drag-and-drop environment in which students are asked to
-arrange predefined statements into a correct sequence.
+This macro helps the instructor create a drag-and-drop environment in which
+students are asked to arrange predefined statements into a correct sequence.
 
 =head1 TERMINOLOGY
 
-An HTML element into or out of which other elements may be dragged will be called a "bucket".
-An HTML element which houses a collection of buckets will be called a "bucket pool".
+An HTML element into or out of which other elements may be dragged will be
+called a "bucket".
+
+An HTML element which houses a collection of buckets will be called a "bucket
+pool".
 
 =head1 USAGE
 
-To initialize a DraggableProof bucket pool in a .pg problem, insert the line:
+To initialize a C<DraggableProof> bucket pool in a .pg problem, insert the line:
 
-$draggable = DraggableProof($statements, $extra, Options1 => ..., Options2 => ...);
+    $draggable = DraggableProof(
+        $statements,
+        $extra_statements,
+        option1 => $value1,
+        option2 => $value2,
+        ...
+    );
 
-before BEGIN_TEXT (or BEGIN_PGML).
+Then insert the draggable proof bucket pool into the problem text with
 
-Then, call:
+    BEGIN_TEXT
+    \{$draggable->ans_rule\}
+    END_TEXT
 
-$draggable->Print (or [@ $draggable->Print @]* )
+for basic PG, or
+
+    BEGIN_PGML
+    [_]{$draggable}
+    END_PGML
+
+for PGLM.  Note the following also works, but is deprecated.  However, if you
+want your problem to be compatible with previous versions of PG this must be
+used.  Call
+
+    \{$draggable->Print\} (or [@ $draggable->Print @]* )
 
 within the BEGIN_TEXT / END_TEXT (or BEGIN_PGML / END_PGML ) environment.
+Then call
 
-$statements, e.g. ["Socrates is a man.", "Socrates is mortal.", ...],
-is an array reference to the list of statements used in the correct proof.
-It is imperative that square brackets be used.
+    ANS($draggable->cmp)
 
-$extra, e.g. ["Roses are red."], is an array reference to the list statements extraneous to the proof.
-If there are no extraneous statements, use the empty array reference [].
+after END_TEXT (or END_PGML).
 
-By default, the score of the student answer is 100%
-if the draggable statements are placed in the exact same order as in the array referenced by $statements,
-with no inclusion of any statement from $extra. The score is 0% otherwise.
+C<$statements>, e.g. ["Socrates is a man.", "Socrates is mortal.", ...], is an
+array reference to the list of statements used in the correct proof.
+
+C<$extra_statements>, e.g. ["Roses are red."], is an array reference to the list
+statements extraneous to the proof.  If there are no extraneous statements, use
+the empty array reference [].
+
+By default, the score of the student answer is 100% if the draggable statements
+are placed in the exact same order as in the array referenced by C<$statements>,
+with no inclusion of any statement from C<$extra_statements>. The score is 0%
+otherwise.
 
 Available Options:
 
- NumBuckets => 1 or 2
- SourceLabel => <string>
- TargetLabel => <string>
- Levenshtein => 0 or 1
- DamerauLevenshtein => 0 or 1
- InferenceMatrix => <array reference>
- IrrelevancePenalty => <float>
+    NumBuckets         => 1 or 2
+    SourceLabel        => <string>
+    TargetLabel        => <string>
+    Levenshtein        => 0 or 1
+    DamerauLevenshtein => 0 or 1
+    InferenceMatrix    => <array reference>
+    IrrelevancePenalty => <float>
+    ResetButtonText    => <string>
 
 Their usage is explained in the example below.
 
 =head1 EXAMPLE
 
- DOCUMENT();
- loadMacros(
- "PGstandard.pl",
- "PGML.pl",
- "MathObjects.pl",
- "draggableProof.pl"
- );
+    DOCUMENT();
+    loadMacros(
+        'PGstandard.pl',
+        'PGML.pl',
+        'MathObjects.pl',
+        'draggableProof.pl'
+    );
 
- TEXT(beginproblem());
+    $draggable = DraggableProof(
+        # The proof given in the correct order.
+        [
+            'All men are mortal.', # index 0
+            'Socrates is a man.',  # index 1
+            'Socrates is mortal.'  # index 2
+        ],
 
- $statements = [
- "All men are mortal.", #0
- "Socrates is a man.", #1
- "Socrates is mortal." #2
- ];
+        # Extra statements that are not part of the correct answer.
+        [
+            'Some animals are men.',
+            'Beauty is immortal.',
+            'Not all animals are men.'
+        ],
 
- $extra = [
- "Some animals are men.",
- "Beauty is immortal.",
- "Not all animals are men."
- ];
+        # Number of drag and drop buckets.  Must be either 1 or 2.
+        # The default value if not given is 2.
+        NumBuckets => 2,
 
- $draggable = DraggableProof(
- $statements,
- $extra,
- NumBuckets => 2, # either 1 or 2.
- SourceLabel => "${BBOLD}Axioms${EBOLD}", # label of first bucket if NumBuckets = 2.
- #
- TargetLabel => "${BBOLD}Reasoning${EBOLD}",
- # label of second bucket if NumBuckets = 2,
- # of the only bucket if NumBuckets = 1.
- #
- # Levenshtein => 1,
- # If equal to 1, scoring is determined by the Levenshtein edit distance between student answer and correct answer.
- #
- # DamerauLevenshtein => 1,
- # If equal to 1, scoring is determined by the Damerau-Levenshtein distance between student answer and correct answer.
- # A pair of transposed adjacent statements is counted as two mistakes under Levenshtein scoring,
- # but as one mistake under Damerau-Levenshtein scoring.
- #
- InferenceMatrix => [
- [0, 0, 1],
- [0, 0, 1],
- [0, 0, 0]
- ],
- # (i, j)-entry is nonzero <=> statement i implies statement j.
- # The score of each corresponding inference is weighted according to the value of the matrix entry.
- #
- IrrelevancePenalty => 1
- # This option is processed only if the InferenceMatrix option is set.
- # Penalty for each extraneous statement in the student answer is <IrrelevancePenalty>
- # divided by the total number of inference points (i.e. sum of all entries in the InferenceMatrix).
- # Default value = 1.
- );
+        # Label of first bucket if NumBuckets = 2.
+        # The default value if not given is 'Choose from these sentences:'
+        SourceLabel => "${BBOLD}Axioms${EBOLD}",
 
+        # Label of second bucket if NumBuckets = 2,
+        # or of the only bucket if NumBuckets = 1.
+        # The default value if not given is 'Your Proof:'.
+        TargetLabel => "${BBOLD}Reasoning${EBOLD}",
 
- BEGIN_PGML
+        # If equal to 1, scoring is determined by the Levenshtein edit distance
+        # between student answer and correct answer.
+        # The default value if not given is 0.
+        Levenshtein => 1,
 
- Show that Socrates is mortal by dragging the relevant *Axioms*
- into the *Reasoning* box in an appropriate order.
+        # If equal to 1, scoring is determined by the Damerau-Levenshtein
+        # distance between student answer and correct answer.  A pair of
+        # transposed adjacent statements is counted as two mistakes under
+        # Levenshtein scoring, but as one mistake under Damerau-Levenshtein
+        # scoring.
+        # The default value if not given is 0.
+        DamerauLevenshtein => 1,
 
- [@ $draggable->Print @]*
+        # (i, j)-entry is nonzero <=> statement i implies statement j.  The
+        # score of each corresponding inference is weighted according to the
+        # value of the matrix entry.
+        # The default value if not given is [].
+        InferenceMatrix => [
+            [0, 0, 1],
+            [0, 0, 1],
+            [0, 0, 0]
+        ],
 
- END_PGML
+        # This option is processed only if the InferenceMatrix option is set.
+        # Penalty for each extraneous statement in the student answer is
+        # <IrrelevancePenalty> divided by the total number of inference points
+        # (i.e. sum of all entries in the InferenceMatrix).
+        # The default value if not given is 1.
+        IrrelevancePenalty => 1
 
- ANS($draggable->cmp);
+        # This is the text label for the button shown that resets the drag and
+        # drop element to its default state.  The default value if not given is
+        # "Reset".
+        ResetButtonText => 'zurücksetzen'
 
- ENDDOCUMENT();
+        # These are options that will be passed to the $draggable->cmp method.
+        cmpOptions => { checker => sub { ... } }
+    );
+
+    BEGIN_PGML
+    Show that Socrates is mortal by dragging the relevant *Axioms* into the
+    *Reasoning* box in an appropriate order.
+
+    [_]{$draggable}
+    END_PGML
+
+    ENDDOCUMENT();
+
+=head1 CUSTOM CHECKERS
+
+Custom checkers can also be used by passing the C<checker> or C<list_checker>
+options to the C<cmp> method.  See
+L<https://webwork.maa.org/wiki/Custom_Answer_Checkers>, and
+L<https://webwork.maa.org/wiki/Custom_Answer_Checkers_for_Lists> for details on
+how to use these.
+
+Note that if using a standard C<checker> the the correct and student answers
+will be the MathObject List of indices corresponding to the only bucket if
+C<NumBuckets> is 1, and will be the MathObject List of indices corresponding to
+the second bucket if C<NumBuckets> is 2.  The checker should return a number
+between 0 and 1 inclusive.
+
+For a C<list_checker> the correct and student answers will be perl arrays
+containing MathObject Lists for all buckets.  So if C<NumBuckets> is 1, the
+arrays will only contain one list corresponding to the only bucket, and if
+C<NumBuckets> is 2, the arrays will contain two lists corresponding to the two
+buckets.  Usually the first (source) list is ignored for grading if
+C<NumBuckets> is 2.  So if you want to determine the score using both buckets
+this is the only option.  Note that the checker should return a number
+between 0 and 1 inclusive regardless of the number of buckets.
 
 =cut
 
-################################################################
-
-loadMacros("PGchoicemacros.pl", "MathObjects.pl",);
+loadMacros('PGchoicemacros.pl', 'MathObjects.pl');
 
 sub _draggableProof_init {
-	ADD_CSS_FILE("https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.css", 1);
-	ADD_JS_FILE("https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.js", 1, { defer => undef });
-	ADD_CSS_FILE("js/apps/DragNDrop/dragndrop.css", 0);
-	ADD_JS_FILE("js/apps/DragNDrop/dragndrop.js", 0, { defer => undef });
-	PG_restricted_eval("sub DraggableProof {new draggableProof(\@_)}");
+	ADD_JS_FILE('node_modules/sortablejs/Sortable.min.js', 0, { defer => undef });
+	ADD_CSS_FILE('js/apps/DragNDrop/dragndrop.css', 0);
+	ADD_JS_FILE('js/apps/DragNDrop/dragndrop.js', 0, { defer => undef });
+	PG_restricted_eval('sub DraggableProof {parser::DraggableProof->new(@_)}');
+	return;
 }
 
-package draggableProof;
+package parser::DraggableProof;
+our @ISA = qw(Value::List);
 
 sub new {
-	my $self  = shift;
-	my $class = ref($self) || $self;
+	my ($invocant, $statements, $extra_statements, %options) = @_;
 
-	my $proof   = shift;
-	my $extra   = shift;
-	my %options = (
-		SourceLabel        => "Choose from these sentences:",
-		TargetLabel        => "Your Proof:",
+	my $base = {
+		SourceLabel        => 'Choose from these sentences:',
+		TargetLabel        => 'Your Proof:',
 		NumBuckets         => 2,
+		lines              => [ @$statements, @$extra_statements ],
+		numNeeded          => scalar(@$statements),
+		ResetButtonText    => 'Reset',
+		cmpOptions         => {},
 		Levenshtein        => 0,
 		DamerauLevenshtein => 0,
 		InferenceMatrix    => [],
 		IrrelevancePenalty => 1,
-		@_
+		%options
+	};
+
+	$base->{order} = do {
+		my @indices = 0 .. $#{ $base->{lines} };
+		[ map { splice(@indices, main::random(0, $#indices), 1) } @indices ];
+	};
+	@{ $base->{unorder} }[ @{ $base->{order} } ] = 0 .. $#{ $base->{order} };
+
+	$base->{shuffledLines} = [ map { $base->{lines}[$_] } @{ $base->{order} } ];
+
+	my $context = Parser::Context->getCopy('Numeric');
+	$context->parens->set(
+		'(' => { close => ')', type => 'List', formList => 1, formMatrix => 0, removable => 0 },
+		'{' => { close => '}', type => 'List', formList => 1, formMatrix => 0, removable => 0, emptyOK => 1 }
+	);
+	$context->lists->set(
+		'DraggableProof' => {
+			class       => 'Parser::List::List',
+			open        => '(',
+			close       => ')',
+			separator   => ', ',
+			nestedOpen  => '{',
+			nestedClose => '}'
+		}
 	);
 
-	my $lines         = [ @$proof, @$extra ];
-	my $numNeeded     = scalar(@$proof);
-	my $numProvided   = scalar(@$lines);
-	my @order         = main::shuffle($numProvided);
-	my @unorder       = main::invert(@order);
-	my $shuffledLines = [ map { $lines->[$_] } @order ];
+	my $self = $invocant->SUPER::new(
+		$context,
+		$base->{NumBuckets} == 2
+		? (
+			'{' . join(', ', @{ $base->{unorder} }[ $base->{numNeeded} .. $#{ $base->{lines} } ]) . '}',
+			'{' . join(', ', @{ $base->{unorder} }[ 0 .. $base->{numNeeded} - 1 ]) . '}'
+			)
+		: '{' . join(', ', @{ $base->{unorder} }[ 0 .. $base->{numNeeded} - 1 ]) . '}'
+	);
+	$self->{$_} = $base->{$_} for keys %$base;
 
-	my $answerInputId = main::NEW_ANS_NAME() unless $self->{answerInputId};
-	my $ans_rule      = main::NAMED_HIDDEN_ANS_RULE($answerInputId);
-
-	my $dnd;
-	if ($options{NumBuckets} == 2) {
-		$dnd = new DragNDrop(
-			$answerInputId,
-			$shuffledLines,
-			[
-				{
-					indices => [ 0 .. $numProvided - 1 ],
-					label   => $options{'SourceLabel'}
-				},
-				{
-					indices => [],
-					label   => $options{'TargetLabel'}
-				}
-			],
-			AllowNewBuckets => 0
-		);
-	} elsif ($options{NumBuckets} == 1) {
-		$dnd = new DragNDrop(
-			$answerInputId,
-			$shuffledLines,
-			[ {
-				indices => [ 0 .. $numProvided - 1 ],
-				label   => $options{'TargetLabel'}
-			} ],
-			AllowNewBuckets => 0
-		);
-	}
-
-	$proof =
-		$options{NumBuckets} == 2
-		? main::List(main::List(@unorder[ $numNeeded .. $numProvided - 1 ]),
-			main::List(@unorder[ 0 .. $numNeeded - 1 ]))
-		: main::List('(' . join(',', @unorder[ 0 .. $numNeeded - 1 ]) . ')');
-
-	$extra = main::Set(@unorder[ $numNeeded .. $numProvided - 1 ]);
-
-	my $InferenceMatrix = $options{InferenceMatrix};
-
-	$self = bless {
-		lines           => $lines,
-		shuffledLines   => $shuffledLines,
-		numNeeded       => $numNeeded,
-		numProvided     => $numProvided,
-		order           => \@order,
-		unorder         => \@unorder,
-		proof           => $proof,
-		extra           => $extra,
-		answerInputId   => $answerInputId,
-		dnd             => $dnd,
-		ans_rule        => $ans_rule,
-		inferenceMatrix => $InferenceMatrix,
-		%options,
-	}, $class;
-
-	my $previous = $main::inputs_ref->{$answerInputId} || '';
-
-	if ($previous eq "") {
-		if ($self->{NumBuckets} == 2) {
-			$dnd->addBucket([ 0 .. $numProvided - 1 ], label => $options{'SourceLabel'});
-			$dnd->addBucket([],                        label => $options{'TargetLabel'});
-		} elsif ($self->{NumBuckets} == 1) {
-			$dnd->addBucket([ 0 .. $numProvided - 1 ], label => $options{'TargetLabel'});
-		}
-	} else {
-		my @matches = ($previous =~ /(\([^\(\)]*\)|-?\d+)/g);
-		if ($self->{NumBuckets} == 2) {
-			my $indices1 = [ split(',', $matches[0] =~ s/\(|\)//gr) ];
-			$dnd->addBucket($indices1->[0] != -1 ? $indices1 : [], label => $options{'SourceLabel'});
-			my $indices2 = [ split(',', $matches[1] =~ s/\(|\)//gr) ];
-			$dnd->addBucket($indices2->[0] != -1 ? $indices2 : [], label => $options{'TargetLabel'});
-		} else {
-			my $indices1 = [ split(',', $matches[0] =~ s/\(|\)//gr) ];
-			$dnd->addBucket($indices1->[0] != -1 ? $indices1 : [], label => $options{'TargetLabel'});
-		}
-	}
+	$self->{extra_statements} = [ @{ $self->{unorder} }[ $self->{numNeeded} .. $#{ $self->{lines} } ] ];
 
 	return $self;
 }
 
-sub lines       { @{ shift->{lines} } }
-sub numNeeded   { shift->{numNeeded} }
-sub numProvided { shift->{numProvided} }
-sub order       { @{ shift->{order} } }
-sub unorder     { @{ shift->{unorder} } }
+sub ANS_NAME {
+	my $self = shift;
+	$self->{answer_name} = main::NEW_ANS_NAME() unless defined $self->{answer_name};
+	return $self->{answer_name};
+}
+
+sub lines       { return @{ shift->{lines} } }
+sub numNeeded   { return shift->{numNeeded} }
+sub numProvided { return scalar shift->lines }
+sub order       { return @{ shift->{order} } }
+sub unorder     { return @{ shift->{unorder} } }
+
+# Deprecated alias for ans_rule.
+sub Print { return shift->ans_rule; }
+
+sub ans_rule {
+	my $self = shift;
+
+	if ($self->{NumBuckets} == 2) {
+		$self->{dnd} = DragNDrop->new(
+			$self->ANS_NAME,
+			$self->{shuffledLines},
+			[
+				{ indices => [ 0 .. $#{ $self->{lines} } ], label => $self->{SourceLabel} },
+				{ indices => [],                            label => $self->{TargetLabel} }
+			],
+			resetButtonText => $self->{ResetButtonText}
+		);
+	} elsif ($self->{NumBuckets} == 1) {
+		$self->{dnd} = DragNDrop->new(
+			$self->ANS_NAME,
+			$self->{shuffledLines},
+			[ { indices => [ 0 .. $#{ $self->{lines} } ], label => $self->{TargetLabel} } ],
+			resetButtonText => $self->{ResetButtonText}
+		);
+	}
+
+	my $ans_rule = main::NAMED_HIDDEN_ANS_RULE($self->ANS_NAME);
+	if ($main::displayMode eq 'TeX') {
+		return $self->{dnd}->TeX;
+	} else {
+		return '<div>' . $ans_rule . $self->{dnd}->HTML . '</div>';
+	}
+}
+
+sub cmp_defaults {
+	my ($self, %options) = @_;
+	return (
+		$self->SUPER::cmp_defaults(%options),
+		ordered   => 1,
+		list_type => 'statement',
+	);
+}
+
+sub cmp {
+	my ($self, %options) = @_;
+	return $self->SUPER::cmp(%{ $self->{cmpOptions} }, %options);
+}
+
+sub cmp_preprocess {
+	my ($self, $ans) = @_;
+
+	if (defined $ans->{student_value}) {
+		my @student = @{ $ans->{student_value}{data}[ $self->{NumBuckets} - 1 ]{data} };
+
+		$ans->{student_ans} = @student ? '(see preview)' : '';
+
+		$ans->{preview_latex_string} =
+			"\n\\begin{array}{l}\n"
+			. ($main::displayMode eq 'TeX' ? "\\\\[-10pt]\n" : '')
+			. join(
+				"\n", map {"\\bullet\\;\\; \\text{$_} \\\\"}
+				map { $self->{lines}[ $self->{order}[$_] ] } @student
+			)
+			. ($main::displayMode eq 'TeX' ? "\n\\\\[-10pt]" : '')
+			. "\n\\end{array}\n";
+	}
+
+	return;
+}
+
+sub string {
+	return '';
+}
+
+sub TeX {
+	my $self = shift;
+
+	return
+		"\n\\begin{array}{l}\n"
+		. ($main::displayMode eq 'TeX' ? "\\\\[-10pt]\n" : '')
+		. join("\n",
+			map {"\\bullet\\;\\; \\text{$self->{lines}[ $self->{order}[$_] ]} \\\\"}
+			@{ $self->{data}[ $self->{NumBuckets} == 2 ? 1 : 0 ]{data} })
+		. ($main::displayMode eq 'TeX' ? "\n\\\\[-10pt]" : '')
+		. "\n\\end{array}\n";
+}
+
+sub cmp_equal {
+	my ($self, $ans) = @_;
+
+	if ($self->{Levenshtein} == 1) {
+		$ans->{score} = 1 - main::min(
+			1,
+			Levenshtein(
+				$ans->{correct_value}{data}[ $self->{NumBuckets} - 1 ],
+				$ans->{student_value}{data}[ $self->{NumBuckets} - 1 ],
+			) / $self->{numNeeded}
+		);
+	} elsif ($self->{DamerauLevenshtein} == 1) {
+		$ans->{score} = 1 - main::min(
+			1,
+			DamerauLevenshtein(
+				$ans->{correct_value}{data}[ $self->{NumBuckets} - 1 ],
+				$ans->{student_value}{data}[ $self->{NumBuckets} - 1 ],
+				scalar(@{ $self->{lines} })
+			) / ($self->{numNeeded})
+		);
+	} elsif (@{ $self->{InferenceMatrix} } != 0) {
+		my @unshuffledStudentIndices =
+			map { $self->{order}[$_] } $ans->{student_value}{data}[ $self->{NumBuckets} - 1 ]->value;
+		my @inferenceMatrix = @{ $self->{InferenceMatrix} };
+		my $inferenceScore  = 0;
+		for (my $j = 0; $j < @unshuffledStudentIndices; $j++) {
+			if ($unshuffledStudentIndices[$j] < $self->{numNeeded}) {
+				for (my $i = $j - 1; $i >= 0; $i--) {
+					if ($unshuffledStudentIndices[$i] < $self->{numNeeded}) {
+						$inferenceScore +=
+							$inferenceMatrix[ $unshuffledStudentIndices[$i] ][ $unshuffledStudentIndices[$j] ];
+					}
+				}
+			}
+		}
+		my $total = 0;
+		for my $row (@inferenceMatrix) {
+			for (@$row) {
+				$total += $_;
+			}
+		}
+		$ans->{score} = $inferenceScore / $total;
+
+		my %invoked = map { $_ => 1 } $ans->{student_value}{data}[ $self->{NumBuckets} - 1 ]->value;
+		for (@{ $self->{extra_statements} }) {
+			if (exists($invoked{$_})) {
+				$ans->{score} = main::max(0, $ans->{score} - $self->{IrrelevancePenalty} / $total);
+			}
+		}
+	} else {
+		my ($score, @errors);
+
+		if (ref($ans->{list_checker}) eq 'CODE') {
+			eval {
+				($score, @errors) =
+					&{ $ans->{list_checker} }([ $self->value ], [ $ans->{student_value}->value ], $ans, 'a proof');
+			};
+			if (!defined($score)) {
+				die $@                 if $@ ne '' && $self->{context}{error}{flag} == 0;
+				$self->cmp_error($ans) if $self->{context}{error}{flag};
+			}
+		} else {
+			($score, @errors) = $self->cmp_list_compare(
+				[ $self->data->[ $self->{NumBuckets} - 1 ] ],
+				[ $ans->{student_value}{data}[ $self->{NumBuckets} - 1 ] ],
+				$ans, 'a proof'
+			);
+		}
+		return unless defined $score;
+
+		$ans->score($score);
+		$ans->{error_message} = $ans->{ans_message} = join("\n", @errors);
+	}
+
+	return;
+}
 
 sub Levenshtein {
-	my @ar1 = split /$_[2]/, $_[0];
-	my @ar2 = split /$_[2]/, $_[1];
+	my ($correct, $student) = @_;
+
+	my @ar1 = $correct->value;
+	my @ar2 = $student->value;
 
 	my @dist = ([ 0 .. @ar2 ]);
 	$dist[$_][0] = $_ for (1 .. @ar1);
@@ -277,21 +466,16 @@ sub Levenshtein {
 				main::min($dist[$i][ $j + 1 ] + 1, $dist[ $i + 1 ][$j] + 1, $dist[$i][$j] + ($ar1[$i] ne $ar2[$j]));
 		}
 	}
-	$dist[-1][-1];
+	return $dist[-1][-1];
 }
 
+# Damerau-Levenshtein distance with adjacent transpositions.
+# https://en.wikipedia.org/wiki/Damerau-Levenshtein_distance
 sub DamerauLevenshtein {
+	my ($correct, $student, $numProvided) = @_;
 
-	# Damerau–Levenshtein distance with adjacent transpositions
-	# https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
-
-	my $discourse1  = shift;
-	my $discourse2  = shift;
-	my $delimiter   = shift;
-	my $numProvided = shift;
-
-	my @ar1 = split /$delimiter/, $discourse1;
-	my @ar2 = split /$delimiter/, $discourse2;
+	my @ar1 = $correct->value;
+	my @ar2 = $student->value;
 
 	my @da = (0) x $numProvided;
 	my @d  = ();
@@ -328,124 +512,7 @@ sub DamerauLevenshtein {
 		}
 		$da[ $ar1[ $i - 2 ] ] = $i;
 	}
-	$d[-1][-1];
+	return $d[-1][-1];
 }
 
-sub Print {
-	my $self = shift;
-
-	my $ans_rule = $self->{ans_rule};
-
-	if ($main::displayMode ne "TeX") {
-
-		# HTML mode
-		return join('', '<div class="dd-wrapper">', $ans_rule, $self->{dnd}->HTML, '</div>',);
-	} else {
-		# TeX mode
-		return $self->{dnd}->TeX;
-	}
-}
-
-sub cmp {
-	my $self = shift;
-	return $self->{proof}->cmp(ordered => 1, removeParens => 1)->withPreFilter(sub { $self->prefilter(@_) })
-		->withPostFilter(sub { $self->filter(@_) });
-}
-
-sub prefilter {
-	my $self    = shift;
-	my $anshash = shift;
-
-	my $correctProcessed;
-
-	main::Context()->normalStrings;
-
-	$anshash->{original_correct_value} = $anshash->{correct_value};
-
-	if ($self->{NumBuckets} == 1) {
-		$correctProcessed = $anshash->{correct_value} =~ s/\(|\)|\s*//gr;
-	} elsif ($self->{NumBuckets} == 2) {
-		my @matches = ($anshash->{correct_value} =~ /(\([^\(\)]*\)|-?\d+)/g);
-		$correctProcessed = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
-	}
-
-	$anshash->{correct_value} = main::List($correctProcessed);
-
-	return $anshash;
-}
-
-sub filter {
-	my $self    = shift;
-	my $anshash = shift;
-
-	my @lines = @{ $self->{lines} };
-	my @order = @{ $self->{order} };
-
-	my $correct_value = $anshash->{correct_value} =~ s/\(|\)|\s*//gr;
-	my $actualAnswer;
-
-	if ($self->{NumBuckets} == 1) {
-		$actualAnswer = $anshash->{student_value} =~ s/\(|\)|\s*//gr;
-	} elsif ($self->{NumBuckets} == 2) {
-		my @matches = ($anshash->{student_value} =~ /(\([^\(\)]*\)|-?\d+)/g);
-		$actualAnswer = @matches == 2 ? $matches[1] =~ s/\(|\)|\s*//gr : '';
-	}
-	if ($self->{Levenshtein} == 1) {
-		$anshash->{score} = 1 - main::min(1, Levenshtein($correct_value, $actualAnswer, ',') / $self->{numNeeded});
-	} elsif ($self->{DamerauLevenshtein} == 1) {
-		my $DLDistance = DamerauLevenshtein($correct_value, $actualAnswer, ',', $self->{numProvided});
-		$anshash->{score} =
-			1 - main::min(1, $DLDistance / ($self->{numNeeded}));
-	} elsif (@{ $self->{inferenceMatrix} } != 0) {
-		my @unshuffledStudentIndices =
-			map { $self->{order}[$_] } split(',', $actualAnswer);
-		my @inferenceMatrix = @{ $self->{inferenceMatrix} };
-		my $inferenceScore  = 0;
-		for (my $j = 0; $j < @unshuffledStudentIndices; $j++) {
-			if ($unshuffledStudentIndices[$j] < $self->{numNeeded}) {
-				for (my $i = $j - 1; $i >= 0; $i--) {
-					if ($unshuffledStudentIndices[$i] < $self->{numNeeded}) {
-						$inferenceScore +=
-							$inferenceMatrix[ $unshuffledStudentIndices[$i] ][ $unshuffledStudentIndices[$j] ];
-					}
-				}
-			}
-		}
-		my $total = 0;
-		for my $row (@inferenceMatrix) {
-			foreach (@$row) {
-				$total += $_;
-			}
-		}
-		$anshash->{score} = $inferenceScore / $total;
-
-		my %invoked = map { $_ => 1 } split(',', $actualAnswer);
-		foreach (split(',', $self->{extra}->string =~ s/{|}|\s*//gr)) {
-			if (exists($invoked{$_})) {
-				$anshash->{score} = main::max(0, $anshash->{score} - ($self->{IrrelevancePenalty} / $total));
-			}
-		}
-	} else {
-		$anshash->{score} =
-			main::List($correct_value) eq main::List($actualAnswer) ? 1 : 0;
-	}
-
-	my @correct =
-		map { $_ >= 0 ? $lines[ $order[$_] ] : '' } split(',', $correct_value);
-	my @student =
-		map { $_ >= 0 ? $lines[ $order[$_] ] : '' } split(',', $actualAnswer);
-
-	$anshash->{non_tex_preview} = 1;
-	$anshash->{student_ans}     = "(see preview)";
-
-	$anshash->{preview_latex_string} =
-		join('', ("<div style='text-align:left'><ul><li>", join("</li><li>", @student), "</li></ul></div>"));
-
-	$anshash->{correct_ans_latex_string} =
-		join('', ("<div style='text-align:left'><ul><li>", join("</li><li>", @correct), "</li></ul></div>"));
-
-	$anshash->{correct_value} = $anshash->{original_correct_value};
-
-	return $anshash;
-}
 1;
