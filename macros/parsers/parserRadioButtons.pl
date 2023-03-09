@@ -32,19 +32,29 @@ where "choices" are the strings for the items in the radio buttons,
 "correct" is the choice that is the correct answer for the group (or
 its index, with 0 being the first one), and options are chosen from
 among those listed below.  If the correct answer is a number, it is
-interpretted as an index, even if the array of choices are also
+interpreted as an index, even if the array of choices are also
 numbers.  (See the C<noindex> below for more details.)
 
 The entries in the choices array can either be strings that are the
-text to use for the choice buttons, or C<{label=>text}> where C<label>
-is a label to use for the choice when showing the student or correct
-answers, and C<text> is the text to use for the choice.  See below for
-options controlling how the labels will be used.  If a choice includes
-mathematics, you should use labels as above or through the C<labels>
-option below in order to have the student and correct answers display
-properly in the results table when an answer is submitted.  Use the
-C<displayLabels> option to make the labels be part of the choice as it
-is displayed following the radio button.
+text to use for the choice buttons, or C<< { label => text } >> where
+C<label> is a label to use for the choice when showing the student or
+correct answers and C<text> is the text to use for the choice, or
+C<< { label => [ text, value ] } >> where C<label> and C<text> are as
+described above and C<value> is the value to for the radio input for
+this choice.
+
+See below for options controlling how the labels will be used.  If a
+choice includes mathematics, you should use labels as above or through
+the C<labels> option below in order to have the student and correct
+answers display properly in the results table when an answer is
+submitted.  Use the C<displayLabels> option to make the labels be part
+of the choice as it is displayed following the radio button.
+
+The values set as described above are the answers that will be
+displayed in the past answers table.  See the C<values> option below
+for more information.  Problem authors are encourages to set these
+values either as described above, or via the C<values> option.  This
+is useful for instructors viewing past answers.
 
 By default, the choices are left in the order that you provide them,
 but you can cause some or all of them to be ordered randomly by
@@ -88,18 +98,42 @@ text is used (note, however, that if the text contains things like
 math or formatting or special characters, these may not display well
 in the student and correct answer columns of the results table).
 
-If any choiced have explicit labels (via
-C<{label=>text}>), those labels will be used instead of the automatic
-numberof letter (and the number of letter will be skipped).  The third
-form allows you to specify labels for each of the choices in their
-original order (though the C<{label=>text}> form is preferred).
+If any choices have explicit labels (via C<< { label => text } >>),
+those labels will be used instead of the automatic number of letter
+(and the number of letter will be skipped).  The third form allows you
+to specify labels for each of the choices in their random order.  If
+you want to specify the labels for the choices in their original order
+the C<< { label => text } >> form must be used.
 
 Default: labels are the text of the choice when they don't include any
 special characters, and "Button 1", "Button 2", etc. otherwise.
 
+=item C<S<< values => array reference >>>
+
+Values are the form of the student answer that will be displayed in
+the past answers table for this answer.  By default these are B0, B1,
+etc.  However, that can be changed either with this option or by
+specifying the choices with C<< { label => [ text, value ] } >> as
+described previously.  If this option is used, then the value of the
+option should be a reference to an array containing the values for the
+choices.  For example:
+
+    values => [ 'first choice', 'second choice', ... ]
+
+If a choice is not represented in the hash, then C<Bn> will be used
+for the value instead where C<n> is the 0 based index of the choice.
+
+These values can be any descriptive string that is unique for the
+choice, but care should be taken to ensure that these values do not
+indicate which choice is the correct answer.
+
+Note that values given via C<< { label => [ text, value ] } >> will
+override any values given by this option if both are provided for a
+particular choice.
+
 =item C<S<< displayLabels => 0 or 1 >>>
 
-Specifies whether labels should be displayed after the radio butten
+Specifies whether labels should be displayed after the radio button
 and before its text.  This makes the association between the choices
 and the label used as an answer more explicit.  Default: 1
 
@@ -114,7 +148,7 @@ produces the label in bold followed by a period and a space.
 
 When C<displayLabels> is set, this controls how blank labels are
 handled.  When set to C<0>, no label is inserted before the choice
-text for blank labels, and when C<1>, the C<labelFormat> is applied ot
+text for blank labels, and when C<1>, the C<labelFormat> is applied to
 the empty string and the result is inserted before the choice text.
 Default: 0.
 
@@ -142,7 +176,7 @@ unchecking requires the shift key to be pressed.  Default: 0
 =item C<S<< noindex => 0 or 1 >>>
 
 Determines whether a numeric value for the correct answer is
-interpretted as an index into the choice array or not.  If set to 1,
+interpreted as an index into the choice array or not.  If set to 1,
 then the number is treated as the literal correct answer, not an index
 to it.  Default: 0
 
@@ -207,9 +241,12 @@ affects, the answers given to other parts), note that the actual
 answer strings associated to a RadioButtons object (which are those
 appearing in the "student answer" argument passed to a custom answer
 checker) are neither the supplied choice strings nor the supplied
-labels, but are an internal implementation detail whose format should
-not be depended on.  You can convert one of these answer strings to a
-choice string or a label with the methods answerChoice or answerLabel.
+labels, but are the radio button values.  These are the values given
+by the C<values> option or C<< { label => [ text, value ] } >> choice
+format if provided. Otherwise they are an internal implementation
+detail whose format should not be depended on.  In any case, you can
+convert these value strings to a choice string or a label with the
+methods answerChoice or answerLabel.
 
 =cut
 
@@ -224,13 +261,10 @@ sub _parserRadioButtons_init { parserRadioButtons::Init() };    # don't reload t
 package parserRadioButtons;
 our @ISA = qw(Value::String);
 
-my $jsPrinted = 0;    # true when the JavaScript has been printed
-
 #
 #  Set up the main:: namespace
 #
 sub Init {
-	$jsPrinted = 0;
 	main::PG_restricted_eval('sub RadioButtons {parserRadioButtons->new(@_)}');
 }
 
@@ -250,6 +284,7 @@ sub new {
 		displayLabels    => "auto",
 		labelFormat      => "${main::BBOLD}%s${main::EBOLD}. ",
 		forceLabelFormat => 0,
+		values           => [],
 		separator        => $main::BR,
 		checked          => undef,
 		maxLabelSize     => 25,
@@ -266,15 +301,16 @@ sub new {
 		unless ref($choices) eq 'ARRAY';
 	Value::Error("A RadioButton's second argument should be the correct button choice")
 		unless defined($value) && $value ne "";
-	$context = Parser::Context->getCopy("Numeric");
+	$context = Parser::Context->getCopy('Numeric');
 	$self    = bless { %options, choices => $choices, context => $context }, $class;
 	$self->compatibility if $self->{order} || $self->{last} || $self->{first} || $self->{randomize};
+	$self->{order} = [];    # Reset the order to ensure old style arguments don't conflict with later usage.
 	$self->getChoiceOrder;
 	$self->addLabels;
 	$self->getCorrectChoice($value);
 	$self->getCheckedChoice($self->{checked});
-	$self->JavaScript if $self->{uncheckable};
-	$context->strings->are(map { "B" . $_ => {} } (0 .. ($self->{n} - 1)));
+	main::ADD_JS_FILE('js/apps/RadioButtons/RadioButtons.js', 0, { defer => undef }) if $self->{uncheckable};
+	$context->strings->are(map { $self->{values}[$_] => {} } (0 .. ($self->{n} - 1)));
 	return $self;
 }
 
@@ -285,18 +321,19 @@ sub getChoiceOrder {
 	my $self    = shift;
 	my @choices = ();
 	foreach my $choice (@{ $self->{choices} }) {
-		if   (ref($choice) eq "ARRAY") { push(@choices, $self->randomOrder($choice)) }
-		else                           { push(@choices, $choice) }
+		if (ref($choice) eq 'ARRAY') { push(@choices, $self->randomOrder($choice)) }
+		else { push(@choices, $choice); push(@{ $self->{order} }, scalar(@{ $self->{order} })); }
 	}
 	$self->{orderedChoices} = \@choices;
 	$self->{n}              = scalar(@choices);
 }
 
 sub randomOrder {
-	my $self    = shift;
-	my $choices = shift;
-	my %index   = (map { $main::PG_random_generator->rand => $_ } (0 .. scalar(@$choices) - 1));
-	return (map { $choices->[ $index{$_} ] } main::PGsort(sub { $_[0] lt $_[1] }, keys %index));
+	my ($self, $choices) = @_;
+	my @indices = 0 .. $#$choices;
+	my @order   = map { splice(@indices, $main::PG_random_generator->random(0, $#indices), 1) } @indices;
+	push(@{ $self->{order} }, map { $_ + scalar(@{ $self->{order} }) } @order);
+	return map { $choices->[$_] } @order;
 }
 
 #
@@ -308,6 +345,7 @@ sub addLabels {
 	my $choices = $self->{orderedChoices};
 	my $labels  = $self->{labels};
 	my $n       = $self->{n};
+
 	$labels = [ 1 .. $n ]                        if $labels eq "123";
 	$labels = [ @main::ALPHABET[ 0 .. $n - 1 ] ] if uc($labels) eq "ABC";
 	$labels = []                                 if $labels eq "text";
@@ -320,15 +358,26 @@ sub addLabels {
 		$self->{displayLabels} = 0                               if $self->{displayLabels} eq "auto";
 	}
 	$labels = [] unless ref($labels) eq "ARRAY";
+
+	my @values = (undef) x $n;
+
 	foreach my $i (0 .. $n - 1) {
 		if (ref($choices->[$i]) eq "HASH") {
 			my $key = (keys %{ $choices->[$i] })[0];
-			$labels->[$i]  = $key;
-			$choices->[$i] = $choices->[$i]{$key};
+			$labels->[$i] = $key;
+			if (ref($choices->[$i]{$key}) eq 'ARRAY') {
+				$values[$i] = $choices->[$i]{$key}[1];
+				$choices->[$i] = $choices->[$i]{$key}[0];
+			} else {
+				$choices->[$i] = $choices->[$i]{$key};
+			}
 		}
 	}
 	$self->{labels}        = $labels;
 	$self->{displayLabels} = 1 if $self->{displayLabels} eq "auto";
+	$self->{values}        = [ map { $values[$_] // $self->{values}[ $self->{order}[$_] ] // "B$_" } 0 .. $#values ];
+
+	return;
 }
 
 #
@@ -345,7 +394,7 @@ sub getCorrectChoice {
 	my @choices = @{ $self->{orderedChoices} };
 	foreach my $i (0 .. $#choices) {
 		if ($value eq $choices[$i] || $value eq ($self->{labels}[$i] || "")) {
-			$self->{data} = ["B$i"];
+			$self->{data} = [ $self->{values}[$i] ];
 			return;
 		}
 	}
@@ -373,7 +422,7 @@ sub flattenChoices {
 	foreach my $choice (@choices) {
 		if (ref($choice) eq "HASH") {
 			my $key = (keys %{$choice})[0];
-			$choice = $choice->{$key};
+			$choice = ref($choice->{$key}) eq 'ARRAY' ? $choice->{$key}[0] : $choice->{$key};
 		}
 	}
 	return @choices;
@@ -390,13 +439,21 @@ sub labelFormat {
 	sprintf($self->{labelFormat}, $self->protect($label));
 }
 
+# Convert a value string into a numeric index.
+sub getIndexByValue {
+	my ($self, $value) = @_;
+	return -1 unless defined $value;
+	my ($index) = grep { $self->{values}[$_] eq $value } 0 .. $#{ $self->{values} };
+	return $index // -1;
+}
+
 #
 #  Trim the selected choice or label so that it is not too long
 #  to be displayed in the results table.
 #
 sub labelText {
-	my $self   = shift;
-	my $index  = substr(shift, 1);
+	my ($self, $value) = @_;
+	my $index  = $self->getIndexByValue($value);
 	my $choice = $self->{labels}[$index];
 	$choice = $self->{orderedChoices}[$index] unless defined $choice;
 	return $choice if length($choice) < $self->{maxLabelSize};
@@ -409,7 +466,7 @@ sub labelText {
 }
 
 #
-#  Use the actual choice string rather than the "Bn" string as the output
+#  Use the actual choice string rather than the value string as the output
 #
 sub string {
 	my $self = shift;
@@ -418,7 +475,7 @@ sub string {
 
 #
 #  Adjust student preview and answer strings to be the actual
-#  choice string rather than the "Bn" string.
+#  choice string rather than the value string.
 #
 sub cmp_preprocess {
 	my $self = shift;
@@ -431,25 +488,20 @@ sub cmp_preprocess {
 	}
 }
 
-#
-#  Allow users to convert a "Bn" string into a choice or label
-#
+#  Allow users to convert the value string into a choice or label
 sub answerChoice {
-	my $self  = shift;
-	my $index = substr(shift, 1);
+	my ($self, $value) = @_;
+	my $index = $self->getIndexByValue($value);
 	return $self->{orderedChoices}[$index];
 }
 
 sub answerLabel {
-	my $self  = shift;
-	my $index = substr(shift, 1);
+	my ($self, $value) = @_;
+	my $index = $self->getIndexByValue($value);
 	return $self->{labels}[$index];
 }
 
-#
-#  Include the "Bn" string for the correct choice
-#  in the answer hash
-#
+#  Include the value string for the correct choice in the answer hash
 sub cmp {
 	my $self = shift;
 	my $cmp  = $self->SUPER::cmp(
@@ -552,41 +604,6 @@ sub Index {
 	return $index;
 }
 
-##################################################################
-
-#
-#  Print the JavaScript needed for uncheckable radio buttons
-#
-sub JavaScript {
-	return if $jsPrinted || $main::displayMode eq 'TeX';
-	main::TEXT("\n<script>\n"
-			. "if (window.ww == null) {var ww = {}}\n"
-			. "if (ww.RadioButtons == null) {ww.RadioButtons = {}}\n"
-			. "if (ww.RadioButtons.selected == null) {ww.RadioButtons.selected = {}}\n"
-			. "ww.RadioButtons.Toggle = function (obj,event,shift) {\n"
-			. "  if (!event) {event = window.event}\n"
-			. "  if (shift && !event.shiftKey) {\n"
-			. "    this.selected[obj.name] = obj\n"
-			. "    return\n" . "  }\n"
-			. "  var selected = this.selected[obj.name]\n"
-			. "  if (selected && selected == obj) {\n"
-			. "    this.selected[obj.name] = null\n"
-			. "    obj.checked = false\n"
-			. "  } else {\n"
-			. "    this.selected[obj.name] = obj\n" . "  }\n" . "}\n"
-			. "</script>\n");
-	$jsPrinted = 1;
-}
-
-sub makeUncheckable {
-	my $self    = shift;
-	my $shift   = ($self->{uncheckable} =~ m/shift/i ? ",1" : "");
-	my $onclick = "onclick=\"ww.RadioButtons.Toggle(this,event$shift)\"";
-	my @radio   = @_;
-	foreach (@radio) { $_ =~ s/<INPUT/<INPUT $onclick/i }
-	return @radio;
-}
-
 #
 #  Create the radio-buttons text
 #
@@ -601,7 +618,7 @@ sub BUTTONS {
 	my $label = main::generate_aria_label($name);
 
 	foreach my $i (0 .. $#choices) {
-		my $value = "B$i";
+		my $value = $self->{values}[$i];
 		my $tag   = $choices[$i];
 		$value = "%" . $value                                   if $i == $self->{checkedI};
 		$tag   = $self->labelFormat($self->{labels}[$i]) . $tag if $self->{displayLabels};
@@ -611,11 +628,34 @@ sub BUTTONS {
 				main::NAMED_ANS_RADIO_EXTENSION(
 					$name, $value, $tag,
 					aria_label => $label . "option " . ($i + 1) . " ",
+					id         => "${name}_$i",
+					$self->{uncheckable}
+					? (
+						attributes => {
+							data_uncheckable_radio_button => 1,
+							$self->{uncheckable} =~ m/shift/i ? (data_shift => 1) : ()
+						}
+						)
+					: (),
 					@_
 				)
 			);
 		} else {
-			push(@radio, main::NAMED_ANS_RADIO($name, $value, $tag, $extend, @_));
+			push(
+				@radio,
+				main::NAMED_ANS_RADIO(
+					$name, $value, $tag, $extend,
+					$self->{uncheckable}
+					? (
+						attributes => {
+							data_uncheckable_radio_button => 1,
+							$self->{uncheckable} =~ m/shift/i ? (data_shift => 1) : ()
+						}
+						)
+					: (),
+					@_
+				)
+			);
 		}
 	}
 	#
@@ -634,7 +674,6 @@ sub BUTTONS {
 		@radio = map { $_ =~ s/\\\(/<m>/g;   $_ } (@radio);
 		@radio = map { $_ =~ s/\\\)/<\/m>/g; $_ } (@radio);
 	}
-	@radio = $self->makeUncheckable(@radio) if $self->{uncheckable};
 	(wantarray) ? @radio : join(($main::displayMode eq 'PTX') ? '' : $self->{separator}, @radio);
 }
 

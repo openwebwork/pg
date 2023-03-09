@@ -139,15 +139,13 @@ sub new_helper ($invocant, %options) {
 		}
 	}
 
-	$translator->rf_safety_filter(sub { return shift, 0; });
-
 	$translator->translate();
 
 	# IMPORTANT: The translator environment should not be trusted after the problem code runs.
 
 	my ($result, $state);
 	if ($options{processAnswers}) {
-		$translator->process_answers($options{inputs_ref});
+		$translator->process_answers;
 
 		$translator->rh_problem_state({
 			recorded_score       => $options{recorded_score}       // 0,

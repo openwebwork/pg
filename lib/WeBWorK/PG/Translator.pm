@@ -55,7 +55,7 @@ WeBWorK::PG::Translator - Evaluate PG code and evaluate answers safely
     $PG_ANSWER_HASH_REF = $pt->rh_correct_answers;    # a hash of answer evaluators
     $PG_FLAGS_REF = $pt->rh_flags;                    # misc. status flags.
 
-    $pt->process_answers(\%inputs);    # evaluates all of the answers using submitted answers from %input
+    $pt->process_answers;    # evaluates all of the answers
 
     my $rh_answer_results = $pt->rh_evaluated_answers;  # provides a hash of the results of evaluating the answers.
     my $rh_problem_result = $pt->grade_problem;         # grades the problem using the default problem grading method.
@@ -244,7 +244,6 @@ sub new {
 			num_of_incorrect_ans => 0,
 		},
 		rf_problem_grader   => \&std_problem_grader,
-		rf_safety_filter    => \&safetyFilter,
 		ra_included_modules => []
 	};
 	return bless $self, $class;
@@ -910,13 +909,8 @@ sub rh_problem_state {
 =cut
 
 sub process_answers {
-	my ($self, @in) = @_;
-	my %h_student_answers;
-	if (ref($in[0]) eq 'HASH') {
-		%h_student_answers = %{ $in[0] };    # Receiving a reference to a hash of answers
-	} else {
-		%h_student_answers = @in;            # Receiving a hash of answers
-	}
+	my ($self) = @_;
+
 	my $rh_correct_answers = $self->rh_correct_answers();
 	my @answer_entry_order =
 		(defined($self->{PG_FLAGS_REF}->{ANSWER_ENTRY_ORDER}))
@@ -971,7 +965,7 @@ sub process_answers {
 
 		# Refactor to answer group?
 		$new_rf_fun = $answergrp->ans_eval;
-		my ($ans, $errors) = $self->filter_answer($responsegrp->get_response($ans_name));
+		my $ans = $responsegrp->get_response($ans_name);
 		$new_temp_ans = $ans;    # Avoid undefined errors in translator
 		my $skip_evaluation = 0;
 		if (not defined($new_rf_fun)) {
@@ -991,17 +985,10 @@ sub process_answers {
 		$PG->debug_message("Answers associated with $ans_name are $new_temp_ans ref=" . ref($new_temp_ans))
 			if defined $new_temp_ans and $local_debug;
 
-		#FIXME:  This is a hack for handling check boxes.
-		if (ref($new_temp_ans) =~ /HASH/i) {
-			my @tmp = ();
-			for my $key (sort keys %$new_temp_ans) {
-				push @tmp, $key if $new_temp_ans->{$key} eq 'CHECKED';
-			}
-			$new_temp_ans = join("\0", @tmp);
-			$PG->debug_message("Hash answer associated with $ans_name is $new_temp_ans. ref="
-					. ref($new_temp_ans) . "<br/>"
-					. pretty_print($new_temp_ans))
-				if $local_debug;
+		# Handle check boxes and radio buttons.
+		if (ref($new_temp_ans) eq 'ARRAY') {
+			$new_temp_ans = [ map { $_->[0] } grep { $_->[1] eq 'CHECKED' } @$new_temp_ans ];
+			$new_temp_ans = $new_temp_ans->[0] // '' if @$new_temp_ans < 2;
 		}
 
 		$self->{safe}->share('$new_rf_fun', '$new_temp_ans');
@@ -1051,7 +1038,6 @@ sub process_answers {
 		# Decide whether to return the new or old answer evaluator hash
 		$rh_ans_evaluation_result = $new_rh_ans_evaluation_result;
 
-		$rh_ans_evaluation_result->{ans_message} .= "$errors \n" if $errors;
 		$rh_ans_evaluation_result->{ans_name} = $ans_name;
 		$self->{rh_evaluated_answers}->{$ans_name} = $rh_ans_evaluation_result;
 	}
@@ -1214,63 +1200,6 @@ sub avg_problem_grader {
 	warn "Error in grading this problem the total $total is larger than $count" if $total > $count;
 
 	return (\%problem_result, \%problem_state);
-}
-
-=head3 safetyFilter
-
-    ($filtered_ans, $errors) = $obj ->filter_ans($ans)
-                               $obj ->rf_safety_filter()
-
-=cut
-
-sub filter_answer {
-	my $self = shift;
-	my $ans  = shift;
-	my @filtered_answers;
-	my $errors = '';
-	if (ref($ans) eq 'ARRAY') {
-		# Handle the case where the answer comes from several inputs with the same name.  In many cases this will be
-		# passed as a reference to an array.  If it is passed as a single string (separated by \0 characters) as some
-		# early versions of CGI behave, then it is unclear what will happen when the answer is filtered.
-		for my $item (@{$ans}) {
-			my ($filtered_ans, $error) = &{ $self->{rf_safety_filter} }($item);
-			push(@filtered_answers, $filtered_ans);
-			$errors .= ' ' . $error if $error;    # Add error message if error is non-zero.
-		}
-		return (\@filtered_answers, $errors);
-	} else {
-		return &{ $self->{rf_safety_filter} }($ans);
-	}
-}
-
-sub rf_safety_filter {
-	my $self      = shift;
-	my $rf_filter = shift;
-	$self->{rf_safety_filter} = $rf_filter if $rf_filter && ref $rf_filter eq 'CODE';
-	warn 'The safety_filter must be a reference to a subroutine' unless ref $rf_filter eq 'CODE';
-	return $self->{rf_safety_filter};
-}
-
-sub safetyFilter {
-	my $answer          = shift;     # Accepts one answer and checks it
-	my $submittedAnswer = $answer;
-	$answer = '' unless defined $answer;
-	my $errorno;
-	$answer =~ tr/\000-\037/ /;
-	# Return if answer field is empty.
-	unless ($answer =~ /\S/) {
-		# Don't report blank answer as error.
-		return ($answer, 0);
-	}
-	# Return if forbidden characters are found.
-	unless ($answer =~ /^[a-zA-Z0-9_\-\+ \t\/@%\*\.\n^\(\)]+$/) {
-		$answer =~ tr/a-zA-Z0-9_\-\+ \t\/@%\*\.\n^\(\)/#/c;
-		$errorno = "<br/>There are forbidden characters in your answer: $submittedAnswer<br/>";
-		return ($answer, $errorno);
-	}
-
-	$errorno = 0;
-	return ($answer, $errorno);
 }
 
 =head2 PG_restricted_eval
