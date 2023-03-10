@@ -7,7 +7,7 @@ do "$ENV{PG_ROOT}/t/build_PG_envir.pl";
 
 use lib "$ENV{PG_ROOT}/lib";
 
-use Units;
+use Units qw(evaluate_units);
 
 # get unit hashes
 my %joule             = evaluate_units('J');
