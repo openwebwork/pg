@@ -15,12 +15,13 @@ Subroutines for creating tables that
 
 =back
 
-C<DataTable()>     creates a table displaying data. Should not be used for layout, such as displaying an array of graphs.
+C<DataTable()> creates a table displaying data. Should not be used for layout,
+such as displaying an array of graphs.
 
-C<LayoutTable()> creates a "table" without using an HTML table in HTML output. Please
-use C<LayoutTable> whenever you are simply laying out layout content
-relation between content cells within a column or within a row. If the
-for space-saving purposes. Ask yourself if there is any meaningful
+C<LayoutTable()> creates a "table" without using an HTML table in HTML output.
+Please use C<LayoutTable> whenever you are simply laying out layout content
+relation between content cells within a column or within a row.
+If the for space-saving purposes. Ask yourself if there is any meaningful
 answer is no in both cases, it is likely a case for C<LayoutTable()>.
 
 =head2 Description
@@ -141,7 +142,8 @@ convenient short version of texalignment
 
 =item C<Xratio =E<gt> number>
 
-applies when X is part of overall alignment Xratio must be some number with C<0 < Xratio <= 1> (default 0.97)
+applies when X is part of overall alignment
+Xratio must be some number with C<0 < Xratio <= 1> (default 0.97)
 The table will only be Xratio wide, relative to the overall
 horizontal space. And X columns expland to fill available space.
 
@@ -157,17 +159,20 @@ Make the first element of every row a row header.
 
 =item C<headerrules =E<gt> 0 or 1>
 
-Make a horizontal rule under a row of column headers and a vertical rule to the right of a column of row headers. Default is 1.
+Make a horizontal rule under a row of column headers and a vertical
+rule to the right of a column of row headers. Default is 1.
 
 =item C<valign =E<gt> 'top'>
 
-Can be 'top', 'middle', or 'bottom'. Applies to all rows. See below to override for an individual row.
+Can be 'top', 'middle', or 'bottom'. Applies to all rows.
+See below to override for an individual row.
 
 =back
 
 =head3 These apply to HTML output only
 
-Note: each css property setting should inlude a colon and a semicolon. Example:  C<'font-family: fantasy; text-decoration: underline;'>
+Note: each css property setting should inlude a colon and a semicolon.
+Example:  C<'font-family: fantasy; text-decoration: underline;'>
 
 =over
 
@@ -329,7 +334,6 @@ pixels or a width like C<'0.04em'>. Has no effect on cells outside of top row.
 Make a bottom rule for one cell. Thickness is either C<n> pixels or a width like C<'0.04em'>.
 
 =back
-
 
 =head3 HTML output
 
