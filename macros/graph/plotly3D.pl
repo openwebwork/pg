@@ -261,15 +261,12 @@ sub HTML {
 	my $width = $self->{width} + 10;
 	my $title = ($self->{title}) ? "<strong>$self->{title}</strong>" : '';
 	my $plots = '';
-	my @data  = ();
 	my $scene = ($self->{scene}) ? "scene: { $self->{scene} }," : '';
 
 	foreach (@{ $self->{plots} }) {
 		$plots .= $_->HTML;
-		push(@data, "plotlyData_$_->{id}");
 	}
 	$plots =~ s/^\t//;
-	my $dataout = '[' . join(', ', @data) . ']';
 
 	return "\n" . <<END_OUTPUT;
 <div style="width: ${width}px; $self->{style}">
@@ -277,22 +274,28 @@ sub HTML {
 	<div id="plotlyDiv_$id" style="width: $self->{width}px; height: $self->{height}px;"></div>
 </div>
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-	$plots
-	const plotlyLayout_$id = {
-		autosize: true,
-		showlegend: false,
-		paper_bgcolor: "$self->{bgcolor}",
-		$scene
-		margin: {
-			l: 5,
-			r: 5,
-			b: 5,
-			t: 5,
-		}
+(() => {
+	const initialize = () => {
+		const plotlyData = [];
+		$plots
+		Plotly.newPlot('plotlyDiv_$id', plotlyData, {
+			autosize: true,
+			showlegend: false,
+			paper_bgcolor: "$self->{bgcolor}",
+			$scene
+			margin: {
+				l: 5,
+				r: 5,
+				b: 5,
+				t: 5,
+			}
+		},
+		{ displaylogo: false }
+	);
 	};
-	Plotly.newPlot('plotlyDiv_$id', $dataout, plotlyLayout_$id);
-});
+	if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', initialize);
+	else initialize();
+})();
 </script>
 
 END_OUTPUT
@@ -349,7 +352,6 @@ sub parseFunc {
 
 sub genPoints {
 	my $self = shift;
-	my $id   = $self->{id};
 	my $type = $self->{funcType};
 
 	if ($type eq 'data') {
@@ -360,11 +362,11 @@ sub genPoints {
 				$self->{$_} = $self->funcToJS($self->{$_});
 			}
 		}
-		$self->{xPoints} = "xData_$id";
-		$self->{yPoints} = "yData_$id";
-		$self->{zPoints} = "zData_$id";
+		$self->{xPoints} = 'xData';
+		$self->{yPoints} = 'yData';
+		$self->{zPoints} = 'zData';
 	} elsif ($type eq 'perl') {
-		$self->buidArray;
+		$self->buildArray;
 	} else {
 		Value::Error("Unkown plot type: $type\n");
 	}
@@ -442,23 +444,17 @@ sub funcToJS {
 # JavaScript Functions Output
 sub genJS {
 	my $self = shift;
-	return '' unless ($self->{funcType} =~ /^js/);
-	my $id    = $self->{id};
+	return '{' unless ($self->{funcType} =~ /^js/);
 	my $vars  = join(', ', @{ $self->{variables} });
 	my $JSout = <<END_OUTPUT;
-	const xData_$id = [];
-	const yData_$id = [];
-	const zData_$id = [];
+{
+	const xData = [];
+	const yData = [];
+	const zData = [];
 
-	function xFunc_$id($vars) {
-		$self->{xFunc}
-	}
-	function yFunc_$id($vars) {
-		$self->{yFunc}
-	}
-	function zFunc_$id($vars) {
-		$self->{zFunc}
-	}
+	const xFunc = ($vars) => { $self->{xFunc} };
+	const yFunc = ($vars) => { $self->{yFunc} };
+	const zFunc = ($vars) => { $self->{zFunc} };
 END_OUTPUT
 
 	if ($self->{nVars} == 2) {
@@ -468,21 +464,21 @@ END_OUTPUT
 		const yRow = [];
 		const zRow = [];
 		for (let v = $self->{vMin}; v < $self->{vMax}; v += $self->{vStep}) {
-			xRow.push(xFunc_$id(u, v));
-			yRow.push(yFunc_$id(u, v));
-			zRow.push(zFunc_$id(u, v));
+			xRow.push(xFunc(u, v));
+			yRow.push(yFunc(u, v));
+			zRow.push(zFunc(u, v));
 		}
-		xData_$id.push(xRow);
-		yData_$id.push(yRow);
-		zData_$id.push(zRow);
+		xData.push(xRow);
+		yData.push(yRow);
+		zData.push(zRow);
 	}
 END_OUTPUT
 	} else {
 		$JSout .= <<END_OUTPUT;
 	for (let t = $self->{tMin}; t < $self->{tMax}; t += $self->{tStep}) {
-		xData_$id.push(xFunc_$id(t));
-		yData_$id.push(yFunc_$id(t));
-		zData_$id.push(zFunc_$id(t));
+		xData.push(xFunc(t));
+		yData.push(yFunc(t));
+		zData.push(zFunc(t));
 	}
 END_OUTPUT
 	}
@@ -498,9 +494,9 @@ sub buildArray {
 
 	if ($self->{nVars} == 2) {
 		for (my $u = $self->{uMin}; $u < $self->{uMax}; $u += $self->{uStep}) {
-			my @xTmp = ();
-			my @yTmp = ();
-			my @zTmp = ();
+			my @xTmp;
+			my @yTmp;
+			my @zTmp;
 			for (my $v = $self->{vMin}; $v < $self->{vMax}; $v += $self->{vStep}) {
 				push @xTmp, $self->{xFunc}($u, $v);
 				push @yTmp, $self->{yFunc}($u, $v);
@@ -556,7 +552,7 @@ sub HTML {
 	$self->genPoints;
 
 	return $self->genJS . <<END_OUTPUT;
-	const plotlyData_$self->{id} = {
+	plotlyData.push({
 		x: $self->{xPoints},
 		y: $self->{yPoints},
 		z: $self->{zPoints},
@@ -564,7 +560,8 @@ sub HTML {
 		opacity: $self->{opacity},
 		colorscale: $scale,
 		showscale: false,
-	};
+	});
+}
 END_OUTPUT
 }
 
@@ -599,7 +596,7 @@ sub HTML {
 	$self->genPoints;
 
 	return $self->genJS . <<END_OUTPUT;
-	const plotlyData_$self->{id} = {
+	plotlyData.push({
 		x: $self->{xPoints},
 		y: $self->{yPoints},
 		z: $self->{zPoints},
@@ -611,7 +608,7 @@ sub HTML {
 			color: $self->{zPoints},
 			colorscale: $scale,
 		},
-	};
+	});
+}
 END_OUTPUT
 }
-
