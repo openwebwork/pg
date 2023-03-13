@@ -191,11 +191,9 @@ The valid options are:
 =cut
 
 sub _plotly3D_init {
-	ADD_JS_FILE('https://cdn.plot.ly/plotly-latest.min.js', 1);
+	ADD_JS_FILE('node_modules/plotly.js-dist-min/plotly.min.js', 0, { defer => undef });
 	PG_restricted_eval("sub Graph3D {new plotly3D(\@_)}");
 }
-
-our $plotlyCount = 0;
 
 package plotly3D;
 
@@ -203,9 +201,8 @@ sub new {
 	my $self  = shift;
 	my $class = ref($self) || $self;
 
-	$plotlyCount++;
 	$self = bless {
-		id         => $plotlyCount,
+		id         => $main::PG->getUniqueName('plotly3D') =~ s/-/_/gr,
 		plots      => [],
 		width      => 500,
 		height     => 500,
@@ -265,13 +262,11 @@ sub HTML {
 	my $title = ($self->{title}) ? "<strong>$self->{title}</strong>" : '';
 	my $plots = '';
 	my @data  = ();
-	my $count = 0;
 	my $scene = ($self->{scene}) ? "scene: { $self->{scene} }," : '';
 
 	foreach (@{ $self->{plots} }) {
-		$count++;
-		$plots .= $_->HTML($id, $count);
-		push(@data, "plotlyData${id}_$count");
+		$plots .= $_->HTML;
+		push(@data, "plotlyData_$_->{id}");
 	}
 	$plots =~ s/^\t//;
 	my $dataout = '[' . join(', ', @data) . ']';
@@ -279,12 +274,12 @@ sub HTML {
 	return "\n" . <<END_OUTPUT;
 <div style="width: ${width}px; $self->{style}">
 	$title
-	<div id="plotlyDiv$id" style="width: $self->{width}px; height: $self->{height}px;"></div>
+	<div id="plotlyDiv_$id" style="width: $self->{width}px; height: $self->{height}px;"></div>
 </div>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
 	$plots
-	var plotlyLayout$id = {
+	const plotlyLayout_$id = {
 		autosize: true,
 		showlegend: false,
 		paper_bgcolor: "$self->{bgcolor}",
@@ -296,7 +291,7 @@ document.addEventListener("DOMContentLoaded", function() {
 			t: 5,
 		}
 	};
-	Plotly.newPlot('plotlyDiv$id', $dataout, plotlyLayout$id);
+	Plotly.newPlot('plotlyDiv_$id', $dataout, plotlyLayout_$id);
 });
 </script>
 
@@ -353,10 +348,9 @@ sub parseFunc {
 }
 
 sub genPoints {
-	my $self  = shift;
-	my $id    = shift || 1;
-	my $count = shift || 1;
-	my $type  = $self->{funcType};
+	my $self = shift;
+	my $id   = $self->{id};
+	my $type = $self->{funcType};
 
 	if ($type eq 'data') {
 		# Manual data plot, nothing to do.
@@ -366,9 +360,9 @@ sub genPoints {
 				$self->{$_} = $self->funcToJS($self->{$_});
 			}
 		}
-		$self->{xPoints} = "xData${id}_$count";
-		$self->{yPoints} = "yData${id}_$count";
-		$self->{zPoints} = "zData${id}_$count";
+		$self->{xPoints} = "xData_$id";
+		$self->{yPoints} = "yData_$id";
+		$self->{zPoints} = "zData_$id";
 	} elsif ($type eq 'perl') {
 		$self->buidArray;
 	} else {
@@ -449,47 +443,46 @@ sub funcToJS {
 sub genJS {
 	my $self = shift;
 	return '' unless ($self->{funcType} =~ /^js/);
-	my $id    = shift || 1;
-	my $count = shift || 1;
+	my $id    = $self->{id};
 	my $vars  = join(', ', @{ $self->{variables} });
 	my $JSout = <<END_OUTPUT;
-	var xData${id}_$count = [];
-	var yData${id}_$count = [];
-	var zData${id}_$count = [];
+	const xData_$id = [];
+	const yData_$id = [];
+	const zData_$id = [];
 
-	function xFunc${id}_$count($vars) {
+	function xFunc_$id($vars) {
 		$self->{xFunc}
 	}
-	function yFunc${id}_$count($vars) {
+	function yFunc_$id($vars) {
 		$self->{yFunc}
 	}
-	function zFunc${id}_$count($vars) {
+	function zFunc_$id($vars) {
 		$self->{zFunc}
 	}
 END_OUTPUT
 
 	if ($self->{nVars} == 2) {
 		$JSout .= <<END_OUTPUT;
-	for (var u = $self->{uMin}; u < $self->{uMax}; u += $self->{uStep}) {
-		var xRow = [];
-		var yRow = [];
-		var zRow = [];
-		for (var v = $self->{vMin}; v < $self->{vMax}; v += $self->{vStep}) {
-			xRow.push(xFunc${id}_$count(u, v));
-			yRow.push(yFunc${id}_$count(u, v));
-			zRow.push(zFunc${id}_$count(u, v));
+	for (let u = $self->{uMin}; u < $self->{uMax}; u += $self->{uStep}) {
+		const xRow = [];
+		const yRow = [];
+		const zRow = [];
+		for (let v = $self->{vMin}; v < $self->{vMax}; v += $self->{vStep}) {
+			xRow.push(xFunc_$id(u, v));
+			yRow.push(yFunc_$id(u, v));
+			zRow.push(zFunc_$id(u, v));
 		}
-		xData${id}_$count.push(xRow);
-		yData${id}_$count.push(yRow);
-		zData${id}_$count.push(zRow);
+		xData_$id.push(xRow);
+		yData_$id.push(yRow);
+		zData_$id.push(zRow);
 	}
 END_OUTPUT
 	} else {
 		$JSout .= <<END_OUTPUT;
-	for (var t = $self->{tMin}; t < $self->{tMax}; t += $self->{tStep}) {
-		xData${id}_$count.push(xFunc${id}_$count(t));
-		yData${id}_$count.push(yFunc${id}_$count(t));
-		zData${id}_$count.push(zFunc${id}_$count(t));
+	for (let t = $self->{tMin}; t < $self->{tMax}; t += $self->{tStep}) {
+		xData_$id.push(xFunc_$id(t));
+		yData_$id.push(yFunc_$id(t));
+		zData_$id.push(zFunc_$id(t));
 	}
 END_OUTPUT
 	}
@@ -544,6 +537,7 @@ sub new {
 	my $class   = ref($self) || $self;
 
 	$self = bless {
+		id         => $main::PG->getUniqueName('plotly3D') =~ s/-/_/gr,
 		funcType   => 'jsmd',
 		colorscale => 'RdBu',
 		opacity    => 1,
@@ -558,13 +552,11 @@ sub new {
 
 sub HTML {
 	my $self  = shift;
-	my $id    = shift || 1;
-	my $count = shift || 1;
 	my $scale = ($self->{colorscale} =~ /^\[/) ? $self->{colorscale} : "'$self->{colorscale}'";
-	$self->genPoints($id, $count);
+	$self->genPoints;
 
-	return $self->genJS($id, $count) . <<END_OUTPUT;
-	var plotlyData${id}_$count = {
+	return $self->genJS . <<END_OUTPUT;
+	const plotlyData_$self->{id} = {
 		x: $self->{xPoints},
 		y: $self->{yPoints},
 		z: $self->{zPoints},
@@ -587,6 +579,7 @@ sub new {
 	my $class   = ref($self) || $self;
 
 	$self = bless {
+		id         => $main::PG->getUniqueName('plotly3D') =~ s/-/_/gr,
 		funcType   => 'jsmd',
 		width      => 5,
 		colorscale => 'RdBu',
@@ -602,13 +595,11 @@ sub new {
 
 sub HTML {
 	my $self  = shift;
-	my $id    = shift || 1;
-	my $count = shift || 1;
 	my $scale = ($self->{colorscale} =~ /^\[/) ? $self->{colorscale} : "'$self->{colorscale}'";
-	$self->genPoints($id, $count);
+	$self->genPoints;
 
-	return $self->genJS($id, $count) . <<END_OUTPUT;
-	var plotlyData${id}_$count = {
+	return $self->genJS . <<END_OUTPUT;
+	const plotlyData_$self->{id} = {
 		x: $self->{xPoints},
 		y: $self->{yPoints},
 		z: $self->{zPoints},

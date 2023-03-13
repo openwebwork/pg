@@ -7,5 +7,6 @@
 	"node_modules/jszip-utils/dist/jszip-utils.min.js": "https://cdn.jsdelivr.net/npm/jszip-utils@0.1.0/dist/jszip-utils.min.js",
 	"node_modules/mathquill/dist/mathquill.css": "node_modules/mathquill/dist/mathquill.css",
 	"node_modules/mathquill/dist/mathquill.js": "node_modules/mathquill/dist/mathquill.js",
-	"node_modules/sortablejs/Sortable.min.js": "https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"
+	"node_modules/sortablejs/Sortable.min.js": "https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js",
+	"node_modules/plotly.js-dist-min/plotly.min.js": "https://cdn.jsdelivr.net/npm/plotly.js-dist-min/plotly.min.js"
 }
