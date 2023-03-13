@@ -1,0 +1,454 @@
+DOCUMENT();       
+
+loadMacros(
+	"PGstandard.pl",
+	"PGML.pl",
+	"MathObjects.pl",
+	"niceTables.pl",
+    "PGlateximage.pl"
+
+);
+
+$drawing = createLaTeXImage();
+$drawing->texPackages([['xy','all']]);
+$drawing->BEGIN_LATEX_IMAGE
+\xymatrix{ A \ar[r] & B \ar[d] \\\\
+           D \ar[u] & C \ar[l] }
+END_LATEX_IMAGE
+
+$path = insertGraph($drawing);
+
+
+$lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor"
+	. " incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud"
+	. " exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+
+
+BEGIN_PGML
+
+# Data Tables
+
+## No Options
+
+[@ DataTable(
+  [
+    ['a'..'d'],
+    [1..4],
+    ['A'..'D'],
+  ],
+); @]*
+
+## Not Centered
+
+[| center => 0 |]*
+
+[@ DataTable(
+  [
+    ['a'..'d'],
+    [1..4],
+    ['A'..'D'],
+  ],
+center => 0
+); @]*
+
+## With Caption
+
+[| caption => "This is a caption.", captioncss => 'color: blue;' |]*
+
+[@ DataTable(
+  [
+    ['a'..'d'],
+    [1..4],
+    ['A'..'D'],
+  ],
+caption => "This is a caption.",
+captioncss => 'color: blue;',
+); @]*
+
+## Horizontal Rules with booktabs
+
+[| horizontalrules => 1 |]*
+
+[@ DataTable(
+  [
+    [['a'], 'b'..'d'],
+    [1..4],
+    ['A'..'D'],
+  ],
+  horizontalrules => 1,
+)
+@]*
+
+## Horizontal Rules without booktabs
+
+[| horizontalrules => 1, booktabs => 0 |]*
+
+[@ DataTable(
+  [
+    [['a',top=>1], 'b'..'d'],
+    [1..4],
+    ['A'..'D'],
+  ],
+  horizontalrules => 1,
+  booktabs => 0 )
+@]*
+
+## l, c, and r Alignment
+
+[| texalignment => 'lcrc' |]*
+
+[@ DataTable(
+  [
+    ['a'..'d'],
+    [10001..10004],
+    ['A'..'D'],
+  ],
+texalignment => 'lcrc',
+); @]*
+
+## p{} and X
+
+[| texalignment => 'p{1.5in}lXc', Xratio => '0.8' |]*
+
+[@ DataTable(
+  [
+    [ $lorem, 'b', $lorem, 'd' ],
+    [1..4],
+    ['A'..'D'],
+  ],
+texalignment => 'p{1.5in}lXc',
+Xratio => '0.8',
+); @]*
+
+## Pipes
+
+[| texalignment => '|c||c|||c||||c|||||' |]*
+
+[@ DataTable(
+  [
+    ['a'..'d'],
+    [1..4],
+    ['A'..'D'],
+  ],
+texalignment => '|c||c|||c||||c|||||',
+); @]*
+
+## Explicit vertical rule width
+
+[| texalignment => '!{\vrule width 0.04em}c!{\vrule width 0.07em}c!{\vrule width 0.11em}c!{\vrule width 0.15em}c!{\vrule width 0.20em}' |]*
+
+[@ DataTable(
+  [
+    ['a'..'d'],
+    [1..4],
+    ['A'..'D'],
+  ],
+texalignment => '!{\vrule width 0.04em}c!{\vrule width 0.07em}c!{\vrule width 0.11em}c!{\vrule width 0.15em}c!{\vrule width 0.20em}',
+); @]*
+
+## Column Font Options
+
+[| texalignment => '>{\bfseries}c>{\itshape}c>{\ttfamily}c>{\bfseries\itshape\ttfamily}c' |]*
+
+[@ DataTable(
+  [
+    ['a'..'d'],
+    [1..4],
+    ['A'..'D'],
+  ],
+texalignment => '>{\bfseries}c>{\itshape}c>{\ttfamily}c>{\bfseries\itshape\ttfamily}c',
+); @]*
+
+## Column Text Color
+
+[| texalignment => '>{\color{red}}c>{\color{green}}c>{\color[HTML]{0000FF}}c>{\color{red!20}}c' |]*
+
+[@ DataTable(
+  [
+    ['a'..'d'],
+    [1..4],
+    ['A'..'D'],
+  ],
+texalignment => '>{\color{red}}c>{\color{green}}c>{\color[HTML]{0000FF}}c>{\color{red!20}}c',
+); @]*
+
+## Column Background Color
+
+[| texalignment => '>{\columncolor{red}}c>{\columncolor{green}}c>{\columncolor[HTML]{0000FF}}c>{\columncolor{red!20}}c' |]*
+
+[@ DataTable(
+  [
+    ['a'..'d'],
+    [1..4],
+    ['A'..'D'],
+  ],
+texalignment => '>{\columncolor{red}}c>{\columncolor{green}}c>{\columncolor[HTML]{0000FF}}c>{\columncolor{red!20}}c',
+); @]*
+
+## Encase (Maybe Not All) Cells
+
+[| encase => [ $BM, $EM ] |]*
+
+The top right entry uses [|noencase|]* and therefore should not appear in math mode.
+
+[@ DataTable(
+  [
+    ['a'..'c', ['d', noencase => 1]],
+    [1..4],
+    ['A'..'D'],
+  ],
+encase => [ $BM, $EM ],
+); @]*
+
+## Headers
+
+[| rowheaders => 1, headercss => 'font-family:cursive;' |]*
+
+The top row uses [|headerrow|]*, except the top right entry is excused. The bottom left entry is also excused (from the global [|rowheaders|]* option). The bottom right entry is made into a header.
+
+[@ DataTable(
+  [
+    [['a', headerrow => 1], 'b', 'c', ['d', header => 'td']],
+    [1..4],
+    [['A', header => 'td'], 'B', 'C', ['D', header => 'th']],
+  ],
+rowheaders => 1,
+headercss => 'font-family:cursive;',
+); @]*
+
+## Vertical Alignment on Entire Table
+
+[| align => 'XccX', valign => 'middle' |]*
+
+[@ DataTable(
+  [
+    [ $lorem, 'b', 'c', 'd' ],
+    [1..3, $lorem ],
+    ['A'..'D'],
+  ],
+  align => 'XccX',
+  valign => 'middle',
+); @]*
+
+## Assortment of CSS
+
+[| rowheaders => 1, tablecss => 'border:1pt solid black;', columnscss => [ '', '', 'background-color:yellow;', '' ], datacss => 'font-family:fantasy;', headercss => 'font-family:monospace;', allcellcss => 'padding:20pt 20pt;font-size:40px;' |]*
+
+[@ DataTable(
+  [
+    ['a'..'d'],
+    [1..4],
+    ['A'..'D'],
+  ],
+rowheaders => 1,
+tablecss => 'border:1pt solid black;',
+columnscss => [ '', '', 'background-color:yellow;', '' ],
+datacss => 'font-family:fantasy;',
+headercss => 'font-family:monospace;',
+allcellcss => 'padding:20pt 20pt;font-size:40px;',
+); @]*
+
+## Horizontal Alignment of One Cell
+
+Top row cells are left, center, right, and paragraph-aligned. All other cells are default center.
+
+[@ DataTable(
+  [
+    [['a', halign => 'l'], ['b', halign => 'c'], ['c', halign => 'r'], [ 'Lorem ipsum dolor sit amet', halign => 'p{1.5in}'], ],
+    [10001..10004],
+    ['A'..'D'],
+  ],
+); @]*
+
+## Cell Font Options
+
+Top row cells use bold, italics, monospace, all three. Second row does same thiing using a different method.
+
+[@ DataTable(
+  [
+    [['a', tex => '\bfseries'], ['b', tex => '\itshape'], ['c', tex => '\ttfamily'], ['d', tex => '\bfseries\itshape\ttfamily']],
+    [[1, b => 1], [2, i => 1], [3, m => 1], [4, b => 1, i => 1,  m => 1]],
+    ['A'..'D'],
+  ],
+); @]*
+
+
+## Vertical Rules for one cell
+
+Left vertical rule should only be respected for cells in leftmost column.
+
+'a' has [| halign => '|c||' |]*.  
+'c' has [| halign => '|||c||||' |]*.  
+'2' has [| halign => '!{\vrule width 0.1em}c!{\vrule width 0.2em}' |]*.  
+'4' has [| halign => '!{\vrule width 0.3em}c!{\vrule width 0.4em}' |]*.  
+
+[@ DataTable(
+  [
+    [['a', halign => '|c||'], 'b', ['c', halign => '|||c||||'], 'd', ],
+    [1,[2, halign => '!{\vrule width 0.1em}c!{\vrule width 0.2em}'],3,[4, halign => '!{\vrule width 0.3em}c!{\vrule width 0.4em}']],
+    ['A'..'D'],
+  ],
+); @]*
+
+## Colspan
+
+[| align => '|cccc|' |]*
+
+Top row is one cell with [| colspan => 4, halign => '|||c|||' |]*.
+
+[@ DataTable(
+  [
+    [[ 'abcd', colspan => 4, halign => '|||c|||']],
+    [1..4],
+    ['A'..'D'],
+  ],
+  align => '|cccc|',
+); @]*
+
+## Horizontal Rules on a Cell
+
+Top vertical rule should only be respected for cells in first row.
+
+'a' has [| top => 1, bottom => 2 |]*.  
+'c' has [| top => '2pt', bottom => '0.5em', colspan=>2, |]*.  
+'2' has [| top => 3, bottom => '1em' |]*.  
+
+[@ DataTable(
+  [
+    [[ 'a', top => 1, bottom => 2 ], 'b', ['c' , colspan=>2, top =>'2pt', , bottom => '0.5em']],
+    [1, [2, top => 3, bottom => '1em'], 3..4],
+    ['A'..'D'],
+  ],
+); @]*
+
+## Cell Color
+
+'b' uses [| color=>'blue', bgcolor=>'green' |]*.  
+'d' uses [| color=>'blue!50', bgcolor=>'green!50' |]*.  
+'D' uses [| color=>'0000FF', bgcolor=>'00FF00' |]*.
+
+'d's 50% alterations will only be seen in LaTeX.
+
+Also the actual color for names like 'green' can be different in LaTeX than in HTML.
+
+[@ DataTable(
+  [
+    [ 'a', [ 'b', color=>'blue', bgcolor=>'green' ], 'c', [ 'd', color=>'blue!50', bgcolor=>'green!50' ] ],
+    [1..4],
+    [ 'A'..'C', ['D', color=>'0000FF', bgcolor=>'00FF00' ]]
+  ],
+)
+@]*
+
+## TeX Pre and Post
+
+'a' has [| texpre => " \\LaTeX ", texpost => " \\TeX " |]*.
+
+[@ DataTable(
+  [
+    [['a', texpre => " \\LaTeX ", texpost => " \\TeX "], 'b'..'d'],
+    [1..4],
+    ['A'..'D'],
+  ],
+); @]*
+
+## Horizontal Rules on Rows
+
+[|rowtop|]* can only be respected on the top row.
+
+Top row has [| rowtop => '3' |]*.  
+Second row has [| rowbottom => '1em' |]*.
+
+[@ DataTable(
+  [
+    [[ 'a', rowtop => '3' ], 'b'..'d' ],
+    [[1, rowbottom => '1em'], 2..4],
+    ['A'..'D'],
+  ],
+); @]*
+
+## Row Colorings
+
+Top row has [| rowcolor => 'blue' |]*.  
+Second row has [| rowcolor => 'green!20' |]*.  
+Third row has [| rowcolor => 'FF0000' |]*.
+
+[@ DataTable(
+  [
+    [[ 'a', rowcolor => 'blue' ], 'b'..'d' ],
+    [1, [2, rowcolor => '{green!20}' ], 3, 4],
+    ['A', 'B', 'C', ['D', rowcolor => 'FF0000']],
+  ],
+); @]*
+
+## Vertical Alignment of one Row
+
+Top row is bottom-aligned but the rest is the default top-aligned.
+
+[@ DataTable(
+  [
+    [ [ 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', valign => 'bottom'], 'b', 'c', 'd' ],
+    [1..4],
+    ['Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', 'B'..'D'],
+  ],
+  align => 'p{2in}ccc',
+); @]*
+
+## Row CSS
+
+Top row has [| rowcss => 'font-family:fantasy;' |]*.
+
+[@ DataTable(
+  [
+    [[ 'a', rowcss => 'font-family:fantasy;' ], 'b'..'d' ],
+    [1..4],
+    ['A'..'D'],
+  ],
+); @]*
+
+
+# Layout Tables
+
+## No Options
+
+[@ LayoutTable(
+  [
+    ['a'..'d'],
+    [1..4],
+    ['A'..'D'],
+  ],
+); @]*
+
+
+## Data Table inside Layout Table
+
+The outer layout table has [| align => 'cX' |]* with a DataTable and paragraph as the cells.
+
+[@ LayoutTable([[
+DataTable(
+  [
+    [ 'a'..'d' ],
+    [1..4],
+    [ 'A'..'D' ],
+  ],
+), $lorem],
+],
+align => 'cX' )
+@]*
+
+## Image inside Layout Table
+
+The outer layout table has [| valign => 'bottom', align => 'cX' |]* with a image and paragraph as the cells.
+
+[@ LayoutTable([[
+image($path, width => 228, height => 114, tex_size => 200), $lorem],
+],
+valign => 'bottom',
+align => 'cX' )
+@]*
+
+
+
+
+END_PGML
+ENDDOCUMENT();

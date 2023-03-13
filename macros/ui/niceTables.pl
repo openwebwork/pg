@@ -2,836 +2,1504 @@
 =head1 niceTables.pl
 
 Subroutines for creating tables that
-    * conform to accessibility standards
-    * allow a lot of CSS flexibility for on-screen styling
-    * allow some LaTeX flexibility for hard copy styling
 
-Hard copy data tables will always have a top rule, bottom rule, and midrule after any header row
+=over
 
-DataTable()             Creates a table with data.
-                                 Should not be used for layout, such as displaying an array of graphs.
-                                 Should usually make use of a caption and column and/or row headers.
+=item * conform to accessibility standards in HTML output
 
-LayoutTable()           Creates a "table" using div boxes for layout
+=item * have uniform styling across output formats, to the degree possible
 
-NOTE: In order to reduce separate setting of on-screen and hard copy settings as much as possible, Perl 5.10+
-tools are used. These macros may behave unexpectedly or not work at all with older versions of Perl.
-These macros use LaTeX packages in the hard copy that wer not formerly part of a WeBWorK hard copy preamble.
-Your LaTeX distribution needs to have the packages: booktabs, tabularx, colortbl, caption, xcolor
-And if you have a WeBWorK version earlier than 2.10, you need to add calls to these packages to hardcopyPreamble.tex
-  in webwork2/conf/snippets/
+=item * may use CSS for additional HTML styling
+
+=item * may use LaTeX commands for additional hardcopy styling
+
+=back
+
+C<DataTable()> creates a table displaying data. Should not be used for layout,
+such as displaying an array of graphs.
+
+C<LayoutTable()> creates a "table" without using an HTML table in HTML output.
+Please use C<LayoutTable> whenever you are simply laying out layout content
+relation between content cells within a column or within a row.
+If the for space-saving purposes. Ask yourself if there is any meaningful
+answer is no in both cases, it is likely a case for C<LayoutTable()>.
 
 =head2 Description
 
-Command for tables displaying data. In a data table the xy-position of a cell is somehow
-important along with the information inside the cell.
+Command for a typical table.
 
-	Usage:  DataTable([[a,b,c,...],[d,e,f,...],[g,h,i,...],...], options);
+    DataTable([
+        [a,b,c,...],
+        [d,e,f,...],
+        ...
+        ],
+        options
+    );
 
-	[[a,b,c,...],[d,e,f,...],[g,h,i,...],...] is the table content, row by row
+    LayoutTable([
+        [a,b,c,...],
+        [d,e,f,...],
+        ...
+        ],
+        options
+    );
 
-As much as possible, options can be declared to simultaneously apply to both on-screen and hard copy.
-Generally, you give settings for the hard copy tex version first. Many common such settings are automatically
-translated into CSS styling for the on-screen. You can then override or augment the CSS for the on-screen version.
+As much as possible, options apply to all output formats.
+Some options only apply to HTML styling, and some options only apply to PDF hardcopy.
+Not all options are supported by every output format. For example PTX cannot use color information.
 
-With PTX output, not all features below are supported. Perhaps they can be added upon request.
-Contact Alex Jordan with questions.
-This version supports the center, caption, midrules, encase, and noencase options in PTX. It also honors the
-horizontal alignment portions of the align option (but not vertical rules or anything found in @{}).
+All features described below apply to a C<DataTable>.
+Most also apply to a C<LayoutTable>, with the excpetions being:
 
-Options for the WHOLE TABLE
+=over
 
-    Applies to on-screen *and* hard copy:
-      center => 0 or 1              # center table
-      caption => string             # a caption for the table
-      midrules => 0 or 1            # if you want rules above and below every row
-                                    #   (hard copies will always have toprule and bottomrule)
-      align => string               # an alignment string like the kinds used in LaTeX tabular environments;
-                                    # some of what you specify here will apply to both on-screen and hard copy
-        (texalignment => string     #  -what won't is specified further below
-         is really what it is,      # for example 'rccp{1in}' would be for a four-column table with a
-         but align is a shortcut)   #   right-aligned column, two centered columns,
-                                    #   and a paragraph column of fixed width 1in; defaults to all c's;
-                                    # r is for right-alignment; on-screen will have no wrap
-                                    # c for center; on-screen will have no wrap
-                                    # l for left; on-screen will have no wrap
-                                    # p{width} is for a fixed-width paragraph column
-                                    #   -width should be a valid tex width; if it is also a valid css width,
-                                    #   -it will be used on-screen too; otherwise, on-screen will have unspecified width
-      Xratio => 0.97                # X ...if X is used in column alignment then the hard copy will have a width that
-                                    #   is Xratio times the \linewidth, and X columns will be paragraph columns that
-                                    #   grow to be whatever width fills the overall table width. For on-screen, X is
-                                    #   a normal breaking-paragraph column that will expand to screen width before
-                                    #   a break happens
-                                    # | as with array environments in LaTeX, you may use | for vertical rules.
-                                    # Preceding one of the above alignment types, you may use >{...} where the ... is
-                                    #   more LaTeX commands to be applied everywhere in the column. For the simple text
-                                    #   syling commands: \bfseries for bold, \itshape for italic, or \ttfamily for
-                                    #   teletype (monospaced font), the on-screen version will be applied too.
-                                    #  *You may include \color{...} here too, where ... is a coloring mixture from the
-                                    #   xcolor package. 'blue' is an example of the simplest coloring mixture. For a much
-                                    #   more complicated example: rgb:blue!30!green,1;-red!10!green,2 would give 1 part
-                                    #   a 30%blue-70%green mixture, mixed with 2 parts the complement of a
-                                    #   10%red-90%green mixture.
-                                    #     -only mixtures like \color{blue...} will be respected on-screen, and in that
-                                    #     -case the first color will named be used. Use columnscss (discussed below) if
-                                    #     -want to be more picky with the on-screen version.
-                                    #  *You may include \columncolor{...} to color the background of cells, where ...
-                                    #   follows the same rules as for \color{...}
-                                    #  NOTE: Any color commands (\color, \columncolor, \rowcolor, \cellcolor) can take the
-                                    #    option [HTML] and then an HTML hexadecimal color can be declared. For example,
-                                    #    \color[HTML]{FF0000} for red. It works for on-screen and hard copy. Color
-                                    #    specified this way should be the same on-screen and in the hard copy, whereas
-                                    #    color specified the other way often differs.
-                                    #   Any more complicated tex commands will be ignored for on-screen (or cause errors
-                                    #     or not behave as expected).
-      encase => array ref           # You may want to encase all table entries in, say, \( and \) to save from typing
-                                    #   them many times. To do that, use encase => ['\(','\)']. For individual cells
-                                    #   you may set noencase=>1 to omit this (see section on modifying cells).
-      rowheaders => 1               # Make the first element of every row a row header.
+=item * C<caption>
 
-    Applies to on-screen:
-      tablecss => string            # css styling commands for the table element (see below for css syntax)
-      captioncss => string          # css styling commands for the caption element (see below for css syntax)
-      columnscss => array ref       # an array reference to css styling commands (strings) for columns
-                                    #   use empty strings for columns for which you have no style specifications
-                                    #   Ex: columnscss => ['','background-color:yellow;','','background-color:yellow;']
-                                    #   -specifications made here overrule specifications from texalignment
-      datacss => string             # css styling commands for all the td elements (see below for css syntax)
-      headercss => string           # css styling commands for the th elements (see below for css syntax)
-      allcellcss => string          # css styling commands for all the cells (see below for css syntax)
+=item * C<rowheaders>
 
+=item * C<header>
 
-MODIFYING CELLS
+=item * C<colspan>
 
-  Each cell entry (like "a" in [[a,b,c,...],...])) can be replaced with an array reference (encased in square brackets) for
-  more detailed customization of that cell. For example, [[[a,header=>'CH'],b,c],[d,e,f]] gives a table where the a is
-  a column header cell. The data content of the cell must be the first element listed, and what follows must be key=>value pairs.
-  These options may be applied.
+=item * C<headerrow>
 
-    Applies to both on-screen and hard copy:
-      halign => string              # same format as align at the table level (discussed above) but for one cell only
-      header => type,               # Could be 'TH' (table header), 'CH', 'col', or 'column' (col header), 'RH', or 'row'
-                                    #   (row header). If so, default CSS styling is used, and hard copy cell is bold.
-                                    # Can also be 'TD' to overrule a row of all headers (see modifying rows)
-                                    # If your table only has column headers (no row headers) it is probably best to make
-                                    #   an entire row of headers (see modifying a row) and to not use header=> directly.
-                                    #   But if your table has both column and row headers then use header=> for all the
-                                    #   headers (both row- and column-) and don't use the row modification (because in
-                                    #   that situation you probably don't want a THEAD tag).
-      tex => tex code               # For tex commands whose scope will be entire cell, e.g. \bfseries or \itshape;
-                                    #   \bfseries (for bold), \itshape (for italic), and \ttfamily (for monospace) will
-                                    #   lead to CSS equivalents for the on-screen version
-                                    # For cell coloring: like \cellcolor{blue} for the background or \color{blue} for the
-                                    #   text, use color mixtures as described in texalignment=>, and simple colors will
-                                    #   apply to the on-screen version too.
-                                    # -all other tex code will be ignored for the on-screen version, so use cellcss=>
-                                    #  below
-      b=>1, i=>1, m=>1              # These are shortcuts for adding \bfseries, \itshape, and \ttfamily to tex, which will
-                                    #   in turn affect he on-screen too.
-      noencase => 1                 # If you have global encase strings (see section on modifying the whole table) then
-                                    #   you can opt to not apply them on a cell by cell basis
-      colspan => pos integer        # for cells that span more than one column; when using this, you must set halign for
-                                    #   the cell too, or else the tex output will just use {c} alignment; this feature may
-                                    #   not behave as expected for certain structures, like a two-row table, with 3 columns,
-                                    #   but the first row has colspans 2 and 1 with the second row having colspans 1 and 2
-                                    # **colspan is supported for DataTable only, not LayoutTable. LayoutTable uses css
-                                    #   like display:table-cell; to achieve its output, and there is no counterpart to
-                                    #   colspan using this approach (at least not currently)
+=back
 
-    Applies to on-screen:
-      cellcss => string,            # String with cell-specific CSS styling; see below for CSS syntax
+=head2 Options for the WHOLE TABLE
 
-    Applies to hard copy:
-      texpre => tex code,           # For more fussy cell-by-cell alteration of the tex version of the table
-                                    # TeX code here will precede the cell entry...
-      texpost => tex code           # and code here will follow the cell entry
-                                    # The ordering will be: texpre tex data texpost
-      texencase => array ref        # This is just a shortcut for entering [texpre,texpost] at once.
+=head3 The following applied to all output formats
 
-  The "a" in a cell can also be replaced directly with a hash reference {data=>a,options} if somehow that is of use. If you
-  modify the cell using an array reference [a, options] instead, it is automatically converted to a hash reference anyway.
+=over
 
+=item C<center =E<gt> 0 or 1>
 
-MODIFYING ROWS
+Center the table (default 1)
 
- You can give a row background color using arguments from colortbl's \rowcolor command:
-    [[[a, rowcolor => '{blue!50}'],b,c,...],[d,e,f,...],[g,h,i,...],...]
-    [[[a, rowcolor => '[HTML]{FF0000}'],b,c,...],[d,e,f,...],[g,h,i,...],...]
- For the on-screen version, if the first style of argument is used, only the first color mentioned will be used.
+=item C<caption =E<gt> string>
 
- A rowcss key can be used anywhere in the row. Only the last instance in that row will be applied.
-    [[[a, rowcss => extra css for the row],b,c,...],[d,e,f,...],[g,h,i,...],...]
+caption for the table
 
- You can make an entire row be made of CH (column header) elements without specifying it for each header:
-    [[[a, headerrow=>1],b,c,...],[d,e,f,...],[g,h,i,...],...]
- This also encases the row in a <THEAD> tag. This should only be applied to the first row. In the hard copy,
-    a row like this will have bold entries and be followed by a midrule.
+=item C<horizontalrules =E<gt> 0 or 1>
 
- And you can follow a row with a horizontal rule:
-    [[[a, midrule => 1],b,c,...],[d,e,f,...],[g,h,i,...],...]
-    (but this is already done once for headerrows in the hard copy, since they don't rely on surrounding CSS to stand out)
+make rules above and below every row (default 0)
 
-CSS SYNTAX PRIMER
+=item C<texalignment =E<gt> string>
 
-      css styling commands offer a huge variety for styling the table on screen
-      Basic elements are of the form "A:B;" like "border:1pt;" and "width:80%;"
-      ****DON'T FORGET THE SEMICOLONS. SINCE THESE COMMANDS ACCUMULATE, SEMICOLONS ARE IMPORTANT.
-      Also, they can be of the form "A:B C;" like "border:1pt dashed;"
-      Multiple commands can be used with the form "A1:B;A2:C;" like "border:1pt; margin:5pt;"
-      Some properties with example values and which elements they can affect:
-          border:2px solid blue;                      table, caption, th, td
-          border-collapse:collapse;  (or separate)    table
-          border-radius: 5px;                         table, caption, tr, th, td
-          width:50%;                                  table, caption, th, td
-          height:20ex;                                table, caption, tr, th, td
-          text-align:center;                          table, caption, tr, th, td
-          vertical-align:top;                         table, caption, tr, th, td
-          padding:12pt;                               table, caption, th, td
-          margin:20px;                                table, caption
-          border-spacing:12pt;                        table
-          caption-side:bottom;                        table, caption
-          color:blue;                                 table, caption, tr, th, td
-          background-color:yellow;                    table, caption, tr, th, td
-          font-weight:bold;                           table, caption, tr, th, td
-          font-style:italic;                          table, caption, tr, th, td
-          font-family:monospace;                      table, caption, tr, th, td
-      The properties border, padding, and margin
-          can be specified in more detail using -left, -bottom, -right, -top as in "border-bottom:5px"
+an alignment string like the kinds used in LaTeX tabular environment: for example C<'r|ccp{1in}'>
 
-	Example: DataTable([[[1, header => 'CH', cellcss => 'font-family:fantasy;'],2,3],
-                    [4,5,[6, rowcss => 'padding-top:10pt; padding-bottom:10pt; ']]],
-                     tablecss => "border:solid 1px; border-spacing:5px; border-radius: 5px; border-collapse:separate;");
+=over
+
+=item C<r >
+
+right-aligned column
+
+=item C<c >
+
+center-aligned column
+
+=item C<r >
+
+left-aligned column
+
+=item C<p{width} >
+
+left-aligned paragraphs of fixed (absolute) width
+
+=item C<X >
+
+left-aligned paragraph that expands to fill (see Xratio below)
+
+=item C<| >
+
+a vertical rule (n adjacent pipes makes one rule that is n times thick)
+
+=item C<!{\vrule width ...} >
+
+vertical rule of the indicated width (must be an absolute width)
+
+=item C< E<gt>{commands}>
+
+Execute commands at each cell in the column For example, C<'cE<gt>{\color{blue}}c'> will make the
+second column have blue text.
+
+The following LaTeX commands may be used:
+
+  \color{colorname}            text color
+  \color[HTML]{xxxxxx}         text color (xxxxxx is a 6-character hex color code)
+  \columncolor{colorname}      background color
+  \columncolor[HTML]{xxxxxx}   background color (xxxxxx is a 6-character hex color code)
+  \bfseries                    bold
+  \itshape                     italics
+  \ttfamily                    monospace
+
+Other LaTeX commands apply only to PDF output.
+
+=back
+
+=item C<align =E<gt> string>
+
+convenient short version of texalignment
+
+=item C<Xratio =E<gt> number>
+
+applies when X is part of overall alignment
+Xratio must be some number with C<0 < Xratio <= 1> (default 0.97)
+The table will only be Xratio wide, relative to the overall
+horizontal space. And X columns expland to fill available space.
+
+=item C<encase =E<gt> [ , ]>
+
+Encases all table entries in the two entries. For example, to wrap
+cells in math delimiters if you want all content in math mode.
+In that case, use C<[$BM,$EM]>. See also noencase for individual cells.
+
+=item C<rowheaders =E<gt> 0 or 1>
+
+Make the first element of every row a row header.
+
+=item C<headerrules =E<gt> 0 or 1>
+
+Make a horizontal rule under a row of column headers and a vertical
+rule to the right of a column of row headers. Default is 1.
+
+=item C<valign =E<gt> 'top'>
+
+Can be 'top', 'middle', or 'bottom'. Applies to all rows.
+See below to override for an individual row.
+
+=back
+
+=head3 These apply to HTML output only
+
+Note: each css property setting should inlude a colon and a semicolon.
+Example:  C<'font-family: fantasy; text-decoration: underline;'>
+
+=over
+
+=item C<tablecss =E<gt> css string>
+
+css styling commands for the table element
+
+Example: C<tablecss =E<gt> 'border:1pt solid black;'>
+
+=item C<captioncss =E<gt> css string>
+
+css styling commands for the caption element
+
+Example: C<captioncss =E<gt> 'color: blue;'>
+
+=item C<columnscss => array ref
+
+an array reference to css strings for columns
+
+Note: only four css properties apply to a col element:
+
+=over
+
+=item C<border> (family)
+
+=item C<background> (family)
+
+=item C<width>
+
+=item C<column-span>
+
+=back
+
+=item C<datacss =E<gt> css string>
+
+css styling commands for td (non-header) cells
+
+Example: C<datacss =E<gt> 'font-family:fantasy;'>
+
+=item C<headercss =E<gt> css string>
+
+css styling commands for th (header) cells
+
+Example: C<headercss =E<gt> 'font-family:monospace;'>
+
+=item C<allcellcss =E<gt> css string>
+
+css styling commands for all cells
+
+Example: C<allcellcss =E<gt> 'padding:20pt 20pt'>
+
+=back
+
+=head3 This applies to PDF hardcopy output only
+
+=over
+
+=item C<booktabs =E<gt> 0 or 1>
+
+use booktabs for horizontal rules (default 1)
+
+=back
+
+=head2 Options for CELLS
+
+Each cell entry can be an array reference where the first entry is the actual
+cell content, and then key-value pairs follow. For example, in a table with four columns,
+to make the first cell span two columns, enter the first cell as an array reference:
+
+  [[a, colspan => 2], b, c]
+
+Alternatively, using a hash reference with a data key:
+
+  [{data => a, colspan => 2}, b, c]
+
+All ouptut formats:
+
+=over
+
+=item C<halign =E<gt> string>
+
+Similar to the components for texalignment above. However, only C<l, c, r, p{}>, and vertical
+rule specifications should be used.
+
+With vertical rule specifiers, any left vertical rule will only be observed for cells
+is in the first column. Otherwise, use a right vertical rule on the cell to the left.
+
+=item C<header =E<gt> type>,
+
+Declares the scope of the HTML th element. Case-insensitive:
+
+=over
+
+=item C<th>   generic table header
+
+=item C<ch>   column header ('col' and 'column' work too)
+
+=item C<rh>   row header ('row' works too)
+
+=item C<td>   overrides a headerrow or rowheaders option except PTX output cannont honor this
+
+=back
+
+=item C<color =E<gt> string>
+
+color name or 6-character hex color code for text color
+
+=item C<bgcolor =E<gt> string>
+
+color name or 6-character hex color code for background color
+
+=item C<b=E<gt>1>
+
+Set the cell to bold font.
+
+=item C<i=E<gt>1>
+
+Set the cell to italics font.
+
+=item C<m=E<gt>1>
+
+Set the cell to monospace font.
+
+=item C<tex =E<gt> commands>
+
+Execute commands at start of a cell with scope the entire cell.  This option is legacy, and its
+cross-format functionality is superceded by C<color, bgcolor, b, i,> and C<m>.
+
+The following LaTeX commands may be used:
+
+  \color{colorname}            text color
+  \color[HTML]{xxxxxx}         text color (xxxxxx is a 6-character hex color code)
+  \columncolor{colorname}      background color
+  \columncolor[HTML]{xxxxxx}   background color (xxxxxx is a 6-character hex color code)
+  \bfseries                    bold
+  \itshape                     italics
+  \ttfamily                    monospace
+
+Other LaTeX commands apply only to hardcopy output.
+
+Example: C<['a', tex =E<gt> '\bfseries'], ['b', tex =E<gt> '\itshape'], ['c', tex =E<gt> '\ttfamily']>
+
+=item C<noencase =E<gt> 0 or 1>
+
+If you are using encase (see above) use this to opt out
+
+=item C<colspan =E<gt> n>
+
+Positive integer; for cells that span more than one column when using this, you
+often set halign as well.
+
+=item C<top =E<gt> +int or string>
+
+Make a top rule for one cell if the cell is in the top row. Thickness is either C<n>
+pixels or a width like C<'0.04em'>. Has no effect on cells outside of top row.
+
+=item C<bottom =E<gt> +int or string>
+
+Make a bottom rule for one cell. Thickness is either C<n> pixels or a width like C<'0.04em'>.
+
+=back
+
+=head3 HTML output
+
+This option is only for HTML output.
+
+=over
+
+=item C<cellcss =E<gt> string>
+
+css styling commands for this cell
+
+=back
+
+=head3 PDF hardcopy output
+
+The following apply only to PDF output
+
+=over
+
+=item C<texpre =E<gt> tex code>
+
+For more fussy cell-by-cell alteration of the tex version of
+
+=item C<texpost =E<gt> tex code>
+
+the table, code to place before and after the cell content
+
+=item C<texencase =E<gt> array ref>
+
+Shortcut for entering [texpre,texpost] at once.
+
+=back
+
+=head2 Options for ROWS
+
+Some parameters in a cell's options array affect the entire row.
+When there is a clash, the last non-falsy declaration in the row will be used.
+
+=over
+
+=item C<rowcolor =E<gt> strin>
+
+Sets the row's background color.  Must be a color name, 6-character hex color code,
+or for legacy support only, in the form C<'[HTML]{xxxxxx}'>
+
+=item C<rowcss =E<gt> string>
+
+css styling commands for the row
+
+=item C<headerrow =E<gt> 0 or 1>
+
+Makes an entire row use header cells (with column scope)
+
+=item C<rowtop =E<gt> +int or string>
+
+When used on the first row, creates a top rule. Has no effect on other rows.  Thickness
+is either C<n> pixels or a width like C<'0.04em'>.
+
+=item C<rowbottom =E<gt> +int or string>
+
+Make a bottom rule.  Thickness is either C<n> pixels or a width like C<'0.04em'>.
+
+=item C<valign =E<gt> string>
+
+Override table's overall vertical alignment for this row.  Can be C<'top'>, C<'middle'>,
+or C<'bottom'>.
+
+=back
+
+=head2 Options for COLUMNS
+
+Column styling is handled indirectly for now, mostly through the texalignment option above.
 
 =cut
 
-# ^uses loadMacros
-loadMacros("PGauxiliaryFunctions.pl");
+sub _niceTables_init {
+	main::PG_restricted_eval('sub DataTable { NiceTables::DataTable(@_) }');
+	main::PG_restricted_eval('sub LayoutTable { NiceTables::LayoutTable(@_) }');
+}
 
-sub _niceTables_init { };    # don't reload this file
+package NiceTables;
 
 sub DataTable {
-	my $dataref = shift;
+	my $userArray = shift;
 
-	# this array will store the number of cells in each row
-	my @numcols = ();
+	# cleaned up and initialized version of the user's array of cell data and cell/row options
+	# $tableArray references a 2D array for the table, with entries being a hash reference
+	# The data key is the cell content, and other keys are (initialiized) options for the cell
+	my $tableArray = TableArray($userArray);
 
-	# if any cells were simply entered as their data value or an array ref, convert to a hash
-	for my $i (0 .. $#{$dataref}) {
-		$numcols[$i] = $#{ $dataref->[$i] };
-		for my $j (0 .. $numcols[$i]) {    # if cell was simply entered as data value, make the hash
-			$dataref->[$i][$j] = { data => $dataref->[$i][$j] }
-				unless (ref($dataref->[$i][$j]) eq "HASH" or ref($dataref->[$i][$j]) eq "ARRAY");
-			# and if it was entered as an array reference, make the hash
-			if (ref($dataref->[$i][$j]) eq "ARRAY") {
-				my $temp = $dataref->[$i][$j];
-				$dataref->[$i][$j] = { "data", @$temp };
-			}
-			#before [a, options] was an option, {d=>a,options} was a shortcut for {data=>a,options}
-			${ $dataref->[$i][$j] }{data} = ${ $dataref->[$i][$j] }{d} if (defined ${ $dataref->[$i][$j] }{d});
-			# set default values for cell
-			${ $dataref->[$i][$j] }{header}    = ''         unless (defined ${ $dataref->[$i][$j] }{header});
-			${ $dataref->[$i][$j] }{tex}       = ''         unless (defined ${ $dataref->[$i][$j] }{tex});
-			${ $dataref->[$i][$j] }{b}         = 0          unless (defined ${ $dataref->[$i][$j] }{b});
-			${ $dataref->[$i][$j] }{i}         = 0          unless (defined ${ $dataref->[$i][$j] }{i});
-			${ $dataref->[$i][$j] }{m}         = 0          unless (defined ${ $dataref->[$i][$j] }{m});
-			${ $dataref->[$i][$j] }{noencase}  = 0          unless (defined ${ $dataref->[$i][$j] }{noencase});
-			${ $dataref->[$i][$j] }{halign}    = ''         unless (defined ${ $dataref->[$i][$j] }{halign});
-			${ $dataref->[$i][$j] }{colspan}   = ''         unless (defined ${ $dataref->[$i][$j] }{colspan});
-			${ $dataref->[$i][$j] }{cellcss}   = ''         unless (defined ${ $dataref->[$i][$j] }{cellcss});
-			${ $dataref->[$i][$j] }{rowcss}    = ''         unless (defined ${ $dataref->[$i][$j] }{rowcss});
-			${ $dataref->[$i][$j] }{rowcolor}  = ''         unless (defined ${ $dataref->[$i][$j] }{rowcolor});
-			${ $dataref->[$i][$j] }{midrule}   = 0          unless (defined ${ $dataref->[$i][$j] }{midrule});
-			${ $dataref->[$i][$j] }{headerrow} = 0          unless (defined ${ $dataref->[$i][$j] }{headerrow});
-			${ $dataref->[$i][$j] }{texencase} = [ '', '' ] unless (defined ${ $dataref->[$i][$j] }{texencase});
-			${ $dataref->[$i][$j] }{texpre}    = ${ $dataref->[$i][$j] }{texencase}->[0]
-				unless (defined ${ $dataref->[$i][$j] }{texpre});
-			${ $dataref->[$i][$j] }{texpost} = ${ $dataref->[$i][$j] }{texencase}->[1]
-				unless (defined ${ $dataref->[$i][$j] }{texpost});
-		}
+	# establish the true number of columns, accounting for all uses of colspan
+	my $colCount = ColumnCount($tableArray);
+
+	# $tableOpts is a hash reference keeping the (initialized) global table options
+	my $tableOpts = TableOptions($colCount, @_);
+
+	# $alignment is a 1D array of hash references, with options for each column
+	my $alignment = ParseAlignment($tableOpts->{texalignment});
+
+	# if the user's data implies more columns than what they specified in texalignment
+	# then we add columns to both $alignment and $tableOpts->{texalignment}
+	for my $i ($#$alignment + 1 .. $colCount) {
+		$alignment->[$i] = { halign => 'c', valign => '', right => '', width => '', tex => '' };
+		$tableOpts->{texalignment} .= 'c';
 	}
 
-	# total number of columns
-	my $numcol = max(@numcols) + 1;
-
-	# define options
-	my %options = (
-		center       => 1,
-		caption      => '',
-		tablecss     => '',
-		captioncss   => '',
-		datacss      => '',
-		headercss    => '',
-		allcellcss   => '',
-		texalignment => join('', ('c') x $numcol),
-		rowheaders   => 0,
-		midrules     => 0,
-		columnscss   => [ ('') x $numcol ],
-		Xratio       => 0.97,
-		encase       => [ '', '' ],
-		LaYoUt       => 0,
-		@_
-	);
-	if ($options{LaYoUt} != 1) { $options{allcellcss} = 'padding-left:6pt; padding-right:6pt; ' . $options{allcellcss} }
-	else                       { $options{allcellcss} = 'padding:12pt; ' . $options{allcellcss} }
-	$options{captioncss} = 'padding:6pt; ' . $options{captioncss};
-	$options{tablecss}   = 'border-collapse:collapse; ' . $options{tablecss};
-
-	my $caption = $options{caption};
-	my (
-		$tablecss,     $captioncss, $datacss,    $headercss, $allcellcss,
-		$texalignment, $midrules,   $columnscss, $Xratio,    $encase
-		)
-		= (
-			$options{tablecss},   $options{captioncss},   $options{datacss},  $options{headercss},
-			$options{allcellcss}, $options{texalignment}, $options{midrules}, $options{columnscss},
-			$options{Xratio},     $options{encase}
-		);
-	my $center = $options{center};
-	if ($center != 0) { $tablecss .= 'text-align:center; margin:0 auto; ' }
-
-	# shortcuts introduced late
-	if (defined $options{align}) { $texalignment = $options{align} }
-	if ($options{rowheaders} == 1) {
-		for my $i (0 .. $#{$dataref}) {
-			${ $dataref->[$i][0] }{header} = 'RH' if (uc(${ $dataref->[$i][0] }{header}) eq '');
-		}
-	}
-
-	# apply contents of encase; cell shortcuts
-	for my $i (0 .. $#{$dataref}) {
-		for my $j (0 .. $numcols[$i]) {
-			${ $dataref->[$i][$j] }{data} = $encase->[0] . ${ $dataref->[$i][$j] }{data} . $encase->[1]
-				unless (${ $dataref->[$i][$j] }{noencase} == 1);
-			if (${ $dataref->[$i][$j] }{b} == 1) { ${ $dataref->[$i][$j] }{tex} .= '\bfseries '; }
-			if (${ $dataref->[$i][$j] }{i} == 1) { ${ $dataref->[$i][$j] }{tex} .= '\itshape '; }
-			if (${ $dataref->[$i][$j] }{m} == 1) { ${ $dataref->[$i][$j] }{tex} .= '\ttfamily '; }
-		}
-	}
-
-	# for each row, store rowcss, rowcolor, midrule, headerrow
-	my @rowcss    = ();
-	my @rowcolor  = ();
-	my @midrule   = ();
-	my @headerrow = ();
-	for my $i (0 .. $#{$dataref}) {
-		$rowcss[$i]    = '';
-		$rowcolor[$i]  = '';
-		$midrule[$i]   = 0;
-		$headerrow[$i] = 0;
-		for my $j (0 .. $numcols[$i]) {
-			$rowcss[$i]    = ${ $dataref->[$i][$j] }{rowcss}    if ($rowcss[$i] eq '');
-			$rowcolor[$i]  = ${ $dataref->[$i][$j] }{rowcolor}  if ($rowcolor[$i] eq '');
-			$midrule[$i]   = ${ $dataref->[$i][$j] }{midrule}   if ($midrule[$i] == 0);
-			$headerrow[$i] = ${ $dataref->[$i][$j] }{headerrow} if ($headerrow[$i] == 0);
-		}
-		if ($rowcolor[$i] =~ /\{\s*(\w*)[}!]/) {
-			$rowcss[$i] = 'background-color:' . $1 . '; ' . $rowcss[$i];
-		}
-		if ($rowcolor[$i] =~ /\[\s*HTML\s*\]\s*\{\s*(\w*)[}!]/) {
-			$rowcss[$i] = 'background-color:#' . $1 . '; ' . $rowcss[$i];
-		}
-	}
-
-	# parse tex alignment for duplicate use in html
-	my $bracesregex = qr/(\{(?>[^{}]|(?R))*\})/x;
-	# grabs outer level braces and their contents, including inner brace pairs
-	my $bracecontentsregex = qr/((?>[^{}]|(??{$bracesregex}))*)/x;
-	# grabs contents of an outer level brace pair, including inner brace pairs
-	my @htmlalignment = split(/(>\s*(??{$bracesregex})\s*|\|\s*|p\s*(??{$bracesregex})\s*|[rclX]\s*)/, $texalignment);
-	my @temp          = ();
-	foreach (@htmlalignment) {
-		if ((defined $_) and ($_ ne '')) {
-			push(@temp, $_);
-		}
-	}
-	@htmlalignment = @temp;
-	# @htmlalignment is now an array, where the entries are the parsed pieces of $texalignment; entries parsed by
-	# >{commands}, pipes (for vertical rules), p{width}, r, c, l, or X
-
-	my @columnalignments = grep { $htmlalignment[$_] =~ /^p\s*(??{$bracesregex})\s*|^[rclX]\s*/ } 0 .. $#htmlalignment;
-	# @columnalignments is an array, where the entries are the indices form @htmlalignment that actually deal with
-	# alignment: p{width}, r, c, l, or X
-	my @alignmentcolumns;
-	for my $i (0 .. $#columnalignments) { $alignmentcolumns[ $columnalignments[$i] ] = $i }
-	# @alignmentcolumns is an array whose ith element is undefined unless the ith element of @htmlalignment was one
-	# of p{width}, r, c, l, or X. Otherwise it is the index of the entry in @columnalignments that corresponds to
-	# that alignment
-
-	# append css to author's columnscss->[$i] that corresponds to the alignemnts in @alignmentcolumns
-	for my $i (0 .. $#columnalignments) {
-		$columnscss->[$i] = TeX_Alignment_to_CSS($htmlalignment[ $columnalignments[$i] ]) . $columnscss->[$i];
-	}
-	# append css to author's columnscss->[$i] that corresponds to other formatting that is in @htmlalignment
-	for my $i (0 .. $#htmlalignment) {
-		if ($htmlalignment[$i] =~ /\\color\s*\{\s*(\w*)[}!]/) {
-			my $j = $i;
-			while (!defined($alignmentcolumns[$j]) && $j < $#htmlalignment) { $j += 1; }
-			$columnscss->[ $alignmentcolumns[$j] ] = 'color:' . $1 . '; ' . $columnscss->[ $alignmentcolumns[$j] ];
-		}
-		if ($htmlalignment[$i] =~ /\\color\s*\[\s*HTML\s*\]\s*\{\s*(\w*)[}!]/) {
-			my $j = $i;
-			while (!defined($alignmentcolumns[$j]) && $j < $#htmlalignment) { $j += 1; }
-			$columnscss->[ $alignmentcolumns[$j] ] = 'color:#' . $1 . '; ' . $columnscss->[ $alignmentcolumns[$j] ];
-		}
-		if ($htmlalignment[$i] =~ /\\columncolor\s*\{\s*(\w*)[}!]/) {
-			my $j = $i;
-			while (!defined($alignmentcolumns[$j]) && $j < $#htmlalignment) { $j += 1; }
-			$columnscss->[ $alignmentcolumns[$j] ] =
-				'background-color:' . $1 . '; ' . $columnscss->[ $alignmentcolumns[$j] ];
-		}
-		if ($htmlalignment[$i] =~ /\\columncolor\s*\[\s*HTML\s*\]\s*\{\s*(\w*)[}!]/) {
-			my $j = $i;
-			while (!defined($alignmentcolumns[$j]) && $j < $#htmlalignment) { $j += 1; }
-			$columnscss->[ $alignmentcolumns[$j] ] =
-				'background-color:#' . $1 . '; ' . $columnscss->[ $alignmentcolumns[$j] ];
-		}
-		if ($htmlalignment[$i] =~ /\\bfseries$|\\bfseries\W/) {
-			my $j = $i;
-			while (!defined($alignmentcolumns[$j]) && $j < $#htmlalignment) { $j += 1; }
-			$columnscss->[ $alignmentcolumns[$j] ] = 'font-weight:bold; ' . $columnscss->[ $alignmentcolumns[$j] ];
-		}
-		if ($htmlalignment[$i] =~ /\\itshape$|\\itshape\W/) {
-			my $j = $i;
-			while (!defined($alignmentcolumns[$j]) && $j < $#htmlalignment) { $j += 1; }
-			$columnscss->[ $alignmentcolumns[$j] ] = 'font-style:italic; ' . $columnscss->[ $alignmentcolumns[$j] ];
-		}
-		if ($htmlalignment[$i] =~ /\\ttfamily$|\\ttfamily\W/) {
-			my $j = $i;
-			while (!defined($alignmentcolumns[$j]) && $j < $#htmlalignment) { $j += 1; }
-			$columnscss->[ $alignmentcolumns[$j] ] = 'font-family:monospace; ' . $columnscss->[ $alignmentcolumns[$j] ];
-		}
-		if ($htmlalignment[$i] =~ /\|\s*/) {
-			my $j = $i;
-			while (!defined($alignmentcolumns[$j]) && $j < $#htmlalignment) { $j += 1; }
-			if ($j < $#htmlalignment) {
-				$columnscss->[ $alignmentcolumns[$j] ] =
-					"border-left:solid 1px; " . $columnscss->[ $alignmentcolumns[$j] ];
-			}
-			if (defined $alignmentcolumns[$j]) {
-				if ($alignmentcolumns[$j] != 0) {
-					$columnscss->[ $alignmentcolumns[$j] - 1 ] =
-						"border-right:solid 1px; " . $columnscss->[ $alignmentcolumns[$j] - 1 ];
-				}
-			}
-			if ($j == $#htmlalignment) {
-				if   ($j == $i) { $columnscss->[-1] = "border-right:solid 1px; " . $columnscss->[-1]; }
-				else            { $columnscss->[-1] = "border-left:solid 1px; " . $columnscss->[-1]; }
-			}
-		}
-
-	}
-
-	# translate individual cell's tex to css
-
-	for my $i (0 .. $#{$dataref}) {
-		for my $j (0 .. $numcols[$i]) {
-			if (${ $dataref->[$i][$j] }{tex} =~ /\\color\s*\{\s*(\w*)[}!]/) {
-				${ $dataref->[$i][$j] }{cellcss} = 'color:' . $1 . '; ' . ${ $dataref->[$i][$j] }{cellcss};
-			}
-			if (${ $dataref->[$i][$j] }{tex} =~ /\\color\s*\[\s*HTML\s*\]\s*\{\s*(\w*)[}!]/) {
-				${ $dataref->[$i][$j] }{cellcss} = 'color:#' . $1 . '; ' . ${ $dataref->[$i][$j] }{cellcss};
-			}
-			if (${ $dataref->[$i][$j] }{tex} =~ /\\cellcolor\s*\{\s*(\w*)[}!]/) {
-				${ $dataref->[$i][$j] }{cellcss} = 'background-color:' . $1 . '; ' . ${ $dataref->[$i][$j] }{cellcss};
-			}
-			if (${ $dataref->[$i][$j] }{tex} =~ /\\cellcolor\s*\[\s*HTML\s*\]\s*\{\s*(\w*)[}!]/) {
-				${ $dataref->[$i][$j] }{cellcss} = 'background-color:#' . $1 . '; ' . ${ $dataref->[$i][$j] }{cellcss};
-			}
-			if (${ $dataref->[$i][$j] }{tex} =~ /\\bfseries$|\\bfseries\W/) {
-				${ $dataref->[$i][$j] }{cellcss} = 'font-weight:bold; ' . ${ $dataref->[$i][$j] }{cellcss};
-			}
-			if (${ $dataref->[$i][$j] }{tex} =~ /\\itshape$|\\itshape\W/) {
-				${ $dataref->[$i][$j] }{cellcss} = 'font-style:italic; ' . ${ $dataref->[$i][$j] }{cellcss};
-			}
-			if (${ $dataref->[$i][$j] }{tex} =~ /\\ttfamily$|\\ttfamily\W/) {
-				${ $dataref->[$i][$j] }{cellcss} = 'font-family:monospace; ' . ${ $dataref->[$i][$j] }{cellcss};
-			}
-		}
-	}
-
-	for my $i (0 .. $#columnalignments) { $alignmentcolumns[ $columnalignments[$i] ] = $i }
- # @alignmentcolumns is an array with one element per column, where the elements are each one of p{width}, r, c, l, or X
-
-	# append css to author's columnscss->[$i] that corresponds to the alignemnts in @alignmentcolumns
-
-	# parse tex alignment for individual cells to duplicate use in html
-	for my $i (0 .. $#{$dataref}) {
-		for my $j (0 .. $numcols[$i]) {
-			if (${ $dataref->[$i][$j] }{halign} ne '') {
-				my @htmlalignment = split(/(>\s*(??{$bracesregex})\s*|\|\s*|p\s*(??{$bracesregex})\s*|[rclX]\s*)/,
-					${ $dataref->[$i][$j] }{halign});
-				my @temp = ();
-				foreach (@htmlalignment) {
-					if ((defined $_) and ($_ ne '')) {
-						push(@temp, $_);
-					}
-				}
-				@htmlalignment = @temp;
-# @htmlalignment is now an array, where the entries are the parsed pieces of ${$dataref->[$i][$j]}{halign}; entries parsed by
-# >{commands}, pipes (for vertical rules), p{width}, r, c, l, or X. There should only be one of the actual alignment characters
-
-				my @columnalignments =
-					grep { $htmlalignment[$_] =~ /^p\s*(??{$bracesregex})\s*|^[rclX]\s*/ } 0 .. $#htmlalignment;
-# @columnalignments is an array, where the entries are the indices form @htmlalignment that actually deal with
-# alignment: p{width}, r, c, l, or X. This array should only have one entry (but structure of this whole section has been copied from above)
-
-				my @alignmentcolumns;
-				for my $k (0 .. $#columnalignments) { $alignmentcolumns[ $columnalignments[$k] ] = $k }
-		 # @alignmentcolumns is an array whose ith element is undefined unless the ith element of @htmlalignment was one
-		 # of p{width}, r, c, l, or X. Otherwise it is the index of the entry in @columnalignments that corresponds to
-		 # that alignment
-		 # Again, this should only have one entry.
-
-				for my $k (0 .. $#columnalignments) {
-					${ $dataref->[$i][$j] }{cellcss} = TeX_Alignment_to_CSS($htmlalignment[ $columnalignments[$k] ])
-						. ${ $dataref->[$i][$j] }{cellcss};
-				}
-				for my $k (0 .. $#htmlalignment) {
-					if ($htmlalignment[$k] =~ /\\color\s*\{\s*(\w*)[}!]/) {
-						my $m = $k;
-						while (!defined($alignmentcolumns[$m]) && $m < $#htmlalignment) { $m += 1; }
-						${ $dataref->[$i][$j] }{cellcss} = 'color:' . $1 . '; ' . ${ $dataref->[$i][$j] }{cellcss};
-					}
-					if ($htmlalignment[$k] =~ /\\color\s*\[\s*HTML\s*\]\s*\{\s*(\w*)[}!]/) {
-						my $m = $k;
-						while (!defined($alignmentcolumns[$m]) && $m < $#htmlalignment) { $m += 1; }
-						${ $dataref->[$i][$j] }{cellcss} = 'color:#' . $1 . '; ' . ${ $dataref->[$i][$j] }{cellcss};
-					}
-					if ($htmlalignment[$k] =~ /\\cellcolor\s*\{\s*(\w*)[}!]/) {
-						my $m = $k;
-						while (!defined($alignmentcolumns[$m]) && $m < $#htmlalignment) { $m += 1; }
-						${ $dataref->[$i][$j] }{cellcss} =
-							'background-color:' . $1 . '; ' . ${ $dataref->[$i][$j] }{cellcss};
-					}
-					if ($htmlalignment[$k] =~ /\\cellcolor\s*\[\s*HTML\s*\]\s*\{\s*(\w*)[}!]/) {
-						my $m = $k;
-						while (!defined($alignmentcolumns[$m]) && $m < $#htmlalignment) { $m += 1; }
-						${ $dataref->[$i][$j] }{cellcss} =
-							'background-color:#' . $1 . '; ' . ${ $dataref->[$i][$j] }{cellcss};
-					}
-					if ($htmlalignment[$k] =~ /\\bfseries$|\\bfseries\W/) {
-						my $m = $k;
-						while (!defined($alignmentcolumns[$m]) && $m < $#htmlalignment) { $m += 1; }
-						${ $dataref->[$i][$j] }{cellcss} = 'font-weight:bold; ' . ${ $dataref->[$i][$j] }{cellcss};
-					}
-					if ($htmlalignment[$k] =~ /\\itshape$|\\itshape\W/) {
-						my $m = $k;
-						while (!defined($alignmentcolumns[$m]) && $m < $#htmlalignment) { $m += 1; }
-						${ $dataref->[$i][$j] }{cellcss} = 'font-style:italic; ' . ${ $dataref->[$i][$j] }{cellcss};
-					}
-					if ($htmlalignment[$k] =~ /\\ttfamily$|\\ttfamily\W/) {
-						my $m = $k;
-						while (!defined($alignmentcolumns[$m]) && $m < $#htmlalignment) { $m += 1; }
-						${ $dataref->[$i][$j] }{cellcss} = 'font-family:monospace; ' . ${ $dataref->[$i][$j] }{cellcss};
-					}
-					if ($htmlalignment[$k] =~ /\|\s*/) {
-						my $m = $k;
-						while (!defined($alignmentcolumns[$m]) && $m < $#htmlalignment) { $m += 1; }
-						if ($m < $#htmlalignment) {
-							${ $dataref->[$i][$j] }{cellcss} =
-								"border-left:solid 1px; " . ${ $dataref->[$i][$j] }{cellcss};
-						}
-						if (defined $alignmentcolumns[$m] && $alignmentcolumns[$m] != 0) {
-							${ $dataref->[$i][$j] }{cellcss} =
-								"border-right:solid 1px; " . ${ $dataref->[$i][$j] }{cellcss};
-						}
-						if ($m == $#htmlalignment) {
-							if ($m == $k) {
-								${ $dataref->[$i][$j] }{cellcss} =
-									"border-right:solid 1px; " . ${ $dataref->[$i][$j] }{cellcss};
-							} else {
-								${ $dataref->[$i][$j] }{cellcss} =
-									"border-left:solid 1px; " . ${ $dataref->[$i][$j] }{cellcss};
-							}
-						}
-					}
-
-				}
-			}
-		}
-	}
-
-	my $midrulescss = '';
-	if ($midrules == 1) { $midrulescss = 'border-top:solid 1px; ' }
-
-	my $table    = '';
-	my $ptxtable = '';
-	# build html and ptx strings for the table (which have structural similarities that distinguish them from tex)
-	if ($options{LaYoUt} != 1) {
-		$table    = '<TABLE style = "' . $tablecss . '">';
-		$ptxtable = "<tabular" . (($midrules) ? ' top="minor" bottom="minor"' : '') . ">\n";
-		$table .= '<colgroup>';
-		for my $i (0 .. $#{$columnscss}) {
-			$columnscss->[$i] = '' unless (defined($columnscss->[$i]));
-			$table .= '<col style = "' . $columnscss->[$i] . '">';
-		}
-		$table .= '</colgroup>';
-		if ($caption ne '') {
-			$table .= '<CAPTION style = "' . $captioncss . '">' . $caption . '</CAPTION>';
-			# Needs to be a better way to incorporate the caption into PTX output
-			# This way makes "captions" that extend past the table
-			#$ptxtable .= "<row>\n".'<cell colspan="'.$numcol.'">'.$caption.'</cell>'."\n</row>\n";
-		}
-		my $bodystarted = 0;
-		for my $i (0 .. $#{$dataref}) {
-			my $midrulecss = ($midrule[$i] == 1) ? 'border-bottom:solid 1px; ' : '';
-			if    ($i == $#{$dataref} and ($midrules == 1)) { $midrulescss .= 'border-bottom:solid 1px; '; }
-			if    ($headerrow[$i] == 1)                     { $table       .= '<THEAD>'; }
-			elsif (!$bodystarted)                           { $table       .= '<TBODY>'; $bodystarted = 1 }
-			$table    .= '<TR>';
-			$ptxtable .= "<row>\n";
-			for my $j (0 .. $numcols[$i]) {
-				my $colspan =
-					(${ $dataref->[$i][$j] }{colspan} eq '')
-					? ''
-					: 'colspan = "' . ${ $dataref->[$i][$j] }{colspan} . '" ';
-				if (uc(${ $dataref->[$i][$j] }{header}) eq 'TH') {
-					$table .= '<TH '
-						. $colspan
-						. 'style = "'
-						. $allcellcss
-						. $headercss
-						. $columnscss->[$j]
-						. $midrulecss
-						. $midrulescss
-						. $rowcss[$i]
-						. ${ $dataref->[$i][$j] }{cellcss} . '">'
-						. ${ $dataref->[$i][$j] }{data} . '</TH>';
-				} elsif (grep { uc(${ $dataref->[$i][$j] }{header}) eq $_ } ('CH', 'COLUMN', 'COL')) {
-					$table .= '<TH '
-						. $colspan
-						. 'scope = "col" style = "'
-						. $allcellcss
-						. $headercss
-						. $columnscss->[$j]
-						. $midrulecss
-						. $midrulescss
-						. $rowcss[$i]
-						. ${ $dataref->[$i][$j] }{cellcss} . '">'
-						. ${ $dataref->[$i][$j] }{data} . '</TH>';
-				} elsif (grep { uc(${ $dataref->[$i][$j] }{header}) eq $_ } ('RH', 'ROW')) {
-					$table .= '<TH '
-						. $colspan
-						. 'scope = "row" style = "'
-						. $allcellcss
-						. $headercss
-						. $columnscss->[$j]
-						. $midrulecss
-						. $midrulescss
-						. $rowcss[$i]
-						. ${ $dataref->[$i][$j] }{cellcss} . '">'
-						. ${ $dataref->[$i][$j] }{data} . '</TH>';
-				} elsif (uc(${ $dataref->[$i][$j] }{header}) eq 'TD') {
-					$table .= '<TD '
-						. $colspan
-						. 'style = "'
-						. $allcellcss
-						. $datacss
-						. $columnscss->[$j]
-						. $midrulecss
-						. $midrulescss
-						. $rowcss[$i]
-						. ${ $dataref->[$i][$j] }{cellcss} . '">'
-						. ${ $dataref->[$i][$j] }{data} . '</TD>';
-				} elsif (uc($headerrow[$i]) == 1) {
-					$table .= '<TH '
-						. $colspan
-						. 'scope = "col" style = "'
-						. $allcellcss
-						. $headercss
-						. $columnscss->[$j]
-						. $midrulecss
-						. $midrulescss
-						. $rowcss[$i]
-						. ${ $dataref->[$i][$j] }{cellcss} . '">'
-						. ${ $dataref->[$i][$j] }{data} . '</TH>';
-				} else {
-					$table .= '<TD '
-						. $colspan
-						. 'style = "'
-						. $allcellcss
-						. $datacss
-						. $columnscss->[$j]
-						. $midrulecss
-						. $midrulescss
-						. $rowcss[$i]
-						. ${ $dataref->[$i][$j] }{cellcss} . '">'
-						. ${ $dataref->[$i][$j] }{data} . '</TD>';
-				}
-				$ptxtable .= '<cell>' . ${ $dataref->[$i][$j] }{data} . '</cell>' . "\n";
-			}
-			$table    .= "</TR>";
-			$ptxtable .= "</row>\n";
-			if    ($headerrow[$i] == 1)                   { $table .= '</THEAD>'; }
-			elsif ($bodystarted and ($i == $#{$dataref})) { $table .= '</TBODY>'; }
-		}
-		$table    .= "</TABLE>";
-		$ptxtable .= "</tabular>";
-	}    # now if it is a Layout Table...
-	else {
-		$table = '<SECTION style = "display:table;' . $tablecss . '">';
-		for my $i (0 .. $#{$dataref}) {
-			if ($i == $#{$dataref} and ($midrules == 1)) { $midrulescss .= "border-bottom:solid 1px;"; }
-			my $midrulecss = ($midrule[$i] == 1) ? 'border-bottom:solid 1px; ' : '';
-			$table .= '<DIV style = "display:table-row;">';
-			for my $j (0 .. $numcols[$i]) {
-				$table .=
-					'<DIV style = "display:table-cell;'
-					. $allcellcss
-					. $columnscss->[$j]
-					. $midrulecss
-					. $midrulescss
-					. $rowcss[$i]
-					. ${ $dataref->[$i][$j] }{cellcss} . '">'
-					. ${ $dataref->[$i][$j] }{data}
-					. '</DIV>';
-			}
-			$table .= "</DIV>";
-		}
-		$table .= "</SECTION>";
-	}
-
-	#when \multicolumn{}{}{} is needed...
-	for my $i (0 .. $#{$dataref}) {
-		for my $j (0 .. $numcols[$i]) {
-			${ $dataref->[$i][$j] }{multicolumn} = '';
-			if ((${ $dataref->[$i][$j] }{halign} ne '') or (${ $dataref->[$i][$j] }{colspan} ne '')) {
-				${ $dataref->[$i][$j] }{multicolumn} = '\multicolumn{';
-				if (${ $dataref->[$i][$j] }{colspan} ne '') {
-					${ $dataref->[$i][$j] }{multicolumn} .= ${ $dataref->[$i][$j] }{colspan};
-				} else {
-					${ $dataref->[$i][$j] }{multicolumn} .= '1';
-				}
-				${ $dataref->[$i][$j] }{multicolumn} .= '}{';
-				if (${ $dataref->[$i][$j] }{halign} ne '') {
-					${ $dataref->[$i][$j] }{multicolumn} .= ${ $dataref->[$i][$j] }{halign};
-				} else {
-					${ $dataref->[$i][$j] }{multicolumn} .= 'c';
-				}
-				${ $dataref->[$i][$j] }{multicolumn} .= '}{';
-			}
-		}
-	}
-
-	my $textable = '';
-	# build tex string for the table
-	if ($options{LaYoUt} != 1) {
-		my ($begintabular, $endtabular) = ('\begin{tabular}', '\end{tabular}');
-		if ($texalignment =~ /X/) {
-			($begintabular, $endtabular) = ('\begin{tabularx}{' . $Xratio . '\linewidth}', '\end{tabularx}');
-		}
-		$textable = '\par\begin{minipage}{\linewidth}';
-		if ($center == 1) { $textable .= '\centering'; }
-		if ($caption ne '') {
-			$textable .=
-				'\captionsetup{textfont={sc},belowskip=12pt,aboveskip=4pt}\captionof*{table}{' . $caption . '}';
-		}
-		$textable .= $begintabular . '{' . $texalignment . '}' . '\toprule';
-		for my $i (0 .. $#{$dataref}) {
-			if ($rowcolor[$i] ne '') { $textable .= '\rowcolor' . $rowcolor[$i]; }
-			for my $j (0 .. $numcols[$i])
-
-			{
-				if (grep { uc(${ $dataref->[$i][$j] }{header}) eq $_ } ('TH', 'CH', 'COLUMN', 'COL', 'RH', 'ROW')
-						or ($headerrow[$i] == 1) and !(uc(${ $dataref->[$i][$j] }{header}) eq 'TD'))
-				{
-					${ $dataref->[$i][$j] }{tex} = '\bfseries ' . ${ $dataref->[$i][$j] }{tex};
-				}
-
-				if (${ $dataref->[$i][$j] }{multicolumn} ne '') { $textable .= ${ $dataref->[$i][$j] }{multicolumn} }
-				$textable .=
-					${ $dataref->[$i][$j] }{texpre} . ' '
-					. ${ $dataref->[$i][$j] }{tex} . ' '
-					. ${ $dataref->[$i][$j] }{data} . ' '
-					. ${ $dataref->[$i][$j] }{texpost};
-				if (${ $dataref->[$i][$j] }{multicolumn} ne '') { $textable .= '}' }
-				$textable .= '&' unless ($j == $numcols[$i]);
-			}
-			$textable .= '\\\\';
-			if ($midrule[$i] == 1)                                                    { $textable .= '\midrule ' }
-			if ((($midrules == 1) or ($headerrow[$i] == 1)) and ($i != $#{$dataref})) { $textable .= '\midrule ' }
-		}
-		$textable .= '\bottomrule' . $endtabular;
-		$textable .= '\end{minipage}\par  \vspace{1pc}';
-	}    # and now if it is a Layout Table...
-	else {
-		my ($begintabular, $endtabular) = ('\begin{tabular}', '\end{tabular}');
-		if ($texalignment =~ /X/) {
-			($begintabular, $endtabular) = ('\begin{tabularx}{' . $Xratio . '\linewidth}', '\end{tabularx}');
-		}
-
-		$textable = ($center == 1) ? '\begin{center}' : '\begin{flushleft}';
-		$textable .= '{\renewcommand{\arraystretch}{2}';
-		$textable .= $begintabular . '{' . $texalignment . '}';
-		for my $i (0 .. $#{$dataref}) {
-			if ($rowcolor[$i] ne '') { $textable .= '\rowcolor' . $rowcolor[$i]; }
-			for my $j (0 .. $numcols[$i]) {
-				if (${ $dataref->[$i][$j] }{halign} ne '') {
-					$textable .= '\multicolumn{1}{' . ${ $dataref->[$i][$j] }{halign} . '}{';
-				}
-				$textable .=
-					${ $dataref->[$i][$j] }{tex} . ' '
-					. ${ $dataref->[$i][$j] }{texpre} . ' '
-					. ${ $dataref->[$i][$j] }{data} . ' '
-					. ${ $dataref->[$i][$j] }{texpost};
-				if (${ $dataref->[$i][$j] }{halign} ne '') { $textable .= '}' }
-				$textable .= '&' unless ($j == $numcols[$i]);
-			}
-			$textable .= '\\\\';
-			if ($midrule[$i] == 1)                         { $textable .= '\midrule ' }
-			if (($midrules == 1) and ($i != $#{$dataref})) { $textable .= '\midrule ' }
-		}
-		$textable .= $endtabular;
-		$textable .= '}';
-		if   ($center == 1) { $textable .= '\end{center}' }
-		else                { $textable .= '\end{flushleft}' }
-	}
-
-	MODES(
-		TeX  => $textable,
-		HTML => $table,
-		PTX  => $ptxtable,
-	);
+	return TableEnvironment($tableArray, $tableOpts, $alignment);
 }
-
-=pod
-
-Command for table to control layout
-
-Usage:  LayoutTable(...)
-	See usage for DataTable. The HTML output will use section and div boxes instead of HTML tabling elements
-	Anything having to do with headers, captions, and data cells no longer make sense (although 'data' is still
-	used as the key for cell contents).
-
-=cut
 
 sub LayoutTable {
-	my $dataref = shift;
-	if   ($main::displayMode eq 'PTX') { DataTable($dataref, @_); }
-	else                               { DataTable($dataref, LaYoUt => 1, @_); }
+	return DataTable(@_, LaYoUt => 1);
 }
 
-sub TeX_Alignment_to_CSS {
-	my $alignmentstring = shift;
-	my $bracesregex     = qr/(\{(?>[^{}]|(?R))*\})/x;
-	# grabs outer level braces and their contents, including inner brace pairs
-	my $bracecontentsregex = qr/((?>[^{}]|(??{$bracesregex}))*)/x;
-	# grabs contents of an outer level brace pair, including inner brace pairs
+# Make the outer table environment
+sub TableEnvironment {
+	my ($tableArray, $tableOpts, $alignment) = @_;
 
-	my $css = '';
-	if ($alignmentstring =~ /r\s*/) {
-		$css .= "text-align:right; white-space:nowrap; ";
-	} elsif ($alignmentstring =~ /c\s*/) {
-		$css .= "text-align:center; white-space:nowrap; ";
-	} elsif ($alignmentstring =~ /l\s*/) {
-		$css .= "text-align:left; white-space:nowrap; ";
-	} elsif ($alignmentstring =~ /X\s*/) {
-		$css .= "text-align:justify; white-space:normal; ";
-	} elsif ($alignmentstring =~ /p\s*\{((??{$bracecontentsregex}))\}\s*/) {
-		$css .= "text-align:justify; white-space:normal; width:" . $1 . "; ";
+	# determine if somewhere in the alignment there are X columns
+	my $hasX = 0;
+	for my $align (@$alignment) {
+		if ($align->{halign} eq 'X') {
+			$hasX = 1;
+			last;
+		}
 	}
-	return $css;
+
+	# determine if first row has a top border
+	my $top = '';
+	for my $x (@{ $tableArray->[0] }) {
+		$top = $x->{rowtop} if ($x->{rowtop});
+	}
+
+	my $booktabs = $tableOpts->{booktabs};
+
+	my $cols = Cols($tableArray, $tableOpts, $alignment);
+	my $rows = Rows($tableArray, $tableOpts, $alignment);
+
+	if ($main::displayMode eq 'TeX') {
+		my $tabulartype  = $hasX ? 'tabularx'                        : 'tabular';
+		my $tabularwidth = $hasX ? "$tableOpts->{Xratio}\\linewidth" : '';
+		$rows = latexEnvironment($rows, $tabulartype, [ $tabularwidth, '[t]', $tableOpts->{texalignment} ], ' ');
+		$rows = prefix($rows, '\centering%') if $tableOpts->{center};
+		$rows = prefix($rows, '\renewcommand{\arraystretch}{2}', '')
+			if $tableOpts->{LaYoUt};
+		$rows = suffix(
+			$rows,
+			"\\captionsetup{textfont={sc},belowskip=12pt,aboveskip=4pt}\\captionof*{table}{$tableOpts->{caption}}",
+			' '
+		) if ($tableOpts->{caption});
+		$rows = wrap($rows, '\par', '\par', '');
+		$rows = wrap($rows, '{',    '}',    '');
+	} elsif ($main::displayMode eq 'PTX') {
+		my $ptxleft = getPTXthickness($alignment->[0]{left});
+		my $ptxtop  = '';
+		if ($tableOpts->{horizontalrules} && $booktabs) {
+			$ptxtop = 'major';
+		} elsif ($tableOpts->{horizontalrules}) {
+			$ptxtop = 'minor';
+		}
+		$ptxtop = getPTXthickness($top) if $top;
+		my $ptxwidth   = '';
+		my $ptxmargins = '';
+
+		if ($hasX) {
+			$ptxwidth = $tableOpts->{Xratio} * 100;
+			my $leftmargin  = ($tableOpts->{center}) ? (100 - $ptxwidth) / 2 : 0;
+			my $rightmargin = 100 - $ptxwidth - $leftmargin;
+			$ptxmargins = "${leftmargin}% ${rightmargin}%";
+			$ptxwidth .= '%';
+		} elsif (!$tableOpts->{center}) {
+			$ptxwidth   = '100%';
+			$ptxmargins = '0% 0%';
+		}
+		my $ptxbottom = ($tableOpts->{horizontalrules}) ? 'minor' : '';
+		if ($tableOpts->{LaYoUt}) {
+			$rows = tag(
+				$rows,
+				'sbsgroup',
+				{
+					width   => $ptxwidth,
+					margins => $ptxmargins,
+				}
+			);
+		} elsif (!$tableOpts->{LaYoUt}) {
+			$rows = prefix($rows, $cols);
+			$rows = tag(
+				$rows,
+				'tabular',
+				{
+					valign  => ($tableOpts->{valign} ne 'middle') ? $tableOpts->{valign} : '',
+					width   => $ptxwidth,
+					margins => $ptxmargins,
+					left    => $ptxleft,
+					top     => $ptxtop,
+					bottom  => $ptxbottom
+				}
+			);
+		}
+
+		# We fake a caption as a tabular that follows the actual tabular
+		# This is not great, but PTX has no option to put a caption on a tabular
+		# (It can put a caption on a table, but we are not making a PTX table.)
+		my $ptxcaption = '';
+		if ($tableOpts->{caption}) {
+			$ptxcaption = $tableOpts->{caption};
+			$ptxcaption = tag($ptxcaption, 'cell');
+			$ptxcaption = tag($ptxcaption, 'row');
+			my $ptxcapwidth = '';
+			if ($hasX) {
+				$ptxcapwidth = $tableOpts->{Xratio} * 100 . '%';
+			} else {
+				$ptxcapwidth = '50%';
+			}
+			$ptxcapcol  = tag('', 'col', { width => $ptxcapwidth });
+			$ptxcaption = prefix($ptxcaption, $ptxcapcol);
+			$ptxcaption = tag($ptxcaption, 'tabular', { width => $ptxwidth, margins => $ptxmargins });
+		}
+		$rows = suffix($rows, $ptxcaption);
+	} else {
+		my $css = $tableOpts->{tablecss};
+		if ($hasX) {
+			$css .= css('width', $tableOpts->{Xratio} * 100 . '%');
+		}
+		$css .= css('border-left', getRuleCSS($alignment->[0]{left}));
+		$css .= css('margin',      'auto') if $tableOpts->{center};
+
+		my $htmlcols = '';
+		$htmlcols = tag($cols, 'colgroup')
+			unless ($cols =~ /^(<col>|\n)*$/ || $tableOpts->{LaYoUt});
+		$rows = prefix($rows, $htmlcols);
+		my $htmlcaption = tag($tableOpts->{caption}, 'caption', { style => $tableOpts->{captioncss} });
+		$rows = prefix($rows, $htmlcaption) if ($tableOpts->{caption} && !$tableOpts->{LaYoUt});
+
+		if ($tableOpts->{LaYoUt}) {
+			$css .= css('display',         'table');
+			$css .= css('border-collapse', 'collapse');
+			$rows = tag($rows, 'div', { style => $css });
+		} else {
+			$rows = tag($rows, 'table', { style => $css });
+		}
+	}
+
+	return $rows;
+
+}
+
+sub Cols {
+	my ($tableArray, $tableOpts, $alignment) = @_;
+	my $columnscss = $tableOpts->{columnscss};
+	my @cols       = ();
+
+	# Loop through columns ($alignment->[0] is the left border not a column)
+	for my $i (1 .. $#$alignment) {
+		my $align = $alignment->[$i];
+
+		# determine if this column has any paragraph cells
+		my $width = '';
+		for my $y (@$tableArray) {
+			for my $x (@$y) {
+
+				# accounting for use of colspan...
+				if ($x->{leftcol} == $i && $x->{halign} =~ /^p\{([^}]*?)\}/) {
+					$width = $1;
+				}
+			}
+		}
+
+		# determine if this column has a top border
+		my $top = '';
+		for my $x (@{ $tableArray->[0] }) {
+
+			# accounting for use of colspan...
+			if ($x->{leftcol} <= $i && $i <= $x->{rightcol} && $x->{top}) {
+				$top = $x->{top};
+			}
+		}
+
+		if ($main::displayMode eq 'PTX') {
+			my $ptxhalign = '';
+			$ptxhalign = 'center' if ($align->{halign} eq 'c');
+			$ptxhalign = 'right'  if ($align->{halign} eq 'r');
+			my $ptxright = '';
+			$ptxright = getPTXthickness($align->{right});
+			my $ptxtop = '';
+			$ptxtop = getPTXthickness($top);
+			my $ptxwidth = '';
+			$ptxwidth = getWidthPercent($align->{width}) if $align->{width};
+			$ptxwidth = ($tableOpts->{Xratio} / $#$alignment * 100) . '%'
+				if ($align->{halign} eq 'X');
+			$ptxwidth = getWidthPercent($width) if $width;
+			push(
+				@cols,
+				tag(
+					'', 'col',
+					{
+						header => ($i == 1 && $tableOpts->{rowheaders}) ? 'yes' : '',
+						halign => $ptxhalign,
+						right  => $ptxright,
+						top    => $ptxtop,
+						width  => $ptxwidth
+					}
+				)
+			);
+		} else {
+			my $htmlright = '';
+			$htmlright .= css('border-right', 'solid 2px')
+				if ($i == 1 && $tableOpts->{rowheaders} && $tableOpts->{headerrules});
+			$htmlright .= css('border-right', getRuleCSS($align->{right}));
+			my $htmltop = '';
+			$htmltop .= css('border-top', getRuleCSS($top));
+
+			# $i starts at 1, but columncss indexing starts at 0
+			my $htmlcolcss = $columnscss->[ $i - 1 ];
+			if ($align->{tex} =~ /\\columncolor(\[HTML\])?\{(.*?)[}!]/) {
+				$htmlcolcss .= css('background-color', ($1 ? '#' : '') . $2);
+			}
+
+			push(@cols, tag('', 'col', { style => "${htmlright}${htmltop}${htmlcolcss}" }));
+		}
+
+	}
+
+	return join("\n", @cols);
+
+}
+
+sub Rows {
+	my ($tableArray, $tableOpts, $alignment) = @_;
+
+	my @rows;
+	my @htmlhead;
+	my @htmlbody;
+	my $htmlout;
+	my $stillinhtmlhead = 1;
+
+	for my $i (0 .. $#$tableArray) {
+		my $rowArray = $tableArray->[$i];
+		my $booktabs = $tableOpts->{booktabs};
+		my $row      = Row($rowArray, $tableOpts, $alignment);
+		my $html     = $row;
+
+		# establish if this row has certain things
+		# when declared mulltiple times, last non-falsy values are used
+		my $bottom    = 0;
+		my $top       = 0;
+		my $rowcolor  = '';
+		my $headerrow = '';
+		my $valign    = '';
+		for my $x (@$rowArray) {
+			$bottom    = $x->{rowbottom} if ($x->{rowbottom});
+			$top       = $x->{rowtop}    if ($x->{rowtop} && $i == 0);
+			$rowcolor  = $x->{rowcolor}  if ($x->{rowcolor});
+			$headerrow = 'yes'           if ($x->{headerrow});
+			$valign    = $x->{valign}    if ($x->{valign});
+		}
+
+		if ($main::displayMode eq 'TeX') {
+			# separator argument is space (not the default line break)
+			# to avoid PGML catcode manipulation issues
+			$row = prefix($row, "\\rowcolor" . formatColorLaTeX($rowcolor), ' ')
+				if ($rowcolor);
+			$row = prefix($row, hrule($booktabs, 'top', $top), ' ')
+				if ($top || ($i == 0 && $tableOpts->{horizontalrules}));
+			$row = suffix($row, "\\\\",                           ' ') unless ($i == $#$tableArray);
+			$row = suffix($row, hrule($booktabs, 'mid', $bottom), ' ')
+				if ($i < $#$tableArray && ($bottom || $tableOpts->{horizontalrules})
+					|| $headerrow && $tableOpts->{headerrules});
+			$row = suffix($row, "\\\\" . hrule($booktabs, 'bottom', $bottom), ' ')
+				if ($i == $#$tableArray
+					&& ($bottom || $tableOpts->{horizontalrules}));
+
+			# do cells in this row have a top or bottom border?
+			# although a propery of cells, LaTeX makes us do this at the row level
+			for my $x (@$rowArray) {
+				$row = prefix($row, hrule($booktabs, 'cmid', $x->{top}) . "{$x->{leftcol}-$x->{rightcol}}", ' ')
+					if ($i == 0 && $x->{top});
+				$row = suffix($row, hrule($booktabs, 'cmid', $x->{bottom}) . "{$x->{leftcol}-$x->{rightcol}}", ' ')
+					if $x->{bottom};
+			}
+
+			push(@rows, $row);
+		} elsif ($main::displayMode eq 'PTX') {
+			my $ptxbottom = '';
+			if ($i == $#$tableArray && $tableOpts->{horizontalrules} && $booktabs) {
+				$ptxbottom = 'major';
+			} elsif ($tableOpts->{horizontalrules}) {
+				$ptxbottom = 'minor';
+			}
+			$ptxbottom = getPTXthickness($bottom) if $bottom;
+			my $ptxleft = '';
+			$ptxleft = 'minor'  if ($rowArray->[0]{halign} =~ /^\s*\|/);
+			$ptxleft = 'medium' if ($rowArray->[0]{halign} =~ /^\s*\|\s*\|/);
+			$ptxleft = 'major'  if ($rowArray->[0]{halign} =~ /^\s*\|\s*\|\s*\|/);
+
+			if ($rowArray->[0]{halign} =~ /^(?:\s|\|)*!\{\s*\\vrule\s+width\s+([^}]*?)\s*}/) {
+				$ptxleft = 'minor'  if ($1);
+				$ptxleft = 'minor'  if ($1 == '0.04em');
+				$ptxleft = 'medium' if ($1 == '0.07em');
+				$ptxleft = 'major'  if ($1 == '0.11em');
+			}
+
+			$ptxleft = '' if ($ptxleft eq $alignment->[0]{left});
+			$ptxleft = "none"
+				if (!$ptxleft && $rowArray->[0]{halign} && $alignment->[0]{left});
+
+			if ($tableOpts->{LaYoUt}) {
+				my $ptxwidthsum = 0;
+				my $ptxautocols = $#alignment;
+				for my $j (1 .. $#alignment) {
+					if ($rowArray->[ $j - 1 ]{width}) {
+						$ptxwidthsum +=
+							substr getWidthPercent($tableArray->[ $j - 1 ]{width}),
+							0, -1;
+						$ptxautocols -= 1;
+					} elsif ($alignment->[$j]{width}) {
+						$ptxwidthsum += substr getWidthPercent($alignment->[$j]{width}), 0, -1;
+						$ptxautocols -= 1;
+					}
+				}
+
+				# determine if somewhere in the overall alignment, there are X columns
+				my $hasX = 0;
+				for my $align (@$alignment) {
+					if ($align->{halign} eq 'X') {
+						$hasX = 1;
+						last;
+					}
+				}
+				my $leftoverspace =
+					(($hasX) ? $tableOpts->{Xratio} * 100 : 100) - $ptxwidthsum;
+				my $divvyuptherest = 0;
+				$divvyuptherest = int($leftoverspace / $ptxautocols * 10000) / 10000
+					unless ($ptxautocols == 0);
+				my @ptxwidths;
+				for my $j (1 .. $#alignment) {
+					if ($rowOpts->[ $j - 1 ]{width}) {
+						push(@ptxwidths, getWidthPercent($rowOpts->[ $j - 1 ]{width}));
+					} elsif ($alignment->[$j]{width}) {
+						push(@ptxwidths, getWidthPercent($alignment->[$j]{width}));
+					} else {
+						push(@ptxwidths, $divvyuptherest . '%');
+					}
+				}
+
+				my $ptxwidths = join(" ", @ptxwidths);
+				$row = tag(
+					$row,
+					'sidebyside',
+					{
+						valign  => ($valign) ? $valign : $tableOpts->{valign},
+						margins => '0% 0%',
+						widths  => $ptxwidths,
+					}
+				);
+			} else {
+				$row = tag(
+					$row, 'row',
+					{
+						left   => $ptxleft,
+						valign => $valign,
+						header => $headerrow,
+						bottom => $ptxbottom
+					}
+				);
+			}
+			push(@rows, $row);
+		} else {
+			my $css = '';
+			for my $x (@$rowArray) {
+				$css .= $x->{rowcss} if $x->{rowcss};
+			}
+			$css .= css('background-color', formatColorHTML($rowcolor));
+			$css .= css('border-top',       'solid 3px')
+				if ($i == 0 && $tableOpts->{horizontalrules});
+			$css .= css('border-top',    getRuleCSS($top));
+			$css .= css('border-bottom', 'solid 1px')
+				if ($i < $#$tableArray && $tableOpts->{horizontalrules});
+			$css .= css('border-bottom', 'solid 3px')
+				if ($i == $#$tableArray && $tableOpts->{horizontalrules});
+			$css .= css('border-bottom',  getRuleCSS($bottom));
+			$css .= css('vertical-align', $valign);
+
+			if ($tableOpts->{LaYoUt}) {
+				$css .= css('display', 'table-row');
+				$html = tag($html, 'div', { style => $css });
+				push(@htmlbody, $html);
+			} else {
+				$html = tag($html, 'tr', { style => $css });
+				if ($stillinhtmlhead && $headerrow) {
+					push(@htmlhead, $html);
+				} else {
+					$stillinhtmlhead = 0;
+					push(@htmlbody, $html);
+				}
+			}
+		}
+		if ($tableOpts->{LaYoUt}) {
+			$htmlout = join("\n", @htmlbody);
+		} else {
+			my $htmlvalign = '';
+			$htmlvalign = $tableOpts->{valign}
+				unless ($tableOpts->{valign} eq 'middle');
+			$htmlout = tag(join("\n", @htmlbody), 'tbody', { style => css('vertical-align', $htmlvalign) });
+			if (@htmlhead) {
+				my $htmlheadcss = css('vertical-align', $htmlvalign);
+				$htmlheadcss .= css('border-bottom', 'solid 2px') if $tableOpts->{headerrules};
+				$htmlout = prefix($htmlout, tag(join("\n", @htmlhead), 'thead', { style => $htmlheadcss }));
+			}
+		}
+	}
+
+	return main::MODES(
+		TeX  => join(" ", @rows),
+		HTML => $htmlout,
+		PTX  => join("\n", @rows),
+	);
+
+}
+
+sub Row {
+	my ($rowArray, $tableOpts, $alignment) = @_;
+
+	my $headerrow = '';
+	my $valign    = '';
+	for my $x (@$rowArray) {
+		$headerrow = 'yes'        if ($x->{headerrow});
+		$valign    = $x->{valign} if ($x->{valign});
+	}
+
+	my @cells;
+
+	# Loops over the cells in the row
+	for my $i (0 .. $#$rowArray) {
+		my $cellOpts  = $rowArray->[$i];
+		my $cellAlign = $alignment->[ $rowArray->[$i]{leftcol} ];
+		my $cellData  = $cellOpts->{data};
+		my $cell      = $cellData;
+
+		if ($main::displayMode eq 'TeX') {
+			$cell = prefix($cell, $cellOpts->{tex}, ' ');
+			$cell = wrap($cell, @{ $tableOpts->{encase} })
+				unless $cellOpts->{noencase};
+			$cell = wrap($cell, $cellOpts->{texpre}, $cellOpts->{texpost});
+			$cell = prefix($cell, '\bfseries', ' ')
+				if ($tableOpts->{rowheaders} && $cellOpts->{header} ne 'td' && $i == 0
+					|| ($headerrow && $cellOpts->{header} ne 'td')
+					|| $cellOpts->{header} =~ /^(th|rh|ch|col|column|row)$/i);
+			# Situations where we need \multicolumn
+			if ($cellOpts->{colspan} > 1
+				|| $cellOpts->{halign}
+				|| $valign
+				|| ($tableOpts->{valign}     && $tableOpts->{valign} ne 'top')
+				|| ($tableOpts->{rowheaders} && $tableOpts->{headerrules}))
+			{
+				my $columntype = $cellOpts->{halign};
+				$columntype = $cellAlign->{halign} // 'l' unless $columntype;
+				$columntype = 'p{' . $tableOpts->{Xratio} / ($#$rowArray + 1) . "\\linewidth}"
+					if ($columntype eq 'X');
+				$columntype = "p{$cellAlign->{width}}"
+					if ($cellAlign->{width});
+				$columntype =~ s/^p/m/ if ($valign eq 'middle');
+				$columntype =~ s/^p/b/ if ($valign eq 'bottom');
+				$columntype =~ s/^p/m/ if ($tableOpts->{valign} eq 'middle');
+				$columntype =~ s/^p/b/ if ($tableOpts->{valign} eq 'bottom');
+				$columntype .= '|'
+					if ($i == 0 && $cellOpts->{colspan} == 1 && $tableOpts->{rowheaders} && $tableOpts->{headerrules});
+				$cell = latexCommand('multicolumn', [ $cellOpts->{colspan}, $columntype, $cell ]);
+			}
+			$cell = suffix($cell, '&', ' ') unless ($i == $#$rowArray);
+			push(@cells, $cell);
+		} elsif ($main::displayMode eq 'PTX') {
+			$cell = wrap($cell, @{ $tableOpts->{encase} })
+				unless $cellOpts->{noencase};
+
+			$cell = tag($cell, 'p')
+				if (($cellAlign->{width} || $cellAlign->{halign} eq 'X' || $cellOpts->{halign} =~ /^p/))
+				&& !$tableOpts->{LaYoUt};
+			my $ptxhalign = '';
+			$ptxhalign = 'left'  if ($cellOpts->{halign} =~ /l/);
+			$ptxhalign = 'right' if ($cellOpts->{halign} =~ /r/);
+			my $ptxright = '';
+			$ptxright = 'minor'  if ($cellOpts->{halign} =~ /\|\s*$/);
+			$ptxright = 'medium' if ($cellOpts->{halign} =~ /\|\s*\|\s*$/);
+			$ptxright = 'major'  if ($cellOpts->{halign} =~ /\|\s*\|\s*\|\s*$/);
+			my $ptxbottom = '';
+			$ptxbottom .= getPTXthickness($cellOpts->{bottom});
+
+			if ($cellOpts->{halign} =~ /!\{\s*\\vrule\s+width\s+([^}]*?)\s*}\s*$/) {
+				$ptxright = 'minor'  if ($1);
+				$ptxright = 'minor'  if ($1 eq '0.04em');
+				$ptxright = 'medium' if ($1 eq '0.07em');
+				$ptxright = 'major'  if ($1 eq '0.11em');
+			}
+			if ($tableOpts->{LaYoUt}) {
+				$cell = tag($cell, 'p');
+				$cell = tag($cell, 'stack',);
+
+			} else {
+				$cell = tag(
+					$cell, 'cell',
+					{
+						halign  => $ptxhalign,
+						colspan => ($cellOpts->{colspan} > 1) ? $cellOpts->{colspan} : '',
+						right   => $ptxright,
+						bottom  => $ptxbottom
+					},
+					''
+				);
+			}
+			push(@cells, $cell);
+		} else {
+
+			# HTML
+			my $t     = 'td';
+			my $scope = '';
+			do { $t = 'th'; $scope = 'row'; }
+				if ($i == 0 && $tableOpts->{rowheaders});
+			do { $t = 'th'; $scope = 'col'; } if ($headerrow);
+			$t     = 'th'  if ($cellOpts->{header} =~ /^(th|rh|ch|col|column|row)$/i);
+			$scope = 'row' if ($cellOpts->{header} =~ /^(rh|row)$/i);
+			$scope = 'col' if ($cellOpts->{header} =~ /^(ch|col|column)$/i);
+			do { $t = 'td'; $scope = ''; } if ($cellOpts->{header} =~ /^td$/i);
+			my $css = '';
+
+			# col level
+			$css .= css('text-align', 'center')
+				if ($cellAlign->{halign} eq 'c');
+			$css .= css('text-align', 'right')
+				if ($cellAlign->{halign} eq 'r');
+			$css .= css('width', $cellAlign->{width})
+				if ($cellAlign->{width});
+			$css .= css('font-weight', 'bold')
+				if ($cellAlign->{tex} =~ /\\bfseries/);
+			$css .= css('font-style', 'italic')
+				if ($cellAlign->{tex} =~ /\\itshape/);
+			$css .= css('font-family', 'monospace')
+				if ($cellAlign->{tex} =~ /\\ttfamily/);
+			if ($cellAlign->{tex} =~ /\\color(\[HTML\])?\{(.*?)[}!]/) {
+				$css .= css('color', ($1 ? '#' : '') . $2);
+			}
+
+			# cell level
+			$css .= $cellOpts->{cellcss};
+			if ($cellOpts->{halign} =~ /^([|\s]*\|)/ && $i == 0) {
+				my $count = $1 =~ tr/\|//;
+				$css .= css('border-left', "solid ${count}px");
+			}
+			if ($cellOpts->{halign} =~ /^(\s\|)*!\{\\vrule\s+width\s+([^}]*?)}/
+				&& $i == 0)
+			{
+				$css .= css('border-left', "solid $2");
+			}
+			if ($cellOpts->{halign} =~ /(\|[|\s]*)$/) {
+				my $count = $1 =~ tr/\|//;
+				$css .= css('border-right', "solid ${count}px");
+			}
+			if ($cellOpts->{halign} =~ /!\{\\vrule\s+width\s+([^}]*?)}\s*$/) {
+				$css .= css('border-right', "solid $1");
+			}
+			$css .= css('border-bottom', getRuleCSS($cellOpts->{bottom}));
+			$css .= css('text-align',    'left') if ($cellOpts->{halign} =~ /^l/);
+			$css .= css('text-align',    'center')
+				if ($cellOpts->{halign} =~ /^c/);
+			$css .= css('text-align', 'right') if ($cellOpts->{halign} =~ /^r/);
+			$css .= css('text-align', 'left')  if ($cellOpts->{halign} =~ /^p/);
+			$css .= css('width',      $1)
+				if ($cellOpts->{halign} =~ /^p\{([^}]*?)}/);
+			$css .= css('font-weight', 'bold')
+				if ($cellOpts->{tex} =~ /\\bfseries/);
+			$css .= css('font-style', 'italic')
+				if ($cellOpts->{tex} =~ /\\itshape/);
+			$css .= css('font-family', 'monospace')
+				if ($cellOpts->{tex} =~ /\\ttfamily/);
+
+			if ($cellOpts->{tex} =~ /\\cellcolor(\[HTML\])?\{(.*?)[}!]/) {
+				$css .= css('background-color', ($1 ? '#' : '') . $2);
+			}
+			if ($cellOpts->{tex} =~ /\\color(\[HTML\])?\{(.*?)[}!]/) {
+				$css .= css('color', ($1 ? '#' : '') . $2);
+			}
+			$css .= $tableOpts->{allcellcss};
+			$css .= $tableOpts->{headercss} if ($t eq 'th');
+			$css .= $tableOpts->{datacss}   if ($t eq 'td');
+			$cell = wrap($cell, @{ $tableOpts->{encase} })
+				unless $cellOpts->{noencase};
+			if ($tableOpts->{LaYoUt}) {
+				$css .= css('display', 'table-cell');
+				my $cellvalign = $tableOpts->{valign};
+				$cellvalign = $valign if ($valign);
+				$css        = css('vertical-align', $cellvalign) . $css;
+				$css        = css('padding',        '12pt') . $css;
+				if ($cellAlign->{tex} =~ /\\columncolor(\[HTML\])?\{(.*?)[\}!]/) {
+					$css = css('background-color', ($1 ? '#' : '') . $2) . $css;
+				}
+				$css =
+					css('border-right', getRuleCSS($cellAlign->{right})) . $css;
+				$cell = tag($cell, 'div', { style => $css });
+			} else {
+				$css  = css('padding', '0pt 6pt') . $css;
+				$cell = tag(
+					$cell, $t,
+					{
+						style   => $css,
+						scope   => $scope,
+						colspan => ($cellOpts->{colspan} > 1) ? $cellOpts->{colspan} : ''
+					}
+				);
+			}
+			push(@cells, $cell);
+		}
+	}
+
+	return main::MODES(
+		TeX  => join(" ",  @cells),
+		HTML => join("\n", @cells),
+		PTX  => join("\n", @cells),
+	);
+
+}
+
+# Takes the user's nested array and returns a cleaned up version with initializations
+sub TableArray {
+	my $userArray        = shift;
+	my %supportedOptions = (
+		data      => '',
+		halign    => '',
+		header    => '',
+		tex       => '',
+		noencase  => 0,
+		colspan   => 1,
+		cellcss   => '',
+		texpre    => '',
+		texpost   => '',
+		rowcolor  => '',
+		rowcss    => '',
+		headerrow => '',
+		rowtop    => 0,
+		rowbottom => 0,
+		top       => 0,
+		bottom    => 0,
+		valign    => '',
+	);
+	my @outArray;
+	for my $i (0 .. $#$userArray) {
+		my @outRow;
+		my @userRow = @{ $userArray->[$i] };
+
+		# $leftColIndex and $rightColIndex are part of a scheme to track use of colspan
+		my $leftColIndex  = 0;
+		my $rightColIndex = 0;
+		for my $j (0 .. $#userRow) {
+			my $userCell = $userRow[$j];
+			my %outHash  = %supportedOptions;
+			if (ref($userCell) eq 'HASH') {
+				for my $key (keys(%supportedOptions)) {
+					$outHash{$key} = $userCell->{$key}
+						if defined($userCell->{$key});
+				}
+
+				# convenience
+				$outHash{tex} .= '\color' . formatColorLaTeX($userCell->{color})
+					if ($userCell->{color});
+				$outHash{tex} .= '\cellcolor' . formatColorLaTeX($userCell->{bgcolor})
+					if ($userCell->{bgcolor});
+				$outHash{tex} .= '\bfseries' if ($userCell->{b});
+				$outHash{tex} .= '\itshape'  if ($userCell->{i});
+				$outHash{tex} .= '\ttfamily' if ($userCell->{m});
+				$outHash{texpre} = $outHash{texpre} . $userCell->{texencase}[0]
+					if $userCell->{texencase};
+				$outHash{texpost} = $userCell->{texencase}[1] . $outHash{texpost}
+					if $userCell->{texencase};
+
+				# legacy misnomers
+				$outHash{rowbottom} = $userCell->{midrule}
+					if (defined($userCell->{midrule})
+						&& !$outHash{rowbottom});
+			} elsif (ref($userCell) eq 'ARRAY') {
+				my @userCellCopy = (@$userCell);
+				$outHash{data} = shift(@userCellCopy) if (@userCellCopy);
+				my %userOptions = @userCellCopy;
+				for my $key (keys(%supportedOptions)) {
+					$outHash{$key} = $userOptions{$key}
+						if defined($userOptions{$key});
+				}
+
+				# convenience
+				$outHash{tex} .= '\color' . formatColorLaTeX($userOptions{color})
+					if ($userOptions{color});
+				$outHash{tex} .= '\cellcolor' . formatColorLaTeX($userOptions{bgcolor})
+					if ($userOptions{bgcolor});
+				$outHash{tex} .= '\bfseries' if ($userOptions{b});
+				$outHash{tex} .= '\itshape'  if ($userOptions{i});
+				$outHash{tex} .= '\ttfamily' if ($userOptions{m});
+				$outHash{texpre} = $outHash{texpre} . $userOptions{texencase}->[0]
+					if $userOptions{texencase};
+				$outHash{texpost} = $userOptions{texencase}->[1] . $outHash{texpost}
+					if $userOptions{texencase};
+
+				# legacy misnomers
+				$outHash{rowbottom} = $userOptions{midrule}
+					if (defined($userOptions{midrule})
+						&& !$outHash{rowbottom});
+			} else {
+				$outHash{data} = $userCell;
+			}
+
+			# clean up
+			# remove any left vertical rule specifications from halign
+			if ($j > 0
+				&& $outHash{halign} =~ /((?<!\w)[lcrp](?!\w)\s*(\{[^}]*?\})?(\||!\{[^}]*?\}|\s)*)/)
+			{
+				$outHash{halign} = $1;
+			}
+
+			# scheme to track colspan
+			$leftColIndex      = $rightColIndex + 1;
+			$rightColIndex     = $rightColIndex + $outHash{colspan};
+			$outHash{leftcol}  = $leftColIndex;
+			$outHash{rightcol} = $rightColIndex;
+
+			$outRow[$j] = \%outHash;
+		}
+		$outArray[$i] = \@outRow;
+	}
+	return \@outArray;
+}
+
+sub ColumnCount {
+	my $tableArray = shift;
+	my $colCount   = 0;
+	for my $i (0 .. $#$tableArray) {
+		my $thisRowColCount = 0;
+		for my $j (0 .. $#{ $tableArray->[$i] }) {
+			$thisRowColCount += $tableArray->[$i][$j]->{colspan};
+		}
+		$colCount = $thisRowColCount if ($thisRowColCount > $colCount);
+	}
+	return $colCount;
+}
+
+sub TableOptions {
+	my $colCount         = shift;
+	my %supportedOptions = (
+		center          => 1,
+		caption         => '',
+		horizontalrules => 0,
+		texalignment    => join('', ('c') x $colCount),
+		Xratio          => 0.97,
+		encase          => [ '', '' ],
+		rowheaders      => 0,
+		tablecss        => '',
+		captioncss      => '',
+		columnscss      => [ ('') x $colCount ],
+		datacss         => '',
+		headercss       => '',
+		allcellcss      => '',
+		valign          => 'top',
+		booktabs        => 1,
+		headerrules     => 1,
+		LaYoUt          => 0,
+	);
+	%outHash = %supportedOptions;
+	my %userOptions = @_;
+	for my $key (keys(%supportedOptions)) {
+		$outHash{$key} = $userOptions{$key} if defined($userOptions{$key});
+	}
+
+	# special user shortcut
+	$outHash{texalignment} = $userOptions{align}
+		if (defined($userOptions{align}) && !$userOptions{texalignment});
+
+	# legacy misnomers
+	$outHash{horizontalrules} = $userOptions{midrules}
+		if (defined($userOptions{midrules}) && !$outHash{horizontalrules});
+
+	return \%outHash;
+}
+
+sub ParseAlignment {
+	my $alignment = shift;
+	$alignment =~ s/\R//g;
+
+	# first we parse things like *{20}{...} to expand them
+	my $pattern = qr/\*\{(\d+)\}\{(.*?)\}/;
+	while ($alignment =~ /$pattern/) {
+		my @captured    = ($alignment =~ /$pattern/);
+		my $replaceWith = $captured[1] x $captured[0];
+		$alignment =~ s/$pattern/$replaceWith/;
+	}
+
+	my @align = ();
+
+	# 0th entry is only for possible left border
+	# other entries have only right borders,
+	# the actual alignment is r, c, l, X, or p
+	# explicit width vertical rules from !{...}
+	# latex directives from >{...}
+	# we make an array of the tokens of type:
+	# r, c, l, X, |, !{...}, p{...}, >{...}
+	# this is complicated because of potential nested brackets
+	my @tokens             = ();
+	my $bracesregex        = qr/(\{(?>[^{}]|(?R))*\})/x;
+	my $bracecontentsregex = qr/((?>[^\{}]|(??{$bracesregex}))*)/x;
+
+	# . at the end is to ensure we are whittling down $alignment at least a little
+	my $tokenspattern = qr/^([rclX\|]\s*|[!p>]\s*\{((??{$bracecontentsregex}))\}\s*|.)/;
+
+	$align[0] = { left => 0 };
+	$leftpattern = qr/^\s*(\|\s*|!\s*\{\s*\\vrule\s+width\s+([^}]*?)\})/x;
+	while ($alignment =~ $leftpattern) {
+		my $token = $1;
+		if ($token =~ /^\|/) {
+
+			# this counts how many | we have
+			$align[0]->{left} = 0
+				unless ($align[0]{left} && $align[0]{left} =~ /\d+/);
+			$align[0]->{left} += 1;
+		} elsif ($token =~ /^!\s*\{\s*\\vrule\s+width\s+([^}]*?)\}/) {
+			$align[0]->{left} = $1;
+		}
+		$alignment =~ s/$leftpattern//;
+	}
+
+	# now that leftmost vertical rule tokens taken care of, get all the other tokens
+	while ($alignment) {
+		my $token = ($alignment =~ /$tokenspattern/)[0];
+		$alignment =~ s/$tokenspattern//;
+		push(@tokens, $token);
+	}
+
+	# now run through tokens and grow @align
+	# index for @align
+	my $i = 1;
+
+	# $j is index for @tokens
+	for my $j (0 .. $#tokens) {
+		my $token = $tokens[$j];
+		my $next  = $tokens[ $j + 1 ] // '';
+		if ($token =~ /^([lcrX])/) {
+			$align[$i]->{halign} = $1;
+			$align[$i]->{valign} = 'top' if ($1 eq 'X');
+			$i++ unless ($next =~ /^[|!]/);
+		} elsif ($token =~ /^\|/) {
+
+			# this counts how many | we have
+			$align[$i]->{right} = 0
+				unless ($align[$i]->{right} && $align[$i]->{right} =~ /\d+/);
+			$align[$i]->{right} += 1;
+			$i++ unless ($next =~ /^[|!]/);
+		} elsif ($token =~ /^!\s*\{\s*\\vrule\s+width\s+([^}]*?)\}/) {
+
+			# for this style of vertical rule we store the width instead of a small positive integer
+			$align[$i]->{right} = $1;
+			$i++ unless ($next =~ /^[|!]/);
+		} elsif ($token =~ /^p\{((??{$bracecontentsregex}))\}\s*/) {
+			$align[$i]->{halign} = 'l';
+
+			# record top alignment, but could be overwritten by row valign
+			$align[$i]->{valign} = 'top';
+			$align[$i]->{width}  = $1;
+			$i++ unless ($next =~ /^[|!]/);
+		} elsif ($token =~ /^>\s*\{((??{$bracecontentsregex}))\}/) {
+			$align[$i]->{tex} = $1;
+
+			# could parse these further for color identification, etc
+		}
+	}
+
+	# now initialize any $align[$i] values that were not initialized
+	for my $x (@align) {
+		for my $key ('halign', 'valign', 'right', 'width', 'tex') {
+			$x->{$key} = '' unless (defined $x->{$key});
+		}
+	}
+
+	return \@align;
+
+}
+
+sub formatColorLaTeX {
+	my $color = shift;
+	if ($color =~ /^(\[HTML\])?\{.*\}$/) {
+		return $color;
+	} elsif ($color =~ /^[0-9a-fA-F]{6}$/) {
+		return "[HTML]{$color}";
+	} else {
+		return "{$color}";
+	}
+}
+
+sub formatColorHTML {
+	my $color = shift;
+	if ($color =~ /^\[HTML\]\{(.*)\}$/) {
+		return '#' . $1;
+	} elsif ($color =~ /^\{([^!]*)(?=[!\}])/) {
+		return $1;
+	} elsif ($color =~ /^(.*?)!/) {
+		return $1;
+	} elsif ($color =~ /^[0-9a-fA-F]{6}$/) {
+		return "#$color";
+	} else {
+		return "$color";
+	}
+}
+
+sub latexEnvironment {
+	my ($inside, $environment, $options, $separator) = @_;
+	$separator = "\n" unless (defined $separator);
+	my $return = "\\begin{$environment}";
+	for my $x (@$options) {
+		if ($x =~ /^\[[^\]]+\]$/) {
+			$return .= $x;
+		} else {
+			$return .= "{$x}" if ($x ne '');
+		}
+	}
+	$return .= "$separator$inside$separator";
+	$return .= "\\end{$environment}";
+	return $return;
+}
+
+sub latexCommand {
+	my ($command, $arguments) = @_;
+	my $return = "\\$command";
+	for my $x (@$arguments) {
+		$return .= "{$x}" if ($x ne '');
+	}
+	$return .= " ";
+	return $return;
+}
+
+sub wrap {
+	my ($center, $left, $right, $separator) = @_;
+	$separator = "\n" unless (defined $separator);
+	return $center                   unless ($left || $right);
+	return "$left$separator$center"  unless $right;
+	return "$center$separator$right" unless $left;
+	return "$left$separator$center$separator$right";
+}
+
+sub prefix {
+	my ($center, $left, $separator) = @_;
+	$separator = "\n" unless (defined $separator);
+	return join("$separator", ($left, $center)) if ($left ne '');
+	return $center;
+}
+
+sub suffix {
+	my ($center, $right, $separator) = @_;
+	$separator = "\n" unless (defined $separator);
+	return join("$separator", ($center, $right)) if ($right ne '');
+	return $center;
+}
+
+sub css {
+	my ($property, $value) = @_;
+	return ($value) ? "$property:$value;" : '';
+}
+
+sub tag {
+	my ($inner, $name, $attributes, $separator) = @_;
+	$separator = "\n" unless defined $separator;
+	my $return = "<$name";
+	for my $x (main::lex_sort(keys %$attributes)) {
+		$return .= qq( $x="$attributes->{$x}") if ($attributes->{$x} ne '');
+	}
+	if ($inner) {
+		$return .= ">$separator";
+		$return .= $inner;
+		$return .= "$separator</$name>";
+	} else {
+		$return .= '>' unless ($main::displayMode eq 'PTX');
+		$return .= '/>' if ($main::displayMode eq 'PTX');
+	}
+	return $return;
+}
+
+sub getLaTeXthickness {
+	my $input  = shift;
+	my $output = '';
+	if ($input =~ /^\s*(\.\d+|\d+\.?\d*)\s*$/) {
+		$output = "$1px" if $1;
+	} elsif ($input) {
+		$output = "$input";
+	}
+	return $output;
+}
+
+sub getRuleCSS {
+	my $input  = shift;
+	my $output = '';
+	if ($input =~ /^\s*(\.\d+|\d+\.?\d*)\s*$/) {
+		$output = "solid $1px" if $1;
+	} elsif ($input) {
+		$output = "solid $input";
+	}
+	return $output;
+}
+
+sub getPTXthickness {
+	# For a positive integer input, 1=>minor, 2=>medium, and greater=>major.
+	# For a specific width input, we honor the PTX values
+	# 0.04em=>minor, 0.07em=>medium, 0.11em=>major
+	# but anything else goes to minor. Ideally an input would be compared
+	# as a length unit to 0.04em, 0.07em, 0.11em and an appropriate choice
+	# from minor|mediuum|major would be used. But we do not get into
+	# comparing length units here.
+	my $input = shift;
+	return '' unless ($input);
+	my $output = '';
+	if ($input eq '1') {
+		$output = "minor";
+	} elsif ($input eq '2') {
+		$output = "medium";
+	} elsif ($input =~ /^[3-9]|[1-9]\d+$/) {
+		$output = "major";
+	} elsif ($input eq '0.04em') {
+		$output = 'minor';
+	} elsif ($input eq '0.07em') {
+		$output = 'medium';
+	} elsif ($input eq '0.11em') {
+		$output = 'major';
+	} elsif ($input) {
+		$output = "minor";
+	}
+	return $output;
+}
+
+sub getWidthPercent {
+	my $absWidth = shift;
+	my $x        = 0;
+	my $unit     = 'cm';
+	if ($absWidth =~ /^(\.\d+|\d+\.?\d*)\s*(\w+)/) {
+		$x    = $1;
+		$unit = $2;
+	}
+	my %convert_to_cm = (
+		'pt' => 1 / 864 * 249 / 250 * 12 * 2.54,
+		'mm' => 1 / 10,
+		'cm' => 1,
+		'in' => 2.54,
+		'ex' => 0.15132,
+		'em' => 0.35146,
+		'mu' => 0.35146 / 8,
+		'sp' => 1 / 864 * 249 / 250 * 12 * 2.54 / 65536,
+		'bp' => 2.54 / 72,
+		'dd' => 1 / 864 * 249 / 250 * 12 * 2.54 * 1238 / 1157,
+		'pc' => 1 / 864 * 249 / 250 * 12 * 2.54 * 12,
+		'cc' => 1 / 864 * 249 / 250 * 12 * 2.54 * 1238 / 1157 * 12,
+		'px' => 2.54 / 72,
+	);
+	return (int($x * $convert_to_cm{$unit} / (6.25 * 2.54) * 10000) / 100) . '%';
+}
+
+sub hrule {
+	my ($booktabs, $type, $thickness) = @_;
+	if ($booktabs) {
+		my $thicknessArg = '';
+		$thicknessArg = '[' . getLaTeXthickness($thickness) . ']'
+			if ($thickness);
+		return "\\" . $type . 'rule' . $thicknessArg;
+	} elsif ($type eq 'cmid') {
+		return "\\cline";
+	} else {
+		return "\\hline";
+	}
 }
 
 1;
