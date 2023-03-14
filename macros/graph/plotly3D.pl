@@ -3,7 +3,7 @@
 
 plotly3D.pl - Adds Graph3D, an object for creating 3D parametric curves
 and 3D parametric surface plots using the plotly JavaScript library.
-https://plotly.com/javascript/
+L<https://plotly.com/javascript/>
 
 =head1 DESCRIPTION
 
@@ -11,7 +11,8 @@ Loading this macro adds the Graph3D method which creates a 3D
 graph object. The graph object can be configured by a list of
 options of the form "option => value" (see below).
 
-    $graph = Graph3D(options);
+    loadMacros('plotly3D.pl');
+    $graph = Graph3D(options => value);
 
 Use the addCurve method to add a parametric curve to the graph.
 The following adds a helix to the graph. The first array is
@@ -123,14 +124,14 @@ of the points. The colorscale can be one of the following predefined names:
     'Greys', 'Greens', 'Electric', 'Earth', 'Bluered', or 'Blackbody'
 
 You can also define a custom colorscale as a list of colors for values
-ranging from 0 to 1. For example the default RdBu is the following colorset
-(note this must be a string since the array is passed to javascript):
+ranging from 0 to 1. For example the default RdBu is the following colorscale
+(note this must be a string since the array is passed to JavaScript):
 
     "[[0, 'rgb(5,10,172)'], [0.35, 'rgb(106,137,247)'],
       [0.5, 'rgb(190,190,190)'], [0.6, 'rgb(220,170,132)'],
       [0.7, 'rgb(230,145,90)'], [1, 'rgb(178,10,28)']]"
 
-A colorset can have any number of color points between 0 and 1. To make
+A colorscale can have any number of color points between 0 and 1. To make
 the plot a single color, set the color for 0 and 1 to be the same:
 
     "[[0, 'rgb(0,200,0)'], [1, 'rgb(0,200,0)']]"
@@ -144,25 +145,77 @@ option in addCurve or addSurface methods. The valid types are:
   jsmd    This is the default type, in which the functions are converted
           from math formulas into JavaScript functions to generate the
           plot. This should accept standard mathematical notation with
-          some exceptions: Multiplication must be an explicit "*".
-          "ucos(v)" is not be accepted, but "u*cos(v)" will. JavaScript
+          some exceptions: Multiplication must be an explicit "*":
+          "ucos(v)" is not accepted, but "u*cos(v)" is. JavaScript
           considers "-u^2" not well defined, instead use "-(u^2)".
 
   js      The functions are interpreted as raw JavaScript functions. The
           functions will be passed the defined variables and return a
-          single value.
+          single value. This function type is useful to plot more complicated
+          functions, such as piecewise functions with if/then statements.
+          For example, this graphs the surface of the plane in the first
+          octant that passes through the points ($a,0,0), (0,$b,0), (0,0,$c):
+
+          ($a, $b, $c) = (5, 3, 7);
+          $graph->addSurface(
+              [
+                  "return ($b*u < $a*v ? 0.5*u : u - 0.5*$a/$b*v);",
+                  "return ($b*u > $a*v ? 0.5*v : v - 0.5*$b/$a*u);",
+                  "const x = ($b*u < $a*v ? 0.5*u : u - 0.5*$a/$b*v);"
+                . "const y = ($b*u > $a*v ? 0.5*v : v - 0.5*$b/$a*u);"
+                . "return $c - $c/$a*x - $c/$b*y;",
+              ],
+              [0, $a],
+              [0, $b],
+              funcType => 'js',
+          );
 
   perl    The functions are interpreted as Perl subroutines. The functions
           will be passed the appropriate number of inputs, and return a
-          single value.
+          single value. This uses the WeBWorK server to generate the points
+          for the plot, and can slow down the rendering of the problem. Using
+          the JavaScript methods are preferred for this reason. Here is an
+          example of plotting a sphere of radius $R.
+
+          $R = 5;
+          $graph->addSurface(
+              [
+                  sub { return $R*cos($_[0])*sin($_[1]); },
+                  sub { return $R*sin($_[0])*sin($_[1]); },
+                  sub { return $R*cos($_[1]); }
+              ],
+              [0, 2*pi],
+              [0, pi],
+              funcType => 'perl',
+          );
 
   data    The functions are interpreted as a nested array of data points to
-          be sent directly to plotly to plot. This is useful for static plots
-          in which the points do not need to be generated each time.
+          be sent directly to plotly to plot. The nested array needs to be
+          a string, since it is passed to JavaScript to plot. This array lists
+          all of the points which are used to create the surface. For example to
+          plot a surface with 9 points, use something like:
+
+          $graph->addSurface(
+              [
+                  "[[x1, x2, x3], [x4, x5, x6], [x7, x8, x9]]",
+                  "[[y1, y2, y3], [y4, y5, y6], [y7, y8, y9]]",
+                  "[[z1, z2, z3], [z4, z5, z6], [z7, z8, z9]]"
+              ],
+              [0,0],
+              [0,0],
+              funcType => 'data'
+          );
+
+          This plots a surfacing using the points (x1,y1,z1), (x2,y2,z2), ...,
+          and (x9,y9,z9). The addSurface method requires bounds, but they are not
+          used, so [0,0] needs to be included, but is ignored. Using the perl method
+          to first generate the arrays, then copying the result and using the data
+          method can be useful to speed up rendering of nonrandomized plots.
+
 
 =head1 Graph3D OPTIONS
 
-Create a graph object: $graph = Graph3D(option => value)
+Create a graph object: C<$graph = Graph3D(option =E<gt> value)>
 The valid options are:
 
   height      The height and width of the div containing the graph.
@@ -184,9 +237,17 @@ The valid options are:
   tex_border  Put (1) or don't put (0) a border around image in TeX output.
 
   scene       Add a JavaScript scene configuration dictionary to the plotly layout.
-              Example: scene => 'aspectmode: "manual", aspectratio: {x: 1, y: 1, z: 1},
-              xaxis: { range: [0,2] }, yaxis: { range: [0,3] }, zaxis: { range: [1,4] }'
-              https://plotly.com/javascript/3d-axes/ for more examples.
+              This can be used to configure various aspects of the plot, such as
+              the aspect ratio, and view range of the 3D axes. The scene is a string
+              which contains a JavaScript dictonary to pass to plotly. Example:
+
+              scene => 'aspectmode: "manual",'
+                       . 'aspectratio: {x: 1, y: 1, z: 1},'
+                       . 'xaxis: { range: [0,2] },'
+                       . 'yaxis: { range: [0,3] },'
+                       . 'zaxis: { range: [1,4] }'
+
+              See L<https://plotly.com/javascript/3d-axes/> for more examples.
 
 =cut
 
