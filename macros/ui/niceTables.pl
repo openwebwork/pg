@@ -1387,7 +1387,7 @@ sub css {
 	if (ref $a eq 'HASH') {
 		my %css = %{$a};
 		for my $property (keys %css) {
-			$return = css($property =~ s/([A-Z])/-\L\1/gr, $css{$property});
+			$return = css($property =~ s/([A-Z])/-\L$1/gr, $css{$property});
 		}
 	}
 	# attempt to detect if a CSS syntax string was used
