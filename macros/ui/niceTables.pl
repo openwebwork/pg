@@ -159,7 +159,9 @@ See below to override for an individual row.
 =head3 HTML output
 
 Each css property setting should be a hash reference.
-For example,  C<{font-family =E<gt> 'fantasy', text-decoration =E<gt> 'underline'}>.
+For example,  C<{'font-family' =E<gt> 'fantasy', color =E<gt> 'red'}>.
+If a key has a dash character, it needs to be in quotes. Alternatively,
+you may uses a javascript flavor of CSS key like C<{fontFamily =E<gt> 'fantasy'}>
 
 =over
 
@@ -1385,10 +1387,11 @@ sub css {
 	if (ref $a eq 'HASH') {
 		my %css = %{$a};
 		for my $property (keys %css) {
-			$return .= "$property:$css{$property};";
+			$return = css($property =~ s/([A-Z])/-\L\1/gr, $css{$property});
 		}
-
-	} elsif ($a =~ /:/) {
+	}
+	# attempt to detect if a CSS syntax string was used
+	elsif ($a =~ /:.+;/) {
 		$return = $a;
 	} elsif ($b) {
 		$return = "$a:$b;";
