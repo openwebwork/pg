@@ -553,7 +553,7 @@ sub TableEnvironment {
 		}
 		$rows = suffix($rows, $ptxcaption);
 	} else {
-		my $css = $tableOpts->{tablecss};
+		my $css = css($tableOpts->{tablecss});
 		if ($hasX) {
 			$css .= css('width', $tableOpts->{Xratio} * 100 . '%');
 		}
@@ -564,7 +564,7 @@ sub TableEnvironment {
 		$htmlcols = tag($cols, 'colgroup')
 			unless ($cols =~ /^(<col>|\n)*$/ || $tableOpts->{LaYoUt});
 		$rows = prefix($rows, $htmlcols);
-		my $htmlcaption = tag($tableOpts->{caption}, 'caption', { style => $tableOpts->{captioncss} });
+		my $htmlcaption = tag($tableOpts->{caption}, 'caption', { style => css($tableOpts->{captioncss}) });
 		$rows = prefix($rows, $htmlcaption) if ($tableOpts->{caption} && !$tableOpts->{LaYoUt});
 
 		if ($tableOpts->{LaYoUt}) {
@@ -646,7 +646,7 @@ sub Cols {
 			$htmltop .= css('border-top', getRuleCSS($top));
 
 			# $i starts at 1, but columncss indexing starts at 0
-			my $htmlcolcss = $columnscss->[ $i - 1 ];
+			my $htmlcolcss = css($columnscss->[ $i - 1 ]);
 			if ($align->{tex} =~ /\\columncolor(\[HTML\])?\{(.*?)[}!]/) {
 				$htmlcolcss .= css('background-color', ($1 ? '#' : '') . $2);
 			}
@@ -803,7 +803,7 @@ sub Rows {
 		} else {
 			my $css = '';
 			for my $x (@$rowArray) {
-				$css .= $x->{rowcss} if $x->{rowcss};
+				$css .= css($x->{rowcss});
 			}
 			$css .= css('background-color', formatColorHTML($rowcolor));
 			$css .= css('border-top',       'solid 3px')
@@ -976,7 +976,7 @@ sub Row {
 			}
 
 			# cell level
-			$css .= $cellOpts->{cellcss};
+			$css .= css($cellOpts->{cellcss});
 			if ($cellOpts->{halign} =~ /^([|\s]*\|)/ && $i == 0) {
 				my $count = $1 =~ tr/\|//;
 				$css .= css('border-left', "solid ${count}px");
@@ -1014,9 +1014,9 @@ sub Row {
 			if ($cellOpts->{tex} =~ /\\color(\[HTML\])?\{(.*?)[}!]/) {
 				$css .= css('color', ($1 ? '#' : '') . $2);
 			}
-			$css .= $tableOpts->{allcellcss};
-			$css .= $tableOpts->{headercss} if ($t eq 'th');
-			$css .= $tableOpts->{datacss}   if ($t eq 'td');
+			$css .= css($tableOpts->{allcellcss});
+			$css .= css($tableOpts->{headercss}) if ($t eq 'th');
+			$css .= css($tableOpts->{datacss})   if ($t eq 'td');
 			$cell = wrap($cell, @{ $tableOpts->{encase} })
 				unless $cellOpts->{noencase};
 			if ($tableOpts->{LaYoUt}) {
@@ -1068,7 +1068,7 @@ sub TableArray {
 		texpre    => '',
 		texpost   => '',
 		rowcolor  => '',
-		rowcss    => '',
+		rowcss    => {},
 		headerrow => '',
 		rowtop    => 0,
 		rowbottom => 0,
@@ -1184,12 +1184,12 @@ sub TableOptions {
 		Xratio          => 0.97,
 		encase          => [ '', '' ],
 		rowheaders      => 0,
-		tablecss        => '',
-		captioncss      => '',
-		columnscss      => [ ('') x $colCount ],
-		datacss         => '',
-		headercss       => '',
-		allcellcss      => '',
+		tablecss        => {},
+		captioncss      => {},
+		columnscss      => [ ({}) x $colCount ],
+		datacss         => {},
+		headercss       => {},
+		allcellcss      => {},
 		valign          => 'top',
 		booktabs        => 1,
 		headerrules     => 1,
@@ -1389,8 +1389,21 @@ sub suffix {
 }
 
 sub css {
-	my ($property, $value) = @_;
-	return ($value) ? "$property:$value;" : '';
+	my ($a, $b) = @_;
+	my $return = '';
+	if (ref $a eq 'HASH') {
+		my %css = %{$a};
+		for my $property (keys %css) {
+			$return .= "$property:$css{$property};";
+		}
+
+	} elsif ($a =~ /:/) {
+		$return = $a;
+	} elsif ($b) {
+		$return = "$a:$b;";
+	}
+
+	return $return;
 }
 
 sub tag {
