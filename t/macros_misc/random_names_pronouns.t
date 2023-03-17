@@ -55,13 +55,18 @@ subtest 'Tests for they pronouns' => sub {
 	is($p3->verb('is', 'are'), 'are',  'Tests the conjugation of the verb is for Kai.');
 };
 
-my $rando = randomPerson();
-is(ref $rando, 'Person', 'Check that the randomPerson method returns an object of Person class');
+subtest 'Other person tests' => sub {
+	my $rando = randomPerson();
+	is(ref $rando, 'Person', 'Check that the randomPerson method returns an object of Person class');
 
-like(
-	dies { Person->new({ name => 'Head', pronoun => 'xxx' }) },
-	qr/The pronoun must be/,
-	"An invalid pronoun is passed in."
-);
+	like(
+		dies { Person->new({ name => 'Head', pronoun => 'xxx' }) },
+		qr/The pronoun must be/,
+		"An invalid pronoun is passed in."
+	);
+
+	my $last_name = randomLastName();
+	like $last_name, qr/^[a-zA-Z]+$/, 'last name contains only letters';
+};
 
 done_testing;
