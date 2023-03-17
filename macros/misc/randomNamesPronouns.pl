@@ -43,7 +43,7 @@ and verb conjugation.  It is can be used within a problem as
 
 sub _randomNamesPronouns_init { }
 
-my $names = {
+my $first_names = {
 	'Aaliyah'   => 'she',
 	'Aaron'     => 'he',
 	'Adrian'    => 'she',
@@ -203,6 +203,22 @@ my $names = {
 	'Will'      => 'he'
 };
 
+@last_names = (
+	Adams,   Allen,     Alvarez,    Anderson, Bailey,  Baker,    Bennet,    Brooks,
+	Brown,   Campbell,  Carter,     Castillo, Chavez,  Clark,    Collins,   Cook,
+	Cooper,  Cox,       Cruz,       Davis,    Diaz,    Edwards,  Evans,     Flores,
+	Foster,  Garcia,    Gomez,      Gonzales, Gray,    Green,    Gutierrez, Hall,
+	Harris,  Hernandez, Hill,       Howard,   Hughes,  Jackson,  James,     Jimenez,
+	Johnson, Jones,     Kelly,      Kim,      King,    Lee,      Lewis,     Long,
+	Lopez,   Martin,    Martinez,   Mendoza,  Miller,  Mitchell, Moore,     Morales,
+	Morgan,  Morris,    Murphy,     Myers,    Nelson,  Nguyen,   Ortiz,     Parker,
+	Patel,   Perez,     Peterson,   Phillips, Pina,    Price,    Ramirez,   Ramos,
+	Reed,    Reyes,     Richardson, Rivera,   Roberts, Robinson, Rodriguez, Rogers,
+	Ross,    Ruiz,      Sanchez,    Sanders,  Scott,   Smith,    Stewart,   Sullivan,
+	Taylor,  Thomas,    Thompson,   Torres,   Turner,  Walker,   Ward,      Watson,
+	White,   Williams,  Wilson,     Wood,     Wright,  Young
+);
+
 =head2 randomPerson
 
 Returns a person as a Person object from a list in the macro.
@@ -210,8 +226,8 @@ Returns a person as a Person object from a list in the macro.
 =cut
 
 sub randomPerson {
-	my $random_name = list_random(keys(%$names));
-	return Person->new({ name => $random_name, pronoun => $names->{$random_name} });
+	my $random_name = list_random(keys(%$first_names));
+	return Person->new({ name => $random_name, pronoun => $first_names->{$random_name} });
 }
 
 =head2 CONSTRUCTOR Person
@@ -227,6 +243,18 @@ which can be used in problems to write a problem with a random name with pronoun
 and verb conjugation.
 
 =cut
+
+=head3 randomLastName
+
+This returns a random last name based on popular last name in the United States.
+
+Note: it is just a string, and doesn't have the pronoun's that the Person object does.
+
+=cut
+
+sub randomLastName {
+	return list_random(@last_names);
+}
 
 package Person;
 
