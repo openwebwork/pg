@@ -63,16 +63,32 @@ If the number of points is not given, it defaults to 100.
 The additional options are given in a 'option => value' format.
 The current available options (and defaults) are:
 
-  width      => 5,       The width/thickness of the curve.
+=over 5
 
-  colorscale => 'RdBu',  The colorscale for the curve, which is a heatmap
-                         based on the z-value of the curve.
+=item width => 5
 
-  opacity    => 1,       The opacity of a curve between 0 and 1.
+The width/thickness of the curve.
 
-  funcType   => 'jsmd',  How to interpret the parametric functions (see below).
+=item colorscale => 'RdBu'
 
-  variables  => ['t'],   The variable to use in the JavaScript function.
+The colorscale for the curve, which is a heatmap
+based on the z-value of the curve.
+See L</"COLORSCALES"> below for more information.
+
+=item opacity => 1
+
+The opacity of a curve between 0 and 1.
+
+=item funcType => 'jsmd'
+
+How to interpret the parametric functions.
+See L</"FUNCTION TYPES"> below for more information.
+
+=item variables => ['t']
+
+The variable to use in the JavaScript function.
+
+=back
 
 =head1 PARAMETRIC SURFACES
 
@@ -91,16 +107,30 @@ two variables. If the number of points is not given, it defaults to 20.
 The additional options are given in a 'option => value' format.
 The current available options (and defaults) are:
 
-  colorscale => 'RdBu',      The colorscale for the curve, which is a heatmap
-                             based on the z-value of the surface.
+=over 2
 
-  opacity    => 1,           The opacity of a curve between 0 and 1.
+=item colorscale => 'RdBu'
 
-  funcType   => 'jsmd',      How to interpret the parametric functions (see below).
+The colorscale for the curve, which is a heatmap
+based on the z-value of the surface. See
+L</"COLORSCALES"> below for more information.
 
-  variables  => ['u', 'v'],  The variables to use in the JavaScript function.
+=item opacity => 1
 
-=head2 FUNCTIONS
+The opacity of a curve between 0 and 1.
+
+=item funcType => 'jsmd'
+
+How to interpret the parametric functions.
+See L</"FUNCTION TYPES"> below for more information.
+
+=item variables => ['u', 'v']
+
+The variables to use in the JavaScript function.
+
+=back
+
+=head1 FUNCTIONS
 
 The addFunction method takes a string, which is a function f(x,y), followed by
 two arrays which give the x-bounds and y-bounds, with optional number of points
@@ -142,112 +172,148 @@ The functions to generate the plot can be either mathematical, JavaScript,
 Perl, or raw data, and this can be controlled using the funcType => type
 option in addCurve or addSurface methods. The valid types are:
 
-  jsmd    This is the default type, in which the functions are converted
-          from math formulas into JavaScript functions to generate the
-          plot. This should accept standard mathematical notation with
-          some exceptions: Multiplication must be an explicit "*":
-          "ucos(v)" is not accepted, but "u*cos(v)" is. JavaScript
-          considers "-u^2" not well defined, instead use "-(u^2)".
+=over 2
 
-  js      The functions are interpreted as raw JavaScript functions. The
-          functions will be passed the defined variables and return a
-          single value. This function type is useful to plot more complicated
-          functions, such as piecewise functions with if/then statements.
-          For example, this graphs the surface of the plane in the first
-          octant that passes through the points ($a,0,0), (0,$b,0), (0,0,$c):
+=item jsmd
 
-          ($a, $b, $c) = (5, 3, 7);
-          $graph->addSurface(
-              [
-                  "return ($b*u < $a*v ? 0.5*u : u - 0.5*$a/$b*v);",
-                  "return ($b*u > $a*v ? 0.5*v : v - 0.5*$b/$a*u);",
-                  "const x = ($b*u < $a*v ? 0.5*u : u - 0.5*$a/$b*v);"
+This is the default type, in which the functions are converted
+from math formulas into JavaScript functions to generate the
+plot. This should accept standard mathematical notation with
+some exceptions: Multiplication must be an explicit "*":
+"ucos(v)" is not accepted, but "u*cos(v)" is. JavaScript
+considers "-u^2" not well defined, instead use "-(u^2)".
+
+=item js
+
+The functions are interpreted as raw JavaScript functions. The
+functions will be passed the defined variables and return a
+single value. This function type is useful to plot more complicated
+functions, such as piecewise functions with if/then statements.
+For example, this graphs the surface of the plane in the first
+octant that passes through the points ($a,0,0), (0,$b,0), (0,0,$c):
+
+    ($a, $b, $c) = (5, 3, 7);
+    $graph->addSurface(
+        [
+            "return ($b*u < $a*v ? 0.5*u : u - 0.5*$a/$b*v);",
+            "return ($b*u > $a*v ? 0.5*v : v - 0.5*$b/$a*u);",
+            "const x = ($b*u < $a*v ? 0.5*u : u - 0.5*$a/$b*v);"
                 . "const y = ($b*u > $a*v ? 0.5*v : v - 0.5*$b/$a*u);"
                 . "return $c - $c/$a*x - $c/$b*y;",
-              ],
-              [0, $a],
-              [0, $b],
-              funcType => 'js',
-          );
+        ],
+        [0, $a],
+        [0, $b],
+        funcType => 'js',
+    );
 
-  perl    The functions are interpreted as Perl subroutines. The functions
-          will be passed the appropriate number of inputs, and return a
-          single value. This uses the WeBWorK server to generate the points
-          for the plot, and can slow down the rendering of the problem. Using
-          the JavaScript methods are preferred for this reason. Here is an
-          example of plotting a sphere of radius $R.
+=item perl
 
-          $R = 5;
-          $graph->addSurface(
-              [
-                  sub { return $R*cos($_[0])*sin($_[1]); },
-                  sub { return $R*sin($_[0])*sin($_[1]); },
-                  sub { return $R*cos($_[1]); }
-              ],
-              [0, 2*pi],
-              [0, pi],
-              funcType => 'perl',
-          );
+The functions are interpreted as Perl subroutines. The functions
+will be passed the appropriate number of inputs, and return a
+single value. This uses the WeBWorK server to generate the points
+for the plot, and can slow down the rendering of the problem. Using
+the JavaScript methods are preferred for this reason. Here is an
+example of plotting a sphere of radius $R.
 
-  data    The functions are interpreted as a nested array of data points to
-          be sent directly to plotly to plot. The nested array needs to be
-          a string, since it is passed to JavaScript to plot. This array lists
-          all of the points which are used to create the surface. For example to
-          plot a surface with 9 points, use something like:
+    $R = 5;
+    $graph->addSurface(
+        [
+            sub { return $R*cos($_[0])*sin($_[1]); },
+            sub { return $R*sin($_[0])*sin($_[1]); },
+            sub { return $R*cos($_[1]); }
+        ],
+        [0, 2*pi],
+        [0, pi],
+        funcType => 'perl',
+    );
 
-          $graph->addSurface(
-              [
-                  "[[x1, x2, x3], [x4, x5, x6], [x7, x8, x9]]",
-                  "[[y1, y2, y3], [y4, y5, y6], [y7, y8, y9]]",
-                  "[[z1, z2, z3], [z4, z5, z6], [z7, z8, z9]]"
-              ],
-              [0,0],
-              [0,0],
-              funcType => 'data'
-          );
+=item data
 
-          This plots a surfacing using the points (x1,y1,z1), (x2,y2,z2), ...,
-          and (x9,y9,z9). The addSurface method requires bounds, but they are not
-          used, so [0,0] needs to be included, but is ignored. Using the perl method
-          to first generate the arrays, then copying the result and using the data
-          method can be useful to speed up rendering of nonrandomized plots.
+The functions are interpreted as a nested array of data points to
+be sent directly to plotly to plot. The nested array needs to be
+a string, since it is passed to JavaScript to plot. This array lists
+all of the points which are used to create the surface. For example to
+plot a surface with 9 points, use something like:
 
+    $graph->addSurface(
+        [
+            "[[x1, x2, x3], [x4, x5, x6], [x7, x8, x9]]",
+            "[[y1, y2, y3], [y4, y5, y6], [y7, y8, y9]]",
+            "[[z1, z2, z3], [z4, z5, z6], [z7, z8, z9]]"
+        ],
+        [0,0],
+        [0,0],
+        funcType => 'data'
+    );
+
+This plots a surfacing using the points (x1,y1,z1), (x2,y2,z2), ...,
+and (x9,y9,z9). The addSurface method requires bounds, but they are not
+used, so [0,0] needs to be included, but is ignored. Using the perl method
+to first generate the arrays, then copying the result and using the data
+method can be useful to speed up rendering of nonrandomized plots.
+
+=back
 
 =head1 Graph3D OPTIONS
 
 Create a graph object: C<$graph = Graph3D(option =E<gt> value)>
 The valid options are:
 
-  height      The height and width of the div containing the graph.
-  width
+=over 2
 
-  title       Graph title to print above the graph.
+=item height
 
-  style       CSS style to style the div containing the graph.
+The height of the div containing the graph.
 
-  bgcolor     The background color of the graph.
+=item width
 
-  image       Image filename to be used in hardcopy TeX output.
-              If no image is provided, the hardcopy TeX output
-              has a message that image must be viewed online.
+The width of the div containing the graph.
 
-  tex_size    Size of image in hardcopy TeX output as scale factor from 0 to 1000.
-              1000 is 100%, 500 is 50%, etc.
+=item title
 
-  tex_border  Put (1) or don't put (0) a border around image in TeX output.
+Graph title to print above the graph.
 
-  scene       Add a JavaScript scene configuration dictionary to the plotly layout.
-              This can be used to configure various aspects of the plot, such as
-              the aspect ratio, and view range of the 3D axes. The scene is a string
-              which contains a JavaScript dictonary to pass to plotly. Example:
+=item style
 
-              scene => 'aspectmode: "manual",'
-                       . 'aspectratio: {x: 1, y: 1, z: 1},'
-                       . 'xaxis: { range: [0,2] },'
-                       . 'yaxis: { range: [0,3] },'
-                       . 'zaxis: { range: [1,4] }'
+CSS style to style the div containing the graph.
 
-              See L<https://plotly.com/javascript/3d-axes/> for more examples.
+=item bgcolor
+
+The background color of the graph.
+
+=item image
+
+Image filename to be used in hardcopy TeX output.
+If no image is provided, the hardcopy TeX output
+has a message that image must be viewed online.
+
+=item tex_size
+
+Size of image in hardcopy TeX output as scale factor from 0 to 1000.
+1000 is 100%, 500 is 50%, etc.
+
+=item tex_border
+
+Put (1) or don't put (0) a border around image in TeX output.
+
+=item scene
+
+Add a JavaScript scene configuration dictionary to the plotly layout.
+This can be used to configure various aspects of the plot, such as
+the aspect ratio, and view range of the 3D axes. The scene is a string
+which contains a JavaScript dictonary to pass to plotly. Example:
+
+  scene => 'aspectmode: "manual",'
+         . 'aspectratio: {x: 1, y: 1, z: 1},'
+         . 'xaxis: { range: [0,2] },'
+         . 'yaxis: { range: [0,3] },'
+         . 'zaxis: { range: [1,4] }'
+
+See L<https://plotly.com/javascript/3d-axes/> for more examples
+or L<https://plotly.com/javascript/reference/layout/scene/#layout-scene>
+for the API reference.
+
+=back
 
 =cut
 
