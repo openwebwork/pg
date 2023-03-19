@@ -82,6 +82,8 @@ BEGIN {
 	be_strict;
 }
 
+loadMacros('PGauxiliaryFunctions.pl');
+
 package main;
 
 BEGIN {
@@ -787,6 +789,7 @@ sub invert {
  @b = NchooseK($N, $K);
 
 Selects $K random nonrepeating elements in the range 0 to $N-1.
+This is a wrapper for random_subset($K, 0 .. $N - 1);
 
 =cut
 
@@ -794,12 +797,7 @@ Selects $K random nonrepeating elements in the range 0 to $N-1.
 
 sub NchooseK {
 	my ($n, $k) = @_;
-	my @array = 0 .. ($n - 1);
-	my @out   = ();
-	while (@out < $k) {
-		push(@out, splice(@array, random(0, $#array, 1), 1));
-	}
-	@out;
+	return random_subset($k, 0 .. $n - 1);
 }
 
 =item [DEPRECATED] shuffle()
@@ -814,8 +812,7 @@ Returns the integers from 0 to $i-1 in random order.
 
 sub shuffle {
 	my ($i) = @_;
-	my @out = &NchooseK($i, $i);
-	@out;
+	return random_subset($i, 0 .. $i - 1);
 }
 
 =item [DEPRECATED] match_questions_list()

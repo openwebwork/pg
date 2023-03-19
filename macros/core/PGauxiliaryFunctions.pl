@@ -15,7 +15,7 @@
 
 =head1 NAME
 
-A set of auxilliary functions that are often used in PG problems.  
+A set of auxiliary functions that are often used in PG problems.  
 
 
 =head1 DESCRIPTION
@@ -36,6 +36,7 @@ This macro creates the following functions that are available for PG:
 	preformat($scalar, "QuotedString")
 	random_pairwise_coprime($ar1, $ar2, ... )
 	random_coprime($ar1, $ar2, ... )
+	random_subset($n, @set)
 =cut
 
 # ^uses loadMacros
@@ -530,6 +531,46 @@ sub preformat {
 # ^uses P
 sub fact {
 	P($_[0], $_[0]);
+}
+
+=head3 random_subset function 
+
+=pod
+
+	Usage: random_subset($n, @set);
+
+This function returns a randomly ordered array of $n elements selected from the array @set
+without replacement. Accepts either an array or an array reference for @set.
+
+Example to choose 3 random elements (both do the same thing):
+
+	random_subset(3, 'first', 'second', 'third', 'fourth', 'fifth')
+	random_subset(3, ['first', 'second', 'third', 'fourth', 'fifth'])
+
+=cut
+
+sub random_subset {
+	my ($n, @set) = @_;
+	@set = @{ $set[0] } if (scalar(@set) == 1 && ref($set[0]) eq 'ARRAY');
+
+	unless ($n =~ /^\d+/) {
+		warn 'random_subset: The first input must be a non-negative integer';
+		return;
+	}
+	unless (@set) {
+		warn 'random_subset: The list of elements to choose from must contain at least one element.';
+		return;
+	}
+	if ($n > scalar(@set)) {
+		warn 'random_subset: The first input must be smaller than or equal to the number of elements.';
+		$n = scalar(@set);
+	}
+
+	my @out;
+	while (@set && @out < $n) {
+		push(@out, splice(@set, random(0, $#set, 1), 1));
+	}
+	return wantarray ? @out : \@out;
 }
 
 # return 1 so that this file can be included with require
