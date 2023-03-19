@@ -9,13 +9,13 @@ randomNamesPronouns.pl - Load macros for random names.
 
 =head2 DESCRIPTION
 
-randomNamesPronouns.pl provides a randomName function that generates a random name with pronouns.  In addition,
-there is the capability of providing pronouns, possessive pronouns, adjectives and object pronouns
+C<randomNamesPronouns.pl> provides a randomName function that generates a random name with pronouns.
+In addition, there is the capability of providing pronouns, possessive pronouns, adjectives and object pronouns
 with and without capitilization and verb conjugation.
 
-Note: this idea and the names wer taken from the PCCmacros.pl RandomName subroutine to extend to
-the handling of pronouns. Most of the names in here were taken from that macro.  Many thanks to those
-who worked on that macro.
+Note: this idea and the names were taken from the C<PCCmacros.pl> C<RandomName>
+subroutine to extend to the handling of pronouns. Most of the names in here were
+taken from that macro.  Many thanks to those who worked on that macro.
 
 =head2 USAGE
 
@@ -32,13 +32,26 @@ and verb conjugation.  It is can be used within a problem as
 
   BEGIN_PGML
   [@ $p1->name @] [@ $p1->verb('travel') @] 1.5 miles to school.  After school,
-  [$p1->pronoun] then [@$p1->verb('goes','go')@] to work.
+  [$p1->subj_pronoun] then [@$p1->verb('goes','go')@] to work.
 
   [@ $p1->Poss_adj @] dog greets [@ $p1->obj_pronoun @] when [@ $p1->obj_pronoun @] gets home.
 
   The books on the table are [@ $p1->poss_pronoun @].
   END_PGML
 
+Additionally, you can specify names/pronouns if you like.  For example
+
+  ($p1,$p2) = randomPerson(names => [['Bart', 'he'], ['Lisa', 'she']]);
+
+or without the pronouns which will be assigned randomly beteween he/she/they:
+
+  ($p1,$p2) = randomPerson(names => ['Bart', 'Lisa']);
+
+And if you would like multiple people to be randomly choosen with unique names, then
+
+  @persons = randomPerson(n => 4);
+
+generates 4 C<Person> objects as an array.
 =cut
 
 sub _randomNamesPronouns_init { }
@@ -203,31 +216,124 @@ my $first_names = {
 	'Will'      => 'he'
 };
 
-@last_names = (
-	Adams,   Allen,     Alvarez,    Anderson, Bailey,  Baker,    Bennet,    Brooks,
-	Brown,   Campbell,  Carter,     Castillo, Chavez,  Clark,    Collins,   Cook,
-	Cooper,  Cox,       Cruz,       Davis,    Diaz,    Edwards,  Evans,     Flores,
-	Foster,  Garcia,    Gomez,      Gonzales, Gray,    Green,    Gutierrez, Hall,
-	Harris,  Hernandez, Hill,       Howard,   Hughes,  Jackson,  James,     Jimenez,
-	Johnson, Jones,     Kelly,      Kim,      King,    Lee,      Lewis,     Long,
-	Lopez,   Martin,    Martinez,   Mendoza,  Miller,  Mitchell, Moore,     Morales,
-	Morgan,  Morris,    Murphy,     Myers,    Nelson,  Nguyen,   Ortiz,     Parker,
-	Patel,   Perez,     Peterson,   Phillips, Pina,    Price,    Ramirez,   Ramos,
-	Reed,    Reyes,     Richardson, Rivera,   Roberts, Robinson, Rodriguez, Rogers,
-	Ross,    Ruiz,      Sanchez,    Sanders,  Scott,   Smith,    Stewart,   Sullivan,
-	Taylor,  Thomas,    Thompson,   Torres,   Turner,  Walker,   Ward,      Watson,
-	White,   Williams,  Wilson,     Wood,     Wright,  Young
+@last_names = qw(
+	Adams   Allen     Alvarez    Anderson Bailey  Baker    Bennet    Brooks
+	Brown   Campbell  Carter     Castillo Chavez  Clark    Collins   Cook
+	Cooper  Cox       Cruz       Davis    Diaz    Edwards  Evans     Flores
+	Foster  Garcia    Gomez      Gonzales Gray    Green    Gutierrez Hall
+	Harris  Hernandez Hill       Howard   Hughes  Jackson  James     Jimenez
+	Johnson Jones     Kelly      Kim      King    Lee      Lewis     Long
+	Lopez   Martin    Martinez   Mendoza  Miller  Mitchell Moore     Morales
+	Morgan  Morris    Murphy     Myers    Nelson  Nguyen   Ortiz     Parker
+	Patel   Perez     Peterson   Phillips Pina    Price    Ramirez   Ramos
+	Reed    Reyes     Richardson Rivera   Roberts Robinson Rodriguez Rogers
+	Ross    Ruiz      Sanchez    Sanders  Scott   Smith    Stewart   Sullivan
+	Taylor  Thomas    Thompson   Torres   Turner  Walker   Ward      Watson
+	White   Williams  Wilson     Wood     Wright  Young
 );
+
+sub nChooseK {
+	my ($n, $k) = @_;
+	die "method NchooseK: n = $n cannot be less than k=$k\n
+	     You probably did a 'choose($k)' with only $n questions!" if $k > $n;
+
+	my @array = 0 .. ($n - 1);
+	my @out;
+
+	while (@out < $k) {
+		push(@out, splice(@array, $main::PG_random_generator->random(0, $#array, 1), 1));
+	}
+
+	return @out;
+}
 
 =head2 randomPerson
 
 Returns a person as a Person object from a list in the macro.
 
+=head3 Examples and options
+
+=over
+
+=item * No arguments returns a single random person
+
+Example
+
+  randomPerson()
+
+=item * C<n =E<gt> k> returns an array of k Person objects with unique names.
+
+Example
+
+  randomPerson(n=>5)
+
+returns an array of 5 Person objects with unique names.
+
+=item * C<names =E<gt> arrayref> returns an array of specified Person objects.
+
+If the arrayref is in the form of C<[['name1','pronoun1'],['name2','pronoun2'],...]> then
+an array of Person objects of the names and pronouns specified.
+
+Example:
+
+  my ($a,$b,$c) = randomPerson(names => [['Bart','he'], ['Lisa','she'], ['Matty','they']]);
+
+If the arrayref is just in the form of C<['name1','name2',...]> then the names are specified
+and the pronouns are randomly generated.
+
+  my ($p1, $p2, $p3) = randomPerson( names => ['Larry', 'Moe', 'Curly']);
+
+=back
+
 =cut
 
 sub randomPerson {
-	my $random_name = list_random(keys(%$first_names));
-	return Person->new({ name => $random_name, pronoun => $first_names->{$random_name} });
+	my %options = (
+		n => 1,
+		@_
+	);
+
+	# if the names are passed in.
+	return
+		map { Person->new(name => $_->[0] // $_, pronoun => $_->[1] // list_random('he', 'she', 'they')) }
+		@{ $options{names} }
+		if ($options{names});
+
+	if ($options{n} == 1) {
+		my $random_name = list_random(keys(%$first_names));
+		return Person->new(name => $random_name, pronoun => $first_names->{$random_name});
+	} else {
+		# need to have the keys sorted to have a consistent set of names for a given seed.
+		my @names   = lex_sort keys(%$first_names);
+		my @indices = nChooseK(scalar(@names), $options{n});
+		return map { Person->new(name => $names[$_], pronoun => $first_names->{ $names[$_] }); } @indices;
+	}
+}
+
+=head3 randomLastName
+
+This returns a random last name based on popular last names in the United States.  Example
+
+  $p = randomLastName();
+
+Note: it is just a string, and doesn't have the pronoun's that the Person object does.
+
+If a number is passed in the form C< n =E<gt> k>, then k unique last names are returned.
+
+  @last_names = randomLastName(n=>4);
+
+generates 4 unique last names.
+
+=cut
+
+sub randomLastName {
+	my %options = (
+		n => 1,
+		@_
+	);
+	return list_random(@last_names) if $options{n} == 1;
+	my @indices = nChooseK(scalar(@last_names), $options{n});
+	return map { $last_names[$_] } @indices;
 }
 
 =head2 CONSTRUCTOR Person
@@ -236,7 +342,7 @@ This makes a Person object to handle name and pronouns of a Person.
 
 Make a person with
 
-  Person->new({ name => 'Roger', pronoun => 'he'})
+  Person->new(name => 'Roger', pronoun => 'he')
 
 as an example. This is often used with the C<randomPerson> method which returns a blessed Person object
 which can be used in problems to write a problem with a random name with pronouns
@@ -244,28 +350,17 @@ and verb conjugation.
 
 =cut
 
-=head3 randomLastName
-
-This returns a random last name based on popular last name in the United States.
-
-Note: it is just a string, and doesn't have the pronoun's that the Person object does.
-
-=cut
-
-sub randomLastName {
-	return list_random(@last_names);
-}
-
 package Person;
 
 sub new {
-	my ($class, $p) = @_;
-	my @v = grep { $p->{pronoun} eq $_ } qw/he she they/;
-	return Value::Error("The pronoun must be either he, she or they. You passed in $p->{pronoun}")
+	my ($class, %opts) = @_;
+	my @v = grep { $opts{pronoun} eq $_ } qw/he she they/;
+	die "The pronoun must be either he, she or they. You passed in $opts{pronoun}"
 		if scalar(@v) != 1;
+	die 'The field name must be passed in' unless defined($opts{name});
 	my $self = {
-		_name    => $p->{name},
-		_pronoun => $p->{pronoun}
+		_name    => $opts{name},
+		_pronoun => $opts{pronoun}
 	};
 	bless $self, $class;
 	return $self;
@@ -275,38 +370,38 @@ sub new {
 
 This returns the name of the person.
 
-  my $p = new Person({ name => 'Roger', pronoun => 'he'});
+  my $p = new Person(name => 'Roger', pronoun => 'he');
 
   $p->name;
 
-returns the name ('Roger').
+returns the name 'Roger'.
 =cut
 
 sub name { return shift->{_name}; }
 
-=head2 pronoun
+=head2 subj_pronoun
 
-This returns the pronoun as a lower case.
+This returns the subject pronoun as a lower case.
 
-  $p->pronoun;
+  $p->subj_pronoun;
 
 returns the pronoun. In this case 'he'.
 
 =cut
 
-sub pronoun { return shift->{_pronoun}; }
+sub subj_pronoun { return shift->{_pronoun}; }
 
-=head2 Pronoun
+=head2 Subj_pronoun
 
-This returns the pronoun as an upper case.
+This returns the subject pronoun as an upper case.
 
-  $p->Pronoun;
+  $p->Subj_pronoun;
 
 returns the upper case pronoun. In this case 'He'.
 
 =cut
 
-sub Pronoun { return ucfirst(shift->{_pronoun}); }
+sub Subj_pronoun { return ucfirst(shift->{_pronoun}); }
 
 =head2 poss_adj
 
@@ -402,8 +497,8 @@ be regular and the plural (without an s) version.
 
 For example
 
-  $p1 = new Person({ name => 'Roger', pronoun => 'he' });
-  $p2 = new Person({ name => 'Max', pronoun => 'they'});
+  $p1 = new Person(name => 'Roger', pronoun => 'he');
+  $p2 = new Person(name => 'Max', pronoun => 'they');
 
   $p1->verb('find');
 
@@ -419,8 +514,8 @@ verbs in that order.
 
 For example if
 
-  $p1 = new Person({ name => 'Roger', pronoun => 'he' });
-  $p2 = new Person({ name => 'Max', pronoun 'they'});
+  $p1 = new Person(name => 'Roger', pronoun => 'he');
+  $p2 = new Person(name => 'Max', pronoun 'they');
 
   $p1->verb('is', 'are');
 
