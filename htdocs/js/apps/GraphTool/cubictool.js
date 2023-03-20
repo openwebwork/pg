@@ -231,13 +231,13 @@
 					// Get a new x coordinate that is to the right, unless that is off the board.
 					// In that case go left instead.
 					let newX = this.point3.X() + gt.snapSizeX;
-					while ([this.point1, this.point2].some((other, i) => newX === other.X())) newX += gt.snapSizeX;
+					while ([this.point1, this.point2].some((other) => newX === other.X())) newX += gt.snapSizeX;
 
 					// If the computed new x coordinate is off the board, then we need to move the point back instead.
 					const boundingBox = gt.board.getBoundingBox();
 					if (newX < boundingBox[0] || newX > boundingBox[2]) {
-						x = this.point3.X() - gt.snapSizeX;
-						while ([this.point1, this.point2].some((other, i) => x === other.X())) x -= gt.snapSizeX;
+						newX = this.point3.X() - gt.snapSizeX;
+						while ([this.point1, this.point2].some((other) => newX === other.X())) newX -= gt.snapSizeX;
 					}
 
 					this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [newX, this.point3.Y()], gt.board));

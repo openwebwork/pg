@@ -1,21 +1,36 @@
+@use 'sass:color';
+
 .graphtool-container {
-	width: 400px;
+	width: 402px;
 
 	@media only screen and (max-width: 600px) {
-		width: 300px;
+		width: 302px;
 	}
 
 	.graphtool-graph {
-		width: 400px;
-		height: 400px;
+		width: 402px;
+		height: 402px;
 
 		@media only screen and (max-width: 600px) {
-			width: 300px;
-			height: 300px;
+			width: 302px;
+			height: 302px;
 		}
 
-		.hidden-fill-point:focus {
+		.hidden-fill-point:focus,
+		.hidden-end-point:focus {
 			outline-offset: 5px;
+		}
+
+		.hidden-inf-point:focus {
+			outline-offset: 12px;
+		}
+	}
+
+	.graphtool-number-line {
+		height: 67px;
+
+		@media only screen and (max-width: 600px) {
+			height: 57px;
 		}
 	}
 
@@ -52,38 +67,36 @@
 			}
 		}
 
-		.gt-solid-dash-box {
+		.gt-tool-button-pair {
 			display: inline-block;
 			box-sizing: border-box;
 			height: 38px;
 			padding: 0;
 			vertical-align: middle;
 
-			.gt-solid-button-div {
+			.gt-tool-button-pair-top {
 				display: block;
 				height: 20px;
+
+				.gt-tool-button {
+					height: 16px;
+					vertical-align: top;
+					margin: 2px 2px 0 2px;
+					border-radius: 4px 4px 0 0;
+				}
 			}
 
-			.gt-dashed-button-div {
+			.gt-tool-button-pair-bottom {
 				display: block;
 				height: 18px;
+
+				.gt-tool-button {
+					height: 16px;
+					vertical-align: top;
+					margin: 0 2px 2px 2px;
+					border-radius: 0 0 4px 4px;
+				}
 			}
-		}
-
-		.gt-solid-tool {
-			height: 16px;
-			vertical-align: top;
-			margin: 2px 2px 0 2px;
-			border-radius: 4px 4px 0 0;
-			background-image: url('images/SolidTool.svg');
-		}
-
-		.gt-dashed-tool {
-			height: 16px;
-			vertical-align: top;
-			margin: 0 2px 2px 2px;
-			border-radius: 0 0 4px 4px;
-			background-image: url('images/DashTool.svg');
 		}
 
 		.gt-tool-button {
@@ -122,6 +135,38 @@
 			&.gt-fill-tool {
 				background-image: url('images/FillTool.svg');
 			}
+
+			&.gt-solid-tool {
+				background-image: url('images/SolidTool.svg');
+			}
+
+			&.gt-dashed-tool {
+				background-image: url('images/DashTool.svg');
+			}
+
+			&.gt-include-point-tool {
+				background-image: url('images/IncludePointTool.svg');
+			}
+
+			&.gt-include-point-bracket-tool {
+				background-image: url('images/IncludePointBracketTool.svg');
+			}
+
+			&.gt-exclude-point-tool {
+				background-image: url('images/ExcludePointTool.svg');
+			}
+
+			&.gt-exclude-point-parenthesis-tool {
+				background-image: url('images/ExcludePointParenthesisTool.svg');
+			}
+
+			&.gt-bounded-interval-tool {
+				background-image: url('images/IntervalTool.svg');
+			}
+
+			&.gt-bounded-interval-bracket-tool {
+				background-image: url('images/IntervalBracketTool.svg');
+			}
 		}
 	}
 }
@@ -131,12 +176,20 @@
 
 	.graphtool-graph {
 		margin: auto;
-		width: 200px;
-		height: 200px;
+		width: 202px;
+		height: 202px;
 
 		@media only screen and (max-width: 600px) {
-			width: 150px;
-			height: 150px;
+			width: 152px;
+			height: 152px;
+		}
+	}
+
+	.graphtool-number-line {
+		height: 62px;
+
+		@media only screen and (max-width: 600px) {
+			height: 52px;
 		}
 	}
 }

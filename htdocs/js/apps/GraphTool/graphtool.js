@@ -34,7 +34,9 @@ window.graphTool = (containerId, options) => {
 		// strict contrast ratios are less important for these colors
 		point: 'orange',
 		pointHighlight: 'yellow',
-		underConstruction: 'orange'
+		pointHighlightDarker: '#cc8400', // color.adjust(orange, $lightness: -10%)
+		underConstruction: 'orange',
+		underConstructionFixed: JXG.palette.red // defined to be '#d55e00'
 	};
 
 	gt.definingPointAttributes = {
@@ -49,6 +51,7 @@ window.graphTool = (containerId, options) => {
 		highlightFillColor: gt.color.pointHighlight
 	};
 
+	gt.options = options;
 	gt.snapSizeX = options.snapSizeX ? options.snapSizeX : 1;
 	gt.snapSizeY = options.snapSizeY ? options.snapSizeY : 1;
 	gt.isStatic = options.isStatic ? true : false;
@@ -113,8 +116,14 @@ window.graphTool = (containerId, options) => {
 		const bbox = gt.board.getBoundingBox();
 		gt.board.defaultAxes.x.point1.setPosition(JXG.COORDS_BY_USER, [bbox[0], 0]);
 		gt.board.defaultAxes.x.point2.setPosition(JXG.COORDS_BY_USER, [bbox[2], 0]);
-		gt.board.defaultAxes.y.point1.setPosition(JXG.COORDS_BY_USER, [0, bbox[3]]);
-		gt.board.defaultAxes.y.point2.setPosition(JXG.COORDS_BY_USER, [0, bbox[1]]);
+
+		if (options.numberLine) {
+			gt.board.defaultAxes.y.point1.setPosition(JXG.COORDS_BY_USER, [0, 0]);
+			gt.board.defaultAxes.y.point2.setPosition(JXG.COORDS_BY_USER, [0, 0]);
+		} else {
+			gt.board.defaultAxes.y.point1.setPosition(JXG.COORDS_BY_USER, [0, bbox[3]]);
+			gt.board.defaultAxes.y.point2.setPosition(JXG.COORDS_BY_USER, [0, bbox[1]]);
+		}
 
 		// Add labels to the x and y axes.
 		if (options.xAxisLabel) {
@@ -128,7 +137,7 @@ window.graphTool = (containerId, options) => {
 				{ anchorX: 'right', anchorY: 'bottom', highlight: false, color: 'black', fixed: true, useMathJax: true }
 			);
 		}
-		if (options.yAxisLabel) {
+		if (options.yAxisLabel && !options.numberLine) {
 			gt.board.create(
 				'text',
 				[
@@ -141,18 +150,28 @@ window.graphTool = (containerId, options) => {
 		}
 
 		// Add an empty text that will hold the cursor position.
-		gt.current_pos_text = gt.board.create(
-			'text',
-			[
-				() => gt.board.getBoundingBox()[2] - 5 / gt.board.unitX,
-				() => gt.board.getBoundingBox()[3] + 5 / gt.board.unitY,
-				''
-			],
-			{ anchorX: 'right', anchorY: 'bottom', fixed: true }
-		);
+		gt.current_pos_text = options.numberLine
+			? gt.board.create(
+				'text',
+				[
+					() => gt.board.getBoundingBox()[0] + 10 / gt.board.unitX,
+					() => gt.board.getBoundingBox()[1] - 2 / gt.board.unitY,
+					() => ''
+				],
+				{ anchorX: 'left', anchorY: 'top', fixed: true, useMathJax: true }
+			)
+			: gt.board.create(
+				'text',
+				[
+					() => gt.board.getBoundingBox()[2] - 5 / gt.board.unitX,
+					() => gt.board.getBoundingBox()[3] + 5 / gt.board.unitY,
+					() => ''
+				],
+				{ anchorX: 'right', anchorY: 'bottom', fixed: true, useMathJax: true }
+			);
 
 		// Overwrite the popup infobox for points.
-		gt.board.highlightInfobox = (x, y, el) => gt.board.highlightCustomInfobox('', el);
+		gt.board.highlightInfobox = (_x, _y, el) => gt.board.highlightCustomInfobox('', el);
 
 		if (!gt.isStatic) {
 			gt.graphContainer.tabIndex = -1;
@@ -195,7 +214,7 @@ window.graphTool = (containerId, options) => {
 			gt.preventFocusLoss = false;
 			gt.objectFocusSet = false;
 
-			gt.board.containerObj.addEventListener('focus', (e) => gt.hasFocus = true);
+			gt.board.containerObj.addEventListener('focus', () => gt.hasFocus = true);
 
 			gt.graphContainer.addEventListener('focusin', (e) => {
 				e.preventDefault();
@@ -362,10 +381,10 @@ window.graphTool = (containerId, options) => {
 					gt.deleteSelected();
 				} else if (e.key === 's') {
 					// If 's' is pressed change to drawing solid.
-					gt.toggleSolidity(e, true)
+					gt.toggleSolidity(e, true);
 				} else if (e.key === 'd') {
 					// If 'd' is pressed change to drawing dashed.
-					gt.toggleSolidity(e, false)
+					gt.toggleSolidity(e, false);
 				}
 			});
 		}
@@ -400,7 +419,18 @@ window.graphTool = (containerId, options) => {
 	gt.snapRound = (x, snap) => Math.round(Math.round(x / snap) * snap * 100000) / 100000;
 
 	gt.setTextCoords = options.showCoordinateHints
-		? (x, y) => gt.current_pos_text.setText(`(${gt.snapRound(x, gt.snapSizeX)}, ${gt.snapRound(y, gt.snapSizeY)})`)
+		? (
+			options.numberLine
+				? (x) => {
+					const bbox = gt.board.getBoundingBox();
+					const xSnap = gt.snapRound(x, gt.snapSizeX);
+					if (xSnap <= bbox[0]) gt.current_pos_text.setText(() => '\\(-\\infty\\)');
+					else if (xSnap >= bbox[2]) gt.current_pos_text.setText(() => '\\(\\infty\\)');
+					else gt.current_pos_text.setText(() => `\\(${xSnap}\\)`);
+				}
+				: (x, y) => gt.current_pos_text
+					.setText(() => `\\((${gt.snapRound(x, gt.snapSizeX)}, ${gt.snapRound(y, gt.snapSizeY)})\\)`)
+		)
 		: () => {};
 
 	gt.updateText = () => {
@@ -427,11 +457,27 @@ window.graphTool = (containerId, options) => {
 		return x > 0 ? 1 : -1;
 	};
 
+	// These return true if the given x coordinate is off the board or within epsilon of the edge of the board.
+	gt.isPosInfX = (x) => x >= gt.board.getBoundingBox()[2] - JXG.Math.eps;
+	gt.isNegInfX = (x) => x <= gt.board.getBoundingBox()[0] + JXG.Math.eps;
+
 	// Use this instead of gt.board.hasPoint.  That method uses strict inequality.
 	// Using inequality with equality allows points on the edge of the board.
 	gt.boardHasPoint = (x, y) => {
+		let px = x, py = y;
 		const bbox = gt.board.getBoundingBox();
-		return x >= bbox[0] && x <= bbox[2] && y <= bbox[1] && y >= bbox[3];
+
+		if (JXG.exists(x) && JXG.isArray(x.usrCoords)) {
+			px = x.usrCoords[1];
+			py = x.usrCoords[2];
+		}
+
+		return JXG.isNumber(px) &&
+			JXG.isNumber(py) &&
+			bbox[0] <= px &&
+			px <= bbox[2] &&
+			bbox[1] >= py &&
+			py >= bbox[3];
 	};
 
 	gt.pointRegexp = /\( *(-?[0-9]*(?:\.[0-9]*)?), *(-?[0-9]*(?:\.[0-9]*)?) *\)/g;
@@ -544,15 +590,17 @@ window.graphTool = (containerId, options) => {
 			this.focusPoint = null;
 		}
 
-		handleKeyEvent(_e, _el) {}
+		handleKeyEvent(/* e, el */) {}
 
 		blur() {
+			this.focused = false;
 			this.definingPts.forEach((obj) => obj.setAttribute({ visible: false }));
 			this.baseObj.setAttribute({ strokeColor: gt.color.curve, strokeWidth: 2 });
 		}
 
 		focus() {
-			this.definingPts.forEach((obj) => obj.setAttribute({ visible: true }));
+			this.focused = true;
+			this.definingPts.forEach((obj) => obj.setAttribute({ visible: true, layer: 9 }));
 			this.baseObj.setAttribute({ strokeColor: gt.color.focusCurve, strokeWidth: 3 });
 
 			// Focus the currently set point of focus for this object.
@@ -563,9 +611,14 @@ window.graphTool = (containerId, options) => {
 			if (gt.dashedButton) gt.dashedButton.disabled = !gt.drawSolid;
 		}
 
+		isEventTarget(e) {
+			if (this.baseObj.rendNode === e.target) return true;
+			return this.definingPts.some((point) => point.rendNode === e.target);
+		}
+
 		update() {}
 
-		fillCmp(_point) { return 1; }
+		fillCmp(/* point */) { return 1; }
 
 		remove() {
 			this.definingPts.forEach((point) => gt.board.removeObject(point));
@@ -813,9 +866,9 @@ window.graphTool = (containerId, options) => {
 					[() => 24 / gt.board.unitX, () => 24 / gt.board.unitY]
 				],
 				{ withLabel: false, highlight: false, layer: 8, name: 'FillIcon', fixed: true }
-			)
+			);
 
-			if (!gt.isStatic) this.on('drag', (e) => { this.update(); gt.updateText(); });
+			if (!gt.isStatic) this.on('drag', () => { this.update(); gt.updateText(); });
 		}
 
 		// The fill object has an invisible focus object.  So the focus/blur methods need to be overridden.
@@ -971,6 +1024,12 @@ window.graphTool = (containerId, options) => {
 					if ((!('focus' in graphObject) || graphObject.focus.call(this, gt)) && parentObject) super.focus();
 				}
 
+				isEventTarget(e) {
+					if ('isEventTarget' in graphObject) return graphObject.isEventTarget.call(this, gt, e);
+					else if (parentObject) return super.isEventTarget(e);
+					return false;
+				}
+
 				update() {
 					if ('update' in graphObject) graphObject.update.call(this, gt);
 					else if (parentObject) super.update();
@@ -1027,6 +1086,16 @@ window.graphTool = (containerId, options) => {
 				}
 			};
 
+			// These are methods that must be called with a class instance (as in this.method(...args)).
+			if ('classMethods' in graphObject) {
+				for (const method of Object.keys(graphObject.classMethods)) {
+					customGraphObject.prototype[method] = function(...args) {
+						return graphObject.classMethods[method].call(this, gt, ...args);
+					};
+				}
+			}
+
+			// These are static class methods.
 			if ('helperMethods' in graphObject) {
 				Object.keys(graphObject.helperMethods).forEach((method) => {
 					customGraphObject[method] = function(...args) {
@@ -1040,8 +1109,8 @@ window.graphTool = (containerId, options) => {
 	}
 
 	// Generic tool class from which all the graphing tools derive.  Most of the methods, if overridden, must call the
-	// corresponding generic method.  At this point the updateHighlights method is the only one that this doesn't need
-	// to be done with.
+	// corresponding generic method.  At this point the handleKeyEvent and updateHighlights methods are the ones that
+	// this doesn't need to be done with.
 	class GenericTool {
 		constructor(container, name, tooltip) {
 			const div = document.createElement('div');
@@ -1073,9 +1142,9 @@ window.graphTool = (containerId, options) => {
 			gt.selectTool.activate();
 		}
 
-		handleKeyEvent(_e) {}
+		handleKeyEvent(/* e */) {}
 
-		updateHighlights(_coords) { return false; }
+		updateHighlights(/* coords */) { return false; }
 
 		removeHighlights() {
 			for (const obj in this.hlObjs) {
@@ -1128,19 +1197,20 @@ window.graphTool = (containerId, options) => {
 					// This can happen if the defining point of another object is on this object and neither has focus.
 					const otherIsTarget = gt.graphedObjs.some((otherObj) => {
 						if (otherObj.id() === obj.id()) return false;
-						if (otherObj.baseObj.rendNode === e.target) return true;
-						return otherObj.definingPts.some((otherPt) => otherPt.rendNode === e.target);
+						return otherObj.isEventTarget(e);
 					});
 
 					// Check to see if one of the defining points of this object has the pointer.  If so set that point
 					// as the focus point.  However, if some other object is the target then don't focus this object.
 					// This is most important if a fill object is the target.  In that case the focus slips through to
-					// the object below it.
+					// the object below it.  Note that the actual focusing of the point needs to be delayed until it is
+					// determined that this object either has focus or is will take focus.
+					let focusPoint = null;
 					for (const point of obj.definingPts) {
 						if (point.hasPoint(coords.scrCoords[1], coords.scrCoords[2])) {
 							obj.focusPoint = point;
 							if (otherIsTarget) return;
-							point.rendNode.focus();
+							focusPoint = point;
 							break;
 						}
 					}
@@ -1159,9 +1229,13 @@ window.graphTool = (containerId, options) => {
 									return;
 							}
 							lastSelected = gt.selectedObj;
-						} else return;
+						} else {
+							focusPoint?.rendNode.focus();
+							return;
+						}
 					}
 
+					focusPoint?.rendNode.focus();
 					gt.selectedObj = obj;
 					gt.selectedObj.focus();
 					lastSelected?.blur();
@@ -1203,7 +1277,7 @@ window.graphTool = (containerId, options) => {
 					}
 
 					// Attach a focusin handler to all points to update the coordinates display.
-					point.focusInHandler = (e) => gt.setTextCoords(point.X(), point.Y());
+					point.focusInHandler = () => gt.setTextCoords(point.X(), point.Y());
 					point.rendNode.addEventListener('focusin', point.focusInHandler);
 				});
 			}
@@ -1265,7 +1339,7 @@ window.graphTool = (containerId, options) => {
 
 			if (!this.hlObjs.hl_point) {
 				this.hlObjs.hl_point = gt.board.create('point', [coords.usrCoords[1], coords.usrCoords[2]], {
-					size: 2, color: gt.color.underConstruction, snapToGrid: true,
+					size: 2, color: gt.color.underConstruction, snapToGrid: true, highlight: false,
 					snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, withLabel: false
 				});
 				this.hlObjs.hl_point.rendNode.focus();
@@ -1333,7 +1407,6 @@ window.graphTool = (containerId, options) => {
 		// and is not the same as the first point, then finalize the line.
 		phase2(coords) {
 			// Don't allow the second point to be created on top of the first or off the board
-			const bbox = gt.board.getBoundingBox();
 			if ((this.point1.X() == gt.snapRound(coords[1], gt.snapSizeX) &&
 				this.point1.Y() == gt.snapRound(coords[2], gt.snapSizeY)) ||
 				!gt.boardHasPoint(coords[1], coords[2]))
@@ -1388,7 +1461,7 @@ window.graphTool = (containerId, options) => {
 
 			if (!this.hlObjs.hl_point) {
 				this.hlObjs.hl_point = gt.board.create('point', [coords.usrCoords[1], coords.usrCoords[2]], {
-					size: 2, color: gt.color.underConstruction, snapToGrid: true,
+					size: 2, color: gt.color.underConstruction, snapToGrid: true, highlight: false,
 					snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, withLabel: false
 				});
 				this.hlObjs.hl_point.rendNode.focus();
@@ -1710,6 +1783,9 @@ window.graphTool = (containerId, options) => {
 		e.stopPropagation();
 
 		if (gt.selectedObj) {
+			// Prevent the gt.board.containerObj focusin handler from moving focus to the last graphed object.
+			gt.objectFocusSet = true;
+
 			gt.selectedObj.setSolid(drawSolid);
 			gt.updateText();
 		}
@@ -1726,10 +1802,10 @@ window.graphTool = (containerId, options) => {
 	class SolidDashTool {
 		constructor(container) {
 			const solidDashBox = document.createElement('div');
-			solidDashBox.classList.add('gt-solid-dash-box');
-			// The draw solid button is active by default.
+			solidDashBox.classList.add('gt-tool-button-pair');
+			// The default is to draw objects solid.  So the draw solid button is disabled by default.
 			const solidButtonDiv = document.createElement('div');
-			solidButtonDiv.classList.add('gt-button-div', 'gt-solid-button-div');
+			solidButtonDiv.classList.add('gt-button-div', 'gt-tool-button-pair-top');
 			solidButtonDiv.dataset.bsToggle = 'tooltip';
 			solidButtonDiv.dataset.bsTitle = 'Make Selected Object Solid';
 			solidButtonDiv.id = 'gt-solid-tool';
@@ -1743,7 +1819,7 @@ window.graphTool = (containerId, options) => {
 			solidDashBox.append(solidButtonDiv);
 
 			const dashedButtonDiv = document.createElement('div');
-			dashedButtonDiv.classList.add('gt-button-div', 'gt-dashed-button-div');
+			dashedButtonDiv.classList.add('gt-button-div', 'gt-tool-button-pair-bottom');
 			dashedButtonDiv.dataset.bsToggle = 'tooltip';
 			dashedButtonDiv.dataset.bsTitle = 'Make Selected Object Dashed';
 			dashedButtonDiv.id = 'gt-dashed-tool';
@@ -1771,6 +1847,7 @@ window.graphTool = (containerId, options) => {
 	const graphDiv = document.createElement('div');
 	graphDiv.id = `${containerId}_graph`;
 	graphDiv.classList.add('jxgbox', 'graphtool-graph');
+	if (options.numberLine) graphDiv.classList.add('graphtool-number-line');
 	gt.graphContainer.append(graphDiv);
 
 	if (!gt.isStatic) {
@@ -1825,6 +1902,16 @@ window.graphTool = (containerId, options) => {
 					}
 				};
 
+				// These are methods that must be called with a class instance (as in this.method(...args)).
+				if ('classMethods' in toolObject) {
+					for (const method of Object.keys(toolObject.classMethods)) {
+						customTool.prototype[method] = function(...args) {
+							return toolObject.classMethods[method].call(this, gt, ...args);
+						};
+					}
+				}
+
+				// These are static class methods.
 				if ('helperMethods' in toolObject) {
 					Object.keys(toolObject.helperMethods).forEach((method) => {
 						customTool[method] = function(...args) {
