@@ -15,6 +15,7 @@
         "jszip": "^3.10.1",
         "jszip-utils": "^0.1.0",
         "mathquill": "github:openwebwork/mathquill",
+        "plotly.js-dist-min": "^2.18.2",
         "sortablejs": "^1.15.0",
         "x3dom": "^1.8.1"
     },

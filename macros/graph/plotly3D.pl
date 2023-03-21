@@ -3,7 +3,7 @@
 
 plotly3D.pl - Adds Graph3D, an object for creating 3D parametric curves
 and 3D parametric surface plots using the plotly JavaScript library.
-https://plotly.com/javascript/
+L<https://plotly.com/javascript/>
 
 =head1 DESCRIPTION
 
@@ -11,7 +11,8 @@ Loading this macro adds the Graph3D method which creates a 3D
 graph object. The graph object can be configured by a list of
 options of the form "option => value" (see below).
 
-    $graph = Graph3D(options);
+    loadMacros('plotly3D.pl');
+    $graph = Graph3D(options => value);
 
 Use the addCurve method to add a parametric curve to the graph.
 The following adds a helix to the graph. The first array is
@@ -62,16 +63,32 @@ If the number of points is not given, it defaults to 100.
 The additional options are given in a 'option => value' format.
 The current available options (and defaults) are:
 
-  width      => 5,       The width/thickness of the curve.
+=over 5
 
-  colorscale => 'RdBu',  The colorscale for the curve, which is a heatmap
-                         based on the z-value of the curve.
+=item width => 5
 
-  opacity    => 1,       The opacity of a curve between 0 and 1.
+The width/thickness of the curve.
 
-  funcType   => 'jsmd',  How to interpret the parametric functions (see below).
+=item colorscale => 'RdBu'
 
-  variables  => ['t'],   The variable to use in the JavaScript function.
+The colorscale for the curve, which is a heatmap
+based on the z-value of the curve.
+See L</"COLORSCALES"> below for more information.
+
+=item opacity => 1
+
+The opacity of a curve between 0 and 1.
+
+=item funcType => 'jsmd'
+
+How to interpret the parametric functions.
+See L</"FUNCTION TYPES"> below for more information.
+
+=item variables => ['t']
+
+The variable to use in the JavaScript function.
+
+=back
 
 =head1 PARAMETRIC SURFACES
 
@@ -90,16 +107,30 @@ two variables. If the number of points is not given, it defaults to 20.
 The additional options are given in a 'option => value' format.
 The current available options (and defaults) are:
 
-  colorscale => 'RdBu',      The colorscale for the curve, which is a heatmap
-                             based on the z-value of the surface.
+=over 2
 
-  opacity    => 1,           The opacity of a curve between 0 and 1.
+=item colorscale => 'RdBu'
 
-  funcType   => 'jsmd',      How to interpret the parametric functions (see below).
+The colorscale for the curve, which is a heatmap
+based on the z-value of the surface. See
+L</"COLORSCALES"> below for more information.
 
-  variables  => ['u', 'v'],  The variables to use in the JavaScript function.
+=item opacity => 1
 
-=head2 FUNCTIONS
+The opacity of a curve between 0 and 1.
+
+=item funcType => 'jsmd'
+
+How to interpret the parametric functions.
+See L</"FUNCTION TYPES"> below for more information.
+
+=item variables => ['u', 'v']
+
+The variables to use in the JavaScript function.
+
+=back
+
+=head1 FUNCTIONS
 
 The addFunction method takes a string, which is a function f(x,y), followed by
 two arrays which give the x-bounds and y-bounds, with optional number of points
@@ -123,14 +154,14 @@ of the points. The colorscale can be one of the following predefined names:
     'Greys', 'Greens', 'Electric', 'Earth', 'Bluered', or 'Blackbody'
 
 You can also define a custom colorscale as a list of colors for values
-ranging from 0 to 1. For example the default RdBu is the following colorset
-(note this must be a string since the array is passed to javascript):
+ranging from 0 to 1. For example the default RdBu is the following colorscale
+(note this must be a string since the array is passed to JavaScript):
 
     "[[0, 'rgb(5,10,172)'], [0.35, 'rgb(106,137,247)'],
       [0.5, 'rgb(190,190,190)'], [0.6, 'rgb(220,170,132)'],
       [0.7, 'rgb(230,145,90)'], [1, 'rgb(178,10,28)']]"
 
-A colorset can have any number of color points between 0 and 1. To make
+A colorscale can have any number of color points between 0 and 1. To make
 the plot a single color, set the color for 0 and 1 to be the same:
 
     "[[0, 'rgb(0,200,0)'], [1, 'rgb(0,200,0)']]"
@@ -141,61 +172,155 @@ The functions to generate the plot can be either mathematical, JavaScript,
 Perl, or raw data, and this can be controlled using the funcType => type
 option in addCurve or addSurface methods. The valid types are:
 
-  jsmd    This is the default type, in which the functions are converted
-          from math formulas into JavaScript functions to generate the
-          plot. This should accept standard mathematical notation with
-          some exceptions: Multiplication must be an explicit "*".
-          "ucos(v)" is not be accepted, but "u*cos(v)" will. JavaScript
-          considers "-u^2" not well defined, instead use "-(u^2)".
+=over 2
 
-  js      The functions are interpreted as raw JavaScript functions. The
-          functions will be passed the defined variables and return a
-          single value.
+=item jsmd
 
-  perl    The functions are interpreted as Perl subroutines. The functions
-          will be passed the appropriate number of inputs, and return a
-          single value.
+This is the default type, in which the functions are converted
+from math formulas into JavaScript functions to generate the
+plot. This should accept standard mathematical notation with
+some exceptions: Multiplication must be an explicit "*":
+"ucos(v)" is not accepted, but "u*cos(v)" is. JavaScript
+considers "-u^2" not well defined, instead use "-(u^2)".
 
-  data    The functions are interpreted as a nested array of data points to
-          be sent directly to plotly to plot. This is useful for static plots
-          in which the points do not need to be generated each time.
+=item js
+
+The functions are interpreted as raw JavaScript functions. The
+functions will be passed the defined variables and return a
+single value. This function type is useful to plot more complicated
+functions, such as piecewise functions with if/then statements.
+For example, this graphs the surface of the plane in the first
+octant that passes through the points ($a,0,0), (0,$b,0), (0,0,$c):
+
+    ($a, $b, $c) = (5, 3, 7);
+    $graph->addSurface(
+        [
+            "return ($b*u < $a*v ? 0.5*u : u - 0.5*$a/$b*v);",
+            "return ($b*u > $a*v ? 0.5*v : v - 0.5*$b/$a*u);",
+            "const x = ($b*u < $a*v ? 0.5*u : u - 0.5*$a/$b*v);"
+                . "const y = ($b*u > $a*v ? 0.5*v : v - 0.5*$b/$a*u);"
+                . "return $c - $c/$a*x - $c/$b*y;",
+        ],
+        [0, $a],
+        [0, $b],
+        funcType => 'js',
+    );
+
+=item perl
+
+The functions are interpreted as Perl subroutines. The functions
+will be passed the appropriate number of inputs, and return a
+single value. This uses the WeBWorK server to generate the points
+for the plot, and can slow down the rendering of the problem. Using
+the JavaScript methods are preferred for this reason. Here is an
+example of plotting a sphere of radius $R.
+
+    $R = 5;
+    $graph->addSurface(
+        [
+            sub { return $R*cos($_[0])*sin($_[1]); },
+            sub { return $R*sin($_[0])*sin($_[1]); },
+            sub { return $R*cos($_[1]); }
+        ],
+        [0, 2*pi],
+        [0, pi],
+        funcType => 'perl',
+    );
+
+=item data
+
+The functions are interpreted as a nested array of data points to
+be sent directly to plotly to plot. The nested array needs to be
+a string, since it is passed to JavaScript to plot. This array lists
+all of the points which are used to create the surface. For example to
+plot a surface with 9 points, use something like:
+
+    $graph->addSurface(
+        [
+            "[[x1, x2, x3], [x4, x5, x6], [x7, x8, x9]]",
+            "[[y1, y2, y3], [y4, y5, y6], [y7, y8, y9]]",
+            "[[z1, z2, z3], [z4, z5, z6], [z7, z8, z9]]"
+        ],
+        [0,0],
+        [0,0],
+        funcType => 'data'
+    );
+
+This plots a surfacing using the points (x1,y1,z1), (x2,y2,z2), ...,
+and (x9,y9,z9). The addSurface method requires bounds, but they are not
+used, so [0,0] needs to be included, but is ignored. Using the perl method
+to first generate the arrays, then copying the result and using the data
+method can be useful to speed up rendering of nonrandomized plots.
+
+=back
 
 =head1 Graph3D OPTIONS
 
-Create a graph object: $graph = Graph3D(option => value)
+Create a graph object: C<$graph = Graph3D(option =E<gt> value)>
 The valid options are:
 
-  height      The height and width of the div containing the graph.
-  width
+=over 2
 
-  title       Graph title to print above the graph.
+=item height
 
-  style       CSS style to style the div containing the graph.
+The height of the div containing the graph.
 
-  bgcolor     The background color of the graph.
+=item width
 
-  image       Image filename to be used in hardcopy TeX output.
-              If no image is provided, the hardcopy TeX output
-              has a message that image must be viewed online.
+The width of the div containing the graph.
 
-  tex_size    Size of image in hardcopy TeX output as scale factor from 0 to 1000.
-              1000 is 100%, 500 is 50%, etc.
+=item title
 
-  tex_border  Put (1) or don't put (0) a border around image in TeX output.
+Graph title to print above the graph.
 
-  scene       Add a JavaScript scene configuration dictionary to the plotly layout.
-              Example: scene => 'aspectmode: "manual", aspectratio: {x: 1, y: 1, z: 1},
-              xaxis: { range: [0,2] }, yaxis: { range: [0,3] }, zaxis: { range: [1,4] }'
-              https://plotly.com/javascript/3d-axes/ for more examples.
+=item style
+
+CSS style to style the div containing the graph.
+
+=item bgcolor
+
+The background color of the graph.
+
+=item image
+
+Image filename to be used in hardcopy TeX output.
+If no image is provided, the hardcopy TeX output
+has a message that image must be viewed online.
+
+=item tex_size
+
+Size of image in hardcopy TeX output as scale factor from 0 to 1000.
+1000 is 100%, 500 is 50%, etc.
+
+=item tex_border
+
+Put (1) or don't put (0) a border around image in TeX output.
+
+=item scene
+
+Add a JavaScript scene configuration dictionary to the plotly layout.
+This can be used to configure various aspects of the plot, such as
+the aspect ratio, and view range of the 3D axes. The scene is a string
+which contains a JavaScript dictonary to pass to plotly. Example:
+
+  scene => 'aspectmode: "manual",'
+         . 'aspectratio: {x: 1, y: 1, z: 1},'
+         . 'xaxis: { range: [0,2] },'
+         . 'yaxis: { range: [0,3] },'
+         . 'zaxis: { range: [1,4] }'
+
+See L<https://plotly.com/javascript/3d-axes/> for more examples
+or L<https://plotly.com/javascript/reference/layout/scene/#layout-scene>
+for the API reference.
+
+=back
 
 =cut
 
 sub _plotly3D_init {
-	ADD_JS_FILE('https://cdn.plot.ly/plotly-latest.min.js', 1);
+	ADD_JS_FILE('node_modules/plotly.js-dist-min/plotly.min.js', 0, { defer => undef });
 	PG_restricted_eval("sub Graph3D {new plotly3D(\@_)}");
 }
-
-our $plotlyCount = 0;
 
 package plotly3D;
 
@@ -203,9 +328,8 @@ sub new {
 	my $self  = shift;
 	my $class = ref($self) || $self;
 
-	$plotlyCount++;
 	$self = bless {
-		id         => $plotlyCount,
+		id         => $main::PG->getUniqueName('plotly3D') =~ s/-/_/gr,
 		plots      => [],
 		width      => 500,
 		height     => 500,
@@ -264,40 +388,41 @@ sub HTML {
 	my $width = $self->{width} + 10;
 	my $title = ($self->{title}) ? "<strong>$self->{title}</strong>" : '';
 	my $plots = '';
-	my @data  = ();
-	my $count = 0;
 	my $scene = ($self->{scene}) ? "scene: { $self->{scene} }," : '';
 
 	foreach (@{ $self->{plots} }) {
-		$count++;
-		$plots .= $_->HTML($id, $count);
-		push(@data, "plotlyData${id}_$count");
+		$plots .= $_->HTML;
 	}
 	$plots =~ s/^\t//;
-	my $dataout = '[' . join(', ', @data) . ']';
 
 	return "\n" . <<END_OUTPUT;
 <div style="width: ${width}px; $self->{style}">
 	$title
-	<div id="plotlyDiv$id" style="width: $self->{width}px; height: $self->{height}px;"></div>
+	<div id="plotlyDiv_$id" style="width: $self->{width}px; height: $self->{height}px;"></div>
 </div>
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-	$plots
-	var plotlyLayout$id = {
-		autosize: true,
-		showlegend: false,
-		paper_bgcolor: "$self->{bgcolor}",
-		$scene
-		margin: {
-			l: 5,
-			r: 5,
-			b: 5,
-			t: 5,
-		}
+(() => {
+	const initialize = () => {
+		const plotlyData = [];
+		$plots
+		Plotly.newPlot('plotlyDiv_$id', plotlyData, {
+			autosize: true,
+			showlegend: false,
+			paper_bgcolor: "$self->{bgcolor}",
+			$scene
+			margin: {
+				l: 5,
+				r: 5,
+				b: 5,
+				t: 5,
+			}
+		},
+		{ displaylogo: false }
+	);
 	};
-	Plotly.newPlot('plotlyDiv$id', $dataout, plotlyLayout$id);
-});
+	if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', initialize);
+	else initialize();
+})();
 </script>
 
 END_OUTPUT
@@ -353,10 +478,8 @@ sub parseFunc {
 }
 
 sub genPoints {
-	my $self  = shift;
-	my $id    = shift || 1;
-	my $count = shift || 1;
-	my $type  = $self->{funcType};
+	my $self = shift;
+	my $type = $self->{funcType};
 
 	if ($type eq 'data') {
 		# Manual data plot, nothing to do.
@@ -366,11 +489,11 @@ sub genPoints {
 				$self->{$_} = $self->funcToJS($self->{$_});
 			}
 		}
-		$self->{xPoints} = "xData${id}_$count";
-		$self->{yPoints} = "yData${id}_$count";
-		$self->{zPoints} = "zData${id}_$count";
+		$self->{xPoints} = 'xData';
+		$self->{yPoints} = 'yData';
+		$self->{zPoints} = 'zData';
 	} elsif ($type eq 'perl') {
-		$self->buidArray;
+		$self->buildArray;
 	} else {
 		Value::Error("Unkown plot type: $type\n");
 	}
@@ -448,48 +571,41 @@ sub funcToJS {
 # JavaScript Functions Output
 sub genJS {
 	my $self = shift;
-	return '' unless ($self->{funcType} =~ /^js/);
-	my $id    = shift || 1;
-	my $count = shift || 1;
+	return '{' unless ($self->{funcType} =~ /^js/);
 	my $vars  = join(', ', @{ $self->{variables} });
 	my $JSout = <<END_OUTPUT;
-	var xData${id}_$count = [];
-	var yData${id}_$count = [];
-	var zData${id}_$count = [];
+{
+	const xData = [];
+	const yData = [];
+	const zData = [];
 
-	function xFunc${id}_$count($vars) {
-		$self->{xFunc}
-	}
-	function yFunc${id}_$count($vars) {
-		$self->{yFunc}
-	}
-	function zFunc${id}_$count($vars) {
-		$self->{zFunc}
-	}
+	const xFunc = ($vars) => { $self->{xFunc} };
+	const yFunc = ($vars) => { $self->{yFunc} };
+	const zFunc = ($vars) => { $self->{zFunc} };
 END_OUTPUT
 
 	if ($self->{nVars} == 2) {
 		$JSout .= <<END_OUTPUT;
-	for (var u = $self->{uMin}; u < $self->{uMax}; u += $self->{uStep}) {
-		var xRow = [];
-		var yRow = [];
-		var zRow = [];
-		for (var v = $self->{vMin}; v < $self->{vMax}; v += $self->{vStep}) {
-			xRow.push(xFunc${id}_$count(u, v));
-			yRow.push(yFunc${id}_$count(u, v));
-			zRow.push(zFunc${id}_$count(u, v));
+	for (let u = $self->{uMin}; u < $self->{uMax}; u += $self->{uStep}) {
+		const xRow = [];
+		const yRow = [];
+		const zRow = [];
+		for (let v = $self->{vMin}; v < $self->{vMax}; v += $self->{vStep}) {
+			xRow.push(xFunc(u, v));
+			yRow.push(yFunc(u, v));
+			zRow.push(zFunc(u, v));
 		}
-		xData${id}_$count.push(xRow);
-		yData${id}_$count.push(yRow);
-		zData${id}_$count.push(zRow);
+		xData.push(xRow);
+		yData.push(yRow);
+		zData.push(zRow);
 	}
 END_OUTPUT
 	} else {
 		$JSout .= <<END_OUTPUT;
-	for (var t = $self->{tMin}; t < $self->{tMax}; t += $self->{tStep}) {
-		xData${id}_$count.push(xFunc${id}_$count(t));
-		yData${id}_$count.push(yFunc${id}_$count(t));
-		zData${id}_$count.push(zFunc${id}_$count(t));
+	for (let t = $self->{tMin}; t < $self->{tMax}; t += $self->{tStep}) {
+		xData.push(xFunc(t));
+		yData.push(yFunc(t));
+		zData.push(zFunc(t));
 	}
 END_OUTPUT
 	}
@@ -505,9 +621,9 @@ sub buildArray {
 
 	if ($self->{nVars} == 2) {
 		for (my $u = $self->{uMin}; $u < $self->{uMax}; $u += $self->{uStep}) {
-			my @xTmp = ();
-			my @yTmp = ();
-			my @zTmp = ();
+			my @xTmp;
+			my @yTmp;
+			my @zTmp;
 			for (my $v = $self->{vMin}; $v < $self->{vMax}; $v += $self->{vStep}) {
 				push @xTmp, $self->{xFunc}($u, $v);
 				push @yTmp, $self->{yFunc}($u, $v);
@@ -544,6 +660,7 @@ sub new {
 	my $class   = ref($self) || $self;
 
 	$self = bless {
+		id         => $main::PG->getUniqueName('plotly3D') =~ s/-/_/gr,
 		funcType   => 'jsmd',
 		colorscale => 'RdBu',
 		opacity    => 1,
@@ -558,13 +675,11 @@ sub new {
 
 sub HTML {
 	my $self  = shift;
-	my $id    = shift || 1;
-	my $count = shift || 1;
 	my $scale = ($self->{colorscale} =~ /^\[/) ? $self->{colorscale} : "'$self->{colorscale}'";
-	$self->genPoints($id, $count);
+	$self->genPoints;
 
-	return $self->genJS($id, $count) . <<END_OUTPUT;
-	var plotlyData${id}_$count = {
+	return $self->genJS . <<END_OUTPUT;
+	plotlyData.push({
 		x: $self->{xPoints},
 		y: $self->{yPoints},
 		z: $self->{zPoints},
@@ -572,7 +687,8 @@ sub HTML {
 		opacity: $self->{opacity},
 		colorscale: $scale,
 		showscale: false,
-	};
+	});
+}
 END_OUTPUT
 }
 
@@ -587,6 +703,7 @@ sub new {
 	my $class   = ref($self) || $self;
 
 	$self = bless {
+		id         => $main::PG->getUniqueName('plotly3D') =~ s/-/_/gr,
 		funcType   => 'jsmd',
 		width      => 5,
 		colorscale => 'RdBu',
@@ -602,13 +719,11 @@ sub new {
 
 sub HTML {
 	my $self  = shift;
-	my $id    = shift || 1;
-	my $count = shift || 1;
 	my $scale = ($self->{colorscale} =~ /^\[/) ? $self->{colorscale} : "'$self->{colorscale}'";
-	$self->genPoints($id, $count);
+	$self->genPoints;
 
-	return $self->genJS($id, $count) . <<END_OUTPUT;
-	var plotlyData${id}_$count = {
+	return $self->genJS . <<END_OUTPUT;
+	plotlyData.push({
 		x: $self->{xPoints},
 		y: $self->{yPoints},
 		z: $self->{zPoints},
@@ -620,7 +735,7 @@ sub HTML {
 			color: $self->{zPoints},
 			colorscale: $scale,
 		},
-	};
+	});
+}
 END_OUTPUT
 }
-
