@@ -39,8 +39,8 @@ by default, but can be customized with a C<placeholder> option.
 
 C<DropDownTF()> is like C<DropDown> with options being "True" or "False".
 In this case, C<correct> is initerpreted as a perl boolean. Except strings
-like "false" are recognized as false. Also, in static output (PDF, PTX) the
-menu is not printed. It is assumed that context makes the menu redundant.
+like "false" and "F" are recognized as false. Also, in static output (PDF, PTX)
+the menu is not printed. It is assumed that context makes the menu redundant.
 
 By default, the choices are left in the order that you provide them,
 but you can cause some or all of them to be ordered randomly by
@@ -271,7 +271,7 @@ sub DropDown {
 sub DropDownTF {
 	my ($self, $value, %options) = @_;
 	my $sanitized_value = $value ? 'True' : 'False';
-	$sanitized_value = 'False' if (defined $value && $value =~ /^\s*false\s*$/i);
+	$sanitized_value = 'False' if (defined $value && $value =~ /^\s*(false|f)\s*$/i);
 	return parser::PopUp->DropDown([ 'True', 'False' ], $sanitized_value, %options, static => 0);
 }
 
