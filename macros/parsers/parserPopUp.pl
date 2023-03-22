@@ -27,14 +27,20 @@ To create a PopUp object, use one of:
 
 	$popup = PopUp([choices,...], correct);
 	$dropdown = DropDown([choices,...], correct);
+	$truefalse = DropDownTF(correct);
 
 where "choices" are the strings for the items in the popup menu,
 and "correct" is the choice that is the correct answer for the
 popup (or its index, with 0 being the first one).
 
-The difference between PopUp() and DropDown() is that in HTML, the
-latter will have an unselectable placeholder value. This value is '?'
+The difference between C<PopUp()> and C<DropDown() >is that in HTML,
+the latter will have an unselectable placeholder value. This value is '?'
 by default, but can be customized with a C<placeholder> option.
+
+C<DropDownTF()> is like C<DropDown> with options being "True" or "False".
+In this case, C<correct> is initerpreted as a perl boolean. Except strings
+like "false" are recognized as false. Also, in static output (PDF, PTX) the
+menu is not printed. It is assumed that context makes the menu redundant.
 
 By default, the choices are left in the order that you provide them,
 but you can cause some or all of them to be ordered randomly by
@@ -117,6 +123,7 @@ sub Init {
 	$context->update;
 	main::PG_restricted_eval('sub PopUp {parser::PopUp->new(@_)}');
 	main::PG_restricted_eval('sub DropDown {parser::PopUp->DropDown(@_)}');
+	main::PG_restricted_eval('sub DropDownTF {parser::PopUp->DropDownTF(@_)}');
 }
 
 #
@@ -130,11 +137,18 @@ sub new {
 	my $value       = shift;
 	my $options     = shift;
 	my $placeholder = $options->{placeholder} // 0;
+	my $static      = $options->{static}      // 1;
 	Value->Error("A PopUp's first argument should be a list of menu items")
 		unless ref($choices) eq 'ARRAY';
 	Value->Error("A PopUp's second argument should be the correct menu choice")
 		unless defined($value) && $value ne "";
-	$self = bless { data => [$value], context => $context, choices => $choices, placeholder => $placeholder }, $class;
+	$self = bless {
+		data        => [$value],
+		context     => $context,
+		choices     => $choices,
+		placeholder => $placeholder,
+		static      => $static
+	}, $class;
 	$self->getChoiceOrder;
 	my %choice;
 	map { $choice{$_} = 1 } @{ $self->{choices} };
@@ -195,6 +209,7 @@ sub MENU {
 		}
 		$menu .= "</select>";
 	} elsif ($main::displayMode eq 'PTX') {
+		return unless $self->{static};
 		$menu = qq(<var form="popup" name="$name">) . "\n";
 		foreach my $item (@list) {
 			$menu .= '<li>';
@@ -206,6 +221,7 @@ sub MENU {
 		}
 		$menu .= '</var>';
 	} elsif ($main::displayMode eq "TeX") {
+		return unless $self->{static};
 		# if the total number of characters is not more than
 		# 30 and not containing / or ] then we print out
 		# the select as a string: [A/B/C]
@@ -225,7 +241,7 @@ sub MENU {
 	}
 	main::RECORD_ANS_NAME($name, $answer_value) unless $extend;    # record answer name
 	main::INSERT_RESPONSE($options{answer_group_name}, $name, $answer_value) if $extend;
-	$menu;
+	return $menu;
 }
 
 #
@@ -246,6 +262,17 @@ sub DropDown {
 	my @order = map { ref($_) eq "ARRAY" ? @$_ : $_ } @$choices;
 	if ($value =~ m/^\d+$/ && $order[$value]) { $value++ }
 	return parser::PopUp->new($choices, $value, \%options);
+}
+
+#
+# TrueFalse() variant of PopUp()
+#
+
+sub DropDownTF {
+	my ($self, $value, %options) = @_;
+	my $sanitized_value = $value ? 'True' : 'False';
+	$sanitized_value = 'False' if (defined $value && $value =~ /^\s*false\s*$/i);
+	return parser::PopUp->DropDown([ 'True', 'False' ], $sanitized_value, %options, static => 0);
 }
 
 ##################################################
