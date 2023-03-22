@@ -23,13 +23,18 @@ This file implements a pop-up menu object that is compatible with
 MathObjects, and in particular, with the MultiAnswer object, and with
 PGML.
 
-To create a PopUp object, use
+To create a PopUp object, use one of:
 
-	$popup = PopUp([choices,...],correct);
+	$popup = PopUp([choices,...], correct);
+	$dropdown = DropDown([choices,...], correct);
 
 where "choices" are the strings for the items in the popup menu,
 and "correct" is the choice that is the correct answer for the
 popup (or its index, with 0 being the first one).
+
+The difference between PopUp() and DropDown() is that in HTML, the
+latter will have an unselectable placeholder value. This value is '?'
+by default, but can be customized with a C<placeholder> option.
 
 By default, the choices are left in the order that you provide them,
 but you can cause some or all of them to be ordered randomly by
@@ -111,6 +116,7 @@ sub Init {
 	$context->{parser}{String}          = "parser::PopUp::String";
 	$context->update;
 	main::PG_restricted_eval('sub PopUp {parser::PopUp->new(@_)}');
+	main::PG_restricted_eval('sub DropDown {parser::PopUp->DropDown(@_)}');
 }
 
 #
@@ -120,13 +126,15 @@ sub new {
 	my $self  = shift;
 	my $class = ref($self) || $self;
 	shift if Value::isContext($_[0]);    # remove context, if given (it is not used)
-	my $choices = shift;
-	my $value   = shift;
+	my $choices     = shift;
+	my $value       = shift;
+	my $options     = shift;
+	my $placeholder = $options->{placeholder} // 0;
 	Value->Error("A PopUp's first argument should be a list of menu items")
 		unless ref($choices) eq 'ARRAY';
 	Value->Error("A PopUp's second argument should be the correct menu choice")
 		unless defined($value) && $value ne "";
-	$self = bless { data => [$value], context => $context, choices => $choices }, $class;
+	$self = bless { data => [$value], context => $context, choices => $choices, placeholder => $placeholder }, $class;
 	$self->getChoiceOrder;
 	my %choice;
 	map { $choice{$_} = 1 } @{ $self->{choices} };
@@ -165,19 +173,21 @@ sub randomOrder {
 sub menu { shift->MENU(0, @_) }
 
 sub MENU {
-	my $self    = shift;
-	my $extend  = shift;
-	my $name    = shift;
-	my $size    = shift;
-	my %options = @_;
-	my @list    = @{ $self->{choices} };
-	my $menu    = "";
+	my $self        = shift;
+	my $extend      = shift;
+	my $name        = shift;
+	my $size        = shift;
+	my %options     = @_;
+	my @list        = @{ $self->{choices} };
+	my $placeholder = shift @list if $self->{placeholder};
+	my $menu        = "";
 	$name = main::NEW_ANS_NAME() unless $name;
 	my $answer_value = (defined($main::inputs_ref->{$name}) ? $main::inputs_ref->{$name} : '');
 	my $label        = main::generate_aria_label($name);
 
 	if ($main::displayMode =~ m/^HTML/) {
 		$menu = qq!<select class="pg-select" name="$name" id="$name" aria-label="$label" size="1">\n!;
+		$menu .= qq!<option disabled selected value="" class="tex2jax_ignore">$placeholder</option>\n! if $placeholder;
 		foreach my $item (@list) {
 			my $selected = ($item eq $answer_value) ? " selected" : "";
 			my $option   = $self->quoteHTML($item, 1);
@@ -224,6 +234,19 @@ sub MENU {
 sub ans_rule                 { shift->MENU(0, '', @_) }
 sub named_ans_rule           { shift->MENU(0, @_) }
 sub named_ans_rule_extension { shift->MENU(1, @_) }
+
+#
+# DropDown() variant of PopUp() with placeholder
+#
+
+sub DropDown {
+	my ($self, $choices, $value, %options) = @_;
+	$options{placeholder} = '?' unless $options{placeholder};
+	unshift(@$choices, $options{placeholder});
+	my @order = map { ref($_) eq "ARRAY" ? @$_ : $_ } @$choices;
+	if ($value =~ m/^\d+$/ && $order[$value]) { $value++ }
+	return parser::PopUp->new($choices, $value, \%options);
+}
 
 ##################################################
 #
