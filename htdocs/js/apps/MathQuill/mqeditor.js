@@ -97,7 +97,7 @@
 					window.removeEventListener('resize', toolbar.setPosition);
 					toolbar.tooltips.forEach((tooltip) => tooltip.dispose());
 					toolbar.remove();
-				});
+				}, { once: true });
 			}
 		};
 
