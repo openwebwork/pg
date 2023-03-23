@@ -5,7 +5,7 @@ use Test2::V0 '!E', { E => 'EXISTS' };
 die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
 use lib "$ENV{PG_ROOT}/lib";
 
-use Units;
+use Units qw(evaluate_units);
 
 my %joule        = evaluate_units('J');
 my %newton_metre = evaluate_units('N*m');

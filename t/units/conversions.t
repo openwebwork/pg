@@ -6,7 +6,8 @@ die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
 do "$ENV{PG_ROOT}/t/build_PG_envir.pl";
 
 use lib "$ENV{PG_ROOT}/lib";
-use Units;
+
+use Units qw(evaluate_units);
 
 subtest 'Check fundamental units' => sub {
 	is \%Units::fundamental_units,
@@ -18,7 +19,7 @@ subtest 'Check fundamental units' => sub {
 			rad    => 0,
 			degC   => 0,
 			degF   => 0,
-			degK   => 0,
+			K      => 0,
 			mol    => 0,
 			amp    => 0,
 			cd     => 0,
@@ -29,7 +30,7 @@ subtest 'Check fundamental units' => sub {
 	is \%Units::known_units, hash {
 		field m => { factor => 1, m => 1 };
 
-		all_keys match qr/^(?:[a-z02]+(?:-\w+)?|%|\p{Lu})$/i;
+		all_keys match qr/^(?:[a-z\p{L}\p{S}]?[a-z\p{L}\p{S}\d]*(?:-\w+)?|%)$/i;
 		all_vals hash {
 			field factor => !number(0);
 
@@ -145,4 +146,3 @@ sub multiply_by {
 	$unit{factor} *= $conversion;
 	return \%unit;
 }
-
