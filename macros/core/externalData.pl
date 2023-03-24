@@ -15,8 +15,8 @@
 
 =head1 NAME
 
-externalData.pl - Macro that reads and writes data from a problem to the database.
-This is useful for using data common to multiple problems.
+C<externalData.pl> - Macro that provides some parsing and way to send data from
+a problem to the database. This is useful for using data common to multiple problems.
 
 =cut
 
@@ -38,37 +38,35 @@ Then in the visible problem block add the following
   BEGIN_PGML
   Enter a list of values as a vector.
 
-  [_____]{$ans->cmp(list_checker => store_number_list(), key => 'my_list')}
+  [_____]{$ans->cmp(list_checker => store_number_list('my_list')}
   END_PGML
 
-Note that you will need to add a key (this should be unique for the problem set)
+Note that you will need to add a key as an argument to the C<store_number_list>
+(this should be unique for the problem set)
 
 =cut
 
 sub store_number_list {
+	my ($key) = @_;
+	warn 'You must pass in the key to save the data.' unless $key;
 	return sub {
 		my ($correct, $student, $ansHash, $value) = @_;
-		my @errors;    # stores error messages
-
-		# Make sure that the key is set
-		my $key = $ansHash->{key};
-		warn 'You must pass in the key to save the data.' unless $key;
-
-		# Get the answer name for this input and store the name and key.
-		RECORD_EXTRA_ANSWERS("_ext_data:$ansHash->{ans_label}:numeric_list:$key");
 
 		# check that all numbers are real.
-		my $all_real = 1;
-		$all_real = $all_real && Value::isRealNumber($_) for (@$student);
-		push(@errors, 'One of the numbers is not a real number') unless $all_real;
+		for (@$student) {
+			return 0, 'One of the numbers is not a real number' unless Value::classMatch($_, 'Real');
+		}
 
-		return ($all_real ? scalar(@$student) : 0, @errors);
+		# Get the answer name for this input and store the name and key.
+		RECORD_EXTRA_ANSWERS("_ext_data:$ansHash->{ans_label}:$key");
+
+		return scalar(@$student);
 	}
 }
 
-=head2 store_scalar
+=head2 store_string
 
-This is a answer checker that preps a string or a real to be saved in the database.
+This is a answer checker that checks for a string to be saved in the database.
 
 =head3 Example
 
@@ -86,38 +84,63 @@ Then in the visible problem block add the following
 
   BEGIN_PGML
   Enter a string
-  [_____]{$ans->cmp(checker => store_scalar('string'), key => 'my_string')}
+  [_____]{$ans->cmp(checker => store_string('my_string')}
   END_PGML
 
-Note that you will need to add a key (this should be unique for the problem set)
+Note that you will need to add a key as an argument to C<store_string> and it
+should be unique for the set.
 
-Similarly, for a real, create a C<Real> MathObject with any value
+=cut
+
+sub store_string {
+	my ($key) = @_;
+	warn 'You must pass in the key to save the data.' unless $key;
+
+	return sub {
+		my ($correct, $student, $ansHash, $value) = @_;
+
+		return 0, 'The input string must have at length greater than 0' unless length($student) > 0;
+
+		# Get the answer name for this input and store the name and key.
+		RECORD_EXTRA_ANSWERS("_ext_data:$ansHash->{ans_label}:$key");
+
+		return 1;
+	}
+}
+
+=head2 store_number
+
+This is a answer checker that checks for a number to be saved in the database.
+
+=head3 Example
+
+To store a number, create a C<Real> MathObject with any value
 
   $num = Real(0);
 
 Then in the visible problem block add the following
 
   BEGIN_PGML
-  Enter a string
-  [_____]{$ans->cmp(checker => store_scalar('real'), key => 'my_string')}
+  Enter a number
+  [_____]{$num->cmp(checker => store_real('my_string')}
   END_PGML
+
+Note that you will need to add a key as an argument to C<store_number> and it
+should be unique for the set.
 
 =cut
 
-sub store_scalar {
-	my $type = shift;
-	warn "The type $type is not a valid datatype" unless grep { $_ eq $type } qw(string real);
+sub store_number {
+	my ($key) = @_;
+	warn 'You must pass in the key to save the data.' unless $key;
+
 	return sub {
 		my ($correct, $student, $ansHash, $value) = @_;
-		my @errors;    # stores error messages
 
-		# Make sure that the key is set
-		my $key = $ansHash->{key};
-		warn 'You must pass in the key to save the data.' unless $key;
+		return 0, 'The input is not a real number' unless Value::classMatch($student, 'Real');
 
 		# Get the answer name for this input and store the name and key.
-		RECORD_EXTRA_ANSWERS("_ext_data:$ansHash->{ans_label}:$type:$key");
-
+		RECORD_EXTRA_ANSWERS("_ext_data:$ansHash->{ans_label}:$key");
 		return 1;
 	}
 }
