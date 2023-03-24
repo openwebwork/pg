@@ -66,15 +66,14 @@ Context()->flags->set(base => 5);
 subtest 'Check that the Context parses number correct' => sub {
 	is Context()->{flags}->{base}, 5, 'Check that the base is stored.';
 
-	ok my $a1 = Compute('10'),  "The string '10' is created";
+	ok my $a1 = Compute('10'), "The string '10' is created";
 	is $a1->value, 5, "The base-5 string '10' is 5 in base 10";
 	ok my $a2 = Compute('242'), "The string '242' is created.";
 	is $a2->value, 72, "The base-5 string '242' is 72 in base 10";
 };
 
 subtest 'check that non-valid digits return errors' => sub {
-	like dies { Compute('456'); }, qr/^The number must consist/,
-		'Try to build a base-5 number will illegal digits';
+	like dies { Compute('456'); }, qr/^The number must consist/, 'Try to build a base-5 number will illegal digits';
 };
 
 subtest 'check arithmetic in base-5' => sub {
@@ -123,7 +122,40 @@ subtest 'check arithmetic in base-16' => sub {
 	like dies { Compute("$a1/$a2"); }, qr/^Can't use '\/'/, 'Check that / is not allowed.';
 };
 
+subtest 'check different digits' => sub {
+	Context()->flags->set(base => 12, digits => [ 0 .. 9, 'T', 'E' ]);
+	ok my $a1 = Compute('E9'), "Base 12 number 'E9' with E=eleven";
+	is $a1->value, 141, "Base-12 number E9=141";
 
+	like dies { Compute('A5'); },
+		qr/The number must consist only of digits: 0,1,2,3,4,5,6,7,8,9,T,E/,
+		'Check that A=10 is not allowed';
+};
 
+subtest 'check for other errors' => sub {
+	Context('NondecimalBase');
+	like dies { Compute('1234') }, qr/The base must be set for this context/,
+		'Check that there is a error if the base is not set.';
+};
+
+subtest 'Check the LimitedNondecimalBase features' => sub {
+	Context('LimitedNondecimalBase');
+	Context()->flags->set(base => 5);
+
+	like dies { Compute("104+320"); }, qr/Can't use '\+' in this context/, "Check that '+' is not allowed.";
+	like dies { Compute("320-104"); }, qr/Can't use '\-' in this context/, "Check that '-' is not allowed.";
+	like dies { Compute("14*23"); },   qr/Can't use '\*' in this context/, "Check that '*' is not allowed.";
+	like dies { Compute("14 23"); },   qr/Can't use '\*' in this context/, "Check that '*' is not allowed.";
+	like dies { Compute("23^2"); },    qr/Can't use '\^' in this context/, "Check that '^' is not allowed.";
+
+};
+
+print Dumper convertBase(58, to => 8);
+
+print Dumper convertBase(213,   from => 5);     # returns 58
+print Dumper convertBase(72,    from => 8);     # returns 58
+print Dumper convertBase('2DE', from => 16);    # returns 734
+
+print Dumper convertBase(565, to => 12, digits => [ 0 .. 9, 'T', 'E' ]);
 
 done_testing();
