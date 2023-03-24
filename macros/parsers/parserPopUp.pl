@@ -287,10 +287,12 @@ sub DropDownTF {
 		0          => $false
 	);
 	if (lc(substr($true, 0, 1)) ne lc(substr($false, 0, 1))) {
-		$sanitization{ substr($true,  0, 1) } = $true;
-		$sanitization{ substr($false, 0, 1) } = $false;
+		$sanitization{ lc(substr($true,  0, 1)) } = $true;
+		$sanitization{ lc(substr($false, 0, 1)) } = $false;
+		$sanitization{ uc(substr($true,  0, 1)) } = $true;
+		$sanitization{ uc(substr($false, 0, 1)) } = $false;
 	}
-	my $sanitized_value = $sanitization{ lc($value) };
+	my $sanitized_value = $sanitization{$value};
 	Value->Error("The value should be one of $true or $false") unless defined $sanitized_value;
 	return parser::PopUp->DropDown([ $true, $false ], $sanitized_value, %options);
 }
