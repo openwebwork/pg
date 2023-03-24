@@ -37,9 +37,10 @@ The difference between C<PopUp()> and C<DropDown() >is that in HTML,
 the latter will have an unselectable placeholder value. This value is '?'
 by default, but can be customized with a C<placeholder> option.
 
-C<DropDownTF()> is like C<DropDown> with options being "True" or "False".
-In this case, C<correct> is initerpreted as a perl boolean. Except strings
-like "false" and "F" are recognized as false. Also, in static output (PDF, PTX)
+C<DropDownTF()> is like C<DropDown> with options being localized versions of
+"True" and "False". 1 is understood as "True" and 0 as "False". The initial
+letter of the localized word is understood as that word if those letter are
+different. All of this is case-insensitive. Also, in static output (PDF, PTX)
 the menu is not printed. It is assumed that context makes the menu redundant.
 
 By default, the choices are left in the order that you provide them,
@@ -135,9 +136,9 @@ sub new {
 	shift if Value::isContext($_[0]);    # remove context, if given (it is not used)
 	my $choices     = shift;
 	my $value       = shift;
-	my $options     = shift;
-	my $placeholder = $options->{placeholder} // 0;
-	my $static      = $options->{static}      // 1;
+	my %options     = @_;
+	my $placeholder = $options{placeholder} // '';
+	my $static      = $options{static}      // 1;
 	Value->Error("A PopUp's first argument should be a list of menu items")
 		unless ref($choices) eq 'ARRAY';
 	Value->Error("A PopUp's second argument should be the correct menu choice")
@@ -193,7 +194,7 @@ sub MENU {
 	my $size        = shift;
 	my %options     = @_;
 	my @list        = @{ $self->{choices} };
-	my $placeholder = shift @list if $self->{placeholder};
+	my $placeholder = $self->{placeholder};
 	my $menu        = "";
 	$name = main::NEW_ANS_NAME() unless $name;
 	my $answer_value = (defined($main::inputs_ref->{$name}) ? $main::inputs_ref->{$name} : '');
@@ -256,12 +257,14 @@ sub named_ans_rule_extension { shift->MENU(1, @_) }
 #
 
 sub DropDown {
-	my ($self, $choices, $value, %options) = @_;
-	$options{placeholder} = '?' unless $options{placeholder};
-	unshift(@$choices, $options{placeholder});
-	my @order = map { ref($_) eq "ARRAY" ? @$_ : $_ } @$choices;
-	if ($value =~ m/^\d+$/ && $order[$value]) { $value++ }
-	return parser::PopUp->new($choices, $value, \%options);
+	my $self    = shift;
+	my $choices = shift;
+	my $value   = shift;
+	my %options = (
+		placeholder => '?',
+		@_
+	);
+	return parser::PopUp->new($choices, $value, %options);
 }
 
 #
@@ -269,10 +272,27 @@ sub DropDown {
 #
 
 sub DropDownTF {
-	my ($self, $value, %options) = @_;
-	my $sanitized_value = $value ? 'True' : 'False';
-	$sanitized_value = 'False' if (defined $value && $value =~ /^\s*(false|f)\s*$/i);
-	return parser::PopUp->DropDown([ 'True', 'False' ], $sanitized_value, %options, static => 0);
+	my $self    = shift;
+	my $value   = lc(main::maketext(shift));
+	my %options = (
+		static => 0,
+		@_
+	);
+	my $true         = main::maketext('True');
+	my $false        = main::maketext('False');
+	my %sanitization = (
+		lc($true)  => $true,
+		1          => $true,
+		lc($false) => $false,
+		0          => $false
+	);
+	if (lc(substr($true, 0, 1)) ne lc(substr($false, 0, 1))) {
+		$sanitization{ substr($true,  0, 1) } = $true;
+		$sanitization{ substr($false, 0, 1) } = $false;
+	}
+	my $sanitized_value = $sanitization{ lc($value) };
+	Value->Error("The value should be one of $true or $false") unless defined $sanitized_value;
+	return parser::PopUp->DropDown([ $true, $false ], $sanitized_value, %options);
 }
 
 ##################################################
