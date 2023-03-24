@@ -289,8 +289,6 @@ sub DropDownTF {
 	if (lc(substr($true, 0, 1)) ne lc(substr($false, 0, 1))) {
 		$sanitization{ lc(substr($true,  0, 1)) } = $true;
 		$sanitization{ lc(substr($false, 0, 1)) } = $false;
-		$sanitization{ uc(substr($true,  0, 1)) } = $true;
-		$sanitization{ uc(substr($false, 0, 1)) } = $false;
 	}
 	my $sanitized_value = $sanitization{$value};
 	Value->Error("The value should be one of $true or $false") unless defined $sanitized_value;
