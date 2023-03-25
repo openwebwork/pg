@@ -309,7 +309,7 @@ Examples:
 	random_coprime([-9..-1,1..9],[1..9],[1..9]) may return (-3,7,4), (-1,1,1), or (-2,2,3) but not (-2,2,4)
 
 Note: in the example above (-2,2,3) is valid because not all three share a factor greater than 1.
-If you don't want to allow pairs of numbers to be coprime, see random_pairwise_coprime.
+If you don't want to allow pairs of numbers to have a common factor, see random_pairwise_coprime.
 
 	random_pairwise_coprime([-9..-1,1..9],[1..9],[1..9]) may return (-3,7,4) or (-1,1,1) but not (-2,2,3)
 
