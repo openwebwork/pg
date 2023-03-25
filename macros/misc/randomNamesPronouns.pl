@@ -56,9 +56,7 @@ generates 4 C<Person> objects as an array.
 
 loadMacros('PGbasicmacros.pl', 'PGauxiliaryFunctions.pl');
 
-sub _randomNamesPronouns_init { }
-
-my $first_names = {
+my $names_pronouns = {
 	'Aaliyah'   => 'she',
 	'Aaron'     => 'he',
 	'Adrian'    => 'she',
@@ -234,6 +232,14 @@ my $first_names = {
 	White   Williams  Wilson     Wood     Wright  Young
 );
 
+# need to have the keys sorted to have a consistent set of names for a given seed, so
+# we build an array of the first_names sorted.
+my @first_names;
+
+sub _randomNamesPronouns_init {
+	@first_names = lex_sort(keys(%$names_pronouns));
+}
+
 =head2 randomPerson
 
 Returns a person as a Person object from a list in the macro.
@@ -287,13 +293,12 @@ sub randomPerson {
 		if ($options{names});
 
 	if ($options{n} == 1) {
-		my $random_name = list_random(keys(%$first_names));
-		return Person->new(name => $random_name, pronoun => $first_names->{$random_name});
+		my $random_name = list_random(@first_names);
+		return Person->new(name => $random_name, pronoun => $names_pronouns->{$random_name});
 	} else {
-		# need to have the keys sorted to have a consistent set of names for a given seed.
-		my @names   = lex_sort(keys(%$first_names));
-		my $indices = random_subset($options{n}, 0 .. scalar(@names) - 1);
-		return map { Person->new(name => $names[$_], pronoun => $first_names->{ $names[$_] }); } @$indices;
+		my $indices = random_subset($options{n}, 0 .. scalar(@first_names) - 1);
+		return
+			map { Person->new(name => $first_names[$_], pronoun => $names_pronouns->{ $first_names[$_] }); } @$indices;
 	}
 }
 
