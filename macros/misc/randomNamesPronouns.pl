@@ -9,8 +9,8 @@ randomNamesPronouns.pl - Load macros for random names.
 
 =head2 DESCRIPTION
 
-C<randomNamesPronouns.pl> provides a randomName function that generates a random name with pronouns.
-In addition, there is the capability of providing pronouns, possessive pronouns, adjectives and object pronouns
+C<randomNamesPronouns.pl> provides a randomName function that generates a random
+name with subject pronouns, possessive pronouns, adjectives and object pronouns
 with and without capitilization and verb conjugation.
 
 Note: this idea and the names were taken from the C<PCCmacros.pl> C<RandomName>
@@ -31,12 +31,12 @@ The variable C<$p1> is now a C<Person> object with methods to access the names, 
 and verb conjugation.  It is can be used within a problem as
 
   BEGIN_PGML
-  [@ $p1->name @] [@ $p1->verb('travel') @] 1.5 miles to school.  After school,
-  [$p1->subj_pronoun] then [@$p1->verb('goes','go')@] to work.
+  [$p1->name] [@ $p1->verb('travel') @] 1.5 miles to school.  After school,
+  [$p1->subject] then [@$p1->verb('goes','go')@] to work.
 
-  [@ $p1->Poss_adj @] dog greets [@ $p1->obj_pronoun @] when [@ $p1->obj_pronoun @] gets home.
+  [$p1->possession] dog greets [$p1->object] when [$p1->object] gets home.
 
-  The books on the table are [@ $p1->poss_pronoun @].
+  The books on the table are [$p1->possessive].
   END_PGML
 
 Additionally, you can specify names/pronouns if you like.  For example
@@ -53,6 +53,8 @@ And if you would like multiple people to be randomly choosen with unique names, 
 
 generates 4 C<Person> objects as an array.
 =cut
+
+loadMacros('PGbasicmacros.pl', 'PGauxiliaryFunctions.pl');
 
 sub _randomNamesPronouns_init { }
 
@@ -232,21 +234,6 @@ my $first_names = {
 	White   Williams  Wilson     Wood     Wright  Young
 );
 
-sub nChooseK {
-	my ($n, $k) = @_;
-	die "method NchooseK: n = $n cannot be less than k=$k\n
-	     You probably did a 'choose($k)' with only $n questions!" if $k > $n;
-
-	my @array = 0 .. ($n - 1);
-	my @out;
-
-	while (@out < $k) {
-		push(@out, splice(@array, $main::PG_random_generator->random(0, $#array, 1), 1));
-	}
-
-	return @out;
-}
-
 =head2 randomPerson
 
 Returns a person as a Person object from a list in the macro.
@@ -304,9 +291,9 @@ sub randomPerson {
 		return Person->new(name => $random_name, pronoun => $first_names->{$random_name});
 	} else {
 		# need to have the keys sorted to have a consistent set of names for a given seed.
-		my @names   = lex_sort keys(%$first_names);
-		my @indices = nChooseK(scalar(@names), $options{n});
-		return map { Person->new(name => $names[$_], pronoun => $first_names->{ $names[$_] }); } @indices;
+		my @names   = lex_sort(keys(%$first_names));
+		my $indices = random_subset($options{n}, 0 .. scalar(@names) - 1);
+		return map { Person->new(name => $names[$_], pronoun => $first_names->{ $names[$_] }); } @$indices;
 	}
 }
 
@@ -332,8 +319,8 @@ sub randomLastName {
 		@_
 	);
 	return list_random(@last_names) if $options{n} == 1;
-	my @indices = nChooseK(scalar(@last_names), $options{n});
-	return map { $last_names[$_] } @indices;
+	my $indices = random_subset($options{n}, 0 .. scalar(@last_names) - 1);
+	return map { $last_names[$_] } @$indices;
 }
 
 =head2 CONSTRUCTOR Person
@@ -379,115 +366,115 @@ returns the name 'Roger'.
 
 sub name { return shift->{_name}; }
 
-=head2 subj_pronoun
+=head2 subject
 
 This returns the subject pronoun as a lower case.
 
-  $p->subj_pronoun;
+  $p->subject;
 
 returns the pronoun. In this case 'he'.
 
 =cut
 
-sub subj_pronoun { return shift->{_pronoun}; }
+sub subject { return shift->{_pronoun}; }
 
-=head2 Subj_pronoun
+=head2 Subject
 
 This returns the subject pronoun as an upper case.
 
-  $p->Subj_pronoun;
+  $p->Subject;
 
 returns the upper case pronoun. In this case 'He'.
 
 =cut
 
-sub Subj_pronoun { return ucfirst(shift->{_pronoun}); }
+sub Subject { return ucfirst(shift->{_pronoun}); }
 
-=head2 poss_adj
+=head2 possessive
 
 This returns the possessive adjective
 
-  $p->poss_adj;
+  $p->possessive;
 
 returns (his, her, their) for the pronouns (he/she/they)
 
 =cut
 
-sub poss_adj {
+sub possessive {
 	my $p = shift->{_pronoun};
 	return $p eq 'he' ? 'his' : ($p eq 'she' ? 'her' : 'their');
 }
 
-=head2 Poss_adj
+=head2 Possessive
 
 This returns the captilized possessive adjective
 
-  $p->Poss_adj;
+  $p->Possessive;
 
 returns (His, Her, Their) for the pronouns (he/she/they)
 
 =cut
 
-sub Poss_adj {
-	return ucfirst(shift->poss_adj);
+sub Possessive {
+	return ucfirst(shift->possessive);
 }
 
-=head2 poss_pronoun
+=head2 possession
 
 This returns the possessive pronoun
 
-  $p->poss_pronoun;
+  $p->possession;
 
 returns (his, hers, theirs) for the pronouns (he/she/they)
 
 =cut
 
-sub poss_pronoun {
+sub possession {
 	my $p = shift->{_pronoun};
 	return $p eq 'he' ? 'his' : ($p eq 'she' ? 'hers' : 'theirs');
 }
 
-=head2 Poss_pronoun
+=head2 Possession
 
 This returns the capitalized versions of possessive pronoun
 
-  $p->Poss_pronoun;
+  $p->Possession;
 
 returns (His, Hers, Theirs) for the pronouns (he/she/they)
 
 =cut
 
-sub Poss_pronoun {
-	return ucfirst(shift->poss_pronoun);
+sub Possession {
+	return ucfirst(shift->possession);
 }
 
-=head2 obj_pronoun
+=head2 object
 
 This returns the object pronoun
 
-  $p->obj_pronoun;
+  $p->object;
 
 returns (him, her, them) for the pronouns (he/she/they)
 
 =cut
 
-sub obj_pronoun {
+sub object {
 	my $p = shift->{_pronoun};
 	return $p eq 'he' ? 'him' : ($p eq 'she' ? 'her' : 'them');
 }
 
-=head2 Obj_pronoun
+=head2 Object
 
 This returns the captilized object pronoun
 
-  $p->Obj_pronoun;
+  $p->Object;
 
 returns (Him, Her, Them) for the pronouns (he/she/they)
 
 =cut
 
-sub Obj_pronoun {
-	return ucfirst(shift->obj_pronoun);
+sub Object {
+	return ucfirst(shift->object);
 }
 
 =head2 verb
