@@ -55,7 +55,6 @@ subtest 'Tests for they pronouns' => sub {
 	is($p3->verb('is', 'are'), 'are',  'Tests the conjugation of the verb is for Kai.');
 };
 
-use Data::Dumper;
 subtest 'Other person tests' => sub {
 	my $rando = randomPerson();
 	is ref $rando, 'Person', 'Check that the randomPerson method returns an object of Person class';
