@@ -271,11 +271,26 @@ Example:
 
   my ($a,$b,$c) = randomPerson(names => [['Bart','he'], ['Lisa','she'], ['Matty','they']]);
 
-If the arrayref is just in the form of C<['name1','name2',...]> then the names are specified
-and the pronouns are randomly generated.
+Alternatively, each person name/pronoun can be set as an arrayref.  For example the above can be written:
+
+  my ($a, $b, $c) = randomPerson(names => [
+    { name => 'Bart', pronoun => 'he' },
+    { name => 'Lisa', pronoun => 'she' },
+    { name => 'Matty', pronoun => 'they' } ]);
+
+If the pronoun is missing using either arrayrefs or hashrefs, then a pronoun is determined randomly.
+Each of the following are legal
 
   my ($p1, $p2, $p3) = randomPerson( names => ['Larry', 'Moe', 'Curly']);
-
+  my ($p1, $p2, $p3) = randomPerson( names => ['Larry', ['Moe', 'he'], 'Curly']);
+  my ($p1, $p2, $p3) = randomPerson( names => [
+    { name => 'Larry'},
+    { name => 'Moe' },
+    { name => 'Curly' }]);
+  my ($p1, $p2, $p3) = randomPerson( names => [
+    { name => 'Larry'},
+    { name => 'Moe', pronoun => 'he' },
+    { name => 'Curly' }]);
 =back
 
 =cut
@@ -287,10 +302,19 @@ sub randomPerson {
 	);
 
 	# if the names are passed in.
-	return
-		map { Person->new(name => $_->[0] // $_, pronoun => $_->[1] // list_random('he', 'she', 'they')) }
-		@{ $options{names} }
-		if ($options{names});
+	if ($options{names}) {
+		my @persons;
+		for $p (@{ $options{names} }) {
+			if (ref $p ne 'HASH') {
+				push(@persons,
+					Person->new(name => $p->[0] // $p, pronoun => $p->[1] // list_random('he', 'she', 'they')));
+			} else {
+				push(@persons,
+					Person->new(name => $p->{name}, pronoun => $p->{pronoun} // list_random('he', 'she', 'they')));
+			}
+		}
+		return @persons;
+	}
 
 	if ($options{n} == 1) {
 		my $random_name = list_random(@first_names);
