@@ -203,6 +203,11 @@ passed as parameters directly to the GraphTool object's cmp() method.
 
 This is the size of the graph that will be output when a hard copy of the problem is generated.
 
+=item showInStatic (Default: 1)
+
+In "static" output forms (TeX, PTX) you may not want to print the graph if it is just taking
+space. In that case, set this to 0.
+
 =back
 
 =cut
@@ -271,6 +276,7 @@ sub new {
 		yAxisLabel          => 'y',
 		ariaDescription     => '',
 		showCoordinateHints => 1,
+		showInStatic        => 1,
 		availableTools      =>
 			[ 'LineTool', 'CircleTool', 'VerticalParabolaTool', 'HorizontalParabolaTool', 'FillTool', 'SolidDashTool' ],
 		texSize => 400
@@ -610,27 +616,28 @@ sub constructJSXGraphOptions {
 }
 
 # Produce a hidden answer rule to contain the JavaScript result and insert the graphbox div and
-# javacript to display the graph tool.  If a hard copy is being generated, then PGgraphmacros.pl
-# is used to generate a printable graph instead.  An attempt is made to make the printable graph
-# look as much as possible like the JavaScript graph.
+# javacript to display the graph tool.  If a hard copy is being generated, then PGtikz.pl is used
+# to generate a printable graph instead.  An attempt is made to make the printable graph look
+# as much as possible like the JavaScript graph.
 sub ans_rule {
 	my $self = shift;
 	my $out  = main::NAMED_HIDDEN_ANS_RULE($self->ANS_NAME);
 
-	if ($main::displayMode eq 'TeX') {
-		return &{ $self->{printGraph} }
-			if defined($self->{printGraph}) && ref($self->{printGraph}) eq 'CODE';
+	if ($main::displayMode =~ /^(TeX|PTX)$/) {
+		if ($self->{showInStatic}) {
+			return &{ $self->{printGraph} }
+				if defined($self->{printGraph}) && ref($self->{printGraph}) eq 'CODE';
 
-		my @size = (500, 500);
+			my @size = (500, 500);
 
-		my $graph = main::createTikZImage();
-		$graph->tikzLibraries('arrows.meta');
-		$graph->tikzOptions('x='
-				. ($size[0] / 96 / ($self->{bBox}[2] - $self->{bBox}[0])) . 'in,y='
-				. ($size[1] / 96 / ($self->{bBox}[1] - $self->{bBox}[3]))
-				. 'in');
+			my $graph = main::createTikZImage();
+			$graph->tikzLibraries('arrows.meta');
+			$graph->tikzOptions('x='
+					. ($size[0] / 96 / ($self->{bBox}[2] - $self->{bBox}[0])) . 'in,y='
+					. ($size[1] / 96 / ($self->{bBox}[1] - $self->{bBox}[3]))
+					. 'in');
 
-		my $tikz = <<END_TIKZ;
+			my $tikz = <<END_TIKZ;
 \n\\tikzset{
 	>={Stealth[scale=1.8]},
 	clip even odd rule/.code={\\pgfseteorule},
@@ -648,111 +655,114 @@ sub ans_rule {
 \\end{pgfonlayer}
 END_TIKZ
 
-		# Vertical grid lines
-		my @xGridLines =
-			grep { $_ < $self->{bBox}[2] } map { $_ * $self->{gridX} } (1 .. $self->{bBox}[2] / $self->{gridX});
-		push(@xGridLines,
-			grep { $_ > $self->{bBox}[0] } map { -$_ * $self->{gridX} } (1 .. -$self->{bBox}[0] / $self->{gridX}));
-		$tikz .=
-			"\\foreach \\x in {"
-			. join(',', @xGridLines)
-			. "}{\\draw[line width=0.2pt,color=lightgray] (\\x,$self->{bBox}[3]) -- (\\x,$self->{bBox}[1]);}\n"
-			if (@xGridLines);
+			# Vertical grid lines
+			my @xGridLines =
+				grep { $_ < $self->{bBox}[2] } map { $_ * $self->{gridX} } (1 .. $self->{bBox}[2] / $self->{gridX});
+			push(@xGridLines,
+				grep { $_ > $self->{bBox}[0] }
+				map { -$_ * $self->{gridX} } (1 .. -$self->{bBox}[0] / $self->{gridX}));
+			$tikz .=
+				"\\foreach \\x in {"
+				. join(',', @xGridLines)
+				. "}{\\draw[line width=0.2pt,color=lightgray] (\\x,$self->{bBox}[3]) -- (\\x,$self->{bBox}[1]);}\n"
+				if (@xGridLines);
 
-		# Horizontal grid lines
-		my @yGridLines =
-			grep { $_ < $self->{bBox}[1] } map { $_ * $self->{gridY} } (1 .. $self->{bBox}[1] / $self->{gridY});
-		push(@yGridLines,
-			grep { $_ > $self->{bBox}[3] } map { -$_ * $self->{gridY} } (1 .. -$self->{bBox}[3] / $self->{gridY}));
-		$tikz .=
-			"\\foreach \\y in {"
-			. join(',', @yGridLines)
-			. "}{\\draw[line width=0.2pt,color=lightgray] ($self->{bBox}[0],\\y) -- ($self->{bBox}[2],\\y);}\n"
-			if (@yGridLines);
+			# Horizontal grid lines
+			my @yGridLines =
+				grep { $_ < $self->{bBox}[1] } map { $_ * $self->{gridY} } (1 .. $self->{bBox}[1] / $self->{gridY});
+			push(@yGridLines,
+				grep { $_ > $self->{bBox}[3] }
+				map { -$_ * $self->{gridY} } (1 .. -$self->{bBox}[3] / $self->{gridY}));
+			$tikz .=
+				"\\foreach \\y in {"
+				. join(',', @yGridLines)
+				. "}{\\draw[line width=0.2pt,color=lightgray] ($self->{bBox}[0],\\y) -- ($self->{bBox}[2],\\y);}\n"
+				if (@yGridLines);
 
-		# Axis and labels.
-		$tikz .= <<END_TIKZ;
+			# Axis and labels.
+			$tikz .= <<END_TIKZ;
 \\huge
 \\draw[<->,thick] ($self->{bBox}[0],0) -- ($self->{bBox}[2],0) node[above left,outer sep=2pt]{\$$self->{xAxisLabel}\$};
 \\draw[<->,thick] (0,$self->{bBox}[3]) -- (0,$self->{bBox}[1]) node[below right,outer sep=2pt]{\$$self->{yAxisLabel}\$};
 END_TIKZ
 
-		# Horizontal axis ticks and labels
-		my @xTicks = grep { $_ < $self->{bBox}[2] }
-			map { $_ * $self->{ticksDistanceX} } (1 .. $self->{bBox}[2] / $self->{ticksDistanceX});
-		push(@xTicks,
-			grep { $_ > $self->{bBox}[0] }
-			map { -$_ * $self->{ticksDistanceX} } (1 .. -$self->{bBox}[0] / $self->{ticksDistanceX}));
-		$tikz .=
-			"\\foreach \\x in {"
-			. join(',', @xTicks)
-			. "}{\\draw[thin] (\\x,5pt) -- (\\x,-5pt) node[below]{\$\\x\$};}\n"
-			if (@xTicks);
+			# Horizontal axis ticks and labels
+			my @xTicks = grep { $_ < $self->{bBox}[2] }
+				map { $_ * $self->{ticksDistanceX} } (1 .. $self->{bBox}[2] / $self->{ticksDistanceX});
+			push(@xTicks,
+				grep { $_ > $self->{bBox}[0] }
+				map { -$_ * $self->{ticksDistanceX} } (1 .. -$self->{bBox}[0] / $self->{ticksDistanceX}));
+			$tikz .=
+				"\\foreach \\x in {"
+				. join(',', @xTicks)
+				. "}{\\draw[thin] (\\x,5pt) -- (\\x,-5pt) node[below]{\$\\x\$};}\n"
+				if (@xTicks);
 
-		# Vertical axis ticks and labels
-		my @yTicks = grep { $_ < $self->{bBox}[1] }
-			map { $_ * $self->{ticksDistanceY} } (1 .. $self->{bBox}[1] / $self->{ticksDistanceY});
-		push(@yTicks,
-			grep { $_ > $self->{bBox}[3] }
-			map { -$_ * $self->{ticksDistanceY} } (1 .. -$self->{bBox}[3] / $self->{ticksDistanceY}));
-		$tikz .=
-			"\\foreach \\y in {"
-			. join(',', @yTicks)
-			. "}{\\draw[thin] (5pt,\\y) -- (-5pt,\\y) node[left]{\$\\y\$};}\n"
-			if (@yTicks);
+			# Vertical axis ticks and labels
+			my @yTicks = grep { $_ < $self->{bBox}[1] }
+				map { $_ * $self->{ticksDistanceY} } (1 .. $self->{bBox}[1] / $self->{ticksDistanceY});
+			push(@yTicks,
+				grep { $_ > $self->{bBox}[3] }
+				map { -$_ * $self->{ticksDistanceY} } (1 .. -$self->{bBox}[3] / $self->{ticksDistanceY}));
+			$tikz .=
+				"\\foreach \\y in {"
+				. join(',', @yTicks)
+				. "}{\\draw[thin] (5pt,\\y) -- (-5pt,\\y) node[left]{\$\\y\$};}\n"
+				if (@yTicks);
 
-		# Border box
-		$tikz .= "\\draw[borderblue,rounded corners=14pt,thick] "
-			. "($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n";
-
-		# Graph the points, lines, circles, and parabolas.
-		if (@{ $self->{staticObjects} }) {
-			my $obj = $self->SUPER::new($self->{context}, @{ $self->{staticObjects} });
-
-			# Switch to the foreground layer and clipping box for the objects.
-			$tikz .= "\\begin{pgfonlayer}{foreground}\n";
-			$tikz .= "\\clip[rounded corners=14pt] "
+			# Border box
+			$tikz .= "\\draw[borderblue,rounded corners=14pt,thick] "
 				. "($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n";
 
-			my @obj_data;
+			# Graph the points, lines, circles, and parabolas.
+			if (@{ $self->{staticObjects} }) {
+				my $obj = $self->SUPER::new($self->{context}, @{ $self->{staticObjects} });
 
-			# First graph lines, parabolas, and circles.  Cache the clipping path and a function
-			# for determining which side of the object to shade for filling later.
-			for (@{ $obj->{data} }) {
-				next
-					unless (ref($graphObjectTikz{ $_->{data}[0] }) eq 'HASH'
-						&& ref($graphObjectTikz{ $_->{data}[0] }{code}) eq 'CODE'
-						&& !$graphObjectTikz{ $_->{data}[0] }{fillType});
-				my ($object_tikz, $object_data) = $graphObjectTikz{ $_->{data}[0] }{code}->($self, $_);
-				$tikz .= $object_tikz;
-				push(@obj_data, $object_data);
+				# Switch to the foreground layer and clipping box for the objects.
+				$tikz .= "\\begin{pgfonlayer}{foreground}\n";
+				$tikz .= "\\clip[rounded corners=14pt] "
+					. "($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n";
+
+				my @obj_data;
+
+				# First graph lines, parabolas, and circles.  Cache the clipping path and a function
+				# for determining which side of the object to shade for filling later.
+				for (@{ $obj->{data} }) {
+					next
+						unless (ref($graphObjectTikz{ $_->{data}[0] }) eq 'HASH'
+							&& ref($graphObjectTikz{ $_->{data}[0] }{code}) eq 'CODE'
+							&& !$graphObjectTikz{ $_->{data}[0] }{fillType});
+					my ($object_tikz, $object_data) = $graphObjectTikz{ $_->{data}[0] }{code}->($self, $_);
+					$tikz .= $object_tikz;
+					push(@obj_data, $object_data);
+				}
+
+				# Switch from the foreground layer to the background layer for the fills.
+				$tikz .= "\\end{pgfonlayer}\n\\begin{pgfonlayer}{background}\n";
+
+				# Now shade the fill regions.
+				for (@{ $obj->{data} }) {
+					next
+						unless (ref($graphObjectTikz{ $_->{data}[0] }) eq 'HASH'
+							&& ref($graphObjectTikz{ $_->{data}[0] }{code}) eq 'CODE'
+							&& $graphObjectTikz{ $_->{data}[0] }{fillType});
+					$tikz .= $graphObjectTikz{fill}{code}->($self, $_, [@obj_data], $obj);
+				}
+
+				# End the background layer.
+				$tikz .= "\\end{pgfonlayer}";
 			}
 
-			# Switch from the foreground layer to the background layer for the fills.
-			$tikz .= "\\end{pgfonlayer}\n\\begin{pgfonlayer}{background}\n";
+			$graph->tex($tikz);
 
-			# Now shade the fill regions.
-			for (@{ $obj->{data} }) {
-				next
-					unless (ref($graphObjectTikz{ $_->{data}[0] }) eq 'HASH'
-						&& ref($graphObjectTikz{ $_->{data}[0] }{code}) eq 'CODE'
-						&& $graphObjectTikz{ $_->{data}[0] }{fillType});
-				$tikz .= $graphObjectTikz{fill}{code}->($self, $_, [@obj_data], $obj);
-			}
-
-			# End the background layer.
-			$tikz .= "\\end{pgfonlayer}";
+			$out = main::image(
+				main::insertGraph($graph),
+				width    => $size[0],
+				height   => $size[1],
+				tex_size => $self->{texSize}
+			);
 		}
-
-		$graph->tex($tikz);
-
-		$out = main::image(
-			main::insertGraph($graph),
-			width    => $size[0],
-			height   => $size[1],
-			tex_size => $self->{texSize}
-		);
-	} elsif ($main::displayMode ne 'PTX') {
+	} else {
 		$self->constructJSXGraphOptions;
 		my $ans_name = $self->ANS_NAME;
 		$out .= <<END_SCRIPT;
