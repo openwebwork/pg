@@ -454,7 +454,7 @@ my %graphObjectTikz = (
 				"\\begin{scope}\n\\clip[rounded corners=14pt] "
 				. "($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n"
 				. $clip_code
-				. "\\fill[yellow!40] "
+				. "\\fill[fillpurple] "
 				. "($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n"
 				. "\\end{scope}";
 		},
@@ -788,6 +788,7 @@ sub ans_rule {
 	}
 }
 \\definecolor{borderblue}{HTML}{356AA0}
+\\definecolor{fillpurple}{HTML}{A384E5}
 \\pgfdeclarelayer{background}
 \\pgfdeclarelayer{foreground}
 \\pgfsetlayers{background,main,foreground}
