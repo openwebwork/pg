@@ -445,10 +445,11 @@ window.graphTool = (containerId, options) => {
 	};
 
 	gt.getMouseCoords = (e) => {
-		const cPos = gt.board.getCoordsTopLeftCorner(),
-			absPos = JXG.getPosition(e, e[JXG.touchProperty] ? 0 : undefined);
-
-		return new JXG.Coords(JXG.COORDS_BY_SCREEN, [absPos[0] - cPos[0], absPos[1] - cPos[1]], gt.board);
+		return new JXG.Coords(
+			JXG.COORDS_BY_SCREEN,
+			gt.board.getMousePosition(e, e[JXG.touchProperty] ? 0 : undefined),
+			gt.board
+		);
 	};
 
 	gt.sign = (x) => {
@@ -1983,6 +1984,8 @@ window.graphTool = (containerId, options) => {
 			modalDialog.append(modalContent);
 			modal.append(modalDialog);
 
+			gt.graphContainer.parentElement.append(modal);
+
 			const bsModal = new bootstrap.Modal(modal);
 			bsModal.show();
 			document.querySelector('.modal-backdrop').style.opacity = '0.2';
@@ -2058,12 +2061,22 @@ window.graphTool = (containerId, options) => {
 		gt.clearButton.addEventListener('click', gt.clearAll);
 		gt.buttonBox.append(gt.clearButton);
 
+		// Add a button to switch to full screen mode.
+		gt.fullScreenButton = document.createElement('button');
+		gt.fullScreenButton.type = 'button';
+		gt.fullScreenButton.classList.add('btn', 'btn-light', 'gt-button');
+		gt.fullScreenButton.dataset.bsToggle = 'tooltip';
+		gt.fullScreenButton.title = 'Toggle Fullscreen';
+		gt.fullScreenButton.textContent = 'Fullscreen';
+		gt.fullScreenButton.addEventListener('click', () => gt.board.toFullscreen(containerId));
+		gt.buttonBox.append(gt.fullScreenButton);
+
 		gt.graphContainer.append(gt.buttonBox);
 
 		gt.tooltips = Array.from(
 			document.querySelectorAll('.gt-button-div[data-bs-toggle="tooltip"],.gt-button[data-bs-toggle="tooltip"]'))
 			.map((tooltip) => new bootstrap.Tooltip(tooltip,
-				{ placement: 'bottom', trigger: 'hover', delay: { show: 500, hide: 0 } }));
+				{ placement: 'bottom', trigger: 'hover', delay: { show: 500, hide: 0 }, container: gt.buttonBox }));
 	}
 
 	setupBoard();
