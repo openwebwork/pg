@@ -101,4 +101,35 @@ subtest 'Test options for randomPerson' => sub {
 	like $p1->subject, qr/she|he|they/, 'Making sure the pronoun is set.';
 };
 
+subtest 'Test alternative API for randomPerson' => sub {
+	my ($a, $b, $c) = randomPerson(
+		names => [
+			{ name => 'Bart',  pronoun => 'he' },
+			{ name => 'Lisa',  pronoun => 'she' },
+			{ name => 'Matty', pronoun => 'they' }
+		]
+	);
+	is $a->name,    'Bart',   'Specifying the names of a random person';
+	is $a->subject, 'he',     'Specifying the pronoun of a random person';
+	is ref $a,      'Person', 'The random person is a Person object.';
+
+	is $b->name,    'Lisa',   'Specifying the names of a random person';
+	is $b->subject, 'she',    'Specifying the pronoun of a random person';
+	is ref $b,      'Person', 'The random person is a Person object.';
+
+	is $c->name,    'Matty',  'Specifying the names of a random person';
+	is $c->subject, 'they',   'Specifying the pronoun of a random person';
+	is ref $c,      'Person', 'The random person is a Person object.';
+
+	my @persons =
+		randomPerson(names => [ { name => 'Homer' }, { name => 'Marge', pronoun => 'she' }, { name => 'Barney' } ]);
+
+	is [ map { ref $_ } @persons ], [ 'Person', 'Person', 'Person' ], 'testing hashref with missing pronouns.';
+	is $persons[1]->name,           'Marge',                          '2nd person is Marge';
+	is $persons[1]->subject,        'she',                            "2nd person's subject pronoun is 'she'";
+
+	like dies { randomPerson(names => [ { xxx => 'hi' } ]); }, qr/The field name must be passed in/,
+		'Make sure an error is thrown if the name is not passed in.';
+};
+
 done_testing;
