@@ -184,11 +184,12 @@ sub phi {
 	$self->Error("Cannot phi on Zero.") if $a == 0;
 	$result = $a;
 	$n      = $a;
-	for (my $i = 2; ($i**2) < $n; $i++) {
+	for (my $i = 2; ($i**2) <= $n; $i++) {
+		next unless ($n % $i == 0);
 		while ($n % $i == 0) {
-			$n      /= $i;
-			$result -= $result / $i;
+			$n /= $i;
 		}
+		$result -= $result / $i;
 	}
 	$result -= $result / $n if $n > 1;
 	return $result;
