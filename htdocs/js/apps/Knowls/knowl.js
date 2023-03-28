@@ -60,10 +60,9 @@
 			} else {
 				insertElt = knowl.closest('li');
 				if (insertElt) {
-					const newLi = document.createElement('li');
-					newLi.style.listStyle = 'none';
-					newLi.append(knowl.knowlContainer);
-					insertElt.after(newLi);
+					const newDiv = document.createElement('div');
+					newDiv.append(knowl.knowlContainer);
+					insertElt.append(newDiv);
 				} else {
 					let append = false;
 					insertElt = knowl;
