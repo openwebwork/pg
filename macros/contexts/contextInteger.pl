@@ -187,7 +187,7 @@ sub phi {
 	for (my $i = 2; ($i**2) <= $n; $i++) {
 		next unless ($n % $i == 0);
 		while ($n % $i == 0) {
-			$n      /= $i;
+			$n /= $i;
 		}
 		$result -= $result / $i;
 	}
