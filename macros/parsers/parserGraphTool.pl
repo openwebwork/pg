@@ -186,6 +186,21 @@ Set this to 0 to disable the display of the coordinates.  These are in the lower
 the graph for the default 2 dimensional graphing mode, and in the top left corner of the graph
 for the 1 dimensional mode when numberLine is 1.
 
+=item coordinateHintsType (Default: C<< coordinateHintsType => 'decimal' >>)
+
+This changes the way coordinate hints are shown.  By default the coordinates are displayed as
+decimal numbers accurate to five decimal places.  If this is set to 'fraction', then those
+decimals will be converted and displayed as fractions.  If this is set to 'mixed', then those
+decimals will be converted and displayed as mixed numbers.  For example, if the snapSizeX is set
+to 1/3, then what would be displayed as 4.66667 with the default 'decimal' setting, would be
+instead be displayed as 14/3 with the 'fraction' setting, and '4 2/3' with the 'mixed' setting.
+Note that these fractions are typeset by MathJax.
+
+Make sure that the snap size is given with decent accuracy.  For example, if the snap size to
+0.33333, then instead of 1/3 being displayed, 33333/1000000 will be displayed.  It is
+recommended to actually give an actual fraction for the snap size (like 1/3), and let perl and
+javascript compute that to get the best result.
+
 =item availableTools (Default: C<< availableTools => [ "LineTool", "CircleTool",
     "VerticalParabolaTool", "HorizontalParabolaTool", "FillTool", "SolidDashTool" ] >>)
 
@@ -330,6 +345,7 @@ sub new {
 		yAxisLabel          => 'y',
 		ariaDescription     => '',
 		showCoordinateHints => 1,
+		coordinateHintsType => 'decimal',
 		showInStatic        => 1,
 		numberLine          => 0,
 		useBracketEnds      => 0,
@@ -939,6 +955,7 @@ END_TIKZ
 			yAxisLabel: '$self->{yAxisLabel}',
 			ariaDescription: '${\(main::encode_pg_and_html($self->{ariaDescription}))}',
 			showCoordinateHints: $self->{showCoordinateHints},
+			coordinateHintsType: '$self->{coordinateHintsType}',
 			numberLine: $self->{numberLine},
 			useBracketEnds: $self->{useBracketEnds},
 			customGraphObjects: {$customGraphObjects},
