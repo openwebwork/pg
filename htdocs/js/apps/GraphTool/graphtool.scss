@@ -1,10 +1,13 @@
 @use 'sass:color';
 
 .graphtool-container {
-	width: 402px;
+	width: 442px;
+	padding: 15px 20px;
+	border-radius: 10px;
+	box-shadow: inset 0 0 5px 5px rgba(0, 0, 0, 0.15);
 
 	@media only screen and (max-width: 600px) {
-		width: 302px;
+		width: 342px;
 	}
 
 	.graphtool-graph {
@@ -35,7 +38,7 @@
 	}
 
 	.gt-toolbar-container {
-		margin: 0.5rem 0;
+		margin: 0.5rem 0 0;
 		text-align: right;
 		width: 100%;
 		padding: 0;
@@ -160,11 +163,11 @@
 				background-image: url('images/ExcludePointParenthesisTool.svg');
 			}
 
-			&.gt-bounded-interval-tool {
+			&.gt-interval-tool {
 				background-image: url('images/IntervalTool.svg');
 			}
 
-			&.gt-bounded-interval-bracket-tool {
+			&.gt-interval-bracket-tool {
 				background-image: url('images/IntervalBracketTool.svg');
 			}
 		}

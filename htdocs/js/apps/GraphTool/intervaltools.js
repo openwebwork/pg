@@ -250,7 +250,9 @@
 					this.focusPoint?.setAttribute({
 						fillColor: include ? gt.color.curve : 'transparent',
 						highlightFillColor: include ? gt.color.pointHighlightDarker : gt.color.pointHighlight,
-						highlightFillOpacity: gt.options.useBracketEnds ? 0 : include ? 1 : 0.5
+						highlightFillOpacity: (gt.options.useBracketEnds || this.focusPoint.arrow)
+							? 0
+							: include ? 1 : 0.5
 					});
 				},
 
@@ -277,12 +279,6 @@
 						if (this.focused && point.getAttribute('highlightFillOpacity') !== 0)
 							attributes.highlightFillOpacity = 0.5;
 					}
-
-					// Setting the layer makes JSXGraph reinsert the point into the DOM.  This moves it to the front.
-					// Note that layer 9 is default layer for points, so the actual layer is not changed.  The size
-					// attribute is checked to guarantee that this is only done when focus is initially obtained.
-					// Otherwise there are "maximum call stack size exceeded" errors in Chrome.
-					if (this.focused && point.getAttribute('size') !== 4) point.setAttribute({ layer: 9 });
 
 					point.setAttribute(attributes);
 				},
@@ -356,6 +352,8 @@
 				// This also prevents a point from being moved off the board.
 				// This ignores the y-coordinate.
 				pairedPointDrag(gt, point, e) {
+					if (e.type === 'keydown') return;
+
 					const bbox = gt.board.getBoundingBox();
 					if (point.X() >= bbox[2]) {
 						if (point.paired_point.X() === bbox[2])
@@ -478,13 +476,13 @@
 		},
 
 		IntervalTool: {
-			iconName: 'bounded-interval',
-			tooltip: 'Bounded Interval Tool',
+			iconName: 'interval',
+			tooltip: 'Interval Tool',
 
 			initialize(gt) {
 				if (gt.options.useBracketEnds) {
-					this.button.classList.remove('gt-bounded-interval-tool');
-					this.button.classList.add('gt-bounded-interval-bracket-tool');
+					this.button.classList.remove('gt-interval-tool');
+					this.button.classList.add('gt-interval-bracket-tool');
 				}
 
 				this.phase1 = (coords) => {

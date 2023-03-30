@@ -184,36 +184,13 @@ window.graphTool = (containerId, options) => {
 			gt.board.containerObj.tabIndex = -1;
 
 			gt.board.on('move', (e) => {
+				// JSXGraph now sends keydown events to the move handler.  In this case this is handled by the graphtool
+				// keydown event handler.  Obviously, this event won't have the mouse coordinates.
+				if (e.type === 'keydown') return;
 				const coords = gt.getMouseCoords(e);
 				if (gt.activeTool?.updateHighlights(coords)) return;
 				if (!gt.selectedObj || !gt.selectedObj.updateTextCoords(coords))
 					gt.setTextCoords(coords.usrCoords[1], coords.usrCoords[2]);
-			});
-
-			gt.board.on('hit', (e, el) => {
-				switch (e.type) {
-					case 'focusin':
-						if (el === gt.board.containerObj.id) {
-							if (gt.board.containerObj.contains(e.relatedTarget)) {
-								// Prevent the board from gaining focus and place the
-								// focus back onto where it was coming from.
-								e.preventDefault();
-								e.stopPropagation();
-								e.relatedTarget.focus();
-							}
-						} else {
-							// Update the focus point for whichever object the focused point belongs to.
-							gt.graphedObjs.some((obj) =>
-								obj.definingPts.some((point) => {
-									if (point.id === el.id) {
-										obj.focusPoint = point;
-										return true;
-									}
-								})
-							);
-						}
-						break;
-				}
 			});
 
 			gt.hasFocus = false;
@@ -257,6 +234,24 @@ window.graphTool = (containerId, options) => {
 			gt.board.containerObj.addEventListener('focusin', (e) => {
 				e.preventDefault();
 				e.stopPropagation();
+
+				if (e.target === gt.board.containerObj) {
+					if (gt.board.containerObj.contains(e.relatedTarget)) {
+						// Place the focus back onto where it was coming from.
+						e.relatedTarget.focus();
+						return;
+					}
+				}
+
+				// If a defining point is the target, then update the focus point for the object it belongs to.
+				gt.graphedObjs.some((obj) =>
+					obj.definingPts.some((point) => {
+						if (point.rendNode === e.target) {
+							obj.focusPoint = point;
+							return true;
+						}
+					})
+				);
 
 				if (e.relatedTarget !== gt.board.containerObj &&
 					(gt.buttonBox.contains(e.relatedTarget) ||
@@ -509,6 +504,7 @@ window.graphTool = (containerId, options) => {
 	// Prevent paired points from being moved into the same position by a drag.  This
 	// prevents lines and circles from being made degenerate.
 	gt.pairedPointDrag = (point, e) => {
+		if (e.type === 'keydown') return;
 		if (point.X() == point.paired_point.X() && point.Y() == point.paired_point.Y()) {
 			const coords = gt.getMouseCoords(e);
 			const x_trans = coords.usrCoords[1] - point.paired_point.X(),
@@ -536,6 +532,7 @@ window.graphTool = (containerId, options) => {
 	// Prevent paired points from being moved onto the same horizontal or vertical
 	// line by a drag.  This prevents parabolas from being made degenerate.
 	gt.pairedPointDragRestricted = (point, e) => {
+		if (e.type === 'keydown') return;
 		const coords = gt.getMouseCoords(e);
 		let new_x = point.X(), new_y = point.Y();
 		if (point.X() == point.paired_point.X()) {
@@ -607,7 +604,7 @@ window.graphTool = (containerId, options) => {
 
 		focus() {
 			this.focused = true;
-			this.definingPts.forEach((obj) => obj.setAttribute({ visible: true, layer: 9 }));
+			this.definingPts.forEach((obj) => obj.setAttribute({ visible: true }));
 			this.baseObj.setAttribute({ strokeColor: gt.color.focusCurve, strokeWidth: 3 });
 
 			// Focus the currently set point of focus for this object.
@@ -1253,7 +1250,7 @@ window.graphTool = (containerId, options) => {
 				// the objects from first graphed to last.
 				obj.definingPts.forEach((point, pIndex, a) => {
 					// If this is the first or last defining point of an object, then attach a keydown handler that will
-					// focus the previous or next object when shitf-tab or tab is pressed.
+					// focus the previous or next object when shift-tab or tab is pressed.
 					if (pIndex === 0 || pIndex === a.length - 1) {
 						point.focusOutHandler = (e) => {
 							if (e.key !== 'Tab' ||
@@ -2075,6 +2072,12 @@ window.graphTool = (containerId, options) => {
 		gt.fullScreenButton.title = 'Toggle Fullscreen';
 		gt.fullScreenButton.textContent = 'Fullscreen';
 		gt.fullScreenButton.addEventListener('click', () => gt.board.toFullscreen(containerId));
+		document.addEventListener('fullscreenchange', () => {
+			if (document.fullscreenElement?.classList.contains('JXG_wrap_private'))
+				gt.fullScreenButton.textContent = 'Exit Fullscreen';
+			else
+				gt.fullScreenButton.textContent = 'Fullscreen';
+		});
 		gt.buttonBox.append(gt.fullScreenButton);
 
 		gt.graphContainer.append(gt.buttonBox);

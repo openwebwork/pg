@@ -115,6 +115,8 @@
 				},
 
 				pairedPointDrag(gt, e) {
+					if (e.type === 'keydown') return;
+
 					const coords = gt.getMouseCoords(e);
 					let left_x = this.X(), right_x = this.X();
 

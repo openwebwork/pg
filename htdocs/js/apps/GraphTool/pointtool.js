@@ -36,7 +36,7 @@
 			focus(gt) {
 				this.focused = true;
 				this.baseObj.setAttribute(
-					{ fixed: false, highlight: true, strokeColor: gt.color.focusCurve, strokeWidth: 3, layer: 9 });
+					{ fixed: false, highlight: true, strokeColor: gt.color.focusCurve, strokeWidth: 3 });
 
 				this.focusPoint.rendNode.focus();
 				return false;

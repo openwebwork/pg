@@ -11,7 +11,7 @@
         "prepare": "npm run generate-assets"
     },
     "dependencies": {
-        "jsxgraph": "^1.4.6",
+        "jsxgraph": "^1.5.0",
         "jszip": "^3.10.1",
         "jszip-utils": "^0.1.0",
         "mathquill": "github:openwebwork/mathquill",
