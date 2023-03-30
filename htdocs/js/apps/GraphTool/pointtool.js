@@ -27,15 +27,19 @@
 			},
 
 			blur(gt) {
+				this.focused = false;
 				this.baseObj.setAttribute(
-					{ fixed: true, highlight: false, strokeColor: gt.curveColor, strokeWidth: 2 });
+					{ fixed: true, highlight: false, strokeColor: gt.color.curve, strokeWidth: 2 });
+				return false;
 			},
 
 			focus(gt) {
+				this.focused = true;
 				this.baseObj.setAttribute(
-					{ fixed: false, highlight: true, strokeColor: gt.focusCurveColor, strokeWidth: 3 });
+					{ fixed: false, highlight: true, strokeColor: gt.color.focusCurve, strokeWidth: 3, layer: 9 });
 
 				this.focusPoint.rendNode.focus();
+				return false;
 			},
 
 			setSolid() {},
@@ -46,8 +50,10 @@
 			},
 
 			updateTextCoords(gt, coords) {
-				if (this.baseObj.hasPoint(coords.scrCoords[1], coords.scrCoords[2]))
+				if (this.baseObj.hasPoint(coords.scrCoords[1], coords.scrCoords[2])) {
 					gt.setTextCoords(this.baseObj.X(), this.baseObj.Y());
+					return true;
+				}
 			},
 
 			restore(gt, string) {
@@ -80,7 +86,7 @@
 				};
 			},
 
-			handleKeyEvent(gt, e) {
+			handleKeyEvent(_gt, e) {
 				if (!this.hlObjs.hl_point) return;
 
 				if (e.key === 'Enter' || e.key === 'Space') {
@@ -100,7 +106,7 @@
 
 				if (!this.hlObjs.hl_point) {
 					this.hlObjs.hl_point = gt.board.create('point', [coords.usrCoords[1], coords.usrCoords[2]], {
-						size: 2, color: gt.color.underConstruction, snapToGrid: true,
+						size: 2, color: gt.color.underConstruction, snapToGrid: true, highlight: false,
 						snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, withLabel: false
 					});
 					this.hlObjs.hl_point.rendNode.focus();
