@@ -53,7 +53,7 @@ center => 0
 
 ## With Caption
 
-[| caption => "This is a caption.", captioncss => 'color: blue;' |]*
+[| caption => "This is a caption.", captioncss => {color => 'blue'} |]*
 
 [@ DataTable(
   [
@@ -62,7 +62,7 @@ center => 0
     ['A'..'D'],
   ],
 caption => "This is a caption.",
-captioncss => 'color: blue;',
+captioncss => {color => 'blue'},
 ); @]*
 
 ## Horizontal Rules with booktabs
@@ -202,7 +202,7 @@ encase => [ $BM, $EM ],
 
 ## Headers
 
-[| rowheaders => 1, headercss => 'font-family:cursive;' |]*
+[| rowheaders => 1, headercss => {fontFamily => 'cursive'} |]*
 
 The top row uses [|headerrow|]*, except the top right entry is excused. The bottom left entry is also excused (from the global [|rowheaders|]* option). The bottom right entry is made into a header.
 
@@ -213,7 +213,7 @@ The top row uses [|headerrow|]*, except the top right entry is excused. The bott
     [['A', header => 'td'], 'B', 'C', ['D', header => 'th']],
   ],
 rowheaders => 1,
-headercss => 'font-family:cursive;',
+headercss => {fontFamily => 'cursive'},
 ); @]*
 
 ## Vertical Alignment on Entire Table
@@ -232,7 +232,7 @@ headercss => 'font-family:cursive;',
 
 ## Assortment of CSS
 
-[| rowheaders => 1, tablecss => 'border:1pt solid black;', columnscss => [ '', '', 'background-color:yellow;', '' ], datacss => 'font-family:fantasy;', headercss => 'font-family:monospace;', allcellcss => 'padding:20pt 20pt;font-size:40px;' |]*
+[| rowheaders => 1, tablecss => {border => '1pt solid black'}, columnscss => [ {}, {}, {backgroundColor => 'yellow'}, {} ], datacss => {fontFamily => 'fantasy'}, headercss => {fontFamily => 'monospace'}, allcellcss => {padding => '20pt 20pt', fontSize => '40px'} |]*
 
 [@ DataTable(
   [
@@ -241,11 +241,11 @@ headercss => 'font-family:cursive;',
     ['A'..'D'],
   ],
 rowheaders => 1,
-tablecss => 'border:1pt solid black;',
-columnscss => [ '', '', 'background-color:yellow;', '' ],
-datacss => 'font-family:fantasy;',
-headercss => 'font-family:monospace;',
-allcellcss => 'padding:20pt 20pt;font-size:40px;',
+tablecss => {border => '1pt solid black'},
+columnscss => [ {}, {}, {backgroundColor => 'yellow'}, {} ],
+datacss => {fontFamily => 'fantasy'},
+headercss => {fontFamily => 'monospace'},
+allcellcss => {padding => '20pt 20pt', 'font-size' => '40px'}
 ); @]*
 
 ## Horizontal Alignment of One Cell
@@ -262,7 +262,7 @@ Top row cells are left, center, right, and paragraph-aligned. All other cells ar
 
 ## Cell Font Options
 
-Top row cells use bold, italics, monospace, all three. Second row does same thiing using a different method.
+Top row cells use bold, italics, monospace, all three. Second row does same thing using a different method.
 
 [@ DataTable(
   [
@@ -396,11 +396,11 @@ Top row is bottom-aligned but the rest is the default top-aligned.
 
 ## Row CSS
 
-Top row has [| rowcss => 'font-family:fantasy;' |]*.
+Top row has [| rowcss => {fontFamily => 'fantasy'} |]*.
 
 [@ DataTable(
   [
-    [[ 'a', rowcss => 'font-family:fantasy;' ], 'b'..'d' ],
+    [[ 'a', rowcss => {fontFamily => 'fantasy'} ], 'b'..'d' ],
     [1..4],
     ['A'..'D'],
   ],

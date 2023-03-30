@@ -1,7 +1,7 @@
 
 =head1 niceTables.pl
 
-Subroutines for creating tables that
+Subroutines for creating tables that:
 
 =over
 
@@ -15,65 +15,60 @@ Subroutines for creating tables that
 
 =back
 
-C<DataTable()> creates a table displaying data. Should not be used for layout,
-such as displaying an array of graphs.
+C<DataTable()> creates a table displaying data. It should not
+be used for layout, such as displaying an array of graphs.
 
-C<LayoutTable()> creates a "table" without using an HTML table in HTML output.
-Please use C<LayoutTable> whenever you are simply laying out layout content
-relation between content cells within a column or within a row.
-If the for space-saving purposes. Ask yourself if there is any meaningful
+C<LayoutTable()> creates a "table" without using an HTML table in HTML
+output. Use C<LayoutTable()> whenever you are simply laying out content
+for space-saving purposes. Ask yourself if there is any meaningful
+relation between content cells within a column or within a row. If the
 answer is no in both cases, it is likely a case for C<LayoutTable()>.
 
 =head2 Description
 
-Command for a typical table.
+Command for a typical table:
 
-    DataTable([
-        [a,b,c,...],
-        [d,e,f,...],
-        ...
+    DataTable(
+        [
+            [a,b,c,...],
+            [d,e,f,...],
+            ...
         ],
         options
     );
 
-    LayoutTable([
-        [a,b,c,...],
-        [d,e,f,...],
-        ...
+    LayoutTable(
+        [
+            [a,b,c,...],
+            [d,e,f,...],
+            ...
         ],
         options
     );
+
+The cell entries above like C<a> may be simple cell content,
+a hash reference with C<data =E<gt> cellContent> and options,
+or an array reference where the 0th entry is the the cell content
+and it is followed by option key-value pairs.
 
 As much as possible, options apply to all output formats.
-Some options only apply to HTML styling, and some options only apply to PDF hardcopy.
-Not all options are supported by every output format. For example PTX cannot use color information.
+Some options only apply to HTML, and some apply only to PDF.
+Not all options are supported by every output format.
+For example PreTeXt cannot use color information.
 
 All features described below apply to a C<DataTable>.
-Most also apply to a C<LayoutTable>, with the excpetions being:
-
-=over
-
-=item * C<caption>
-
-=item * C<rowheaders>
-
-=item * C<header>
-
-=item * C<colspan>
-
-=item * C<headerrow>
-
-=back
+Most apply to a C<LayoutTable> as well, but not
+C<caption>, C<rowheaders>, C<header>, C<colspan>, or C<headerrow>.
 
 =head2 Options for the WHOLE TABLE
 
-=head3 The following applied to all output formats
+=head3 All output formats
 
 =over
 
 =item C<center =E<gt> 0 or 1>
 
-Center the table (default 1)
+center the table (default 1)
 
 =item C<caption =E<gt> string>
 
@@ -85,77 +80,69 @@ make rules above and below every row (default 0)
 
 =item C<texalignment =E<gt> string>
 
-an alignment string like the kinds used in LaTeX tabular environment: for example C<'r|ccp{1in}'>
+an alignment string like is used in a LaTeX tabular environment: for example C<'r|ccp{1in}'>
+
+C<l> for left-aligned column
+
+C<c> for center-aligned column
+
+C<r> for right-aligned column
+
+C<p{width}> for a column with left-aligned paragraphs of fixed width.
+The width needs to be absolute to work in all output formats.
+
+C<X> for a column that expands to fill (see C<Xratio> below),
+and will have left-aligned paragraphs 
+
+C<|> for a vertical rule (n adjacent pipes make one rule that is n times as thick)
+
+C<!{\vrule width 3pt}> for a vertical rule of the indicated width
+(must be an absolute width; C<3pt> is just an example)
+
+C<E<gt>{commands}> Execute C<commands> at each cell in the column.
+For example, C<'cE<gt>{\color{blue}}c'> will make the second column have blue text.
+The following LaTeX commands may be used:
 
 =over
 
-=item C<r >
+C<\color{colorname}> for text color
 
-right-aligned column
+C<\color[HTML]{xxxxxx}> for text color (xxxxxx is a 6-character hex color code)
 
-=item C<c >
+C<\columncolor{colorname}> for background color
 
-center-aligned column
+C<\columncolor[HTML]{xxxxxx}> for background color (xxxxxx is a 6-character hex color code)
 
-=item C<r >
+C<\bfseries> for bold
 
-left-aligned column
+C<\itshape> for italics
 
-=item C<p{width} >
-
-left-aligned paragraphs of fixed (absolute) width
-
-=item C<X >
-
-left-aligned paragraph that expands to fill (see Xratio below)
-
-=item C<| >
-
-a vertical rule (n adjacent pipes makes one rule that is n times thick)
-
-=item C<!{\vrule width ...} >
-
-vertical rule of the indicated width (must be an absolute width)
-
-=item C< E<gt>{commands}>
-
-Execute commands at each cell in the column For example, C<'cE<gt>{\color{blue}}c'> will make the
-second column have blue text.
-
-The following LaTeX commands may be used:
-
-  \color{colorname}            text color
-  \color[HTML]{xxxxxx}         text color (xxxxxx is a 6-character hex color code)
-  \columncolor{colorname}      background color
-  \columncolor[HTML]{xxxxxx}   background color (xxxxxx is a 6-character hex color code)
-  \bfseries                    bold
-  \itshape                     italics
-  \ttfamily                    monospace
-
-Other LaTeX commands apply only to PDF output.
+C<\ttfamily> for monospace
 
 =back
 
+Other LaTeX commands apply only to PDF output.
+
 =item C<align =E<gt> string>
 
-convenient short version of texalignment
+convenient short version of C<texalignment>
 
 =item C<Xratio =E<gt> number>
 
-applies when X is part of overall alignment
-Xratio must be some number with C<0 < Xratio <= 1> (default 0.97)
-The table will only be Xratio wide, relative to the overall
-horizontal space. And X columns expland to fill available space.
+When C<X> is part of overall alignment,
+C<Xratio> must be some number between 0 and 1, inclusive of 1.
+The table as a whole will be C<Xratio> wide, relative to the overall
+horizontal space. And C<X> columns expand to fill the available space.
+The default is 0.97.
 
 =item C<encase =E<gt> [ , ]>
 
-Encases all table entries in the two entries. For example, to wrap
-cells in math delimiters if you want all content in math mode.
-In that case, use C<[$BM,$EM]>. See also noencase for individual cells.
+Encases all table entries in the two entries. For example, use C<[$BM,$EM]>
+to wrap all cells in math delimiters. See also C<noencase> for individual cells.
 
 =item C<rowheaders =E<gt> 0 or 1>
 
-Make the first element of every row a row header.
+Make the first element of every row a row header. Default is 0.
 
 =item C<headerrules =E<gt> 0 or 1>
 
@@ -164,15 +151,17 @@ rule to the right of a column of row headers. Default is 1.
 
 =item C<valign =E<gt> 'top'>
 
-Can be 'top', 'middle', or 'bottom'. Applies to all rows.
+Can be C<'top'>, C<'middle'>, or C<'bottom'>. Applies to all rows.
 See below to override for an individual row.
 
 =back
 
-=head3 These apply to HTML output only
+=head3 HTML output
 
-Note: each css property setting should inlude a colon and a semicolon.
-Example:  C<'font-family: fantasy; text-decoration: underline;'>
+Each css property setting should be a hash reference.
+For example,  C<{'font-family' =E<gt> 'fantasy', color =E<gt> 'red'}>.
+If a key has a dash character, it needs to be in quotes. Alternatively,
+you may uses a javascript flavor of CSS key like C<{fontFamily =E<gt> 'fantasy'}>
 
 =over
 
@@ -180,13 +169,9 @@ Example:  C<'font-family: fantasy; text-decoration: underline;'>
 
 css styling commands for the table element
 
-Example: C<tablecss =E<gt> 'border:1pt solid black;'>
-
 =item C<captioncss =E<gt> css string>
 
 css styling commands for the caption element
-
-Example: C<captioncss =E<gt> 'color: blue;'>
 
 =item C<columnscss => array ref
 
@@ -196,50 +181,44 @@ Note: only four css properties apply to a col element:
 
 =over
 
-=item C<border> (family)
+=item * C<border> (family)
 
-=item C<background> (family)
+=item * C<background> (family)
 
-=item C<width>
+=item * C<width>
 
-=item C<column-span>
+=item * C<column-span>
 
 =back
 
 =item C<datacss =E<gt> css string>
 
-css styling commands for td (non-header) cells
-
-Example: C<datacss =E<gt> 'font-family:fantasy;'>
+css styling commands for non-header cells
 
 =item C<headercss =E<gt> css string>
 
-css styling commands for th (header) cells
-
-Example: C<headercss =E<gt> 'font-family:monospace;'>
+css styling commands for header cells
 
 =item C<allcellcss =E<gt> css string>
 
 css styling commands for all cells
 
-Example: C<allcellcss =E<gt> 'padding:20pt 20pt'>
-
 =back
 
-=head3 This applies to PDF hardcopy output only
+=head3 PDF hardcopy output
 
 =over
 
 =item C<booktabs =E<gt> 0 or 1>
 
-use booktabs for horizontal rules (default 1)
+use the booktabs package for horizontal rules (default 1)
 
 =back
 
 =head2 Options for CELLS
 
-Each cell entry can be an array reference where the first entry is the actual
-cell content, and then key-value pairs follow. For example, in a table with four columns,
+Each cell entry can be an array reference where the first entry is the actual cell
+content, and then key-value pairs follow. For example, in a table with four columns,
 to make the first cell span two columns, enter the first cell as an array reference:
 
   [[a, colspan => 2], b, c]
@@ -248,31 +227,31 @@ Alternatively, using a hash reference with a data key:
 
   [{data => a, colspan => 2}, b, c]
 
-All ouptut formats:
+=head3 All output formats
 
 =over
 
 =item C<halign =E<gt> string>
 
-Similar to the components for texalignment above. However, only C<l, c, r, p{}>, and vertical
-rule specifications should be used.
-
+Similar to the components for C<texalignment> above.
+However, only C<l>, C<c>, C<r>, C<p{}>, and vertical rule specifications should be used.
 With vertical rule specifiers, any left vertical rule will only be observed for cells
 is in the first column. Otherwise, use a right vertical rule on the cell to the left.
 
 =item C<header =E<gt> type>,
 
-Declares the scope of the HTML th element. Case-insensitive:
+Declares the scope of the HTML C<th> element. Case-insensitive:
 
 =over
 
-=item C<th>   generic table header
+=item * C<th> for a generic table header
 
-=item C<ch>   column header ('col' and 'column' work too)
+=item * C<ch> for a column header (C<col> and C<column> work too)
 
-=item C<rh>   row header ('row' works too)
+=item * C<rh> for a row header (C<row> works too)
 
-=item C<td>   overrides a headerrow or rowheaders option except PTX output cannont honor this
+=item * C<td> for overriding a C<headerrow> or C<rowheaders> option
+(except PTX output cannot honor this)
 
 =back
 
@@ -296,40 +275,21 @@ Set the cell to italics font.
 
 Set the cell to monospace font.
 
-=item C<tex =E<gt> commands>
-
-Execute commands at start of a cell with scope the entire cell.  This option is legacy, and its
-cross-format functionality is superceded by C<color, bgcolor, b, i,> and C<m>.
-
-The following LaTeX commands may be used:
-
-  \color{colorname}            text color
-  \color[HTML]{xxxxxx}         text color (xxxxxx is a 6-character hex color code)
-  \columncolor{colorname}      background color
-  \columncolor[HTML]{xxxxxx}   background color (xxxxxx is a 6-character hex color code)
-  \bfseries                    bold
-  \itshape                     italics
-  \ttfamily                    monospace
-
-Other LaTeX commands apply only to hardcopy output.
-
-Example: C<['a', tex =E<gt> '\bfseries'], ['b', tex =E<gt> '\itshape'], ['c', tex =E<gt> '\ttfamily']>
-
 =item C<noencase =E<gt> 0 or 1>
 
-If you are using encase (see above) use this to opt out
+If you are using encase (see above) use this to opt out.
 
-=item C<colspan =E<gt> n>
+=item C<colspan =E<gt> positive integer>
 
-Positive integer; for cells that span more than one column when using this, you
-often set halign as well.
+Makes the cell span more than one column. When using this, you
+often set C<halign> as well.
 
-=item C<top =E<gt> +int or string>
+=item C<top =E<gt> positive integer or string>
 
 Make a top rule for one cell if the cell is in the top row. Thickness is either C<n>
 pixels or a width like C<'0.04em'>. Has no effect on cells outside of top row.
 
-=item C<bottom =E<gt> +int or string>
+=item C<bottom =E<gt> positive integer or string>
 
 Make a bottom rule for one cell. Thickness is either C<n> pixels or a width like C<'0.04em'>.
 
@@ -353,17 +313,14 @@ The following apply only to PDF output
 
 =over
 
-=item C<texpre =E<gt> tex code>
+=item C<texpre =E<gt> tex code> and C<texpost =E<gt> tex code>
 
 For more fussy cell-by-cell alteration of the tex version of
-
-=item C<texpost =E<gt> tex code>
-
-the table, code to place before and after the cell content
+the table, code to place before and after the cell content.
 
 =item C<texencase =E<gt> array ref>
 
-Shortcut for entering [texpre,texpost] at once.
+Shortcut for entering C<[texpre,texpost]> at once.
 
 =back
 
@@ -374,10 +331,9 @@ When there is a clash, the last non-falsy declaration in the row will be used.
 
 =over
 
-=item C<rowcolor =E<gt> strin>
+=item C<rowcolor =E<gt> string>
 
-Sets the row's background color.  Must be a color name, 6-character hex color code,
-or for legacy support only, in the form C<'[HTML]{xxxxxx}'>
+Sets the row's background color.  Must be a color name, 6-character hex color code.
 
 =item C<rowcss =E<gt> string>
 
@@ -385,14 +341,14 @@ css styling commands for the row
 
 =item C<headerrow =E<gt> 0 or 1>
 
-Makes an entire row use header cells (with column scope)
+Makes an entire row use header cells (with column scope).
 
-=item C<rowtop =E<gt> +int or string>
+=item C<rowtop =E<gt> positive integer or string>
 
-When used on the first row, creates a top rule. Has no effect on other rows.  Thickness
-is either C<n> pixels or a width like C<'0.04em'>.
+When used on the first row, creates a top rule. Has no effect on other rows.
+Thickness is either C<n> pixels or a width like C<'0.04em'>.
 
-=item C<rowbottom =E<gt> +int or string>
+=item C<rowbottom =E<gt> positive integer string>
 
 Make a bottom rule.  Thickness is either C<n> pixels or a width like C<'0.04em'>.
 
@@ -405,7 +361,44 @@ or C<'bottom'>.
 
 =head2 Options for COLUMNS
 
-Column styling is handled indirectly for now, mostly through the texalignment option above.
+Column styling is handled indirectly for now, mostly through the C<texalignment> option above.
+
+=head2 Deprecations
+
+These features were supported in an earlier version and still work, but are deprecated.
+
+=over
+
+=item * Each css setting can be a raw CSS string, including all its colons and a semicolons.
+For example, C<tablecss =E<gt> 'font-family: fantasy; text-decoration: underline;'>.
+
+=item * A cell can have C<tex =E<gt> commands>.
+This executes commands at start of a cell with scope the entire cell.
+The following LaTeX commands may be used and respected in HTML as well as LaTeX:
+
+=over
+
+=item * C<\color{colorname}> for text color
+
+=item * C<\color[HTML]{xxxxxx}> for text color (xxxxxx is a 6-character hex color code)
+
+=item * C<\columncolor{colorname}> for background color
+
+=item * C<\columncolor[HTML]{xxxxxx}> for background color (xxxxxx is a 6-character hex color code)
+
+=item * C<\bfseries> for bold
+
+=item * C<\itshape> for italics
+
+=item * C<\ttfamily> for monospace
+
+=back
+
+Other LaTeX commands apply only to hardcopy output.
+
+=item * C<rowcolor> can be in the form C<'[HTML]{xxxxxx}'>
+
+=back
 
 =cut
 
@@ -553,7 +546,7 @@ sub TableEnvironment {
 		}
 		$rows = suffix($rows, $ptxcaption);
 	} else {
-		my $css = $tableOpts->{tablecss};
+		my $css = css($tableOpts->{tablecss});
 		if ($hasX) {
 			$css .= css('width', $tableOpts->{Xratio} * 100 . '%');
 		}
@@ -564,7 +557,7 @@ sub TableEnvironment {
 		$htmlcols = tag($cols, 'colgroup')
 			unless ($cols =~ /^(<col>|\n)*$/ || $tableOpts->{LaYoUt});
 		$rows = prefix($rows, $htmlcols);
-		my $htmlcaption = tag($tableOpts->{caption}, 'caption', { style => $tableOpts->{captioncss} });
+		my $htmlcaption = tag($tableOpts->{caption}, 'caption', { style => css($tableOpts->{captioncss}) });
 		$rows = prefix($rows, $htmlcaption) if ($tableOpts->{caption} && !$tableOpts->{LaYoUt});
 
 		if ($tableOpts->{LaYoUt}) {
@@ -646,7 +639,7 @@ sub Cols {
 			$htmltop .= css('border-top', getRuleCSS($top));
 
 			# $i starts at 1, but columncss indexing starts at 0
-			my $htmlcolcss = $columnscss->[ $i - 1 ];
+			my $htmlcolcss = css($columnscss->[ $i - 1 ]);
 			if ($align->{tex} =~ /\\columncolor(\[HTML\])?\{(.*?)[}!]/) {
 				$htmlcolcss .= css('background-color', ($1 ? '#' : '') . $2);
 			}
@@ -803,7 +796,7 @@ sub Rows {
 		} else {
 			my $css = '';
 			for my $x (@$rowArray) {
-				$css .= $x->{rowcss} if $x->{rowcss};
+				$css .= css($x->{rowcss});
 			}
 			$css .= css('background-color', formatColorHTML($rowcolor));
 			$css .= css('border-top',       'solid 3px')
@@ -976,7 +969,7 @@ sub Row {
 			}
 
 			# cell level
-			$css .= $cellOpts->{cellcss};
+			$css .= css($cellOpts->{cellcss});
 			if ($cellOpts->{halign} =~ /^([|\s]*\|)/ && $i == 0) {
 				my $count = $1 =~ tr/\|//;
 				$css .= css('border-left', "solid ${count}px");
@@ -1014,9 +1007,9 @@ sub Row {
 			if ($cellOpts->{tex} =~ /\\color(\[HTML\])?\{(.*?)[}!]/) {
 				$css .= css('color', ($1 ? '#' : '') . $2);
 			}
-			$css .= $tableOpts->{allcellcss};
-			$css .= $tableOpts->{headercss} if ($t eq 'th');
-			$css .= $tableOpts->{datacss}   if ($t eq 'td');
+			$css .= css($tableOpts->{allcellcss});
+			$css .= css($tableOpts->{headercss}) if ($t eq 'th');
+			$css .= css($tableOpts->{datacss})   if ($t eq 'td');
 			$cell = wrap($cell, @{ $tableOpts->{encase} })
 				unless $cellOpts->{noencase};
 			if ($tableOpts->{LaYoUt}) {
@@ -1068,7 +1061,7 @@ sub TableArray {
 		texpre    => '',
 		texpost   => '',
 		rowcolor  => '',
-		rowcss    => '',
+		rowcss    => {},
 		headerrow => '',
 		rowtop    => 0,
 		rowbottom => 0,
@@ -1184,12 +1177,12 @@ sub TableOptions {
 		Xratio          => 0.97,
 		encase          => [ '', '' ],
 		rowheaders      => 0,
-		tablecss        => '',
-		captioncss      => '',
-		columnscss      => [ ('') x $colCount ],
-		datacss         => '',
-		headercss       => '',
-		allcellcss      => '',
+		tablecss        => {},
+		captioncss      => {},
+		columnscss      => [ ({}) x $colCount ],
+		datacss         => {},
+		headercss       => {},
+		allcellcss      => {},
 		valign          => 'top',
 		booktabs        => 1,
 		headerrules     => 1,
@@ -1389,8 +1382,22 @@ sub suffix {
 }
 
 sub css {
-	my ($property, $value) = @_;
-	return ($value) ? "$property:$value;" : '';
+	my ($a, $b) = @_;
+	my $return = '';
+	if (ref $a eq 'HASH') {
+		my %css = %{$a};
+		for my $property (keys %css) {
+			$return = css($property =~ s/([A-Z])/-\L$1/gr, $css{$property});
+		}
+	}
+	# attempt to detect if a CSS syntax string was used
+	elsif ($a =~ /:.+;/) {
+		$return = $a;
+	} elsif ($b) {
+		$return = "$a:$b;";
+	}
+
+	return $return;
 }
 
 sub tag {
