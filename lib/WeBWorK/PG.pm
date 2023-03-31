@@ -253,7 +253,6 @@ sub defineProblemEnvironment ($pg_envir, $options = {}, $image_generator = undef
 		useMathQuill   => $options->{useMathQuill}   // $pg_envir->{options}{useMathQuill},
 		useMathView    => $options->{useMathView}    // $pg_envir->{options}{useMathView},
 		mathViewLocale => $options->{mathViewLocale} // $pg_envir->{options}{mathViewLocale},
-		useWirisEditor => $options->{useWirisEditor} // $pg_envir->{options}{useWirisEditor},
 
 		# Internationalization
 		language            => $options->{language}            // 'en',
@@ -466,13 +465,12 @@ does this.  Also note that in the actual PGcore environment this is QUIZ_PREFIX.
 
 The default grader to use.  This can be overridden by the problem.
 
-=item useMathQuill, useMathView, useWirisEditor
+=item useMathQuill, useMathView
     (boolean, defaults taken from WeBWorK::PG::Environment)
 
 Determines which entry assist method to use.  If useMathQuill is 1, then
 MathQuill will be used.  Otherwise, if useMathView is 1, then MathView will be
-used.  Otherwise, if useWirisEditor is 1, then Wiris will be used.  If all are
-0, then basic html inputs will be used.
+used.  If both are 0, then basic html inputs will be used.
 
 =item language (string, default: 'en')
 

@@ -227,10 +227,6 @@ sub load_js() {
 	} elsif ($envir{useMathView}) {
 		ADD_JS_FILE("js/apps/MathView/$envir{mathViewLocale}");
 		ADD_JS_FILE('js/apps/MathView/mathview.js');
-	} elsif ($envir{useWirisEditor}) {
-		ADD_JS_FILE('js/apps/WirisEditor/quizzes.js');
-		ADD_JS_FILE('js/apps/WirisEditor/wiriseditor.js');
-		ADD_JS_FILE('js/apps/WirisEditor/mathml2webwork.js');
 	}
 }
 
