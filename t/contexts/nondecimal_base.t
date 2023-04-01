@@ -23,8 +23,6 @@ use Data::Dumper;
 
 Context('NondecimalBase');
 
-# test that convert is working
-
 subtest 'conversion from a non-decimal base to base 10' => sub {
 	is convertBase('101010', from => 2),  42,   'convert from base 2';
 	is convertBase('44011',  from => 5),  3006, 'convert from base 5';
@@ -59,9 +57,7 @@ subtest 'Convert between two non-decimal bases' => sub {
 };
 
 # Now test the Context.
-
 Context()->flags->set(base => 5);
-# # context::NondecimalBase->setBase(5);
 
 subtest 'Check that the Context parses number correct' => sub {
 	is Context()->{flags}->{base}, 5, 'Check that the base is stored.';
@@ -73,7 +69,8 @@ subtest 'Check that the Context parses number correct' => sub {
 };
 
 subtest 'check that non-valid digits return errors' => sub {
-	like dies { Compute('456'); }, qr/^The number must consist/, 'Try to build a base-5 number will illegal digits';
+	like dies { Compute('456'); }, qr/^The number must consist only of digits: 0,1,2,3,4/,
+		'Try to build a base-5 number will illegal digits';
 };
 
 subtest 'check arithmetic in base-5' => sub {
@@ -127,6 +124,7 @@ subtest 'check different digits' => sub {
 	ok my $a1 = Compute('E9'), "Base 12 number 'E9' with E=eleven";
 	is $a1->value, 141, "Base-12 number E9=141";
 
+	ok my $a2 = Compute("3TE"), "Base 12 number '3TE' with T=ten and E = eleven";
 	like dies { Compute('A5'); },
 		qr/The number must consist only of digits: 0,1,2,3,4,5,6,7,8,9,T,E/,
 		'Check that A=10 is not allowed';
@@ -150,12 +148,18 @@ subtest 'Check the LimitedNondecimalBase features' => sub {
 
 };
 
-print Dumper convertBase(58, to => 8);
+subtest 'Test with different set of digits' => sub {
+	Context('NondecimalBase');
+	Context()->flags->set(base => 12, digits => [ 0 .. 9, 'B', 'D' ]);
+	# setBase(Context(),
 
-print Dumper convertBase(213,   from => 5);     # returns 58
-print Dumper convertBase(72,    from => 8);     # returns 58
-print Dumper convertBase('2DE', from => 16);    # returns 734
+	ok my $a1 = Compute("3BD"), "Create '3BD' in base-12 with B=10, D=11";
+	is $a1->value, 563, "'3BD'=563 in base-12 with B=10, D=11";
 
-print Dumper convertBase(565, to => 12, digits => [ 0 .. 9, 'T', 'E' ]);
+	Context()->flags->set(base => 12, digits => [ 0 .. 9, 'T', 'E' ]);
+	ok my $a2 = Compute('E9T'), "Create 'E9T' in base-12 with T=10, E=11";
+	is $a2->value, 1702, "'E9T'= 1702 in base-12 with T=10, E=11";
+
+};
 
 done_testing();

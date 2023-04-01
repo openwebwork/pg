@@ -78,11 +78,12 @@ sub _contextNondecimalBase_init {
 package context::NondecimalBase;
 our @ISA = ('Parser::Context');
 
+# Note it seems like these need to be recreated each time the base is changed,
+# so these are done each time in convertBase
 #
-#  The standard digits, pre-built so it doesn't have to be done each time the conversion is called
-#
-our $digits16 = [ '0' .. '9', 'A' .. 'F' ];
-our $digit16  = { map { ($digits16->[$_], $_) } (0 .. scalar(@$digits16) - 1) };
+# The standard digits, pre-built so it doesn't have to be done each time the conversion is called
+# our $digits16 = [ '0' .. '9', 'A' .. 'F' ];
+# our $digit16  = { map { ($digits16->[$_], $_) } (0 .. scalar(@$digits16) - 1) };
 
 #  Initialize the contexts and make the creator function.
 sub Init {
@@ -90,7 +91,7 @@ sub Init {
 	$context->{name}            = 'NondecimalBase';
 	$context->{parser}{Number}  = 'context::NondecimalBase::Number';
 	$context->{value}{Real}     = 'context::NondecimalBase::Real';
-	$context->{pattern}{number} = '[0-9A-F]+';
+	$context->{pattern}{number} = '[0-9A-Z]+';
 	$context->functions->disable('All');
 
 	# don't allow division
@@ -155,31 +156,29 @@ If one wants to use a different set of digits, say 0..9, 'T', 'E' for base-12 as
 sub convert {
 	my $value   = shift;
 	my %options = (
-		from   => 10,
-		to     => 10,
-		digits => $digits16,
+		from => 10,
+		to   => 10,
 		@_
 	);
-	my $from   = $options{'from'};
-	my $to     = $options{'to'};
-	my $digits = $options{'digits'};
-
-	# warn $value;
-	# warn $from;
-	# warn $to;
-	# warn $digits;
+	my $from = $options{'from'};
+	my $to   = $options{'to'};
 
 	die "The digits option must be an array of characters to use for the digits"
-		unless ref($digits) eq 'ARRAY';
+		if $options{digits} && ref($options{digits}) ne 'ARRAY';
+
+	# Unfortunately this needs to be called each time in case the digits were
+	# set in a previous call.
+	my $digits16 = $options{'digits'} // [ 0 .. 9, 'A' .. 'F' ];
+	my $digit16  = { map { ($digits16->[$_], $_) } (0 .. scalar(@$digits16) - 1) };
 
 	# The highest base the digits will support
-	my $maxBase = scalar(@$digits);
+	my $maxBase = scalar(@$digits16);
 
 	die "The base of conversion must be between 2 and $maxBase"
 		unless $to >= 2 && $to <= $maxBase && $from >= 2 && $from <= $maxBase;
 
 	# Reverse map the digits to base 10 values
-	my $baseBdigits = { map { ($digits->[$_], $_) } (0 .. $from - 1) };
+	my $baseBdigits = { map { ($digits16->[$_], $_) } (0 .. $from - 1) };
 
 	#  Convert to base 10
 	my $base10;
@@ -190,7 +189,7 @@ sub convert {
 	} else {
 		$base10 = 0;
 		foreach my $d (split(//, $value)) {
-			die "The number must consist only of digits: " . join(',', @$digits[ 0 .. $from - 1 ])
+			die "The number must consist only of digits: " . join(',', @$digits16[ 0 .. $from - 1 ])
 				unless defined($baseBdigits->{$d});
 			$base10 = $base10 * $from + $baseBdigits->{$d};
 		}
@@ -202,7 +201,7 @@ sub convert {
 	do {
 		my $d = $base10 % $to;
 		$base10 = ($base10 - $d) / $to;
-		unshift(@base, $digits->[$d]);
+		unshift(@base, $digits16->[$d]);
 	} while $base10;
 
 	return join('', @base);
@@ -214,19 +213,19 @@ package context::NondecimalBase::Number;
 our @ISA = ('Parser::Number');
 
 # Create a new number in the given base and convert to base 10.
-
 sub new {
 	my ($self, $equation, $value, $ref) = @_;
-	Value::Error('The base must be set for this context') unless $equation->{context}{flags}{base};
-	my %opts = (from => $equation->{context}{flags}{base});
-	$opts{digits} = $equation->{context}{flags}{digits} if $equation->{context}{flags}{digits};
+	my $context = $equation->{context};
+
+	Value::Error('The base must be set for this context') unless $context->{flags}{base};
+	my %opts = (from => $context->{flags}{base});
+	$opts{digits} = $context->{flags}{digits} if $context->{flags}{digits};
 
 	$value = context::NondecimalBase::convert($value, %opts);
 	return $self->SUPER::new($equation, $value, $ref);
 }
 
 #  Return the value of the number in its given base.
-
 sub eval {
 	$self = shift;
 	my $base = $self->{equation}{context}{flags}{base};
