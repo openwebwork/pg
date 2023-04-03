@@ -46,6 +46,7 @@ This directory now has a subdirectory structure for clarification.
 - `OPL/FortLewis/LiveGraphicsParametricSurface3D.pl` to `PG/macros/graph`
 - `OPL/FortLewis/LiveGraphicsVectorField2D.pl` to `PG/macros/graph`
 - `OPL/FortLewis/LiveGraphicsVectorField3D.pl` to `PG/macros/graph`
+- `OPL/FortLewis/VectorField2D.pl` to `PG/macros/graph`
 - `OPL/FortLewis/MatrixUnimodular.pl` to `PG/macros/math`
 - `OPL/FortLewis/PeriodicRerandomization.pl` to `PG/macros/core`
 
