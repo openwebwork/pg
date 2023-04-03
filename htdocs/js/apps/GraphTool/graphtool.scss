@@ -88,6 +88,10 @@
 			color: #000;
 			border: 1px solid #ccc !important;
 
+			&.gt-text-button {
+				padding: 1px 6px;
+			}
+
 			&:disabled {
 				box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
 			}
@@ -312,6 +316,14 @@
 	border-width: 1px;
 	margin-top: 0.5rem;
 	padding: 0.25rem 0.5rem;
+
+	&.gt-disabled-help:empty {
+		min-height: 0;
+		opacity: 0;
+		margin-top: 0;
+		padding: 0;
+		border: none;
+	}
 }
 
 .graphtool-answer-container {

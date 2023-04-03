@@ -466,7 +466,7 @@ window.graphTool = (containerId, options) => {
 	});
 
 	gt.setMessageText = (content) => {
-		if (gt.confirmationActive) return;
+		if (gt.confirmationActive || !gt.helpEnabled) return;
 
 		const newMessage = (content instanceof Array ? content.join(' ') : content);
 		if (newMessage) {
@@ -479,7 +479,7 @@ window.graphTool = (containerId, options) => {
 	}
 
 	gt.updateHelp = () => {
-		if (gt.confirmationActive) return;
+		if (gt.confirmationActive || !gt.helpEnabled) return;
 
 		gt.setMessageText(
 			gt.tools.map((tool) => typeof tool.helpText === 'function'
@@ -2125,14 +2125,14 @@ window.graphTool = (containerId, options) => {
 
 			const yesButton = document.createElement('button');
 			yesButton.type = 'button';
-			yesButton.classList.add('gt-button', 'gt-confirm-button');
+			yesButton.classList.add('gt-button', 'gt-text-button', 'gt-confirm-button');
 			yesButton.textContent = 'Yes';
 			yesButton.addEventListener('click',
 				(e) => { yesAction(); gt.confirm.dispose(e); }, { signal: controller.signal });
 
 			const noButton = document.createElement('button');
 			noButton.type = 'button';
-			noButton.classList.add('gt-button', 'gt-confirm-button');
+			noButton.classList.add('gt-button', 'gt-text-button', 'gt-confirm-button');
 			noButton.textContent = 'No';
 			noButton.addEventListener('click', gt.confirm.dispose, { signal: controller.signal });
 
@@ -2182,7 +2182,7 @@ window.graphTool = (containerId, options) => {
 		deleteButtonContainer.addEventListener('pointerout', () => gt.updateHelp());
 		gt.deleteButton = document.createElement('button');
 		gt.deleteButton.type = 'button';
-		gt.deleteButton.classList.add('gt-button');
+		gt.deleteButton.classList.add('gt-button', 'gt-text-button');
 		gt.deleteButton.textContent = 'Delete';
 		gt.deleteButton.addEventListener('click', gt.deleteSelected);
 		gt.deleteButton.addEventListener('focus', () => gt.setMessageText(deleteButtonMessage));
@@ -2214,7 +2214,7 @@ window.graphTool = (containerId, options) => {
 		clearButtonContainer.addEventListener('pointerout', () => gt.updateHelp());
 		gt.clearButton = document.createElement('button');
 		gt.clearButton.type = 'button';
-		gt.clearButton.classList.add('gt-button');
+		gt.clearButton.classList.add('gt-button', 'gt-text-button');
 		gt.clearButton.textContent = 'Clear';
 		gt.clearButton.addEventListener('click', gt.clearAll);
 		gt.clearButton.addEventListener('focus', () => gt.setMessageText(clearButtonMessage));
@@ -2226,7 +2226,7 @@ window.graphTool = (containerId, options) => {
 		gt.fullScreenButton = document.createElement('button');
 		let fullScreenButtonMessage = 'Switch to fullscreen.';
 		gt.fullScreenButton.type = 'button';
-		gt.fullScreenButton.classList.add('gt-button');
+		gt.fullScreenButton.classList.add('gt-button', 'gt-text-button');
 		gt.fullScreenButton.textContent = 'Fullscreen';
 		gt.fullScreenButton.addEventListener('click', () => gt.board.toFullscreen(containerId));
 		gt.fullScreenButton.addEventListener('pointerover', () => gt.setMessageText(fullScreenButtonMessage));
@@ -2237,12 +2237,50 @@ window.graphTool = (containerId, options) => {
 			if (document.fullscreenElement?.classList.contains('JXG_wrap_private')) {
 				gt.fullScreenButton.textContent = 'Exit Fullscreen';
 				fullScreenButtonMessage = 'Exit fullscreen.';
+				if (!gt.helpEnabled) gt.messageBox.classList.add('gt-disabled-help');
 			} else {
 				gt.fullScreenButton.textContent = 'Fullscreen';
 				fullScreenButtonMessage = 'Switch to fullscreen.';
+				gt.messageBox.classList.remove('gt-disabled-help');
 			}
 		});
 		gt.buttonBox.append(gt.fullScreenButton);
+
+		// Add a button to disable or enable help.
+		gt.helpEnabled = localStorage.getItem('GraphToolHelpEnabled') !== 'false';
+		gt.disableHelpButton = document.createElement('button');
+		const disableHelpButtonMessage = 'Disable this help for all graphs.';
+		gt.disableHelpButton.type = 'button';
+		gt.disableHelpButton.classList.add('gt-button', 'gt-text-button', 'gt-disable-help-button');
+		gt.disableHelpButton.textContent = gt.helpEnabled ? 'Disable Help' : 'Enable Help';
+		const setHelpStatus = (enabled) => {
+			gt.helpEnabled = enabled;
+			if (enabled) {
+				gt.disableHelpButton.textContent = 'Disable Help';
+				gt.messageBox.classList.remove('gt-disabled-help');
+				gt.updateHelp();
+			} else {
+				gt.disableHelpButton.textContent = 'Enable Help';
+				gt.messageBox.classList.add('gt-disabled-help');
+				gt.setMessageContent();
+			}
+		};
+		gt.disableHelpButton.addEventListener('click', () => {
+			setHelpStatus(!gt.helpEnabled);
+			localStorage.setItem('GraphToolHelpEnabled', gt.helpEnabled);
+			// Notify other graphs on the page that the help status has changed.
+			for (const button of document.querySelectorAll('.gt-disable-help-button')) {
+				if (button === gt.disableHelpButton) continue;
+				button.dispatchEvent(new CustomEvent('gt.help.enable', { detail: { enabled: gt.helpEnabled } }));
+			}
+		});
+		// If the enable/disable help button was activated on another graph, then act on the event it sent.
+		gt.disableHelpButton.addEventListener('gt.help.enable', (e) => setHelpStatus(e.detail.enabled));
+		gt.disableHelpButton.addEventListener('pointerover', () => gt.setMessageText(disableHelpButtonMessage));
+		gt.disableHelpButton.addEventListener('pointerout', () => gt.updateHelp());
+		gt.disableHelpButton.addEventListener('focus', () => gt.setMessageText(disableHelpButtonMessage));
+		gt.disableHelpButton.addEventListener('blur', () => gt.updateHelp());
+		gt.buttonBox.append(gt.disableHelpButton);
 
 		gt.graphContainer.append(gt.buttonBox);
 
