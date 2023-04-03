@@ -53,7 +53,7 @@ my $ytail;
 my $FX;
 my $FY;
 my $xtip;
-my $xtail;
+my $ytip;
 my $xstem;
 my $ystem;
 my $xmidtip;
