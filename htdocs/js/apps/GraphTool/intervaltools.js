@@ -852,6 +852,16 @@
 				container.append(includePointBox);
 			},
 
+			handleKeyEvent(gt, e) {
+				if (e.key === 'e') {
+					// If 'e' is pressed change to excluding interval endpoints.
+					gt.toolTypes.IncludeExcludePointTool.toggleIncludeExcludePoint(e, false);
+				} else if (e.key === 'i') {
+					// If 'i' is pressed change to including interval endpoints.
+					gt.toolTypes.IncludeExcludePointTool.toggleIncludeExcludePoint(e, true);
+				}
+			},
+
 			helperMethods: {
 				toggleIncludeExcludePoint(gt, e, include) {
 					e.preventDefault();

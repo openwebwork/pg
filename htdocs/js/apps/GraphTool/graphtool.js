@@ -54,8 +54,9 @@ window.graphTool = (containerId, options) => {
 	gt.snapSizeX = options.snapSizeX ? options.snapSizeX : 1;
 	gt.snapSizeY = options.snapSizeY ? options.snapSizeY : 1;
 	gt.isStatic = options.isStatic ? true : false;
-	const availableTools = options.availableTools ? options.availableTools
-		: ['LineTool', 'CircleTool', 'VerticalParabolaTool', 'HorizontalParabolaTool', 'FillTool', 'SolidDashTool'];
+	if (!(options.availableTools instanceof Array))
+		options.availableTools =
+			['LineTool', 'CircleTool', 'VerticalParabolaTool', 'HorizontalParabolaTool', 'FillTool', 'SolidDashTool'];
 
 	// This is the icon used for the fill tool and fill graph object.
 	gt.fillIcon = (color) => "data:image/svg+xml," +
@@ -363,9 +364,9 @@ window.graphTool = (containerId, options) => {
 							}
 						}
 					});
-				} else {
-					gt.activeTool?.handleKeyEvent(e);
 				}
+
+				for (const tool of gt.tools) tool.handleKeyEvent(e);
 
 				if (!gt.buttonBox.contains(document.activeElement) && e.key === 'N' && e.shiftKey) {
 					// Shift-N moves focus to the first tool button after the select button unless the tool bar already
@@ -380,12 +381,6 @@ window.graphTool = (containerId, options) => {
 				} else if (e.key === 'Delete' && gt.activeTool === gt.selectTool) {
 					// If the select tool is active and Delete is pressed, then ask to delete the selected object.
 					gt.deleteSelected();
-				} else if (e.key === 's') {
-					// If 's' is pressed change to drawing solid.
-					gt.toggleSolidity(e, true);
-				} else if (e.key === 'd') {
-					// If 'd' is pressed change to drawing dashed.
-					gt.toggleSolidity(e, false);
 				}
 			});
 		}
@@ -1836,6 +1831,16 @@ window.graphTool = (containerId, options) => {
 			solidDashBox.append(dashedButtonDiv);
 			container.append(solidDashBox);
 		}
+
+		handleKeyEvent(e) {
+			if (e.key === 's') {
+				// If 's' is pressed change to drawing solid.
+				gt.toggleSolidity(e, true);
+			} else if (e.key === 'd') {
+				// If 'd' is pressed change to drawing dashed.
+				gt.toggleSolidity(e, false);
+			}
+		}
 	}
 
 	gt.toolTypes = {
@@ -1928,10 +1933,11 @@ window.graphTool = (containerId, options) => {
 			});
 		}
 
-		availableTools.forEach((tool) => {
-			if (tool in gt.toolTypes) new gt.toolTypes[tool](gt.buttonBox);
-			else console.log('Unknown tool: ' + tool);
-		});
+		gt.tools = [ gt.selectTool ];
+		for (const tool of options.availableTools) {
+			if (tool in gt.toolTypes) gt.tools.push(new gt.toolTypes[tool](gt.buttonBox));
+			else console.log(`Unknown tool: ${tool}`);
+		}
 
 		const confirmDialog = (title, titleId, message, yesAction) => {
 			// Keep the graph tool active while this dialog is open.
