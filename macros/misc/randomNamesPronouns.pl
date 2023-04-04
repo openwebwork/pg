@@ -52,6 +52,7 @@ And if you would like multiple people to be randomly choosen with unique names, 
   @persons = randomPerson(n => 4);
 
 generates 4 C<Person> objects as an array.
+
 =cut
 
 loadMacros('PGbasicmacros.pl', 'PGauxiliaryFunctions.pl');
@@ -291,6 +292,7 @@ Each of the following are legal
     { name => 'Larry'},
     { name => 'Moe', pronoun => 'he' },
     { name => 'Curly' }]);
+
 =back
 
 =cut
@@ -304,7 +306,7 @@ sub randomPerson {
 	# if the names are passed in.
 	if ($options{names}) {
 		my @persons;
-		for $p (@{ $options{names} }) {
+		for my $p (@{ $options{names} }) {
 			if (ref $p ne 'HASH') {
 				push(@persons,
 					Person->new(name => $p->[0] // $p, pronoun => $p->[1] // list_random('he', 'she', 'they')));
@@ -391,6 +393,7 @@ This returns the name of the person.
   $p->name;
 
 returns the name 'Roger'.
+
 =cut
 
 sub name { return shift->{_name}; }
