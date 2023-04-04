@@ -22,7 +22,7 @@
 				if (!gt.isStatic) {
 					this.on('down', () => gt.board.containerObj.style.cursor = 'none');
 					this.on('up', () => gt.board.containerObj.style.cursor = 'auto');
-					this.on('drag', gt.updateText);
+					this.on('drag', (e) => { gt.adjustDragPosition(e, this.baseObj); gt.updateText; });
 				}
 			},
 
@@ -94,15 +94,23 @@
 					e.stopPropagation();
 
 					this.phase1(this.hlObjs.hl_point.coords.usrCoords);
-				} else if (['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
-					this.updateHighlights(this.hlObjs.hl_point.coords);
 				}
 			},
 
-			updateHighlights(gt, coords) {
+			updateHighlights(gt, e) {
 				this.hlObjs.hl_point?.rendNode.focus();
 
-				if (typeof coords === 'undefined') return false;
+				let coords;
+				if (e instanceof MouseEvent && e.type === 'pointermove') {
+					coords = gt.getMouseCoords(e);
+					this.hlObjs.hl_point?.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+				} else if (e instanceof KeyboardEvent && e.type === 'keydown') {
+					coords = this.hlObjs.hl_point.coords;
+				} else if (e instanceof JXG.Coords) {
+					coords = e;
+					this.hlObjs.hl_point?.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+				} else
+					return false;
 
 				if (!this.hlObjs.hl_point) {
 					this.hlObjs.hl_point = gt.board.create('point', [coords.usrCoords[1], coords.usrCoords[2]], {
@@ -110,8 +118,10 @@
 						snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, withLabel: false
 					});
 					this.hlObjs.hl_point.rendNode.focus();
-				} else
-					this.hlObjs.hl_point.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+				}
+
+				// Make sure the highlight point is not moved off the board.
+				if (e instanceof Event) gt.adjustDragPosition(e, this.hlObjs.hl_point);
 
 				gt.setTextCoords(this.hlObjs.hl_point.X(), this.hlObjs.hl_point.Y());
 				gt.board.update();

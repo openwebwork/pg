@@ -19,29 +19,6 @@
 				this.focusPoint = point1;
 			},
 
-			handleKeyEvent(gt, e, el) {
-				if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-
-				// Make sure that this point is not moved onto the same vertical line as another point.
-				const pointIndex = this.definingPts.findIndex((pt) => pt.id === el.id);
-				if (pointIndex > -1) {
-					let x = el.X();
-					const dir = (e.key === 'ArrowLeft' ? -1 : 1) * gt.snapSizeX;
-
-					while (this.definingPts.some((other, i) => i !== pointIndex && x === other.X())) x += dir;
-
-					// If the computed new x coordinate is off the board, then we need to move the point back instead.
-					const boundingBox = gt.board.getBoundingBox();
-					if (x < boundingBox[0] || x > boundingBox[2]) {
-						x = el.X() - dir;
-						while (this.definingPts.some((other, i) => i !== pointIndex && x === other.X())) x -= dir;
-					}
-
-					el.setPosition(JXG.COORDS_BY_USER, [x, el.Y()]);
-					gt.board.update();
-				}
-			},
-
 			stringify(gt) {
 				return [
 					this.baseObj.getAttribute('dash') == 0 ? 'solid' : 'dashed',
@@ -92,51 +69,63 @@
 					});
 				},
 
-				pairedPointDrag(gt, e) {
-					if (e.type === 'keydown') return;
+				// Prevent a point from being moved off the board by a drag. If a group of other points is provided,
+				// then also prevent the point from being moved into the same vertical line as any of those points.
+				// Note that when this method is called, the point has already been moved by JSXGraph.  Note that this
+				// ensures that the graphed object is a function, but does not prevent the quadratic from degenerating
+				// into a line.
+				adjustDragPosition(gt, e, point, groupedPoints) {
+					const bbox = gt.board.getBoundingBox();
 
-					const coords = gt.getMouseCoords(e);
-					let left_x = this.X(), right_x = this.X();
+					let left_x = point.X() < bbox[0] ? bbox[0] : point.X() > bbox[2] ? bbox[2] : point.X();
+					let right_x = left_x;
+					let y = point.Y() < bbox[3] ? bbox[3] : point.Y() > bbox[1] ? bbox[1] : point.Y();
 
-					while (this.paired_points.some((pairedPoint) => left_x == pairedPoint.X()))
-						left_x -= gt.snapSizeX;
-					while (this.paired_points.some((pairedPoint) => right_x == pairedPoint.X()))
-						right_x += gt.snapSizeX;
+					while (groupedPoints.some((groupedPoint) => left_x === groupedPoint.X())) left_x -= gt.snapSizeX;
+					while (groupedPoints.some((groupedPoint) => right_x === groupedPoint.X())) right_x += gt.snapSizeX;
 
-					if (this.X() != left_x && this.X() != right_x) {
-						const left_dist = Math.abs(coords.usrCoords[1] - left_x);
-						const right_dist = Math.abs(coords.usrCoords[1] - right_x);
-						this.setPosition(JXG.COORDS_BY_USER, [
-							left_x < gt.board.getBoundingBox()[0] ? right_x
-								: (left_dist < right_dist || right_x > gt.board.getBoundingBox()[2]) ? left_x : right_x,
-							this.Y()
+					if (!gt.boardHasPoint(point.X(), point.Y()) || point.X() !== left_x || point.X() !== right_x) {
+						let preferLeft;
+						if (e.type === 'pointermove') {
+							const mouseX = gt.getMouseCoords(e).usrCoords[1];
+							preferLeft = Math.abs(mouseX - left_x) < Math.abs(mouseX - right_x);
+						} else if (e.type === 'keydown') {
+							preferLeft = e.key === 'ArrowLeft';
+						}
+
+						point.setPosition(JXG.COORDS_BY_USER, [
+							left_x < bbox[0] ? right_x : (preferLeft || right_x > bbox[2]) ? left_x : right_x,
+							y
 						]);
 					}
+				},
 
+				groupedPointDrag(gt, e) {
+					gt.graphObjectTypes.quadratic.adjustDragPosition(e, this, this.grouped_points);
 					gt.updateObjects();
 					gt.updateText();
 				},
 
-				createPoint(gt, x, y, paired_points) {
+				createPoint(gt, x, y, grouped_points) {
 					const point = gt.board.create('point', [x, y], {
 						size: 2, snapToGrid: true, snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, withLabel: false
 					});
-					if (typeof paired_points !== 'undefined' && paired_points.length) {
-						point.paired_points = [];
-						paired_points.forEach((paired_point) => {
-							point.paired_points.push(paired_point);
-							if (!paired_point.paired_points) {
-								paired_point.paired_points = [];
-								paired_point.on('drag', gt.graphObjectTypes.quadratic.pairedPointDrag);
+					if (typeof grouped_points !== 'undefined' && grouped_points.length) {
+						point.grouped_points = [];
+						grouped_points.forEach((paired_point) => {
+							point.grouped_points.push(paired_point);
+							if (!paired_point.grouped_points) {
+								paired_point.grouped_points = [];
+								paired_point.on('drag', gt.graphObjectTypes.quadratic.groupedPointDrag);
 							}
-							paired_point.paired_points.push(point);
+							paired_point.grouped_points.push(point);
 							if (!paired_point.eventHandlers.drag ||
 								paired_point.eventHandlers.drag.every((dragHandler) =>
-									dragHandler.handler !== gt.graphObjectTypes.quadratic.pairedPointDrag)
+									dragHandler.handler !== gt.graphObjectTypes.quadratic.groupedPointDrag)
 							)
-								paired_point.on('drag', gt.graphObjectTypes.quadratic.pairedPointDrag);
+								paired_point.on('drag', gt.graphObjectTypes.quadratic.groupedPointDrag);
 						});
-						point.on('drag', gt.graphObjectTypes.quadratic.pairedPointDrag, point);
+						point.on('drag', gt.graphObjectTypes.quadratic.groupedPointDrag, point);
 					}
 					return point;
 				}
@@ -155,7 +144,7 @@
 					gt.board.off('up');
 
 					this.point1 = gt.graphObjectTypes.quadratic.createPoint(coords[1], coords[2]);
-					this.point1.setAttribute({ fixed: true });
+					this.point1.setAttribute({ fixed: true, highlight: false });
 
 					// Get a new x coordinate that is to the right, unless that is off the board.
 					// In that case go left instead.
@@ -179,7 +168,7 @@
 					gt.board.off('up');
 
 					this.point2 = gt.graphObjectTypes.quadratic.createPoint(coords[1], coords[2], [this.point1]);
-					this.point2.setAttribute({ fixed: true });
+					this.point2.setAttribute({ fixed: true, highlight: false });
 
 					// Get a new x coordinate that is to the right, unless that is off the board.
 					// In that case go left instead.
@@ -228,54 +217,42 @@
 					if (this.point2) this.phase3(this.hlObjs.hl_point.coords.usrCoords);
 					else if (this.point1) this.phase2(this.hlObjs.hl_point.coords.usrCoords);
 					else this.phase1(this.hlObjs.hl_point.coords.usrCoords);
-				} else if (['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
-					if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-						// Make sure the highlight point is not moved onto the same vertical line as any of the other
-						// points that have already been created.
-						const others = [];
-						if (this.point1) others.push(this.point1);
-						if (this.point2) others.push(this.point2);
-
-						let x = this.hlObjs.hl_point.X();
-						while (others.some((other) => x === other.X()))
-							x += (e.key === 'ArrowRight' ? 1 : -1) * gt.snapSizeX;
-
-						// If the computed new x coordinate is off the board,
-						// then we need to move the point back instead.
-						const boundingBox = gt.board.getBoundingBox();
-						if (x < boundingBox[0] || x > boundingBox[2]) {
-							x = this.hlObjs.hl_point.X();
-							while (others.some((other) => x === other.X()))
-								x += (e.key === 'ArrowRight' ? -1 : 1) * gt.snapSizeX;
-						}
-
-						if (x !== this.hlObjs.hl_point.X())
-							this.hlObjs.hl_point.setPosition(JXG.COORDS_BY_USER, [x, this.hlObjs.hl_point.Y()]);
-					}
-
-					this.updateHighlights(this.hlObjs.hl_point.coords);
 				}
 			},
 
-			updateHighlights(gt, coords) {
-				if (this.hlObjs.hl_line) this.hlObjs.hl_line.setAttribute({ dash: gt.drawSolid ? 0 : 2 });
-				if (this.hlObjs.hl_quadratic) this.hlObjs.hl_quadratic.setAttribute({ dash: gt.drawSolid ? 0 : 2 });
+			updateHighlights(gt, e) {
+				this.hlObjs.hl_line?.setAttribute({ dash: gt.drawSolid ? 0 : 2 });
+				this.hlObjs.hl_quadratic?.setAttribute({ dash: gt.drawSolid ? 0 : 2 });
 				this.hlObjs.hl_point?.rendNode.focus();
 
-				if (typeof coords === 'undefined') return;
+				let coords;
+				if (e instanceof MouseEvent && e.type === 'pointermove') {
+					coords = gt.getMouseCoords(e);
+					this.hlObjs.hl_point?.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+				} else if (e instanceof KeyboardEvent && e.type === 'keydown') {
+					coords = this.hlObjs.hl_point.coords;
+				} else if (e instanceof JXG.Coords) {
+					coords = e;
+					this.hlObjs.hl_point?.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+				} else
+					return false;
 
-				const new_x = gt.snapRound(coords.usrCoords[1], gt.snapSizeX);
-				if ((this.point1 && new_x == this.point1.X()) || (this.point2 && new_x == this.point2.X())) return;
-
-				if (this.hlObjs.hl_point) {
-					this.hlObjs.hl_point.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
-				} else {
+				if (!this.hlObjs.hl_point) {
 					this.hlObjs.hl_point = gt.board.create('point', [coords.usrCoords[1], coords.usrCoords[2]], {
 						size: 2, color: gt.color.underConstruction, snapToGrid: true,
 						snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY,
 						highlight: false, withLabel: false
 					});
 					this.hlObjs.hl_point.rendNode.focus();
+				}
+
+				// Make sure the highlight point is not moved off the board or onto the same
+				// vertical line as any of the other points that have already been created.
+				if (e instanceof Event) {
+					const groupedPoints = [];
+					if (this.point1) groupedPoints.push(this.point1);
+					if (this.point2) groupedPoints.push(this.point2);
+					gt.graphObjectTypes.quadratic.adjustDragPosition(e, this.hlObjs.hl_point, groupedPoints)
 				}
 
 				if (this.point2 && !this.hlObjs.hl_quadratic) {

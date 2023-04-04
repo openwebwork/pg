@@ -177,21 +177,6 @@
 				else this.setFiniteEndPoint(1);
 			},
 
-			handleKeyEvent(gt, e, el) {
-				if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
-
-				if (el.id === this.focusPoint.id) {
-					// Make sure the point stays at a height of 0.
-					if (el.Y() !== 0) el.setPosition(JXG.COORDS_BY_USER, [el.X(), 0]);
-					// Make sure that one point is not moved on top of the other.
-					gt.keyboardMovementAdjust(
-						e.key,
-						el,
-						el.id === this.definingPts[0].id ? this.definingPts[1] : this.definingPts[0]
-					);
-				}
-			},
-
 			stringify(gt) {
 				const leftEndPoint =
 					this.definingPts[0].X() < this.definingPts[1].X() ? this.definingPts[0] : this.definingPts[1];
@@ -348,37 +333,11 @@
 			},
 
 			helperMethods: {
-				// Prevent paired points from being moved into the same position by a drag.
-				// This also prevents a point from being moved off the board.
-				// This ignores the y-coordinate.
-				pairedPointDrag(gt, point, e) {
-					if (e.type === 'keydown') return;
-
-					const bbox = gt.board.getBoundingBox();
-					if (point.X() >= bbox[2]) {
-						if (point.paired_point.X() === bbox[2])
-							point.setPosition(JXG.COORDS_BY_USER, [bbox[2] - gt.snapSizeX, 0]);
-						else if (point.X() > bbox[2])
-							point.setPosition(JXG.COORDS_BY_USER, [bbox[2], 0]);
-					}
-					if (point.X() <= bbox[0]) {
-						if (point.paired_point.X() === bbox[0])
-							point.setPosition(JXG.COORDS_BY_USER, [bbox[0] + gt.snapSizeX, 0]);
-						else if (point.X() < bbox[0])
-							point.setPosition(JXG.COORDS_BY_USER, [bbox[0], 0]);
-					}
-
-					if (point.X() == point.paired_point.X()) {
-						const coords = gt.getMouseCoords(e);
-						if (coords.usrCoords[1] > point.paired_point.X())
-							point.setPosition(JXG.COORDS_BY_USER, [point.X() + gt.snapSizeX, 0]);
-						else
-							point.setPosition(JXG.COORDS_BY_USER, [point.X() - gt.snapSizeX, 0]);
-					}
-
-					// Make sure the point stays at a height of 0.
+				// gt.adjustDragPosition prevents paired points from being moved into the same position by a drag, and
+				// prevents a point from being moved off the board.  This also ensures that the y coordinate stays at 0.
+				pairedPointDrag(gt, e, point) {
+					gt.adjustDragPositionRestricted(e, point, point.paired_point);
 					if (point.Y() !== 0) point.setPosition(JXG.COORDS_BY_USER, [point.X(), 0]);
-
 					gt.updateObjects();
 					gt.updateText();
 				},
@@ -394,8 +353,8 @@
 					if (typeof paired_point !== 'undefined') {
 						point.paired_point = paired_point;
 						paired_point.paired_point = point;
-						paired_point.on('drag', (e) => gt.graphObjectTypes.interval.pairedPointDrag(paired_point, e));
-						point.on('drag', (e) => gt.graphObjectTypes.interval.pairedPointDrag(point, e));
+						paired_point.on('drag', (e) => gt.graphObjectTypes.interval.pairedPointDrag(e, paired_point));
+						point.on('drag', (e) => gt.graphObjectTypes.interval.pairedPointDrag(e, point));
 					}
 					if (!gt.options.useBracketEnds) return point;
 
@@ -498,6 +457,7 @@
 						fillColor: gt.toolTypes.IncludeExcludePointTool.include
 							? gt.color.underConstructionFixed
 							: 'transparent',
+						highlight: false,
 						snapToGrid: true,
 						snapSizeX: gt.snapSizeX,
 						snapSizeY: gt.snapSizeY,
@@ -596,21 +556,26 @@
 
 					if (this.point1) this.phase2(this.hlObjs.hl_point.coords.usrCoords);
 					else this.phase1(this.hlObjs.hl_point.coords.usrCoords);
-				} else if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
-					// Make sure the highlight point is not moved onto the other point.
-					if (this.point1) gt.keyboardMovementAdjust(e.key, this.hlObjs.hl_point, this.point1);
-					this.updateHighlights(this.hlObjs.hl_point.coords);
 				}
 			},
 
-			updateHighlights(gt, coords) {
+			updateHighlights(gt, e) {
 				this.hlObjs.hl_point?.setAttribute({
 					fillColor: gt.toolTypes.IncludeExcludePointTool.include ? gt.color.underConstruction : 'transparent'
 				});
 				this.hlObjs.hl_point?.rendNode.focus();
 
-				if (typeof coords === 'undefined' || !gt.boardHasPoint(coords)) return false;
-				if (this.point1 && gt.snapRound(coords.usrCoords[1], gt.snapSizeX) == this.point1.X()) return false;
+				let coords;
+				if (e instanceof MouseEvent && e.type === 'pointermove') {
+					coords = gt.getMouseCoords(e);
+					this.hlObjs.hl_point?.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+				} else if (e instanceof KeyboardEvent && e.type === 'keydown') {
+					coords = this.hlObjs.hl_point.coords;
+				} else if (e instanceof JXG.Coords) {
+					coords = e;
+					this.hlObjs.hl_point?.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+				} else
+					return false;
 
 				if (!this.hlObjs.hl_point) {
 					this.hlObjs.hl_point = gt.board.create(
@@ -659,8 +624,10 @@
 					}
 
 					this.hlObjs.hl_point.rendNode.focus();
-				} else
-					this.hlObjs.hl_point.setPosition(JXG.COORDS_BY_USER, [ coords.usrCoords[1], 0 ]);
+				}
+
+				// Make sure the highlight point is not moved of the board or onto the other point.
+				if (e instanceof Event) gt.adjustDragPositionRestricted(e, this.hlObjs.hl_point, this.point1);
 
 				if (this.point1 && !this.hlObjs.hl_segment) {
 					this.hlObjs.hl_segment = gt.board.create(
