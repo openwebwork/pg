@@ -225,8 +225,8 @@ sub load_js() {
 		ADD_JS_FILE('node_modules/mathquill/dist/mathquill.js', 0, { defer => undef });
 		ADD_JS_FILE('js/apps/MathQuill/mqeditor.js',            0, { defer => undef });
 	} elsif ($envir{useMathView}) {
-		ADD_JS_FILE("js/apps/MathView/$envir{mathViewLocale}");
-		ADD_JS_FILE('js/apps/MathView/mathview.js');
+		ADD_JS_FILE("js/apps/MathView/$envir{mathViewLocale}", 0, { defer => undef });
+		ADD_JS_FILE('js/apps/MathView/mathview.js',            0, { defer => undef });
 	}
 }
 
