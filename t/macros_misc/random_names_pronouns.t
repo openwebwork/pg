@@ -82,51 +82,42 @@ subtest 'Test options for randomPerson' => sub {
 	$tmp{ $persons[$_]->name } = $persons[$_]->name for (0 .. (scalar(@persons) - 1));
 	is scalar(keys(%tmp)), 5, 'check that the names are unique';
 
-	my ($a, $b, $c) = randomPerson(names => [ [ 'Bart', 'he' ], [ 'Lisa', 'she' ], [ 'Matty', 'they' ] ]);
-	is $a->name,    'Bart',   'Specifying the names of a random person';
-	is $a->subject, 'he',     'Specifying the pronoun of a random person';
-	is ref $a,      'Person', 'The random person is a Person object.';
+	my $p = randomPerson(names => [ [ 'Bart', 'he' ], [ 'Lisa', 'she' ], [ 'Matty', 'they' ] ]);
+	is ref $p,      'Person', 'The random person is a Person object.';
+	is $p->subject, 'he',     'Check for pronoun' if ($p->name eq 'Bart');
+	is $p->subject, 'she',    'Check for pronoun' if ($p->name eq 'Lisa');
+	is $p->subject, 'they',   'Check for pronoun' if ($p->name eq 'Matty');
 
-	is $b->name,    'Lisa',   'Specifying the names of a random person';
-	is $b->subject, 'she',    'Specifying the pronoun of a random person';
-	is ref $b,      'Person', 'The random person is a Person object.';
-
-	is $c->name,    'Matty',  'Specifying the names of a random person';
-	is $c->subject, 'they',   'Specifying the pronoun of a random person';
-	is ref $c,      'Person', 'The random person is a Person object.';
-
-	my ($p1, $p2, $p3) = randomPerson(names => [ 'Larry', 'Moe', 'Curly' ]);
-	is ref $p1,   'Person', 'The random person is a Person object.';
-	is $p1->name, 'Larry',  'Specifying the name of a random person';
+	my $p1 = randomPerson(names => [ 'Larry', 'Moe', 'Curly' ]);
+	is ref $p1, 'Person', 'The random person is a Person object.';
 	like $p1->subject, qr/she|he|they/, 'Making sure the pronoun is set.';
+
+	my @p2 = randomPerson(n => 2, names => [ [ 'Bart', 'he' ], [ 'Lisa', 'she' ], [ 'Matty', 'they' ] ]);
+	is scalar(@p2),            2,                      'randomPerson return correct number of Persons';
+	is [ map { ref $_ } @p2 ], [ 'Person', 'Person' ], 'testing randomPerson returns 2 Person object.';
+
 };
 
 subtest 'Test alternative API for randomPerson' => sub {
-	my ($a, $b, $c) = randomPerson(
+	my $p = randomPerson(
 		names => [
 			{ name => 'Bart',  pronoun => 'he' },
 			{ name => 'Lisa',  pronoun => 'she' },
 			{ name => 'Matty', pronoun => 'they' }
 		]
 	);
-	is $a->name,    'Bart',   'Specifying the names of a random person';
-	is $a->subject, 'he',     'Specifying the pronoun of a random person';
-	is ref $a,      'Person', 'The random person is a Person object.';
 
-	is $b->name,    'Lisa',   'Specifying the names of a random person';
-	is $b->subject, 'she',    'Specifying the pronoun of a random person';
-	is ref $b,      'Person', 'The random person is a Person object.';
+	is ref $p,      'Person', 'The random person is a Person object.';
+	is $p->subject, 'he',     'Check for pronoun' if ($p->name eq 'Bart');
+	is $p->subject, 'she',    'Check for pronoun' if ($p->name eq 'Lisa');
+	is $p->subject, 'they',   'Check for pronoun' if ($p->name eq 'Matty');
 
-	is $c->name,    'Matty',  'Specifying the names of a random person';
-	is $c->subject, 'they',   'Specifying the pronoun of a random person';
-	is ref $c,      'Person', 'The random person is a Person object.';
-
-	my @persons =
-		randomPerson(names => [ { name => 'Homer' }, { name => 'Marge', pronoun => 'she' }, { name => 'Barney' } ]);
-
-	is [ map { ref $_ } @persons ], [ 'Person', 'Person', 'Person' ], 'testing hashref with missing pronouns.';
-	is $persons[1]->name,           'Marge',                          '2nd person is Marge';
-	is $persons[1]->subject,        'she',                            "2nd person's subject pronoun is 'she'";
+	my @p2 = randomPerson(
+		n     => 2,
+		names => [ { name => 'Bart', pronoun => 'he' }, { name => 'Lisa', pronoun => 'she' }, { name => 'Matty' } ]
+	);
+	is scalar(@p2),            2,                      'randomPerson return correct number of Persons';
+	is [ map { ref $_ } @p2 ], [ 'Person', 'Person' ], 'testing randomPerson returns 2 Person object.';
 
 	like dies { randomPerson(names => [ { xxx => 'hi' } ]); }, qr/The field name must be passed in/,
 		'Make sure an error is thrown if the name is not passed in.';
