@@ -172,7 +172,7 @@ options:
   # The default grader to use, if a problem doesn't specify.
   grader: avg_problem_grader
 
-  # Note that the first of useMathQuill, useMathView, and useWirisEditor that is set (in that order) to 1 will be used.
+  # Note that the first of useMathQuill and useMathView that is set (in that order) to 1 will be used.
 
   # Set to 1 use MathQuill in answer boxes.
   useMathQuill: 1
@@ -182,9 +182,6 @@ options:
 
   # This is the operations file to use for mathview, each contains a different locale.
   mathViewLocale: mv_locale_us.js
-
-  # Set to 1 to show the WirisEditor preview system.
-  useWirisEditor: 0
 
   # Catch translation warnings internally.
   catchWarnings: 1
