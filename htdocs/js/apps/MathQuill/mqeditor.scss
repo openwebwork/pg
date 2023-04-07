@@ -28,6 +28,36 @@ input[type='text'].codeshard.mq-edit {
 	display: none !important;
 }
 
+.mq-latex-editor-container {
+	max-width: 100%;
+
+	.mq-latex-editor-inner-container {
+		max-width: calc(100% - 34px);
+		display: inline-block;
+
+		.latexentryfield {
+			border-top-right-radius: 0;
+		}
+
+		.collapse,
+		.card {
+			border-top-left-radius: 0;
+			border-top-right-radius: 0;
+		}
+
+		.mq-editable-field {
+			flex-grow: 1;
+		}
+	}
+
+	.mq-latex-editor-btn {
+		margin-left: 0;
+		vertical-align: top;
+		border-top-left-radius: 0;
+		border-bottom-left-radius: 0;
+	}
+}
+
 .quill-toolbar {
 	position: absolute;
 	font-size: 0.75em;
@@ -59,8 +89,7 @@ input[type='text'].codeshard.mq-edit {
 		background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
 		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075);
 
-		&:focus,
-		&.ui-visual-focus {
+		&:focus {
 			z-index: 9999;
 		}
 
