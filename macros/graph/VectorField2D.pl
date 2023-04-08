@@ -1,18 +1,12 @@
 sub _VectorField2D_init { };    # don't reload this file
 
-loadMacros("MathObjects.pl", "PGgraphmacros.pl");
+loadMacros('PGgraphmacros.pl');
 
 sub VectorField2D {
-
-###########################################
-	#
-	#  Set default options
-	#
-
 	my %options = (
-		graphobject     => $gr,
-		Fx              => Formula("1"),
-		Fy              => Formula("1"),
+		graphobject     => '',
+		Fx              => sub { return 1; },
+		Fy              => sub { return 1; },
 		xvar            => 'x',
 		yvar            => 'y',
 		xmin            => -5,
@@ -21,7 +15,7 @@ sub VectorField2D {
 		ymax            => 5,
 		xsamples        => 10,
 		ysamples        => 10,
-		vectorcolor     => "blue",
+		vectorcolor     => 'blue',
 		vectorscale     => 0.25,
 		vectorthickness => 2,
 		vectortipwidth  => 0.08,
@@ -31,83 +25,56 @@ sub VectorField2D {
 		@_
 	);
 
-	my $Fxsubroutine;
-	my $Fysubroutine;
-
-	$options{Fx}->perlFunction('Fxsubroutine', [ "$options{xvar}", "$options{yvar}" ]);
-	$options{Fy}->perlFunction('Fysubroutine', [ "$options{xvar}", "$options{yvar}" ]);
-
-######################################################
-	#
-	#  Generate plot data
-	#
-
-	my $dx = ($options{xmax} - $options{xmin}) / $options{xsamples};
-	my $dy = ($options{ymax} - $options{ymin}) / $options{ysamples};
-
-	my $xtail;
-	my $ytail;
-	my $FX;
-	my $FY;
-	my $xtip;
-	my $ytip;
-	my $xstem;
-	my $ystem;
-	my $xmidtip;
-	my $ymidtip;
-	my $xleftbarb;
-	my $xrightbarb;
-	my $yleftbarb;
-	my $yrightbarb;
-
-	foreach my $i (0 .. $options{xsamples}) {
-		$xtail[$i] = $options{xmin} + $i * $dx;
-		foreach my $j (0 .. $options{ysamples}) {
-			$ytail[$j] = $options{ymin} + $j * $dy;
-
-			if (($options{xavoid} == $xtail[$i]) && ($options{yavoid} == $ytail[$j])) {
-				$FX[$i][$j] = 0;
-				$FY[$i][$j] = 0;
-			} else {
-				$FX[$i][$j] = $options{vectorscale} * (Fxsubroutine($xtail[$i], $ytail[$j])->value);
-				$FY[$i][$j] = $options{vectorscale} * (Fysubroutine($xtail[$i], $ytail[$j])->value);
-			}
-
-			$xtip[$i][$j] = $xtail[$i] + $FX[$i][$j];
-			$ytip[$i][$j] = $ytail[$j] + $FY[$i][$j];
-
-			$xstem[$i][$j] = $xtail[$i] + $options{vectortiplength} * $FX[$i][$j];
-			$ystem[$i][$j] = $ytail[$j] + $options{vectortiplength} * $FY[$i][$j];
-
-			$xmidtip[$i][$j] = $xtail[$i] + (($options{vectortiplength} + 1) / 2) * $FX[$i][$j];
-			$ymidtip[$i][$j] = $ytail[$j] + (($options{vectortiplength} + 1) / 2) * $FY[$i][$j];
-
-			$xleftbarb[$i][$j] =
-				$xtail[$i] + $options{vectortiplength} * $FX[$i][$j] - $options{vectortipwidth} * $FY[$i][$j];
-			$yleftbarb[$i][$j] =
-				$ytail[$j] + $options{vectortiplength} * $FY[$i][$j] + $options{vectortipwidth} * $FX[$i][$j];
-
-			$xrightbarb[$i][$j] =
-				$xtail[$i] + $options{vectortiplength} * $FX[$i][$j] + $options{vectortipwidth} * $FY[$i][$j];
-			$yrightbarb[$i][$j] =
-				$ytail[$j] + $options{vectortiplength} * $FY[$i][$j] - $options{vectortipwidth} * $FX[$i][$j];
-
-			$options{graphobject}->moveTo($xtail[$i], $ytail[$j]);
-		#  $options{graphobject}->lineTo($xstem[$i][$j],$ystem[$i][$j],$options{vectorcolor},$options{vectorthickness});
-			$options{graphobject}
-				->lineTo($xtip[$i][$j], $ytip[$i][$j], $options{vectorcolor}, $options{vectorthickness});
-
-			$options{graphobject}->moveTo($xleftbarb[$i][$j], $yleftbarb[$i][$j]);
-			$options{graphobject}
-				->lineTo($xtip[$i][$j], $ytip[$i][$j], $options{vectorcolor}, $options{vectorthickness});
-			$options{graphobject}
-				->lineTo($xrightbarb[$i][$j], $yrightbarb[$i][$j], $options{vectorcolor}, $options{vectorthickness});
-#  $options{graphobject}->lineTo($xleftbarb[$i][$j],$yleftbarb[$i][$j],$options{vectorcolor},$options{vectorthickness});
-#  $options{graphobject}->fillRegion([$xmidtip[$i][$j],$ymidtip[$i][$j],$options{vectorcolor}]);
-
-		}
+	my $gr = $options{graphobject};
+	unless (ref($gr) eq 'WWPlot') {
+		warn 'VectorField2D: Invalid graphobject provided.';
+		return;
 	}
 
+	my $Fx = $options{Fx};
+	my $Fy = $options{Fy};
+	if (Value::isFormula($Fx)) {
+		$Fx = $Fx->perlFunction('', [ "$options{xvar}", "$options{yvar}" ]);
+	} elsif (ref($Fx) ne 'CODE') {
+		warn 'VectorField2D: Invalid function Fx provided.';
+		return;
+	}
+	if (Value::isFormula($Fy)) {
+		$Fy = $Fy->perlFunction('', [ "$options{xvar}", "$options{yvar}" ]);
+	} elsif (ref($Fy) ne 'CODE') {
+		warn 'VectorField2D: Invalid function Fy provided.';
+		return;
+	}
+
+	# Generate plot data
+	my $dx    = ($options{xmax} - $options{xmin}) / $options{xsamples};
+	my $dy    = ($options{ymax} - $options{ymin}) / $options{ysamples};
+	my $xtail = $options{xmin} - $dx;
+	for (0 .. $options{xsamples}) {
+		$xtail += $dx;
+		my $ytail = $options{ymin} - $dy;
+		for (0 .. $options{ysamples}) {
+			$ytail += $dy;
+			next if ($options{xavoid} == $xtail && $options{yavoid} == $ytail);
+
+			my $Deltax     = $options{vectorscale} * &$Fx($xtail, $ytail);
+			my $Deltay     = $options{vectorscale} * &$Fy($xtail, $ytail);
+			my $xtip       = $xtail + $Deltax;
+			my $ytip       = $ytail + $Deltay;
+			my $xstem      = $xtail + $options{vectortiplength} * $Deltax;
+			my $ystem      = $ytail + $options{vectortiplength} * $Deltay;
+			my $xleftbarb  = $xstem - $options{vectortipwidth} * $Deltay;
+			my $yleftbarb  = $ystem + $options{vectortipwidth} * $Deltax;
+			my $xrightbarb = $xstem + $options{vectortipwidth} * $Deltay;
+			my $yrightbarb = $ystem - $options{vectortipwidth} * $Deltax;
+
+			$gr->moveTo($xtail, $ytail);
+			$gr->lineTo($xtip, $ytip, $options{vectorcolor}, $options{vectorthickness});
+			$gr->moveTo($xleftbarb, $yleftbarb);
+			$gr->lineTo($xtip,       $ytip,       $options{vectorcolor}, $options{vectorthickness});
+			$gr->lineTo($xrightbarb, $yrightbarb, $options{vectorcolor}, $options{vectorthickness});
+		}
+	}
 }
 
 1;
