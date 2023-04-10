@@ -243,8 +243,10 @@ sub new {
 		maxLabelSize     => 25,
 		noindex          => 0,
 		checkedI         => [],
+		localLabels      => 0,
 		@inputs
 	);
+	$options{originalLabels} = $options{labels};
 
 	my $context = Parser::Context->getCopy('Numeric');
 
@@ -325,6 +327,7 @@ sub addLabels {
 		if (ref($choices->[$_]) eq 'HASH') {
 			my $key = (keys %{ $choices->[$_] })[0];
 			$labels->[$_] = $key;
+			$self->{localLabels} = 1;
 			if (ref($choices->[$_]{$key}) eq 'ARRAY') {
 				$values[$_] = $choices->[$_]{$key}[1];
 				$choices->[$_] = $choices->[$_]{$key}[0];
@@ -412,7 +415,8 @@ sub flattenChoices {
 # Format a label using the user-provided format string
 sub labelFormat {
 	my ($self, $label) = @_;
-	return ''   unless $label || $self->{forceLabelFormat};
+	return '' unless $label || $self->{forceLabelFormat};
+	return '' if $main::displayMode eq 'PTX';
 	$label = '' unless defined $label;
 	return sprintf($self->{labelFormat}, $self->protect($label));
 }
@@ -566,10 +570,30 @@ sub CHECKS {
 		$checks[-1] .= "\n\\end{itemize}\n";
 	}
 
-	# FIXME: Alex, what is needed here?
 	if ($main::displayMode eq 'PTX') {
-		$checks[0] = qq{<var form="buttons" name="$name">\n$checks[0]};
-		$checks[-1] .= '</var>';
+
+		# Do we want an ol, ul, or dl?
+		my $list_type      = 'ul';
+		my $marker         = '';
+		my $originalLabels = $self->{originalLabels};
+		if ($originalLabels =~ m/^(123|abc|roman)$/i) {
+			$list_type = 'ol';
+			$marker    = "1" if $originalLabels eq '123';
+			$marker    = "a" if $originalLabels eq 'abc';
+			$marker    = "A"
+				if uc($originalLabels) eq 'ABC' && $originalLabels ne 'abc';
+			$marker = "i" if $originalLabels eq 'roman';
+			$marker = "I"
+				if uc($originalLabels) eq 'ROMAN' && $originalLabels ne 'roman';
+		} elsif ($self->{localLabels} || ref $originalLabels eq 'ARRAY') {
+			$list_type = 'dl';
+			my %checks_to_labels = map { $checks[$_] => $self->{labels}[$_] } (0 .. $#{ $self->{orderedChoices} });
+			map {s/^(<li.*?>)/$1<title>$checks_to_labels{$_}<\/title>/g} @checks;
+		}
+		$marker = ($marker ne '') ? qq{ marker="$marker."} : '';
+		$checks[0] = qq{<$list_type$marker name="$name">\n$checks[0]};
+		$checks[-1] .= "</$list_type>";
+
 		# Change math delimiters
 		@checks = map { $_ =~ s/\\\(/<m>/gr } @checks;
 		@checks = map { $_ =~ s/\\\)/<\/m>/gr } @checks;
