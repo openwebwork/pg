@@ -109,7 +109,7 @@ sub VectorField2D {
 	);
 
 	my $gr = $options{graphobject};
-	unless (ref($gr) eq 'WWPlot') {
+	unless (ref($gr) eq 'WWPlot' || ref($gr) eq 'PGplot') {
 		warn 'VectorField2D: Invalid graphobject provided.';
 		return;
 	}
@@ -128,6 +128,9 @@ sub VectorField2D {
 		warn 'VectorField2D: Invalid function Fy provided.';
 		return;
 	}
+
+	# Takes to long to render this field using Tikz, force GD output.
+	$gr->image_type('GD') if (ref($gr) eq 'PGplot');
 
 	# Generate plot data
 	my $dx    = ($options{xmax} - $options{xmin}) / $options{xsamples};
