@@ -50,7 +50,7 @@ checkbox.
 
 The values set as described above are the answers that will be displayed in the
 past answers table.  See the C<values> option below for more information.
-Problem authors are encourages to set these values either as described above, or
+Problem authors are encouraged to set these values either as described above, or
 via the C<values> option.  This is useful for instructors viewing past answers.
 
 By default, the choices are left in the order that you provide them, but you can
@@ -98,7 +98,7 @@ choices in their original order (though the C<< { label => text } >> form is
 preferred).
 
 Default: labels are the text of the choice when they don't include any special
-characters, and "Button 1", "Button 2", etc., otherwise.
+characters, and "Choice 1", "Choice 2", etc., otherwise.
 
 =item C<S<< values => array reference >>>
 
