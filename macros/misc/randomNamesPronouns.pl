@@ -36,15 +36,15 @@ The variable C<$p1> is now a C<Person> object with methods to access the names, 
 and verb conjugation.  It is can be used within a problem as
 
     BEGIN_PGML
-    [$p1->name] travels 1.5 miles to school.  
-    After school, [$p1->subject] [$p1->gogoes] to work.  
-    [$p1->Possessive] dog greets [$p1->object] when [$p1->subject] [$p1->verb('get')] home.  
+    [$p1->name] travels 1.5 miles to school.
+    After school, [$p1->subject] [$p1->gogoes] to work.
+    [$p1->Possessive] dog greets [$p1->object] when [$p1->subject] [$p1->verb('get')] home.
     The books on the table are [$p1->possession].
     END_PGML
 
 Additionally, you can specify names/pronouns if you like.  For example
 
-    $p1 = randomPerson(names => [['Bart', 'he'], ['Lisa', 'she']]);
+    $p1 = randomPerson(names => [['Bart' => 'he'], ['Lisa' => 'she']]);
 
 or without the pronouns which will be assigned randomly beteween he/she/they:
 
@@ -324,14 +324,14 @@ returns an array of 5 Person objects with unique names.
 =item * C<S<< names => arrayref >>> returns either a single Person or array of Persons
 from the given names
 
-If the arrayref is in the form of C<[['name1','pronoun1'],['name2','pronoun2'],...]> then
+If the arrayref is in the form of C<S<< [['name1' => 'pronoun1'],['name2' => 'pronoun2'], ...] >>> then
 a person selected randomly from the given list is returned.
 
 Example:
 
-    $a = randomPerson(names => [[Bart => 'he'], [Lisa => 'she'], [Matty => 'they']]);
+    $a = randomPerson(names => [[ Bart => 'he' ], [ Lisa => 'she' ], [ Matty => 'they' ]]);
 
-Alternatively, each person name/pronoun can be set as an arrayref.
+Alternatively, each person name/pronoun can be set as an hashref.
 For example the above can be written:
 
     $a = randomPerson(names => [
@@ -344,13 +344,13 @@ If the pronoun is missing using either arrayrefs or hashrefs, then a pronoun is 
 Each of the following are legal
 
     $p1 = randomPerson( names => ['Larry', 'Moe', 'Curly']);
-    $p2 = randomPerson( names => ['Larry', [Moe => 'he'], 'Curly']);
+    $p2 = randomPerson( names => ['Larry', [ Moe => 'he' ], 'Curly']);
     $p3 = randomPerson( names => [{ name => 'Larry'}, { name => 'Moe' }, { name => 'Curly' }]);
     $p4 = randomPerson( names => [{ name => 'Larry'}, { name => 'Moe', pronoun => 'he' }, { name => 'Curly' }]);
 
 And the option C<n> can be used to return an array with that number of persons.
 
-    @p = randomPerson(n => 2, names => [[Bart => 'he'], [Lisa => 'she'], [Matty => 'they']]);
+    @p = randomPerson(n => 2, names => [[ Bart => 'he' ], [ Lisa => 'she' ], [ Matty => 'they' ]]);
 
 =back
 
@@ -419,6 +419,8 @@ package Person;
 
 sub new {
 	my ($class, %opts) = @_;
+	die "The field 'pronoun' must be passed in." unless defined($opts{pronoun});
+
 	my @v = grep { $opts{pronoun} eq $_ } qw/he she they/;
 	die "The pronoun must be either 'he', 'she' or 'they'. You passed in $opts{pronoun}"
 		if scalar(@v) != 1;
@@ -580,13 +582,13 @@ returns 'find'
 If a second argument is passed, it should be the third person singular conjugation
 of the same verb (the "he/she" version). For example:
 
-  $p1 = new Person(name => 'Roger', pronoun => 'he');
-  $p1->verb('fly', 'flies');
+    $p1 = new Person(name => 'Roger', pronoun => 'he');
+    $p1->verb('fly', 'flies');
 
 returns 'flies'
 
-  $p2 = new Person(name => 'Max', pronoun 'they');
-  $p2->verb('fly', 'flies');
+    $p2 = new Person(name => 'Max', pronoun 'they');
+    $p2->verb('fly', 'flies');
 
 returns 'fly'
 
@@ -603,17 +605,41 @@ sub verb {
 	}
 }
 
+=head3 C<dodoes>
+
+Returns the correct conjugation of to do
+
+=cut
+
 sub dodoes {
 	return shift->verb('do', 'does');
 }
+
+=head3 C<areis>
+
+Returns the correct conjugation of to be
+
+=cut
 
 sub areis {
 	return shift->verb('are', 'is');
 }
 
+=head3 C<gogoes>
+
+Returns the correct conjugation of to go
+
+=cut
+
 sub gogoes {
 	return shift->verb('go', 'goes');
 }
+
+=head3 C<havehas>
+
+Returns the correct conjugation of to have
+
+=cut
 
 sub havehas {
 	return shift->verb('have', 'has');
