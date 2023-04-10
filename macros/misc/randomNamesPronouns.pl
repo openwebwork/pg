@@ -5,7 +5,7 @@ randomNamesPronouns.pl - Load macros for random names.
 
 =head2 SYNOPSIS
 
-  loadMacros('randomNamesPronouns.pl');
+    loadMacros('randomNamesPronouns.pl');
 
 =head2 DESCRIPTION
 
@@ -26,35 +26,33 @@ in the United States in 2020.
 
 First load the C<randomNamesPronouns> macro with
 
-  loadMacros('randomNamesPronouns.pl');
+    loadMacros('randomNamesPronouns.pl');
 
 and then call the randomPerson subroutine
 
-  $p1 = randomPerson();
+    $p1 = randomPerson();
 
 The variable C<$p1> is now a C<Person> object with methods to access the names, pronouns
 and verb conjugation.  It is can be used within a problem as
 
-  BEGIN_PGML
-  [$p1->name] [@ $p1->verb('travel') @] 1.5 miles to school.  After school,
-  [$p1->subject] then [@$p1->verb('goes','go')@] to work.
-
-  [$p1->possession] dog greets [$p1->object] when [$p1->object] gets home.
-
-  The books on the table are [$p1->possessive].
-  END_PGML
+    BEGIN_PGML
+    [$p1->name] travels 1.5 miles to school.  
+    After school, [$p1->subject] [$p1->gogoes] to work.  
+    [$p1->Possessive] dog greets [$p1->object] when [$p1->subject] [$p1->verb('get')] home.  
+    The books on the table are [$p1->possession].
+    END_PGML
 
 Additionally, you can specify names/pronouns if you like.  For example
 
-  $p1 = randomPerson(names => [['Bart', 'he'], ['Lisa', 'she']]);
+    $p1 = randomPerson(names => [['Bart', 'he'], ['Lisa', 'she']]);
 
 or without the pronouns which will be assigned randomly beteween he/she/they:
 
-  $p2 = randomPerson(names => ['Bart', 'Lisa']);
+    $p2 = randomPerson(names => ['Bart', 'Lisa']);
 
 And if you would like multiple people to be randomly choosen with unique names, then
 
-  @persons = randomPerson(n => 4);
+    @persons = randomPerson(n => 4);
 
 generates an array of 4 C<Person> objects.
 
@@ -313,13 +311,13 @@ Returns a person as a Person object from a list in the macro.
 
 Example
 
-  randomPerson()
+    randomPerson()
 
 =item * C<S<< n => k >>> returns an array of k Person objects with unique names.
 
 Example
 
-  randomPerson(n=>5)
+    randomPerson(n=>5)
 
 returns an array of 5 Person objects with unique names.
 
@@ -331,26 +329,28 @@ a person selected randomly from the given list is returned.
 
 Example:
 
-  $a = randomPerson(names => [['Bart','he'], ['Lisa','she'], ['Matty','they']]);
+    $a = randomPerson(names => [[Bart => 'he'], [Lisa => 'she'], [Matty => 'they']]);
 
-Alternatively, each person name/pronoun can be set as an arrayref.  For example the above can be written:
+Alternatively, each person name/pronoun can be set as an arrayref.
+For example the above can be written:
 
-  $a = randomPerson(names => [
-    { name => 'Bart', pronoun => 'he' },
-    { name => 'Lisa', pronoun => 'she' },
-    { name => 'Matty', pronoun => 'they' } ]);
+    $a = randomPerson(names => [
+        { name => 'Bart', pronoun => 'he' },
+        { name => 'Lisa', pronoun => 'she' },
+        { name => 'Matty', pronoun => 'they' }
+    ]);
 
 If the pronoun is missing using either arrayrefs or hashrefs, then a pronoun is determined randomly.
 Each of the following are legal
 
-  $p1 = randomPerson( names => ['Larry', 'Moe', 'Curly']);
-  $p2 = randomPerson( names => ['Larry', ['Moe', 'he'], 'Curly']);
-  $p3 = randomPerson( names => [{ name => 'Larry'}, { name => 'Moe' }, { name => 'Curly' }]);
-  $p4 = randomPerson( names => [{ name => 'Larry'}, { name => 'Moe', pronoun => 'he' }, { name => 'Curly' }]);
+    $p1 = randomPerson( names => ['Larry', 'Moe', 'Curly']);
+    $p2 = randomPerson( names => ['Larry', [Moe => 'he'], 'Curly']);
+    $p3 = randomPerson( names => [{ name => 'Larry'}, { name => 'Moe' }, { name => 'Curly' }]);
+    $p4 = randomPerson( names => [{ name => 'Larry'}, { name => 'Moe', pronoun => 'he' }, { name => 'Curly' }]);
 
 And the option C<n> can be used to return an array with that number of persons.
 
-  @p = randomPerson(n => 2, names => [['Bart','he'], ['Lisa','she'], ['Matty','they']]);
+    @p = randomPerson(n => 2, names => [[Bart => 'he'], [Lisa => 'she'], [Matty => 'they']]);
 
 =back
 
@@ -383,13 +383,14 @@ sub randomPerson {
 
 This returns a random last name based on popular last names in the United States.  Example
 
-  $p = randomLastName();
+    $p = randomLastName();
 
-Note: it is just a string, and doesn't have the pronouns that the Person object does.
+Note it is just a string, and doesn't have the pronouns that the Person object does.
 
-If a number is passed in the form C<S<< n => k >>>, then k unique last names are returned.
+If an array is requested and a number is passed in the form C<S<< n => k >>> (which defaults to 1),
+then an array of k unique last names is returned.
 
-  @lastnames = randomLastName(n=>4);
+    @lastnames = randomLastName(n => 4);
 
 generates 4 unique last names.
 
@@ -406,13 +407,12 @@ sub randomLastName {
 
 This makes a Person object to handle name and pronouns of a Person.
 
-Make a person with
+Make a Person with
 
-  Person->new(name => 'Roger', pronoun => 'he')
+    Person->new(name => 'Roger', pronoun => 'he')
 
-as an example. This is often used with the C<randomPerson> method which returns a blessed Person object
-which can be used in problems to write a problem with a random name with pronouns
-and verb conjugation.
+for example. This is used by the C<randomPerson> method which returns a blessed Person object
+which can be used to write a problem with a random name with pronouns and verb conjugation.
 
 =cut
 
@@ -436,9 +436,8 @@ sub new {
 
 This returns the name of the person.
 
-  $p = new Person(name => 'Roger', pronoun => 'he');
-
-  $p->name;
+    $p = new Person(name => 'Roger', pronoun => 'he');
+    $p->name;
 
 returns the name 'Roger'.
 
@@ -450,7 +449,7 @@ sub name { return shift->{name}; }
 
 This returns the subject pronoun as a lower case.
 
-  $p->subject;
+    $p->subject;
 
 returns the pronoun. In this case 'he'.
 
@@ -462,7 +461,7 @@ sub subject { return shift->{pronoun}; }
 
 This returns the subject pronoun as an upper case.
 
-  $p->Subject;
+    $p->Subject;
 
 returns the upper case pronoun. In this case 'He'.
 
@@ -474,7 +473,7 @@ sub Subject { return ucfirst(shift->{pronoun}); }
 
 This returns the possessive adjective
 
-  $p->possessive;
+    $p->possessive;
 
 returns (his, her, their) for the pronouns (he/she/they)
 
@@ -489,7 +488,7 @@ sub possessive {
 
 This returns the captilized possessive adjective
 
-  $p->Possessive;
+    $p->Possessive;
 
 returns (His, Her, Their) for the pronouns (he/she/they)
 
@@ -503,7 +502,7 @@ sub Possessive {
 
 This returns the possessive pronoun
 
-  $p->possession;
+    $p->possession;
 
 returns (his, hers, theirs) for the pronouns (he/she/they)
 
@@ -518,7 +517,7 @@ sub possession {
 
 This returns the capitalized versions of possessive pronoun
 
-  $p->Possession;
+    $p->Possession;
 
 returns (His, Hers, Theirs) for the pronouns (he/she/they)
 
@@ -532,7 +531,7 @@ sub Possession {
 
 This returns the object pronoun
 
-  $p->object;
+    $p->object;
 
 returns (him, her, them) for the pronouns (he/she/they)
 
@@ -547,7 +546,7 @@ sub object {
 
 This returns the captilized object pronoun
 
-  $p->Object;
+    $p->Object;
 
 returns (Him, Her, Them) for the pronouns (he/she/they)
 
@@ -559,37 +558,32 @@ sub Object {
 
 =head2 verb
 
-Returns the correct conjugation of the verb.  If only one verb is passed in, it should
-be regular and the plural (without an s) version.
+Returns the correct conjugation of the verb. If only one argument is passed in, it should
+be a regular verb in the third person plural conjugation (the "they" version). For example:
 
-For example
+    $p1 = new Person(name => 'Roger', pronoun => 'he');
+    $p1->verb('find');
 
-  $p1 = new Person(name => 'Roger', pronoun => 'he');
-  $p2 = new Person(name => 'Max', pronoun => 'they');
+returns 'finds'. All that happens is an 's' or an 'es' is appended, according to some
+simple heuristics.
 
-  $p1->verb('find');
-
-returns 'finds'
-
-  $p2->verb('find')
+    $p2 = new Person(name => 'Max', pronoun => 'they');
+    $p2->verb('find')
 
 returns 'find'
 
-If two arguments are passed in, they should be the singular and plural forms of the
-verbs in that order.
-
-For example if
+If a second argument is passed, it should be the third person singular conjugation
+of the same verb (the "he/she" version). For example:
 
   $p1 = new Person(name => 'Roger', pronoun => 'he');
+  $p1->verb('fly', 'flies');
+
+returns 'flies'
+
   $p2 = new Person(name => 'Max', pronoun 'they');
+  $p2->verb('fly', 'flies');
 
-  $p1->verb('is', 'are');
-
-returns 'is'
-
-  $p2->verb('is', 'are');
-
-returns C<'are'>
+returns 'fly'
 
 =cut
 
