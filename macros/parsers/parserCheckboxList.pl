@@ -79,23 +79,25 @@ The C<options> are taken from the following list:
 
 =over
 
-=item C<S<< labels => "123", "ABC", "text", or [label1, ...] >>>
+=item C<S<< labels => "123", "abc", "ABC", "roman", "Roman", "text", or [label1, ...] >>>
 
 Labels are used to replace the text of the choice in the student and correct
 answers, and can also be shown just before the choice text (if C<displayLabels>
 is set).  If the value is C<"123"> then the choices will be labeled with numbers
 (the choices will be numbered sequentially after they have been randomized).  If
-the value is C<"ABC"> then the choices will be labeled with capital letters
-after they have been randomized.  If the value is C<"text"> then the button text
-is used (note, however, that if the text contains things like math or formatting
-or special characters, these may not display well in the student and correct
-answer columns of the results table).
+the value is C<"abc"> or C<ABC"> then the choices will be labeled with lowercase
+or capital letters after they have been randomized. You can only have up to
+26 choices. If the value is C<"roman"> or C<"Roman"> then the choices will be
+labeled with lowercase or capital Roman numerals, also capped at 26 for symmetry.
+If the value is C<"text"> then the button text is used (note, however, that if
+the text contains things like math or formatting or special characters, these may
+not display well in the student and correct answer columns of the results table).
 
 If any choices have explicit labels (via C<< { label => text } >>), those labels
 will be used instead of the automatic number or letter (and the number or letter
-will be skipped).  The third form allows you to specify labels for each of the
-choices in their original order (though the C<< { label => text } >> form is
-preferred).
+will be skipped).  The C<[label1, ...]> form allows you to specify labels for
+each of the choices in their original order (though the C<< { label => text } >>
+form is preferred).
 
 Default: labels are the text of the choice when they don't include any special
 characters, and "Choice 1", "Choice 2", etc., otherwise.
@@ -292,14 +294,24 @@ sub addLabels {
 
 	my $choices = $self->{orderedChoices};
 	my $labels  = $self->{labels};
-	$labels = [ 1 .. $self->{n} ]                        if $labels eq '123';
-	$labels = [ @main::ALPHABET[ 0 .. $self->{n} - 1 ] ] if uc($labels) eq 'ABC';
-	$labels = []                                         if $labels eq 'text';
+	my @roman =
+		qw(i ii iii iv v vi vii viii ix x xi xii xiii xiv xv xvi xvii xviii xix xx xxi xxii xxiii xxiv xxv xxvi);
+	$labels = [ 1 .. $self->{n} ] if $labels eq '123';
+	$labels = [ map { lc($_) } @main::ALPHABET[ 0 .. $self->{n} - 1 ] ]
+		if $labels eq 'abc';
+	$labels = [ @main::ALPHABET[ 0 .. $self->{n} - 1 ] ]
+		if uc($labels) eq 'ABC' && $labels ne 'abc';
+	$labels = [ @roman[ 0 .. $self->{n} - 1 ] ] if $labels eq 'roman';
+	$labels = [ map { uc($_) } @roman[ 0 .. $self->{n} - 1 ] ]
+		if uc($labels) eq 'ROMAN' && $labels ne 'roman';
+	$labels = [] if $labels eq 'text';
 
 	if (ref($labels) ne 'ARRAY') {
 		my $replace = $labels ne 'auto';
 		if (!$replace) {
-			for (@$choices) { $replace = 1 if $_ =~ m/[^-+.,;:()!\[\]a-z0-9 ]/i }
+			for (@$choices) {
+				$replace = 1 if $_ =~ m/[^-+.,;:()!\[\]a-z0-9 ]/i;
+			}
 		}
 		$labels                = [ map {"Choice $_"} (1 .. $self->{n}) ] if $replace;
 		$self->{displayLabels} = 0                                       if $self->{displayLabels} eq 'auto';
