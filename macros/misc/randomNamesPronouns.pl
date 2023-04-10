@@ -422,7 +422,7 @@ sub new {
 	my @v = grep { $opts{pronoun} eq $_ } qw/he she they/;
 	die "The pronoun must be either 'he', 'she' or 'they'. You passed in $opts{pronoun}"
 		if scalar(@v) != 1;
-	die 'The field name must be passed in' unless defined($opts{name});
+	die 'The field "name" must be passed in' unless defined($opts{name});
 	my $self = {
 		name    => $opts{name},
 		pronoun => $opts{pronoun}
@@ -442,7 +442,9 @@ returns the name 'Roger'.
 
 =cut
 
-sub name { return shift->{name}; }
+sub name {
+	return shift->{name};
+}
 
 =head2 subject
 
@@ -454,7 +456,9 @@ returns the pronoun. In this case 'he'.
 
 =cut
 
-sub subject { return shift->{pronoun}; }
+sub subject {
+	return shift->{pronoun};
+}
 
 =head2 Subject
 
@@ -466,7 +470,9 @@ returns the upper case pronoun. In this case 'He'.
 
 =cut
 
-sub Subject { return ucfirst(shift->{pronoun}); }
+sub Subject {
+	return ucfirst(shift->{pronoun});
+}
 
 =head2 possessive
 
