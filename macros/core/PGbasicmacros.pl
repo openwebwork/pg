@@ -2839,7 +2839,10 @@ sub image {
 			next;
 		}
 		$image_item = insertGraph($image_item)
-			if (ref $image_item eq 'WWPlot' || ref $image_item eq 'PGlateximage' || ref $image_item eq 'PGtikz');
+			if (ref $image_item eq 'WWPlot'
+				|| ref $image_item eq 'PGplot'
+				|| ref $image_item eq 'PGlateximage'
+				|| ref $image_item eq 'PGtikz');
 		my $imageURL = alias($image_item) // '';
 		$imageURL = ($envir{use_site_prefix}) ? $envir{use_site_prefix} . $imageURL : $imageURL;
 		my $out = "";
