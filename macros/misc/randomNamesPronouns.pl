@@ -398,9 +398,8 @@ generates 4 unique last names.
 
 sub randomLastName {
 	my %options = (n => 1, @_);
-	return list_random(@lastnames) if $options{n} == 1;
-	my $indices = random_subset($options{n}, 0 .. scalar(@lastnames) - 1);
-	return map { $lastnames[$_] } @$indices;
+	my @names   = random_subset($options{n}, @lastnames);
+	return wantarray ? @names : $names[0];
 }
 
 =head2 CONSTRUCTOR Person
