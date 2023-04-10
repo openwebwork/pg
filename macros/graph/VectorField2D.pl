@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-VectorField2D.pl - Adds a vector filed graph to a WWPlot (from PGgraphmacros.pl) graphobject.
+VectorField2D.pl - Adds a vector field graph to a WWPlot (from PGgraphmacros.pl) graphobject.
 
 =head1 DESCRIPTION
 
@@ -83,11 +83,11 @@ Defines a single point to skip when creating the vector field.
 
 sub _VectorField2D_init { };    # don't reload this file
 
-loadMacros('PGgraphmacros.pl');
+loadMacros('MathObjects.pl', 'PGgraphmacros.pl');
 
 sub VectorField2D {
 	my %options = (
-		graphobject     => '',
+		graphobject     => undef,
 		Fx              => sub { return 1; },
 		Fy              => sub { return 1; },
 		xvar            => 'x',
