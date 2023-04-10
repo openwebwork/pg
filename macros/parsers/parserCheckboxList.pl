@@ -574,25 +574,27 @@ sub CHECKS {
 
 		# Do we want an ol, ul, or dl?
 		my $list_type      = 'ul';
-		my $marker         = '';
+		my $close_list     = 'ul';
 		my $originalLabels = $self->{originalLabels};
 		if ($originalLabels =~ m/^(123|abc|roman)$/i) {
-			$list_type = 'ol';
-			$marker    = "1" if $originalLabels eq '123';
-			$marker    = "a" if $originalLabels eq 'abc';
-			$marker    = "A"
+			my $marker = '';
+			$marker = "1" if $originalLabels eq '123';
+			$marker = "a" if $originalLabels eq 'abc';
+			$marker = "A"
 				if uc($originalLabels) eq 'ABC' && $originalLabels ne 'abc';
 			$marker = "i" if $originalLabels eq 'roman';
 			$marker = "I"
 				if uc($originalLabels) eq 'ROMAN' && $originalLabels ne 'roman';
+			$list_type  = qq(ol	 marker="$marker.");
+			$close_list = 'ol';
 		} elsif ($self->{localLabels} || ref $originalLabels eq 'ARRAY') {
-			$list_type = 'dl';
+			$list_type  = 'dl width="narrow"';
+			$close_list = 'dl';
 			my %checks_to_labels = map { $checks[$_] => $self->{labels}[$_] } (0 .. $#{ $self->{orderedChoices} });
 			map {s/^(<li.*?>)/$1<title>$checks_to_labels{$_}<\/title>/g} @checks;
 		}
-		$marker = ($marker ne '') ? qq{ marker="$marker."} : '';
-		$checks[0] = qq{<$list_type$marker name="$name">\n$checks[0]};
-		$checks[-1] .= "</$list_type>";
+		$checks[0] = qq{<$list_type name="$name">\n$checks[0]};
+		$checks[-1] .= "</$close_list>";
 
 		# Change math delimiters
 		@checks = map { $_ =~ s/\\\(/<m>/gr } @checks;
