@@ -593,11 +593,30 @@ returns 'fly'
 =cut
 
 sub verb {
-	my ($self, $sing, $plur) = @_;
-	return
-		defined($plur)
-		? ($self->{pronoun} eq 'they' ? $plur : $sing)
-		: ($self->{pronoun} eq 'they' ? $sing : $sing . 's');
+	my ($self, $plur, $sing) = @_;
+	if (defined($sing)) {
+		return ($self->{pronoun} eq 'they' ? $plur : $sing);
+	} elsif (substr($plur, -1) eq 's' || substr($plur, -2) eq 'ch' || substr($plur, -2) eq 'sh') {
+		return ($self->{pronoun} eq 'they' ? $plur : $plur . 'es');
+	} else {
+		return ($self->{pronoun} eq 'they' ? $plur : $plur . 's');
+	}
+}
+
+sub dodoes {
+	return shift->verb('do', 'does');
+}
+
+sub areis {
+	return shift->verb('are', 'is');
+}
+
+sub gogoes {
+	return shift->verb('go', 'goes');
+}
+
+sub havehas {
+	return shift->verb('have', 'has');
 }
 
 1;
