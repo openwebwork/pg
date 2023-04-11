@@ -952,6 +952,8 @@ sub Row {
 			my $css = '';
 
 			# col level
+			$css .= css('text-align', 'left')
+				if ($cellAlign->{halign} eq 'l');
 			$css .= css('text-align', 'center')
 				if ($cellAlign->{halign} eq 'c');
 			$css .= css('text-align', 'right')
@@ -964,6 +966,7 @@ sub Row {
 				if ($cellAlign->{tex} =~ /\\itshape/);
 			$css .= css('font-family', 'monospace')
 				if ($cellAlign->{tex} =~ /\\ttfamily/);
+
 			if ($cellAlign->{tex} =~ /\\color(\[HTML\])?\{(.*?)[}!]/) {
 				$css .= css('color', ($1 ? '#' : '') . $2);
 			}
