@@ -24,11 +24,14 @@ subtest 'Tests for he pronouns' => sub {
 	is $p1->verb('find'),         'finds',   'Tests the conjugation of the verb to find for Fred.';
 	is $p1->verb('kiss'),         'kisses',  'Tests the conjugation of the verb to kiss for Fred';
 	is $p1->verb('touch'),        'touches', 'Tests the conjugation of the verb to touch for Fred';
-	is $p1->verb('fly', 'flies'), 'flies',   'Tests the conjugation of the verb to fly for Fred.';
+	is $p1->verb('fly'),          'flies',   'Tests the conjugation of the verb to fly for Fred.';
+	is $p1->verb('say'),          'says',    'Tests the conjugation of the verb to say for Fred.';
+	is $p1->verb('vex', 'vexes'), 'vexes',   'Tests the conjugation of the verb to vex for Fred.';
 	is $p1->dodoes,               'does',    'Tests the conjugation of the verb to do for Fred';
 	is $p1->areis,                'is',      'Tests the conjugation of the verb to do for Fred';
 	is $p1->gogoes,               'goes',    'Tests the conjugation of the verb to do for Fred';
 	is $p1->havehas,              'has',     'Tests the conjugation of the verb to do for Fred';
+	is $p1->werewas,              'was',     'Tests the conjugation of the past tense of to be for Fred';
 };
 
 subtest 'Tests for she pronouns' => sub {
@@ -44,11 +47,14 @@ subtest 'Tests for she pronouns' => sub {
 	is $p2->verb('find'),         'finds',     'Tests the conjugation of the verb to find for Gabriella.';
 	is $p2->verb('kiss'),         'kisses',    'Tests the conjugation of the verb to kiss for Gabriella';
 	is $p2->verb('touch'),        'touches',   'Tests the conjugation of the verb to touch for Gabriella';
-	is $p2->verb('fly', 'flies'), 'flies',     'Tests the conjugation of the verb to fly for Gabriella.';
+	is $p2->verb('fly'),          'flies',     'Tests the conjugation of the verb to fly for Gabriella.';
+	is $p2->verb('say'),          'says',      'Tests the conjugation of the verb to say for Gabriella.';
+	is $p2->verb('vex', 'vexes'), 'vexes',     'Tests the conjugation of the verb to vex for Gabriella.';
 	is $p2->dodoes,               'does',      'Tests the conjugation of the verb to do for Gabriella';
 	is $p2->areis,                'is',        'Tests the conjugation of the verb to do for Gabriella';
 	is $p2->gogoes,               'goes',      'Tests the conjugation of the verb to do for Gabriella';
 	is $p2->havehas,              'has',       'Tests the conjugation of the verb to do for Gabriella';
+	is $p2->werewas,              'was',       'Tests the conjugation of the past tense of to be for Gabriella';
 };
 
 subtest 'Tests for they pronouns' => sub {
@@ -65,11 +71,14 @@ subtest 'Tests for they pronouns' => sub {
 	is $p3->verb('find'),         'find',  'Tests the conjugation of the verb to find for Kai';
 	is $p3->verb('kiss'),         'kiss',  'Tests the conjugation of the verb to kiss for Kai';
 	is $p3->verb('touch'),        'touch', 'Tests the conjugation of the verb to touch for Kai';
-	is $p3->verb('fly', 'flies'), 'fly',   'Tests the conjugation of the verb to fly for Kai';
+	is $p3->verb('fly'),          'fly',   'Tests the conjugation of the verb to fly for Kai';
+	is $p3->verb('say'),          'say',   'Tests the conjugation of the verb to say for Kai.';
+	is $p3->verb('vex', 'vexes'), 'vex',   'Tests the conjugation of the verb to vex for Kai.';
 	is $p3->dodoes,               'do',    'Tests the conjugation of the verb to do for Kai';
 	is $p3->areis,                'are',   'Tests the conjugation of the verb to do for Kai';
 	is $p3->gogoes,               'go',    'Tests the conjugation of the verb to do for Kai';
 	is $p3->havehas,              'have',  'Tests the conjugation of the verb to do for Kai';
+	is $p3->werewas,              'were',  'Tests the conjugation of the past tense of to be for Kai';
 };
 
 subtest 'Other person tests' => sub {

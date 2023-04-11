@@ -358,7 +358,7 @@ And the option C<n> can be used to return an array with that number of persons.
 
 sub randomPerson {
 	my %options = (n => 1, @_);
-	my @persons = ();
+	my @persons;
 
 	# If the names are passed in.
 	if ($options{names}) {
@@ -600,6 +600,10 @@ sub verb {
 		return ($self->{pronoun} eq 'they' ? $plur : $sing);
 	} elsif (substr($plur, -1) eq 's' || substr($plur, -2) eq 'ch' || substr($plur, -2) eq 'sh') {
 		return ($self->{pronoun} eq 'they' ? $plur : $plur . 'es');
+	} elsif (substr($plur, -2) ne 'ay' && substr($plur, -1) eq 'y') {
+		$sing = $plur;
+		$sing =~ s/y$/ies/;
+		return ($self->{pronoun} eq 'they' ? $plur : $sing);
 	} else {
 		return ($self->{pronoun} eq 'they' ? $plur : $plur . 's');
 	}
@@ -643,6 +647,16 @@ Returns the correct conjugation of to have
 
 sub havehas {
 	return shift->verb('have', 'has');
+}
+
+=head3 C<werewas>
+
+Returns the correct conjugation of past tense of to be
+
+=cut
+
+sub werewas {
+	return shift->verb('were', 'was');
 }
 
 1;
