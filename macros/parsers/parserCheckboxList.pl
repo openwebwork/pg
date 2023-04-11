@@ -568,9 +568,7 @@ sub CHECKS {
 	if ($main::displayMode eq 'TeX') {
 		$checks[0] = "\n\\begin{itemize}\n" . $checks[0];
 		$checks[-1] .= "\n\\end{itemize}\n";
-	}
-
-	if ($main::displayMode eq 'PTX') {
+	} elsif ($main::displayMode eq 'PTX') {
 
 		# Do we want an ol, ul, or dl?
 		my $list_type      = 'ul';
@@ -599,6 +597,9 @@ sub CHECKS {
 		# Change math delimiters
 		@checks = map { $_ =~ s/\\\(/<m>/gr } @checks;
 		@checks = map { $_ =~ s/\\\)/<\/m>/gr } @checks;
+	} else {
+		$checks[0] = qq(<div class="checkboxes-container">\n$checks[0]);
+		$checks[-1] .= "</div>";
 	}
 
 	return wantarray ? @checks : join($main::displayMode eq 'PTX' ? '' : $self->{separator}, @checks);
