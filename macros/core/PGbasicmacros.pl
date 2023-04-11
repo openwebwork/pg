@@ -2416,7 +2416,7 @@ sub PTX_cleanup {
 		do {
 			$previous = $string;
 			$string =~
-				s/(?s)(<tabular>(?:\s|<col (?:(?!width=").)*?>)((?!<\/tabular>).)*?<cell>((?!<\/tabular>).)*?)<p>(((?!<\/tabular>).)*?)<\/p>(((?!<\/tabular>).)*?<\/tabular>)/$1$4$6/g;
+				s/(?s)(<tabular[^>]*>(?:\s|<col (?:(?!width=").)*?>)((?!<\/tabular>).)*?<cell>((?!<\/tabular>).)*?)<p>(((?!<\/tabular>).)*?)<\/p>(((?!<\/tabular>).)*?<\/tabular>)/$1$4$6/g;
 		} until ($previous eq $string);
 
 	}
