@@ -41,7 +41,7 @@ C<DropDownTF()> is like C<DropDown> with options being localized versions of
 "True" and "False". 1 is understood as "True" and 0 as "False". The initial
 letter of the localized word is understood as that word if those letter are
 different. All of this is case-insensitive. Also, in static output (PDF, PTX)
-the menu is not printed. It is assumed that context makes the menu redundant.
+C<showInStatic> is 0. It is assumed that context makes the menu redundant.
 
 By default, the choices are left in the order that you provide them,
 but you can cause some or all of them to be ordered randomly by
@@ -89,6 +89,10 @@ You can use the PopUp menu object in MultiAnswer objects.  This is
 the reason for the pop-up menu's ans_rule method (since that is what
 MultiAnswer calls to get answer rules).
 
+There is one option, C<showInStatic>. It is 1 by default, except for
+C<DropDownTF> it is 0. This option controls whether or not the menu
+is displayed in a static output format (PDF hardcopy or PTX).
+
 =cut
 
 loadMacros('MathObjects.pl');
@@ -134,21 +138,19 @@ sub new {
 	my $self  = shift;
 	my $class = ref($self) || $self;
 	shift if Value::isContext($_[0]);    # remove context, if given (it is not used)
-	my $choices     = shift;
-	my $value       = shift;
-	my %options     = @_;
-	my $placeholder = $options{placeholder} // '';
-	my $static      = $options{static}      // 1;
+	my $choices = shift;
+	my $value   = shift;
+	my %options = @_;
 	Value->Error("A PopUp's first argument should be a list of menu items")
 		unless ref($choices) eq 'ARRAY';
 	Value->Error("A PopUp's second argument should be the correct menu choice")
 		unless defined($value) && $value ne "";
 	$self = bless {
-		data        => [$value],
-		context     => $context,
-		choices     => $choices,
-		placeholder => $placeholder,
-		static      => $static
+		data         => [$value],
+		context      => $context,
+		choices      => $choices,
+		placeholder  => $options{placeholder}  // '',
+		showInStatic => $options{showInStatic} // 1
 	}, $class;
 	$self->getChoiceOrder;
 	my %choice;
@@ -210,19 +212,21 @@ sub MENU {
 		}
 		$menu .= "</select>";
 	} elsif ($main::displayMode eq 'PTX') {
-		return unless $self->{static};
-		$menu = qq(<var form="popup" name="$name">) . "\n";
-		foreach my $item (@list) {
-			$menu .= '<li>';
-			my $escaped_item = $item;
-			$escaped_item =~ s/&/&amp;/g;
-			$escaped_item =~ s/</&lt;/g;
-			$escaped_item =~ s/>/&gt;/g;
-			$menu .= $escaped_item . '</li>' . "\n";
+		if ($self->{showInStatic}) {
+			$menu = qq(<var form="popup" name="$name">) . "\n";
+			foreach my $item (@list) {
+				$menu .= '<li>';
+				my $escaped_item = $item;
+				$escaped_item =~ s/&/&amp;/g;
+				$escaped_item =~ s/</&lt;/g;
+				$escaped_item =~ s/>/&gt;/g;
+				$menu .= $escaped_item . '</li>' . "\n";
+			}
+			$menu .= '</var>';
+		} else {
+			$menu = qq(<fillin name="$name"/>);
 		}
-		$menu .= '</var>';
-	} elsif ($main::displayMode eq "TeX") {
-		return unless $self->{static};
+	} elsif ($main::displayMode eq "TeX" && $self->{showInStatic}) {
 		# if the total number of characters is not more than
 		# 30 and not containing / or ] then we print out
 		# the select as a string: [A/B/C]
@@ -275,7 +279,7 @@ sub DropDownTF {
 	my $self    = shift;
 	my $value   = lc(main::maketext(shift));
 	my %options = (
-		static => 0,
+		showInStatic => 0,
 		@_
 	);
 	my $true         = main::maketext('True');
