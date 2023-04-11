@@ -547,9 +547,10 @@ sub CHECKS {
 
 	for my $i (0 .. $#{ $self->{orderedChoices} }) {
 		my $value = $self->{values}[$i];
-		my $tag   = $self->{orderedChoices}[$i];
-		$value = '%' . $value                                   if (grep { $i == $_ } @{ $self->{checkedI} });
-		$tag   = $self->labelFormat($self->{labels}[$i]) . $tag if $self->{displayLabels};
+		$value = '%' . $value if (grep { $i == $_ } @{ $self->{checkedI} });
+
+		my $tag = $self->{orderedChoices}[$i];
+		$tag = $self->labelFormat($self->{labels}[$i]) . $tag if $self->{displayLabels};
 		if ($i > 0) {
 			push(
 				@checks,
@@ -578,18 +579,17 @@ sub CHECKS {
 			my $marker = '';
 			$marker = "1" if $originalLabels eq '123';
 			$marker = "a" if $originalLabels eq 'abc';
-			$marker = "A"
-				if uc($originalLabels) eq 'ABC' && $originalLabels ne 'abc';
+			$marker = "A" if uc($originalLabels) eq 'ABC' && $originalLabels ne 'abc';
 			$marker = "i" if $originalLabels eq 'roman';
-			$marker = "I"
-				if uc($originalLabels) eq 'ROMAN' && $originalLabels ne 'roman';
-			$list_type  = qq(ol	 marker="$marker.");
+			$marker = "I" if uc($originalLabels) eq 'ROMAN' && $originalLabels ne 'roman';
+
+			$list_type  = qq(ol marker="$marker.");
 			$close_list = 'ol';
 		} elsif ($self->{localLabels} || ref $originalLabels eq 'ARRAY') {
 			$list_type  = 'dl width="narrow"';
 			$close_list = 'dl';
 			my %checks_to_labels = map { $checks[$_] => $self->{labels}[$_] } (0 .. $#{ $self->{orderedChoices} });
-			map {s/^(<li.*?>)/$1<title>$checks_to_labels{$_}<\/title>/g} @checks;
+			map { $_ =~ s/^(<li.*?>)/$1<title>$checks_to_labels{$_}<\/title>/gr } @checks;
 		}
 		$checks[0] = qq{<$list_type name="$name">\n$checks[0]};
 		$checks[-1] .= "</$close_list>";
