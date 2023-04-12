@@ -463,7 +463,8 @@ sub cmp_defaults {
 		list_type         => 'selection',
 		requireParenMatch => 0,
 		implicitList      => 0,
-		correct_choices   => $self->data
+		correct_choices   => $self->data,
+		correct_values    => [ map {"$_"} $self->value ]
 	);
 }
 
