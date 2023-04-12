@@ -274,7 +274,7 @@ sub stringify_hash {
 		my $ref = ref($self->{$key});
 		next if !$ref;
 		if ($ref eq "HASH" or $ref eq "ARRAY") {
-			$self->{$key} = JSON->new->utf8->allow_unknown->allow_blessed->encode($self->{$key});
+			$self->{$key} = JSON->new->utf8->allow_unknown->convert_blessed->allow_blessed->encode($self->{$key});
 		} else {
 			$self->{$key} = "$self->{$key}";
 		}
