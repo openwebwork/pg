@@ -50,7 +50,7 @@ checkbox.
 
 The values set as described above are the answers that will be displayed in the
 past answers table.  See the C<values> option below for more information.
-Problem authors are encourages to set these values either as described above, or
+Problem authors are encouraged to set these values either as described above, or
 via the C<values> option.  This is useful for instructors viewing past answers.
 
 By default, the choices are left in the order that you provide them, but you can
@@ -79,26 +79,28 @@ The C<options> are taken from the following list:
 
 =over
 
-=item C<S<< labels => "123", "ABC", "text", or [label1, ...] >>>
+=item C<S<< labels => "123", "abc", "ABC", "roman", "Roman", "text", or [label1, ...] >>>
 
 Labels are used to replace the text of the choice in the student and correct
 answers, and can also be shown just before the choice text (if C<displayLabels>
 is set).  If the value is C<"123"> then the choices will be labeled with numbers
 (the choices will be numbered sequentially after they have been randomized).  If
-the value is C<"ABC"> then the choices will be labeled with capital letters
-after they have been randomized.  If the value is C<"text"> then the button text
-is used (note, however, that if the text contains things like math or formatting
-or special characters, these may not display well in the student and correct
-answer columns of the results table).
+the value is C<"abc"> or C<ABC"> then the choices will be labeled with lowercase
+or capital letters after they have been randomized. You can only have up to
+26 choices. If the value is C<"roman"> or C<"Roman"> then the choices will be
+labeled with lowercase or capital Roman numerals, also capped at 26 for symmetry.
+If the value is C<"text"> then the button text is used (note, however, that if
+the text contains things like math or formatting or special characters, these may
+not display well in the student and correct answer columns of the results table).
 
 If any choices have explicit labels (via C<< { label => text } >>), those labels
 will be used instead of the automatic number or letter (and the number or letter
-will be skipped).  The third form allows you to specify labels for each of the
-choices in their original order (though the C<< { label => text } >> form is
-preferred).
+will be skipped).  The C<[label1, ...]> form allows you to specify labels for
+each of the choices in their original order (though the C<< { label => text } >>
+form is preferred).
 
 Default: labels are the text of the choice when they don't include any special
-characters, and "Button 1", "Button 2", etc., otherwise.
+characters, and "Choice 1", "Choice 2", etc., otherwise.
 
 =item C<S<< values => array reference >>>
 
@@ -241,8 +243,10 @@ sub new {
 		maxLabelSize     => 25,
 		noindex          => 0,
 		checkedI         => [],
+		localLabels      => 0,
 		@inputs
 	);
+	$options{originalLabels} = $options{labels};
 
 	my $context = Parser::Context->getCopy('Numeric');
 
@@ -292,14 +296,24 @@ sub addLabels {
 
 	my $choices = $self->{orderedChoices};
 	my $labels  = $self->{labels};
-	$labels = [ 1 .. $self->{n} ]                        if $labels eq '123';
-	$labels = [ @main::ALPHABET[ 0 .. $self->{n} - 1 ] ] if uc($labels) eq 'ABC';
-	$labels = []                                         if $labels eq 'text';
+	my @roman =
+		qw(i ii iii iv v vi vii viii ix x xi xii xiii xiv xv xvi xvii xviii xix xx xxi xxii xxiii xxiv xxv xxvi);
+	$labels = [ 1 .. $self->{n} ] if $labels eq '123';
+	$labels = [ map { lc($_) } @main::ALPHABET[ 0 .. $self->{n} - 1 ] ]
+		if $labels eq 'abc';
+	$labels = [ @main::ALPHABET[ 0 .. $self->{n} - 1 ] ]
+		if uc($labels) eq 'ABC' && $labels ne 'abc';
+	$labels = [ @roman[ 0 .. $self->{n} - 1 ] ] if $labels eq 'roman';
+	$labels = [ map { uc($_) } @roman[ 0 .. $self->{n} - 1 ] ]
+		if uc($labels) eq 'ROMAN' && $labels ne 'roman';
+	$labels = [] if $labels eq 'text';
 
 	if (ref($labels) ne 'ARRAY') {
 		my $replace = $labels ne 'auto';
 		if (!$replace) {
-			for (@$choices) { $replace = 1 if $_ =~ m/[^-+.,;:()!\[\]a-z0-9 ]/i }
+			for (@$choices) {
+				$replace = 1 if $_ =~ m/[^-+.,;:()!\[\]a-z0-9 ]/i;
+			}
 		}
 		$labels                = [ map {"Choice $_"} (1 .. $self->{n}) ] if $replace;
 		$self->{displayLabels} = 0                                       if $self->{displayLabels} eq 'auto';
@@ -313,6 +327,7 @@ sub addLabels {
 		if (ref($choices->[$_]) eq 'HASH') {
 			my $key = (keys %{ $choices->[$_] })[0];
 			$labels->[$_] = $key;
+			$self->{localLabels} = 1;
 			if (ref($choices->[$_]{$key}) eq 'ARRAY') {
 				$values[$_] = $choices->[$_]{$key}[1];
 				$choices->[$_] = $choices->[$_]{$key}[0];
@@ -400,7 +415,8 @@ sub flattenChoices {
 # Format a label using the user-provided format string
 sub labelFormat {
 	my ($self, $label) = @_;
-	return ''   unless $label || $self->{forceLabelFormat};
+	return '' unless $label || $self->{forceLabelFormat};
+	return '' if $main::displayMode eq 'PTX';
 	$label = '' unless defined $label;
 	return sprintf($self->{labelFormat}, $self->protect($label));
 }
@@ -531,9 +547,10 @@ sub CHECKS {
 
 	for my $i (0 .. $#{ $self->{orderedChoices} }) {
 		my $value = $self->{values}[$i];
-		my $tag   = $self->{orderedChoices}[$i];
-		$value = '%' . $value                                   if (grep { $i == $_ } @{ $self->{checkedI} });
-		$tag   = $self->labelFormat($self->{labels}[$i]) . $tag if $self->{displayLabels};
+		$value = '%' . $value if (grep { $i == $_ } @{ $self->{checkedI} });
+
+		my $tag = $self->{orderedChoices}[$i];
+		$tag = $self->labelFormat($self->{labels}[$i]) . $tag if $self->{displayLabels};
 		if ($i > 0) {
 			push(
 				@checks,
@@ -552,15 +569,38 @@ sub CHECKS {
 	if ($main::displayMode eq 'TeX') {
 		$checks[0] = "\n\\begin{itemize}\n" . $checks[0];
 		$checks[-1] .= "\n\\end{itemize}\n";
-	}
+	} elsif ($main::displayMode eq 'PTX') {
 
-	# FIXME: Alex, what is needed here?
-	if ($main::displayMode eq 'PTX') {
-		$checks[0] = qq{<var form="buttons" name="$name">\n$checks[0]};
-		$checks[-1] .= '</var>';
+		# Do we want an ol, ul, or dl?
+		my $list_type      = 'ul';
+		my $subtype        = '';
+		my $originalLabels = $self->{originalLabels};
+		if ($originalLabels =~ m/^(123|abc|roman)$/i) {
+			my $marker = '';
+			$marker = "1" if $originalLabels eq '123';
+			$marker = "a" if $originalLabels eq 'abc';
+			$marker = "A" if uc($originalLabels) eq 'ABC' && $originalLabels ne 'abc';
+			$marker = "i" if $originalLabels eq 'roman';
+			$marker = "I" if uc($originalLabels) eq 'ROMAN' && $originalLabels ne 'roman';
+
+			$list_type  = 'ol';
+			$subtype    = qq( marker="$marker");
+			$close_list = 'ol';
+		} elsif ($self->{localLabels} || ref $originalLabels eq 'ARRAY') {
+			$list_type = 'dl';
+			$subtype   = ' width = "narrow"';
+			my %checks_to_labels = map { $checks[$_] => $self->{labels}[$_] } (0 .. $#{ $self->{orderedChoices} });
+			map { $_ =~ s/^(<li.*?>)/$1<title>$checks_to_labels{$_}<\/title>/gr } @checks;
+		}
+		$checks[0] = qq{<$list_type$subtype name="$name">\n$checks[0]};
+		$checks[-1] .= "</$list_type>";
+
 		# Change math delimiters
 		@checks = map { $_ =~ s/\\\(/<m>/gr } @checks;
 		@checks = map { $_ =~ s/\\\)/<\/m>/gr } @checks;
+	} else {
+		$checks[0] = qq(<div class="checkboxes-container">\n$checks[0]);
+		$checks[-1] .= "</div>";
 	}
 
 	return wantarray ? @checks : join($main::displayMode eq 'PTX' ? '' : $self->{separator}, @checks);

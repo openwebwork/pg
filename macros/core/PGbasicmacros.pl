@@ -2371,17 +2371,17 @@ sub PTX_cleanup {
 		#except not for certain "sub" structures that are also passed through EV3
 		$string = "<p>" . $string . "</p>" unless (($string =~ /^<fillin[^>]*\/>$/) or ($string =~ /^<var.*<\/var>$/s));
 
-		#inside a li, the only permissible children are p, image, video, and tabular
-		#insert opening and closing p, to be removed later if they enclose an image, video or tabular
+		#inside a li, the only permissible children are title, p, image, video, and tabular
+		#insert opening and closing p, to be removed later if they enclose a title, image, video or tabular
 		#we are not going to look to see if there is a nested list in there
 		$string =~ s/(<li[^>]*(?<!\/)>)/$1\n<p>/g;
 		$string =~ s/(<\/li>)/<\/p>\n$1/g;
 
-		#close p right before any blockquote, pre, image, video, or tabular
+		#close p right before any title, blockquote, pre, image, video, or tabular
 		#and open p immediately following. Later any potential side effects are cleaned up.
-		$string =~ s/(<(blockquote|pre|image|video|tabular)[^>]*(?<!\/)>)/<\/p>\n$1/g;
-		$string =~ s/(<\/(blockquote|pre|image|video|tabular)>)/$1\n<p>/g;
-		$string =~ s/(<(blockquote|pre|image|video|tabular)[^>]*(?<=\/)>)/<\/p>\n$1\n<p>/g;
+		$string =~ s/(<(title|blockquote|pre|image|video|tabular)[^>]*(?<!\/)>)/<\/p>\n$1/g;
+		$string =~ s/(<\/(title|blockquote|pre|image|video|tabular)>)/$1\n<p>/g;
+		$string =~ s/(<(title|blockquote|pre|image|video|tabular)[^>]*(?<=\/)>)/<\/p>\n$1\n<p>/g;
 
 		#within a <cell>, we may have an issue if there was an image that had '<\p>' and '<p>' wrapped around
 		#it from the above block. If the '</p>' has a preceding '<p>' within the cell, no problem. Otherwise,
@@ -2416,7 +2416,7 @@ sub PTX_cleanup {
 		do {
 			$previous = $string;
 			$string =~
-				s/(?s)(<tabular>(?:\s|<col (?:(?!width=").)*?>)((?!<\/tabular>).)*?<cell>((?!<\/tabular>).)*?)<p>(((?!<\/tabular>).)*?)<\/p>(((?!<\/tabular>).)*?<\/tabular>)/$1$4$6/g;
+				s/(?s)(<tabular[^>]*>(?:\s|<col (?:(?!width=").)*?>)((?!<\/tabular>).)*?<cell>((?!<\/tabular>).)*?)<p>(((?!<\/tabular>).)*?)<\/p>(((?!<\/tabular>).)*?<\/tabular>)/$1$4$6/g;
 		} until ($previous eq $string);
 
 	}
