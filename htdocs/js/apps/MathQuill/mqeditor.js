@@ -35,8 +35,11 @@
 			restrictMismatchedBrackets: true,
 			sumStartsWithNEquals: true,
 			supSubsRequireOperand: true,
-			autoCommands: 'pi sqrt root vert inf union abs',
+			autoCommands: ['pi', 'sqrt', 'root', 'vert', 'inf', 'union', 'abs', 'deg', 'AA', 'angstrom', 'ln', 'log']
+				.concat(['sin', 'cos', 'tan', 'sec', 'csc', 'cot'].reduce((a, t) =>
+					a.concat([t, `arc${t}`]), [])).join(' '),
 			rootsAreExponents: true,
+			logsChangeBase: true,
 			maxDepth: 10
 		};
 
