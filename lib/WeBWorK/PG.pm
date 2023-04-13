@@ -242,6 +242,11 @@ sub defineProblemEnvironment ($pg_envir, $options = {}, $image_generator = undef
 		pastDue            => $options->{pastDue}            // 0,
 		answersAvailable   => $options->{answersAvailable}   // 0,
 		isInstructor       => $options->{isInstructor}       // 0,
+		PERSISTENCE_HASH   => $options->{PERSISTENCE_HASH}   // {},
+
+		# The next has marks what data was updated and needs to be saved
+		# by the front end.
+		PERSISTENCE_HASH_UPDATED => {},
 
 		inputs_ref => $options->{inputs_ref},
 
