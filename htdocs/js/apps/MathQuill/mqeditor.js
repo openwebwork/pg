@@ -85,7 +85,7 @@
 			button.setAttribute('aria-label', 'Equation Editor');
 
 			const icon = document.createElement('i');
-			icon.classList.add('fa-solid', 'fa-pencil');
+			icon.classList.add('fa-solid', 'fa-square-root-variable');
 			button.append(icon);
 
 			container.append(button);
@@ -147,6 +147,15 @@
 					`\\(${answerQuill.mathField.latex().replace(/^(?:\\\s)*(.*?)(?:\\\s)*$/, '$1')}\\)`)
 			);
 
+			const clearButton = document.createElement('button');
+			clearButton.type = 'button';
+			clearButton.classList.add('btn', 'btn-primary', 'flex-grow-0', 'ms-2');
+			clearButton.textContent = 'Clear';
+			clearButton.addEventListener('click', () => {
+				answerQuill.mathField.empty();
+				answerQuill.textarea.focus();
+			});
+
 			contents.append(cardHeader, cardBody);
 			collapse.append(contents);
 			innerContainer.append(collapse);
@@ -162,7 +171,7 @@
 				answerQuill.input.style.borderBottomRightRadius = '4px';
 			});
 
-			cardBody.append(answerQuill, insertButton);
+			cardBody.append(answerQuill, insertButton, clearButton);
 		} else {
 			cfgOptions.handlers.edit = (mq) => {
 				if (mq.text() !== '') {
