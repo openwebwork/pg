@@ -598,9 +598,9 @@ sub verb {
 	my ($self, $plur, $sing) = @_;
 	if (defined($sing)) {
 		return ($self->{pronoun} eq 'they' ? $plur : $sing);
-	} elsif (substr($plur, -1) eq 's' || substr($plur, -2) eq 'ch' || substr($plur, -2) eq 'sh') {
+	} elsif ($plur =~ /(s|ch|sh)$/) {
 		return ($self->{pronoun} eq 'they' ? $plur : $plur . 'es');
-	} elsif (substr($plur, -2) ne 'ay' && substr($plur, -1) eq 'y') {
+	} elsif ($plur =~ /[^aeou]y$/) {
 		$sing = $plur;
 		$sing =~ s/y$/ies/;
 		return ($self->{pronoun} eq 'they' ? $plur : $sing);
