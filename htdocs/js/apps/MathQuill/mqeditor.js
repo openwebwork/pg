@@ -72,7 +72,45 @@
 			const innerContainer = document.createElement('div');
 			innerContainer.classList.add('mq-latex-editor-inner-container');
 			container.append(innerContainer);
-			innerContainer.append(input);
+
+			const textAreaContainer = document.createElement('div');
+			textAreaContainer.classList.add('mq-latex-editor-textarea-container');
+			innerContainer.append(textAreaContainer);
+
+			const backdropContainer = document.createElement('div');
+			backdropContainer.classList.add('mq-latex-editor-backdrop-container');
+			const backdrop = document.createElement('div');
+			backdrop.classList.add('mq-latex-editor-backdrop');
+			backdropContainer.append(backdrop);
+			textAreaContainer.append(backdropContainer, input);
+
+			const beforeSelection = document.createElement('span');
+			const selection = document.createElement('mark');
+			selection.classList.add('mq-latex-editor-selection');
+			const afterSelection = document.createElement('span');
+			const endMark = document.createElement('mark');
+			backdrop.append(beforeSelection, selection, afterSelection, endMark);
+
+			const updateScroll = () => {
+				backdropContainer.scrollTop = input.scrollTop;
+				backdropContainer.scrollLeft = input.scrollLeft;
+			};
+			const setSelection = () => {
+				beforeSelection.textContent = input.value.substring(0, input.selectionStart);
+				selection.textContent = input.value.substring(input.selectionStart, input.selectionEnd);
+				afterSelection.textContent = input.value.substring(input.selectionEnd, input.value.length);
+				updateScroll();
+			};
+			const clearSelection = () => {
+				beforeSelection.textContent = input.value.substring(0, input.selectionStart);
+				selection.textContent = '';
+				afterSelection.textContent = input.value.substring(input.selectionStart, input.value.length);
+			};
+			input.addEventListener('keydown', clearSelection);
+			input.addEventListener('keyup', setSelection);
+			input.addEventListener('pointerdown', clearSelection);
+			input.addEventListener('pointerup', setSelection);
+			input.addEventListener('scroll', updateScroll);
 
 			// Create and add a button to activate the MathQuill editor.
 			const button = document.createElement('button');
@@ -94,6 +132,18 @@
 			const collapse = document.createElement('div');
 			collapse.classList.add('collapse');
 			collapse.id = `${answerLabel}-equation-editor`;
+
+			let blinkInterval;
+			const blink = () => backdrop.classList.toggle('mq-latex-editor-backdrop-blink');
+			collapse.addEventListener('focusin', () => {
+				setSelection();
+				backdrop.classList.add('mq-latex-editor-backdrop-show');
+				blinkInterval = setInterval(blink, 1000);
+			});
+			collapse.addEventListener('focusout', () => {
+				clearInterval(blinkInterval);
+				backdrop.classList.remove('mq-latex-editor-backdrop-show', 'mq-latex-editor-backdrop-blink');
+			});
 
 			const contents = document.createElement('div');
 			contents.classList.add('card');
@@ -136,6 +186,7 @@
 					input.value += myValue;
 					input.focus();
 				}
+				setSelection();
 			}
 
 			const insertButton = document.createElement('button');

@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 span[id^='mq-answer'] {
 	/*rtl:ignore*/
 	direction: ltr;
@@ -35,8 +37,58 @@ input[type='text'].codeshard.mq-edit {
 		max-width: calc(100% - 34px);
 		display: inline-block;
 
-		.latexentryfield {
-			border-top-right-radius: 0;
+		.mq-latex-editor-textarea-container {
+			position: relative;
+
+			.latexentryfield {
+				border-top-right-radius: 0;
+			}
+
+			.mq-latex-editor-backdrop-container {
+				pointer-events: none;
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				overflow: auto;
+				text-size-adjust: none;
+				visibility: hidden;
+
+				.mq-latex-editor-backdrop {
+					border: 1px solid transparent;
+					padding: 4px 6px;
+					line-height: 18px;
+					white-space: pre-wrap;
+					word-wrap: break-word;
+					font-family: Helvetica Neue, Helvetica, Arial, Helvetica, sans-serif;
+					color: transparent;
+					visibility: hidden;
+
+					mark {
+						visibility: hidden;
+					}
+
+					&.mq-latex-editor-backdrop-show {
+						visibility: visible;
+
+						.mq-latex-editor-selection {
+							visibility: visible;
+							padding: 0;
+							color: white;
+							background-color: color.adjust(#3373e5, $lightness: 20%);
+
+							&:empty {
+								border-left: 1px solid #b0b0b0;
+							}
+						}
+
+						&.mq-latex-editor-backdrop-blink .mq-latex-editor-selection:empty {
+							visibility: hidden;
+						}
+					}
+				}
+			}
 		}
 
 		.collapse,
