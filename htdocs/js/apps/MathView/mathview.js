@@ -19,21 +19,62 @@
 
 			this.decoratedTextBox = field;
 
-			if (this.options.decoratedTextBoxAsInput) {
-				this.inputTextBox = field;
-			} else {
-				this.inputTextBox = document.createElement('input');
-				this.inputTextBox.type = 'text';
-				this.inputTextBox.classList.add('mv-input', 'form-control');
-			}
-
 			// Wrap the input in a container.
 			const container = document.createElement('div');
 			container.classList.add('mv-container');
 			if (this.options.renderingMode === 'PGML')
 				container.classList.add('input-group', 'd-inline-flex', 'flex-nowrap', 'w-auto');
 			field.after(container);
-			container.append(field);
+
+			if (this.options.decoratedTextBoxAsInput) {
+				container.append(field);
+				this.inputTextBox = field;
+			} else {
+				const textAreaContainer = document.createElement('div');
+				textAreaContainer.classList.add('mv-textarea-container');
+				container.append(textAreaContainer);
+
+				const backdropContainer = document.createElement('div');
+				backdropContainer.classList.add('mv-backdrop-container');
+				this.backdrop = document.createElement('div');
+				this.backdrop.classList.add('mv-backdrop');
+				backdropContainer.append(this.backdrop);
+				textAreaContainer.append(backdropContainer, field);
+
+				const beforeSelection = document.createElement('span');
+				const selection = document.createElement('mark');
+				selection.classList.add('mv-selection');
+				const afterSelection = document.createElement('span');
+				const endMark = document.createElement('mark');
+				this.backdrop.append(beforeSelection, selection, afterSelection, endMark);
+
+				const updateScroll = () => {
+					backdropContainer.scrollTop = field.scrollTop;
+					backdropContainer.scrollLeft = field.scrollLeft;
+				};
+				this.setSelection = () => {
+					beforeSelection.textContent = field.value.substring(0, field.selectionStart);
+					selection.textContent = field.value.substring(field.selectionStart, field.selectionEnd);
+					afterSelection.textContent = field.value.substring(field.selectionEnd, field.value.length);
+					updateScroll();
+				};
+				const clearSelection = () => {
+					beforeSelection.textContent = field.value.substring(0, field.selectionStart);
+					selection.textContent = '';
+					afterSelection.textContent = field.value.substring(field.selectionStart, field.value.length);
+				};
+				field.addEventListener('keydown', clearSelection);
+				field.addEventListener('keyup', this.setSelection);
+				field.addEventListener('pointerdown', clearSelection);
+				field.addEventListener('pointerup', this.setSelection);
+				field.addEventListener('scroll', updateScroll);
+
+				this.blink = () => this.backdrop.classList.toggle('mv-backdrop-blink');
+
+				this.inputTextBox = document.createElement('input');
+				this.inputTextBox.type = 'text';
+				this.inputTextBox.classList.add('mv-input', 'form-control');
+			}
 
 			// Create and add a button to activate the math viewer.
 			this.button = document.createElement('button');
@@ -147,12 +188,28 @@
 			// Refresh math in the popover when there is a keyup in the input.
 			// Only do this while the popover is visible.
 			const inputRegenPreview = () => this.regenPreview();
-			this.button.addEventListener('shown.bs.popover', () =>
+			this.button.addEventListener('shown.bs.popover', () => {
 				this.inputTextBox.addEventListener('keyup', inputRegenPreview)
-			);
-			this.button.addEventListener('hide.bs.popover', () =>
+
+				if (!this.options.decoratedTextBoxAsInput) {
+					this.popover.tip.addEventListener('focusin', () => {
+						this.inputTextBox.focus();
+						this.setSelection();
+						this.backdrop.classList.add('mv-backdrop-show');
+						if (!this.blinkInterval) this.blinkInterval = setInterval(this.blink, 1000);
+					});
+					this.popover.tip.addEventListener('focusout', () => {
+						clearInterval(this.blinkInterval);
+						delete this.blinkInterval;
+						this.backdrop.classList.remove('mv-backdrop-show', 'mv-backdrop-blink');
+					});
+					this.popover.tip.dispatchEvent(new Event('focusin'));
+				}
+			});
+			this.button.addEventListener('hide.bs.popover', () => {
+				this.popover.tip.dispatchEvent(new Event('focusout'));
 				this.inputTextBox.removeEventListener('keyup', inputRegenPreview)
-			);
+			});
 
 			const closeOther = () => {
 				for (const mviewerBtn of document.querySelectorAll('.codeshard-btn')) {
@@ -285,6 +342,7 @@
 				input.value += myValue;
 				input.focus();
 			}
+			this.setSelection?.();
 		}
 
 		// Set the position of a cursor in a text input.
