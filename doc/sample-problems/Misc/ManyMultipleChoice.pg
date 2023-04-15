@@ -1,0 +1,123 @@
+## DESCRIPTION
+## Many multiple choice template
+## ENDDESCRIPTION
+
+## KEYWORDS('multiple choice', 'template')
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+
+
+###########################
+#  Initialization
+
+#:preamble:begin
+#:We use `PGchoicemacros.pl` to construct the list of multiple choice items, and the
+#:custom problem grader fluid from `PGgraders.pl` for incremental grading.
+#:preamble:code
+DOCUMENT();
+
+loadMacros('PGstandard.pl','MathObjects.pl','PGchoicemacros.pl','PGgraders.pl',
+  'PGML.pl','PGcourse.pl');
+
+TEXT(beginproblem());
+#:preamble:end
+
+###########################
+#  Setup
+
+#:setup:begin
+#:We can choose how many of the questions will be presented to students.
+#:setup:code
+Context('Numeric');
+
+# Create and use pop up lists
+$tf = new_select_list();
+$tf->rf_print_q(~~&pop_up_list_print_q);
+
+# Choices presented to students
+$tf->ra_pop_up_list( [
+'No answer' => "?",
+'True'  => 'True',
+'False' => 'False',
+]);
+
+# Questions and answers
+$tf -> qa (
+'All continuous functions are differentiable.',
+'False',
+'All differentiable functions are continuous.',
+'True',
+'All polynomials are differentiable.',
+'True',
+'All functions with positive derivatives are increasing.',
+'True',
+'All rational functions are continuous.',
+'False',
+'All exponential functions are differentiable.',
+'True',
+'All exponential functions are rational functions.',
+'False',
+);
+
+# How many questions to use
+$tf->choose(6);
+#:setup:end
+
+###########################
+#  Main text
+
+#:statement:begin
+#:statement:code
+BEGIN_PGML
+Are the following statements true or false?
+
+[@ $tf -> print_q() @]*
+END_PGML
+#:statement:end
+
+############################
+#  Answer evaluation
+
+#:answer:begin
+#:We must withhold feedback from students by setting `$showPartialCorrectAnswers = 0;`
+#:We use an incremental grader called `custom_problem_grader_fluid`.
+#:With this problem grader, you must specify the number of correct answers `[2,4,6]`
+#:and their corresponding scores `[0.3,0.6,1]` and update the grader message accordingly. The last entry in the array for grader_numright must be the total number of questions asked, and the last entry in the array for grader_scores must be 1 (otherwise nobody can earn full credit!).
+#:
+#:If you want a grader that awards full credit when all questions are correct and
+#:no credit otherwise, uncomment the standard problem grader.
+#:answer:code
+$showPartialCorrectAnswers = 0;
+
+# Incremental grader
+install_problem_grader(~~&custom_problem_grader_fluid);
+$ENV{'grader_numright'} = [2,4,6];
+$ENV{'grader_scores'} = [0.3,0.6,1];
+$ENV{'grader_message'} = 'You can earn ' .
+'30% partial credit for 2 - 3 correct answers, and ' .
+'60% partial credit for 4 - 5 correct answers.';
+
+# All or nothing grader
+# install_problem_grader(~~&std_problem_grader);
+
+ANS( str_cmp( $tf->ra_correct_ans() ) );
+#:answer:end
+
+############################
+#  Solution
+
+#:solution:begin
+#:A method to match explanations with a shuffled list of matching problems is
+#:presented in Matching Problems [POD].
+#:solution:code
+BEGIN_PGML_SOLUTION
+The answer is [$tf->print_a]*.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();
+#:solution:end

@@ -1,0 +1,75 @@
+## DESCRIPTION
+## Shows the use of the randomNamesPronouns.pl macro
+## ENDDESCRIPTION
+
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(04/15/2023)
+## Institution(Fitchburg States)
+## Author(Peter Staab)
+## Static(0)
+## MO(1)
+## KEYWORDS('names', 'pronouns', 'random')
+
+#:preamble:begin
+#:We need to load `randomNamesPronouns.pl` macro
+#:preamble:code
+DOCUMENT();
+
+loadMacros('PGstandard.pl','MathObjects.pl','PGML.pl',
+	'randomNamesPronouns.pl','PGcourse.pl');
+
+TEXT(beginproblem());
+#:preamble:end
+
+#:setup:begin
+#:The macro `randomNamesPronouns.pl` functionality to
+#:
+#:* select a random name from a user-defined or default list with pronouns.</li>
+#:* provide correct pronouns as well as verb conjugation.</li>
+#:
+#:The `randomPerson( n => 3)` subroutine selects 3 unique random persons.
+#:
+#:See the `randomNamesPronouns.pl` POD for more information and example.
+#:setup:code
+($p1,$p2,$p3) = randomPerson(n=>3);
+
+$n = random(20,30,2);
+$c = random(4,8,2);
+
+#:setup:end
+
+#:statement:begin
+#:The objects `$p1, $p2` and `$p3` are `Person` objects and we can call the methods
+#:for name, and the pronouns `subject, possessive, possession` and `object` as well
+#:as the capitalized versions of each of these.  In addition, there is a `verb`
+#:method to conjugate most verbs as well as some irregular ones, like `dodoes`
+#:which returns the correct conjugation of "to do".
+#:statement:code
+BEGIN_PGML
+
+[$p1->name] has a ribbon of length [$n] cm.  [$p1->Subject] [$p1->verb('cut')]
+[$c] cm off the ribbon and [$p1->verb('give')] the piece to [$p1->possessive]
+friend [$p2->name].
+
+[$p1->name] then [$p1->verb('divide')] the rest in half and [$p1->verb('give')]
+half to [$p1->possessive] friend [$p3->name].
+
+
+How much ribbon [$p1->dodoes] [$p1->name] have left? [___]{Real(($n-$c)/2)}
+
+
+END_PGML
+#:statement:end
+
+
+#:solution:begin
+#:solution:code
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();
+#:solution:end

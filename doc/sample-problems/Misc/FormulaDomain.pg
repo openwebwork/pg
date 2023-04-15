@@ -1,0 +1,118 @@
+## DESCRIPTION
+## Formula answer with domain issues template
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('formula answer', 'template')
+
+
+###########################
+#  Initialization
+
+#:preamble:begin
+DOCUMENT();
+
+loadMacros('PGstandard.pl','MathObjects.pl','PGML.pl','PGcourse.pl');
+
+TEXT(beginproblem());
+#:preamble:end
+
+###########################
+#  Setup
+
+#:setup:begin
+Context('Numeric');
+
+$a = random(2,5,1);
+
+$answer1 = Compute("sqrt(x-$a)");
+$answer1->{limits} = [$a+1,$a+4];
+
+$answer2 = Compute("ln(abs( x / (x-$a) ))");
+$answer2->{test_points} = [[-5],[-4],[1],[$a-1],[7],[8]];
+#:setup:end
+
+###########################
+#  Main text
+
+#:statement:begin
+BEGIN_PGML
+a. Enter the answer [`` [$answer1]= ``] [__]{$answer1}
+
+b. Enter the answer [`` [$answer2]= ``] [__]{$answer2}
+
+[@ helpLink('formulas') @]*
+END_PGML
+#:statement:end
+
+#:solution:begin
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();
+#:solution:end
+
+__DATA__
+
+preamble:begin
+  <p>
+    <b>Initialization:</b>
+  </p>
+  <p>Nothing special here.</p>
+preamble:end
+
+setup:begin
+<p>
+<b>Setup:</b>
+We restrict the domain of function evaluation using <code>$answer1-&gt;{limits}
+= [$a+1,$a+4];</code>, which will choose test points at random in the interval
+<code>[$a+1,$a+4]</code>
+</p>
+<p>
+The domain for <code>$answer2</code> is all real numbers except for 0 and $a, and
+we would like to stay away from these vertical asymptotes because answer evaluators
+don't work well when the function values are very large or very small.  Thus, we
+explicitly list those test points in the domain that will be used when the function is evaluated.
+</p>
+<p>
+It is possible to set the domain once for all of the functions within a particular
+context.  For more details, please see
+<a rel="nofollow" class="external text" href="http://webwork.maa.org/wiki/FormulaTestPoints">formula
+test points</a> in the index of problem techniques.
+</p>
+
+setup:end
+
+statement:begin
+<p>
+<b>Main Text:</b>
+Notice that in this multipart question we have grouped the text for each part
+together in a block, put each answer blank on a new line immediately below each
+block of text, and added extra space between each part.  This should make the
+question easy to read both in HTML and PDF format.
+</p>
+<p>It is possible to get diagnostic information about the answer checker if one
+replaces the <code>{$answer1}</code> with <code>{$answer1-&gt;cmp(diagnostics=&gt;1)}</code>.
+When diagnostics are turned on and a student answer is submitted, you will get a graph
+of the correct answer and the student answer on the same graph, as well as a table that
+specifies which test points were used by the answer checker, and how much of a difference
+there was between the student answer and the correct answer at these checkpoints.
+To test the reliability of your answer checker, it is good to click the reload
+button on your browser several times after a student answer has been submitted,
+ since reloading changes the test points used.
+</p>
+
+statement:end
+
+solution:begin
+<p>
+<b>Solution:</b>
+</p>
+solution:end

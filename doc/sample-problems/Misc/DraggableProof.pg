@@ -1,0 +1,83 @@
+## DESCRIPTION
+## A Simple draggable proof.
+## ENDDESCRIPTION
+
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Fort Lewis tutorial 2011)
+## Date(03/10/2023)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## MO(1)
+## KEYWORDS('draggable proof', 'template')
+
+
+###########################
+#  Initialization
+
+#:preamble:begin
+#:Details of the `draggableProof.pl` macro can be found in [the POD].
+#:preamble:code
+DOCUMENT();
+
+loadMacros('PGstandard.pl','MathObjects.pl','PGML.pl','draggableProof.pl',
+  'PGcourse.pl');
+
+TEXT(beginproblem());
+#:preamble:end
+
+#:setup:begin
+#:The `DraggableProof` function takes an arrayref of correct statements,
+#:followed (optionally) by extra statements. See the POD for more options.
+#:setup:code
+# These are the statements of the proof in the correct order.
+$statements = [
+	'Assume \(\sqrt{2}=\frac{a}{b}\) where \(a,b\) are integers, with \(\text{gcd}(a,b)=1\) ',
+	'\(2 = \frac{a^2}{b^2}\)',
+	'\(a^2 = 2b^2\)',
+	'if \(a^2\) is even, then \(a\) must be even',
+	'Let \(a=2k\) for \(k\) some integer',
+	'We can then write \( 2 = \frac{4k^2}{b^2}\) or \(b^2 = 2k^2\)',
+	'Therefore \(b^2\) is even, so \(b\) is also even',
+	'If \(a\) and \(b\) are both even, then the initial assumption that  \(\text{gcd}(a,b)=1\) is contradicted.',
+	'\(\sqrt{2}\) is therefore not rational.'
+ ];
+
+# These are extra statements that are not needed.
+ $extra = [
+ 'Then \(a\) is odd',
+ '\(b^2\) cannot be rational.',
+ 'therefore \(a = 2b\)'
+ ];
+
+ $proof = DraggableProof(
+ 	$statements,
+ 	$extra
+ );
+#:setup:end
+
+#:statement:begin
+#:The line `[@ $proof->Print @]*` prints the statement and options in the proof.
+#:statement:end
+BEGIN_PGML
+
+Prove that [`\sqrt{2}`] is irrational.
+
+[@ $proof->Print @]*
+END_PGML
+#:statement:end
+
+#:answer:begin
+ANS($proof->cmp);
+#:answer:end
+
+#:solution:begin
+#:
+#:solution:code
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();
+#:solution:end

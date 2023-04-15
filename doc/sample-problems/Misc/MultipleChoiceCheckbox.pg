@@ -1,0 +1,96 @@
+## DESCRIPTION
+## Multiple choice template
+## ENDDESCRIPTION
+
+## KEYWORDS('multiple choice', 'template')
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+
+
+###########################
+#  Initialization
+
+#:preamble:begin
+#: Include `parserCheckboxList.pl` in the `loadMacros`.
+#:preamble:code
+DOCUMENT();
+
+loadMacros('PGstandard.pl','MathObjects.pl','PGML.pl',
+  'parserCheckboxList.pl','PGcourse.pl');
+
+TEXT(beginproblem());
+#:preamble:end
+
+###########################
+#  Setup
+
+#:setup:begin
+#:To setup, `CheckboxList` creates a new object. The format is
+#:```
+#:$checks = CheckboxList([choices, ...], [correct_choices, ...], options);
+#:```
+#:where the `correct_choices` can either match those in `choices` or be the indices
+#:(starting at 0).
+#:
+#:If we nest `choices` in another arrayref, then the choices will be shown randomly.
+#:
+#:Using the option `separator` and setting to `&nbsp;`, the HMTL space, results in
+#:a horizontal checklist.
+#:
+#:Lastly, see the POD for more options.
+#:setup:code
+$checks1 = CheckboxList([
+"\( e^{x^2} e^{1/x} \)",
+"\(e^{x^2} e^{x^{-1}}\)",
+"\(\displaystyle\frac{e^{x^2} }{ e^x }\)",
+'None of the above'
+],[0,1]);
+
+$checks2 = CheckboxList([[
+"\( e^{x^2} e^{1/x} \)",
+"\(e^{x^2} e^{x^{-1}}\)",
+"\(\displaystyle\frac{e^{x^2} }{ e^x }\)"],
+'None of the above'
+],[0,1]);
+
+# This makes the checkbox list horizontal.
+$checks3 = CheckboxList([
+"\( e^{x^2} e^{1/x} \)",
+"\(e^{x^2} e^{x^{-1}}\)",
+"\(\displaystyle\frac{e^{x^2} }{ e^x }\)",
+'None of the above'
+],[0,1], separator => '&nbsp;&nbsp;');
+#:setup:end
+
+#:statement:begin
+#:statement:code
+BEGIN_PGML
+Select all expressions that are equivalent to  [`e^{x^2 + 1/x}`].
+There may be more than one correct answer.
+
+[__]{$checks1}
+
+**Alternative with randomly shown choices**
+
+[__]{$checks2}
+
+**Alternative shown with horizontal spacing**
+
+[__]{$checks3}
+
+END_PGML
+#:statement:end
+
+#:solution:begin
+#:solution:code
+BEGIN_PGML_SOLUTION
+
+END_PGML_SOLUTION
+
+ENDDOCUMENT();
+#:solution:end
