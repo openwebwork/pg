@@ -15,21 +15,16 @@
 ###########################
 #  Initialization
 
-#:preamble:begin
+#:%preamble
 #: Include `parserCheckboxList.pl` in the `loadMacros`.
-#:preamble:code
 DOCUMENT();
 
 loadMacros('PGstandard.pl','MathObjects.pl','PGML.pl',
   'parserCheckboxList.pl','PGcourse.pl');
 
 TEXT(beginproblem());
-#:preamble:end
 
-###########################
-#  Setup
-
-#:setup:begin
+#:%setup
 #:To setup, `CheckboxList` creates a new object. The format is
 #:```
 #:$checks = CheckboxList([choices, ...], [correct_choices, ...], options);
@@ -43,7 +38,6 @@ TEXT(beginproblem());
 #:a horizontal checklist.
 #:
 #:Lastly, see the POD for more options.
-#:setup:code
 $checks1 = CheckboxList([
 "\( e^{x^2} e^{1/x} \)",
 "\(e^{x^2} e^{x^{-1}}\)",
@@ -65,10 +59,8 @@ $checks3 = CheckboxList([
 "\(\displaystyle\frac{e^{x^2} }{ e^x }\)",
 'None of the above'
 ],[0,1], separator => '&nbsp;&nbsp;');
-#:setup:end
 
-#:statement:begin
-#:statement:code
+#:%statement
 BEGIN_PGML
 Select all expressions that are equivalent to  [`e^{x^2 + 1/x}`].
 There may be more than one correct answer.
@@ -84,13 +76,10 @@ There may be more than one correct answer.
 [__]{$checks3}
 
 END_PGML
-#:statement:end
 
-#:solution:begin
-#:solution:code
+#:%solution
 BEGIN_PGML_SOLUTION
 
 END_PGML_SOLUTION
 
 ENDDOCUMENT();
-#:solution:end

@@ -16,21 +16,19 @@
 ###########################
 #  Initialization
 
-#:preamble:begin
+#:%preamble
 #:Details of the `draggableProof.pl` macro can be found in [the POD].
-#:preamble:code
 DOCUMENT();
 
 loadMacros('PGstandard.pl','MathObjects.pl','PGML.pl','draggableProof.pl',
   'PGcourse.pl');
 
 TEXT(beginproblem());
-#:preamble:end
 
-#:setup:begin
+
+#:%setup
 #:The `DraggableProof` function takes an arrayref of correct statements,
 #:followed (optionally) by extra statements. See the POD for more options.
-#:setup:code
 # These are the statements of the proof in the correct order.
 $statements = [
 	'Assume \(\sqrt{2}=\frac{a}{b}\) where \(a,b\) are integers, with \(\text{gcd}(a,b)=1\) ',
@@ -55,29 +53,25 @@ $statements = [
  	$statements,
  	$extra
  );
-#:setup:end
 
-#:statement:begin
+
+#:%statement
 #:The line `[@ $proof->Print @]*` prints the statement and options in the proof.
-#:statement:end
 BEGIN_PGML
 
 Prove that [`\sqrt{2}`] is irrational.
 
 [@ $proof->Print @]*
 END_PGML
-#:statement:end
 
-#:answer:begin
+
+#:%answer
 ANS($proof->cmp);
-#:answer:end
 
-#:solution:begin
-#:
-#:solution:code
+
+#:%solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
 
 ENDDOCUMENT();
-#:solution:end

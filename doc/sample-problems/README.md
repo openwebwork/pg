@@ -11,25 +11,32 @@ In addition, the comments that are associated with each file in on the webwork w
 have been embedded as formatted comments in the PGML files. The format for these have the form
 
 ```perl
-#:preamble:start
+#:%preamble color:blue
 #:This is the documentation comments for the preamble
-#:preamble:code
 DOCUMENT();
 
 loadMacros('PGstandard.pl','MathObjects.pl','PGML.pl','PGcourse.pl');
 
 TEXT(beginproblem());
-#:preamble:end
+#:%setup
+#:We use `do { $b = random(2,9,1); } until ( $b != $a );` to generate distinct
+#:random numbers.
+Context("Numeric");
+
+$a = non_zero_random(-9,9,1);
+do { $b = random(2,9,1); } until ( $b != $a );
+
+$answer1 = Compute("$a");
+$answer2 = Compute("($a x^($b) + $b)/x")->reduce();
 ```
 
-where each line of the documentation starts with `#:` and each section has a
-`start`, `code` and `end` line that separates the documentation and the code.
-The section name (`preamble` above) can be anything, and currently is used for
-the coloring and a section title in the documentation.  The default ones are `preamble, setup, statement, answer` and `solution`.
+where the beginning of a documentation block starts with `#:%` followed by a section name, then any options in the pattern `opt=value` or `opt:value`. The default names are `preamble, setup, statement, answer` and `solution`.
 
-In the documenation block (between the `start` and `code` lines), the format
-is in markdown.  Note that since generating paragraphs in markdown requires an
-empty line, do this with a `#:` line in the PG code.
+All documentation lines following a `#:%` start with `#:` and are formating in
+markdown.
+
+After the documentation lines, the code is then stored up until the next `#:%` line.
+
 
 ## Generate the documentation
 
@@ -39,4 +46,4 @@ directory of pg.  Look at the script for help.
 The script `parse-prob-doc.pl` parses each pg file and uses the `prob-template.mt`
 template file to generate the html.  This template of type `Mojo::Template`.
 See [the mojo documentation](https://docs.mojolicious.org/Mojo/Template) for
-more information
+more information.

@@ -16,10 +16,8 @@
 # http://webwork.maa.org/pod/pg_TRUNK/macros/contextReaction.pl.html
 # http://webwork.maa.org/moodle/mod/forum/discuss.php?d=449
 
-#:preamble:begin
+#:%preamble
 #: Load `contextReaction.pl`
-#:
-#:preamble:code
 DOCUMENT();
 
 loadMacros(
@@ -32,18 +30,14 @@ loadMacros(
 );
 
 TEXT(beginproblem());
-#:preamble:end
 
-$showPartialCorrectAnswers = 1;
-
-#:setup:begin
+#:%setup
 #:We create a couple of arrays `@reactants` and `@products` and fill them with
 #:some examples of balanced chemical equations.  The second and third examples
 #:show that groupings, such as for `(OH)_2` are necessary.  The third example
 #:shows how you could randomize a chemical reaction question.  In particular, note
 #:that `${b}_2` is needed instead of `$b_2` so that Perl interprets the variable
 #:as `$b` with a subscript of 2 instead of a variable named `$b_2` with no subscript.
-#:setup:code
 Context("Reaction");
 
 @reactants = ();
@@ -70,12 +64,10 @@ $products[3] = Formula("2 $a $b + Mg (OH)_2");
 $num_choices = $#reactants;
 
 $i = random(0,$num_choices,1);
-#:setup:end
 
-#:statement:begin
+#:%statement
 #:Note that we uses spaces around `$i` in things like `$reactants[ $i ]` and `$products[ $i ]`
 #:This is a work around for a known PGML bug as of June 2015 (the bug will likely get fixed very soon).
-#:statement:code
 BEGIN_PGML
 [` [$reactants[ $i ]] \longrightarrow `] [_____________________________]{$products[ $i ]}
 
@@ -83,4 +75,3 @@ Enter a subscript using an underscore, such as [| H_2 O |]* for [` \mathrm{H_2 O
 END_PGML
 
 ENDDOCUMENT();
-#:statement:end

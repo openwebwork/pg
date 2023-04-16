@@ -45,11 +45,11 @@
 	<% for my $b (@$blocks) { %>
 		<tr valign="top">
 			<td class="code">
-				<pre><%= $code->{$b} %></pre>
+				<pre><%= $b->{code} %></pre>
 			</td>
-			<td class="<%= $b %> explanation">
-			<p><b><%= ucfirst($b) %></b></p>
-				<%= $doc->{$b} %>
+			<td class="<%= $b->{name} %> explanation">
+			<p><b><%= ucfirst($b->{name}) %></b></p>
+				<%= $b->{doc} %>
 			</td>
 		</tr>
 		<% } %>

@@ -19,7 +19,7 @@
 ##########################
 #  Initialization
 
-#:preamble:begin
+#:%preamble
 #:Use the `PGessaymacros.pl` for the essay answer
 #:and `parserPopUp.pl` for the multiple choice drop
 #:down menu.  Setting `$showPartialCorrectAnswers = 0;`
@@ -33,17 +33,14 @@
 #:problem grader (the average problem grader) would award
 #:50 percent credit to students who answer the multiple choice
 #:question correct.
-#:preamble:code
 DOCUMENT();
 loadMacros('PGstandard.pl','MathObjects.pl','parserPopUp.pl',
   'PGessaymacros.pl','PGML.pl','PGcourse.pl');
+
 TEXT(beginproblem());
-
 $showPartialCorrectAnswers = 0;
-#:preamble:end
 
-#:setup:begin
-#:setup:code
+#:%setup
 Context('Numeric');
 
 $popup = PopUp(
@@ -51,18 +48,15 @@ $popup = PopUp(
 'False' # corect answer
 );
 
-
 $a = random(2,5,1);
 
 $f1 = Compute("ln(x (x-$a))");
 $f2 = Compute("ln(x) + ln(x-$a)");
-#:setup:end
 
-#:statement:begin
+#:%statement
 #:Clearly communicate to the student the expectations
 #:of the problem and how it will be graded.  The `essay_box(w,h)`
 #:is resizable and takes inputs for initial width and height.
-#:statement:code
 BEGIN_PGML
 Answer the following true / false question and
 then explain your answer.  Your answers will be
@@ -74,9 +68,9 @@ For all real numbers [` x `], [` [$f1] = [$f2] `].
 Please explain your reasoning in the answer box below.
 [@ essay_box(8,60) @]*
 END_PGML
-#:statement:end
 
-#:answer:begin
+
+#:%answer
 #:The essay answer is graded manually by the professor.  Hand grading is done
 #: either (1) by clicking on the homework set and clicking the **Grade problem**
 #: link in the rightmost column of the problem list.
@@ -95,10 +89,9 @@ END_PGML
 #:Note that `essay_cmp()` is not associated with any object (i.e.,it is **not**
 #: `$essay->cmp()`).
 #:
-#:answer:code
 ANS( $popup->cmp() );
 ANS( essay_cmp() );
 
 
 ENDDOCUMENT();
-#:answer:end
+

@@ -12,29 +12,20 @@
 ## MO(1)
 ## KEYWORDS('multiple choice', 'template')
 
-
-###########################
-#  Initialization
-#:preamble:begin
-#: The macro `parserRadioButtons.pl` must be loaded.
-#:preamble:code
+#:%preamble color:blue
+#:The macro `parserRadioButtons.pl` must be loaded.
 DOCUMENT();
 
 loadMacros('PGstandard.pl','MathObjects.pl','parserRadioButtons.pl','PGML.pl',
   'PGcourse.pl');
 
 TEXT(beginproblem());
-#:preamble:end
 
-###########################
-#  Setup
-
-#:setup:begin
+#:%setup
 #:To create a radio object, use `$radio = RadioButtons([choices,...],correct,options);`
 #:For all options, see MultipleChoiceProblems and parserRadioButtons.pl. The context
 #:is not really necessary, but multiple choice questions are often follow-up questions,
 #:so we leave it in.
-#:setup:code
 Context('Numeric');
 
 $radio1 = RadioButtons(
@@ -50,13 +41,7 @@ $radio2 = RadioButtons(
   separator => '&nbsp;'
 );
 
-#:setup:end
-
-###########################
-#  Main text
-
-#:statement:begin
-#:statement:code
+#:%statement
 BEGIN_PGML
 My favorite color is
 
@@ -65,12 +50,9 @@ My favorite color is
 Another layout method:
 
 My favorite color is [__]{$radio2}
-
 END_PGML
-#:statement:end
 
-#:solution:begin
-#:solution:code
+#:%solution
 BEGIN_PGML_SOLUTION
 The correct answer to the first is [$radio1->correct_ans()].
 
@@ -78,4 +60,3 @@ The correct answer to the first is [$radio2->correct_ans()].
 END_PGML_SOLUTION
 
 ENDDOCUMENT();
-#:solution:end

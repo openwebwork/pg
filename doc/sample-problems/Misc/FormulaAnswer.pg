@@ -11,25 +11,17 @@
 ## MO(1)
 ## KEYWORDS('formula answer', 'template')
 
-#:preamble:begin
-#:preamble:code
+#:%preamble
+
 DOCUMENT();
 
 loadMacros('PGstandard.pl','MathObjects.pl','PGML.pl');
 
 TEXT(beginproblem());
-#:preamble:end
 
-$showPartialCorrectAnswers = 1;
-
-
-###########################
-#  Setup
-
-#:setup:begin
+#:%setup
 #:We use `do { $b = random(2,9,1); } until ( $b != $a );` to generate distinct
 #:random numbers.
-#:setup:code
 Context("Numeric");
 
 $a = non_zero_random(-9,9,1);
@@ -37,24 +29,19 @@ do { $b = random(2,9,1); } until ( $b != $a );
 
 $answer1 = Compute("$a");
 $answer2 = Compute("($a x^($b) + $b)/x")->reduce();
-#:setup:end
 
-#:statement:begin
+
+#:%statement
 #: * The `helpLink` command show some additional help for entering values.
-#:
-#:statement:code
 BEGIN_PGML
 Enter [`[$answer1]`]: [____]{$answer1} [@ helpLink('number') @]*
 
 Enter [`[$answer2]`]: [____]{$answer2} [@ helpLink('formula') @]*
 END_PGML
-#:statement:end
 
-#:solution:begin
-#:solution:code
+#:%solution
 BEGIN_PGML_SOLUTION
 
 Solution explanation goes here.
 END_PGML_SOLUTION
 ENDDOCUMENT();
-#:solution:end

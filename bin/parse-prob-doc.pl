@@ -39,55 +39,31 @@ while (my $file = glob("$prob_dir/*.pg")) {
 }
 
 sub parseFile ($file) {
-	# Store the block names, code, document comments and full file with MD comments stripped
 	my @blocks;
-	my $code = {};
-	my $doc  = {};
-	my @full_file;
-
-	# Store the flags for inside code and document blocks;
-	my ($inside_doc, $inside_code);
+	my @doc_rows;
+	my @code_rows;
 
 	open(my $FH, '<:encoding(UTF-8)', $file) || die "Could not open file '$file' $!";
+
+	my %options;
 	while (my $row = <$FH>) {
 		chomp($row) if $row;
-		if ($row =~ /^#:(\w+):begin*$/) {
-			$inside_doc  = 1;
-			$inside_code = 0;
-			push(@blocks, $1);
-			$code->{ $blocks[$#blocks] } = [];
-			$doc->{ $blocks[$#blocks] }  = [];
-		} elsif ($row =~ /^\s*#:(\w+):code\s*$/) {
-			die 'A :XXXX:code statement encountered before a :XXXX:begin statement' unless $inside_doc;
-			die "A :$blocks[$#blocks]:code expected"                                unless $blocks[$#blocks] eq $1;
-			$inside_code = 1;
-			$inside_doc  = 0;
-		} elsif ($row =~ /^\s*#:(\w+):end\s*$/) {
-			die "Missing '$blocks[$#blocks]:end'" unless $blocks[$#blocks] eq $1;
-			$inside_doc  = '';
-			$inside_code = '';
+		if ($row =~ /^#:%(\w+)\s*(.*)?/) {
+			push(@blocks, { %options, doc => $md->markdown(join("\n", @doc_rows)), code => join("\n", @code_rows) })
+				if %options;
+			%options       = split(/\s*:\s*|\s*,\s*|\s*=\s*|\s+/, $2);
+			$options{name} = $1;
+			@doc_rows      = ();
+			@code_rows     = ();
+		} elsif ($row =~ /^#:/) {
+			push(@doc_rows, $row =~ s/^#://r);
 		} else {
-			push(@{ $code->{ $blocks[$#blocks] } }, $row)             if $inside_code;
-			push(@{ $doc->{ $blocks[$#blocks] } },  $row =~ s/^#://r) if $inside_doc;
+			push(@code_rows, $row);
 		}
-		push(@full_file, $row) unless $row =~ /^#:/;
 	}
 	close $FH;
-
-	for my $b (@blocks) {
-		$code->{$b} = join("\n", @{ $code->{$b} });
-		$doc->{$b}  = $md->markdown(join("\n", @{ $doc->{$b} }));
-	}
-	# print Dumper \@full_file;
-	return {
-		blocks => \@blocks,
-		code   => $code,
-		doc    => $doc
-	};
+	push(@blocks, { %options, doc => $md->markdown(join("\n", @doc_rows)), code => join("\n", @code_rows) });
+	return { blocks => \@blocks };
 }
-
-# parseFile($ARGV[0]);
-
-# print Dumper $mt->render_file($out_template, parseFile($ARGV[0]));
 
 1;

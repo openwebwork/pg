@@ -15,24 +15,18 @@
 ###########################
 #  Initialization
 
-#:preamble:begin
+#:%preamble
 #:We use `PGchoicemacros.pl` to construct the list of multiple choice items, and the
 #:custom problem grader fluid from `PGgraders.pl` for incremental grading.
-#:preamble:code
 DOCUMENT();
 
 loadMacros('PGstandard.pl','MathObjects.pl','PGchoicemacros.pl','PGgraders.pl',
   'PGML.pl','PGcourse.pl');
 
 TEXT(beginproblem());
-#:preamble:end
 
-###########################
-#  Setup
-
-#:setup:begin
+#:%setup
 #:We can choose how many of the questions will be presented to students.
-#:setup:code
 Context('Numeric');
 
 # Create and use pop up lists
@@ -64,26 +58,17 @@ $tf -> qa (
 'False',
 );
 
-# How many questions to use
+# Select the number of questions to use.
 $tf->choose(6);
-#:setup:end
 
-###########################
-#  Main text
-
-#:statement:begin
-#:statement:code
+#:%statement
 BEGIN_PGML
 Are the following statements true or false?
 
 [@ $tf -> print_q() @]*
 END_PGML
-#:statement:end
 
-############################
-#  Answer evaluation
-
-#:answer:begin
+#:%answer
 #:We must withhold feedback from students by setting `$showPartialCorrectAnswers = 0;`
 #:We use an incremental grader called `custom_problem_grader_fluid`.
 #:With this problem grader, you must specify the number of correct answers `[2,4,6]`
@@ -91,7 +76,7 @@ END_PGML
 #:
 #:If you want a grader that awards full credit when all questions are correct and
 #:no credit otherwise, uncomment the standard problem grader.
-#:answer:code
+
 $showPartialCorrectAnswers = 0;
 
 # Incremental grader
@@ -106,18 +91,16 @@ $ENV{'grader_message'} = 'You can earn ' .
 # install_problem_grader(~~&std_problem_grader);
 
 ANS( str_cmp( $tf->ra_correct_ans() ) );
-#:answer:end
+
 
 ############################
 #  Solution
 
-#:solution:begin
+#:%solution
 #:A method to match explanations with a shuffled list of matching problems is
 #:presented in Matching Problems [POD].
-#:solution:code
 BEGIN_PGML_SOLUTION
 The answer is [$tf->print_a]*.
 END_PGML_SOLUTION
 
 ENDDOCUMENT();
-#:solution:end

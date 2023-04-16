@@ -13,25 +13,16 @@
 ## MO(1)
 ## KEYWORDS('multiple choice', 'template')
 
-
-###########################
-#  Initialization
-
-#:preamble:begin
+#:%preamble
 #: The macro `parserPopUp.pl` must be loaded.
-#:preamble:code
 DOCUMENT();
 
 loadMacros('PGstandard.pl','MathObjects.pl','parserPopUp.pl','PGML.pl',
   'PGcourse.pl');
 
 TEXT(beginproblem());
-#:preamble:end
 
-###########################
-#  Setup
-
-#:setup:begin
+#:%setup
 #:To create a radio object, use `$popup = PopUp([choices,...],correct);`
 #:For details, see parserPopUp.pl The context is not really necessary, but multiple
 #:choice questions are often follow-up questions, so we leave it in.
@@ -39,7 +30,6 @@ TEXT(beginproblem());
 #:The `parsePopUp.pl` macro has two methods `PopUp` and `DropDown`. The former requires
 #:that a default `?` is coded in the first element.  The latter will put that in
 #:unless the `placeholder` option is there.
-#:setup:code
 #:
 #:Note: setting the `$showPartialCorrectAnswers` to 0 is often desirable for
 #:multiple choice problems so students don't know which part is incorrect and
@@ -52,14 +42,8 @@ $popup = PopUp(["?",'Red','Blue','Green'],'Blue');
 $dropdown1 = DropDown(['Red','Blue','Green'],'Green');
 
 $dropdown2 = DropDown(['Red','Blue','Green'],'Red', placeholder => 'Select One');
-#:setup:end
 
-###########################
-#  Main text
-
-#:statement:begin
-
-#:statement:code
+#:%statement
 BEGIN_PGML
 Select my favorite color [__]{$popup}
 
@@ -72,10 +56,9 @@ Select my favorite color [__]{$dropdown1}
 Select my favorite color [__]{$dropdown2}
 
 END_PGML
-#:statement:end
 
-#:solution:begin
-#:solution:code
+
+#:%solution
 BEGIN_PGML_SOLUTION
 * The first correct answer is [$popup->correct_ans()].
 * The second correct answer is [$dropdown1->correct_ans()].
@@ -83,4 +66,3 @@ BEGIN_PGML_SOLUTION
 END_PGML_SOLUTION
 
 ENDDOCUMENT();
-#:solution:end
