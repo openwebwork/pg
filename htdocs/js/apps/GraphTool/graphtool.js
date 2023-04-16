@@ -9,7 +9,7 @@ window.graphTool = (containerId, options) => {
 	const gt = {};
 
 	gt.graphContainer = document.getElementById(containerId);
-	if (getComputedStyle(gt.graphContainer)?.width === '') {
+	if (gt.graphContainer.offsetWidth === 0) {
 		setTimeout(() => window.graphTool(containerId, options), 100);
 		return;
 	}

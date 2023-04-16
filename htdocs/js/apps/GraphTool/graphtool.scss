@@ -348,3 +348,23 @@
 		}
 	}
 }
+
+.graphtool-solution-container {
+	.graphtool-graph {
+		width: 402px;
+		height: 402px;
+
+		@media only screen and (max-width: 600px) {
+			width: 302px;
+			height: 302px;
+		}
+	}
+
+	.graphtool-number-line {
+		height: 67px;
+
+		@media only screen and (max-width: 600px) {
+			height: 57px;
+		}
+	}
+}
