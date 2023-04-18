@@ -12,55 +12,178 @@ my $p2 = Person->new(name => 'Gabriella', pronoun => 'she');
 my $p3 = Person->new(name => 'Kai',       pronoun => 'they');
 
 subtest 'Tests for he pronouns' => sub {
-	is $p1->name,                 'Fred',    'Test the name method for Fred';
-	is $p1->subject,              'he',      'Test the pronoun method for Fred';
-	is $p1->Subject,              'He',      'Test the capital pronoun method for Fred';
-	is $p1->possessive,           'his',     'Test for the possessive adjective for Fred';
-	is $p1->Possessive,           'His',     'Test for the capital possessive adjective for Fred';
-	is $p1->possession,           'his',     'Test for the possessive pronoun for Fred';
-	is $p1->Possession,           'His',     'Test for the capital possessive pronoun for Fred';
-	is $p1->object,               'him',     'Test for the object pronoun for Fred';
-	is $p1->Object,               'Him',     'Test for the capital object pronoun for Fred';
-	is $p1->verb('find'),         'finds',   'Tests the conjugation of the verb to find for Fred.';
-	is $p1->verb('kiss'),         'kisses',  'Tests the conjugation of the verb to kiss for Fred';
-	is $p1->verb('touch'),        'touches', 'Tests the conjugation of the verb to touch for Fred';
-	is $p1->verb('fly'),          'flies',   'Tests the conjugation of the verb to fly for Fred.';
-	is $p1->verb('say'),          'says',    'Tests the conjugation of the verb to say for Fred.';
-	is $p1->verb('buy'),          'buys',    'Tests the conjugation of the verb to buy for Fred.';
-	is $p1->verb('deploy'),       'deploys', 'Tests the conjugation of the verb to deploy for Fred.';
-	is $p1->verb('volley'),       'volleys', 'Tests the conjugation of the verb to volley for Fred.';
-	is $p1->verb('vex', 'vexes'), 'vexes',   'Tests the conjugation of the verb to vex for Fred.';
-	is $p1->dodoes,               'does',    'Tests the conjugation of the verb to do for Fred';
-	is $p1->areis,                'is',      'Tests the conjugation of the verb to do for Fred';
-	is $p1->gogoes,               'goes',    'Tests the conjugation of the verb to do for Fred';
-	is $p1->havehas,              'has',     'Tests the conjugation of the verb to do for Fred';
-	is $p1->werewas,              'was',     'Tests the conjugation of the past tense of to be for Fred';
+	is $p1->name,       'Fred', 'Test the name method for Fred';
+	is $p1->subject,    'he',   'Test the pronoun method for Fred';
+	is $p1->Subject,    'He',   'Test the capital pronoun method for Fred';
+	is $p1->possessive, 'his',  'Test for the possessive adjective for Fred';
+	is $p1->Possessive, 'His',  'Test for the capital possessive adjective for Fred';
+	is $p1->possession, 'his',  'Test for the possessive pronoun for Fred';
+	is $p1->Possession, 'His',  'Test for the capital possessive pronoun for Fred';
+	is $p1->object,     'him',  'Test for the object pronoun for Fred';
+	is $p1->Object,     'Him',  'Test for the capital object pronoun for Fred';
+};
+
+subtest 'Tests for verbs for he pronouns' => sub {
+	is $p1->verb('find'), 'finds', 'Tests the conjugation of the verb to find for Fred.';
+	is $p1->Verb('find'), 'Finds', 'Tests the conjugation and capitalization of the verb to find for Fred.';
+	is $p1->verb('Find'), 'Finds', 'Tests the conjugation and capitalization of the verb to find for Fred.';
+
+	is $p1->verb('kiss'), 'kisses', 'Tests the conjugation of the verb to kiss for Fred';
+	is $p1->Verb('kiss'), 'Kisses', 'Tests the conjugation and capitalization of the verb to kiss for Fred';
+	is $p1->verb('Kiss'), 'Kisses', 'Tests the conjugation and capitalization of the verb to kiss for Fred';
+
+	is $p1->verb('touch'), 'touches', 'Tests the conjugation of the verb to touch for Fred';
+	is $p1->Verb('touch'), 'Touches', 'Tests the conjugation and capitalization of the verb to touch for Fred';
+	is $p1->verb('Touch'), 'Touches', 'Tests the conjugation and capitalization of the verb to touch for Fred';
+
+	is $p1->verb('fly'), 'flies', 'Tests the conjugation of the verb to fly for Fred.';
+	is $p1->Verb('fly'), 'Flies', 'Tests the conjugation and capitalization of the verb to fly for Fred.';
+	is $p1->verb('Fly'), 'Flies', 'Tests the conjugation and capitalization of the verb to fly for Fred.';
+
+	is $p1->verb('say'), 'says', 'Tests the conjugation of the verb to say for Fred.';
+	is $p1->Verb('say'), 'Says', 'Tests the conjugation and capitalization of the verb to say for Fred.';
+	is $p1->verb('Say'), 'Says', 'Tests the conjugation and capitalization of the verb to say for Fred.';
+
+	is $p1->verb('buy'), 'buys', 'Tests the conjugation of the verb to buy for Fred.';
+	is $p1->Verb('buy'), 'Buys', 'Tests the conjugation and capitalization of the verb to buy for Fred.';
+	is $p1->verb('Buy'), 'Buys', 'Tests the conjugation and capitalization of the verb to buy for Fred.';
+
+	is $p1->verb('deploy'), 'deploys', 'Tests the conjugation of the verb to deploy for Fred.';
+	is $p1->Verb('deploy'), 'Deploys', 'Tests the conjugation and capitalization of the verb to deploy for Fred.';
+	is $p1->verb('Deploy'), 'Deploys', 'Tests the conjugation and capitalization of the verb to deploy for Fred.';
+
+	is $p1->verb('volley'), 'volleys', 'Tests the conjugation of the verb to volley for Fred.';
+	is $p1->Verb('volley'), 'Volleys', 'Tests the conjugation and capitalization of the verb to volley for Fred.';
+	is $p1->verb('Volley'), 'Volleys', 'Tests the conjugation and capitalization of the verb to volley for Fred.';
+
+	is $p1->verb('vex', 'vexes'), 'vexes', 'Tests the conjugation of the verb to vex for Fred.';
+	is $p1->Verb('vex', 'vexes'), 'Vexes', 'Tests the conjugation and capitalization of the verb to vex for Fred.';
+	is $p1->verb('Vex', 'Vexes'), 'Vexes', 'Tests the conjugation and capitalization of the verb to vex for Fred.';
+
+	is $p1->do,         'does', 'Tests the conjugation of the verb to do for Fred';
+	is $p1->verb('do'), 'does', 'Tests the conjugation of the verb to do for Fred';
+	is $p1->Do,         'Does', 'Tests the conjugation and capitalization of the verb to do for Fred';
+	is $p1->verb('Do'), 'Does', 'Tests the conjugation and capitalization of the verb to do for Fred';
+
+	is $p1->are,         'is', 'Tests the conjugation of the verb to do for Fred';
+	is $p1->verb('are'), 'is', 'Tests the conjugation of the verb to do for Fred';
+	is $p1->Are,         'Is', 'Tests the conjugation and capitalization of the verb to do for Fred';
+	is $p1->verb('Are'), 'Is', 'Tests the conjugation and capitalization of the verb to do for Fred';
+
+	is $p1->go,         'goes', 'Tests the conjugation of the verb to do for Fred';
+	is $p1->verb('go'), 'goes', 'Tests the conjugation of the verb to do for Fred';
+	is $p1->Go,         'Goes', 'Tests the conjugation and capitalization of the verb to do for Fred';
+	is $p1->verb('Go'), 'Goes', 'Tests the conjugation and capitalization of the verb to do for Fred';
+
+	is $p1->have,         'has', 'Tests the conjugation of the verb to do for Fred';
+	is $p1->verb('have'), 'has', 'Tests the conjugation of the verb to do for Fred';
+	is $p1->Have,         'Has', 'Tests the conjugation and capitalization of the verb to do for Fred';
+	is $p1->verb('Have'), 'Has', 'Tests the conjugation and capitalization of the verb to do for Fred';
+
+	is $p1->were,         'was', 'Tests the conjugation of the past tense of to be for Fred';
+	is $p1->verb('were'), 'was', 'Tests the conjugation of the past tense of to be for Fred';
+	is $p1->Were,         'Was', 'Tests the conjugation and capitalization of the past tense of to be for Fred';
+	is $p1->verb('Were'), 'Was', 'Tests the conjugation and capitalization of the past tense of to be for Fred';
+
+	# test verb with other method names
+	is $p1->verb('object'),  'objects',  'Tests the conjugation of the verb object for Fred';
+	is $p1->verb('Object'),  'Objects',  'Tests the conjugation of the verb Object for Fred';
+	is $p1->verb('subject'), 'subjects', 'Tests the conjugation of the verb subject for Fred';
+	is $p1->verb('Subject'), 'Subjects', 'Tests the conjugation of the verb subject for Fred';
+	is $p1->verb('name'),    'names',    'Tests the conjugation of the verb name for Fred';
+	is $p1->verb('Name'),    'Names',    'Tests the conjugation of the verb Name for Fred';
 };
 
 subtest 'Tests for she pronouns' => sub {
-	is $p2->name,                 'Gabriella', 'Test the name method for Gabriella';
-	is $p2->subject,              'she',       'Test the pronoun method for Gabriella';
-	is $p2->Subject,              'She',       'Test the capital pronoun method for Gabriella';
-	is $p2->possessive,           'her',       'Test for the possessive adjective for Gabriella';
-	is $p2->Possessive,           'Her',       'Test for the capital possessive adjective for Gabriella';
-	is $p2->possession,           'hers',      'Test for the possessive pronoun for Gabriella';
-	is $p2->Possession,           'Hers',      'Test for the capital possessive pronoun for Gabriella';
-	is $p2->object,               'her',       'Test for the object pronoun for Gabriella';
-	is $p2->Object,               'Her',       'Test for the capital object pronoun for Gabriella';
-	is $p2->verb('find'),         'finds',     'Tests the conjugation of the verb to find for Gabriella.';
-	is $p2->verb('kiss'),         'kisses',    'Tests the conjugation of the verb to kiss for Gabriella';
-	is $p2->verb('touch'),        'touches',   'Tests the conjugation of the verb to touch for Gabriella';
-	is $p2->verb('fly'),          'flies',     'Tests the conjugation of the verb to fly for Gabriella.';
-	is $p2->verb('say'),          'says',      'Tests the conjugation of the verb to say for Gabriella.';
-	is $p2->verb('buy'),          'buys',      'Tests the conjugation of the verb to buy for Gabriella.';
-	is $p2->verb('deploy'),       'deploys',   'Tests the conjugation of the verb to deploy for Gabriella.';
-	is $p2->verb('volley'),       'volleys',   'Tests the conjugation of the verb to volley for Gabriella.';
-	is $p2->verb('vex', 'vexes'), 'vexes',     'Tests the conjugation of the verb to vex for Gabriella.';
-	is $p2->dodoes,               'does',      'Tests the conjugation of the verb to do for Gabriella';
-	is $p2->areis,                'is',        'Tests the conjugation of the verb to do for Gabriella';
-	is $p2->gogoes,               'goes',      'Tests the conjugation of the verb to do for Gabriella';
-	is $p2->havehas,              'has',       'Tests the conjugation of the verb to do for Gabriella';
-	is $p2->werewas,              'was',       'Tests the conjugation of the past tense of to be for Gabriella';
+	is $p2->name,       'Gabriella', 'Test the name method for Gabriella';
+	is $p2->subject,    'she',       'Test the pronoun method for Gabriella';
+	is $p2->Subject,    'She',       'Test the capital pronoun method for Gabriella';
+	is $p2->possessive, 'her',       'Test for the possessive adjective for Gabriella';
+	is $p2->Possessive, 'Her',       'Test for the capital possessive adjective for Gabriella';
+	is $p2->possession, 'hers',      'Test for the possessive pronoun for Gabriella';
+	is $p2->Possession, 'Hers',      'Test for the capital possessive pronoun for Gabriella';
+	is $p2->object,     'her',       'Test for the object pronoun for Gabriella';
+	is $p2->Object,     'Her',       'Test for the capital object pronoun for Gabriella';
+
+};
+
+subtest 'Tests for verbs for she pronouns' => sub {
+	is $p2->verb('find'), 'finds', 'Tests the conjugation of the verb to find for Gabriella.';
+	is $p2->Verb('find'), 'Finds', 'Tests the conjugation and capitalization of the verb to find for Gabriella.';
+	is $p2->verb('Find'), 'Finds', 'Tests the conjugation and capitalization of the verb to find for Gabriella.';
+
+	is $p2->verb('kiss'), 'kisses', 'Tests the conjugation of the verb to kiss for Gabriella';
+	is $p2->Verb('kiss'), 'Kisses', 'Tests the conjugation and capitalization of the verb to kiss for Gabriella';
+	is $p2->verb('Kiss'), 'Kisses', 'Tests the conjugation and capitalization of the verb to kiss for Gabriella';
+
+	is $p2->verb('touch'), 'touches', 'Tests the conjugation of the verb to touch for Gabriella';
+	is $p2->Verb('touch'), 'Touches', 'Tests the conjugation and capitalization of the verb to touch for Gabriella';
+	is $p2->verb('Touch'), 'Touches', 'Tests the conjugation and capitalization of the verb to touch for Gabriella';
+
+	is $p2->verb('fly'), 'flies', 'Tests the conjugation of the verb to fly for Gabriella.';
+	is $p2->Verb('fly'), 'Flies', 'Tests the conjugation and capitalization of the verb to fly for Gabriella.';
+	is $p2->verb('Fly'), 'Flies', 'Tests the conjugation and capitalization of the verb to fly for Gabriella.';
+
+	is $p2->verb('say'), 'says', 'Tests the conjugation of the verb to say for Gabriella.';
+	is $p2->Verb('say'), 'Says', 'Tests the conjugation and capitalization of the verb to say for Gabriella.';
+	is $p2->verb('Say'), 'Says', 'Tests the conjugation and capitalization of the verb to say for Gabriella.';
+
+	is $p2->verb('buy'), 'buys', 'Tests the conjugation of the verb to buy for Gabriella.';
+	is $p2->Verb('buy'), 'Buys', 'Tests the conjugation and capitalization of the verb to buy for Gabriella.';
+	is $p2->verb('Buy'), 'Buys', 'Tests the conjugation and capitalization of the verb to buy for Gabriella.';
+
+	is $p2->verb('deploy'), 'deploys', 'Tests the conjugation of the verb to deploy for Gabriella.';
+	is $p2->Verb('deploy'), 'Deploys',
+		'Tests the conjugation and capitalization of the verb to deploy for Gabriella.';
+	is $p2->verb('Deploy'), 'Deploys',
+		'Tests the conjugation and capitalization of the verb to deploy for Gabriella.';
+
+	is $p2->verb('volley'), 'volleys', 'Tests the conjugation of the verb to volley for Gabriella.';
+	is $p2->Verb('volley'), 'Volleys',
+		'Tests the conjugation and capitalization of the verb to volley for Gabriella.';
+	is $p2->verb('Volley'), 'Volleys',
+		'Tests the conjugation and capitalization of the verb to volley for Gabriella.';
+
+	is $p2->verb('vex', 'vexes'), 'vexes', 'Tests the conjugation of the verb to vex for Gabriella.';
+	is $p2->Verb('vex', 'vexes'), 'Vexes',
+		'Tests the conjugation and capitalization of the verb to vex for Gabriella.';
+	is $p2->verb('Vex', 'Vexes'), 'Vexes',
+		'Tests the conjugation and capitalization of the verb to vex for Gabriella.';
+
+	is $p2->do,         'does', 'Tests the conjugation of the verb to do for Gabriella';
+	is $p2->verb('do'), 'does', 'Tests the conjugation of the verb to do for Gabriella';
+	is $p2->Do,         'Does', 'Tests the conjugation and capitalization of the verb to do for Gabriella';
+	is $p2->verb('Do'), 'Does', 'Tests the conjugation and capitalization of the verb to do for Gabriella';
+
+	is $p2->are,         'is', 'Tests the conjugation of the verb to do for Gabriella';
+	is $p2->verb('are'), 'is', 'Tests the conjugation of the verb to do for Gabriella';
+	is $p2->Are,         'Is', 'Tests the conjugation and capitalization of the verb to do for Gabriella';
+	is $p2->verb('Are'), 'Is', 'Tests the conjugation and capitalization of the verb to do for Gabriella';
+
+	is $p2->go,         'goes', 'Tests the conjugation of the verb to do for Gabriella';
+	is $p2->verb('go'), 'goes', 'Tests the conjugation of the verb to do for Gabriella';
+	is $p2->Go,         'Goes', 'Tests the conjugation and capitalization of the verb to do for Gabriella';
+	is $p2->verb('Go'), 'Goes', 'Tests the conjugation and capitalization of the verb to do for Gabriella';
+
+	is $p2->have,         'has', 'Tests the conjugation of the verb to do for Gabriella';
+	is $p2->verb('have'), 'has', 'Tests the conjugation of the verb to do for Gabriella';
+	is $p2->Have,         'Has', 'Tests the conjugation and capitalization of the verb to do for Gabriella';
+	is $p2->verb('Have'), 'Has', 'Tests the conjugation and capitalization of the verb to do for Gabriella';
+
+	is $p2->were,         'was', 'Tests the conjugation of the past tense of to be for Gabriella';
+	is $p2->verb('were'), 'was', 'Tests the conjugation of the past tense of to be for Gabriella';
+	is $p2->Were,         'Was', 'Tests the conjugation and capitalization of the past tense of to be for Gabriella';
+	is $p2->verb('Were'), 'Was',
+		'Tests the conjugation and capitalization of the past tense of to be for Gabriella';
+
+	# test verb with other method names
+	is $p2->verb('object'),  'objects',  'Tests the conjugation of the verb object for Gabriella';
+	is $p2->verb('Object'),  'Objects',  'Tests the conjugation of the verb Object for Gabriella';
+	is $p2->verb('subject'), 'subjects', 'Tests the conjugation of the verb subject for Gabriella';
+	is $p2->verb('Subject'), 'Subjects', 'Tests the conjugation of the verb subject for Gabriella';
+	is $p2->verb('name'),    'names',    'Tests the conjugation of the verb name for Gabriella';
+	is $p2->verb('Name'),    'Names',    'Tests the conjugation of the verb Name for Gabriella';
+
 };
 
 subtest 'Tests for they pronouns' => sub {
@@ -73,21 +196,78 @@ subtest 'Tests for they pronouns' => sub {
 	is $p3->Possession, 'Theirs', 'Test for the capital possessive pronoun for Kai';
 	is $p3->object,     'them',   'Test for the object pronoun for Kai';
 	is $p3->Object,     'Them',   'Test for the capital object pronoun for Kai';
+};
 
-	is $p3->verb('find'),         'find',   'Tests the conjugation of the verb to find for Kai';
-	is $p3->verb('kiss'),         'kiss',   'Tests the conjugation of the verb to kiss for Kai';
-	is $p3->verb('touch'),        'touch',  'Tests the conjugation of the verb to touch for Kai';
-	is $p3->verb('fly'),          'fly',    'Tests the conjugation of the verb to fly for Kai';
-	is $p3->verb('say'),          'say',    'Tests the conjugation of the verb to say for Kai.';
-	is $p3->verb('buy'),          'buy',    'Tests the conjugation of the verb to buy for Kai.';
-	is $p3->verb('deploy'),       'deploy', 'Tests the conjugation of the verb to deploy for Kai.';
-	is $p3->verb('volley'),       'volley', 'Tests the conjugation of the verb to volley for Kai.';
-	is $p3->verb('vex', 'vexes'), 'vex',    'Tests the conjugation of the verb to vex for Kai.';
-	is $p3->dodoes,               'do',     'Tests the conjugation of the verb to do for Kai';
-	is $p3->areis,                'are',    'Tests the conjugation of the verb to do for Kai';
-	is $p3->gogoes,               'go',     'Tests the conjugation of the verb to do for Kai';
-	is $p3->havehas,              'have',   'Tests the conjugation of the verb to do for Kai';
-	is $p3->werewas,              'were',   'Tests the conjugation of the past tense of to be for Kai';
+subtest 'Tests for verbs for she pronouns' => sub {
+	is $p3->verb('find'), 'find', 'Tests the conjugation of the verb to find for Kai.';
+	is $p3->Verb('find'), 'Find', 'Tests the conjugation and capitalization of the verb to find for Kai.';
+	is $p3->verb('Find'), 'Find', 'Tests the conjugation and capitalization of the verb to find for Kai.';
+
+	is $p3->verb('kiss'), 'kiss', 'Tests the conjugation of the verb to kiss for Kai';
+	is $p3->Verb('kiss'), 'Kiss', 'Tests the conjugation and capitalization of the verb to kiss for Kai';
+	is $p3->verb('Kiss'), 'Kiss', 'Tests the conjugation and capitalization of the verb to kiss for Kai';
+
+	is $p3->verb('touch'), 'touch', 'Tests the conjugation of the verb to touch for Kai';
+	is $p3->Verb('touch'), 'Touch', 'Tests the conjugation and capitalization of the verb to touch for Kai';
+	is $p3->verb('Touch'), 'Touch', 'Tests the conjugation and capitalization of the verb to touch for Kai';
+
+	is $p3->verb('fly'), 'fly', 'Tests the conjugation of the verb to fly for Kai.';
+	is $p3->Verb('fly'), 'Fly', 'Tests the conjugation and capitalization of the verb to fly for Kai.';
+	is $p3->verb('Fly'), 'Fly', 'Tests the conjugation and capitalization of the verb to fly for Kai.';
+
+	is $p3->verb('say'), 'say', 'Tests the conjugation of the verb to say for Kai.';
+	is $p3->Verb('say'), 'Say', 'Tests the conjugation and capitalization of the verb to say for Kai.';
+	is $p3->verb('Say'), 'Say', 'Tests the conjugation and capitalization of the verb to say for Kai.';
+
+	is $p3->verb('buy'), 'buy', 'Tests the conjugation of the verb to buy for Kai.';
+	is $p3->Verb('buy'), 'Buy', 'Tests the conjugation and capitalization of the verb to buy for Kai.';
+	is $p3->verb('Buy'), 'Buy', 'Tests the conjugation and capitalization of the verb to buy for Kai.';
+
+	is $p3->verb('deploy'), 'deploy', 'Tests the conjugation of the verb to deploy for Kai.';
+	is $p3->Verb('deploy'), 'Deploy', 'Tests the conjugation and capitalization of the verb to deploy for Kai.';
+	is $p3->verb('Deploy'), 'Deploy', 'Tests the conjugation and capitalization of the verb to deploy for Kai.';
+
+	is $p3->verb('volley'), 'volley', 'Tests the conjugation of the verb to volley for Kai.';
+	is $p3->Verb('volley'), 'Volley', 'Tests the conjugation and capitalization of the verb to volley for Kai.';
+	is $p3->verb('Volley'), 'Volley', 'Tests the conjugation and capitalization of the verb to volley for Kai.';
+
+	is $p3->verb('vex', 'vexes'), 'vex', 'Tests the conjugation of the verb to vex for Kai.';
+	is $p3->Verb('vex', 'vexes'), 'Vex', 'Tests the conjugation and capitalization of the verb to vex for Kai.';
+	is $p3->verb('Vex', 'Vexes'), 'Vex', 'Tests the conjugation and capitalization of the verb to vex for Kai.';
+
+	is $p3->do,         'do', 'Tests the conjugation of the verb to do for Kai';
+	is $p3->verb('do'), 'do', 'Tests the conjugation of the verb to do for Kai';
+	is $p3->Do,         'Do', 'Tests the conjugation and capitalization of the verb to do for Kai';
+	is $p3->verb('Do'), 'Do', 'Tests the conjugation and capitalization of the verb to do for Kai';
+
+	is $p3->are,         'are', 'Tests the conjugation of the verb to do for Kai';
+	is $p3->verb('are'), 'are', 'Tests the conjugation of the verb to do for Kai';
+	is $p3->Are,         'Are', 'Tests the conjugation and capitalization of the verb to do for Kai';
+	is $p3->verb('Are'), 'Are', 'Tests the conjugation and capitalization of the verb to do for Kai';
+
+	is $p3->go,         'go', 'Tests the conjugation of the verb to do for Kai';
+	is $p3->verb('go'), 'go', 'Tests the conjugation of the verb to do for Kai';
+	is $p3->Go,         'Go', 'Tests the conjugation and capitalization of the verb to do for Kai';
+	is $p3->verb('Go'), 'Go', 'Tests the conjugation and capitalization of the verb to do for Kai';
+
+	is $p3->have,         'have', 'Tests the conjugation of the verb to do for Kai';
+	is $p3->verb('have'), 'have', 'Tests the conjugation of the verb to do for Kai';
+	is $p3->Have,         'Have', 'Tests the conjugation and capitalization of the verb to do for Kai';
+	is $p3->verb('Have'), 'Have', 'Tests the conjugation and capitalization of the verb to do for Kai';
+
+	is $p3->were,         'were', 'Tests the conjugation of the past tense of to be for Kai';
+	is $p3->verb('were'), 'were', 'Tests the conjugation of the past tense of to be for Kai';
+	is $p3->Were,         'Were', 'Tests the conjugation and capitalization of the past tense of to be for Kai';
+	is $p3->verb('Were'), 'Were', 'Tests the conjugation and capitalization of the past tense of to be for Kai';
+
+	# test verb with other method names
+	is $p3->verb('object'),  'object',  'Tests the conjugation of the verb object for Kai';
+	is $p3->verb('Object'),  'Object',  'Tests the conjugation of the verb Object for Kai';
+	is $p3->verb('subject'), 'subject', 'Tests the conjugation of the verb subject for Kai';
+	is $p3->verb('Subject'), 'Subject', 'Tests the conjugation of the verb subject for Kai';
+	is $p3->verb('name'),    'name',    'Tests the conjugation of the verb name for Kai';
+	is $p3->verb('Name'),    'Name',    'Tests the conjugation of the verb Name for Kai';
+
 };
 
 subtest 'Other person tests' => sub {
