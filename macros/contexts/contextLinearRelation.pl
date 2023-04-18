@@ -58,6 +58,19 @@ It is 0 by default.
 
 =back 
 
+There is one special method for LinearRelation objects.
+
+=over
+
+=item S<C<< $LR->check_at(point) >>>
+
+This returns true or false depending on if the point satisfies the relation.
+C<point> must be a MathObject Point, Vector, or ColumnVector; or simply be an
+array reference. The number of entries in C<point> must match the number of
+variables in the context.
+
+=back
+
 =cut
 
 loadMacros('MathObjects.pl');
@@ -323,6 +336,23 @@ sub TeX {
 	}
 }
 
+sub check_at {
+	my ($self, $point) = @_;
+	if (ref($point) ne 'ARRAY') {
+		$self->Error("check_at argument must be an array reference or MathObject Point or Vector.")
+			unless ($point->type eq 'Point' || $point->type eq 'Vector');
+	}
+	my $context = $self->context;
+	$point = $context->Package("Vector")->make($context, @{$point}) if (ref($point) eq 'ARRAY');
+	my @variables = main::lex_sort(keys(%{ $context->{variables} }));
+	my $n         = @variables;
+	$self->Error("The context for this linear relation has $n variables: "
+			. join(', ', @variables)
+			. ", so a point to check at must also have $n entries")
+		unless ($n == $point->value);
+	return $self->eval(map { $variables[$_] => ($point->value)[$_] } (0 .. $#variables));
+}
+
 #
 #  We subclass BOP::equality so that we can give a warning about
 #  things like 1 = 3, and compute the values of inequalities.
@@ -347,7 +377,7 @@ sub _eval {
 		le => ($l <= $r),
 		gt => ($l > $r),
 		ge => ($l >= $r),
-		ne => ($l != $r),
+		ne => ($l != $r)
 	}->{ $self->{def}{kind} };
 }
 
