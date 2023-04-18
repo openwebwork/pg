@@ -563,7 +563,7 @@ sub Object {
 	return ucfirst(shift->object);
 }
 
-=head2 verb
+=head2 C<verb> or C<Verb>
 
 Returns the correct conjugation of the verb. If only one argument is passed in, it should
 be a regular verb in the third person plural conjugation (the "they" version). For example:
@@ -577,7 +577,7 @@ simple heuristics.
     $p2 = new Person(name => 'Max', pronoun => 'they');
     $p2->verb('find')
 
-returns 'find'
+returns 'find'.  The verb can be called directly as a method as well.
 
 If a second argument is passed, it should be the third person singular conjugation
 of the same verb (the "he/she" version). For example:
@@ -587,10 +587,20 @@ of the same verb (the "he/she" version). For example:
 
 returns 'flies'
 
-    $p2 = new Person(name => 'Max', pronoun 'they');
+    $p2 = new Person(name => 'Max', pronoun => 'they');
     $p2->verb('fly', 'flies');
 
 returns 'fly'
+
+Captilization can be found either using the C<Verb> method instead or capitalizing the
+verb. For example:
+
+    $p2 = new Person(name => 'Max', pronoun => 'they');
+    $p2->Verb('say');
+
+returns 'Say', as well as
+
+    $p2->verb('Say');
 
 =cut
 
@@ -598,6 +608,8 @@ sub verb {
 	my ($self, $plur, $sing) = @_;
 	if (defined($sing)) {
 		return ($self->{pronoun} eq 'they' ? $plur : $sing);
+	} elsif ($self->can($plur) && !(grep { $_ eq lc($plur) } qw/object subject name/)) {
+		return $self->$plur;
 	} elsif ($plur =~ /(s|ch|sh)$/) {
 		return ($self->{pronoun} eq 'they' ? $plur : $plur . 'es');
 	} elsif ($plur =~ /[^aeou]y$/) {
@@ -609,54 +621,109 @@ sub verb {
 	}
 }
 
-=head3 C<dodoes>
+sub Verb {
+	my ($self, $plur, $sing) = @_;
+	return ucfirst($self->verb($plur, $sing));
+}
 
-Returns the correct conjugation of to do
+=head3 C<do> or C<Do>
+
+Returns the correct conjugation of to do with captilization. For example
+
+    $p->do;
+
+or
+
+    $p->Do;
 
 =cut
 
-sub dodoes {
+sub do {
 	return shift->verb('do', 'does');
 }
 
-=head3 C<areis>
+sub Do {
+	return shift->verb('Do', 'Does');
+}
 
-Returns the correct conjugation of to be
+=head3 C<are> or C<Are>
+
+Returns the correct conjugation of to be with captilization.  For example
+
+    $p->are;
+
+or
+
+    $p->Are;
 
 =cut
 
-sub areis {
+sub are {
 	return shift->verb('are', 'is');
 }
 
-=head3 C<gogoes>
+sub Are {
+	return shift->verb('Are', 'Is');
+}
 
-Returns the correct conjugation of to go
+=head3 C<go> or C<Go>
+
+Returns the correct conjugation of to go with captilization.  For example
+
+    $p->go;
+
+or
+
+    $p->Go;
 
 =cut
 
-sub gogoes {
+sub go {
 	return shift->verb('go', 'goes');
 }
 
-=head3 C<havehas>
+sub Go {
+	return shift->verb('Go', 'Goes');
+}
 
-Returns the correct conjugation of to have
+=head3 C<have> or C<Have>
+
+Returns the correct conjugation of to have with captilization.  For example
+
+    $p->have;
+
+or
+
+    $p->Have;
 
 =cut
 
-sub havehas {
+sub have {
 	return shift->verb('have', 'has');
 }
 
-=head3 C<werewas>
+sub Have {
+	return shift->verb('Have', 'Has');
+}
 
-Returns the correct conjugation of past tense of to be
+=head3 C<were> or C<Were>
+
+Returns the correct conjugation of past tense of to be with captilization.  For example
+
+    $p->were;
+
+or
+
+    $p->Were;
 
 =cut
 
-sub werewas {
+sub were {
 	return shift->verb('were', 'was');
+}
+
+sub Were {
+	return shift->verb('Were', 'Was');
 }
 
 1;
