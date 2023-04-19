@@ -37,8 +37,8 @@ Each macro aiming to implement drag-n-drop features must call at its
 initialization:
 
     ADD_JS_FILE('node_modules/sortablejs/Sortable.min.js', 0, { defer => undef });
-    ADD_CSS_FILE('js/apps/DragNDrop/dragndrop.css', 0);
-    ADD_JS_FILE('js/apps/DragNDrop/dragndrop.js', 0, { defer => undef });
+    ADD_CSS_FILE('js/DragNDrop/dragndrop.css', 0);
+    ADD_JS_FILE('js/DragNDrop/dragndrop.js', 0, { defer => undef });
     PG_restricted_eval('sub DraggableSubsets {draggableSubsets->new(@_)}');
 
 To initialize a bucket pool call the constructor. For example,

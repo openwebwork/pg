@@ -28,7 +28,7 @@ See also L<Applet.pm>.
 
 # Add basic functionality to the header of the question
 sub _AppletObjects_init {
-	ADD_JS_FILE("js/apps/AppletSupport/ww_applet_support.js");
+	ADD_JS_FILE("js/AppletSupport/ww_applet_support.js");
 }
 
 =head2  GeogebraWebApplet
@@ -38,7 +38,7 @@ Usage:    C<$applet = GeogebraWebApplet(...);>
 =cut
 
 sub GeogebraWebApplet {
-	ADD_JS_FILE("https://www.geogebra.org/apps/deployggb.js", 1);
+	ADD_JS_FILE("https://www.geogebra.org/deployggb.js", 1);
 	return GeogebraWebAppletBase->new(@_);
 }
 

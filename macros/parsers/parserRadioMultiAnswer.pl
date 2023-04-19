@@ -252,8 +252,8 @@ is checked.  If this is set to "shift", unchecking requires the shift key to be 
 loadMacros('MathObjects.pl', 'PGbasicmacros.pl');
 
 sub _parserRadioMultiAnswer_init {
-	ADD_CSS_FILE('js/apps/RadioMultiAnswer/RadioMultiAnswer.css', 0);
-	ADD_JS_FILE('js/apps/RadioMultiAnswer/RadioMultiAnswer.js', 0, { defer => undef });
+	ADD_CSS_FILE('js/RadioMultiAnswer/RadioMultiAnswer.css', 0);
+	ADD_JS_FILE('js/RadioMultiAnswer/RadioMultiAnswer.js', 0, { defer => undef });
 	main::PG_restricted_eval('sub RadioMultiAnswer { parser::RadioMultiAnswer->new(@_) }');
 	return;
 }

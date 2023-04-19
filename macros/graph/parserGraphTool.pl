@@ -392,13 +392,13 @@ Additional objects to display in the graph. The default value is the empty strin
 
 sub _parserGraphTool_init {
 	ADD_CSS_FILE('node_modules/jsxgraph/distrib/jsxgraph.css');
-	ADD_CSS_FILE('js/apps/GraphTool/graphtool.css');
+	ADD_CSS_FILE('js/GraphTool/graphtool.css');
 	ADD_JS_FILE('node_modules/jsxgraph/distrib/jsxgraphcore.js', 0, { defer => undef });
-	ADD_JS_FILE('js/apps/GraphTool/graphtool.js',                0, { defer => undef });
-	ADD_JS_FILE('js/apps/GraphTool/pointtool.js',                0, { defer => undef });
-	ADD_JS_FILE('js/apps/GraphTool/quadratictool.js',            0, { defer => undef });
-	ADD_JS_FILE('js/apps/GraphTool/cubictool.js',                0, { defer => undef });
-	ADD_JS_FILE('js/apps/GraphTool/intervaltools.js',            0, { defer => undef });
+	ADD_JS_FILE('js/GraphTool/graphtool.js',                     0, { defer => undef });
+	ADD_JS_FILE('js/GraphTool/pointtool.js',                     0, { defer => undef });
+	ADD_JS_FILE('js/GraphTool/quadratictool.js',                 0, { defer => undef });
+	ADD_JS_FILE('js/GraphTool/cubictool.js',                     0, { defer => undef });
+	ADD_JS_FILE('js/GraphTool/intervaltools.js',                 0, { defer => undef });
 
 	return;
 }

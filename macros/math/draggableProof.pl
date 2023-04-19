@@ -209,8 +209,8 @@ loadMacros('PGchoicemacros.pl', 'MathObjects.pl');
 
 sub _draggableProof_init {
 	ADD_JS_FILE('node_modules/sortablejs/Sortable.min.js', 0, { defer => undef });
-	ADD_CSS_FILE('js/apps/DragNDrop/dragndrop.css', 0);
-	ADD_JS_FILE('js/apps/DragNDrop/dragndrop.js', 0, { defer => undef });
+	ADD_CSS_FILE('js/DragNDrop/dragndrop.css', 0);
+	ADD_JS_FILE('js/DragNDrop/dragndrop.js', 0, { defer => undef });
 	PG_restricted_eval('sub DraggableProof {parser::DraggableProof->new(@_)}');
 	return;
 }

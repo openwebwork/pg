@@ -262,8 +262,8 @@ within that section.
 
 sub _scaffold_init {
 	# Load style and javascript for opening and closing the scaffolds.
-	ADD_CSS_FILE("js/apps/Scaffold/scaffold.css");
-	ADD_JS_FILE("js/apps/Scaffold/scaffold.js", 0, { defer => undef });
+	ADD_CSS_FILE("js/Scaffold/scaffold.css");
+	ADD_JS_FILE("js/Scaffold/scaffold.js", 0, { defer => undef });
 }
 
 #
