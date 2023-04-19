@@ -29,27 +29,35 @@ Activate the context with:
 
 Use C<LinearRelation(formula)>, C<Formula(formula)>, or C<Compute(formula)> to 
 to create a LinearRelation object using a string formula. Alternatively, use
-C<LinearRelation(vector,point,sign> where C<point> and C<vector> are array references
-and C<sign> is one of the (in)equality symbols. Or use C<LinearRelation(vector,real,sign)>
-where C<real> is the dot product of any point in the plane with its normal C<vector>.
+C<LinearRelation(vector,point,sign> where C<vector> is the normal vector and
+C<point> is a point on the plane. Either can be an array reference or a Math
+Object Vector or Point. And C<sign> is one of the (in)equality symbols. Or use
+C<LinearRelation(vector,real,sign)> where C<real> is the dot product of any
+point in the plane with the normal vector.
 
 Usage examples:
 
     $LR = LinearRelation("x + y + 2z <= 5");
     $LR = Formula("x + y + 2z <= 5");
     $LR = Compute("x + y + 2z <= 5");
-    $LR = LinearRelation([1,2,1], [1,1,2], "<=");
-    $LR = LinearRelation([1,2,1], 5, "<=");
-
-Sloppy inequality signs (=<, =>, <>) may be used.
+    $LR = LinearRelation([1,1,2], [1,2,1], "<=");
+    $LR = LinearRelation([1,1,2], 5, "<=");
+    $LR = LinearRelation(Vector(1,1,2), Point(1,2,1), "<=");
+    $LR = LinearRelation(Vector(1,1,2), 5, "<=");
 
 If C<$pg{specialPGEnvironmentVars}{parseAlternatives}> is true in your configuration,
-then you may also work directly with the characters ≤, ≥, and ≠.  
+then you may also work with sloppy inequality signs (=<, =>, <>) and with the
+characters ≤, ≥, and ≠.
 
 By default, the context has three variables x, y, and z. You should explicitly set
 the variables if your situation should use something different. For example with
 
     Context()->variables->are(m => 'Real', n =>'Real');
+
+Note that things like C<LinearRelation("1 = 1")> and C<<LinearRelation("1 < 5")>>
+are allowed. These two examples are equivalent, but not equiivalent to
+C<<LinearRelation("1 < 1")>> and C<<LinearRelation("1 > 5")>> which are equivalent
+to each other.
 
 There is one special context flag.
 
@@ -59,7 +67,7 @@ There is one special context flag.
 
 This determines whether something like C<<LinearRelation("x+2 < y+z")>> will be
 displayed as C<<x+2 < y+z>> or converted to standard form: C<<x-y-z < -2>>.
-It is 1 by default.
+It is 0 by default.
 
 =back 
 
@@ -79,7 +87,6 @@ variables in the context.
 =cut
 
 loadMacros('MathObjects.pl');
-loadMacros('PGinfo.pl');
 
 sub _parserLinearRelation_init { LinearRelation::Init() };    # don't reload this file
 
@@ -205,11 +212,13 @@ sub new {
 		my @terms;
 		my $i = 0;
 		for my $x ($context->variables->names) { push @terms, $N->{data}[ $i++ ]->string . $x }
-		$bop   = '=' unless defined($bop);
-		$plane = $formula->new(join(' + ', @terms) . $bop . $d->string)->reduce(@_);
+		$bop      = '=' unless defined($bop);
+		$leftside = $formula->new(join(' + ', @terms))->reduce(@_);
+		$plane    = $formula->new($leftside . $bop . $d->string);
 	} else {
 		# Determine the normal vector and d value from the equation
 		$plane = $N;
+		$context->flags->set(reduceConstants => 0);
 		$plane = $formula->new($context, $plane) unless Value::isValue($plane);
 		$vars  = [ $context->variables->names ];
 		Value::Error("Your formula doesn't look like a linear relation")
@@ -229,8 +238,6 @@ sub new {
 		Value::Error("Your formula isn't a linear one")
 			unless ($formula->new($plane->{tree}{lop}) - $formula->new($plane->{tree}{rop})) == $f;
 	}
-	#Value::Error("The equation of a linear relation must be non-zero somewhere")
-	#	if ($N->norm == 0);
 	$plane->{d} = $d;
 	$plane->{N} = $N;
 	return bless $plane, $class;
@@ -270,7 +277,9 @@ sub compare {
 	#  Are both 0?
 	#
 	if ($lN == $zero && $rN == $zero) {
-		return $ltype cmp $rtype;
+		my $ltruth = $l->check_at($zero);
+		my $rtruth = $r->check_at($zero);
+		return ($ltruth && $rtruth || !$ltruth && !$rtruth) ? 0 : 1;
 	}
 
 	# 'samedirection' is the second optional input to isParallel
@@ -334,8 +343,8 @@ sub check_at {
 }
 
 #
-#  We subclass BOP::equality so that we can give a warning about
-#  things like 1 = 3, and compute the values of inequalities.
+#  We subclass BOP::equality so that we can assign a type using _check and
+#  override the _eval method for relation operators
 #
 
 package LinearRelation::inequality;
@@ -345,8 +354,6 @@ sub _check {
 	my $self = shift;
 	$self->SUPER::_check;
 	$self->{type} = Value::Type('Relation', 1);
-	#$self->Error("An implicit equation can't be constant on both sides")
-	#	if $self->{lop}{isConstant} && $self->{rop}{isConstant};
 }
 
 sub _eval {
@@ -357,7 +364,7 @@ sub _eval {
 #
 #  We use a special formula object to check if the formula is a
 #  LinearRelation or not, and return the proper class.  This allows
-#  lists of linear equalities, for example.
+#  lists of linear relations, for example.
 #
 
 package LinearRelation::formula;
