@@ -218,7 +218,6 @@ sub new {
 	} else {
 		# Determine the normal vector and d value from the equation
 		$plane = $N;
-		$context->flags->set(reduceConstants => 0);
 		$plane = $formula->new($context, $plane) unless Value::isValue($plane);
 		$vars  = [ $context->variables->names ];
 		Value::Error("Your formula doesn't look like a linear relation")
@@ -342,6 +341,12 @@ sub check_at {
 	return $self->eval(map { $variables[$_] => ($point->value)[$_] } (0 .. $#variables));
 }
 
+sub isConstant {
+	my $self = shift;
+	return 0 if $self->type eq "Relation";
+	return $self->SUPER::isConstant;
+}
+
 #
 #  We subclass BOP::equality so that we can assign a type using _check and
 #  override the _eval method for relation operators
@@ -353,12 +358,14 @@ our @ISA = qw(Parser::BOP::equality);
 sub _check {
 	my $self = shift;
 	$self->SUPER::_check;
-	$self->{type} = Value::Type('Relation', 1);
+	$self->{type}       = Value::Type('Relation', 1);
+	$self->{isConstant} = 0;
 }
 
 sub _eval {
-	my $self = shift;
-	return &{ $self->{def}{eval} }(@_);
+	my $self    = shift;
+	my $context = $self->context;
+	return $context->Package("Real")->new($context, &{ $self->{def}{eval} }(@_) ? 1 : 0);
 }
 
 #
