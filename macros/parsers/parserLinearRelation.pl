@@ -19,22 +19,27 @@ contextLinearRelation.pl - Implement linear relations.
 
 =head1 DESCRIPTION
 
-This gives a context C<LinearRelation> that implements an implicit linear relations
-MathObject using =, <, >, <=, >=, or !=. Activate the context with:
+This macro library provides a context C<LinearRelation> with a C<LinearRelation>
+Math Object using =, <, >, <=, >=, or !=. Note that this file evolved from
+C<parserLinearInequality.pl>, but it has several important differences.
+
+Activate the context with:
 
     Context("LinearRelation");
 
 Use C<LinearRelation(formula)>, C<Formula(formula)>, or C<Compute(formula)> to 
 to create a LinearRelation object using a string formula. Alternatively, use
-C<LinearRelation(point,vector,sign> where C<point> and C<vector> are array references
-and C<sign> is one of the (in)equality symbols.
+C<LinearRelation(vector,point,sign> where C<point> and C<vector> are array references
+and C<sign> is one of the (in)equality symbols. Or use C<LinearRelation(vector,real,sign)>
+where C<real> is the dot product of any point in the plane with its normal C<vector>.
 
 Usage examples:
 
-    $R = LinearRelation("x +y + 2z <= 5");
-    $R = Formula("x +y + 2z <= 5");
-    $R = Compute("x +y + 2z <= 5");
-    $R = LinearRelation([1,2,1], [1,1,2], "<=");
+    $LR = LinearRelation("x + y + 2z <= 5");
+    $LR = Formula("x + y + 2z <= 5");
+    $LR = Compute("x + y + 2z <= 5");
+    $LR = LinearRelation([1,2,1], [1,1,2], "<=");
+    $LR = LinearRelation([1,2,1], 5, "<=");
 
 Sloppy inequality signs (=<, =>, <>) may be used.
 
@@ -54,7 +59,7 @@ There is one special context flag.
 
 This determines whether something like C<<LinearRelation("x+2 < y+z")>> will be
 displayed as C<<x+2 < y+z>> or converted to standard form: C<<x-y-z < -2>>.
-It is 0 by default.
+It is 1 by default.
 
 =back 
 
@@ -65,7 +70,7 @@ There is one special method for LinearRelation objects.
 =item S<C<< $LR->check_at(point) >>>
 
 This returns true or false depending on if the point satisfies the relation.
-C<point> must be a MathObject Point, Vector, or ColumnVector; or simply be an
+C<point> must be a Math Object Point, Vector, or ColumnVector; or simply be an
 array reference. The number of entries in C<point> must match the number of
 variables in the context.
 
@@ -74,8 +79,9 @@ variables in the context.
 =cut
 
 loadMacros('MathObjects.pl');
+loadMacros('PGinfo.pl');
 
-sub _contextLinearRelation_init { LinearRelation::Init() };    # don't reload this file
+sub _parserLinearRelation_init { LinearRelation::Init() };    # don't reload this file
 
 ##################################################
 #
@@ -100,16 +106,17 @@ sub Init {
 			type          => 'bin',
 			string        => ' = ',
 			kind          => 'eq',
+			eval          => sub { $_[0] == $_[1] },
 			class         => 'LinearRelation::inequality',
 			formulaClass  => "LinearRelation"
 		},
-
 		'<' => {
 			precedence    => .5,
 			associativity => 'left',
 			type          => 'bin',
 			string        => ' < ',
 			kind          => 'lt',
+			eval          => sub { $_[0] < $_[1] },
 			class         => 'LinearRelation::inequality',
 			formulaClass  => "LinearRelation"
 		},
@@ -120,10 +127,10 @@ sub Init {
 			string        => ' > ',
 			kind          => 'gt',
 			reverse       => 'lt',
+			eval          => sub { $_[0] > $_[1] },
 			class         => 'LinearRelation::inequality',
 			formulaClass  => "LinearRelation"
 		},
-
 		'<=' => {
 			precedence    => .5,
 			associativity => 'left',
@@ -131,21 +138,11 @@ sub Init {
 			string        => ' <= ',
 			TeX           => '\le ',
 			kind          => "le",
+			eval          => sub { $_[0] <= $_[1] },
 			class         => 'LinearRelation::inequality',
 			formulaClass  => "LinearRelation",
-			alternatives  => ["\x{2264}"]
+			alternatives  => [ '=<', "\x{2264}" ]
 		},
-		'=<' => {
-			precedence    => .5,
-			associativity => 'left',
-			type          => 'bin',
-			string        => ' <= ',
-			TeX           => '\le ',
-			kind          => "le",
-			class         => 'LinearRelation::inequality',
-			formulaClass  => "LinearRelation"
-		},
-
 		'>=' => {
 			precedence    => .5,
 			associativity => 'left',
@@ -154,22 +151,11 @@ sub Init {
 			TeX           => '\ge ',
 			kind          => 'ge',
 			reverse       => 'le',
+			eval          => sub { $_[0] >= $_[1] },
 			class         => 'LinearRelation::inequality',
 			formulaClass  => "LinearRelation",
-			alternatives  => ["\x{2265}"]
+			alternatives  => [ '=>', "\x{2265}" ]
 		},
-		'=>' => {
-			precedence    => .5,
-			associativity => 'left',
-			type          => 'bin',
-			string        => ' >= ',
-			TeX           => '\ge ',
-			kind          => 'ge',
-			reverse       => 'le',
-			class         => 'LinearRelation::inequality',
-			formulaClass  => "LinearRelation"
-		},
-
 		'!=' => {
 			precedence    => .5,
 			associativity => 'left',
@@ -177,101 +163,82 @@ sub Init {
 			string        => ' != ',
 			TeX           => '\ne ',
 			kind          => 'ne',
-			reverse       => 'ne',
+			eval          => sub { $_[0] != $_[1] },
 			class         => 'LinearRelation::inequality',
 			formulaClass  => "LinearRelation",
-			alternatives  => ["\x{2260}"]
+			alternatives  => [ '<>', "\x{2260}" ]
 		},
-		'<>' => {
-			precedence    => .5,
-			associativity => 'left',
-			type          => 'bin',
-			string        => ' != ',
-			TeX           => '\ne ',
-			kind          => 'ne',
-			reverse       => 'ne',
-			class         => 'LinearRelation::inequality',
-			formulaClass  => "LinearRelation"
-		}
 	);
 	main::PG_restricted_eval('sub LinearRelation {Value->Package("LinearRelation()")->new(@_)}');
 }
 
+#    $R = LinearRelation("x + y + 2z <= 5");
+#    $R = Formula("x + y + 2z <= 5");
+#    $R = Compute("x + y + 2z <= 5");
+#    $R = LinearRelation([1,2,1], [1,1,2], "<=");
+#    $R = LinearRelation([1,2,1], 5, "<=");
+
 sub new {
-	my $self    = shift;
+	my ($self, $N, $p, $bop) = @_;
 	my $class   = ref($self) || $self;
 	my $context = (Value::isContext($_[0]) ? shift : $self->context);
 	my $formula = "Value::Formula";
 	return shift if scalar(@_) == 1 && ref($_[0]) eq 'LinearRelation';
-	$_[0] = $context->Package("Point")->new($context, $_[0])  if ref($_[0]) eq 'ARRAY';
-	$_[1] = $context->Package("Vector")->new($context, $_[1]) if ref($_[1]) eq 'ARRAY';
+	#$_[0] = $context->Package("Vector")->new($context, $_[0]) if ref($_[0]) eq 'ARRAY';
+	#$_[1] = $context->Package("Point")->new($context, $_[1])  if ref($_[1]) eq 'ARRAY';
 
-	my ($p, $N, $plane, $vars, $d);
-	if (scalar(@_) >= 2 && Value::classMatch($_[0], 'Point', 'Vector') && Value::classMatch($_[1], 'Vector')
-		|| Value::isRealNumber($_[1]))
-	{
-		#
-		# Make a plane from a point and a vector and optionally a
-		# symbol <= or = or =>,
-		# e.g. LinearRelation($point, $vector, '<=');
-		# or from a list of coefficients and the constant
-		# e.g. LinearRelation($dist, [3,5,6], '<=')
-		# one can optionally add new Context
-		# variables ($point, $vector, '<=',[qw(a1,a2,a3)])
-		$p = shift;
-		$N = shift;
-		my $bop = shift || "=";
-		if (Value::classMatch($N, 'Vector')) {
-			$d = $p . $N;
-		} else {
-			$d = $context->Package("Real")->make($context, $N);
-			$N = $context->Package("Vector")->new($context, $p);
-		}
-		$vars = shift || [ $context->variables->names ];
-		$vars = [$vars] unless ref($vars) eq 'ARRAY';
-		my @terms = ();
-		my $i     = 0;
-		foreach my $x (@{$vars}) { push @terms, $N->{data}[ $i++ ]->string . $x }
+	# 2 or more:
+	# first argument is normal vector, possibly a Vector, Point, or ARRAY ref
+	# second argument is point or number, possibly a Vector, Point, ARRAY ref, Real, or perl real
+	# optional third argument is symbol, defaults to '='
+
+	my ($plane, $d);
+
+	if (defined $p) {
+		# Make sure $N is a Vector
+		$N = $context->Package("Vector")->new($context, $N);
+		# Make sure $p is a Point or Real
+		$p = $context->Package("Point")->new($context, $p) if (ref($p) eq 'ARRAY' || ref($p) eq 'Value::Vector');
+		$p = $context->Package("Real")->new($context, $p)  if ref($p) ne 'Value::Point';
+		# Constant on the right side
+		$d = (ref($p) eq 'Value::Real') ? $p : $p . $N;
+		my @terms;
+		my $i = 0;
+		for my $x ($context->variables->names) { push @terms, $N->{data}[ $i++ ]->string . $x }
+		$bop   = '=' unless defined($bop);
 		$plane = $formula->new(join(' + ', @terms) . $bop . $d->string)->reduce(@_);
 	} else {
-		#
-		#  Determine the normal vector and d value from the equation
-		#
-		$plane = shift;
+		# Determine the normal vector and d value from the equation
+		$plane = $N;
 		$plane = $formula->new($context, $plane) unless Value::isValue($plane);
-		$vars  = shift || [ $context->variables->names ];
-		$vars  = [$vars] unless ref($vars) eq 'ARRAY';
-		Value::Error("Your formula doesn't look like a linear inequality")
-			unless $plane->type eq 'Equality';
-		#
-		#  Find the coefficients of the formula
-		#
+		$vars  = [ $context->variables->names ];
+		Value::Error("Your formula doesn't look like a linear relation")
+			unless $plane->type eq 'Relation';
+		# Find the coefficients of the formula
 		my $f = ($formula->new($context, $plane->{tree}{lop}) - $formula->new($context, $plane->{tree}{rop}))->reduce;
 		my $F = $f->perlFunction(undef, [ @{$vars} ]);
 		my @v = split('', '0' x scalar(@{$vars}));
 		$d = -&$F(@v);
 		my @coeff = (@v);
-		foreach my $i (0 .. scalar(@v) - 1) { $v[$i] = 1; $coeff[$i] = &$F(@v) + $d; $v[$i] = 0 }
+		for my $i (0 .. scalar(@v) - 1) { $v[$i] = 1; $coeff[$i] = &$F(@v) + $d; $v[$i] = 0 }
 		$N = Value::Vector->new([@coeff]);
 		$plane =
-			$self->new($N, $d, $plane->{tree}{bop}, $vars, '-x=-y' => 0, '-x=n' => 0)
+			$self->new($N, $d, $plane->{tree}{bop}, '-x=-y' => 0, '-x=n' => 0)
 			->with(original_formula => $plane, original_formula_latex => $plane->TeX);
-		#
-		#  Check that the student's formula really is what we thought
-		#
+		# Check that the student's formula really is what we thought
 		Value::Error("Your formula isn't a linear one")
 			unless ($formula->new($plane->{tree}{lop}) - $formula->new($plane->{tree}{rop})) == $f;
 	}
-	Value::Error("The equation of a linear inequality must be non-zero somewhere")
-		if ($N->norm == 0);
+	#Value::Error("The equation of a linear relation must be non-zero somewhere")
+	#	if ($N->norm == 0);
 	$plane->{d} = $d;
 	$plane->{N} = $N;
 	return bless $plane, $class;
 }
 
 #
-#  We already know the vectors are non-zero, so check
-#  if the equations are multiples of each other.
+#  If the vectors are zero, check if true or false
+#  If the vectors are non-zero, check if the equations are multiples of each other.
 #
 sub compare {
 	my ($self, $l, $r) = Value::checkOpOrder(@_);
@@ -281,7 +248,14 @@ sub compare {
 	my ($rN, $rd, $rtype, $rrev) = ($r->{N}, $r->{d}, $r->{tree}{def}{kind}, $r->{tree}{def}{reverse});
 
 	#
-	#  Reverse inequalities if they face the wrong way
+	#  Outright true or false relations have no type yet, so give them one
+	#
+	my $zero = 0 * $lN;
+	$ltype = $l->check_at($zero) ? 'eq' : 'ne';
+	$rtype = $r->check_at($zero) ? 'eq' : 'ne';
+
+	#
+	#  Reverse inequalities to favor lt, le over gt, ge
 	#
 	($lN, $ld, $ltype) = (-$lN, -$ld, $lrev) if $lrev;
 	($rN, $rd, $rtype) = (-$rN, -$rd, $rrev) if $rrev;
@@ -291,6 +265,14 @@ sub compare {
 	#  Then check if the dividing (hyper)plane is the right one.
 	#
 	return 1 unless $ltype eq $rtype;
+
+	#
+	#  Are both 0?
+	#
+	if ($lN == $zero && $rN == $zero) {
+		return $ltype cmp $rtype;
+	}
+
 	# 'samedirection' is the second optional input to isParallel
 	return $lN <=> $rN
 		unless $lN->isParallel($rN, ($ltype ne 'eq' && $ltype ne 'ne'))
@@ -308,13 +290,11 @@ sub cmp_defaults { (
 ) }
 
 #
-#  Only compare two equalities
+#  Only compare two relations
 #
 sub typeMatch {
-	my $self  = shift;
-	my $other = shift;
-	my $ans   = shift;
-	return ref($other) && $other->type eq 'Equality' unless ref($self);
+	my ($self, $other, $ans) = @_;
+	return ref($other) && $other->type eq 'Relation' unless ref($self);
 	return ref($other) && $self->type eq $other->type;
 }
 
@@ -364,26 +344,19 @@ our @ISA = qw(Parser::BOP::equality);
 sub _check {
 	my $self = shift;
 	$self->SUPER::_check;
-	$self->Error("An implicit equation can't be constant on both sides")
-		if $self->{lop}{isConstant} && $self->{rop}{isConstant};
+	$self->{type} = Value::Type('Relation', 1);
+	#$self->Error("An implicit equation can't be constant on both sides")
+	#	if $self->{lop}{isConstant} && $self->{rop}{isConstant};
 }
 
 sub _eval {
 	my $self = shift;
-	my ($l, $r) = @_;
-	{
-		eq => ($l == $r),
-		lt => ($l < $r),
-		le => ($l <= $r),
-		gt => ($l > $r),
-		ge => ($l >= $r),
-		ne => ($l != $r)
-	}->{ $self->{def}{kind} };
+	return &{ $self->{def}{eval} }(@_);
 }
 
 #
 #  We use a special formula object to check if the formula is a
-#  LineRelation or not, and return the proper class.  This allows
+#  LinearRelation or not, and return the proper class.  This allows
 #  lists of linear equalities, for example.
 #
 
