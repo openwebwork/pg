@@ -292,6 +292,10 @@ sub single_check {
 	$ans->{_filter_name} = "MultiAnswer Single Check";
 	my $inputs = $main::inputs_ref;
 	$self->{ans}[0] = $self->{cmp}[0]->evaluate($ans->{student_ans});
+	# Allow hiding the the structure of the answer for an
+	# answer in an unopened part of a scaffold problem.
+	my $hide_preview = 0;
+	$hide_preview = 1 if ($ans->{scaffold_past_open});
 	foreach my $i (1 .. $self->length - 1) {
 		$self->{ans}[$i] = $self->{cmp}[$i]->evaluate($inputs->{ $self->ANS_NAME($i) });
 	}
@@ -328,13 +332,18 @@ sub single_check {
 			. '</TABLE>';
 	}
 	if ($nonblank) {
-		$ans->{preview_latex_string} =
-			(
-				defined($self->{tex_format})
-				? sprintf($self->{tex_format}, @latex)
-				: join($self->{tex_separator}, @latex));
-		$ans->{preview_text_string} =
-			(defined($self->{format}) ? sprintf($self->{format}, @text) : join($self->{separator}, @text));
+		if ($hide_preview) {
+			$ans->{preview_latex_string} = "";
+			$ans->{preview_text_string}  = "";
+		} else {
+			$ans->{preview_latex_string} =
+				(
+					defined($self->{tex_format})
+					? sprintf($self->{tex_format}, @latex)
+					: join($self->{tex_separator}, @latex));
+			$ans->{preview_text_string} =
+				(defined($self->{format}) ? sprintf($self->{format}, @text) : join($self->{separator}, @text));
+		}
 		$ans->{student_ans} =
 			(defined($self->{format}) ? sprintf($self->{format}, @student) : join($self->{separator}, @student));
 	}

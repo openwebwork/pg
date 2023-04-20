@@ -463,6 +463,10 @@ sub section_answers {
 			if $answers{$name} && (($answers{$name}{type} || "") eq "essay" || $answers{$name}{"scaffold_force"});
 		$evaluator->{rh_ans}{ans_message} = "";
 		delete $evaluator->{rh_ans}{error_message};
+		# In sections which are not yet open, make that known to answer
+		# evaluators. For MultiAnswer using a single result, this allows
+		# hiding the structure of the answer during a preview.
+		$PG_ANSWERS_HASH->{$name}{ans_eval}{rh_ans}{scaffold_past_open} = 1 if ($section_no > $prior_last_open);
 	}
 
 	my $myLastSet;    # we save the name of the last answer field whose score was set
