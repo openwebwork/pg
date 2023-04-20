@@ -89,10 +89,8 @@
 			{ id: 'text', latex: '\\text', tooltip: 'text mode (")', icon: 'Tt' }
 		];
 
-		answerQuill.hasFocus = false;
-
 		const toolbarRemove = () => {
-			if (!answerQuill.hasFocus && answerQuill.toolbar) {
+			if (answerQuill.toolbar) {
 				const toolbar = answerQuill.toolbar;
 				delete answerQuill.toolbar;
 				toolbar.style.opacity = 0;
@@ -107,7 +105,6 @@
 		// Open the toolbar when the mathquill answer box gains focus.
 		answerQuill.textarea.addEventListener('focusin', () => {
 			if (!toolbarEnabled) return;
-			answerQuill.hasFocus = true;
 			if (answerQuill.toolbar) return;
 
 			answerQuill.toolbar = document.createElement('div');
@@ -115,10 +112,12 @@
 			answerQuill.toolbar.classList.add('quill-toolbar');
 			answerQuill.toolbar.style.opacity = 0;
 
-			answerQuill.toolbar.addEventListener('focusin', (e) => answerQuill.hasFocus = true);
 			answerQuill.toolbar.addEventListener('focusout', (e) => {
-				answerQuill.hasFocus = false;
-				setTimeout(toolbarRemove, 200);
+				if (e.relatedTarget && (e.relatedTarget.closest('.quill-toolbar') ||
+					e.relatedTarget.classList.contains('symbol-button') ||
+					e.relatedTarget.parentElement?.parentElement === answerQuill))
+					return;
+				toolbarRemove();
 			});
 
 			answerQuill.toolbar.tooltips = [];
@@ -144,17 +143,13 @@
 				}));
 
 				button.addEventListener('click', () => {
-					answerQuill.hasFocus = true;
 					answerQuill.mathField.cmd(button.dataset.latex);
 					answerQuill.textarea.focus();
 				})
 			}
 
 			answerQuill.toolbar.addEventListener('keydown', (e) => {
-				if (e.key === 'Escape') {
-					answerQuill.hasFocus = false;
-					toolbarRemove();
-				}
+				if (e.key === 'Escape') toolbarRemove();
 			});
 
 			answerQuill.toolbar.setPosition = () => {
@@ -271,21 +266,17 @@
 				e.preventDefault();
 				toolbarEnabled = !toolbarEnabled;
 				localStorage.setItem('MQEditorToolbarEnabled', toolbarEnabled)
-				if (!toolbarEnabled && answerQuill.toolbar) {
-					answerQuill.hasFocus = false;
-					toolbarRemove();
-				}
-				if (toolbarEnabled && !answerQuill.toolbar) {
-					answerQuill.textarea.dispatchEvent(new Event('focusin'));
-				}
+				if (!toolbarEnabled && answerQuill.toolbar) toolbarRemove();
 				menu.hide();
 				answerQuill.textarea.focus();
 			}, { once: true });
 		});
 
-		answerQuill.textarea.addEventListener('focusout', () => {
-			answerQuill.hasFocus = false;
-			setTimeout(toolbarRemove, 200);
+		answerQuill.textarea.addEventListener('focusout', (e) => {
+			if (e.relatedTarget && (e.relatedTarget.closest('.quill-toolbar') ||
+				e.relatedTarget.classList.contains('symbol-button')))
+				return;
+			toolbarRemove();
 		});
 
 		// Trigger an answer preview when the enter key is pressed in an answer box.
