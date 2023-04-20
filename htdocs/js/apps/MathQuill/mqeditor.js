@@ -193,10 +193,10 @@
 			insertButton.type = 'button';
 			insertButton.classList.add('btn', 'btn-primary', 'flex-grow-0', 'ms-2');
 			insertButton.textContent = 'Insert';
-			insertButton.addEventListener('click', () =>
-				insertAtCursor(answerQuill.input,
-					`\\(${answerQuill.mathField.latex().replace(/^(?:\\\s)*(.*?)(?:\\\s)*$/, '$1')}\\)`)
-			);
+			insertButton.addEventListener('click', () => {
+				const latex = answerQuill.mathField.latex().replace(/^(?:\\\s)*(.*?)(?:\\\s)*$/, '$1');
+				if (latex) insertAtCursor(answerQuill.input, `\\(${latex}\\)`);
+			});
 
 			const clearButton = document.createElement('button');
 			clearButton.type = 'button';
