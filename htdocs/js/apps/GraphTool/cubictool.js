@@ -156,9 +156,11 @@
 
 		CubicTool: {
 			iconName: 'cubic',
-			tooltip: '4-Point Cubic Tool',
+			tooltip: '4-Point Cubic Tool: Graph a cubic function.',
 
 			initialize(gt) {
+				this.supportsSolidDash = true;
+
 				this.phase1 = (coords) => {
 					// Don't allow the point to be created off the board.
 					if (!gt.boardHasPoint(coords[1], coords[2])) return;
@@ -174,6 +176,9 @@
 					if (newX > gt.board.getBoundingBox()[2]) newX = this.point1.X() - gt.snapSizeX;
 
 					this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [newX, this.point1.Y()], gt.board));
+
+					this.helpText = 'Plot three more points on the cubic.';
+					gt.updateHelp();
 
 					gt.board.on('up', (e) => this.phase2(gt.getMouseCoords(e).usrCoords));
 
@@ -201,6 +206,9 @@
 					if (newX === this.point1.X()) newX -= gt.snapSizeX;
 
 					this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [newX, this.point2.Y()], gt.board));
+
+					this.helpText = 'Plot two more points on the cubic.';
+					gt.updateHelp();
 
 					gt.board.on('up', (e) => this.phase3(gt.getMouseCoords(e).usrCoords));
 
@@ -233,6 +241,9 @@
 					}
 
 					this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [newX, this.point3.Y()], gt.board));
+
+					this.helpText = 'Plot one more point on the cubic.';
+					gt.updateHelp();
 
 					gt.board.on('up', (e) => this.phase4(gt.getMouseCoords(e).usrCoords));
 
@@ -346,6 +357,7 @@
 			},
 
 			deactivate(gt) {
+				delete this.helpText;
 				gt.board.off('up');
 				['point1', 'point2', 'point3'].forEach(function(point) {
 					if (this[point]) gt.board.removeObject(this[point]);
@@ -359,6 +371,9 @@
 
 				// Draw a highlight point on the board.
 				this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [0, 0], gt.board));
+
+				this.helpText = 'Plot four points on the cubic.';
+				gt.updateHelp();
 
 				gt.board.on('up', (e) => this.phase1(gt.getMouseCoords(e).usrCoords));
 			}

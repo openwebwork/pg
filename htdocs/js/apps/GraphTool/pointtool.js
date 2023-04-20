@@ -14,6 +14,8 @@
 			},
 
 			postInit(gt) {
+				this.supportsSolidDash = false;
+
 				// The base object is also a defining point for a Point.  This makes it so that a point can not steal
 				// focus from another focused object that has a defining point at the same location.
 				this.definingPts.push(this.baseObj);
@@ -30,6 +32,7 @@
 				this.focused = false;
 				this.baseObj.setAttribute(
 					{ fixed: true, highlight: false, strokeColor: gt.color.curve, strokeWidth: 2 });
+				gt.updateHelp();
 				return false;
 			},
 
@@ -39,6 +42,7 @@
 					{ fixed: false, highlight: true, strokeColor: gt.color.focusCurve, strokeWidth: 3 });
 
 				this.focusPoint.rendNode.focus();
+				gt.updateHelp();
 				return false;
 			},
 
@@ -70,7 +74,7 @@
 
 		PointTool: {
 			iconName: 'point',
-			tooltip: 'Point Tool',
+			tooltip: 'Point Tool: Plot a point.',
 
 			initialize(gt) {
 				this.phase1 = (coords) => {
@@ -129,6 +133,7 @@
 			},
 
 			deactivate(gt) {
+				delete this.helpText;
 				gt.board.off('up');
 				gt.board.containerObj.style.cursor = 'auto';
 			},
@@ -138,6 +143,9 @@
 
 				// Draw a highlight point on the board.
 				this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [0, 0], gt.board));
+
+				this.helpText = 'Plot a point.';
+				gt.updateHelp();
 
 				gt.board.on('up', (e) => this.phase1(gt.getMouseCoords(e).usrCoords));
 			}

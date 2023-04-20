@@ -134,9 +134,11 @@
 
 		QuadraticTool: {
 			iconName: 'quadratic',
-			tooltip: '3-Point Quadratic Tool',
+			tooltip: '3-Point Quadratic Tool: Graph a quadratic function.',
 
 			initialize(gt) {
+				this.supportsSolidDash = true;
+
 				this.phase1 = (coords) => {
 					// Don't allow the point to be created off the board.
 					if (!gt.boardHasPoint(coords[1], coords[2])) return;
@@ -152,6 +154,9 @@
 					if (newX > gt.board.getBoundingBox()[2]) newX = this.point1.X() - gt.snapSizeX;
 
 					this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [newX, this.point1.Y()], gt.board));
+
+					this.helpText = 'Plot two more points on the quadratic.';
+					gt.updateHelp();
 
 					gt.board.on('up', (e) => this.phase2(gt.getMouseCoords(e).usrCoords));
 
@@ -179,6 +184,9 @@
 					if (newX === this.point1.X()) newX -= gt.snapSizeX;
 
 					this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [newX, this.point2.Y()], gt.board));
+
+					this.helpText = 'Plot one more point on the quadratic.';
+					gt.updateHelp();
 
 					gt.board.on('up', (e) => this.phase3(gt.getMouseCoords(e).usrCoords));
 
@@ -277,6 +285,7 @@
 			},
 
 			deactivate(gt) {
+				delete this.helpText;
 				gt.board.off('up');
 				if (this.point1) gt.board.removeObject(this.point1);
 				delete this.point1;
@@ -290,6 +299,9 @@
 
 				// Draw a highlight point on the board.
 				this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [0, 0], gt.board));
+
+				this.helpText = 'Plot three points on the quadratic.';
+				gt.updateHelp();
 
 				gt.board.on('up', (e) => this.phase1(gt.getMouseCoords(e).usrCoords));
 			}

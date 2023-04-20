@@ -51,6 +51,8 @@
 			},
 
 			postInit(gt, point1, point2, includePoint1, includePoint2) {
+				this.supportsSolidDash = false;
+
 				this.definingPts.push(point1, point2);
 				this.focusPoint = point1;
 
@@ -110,6 +112,7 @@
 
 				this.baseObj.setAttribute({ strokeColor: gt.color.curve, strokeWidth: 4 });
 
+				gt.updateHelp();
 				return false;
 			},
 
@@ -152,6 +155,7 @@
 
 				this.focusPoint.rendNode.focus();
 
+				gt.updateHelp();
 				return false;
 			},
 
@@ -436,9 +440,12 @@
 
 		IntervalTool: {
 			iconName: 'interval',
-			tooltip: 'Interval Tool',
+			tooltip: 'Interval Tool: Graph an interval.',
 
 			initialize(gt) {
+				this.supportsIncludeExclude = true;
+				this.supportsSolidDash = false;
+
 				if (gt.options.useBracketEnds) {
 					this.button.classList.remove('gt-interval-tool');
 					this.button.classList.add('gt-interval-bracket-tool');
@@ -505,6 +512,11 @@
 					if (newX > gt.board.getBoundingBox()[2]) newX = this.point1.X() - gt.snapSizeX;
 
 					this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [newX, 0], gt.board));
+
+					this.helpText = 'Plot the second endpoint. ' +
+						'Move the point to the left end for \\(-\\infty\\), ' +
+						'or to the right end for \\(\\infty\\).';
+					gt.updateHelp();
 
 					gt.board.on('up', (e) => this.phase2(gt.getMouseCoords(e).usrCoords));
 
@@ -733,6 +745,7 @@
 			},
 
 			deactivate(gt) {
+				delete this.helpText;
 				gt.board.off('up');
 				if (this.point1?.text) gt.board.removeObject(this.point1.text);
 				if (this.point1) gt.board.removeObject(this.point1);
@@ -745,6 +758,11 @@
 
 				// Draw a highlight point on the board.
 				this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [0, 0], gt.board));
+
+				this.helpText = 'Plot the first endpoint. ' +
+					'Move the point to the left end for \\(-\\infty\\), ' +
+					'or to the right end for \\(\\infty\\).';
+				gt.updateHelp();
 
 				// Wait for the user to select the first point.
 				gt.board.on('up', (e) => this.phase1(gt.getMouseCoords(e).usrCoords));
@@ -764,56 +782,59 @@
 				gt.toolTypes.IncludeExcludePointTool.include = true;
 
 				const includePointBox = document.createElement('div');
+				const includeButtonMessage = 'Include the selected point (i).';
 				includePointBox.classList.add('gt-tool-button-pair');
 				// The default is to include points.  So the include point button is disabled by default.
 				const includePointButtonDiv = document.createElement('div');
 				includePointButtonDiv.classList.add('gt-button-div', 'gt-tool-button-pair-top');
-				includePointButtonDiv.dataset.bsToggle = 'tooltip';
-				includePointButtonDiv.dataset.bsTitle = 'Make Selected Point Included';
-				includePointButtonDiv.id =
-					gt.options.useBracketEnds ? 'gt-include-point-bracket-tool' : 'gt-include-point-tool';
+				includePointButtonDiv.addEventListener('pointerover', () => gt.setMessageText(includeButtonMessage));
+				includePointButtonDiv.addEventListener('pointerout', () => gt.updateHelp());
 				gt.toolTypes.IncludeExcludePointTool.includePointButton = document.createElement('button');
 				gt.toolTypes.IncludeExcludePointTool.includePointButton.classList.add(
-					'btn',
-					'btn-light',
 					'gt-button',
 					'gt-tool-button',
-					includePointButtonDiv.id
+					gt.options.useBracketEnds ? 'gt-include-point-bracket-tool' : 'gt-include-point-tool'
 				);
 				gt.toolTypes.IncludeExcludePointTool.includePointButton.type = 'button';
 				gt.toolTypes.IncludeExcludePointTool.includePointButton.setAttribute(
 					'aria-label',
-					includePointButtonDiv.dataset.bsTitle
+					includeButtonMessage
 				);
 				gt.toolTypes.IncludeExcludePointTool.includePointButton.disabled = true;
 				gt.toolTypes.IncludeExcludePointTool.includePointButton.addEventListener('click', (e) =>
 					gt.toolTypes.IncludeExcludePointTool.toggleIncludeExcludePoint(e, true)
 				);
+				gt.toolTypes.IncludeExcludePointTool.includePointButton
+					.addEventListener('focus', () => gt.setMessageText(includeButtonMessage));
+				gt.toolTypes.IncludeExcludePointTool.includePointButton
+					.addEventListener('blur', () => gt.updateHelp());
 				includePointButtonDiv.append(gt.toolTypes.IncludeExcludePointTool.includePointButton);
 				includePointBox.append(includePointButtonDiv);
 
 				const excludePointButtonDiv = document.createElement('div');
+				const excludeButtonMessage = 'Exclude the selected point (e).';
 				excludePointButtonDiv.classList.add('gt-button-div', 'gt-tool-button-pair-bottom');
-				excludePointButtonDiv.dataset.bsToggle = 'tooltip';
-				excludePointButtonDiv.dataset.bsTitle = 'Make Selected Point Excluded';
-				excludePointButtonDiv.id =
-					gt.options.useBracketEnds ? 'gt-exclude-point-parenthesis-tool' : 'gt-exclude-point-tool';
+				excludePointButtonDiv.addEventListener('pointerover',
+					() => gt.setMessageText(excludeButtonMessage));
+				excludePointButtonDiv.addEventListener('pointerout', () => gt.updateHelp());
 				gt.toolTypes.IncludeExcludePointTool.excludePointButton = document.createElement('button');
 				gt.toolTypes.IncludeExcludePointTool.excludePointButton.classList.add(
-					'btn',
-					'btn-light',
 					'gt-button',
 					'gt-tool-button',
-					excludePointButtonDiv.id
+					gt.options.useBracketEnds ? 'gt-exclude-point-parenthesis-tool' : 'gt-exclude-point-tool'
 				);
 				gt.toolTypes.IncludeExcludePointTool.excludePointButton.type = 'button';
 				gt.toolTypes.IncludeExcludePointTool.excludePointButton.setAttribute(
 					'aria-label',
-					excludePointButtonDiv.dataset.bsTitle
+					excludeButtonMessage
 				);
 				gt.toolTypes.IncludeExcludePointTool.excludePointButton.addEventListener('click', (e) =>
 					gt.toolTypes.IncludeExcludePointTool.toggleIncludeExcludePoint(e, false)
 				);
+				gt.toolTypes.IncludeExcludePointTool.excludePointButton
+					.addEventListener('focus', () => gt.setMessageText(excludeButtonMessage));
+				gt.toolTypes.IncludeExcludePointTool.excludePointButton
+					.addEventListener('blur', () => gt.updateHelp());
 				excludePointButtonDiv.append(gt.toolTypes.IncludeExcludePointTool.excludePointButton);
 				includePointBox.append(excludePointButtonDiv);
 				container.append(includePointBox);
@@ -826,6 +847,19 @@
 				} else if (e.key === 'i') {
 					// If 'i' is pressed change to including interval endpoints.
 					gt.toolTypes.IncludeExcludePointTool.toggleIncludeExcludePoint(e, true);
+				}
+			},
+
+			classMethods: {
+				helpText(gt) {
+					return (gt.selectedObj && typeof gt.selectedObj.setIncludePoint === 'function') ||
+						(gt.activeTool && gt.activeTool.supportsIncludeExclude)
+						? (
+							`Use the ${gt.options.useBracketEnds ? '(' : '\\(\\circ\\)'} or ${
+								gt.options.useBracketEnds ? '[' : '\\(\\bullet\\)'
+							} button or type e or i to exclude or include the selected endpoint.`
+						)
+						: '';
 				}
 			},
 
