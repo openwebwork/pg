@@ -1,0 +1,72 @@
+.dd-bucket-pool {
+	.dd-pool-bucket-container {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: space-evenly;
+		gap: 1rem;
+		margin-bottom: 1rem;
+
+		.dd-bucket {
+			display: flex;
+			flex-direction: column;
+			width: 350px;
+			padding: 0.5rem;
+			color: #000000;
+			border: 1px solid #388e8e;
+			border-radius: 5px;
+			text-align: center;
+
+			.dd-bucket-label {
+				margin: 0 0 10px 0;
+			}
+
+			.dd-list {
+				display: flex;
+				flex-direction: column;
+				flex-grow: 1;
+				gap: 0.5rem;
+				min-height: 30px;
+				height: 100%;
+
+				&:empty {
+					border: 1px dashed #bbb;
+					border-radius: 5px;
+					background-color: #e5e5e5;
+				}
+
+				.dd-item {
+					display: block;
+					margin: 0;
+					padding: 5px 10px;
+					text-decoration: none;
+					min-height: 30px;
+					box-sizing: border-box;
+					border-radius: 5px;
+					background: #f5f5f5;
+					border: 1px solid #388e8e;
+					text-align: center;
+					height: auto;
+
+					&:hover {
+						cursor: pointer;
+						background: #eee3ce;
+						color: #222;
+					}
+				}
+			}
+		}
+	}
+
+	.dd-buttons {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
+	}
+
+	.dd-remove-bucket-button {
+		margin-top: 0.5rem;
+		align-self: center;
+	}
+}

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" id="SVGRoot" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" >
+    <g id="layer1">
+        <path style="display:inline;fill:none;stroke:black;stroke-width:1.38113px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;image-rendering:auto" d="M 11,16 H 21" id="path3729" />
+        <circle id="path3738" cx="9.2" cy="16" style="fill:blue;stroke-width:1.57142;stroke-dasharray:none" r="3.2" />
+        <circle id="path3738-3" cx="23" cy="16" style="display:inline;fill:black;fill-opacity:0;stroke:blue;stroke-width:1.5;stroke-dasharray:none;stroke-opacity:1" r="2.5" />
+    </g>
+</svg>

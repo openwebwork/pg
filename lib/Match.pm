@@ -183,7 +183,6 @@ BEGIN {
 	be_strict();
 }
 
-
 package Match;
 
 @Match::ISA = qw( ChoiceList );
@@ -193,7 +192,7 @@ package Match;
 #sends letters for comparison instead of actual answers
 sub ra_correct_ans {
 	my $self = shift;
-	my @ans = &ChoiceList::ALPHABET( @{$self->{inverted_shuffle}} );
+	my @ans  = &ChoiceList::ALPHABET(@{ $self->{inverted_shuffle} });
 	\@ans;
 }
 

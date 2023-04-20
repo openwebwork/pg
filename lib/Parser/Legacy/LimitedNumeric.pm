@@ -18,7 +18,6 @@
 #
 ##########################################################
 
-
 ##################################################
 #
 #  Minus can only appear in front of a number
@@ -27,20 +26,20 @@ package Parser::Legacy::LimitedNumeric::UOP::minus;
 our @ISA = qw(Parser::UOP::minus);
 
 sub _check {
-  my $self = shift;
-  $self->SUPER::_check;
-  my $uop = $self->{def}{string} || $self->{uop};
-  $self->Error("You can only use '%s' with (non-negative) numbers",$uop)
-    unless $self->{op}->class =~ /Number|INTEGER|DIVIDE/;
+	my $self = shift;
+	$self->SUPER::_check;
+	my $uop = $self->{def}{string} || $self->{uop};
+	$self->Error("You can only use '%s' with (non-negative) numbers", $uop)
+		unless $self->{op}->class =~ /Number|INTEGER|DIVIDE/;
 }
 
-sub class {'MINUS'};
+sub class {'MINUS'}
 
 # Override the parent method because the class for this package is 'MINUS'
 # instead of 'UOP' as it is for the Parser::UOP::minus parent package.
 sub isNeg {
-  my $self = shift;
-  return !$self->{op}{isInfinite};
+	my $self = shift;
+	return !$self->{op}{isInfinite};
 }
 
 ##################################################
@@ -52,15 +51,15 @@ package Parser::Legacy::LimitedNumeric::BOP::divide;
 our @ISA = qw(Parser::BOP::divide);
 
 sub _check {
-  my $self = shift;
-  $self->SUPER::_check;
-  my $bop = $self->{def}{string} || $self->{bop};
-  $self->Error("You can only use '%s' between (non-negative) integers",$bop)
-    unless $self->{lop}->class =~ /INTEGER|MINUS/ &&
-           $self->{rop}->class eq 'INTEGER';
+	my $self = shift;
+	$self->SUPER::_check;
+	my $bop = $self->{def}{string} || $self->{bop};
+	$self->Error("You can only use '%s' between (non-negative) integers", $bop)
+		unless $self->{lop}->class =~ /INTEGER|MINUS/
+		&& $self->{rop}->class eq 'INTEGER';
 }
 
-sub class {'DIVIDE'};
+sub class {'DIVIDE'}
 
 ##################################################
 #
@@ -70,11 +69,10 @@ package Parser::Legacy::LimitedNumeric::Number;
 our @ISA = qw(Parser::Number);
 
 sub class {
-  my $self = shift;
-  return "INTEGER" if $self->{value_string} =~ m/^[-+]?[0-9]+$/;
-  return "Number";
+	my $self = shift;
+	return "INTEGER" if $self->{value_string} =~ m/^[-+]?[0-9]+$/;
+	return "Number";
 }
-
 
 ##################################################
 
@@ -88,12 +86,10 @@ my $context = $Parser::Context::Default::context{Numeric}->copy;
 $Parser::Context::Default::context{'LimitedNumeric'} = $context;
 $context->{name} = 'LimitedNumeric';
 
-$context->operators->set('u-' => {class => 'Parser::Legacy::LimitedNumeric::UOP::minus'});
-$context->operators->undefine(
-   '+', '-', '*', '* ', ' *', ' ', '/', '/ ', ' /', '^', '**',
-   'U', '.', '><', 'u+', '!', '_', ',',
-);
-$context->parens->undefine('|','{','(','[');
+$context->operators->set('u-' => { class => 'Parser::Legacy::LimitedNumeric::UOP::minus' });
+$context->operators->undefine('+', '-', '*', '* ', ' *', ' ', '/', '/ ', ' /', '^', '**',
+	'U', '.', '><', 'u+', '!', '_', ',',);
+$context->parens->undefine('|', '{', '(', '[');
 $context->functions->disable('All');
 
 ##################################################
@@ -101,21 +97,18 @@ $context->functions->disable('All');
 #  For the Fraction versions, allow the modified division, and
 #  make sure numbers used in fractions are just integers
 #
-$context = $Parser::Context::Default::context{Numeric}->copy;
+$context                                                      = $Parser::Context::Default::context{Numeric}->copy;
 $Parser::Context::Default::context{'LimitedNumeric-Fraction'} = $context;
-$context->{name} = "LimitedNumeric-Fraction";
+$context->{name}                                              = "LimitedNumeric-Fraction";
 
 $context->operators->set(
-  'u-' => {class => 'Parser::Legacy::LimitedNumeric::UOP::minus'},
-  '/'  => {class => 'Parser::Legacy::LimitedNumeric::BOP::divide'},
-  ' /' => {class => 'Parser::Legacy::LimitedNumeric::BOP::divide'},
-  '/ ' => {class => 'Parser::Legacy::LimitedNumeric::BOP::divide'},
+	'u-' => { class => 'Parser::Legacy::LimitedNumeric::UOP::minus' },
+	'/'  => { class => 'Parser::Legacy::LimitedNumeric::BOP::divide' },
+	' /' => { class => 'Parser::Legacy::LimitedNumeric::BOP::divide' },
+	'/ ' => { class => 'Parser::Legacy::LimitedNumeric::BOP::divide' },
 );
-$context->operators->undefine(
-   '+', '-', '*', '* ', ' *', ' ', '^', '**',
-   'U', '.', '><', 'u+', '!', '_', ',',
-);
-$context->parens->undefine('|','{','[');
+$context->operators->undefine('+', '-', '*', '* ', ' *', ' ', '^', '**', 'U', '.', '><', 'u+', '!', '_', ',',);
+$context->parens->undefine('|', '{', '[');
 $context->functions->disable('All');
 $context->{parser}{Number} = "Parser::Legacy::LimitedNumeric::Number";
 

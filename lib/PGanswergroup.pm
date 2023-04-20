@@ -17,11 +17,11 @@ use Exporter;
 use PGUtil qw(not_null);
 use PGresponsegroup;
 
-our @ISA=qw(PGcore);
+our @ISA = qw(PGcore);
 
 #############################################
-# An object which contains an answer label and 
-# an answer evaluator 
+# An object which contains an answer label and
+# an answer evaluator
 # and the links to and contents of all associated answer blanks
 # (i.e the student responses)
 #############################################
@@ -38,118 +38,114 @@ our @ISA=qw(PGcore);
 # use Tie: IxHash??? to create ordered hash? (see Perl Cookbook)
 
 sub new {
-	my $class = shift;	
+	my $class = shift;
 	my $label = shift;
-	my $self = {
-	    ans_label => $label,
-		ans_eval  => undef,                         # usually an AnswerEvaluator, sometimes a CODE
-		response  => new PGresponsegroup($label),   # A PGresponse object which holds the responses 
-		                                            # which make up the answer
-		active    => 1,                             # whether this answer group is currently active (for multistate problems)
+	my $self  = {
+		ans_label => $label,
+		ans_eval  => undef,                          # usually an AnswerEvaluator, sometimes a CODE
+		response  => new PGresponsegroup($label),    # A PGresponse object which holds the responses
+													 # which make up the answer
+		active    => 1,    # whether this answer group is currently active (for multistate problems)
 
 		@_,
 	};
-	bless $self, $class;	
+	bless $self, $class;
 	return $self;
 
 }
 
-sub evaluate {     # applies the answer evaluator to the student response and returns an answer hash
-
-
+sub evaluate {    # applies the answer evaluator to the student response and returns an answer hash
 
 }
 
 sub complete {    # test to see if answer evaluator and appropriate response blanks are all present
 
-
-
 }
+
 sub ans_eval {
-	my $self = shift;
+	my $self     = shift;
 	my $ans_eval = shift;
-	$self->{ans_eval}= $ans_eval if ref($ans_eval);
+	$self->{ans_eval} = $ans_eval if ref($ans_eval);
 	$self->{ans_eval};
 }
-sub response_obj {  #this may not be desirable -- perhaps you should always access response object indirectly
-	my $self = shift;
+
+sub response_obj {    #this may not be desirable -- perhaps you should always access response object indirectly
+	my $self         = shift;
 	my $response_obj = shift;
-	$self->{response}= $response_obj if ref($response_obj);
+	$self->{response} = $response_obj if ref($response_obj);
 	$self->{response};
 }
-sub append_responses { #add or modify a response to the PGresponsegroup object
-	my $self = shift;
-	my @response_list = @_;  # ordered list of label/ value pairs
-    $self->{response}->append_responses(@response_list);		
+
+sub append_responses {    #add or modify a response to the PGresponsegroup object
+	my $self          = shift;
+	my @response_list = @_;      # ordered list of label/ value pairs
+	$self->{response}->append_responses(@response_list);
 }
 
-sub insert_responses    {        # add a group of responses ( label/value pairs)
-	my $self = shift;
+sub insert_responses {    # add a group of responses ( label/value pairs)
+	my $self          = shift;
 	my @response_list = @_;
 	$self->{response}->clear();
 	$self->{response}->append_responses(@response_list);
 }
 
-sub insert_response_value { # add a response value(with  label defined by answer group label)
-	my $self = shift;
+sub insert_response_value {    # add a response value(with  label defined by answer group label)
+	my $self  = shift;
 	my $value = shift;
 	$self->{response}->append_reponse($self->{ans_label}, $value);
 }
-sub replace_response { # add a response value(with  label defined by answer group label)
-	my $self = shift;
+
+sub replace_response {    # add a response value(with  label defined by answer group label)
+	my $self           = shift;
 	my $response_label = shift;
-	my $value = shift;
+	my $value          = shift;
 	$self->{response}->replace_response($response_label, $value);
 }
-sub insert {         # add new values to PGanswergroup keys preserve existing values
+
+sub insert {    # add new values to PGanswergroup keys preserve existing values
 	my $self = shift;
-	my @in = @_;
+	my @in   = @_;
 	my %hash = ();
-	if ( ref($in[0]=~/HASH/) ) {
-		%hash = %{$in[0]};
+	if (ref($in[0] =~ /HASH/)) {
+		%hash = %{ $in[0] };
 	} else {
 		%hash = @in;
 	}
 	foreach my $key (keys %hash) {
-	    next if not_null( $self->{$key} );
+		next if not_null($self->{$key});
 		$self->{$key} = $hash{$key};
 	}
-	$self;	
+	$self;
 }
 
-
-sub replace {     # add new values ot PGanswergroup, overwriting existing values when duplicated
+sub replace {    # add new values ot PGanswergroup, overwriting existing values when duplicated
 	my $self = shift;
-	my @in = @_;
+	my @in   = @_;
 	my %hash = ();
-	if ( ref($in[0]=~/HASH/) ) {
-		%hash = %{$in[0]};
+	if (ref($in[0] =~ /HASH/)) {
+		%hash = %{ $in[0] };
 	} else {
 		%hash = @in;
 	}
 	foreach my $key (keys %hash) {
 		$self->{$key} = $hash{$key};
 	}
-	$self;	
+	$self;
 }
 
-
-
-
-sub delete_from_hash {   # don't want to redefine delete
+sub delete_from_hash {    # don't want to redefine delete
 	my $self = shift;
-	my @in = @_;
+	my @in   = @_;
 	my %hash = ();
-	if ( ref($in[0]=~/HASH/) ) {
-		%hash = %{$in[0]};
+	if (ref($in[0] =~ /HASH/)) {
+		%hash = %{ $in[0] };
 	} else {
 		%hash = @in;
 	}
 	foreach my $key (keys %hash) {
 		$self->{$key} = undef;
 	}
-	$self;	
+	$self;
 }
-
 
 1;

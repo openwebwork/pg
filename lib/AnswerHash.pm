@@ -125,7 +125,7 @@ The answer hash class is guaranteed to contain the following instance variables:
 =cut
 
 BEGIN {
-#	main::be_strict(); # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
+   #	main::be_strict(); # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
 
 }
 
@@ -135,15 +135,16 @@ use PGUtil qw(not_null pretty_print);
 use JSON;
 
 # initialization fields
-my %fields = (		'score'					=>	undef,
-					'correct_ans'			=>	undef,
-					'student_ans'			=>	undef,
-					'ans_message'			=>	undef,
-					'type'					=>	undef,
-					'preview_text_string'	=>	undef,
-					'preview_latex_string'	=>	undef,
-					'original_student_ans' 	=>	undef
-			);
+my %fields = (
+	'score'                => undef,
+	'correct_ans'          => undef,
+	'student_ans'          => undef,
+	'ans_message'          => undef,
+	'type'                 => undef,
+	'preview_text_string'  => undef,
+	'preview_latex_string' => undef,
+	'original_student_ans' => undef
+);
 
 ## Initializing constructor
 
@@ -158,22 +159,23 @@ my %fields = (		'score'					=>	undef,
 sub new {
 	my $class = shift @_;
 
-	my $self  = {	'score'					=>	0,
-					'correct_ans'			=>	'No correct answer specified',
-					'student_ans'			=>	undef,
-					'ans_message'			=>	'',
-					'ans_label'            =>   undef,
-					'type'					=>	'Undefined answer evaluator type',
-					'preview_text_string'	=>	undef,
-					'preview_latex_string'	=>	undef,
-					'original_student_ans'	=>	undef,
-					'error_flag'			=>  undef,
-					'error_message'		    =>  '',
+	my $self = {
+		'score'                => 0,
+		'correct_ans'          => 'No correct answer specified',
+		'student_ans'          => undef,
+		'ans_message'          => '',
+		'ans_label'            => undef,
+		'type'                 => 'Undefined answer evaluator type',
+		'preview_text_string'  => undef,
+		'preview_latex_string' => undef,
+		'original_student_ans' => undef,
+		'error_flag'           => undef,
+		'error_message'        => '',
 
-	};	# return a reference to	a hash.
+	};    # return a reference to	a hash.
 
 	bless $self, $class;
-	$self -> setKeys(@_);
+	$self->setKeys(@_);
 
 	return $self;
 }
@@ -196,15 +198,13 @@ sub new {
 
 =cut
 
-
 sub setKeys {
-    my $self = shift;
+	my $self  = shift;
 	my %inits = @_;
 	foreach my $item (keys %inits) {
-		if ( exists $fields{$item} ) {
-			$self -> {$item} = $inits{$item};
-		}
-		else {
+		if (exists $fields{$item}) {
+			$self->{$item} = $inits{$item};
+		} else {
 			warn "AnswerHash cannot automatically initialize an item named $item";
 		}
 	}
@@ -233,11 +233,11 @@ sub data {    #$rh_ans->data('foo') is a synonym for $rh_ans->{student_ans}='foo
 	$self->input(@_);
 }
 
-sub input {     #$rh_ans->input('foo') is a synonym for $rh_ans->{student_ans}='foo'
-	my $self = shift;
-    my $input = shift;
-    $self->{student_ans} = $input if defined($input);
-	$self->{student_ans}
+sub input {    #$rh_ans->input('foo') is a synonym for $rh_ans->{student_ans}='foo'
+	my $self  = shift;
+	my $input = shift;
+	$self->{student_ans} = $input if defined($input);
+	$self->{student_ans};
 }
 
 =head4  input
@@ -250,10 +250,10 @@ sub input {     #$rh_ans->input('foo') is a synonym for $rh_ans->{student_ans}='
 =cut
 
 sub score {
-	my $self = shift;
-    my $score = shift;
-    $self->{score} = $score if defined($score);
-	$self->{score}
+	my $self  = shift;
+	my $score = shift;
+	$self->{score} = $score if defined($score);
+	$self->{score};
 }
 
 =head4  stringify_hash
@@ -269,12 +269,12 @@ sub score {
 
 sub stringify_hash {
 	my $self = shift;
-	Parser::Context->current(undef,$self->{correct_value}->context) if $self->{correct_value};
+	Parser::Context->current(undef, $self->{correct_value}->context) if $self->{correct_value};
 	foreach my $key (keys %$self) {
 		my $ref = ref($self->{$key});
 		next if !$ref;
 		if ($ref eq "HASH" or $ref eq "ARRAY") {
-			$self->{$key} = JSON->new->utf8->allow_unknown->allow_blessed->encode($self->{$key});
+			$self->{$key} = JSON->new->utf8->allow_unknown->convert_blessed->allow_blessed->encode($self->{$key});
 		} else {
 			$self->{$key} = "$self->{$key}";
 		}
@@ -326,44 +326,46 @@ sub stringify_hash {
 
 =cut
 
-
-
 sub throw_error {
-	my $self = shift;
-    my $flag = shift;
-    my $message = shift;
-    $self->{error_message} .= " $message " if defined($message);
-    $self->{error_flag} = $flag if defined($flag);
-	$self->{error_flag}
+	my $self    = shift;
+	my $flag    = shift;
+	my $message = shift;
+	$self->{error_message} .= " $message " if defined($message);
+	$self->{error_flag} = $flag            if defined($flag);
+	$self->{error_flag};
 }
+
 sub catch_error {
 	my $self = shift;
-    my $flag = shift;
-    return('')  unless defined($self->{error_flag});
-    return $self->{error_flag} unless $flag;    # empty input catches all errors.
-    return $self->{error_flag} if $self->{error_flag} eq $flag;
-	return '';   # nothing to catch
+	my $flag = shift;
+	return ('')                unless defined($self->{error_flag});
+	return $self->{error_flag} unless $flag;                          # empty input catches all errors.
+	return $self->{error_flag} if $self->{error_flag} eq $flag;
+	return '';                                                        # nothing to catch
 }
+
 sub clear_error {
 	my $self = shift;
 	my $flag = shift;
-	if (defined($flag) and $flag =~/\S/ and defined($self->{error_flag})  and $flag eq $self->{error_flag}) {
-		$self->{error_flag} = undef;
+	if (defined($flag) and $flag =~ /\S/ and defined($self->{error_flag}) and $flag eq $self->{error_flag}) {
+		$self->{error_flag}    = undef;
 		$self->{error_message} = undef;
 	}
 	$self;
 }
+
 sub error_flag {
 	my $self = shift;
-    my $flag = shift;
-    $self->{error_flag} = $flag if defined($flag);
-	$self->{error_flag}
+	my $flag = shift;
+	$self->{error_flag} = $flag if defined($flag);
+	$self->{error_flag};
 }
+
 sub error_message {
-	my $self = shift;
-    my $message = shift;
-    $self->{error_message} = $message if defined($message);
-	$self->{error_message}
+	my $self    = shift;
+	my $message = shift;
+	$self->{error_message} = $message if defined($message);
+	$self->{error_message};
 }
 
 # error print out method
@@ -439,42 +441,40 @@ sub error_message {
 
 =cut
 
-
-
 sub OR {
 	my $self = shift;
 
 	my $rh_ans2 = shift;
 	my %options = @_;
-	return($self) unless defined($rh_ans2) and ref($rh_ans2) eq 'AnswerHash';
+	return ($self) unless defined($rh_ans2) and ref($rh_ans2) eq 'AnswerHash';
 
 	my $out_hash = new AnswerHash;
 	# score is the maximum of the two scores
-	$out_hash->{score} = ( $self->{score}  <  $rh_ans2->{score} ) ? $rh_ans2->{score} :$self->{score};
-	$out_hash->{correct_ans} = join(" OR ", $self->{correct_ans}, $rh_ans2->{correct_ans} );
-	$out_hash->{student_ans} = $self->{student_ans};
-	$out_hash->{type} = join(" OR ", $self->{type}, $rh_ans2->{type} );
-	$out_hash->{preview_text_string} = join("   ", $self->{preview_text_string}, $rh_ans2->{preview_text_string} );
+	$out_hash->{score}                = ($self->{score} < $rh_ans2->{score}) ? $rh_ans2->{score} : $self->{score};
+	$out_hash->{correct_ans}          = join(" OR ", $self->{correct_ans}, $rh_ans2->{correct_ans});
+	$out_hash->{student_ans}          = $self->{student_ans};
+	$out_hash->{type}                 = join(" OR ", $self->{type},                $rh_ans2->{type});
+	$out_hash->{preview_text_string}  = join("   ",  $self->{preview_text_string}, $rh_ans2->{preview_text_string});
 	$out_hash->{original_student_ans} = $self->{original_student_ans};
 	$out_hash;
 }
 
 sub AND {
-	my $self = shift;
-	my $rh_ans2 = shift;
-	my %options = @_;
+	my $self     = shift;
+	my $rh_ans2  = shift;
+	my %options  = @_;
 	my $out_hash = new AnswerHash;
 	# score is the minimum of the two scores
-	$out_hash->{score} = ( $self->{score}  >  $rh_ans2->{score} ) ? $rh_ans2->{score} :$self->{score};
-	$out_hash->{correct_ans} = join(" AND ", $self->{correct_ans}, $rh_ans2->{correct_ans} );
-	$out_hash->{student_ans} = $self->{student_ans};
-	$out_hash->{type} = join(" AND ", $self->{type}, $rh_ans2->{type} );
-	$out_hash->{preview_text_string} = join("  ", $self->{preview_text_string}, $rh_ans2->{preview_text_string} );
-	$out_hash->{preview_latex_string} = join(" \\quad ", $self->{preview_latex_string}, $rh_ans2->{preview_latex_string} );
+	$out_hash->{score}               = ($self->{score} > $rh_ans2->{score}) ? $rh_ans2->{score} : $self->{score};
+	$out_hash->{correct_ans}         = join(" AND ", $self->{correct_ans}, $rh_ans2->{correct_ans});
+	$out_hash->{student_ans}         = $self->{student_ans};
+	$out_hash->{type}                = join(" AND ", $self->{type},                $rh_ans2->{type});
+	$out_hash->{preview_text_string} = join("  ",    $self->{preview_text_string}, $rh_ans2->{preview_text_string});
+	$out_hash->{preview_latex_string} =
+		join(" \\quad ", $self->{preview_latex_string}, $rh_ans2->{preview_latex_string});
 	$out_hash->{original_student_ans} = $self->{original_student_ans};
 	$out_hash;
 }
-
 
 =head1 Description:  AnswerEvaluator
 
@@ -482,8 +482,6 @@ sub AND {
 
 
 =cut
-
-
 
 package AnswerEvaluator;
 use Exporter;
@@ -499,21 +497,20 @@ use PGUtil qw(not_null pretty_print);
 
 =cut
 
-
 =head4 new
 
 
 =cut
 
-
 sub new {
 	my $class = shift @_;
 
-	my $self  = {	pre_filters 	=>	[ [\&blank_prefilter] ],
-					evaluators		=>	[],
-					post_filters	=>  [ [\&blank_postfilter] ],
-					debug			=>  0,
-					rh_ans		=>	new AnswerHash,
+	my $self = {
+		pre_filters  => [ [ \&blank_prefilter ] ],
+		evaluators   => [],
+		post_filters => [ [ \&blank_postfilter ] ],
+		debug        => 0,
+		rh_ans       => new AnswerHash,
 
 	};
 
@@ -521,19 +518,20 @@ sub new {
 	$self->rh_ans(@_);    #initialize answer hash
 	return $self;
 }
+
 sub clone {
-    my $self = shift;
-    my $copy = bless { %$self }, ref $self;
-    return $copy;
+	my $self = shift;
+	my $copy = bless {%$self}, ref $self;
+	return $copy;
 }
 
 # dereference_array_ans pretty prints an answer which is stored as an anonymous array.
 sub dereference_array_ans {
-	my $self = shift;
+	my $self   = shift;
 	my $rh_ans = shift;
 	$rh_ans->{_filter_name} = 'dereference_array_ans';
-	if (defined($rh_ans->{student_ans}) and ref($rh_ans->{student_ans}) eq 'ARRAY'  ) {
-		$rh_ans->{student_ans} = "( ". join(" , ",@{$rh_ans->{student_ans}} ) . " ) ";
+	if (defined($rh_ans->{student_ans}) and ref($rh_ans->{student_ans}) eq 'ARRAY') {
+		$rh_ans->{student_ans} = "( " . join(" , ", @{ $rh_ans->{student_ans} }) . " ) ";
 	}
 	$rh_ans;
 }
@@ -543,28 +541,28 @@ sub get_student_answer {
 	my $input          = shift;
 	my %answer_options = @_;
 	my $display_input  = $input;
-	$display_input =~ s/\0/\\0/g;  # make null spacings visible
-	eval (q!main::DEBUG_MESSAGE(  "Raw student answer is |$display_input|")!) if $self->{debug};
+	$display_input =~ s/\0/\\0/g;    # make null spacings visible
+	eval(q!main::DEBUG_MESSAGE(  "Raw student answer is |$display_input|")!) if $self->{debug};
 	$input = '' unless defined($input);
-	if (ref($input) =~/AnswerHash/) {
+	if (ref($input) =~ /AnswerHash/) {
 		# in this case nothing needs to be done, since the student's answer is already in an answerhash.
 		# This is useful when an AnswerEvaluator is used as a filter in another answer evaluator.
-	} elsif ($input =~ /\0/ ) {  # this case may occur with older versions of CGI??
-	   	my @input = split(/\0/,$input);
-	   	$self-> {rh_ans} -> {original_student_ans} = " ( " .join(", ",@input) . " ) ";
-		$input = \@input;
-		$self-> {rh_ans} -> {student_ans} = $input;
-	} elsif (ref($input) eq 'ARRAY' ) {  # sometimes the answer may already be decoded into an array.
-	   	my @input = @$input;
-	   	$self-> {rh_ans} -> {original_student_ans} = " ( " .join(", ",@input) . " ) ";
-		$input = \@input;
-		$self-> {rh_ans} -> {student_ans} = $input;
+	} elsif ($input =~ /\0/) {    # this case may occur with older versions of CGI??
+		my @input = split(/\0/, $input);
+		$self->{rh_ans}->{original_student_ans} = " ( " . join(", ", @input) . " ) ";
+		$input                                  = \@input;
+		$self->{rh_ans}->{student_ans}          = $input;
+	} elsif (ref($input) eq 'ARRAY') {    # sometimes the answer may already be decoded into an array.
+		my @input = @$input;
+		$self->{rh_ans}->{original_student_ans} = " ( " . join(", ", @input) . " ) ";
+		$input                                  = \@input;
+		$self->{rh_ans}->{student_ans}          = $input;
 	} else {
 
-		$self-> {rh_ans} -> {original_student_ans} = $input;
-		$self-> {rh_ans} -> {student_ans} = $input;
+		$self->{rh_ans}->{original_student_ans} = $input;
+		$self->{rh_ans}->{student_ans}          = $input;
 	}
-	$self->{rh_ans}->{ans_label}   = $answer_options{ans_label} if defined($answer_options{ans_label});
+	$self->{rh_ans}->{ans_label}    = $answer_options{ans_label} if defined($answer_options{ans_label});
 	$self->{rh_ans}->{_filter_name} = 'get_student_answer';
 	$input;
 }
@@ -575,73 +573,80 @@ sub get_student_answer {
 
 
 =cut
-our $count;   # used to keep track of where we are in queue
+
+our $count;    # used to keep track of where we are in queue
 
 sub evaluate {
-	my $self 		= 	shift;
+	my $self = shift;
 	$self->get_student_answer(@_);
 	# dereference $self->{rh_ans};
-	my $rh_ans      =   $self ->{rh_ans};
-	$rh_ans->{error_flag}=undef;  #reset the error flags in case
-	$rh_ans->{done}=undef;        #the answer evaluator is called twice
+	my $rh_ans = $self->{rh_ans};
+	$rh_ans->{error_flag} = undef;    #reset the error flags in case
+	$rh_ans->{done}       = undef;    #the answer evaluator is called twice
 
-    eval (q!main::DEBUG_MESSAGE( "<H3> Answer evaluator information: </H3>")!) if defined($self->{debug}) and $self->{debug}>0;
-    $self->print_result_if_debug('pre_filter',$rh_ans);
+	eval(q!main::DEBUG_MESSAGE( "<H3> Answer evaluator information: </H3>")!)
+		if defined($self->{debug})
+		and $self->{debug} > 0;
+	$self->print_result_if_debug('pre_filter', $rh_ans);
 
-	my @prefilters	= @{$self -> {pre_filters}};
-	$count = 0;  # the get student answer filter is counted as filter -1
-	foreach my $i	(@prefilters) {
-	    last if defined( $rh_ans->{error_flag} );
-	    my @array = @$i;
-	    # sanity check filter
-	    #$self->debug_message("prefilter is ", join(" ", @array));
-	    my $filter = shift(@array);      # the array now contains the options for the filter
-	    $rh_ans = &$filter($rh_ans,@array);
-	    $self->print_result_if_debug('pre_filter',$rh_ans,@array);
+	my @prefilters = @{ $self->{pre_filters} };
+	$count = 0;                       # the get student answer filter is counted as filter -1
+	foreach my $i (@prefilters) {
+		last if defined($rh_ans->{error_flag});
+		my @array = @$i;
+		# sanity check filter
+		#$self->debug_message("prefilter is ", join(" ", @array));
+		my $filter = shift(@array);    # the array now contains the options for the filter
+		$rh_ans = &$filter($rh_ans, @array);
+		$self->print_result_if_debug('pre_filter', $rh_ans, @array);
 	}
-	my @evaluators = @{$self -> {evaluators} };
+	my @evaluators = @{ $self->{evaluators} };
 	$count = 0;
-	foreach my $i ( @evaluators )   {
-	    last if defined($rh_ans->{error_flag});
-	    my @array = @$i;
-	    my $evaluator = shift(@array);   # the array now contains the options for the filter
-	    $rh_ans = &$evaluator($rh_ans,@array);
-	    $self->print_result_if_debug('evaluator',$rh_ans,@array);
+	foreach my $i (@evaluators) {
+		last if defined($rh_ans->{error_flag});
+		my @array     = @$i;
+		my $evaluator = shift(@array);    # the array now contains the options for the filter
+		$rh_ans = &$evaluator($rh_ans, @array);
+		$self->print_result_if_debug('evaluator', $rh_ans, @array);
 	}
-	my @post_filters = @{$self -> {post_filters} };
-	$count = 0;  # blank filter catcher is filter 0
-	foreach my $i ( @post_filters ) {
-	    last if defined($rh_ans->{done}) and $rh_ans->{done} == 1;    # no further action needed
-	    my @array = @$i;
-	    my $filter = shift(@array);      # the array now contains the options for the filter
-	    $rh_ans = &$filter($rh_ans,@array);
-	    $self->print_result_if_debug('post_filter',$rh_ans,@array);
+	my @post_filters = @{ $self->{post_filters} };
+	$count = 0;                           # blank filter catcher is filter 0
+	foreach my $i (@post_filters) {
+		last if defined($rh_ans->{done}) and $rh_ans->{done} == 1;    # no further action needed
+		my @array  = @$i;
+		my $filter = shift(@array);    # the array now contains the options for the filter
+		$rh_ans = &$filter($rh_ans, @array);
+		$self->print_result_if_debug('post_filter', $rh_ans, @array);
 	}
 	$rh_ans = $self->dereference_array_ans($rh_ans);
 	# make sure that the student answer is not an array so that it is reported correctly in answer section.
-	eval (q!main::DEBUG_MESSAGE( `<h4>final result: </h4>`, pretty_print($rh_ans,'html'))!)
-	   if defined($self->{debug}) and $self->{debug}>0;
+	eval(q!main::DEBUG_MESSAGE( `<h4>final result: </h4>`, pretty_print($rh_ans,'html'))!)
+		if defined($self->{debug})
+		and $self->{debug} > 0;
 	# re-refrence $rh_ans;
-	$self ->{rh_ans} = $rh_ans;
+	$self->{rh_ans} = $rh_ans;
 	$rh_ans;
 }
+
 sub print_result_if_debug {
-	my $self = shift;
-	my $queue = shift;    # the name of the queue we are in
-	my $rh_ans= shift;
-	my @options = @_;   # this may not be even FIXME
-	unless ( ref($rh_ans) eq 'AnswerHash' ) {
+	my $self    = shift;
+	my $queue   = shift;    # the name of the queue we are in
+	my $rh_ans  = shift;
+	my @options = @_;       # this may not be even FIXME
+	unless (ref($rh_ans) eq 'AnswerHash') {
 		warn "$rh_ans is not an answerHash in queue $queue\n";
 		return;
 	}
-	;
-	if (defined($self->{debug}) and $self->{debug}>0) {
-	    	$rh_ans->{rh_options} = \@options;  #include the options in the debug information -- change to ra_options??
-	    	my $name = (defined($rh_ans->{_filter_name})) ? $rh_ans->{_filter_name}: 'unnamed';
-	    	eval (q! main::DEBUG_MESSAGE( "\n $count. Result from queue $queue:  name: \"$name\"n", pretty_print($rh_ans,'html',4))
-	    	!);
-	    	++$count;
-	 }
+
+	if (defined($self->{debug}) and $self->{debug} > 0) {
+		$rh_ans->{rh_options} = \@options;    #include the options in the debug information -- change to ra_options??
+		my $name = (defined($rh_ans->{_filter_name})) ? $rh_ans->{_filter_name} : 'unnamed';
+		eval(
+			q! main::DEBUG_MESSAGE( "\n $count. Result from queue $queue:  name: \"$name\"n", pretty_print($rh_ans,'html',4))
+	    	!
+		);
+		++$count;
+	}
 	$rh_ans->{_filter_name} = undef;
 }
 
@@ -686,7 +691,6 @@ sub print_result_if_debug {
 # 	$rh_ans;
 # }
 
-
 =head4 install_pre_filter
 
 =head4 install_evaluator
@@ -699,81 +703,76 @@ sub print_result_if_debug {
 =cut
 
 sub install_pre_filter {
-	my $self =	shift;
+	my $self = shift;
 	if (@_ == 0) {
 		# do nothing if input is empty
-	} elsif ($_[0] eq 'reset' or $_[0] eq 'erase' ) {
+	} elsif ($_[0] eq 'reset' or $_[0] eq 'erase') {
 		$self->{pre_filters} = [];
 	} else {
-		push(@{$self->{pre_filters}},[ @_ ]) if @_;  #install pre_filter and it's options
+		push(@{ $self->{pre_filters} }, [@_]) if @_;    #install pre_filter and it's options
 	}
-	@{$self->{pre_filters}};  # return array of all pre_filters
+	@{ $self->{pre_filters} };                          # return array of all pre_filters
 }
-
-
-
-
 
 sub install_evaluator {
-	my $self =	shift;
+	my $self = shift;
 	if (@_ == 0) {
 		# do nothing if input is empty
-	} elsif ($_[0] eq 'reset' or $_[0] eq 'erase' ) {
+	} elsif ($_[0] eq 'reset' or $_[0] eq 'erase') {
 		$self->{evaluators} = [];
 	} else {
-		push(@{$self->{evaluators}},[ @_ ]) if @_; #install evaluator and it's options
+		push(@{ $self->{evaluators} }, [@_]) if @_;    #install evaluator and it's options
 	}
-	@{$self->{'evaluators'}};  # return array of all evaluators
+	@{ $self->{'evaluators'} };                        # return array of all evaluators
 }
 
-
 sub install_post_filter {
-	my $self =	shift;
+	my $self = shift;
 	if (@_ == 0) {
 		# do nothing if input is empty
-	} elsif ($_[0] eq 'reset' or $_[0] eq 'erase' ) {
+	} elsif ($_[0] eq 'reset' or $_[0] eq 'erase') {
 		$self->{post_filters} = [];
 	} else {
-		push(@{$self->{post_filters}}, [ @_ ]) if @_; #install post_filter and it's options
+		push(@{ $self->{post_filters} }, [@_]) if @_;    #install post_filter and it's options
 	}
-	@{$self->{post_filters}};  # return array of all post_filters
+	@{ $self->{post_filters} };                          # return array of all post_filters
 }
 
 ## filters for checking the correctAnswer
 sub install_correct_answer_pre_filter {
-	my $self =	shift;
+	my $self = shift;
 	if (@_ == 0) {
 		# do nothing if input is empty
-	} elsif ($_[0] eq 'reset' or $_[0] eq 'erase' ) {
+	} elsif ($_[0] eq 'reset' or $_[0] eq 'erase') {
 		$self->{correct_answer_pre_filters} = [];
 	} else {
-		push(@{$self->{correct_answer_pre_filters}},[ @_ ]) if @_;  #install correct_answer_pre_filter and it's options
+		push(@{ $self->{correct_answer_pre_filters} }, [@_]) if @_;  #install correct_answer_pre_filter and it's options
 	}
-	@{$self->{correct_answer_pre_filters}};  # return array of all correct_answer_pre_filters
+	@{ $self->{correct_answer_pre_filters} };                        # return array of all correct_answer_pre_filters
 }
 
 sub install_correct_answer_evaluator {
-	my $self =	shift;
+	my $self = shift;
 	if (@_ == 0) {
 		# do nothing if input is empty
-	} elsif ($_[0] eq 'reset' or $_[0] eq 'erase' ) {
+	} elsif ($_[0] eq 'reset' or $_[0] eq 'erase') {
 		$self->{correct_answer_evaluators} = [];
 	} else {
-		push(@{$self->{correct_answer_evaluators}},[ @_ ]) if @_; #install evaluator and it's options
+		push(@{ $self->{correct_answer_evaluators} }, [@_]) if @_;    #install evaluator and it's options
 	}
-	@{$self->{correct_answer_evaluators}};  # return array of all evaluators
+	@{ $self->{correct_answer_evaluators} };                          # return array of all evaluators
 }
 
 sub install_correct_answer_post_filter {
-	my $self =	shift;
+	my $self = shift;
 	if (@_ == 0) {
 		# do nothing if input is empty
-	} elsif ($_[0] eq 'reset' or $_[0] eq 'erase' ) {
+	} elsif ($_[0] eq 'reset' or $_[0] eq 'erase') {
 		$self->{correct_answer_post_filters} = [];
 	} else {
-		push(@{$self->{correct_answer_post_filters}}, [ @_ ]) if @_; #install post_filter and it's options
+		push(@{ $self->{correct_answer_post_filters} }, [@_]) if @_;    #install post_filter and it's options
 	}
-	@{$self->{correct_answer_post_filters}};  # return array of all post_filters
+	@{ $self->{correct_answer_post_filters} };                          # return array of all post_filters
 }
 
 =head4 withPreFilter
@@ -792,9 +791,9 @@ sub install_correct_answer_post_filter {
 =cut
 
 sub withPreFilter {
-  my $self = shift;
-  $self->install_pre_filter(@_);
-  return $self;
+	my $self = shift;
+	$self->install_pre_filter(@_);
+	return $self;
 }
 
 =head4 withPostFilter
@@ -813,17 +812,18 @@ sub withPreFilter {
 =cut
 
 sub withPostFilter {
-  my $self = shift;
-  $self->install_post_filter(@_);
-  return $self;
+	my $self = shift;
+	$self->install_post_filter(@_);
+	return $self;
 }
 
-sub ans_hash {  #alias for rh_ans
+sub ans_hash {    #alias for rh_ans
 	my $self = shift;
 	$self->rh_ans(@_);
 }
+
 sub rh_ans {
-	my $self = shift;
+	my $self    = shift;
 	my %in_hash = @_;
 	foreach my $key (keys %in_hash) {
 		$self->{rh_ans}->{$key} = $in_hash{$key};
@@ -875,35 +875,38 @@ the AnswerHash past the remaining post_filters.
 #
 ######################################################
 
-
-sub blank_prefilter  { # check for blanks
+sub blank_prefilter {    # check for blanks
 	my $rh_ans = shift;
 	$rh_ans->{_filter_name} = 'blank_prefilter';
-    # undefined answers are BLANKS
-	( not defined($rh_ans->{student_ans}) ) && do {$rh_ans->throw_error("BLANK", 'The answer is blank');
-													  return($rh_ans);};
-    # answers which are arrays or hashes or some other object reference  are NOT blanks
-    ( ref($rh_ans->{student_ans} )        ) && do { return( $rh_ans ) };
-    # if the answer is a true variable consisting only of white space it is a BLANK
-    ( ($rh_ans->{student_ans}) !~ /\S/   )    && do {$rh_ans->throw_error("BLANK", 'The answer is blank');
-													  return($rh_ans);};
- 	# If we get to here, we assume that the answer is not a blank. It is defined, not a reference
- 	# and contains something other than whitespaces.
- 	$rh_ans;
-};
+	# undefined answers are BLANKS
+	(not defined($rh_ans->{student_ans})) && do {
+		$rh_ans->throw_error("BLANK", 'The answer is blank');
+		return ($rh_ans);
+	};
+	# answers which are arrays or hashes or some other object reference  are NOT blanks
+	(ref($rh_ans->{student_ans})) && do { return ($rh_ans) };
+	# if the answer is a true variable consisting only of white space it is a BLANK
+	(($rh_ans->{student_ans}) !~ /\S/) && do {
+		$rh_ans->throw_error("BLANK", 'The answer is blank');
+		return ($rh_ans);
+	};
+	# If we get to here, we assume that the answer is not a blank. It is defined, not a reference
+	# and contains something other than whitespaces.
+	$rh_ans;
+}
 
-sub blank_postfilter  {
-	my $rh_ans=shift;
+sub blank_postfilter {
+	my $rh_ans = shift;
 	$rh_ans->{_filter_name} = 'blank_postfilter';
-    return($rh_ans) unless defined($rh_ans->{error_flag}) and $rh_ans->{error_flag} eq 'BLANK';
-    $rh_ans->{error_flag} = undef;
-    $rh_ans->{error_message} = '';
-    if ( defined($rh_ans->{message_for_blank_answer} ) ) {
-        $rh_ans->{ans_message} = $rh_ans->{message_for_blank_answer};
-    }
-    $rh_ans->{done} =1;    # no further checking is needed.
-    $rh_ans;
-};
+	return ($rh_ans) unless defined($rh_ans->{error_flag}) and $rh_ans->{error_flag} eq 'BLANK';
+	$rh_ans->{error_flag}    = undef;
+	$rh_ans->{error_message} = '';
+	if (defined($rh_ans->{message_for_blank_answer})) {
+		$rh_ans->{ans_message} = $rh_ans->{message_for_blank_answer};
+	}
+	$rh_ans->{done} = 1;    # no further checking is needed.
+	$rh_ans;
+}
 
 1;
 #package AnswerEvaluatorMaker;

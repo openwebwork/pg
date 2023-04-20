@@ -14,6 +14,8 @@
 			},
 
 			postInit(gt) {
+				this.supportsSolidDash = false;
+
 				// The base object is also a defining point for a Point.  This makes it so that a point can not steal
 				// focus from another focused object that has a defining point at the same location.
 				this.definingPts.push(this.baseObj);
@@ -22,20 +24,26 @@
 				if (!gt.isStatic) {
 					this.on('down', () => gt.board.containerObj.style.cursor = 'none');
 					this.on('up', () => gt.board.containerObj.style.cursor = 'auto');
-					this.on('drag', gt.updateText);
+					this.on('drag', (e) => { gt.adjustDragPosition(e, this.baseObj); gt.updateText; });
 				}
 			},
 
 			blur(gt) {
+				this.focused = false;
 				this.baseObj.setAttribute(
-					{ fixed: true, highlight: false, strokeColor: gt.curveColor, strokeWidth: 2 });
+					{ fixed: true, highlight: false, strokeColor: gt.color.curve, strokeWidth: 2 });
+				gt.updateHelp();
+				return false;
 			},
 
 			focus(gt) {
+				this.focused = true;
 				this.baseObj.setAttribute(
-					{ fixed: false, highlight: true, strokeColor: gt.focusCurveColor, strokeWidth: 3 });
+					{ fixed: false, highlight: true, strokeColor: gt.color.focusCurve, strokeWidth: 3 });
 
 				this.focusPoint.rendNode.focus();
+				gt.updateHelp();
+				return false;
 			},
 
 			setSolid() {},
@@ -46,8 +54,10 @@
 			},
 
 			updateTextCoords(gt, coords) {
-				if (this.baseObj.hasPoint(coords.scrCoords[1], coords.scrCoords[2]))
+				if (this.baseObj.hasPoint(coords.scrCoords[1], coords.scrCoords[2])) {
 					gt.setTextCoords(this.baseObj.X(), this.baseObj.Y());
+					return true;
+				}
 			},
 
 			restore(gt, string) {
@@ -64,7 +74,7 @@
 
 		PointTool: {
 			iconName: 'point',
-			tooltip: 'Point Tool',
+			tooltip: 'Point Tool: Plot a point.',
 
 			initialize(gt) {
 				this.phase1 = (coords) => {
@@ -80,7 +90,7 @@
 				};
 			},
 
-			handleKeyEvent(gt, e) {
+			handleKeyEvent(_gt, e) {
 				if (!this.hlObjs.hl_point) return;
 
 				if (e.key === 'Enter' || e.key === 'Space') {
@@ -88,24 +98,34 @@
 					e.stopPropagation();
 
 					this.phase1(this.hlObjs.hl_point.coords.usrCoords);
-				} else if (['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
-					this.updateHighlights(this.hlObjs.hl_point.coords);
 				}
 			},
 
-			updateHighlights(gt, coords) {
+			updateHighlights(gt, e) {
 				this.hlObjs.hl_point?.rendNode.focus();
 
-				if (typeof coords === 'undefined') return false;
+				let coords;
+				if (e instanceof MouseEvent && e.type === 'pointermove') {
+					coords = gt.getMouseCoords(e);
+					this.hlObjs.hl_point?.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+				} else if (e instanceof KeyboardEvent && e.type === 'keydown') {
+					coords = this.hlObjs.hl_point.coords;
+				} else if (e instanceof JXG.Coords) {
+					coords = e;
+					this.hlObjs.hl_point?.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+				} else
+					return false;
 
 				if (!this.hlObjs.hl_point) {
 					this.hlObjs.hl_point = gt.board.create('point', [coords.usrCoords[1], coords.usrCoords[2]], {
-						size: 2, color: gt.color.underConstruction, snapToGrid: true,
+						size: 2, color: gt.color.underConstruction, snapToGrid: true, highlight: false,
 						snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, withLabel: false
 					});
 					this.hlObjs.hl_point.rendNode.focus();
-				} else
-					this.hlObjs.hl_point.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+				}
+
+				// Make sure the highlight point is not moved off the board.
+				if (e instanceof Event) gt.adjustDragPosition(e, this.hlObjs.hl_point);
 
 				gt.setTextCoords(this.hlObjs.hl_point.X(), this.hlObjs.hl_point.Y());
 				gt.board.update();
@@ -113,6 +133,7 @@
 			},
 
 			deactivate(gt) {
+				delete this.helpText;
 				gt.board.off('up');
 				gt.board.containerObj.style.cursor = 'auto';
 			},
@@ -122,6 +143,9 @@
 
 				// Draw a highlight point on the board.
 				this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [0, 0], gt.board));
+
+				this.helpText = 'Plot a point.';
+				gt.updateHelp();
 
 				gt.board.on('up', (e) => this.phase1(gt.getMouseCoords(e).usrCoords));
 			}

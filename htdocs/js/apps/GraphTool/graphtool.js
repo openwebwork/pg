@@ -1,4 +1,4 @@
-/* global JXG, bootstrap */
+/* global JXG */
 
 'use strict';
 
@@ -24,7 +24,6 @@ window.graphTool = (containerId, options) => {
 		// > 9:1 with white
 		focusCurve: '#0000f5',
 
-		// fill color must use 6-digit hex
 		// medium purple
 		// 3:1 with white
 		// 4.5:1 with #0000a6
@@ -34,12 +33,15 @@ window.graphTool = (containerId, options) => {
 		// strict contrast ratios are less important for these colors
 		point: 'orange',
 		pointHighlight: 'yellow',
-		underConstruction: 'orange'
+		pointHighlightDarker: '#cc8400', // color.adjust(orange, $lightness: -10%)
+		underConstruction: 'orange',
+		underConstructionFixed: JXG.palette.red // defined to be '#d55e00'
 	};
 
 	gt.definingPointAttributes = {
 		size: 3,
 		fixed: false,
+		highlight: true,
 		withLabel: false,
 		strokeWidth: 1,
 		strokeColor: gt.color.focusCurve,
@@ -49,22 +51,31 @@ window.graphTool = (containerId, options) => {
 		highlightFillColor: gt.color.pointHighlight
 	};
 
+	gt.options = options;
 	gt.snapSizeX = options.snapSizeX ? options.snapSizeX : 1;
 	gt.snapSizeY = options.snapSizeY ? options.snapSizeY : 1;
 	gt.isStatic = options.isStatic ? true : false;
-	const availableTools = options.availableTools ? options.availableTools
-		: ['LineTool', 'CircleTool', 'VerticalParabolaTool', 'HorizontalParabolaTool', 'FillTool', 'SolidDashTool'];
+	if (!(options.availableTools instanceof Array))
+		options.availableTools =
+			['LineTool', 'CircleTool', 'VerticalParabolaTool', 'HorizontalParabolaTool', 'FillTool', 'SolidDashTool'];
 
-	// These are the icons used for the fill tool and fill graph object.
-	gt.fillIcon =
-		"data:image/svg+xml,%3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' id='SVGRoot' version='1.1' viewBox='0 0 32 32' height='32px' width='32px'%3E%3Cdefs id='defs815' /%3E%3Cmetadata id='metadata818'%3E%3Crdf:RDF%3E%3Ccc:Work rdf:about=''%3E%3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E%3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E%3Cdc:title%3E%3C/dc:title%3E%3C/cc:Work%3E%3C/rdf:RDF%3E%3C/metadata%3E%3Cg id='layer1'%3E%3Cpath id='path1382' d='m 13.466084,10.267728 -4.9000003,8.4 4.9000003,4.9 8.4,-4.9 z' style='opacity:1;fill:" +
-		gt.color.fill.replace(/#/, '%23') +
-		";fill-opacity:1;stroke:%23000000;stroke-width:1.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none' /%3E%3Cpath id='path1384' d='M 16.266084,15.780798 V 6.273173' style='fill:none;stroke:%23000000;stroke-width:1.38;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' /%3E%3Cpath id='path1405' d='m 20,16 c 0,0 2,-1 3,0 1,0 1,1 2,2 0,1 0,2 0,3 0,1 0,2 0,2 0,0 -1,0 -1,0 -1,-1 -1,-1 -1,-2 0,-1 0,-1 -1,-2 0,-1 0,-2 -1,-2 -1,-1 -2,-1 -1,-1 z' style='fill:%230900ff;fill-opacity:1;stroke:%23000000;stroke-width:0.7px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /%3E%3C/g%3E%3C/svg%3E";
-
-	gt.fillIconFocused =
-		"data:image/svg+xml,%3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' id='SVGRoot' version='1.1' viewBox='0 0 32 32' height='32px' width='32px'%3E%3Cdefs id='defs815' /%3E%3Cmetadata id='metadata818'%3E%3Crdf:RDF%3E%3Ccc:Work rdf:about=''%3E%3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E%3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E%3Cdc:title%3E%3C/dc:title%3E%3C/cc:Work%3E%3C/rdf:RDF%3E%3C/metadata%3E%3Cg id='layer1'%3E%3Cpath id='path1382' d='m 13.466084,10.267728 -4.9000003,8.4 4.9000003,4.9 8.4,-4.9 z' style='opacity:1;fill:" +
-		gt.color.pointHighlight.replace(/#/, '%23') +
-		";fill-opacity:1;stroke:%23000000;stroke-width:1.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none' /%3E%3Cpath id='path1384' d='M 16.266084,15.780798 V 6.273173' style='fill:none;stroke:%23000000;stroke-width:1.38;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' /%3E%3Cpath id='path1405' d='m 20,16 c 0,0 2,-1 3,0 1,0 1,1 2,2 0,1 0,2 0,3 0,1 0,2 0,2 0,0 -1,0 -1,0 -1,-1 -1,-1 -1,-2 0,-1 0,-1 -1,-2 0,-1 0,-2 -1,-2 -1,-1 -2,-1 -1,-1 z' style='fill:%230900ff;fill-opacity:1;stroke:%23000000;stroke-width:0.7px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /%3E%3C/g%3E%3C/svg%3E";
+	// This is the icon used for the fill tool and fill graph object.
+	gt.fillIcon = (color) => "data:image/svg+xml," +
+		encodeURIComponent(
+			"<svg xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' version='1.1' " +
+			"viewBox='0 0 32 32' height='32px' width='32px'><g>" +
+			"<path d='m 13.466084,10.267728 -4.9000003,8.4 4.9000003,4.9 8.4,-4.9 z' opacity='1' " +
+			`fill='${color}' fill-opacity='1' stroke='#000000' stroke-width='1.3' ` +
+			"stroke-linecap='butt' stroke-linejoin='miter' stroke-opacity='1' stroke-miterlimit='4' " +
+			"stroke-dasharray='none' />" +
+			"<path d='M 16.266084,15.780798 V 6.273173' fill='none' stroke='#000000' stroke-width='1.38' " +
+			"stroke-linecap='round' stroke-linejoin='miter' stroke-miterlimit='4' stroke-dasharray='none' " +
+			"stroke-opacity='1' />" +
+			"<path d='m 20,16 c 0,0 2,-1 3,0 1,0 1,1 2,2 0,1 0,2 0,3 0,1 0,2 0,2 0,0 -1,0 -1,0 -1,-1 -1,-1 -1,-2 " +
+			"0,-1 0,-1 -1,-2 0,-1 0,-2 -1,-2 -1,-1 -2,-1 -1,-1 z' fill='#0900ff' fill-opacity='1' stroke='#000000' " +
+			"stroke-width='0.7px' stroke-linecap='butt' stroke-linejoin='miter' stroke-opacity='1' />" +
+			"</g></svg>"
+		);
 
 	if ('htmlInputId' in options) gt.html_input = document.getElementById(options.htmlInputId);
 	const cfgOptions = {
@@ -102,18 +113,8 @@ window.graphTool = (containerId, options) => {
 		}
 	};
 
-	// Deep extend utility function.  This should be good enough for what is needed here.
-	const extend = (out, obj) => {
-		for (const prop in obj) {
-			if (obj.hasOwnProperty(prop)) {
-				if (typeof obj[prop] === 'object' && typeof out[prop] === 'object') extend(out[prop], obj[prop]);
-				else out[prop] = obj[prop];
-			}
-		}
-	};
-
 	// Merge options that are set by the problem.
-	if (typeof options.JSXGraphOptions === 'object') extend(cfgOptions, options.JSXGraphOptions);
+	if (typeof options.JSXGraphOptions === 'object') JXG.merge(cfgOptions, options.JSXGraphOptions);
 
 	const setupBoard = () => {
 		gt.board = JXG.JSXGraph.initBoard(`${containerId}_graph`, cfgOptions);
@@ -123,8 +124,14 @@ window.graphTool = (containerId, options) => {
 		const bbox = gt.board.getBoundingBox();
 		gt.board.defaultAxes.x.point1.setPosition(JXG.COORDS_BY_USER, [bbox[0], 0]);
 		gt.board.defaultAxes.x.point2.setPosition(JXG.COORDS_BY_USER, [bbox[2], 0]);
-		gt.board.defaultAxes.y.point1.setPosition(JXG.COORDS_BY_USER, [0, bbox[3]]);
-		gt.board.defaultAxes.y.point2.setPosition(JXG.COORDS_BY_USER, [0, bbox[1]]);
+
+		if (options.numberLine) {
+			gt.board.defaultAxes.y.point1.setPosition(JXG.COORDS_BY_USER, [0, 0]);
+			gt.board.defaultAxes.y.point2.setPosition(JXG.COORDS_BY_USER, [0, 0]);
+		} else {
+			gt.board.defaultAxes.y.point1.setPosition(JXG.COORDS_BY_USER, [0, bbox[3]]);
+			gt.board.defaultAxes.y.point2.setPosition(JXG.COORDS_BY_USER, [0, bbox[1]]);
+		}
 
 		// Add labels to the x and y axes.
 		if (options.xAxisLabel) {
@@ -138,7 +145,7 @@ window.graphTool = (containerId, options) => {
 				{ anchorX: 'right', anchorY: 'bottom', highlight: false, color: 'black', fixed: true, useMathJax: true }
 			);
 		}
-		if (options.yAxisLabel) {
+		if (options.yAxisLabel && !options.numberLine) {
 			gt.board.create(
 				'text',
 				[
@@ -151,61 +158,69 @@ window.graphTool = (containerId, options) => {
 		}
 
 		// Add an empty text that will hold the cursor position.
-		gt.current_pos_text = gt.board.create(
-			'text',
-			[
-				() => gt.board.getBoundingBox()[2] - 5 / gt.board.unitX,
-				() => gt.board.getBoundingBox()[3] + 5 / gt.board.unitY,
-				''
-			],
-			{ anchorX: 'right', anchorY: 'bottom', fixed: true }
-		);
+		gt.current_pos_text = options.numberLine
+			? gt.board.create(
+				'text',
+				[
+					() => gt.board.getBoundingBox()[0] + 10 / gt.board.unitX,
+					() => gt.board.getBoundingBox()[1] - 2 / gt.board.unitY,
+					() => ''
+				],
+				{ anchorX: 'left', anchorY: 'top', fixed: true, useMathJax: true }
+			)
+			: gt.board.create(
+				'text',
+				[
+					() => gt.board.getBoundingBox()[2] - 5 / gt.board.unitX,
+					() => gt.board.getBoundingBox()[3] + 5 / gt.board.unitY,
+					() => ''
+				],
+				{ anchorX: 'right', anchorY: 'bottom', fixed: true, useMathJax: true }
+			);
 
 		// Overwrite the popup infobox for points.
-		gt.board.highlightInfobox = (x, y, el) => gt.board.highlightCustomInfobox('', el);
+		gt.board.highlightInfobox = (_x, _y, el) => gt.board.highlightCustomInfobox('', el);
 
 		if (!gt.isStatic) {
 			gt.graphContainer.tabIndex = -1;
 			gt.board.containerObj.tabIndex = -1;
 
 			gt.board.on('move', (e) => {
-				const coords = gt.getMouseCoords(e);
-				if (gt.activeTool?.updateHighlights(coords)) return;
-				if (!gt.selectedObj || !gt.selectedObj.updateTextCoords(coords))
-					gt.setTextCoords(coords.usrCoords[1], coords.usrCoords[2]);
-			});
+				if (e.type === 'keydown') {
+					if (
+						gt.activeTool === gt.selectTool &&
+						gt.board.containerObj.contains(document.activeElement) &&
+						gt.graphedObjs.length
+					) {
+						gt.graphedObjs.some((obj) => {
+							const el = obj.definingPts.find((point) => point.rendNode === e.target);
+							if (el) {
+								// None of the current graph objects use the handleKeyEvent handler anymore.  This is
+								// still provided in case a new graph object is written that needs it.  However, in that
+								// case it is the responsibility of the calling method to call gt.updateObjects() and
+								// gt.updateText() when it is finished if those are needed.
+								obj.handleKeyEvent(e, el);
 
-			gt.board.on('hit', (e, el) => {
-				switch (e.type) {
-					case 'focusin':
-						if (el === gt.board.containerObj.id) {
-							if (gt.board.containerObj.contains(e.relatedTarget)) {
-								// Prevent the board from gaining focus and place the
-								// focus back onto where it was coming from.
-								e.preventDefault();
-								e.stopPropagation();
-								e.relatedTarget.focus();
+								if (!gt.selectedObj || !gt.selectedObj.updateTextCoords(el.coords))
+									gt.setTextCoords(el.coords.usrCoords[1], el.coords.usrCoords[2]);
 							}
-						} else {
-							// Update the focus point for whichever object the focused point belongs to.
-							gt.graphedObjs.some((obj) =>
-								obj.definingPts.some((point) => {
-									if (point.id === el.id) {
-										obj.focusPoint = point;
-										return true;
-									}
-								})
-							);
-						}
-						break;
+						});
+					} else {
+						gt.activeTool?.updateHighlights(e);
+					}
+				} else if (e.type === 'pointermove') {
+					if (gt.activeTool?.updateHighlights(e)) return;
+
+					const coords = gt.getMouseCoords(e);
+					if (!gt.selectedObj || !gt.selectedObj.updateTextCoords(coords))
+						gt.setTextCoords(coords.usrCoords[1], coords.usrCoords[2]);
 				}
 			});
 
 			gt.hasFocus = false;
-			gt.preventFocusLoss = false;
 			gt.objectFocusSet = false;
 
-			gt.board.containerObj.addEventListener('focus', (e) => gt.hasFocus = true);
+			gt.board.containerObj.addEventListener('focus', () => gt.hasFocus = true);
 
 			gt.graphContainer.addEventListener('focusin', (e) => {
 				e.preventDefault();
@@ -242,6 +257,24 @@ window.graphTool = (containerId, options) => {
 			gt.board.containerObj.addEventListener('focusin', (e) => {
 				e.preventDefault();
 				e.stopPropagation();
+
+				if (e.target === gt.board.containerObj) {
+					if (gt.board.containerObj.contains(e.relatedTarget)) {
+						// Place the focus back onto where it was coming from.
+						e.relatedTarget.focus();
+						return;
+					}
+				}
+
+				// If a defining point is the target, then update the focus point for the object it belongs to.
+				gt.graphedObjs.some((obj) =>
+					obj.definingPts.some((point) => {
+						if (point.rendNode === e.target) {
+							obj.focusPoint = point;
+							return true;
+						}
+					})
+				);
 
 				if (e.relatedTarget !== gt.board.containerObj &&
 					(gt.buttonBox.contains(e.relatedTarget) ||
@@ -324,38 +357,20 @@ window.graphTool = (containerId, options) => {
 			});
 
 			gt.graphContainer.addEventListener('focusout', (e) => {
-				if (!gt.graphContainer.contains(e.relatedTarget) && !gt.preventFocusLoss) {
+				if (!gt.graphContainer.contains(e.relatedTarget)) {
 					// Focus is being lost to something outside the container.
-					// So deactivate any active tool and blur any selected object.
+					// So close any incomplete confirmation, deactivate any active tool, and blur any selected object.
+					gt.confirm.dispose?.(e);
 					gt.hasFocus = false;
 					gt.objectFocusSet = false;
 					gt.activeTool?.deactivate();
 					delete gt.activeTool;
-					// Hide tooltips that have been shown.  This seems to only be needed for touch screen devices.
-					gt.tooltips.forEach((tooltip) => tooltip.hide());
+					gt.updateHelp();
 				}
 			});
 
 			gt.graphContainer.addEventListener('keydown', (e) => {
-				if (gt.activeTool === gt.selectTool &&
-					gt.board.containerObj.contains(document.activeElement) && gt.graphedObjs.length &&
-					['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)
-				) {
-					gt.graphedObjs.some((obj) => {
-						const el = obj.definingPts.find((point) => point.rendNode === e.target);
-						if (el) {
-							obj.handleKeyEvent(e, el);
-							gt.updateObjects();
-							gt.updateText();
-							if (!gt.activeTool?.updateHighlights(el.coords)) {
-								if (!gt.selectedObj || !gt.selectedObj.updateTextCoords(el.coords))
-									gt.setTextCoords(el.coords.usrCoords[1], el.coords.usrCoords[2]);
-							}
-						}
-					});
-				} else {
-					gt.activeTool?.handleKeyEvent(e);
-				}
+				for (const tool of gt.tools) tool.handleKeyEvent(e);
 
 				if (!gt.buttonBox.contains(document.activeElement) && e.key === 'N' && e.shiftKey) {
 					// Shift-N moves focus to the first tool button after the select button unless the tool bar already
@@ -370,17 +385,17 @@ window.graphTool = (containerId, options) => {
 				} else if (e.key === 'Delete' && gt.activeTool === gt.selectTool) {
 					// If the select tool is active and Delete is pressed, then ask to delete the selected object.
 					gt.deleteSelected();
-				} else if (e.key === 's') {
-					// If 's' is pressed change to drawing solid.
-					gt.toggleSolidity(e, true)
-				} else if (e.key === 'd') {
-					// If 'd' is pressed change to drawing dashed.
-					gt.toggleSolidity(e, false)
 				}
 			});
 		}
 
-		window.addEventListener('resize', () => {
+		const resize = () => {
+			// If the container does not have width or height (for example if the graph is inside a closed scaffold when
+			// the window is resized), then delay resizing the graph until the container does have width and height.
+			if (!gt.board.containerObj.offsetWidth || !gt.board.containerObj.offsetHeight) {
+				setTimeout(resize, 1000);
+				return;
+			}
 			if (gt.board.canvasWidth != gt.board.containerObj.offsetWidth - 2 ||
 				gt.board.canvasHeight != gt.board.containerObj.offsetHeight - 2)
 			{
@@ -389,7 +404,9 @@ window.graphTool = (containerId, options) => {
 				gt.graphedObjs.forEach((object) => object.onResize());
 				gt.staticObjs.forEach((object) => object.onResize());
 			}
-		});
+		};
+
+		window.addEventListener('resize', resize);
 
 		gt.drawSolid = true;
 		gt.graphedObjs = [];
@@ -402,7 +419,18 @@ window.graphTool = (containerId, options) => {
 	gt.snapRound = (x, snap) => Math.round(Math.round(x / snap) * snap * 100000) / 100000;
 
 	gt.setTextCoords = options.showCoordinateHints
-		? (x, y) => gt.current_pos_text.setText(`(${gt.snapRound(x, gt.snapSizeX)}, ${gt.snapRound(y, gt.snapSizeY)})`)
+		? (
+			options.numberLine
+				? (x) => {
+					const bbox = gt.board.getBoundingBox();
+					const xSnap = gt.snapRound(x, gt.snapSizeX);
+					if (xSnap <= bbox[0]) gt.current_pos_text.setText(() => '\\(-\\infty\\)');
+					else if (xSnap >= bbox[2]) gt.current_pos_text.setText(() => '\\(\\infty\\)');
+					else gt.current_pos_text.setText(() => `\\(${xSnap}\\)`);
+				}
+				: (x, y) => gt.current_pos_text
+					.setText(() => `\\((${gt.snapRound(x, gt.snapSizeX)}, ${gt.snapRound(y, gt.snapSizeY)})\\)`)
+		)
 		: () => {};
 
 	gt.updateText = () => {
@@ -411,16 +439,68 @@ window.graphTool = (containerId, options) => {
 		);
 	};
 
+	gt.setMessageContent = (newContent, confirmation = false) => new Promise((resolve, reject) => {
+		if (gt.confirmationActive) return resolve();
+		gt.confirmationActive = confirmation
+
+		clearInterval(gt.setMessageContent.IntervalId);
+		for (const message of gt.messageBox.querySelectorAll('.gt-message-content'))
+			message.classList.remove('gt-message-fade');
+		gt.setMessageContent.IntervalId = setTimeout(() => {
+			requestAnimationFrame(() => {
+				while (gt.messageBox.firstChild) gt.messageBox.firstChild.remove();
+				if (newContent) {
+					gt.messageBox.append(newContent);
+					newContent.classList.add('gt-message-content');
+					setTimeout(() => newContent.classList.add('gt-message-content', 'gt-message-fade'));
+
+					if (window.MathJax) {
+						MathJax.startup.promise =
+							MathJax.startup.promise.then(() => MathJax.typesetPromise([ newContent ]));
+					}
+				}
+
+				resolve();
+			});
+		}, 100);
+	});
+
+	gt.setMessageText = (content) => {
+		if (gt.confirmationActive || !gt.helpEnabled) return;
+
+		const newMessage = (content instanceof Array ? content.join(' ') : content);
+		if (newMessage) {
+			const par = document.createElement('p');
+			par.textContent = newMessage;
+			gt.setMessageContent(par);
+		} else {
+			gt.setMessageContent();
+		}
+	}
+
+	gt.updateHelp = () => {
+		if (gt.confirmationActive || !gt.helpEnabled) return;
+
+		gt.setMessageText(
+			gt.tools.map((tool) => typeof tool.helpText === 'function'
+				? tool.helpText()
+				: (tool.helpText || ''))
+			.filter((helpText) => !!helpText)
+		);
+	}
+
 	gt.updateUI = () => {
 		gt.deleteButton.disabled = !gt.selectedObj;
 		gt.clearButton.disabled = !gt.graphedObjs.length;
+		gt.updateHelp();
 	};
 
 	gt.getMouseCoords = (e) => {
-		const cPos = gt.board.getCoordsTopLeftCorner(),
-			absPos = JXG.getPosition(e, e[JXG.touchProperty] ? 0 : undefined);
-
-		return new JXG.Coords(JXG.COORDS_BY_SCREEN, [absPos[0] - cPos[0], absPos[1] - cPos[1]], gt.board);
+		return new JXG.Coords(
+			JXG.COORDS_BY_SCREEN,
+			gt.board.getMousePosition(e, e[JXG.touchProperty] ? 0 : undefined),
+			gt.board
+		);
 	};
 
 	gt.sign = (x) => {
@@ -429,83 +509,129 @@ window.graphTool = (containerId, options) => {
 		return x > 0 ? 1 : -1;
 	};
 
+	// These return true if the given x coordinate is off the board or within epsilon of the edge of the board.
+	gt.isPosInfX = (x) => x >= gt.board.getBoundingBox()[2] - JXG.Math.eps;
+	gt.isNegInfX = (x) => x <= gt.board.getBoundingBox()[0] + JXG.Math.eps;
+
 	// Use this instead of gt.board.hasPoint.  That method uses strict inequality.
 	// Using inequality with equality allows points on the edge of the board.
 	gt.boardHasPoint = (x, y) => {
+		let px = x, py = y;
 		const bbox = gt.board.getBoundingBox();
-		return x >= bbox[0] && x <= bbox[2] && y <= bbox[1] && y >= bbox[3];
+
+		if (JXG.exists(x) && JXG.isArray(x.usrCoords)) {
+			px = x.usrCoords[1];
+			py = x.usrCoords[2];
+		}
+
+		return JXG.isNumber(px) &&
+			JXG.isNumber(py) &&
+			bbox[0] <= px &&
+			px <= bbox[2] &&
+			bbox[1] >= py &&
+			py >= bbox[3];
 	};
 
 	gt.pointRegexp = /\( *(-?[0-9]*(?:\.[0-9]*)?), *(-?[0-9]*(?:\.[0-9]*)?) *\)/g;
 
-	// This method makes the actual adjustment for the gt.keyboardMovementAdjust and
-	// gt.keyboardMovementAdjustRestricted methods below.
-	gt.keyboardMovementAdjustPosition = (key, point1) => {
-		let x = point1.X() + (key === 'ArrowLeft' ? -1 : key === 'ArrowRight' ? 1 : 0) * gt.snapSizeX;
-		let y = point1.Y() + (key === 'ArrowUp' ? 1 : key === 'ArrowDown' ? -1 : 0) * gt.snapSizeY;
+	// Prevent a point from being moved off the board by a drag. If a paired point is provided, then also prevent the
+	// point from being moved into the same position as the paired point by a drag.  Note that when this method is
+	// called, the point has already been moved by JSXGraph.  This prevents lines and circles from being made
+	// degenerate.
+	gt.adjustDragPosition = (e, point, pairedPoint) => {
+		if ((point.X() == pairedPoint?.X() && point.Y() == pairedPoint?.Y()) ||
+			!gt.boardHasPoint(point.X(), point.Y()))
+		{
+			const bbox = gt.board.getBoundingBox();
 
-		// If the computed new coordinates are off the board, then we need to move the point back instead.
-		const boundingBox = gt.board.getBoundingBox();
-		if (x < boundingBox[0]) x = boundingBox[0] + gt.snapSizeX;
-		else if (x > boundingBox[2]) x = boundingBox[2] - gt.snapSizeX;
-		if (y < boundingBox[3]) y = boundingBox[3] + gt.snapSizeY;
-		else if (y > boundingBox[1]) y = boundingBox[1] - gt.snapSizeY;
+			// Clamp the coordinates to the board.
+			let x = point.X() < bbox[0] ? bbox[0] : point.X() > bbox[2] ? bbox[2] : point.X();
+			let y = point.Y() < bbox[3] ? bbox[3] : point.Y() > bbox[1] ? bbox[1] : point.Y();
 
-		point1.setPosition(JXG.COORDS_BY_USER, [x, y]);
-		gt.board.update();
+			// Adjust position of the point if it has the same coordinates as its paired point.
+			if (pairedPoint && x === pairedPoint.X() && y === pairedPoint.Y()) {
+				let xDir, yDir;
+
+				if (e.type === 'pointermove') {
+					const coords = gt.getMouseCoords(e);
+					const x_trans = coords.usrCoords[1] - pairedPoint.X(),
+						y_trans = coords.usrCoords[2] - pairedPoint.Y();
+					[ xDir, yDir ] = Math.abs(x_trans) < Math.abs(y_trans)
+						? [ 0, y_trans < 0 ? -1 : 1 ]
+						: [ x_trans < 0 ? -1 : 1, 0 ];
+				} else if (e.type === 'keydown') {
+					xDir = e.key === 'ArrowLeft' ? -1 : e.key === 'ArrowRight' ? 1 : 0;
+					yDir = e.key === 'ArrowUp' ? 1 : e.key === 'ArrowDown' ? -1 : 0;
+				}
+
+				y += yDir * gt.snapSizeY;
+				x += xDir * gt.snapSizeX;
+
+				// If the computed new coordinates are off the board,
+				// then move the coordinates the other direction instead.
+				if (x < bbox[0]) x = bbox[0] + gt.snapSizeX;
+				else if (x > bbox[2]) x = bbox[2] - gt.snapSizeX;
+				if (y < bbox[3]) y = bbox[3] + gt.snapSizeY;
+				else if (y > bbox[1]) y = bbox[1] - gt.snapSizeY;
+			}
+
+			point.setPosition(JXG.COORDS_BY_USER, [x, y]);
+		}
 	};
 
-	// Prevent paired points from being moved into the same position by a drag.  This
-	// prevents lines and circles from being made degenerate.
-	gt.pairedPointDrag = (point, e) => {
-		if (point.X() == point.paired_point.X() && point.Y() == point.paired_point.Y()) {
-			const coords = gt.getMouseCoords(e);
-			const x_trans = coords.usrCoords[1] - point.paired_point.X(),
-				y_trans = coords.usrCoords[2] - point.paired_point.Y();
-			if (y_trans > Math.abs(x_trans))
-				point.setPosition(JXG.COORDS_BY_USER, [point.X(), point.Y() + gt.snapSizeY]);
-			else if (x_trans > Math.abs(y_trans))
-				point.setPosition(JXG.COORDS_BY_USER, [point.X() + gt.snapSizeX, point.Y()]);
-			else if (x_trans < -Math.abs(y_trans))
-				point.setPosition(JXG.COORDS_BY_USER, [point.X() - gt.snapSizeX, point.Y()]);
-			else
-				point.setPosition(JXG.COORDS_BY_USER, [point.X(), point.Y() - gt.snapSizeY]);
-		}
+	gt.pairedPointDrag = (e, point) => {
+		gt.adjustDragPosition(e, point, point.paired_point);
 		gt.updateObjects();
 		gt.updateText();
 	};
 
-	// This does much the same as the above method, except for keyboard movement of a point.  Note that for this method,
-	// point1 has already moved, but if that point is now located at the same place as point2, then point1 is made to
-	// jump over point2 (or back to where it came from if that is off the board).
-	gt.keyboardMovementAdjust = (key, point1, point2) => {
-		if (point1.X() === point2.X() && point1.Y() === point2.Y()) gt.keyboardMovementAdjustPosition(key, point1);
+	// Prevent a point from being moved off the board by a drag, and prevent the point from being moved onto the same
+	// horizontal or vertical line as its paired point by a drag. Note that when this method is called, the point has
+	// already been moved by JSXGraph.  This prevents parabolas from being made degenerate.
+	gt.adjustDragPositionRestricted = (e, point, pairedPoint) => {
+		if (point.X() == pairedPoint?.X() ||
+			point.Y() == pairedPoint?.Y() ||
+			!gt.boardHasPoint(point.X(), point.Y()))
+		{
+			const bbox = gt.board.getBoundingBox();
+
+			// Clamp the coordinates to the board.
+			let x = point.X() < bbox[0] ? bbox[0] : point.X() > bbox[2] ? bbox[2] : point.X();
+			let y = point.Y() < bbox[3] ? bbox[3] : point.Y() > bbox[1] ? bbox[1] : point.Y();
+
+			if (pairedPoint) {
+				// Adjust the position of the point if it is on the same
+				// horizontal or vertical line as its paired point.
+				let xDir, yDir;
+
+				if (e.type === 'pointermove') {
+					const coords = gt.getMouseCoords(e);
+					xDir = coords.usrCoords[1] > pairedPoint.X() ? 1 : -1;
+					yDir = coords.usrCoords[2] > pairedPoint.Y() ? 1 : -1;
+				} else if (e.type === 'keydown') {
+					xDir = e.key === 'ArrowLeft' ? -1 : e.key === 'ArrowRight' ? 1 : 0;
+					yDir = e.key === 'ArrowUp' ? 1 : e.key === 'ArrowDown' ? -1 : 0;
+				}
+
+				if (x == pairedPoint.X()) x += xDir * gt.snapSizeX;
+				if (y == pairedPoint.Y()) y += yDir * gt.snapSizeY;
+
+				// If the computed new coordinates are off the board,
+				// then move the coordinates the other direction instead.
+				if (x < bbox[0]) x = bbox[0] + gt.snapSizeX;
+				else if (x > bbox[2]) x = bbox[2] - gt.snapSizeX;
+				if (y < bbox[3]) y = bbox[3] + gt.snapSizeY;
+				else if (y > bbox[1]) y = bbox[1] - gt.snapSizeY;
+			}
+
+			point.setPosition(JXG.COORDS_BY_USER, [x, y]);
+		}
 	};
 
-	// Prevent paired points from being moved onto the same horizontal or vertical
-	// line by a drag.  This prevents parabolas from being made degenerate.
-	gt.pairedPointDragRestricted = (point, e) => {
-		const coords = gt.getMouseCoords(e);
-		let new_x = point.X(), new_y = point.Y();
-		if (point.X() == point.paired_point.X()) {
-			if (coords.usrCoords[1] > point.paired_point.X()) new_x += gt.snapSizeX;
-			else new_x -= gt.snapSizeX;
-		}
-		if (point.Y() == point.paired_point.Y()) {
-			if (coords.usrCoords[2] > point.paired_point.Y()) new_y += gt.snapSizeX;
-			else new_y -= gt.snapSizeX;
-		}
-		if (point.X() == point.paired_point.X() || point.Y() == point.paired_point.Y())
-			point.setPosition(JXG.COORDS_BY_USER, [new_x, new_y]);
+	gt.pairedPointDragRestricted = (e, point) => {
+		gt.adjustDragPositionRestricted(e, point, point.paired_point);
 		gt.updateObjects();
 		gt.updateText();
-	};
-
-	// This does much the same as the above method, except for keyboard movement of a point.  Note that for this method,
-	// point1 has already moved, but if that point is now located on the same horizontal or vertical line as point2,
-	// then point1 is made to jump over that line (or back to where it came from if that is off the board).
-	gt.keyboardMovementAdjustRestricted = (key, point1, point2) => {
-		if (point1.X() === point2.X() || point1.Y() === point2.Y()) gt.keyboardMovementAdjustPosition(key, point1);
 	};
 
 	gt.createPoint = (x, y, paired_point, restrict) => {
@@ -518,13 +644,13 @@ window.graphTool = (containerId, options) => {
 			paired_point.paired_point = point;
 			paired_point.on('drag',
 				restrict
-					? (e) => gt.pairedPointDragRestricted(paired_point, e)
-					: (e) => gt.pairedPointDrag(paired_point, e)
+					? (e) => gt.pairedPointDragRestricted(e, paired_point)
+					: (e) => gt.pairedPointDrag(e, paired_point)
 			);
 			point.on('drag',
 				restrict
-					? (e) => gt.pairedPointDragRestricted(point, e)
-					: (e) => gt.pairedPointDrag(point, e)
+					? (e) => gt.pairedPointDragRestricted(e, point)
+					: (e) => gt.pairedPointDrag(e, point)
 			);
 		}
 		return point;
@@ -535,9 +661,10 @@ window.graphTool = (containerId, options) => {
 		gt.staticObjs.forEach((obj) => obj.update());
 	};
 
-	// Generic graph object class from which all the specific graph objects
-	// derive.
+	// Generic graph object class from which all the specific graph objects derive.
 	class GraphObject {
+		supportsSolidDash = true;
+
 		constructor(jsxGraphObject) {
 			this.baseObj = jsxGraphObject;
 			this.definingPts = [];
@@ -546,14 +673,18 @@ window.graphTool = (containerId, options) => {
 			this.focusPoint = null;
 		}
 
-		handleKeyEvent(_e, _el) {}
+		handleKeyEvent(/* e, el */) {}
 
 		blur() {
+			this.focused = false;
 			this.definingPts.forEach((obj) => obj.setAttribute({ visible: false }));
 			this.baseObj.setAttribute({ strokeColor: gt.color.curve, strokeWidth: 2 });
+
+			gt.updateHelp();
 		}
 
 		focus() {
+			this.focused = true;
 			this.definingPts.forEach((obj) => obj.setAttribute({ visible: true }));
 			this.baseObj.setAttribute({ strokeColor: gt.color.focusCurve, strokeWidth: 3 });
 
@@ -563,11 +694,18 @@ window.graphTool = (containerId, options) => {
 			gt.drawSolid = this.baseObj.getAttribute('dash') == 0;
 			if (gt.solidButton) gt.solidButton.disabled = gt.drawSolid;
 			if (gt.dashedButton) gt.dashedButton.disabled = !gt.drawSolid;
+
+			gt.updateHelp();
+		}
+
+		isEventTarget(e) {
+			if (this.baseObj.rendNode === e.target) return true;
+			return this.definingPts.some((point) => point.rendNode === e.target);
 		}
 
 		update() {}
 
-		fillCmp(_point) { return 1; }
+		fillCmp(/* point */) { return 1; }
 
 		remove() {
 			this.definingPts.forEach((point) => gt.board.removeObject(point));
@@ -620,13 +758,6 @@ window.graphTool = (containerId, options) => {
 			this.focusPoint = point1;
 		}
 
-		handleKeyEvent(e, el) {
-			// Make sure that one point is not moved on top of the other.
-			if (el.id === this.focusPoint.id)
-				gt.keyboardMovementAdjust(e.key,
-					el, el.id === this.definingPts[0].id ? this.definingPts[1] : this.definingPts[0]);
-		}
-
 		stringify() {
 			return [
 				Line.strId,
@@ -670,13 +801,6 @@ window.graphTool = (containerId, options) => {
 			// that a pointer over the center point will give focus to the object with the center point activated.
 			const circleHasPoint = this.baseObj.hasPoint.bind(this.baseObj);
 			this.baseObj.hasPoint = (x, y) => circleHasPoint(x, y) || center.hasPoint(x, y);
-		}
-
-		handleKeyEvent(e, el) {
-			// Make sure that one point is not moved on top of the other.
-			if (el.id === this.focusPoint.id)
-				gt.keyboardMovementAdjust(e.key,
-					el, el.id === this.definingPts[0].id ? this.definingPts[1] : this.definingPts[0]);
 		}
 
 		stringify() {
@@ -749,13 +873,6 @@ window.graphTool = (containerId, options) => {
 			this.focusPoint = vertex;
 		}
 
-		handleKeyEvent(e, el) {
-			// Make sure that one point is not moved onto the same horizontal or vertical line as the other.
-			if (el.id === this.focusPoint.id)
-				gt.keyboardMovementAdjustRestricted(e.key,
-					el, el === this.definingPts[0] ? this.definingPts[1] : this.definingPts[0]);
-		}
-
 		stringify() {
 			return [
 				Parabola.strId,
@@ -792,6 +909,8 @@ window.graphTool = (containerId, options) => {
 
 		constructor(point) {
 			super(point);
+			this.supportsSolidDash = false;
+
 			// Make the point invisible, but not with the jsxgraph visible attribute.  The icon will be shown instead.
 			point.setAttribute({
 				strokeOpacity: 0, highlightStrokeOpacity: 0, fillOpacity: 0, highlightFillOpacity: 0, fixed: gt.isStatic
@@ -810,14 +929,20 @@ window.graphTool = (containerId, options) => {
 			this.icon = gt.board.create(
 				'image',
 				[
-					() => this.focused ? gt.fillIconFocused : gt.fillIcon,
+					() => gt.fillIcon(this.focused ? gt.color.pointHighlight : gt.color.fill),
 					[() => point.X() - 12 / gt.board.unitX, () => point.Y() - 12 / gt.board.unitY],
 					[() => 24 / gt.board.unitX, () => 24 / gt.board.unitY]
 				],
 				{ withLabel: false, highlight: false, layer: 8, name: 'FillIcon', fixed: true }
-			)
+			);
 
-			if (!gt.isStatic) this.on('drag', (e) => { this.update(); gt.updateText(); });
+			if (!gt.isStatic) {
+				this.on('drag', (e) => {
+					gt.adjustDragPosition(e, this.baseObj);
+					this.update();
+					gt.updateText();
+				});
+			}
 		}
 
 		// The fill object has an invisible focus object.  So the focus/blur methods need to be overridden.
@@ -825,6 +950,7 @@ window.graphTool = (containerId, options) => {
 			this.focused = false;
 			this.baseObj.setAttribute({ fixed: true });
 			gt.board.update();
+			gt.updateHelp();
 		}
 
 		focus() {
@@ -832,6 +958,7 @@ window.graphTool = (containerId, options) => {
 			this.baseObj.setAttribute({ fixed: false });
 			gt.board.update();
 			this.baseObj.rendNode.focus();
+			gt.updateHelp();
 		}
 
 		remove() {
@@ -973,6 +1100,12 @@ window.graphTool = (containerId, options) => {
 					if ((!('focus' in graphObject) || graphObject.focus.call(this, gt)) && parentObject) super.focus();
 				}
 
+				isEventTarget(e) {
+					if ('isEventTarget' in graphObject) return graphObject.isEventTarget.call(this, gt, e);
+					else if (parentObject) return super.isEventTarget(e);
+					return false;
+				}
+
 				update() {
 					if ('update' in graphObject) graphObject.update.call(this, gt);
 					else if (parentObject) super.update();
@@ -1029,6 +1162,16 @@ window.graphTool = (containerId, options) => {
 				}
 			};
 
+			// These are methods that must be called with a class instance (as in this.method(...args)).
+			if ('classMethods' in graphObject) {
+				for (const method of Object.keys(graphObject.classMethods)) {
+					customGraphObject.prototype[method] = function(...args) {
+						return graphObject.classMethods[method].call(this, gt, ...args);
+					};
+				}
+			}
+
+			// These are static class methods.
 			if ('helperMethods' in graphObject) {
 				Object.keys(graphObject.helperMethods).forEach((method) => {
 					customGraphObject[method] = function(...args) {
@@ -1042,20 +1185,21 @@ window.graphTool = (containerId, options) => {
 	}
 
 	// Generic tool class from which all the graphing tools derive.  Most of the methods, if overridden, must call the
-	// corresponding generic method.  At this point the updateHighlights method is the only one that this doesn't need
-	// to be done with.
+	// corresponding generic method.  At this point the handleKeyEvent and updateHighlights methods are the ones that
+	// this doesn't need to be done with.
 	class GenericTool {
 		constructor(container, name, tooltip) {
 			const div = document.createElement('div');
 			div.classList.add('gt-button-div');
-			div.dataset.bsToggle = 'tooltip';
-			div.title = tooltip;
-			div.id = `gt-${name}-tool`;
 			this.button = document.createElement('button');
 			this.button.type = 'button';
-			this.button.classList.add('btn', 'btn-light', 'gt-button', 'gt-tool-button', div.id);
+			this.button.classList.add('gt-button', 'gt-tool-button', `gt-${name}-tool`);
+			this.button.setAttribute('aria-label', tooltip);
 			this.button.addEventListener('click', () => this.activate());
-			this.button.setAttribute('aria-labelledby', div.id);
+			this.button.addEventListener('pointerover', () => gt.setMessageText(tooltip));
+			this.button.addEventListener('pointerout', () => gt.updateHelp());
+			this.button.addEventListener('focus', () => gt.setMessageText(tooltip));
+			this.button.addEventListener('blur', () => gt.updateHelp());
 			div.append(this.button);
 			container.append(div);
 			this.hlObjs = {};
@@ -1066,6 +1210,7 @@ window.graphTool = (containerId, options) => {
 			gt.activeTool = this;
 			if (!(this instanceof SelectTool)) gt.board.containerObj.focus();
 			this.button.disabled = true;
+			gt.updateHelp();
 		}
 
 		finish() {
@@ -1075,9 +1220,9 @@ window.graphTool = (containerId, options) => {
 			gt.selectTool.activate();
 		}
 
-		handleKeyEvent(_e) {}
+		handleKeyEvent(/* e: KeyboardEvent */) {}
 
-		updateHighlights(_coords) { return false; }
+		updateHighlights(/* e: MouseEvent | KeyboardEvent | JXG.Coords | undefined */) { return false; }
 
 		removeHighlights() {
 			for (const obj in this.hlObjs) {
@@ -1095,7 +1240,16 @@ window.graphTool = (containerId, options) => {
 	// Select tool
 	class SelectTool extends GenericTool {
 		constructor(container) {
-			super(container, 'select', 'Object Selection Tool');
+			super(container, 'select', 'Selection Tool: Select a graphed object to modify.');
+		}
+
+		helpText() {
+			if (gt.activeTool === this) {
+				return gt.graphedObjs.length
+					? 'Make changes to the selected object, or select a new tool (Shift-N) to graph another object.'
+					: 'Select a new tool (Shift-N) to graph an object.'
+			}
+			return '';
 		}
 
 		activate(initialize) {
@@ -1130,19 +1284,20 @@ window.graphTool = (containerId, options) => {
 					// This can happen if the defining point of another object is on this object and neither has focus.
 					const otherIsTarget = gt.graphedObjs.some((otherObj) => {
 						if (otherObj.id() === obj.id()) return false;
-						if (otherObj.baseObj.rendNode === e.target) return true;
-						return otherObj.definingPts.some((otherPt) => otherPt.rendNode === e.target);
+						return otherObj.isEventTarget(e);
 					});
 
 					// Check to see if one of the defining points of this object has the pointer.  If so set that point
 					// as the focus point.  However, if some other object is the target then don't focus this object.
 					// This is most important if a fill object is the target.  In that case the focus slips through to
-					// the object below it.
+					// the object below it.  Note that the actual focusing of the point needs to be delayed until it is
+					// determined that this object either has focus or is will take focus.
+					let focusPoint = null;
 					for (const point of obj.definingPts) {
 						if (point.hasPoint(coords.scrCoords[1], coords.scrCoords[2])) {
 							obj.focusPoint = point;
 							if (otherIsTarget) return;
-							point.rendNode.focus();
+							focusPoint = point;
 							break;
 						}
 					}
@@ -1161,9 +1316,13 @@ window.graphTool = (containerId, options) => {
 									return;
 							}
 							lastSelected = gt.selectedObj;
-						} else return;
+						} else {
+							focusPoint?.rendNode.focus();
+							return;
+						}
 					}
 
+					focusPoint?.rendNode.focus();
 					gt.selectedObj = obj;
 					gt.selectedObj.focus();
 					lastSelected?.blur();
@@ -1174,7 +1333,7 @@ window.graphTool = (containerId, options) => {
 				// the objects from first graphed to last.
 				obj.definingPts.forEach((point, pIndex, a) => {
 					// If this is the first or last defining point of an object, then attach a keydown handler that will
-					// focus the previous or next object when shitf-tab or tab is pressed.
+					// focus the previous or next object when shift-tab or tab is pressed.
 					if (pIndex === 0 || pIndex === a.length - 1) {
 						point.focusOutHandler = (e) => {
 							if (e.key !== 'Tab' ||
@@ -1205,7 +1364,7 @@ window.graphTool = (containerId, options) => {
 					}
 
 					// Attach a focusin handler to all points to update the coordinates display.
-					point.focusInHandler = (e) => gt.setTextCoords(point.X(), point.Y());
+					point.focusInHandler = () => gt.setTextCoords(point.X(), point.Y());
 					point.rendNode.addEventListener('focusin', point.focusInHandler);
 				});
 			}
@@ -1236,7 +1395,8 @@ window.graphTool = (containerId, options) => {
 	// Line graphing tool
 	class LineTool extends GenericTool {
 		constructor(container, iconName, tooltip) {
-			super(container, iconName ? iconName : 'line', tooltip ? tooltip : 'Line Tool');
+			super(container, iconName ? iconName : 'line', tooltip ? tooltip : 'Line Tool: Graph a line.');
+			this.supportsSolidDash = true;
 		}
 
 		handleKeyEvent(e) {
@@ -1248,31 +1408,35 @@ window.graphTool = (containerId, options) => {
 
 				if (this.point1) this.phase2(this.hlObjs.hl_point.coords.usrCoords);
 				else this.phase1(this.hlObjs.hl_point.coords.usrCoords);
-			} else if (['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
-				// Make sure the highlight point is not moved onto the other point.
-				if (this.point1) gt.keyboardMovementAdjust(e.key, this.hlObjs.hl_point, this.point1);
-				this.updateHighlights(this.hlObjs.hl_point.coords);
 			}
 		}
 
-		updateHighlights(coords) {
-			if (this.hlObjs.hl_line) this.hlObjs.hl_line.setAttribute({ dash: gt.drawSolid ? 0 : 2 });
+		updateHighlights(e) {
+			this.hlObjs.hl_line?.setAttribute({ dash: gt.drawSolid ? 0 : 2 });
 			this.hlObjs.hl_point?.rendNode.focus();
 
-			if (typeof coords === 'undefined') return false;
-			if (this.point1 &&
-				gt.snapRound(coords.usrCoords[1], gt.snapSizeX) == this.point1.X() &&
-				gt.snapRound(coords.usrCoords[2], gt.snapSizeY) == this.point1.Y())
+			let coords;
+			if (e instanceof MouseEvent && e.type === 'pointermove') {
+				coords = gt.getMouseCoords(e);
+				this.hlObjs.hl_point?.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+			} else if (e instanceof KeyboardEvent && e.type === 'keydown') {
+				coords = this.hlObjs.hl_point.coords;
+			} else if (e instanceof JXG.Coords) {
+				coords = e;
+				this.hlObjs.hl_point?.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+			} else
 				return false;
 
 			if (!this.hlObjs.hl_point) {
 				this.hlObjs.hl_point = gt.board.create('point', [coords.usrCoords[1], coords.usrCoords[2]], {
-					size: 2, color: gt.color.underConstruction, snapToGrid: true,
+					size: 2, color: gt.color.underConstruction, snapToGrid: true, highlight: false,
 					snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, withLabel: false
 				});
 				this.hlObjs.hl_point.rendNode.focus();
-			} else
-				this.hlObjs.hl_point.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+			}
+
+			// Make sure the highlight point is not moved off the board or on the other point.
+			if (e instanceof Event) gt.adjustDragPosition(e, this.hlObjs.hl_point, this.point1);
 
 			if (this.point1 && !this.hlObjs.hl_line) {
 				this.hlObjs.hl_line = gt.board.create('line', [this.point1, this.hlObjs.hl_point], {
@@ -1289,6 +1453,7 @@ window.graphTool = (containerId, options) => {
 		// If graphing is interupted by pressing escape or the graph tool losing focus,
 		// then clean up whatever has been done so far and deactivate the tool.
 		deactivate() {
+			delete this.helpText;
 			gt.board.off('up');
 			if (this.point1) gt.board.removeObject(this.point1);
 			delete this.point1;
@@ -1303,6 +1468,9 @@ window.graphTool = (containerId, options) => {
 			// Draw a highlight point on the board.
 			this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [0, 0], gt.board));
 
+			this.helpText = 'Plot two points on the line.';
+			gt.updateHelp();
+
 			// Wait for the user to select the first point.
 			gt.board.on('up', (e) => this.phase1(gt.getMouseCoords(e).usrCoords));
 		}
@@ -1315,8 +1483,10 @@ window.graphTool = (containerId, options) => {
 
 			gt.board.off('up');
 
-			this.point1 = gt.board.create('point', [coords[1], coords[2]],
-				{ size: 2, snapToGrid: true, snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, withLabel: false });
+			this.point1 = gt.board.create('point', [coords[1], coords[2]], {
+				size: 2, withLabel: false, highlight: false,
+				snapToGrid: true, snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY
+			});
 			this.point1.setAttribute({ fixed: true });
 
 			// Get a new x coordinate that is to the right, unless that is off the board.
@@ -1325,6 +1495,9 @@ window.graphTool = (containerId, options) => {
 			if (newX > gt.board.getBoundingBox()[2]) newX = this.point1.X() - gt.snapSizeX;
 
 			this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [newX, this.point1.Y()], gt.board));
+
+			this.helpText = 'Plot one more point on the line.';
+			gt.updateHelp();
 
 			gt.board.on('up', (e) => this.phase2(gt.getMouseCoords(e).usrCoords));
 
@@ -1335,7 +1508,6 @@ window.graphTool = (containerId, options) => {
 		// and is not the same as the first point, then finalize the line.
 		phase2(coords) {
 			// Don't allow the second point to be created on top of the first or off the board
-			const bbox = gt.board.getBoundingBox();
 			if ((this.point1.X() == gt.snapRound(coords[1], gt.snapSizeX) &&
 				this.point1.Y() == gt.snapRound(coords[2], gt.snapSizeY)) ||
 				!gt.boardHasPoint(coords[1], coords[2]))
@@ -1360,7 +1532,8 @@ window.graphTool = (containerId, options) => {
 	// Circle graphing tool
 	class CircleTool extends GenericTool {
 		constructor(container, iconName, tooltip) {
-			super(container, iconName ? iconName : 'circle', tooltip ? tooltip : 'Circle Tool');
+			super(container, iconName ? iconName : 'circle', tooltip ? tooltip : 'Circle Tool: Graph a circle.');
+			this.supportsSolidDash = true;
 		}
 
 		handleKeyEvent(e) {
@@ -1372,30 +1545,35 @@ window.graphTool = (containerId, options) => {
 
 				if (this.center) this.phase2(this.hlObjs.hl_point.coords.usrCoords);
 				else this.phase1(this.hlObjs.hl_point.coords.usrCoords);
-			} else if (['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
-				// Make sure the highlight point is not moved onto the other point.
-				if (this.center) gt.keyboardMovementAdjust(e.key, this.hlObjs.hl_point, this.center);
-				this.updateHighlights(this.hlObjs.hl_point.coords);
 			}
 		}
 
-		updateHighlights(coords) {
-			if (this.hlObjs.hl_circle) this.hlObjs.hl_circle.setAttribute({ dash: gt.drawSolid ? 0 : 2 });
+		updateHighlights(e) {
+			this.hlObjs.hl_circle?.setAttribute({ dash: gt.drawSolid ? 0 : 2 });
 			this.hlObjs.hl_point?.rendNode.focus();
 
-			if (typeof coords === 'undefined') return false;
-			if (this.center && gt.snapRound(coords.usrCoords[1], gt.snapSizeX) == this.center.X() &&
-				gt.snapRound(coords.usrCoords[2], gt.snapSizeY) == this.center.Y())
+			let coords;
+			if (e instanceof MouseEvent && e.type === 'pointermove') {
+				coords = gt.getMouseCoords(e);
+				this.hlObjs.hl_point?.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+			} else if (e instanceof KeyboardEvent && e.type === 'keydown') {
+				coords = this.hlObjs.hl_point.coords;
+			} else if (e instanceof JXG.Coords) {
+				coords = e;
+				this.hlObjs.hl_point?.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+			} else
 				return false;
 
 			if (!this.hlObjs.hl_point) {
 				this.hlObjs.hl_point = gt.board.create('point', [coords.usrCoords[1], coords.usrCoords[2]], {
-					size: 2, color: gt.color.underConstruction, snapToGrid: true,
+					size: 2, color: gt.color.underConstruction, snapToGrid: true, highlight: false,
 					snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, withLabel: false
 				});
 				this.hlObjs.hl_point.rendNode.focus();
-			} else
-				this.hlObjs.hl_point.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+			}
+
+			// Make sure the highlight point is not moved off the board or on the center.
+			if (e instanceof Event) gt.adjustDragPosition(e, this.hlObjs.hl_point, this.center);
 
 			if (this.center && !this.hlObjs.hl_circle) {
 				this.hlObjs.hl_circle = gt.board.create('circle', [this.center, this.hlObjs.hl_point], {
@@ -1410,6 +1588,7 @@ window.graphTool = (containerId, options) => {
 		}
 
 		deactivate() {
+			delete this.helpText;
 			gt.board.off('up');
 			if (this.center) gt.board.removeObject(this.center);
 			delete this.center;
@@ -1424,6 +1603,9 @@ window.graphTool = (containerId, options) => {
 			// Draw a highlight point on the board.
 			this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [0, 0], gt.board));
 
+			this.helpText = 'Plot the center of the circle.';
+			gt.updateHelp();
+
 			gt.board.on('up', (e) => this.phase1(gt.getMouseCoords(e).usrCoords));
 		}
 
@@ -1434,8 +1616,10 @@ window.graphTool = (containerId, options) => {
 			if (!gt.boardHasPoint(coords[1], coords[2])) return;
 			gt.board.off('up');
 
-			this.center = gt.board.create('point', [coords[1], coords[2]],
-				{ size: 2, snapToGrid: true, snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, withLabel: false });
+			this.center = gt.board.create('point', [coords[1], coords[2]], {
+				size: 2, withLabel: false, highlight: false,
+				snapToGrid: true, snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY
+			});
 			this.center.setAttribute({ fixed: true });
 
 			// Get a new x coordinate that is to the right, unless that is off the board.
@@ -1444,6 +1628,9 @@ window.graphTool = (containerId, options) => {
 			if (newX > gt.board.getBoundingBox()[2]) newX = this.center.X() - gt.snapSizeX;
 
 			this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [newX, this.center.Y()], gt.board));
+
+			this.helpText = 'Plot a point on the circle.';
+			gt.updateHelp();
 
 			gt.board.on('up', (e) => this.phase2(gt.getMouseCoords(e).usrCoords));
 
@@ -1480,8 +1667,13 @@ window.graphTool = (containerId, options) => {
 		constructor(container, vertical, iconName, tooltip) {
 			super(container,
 				iconName ? iconName : vertical ? 'vertical-parabola' : 'horizontal-parabola',
-				tooltip ? tooltip : vertical ? 'Vertical Parabola Tool' : 'Horizontal Parabola Tool');
+				tooltip
+					? tooltip
+					: vertical
+						? 'Vertical Parabola Tool: Graph a vertical parabola.'
+						: 'Horizontal Parabola Tool: Graph an horizontal parabola.');
 			this.vertical = vertical;
+			this.supportsSolidDash = true;
 		}
 
 		handleKeyEvent(e) {
@@ -1493,21 +1685,23 @@ window.graphTool = (containerId, options) => {
 
 				if (this.vertex) this.phase2(this.hlObjs.hl_point.coords.usrCoords);
 				else this.phase1(this.hlObjs.hl_point.coords.usrCoords);
-			} else if (['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
-				// Make sure the highlight point is not moved onto the same horizontal or vertical line as the vertex.
-				if (this.vertex) gt.keyboardMovementAdjustRestricted(e.key, this.hlObjs.hl_point, this.vertex);
-				this.updateHighlights(this.hlObjs.hl_point.coords);
 			}
 		}
 
-		updateHighlights(coords) {
-			if (this.hlObjs.hl_parabola) this.hlObjs.hl_parabola.setAttribute({ dash: gt.drawSolid ? 0 : 2 });
+		updateHighlights(e) {
+			this.hlObjs.hl_parabola?.setAttribute({ dash: gt.drawSolid ? 0 : 2 });
 			this.hlObjs.hl_point?.rendNode.focus();
 
-			if (typeof coords === 'undefined') return false;
-			if (this.vertex &&
-				(gt.snapRound(coords.usrCoords[1], gt.snapSizeX) == this.vertex.X() ||
-					gt.snapRound(coords.usrCoords[2], gt.snapSizeY) == this.vertex.Y()))
+			let coords;
+			if (e instanceof MouseEvent && e.type === 'pointermove') {
+				coords = gt.getMouseCoords(e);
+				this.hlObjs.hl_point?.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+			} else if (e instanceof KeyboardEvent && e.type === 'keydown') {
+				coords = this.hlObjs.hl_point.coords;
+			} else if (e instanceof JXG.Coords) {
+				coords = e;
+				this.hlObjs.hl_point?.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+			} else
 				return false;
 
 			if (!this.hlObjs.hl_point) {
@@ -1517,8 +1711,11 @@ window.graphTool = (containerId, options) => {
 					highlight: false, withLabel: false
 				});
 				this.hlObjs.hl_point.rendNode.focus();
-			} else
-				this.hlObjs.hl_point.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+			}
+
+			// Make sure the highlight point is not moved off the board or
+			// onto the same horizontal or vertical line as the vertex.
+			if (e instanceof Event) gt.adjustDragPositionRestricted(e, this.hlObjs.hl_point, this.vertex);
 
 			if (this.vertex && !this.hlObjs.hl_parabola) {
 				this.hlObjs.hl_parabola = createParabola(this.vertex, this.hlObjs.hl_point, this.vertical,
@@ -1531,6 +1728,7 @@ window.graphTool = (containerId, options) => {
 		}
 
 		deactivate() {
+			delete this.helpText;
 			gt.board.off('up');
 			if (this.vertex) gt.board.removeObject(this.vertex);
 			delete this.vertex;
@@ -1545,6 +1743,9 @@ window.graphTool = (containerId, options) => {
 			// Draw a highlight point on the board.
 			this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [0, 0], gt.board));
 
+			this.helpText = 'Plot the vertex of the parabola.';
+			gt.updateHelp();
+
 			gt.board.on('up', (e) => this.phase1(gt.getMouseCoords(e).usrCoords));
 		}
 
@@ -1554,8 +1755,10 @@ window.graphTool = (containerId, options) => {
 
 			gt.board.off('up');
 
-			this.vertex = gt.board.create('point', [coords[1], coords[2]],
-				{ size: 2, snapToGrid: true, snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, withLabel: false });
+			this.vertex = gt.board.create('point', [coords[1], coords[2]], {
+				size: 2, withLabel: false, highlight: false,
+				snapToGrid: true, snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY
+			});
 			this.vertex.setAttribute({ fixed: true });
 
 			// Get a new x coordinate that is to the right, unless that is off the board.
@@ -1569,6 +1772,9 @@ window.graphTool = (containerId, options) => {
 			if (newY > gt.board.getBoundingBox()[1]) newY = this.vertex.Y() - gt.snapSizeY;
 
 			this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [newX, newY], gt.board));
+
+			this.helpText = 'Plot another point on the parabola.';
+			gt.updateHelp();
 
 			gt.board.on('up', (e) => this.phase2(gt.getMouseCoords(e).usrCoords));
 
@@ -1614,62 +1820,57 @@ window.graphTool = (containerId, options) => {
 	// Fill tool
 	class FillTool extends GenericTool {
 		constructor(container, iconName, tooltip) {
-			super(container, iconName ? iconName : 'fill', tooltip ? tooltip : 'Region Shading Tool');
+			super(container, iconName ? iconName : 'fill',
+				tooltip ? tooltip : 'Region Shading Tool: Shade a region in the graph.');
 		}
 
 		handleKeyEvent(e) {
-			if (!this.hlObjs.hl_point || !gt.board.containerObj.contains(document.activeElement) ||
-				!['Enter', ' ', 'ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].includes(e.key))
-				return;
-
-			// The highlight fill icon will have moved but only by 1 pixel and not the snap size, because it does
-			// not snap to the grid.  So undo that move and redo it in an increment of the snap size.  Note that the
-			// coordinate also needs to be translated back to the correct integer lattice point.
-			let x = this.hlObjs.hl_point.coords.usrCoords[1] +
-				(e.key === 'ArrowLeft' ? 1 : e.key === 'ArrowRight' ? -1 : 0) / gt.board.unitX +
-				(e.key === 'ArrowLeft' ? -1 : e.key === 'ArrowRight' ? 1 : 0) * gt.snapSizeX +
-				12 / gt.board.unitX;
-			let y = this.hlObjs.hl_point.coords.usrCoords[2] +
-				(e.key === 'ArrowUp' ? -1 : e.key === 'ArrowDown' ? 1 : 0) / gt.board.unitY +
-				(e.key === 'ArrowUp' ? 1 : e.key === 'ArrowDown' ? -1 : 0) * gt.snapSizeX +
-				12 / gt.board.unitY;
-
-			// Don't allow the fill point to be moved off the board.
-			const boundingBox = gt.board.getBoundingBox();
-			if (x < boundingBox[0]) x = boundingBox[0];
-			else if (x > boundingBox[2]) x = boundingBox[2];
-			if (y < boundingBox[3]) y = boundingBox[3];
-			else if (y > boundingBox[1]) y = boundingBox[1];
+			if (!this.hlObjs.hl_point || !gt.board.containerObj.contains(document.activeElement)) return;
 
 			if (e.key === 'Enter' || e.key === ' ') {
 				e.preventDefault();
 				e.stopPropagation();
 
-				this.phase1(new JXG.Coords(JXG.COORDS_BY_USER, [x, y], gt.board).usrCoords);
-			} else {
-				this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [x, y], gt.board));
+				this.phase1(this.hlObjs.hl_point.coords.usrCoords);
 			}
 		}
 
-		updateHighlights(coords) {
+		updateHighlights(e) {
 			this.hlObjs.hl_point?.rendNode.focus();
 
-			if (typeof coords === 'undefined') return false;
+			let coords;
+			if (e instanceof MouseEvent && e.type === 'pointermove') {
+				coords = gt.getMouseCoords(e);
+				this.hlObjs.hl_point?.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+			} else if (e instanceof KeyboardEvent && e.type === 'keydown') {
+				coords = this.hlObjs.hl_point.coords;
+			} else if (e instanceof JXG.Coords) {
+				coords = e;
+				this.hlObjs.hl_point?.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
+			} else
+				return false;
 
 			if (!this.hlObjs.hl_point) {
-				this.hlObjs.hl_point = gt.board.create('image', [
-					gt.fillIcon, [
-						gt.snapRound(coords.usrCoords[1], gt.snapSizeX) - 12 / gt.board.unitX,
-						gt.snapRound(coords.usrCoords[2], gt.snapSizeY) - 12 / gt.board.unitY
-					], [24 / gt.board.unitX, 24 / gt.board.unitY]
-				], { withLabel: false, highlight: false, layer: 9 });
+				this.hlObjs.hl_point = gt.board.create('point', [coords.usrCoords[1], coords.usrCoords[2]], {
+					size: 2, strokeColor: 'transparent', fillColor: 'transparent', strokeOpacity: 0, fillOpacity: 0,
+					highlight: false, withLabel: false, snapToGrid: true,
+					snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY
+				});
+				this.hlObjs.hl_point.rendNode.classList.add('hidden-fill-point');
+
+				this.hlObjs.hl_icon = gt.board.create('image', [
+					gt.fillIcon(gt.color.fill), [
+						() => this.hlObjs.hl_point.X() - 12 / gt.board.unitX,
+						() => this.hlObjs.hl_point.Y() - 12 / gt.board.unitY
+					],
+					[() => 24 / gt.board.unitX, () => 24 / gt.board.unitY]
+				], { withLabel: false, highlight: false, fixed: true, layer: 8 });
+
 				this.hlObjs.hl_point.rendNode.focus();
-			} else {
-				this.hlObjs.hl_point.setPosition(JXG.COORDS_BY_USER, [
-					gt.snapRound(coords.usrCoords[1], gt.snapSizeX) - 12 / gt.board.unitX,
-					gt.snapRound(coords.usrCoords[2], gt.snapSizeY) - 12 / gt.board.unitY
-				]);
 			}
+
+			// Make sure the point/icon is not moved off the board.
+			if (e instanceof Event) gt.adjustDragPosition(e, this.hlObjs.hl_point);
 
 			gt.setTextCoords(coords.usrCoords[1], coords.usrCoords[2]);
 			gt.board.update();
@@ -1677,6 +1878,7 @@ window.graphTool = (containerId, options) => {
 		}
 
 		deactivate() {
+			delete this.helpText;
 			gt.board.off('up');
 			gt.board.containerObj.style.cursor = 'auto';
 			super.deactivate();
@@ -1688,6 +1890,9 @@ window.graphTool = (containerId, options) => {
 
 			// Draw a highlight point on the board.
 			this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [0, 0], gt.board));
+
+			this.helpText = 'Choose a point in the region to be filled.';
+			gt.updateHelp();
 
 			gt.board.on('up', (e) => this.phase1(gt.getMouseCoords(e).usrCoords));
 		}
@@ -1712,6 +1917,9 @@ window.graphTool = (containerId, options) => {
 		e.stopPropagation();
 
 		if (gt.selectedObj) {
+			// Prevent the gt.board.containerObj focusin handler from moving focus to the last graphed object.
+			gt.objectFocusSet = true;
+
 			gt.selectedObj.setSolid(drawSolid);
 			gt.updateText();
 		}
@@ -1728,35 +1936,60 @@ window.graphTool = (containerId, options) => {
 	class SolidDashTool {
 		constructor(container) {
 			const solidDashBox = document.createElement('div');
-			solidDashBox.classList.add('gt-solid-dash-box');
-			// The draw solid button is active by default.
+			const makeSolidButtonMessage = 'Make the selected object solid (s).';
+			solidDashBox.classList.add('gt-tool-button-pair');
+			// The default is to draw objects solid.  So the draw solid button is disabled by default.
 			const solidButtonDiv = document.createElement('div');
-			solidButtonDiv.classList.add('gt-button-div', 'gt-solid-button-div');
-			solidButtonDiv.dataset.bsToggle = 'tooltip';
-			solidButtonDiv.title = 'Make Selected Object Solid';
-			solidButtonDiv.id = 'gt-solid-tool';
+			solidButtonDiv.classList.add('gt-button-div', 'gt-tool-button-pair-top');
+			solidButtonDiv.addEventListener('pointerover', () => gt.setMessageText(makeSolidButtonMessage));
+			solidButtonDiv.addEventListener('pointerout', () => gt.updateHelp());
 			gt.solidButton = document.createElement('button');
-			gt.solidButton.classList.add('btn', 'btn-light', 'gt-button', 'gt-tool-button', solidButtonDiv.id);
+			gt.solidButton.classList.add('gt-button', 'gt-tool-button', 'gt-solid-tool');
 			gt.solidButton.type = 'button';
-			gt.solidButton.setAttribute('aria-labelledby', solidButtonDiv.id);
+			gt.solidButton.setAttribute('aria-label', makeSolidButtonMessage);
 			gt.solidButton.disabled = true;
 			gt.solidButton.addEventListener('click', (e) => gt.toggleSolidity(e, true));
+			gt.solidButton.addEventListener('focus', () => gt.setMessageText(makeSolidButtonMessage));
+			gt.solidButton.addEventListener('blur', () => gt.updateHelp());
 			solidButtonDiv.append(gt.solidButton);
 			solidDashBox.append(solidButtonDiv);
 
 			const dashedButtonDiv = document.createElement('div');
-			dashedButtonDiv.classList.add('gt-button-div', 'gt-dashed-button-div');
-			dashedButtonDiv.dataset.bsToggle = 'tooltip';
-			dashedButtonDiv.title = 'Make Selected Object Dashed';
-			dashedButtonDiv.id = 'gt-dashed-tool';
+			const makeDashedButtonMessage = 'Make the selected object dashed (d).';
+			dashedButtonDiv.classList.add('gt-button-div', 'gt-tool-button-pair-bottom');
+			dashedButtonDiv.addEventListener('pointerover', () => gt.setMessageText(makeDashedButtonMessage));
+			dashedButtonDiv.addEventListener('pointerout', () => gt.updateHelp());
 			gt.dashedButton = document.createElement('button');
-			gt.dashedButton.classList.add('btn', 'btn-light', 'gt-button', 'gt-tool-button', dashedButtonDiv.id);
+			gt.dashedButton.classList.add('gt-button', 'gt-tool-button', 'gt-dashed-tool');
 			gt.dashedButton.type = 'button';
-			gt.dashedButton.setAttribute('aria-labelledby', dashedButtonDiv.id);
+			gt.dashedButton.setAttribute('aria-label', makeDashedButtonMessage);
 			gt.dashedButton.addEventListener('click', (e) => gt.toggleSolidity(e, false));
+			gt.dashedButton.addEventListener('focus', () => gt.setMessageText(makeDashedButtonMessage));
+			gt.dashedButton.addEventListener('blur', () => gt.updateHelp());
 			dashedButtonDiv.append(gt.dashedButton);
 			solidDashBox.append(dashedButtonDiv);
 			container.append(solidDashBox);
+		}
+
+		handleKeyEvent(e) {
+			if (e.key === 's') {
+				// If 's' is pressed change to drawing solid.
+				gt.toggleSolidity(e, true);
+			} else if (e.key === 'd') {
+				// If 'd' is pressed change to drawing dashed.
+				gt.toggleSolidity(e, false);
+			}
+		}
+
+		helpText() {
+			return (gt.selectedObj && gt.selectedObj.supportsSolidDash) ||
+				(gt.activeTool && gt.activeTool.supportsSolidDash)
+				? 'Use the ' +
+					'\\(\\rule[3px]{34px}{2px}\\) or ' +
+					'\\(\\rule[3px]{3px}{2px}' + '\\hspace{4px}\\rule[3px]{4px}{2px}'.repeat(3) +
+					'\\hspace{4px}\\rule[3px]{3px}{2px}\\)' +
+					' button or type s or d to make the selected object solid or dashed.'
+				: '';
 		}
 	}
 
@@ -1773,6 +2006,7 @@ window.graphTool = (containerId, options) => {
 	const graphDiv = document.createElement('div');
 	graphDiv.id = `${containerId}_graph`;
 	graphDiv.classList.add('jxgbox', 'graphtool-graph');
+	if (options.numberLine) graphDiv.classList.add('graphtool-number-line');
 	gt.graphContainer.append(graphDiv);
 
 	if (!gt.isStatic) {
@@ -1817,7 +2051,7 @@ window.graphTool = (containerId, options) => {
 
 					updateHighlights(coords) {
 						if ('updateHighlights' in toolObject) return toolObject.updateHighlights.call(this, gt, coords);
-						if (parentTool) return super.updateHighlights();
+						if (parentTool) return super.updateHighlights(coords);
 						return false;
 					}
 
@@ -1827,6 +2061,16 @@ window.graphTool = (containerId, options) => {
 					}
 				};
 
+				// These are methods that must be called with a class instance (as in this.method(...args)).
+				if ('classMethods' in toolObject) {
+					for (const method of Object.keys(toolObject.classMethods)) {
+						customTool.prototype[method] = function(...args) {
+							return toolObject.classMethods[method].call(this, gt, ...args);
+						};
+					}
+				}
+
+				// These are static class methods.
 				if ('helperMethods' in toolObject) {
 					Object.keys(toolObject.helperMethods).forEach((method) => {
 						customTool[method] = function(...args) {
@@ -1839,83 +2083,76 @@ window.graphTool = (containerId, options) => {
 			});
 		}
 
-		availableTools.forEach((tool) => {
-			if (tool in gt.toolTypes) new gt.toolTypes[tool](gt.buttonBox);
-			else console.log('Unknown tool: ' + tool);
-		});
+		gt.tools = [ gt.selectTool ];
+		for (const tool of options.availableTools) {
+			if (tool in gt.toolTypes) gt.tools.push(new gt.toolTypes[tool](gt.buttonBox));
+			else console.log(`Unknown tool: ${tool}`);
+		}
 
-		const confirmDialog = (title, titleId, message, yesAction) => {
-			// Keep the graph tool active while this dialog is open.
-			gt.preventFocusLoss = true;
+		gt.confirm = async (question, yesAction) => {
+			const overlay = document.createElement('div');
+			overlay.classList.add('gt-confirm-overlay');
+			overlay.tabIndex = -1;
 
-			const modal = document.createElement('div');
-			modal.classList.add('modal', 'gt-modal');
-			modal.tabIndex = -1;
-			modal.setAttribute('aria-labelledby', titleId);
-			modal.setAttribute('aria-hidden', 'true');
+			const container = document.createElement('div');
+			container.classList.add('gt-confirm');
+			container.tabIndex = -1;
 
-			const modalDialog = document.createElement('div');
-			modalDialog.classList.add('modal-dialog', 'modal-dialog-centered');
-			const modalContent = document.createElement('div');
-			modalContent.classList.add('modal-content');
+			const controller = new AbortController();
+			gt.confirm.dispose = (e) => {
+				controller.abort();
+				delete gt.confirm.dispose;
+				overlay.remove();
+				container.remove();
 
-			const modalHeader = document.createElement('div');
-			modalHeader.classList.add('modal-header');
+				if (e.type !== 'focusout') {
+					if (gt.selectedObj) gt.selectedObj.focus();
+					else if (gt.graphedObjs.length) gt.board.containerObj.focus();
+					else gt.buttonBox.querySelectorAll('.gt-button:not([disabled])')[0]?.focus();
+				}
 
-			const titleH3 = document.createElement('h3');
-			titleH3.id = titleId;
-			titleH3.textContent = title;
+				gt.confirmationActive = false;
 
-			const closeButton = document.createElement('button');
-			closeButton.type = 'button';
-			closeButton.classList.add('btn-close');
-			closeButton.dataset.bsDismiss = 'modal';
-			closeButton.setAttribute('aria-label', 'close');
+				gt.updateHelp();
+			}
+			overlay.addEventListener('pointerdown', gt.confirm.dispose, { signal: controller.signal });
 
-			modalHeader.append(titleH3, closeButton);
+			const questionElt = document.createElement('div');
+			questionElt.textContent = question;
 
-			const modalBody = document.createElement('div');
-			modalBody.classList.add('modal-body');
-			const modalBodyContent = document.createElement('div');
-			modalBodyContent.textContent = message;
-			modalBody.append(modalBodyContent);
-
-			const modalFooter = document.createElement('div');
-			modalFooter.classList.add('modal-footer');
+			const buttonContainer = document.createElement('div');
+			buttonContainer.classList.add('gt-confirm-buttons');
 
 			const yesButton = document.createElement('button');
-			yesButton.classList.add('btn', 'btn-primary');
+			yesButton.type = 'button';
+			yesButton.classList.add('gt-button', 'gt-text-button', 'gt-confirm-button');
 			yesButton.textContent = 'Yes';
-			yesButton.addEventListener('click', () => { yesAction(); bsModal.hide(); });
+			yesButton.addEventListener('click',
+				(e) => { yesAction(); gt.confirm.dispose(e); }, { signal: controller.signal });
 
 			const noButton = document.createElement('button');
-			noButton.classList.add('btn', 'btn-primary');
-			noButton.dataset.bsDismiss = 'modal';
+			noButton.type = 'button';
+			noButton.classList.add('gt-button', 'gt-text-button', 'gt-confirm-button');
 			noButton.textContent = 'No';
+			noButton.addEventListener('click', gt.confirm.dispose, { signal: controller.signal });
 
-			modalFooter.append(yesButton, noButton);
-			modalContent.append(modalHeader, modalBody, modalFooter);
-			modalDialog.append(modalContent);
-			modal.append(modalDialog);
+			buttonContainer.append(yesButton, noButton);
 
-			const bsModal = new bootstrap.Modal(modal);
-			bsModal.show();
-			document.querySelector('.modal-backdrop').style.opacity = '0.2';
+			container.append(questionElt, buttonContainer);
 
-			modal.addEventListener('hidden.bs.modal', () => {
-				bsModal.dispose();
-				modal.remove();
-				gt.preventFocusLoss = false;
-				if (gt.selectedObj) gt.selectedObj.focus();
-				else if (gt.graphedObjs.length) gt.board.containerObj.focus();
-				else gt.buttonBox.querySelectorAll('.gt-button:not([disabled])')[0]?.focus();
-			});
+			await gt.setMessageContent(container, true);
+
+			// Remove the confirmation if focus is shifted back into the graph tool.
+			gt.buttonBox.addEventListener('focusin', gt.confirm.dispose, { signal: controller.signal });
+
+			gt.graphContainer.append(overlay);
+			container.focus();
 		};
 
 		gt.deleteSelected = () => {
 			if (!gt.selectedObj) return;
 
-			confirmDialog('Delete Selected Object', 'deleteObjectDialog',
+			gt.confirm(
 				'Do you want to delete the selected object?',
 				() => {
 					const i = gt.graphedObjs.findIndex((obj) => obj.id() === gt.selectedObj.id());
@@ -1938,19 +2175,25 @@ window.graphTool = (containerId, options) => {
 		};
 
 		// Add a button to delete the selected object.
+		const deleteButtonContainer = document.createElement('div');
+		const deleteButtonMessage = 'Delete the selected object (Delete).';
+		deleteButtonContainer.classList.add('gt-button-div');
+		deleteButtonContainer.addEventListener('pointerover', () => gt.setMessageText(deleteButtonMessage));
+		deleteButtonContainer.addEventListener('pointerout', () => gt.updateHelp());
 		gt.deleteButton = document.createElement('button');
 		gt.deleteButton.type = 'button';
-		gt.deleteButton.classList.add('btn', 'btn-light', 'gt-button');
-		gt.deleteButton.dataset.bsToggle = 'tooltip';
-		gt.deleteButton.title = 'Delete Selected Object';
+		gt.deleteButton.classList.add('gt-button', 'gt-text-button');
 		gt.deleteButton.textContent = 'Delete';
 		gt.deleteButton.addEventListener('click', gt.deleteSelected);
-		gt.buttonBox.append(gt.deleteButton);
+		gt.deleteButton.addEventListener('focus', () => gt.setMessageText(deleteButtonMessage));
+		gt.deleteButton.addEventListener('blur', () => gt.updateHelp());
+		deleteButtonContainer.append(gt.deleteButton);
+		gt.buttonBox.append(deleteButtonContainer);
 
 		gt.clearAll = () => {
 			if (gt.graphedObjs.length == 0) return;
 
-			confirmDialog('Clear Graph', 'clearGraphDialog',
+			gt.confirm(
 				'Do you want to remove all graphed objects?',
 				() => {
 					gt.graphedObjs.forEach((obj) => obj.remove());
@@ -1964,21 +2207,91 @@ window.graphTool = (containerId, options) => {
 		};
 
 		// Add a button to remove all graphed objects.
+		const clearButtonContainer = document.createElement('div');
+		const clearButtonMessage = 'Clear all objects from the graph (Ctrl-Delete).';
+		clearButtonContainer.classList.add('gt-button-div');
+		clearButtonContainer.addEventListener('pointerover', () => gt.setMessageText(clearButtonMessage));
+		clearButtonContainer.addEventListener('pointerout', () => gt.updateHelp());
 		gt.clearButton = document.createElement('button');
 		gt.clearButton.type = 'button';
-		gt.clearButton.classList.add('btn', 'btn-light', 'gt-button');
-		gt.clearButton.dataset.bsToggle = 'tooltip';
-		gt.clearButton.title = 'Clear All Objects From Graph';
+		gt.clearButton.classList.add('gt-button', 'gt-text-button');
 		gt.clearButton.textContent = 'Clear';
 		gt.clearButton.addEventListener('click', gt.clearAll);
-		gt.buttonBox.append(gt.clearButton);
+		gt.clearButton.addEventListener('focus', () => gt.setMessageText(clearButtonMessage));
+		gt.clearButton.addEventListener('blur', () => gt.updateHelp());
+		clearButtonContainer.append(gt.clearButton);
+		gt.buttonBox.append(clearButtonContainer);
+
+		// Add a button to switch to full screen mode.
+		gt.fullScreenButton = document.createElement('button');
+		let fullScreenButtonMessage = 'Switch to fullscreen.';
+		gt.fullScreenButton.type = 'button';
+		gt.fullScreenButton.classList.add('gt-button', 'gt-text-button');
+		gt.fullScreenButton.textContent = 'Fullscreen';
+		gt.fullScreenButton.addEventListener('click', () => gt.board.toFullscreen(containerId));
+		gt.fullScreenButton.addEventListener('pointerover', () => gt.setMessageText(fullScreenButtonMessage));
+		gt.fullScreenButton.addEventListener('pointerout', () => gt.updateHelp());
+		gt.fullScreenButton.addEventListener('focus', () => gt.setMessageText(fullScreenButtonMessage));
+		gt.fullScreenButton.addEventListener('blur', () => gt.updateHelp());
+		document.addEventListener('fullscreenchange', () => {
+			if (document.fullscreenElement?.classList.contains('JXG_wrap_private')) {
+				gt.fullScreenButton.textContent = 'Exit Fullscreen';
+				fullScreenButtonMessage = 'Exit fullscreen.';
+				if (!gt.helpEnabled) gt.messageBox.classList.add('gt-disabled-help');
+			} else {
+				gt.fullScreenButton.textContent = 'Fullscreen';
+				fullScreenButtonMessage = 'Switch to fullscreen.';
+				gt.messageBox.classList.remove('gt-disabled-help');
+			}
+		});
+		gt.buttonBox.append(gt.fullScreenButton);
+
+		// Add a button to disable or enable help.
+		gt.helpEnabled = localStorage.getItem('GraphToolHelpEnabled') !== 'false';
+		gt.disableHelpButton = document.createElement('button');
+		const disableHelpButtonMessage = 'Disable this help for all graphs.';
+		gt.disableHelpButton.type = 'button';
+		gt.disableHelpButton.classList.add('gt-button', 'gt-text-button', 'gt-disable-help-button');
+		gt.disableHelpButton.textContent = gt.helpEnabled ? 'Disable Help' : 'Enable Help';
+		const setHelpStatus = (enabled) => {
+			gt.helpEnabled = enabled;
+			if (enabled) {
+				gt.disableHelpButton.textContent = 'Disable Help';
+				gt.messageBox.classList.remove('gt-disabled-help');
+				gt.updateHelp();
+			} else {
+				gt.disableHelpButton.textContent = 'Enable Help';
+				gt.messageBox.classList.add('gt-disabled-help');
+				gt.setMessageContent();
+			}
+		};
+		gt.disableHelpButton.addEventListener('click', () => {
+			setHelpStatus(!gt.helpEnabled);
+			localStorage.setItem('GraphToolHelpEnabled', gt.helpEnabled);
+			// Notify other graphs on the page that the help status has changed.
+			for (const button of document.querySelectorAll('.gt-disable-help-button')) {
+				if (button === gt.disableHelpButton) continue;
+				button.dispatchEvent(new CustomEvent('gt.help.enable', { detail: { enabled: gt.helpEnabled } }));
+			}
+		});
+		// If the enable/disable help button was activated on another graph, then act on the event it sent.
+		gt.disableHelpButton.addEventListener('gt.help.enable', (e) => setHelpStatus(e.detail.enabled));
+		gt.disableHelpButton.addEventListener('pointerover', () => gt.setMessageText(disableHelpButtonMessage));
+		gt.disableHelpButton.addEventListener('pointerout', () => gt.updateHelp());
+		gt.disableHelpButton.addEventListener('focus', () => gt.setMessageText(disableHelpButtonMessage));
+		gt.disableHelpButton.addEventListener('blur', () => gt.updateHelp());
+		gt.buttonBox.append(gt.disableHelpButton);
 
 		gt.graphContainer.append(gt.buttonBox);
 
-		gt.tooltips = Array.from(
-			document.querySelectorAll('.gt-button-div[data-bs-toggle="tooltip"],.gt-button[data-bs-toggle="tooltip"]'))
-			.map((tooltip) => new bootstrap.Tooltip(tooltip,
-				{ placement: 'bottom', trigger: 'hover', delay: { show: 500, hide: 0 } }));
+		gt.messageBox = document.createElement('div');
+		gt.messageBox.classList.add('gt-message-box');
+		gt.messageBox.setAttribute('role', 'region')
+		gt.messageBox.setAttribute('aria-live', 'polite')
+		gt.graphContainer.append(gt.messageBox);
+		gt.messageBox.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape') gt.confirm.dispose?.(e);
+		});
 	}
 
 	setupBoard();

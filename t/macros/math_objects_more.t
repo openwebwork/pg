@@ -1,45 +1,36 @@
-use warnings;
-use strict;
+#!/usr/bin/env perl
 
-package main;
+=head1 MathObjects
 
-use Test::More;
-use Test::Exception;
+Test more MathObject properties and operations.
 
-# The following needs to include at the top of any testing down to END OF TOP_MATERIAL.
+=cut
 
-BEGIN {
-	die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
-	$main::pg_dir = $ENV{PG_ROOT};
-}
+use Test2::V0 '!E', { E => 'EXISTS' };
 
-use lib "$main::pg_dir/lib";
+die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
+do "$ENV{PG_ROOT}/t/build_PG_envir.pl";
 
-require("$main::pg_dir/t/build_PG_envir.pl");
+loadMacros('MathObjects.pl');
 
-## END OF TOP_MATERIAL
+my $ctx = Context('Numeric');
 
-loadMacros("MathObjects.pl");
+ok(Value::isContext($ctx), 'math objects: check context');
 
-my $ctx = Context("Numeric");
+my $f = Compute('x^2');
+my $g = Compute('sin(x)');
 
-ok(Value::isContext($ctx), "math objects: check context");
+ok(Value::isFormula($f), 'math objects: check for formula');
+is($f->class, 'Formula', 'math objects: check that the class is Formula');
+is($f->type,  'Number',  'math objects: check that the type is Number');
 
-my $f = Compute("x^2");
-my $g = Compute("sin(x)");
+# check answer evaluators
+is(check_score($f->eval(x => 2),      '4'),   1, 'math objects: eval x^2 at x=2');
+is(check_score($f->eval(x => -3),     '9'),   1, 'math objects: eval x^2 at x=-3');
+is(check_score($g->eval(x => 'pi/6'), '1/2'), 1, 'math objects: eval sin(x) at x=pi/6');
 
-ok(Value::isFormula($f), "math objects: check for formula");
-is($f->class, "Formula", "math objects: check that the class is Formula");
-is($f->type,  "Number",  "math objects: check that the type is Number");
-
-## check answer evaluators
-
-is(check_score($f->eval(x => 2),  "4"), 1, "math objects: eval x^2 at x=2");
-is(check_score($f->eval(x => -3), "9"), 1, "math objects: eval x^2 at x=-3");
-# is(check_score($g->eval(x=>Compute("pi/6")),"1/2"),1,"math objects: eval sin(x) at x=pi/6");
-
-## check derivatives
-is(check_score($f->D("x"), "2x"),     1, "math objects: derivative of x^2");
-is(check_score($g->D("x"), "cos(x)"), 1, "math objects: derivative of sin(x)");
+# check derivatives
+is(check_score($f->D('x'), '2x'),     1, 'math objects: derivative of x^2');
+is(check_score($g->D('x'), 'cos(x)'), 1, 'math objects: derivative of sin(x)');
 
 done_testing();

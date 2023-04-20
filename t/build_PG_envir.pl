@@ -1,33 +1,29 @@
-use warnings;
+#!/usr/bin/env perl
+
 use strict;
+use warnings;
 
-package main;
+die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
+use lib "$ENV{PG_ROOT}/lib";
 
-$main::macros_dir = "$main::pg_dir/macros";
+my $macros_dir = "$ENV{PG_ROOT}/macros";
 
-# use WeBWorK::Localize;
+use WeBWorK::PG::Environment;
+use WeBWorK::PG;
 use PGcore;
 use Parser;
 
-# build up enough of a PG environment to get things running
-
-our %envir = ();
-$envir{htmlDirectory}               = "/opt/webwork/courses/daemon_course/html";
-$envir{htmlURL}                     = "http://localhost/webwork2/daemon_course/html";
-$envir{tempURL}                     = "http://localhost/webwork2/daemon_course/tmp";
-$envir{pgDirectories}->{macrosPath} = ["$main::macros_dir"];
-$envir{macrosPath}                  = ["$main::macros_dir"];
-$envir{displayMode}                 = "HTML_MathJax";
-$envir{language}                    = "en-us";
-$envir{language_subroutine}         = sub { return @_; };    # return the string passed in instead going to maketext
+%main::envir = %{ WeBWorK::PG::defineProblemEnvironment(WeBWorK::PG::Environment->new) };
 
 sub be_strict {
-	require 'ww_strict.pm';
+	require ww_strict;
 	strict::import();
+	return;
 }
 
 sub PG_restricted_eval {
-	WeBWorK::PG::Translator::PG_restricted_eval(@_);
+	my @input = @_;
+	return WeBWorK::PG::Translator::PG_restricted_eval(@input);
 }
 
 sub check_score {
@@ -35,9 +31,10 @@ sub check_score {
 	return $correct_answer->cmp->evaluate($ans)->{score};
 }
 
-require "$main::macros_dir/PG.pl";
+do "$macros_dir/PG.pl";
+
 DOCUMENT();
 
-loadMacros("PGbasicmacros.pl");
+loadMacros('PGbasicmacros.pl');
 
 1;

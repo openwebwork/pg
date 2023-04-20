@@ -11,9 +11,9 @@ use strict;
 our @ISA = qw(Parser::UOP);
 
 sub _check {
-  my $self = shift;
-  my $uop = $self->{def}{string} || $self->{uop};
-  $self->Error("Can't use '%s' in this context",$uop);
+	my $self = shift;
+	my $uop  = $self->{def}{string} || $self->{uop};
+	$self->Error("Can't use '%s' in this context", $uop);
 }
 
 #########################################################################

@@ -11,21 +11,23 @@
         "prepare": "npm run generate-assets"
     },
     "dependencies": {
-        "jsxgraph": "^1.4.2",
+        "jsxgraph": "^1.5.0",
         "jszip": "^3.10.1",
         "jszip-utils": "^0.1.0",
-        "mathquill": "github:openwebwork/mathquill#WeBWorK-2.17",
+        "mathquill": "github:openwebwork/mathquill",
+        "plotly.js-dist-min": "^2.18.2",
+        "sortablejs": "^1.15.0",
         "x3dom": "^1.8.1"
     },
     "devDependencies": {
-        "autoprefixer": "^10.4.2",
+        "autoprefixer": "^10.4.13",
         "chokidar": "^3.5.3",
-        "cssnano": "^5.1.7",
-        "postcss": "^8.4.6",
-        "rtlcss": "^3.5.0",
-        "sass": "^1.49.0",
-        "terser": "^5.10.0",
-        "yargs": "^16.2.0"
+        "cssnano": "^5.1.14",
+        "postcss": "^8.4.21",
+        "rtlcss": "^4.0.0",
+        "sass": "^1.57.1",
+        "terser": "^5.16.1",
+        "yargs": "^17.6.2"
     },
     "browserslist": [
         "last 10 Chrome versions",

@@ -16,12 +16,12 @@ package PGcore;
 use strict;
 
 BEGIN {
-		use File::Basename qw(dirname);
-		my $dir = dirname(__FILE__);
-		do "${dir}/../VERSION";
-		warn "Error loading PG VERSION file: $!"    if $!;
-		warn "Error processing PG VERSION file: $@" if $@;
-		$ENV{PG_VERSION} = $PGcore::PG_VERSION || 'unknown';
+	use File::Basename qw(dirname);
+	my $dir = dirname(__FILE__);
+	do "${dir}/../VERSION";
+	warn "Error loading PG VERSION file: $!"    if $!;
+	warn "Error processing PG VERSION file: $@" if $@;
+	$ENV{PG_VERSION} = $PGcore::PG_VERSION || 'unknown';
 }
 
 our $internal_debug_messages = [];
@@ -32,7 +32,7 @@ use PGrandom;
 use PGalias;
 use PGloadfiles;
 use AnswerHash;
-use WeBWorK::PG::IO(); # don't important any command directly
+use WeBWorK::PG::IO();    # don't important any command directly
 use Tie::IxHash;
 use MIME::Base64();
 use PGUtil();
@@ -44,64 +44,64 @@ binmode(STDOUT, ":utf8");
 ##################################
 
 sub not_null {
-		my $self = shift;
-		PGUtil::not_null(@_);
+	my $self = shift;
+	PGUtil::not_null(@_);
 }
 
 sub pretty_print {
-		my $self = shift;
-		my $input = shift;
-		my $displayMode = shift;
-		my $level       = shift;
+	my $self        = shift;
+	my $input       = shift;
+	my $displayMode = shift;
+	my $level       = shift;
 
-		if (!PGUtil::not_null($displayMode) && ref($self) eq 'PGcore') {
+	if (!PGUtil::not_null($displayMode) && ref($self) eq 'PGcore') {
 		$displayMode = $self->{displayMode};
-		}
-		warn "displayMode not defined" unless $displayMode;
-		PGUtil::pretty_print($input, $displayMode, $level);
+	}
+	warn "displayMode not defined" unless $displayMode;
+	PGUtil::pretty_print($input, $displayMode, $level);
 }
 
 sub new {
 	my $class = shift;
-	my $envir = shift;  #pointer to environment hash
+	my $envir = shift;    #pointer to environment hash
 	warn "PGcore must be called with an environment" unless ref($envir) eq 'HASH';
 	#warn "creating a new PGcore object";
 	my %options = @_;
-	my $self = {
-		OUTPUT_ARRAY              => [],          # holds output body text
-		HEADER_ARRAY              => [],         # holds output for the header text
-		POST_HEADER_ARRAY         => [],
-#		PG_ANSWERS                => [],  # holds answers with labels # deprecated
-#		PG_UNLABELED_ANSWERS      => [],  # holds unlabeled ans. #deprecated -replaced by PG_ANSWERS_HASH
-		PG_ANSWERS_HASH           => {},  # holds label=>answer pairs
-		PERSISTENCE_HASH          => {}, # holds other data, besides answers, which persists during a session and beyond
-		answer_eval_count         => 0,
-		answer_blank_count        => 0,
-		unlabeled_answer_blank_count =>0,
+	my $self    = {
+		OUTPUT_ARRAY      => [],    # holds output body text
+		HEADER_ARRAY      => [],    # holds output for the header text
+		POST_HEADER_ARRAY => [],
+		#		PG_ANSWERS                => [],  # holds answers with labels # deprecated
+		#		PG_UNLABELED_ANSWERS      => [],  # holds unlabeled ans. #deprecated -replaced by PG_ANSWERS_HASH
+		PG_ANSWERS_HASH    => {},    # holds label=>answer pairs
+		PERSISTENCE_HASH   => {},    # holds other data, besides answers, which persists during a session and beyond
+		answer_eval_count  => 0,
+		answer_blank_count => 0,
+		unlabeled_answer_blank_count => 0,
 		unlabeled_answer_eval_count  => 0,
-		KEPT_EXTRA_ANSWERS        => [],
-		ANSWER_PREFIX             => 'AnSwEr',
-		ARRAY_PREFIX              => 'ArRaY',
-		vec_num                   => 0,     # for distinguishing matrices
-		QUIZ_PREFIX               => $envir->{QUIZ_PREFIX},
-		PG_VERSION                => $ENV{PG_VERSION},
-		PG_ACTIVE                 => 1,   # toggle to zero to stop processing
-		submittedAnswers          => 0,   # have any answers been submitted? is this the first time this session?
-		PG_session_persistence_hash =>{}, # stores data from one invoction of the session to the next.
-		PG_original_problem_seed  => 0,
-		PG_random_generator		  => undef,
-		PG_alias                  => undef,
-		PG_problem_grader         => undef,
-		displayMode               => undef,
-		envir                     => $envir,
-		WARNING_messages		  => [],
-		DEBUG_messages            => [],
-		names_created              => 0,
-		external_refs             => {},      # record of external references
-		%options,                                   # allows overrides and initialization
+		KEPT_EXTRA_ANSWERS           => [],
+		ANSWER_PREFIX                => 'AnSwEr',
+		ARRAY_PREFIX                 => 'ArRaY',
+		vec_num                      => 0,                       # for distinguishing matrices
+		QUIZ_PREFIX                  => $envir->{QUIZ_PREFIX},
+		PG_VERSION                   => $ENV{PG_VERSION},
+		PG_ACTIVE                    => 1,                       # toggle to zero to stop processing
+		submittedAnswers             => 0,       # have any answers been submitted? is this the first time this session?
+		PG_session_persistence_hash  => {},      # stores data from one invoction of the session to the next.
+		PG_original_problem_seed     => 0,
+		PG_random_generator          => undef,
+		PG_alias                     => undef,
+		PG_problem_grader            => undef,
+		displayMode                  => undef,
+		envir                        => $envir,
+		WARNING_messages             => [],
+		DEBUG_messages               => [],
+		names_created                => 0,
+		external_refs                => {},      # record of external references
+		%options,                                # allows overrides and initialization
 	};
 	bless $self, $class;
-	tie %{$self->{PG_ANSWERS_HASH}}, "Tie::IxHash";  # creates a Hash with order
+	tie %{ $self->{PG_ANSWERS_HASH} }, "Tie::IxHash";    # creates a Hash with order
 	$self->initialize;
 	return $self;
 }
@@ -110,37 +110,30 @@ sub initialize {
 	my $self = shift;
 	warn "environment is not defined in PGcore" unless ref($self->{envir}) eq 'HASH';
 
-	$self->{displayMode}                = $self->{envir}->{displayMode};
-	$self->{PG_original_problem_seed}   = $self->{envir}->{problemSeed};
-	$self->{PG_random_generator}        = new PGrandom( $self->{PG_original_problem_seed});
-	$self->{problemSeed}                = $self->{PG_original_problem_seed};
-		$self->{tempDirectory}        		= $self->{envir}->{tempDirectory};
-	$self->{PG_problem_grader}    		= $self->{envir}->{PROBLEM_GRADER_TO_USE};
-		$self->{PG_alias}             		= PGalias->new($self->{envir},
-												WARNING_messages => $self->{WARNING_messages},
-												DEBUG_messages   => $self->{DEBUG_messages},
-										);
+	$self->{displayMode}              = $self->{envir}->{displayMode};
+	$self->{PG_original_problem_seed} = $self->{envir}->{problemSeed};
+	$self->{PG_random_generator}      = new PGrandom($self->{PG_original_problem_seed});
+	$self->{problemSeed}              = $self->{PG_original_problem_seed};
+	$self->{tempDirectory}            = $self->{envir}->{tempDirectory};
+	$self->{PG_problem_grader}        = $self->{envir}->{PROBLEM_GRADER_TO_USE};
+	$self->{PG_alias}                 = PGalias->new(
+		$self->{envir},
+		WARNING_messages => $self->{WARNING_messages},
+		DEBUG_messages   => $self->{DEBUG_messages},
+	);
 	#$self->{maketext} =  WeBWorK::Localize::getLoc($self->{envir}->{language});
 	$self->{maketext} = $self->{envir}->{language_subroutine};
 	#$self->debug_message("PG alias created", $self->{PG_alias} );
-		$self->{PG_loadMacros}        = new PGloadfiles($self->{envir});
-	$self->{flags} = {
-		showpartialCorrectAnswers => 1,
-		showHint                  => 1,
-		hintExists 				  => 0,
-		showHintLimit             => 0,
+	$self->{PG_loadMacros} = new PGloadfiles($self->{envir});
+	$self->{flags}         = {
+		showPartialCorrectAnswers => 1,
+		hintExists                => 0,
 		solutionExists            => 0,
 		recordSubmittedAnswers    => 1,
 		refreshCachedImages       => 0,
-#		ANSWER_ENTRY_ORDER        => [],  # may not be needed if we ue Tie:IxHash
-		comment                   => '',  # implement as array?
-
-
-
+		comment                   => '',    # implement as array?
 	};
-
 }
-
 
 ####################################################################
 
@@ -215,14 +208,12 @@ content being appended.
 
 =cut
 
-
-
 # ^function HEADER_TEXT
 # ^uses $STRINGforHEADER_TEXT
 sub HEADER_TEXT {
 	my $self = shift;
-	push @{$self->{HEADER_ARRAY}}, map { (defined($_) )?$_:'' } @_;
-	$self->{HEADER_ARRAY}  ;
+	push @{ $self->{HEADER_ARRAY} }, map { (defined($_)) ? $_ : '' } @_;
+	$self->{HEADER_ARRAY};
 }
 
 =item POST_HEADER_TEXT()
@@ -246,10 +237,9 @@ content being appended.
 # ^uses $STRINGforHEADER_TEXT
 sub POST_HEADER_TEXT {
 	my $self = shift;
-	push @{$self->{POST_HEADER_ARRAY}}, map { (defined($_) )?$_:'' } @_;
-	$self->{POST_HEADER_ARRAY}  ;
+	push @{ $self->{POST_HEADER_ARRAY} }, map { (defined($_)) ? $_ : '' } @_;
+	$self->{POST_HEADER_ARRAY};
 }
-
 
 =item TEXT()
 
@@ -280,26 +270,27 @@ content being appended.
 
 sub TEXT {
 	my $self = shift;    #FIXME  filter for undefined entries replace by "";
-	push @{$self->{OUTPUT_ARRAY}}, map { (defined($_) )?$_:'' } @_ ;
+	push @{ $self->{OUTPUT_ARRAY} }, map { (defined($_)) ? $_ : '' } @_;
 	$self->{OUTPUT_ARRAY};
 }
 
 sub envir {
-	my $self = shift;
+	my $self   = shift;
 	my $in_key = shift;
-	if ( $self->not_null($in_key) ) {
-			if (defined  ($self->{envir}->{$in_key} ) ) {
-				$self->{envir}->{$in_key};
-			} else {
-				 warn "\$envir{$in_key} is not defined\n";
-				return '';
-			}
+	if ($self->not_null($in_key)) {
+		if (defined($self->{envir}->{$in_key})) {
+			$self->{envir}->{$in_key};
+		} else {
+			warn "\$envir{$in_key} is not defined\n";
+			return '';
+		}
 	} else {
- 		warn "<h3> Environment</h3>".$self->pretty_print($self->{envir});
- 		return '';
+		warn "<h3> Environment</h3>" . $self->pretty_print($self->{envir});
+		return '';
 	}
 
 }
+
 =item LABELED_ANS()
 
  TEXT(labeled_ans_rule("name1"), labeled_ans_rule("name2"));
@@ -326,39 +317,48 @@ Old name for LABELED_ANS(). DEPRECATED.
 
 # ^function NAMED_ANS
 # ^uses $PG_STOP_FLAG
-sub LABELED_ANS{
+sub LABELED_ANS {
 	my $self = shift;
-	my @in = @_;
-	while (@in ) {
+	my @in   = @_;
+	while (@in) {
 		my $label    = shift @in;
 		my $ans_eval = shift @in;
-		$self->warning_message("<BR><B>Error in LABELED_ANS:|$label|</B>
-					-- inputs must be references to AnswerEvaluator objects or subroutines<BR>")
-			unless ref($ans_eval) =~ /CODE/ or ref($ans_eval) =~ /AnswerEvaluator/  ;
-	if (ref($ans_eval) =~ /CODE/) {
-		#
-		#  Create an AnswerEvaluator that calls the given CODE reference and use that for $ans_eval.
-		#  So we always have an AnswerEvaluator from here on.
-		#
-		my $cmp = new AnswerEvaluator;
-		$cmp->install_evaluator(sub {
-			my $ans = shift; my $checker = shift;
-			my @args = ($ans->{student_ans});
-			push(@args,ans_label=>$ans->{ans_label}) if defined($ans->{ans_label});
-			$checker->(@args); # Call the original checker with the arguments that PG::Translator would have used
-		},$ans_eval);
-		$ans_eval = $cmp;
-	}
-	if (defined($self->{PG_ANSWERS_HASH}->{$label})  ){
-		$self->{PG_ANSWERS_HASH}->{$label}->insert(ans_label => $label, ans_eval => $ans_eval, active=>$self->{PG_ACTIVE});
-	} else {
-			$self->{PG_ANSWERS_HASH}->{$label} = PGanswergroup->new($label, ans_eval => $ans_eval, active=>$self->{PG_ACTIVE});
+		$self->warning_message(
+			"<BR><B>Error in LABELED_ANS:|$label|</B>
+					-- inputs must be references to AnswerEvaluator objects or subroutines<BR>"
+			)
+			unless ref($ans_eval) =~ /CODE/
+			or ref($ans_eval) =~ /AnswerEvaluator/;
+		if (ref($ans_eval) =~ /CODE/) {
+			#
+			#  Create an AnswerEvaluator that calls the given CODE reference and use that for $ans_eval.
+			#  So we always have an AnswerEvaluator from here on.
+			#
+			my $cmp = new AnswerEvaluator;
+			$cmp->install_evaluator(
+				sub {
+					my $ans     = shift;
+					my $checker = shift;
+					my @args    = ($ans->{student_ans});
+					push(@args, ans_label => $ans->{ans_label}) if defined($ans->{ans_label});
+					$checker->(@args)
+						;    # Call the original checker with the arguments that PG::Translator would have used
+				},
+				$ans_eval
+			);
+			$ans_eval = $cmp;
+		}
+		if (defined($self->{PG_ANSWERS_HASH}->{$label})) {
+			$self->{PG_ANSWERS_HASH}->{$label}
+				->insert(ans_label => $label, ans_eval => $ans_eval, active => $self->{PG_ACTIVE});
+		} else {
+			$self->{PG_ANSWERS_HASH}->{$label} =
+				PGanswergroup->new($label, ans_eval => $ans_eval, active => $self->{PG_ACTIVE});
 		}
 		$self->{answer_eval_count}++;
 	}
 	$self->{PG_ANSWERS_HASH};
 }
-
 
 =item ANS()
 
@@ -381,21 +381,18 @@ macro in L<PGanswermacros.pl>.
 # ^uses $PG_STOP_FLAG
 # ^uses @PG_ANSWERS
 
-sub ANS{
+sub ANS {
 	my $self = shift;
-	my @in = @_;
-	while (@in ) {
-				 # create new label
-				 $self->{unlabeled_answer_eval_count}++;
-				 my $label = $self->new_label($self->{unlabeled_answer_eval_count});
-				 my $evaluator = shift @in;
-		 $self->LABELED_ANS($label, $evaluator);
+	my @in   = @_;
+	while (@in) {
+		# create new label
+		$self->{unlabeled_answer_eval_count}++;
+		my $label     = $self->new_label($self->{unlabeled_answer_eval_count});
+		my $evaluator = shift @in;
+		$self->LABELED_ANS($label, $evaluator);
 	}
 	$self->{PG_ANSWERS_HASH};
 }
-
-
-
 
 =item STOP_RENDERING()
 
@@ -410,7 +407,7 @@ and answer evaluators until RESUME_RENDERING() is called.
 # ^uses $PG_STOP_FLAG
 sub STOP_RENDERING {
 	my $self = shift;
-	$self->{PG_ACTIVE}=0;
+	$self->{PG_ACTIVE} = 0;
 	"";
 }
 
@@ -427,127 +424,139 @@ evaluators. Reverses the effect of STOP_RENDERING().
 # ^uses $PG_STOP_FLAG
 sub RESUME_RENDERING {
 	my $self = shift;
-	$self->{PG_ACTIVE}=1;
+	$self->{PG_ACTIVE} = 1;
 	"";
 }
 ########
 # Internal methods
 #########
-sub new_label {     #creates a new label for unlabeled submissions ASNWER_PREFIX.$number
-	my $self         = shift;
-	my $number       = shift;
-	$self->{QUIZ_PREFIX}.$self->{ANSWER_PREFIX}.sprintf("%04u", $number);
+sub new_label {    #creates a new label for unlabeled submissions ASNWER_PREFIX.$number
+	my $self   = shift;
+	my $number = shift;
+	$self->{QUIZ_PREFIX} . $self->{ANSWER_PREFIX} . sprintf("%04u", $number);
 }
-sub new_array_label {     #creates a new label for unlabeled submissions ASNWER_PREFIX.$number
-	my $self         = shift;
-	my $number       = shift;
-	$self->{QUIZ_PREFIX}.$self->{ARRAY_PREFIX}.sprintf("%04u", $number);
+
+sub new_array_label {    #creates a new label for unlabeled submissions ASNWER_PREFIX.$number
+	my $self   = shift;
+	my $number = shift;
+	$self->{QUIZ_PREFIX} . $self->{ARRAY_PREFIX} . sprintf("%04u", $number);
 }
-sub new_array_element_label {     #creates a new label for unlabeled submissions ARRAY_PREFIX.$number
-	my $self              = shift;
-	my $ans_label         = shift;  # name of the PGanswer group holding this array
-	my $row_num           = shift;
-	my $col_num           = shift;
-	my %options           = @_;
-	my $vec_num           = (defined $options{vec_num})?$options{vec_num}: 0 ;
-	$self->{QUIZ_PREFIX}.$ans_label.'__'.$vec_num.'-'.$row_num.'-'.$col_num.'__';
+
+sub new_array_element_label {    #creates a new label for unlabeled submissions ARRAY_PREFIX.$number
+	my $self      = shift;
+	my $ans_label = shift;                                               # name of the PGanswer group holding this array
+	my $row_num   = shift;
+	my $col_num   = shift;
+	my %options   = @_;
+	my $vec_num   = (defined $options{vec_num}) ? $options{vec_num} : 0;
+	$self->{QUIZ_PREFIX} . $ans_label . '__' . $vec_num . '-' . $row_num . '-' . $col_num . '__';
 }
-sub new_answer_name  {     # bit of a legacy item
+
+sub new_answer_name {    # bit of a legacy item
 	&new_label;
 }
 
-
-sub record_ans_name {      # the labels in the PGanswer group and response group should match in this case
-	my $self = shift;
+sub record_ans_name {    # the labels in the PGanswer group and response group should match in this case
+	my $self  = shift;
 	my $label = shift;
 	my $value = shift;
 	#$self->internal_debug_message("PGcore::record_ans_name: $label $value");
-	my $response_group = new PGresponsegroup($label,$label,$value);
+	my $response_group = new PGresponsegroup($label, $label, $value);
 	#$self->debug_message("adding a response group $response_group");
-	if (ref($self->{PG_ANSWERS_HASH}->{$label})=~/PGanswergroup/ ) {
-		$self->{PG_ANSWERS_HASH}->{$label}->replace(ans_label => $label,
-																							 response  => $response_group,
-																							 active    => $self->{PG_ACTIVE});
+	if (ref($self->{PG_ANSWERS_HASH}->{$label}) =~ /PGanswergroup/) {
+		$self->{PG_ANSWERS_HASH}->{$label}->replace(
+			ans_label => $label,
+			response  => $response_group,
+			active    => $self->{PG_ACTIVE}
+		);
 	} else {
-			$self->{PG_ANSWERS_HASH}->{$label} = PGanswergroup->new($label,
-																								 response  => $response_group,
-																								 active    => $self->{PG_ACTIVE});
-		}
-		$self->{answer_blank_count}++;
+		$self->{PG_ANSWERS_HASH}->{$label} = PGanswergroup->new(
+			$label,
+			response => $response_group,
+			active   => $self->{PG_ACTIVE}
+		);
+	}
+	$self->{answer_blank_count}++;
 	$label;
 }
 
-sub record_array_name {  # currently the same as record ans name
-	my $self = shift;
-	my $label = shift;
-	my $value = shift;
-	my $response_group = new PGresponsegroup($label,$label,$value);
+sub record_array_name {    # currently the same as record ans name
+	my $self           = shift;
+	my $label          = shift;
+	my $value          = shift;
+	my $response_group = new PGresponsegroup($label, $label, $value);
 	#$self->debug_message("adding a response group $response_group");
-	if (ref($self->{PG_ANSWERS_HASH}->{$label})=~/PGanswergroup/ ) {
-		$self->{PG_ANSWERS_HASH}->{$label}->replace(ans_label => $label,
-																							 response   => $response_group,
-																							 active     => $self->{PG_ACTIVE});
+	if (ref($self->{PG_ANSWERS_HASH}->{$label}) =~ /PGanswergroup/) {
+		$self->{PG_ANSWERS_HASH}->{$label}->replace(
+			ans_label => $label,
+			response  => $response_group,
+			active    => $self->{PG_ACTIVE}
+		);
 	} else {
-			$self->{PG_ANSWERS_HASH}->{$label} = PGanswergroup->new($label,
-																								 response   => $response_group,
-																								 active     => $self->{PG_ACTIVE});
-		}
-		$self->{answer_blank_count}++;
-		#$self->{PG_ANSWERS_HASH}->{$label}->{response}->clear;  #why is this ?
+		$self->{PG_ANSWERS_HASH}->{$label} = PGanswergroup->new(
+			$label,
+			response => $response_group,
+			active   => $self->{PG_ACTIVE}
+		);
+	}
+	$self->{answer_blank_count}++;
+	#$self->{PG_ANSWERS_HASH}->{$label}->{response}->clear;  #why is this ?
 	$label;
 
 }
 
-
-sub extend_ans_group {         # modifies the group type
-	my $self = shift;
-	my $label = shift;
+sub extend_ans_group {    # modifies the group type
+	my $self          = shift;
+	my $label         = shift;
 	my @response_list = @_;
 	my $answer_group  = $self->{PG_ANSWERS_HASH}->{$label};
-	if (ref($answer_group) =~/PGanswergroup/) {
-			$answer_group->append_responses(@response_list);
-		} else {
-			#$self->warning_message("The answer |$label| has not yet been defined, you cannot extend it.",caller() );
-			# this error message is correct but misleading for the original way
-			# in which matrix blanks and their response evaluators are matched up
-			# we should restore the warning message once the new matrix evaluation method is in place
+	if (ref($answer_group) =~ /PGanswergroup/) {
+		$answer_group->append_responses(@response_list);
+	} else {
+		#$self->warning_message("The answer |$label| has not yet been defined, you cannot extend it.",caller() );
+		# this error message is correct but misleading for the original way
+		# in which matrix blanks and their response evaluators are matched up
+		# we should restore the warning message once the new matrix evaluation method is in place
 
-		}
-		$label;
+	}
+	$label;
 }
 
 sub record_unlabeled_ans_name {
 	my $self = shift;
-		$self->{unlabeled_answer_blank_count}++;
-		my $label = $self->new_label($self->{unlabeled_answer_blank_count});
-		$self->record_ans_name($label);
-		$label;
-}
-sub record_unlabeled_array_name {
-	my $self = shift;
-		$self->{unlabeled_answer_blank_count}++;
-		my $ans_label = $self->new_array_label($self->{unlabeled_answer_blank_count});
-		$self->record_array_name($ans_label);
-}
-sub store_persistent_data {  # will store strings only (so far)
-	my $self = shift;
-	my $label = shift;
-	my @content = @_;
-	if (defined($self->{PERSISTENCE_HASH}->{$label}) ) {
-		warn "can' overwrite $label in persistent data";
-	} else {
-			$self->{PERSISTENCE_HASH}->{$label} = join("",@content);  #need base64 encoding?
-		}
+	$self->{unlabeled_answer_blank_count}++;
+	my $label = $self->new_label($self->{unlabeled_answer_blank_count});
+	$self->record_ans_name($label);
 	$label;
 }
+
+sub record_unlabeled_array_name {
+	my $self = shift;
+	$self->{unlabeled_answer_blank_count}++;
+	my $ans_label = $self->new_array_label($self->{unlabeled_answer_blank_count});
+	$self->record_array_name($ans_label);
+}
+
+sub store_persistent_data {    # will store strings only (so far)
+	my $self    = shift;
+	my $label   = shift;
+	my @content = @_;
+	if (defined($self->{PERSISTENCE_HASH}->{$label})) {
+		warn "can' overwrite $label in persistent data";
+	} else {
+		$self->{PERSISTENCE_HASH}->{$label} = join("", @content);    #need base64 encoding?
+	}
+	$label;
+}
+
 sub check_answer_hash {
 	my $self = shift;
 	foreach my $key (keys %{ $self->{PG_ANSWERS_HASH} }) {
-			my $ans_eval = $self->{PG_ANSWERS_HASH}->{$key}->{ans_eval};
-		unless (ref($ans_eval) =~ /CODE/ or ref($ans_eval) =~ /AnswerEvaluator/ ) {
+		my $ans_eval = $self->{PG_ANSWERS_HASH}->{$key}->{ans_eval};
+		unless (ref($ans_eval) =~ /CODE/ or ref($ans_eval) =~ /AnswerEvaluator/) {
 			warn "The answer group labeled $key is missing an answer evaluator";
 		}
-		unless (ref( $self->{PG_ANSWERS_HASH}->{$key}->{response} ) =~ /PGresponsegroup/ ) {
+		unless (ref($self->{PG_ANSWERS_HASH}->{$key}->{response}) =~ /PGresponsegroup/) {
 			warn "The answer group labeled $key is missing answer blanks ";
 		}
 	}
@@ -558,26 +567,23 @@ sub PG_restricted_eval {
 	WeBWorK::PG::Translator::PG_restricted_eval(@_);
 }
 
+=item base64 encoding and decoding
 
-# =head2 base64 coding
-#
-# 	$str       = decode_base64($coded_str);
-# 	$coded_str = encode_base64($str);
-#
-# # Sometimes a question author needs to code or decode base64 directly
-#
-# =cut
-#
+	$str       = decode_base64($coded_str);
+	$coded_str = encode_base64($str);
+
+=cut
+
 sub decode_base64 ($) {
 	my $self = shift;
-	my $str = shift;
+	my $str  = shift;
 	$str = MIME::Base64::decode_base64($str);
 	decode_utf8($str);
 }
 
 sub encode_base64 ($;$) {
-	my $self = shift;
-	my $str  = shift;
+	my $self   = shift;
+	my $str    = shift;
 	my $option = shift;
 	$str = encode_utf8($str);
 	MIME::Base64::encode_base64($str);
@@ -589,10 +595,9 @@ sub encode_base64 ($;$) {
 #  printed to a screen or interpreted by EV3.
 
 sub encode_pg_and_html {
-		my $input = shift;
-		$input = HTML::Entities::encode_entities($input,
-			 '<>"&\'\$\@\\\\`\\[*_\x00-\x1F\x7F');
-		return $input;
+	my $input = shift;
+	$input = HTML::Entities::encode_entities($input, '<>"&\'\$\@\\\\`\\[*_\x00-\x1F\x7F');
+	return $input;
 }
 
 =back
@@ -623,49 +628,45 @@ inside the PGcore object would report.
 
 =cut
 
-
 sub debug_message {
-		my $self = shift;
-	my @str = @_;
-	push @{$self->{DEBUG_messages}}, "<br/>\n", @str;
+	my ($self, @str) = @_;
+	push @{ $self->{DEBUG_messages} }, @str;
 }
+
 sub get_debug_messages {
 	my $self = shift;
 	$self->{DEBUG_messages};
 }
+
 sub warning_message {
-		my $self = shift;
-	my @str = @_;
-	unshift @str, "<br/>------"; # mark start of each message
-	push @{$self->{WARNING_messages}}, @str;
+	my ($self, @str) = @_;
+	# Mark the start of each message.
+	push @{ $self->{WARNING_messages} }, '------', @str;
 }
+
 sub get_warning_messages {
 	my $self = shift;
 	$self->{WARNING_messages};
 }
 
 sub internal_debug_message {
-		my $self = shift;
-	my @str = @_;
-	push @{$internal_debug_messages}, @str;
+	my ($self, @str) = @_;
+	push @$internal_debug_messages, @str;
 }
+
 sub get_internal_debug_messages {
 	my $self = shift;
 	$internal_debug_messages;
 }
+
 sub clear_internal_debug_messages {
 	my $self = shift;
-	$internal_debug_messages=[];
+	$internal_debug_messages = [];
 }
 
 sub DESTROY {
 	# doing nothing about destruction, hope that isn't dangerous
 }
-
-# sub WARN {
-# 	warn(@_);
-# }
-
 
 # This creates on the fly graphs
 
@@ -698,23 +699,26 @@ insures that an EPS file is generated when creating TeX code for downloading.
 # ^uses %envir
 sub insertGraph {
 	# Convert the image to GIF and print it on standard output
-	my $self     = shift;
-	my $graph    = shift;
-	my $fileName = $graph->imageName . "." . $graph->ext;
-	my $filePath = $self->convertPath("images/$fileName");
+	my $self              = shift;
+	my $graph             = shift;
+	my $fileName          = $graph->imageName . "." . $graph->ext;
+	my $filePath          = $self->convertPath("images/$fileName");
 	my $templateDirectory = $self->{envir}{templateDirectory};
-	$filePath = $self->surePathToTmpFile( $filePath );
+	$filePath = $self->surePathToTmpFile($filePath);
 	my $refreshCachedImages = $self->PG_restricted_eval(q!$refreshCachedImages!);
 	# Check to see if we already have this graph, or if we have to make it
-	if (not -e $filePath # does it exist?
-			or ((stat "$templateDirectory".$self->{envir}{probFileName})[9] > (stat $filePath)[9]) # source has changed
-			or $self->{envir}{setNumber} =~ /Undefined_Set/ # problems from SetMaker and its ilk should always be redone
-			or $refreshCachedImages
-	) {
-		open(my $fh, ">", $filePath) || warn ("$0", "Can't open $filePath<BR>","");
+	if (
+		not -e $filePath                                                                         # does it exist?
+		or
+		((stat "$templateDirectory" . $self->{envir}{probFileName})[9] > (stat $filePath)[9])    # source has changed
+		or $self->{envir}{setNumber} =~ /Undefined_Set/    # problems from SetMaker and its ilk should always be redone
+		or $refreshCachedImages
+		)
+	{
+		open(my $fh, ">", $filePath) || warn("$0", "Can't open $filePath<BR>", "");
 		chmod(0777, $filePath);
-		print $fh $graph->draw || warn("$0","Can't print graph to $filePath<BR>","");
-		close($fh) || warn("$0","Can't close $filePath<BR>","");
+		print $fh $graph->draw || warn("$0", "Can't print graph to $filePath<BR>", "");
+		close($fh)             || warn("$0", "Can't close $filePath<BR>",          "");
 	}
 	$filePath;
 }
@@ -733,9 +737,9 @@ PGtikz.pl.
 # Generate a unique file name in a problem based on the user, seed, set
 # number, and problem number.
 sub getUniqueName {
-	my $self = shift;
-	my $ext = shift;
-	my $num  = ++$self->{names_created};
+	my $self     = shift;
+	my $ext      = shift;
+	my $num      = ++$self->{names_created};
 	my $resource = $self->{PG_alias}->make_resource_object("name$num", $ext);
 	$resource->path("__");
 	return $resource->create_unique_id;
@@ -746,50 +750,53 @@ sub getUniqueName {
 		includePGtext
 		read_whole_problem_file
 		convertPath
-		getDirDelim
 		fileFromPath
 		directoryFromPath
 		createDirectory
 
 =cut
+
 sub maketext {
 	my $self = shift;
 	# uncomment this to check to see if strings are run through
 	# maketext.
 	# return 'xXx'.  &{ $self->{maketext}}(@_).'xXx';
-	&{ $self->{maketext}}(@_);
+	&{ $self->{maketext} }(@_);
 }
+
 sub includePGtext {
 	my $self = shift;
 	WeBWorK::PG::IO::includePGtext(@_);
- };
+}
+
 sub read_whole_problem_file {
 	my $self = shift;
 	WeBWorK::PG::IO::read_whole_problem_file(@_);
- };
+}
+
 sub convertPath {
 	my $self = shift;
 	WeBWorK::PG::IO::convertPath(@_);
- };
-sub getDirDelim {
-	my $self = shift;
-	WeBWorK::PG::IO::getDirDelim(@_);
- };
+}
+
 sub fileFromPath {
 	my $self = shift;
 	WeBWorK::PG::IO::fileFromPath(@_);
- };
+}
+
 sub directoryFromPath {
 	my $self = shift;
 	WeBWorK::PG::IO::directoryFromPath(@_);
- };
+}
+
 sub createDirectory {
 	my $self = shift;
 	WeBWorK::PG::IO::createDirectory(@_);
- };
+}
+
 sub AskSage {
-	my $self = shift;
-	my $python = shift;
+	my $self    = shift;
+	my $python  = shift;
 	my $options = shift;
 	$options->{curlCommand} = WeBWorK::PG::IO::curlCommand();
 	WeBWorK::PG::IO::AskSage($python, $options);
@@ -799,7 +806,6 @@ sub tempDirectory {
 	my $self = shift;
 	return $self->{tempDirectory};
 }
-
 
 =head2 surePathToTmpFile
 
@@ -819,51 +825,50 @@ course temp directory.
 # ^uses getCourseTempDirectory
 # ^uses createDirectory
 
-
 sub surePathToTmpFile {
 	# constructs intermediate directories if needed beginning at ${Global::htmlDirectory}tmp/
 	# the input path must be either the full path, or the path relative to this tmp sub directory
 
-	my $self = shift;
-	my $path = shift;
-	my $delim = "/";
+	my $self         = shift;
+	my $path         = shift;
+	my $delim        = "/";
 	my $tmpDirectory = $self->tempDirectory();
-	unless ( -e $tmpDirectory) {   # if by some unlucky chance the tmpDirectory hasn't been created, create it.
-			my $parentDirectory =  $tmpDirectory;
-			$parentDirectory =~s|/$||;  # remove a trailing /
+	unless (-e $tmpDirectory) {    # if by some unlucky chance the tmpDirectory hasn't been created, create it.
+		my $parentDirectory = $tmpDirectory;
+		$parentDirectory =~ s|/$||;    # remove a trailing /
 		$parentDirectory = $self->directoryFromPath($parentDirectory);
-			my ($perms, $groupID) = (stat $parentDirectory)[2,5];
-				#warn "Creating tmp directory at $tmpDirectory, perms $perms groupID $groupID";
+		my ($perms, $groupID) = (stat $parentDirectory)[ 2, 5 ];
+		#warn "Creating tmp directory at $tmpDirectory, perms $perms groupID $groupID";
 		$self->createDirectory($tmpDirectory, $perms, $groupID)
-				or warn "Failed to create parent tmp directory at $path";
+			or warn "Failed to create parent tmp directory at $path";
 
 	}
 	# use the permissions/group on the temp directory itself as a template
-	my ($perms, $groupID) = (stat $tmpDirectory)[2,5];
-		#warn "surePathToTmpFile: directory=$tmpDirectory, perms=$perms, groupID=$groupID\n";
+	my ($perms, $groupID) = (stat $tmpDirectory)[ 2, 5 ];
+	#warn "surePathToTmpFile: directory=$tmpDirectory, perms=$perms, groupID=$groupID\n";
 
 	# if the path starts with $tmpDirectory (which is permitted but optional) remove this initial segment
 	$path =~ s|^$tmpDirectory|| if $path =~ m|^$tmpDirectory|;
 
 	# find the nodes on the given path
-				my @nodes = split("$delim",$path);
+	my @nodes = split("$delim", $path);
 
 	# create new path
 	$path = $tmpDirectory;
 
-	while (@nodes>1) {
-		$path = $path . shift (@nodes) . "/"; #convertPath($path . shift (@nodes) . "/");
+	while (@nodes > 1) {
+		$path = $path . shift(@nodes) . "/";    #convertPath($path . shift (@nodes) . "/");
 
 		unless (-e $path) {
 			$self->createDirectory($path, $perms, $groupID)
-				or $self->warning_message( "Failed to create directory at $path with permissions $perms and groupID $groupID");
+				or $self->warning_message(
+					"Failed to create directory at $path with permissions $perms and groupID $groupID");
 		}
 
 	}
 
-	$path = $path . shift(@nodes); #convertPath($path . shift(@nodes));
+	$path = $path . shift(@nodes);    #convertPath($path . shift(@nodes));
 	return $path;
 }
-
 
 1;

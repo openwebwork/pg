@@ -1,5 +1,4 @@
-lib/chromatic/color
-conf/pg_defaults.yml
+conf/pg_config.yml
 *.bak
 cover_db/
 
@@ -7,3 +6,4 @@ htdocs/node_modules
 htdocs/static-assets.json
 htdocs/**/*.min.js
 htdocs/**/*.min.css
+htdocs/tmp

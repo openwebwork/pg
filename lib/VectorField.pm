@@ -142,18 +142,13 @@ set the current position to (x,y)
 =cut
 
 BEGIN {
-	be_strict(); # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
+	be_strict();    # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
 }
 
 package VectorField;
 
-
 #use "WWPlot.pm";
 #Because of the way problem modules are loaded 'use' is disabled.
-
-
-
-
 
 @VectorField::ISA = qw(WWPlot);
 # import gdBrushed from GD.  It unclear why, but a good many global methods haven't been imported.
@@ -161,124 +156,122 @@ sub gdBrushed {
 	&GD::gdBrushed();
 }
 
-my $GRAPH_REFERENCE = "WWPlot";
+my $GRAPH_REFERENCE       = "WWPlot";
 my $VECTORFIELD_REFERENCE = "VectorField";
 
-my %fields =(
-		xmin			=>	-4,
-		xmax			=>	4,
-		ymin        	=>  -4,
-		ymax        	=>   4,
-		x_steps  		=>  10,
-		y_steps			=> 	10,
-		arrow_color		=>  'blue',
-		arrow_weight    =>  1,  #line thickness
-		dot_color       =>  'red',
-		dot_radius      =>  1.5,
-		dt				=>  0.1,
-		dx_rule     	=> sub{1;},
-		dy_rule     	=> sub{1;},
-		rf_arrow_length => sub{my($dx,$dy)=@_;
-		                           return(0) if sqrt($dx**2 + $dy**2) ==0;
-		                           0.5*1/sqrt($dx**2 + $dy**2);
-		                      },
+my %fields = (
+	xmin            => -4,
+	xmax            => 4,
+	ymin            => -4,
+	ymax            => 4,
+	x_steps         => 10,
+	y_steps         => 10,
+	arrow_color     => 'blue',
+	arrow_weight    => 1,            #line thickness
+	dot_color       => 'red',
+	dot_radius      => 1.5,
+	dt              => 0.1,
+	dx_rule         => sub { 1; },
+	dy_rule         => sub { 1; },
+	rf_arrow_length => sub {
+		my ($dx, $dy) = @_;
+		return (0) if sqrt($dx**2 + $dy**2) == 0;
+		0.5 * 1 / sqrt($dx**2 + $dy**2);
+	},
 
 );
 
-
 sub new {
-	my $class 				=	shift;
+	my $class = shift;
 
-	my $self 			= {
-				%fields,
-	};
+	my $self = { %fields, };
 
 	bless $self, $class;
-	$self -> _initialize(@_);
+	$self->_initialize(@_);
 	return $self;
 }
 
-sub identity {  # the identity function
+sub identity {    # the identity function
 	shift;
 }
 
-
 sub _initialize {
-	my	$self 	= 	shift;
-	my  ($xrule,$yrule, $rule,$graphRef);
+	my $self = shift;
+	my ($xrule, $yrule, $rule, $graphRef);
 	my @input = @_;
-	if (ref($input[$#input]) eq $GRAPH_REFERENCE ) {
-		$graphRef = pop @input;  # get the last argument if it refers to a graph.
-		$graphRef->fn($self);    # Install this vector field in the graph.
+	if (ref($input[$#input]) eq $GRAPH_REFERENCE) {
+		$graphRef = pop @input;    # get the last argument if it refers to a graph.
+		$graphRef->fn($self);      # Install this vector field in the graph.
 		$self->{xmin} = $graphRef->{xmin};
 		$self->{xmax} = $graphRef->{xmax};
 		$self->{ymin} = $graphRef->{ymin};
 		$self->{ymax} = $graphRef->{ymax};
 	}
-    if ( @input == 1 ) {        # only one argument left -- this is a non parametric function
-        $rule = $input[0];
-		if ( ref($rule) eq $VECTORFIELD_REFERENCE ) {  # clone another function
+	if (@input == 1) {             # only one argument left -- this is a non parametric function
+		$rule = $input[0];
+		if (ref($rule) eq $VECTORFIELD_REFERENCE) {    # clone another function
 			my $k;
 			foreach $k (keys %fields) {
 				$self->{$k} = $rule->{$k};
 			}
 		} else {
-			$self->{dx_rule} = sub {1; };
-			$self->{dy_rule} = $input[0] ;
+			$self->{dx_rule} = sub { 1; };
+			$self->{dy_rule} = $input[0];
 		}
-	} elsif (@input == 2 ) {   #  two arguments -- parametric functions
-			$self->{dx_rule} = $input[0] ;
-			$self->{dy_rule} = $input[1] ;
+	} elsif (@input == 2) {    #  two arguments -- parametric functions
+		$self->{dx_rule} = $input[0];
+		$self->{dy_rule} = $input[1];
 
 	} else {
 		die "VectorField.pm:_initialize: Can't call VectorField with more than two arguments";
 	}
 }
+
 sub draw {
-    my $self = shift;  # this function
-	my $g = shift;   # the graph containing the function.
+	my $self = shift;          # this function
+	my $g    = shift;          # the graph containing the function.
 	warn "This vector field is not being called from an enclosing graph" unless defined($g);
-	my $arrow_color;   # get color scheme from graph
-	if ( defined( $g->{'colors'}{$self->arrow_color} )  ) {
-		$arrow_color = $g->{'colors'}{$self->arrow_color};
+	my $arrow_color;           # get color scheme from graph
+	if (defined($g->{'colors'}{ $self->arrow_color })) {
+		$arrow_color = $g->{'colors'}{ $self->arrow_color };
 	} else {
-		$arrow_color = $g->{'colors'}{'blue'};  # what you do if the color isn't there
+		$arrow_color = $g->{'colors'}{'blue'};    # what you do if the color isn't there
 	}
-	my $dot_color = $self ->dot_color;  # colors are defined differently for Circles, then for lines.
+	my $dot_color   = $self->dot_color;           # colors are defined differently for Circles, then for lines.
 	my $dot_radius  = $self->dot_radius;
-	my $brush = new GD::Image($self->arrow_weight,$self->arrow_weight);
-	my $brush_color = $brush->colorAllocate($g->im->rgb($arrow_color));  # transfer color
+	my $brush       = new GD::Image($self->arrow_weight, $self->arrow_weight);
+	my $brush_color = $brush->colorAllocate($g->im->rgb($arrow_color));          # transfer color
 	$g->im->setBrush($brush);
-		my $x_steps = $self->x_steps;
-	my $xmin = $self->xmin;
-	my $x_stepsize = ( $self->xmax - $self->xmin )/$x_steps;
-	my $y_steps = $self->y_steps;
-	my $ymin = $self->ymin;
-	my $y_stepsize = ( $self->ymax - $self->ymin )/$y_steps;
-	my $dt = $self->dt;
+	my $x_steps         = $self->x_steps;
+	my $xmin            = $self->xmin;
+	my $x_stepsize      = ($self->xmax - $self->xmin) / $x_steps;
+	my $y_steps         = $self->y_steps;
+	my $ymin            = $self->ymin;
+	my $y_stepsize      = ($self->ymax - $self->ymin) / $y_steps;
+	my $dt              = $self->dt;
 	my $rf_arrow_length = $self->rf_arrow_length;
 
-    foreach my $i (0..$x_steps) {
-    	my $x = $xmin + $i*$x_stepsize;
-    	foreach my $j (0..$y_steps) {
-    		my $y = $ymin + $j*$y_stepsize;
-    		my $dx = $dt*&{$self->dx_rule}($x,$y);
-    		my $dy = $dt*&{$self->dy_rule}($x,$y);
-    		$g->moveTo($x,$y);
-    		$g->stamps(new Circle($x, $y, $dot_radius,$dot_color,$dot_color) ) if $dot_radius > 0; 
-    		    # setting the radius to zero omits the dot
-    		$g->lineTo($x+$dx*&$rf_arrow_length($dx,$dy), $y+$dy*&$rf_arrow_length($dx,$dy),gdBrushed);
+	foreach my $i (0 .. $x_steps) {
+		my $x = $xmin + $i * $x_stepsize;
+		foreach my $j (0 .. $y_steps) {
+			my $y  = $ymin + $j * $y_stepsize;
+			my $dx = $dt * &{ $self->dx_rule }($x, $y);
+			my $dy = $dt * &{ $self->dy_rule }($x, $y);
+			$g->moveTo($x, $y);
+			$g->stamps(new Circle($x, $y, $dot_radius, $dot_color, $dot_color)) if $dot_radius > 0;
+			# setting the radius to zero omits the dot
+			$g->lineTo($x + $dx * &$rf_arrow_length($dx, $dy), $y + $dy * &$rf_arrow_length($dx, $dy), gdBrushed);
 
-    	}
-    }
+		}
+	}
 }
 
 sub domain {
-	my $self =shift;
+	my $self   = shift;
 	my @inputs = @_;
-  	$self->{xmin} = $inputs[0];
-  	$self->{ymin} = $inputs[1];
-  	$self->{xmax} = $inputs[2];
+	$self->{xmin} = $inputs[0];
+	$self->{ymin} = $inputs[1];
+	$self->{xmax} = $inputs[2];
 	$self->{ymax} = $inputs[3];
 }
 
@@ -288,147 +281,157 @@ sub domain {
 sub ymin {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{ymin} ) {
+	unless (exists $self->{ymin}) {
 		die "Can't find ymin field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{ymin} = shift;
 	} else {
-		return $self->{ymin}
+		return $self->{ymin};
 	}
 }
+
 sub x_steps {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{x_steps} ) {
+	unless (exists $self->{x_steps}) {
 		die "Can't find x_steps field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{x_steps} = shift;
 	} else {
-		return $self->{x_steps}
+		return $self->{x_steps};
 	}
 }
+
 sub y_steps {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{y_steps} ) {
+	unless (exists $self->{y_steps}) {
 		die "Can't find y_steps field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{y_steps} = shift;
 	} else {
-		return $self->{y_steps}
+		return $self->{y_steps};
 	}
 }
+
 sub arrow_color {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{arrow_color} ) {
+	unless (exists $self->{arrow_color}) {
 		die "Can't find arrow_color field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{arrow_color} = shift;
 	} else {
-		return $self->{arrow_color}
+		return $self->{arrow_color};
 	}
 }
+
 sub arrow_weight {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{arrow_weight} ) {
+	unless (exists $self->{arrow_weight}) {
 		die "Can't find arrow_weight field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{arrow_weight} = shift;
 	} else {
-		return $self->{arrow_weight}
+		return $self->{arrow_weight};
 	}
 }
+
 sub dot_color {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{dot_color} ) {
+	unless (exists $self->{dot_color}) {
 		die "Can't find dot_color field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{dot_color} = shift;
 	} else {
-		return $self->{dot_color}
+		return $self->{dot_color};
 	}
 }
+
 sub dot_radius {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{dot_radius} ) {
+	unless (exists $self->{dot_radius}) {
 		die "Can't find dot_radius field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{dot_radius} = shift;
 	} else {
-		return $self->{dot_radius}
+		return $self->{dot_radius};
 	}
 }
 
 sub dt {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{dt} ) {
+	unless (exists $self->{dt}) {
 		die "Can't find dt field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{dt} = shift;
 	} else {
-		return $self->{dt}
+		return $self->{dt};
 	}
 }
+
 sub dx_rule {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{dx_rule} ) {
+	unless (exists $self->{dx_rule}) {
 		die "Can't find dx_rule field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{dx_rule} = shift;
 	} else {
-		return $self->{dx_rule}
+		return $self->{dx_rule};
 	}
 }
+
 sub dy_rule {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{dy_rule} ) {
+	unless (exists $self->{dy_rule}) {
 		die "Can't find dy_rule field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{dy_rule} = shift;
 	} else {
-		return $self->{dy_rule}
+		return $self->{dy_rule};
 	}
 }
+
 sub rf_arrow_length {
 	my $self = shift;
 	my $type = ref($self) || die "$self is not an object";
-	unless (exists $self->{rf_arrow_length} ) {
+	unless (exists $self->{rf_arrow_length}) {
 		die "Can't find rf_arrow_length field in object of class $type";
 	}
-	
+
 	if (@_) {
 		return $self->{rf_arrow_length} = shift;
 	} else {
-		return $self->{rf_arrow_length}
+		return $self->{rf_arrow_length};
 	}
 }
+
 sub DESTROY {
 	# doing nothing about destruction, hope that isn't dangerous
 }
