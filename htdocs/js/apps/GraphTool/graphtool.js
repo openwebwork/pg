@@ -445,32 +445,34 @@ window.graphTool = (containerId, options) => {
 					if (xSnap <= bbox[0]) gt.current_pos_text.setText(() => '\\(-\\infty\\)');
 					else if (xSnap >= bbox[2]) gt.current_pos_text.setText(() => '\\(\\infty\\)');
 					else {
-						if (options.coordinateHintsType === 'mixed' || options.coordinateHintsType === 'fraction') {
+						if (options.coordinateHintsTypeX === 'mixed' || options.coordinateHintsTypeX === 'fraction') {
 							const text = gt.toLatexFrac(
 								gt.snapRound(x, gt.snapSizeX, 10 ** 13),
-								options.coordinateHintsType === 'mixed'
+								options.coordinateHintsTypeX === 'mixed'
 							);
 							gt.current_pos_text.setText(() => `\\(${text}\\)`);
 						} else
 							gt.current_pos_text.setText(() => `\\(${xSnap}\\)`);
 					}
 				}
-				: options.coordinateHintsType === 'mixed' || options.coordinateHintsType === 'fraction'
-					? (x, y) => {
-						const xText = gt.toLatexFrac(
+				: (x, y) => {
+					const xText =
+						options.coordinateHintsTypeX === 'mixed' || options.coordinateHintsTypeX === 'fraction'
+						? gt.toLatexFrac(
 							gt.snapRound(x, gt.snapSizeX, 10 ** 13),
-							options.coordinateHintsType === 'mixed'
-						);
-						const yText = gt.toLatexFrac(
+							options.coordinateHintsTypeX === 'mixed'
+						)
+						: gt.snapRound(x, gt.snapSizeX);
+					const yText =
+						options.coordinateHintsTypeY === 'mixed' || options.coordinateHintsTypeY === 'fraction'
+						? gt.toLatexFrac(
 							gt.snapRound(y, gt.snapSizeY, 10 ** 13),
-							options.coordinateHintsType === 'mixed',
+							options.coordinateHintsTypeY === 'mixed',
 							gt.snapSizeY
-						);
-						gt.current_pos_text.setText(() => `\\(\\left(${xText}, ${yText}\\right)\\)`);
-					}
-					: (x, y) => gt.current_pos_text.setText(
-						() => `\\((${gt.snapRound(x, gt.snapSizeX)}, ${gt.snapRound(y, gt.snapSizeY)})\\)`
-					)
+						)
+						: gt.snapRound(y, gt.snapSizeY);
+					gt.current_pos_text.setText(() => `\\(\\left(${xText}, ${yText}\\right)\\)`);
+				}
 		)
 		: () => {};
 
