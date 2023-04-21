@@ -226,7 +226,7 @@
 			answerQuill.toolbar.setPosition();
 
 			answerQuill.after(answerQuill.toolbar);
-			setTimeout(() => answerQuill.toolbar.style.opacity = 1, 0);
+			setTimeout(() => { if (answerQuill.toolbar) answerQuill.toolbar.style.opacity = 1; }, 0);
 		});
 
 		// Add a context menu to toggle whether the toolbar is enabled or not.
