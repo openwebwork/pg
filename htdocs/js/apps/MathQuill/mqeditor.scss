@@ -34,14 +34,21 @@ input[type='text'].codeshard.mq-edit {
 	max-width: 100%;
 
 	.mq-latex-editor-inner-container {
-		max-width: calc(100% - 34px);
 		display: inline-block;
+		max-width: 100%;
 
 		.mq-latex-editor-textarea-container {
 			position: relative;
 
+			// This is redundant for the textarea in a problem, but is needed for a latex editor that is not in a
+			// problem (for instance the comment textareas for the problem graders).
 			.latexentryfield {
-				border-top-right-radius: 0;
+				margin-bottom: 0;
+				padding: 4px 6px;
+				vertical-align: middle;
+				font-weight: 400;
+				line-height: 18px;
+				font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
 			}
 
 			.mq-latex-editor-backdrop-container {
@@ -100,13 +107,6 @@ input[type='text'].codeshard.mq-edit {
 		.mq-editable-field {
 			flex-grow: 1;
 		}
-	}
-
-	.mq-latex-editor-btn {
-		margin-left: 0;
-		vertical-align: top;
-		border-top-left-radius: 0;
-		border-bottom-left-radius: 0;
 	}
 }
 

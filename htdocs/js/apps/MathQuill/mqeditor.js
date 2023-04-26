@@ -12,6 +12,9 @@
 	let toolbarEnabled = (localStorage.getItem('MQEditorToolbarEnabled') ?? 'true') === 'true';
 
 	const setupMQInput = (mq_input) => {
+		if (mq_input.dataset.mqEditorInitialized) return;
+		mq_input.dataset.mqEditorInitialized = 'true';
+
 		const answerLabel = mq_input.id.replace(/^MaThQuIlL_/, '');
 		const input = document.getElementById(answerLabel);
 		const inputType = input?.type;
@@ -126,7 +129,15 @@
 			icon.classList.add('fa-solid', 'fa-square-root-variable');
 			button.append(icon);
 
-			container.append(button);
+			// Find the preview button container, and add the equation editor button to that.
+			const buttonContainer = container.nextElementSibling;
+			if (buttonContainer && buttonContainer.classList.contains('latexentry-button-container')) {
+				buttonContainer.classList.add('d-flex', 'gap-1');
+				buttonContainer.prepend(button);
+				container.after(buttonContainer);
+			} else {
+				container.after(button);
+			}
 
 			// Create a collapse to hold the editor.
 			const collapse = document.createElement('div');
@@ -167,6 +178,7 @@
 
 			const cardBody = document.createElement('div');
 			cardBody.classList.add('card-body', 'p-2', 'd-flex', 'align-items-center');
+			cardBody.append(answerQuill);
 
 			// Insert text at a the current cursor position in a text input replacing the current selection if any.
 			const insertAtCursor = (input, myValue) => {
@@ -189,9 +201,12 @@
 				setSelection();
 			}
 
+			const cardFooter = document.createElement('div');
+			cardFooter.classList.add('card-footer', 'd-flex', 'p-2', 'gap-1');
+
 			const insertButton = document.createElement('button');
 			insertButton.type = 'button';
-			insertButton.classList.add('btn', 'btn-primary', 'flex-grow-0', 'ms-2');
+			insertButton.classList.add('btn', 'btn-sm', 'btn-primary');
 			insertButton.textContent = 'Insert';
 			insertButton.addEventListener('click', () => {
 				const latex = answerQuill.mathField.latex().replace(/^(?:\\\s)*(.*?)(?:\\\s)*$/, '$1');
@@ -200,14 +215,16 @@
 
 			const clearButton = document.createElement('button');
 			clearButton.type = 'button';
-			clearButton.classList.add('btn', 'btn-primary', 'flex-grow-0', 'ms-2');
+			clearButton.classList.add('btn', 'btn-sm', 'btn-primary');
 			clearButton.textContent = 'Clear';
 			clearButton.addEventListener('click', () => {
 				answerQuill.mathField.empty();
 				answerQuill.textarea.focus();
 			});
 
-			contents.append(cardHeader, cardBody);
+			cardFooter.append(insertButton, clearButton);
+
+			contents.append(cardHeader, cardBody, cardFooter);
 			collapse.append(contents);
 			innerContainer.append(collapse);
 
@@ -221,8 +238,6 @@
 				answerQuill.input.style.borderBottomLeftRadius = '4px';
 				answerQuill.input.style.borderBottomRightRadius = '4px';
 			});
-
-			cardBody.append(answerQuill, insertButton, clearButton);
 		} else {
 			cfgOptions.handlers.edit = (mq) => {
 				if (mq.text() !== '') {
@@ -494,7 +509,7 @@
 	};
 
 	// Set up MathQuill inputs that are already in the page.
-	document.querySelectorAll('[id^=MaThQuIlL_]').forEach((input) => setupMQInput(input));
+	document.querySelectorAll('[id^=MaThQuIlL_]').forEach(setupMQInput);
 
 	// Observer that sets up MathQuill inputs.
 	const observer = new MutationObserver((mutationsList) => {
@@ -504,7 +519,7 @@
 					if (node.id && node.id.startsWith('MaThQuIlL_')) {
 						setupMQInput(node);
 					} else {
-						node.querySelectorAll('input[id^=MaThQuIlL_]').forEach((input) => setupMQInput(input));
+						node.querySelectorAll('input[id^=MaThQuIlL_]').forEach(setupMQInput);
 					}
 				}
 			}

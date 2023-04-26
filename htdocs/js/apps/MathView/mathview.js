@@ -26,13 +26,29 @@
 				container.classList.add('input-group', 'd-inline-flex', 'flex-nowrap', 'w-auto');
 			field.after(container);
 
+			// Create and add a button to activate the math viewer.
+			this.button = document.createElement('button');
+			this.button.type = 'button';
+			this.button.classList.add('btn', 'btn-sm', 'btn-secondary', 'codeshard-btn');
+			if (this.options.renderingMode === 'LATEX') this.button.classList.add('latexentryfield-btn');
+			this.button.setAttribute('aria-label', 'Equation Editor');
+
+			const icon = document.createElement('i');
+			icon.classList.add('fa-solid', this.options.renderingMode === 'PGML' ? 'fa-th' : 'fa-pencil');
+			this.button.append(icon);
+
 			if (this.options.decoratedTextBoxAsInput) {
-				container.append(field);
 				this.inputTextBox = field;
+				container.append(field);
+				container.append(this.button);
 			} else {
+				const innerContainer = document.createElement('div');
+				innerContainer.classList.add('mv-inner-container');
+				container.append(innerContainer);
+
 				const textAreaContainer = document.createElement('div');
 				textAreaContainer.classList.add('mv-textarea-container');
-				container.append(textAreaContainer);
+				innerContainer.append(textAreaContainer);
 
 				const backdropContainer = document.createElement('div');
 				backdropContainer.classList.add('mv-backdrop-container');
@@ -74,20 +90,17 @@
 				this.inputTextBox = document.createElement('input');
 				this.inputTextBox.type = 'text';
 				this.inputTextBox.classList.add('mv-input', 'form-control');
+
+				// Find the preview button container, and wrap it in the inner container.
+				const buttonContainer = container.nextElementSibling;
+				if (buttonContainer && buttonContainer.classList.contains('latexentry-button-container')) {
+					buttonContainer.classList.add('d-flex', 'justify-content-end', 'gap-1');
+					buttonContainer.append(this.button);
+					innerContainer.append(buttonContainer);
+				} else {
+					innerContainer.append(this.button);
+				}
 			}
-
-			// Create and add a button to activate the math viewer.
-			this.button = document.createElement('button');
-			this.button.type = 'button';
-			this.button.classList.add('btn', 'btn-sm', 'btn-secondary', 'codeshard-btn');
-			if (this.options.renderingMode === 'LATEX') this.button.classList.add('latexentryfield-btn');
-			this.button.setAttribute('aria-label', 'Equation Editor');
-
-			const icon = document.createElement('i');
-			icon.classList.add('fa-solid', this.options.renderingMode === 'PGML' ? 'fa-th' : 'fa-pencil');
-			this.button.append(icon);
-
-			container.append(this.button);
 
 			// Create the title bar with title and close button.
 			this.popoverTitle = document.createElement('span');
@@ -153,21 +166,37 @@
 			this.popoverContent.append(card);
 
 			if (!this.options.decoratedTextBoxAsInput) {
-				const mvInput = document.createElement('div');
-				mvInput.classList.add('input-group', 'mt-2');
+				const inputGroup = document.createElement('div');
+				inputGroup.classList.add('input-group', 'mt-2');
+				inputGroup.append(this.inputTextBox);
+
+				const footer = document.createElement('div');
+				footer.classList.add('d-flex', 'justify-content-end', 'gap-1', 'mt-2');
 
 				const insertButton = document.createElement('button');
 				insertButton.type = 'button';
 				insertButton.classList.add('btn', 'btn-primary');
 				insertButton.textContent = 'Insert';
 				insertButton.addEventListener('click', () => {
-					let insertstring = this.inputTextBox.value;
+					let insertstring = this.inputTextBox.value.replaceAll(/^\s*|\s*$/g, '');
+					if (!insertstring) return;
 					if (this.options.includeDelimiters) insertstring = `\\(${insertstring}\\)`;
 					this.insertAtCursor(this.decoratedTextBox, insertstring);
 				});
 
-				mvInput.append(this.inputTextBox, insertButton);
-				this.popoverContent.append(mvInput);
+				const clearButton = document.createElement('button');
+				clearButton.type = 'button';
+				clearButton.classList.add('btn', 'btn-primary');
+				clearButton.textContent = 'Clear';
+				clearButton.addEventListener('click', () => {
+					this.inputTextBox.value = '';
+					this.regenPreview();
+					this.inputTextBox.focus();
+				});
+
+				footer.append(insertButton, clearButton);
+
+				this.popoverContent.append(inputGroup, footer);
 			}
 
 			// Initialize the popover.
@@ -176,6 +205,7 @@
 				content: this.popoverContent,
 				trigger: 'manual',
 				placement: 'right',
+				fallbackPlacements: ['right', 'bottom', 'top'],
 				title: this.popoverTitle,
 				container: container
 			});
@@ -192,8 +222,8 @@
 				this.inputTextBox.addEventListener('keyup', inputRegenPreview)
 
 				if (!this.options.decoratedTextBoxAsInput) {
+					this.inputTextBox.focus();
 					this.popover.tip.addEventListener('focusin', () => {
-						this.inputTextBox.focus();
 						this.setSelection();
 						this.backdrop.classList.add('mv-backdrop-show');
 						if (!this.blinkInterval) this.blinkInterval = setInterval(this.blink, 1000);
