@@ -19,8 +19,6 @@ use Value;
 require Parser::Legacy;
 import Parser::Legacy;
 
-use Data::Dumper;
-
 Context('NondecimalBase');
 
 subtest 'conversion from a non-decimal base to base 10' => sub {
@@ -57,11 +55,11 @@ subtest 'Convert between two non-decimal bases' => sub {
 };
 
 # Now test the Context.
-Context()->flags->set(base => 5);
+Context('NondecimalBase')->setBase(5);
 
 subtest 'Check that the Context parses number correct' => sub {
-	is Context()->{flags}->{base}, 5, 'Check that the base is stored.';
-
+	is Context()->{base},   5,          'Check that the base is stored.';
+	is Context()->{digits}, [ 0 .. 4 ], 'Check that the digits are updated.';
 	ok my $a1 = Compute('10'), "The string '10' is created";
 	is $a1->value, 5, "The base-5 string '10' is 5 in base 10";
 	ok my $a2 = Compute('242'), "The string '242' is created.";
@@ -69,7 +67,7 @@ subtest 'Check that the Context parses number correct' => sub {
 };
 
 subtest 'check that non-valid digits return errors' => sub {
-	like dies { Compute('456'); }, qr/^The number must consist only of digits: 0,1,2,3,4/,
+	like dies { Compute('456'); }, qr/is not defined in this context/,
 		'Try to build a base-5 number will illegal digits';
 };
 
@@ -97,7 +95,7 @@ subtest 'check arithmetic in base-5' => sub {
 };
 
 subtest 'check arithmetic in base-16' => sub {
-	Context()->flags->set(base => 16);
+	Context()->setBase(16);
 	ok my $a1 = Compute('AE'), "Base-16 number 'AE' parsed.";
 	is $a1->value, 174, "Base-16 number 'AE' is 175 in base-10";
 
@@ -119,14 +117,14 @@ subtest 'check arithmetic in base-16' => sub {
 	like dies { Compute("$a1/$a2"); }, qr/^Can't use '\/'/, 'Check that / is not allowed.';
 };
 
-subtest 'check different digits' => sub {
-	Context()->flags->set(base => 12, digits => [ 0 .. 9, 'T', 'E' ]);
+subtest 'Use alternative digits' => sub {
+	Context()->setBase([ 0 .. 9, 'T', 'E' ]);
 	ok my $a1 = Compute('E9'), "Base 12 number 'E9' with E=eleven";
 	is $a1->value, 141, "Base-12 number E9=141";
 
 	ok my $a2 = Compute("3TE"), "Base 12 number '3TE' with T=ten and E = eleven";
 	like dies { Compute('A5'); },
-		qr/The number must consist only of digits: 0,1,2,3,4,5,6,7,8,9,T,E/,
+		qr/Variable 'A5' is not defined in this context/,
 		'Check that A=10 is not allowed';
 };
 
@@ -134,11 +132,15 @@ subtest 'check for other errors' => sub {
 	Context('NondecimalBase');
 	like dies { Compute('1234') }, qr/The base must be set for this context/,
 		'Check that there is a error if the base is not set.';
+
+	like dies { Context()->setBase(1); },   qr/Base must be at least 2/, 'Check that the base is at least 2';
+	like dies { Context()->setBase(8.5); }, qr/Base must be an integer/, 'Check that the base is an integer';
+	like dies { Context()->setBase(40); }, qr/You must provide a digit list for bases bigger than 36/,
+		'Check that there is a digit list for large bases';
 };
 
 subtest 'Check the LimitedNondecimalBase features' => sub {
-	Context('LimitedNondecimalBase');
-	Context()->flags->set(base => 5);
+	Context('LimitedNondecimalBase')->setBase(5);
 
 	like dies { Compute("104+320"); }, qr/Can't use '\+' in this context/, "Check that '+' is not allowed.";
 	like dies { Compute("320-104"); }, qr/Can't use '\-' in this context/, "Check that '-' is not allowed.";
@@ -149,14 +151,12 @@ subtest 'Check the LimitedNondecimalBase features' => sub {
 };
 
 subtest 'Test with different set of digits' => sub {
-	Context('NondecimalBase');
-	Context()->flags->set(base => 12, digits => [ 0 .. 9, 'B', 'D' ]);
-	# setBase(Context(),
+	Context('NondecimalBase')->setBase([ 0 .. 9, 'B', 'D' ]);
 
 	ok my $a1 = Compute("3BD"), "Create '3BD' in base-12 with B=10, D=11";
 	is $a1->value, 563, "'3BD'=563 in base-12 with B=10, D=11";
 
-	Context()->flags->set(base => 12, digits => [ 0 .. 9, 'T', 'E' ]);
+	Context()->setBase([ 0 .. 9, 'T', 'E' ]);
 	ok my $a2 = Compute('E9T'), "Create 'E9T' in base-12 with T=10, E=11";
 	is $a2->value, 1702, "'E9T'= 1702 in base-12 with T=10, E=11";
 
