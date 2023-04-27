@@ -416,7 +416,25 @@ window.graphTool = (containerId, options) => {
 	};
 
 	// Some utility functions.
-	gt.snapRound = (x, snap) => Math.round(Math.round(x / snap) * snap * 100000) / 100000;
+	gt.snapRound = (x, snap, precision = 10 ** 5) => Math.round(Math.round(x / snap) * snap * precision) / precision;
+
+	// Convert a decimal number into a fraction or mixed number with denominator at most 10 ** 8.
+	gt.toLatexFrac = (x, mixed = false, snapSize = gt.snapSizeX) => {
+		const sign = x ? Math.abs(x) / x : 1, int = mixed ? Math.trunc(sign * x) : 0;
+		let a = 0, step = sign * x - int, h0 = 1, h1 = a, k0 = 0, k1 = 1;
+
+		while (Math.abs(step - a) >= JXG.Math.eps) {
+			step = 1 / (step - a);
+			a = Math.trunc(step);
+			const [ newh, newk ] = [ a * h1 + h0, a * k1 + k0 ];
+			if (newk > 10 ** 8) break;
+			[ h0, h1, k0, k1 ] = [ h1, newh, k1, newk ];
+		}
+
+		if (k1 === 1) return mixed ? `${sign * int}` : `${sign * h1}`;
+		else if (int === 0) return `${sign === -1 ? '-' : ''}\\frac{${h1}}{${k1}}`;
+		else return `${sign * int}\\frac{${h1}}{${k1}}`;
+	};
 
 	gt.setTextCoords = options.showCoordinateHints
 		? (
@@ -426,10 +444,35 @@ window.graphTool = (containerId, options) => {
 					const xSnap = gt.snapRound(x, gt.snapSizeX);
 					if (xSnap <= bbox[0]) gt.current_pos_text.setText(() => '\\(-\\infty\\)');
 					else if (xSnap >= bbox[2]) gt.current_pos_text.setText(() => '\\(\\infty\\)');
-					else gt.current_pos_text.setText(() => `\\(${xSnap}\\)`);
+					else {
+						if (options.coordinateHintsTypeX === 'mixed' || options.coordinateHintsTypeX === 'fraction') {
+							const text = gt.toLatexFrac(
+								gt.snapRound(x, gt.snapSizeX, 10 ** 13),
+								options.coordinateHintsTypeX === 'mixed'
+							);
+							gt.current_pos_text.setText(() => `\\(${text}\\)`);
+						} else
+							gt.current_pos_text.setText(() => `\\(${xSnap}\\)`);
+					}
 				}
-				: (x, y) => gt.current_pos_text
-					.setText(() => `\\((${gt.snapRound(x, gt.snapSizeX)}, ${gt.snapRound(y, gt.snapSizeY)})\\)`)
+				: (x, y) => {
+					const xText =
+						options.coordinateHintsTypeX === 'mixed' || options.coordinateHintsTypeX === 'fraction'
+						? gt.toLatexFrac(
+							gt.snapRound(x, gt.snapSizeX, 10 ** 13),
+							options.coordinateHintsTypeX === 'mixed'
+						)
+						: gt.snapRound(x, gt.snapSizeX);
+					const yText =
+						options.coordinateHintsTypeY === 'mixed' || options.coordinateHintsTypeY === 'fraction'
+						? gt.toLatexFrac(
+							gt.snapRound(y, gt.snapSizeY, 10 ** 13),
+							options.coordinateHintsTypeY === 'mixed',
+							gt.snapSizeY
+						)
+						: gt.snapRound(y, gt.snapSizeY);
+					gt.current_pos_text.setText(() => `\\(\\left(${xText}, ${yText}\\right)\\)`);
+				}
 		)
 		: () => {};
 
