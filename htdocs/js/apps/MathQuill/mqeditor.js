@@ -15,9 +15,11 @@
 		const answerLabel = mq_input.id.replace(/^MaThQuIlL_/, '');
 		const input = document.getElementById(answerLabel);
 		const inputType = input?.type;
-		if (typeof(inputType) != 'string'
-			|| inputType.toLowerCase() !== 'text'
-			|| !input.classList.contains('codeshard'))
+		if (typeof(inputType) !== 'string'
+			|| (
+				(inputType.toLowerCase() !== 'text' || !input.classList.contains('codeshard'))
+				&& (inputType.toLowerCase() !== 'textarea' || !input.classList.contains('latexentryfield'))
+			))
 			return;
 
 		const answerQuill = document.createElement('span');
@@ -25,8 +27,6 @@
 		answerQuill.input = input;
 		input.classList.add('mq-edit');
 		answerQuill.latexInput = mq_input;
-
-		input.after(answerQuill);
 
 		// Default options.
 		const cfgOptions = {
@@ -49,15 +49,6 @@
 
 		// This is after the option merge to prevent handlers from being overridden.
 		cfgOptions.handlers = {
-			edit: (mq) => {
-				if (mq.text() !== '') {
-					answerQuill.input.value = mq.text().trim();
-					answerQuill.latexInput.value = mq.latex().replace(/^(?:\\\s)*(.*?)(?:\\\s)*$/, '$1');
-				} else {
-					answerQuill.input.value = '';
-					answerQuill.latexInput.value = '';
-				}
-			},
 			// Disable the toolbar when a text block is entered.
 			textBlockEnter: () => {
 				if (answerQuill.toolbar)
@@ -69,6 +60,182 @@
 					answerQuill.toolbar.querySelectorAll('button').forEach((button) => button.disabled = false);
 			}
 		};
+
+		const latexEntryMode = input.classList.contains('latexentryfield');
+
+		if (latexEntryMode) {
+			// Wrap the input in a container and inner container.
+			const container = document.createElement('div');
+			container.classList.add('mq-latex-editor-container');
+			input.after(container);
+
+			const innerContainer = document.createElement('div');
+			innerContainer.classList.add('mq-latex-editor-inner-container');
+			container.append(innerContainer);
+
+			const textAreaContainer = document.createElement('div');
+			textAreaContainer.classList.add('mq-latex-editor-textarea-container');
+			innerContainer.append(textAreaContainer);
+
+			const backdropContainer = document.createElement('div');
+			backdropContainer.classList.add('mq-latex-editor-backdrop-container');
+			const backdrop = document.createElement('div');
+			backdrop.classList.add('mq-latex-editor-backdrop');
+			backdropContainer.append(backdrop);
+			textAreaContainer.append(backdropContainer, input);
+
+			const beforeSelection = document.createElement('span');
+			const selection = document.createElement('mark');
+			selection.classList.add('mq-latex-editor-selection');
+			const afterSelection = document.createElement('span');
+			const endMark = document.createElement('mark');
+			backdrop.append(beforeSelection, selection, afterSelection, endMark);
+
+			const updateScroll = () => {
+				backdropContainer.scrollTop = input.scrollTop;
+				backdropContainer.scrollLeft = input.scrollLeft;
+			};
+			const setSelection = () => {
+				beforeSelection.textContent = input.value.substring(0, input.selectionStart);
+				selection.textContent = input.value.substring(input.selectionStart, input.selectionEnd);
+				afterSelection.textContent = input.value.substring(input.selectionEnd, input.value.length);
+				updateScroll();
+			};
+			const clearSelection = () => {
+				beforeSelection.textContent = input.value.substring(0, input.selectionStart);
+				selection.textContent = '';
+				afterSelection.textContent = input.value.substring(input.selectionStart, input.value.length);
+			};
+			input.addEventListener('keydown', clearSelection);
+			input.addEventListener('keyup', setSelection);
+			input.addEventListener('pointerdown', clearSelection);
+			input.addEventListener('pointerup', setSelection);
+			input.addEventListener('scroll', updateScroll);
+
+			// Create and add a button to activate the MathQuill editor.
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.classList.add('btn', 'btn-sm', 'btn-secondary', 'mq-latex-editor-btn');
+			button.dataset.bsToggle = 'collapse';
+			button.dataset.bsTarget = `#${answerLabel}-equation-editor`;
+			button.setAttribute('aria-expanded', 'false');
+			button.setAttribute('aria-controls', `${answerLabel}-equation-editor`);
+			button.setAttribute('aria-label', 'Equation Editor');
+
+			const icon = document.createElement('i');
+			icon.classList.add('fa-solid', 'fa-square-root-variable');
+			button.append(icon);
+
+			container.append(button);
+
+			// Create a collapse to hold the editor.
+			const collapse = document.createElement('div');
+			collapse.classList.add('collapse');
+			collapse.id = `${answerLabel}-equation-editor`;
+
+			let blinkInterval;
+			const blink = () => backdrop.classList.toggle('mq-latex-editor-backdrop-blink');
+			collapse.addEventListener('focusin', () => {
+				setSelection();
+				backdrop.classList.add('mq-latex-editor-backdrop-show');
+				blinkInterval = setInterval(blink, 1000);
+			});
+			collapse.addEventListener('focusout', () => {
+				clearInterval(blinkInterval);
+				backdrop.classList.remove('mq-latex-editor-backdrop-show', 'mq-latex-editor-backdrop-blink');
+			});
+
+			const contents = document.createElement('div');
+			contents.classList.add('card');
+
+			const cardHeader = document.createElement('div');
+			cardHeader.classList.add('card-header', 'd-flex', 'justify-content-between', 'align-items-center',
+				'px-2', 'py-1');
+
+			const title = document.createElement('span');
+			title.textContent = 'Equation Editor';
+			cardHeader.classList.add('fw-bold');
+
+			const closeButton = document.createElement('button');
+			closeButton.classList.add('btn-close');
+			closeButton.type = 'button';
+			closeButton.setAttribute('aria-label', 'Close');
+			closeButton.dataset.bsToggle = 'collapse';
+			closeButton.dataset.bsTarget = `#${answerLabel}-equation-editor`;
+
+			cardHeader.append(title, closeButton);
+
+			const cardBody = document.createElement('div');
+			cardBody.classList.add('card-body', 'p-2', 'd-flex', 'align-items-center');
+
+			// Insert text at a the current cursor position in a text input replacing the current selection if any.
+			const insertAtCursor = (input, myValue) => {
+				if (input.selectionStart) {
+					const startPos = input.selectionStart;
+					const endPos = input.selectionEnd;
+					const scrollTop = input.scrollTop;
+					input.value = `${input.value.substring(0, startPos)}${myValue}${input.value.substring(
+						endPos,
+						input.value.length
+					)}`;
+					input.focus();
+					input.selectionStart = startPos + myValue.length;
+					input.selectionEnd = startPos + myValue.length;
+					input.scrollTop = scrollTop;
+				} else {
+					input.value += myValue;
+					input.focus();
+				}
+				setSelection();
+			}
+
+			const insertButton = document.createElement('button');
+			insertButton.type = 'button';
+			insertButton.classList.add('btn', 'btn-primary', 'flex-grow-0', 'ms-2');
+			insertButton.textContent = 'Insert';
+			insertButton.addEventListener('click', () => {
+				const latex = answerQuill.mathField.latex().replace(/^(?:\\\s)*(.*?)(?:\\\s)*$/, '$1');
+				if (latex) insertAtCursor(answerQuill.input, `\\(${latex}\\)`);
+			});
+
+			const clearButton = document.createElement('button');
+			clearButton.type = 'button';
+			clearButton.classList.add('btn', 'btn-primary', 'flex-grow-0', 'ms-2');
+			clearButton.textContent = 'Clear';
+			clearButton.addEventListener('click', () => {
+				answerQuill.mathField.empty();
+				answerQuill.textarea.focus();
+			});
+
+			contents.append(cardHeader, cardBody);
+			collapse.append(contents);
+			innerContainer.append(collapse);
+
+			collapse.addEventListener('shown.bs.collapse', () => {
+				answerQuill.textarea.focus();
+				answerQuill.input.style.borderBottomLeftRadius = 0;
+				answerQuill.input.style.borderBottomRightRadius = 0;
+			});
+			collapse.addEventListener('hidden.bs.collapse', () => {
+				answerQuill.textarea.blur();
+				answerQuill.input.style.borderBottomLeftRadius = '4px';
+				answerQuill.input.style.borderBottomRightRadius = '4px';
+			});
+
+			cardBody.append(answerQuill, insertButton, clearButton);
+		} else {
+			cfgOptions.handlers.edit = (mq) => {
+				if (mq.text() !== '') {
+					answerQuill.input.value = mq.text().trim();
+					answerQuill.latexInput.value = mq.latex().replace(/^(?:\\\s)*(.*?)(?:\\\s)*$/, '$1');
+				} else {
+					answerQuill.input.value = '';
+					answerQuill.latexInput.value = '';
+				}
+			};
+
+			input.after(answerQuill);
+		}
 
 		answerQuill.mathField = MQ.MathField(answerQuill, cfgOptions);
 
@@ -94,11 +261,10 @@
 				const toolbar = answerQuill.toolbar;
 				delete answerQuill.toolbar;
 				toolbar.style.opacity = 0;
-				toolbar.addEventListener('transitionend', () => {
-					window.removeEventListener('resize', toolbar.setPosition);
-					toolbar.tooltips.forEach((tooltip) => tooltip.dispose());
-					toolbar.remove();
-				}, { once: true });
+				window.removeEventListener('resize', toolbar.setPosition);
+				toolbar.tooltips.forEach((tooltip) => tooltip.dispose());
+				toolbar.addEventListener('transitionend', () => toolbar.remove(), { once: true });
+				toolbar.addEventListener('transitioncancel', () => toolbar.remove(), { once: true });
 			}
 		};
 
@@ -207,7 +373,7 @@
 						answerQuill.toolbar.style.bottom = null;
 					}
 				} else {
-					// If in a relatively positioned parent, the toolbar is positioned absolutely on the page.
+					// If not in a relatively positioned parent, the toolbar is positioned absolutely on the page.
 					if (toolbarHeight > pageHeight) {
 						answerQuill.toolbar.style.top = 0;
 						answerQuill.toolbar.style.height = '100%';
@@ -279,6 +445,10 @@
 			toolbarRemove();
 		});
 
+		window.answerQuills[answerLabel] = answerQuill;
+
+		if (latexEntryMode) return;
+
 		// Trigger an answer preview when the enter key is pressed in an answer box.
 		answerQuill.keydownHandler = (e) => {
 			if (e.key == 'Enter') {
@@ -321,8 +491,6 @@
 				});
 			}
 		}
-
-		window.answerQuills[answerLabel] = answerQuill;
 	};
 
 	// Set up MathQuill inputs that are already in the page.
