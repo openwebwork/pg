@@ -73,10 +73,14 @@ sub new {
 		POST_HEADER_ARRAY => [],
 		#		PG_ANSWERS                => [],  # holds answers with labels # deprecated
 		#		PG_UNLABELED_ANSWERS      => [],  # holds unlabeled ans. #deprecated -replaced by PG_ANSWERS_HASH
-		PG_ANSWERS_HASH    => {},    # holds label=>answer pairs
-		PERSISTENCE_HASH   => {},    # holds other data, besides answers, which persists during a session and beyond
-		answer_eval_count  => 0,
-		answer_blank_count => 0,
+		PG_ANSWERS_HASH => {},    # holds label=>answer pairs
+
+		# Holds other data, besides answers, which persists during a session and beyond.
+		PERSISTENCE_HASH         => $envir->{PERSISTENCE_HASH} // {},    # Main data, received from DB
+		PERSISTENCE_HASH_UPDATED => {},    # Keys whose updated values should be saved by the DB
+
+		answer_eval_count            => 0,
+		answer_blank_count           => 0,
 		unlabeled_answer_blank_count => 0,
 		unlabeled_answer_eval_count  => 0,
 		KEPT_EXTRA_ANSWERS           => [],
@@ -538,15 +542,25 @@ sub record_unlabeled_array_name {
 }
 
 sub store_persistent_data {    # will store strings only (so far)
-	my $self    = shift;
-	my $label   = shift;
-	my @content = @_;
+	my ($self, $label, @values) = @_;
 	if (defined($self->{PERSISTENCE_HASH}->{$label})) {
 		warn "can' overwrite $label in persistent data";
 	} else {
-		$self->{PERSISTENCE_HASH}->{$label} = join("", @content);    #need base64 encoding?
+		$self->{PERSISTENCE_HASH_UPDATED}{$label} = 1;
+		$self->{PERSISTENCE_HASH}{$label}         = join("", @values);
 	}
 	$label;
+}
+
+sub update_persistent_data {    # will store strings only (so far)
+	my ($self, $label, @values) = @_;
+	$self->{PERSISTENCE_HASH_UPDATED}{$label} = 1;
+	$self->{PERSISTENCE_HASH}{$label}         = join("", @values);
+}
+
+sub get_persistent_data {
+	my ($self, $label) = @_;
+	return $self->{PERSISTENCE_HASH}{$label};
 }
 
 sub check_answer_hash {

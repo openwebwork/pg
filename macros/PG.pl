@@ -307,7 +307,18 @@ sub ANS_NUM_TO_NAME {
 }
 
 sub store_persistent_data {
-	$PG->store_persistent_data(@_);    #needs testing
+	my ($label, @values) = @_;
+	$PG->store_persistent_data($label, @values);
+}
+
+sub update_persistent_data {
+	my ($label, @values) = @_;
+	$PG->update_persistent_data($label, @values);
+}
+
+sub get_persistent_data {
+	my ($label) = @_;
+	return $PG->get_persistent_data($label);
 }
 
 sub RECORD_FORM_LABEL {    # this stores form data (such as sticky answers), but does nothing more
@@ -600,8 +611,7 @@ sub ENDDOCUMENT {
 			warn "$key is ", join("|", %{ $PG->{PG_ANSWERS_HASH}->{$key} });
 		}
 	}
-	push @KEPT_EXTRA_ANSWERS, keys %{ $PG->{PERSISTENCE_HASH} };
-	#Hackish way to store other persistence data
+
 	$PG->{flags}->{KEPT_EXTRA_ANSWERS} = \@KEPT_EXTRA_ANSWERS;
 	$PG->{flags}->{ANSWER_ENTRY_ORDER} = \@PG_ANSWER_ENTRY_ORDER;
 
