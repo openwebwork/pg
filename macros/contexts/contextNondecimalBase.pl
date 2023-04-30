@@ -10,8 +10,8 @@ This context implements positive integers and some operations on integers in a n
 greater than or equal to 2.  The numbers will be stored internally in decimal, though parsed
 and shown in the chosen base.
 
-In addition, basic integer arithemetic (+,-,*,^) are available for these numbers, however because it
-is assumed that all numbers are integers, division '/' is disallowed.
+In addition, basic integer arithemetic (+,-,*,/^) are available for these numbers.
+Division is defined in an integer sense.
 
 The original purpose for this is simple conversion and operations in another base, however
 it is not limited to this.
@@ -20,25 +20,27 @@ To use a non-decimal base MathObject, first load the contextNondecimalBase.pl fi
 
     loadMacros('contextNondecimalBase.pl');
 
-and then select the appropriate context -- one of the following:
+There are two contexts: C<NondecimalBase> and C<LimiitedNondecimalBase>, where the former
+allows operations between numbers and the latter only allows numbers. To use either
+first, one must set the base.  For example:
 
     Context('NondecimalBase')->setBase(5);
-
 
 will now interprets those in Compute and student answers in base 5.
 
     $a = Compute('104');
     $b = Compute('233');
-    $sum = Compute("$a+$b"); # this is the base-5 number 342 (decimal 97)
+    $sum = $a+$b # this is the base-5 number 342 (decimal 97)
+
+or a shorter way:
+
+    $sum = Compute('104+233');
 
 For many problems, one may wish to not allow operators in the student answers.  Use
 'LimitedNondecimalBase' for this.
 
     Context('LimitedNondecimalBase')->setBase(5);
-
-    $a = Compute('104');
-    $b = Compute('233');
-    $sum = Compute("$a+$b"); # There will be an error on this line now.
+    $sum = Compute("104+233"); # There will be an error on this line now.
 
 In both 'NondecimalBase' and 'LimitedNondecimalBase', another option is to pass the
 digits used for the number to the C<setBase> method.  For example, if one wants to use base-12
@@ -58,7 +60,7 @@ A simple PG problem that asks a student to convert a number into base-5 may incl
 
     # decimal number picked randomly.
     $a = random(130,500);
-    $a_5 = Compute(convertBase($a, to => 5));
+    $a_5 = Real($a); # converts $a to base-5
 
     BEGIN_PGML
     Convert [$a] to base-5:
@@ -122,23 +124,22 @@ Both C<to> and C<from> can be used together.
 
 If one wants to use a different set of digits, say 0..9, 'T', 'E' for base-12 as an example
 
-    convertBase(565, to => 12, digits => [0..9,'T','E']);  # returns '3E1'
+    convertBase(565, to => [0..9,'T','E']);  # returns '3E1'
 
 =cut
 
 sub convert {
 	my ($value, %options) = @_;
-	my $from   = $options{'from'} // 10;
-	my $to     = $options{'to'}   // 10;
-	my $digits = $options{'digits'};
+	my $from = $options{'from'} // 10;
+	my $to   = $options{'to'}   // 10;
 
 	my $context = $main::context{NondecimalBase}->copy;
 	if ($from != 10) {
-		$context->setBase($digits // $from);
+		$context->setBase($from);
 		$value = $context->fromBase($value);
 	}
 	if ($to != 10) {
-		$context->setBase($digits // $to);
+		$context->setBase($to);
 		$value = $context->toBase($value);
 	}
 	return $value;
@@ -147,7 +148,7 @@ sub convert {
 package context::NondecimalBase::Context;
 our @ISA = ('Parser::Context');
 
-# Create a Context based on Numeric (Real) that allows +, -, *, not / or other functions.
+# Create a Context based on Numeric (Real) that allows +, -, *, / and ^ on nondecimal numbers.
 
 sub new {
 	my $self    = shift;
@@ -157,8 +158,8 @@ sub new {
 	$context->{parser}{Number} = 'context::NondecimalBase::Number';
 	$context->{value}{Real}    = 'context::NondecimalBase::Real';
 	$context->functions->disable('All');
-	$context->operators->undefine('/');
 	$context->constants->clear();
+	$self->{pattern}{number}               = '[' . join('', 0 .. 9, 'A' .. 'Z') . ']+';
 	$context->{precedence}{NondecimalBase} = $context->{precedence}{special};
 	$context->flags->set(limits => [ -1000, 1000, 1 ]);
 	return $context;
@@ -180,10 +181,9 @@ sub setBase {
 		$digits = [ ('0' .. '9', 'A' .. 'Z')[ 0 .. $base - 1 ] ];
 	}
 
-	$self->{base}            = $base;
-	$self->{digits}          = $digits;
-	$self->{digitMap}        = { map { ($digits->[$_], $_) } (0 .. $base - 1) };
-	$self->{pattern}{number} = '[' . join('', @$digits) . ']+';
+	$self->{base}     = $base;
+	$self->{digits}   = $digits;
+	$self->{digitMap} = { map { ($digits->[$_], $_) } (0 .. $base - 1) };
 	$self->update;
 }
 
@@ -221,14 +221,14 @@ sub fromBase {
 
 	my $base10 = 0;
 	for my $d (split('', $baseB)) {
-		die 'The number to convert must consist only of digits: ' . join(',', @$digits) unless defined($digit->{$d});
+		die 'The number should only consist of the digits: ' . join(',', @$digits) unless defined($digit->{$d});
 		$base10 = $base10 * $b + $digit->{$d};
 	}
 
 	return $base10;
 }
 
-# A replacement for Parser::Number that acepts numbers in a non-decimal base and
+# A replacement for Parser::Number that accepts numbers in a non-decimal base and
 # converts them to decimal for internal use
 package context::NondecimalBase::Number;
 our @ISA = ('Parser::Number');
@@ -246,7 +246,6 @@ sub new {
 
 sub eval {
 	$self = shift;
-	my $base = $self->{equation}{context}{base};
 	return $self->Package('Real')->make($self->context, $self->{value});
 }
 
@@ -263,6 +262,13 @@ sub string {
 sub TeX {
 	my $self = shift;
 	return '\text{' . $self->string . '}';
+}
+
+# Define division as integer division.
+sub div {
+	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
+	Value::Error("Division by zero") if $r->{data}[0] == 0;
+	return $self->inherit($other)->make(int($l->{data}[0] / $r->{data}[0]));
 }
 
 1;

@@ -22,13 +22,12 @@ import Parser::Legacy;
 Context('NondecimalBase');
 
 subtest 'conversion from a non-decimal base to base 10' => sub {
-	is convertBase('101010', from => 2),  42,   'convert from base 2';
-	is convertBase('44011',  from => 5),  3006, 'convert from base 5';
-	is convertBase('5073',   from => 8),  2619, 'convert from base 8';
-	is convertBase('98A',    from => 12), 1402, 'convert from base 12';
-	is convertBase('98T',    from => 12, digits => [ '0' .. '9', 'T', 'E' ]), 1402,
-		'convert from base 12 with non-standard digits';
-	is convertBase('9FE8', from => 16), 40936, 'convert from base 16';
+	is convertBase('101010', from => 2),                        42,    'convert from base 2';
+	is convertBase('44011',  from => 5),                        3006,  'convert from base 5';
+	is convertBase('5073',   from => 8),                        2619,  'convert from base 8';
+	is convertBase('98A',    from => 12),                       1402,  'convert from base 12';
+	is convertBase('98T',    from => [ '0' .. '9', 'T', 'E' ]), 1402,  'convert from base 12 with non-standard digits';
+	is convertBase('9FE8',   from => 16),                       40936, 'convert from base 16';
 };
 
 subtest 'Convert from decimal to non-decimal bases' => sub {
@@ -41,10 +40,9 @@ subtest 'Convert from decimal to non-decimal bases' => sub {
 	is convertBase(519,  to => 8), '1007', 'convert to base 8';
 	is convertBase(2023, to => 8), '3747', 'convert to base 8';
 
-	is convertBase(853,  to => 12), '5B1',  'convert to base 12';
-	is convertBase(2023, to => 12), '1207', 'convert to base 12';
-	is convertBase(1678, to => 12, digits => [ '0' .. '9', 'T', 'E' ]), 'E7T',
-		'convert to base 12 using non-standard digits';
+	is convertBase(853,  to => 12),                       '5B1',  'convert to base 12';
+	is convertBase(2023, to => 12),                       '1207', 'convert to base 12';
+	is convertBase(1678, to => [ '0' .. '9', 'T', 'E' ]), 'E7T',  'convert to base 12 using non-standard digits';
 
 	is convertBase(5752,  to => 16), '1678', 'convert to base 16';
 	is convertBase(41446, to => 16), 'A1E6', 'convert to base 16';
@@ -52,6 +50,8 @@ subtest 'Convert from decimal to non-decimal bases' => sub {
 
 subtest 'Convert between two non-decimal bases' => sub {
 	is convertBase('1234', from => 5, to => 16), 'C2', 'convert from base 5 to 16';
+	is convertBase('1111101', from => 2, to => [ 0 .. 9, 'T', 'E' ]), 'T5',
+		'convert from base 2 to base 12 with non-standard digits';
 };
 
 # Now test the Context.
@@ -67,7 +67,7 @@ subtest 'Check that the Context parses number correct' => sub {
 };
 
 subtest 'check that non-valid digits return errors' => sub {
-	like dies { Compute('456'); }, qr/is not defined in this context/,
+	like dies { Compute('456'); }, qr/The number should only consist of the digits:/,
 		'Try to build a base-5 number will illegal digits';
 };
 
@@ -90,8 +90,11 @@ subtest 'check arithmetic in base-5' => sub {
 	my $a6 = Compute("$a1^2");
 	is $a6->string, '31323441', '4021^2 = 31323441 in base-5';
 
-	like dies { Compute("$a1/$a2"); }, qr/^Can't use '\/'/, 'Check that / is not allowed.';
+	my $a7 = Compute('23');
+	my $a8 = $a1 / $a7;
+	is $a8->string, '124', '4021/23 = 124 in base-5';
 
+	is Compute('4021/23')->string, '124', "Compute('4021/23) = 124 in base-5";
 };
 
 subtest 'check arithmetic in base-16' => sub {
@@ -114,7 +117,13 @@ subtest 'check arithmetic in base-16' => sub {
 	my $a6 = Compute("$a2^2");
 	is $a6->string, 'B640', 'D8^2=B640 in base-16';
 
-	like dies { Compute("$a1/$a2"); }, qr/^Can't use '\/'/, 'Check that / is not allowed.';
+	my $a7 = Compute("A2E");
+	my $a8 = Compute("B6");
+	my $a9 = $a7 / $a8;
+	is $a9->string, 'E', 'A2E/B6=E in base-16 (using perl expression)';
+
+	my $a10 = Compute("A2E/B6");
+	is $a10->string, 'E', 'A2E/B6=E in base-16 (using Compute)';
 };
 
 subtest 'Use alternative digits' => sub {
@@ -124,7 +133,7 @@ subtest 'Use alternative digits' => sub {
 
 	ok my $a2 = Compute("3TE"), "Base 12 number '3TE' with T=ten and E = eleven";
 	like dies { Compute('A5'); },
-		qr/Variable 'A5' is not defined in this context/,
+		qr/The number should only consist of the digits:/,
 		'Check that A=10 is not allowed';
 };
 
@@ -146,6 +155,7 @@ subtest 'Check the LimitedNondecimalBase features' => sub {
 	like dies { Compute("320-104"); }, qr/Can't use '\-' in this context/, "Check that '-' is not allowed.";
 	like dies { Compute("14*23"); },   qr/Can't use '\*' in this context/, "Check that '*' is not allowed.";
 	like dies { Compute("14 23"); },   qr/Can't use '\*' in this context/, "Check that '*' is not allowed.";
+	like dies { Compute("4221/13"); }, qr/Can't use '\/' in this context/, "Check that '*' is not allowed.";
 	like dies { Compute("23^2"); },    qr/Can't use '\^' in this context/, "Check that '^' is not allowed.";
 
 };
