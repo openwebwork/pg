@@ -13,6 +13,8 @@
 # Artistic License for more details.
 ################################################################################
 
+=encoding utf8
+
 =head1 NAME
 
 contextLinearRelation.pl - Implement linear relations.
@@ -186,18 +188,12 @@ sub Init {
 #    $R = LinearRelation([1,2,1], 5, "<=");
 
 sub new {
-	my ($self, $N, $p, $bop) = @_;
+	my $self    = shift;
 	my $class   = ref($self) || $self;
 	my $context = (Value::isContext($_[0]) ? shift : $self->context);
+	my ($N, $p, $bop) = @_;
 	my $formula = "Value::Formula";
 	return shift if scalar(@_) == 1 && ref($_[0]) eq 'LinearRelation';
-	#$_[0] = $context->Package("Vector")->new($context, $_[0]) if ref($_[0]) eq 'ARRAY';
-	#$_[1] = $context->Package("Point")->new($context, $_[1])  if ref($_[1]) eq 'ARRAY';
-
-	# 2 or more:
-	# first argument is normal vector, possibly a Vector, Point, or ARRAY ref
-	# second argument is point or number, possibly a Vector, Point, ARRAY ref, Real, or perl real
-	# optional third argument is symbol, defaults to '='
 
 	my ($plane, $d);
 
@@ -248,8 +244,8 @@ sub new {
 #
 sub compare {
 	my ($self, $l, $r) = Value::checkOpOrder(@_);
-	$l = new LinearRelation($l) unless ref($l) eq ref($self);
-	$r = new LinearRelation($r) unless ref($r) eq ref($self);
+	$l = LinearRelation->new($l) unless ref($l) eq ref($self);
+	$r = LinearRelation->new($r) unless ref($r) eq ref($self);
 	my ($lN, $ld, $ltype, $lrev) = ($l->{N}, $l->{d}, $l->{tree}{def}{kind}, $l->{tree}{def}{reverse});
 	my ($rN, $rd, $rtype, $rrev) = ($r->{N}, $r->{d}, $r->{tree}{def}{kind}, $r->{tree}{def}{reverse});
 
