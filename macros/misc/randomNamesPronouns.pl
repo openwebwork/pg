@@ -423,6 +423,7 @@ which can be used to write a problem with a random name with pronouns and verb c
 =cut
 
 package Person;
+our @ISA = ("Value::String");
 
 sub new {
 	my ($class, %opts) = @_;
@@ -438,6 +439,14 @@ sub new {
 	};
 	bless $self, $class;
 	return $self;
+}
+
+sub string {
+	return shift->{name};
+}
+
+sub TeX {
+	return '\text{' . shift->{name} . '}';
 }
 
 =head2 name
