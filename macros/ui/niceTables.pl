@@ -1410,7 +1410,7 @@ sub tag {
 	for my $x (main::lex_sort(keys %$attributes)) {
 		$return .= qq( $x="$attributes->{$x}") if ($attributes->{$x} ne '');
 	}
-	if ($inner) {
+	if ($inner ne '') {
 		$return .= ">$separator";
 		$return .= $inner;
 		$return .= "$separator</$name>";
