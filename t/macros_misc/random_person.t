@@ -5,7 +5,7 @@ use Test2::V0 '!E', { E => 'EXISTS' };
 die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
 do "$ENV{PG_ROOT}/t/build_PG_envir.pl";
 
-loadMacros('randomNamesPronouns.pl');
+loadMacros('randomPerson.pl');
 
 my $p1 = Person->new(name => 'Fred',      pronoun => 'he');
 my $p2 = Person->new(name => 'Gabriella', pronoun => 'she');
