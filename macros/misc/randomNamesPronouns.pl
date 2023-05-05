@@ -379,10 +379,11 @@ sub randomPerson {
 			}
 		}
 	} else {
+		# select the names from the global @namespronouns array above.
 		@persons = @namespronouns;
 	}
 
-	my @names = map { Person->new(name => $_->[0], pronoun => $_->[1]) } random_subset($options{n}, @persons);
+	my @names = map { Person->new(name => $_->[0], pronoun => $_->[1]) } random_subset($options{n}, \@persons);
 	return wantarray ? @names : $names[0];
 }
 
@@ -425,12 +426,21 @@ which can be used to write a problem with a random name with pronouns and verb c
 package Person;
 our @ISA = ("Value::String");
 
+my $PRONOUNS = {
+	subjects   => [ 'he',  'she',  'they' ],
+	possessive => [ 'his', 'her',  'their' ],
+	possession => [ 'his', 'hers', 'theirs' ],
+	object     => [ 'him', 'her',  'them' ]
+};
+
+use Data::Dumper;
+
 sub new {
 	my ($class, %opts) = @_;
 	die "The field 'pronoun' must be passed in." unless defined($opts{pronoun});
 
-	my @v = grep { $opts{pronoun} eq $_ } qw/he she they/;
-	die "The pronoun must be either 'he', 'she' or 'they'. You passed in $opts{pronoun}"
+	my @v = grep { $opts{pronoun} eq $_ } @{ $PRONOUNS->{subjects} };
+	die 'The acceptable pronouns are:' . join(', ', @{ $PRONOUNS->{subjects} }) . ". You passed in $opts{pronoun}"
 		if scalar(@v) != 1;
 	die 'The field "name" must be passed in' unless defined($opts{name});
 	my $self = {
@@ -504,7 +514,8 @@ returns (his, her, their) for the pronouns (he/she/they)
 
 sub possessive {
 	my $p = shift->{pronoun};
-	return $p eq 'he' ? 'his' : ($p eq 'she' ? 'her' : 'their');
+	my ($n) = grep { $PRONOUNS->{subjects}[$_] eq $p } 0 .. scalar(@{ $PRONOUNS->{subjects} }) - 1;
+	return $PRONOUNS->{possessive}[$n];
 }
 
 =head2 Possessive
@@ -533,7 +544,8 @@ returns (his, hers, theirs) for the pronouns (he/she/they)
 
 sub possession {
 	my $p = shift->{pronoun};
-	return $p eq 'he' ? 'his' : ($p eq 'she' ? 'hers' : 'theirs');
+	my ($n) = grep { $PRONOUNS->{subjects}[$_] eq $p } 0 .. scalar(@{ $PRONOUNS->{subjects} }) - 1;
+	return $PRONOUNS->{possession}[$n];
 }
 
 =head2 Possession
@@ -562,7 +574,8 @@ returns (him, her, them) for the pronouns (he/she/they)
 
 sub object {
 	my $p = shift->{pronoun};
-	return $p eq 'he' ? 'him' : ($p eq 'she' ? 'her' : 'them');
+	my ($n) = grep { $PRONOUNS->{subjects}[$_] eq $p } 0 .. scalar(@{ $PRONOUNS->{subjects} }) - 1;
+	return $PRONOUNS->{object}[$n];
 }
 
 =head2 Object
@@ -608,15 +621,12 @@ returns 'flies'
 
 returns 'fly'
 
-Captilization can be found either using the C<Verb> method instead or capitalizing the
-verb. For example:
+Captilization can be done by capitalizing the verb. For example:
 
     $p2 = new Person(name => 'Max', pronoun => 'they');
-    $p2->Verb('say');
+    $p2->Verb('Say');
 
-returns 'Say', as well as
-
-    $p2->verb('Say');
+returns 'Say'.
 
 =cut
 
@@ -635,11 +645,6 @@ sub verb {
 	} else {
 		return ($self->{pronoun} eq 'they' ? $plur : $plur . 's');
 	}
-}
-
-sub Verb {
-	my ($self, $plur, $sing) = @_;
-	return ucfirst($self->verb($plur, $sing));
 }
 
 =head3 C<do> or C<Do>
