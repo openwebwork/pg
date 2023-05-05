@@ -25,39 +25,30 @@ subtest 'Tests for he pronouns' => sub {
 
 subtest 'Tests for verbs for he pronouns' => sub {
 	is $p1->verb('find'), 'finds', 'Tests the conjugation of the verb to find for Fred.';
-	is $p1->Verb('find'), 'Finds', 'Tests the conjugation and capitalization of the verb to find for Fred.';
 	is $p1->verb('Find'), 'Finds', 'Tests the conjugation and capitalization of the verb to find for Fred.';
 
 	is $p1->verb('kiss'), 'kisses', 'Tests the conjugation of the verb to kiss for Fred';
-	is $p1->Verb('kiss'), 'Kisses', 'Tests the conjugation and capitalization of the verb to kiss for Fred';
 	is $p1->verb('Kiss'), 'Kisses', 'Tests the conjugation and capitalization of the verb to kiss for Fred';
 
 	is $p1->verb('touch'), 'touches', 'Tests the conjugation of the verb to touch for Fred';
-	is $p1->Verb('touch'), 'Touches', 'Tests the conjugation and capitalization of the verb to touch for Fred';
 	is $p1->verb('Touch'), 'Touches', 'Tests the conjugation and capitalization of the verb to touch for Fred';
 
 	is $p1->verb('fly'), 'flies', 'Tests the conjugation of the verb to fly for Fred.';
-	is $p1->Verb('fly'), 'Flies', 'Tests the conjugation and capitalization of the verb to fly for Fred.';
 	is $p1->verb('Fly'), 'Flies', 'Tests the conjugation and capitalization of the verb to fly for Fred.';
 
 	is $p1->verb('say'), 'says', 'Tests the conjugation of the verb to say for Fred.';
-	is $p1->Verb('say'), 'Says', 'Tests the conjugation and capitalization of the verb to say for Fred.';
 	is $p1->verb('Say'), 'Says', 'Tests the conjugation and capitalization of the verb to say for Fred.';
 
 	is $p1->verb('buy'), 'buys', 'Tests the conjugation of the verb to buy for Fred.';
-	is $p1->Verb('buy'), 'Buys', 'Tests the conjugation and capitalization of the verb to buy for Fred.';
 	is $p1->verb('Buy'), 'Buys', 'Tests the conjugation and capitalization of the verb to buy for Fred.';
 
 	is $p1->verb('deploy'), 'deploys', 'Tests the conjugation of the verb to deploy for Fred.';
-	is $p1->Verb('deploy'), 'Deploys', 'Tests the conjugation and capitalization of the verb to deploy for Fred.';
 	is $p1->verb('Deploy'), 'Deploys', 'Tests the conjugation and capitalization of the verb to deploy for Fred.';
 
 	is $p1->verb('volley'), 'volleys', 'Tests the conjugation of the verb to volley for Fred.';
-	is $p1->Verb('volley'), 'Volleys', 'Tests the conjugation and capitalization of the verb to volley for Fred.';
 	is $p1->verb('Volley'), 'Volleys', 'Tests the conjugation and capitalization of the verb to volley for Fred.';
 
 	is $p1->verb('vex', 'vexes'), 'vexes', 'Tests the conjugation of the verb to vex for Fred.';
-	is $p1->Verb('vex', 'vexes'), 'Vexes', 'Tests the conjugation and capitalization of the verb to vex for Fred.';
 	is $p1->verb('Vex', 'Vexes'), 'Vexes', 'Tests the conjugation and capitalization of the verb to vex for Fred.';
 
 	is $p1->do,         'does', 'Tests the conjugation of the verb to do for Fred';
@@ -109,44 +100,32 @@ subtest 'Tests for she pronouns' => sub {
 
 subtest 'Tests for verbs for she pronouns' => sub {
 	is $p2->verb('find'), 'finds', 'Tests the conjugation of the verb to find for Gabriella.';
-	is $p2->Verb('find'), 'Finds', 'Tests the conjugation and capitalization of the verb to find for Gabriella.';
 	is $p2->verb('Find'), 'Finds', 'Tests the conjugation and capitalization of the verb to find for Gabriella.';
 
 	is $p2->verb('kiss'), 'kisses', 'Tests the conjugation of the verb to kiss for Gabriella';
-	is $p2->Verb('kiss'), 'Kisses', 'Tests the conjugation and capitalization of the verb to kiss for Gabriella';
 	is $p2->verb('Kiss'), 'Kisses', 'Tests the conjugation and capitalization of the verb to kiss for Gabriella';
 
 	is $p2->verb('touch'), 'touches', 'Tests the conjugation of the verb to touch for Gabriella';
-	is $p2->Verb('touch'), 'Touches', 'Tests the conjugation and capitalization of the verb to touch for Gabriella';
 	is $p2->verb('Touch'), 'Touches', 'Tests the conjugation and capitalization of the verb to touch for Gabriella';
 
 	is $p2->verb('fly'), 'flies', 'Tests the conjugation of the verb to fly for Gabriella.';
-	is $p2->Verb('fly'), 'Flies', 'Tests the conjugation and capitalization of the verb to fly for Gabriella.';
 	is $p2->verb('Fly'), 'Flies', 'Tests the conjugation and capitalization of the verb to fly for Gabriella.';
 
 	is $p2->verb('say'), 'says', 'Tests the conjugation of the verb to say for Gabriella.';
-	is $p2->Verb('say'), 'Says', 'Tests the conjugation and capitalization of the verb to say for Gabriella.';
 	is $p2->verb('Say'), 'Says', 'Tests the conjugation and capitalization of the verb to say for Gabriella.';
 
 	is $p2->verb('buy'), 'buys', 'Tests the conjugation of the verb to buy for Gabriella.';
-	is $p2->Verb('buy'), 'Buys', 'Tests the conjugation and capitalization of the verb to buy for Gabriella.';
 	is $p2->verb('Buy'), 'Buys', 'Tests the conjugation and capitalization of the verb to buy for Gabriella.';
 
 	is $p2->verb('deploy'), 'deploys', 'Tests the conjugation of the verb to deploy for Gabriella.';
-	is $p2->Verb('deploy'), 'Deploys',
-		'Tests the conjugation and capitalization of the verb to deploy for Gabriella.';
 	is $p2->verb('Deploy'), 'Deploys',
 		'Tests the conjugation and capitalization of the verb to deploy for Gabriella.';
 
 	is $p2->verb('volley'), 'volleys', 'Tests the conjugation of the verb to volley for Gabriella.';
-	is $p2->Verb('volley'), 'Volleys',
-		'Tests the conjugation and capitalization of the verb to volley for Gabriella.';
 	is $p2->verb('Volley'), 'Volleys',
 		'Tests the conjugation and capitalization of the verb to volley for Gabriella.';
 
 	is $p2->verb('vex', 'vexes'), 'vexes', 'Tests the conjugation of the verb to vex for Gabriella.';
-	is $p2->Verb('vex', 'vexes'), 'Vexes',
-		'Tests the conjugation and capitalization of the verb to vex for Gabriella.';
 	is $p2->verb('Vex', 'Vexes'), 'Vexes',
 		'Tests the conjugation and capitalization of the verb to vex for Gabriella.';
 
@@ -200,39 +179,30 @@ subtest 'Tests for they pronouns' => sub {
 
 subtest 'Tests for verbs for she pronouns' => sub {
 	is $p3->verb('find'), 'find', 'Tests the conjugation of the verb to find for Kai.';
-	is $p3->Verb('find'), 'Find', 'Tests the conjugation and capitalization of the verb to find for Kai.';
 	is $p3->verb('Find'), 'Find', 'Tests the conjugation and capitalization of the verb to find for Kai.';
 
 	is $p3->verb('kiss'), 'kiss', 'Tests the conjugation of the verb to kiss for Kai';
-	is $p3->Verb('kiss'), 'Kiss', 'Tests the conjugation and capitalization of the verb to kiss for Kai';
 	is $p3->verb('Kiss'), 'Kiss', 'Tests the conjugation and capitalization of the verb to kiss for Kai';
 
 	is $p3->verb('touch'), 'touch', 'Tests the conjugation of the verb to touch for Kai';
-	is $p3->Verb('touch'), 'Touch', 'Tests the conjugation and capitalization of the verb to touch for Kai';
 	is $p3->verb('Touch'), 'Touch', 'Tests the conjugation and capitalization of the verb to touch for Kai';
 
 	is $p3->verb('fly'), 'fly', 'Tests the conjugation of the verb to fly for Kai.';
-	is $p3->Verb('fly'), 'Fly', 'Tests the conjugation and capitalization of the verb to fly for Kai.';
 	is $p3->verb('Fly'), 'Fly', 'Tests the conjugation and capitalization of the verb to fly for Kai.';
 
 	is $p3->verb('say'), 'say', 'Tests the conjugation of the verb to say for Kai.';
-	is $p3->Verb('say'), 'Say', 'Tests the conjugation and capitalization of the verb to say for Kai.';
 	is $p3->verb('Say'), 'Say', 'Tests the conjugation and capitalization of the verb to say for Kai.';
 
 	is $p3->verb('buy'), 'buy', 'Tests the conjugation of the verb to buy for Kai.';
-	is $p3->Verb('buy'), 'Buy', 'Tests the conjugation and capitalization of the verb to buy for Kai.';
 	is $p3->verb('Buy'), 'Buy', 'Tests the conjugation and capitalization of the verb to buy for Kai.';
 
 	is $p3->verb('deploy'), 'deploy', 'Tests the conjugation of the verb to deploy for Kai.';
-	is $p3->Verb('deploy'), 'Deploy', 'Tests the conjugation and capitalization of the verb to deploy for Kai.';
 	is $p3->verb('Deploy'), 'Deploy', 'Tests the conjugation and capitalization of the verb to deploy for Kai.';
 
 	is $p3->verb('volley'), 'volley', 'Tests the conjugation of the verb to volley for Kai.';
-	is $p3->Verb('volley'), 'Volley', 'Tests the conjugation and capitalization of the verb to volley for Kai.';
 	is $p3->verb('Volley'), 'Volley', 'Tests the conjugation and capitalization of the verb to volley for Kai.';
 
 	is $p3->verb('vex', 'vexes'), 'vex', 'Tests the conjugation of the verb to vex for Kai.';
-	is $p3->Verb('vex', 'vexes'), 'Vex', 'Tests the conjugation and capitalization of the verb to vex for Kai.';
 	is $p3->verb('Vex', 'Vexes'), 'Vex', 'Tests the conjugation and capitalization of the verb to vex for Kai.';
 
 	is $p3->do,         'do', 'Tests the conjugation of the verb to do for Kai';
@@ -276,7 +246,7 @@ subtest 'Other person tests' => sub {
 
 	like
 		dies { Person->new(name => 'Head', pronoun => 'xxx') },
-		qr/The pronoun must be/,
+		qr/The acceptable pronouns are:/,
 		"An invalid pronoun is passed in.";
 
 	my $last_name = randomLastName();
@@ -311,6 +281,11 @@ subtest 'Test options for randomPerson' => sub {
 	is scalar(@p2),            2,                      'randomPerson return correct number of Persons';
 	is [ map { ref $_ } @p2 ], [ 'Person', 'Person' ], 'testing randomPerson returns 2 Person object.';
 
+	# this was giving an error.
+	my @p3 = randomPerson(n => 1, names => [ [ 'Bart', 'he' ] ]);
+	is ref $p3[0],      'Person', 'Check that a Person object is created.';
+	is $p3[0]->name,    'Bart',   'Check that the name is correct.';
+	is $p3[0]->subject, 'he',     'Check that the subject pronoun is correct.';
 };
 
 subtest 'Test alternative API for randomPerson' => sub {
@@ -335,7 +310,7 @@ subtest 'Test alternative API for randomPerson' => sub {
 	is [ map { ref $_ } @p2 ], [ 'Person', 'Person' ], 'testing randomPerson returns 2 Person object.';
 
 	like dies { randomPerson(names => [ { xxx => 'hi', pronoun => 'he' } ]); },
-		qr/^The field 'pronoun' must be passed in./,
+		qr/^The field "name" must be passed in./,
 		'Make sure an error is thrown if the name is not passed in.';
 };
 
