@@ -891,8 +891,14 @@ sub Row {
 				$columntype =~ s/^p/b/ if ($valign eq 'bottom');
 				$columntype =~ s/^p/m/ if ($tableOpts->{valign} eq 'middle');
 				$columntype =~ s/^p/b/ if ($tableOpts->{valign} eq 'bottom');
-				$columntype .= '|'
-					if ($i == 0 && $cellOpts->{colspan} == 1 && $tableOpts->{rowheaders} && $tableOpts->{headerrules});
+				$columntype = latexColumnWidth($alignment->[0]{left}) . $columntype
+					if ($i == 0 && $alignment->[0]{left});
+
+				if ($i == 0 && $cellOpts->{colspan} == 1 && $tableOpts->{rowheaders} && $tableOpts->{headerrules}) {
+					$columntype .= '|';
+				} elsif (!$cellOpts->{halign}) {
+					$columntype .= latexColumnWidth($cellAlign->{right});
+				}
 				$cell = latexCommand('multicolumn', [ $cellOpts->{colspan}, $columntype, $cell ]);
 			}
 			$cell = suffix($cell, '&', ' ') unless ($i == $#$rowArray);
@@ -1430,6 +1436,16 @@ sub getLaTeXthickness {
 		$output = "$input";
 	}
 	return $output;
+}
+
+sub latexColumnWidth {
+	my $input = shift;
+	return '' unless $input;
+	if ($input =~ /^\d+$/) {
+		return '|' x $input;
+	} else {
+		return "!{\\vrule width $input}";
+	}
 }
 
 sub getRuleCSS {
