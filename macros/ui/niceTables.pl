@@ -878,8 +878,8 @@ sub Row {
 			if ($cellOpts->{colspan} > 1
 				|| $cellOpts->{halign}
 				|| $valign
-				|| ($tableOpts->{valign}     && $tableOpts->{valign} ne 'top')
-				|| ($tableOpts->{rowheaders} && $tableOpts->{headerrules}))
+				|| ($tableOpts->{valign} && $tableOpts->{valign} ne 'top')
+				|| ($tableOpts->{rowheaders} && $tableOpts->{headerrules} && $i == 0))
 			{
 				my $columntype = $cellOpts->{halign};
 				$columntype = $cellAlign->{halign} // 'l' unless $columntype;
