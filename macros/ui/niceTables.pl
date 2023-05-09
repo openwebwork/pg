@@ -1443,11 +1443,7 @@ sub getLaTeXthickness {
 sub getLaTeXcolumnWidth {
 	my $input = shift;
 	return '' unless $input;
-	if ($input =~ /^\d+$/) {
-		return '|' x $input;
-	} else {
-		return "!{\\vrule width $input}";
-	}
+	return ($input =~ /^\d+$/) ? '|' x $input : "!{\\vrule width $input}";
 }
 
 sub getRuleCSS {
