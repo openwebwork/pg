@@ -46,13 +46,16 @@ pronouns and verb conjugation.  It can be used within a problem as
     The books on the table are [$p->theirs].
     END_PGML
 
-Note that C<go> is one of a few special verbs with irregular conjugation.
+Depending on the he/she/they pronoun, the methods C<they>, C<them>, C<their> and
+C<theirs> (with or without capitalization) will select the correct subject, object,
+possession, possesive forms of the pronoun.  Also, note that C<go> is one of a
+few special verbs with irregular conjugation.
 
 If you would like multiple people to be randomly choosen with unique names, use
 
     @persons = randomPerson(n => 4);
 
-generates an array of 4 C<Person> objects.
+generates an array of 4 unique C<Person> objects.
 
 Additionally, you can specify your own list of names and pronouns to draw from.
 For example
