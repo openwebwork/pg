@@ -34,16 +34,16 @@ First load the C<randomPerson> macro with
 
 and then call the randomPerson subroutine
 
-    $p1 = randomPerson();
+    $p = randomPerson();
 
-The variable C<$p1> is now a C<Person> object with methods to access the names,
+The variable C<$p> is now a C<Person> object with methods to access the names,
 pronouns and verb conjugation.  It can be used within a problem as
 
     BEGIN_PGML
-    [$p1->name] travels 1.5 miles to school.
-    After school, [$p1->subject] [$p1->go] to work.
-    [$p1->Possessive] dog greets [$p1->object] when [$p1->subject] [$p1->verb('get')] home.
-    The books on the table are [$p1->possession].
+    [$p] travels 1.5 miles to school.
+    After school, [$p->they] [$p->go] to work.
+    [$p->Their] dog greets [$p->them] when [$p->they] [$p->verb('get')] home.
+    The books on the table are [$p->theirs].
     END_PGML
 
 Note that C<go> is one of a few special verbs with irregular conjugation.
@@ -475,11 +475,12 @@ sub name {
 
 =head2 subject
 
-This returns the subject pronoun as a lower case.
+These return the subject pronoun in lowercase. The second option is syntactic sugar.
 
-    $p->subject;
+    $p->subject
+    $p->they
 
-returns the pronoun. In this case 'he'.
+returns one of (he, she, they)
 
 =cut
 
@@ -487,13 +488,18 @@ sub subject {
 	return shift->{pronoun};
 }
 
+sub they {
+	return shift->subject();
+}
+
 =head2 Subject
 
-This returns the subject pronoun as an upper case.
+These return the subject pronoun, capitalized. The second option is syntactic sugar.
 
-    $p->Subject;
+    $p->Subject
+    $p->They
 
-returns the upper case pronoun. In this case 'He'.
+returns one of (He, She, They)
 
 =cut
 
@@ -501,13 +507,18 @@ sub Subject {
 	return ucfirst(shift->{pronoun});
 }
 
+sub They {
+	return shift->Subject();
+}
+
 =head2 possessive
 
-This returns the possessive adjective
+These return the possessive adjective in lowercase. The second option is syntactic sugar.
 
-    $p->possessive;
+    $p->possessive
+    $p->their
 
-returns (his, her, their) for the pronouns (he/she/they)
+returns one of (his, her, their)
 
 =cut
 
@@ -517,13 +528,18 @@ sub possessive {
 	return $PRONOUNS->{possessive}[$n];
 }
 
+sub their {
+	return shift->possessive();
+}
+
 =head2 Possessive
 
-This returns the captilized possessive adjective
+These return the possessive adjective, capitalized. The second option is syntactic sugar.
 
-    $p->Possessive;
+    $p->Possessive
+    $p->Their
 
-returns (His, Her, Their) for the pronouns (he/she/they)
+returns one of (His, Her, Their)
 
 =cut
 
@@ -531,13 +547,18 @@ sub Possessive {
 	return ucfirst(shift->possessive);
 }
 
+sub Their {
+	return shift->Possessive();
+}
+
 =head2 possession
 
-This returns the possessive pronoun
+These return the possessive pronoun in lowercase. The second option is syntactic sugar.
 
-    $p->possession;
+    $p->possession
+    $p->theirs
 
-returns (his, hers, theirs) for the pronouns (he/she/they)
+returns one of (his, hers, theirs)
 
 =cut
 
@@ -547,13 +568,18 @@ sub possession {
 	return $PRONOUNS->{possession}[$n];
 }
 
+sub theirs {
+	return shift->possession();
+}
+
 =head2 Possession
 
-This returns the capitalized versions of possessive pronoun
+These return the possessive pronoun, capitalized. The second option is syntactic sugar.
 
-    $p->Possession;
+    $p->Possession
+    %p->Theirs
 
-returns (His, Hers, Theirs) for the pronouns (he/she/they)
+returns one of (His, Hers, Theirs)
 
 =cut
 
@@ -561,13 +587,18 @@ sub Possession {
 	return ucfirst(shift->possession);
 }
 
+sub Theirs {
+	return shift->Possession();
+}
+
 =head2 object
 
-This returns the object pronoun
+These return the object pronoun in lowercase. The second option is syntactic sugar.
 
-    $p->object;
+    $p->object
+    $p->them
 
-returns (him, her, them) for the pronouns (he/she/they)
+returns one of (him, her, them)
 
 =cut
 
@@ -577,18 +608,27 @@ sub object {
 	return $PRONOUNS->{object}[$n];
 }
 
-=head2 Object
+sub them {
+	return shift->object();
+}
 
-This returns the captilized object pronoun
+=head2 one of Object
 
-    $p->Object;
+These return the object pronoun, capitalized. The second option is syntactic sugar.
 
-returns (Him, Her, Them) for the pronouns (he/she/they)
+    $p->Object
+    $p->Them
+
+returns (Him, Her, Them)
 
 =cut
 
 sub Object {
 	return ucfirst(shift->object);
+}
+
+sub Them {
+	return shift->Object();
 }
 
 =head2 C<verb> or C<Verb>
