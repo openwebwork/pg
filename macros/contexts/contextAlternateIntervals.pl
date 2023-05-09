@@ -39,29 +39,29 @@ alternate forms to be used, the second allows only the alternate form,
 and the third allows only the standard form, but recognizes the
 alternate form and gives an error message when it is used.
 
-	loadMacros("contextAlternateIntervals.pl");
-	
-	Context("AlternateIntervals");
-	
-	$I1 = Compute("]2,5[");
-        $I2 = Compute("(2,5)");    # equivalent to $I1;
-	
-	Context("AlternateIntervals-Only");
-	
-	$I1 = Compute("]2,5[");
-        $I2 = Compute("(2,5)");    # causes an error message
-	
-	Context("AlternateIntervals-Warning");
-	
-	$I1 = Compute("]2,5[");    # causes an error message
-        $I2 = Compute("(2,5)");
+    loadMacros("contextAlternateIntervals.pl");
+
+    Context("AlternateIntervals");
+
+    $I1 = Compute("]2,5[");
+    $I2 = Compute("(2,5)");    # equivalent to $I1;
+
+    Context("AlternateIntervals-Only");
+
+    $I1 = Compute("]2,5[");
+    $I2 = Compute("(2,5)");    # causes an error message
+
+    Context("AlternateIntervals-Warning");
+
+    $I1 = Compute("]2,5[");    # causes an error message
+    $I2 = Compute("(2,5)");
 
 There are two context flags that control the input and output of
 intervals.
 
 =over
 
-=item C<S<< enterIntervals => "either" (or "alternate" or "stanard") >>>
+=item C<S<< enterIntervals => "either" (or "alternate" or "standard") >>>
 
 This specifies what formats the student is allowed to use to enter an
 interval.  A value of C<"either"> allows either of the formats to be
@@ -89,23 +89,23 @@ standard format.
 It is possible to set C<enterIntervals> and C<displayIntervals> to
 different values.  For example.
 
-	Context()->flags->set(
-	  enterIntervals => "either",
-	  displayIntervals => "standard",
-	);
+    Context()->flags->set(
+        enterIntervals => "either",
+        displayIntervals => "standard",
+    );
 
 would allow students to enter intervals in either format, but all
 intervals would be displayed in standard form.
 
-=head1 SETTING THE ALTERNATE FORM AS THE DEFAULT
+=head1 Setting the alternate form as the default
 
 If you want to force existing problems that use the Interval context
 to use one of the alternate contexts instead, then create a file named
 C<parserCustomization.pl> in your course's C<templates/macros>
 directory, and enter the following in it:
 
-	loadMacros("contextAlternateIntervals.pl");
-	context::AlternateIntervals->Default("either","either");
+    loadMacros("contextAlternateIntervals.pl");
+    context::AlternateIntervals->Default("either","either");
 
 This will alter the C<Interval> context so that students can
 enter intervals in either format (and they will be shown in whatever
@@ -113,16 +113,16 @@ format that was used to enter them).
 
 You could also do
 
-	loadMacros("contextAlternateIntervals.pl");
-	context::AlternateIntervals->Default("standard","standard");
+    loadMacros("contextAlternateIntervals.pl");
+    context::AlternateIntervals->Default("standard","standard");
 
 to cause a warning message to appear when students enter the alternate
 format.
 
 If you want to force students to enter the alternate format, use
 
-	loadMacros("contextAlternateIntervals.pl");
-	context::AlternateIntervals->Default("alternate","alternate");
+    loadMacros("contextAlternateIntervals.pl");
+    context::AlternateIntervals->Default("alternate","alternate");
 
 This will force the display of all intervals into the alternate form
 (so even the ones created in the problem using standard form will show
@@ -146,9 +146,8 @@ sub _contextAlternateIntervals_init { context::AlternateIntervals->Init }
 
 package context::AlternateIntervals;
 
-#
 #  Create the AlternateIntervals contexts
-#
+
 sub Init {
 	my $self    = shift;
 	my $context = $main::context{AlternateIntervals} = Parser::Context->getCopy("Interval");
@@ -170,9 +169,8 @@ sub Init {
 	);
 }
 
-#
 #  Enables alternate intervals in the given context
-#
+
 sub Enable {
 	my $self    = shift;
 	my $context = shift || main::Context();
@@ -232,10 +230,9 @@ sub Default {
 package context::AlternateIntervals::Formula;
 our @ISA = ('Value::Formula');
 
-#
 #  Replace the standard Open with one that handles formInterval better.
 #  We need to handle several possible close delimiters.
-#
+
 sub Open {
 	my $self  = shift;
 	my $type  = shift;
@@ -270,9 +267,8 @@ sub Open {
 #  with our modifications.
 #
 sub Close {
-	my $self   = shift;
-	my $type   = shift;
-	my $ref    = $self->{ref} = shift;
+	my ($self, $type, $ref) = @_;
+	$self->{ref} = $ref;
 	my $parens = $self->{context}{parens};
 
 	return $self->SUPER::Close($type, $ref, @_) if $self->state ne "operand";
@@ -329,14 +325,12 @@ sub class {'Formula'}
 package context::AlternateIntervals::Interval;
 our @ISA = ('Value::Interval');
 
-#
 #  Convert alternative form to regular form, but mark it as alternative.
 #  Give error messages about forms that aren't allowed by the context flags.
-#
+
 sub new {
-	my $self = shift;
-	return $self->SUPER::new(@_) unless scalar(@_) == 5;
-	my @args = @_;
+	my ($self, @args) = @_;
+	return $self->SUPER::new(@args) unless scalar(@args) == 5;
 	my $alternate;
 	my $format = $self->getFlag("enterIntervals");
 	if ($args[1] eq "]") { $alternate = 1; $args[1] = "(" }
@@ -348,14 +342,11 @@ sub new {
 	$self->SUPER::new(@args)->with(alternateForm => $alternate);
 }
 
-#
 #  For alternative form, switch back to the alternative brackets for printing,
 #  or force standard or alternative form based on the context flags.
-#
+
 sub formatOutput {
-	my $self      = shift;
-	my $method    = shift;
-	my @args      = @_;
+	my ($self, $method, @args) = @_;
 	my $format    = $self->getFlag("displayIntervals");
 	my $alternate = ($self->{alternateForm} || $format eq "alternate") && $format ne "standard";
 	$args[1] = "]" if $alternate && ($args[1] || $self->{open}) eq "(";
@@ -365,29 +356,22 @@ sub formatOutput {
 }
 
 sub string {
-	my $self = shift;
-	$self->formatOutput("string", @_);
+	return shift->formatOutput("string", @_);
 }
 
 sub TeX {
-	my $self = shift;
-	$self->formatOutput("TeX", @_);
+	return shift->formatOutput("TeX", @_);
 }
 
-#
 #  This gets called directly, so pass it up the line
-#
-sub cmp_defaults { shift->SUPER::cmp_defaults(@_) }
 
-##########################################################################
+sub cmp_defaults { shift->SUPER::cmp_defaults(@_) }
 
 package context::AlternateIntervals::Parser::List;
 our @ISA = ('Parser::List');
 
-#
 #  Make sure that the standard open and close delimiters are
 #  used so that comparisons and so on will work properly.
-#
 sub new {
 	my $self      = shift;
 	my $alternate = ($_[5] eq "]" || $_[6] eq "[");
@@ -402,14 +386,11 @@ sub new {
 
 sub class {"List"}
 
-##########################################################################
-
 package context::AlternateIntervals::Parser::Interval;
 our @ISA = ('Parser::List::Interval');
 
-#
 #  Report errors when invalid form is specified
-#
+
 sub _check {
 	my $self    = shift;
 	my $context = $self->context;
@@ -418,15 +399,21 @@ sub _check {
 		if $format eq "standard" && ($self->{open} eq "]" || $self->{close} eq "[");
 	$self->Error("You must use reversed brackets to form open intervals")
 		if $format eq "alternate" && ($self->{open} eq "(" || $self->{close} eq ")");
-	$self->SUPER::_check(@_);
+	eval { $self->SUPER::_check(@_); };
+	if ($@) {
+		# The code in Parser::List::Interval::_check does not handle infinite endpoints
+		# correctly for the alternate endpoints,
+		if ($@ =~ qr/Infinite endpoints must be open/ && $format eq 'alternate') {
+			$self->Error("Infinite endpoints must be open") if $self->{open} eq '['  && $self->{coords}[0]{isInfinite};
+			$self->Error("Infinite endpoints must be open") if $self->{close} eq ']' && $self->{coords}[1]{isInfinite};
+		}
+	}
 }
 
-#
 #  Make a copy with the alternate delimiters, if needed.
-#
+
 sub fixDelimiters {
-	my $self      = shift;
-	my $alternate = shift;
+	my ($self, $alternate) = @_;
 	if ($alternate) {
 		$self          = $self->copy;
 		$self->{open}  = "]" if $self->{open} eq "(";
@@ -435,10 +422,7 @@ sub fixDelimiters {
 	$self;
 }
 
-#
-#  Override the output methods to replace the alternate delimiters,
-#  when needed.
-#
+#  Override the output methods to replace the alternate delimiters, when needed.
 
 sub _eval {
 	my $self = shift;
@@ -466,7 +450,5 @@ sub TeX {
 }
 
 sub class {"Interval"}
-
-##########################################################################
 
 1;
