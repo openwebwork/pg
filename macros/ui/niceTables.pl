@@ -878,8 +878,8 @@ sub Row {
 			if ($cellOpts->{colspan} > 1
 				|| $cellOpts->{halign}
 				|| $valign
-				|| ($tableOpts->{valign}     && $tableOpts->{valign} ne 'top')
-				|| ($tableOpts->{rowheaders} && $tableOpts->{headerrules}))
+				|| ($tableOpts->{valign} && $tableOpts->{valign} ne 'top')
+				|| ($tableOpts->{rowheaders} && $tableOpts->{headerrules} && $i == 0))
 			{
 				my $columntype = $cellOpts->{halign};
 				$columntype = $cellAlign->{halign} // 'l' unless $columntype;
@@ -891,8 +891,14 @@ sub Row {
 				$columntype =~ s/^p/b/ if ($valign eq 'bottom');
 				$columntype =~ s/^p/m/ if ($tableOpts->{valign} eq 'middle');
 				$columntype =~ s/^p/b/ if ($tableOpts->{valign} eq 'bottom');
-				$columntype .= '|'
-					if ($i == 0 && $cellOpts->{colspan} == 1 && $tableOpts->{rowheaders} && $tableOpts->{headerrules});
+				$columntype = getLaTeXcolumnWidth($alignment->[0]{left}) . $columntype
+					if ($i == 0 && $alignment->[0]{left} && !$cellOpts->{halign});
+
+				if ($i == 0 && $cellOpts->{colspan} == 1 && $tableOpts->{rowheaders} && $tableOpts->{headerrules}) {
+					$columntype .= '|';
+				} elsif (!$cellOpts->{halign}) {
+					$columntype .= getLaTeXcolumnWidth($cellAlign->{right});
+				}
 				$cell = latexCommand('multicolumn', [ $cellOpts->{colspan}, $columntype, $cell ]);
 			}
 			$cell = suffix($cell, '&', ' ') unless ($i == $#$rowArray);
@@ -1295,6 +1301,8 @@ sub ParseAlignment {
 			$align[$i]->{tex} = $1;
 
 			# could parse these further for color identification, etc
+		} else {
+			main::WARN_MESSAGE("Token $token in texalignment could not be parsed");
 		}
 	}
 
@@ -1430,6 +1438,12 @@ sub getLaTeXthickness {
 		$output = "$input";
 	}
 	return $output;
+}
+
+sub getLaTeXcolumnWidth {
+	my $input = shift;
+	return '' unless $input;
+	return ($input =~ /^\d+$/) ? '|' x $input : "!{\\vrule width $input}";
 }
 
 sub getRuleCSS {
