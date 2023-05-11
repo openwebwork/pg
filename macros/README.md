@@ -48,7 +48,7 @@ This directory now has a subdirectory structure for clarification.
 - `OPL/FortLewis/LiveGraphicsVectorField3D.pl` to `PG/macros/graph`
 - `OPL/FortLewis/VectorField2D.pl` to `PG/macros/graph`
 - `OPL/FortLewis/MatrixUnimodular.pl` to `PG/macros/math`
-- `OPL/FortLewis/PeriodicRerandomization.pl` to `PG/macros/core`
+- `OPL/FortLewis/PeriodicRerandomization.pl` to `PG/macros/deprecated`
 
 ### NAU copied
 
@@ -191,7 +191,7 @@ This directory now has a subdirectory structure for clarification.
 
 - remove `BrockPhysicsMacros.pl` doesn't do anything.
 - remove `parserUtils.pl` and refactor the two problems that depend on it.  Seems like functionality is elsewhere.
-- remove `answers/answerDiscussion.pl` (not used in OPL/Contrib)
+- remove `deprecated/answerDiscussion.pl` (not used in OPL/Contrib)
 - Remove `contexts/contextPeriodic.pl`.  Labelled as deprecated. No problems in OPL/Contrib.
 - only place `answerUtils.pl` is used is inside `unorderedAnswer.pl` (combine?  refactor?)
 - What is the `fracListChecker.pl` macro?  In a number of `Contrib/Mizzou` problems.
