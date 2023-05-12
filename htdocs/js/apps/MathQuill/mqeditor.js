@@ -134,14 +134,14 @@
 			if (buttonContainer && buttonContainer.classList.contains('latexentry-button-container')) {
 				buttonContainer.classList.add('d-flex', 'gap-1');
 				buttonContainer.prepend(button);
-				container.after(buttonContainer);
+				innerContainer.append(buttonContainer);
 			} else {
-				container.after(button);
+				innerContainer.append(button);
 			}
 
 			// Create a collapse to hold the editor.
 			const collapse = document.createElement('div');
-			collapse.classList.add('collapse');
+			collapse.classList.add('collapse', 'mt-1');
 			collapse.id = `${answerLabel}-equation-editor`;
 
 			let blinkInterval;
@@ -161,14 +161,15 @@
 
 			const cardHeader = document.createElement('div');
 			cardHeader.classList.add('card-header', 'd-flex', 'justify-content-between', 'align-items-center',
-				'px-2', 'py-1');
+				'px-2', 'py-1', 'text-bg-secondary');
 
 			const title = document.createElement('span');
 			title.textContent = 'Equation Editor';
-			cardHeader.classList.add('fw-bold');
 
 			const closeButton = document.createElement('button');
-			closeButton.classList.add('btn-close');
+			// When bootstrap is upgraded to version 5.3 this will need to be changed.
+			// btn-close-white will be deprecated and data-bs-theme="dark" is used instead.
+			closeButton.classList.add('btn-close', 'btn-close-white');
 			closeButton.type = 'button';
 			closeButton.setAttribute('aria-label', 'Close');
 			closeButton.dataset.bsToggle = 'collapse';
@@ -202,7 +203,8 @@
 			}
 
 			const cardFooter = document.createElement('div');
-			cardFooter.classList.add('card-footer', 'd-flex', 'p-2', 'gap-1');
+			cardFooter.classList.add('card-footer', 'd-flex', 'pt-0', 'pb-2', 'px-2', 'gap-1',
+				'bg-white', 'border-top-0');
 
 			const insertButton = document.createElement('button');
 			insertButton.type = 'button';
@@ -213,31 +215,23 @@
 				if (latex) insertAtCursor(answerQuill.input, `\\(${latex}\\)`);
 			});
 
-			const clearButton = document.createElement('button');
-			clearButton.type = 'button';
-			clearButton.classList.add('btn', 'btn-sm', 'btn-primary');
-			clearButton.textContent = 'Clear';
-			clearButton.addEventListener('click', () => {
+			answerQuill.clearButton = document.createElement('button');
+			answerQuill.clearButton.type = 'button';
+			answerQuill.clearButton.classList.add('btn', 'btn-sm', 'btn-primary');
+			answerQuill.clearButton.textContent = 'Clear';
+			answerQuill.clearButton.addEventListener('click', () => {
 				answerQuill.mathField.empty();
 				answerQuill.textarea.focus();
 			});
 
-			cardFooter.append(insertButton, clearButton);
+			cardFooter.append(insertButton, answerQuill.clearButton);
 
 			contents.append(cardHeader, cardBody, cardFooter);
 			collapse.append(contents);
 			innerContainer.append(collapse);
 
-			collapse.addEventListener('shown.bs.collapse', () => {
-				answerQuill.textarea.focus();
-				answerQuill.input.style.borderBottomLeftRadius = 0;
-				answerQuill.input.style.borderBottomRightRadius = 0;
-			});
-			collapse.addEventListener('hidden.bs.collapse', () => {
-				answerQuill.textarea.blur();
-				answerQuill.input.style.borderBottomLeftRadius = '4px';
-				answerQuill.input.style.borderBottomRightRadius = '4px';
-			});
+			collapse.addEventListener('shown.bs.collapse', () => answerQuill.textarea.focus());
+			collapse.addEventListener('hidden.bs.collapse', () => answerQuill.textarea.blur());
 		} else {
 			cfgOptions.handlers.edit = (mq) => {
 				if (mq.text() !== '') {
@@ -294,10 +288,15 @@
 			answerQuill.toolbar.style.opacity = 0;
 
 			answerQuill.toolbar.addEventListener('focusout', (e) => {
-				if (e.relatedTarget && (e.relatedTarget.closest('.quill-toolbar') ||
-					e.relatedTarget.classList.contains('symbol-button') ||
-					e.relatedTarget.parentElement?.parentElement === answerQuill))
+				if (
+					(e.relatedTarget &&
+						(e.relatedTarget.closest('.quill-toolbar') ||
+							e.relatedTarget.classList.contains('symbol-button') ||
+							e.relatedTarget.parentElement?.parentElement === answerQuill)) ||
+					(answerQuill.clearButton && e.relatedTarget === answerQuill.clearButton)
+				)
 					return;
+
 				toolbarRemove();
 			});
 
@@ -454,9 +453,14 @@
 		});
 
 		answerQuill.textarea.addEventListener('focusout', (e) => {
-			if (e.relatedTarget && (e.relatedTarget.closest('.quill-toolbar') ||
-				e.relatedTarget.classList.contains('symbol-button')))
+			if (
+				e.relatedTarget &&
+				(e.relatedTarget.closest('.quill-toolbar') ||
+					e.relatedTarget.classList.contains('symbol-button') ||
+					(answerQuill.clearButton && e.relatedTarget === answerQuill.clearButton))
+			)
 				return;
+
 			toolbarRemove();
 		});
 
