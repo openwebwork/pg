@@ -11,6 +11,7 @@ randomPerson.pl - Load macros for getting a random person with corresponding pro
 
 C<randomPerson.pl> provides a C<randomPerson> function that generates
 a random name that comes with corresponding pronouns and verb conjugation.
+The default subject pronouns are 'he', 'she', and 'they'.
 
 This idea evolved from the C<PCCmacros.pl> C<RandomName> subroutine,
 extending it to cover pronouns and verb conjugation.
@@ -65,6 +66,15 @@ For example
 or without the pronouns, which will be assigned randomly from he/she/they:
 
     $p2 = randomPerson(names => ['Bart', 'Lisa']);
+
+To use pronouns beyond 'he', 'she', and 'they', first add the pronoun and its
+related forms like this:
+
+    $Person::PRONOUNS{'it'} = { possessive => 'its', possession => 'its', object => 'it' };
+
+If a new pronoun is added, verb conjugation for that pronoun will match 'he'/'she'
+verb conjugation, not 'they' verb conjugation.
+
 
 =cut
 
@@ -430,20 +440,20 @@ which can be used to write a problem with a random name with pronouns and verb c
 package Person;
 our @ISA = ("Value::String");
 
-my $PRONOUNS = {
-	subjects   => [ 'he',  'she',  'they' ],
-	possessive => [ 'his', 'her',  'their' ],
-	possession => [ 'his', 'hers', 'theirs' ],
-	object     => [ 'him', 'her',  'them' ]
-};
+our %PRONOUNS = (
+	he   => { possessive => 'his',   possession => 'his',    object => 'him' },
+	she  => { possessive => 'her',   possession => 'hers',   object => 'her' },
+	they => { possessive => 'their', possession => 'theirs', object => 'them' },
+);
 
 sub new {
 	my ($class, %opts) = @_;
 	die "The field 'pronoun' must be passed in." unless defined($opts{pronoun});
 
-	my @v = grep { $opts{pronoun} eq $_ } @{ $PRONOUNS->{subjects} };
-	die 'The acceptable pronouns are:' . join(', ', @{ $PRONOUNS->{subjects} }) . ". You passed in $opts{pronoun}"
-		if scalar(@v) != 1;
+	die 'The acceptable pronouns are:'
+		. join(', ', main::lex_sort(keys %PRONOUNS))
+		. ". You passed in '$opts{pronoun}'"
+		if !defined($PRONOUNS{ $opts{pronoun} });
 	die 'The field "name" must be passed in' unless defined($opts{name});
 	my $self = {
 		name    => $opts{name},
@@ -527,8 +537,7 @@ returns one of (his, her, their)
 
 sub possessive {
 	my $p = shift->{pronoun};
-	my ($n) = grep { $PRONOUNS->{subjects}[$_] eq $p } 0 .. scalar(@{ $PRONOUNS->{subjects} }) - 1;
-	return $PRONOUNS->{possessive}[$n];
+	return $PRONOUNS{$p}{possessive};
 }
 
 sub their {
@@ -567,8 +576,7 @@ returns one of (his, hers, theirs)
 
 sub possession {
 	my $p = shift->{pronoun};
-	my ($n) = grep { $PRONOUNS->{subjects}[$_] eq $p } 0 .. scalar(@{ $PRONOUNS->{subjects} }) - 1;
-	return $PRONOUNS->{possession}[$n];
+	return $PRONOUNS{$p}{possession};
 }
 
 sub theirs {
@@ -607,8 +615,7 @@ returns one of (him, her, them)
 
 sub object {
 	my $p = shift->{pronoun};
-	my ($n) = grep { $PRONOUNS->{subjects}[$_] eq $p } 0 .. scalar(@{ $PRONOUNS->{subjects} }) - 1;
-	return $PRONOUNS->{object}[$n];
+	return $PRONOUNS{$p}{object};
 }
 
 sub them {
