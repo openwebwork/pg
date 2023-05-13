@@ -500,7 +500,6 @@ sub TableEnvironment {
 			$ptxwidth   = '100%';
 			$ptxmargins = '0% 0%';
 		}
-		my $ptxbottom = ($tableOpts->{horizontalrules}) ? 'minor' : '';
 		if ($tableOpts->{LaYoUt}) {
 			$rows = tag(
 				$rows,
@@ -516,12 +515,13 @@ sub TableEnvironment {
 				$rows,
 				'tabular',
 				{
-					valign  => ($tableOpts->{valign} ne 'middle') ? $tableOpts->{valign} : '',
-					width   => $ptxwidth,
-					margins => $ptxmargins,
-					left    => $ptxleft,
-					top     => $ptxtop,
-					bottom  => $ptxbottom
+					valign     => ($tableOpts->{valign} ne 'middle') ? $tableOpts->{valign} : '',
+					bottom     => $tableOpts->{horizontalrules}      ? 'minor'              : '',
+					rowheaders => $tableOpts->{rowheaders}           ? 'yes'                : '',
+					margins    => $ptxmargins,
+					width      => $ptxwidth,
+					left       => $ptxleft,
+					top        => $ptxtop,
 				}
 			);
 		}
@@ -622,7 +622,6 @@ sub Cols {
 				tag(
 					'', 'col',
 					{
-						header => ($i == 1 && $tableOpts->{rowheaders}) ? 'yes' : '',
 						halign => $ptxhalign,
 						right  => $ptxright,
 						top    => $ptxtop,
