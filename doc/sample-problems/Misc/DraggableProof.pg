@@ -16,17 +16,16 @@
 ###########################
 #  Initialization
 
-#:%preamble
+#:% categories=[proof, draggable]
+#:% section=preamble
 #:Details of the `draggableProof.pl` macro can be found in [the POD].
 DOCUMENT();
 
-loadMacros('PGstandard.pl','MathObjects.pl','PGML.pl','draggableProof.pl',
-  'PGcourse.pl');
+loadMacros('PGstandard.pl','PGML.pl','draggableProof.pl','PGcourse.pl');
 
 TEXT(beginproblem());
 
-
-#:%setup
+#:% section=setup
 #:The `DraggableProof` function takes an arrayref of correct statements,
 #:followed (optionally) by extra statements. See the POD for more options.
 # These are the statements of the proof in the correct order.
@@ -55,7 +54,7 @@ $statements = [
  );
 
 
-#:%statement
+#:% section=statement
 #:The line `[@ $proof->Print @]*` prints the statement and options in the proof.
 BEGIN_PGML
 
@@ -65,11 +64,11 @@ Prove that [`\sqrt{2}`] is irrational.
 END_PGML
 
 
-#:%answer
+#:% section=answer
 ANS($proof->cmp);
 
 
-#:%solution
+#:% section=solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

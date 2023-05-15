@@ -13,16 +13,16 @@
 ## MO(1)
 ## KEYWORDS('multiple choice', 'template')
 
-#:%preamble
+#:% categories=[multiple choice, misc]
+#:% section=preamble
 #: The macro `parserPopUp.pl` must be loaded.
 DOCUMENT();
 
-loadMacros('PGstandard.pl','MathObjects.pl','parserPopUp.pl','PGML.pl',
-  'PGcourse.pl');
+loadMacros('PGstandard.pl','PGML.pl','parserPopUp.pl','PGcourse.pl');
 
 TEXT(beginproblem());
 
-#:%setup
+#:% section=setup
 #:To create a radio object, use `$popup = PopUp([choices,...],correct);`
 #:For details, see parserPopUp.pl The context is not really necessary, but multiple
 #:choice questions are often follow-up questions, so we leave it in.
@@ -43,7 +43,7 @@ $dropdown1 = DropDown(['Red','Blue','Green'],'Green');
 
 $dropdown2 = DropDown(['Red','Blue','Green'],'Red', placeholder => 'Select One');
 
-#:%statement
+#:% section=statement
 BEGIN_PGML
 Select my favorite color [__]{$popup}
 
@@ -58,7 +58,7 @@ Select my favorite color [__]{$dropdown2}
 END_PGML
 
 
-#:%solution
+#:% section=solution
 BEGIN_PGML_SOLUTION
 * The first correct answer is [$popup->correct_ans()].
 * The second correct answer is [$dropdown1->correct_ans()].

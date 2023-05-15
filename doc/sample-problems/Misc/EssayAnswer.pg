@@ -16,10 +16,9 @@
 # http://webworkgoehle.blogspot.com/2012/09/essay-answers-in-webwork.html
 
 
-##########################
-#  Initialization
+#:% categories=[essay]
 
-#:%preamble
+#:% section=preamble
 #:Use the `PGessaymacros.pl` for the essay answer
 #:and `parserPopUp.pl` for the multiple choice drop
 #:down menu.  Setting `$showPartialCorrectAnswers = 0;`
@@ -34,13 +33,13 @@
 #:50 percent credit to students who answer the multiple choice
 #:question correct.
 DOCUMENT();
-loadMacros('PGstandard.pl','MathObjects.pl','parserPopUp.pl',
-  'PGessaymacros.pl','PGML.pl','PGcourse.pl');
+loadMacros('PGstandard.pl','PGML.pl','parserPopUp.pl',
+  'PGessaymacros.pl','PGcourse.pl');
 
 TEXT(beginproblem());
 $showPartialCorrectAnswers = 0;
 
-#:%setup
+#:% section=setup
 Context('Numeric');
 
 $popup = PopUp(
@@ -53,7 +52,7 @@ $a = random(2,5,1);
 $f1 = Compute("ln(x (x-$a))");
 $f2 = Compute("ln(x) + ln(x-$a)");
 
-#:%statement
+#:% section=statement
 #:Clearly communicate to the student the expectations
 #:of the problem and how it will be graded.  The `essay_box(w,h)`
 #:is resizable and takes inputs for initial width and height.
@@ -70,7 +69,7 @@ Please explain your reasoning in the answer box below.
 END_PGML
 
 
-#:%answer
+#:% section=answer
 #:The essay answer is graded manually by the professor.  Hand grading is done
 #: either (1) by clicking on the homework set and clicking the **Grade problem**
 #: link in the rightmost column of the problem list.

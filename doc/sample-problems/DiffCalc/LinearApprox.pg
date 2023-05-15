@@ -1,0 +1,67 @@
+## DESCRIPTION
+## Differential calculus: linear approximation
+## ENDDESCRIPTION
+
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('differential calculus', 'linear approximation')
+
+#:% categories=[differential calculus, linear approximation]
+#:% section=preamble
+#: We load `parserAssignment.pl` to require students to enter their answer as an equation
+#: of the form `y=....` We load `answerHints.pl` to provide customized answer hints,
+#: particularly for those students who enter the slope of the line instead of the
+#: equation of the line.
+DOCUMENT();
+
+loadMacros('PGstandard.pl','PGML.pl','answerHints.pl', 'parserAssignment.pl','PGcourse.pl');
+
+TEXT(beginproblem());
+
+#:% section=setup
+#: We have to tell the context that we are allowing the assignment of a variable to a formula.
+#:
+#: We use answer hints to remind students to enter an equation for a line, not
+#: just the slope of the line.
+Context('Numeric')->variables->add(y=>'Real');
+parser::Assignment->Allow;
+
+$a = random(2,5,1);
+$aa = $a**2;
+$a2 = 2 * $a;
+
+$f = Compute("sqrt(x)");
+
+$answer = Compute("y = $a + (1/$a2) * (x-$aa)");
+$cmp = $answer->cmp()
+	->withPostFilter(AnswerHints(
+		[Formula("1/$a2"),Formula("y=1/$a2")] =>
+		["Your answer should be an equation for a non-horizontal line.",
+		replaceMessage=>1],
+))
+
+#:% section=statement
+#: The variable `$cmp` is used in the answer blank, which call the compare method
+#: define in the setup section.
+BEGIN_PGML
+Find the linear approximation to [` f(x) = [$f] `] at [` x = [$aa] `].  Your answer
+should be an equation in the variables [` x `] and [` y `].
+
+[________]{$cmp}
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+
+
+ENDDOCUMENT();
+

@@ -11,18 +11,18 @@
 ## Institution(Hope College)
 ## Author(Paul Pearson)
 
-
-#:%preamble
+#:% categories=[multiple choice, misc]
+#:% section=preamble
 #:We use `PGchoicemacros.pl` to construct the list of matching object, and the
 #:custom problem grader fluid from `PGgraders.pl` for incremental grading.
 DOCUMENT();
 
-loadMacros('PGstandard.pl','MathObjects.pl','PGchoicemacros.pl','PGgraders.pl',
-  'unionTables.pl','PGML.pl','PGcourse.pl');
+loadMacros('PGstandard.pl','PGML.pl','PGchoicemacros.pl','PGgraders.pl',
+  'unionTables.pl','PGcourse.pl');
 
 TEXT(beginproblem());
 
-#:%setup
+#:% section=setup
 #:Since we are choosing 6 questions and 2 extra answers and have 1 entry in `makeLast`, we must create a popup list with 9 entries A through I.
 #:
 #:For more details, see MatchingProblems from the Problem Techniques documentation.
@@ -57,7 +57,7 @@ $ml->choose_extra(2);
 
 $ml->makeLast("None of the above");
 
-#:%statement
+#:% section=statement
 #:The `ColumnMatchTable()` is provided by the macro file `unionTables.pl`.
 BEGIN_PGML
 Match each question with its answer.
@@ -66,7 +66,7 @@ Match each question with its answer.
 
 END_PGML
 
-#:%answer
+#:% section=answer
 #:We must withhold feedback from students by setting `$showPartialCorrectAnswers = 0;`
 #:We use an incremental grader called `custom_problem_grader_fluid`. With this
 #:problem grader, you must specify the number of correct answers [2,4,6] and their
@@ -93,7 +93,7 @@ $ENV{'grader_message'} = "You can earn " .
 
 ANS( str_cmp( $ml->ra_correct_ans ) );
 
-#:%solution
+#:% section=solution
 #: Extract the correct answers from the MatchList object and reformat.
 @correct = @{$ml->ra_correct_ans()};
 $answerstring = join(", ", @correct);

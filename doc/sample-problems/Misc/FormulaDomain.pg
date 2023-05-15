@@ -11,18 +11,15 @@
 ## MO(1)
 ## KEYWORDS('formula answer', 'template')
 
-
-###########################
-#  Initialization
-
-#:%preamble
+#:% categories=[algebra, domain]
+#:% section=preamble
 DOCUMENT();
 
-loadMacros('PGstandard.pl','MathObjects.pl','PGML.pl','PGcourse.pl');
+loadMacros('PGstandard.pl','PGML.pl','PGcourse.pl');
 
 TEXT(beginproblem());
 
-#:%setup
+#:% section=setup
 #:We restrict the domain of function evaluation using `$answer1->{limits} = [$a+1,$a+4];`,
 #:which will choose test points at random in the interval `[$a+1,$a+4]`.
 #:
@@ -45,7 +42,7 @@ $answer1->{limits} = [$a+1,$a+4];
 $answer2 = Compute("ln(abs( x / (x-$a) ))");
 $answer2->{test_points} = [[-5],[-4],[1],[$a-1],[7],[8]];
 
-#:%statement
+#:% section=statement
 #:Notice that in this multipart question we have grouped the text for each part
 #:together in a block, put each answer blank on a new line immediately below each
 #:block of text, and added extra space between each part.  This should make the
@@ -65,10 +62,9 @@ a. Enter the answer [`` [$answer1]= ``] [__]{$answer1}
 
 b. Enter the answer [`` [$answer2]= ``] [__]{$answer2}
 
-[@ helpLink('formulas') @]*
 END_PGML
 
-#:%solution
+#:% section=solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

@@ -1,0 +1,69 @@
+## DESCRIPTION
+## This problem gives the student a quadratic in factored form and asks for
+## the equivalent in expanded/general form.
+## ENDDESCRIPTION
+
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## Static(1)
+## MO(1)
+## KEYWORDS('algebra', 'expanded polynomial')
+
+#:% categories=[algebra, polynomial]
+#:% section=preamble
+#: We must load `contextLimitedPolynomial.pl`
+DOCUMENT();
+
+loadMacros('PGstandard.pl','PGML.pl','contextLimitedPolynomial.pl','PGcourse.pl');
+
+TEXT(beginproblem());
+
+#:% section=setup
+#: The macro contextLimitedPolynomial.pl provides two contexts:
+#:
+#: ```
+#: Context("LimitedPolynomial");
+#: Context("LimitedPolynomial-Strict");
+#: ```
+#: The strict version does not allow any mathematical operations within coefficients,
+#: so `(5+3)x` must be simplified to 8x. For more details, see `contextLimitedPolynomial.pl`
+#:
+#: We use the LimitedPolynomial-Strict context, construct the coefficients $b and $c
+#: as Perl reals, and then construct $expandedform using these pre-computed coefficients.
+#: This is because the `LimitedPolynomial-Strict` context balks at answers that are not
+#: already simplified completely. Notice that we called the `->reduce()` method on the
+#: expanded form of the polynomial, which will ensure that the polynomial will be
+#: displayed as `x^2 - 6x + 4` instead of `x^2 + -6x + 4`.
+Context('Numeric');
+$h = 3;
+$k = 5;
+$vertexform = Compute("(x-$h)^2-$k");
+
+# Expanded form
+Context("LimitedPolynomial-Strict");
+$b = -2 * $h;
+$c = $h**2 - $k;
+$expandedform = Formula("x^2 + $b x + $c")->reduce();
+
+#:% section=statement
+#: To help students understand how to format their answers, we give an example
+#: `ax^2+bx+c` of what the answer should look like.
+BEGIN_PGML
+The quadratic expression [` [$vertexform] `]
+is written in vertex form.  Write the
+expression in expanded form [` ax^2 + bx + c `].
+
+[_____________________]{$expandedform}
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

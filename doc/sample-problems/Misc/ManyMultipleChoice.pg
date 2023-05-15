@@ -12,20 +12,17 @@
 ## Author(Paul Pearson)
 
 
-###########################
-#  Initialization
-
-#:%preamble
+#:% categories=[multiple choice, misc]
+#:% section=preamble
 #:We use `PGchoicemacros.pl` to construct the list of multiple choice items, and the
 #:custom problem grader fluid from `PGgraders.pl` for incremental grading.
 DOCUMENT();
 
-loadMacros('PGstandard.pl','MathObjects.pl','PGchoicemacros.pl','PGgraders.pl',
-  'PGML.pl','PGcourse.pl');
+loadMacros('PGstandard.pl','PGML.pl','PGchoicemacros.pl','PGgraders.pl','PGcourse.pl');
 
 TEXT(beginproblem());
 
-#:%setup
+#:% section=setup
 #:We can choose how many of the questions will be presented to students.
 Context('Numeric');
 
@@ -61,14 +58,14 @@ $tf -> qa (
 # Select the number of questions to use.
 $tf->choose(6);
 
-#:%statement
+#:% section=statement
 BEGIN_PGML
 Are the following statements true or false?
 
 [@ $tf -> print_q() @]*
 END_PGML
 
-#:%answer
+#:% section=answer
 #:We must withhold feedback from students by setting `$showPartialCorrectAnswers = 0;`
 #:We use an incremental grader called `custom_problem_grader_fluid`.
 #:With this problem grader, you must specify the number of correct answers `[2,4,6]`
@@ -96,7 +93,7 @@ ANS( str_cmp( $tf->ra_correct_ans() ) );
 ############################
 #  Solution
 
-#:%solution
+#:% section=solution
 #:A method to match explanations with a shuffled list of matching problems is
 #:presented in Matching Problems [POD].
 BEGIN_PGML_SOLUTION

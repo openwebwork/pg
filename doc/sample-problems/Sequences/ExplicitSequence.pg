@@ -1,0 +1,58 @@
+## DESCRIPTION
+## Integral calculus: sequences
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('integral calculus', 'sequences')
+
+#:% categories=[sequence]
+#:% section=preamble
+DOCUMENT();
+
+loadMacros('PGstandard.pl','PGML.pl','PGcourse.pl');
+
+TEXT(beginproblem());
+
+#:% section=setup
+#: We set the test points to be positive integers to avoid errors when evaluating
+#: the answer. Even if you expect students to enter answers such as `cos(pi * n) / n!`,
+#: you should still restrict the domain to positive integers, because some students
+#: may simplify this to `(-1)^n / n!` and receive errors because the answer checker
+#: is substituting things such as n=0.5 into their formula.
+Context('Numeric');
+Context()->variables->are(n=>'Real');
+
+$answer = Compute('(-1)^n / n!');
+$answer->{test_points} = [[1],[2],[3],[4],[5],[6]];
+
+@seq = (
+"a_0 = 1",
+"a_1 = -1",
+"a_2 = \frac{1}{2}",
+"a_3 = -\frac{1}{6}",
+"a_4 = \frac{1}{24}",
+"a_5 = -\frac{1}{120}",
+"\ldots"
+);
+
+$sequence = join(", ", @seq);
+
+#:% section=statement
+BEGIN_PGML
+Find a formula for [` n^{th} `] term of the sequence [` [$sequence] `].
+
+[` a_n = `] [__________________]{$answer}
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

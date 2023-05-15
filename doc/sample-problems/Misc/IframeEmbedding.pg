@@ -11,20 +11,18 @@
 ## Institution(Hope College)
 ## Author(Paul Pearson)
 
-###############
-#  Initialization
-
-#:%preamble
+#:% categories=[misc]
+#:% section=preamble
 DOCUMENT();
 
-loadMacros('PGstandard.pl','MathObjects.pl','PGML.pl','PGcourse.pl');
+loadMacros('PGstandard.pl','PGML.pl','PGcourse.pl');
 TEXT(beginproblem());
 
 
 ###############
 #  Setup
 
-#:%setup
+#:% section=setup
 #:We create a mode dependent variable `$slideshow` that displays a
 #:Google slideshow inside an html `iframe` when in html mode, and
 #: the message "An embedded Google slide show." in TeX mode.  If you omit the
@@ -49,7 +47,7 @@ TeX =>
 "An embedded YouTube video."
 );
 
-#:%statement
+#:% section=statement
 #:Include the `$slideshow` and `$video` wherever you like.
 BEGIN_PGML
 # Embedded Google slides
@@ -69,7 +67,7 @@ BEGIN_PGML
 END_PGML
 
 
-#:%solution
+#:% section=solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

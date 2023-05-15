@@ -11,18 +11,19 @@
 ## Institution(Hope College)
 ## Author(Paul Pearson)
 
-#:%preamble
+#:% categories=[misc]
+#:% section=preamble
 #:Make sure that the `scaffold.pl` macro is loaded.
 DOCUMENT();
 
-loadMacros('PGstandard.pl','MathObjects.pl','scaffold.pl','PGML.pl','PGcourse.pl');
+loadMacros('PGstandard.pl','PGML.pl','scaffold.pl','PGcourse.pl');
 TEXT(beginproblem());
 
 
-#:%setup
+#:% section=setup
 Context('Numeric');
 
-#:%statement
+#:% section=statement
 #:Each `Section::Begin()` and `Section::End()` block can have its own context, etc.
 #:See the scaffold.pl macro file for Scaffold options.
 Scaffold::Begin();
@@ -47,7 +48,7 @@ Section::End();
 
 Scaffold::End();
 
-#:%solution
+#:% section=solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

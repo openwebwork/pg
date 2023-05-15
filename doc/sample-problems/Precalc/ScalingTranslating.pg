@@ -1,0 +1,49 @@
+## DESCRIPTION
+## Precalculus: scaling and translating functions
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('precalculus', 'scaling and translating functions')
+
+#:% categories=[precalculus, transformation]
+#:% section=preamble
+#: We must load `parserFunction.pl` so that we can add a named function to the context.
+DOCUMENT();
+
+loadMacros('PGstandard.pl','PGML.pl','parserFunction.pl','PGcourse.pl');
+
+TEXT(beginproblem());
+
+#:% section=setup
+#: The `parserFunction` method allows us to add a named function to the context. We can
+#: define this function however we want, so we chose a function whose formula the
+#: students will not guess, whose domain is all real numbers, and which will have no
+#: issues during answer evaluation. Once a named function is added to the context, you
+#: can use it like you would any other named function.
+Context('Numeric');
+parserFunction(f => "sin(e*x)+5.5*pi*x^2");
+
+$answer = Formula("f(x-2) + 1");
+
+#:% section=statement
+BEGIN_PGML
+A function [` f(x) `] is shifted to the right
+[` 2 `] units and up [` 1 `] unit.  Find a formula
+for this shifted function in terms of the function
+[` f(x) `].
+
+Answer = [_______________]{$answer}
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

@@ -12,19 +12,16 @@
 ## Author(Paul Pearson)
 
 
-###########################
-#  Initialization
-
-#:%preamble
+#:% categories=[multiple choice, misc]
+#:% section=preamble
 #: Include `parserCheckboxList.pl` in the `loadMacros`.
 DOCUMENT();
 
-loadMacros('PGstandard.pl','MathObjects.pl','PGML.pl',
-  'parserCheckboxList.pl','PGcourse.pl');
+loadMacros('PGstandard.pl','PGML.pl','parserCheckboxList.pl','PGcourse.pl');
 
 TEXT(beginproblem());
 
-#:%setup
+#:% section=setup
 #:To setup, `CheckboxList` creates a new object. The format is
 #:```
 #:$checks = CheckboxList([choices, ...], [correct_choices, ...], options);
@@ -34,7 +31,7 @@ TEXT(beginproblem());
 #:
 #:If we nest `choices` in another arrayref, then the choices will be shown randomly.
 #:
-#:Using the option `separator` and setting to `&nbsp;`, the HMTL space, results in
+#:Using the option `separator` and setting to `&nbsp;`, the HTML space, results in
 #:a horizontal checklist.
 #:
 #:Lastly, see the POD for more options.
@@ -60,7 +57,7 @@ $checks3 = CheckboxList([
 'None of the above'
 ],[0,1], separator => '&nbsp;&nbsp;');
 
-#:%statement
+#:% section=statement
 BEGIN_PGML
 Select all expressions that are equivalent to  [`e^{x^2 + 1/x}`].
 There may be more than one correct answer.
@@ -77,7 +74,7 @@ There may be more than one correct answer.
 
 END_PGML
 
-#:%solution
+#:% section=solution
 BEGIN_PGML_SOLUTION
 
 END_PGML_SOLUTION

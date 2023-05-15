@@ -1,0 +1,39 @@
+# This file provides a mapping between macros and the location of the POD Files
+
+macros:
+  answerHints.pl: answers/answerHints.html
+  answerComposition.pl: answers/answerComposition.html
+
+  contextFraction.pl: contexts/contextFraction.html
+  contextInequalities.pl: contexts/contextInequalities.html
+  contextLimitedPoint.pl: contexts/contextLimitedPoint.html
+  contextLimitedPolynomial.pl: contexts/contextLimitedPolynomial.html
+  contextLimitedPowers.pl: contexts/contextLimitedPowers.html
+  contextPolynomialFactors.pl: contexts/contextPolynomialFactors.html
+  contextReaction.pl: contexts/contextReaction.html
+
+  niceTables.pl: ui/niceTables.html
+
+  parserAssignment.pl: parsers/parserAssignment.html
+  parserCheckboxList.pl: parsers/parserCheckboxList.html
+  parserDifferenceQuotient.pl: parsers/parserDifferenceQuotient.html
+  parserFormulaWithUnits.pl: parsers/parserFormulaWithUnits.html
+  parserFunction.pl: parsers/parserFunction.html
+  parserImplicitEquation.pl: parsers/parserImplicitEquation.html
+  parserImplicitPlane.pl: parsers/parserImplicitPlane.html
+  parserMultiAnswer.pl: parsers/parserMultiAnswer.html
+  parserNumberWithUnits.pl: parsers/parserNumberWithUnits.html
+  parserPopUp.pl: parsers/parserPopUp.html
+  parserRadioButtons.pl: parsers/parserRadioButtons.html
+  parserSolutionFor.pl: parsers/parserSolutionFor.html
+  parserVectorUtils.pl: parsers/parserVectorUtils.html
+
+  PGchoicemacros.pl: ui/PGchoicemacros.html
+  PGessaymacros.pl: core/PGessaymacros.html
+  PGgraders.pl: answers/PGgraders.html
+  PGtikz.pl: graph/PGtikz.html
+
+  scaffold.pl: core/scaffold.html
+
+  unionTables.pl: misc/unionTables.html
+  unorderedAnswer.pl: answers/unorderedAnswer.html

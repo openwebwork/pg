@@ -1,0 +1,72 @@
+## DESCRIPTION
+## Precalculus: dynamically generated graph of a function
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('precalculus', 'dynamic graph')
+
+#:% categories=[precalculus, graph]
+#:% section=preamble
+#: The dynamic graph is generated with `PGtikz.pl`, so this is needed.
+#: If you want the a fresh graph generated each time, set `$refreshCachedImages = 1`,
+#: otherwise a cached image may be used.
+DOCUMENT();
+
+loadMacros('PGstandard.pl','PGML.pl','PGtikz.pl','PGcourse.pl');
+
+TEXT(beginproblem());
+
+#:% section=setup
+#: Details on using tikz in problems are located in the POD or in other sample problems.
+$refreshCachedImages = 1;
+Context('Numeric');
+
+$a = random(2,3,1); # left x-intercept
+$b = random(2,4,2); # right x-intercept
+$c = random(3,6,1); # y-intercept
+
+$k = -($c)/($a * $b);
+
+$A = $k;
+$B = $k*($a - $b);
+$C = -($k * $a * $b);
+
+
+$graph = createTikZImage();
+$graph->BEGIN_TIKZ
+\draw[->] (-6,0) -- (6,0) node[above right] {\(x\)};
+\foreach \x in {-5,-4,...,-1,1,2,...,5} \draw(\x,0.1) -- (\x,-0.1) node [below] {\x};
+\draw[->] (0,-1) -- (0,7) node[above right] {\(y\)};
+\foreach \y in {1,...,6} \draw (0.1,\y) -- (-0.1,\y) node[left] {\y};
+\draw[blue, thick, <->] plot[domain={-$a-0.25}:{$b+0.25}] (\x,{$A*\x*\x+$B*\x+$C});
+END_TIKZ
+
+#:% section=statement
+#: Note that the tikz graph in `$graph` to be shown is placed in the `image` function
+#: and since this is a function, it must go in a `[@ @]` block.
+BEGIN_PGML
+Use the graph to find the missing values. There may be more than one correct answer,
+in which case you should enter your answers as a comma separated list. If there
+are no correct answers, enter NONE.
+
+[@ image($graph, width => 400, tex_size => 600) @]*
+
+a) [`f(0)=`] [__]{$c}
+
+b) [`f(`] [__]{List(-$a,$b)}[`)=0`]
+
+
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

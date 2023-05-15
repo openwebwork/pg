@@ -1,0 +1,54 @@
+## DESCRIPTION
+## Precalculus: answers up to multiplication
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('precalculus', 'answer up to multiplication')
+
+#:% categories=[precalculus]
+#:% section=preamble
+DOCUMENT();
+
+loadMacros('PGstandard.pl','PGML.pl', 'PGcourse.pl');
+
+TEXT(beginproblem());
+
+#:% section=setup
+#: We use a local context with an adaptive parameter to check the answer. For more on
+#: adaptive parameters, see AdaptiveParameters. This builds a custom checker that
+#: checks if the student answer is a parameter C0 multiple of the correct
+#: answer in `$sol_str`.
+Context('Numeric');
+
+$ans = Compute($sol_str)->cmp(checker => sub {
+    my ( $correct, $student, $self ) = @_;
+    my $context = Context()->copy;
+    return 0 if $student == 0;
+    $context->flags->set(no_parameters=>0);
+    $context->variables->add('C0'=>'Parameter');
+    my $c0 = Formula($context,'C0');
+    $student = Formula($context,$student);
+    $correct = Formula($context,"$c0 * $sol_str");
+    return $correct == $student;
+  });
+
+#:% section=statement
+BEGIN_PGML
+Find a quadratic equation in terms of the variable
+[` x `] with roots [` -1 `] and [` 2 `].
+
+[` y = `] [______________]{$ans}
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

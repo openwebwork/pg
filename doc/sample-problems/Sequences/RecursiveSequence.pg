@@ -1,0 +1,60 @@
+## DESCRIPTION
+## Integral calculus: sequences and recursively defined functions
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## Static(1)
+## MO(1)
+## KEYWORDS('integral calculus', 'recursively defined functions')
+
+#:% categories=[sequence]
+#:% section=preamble
+#: We will be defining a new named function and adding it to the context, and the
+#: easiest way to do this is using parserFunction.pl. There is a more basic way to
+#: add functions to the context, which is explained in example 2 at AddingFunctions
+DOCUMENT();
+
+loadMacros('PGstandard.pl','PGML.pl','parserFunction.pl','PGcourse.pl');
+
+TEXT(beginproblem());
+
+$showPartialCorrectAnswers=1;
+
+#:% section=setup
+#: We define a new named function `f` as something the student is unlikely to guess.
+#: The named function `f` is, in some sense, just a placeholder since the student will
+#: enter expressions involving `f(n-1)`, WeBWorK will interpret it internally as
+#: `sin(pi^(n-1))+e`, and the only thing the student sees is `f(n-1)`. If the recursion
+#: has an closed-form solution (e.g., the Fibonacci numbers are given by
+#: `f(n) = (a^n - (1-a)^n)/sqrt(5)` where `a = (1+sqrt(5))/2)` and you want to allows
+#: students to enter the closed-form solution, it would be good to define `f` using
+#: that explicit solution in case the student tries to answer the question by writing
+#: out the explicit solution `(a^n - (1-a)^n)/sqrt(5)` instead of using the shorthand `f(n)`.
+Context('Numeric')->variables->are(n=>'Real');
+parserFunction(f => "sin(pi^n)+e*n^2");
+
+$fn = Formula("3 f(n-1) + 2");
+
+#:% section=statement
+#: We should tell students to use function notation rather than subscript notation
+#: so that they aren't confused about syntax.
+BEGIN_PGML
+The current value [` f(n) `] is three
+times the previous value, plus two.  Find
+a recursive definition for [` f(n) `].
+Enter [` f_{n-1} `] as [` f(n-1) `].
+
+[` f(n) = `] [______________]{$fn}
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

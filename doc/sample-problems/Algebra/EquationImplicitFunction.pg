@@ -1,0 +1,73 @@
+## DESCRIPTION
+## Algebra: an equation implicitly defining a function
+## ENDDESCRIPTION
+
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('algebra', 'equation implicitly defining a function')
+
+#:% categories=[algebra, implicit function]
+#:% section=preamble
+#: The macro `parserImplicitEquation.pl` allow the entry of equations.
+DOCUMENT();
+
+loadMacros('PGstandard.pl','PGML.pl','parserImplicitEquation.pl','PGcourse.pl');
+
+TEXT(beginproblem());
+
+#:% section=setup
+#: We quash some error messages by redefining them to be a blank string " " (notice
+#: the space). Since the circle will always be contained in a rectangle with two
+#: opposite corners at (-4,-4) and (10,10), we set the limits for the variables x
+#: and y to be outside of this rectangle. The ImplicitEquation object allows us to
+#: specify as many solutions as we like, and doing so should improve the accuracy of
+#: the answer evaluator.
+#:
+#: If your equation is linear of the form x=3, 4x+3y=12, or 4x+3y+5z=21, or...,
+#: you should probably use the [ImplicitPlane1 implicit plane] context and answer
+#: evaluator.
+Context('ImplicitEquation');
+Context()->{error}{msg}{"Can't find any solutions to your equation"} = " ";
+Context()->{error}{msg}{"Can't generate enough valid points for comparison"} = " ";
+
+Context()->variables->set(
+  x=>{limits=>[-6,11]},
+  y=>{limits=>[-6,11]},
+);
+
+$a = random(1,5,1);
+$b = random(1,5,1);
+$r = random(2,5,1);
+$p = Compute("($a,$b)");
+
+$answer = ImplicitEquation(
+  "(x-$a)^2 + (y-$b)^2 = $r^2",
+  solutions=>[
+     [$a,$b+$r],
+     [$a,$b-$r],
+     [$a+$r,$b],
+     [$a-$r,$b],
+     [$a+$r*sqrt(2)/2,$b+$r*sqrt(2)/2],
+  ]
+);
+
+#:% section=statement
+BEGIN_PGML
+Enter an equation for a circle in the [`xy`]-plane
+of radius [` [$r] `] centered at [` [$p] `].
+
+[________________________]{$answer}
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

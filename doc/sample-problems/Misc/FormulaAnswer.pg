@@ -11,7 +11,7 @@
 ## MO(1)
 ## KEYWORDS('formula answer', 'template')
 
-#:%preamble
+#:% section=preamble
 
 DOCUMENT();
 
@@ -19,7 +19,9 @@ loadMacros('PGstandard.pl','MathObjects.pl','PGML.pl');
 
 TEXT(beginproblem());
 
-#:%setup
+#:% categories=[algebra]
+
+#:% section=setup
 #:We use `do { $b = random(2,9,1); } until ( $b != $a );` to generate distinct
 #:random numbers.
 Context("Numeric");
@@ -31,15 +33,14 @@ $answer1 = Compute("$a");
 $answer2 = Compute("($a x^($b) + $b)/x")->reduce();
 
 
-#:%statement
-#: * The `helpLink` command show some additional help for entering values.
+#:% section=statement
 BEGIN_PGML
-Enter [`[$answer1]`]: [____]{$answer1} [@ helpLink('number') @]*
+Enter [`[$answer1]`]: [____]{$answer1}
 
-Enter [`[$answer2]`]: [____]{$answer2} [@ helpLink('formula') @]*
+Enter [``[$answer2]``]: [____]{$answer2}
 END_PGML
 
-#:%solution
+#:% section=solution
 BEGIN_PGML_SOLUTION
 
 Solution explanation goes here.

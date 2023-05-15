@@ -16,29 +16,23 @@
 # http://webwork.maa.org/pod/pg_TRUNK/macros/contextReaction.pl.html
 # http://webwork.maa.org/moodle/mod/forum/discuss.php?d=449
 
-#:%preamble
-#: Load `contextReaction.pl`
+#:% categories=[chemistry]
+#:% section=preamble
+#: Load `contextReaction.pl` to put chemical reactions/equations in a `Compute`
 DOCUMENT();
 
-loadMacros(
-  "PGstandard.pl",
-  "PGunion.pl",
-  "MathObjects.pl",
-  "PGML.pl",
-  "contextReaction.pl",
-  "PGcourse.pl"
-);
+loadMacros('PGstandard.pl','PGML.pl','contextReaction.pl','PGcourse.pl');
 
 TEXT(beginproblem());
 
-#:%setup
+#:% section=setup
 #:We create a couple of arrays `@reactants` and `@products` and fill them with
 #:some examples of balanced chemical equations.  The second and third examples
 #:show that groupings, such as for `(OH)_2` are necessary.  The third example
 #:shows how you could randomize a chemical reaction question.  In particular, note
 #:that `${b}_2` is needed instead of `$b_2` so that Perl interprets the variable
 #:as `$b` with a subscript of 2 instead of a variable named `$b_2` with no subscript.
-Context("Reaction");
+Context('Reaction');
 
 @reactants = ();
 @products = ();
@@ -56,21 +50,22 @@ $products[2] = Formula("Ca_3 (PO_4)_2 + 6 Na Cl");
 $a = list_random('Li','Na','K');
 $b = list_random('F','Cl','Br');
 
-# Use ${b}_2 instead of $b_2 below so that Perl knows the
-# variable name is $b = ${b} and not $b_2 = ${b_2}.
+# Use ${b}_2 instead of $b_2 below so that Perl knows the variable name is $b = ${b} and not $b_2 = ${b_2}.
 $reactants[3] = Formula("2 $a OH + Mg ${b}_2");
 $products[3] = Formula("2 $a $b + Mg (OH)_2");
 
-$num_choices = $#reactants;
+$i = random(0,$#reactants,1);
 
-$i = random(0,$num_choices,1);
-
-#:%statement
-#:Note that we uses spaces around `$i` in things like `$reactants[ $i ]` and `$products[ $i ]`
-#:This is a work around for a known PGML bug as of June 2015 (the bug will likely get fixed very soon).
+#:% section=statement
+#: This is a way to print out the four reactions in a for loop.
+for $i (0..3) {
 BEGIN_PGML
-[` [$reactants[ $i ]] \longrightarrow `] [_____________________________]{$products[ $i ]}
+[` [$reactants[$i]] \longrightarrow `] [_______]{$products[$i]}
 
+END_PGML
+}
+
+BEGIN_PGML
 Enter a subscript using an underscore, such as [| H_2 O |]* for [` \mathrm{H_2 O} `].
 END_PGML
 
