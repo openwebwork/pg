@@ -35,5 +35,4 @@ macros:
 
   scaffold.pl: core/scaffold.html
 
-  unionTables.pl: misc/unionTables.html
-  unorderedAnswer.pl: answers/unorderedAnswer.html
+  unionTables.pl: ui/unionTables.html

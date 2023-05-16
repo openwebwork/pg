@@ -2,7 +2,6 @@
 ## Differential Equations: adding the Heaviside function to the context.
 ## ENDDESCRIPTION
 
-
 ## DBsubject(WeBWorK)
 ## DBchapter(WeBWorK tutorial)
 ## DBsection(PGML tutorial 2015)
@@ -12,35 +11,33 @@
 ## MO(1)
 ## KEYWORDS('differential equations', 'adding the Heaviside function to the context')
 
-
-###########################
-#  Initialization
-
+#:% categories=[differential equations]
+#:% section=preamble
+#: We load parserFunction.pl to make adding a named function to the context easier.
+#: Please see the POD documentation `parserFunction.pl`.
 DOCUMENT();
 
-loadMacros(
-  "PGstandard.pl",
-  "MathObjects.pl",
-  "AnswerFormatHelp.pl",
-  "parserFunction.pl",
-  "PGML.pl",
-  "PGcourse.pl"
-);
+loadMacros("PGstandard.pl", "MathObjects.pl", "AnswerFormatHelp.pl", "parserFunction.pl", "PGML.pl", "PGcourse.pl");
 
 TEXT(beginproblem());
 
-$showPartialCorrectAnswers = 1;
-
-###########################
-#  Setup
-
+#:% section=setup
+#: We add the step function to the context with the name `step`. The function `step(t)` is
+#: the Heaviside function and takes the value 1 when t > 0, and the value 0 when
+#: t &leq; 0. We will use the function `step` when evaluating the Heaviside function to
+#: obtain an answer that is a number.
+#:
+#: For more details on adding the Heaviside function to the context, see the forum
+#: discussion on the
+#: <a href="https://webwork.maa.org/moodle/mod/forum/discuss.php?d=458">
+#: Heaviside step function</a>.
 Context("Numeric");
-Context()->variables->are(t=>"Real");
+Context()->variables->are(t => "Real");
 Context()->functions->add(
-  step => {
-    class => 'Parser::Legacy::Numeric',
-    perl => 'Parser::Legacy::Numeric::do_step'
-  },
+	step => {
+		class => 'Parser::Legacy::Numeric',
+		perl  => 'Parser::Legacy::Numeric::do_step'
+	},
 );
 
 parserFunction("u(t)" => "step(t)");
@@ -49,18 +46,15 @@ $a = 3;
 
 $f = Formula("5 u(t-$a)");
 
-$answer1 = List( $f->eval(t=>2), $f->eval(t=>3), $f->eval(t=>4) );
+$answer1 = List($f->eval(t => 2), $f->eval(t => 3), $f->eval(t => 4));
 
 $answer2 = $f->with(
-  limits=>[$a-5,$a+5], 
-  test_at => [[$a-1],[$a-0.0000001],[$a],[$a+0.0000001],[$a+1]],
-  num_points=>10,
+	limits     => [ $a - 5,     $a + 5 ],
+	test_at    => [ [ $a - 1 ], [ $a - 0.0000001 ], [$a], [ $a + 0.0000001 ], [ $a + 1 ] ],
+	num_points => 10,
 );
 
-
-###########################
-#  Main Text
-
+#:% section=statement
 BEGIN_PGML
 Let [` u(t) `] be the Heaviside step function defined by
 [` \displaystyle
@@ -82,14 +76,9 @@ b. Suppose the answer is the function [` [$f] `].
     + [________________]{ $answer2 } [@ AnswerFormatHelp("formulas") @]*
 END_PGML
 
-
-############################
-#  Solution
-
+#:% section=solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-COMMENT('Uses PGML.');
 
 ENDDOCUMENT();

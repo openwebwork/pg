@@ -12,7 +12,7 @@
 ## MO(1)
 ## KEYWORDS('multivariable differential calculus', 'answer is an equation for a plane')
 
-#:% categories=[Multivariate Calculus, implicit functions]
+#:% categories=[multivariate calculus, implicit functions]
 #:% section=preamble
 #: * The parserVectorUtils.pl macro is used for the non_zero_point3D function below.
 #: * The parserImplicitPlane.pl macro includes the context and the ImplicitPlane

@@ -13,97 +13,98 @@ use Getopt::Long;
 use File::Find qw(find);
 use YAML::XS qw(LoadFile);
 
-my ($prob_dir, $out_dir, $pod_root);
-my $verbose = 1;
+my ($problem_dir, $out_dir, $pod_root);
+my $verbose = 0;
+
 GetOptions(
-	"problem_dir=s" => \$prob_dir,
-	"out_dir=s"     => \$out_dir,
-	"verbose"       => \$verbose,
-	"pod_root=s"    => \$pod_root
+	"d|problem_dir=s" => \$problem_dir,
+	"o|out_dir=s"     => \$out_dir,
+	"v|verbose"       => \$verbose,
+	"p|pod_root=s"    => \$pod_root
 );
 
-use Data::Dumper;
+die "problem_dir, out_dir, and pod_root must be provided.\n" unless $problem_dir && $out_dir && $pod_root;
 
-my $mt            = Mojo::Template->new(vars => 1);
-my $md            = Text::MultiMarkdown->new;
-my $template_dir  = curfile->dirname . '/../doc/templates';
-my $prob_template = "$template_dir/prob-template.mt";
-my $macro_loc     = LoadFile("$template_dir/../sample-problems/macro_pod.yaml");
+my $pg_root = curfile->dirname->dirname;
+
+my $mt              = Mojo::Template->new(vars => 1);
+my $md              = Text::MultiMarkdown->new;
+my $template_dir    = "$pg_root/doc/templates";
+my $macro_locations = LoadFile("$pg_root/doc/sample-problems/macro_pod.yaml");
 
 $pod_root .= '/pg/macros';
 mkdir $out_dir unless -d $out_dir;
 
 my $categories = {};
 
-# print Dumper parseFile('/opt/webwork/pg/doc/sample-problems/Algebra/AlgebraicFractionAnswer.pg');
-
-find({ wanted => \&processSample }, $prob_dir);
-outputCategoryFiles($categories);
+find({ wanted => \&processSample }, $problem_dir);
+outputIndex($categories);
 
 sub processSample {
 	my $path = $File::Find::name;
 	say "Processing file: $path" if $verbose;
 
 	if ($path =~ /\.pg$/) {
-		my $filename = fileparse($path) if $path =~ /\.pg$/;
-		# Find the directory structure inside the $prob_dir
-		my ($dirs) = $path =~ m/$prob_dir\/(.*)\/$filename/;
-		# print Dumper $dirs;
-		# print Dumper parseFile($path);
-		my $parsed_file =
-			{ %{ parseFile($path) }, macro_loc => $macro_loc->{macros}, pod_dir => $pod_root, filename => $filename };
+		my ($filename, $filepath) = fileparse($path, qr/\.pg/);
 
-		my $sample_prob_html = $mt->render_file($prob_template, $parsed_file);
-		mkdir "$out_dir/$dirs" unless -d "$out_dir/$dirs";
-		say "printing to '$out_dir/$dirs/$filename.html'" if $verbose;
-		open my $FH, '>', "$out_dir/$dirs/$filename.html";
-		print $FH $sample_prob_html;
+		# Find the directory of the file relative to $problem_dir.
+		my $relative_dir = ($filepath =~ s/$problem_dir\/?//r) =~ s/\/*$//r;
+
+		my $parsed_file = parseFile($path);
+
+		mkdir "$out_dir/$relative_dir" unless -d "$out_dir/$relative_dir";
+
+		say "Printing to '$out_dir/$relative_dir/$filename.html'" if $verbose;
+		open(my $FH, '>', "$out_dir/$relative_dir/$filename.html")
+			or die qq{Could not open output file "$out_dir/$relative_dir/$filename.html": $!};
+		print $FH $mt->render_file("$template_dir/problem-template.mt",
+			{ %$parsed_file, macro_loc => $macro_locations->{macros}, pod_dir => $pod_root, filename => $filename }
+		);
 		close $FH;
-		for my $cat (@{ $parsed_file->{categories} }) {
-			$categories->{$cat} = [] unless $categories->{$cat};
-			push(@{ $categories->{$cat} }, "$dirs/$filename.html");
+
+		for my $category (@{ $parsed_file->{categories} }) {
+			push(@{ $categories->{$category} }, "$relative_dir/$filename.html");
 		}
 	}
+
+	return;
 }
 
 sub parseFile ($file) {
-	my @blocks;
-	my @doc_rows;
-	my @code_rows;
-	my @categories;
-	my @description;
-	my @macros;
-	open(my $FH, '<:encoding(UTF-8)', $file) || die "Could not open file '$file' $!";
+	open(my $FH, '<:encoding(UTF-8)', $file) or die qq{Could not open file "$file": $!};
+	my @file_contents = <$FH>;
+	close $FH;
 
-	my %options;
-	my $descr;
-	while (my $row = <$FH>) {
-		chomp($row) if $row;
-		# If the row has the form #:% categories = [cat1,cat2,] parse as categories to add to the categories array
+	my (@blocks, @doc_rows, @code_rows, @categories, @description, @macros);
+	my (%options, $descr);
+
+	while (my $row = shift @file_contents) {
+		chomp($row);
+		# If the row has the form #:% categories = [cat1,cat2,] parse as categories to add to the categories array.
 		if ($row =~ /^#:%\s*categories\s*=\s*\[(.*)\]\s*$/) {
 			@categories = map { $_ =~ s/^\s*|\s*$//r } split(/,/, $1);
 			# If the row starts with #:%, it should be a line of section=NAME.
 			# TODO: throw error if not of this form?
 		} elsif ($row =~ /^#:%\s*(.*)?/) {
-			# this should parse the previous named section and the reset @doc_rows and @code_rows.
+			# This should parse the previous named section and then reset @doc_rows and @code_rows.
 			push(@blocks, { %options, doc => $md->markdown(join("\n", @doc_rows)), code => join("\n", @code_rows) })
 				if %options;
 			%options   = split(/\s*:\s*|\s*,\s*|\s*=\s*|\s+/, $1);
 			@doc_rows  = ();
 			@code_rows = ();
 		} elsif ($row =~ /loadMacros\(/) {
-			# parse the macros, which may be on multiples rows;
+			# Parse the macros, which may be on multiple rows.
 			push(@code_rows, $row);
 			my $macros = $row;
-			while ($row !~ /\);\s*$/) {
-				$row = <$FH>;
-				chomp($row) if $row;
+			while ($row && $row !~ /\);\s*$/) {
+				$row = shift @file_contents;
+				chomp($row);
 				$macros .= $row;
 				push(@code_rows, $row);
 			}
-			# Split by commans and pull out the quotes
+			# Split by commans and pull out the quotes.
 			@macros = map {s/['"]//gr} split(/\s*,\s*/, $macros =~ s/loadMacros\((.*)\)\;$/$1/r);
-			# This is a documentation line. Just push the row onto @doc_rows
+			# This is a documentation line. Just push the row onto @doc_rows.
 		} elsif ($row =~ /^#:/) {
 			push(@doc_rows, $row =~ s/^#://r);
 		} elsif ($row =~ /^##\s*(\w*)DESCRIPTION\s*$/) {
@@ -115,9 +116,10 @@ sub parseFile ($file) {
 			push(@code_rows, $row);
 		}
 	}
-	close $FH;
+
 	# The @doc_rows must be parsed then added to the @blocks.
 	push(@blocks, { %options, doc => $md->markdown(join("\n", @doc_rows)), code => join("\n", @code_rows) });
+
 	return {
 		blocks      => \@blocks,
 		categories  => \@categories,
@@ -126,31 +128,14 @@ sub parseFile ($file) {
 	};
 }
 
-# This produces the directory of files for links based on the catagories.
-sub outputCategoryFiles ($categories) {
-	# Create the directory structure for the HTML files
-	mkdir "$out_dir/categories" unless -d "$out_dir/categories";
-
-	my $categories_template = "$template_dir/catagory_layout.mt";
-	my $cat_links           = "$template_dir/links.mt";
-	my $categories_html     = $mt->render_file($categories_template, { categories => $categories, content => '' });
-
-	say 'creating categories index' if $verbose;
-	open my $FH, '>', "$out_dir/categories/index.html";
-	print $FH $categories_html;
+# This produces the index file.
+sub outputIndex ($categories) {
+	say 'Creating index' if $verbose;
+	open my $FH, '>', "$out_dir/index.html";
+	print $FH $mt->render_file("$template_dir/category-layout.mt", { categories => $categories });
 	close $FH;
 
-	for my $cat (keys %$categories) {
-		# replace spaces with underscore for filenames.
-		my $filename       = $cat =~ s/\s/_/rg;
-		my $link_list_html = $mt->render_file($cat_links, { cat => $cat, links => $categories->{$cat} });
-		my $cat_html =
-			$mt->render_file($categories_template, { categories => $categories, content => $link_list_html });
-		say "creating category file $filename.html" if $verbose;
-		open my $FH, '>', "$out_dir/categories/$filename.html";
-		print $FH $cat_html;
-		close $FH;
-	}
+	return;
 }
 
 1;

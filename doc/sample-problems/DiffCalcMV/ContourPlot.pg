@@ -12,7 +12,7 @@
 ## MO(1)
 ## KEYWORDS('multivariable differential calculus', 'contour plot')
 
-#:% categories=[Multivariate Calculus, plots]
+#:% categories=[multivariate calculus, plots]
 
 #:% section=preamble
 #:We will use `PGtikz.pl` for constructing the graph. The setting `$refreshCachedImages = 1;`
