@@ -697,21 +697,21 @@ sub is_open {
 }
 
 #
-#  Return a boolean array where a 1 means that answer blank has
-#  an answer evaluator assigned to it and 0 means not.
+#  Return a boolean array where a 1 means that answer blank
+#  has had its responses initialized and 0 means not.
 #
 sub assigned_ans {
 	my $self    = shift;
 	my @answers = ();
 	foreach my $name (keys %{$PG_ANSWERS_HASH}) {
-		push(@answers, $PG_ANSWERS_HASH->{$name}->ans_eval ? 1 : 0);
+		push(@answers, defined($PG_ANSWERS_HASH->{$name}{response}{responses}{$name}) ? 1 : 0);
 	}
 	return @answers;
 }
 
 #
 #  Get the names of any of the original answer blanks that now have
-#  evaluators attached.
+#  responses initialized
 #
 sub new_answers {
 	my $self     = shift;
@@ -719,7 +719,7 @@ sub new_answers {
 	my @answers  = ();
 	my $i        = 0;
 	foreach my $name (keys %{$PG_ANSWERS_HASH}) {
-		push(@answers, $name) if $PG_ANSWERS_HASH->{$name}->ans_eval && !$assigned[$i];
+		push(@answers, $name) if defined($PG_ANSWERS_HASH->{$name}{response}{responses}{$name}) && !$assigned[$i];
 		$i++;
 	}
 	delete $self->{assigned_ans};                 # don't need these any more
