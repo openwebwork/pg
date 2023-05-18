@@ -7,7 +7,11 @@
 	<title><%= $filename %></title>
 
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/base16/eva.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.11/lib/codemirror.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.11/theme/tomorrow-night-eighties.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.11/addon/runmode/runmode-standalone.min.js" defer>
+	</script>
+	<script src="../PG.js" defer></script>
 
 	<style>
 		.explanation {
@@ -60,9 +64,7 @@
 							<path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
 						</svg>
 					</button>
-					<pre class="m-0 h-100"><% =%>\
-						<code class="language-perl bg-dark border border-secondary h-100"><%= $_->{code} %></code><% =%>\
-					</pre><% =%>
+					<pre class="CodeMirror cm-s-tomorrow-night-eighties m-0 h-100 p-3 border border-secondary overflow-x-scroll"><%= $_->{code} %></pre>
 				</div>
 				<div class="explanation <%= $_->{section} %> col-sm-12 col-md-6 order-md-last order-first border border-dark">
 					<p><b><%= ucfirst($_->{section}) %></b></p>
@@ -73,8 +75,9 @@
 	</div>
 
 	<script type="module">
-		import hljs from 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/es/highlight.min.js';
-		hljs.highlightAll();
+		for (const pre of document.body.getElementsByTagName('pre')) {
+			CodeMirror.runMode(pre.textContent, 'PG', pre);
+		}
 
 		for (const btn of document.querySelectorAll('.clipboard-btn')) {
 			btn.addEventListener('click', () => navigator.clipboard.writeText(btn.dataset.code));

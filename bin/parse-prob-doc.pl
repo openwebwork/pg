@@ -11,6 +11,7 @@ use Text::MultiMarkdown;
 use File::Basename;
 use Getopt::Long;
 use File::Find qw(find);
+use File::Copy qw(copy);
 use YAML::XS qw(LoadFile);
 
 my ($problem_dir, $out_dir, $pod_root);
@@ -39,6 +40,9 @@ my $categories = {};
 
 find({ wanted => \&processSample }, $problem_dir);
 outputIndex($categories);
+
+# Copy the PG.js file into the output directory.
+copy("$pg_root/doc/js/PG.js", $out_dir);
 
 sub processSample {
 	my $path = $File::Find::name;
