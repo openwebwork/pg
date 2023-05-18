@@ -220,6 +220,7 @@ sub load_js() {
 	ADD_JS_FILE('js/apps/Base64/Base64.js',       0, { defer => undef });
 	ADD_JS_FILE('js/apps/Knowls/knowl.js',        0, { defer => undef });
 	ADD_JS_FILE('js/apps/ImageView/imageview.js', 0, { defer => undef });
+	ADD_JS_FILE('js/apps/Essay/essay.js',         0, { defer => undef });
 
 	if ($envir{useMathQuill}) {
 		ADD_JS_FILE('node_modules/mathquill/dist/mathquill.js', 0, { defer => undef });

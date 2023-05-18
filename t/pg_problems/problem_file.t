@@ -106,6 +106,7 @@ is(
 			{ file => 'js/apps/Base64/Base64.js',                 external => 0, attributes => { defer => undef } },
 			{ file => 'js/apps/Knowls/knowl.js',                  external => 0, attributes => { defer => undef } },
 			{ file => 'js/apps/ImageView/imageview.js',           external => 0, attributes => { defer => undef } },
+			{ file => 'js/apps/Essay/essay.js',                   external => 0, attributes => { defer => undef } },
 			{ file => 'node_modules/mathquill/dist/mathquill.js', external => 0, attributes => { defer => undef } },
 			{ file => 'js/apps/MathQuill/mqeditor.js',            external => 0, attributes => { defer => undef } }
 		],
