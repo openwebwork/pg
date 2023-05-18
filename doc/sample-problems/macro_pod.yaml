@@ -21,9 +21,11 @@ macros:
   parserAssignment.pl: parsers/parserAssignment.html
   parserCheckboxList.pl: parsers/parserCheckboxList.html
   parserDifferenceQuotient.pl: parsers/parserDifferenceQuotient.html
+  parserFormulaUpToConstant.pl: parsers/parserFormulaUpToConstant.html
   parserFormulaWithUnits.pl: parsers/parserFormulaWithUnits.html
   parserFormulaUpToConstant.pl: parsers/parserFormulaUpToConstant.html
   parserFunction.pl: parsers/parserFunction.html
+  parserGraphTool.pl: graph/parserGraphTool.html
   parserImplicitEquation.pl: parsers/parserImplicitEquation.html
   parserImplicitPlane.pl: parsers/parserImplicitPlane.html
   parserMultiAnswer.pl: parsers/parserMultiAnswer.html

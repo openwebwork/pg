@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Trigonometry: proving trig identities
+## Proving trig identities
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -14,78 +14,82 @@
 
 #:% name = Proving Identities
 #:% type = Sample
-#:% categories=[trigonometry, proof]
+#:% subject = [trigonometry, precalculus]
+#:% categories = [trigonometry, proof]
 
-#:% section=preamble
+#:% section = preamble
 #: This is a scaffolded problem, so load `scaffold.pl`.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'scaffold.pl', 'PGcourse.pl');
 
-#:% section=setup
+#:% section = setup
 #: We cleverly redefine the sine function so that when the student enters `sin(t)`,
 #: it is interpreted and evaluated internally as `exp(pi*t)` but displayed to the student as `sin(t)`.
-Context('Numeric')->variables->are(t => 'Real');
+Context()->variables->are(t => 'Real');
 
-# Redefine the sin(x) to be e^(pi x)
+# Redefine sin(x) to be e^(pi x).
 Context()->functions->remove('sin');
 
 package NewFunc;
-# this next line makes the function a function from reals to reals
+# The next line makes the function a function from reals to reals.
 our @ISA = qw(Parser::Function::numeric);
 
 sub sin {
-	shift;
-	my $x = shift;
-	return CORE::exp($x * 3.1415926535);
+    shift;
+    my $x = shift;
+    return CORE::exp($x * 3.1415926535);
 }
 
 package main;
 # Make it work on formulas as well as numbers
-#sub cos {Parser::Function->call('cos',@_)} # if uncommented, this line will generate error messages
-#  Add the new functions to the Context
+# sub cos { Parser::Function->call('cos', @_) } # if uncommented, this line will generate error messages
+# Add the new functions to the Context.
 Context()->functions->add(sin => { class => 'NewFunc', TeX => '\sin' },);
 
-#:% section=statement
+#:% section = statement
 BEGIN_PGML
-This problem has three parts . A part may be open if it is correct or if it is the
-first incorrect part. Clicking on the heading for a part toggles whether it is displayed.
+This problem has three parts.  A part may be open if it is correct or if it is
+the first incorrect part.  Clicking on the heading for a part toggles whether it
+is displayed.
 END_PGML
 
 Scaffold::Begin(is_open => 'correct_or_first_incorrect');
 
-Section::Begin("Part 1");
+Section::Begin('Part 1');
 BEGIN_PGML
 In this multi-part problem, we will use algebra to verify the identity
 
->> [`` \frac{\sin(t)}{1-\cos(t)} = \frac{1+\cos(t)}{\sin(t)}. ``] <<
+>>[`\displaystyle \frac{\sin(t)}{1 - \cos(t)} = \frac{1 + \cos(t)}{\sin(t)}.`]<<
 
 First, using algebra we may rewrite the equation above as
-[`` \sin(t) = \left( \frac{1+\cos(t)}{\sin(t)} \right) \cdot \Big( ``]
-[_____________]{Compute("1-cos(t)")} [`` \Big) ``].
+[`\displaystyle \sin(t) = \left( \frac{1 + \cos(t)}{\sin(t)} \right) \cdot \Big(`] [_]{'1 - cos(t)'}{15} [` \Big) `].
 END_PGML
 Section::End();
 
-Section::Begin("Part 2");
+Section::Begin('Part 2');
 BEGIN_PGML
-Using algebra we may rewrite the equation as [`` \sin(t) \cdot \big( ``]
-[______________]{Compute('sin(t)')}
-[`` \big) = \big(1+\cos(t)\big) \cdot \big(1-\cos(t)\big) ``].
+Using algebra we may rewrite the equation as
+[`\sin(t) \cdot \big(`] [_]{'sin(t)'}{15} [`\big) = \big(1 + \cos(t)\big) \cdot \big(1 - \cos(t)\big)`].
 END_PGML
 Section::End();
 
-Section::Begin("Part 3");
+Section::Begin('Part 3');
 BEGIN_PGML
 Finally, using algebra we may rewrite the equation as
-[`` \sin^2(t) = ``] [_______________]{Compute('1-(cos(t))^2')}, which is true since
-[`` \cos^2(t) + \sin^2(t) = 1 .``] Thus, the original identity can be derived by
+[`\sin^2(t) =`] [_]{'1-(cos(t))^2'}{15}, which is true since
+[`\cos^2(t) + \sin^2(t) = 1`]. Thus, the original identity can be derived by
 reversing these steps.
 END_PGML
 Section::End();
 
 Scaffold::End();
 
-COMMENT('This is a multi-part problem in which the next part is revealed only after the previous '
-	. 'part is correct.  Prevents students from entering trivial identities (entering what they were given).');
+COMMENT(
+    'This is a multi-part problem
+in which the next part is revealed only after the previous
+part is correct.  Prevents students from entering trivial
+identities (entering what they were given).  Uses PGML.'
+);
 
 ENDDOCUMENT();

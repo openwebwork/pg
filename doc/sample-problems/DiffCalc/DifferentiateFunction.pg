@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Differential calculus: difference quotients
+## Difference quotients
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -14,14 +14,14 @@
 #:% name = Differentiate a Function
 #:% type = Sample
 #:% subject = differential calculus
-#:% categories=[difference quotient]
+#:% categories = [difference quotient]
 
-#:% section=preamble
+#:% section = preamble
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
-#:% section=setup
+#:% section = setup
 #: The partial differentiation operator is `->D('x')`.
 #:
 #: The main difference between `eval()` and `substitute()` is
@@ -29,57 +29,59 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #:   - `eval()` returns a `Real` (a number)
 #:   - `substitute()` returns a `Formula`
 #:
-#:Since plugging a particular number `$k` into the Formula `$f` returns a Formula `$k x`,
-#: if we had used the eval method `$ans2 = $fx->eval(k=>$k);` instead of the `substitute`
+#: Since plugging a particular number `$k` into the Formula `$f` returns a Formula `$k x`,
+#: if we had used the eval method `$ans2 = $fx->eval(k => $k);` instead of the `substitute`
 #: method, we would get errors because `$k x` is a Formula, not a Real. Note: You cannot
 #: use eval or substitute to perform function composition, i.e., you can only plug in
 #: numbers, not formulas.
 #:
 #: When the answer is a constant, we can use either the eval method, in which case the
 #: answer would be a Real, or the substitute method, in which case the answer would
-#: be a constant Formula. If you use the eval method, `$ans3 = $fx->eval(x=>$a*pi,k=>$k);`
+#: be a constant Formula. If you use the eval method, `$ans3 = $fx->eval(x => $a * pi, k => $k);`
 #: the answer will be a Real and will display as a single number in decimal format.
 #: If you use the substitute method instead, you have more control over how the answer
 #: will be displayed. In particular, the context flag reduceConstants controls whether
 #: the answer will be reduced to a single number in decimal format, the flag
-#: reduceConstantFunctions controls whether or not expressions such as `4+5*2` are
-#: reduced to 14, and setting the context flag `formatStudentAnswer=>'parsed'` will
+#: reduceConstantFunctions controls whether or not expressions such as `4 + 5 * 2` are
+#: reduced to 14, and setting the context flag `formatStudentAnswer => 'parsed'` will
 #: prevent the student's answer from being reduced to a single number in decimal
 #: format and will also display pi instead of 3.14159...
 #:
 #: For more details, see eval versus substitute, formatting correct answers, and
 #: constants in problems.
-Context('Numeric')->variables->add(k => 'Real');
+Context()->variables->add(k => 'Real');
 Context()->flags->set(
-	reduceConstants         => 0,           # no decimals
-	reduceConstantFunctions => 1,           # combine 4+5*2?
-	formatStudentAnswer     => 'parsed',    # no decimals
+    reduceConstants         => 0,           # no decimals
+    reduceConstantFunctions => 1,           # simplify 4 + 5 * 2?
+    formatStudentAnswer     => 'parsed',    # no decimals
 );
 
-$a = random(6, 9, 1);
-$k = random(3, 5, 1);
+$a = random(6, 9);
+$k = random(3, 5);
 
-$f  = Formula("k x^2");
+$f  = Formula('k x^2');
 $fx = $f->D('x');
 
 $ans1 = $fx;
 
 $ans2 = $fx->substitute(k => $k);    # formula
-# $ans2 = $fx->eval(k=>$k); # gives errors, must eval to real
+# $ans2 = $fx->eval(k => $k); # gives errors, must eval to real
 
 $ans3 = $fx->substitute(x => $a * pi, k => $k);    # formula
-#$ans3 = $fx->eval(x=>$a*pi,k=>$k); # real
+# $ans3 = $fx->eval(x => $a * pi, k => $k); # real
 
-#:% section=statement
+#:% section = statement
 BEGIN_PGML
-Suppose [` f(x) = [$f] `] where [` k `] is a constant.
+Suppose [`f(x) = [$f]`] where [`k`] is a constant.
 
-a. [` f ' (x) = `] [_____]{$ans1}
-b. If [` k = [$k] `] then [` f ' (x) = `] [_____]{$ans2}
-c. If [` k = [$k] `] then [` f ' ([$a]\pi) = `] [_____]{$ans3}
+a. [`f'(x) =`] [_____]{$ans1}
+
+b. If [`k = [$k]`] then [`f'(x) =`] [_____]{$ans2}
+
+c. If [`k = [$k]`] then [`f'([$a]\pi) =`] [_____]{$ans3}
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

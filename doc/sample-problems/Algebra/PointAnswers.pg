@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## answers are lists of points
+## Answers are lists of points
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -9,20 +9,20 @@
 ## Institution(Hope College)
 ## Author(Paul Pearson)
 ## MO(1)
-## KEYWORDS('precalculus', 'list of points')
+## KEYWORDS('algebra', 'list of points')
 
 #:% name = Answers are a list of points
-#:% subject = [algebra, precalculus]
 #:% type = Sample
-#:% categories=[point, answers]
+#:% subject = [algebra, precalculus]
+#:% categories = [point, answers]
 
-#:% section=preamble
+#:% section = preamble
 #: We only need to load `contextLimitedPoint.pl` if we want to prevent operations between points.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'contextLimitedPoint.pl', 'PGcourse.pl');
 
-#:% section=setup
+#:% section = setup
 #: We could have used `Context("Point");` instead, which would allow mathematical
 #: operations between points (such as adding points as if they were vectors). The
 #: x-intercepts are clearly a list of points. We used a list with only one element
@@ -31,28 +31,28 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'contextLimitedPoint.pl', 'PGcourse.pl');
 #: a student who enters two points would be given an error message instead.
 Context('LimitedPoint');
 
-$f = Compute("x^2-1");
+$f = Compute("x^2 - 1");
 
-$xint = List(Point("(1,0)"), Point("(-1,0)"));
-$yint = List(Point("(0,-1)"));
+$xint = List(Point("(1, 0)"), Point("(-1, 0)"));
+$yint = List(Point("(0, -1)"));
 
-#:% section=statement
+#:% section = statement
 #: Be sure to tell students the proper syntax for how to enter their answers.
 BEGIN_PGML
-Enter the [`x`]-intercept(s) and [`y`]-intercept(s)
-of [` y = [$f] `].  Enter a point as [` (a,b) `],
-including the parentheses.  If there is more
-than one correct answer, enter a comma
-separated list of points.
+Enter the [`x`]-intercept(s) and [`y`]-intercept(s) of [`y = [$f]`].  Enter a
+point as [`(a,b)`], including the parentheses.  If there is more than one
+correct answer, enter a comma separated list of points.
 
-+ [`x`]-intercept(s): [_________________]{$xint}
++ [`x`]-intercept(s): [_]{$xint}{15}
 
-+ [`y`]-intercept(s): [_________________]{$yint}
++ [`y`]-intercept(s): [_]{$yint}{15}
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
+
+COMMENT('MathObject version. Uses PGML.');
 
 ENDDOCUMENT();

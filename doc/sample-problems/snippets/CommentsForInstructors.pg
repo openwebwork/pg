@@ -1,5 +1,5 @@
 ## DESCRIPTION
-##  Shows a Comment
+## Shows a Comment
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -13,12 +13,14 @@
 
 # updated to full problem by Peter Staab (06/01/2023)
 
-#:% name=Comment for Instructors
-#:% type=snippet
+#:% name = Comment for Instructors
+#:% type = snippet
+
 DOCUMENT();
+
 loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
-#:% section=comment
+#:% section = comment
 #: Include the `COMMENT();` just before the `ENDDOCUMENT();` Comments are only visible
 #: when the PG file is viewed in the Library Browser, so students will not see them.
 COMMENT('This problem is not randomized.');

@@ -14,58 +14,62 @@
 #:% name = Answer Blank in the Exponent
 #:% type = Sample
 #:% subject = [algebra, precalculus]
-#:% categories=[exponent]
+#:% categories = [exponent]
 
-#:% section=preamble
+#:% section = preamble
 #: The macro `unionTables.pl` provides a simple table for formatting.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'unionTables.pl', 'PGcourse.pl');
 
-#:% section=setup
+#:% section = setup
 #: We have a some code to display the answer blanks nicely in different modes,
 #: which you shouldn't need to change except perhaps the width for each answer blank.
-Context('Numeric')->variables->are(a => 'Real', b => 'Real');
+Context()->variables->are(a => 'Real', b => 'Real');
 
-$n = random(3, 9, 1);
+$n = random(3, 9);
 
-#  TeX
+# TeX
 $expression = "a^{$n} b^{$n}";
 
-#  MathObjects
+# MathObjects
 $base     = Formula("a*b");
 $exponent = Formula("$n");
 
 # Display exponents nicely
 Context()->texStrings;
 if ($displayMode eq 'TeX') {
-	$showpower = "\( \displaystyle $expression = (" . ans_rule(4) . ")^{" . ans_rule(4) . "}\)";
+    $showpower =
+        "\( \displaystyle $expression = ("
+        . ans_rule(4) . ")^{"
+        . ans_rule(4) . "}\)";
 } else {
-	$showpower = ColumnTable(
-		"\( \displaystyle $expression = \Big( \)" . ans_rule(4) . "\( \Big) \)",
-		ans_rule(4) . $BR . $BR,
-		indent     => 0,
-		separation => 0,
-		valign     => 'BOTTOM'
-	);
+    $showpower = ColumnTable(
+        "\( \displaystyle $expression = \Big( \)"
+            . ans_rule(4)
+            . "\( \Big) \)",
+        ans_rule(4) . $BR . $BR,
+        indent     => 0,
+        separation => 0,
+        valign     => 'BOTTOM'
+    );
 }
 Context()->normalStrings;
 
-#:% section=statement
+#:% section = statement
 #: We insert the nicely formatted answer blanks using `$showpower`.
 BEGIN_PGML
 Rewrite the following using a single exponent.
-
 [$showpower]***
 END_PGML
 
-#:% section=answer
+#:% section = answer
 #: Because the answer blanks are traditional ans_rule, then we need to use this
 #: style of answer checking.
 ANS($base->cmp());
 ANS($exponent->cmp());
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

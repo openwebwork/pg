@@ -16,21 +16,25 @@
 #:% name = Expanded Polynomial
 #:% type = Sample
 #:% subject = [algebra, precalculus]
-#:% categories=[polynomial]
+#:% categories = [polynomial]
 
-#:% section=preamble
+#:% section = preamble
 #: We must load `contextLimitedPolynomial.pl`
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextLimitedPolynomial.pl', 'PGcourse.pl');
+loadMacros(
+    'PGstandard.pl',               'PGML.pl',
+    'contextLimitedPolynomial.pl', 'PGcourse.pl'
+);
 
-#:% section=setup
+#:% section = setup
 #: The macro contextLimitedPolynomial.pl provides two contexts:
 #:
-#:  * `Context("LimitedPolynomial");`
-#:  * `Context("LimitedPolynomial-Strict");`
-#:
-#:The strict version does not allow any mathematical operations within coefficients,
+#: ```{#contexts .perl}
+#: Context('LimitedPolynomial');
+#: Context('LimitedPolynomial-Strict');
+#: ```
+#: The strict version does not allow any mathematical operations within coefficients,
 #: so `(5+3)x` must be simplified to `8x`. For more details, see PODLINK('contextLimitedPolynomial.pl').
 #:
 #: We use the LimitedPolynomial-Strict context, construct the coefficients $b and $c
@@ -39,27 +43,28 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'contextLimitedPolynomial.pl', 'PGcourse.
 #: already simplified completely. Notice that we called the `->reduce()` method on the
 #: expanded form of the polynomial, which will ensure that the polynomial will be
 #: displayed as `x^2 - 6x + 4` instead of `x^2 + -6x + 4`.
-
+Context('Numeric');
 $h          = 3;
 $k          = 5;
+$vertexform = Compute("(x-$h)^2-$k");
 
-# Expanded form, which is what is expected from students.
-Context("LimitedPolynomial-Strict");
+# Expanded form
+Context('LimitedPolynomial-Strict');
 $b            = -2 * $h;
 $c            = $h**2 - $k;
 $expandedform = Formula("x^2 + $b x + $c")->reduce();
 
-#:% section=statement
+#:% section = statement
 #: To help students understand how to format their answers, we give an example
 #: `ax^2+bx+c` of what the answer should look like.
 BEGIN_PGML
-The quadratic expression [` (x-[$h])^2-[$k] `] is written in vertex form.
-Write the expression in expanded form [` ax^2 + bx + c `].
+The quadratic expression [`[$vertexform]`] is written in vertex form.
+Write the expression in expanded form [`ax^2 + bx + c`].
 
-[__________________]{$expandedform}
+[_]{$expandedform}{20}
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

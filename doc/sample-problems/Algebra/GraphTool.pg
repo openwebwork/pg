@@ -1,0 +1,167 @@
+## DESCRIPTION
+## Interactive graphing tool problems.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(WeBWorK tutorial)
+## Date(05/28/2023)
+## Institution(Missouri Western State University)
+## Author(Glenn Rice)
+## KEYWORDS('graphs', 'circles')
+
+#:% name = Interactive graphing tool problems
+#:% type = Sample
+#:% subject = [algebra, precalculus]
+#:% categories = [graph]
+
+#:% section = preamble
+#: This example shows how to get student input in the form of a graph (a circle)
+#: by using interactive graphing tools. Load the parserGraphTool.pl macro for
+#: this.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: The variables $h, $k and $r randomly pick a center and radius of the circle.
+#:
+#: The lines
+#:
+#: ```
+#: Context()->variables->add(y => 'Real');
+#: $circle_eq_lhs = Formula("(x - $h)^2 + (y - $k)^2")->reduce;
+#: ```
+#:
+#: define the equation of the circle that is shown in the problem and solution.
+#:
+#: The `GraphTool` method creates the graph tool object. The only argument is
+#: the correct answer. This is a string that contains a list of objects that
+#: the student will be expected to graph. Each object is a brace delimited list
+#: of the attributes of the object. The first attribute in each list is the
+#: type of object to be graphed, `circle` in this case. What the remaining
+#: attributes are depend on the type. For a circle the second attribute is
+#: whether the object is to be `solid` or `dashed`, the third attribute is the
+#: center of the circle, and the fourth attribute is a point on the circle.
+#:
+#: The `->with` method is then used to set options for the `GraphTool` object.
+#: In this case the options that are set are:
+#:
+#: * bbox: this is an array reference of four values xmin, ymax, xmax, ymin
+#: indicating the upper left and lower right corners of the visible graph.
+#: * cmpOptions: this is a hash of options passed to the cmp method for checking
+#: the answer.
+#:
+#: The option
+#:
+#: ```
+#: cmpOptions => { list_checker => sub { ... } }
+#: ```
+#:
+#: defines a list checker. The list checker is passed the `$correct` answer
+#: which will be a MathObject list of lists containing the attributes of the
+#: correct graph objects as described above, and the `$student` answer which
+#: will be a MathObject list of lists containing the attributes of the objects
+#: the student graphed. Note that this checker allows the student to graph the
+#: correct circle multiple times. The idea is that the graph is graded based on
+#: appearance. No matter how many times the student graphs the correct circle,
+#: the resulting graph appears the same.
+
+$h = non_zero_random(-5, 5);
+$k = non_zero_random(-5, 5);
+$r = random(1, 4);
+
+Context()->variables->add(y => 'Real');
+$circle_eq_lhs = Formula("(x - $h)^2 + (y - $k)^2")->reduce;
+
+$gt = GraphTool("{circle, solid, ($h, $k), ($h + $r, $k)}")->with(
+    bBox       => [ -11, 11, 11, -11 ],
+    cmpOptions => {
+        list_checker => sub {
+            my ($correct, $student, $ans, $value) = @_;
+            return 0 if $ans->{isPreview};
+
+            my $score = 0;
+            my @errors;
+            my $count = 1;
+
+            # Get the center and point that define the correct circle and
+            # compute the square of the radius.
+            my ($cx, $cy) = $correct->[0]->extract(3)->value;
+            my ($px, $py) = $correct->[0]->extract(4)->value;
+            my $r_squared = ($cx - $px)**2 + ($cy - $py)**2;
+
+            my $pointOnCircle = sub {
+                my $point = shift;
+                my ($x, $y) = $point->value;
+                return ($x - $cx)**2 + ($y - $cy)**2 == $r_squared;
+            };
+
+            # Iterate through the objects the student graphed and check to
+            # see if each is the correct circle.
+            for (@$student) {
+                my $nth = Value::List->NameForNumber($count++);
+
+                # This checks if the object graphed by the student is the same
+                # type as the correct object type (a circle in this case),
+                # has the same solid or dashed status, has the same center, and
+                # if the other point graphed is on the circle.
+                if ($_->extract(1) eq $correct->[0]->extract(1)
+                    && $_->extract(2) eq $correct->[0]->extract(2)
+                    && $_->extract(3) == $correct->[0]->extract(3)
+                    && $pointOnCircle->($_->extract(4)))
+                {
+                    $score += 1;
+                    next;
+                }
+
+                # Add messages for incorrect answers.
+
+                if ($_->extract(1) ne $correct->[0]->extract(1)) {
+                    push(@errors,
+                        "The $nth object graphed is not a circle");
+                    next;
+                }
+
+                if ($_->extract(2) ne $correct->[0]->extract(2)) {
+                    push(@errors,
+                        "The $nth object graphed should be a "
+                            . $correct->[0]->extract(2)
+                            . " circle.");
+                    next;
+                }
+
+                push(@errors, "The $nth object graphed is incorrect.");
+            }
+
+            return ($score, @errors);
+        }
+    }
+);
+
+#:% section = statement
+#: This asks to graph the circle given by the equation. The code
+#: `[_]{$gt}` inserts the GraphTool.
+BEGIN_PGML
+Graph the circle given by the following equation.
+
+    [`[$circle_eq_lhs] = [$r ** 2]`]
+
+[_]{$gt}
+END_PGML
+
+#:% section = solution
+#: The solution describes how to obtain the graph of the circle from the
+#: equation.
+BEGIN_PGML_SOLUTION
+The equation of the circle of the form:
+
+    [`[$circle_eq_lhs] = [$r ** 2]`]
+
+has a center at [`([$h],[$k])`] and radius [$r].  To enter the graph, click the
+circle tool, then click the center at [`([$h],[$k])`] and then click a second
+point that is [$r] units from the center.  This is easist going left, right, up
+or down from the center.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

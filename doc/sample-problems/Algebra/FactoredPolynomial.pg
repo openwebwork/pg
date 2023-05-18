@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Algebra: factored polynomial
+## Factored polynomial
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -15,15 +15,19 @@
 #:% name = Factored Polynomial
 #:% type = Sample
 #:% subject = [algebra, precalculus]
-#:% categories=[polynomial]
+#:% categories = [polynomial]
 
-#:% section=preamble
+#:% section = preamble
 #: We require additional contexts provided by `contextPolynomialFactors.pl` and `contextLimitedPowers.pl`
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextPolynomialFactors.pl', 'contextLimitedPowers.pl', 'PGcourse.pl');
+loadMacros(
+    'PGstandard.pl',               'PGML.pl',
+    'contextPolynomialFactors.pl', 'contextLimitedPowers.pl',
+    'PGcourse.pl'
+);
 
-#:% section=setup
+#:% section = setup
 #: For the factored form we need to change to the `PolynomialFactors-Strict` context
 #: and restrict the allowed powers to either 0 or 1 using the `LimitedPowers::OnlyIntegers`
 #: block of code. Note: restricting all exponents to 0 or 1 means that repeated factors
@@ -32,30 +36,31 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'contextPolynomialFactors.pl', 'contextLi
 #: product of linear factors (no irreducible quadratic factors can appear). Of course,
 #: we could allow exponents to be 0, 1, or 2, but then students would be allowed to
 #: enter reducible quadratic factors. There are no restrictions on the coefficients, i.e.,
-#: the quadratic could have any nonzero leading coefficient. We set `singleFactors=>0`
+#: the quadratic could have any nonzero leading coefficient. We set `singleFactors => 0`
 #: so that repeated, non-simplified factors do not generate errors.
 # Expanded form
-$poly = Compute("8x^2+28x+12");
+Context('Numeric');
+$poly = Compute('8x^2 + 28x + 12');
 
 # Factored form
-Context("PolynomialFactors-Strict");
+Context('PolynomialFactors-Strict');
 Context()->flags->set(singleFactors => 0);
 LimitedPowers::OnlyIntegers(
-	minPower => 0,
-	maxPower => 1,
-	message  => "either 0 or 1",
+    minPower => 0,
+    maxPower => 1,
+    message  => 'either 0 or 1',
 );
-$factored = Compute("4(2x+1)(x+3)");
+$factored = Compute('4(2x+1)(x+3)');
 
-#:% section=statement
+#:% section = statement
 #: We should explicitly tell students to enter answers in the form `k(ax+b)(cx+d)`.
 BEGIN_PGML
-Write the quadratic expression [` [$poly] `] in factored form [` k(ax+b)(cx+d) `].
+Write the quadratic expression [`[$poly]`] in factored form [`k(ax+b)(cx+d)`].
 
-[____________________]{$factored}
+[_]{$factored}{20}
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

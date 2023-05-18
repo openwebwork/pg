@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Trigonometry: periodic answers
+## Periodic answers
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -13,29 +13,28 @@
 
 #:% name = Periodic Answers
 #:% type = Sample
-#:% categories=[trigonometry]
+#:% subject = [trigonometry, precalculus]
+#:% categories = [trigonometry]
 
-#:% section=preamble
+#:% section = preamble
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
-#:% section=setup
-Context('Numeric');
+#:% section = setup
+$answer = Real('pi/2')->with(period => pi);
 
-$ans = Real("pi/2")->with(period => pi);
-
-#:% section=statement
+#:% section = statement
 BEGIN_PGML
-Enter a solution to [` \cos(\theta) = 0 `] .
+Enter a solution to [`\cos(\theta) = 0`].
 
-[` \theta = `] [____________]{$ans}
+[`\theta =`] [_]{$answer}{15}
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
-The cosine of an angle is zero when the angle is [`(n+1/2)\pi`]
-for any integer [`n`].
+The cosine of an angle is zero when the angle is [`(n + 1 / 2)\pi`] for any
+integer [`n`].
 END_PGML_SOLUTION
 
-	ENDDOCUMENT();
+ENDDOCUMENT();

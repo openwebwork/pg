@@ -12,17 +12,20 @@
 ## KEYWORDS('parametric', 'curve in space')
 
 #:% name = Vector Parametric Function
-#:% subject = parametric
 #:% type = Sample
+#:% subject = parametric
 
-#:% section=preamble
+#:% section = preamble
 #: Since it is a vector parametric curve, we will want vector utilities from `parserVectorUtils.pl`.
 #: Since we will need to check multiple answer blanks that depend upon each other, we use `parserMultiAnswer.pl`.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserVectorUtils.pl', 'parserMultiAnswer.pl',
-	'PGcourse.pl');
+loadMacros(
+    'PGstandard.pl',        'PGML.pl',
+    'parserVectorUtils.pl', 'parserMultiAnswer.pl',
+    'PGcourse.pl'
+);
 
-#:% section=setup
+#:% section = setup
 #: The student's vector-valued function is stored in `$f`. To get the x- and y-components
 #: of the students answer we dot it with the standard basis vectors using `$f . i` and `$f . j`.
 #: Note: If you want to differentiate the component functions in the student's answer, you'll
@@ -32,59 +35,53 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserVectorUtils.pl', 'parserMultiAnswe
 #: Notice that we have given the students helpful feedback messages about which endpoints are incorrect.
 Context('Vector2D');
 #Context('Vector'); # for 3D vectors
-Context()->variables->are(t=>'Real');
-Context()->variables->set(t=>{limits=>[0,5]});
-Context()->flags->set( ijk=>0 );
+Context()->variables->are(t => 'Real');
+Context()->variables->set(t => { limits => [ 0, 5 ] });
+Context()->flags->set(ijk => 0);
 
-$a = random(2,5);
-$Q = Point($a,$a**2);
+$a = random(2, 5);
+$Q = Point($a, $a**2);
 
+$multians = MultiAnswer(Vector("<t,t**2>"), 0, $a)->with(
+    singleResult => 1,
 
-$multians = MultiAnswer(Vector("<t,t**2>"),0,$a)->with(
-	singleResult => 1,
+    checker => sub {
 
-	checker => sub {
-
-	my ($correct,$student,$self) = @_;  # get the parameters
-	my ($f,$x1,$x2) = @{$student};      # extract student answers
-	if (
-			( ($f . i)**2 == ($f . j)  )
-			&& ($f->eval(t=>$x1) == Vector("<0,0>"))
-			&& ($f->eval(t=>$x2) == Vector("<$a,$a**2>"))
-		) {
-			return 1;
-		} elsif (
-			( ($f . i)**2 == ($f . j)  )
-			&& ($f->eval(t=>$x1) == Vector("<0,0>"))
-		) {
-			$self->setMessage(3,'Your right endpoint is not correct.');
-			return 0;
-		} elsif (
-			( ($f . i)**2 == ($f . j)  )
-			&& ($f->eval(t=>$x2) == Vector("<$a,$a**2>"))
-		) {
-			$self->setMessage(2,'Your left endpoint is not correct.');
-			return 0;
-		} elsif (
-			( ($f . i)**2 == ($f . j)  )
-		) {
-			$self->setMessage(2,'Your left endpoint is not correct.');
-			$self->setMessage(3,'Your right endpoint is not correct.');
-			return 0;
-		} else {
-			return 0;
-		}
-	}
+        my ($correct, $student, $self) = @_;           # get the parameters
+        my ($f,       $x1,      $x2)   = @{$student};  # extract student answers
+        if ((($f . i)**2 == ($f . j))
+            && ($f->eval(t => $x1) == Vector("<0,0>"))
+            && ($f->eval(t => $x2) == Vector("<$a,$a**2>")))
+        {
+            return 1;
+        } elsif ((($f . i)**2 == ($f . j))
+            && ($f->eval(t => $x1) == Vector("<0,0>")))
+        {
+            $self->setMessage(3, 'Your right endpoint is not correct.');
+            return 0;
+        } elsif ((($f . i)**2 == ($f . j))
+            && ($f->eval(t => $x2) == Vector("<$a,$a**2>")))
+        {
+            $self->setMessage(2, 'Your left endpoint is not correct.');
+            return 0;
+        } elsif ((($f . i)**2 == ($f . j))) {
+            $self->setMessage(2, 'Your left endpoint is not correct.');
+            $self->setMessage(3, 'Your right endpoint is not correct.');
+            return 0;
+        } else {
+            return 0;
+        }
+    }
 );
 
-#:% section=statement
+#:% section = statement
 BEGIN_PGML
 Find a vector parametric equation for the parabola
-[` y = x^2 `] from the origin to the point
-[` [$Q] `] using [` t `] as a parameter.
+[`y = x^2`] from the origin to the point
+[`[$Q]`] using [`t`] as a parameter.
 
-[` \vec{r}(t) = `][___________]{$multians} for [___]{$multians}
-[` \leq t \leq `][___]{$multians}.
+[`\vec{r}(t) =`] [_]{$multians}{10} for [___]{$multians}
+[`\leq t \leq`] [___]{$multians}.
 END_PGML
 
 #:% section = solution

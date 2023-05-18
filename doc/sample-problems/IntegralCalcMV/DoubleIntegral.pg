@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Multivariable integral calculus: setting up double integrals
+## Setting up double integrals
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -12,162 +12,173 @@
 ## KEYWORDS('Integrals', 'setting up double integrals')
 
 #:% name = Double Integral
-#:% subject = multivariate calculus
 #:% type = Sample
-#:% categories=[double integral]
+#:% subject = multivariate calculus
+#:% categories = [double integral]
 
-#:% section=preamble
-#: Since there are multiple answer blanks that are dependent upon each other, we use `parserMultiAnswer.pl`
+#:% section = preamble
+#: Since there are multiple answer blanks that are dependent upon each other, we use `parserMultiAnswer.pl`.
 DOCUMENT();
+
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
 
-#:% section=setup
+#:% section = setup
 #: There are two separate cases: integrating with respect to dx dy (which we call case
 #: 0) or with respect to dy dx (which we call case 1). The zeroth and first entries
 #: in each of the arrays `@id, @od, @A, @B, @C, @D` hold the values for case 0 and case 1,
-#:  respectively. We used constant limits of integration to keep this example easy to follow,
-#:  but we encourage you to write questions over non-rectangular regions.
+#: respectively. We used constant limits of integration to keep this example easy to follow,
+#: but we encourage you to write questions over non-rectangular regions.
 #:
 #: The `$multians` object has been compartmentalized, so you shouldn't need to change it
 #: unless you want to fiddle with the weighted score for each answer blank (by changing
 #: the return values). The return values are set so that the percentages come out nicely.
-Context('Numeric');
 Context()->variables->are(
-	x  => 'Real',
-	dx => 'Real',
-	y  => 'Real',
-	dy => 'Real'
+    x  => 'Real',
+    dx => 'Real',
+    y  => 'Real',
+    dy => 'Real'
 );
 Context()->flags->set(reduceConstants => 0);
 
-#  limits of integration
+# limits of integration
 
 $a = random(1, 5, 1);
 $b = $a + random(1, 4, 1);
 do { $c = random(1, 5, 1); }      until ($c != $a);
 do { $d = $c + random(1, 4, 1); } until ($d != $b);
 
-
 # integrand and volume
 
-$f = Formula("x*y");
+$f = Formula('x * y');
 $V = Formula("($b^2-$a^2) * ($d^2-$c^2) / 4");
 
-
-#  differentials and limits of integration
-#
-#  Case 0, element 0 of each array below, is if the order of integration is dx dy
-#
-#  Case 1, element 1 of each array below, is if the order of integration is dy dx
-#
-#  'id' and 'od' stand for inner and outer differential
+# differentials and limits of integration
+# Case 0, element 0 of each array below, is if the order of integration is dx dy
+# Case 1, element 1 of each array below, is if the order of integration is dy dx
+# 'id' and 'od' stand for inner and outer differential
 
 @id = (Formula('dx'), Formula('dy'));    # (case 0, case 1)
 @od = (Formula('dy'), Formula('dx'));    # (case 0, case 1)
 
-#  A = outer integral, lower limit
-#  B = outer integral, upper limit
-#  C = inner integral, lower limit
-#  D = inner integral, upper limit
+# A = outer integral, lower limit
+# B = outer integral, upper limit
+# C = inner integral, lower limit
+# D = inner integral, upper limit
 
-@A = (Formula("$c"), Formula("$a"));    # (case 0, case 1)
-@B = (Formula("$d"), Formula("$b"));    # (case 0, case 1)
-@C = (Formula("$a"), Formula("$c"));    # (case 0, case 1)
-@D = (Formula("$b"), Formula("$d"));    # (case 0, case 1)
+@A = (Formula($c), Formula($a));    # (case 0, case 1)
+@B = (Formula($d), Formula($b));    # (case 0, case 1)
+@C = (Formula($a), Formula($c));    # (case 0, case 1)
+@D = (Formula($b), Formula($d));    # (case 0, case 1)
 
 $multians = MultiAnswer($f, $id[0], $od[0], $A[0], $B[0], $C[0], $D[0])->with(
-	singleResult => 1,
-	checker      => sub {
-		my ($correct, $student, $self) = @_;
-		my ($fstu, $idstu, $odstu, $Astu, $Bstu, $Cstu, $Dstu) = @{$student};
-		if (($f == $fstu
-					&& $id[0] == $idstu
-					&& $od[0] == $odstu
-					&& $A[0] == $Astu
-					&& $B[0] == $Bstu
-					&& $C[0] == $Cstu
-					&& $D[0] == $Dstu) ||
-				($f == $fstu
-					&& $id[1] == $idstu
-					&& $od[1] == $odstu
-					&& $A[1] == $Astu
-					&& $B[1] == $Bstu
-					&& $C[1] == $Cstu
-					&& $D[1] == $Dstu)){
-			return 1;
-		}
-		elsif (( $f == $fstu
-						&& $id[0] == $idstu
-						&& $od[0] == $odstu
-						&& ($A[0] != $Astu || $B[0] != $Bstu)
-						&& $C[0] == $Cstu
-						&& $D[0] == $Dstu) ||
-					($f == $fstu
-						&& $id[1] == $idstu
-						&& $od[1] == $odstu
-						&& ($A[1] != $Astu || $B[1] != $Bstu)
-						&& $C[1] == $Cstu
-						&& $D[1] == $Dstu)
-				|| ($f == $fstu
-					&& $id[0] == $idstu
-					&& $od[0] == $odstu
-					&& $A[0] == $Astu
-					&& $B[0] == $Bstu
-					&& ($C[0] != $Cstu || $D[0] != $Dstu))
-				|| ($f == $fstu
-					&& $id[1] == $idstu
-					&& $od[1] == $odstu
-					&& $A[1] == $Astu
-					&& $B[1] == $Bstu
-					&& ($C[1] != $Cstu || $D[1] != $Dstu))
-			)
-		{
-			$self->setMessage(1, "Check your limits of integration.");
-			return 0.94;
-		}
-		elsif (($f == $fstu
-					&& $id[0] == $idstu
-					&& $od[0] == $odstu
-					&& ($A[0] != $Astu || $B[0] != $Bstu)
-					&& ($C[0] != $Cstu || $D[0] != $Dstu))
-				|| ($f == $fstu
-					&& $id[1] == $idstu
-					&& $od[1] == $odstu
-					&& ($A[1] != $Astu || $B[1] != $Bstu)
-					&& ($C[1] != $Cstu || $D[1] != $Dstu))
-			) {
-			$self->setMessage(1, "Check your limits of integration and order of integration.");
-			return 0.47;
-		} else {
-			return 0;
-		}
-	}
+    singleResult => 1,
+    checker      => sub {
+        my ($correct, $student, $self) = @_;
+        my ($fstu, $idstu, $odstu, $Astu, $Bstu, $Cstu, $Dstu) =
+            @{$student};
+        if (
+            (
+                $f == $fstu
+                && $id[0] == $idstu
+                && $od[0] == $odstu
+                && $A[0] == $Astu
+                && $B[0] == $Bstu
+                && $C[0] == $Cstu
+                && $D[0] == $Dstu
+            )
+            || ($f == $fstu
+                && $id[1] == $idstu
+                && $od[1] == $odstu
+                && $A[1] == $Astu
+                && $B[1] == $Bstu
+                && $C[1] == $Cstu
+                && $D[1] == $Dstu)
+            )
+        {
+            return 1;
+        } elsif (
+            (
+                $f == $fstu
+                && $id[0] == $idstu
+                && $od[0] == $odstu
+                && ($A[0] != $Astu || $B[0] != $Bstu)
+                && $C[0] == $Cstu
+                && $D[0] == $Dstu
+            )
+            || ($f == $fstu
+                && $id[1] == $idstu
+                && $od[1] == $odstu
+                && ($A[1] != $Astu || $B[1] != $Bstu)
+                && $C[1] == $Cstu
+                && $D[1] == $Dstu)
+            || ($f == $fstu
+                && $id[0] == $idstu
+                && $od[0] == $odstu
+                && $A[0] == $Astu
+                && $B[0] == $Bstu
+                && ($C[0] != $Cstu || $D[0] != $Dstu))
+            || ($f == $fstu
+                && $id[1] == $idstu
+                && $od[1] == $odstu
+                && $A[1] == $Astu
+                && $B[1] == $Bstu
+                && ($C[1] != $Cstu || $D[1] != $Dstu))
+            )
+        {
+            $self->setMessage(1, 'Check your limits of integration.');
+            return 0.94;
+        } elsif (
+            (
+                $f == $fstu
+                && $id[0] == $idstu
+                && $od[0] == $odstu
+                && ($A[0] != $Astu || $B[0] != $Bstu)
+                && ($C[0] != $Cstu || $D[0] != $Dstu)
+            )
+            || ($f == $fstu
+                && $id[1] == $idstu
+                && $od[1] == $odstu
+                && ($A[1] != $Astu || $B[1] != $Bstu)
+                && ($C[1] != $Cstu || $D[1] != $Dstu))
+            )
+        {
+            $self->setMessage(1,
+                'Check your limits of integration and order of integration.'
+            );
+            return 0.47;
+        } else {
+            return 0;
+        }
+    }
 );
 
-#:% section=statement
+#:% section = statement
 #: The only interesting thing to note here is that you must use `$multians` for each
 #: answer blank (except the last one, which is independent.)
 BEGIN_PGML
-Set up a double integral in rectangular coordinates for calculating the volume of
-the solid under the graph of the function [` f(x,y) = [$f] `] over the region [` [$a] \leq x \leq [$b] `]
-and [` [$c] \leq y \leq [$d] `].
+Set up a double integral in rectangular coordinates for calculating the volume
+of the solid under the graph of the function [`f(x,y) = [$f]`] over the region
+[`[$a] \leq x \leq [$b]`] and [`[$c] \leq y \leq [$d]`].
 
-_Instructions:_ Please enter the integrand in the first answer box . Depending on the order of
-integration you choose, enter _dx_ and _dy_ in either order into the second and third answer
-boxes with only one _dx_ or _dy_ in each box . Then, enter the limits of integration
-and evaluate the integral to find the volume.
+_Instructions:_ Please enter the integrand in the first answer box . Depending
+on the order of integration you choose, enter _dx_ and _dy_ in either order into
+the second and third answer boxes with only one _dx_ or _dy_ in each box . Then,
+enter the limits of integration and evaluate the integral to find the volume.
 
-[`` \int_A ^ B \int_C ^ D ``] [___________]{$multians} [_____]{$multians} [_____]{$multians}
+[``\int_A^B \int_C^D``] [_]{$multians}{10} [_]{$multians}{5} [_]{$multians}{5}
 
-A = [_____________]{$multians}
-B = [_____________]{$multians}
-C = [_____________]{$multians}
-D = [_____________]{$multians}
+A = [_]{$multians}{10}
 
-Volume = [___________________________]{$V}
+B = [_]{$multians}{10}
+
+C = [_]{$multians}{10}
+
+D = [_]{$multians}{10}
+
+Volume = [_]{$V}{10}
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

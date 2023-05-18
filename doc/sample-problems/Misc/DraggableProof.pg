@@ -12,46 +12,52 @@
 ## KEYWORDS('draggable proof', 'template')
 
 #:% name = Draggable Proof
-#:% subject = proof
 #:% type = Sample
-#:% categories=[proof, draggable]
-#:% section=preamble
-#: The macro `draggableProof.pl` needs to be loaded.
+#:% subject = proof
+#:% categories = [proof, draggable]
+
+#:% section = preamble
+#: This problem uses the `draggableProof.pl` macro to display "buckets" that the
+#: student can drag statements to and from.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'draggableProof.pl', 'PGcourse.pl');
 
-#:% section=setup
+#:% section = setup
 #: The `DraggableProof` function takes an arrayref of correct statements,
-#: followed (optionally) by extra statements. See PODLINK('the POD','draggableProof.pl')
-#: for more options. These are the statements of the proof in the correct order.
-$statements = [
-	'Assume \(\sqrt{2}=\frac{a}{b}\) where \(a,b\) are integers, with \(\text{gcd}(a,b)=1\) ',
-	'\(2 = \frac{a^2}{b^2}\)',
-	'\(a^2 = 2b^2\)',
-	'if \(a^2\) is even, then \(a\) must be even',
-	'Let \(a=2k\) for \(k\) some integer',
-	'We can then write \( 2 = \frac{4k^2}{b^2}\) or \(b^2 = 2k^2\)',
-	'Therefore \(b^2\) is even, so \(b\) is also even',
-	'If \(a\) and \(b\) are both even, then the initial assumption that  \(\text{gcd}(a,b)=1\) is contradicted.',
-	'\(\sqrt{2}\) is therefore not rational.'
-];
+#: followed (optionally) by extra statements. See
+#: PODLINK('the POD', 'draggableProof.pl') for more options.
+# These are the statements of the proof in the correct order.
+$proof = DraggableProof(
+	# These are the correct statements of the proof in the correct order.
+    [
+        'Assume \(\sqrt{2} = \frac{a}{b}\) where \(a,b\) are integers, with \(\text{gcd}(a,b) = 1\)',
+        '\(2 = \frac{a^2}{b^2}\)',
+        '\(a^2 = 2b^2\)',
+        'if \(a^2\) is even, then \(a\) must be even',
+        'Let \(a = 2k\) for \(k\) some integer',
+        'We can then write \(2 = \frac{4k^2}{b^2}\) or \(b^2 = 2k^2\)',
+        'Therefore \(b^2\) is even, so \(b\) is also even',
+        'If \(a\) and \(b\) are both even, then the initial assumption that \(\text{gcd}(a,b) = 1\) is contradicted.',
+        '\(\sqrt{2}\) is therefore not rational.'
+    ],
+    # These are extra statements that are not needed.
+    [
+        'Then \(a\) is odd',
+        '\(b^2\) cannot be rational.',
+        'therefore \(a = 2b\)'
+    ]
+);
 
-# These are extra statements that are not needed.
-$extra = [ 'Then \(a\) is odd', '\(b^2\) cannot be rational.', 'therefore \(a = 2b\)' ];
-
-$proof = DraggableProof($statements, $extra);
-
-#:% section=statement
-#:The line `[@ $proof->Print @]*` prints the statement and options in the proof.
+#:% section = statement
+#: The line `[_]{$proof}` prints the statement and options in the proof and sets up the answer rule.
 BEGIN_PGML
+Prove that [`\sqrt{2}`] is irrational.
 
-Prove that [`\sqrt{2}`] is irrational .
-
-[___]{$proof}
+[_]{$proof}
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Integral calculus: volume of solids of revolution
+## Volume of solids of revolution
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -13,84 +13,72 @@
 
 #:% name = Volume of Solids of Revolution 3
 #:% type = Sample
-#:% categories=[volume, disk method]
+#:% subject = integral calculus
+#:% categories = [volume, disk method]
 
+#:% section = preamble
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'unionTables.pl', 'answerHints.pl',
-	'weightedGrader.pl', 'PGcourse.pl');
 
-################################
-#  Setup
-
-Context('Numeric');
-Context()->variables->are(
-	x  => 'Real',
-	dx => 'Real',
-	y  => 'Real',
-	dy => 'Real'
+loadMacros(
+    'PGstandard.pl',     'PGML.pl',
+    'unionTables.pl',    'answerHints.pl',
+    'weightedGrader.pl', 'PGcourse.pl'
 );
 
+#:% section = setup
+Context()->variables->are(x => 'Real', dx => 'Real', y => 'Real', dy => 'Real');
+
 $f = Compute('x');
-$g = Compute("x^2");
+$g = Compute('x^2');
 
 $upper = Real('1');
 $lower = Real('0');
-# answers below are intentionally wrong
-$int = Compute("( pi x - pi x^2 ) dx");
-$vol = Compute('pi');
+$int   = Compute('( pi x - pi x^2 ) dx');
+$vol   = Compute('pi');
 
-#
-#  Display the answer blanks properly in different modes
-#
-Context()->texStrings;
+# Display the answer blanks properly in different modes
 if ($displayMode eq 'TeX') {
-	$integral =
-		'Volume = \(\displaystyle'
-		. '\int_{'
-		. ans_rule(4) . '}^{'
-		. ans_rule(4) . '}'
-		. ans_rule(30) . ' = '
-		. ans_rule(10) . '\)';
+    $integral =
+        'Volume = \(\displaystyle'
+        . '\int_{'
+        . ans_rule(4) . '}^{'
+        . ans_rule(4) . '}'
+        . ans_rule(30) . ' = '
+        . ans_rule(10) . '\)';
 } else {
-	$integral = BeginTable(center => 0)
-		. Row(
-			[
-				'Volume = \(\displaystyle\int\)',
-				ans_rule(4) . $BR . $BR . ans_rule(4),
-				ans_rule(30) . $SPACE . ' = ' . $SPACE . ans_rule(10),
-			],
-			separation => 2
-		) . EndTable();
+    $integral = BeginTable(center => 0)
+        . Row(
+            [
+                'Volume = \(\displaystyle\int\)',
+                ans_rule(4) . $BR . $BR . ans_rule(4),
+                ans_rule(30) . $SPACE . ' = ' . $SPACE . ans_rule(10),
+            ],
+            separation => 2
+        ) . EndTable();
 }
-Context()->normalStrings;
 
-#####################################
-#  Main text
-
+#:% section = statement
 BEGIN_PGML
-Set up and evaluate an integral for the volume of the solid of revolution obtained by
-rotating the region bounded by [` y = [$f] `] and [` y = [$g] `] about the [`x`]-axis.
+Set up and evaluate an integral for the volume of the solid of revolution
+obtained by rotating the region bounded by [`y = [$f]`] and [`y = [$g]`] about
+the [`x`]-axis.
 
-[$integral]***
+[$integral]*
 END_PGML
 
-#####################################
-	#  Answer Evaluation
+#:% section = answer
+ANS($upper->cmp);
+ANS($lower->cmp);
+ANS($int->cmp->withPostFilter(AnswerHints(
+    Formula('pi x - pi x^2 dx') =>
+        "Don't forget to multiply every term in the integrand by dx",
+    Formula('pi x - pi x^2')      => "Don't forget the differential dx",
+    Formula('(pi x^2 - pi x)*dx') => 'Is the parabola above the line?',
+    Formula('pi x^2 - pi x')      => 'Is the parabola above the line?',
+)));
+ANS($vol->cmp);
 
-ANS($upper->cmp());
-ANS($lower->cmp());
-ANS(
-	$int->cmp()->withPostFilter(AnswerHints(
-		Formula("pi x - pi x^2 dx") => "Don't forget to multiply every
-                                  term in the integrand by dx",
-		Formula("pi x - pi x^2")      => "Don't forget the differential dx",
-		Formula("(pi x^2 - pi x)*dx") => "Is the parabola above the line?",
-		Formula("pi x^2 - pi x")      => "Is the parabola above the line?",
-	))
-);
-ANS($vol->cmp());
-
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

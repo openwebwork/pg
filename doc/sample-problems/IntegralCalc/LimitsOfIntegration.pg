@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Integral calculus: Answer blanks in the limits of integration
+## Answer blanks in the limits of integration
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -14,22 +14,28 @@
 #:% name = Answer Blanks in Limits of Integration
 #:% type = Sample
 #:% subject = integral calculus
-#:% categories=[antiderivatives]
-#:% section=preamble
-#: We must use `unionTables.pl` for table formatting commands we will use to put the answer blanks in the limits of integration.
-#: We use `answerHints.pl` to help guide students toward the correct answer.
-DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'unionTables.pl', 'answerHints.pl', 'PGcourse.pl');
+#:% categories = [antiderivatives]
 
-#:% section=setup
+#:% section = preamble
+#: We must use `unionTables.pl` for table formatting commands we will use to put
+#: the answer blanks in the limits of integration.  We use `answerHints.pl` to
+#: help guide students toward the correct answer.
+DOCUMENT();
+
+loadMacros(
+    'PGstandard.pl',  'PGML.pl',
+    'unionTables.pl', 'answerHints.pl',
+    'PGcourse.pl'
+);
+
+#:% section = setup
 #: The block of code that puts the answer blanks into the exponents correctly in
 #: HTML and TeX modes probably does not need to be modified.
-Context('Numeric');
 Context()->variables->are(
-	x  => 'Real',
-	dx => 'Real',
-	t  => 'Real',
-	dt => 'Real'
+    x  => 'Real',
+    dx => 'Real',
+    t  => 'Real',
+    dt => 'Real'
 );
 
 $fpx = Formula("sin(x)");
@@ -38,39 +44,47 @@ $fpt = Formula("sin(t)");
 #  Display the answer blanks properly in different modes
 Context()->texStrings;
 if ($displayMode eq 'TeX') {
-	$integral =
-		'\(\displaystyle f(x) = '
-		. ans_rule(4)
-		. '+ \int_{t = '
-		. ans_rule(4)
-		. '}^{t = '
-		. ans_rule(4) . '}'
-		. ans_rule(20) . '\)';
+    $integral =
+        '\(\displaystyle f(x) = '
+        . ans_rule(4)
+        . '+ \int_{t = '
+        . ans_rule(4)
+        . '}^{t = '
+        . ans_rule(4) . '}'
+        . ans_rule(20) . '\)';
 } else {
-	$integral = BeginTable(center => 0)
-		. Row(
-			[
-				'\(f(x)=\)' . $SPACE . ans_rule(4) . $SPACE . '\(+\displaystyle\int\)',
-				'\( t = \)' . ans_rule(4) . $BR . $BR . '\( t = \)' . ans_rule(4),
-				ans_rule(20)
-			],
-			separation => 2
-		) . EndTable();
+    $integral = BeginTable(center => 0)
+        . Row(
+            [
+                '\(f(x)=\)'
+                . $SPACE
+                . ans_rule(4)
+                . $SPACE
+                . '\(+\displaystyle\int\)',
+                '\( t = \)'
+                . ans_rule(4)
+                . $BR
+                . $BR
+                . '\( t = \)'
+                . ans_rule(4),
+                ans_rule(20)
+            ],
+            separation => 2
+        ) . EndTable();
 }
 Context()->normalStrings;
 
-#:% section=statement
+#:% section = statement
 #: To display the integral with answer blanks in the limits of integration properly,
 #: we insert it using `$integral`.
 BEGIN_PGML
-Find a formula for the function [` f(x) `] such that
-[`` f '(x) = [$fpx] ``] and [` f(2)=5 `].  Use [`t`] as the variable of integration
-inside the integral.
+Find a formula for the function [`f(x)`] such that [`f '(x) = [$fpx]`] and
+[`f(2) = 5`].  Use [`t`] as the variable of integration inside the integral.
 
 [$integral]***
 END_PGML
 
-#:%section=answer
+#:% section = answer
 #: The answer blanks are written out as `ans_rule`, so we must use this style of
 #: answer checking.  We use `AnswerHints` to guide the students to the correct answer.
 
@@ -78,14 +92,14 @@ ANS(Compute('5')->cmp());
 ANS(Compute('x')->cmp());
 ANS(Compute('2')->cmp());
 ANS(
-	Compute("$fpt * dt")->cmp()->withPostFilter(AnswerHints(
-		Formula("$fpx")    => "Are you using the correct variable?",
-		Formula("$fpx*dx") => "Are you using the correct variable?",
-		Formula("$fpt")    => "Don't forget the differential dt",
-	))
+    Compute("$fpt * dt")->cmp()->withPostFilter(AnswerHints(
+        Formula("$fpx")    => "Are you using the correct variable?",
+        Formula("$fpx*dx") => "Are you using the correct variable?",
+        Formula("$fpt")    => "Don't forget the differential dt",
+    ))
 );
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

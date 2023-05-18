@@ -1,5 +1,5 @@
 ## DESCRIPTION
-##  This shows how to setup a set of draggable items to sort.
+## This shows how to setup a set of draggable items to sort.
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -14,21 +14,22 @@
 # updated to full problem by Peter Staab (06/01/2023)
 
 #:% name = Draggable Subsets
-#:% type=technique
-#:% categories=[draggable]
-#:% section=preamble
+#:% type = technique
+#:% categories = [draggable]
+
+#:% section = preamble
 #: The `draggableSubsets.pl` macro must be loaded.
 DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'draggableSubsets.pl', 'PGcourse.pl');
 
-#:% section=setup
+#:% section = setup
 #: The DraggableSubsets call visually creates a set of regions called buckets that
 #: labelled boxes can be dragged between. The general form is
 #: ```
 #: $draggable = DraggableSubsets(
 #:        $full_set,
 #:        $answer_sets,
-#:        options
+#:        %options
 #:    );
 #:```
 #:
@@ -38,31 +39,36 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'draggableSubsets.pl', 'PGcourse.pl');
 #: the buckets. The `AllowNewBuckets` option allows the student in add a new bucket (1)
 #: or not (0).
 #:
-#: See the [DraggableProofs](../Misc/DraggableProof.html) for an example of using
-#: `DraggableSubsets` with proofs.
+#: See the [DraggableProofs](../Misc/DraggableProof.html) for an example of
+#: how to create drag and drop proof problems.
 $draggable = DraggableSubsets(
-	[
-		'mouse',  'ebola bacteria', 'flu virus',    'krill',    'house cat',  'emu',
-		'coyote', 'tapir',          'hippopotamus', 'elephant', 'blue whale', 'eagle'
-	],
-	[ [], [ 0, 4, 6, 7, 8, 9, 10 ], [ 5, 11 ], [ 1, 2, 3 ] ],
-	# ['mouse','house cat','coyote','tapir','hippopatamus','elephant']
-	DefaultSubsets => [
-		{ label => 'Animals', indices => [ 0 .. 11 ] },
-		{ label => 'Mammals', indices => [] },
-		{ label => 'Birds',   indices => [] },
-		{ label => 'Other',   indices => [] }
-	],
-	AllowNewBuckets => 0
+    [
+        'mouse',        'ebola bacteria',
+        'flu virus',    'krill',
+        'house cat',    'emu',
+        'coyote',       'tapir',
+        'hippopotamus', 'elephant',
+        'blue whale',   'eagle'
+    ],
+    [ [], [ 0, 4, 6, 7, 8, 9, 10 ], [ 5, 11 ], [ 1, 2, 3 ] ],
+    # ['mouse','house cat','coyote','tapir','hippopatamus','elephant']
+    DefaultSubsets => [
+        { label => 'Animals', indices => [ 0 .. 11 ] },
+        { label => 'Mammals', indices => [] },
+        { label => 'Birds',   indices => [] },
+        { label => 'Other',   indices => [] }
+    ],
+    AllowNewBuckets => 0
 );
-#:% section=statement
+
+#:% section = statement
 BEGIN_PGML
 Move all animals from the "Animals" bucket into its appropriate bucket.
 
-[__]{$draggable}
+[_]{$draggable}
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

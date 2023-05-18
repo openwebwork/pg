@@ -1,61 +1,84 @@
 ## DESCRIPTION
-##
+## Utilizing adaptive parameters in checkers.
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
 ## DBchapter(WeBWorK tutorial)
-## DBsection(Problem Techniques)
-## Date(06/01/2008)
-## Institution(University of Michigan)
-## Author(Gavin LaRose)
-## MO(1)
-## KEYWORDS('tolerance')
-
-# updated to full problem by Peter Staab (06/01/2023)
-# from the problem on https://webwork.maa.org/wiki/AdaptiveParameters
+## DBsection(WeBWorK tutorial)
+## Date(05/25/2023)
+## Institution(Missouri Western State University)
+## Author(Glenn Rice)
+## KEYWORDS('differential equations', 'adaptive parameters')
 
 #:% name = Adaptive Parameters
-#:% type=technique
-#:% categories=[adaptive parameters]
-#:% section=preamble
-DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
-#:% section=setup
-#: This technique is used for a formula with a general parameter.  The general solution
-#: to this differential equation is \(y = c e^x - 1\), but a student could also write it as
-#: something like \(y = e^c e^x - 1\). We use the adaptive parameter to find the value of the
-#: constant.
-#:
-#: Then in the answer, we define a custom answer checker that creates a copy of the `Context`
-#: in which an adaptive parameter is allowed, redefines the student and correct answers in
-#: that context, and checks that the answers match with the adaptive parameter.
-#:
-#: Again, note that if we just want to allow a solution to differ by an additive constant
-#: from the answer in the problem, we can use the existing MathObjects infrastructure, as
-#: discussed on the formulas up to constants techniques page.
-$ans = Compute('e^x - 1')->cmp(
-	checker => sub {
-		my ($correct, $student, $self) = @_;
-		if ($self->{_filter_name} ne 'produce_equivalence_message') {
-			my $context = Context()->copy;
-			$context->flags->set(no_parameters => 0);
-			$context->variables->add('C0' => 'Parameter');
-			$student = Formula($context, $student);
-			$correct = Formula($context, "C0 * e^x - 1");
-		}
-		return $correct == $student;
-	}
-);
-#:% section=statement
-BEGIN_PGML
-Find any solution to the differential equation [``\frac{dy}{dx} = y + 1. ``]
+#:% type = technique
+#:% categories = [adaptive parameters]
 
-[` y =`] [_____]{$ans}
+#:% categories = [differential equations, adaptive parameters]
+#:% section = preamble
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: This problem will utilize with adaptive parameters in the custom answer
+#: checker. Define `$aSoln` to be the result of calling `cmp` on a MathObject
+#: function with the `checker` option set.
+#:
+#: The general solution to the differential equation in this problem is
+#: $y = c e^x - 1$. The student will be asked to enter a specific solution like
+#: $y = e^2 e^x - 1$. Adaptive parameters will be used to check that the
+#: student's answer has the correct form.
+#:
+#: The custom answer checker creates a copy of the `Context` in which an
+#: adaptive parameter is allowed. It then re-computes the student and correct
+#: answers in that context. Then it checks that the answers match with the
+#: adaptive parameter.
+#:
+#: If it is desired to allow a solution to differ by an additive constant from
+#: the answer in the problem, this can be accomplished using existing
+#: MathObjects methods, as discussed on the
+#: [formulas up to constants](../problem-techniques/FormulasToConstants.html)
+#: page.
+#:
+#: If the answers may be a pure multiple of the correct answer without an
+#: additive constant, then `0` should not be considered correct. For example,
+#: if the general solution were `ce^x`. So the commented out line
+#: `return 0 if $student == Formula(0);` would needed in that case.
+#:
+#: Observe that this checker bypasses the adaptive parameter code for the
+#: 'produce_equivalence_message' filter. This filter compares the current
+#: student answer to the previous student answer and gives the message
+#: "This answer is equivalent to the one you just submitted." in the case that
+#: the two are deemed to be equal. That message could be confusing to students
+#: for two answers with different constants in this type of problem.
+$aSoln = Compute('e^x - 1')->cmp(
+    checker => sub {
+        my ($correct, $student, $ans) = @_;
+        # return 0 if $student == Formula(0); # See comments.
+        if ($self->{_filter_name} ne 'produce_equivalence_message') {
+            my $context = Context()->copy;
+            $context->flags->set(no_parameters => 0);
+            $context->variables->add(C0 => 'Parameter');
+            $student = Formula($context, $student);
+            $correct = Formula($context, 'C0 * e^x - 1');
+        }
+        return $correct == $student;
+    }
+);
+
+#:% section = statement
+BEGIN_PGML
+Find one solution to the differential equation.
+
+    [`\frac{dy}{dx} = y + 1`]
+
+[`y =`] [_]{$aSoln}
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
-Solution explanation goes here.
+
 END_PGML_SOLUTION
 
 ENDDOCUMENT();

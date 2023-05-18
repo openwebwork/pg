@@ -12,11 +12,11 @@
 ## KEYWORDS('integral calculus', 'limit comparison test')
 
 #:% name = Series Test
-#:% subject = Sequences and Series
 #:% type = Sample
-#:% categories=[sequence, series]
+#:% subject = Sequences and Series
+#:% categories = [sequences, series]
 
-#:% section=preamble
+#:% section = preamble
 #: We load `unionTables.pl` to create a table in which answer blanks are stacked on top
 #: of each other to form a fraction. We use `PGgraders.pl` to give partial credit
 #: incrementally. We use `parserMultiAnswer.pl` for the fraction answer so that we can
@@ -24,22 +24,24 @@
 DOCUMENT();
 
 loadMacros(
-	'PGstandard.pl', 'PGML.pl', 'unionTables.pl', 'parserPopUp.pl',
-	'PGgraders.pl',  'parserMultiAnswer.pl', 'PGcourse.pl'
+    'PGstandard.pl',  'PGML.pl',
+    'unionTables.pl', 'parserPopUp.pl',
+    'PGgraders.pl',   'parserMultiAnswer.pl',
+    'PGcourse.pl'
 );
 
-#:% section=setup
+#:% section = setup
 #: We use the `MultiAnswer` object `$multians` to allow students to enter one of two
 #: correct answers. We could have also accomplished this using two custom answer checkers.
 #:
 #: We display the answerblanks nicely as a fraction in HTML and TeX modes by how we constructed `$showfraction`.
-Context('Numeric')->variables->are(n => 'Real');
+Context()->variables->are(n => 'Real');
 
-$a = random(2, 9,  1);
-$b = random(2, 9,  1);
-$c = random(5, 20, 1);
-$d = random(3, 9,  1);
-$e = random(2, 9,  1);
+$a = random(2, 9);
+$b = random(2, 9);
+$c = random(5, 20);
+$d = random(3, 9);
+$e = random(2, 9);
 
 $dm1 = $d - 1;
 $dm2 = $d - 2;
@@ -55,87 +57,82 @@ $num2 = Formula("$a + $b/n");
 $den2 = Formula("$c + $e/(n^$d)");
 
 $multians = MultiAnswer($num1, $den1)->with(
-	singleResult => 0,
-	checker      => sub {
-		my ($correct, $student, $ansHash) = @_;
-		my ($stu1, $stu2) = @{$student};
+    singleResult => 0,
+    checker      => sub {
+        my ($correct, $student, $ansHash) = @_;
+        my ($stu1, $stu2) = @{$student};
 
-		if (($num1 == $stu1 && $den1 == $stu2)
-			|| ($num2 == $stu1 && $den2 == $stu2))
-		{
-			return [ 1, 1 ];
-		} elsif (($num1 == $stu1 && $den2 == $stu2)
-			|| ($num2 == $stu1 && $den1 == $stu2))
-		{
-			$ansHash->setMessage(1, 'Check your algebra');
-			$ansHash->setMessage(2, 'Check your algebra');
-			return [ 0, 0 ];
-		} elsif ($num1 == $stu1 || $num2 == $stu1) {
-			return [ 1, 0 ];
-		} elsif ($den1 == $stu2 || $den2 == $stu2) {
-			return [ 0, 1 ];
-		} else {
-			return [ 0, 0 ];
-		}
-	}
+        if (($num1 == $stu1 && $den1 == $stu2)
+            || ($num2 == $stu1 && $den2 == $stu2))
+        {
+            return [ 1, 1 ];
+        } elsif (($num1 == $stu1 && $den2 == $stu2)
+            || ($num2 == $stu1 && $den1 == $stu2))
+        {
+            $ansHash->setMessage(1, "Check your algebra");
+            $ansHash->setMessage(2, "Check your algebra");
+            return [ 0, 0 ];
+        } elsif ($num1 == $stu1 || $num2 == $stu1) {
+            return [ 1, 0 ];
+        } elsif ($den1 == $stu2 || $den2 == $stu2) {
+            return [ 0, 1 ];
+        } else {
+            return [ 0, 0 ];
+        }
+    }
 );
 
 $limit = Formula("$a/$c");
-$popup = PopUp([ 'Choose', 'Converges', 'Diverges', 'Inconclusive' ], 'Converges');
+$popup =
+    PopUp([ 'Choose', 'Converges', 'Diverges', 'Inconclusive' ], 'Converges');
 
 # Display the fraction and answer blanks nicely
-Context()->texStrings;
 if ($displayMode eq 'TeX') {
-	$showfraction = "\[ $fraction " . $multians->ans_rule(10) . $multians->ans_rule(10) . " \]";
+    $showfraction =
+        "\[ $fraction "
+        . $multians->ans_rule(10)
+        . $multians->ans_rule(10) . " \]";
 } else {
-	$showfraction = ColumnTable(
-		"\( \displaystyle $fraction \)",
-		$multians->ans_rule(20) . $BR . $HR . $multians->ans_rule(20),
-		indent     => 0,
-		separation => 10,
-		valign     => 'MIDDLE'
-	);
+    $showfraction = ColumnTable(
+        "\( \displaystyle $fraction \)",
+        $multians->ans_rule(20) . $BR . $HR . $multians->ans_rule(20),
+        separation => 10
+    );
 }
 
-#:% section=statement
+#:% section = statement
 BEGIN_PGML
 Use the limit comparison test to determine whether
-[`` \sum_{n=[$c]}^{\infty} a_n = \sum_{ n = [$c] }^ { \infty } \frac { [$a] n + [$b] }
-	{ [$c] n ^ { [$d] } +[$e] }``] converges or diverges.
+[``\sum_{n=[$c]}^{\infty} a_n = \sum_{n=[$c]}^{\infty} \frac{[$a] n + [$b]}{[$c] n^{[$d]} + [$e]}``]
+converges or diverges.
 
-a. Choose a series [`` \sum_{n=[$c]}^{\infty} b_n ``] with terms of the form
-	[`` b_n =\frac{1}{n^p}``] and apply the limit comparison test.
-	Write your answer as a fully reduced fraction . For [`` n \geq [$c] ``],
+a. Choose a series [``\sum_{n=[$c]}^\infty b_n``] with terms of the form
+[``b_n = \frac{1}{n^p}``] and apply the limit comparison test.  Write your
+answer as a fully reduced fraction.  For [``n \geq [$c]``],
+[$showfraction]*** [@ ANS($multians->cmp); '' @]*
 
-	[$showfraction]***
+b. Evaluate the limit in the previous part.  Enter [` \infty `] as _infinity_
+and [` -\infty `] as _-infinity_.  If the limit does not exist, enter _DNE_.
+[$BR]*
+[``\lim_{n\to\infty} \frac{a_{n}}{b_{n}} =``] [_]{$limit}{15}
 
-b. Evaluate the limit in the previous part . Enter [` \infty `] as _infinity_
-	and [` -\infty `] as _-infinity_ . If the limit does not exist,	enter _DNE_.
-	[`` \lim_{ n \to \infty} \frac{a_n}{b_n}= ``][_________________]
-
-c. By the limit comparison test, does the series converge, diverge, or is the test inconclusive?
-	[@ $popup->menu() @]*
-
+c. By the limit comparison test, does the series converge, diverge, or is the
+test inconclusive?  [_]{$popup}
 END_PGML
 
-#:% section=answers
+#:% section = answers
 #: We use the problem grader fluid to give partial credit incrementally: 0% for 0-1
 #: correct answers, 40% for 2-3 correct answers, and full credit for 4 correct answers.
-$showPartialCorrectAnswers= 1;
-
 install_problem_grader(~~&custom_problem_grader_fluid);
 
-$ENV{'grader_numright'} = [ 2,   4 ];
-$ENV{'grader_scores'}   = [ 0.4, 1 ];
-$ENV{'grader_message'}  = 'You can earn 40% partial credit for 2 - 3 correct answers.";
+$ENV{grader_numright} = [ 2,   4 ];
+$ENV{grader_scores}   = [ 0.4, 1 ];
+$ENV{grader_message} =
+    'You can earn 40% partial credit for 2 - 3 correct answers.';
 
-ANS($multians->cmp());
-ANS($limit->cmp());
-ANS($popup->cmp());
-
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
 
-			ENDDOCUMENT();
+ENDDOCUMENT();

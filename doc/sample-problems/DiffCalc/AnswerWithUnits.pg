@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Differential calculus: answer is a number or formula with units
+## Answer is a number or formula with units
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -15,53 +15,58 @@
 #:% name = Answer with Units
 #:% type = Sample
 #:% subject = differential calculus
-#:% categories=[units]
+#:% categories = [units]
 
 #:% section = preamble
 #: We load `parserNumberWithUnits.pl` and `parserFormulaWithUnits.pl`.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserNumberWithUnits.pl', 'parserFormulaWithUnits.pl', 'PGcourse.pl');
+loadMacros(
+    'PGstandard.pl',            'PGML.pl',
+    'parserNumberWithUnits.pl', 'parserFormulaWithUnits.pl',
+    'PGcourse.pl'
+);
 
-#:% section=setup
+#:% section = setup
 #: We use the differentiation operator `->D('t')` and the evaluation method `->eval()` to
 #: construct the derivative and evaluate it as a function. If we were writing several
 #: questions like this with different height functions, using the differentiation and
 #: evaluation methods would really speed up the writing.
-Context('Numeric')->variables->are(t => 'Real');
+Context()->variables->are(t => 'Real');
 
-$h  = Formula("-16 t^2 + 16");
+$h  = Formula('-16 t^2 + 16');
 $v  = $h->D('t');
 $v1 = $v->eval(t => 1);
 $a  = $v->D('t');
 
-$ans1 = FormulaWithUnits("$v", "ft/s");
-$ans2 = NumberWithUnits("$v1", "ft/s");
-$ans3 = FormulaWithUnits("$a", "ft/s^2");
+$ans1 = FormulaWithUnits("$v", 'ft/s');
+$ans2 = NumberWithUnits("$v1", 'ft/s');
+$ans3 = FormulaWithUnits("$a", 'ft/s^2');
 
-#:% section=statement
+#:% section = statement
 #: Don't forget to use `helpLink('units')` so your students will have access to the
 #: complete list of units that WeBWorK understands.
 BEGIN_PGML
 Suppose the height of a falling object, in feet above the ground, is given
-by [` h(t) = [$h] `] for [` t \geq 0 `], where time is measured in seconds.
+by [`h(t) = [$h]`] for [`t \geq 0`], where time is measured in seconds.
 
 a. What is the velocity of the object?  Include units in your answer.
 
-    [______________]{$ans1}
+    [_]{$ans1}{15}
 
-b. What is the velocity of the object when it hits the ground?  Include units in your answer.
+b. What is the velocity of the object when it hits the ground?  Include units in
+your answer.
 
-    [______________]{$ans2}
+    [_]{$ans2}{15}
 
 c. What is the acceleration of the object?  Include units in your answer.
 
-    [______________]{$ans3}
+    [_]{$ans3}{15}
 
 Note: use units in all answers. [@ helpLink('units') @]*
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

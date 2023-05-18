@@ -12,15 +12,16 @@
 ## KEYWORDS('matrix')
 
 #:% name = Matrix Answer
-#:% subject = linear algebra
 #:% type = Sample
-#:% categories=[matrix]
+#:% subject = linear algebra
+#:% categories = [matrix]
 
-#:% section=preamble
+#:% section = preamble
 DOCUMENT();
+
 loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
-#:% section=setup
+#:% section = setup
 #: Use `Context('Matrix');`. MathObject matrices are constructed using the `Matrix()`
 #: constructor. The matrix `A` has two rows and three columns, and is constructed by
 #: `[[row 1 entries], [row 2 entries]]`, and this construction generalizes in the
@@ -31,26 +32,30 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: with brackets.
 Context('Matrix');
 
-$A = Matrix([ [ random(-5, 5), random(-5, 5), random(-5, 5) ],
-	[ random(-5, 5), random(-5, 5), random(-5, 5) ], ]);
+$A = Matrix([
+    [ random(-5, 5), random(-5, 5), random(-5, 5) ],
+    [ random(-5, 5), random(-5, 5), random(-5, 5) ],
+]);
 
-$B = Matrix([ [ random(-5, 5), random(-5, 5), random(-5, 5) ],
-	[ random(-5, 5), random(-5, 5), random(-5, 5) ], ]);
+$B = Matrix([
+    [ random(-5, 5), random(-5, 5), random(-5, 5) ],
+    [ random(-5, 5), random(-5, 5), random(-5, 5) ],
+]);
 
 $answer = $A * ($B->transpose);
 
-#:% section=statement
+#:% section = statement
 BEGIN_PGML
 Suppose
 
->> [`` A = [$A]``] and [``B = [$B] . ``] <<
+>> [``A = [$A]``] and [``B = [$B].``] <<
 
 Evaluate the following matrix product.
 
-[` A B^T = `][_____]*{$answer}
+[`A B^T =`] [_____]*{$answer}
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

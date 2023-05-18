@@ -13,78 +13,82 @@
 
 #:% name = Multiple Choice with Checkbox
 #:% type = Sample
-#:% categories=[multiple choice, misc]
+#:% categories = [multiple choice, misc]
 
-#:% section=preamble
+#:% section = preamble
 #: Include `parserCheckboxList.pl` in the `loadMacros`.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserCheckboxList.pl', 'PGcourse.pl');
 
-#:% section=setup
-#:To setup, `CheckboxList` creates a new object. The format is
-#:```
-#:$checks = CheckboxList([choices, ...], [correct_choices, ...], options);
-#:```
-#:where the `correct_choices` can either match those in `choices` or be the indices
-#:(starting at 0).
+#:% section = setup
+#: To setup, `CheckboxList` creates a new object. The format is
+#: ```{#constructor .perl}
+#: $checks = CheckboxList([choices, ...], [correct_choices, ...], options);
+#: ```
+#: where the `correct_choices` can either match those in `choices` or be the indices
+#: (starting at 0).
 #:
-#:If we nest `choices` in another arrayref, then the choices will be shown randomly.
+#: If we nest `choices` in another arrayref, then the order of the choices will be randomized.
 #:
-#:Using the option `separator` and setting to `&nbsp;`, the HTML space, results in
-#:a horizontal checklist.
+#: Using the option `separator` and setting to `$SPACE x 10` results in
+#: a horizontal checklist.  Note that `$SPACE` should be used and not `&nbsp;` so that
+#: this works in both html and hardcopy.
 #:
-#:Lastly, see the POD for more options.
+#: See the POD for more options.
 $checks1 = CheckboxList(
-	[
-		"\( e^{x^2} e^{1/x} \)",
-		"\(e^{x^2} e^{x^{-1}}\)",
-		"\(\displaystyle\frac{e^{x^2} }{ e^x }\)",
-		'None of the above'
-	],
-	[ 0, 1 ]
+    [
+        "\(e^{x^2} e^{1/x}\)",
+        "\(e^{x^2} e^{x^{-1}}\)",
+        "\(\displaystyle\frac{e^{x^2}}{e^x}\)",
+        'None of the above'
+    ],
+    [ 0, 1 ]
 );
 
 $checks2 = CheckboxList(
-	[
-		[ "\( e^{x^2} e^{1/x} \)", "\(e^{x^2} e^{x^{-1}}\)", "\(\displaystyle\frac{e^{x^2} }{ e^x }\)" ],
-		'None of the above'
-	],
-	[ 0, 1 ]
+    [
+        [
+            "\(e^{x^2} e^{1/x}\)",
+            "\(e^{x^2} e^{x^{-1}}\)",
+            "\(\displaystyle\frac{e^{x^2}}{e^x}\)"
+        ],
+        'None of the above'
+    ],
+    [ 0, 1 ]
 );
 
 # This makes the checkbox list horizontal.
 $checks3 = CheckboxList(
-	[
-		"\( e^{x^2} e^{1/x} \)",
-		"\(e^{x^2} e^{x^{-1}}\)",
-		"\(\displaystyle\frac{e^{x^2} }{ e^x }\)",
-		'None of the above'
-	],
-	[ 0, 1 ],
-	separator => '&nbsp;&nbsp;'
+    [
+        "\(e^{x^2} e^{1/x}\)",
+        "\(e^{x^2} e^{x^{-1}}\)",
+        "\(\displaystyle\frac{e^{x^2}}{e^x}\)",
+        'None of the above'
+    ],
+    [ 0, 1 ],
+    separator => $SPACE x 10
 );
 
-#:% section=statement
+#:% section = statement
 BEGIN_PGML
-Select all expressions that are equivalent to [`e^{x^2 + 1/x}`] . There may be more
-than one correct answer.
+Select all expressions that are equivalent to  [`e^{x^2 + 1/x}`].
+There may be more than one correct answer.
 
-[__]{$checks1}
+[_]{$checks1}
 
-**Alternative with randomly shown choices**
+**Alternative with randomly ordered choices**
 
-[__]{$checks2}
+[_]{$checks2}
 
 **Alternative shown with horizontal spacing**
 
-[__]{$checks3}
-
+[_]{$checks3}
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
-Solution explanation goes here.
+
 END_PGML_SOLUTION
 
 ENDDOCUMENT();

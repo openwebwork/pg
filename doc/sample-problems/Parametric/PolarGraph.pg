@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Parametric equations: graphing a polar curve
+## Graphing a polar curve given by parametric equations.
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -12,52 +12,50 @@
 ## KEYWORDS('parametric', 'graph polar curve')
 
 #:% name = Polar Graph
-#:% subject = parametric
 #:% type = Sample
+#:% subject = parametric
 
-#:% section=preamble
-#: We use `PGgraphmacros.pl` to generate the graph, and unionTables.pl to put the text
-#: and the graph side-by-side. We should set `$refreshCachedImages = 1`; so that changes
-#: in the graph will show up (not get stuck by old images in the browser cache).
+#:% section = preamble
+#: We use `PGgraphmacros.pl` to generate the graph.
 DOCUMENT();
-loadMacros('PGstandard.pl','PGML.pl','PGtikz.pl', 'unionTables.pl','PGcourse.pl');
 
-$refreshCachedImages = 1;
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
 
-#:% section=setup
+#:% section = setup
 #: The package `PGtikz.pl` is used to produce the curve.  The plotting routine used in
 #: this way plots parametrically and we plot the polar curve parametrically.
-#:
-#: The problem is formatted by taking two columns and using the `ColumnTable` from the
-#: `unionTables.pl` macro to produce the side-by-side problem format.
-#:
-#: The last line produce the entire problem so no `BEGIN_PGML/END_PGML` is needed.
-Context('Numeric')->variables->are(t=>'Real');
+Context()->variables->are(t => 'Real');
 
 $graph = createTikZImage();
+$graph->tikzLibraries('arrows.meta');
 $graph->BEGIN_TIKZ
-\draw[->] (-3.25,0) -- (3.25,0) node[above right] {\(x\)};
-\draw[->] (0,-3.25) -- (0,3.25) node[above right] {\(y\)};
-\draw[DarkGreen, very thick] plot [samples=250,domain=0:{2*pi},variable=\t]
-  ({3*cos(5*\t r)*cos(\t r)},{3*cos(5*\t r)*sin(\t r)});
-\fill[opacity=0.5, fill=DarkGreen] (0,0) -- plot [samples=250,domain={-pi/10}:{pi/10},variable=\t]
-  ({3*cos(5*\t r)*cos(\t r)},{3*cos(5*\t r)*sin(\t r)}) -- cycle;
+\tikzset{>={Stealth[scale=1.5]}}
+\filldraw[
+    draw=LightBlue,
+    fill=white,
+    rounded corners=10pt,
+    thick,use as bounding box
+] (-3.5,-3.5) rectangle (3.5,3.5);
+\draw[->] (-3.5,0) -- (3.5,0) node[above left,outer sep=3pt] {\(x\)};
+\draw[->] (0,-3.5) -- (0,3.5) node[below right,outer sep=3pt] {\(y\)};
+\draw[DarkGreen,very thick]
+    plot [samples=250,domain=0:{2*pi},variable=\t]
+    ({3*cos(5*\t r)*cos(\t r)},{3*cos(5*\t r)*sin(\t r)});
+\fill[opacity=0.5,fill=DarkGreen]
+    (0,0) -- plot[samples=250,domain={-pi/10}:{pi/10},variable=\t]
+    ({3*cos(5*\t r)*cos(\t r)},{3*cos(5*\t r)*sin(\t r)}) -- cycle;
 END_TIKZ
 
+BEGIN_PGML
+Find the area enclosed by one petal of the rose curve
+[`r = f(\theta) = \cos(5\theta)`].
 
-$column1 = PGML::Format(<<END_PGML);
-Find the area enclosed by one petal of the
-rose curve [` r = f(\theta) = \cos(5\theta) `].
+>>[@ image($graph, width => 300) @]*<<
 
-Area = [_____]{Real('pi/20')}
+>>Graph of [`r = \cos(5\theta)`]<<
+
+Area = [_____]{'pi/20'}
 END_PGML
-# note: the answer above is intentionally incorrect
-
-$column2 = $BCENTER.image($graph, width=>300).$PAR.
-"Graph of \( r = \cos(5\theta) \)".
-$ECENTER;
-
-TEXT(ColumnTable($column1, $column2, indent => 0, separation => 30, valign => 'TOP'));
 
 #:% section = solution
 BEGIN_PGML_SOLUTION

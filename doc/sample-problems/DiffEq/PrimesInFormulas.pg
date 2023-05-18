@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Differential Equations: allowing primes in student answers.
+## Allowing primes in student answers.
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -14,42 +14,47 @@
 #:% name = Primes in Formulas
 #:% type = Sample
 #:% subject = differential equations
-#:% categories=[answers]
-#:% section=preamble
+#:% categories = [answers]
+
+#:% section = preamble
 #: For this problem, we want to enter in differential equations, and the variables
 #: will be `y', y''` and the resulting equation will be implicit, so the macro
 #: `parserImplicitEquation.pl` is used.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserImplicitEquation.pl', 'PGcourse.pl');
 
-#:% section=setup
+loadMacros(
+    'PGstandard.pl',             'PGML.pl',
+    'parserImplicitEquation.pl', 'PGcourse.pl'
+);
+
+#:% section = setup
 #: We switch the context to `ImplicitEquation` and then includes the variable `y, y', y''`
 #: and `t`.  The line `Context()->variables->{namePattern} = qr/[ty]'*/i;` is used to make sure
 #: that primes can be included in the answer.
 Context('ImplicitEquation');
 Context()->variables->{namePattern} = qr/[ty]'*/i;
 Context()->variables->are(
-	'y'   => 'Real',
-	"y'"  => 'Real',
-	"y''" => 'Real',
-	't'   => 'Real',
+    'y'   => 'Real',
+    "y'"  => 'Real',
+    "y''" => 'Real',
+    't'   => 'Real',
 );
 
 $diffeq = ImplicitEquation("y'' + 2y' + y = cos(t)");
 
-#:% section=statement
+#:% section = statement
 BEGIN_PGML
-Suppose this is a word problem that asks students to set up a differential equation
-and enter their differential equation as the answer.
+Suppose this is a word problem that asks students to set up a differential
+equation and enter their differential equation as the answer.
 
-Enter your differential equation below in terms of
-[` y, y^{\,\prime}, y^{\,\prime\prime}, t `].
-Enter the answer [`[$diffeq]`].
+Enter your differential equation below in terms of [`y`], [`y^{\prime}`],
+[`y^{\prime\prime}`], [`t`].
+(Suppose the answer is the differential equation [`[$diffeq]`].)
 
-[___________________]{$diffeq}
+[_]{$diffeq}{20} [@ helpLink('equations') @]*
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

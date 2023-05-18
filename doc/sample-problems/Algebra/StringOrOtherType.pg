@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Precalculus: answer could be a string or another data type
+## Answer could be a string or another data type
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -9,44 +9,46 @@
 ## Institution(Hope College)
 ## Author(Paul Pearson)
 ## MO(1)
-## KEYWORDS('precalculus', 'answer is a string or other data type')
+## KEYWORDS('algebra', 'answer is a string or other data type')
 
 #:% name = String or Other Type
-#:% subject = [algebra, precalculus]
 #:% type = Sample
+#:% subject = [algebra, precalculus]
+#:% categories = [strings]
 
-#:% section=preamble
+#:% section = preamble
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
-#:% section=setup
+#:% section = setup
 #: There are several predefined strings, such as NONE, DNE, INF, INFINITY. If you
 #: need another string added to the context, see strings in context.
 #:
-#: When `$answer = Formula("2*x")` and a student enters the string `NONE`, they will
+#: When `$answer = Formula('2x')` and a student enters the string `NONE`, they will
 #: not get any error message because when the answer checker expects a formula and
-#: gets a string it is set up not to balk. However, when `$answer = String("none")`
+#: gets a string it is set up not to balk. However, when `$answer = String('none')`
 #: and a student enters the formula `2x`, they will get an error message. This is
 #: because the answer checker is expecting a string and gets a formula, and when
-#: this happens it balks. We must use `typeMatch=>Formula("x")` so that in the event
+#: this happens it balks. We must use `typeMatch => Formula('x')` so that in the event
 #: the answer is a string, no error message will appear.
-Context('Numeric');
+$y = random(0, 4);
 
-$y = random(0, 4, 1);
+if ($y < 4) {
+    $answer = String('none')->cmp(typeMatch => Formula('x'));
+} else {
+    $answer = Formula('2*x')->cmp(typeMatch => Formula('x'));
+}
 
-$ans = $y < 4 ? String('none')->cmp(typeMatch => Formula('x')) :
-	Formula("2*x")->cmp(typeMatch => Formula('x'));
-
-#:% section=statement
+#:% section = statement
 BEGIN_PGML
-Is there a line through the points [` (0,0) `], [` (1,2) `], and [` (2,[$y]) `]?
-If there is, enter the equation for this line . If not, enter _NONE_.
+Is there a line through the points [`(0, 0)`], [`(1, 2)`], and [`(2, [$y])`]?
+If there is, enter the equation for this line.  If not, enter _NONE_.
 
-[` y = `] [_______________]{$ans}
+[`y =`] [_]{$answer}{15}
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

@@ -1,5 +1,5 @@
 ## DESCRIPTION
-##  Provides an answer blank in an exponent.
+## Provides an answer blank in an exponent.
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -14,45 +14,49 @@
 # updated to full problem by Peter Staab (06/01/2023)
 
 #:% name = Answer in an Exponent
-#:% type=technique
-#:% categories=[answer, exponent]
-#:% section=preamble
+#:% type = technique
+#:% categories = [answer, exponent]
+
+#:% section = preamble
 #: We need to include the macros file unionTables.pl
 DOCUMENT();
+
 loadMacros('PGstandard.pl', 'PGML.pl', 'unionTables.pl', 'PGcourse.pl');
 
-#:% section=setup
-Context('Numeric')->variables->are(a => 'Real', b => 'Real');
+#:% section = setup
+Context()->variables->are(a => 'Real', b => 'Real');
 
-$n = random(3, 9, 1);
+$n = random(3, 9);
 
-#  TeX
+# TeX
 $expression = "a^{$n} b^{$n}";
 
-#  MathObjects
-$base     = Formula("a*b");
-$exponent = Formula("$n");
+# MathObjects
+$base     = Formula('a * b');
+$exponent = Formula($n);
 
-#
-#  Display exponents nicely
-#
+# Display exponents nicely
 $w1 = 10;    # width of 1st answer blank
 $w2 = 10;    # width of 2nd answer blank
-Context()->texStrings;
-if ($displayMode eq 'TeX') {
-	$showpower = "\( \displaystyle $expression = (" . ans_rule($w1) . ")^{" . ans_rule($w2) . "}\)";
-} else {
-	$showpower = ColumnTable(
-		"\( \displaystyle $expression = \Big( \) " . ans_rule($w1) . " \( \Big) \)",
-		ans_rule($w2) . $BR . $BR,
-		indent     => 0,
-		separation => 0,
-		valign     => 'BOTTOM'
-	);
-}
-Context()->normalStrings;
 
-#:% section=statement
+if ($displayMode eq 'TeX') {
+    $showpower =
+        "\( \displaystyle $expression = ("
+        . ans_rule($w1) . ")^{"
+        . ans_rule($w2) . "}\)";
+} else {
+    $showpower = ColumnTable(
+        "\( \displaystyle $expression = \Big( \) "
+            . ans_rule($w1)
+            . " \( \Big) \)",
+        ans_rule($w2) . $BR . $BR,
+        indent     => 0,
+        separation => 0,
+        valign     => 'BOTTOM'
+    );
+}
+
+#:% section = statement
 #: The problem text section of the file is as we'd expect. We insert the nicely
 #: formatted answer blanks using `$showpower`.
 BEGIN_PGML
@@ -61,12 +65,12 @@ Rewrite the following using a single exponent.
 [$showpower]*
 END_PGML
 
-#:% section=answer
+#:% section = answer
 #: Because `ans_rule` is used above, this form of answer checking must be used.
-ANS($base->cmp());
-ANS($exponent->cmp());
+ANS($base->cmp);
+ANS($exponent->cmp);
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Differential Equations: adding the Heaviside function to the context.
+## Adding the Heaviside function to the context.
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -14,23 +14,28 @@
 #:% name = Heaviside or Step Function
 #:% type = Sample
 #:% subject = differential equations
-#:% categories=[heaviside/step]
+#:% categories = [heaviside/step]
 
-#:% section=preamble
+#:% section = preamble
 #: We load `parserFunction.pl` to make adding a named function to the context easier.
 #: Please see the POD documentation `parserFunction.pl`.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserFunction.pl', 'PGcourse.pl');
+loadMacros(
+    'PGstandard.pl',       'PGML.pl',
+    'AnswerFormatHelp.pl', 'parserFunction.pl',
+    'PGcourse.pl'
+);
 
 #:% section=setup
-#: We add the step function to the context with the name step. The function
+#: We add the step function to the context with the name `step`. The function
 #: `step(t)` is the Heaviside function and takes the value 1 when $t > 0$, and the value
-#: 0 when $t \leq 0$. We will use the function step when evaluating the Heaviside function
+#: 0 when $t \leq 0$. We will use the function `step` when evaluating the Heaviside function
 #: to obtain an answer that is a number.
 #:
 #: For more details on adding the Heaviside function to the context, see the forum
-#: discussion on the Heaviside step function
+#: discussion on the
+#: [Heaviside step function](https://webwork.maa.org/moodle/mod/forum/discuss.php?d=458).
 #:
 #: For the second question, since answers are checked numerically by comparing the student
 #: answer to the correct answer at several randomly points in the domain (the default is 5 points)
@@ -50,9 +55,10 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserFunction.pl', 'PGcourse.pl');
 #: In part (b), since the students never actually see the values of the function u(t),
 #: we could have defined the function as
 #:
-#: ```parserFunction("u(t)" =>
-#:  "1.5 * sin(e*t) + 5*pi/3 + arctan(t)"
-#: );```
+#: ```
+#: parserFunction("u(t)" => "1.5 * sin(e*t) + 5*pi/3 + arctan(t)");
+#: ```
+#:
 #: If we had defined `u(t)` this way, we would not have had to add the function `step(t)` to the context
 #: and we could have used the defaults for the answer checker. Notice that the function `u(t)` is never
 #: zero, is not constant, is differentiable, and takes moderately sized values, which makes its answer
@@ -62,46 +68,54 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserFunction.pl', 'PGcourse.pl');
 #: named function that stands in for the Heaviside function when the answer is a function. However, if the
 #: answer is a number obtained by evaluating the Heaviside function, then step(t) should be used or the function
 #: `u(t)` should be properly defined as the Heaviside function for obvious reasons.
-Context('Numeric')->variables->are(t => 'Real');
+Context()->variables->are(t => 'Real');
 Context()->functions->add(
-	step => {
-		class => 'Parser::Legacy::Numeric',
-		perl  => 'Parser::Legacy::Numeric::do_step'
-	},
+    step => {
+        class => 'Parser::Legacy::Numeric',
+        perl  => 'Parser::Legacy::Numeric::do_step'
+    },
 );
 
-parserFunction("u(t)" => "step(t)");
+parserFunction('u(t)' => 'step(t)');
 
 $a = random(3, 6);
+
 $f = Formula("5 u(t-$a)");
 
-$ans1 = List($f->eval(t => $a - 1), $f->eval(t => $a), $f->eval(t => $a + 1));
+$answer1 =
+    List($f->eval(t => $a - 1), $f->eval(t => $a), $f->eval(t => $a + 1));
 
-$ans2 = $f->with(
-	limits     => [ $a - 5,     $a + 5 ],
-	test_at    => [ [ $a - 1 ], [ $a - 0.0000001 ], [$a], [ $a + 0.0000001 ], [ $a + 1 ] ],
-	num_points => 10,
+$answer2 = $f->with(
+    limits  => [ $a - 5, $a + 5 ],
+    test_at => [
+        [ $a - 1 ], [ $a - 0.0000001 ], [$a], [ $a + 0.0000001 ], [ $a + 1 ]
+    ],
+    num_points => 10,
 );
 
-#:% section=statement
+#:% section = statement
 BEGIN_PGML
-Let [` u(t) `] be the Heaviside step function defined by
-[`` u(t) =\left\{\begin{array}{lcl}
-	0 && \mbox {if}\quad x \leq 0, \\
-	1 && \mbox {if}\quad x > 0.
-\end{array}\right . ``]
+Let [`u(t)`] be the Heaviside step function defined by
+[``
+    u(t) = \left\{
+        \begin{array}{lcl}
+            0 && \text{ if } x \leq 0, \\
+            1 && \text{ if } x > 0.
+        \end{array}
+    \right.
+``]
 
-a. Evaluate the function [`[$f]`] when [`t`] is [`[$a-1], [$a] `],
-and [` [$a+1] `] and enter your answers as a comma separated list.
+a. Evaluate the function [`[$f]`] when [`t`] is [`[$a - 1]`], [`[$a]`], and
+[`[$a + 1]`] and enter your answers as a comma separated list.
 
-	[________________]{$ans1->cmp(ordered => 1)}
+    + [_]{ $answer1->cmp(ordered => 1) }{15} [@ AnswerFormatHelp('numbers') @]*
 
-b. Suppose the answer is the function [` [$f] `] .
+b. Suppose the answer is the function [`[$f]`].
 
-	[________________]{$ans2}
+    + [_]{$answer2}{15} [@ AnswerFormatHelp('formulas') @]*
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

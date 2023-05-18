@@ -13,14 +13,16 @@
 
 #:% name = Degrees in Trigonometric Functions
 #:% type = [technique, sample]
-#:% subject = Trigonometry
-#:% categories = [trig degrees]
-#:% section=preamble
+#:% subject = [trigonometry, precalculus]
+#:% categories = [trigonometry, degrees]
+
+#:% section = preamble
 #: We load the `contextTrigDegrees.pl` macro to help with trig functions with degrees.
 DOCUMENT();
+
 loadMacros('PGstandard.pl', 'PGML.pl', 'contextTrigDegrees.pl', 'PGcourse.pl');
 
-#:% section=setup
+#:% section = setup
 #: To override the WeBWorK default of evaluating trig functions in radians, use the `TrigDegrees` context,
 #: which redefines the standard trig functions to be in degrees, both in any formulas that appear
 #: later in the PG code and in any formulas that students enter in answer blanks.
@@ -33,7 +35,7 @@ Context('TrigDegrees');
 $ans1 = Compute("sin(30)");
 $ans2 = Compute("arcsin(0.5)");
 
-#:% section=statement
+#:% section = statement
 BEGIN_PGML
 1. [`\sin(30)=`] [___]{$ans1}
 2. [`\arcsin(1/2)=`] [___]{$ans2}

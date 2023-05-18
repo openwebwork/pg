@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Integral calculus: indefinite integrals
+## Indefinite integrals
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -14,40 +14,44 @@
 #:% name = Indefinite Integrals
 #:% type = Sample
 #:% subject = integral calculus
-#:% categories=[antiderivatives]
-#:% section=preamble
+#:% categories = [antiderivatives]
+
+#:% section = preamble
 #: The macro `parserFormulaUpToConstant.pl` will allow the entry of formula with a
 #: general constant like the antiderivative.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserFormulaUpToConstant.pl', 'PGcourse.pl');
+loadMacros(
+    'PGstandard.pl',                'PGML.pl',
+    'parserFormulaUpToConstant.pl', 'PGcourse.pl'
+);
 
-#:% section=setup
+#:% section = setup
 #: Examples of specific and general antiderivatives:
 #:
 #: - Specific antiderivatives: `e^x, e^x + pi`
-#: - General antiderivatives: `e^x + C, e^x + C - 3, e^x + K`
+#: - General antiderivatives: `e^x + C`, `e^x + C - 3`, `e^x + K`
 #: The specific antiderivative is an ordinary formula, and we check this answer, we
 #: will specify that it be a formula evaluated up to a constant (see the Answer Evaluation
 #: section below). For the general antiderivative, we use the FormulaUpToConstant()
 #: constructor provided by parserFormulaUpToConstant.pl.
-Context('Numeric');
 
-#  Specific antiderivative:  Marks correct e^x, e^x + pi, etc
+# Specific antiderivative:  Marks correct e^x, e^x + pi, etc
 $specific = Formula("e^x");
 
 #  General antiderivative: Marks correct e^x + C, e^x + C - 3, e^x + K, etc.
 $general = FormulaUpToConstant("e^x");
 
-#:% section=statement
+#:% section = statement
 BEGIN_PGML
+a. Enter a specific antiderivative for [`e^x`]:
+[_]{ $specific->cmp(upToConstant => 1) }{10}
 
-a. Enter a specific antiderivative for [` e^x `] : [_____]{ $specific->cmp(upToConstant => 1) }
-
-b. Enter the most general antiderivative for [` e^x `] : [_____]{$general}
+b. Enter the most general antiderivative for [`e^x`]:
+[_]{$general}{10}
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

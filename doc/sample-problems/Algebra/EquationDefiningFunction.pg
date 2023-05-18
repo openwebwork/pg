@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Algebra: an equation defining a function
+## An equation defining a function
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -15,37 +15,33 @@
 #:% name = Answer is an Equation
 #:% type = Sample
 #:% subject = [algebra, precalculus]
-#:% categories=[equation, function, answers]
+#:% categories = [equation, function, answers]
 
-#:% section=preamble
+#:% section = preamble
 #: We need to include the macro file `parserAssignment.pl`.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserAssignment.pl', 'PGcourse.pl');
 
-#:% section=setup
+#:% section = setup
 #: We must allow assignment, and declare any function names we wish to use. For
 #: more details and examples in other MathObjects contexts, see
 #: PODLINK('parserAssignment.pl').
-Context('Numeric')->variables->are(x => 'Real', y => 'Real');
+Context()->variables->are(x => 'Real', y => 'Real');
 parser::Assignment->Allow;
 parser::Assignment->Function('f');
 
-$eqn = Formula("y=5x+2");
-$fun = Formula("f(x)=3x^2+2x");
+$eqn = Formula('y = 5x + 2');
+$fun = Formula('f(x) = 3x^2 + 2x');
 
-#:% section=statement
+#:% section = statement
 BEGIN_PGML
-Enter [` [$eqn] `]
+Enter [`[$eqn]`]: [_]{$eqn}{10}
 
-- [___________]{$eqn}
-
-Enter [` [$fun] `]
-
-- [___________]{$fun}
+Enter [`[$fun]`]: [_]{$fun}{10}
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

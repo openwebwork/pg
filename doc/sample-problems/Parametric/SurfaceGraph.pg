@@ -12,15 +12,16 @@
 ## Institution('Fort Lewis College')
 
 #:% name = Surface Graph
-#:% subject = parametric
 #:% type = Sample
+#:% subject = parametric
 
-#:% section=preamble
+#:% section = preamble
 #: The macro `plotly3D.pl` is used to produce the graph.
 DOCUMENT();
-loadMacros('PGstandard.pl','PGML.pl','plotly3D.pl', 'PGcourse.pl');
 
-#:% section=setup
+loadMacros('PGstandard.pl', 'PGML.pl', 'plotly3D.pl', 'PGcourse.pl');
+
+#:% section = setup
 #: A `plotly3D` graph is created with the `Graph3D` function. There are many option
 #: (see PODLINK('the POD','plotly3D.pl')), but to get started include the `height` and `width`.
 #:
@@ -36,12 +37,12 @@ $graph = Graph3D(
 );
 
 $graph->addSurface(
-        ['3*sin(v)*cos(u)', '3*sin(v)*sin(u)', '3*cos(v)'],
-        [0, 2*pi, 30],
-        [0, pi, 30]
-    );
+    [ '3*sin(v)*cos(u)', '3*sin(v)*sin(u)', '3*cos(v)' ],
+    [ 0,                 2 * pi,            30 ],
+    [ 0,                 pi,                30 ]
+);
 
-#:% section=statement
+#:% section = statement
 #: This just prints the graph.  No question is asked.
 BEGIN_PGML
 [@ $graph->Print @]*

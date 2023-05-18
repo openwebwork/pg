@@ -1,8 +1,8 @@
 ## DESCRIPTION
-##  Decompose a function into two functions
+## Decompose a function into two functions
 ## ENDDESCRIPTION
 
-## KEYWORDS('precalculus', 'function decomposition')
+## KEYWORDS('algebra', 'function decomposition')
 
 ## DBsubject(WeBWorK)
 ## DBchapter(WeBWorK tutorial)
@@ -12,12 +12,12 @@
 ## Author(Paul Pearson)
 
 #:% name = Function Decomposition
-#:% subject = [algebra, precalculus]
 #:% type = Sample
-#:% categories=[composition]
+#:% subject = [algebra, precalculus]
+#:% categories = [composition]
 
-#:% section=preamble
-#: We need to include the macros file `answerComposition.pl`, which provides an answer
+#:% section = preamble
+#: We need to include the macro file `answerComposition.pl`, which provides an answer
 #: checker that determines if two functions compose to form a given function. This
 #: can be used in problems where you ask a student to break a given function into a
 #: composition of two simpler functions, neither of which is allowed to be the
@@ -26,32 +26,31 @@ DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'answerComposition.pl', 'PGcourse.pl');
 
-#:% section=setup
-Context('Numeric');
+#:% section = setup
 Context()->variables->add(u => 'Real');
 
-$a = random(2, 9, 1);
+$a = random(2, 9);
 
 $f = Formula("sqrt(u)");
 $g = Formula("x^2+$a");
 
-#:% section=statement
+#:% section = statement
 BEGIN_PGML
-Express the function [` y = \sqrt{ x^2 + [$a] } `] as a composition [` y = f(g(x)) `]
-of two simpler functions [` y = f(u) `]	and [` u = g(x) `].
+Express the function [`y = \sqrt{x^2 + [$a]}`] as a composition [`y = f(g(x))`]
+of two simpler functions [`y = f(u)`] and [`u = g(x)`].
 
-* [` f(u) = `] [_______________]
+* [`f(u) =`] [_]{ width => 15 }
 
-* [` g(x) = `] [_______________]
+* [`g(x) =`]  [_]{ width => 15 }
 END_PGML
 
-#:% section=answer
+#:% section = answer
 #: We use the `COMPOSITION_ANS()` routine to evaluate both answer blanks. It is
 #: possible to use the same variable for both answer blanks. See PODLINK('answerComposition.pl')
 #: for more options and details.
 COMPOSITION_ANS($f, $g, vars => [ 'u', 'x' ], showVariableHints => 1);
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

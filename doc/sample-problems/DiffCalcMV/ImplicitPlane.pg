@@ -14,17 +14,21 @@
 #:% name = Implicit Plane
 #:% type = Sample
 #:% subject = multivariate calculus
-#:% categories=[implicit function]
+#:% categories = [implicit function]
 
-#:% section=preamble
+#:% section = preamble
 #: * The parserVectorUtils.pl macro is used for the non_zero_point3D function below.
 #: * The parserImplicitPlane.pl macro includes the context and the ImplicitPlane
 #:   function to parse and create implicit planes.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserImplicitPlane.pl', 'parserVectorUtils.pl', 'PGcourse.pl');
+loadMacros(
+    'PGstandard.pl',          'PGML.pl',
+    'parserImplicitPlane.pl', 'parserVectorUtils.pl',
+    'PGcourse.pl'
+);
 
-#:% section=setup
+#:% section = setup
 #: The first answer is a standard mulitivariable calculus question. There are several
 #: different ways to specify the input to `ImplicitPlane`, which are detailed in the POD
 #: documentation. It is also possible to do some more complicated manipulations with
@@ -33,36 +37,37 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserImplicitPlane.pl', 'parserVectorUt
 #: When the `ImplicitPlane` context has only two variables, it rephrases error messages
 #: in terms of lines. If you want students to be able to enter an equation for a line
 #: in the most general form, or if you have a vertical line to check (or just a
-#: constant equation such as `x=3`), you can use the `ImplicitPlane` context to reliably
+#: constant equation such as `x = 3`), you can use the `ImplicitPlane` context to reliably
 #: check these answers.
 Context('ImplicitPlane');
 Context()->variables->are(x => 'Real', y => 'Real', z => 'Real');
 
-$A = non_zero_point3D(-5, 5, 1);
-$N = non_zero_vector3D(-5, 5, 1);
+$A = non_zero_point3D(-5, 5);
+$N = non_zero_vector3D(-5, 5);
 
 $ans1 = ImplicitPlane($A, $N);
-$ans2 = ImplicitPlane("4x+3y=12");
-$ans3 = ImplicitPlane("x=3");
+$ans2 = ImplicitPlane('4x + 3y = 12');
+$ans3 = ImplicitPlane('x = 3');
 
-#:% section=statement
+#:% section = statement
 BEGIN_PGML
+a. Enter an equation for the plane through the point [`[$A]`] and perpendicular
+to [`[$N]`].
 
-a. Enter an equation for the plane through the point [` [$A] `] and perpendicular to [` [$N] `] .
+    + [_]{$ans1}{15}
 
-	[______________]{$ans1}
+b. Enter an equation for the line in the [`xy`]-plane with [`x`]-intercept [`3`]
+and [`y`]-intercept [`4`].
 
-b. Enter an equation for the line in the [` xy `] -plane with [` x `] -intercept [` 3 `]
-	and [` y `] -intercept [` 4 `].
+    + [_]{$ans2}{15}
 
-	[______________]{$ans2}
+c. Enter an equation for the vertical line in the [`xy`]-plane through the
+point [`(3,1)`].
 
-c. Enter an equation for the vertical line in the [` xy `] -plane through the point [` (3,1) `].
-
-	[______________]{$ans3}
+    + [_]{$ans3}{15}
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

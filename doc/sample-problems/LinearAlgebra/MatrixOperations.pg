@@ -12,60 +12,87 @@
 ## KEYWORDS('matrix','matrix operations')
 
 #:% name = Matrix Operation
-#:% subject = linear algebra
 #:% type = Sample
-#:% categories=[matrix]
+#:% subject = linear algebra
+#:% categories = [matrix]
 
-#:% section=preamble
+#:% section = preamble
 #: This uses `parserRadioMultiAnswer.pl`, so it needs to be loaded.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserRadioMultiAnswer.pl', 'PGcourse.pl');
 
-#:% section=setup
+loadMacros(
+    'PGstandard.pl',             'PGML.pl',
+    'parserRadioMultiAnswer.pl', 'PGcourse.pl'
+);
+
+#:% section = setup
 #: First, the two matrices are defined.
 #:
 #: A `RadioMultiAnswer` produces a set of radio buttons for each of the given statements.
 #: The format is
-#: <pre>
+#: ```
 #: RadioMultiAnswer([
-#:    [statement1],
-#:    [statement2],
-#:    ...
-#:    [last statement]
-#:], correct index, options)
-#: </pre>
+#:     [statement1],
+#:     [statement2],
+#:     ...
+#:     [last statement]
+#: ], correct index, options)
+#: ```
 #: Answer blanks can be added with the `%s` in the string and if a matrix is desired,
 #: `%s*` should be used.  See the POD for more details.
 Context('Matrix');
 
 $A = Matrix([
-		[ non_zero_random(-5, 5), non_zero_random(-5, 5) ],
-		[ non_zero_random(-5, 5), non_zero_random(-5, 5) ]
-	]);
-
-$B = Matrix([
-	[ non_zero_random(-5, 5), non_zero_random(-5, 5), non_zero_random(-5, 5) ],
-	[ non_zero_random(-5, 5), non_zero_random(-5, 5), non_zero_random(-5, 5) ],
+    [ non_zero_random(-5, 5), non_zero_random(-5, 5) ],
+    [ non_zero_random(-5, 5), non_zero_random(-5, 5) ]
 ]);
 
-$rma1 = RadioMultiAnswer([ ['The product \(AB\) does not exist.'],
-	[ 'The product \(AB\) is %s*', Compute($A * $B) ] ], 1);
+$B = Matrix([
+    [
+        non_zero_random(-5, 5),
+        non_zero_random(-5, 5),
+        non_zero_random(-5, 5)
+    ],
+    [
+        non_zero_random(-5, 5),
+        non_zero_random(-5, 5),
+        non_zero_random(-5, 5)
+    ],
+]);
 
-$rma2 = RadioMultiAnswer([ ['The product \(BA\) does not exist.'],
-	[ 'The product \(BA\) is %s*', Compute($A * $B) ] ], 0);
+$rma1 = RadioMultiAnswer(
+    [
+        ['The product \(AB\) does not exist.'],
+        [ 'The product \(AB\) is %s*', $A * $B ]
+    ],
+    1
+);
 
-#:% section=statement
+$rma2 = RadioMultiAnswer(
+    [
+        ['The product \(BA\) does not exist.'],
+        [ 'The product \(BA\) is %s*', $A * $B ]
+    ],
+    0
+);
+
+#:% section = statement
 BEGIN_PGML
 Let
->> [`` A = [$A], \quad B = [$B] . ``] <<
+>> [``A = [$A] \quad\text{and}\quad B = [$B].``] <<
 
-1) Select One [____]{$rma1}
+1) Select the correct choice below, and fill in any answer boxes within that
+choice.
 
-2) Select One [____]{$rma2}
+    [____]{$rma1}
 
+2) Select the correct choice below, and fill in any answer boxes within that
+choice.
+
+    [____]{$rma2}
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

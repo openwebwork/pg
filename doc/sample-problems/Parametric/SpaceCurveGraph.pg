@@ -12,15 +12,16 @@
 ## Institution('Fort Lewis College')
 
 #:% name = Space Curve Graph
-#:% subject = parametric
 #:% type = Sample
+#:% subject = parametric
 
-#:% section=preamble
+#:% section = preamble
 #: The macro `plotly3D.pl` is used to produce the graph.
 DOCUMENT();
-loadMacros('PGstandard.pl','PGML.pl','plotly3D.pl', 'PGcourse.pl');
 
-#:% section=setup
+loadMacros('PGstandard.pl', 'PGML.pl', 'plotly3D.pl', 'PGcourse.pl');
+
+#:% section = setup
 #: A `plotly3D` graph is created with the `Graph3D` function. There are many options as
 #: decribed in PODLINK('the POD','plotly3D.pl'), but to get started include the `height` and `width`.
 #:
@@ -33,9 +34,9 @@ $graph = Graph3D(
     title  => 'Spiral in 3D',
 );
 
-$graph->addCurve(['t*cos(t)','t*sin(t)','t'],[0,6*pi,150]);
+$graph->addCurve([ 't*cos(t)', 't*sin(t)', 't' ], [ 0, 6 * pi, 150 ]);
 
-#:% section=statement
+#:% section = statement
 #: This just prints the graph.  No question is asked.
 BEGIN_PGML
 [@ $graph->Print @]*

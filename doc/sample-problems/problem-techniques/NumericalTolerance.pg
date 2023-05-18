@@ -1,5 +1,5 @@
 ## DESCRIPTION
-##  Explains the difference in tolerance type and numerical tolerance.
+## Explains the difference in tolerance type and numerical tolerance.
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -14,13 +14,14 @@
 # updated to full problem by Peter Staab (06/01/2023)
 
 #:% name = Numerical Tolerance
-#:% type=technique
-#:% categories=[numbers, tolerance]
-#:% section=preamble
+#:% type = technique
+#:% categories = [numbers, tolerance]
+
+#:% section = preamble
 DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
-#:% section=setup
+#:% section = setup
 #: This shows three different ways of setting the toltype and tolerance of the answer. The
 #: `tolType` can be `absolute` (specifying a decimal distance from the correct answer that
 #: will be allowed) or `relative` (specifying a percent error that will be allowed).
@@ -40,19 +41,19 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: top of the setup section.
 #:
 $ans1 = Compute('1.5708')->cmp(
-	tolType   => 'absolute',
-	tolerance => .0001,
+    tolType   => 'absolute',
+    tolerance => .0001,
 );
 
 $ans2 = Compute('1.5708');
 
 Context('Numeric')->flags->set(
-	tolerance => 0.0001,
-	tolType   => "absolute",
+    tolerance => 0.0001,
+    tolType   => "absolute",
 );
 
 $ans3 = Compute('1.5708');
-#:% section=statement
+#:% section = statement
 BEGIN_PGML
 For each of the following Enter your answer accurate to four decimal places .
 
@@ -67,7 +68,7 @@ For each of the following Enter your answer accurate to four decimal places .
 
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

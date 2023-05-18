@@ -14,8 +14,6 @@ use File::Find qw(find);
 use File::Copy qw(copy);
 use YAML::XS qw(LoadFile);
 
-use Data::Dumper;
-
 my ($problem_dir, $out_dir, $pod_root, $pg_doc_home);
 my $verbose = 0;
 
@@ -27,10 +25,8 @@ GetOptions(
 	"h|pg_doc_home=s" => \$pg_doc_home,
 );
 
-die "problem_dir must be provided.\n" unless $problem_dir;
-die "out_dir must be provided.\n"     unless $out_dir;
-die "pod_root must be provided.\n"    unless $pod_root;
-die "pg_doc_home must be provided.\n" unless $pg_doc_home;
+die "problem_dir, out_dir, pod_root, and pg_doc_home must be provided.\n"
+	unless $problem_dir && $out_dir && $pod_root && $pg_doc_home;
 
 my $pg_root = curfile->dirname->dirname;
 
@@ -69,7 +65,7 @@ sub processSample {
 		mkdir "$out_dir/$relative_dir" unless -d "$out_dir/$relative_dir";
 
 		say "Printing to '$out_dir/$relative_dir/$filename.html'" if $verbose;
-		open(my $FH, '>', "$out_dir/$relative_dir/$filename.html")
+		open(my $FH, '>:encoding(UTF-8)', "$out_dir/$relative_dir/$filename.html")
 			or die qq{Could not open output file "$out_dir/$relative_dir/$filename.html": $!};
 
 		print $FH $mt->render_file("$template_dir/problem-template.mt",
@@ -83,12 +79,12 @@ sub processSample {
 		$techniques->{ $parsed_file->{name} } = "$relative_dir/$filename.html"
 			if grep { $_ eq 'technique' } @{ $parsed_file->{types} };
 
-		for my $cat (@{ $parsed_file->{categories} }) {
-			$categories->{$cat}{ $parsed_file->{name} } = "$relative_dir/$filename.html";
+		for my $category (@{ $parsed_file->{categories} }) {
+			$categories->{$category}{ $parsed_file->{name} } = "$relative_dir/$filename.html";
 		}
 
-		for my $subj (@{ $parsed_file->{subjects} }) {
-			$subjects->{$subj}{ $parsed_file->{name} } = "$relative_dir/$filename.html";
+		for my $subject (@{ $parsed_file->{subjects} }) {
+			$subjects->{$subject}{ $parsed_file->{name} } = "$relative_dir/$filename.html";
 		}
 	}
 
@@ -106,8 +102,9 @@ sub parseFile ($file) {
 
 	while (my $row = shift @file_contents) {
 		chomp($row);
-		# Parses a row with category/name/subject/type and plurals
+		$row =~ s/\t/    /g;
 		if ($row =~ /^#:%\s*(categor(y|ies)|types?|subjects?|name)\s*=\s*(.*)\s*$/) {
+			# The row has the form #:% categories = [cat1, cat2, ...].
 			my $label = lc($1);
 			my @opts  = $3 =~ /\[(.*)\]/ ? map { $_ =~ s/^\s*|\s*$//r } split(/,/, $1) : ($3);
 			if ($label =~ /types?/) {
@@ -124,6 +121,7 @@ sub parseFile ($file) {
 				$name = $opts[0];
 			}
 		} elsif ($row =~ /^#:%\s*(.*)?/) {
+			# The row has the form #:% section = NAME.
 			# This should parse the previous named section and then reset @doc_rows and @code_rows.
 			push(@blocks, { %options, doc => $md->markdown(join("\n", @doc_rows)), code => join("\n", @code_rows) })
 				if %options;
@@ -137,13 +135,14 @@ sub parseFile ($file) {
 			while ($row && $row !~ /\);\s*$/) {
 				$row = shift @file_contents;
 				chomp($row);
+				$row =~ s/\t/    /g;
 				$macros .= $row;
-				push(@code_rows, $row =~ s/\t/    /gr);
+				push(@code_rows, $row);
 			}
 			# Split by commans and pull out the quotes.
 			@macros = map {s/['"]//gr} split(/\s*,\s*/, $macros =~ s/loadMacros\((.*)\)\;$/$1/r);
-			# This is a documentation line. Just push the row onto @doc_rows.
 		} elsif ($row =~ /^#:/) {
+			# This is a documentation line. Just push the row onto @doc_rows.
 			$row = $row =~ s/^#://r;
 			# parse any PODLINK commands in the documentation.
 			if ($row =~ /PODLINK\('(.*?)'\s*(,\s*'(.*)')?\)/) {
@@ -151,13 +150,13 @@ sub parseFile ($file) {
 				$row = $row =~ s/PODLINK\('(.*?)'\s*(,\s*'(.*)')?\)/[$1]($url)/gr;
 			}
 			push(@doc_rows, $row);
-		} elsif ($row =~ /^##\s*(\w*)DESCRIPTION\s*$/) {
+		} elsif ($row =~ /^##\s*(END?)DESCRIPTION\s*$/) {
 			$descr = $1 ? 0 : 1;
 		} elsif ($row =~ /^##/ && $descr) {
 			push(@description, $row =~ s/^##\s*//r);
-			push(@code_rows,   $row =~ s/\t/    /gr);
+			push(@code_rows,   $row);
 		} else {
-			push(@code_rows, $row =~ s/\t/    /gr);
+			push(@code_rows, $row);
 		}
 	}
 	die "The type of sample problem is missing for $file"           unless scalar(@types) > 0;
@@ -181,28 +180,43 @@ sub parseFile ($file) {
 # This produces the categories, problem techniques and snippets file.
 sub outputIndices ($categories, $subjects) {
 	say 'Creating categories' if $verbose;
-	my $cat_sidebar = $mt->render_file("$template_dir/category-sidebar.mt", { categories => $categories });
-	my $cat_main    = $mt->render_file("$template_dir/category-main.mt",    { categories => $categories });
-	open my $FH, '>', "$out_dir/categories.html";
-	print $FH $mt->render_file("$template_dir/general-layout.mt",
-		{ sidebar => $cat_sidebar, main_content => $cat_main });
-	close $FH;
+	if (open my $FH, '>', "$out_dir/categories.html") {
+		print $FH $mt->render_file(
+			"$template_dir/general-layout.mt",
+			{
+				sidebar      => $mt->render_file("$template_dir/category-sidebar.mt", { categories => $categories }),
+				main_content => $mt->render_file("$template_dir/category-main.mt",    { categories => $categories }),
+				active       => 'categories'
+			}
+		);
+		close $FH;
+	}
 
 	say 'Creating Subject Areas' if $verbose;
-	my $subj_sidebar = $mt->render_file("$template_dir/subject-sidebar.mt", { subjects => $subjects });
-	my $subj_main    = $mt->render_file("$template_dir/subject-main.mt",    { subjects => $subjects });
-	open $FH, '>', "$out_dir/subjects.html";
-	print $FH $mt->render_file("$template_dir/general-layout.mt",
-		{ sidebar => $subj_sidebar, main_content => $subj_main });
-	close $FH;
+	if (open my $FH, '>', "$out_dir/subjects.html") {
+		print $FH $mt->render_file(
+			"$template_dir/general-layout.mt",
+			{
+				sidebar      => $mt->render_file("$template_dir/subject-sidebar.mt", { subjects => $subjects }),
+				main_content => $mt->render_file("$template_dir/subject-main.mt",    { subjects => $subjects }),
+				active       => 'subjects'
+			}
+		);
+		close $FH;
+	}
 
 	say 'Creating Problem Techniques' if $verbose;
-	my $tech_sidebar = $mt->render_file("$template_dir/techniques-sidebar.mt");
-	my $tech_main    = $mt->render_file("$template_dir/techniques-main.mt", { techniques => $techniques });
-	open $FH, '>', "$out_dir/techniques.html";
-	print $FH $mt->render_file("$template_dir/general-layout.mt",
-		{ sidebar => $tech_sidebar, main_content => $tech_main });
-	close $FH;
+	if (open my $FH, '>', "$out_dir/techniques.html") {
+		print $FH $mt->render_file(
+			"$template_dir/general-layout.mt",
+			{
+				sidebar      => $mt->render_file("$template_dir/techniques-sidebar.mt"),
+				main_content => $mt->render_file("$template_dir/techniques-main.mt", { techniques => $techniques }),
+				active       => 'techniques'
+			}
+		);
+		close $FH;
+	}
 
 	return;
 }

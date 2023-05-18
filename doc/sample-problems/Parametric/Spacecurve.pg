@@ -12,17 +12,17 @@
 ## KEYWORDS('parametric', 'curve in space')
 
 #:% name = Polar Graph
-#:% subject = parametric
 #:% type = Sample
+#:% subject = parametric
 
-#:% section=preamble
+#:% section = preamble
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
 
 $showPartialCorrectAnswers = 0;
 
-#:% section=setup
+#:% section = setup
 #: Because the answers can vary and are interdependent, we use the `MultiAnswer` to check
 #: the results.
 #:
@@ -31,37 +31,36 @@ $showPartialCorrectAnswers = 0;
 #: hasn't fed us a bogus constant solution such as `x=y=z=0` by requiring the x-coordinate
 #: to be a formula (not a constant) via return 0 unless `$xstu->isFormula;`. Then, we check
 #: that the student's answers satisfy the parametric equation.
-Context('Numeric');
-Context()->variables->are(t=>'Real');
-Context()->variables->set(t=>{limits=>[0,10]});
+Context()->variables->are(t => 'Real');
+Context()->variables->set(t => { limits => [ 0, 10 ] });
 
-$a = random(-5,-2,1);
+$a = random(-5, -2);
 $x = Formula("$a * t^2");
 $y = Formula('0');
 $z = Formula('t');
 
 $multians = MultiAnswer($x, $y, $z)->with(
-  singleResult => 1,
-  checker => sub {
-    my ( $correct, $student, $self ) = @_;
-    my ( $xstu, $ystu, $zstu ) = @{$student};
-    return 0 unless $xstu->isFormula;
-    return (($xstu==$a*$zstu**2) && ($ystu==0)) ? 1 : 0;
-  }
+    singleResult => 1,
+    checker      => sub {
+        my ($correct, $student, $self) = @_;
+        my ($xstu,    $ystu,    $zstu) = @{$student};
+        return 0 unless $xstu->isFormula;
+        return (($xstu == $a * $zstu**2) && ($ystu == 0)) ? 1 : 0;
+    }
 );
 
-#:% section=statement
+#:% section = statement
 #: Notice that we use $multians in each answer blank because they results in the
 #: three answers are dependent on each other.
 BEGIN_PGML
-Find a parametrization of the curve [` x = [$a] z^2 `]
-in the [`xz`]-plane.  Use [` t `] as the parameter for all of your answers.
+Find a parametrization of the curve [`x = [$a] z^2`] in the [`xz`]-plane.  Use
+[`t`] as the parameter for all of your answers.
 
-[` x(t) = `] [______________]{$multians}
+[`x(t) =`] [_]{$multians}{15}
 
-[` y(t) = `] [______________]{$multians}
+[`y(t) =`] [_]{$multians}{15}
 
-[` z(t) = `] [______________]{$multians}
+[`z(t) =`] [_]{$multians}{15}
 END_PGML
 
 #:% section = solution

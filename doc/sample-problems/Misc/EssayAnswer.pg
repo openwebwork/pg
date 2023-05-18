@@ -16,73 +16,68 @@
 
 #:% name = Essay Answer
 #:% type = Sample
-#:% categories=[essay]
+#:% categories = [essay]
 
-#:% section=preamble
-#:Use the `PGessaymacros.pl` for the essay answer
-#:and `parserPopUp.pl` for the multiple choice drop
-#:down menu.  Setting `$showPartialCorrectAnswers = 0;`
-#:means that students will not receive feedback on whether
-#:their answers are correct.
-#:The all-or-nothing problem grader (the standard problem grader)
-#:is used in order to withhold assigning any credit when the student
-#:submits an answer.  This allows the professor to manually determine
-#:what percentage the student should get.
-#:If the standard problem grader was not used here, then the default
-#:problem grader (the average problem grader) would award
-#:50 percent credit to students who answer the multiple choice
-#:question correct.
+#:% section = preamble
+#: Use the `PGessaymacros.pl` for the essay answer
+#: and `parserPopUp.pl` for the multiple choice drop
+#: down menu.  Setting `$showPartialCorrectAnswers = 0;`
+#: means that students will not receive feedback on whether
+#: their answers are correct.
+#: The all-or-nothing problem grader (the standard problem grader)
+#: is used in order to withhold assigning any credit when the student
+#: submits an answer.  This allows the professor to manually determine
+#: what percentage the student should get.
+#: If the standard problem grader was not used here, then the default
+#: problem grader (the average problem grader) would award
+#: 50 percent credit to students who answer the multiple choice
+#: question correct.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserPopUp.pl', 'PGessaymacros.pl', 'PGcourse.pl');
+loadMacros(
+    'PGstandard.pl',  'PGML.pl',
+    'parserPopUp.pl', 'PGessaymacros.pl',
+    'PGcourse.pl'
+);
 
 $showPartialCorrectAnswers = 0;
 
-#:% section=setup
-Context('Numeric');
+#:% section = setup
+$popup = PopUp(
+    [ 'Choose', 'True', 'False' ],    # choices
+    'False'                           # corect answer
+);
 
-$pop = DropDownTF('F');
-
-$a = random(2, 5, 1);
+$a = random(2, 5);
 
 $f1 = Compute("ln(x (x-$a))");
 $f2 = Compute("ln(x) + ln(x-$a)");
 
-#:% section=statement
-#:Clearly communicate to the student the expectations
-#:of the problem and how it will be graded.  The `essay_box(w,h)`
-#:is resizable and takes inputs for initial width and height.
+#:% section = statement
+#: Clearly communicate to the student the expectations
+#: of the problem and how it will be graded.  The `essay_box(w, h)`
+#: is resizable and takes inputs for initial width and height.
+#:
+#: Note that `essay_cmp()` is not associated with any object
+#: (i.e., it is **not** `$essay->cmp()`).
+#:
+#: The essay answer must be graded manually by the instructor.  Hand grading is
+#: done either (1) by viewing the homework set and clicking the **Grade problem**
+#: link in the rightmost column of the problem list, or (2) by checking the
+#: **Problem Grader** checkbox in the problem and clicking
+#: **Preview My Answers** or **Check Answers**, or (3) by clicking on
+#: **Statistics** in Instructor Tools menu, selecting the homework set, and
+#: clicking the **Manual Grader** link under the problem number, or (4) by
+#: clicking the **Grade Problem** link after the problem number on the
+#: **Set Detail** page.
 BEGIN_PGML
-Answer the following true / false question and
-then explain your answer.  Your answers will be
-read and graded manually at a later time.
+Answer the following true / false question and then explain your answer.  Your
+answers will be read and graded manually at a later time.
 
-[___]{$pop}
-For all real numbers [` x `], [` [$f1] = [$f2] `].
+[_]{$popup} For all real numbers [`x`], [`[$f1] = [$f2]`].
 
 Please explain your reasoning in the answer box below.
-[@ essay_box(8,60) @]*
+[@ ANS( essay_cmp() ); essay_box(8, 60) @]*
 END_PGML
-
-#:% section=answer
-#:The essay answer is graded manually by the professor.  Hand grading is done
-#: either (1) by clicking on the homework set and clicking the **Grade problem**
-#: link in the rightmost column of the problem list.
-
-#: [Insert image here]
-#:<div class="thumb tright"><div class="thumbinner" style="width:302px;">
-#:<a href="/wiki/File:Essay_grading.png" class="image">
-#:<img alt="Essay grading.png" src="/mediawiki_new/thumb.php?f=Essay_grading.png&amp;width=300" decoding="async" width="300" height="154" class="thumbimage" srcset="/mediawiki_new/thumb.php?f=Essay_grading.png&amp;width=450 1.5x, /mediawiki_new/images/6/61/Essay_grading.png 2x" /></a>
-#:  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Essay_grading.png" class="internal" title="Enlarge"></a></div></div></div></div>
-
-#:or (2) by clicking on **Statistics** in Instructor Tools menu, selecting the
-#:homework set, and clicking the **Needs grading** or **Regrade** links under the
-#:problem number.  For more details, please see
-#:[http://webworkgoehle.blogspot.com/2012/09/essay-answers-in-webwork.html](the initial blog announcement about essay answers)
-#:
-#:Note that `essay_cmp()` is not associated with any object (i.e.,it is **not**
-#: `$essay->cmp()`).
-#:
-ANS(essay_cmp());
 
 ENDDOCUMENT();
 

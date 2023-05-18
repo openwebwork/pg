@@ -11,34 +11,34 @@
 ## MO(1)
 ## KEYWORDS('formula answer', 'template')
 
-#:% section=preamble
+#:% name = Formula Answer
+#:% type = Sample
+#:% subject = [algebra, precalculus]
+#:% categories = [answer]
 
+#:% section = preamble
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl');
 
-#:% name = Formula Answer
-#:% type = Sample
-#:% subject = [algebra, precalculus]
-#:% categories=[answer]
+#:% section = setup
+#: Use `do { $b = random(2, 9) } until ( $b != $a );` to generate distinct
+#: random numbers.
 
-#:% section=setup
-#:We use `do { $b = random(2,9,1); } until ( $b != $a );` to generate distinct
-#:random numbers.
 $a = non_zero_random(-9, 9);
-do { $b = random(2, 9); } until ($b != $a);
+do { $b = random(2, 9) } until ($b != $a);
 
-$ans1 = Compute("$a");
-$ans2 = Compute("($a x^($b) + $b)/x")->reduce();
+$answer1 = Compute("$a");
+$answer2 = Compute("($a x^($b) + $b)/x")->reduce();
 
-#:% section=statement
+#:% section = statement
 BEGIN_PGML
-Enter [`[$ans1]`] : [____]{$ans1}
+Enter [`[$answer1]`]: [____]{$answer1}
 
-Enter [`` [$ans2] ``]: [____]{$ans2}
+Enter [``[$answer2]``]: [____]{$answer2}
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
