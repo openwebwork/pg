@@ -55,7 +55,7 @@ loadMacros(
 #: In part (b), since the students never actually see the values of the function u(t),
 #: we could have defined the function as
 #:
-#: ```
+#: ```{#parser-function-call .perl}
 #: parserFunction("u(t)" => "1.5 * sin(e*t) + 5*pi/3 + arctan(t)");
 #: ```
 #:

@@ -30,7 +30,7 @@ loadMacros(
 #:
 #: A `RadioMultiAnswer` produces a set of radio buttons for each of the given statements.
 #: The format is
-#: ```
+#: ```{#radio-multi-answer-usage .perl}
 #: RadioMultiAnswer([
 #:     [statement1],
 #:     [statement2],

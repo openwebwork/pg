@@ -7,7 +7,7 @@ use feature 'say';
 
 use Mojo::Template;
 use Mojo::File qw(curfile);
-use Text::MultiMarkdown;
+use Pandoc;
 use File::Basename;
 use Getopt::Long;
 use File::Find qw(find);
@@ -31,7 +31,6 @@ die "problem_dir, out_dir, pod_root, and pg_doc_home must be provided.\n"
 my $pg_root = curfile->dirname->dirname;
 
 my $mt              = Mojo::Template->new(vars => 1);
-my $md              = Text::MultiMarkdown->new;
 my $template_dir    = "$pg_root/doc/templates";
 my $macro_locations = LoadFile("$pg_root/doc/sample-problems/macro_pod.yaml");
 
@@ -123,8 +122,14 @@ sub parseFile ($file) {
 		} elsif ($row =~ /^#:%\s*(.*)?/) {
 			# The row has the form #:% section = NAME.
 			# This should parse the previous named section and then reset @doc_rows and @code_rows.
-			push(@blocks, { %options, doc => $md->markdown(join("\n", @doc_rows)), code => join("\n", @code_rows) })
-				if %options;
+			push(
+				@blocks,
+				{
+					%options,
+					doc  => pandoc->convert(markdown => 'html', join("\n", @doc_rows)),
+					code => join("\n", @code_rows)
+				}
+			) if %options;
 			%options   = split(/\s*:\s*|\s*,\s*|\s*=\s*|\s+/, $1);
 			@doc_rows  = ();
 			@code_rows = ();
@@ -163,7 +168,14 @@ sub parseFile ($file) {
 	die "The name attribute must be assigned for a problem/snipped" unless $name;
 
 	# The @doc_rows must be parsed then added to the @blocks.
-	push(@blocks, { %options, doc => $md->markdown(join("\n", @doc_rows)), code => join("\n", @code_rows) });
+	push(
+		@blocks,
+		{
+			%options,
+			doc  => pandoc->convert(markdown => 'html', join("\n", @doc_rows)),
+			code => join("\n", @code_rows)
+		}
+	);
 
 	return {
 		home        => $pg_doc_home,
@@ -180,7 +192,7 @@ sub parseFile ($file) {
 # This produces the categories, problem techniques and snippets file.
 sub outputIndices ($categories, $subjects) {
 	say 'Creating categories' if $verbose;
-	if (open my $FH, '>', "$out_dir/categories.html") {
+	if (open my $FH, '>:encoding(UTF-8)', "$out_dir/categories.html") {
 		print $FH $mt->render_file(
 			"$template_dir/general-layout.mt",
 			{
@@ -193,7 +205,7 @@ sub outputIndices ($categories, $subjects) {
 	}
 
 	say 'Creating Subject Areas' if $verbose;
-	if (open my $FH, '>', "$out_dir/subjects.html") {
+	if (open my $FH, '>:encoding(UTF-8)', "$out_dir/subjects.html") {
 		print $FH $mt->render_file(
 			"$template_dir/general-layout.mt",
 			{
@@ -206,7 +218,7 @@ sub outputIndices ($categories, $subjects) {
 	}
 
 	say 'Creating Problem Techniques' if $verbose;
-	if (open my $FH, '>', "$out_dir/techniques.html") {
+	if (open my $FH, '>:encoding(UTF-8)', "$out_dir/techniques.html") {
 		print $FH $mt->render_file(
 			"$template_dir/general-layout.mt",
 			{

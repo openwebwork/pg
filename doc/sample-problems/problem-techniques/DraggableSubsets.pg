@@ -25,13 +25,13 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'draggableSubsets.pl', 'PGcourse.pl');
 #:% section = setup
 #: The DraggableSubsets call visually creates a set of regions called buckets that
 #: labelled boxes can be dragged between. The general form is
-#: ```
+#: ```{#draggable-subsets-usage .perl}
 #: $draggable = DraggableSubsets(
 #:        $full_set,
 #:        $answer_sets,
 #:        %options
 #:    );
-#:```
+#: ```
 #:
 #: where `$full_set` is the set of all labelled boxes.  The `$answer_sets` is a nested
 #: array reference of distribution of the correct subsets.  There are many options. The

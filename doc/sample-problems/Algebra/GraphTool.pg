@@ -28,7 +28,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 #:
 #: The lines
 #:
-#: ```
+#: ```{#equation .perl}
 #: Context()->variables->add(y => 'Real');
 #: $circle_eq_lhs = Formula("(x - $h)^2 + (y - $k)^2")->reduce;
 #: ```
@@ -54,7 +54,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 #:
 #: The option
 #:
-#: ```
+#: ```{#cmp-options .perl}
 #: cmpOptions => { list_checker => sub { ... } }
 #: ```
 #:
