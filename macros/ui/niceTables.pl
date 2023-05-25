@@ -426,6 +426,46 @@ sub DataTable {
 	# $alignment is a 1D array of hash references, with options for each column
 	my $alignment = ParseAlignment($tableOpts->{texalignment});
 
+	# if the user's data implies fewer cells in any row than what is in texalignment
+	# then we add empty data cells, update $colCount, $tableOpts, and $alignment
+	my $needToUpdate;
+	for my $j (0 .. $#$tableArray) {
+		my $lastCol = $tableArray->[$j][-1]{rightcol};
+		for my $i ($lastCol + 1 .. $#$alignment) {
+			$needToUpdate = 1;
+			push(
+				@{ $tableArray->[$j] },
+				{
+					data      => '',
+					leftcol   => $i,
+					rightcol  => $i,
+					halign    => '',
+					header    => '',
+					tex       => '',
+					noencase  => 0,
+					colspan   => 1,
+					cellcss   => '',
+					texpre    => '',
+					texpost   => '',
+					rowcolor  => '',
+					rowcss    => {},
+					headerrow => '',
+					rowtop    => 0,
+					rowbottom => 0,
+					top       => 0,
+					bottom    => 0,
+					valign    => ''
+				}
+			);
+		}
+	}
+
+	if ($needToUpdate) {
+		$colCount  = ColumnCount($tableArray);
+		$tableOpts = TableOptions($colCount, @_);
+		$alignment = ParseAlignment($tableOpts->{texalignment});
+	}
+
 	# if the user's data implies more columns than what they specified in texalignment
 	# then we add columns to both $alignment and $tableOpts->{texalignment}
 	for my $i ($#$alignment + 1 .. $colCount) {
@@ -1393,6 +1433,7 @@ sub suffix {
 
 sub css {
 	my ($a, $b) = @_;
+	$a //= '';
 	my $return = '';
 	if (ref $a eq 'HASH') {
 		my %css = %{$a};
