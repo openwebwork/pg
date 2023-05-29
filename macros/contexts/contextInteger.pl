@@ -19,39 +19,46 @@ contextInteger.pl - adds integer related functions primeFactorization, phi, tau,
 
 =head1 DESCRIPTION
 
-This is a Parser context that adds integer related functions.  
+This is a Parser context that adds integer related functions.
 This forces students to only enter integers as their answers.
 
 =head1 USAGE
 
-	Context("Integer")
+    Context("Integer")
 
-  # generates an array of each prime factor
-  @a = primeFactorization(1000);
-  ANS(List(@a)->cmp);
+Generate an array of each prime factor
 
-  # get the gcd
-  $b = gcd(5, 2);
-  ANS($b->cmp);
+    @a = primeFactorization(1000);
+    ANS(List(@a)->cmp);
 
-  # get lcm
-  $c = lcm(36, 90);
-  ANS($c->cmp);
+Get the gcd
 
-  # get phi
-  $d = phi(365);
-  ANS($d->cmp);
-	
-  # get tau
-  $e = tau(365);
-  ANS($e->cmp);
+    $b = gcd(5, 2);
+    ANS($b->cmp);
 
-  # check if prime
-  $f = isPrime(10); #False
-  $h = isPrime(5); #True
+The the lowest common multiple:
 
-  # get a random prime in a range
-  $randomPrime = randomPrime(100, 1000);
+    $c = lcm(36, 90);
+    ANS($c->cmp);
+
+Find phi
+
+    $d = phi(365);
+    ANS($d->cmp);
+
+Find tau
+
+    $e = tau(365);
+    ANS($e->cmp);
+
+Check if prime
+
+    $f = isPrime(10); #False
+    $h = isPrime(5); #True
+
+Get a random prime in a range
+
+    $randomPrime = randomPrime(100, 1000);
 
 =cut
 

@@ -30,11 +30,11 @@ should alert the student in their text.
 
 =head1 USAGE
 
-	Context("IntegerFunctions")
-	
-	$b = random(2, 5); $a = $b+random(0, 5);
-	$c = C($a, $b);
-	ANS(Compute("P($a, $b)")->cmp);
+    Context("IntegerFunctions")
+
+    $b = random(2, 5); $a = $b+random(0, 5);
+    $c = C($a, $b);
+    ANS(Compute("P($a, $b)")->cmp);
 
 B<Note:> If the context is set to something else, such as Numeric, it
 can be set back with Context("IntegerFunctions").

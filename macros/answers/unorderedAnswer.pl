@@ -1,37 +1,62 @@
-##########################################################################
-##########################################################################
-##
-##  Routines for groups of answer blanks where the user can enter
-##  answers in any order in the blanks.
-##
+################################################################################
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
+
+=head1 NAME
+
+unorderedAnswer.pl - allow the answers to be checked independent of order.
+
+=head1 SYNOPSIS
+
+    UNORDERED_ANS(checker1, checker2, ...);
+
+    UNORDERED_NAMED_ANS(name1 => checker1, name2 => checker2, ...);
+
+=head1 DESCRIPTION
+
+Routines for groups of answer blanks where the user can enter answers in any order in the blanks.
+
+=cut
 
 loadMacros("answerUtils.pl");
 
 sub _unorderedAnswer_init { };    # don't reload this file
 
-##########################################################################
-#
-#  Collect a group of answer checkers for use with answers that can be given
-#  in any order.  If N answer checkers are given, then the last N answer
-#  rules will be used.  It is beter to use named rules and UNORDERED_NAMED_ANS
-#  below.  Otherwise, be sure to use UNORDERED_ANS right after the answer
-#  rules for the answers you want to compare.
-#
-#  Format:
-#
-#    UNORDERED_ANS(checker1, checker2, ...);
-#
-#  Example:
-#
-#    BEGIN_TEXT
-#       The function \(f(x) = \frac{1}{x^2-$a}\) is defined except
-#       for \(x =\) \{ans_rule(10)\} and \(x =\) \{ans_rule(10)\}.
-#    END_TEXT
-#
-#    UNORDERED_ANS(std_num_cmp(sqrt($a)), std_num_cmp(-sqrt($a)));
-#
-# (the student can enter the solutions in either order.)
-#
+=head2 UNORDERED_ANS
+
+Collect a group of answer checkers for use with answers that can be given
+in any order.  If C<N> answer checkers are given, then the last C<N> answer
+rules will be used.  It is beter to use named rules and C<UNORDERED_NAMED_ANS>
+below.  Otherwise, be sure to use C<UNORDERED_ANS> right after the answer
+rules for the answers you want to compare.
+
+Format:
+
+    UNORDERED_ANS(checker1, checker2, ...);
+
+Example:
+
+    BEGIN_PGML
+       The function [`f(x) = \frac{1}{x^2-$a}`] is defined except
+       for [`x =`] [___] and [`x = `] [___]
+    END_PGML
+
+    UNORDERED_ANS(std_num_cmp(sqrt($a)), std_num_cmp(-sqrt($a)));
+
+(the student can enter the solutions in either order.)
+=cut
+
 sub UNORDERED_ANS {
 	my @cmp    = @_;
 	my @params = ();
@@ -46,30 +71,32 @@ sub UNORDERED_ANS {
 	while (scalar(@results) > 0) { shift(@results), ANS(shift(@results)) }
 }
 
-##########################################################################
-#
-#  Collect a group of answer checkers for use with named answers that
-#  can be given in any order.
-#
-#  Format:
-#
-#    UNORDERED_NAMED_ANS(name1 => checker1, name2 => checker2, ...);
-#
-#  Example:
-#
-#    BEGIN_TEXT
-#       The function \(f(x) = \frac{1}{x^2-$a}\) is defined except
-#       for \(x =\) \{NAMED_ANS_RULE(A1,10)\}
-#       and \(x =\) \{NAMED_ANS_RULE(A2,10)\}.
-#    END_TEXT
-#
-#    UNORDERED_NAMED_ANS(
-#      A1 => std_num_cmp(sqrt($a)),
-#      A2 => std_num_cmp(-sqrt($a))
-#    );
-#
-# (the student can enter the solutions in either blank.)
-#
+=head2 UNORDERED_NAMED_ANS
+
+Collect a group of answer checkers for use with named answers that
+can be given in any order.
+
+Format:
+
+UNORDERED_NAMED_ANS(name1 => checker1, name2 => checker2, ...);
+
+Example:
+
+    BEGIN_PGML
+      The function [`f(x) = \frac{1}{x^2-$a}`] is defined except
+      for [`x = `] [@ NAMED_ANS_RULE(A1,10) @]
+      and [`x =`] [@ NAMED_ANS_RULE(A2,10) @]
+    END_PGML
+
+    UNORDERED_NAMED_ANS(
+      A1 => std_num_cmp(sqrt($a)),
+      A2 => std_num_cmp(-sqrt($a))
+    );
+
+ (the student can enter the solutions in either blank.)
+
+=cut
+
 sub UNORDERED_NAMED_ANS {
 	NAMED_ANS(unordered_answer_list(@_));
 }

@@ -31,20 +31,20 @@ notation (not intervals or point sets).
 
 =head1 USAGE
 
-	loadMacros("contextInequalitySetBuilder.pl");
-	
-	Context("InequalitySetBuilder");
-	$S1 = Compute("{ x : 1 < x <= 4 }");
-	$S2 = SetBuilder("(1,4]");     # force interval to be set in set-builder notation
-	
-	Context("InequalitySetBuilder-Only");
-	$S1 = Compute("{ x : 1 < x <= 4 }");
-	$S2 = SetBuilder("(1,4]");     # generates an error
-	
-	$S3 = Compute("{ x : x < -2 or x > 2 }");  # forms the Union (-inf,-2) U (2,inf)
-	$S4 = Compute("{ x : x > 2 and x <= 4 }"); # forms the Interval (2,4]
-	$S5 = Compute("{ x : x = 1 }");            # forms the Set {1}
-	$S6 = Compute("{ x : x != 1 }");           # forms the Union (-inf,1) U (1,inf)
+    loadMacros("contextInequalitySetBuilder.pl");
+
+    Context("InequalitySetBuilder");
+    $S1 = Compute("{ x : 1 < x <= 4 }");
+    $S2 = SetBuilder("(1,4]");     # force interval to be set in set-builder notation
+
+    Context("InequalitySetBuilder-Only");
+    $S1 = Compute("{ x : 1 < x <= 4 }");
+    $S2 = SetBuilder("(1,4]");     # generates an error
+
+    $S3 = Compute("{ x : x < -2 or x > 2 }");  # forms the Union (-inf,-2) U (2,inf)
+    $S4 = Compute("{ x : x > 2 and x <= 4 }"); # forms the Interval (2,4]
+    $S5 = Compute("{ x : x = 1 }");            # forms the Set {1}
+    $S6 = Compute("{ x : x != 1 }");           # forms the Union (-inf,1) U (1,inf)
 
 The C<InequalitySetBuilder> contexts accept the flags for the
 Inequalities contexts from the C<contextInequalities.pl> file (see its
@@ -56,11 +56,11 @@ convert from an Interval, Set or Union to an Inequality, and use
 C<Interval()> to convert from an Inequality object to one in interval
 notation.  For example:
 
-	$I0 = Compute("(1,2]");               # the interval (1,2]
-	$I1 = SetBuilder($I1);                # the set { x : 1 < x <= 2 }
-	
-	$I0 = Compute("{ x : 1 < x <= 2 }");  # the set { x : 1 < x <= 2 }
-	$I1 = Interval($I0);                  # the interval (1,2]
+    $I0 = Compute("(1,2]");               # the interval (1,2]
+    $I1 = SetBuilder($I1);                # the set { x : 1 < x <= 2 }
+
+    $I0 = Compute("{ x : 1 < x <= 2 }");  # the set { x : 1 < x <= 2 }
+    $I1 = Interval($I0);                  # the interval (1,2]
 
 Note that sets and intervals can be compared and combined
 regardless of the format, so C<$I0 == $I1> is true in either example
@@ -69,13 +69,13 @@ above.
 Since SetBuilder objects are actually Interval objects in disguise,
 the variable used to create them doesn't matter.  That is,
 
-	$I0 = Compute("{ x : 1 < x <= 2 }");
-	$I1 = Compute("{ y : 1 < y <= 2 }");
+    $I0 = Compute("{ x : 1 < x <= 2 }");
+    $I1 = Compute("{ y : 1 < y <= 2 }");
 
 would both produce the same interval, so C<$I0 == $I1> would be true in
 this case.  If you need to distinguish between these two, use
 
-	$I0 == $I1 && $I0->{varName} eq $I1->{varName}
+    $I0 == $I1 && $I0->{varName} eq $I1->{varName}
 
 instead.
 
@@ -84,7 +84,7 @@ already in use for absolute values.  If you wish to use "C<|>" rather
 than "C<:>", you can do that, but must then use C<abs()> to obtain
 absolute values.  To enable the vertical line as "such that", use
 
-        InequalitySetBuilder::UseVerticalSuchThat();
+    InequalitySetBuilder::UseVerticalSuchThat();
 
 prior to setting the context to one of the set-builder contexts.  This
 will disable "C<:>" and enable "C<|>" as such-that rather than absolute-value.

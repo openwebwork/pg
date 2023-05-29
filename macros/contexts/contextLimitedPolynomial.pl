@@ -24,17 +24,17 @@ polynomials (i.e., sums of multiples of powers of x).
 
 Select the context using:
 
-	Context("LimitedPolynomial");
+    Context("LimitedPolynomial");
 
 If you set the "singlePowers" flag, then only one monomial of each
 degree can be included in the polynomial:
 
-	Context("LimitedPolynomial")->flags->set(singlePowers=>1);
+    Context("LimitedPolynomial")->flags->set(singlePowers=>1);
 
 There is also a strict limited context that does not allow
 operations even within the coefficients.  Select it using:
 
-	Context("LimitedPolynomial-Strict");
+    Context("LimitedPolynomial-Strict");
 
 In addition to disallowing operations within the coefficients,
 this context does not reduce constant operations (since they are

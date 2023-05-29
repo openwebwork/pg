@@ -1,68 +1,80 @@
+################################################################################
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
+
+=head1 NAME
+
+LiveGraphicsVectorField3D.pl - provide an interactive plot of a 3D vector field.
+
+=head1 DESCRIPTION
+
+C<LiveGraphicsVectorField3D.pl> provides a macros for creating an
+interactive plot of a vector field via the C<LiveGraphics3D> Javascript applet.
+The routine C<VectorField3D()> takes three C<MathObject> Formulas of
+3 variables as input and returns a string of plot data that can be
+displayed using the C<Live3Ddata()> routine of the C<LiveGraphics3D.pl> macro.
+
+=head1 USAGE
+
+    VectorField3D(options);
+
+Options are:
+
+    Fx => Formula("y"),    F = < Fx, Fy, Fz > where Fx, Fy, Fz are each
+    Fy => Formula("-x"),   functions of 3 variables
+    Fz => Formula("z"),
+
+    xvar => "r",           independent variable name, default "x"
+    yvar => "s",           independent variable name, default "y"
+    zvar => "t",           independent variable name, default "z"
+
+    xmin => -3,            domain for xvar
+    xmax =>  3,
+
+    ymin => -3,            domain for yvar
+    ymax =>  3,
+
+    zmin => -3,            domain for zvar
+    zmax =>  3,
+
+    xsamples => 3,         deltax = (xmax - xmin) / xsamples
+    ysamples => 3,         deltay = (ymax - ymin) / ysamples
+    zsamples => 3,         deltaz = (zmax - zmin) / zsamples
+
+    axesframed => 1,       1 displays framed axes, 0 hides framed axes
+
+    xaxislabel => "R",     Capital letters may be easier to read
+    yaxislabel => "S",
+    zaxislabel => "T",
+
+    vectorcolor => "RGBColor[0.0,0.0,1.0]",
+    vectorscale => 0.2,
+    vectorthickness => 0.001,
+
+    outputtype => 1,       return string of only polygons (or mesh)
+                  2,       return string of only plotoptions
+                  3,       return string of polygons (or mesh) and plotoptions
+                  4,       return complete plot
+
+
+
+
+=cut
+
 sub _LiveGraphicsVectorField3D_init { };    # don't reload this file
 
 loadMacros("MathObjects.pl", "LiveGraphics3D.pl");
-
-###########################################################################
-#
-#   LiveGraphicsVectorField3D.pl provides a macros for creating an
-#   interactive plot of a vector field via the LiveGraphics3D Java applet.
-#   The routine VectorField3D() takes three MathObject Formulas of
-#   3 variables as input and returns a string of plot data that can be
-#   displayed using the Live3Ddata() routine of the LiveGraphics3D.pl macro.
-#
-#   LiveGraphicsVectorField3D.pl automatically loads
-#   MathObjects.pl and LiveGraphics3D.pl.
-#
-###########################################################################
-#
-#   The main routine is
-#
-#   VectorField3D()
-#
-#
-#   Usage: VectorField3D(options);
-#
-#   Options are:
-#
-#     Fx => Formula("y"),    F = < Fx, Fy, Fz > where Fx, Fy, Fz are each
-#     Fy => Formula("-x"),   functions of 3 variables
-#     Fz => Formula("z"),
-#
-#     xvar => "r",           independent variable name, default "x"
-#     yvar => "s",           independent variable name, default "y"
-#     zvar => "t",           independent variable name, default "z"
-#
-#     xmin => -3,            domain for xvar
-#     xmax =>  3,
-#
-#     ymin => -3,            domain for yvar
-#     ymax =>  3,
-#
-#     zmin => -3,            domain for zvar
-#     zmax =>  3,
-#
-#     xsamples => 3,         deltax = (xmax - xmin) / xsamples
-#     ysamples => 3,         deltay = (ymax - ymin) / ysamples
-#     zsamples => 3,         deltaz = (zmax - zmin) / zsamples
-#
-#     axesframed => 1,       1 displays framed axes, 0 hides framed axes
-#
-#     xaxislabel => "R",     Capital letters may be easier to read
-#     yaxislabel => "S",
-#     zaxislabel => "T",
-#
-#     vectorcolor => "RGBColor[0.0,0.0,1.0]",
-#     vectorscale => 0.2,
-#     vectorthickness => 0.001,
-#
-#     outputtype => 1,       return string of only polygons (or mesh)
-#                   2,       return string of only plotoptions
-#                   3,       return string of polygons (or mesh) and plotoptions
-#                   4,       return complete plot
-#
-#   Happy 3D graphing!  -Paul Pearson
-#
-#######################################################################################
 
 $beginplot = "Graphics3D[";
 $endplot   = "]";

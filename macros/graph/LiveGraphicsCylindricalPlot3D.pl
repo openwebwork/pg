@@ -1,67 +1,77 @@
+################################################################################
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
+
+=head1 NAME
+
+LiveGraphicsCylindricalPlot3D.pl - provide an interactive plot on a rectangular cylinder.
+
+=head1 DESCRIPTION
+
+C<LiveGraphicsCylindricalPlot3D.pl> provides a macros for creating an
+interactive plot of a function of two variables C<z = f(r,t)>
+(where C<r> is the radius and C<t=theta >is the angle) via the C<LiveGraphics3D>
+javascript applet.  The routine CC<ylindricalPlot3D()> takes a C<MathObject> Formula
+of two variables defined over an annular domain and some plot options
+as input and returns a string of plot data that can be displayed
+using the C<Live3Ddata()> routine of the C<LiveGraphics3D.pl> macro.
+
+=head1 USAGE
+
+    CylindricalPlot3D(options)
+
+Options are:
+
+    function => $f,        $f is a MathObjects Formula
+                           For example, in the setup section define
+
+                           Context("Numeric");
+                           Context()->variables->add(r=>"Real",t=>"Real");
+                           $a = random(1,3,1);
+                           $f = Formula("$a*r + t"); # use double quotes!
+
+                           before calling CylindricalPlot3D()
+
+    rvar => "r",           independent variable name, default "r"
+    tvar => "t",           independent variable name, default "t"
+
+    rmin =>  0,            domain for rvar
+    rmax =>  3,
+
+    tmin => -3,            domain for tvar
+    tmax =>  3,
+
+    rsamples => 20,        deltar = (rmax - rmin) / rsamples
+    tsamples => 20,        deltat = (tmax - tmin) / tsamples
+
+    axesframed => 1,       1 displays framed axes, 0 hides framed axes
+
+    xaxislabel => "X",     Capital letters may be easier to read
+    yaxislabel => "Y",
+    zaxislabel => "Z",
+
+    outputtype => 1,       return string of only polygons (or mesh)
+                  2,       return string of only plotoptions
+                  3,       return string of polygons (or mesh) and plotoptions
+                  4,       return complete plot
+
+
+=cut
+
 sub _LiveGraphicsCylindricalPlot3D_init { };    # don't reload this file
 
 loadMacros("MathObjects.pl", "LiveGraphics3D.pl");
-
-###########################################################################
-#
-#   LiveGraphicsCylindricalPlot3D.pl provides a macros for creating an
-#   interactive plot of a function of two variables z = f(r,t)
-#   (where r is the radius and t=theta is the angle) via the LiveGraphics3D
-#   Java applet.  The routine CylindricalPlot3D() takes a MathObject Formula
-#   of two variables defined over an annular domain and some plot options
-#   as input and returns a string of plot data that can be displayed
-#   using the Live3Ddata() routine of the LiveGraphics3D.pl macro.
-#
-#   LiveGraphicsCylindricalPlot3D.pl automatically loads
-#   MathObjects.pl and LiveGraphics3D.pl.
-#
-###########################################################################
-#
-#   The main routine is
-#
-#   CylindricalPlot3D
-#
-#
-#   Usage: CylindricalPlot3D(options)
-#
-#   Options are:
-#
-#     function => $f,        $f is a MathObjects Formula
-#                            For example, in the setup section define
-#
-#                            Context("Numeric");
-#                            Context()->variables->add(r=>"Real",t=>"Real");
-#                            $a = random(1,3,1);
-#                            $f = Formula("$a*r + t"); # use double quotes!
-#
-#                            before calling CylindricalPlot3D()
-#
-#     rvar => "r",           independent variable name, default "r"
-#     tvar => "t",           independent variable name, default "t"
-#
-#     rmin =>  0,            domain for rvar
-#     rmax =>  3,
-#
-#     tmin => -3,            domain for tvar
-#     tmax =>  3,
-#
-#     rsamples => 20,        deltar = (rmax - rmin) / rsamples
-#     tsamples => 20,        deltat = (tmax - tmin) / tsamples
-#
-#     axesframed => 1,       1 displays framed axes, 0 hides framed axes
-#
-#     xaxislabel => "X",     Capital letters may be easier to read
-#     yaxislabel => "Y",
-#     zaxislabel => "Z",
-#
-#     outputtype => 1,       return string of only polygons (or mesh)
-#                   2,       return string of only plotoptions
-#                   3,       return string of polygons (or mesh) and plotoptions
-#                   4,       return complete plot
-#
-#     Happy 3D graphing! -Paul Pearson
-#
-#######################################################################################
 
 $beginplot = "Graphics3D[";
 $endplot   = "]";

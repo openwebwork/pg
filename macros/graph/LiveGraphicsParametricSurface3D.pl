@@ -1,69 +1,78 @@
+################################################################################
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
+
+=head1 NAME
+
+LiveGraphicsParametricSurface3D.pl - provide an interactive plot of a parametric surface.
+
+=head1 DESCRIPTION
+
+C<LiveGraphicsParametricSurface3D.pl> provides a macro for creating an
+interactive plot of a parametric surface via the C<LiveGraphics3D> Javascript applet.
+The routine C<ParametricSurface3D()> takes three C<MathObject> Formulas of
+2 variables as input and returns a string of plot data that can be
+displayed using the C<Live3Ddata()> routine of the C<LiveGraphics3D.pl> macro.
+
+=head1 USAGE
+
+    ParametricSurface3D(options);
+
+Options are:
+
+    Fx => Formula("cos(u)*cos(v)"),  x-coordinate function
+    Fy => Formula("sin(u)*cos(v)"),  y-coordinate function
+    Fz => Formula("sin(v)"),         z-coordinate function
+                                     F(u,v) = < Fx, Fy, Fz >
+                                     = < Fx(u,v), Fy(u,v), Fz(u,v) >
+
+    uvar => "u",           parameter name, default "u"
+    vvar => "v",           parameter name, default "v"
+
+    umin => -3,            domain for uvar
+    umax =>  3,
+
+    vmin => -3,            domain for vvar
+    vmax =>  3,
+
+    usamples => 3,         deltau = (umax - umin) / usamples
+    vsamples => 3,         deltav = (vmax - vmin) / vsamples
+
+    axesframed => 1,       1 displays framed axes, 0 hides framed axes
+
+    xaxislabel => "X",     Capital letters may be easier to read
+    yaxislabel => "Y",
+    zaxislabel => "Z",
+
+    edges => 0,            1 displays edges of polygons, 0 hides them
+    edgecolor => "RGBColor[0.2,0.2,0.2]",
+    edgethickness => "Thickness[0.001]",
+
+    mesh => 0,             1 displays open mesh, 0 displays filled polygons
+    meshcolor => "RGBColor[0.7,0.7,0.7]",   three values between 0 and 1
+    meshthickness => 0.001,
+
+    outputtype => 1,       return string of only polygons (or mesh)
+                  2,       return string of only plotoptions
+                  3,       return string of polygons (or mesh) and plotoptions
+                  4,       return complete plot
+
+=cut
+
 sub _LiveGraphicsParametricSurface3D_init { };    # don't reload this file
 
 loadMacros("MathObjects.pl", "LiveGraphics3D.pl");
-
-###########################################################################
-#
-#   LiveGraphicsParametricSurface3D.pl provides a macro for creating an
-#   interactive plot of a parametric surface via the LiveGraphics3D Java applet.
-#   The routine ParametricSurface3D() takes three MathObject Formulas of
-#   2 variables as input and returns a string of plot data that can be
-#   displayed using the Live3Ddata() routine of the LiveGraphics3D.pl macro.
-#
-#   LiveGraphicsParametricSurface3D.pl automatically loads
-#   MathObjects.pl and LiveGraphics3D.pl.
-#
-###########################################################################
-#
-#   The main routine is
-#
-#   ParametricSurface3D()
-#
-#
-#   Usage: ParametricSurface3D(options);
-#
-#   Options are:
-#
-#     Fx => Formula("cos(u)*cos(v)"),  x-coordinate function
-#     Fy => Formula("sin(u)*cos(v)"),  y-coordinate function
-#     Fz => Formula("sin(v)"),         z-coordinate function
-#                                      F(u,v) = < Fx, Fy, Fz >
-#                                      = < Fx(u,v), Fy(u,v), Fz(u,v) >
-#
-#     uvar => "u",           parameter name, default "u"
-#     vvar => "v",           parameter name, default "v"
-#
-#     umin => -3,            domain for uvar
-#     umax =>  3,
-#
-#     vmin => -3,            domain for vvar
-#     vmax =>  3,
-#
-#     usamples => 3,         deltau = (umax - umin) / usamples
-#     vsamples => 3,         deltav = (vmax - vmin) / vsamples
-#
-#     axesframed => 1,       1 displays framed axes, 0 hides framed axes
-#
-#     xaxislabel => "X",     Capital letters may be easier to read
-#     yaxislabel => "Y",
-#     zaxislabel => "Z",
-#
-#     edges => 0,            1 displays edges of polygons, 0 hides them
-#     edgecolor => "RGBColor[0.2,0.2,0.2]",
-#     edgethickness => "Thickness[0.001]",
-#
-#     mesh => 0,             1 displays open mesh, 0 displays filled polygons
-#     meshcolor => "RGBColor[0.7,0.7,0.7]",   three values between 0 and 1
-#     meshthickness => 0.001,
-#
-#     outputtype => 1,       return string of only polygons (or mesh)
-#                   2,       return string of only plotoptions
-#                   3,       return string of polygons (or mesh) and plotoptions
-#                   4,       return complete plot
-#
-#   Happy 3D graphing!  -Paul Pearson
-#
-#######################################################################################
 
 $beginplot = "Graphics3D[";
 $endplot   = "]";

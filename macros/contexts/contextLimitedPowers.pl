@@ -23,17 +23,25 @@ Implements subclasses of the "^" operator that restrict
 the base or power that is allowed.  There are four
 available restrictions:
 
-	No raising e to a power
-	Only allowing integer powers (positive or negative)
-	Only allowing positive integer powers
-	Only allowing positive integer powers (and 0)
+=over
 
-You install these via one of the commands:
+=item * No raising e to a power
 
-	LimitedPowers::NoBaseE();
-	LimitedPowers::OnlyIntegers();
-	LimitedPowers::OnlyPositiveIntegers();
-	LimitedPowers::OnlyNonNegativeIntegers();
+    LimitedPowers::NoBaseE();
+
+=item * Only allowing integer powers (positive or negative)
+
+    LimitedPowers::OnlyIntegers();
+
+=item * Only allowing positive integer powers
+
+    LimitedPowers::OnlyPositiveIntegers();
+
+=item * Only allowing positive integer powers (and 0)
+
+    LimitedPowers::OnlyNonNegativeIntegers();
+
+=back
 
 Only one of the three can be in effect at a time; setting
 a second one overrides the first.
@@ -41,8 +49,8 @@ a second one overrides the first.
 These function affect the current context, or you can pass
 a context reference, as in
 
-	$context = Context("Numeric")->copy;
-	LimitedPowers::OnlyIntegers($context);
+    $context = Context("Numeric")->copy;
+    LimitedPowers::OnlyIntegers($context);
 
 For the integer power functions, you can pass additional
 parameters that control the range of values that are allowed

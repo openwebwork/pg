@@ -27,23 +27,23 @@ used for commas and decimals.
 
 To use the context, put
 
-	loadMacros("contextCurrency.pl");
+    loadMacros("contextCurrency.pl");
 
 at the top of your problem file, and then issue the
 
-	Context("Currency");
+    Context("Currency");
 
 command to select the context.  You can set the currency symbol
 and the comma or decimal values as in the following examples
 
-	Context()->currency->set(symbol=>'#');
-	Context()->currency->set(symbol=>'euro');          # accepts '12 euro'
-	Context()->currency->set(comma=>'.',decimal=>','); # accepts '10.000,00'
+    Context()->currency->set(symbol=>'#');
+    Context()->currency->set(symbol=>'euro');          # accepts '12 euro'
+    Context()->currency->set(comma=>'.',decimal=>','); # accepts '10.000,00'
 
 You can add additional symbols (in case you want to allow
 more than one way to write the currency).  For example:
 
-	Context("Currency")->currency->addSymbol("dollars","dollar");
+    Context("Currency")->currency->addSymbol("dollars","dollar");
 
 would accept '$12,345.67' or '12.50 dollars' or '1 dollar' as
 acceptable values.  Note that if the symbol cantains any
@@ -52,27 +52,27 @@ number (as in the examples above) and if the symbol has only
 non-alphabetic characters, it comes before it.  You can change
 this as in these examples:
 
-	Context()->currency->setSymbol(euro=>{associativity=>"left"});
-	Context()->currency->setSymbol('#'=>{associativity=>"right"});
+    Context()->currency->setSymbol(euro=>{associativity=>"left"});
+    Context()->currency->setSymbol('#'=>{associativity=>"right"});
 
 You can remove a symbol as follows:
 
-	Context()->currency->removeSymbol('dollar');
+    Context()->currency->removeSymbol('dollar');
 
 To create a currency value, use
 
-	$m = Currency(10.99);
+    $m = Currency(10.99);
 
 or
 
-	$m1 = Compute('$10.99');
-	$m2 = Compute('$10,000.00');
+    $m1 = Compute('$10.99');
+    $m2 = Compute('$10,000.00');
 
 and so on.  Be careful, however, that you do not put dollar signs
 inside double quotes, as this refers to variable substitution.
 For example,
 
-	$m = Compute("$10.99");
+    $m = Compute("$10.99");
 
 will most likely set $m to the Real value .99 rather than the
 monetary value of $10.99, since perl thinks $10 is the name of
@@ -82,9 +82,9 @@ result will be the same as $m = Compute(".99");
 
 You can use monetary values within computations, as in
 
-	$m1 = Compute('$10.00');
-	$m2 = 3*$m1;  $m3 = $m2 + .5;
-	$m4 = Compute('$10.00 + $2.59');
+    $m1 = Compute('$10.00');
+    $m2 = 3*$m1;  $m3 = $m2 + .5;
+    $m4 = Compute('$10.00 + $2.59');
 
 so that $m2 will be $30.00, $m3 will be $30.50, and $m4 will
 be $12.59.  Students can perform computations within their
@@ -95,19 +95,19 @@ tolType to 'absolute' so that monetary values will have to match
 to the nearest penny.  You can change that on a global basis
 using
 
-	Context()->flags->set(tolerance=>.0001,tolType=>"relative");
+    Context()->flags->set(tolerance=>.0001,tolType=>"relative");
 
 for example.  You can also change the tolerance on an individual
 currency value as follows:
 
-	$m = Compute('$1,250,000.00')->with(tolerance=>.0001,tolType=>'relative');
+    $m = Compute('$1,250,000.00')->with(tolerance=>.0001,tolType=>'relative');
 
 which would require students to be correct to three significant digits.
 
 The default tolerance of .005 works properly only if your original
 monetary values have no more than 2 decimal places.  If you were to do
 
-	$m = Currency(34.125);
+    $m = Currency(34.125);
 
 for example, then $m would print as $34.12, but neither a student
 answer of $34.12 nor of $34.13 would be marked correct.  That is
@@ -118,15 +118,15 @@ Currency objects have two methods for accomplishing this: round() and
 truncate(), which produce rounded or truncated copies of the original
 Currency object:
 
-	$m = Currency(34.127)->round;    # produces $34.13
-	$m = Currency(34.127)->truncate; # produces $34.12
+    $m = Currency(34.127)->round;    # produces $34.13
+    $m = Currency(34.127)->truncate; # produces $34.12
 
 By default, the answer checker for Currency values requires
 the student to enter the currency symbol, not just a real number.
 You can relax that condition by including the promoteReals=>1
 option to the cmp() method of the Currency value.  For example,
 
-	ANS(Compute('$150')->cmp(promoteReals=>1));
+    ANS(Compute('$150')->cmp(promoteReals=>1));
 
 would allow the student to enter just 150 rather than $150.
 
@@ -134,19 +134,19 @@ By default, the students may omit the commas, but you can
 force them to supply the commas using forceCommas=>1 in
 your cmp() call.
 
-	ANS(Compute('$10,000.00')->cmp(forceCommas=>1));
+    ANS(Compute('$10,000.00')->cmp(forceCommas=>1));
 
 By default, students need not enter decimal digits, so could use
 $100 or $1,000. as valid entries.  You can require that the cents
 be provided using the forceDecimals=>1 flag.
 
-	ANS(Compute('$10.95')->cmp(forceDecimals=>1));
+    ANS(Compute('$10.95')->cmp(forceDecimals=>1));
 
 By default, if the monetary value includes decimals digits, it
 must have exactly two.  You can weaken this requirement to allow
 any number of decimals by using noExtraDecimals=>0.
 
-	ANS(Compute('$10.23372')->cmp(noExtraDecimals=>0);
+    ANS(Compute('$10.23372')->cmp(noExtraDecimals=>0);
 
 If forceDecimals is set to 1 at the same time, then they must
 have 2 or more decimals, otherwise any number is OK.
@@ -156,11 +156,11 @@ two decimal places, but you can request that if the decimals would be
 .00 then they should not be displayed.  This is controlled via the
 trimTrailingZeros context flag:
 
-	Context()->flags->set(trimTrailingZeros=>1);
+    Context()->flags->set(trimTrailingZeros=>1);
 
 It can also be set on an individual currency value:
 
-	$m = Compute('$50')->with(trimtrailingZeros=>1);
+    $m = Compute('$50')->with(trimtrailingZeros=>1);
 
 so that this $m will print as $50 rather than $50.00.
 
