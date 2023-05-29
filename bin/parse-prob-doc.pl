@@ -16,19 +16,21 @@ use YAML::XS qw(LoadFile);
 
 use Data::Dumper;
 
-my ($problem_dir, $out_dir, $pod_root);
+my ($problem_dir, $out_dir, $pod_root, $pg_doc_home);
 my $verbose = 0;
 
 GetOptions(
 	"d|problem_dir=s" => \$problem_dir,
 	"o|out_dir=s"     => \$out_dir,
 	"v|verbose"       => \$verbose,
-	"p|pod_root=s"    => \$pod_root
+	"p|pod_root=s"    => \$pod_root,
+	"h|pg_doc_home=s" => \$pg_doc_home,
 );
 
 die "problem_dir must be provided.\n" unless $problem_dir;
 die "out_dir must be provided.\n"     unless $out_dir;
 die "pod_root must be provided.\n"    unless $pod_root;
+die "pg_doc_home must be provided.\n" unless $pg_doc_home;
 
 my $pg_root = curfile->dirname->dirname;
 
@@ -165,7 +167,7 @@ sub parseFile ($file) {
 	push(@blocks, { %options, doc => $md->markdown(join("\n", @doc_rows)), code => join("\n", @code_rows) });
 
 	return {
-		home        => $out_dir,
+		home        => $pg_doc_home,
 		name        => $name,
 		types       => \@types,
 		subjects    => \@subjects,
