@@ -24,7 +24,7 @@
 				if (!gt.isStatic) {
 					this.on('down', () => gt.board.containerObj.style.cursor = 'none');
 					this.on('up', () => gt.board.containerObj.style.cursor = 'auto');
-					this.on('drag', (e) => { gt.adjustDragPosition(e, this.baseObj); gt.updateText; });
+					this.on('drag', (e) => { gt.adjustDragPosition(e, this.baseObj); gt.updateText(); });
 				}
 			},
 
